@@ -1,0 +1,1 @@
+f2py.py -c --quiet --opt="/traceback /fast" asd1.o -lwinmm -lpa -lfftw3single -m Audio --"fcompiler=compaqv" only: ftn_init audio_init spec getfile azdist0 astro0 : Audio.f90 fsubs1.f xfft.f xffta.f four2a.f fsubs.f astropak.f jtaudio.c ptt.c fivehz.f90 -lfftw3single

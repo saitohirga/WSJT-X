@@ -1,0 +1,31 @@
+#Makefile for WSJT
+!include <dfinc.mak>
+
+OBJS1 = pa_lib.o pa_win_mme.o jtaudio.o ...
+
+# Much more to be done, if this is to work!
+
+all: xcomdat.dll specjt2.dll tstsp.exe a2d.exe
+
+xcomdat.dll xcomdat.lib: xcomdat.f xcom.f
+    $(FOR) $(fflags) xcomdat.f /dll /link /section:.data,RWS
+
+specjt2.dll: specjt2.f xcom.f
+    $(FOR) $(fflags) specjt2.f /dll xcomdat.lib
+
+tstsp.exe: tstsp.f xcomdat.lib
+    $(FOR) $(fflags) tstsp.f xcomdat.lib specjt2.lib
+
+a2d.exe: a2d.f jtaudio.obj xcomdat.lib
+    $(FOR) $(fflags) /traceback /check:all a2d.f $(OBJS3) \
+    /link winmm.lib xcomdat.lib
+
+clean:
+    -del xcomdat.dll
+    -del xcomdat.lib
+    -del xcomdat.exp
+    -del specjt2.dll
+    -del specjt2.lib
+    -del specjt2.exp
+    -del tstsp.exe
+    -del a2d.exe

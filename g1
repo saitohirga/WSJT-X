@@ -1,0 +1,3 @@
+g95 -cpp -DLinux -fno-second-underscore -o makedate makedate.f90
+makedate
+python f2py.py -c --quiet --opt="-O -cpp -DLinux -fno-second-underscore" init_rs.o encode_rs.o decode_rs.o -m Audio --"f77exec=/home/joe/bin/g95" --f90exec="/home/joe/bin/g95" -L//usr/lib/gcc-lib/i386-redhat-linux/3.2.2/ -lpthread -lg2c only: ftn_init ftn_quit audio_init spec getfile azdist0 astro0 makedate_sub : Audio.f90 wsjtgen.f90 runqqq.f90 wsjt1.f fsubs1.f fsubs.f astro.f astropak.f jtaudio.c ptt_linux.c wrapkarn.c start_threads.c cutil.c fivehz.f90

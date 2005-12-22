@@ -1,0 +1,91 @@
+To:      Users of WSJT
+From:    Joe Taylor, K1JT
+Subject: WSJT 5.9.0
+Date:    November 14, 2005
+
+I am pleased to announce that WSJT 5.9.0 is available for free
+download from the WSJT Home Page,
+http://pulsar.princeton.edu/~joe/K1JT.  It should appear soon
+on the European mirror site, http://www.dk5ya.de, as well.
+
+I believe that all reported bugs found in beta-release version 5.8.6
+have been fixed.  In addition, new enhancements have taken the program
+well beyond the capabilities of the baseline comparison versions,
+4.9.8 and 5.8.6.
+
+The new WSJT 5.9.0 is faster and better than previous versions in a
+number of ways.  A brief description of the enhancements since version
+5.8.6 can be found at
+http://pulsar.princeton.edu/~joe/K1JT/UpdateHistory.txt.  There are
+many program changes, so be sure to read this information carefully
+before trying to use WSJT 5.9.0!
+
+Of course there may be some new bugs, and perhaps I have overlooked an
+existing problem that you already know about.  Please let me know if
+you find shortcomings in version 5.9.0, or if you have suggestions for
+further improvements.
+
+Sorry, I have not yet found time to implement EME Echo mode.  When
+that is done, and when I have finished some further enhancements to
+the decoders, WSJT 6.0 will be born.  With some luck, there may also
+be a new User's Guide at about that time.
+
+With best wishes,
+			-- 73, Joe, K1JT
+
+
+Additional Information for Programmers
+-----------------------------------------------------------------------
+
+WSJT versions 5.8+ are the result of a complete re-write of the user
+interface, timing control, and audio I/O portions of WSJT 4.9.8.  My
+principal motivation was to make the program multi-threaded, both for
+real-time operational convenience and for performance reasons.
+Another strong motivation was a desire to move the program away from
+its dependence on a proprietary compiler (Microsoft Visual Basic) and
+a single computer platform (Windows).
+
+The user interface of WSJT 5.8+ is written in Python -- an elegant,
+open, cross-platform language that has been a pleasure for me to
+learn.  The remainder of the program is written mostly in Fortran,
+with some routines coded in C; much of that code has been carried over
+directly from WSJT 4.9.8.  
+
+I hope soon to release the source code for WSJT under the GNU General
+Public License (GPL).  To this end, I have separated out the one piece
+of proprietary code formerly in the program -- the soft-decision Reed
+Solomon decoder licensed from CodeVector Technologies (CVT).  A driver
+for this decoder, optimized for JT65, has been compiled into a
+stand-alone executable that is now distributed as part of the WSJT
+installation package, but not part of the program itself.  With this
+approach I can honor all provisions of the CVT license, and at the
+same time release everything else as an open source program under the
+GPL.
+
+WSJT 5.9.0 now includes an open source hard-decision Reed Solomon
+decoder based on code written by Phil Karn, KA9Q .  WSJT uses this
+decoder automatically if the proprietary CVT decoder is unavailable.
+In such instances the "deep search" decodes retain their full
+sensitivity, but fully general decoding independent of the callsign
+database will be less sensitive by 2 or more dB, depending on signal
+fading characteristics.  Separation of the program into two executable
+units is transparent to the user.
+
+WSJT 5.9.0 uses the following open source libraries, which are also
+available under the GPL:
+
+  1. FFTW, by Matteo Frigo and Steven Johnson, for computing Fourier
+     transforms
+
+  2. "Secret Rabbit Code" or "libsamplerate", by Erik de Castro, for
+     accomplishing band-limited resampling of data
+
+  3. RS, by Phil Karn, KA9Q, for Reed Solomon encoding and
+     hard-decision decoding.
+
+I hope that the open release of WSJT source code will encourage others
+to read and understand the code, get involved in improving WSJT, and
+perhaps porting it to other platforms.  Versions of the CVT
+soft-decision decoder for Linux or Macintosh will be easy to compile
+and distribute, if there is demand for them.
+
