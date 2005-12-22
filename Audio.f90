@@ -283,16 +283,7 @@ subroutine decode3(d2,jz,istart,filename)
   do i=1,jz
      d2(i)=d2(i)-nave
      d2d(i)=d2(i)
-!       if(abs(d2d(i)).gt.5) then
-!          sq=sq+dfloat(d2d(i))**2
-!          nsq=nsq+1
-!       endif
   enddo
-!    rms=sqrt(sq/nsq)
-!    sig=(1.414/rms) * 10.0**(0.05*(-24.0)) * (2500.0/5512.5)
-!    do i=1,jz
-!       d2d(i)=nint(500.0 * (gasdev(idum) + sig*d2d(i)))
-!    enddo
 
   if(nblank.ne.0) call blanker(d2d,jz)
 
@@ -1224,22 +1215,24 @@ subroutine astro0(nyear,month,nday,uth8,nfreq,grid,cauxra,cauxdec,       &
   imin=60*uth8
   isec=3600*uth8
 
+#ifdef Win32
   if(isec.ne.isec0) then
      ih=uth8
      im=mod(imin,60)
      is=mod(isec,60)
      rewind 14
-     write(14,1010) ih,im,is,AzMoon,ElMoon
-1010 format(i2.2,':',i2.2,':',i2.2,',',f5.1,',',f5.1,',Moon')
-     write(14,1012) ih,im,is,AzSun,ElSun
-1012 format(i2.2,':',i2.2,':',i2.2,',',f5.1,',',f5.1,',Sun')
-     write(14,1013) ih,im,is,AzAux,ElAux
-1013 format(i2.2,':',i2.2,':',i2.2,',',f5.1,',',f5.1,',Source')
-     write(14,1014) nfreq,doppler,dfdt,doppler00,dfdt0
-1014 format(i4,',',f6.1,',',f6.2,',',f6.1,',',f6.2,',Doppler')
+     write(14,1010) ih,im,is,AzMoon,ElMoon,                          &
+        ih,im,is,AzSun,ElSun,                                        &
+        ih,im,is,AzAux,ElAux,                                        &
+        nfreq,doppler,dfdt,doppler00,dfdt0
+1010 format(i2.2,':',i2.2,':',i2.2,',',f5.1,',',f5.1,',Moon'/        &
+            i2.2,':',i2.2,':',i2.2,',',f5.1,',',f5.1,',Sun'/         &
+            i2.2,':',i2.2,':',i2.2,',',f5.1,',',f5.1,',Source'/      &
+            i4,',',f6.1,',',f6.2,',',f6.1,',',f6.2,',Doppler')
      rewind 14
      isec0=isec
   endif
+#endif
 
   return
 end subroutine astro0

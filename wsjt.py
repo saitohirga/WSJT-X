@@ -1427,7 +1427,7 @@ def update():
     except:
         Audio.gcom2.nport=0
     
-# Queue up the next update    
+# Queue up the next update
     ldate.after(100,update)
     
 #------------------------------------------------------ Top level frame
