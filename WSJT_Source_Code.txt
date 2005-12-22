@@ -245,10 +245,11 @@ Linux  Windows  Function
    g1  g1.bat   Compiles the remaining Fortran and C to produce Python
 		extension module audio.pyd (Windows) or audio.so
 		(Linux).
-       g2.bat   Uses McMillan Installer to create an f2py specification 
+   g2  g2.bat   Uses McMillan Installer to create an f2py specification 
 		file, wsjt.spec
-       g3.bat	Uses Installer to produce a distributable file WSJT6.EXE
+   g3  g3.bat	Uses Installer to produce a distributable file WSJT6.EXE
 		(Windows).
+   g99 g99.bat  Runs all of the g[0-3] scripts.
 
 The final two build steps have not yet been tried in Linux.  In Windows,
 these steps produce a distributable file WSJT6.EXE that contains all 
