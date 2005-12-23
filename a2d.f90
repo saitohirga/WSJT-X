@@ -1,20 +1,3 @@
-! Fortran logical units used in WSJT6
-!
-!   10  wave files read from disk
-!   11  decoded.txt
-!   12  decoded.ave
-!   13  tsky.dat
-!   14  azel.dat
-!   15  debug.txt
-!   16  c:/wsjt.reg 
-!   17  wave files written to disk
-!   18  test file to be transmitted (wsjtgen.f90)
-!   19
-!   20
-!   21  ALL.TXT
-!   22  kvasd.dat
-!   23  CALL3.TXT
-
 !---------------------------------------------------- a2d
 subroutine a2d(iarg)
 
