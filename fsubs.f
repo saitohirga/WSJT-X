@@ -19,7 +19,8 @@
       include 'flat1.f'
 
 #ifdef Win32
-      include 'four2a.f'
+!      include 'four2a.f'       !Multi-threading problems with FFTW3
+      include 'four2.f'
 #else
       include 'four2.f'
       include 'rfile2.f'

@@ -3,20 +3,19 @@
 C  Input data are in the y# arrays: detected sigs in four tone-channels,
 C  before decimation by NSPD.
 
-      parameter (NSPDMAX=200)
+      parameter (NSPD=25)
       real y1(npts)
       real y2(npts)
       real y3(npts)
       real y4(npts)
-      real zf(NSPDMAX)
+      real zf(NSPD)
       complex csum
-      integer nsum(NSPDMAX)
+      integer nsum(NSPD)
       real z(65538)                            !Ready for FSK110
       complex cz(0:32768)
       equivalence (z,cz)
       data twopi/6.283185307/
 
-      NSPD=25
       do i=1,NSPD
          zf(i)=0.0
          nsum(i)=0
