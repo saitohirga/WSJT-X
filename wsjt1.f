@@ -140,6 +140,7 @@
 	   sq=sq + (sum-avesq)**2
 	enddo
 	rmspower=sqrt(sq/nz)
+
 	pick=.false.
 	if(istart.gt.1) pick=.true. !This is a mouse-picked decoding
    	if(.not.pick .and. (basevb.lt.-15.0 .or. basevb.gt.20.0)) goto 900

@@ -37,8 +37,6 @@ subroutine decode3(d2,jz,istart,filename)
      sum=sum+d2(i)
   enddo
   nave=nint(sum/jz)
-!    sq=0.d0
-!    nsq=0
   do i=1,jz
      d2(i)=d2(i)-nave
      d2d(i)=d2(i)

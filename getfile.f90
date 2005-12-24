@@ -41,6 +41,7 @@ subroutine getfile(fname,len)
 #ifdef Win32
   open(10,file=fname,form='binary',status='old',err=998)
   read(10,end=998) hdr
+  
 #else
   call rfile2(fname,hdr,44+2*NDMAX,nr)
 #endif
@@ -64,6 +65,7 @@ subroutine getfile(fname,len)
      if(ndata.gt.2*NDMAX) ndata=2*NDMAX
 #ifdef Win32
      call rfile(10,d2c,ndata,ierr)
+     jzc=ndata/2
      if(ierr.ne.0) go to 999
 #else
      jzc=ndata/2
