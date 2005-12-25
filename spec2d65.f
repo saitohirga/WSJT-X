@@ -27,8 +27,6 @@ c      complex work(NMAX)
       dt=2.0/11025.0
       df=0.5*11025.0/nfft
       call zero(ps,77)
-      tmid=0.5*dt*nsym*nfft*mode65
-
       k=istart-nfft
       do j=1,nsym
          call zero(s,77)

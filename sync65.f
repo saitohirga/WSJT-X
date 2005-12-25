@@ -53,7 +53,6 @@ C  Find the best frequency channel for CCF
       ired1=ib-i0
 
       lag1=-5
-!      lag2=27
       lag2=59
       syncbest=-1.e30
       syncbest2=-1.e30
@@ -66,16 +65,7 @@ C  Find the best frequency channel for CCF
 
 C  Find rms of the CCF, without the main peak
          call slope(ccfblue(lag1),lag2-lag1+1,lagpk0-lag1+1.0)
-         sq=0.
-         nsq=0
-         do lag=lag1,lag2
-            if(abs(lag-lagpk0).gt.1) then
-               sq=sq+ccfblue(lag)**2
-               nsq=nsq+1
-            endif
-         enddo
-         rms=sqrt(sq/nsq)
-         sync=abs(ccfblue(lagpk0))/rms
+         sync=abs(ccfblue(lagpk0))
          ppmax=psavg(i)-1.0
 
 C  Find the best sync value
