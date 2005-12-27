@@ -6,7 +6,7 @@ parameter(NTxMax=150*11025)
 real*8 Tsec            !Present time                       SoundIn, SoundOut
 real*8 tbuf            !Tsec at time of input callback          SoundIn
 real*8 rxdelay         !Delay between PTT=1 and Tx audio        SoundIn
-real*8 txdelay         !Delay from end of Tx Audio and PTT=0    SOundOut
+real*8 txdelay         !Delay from end of Tx Audio and PTT=0    SoundOut
 real*8 samfacin        !(Input sample rate)/11025               GUI
 real*8 samfacout       !(Output sample rate)/11025              GUI
 integer*2 y1           !Ring buffer for audio channel 0         SoundIn

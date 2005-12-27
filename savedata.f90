@@ -1,8 +1,3 @@
-
-include 'pix2d.f90'
-include 'pix2d65.f90'
-include 'blanker.f90'
-
 !----------------------------------------------------------- savedata
 subroutine savedata
 
