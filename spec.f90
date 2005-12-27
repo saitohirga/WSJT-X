@@ -47,7 +47,6 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
      fac=2.0/10000.
      nsum=0
      iread=0
-     cversion='5.5.0   '
      first=.false.
      b0=-999
      c0=-999

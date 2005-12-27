@@ -247,12 +247,11 @@ def update():
             if minsep.get():
                 draw.line((0,0,749,0),fill=128)     #Draw the minute separator
 
-# Don't update display while decoding on a slow computer
-        if Audio.gcom2.ndecoding==0 or g.naccel==0 or Audio.gcom2.ndiskdat:
-            pim=ImageTk.PhotoImage(im)              #Convert Image to PhotoImage
-            graph1.delete(ALL)
-            #For some reason, top two lines are invisible, so we move down 2
-            graph1.create_image(0,0+2,anchor='nw',image=pim)
+# Don't update waterfall while decoding
+        pim=ImageTk.PhotoImage(im)              #Convert Image to PhotoImage
+        graph1.delete(ALL)
+        #For some reason, top two lines are invisible, so we move down 2
+        graph1.create_image(0,0+2,anchor='nw',image=pim)
 
         if nspeed>5:
             color="white"

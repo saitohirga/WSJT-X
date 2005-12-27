@@ -44,10 +44,10 @@ idsec=0
 lauto=0
 cmap0="Linrad"
 fileopened=""
-#font1='Arial'
-#font2='Arial'
-font1=('MS', 'Sans', 'Serif')
-font2=('MS', 'Sans', 'Serif')
+font1='Helvetica'
+font2='Helcetica'
+#font1=('MS', 'Sans', 'Serif')
+#font2=('MS', 'Sans', 'Serif')
 font3='Courier'
 hiscall=""
 hisgrid=""
@@ -77,7 +77,6 @@ nopen=0
 nosh441=IntVar()
 noshjt65=IntVar()
 nsked=IntVar()
-naccel=IntVar()
 setseq=IntVar()
 ShOK=IntVar()
 slabel="Sync   "
@@ -91,7 +90,6 @@ balloon=Pmw.Balloon(root)
 
 g.freeze_decode=0
 g.mode=""
-g.naccel=1
 g.ndevin=IntVar()
 g.ndevout=IntVar()
 
@@ -925,11 +923,11 @@ def dtdf_change(event):
         t="%.1f" % (event.x*30.0/500.0,)
         lab6.configure(text=t,bg='green')
     else:
-        if event.y<60 and Audio.gcom2.nspecial==0:
+        if event.y<40 and Audio.gcom2.nspecial==0:
             lab1.configure(text='Time (s)',bg="#33FFFF")   #light blue
             t="%.1f" % (12.0*event.x/500.0-2.0,)
             lab6.configure(text=t,bg="#33FFFF")
-        elif (event.y>=60 and event.y<95) or \
+        elif (event.y>=40 and event.y<95) or \
                  (event.y<95 and Audio.gcom2.nspecial>0):
             lab1.configure(text='DF (Hz)',bg='red')
             t="%d" % int(1200.0*event.x/500.0-600.0,)
@@ -1204,7 +1202,6 @@ def update():
             options.MyGrid.get().upper(),HisGrid.get().upper(),utchours)
         azdist()
         g.nfreq=nfreq.get()
-        g.naccel=naccel.get()
 
         g.AzSun,g.ElSun,g.AzMoon,g.ElMoon,g.AzMoonB,g.ElMoonB,g.ntsky, \
             g.ndop,g.ndop00,g.dbMoon,g.RAMoon,g.DecMoon,g.HA8,g.Dgrd,  \
@@ -1469,7 +1466,6 @@ setupmenu.add_checkbutton(label = 'Double-click on callsign sets TxFirst',
                           variable=setseq)
 setupmenu.add_checkbutton(label = 'GenStdMsgs sets Tx1',variable=k2txb)
 setupmenu.add_separator()
-setupmenu.add_checkbutton(label = 'Accelerated decoding',variable=naccel)
 setupmenu.add_checkbutton(label = 'Enable diagnostics',variable=ndebug)
 
 #------------------------------------------------------ View menu
@@ -1796,42 +1792,42 @@ auto.grid(column=0,row=5,sticky='EW',padx=4)
 #txstop.grid(column=0,row=6,sticky='EW',padx=4)
 
 ntx=IntVar()
-tx1=Entry(f5c,width=22, font=(font2,9))
+tx1=Entry(f5c,width=28, font=(font2,9))
 rb1=Radiobutton(f5c,value=1,variable=ntx)
 b1=Button(f5c, text='Tx1',underline=2,command=btx1,padx=1,pady=1)
 tx1.grid(column=1,row=0)
 rb1.grid(column=2,row=0)
 b1.grid(column=3,row=0)
 
-tx2=Entry(f5c,width=22, font=(font2,9))
+tx2=Entry(f5c,width=28, font=(font2,9))
 rb2=Radiobutton(f5c,value=2,variable=ntx)
 b2=Button(f5c, text='Tx2',underline=2,command=btx2,padx=1,pady=1)
 tx2.grid(column=1,row=1)
 rb2.grid(column=2,row=1)
 b2.grid(column=3,row=1)
 
-tx3=Entry(f5c,width=22, font=(font2,9))
+tx3=Entry(f5c,width=28, font=(font2,9))
 rb3=Radiobutton(f5c,value=3,variable=ntx)
 b3=Button(f5c, text='Tx3',underline=2,command=btx3,padx=1,pady=1)
 tx3.grid(column=1,row=2)
 rb3.grid(column=2,row=2)
 b3.grid(column=3,row=2)
 
-tx4=Entry(f5c,width=22, font=(font2,9))
+tx4=Entry(f5c,width=28, font=(font2,9))
 rb4=Radiobutton(f5c,value=4,variable=ntx)
 b4=Button(f5c, text='Tx4',underline=2,command=btx4,padx=1,pady=1)
 tx4.grid(column=1,row=3)
 rb4.grid(column=2,row=3)
 b4.grid(column=3,row=3)
 
-tx5=Entry(f5c,width=22, font=(font2,9))
+tx5=Entry(f5c,width=28, font=(font2,9))
 rb5=Radiobutton(f5c,value=5,variable=ntx)
 b5=Button(f5c, text='Tx5',underline=2,command=btx5,padx=1,pady=1)
 tx5.grid(column=1,row=4)
 rb5.grid(column=2,row=4)
 b5.grid(column=3,row=4)
 
-tx6=Entry(f5c,width=22, font=(font2,9))
+tx6=Entry(f5c,width=28, font=(font2,9))
 rb6=Radiobutton(f5c,value=6,variable=ntx)
 b6=Button(f5c, text='Tx6',underline=2,command=btx6,padx=1,pady=1)
 tx6.grid(column=1,row=5)
@@ -1864,7 +1860,6 @@ ldate.after(100,update)
 lauto=0
 isync=1
 ntx.set(1)
-naccel.set(1)
 ndepth.set(2)
 
 import options
@@ -1962,7 +1957,6 @@ try:
         elif key == 'Aggressive': naggressive.set(value)
         elif key == 'NEME': neme.set(value)
         elif key == 'NDepth': ndepth.set(value)
-        elif key == 'Accelerate': naccel.set(value)
         elif key == 'Debug': ndebug.set(value)
         elif key == 'HisCall':
             Audio.gcom2.hiscall=(value+'            ')[:12]
@@ -2058,7 +2052,6 @@ f.write("NoShJT65 " + str(noshjt65.get()) + "\n")
 f.write("Aggressive " + str(naggressive.get()) + "\n")
 f.write("NEME " + str(neme.get()) + "\n")
 f.write("NDepth " + str(ndepth.get()) + "\n")
-f.write("Accelerate " + str(naccel.get()) + "\n")
 f.write("Debug " + str(ndebug.get()) + "\n")
 #f.write("TRPeriod " + str(Audio.gcom1.trperiod) + "\n")
 mrudir2=mrudir.replace(" ","#")

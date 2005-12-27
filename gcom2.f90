@@ -1,3 +1,7 @@
+! Variable             Purpose                                  Set by
+!-------------------------------------------------------------------------
+real ps0               !Spectrum of best ping, FSK441/JT6m      wsjt1
+real psavg             !Average spectrum                        wsjt1
 integer*2 d2a,d2b,b
 integer shok,sendingsh
 integer dftolerance
