@@ -13,11 +13,12 @@ from palettes import colormapblue, colormapgray0, colormapHot, \
      colormapAFMHot, colormapgray1, colormapLinrad, Colormap2Palette
 
 root = Tk()
-Version="5.9.2 r17"
+Version="5.9.2 $Rev$"
 print "******************************************************************"
 print "WSJT Version " + Version + ", by K1JT"
 isec=Audio.makedate_sub()
 print "Build date: " + time.asctime(time.gmtime(isec)) + " UTC"
+print "$Date$"
 print "Run date:   " + time.asctime(time.gmtime()) + " UTC"
 try:
     root.option_readfile('wsjtrc')
