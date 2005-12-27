@@ -13,7 +13,7 @@ from palettes import colormapblue, colormapgray0, colormapHot, \
      colormapAFMHot, colormapgray1, colormapLinrad, Colormap2Palette
 
 root = Tk()
-Version="5.9.2 r16"
+Version="5.9.2 r17"
 print "******************************************************************"
 print "WSJT Version " + Version + ", by K1JT"
 isec=Audio.makedate_sub()
