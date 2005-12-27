@@ -508,7 +508,7 @@ def ModeFSK441(event=NONE):
 def ModeJT65():
     global slabel,isync,isync65,textheight,itol
     cleartext()
-    lab2.configure(text='FileID        Sync      dB         DT          DF     W')
+    lab2.configure(text='FileID      Sync    dB        DT       DF    W')
     lab4.configure(fg='gray85')
     lab5.configure(fg='gray85')
     Audio.gcom1.trperiod=60
@@ -1586,7 +1586,7 @@ iframe2.pack(expand=1, fill=X, padx=4)
 
 #-------------------------------------------------------- Decoded text
 iframe4 = Frame(frame, bd=1, relief=SUNKEN)
-text=Text(iframe4, height=6, width =79, font=(font3,10))
+text=Text(iframe4, height=6, width =91, font=(font3,9))
 text.bind('<Double-Button-1>',dbl_click_text)
 text.bind('<Double-Button-3>',dbl_click_text)
 
@@ -1651,7 +1651,7 @@ sb.pack(side=RIGHT, fill=Y)
 text.configure(yscrollcommand=sb.set)
 iframe4.pack(expand=1, fill=X, padx=4)
 iframe4b = Frame(frame, bd=1, relief=SUNKEN)
-avetext=Text(iframe4b, height=2, width =79, font=(font3,10))
+avetext=Text(iframe4b, height=2, width =91, font=(font3,9))
 #avetext.bind('<Key>', lambda e: "break")
 avetext.bind('<Double-Button-1>',dbl_click_ave)
 avetext.bind('<Double-Button-3>',dbl_click_ave)
