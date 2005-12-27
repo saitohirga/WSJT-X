@@ -619,10 +619,9 @@ JT6M, specially optimized for meteor and ionospheric scatter
 on 50 MHz; JT65, an extremely sensitive mode for troposcatter
 and EME; CW at 15 WPM with messages structured for EME; and
 an EME Echo mode for measuring your own echoes from the moon.
-"""
-    Label(about,text=t,font=(font1,9),justify=LEFT).pack(padx=20)
-    t="""
-Copyright(C) 2001-2005 by Joseph H. Taylor, Jr., K1JT.
+
+WSJT is Copyright (c) 2001-2005 by Joseph H. Taylor, Jr., K1JT, 
+and is licensed under the GNU General Public License (GPL).
 """
     Label(about,text=t,font=(font1,9),justify=LEFT).pack(padx=20)
     t="Revision date: " + \
