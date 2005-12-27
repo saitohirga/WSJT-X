@@ -13,7 +13,7 @@ from palettes import colormapblue, colormapgray0, colormapHot, \
      colormapAFMHot, colormapgray1, colormapLinrad, Colormap2Palette
 
 root = Tk()
-Version="5.9.2 r14"
+Version="5.9.2 r16"
 print "******************************************************************"
 print "WSJT Version " + Version + ", by K1JT"
 isec=Audio.makedate_sub()
@@ -45,7 +45,7 @@ lauto=0
 cmap0="Linrad"
 fileopened=""
 font1='Helvetica'
-font2='Helcetica'
+font2='Helvetica'
 #font1=('MS', 'Sans', 'Serif')
 #font2=('MS', 'Sans', 'Serif')
 font3='Courier'
@@ -1702,14 +1702,14 @@ iframe5 = Frame(frame, bd=1, relief=FLAT,height=180)
 f5a=Frame(iframe5,height=170,bd=2,relief=GROOVE)
 labToRadio=Label(f5a,text='To radio:', width=9, relief=FLAT)
 labToRadio.grid(column=0,row=0)
-ToRadio=Entry(f5a,width=9,font=(font2,10))
+ToRadio=Entry(f5a,width=9,font=(font2,9))
 ToRadio.insert(0,'W8WN')
 ToRadio.grid(column=1,row=0,pady=3)
 bLookup=Button(f5a, text='Lookup',underline=0,command=lookup,padx=1,pady=1)
 bLookup.grid(column=2,row=0,sticky='EW',padx=4)
 labGrid=Label(f5a,text='Grid:', width=9, relief=FLAT)
 labGrid.grid(column=0,row=1)
-HisGrid=Entry(f5a,width=9,font=(font2,10))
+HisGrid=Entry(f5a,width=9,font=(font2,9))
 HisGrid.grid(column=1,row=1,pady=1)
 bAdd=Button(f5a, text='Add',command=addtodb,padx=1,pady=1)
 bAdd.grid(column=2,row=1,sticky='EW',padx=4)
@@ -1800,6 +1800,7 @@ rb1.grid(column=2,row=0)
 b1.grid(column=3,row=0)
 
 tx2=Entry(f5c,width=28, font=(font2,9))
+#tx2=Entry(f5c,width=28, font=('helvetica',9))
 rb2=Radiobutton(f5c,value=2,variable=ntx)
 b2=Button(f5c, text='Tx2',underline=2,command=btx2,padx=1,pady=1)
 tx2.grid(column=1,row=1)
