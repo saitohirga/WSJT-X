@@ -13,12 +13,11 @@ from palettes import colormapblue, colormapgray0, colormapHot, \
      colormapAFMHot, colormapgray1, colormapLinrad, Colormap2Palette
 
 root = Tk()
-Version="5.9.2 $Rev$"
+Version="5.9.2 r" + "$Rev$"[6:-1]
 print "******************************************************************"
 print "WSJT Version " + Version + ", by K1JT"
-isec=Audio.makedate_sub()
-print "Build date: " + time.asctime(time.gmtime(isec)) + " UTC"
-print "$Date$"
+print "Revision date: " + \
+      "$Date$"[7:-1]
 print "Run date:   " + time.asctime(time.gmtime()) + " UTC"
 try:
     root.option_readfile('wsjtrc')
@@ -612,7 +611,7 @@ def about(event=NONE):
     about.geometry(msgpos())
     if g.Win32: about.iconbitmap("wsjt.ico")
     t="WSJT Version " + Version + ", by K1JT"
-    Label(about,text=t,font=(font1,18)).pack(padx=20,pady=5)
+    Label(about,text=t,font=(font1,16)).pack(padx=20,pady=5)
     t="""
 WSJT is a weak signal communications program.  It supports
 five operating modes: FSK441, a fast mode for meteor scatter;
@@ -621,16 +620,14 @@ on 50 MHz; JT65, an extremely sensitive mode for troposcatter
 and EME; CW at 15 WPM with messages structured for EME; and
 an EME Echo mode for measuring your own echoes from the moon.
 """
-    Label(about,text=t,font=(font1,10),justify=LEFT).pack(padx=20)
+    Label(about,text=t,font=(font1,9),justify=LEFT).pack(padx=20)
     t="""
 Copyright(C) 2001-2005 by Joseph H. Taylor, Jr., K1JT.
 """
     Label(about,text=t,font=(font1,9),justify=LEFT).pack(padx=20)
-
-    isec=Audio.makedate_sub()
-    t="Build date: " + time.asctime(time.gmtime(isec)) + " UTC"
+    t="Revision date: " + \
+      "$Date$"[7:-1]
     Label(about,text=t,font=(font1,9)).pack(padx=20)
-
     about.focus_set()
 
 #------------------------------------------------------ shortcuts
