@@ -91,7 +91,7 @@ runtime priorities in both Windows and Linux.
 
 6  Partial List of Functions and Subroutines, and their purposes
 
-   Audio.f90	  Routines for audio startup, decoding, display computations
+   Routines for audio startup, decoding, display computations
      blanker.f90  Noise blanker
      fivehz.f90   Called by PortAudio callback
      flat2.f      Flatten the spectrum for waterfall display
@@ -251,16 +251,16 @@ Linux  Windows  Function
 		(Windows).
    g99 g99.bat  Runs all of the g[0-3] scripts.
 
-The final two build steps have not yet been tried in Linux.  In Windows,
-these steps produce a distributable file WSJT6.EXE that contains all 
-necessary software components, so that the user does not need to install
-Python or any of its other extensions.
+These steps produce a distributable file WSJT6.EXE (Windows) or wsjt6
+(Linux) that contains all necessary software components, so that the
+end user does not need to install Python or any of its other
+extensions, or the compilers.
 
 
-8  Present status (December 20, 2005)
+8  Present status (December 28, 2005)
 
-WSJT version 5-9-2d is fully functional in Windows.  The Linux version
-can be used to decoded recorded files, but real-time audio I/O has not
+WSJT version 5-9-2 r25 is fully functional in Windows.  The Linux version
+can be used to decode recorded files, but real-time audio I/O has not
 yet been implemented.
 
 
