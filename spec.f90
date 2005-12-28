@@ -1,6 +1,3 @@
-
-!---------------------------------------------------- End Module Audio1
-
 !---------------------------------------------------- spec
 subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
 
