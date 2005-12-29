@@ -479,7 +479,7 @@ def ModeFSK441(event=NONE):
         mode.set("FSK441")
         cleartext()
         Audio.gcom1.trperiod=30
-        lab2.configure(text='FileID            T         Width    dB   Rpt       DF')
+        lab2.configure(text='FileID            T      Width   dB  Rpt      DF')
         lab1.configure(text='Time (s)',bg="green")
         lab4.configure(fg='black')
         lab5.configure(fg='black')
@@ -561,7 +561,7 @@ def ModeJT6M(event=NONE):
         if lauto: toggleauto()
         cleartext()
         ModeFSK441()
-        lab2.configure(text='FileID            T         Width      dB          DF')
+        lab2.configure(text='FileID            T      Width     dB       DF')
         mode.set("JT6M")
         isync=isync6m
         lsync.configure(text=slabel+str(isync))
