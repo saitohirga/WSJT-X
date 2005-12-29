@@ -1212,9 +1212,9 @@ def update():
             graph2.delete(ALL)
             g2font='Arial 16'
             graph2.create_text(75,13,anchor=CENTER,text="Moon",font=g2font)
-            graph2.create_text(26,37,anchor=W, text="Az: %9.2f" % g.AzMoon,font=g2font)
+            graph2.create_text(26,37,anchor=W, text="Az: %8.2f" % g.AzMoon,font=g2font)
             graph2.create_text(26,61,anchor=W, text="El:  %8.2f" % g.ElMoon,font=g2font)
-            graph2.create_text(26,85,anchor=W, text="Dop: %6d" % g.ndop,font=g2font)
+            graph2.create_text(26,85,anchor=W, text="Dop:  %6d" % g.ndop,font=g2font)
             graph2.create_text(26,109,anchor=W,text="Dgrd:%8.1f" % g.Dgrd,font=g2font)
 
     if g.freeze_decode and mode.get()[:4]=='JT65':
@@ -2054,7 +2054,7 @@ f.write("Debug " + str(ndebug.get()) + "\n")
 #f.write("TRPeriod " + str(Audio.gcom1.trperiod) + "\n")
 mrudir2=mrudir.replace(" ","#")
 f.write("MRUDir " + mrudir2 + "\n")
-if g.astro_geom[:7]=="200x200": g.astro_geom="242x281" + g.astro_geom[7:]
+if g.astro_geom[:7]=="200x200": g.astro_geom="268x423" + g.astro_geom[7:]
 f.write("AstroGeometry " + g.astro_geom + "\n")
 f.write("CWTRPeriod " + str(ncwtrperiod) + "\n")
 f.close()
