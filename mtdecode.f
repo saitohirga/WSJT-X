@@ -75,9 +75,9 @@ C  Remove baseline and one dB for good measure.
 
       call ping(sigdb,nz,dtbuf,slim,wmin,pingdat,nping)
 
-C  If this is a "mouse pick", force a psuedo-ping at the center of 
-C  the data.
-	if(pick) then
+C  If this is a "mouse pick" and no ping was found, force a pseudo-ping 
+C  at center of data.
+	if(pick.and.nping.eq.0) then
            if(nping.le.99) nping=nping+1
 	   pingdat(1,nping)=0.5*jz*dt
 	   pingdat(2,nping)=0.16
