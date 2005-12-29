@@ -18,4 +18,3 @@
 	include 'interleave63.f'
 	include 'graycode.f'
 	include 'set.f'
-	include 'igray.f'
