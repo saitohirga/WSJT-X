@@ -3,6 +3,7 @@
       include 'db.f'
       include 'pctile.f'
       include 'sort.f'
+      include 'ssort.f'
       include 'ps.f'
       include 'smooth.f'
       include 'ping.f'
@@ -32,7 +33,6 @@
       include 'getsnr.f'
       include 'graycode.f'
       include 'grid2k.f'
-      include 'igray.f'
       include 'interleave63.f'
       include 'k2grid.f'
       include 'limit.f'
@@ -57,5 +57,3 @@
       include 'xfft.f' 
       include 'wsjt65.f'
 
-      include 'gasdev.f'
-      include 'ran1.f'
