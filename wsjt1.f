@@ -264,24 +264,26 @@ C  Now the multi-tone decoding
      +    cfile6,ps0)
 
 	npkept=nline             !Number of pings that were kept
-	call indexx(npkept,tping,indx)  !Merge the ST and MT decodes
 	smax=0.
 	stbest=.false.
-	do i=1,npkept
-	   j=indx(i)
-	   if(pick .and. STFound .and.
-     +        line(j)(29:31).eq.'   ') goto 10
-	   write(lumsg,1050) line(j)       !Write to decoded.txt
- 1050	   format(a79)
-	   if(lcum) write(21,1050) line(j) !Write to decoded.cum
-	   read(line(j),1060) sig,msg3
- 1060	   format(16x,f3.0,9x,a3)
-	   if(sig.gt.smax) then
-	      smax=sig
-	      tbest=tping(j)
-	      stbest = (msg3.ne.'   ')
-	   endif
- 10	enddo
+	if(npkept.gt.0) then
+	   call indexx(npkept,tping,indx) !Merge the ST and MT decodes
+	   do i=1,npkept
+	      j=indx(i)
+	      if(pick .and. STFound .and.
+     +          line(j)(29:31).eq.'   ') goto 10
+	      write(lumsg,1050) line(j)	!Write to decoded.txt
+ 1050	      format(a79)
+	      if(lcum) write(21,1050) line(j) !Write to decoded.cum
+	      read(line(j),1060) sig,msg3
+ 1060	      format(16x,f3.0,9x,a3)
+	      if(sig.gt.smax) then
+		 smax=sig
+		 tbest=tping(j)
+		 stbest = (msg3.ne.'   ')
+	      endif
+ 10	   enddo
+	endif
 
 	dt=1.0/11025.0                !Compute spectrum for pink curve
 	if(stbest) then
