@@ -67,3 +67,17 @@ void rs_decode_(int *recd0, int *era0, int *numera0, int *decoded, int *nerr)
   *nerr=decode_rs_int(rs,recd,era_pos,numera);
   for(i=0; i<12; i++) decoded[i]=recd[11-i];
 }
+
+
+#ifndef WIN32
+void rs_encode__(int *dgen, int *sent)
+{
+	rs_encode_(dgen, sent);
+}
+
+void rs_decode__(int *recd0, int *era0, int *numera0, int *decoded, int *nerr)
+{
+	rs_decode_(recd0, era0, numera0, decoded, nerr);
+}
+#endif
+

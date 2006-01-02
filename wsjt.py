@@ -1239,7 +1239,8 @@ def update():
         msg4.configure(text=t,bg='red')
 
     t=g.ftnstr(Audio.gcom2.decodedfile)
-    i=t.rfind(".")
+    i=0
+#    i=t.rfind(".")
     t=t[:i]
     lab3.configure(text=t)
     if mode.get() != g.mode or first:

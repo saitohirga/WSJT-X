@@ -16,7 +16,8 @@ def ftnstr(x):
 
 #------------------------------------------------------ filetime
 def filetime(t):
-    i=t.rfind(".")
+#    i=t.rfind(".")
+    i=6
     t=t[:i][-6:]
     t=t[0:2]+":"+t[2:4]+":"+t[4:6]
     return t
