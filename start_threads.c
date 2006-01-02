@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include <alsa/asoundlib.h>
 #include <inttypes.h>
+#include <time.h>
 
 #if 0
 #define ALSA_LOG
@@ -27,6 +28,10 @@ typedef struct alsa_driver_s {
 	int16_t		*app_buffer_y2;
 	int		*app_buffer_offset;
 	int		 app_buffer_length;
+	double		*Tsec;
+	double		*tbuf;
+	int		*ibuf;
+
 	snd_pcm_uframes_t  buffer_size;
 	snd_pcm_uframes_t  period_size;
 	int32_t		 mmap; 
@@ -301,20 +306,31 @@ int playback_callback(alsa_driver_t *alsa_driver_playback) {
 	alsa_driver_t *this = alsa_driver_playback;
 	printf("playback callback\n");
 	//snd_pcm_writen(this->audio_fd, alsa_buffers, this->period_size);
+  	//fivehztx_();                             //Call fortran routine
 }
 
 int capture_callback(alsa_driver_t *alsa_driver_capture) {
 	alsa_driver_t *this = alsa_driver_capture;
 	int result;
+	struct timeval tv;
+	double stime;
+	int ib;
 #ifdef ALSA_LOG
 	printf("capture callback %d samples\n", this->period_size);
 #endif
+#ifdef ALSA_LOG
 	snd_pcm_status_t *pcm_stat;
 	snd_pcm_status_alloca(&pcm_stat);
-#ifdef ALSA_LOG
 	snd_pcm_status(this->audio_fd, pcm_stat);
         snd_pcm_status_dump(pcm_stat, jcd_out);
 #endif
+	gettimeofday(&tv, NULL);
+	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000.0);
+	ib=*(this->ibuf);
+	this->tbuf[ib++]=stime;
+	if(ib>=1024) ib=0;
+	*(this->ibuf)=ib;
+
 	alsa_buffers[0]=this->app_buffer_y1 + *(this->app_buffer_offset);
 	alsa_buffers[1]=this->app_buffer_y2 + *(this->app_buffer_offset);
 	result = snd_pcm_readn(this->audio_fd, alsa_buffers, this->period_size);
@@ -326,6 +342,7 @@ int capture_callback(alsa_driver_t *alsa_driver_capture) {
 	snd_pcm_status(this->audio_fd, pcm_stat);
         snd_pcm_status_dump(pcm_stat, jcd_out);
 #endif
+	fivehz_();                             //Call fortran routine
 }
 
 int capture_xrun(alsa_driver_t *alsa_driver_capture) {
@@ -407,7 +424,10 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   alsa_driver_capture.app_buffer_y1=y1;
   alsa_driver_capture.app_buffer_y2=y2;
   alsa_driver_capture.app_buffer_offset=iwrite;
-  alsa_driver_capture.app_buffer_length=nsamperbuf;
+  alsa_driver_capture.app_buffer_length=*nsamperbuf;
+  alsa_driver_capture.Tsec=Tsec;
+  alsa_driver_capture.tbuf=tbuf;
+  alsa_driver_capture.ibuf=ibuf;
 
   printf("start threads called\n");
   iret1 = pthread_create(&thread1,NULL,decode1_,&iarg1);
