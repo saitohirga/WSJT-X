@@ -58,7 +58,11 @@ subroutine audio_init(ndin,ndout)
   m3=SetThreadPriority(Thread2,THREAD_PRIORITY_BELOW_NORMAL)
   m4=ResumeThread(Thread2)
 #else
-  call start_threads
+  print*,'Audio INIT called.'
+  ierr=start_threads(ndevin,ndevout,y1,y2,nmax,iwrite,iwave,nwave,    &
+       11025,NSPB,TRPeriod,TxOK,ndebug,Transmitting,            &
+       Tsec,ngo,nmode,tbuf,ibuf,ndsec)
+
 #endif
 
   return
