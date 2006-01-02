@@ -335,8 +335,8 @@ int capture_callback(alsa_driver_t *alsa_driver_capture) {
 	alsa_buffers[1]=this->app_buffer_y2 + *(this->app_buffer_offset);
 	result = snd_pcm_readn(this->audio_fd, alsa_buffers, this->period_size);
 	*(this->app_buffer_offset) += this->period_size;
-	if ( *this->app_buffer_offset >= this->app_buffer_length )
-		this->app_buffer_length=0;  /* FIXME: implement proper wrapping */
+	if ( *(this->app_buffer_offset) >= this->app_buffer_length )
+		*(this->app_buffer_offset)=0;  /* FIXME: implement proper wrapping */
 #ifdef ALSA_LOG
 	printf("result=%d\n",result);
 	snd_pcm_status(this->audio_fd, pcm_stat);
@@ -424,7 +424,7 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   alsa_driver_capture.app_buffer_y1=y1;
   alsa_driver_capture.app_buffer_y2=y2;
   alsa_driver_capture.app_buffer_offset=iwrite;
-  alsa_driver_capture.app_buffer_length=*nsamperbuf;
+  alsa_driver_capture.app_buffer_length=*nbuflen;
   alsa_driver_capture.Tsec=Tsec;
   alsa_driver_capture.tbuf=tbuf;
   alsa_driver_capture.ibuf=ibuf;
