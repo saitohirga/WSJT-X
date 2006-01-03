@@ -92,7 +92,6 @@ g.freeze_decode=0
 g.mode=""
 g.ndevin=IntVar()
 g.ndevout=IntVar()
-
 #------------------------------------------------------ showspecjt
 def showspecjt():
     g.showspecjt=1
@@ -1239,8 +1238,8 @@ def update():
         msg4.configure(text=t,bg='red')
 
     t=g.ftnstr(Audio.gcom2.decodedfile)
-    i=0
 #    i=t.rfind(".")
+    i=g.rfnd(t,".")
     t=t[:i]
     lab3.configure(text=t)
     if mode.get() != g.mode or first:
