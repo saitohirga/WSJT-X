@@ -26,7 +26,8 @@ c            = -2  means sort x in decreasing order and carry y along.
 
       nn = n
       if (nn .lt. 1) then
-         print *,'n = ',nn,'   kflag = ',kflag,' in ssort.'
+         print*,'ssort: The number of sort elements is not positive.'
+         print*,'ssort: n = ',nn,'   kflag = ',kflag
          return
       endif
 c
