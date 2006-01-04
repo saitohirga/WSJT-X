@@ -31,6 +31,7 @@ typedef struct alsa_driver_s {
 	double		*Tsec;
 	double		*tbuf;
 	int		*ibuf;
+        int             *ndsec;
 
 	snd_pcm_uframes_t  buffer_size;
 	snd_pcm_uframes_t  period_size;
@@ -325,7 +326,8 @@ int capture_callback(alsa_driver_t *alsa_driver_capture) {
         snd_pcm_status_dump(pcm_stat, jcd_out);
 #endif
 	gettimeofday(&tv, NULL);
-	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000000.0);
+	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000000.0) + 
+	  *(this->ndsec)*0.1;
 	*(this->Tsec)=stime;
 	ib=*(this->ibuf);
 	this->tbuf[ib++]=stime;
@@ -429,6 +431,7 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   alsa_driver_capture.Tsec=Tsec;
   alsa_driver_capture.tbuf=tbuf;
   alsa_driver_capture.ibuf=ibuf;
+  alsa_driver_capture.ndsec=ndsec;
 
   printf("start threads called\n");
   iret1 = pthread_create(&thread1,NULL,decode1_,&iarg1);
