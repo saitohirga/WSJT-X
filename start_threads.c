@@ -325,7 +325,8 @@ int capture_callback(alsa_driver_t *alsa_driver_capture) {
         snd_pcm_status_dump(pcm_stat, jcd_out);
 #endif
 	gettimeofday(&tv, NULL);
-	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000.0);
+	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000000.0);
+	*(this->Tsec)=stime;
 	ib=*(this->ibuf);
 	this->tbuf[ib++]=stime;
 	if(ib>=1024) ib=0;
