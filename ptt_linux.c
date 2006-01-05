@@ -1,41 +1,52 @@
+#include <unistd.h>
 #include <stdio.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/io.h>
 
 int ptt_(int *nport, int *ntx, int *iptt)
 {
-  static int open=0;
-  char s[10];
-  //  int i3,i4,i5,i6,i9,i00;
+  static int nopen=0;
+  int i;
+  int fd;
+  char s[11];
 
-  if(*nport==0) {
+  if(*nport < 0) {
     *iptt=*ntx;
     return(0);
   }
 
-  if(*ntx && (!open)) {
-    sprintf(s,"COM%d",*nport);
-    //    hFile=CreateFile(TEXT(s),GENERIC_WRITE,0,NULL,OPEN_EXISTING,
-    //		     FILE_ATTRIBUTE_NORMAL,NULL);
-    //    if(hFile==INVALID_HANDLE_VALUE) {
-    //    printf("PTT: Cannot open COM port %d.\n",*nport);
-    //    return(1);
-    //  }
-    open=1;
+  if(*ntx && (!nopen)) {
+    sprintf(s,"/dev/ttyS%d",*nport);
+    //open the device
+    if ((fd = open(s, O_RDWR | O_NDELAY)) < 0) {
+      fprintf(stderr, "device not found");
+      return(1);
+    }
+    nopen=1;
     return(0);
   }
 
-  if(*ntx && open) {
-    //    EscapeCommFunction(hFile,3);
-    //    EscapeCommFunction(hFile,5);
+  //enable privileges for I/O port controls
+  if(ioperm(0,0x3ff,1) < 0) {
+    printf("Cannot set privileges for serial I/O\n");
+    return(1);
+  }
+
+  //  ioctl(fd, TIOCMGET, &flags);   //get line bits for serial port
+
+  if(*ntx && nopen) {
+    i = TIOCM_RTS + TIOCM_DTR;
+    ioctl(fd, TIOCMSET, &i);               // Set DTR and RTS
     *iptt=1;
   }
 
   else {
-    //    EscapeCommFunction(hFile,4);
-    //    EscapeCommFunction(hFile,6);
-    //    EscapeCommFunction(hFile,9);
-    //    i00=CloseHandle(hFile);
+    i=0;
+    ioctl(fd, TIOCMSET, &i);
+    close(fd);
     *iptt=0;
-    open=0;
+    nopen=0;
   }
   return(0);
 }
