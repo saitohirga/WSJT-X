@@ -7,7 +7,7 @@
 int ptt_(int *nport, int *ntx, int *iptt)
 {
   static int nopen=0;
-  int i;
+  int control = TIOCM_RTS | TIOCM_DTR;
   int fd;
   char s[11];
 
@@ -27,23 +27,15 @@ int ptt_(int *nport, int *ntx, int *iptt)
     return(0);
   }
 
-  //enable privileges for I/O port controls
-  if(ioperm(0,0x3ff,1) < 0) {
-    printf("Cannot set privileges for serial I/O\n");
-    return(1);
-  }
-
-  //  ioctl(fd, TIOCMGET, &flags);   //get line bits for serial port
-
   if(*ntx && nopen) {
-    i = TIOCM_RTS + TIOCM_DTR;
-    ioctl(fd, TIOCMSET, &i);               // Set DTR and RTS
+    //    printf("Set DTR/RTS   %d   %d\n",TIOCMBIS,control);
+    ioctl(fd, TIOCMBIS, &control);               // Set DTR and RTS
     *iptt=1;
   }
 
   else {
-    i=0;
-    ioctl(fd, TIOCMSET, &i);
+    //    printf("Clear DTR/RTS   %d   %d\n",TIOCMBIC,control);
+    ioctl(fd, TIOCMBIC, &control);
     close(fd);
     *iptt=0;
     nopen=0;
