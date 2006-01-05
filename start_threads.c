@@ -41,6 +41,7 @@ typedef struct alsa_driver_s {
 	int		 tx_offset;
 	int		*tr_period;
 	int		*nwave;
+	int		*nmode;
 	int		*transmitting;
 
 	snd_pcm_uframes_t  buffer_size;
@@ -326,13 +327,16 @@ int playback_callback(alsa_driver_t *alsa_driver_playback) {
 	struct timeval tv;
 	double stime;
 	int nsec;
-	int n;
+	int i,n;
+	static int ic;
+	int16_t b0[2048];
+
 //	printf("playback callback\n");
 	gettimeofday(&tv, NULL);
-	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000000.0);
+	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000000.0) +
+		*(this->ndsec) * 0.1;
 	*(this->Tsec) = stime;
 	if(!(this->tx_starting) && (*(this->tx_ok)) ) {
-		int ic;
 		nsec = (int)stime;
 		n = nsec / *(this->tr_period);  
 		ic = (int)(stime - *(this->tr_period) * n) * this->output_sample_rate;
@@ -341,10 +345,22 @@ int playback_callback(alsa_driver_t *alsa_driver_playback) {
 	}
 	this->tx_starting = *(this->tx_ok);
 	*(this->transmitting) = *(this->tx_ok);
-		
 	if(*(this->tx_ok)) {
+	  /*
 		alsa_playback_buffers[0] = this->app_buffer_y1 + this->tx_offset;
 		alsa_playback_buffers[1] = this->app_buffer_y1 + this->tx_offset;
+	  */
+	  alsa_playback_buffers[0] = b0;
+	  alsa_playback_buffers[1] = b0;
+	  for(i=0; i<this->period_size; i++) {
+	    b0[i]=this->app_buffer_y1[ic];
+	    ic++;
+	    if(ic >= *this->nwave) {
+	      ic=ic % *this->nwave;
+	      if(*this->nmode == 2) 
+		*this->tx_ok=0;
+	    }
+	  }
 	} else {
 		alsa_playback_buffers[0] = zero_buffer;
 		alsa_playback_buffers[1] = zero_buffer;
@@ -502,8 +518,9 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   alsa_driver_playback.tx_ok = TxOK;
   alsa_driver_playback.tr_period = TRPeriod;
   alsa_driver_playback.nwave = nwave;
+  alsa_driver_playback.nmode = nmode;
   alsa_driver_playback.transmitting = Transmitting;
-  alsa_driver_capture.ndsec=ndsec;
+  alsa_driver_playback.ndsec = ndsec;
 
   printf("start threads called\n");
   iret1 = pthread_create(&thread1,NULL,decode1_,&iarg1);
