@@ -5,9 +5,13 @@
 #include <inttypes.h>
 #include <time.h>
 
-#if 0
+#if 1
 #define ALSA_LOG
 #define ALSA_LOG_BUFFERS
+#endif
+#if 0
+#define ALSA_PLAYBACK_LOG
+#define ALSA_CAPTURE_LOG
 #endif
 #define BUFFER_TIME               2000*1000
 
@@ -31,7 +35,13 @@ typedef struct alsa_driver_s {
 	double		*Tsec;
 	double		*tbuf;
 	int		*ibuf;
-        int             *ndsec;
+	int		*ndsec;
+	int		*tx_ok;
+	int		 tx_starting;
+	int		 tx_offset;
+	int		*tr_period;
+	int		*nwave;
+	int		*transmitting;
 
 	snd_pcm_uframes_t  buffer_size;
 	snd_pcm_uframes_t  period_size;
@@ -40,7 +50,8 @@ typedef struct alsa_driver_s {
 
 alsa_driver_t alsa_driver_playback;
 alsa_driver_t alsa_driver_capture;
-void *alsa_buffers[2];
+void *alsa_capture_buffers[2];
+void *alsa_playback_buffers[2];
 
 static snd_output_t *jcd_out;
 
@@ -173,9 +184,13 @@ static int ao_alsa_open(alsa_driver_t *this_gen, int32_t *input_rate, snd_pcm_st
   printf("Buffer time size %lu\n",buffer_time_to_size);
 #endif
   this->buffer_size = buffer_time_to_size;
-  if (buffer_size_max < this->buffer_size) this->buffer_size = buffer_size_max;
-  if (buffer_size_min > this->buffer_size) this->buffer_size = buffer_size_min;
-  this->period_size=this->buffer_size/8;
+  if (buffer_size_max < this->buffer_size)
+	this->buffer_size = buffer_size_max;
+  if (buffer_size_min > this->buffer_size)
+	this->buffer_size = buffer_size_min;
+  this->period_size = this->buffer_size/8;
+  if (this->period_size > 2048)
+	this->period_size = 2048;
   this->buffer_size = this->period_size*8;
 #ifdef ALSA_LOG_BUFFERS
   printf("To choose buffer_size = %ld\n",this->buffer_size);
@@ -264,7 +279,7 @@ static int ao_alsa_open(alsa_driver_t *this_gen, int32_t *input_rate, snd_pcm_st
   }
   if (direction == SND_PCM_STREAM_PLAYBACK) {
   	/* start the transfer when the buffer contains at least period_size samples */
-	err = snd_pcm_sw_params_set_start_threshold(this->audio_fd, swparams, 0);
+	err = snd_pcm_sw_params_set_start_threshold(this->audio_fd, swparams, this->buffer_size);
   } else {
 	err = snd_pcm_sw_params_set_start_threshold(this->audio_fd, swparams, -1);
   }
@@ -275,7 +290,7 @@ static int ao_alsa_open(alsa_driver_t *this_gen, int32_t *input_rate, snd_pcm_st
 
   if (direction == SND_PCM_STREAM_PLAYBACK) {
         /* never stop the transfer, even on xruns */
-  	err = snd_pcm_sw_params_set_stop_threshold(this->audio_fd, swparams, 0);
+  	err = snd_pcm_sw_params_set_stop_threshold(this->audio_fd, swparams, this->buffer_size);
   } else {
   	err = snd_pcm_sw_params_set_stop_threshold(this->audio_fd, swparams, this->buffer_size);
   }
@@ -303,11 +318,49 @@ close:
   return 0;
 }
 
+int16_t zero_buffer[65536];
+
 int playback_callback(alsa_driver_t *alsa_driver_playback) {
 	alsa_driver_t *this = alsa_driver_playback;
-	printf("playback callback\n");
-	//snd_pcm_writen(this->audio_fd, alsa_buffers, this->period_size);
-  	//fivehztx_();                             //Call fortran routine
+	int result;
+	struct timeval tv;
+	double stime;
+	int nsec;
+	int n;
+//	printf("playback callback\n");
+	gettimeofday(&tv, NULL);
+	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000000.0);
+	*(this->Tsec) = stime;
+	if(!(this->tx_starting) && (*(this->tx_ok)) ) {
+		int ic;
+		nsec = (int)stime;
+		n = nsec / *(this->tr_period);  
+		ic = (int)(stime - *(this->tr_period) * n) * this->output_sample_rate;
+		ic = ic % *(this->nwave);
+		this->tx_offset = ic;
+	}
+	this->tx_starting = *(this->tx_ok);
+	*(this->transmitting) = *(this->tx_ok);
+		
+	if(*(this->tx_ok)) {
+		alsa_playback_buffers[0] = this->app_buffer_y1 + this->tx_offset;
+		alsa_playback_buffers[1] = this->app_buffer_y1 + this->tx_offset;
+	} else {
+		alsa_playback_buffers[0] = zero_buffer;
+		alsa_playback_buffers[1] = zero_buffer;
+	}
+	result = snd_pcm_writen(this->audio_fd, alsa_playback_buffers, this->period_size);
+	this->tx_offset += this->period_size;
+	if (result != this->period_size) {
+		printf("playback writei failed. Expected %d samples, sent only %d\n", this->period_size, result);
+#ifdef ALSA_PLAYBACK_LOG
+		snd_pcm_status_t *pcm_stat;
+		snd_pcm_status_alloca(&pcm_stat);
+		snd_pcm_status(this->audio_fd, pcm_stat);
+		snd_pcm_status_dump(pcm_stat, jcd_out);
+#endif
+	}
+  	fivehztx_();                             //Call fortran routine
 }
 
 int capture_callback(alsa_driver_t *alsa_driver_capture) {
@@ -316,36 +369,47 @@ int capture_callback(alsa_driver_t *alsa_driver_capture) {
 	struct timeval tv;
 	double stime;
 	int ib;
-#ifdef ALSA_LOG
+#ifdef ALSA_CAPTURE_LOG
 	printf("capture callback %d samples\n", this->period_size);
 #endif
-#ifdef ALSA_LOG
+#ifdef ALSA_CAPTURE_LOG
 	snd_pcm_status_t *pcm_stat;
 	snd_pcm_status_alloca(&pcm_stat);
 	snd_pcm_status(this->audio_fd, pcm_stat);
         snd_pcm_status_dump(pcm_stat, jcd_out);
 #endif
 	gettimeofday(&tv, NULL);
-	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000000.0) + 
-	  *(this->ndsec)*0.1;
-	*(this->Tsec)=stime;
+	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000000.0) +
+		*(this->ndsec) * 0.1;
+	*(this->Tsec) = stime;
 	ib=*(this->ibuf);
-	this->tbuf[ib++]=stime;
-	if(ib>=1024) ib=0;
-	*(this->ibuf)=ib;
+	this->tbuf[ib++] = stime;
+	if(ib>=1024)
+		ib = 0;
+	*(this->ibuf) = ib;
 
-	alsa_buffers[0]=this->app_buffer_y1 + *(this->app_buffer_offset);
-	alsa_buffers[1]=this->app_buffer_y2 + *(this->app_buffer_offset);
-	result = snd_pcm_readn(this->audio_fd, alsa_buffers, this->period_size);
+	alsa_capture_buffers[0]=this->app_buffer_y1 + *(this->app_buffer_offset);
+	alsa_capture_buffers[1]=this->app_buffer_y2 + *(this->app_buffer_offset);
+	result = snd_pcm_readn(this->audio_fd, alsa_capture_buffers, this->period_size);
 	*(this->app_buffer_offset) += this->period_size;
 	if ( *(this->app_buffer_offset) >= this->app_buffer_length )
 		*(this->app_buffer_offset)=0;  /* FIXME: implement proper wrapping */
-#ifdef ALSA_LOG
+#ifdef ALSA_CAPTURE_LOG
 	printf("result=%d\n",result);
 	snd_pcm_status(this->audio_fd, pcm_stat);
         snd_pcm_status_dump(pcm_stat, jcd_out);
 #endif
 	fivehz_();                             //Call fortran routine
+}
+
+int playback_xrun(alsa_driver_t *alsa_driver_playback) {
+	alsa_driver_t *this = alsa_driver_playback;
+	snd_pcm_status_t *pcm_stat;
+	snd_pcm_status_alloca(&pcm_stat);
+	printf("playback xrun\n");
+	snd_pcm_status(this->audio_fd, pcm_stat);
+        snd_pcm_status_dump(pcm_stat, jcd_out);
+	snd_pcm_prepare(this->audio_fd);
 }
 
 int capture_xrun(alsa_driver_t *alsa_driver_capture) {
@@ -373,12 +437,10 @@ void ao_alsa_loop(void *iarg) {
 		(playback_nfds + capture_nfds));
 	
 	nfds=0;	
-#if 0
 	snd_pcm_poll_descriptors (alsa_driver_playback.audio_fd,
 		&pfd[0],
 		playback_nfds);
 	nfds += playback_nfds;
-#endif
 	snd_pcm_poll_descriptors (alsa_driver_capture.audio_fd,
 		&pfd[nfds],
 		capture_nfds);
@@ -389,7 +451,7 @@ void ao_alsa_loop(void *iarg) {
 			printf("poll failed\n");
 			return;
 		}
-		//snd_pcm_poll_descriptors_revents(alsa_driver_playback.audio_fd, &pfd[0], playback_nfds, &playback_revents);
+		snd_pcm_poll_descriptors_revents(alsa_driver_playback.audio_fd, &pfd[0], playback_nfds, &playback_revents);
 		snd_pcm_poll_descriptors_revents(alsa_driver_capture.audio_fd, &pfd[capture_index], capture_nfds, &capture_revents);
 		//if ((playback_revents & POLLERR) || ((capture_revents) & POLLERR)) {
 		if (((capture_revents) & POLLERR)) {
@@ -397,11 +459,14 @@ void ao_alsa_loop(void *iarg) {
 			capture_xrun(&alsa_driver_capture);
 			return;
 		}
-#if 0
+		if (((playback_revents) & POLLERR)) {
+			printf("pollerr\n");
+			playback_xrun(&alsa_driver_capture);
+			return;
+		}
 		if (playback_revents & POLLOUT) {
 			playback_callback(&alsa_driver_playback);
 		}
-#endif
 		if (capture_revents & POLLIN) {
 			capture_callback(&alsa_driver_capture);
 		}
@@ -421,16 +486,23 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
 {
   pthread_t thread1,thread2;
   int iret1,iret2;
-  int iarg1=1,iarg2=2;
+  int iarg1 = 1,iarg2 = 2;
   //int32_t rate=11025;
   int32_t rate=*nfsample;
-  alsa_driver_capture.app_buffer_y1=y1;
-  alsa_driver_capture.app_buffer_y2=y2;
-  alsa_driver_capture.app_buffer_offset=iwrite;
-  alsa_driver_capture.app_buffer_length=*nbuflen;
-  alsa_driver_capture.Tsec=Tsec;
-  alsa_driver_capture.tbuf=tbuf;
-  alsa_driver_capture.ibuf=ibuf;
+  alsa_driver_capture.app_buffer_y1 = y1;
+  alsa_driver_capture.app_buffer_y2 = y2;
+  alsa_driver_capture.app_buffer_offset = iwrite;
+  alsa_driver_capture.app_buffer_length = *nbuflen;
+  alsa_driver_capture.Tsec = Tsec;
+  alsa_driver_capture.tbuf = tbuf;
+  alsa_driver_capture.ibuf = ibuf;
+  alsa_driver_capture.ndsec = ndsec;
+  alsa_driver_playback.Tsec = Tsec;
+  alsa_driver_playback.app_buffer_y1 = iwave;
+  alsa_driver_playback.tx_ok = TxOK;
+  alsa_driver_playback.tr_period = TRPeriod;
+  alsa_driver_playback.nwave = nwave;
+  alsa_driver_playback.transmitting = Transmitting;
   alsa_driver_capture.ndsec=ndsec;
 
   printf("start threads called\n");
@@ -445,6 +517,8 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   iret2 = pthread_create(&thread2, NULL, ao_alsa_loop, NULL);
   snd_pcm_prepare(alsa_driver_capture.audio_fd);
   snd_pcm_start(alsa_driver_capture.audio_fd);
+  snd_pcm_prepare(alsa_driver_playback.audio_fd);
+  //snd_pcm_start(alsa_driver_playback.audio_fd);
 
  /* snd_pcm_start */
   //iret2 = pthread_create(&thread2,NULL,a2d_,&iarg2);
