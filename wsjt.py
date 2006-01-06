@@ -96,7 +96,7 @@ g.mode=""
 g.ndevin=IntVar()
 g.ndevout=IntVar()
 #------------------------------------------------------ showspecjt
-def showspecjt():
+def showspecjt(event=NONE):
     g.showspecjt=1
 
 #------------------------------------------------------ restart
@@ -108,6 +108,10 @@ def restart():
 def restart2():
     Audio.gcom2.shok=ShOK.get()
     Audio.gcom2.nrestart=1
+
+#------------------------------------------------------ toggle_freeze
+def toggle_freeze(event=NONE):
+    nfreeze.set(1-nfreeze.get())
 
 #------------------------------------------------------ btx (1-6)
 def btx1(event=NONE):
@@ -505,6 +509,7 @@ def ModeFSK441(event=NONE):
         inctol()
         ntx.set(1)
         GenStdMsgs()
+        erase()
 
 #------------------------------------------------------ ModeJT65
 def ModeJT65():
@@ -533,6 +538,7 @@ def ModeJT65():
     inctol()
     ntx.set(1)
     GenStdMsgs()
+    erase()
 #    graph2.pack_forget()
 
 #------------------------------------------------------ ModeJT65A
@@ -572,6 +578,7 @@ def ModeJT6M(event=NONE):
         inctol()
         ntx.set(1)
         GenStdMsgs()
+        erase()
         
 
 #------------------------------------------------------ ModeCW
@@ -592,6 +599,7 @@ def ModeCW(event=NONE):
         report.configure(state=NORMAL)
         ntx.set(1)
         GenStdMsgs()
+        erase()
 
 #------------------------------------------------------ ModeEcho
 def ModeEcho(event=NONE):
@@ -653,10 +661,12 @@ Shift-F8	Set JT65B mode
 CTRL-F8		Set JT65C mode
 Shift-CTRL-F8	Set CW mode
 F9		Set EME Echo mode
+F10             Display waterfall screen
 Alt-1 to Alt-6  Tx1 to Tx6
 Alt-A           Toggle Auto On/Off
 Alt-D           Decode
 Alt-E           Erase
+Alt-F           Toggle Freeze
 Alt-G		Generate Standard Messages
 Alt-I           Include
 Alt-L		Lookup
@@ -1607,6 +1617,7 @@ root.bind_all('<Control-F8>', ModeJT65C)
 root.bind_all('<Shift-F7>', ModeJT6M)
 root.bind_all('<Shift-Control-F8>', ModeCW)
 root.bind_all('<F9>', ModeEcho)
+root.bind_all('<F10>', showspecjt)
 
 root.bind_all('<Alt-Key-1>',btx1)
 root.bind_all('<Alt-Key-2>',btx2)
@@ -1623,6 +1634,8 @@ root.bind_all('<Alt-d>',decode)
 root.bind_all('<Alt-D>',decode)
 root.bind_all('<Alt-e>',erase)
 root.bind_all('<Alt-E>',erase)
+root.bind_all('<Alt-f>',toggle_freeze)
+root.bind_all('<Alt-F>',toggle_freeze)
 root.bind_all('<Alt-g>',GenStdMsgs)
 root.bind_all('<Alt-G>',GenStdMsgs)
 root.bind_all('<Alt-i>',decode_include)
