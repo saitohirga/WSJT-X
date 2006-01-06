@@ -45,9 +45,6 @@ lauto=0
 cmap0="Linrad"
 fileopened=""
 font1='Helvetica'
-font2='Helvetica'
-#font1=('MS', 'Sans', 'Serif')
-#font2=('MS', 'Sans', 'Serif')
 hiscall=""
 hisgrid=""
 isec0=-99
@@ -621,10 +618,10 @@ an EME Echo mode for measuring your own echoes from the moon.
 WSJT is Copyright (c) 2001-2005 by Joseph H. Taylor, Jr., K1JT, 
 and is licensed under the GNU General Public License (GPL).
 """
-    Label(about,text=t,font=(font1,9),justify=LEFT).pack(padx=20)
+    Label(about,text=t,justify=LEFT).pack(padx=20)
     t="Revision date: " + \
       "$Date$"[7:-1]
-    Label(about,text=t,font=(font1,9)).pack(padx=20)
+    Label(about,text=t,justify=LEFT).pack(padx=20)
     about.focus_set()
 
 #------------------------------------------------------ shortcuts
@@ -665,7 +662,7 @@ Alt-S           Stop Monitoring or Decoding
 Alt-V           Save Last
 Alt-X           Exclude
 """
-    Label(scwid,text=t,font=(font2,9),justify=LEFT).pack(padx=20)
+    Label(scwid,text=t,justify=LEFT).pack(padx=20)
     scwid.focus_set()
 
 #------------------------------------------------------ mouse_commands
@@ -690,7 +687,7 @@ text area        Right-double-click also sets Auto ON
 Sync, Clip,      Left/Right click to increase/decrease
 Tol, ...
 """
-    Label(scwid,text=t,font=(font2,9),justify=LEFT).pack(padx=20)
+    Label(scwid,text=t,justify=LEFT).pack(padx=20)
     scwid.focus_set()
 
 #------------------------------------------------------ what2send
@@ -727,7 +724,7 @@ know this, so it is conventional to send 73 to signify that you are done.
 (Sending grid locators is conventional in JT65, but numerical signal
 reports may be substituted.)
 """
-    Label(screenf5,text=t,font=(font1,10),justify=LEFT).pack(padx=20)
+    Label(screenf5,text=t,justify=LEFT).pack(padx=20)
     screenf5.focus_set()
 
 #------------------------------------------------------ azdist
@@ -1699,22 +1696,22 @@ iframe5 = Frame(frame, bd=1, relief=FLAT,height=180)
 f5a=Frame(iframe5,height=170,bd=2,relief=GROOVE)
 labToRadio=Label(f5a,text='To radio:', width=9, relief=FLAT)
 labToRadio.grid(column=0,row=0)
-ToRadio=Entry(f5a,width=9,font=(font2,9))
+ToRadio=Entry(f5a,width=9)
 ToRadio.insert(0,'W8WN')
 ToRadio.grid(column=1,row=0,pady=3)
 bLookup=Button(f5a, text='Lookup',underline=0,command=lookup,padx=1,pady=1)
 bLookup.grid(column=2,row=0,sticky='EW',padx=4)
 labGrid=Label(f5a,text='Grid:', width=9, relief=FLAT)
 labGrid.grid(column=0,row=1)
-HisGrid=Entry(f5a,width=9,font=(font2,9))
+HisGrid=Entry(f5a,width=9)
 HisGrid.grid(column=1,row=1,pady=1)
 bAdd=Button(f5a, text='Add',command=addtodb,padx=1,pady=1)
 bAdd.grid(column=2,row=1,sticky='EW',padx=4)
-labAz=Label(f5a,text='Az 257  El 15',width=11)
+labAz=Label(f5a,text='Az 257  El 15',width=11,font=(font1,9))
 labAz.grid(column=1,row=2)
-labHotAB=Label(f5a,bg='#FFCCFF',text='HotA: 247')
+labHotAB=Label(f5a,bg='#FFCCFF',text='HotA: 247',font=(font1,9))
 labHotAB.grid(column=0,row=2,sticky='EW',padx=4,pady=3)
-labDist=Label(f5a,text='16753 km')
+labDist=Label(f5a,text='16753 km',font=(font1,9))
 labDist.grid(column=2,row=2)
 
 #------------------------------------------------------ Date and Time
@@ -1767,7 +1764,7 @@ f5c=Frame(iframe5,bd=2,relief=GROOVE)
 txfirst=Checkbutton(f5c,text='Tx First',justify=RIGHT,variable=TxFirst)
 f5c2=Frame(f5c,bd=0)
 labreport=Label(f5c2,text='Rpt',width=4)
-report=Entry(f5c2, width=4, font=(font2,10))
+report=Entry(f5c2, width=4)
 report.insert(0,'26')
 labreport.pack(side=RIGHT,expand=1,fill=BOTH)
 report.pack(side=RIGHT,expand=1,fill=BOTH)
@@ -1789,43 +1786,42 @@ auto.grid(column=0,row=5,sticky='EW',padx=4)
 #txstop.grid(column=0,row=6,sticky='EW',padx=4)
 
 ntx=IntVar()
-tx1=Entry(f5c,width=22, font=(font2,9))
+tx1=Entry(f5c,width=24)
 rb1=Radiobutton(f5c,value=1,variable=ntx)
 b1=Button(f5c, text='Tx1',underline=2,command=btx1,padx=1,pady=1)
 tx1.grid(column=1,row=0)
 rb1.grid(column=2,row=0)
 b1.grid(column=3,row=0)
 
-tx2=Entry(f5c,width=22, font=(font2,9))
-#tx2=Entry(f5c,width=22, font=('helvetica',9))
+tx2=Entry(f5c,width=24)
 rb2=Radiobutton(f5c,value=2,variable=ntx)
 b2=Button(f5c, text='Tx2',underline=2,command=btx2,padx=1,pady=1)
 tx2.grid(column=1,row=1)
 rb2.grid(column=2,row=1)
 b2.grid(column=3,row=1)
 
-tx3=Entry(f5c,width=22, font=(font2,9))
+tx3=Entry(f5c,width=24)
 rb3=Radiobutton(f5c,value=3,variable=ntx)
 b3=Button(f5c, text='Tx3',underline=2,command=btx3,padx=1,pady=1)
 tx3.grid(column=1,row=2)
 rb3.grid(column=2,row=2)
 b3.grid(column=3,row=2)
 
-tx4=Entry(f5c,width=22, font=(font2,9))
+tx4=Entry(f5c,width=24)
 rb4=Radiobutton(f5c,value=4,variable=ntx)
 b4=Button(f5c, text='Tx4',underline=2,command=btx4,padx=1,pady=1)
 tx4.grid(column=1,row=3)
 rb4.grid(column=2,row=3)
 b4.grid(column=3,row=3)
 
-tx5=Entry(f5c,width=22, font=(font2,9))
+tx5=Entry(f5c,width=24)
 rb5=Radiobutton(f5c,value=5,variable=ntx)
 b5=Button(f5c, text='Tx5',underline=2,command=btx5,padx=1,pady=1)
 tx5.grid(column=1,row=4)
 rb5.grid(column=2,row=4)
 b5.grid(column=3,row=4)
 
-tx6=Entry(f5c,width=22, font=(font2,9))
+tx6=Entry(f5c,width=24)
 rb6=Radiobutton(f5c,value=6,variable=ntx)
 b6=Button(f5c, text='Tx6',underline=2,command=btx6,padx=1,pady=1)
 tx6.grid(column=1,row=5)
