@@ -25,7 +25,6 @@ C  already been done.
       integer itf(2,9)
       include 'avecom.h'
       common/avecom2/f0a
-      common/tmp3/nsync2,nsnr2,nstest2,line,ave1,ave2
       data first/.true./,ns10/0/,ns20/0/
       data itf/0,0, 1,0, -1,0, 0,-1, 0,1, 1,-1, 1,1, -1,-1, -1,1/
       save
@@ -184,7 +183,7 @@ C  Write decoded msg unless this is an "Exclude" request:
      +     ns1,ncount1)
       if(nsave.ge.1) call avemsg65(2,mode65,ndepth,avemsg2,nused2,
      +     ns2,ncount2)
-      
+
 C  Write the average line
       if(ns1.ge.1 .and. ns1.ne.ns10) then
          if(ns1.lt.10) write(ave1,1021) cfile6,1,nused1,ns1,avemsg1
@@ -217,16 +216,12 @@ C  If Monitor segment #2 is available, write that line also
       endif
       write(12,1011) ave1
       write(12,1011) ave2
+      call flushqqq(12)
  
  800  if(lumsg.ne.6) end file 11
       f0a=f0
 
  900  continue
-
-C### test only
-      nsync2=nsync
-      nsnr2=nsnr
-      nstest2=nstest
 
       return
       end
