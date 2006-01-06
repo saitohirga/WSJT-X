@@ -48,7 +48,6 @@ font1='Helvetica'
 font2='Helvetica'
 #font1=('MS', 'Sans', 'Serif')
 #font2=('MS', 'Sans', 'Serif')
-font3='Courier'
 hiscall=""
 hisgrid=""
 isec0=-99
@@ -478,7 +477,7 @@ def ModeFSK441(event=NONE):
         mode.set("FSK441")
         cleartext()
         Audio.gcom1.trperiod=30
-        lab2.configure(text='FileID            T      Width   dB  Rpt      DF')
+        lab2.configure(text='FileID            T      Width    dB  Rpt       DF')
         lab1.configure(text='Time (s)',bg="green")
         lab4.configure(fg='black')
         lab5.configure(fg='black')
@@ -507,7 +506,7 @@ def ModeFSK441(event=NONE):
 def ModeJT65():
     global slabel,isync,isync65,textheight,itol
     cleartext()
-    lab2.configure(text='FileID      Sync    dB        DT       DF    W')
+    lab2.configure(text='FileID      Sync      dB        DT       DF    W')
     lab4.configure(fg='gray85')
     lab5.configure(fg='gray85')
     Audio.gcom1.trperiod=60
@@ -560,7 +559,7 @@ def ModeJT6M(event=NONE):
         if lauto: toggleauto()
         cleartext()
         ModeFSK441()
-        lab2.configure(text='FileID            T      Width     dB       DF')
+        lab2.configure(text='FileID            T      Width      dB        DF')
         mode.set("JT6M")
         isync=isync6m
         lsync.configure(text=slabel+str(isync))
@@ -1209,7 +1208,7 @@ def update():
 
         if mode.get()[:4]=='JT65' or mode.get()[:2]=='CW' :
             graph2.delete(ALL)
-            g2font='Arial 16'
+            g2font='Helvetica 16'
             graph2.create_text(75,13,anchor=CENTER,text="Moon",font=g2font)
             graph2.create_text(26,37,anchor=W, text="Az: %8.2f" % g.AzMoon,font=g2font)
             graph2.create_text(26,61,anchor=W, text="El:  %8.2f" % g.ElMoon,font=g2font)
@@ -1584,7 +1583,7 @@ iframe2.pack(expand=1, fill=X, padx=4)
 
 #-------------------------------------------------------- Decoded text
 iframe4 = Frame(frame, bd=1, relief=SUNKEN)
-text=Text(iframe4, height=6, width =90, font=(font3,9))
+text=Text(iframe4, height=6, width=80)
 text.bind('<Double-Button-1>',dbl_click_text)
 text.bind('<Double-Button-3>',dbl_click_text)
 
@@ -1649,7 +1648,7 @@ sb.pack(side=RIGHT, fill=Y)
 text.configure(yscrollcommand=sb.set)
 iframe4.pack(expand=1, fill=X, padx=4)
 iframe4b = Frame(frame, bd=1, relief=SUNKEN)
-avetext=Text(iframe4b, height=2, width =90, font=(font3,9))
+avetext=Text(iframe4b, height=2, width=80)
 #avetext.bind('<Key>', lambda e: "break")
 avetext.bind('<Double-Button-1>',dbl_click_ave)
 avetext.bind('<Double-Button-3>',dbl_click_ave)
@@ -1790,43 +1789,43 @@ auto.grid(column=0,row=5,sticky='EW',padx=4)
 #txstop.grid(column=0,row=6,sticky='EW',padx=4)
 
 ntx=IntVar()
-tx1=Entry(f5c,width=28, font=(font2,9))
+tx1=Entry(f5c,width=22, font=(font2,9))
 rb1=Radiobutton(f5c,value=1,variable=ntx)
 b1=Button(f5c, text='Tx1',underline=2,command=btx1,padx=1,pady=1)
 tx1.grid(column=1,row=0)
 rb1.grid(column=2,row=0)
 b1.grid(column=3,row=0)
 
-tx2=Entry(f5c,width=28, font=(font2,9))
-#tx2=Entry(f5c,width=28, font=('helvetica',9))
+tx2=Entry(f5c,width=22, font=(font2,9))
+#tx2=Entry(f5c,width=22, font=('helvetica',9))
 rb2=Radiobutton(f5c,value=2,variable=ntx)
 b2=Button(f5c, text='Tx2',underline=2,command=btx2,padx=1,pady=1)
 tx2.grid(column=1,row=1)
 rb2.grid(column=2,row=1)
 b2.grid(column=3,row=1)
 
-tx3=Entry(f5c,width=28, font=(font2,9))
+tx3=Entry(f5c,width=22, font=(font2,9))
 rb3=Radiobutton(f5c,value=3,variable=ntx)
 b3=Button(f5c, text='Tx3',underline=2,command=btx3,padx=1,pady=1)
 tx3.grid(column=1,row=2)
 rb3.grid(column=2,row=2)
 b3.grid(column=3,row=2)
 
-tx4=Entry(f5c,width=28, font=(font2,9))
+tx4=Entry(f5c,width=22, font=(font2,9))
 rb4=Radiobutton(f5c,value=4,variable=ntx)
 b4=Button(f5c, text='Tx4',underline=2,command=btx4,padx=1,pady=1)
 tx4.grid(column=1,row=3)
 rb4.grid(column=2,row=3)
 b4.grid(column=3,row=3)
 
-tx5=Entry(f5c,width=28, font=(font2,9))
+tx5=Entry(f5c,width=22, font=(font2,9))
 rb5=Radiobutton(f5c,value=5,variable=ntx)
 b5=Button(f5c, text='Tx5',underline=2,command=btx5,padx=1,pady=1)
 tx5.grid(column=1,row=4)
 rb5.grid(column=2,row=4)
 b5.grid(column=3,row=4)
 
-tx6=Entry(f5c,width=28, font=(font2,9))
+tx6=Entry(f5c,width=22, font=(font2,9))
 rb6=Radiobutton(f5c,value=6,variable=ntx)
 b6=Button(f5c, text='Tx6',underline=2,command=btx6,padx=1,pady=1)
 tx6.grid(column=1,row=5)

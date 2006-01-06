@@ -1,6 +1,6 @@
       subroutine indexx(n,arr,indx)
 
-      parameter (NMAX=2000)
+      parameter (NMAX=3000)
       integer indx(n)
       real arr(n)
       real brr(NMAX)

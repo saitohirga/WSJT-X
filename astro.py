@@ -44,7 +44,7 @@ def update():
     g.astro_geom=root.geometry()
     frame.after(1000,update)
 
-lab1=Label(frame,font=('Arial 16'),justify=LEFT,bg="#66FFFF",
+lab1=Label(frame,font=('Helvetica 16'),justify=LEFT,bg="#66FFFF",
            relief=RIDGE,bd=4,anchor=N)
 lab1.pack(ipadx=4)
 
