@@ -146,7 +146,6 @@ static int SoundOut( void *inputBuffer, void *outputBuffer,
     //    ic = framesPerBuffer*ic;
     ic = (int)(stime - *data->trperiod*n) * data->nfs;
     ic = ic % *data->nwave;
-    //    printf("%d\n",ic);
   }
 
   TxOKz=*data->TxOK;
@@ -224,7 +223,7 @@ int jtaudio_(int *ndevin, int *ndevout, short y1[], short y2[],
   inputParameters.device=*ndevin;
   inputParameters.channelCount=2;
   inputParameters.sampleFormat=paInt16;
-  inputParameters.suggestedLatency=0.5;
+  inputParameters.suggestedLatency=1.0;
   inputParameters.hostApiSpecificStreamInfo=NULL;
   err2=Pa_OpenStream(
 		       &instream,       //address of stream
@@ -244,7 +243,7 @@ int jtaudio_(int *ndevin, int *ndevout, short y1[], short y2[],
   outputParameters.device=*ndevout;
   outputParameters.channelCount=2;
   outputParameters.sampleFormat=paInt16;
-  outputParameters.suggestedLatency=0.5;
+  outputParameters.suggestedLatency=1.0;
   outputParameters.hostApiSpecificStreamInfo=NULL;
   err2a=Pa_OpenStream(
 		       &outstream,      //address of stream
