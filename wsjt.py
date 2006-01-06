@@ -19,15 +19,22 @@ print "WSJT Version " + Version + ", by K1JT"
 print "Revision date: " + \
       "$Date$"[7:-1]
 print "Run date:   " + time.asctime(time.gmtime()) + " UTC"
-try:
-    root.option_readfile('wsjtrc')
-except:
-    pass
-root_geom=""
 
 #See if we are running in Windows
 g.Win32=0
-if sys.platform=="win32": g.Win32=1
+if sys.platform=="win32":
+    g.Win32=1
+    try:
+        root.option_readfile('wsjtrc.win')
+    except:
+        pass
+else:
+    try:
+        root.option_readfile('wsjtrc')
+    except:
+        pass
+root_geom=""
+
 
 #------------------------------------------------------ Global variables
 appdir=os.getcwd()
