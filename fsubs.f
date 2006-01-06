@@ -18,12 +18,10 @@
       include 'encode65.f'
       include 'extract.f'
       include 'flat1.f'
-
-#ifdef Win32
 !      include 'four2a.f'       !Multi-threading problems with FFTW3
       include 'four2.f'
-#else
-      include 'four2.f'
+
+#ifndef Win32
       include 'rfile2.f'
 #endif
 
