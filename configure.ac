@@ -1,0 +1,167 @@
+dnl $Id$
+dnl Process this file with autoconf to produce a configure script.
+
+
+dnl AC_PREREQ(2.59)
+
+dnl Sneaky way to get an Id tag into the configure script
+AC_COPYRIGHT([$Id$])
+
+AC_INIT([wsjt],[0.9])
+
+AC_CONFIG_HEADER(conf.h)
+
+AC_PREFIX_DEFAULT(/usr/local/)
+
+OLD_CFLAGS="$CFLAGS"
+dnl Checks for programs.
+AC_PROG_CC
+AC_LANG(C)
+AC_PROG_F77
+
+dnl Make sure autoconf doesn't interfere with cflags -jmallett
+CFLAGS="$OLD_CFLAGS"
+
+AC_MSG_CHECKING([uname -s for Cygwin, Solaris or HPUX])
+case `uname -s` in
+	CYGWIN*)
+		AC_MSG_RESULT(Cygwin)
+		CYGWIN=yes
+	;;
+	SunOS*)
+		AC_MSG_RESULT(SunOS or Solaris)
+		AC_DEFINE(__EXTENSIONS__, 1, [This is needed to use strtok_r on Solaris.])
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+esac
+
+if test "$ac_cv_c_compiler_gnu" = yes; then
+	AC_MSG_CHECKING(if $CC is Apple GCC)
+	
+	if expr "`$CC -v 2>&1 | tail -1`" : ".*Apple" >/dev/null; then
+		AppleGCC=yes
+	else
+		AppleGCC=no
+	fi
+
+	AC_MSG_RESULT($AppleGCC)
+
+	WSJT_CFLAGS="$WSJT_CFLAGS -Wall -O0"
+fi
+
+dnl If we support -g, use it!
+if test "$ac_cv_prog_cc_g" = yes; then
+		WSJT_CFLAGS="$WSJT_CFLAGS -g"
+fi
+
+dnl jdc -- If CFLAGS is defined, best use it everywhere...
+dnl NOTE: jv says it must be added to the *END*, because things like
+dnl "gcc -O9 -O2" will result in -O2 getting preference.  How stupid.
+if test ! -z "$CFLAGS"; then
+	WSJT_CFLAGS="$WSJT_CFLAGS $CFLAGS"
+fi
+
+AC_ISC_POSIX
+AC_C_INLINE
+AC_PROG_GCC_TRADITIONAL
+AC_PROG_MAKE_SET
+AC_PROG_INSTALL
+AC_PATH_PROG(RM, rm)
+AC_PATH_PROG(CP, cp)
+AC_PATH_PROG(MV, mv)
+AC_PATH_PROG(LN, ln)
+AC_PATH_PROG(SED, sed)
+AC_PATH_PROG(AR, ar)
+AC_PATH_PROG(LD, ld)
+AC_PATH_PROG(TEST, [test], [test])
+AC_PATH_PROG(PYTHON, python)
+AC_PATH_PROG(F2PY, f2py)
+AC_PATH_PROG(G95, g95)
+
+dnl Checks for header files.
+AC_HEADER_STDC
+
+AC_CHECK_HEADERS([crypt.h inttypes.h stdint.h sys/resource.h sys/param.h errno.h sys/syslog.h stddef.h libgen.h sys/wait.h wait.h link.h sys/soundcard.h linux/soundcard.h alsa/alsasound.h audiofile.h])
+
+dnl use directory structure of cached as default (hack)
+if test "$libexecdir" = '${exec_prefix}/libexec' &&
+   test "$localstatedir" = '${prefix}/var'; then
+	libexecdir='${bindir}'
+	localstatedir='${prefix}'
+fi
+
+dnl See whether we can include both string.h and strings.h.
+AC_CACHE_CHECK([whether string.h and strings.h may both be included],
+gcc_cv_header_string,
+[
+	AC_COMPILE_IFELSE(
+	[#include <string.h>
+	#include <strings.h>], 
+	[gcc_cv_header_string=yes],
+	[gcc_cv_header_string=no])
+])
+
+if test "$gcc_cv_header_string" = "yes"; then
+	AC_DEFINE(STRING_WITH_STRINGS, 1, [Define to 1 if string.h may be included along with strings.h])
+fi
+
+AC_C_BIGENDIAN
+
+dnl Check for stdarg.h - if we can't find it, halt configure
+AC_CHECK_HEADER(stdarg.h, , [AC_MSG_ERROR([** stdarg.h could not be found - wsjt will not compile without it **])])
+
+dnl Checks for the existence of strlcat, strlcpy, basename...
+dnl This more reliable test only works with gcc though.
+
+
+AC_SUBST(SNPRINTF_C)
+
+dnl Debug-related options
+dnl =====================
+
+AC_ARG_ENABLE(clobber,
+AC_HELP_STRING([--enable-clobber], [Don't preserve old binaries on make install]),
+[clobber=$enableval], [clobber=no])
+
+if test "$clobber" = yes; then
+	AC_SUBST(CLOBBER, yes)
+fi
+
+AC_ARG_ENABLE(assert,
+AC_HELP_STRING([--enable-assert],[Enable assert().]),
+[assert=$enableval], [assert=no])
+
+if test "$assert" = no; then
+	AC_DEFINE(NDEBUG, 1, [Define this to disable debugging support.])
+fi
+
+AC_SUBST(WSJT_CFLAGS)
+
+if test "$prefix" = "NONE"; then 
+	AC_DEFINE_UNQUOTED(WSJT_PREFIX, "$ac_default_prefix", [Prefix where wsjt is installed.])
+
+else
+
+dnl Don't get bitten by Cygwin's stupidity if the user specified
+dnl a custom prefix with a trailing slash
+
+	prefix=`echo $prefix | sed 's/\/$//'`
+	AC_DEFINE_UNQUOTED(WSJT_PREFIX, "$prefix", [Prefix where wsjt is installed.])
+	
+fi
+
+AC_CONFIG_FILES(		\
+	Makefile		
+)
+
+AC_OUTPUT
+
+echo
+echo "Compiling $PACKAGE_NAME $PACKAGE_VERSION"
+echo
+
+echo "Installing into: $prefix"
+
+echo

@@ -45,11 +45,12 @@ int buf[];
   return (times(buf));
 }
 /* ioperm(2) */
-ioperm_(from,num,turn_on)
-unsigned long *from,*num,*turn_on;
-{
-  return (ioperm(*from,*num,*turn_on));
-}
+//ioperm_(from,num,turn_on)
+//unsigned long *from,*num,*turn_on;
+//{
+//  return (ioperm(*from,*num,*turn_on));
+//   return (i386_get_ioperm(*from,*num,*turn_on));
+//}
 
 /* usleep(3) */
 usleep_(microsec)
