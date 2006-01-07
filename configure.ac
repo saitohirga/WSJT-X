@@ -80,6 +80,16 @@ AC_PATH_PROG(PYTHON, python)
 AC_PATH_PROG(F2PY, f2py)
 AC_PATH_PROG(G95, g95)
 
+AC_MSG_CHECKING([g95 lib path])
+G95_LIB_PATH=`${G95} -print-file-name=`
+AC_MSG_RESULT(${G95_LIB_PATH})
+AC_DEFINE_UNQUOTED(G95_LIB_PATH, "${G95_LIB_PATH}", [Path to G95 libs.])
+AC_SUBST(G95_LIB_PATH, "${G95_LIB_PATH}")
+
+AC_MSG_CHECKING([OS])
+OS=`uname`
+AC_SUBST(OS, "${OS}")
+
 dnl Checks for header files.
 AC_HEADER_STDC
 
