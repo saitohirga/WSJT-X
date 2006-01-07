@@ -43,6 +43,9 @@
 /* Define to `unsigned long long' if <sys/types.h> does not define. */
 #undef uint64_t
 
+/* Define if you have /usr/include/sys/param.h */
+#undef HAVE_SYS_PARAM_H
+
 #undef HAVE_ALSA_ALSASOUND_H
 #undef HAVE_SYS_SOUNDCARD_H
 #undef HAVE_AUDIOFILE_H
