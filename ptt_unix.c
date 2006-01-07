@@ -7,8 +7,9 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include "conf.h"	/* XXX Could use CFLAGS later instead --db */
 
-#if (defined(__unix__) || defined(unix)) && !defined(USG)
+#ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
 

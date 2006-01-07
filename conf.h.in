@@ -1,0 +1,48 @@
+/* setup.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* Define to 1 if string.h may be included along with strings.h */
+#undef STRING_WITH_STRINGS
+
+/* Define to 1 if your processor stores words with the most significant byte
+   first (like Motorola and SPARC, unlike Intel and VAX). */
+#undef WORDS_BIGENDIAN
+
+/* Enable GNU extensions on systems that have them.  */
+#ifndef _GNU_SOURCE
+# undef _GNU_SOURCE
+#endif
+
+/* This is needed to use strtok_r on Solaris. */
+#undef __EXTENSIONS__
+
+
+/* Define to `__inline__' or `__inline' if that's what the C compiler
+   calls it, or to nothing if 'inline' is not supported under any name.  */
+#ifndef __cplusplus
+#undef inline
+#endif
+
+/* Define to `long long' if <sys/types.h> does not define. */
+#undef int64_t
+
+/* If system does not define sa_family_t, define it here. */
+#undef sa_family_t
+
+/* If we don't have a real socklen_t, unsigned int is good enough. */
+#undef socklen_t
+
+/* If system does not define u_int16_t, define a usable substitute. */
+#undef u_int16_t
+
+/* If system does not define u_int32_t, define to unsigned long int here. */
+#undef u_int32_t
+
+/* Define to `unsigned long long' if <sys/types.h> does not define. */
+#undef uint64_t
+
+#undef HAVE_ALSA_ALSASOUND_H
+#undef HAVE_SYS_SOUNDCARD_H
+#undef HAVE_AUDIOFILE_H

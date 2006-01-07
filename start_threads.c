@@ -1,9 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include "conf.h"
+
+/* XXX Change to 
+ * #if defined(WANT_ALSA) && defined(HAVE_ALSA_ALSASOUND_H)
+ * when configure is done with options --db
+ */
+#ifdef HAVE_ALSA_ALSASOUND_H
 #include <alsa/asoundlib.h>
+#endif
+
 #include <inttypes.h>
 #include <time.h>
+
+#ifdef HAVE_ALSA_ALSASOUND_H
 
 #if 1
 #define ALSA_LOG
@@ -490,7 +501,7 @@ void ao_alsa_loop(void *iarg) {
 		
 	return;
 }
-
+#endif
 
 extern void decode1_(int *iarg);
 int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
@@ -505,6 +516,7 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   int iarg1 = 1,iarg2 = 2;
   //int32_t rate=11025;
   int32_t rate=*nfsample;
+#ifdef HAVE_ALSA_ALSASOUND_H
   alsa_driver_capture.app_buffer_y1 = y1;
   alsa_driver_capture.app_buffer_y2 = y2;
   alsa_driver_capture.app_buffer_offset = iwrite;
@@ -521,9 +533,10 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   alsa_driver_playback.nmode = nmode;
   alsa_driver_playback.transmitting = Transmitting;
   alsa_driver_playback.ndsec = ndsec;
-
+#endif
   printf("start threads called\n");
   iret1 = pthread_create(&thread1,NULL,decode1_,&iarg1);
+#ifdef HAVE_ALSA_ALSASOUND_H
 /* Open audio card. */
   ao_alsa_open(&alsa_driver_playback, &rate, SND_PCM_STREAM_PLAYBACK);
   ao_alsa_open(&alsa_driver_capture, &rate, SND_PCM_STREAM_CAPTURE);
@@ -539,5 +552,5 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
 
  /* snd_pcm_start */
   //iret2 = pthread_create(&thread2,NULL,a2d_,&iarg2);
-
+#endif
 }
