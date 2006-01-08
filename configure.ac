@@ -63,6 +63,7 @@ if test ! -z "$CFLAGS"; then
 	WSJT_CFLAGS="$WSJT_CFLAGS $CFLAGS"
 fi
 
+
 AC_ISC_POSIX
 AC_C_INLINE
 AC_PROG_GCC_TRADITIONAL
@@ -93,14 +94,10 @@ AC_SUBST(OS, "${OS}")
 dnl Checks for header files.
 AC_HEADER_STDC
 
-AC_CHECK_HEADERS([crypt.h inttypes.h stdint.h sys/resource.h sys/param.h errno.h sys/syslog.h stddef.h libgen.h sys/wait.h wait.h link.h sys/soundcard.h linux/soundcard.h alsa/alsasound.h audiofile.h])
-
-dnl use directory structure of cached as default (hack)
-if test "$libexecdir" = '${exec_prefix}/libexec' &&
-   test "$localstatedir" = '${prefix}/var'; then
-	libexecdir='${bindir}'
-	localstatedir='${prefix}'
-fi
+AC_CHECK_HEADERS([inttypes.h stdint.h sys/resource.h sys/param.h errno.h sys/syslog.h stddef.h libgen.h sys/wait.h wait.h ])
+AC_CHECK_HEADER([sys/soundcard.h], [HAS_SOUNDCARD_H=1], [HAS_SOUNDCARD_H=0])
+AC_CHECK_HEADER([alsa/alsasound.h], [HAS_ALSASOUND_H=1], [HAS_ALSASOUND_H=0])
+AC_CHECK_HEADER([audiofile.h], [HAS_AUDIOFILE_H=1], [HAS_AUDIOFILE_H=0])
 
 dnl See whether we can include both string.h and strings.h.
 AC_CACHE_CHECK([whether string.h and strings.h may both be included],
@@ -117,16 +114,45 @@ if test "$gcc_cv_header_string" = "yes"; then
 	AC_DEFINE(STRING_WITH_STRINGS, 1, [Define to 1 if string.h may be included along with strings.h])
 fi
 
+AC_CHECK_SIZEOF(int64_t)
+AC_CHECK_SIZEOF(long long)
+
+if test "$ac_cv_sizeof_int64_t" = 8; then
+  AC_CHECK_TYPE(uint64_t)
+  AC_CHECK_TYPE(int64_t)
+elif test "$ac_cv_sizeof_long_long" = 8; then
+  AC_CHECK_TYPE(uint64_t, unsigned long long)
+  AC_CHECK_TYPE(int64_t, long long)
+fi
+
+AC_CHECK_TYPE([u_int32_t], [],
+[
+	AC_CHECK_TYPE([uint32_t],
+	[
+		AC_DEFINE(u_int32_t, [uint32_t], [If system does not define u_int32_t, define a reasonable substitute.])
+	],
+	[
+		AC_MSG_WARN([system has no u_int32_t or uint32_t, default to unsigned long int])
+		AC_DEFINE(u_int32_t, [unsigned long int], [If system does not define u_int32_t, define to unsigned long int here.])
+	])
+])
+
+AC_CHECK_TYPE([u_int16_t], [],
+[
+	AC_CHECK_TYPE([uint16_t],
+	[
+		AC_DEFINE(u_int16_t, [uint16_t], [If system does not define u_int16_t, define a usable substitute])
+	],
+	[
+		AC_MSG_WARN([system has no u_int16_t or uint16_t, default to unsigned short int])
+		AC_DEFINE(u_int16_t, [unsigned short int], [If system does not define u_int16_t, define a usable substitute.])
+	])
+])
+
 AC_C_BIGENDIAN
 
 dnl Check for stdarg.h - if we can't find it, halt configure
 AC_CHECK_HEADER(stdarg.h, , [AC_MSG_ERROR([** stdarg.h could not be found - wsjt will not compile without it **])])
-
-dnl Checks for the existence of strlcat, strlcpy, basename...
-dnl This more reliable test only works with gcc though.
-
-
-AC_SUBST(SNPRINTF_C)
 
 dnl Debug-related options
 dnl =====================
@@ -165,6 +191,64 @@ fi
 AC_CONFIG_FILES(		\
 	Makefile		
 )
+
+dnl alsa soundsupport
+dnl =================
+
+AC_ARG_ENABLE(alsa,
+AC_HELP_STRING([--enable-alsa],[Force ALSA SOUNDCARD usage.]),
+[alsa=$enableval] , [alsa=no])
+
+dnl oss soundsupport
+dnl ================
+
+AC_ARG_ENABLE(oss,
+AC_HELP_STRING([--enable-oss],[Force OSS SOUND usage.]),
+[oss=$enableval] , [oss=no])
+
+dnl libaudio soundsupport
+dnl =====================
+
+AC_ARG_ENABLE(libaudio,
+AC_HELP_STRING([--enable-libaudio],[Force LIBAUDIO SOUND usage.]),
+[libaudio=$enableval], [libaudio=no])
+
+if test "$alsa" = yes; then
+	AC_DEFINE(USE_ALSA, 1, [Define if you want ALSA used.])
+fi
+
+if test "$oss" = yes; then
+	AC_DEFINE(USE_OSS, 1, [Define if you want OSS used.])
+fi
+
+if test "$libaudio" = yes; then
+	AC_DEFINE(USE_LIBAUDIO, 1, [Define if you want LIBAUDIO used.])
+fi
+
+dnl sanity tests.
+if test "$alsa" = yes; then
+	if test $HAS_ALSASOUND_H -eq 0; then
+		AC_MSG_ERROR([You need alsasound.h to use --enable-alsa])
+	else
+		AC_DEFINE(HAS_ALSASOUND_H, 1, )
+	fi
+fi
+
+if test "$oss" = yes; then
+	if test $HAS_SOUNDCARD_H -eq 0; then
+		AC_MSG_ERROR([You need soundcard.h to use --enable-oss])
+	else
+		AC_DEFINE(HAS_SOUNDCARD_H, 1, )
+	fi
+fi
+
+if test "$libaudio" = yes; then
+	if test $HAS_AUDIOFILE_H -eq 0; then
+		AC_MSG_ERROR([You need audiofile.h to use --enable-libaudio])
+	else
+		AC_DEFINE(HAS_AUDIOFILE_H, 1, )
+	fi
+fi
 
 AC_OUTPUT
 
