@@ -46,6 +46,20 @@
 /* Define if you have /usr/include/sys/param.h */
 #undef HAVE_SYS_PARAM_H
 
-#undef HAVE_ALSA_ALSASOUND_H
-#undef HAVE_SYS_SOUNDCARD_H
-#undef HAVE_AUDIOFILE_H
+/* Define if you have alsasound.h */
+#undef HAS_ALSASOUND_H
+
+/* Define if you want to use ALSA */
+#undef USE_ALSA
+
+/* Define if you have soundcard.h */
+#undef HAS_SOUNDCARD_H
+
+/* Define if you want to use OSS */
+#undef USE_OSS
+
+/* Define if you have audiofile.h */
+#undef HAS_AUDIOFILE_H
+
+/* Define if you want to use LIBAUDIO */
+#undef USE_LIBAUDIO
