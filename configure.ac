@@ -97,7 +97,8 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS([inttypes.h stdint.h sys/resource.h sys/param.h errno.h sys/syslog.h stddef.h libgen.h sys/wait.h wait.h ])
 AC_CHECK_HEADER([sys/soundcard.h], [HAS_SOUNDCARD_H=1], [HAS_SOUNDCARD_H=0])
 AC_CHECK_HEADER([alsa/alsasound.h], [HAS_ALSASOUND_H=1], [HAS_ALSASOUND_H=0])
-AC_CHECK_HEADER([audiofile.h], [HAS_AUDIOFILE_H=1], [HAS_AUDIOFILE_H=0])
+dnl XXX non portable portaudio.h check fix later --db
+AC_CHECK_HEADER([/usr/local/include/portaudio.h], [HAS_PORTAUDIO_H=1], [HAS_PORTAUDIO_H=0])
 
 dnl See whether we can include both string.h and strings.h.
 AC_CACHE_CHECK([whether string.h and strings.h may both be included],
@@ -206,12 +207,12 @@ AC_ARG_ENABLE(oss,
 AC_HELP_STRING([--enable-oss],[Force OSS SOUND usage.]),
 [oss=$enableval] , [oss=no])
 
-dnl libaudio soundsupport
-dnl =====================
+dnl portaudio soundsupport
+dnl ======================
 
-AC_ARG_ENABLE(libaudio,
-AC_HELP_STRING([--enable-libaudio],[Force LIBAUDIO SOUND usage.]),
-[libaudio=$enableval], [libaudio=no])
+AC_ARG_ENABLE(portaudio,
+AC_HELP_STRING([--enable-portaudio],[Force PORTAUDIO SOUND usage.]),
+[portaudio=$enableval], [portaudio=no])
 
 if test "$alsa" = yes; then
 	AC_DEFINE(USE_ALSA, 1, [Define if you want ALSA used.])
@@ -221,32 +222,40 @@ if test "$oss" = yes; then
 	AC_DEFINE(USE_OSS, 1, [Define if you want OSS used.])
 fi
 
-if test "$libaudio" = yes; then
-	AC_DEFINE(USE_LIBAUDIO, 1, [Define if you want LIBAUDIO used.])
+if test "$portaudio" = yes; then
+	AC_DEFINE(USE_PORTAUDIO, 1, [Define if you want PORTAUDIO used.])
+fi
+
+dnl set conf flags
+
+if test $HAS_ALSASOUND_H -eq 1; then
+	AC_DEFINE(HAS_ALSASOUND_H, 1, )
+fi
+
+if test $HAS_SOUNDCARD_H -eq 1; then
+	AC_DEFINE(HAS_SOUNDCARD_H, 1, )
+fi
+
+if test $HAS_PORTAUDIO_H -eq 1; then
+	AC_DEFINE(HAS_PORTAUDIO_H, 1, )
 fi
 
 dnl sanity tests.
 if test "$alsa" = yes; then
 	if test $HAS_ALSASOUND_H -eq 0; then
 		AC_MSG_ERROR([You need alsasound.h to use --enable-alsa])
-	else
-		AC_DEFINE(HAS_ALSASOUND_H, 1, )
 	fi
 fi
 
 if test "$oss" = yes; then
 	if test $HAS_SOUNDCARD_H -eq 0; then
 		AC_MSG_ERROR([You need soundcard.h to use --enable-oss])
-	else
-		AC_DEFINE(HAS_SOUNDCARD_H, 1, )
 	fi
 fi
 
-if test "$libaudio" = yes; then
-	if test $HAS_AUDIOFILE_H -eq 0; then
-		AC_MSG_ERROR([You need audiofile.h to use --enable-libaudio])
-	else
-		AC_DEFINE(HAS_AUDIOFILE_H, 1, )
+if test "$portaudio" = yes; then
+	if test $HAS_PORTAUDIO_H -eq 0; then
+		AC_MSG_ERROR([You need portaudio.h to use --enable-portaudio])
 	fi
 fi
 
