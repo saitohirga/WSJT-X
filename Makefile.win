@@ -26,15 +26,28 @@ SRCS2F90 = a2d.f90 abc441.f90 astro0.f90 audio_init.f90 azdist0.f90 \
 	ftn_quit.f90 get_fname.f90 getfile.f90 horizspec.f90 hscroll.f90 \
 	i1tor4.f90 pix2d.f90 pix2d65.f90 rfile.f90 savedata.f90 spec.f90 \
 	wsjtgen.f90 runqqq.f90 fivehz.f90
-SRCS2F77 = wsjt1.f fsubs1.f fsubs.f astro.f astropak.f 
-SRCS2C   = resample.c ptt.c igray.c wrapkarn.c 
+SRCS2F77 = wsjt1.f avesp2.f bzap.f spec441.f spec2d.f mtdecode.f \
+	stdecode.f indexx.f s2shape.f flat2.f gen65.f chkmsg.f gen6m.f \
+	gentone.f syncf0.f syncf1.f synct.f decode6m.f avemsg6m.f \
+	set.f flatten.f db.f pctile.f sort.f ssort.f ps.f smooth.f ping.f \
+	longx.f peakup.f sync.f detect.f avemsg65.f decode65.f demod64a.f \
+	encode65.f extract.f flat1.f four2.f gencw.f getpfx1.f \
+	getpfx2.f getsnr.f graycode.f grid2k.f interleave63.f k2grid.f \
+	limit.f lpf1.f deep65.f morse.f nchar.f packcall.f packgrid.f \
+	packmsg.f packtext.f setup65.f short65.f slope.f spec2d65.f \
+	sync65.f unpackcall.f unpackgrid.f unpackmsg.f unpacktext.f \
+	xcor.f xfft.f wsjt65.f astro.f azdist.f coord.f dcoord.f \
+	deg2grid.f dot.f ftsky.f geocentric.f GeoDist.f grid2deg.f \
+	moon2.f MoonDop.f sun.f toxyz.f
+
+SRCS2C   = resample.c ptt.c igray.c wrapkarn.c
 
 WSJT6.EXE: Audio.pyd wsjt.spec
 	python c:\python23\installer\Build.py wsjt.spec
 	-del WSJT6.EXE
 	REN wsjt.exe WSJT6.EXE
 
-Audio.pyd: $(OBJS2C)
+Audio.pyd: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C) 
 	python f2py.py -c \
 	--quiet --"fcompiler=compaqv" \
 	--opt="/traceback /fast /fpp /define:Win32" \
@@ -78,6 +91,6 @@ igray.obj: igray.c
 .PHONY : clean
 
 clean:
-    -del *.o *.obj JT65code.exe Audio.pyd
+    -del *.o *.obj JT65code.exe wsjt6.exe Audio.pyd
 
 

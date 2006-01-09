@@ -197,10 +197,12 @@
 ! For waterfall plot
 	   call spec2d(dat,jz,nstep,s2,nchan,nz,psavg,sigma)
 	   if(jz/11025.0.lt.3.9) go to 900
-	   call syncf0(dat,jz,DFTolerance,jstart,f0,smax)
-	   if(NFreeze.eq.1) f0=1076.66
+
+	   f0=1076.66
+	   if(NFreeze.eq.1) f0=1076.66+mousedf
+	   call syncf0(dat,jz,NFreeze,DFTolerance,jstart,f0,smax)
 	   call synct(dat,jz,jstart,f0,smax)
-	   call syncf1(dat,jz,jstart,f0,NFreeze,smax,red)
+	   call syncf1(dat,jz,jstart,f0,NFreeze,DFTolerance,smax,red)
 
 	   f0a=f0
 	   do i=1,512

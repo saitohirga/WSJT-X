@@ -37,11 +37,7 @@ typedef struct _SYSTEMTIME
   short   Millisecond;
 } SYSTEMTIME;
 
-#ifdef Win32
 extern void __stdcall GetSystemTime(SYSTEMTIME *st);
-#else
-extern void GetSystemTime(SYSTEMTIME *st);
-#endif
 
 //  Input callback routine:
 static int SoundIn( void *inputBuffer, void *outputBuffer,
