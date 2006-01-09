@@ -12,7 +12,7 @@ G95=@G95@
 COMPILER=@G95_LIB_PATH@
 
 LDFLAGS	+= -L${COMPILER}
-LIBS	= -lpthread -lg2c
+LDFLAGS	+= -lpthread -lg2c
 
 PYTHON	?= @PYTHON@
 RM	?= @RM@
@@ -58,7 +58,7 @@ wsjt6:	Audio.so #wsjt.spec
 Audio.so: $(OBJS2C)
 	 ${PYTHON} ${F2PY_PY} -c --verbose --opt="-O -cpp -D${OS} \
 	-fno-second-underscore"	$(OBJS2C) -m Audio \
-	--f77exec=${G95} --f90exec=${G95} ${CPPFLAGS} ${LDFLAGS} ${LIBS} \
+	--f77exec=${G95} --f90exec=${G95} ${CPPFLAGS} ${LDFLAGS} \
 	only: $(F2PYONLY) \
 	: $(SRCS2F90) \
 	$(SRCS2F77) \
