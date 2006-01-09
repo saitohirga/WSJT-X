@@ -58,8 +58,8 @@
 /* Define if you want to use OSS */
 #undef USE_OSS
 
-/* Define if you have audiofile.h */
-#undef HAS_AUDIOFILE_H
+/* Define if you have portaudio.h */
+#undef HAS_PORTAUDIO_H
 
-/* Define if you want to use LIBAUDIO */
-#undef USE_LIBAUDIO
+/* Define if you want to use PORTAUDIO */
+#undef USE_PORTAUDIO
