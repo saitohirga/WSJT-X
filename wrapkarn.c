@@ -8,7 +8,7 @@
 void *rs;
 static int first=1;
 
-#ifdef WIN32
+#ifdef Win32
 void __stdcall RS_ENCODE(int *dgen, int *sent)
 #else
 void rs_encode_(int *dgen, int *sent)
@@ -38,7 +38,7 @@ void rs_encode_(int *dgen, int *sent)
   for (i = 0; i < 12; i++) sent[i+51] = dat1[11-i];
 }
 
-#ifdef WIN32
+#ifdef Win32
 void __stdcall RS_DECODE(int *recd0, int *era0, int *numera0, int *decoded, int *nerr)
 #else
 void rs_decode_(int *recd0, int *era0, int *numera0, int *decoded, int *nerr)
@@ -69,7 +69,7 @@ void rs_decode_(int *recd0, int *era0, int *numera0, int *decoded, int *nerr)
 }
 
 
-#ifndef WIN32
+#ifndef Win32
 void rs_encode__(int *dgen, int *sent)
 {
 	rs_encode_(dgen, sent);
