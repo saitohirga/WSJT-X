@@ -1,4 +1,4 @@
-      subroutine syncf1(data,jz,jstart,f0,NFreeze,smax,red)
+      subroutine syncf1(data,jz,jstart,f0,NFreeze,DFTolerance,smax,red)
 
 C  Does 16k FFTs of data with stepsize 15360, using only "sync on" intervals.
 C  Returns a refined value of f0, the sync-tone frequency.
@@ -8,6 +8,7 @@ C  Returns a refined value of f0, the sync-tone frequency.
       parameter (NQ=NFFT/4)
       parameter (NB3=3*512)
       real data(jz)                          !Raw data
+      integer DFTolerance
       real x(NFFT)
       real red(512)
       real s(NQ)     !Ref spectrum for flattening and birdie-zapping
@@ -41,6 +42,7 @@ C  Accumulate a high-resolution average spectrum
       do i=1,NQ                                !Normalize
          s(i)=fac*s(i)
       enddo
+      call smooth(s,NQ)
 
 C  NB: could also compute a "blue" spectrum, using the sync-off intervals.
       n8=NQ/8
@@ -52,14 +54,17 @@ C  NB: could also compute a "blue" spectrum, using the sync-off intervals.
          red(i)=10.0*red(i)/(8.0*nz)
       enddo
 
+
+      dftol=min(DFTolerance,25)
+      if(nfreeze.eq.1) dftol=DFTolerance
 C  Find improved value for f0
       smax=0.
-      ia=(f0-25.)/df
-      ib=(f0+25.)/df
-      if(NFreeze.eq.1) then
-         ia=(f0-5.)/df
-         ib=(f0+5.)/df
-      endif
+      ia=(f0-dftol)/df
+      ib=(f0+dftol)/df + 0.999
+!      if(NFreeze.eq.1) then
+!         ia=(f0-5.)/df
+!         ib=(f0+5.)/df
+!      endif
       do i=ia,ib
          if(s(i).gt.smax) then
             smax=s(i)

@@ -574,6 +574,7 @@ def ModeJT6M(event=NONE):
         isync=isync6m
         lsync.configure(text=slabel+str(isync))
         shmsg.configure(state=DISABLED)
+        cbfreeze.configure(state=NORMAL)
         itol=5
         inctol()
         ntx.set(1)
@@ -973,6 +974,14 @@ def mouse_up_g1(event):
 #    print event.x
     pass
 
+#------------------------------------------------------ right_arrow
+def right_arrow(event=NONE):
+    Audio.gcom2.mousedf=Audio.gcom2.mousedf+10
+
+#------------------------------------------------------ left_arrow
+def left_arrow(event=NONE):
+    Audio.gcom2.mousedf=Audio.gcom2.mousedf-10
+    
 #------------------------------------------------------ GenStdMsgs
 def GenStdMsgs(event=NONE):
     t=ToRadio.get().upper().strip()
@@ -1658,6 +1667,8 @@ root.bind_all('<Alt-x>',decode_exclude)
 root.bind_all('<Alt-X>',decode_exclude)
 root.bind_all('<Control-l>',lookup_gen)
 root.bind_all('<Control-L>',lookup_gen)
+root.bind_all('<Left>',left_arrow)
+root.bind_all('<Right>',right_arrow)
 
 text.pack(side=LEFT, fill=X, padx=1)
 sb = Scrollbar(iframe4, orient=VERTICAL, command=text.yview)
