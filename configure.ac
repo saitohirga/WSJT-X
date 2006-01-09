@@ -101,7 +101,6 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS([inttypes.h stdint.h sys/resource.h sys/param.h errno.h sys/syslog.h stddef.h libgen.h sys/wait.h wait.h ])
 AC_CHECK_HEADER([sys/soundcard.h], [HAS_SOUNDCARD_H=1], [HAS_SOUNDCARD_H=0])
 AC_CHECK_HEADER([alsa/asoundlib.h], [HAS_ASOUNDLIB_H=1], [HAS_ASOUNDLIB_H=0])
-AC_CHECK_HEADER([sys/asoundlib.h], [HAS_ASOUNDLIB_H=1], [HAS_ASOUNDLIB_H=0])
 AC_CHECK_HEADER([portaudio.h], [HAS_PORTAUDIO_H=1], [HAS_PORTAUDIO_H=0])
 
 dnl See whether we can include both string.h and strings.h.
@@ -221,7 +220,7 @@ AC_HELP_STRING([--enable-portaudio],[Force PORTAUDIO SOUND usage.]),
 if test "$alsa" = yes; then
 	AC_DEFINE(USE_ALSA, 1, [Define if you want ALSA used.])
 	AC_SUBST(AUDIO, "start_threads.c")
-	LDFLAGS="-Lpthreads ${LDFLAGS}"
+	LDFLAGS="${LDFLAGS} -lpthreads -lasound"
 fi
 
 if test "$oss" = yes; then

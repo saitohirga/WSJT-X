@@ -46,8 +46,8 @@
 /* Define if you have /usr/include/sys/param.h */
 #undef HAVE_SYS_PARAM_H
 
-/* Define if you have alsasound.h */
-#undef HAS_ALSASOUND_H
+/* Define if you have asoundlib.h */
+#undef HAS_ASOUNDLIB_H
 
 /* Define if you want to use ALSA */
 #undef USE_ALSA
