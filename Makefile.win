@@ -1,0 +1,83 @@
+#Makefile for Windows
+!include <dfinc.mak>   #Some definitions for Compaq Visual Fortran
+gcc = cl
+FC = df
+#FFLAGS = /traceback /check:all
+FFLAGS = /traceback /fast
+
+all:    JT65code.exe WSJT6.EXE
+
+OBJS1 = JT65code.obj nchar.obj grid2deg.obj packmsg.obj packtext.obj \
+	packcall.obj packgrid.obj unpackmsg.obj unpacktext.obj \
+	unpackcall.obj unpackgrid.obj deg2grid.obj packdxcc.obj \
+	chkmsg.obj getpfx1.obj getpfx2.obj k2grid.obj grid2k.obj \
+	interleave63.obj graycode.obj set.obj igray.obj \
+	init_rs.obj encode_rs.obj decode_rs.obj \
+	wrapkarn.obj
+
+JT65code.exe: $(OBJS1)
+	$(FC) /exe:JT65code.exe $(OBJS1)
+
+
+OBJS2C   = init_rs.o encode_rs.o decode_rs.o jtaudio.o
+F2PYONLY = ftn_init ftn_quit audio_init spec getfile azdist0 astro0
+SRCS2F90 = a2d.f90 abc441.f90 astro0.f90 audio_init.f90 azdist0.f90 \
+	blanker.f90 decode1.f90 decode2.f90 decode3.f90 ftn_init.f90 \
+	ftn_quit.f90 get_fname.f90 getfile.f90 horizspec.f90 hscroll.f90 \
+	i1tor4.f90 pix2d.f90 pix2d65.f90 rfile.f90 savedata.f90 spec.f90 \
+	wsjtgen.f90 runqqq.f90 fivehz.f90
+SRCS2F77 = wsjt1.f fsubs1.f fsubs.f astro.f astropak.f 
+SRCS2C   = resample.c ptt.c igray.c wrapkarn.c 
+
+WSJT6.EXE: Audio.pyd wsjt.spec
+	python c:\python23\installer\Build.py wsjt.spec
+	-del WSJT6.EXE
+	REN wsjt.exe WSJT6.EXE
+
+Audio.pyd: $(OBJS2C)
+	python f2py.py -c \
+	--quiet --"fcompiler=compaqv" \
+	--opt="/traceback /fast /fpp /define:Win32" \
+	$(OBJS2C) \
+	-lwinmm -lpa -llibsamplerate \
+	-m Audio \
+	only: $(F2PYONLY) : \
+	$(SRCS2F90) $(SRCS2F77) $(SRCS2C)
+
+wsjt.spec: wsjt.py astro.py g.py options.py palettes.py smeter.py specjt.py
+	python c:\python23\installer\makespec.py --icon wsjt.ico \
+	--tk --onefile wsjt.py
+
+jtaudio.o: jtaudio.c
+	cl /c /DWin32 /Fojtaudio.o jtaudio.c
+
+init_rs.obj: init_rs.c
+	$(CC) /c /DBIGSYM=1 init_rs.c
+
+init_rs.o: init_rs.obj
+	$(CC) /c /DBIGSYM=1 /Foinit_rs.o init_rs.c
+
+encode_rs.obj: encode_rs.c
+	$(CC) /c /DBIGSYM=1 encode_rs.c
+
+encode_rs.o: encode_rs.c
+	$(CC) /c /DBIGSYM=1 /Foencode_rs.o encode_rs.c
+
+decode_rs.obj: decode_rs.c
+	$(CC) /c /DBIGSYM=1 decode_rs.c
+
+decode_rs.o: decode_rs.c
+	$(CC) /c /DBIGSYM=1 /Ox /Zd /Fodecode_rs.o decode_rs.c
+
+wrapkarn.obj: wrapkarn.c
+	$(CC) /c /DWin32=1 wrapkarn.c
+
+igray.obj: igray.c
+	$(CC) /c /DWin32=1 igray.c
+
+.PHONY : clean
+
+clean:
+    -del *.o *.obj JT65code.exe Audio.pyd
+
+
