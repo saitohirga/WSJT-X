@@ -231,6 +231,7 @@ fi
 if test "$portaudio" = yes; then
 	AC_DEFINE(USE_PORTAUDIO, 1, [Define if you want PORTAUDIO used.])
 	AC_SUBST(AUDIO, "jtaudio.c")
+	LDFLAGS="${LDFLAGS} -lpthreads -lportaudio"
 fi
 
 dnl set conf flags
