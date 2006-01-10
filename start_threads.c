@@ -3,21 +3,18 @@
 #include <pthread.h>
 #include "conf.h"
 
-/* 
- * XXX This should have been caught in the sanity tests in configure --db
- */
-#if defined(USE_ALSA) && !defined(HAS_ASOUNDLIB_H)
-#error "You must have alsa support to use alsa"
-#endif
-
-#if defined(USE_ALSA) && defined(HAS_ASOUNDLIB_H)
+#ifdef USE_ALSA
 #include <alsa/asoundlib.h>
 #endif
 
 #include <inttypes.h>
 #include <time.h>
 
-#if defined(USE_ALSA) && defined(HAS_ASOUNDLIB_H)
+#ifdef USE_PORTAUDIO
+extern a2d_();
+#endif
+
+#ifdef USE_ALSA
 
 #if 1
 #define ALSA_LOG
@@ -519,7 +516,7 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   int iarg1 = 1,iarg2 = 2;
   //int32_t rate=11025;
   int32_t rate=*nfsample;
-#if defined(USE_ALSA) && defined(HAS_ASOUNDLIB_H)
+#ifdef USE_ALSA
   alsa_driver_capture.app_buffer_y1 = y1;
   alsa_driver_capture.app_buffer_y2 = y2;
   alsa_driver_capture.app_buffer_offset = iwrite;
@@ -539,7 +536,7 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
 #endif
   printf("start threads called\n");
   iret1 = pthread_create(&thread1,NULL,decode1_,&iarg1);
-#if defined(USE_ALSA) && defined(HAS_ASOUNDLIB_H)
+#ifdef USE_ALSA
 /* Open audio card. */
   ao_alsa_open(&alsa_driver_playback, &rate, SND_PCM_STREAM_PLAYBACK);
   ao_alsa_open(&alsa_driver_capture, &rate, SND_PCM_STREAM_CAPTURE);
@@ -552,8 +549,8 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   snd_pcm_start(alsa_driver_capture.audio_fd);
   snd_pcm_prepare(alsa_driver_playback.audio_fd);
   //snd_pcm_start(alsa_driver_playback.audio_fd);
-
+#else
  /* snd_pcm_start */
-  //iret2 = pthread_create(&thread2,NULL,a2d_,&iarg2);
+  iret2 = pthread_create(&thread2,NULL,a2d_,&iarg2);
 #endif
 }
