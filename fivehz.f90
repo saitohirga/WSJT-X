@@ -190,7 +190,6 @@ subroutine fivehztx
   if(first) then
      first=.false.
      ncall=-1
-     tt0=tt
      fsample=11025.d0
      nsec0=-999
      u=0.05d0
@@ -198,8 +197,9 @@ subroutine fivehztx
   endif
 
   ncall=ncall+1
-  if(ncall.gt.0) then
-     fs=ncall*2048.d0/(tt-tt0)
+  if(ncall.eq.8) tt0=tt
+  if(ncall.gt.8) then
+     fs=(ncall-8)*2048.d0/(tt-tt0)
      fsample=u*fs + (1.d0-u)*fsample
      mfsample2=nint(10.d0*fsample)
   endif

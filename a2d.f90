@@ -1,8 +1,8 @@
 !---------------------------------------------------- a2d
 subroutine a2d(iarg)
 
-#if 1
-!--- # ifdef USE_PORTAUDIO
+!#if 1
+# ifdef USE_PORTAUDIO
 ! Start the PortAudio streams for audio input and output.
   integer nchin(0:20),nchout(0:20)
   include 'gcom1.f90'

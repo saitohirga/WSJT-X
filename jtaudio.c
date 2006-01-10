@@ -113,8 +113,8 @@ static int SoundIn( void *inputBuffer, void *outputBuffer,
   *data->ibuf=ib;
   data->tbuf[ib-1]=stime;
     for(i=0; i<framesPerBuffer; i++) {
-      data->y1[ia] = (*in++)>>1;       //NB: divide by 2!
-      data->y2[ia] = (*in++)>>1;
+      data->y1[ia] = (*in++);
+      data->y2[ia] = (*in++);
       ia++;
     }
   }
