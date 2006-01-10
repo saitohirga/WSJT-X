@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "samplerate.h"
+#include <samplerate.h>
 
 int resample_( float din[], float dout[], double *samfac, int *jz)
 {
