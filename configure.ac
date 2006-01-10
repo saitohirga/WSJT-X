@@ -102,6 +102,7 @@ AC_CHECK_HEADERS([inttypes.h stdint.h sys/resource.h sys/param.h errno.h sys/sys
 AC_CHECK_HEADER([sys/soundcard.h], [HAS_SOUNDCARD_H=1], [HAS_SOUNDCARD_H=0])
 AC_CHECK_HEADER([alsa/asoundlib.h], [HAS_ASOUNDLIB_H=1], [HAS_ASOUNDLIB_H=0])
 AC_CHECK_HEADER([portaudio.h], [HAS_PORTAUDIO_H=1], [HAS_PORTAUDIO_H=0])
+AC_CHECK_HEADER([samplerate.h], [HAS_SAMPLERATE_H=1], [HAS_SAMPLERATE_H=0])
 
 dnl See whether we can include both string.h and strings.h.
 AC_CACHE_CHECK([whether string.h and strings.h may both be included],
@@ -250,7 +251,24 @@ if test $HAS_PORTAUDIO_H -eq 1; then
 	AC_DEFINE(HAS_PORTAUDIO_H, 1, )
 fi
 
+if test $HAS_SAMPLERATE_H -eq 1; then
+        AC_DEFINE(HAS_SAMPLERATE_H, 1, )
+fi
+
+dnl set defaults
+
+if test "$alsa" != yes -a "$oss" != yes -a "$portaudio" != yes; then
+	if test $HAS_PORTAUDIO_H -eq 1; then
+		set portaudio = yes;	
+		AC_MSG_RESULT([Using portaudio])
+	elif test $HAS_ASOUNDLIB_H -eq 1; then
+		set alsa = yes;
+		AC_MSG_RESULT([Using alsa])
+	fi
+fi
+
 dnl sanity tests.
+
 if test "$alsa" = yes; then
 	if test $HAS_ASOUNDLIB_H -eq 0; then
 		AC_MSG_ERROR([You need asoundlib.h to use --enable-alsa])
@@ -267,14 +285,21 @@ if test "$portaudio" = yes; then
 	if test $HAS_PORTAUDIO_H -eq 0; then
 		AC_MSG_ERROR([You need portaudio.h to use --enable-portaudio])
 	fi
+	if test $HAS_SAMPLERATE_H -eq 0; then
+		AC_MSG_ERROR([You need samplerate.h to use --enable-portaudio])
+	fi
 fi
+
 
 dnl 
 AC_SUBST(CPPFLAGS, "${CPPFLAGS}")
 AC_SUBST(LDFLAGS, "${LDFLAGS}")
 AC_SUBST(CFLAGS)
 
+
+
 AC_OUTPUT
+dnl do summary
 
 echo
 echo "Compiling $PACKAGE_NAME $PACKAGE_VERSION"
