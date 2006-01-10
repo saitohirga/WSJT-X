@@ -24,7 +24,7 @@ CFLAGS="$OLD_CFLAGS"
 
 dnl Lets guess at some likely places for extra libs/includes XXX -db
 CPPFLAGS="-I/usr/local/include -I/usr/include/alsa ${CPPFLAGS}"
-LDFLAGS="-L/usr/local/lib ${LDFLAGS}"
+LDFLAGS="-L/usr/local/lib -lpthread ${LDFLAGS}"
 
 AC_MSG_CHECKING([uname -s for Cygwin, Solaris or HPUX])
 case `uname -s` in
@@ -52,19 +52,19 @@ if test "$ac_cv_c_compiler_gnu" = yes; then
 
 	AC_MSG_RESULT($AppleGCC)
 
-	WSJT_CFLAGS="$WSJT_CFLAGS -Wall -O0"
+	CFLAGS="$CFLAGS -Wall -O0"
 fi
 
 dnl If we support -g, use it!
 if test "$ac_cv_prog_cc_g" = yes; then
-		WSJT_CFLAGS="$WSJT_CFLAGS -g"
+		CFLAGS="$CFLAGS -g"
 fi
 
 dnl jdc -- If CFLAGS is defined, best use it everywhere...
 dnl NOTE: jv says it must be added to the *END*, because things like
 dnl "gcc -O9 -O2" will result in -O2 getting preference.  How stupid.
 if test ! -z "$CFLAGS"; then
-	WSJT_CFLAGS="$WSJT_CFLAGS $CFLAGS"
+	CFLAGS="$CFLAGS $CFLAGS"
 fi
 
 
@@ -177,10 +177,9 @@ if test "$assert" = no; then
 	AC_DEFINE(NDEBUG, 1, [Define this to disable debugging support.])
 fi
 
-AC_SUBST(WSJT_CFLAGS)
 
 if test "$prefix" = "NONE"; then 
-	AC_DEFINE_UNQUOTED(WSJT_PREFIX, "$ac_default_prefix", [Prefix where wsjt is installed.])
+	AC_DEFINE_UNQUOTED(PREFIX, "$ac_default_prefix", [Prefix where wsjt is installed.])
 
 else
 
@@ -188,7 +187,7 @@ dnl Don't get bitten by Cygwin's stupidity if the user specified
 dnl a custom prefix with a trailing slash
 
 	prefix=`echo $prefix | sed 's/\/$//'`
-	AC_DEFINE_UNQUOTED(WSJT_PREFIX, "$prefix", [Prefix where wsjt is installed.])
+	AC_DEFINE_UNQUOTED(PREFIX, "$prefix", [Prefix where wsjt is installed.])
 	
 fi
 
@@ -220,7 +219,7 @@ AC_HELP_STRING([--enable-portaudio],[Force PORTAUDIO SOUND usage.]),
 if test "$alsa" = yes; then
 	AC_DEFINE(USE_ALSA, 1, [Define if you want ALSA used.])
 	AC_SUBST(AUDIO, "start_threads.c")
-	LDFLAGS="${LDFLAGS} -lpthreads -lasound"
+	LDFLAGS="${LDFLAGS} -lpthread -lasound"
 fi
 
 if test "$oss" = yes; then
@@ -228,10 +227,13 @@ if test "$oss" = yes; then
 	AC_SUBST(AUDIO, "jtaudio.c")
 fi
 
+dnl XXX
 if test "$portaudio" = yes; then
 	AC_DEFINE(USE_PORTAUDIO, 1, [Define if you want PORTAUDIO used.])
-	AC_SUBST(AUDIO, "jtaudio.c")
-	LDFLAGS="${LDFLAGS} -lpthreads -lportaudio"
+	AC_SUBST(AUDIO, "jtaudio.c start_threads.c")
+	LDFLAGS="${LDFLAGS} -lportaudio"
+	CFLAGS="${CFLAGS} -DUSE_PORTAUDIO"
+	CPPFLAGS="${CPPFLAGS} -DUSE_PORTAUDIO"
 fi
 
 dnl set conf flags
@@ -270,6 +272,7 @@ fi
 dnl 
 AC_SUBST(CPPFLAGS, "${CPPFLAGS}")
 AC_SUBST(LDFLAGS, "${LDFLAGS}")
+AC_SUBST(CFLAGS)
 
 AC_OUTPUT
 
