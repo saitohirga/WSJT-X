@@ -219,7 +219,7 @@ AC_HELP_STRING([--enable-portaudio],[Force PORTAUDIO SOUND usage.]),
 if test "$alsa" = yes; then
 	AC_DEFINE(USE_ALSA, 1, [Define if you want ALSA used.])
 	AC_SUBST(AUDIO, "start_threads.c")
-	LDFLAGS="${LDFLAGS} -lpthread -lasound"
+	LDFLAGS="${LDFLAGS} -lasound"
 fi
 
 if test "$oss" = yes; then

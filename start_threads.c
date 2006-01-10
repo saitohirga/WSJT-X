@@ -11,7 +11,8 @@
 #include <time.h>
 
 #ifdef USE_PORTAUDIO
-extern a2d_();
+extern void decode1_(int *iarg);
+extern void a2d_(int *iarg);
 #endif
 
 #ifdef USE_ALSA
@@ -551,6 +552,7 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   //snd_pcm_start(alsa_driver_playback.audio_fd);
 #else
  /* snd_pcm_start */
-  iret2 = pthread_create(&thread2,NULL,a2d_,&iarg2);
+  iret1 = pthread_create(&thread1,NULL,a2d_,&iarg1);
+  iret2 = pthread_create(&thread2,NULL,decode1_,&iarg2);
 #endif
 }
