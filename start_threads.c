@@ -535,10 +535,11 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   alsa_driver_playback.transmitting = Transmitting;
   alsa_driver_playback.ndsec = ndsec;
 #endif
-  printf("start threads called\n");
+  printf("start_threads creating thread for decode1\n");
   iret1 = pthread_create(&thread1,NULL,decode1_,&iarg1);
 #ifdef USE_ALSA
 /* Open audio card. */
+  printf("Starting alsa routines\n");
   ao_alsa_open(&alsa_driver_playback, &rate, SND_PCM_STREAM_PLAYBACK);
   ao_alsa_open(&alsa_driver_capture, &rate, SND_PCM_STREAM_CAPTURE);
 
@@ -552,7 +553,8 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   //snd_pcm_start(alsa_driver_playback.audio_fd);
 #else
  /* snd_pcm_start */
-  iret1 = pthread_create(&thread1,NULL,a2d_,&iarg1);
-  iret2 = pthread_create(&thread2,NULL,decode1_,&iarg2);
+  printf("start_threads creating thread for a2d\n");
+  iret1 = pthread_create(&thread2,NULL,a2d_,&iarg1);
+  //  iret2 = pthread_create(&thread2,NULL,decode1_,&iarg2);
 #endif
 }
