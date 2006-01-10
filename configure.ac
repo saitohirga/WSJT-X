@@ -217,10 +217,26 @@ AC_ARG_ENABLE(portaudio,
 AC_HELP_STRING([--enable-portaudio],[Force PORTAUDIO SOUND usage.]),
 [portaudio=$enableval], [portaudio=no])
 
+dnl now set conf.h,, CPPFLAGS and CFLAGS flags as needed
+dnl ====================================================
+
+dnl set defaults
+dnl ============
+
+if test "$alsa" != yes -a "$oss" != yes -a "$portaudio" != yes; then
+        if test $HAS_PORTAUDIO_H -eq 1; then
+		[portaudio=yes];
+	elif test $HAS_ASOUNDLIB_H -eq 1; then
+		[alsa=yes];
+	fi
+fi
+
 if test "$alsa" = yes; then
 	AC_DEFINE(USE_ALSA, 1, [Define if you want ALSA used.])
 	AC_SUBST(AUDIO, "start_threads.c")
 	LDFLAGS="${LDFLAGS} -lasound"
+	CFLAGS="${CFLAGS} -DUSE_ALSA"
+	CPPFLAGS="${CPPFLAGS} -DUSE_ALSA"
 fi
 
 if test "$oss" = yes; then
@@ -255,19 +271,8 @@ if test $HAS_SAMPLERATE_H -eq 1; then
         AC_DEFINE(HAS_SAMPLERATE_H, 1, )
 fi
 
-dnl set defaults
-
-if test "$alsa" != yes -a "$oss" != yes -a "$portaudio" != yes; then
-	if test $HAS_PORTAUDIO_H -eq 1; then
-		set portaudio = yes;	
-		AC_MSG_RESULT([Using portaudio])
-	elif test $HAS_ASOUNDLIB_H -eq 1; then
-		set alsa = yes;
-		AC_MSG_RESULT([Using alsa])
-	fi
-fi
-
 dnl sanity tests.
+dnl =============
 
 if test "$alsa" = yes; then
 	if test $HAS_ASOUNDLIB_H -eq 0; then
@@ -300,6 +305,21 @@ AC_SUBST(CFLAGS)
 
 AC_OUTPUT
 dnl do summary
+
+echo
+echo
+
+if test $portaudio == "yes"; then
+	echo "Using portaudio";
+fi
+
+if test $alsa == "yes"; then
+	echo "Using alsa";
+fi
+
+if test $oss == "yes"; then
+	echo "Using oss";
+fi
 
 echo
 echo "Compiling $PACKAGE_NAME $PACKAGE_VERSION"

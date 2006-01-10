@@ -75,7 +75,7 @@ wsjt.spec: wsjt.py astro.py g.py options.py palettes.py smeter.py specjt.py
 #	--tk --onefile wsjt.py
 
 jtaudio.o: jtaudio.c
-	$(CC) -c $(CPPFLAGS) jtaudio.c
+	$(CC) -c $(CLAGS) jtaudio.c
 
 init_rs_int.o: init_rs.c
 	$(CC) -c -DBIGSYM=1 -o init_rs_int.o init_rs.c
@@ -102,7 +102,7 @@ igray.o: igray.c
 	$(CC) -c igray.c
 
 start_threads.o: start_threads.c
-	$(CC) -c start_threads.c
+	$(CC) -c $(CFLAGS) start_threads.c
 
 .PHONY : clean
 clean:
