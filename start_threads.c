@@ -17,7 +17,7 @@ extern void a2d_(int *iarg);
 
 #ifdef USE_ALSA
 
-#if 1
+#if 0
 #define ALSA_LOG
 #define ALSA_LOG_BUFFERS
 #endif
@@ -266,7 +266,7 @@ static int ao_alsa_open(alsa_driver_t *this_gen, int32_t *input_rate, snd_pcm_st
   /* Check for pause/resume support */
   this->has_pause_resume = ( snd_pcm_hw_params_can_pause (params)
 			    && snd_pcm_hw_params_can_resume (params) );
-  printf( "audio_alsa_out:open pause_resume=%d\n", this->has_pause_resume);
+  //  printf( "audio_alsa_out:open pause_resume=%d\n", this->has_pause_resume);
   this->sample_rate_factor = (double) this->output_sample_rate / (double) this->input_sample_rate;
   this->bytes_per_frame = snd_pcm_frames_to_bytes (this->audio_fd, 1);
   /*
@@ -534,10 +534,10 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   alsa_driver_playback.nmode = nmode;
   alsa_driver_playback.transmitting = Transmitting;
   alsa_driver_playback.ndsec = ndsec;
-  printf("start_threads creating thread for decode1\n");
+  //  printf("start_threads: creating thread for decode1\n");
   iret1 = pthread_create(&thread1,NULL,decode1_,&iarg1);
 /* Open audio card. */
-  printf("Starting alsa routines\n");
+  printf("Starting alsa routines.\n");
   ao_alsa_open(&alsa_driver_playback, &rate, SND_PCM_STREAM_PLAYBACK);
   ao_alsa_open(&alsa_driver_capture, &rate, SND_PCM_STREAM_CAPTURE);
 
@@ -552,9 +552,9 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
 #endif
 #ifdef USE_PORTAUDIO
  /* snd_pcm_start */
-  printf("start_threads creating thread for a2d\n");
+  //  printf("start_threads: creating thread for a2d\n");
   iret1 = pthread_create(&thread1,NULL,a2d_,&iarg1);
-  printf("start_threads creating thread for decode1_\n");
+  //  printf("start_threads: creating thread for decode1_\n");
   iret2 = pthread_create(&thread2,NULL,decode1_,&iarg2);
 #endif
 }
