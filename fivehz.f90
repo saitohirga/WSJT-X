@@ -40,7 +40,7 @@ subroutine fivehz
      ibuf00=-99
      ncall=-1
      tt0=tt
-     u=0.05d0
+     u=0.1d0
      fsample=11025.d0
      maxms=0
      mfsample=110250
@@ -51,8 +51,9 @@ subroutine fivehz
 ! Measure average sampling frequency over a recent interval
 
   ncall=ncall+1
-  if(ncall.gt.0) then
-     fs=ncall*2048.d0/(tt-tt0)
+  if(ncall.eq.9) tt0=tt
+  if(ncall.ge.10 .and. mod(ncall,2).eq.1) then
+     fs=(ncall-9)*2048.d0/(tt-tt0)
      fsample=u*fs + (1.d0-u)*fsample
      mfsample=nint(10.d0*fsample)
   endif
@@ -192,17 +193,17 @@ subroutine fivehztx
      ncall=-1
      fsample=11025.d0
      nsec0=-999
-     u=0.05d0
+     u=0.1d0
      mfsample2=110250
+     tt0=tt
   endif
 
   ncall=ncall+1
-  if(ncall.eq.8) tt0=tt
-  if(ncall.gt.8) then
-     fs=(ncall-8)*2048.d0/(tt-tt0)
+  if(ncall.eq.9) tt0=tt
+  if(ncall.ge.10 .and. mod(ncall,2).eq.1) then
+     fs=(ncall-9)*2048.d0/(tt-tt0)
      fsample=u*fs + (1.d0-u)*fsample
      mfsample2=nint(10.d0*fsample)
   endif
-
   return
 end subroutine fivehztx

@@ -341,7 +341,7 @@ int padevsub_(int *numdev, int *ndefin, int *ndefout,
   }
 
 
-  printf("\n Audio    Input    Output     Device Name\n");
+  printf("\nAudio     Input    Output     Device Name\n");
   printf("Device  Channels  Channels\n");
   printf("------------------------------------------------------------------\n");
 
