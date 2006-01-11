@@ -15,10 +15,9 @@ COMPILER=@G95_LIB_PATH@
 LDFLAGS	+= -L${COMPILER}
 LDFLAGS	+= -lg2c
 
-PYTHON	?= @PYTHON@
 RM	?= @RM@
+PYTHON	?= @PYTHON@
 F2PY	= @F2PY@
-F2PY_PY	= "f2py.py"
 
 OBJS1 = JT65code.o nchar.o grid2deg.o packmsg.o packtext.o \
 	packcall.o packgrid.o unpackmsg.o unpacktext.o unpackcall.o \
@@ -61,8 +60,8 @@ wsjt6:	Audio.so #wsjt.spec
 #	${PYTHON} c:\python23\installer\Build.py wsjt.spec
 #	${RM} wsjt6
 
-Audio.so: $(OBJS2C)
-	 ${PYTHON} ${F2PY_PY} -c --verbose --opt="-O -cpp -D${CFLAGS} \
+Audio.so: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C)
+	 ${F2PY} -c --verbose --opt="-O -cpp -D${CFLAGS} \
 	-fno-second-underscore"	$(OBJS2C) -m Audio \
 	--f77exec=${G95} --f90exec=${G95} ${CPPFLAGS} ${LDFLAGS} \
 	only: $(F2PYONLY) \
