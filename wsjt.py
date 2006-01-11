@@ -1,4 +1,4 @@
-#----------------------------------------------------------- WSJT
+#------------------------------------------------------------ WSJT
 from Tkinter import *
 from tkFileDialog import *
 import Pmw
@@ -95,9 +95,18 @@ g.freeze_decode=0
 g.mode=""
 g.ndevin=IntVar()
 g.ndevout=IntVar()
+g.focus=0
 #------------------------------------------------------ showspecjt
 def showspecjt(event=NONE):
-    g.showspecjt=1
+    if g.showspecjt>0:
+        if g.focus>=1:
+            root.focus_set()
+            g.focus=0
+        else:
+            g.focus=2
+    else:
+        g.focus=2
+        g.showspecjt=1
 
 #------------------------------------------------------ restart
 def restart():
@@ -112,6 +121,10 @@ def restart2():
 #------------------------------------------------------ toggle_freeze
 def toggle_freeze(event=NONE):
     nfreeze.set(1-nfreeze.get())
+
+#------------------------------------------------------ toggle_zap
+def toggle_zap(event=NONE):
+    nzap.set(1-nzap.get())
 
 #------------------------------------------------------ btx (1-6)
 def btx1(event=NONE):
@@ -668,10 +681,10 @@ Alt-A           Toggle Auto On/Off
 Alt-D           Decode
 Alt-E           Erase
 Alt-F           Toggle Freeze
-Alt-G		Generate Standard Messages
+Alt-G	    Generate Standard Messages
 Alt-I           Include
-Alt-L		Lookup
-CTRL-L		Lookup, then Generate Standard Messages
+Alt-L	    Lookup
+CTRL-L	    Lookup, then Generate Standard Messages
 Alt-M           Monitor
 Alt-O           Tx Stop
 Alt-P           Play
@@ -679,6 +692,8 @@ Alt-Q           Log QSO
 Alt-S           Stop Monitoring or Decoding
 Alt-V           Save Last
 Alt-X           Exclude
+Alt-Z           Toggle Zap
+Right/Left Arrow    Increase/decrease Freeze DF
 """
     Label(scwid,text=t,justify=LEFT).pack(padx=20)
     scwid.focus_set()
@@ -692,15 +707,15 @@ def mouse_commands(event=NONE):
 Click on          Action
 --------------------------------------------------------
 Waterfall        FSK441/JT6M: click to decode ping
-                 JT65: Click to set DF for Freeze
+                      JT65: Click to set DF for Freeze
                        Double-click to Freeze and Decode
 
 Main screen,     FSK441/JT6M: click to decode ping
 graphics area    JT65: Click to set DF for Freeze
-                       Double-click to Freeze and Decode
+                           Double-click to Freeze and Decode
 
 Main screen,     Double-click puts callsign in Tx messages
-text area        Right-double-click also sets Auto ON
+text area           Right-double-click also sets Auto ON
 
 Sync, Clip,      Left/Right click to increase/decrease
 Tol, ...
@@ -976,11 +991,15 @@ def mouse_up_g1(event):
 
 #------------------------------------------------------ right_arrow
 def right_arrow(event=NONE):
-    Audio.gcom2.mousedf=Audio.gcom2.mousedf+10
+    n=5*int(Audio.gcom2.mousedf/5) + 5
+    if n==Audio.gcom2.mousedf: n=n+5
+    Audio.gcom2.mousedf=n
 
 #------------------------------------------------------ left_arrow
 def left_arrow(event=NONE):
-    Audio.gcom2.mousedf=Audio.gcom2.mousedf-10
+    n=5*int(Audio.gcom2.mousedf/5)
+    if n==Audio.gcom2.mousedf: n=n-5
+    Audio.gcom2.mousedf=n
     
 #------------------------------------------------------ GenStdMsgs
 def GenStdMsgs(event=NONE):
@@ -1665,6 +1684,8 @@ root.bind_all('<Alt-v>',savelast)
 root.bind_all('<Alt-V>',savelast)
 root.bind_all('<Alt-x>',decode_exclude)
 root.bind_all('<Alt-X>',decode_exclude)
+root.bind_all('<Alt-z>',toggle_zap)
+root.bind_all('<Alt-Z>',toggle_zap)
 root.bind_all('<Control-l>',lookup_gen)
 root.bind_all('<Control-L>',lookup_gen)
 root.bind_all('<Left>',left_arrow)
@@ -1759,11 +1780,11 @@ lsync.grid(column=0,row=0,padx=2,pady=1,sticky='EW')
 Widget.bind(lsync,'<Button-1>',incsync)
 Widget.bind(lsync,'<Button-3>',decsync)
 nzap=IntVar()
-cbzap=Checkbutton(f5b,text='Zap',variable=nzap)
+cbzap=Checkbutton(f5b,text='Zap',underline=0,variable=nzap)
 cbzap.grid(column=1,row=0,padx=2,pady=1,sticky='W')
 cbnb=Checkbutton(f5b,text='NB',variable=nblank)
 cbnb.grid(column=1,row=1,padx=2,pady=1,sticky='W')
-cbfreeze=Checkbutton(f5b,text='Freeze',variable=nfreeze)
+cbfreeze=Checkbutton(f5b,text='Freeze',underline=0,variable=nfreeze)
 cbfreeze.grid(column=1,row=2,padx=2,sticky='W')
 cbafc=Checkbutton(f5b,text='AFC',variable=nafc)
 cbafc.grid(column=1,row=3,padx=2,pady=1,sticky='W')
