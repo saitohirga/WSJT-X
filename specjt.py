@@ -19,8 +19,10 @@ from palettes import colormapblue, colormapgray0, colormapHot, \
 
 def hidespecjt():
     root.withdraw()
+    g.showspecjt=0
 def showspecjt():
     root.deiconify()
+    g.showspecjt=2
 
 if(__name__=="__main__"):
     root = Tk()
@@ -153,17 +155,18 @@ def df_mark():
         if g.mode[4:5]=='C': fstep=4*fstep
 
 # Mark sync tone and top JT65 tone (green) and shorthand tones (red)
-        color='green'
-        x1=(Audio.gcom2.mousedf + 6.6*fstep)/df + 288.7
-        c.create_line(x1-0.5,25,x1-0.5,12,fill=color)
-        c.create_line(x1+0.5,25,x1+0.5,12,fill=color)
-        for i in range(5):
-            x1=(Audio.gcom2.mousedf+i*fstep)/df + 288.7
-            j=12
-            if i>0: j=15
-            if i!=1: c.create_line(x1-0.5,25,x1-0.5,j,fill=color)
-            if i!=1: c.create_line(x1+0.5,25,x1+0.5,j,fill=color)
-            color='red'
+        if g.mode[:4]=="JT65":
+            color='green'
+            x1=(Audio.gcom2.mousedf + 6.6*fstep)/df + 288.7
+            c.create_line(x1-0.5,25,x1-0.5,12,fill=color)
+            c.create_line(x1+0.5,25,x1+0.5,12,fill=color)
+            for i in range(5):
+                x1=(Audio.gcom2.mousedf+i*fstep)/df + 288.7
+                j=12
+                if i>0: j=15
+                if i!=1: c.create_line(x1-0.5,25,x1-0.5,j,fill=color)
+                if i!=1: c.create_line(x1+0.5,25,x1+0.5,j,fill=color)
+                color='red'
     
 #---------------------------------------------------- decode_request
 def decode_request(event):
@@ -202,9 +205,8 @@ def update():
         if isec==0: nscroll=0
         if isec==59: newMinute=1
 
-    if g.showspecjt:
+    if g.showspecjt==1:
         showspecjt()
-        g.showspecjt=0
     nspeed=nspeed0.get()                        #Waterfall update rate
     if (nspeed<6 and nspeed00>=6) or (nspeed>=6 and nspeed00<6):
         draw_axis()
@@ -279,6 +281,9 @@ def update():
         nfreeze0=int(Audio.gcom2.nfreeze)
 
     if g.mode!=mode0:
+        if g.mode[:4]=="JT65" and nspeed0.get()>5: nspeed0.set(3)
+        if g.mode=="FSK441" and nspeed0.get()<6: nspeed0.set(6)
+        if g.mode=="JT6M" and nspeed0.get()<6: nspeed0.set(6)
         draw_axis()
         mode0=g.mode
 
@@ -289,6 +294,8 @@ def update():
     if newdat: Audio.gcom2.ndiskdat=0
     Audio.gcom2.nlines=0
     Audio.gcom2.nflat=nflat.get()
+    if g.focus==2:
+        root.focus_set()
     ltime.after(200,update)                      #Reset the timer
 
 #-------------------------------------------------------- draw_axis
@@ -484,6 +491,7 @@ Audio.audio_init(ndevin,ndevout)                #Start the audio stream
 ltime.after(200,update)
 
 root.deiconify()
+g.showspecjt=2
 if g.Win32: root.iconbitmap("wsjt.ico")
 root.title('  SpecJT     by K1JT')
 if(__name__=="__main__"):
