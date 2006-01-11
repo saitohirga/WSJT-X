@@ -91,6 +91,8 @@ subroutine fivehz
 
   if(ntr.ne.ntr0) then
      ibuf0=ibuf                        !Start of new sequence, save ibuf
+     ibuf0=ibuf0-3                     !Tweak the Rx start time
+     if(ibuf0.lt.1) ibuf0=ibuf0+1024
 !     if(mode(1:4).ne.'JT65') then
 !        ibuf0=ibuf0+3                  !So we don't copy our own Tx
 !        if(ibuf0.gt.1024) ibuf0=ibuf0-1024
