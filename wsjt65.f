@@ -19,7 +19,7 @@ C  already been done.
       character*12 mycall
       character*12 hiscall
       character*6 hisgrid
-      real ccfblue(-5:28),ccfred(-224:224)
+      real ccfblue(-5:540),ccfred(-224:224)
       real ftrack(126)
       logical lmid
       integer itf(2,9)

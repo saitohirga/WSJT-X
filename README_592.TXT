@@ -17,11 +17,11 @@ Enhancements
 4.  The JT6M decoder now makes better use of Freeze and Tol. You can
     set the value of "Freeze DF" by using the Right/Left arrow keys.
 
-5.  On-screen font sizes can be set by using Windows Notepad to edit
-    the file wsjtrc.win.  If your screen has resolution greater than
-    1024 x 768, or if you have old eyes (like mine), you may want to
-    increase the sizes from 8 and 9 (first three lines of the file) to
-    9 and 10, say.
+5.  On-screen font sizes can be set by using Windows Notepad (or
+    another text editor) to edit the file wsjtrc.win.  If your screen
+    has resolution greater than 1024 x 768, or if you have old eyes
+    like mine, you may want to increase the sizes from 8 and 9 (first
+    three lines of the file) to 9 and 10, say.
 
 6.  Dividing lines are now provided on the waterfall display between
     spectra corresponding to wave files read from disk.
@@ -29,13 +29,13 @@ Enhancements
 7.  The PTT line is explicitly set low on program startup.
 
 8.  The F10 key brings up the SpecJT screen (if it was hidden) and
-    toggles focus between the WSJT and SpecJT screens.
+    toggles foreground and focus between the WSJT and SpecJT screens.
  
-9.  Use the Alt-F keyboard shortcut to toggle "Freeze", and Alt-Z to
-    toggle "Zap".
+9.  You can use the Alt-F keyboard shortcut to toggle "Freeze", and
+    Alt-Z to toggle "Zap".
 
-10. "Accelerated decoding" HAS BEEN removed from the Setup menu.
-    In effect, it is now always ON.
+10. "Accelerated decoding" has been removed from the Setup menu.  In
+    effect, it is now always ON.
 
 
 Bug Fixes:
@@ -56,8 +56,8 @@ Information for Programmers
 WSJT is no longer a one-person effort.  It has become a full-fledged
 Open Source project, with an active working group making contributions
 to future development.  Source code is now stored in a public
-repository under control of the Subversion (SVN) version control
-system.  You can learn more at
+repository under control of a version control system called
+Subversion, or SVN.  You can learn more at
 http://developer.berlios.de/projects/wsjt/.
 
 The first significant result of the group effort has been to create
@@ -73,7 +73,6 @@ The present WSJT working group consists of:
     Diane Bruce, VA3DB
     James Courtier-Dutton
     Bob McGwier, N4HY
-    Jonathan Naylor, ON/G4KLX
     Stewart Nelson, KK7A
     Joe Taylor, K1JT
     Kaj Wiik, OH6EH

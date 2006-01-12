@@ -12,7 +12,7 @@ C  NB: at this stage, submodes ABC are processed in the same way.
       real dat(jz)
       real psavg(NHMAX)                !Average spectrum of whole record
       real s2(NHMAX,NSMAX)             !2d spectrum, stepped by half-symbols
-      real ccfblue(-5:28)              !CCF with pseudorandom sequence
+      real ccfblue(-5:540)              !CCF with pseudorandom sequence
       real ccfred(-224:224)            !Peak of ccfblue, as function of freq
       real tmp(450)
       integer itry(100)

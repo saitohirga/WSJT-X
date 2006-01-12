@@ -10,7 +10,7 @@ C  the "OOO" message.
       parameter (NSMAX=320)            !Max number of half-symbol steps
       real s2(NHMAX,NSMAX)             !2d spectrum, stepped by half-symbols
       real a(NSMAX),a2(NSMAX)
-      real ccf(-5:28)
+      real ccf(-5:540)
       include 'prcom.h'
       common/clipcom/ nclip
       data lagmin/0/                              !Silence g77 warning
