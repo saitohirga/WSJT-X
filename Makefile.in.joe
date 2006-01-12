@@ -1,0 +1,126 @@
+CC ?= @CC@
+FFLAGS	= @FFLAGS@
+LDFLAGS	= @LDFLAGS@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS	= @CFLAGS@
+CFLAGS += -DBIGSYM
+
+# WSJT specific Fortran flags
+#FFLAGS += -Wall -fbounds-check -cpp -fno-second-underscore
+FFLAGS = -O2 -cpp -w -fno-second-underscore
+
+OS=@OS@
+G95=@G95@
+COMPILER=@G95_LIB_PATH@
+FC=@G95@
+
+LDFLAGS	+= -L${COMPILER}
+LDFLAGS	+= -lg2c
+
+PYTHON	?= @PYTHON@
+RM	?= @RM@
+F2PY	= @F2PY@
+F2PY_PY	= "f2py.py"
+
+%.o : %.f90
+	$(FC) -c $(FFLAGS) $< -o $@
+
+OBJS1 = JT65code.o nchar.o grid2deg.o packmsg.o packtext.o \
+	packcall.o packgrid.o unpackmsg.o unpacktext.o unpackcall.o \
+	unpackgrid.o deg2grid.o packdxcc.o chkmsg.o getpfx1.o \
+	getpfx2.o k2grid.o grid2k.o interleave63.o graycode.o set.o \
+	igray.o init_rs.o encode_rs.o decode_rs.o \
+	wrapkarn.o
+
+F2PYONLY = ftn_init ftn_quit audio_init spec getfile azdist0 astro0
+
+SRCS2F90 = a2d.f90 abc441.f90 astro0.f90 audio_init.f90 azdist0.f90 \
+	blanker.f90 decode1.f90 decode2.f90 decode3.f90 ftn_init.f90 \
+	ftn_quit.f90 get_fname.f90 getfile.f90 horizspec.f90 hscroll.f90 \
+	i1tor4.f90 pix2d.f90 pix2d65.f90 rfile.f90 savedata.f90 spec.f90 \
+	wsjtgen.f90 runqqq.f90 fivehz.f90
+
+OBJS2F90 = a2d.o abc441.o astro0.o audio_init.o azdist0.o \
+	blanker.o decode1.o decode2.o decode3.o ftn_init.o \
+	ftn_quit.o get_fname.o getfile.o horizspec.o hscroll.o \
+	i1tor4.o pix2d.o pix2d65.o rfile.o savedata.o spec.o \
+	wsjtgen.o runqqq.o fivehz.o
+
+SRCS2F77 = wsjt1.f astro.f astropak.f \
+        avesp2.f bzap.f spec441.f spec2d.f mtdecode.f stdecode.f \
+        indexx.f s2shape.f flat2.f gen65.f chkmsg.f gen6m.f gentone.f \
+        syncf0.f syncf1.f synct.f decode6m.f avemsg6m.f \
+        set.f flatten.f db.f pctile.f sort.f ssort.f ps.f smooth.f \
+        ping.f longx.f peakup.f sync.f detect.f avemsg65.f decode65.f \
+        demod64a.f encode65.f extract.f flat1.f four2.f rfile2.f \
+        gencw.f getpfx1.f getpfx2.f getsnr.f graycode.f grid2k.f \
+        interleave63.f k2grid.f limit.f lpf1.f deep65.f morse.f \
+        nchar.f packcall.f packgrid.f packmsg.f packtext.f setup65.f \
+        short65.f slope.f spec2d65.f sync65.f unpackcall.f \
+        unpackgrid.f unpackmsg.f unpacktext.f xcor.f xfft.f wsjt65.f
+
+OBJS2F77 = wsjt1.o astro.o astropak.o \
+        avesp2.o bzap.o spec441.o spec2d.o mtdecode.o stdecode.o \
+        indexx.o s2shape.o flat2.o gen65.o chkmsg.o gen6m.o gentone.o \
+        syncf0.o syncf1.o synct.o decode6m.o avemsg6m.o \
+        set.o flatten.o db.o pctile.o sort.o ssort.o ps.o smooth.o \
+        ping.o longx.o peakup.o sync.o detect.o avemsg65.o decode65.o \
+        demod64a.o encode65.o extract.o flat1.o four2.o rfile2.o \
+        gencw.o getpfx1.o getpfx2.o getsnr.o graycode.o grid2k.o \
+        interleave63.o k2grid.o limit.o lpf1.o deep65.o morse.o \
+        nchar.o packcall.o packgrid.o packmsg.o packtext.o setup65.o \
+        short65.o slope.o spec2d65.o sync65.o unpackcall.o \
+        unpackgrid.o unpackmsg.o unpacktext.o xcor.o xfft.o wsjt65.o
+
+#OBJS2F90 = a2d.o abc441.o astro0.o audio_init.o azdist0.o \
+#	blanker.o decode1.o decode2.o decode3.o ftn_init.o \
+#	ftn_quit.o get_fname.o getfile.o horizspec.o hscroll.o \
+#	i1tor4.o pix2d.o pix2d65.o rfile.o savedata.o spec.o \
+#	wsjtgen.o runqqq.o fivehz.o
+
+#
+# ok, so far for now
+# Windows @AUDIO@ will be jtaudio.c since it uses portaudio
+#            for *nix @AUDIO@ will also be jtaudio.c and start_threads.c 
+#		for portaudio
+#            for *nix @AUDIO@ will be start_threads.c for alsa
+#            for *nix @AUDIO@ will be ?? for oss
+#
+# ptt_unix.c vs. ptt.c I'll sort out later. 
+# ditto for cutil.c (only used on *nix)
+# --db
+# jtaudio.c/start_threads.c mess will have to be sorted out later
+# to minimise #ifdef's 
+# --db
+#
+OBJS2C  = init_rs.o encode_rs.o decode_rs.o
+SRCS3C	= ptt_unix.c igray.c wrapkarn.c cutil.c
+SRCS3C	+=  @AUDIO@
+
+all:	JT65code wsjt6
+
+JT65code: $(OBJS1)
+	$(FC) -o JT65code $(OBJS1)
+
+wsjt6:	Audio.so #wsjt.spec
+#	${PYTHON} c:\python23\installer\Build.py wsjt.spec
+#	${RM} wsjt6
+
+Audio.so: $(OBJS2C) $(OBJS2F77) $(SRCS2F90) ${SRCS3C} 
+	 ${PYTHON} ${F2PY_PY} -c --quiet --opt="-O -cpp -D${CFLAGS} \
+	-fno-second-underscore"	$(OBJS2C) $(OBJS2F77) -m Audio \
+	--f77exec=${G95} --f90exec=${G95} ${CPPFLAGS} ${LDFLAGS} \
+	only: $(F2PYONLY) : \
+	$(SRCS2F90) \
+	${SRCS3C} 
+
+wsjt.spec: wsjt.py astro.py g.py options.py palettes.py smeter.py specjt.py
+#	${PYTHON} c:\python23\installer\makespec.py --icon wsjt.ico \
+#	--tk --onefile wsjt.py
+
+four2.o: four2.f
+	$(FC) -c -O2 four2.f
+
+.PHONY : clean
+clean:
+	${RM} -f *.o *.so JT65code wsjt6
