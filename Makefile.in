@@ -1,16 +1,17 @@
 CC ?= @CC@
-FC ?= @F77@
 FFLAGS	= @FFLAGS@
 LDFLAGS	= @LDFLAGS@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS	= @CFLAGS@
+
 #
 # WSJT specific Fortran flags
-FFLAGS += -Wall -fbounds-check
+FFLAGS += -cpp -Wall -fbounds-check -fno-second-underscore
 
 OS=@OS@
 G95=@G95@
 COMPILER=@G95_LIB_PATH@
+FC=@G95@
 
 LDFLAGS	+= -L${COMPILER}
 LDFLAGS	+= -lg2c
@@ -26,14 +27,17 @@ OBJS1 = JT65code.o nchar.o grid2deg.o packmsg.o packtext.o \
 	igray.o init_rs_int.o encode_rs_int.o decode_rs_int.o \
 	wrapkarn.o
 
-OBJS2C   = init_rs.o encode_rs.o decode_rs.o 
+OBJS2C   = init_rs.o encode_rs.o decode_rs.o
 F2PYONLY = ftn_init ftn_quit audio_init spec getfile azdist0 astro0
 SRCS2F90 = a2d.f90 abc441.f90 astro0.f90 audio_init.f90 azdist0.f90 \
 	blanker.f90 decode1.f90 decode2.f90 decode3.f90 ftn_init.f90 \
 	ftn_quit.f90 get_fname.f90 getfile.f90 horizspec.f90 hscroll.f90 \
 	i1tor4.f90 pix2d.f90 pix2d65.f90 rfile.f90 savedata.f90 spec.f90 \
 	wsjtgen.f90 runqqq.f90 fivehz.f90
+OBJS2F290 =  ${SRCS2F90:.f90=.o}
+
 SRCS2F77	= wsjt1.f fsubs1.f fsubs.f astro.f astropak.f
+OBJS2F77	= ${SRCS2F77:.f=.o}
 #
 # ok, so far for now
 # Windows @AUDIO@ will be jtaudio.c since it uses portaudio
@@ -60,7 +64,9 @@ wsjt6:	Audio.so #wsjt.spec
 #	${PYTHON} c:\python23\installer\Build.py wsjt.spec
 #	${RM} wsjt6
 
-Audio.so: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C)
+# 
+#
+Audio.so: $(OBJS2C) $(OBJS2F90) $(OBJS2F77)
 	 ${F2PY} -c --verbose --opt="-O -cpp -D${CFLAGS} \
 	-fno-second-underscore"	$(OBJS2C) -m Audio \
 	--f77exec=${G95} --f90exec=${G95} ${CPPFLAGS} ${LDFLAGS} \
@@ -73,9 +79,10 @@ wsjt.spec: wsjt.py astro.py g.py options.py palettes.py smeter.py specjt.py
 #	${PYTHON} c:\python23\installer\makespec.py --icon wsjt.ico \
 #	--tk --onefile wsjt.py
 
-jtaudio.o: jtaudio.c
-	$(CC) -c $(CLAGS) jtaudio.c
-
+#
+# compiles which are "non standard"
+# and should not be compiled by the default .c to .o rule
+#
 init_rs_int.o: init_rs.c
 	$(CC) -c -DBIGSYM=1 -o init_rs_int.o init_rs.c
 
@@ -94,16 +101,17 @@ encode_rs.o: encode_rs.c
 decode_rs.o: decode_rs.c
 	$(CC) -c -DBIGSYM=1 decode_rs.c
 
-wrapkarn.o: wrapkarn.c
-	$(CC) -c wrapkarn.c
+# The default rules
+.c.o:
+	${CC} ${CPPFLAGS} ${CFLAGS} -c -o ${<:.c=.o} $<
 
-igray.o: igray.c
-	$(CC) -c igray.c
+.f.o:
+	${G95} ${CPPFLAGS} ${FFLAGS} -c -o ${<:.f=.o} $<
 
-start_threads.o: start_threads.c
-	$(CC) -c $(CFLAGS) start_threads.c
+.f90.o:
+	${G95} ${CPPFLAGS} ${FFLAGS} -c -o ${<:.f90=.o} $<
 
 .PHONY : clean
 clean:
-	${RM} -f *.o *.so JT65code wsjt6
+	${RM} -f *.o *.so *~ JT65code wsjt6
 
