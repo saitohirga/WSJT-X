@@ -50,7 +50,7 @@ WSJT6.EXE: Audio.pyd wsjt.spec
 Audio.pyd: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C) 
 	python f2py.py -c \
 	--quiet --"fcompiler=compaqv" \
-	--opt="/traceback /fast /fpp /define:Win32" \
+	--opt="/traceback /fast /fpp /define:Win32 /define:USE_PORTAUDIO" \
 	$(OBJS2C) \
 	-lwinmm -lpa -llibsamplerate \
 	-m Audio \
