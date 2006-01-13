@@ -86,6 +86,7 @@ setseq=IntVar()
 ShOK=IntVar()
 slabel="Sync   "
 textheight=7
+txsnrdb=99.
 TxFirst=IntVar()
 green=zeros(500,'f')
 im=Image.new('P',(500,120))
@@ -892,6 +893,9 @@ def clear_avg(event=NONE):
     avetext.configure(state=NORMAL)
     avetext.delete('1.0',END)
     avetext.configure(state=DISABLED)
+    f=open(appdir+'/decoded.ave',mode='w')
+    f.truncate(0)                           #Delete contents of decoded.ave
+    f.close()
     Audio.gcom2.nclearave=1
 
 #------------------------------------------------------ defaults
@@ -1225,7 +1229,7 @@ def plot_yellow():
 def update():
     global root_geom,isec0,naz,nel,ndmiles,ndkm,nhotaz,nhotabetter,nopen, \
            im,pim,cmap0,isync,isync441,isync6m,isync65,isync_save,idsec, \
-           first,itol
+           first,itol,txsnrdb
     
     utc=time.gmtime(time.time()+0.1*idsec)
     isec=utc[5]
@@ -1335,6 +1339,16 @@ def update():
     tx4.configure(bg='white')
     tx5.configure(bg='white')
     tx6.configure(bg='white')
+    if tx6.get()[:1]=='#':
+        try:
+            txsnrdb=float(tx6.get()[1:])
+            if txsnrdb>-99.0 and txsnrdb<10.0:
+                Audio.gcom1.txsnrdb=txsnrdb
+                tx6.configure(bg='orange')
+        except:
+            txsnrdb=99.0
+    else:
+        txsnrdb=99.0
     if Audio.gcom2.monitoring and not Audio.gcom1.transmitting:
         bmonitor.configure(bg='green')
     else:
@@ -1347,8 +1361,9 @@ def update():
 #        t="Transmitting:  "
 #        t="Txing:  "+t[:nmsg]
         bgcolor='yellow'
-        if Audio.gcom2.sendingsh==1:  bgcolor='#66FFFF'
-        if Audio.gcom2.sendingsh==-1: bgcolor='red'
+        if Audio.gcom2.sendingsh==1:  bgcolor='#66FFFF'    #Shorthand
+        if Audio.gcom2.sendingsh==-1: bgcolor='red'        #Plain Text
+        if txsnrdb<90.0: bgcolor='orange'                  #Simulation mode
         if Audio.gcom2.ntxnow==1: tx1.configure(bg=bgcolor)
         elif Audio.gcom2.ntxnow==2: tx2.configure(bg=bgcolor)
         elif Audio.gcom2.ntxnow==3: tx3.configure(bg=bgcolor)

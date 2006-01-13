@@ -209,3 +209,21 @@ subroutine fivehztx
   endif
   return
 end subroutine fivehztx
+
+subroutine addnoise(n)
+  integer*2 n
+  real r(12)
+  include 'gcom1.f90'
+
+  if(txsnrdb.gt.90.0) return
+  snr=10.0**(0.05*(txsnrdb-1))
+  call random_number(r)
+  x=sum(r)-6.0
+  i=3000.0*x + n*snr*3000.0/32768.0
+  if(i>32767) i=32767;
+  if(i<-32767) i=-32767;
+  n=i
+
+  return
+end subroutine addnoise
+
