@@ -137,6 +137,7 @@ static int SoundOut( void *inputBuffer, void *outputBuffer,
   short *in = (short*)inputBuffer;
   short *wptr = (short*)outputBuffer;
   unsigned int i,n;
+  static short n2;
   static int n0;
   static int ia=0;
   static int ib=0;
@@ -167,6 +168,7 @@ static int SoundOut( void *inputBuffer, void *outputBuffer,
 
   for(i=0 ; i<framesPerBuffer; i++ )  {
     if(*data->TxOK)  {
+      addnoise_(&data->iwave[ic]);
       *wptr++ = data->iwave[ic];        //left
       *wptr++ = data->iwave[ic];        //right
       ic++;
@@ -177,8 +179,10 @@ static int SoundOut( void *inputBuffer, void *outputBuffer,
       }
     }
     else {
-      *wptr++ = 0;                     //left
-      *wptr++ = 0;                     //right
+      n2=0;
+      addnoise_(&n2);
+      *wptr++ = n2;                     //left
+      *wptr++ = n2;                     //right
     }
   }
   fivehztx_();                             //Call fortran routine
