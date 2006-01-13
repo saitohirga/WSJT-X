@@ -10,8 +10,9 @@ showspecjt=0
 #------------------------------------------------------ ftnstr
 def ftnstr(x):
     y=""
-    for i in range(len(x)):
-        y=y+x[i]
+    xs=x.tostring()
+    for i in range(len(xs)):
+        y=y+xs[i]
     return y
 
 #------------------------------------------------------ filetime
