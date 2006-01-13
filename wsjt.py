@@ -11,6 +11,8 @@ import dircache
 import Image,ImageTk  #, ImageDraw
 from palettes import colormapblue, colormapgray0, colormapHot, \
      colormapAFMHot, colormapgray1, colormapLinrad, Colormap2Palette
+from types import *
+import array
 
 root = Tk()
 Version="5.9.2 r" + "$Rev$"[6:-1]
