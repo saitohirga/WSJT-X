@@ -1342,13 +1342,14 @@ def update():
     if tx6.get()[:1]=='#':
         try:
             txsnrdb=float(tx6.get()[1:])
-            if txsnrdb>-99.0 and txsnrdb<10.0:
+            if txsnrdb>-99.0 and txsnrdb<40.0:
                 Audio.gcom1.txsnrdb=txsnrdb
                 tx6.configure(bg='orange')
         except:
             txsnrdb=99.0
     else:
         txsnrdb=99.0
+        Audio.gcom1.txsnrdb=txsnrdb
     if Audio.gcom2.monitoring and not Audio.gcom1.transmitting:
         bmonitor.configure(bg='green')
     else:
