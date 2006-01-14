@@ -233,21 +233,24 @@ fi
 
 if test "$alsa" = yes; then
 	AC_DEFINE(USE_ALSA, 1, [Define if you want ALSA used.])
-	AC_SUBST(AUDIO, "start_threads.c")
+	AC_SUBST(AUDIO, "start_alsa.c")
 	LDFLAGS="${LDFLAGS} -lasound"
 	CFLAGS="${CFLAGS} -DUSE_ALSA"
 	CPPFLAGS="${CPPFLAGS} -DUSE_ALSA"
 fi
 
+dnl still not sure what OSS will require, but heres a first guess -db
 if test "$oss" = yes; then
 	AC_DEFINE(USE_OSS, 1, [Define if you want OSS used.])
-	AC_SUBST(AUDIO, "jtaudio.c")
+	AC_SUBST(AUDIO, "jtaudio.c start_oss.c")
+	CFLAGS="${CFLAGS} -DUSE_OSS"
+	CPPFLAGS="${CPPFLAGS} -DUSE_OSS"
 fi
 
 dnl XXX
 if test "$portaudio" = yes; then
 	AC_DEFINE(USE_PORTAUDIO, 1, [Define if you want PORTAUDIO used.])
-	AC_SUBST(AUDIO, "jtaudio.c start_threads.c")
+	AC_SUBST(AUDIO, "jtaudio.c start_portaudio.c")
 	LDFLAGS="${LDFLAGS} -lportaudio -lsamplerate" 
 	CFLAGS="${CFLAGS} -DUSE_PORTAUDIO"
 	CPPFLAGS="${CPPFLAGS} -DUSE_PORTAUDIO"

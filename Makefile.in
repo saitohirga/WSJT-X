@@ -67,10 +67,10 @@ OBJS2C  = ${SRCS2C:.c=.o}
 
 # ok, so far for now
 # Windows @AUDIO@ will be jtaudio.c since it uses portaudio
-#            for *nix @AUDIO@ will also be jtaudio.c and start_threads.c 
+#            for *nix @AUDIO@ will also be jtaudio.c and start_portaudio.c 
 #		for portaudio
-#            for *nix @AUDIO@ will be start_threads.c for alsa
-#            for *nix @AUDIO@ will be ?? for oss
+#            for *nix @AUDIO@ will be start_alsa.c for alsa
+#            for *nix @AUDIO@ will be start_oss.c for oss
 #
 # ptt_unix.c vs. ptt.c I'll sort out later. 
 # ditto for cutil.c (only used on *nix)
