@@ -41,7 +41,7 @@ OBJS1 = JT65code.o nchar.o grid2deg.o packmsg.o packtext.o \
 
 F2PYONLY = ftn_init ftn_quit audio_init spec getfile azdist0 astro0
 
-SRCS2F90 = a2d.f90 abc441.f90 astro0.f90 audio_init.f90 azdist0.f90 \
+SRCS2F90 = abc441.f90 astro0.f90 audio_init.f90 azdist0.f90 \
 	blanker.f90 decode1.f90 decode2.f90 decode3.f90 ftn_init.f90 \
 	ftn_quit.f90 get_fname.f90 getfile.f90 horizspec.f90 hscroll.f90 \
 	i1tor4.f90 pix2d.f90 pix2d65.f90 rfile.f90 savedata.f90 spec.f90 \
@@ -66,9 +66,9 @@ SRCS2C	= init_rs.c encode_rs.c decode_rs.c
 OBJS2C  = ${SRCS2C:.c=.o}
 
 # ok, so far for now
-# Windows @AUDIO@ will be jtaudio.c since it uses portaudio
-#            for *nix @AUDIO@ will also be jtaudio.c and start_portaudio.c 
-#		for portaudio
+# Windows @AUDIO@ will be a2d.f90 jtaudio.c since it uses portaudio
+#            for *nix @AUDIO@ will also be a2d.f90, jtaudio.c
+#               and start_portaudio.c for systems using portaudio
 #            for *nix @AUDIO@ will be start_alsa.c for alsa
 #            for *nix @AUDIO@ will be start_oss.c for oss
 #
@@ -78,10 +78,12 @@ OBJS2C  = ${SRCS2C:.c=.o}
 # jtaudio.c/start_threads.c mess will have to be sorted out later
 # to minimise #ifdef's 
 # --db
+# and mostly sorted
+# --db
 #
 SRCS3C	= ptt_unix.c igray.c wrapkarn.c cutil.c
-SRCS3C	+= @AUDIO@
 OBJS3C  = ${SRCS3C:.c=.o}
+AUDIOSRCS = @AUDIO@
 
 all:	wsjt6
 JT65code: $(OBJS1)
@@ -93,13 +95,13 @@ wsjt6:	Audio.so #wsjt.spec
 
 # 
 #
-Audio.so: $(OBJS2C) $(OBJS3C) $(OBJS2F77) $(SRCS2F90)
+Audio.so: $(OBJS2C) $(OBJS3C) $(OBJS2F77) $(SRCS2F90) $(AUDIOSRCS)
 	 ${F2PY} -c --quiet --opt="-O -cpp -D${CFLAGS} \
 	-fno-second-underscore"	$(OBJS2C) $(OBJS2F77) -m Audio \
 	--f77exec=${G95} --f90exec=${G95} ${CPPFLAGS} ${LDFLAGS} \
 	only: $(F2PYONLY) \
 	: $(SRCS2F90) \
-	${SRCS3C} 
+	${SRCS3C} ${AUDIOSRCS}
 
 wsjt.spec: wsjt.py astro.py g.py options.py palettes.py smeter.py specjt.py
 #	${PYTHON} c:\python23\installer\makespec.py --icon wsjt.ico \
