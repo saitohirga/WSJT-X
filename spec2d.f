@@ -44,10 +44,6 @@ C  Accumulate average spectrum for the whole file.
 	      psavg0(i) = psavg0(i)+ real(c(i))**2 + imag(c(i))**2
 	   enddo
 	enddo
-	if(sum.eq.0.0) then
-	   sigma=-999.
-	   go to 999
-	endif
 
 C  Normalize and save a copy of psavg0 for plotting.  Roll off the
 C  spectrum at 300 and 3000 Hz.
@@ -77,6 +73,10 @@ C  Compute an average spectrum from the weakest 25% of time slices.
 	do i=6,59
 	   sum=sum+ps2(i)
 	enddo
+	if(sum.eq.0.0) then
+	   sigma=-999.
+	   go to 999
+	endif
 
 C  Compute a smoothed spectrum without local peaks, and find its max.
 	smaxx=0.
