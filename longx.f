@@ -124,5 +124,5 @@ C  Finally, decode the message.
          if(nc.le.47) msg(i:i)=c(nc+1:nc+1)
       enddo
 
- 20   return
+      return
       end

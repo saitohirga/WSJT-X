@@ -21,7 +21,6 @@ C  Decode Multi-Tone FSK441 mesages.
       character*90 line
       common/ccom/nline,tping(100),line(100)
 
-!      slim=10.0*log10(10.0**(0.1*MinSigdB)+1.0)
       slim=MinSigdB
       wmin=0.001*MinWidth * (19.95/20.0)
       nf1=-DFTolerance

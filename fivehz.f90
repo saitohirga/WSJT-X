@@ -84,15 +84,11 @@ subroutine fivehz
   endif
   ibuf000=ibuf
   iwrite000=iwrite
-
   nsec=Tsec
-
   ntr=mod(nsec/trperiod,2)             !ntr=0 in 1st sequence, 1 in 2nd
 
   if(ntr.ne.ntr0) then
      ibuf0=ibuf                        !Start of new sequence, save ibuf
-     ibuf0=ibuf0-2                     !Tweak the Rx start time
-     if(ibuf0.lt.1) ibuf0=ibuf0+1024
 !     if(mode(1:4).ne.'JT65') then
 !        ibuf0=ibuf0+3                  !So we don't copy our own Tx
 !        if(ibuf0.gt.1024) ibuf0=ibuf0-1024

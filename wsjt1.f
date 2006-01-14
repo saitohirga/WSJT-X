@@ -125,6 +125,7 @@
 	enddo
 	avesq=sq/jz
 	basevb=dB(avesq) - 44    !Base power level to send back to GUI
+	if(avesq.eq.0) go to 900
 
 	nz=600
 	nstep=jz/nz
@@ -196,7 +197,8 @@
 	   enddo
 ! For waterfall plot
 	   call spec2d(dat,jz,nstep,s2,nchan,nz,psavg,sigma)
-	   if(jz/11025.0.lt.3.9) go to 900
+	   if(sigma.lt.0.0) basevb=-99.0
+	   if(jz/11025.0.lt.3.9 .or. sigma.lt.0.0) go to 900
 
 	   f0=1076.66
 	   if(NFreeze.eq.1) f0=1076.66+mousedf
@@ -249,6 +251,8 @@
 	dtbuf=nstep/11025.0
 	stlim=nslim2                !Single-tone threshold
 	call spec2d(dat,jz,nstep,s2,nchan,nz,psavg,sigma)
+	if(sigma.lt.0.0) basevb=-99.0
+	if(sigma.lt.0.0) go to 900
 	nline0=nline
 	STfound=.false.
 	npkept=0
