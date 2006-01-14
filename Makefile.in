@@ -7,7 +7,7 @@ CFLAGS	= @CFLAGS@
 CFLAGS	+= -DBIGSYM=1
 
 # WSJT specific Fortran flags
-#FFLAGS += -cpp -Wall -fbounds-check -fno-second-underscore
+#FFLAGS += -cpp -Wall -fbounds-check -ftrace=full -fno-second-underscore
 FFLAGS += -cpp -fno-second-underscore
 # The default rules
 .c.o:
