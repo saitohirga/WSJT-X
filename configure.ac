@@ -250,7 +250,7 @@ fi
 dnl XXX
 if test "$portaudio" = yes; then
 	AC_DEFINE(USE_PORTAUDIO, 1, [Define if you want PORTAUDIO used.])
-	AC_SUBST(AUDIO, "jtaudio.c start_portaudio.c")
+	AC_SUBST(AUDIO, "a2d.f90 jtaudio.c start_portaudio.c")
 	LDFLAGS="${LDFLAGS} -lportaudio -lsamplerate" 
 	CFLAGS="${CFLAGS} -DUSE_PORTAUDIO"
 	CPPFLAGS="${CPPFLAGS} -DUSE_PORTAUDIO"
