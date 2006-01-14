@@ -5,8 +5,6 @@ subroutine audio_init(ndin,ndout)
 #ifdef Win32
   use dfmt
   integer Thread1,Thread2
-#endif
-#ifdef USE_PORTAUDIO
   external a2d,decode1
 #endif
 
