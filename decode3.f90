@@ -59,6 +59,7 @@ subroutine decode3(d2,jz,istart,filename)
        ps0,npkept,lumsg,basevb,rmspower,nslim2,psavg,ccf,Nseg,        &
        MouseDF,NAgain,LDecoded,nspecial,ndf,ss1,ss2)
   close(23)
+  if(basevb.le.-98.0) go to 999
 
 ! See whether this file should be saved or erased from disk
   if(nsave.eq.1 .and. ldecoded) filetokilla=''

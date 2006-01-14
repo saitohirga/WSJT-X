@@ -44,6 +44,10 @@ C  Accumulate average spectrum for the whole file.
 	      psavg0(i) = psavg0(i)+ real(c(i))**2 + imag(c(i))**2
 	   enddo
 	enddo
+	if(sum.eq.0.0) then
+	   sigma=-999.
+	   go to 999
+	endif
 
 C  Normalize and save a copy of psavg0 for plotting.  Roll off the
 C  spectrum at 300 and 3000 Hz.
@@ -120,5 +124,5 @@ C  Find average of active spectral region, over the whole file.
 	enddo
 	sigma=sum/(44*nz)
 
- 	return
+ 999	return
 	end
