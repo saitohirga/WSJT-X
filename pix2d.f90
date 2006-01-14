@@ -6,6 +6,8 @@ subroutine pix2d(d2,jz,mousebutton,s2,nchan,nz,b)
   integer*2 d2(jz)                   !Raw input data
   real s2(nchan,nz)                  !2-d spectrum
   integer*2 b(60000)                 !Pixels corresponding to 2-d spectrum
+  data nx0/0/
+  save
 
   tbest=s2(2,1)
   s2(1,1)=s2(3,1)
