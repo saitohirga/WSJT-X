@@ -213,13 +213,20 @@ end subroutine fivehztx
 subroutine addnoise(n)
   integer*2 n
   real r(12)
+  real*8 txsnrdb0
   include 'gcom1.f90'
+  save txsnrdb0
 
-  if(txsnrdb.gt.90.0) return
-  snr=10.0**(0.05*(txsnrdb-1))
+  if(txsnrdb.gt.40.0) return
+  if(txsnrdb.ne.txsnrdb0) then
+     snr=10.0**(0.05*(txsnrdb-1))
+     fac=3000.0
+     if(snr.gt.1.0) fac=3000.0/snr
+     txsnrdb0=txsnrdb
+  endif
   call random_number(r)
   x=sum(r)-6.0
-  i=3000.0*x + n*snr*3000.0/32768.0
+  i=fac*(x + n*snr/32768.0)
   if(i>32767) i=32767;
   if(i<-32767) i=-32767;
   n=i
