@@ -31,7 +31,7 @@ subroutine fivehz
   if(first) then
      rxdelay=0.2
      txdelay=0.2
-     tlatency=3*2048/11025.0
+     tlatency=1.0
      first=.false.
      iptt=0
      ntr0=-99
@@ -63,7 +63,7 @@ subroutine fivehz
   tx2=trperiod-(tlatency+txdelay)      !Time to turn TX off
   if(mode(1:4).eq.'JT65') then
      if(nwave.lt.126*4096) nwave=126*4096
-     tx2=nwave/11025.0
+     tx2=nwave/11025.0 + tlatency
   endif
 
   if(TxFirst.eq.0) then
@@ -126,7 +126,7 @@ subroutine fivehz
   if(nc1.eq.0) TxOK=1                               ! We are transmitting
 
 ! If TxOK was just lowered, start a countdown for lowering PTT:
-  nc0a=txdelay/0.18576
+  nc0a=(tlatency+txdelay)/0.18576
   if(nc0a.lt.4) nc0a=4
   if(TxOK.eq.0 .and. TxOKz.eq.1 .and. iptt.eq.1) nc0=-nc0a
   if(nc0.le.0) nc0=nc0+1
@@ -150,13 +150,13 @@ subroutine fivehz
 !     t60=mod(tsec,60.d0)
 !     if(iptt.ne.iptt0) then
 !        if(iptt.eq.1) tstart=tsec
-!        if(iptt.eq.0) write(*,1101) tsec-tstop,t60
-!1101    format('Delay from TxOFF to PTT was',f6.2,' s at t=',f6.2)
+!        if(iptt.eq.0) write(*,1101) tsec-tstop,t60,t,tx1,tx2
+!1101    format('Delay1:',2f7.2,3f10.1)
 !     endif
 !     if(TxOK.ne.TxOKz) then
 !        if(TxOK.eq.0) tstop=tsec
-!        if(TxOK.eq.1) write(*,1102) tsec-tstart,t60
-!1102    format('Delay from PTT to TxON was ',f6.2,' s at t=',f6.2)
+!        if(TxOK.eq.1) write(*,1102) tsec-tstart,t60,t,tx1,tx2
+!1102    format('Delay2:',2f7.2,3f10.1)
 !     endif
 !  endif
 
