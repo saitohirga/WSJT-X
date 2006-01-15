@@ -19,7 +19,7 @@
  * for OSX. -db
  */
 #if defined(BSD)
-#define TTYNAME "/dev/ttyd%d"
+#define TTYNAME "/dev/cuad%d"	/* Use non blocking form */
 #else
 #include <sys/io.h>
 #define TTYNAME	"/dev/ttyS%d"
@@ -28,7 +28,8 @@
 /* Not quite right for size but '%d + 1' should be plenty enough -db */
 #define TTYNAME_SIZE	sizeof(TTYNAME)+1
 
-int ptt_(int *nport, int *ntx, int *iptt)
+int
+ptt_(int *nport, int *ntx, int *iptt)
 {
   static int nopen=0;
   int control = TIOCM_RTS | TIOCM_DTR;
@@ -41,26 +42,25 @@ int ptt_(int *nport, int *ntx, int *iptt)
   }
 
   if(*ntx && (!nopen)) {
-    snprintf(s, TTYNAME_SIZE, TTYNAME, *nport);
+    snprintf(s, TTYNAME_SIZE, TTYNAME, (*nport) - 1);	/* Comport 1 == dev 0 */
     s[TTYNAME_SIZE] = '\0';
 
-    //open the device
+    /* open the device */
     if ((fd = open(s, O_RDWR | O_NDELAY)) < 0) {
-      fprintf(stderr, "device not found");
+      fprintf(stderr, "Can't open %s.", s);
       return(1);
     }
+
     nopen=1;
     return(0);
   }
 
   if(*ntx && nopen) {
-    //    printf("Set DTR/RTS   %d   %d\n",TIOCMBIS,control);
     ioctl(fd, TIOCMBIS, &control);               // Set DTR and RTS
     *iptt=1;
   }
 
   else {
-    //    printf("Clear DTR/RTS   %d   %d\n",TIOCMBIC,control);
     ioctl(fd, TIOCMBIC, &control);
     close(fd);
     *iptt=0;
