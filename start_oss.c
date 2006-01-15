@@ -166,9 +166,11 @@ start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   printf("Rate set = %d\n", rate);
 
   //  printf("start_threads: creating thread for oss_loop\n");
-  iret1 = pthread_create(&thread1,NULL,oss_loop,&iarg1);
-  printf("start_threads: creating thread for decode1_\n");
-  //  iret2 = pthread_create(&thread2,NULL,decode1_,&iarg2);
+  iret1 = pthread_create(&thread1, NULL,
+			 (void *(*)(void *))oss_loop, &iarg1);
+  // printf("start_threads: creating thread for decode1_\n");
+  iret2 = pthread_create(&thread2, NULL,
+			 (void *(*)(void *))decode1_,&iarg2);
 }
 
 /*
@@ -229,8 +231,8 @@ oss_loop(int *iarg)
 	      data.tbuf[ib++] = stime;
 	      if(ib>=FRAMESPERBUFFER)
 		ib=0; 
-	      *(data.ibuf)=ib;
-	      in = rcv_buf;	// XXX
+	      *(data.ibuf) = ib;
+	      in = (int16_t *)rcv_buf;	// XXX
 	      for(i=0; i<FRAMESPERBUFFER; i++) {
 		data.y1[ia] = (*in++);
 		data.y2[ia] = (*in++);
@@ -256,7 +258,7 @@ oss_loop(int *iarg)
 	}
 	TxOKz = *(data.TxOK);
 	*(data.Transmitting) = *(data.TxOK);
-	wptr = tx_buf;			/* XXX */
+	wptr = (int16_t *)tx_buf;		/* XXX */
 	for(i=0 ; i<FRAMESPERBUFFER; i++ )  {
 	  if(*(data.TxOK))  {
 	    n2 = data.iwave[ic];
@@ -275,7 +277,11 @@ oss_loop(int *iarg)
 	    *wptr++ = 0;			/* right */
 	  }
 	}
-	write(data.fd_out, tx_buf, AUDIOBUFSIZE);
+
+	if (write(data.fd_out, tx_buf, AUDIOBUFSIZE) < 0) {
+	  fprintf(stderr, "Can't write to soundcard.\n");
+	  exit(-1);
+	}
 	fivehztx_();                             /* Call fortran routine */
       }
     }
