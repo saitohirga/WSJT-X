@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <sys/soundcard.h>
 #include "conf.h"
+#include <string.h>
 
 #define AUDIOBUFSIZE	4096
 #define FRAMESPERBUFFER 1024
@@ -251,16 +252,18 @@ oss_loop(int *iarg)
 	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000000.0) +
 	  *(data.ndsec) * 0.1;
 	*(data.Tsec) = stime;
+
 	if(*(data.TxOK) && (!TxOKz))  {
 	  n=nsec/(*(data.trperiod));
 	  ic = (int)(stime - *(data.trperiod)*n) * data.nfs;
 	  ic = ic % *(data.nwave);
 	}
+
 	TxOKz = *(data.TxOK);
 	*(data.Transmitting) = *(data.TxOK);
 	wptr = (int16_t *)tx_buf;		/* XXX */
-	for(i=0 ; i<FRAMESPERBUFFER; i++ )  {
-	  if(*(data.TxOK))  {
+	if(*(data.TxOK))  {
+	  for(i=0 ; i<FRAMESPERBUFFER; i++ )  {
 	    n2 = data.iwave[ic];
 	    addnoise_(&n2);
 	    *wptr++ = n2;			/* left */
@@ -272,10 +275,8 @@ oss_loop(int *iarg)
 		*(data.TxOK) = 0;
 	    }
 	  }
-	  else {
-	    *wptr++ = 0;			/* left */
-	    *wptr++ = 0;			/* right */
-	  }
+	} else {
+	  memset(tx_buf, 0, AUDIOBUFSIZE);
 	}
 
 	if (write(data.fd_out, tx_buf, AUDIOBUFSIZE) < 0) {
