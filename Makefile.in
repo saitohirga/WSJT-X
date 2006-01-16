@@ -5,10 +5,13 @@ CPPFLAGS = @CPPFLAGS@
 CFLAGS	= @CFLAGS@
 # WSJT specific C flags
 CFLAGS	+= -DBIGSYM=1
+DEFS = @DEFS@
+CFLAGS += ${DEFS}
+CPPFLAGS += ${DEFS}
 
 # WSJT specific Fortran flags
-#FFLAGS += -cpp -Wall -fbounds-check -ftrace=full -fno-second-underscore
-FFLAGS += -cpp -fno-second-underscore
+FFLAGS += -cpp -Wall -fbounds-check -ftrace=full -fno-second-underscore
+#FFLAGS += -cpp -fno-second-underscore
 # The default rules
 .c.o:
 	${CC} ${CPPFLAGS} ${CFLAGS} -c -o ${<:.c=.o} $<
