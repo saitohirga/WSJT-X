@@ -4,31 +4,31 @@ Changes in WSJT 5.9.2: January 10, 2006
 Enhancements
 ------------
 
-1.  Thread priorities have been adjusted for smoother operation.  One
-    result is that there will be fewer audio glitches caused by the
-    Windows O/S paying attention to other programs.
+1.  Thread priorities have been adjusted for smoother operation.  
 
-2.  The JT65 decoder now has improved immunity to "garbage data," and
-    it exhibits better performance on strong signals.
+2.  The JT65 decoder now has improved immunity to garbage data 
+    (birdies, QRM, etc.) and it exhibits better performance on 
+    strong signals.
 
-3.  The FSK441 decoder produces less on-screen gibberish when you do
-     mouse-picked decodes.
+3.  The FSK441 decoder produces less on-screen gibberish when you 
+    request mouse-picked decodes.
 
 4.  The JT6M decoder now makes better use of Freeze and Tol. You can
     set the value of "Freeze DF" by using the Right/Left arrow keys.
+    (This feature is also useful in JT65 mode.)
 
 5.  On-screen font sizes can be set by using Windows Notepad (or
     another text editor) to edit the file wsjtrc.win.  If your screen
     has resolution greater than 1024 x 768, or if you have old eyes
-    like mine, you may want to increase the sizes from 8 and 9 points
-    (first three lines of the file) to, say, 9 and 10 points.
+    like mine, you may want to increase the font sizes from 8 and 9 
+    points (first three lines of the file) to, say, 9 and 10 points.
 
 6.  A simulator mode is now built into WSJT.  It is presently most
     useful in JT65 mode.  By entering, say, "#-22" in the text box for
     Tx6, you signify that the program should generate its Tx audio
     files with the signal embedded in white gaussian noise, 22 dB
     below the noise power in a 2.5 kHz bandwidth.  You can direct this
-    signal into a second computer running WSJT, for eaxmple to test
+    signal into a second computer running WSJT, for example to test
     the decoder or to practice operating in JT65 mode.  You can even
     have the two computers "work each other", although changing
     messages of course requires operator action.
@@ -83,6 +83,7 @@ The present WSJT working group consists of:
     Diane Bruce, VA3DB
     James Courtier-Dutton
     Bob McGwier, N4HY
+    Jonathan Naylor, ON/G4KLX
     Stewart Nelson, KK7KA
     Joe Taylor, K1JT
     Kaj Wiik, OH6EH

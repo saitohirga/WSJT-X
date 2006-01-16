@@ -88,7 +88,7 @@ ptt_(int *nport, int *ntx, int *iptt)
 
     /* open the device */
     if ((fd = open(s, O_RDWR | O_NDELAY)) < 0) {
-      fprintf(stderr, "Can't open %s.", s);
+      fprintf(stderr, "Can't open %s.\n", s);
       return(1);
     }
 

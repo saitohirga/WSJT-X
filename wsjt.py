@@ -1,4 +1,4 @@
-#--------------------------------------------------------------- WSJT
+#-------------------------------------------------------------- WSJT
 from Tkinter import *
 from tkFileDialog import *
 import Pmw
@@ -647,8 +647,11 @@ on 50 MHz; JT65, an extremely sensitive mode for troposcatter
 and EME; CW at 15 WPM with messages structured for EME; and
 an EME Echo mode for measuring your own echoes from the moon.
 
-WSJT is Copyright (c) 2001-2005 by Joseph H. Taylor, Jr., K1JT, 
-and is licensed under the GNU General Public License (GPL).
+WSJT is Copyright (c) 2001-2006 by Joseph H. Taylor, Jr., K1JT, 
+with contributions from additional authors.  It is Open Source 
+software, licensed under the GNU General Public License (GPL).
+Source code and programming information may be found at 
+http://developer.berlios.de/projects/wsjt/.
 """
     Label(about,text=t,justify=LEFT).pack(padx=20)
     t="Revision date: " + \
