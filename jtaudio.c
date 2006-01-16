@@ -174,13 +174,16 @@ static int SoundOut( void *inputBuffer, void *outputBuffer,
       *wptr++ = n2;                   //right
       ic++;
       if(ic>=*data->nwave) {
-	ic = ic % *data->nwave;       //Wrap buffer pointer if necessary
-	if(*data->nmode==2)
+	if(*data->nmode==2) {
 	  *data->TxOK=0;
+	  ic--;
+	}
+	else
+	  ic = ic % *data->nwave;       //Wrap buffer pointer if necessary
       }
     }
   } else {
-    memset((void*)outputBuffer, 0, 2*sizeof(int16_t)*framesPerBuffer);
+    memset((void*)outputBuffer, 0, 2*sizeof(short)*framesPerBuffer);
   }
   fivehztx_();                             //Call fortran routine
   return 0;

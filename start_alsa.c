@@ -329,6 +329,7 @@ int playback_callback(alsa_driver_t *alsa_driver_playback) {
 	int nsec;
 	int i,n;
 	static int ic;
+	static short int n2;
 	int16_t b0[2048];
 
 //	printf("playback callback\n");
@@ -353,12 +354,17 @@ int playback_callback(alsa_driver_t *alsa_driver_playback) {
 	  alsa_playback_buffers[0] = b0;
 	  alsa_playback_buffers[1] = b0;
 	  for(i=0; i<this->period_size; i++) {
-	    b0[i]=this->app_buffer_y1[ic];
+	    n2=this->app_buffer_y1[ic];
+	    addnoise_(&n2);
+	    b0[i]=n2;
 	    ic++;
-	    if(ic >= *this->nwave) {
-	      ic=ic % *this->nwave;
-	      if(*this->nmode == 2) 
+	    if(ic>=*this->nwave) {
+	      if(*this->nmode==2) {
 		*this->tx_ok=0;
+		ic--;
+	      }
+	      else
+		ic = ic % *this->nwave;       //Wrap buffer pointer
 	    }
 	  }
 	} else {
@@ -368,7 +374,7 @@ int playback_callback(alsa_driver_t *alsa_driver_playback) {
 	result = snd_pcm_writen(this->audio_fd, alsa_playback_buffers, this->period_size);
 	this->tx_offset += this->period_size;
 	if (result != this->period_size) {
-		printf("playback writei failed. Expected %d samples, sent only %d\n", this->period_size, result);
+		printf("Playback write failed. Expected %d samples, sent only %d\n", this->period_size, result);
 #ifdef ALSA_PLAYBACK_LOG
 		snd_pcm_status_t *pcm_stat;
 		snd_pcm_status_alloca(&pcm_stat);
@@ -524,7 +530,7 @@ int start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   //  printf("start_threads: creating thread for decode1\n");
   iret1 = pthread_create(&thread1,NULL,decode1_,&iarg1);
 /* Open audio card. */
-  printf("Starting alsa routines.\n");
+  printf("Using ALSA sound.\n");
   ao_alsa_open(&alsa_driver_playback, &rate, SND_PCM_STREAM_PLAYBACK);
   ao_alsa_open(&alsa_driver_capture, &rate, SND_PCM_STREAM_CAPTURE);
 

@@ -211,7 +211,7 @@ subroutine addnoise(n)
   real r(12)
   real*8 txsnrdb0
   include 'gcom1.f90'
-  save txsnrdb0
+  save
 
   if(txsnrdb.gt.40.0) return
   if(txsnrdb.ne.txsnrdb0) then

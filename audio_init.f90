@@ -1,4 +1,3 @@
-
 !------------------------------------------------ audio_init
 subroutine audio_init(ndin,ndout)
 
@@ -11,7 +10,17 @@ subroutine audio_init(ndin,ndout)
   integer*2 a(225000)           !Pixel values for 750 x 300 array
   integer brightness,contrast
   include 'gcom1.f90'
+  include 'gcom2.f90'
 
+  nmode=1
+  if(mode(1:4).eq.'JT65') then
+     nmode=2
+     if(mode(5:5).eq.'A') mode65=1
+     if(mode(5:5).eq.'B') mode65=2
+     if(mode(5:5).eq.'C') mode65=4
+  endif
+  if(mode.eq.'Echo') nmode=3
+  if(mode.eq.'JT6M') nmode=4
   ndevin=ndin
   ndevout=ndout
   TxOK=0
