@@ -10,7 +10,7 @@ subroutine runqqq(fname,cmnd,iret)
 #ifdef Win32
   iret=runqq(fname,cmnd)
 #else
-  iret=system('KVASD -q >& /dev/null')
+  iret=system('./KVASD -q >& /dev/null')
 #endif
 
   return
