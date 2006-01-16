@@ -7,9 +7,7 @@ dnl AC_PREREQ(2.59)
 dnl Sneaky way to get an Id tag into the configure script
 AC_COPYRIGHT([$Id$])
 
-AC_INIT([wsjt],[0.9])
-
-AC_CONFIG_HEADER(conf.h)
+AC_INIT([wsjt],[5.9.2])
 
 AC_PREFIX_DEFAULT(/usr/local/)
 
@@ -96,9 +94,15 @@ OS=`uname`
 AC_SUBST(OS, "${OS}")
 
 dnl Checks for header files.
+
 AC_HEADER_STDC
 
-AC_CHECK_HEADERS([inttypes.h stdint.h sys/resource.h sys/param.h errno.h sys/syslog.h stddef.h libgen.h sys/wait.h wait.h ])
+AC_CHECK_HEADERS([inttypes.h stdint.h sys/resource.h sys/param.h errno.h \
+sys/syslog.h stddef.h libgen.h sys/wait.h wait.h stdio.h termios.h \
+sys/resource.h linux/ppdev.h dev/ppbus/ppi.h sys/stat.h fcntl.h sys/ioctl.h ])
+
+AC_HEADER_TIME
+
 AC_CHECK_HEADER([sys/soundcard.h], [HAS_SOUNDCARD_H=1], [HAS_SOUNDCARD_H=0])
 AC_CHECK_HEADER([alsa/asoundlib.h], [HAS_ASOUNDLIB_H=1], [HAS_ASOUNDLIB_H=0])
 AC_CHECK_HEADER([portaudio.h], [HAS_PORTAUDIO_H=1], [HAS_PORTAUDIO_H=0])
@@ -217,11 +221,31 @@ AC_ARG_ENABLE(portaudio,
 AC_HELP_STRING([--enable-portaudio],[Force PORTAUDIO SOUND usage.]),
 [portaudio=$enableval], [portaudio=no])
 
+AC_ARG_ENABLE(parallel,
+AC_HELP_STRING([--enable-parallel],[Force PARALLEL port usage for ptt.]),
+[parallel=$enableval], [parallel=no])
+
+AC_ARG_ENABLE(serial,
+AC_HELP_STRING([--enable-serial],[Force SERIAL port usage for ptt.]),
+[serial=$enableval], [serial=no])
+
 dnl now set conf.h,, CPPFLAGS and CFLAGS flags as needed
 dnl ====================================================
 
 dnl set defaults
 dnl ============
+
+if test "$serial" != yes -a "$parallel" != yes; then
+	[serial=yes];
+fi
+
+if test "$serial" = yes; then
+	AC_DEFINE(USE_SERIAL, 1, [Define if you want Serial port used.])
+fi
+
+if test "$parallel" = yes; then
+	AC_DEFINE(USE_PARALLEL, 1, [Define if you want Serial port used.])
+fi
 
 if test "$alsa" != yes -a "$oss" != yes -a "$portaudio" != yes; then
         if test $HAS_PORTAUDIO_H -eq 1; then
@@ -235,23 +259,17 @@ if test "$alsa" = yes; then
 	AC_DEFINE(USE_ALSA, 1, [Define if you want ALSA used.])
 	AC_SUBST(AUDIO, "start_alsa.c")
 	LDFLAGS="${LDFLAGS} -lasound"
-	CFLAGS="${CFLAGS} -DUSE_ALSA"
-	CPPFLAGS="${CPPFLAGS} -DUSE_ALSA"
 fi
 
 if test "$oss" = yes; then
 	AC_DEFINE(USE_OSS, 1, [Define if you want OSS used.])
 	AC_SUBST(AUDIO, "start_oss.c")
-	CFLAGS="${CFLAGS} -DUSE_OSS"
-	CPPFLAGS="${CPPFLAGS} -DUSE_OSS"
 fi
 
 if test "$portaudio" = yes; then
 	AC_DEFINE(USE_PORTAUDIO, 1, [Define if you want PORTAUDIO used.])
 	AC_SUBST(AUDIO, "a2d.f90 jtaudio.c start_portaudio.c")
 	LDFLAGS="${LDFLAGS} -lportaudio -lsamplerate" 
-	CFLAGS="${CFLAGS} -DUSE_PORTAUDIO"
-	CPPFLAGS="${CPPFLAGS} -DUSE_PORTAUDIO"
 fi
 
 dnl set conf flags
@@ -302,24 +320,30 @@ AC_SUBST(CPPFLAGS, "${CPPFLAGS}")
 AC_SUBST(LDFLAGS, "${LDFLAGS}")
 AC_SUBST(CFLAGS)
 
-
-
-AC_OUTPUT
+AC_OUTPUT([Makefile])
 dnl do summary
 
 echo
 echo
 
 if test $portaudio == "yes"; then
-	echo "Using portaudio";
+	echo "Using portaudio.";
 fi
 
 if test $alsa == "yes"; then
-	echo "Using alsa";
+	echo "Using alsa.";
 fi
 
 if test $oss == "yes"; then
-	echo "Using oss";
+	echo "Using oss.";
+fi
+
+if test $serial == "yes"; then
+	echo "Using serial port for ptt.";
+fi
+
+if test $parallel == "yes"; then
+	echo "Using parallel port for ptt.";
 fi
 
 echo

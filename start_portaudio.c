@@ -3,7 +3,6 @@
 #include <pthread.h>
 #include <inttypes.h>
 #include <time.h>
-#include "conf.h"
 
 extern void decode1_(int *iarg);
 extern void a2d_(int *iarg);

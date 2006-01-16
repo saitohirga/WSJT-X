@@ -6,7 +6,6 @@
 #include <sys/time.h>
 #include <fcntl.h>
 #include <sys/soundcard.h>
-#include "conf.h"
 #include <string.h>
 
 #define AUDIOBUFSIZE	4096

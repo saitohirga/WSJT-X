@@ -4,7 +4,6 @@
 #include <alsa/asoundlib.h>
 #include <inttypes.h>
 #include <time.h>
-#include "conf.h"
 
 #if 0
 #define ALSA_LOG
