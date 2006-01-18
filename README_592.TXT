@@ -80,8 +80,7 @@ can learn more at http://developer.berlios.de/projects/wsjt/.
 The first significant result of the group effort has been to create
 versions of WSJT that run under the Linux and FreeBSD operating
 systems.  Porting WSJT to the Macintosh platform should be
-straightforward, as well, although the development team does not
-yet include anyone with Macintosh hardware.
+straightforward, as well, but has not yet been attempted.
 
 If you are interested in testing and using WSJT on your own Linux or
 FreeBSD system, we'd like to hear from you.
