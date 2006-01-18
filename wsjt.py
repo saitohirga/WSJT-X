@@ -1,4 +1,4 @@
-#--------------------------------------------------------------- WSJT
+#---------------------------------------------------------------- WSJT
 from Tkinter import *
 from tkFileDialog import *
 import Pmw
@@ -15,7 +15,7 @@ from types import *
 import array
 
 root = Tk()
-Version="5.9.2 r" + "$Rev$"[6:-1]
+Version="5.9.3 r" + "$Rev$"[6:-1]
 print "******************************************************************"
 print "WSJT Version " + Version + ", by K1JT"
 print "Revision date: " + \
@@ -1253,7 +1253,7 @@ def update():
             g.ndop,g.ndop00,g.dbMoon,g.RAMoon,g.DecMoon,g.HA8,g.Dgrd,  \
             g.sd,g.poloffset,g.MaxNR,g.dfdt,g.dfdt0,g.RaAux,g.DecAux, \
             g.AzAux,g.ElAux = Audio.astro0(utc[0],utc[1],utc[2],  \
-            utchours,nfreq.get(),options.MyGrid.get(), \
+            utchours,nfreq.get(),options.MyGrid.get().upper(), \
                 options.auxra.get()+'         '[:9],     \
                 options.auxdec.get()+'         '[:9])
 

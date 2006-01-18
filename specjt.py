@@ -228,7 +228,10 @@ def update():
             n=Audio.gcom2.nlines
             box=(0,0,750,300-n)                 #Define region
             region=im.crop(box)                 #Get all but last line(s)
-            im.paste(region,(0,n))              #Move waterfall down
+            try:
+                im.paste(region,(0,n))          #Move waterfall down
+            except:
+                print "Images did not match, continuing anyway."
             for i in range(n):
                 line0.putdata(a[750*i:750*(i+1)])   #One row of pixels to line0
                 im.paste(line0,(0,i))               #Paste in new top line
