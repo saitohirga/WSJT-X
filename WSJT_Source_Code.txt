@@ -1,5 +1,8 @@
-1  Introduction
+			WSJT DEVELOPMENT OVERVIEW
+			-------------------------
 
+1  Introduction
+----------------------------------------------------------------------
 WSJT is a computer program designed to facilitate Amateur Radio
 communication under extreme weak-signal conditions.  Three very
 different coding and modulation methods are provided: one for
@@ -9,7 +12,7 @@ for the very challenging EME (Earth-Moon-Earth) path.
 
 
 2  Program Overview
-
+----------------------------------------------------------------------
 WSJT's user interface is written in Python.  The major Python
 source-code files include:
 
@@ -50,7 +53,7 @@ weak-signal communication.
 
 
 3  Some Functional Details
-
+----------------------------------------------------------------------
 WSJT execution starts at the top of Python file wsjt.py.  The
 other Python modules are loaded and executed as needed.  Fortran
 routines are called to start a high-priority thread to handle
@@ -63,7 +66,7 @@ alternating transmission and reception intervals.
 
 
 4  Other Open-Source Software used in WSJT
-
+----------------------------------------------------------------------
 WSJT 5.9 uses the following open source libraries:
 
   1. FFTW, by Matteo Frigo and Steven Johnson, for computing Fourier
@@ -79,18 +82,18 @@ WSJT 5.9 uses the following open source libraries:
 
 
 5  Platform-Dependent Notes
-
+----------------------------------------------------------------------
 The Python code should run on any supported Python platform.  Most of
-the remaining code can be recompiled for Linux or OS/X, instead of
-Windows.  Platform-dependent versions of FFTW, PortAudio, and
-libsamplerate need to be installed.  
+the remaining code can be compiled for Linux, FreeBSD, unix, or OS/X,
+as well as Windows.  Platform-dependent versions of FFTW, PortAudio,
+and libsamplerate may need to be installed.
 
 Methods are provided for creating additional threads and setting their
-runtime priorities in both Windows and Linux.
+runtime priorities in Windows, Linux, and FreeBSD.
 
 
 6  Partial List of Functions and Subroutines, and their purposes
-
+----------------------------------------------------------------------
    Routines for audio startup, decoding, display computations
      blanker.f90  Noise blanker
      fivehz.f90   Called by PortAudio callback
@@ -161,7 +164,7 @@ runtime priorities in both Windows and Linux.
    FFTs:
      fftw3.f      Fortran definitions for FFTW
      four2a.f     Wrapper to make FFTW look like four2
-     four2.f      FFT in Fortran
+     four2.f      FFT in Fortran (a;ternative to using FFTW)
      ps.f         Compute power spectrum
      xfft.f       Real to complex FFT wrapper
 
@@ -230,7 +233,7 @@ runtime priorities in both Windows and Linux.
 
 
 7  Compiling Instructions
-
+----------------------------------------------------------------------
 Scripts are provided for compiling WSJT in both Windows and Linux.
 They are presently set up to use Compaq Visual Fortran (v6.6) and
 Microsoft C (v6.0) in Windows, and g95 and gcc in Linux.  My
@@ -256,11 +259,25 @@ These steps produce a distributable file WSJT6.EXE (Windows) or wsjt6
 end user does not need to install Python or any of its other
 extensions, or the compilers.
 
+A configuration script and Makefile facility is also provided.
+Assuming that all of the pre-requisites are properly installed, WSJT
+can now be compiled in Windows as follows:
 
-8  Present status (December 28, 2005)
+  C> copy Makefile.win Makefile
+  C> nmake
 
-WSJT version 5-9-2 r25 is fully functional in Windows.  The Linux version
-can be used to decode recorded files, but real-time audio I/O has not
-yet been implemented.
+In Linux or FreeBSD, do the following:
+
+  $ ./configure --enable-portaudio (or --enable-alsa)
+  $ make
+
+
+8  Present status (January 17, 2006)
+----------------------------------------------------------------------
+
+WSJT version 5.9.2 (built from SVN revision 115) has been released for
+Windows.  It is is fully functional in Linux and BSD, as well, but
+presently need to be compiled locally.  In due course we plan to
+provide distributions for standard *nix distributions.
 
 

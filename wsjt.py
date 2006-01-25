@@ -766,6 +766,19 @@ reports may be substituted.)
     Label(screenf5,text=t,justify=LEFT).pack(padx=20)
     screenf5.focus_set()
 
+#------------------------------------------------------ prefixes
+def prefixes(event=NONE):
+    pfx=Toplevel(root)
+    pfx.geometry(msgpos())
+    if g.Win32: pfx.iconbitmap("wsjt.ico")
+    f=open(appdir+'/prefixes.txt','r')
+    s=f.readlines()
+    t=""
+    for i in range(len(s)):
+        t=t+s[i]
+    Label(pfx,text=t,justify=LEFT).pack(padx=20)
+    pfx.focus_set()
+
 #------------------------------------------------------ azdist
 def azdist():
     if len(HisGrid.get().strip())<4:
@@ -1607,6 +1620,7 @@ helpbutton['menu'] = helpmenu
 helpmenu.add('command', label = 'Keyboard shortcuts', command = shortcuts)
 helpmenu.add('command', label = 'Special mouse commands', command = mouse_commands)
 helpmenu.add('command', label = 'What message to send?', command = what2send)
+helpmenu.add('command', label = 'Add-on prefix list', command = prefixes)
 helpmenu.add('command', label = 'About WSJT', command = about)
 
 #------------------------------------------------------ Graphics areas
@@ -1978,7 +1992,9 @@ try:
 #        elif key == 'RxDelay': options.RxDelay.set(value)
 #        elif key == 'TxDelay': options.TxDelay.set(value)
         elif key == 'IDinterval': options.IDinterval.set(value)
-        elif key == 'ComPort': options.ComPort.set(value)
+        elif key == 'ComPort':
+            options.ComPort.set(value)
+            Audio.gcom2.nport=int(options.ComPort.get())
         elif key == 'Mileskm': options.mileskm.set(value)
         elif key == 'MsgStyle': options.ireport.set(value)
         elif key == 'Region': options.iregion.set(value)
