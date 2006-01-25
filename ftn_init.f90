@@ -18,7 +18,7 @@
 !------------------------------------------------ ftn_init
 subroutine ftn_init
 
-  character*1 cjunk
+  character*1 cjunk,fname*80
   include 'gcom1.f90'
   include 'gcom2.f90'
   include 'gcom3.f90'
@@ -32,6 +32,7 @@ subroutine ftn_init
   enddo
 1 iz=i
   lenappdir=iz
+  call pfxdump(appdir(:iz)//'/prefixes.txt')
 
 #ifdef Win32
   open(11,file=appdir(:iz)//'/decoded.txt',status='unknown',               &
