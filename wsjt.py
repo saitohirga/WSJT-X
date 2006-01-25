@@ -773,10 +773,27 @@ def prefixes(event=NONE):
     if g.Win32: pfx.iconbitmap("wsjt.ico")
     f=open(appdir+'/prefixes.txt','r')
     s=f.readlines()
+    t2=""
+    for i in range(4):
+        t2=t2+s[i]
     t=""
-    for i in range(len(s)):
-        t=t+s[i]
-    Label(pfx,text=t,justify=LEFT).pack(padx=20)
+    for i in range(len(s)-4):
+        t=t+s[i+4]
+    t=t.split()
+    t.sort()
+    t1=""
+    n=0
+    for i in range(len(t)):
+        t1=t1+t[i]+"  "
+        n=n+len(t[i])+2
+        if n>60:
+            t1=t1+"\n"
+            n=0
+    t1=t1+"\n"
+    if options.addpfx.get().lstrip():
+        t1=t1+"\nOptional prefix:  "+(options.addpfx.get().lstrip()+'    ')[:4]
+    t2=t2+"\n"+t1
+    Label(pfx,text=t2,justify=LEFT).pack(padx=20)
     pfx.focus_set()
 
 #------------------------------------------------------ azdist
@@ -1620,7 +1637,8 @@ helpbutton['menu'] = helpmenu
 helpmenu.add('command', label = 'Keyboard shortcuts', command = shortcuts)
 helpmenu.add('command', label = 'Special mouse commands', command = mouse_commands)
 helpmenu.add('command', label = 'What message to send?', command = what2send)
-helpmenu.add('command', label = 'Add-on prefix list', command = prefixes)
+helpmenu.add('command', label = 'Available suffixes and add-on prefixes', \
+             command = prefixes)
 helpmenu.add('command', label = 'About WSJT', command = about)
 
 #------------------------------------------------------ Graphics areas
