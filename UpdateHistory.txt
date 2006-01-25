@@ -1,0 +1,2460 @@
+Changes in WSJT 5.9.3: January 26, 2006
+---------------------------------------
+This is a minor maintenance release.
+
+1. New Help screen provides a list of available suffixes and add-on
+   DXCC prefixes.  
+
+2. The occasional error message about "images do not match" has been
+   trapped and should no longer occur.
+
+3. Code that required one's own grid locator to be entered with first
+   two letters in upper case, last two in lower case, has been made
+   case insensitive (as it should have been).
+
+4. Initialization of the PTT line to the "OFF" state has been fixed.
+
+
+Changes in WSJT 5.9.2: January 16, 2006
+---------------------------------------
+
+Enhancements
+------------
+
+1.  Thread priorities have been adjusted for smoother operation.  
+
+2.  The JT65 decoder has been given improved immunity to garbage data
+    (birdies, QRM, etc).  It exhibits better performance on strong
+    signals and provides more accurate estimates of their S/N.
+
+3.  The FSK441 decoder produces less on-screen gibberish when
+    processing mouse-picked decodes.
+
+4.  The JT6M decoder now makes better use of Freeze and Tol. You can
+    set the value of "Freeze DF" by using the Right/Left arrow keys.
+    (This feature is also useful in JT65 mode.)
+
+5.  On-screen font sizes can be set by using Windows Notepad to edit
+    the file wsjtrc.win.  If your screen has resolution greater than
+    1024 x 768, or if you have old eyes like mine, you may want to
+    increase the font sizes from 8 and 9 points (first three lines of
+    the file) to, say, 9 and 10 points.
+
+6.  A simulator mode is now built into WSJT for testing purposes.  It
+    is presently most useful in JT65 mode.  By entering, say, "#-22"
+    in the text box for Tx6, you signify that the program should
+    generate its Tx audio files with the signal embedded in white
+    gaussian noise, 22 dB below the noise power in a 2.5 kHz
+    bandwidth.  You can direct this signal into a second computer
+    running WSJT, for example to test the decoder or to practice
+    operating in JT65 mode.  You can even have the two computers "work
+    each other" in a simulated QSO, although changing messages of
+    course requires operator action.
+
+7.  Dividing lines are now provided on the waterfall display between
+    spectra corresponding to wave files read from disk.
+
+8.  The PTT line is explicitly set low on program startup.
+
+9.  The F10 key brings up the SpecJT screen (if it was hidden) and
+    toggles foreground and focus status between the WSJT and SpecJT
+    screens.
+ 
+10. You can use the Alt-F and Alt-Z keyboard shortcuts to toggle
+    "Freeze" and "Zap" on and off.
+
+11. "Accelerated decoding" has been removed from the Setup menu.  In
+    effect, this option is now always ON.
+
+12. Text windows are now cleared when switching between modes.
+
+13. Linux and FreeBSD versions (see below) offer PTT control via
+    parallel port, as well as serial port.  They offer sound support
+    via ALSA and OSS.
+
+
+Bug Fixes:
+----------
+1.  The use of non-threadsafe code for FFTs could cause occasional and
+    unpredictable program crashes.  Fixed.
+
+2.  A bug in the JT65 decoder could (rarely) cause large errors in the
+    reported level of strong signals. Fixed.
+
+3.  The program could be made to crash by trying to read a very short
+    wave file. Fixed.
+
+4.  "Save None" now works as it should.
+
+
+Please note:
+------------
+When entering your grid locator on the Setup->Options page, use upper
+case for the first two letters and lower case for the last two.  For
+example, for K1JT the locator is FN20qi.
+
+
+For Curious Users, and Especially for Programmers
+-------------------------------------------------
+
+WSJT is no longer a one-person effort, and the program no longer runs
+only under Microsoft Windows.  WSJT is now a full-fledged Open Source
+project, with an active working group making contributions to future
+development.  Source code is now stored in a public repository under
+control of a version control system called "Subversion," or SVN.  You
+can learn more at http://developer.berlios.de/projects/wsjt/.
+
+The first significant result of the group effort has been to create
+versions of WSJT that run under the Linux and FreeBSD operating
+systems.  Porting WSJT to the Macintosh platform should be
+straightforward, but has not yet been done.
+
+If you are interested in testing and using WSJT on your own Linux or
+FreeBSD system, we'd like to hear from you.  Please note that the
+present Linux and FreeBSD versions are intended mainly for
+programmers.  You need to know your way around these operating 
+systems to be able to install them.
+
+If you feel that you can usefully contribute to the future development
+of WSJT on any platform, we would also like to hear from you!  We
+could use help with documentation and website maintenance, as well as
+actual programming.
+
+The present WSJT working group consists of:
+
+    Diane Bruce, VA3DB
+    James Courtier-Dutton
+    Bob McGwier, N4HY
+    Jonathan Naylor, ON/G4KLX
+    Stewart Nelson, KK7KA
+    Joe Taylor, K1JT
+    Kaj Wiik, OH6EH
+
+
+Changes in WSJT 5.9.0:   November 16, 2005
+------------------------------------------
+
+1. JT65 decoding has been made faster and significantly improved in
+   other ways.  Three new options appear on the Decode->JT65 menu:
+   "Fast", "Normal", and "Exhaustive".  The program is most sensitive
+   if you choose "Exhaustive".  Choosing "Normal" will make decoding
+   slightly less sensitive, but the loss is not great, and decoding
+   can be twice as fast.  The "Fast" setting is faster still, but can
+   be less sensitive by 2 dB or more in some cases.  If you have a 1.5
+   GHz or faster computer, use "Exhaustive".  With a slower computer
+   you may want to experiment with the other settings.
+   
+2. In JT65 mode, double-clicking on the waterfall (SpecJT window) or
+   on the red curve (main window) sets "Freeze DF" to the selected
+   frequency, turns Freeze ON, sets Tol to 50 Hz, and invokes the
+   decoder.  Using this feature, you can quickly decode a transmission
+   at several different values of DF.  I find this feature to be
+   *extremely* useful.
+
+3. The range of DT values searched to establish synchronization has
+   been doubled, now extending from -2 to +10 seconds.  The reported
+   values of DT are more accurate, as well.  You should normally
+   expect EME signals to have DT in the range 2 to 3 seconds, but the
+   program will now synchronize properly even if DT is well outside
+   this range.
+
+4. WSJT now offers the ability to correct for errors in soundcard
+   input and output sampling rates.  Numbers displayed in the first
+   panel of the status bar (at lower left of the main screen) give the
+   ratio of actual sample rates for input and output to the correct
+   value, 11025 Hz.  The numbers should stabilize within about one
+   minute after program startup.  If they fall in a "safe" range
+   between about 0.9990 and 1.0010, you have a good sound card (at
+   least in respect to sampling frequency).  You can then leave the
+   entry fields "Rate In" and "Rate Out" on the "Setup -> Options"
+   page at their default values, 1.0.
+
+   If your soundcard gives one or both numbers well outside the safe
+   range, you should enter the displayed errant numbers as "Rate In"
+   and/or "Rate Out" on the Setup->Options page.  This needs to be
+   done only once; subsequent changes in the last decimal place of the
+   displayed values are not very significant, and can be safely
+   ignored.
+
+   The result of this procedure is that your Tx signal will be
+   "trimmed" so that your tone spacings in time and frequency are more
+   nearly correct.  In addition, your digitized Rx signals will be
+   adjusted so that the software can properly interpret them.
+
+   This trimming is an important procedure.  Some recent sound cards
+   produce sampling error factors as low as 0.9932 or as high as
+   1.0068.  If uncorrected, such results can degrade your S/N in WSJT
+   modes by 2 dB or more.
+
+   If one of the measured sample rates differs from the corresponding
+   value specified for "Rate In" or "Rate Out" by more than 0.1%, a
+   red warning label will appear just below the graphical area on the
+   main screen.
+
+5. The graphical display of information obtained during JT65 decoding
+   has been enhanced.  As before, a red line illustrates the maximum
+   correlation between the pseudo-random sync tone pattern and the
+   received signal at each value of frequency offset, DF.  A blue line
+   shows the correlation at the best DF, plotted as a function of time
+   offset, DT.  If a shorthand message is detected, two new lines
+   colored magenta and orange replace the red and blue lines.  The new
+   lines illustrate phase-resolved spectra measured in each of the two
+   phases of the shorthand square-wave pattern.  A properly detected
+   shorthand message will show a peak in the magenta curve, followed
+   at a specified distance by a peak in the orange curve.  The correct
+   locations of the two peaks are marked by small yellow ticks.
+   Unlike the alternating shorthand message tones, birdies will appear
+   with approximately equal amplitudes in the magenta and orange
+   curves.
+
+6. For the convenience of temporary DXpeditions, a new JT65 feature
+   permits use of add-on DXCC prefixes that are not in the published
+   list of supported prefixes.  Both stations in a QSO must enter the
+   required prefix (for example, PJ8 or FS) in a box on the
+   Setup->Options page.  The effect will be to temporarily add the
+   entry to the table of supported prefixes.
+
+7. The Setup->Options page has new entry fields labeled "Source RA"
+   and "Source DEC".  You can enter the current right ascension and
+   declination of a radio source to be used for system calibration, or
+   perhaps a pulsar or a deep space probe that you wish to detect.
+   The program will display (on the Astronomical Data screen) the
+   current Azimuth and Elevation of the specified object at your
+   station.  The source Azimuth and Elevation are also written every
+   second to the file azel.dat, in case you have automated tracking
+   capabilities that depend on this information.
+
+8. For contest-style operations, the Setup->Options menu has an item
+   labeled "F4 sets Tx6".  If this item is checked, when you hit F4 to
+   clear the To Radio box the program will turn Freeze OFF and set
+   the Tx message number to 6.
+
+9. To facilitate the coming release of the full source code of WSJT
+   under the GNU General Public License, the proprietary soft-decision
+   Reed Solomon decoder has been removed from WSJT proper and made
+   into a separate executable module, KVASD.EXE.  This change is
+   transparent to the user, and the full benefit of the soft-decision
+   decoder is still available.  An open source hard-decision decoder
+   is also provided; it's what you get when you select the "Fast" JT65
+   decoding option.
+
+10. In WSJT 5.8.6, if the value of "Freeze DF" (as displayed in the
+    Status Bar) differs from the sync tone frequency by more than
+    "Tol", shorthand decoding was suppressed even if Freeze was not
+    checked.  This is a bug, and it has been fixed.
+
+11. Earlier versions of WSJT had a bug that could cause the "Zap"
+    function to notch out a valid sync tone.  Fixed.
+
+12. The Help screens called up by F1 and Shift-F1 have been updated.
+    Be sure to read these screens: they contain many operational
+    conveniences that you may not have discovered!
+
+13. At scrolling speed 5, the time labels and "minute separator" lines
+    were displayed erratically and the CPU load was excessive.  Fixed.
+
+14. Signal strength measurements above -20 dB were formerly compressed
+    and significantly underestimated.  This has been fixed.
+
+15. Decodings of the average of many properly synchronized transmissions
+    would sometimes go from "good" to "bad" after approximately 8-12 
+    transmissions.  This was a bug, and it has been fixed.
+
+16. Several bugs in the FSK441 decoder have been fixed.  Both
+    automatic decoding and mouse-picked decoding have been improved.
+
+17. Changing WSJT modes now sets Auto to OFF, Tol to 400, and the Tx
+    message number to 1.
+
+18. The generated audio for CW ID in FSK441 and JT6M modes has been
+    moved to 440 Hz, to avoid possible confusion with the other tones
+    used in these modes.
+
+19. Readout of "Rx noise" on the main screen is now highlighted in red
+    if the level is outside the range -10 to +10 dB.
+
+20. The Monitor button is no longer highlighted in green while you are
+    transmitting.
+
+21. No attempt is made to decode if the Rx level is very low -- for
+    example, if your receiver is turned off.
+
+22. If the Grid box does not contain a valid locator, readouts of
+    azimuth and distance are suppressed.
+
+23. Keying of the audio tone to produce Morse code has been softened
+    to suppress key clicks.
+
+24. Transmitted messages recorded in the file ALL.TXT are now
+    identified as to mode, and shorthand transmissions are noted as
+    such.
+
+25. A number of other very minor bugs have been fixed.
+
+
+Changes in WSJT 5.8.6
+---------------------
+
+1. Audio input and output has been modified in a way that accommodates
+   certain soundcards (e.g., SB Live!) that did not work correctly
+   with WSJT 5.8.3.
+
+2. New item on Setup->Options menu to select whether GenStdMsgs forces
+   Tx message number to 1.
+
+3. Status of all selectable items on Setup->Options menu is preserved
+   on program restart.
+
+4. If a CQ is transmitted in JT65 mode, the Sked box is automatically
+   unckecked.
+
+5. In v5.8.3, entering the same callsign and locator information in
+   MyCall and ToRadio/Grid could cause the program to freeze.  Fixed.
+
+6. If MyCall includes an extra prefix, as in 4X/ZL1RS, the standard JT65
+   messages should not include a grid locator.  Fixed.
+
+7. The "ms" parameter has been removed from the Soundcard status
+   readout at bottom left.  Separate sample-rate factors are now
+   displayed for audio input and output, but only if "Enable
+   diagnostics" is checked on the Setup menu.
+
+8. The SpecJT screen may now be made invisible by clicking on "X" in
+   the upper right corner.  To restore it to visible status, click on
+   View->SpecJT on the main screen.
+
+9. Decoded text lines in JT6M mode were sometimes too long, causing
+   end-of-line wrap-around.  Fixed.
+
+10. Some diagnostic messages printed to console window have been
+    removed.
+
+11. The values of S, Sync, Clip, Zap and NB are now preserved when the
+    program is terminated and restarted.
+
+12. Version 5.8.3 was unable to read back its own recorded wave files.
+    Fixed.
+
+13. A programming error in the JT65 shorthand message decoder has been
+    fixed.  Under certain conditions, this error could cause false
+    decodes of shorthand messages.
+
+14. The logic of file saving commands Save Last, Save decoded, etc.,
+    has been corrected.
+
+15. Wave files read from disk will now produce spectral plots on the
+    waterfall display if Monitor is OFF.
+
+16. The CW ID feature has been implemented.
+
+17. The mapping of signal levels to pixel colors and its dependence
+    on settings of Brightness and Contrast controls has been changed
+    so as to improve sensitivity to very weak signals.
+
+18. In v5.8.3, changing Dsec would create erroneous results for the
+    displayed soundcard sample rate factor.  Fixed.
+
+19. Running in JT65 mode with Dsec>0 caused transmission errors
+    (including a gap in transmitted tones at t = 38-41 s), and the
+    resulting transmission was unreadable.  Fixed.
+
+20. Undesired resizing of main screen could occur when a long FSK441
+    message was transmitted.  Fixed.
+
+21. The "yellow line" displayed in the graphical area in JT6M mode 
+    was computed incorrectly in version 5.8.3.  Fixed.
+
+22. When running at speeds 1-5, the waterfall spectrum may optionally
+    be "flattened" to remove rolloff at edges.  To enable this
+    feature, check "Flatten spectra" on the SpecJT Options menu.
+
+COMMENTS ON SOUND CARDS
+-----------------------
+
+In general, "high end" sound cards offer no advantages when used with
+WSJT.  Motherboard AC-97 compliant sound systems are cheap and work
+well.  If you do need to buy a sound card for use with WSJT, my advice
+is to get a simple one.  You do NOT need 8-channel surround-sound,
+wavetable synthesis, special effects, etc.  Those features are for
+games and listening to music, and they will be wasted on WSJT.
+
+Likewise, you do not need 24-bit A/D and D/A conversions.
+Specifications having to do with signal/noise ratio are quite
+irrelevant to use with WSJT, as you should never be operating in a
+regime where A/D quantizing noise (or any other noise generated in the
+sound card) contributes significantly to the system S/N.
+
+If you have a choice, get a card that offers a *native* sampling rate
+of 44100 or 11025 Hz, or both.  (Unfortunately, it is often very
+difficult to tell from the manufacturer's literature whether this
+capability is present or not.)  If native sampling at 11025 Hz is
+available -- or if the manufacturer has at least provided a
+well-designed resampling capability -- the soundcard sample-rate
+factors (displayed by WSJT in the bottom left corner, if
+"Setup->Enable diagnostics" is checked) should both be very close to
+1.0000.
+
+
+Changes in WSJT 5.8.3
+---------------------
+
+1. The Dsec parameter was not working properly in v5.8.1.  Fixed.
+
+2. CPU load at high waterfall speeds has been substantially reduced.
+
+3. Saving cumulative file of decoded text is no longer optional.  The
+   file name has been changed to ALL.TXT, to reflect use of this file
+   for transmitted as well as decoded text.
+
+4. Logic for green bar illustrating region searched for sync tones has
+   been corrected.
+
+5. Bug producing index error in "plot_yellow" is fixed.
+
+6. Bug causing crash in CW mode if TRPeriod > 60 s is fixed.
+
+7. Tabular listing of Audio devices has been clarified.
+
+8. Name at top of waterfall screen has been changed to "SpecJT" so
+    that its icon can be distinguished from that of main screen.
+
+9. VOX control of T/R sequencing is now permitted by setting the COM
+   port to 0.
+
+10. Exit from program with the "To Radio" box empty caused error
+    message and substitution of default parameters on restart.  Fixed.
+
+11. Default FSK441 message #5 for EU has been changed to "73 MyCall"
+    (which I am told conforms with standard EU practice).
+
+12. Lower case letters are now acceptable in entries on Setup->Options
+    screen, and will be translated appropriately to upper case in
+    transmitted messages.
+
+13. The file AZEL.DAT has been moved to the WSJT6 installation
+    directory.
+
+14. The "Sh Msg" box was always checked when entering FSK441 mode.  It
+    now remembers its state if you had unchecked it.
+
+15. Keyboard shortcuts have been implemented for most on-screen
+    controls.  Use F1 to see a full listing.
+
+16. "Gen Std Msgs" now sets the Tx message to #1 in all WSJT modes.
+
+17. Self-echo doppler value has been replaced by "Dgrd" in the
+    astronomical data displayed on the main screen.
+
+18. The audio stream has been trimmed by 0.5 s at the start of FSK441
+    and JT6M Rx sequences, to prevent possibly copying one's own Tx
+    signal.  (Is this enough?)
+
+19. Two header parameters in wave files recorded by WSJT have been
+    corrected so that the files can be read correctly by Windows Sound
+    Recorder.
+
+20. Four-digit grid locators no longer produce incorrect azimuth
+    headings.
+
+21. Logic error in the waterfall's horizontal scrolling mode fixed.
+
+23. The active Tx message box is now highlighted during a
+    transmission, as in WSJT 4.x.
+
+24. Green ticks marking range of JT65 tone frequencies and red ticks
+    marking shorthand tones may optionally be displayed only if Freeze
+    is checked.  (Select on waterfall screen's Options menu.)
+
+25. "Tool-tip" readout of full entry in CALL3.TXT is now provided
+    after Lookup, if mouse pointer hovers over the ToRadio box.
+
+26. Parameter RDsec was removed from the screen, as it is not
+    implemented.
+
+27. Some additional diagnostic information is now displayed.  A
+    parameter "ms" following the "Soundcard x.xxxx" readout is a
+    measure of the maximum time between successive servicing of the
+    audio callback routine.  The nominal value is about 186 ms, but
+    somewhat larger values are normal owing to granularity of the
+    Windows system clock.  Values larger than 330 ms cause a warning
+    message to appear in the console window.  Large values of this
+    parameter may be related to audio input problems (see below).
+
+28. The latest version of DL8EBW's CALL3.TXT database is included with
+    the distribution.  It will be installed only if there is no file
+    named CALL3.TXT already in your WSJT6 installation directory.
+
+
+KNOWN PROBLEMS
+--------------
+
+1. Some fraction of WSJT 5.8.1 users -- perhaps 5-10%, it is hard for
+   me to judge -- have had problems with erratic audio input.  I am
+   having difficulty tracing the problem because I have not been able
+   to reproduce it on any computer to which I have access.  Typical
+   symptoms are that after startup WSJT 5.8.1 runs normally in Monitor
+   mode for a minute or so, but then the reported audio level jumps to
+   a much higher value and perhaps fluctuates wildly.
+
+   Two users have switched todifferent sound cards and made the
+   problem go away.  Several others have discovered that if they first
+   start WSJT4 and leave it running (in Monitor mode, I believe), and
+   then start WSJT 5.8.1, the new program behaves properly.  One user
+   corrected the problem by turning off an "AGC" feature on his sound
+   card.  Apparently most of the newer SoundBlaster cards have this
+   AGC feature, and it is turned ON by default.  I am told that it can
+   be turned OFF by using the supplied utility CTMIX32.EXE.
+
+   I do not yet understand the cause of the erratic audio problem.  It
+   is possible that it has been fixed in v5.8.3, as several minor
+   changes have been made to the audio input routines; but I think
+   this is unlikely.
+
+   If you had this problem at your station and have now solved it,
+   please let me know what you did!  If you still have problems when
+   running version 5.8.3, let me know about that as well.
+
+2. I do not yet have a good definition of the "minimum computer"
+   required to run WSJT6.  Several people have told me that they are
+   using the program successfully on 300-500 MHz machines.  Those with
+   computers slower than about 600 MHz will do best to avoid the
+   higher waterfall speeds and not run many other programs while using
+   WSJT.
+
+
+Beta Release 5.8.1
+------------------
+
+Beta release 5.8.1 is an entirely new program, dsesigned to preserve
+the features and the "look and feel" of version 4.9.8, but also to add
+many new features and do so in a way that will make for easier for
+program maintenance and future development.  After a period of beta
+testing, the program will become known as WSJT 6.0.  I will refer to
+it here as WSJT6.
+
+Many features of WSJT6 will be familiar to present users of WSJT4.x.
+However, the user interface and other real-time portions of the
+program have been entirely re-written, so you may find a few things
+that look different or work differently than before.
+
+WSJT6 is a multi-threaded program.  This architecture permits much
+better timing control and much better sharing of the CPU among the
+program's many tasks.  A real-time waterfall is provided, optimized
+for each of the WSJT modes.  You can measure and set the Rx gain in
+real time.  You can decode FSK441 pings immediately after hearing
+them.  
+
+The decoders for JT65 and JT6M are essentially the same as those in
+recent versions of the program.  (I have many plans for enhancements
+to the decoders, but these must wait for future updates.)  The FSK441
+decoder has intentionally reverted back to approximately version
+3.8.1, because it has been shown that recent versions did not perform
+quite as well.
+
+WSJT 5.8 is a stable release.  Extensive tests by a small group of
+early beta testers have already shown that it works well.  However, it
+contains many thousands of lines of new code, and most likely that
+code has some bugs.  Nevertheless, I think you will find many
+operational advantages to using it.  Over the past 2.5 months, all of
+my own MS and EME QSOs have been made with the new version.
+
+If you decide to participate in the beta testing period, please accept
+the responsibility of reporting any bugs that you find, as well as
+telling me of features you would still like to see.  I would
+appreciate hearing about new features that you like, as well.
+
+
+PRELIMINARY INSTRUCTIONS AND COMMENTS
+-------------------------------------
+
+1.  I suggest installing WSJT6 to a new directory such as C:\Program
+    Files\WSJT6.  After installation you will probably want to copy
+    your version of the callsign database, CALL3.TXT, into the new
+    WSJT6 directory, replacing the one that is supplied.
+
+2.  When you start the program you should get three windows on your
+    screen. One has a black background and I will call it the "console
+    window"; it is mainly used for debugging messages.  You can
+    minimize it and generally ignore it.  You should, however, look
+    there for messages if the program crashes (see also items 9 and
+    11, below).  The other two windows are a Spectran-like waterfall
+    and the more-or-less familiar WSJT window.  It is no longer
+    necessary or desirable to run Spectran simultaneously with WSJT.
+
+3.  FSK441, JT65, and JT6M are all present and functional. I have made
+    many QSOs with FSK441 and JT65, so I know they are working well.
+    JT6M has been tested somewhat less, but I have seen no problems as
+    yet.  EME Echo mode and the CWID feature are not yet implemented.
+
+4.  To start the real-time spectral display, click Monitor.  Normally
+    you can leave Monitor on all the time.
+
+5.  There are two ways to set the Rx Audio gain.  You can call up the
+    Windows mixer as before, using the "Rx Volume Control" item on the
+    Options menu.  There is also a digital gain control near the
+    bottom right of the waterfall screen.  You should aim for around 0
+    dB, as before -- but with 16-bit audio sampling it is no longer
+    very critical.  Use the "S-meter" at the lower right of the
+    waterfall display, or the familiar box labeled "Rx noise" at
+    bottom center of the main screen.
+
+6.  You should be able to make FSK441, JT65, and JT6M QSOs more or
+    less as usual.  In FSK441 and JT6M you will want to run the
+    spectral display at speed "H1" or "H2" (speed is selected at the
+    top of the waterfall screen).  (The "H" means horizontal
+    scrolling.)  Scrolling speeds "5" and "H2" use a lot of CPU time,
+    so you may want to avoid them unless your computer is pretty fast.
+    I generally use speed "1" or "2" for JT65 and "H1" for FSK441 and
+    JT6M.
+
+7.  When running FSK441 in the horizontal scrolling mode, the spectral
+    display shows current data in the top half and the previous Rx
+    sequence in the bottom half.  The most recently decoded sequence
+    is shown also on the main screen, as in version 4.x.
+
+8.  You can decode FSK441 pings right away by clicking on any of the
+    2-dimensional spectral displays, or the accompanying green lines.
+    You can click on the top half, the bottom half, or in the main
+    screen's graphical area.
+
+9.  If you have more than one sound card, you can select the desired
+    one.  Look at the startup messages in the console window. You
+    should see a list of the available Audio devices and information
+    about which one has been selected.  If you wish to change the
+    selection, enter the desired device numbers on the Setup->Options
+    screen, then terminate and restart the program.
+
+10. If your display has resolution 1024 x 768 or less, you may prefer
+    to resize the waterfall window so that only its top portion
+    remains visible.  The two main WSJT windows may then be kept
+    visible without overlapping.
+
+11. Some program crashes can kill the console window so that you can't
+    read the error messages.  If this happens, and if the crash is
+    repeatable, open a Windows Command-Prompt window; CD to your WSJT6
+    installation directory, and start the program from there by typing
+    "WSJT6".  With this startup procedure, any subsequent post-mortems
+    will remain visible.  Please report any such messages to me!
+
+12. You may find decoding to be slightly slower than with v4.9.x.  I
+    have not yet spent any time optimizing the new code for speed; it
+    will get faster when I turn attention to that task.  If you have
+    an older computer you may wish to check the menu item
+    "Setup->Accelerated decoding", which will suspend updating the
+    waterfall during the decoding process.
+
+13. Be sure to look at the screens called up by function keys F1 and
+    Shift-F1.  These screens are also available from the Help menu.
+    They list some useful keyboard and mouse commands that you might
+    otherwise overlook.
+
+14. Be sure to explore all the menus and on-screen controls, and try
+    out the commands listed on the help screens.  Until I can find
+    time to write a new manual, this is the best way to learn about
+    some of the new features.
+
+15. In JT65 mode, a horizontal green line on the frequency scale shows
+    the range of frequencies that will be searched for a sync tone.
+    You can set the "Freeze DF" value by clicking on the main screen's
+    red curve (as in WSJT 4.x) or by clicking on the waterfall with
+    the shift key held down.  If "Freeze" is checked, vertical green
+    ticks will mark the selected sync-tone frequency and the
+    corresponding frequency of the highest data tone.  Red tick marks
+    denote the frequencies of the RO, RRR, and 73 shorthand messages.
+
+16. WSJT6 can read and process WAV files produced by earlier versions.
+    The converse is not true, however, because earlier versions of
+    WSJT are not equipped to read the 16-bit data files produced by
+    WSJT6.
+
+17. When you click "Log QSO," a line with date, time, HisCall,
+    HisGrid, frequency, and mode is added to the file WSJT.LOG in the
+    installation directory.
+
+18. Every second, a short file named "c:\azel.dat" is updated with
+    time, moon and sun coordinates, frequency, doppler, and doppler
+    rate information.  This file could be used by other software to
+    make your antenna track or your radio follow doppler changes.
+
+19. In the lower left corner of the main screen you will see a message
+    of the form "Soundcard: x.xxxx", where x.xxxx is a number close to
+    1.0000.  This number is the ratio of the soundcard's measured
+    sampling frequency to the nominal value, 11025 Hz.  The displayed
+    value should stabilize after the program has been running for a
+    minute or so.  If you see values less than about 0.9990 or greater
+    than 1.0010, please let me know about it and tell me what kind of
+    computer and sound card you are using.  
+
+20. Callsigns for Swaziland (prefix 3DA0) can now be used in standard
+    JT65 messages, and they will provide the full "deep search"
+    sensitivity.
+
+21. The box labeled "NB" enables a software noise blanker.  If your
+    receiver already has a good noise blanker, this may be of little
+    use; if it does not, you may find this one better than nothing.
+    It can be helpful when short, impulsive noise spikes are present.
+
+22. The "QRN" parameter of older WSJT versions has been combined with
+    the "Clip" parameter.  In FSK441 mode, Clip=0 corresponds to the
+    old QRN=5.  If you want more FSK441 immunity to summertime QRN,
+    increase Clip above 0 just as you would have increased QRN above
+    5.
+
+23. The "B" and "C" submodes of FSK441 have not been implemented.  As
+    far as I could tell, they were little used.
+
+
+Let me call your attention to the online WSJT Forums hosted by DK5YA
+at www.vhfdx.de/cgi-bin/yabb/YaBB.pl.  If you provide information and
+post questions about WSJT 5.8 there, it will help others as well as
+yourself -- and may help to reduce the load on my email inbox.  
+
+I do, of course, want to hear from you directly if you have found a
+problem with the new program version or suggestions for its
+improvement.
+
+
+Changes in Version 4.9.8
+------------------------
+
+Version 4.9.8 is a minor maintenance release.  The changes are:
+
+1. Bug in JT65 decoder could (rarely) cause a correct decoding by the
+   Reed-Solomon decoder to be "overruled" by an incorrect decoding
+   from the Deep Search decoder.  Fixed.
+
+2. Bug in JT65 Reed-Solomon decoder could cause program to crash under
+   certain rare conditions.  Fixed.
+
+3. The standard "CQ" message generated for a callsign having an extra
+   prefix or suffix should not include a grid locator.  Fixed.
+
+4. Automatically generated CW messages for stations with callsigns longer
+   than 4 characters were improperly truncated.  Fixed.
+
+5. Bug in JT65 decoder could occasionally cause one or two extra
+   letters to be appended to a correctly decoded callsign.  Fixed.
+
+6. Grid locator entered in "Report" box in FSK441 mode (as used by
+   some in North American meteor scatter contest) would cause a crash
+   on program restart.  Fixed.
+
+
+Changes in Version 4.9.7
+------------------------
+
+1. The only change in version 4.9.7 is to add KC4 to the list of supported
+   DXCC prefixes.
+
+
+Changes in Version 4.9.6
+------------------------
+
+1. WSJT 4.9.5 fails to decode some files that have relatively high S/N
+   and good Sync level.  This is a bug, and has been fixed.  For this
+   reason alone, you should definitely upgrade to Version 4.9.6.
+
+2. New optional message formats are provided for conveying and
+   responding to signal reports.  
+
+   It has been permissible for some time to send, for example,
+
+        VK7MO K1JT -24
+	K1JT VK7MO R-27
+
+   (The number after the minus sign must have two digits and must be in
+   the range -01 to -30.)  
+
+   I plan to implement a quick way of copying the measured strength
+   of a decoded transmission into TX message #2, when desired.  This
+   is not yet done in v4.9.6, however.  You must edit the TX messages
+   by hand if you use these formats.
+
+   Enhancements in version 4.9.6 now allow you to send messages like
+   the ones listed below.  Both stations will need to be running
+   v4.9.6 in order for these to work:
+
+        VK7MO K1JT RO
+        VK7MO K1JT RRR
+        VK7MO K1JT 73
+
+3. Decoding by the deep search algorithm has been extended so as to
+   include messages of the types discussed in item 2.
+
+
+Changes in Version 4.9.5
+------------------------
+
+1. Full support for long callsigns like ZA/PA2CHR and G4ABC/P is now
+   provided.  When using such a callsign prefix or suffix, do not
+   include a grid locator in your transmitted message.  Note that
+   4.9.5 and 4.9.2 do not handle prefixes in the same way; they are
+   not compatible.  To get the benefit of the expanded capability,
+   both stations (TX and RX) must use 4.9.5.  The correct message
+   format is "K1JT V5/ZS5Y" or "V5/ZS5Y K1JT".  The extended callsign
+   must be present in CALL3.TXT or in "To Radio" for the deep-search
+   decoder to be effective.
+
+2. If you double-click on a callsign in the decoded text window, and if
+   the word preceding the callsign is "CQ", then TX message #1 will be
+   selected after the messages are updated.  Otherwise, TX message #2 
+   will be selected.
+
+3. So that you will be aware of what is happening, the background
+   color in the TX message box turns red whenever a message you have
+   entered is "non-standard" and will be sent as 13 characters of
+   plain text.
+
+4. Items related to decoding have been removed from the Setup |
+   Options screen and replaced by a new menu labeled Decoding.  Here
+   you may now select "No shorthands" for FSK441 and several options
+   for JT65 decoding.
+
+5. In case you are upgrading directly from v4.9.0 or earlier to v4.9.5, 
+   a callsign database file has been included as CALL3A.TXT.  If you do
+   not already have a file CALL3.TXT, you should rename the supplied
+   file to CALL3.TXT.  Otherwise, you will probably want to ignore 
+   the supplied file, since you will have made additions to your own
+   copy.
+
+6. The frequency of program crashes (for example, after a long period
+   of monitoring) is much reduced, possibly to zero.
+
+Please, if you encounter a received wave file that reproducibly causes
+WSJT to crash, send it to me.
+
+
+Changes in Version 4.9.2
+------------------------
+
+1. In CW mode you can now set the desired T/R period by using the text
+   box provided.  This feature did not work properly in v4.9.1.
+
+2. Under some conditions using the "Add" button to edit information in
+   the file CALL3.TXT would cause a program crash with the message
+   "Run-time Error #53".  Fixed.
+
+3. Using the double-mouse-click on a callsign in the decoded text
+   window will now set the active Tx Message to Tx2.  I believe this
+   will be most commonly what is desired, and will be an added
+   convenience for random JT65 operation.
+
+4. The "Sked" box remained visible on the EME Echo screen, covering
+   part of the RIT box.  Fixed.
+
+5. The program generates two numbers to characterize its level of
+   confidence in decoded messages.  In version 4.9.1, these numbers
+   appeared at the end of each decoded text line.  They are not
+   displayed in version 4.9.2, but in the next version I will
+   probably display them if you have checked the "Aggressive decoding"
+   box.  The first number is 0 or 1 according to whether the
+   soft-decision Reed Solomon decoder has failed or succeeded.  The
+   second number represents a confidence level on a 0-10 scale for
+   messages decoded using the "deep search" algorithm. Anything under
+   3 is questionable; messages rated 6 and above are unlikely to be
+   wrong, unless you are processing "garbage" data containing strong
+   birdies, QRN, etc.  In that case, you are on your own.
+ 
+
+6. A bug was introduced when implementing the "Aggressive decoding"
+   check box.  This bug caused a stray "OOO" flag to be sometimes
+   displayed even when no signal was present and synchronization had
+   not been achieved.  Fixed.
+
+
+Changes in Version 4.9.1
+------------------------
+
+1. A programming error in version 4.9.0 prevented the "deep search"
+portion of the JT65 decoder from detecting some messages that include
+the "OOO" signal report.  The bug has been fixed, and consequently the
+extra 4 dB of sensitivity will become available for those messages.
+
+2. The callsign database, a file named CALL2.TXT in version 4.9.0, has
+been converted to a comma-delimited format and is now named CALL3.TXT.
+As has been true in the past, you should maintain your own copy of
+this file according to your own needs.  New calls may be added to the
+file using the "Add" button of WSJT, and you can edit the file
+directly with the Windows NotePad program.  I apologize for the fact
+that if you have already edited CALL2.TXT extensively, you will need
+to do so again.  The good news is that the programs WSJT, MoonSked (by
+GM4JJJ) and Tracker (by W7GJ) will now use the same database file,
+CALL3.TXT.
+
+3. Two new JT65 check boxes have been made available to the user: one
+labeled "Sked", located on the main screen, and one labeled "Aggressive
+decoding" on the Setup | Options screen.  Check "Sked" to signify that
+you are trying to work a known station; the deep search decoder will
+then look only for your own call and the one displayed in the "To
+Radio" box.  Check "Aggressive search" if you want to see all messages
+found by the deep-search decoder, even if the confidence level is
+moderately low.  Leave this box unchecked if you prefer to see only
+decoded messages that have been assigned a relatively high confidence.
+
+4. The duration of T/R sequences in CW mode defaults to 60 s if the
+Band is 50 MHz, 150 s if 432 MHz, and 120 s otherwise.  However, an
+on-screen box now allows you to override the defaults and set any
+desired T/R period (in seconds).
+
+
+Changes in Version 4.9.0
+------------------------
+
+On the outside WSJT version 4.9.0 looks nearly the same as its recent
+predecessors.  A "CW" entry now appears on the Mode menu.  This is
+presently a "transmit only" mode: it sends standard EME-style messages
+at 15 WPM, by keying an 800 Hz audio tone, and it takes care of the
+timing and T/R switching for you.  Receiving is left up to you, the
+operator.  For me, this combination makes CW EME QSOs relaxing and
+enjoyable.  Presently the program uses 2.5 minute sequences if you are
+on 432 MHz, 2 minutes on 144 MHz, and 1 minute on 50 MHz.  (If you
+want to run with 1-minute sequences on 144, set the band indicator to
+50 MHz.)
+
+Double-clicking on a callsign in either one of the decoded text
+windows will cause that callsign to be copied into the "To Radio" box.
+The call will then be looked up in the database and will be inserted
+appropriately into the transmit message boxes Tx1 and Tx2.  This
+feature is designed to facilitate random JT65 operation by making it
+easy to call a station you have just copied calling CQ, or responding
+to your CQ.
+
+The most significant program enhancements are those made to the JT65
+decoder.  It has been transformed into a multi-layered procedure that
+takes better advantage of the structured nature of JT65 messages and
+the substantial computing capability that most WSJT users have in
+their hamshacks.
+
+In version 4.9.0, if the initial JT65 decoding effort fails then
+deeper searches are attempted using an entirely different approach.
+The result is a net gain of about 4 dB over a wide range of
+circumstances.  My JT65 digital simulator, which has accurately
+predicted the performance of previous versions of the software,
+correctly decodes about 50% of simulated Rx files with the v4.7.0
+decoder at a signal level of -24 dB.  With the v4.9.0 decoder, it
+correctly decodes more than half of the simulated data files at -28
+dB.  This very substantial improvement means that JT65's
+message-averaging facility will be needed much less frequently than
+with earlier versions of WSJT.  Most of the time, if the transmission
+synchronizes properly, it will also decode properly.
+
+
+You will get better performance from the new JT65 decoder if you
+understand a few things about how it works.  The following is a very
+brief description; more complete technical details will be forthcoming
+when I find time to write it all down.
+
+JT65 is capable of transmitting and receiving 2^72 (about 5 x 10^21)
+distinct user messages.  Instead of sending the minimum number of 72
+information bits needed to to convey any one of those distinct
+messages, the program actually sends 63 six-bit "symbols" for a total
+of 378 bits in each transmission.  The 302 extra bits comprise the
+powerful forward error correction (FEC) capability of the JT65 mode,
+allowing the system to function reliably with signals far below the
+audible threshold.
+
+One of the first tasks of the JT65 decoder is to measure the signal
+level at each of the 64 data-tone frequencies during each of the 63
+data intervals in a transmission.  The program must then decide which
+one of the possible 2^72 messages was most likely the one sent.  This
+procedure is necessarily probabilistic in nature.  The best decoder
+will go as far down into the noise as possible, but it must also know
+when to give up so that it produces few false decodes.
+
+The total of 2^72 distinct messages is far too many to permit each one
+to be tested individually against the received signal.  However, an
+important characteristic of the Reed-Solomon FEC code used in JT65 is
+that well-defined mathematical algorithms can be used to direct the
+decoder toward the most likely candidate messages, based on the
+available signal information.  A mathematical inversion of the code is
+made possible by the organization of the redundant information
+contained in the 306 extra bits.
+
+The new JT65 decoder goes far beyond the capabilities of normal
+Reed-Solomon decoders.  If the standard decoding procedure fails to
+produce a high-confidence solution, the program proceeds to search
+explicitly for each one of a number of messages that it considers
+likely or plausible on other grounds.
+
+Nearly 2^28 (over 250 million) different callsigns can be accommodated
+in each of the two callsign fields of a JT65 message.  Once again,
+this is far too many to permit an exhaustive search for them all.
+Consequently, the "deep search decoder" takes the callsigns listed in
+the file CALL2.TXT (located in the user's WSJT directory) as being the
+most likely alternatives in the message's second field.  A correlation
+algorithm is then applied to find out if one of these calls and its
+associated grid locator are present, combined with either "CQ" or the
+receiving station's callsign in the first field.  High-confidence
+matching of this kind can be accomplished down to about -28 dB on the
+WSJT scale, in a single transmission, with a very low error rate.
+
+The bottom line is that for any arbitrary callsign the new JT65
+decoder performs at least as well as the one in WSJT version 4.7.0.
+Message averaging works just as it did before, and if you are
+listening in to a "third party" QSO between two other stations, the
+sensitivity will be the same as in version 4.7.0.  However, if a
+station that is listed in the file CALL2.TXT is calling CQ or is
+calling you, your sensitivity will be about 4 dB better on average.
+
+Please note that the decoder is given no information whatsoever about
+what station you may be trying to work.  Its heart is "as pure as the
+driven snow," even if you are working a sked.  However, the decoder
+does presume that the callsign of the transmitting station is more
+likely to be one listed in CALL2.TXT than some other callsign
+constructed at random.
+
+The program always attempts to decode a purely arbitrary message
+first.  Failing that, it will look more deeply in the noise for the
+presence of a message that includes the callsign of a station listed
+in the database file.
+
+It is no accident that the algorithm just described bears close
+resemblance to the thought processes (conscious and otherwise) that we
+use to copy very weak CW by ear.  Familiar combinations like CQ and
+one's own callsign are always easier to dig out of the noise than
+random combinations of characters.  Callsigns that we have seen or
+heard before are more easily recognized than arbitrary calls generated
+at random.  The new JT65 decoder behaves similarly, except that it 
+is kept fully in the dark about who you are trying to work.
+
+All decoders make mistakes, and this one is no exception.  Just like a
+human copying CW, the JT65 decoder has a "grey area" in which it finds
+a solution but may have only moderate confidence in it.  In such cases
+the decoder appends a "?" to the decoded text, and the operator must
+make the final decision as to whether the decoding is correct.  Be
+aware that because of the mathematical message structure, incorrect
+decodings will not just differ from the correct one in a few
+characters; more likely, they will exhibit a whole incorrect callsign.
+As you gain experience in recognizing the graphical and numerical
+indications of proper message synchronization and the effects of
+"birdies" and other interference, you will become adept at making
+these decisions when necessary.  With added on-the-air experience I will
+probably be able top reduce the decoder's error rate, as well.
+
+A final note: the file CALL2.TXT replaces the file CALLSIGN.TXT used
+by earlier versions of WSJT.  The format has been changed to permit
+extended callsigns such as those sometimes used by DXpeditions, for
+example ZA/PA2CHR.  The name of the database file has been changed so
+as not to "break" an earlier version of WSJT that you may wish to keep
+available.  Full support for extended callsigns (i.e., calls with an
+extra prefix or suffix) is planned for a future version of WSJT.
+
+
+Changes in Version 4.7.0
+------------------------
+
+1. New feature: WSJT can now be used simultaneously with Spectran on
+the same computer.  You can start Spectran by selecting "Use Spectran
+for input" on the Setup menu.  This feature also allows the user to
+select the sound card to be used for input.
+
+2. Bug fix: in some circumstances, switching from a JT65 long-format
+message to a shorthand message did not work properly.  Fixed.
+
+3. Bug fix: for operators in the southern hemisphere and longitudes
+more than 90 degrees east or west, the wrong "Hot spot" was sometimes
+identified as the best direction for sporadic meteors.  Fixed.
+
+
+Changes in Version 4.6.1
+------------------------
+
+1. Bug fix: I mistakenly shifted the RX data by 2 seconds, rather
+than the intended 1 s, when changing the DT range.  Therefore in
+v4.6.0 the actual DT range is not -1 to +5 s as stated, but rather 0
+to +6 s; moreover, the displayed values of DT are too small by 1.0 s.
+This has been fixed.
+
+2. New feature: thanks to Akira, JM1SZY, I learned that occasionally a
+file (or an average of several files) will decode better with the AFC
+feature turned off.  Consequently I have added a checkbox that must be
+ticked to activate AFC in the JT65 modes.  If you can trust the
+frequency stability of the signal you are receiving, and especially if
+you are trying to receive a signal at -27 dB or weaker, leaving this
+box unchecked may yield a slight improvement in decoding.  In most
+cases, especially at 144 MHz and above, I recommend leaving the AFC
+turned ON.
+
+3. Thanks to Chris, GW4DGU, for pointing out that the Gx series of
+prefixes is no longer legal for reciprocal license operating in the
+countries of the UK.  The valid prefix series for such operation is
+now the M-series, i.e., M MD MI MJ MM MU MW.  I have changed the
+prefix table accordingly.
+
+Version 4.6
+-----------
+
+This is the first full release of WSJT since version 3.0.  New users
+can install Version 4.6 directly, without upgrading from a previous
+installation.  Of course, you can also upgrade from an earlier version
+in the usual way.  All download files can be found on the WSJT home
+page, http://pulsar.princeton.edu/~joe/K1JT.
+
+The new release includes an entirely new "WSJT 4.6 User's Guide."
+This document is about one third the length of the former "User's
+Guide and Reference Manual," but contains nearly everything you need
+to know to use the program.  A copy of the new Guide is included in
+the version 4.6 distribution files.  You can also download it directly
+from http://pulsar.princeton.edu/~joe/K1JT/WSJT_User_460.pdf.  Even if
+you are an experienced WSJT user, you should definitely print and read
+this document.
+
+New features in WSJT Version 4.6 include the following:
+
+1. Improved automatic frequency control in JT65 modes.  If you have
+lost JT65 QSOs because of unstable oscillators, this is for you.
+
+2. The acceptable range for DT in JT65 mode is now -1 to +5 s.  This
+range is a better fit for EME communication than the former -2 to +4
+s.  It will allow for somewhat greater clock errors before
+inter-station synchronization fails on an EME path.
+
+Note to experienced users: this means that the plotting scale for the
+"blue curve" now runs from -1 to +5 s.  EME signals should normally
+produce a blue peak near the center of the plot area.
+
+3. When the blue window displaying moon coordinates has been toggled
+to display coordinates for the DX station as well as the home station,
+it now displays MaxNR in place of SD.  MaxNR is the maximum path
+non-reciprocity in dB.  This effect arises from the combination of
+spatial polarization shift plus Faraday rotation; it is what causes
+"one way propagation" between stations that use fixed linear
+polarization.
+
+4. A facility for generating the file ID.WAV for station identification
+is now built into WSJT.
+
+5. The "Save Decoded" menu item now saves files with decoded shorthand
+messages as well as normal messages.
+
+6. JT65 has a new shorthand message "ATT" (for "Attention!").  It is
+intended as an aid to help two stations find each other by determining
+the correct DF.
+
+7. Visual aids for evaluating JT65 shorthand messages "by eye" are
+provided if you click on the sync-tone frequency in the Big Spectrum
+display.
+
+8. For DXpeditions: a country prefix preceded by "/" may be
+substituted for the grid locator in a type 1 JT65 message.
+
+9. Alternatively, a signal report of the form "-NN" or "R-NN" may be
+substituted for the grid locator in a type 1 JT65 message.  For
+example, -24 might indicate that signals were being received at -24
+dB.  The minus sign is required, and NN must lie between 01 and 30.
+
+10. The receiver noise level reported by Measure mode (the level of the
+"green line") has been increased by 2 dB to be consistent with levels
+reported by the other operating modes.
+
+
+Changes in Version 4.5.1
+------------------------
+
+Bug fixes:
+
+1. JT6M did not transmit properly in version 4.5.0 because the program
+failed to switch its wavefile generator into JT6M mode.  Fixed.
+
+2. WSJT consumed a large fraction of CPU time in JT65 mode, even when
+the program was supposedly doing nothing.  Fixed.
+
+3. Monitoring for long periods in JT65 mode would occasionally produce
+a Fortran "output conversion error".  Fixed.
+
+4. Clicking the "Add" button with nothing in the Grid box would cause
+a program crash.  Fixed.
+
+
+Enhancements:
+
+1. In the FSK441 modes, messages longer than 3 nonblank characters and
+starting with R26, R27, RRR, or 73 are no longer transmitted as
+shorthand messages.
+
+2. Onscreen labels now indicate active status of the "Save Decoded",
+"Save All", and "Save text in File DECODED.CUM" features.
+
+3. Small improvements have been made in the decoding of shorthand
+messages in modes FSK441B and C.
+
+4. Alphabetic characters in message templates (on the Setup | Options
+screen) are now case-insensitive.
+
+
+Principal New Features in WSJT Version 4.5
+------------------------------------------
+
+1. The JT65 modes employ an entirely new decoding algorithm that uses
+"soft decisions" to recover the transmitted message.  The message
+format and Reed-Solomon encoding are unchanged, so the JT65A, B, and C
+modes are fully compatible with earlier versions.  However, the new
+decoder is more sensitive by slightly more than 1 dB.  It is based on
+software licensed from CodeVector Technologies, LLC, and protected
+under United States Patent 6,634,007.  As usual, however, I am making
+WSJT freely available for amateur radio use.
+
+Changes to the JT65 modes are "under the hood," and except for the
+improved performance you will find them mostly invisible.  The new
+decoder can be somewhat slower than the one in v4.3.4, depending on
+details of the received data.
+
+
+2. Like JT65, FSK441 now provides three submodes.  FSK441A is
+identical to the "classical" FSK441.  The two new modes, FSK441B and
+FSK441C, use the same 4-tone frequency shift keying at 441 baud.
+However, they use forward error correction (FEC) on a
+character-by-character basis, to improve message reliability.  They
+also provide shorthand messages which are more robust than the
+single-tone messages of traditional FSK441.  Cross-mode communication
+will not work: a transmission in FSK441B must be received in FSK441B,
+etc.
+
+FEC information in FSK441B and FSK441C is conveyed by sending
+additional channel symbols (tones) for each character, using special
+codes designed to optimize the error rate and sensitivity with very
+short pings.  The additional symbols are redundant when the S/N is
+high, but they allow recovery from transmission errors when the S/N is
+low.
+
+FSK441A, which provides no redundancy, transmits 3 symbols per
+character.  Modes B and C use 4 and 7 symbols per character,
+respectively.  The raw throughput of user information is summarized
+in the following table:
+
+                                       FSK441A  FSK441B  FSK441C
+----------------------------------------------------------------
+Sequential tones per character            3        4        7
+User data rate, characters/second       147      110       63
+Time for a 12-character message, ms      82      109      190
+
+
+The shorthand messages in FSK441B and FSK441C use alternating tones at
+two specific frequencies, as follows:
+
+Shorthand  Low tone  High tone
+ message     (Hz)      (Hz)
+------------------------------
+  R26        861       1206
+  R27        861       1550
+  RRR        861       1895
+  73         861       2239
+
+Tests with my digital simulator show that shorthand messages in
+FSK441B and FSK441C are several dB more sensitive than the ST messages
+of FSK441A.  At the same time they give a far lower rate of false
+positives.
+
+With multi-tone messages the sensitivities of the three submodes are
+nearly the same, but they have different trade-offs.  Mode A is 25
+percent faster than mode B, but mode B is more accurate and will
+produce much less on-screen "gibberish".  Mode C is about half the
+speed of mode A but has still stronger FEC code.  Parameters of the B
+and C modes were selected in the expectation that FSK441B might become
+the mode of choice for meteor scatter work on 144 MHz (and possibly
+also 222 MHz), while FSK441C will likely prove best at 50 MHz where
+the pings are longer.  These suppositions need to be tested, of
+course.
+
+Experienced WSJT users should have no difficulty making the new modes
+work.  Just select the desired mode from the Mode menu (or use the
+appropriate hot-key combination), and away you go.
+
+
+Other Changes in Version 4.5.0
+------------------------------
+
+1. Bug fix: In JT65 mode, if you sent 73s and then started a QSO with
+a new station, the program would sometimes continue sending the 73
+message even though TX message #1 had been checked.  This has been
+fixed.
+
+2. Performance enhancement: Shorthand messages in JT65 were sometimes
+suppressed because of an apparent low-value Sync detection that
+produced no decoded message.  This has been fixed; there is no longer
+any need to set your Sync threshold to a higher value when you are
+expecting to receive a shorthand message.
+
+3. The JT65 "Filter" function has been removed.  It was confusing to
+some, and anyway was generally deemed of little value.  The new
+decoder provides a much better solution.
+
+4. The "suggested report" has been deleted from FSK441 decoded text
+lines.  It is replaced by S/N, the measured signal-to-noise ratio in
+dB.  Note that the familiar "dB" measurement of (S+N)/N is still
+available, as well.
+
+5. Finer adjustment intervals are provided for "S", the FSK441 ping
+detection limit.  As in earlier version, these numbers refer to
+(S+N)/N.  In contrast, the "Single Tone" or "Shorthand" detection
+limits refer to S/N, a more useful parameter at very low signal
+levels.  (See below for more details on signal to noise ratios, if
+interested.)
+
+6. A button labeled "Add" just below the grid locator box will cause
+the displayed callsign and grid to be entered into the CALLSIGN.TXT
+database.
+
+7. A date and time stamp is now added to the DECODED.CUM file at
+program startup or when you first enable writing to this file.
+
+
+Request to Users
+----------------
+
+As usual, I will appreciate hearing from users about the new features
+in WSJT.  Let me know, of course, if you find bugs or other problems
+in the program.  In particular, let me know of your experiences with
+FSK441B and FSK441C.  Remember, my guess is that FSK441B should work very
+well on 2 meters, while FSK441C may work best on 6 meters.  After
+you have gained some experience with FSK441C on 6 meters, I would be
+interested to know whether you think JT6M should be retired.  In North
+America, at least, I do not think it is being used very much.
+
+
+Why use both S/N and (S+N)/N ?
+------------------------------
+
+WSJT has traditionally measured the level of FSK441 signals as the
+ratio (signal plus noise)/(noise) = (S+N/N), in dB.  This quantity is
+approximately what S-meters try to measure; it has the advantage that
+it goes to zero when there is no signal, while at high signal levels
+it increases as you would expect, in proportion to signal strength.
+
+At low signal levels, however, the numbers for (S+N)/N in dB behave in
+a way that may be counter-intuitive.  When WSJT reports that a meteor
+ping had strength 3 dB, it means that signal plus noise was 3 dB
+higher than noise alone.  That means that signal and noise were equal
+in power, so the corresponding value of S/N must be 0 dB.  If the same
+signal had been transmitted with half the power, it would have had S/N
+= -3 dB, and (S+N)/N would have been 10*log(0.5+1.0) = 1.76 dB.  Yes,
+cutting the TX power in half would only reduce the ping level from
+3.0 dB to 1.76 dB!  That's why, for many purposes, S/N is a more
+useful number -- and why I am now listing both numbers in FSK441
+decoded text lines.
+
+The table below will allow you to convert easily between S/N and
+(S+N)/N, both as numerical ratios and as dB.
+
+    S/N       S/N     (S+N)/N   (S+N)/N
+    (dB)                          (dB)
+----------------------------------------
+    10.0    10.000    11.000     10.41
+     9.0     7.943     8.943      9.51
+     8.0     6.310     7.310      8.64
+     7.0     5.012     6.012      7.79
+     6.0     3.981     4.981      6.97
+     5.0     3.162     4.162      6.19
+     4.0     2.512     3.512      5.46
+     3.0     1.995     2.995      4.76
+     2.0     1.585     2.585      4.12
+     1.0     1.259     2.259      3.54
+     0.0     1.000     2.000      3.01
+    -1.0     0.794     1.794      2.54
+    -2.0     0.631     1.631      2.12
+    -3.0     0.501     1.501      1.76
+    -4.0     0.398     1.398      1.46
+    -5.0     0.316     1.316      1.19
+    -6.0     0.251     1.251      0.97
+    -7.0     0.200     1.200      0.79
+    -8.0     0.158     1.158      0.64
+    -9.0     0.126     1.126      0.51
+   -10.0     0.100     1.100      0.41
+
+
+Beta Release 4.3.4
+------------------
+
+Beta Release 4.3.4 of WSJT is now available for free download at the
+WSJT home page, http://pulsar.princeton.edu/~joe/K1JT.  The principal
+change from version 4.2.1 is to offer three JT65 submodes.  The
+submodes differ in tone spacing and total bandwidth as follows:
+
+   Mode   Spacing  Total BW
+  -------------------------
+  JT65A    2.7 Hz  177.6 Hz
+  JT65B    5.4     355.3
+  JT65C   10.8     710.6
+
+Note that JT65A is identical to the original JT65.  If you want to
+work people who have not yet upgraded to v4.3.4, be sure to select
+mode JT65A.  Otherwise, be sure to use the same mode that your QSO
+partner is using.  Cross-mode contacts will not work.
+
+JT65B should be nearly as sensitive as JT65A, and it will be twice as
+forgiving of frequency instabilities.  On balance, with existing
+"stock" radios, JT65B will probably be better than JT65A.  JT65C is
+less sensitive by a small amount, perhaps 1 dB, but will be even more
+lenient on stability issues.  By all means experiment with the
+different submodes, and be sure to let me know your conclusions about
+them!
+ 
+I am presently inclined to recommend that JT65B should become the
+"standard" JT65 mode.  If this tentative conclusion holds up, future
+versions of the program may no longer support the A and C modes.
+
+Other changes from version 4.2.1 include the following:
+
+1. Further improvements have been made to the JT65 decoding
+   algorithm. These improvements apply to all three submodes.  Some
+   wave files that would not decode with v4.2.1 now decode properly,
+   especially in averages over several minutes.
+
+2. The frequency width W of the sync tone (the "red spike") is now
+   measured and displayed in Hz after DF in the main text box.  In any
+   of the three JT65 modes, W should be no more than 2-4 Hz under good
+   conditions.  Uncorrected frequency drifts, excessive oscillator
+   phase noise, and certain propagation effects can make the width
+   larger. Anything over about about 4 Hz will impair copy in JT65A.
+   Similarly, widths greater than about 7 and 15 Hz will begin to
+   impair copy in JT65B and C, respectively.
+
+3. The utility program CWID.EXE now accepts lower case letters on the
+   command line.  It also permits you to specify the audio frequency
+   of the tone in the wave file.  You may wish to place the tone at
+   600 Hz or lower so that it lies well below the tones generated by
+   any of the WSJT operating modes.
+
+4. The "Clip" function has been improved in several ways.  The yellow 
+   and magenta curves in the Big Spectrum display no longer disappear 
+   when Clip > 0.  Setting Clip = 3 does hard clipping, as before, but 
+   it also blanks out any data regions with average power well above 
+   the "baseline" of the green curve.  Experimenting with different 
+   values of Clip may help you to recover good copy from noisy data.
+
+5. I believe that the text window displays in Monitor mode, and when
+   you are using the Include/Exclude buttons, now function correctly.
+
+6. Minor bug fixes: the program no longer crashes in EME Echo mode if
+   you select "EME Calc | Load | Cancel".  The correct "S" value is
+   listed on the status bar in JT6M mode.
+
+7. The program's "Fit and finish" is improved in several not very
+   important ways.
+
+
+WSJT Version 4.2.1
+------------------
+
+Version 4.2.1 contains a number of enhancements and bug fixes, mostly
+related to the new JT65 mode.  Changes from version 4.1.1 include the
+following:
+
+  1.1  Message averaging now works correctly
+  1.2  Many small improvements to the decoding algorithm
+  1.3  Decoding speed improved by 50%
+  1.4  JT65 monitor mode is properly implemented
+  1.5  TX message can be changed up to t=59 s of preceding RX period
+  1.6  Switch to a shorthand TX message at any time
+  1.7  Freeze works properly for shorthand messages
+  1.8  Decodes with failed FEC (forward error correction) are 
+       optionally displayable
+  1.9  "Garbage filter" provided so that questionable decodes appear
+       only if they contain some recognizable text
+  1.10 Automatic station ID, as in FSK441 and JT6M modes
+  1.11 Companion program to generate a CW ID.WAV file is included
+  1.12 The birdie zapper now works in JT65 mode
+  1.13 "Clip" function has been reactivated
+  1.14 F5 help screen updated to reflect JT65 practices
+  1.15 "OOO" message handled more transparently
+  1.16 Optional display of Moon Az/El at DX station, replacing Sun
+       Az/El
+  1.17 Right/Left audio out now works properly
+  1.18 DT displayed as blank rather than 0.0 for shorthand
+       messages 
+  1.19 No program crash if ToRadio or Grid left empty
+  1.20 No program crash if attempting to decode 60 s file in JT6M
+  1.21 All other reported problems causing crash have been fixed
+
+
++-------------------------------------------------------------+
+| Quick Start Guide to Using WSJT version 4 and the JT65 Mode |
++-------------------------------------------------------------+
+
+Version 4 of WSJT marks a significant departure in the program's
+evolution.  The list of features is no longer a full superset of
+those available in all previous versions.  In particular, the
+JT44 mode is gone; it is replaced by a new mode called JT65 that
+I hope will be a significant improvement for making QSOs via EME
+and extremely weak tropospheric paths.
+
+The procedure for upgrading to version 4 is identical to previous
+upgrades, with one exception: the setup procedure will install a
+new program in your existing WSJT directory, but will keep the
+old version alive as well.  The two versions of the program can
+coexist peacefully.  During a testing period you will probably
+want the older version and JT44 to be available as well.  
+
+
+What is different about JT65, compared to JT44?  Here's a short
+list:
+
+1. T/R period 60 s; actual TX audio duration 46.8 s.  (Yes, this
+will put somewhat more stress on your PA.  If its cooling is
+marginal, take appropriate action.)
+
+2. Modulation uses 64 data tones plus a sync tone.
+
+3. Tones are spaced by 2.7 Hz in frequency and 0.372 s in time. 
+The total occupied bandwidth of a JT65 signal is about 180 Hz.
+
+4. Transmissions consist of 63 data tones or "symbols," each
+carrying 6 bits of information.  In addition there are 63 sync
+symbols for establishing time and frequency synchronization.
+
+5. Software AFC (automatic frequency control) can follow drift
+rates up to about +/-10 Hz/minute.
+
+6. User messages are tightly "source coded" into 72 bits.
+
+7. Strong FEC (forward error correction) coding is used to
+mitigate transmission errors.
+
+8. User-level message formats are designed to permit maximum
+possible efficiency in EME or similar QSOs.  A valid message must
+be be one of three possible types: 
+
+     1. "Call1 Call2 Grid"   or   "Call1 Call2 Grid OOO"
+     2. "RO", "RRR", or "73"      (so-called shorthand messages)
+     3. "any text you want"       (up to 13 characters selected
+                                   from a 42-character alphabet)
+
+Instead of a callsign, the first field of a message type 1 may
+contain "CQ" or "QRZ".  Other such "special tokens" may be added
+later.  The available alphabet of characters for message type 3
+is:
+     0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ +-./?
+
+9. Instead of JT44's very effective intra-message averaging of
+the even, odd, and "last N" characters of a message, JT65 offers
+even more powerful special shorthand messages for RO, RRR, and
+73.  These have much higher sensitivity than the other message
+types.  They work reliably down to about -30 dB.  If you
+succeed in exchanging callsigns and "OOO" by means of type 1
+messages, you should certainly be able to complete the QSO.
+
+10. Message averaging over subsequent transmissions works as it 
+did in JT44, with one exception.  The "OOO" signal report 
+typically used for EME can be appended to message #1 and the 
+message will continue averaging without any need to start over.  
+The presence or absence of "OOO" will be detected if sync is 
+achieved, whether or not full decoding has been successful.
+
+11. Receiving FEC-decoded transmissions takes some getting used
+to.  You will find *much* less gibberish on your screen in JT65
+than in JT44.  The FEC algorithm has a good idea whether it has
+succeeded or not, and the program will suppress output unless it
+is "pretty sure" that it has got the message right.  You will
+discover that when the FEC procedure fails and the program has
+not realized it, text is occasionally produced looks like
+plausible (but quite wrong) callsigns or grid locators.  You must
+mentally reject such garbage messages, when they occur.  In the
+small amount of on-the-air testing that JT65 has enjoyed so far,
+my experience is that that only a few percent of decoded messages
+are displayed incorrectly.  Most of the time, received text is
+either "letter perfect" or is left blank.
+
+12. You may optionally have the program display text for instances
+when the decoder in uncertain of its results.  Doing so makes use of
+an "expected message", and you can specify a minimum number of
+characters thst must match before uncertain text is displayed.  By
+default the expected message is "MyCall HisCall HisGrid" where MyCall
+is your own callsign, HisCall is the one entered in the onscreen "To
+Radio" box, and HisGrid is the first four characters of the grid
+locator in the "Grid" box.
+
+13. At least one design choice used to define the JT65 algorithm is
+still subject to change.  If the 2.7 Hz tone spacing turns out to be
+problematic because of propagation anomalies or inadequate oscillator
+stabilities, the spacing could be increased.  There are significant
+advantages to the smaller spacing, however, so I am sticking with it
+for now.
+
+Beta Release 4.1.1
+------------------
+
++-------------------------------------------------------------+
+| Quick Start Guide to Using WSJT version 4 and the JT65 Mode |
++-------------------------------------------------------------+
+
+Version 4 of WSJT marks a significant departure in the program's
+evolution.  The list of features is no longer a full superset of
+those available in all previous versions.  In particular, the
+JT44 mode is gone; it is replaced by a new mode called JT65 that
+I hope will be a significant improvement for making QSOs via EME
+and extremely weak tropospheric paths.
+
+The procedure for upgrading to version 4 is identical to previous
+upgrades, with one exception: the setup procedure will install a
+new program in your existing WSJT directory, but will keep the
+old version alive as well.  The two versions of the program can
+coexist peacefully.  During a testing period you will probably
+want the older version and JT44 to be available as well.  
+
+
+What is different about JT65, compared to JT44?  Here's a short
+list:
+
+1. T/R period 60 s; actual TX audio duration 46.8 s.  (Yes, this
+will put somewhat more stress on your PA.  If its cooling is
+marginal, take appropriate action.)
+
+2. Modulation uses 64 data tones plus a sync tone.
+
+3. Tones are spaced by 2.7 Hz in frequency and 0.372 s in time. 
+The total occupied bandwidth of a JT65 signal is about 180 Hz.
+
+4. Transmissions consist of 63 data tones or "symbols," each
+carrying 6 bits of information.  In addition there are 63 sync
+symbols for establishing time and frequency synchronization.
+
+5. Software AFC (automatic frequency control) can follow drift
+rates up to about +/-10 Hz/minute.
+
+6. User messages are tightly "source coded" into 72 bits.
+
+7. Strong FEC (forward error correction) coding is used to
+mitigate transmission errors.
+
+8. User-level mesage formats are designed to permit maximum
+possible efficiency in EME or similar QSOs.  A valid message must
+be be one of three possible types: 
+
+     1. "Call1 Call2 Grid"   or   "Call1 Call2 Grid OOO"
+
+     2. "RO", "RRR", or "73"      (so-called shorthand messages)
+
+     3. "any text you want"       (up to 13 characters selected
+                                   from a 42-character alphabet)
+
+Instead of a callsign, the first field of a message type 1 may
+contain "CQ" or "QRZ".  Other such "special tokens" may be added
+later.  The available alphabet of characters for message type 3
+is:
+     0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ +-./?
+
+9. Instead of JT44's very effective intra-message averaging of
+the even, odd, and "last N" characters of a message, JT65 offers
+even more powerful special shorthand messages for RO, RRR, and
+73.  These have much higher sensitivity than the other message
+types.  They work reliably down to -30 dB and below.  If you
+succeed in exchanging callsigns and "OOO" by means of type 1
+messages, you should certainly be able to complete the QSO.
+
+10. Message averaging over subsequent transmissions is intended
+to work as it did in JT44, with one exception.  The "OOO" signal
+report typically used for EME can be appended to message #1 and
+the message will continue averaging without any need to start
+over.  The presence or absence of "OOO" will be detected if sync
+is achieved, whether or not full decoding has been successful. 
+[Note: message averaging is only partially functional in the
+first beta release of the JT65 mode.  I will need some experience
+with the mode in order to optimize the code here.]
+
+11. Receiving FEC-decoded transmissions takes some getting used
+to.  You will find *much* less gibberish on your screen in JT65
+than in JT44.  The FEC algorithm has a good idea whether it has
+succeeded or not, and the program will suppress output unless it
+is "pretty sure" that it has got the message right.  You will
+discover that when the FEC procedure fails and the program has
+not realized it, text is occasionally produced looks like
+plausible (but quite wrong) callsigns or grid locators.  You must
+mentally reject such garbage messages, when they occur.  In the
+small amount of on-the-air testing that JT65 has enjoyed so far,
+my experience is that that only a few percent of decoded messages
+are displayed incorrectly.  Most of the time, received text is
+either "letter perfect" or is left blank.
+
+12. The program makes use of what it calls the "expected
+message".  By default this message is "MyCall HisCall HisGrid"
+where MyCall is your own callsign, HisCall is the one entered in
+the onscreen "To Radio" box, and HisGrid is the first four
+characters of the grid locator in the "Grid" box.  The AFC
+algorithm, in particular, can work more effectively when the
+actual message received matches the expected message.
+
+13. Several design choices used in defining the JT65 algorithm
+are still subject to change.  If the 2.7 Hz tone spacing turns
+out to be problematic because of propagation anomalies or
+inadequate oscillator stabilities, the spacing could be
+increased.  About 1 dB of additional S/N could be obtained by
+omitting the "Grid" field of the standard message format.  This
+would also reduce the maximum "plain text" message length from 13
+characters to 10.  
+
+14. Please note that the "Clip" and "ST" are not functional in 
+WSJT v4.1.1.  Their settings do not affect program operation.
+
+
+Beta Release 3.8.1
+------------------
+This release contains the following new features:
+
+1. An optional large spectral display.  Its axes are reversed with
+respect to those of the FSK441 and JT6M waterfall displays; in the new
+plot, frequency runs from left to right and time from top to bottom.
+
+2. A new birdie zapper that is especially effective in the FSK441 and
+JT6M modes.  You can watch what it is doing by observing the waterfall
+displays before and after the "Zap" box is checked.  Click "Decode" to
+refresh the displays after checking or uncheking "Zap".
+
+3. Message decoding in FSK441 mode has been improved in several ways.
+DF is more accurately determined.  Better synchronization is achieved
+with the precise timing of 25-sample tone bursts comprising each
+message symbol.  Folding of messages is no longer attempted.  (It
+seems that whenever a ping is long enough to make folding effective,
+it's also strong enough to make folding unnecessary.)  As in previous
+versions, the left mouse button allows decoding of single-tone
+messages while the right button suppresses them.
+
+4. It is now permissible to click "Gen Std Msgs" while transmitting in
+FSK441 or JT6M mode.  When this button is clicked, the Tx message
+number will reset to #1 if and only if the callsign in "To Radio" has
+changed.
+
+5. Message formatting templates for FSK441 and JT6M may now include
+the special codes %G and %L to insert your 4-digit grid or full
+6-digit locator, respectively, in the message.
+
+6. "Reset Defaults" now resets the QRN level to 5, as it should.
+
+7. The decoding parameters in use are no longer listed in the Status
+Bar at lower right.  This listing had become redundant.
+
+8. In Monitor mode, the name assigned to the Rx wave file begins with
+"Mon_" instead of the "To Radio" callsign.
+
+9. In FSK441 mode, all messages with more than 3 non-blank characters
+are transmitted in multi-tone mode.
+
+Beta Version 3.6.4
+------------------
+
+The previous version had the threshold set very low for all mouse-picked
+decoding attempts in JT6M mode.  This was useful to me for testing, but
+produced excessive gibberish.  Version 3.6.4 has a reasonable threshold and
+produces much cleaner output.  In addition, the message averaging algorithm
+has been improved.  I find that I seldom need to use either "Freeze" or 
+"FixAve" now.  These buttons are still present in version 3.6.4, but unless
+I hear that people are finding them useful I may remove them soon.
+
+An option has been added to the Setup menu so that you can determine
+whether you want the "Tx Stop" button to kick you out of Auto Mode, or
+not.  The default is not to do so.
+
+***IMPORTANT***
+
+If you can make WSJT v3.6.4 crash in normal operation, please let me know
+(and tell me how).  Also let me know if you find anything that does not
+work as intended.  I believe the present code behaves well and is nearly
+ready to be upgraded from "Beta" status to a full release.  
+
+WSJT Beta Version 3.6.3
+-----------------------
+Version 3.6.3 has a number of small improvements, many of them not
+immediately visible.  Several bugs have been exterminated.  The JT6M
+decoder works better and is more sensitive.  JT6M now has a "FixAve"
+checkbox; when this is checked, average messages will be sought only
+at the lengths of the automatically generated messages.
+
+
+WSJT Beta Version 3.6.2
+-----------------------
+Version 3.6.2 corrects a problem that on a few machines caused a 
+fatal error that could only be corrected by deleting the initialization
+file, WSJT361.INI.
+
+
+WSJT Beta Version 3.6.1
+-----------------------
+Version 3.6.1 corrects a problem that caused an immediate termination
+on program startup on some users' machines (typically older ones).  If
+you need this upgrade, you need it bad!
+
+It also fixes a minor bug that could cause a divide-by-zero error if
+you clicked on the plot area when no data was available to analyze.
+
+
+WSJT Beta Version 3.6.0
+-----------------------
+
+The JT6M mode is only a week old, but many hundreds of QSOs have been
+made with it all over the world.  This mode is expressly designed for
+meteor scatter on 6 meters, but it may be useful with some other
+propagation modes as well.  It has characteristics that place it about
+midway between FSK441 and JT44 in both speed and sensitivity.  A
+second beta release of WSJT with JT6M, Version 3.6.0, is now available
+for downloading at
+
+  http://pulsar.princeton.edu/~joe/K1JT/UPD360.EXE
+
+The download file is about 0.75 MB in length.
+
+
+Comparison of Versions 3.6.0 and 3.5.1
+--------------------------------------
+
+1. Version 3.6.0 has a better and faster decoder for JT6M.  Further
+improvements in this area are still to come.
+
+2. Several bugs that could cause crashes in V3.5.1 have been fixed.
+Version 3.6.0 appears to be quite stable (at least on my own
+computers).
+
+3. Some buttons have been moved from their familiar positions.
+
+4. Gadgets that Microsoft calls "Up-Down Controls" have replaced the
++/- buttons used for various decoding parameters.
+
+5. You can now drag the mouse pointer across any portion of the large
+plot area to cause decoding of that portion of a recorded file.  This
+works in both FSK441 and JT6M mode.  The area you selected is marked
+when the plot is refreshed.
+
+6. A yellow curve now appears above the green curve in JT6M mode.  The
+yellow line represents measured power received at the sync-tone
+frequency and in the sync-tone intervals.
+
+
+I haven't yet written up any detailed instructions for the JT6M mode.
+However, if you are an experienced WSJT user you probably won't need
+any.  Here are a few things it will be helpful to know about JT6M.
+
+1. Like JT44, JT6M uses 44-tone FSK with a "sync tone" and 43 possible
+data tones -- one for each character in the supported alphanumeric
+set. The sync tone is at 1076.66 Hz, and the 43 other possible tones
+are spaced at 21.53 HZ intervals up to 2002.59 Hz.  The tones are
+keyed at a rate of 21.53 baud, so each one lasts for 1/21.53 = 0.04644
+seconds. The sync tone is ON during every 3rd transmission interval;
+tones representing two data characters follow each sync tone.  The
+transmission rate of user data is therefore (2/3)*21.53 = 14.4
+characters per second.  The transmitted signal sounds a bit like
+piccolo music.
+
+2. Basic operation is very similar to FSK441.  Just select JT6M from
+the WSJT "Mode" menu (or use "Shift-F7") and then proceed as usual.
+
+3. The green line and waterfall display have their usual meanings.
+
+4. The program attempts to decode both single pings and an "average
+message".  The average is the last line displayed during each decoding
+attempt, and is flagged with an asterisk as in FSK441.  The number to
+the right of the asterisk is the inferred message length (for example,
+the number should be 10 for the message "W8WN K1JT ").  If the program
+finds the wrong length, the average will be garbled or meaningless.
+All message lengths should be even numbers, because odd-length
+messages are padded with an extra space at transmission time in order
+to make them even.
+
+5. Clicking with the left mouse button decodes a 4-second block of
+data near the mouse pointer.  The right button uses a longer segment
+of 10 seconds.  Drag the mouse with the button down to select any
+desired region.  Experiment for best decoding as necessary.
+
+6. As soon as you see some properly decoded text, set the DF box to
+the measured DF and check the "Freeze" box.  Alternatively, you can
+set the Tolerance to a low value (say 25 Hz) after the desired signal
+has been identified.  Use RIT, if necessary, to bring subsequently
+measured DF's down to a small value.
+
+7. Default settings for the decoder are S > -12 dB, Tol=400 Hz, DF=0
+Hz.
+
+8. JT6M can work with signals that are up to 13 dB weaker than those
+required for FSK441.  In the brief on-the-air tests I've made with
+W8WN, we have both found that mouse-clicking on the smooth green line,
+even where nothing was heard and nothing can be seen, sometimes causes
+both callsigns to pop up out of the noise!
+
+
+Version 3.0
+-----------
+
+A new major release of WSJT, Version 3.0, is now available for free
+download.  Instructions for upgrading and for complete installations
+can be found at http://pulsar.princeton.edu/~joe/K1JT.
+
+What's new in Version 3.0?
+--------------------------
+
+1. The "User's Guide and Reference Manual" has grown to 51 well
+   illustrated pages.  The new manual includes four major new
+   sections which together cover:
+
+   a) the EME Echo mode, including the "Measure" sub-mode and the
+      "EME Calc" utility for estimating the strength of your echoes
+      from the moon;
+   b) the nature of the various astronomical calculations done within
+      WSJT, and a summary of their accuracies;
+   c) several pages describing availability of Fortran source code for
+      the DSP algorithms in WSJT, as well as a suite of test programs
+      for generating simulated data and testing the FSK441 and JT44
+      encoding and decoding algorithms;
+   d) a short essay on possible future developments for WSJT.
+
+2. The astronomical calculations in WSJT have been overhauled and thoroughly
+   checked.  In practice the differences from V2.9 will seem minor, but as
+   described in the new manual's Appendix B, the accuracies of
+   computed positions for the sun and moon, and for the EME Doppler
+   shift, are now well documented.  Computed positions are accurate to
+   within about 0.04 degrees, and Doppler is better than 1 Hz at 144
+   MHz.  Exactly what is meant by the displayed data is now described
+   in the manual, as well.
+
+3. A new feature has been added on the Help menu.  It pops up a screen
+   summarizing the standard message exchanges used for minimal QSOs
+   using FSK441 and JT44.  No more excuses for not being sure about which
+   message you should send next!
+
+4. The Measure mode can now be left running indefinitely, with its output
+   written to a file.  A few individuals have been wanting to use the
+   program for radio astronomy purposes, and the new version provides a 
+   minimal facility for doing this.
+
+5. The display screen for the EME Calc utility has been cleaned and
+   tightened up.
+
+6. A few other small niceties, all minor in scope.
+
+
+Version 2.9.0
+-------------
+
+I am pleased to announce the availability of an upgrade to WSJT
+Version 2.9.  The upgrade provides most of the features of the
+soon-to-be-released Version 3.0; I am releasing it now as Version 2.9
+because many users have asked for early access to its new
+capabilities.  A full release of Version 3.0 must await some updating
+of the Users Guide and Reference Manual.  Probably a few additional
+features will be added by then, as well.  Please be patient!
+
+Version 2.9 is available only as an upgrade.  As usual, it can be
+downloaded from the WSJT web site,
+http://pulsar.princeton.edu/~joe/K1JT, or from the European mirror
+site http://www.dk5ya.de.  New features of the program include the
+following:
+
+1. EME Echo mode now works on certain computers (generally older,
+slower ones) that previously refused to run Echo mode properly.  The
+new version runs fine under Windows 95 on my ancient 100 MHz Pentium
+with 32 MB of RAM.
+
+2. A new feature known as "Measure" can be selected from the main
+screen in EME Echo mode.  Click the Measure button and your system
+will record the received audio for one second, compute the level of
+the noise and display the result in units of dB relative to the
+nominal WSJT "0 dB" level.  The program will repeat this measurement
+cycle every 2 seconds and plot the results as a green line in the
+graphical screen area.  You can use this mode to measure Sun noise,
+antenna temperature, ground noise, preamp gain, and a host of other
+useful quantities, relative to a chosen reference level.
+
+3. A pop-up utility labeled "EME Calc" can be selected from the EME
+Echo screen.  It provides an easy way to predict whether you should be
+able to detect your own echoes from the moon, as well as your ability
+to work another station by EME.  Boxes are provided to enter your TX
+power, TX feedline loss, RX noise figure, RX feedline loss, antenna
+gain, ground gain, ground noise, and sky temperature.  Similar
+quantities can be entered for a second station, and you must also
+specify the operating frequency.  When you click "Compute," the
+program will calculate the maximum expected echo strengths for the
+"Home Station" and the "DX Station" individually, as well as the
+maximum expected signal strength of each station at the other
+location.  The program also estimates the averaging time that would be
+required to detect echoes at the predicted signal level.
+
+Signal strengths are quoted relative to the WSJT standard, the noise
+power in a 2500 Hz bandwidth.  If the computed result for your echo
+exceeds about -38 dB, you have a chance of being able to detect your
+echoes using WSJT.  In comparison, echoes are detectable by the human
+ear only if they exceed about -14 dB on the same scale, or
+equivalently +3 dB in a 50 Hz bandwidth.  Note that the estimated
+signal strengths are supposed to be the maximum values expected for
+the specified conditions.  There are many reasons (Faraday rotation,
+ionospheric scintillation, libration fading, ...)  why the actual
+signal strength may be different, and deviations are much more likely
+to be downward than upward.  The predicted echo strength for my
+present 144 MHz station at a reasonably good time of the month is
+around -25 dB.  My experience has been that the predictions are fairly
+good if enough time is spent to be sure of catching a Faraday rotation
+peak.
+
+
+A number of smaller enhancements have been made in the EME Echo mode
+of WSJT.  These include the following:
+
+4. The program is much better behaved when operating at higher
+frequencies, in particular 1296 MHz and above.  If you fail to enter
+an RIT setting or specify one that would make the return echo fall
+outside the audio frequency range 900 - 2100 Hz, the program will
+suggest a better RIT value for you to use.
+
+5. The amount of programmed frequency spread of your transmitted
+signal (the "Dither" magnitude) can be set to any value in the range 0
+to 500 Hz.  It defaults to 50 Hz.
+
+6. Instead of accumulating average echo parameters indefinitely, you
+can set a parameter "Tavg" that specifies a time constant for
+averaging.  The default value is 5 minutes; at this setting the
+average echo spectrum will build up as before for the first 5 minutes,
+but thereafter it will track the signal characteristics over the most
+recent 5 minutes.  In other words, the average gradually "forgets" the
+signals received more than Tavg minutes ago.  Setting Tavg to a large
+number, say 999 minutes, will closely approximate the program's
+previous behavior.  If you can detect your EME echoes easily and want
+to see how they vary with time, you might set Tavg to 1 minute, start
+a "Measure" sequence, and take down the signal level readings at one
+minute intervals.
+
+7. Information sent to the main text window every 6 seconds now
+accumulates, with the text window scrolling as necessary.  The output
+is also (optionally) written to file DECODED.CUM so that you can study
+the data later.
+
+
+Other miscellaneous improvements and bug fixes include the following:
+
+8. In JT44 mode, if the "Grid" box is left empty then no EME Doppler
+shift will be displayed.
+
+9. The minimum "Dsec" increment has been reduced from 1 second to 0.5
+second.  This will permit more precise on-the-fly correction of the
+Windows clock for use by WSJT, should that be necessary.
+
+10. JT44 messages are always exactly 22 characters in length, and any
+additional characters are ignored.  To make this behavior more
+obvious, any excess characters are now visibly removed from the screen
+when transmission of a message begins.
+
+11. In Version 2.3.0, hitting the F4 key while in echo mode would
+cause the program to crash.  Fixed.
+
+12. Switching between modes could cause the Auto Period button to be
+stuck in the disabled or "grayed out" state.  Fixed.
+
+13. The last character in a manually edited FSK441 message was not
+sent if the default trailing blank and "<" character were erased.
+Fixed.
+
+
+Version 2.3.0
+-------------
+
+This release of WSJT is the first to include the EME Echo mode.  This
+mode allows you to detect and measure your own lunar echoes, even if
+they are far too weak to hear.  The mode can be highly useful for
+evaluating your station performance, even if you prefer to use CW
+rather than JT44 for your EME QSOs.
+
+If you are a present user of WSJT with no interest in detecting and
+measuring your EME echoes, you will find no significant advantages to
+upgrading to WSJT Version 2.3.0.  With the exception of a minor bug
+fix, the FSK441 and JT44 modes are essentially unchanged.
+
+You can download the upgrade from the WSJT home page,
+http://pulsar.princeton.edu/~joe/K1JT, and soon also from the European
+mirror site http://www.vhfdx.de/wsjt.  To upgrade an existing WSJT
+installation of Version 1.9.4 or later you should download and execute
+the file UPD230.EXE, which will replace your existing files WSJT.EXE
+and WSJT1.DLL with new files of the same name.
+
+I have not yet produced a new full distribution of the latest version.
+Doing this will require extensions to the User's Guide and Reference
+Manual, and will probably be accompanied by further improvements to
+the program.  If you wish to do a full installation of Version 2.3.0
+from scratch you should download the installation file WSJT222.EXE,
+run it to install Version 2.2.2, and then upgrade to Version 2.3.0 as
+described above.
+
+Minor Bug Fix: In WSJT Version 2.2.2 and earlier, if you dismissed the
+"Setup | Options" page by clicking on the "X" in the upper right
+corner of the form, instead of by clicking the "Done" button, the home
+station callsign ("My Call") would revert to its default value "K1JT".
+(Contrary to popular opinion, this was not an subtle ploy designed to
+increase my own VUCC totals; it was simply a coding mistake.)  The bug
+has now been fixed.
+
+EME Echo mode is presently a plain, no-frills implementation.  You can
+activate it from the Mode menu or by striking function key F9.  Most
+of the familiar WSJT buttons will then disappear from the screen,
+leaving just a few that are essential for controlling the Echo mode.
+If your station is already operational in the FSK441 and JT44 modes
+and you have provided the proper signal levels, all you need to do for
+an echo test is to start WSJT Version 2.3.0, hit F9 to switch to EME
+Echo mode, aim your antenna at the moon, pick a clear frequency, and
+toggle Auto Period On.  The program will then start cycling through
+the following loop:
+
+1. Transmit a fixed tone for 2.0 s
+2. Wait about 0.5 s for the start of your echo
+3. Record the received signal for 2.0 s
+4. Analyze and plot the results
+5. Repeat from step 1
+
+The loop cycle time is 6 seconds, so the transmitter duty cycle is
+only 2/6 or 33%.  Your transmitter will think it is loafing.  At the
+start of each transmission the frequency of the transmitted tone is
+randomly dithered by an offset up to +/- 100 Hz around a nominal value
+of 1500 Hz.  The programmed offset is removed from the computed
+spectrum of each recording before it is added into the accumulating
+average.  This procedure helps to minimize the effect of birdies in
+the receiver passband: in the average spectrum a fixed-frequency
+birdie will be smeared out over a 200 Hz range, while the desired
+signal remains sharply defined.
+
+Two curves are plotted in WSJT's main plot area during each pass
+through the Tx/Rx loop.  Each represents the spectrum of received
+power over a 400 Hz range centered on the expected echo.  The curve in
+gray is a reference spectrum that you can use to be sure you have
+chosen a reasonably birdie-free passband.  It is aligned so as to
+remove the EME doppler shift computed at the start of your run.  The
+alignment will not be subsequently adjusted for changes in doppler
+shift or for the random dithering of the transmitted frequency.
+Stable birdies will therefore stay fixed in the blue spectrum, making
+them easy to recognize and evade if necessary.  The red curve displays
+the desired EME echo signal.  Spectra computed for each 2-second
+receive period are shifted to correct for changing doppler shift and
+for the programmed frequency dithering, and are then averaged.  The
+EME echo should appear as a narrow spike near the middle of the red
+curve, close to DF = 0.
+
+In addition to the graphical display, a line is presented in the WSJT
+text window in the following form:
+
+  N: 16   Sig: -26.3 dB    DF: -1.3 Hz    Width: 0.7 Hz   Q: 9
+
+This information gives the number N of Tx/Rx cycles that have been
+averaged, the mean signal strength in dB, the measured frequency
+offset of the detected echo from the expected frequency, the spectral
+width of the echo, and a relative quality indicator for the detection
+on a 0 - 10 scale.  Signal strength is measured in the same units as
+used in the FSK441 and JT44 modes, i.e., in dB relative to the
+received noise power in a 2500 Hz bandwidth.  Low values of Q
+represent dubious detections, in which case the values of signal
+strength, DF, and width may be meaningless.
+
+A note about doppler calculations will be helpful here.  Most computer
+programs in amateur EME stations use approximate formulae to compute
+the position and distance of the moon and the expected doppler shifts
+of echos.  WSJT is no exception, and I cannot presently quote a firm
+figure on the accuracy of its doppler calculations or describe how
+their errors depend on lunar coordinates or the accuracy of your
+station location.  EME Echo mode uses a calculated doppler shift to
+align received spectra so that the echo should appear at DF = 0.  I
+have found that on 2 meters the return signals generally fall within
+10 Hz of DF = 0.  Further improvements in accuracy of the doppler
+routine will be forthcoming.
+
+If you can hear your own EME echoes you should see a spike in the red
+curve within a few seconds after toggling Auto Period On.  If your
+echoes are 10-15 dB below the audible threshold you should see a
+significant spike on the red curve within a few minutes.  To give you
+a better example of what to expect, consider the parameters of my
+station.  On 2 meters I run up to 400 Watts to a 17.6 dBd antenna (4 x
+9 el yagis) aimed at the horizon.  I have never heard my own CW echoes
+with this system.  However, when the moon is in my elevation window at
+0 - 10 degrees I can easily detect my echoes at any time of the month
+using WSJT in its EME Echo mode.  Indeed, I can turn off the PA and
+use my FT-847 barefoot, delivering 35 W to the antenna, and still
+detect my echoes rather easily, even with the moon in a "bad" part of
+the sky and the path degradation as large as -8 dB.  I seem to be able
+to detect my echoes reliably down to relative signal levels around -36
+dB.
+
+The spectral analysis done in EME Echo mode provides a frequency
+resolution of 0.67 Hz.  If your transmitter or receiver has short-term
+frequency stability much worse than this value, so that something
+drifts or wobbles by more than about 1 Hz in 2 seconds, your echo
+sensitivity will be degraded.  Most modern radios have no difficulty
+in meeting this standard on the 6 and 2 meter bands, but the higher
+UHF and microwave bands will be more problematic.  I don't have enough
+experience to know what the spectral width of an echo on the 432 MHz
+or 1296 MHz band should be after averaging for a few minutes.  I have
+been measuring widths of 2 Hz or less on 2 meters.
+
+By default WSJT will assume that your receiver and transmitter are
+tuned to the same frequency.  An on-screen box labeled "RIT (Hz)" is
+provided so that you can inform the program of any offset receiver
+tuning, for example to accommodate a large doppler shift.  Suppose you
+are running a test on 70 cm and the predicted doppler shift at the
+start of the run is -1087 Hz.  That would cause echoes from the 1400 -
+1600 Hz transmitted audio tone to come back as low as 313 Hz, probably
+well below the low-frequency cutoff in your receiver's passband.  Use
+your transceiver's RIT control to offset the receiver tuning by some
+round number within a few hundred Hz of the predicted value -- say
+-1000 Hz in this example -- and enter this offset in the RIT box
+before starting the echo measurement.  The program will accommodate
+subsequent changes in the doppler shift up to 800 Hz or so, if
+necessary, without any further adjustments.  Your echo should appear
+at the center of the red curve, as usual.  You won't need to use
+the RIT feature on 6 or 2 meters, where doppler shifts are much
+smaller and echoes always fall well within the receiver's SSB
+passband.
+
+Please note that I have so far tested the EME Echo mode only on 2
+meters.  You will discover that the software implementation is not yet
+highly polished; a number of improvements are already in the works,
+but I want to gain the advantage of feedback from other users before I
+go too much further.  If you use the EME Echo mode -- especially on
+bands other than 2 meters -- please send me your comments,
+experiences, and suggestions!  I am anxious to know how well it works
+for you.
+
+
+Version 2.2.2
+-------------
+
+This is a minor maintenance release.  As usual, you can download it
+from the WSJT web page, http://pulsar.princeton.edu/~joe/K1JT.  In
+addition to a short update file, UPD222.EXE, a full distribution of
+WSJT Version 2.2.2 is available as WSJT222.EXE.
+
+I had thought that Version 2.2.1 had already fixed a sometimes
+baffling bug appearing in earlier versions: if WSJT was terminated
+when in its "minimized" state, it could get "stuck" on your Windows
+taskbar and refuse to return to a full size display.
+
+It's not always easy for me to test program revisions on all available
+versions of Windows, and it seems that the V2.2.1 fix did not solve
+the problem on at least some versions of Windows 98.  This time, with
+V2.2.2, I believe it's *really* fixed!
+
+If WSJT is stuck in the minimized state you should fix it as follows,
+and then upgrade to Version 2.2.2:
+
+  A) Start WSJT.  It should appear in minimized form on the taskbar at
+  the bottom of your screen.
+
+  B) Right-click on the WSJT taskbar label and select "Move".
+
+  C) Press the "left arrow" and/or "up arrow" keys a few times and 
+  then move the mouse.  You should start to see a "dotted frame" 
+  indicating the location of the WSJT screen.
+
+  D) Click the left mouse button, and you should be back in business.
+
+Then you should download and install UPD222.EXE and upgrade your
+system to Version 2.2.2.
+
+
+Version 2.2.1
+-------------
+
+This is a minor maintenance release.  You can download it from the
+WSJT web page, http://pulsar.princeton.edu/~joe/K1JT.  In addition to
+the short update file, a new full distribution of WSJT Version 2.2.1
+is available, as well as a new version of the manual addressing the
+new program features.
+
+As always, I will be pleased to receive comments and suggestions at
+email address k1jt@arrl.net.  Please note, however, that I will be on
+vacation and not reading email from July 7 through 21.
+
+Version 2.2.1 fixes the following minor bugs in Version 2.2.0:
+
+1. When first started without a valid INI file, the v2.2.0 would fail
+to "Generate Std Messages" when asked to do so.  Once you have
+switched modes, say from FSK441 to JT44, the program worked correctly.
+
+2. Local hour angles greater than 180 degrees are now displayed as
+negative angles.
+
+3. If you did not check the menu item "File | Save text in File
+DECODED.CUM", the v2.2.0 would create an unwanted file named "fort.21"
+and write all decoded JT44 text there.
+
+4. If WSJT was terminated when in the "minimized" state, it could get
+"stuck" on your Windows taskbar.  If you are stuck in this mode you
+should fix it as follows, and then upgrade to Version 2.2.1:
+
+  A) Start WSJT.  It should appear in minimized form on the taskbar at
+  the bottom of your screen.
+
+  B) Right-click on the WSJT taskbar label and select "Move".
+
+  C) Press the "left arrow" and/or "up arrow" keys a few times and 
+  then move the mouse.  You should start to see a "dotted frame" 
+  indicating the location of the WSJT screen.
+
+  D) Click the left mouse button, and you should be back in business.
+
+
+Version 2.2.0
+-------------
+
+WSJT Version 2.2.0 provides several significant enhancements, a number
+of smaller improvements, and four minor bug fixes.
+
+To upgrade to v2.2.0 you should download the self-extracting zip file
+UPD220.EXE and execute it to extract its contents, directing the
+resulting files to your WSJT installation folder.
+
+The new version includes the following changes:
+
+1. The JT44 mode now has an adjustable parameter called "Clip."  It
+can be controlled with +/- buttons just below analogous ones for the
+"Sync" parameter.  The value of Clip defaults to 0, where it has no
+effect.  By increasing Clip to 1, 2, or 3 you can introduce "soft,"
+"moderate," or "hard" clipping of any sudden increases in signal
+strength that might ruin the decoding of an otherwise usable signal.
+I have found that setting Clip to 2 or 3 permits me to use JT44 in the
+presence of summertime QRN that renders v2.0.1 useless.  Clipping also
+helps to accommodate occasional meteor pings in a JT44 QSO, recovering
+the program's ability to synchronize on a weak residual signal.  You
+can leave the clipping turned on; note, however, that using hard
+clipping on a signal that does not require it can cost you about 1 dB
+in message S/N.  I recommend generally leaving Clip set to 0 and
+increasing it only when necessary.
+
+2. JT44 mode has a new checkbox labeled "Zap Birdies."  It does just
+what you would hope such a command would do -- and it can turn a
+totally spoiled signal into good copy!  (In the upgrade file I've
+included an example wave file recorded via EME from W7FG, in the
+presence of a strong birdie at my station.  To become a believer, try
+decoding this file both with and without "Zap Birdies" checked.  He
+was sending me the message "K1JT W7FG EM26       ".)
+
+The Zap algorithm works best with birdies that are steady in both
+amplitude and frequency.  A sure indicator that you have a birdie
+problem is a persistent extra spike (or spikes) in the red-line plot,
+in addition to the one corresponding to the JT44 sync tone.  If the
+birdie is higher in frequency than the sync tone by 20 to 465 Hz, you
+will probably see a number of identical garbage characters in the line
+of decoded text.  If this happens, check the "Zap Birdies" box and hit
+"Decode Again", and your copy should improve.  It will work best if
+you have already identified the correct value of DF and checked the
+"Freeze" box to lock onto the Sync tone.
+
+Do not expect miracles!  Keeping birdies out of your receiver or
+QSYing to avoid them will always work better than trying to deal with
+them in software.  Nevertheless, this birdie-killer can make the
+difference between a successful QSO and one that fails miserably.
+
+3. The JT44 mode has a second new checkbox labeled "Fold Msg."  For
+messages having identical content in the first and second half, this
+feature can yield a signal-to-noise improvement of 1.5 dB.  The JT44
+default message formats have been modified slightly to maximize the
+opportunities for useful message folding.  For example, if K1AA is
+working G2ZZ, the first EME-style message will now be generated as
+"G2ZZ K1AA  G2ZZ K1AA  ".  (Notice the two spaces in the middle of the
+message and at the end.)  If the "Fold Msg" box is checked, the
+message will be decoded simply as "G2ZZ K1AA  ".  Try decoding a
+marginal signal both with and without the "Fold Msg" box checked.  QSB
+conditions might make one or the other preferable at a particular time.
+
+4. In WSJT versions 2.0.0 and 2.0.1 the JT44 decode algorithm produces
+a single-character average of the last four character positions in a
+message.  In Version 2.2.0 the averaging limit has been changed to
+equal the number of "O" characters (for EME messages) or "R"
+characters (for non-EME messages) at the trailing end of default TX
+message #2.  For example, if clicking "Generate Std Texts" produces
+"G2ZZ K1AA OOOOOOOOOOOO" for message #2, the program will produce a
+single-character average based on the last 12 received character
+positions.  This choice gives you the best possible chance of properly
+decoding an "O" or "R" report in message #2, and it also gives you a
+good chance at snagging the "RRRRRRRRRRRRRRRRRRRRRR" message under
+very marginal conditions.  For steady signals the procedure can yield
+a 5.4 dB S/N advantage over single characters and a 2.4 dB advantage
+over the four-character average.
+
+5. WSJT now remembers whether you were using FSK441 or JT44 mode when
+you last exited the program.  On startup it restores the most recently
+used mode, including values of W, S, and Sync, as appropriate.
+
+6. All decoded text in JT44 mode is now written to the cumulative file
+DECODED.CUM.  In previous versions of WSJT, text was saved only in
+FSK441 mode.
+
+7. The default Sync setting in JT44 mode is now 1 rather than 2.
+I believe nearly everybody runs with Sync = 1.
+
+8. WSJT v2.2.0 is more complete and more consistent about saving
+information about the starting directory and the form size of the
+"File | Open" dialog box.
+
+9. The displayed azimuths for "Hot A" and "Hot B" (direction headings
+to use for optimal sporadic meteor reflections) now wrap correctly at
+0 and 360 degrees.  You will no longer see, for example, values like
+368 or -8 degrees if you are working someone to your north.
+
+10. In JT44 mode the program now displays the local hour angle of the
+Moon, in degrees.  You will appreciate this if you have a polar
+mounted EME array.
+
+11. The UTC Offset may now be specified as a floating-point number --
+that is, with significant digits after a decimal point.
+
+12. The count of available records displayed in the average message
+window behaved illogically when "Decode Again" and "Include" were used.
+This has been fixed.
+
+13. There was a bug in the JT44 display routine that caused error
+messages to appear when the moon's right ascension was very close to
+00:00.  The error could appear at most once a month, and it would
+persist for an hour or so.  The bug has been fixed.
+
+14. There was an apparent logical inconsistency in program behavior if
+"Exclude" was clicked after "Clear Avg" had been executed.  This has
+been fixed.
+
+15. In V2.0.1 if you hit F8 more than once and then hit F7, the
+"Width" parameter in FSK441 mode would be set to 200 ms.  This has
+been fixed.
+
+
+Version 2.0.1
+-------------
+This is a minor maintenance release.  Principal changes from Version
+2.0 include the following:
+
+1. The installation scripts for both the full installation and the
+   upgrade to v2.0.1 are more robust and much easier to use.
+
+2. The decoding parameters for FSK441 mode are saved correctly after
+   you have used JT44 mode.
+
+3. The controls for "Decode Again", "Include", and "Exclude" are now 
+   fully available during the Tx period.
+
+4. Certain colors (e.g., the backgrounds of a few labels) now display
+   better on older machines.  
+
+5. The background colors behind certain Tx messages in JT44 mode
+   have been corrected.
+
+6. The manual has been updated to conform with the new installation
+   scripts, and a number of other small changes (mostly correcting 
+   typos) have been made.
+
+7. The Tab key now moves the focus between various on-screen controls
+   and text boxes in a rational way.
+
+Version 2.0
+-----------
+
+A major new release of WSJT, Version 2.0 is now available for free
+download.  Instructions for upgrading and for new installations can be
+found at http://pulsar.princeton.edu/~joe/K1JT.
+
+What's new in Version 2.0 ?
+--------------------------
+
+The JT44 mode for extreme weak signal work was first introduced in
+beta release 1.8.0.  This mode has now matured, the program is stable,
+and tons of EME QSOs (among others) are being made with it.  New
+features and fixes in Version 2.0 include the following:
+
+1. Full monitor mode with separate averaging of 1st and 2nd sequences.
+
+2. Mouse-selected value of DF for decoding when "Freeze" is checked.
+
+3. Program is much faster at certain critical points, and now runs 
+   reliably on a 75 MHz Pentium with 24 MB of RAM.
+
+4. The dreaded "always starts minimized" bug has been fixed.
+
+5. Certain dates (such as "2002 VIII 21" now display properly in 
+   machines configured for European format.
+
+7. A number of other small niceties.
