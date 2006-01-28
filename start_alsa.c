@@ -329,14 +329,18 @@ int playback_callback(alsa_driver_t *alsa_driver_playback) {
 	int nsec;
 	int i,n;
 	static int ic;
+	snd_pcm_sframes_t delay;	
 	static short int n2;
 	int16_t b0[2048];
 
 //	printf("playback callback\n");
+	snd_pcm_delay(this->audio_fd, &delay);
 	gettimeofday(&tv, NULL);
 	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000000.0) +
 		*(this->ndsec) * 0.1;
+	stime = stime + ((double)delay / (double)(this->output_sample_rate));
 	*(this->Tsec) = stime;
+	//printf("PLAY:TIME, %lf, %ld, %ld, %d\n", stime, delay, this->output_sample_rate, *this->ndsec);
 	if(!(this->tx_starting) && (*(this->tx_ok)) ) {
 		nsec = (int)stime;
 		n = nsec / *(this->tr_period);  
