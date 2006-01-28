@@ -391,6 +391,7 @@ int capture_callback(alsa_driver_t *alsa_driver_capture) {
 	struct timeval tv;
 	double stime;
 	int ib;
+	snd_pcm_sframes_t delay;	
 #ifdef ALSA_CAPTURE_LOG
 	printf("capture callback %d samples\n", this->period_size);
 #endif
@@ -400,12 +401,16 @@ int capture_callback(alsa_driver_t *alsa_driver_capture) {
 	snd_pcm_status(this->audio_fd, pcm_stat);
         snd_pcm_status_dump(pcm_stat, jcd_out);
 #endif
+	snd_pcm_delay(this->audio_fd, &delay);
 	gettimeofday(&tv, NULL);
 	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000000.0) +
 		*(this->ndsec) * 0.1;
+	stime = stime - ((double)delay / (double)(this->output_sample_rate));
 	*(this->Tsec) = stime;
 	ib=*(this->ibuf);
-	this->tbuf[ib++] = stime;
+	this->tbuf[ib] = stime;
+	//printf("CAP:TIME, %d, %lf, %ld, %ld, %d\n",ib, stime, delay, this->output_sample_rate, *this->ndsec);
+	ib++;
 	if(ib>=1024)
 		ib = 0;
 	*(this->ibuf) = ib;
