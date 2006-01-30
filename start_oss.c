@@ -228,11 +228,11 @@ oss_loop(int *iarg)
 	      /* increment buffer pointers only if data available */
 	      ia=*(data.iwrite);
 	      ib=*(data.ibuf);
-	      data.tbuf[ib++] = stime;
-	      if(ib>=FRAMESPERBUFFER)
-		ib=0; 
+	      data.tbuf[ib-1] = stime;	/* convert to c index to store */
+	      if(ib>FRAMESPERBUFFER)
+		ib=1; 
 	      *(data.ibuf) = ib;
-	      in = (int16_t *)rcv_buf;	// XXX
+	      in = (int16_t *)rcv_buf;	/* XXX */
 	      for(i=0; i<FRAMESPERBUFFER; i++) {
 		data.y1[ia] = (*in++);
 		data.y2[ia] = (*in++);
