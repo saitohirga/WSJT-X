@@ -338,7 +338,7 @@ int playback_callback(alsa_driver_t *alsa_driver_playback) {
 	gettimeofday(&tv, NULL);
 	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000000.0) +
 		*(this->ndsec) * 0.1;
-	stime = stime + ((double)delay / (double)(this->output_sample_rate));
+	//	stime = stime + ((double)delay / (double)(this->output_sample_rate));
 	*(this->Tsec) = stime;
 	//printf("PLAY:TIME, %lf, %ld, %ld, %d\n", stime, delay, this->output_sample_rate, *this->ndsec);
 	if(!(this->tx_starting) && (*(this->tx_ok)) ) {
@@ -409,7 +409,7 @@ int capture_callback(alsa_driver_t *alsa_driver_capture) {
 	gettimeofday(&tv, NULL);
 	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000000.0) +
 		*(this->ndsec) * 0.1;
-	stime = stime - ((double)delay / (double)(this->output_sample_rate));
+	//	stime = stime - ((double)delay / (double)(this->output_sample_rate));
 	*(this->Tsec) = stime;
 	ib=*(this->ibuf);
 	this->tbuf[ib] = stime;
