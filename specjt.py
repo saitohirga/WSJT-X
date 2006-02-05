@@ -23,6 +23,7 @@ def hidespecjt():
 def showspecjt():
     root.deiconify()
     g.showspecjt=2
+    g.focus=1
 
 if(__name__=="__main__"):
     root = Tk()
