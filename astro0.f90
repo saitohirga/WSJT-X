@@ -110,7 +110,7 @@ subroutine astro0(nyear,month,nday,uth8,nfreq,grid,cauxra,cauxdec,       &
 1010 format(i2.2,':',i2.2,':',i2.2,',',f5.1,',',f5.1,',Moon'/        &
             i2.2,':',i2.2,':',i2.2,',',f5.1,',',f5.1,',Sun'/         &
             i2.2,':',i2.2,':',i2.2,',',f5.1,',',f5.1,',Source'/      &
-            i4,',',f6.1,',',f6.2,',',f6.1,',',f6.2,',Doppler')
+            i4,',',f7.1,',',f7.2,',',f7.1,',',f7.2,',Doppler')
      rewind 14
      isec0=isec
   endif

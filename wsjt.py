@@ -108,8 +108,8 @@ def showspecjt(event=NONE):
         else:
             g.focus=2
     else:
-        g.focus=2
         g.showspecjt=1
+        g.focus=2
 
 #------------------------------------------------------ restart
 def restart():
@@ -681,7 +681,7 @@ Shift-F8	Set JT65B mode
 CTRL-F8		Set JT65C mode
 Shift-CTRL-F8	Set CW mode
 F9		Set EME Echo mode
-F10             Display waterfall screen
+F10             Toggle focus between WSJT screens
 Alt-1 to Alt-6  Tx1 to Tx6
 Alt-A           Toggle Auto On/Off
 Alt-D           Decode
