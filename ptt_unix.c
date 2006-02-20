@@ -341,9 +341,9 @@ lp_ptt (int fd, int onoff)
  * the WSJT.INI instead but for now this should work -- db
  */
 #ifdef BSD
-#define LPNAME "/dev/lpt%d"
+#define LPNAME "lpt%d"
 #else
-#define LPNAME "/dev/lp%d"
+#define LPNAME "lp%d"
 #endif
 #define LPNAME_SIZE (sizeof(LPNAME))
 
