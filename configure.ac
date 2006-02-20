@@ -314,13 +314,18 @@ if test "$portaudio" = yes; then
 	fi
 fi
 
+if test "$F2PY" = ""; then
+	AC_MSG_ERROR([You are missing f2py])
+fi
 
 dnl 
 AC_SUBST(CPPFLAGS, "${CPPFLAGS}")
 AC_SUBST(LDFLAGS, "${LDFLAGS}")
 AC_SUBST(CFLAGS)
 
-AC_OUTPUT([Makefile])
+AC_OUTPUT
+AC_CONFIG_FILES(Makefile)
+
 dnl do summary
 
 echo
