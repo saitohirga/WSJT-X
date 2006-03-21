@@ -58,12 +58,12 @@ subroutine audio_init(ndin,ndout)
   m0=SetPriorityClass(GetCurrentProcess(),NORMAL_PRIORITY_CLASS)
 
 ! Start a thread for doing A/D and D/A with sound card.
-  Thread1=CreateThread(0,0,a2d,0,CREATE_SUSPENDED,id)
+  Thread1=CreateThread(0,0,a2d,0,CREATE_SUSPENDED,id1)
   m1=SetThreadPriority(Thread1,THREAD_PRIORITY_ABOVE_NORMAL)
   m2=ResumeThread(Thread1)
 
 ! Start a thread for background decoding.
-  Thread2=CreateThread(0,0,decode1,0,CREATE_SUSPENDED,id)
+  Thread2=CreateThread(0,0,decode1,0,CREATE_SUSPENDED,id2)
   m3=SetThreadPriority(Thread2,THREAD_PRIORITY_BELOW_NORMAL)
   m4=ResumeThread(Thread2)
 #else
