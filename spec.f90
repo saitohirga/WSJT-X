@@ -205,5 +205,6 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
   enddo
 
 900 continue
+  if(ndiskdat.eq.1) ndecoding=4
   return
 end subroutine spec

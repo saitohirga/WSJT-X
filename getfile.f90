@@ -83,8 +83,6 @@ subroutine getfile(fname,len)
   endif
 
   mousebutton=0
-  ndecoding=4
-
   go to 999
 
 998 ierr=1001
