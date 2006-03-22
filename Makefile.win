@@ -36,7 +36,7 @@ SRCS2F77 = wsjt1.f avesp2.f bzap.f spec441.f spec2d.f mtdecode.f \
 	limit.f lpf1.f deep65.f morse.f nchar.f packcall.f packgrid.f \
 	packmsg.f packtext.f setup65.f short65.f slope.f spec2d65.f \
 	sync65.f unpackcall.f unpackgrid.f unpackmsg.f unpacktext.f \
-	xcor.f xfft.f wsjt65.f astro.f azdist.f coord.f dcoord.f \
+	xcor.f xfft.f xfft2.f wsjt65.f astro.f azdist.f coord.f dcoord.f \
 	deg2grid.f dot.f ftsky.f geocentric.f GeoDist.f grid2deg.f \
 	moon2.f MoonDop.f sun.f toxyz.f pfxdump.f
 
