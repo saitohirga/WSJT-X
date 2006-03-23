@@ -1,5 +1,5 @@
       subroutine demod64a(signal,nadd,mrsym,mrprob,
-     +  mr2sym,mr2prob)
+     +  mr2sym,mr2prob,ntest,nlow)
 
 C  Demodulate the 64-bin spectra for each of 63 symbols in a frame.
 
@@ -14,8 +14,6 @@ C     mr2prob  probability that mr2sym was the transmitted value
       real*4 signal(64,63)
       real*8 fs(64)
       integer mrsym(63),mrprob(63),mr2sym(63),mr2prob(63)
-      real*4 p
-      common/tmp8/ p(64,63)
 
       afac=1.1 * float(nadd)**0.64
       scale=255.999
@@ -49,7 +47,6 @@ C  Compute probabilities for most reliable symbol values
                s2=signal(i,j)
                i2=i                              !Second most reliable
             endif
-            p(i,j)=log(fs(i)/fsum)
          enddo
          p1=fs(i1)/fsum                          !Normalized probabilities
          p2=fs(i2)/fsum
@@ -58,6 +55,14 @@ C  Compute probabilities for most reliable symbol values
          mrprob(j)=scale*p1
          mr2prob(j)=scale*p2
       enddo
+
+      sum=0.
+      nlow=0
+      do j=1,63
+         sum=sum+mrprob(j)
+         if(mrprob(j).le.5) nlow=nlow+1
+      enddo
+      ntest=sum/63
 
       return
       end

@@ -9,7 +9,13 @@
       data first/.true./,nsec1/0/
       save
 
-      call demod64a(s3,nadd,mrsym,mrprob,mr2sym,mr2prob)
+      call demod64a(s3,nadd,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
+
+      if(ntest.lt.50 .or. nlow.gt.20) then
+         ncount=-999                         !Flag bad data
+         go to 900
+      endif
+
       call graycode(mrsym,63,-1)
       call interleave63(mrsym,-1)
       call interleave63(mrprob,-1)

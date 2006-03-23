@@ -126,6 +126,10 @@ C  result from the Reed-Solomon decoder.
          call decode65(dat,npts,dtxx,dfxx,flip,ndepth,neme,nsked,
      +        mycall,hiscall,hisgrid,mode65,lmid,ftrack,decoded,
      +        ncount,deepmsg,qual)
+         if(ncount.eq.-999) then
+            qbest=0                       !Bad data
+            go to 200
+         endif
          if(qual.gt.qbest) then
             qbest=qual
             dtbest=dtxx
