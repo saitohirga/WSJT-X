@@ -12,7 +12,6 @@
       character*4 rpt(MAXRPT)
       logical first
       integer ncode(63,2*MAXCALLS)
-      common/tmp8/ p(64,63)
 
       data neme0/-99/
       data rpt/'-01','-02','-03','-04','-05',
@@ -101,25 +100,17 @@
 
       p1=-1.e30
       ip1=0
-      p2=-1.e30
-      ip2=0
       do k=1,ntot
 C  If sync=OOO, no CQ messages
          if(flip.lt.0.0 .and. testmsg(k)(1:3).eq.'CQ ') go to 30
          sum=0.
-         sum2=0.
          do j=1,63
             i=ncode(j,k)+1
             sum=sum + s3(i,j)
-            sum2=sum2 + p(i,j)
          enddo
          if(sum.gt.p1) then
             p1=sum
             ip1=k
-         endif
-         if(sum2.gt.p2) then
-            p2=sum2
-            ip2=k
          endif
  30   enddo
 
@@ -136,23 +127,6 @@ C  If sync=OOO, no CQ messages
          decoded=testmsg(ip1)
       endif
       decoded(22:22)=c
-      deepmsg=decoded
-
-      q2=0.27*p2 + 81.3
-!      if(mode65.eq.1) qual=100.0*(p1-0.33)
-!      if(mode65.eq.4) qual=100.0*(p1-0.50)
-      if(q2.lt.0.) q2=0.
-      if(q2.gt.10.) q2=10.
-      decoded='                      '
-      c=' '
-      if(q2.gt.0.0) then
-         if(q2.lt.4.0) c='?'
-         decoded=testmsg(ip2)
-      endif
-      decoded(22:22)=c
-
-!      qual=q2
-      decoded=deepmsg
 
       return
       end
