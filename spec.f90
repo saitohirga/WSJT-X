@@ -199,7 +199,6 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
      nspeed0=nspeed
   endif
 
-!  print*,brightness,contrast,logmap,gain,gamma,offset
   do i=1,iz
      n=0
      if(a0(i).gt.0.0 .and. logmap.eq.1) n=gain*log10(0.001*a0(i)) + offset + 20
