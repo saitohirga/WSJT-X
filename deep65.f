@@ -121,7 +121,6 @@ C  If sync=OOO, no CQ messages
  30   enddo
 
       qual=100.0*(p1-0.405)
-      print*,nhard1,ref1/ref0,qual,100.0*(p1*(ref1/ref0)-0.40)
       if(mode65.eq.1) qual=100.0*(p1-0.335)
       if(mode65.eq.4) qual=100.0*(p1-0.505)
       if(qual.lt.0.) qual=0.
