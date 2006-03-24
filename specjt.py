@@ -217,7 +217,10 @@ def update():
     contrast=sc2.get()
     logm=logmap.get()
     g0=sc3.get()
-    if Audio.gcom2.monitoring or Audio.gcom2.ndiskdat:
+    
+# Don't calculate spectra for waterfall while decoding
+    if Audio.gcom2.ndecoding==0 and \
+           (Audio.gcom2.monitoring or Audio.gcom2.ndiskdat):
         Audio.spec(brightness,contrast,logm,g0,nspeed,a) #Call Fortran routine spec
         newdat=Audio.gcom1.newdat                   #True if new data available
     else:
@@ -253,7 +256,6 @@ def update():
             if minsep.get():
                 draw.line((0,0,749,0),fill=128)     #Draw the minute separator
 
-# Don't update waterfall while decoding
         pim=ImageTk.PhotoImage(im)              #Convert Image to PhotoImage
         graph1.delete(ALL)
         #For some reason, top two lines are invisible, so we move down 2

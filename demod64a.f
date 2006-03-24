@@ -14,6 +14,7 @@ C     mr2prob  probability that mr2sym was the transmitted value
       real*4 signal(64,63)
       real*8 fs(64)
       integer mrsym(63),mrprob(63),mr2sym(63),mr2prob(63)
+      common/tmp9/ mrs(63),mrs2(63)
 
       afac=1.1 * float(nadd)**0.64
       scale=255.999
@@ -54,6 +55,8 @@ C  Compute probabilities for most reliable symbol values
          mr2sym(j)=i2-1
          mrprob(j)=scale*p1
          mr2prob(j)=scale*p2
+         mrs(j)=i1
+         mrs2(j)=i2
       enddo
 
       sum=0.

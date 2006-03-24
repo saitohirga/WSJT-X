@@ -18,7 +18,7 @@
 !------------------------------------------------ ftn_init
 subroutine ftn_init
 
-  character*1 cjunk,fname*80
+  character*1 cjunk
   include 'gcom1.f90'
   include 'gcom2.f90'
   include 'gcom3.f90'

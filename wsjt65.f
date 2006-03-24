@@ -15,7 +15,7 @@ C  already been done.
       character decoded*22,cfile6*6,special*5,cooo*3
       character*22 avemsg1,avemsg2,deepmsg,deepbest
       character*67 line,ave1,ave2
-      character*1 csync
+      character*1 csync,c1
       character*12 mycall
       character*12 hiscall
       character*6 hisgrid
@@ -160,6 +160,10 @@ C  result from the Reed-Solomon decoder.
       if(flip.lt.0.0 .and. (kvqual.eq.1 .or. nqual.ge.nq2)) cooo='OOO'
       if(kvqual.eq.0.and.nqual.ge.nq1.and.nqual.lt.nq2) cooo(2:3)=' ?'
       if(decoded.eq.'                      ') cooo='   '
+      do i=1,22
+         c1=decoded(i:i)
+         if(c1.ge.'a' .and. c1.le.'z') decoded(i:i)=char(ichar(c1)-32)
+      enddo
       write(line,1010) cfile6,nsync,nsnr,dtx-1.0,ndf,
      +    nint(width),csync,special,decoded(1:18),cooo,kvqual,nqual,itry
  1010 format(a6,i3,i5,f5.1,i5,i3,1x,a1,1x,a5,a18,1x,a3,i5,i3,i2)
@@ -175,7 +179,7 @@ C  Blank DT if shorthand message  (### wrong logic? ###)
       endif
 
 C  Blank the end-of-line numbers
-      if(naggressive.eq.0) line(58:67)='         '
+      if(naggressive.eq.0 .and. ndiag.eq.0) line(58:67)='         '
       if(ndiag.eq.0) line(66:67)='  '
 
       if(lcum) write(21,1011) line
