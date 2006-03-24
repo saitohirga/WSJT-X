@@ -12,6 +12,7 @@
       character*4 rpt(MAXRPT)
       logical first
       integer ncode(63,2*MAXCALLS)
+      common/tmp9/ mrs(63),mrs2(63)
 
       data neme0/-99/
       data rpt/'-01','-02','-03','-04','-05',
@@ -89,13 +90,9 @@
  20   ntot=k
       neme0=neme
 
-      sum0=0.
+      ref0=0.
       do j=1,63
-         smax=-1.e30
-         do i=1,64
-            smax=max(smax,s3(i,j))
-         enddo
-         sum0=sum0+smax
+         ref0=ref0 + s3(mrs(j),j)
       enddo
 
       p1=-1.e30
@@ -104,20 +101,29 @@
 C  If sync=OOO, no CQ messages
          if(flip.lt.0.0 .and. testmsg(k)(1:3).eq.'CQ ') go to 30
          sum=0.
+         ref=ref0
+         nhard=0
          do j=1,63
             i=ncode(j,k)+1
             sum=sum + s3(i,j)
+            if(i.eq.mrs(j)) then
+               ref=ref - s3(i,j) + s3(mrs2(j),j)
+               nhard=nhard+1
+            endif
          enddo
+         sum=sum/ref
          if(sum.gt.p1) then
             p1=sum
             ip1=k
+            ref1=ref
+            nhard1=nhard
          endif
  30   enddo
 
-      p1=p1/sum0
-      qual=100.0*(p1-0.40)
-      if(mode65.eq.1) qual=100.0*(p1-0.33)
-      if(mode65.eq.4) qual=100.0*(p1-0.50)
+      qual=100.0*(p1-0.405)
+      print*,nhard1,ref1/ref0,qual,100.0*(p1*(ref1/ref0)-0.40)
+      if(mode65.eq.1) qual=100.0*(p1-0.335)
+      if(mode65.eq.4) qual=100.0*(p1-0.505)
       if(qual.lt.0.) qual=0.
       if(qual.gt.10.) qual=10.
       decoded='                      '
