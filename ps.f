@@ -16,7 +16,7 @@
       call xfft(x,nfft)
       fac=1.0/nfft
       do i=1,nh
-         s(i)=fac*(real(c(i))**2 + imag(c(i))**2)
+         s(i)=fac*(real(c(i))**2 + aimag(c(i))**2)
       enddo
 
       return

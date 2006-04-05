@@ -63,15 +63,18 @@ int fd;			/* Used for both serial and parallel */
 #define TTYNAME "/dev/cuad%d"	/* Use non blocking form */
 #else
 #include <sys/io.h>
-#define TTYNAME	"/dev/ttyS%d"
+#define TTYNAME	"/dev/ttyUSB%d"
 #endif
 
 /* Not quite right for size but '%d + 1' should be plenty enough -db */
-#define TTYNAME_SIZE	sizeof(TTYNAME)+1
+/* As TTYNAME is a string, just at 20 chars do udevd is happier. */
+/* E.g. USB serial ports appear as /dev/ttyUSB0 */
+#define TTYNAME_SIZE	sizeof(TTYNAME)+20
 
 int
 ptt_(int *nport, int *ntx, int *iptt)
 {
+  /* Fixme, nport should be a sting and not a number */
   static int nopen=0;
   int control = TIOCM_RTS | TIOCM_DTR;
 
@@ -87,6 +90,7 @@ ptt_(int *nport, int *ntx, int *iptt)
     s[TTYNAME_SIZE] = '\0';
 
     /* open the device */
+    printf("Opening %s\n", s);
     if ((fd = open(s, O_RDWR | O_NDELAY)) < 0) {
       fprintf(stderr, "Can't open %s.\n", s);
       return(1);

@@ -52,13 +52,17 @@ C  Determine the reference symbols for each data symbol.
          m=mdat(k)
          mref(k,1)=mr1
          do n=1,10                     !Get ref symbol before data
-            if((m-n.gt.0) .and. pr(m-n).gt.0.0) go to 10
+            if((m-n).gt.0) then
+               if (pr(m-n).gt.0.0) go to 10
+            endif
          enddo
          go to 12
  10      mref(k,1)=m-n
  12      mref(k,2)=mr2
          do n=1,10                     !Get ref symbol after data
-            if((m+n).le.nsym .and. pr(m+n).gt.0.0) go to 20
+            if((m+n).le.nsym) then
+               if (pr(m+n).gt.0.0) go to 20
+            endif
          enddo
          go to 22
  20      mref(k,2)=m+n
@@ -82,13 +86,17 @@ C  Now do it all again, using opposite logic on pr(i)
          m=mdat2(k)
          mref2(k,1)=mr1
          do n=1,10
-            if((m-n.gt.0) .and. pr(m-n).lt.0.0) go to 110
+            if((m-n).gt.0) then
+               if (pr(m-n).lt.0.0) go to 110
+            endif
          enddo
          go to 112
  110      mref2(k,1)=m-n
  112      mref2(k,2)=mr2
          do n=1,10
-            if((m+n).le.nsym .and. pr(m+n).lt.0.0) go to 120
+            if((m+n).le.nsym) then
+               if (pr(m+n).lt.0.0) go to 120
+            endif
          enddo
          go to 122
  120     mref2(k,2)=m+n

@@ -6,7 +6,7 @@ subroutine getfile(fname,len)
   use dflib
 #endif
 
-  parameter (NDMAX=60*11025)
+  parameter (NDMAX=661500)  ! =60*11025
   character*(*) fname
   include 'gcom1.f90'
   include 'gcom2.f90'

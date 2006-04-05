@@ -1,17 +1,17 @@
-CC ?= @CC@
-FFLAGS	= @FFLAGS@
-LDFLAGS	= @LDFLAGS@
-CPPFLAGS = @CPPFLAGS@
-CFLAGS	= @CFLAGS@
+CC ?= gcc
+FFLAGS	= -g -O2 -fPIC
+LDFLAGS	= -L/usr/local/lib -lpthread  -lasound
+CPPFLAGS = -I/usr/local/include -I/usr/include/alsa -I.
+CFLAGS	=  -Wall -O0 -g  -Wall -O0 -g -fPIC
 # WSJT specific C flags
-CFLAGS	+= -DBIGSYM=1 -fPIC
-DEFS = @DEFS@
+CFLAGS	+= -DBIGSYM=1
+DEFS = -DPACKAGE_NAME=\"wsjt\" -DPACKAGE_TARNAME=\"wsjt\" -DPACKAGE_VERSION=\"5.9.2\" -DPACKAGE_STRING=\"wsjt\ 5.9.2\" -DPACKAGE_BUGREPORT=\"\" -DG95_LIB_PATH=\"/usr/lib/gcc/x86_64-linux-gnu/4.0.3/\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_SYS_RESOURCE_H=1 -DHAVE_SYS_PARAM_H=1 -DHAVE_ERRNO_H=1 -DHAVE_SYS_SYSLOG_H=1 -DHAVE_STDDEF_H=1 -DHAVE_LIBGEN_H=1 -DHAVE_SYS_WAIT_H=1 -DHAVE_WAIT_H=1 -DHAVE_STDIO_H=1 -DHAVE_TERMIOS_H=1 -DHAVE_SYS_RESOURCE_H=1 -DHAVE_LINUX_PPDEV_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_FCNTL_H=1 -DHAVE_SYS_IOCTL_H=1 -DTIME_WITH_SYS_TIME=1 -DSTRING_WITH_STRINGS=1 -DSIZEOF_INT64_T=8 -DSIZEOF_LONG_LONG=8 -DNDEBUG=1 -DPREFIX=\"/usr/local/\" -DUSE_SERIAL=1 -DUSE_ALSA=1 -DHAS_ASOUNDLIB_H=1 -DHAS_SOUNDCARD_H=1 
 CFLAGS += ${DEFS}
-CPPFLAGS += ${DEFS} -I.
+CPPFLAGS += ${DEFS}
 
 # WSJT specific Fortran flags
-FFLAGS += -Wall -fbounds-check -fno-second-underscore -ffixed-line-length-none -fPIC
-#FFLAGS += -Wall -fbounds-check -fno-second-underscore -fPIC
+FFLAGS += -Wall -fbounds-check -fno-second-underscore -ffixed-line-length-none
+#FFLAGS += -Wall -fbounds-check -fno-second-underscore 
 #FFLAGS += -cpp -fno-second-underscore
 # The default rules
 .c.o:
@@ -23,17 +23,17 @@ FFLAGS += -Wall -fbounds-check -fno-second-underscore -ffixed-line-length-none -
 .F90.o:
 	${G95} ${CPPFLAGS} ${FFLAGS} -c -o ${<:.F90=.o} $<
 
-OS=@OS@
-G95=@G95@
-COMPILER=@G95_LIB_PATH@
-FC=@G95@
+OS=Linux
+G95=/usr/bin/g95
+COMPILER=/usr/lib/gcc/x86_64-linux-gnu/4.0.3/
+FC=/usr/bin/g95
 
 LDFLAGS	+= -L${COMPILER}
 LDFLAGS	+= -lg2c
 
-PYTHON	?= @PYTHON@
-RM	?= @RM@
-F2PY	= @F2PY@
+PYTHON	?= /usr/bin/python
+RM	?= /bin/rm
+F2PY	= /usr/bin/f2py
 
 
 OBJS1 = JT65code.o nchar.o grid2deg.o packmsg.o packtext.o \
@@ -72,11 +72,11 @@ SRCS2C	= init_rs.c encode_rs.c decode_rs.c
 OBJS2C  = ${SRCS2C:.c=.o}
 
 # ok, so far for now
-# Windows @AUDIO@ will be a2d.f90 jtaudio.c since it uses portaudio
-#            for *nix @AUDIO@ will also be a2d.f90, jtaudio.c
+# Windows start_alsa.c will be a2d.f90 jtaudio.c since it uses portaudio
+#            for *nix start_alsa.c will also be a2d.f90, jtaudio.c
 #               and start_portaudio.c for systems using portaudio
-#            for *nix @AUDIO@ will be start_alsa.c for alsa
-#            for *nix @AUDIO@ will be start_oss.c for oss
+#            for *nix start_alsa.c will be start_alsa.c for alsa
+#            for *nix start_alsa.c will be start_oss.c for oss
 #
 # ptt_unix.c vs. ptt.c I'll sort out later. 
 # ditto for cutil.c (only used on *nix)
@@ -89,7 +89,7 @@ OBJS2C  = ${SRCS2C:.c=.o}
 #
 SRCS3C	= ptt_unix.c igray.c wrapkarn.c cutil.c
 OBJS3C  = ${SRCS3C:.c=.o}
-AUDIOSRCS = @AUDIO@
+AUDIOSRCS = start_alsa.c
 
 all:	wsjt6
 JT65code: $(OBJS1)
@@ -102,7 +102,7 @@ wsjt6:	Audio.so #wsjt.spec
 # 
 #
 Audio.so: $(OBJS2C) $(OBJS3C) $(OBJS2F77) $(SRCS2F90) $(AUDIOSRCS)
-	 ${F2PY} -c --quiet --opt="-O ${CFLAGS} \
+	 ${F2PY} -c --opt="-O ${CFLAGS} -fPIC \
 	-fno-second-underscore"	$(OBJS2C) $(OBJS2F77) -m Audio \
 	--f77exec=${G95} --f90exec=${G95} ${CPPFLAGS} ${LDFLAGS} \
 	only: $(F2PYONLY) \

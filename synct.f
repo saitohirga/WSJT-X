@@ -10,7 +10,7 @@ C  Gets a refined value of jstart.
       complex c,c1,zz
       common/hcom/c(NMAX)
 
-      ps(zz)=real(zz)**2 + imag(zz)**2          !Power spectrum function
+      ps(zz)=real(zz)**2 + aimag(zz)**2          !Power spectrum function
 
 C  Convert data to baseband (complex result) using quadrature LO.
       twopi=8*atan(1.d0)

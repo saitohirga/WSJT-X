@@ -43,7 +43,7 @@ C  Mix sync tone down to f=5*df (==> bin 6 of array cx, after FFT)
 
                call four2a(cx,nfft,1,-1,1)
                do i=1,77
-                  s(i)=s(i) + real(cx(i))**2 + imag(cx(i))**2
+                  s(i)=s(i) + real(cx(i))**2 + aimag(cx(i))**2
                enddo
 
             else

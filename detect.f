@@ -19,10 +19,10 @@ C  Compute powers at the tone frequencies using 1-sample steps.
          csum=csum+c(i)
       enddo
          
-      y(1)=real(csum)**2 + imag(csum)**2
+      y(1)=real(csum)**2 + aimag(csum)**2
       do i=2,npts-(NSPD-1)
          csum=csum-c(i-1)+c(i+NSPD-1)
-         y(i)=real(csum)**2 + imag(csum)**2
+         y(i)=real(csum)**2 + aimag(csum)**2
       enddo
 
       return
