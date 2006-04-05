@@ -17,7 +17,7 @@ C  Returns a refined value of f0, the sync-tone frequency.
       complex z
       equivalence (x,c)
 
-      ps(z)=real(z)**2 + imag(z)**2          !Power spectrum ASF
+      ps(z)=real(z)**2 + aimag(z)**2          !Power spectrum ASF
 
 C  Accumulate a high-resolution average spectrum
       df=11025.0/NFFT

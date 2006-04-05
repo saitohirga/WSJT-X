@@ -34,14 +34,14 @@ C  bins are shifted down 5 bins from their natural positions.
 
 	   sum=0.
 	   do i=1,NQ
-	      s2(i,n)=real(c(5+i))**2 + imag(c(5+i))**2
+	      s2(i,n)=real(c(5+i))**2 + aimag(c(5+i))**2
 	      sum=sum+s2(i,n)
 	   enddo
 	   s(n)=sum/NQ
 
 C  Accumulate average spectrum for the whole file.
 	   do i=1,nh
-	      psavg0(i) = psavg0(i)+ real(c(i))**2 + imag(c(i))**2
+	      psavg0(i) = psavg0(i)+ real(c(i))**2 + aimag(c(i))**2
 	   enddo
 	enddo
 

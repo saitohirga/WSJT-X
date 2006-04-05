@@ -141,7 +141,7 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
   call xfft2(x,nfft)
 
   do i=1,nq                               !Accumulate power spectrum
-     ss(i)=ss(i) + real(c(i))**2 + imag(c(i))**2
+     ss(i)=ss(i) + real(c(i))**2 + aimag(c(i))**2
   enddo
   nsum=nsum+1
 

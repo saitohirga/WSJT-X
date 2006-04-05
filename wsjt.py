@@ -1,4 +1,4 @@
-#------------------------------------------------------------------ WSJT
+#------------------------------------------------------------------- WSJT
 from Tkinter import *
 from tkFileDialog import *
 import Pmw
@@ -1279,13 +1279,14 @@ def update():
         azdist()
         g.nfreq=nfreq.get()
 
-        g.AzSun,g.ElSun,g.AzMoon,g.ElMoon,g.AzMoonB,g.ElMoonB,g.ntsky, \
-            g.ndop,g.ndop00,g.dbMoon,g.RAMoon,g.DecMoon,g.HA8,g.Dgrd,  \
-            g.sd,g.poloffset,g.MaxNR,g.dfdt,g.dfdt0,g.RaAux,g.DecAux, \
-            g.AzAux,g.ElAux = Audio.astro0(utc[0],utc[1],utc[2],  \
-            utchours,nfreq.get(),options.MyGrid.get().upper(), \
-                options.auxra.get()+'         '[:9],     \
-                options.auxdec.get()+'         '[:9])
+        if Audio.gcom2.ndecoding==0:
+            g.AzSun,g.ElSun,g.AzMoon,g.ElMoon,g.AzMoonB,g.ElMoonB,g.ntsky, \
+                g.ndop,g.ndop00,g.dbMoon,g.RAMoon,g.DecMoon,g.HA8,g.Dgrd,  \
+                g.sd,g.poloffset,g.MaxNR,g.dfdt,g.dfdt0,g.RaAux,g.DecAux, \
+                g.AzAux,g.ElAux = Audio.astro0(utc[0],utc[1],utc[2],  \
+                utchours,nfreq.get(),options.MyGrid.get().upper(), \
+                    options.auxra.get()+'         '[:9],     \
+                    options.auxdec.get()+'         '[:9])
 
         if mode.get()[:4]=='JT65' or mode.get()[:2]=='CW' :
             graph2.delete(ALL)

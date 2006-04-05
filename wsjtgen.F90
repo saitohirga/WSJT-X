@@ -12,7 +12,7 @@ subroutine wsjtgen
   parameter (NMSGMAX=28)             !Max characters per message
   parameter (NSPD=25)                !Samples per dit
   parameter (NDPC=3)                 !Dits per character
-  parameter (NWMAX=60*11025)         !Max length of waveform
+  parameter (NWMAX=661500)         !Max length of waveform = 60*11025
   parameter (NTONES=4)               !Number of FSK tones
 
   integer   itone(84)
@@ -74,10 +74,13 @@ subroutine wsjtgen
            go to 999
 14         read(18) hdr
            if(ndata.gt.NTxMax) ndata=NTxMax
-           nwave=ndata
-           call rfile(18,iwave,2*nwave,ierr)
+           call rfile(18,iwave,ndata,ierr)
            close(18)
            if(ierr.ne.0) print*,'Error reading test file ',msg(2:)
+           nwave=ndata/2
+           do i=nwave,NTXMAX
+              iwave(i)=0
+           enddo
         endif
         go to 999
      endif

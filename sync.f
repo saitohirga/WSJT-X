@@ -2,13 +2,15 @@
 
 C  Input data are in the y# arrays: detected sigs in four tone-channels,
 C  before decimation by NSPD.
-
+ 
       parameter (NSPD=25)
       real y1(npts)
       real y2(npts)
       real y3(npts)
       real y4(npts)
       real zf(NSPD)
+      real tmp1
+      real tmp2
       complex csum
       integer nsum(NSPD)
       real z(65538)                            !Ready for FSK110
@@ -51,7 +53,7 @@ C  Now find the apparent baud rate.
       ia=391.0/df                                !Was 341/df
       ib=491.0/df                                !Was 541/df
       do i=ia,ib
-         z(i)=real(cz(i))**2 + imag(cz(i))**2
+         z(i)=real(cz(i))**2 + aimag(cz(i))**2
          if(z(i).gt.zmax) then
             zmax=z(i)
             baud=df*i
@@ -64,7 +66,9 @@ C  Find phase of signal at 441 Hz.
          pha=j*twopi/NSPD
          csum=csum+zf(j)*cmplx(cos(pha),-sin(pha))
       enddo
-      pha=-atan2(imag(csum),real(csum))
+      tmp1=aimag(csum)
+      tmp2=real(csum)
+      pha=-atan2(tmp1,tmp2)
       jpk=nint(NSPD*pha/twopi)
       if(jpk.lt.1) jpk=jpk+NSPD
 

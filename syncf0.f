@@ -10,7 +10,7 @@ C  Finds sync tone and determines aproximate values for jstart and f0.
       complex z
       equivalence (x,cx)
 
-      ps(z)=real(z)**2 + imag(z)**2          !Power spectrum function
+      ps(z)=real(z)**2 + aimag(z)**2          !Power spectrum function
 
       call zero(s2,6*128)                    !Clear average
       df=11025./512.

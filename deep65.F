@@ -8,7 +8,7 @@
       character*22 decoded,deepmsg
       character*22 testmsg(2*MAXCALLS + 2 + MAXRPT)
       character*15 callgrid(MAXCALLS)
-      character*80 line
+      character*180 line
       character*4 rpt(MAXRPT)
       logical first
       integer ncode(63,2*MAXCALLS)
@@ -42,8 +42,12 @@
             if(ichar(grid(3:3)).eq.0) grid(3:3)=' '
             if(ichar(grid(4:4)).eq.0) grid(4:4)=' '
          else
-            read(23,1002,end=20) line
- 1002       format(a80)
+C            read(23,'A80',END=20) line    !FIXME: Segfault happened here.
+            read(23,1002,end=20) line    !FIXME: Segfault happened here.
+ 1002       format (A80)
+C Probably due to line only being 80 chars long, and the read not
+C limiting the read.
+C 1002       format(A80)
             if(line(1:2).eq.'//') go to 10
             i1=index(line,',')
             if(i1.lt.4) go to 10

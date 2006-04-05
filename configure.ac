@@ -81,7 +81,7 @@ AC_PATH_PROG(LD, ld)
 AC_PATH_PROG(TEST, [test], [test])
 AC_PATH_PROG(PYTHON, python)
 AC_PATH_PROG(F2PY, f2py)
-AC_PATH_PROG(G95, g95)
+AC_PATH_PROG(G95, gfortran)
 
 AC_MSG_CHECKING([g95 lib path])
 G95_LIB_PATH=`${G95} -print-file-name=`
@@ -324,7 +324,7 @@ AC_SUBST(LDFLAGS, "${LDFLAGS}")
 AC_SUBST(CFLAGS)
 
 AC_OUTPUT
-AC_CONFIG_FILES(Makefile)
+dnl AC_CONFIG_FILES(Makefile)
 
 dnl do summary
 

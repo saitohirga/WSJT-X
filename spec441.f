@@ -18,7 +18,7 @@ C  Returns spectral array and frequency of peak value.
 	   call move(dat(j),x,NFFT)
 	   call xfft(x,NFFT)
 	   do i=1,NH
-	      s(i)=s(i)+real(c(i))**2 + imag(c(i))**2
+	      s(i)=s(i)+real(c(i))**2 + aimag(c(i))**2
 	   enddo
 	enddo
 

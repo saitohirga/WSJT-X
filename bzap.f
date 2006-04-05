@@ -32,7 +32,7 @@ C  This is a kludge:
          ib=(fzap(izap)+tol)/df
          smax=0.
          do i=ia+1,ib+1
-            s=real(c(i))**2 + imag(c(i))**2
+            s=real(c(i))**2 + aimag(c(i))**2
             if(s.gt.smax) then
                smax=s
                ipk=i

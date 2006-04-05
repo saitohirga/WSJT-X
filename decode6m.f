@@ -24,7 +24,7 @@ c      real s2(128,646)
       data pua/'0123456789., /#?$ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
       data offset/20.6/
 
-      ps(zz)=real(zz)**2 + imag(zz)**2          !Power spectrum function
+      ps(zz)=real(zz)**2 + aimag(zz)**2          !Power spectrum function
 
 C  Convert data to baseband (complex result) using quadrature LO.
       twopi=8*atan(1.d0)
