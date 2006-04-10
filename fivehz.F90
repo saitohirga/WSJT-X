@@ -30,7 +30,7 @@ subroutine fivehz
 
   if(first) then
      rxdelay=0.2
-     txdelay=0.2
+     txdelay=0.4
      tlatency=1.0
      first=.false.
      iptt=0
@@ -63,7 +63,8 @@ subroutine fivehz
   tx2=trperiod-(tlatency+txdelay)      !Time to turn TX off
   if(mode(1:4).eq.'JT65') then
      if(nwave.lt.126*4096) nwave=126*4096
-     tx2=nwave/11025.0 + tlatency
+     tx2=txdelay + nwave/11025.0
+     if(tx2.gt.(trperiod-2.0)) tx2=trperiod-tlatency-1.0
   endif
 
   if(TxFirst.eq.0) then
@@ -120,15 +121,14 @@ subroutine fivehz
 ! If PTT was just raised, start a countdown for raising TxOK:
   nc1a=txdelay/0.18576
   if(nc1a.lt.2) nc1a=2
-  if(mode(1:4).eq.'JT65') nc1a=2                    !No extra delay for JT65
-  if(iptt.eq.1 .and. iptt0.eq.0) nc1=-nc1a
+  if(iptt.eq.1 .and. iptt0.eq.0) nc1=-nc1a-1
   if(nc1.le.0) nc1=nc1+1
   if(nc1.eq.0) TxOK=1                               ! We are transmitting
 
 ! If TxOK was just lowered, start a countdown for lowering PTT:
   nc0a=(tlatency+txdelay)/0.18576
-  if(nc0a.lt.4) nc0a=4
-  if(TxOK.eq.0 .and. TxOKz.eq.1 .and. iptt.eq.1) nc0=-nc0a
+  if(nc0a.lt.5) nc0a=5
+  if(TxOK.eq.0 .and. TxOKz.eq.1 .and. iptt.eq.1) nc0=-nc0a-1
   if(nc0.le.0) nc0=nc0+1
   if(nc0.eq.0) i3=ptt(nport,0,iptt)
 
@@ -146,18 +146,23 @@ subroutine fivehz
      ibuf00=ibuf0
   endif
 
-!  if(ndebug.ne.0) then
-!     t60=mod(tsec,60.d0)
-!     if(iptt.ne.iptt0) then
-!        if(iptt.eq.1) tstart=tsec
-!        if(iptt.eq.0) write(*,1101) tsec-tstop,t60,t,tx1,tx2
-!1101    format('Delay1:',2f7.2,3f10.1)
+! Diagnostic timing information:
+!  t60=mod(tsec,60.d0)
+!  t120=mod(tsec,120.d0)
+!  if(TxOK.ne.TxOKz) then
+!     if(TxOK.eq.1) write(*,1101) 'D2:',t120,t
+!1101 format(a3,2f8.1,i8)
+!     if(TxOK.eq.0) then
+!        tstop=tsec
+!        write(*,1101) 'D3:',t120,t,nc0a
 !     endif
-!     if(TxOK.ne.TxOKz) then
-!        if(TxOK.eq.0) tstop=tsec
-!        if(TxOK.eq.1) write(*,1102) tsec-tstart,t60,t,tx1,tx2
-!1102    format('Delay2:',2f7.2,3f10.1)
+!  endif
+!  if(iptt.ne.iptt0) then
+!     if(iptt.eq.1) then
+!        tstart=tsec
+!        write(*,1101) 'D1:',t120,t,nc1a
 !     endif
+!     if(iptt.eq.0) write(*,1101) 'D4:',t120,t
 !  endif
 
   iptt0=iptt

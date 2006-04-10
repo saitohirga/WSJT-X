@@ -606,7 +606,7 @@ def ModeCW(event=NONE):
         mode.set("CW")
         Audio.gcom1.trperiod=ncwtrperiod
         iframe4b.pack_forget()
-        text.configure(height=1)
+        text.configure(height=9)
         bclravg.configure(state=DISABLED)
         binclude.configure(state=DISABLED)
         bexclude.configure(state=DISABLED)
