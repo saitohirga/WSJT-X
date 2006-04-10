@@ -43,11 +43,11 @@ C  NB: geodetic latitude used here, but geocentric latitude used when
 C  determining Earth-rotation contribution to Doppler.
 
       call moon2(nyear,month,nDay,UT-dt/3600.d0,dlong1*rad,dlat*rad,
-     +  RA,Dec,topRA,topDec,LST,HA,Az,El,dist)
+     +  RA,Dec,topRA,topDec,LST,HA,Az0,El0,dist)
       call toxyz(RA/rad,Dec/rad,dist,rme0)      !Convert to rectangular coords
 
       call moon2(nyear,month,nDay,UT,dlong1*rad,dlat*rad,
-     +  RA,Dec,topRA,topDec,LST,HA,Az0,El0,dist)
+     +  RA,Dec,topRA,topDec,LST,HA,Az,El,dist)
       call toxyz(RA/rad,Dec/rad,dist,rme)       !Convert to rectangular coords
 
       phi=LST*twopi/24.d0
