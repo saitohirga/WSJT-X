@@ -80,6 +80,8 @@ subroutine wsjtgen
         do i=nwave,NTXMAX
            iwave(i)=0
         enddo
+        sending=txmsg
+        sendingsh=2
         go to 999
      endif
      

@@ -1,4 +1,4 @@
-#------------------------------------------------------------------ WSJT
+#------------------------------------------------------------------- WSJT
 from Tkinter import *
 from tkFileDialog import *
 import Pmw
@@ -1396,8 +1396,9 @@ def update():
 #        t="Transmitting:  "
 #        t="Txing:  "+t[:nmsg]
         bgcolor='yellow'
-        if Audio.gcom2.sendingsh==1:  bgcolor='#66FFFF'    #Shorthand
+        if Audio.gcom2.sendingsh==1:  bgcolor='#66FFFF'    #Shorthand (lt blue)
         if Audio.gcom2.sendingsh==-1: bgcolor='red'        #Plain Text
+        if Audio.gcom2.sendingsh==2: bgcolor='pink'        #Test file
         if txsnrdb<90.0: bgcolor='orange'                  #Simulation mode
         if Audio.gcom2.ntxnow==1: tx1.configure(bg=bgcolor)
         elif Audio.gcom2.ntxnow==2: tx2.configure(bg=bgcolor)
