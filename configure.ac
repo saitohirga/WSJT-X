@@ -81,14 +81,15 @@ AC_PATH_PROG(LD, ld)
 AC_PATH_PROG(TEST, [test], [test])
 AC_PATH_PROG(PYTHON, python)
 AC_PATH_PROG(F2PY, f2py)
-AC_PATH_PROG(G95, gfortran)
-
+AC_PATH_PROG(G95, g95)
 AC_MSG_CHECKING([g95 lib path])
 G95_LIB_PATH=`${G95} -print-file-name=`
 AC_MSG_RESULT(${G95_LIB_PATH})
-AC_DEFINE_UNQUOTED(G95_LIB_PATH, "${G95_LIB_PATH}", [Path to G95 libs.])
-AC_SUBST(G95_LIB_PATH, "${G95_LIB_PATH}")
-
+AC_PATH_PROG(GFORTRAN, gfortran)
+AC_PATH_PROG(GFORTRAN, gfortran41)
+AC_MSG_CHECKING([gfortran lib path])
+GFORTRAN_LIB_PATH=`${GFORTRAN} -print-file-name=`
+AC_MSG_RESULT(${GFORTRAN_LIB_PATH})
 AC_MSG_CHECKING([OS])
 OS=`uname`
 AC_SUBST(OS, "${OS}")
@@ -221,6 +222,16 @@ AC_ARG_ENABLE(portaudio,
 AC_HELP_STRING([--enable-portaudio],[Force PORTAUDIO SOUND usage.]),
 [portaudio=$enableval], [portaudio=no])
 
+dnl jack soundsupport
+dnl =================
+
+AC_ARG_ENABLE(jack,
+AC_HELP_STRING([--enable-jack],[Force JACK usage.]),
+[jack=$enableval] , [jack=no])
+
+dnl serial or parallel support (temporary until python changes)
+dnl ===========================================================
+
 AC_ARG_ENABLE(parallel,
 AC_HELP_STRING([--enable-parallel],[Force PARALLEL port usage for ptt.]),
 [parallel=$enableval], [parallel=no])
@@ -229,8 +240,51 @@ AC_ARG_ENABLE(serial,
 AC_HELP_STRING([--enable-serial],[Force SERIAL port usage for ptt.]),
 [serial=$enableval], [serial=no])
 
+dnl pick gfortran or g95
+dnl ====================
+
+AC_ARG_ENABLE(g95,
+AC_HELP_STRING([--enable-g95],[Use G95 compiler if available.]),
+[g95=$enableval], [g95=no])
+
+AC_ARG_ENABLE(gfortran,
+AC_HELP_STRING([--enable-gfortran],[Use gfortran compiler if available.]),
+[gfortran=$enableval], [gfortran=no])
+
 dnl now set conf.h,, CPPFLAGS and CFLAGS flags as needed
 dnl ====================================================
+
+if test "$g95" = yes; then
+        FC_LIB_PATH=${G95_LIB_PATH}
+	FC=${G95}
+	gfortran=no
+elif test "$gfortran" = yes; then
+        FC_LIB_PATH=${GFORTRAN_LIB_PATH}
+	FC=${GFORTRAN}
+	g95=no
+fi
+
+if test -z $FC ; then
+	if test ! -z $GFORTRAN ; then
+       		FC_LIB_PATH=${GFORTRAN_LIB_PATH}
+	        FC=${GFORTRAN}
+		gfortran=yes
+	elif test ! -z $G95 ; then
+       		FC_LIB_PATH=${G95_LIB_PATH}
+	        FC=${G95}
+		g95=yes
+	fi
+fi
+
+if test -z $FC ; then
+		AC_MSG_ERROR([You need g95 or gfortran])
+fi
+
+
+AC_DEFINE_UNQUOTED(FC_LIB_PATH, "${FC_LIB_PATH}", [Path to fortran libs.])
+AC_SUBST(FC_LIB_PATH, "${FC_LIB_PATH}")
+AC_DEFINE_UNQUOTED(FC, "${FC}", [Fortran compiler.])
+AC_SUBST(FC, "${FC}")
 
 dnl set defaults
 dnl ============
@@ -270,6 +324,12 @@ if test "$portaudio" = yes; then
 	AC_DEFINE(USE_PORTAUDIO, 1, [Define if you want PORTAUDIO used.])
 	AC_SUBST(AUDIO, "a2d.f90 jtaudio.c start_portaudio.c")
 	LDFLAGS="${LDFLAGS} -lportaudio -lsamplerate" 
+fi
+
+if test "$jack" = yes; then
+	AC_DEFINE(USE_JACK, 1, [Define if you want JACK used.])
+	AC_SUBST(AUDIO, "a2d.f90 jtaudio.c start_jack.c")
+	LDFLAGS="${LDFLAGS} -ljack -lsamplerate" 
 fi
 
 dnl set conf flags
@@ -331,6 +391,14 @@ dnl do summary
 echo
 echo
 
+if test $g95 == "yes"; then
+	echo "Using g95 as fortran compiler.";
+fi
+
+if test $gfortran == "yes"; then
+	echo "Using gfortran as fortran compiler.";
+fi
+
 if test $portaudio == "yes"; then
 	echo "Using portaudio.";
 fi
@@ -341,6 +409,10 @@ fi
 
 if test $oss == "yes"; then
 	echo "Using oss.";
+fi
+
+if test $jack == "yes"; then
+	echo "Using jack.";
 fi
 
 if test $serial == "yes"; then
