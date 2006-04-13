@@ -86,6 +86,10 @@ AC_MSG_CHECKING([g95 lib path])
 G95_LIB_PATH=`${G95} -print-file-name=`
 AC_MSG_RESULT(${G95_LIB_PATH})
 AC_PATH_PROG(GFORTRAN, gfortran)
+dnl
+dnl FreeBSD currently installs gfortran as gfortran41, considered experimental
+dnl See http://gcc.gnu.org/fortran/
+dnl
 AC_PATH_PROG(GFORTRAN, gfortran41)
 AC_MSG_CHECKING([gfortran lib path])
 GFORTRAN_LIB_PATH=`${GFORTRAN} -print-file-name=`
@@ -106,6 +110,7 @@ AC_HEADER_TIME
 
 AC_CHECK_HEADER([sys/soundcard.h], [HAS_SOUNDCARD_H=1], [HAS_SOUNDCARD_H=0])
 AC_CHECK_HEADER([alsa/asoundlib.h], [HAS_ASOUNDLIB_H=1], [HAS_ASOUNDLIB_H=0])
+AC_CHECK_HEADER([jack/jack.h], [HAS_JACK_H=1], [HAS_JACK_H=0])
 AC_CHECK_HEADER([portaudio.h], [HAS_PORTAUDIO_H=1], [HAS_PORTAUDIO_H=0])
 AC_CHECK_HEADER([samplerate.h], [HAS_SAMPLERATE_H=1], [HAS_SAMPLERATE_H=0])
 
@@ -333,6 +338,7 @@ if test "$jack" = yes; then
 fi
 
 dnl set conf flags
+dnl ==============
 
 if test $HAS_ASOUNDLIB_H -eq 1; then
 	AC_DEFINE(HAS_ASOUNDLIB_H, 1, )
@@ -340,6 +346,10 @@ fi
 
 if test $HAS_SOUNDCARD_H -eq 1; then
 	AC_DEFINE(HAS_SOUNDCARD_H, 1, )
+fi
+
+if test $HAS_JACK_H -eq 1; then
+	AC_DEFINE(HAS_JACK_H, 1, )
 fi
 
 if test $HAS_PORTAUDIO_H -eq 1; then
@@ -362,6 +372,12 @@ fi
 if test "$oss" = yes; then
 	if test $HAS_SOUNDCARD_H -eq 0; then
 		AC_MSG_ERROR([You need soundcard.h to use --enable-oss])
+	fi
+fi
+
+if test "$jack" = yes; then
+	if test $HAS_JACK_H -eq 0; then
+		AC_MSG_ERROR([You need jack.h to use --enable-jack])
 	fi
 fi
 
