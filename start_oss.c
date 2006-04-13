@@ -229,7 +229,7 @@ oss_loop(int *iarg)
 	      ia=*(data.iwrite);
 	      ib=*(data.ibuf);
 	      data.tbuf[ib-1] = stime;	/* convert to c index to store */
-	      ib++
+	      ib++;
 	      if(ib>FRAMESPERBUFFER)
 		ib=1; 
 	      *(data.ibuf) = ib;
