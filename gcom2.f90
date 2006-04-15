@@ -79,6 +79,7 @@ character*24 decodedfile
 character*80 AppDir      !WSJT installation directory           GUI
 character*80 filetokilla !Filenames (full path)                 Decoder
 character*80 filetokillb
+character*12 pttport
 
 common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),             &
      green(500),ngreen,dgain,iter,ndecoding,ndecoding0,mousebutton,   &
@@ -90,6 +91,6 @@ common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),             &
      idinterval,msmax,lenappdir,ndiskdat,nlines,nflat,ntxreq,ntxnow,  &
      ndepth,nspecial,ndf,ss1(-224:224),ss2(-224:224),                 &
      mycall,hiscall,hisgrid,txmsg,sending,mode,fname0,fnamea,         &
-     fnameb,decodedfile,AppDir,filetokilla,filetokillb,utcdate
+     fnameb,decodedfile,AppDir,filetokilla,filetokillb,utcdate,pttport
 
 !### volatile /gcom2/

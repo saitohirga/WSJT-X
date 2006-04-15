@@ -489,10 +489,19 @@ if g.cmap == "AFMHot":
 
 #---------------------------------------------- Display GUI and start mainloop
 draw_axis()
-Audio.gcom1.ndevin=g.ndevin.get()
-Audio.gcom1.ndevout=g.ndevout.get()
-ndevin=g.ndevin.get()
-ndevout=g.ndevout.get()
+try:
+    ndevin=g.ndevin.get()
+except:
+    ndevin=0
+Audio.gcom1.ndevin=ndevin
+
+try:
+    ndevout=g.ndevout.get()
+except:
+    ndevout=0
+Audio.gcom1.ndevout=ndevout
+						# Only valid for windows
+                                                # for now
 Audio.audio_init(ndevin,ndevout)                #Start the audio stream
 ltime.after(200,update)
 
