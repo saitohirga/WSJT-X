@@ -70,7 +70,7 @@ subroutine audio_init(ndin,ndout)
 !  print*,'Audio INIT called.'
   ierr=start_threads(ndevin,ndevout,y1,y2,nmax,iwrite,iwave,nwave,    &
        11025,NSPB,TRPeriod,TxOK,ndebug,Transmitting,            &
-       Tsec,ngo,nmode,tbuf,ibuf,ndsec)
+       Tsec,ngo,nmode,tbuf,ibuf,ndsec,PttPort,devin_name,devout_name)
 
 #endif
 

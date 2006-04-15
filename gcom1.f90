@@ -40,12 +40,13 @@ integer nx             !x coordinate for waterfall pixmap       GUI
 integer mfsample       !Measured sample rate, input             SoundIn
 integer mfsample2      !Measured sample rate, output            SoundOut
 integer ns0            !Time at last ALL.TXT date entry         Decoder
+character*12 devin_name,devout_name ! GUI
 
 common/gcom1/Tbuf(1024),ntrbuf(1024),Tsec,rxdelay,txdelay,              &
      samfacin,samfacout,txsnrdb,y1(NRXMAX),y2(NRXMAX),                  &
      nmax,iwrite,iread,iwave(NTXMAX),nwave,TxOK,Receiving,Transmitting, &
      TxFirst,TRPeriod,ibuf,ibuf0,ave,rms,ngo,level,mute,newdat,ndsec,   &
-     ndevin,ndevout,nx,mfsample,mfsample2,ns0
+     ndevin,ndevout,nx,mfsample,mfsample2,ns0,devin_name,devout_name
 
 !### volatile /gcom1/
 
