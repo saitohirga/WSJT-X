@@ -24,7 +24,8 @@ subroutine ftn_init
   include 'gcom3.f90'
   include 'gcom4.f90'
 
-  i=ptt(nport,0,iptt)                          !Clear the PTT line
+!  print*,'ftn_init.F90 nport=', nport, 'pttport=', pttport
+  i=ptt(nport,pttport,0,iptt)                          !Clear the PTT line
   addpfx='    '
 
   do i=80,1,-1

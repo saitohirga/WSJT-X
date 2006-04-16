@@ -110,7 +110,7 @@ mygrid=Pmw.EntryField(g1.interior(),labelpos=W,label_text='Grid Locator:',
 idinterval=Pmw.EntryField(g1.interior(),labelpos=W,label_text='ID Interval (m):',
         value=10,entry_textvariable=IDinterval,entry_width=12)
 comport=Pmw.EntryField(g1.interior(),labelpos=W,label_text='PTT Port:',
-        value='1',entry_textvariable=PttPort,entry_width=12)
+        value='/dev/cuad0',entry_textvariable=PttPort,entry_width=12)
 audioin=Pmw.EntryField(g1.interior(),labelpos=W,label_text='Audio In:',
         value='0',entry_textvariable=DevinName,entry_width=12)
 audioout=Pmw.EntryField(g1.interior(),labelpos=W,label_text='Audio Out:',
