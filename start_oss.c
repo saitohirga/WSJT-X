@@ -218,7 +218,7 @@ oss_loop(int *iarg)
 	    nread = read (data.fd_in, rcv_buf, AUDIOBUFSIZE);
 	    if (nread <= 0) {
 	      fprintf(stderr, "Read error %d\n", nread);
-	      return (-1);
+	      return;
 	    }
 	    if (nread == AUDIOBUFSIZE) {
 	      /* Get System time */
@@ -285,7 +285,7 @@ oss_loop(int *iarg)
 
 	if (write(data.fd_out, tx_buf, AUDIOBUFSIZE) < 0) {
 	  fprintf(stderr, "Can't write to soundcard.\n");
-	  return (-1);
+	  return;
 	}
 	fivehztx_();                             /* Call fortran routine */
       }
