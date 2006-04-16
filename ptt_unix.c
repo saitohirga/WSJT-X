@@ -43,80 +43,6 @@
 # include <fcntl.h>
 #endif
 
-#ifdef HAVE_SYS_STAT_H
-# include <sys/stat.h>
-#endif
-#if (defined(__unix__) || defined(unix)) && !defined(USG)
-# include <sys/param.h>
-#endif
-
-int fd;			/* Used for both serial and parallel */
-
-#ifdef USE_SERIAL
-
-/* First cut, note that this only distinguishes Linux from BSDs,
- * it will be done better later on using configure. N.B. that OSX
- * will come up as BSD but I think this is also the right serial port
- * for OSX. -db
- */
-#if defined(BSD)
-#define TTYNAME "/dev/cuad%d"	/* Use non blocking form */
-#else
-#include <sys/io.h>
-#define TTYNAME	"/dev/ttyUSB%d"
-#endif
-
-/* Not quite right for size but '%d + 1' should be plenty enough -db */
-/* As TTYNAME is a string, just at 20 chars do udevd is happier. */
-/* E.g. USB serial ports appear as /dev/ttyUSB0 */
-#define TTYNAME_SIZE	sizeof(TTYNAME)+20
-
-int
-ptt_(int *nport, int *ntx, int *iptt)
-{
-  /* Fixme, nport should be a sting and not a number */
-  static int nopen=0;
-  int control = TIOCM_RTS | TIOCM_DTR;
-
-  char s[TTYNAME_SIZE];	
-
-  if(*nport < 0) {
-    *iptt=*ntx;
-    return(0);
-  }
-
-  if(*ntx && (!nopen)) {
-    snprintf(s, TTYNAME_SIZE, TTYNAME, (*nport) - 1);	/* Comport 1 == dev 0 */
-    s[TTYNAME_SIZE] = '\0';
-
-    /* open the device */
-    printf("Opening %s\n", s);
-    if ((fd = open(s, O_RDWR | O_NDELAY)) < 0) {
-      fprintf(stderr, "Can't open %s.\n", s);
-      return(1);
-    }
-
-    nopen=1;
-    return(0);
-  }
-
-  if(*ntx && nopen) {
-    ioctl(fd, TIOCMBIS, &control);               // Set DTR and RTS
-    *iptt=1;
-  }
-
-  else {
-    ioctl(fd, TIOCMBIC, &control);
-    close(fd);
-    *iptt=0;
-    nopen=0;
-  }
-  return(0);
-}
-#endif
-
-#ifdef USE_PARALLEL
-
 #ifdef HAVE_LINUX_PPDEV_H
 # include <linux/ppdev.h>
 # include <linux/parport.h>
@@ -124,6 +50,10 @@ ptt_(int *nport, int *ntx, int *iptt)
 #ifdef HAVE_DEV_PPBUS_PPI_H
 # include <dev/ppbus/ppi.h>
 # include <dev/ppbus/ppbconf.h>
+
+int lp_reset (int fd);
+int lp_ptt (int fd, int onoff);
+
 #endif
 #ifdef HAVE_SYS_STAT_H
 # include <sys/stat.h>
@@ -131,6 +61,108 @@ ptt_(int *nport, int *ntx, int *iptt)
 #if (defined(__unix__) || defined(unix)) && !defined(USG)
 # include <sys/param.h>
 #endif
+
+#ifndef BSD		/* #ifdef LINUX ? */
+#include <sys/io.h>
+#endif
+#include <string.h>
+/* parport functions */
+
+int dev_is_parport(const char *fname);
+int ptt_parallel(int fd, int *ntx, int *iptt);
+int ptt_serial(int fd, int *ntx, int *iptt);
+
+int fd=-1;		/* Used for both serial and parallel */
+
+
+char nm[MAXPATHLEN];
+
+/*
+ * ptt_
+ *
+ * generic unix PTT routine called from Fortran
+ *
+ * unused	- Unused, to satisfy old windows calling convention
+ * ptt_port	- device name serial or parallel
+ * ntx		- pointer to fortran command on or off
+ * iptt		- pointer to fortran command status on or off
+ */
+
+/* Tiny state machine */
+#define STATE_PORT_CLOSED		0
+#define STATE_PORT_OPEN_PARALLEL	1
+#define STATE_PORT_OPEN_SERIAL		2
+
+int
+ptt_(int unused, char *ptt_port, int *ntx, int *iptt)
+{
+  static int state=0;
+  char *p;
+
+  switch (state) {
+  case STATE_PORT_CLOSED:
+    if ((p = strchr(ptt_port, ' ')) != NULL)
+      *p = '\0';
+    if (p == NULL || *p == '\0') {
+      *iptt = *ntx;
+      return(0);
+    }
+
+    if ((fd = dev_is_parport(ptt_port)) > 0) {
+      state = STATE_PORT_OPEN_PARALLEL;
+      lp_reset(fd);
+    } else {
+      if ((fd = open(nm, O_RDWR | O_NDELAY)) < 0) {
+	fprintf(stderr, "Can't open %s.\n", nm);
+	return(1);
+      }
+      else
+	state = STATE_PORT_OPEN_SERIAL;
+    }
+    break;
+
+  case STATE_PORT_OPEN_PARALLEL:
+    ptt_parallel(fd, ntx, iptt);
+    break;
+
+  case STATE_PORT_OPEN_SERIAL:
+    ptt_serial(fd, ntx, iptt);
+    break;
+
+  default:
+    close(fd);
+    fd = -1;
+    state = STATE_PORT_CLOSED;
+    break;
+  }
+  return(0);
+}
+
+/*
+ * ptt_serial
+ *
+ * generic serial unix PTT routine called indirectly from Fortran
+ *
+ * fd		- already opened file descriptor
+ * ntx		- pointer to fortran command on or off
+ * iptt		- pointer to fortran command status on or off
+ */
+
+int
+ptt_serial(int fd, int *ntx, int *iptt)
+{
+  int control = TIOCM_RTS | TIOCM_DTR;
+
+  if(*ntx) {
+    ioctl(fd, TIOCMBIS, &control);               /* Set DTR and RTS */
+    *iptt = 1;
+  } else {
+    ioctl(fd, TIOCMBIC, &control);
+    *iptt = 0;
+  }
+  return(0);
+}
+
 
 /* parport functions */
 
@@ -149,13 +181,11 @@ int lp_ptt (int fd, int onoff);
 int
 dev_is_parport(const char *fname)
 {
-       char nm[MAXPATHLEN];
        struct stat st;
-       int fd, m;
+       int fd;
 
-       m = snprintf(nm, sizeof(nm), "/dev/%s", fname);
-       if (m >= sizeof(nm))
-               return (-1);
+       snprintf(nm, sizeof(nm), "/dev/%s", fname);
+
        if ((fd = open(nm, O_RDWR | O_NONBLOCK)) == -1)
                return (-1);
        if (fstat(fd, &st) == -1)
@@ -175,14 +205,16 @@ out:
 int
 dev_is_parport(const char *fname)
 {
-       char nm[MAXPATHLEN];
        struct stat st;
        unsigned char c;
-       int fd, m;
+       int fd;
+       char *p;
 
-       m = snprintf(nm, sizeof(nm), "/dev/%s", fname);
-       if (m >= sizeof(nm))
-               return (-1);
+       if ((p = strchr(fname, '/')) != NULL)	/* Look for /dev */
+	 snprintf(nm, sizeof(nm), "%s", fname);
+       else
+	 snprintf(nm, sizeof(nm), "/dev/%s", fname);
+
        if ((fd = open(nm, O_RDWR | O_NONBLOCK)) == -1)
                return (-1);
        if (fstat(fd, &st) == -1)
@@ -275,7 +307,6 @@ lp_init (int fd)
 	{
 		fprintf(stderr, "Claiming parallel port %s", dev->desc);
 		debug ("HINT: did you unload the lp kernel module?");
-		debug ("HINT: perhaps there is another cwdaemon running?");
 		close (fd);
 		exit (1);
 	}
@@ -341,47 +372,26 @@ lp_ptt (int fd, int onoff)
 	return 0;
 }
 
-/* XXX I am totally unsure of this, LPNAME should come from
- * the WSJT.INI instead but for now this should work -- db
+/*
+ * ptt_parallel
+ *
+ * generic parallel unix PTT routine called indirectly from Fortran
+ *
+ * fd		- already opened file descriptor
+ * ntx		- pointer to fortran command on or off
+ * iptt		- pointer to fortran command status on or off
  */
-#ifdef BSD
-#define LPNAME "lpt%d"
-#else
-#define LPNAME "lp%d"
-#endif
-#define LPNAME_SIZE (sizeof(LPNAME))
 
 int
-ptt_(int *nport, int *ntx, int *iptt)
+ptt_parallel(int fd, int *ntx, int *iptt)
 {
-  static int nopen=0;
-  int fd;
-  char s[LPNAME_SIZE];	
-
-  if(*nport < 0) {
-    *iptt=*ntx;
-    return(0);
-  }
-
-  if(*ntx && (!nopen)) {
-    snprintf(s, LPNAME_SIZE, LPNAME, (*nport) - 1);	/* Comport 1 == dev 0 */
-    s[LPNAME_SIZE] = '\0';
-
-    if ((fd = dev_is_parport(s)) < 0) {
-      fprintf(stderr, "Can't use %s.", s);
-      return(1);
-    }
-
-    if(*ntx && nopen) {
-      lp_ptt(fd, 1);
-      *iptt=1;
-    }  else {
-      lp_ptt(fd, 0);
-      close(fd);
-      *iptt=0;
-      nopen=0;
-    }
+  if(*ntx) {
+    lp_ptt(fd, 1);
+    *iptt=1;
+  }  else {
+    lp_ptt(fd, 0);
+    *iptt=0;
   }
   return(0);
 }
-#endif
+

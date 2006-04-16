@@ -104,11 +104,11 @@ subroutine fivehz
 ! Switch PTT line and TxOK appropriately
   if(lauto.eq.1) then
      if(txtime .and. iptt.eq.0 .and.          &
-          mute.eq.0) i1=ptt(nport,1,iptt)                !Raise PTT
+          mute.eq.0) i1=ptt(nport,pttport,1,iptt)                !Raise PTT
      if(.not.txtime .or. mute.eq.1) TxOK=0               !Lower TxOK
   else
      if(mantx.eq.1 .and. iptt.eq.0 .and.      &
-          mute.eq.0) i2=ptt(nport,1,iptt)                !Raise PTT
+          mute.eq.0) i2=ptt(nport,pttport,1,iptt)                !Raise PTT
      if(mantx.eq.0 .or. mute.eq.1) TxOK=0                !Lower TxOK
   endif
 
@@ -130,7 +130,7 @@ subroutine fivehz
   if(nc0a.lt.5) nc0a=5
   if(TxOK.eq.0 .and. TxOKz.eq.1 .and. iptt.eq.1) nc0=-nc0a-1
   if(nc0.le.0) nc0=nc0+1
-  if(nc0.eq.0) i3=ptt(nport,0,iptt)
+  if(nc0.eq.0) i3=ptt(nport,pttport,0,iptt)
 
   if(iptt.eq.0 .and.TxOK.eq.0) then
      sending="                      "

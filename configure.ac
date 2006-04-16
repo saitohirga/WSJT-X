@@ -234,17 +234,6 @@ AC_ARG_ENABLE(jack,
 AC_HELP_STRING([--enable-jack],[Force JACK usage.]),
 [jack=$enableval] , [jack=no])
 
-dnl serial or parallel support (temporary until python changes)
-dnl ===========================================================
-
-AC_ARG_ENABLE(parallel,
-AC_HELP_STRING([--enable-parallel],[Force PARALLEL port usage for ptt.]),
-[parallel=$enableval], [parallel=no])
-
-AC_ARG_ENABLE(serial,
-AC_HELP_STRING([--enable-serial],[Force SERIAL port usage for ptt.]),
-[serial=$enableval], [serial=no])
-
 dnl pick gfortran or g95
 dnl ====================
 
@@ -293,18 +282,6 @@ AC_SUBST(FC, "${FC}")
 
 dnl set defaults
 dnl ============
-
-if test "$serial" != yes -a "$parallel" != yes; then
-	[serial=yes];
-fi
-
-if test "$serial" = yes; then
-	AC_DEFINE(USE_SERIAL, 1, [Define if you want Serial port used.])
-fi
-
-if test "$parallel" = yes; then
-	AC_DEFINE(USE_PARALLEL, 1, [Define if you want Serial port used.])
-fi
 
 if test "$alsa" != yes -a "$oss" != yes -a "$portaudio" != yes; then
         if test $HAS_PORTAUDIO_H -eq 1; then
@@ -429,14 +406,6 @@ fi
 
 if test $jack == "yes"; then
 	echo "Using jack.";
-fi
-
-if test $serial == "yes"; then
-	echo "Using serial port for ptt.";
-fi
-
-if test $parallel == "yes"; then
-	echo "Using parallel port for ptt.";
 fi
 
 echo
