@@ -25,11 +25,8 @@ MyGrid=StringVar()
 #TxDelay=StringVar()
 IDinterval=IntVar()
 ComPort=IntVar()
-PttPort=StringVar()
 ndevin=IntVar()
 ndevout=IntVar()
-DevinName=StringVar()
-DevoutName=StringVar()
 samfacin=DoubleVar()
 samfacout=DoubleVar()
 Template1=StringVar()
@@ -109,12 +106,12 @@ mygrid=Pmw.EntryField(g1.interior(),labelpos=W,label_text='Grid Locator:',
 ##        value='0.2',entry_textvariable=TxDelay)
 idinterval=Pmw.EntryField(g1.interior(),labelpos=W,label_text='ID Interval (m):',
         value=10,entry_textvariable=IDinterval,entry_width=12)
-comport=Pmw.EntryField(g1.interior(),labelpos=W,label_text='PTT Port:',
-        value='1',entry_textvariable=PttPort,entry_width=12)
+comport=Pmw.EntryField(g1.interior(),labelpos=W,label_text='COM Port:',
+        value=1,entry_textvariable=ComPort,entry_width=12)
 audioin=Pmw.EntryField(g1.interior(),labelpos=W,label_text='Audio In:',
-        value='0',entry_textvariable=DevinName,entry_width=12)
+        value=0,entry_textvariable=ndevin,entry_width=12)
 audioout=Pmw.EntryField(g1.interior(),labelpos=W,label_text='Audio Out:',
-        value='0',entry_textvariable=DevoutName,entry_width=12)
+        value=0,entry_textvariable=ndevout,entry_width=12)
 ratein=Pmw.EntryField(g1.interior(),labelpos=W,label_text='Rate In:',
         value=1.0000,entry_textvariable=samfacin,entry_width=12)
 rateout=Pmw.EntryField(g1.interior(),labelpos=W,label_text='Rate Out:',
