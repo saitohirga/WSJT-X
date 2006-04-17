@@ -306,11 +306,14 @@ if test "$parallel" = yes; then
 	AC_DEFINE(USE_PARALLEL, 1, [Define if you want Serial port used.])
 fi
 
-if test "$alsa" != yes -a "$oss" != yes -a "$portaudio" != yes; then
+if test "$alsa" != yes -a "$oss" != yes -a \
+	"$portaudio" != yes -a "$jack" != yes; then
         if test $HAS_PORTAUDIO_H -eq 1; then
 		[portaudio=yes];
 	elif test $HAS_ASOUNDLIB_H -eq 1; then
 		[alsa=yes];
+	elif test $HAS_SOUNDCARD_H -eq 1; then
+		[oss=yes];
 	fi
 fi
 
@@ -333,8 +336,8 @@ fi
 
 if test "$jack" = yes; then
 	AC_DEFINE(USE_JACK, 1, [Define if you want JACK used.])
-	AC_SUBST(AUDIO, "a2d.f90 jtaudio.c start_jack.c")
-	LDFLAGS="${LDFLAGS} -ljack -lsamplerate" 
+	AC_SUBST(AUDIO, "start_jack.c")
+	LDFLAGS="${LDFLAGS} -ljack"
 fi
 
 dnl set conf flags
