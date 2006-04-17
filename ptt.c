@@ -1,7 +1,7 @@
 #include <windows.h>
 #include <stdio.h>
 
-int ptt_(int *nport, char *unused, int *ntx, int *iptt)
+int ptt_(int *nport, int *ntx, int *iptt)
 {
   static HANDLE hFile;
   static int open=0;
