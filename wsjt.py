@@ -1517,10 +1517,6 @@ def update():
         Audio.gcom2.nport=options.ComPort.get()
     except:
         Audio.gcom2.nport=0
-
-#    print 'About to init Audio.gcom2.PttPort in save some parameters'
-    Audio.gcom2.pttport=(options.PttPort.get() + '            ')[:12]
-#    print Audio.gcom2.pttport
     
 # Queue up the next update
     ldate.after(100,update)
@@ -2026,8 +2022,8 @@ try:
                 options.ComPort.set(0)
                 Audio.gcom2.nport=0
 
-                Audio.gcom2.pttport=(options.PttPort.get()+'            ')[:12]
-    
+            Audio.gcom2.PttPort=options.ComPort.get()
+             
         elif key == 'Mileskm': options.mileskm.set(value)
         elif key == 'MsgStyle': options.ireport.set(value)
         elif key == 'Region': options.iregion.set(value)
