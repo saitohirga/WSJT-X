@@ -72,14 +72,14 @@ process (jack_nframes_t nframes, void *arg)
   int i;
 
   if (ts == JackTransportRolling) {
-
     if (client_state == Init)
       client_state = Run;
-    printf("ZZZ nframes = %d\n", nframes);
     in = jack_port_get_buffer (input_port, nframes);
     /* First hack */
-    memcpy (rcv_buf, in, AUDIOBUFSIZE);
-    jack_read();
+    if (nframes != 0) {
+      memcpy (rcv_buf, in, nframes);
+      jack_read();
+    }
 
 #if 0
     out = jack_port_get_buffer (output_port, nframes);
@@ -280,20 +280,16 @@ start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   iret2 = pthread_create(&thread2, NULL,
 			 (void *(*)(void *))decode1_,&iarg2);
 /* keep running until the transport stops */
-
-  while (client_state != Exit) {
-    sleep (1);
-  }
-
+#if 0
   jack_client_close (client);
-
+#endif
   return(0);
 }
 
 /*
- * oss_loop
+ * jack_read
  *
- * inputs	- int pointer NOT USED
+ * inputs	- none
  * output	- none
  * side effects	-
  */
