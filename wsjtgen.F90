@@ -18,15 +18,15 @@ subroutine wsjtgen
   integer   itone(84)
   character msg*28,msgsent*22,idmsg*22
   real*8 freq,pha,dpha,twopi,dt
-  character testfile*27
+  character testfile*27,tfile2*80
   logical lcwid
-  integer*2 icwid(110250)
+  integer*2 icwid(110250),jwave(NWMAX)
 
   integer*1 hdr(44)
   integer*2 nfmt2,nchan2,nbitsam2,nbytesam2
   character*4 ariff,awave,afmt,adata
   common/hdr/ariff,lenfile,awave,afmt,lenfmt,nfmt2,nchan2, &
-     nsamrate,nbytesec,nbytesam2,nbitsam2,adata,ndata
+     nsamrate,nbytesec,nbytesam2,nbitsam2,adata,ndata,jwave
   equivalence (ariff,hdr)
 
   data twopi/6.28318530718d0/
@@ -64,10 +64,6 @@ subroutine wsjtgen
         testfile=msg(2:)
 #ifdef Win32
         open(18,file=testfile,form='binary',status='old',err=12)
-#else
-        open(18,file=testfile,form='unformatted',status='old',err=12)
-#endif
-
         go to 14
 12      print*,'Cannot open test file ',msg(2:)
         go to 999
@@ -76,15 +72,27 @@ subroutine wsjtgen
         call rfile(18,iwave,ndata,ierr)
         close(18)
         if(ierr.ne.0) print*,'Error reading test file ',msg(2:)
+
+#else
+        tfile2=testfile
+	call rfile2(tfile2,hdr,44+2*661500,nr)
+	if(nr.le.0) then
+           print*,'Error reading ',testfile
+	   stop
+        endif
+	do i=1,ndata/2
+	   iwave(i)=jwave(i)
+        enddo
+#endif
         nwave=ndata/2
+	print*,nwave
         do i=nwave,NTXMAX
            iwave(i)=0
         enddo
-        sending=txmsg
-        sendingsh=2
+	sending=txmsg
+	sendingsh=2
         go to 999
      endif
-     
 
 ! Transmit a fixed tone at specified frequency
      freq=1000.0
