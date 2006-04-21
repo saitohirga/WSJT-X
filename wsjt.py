@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------- WSJT
+#------------------------------------------------------------------- WSJT
 from Tkinter import *
 from tkFileDialog import *
 import Pmw
@@ -1392,9 +1392,7 @@ def update():
         nmsg=int(Audio.gcom2.nmsg)
         t=g.ftnstr(Audio.gcom2.sending)
         if t[:3]=="CQ ": nsked.set(0)
-        t="Transmitting:  "+t[:nmsg]
-#        t="Transmitting:  "
-#        t="Txing:  "+t[:nmsg]
+        t="Txing:  "+t[:nmsg]
         bgcolor='yellow'
         if Audio.gcom2.sendingsh==1:  bgcolor='#66FFFF'    #Shorthand (lt blue)
         if Audio.gcom2.sendingsh==-1: bgcolor='red'        #Plain Text

@@ -15,7 +15,11 @@
      +    (message(20:22).eq.' OO')) then
          cok='OOO'
          flip=-1.0
-         message=message(1:i-4)
+         if(message(20:22).eq.' OO') then
+            message=message(1:19)
+         else
+            message=message(1:i-4)
+         endif
       endif
 
 !      if(message(1:3).eq.'ATT') nspecial=1
