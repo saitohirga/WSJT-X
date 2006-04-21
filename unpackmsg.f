@@ -73,6 +73,7 @@
          msg(j:j)=c2(i:i)
          if(c2(i:i).eq.' ') go to 20
       enddo
+      j=j+1
       msg(j:j)=' '
 
  20   if(k.eq.0) then
