@@ -2,7 +2,7 @@
 
       character callsign*12
       include 'pfx.f'
-      character addpfx*4
+      character addpfx*8
       common/gcom4/addpfx
 
       k=k0
@@ -15,7 +15,7 @@
          callsign=callsign(1:iz)//'/'//sfx(k-400)
       else if(k.eq.449) then
          iz=index(addpfx,' ') - 1
-         if(iz.lt.1) iz=4
+         if(iz.lt.1) iz=8
          callsign=addpfx(1:iz)//'/'//callsign
       endif
 

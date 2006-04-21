@@ -791,7 +791,7 @@ def prefixes(event=NONE):
             n=0
     t1=t1+"\n"
     if options.addpfx.get().lstrip():
-        t1=t1+"\nOptional prefix:  "+(options.addpfx.get().lstrip()+'    ')[:4]
+        t1=t1+"\nOptional prefix:  "+(options.addpfx.get().lstrip()+'    ')[:8]
     t2=t2+"\n"+t1
     Label(pfx,text=t2,justify=LEFT).pack(padx=20)
     pfx.focus_set()
@@ -1482,7 +1482,7 @@ def update():
     Audio.gcom2.mycall=(options.MyCall.get()+'            ')[:12]
     Audio.gcom2.hiscall=(ToRadio.get()+'            ')[:12]
     Audio.gcom2.hisgrid=(HisGrid.get()+'      ')[:6]
-    Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'    ')[:4]
+    Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'    ')[:8]
     Audio.gcom2.ntxreq=ntx.get()
     tx=(tx1,tx2,tx3,tx4,tx5,tx6)
     Audio.gcom2.txmsg=(tx[ntx.get()-1].get()+'                            ')[:28]
@@ -2086,7 +2086,7 @@ Audio.gcom2.appdir=(appdir+'                                                    
 Audio.gcom2.ndepth=ndepth.get()
 Audio.ftn_init()
 GenStdMsgs()
-Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'    ')[:4]
+Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'    ')[:8]
 stopmon()
 first=1
 if g.Win32: root.iconbitmap("wsjt.ico")
