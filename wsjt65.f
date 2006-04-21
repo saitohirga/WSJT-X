@@ -165,8 +165,8 @@ C  result from the Reed-Solomon decoder.
          if(c1.ge.'a' .and. c1.le.'z') decoded(i:i)=char(ichar(c1)-32)
       enddo
       write(line,1010) cfile6,nsync,nsnr,dtx-1.0,ndf,
-     +    nint(width),csync,special,decoded(1:18),cooo,kvqual,nqual,itry
- 1010 format(a6,i3,i5,f5.1,i5,i3,1x,a1,1x,a5,a18,1x,a3,i5,i3,i2)
+     +    nint(width),csync,special,decoded(1:19),cooo,kvqual,nqual,itry
+ 1010 format(a6,i3,i5,f5.1,i5,i3,1x,a1,1x,a5,a19,1x,a3,i4,i3,i2)
 
 C  Blank DT if shorthand message  (### wrong logic? ###)
       if(special.ne.'     ') then
@@ -195,13 +195,13 @@ C  Write decoded msg unless this is an "Exclude" request:
 C  Write the average line
       if(ns1.ge.1 .and. ns1.ne.ns10) then
          if(ns1.lt.10) write(ave1,1021) cfile6,1,nused1,ns1,avemsg1
- 1021    format(a6,i3,i4,'/',i1,20x,a18)
+ 1021    format(a6,i3,i4,'/',i1,20x,a19)
          if(ns1.ge.10 .and. nsave.le.99) write(ave1,1022) cfile6,
      +     1,nused1,ns1,avemsg1
- 1022    format(a6,i3,i4,'/',i2,19x,a18)
+ 1022    format(a6,i3,i4,'/',i2,19x,a19)
          if(ns1.ge.100) write(ave1,1023) cfile6,1,nused1,ns1,
      +     avemsg1
- 1023    format(a6,i3,i4,'/',i3,18x,a18)
+ 1023    format(a6,i3,i4,'/',i3,18x,a19)
          if(lcum .and. (avemsg1.ne.'                  ')) 
      +      write(21,1011) ave1(1:57)//'         '
          ns10=ns1
