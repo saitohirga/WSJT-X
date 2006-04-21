@@ -62,8 +62,10 @@
 
  5       icall=icall+1
          j1=index(mycall,' ') - 1
+         if(j1.le.-1) j1=12
          if(j1.lt.3) j1=6
          j2=index(callsign,' ') - 1
+         if(j2.le.-1) j2=12
          if(j2.lt.3) j2=6
          j3=index(mycall,'/')
          j4=index(callsign,'/')
