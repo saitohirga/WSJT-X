@@ -2084,7 +2084,7 @@ Audio.gcom2.appdir=(appdir+'                                                    
 Audio.gcom2.ndepth=ndepth.get()
 Audio.ftn_init()
 GenStdMsgs()
-Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'    ')[:8]
+Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'        ')[:8]
 stopmon()
 first=1
 if g.Win32: root.iconbitmap("wsjt.ico")
