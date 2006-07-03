@@ -1480,7 +1480,7 @@ def update():
     Audio.gcom2.mycall=(options.MyCall.get()+'            ')[:12]
     Audio.gcom2.hiscall=(ToRadio.get()+'            ')[:12]
     Audio.gcom2.hisgrid=(HisGrid.get()+'      ')[:6]
-    Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'    ')[:8]
+    Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'        ')[:8]
     Audio.gcom2.ntxreq=ntx.get()
     tx=(tx1,tx2,tx3,tx4,tx5,tx6)
     Audio.gcom2.txmsg=(tx[ntx.get()-1].get()+'                            ')[:28]
