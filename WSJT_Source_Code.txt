@@ -268,7 +268,7 @@ can now be compiled in Windows as follows:
 
 In Linux or FreeBSD, do the following:
 
-  $ ./configure --enable-portaudio (or --enable-alsa)
+  $ ./configure --enable-portaudio (or --enable-alsa or --enable-oss)
   $ make
 
 
