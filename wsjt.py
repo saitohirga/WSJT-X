@@ -98,6 +98,8 @@ g.freeze_decode=0
 g.mode=""
 g.ndevin=IntVar()
 g.ndevout=IntVar()
+g.DevinName=StringVar()
+g.DevoutName=StringVar()
 g.focus=0
 #------------------------------------------------------ showspecjt
 def showspecjt(event=NONE):
@@ -2015,18 +2017,32 @@ try:
 #        elif key == 'TxDelay': options.TxDelay.set(value)
         elif key == 'IDinterval': options.IDinterval.set(value)
         elif key == 'ComPort':
-            options.ComPort.set(value)
-            Audio.gcom2.nport=int(options.ComPort.get())
-            Audio.gcom2.pttport=(options.PttPort.get()+'            ')[:12]
-	elif key == 'Mileskm': options.mileskm.set(value)
+            try:
+                options.ComPort.set(value)
+                Audio.gcom2.nport=options.ComPort.get()
+            except:
+                options.ComPort.set(0)
+                Audio.gcom2.nport=0
+                Audio.gcom2.pttport=(options.PttPort.get()+'            ')[:12]
+        elif key == 'Mileskm': options.mileskm.set(value)
         elif key == 'MsgStyle': options.ireport.set(value)
         elif key == 'Region': options.iregion.set(value)
         elif key == 'AudioIn':
-            g.ndevin.set(value)
-            options.ndevin.set(value)
+            try:
+                g.ndevin.set(value)
+            except:
+                g.ndevin.set(0)
+            g.DevinName.set(value)
+            options.DevinName.set(value)
+            Audio.gcom1.devin_name=(options.DevinName.get()+'            ')[:12]
         elif key == 'AudioOut':
-            g.ndevout.set(value)
-            options.ndevout.set(value)
+            try:
+                g.ndevout.set(value)
+            except:
+                g.ndevout.set(0)
+            g.DevoutName.set(value)
+            options.DevoutName.set(value)
+            Audio.gcom1.devout_name=(options.DevoutName.get()+'            ')[:12]
         elif key == 'SamFacIn': options.samfacin.set(value)
         elif key == 'SamFacOut': options.samfacout.set(value)
         elif key == 'Template1': options.Template1.set(value.replace("_"," "))
@@ -2120,8 +2136,8 @@ f.write("ComPort " + str(options.PttPort.get()) + "\n")
 f.write("Mileskm " + str(options.mileskm.get()) + "\n")
 f.write("MsgStyle " + str(options.ireport.get()) + "\n")
 f.write("Region " + str(options.iregion.get()) + "\n")
-f.write("AudioIn " + str(options.DevinName.get()) + "\n")
-f.write("AudioOut " + str(options.DevoutName.get()) + "\n")
+f.write("AudioIn " + options.DevinName.get() + "\n")
+f.write("AudioOut " + options.DevoutName.get() + "\n")
 f.write("SamFacIn " + str(options.samfacin.get()) + "\n")
 f.write("SamFacOut " + str(options.samfacout.get()) + "\n")
 if options.Template6.get()=="": options.Template6.set("_")
