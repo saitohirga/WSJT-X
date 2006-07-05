@@ -1513,6 +1513,10 @@ def update():
         Audio.gcom2.nport=int(options.ComPort.get())
     except:
         Audio.gcom2.nport=0
+
+#    print 'About to init Audio.gcom2.PttPort in save some parameters'
+    Audio.gcom2.pttport=(options.PttPort.get() + '            ')[:12]
+#    print Audio.gcom2.pttport
     
 # Queue up the next update
     ldate.after(100,update)
@@ -2013,7 +2017,8 @@ try:
         elif key == 'ComPort':
             options.ComPort.set(value)
             Audio.gcom2.nport=int(options.ComPort.get())
-        elif key == 'Mileskm': options.mileskm.set(value)
+            Audio.gcom2.pttport=(options.PttPort.get()+'            ')[:12]
+	elif key == 'Mileskm': options.mileskm.set(value)
         elif key == 'MsgStyle': options.ireport.set(value)
         elif key == 'Region': options.iregion.set(value)
         elif key == 'AudioIn':
@@ -2111,12 +2116,12 @@ f.write("HisGrid " + t + "\n")
 #f.write("RxDelay " + str(options.RxDelay.get()) + "\n")
 #f.write("TxDelay " + str(options.TxDelay.get()) + "\n")
 f.write("IDinterval " + str(options.IDinterval.get()) + "\n")
-f.write("ComPort " + str(options.ComPort.get()) + "\n")
+f.write("ComPort " + str(options.PttPort.get()) + "\n")
 f.write("Mileskm " + str(options.mileskm.get()) + "\n")
 f.write("MsgStyle " + str(options.ireport.get()) + "\n")
 f.write("Region " + str(options.iregion.get()) + "\n")
-f.write("AudioIn " + str(options.ndevin.get()) + "\n")
-f.write("AudioOut " + str(options.ndevout.get()) + "\n")
+f.write("AudioIn " + str(options.DevinName.get()) + "\n")
+f.write("AudioOut " + str(options.DevoutName.get()) + "\n")
 f.write("SamFacIn " + str(options.samfacin.get()) + "\n")
 f.write("SamFacOut " + str(options.samfacout.get()) + "\n")
 if options.Template6.get()=="": options.Template6.set("_")
