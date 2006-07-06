@@ -108,7 +108,7 @@ subroutine fivehz
      if(.not.txtime .or. mute.eq.1) TxOK=0               !Lower TxOK
   else
      if(mantx.eq.1 .and. iptt.eq.0 .and.      &
-          mute.eq.0) i2=ptt(nport,1,pttport,iptt)        !Raise PTT
+          mute.eq.0) i2=ptt(nport,pttport,1,iptt)        !Raise PTT
      if(mantx.eq.0 .or. mute.eq.1) TxOK=0                !Lower TxOK
   endif
 
