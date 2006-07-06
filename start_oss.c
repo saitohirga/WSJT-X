@@ -258,7 +258,8 @@ oss_loop(int *iarg)
 	*(data.Tsec) = stime;
 
 	if(*(data.TxOK) && (!TxOKz))  {
-	  n=nsec/(*(data.trperiod));
+	  nsec = (int)stime;
+	  n = nsec/(*(data.trperiod));
 	  ic = (int)(stime - *(data.trperiod)*n) * data.nfs;
 	  ic = ic % *(data.nwave);
 	}
@@ -266,7 +267,7 @@ oss_loop(int *iarg)
 	TxOKz = *(data.TxOK);
 	*(data.Transmitting) = *(data.TxOK);
 	wptr = (int16_t *)tx_buf;		/* XXX */
-	if(*(data.TxOK))  {
+	    if(*(data.TxOK))  {
 	  for(i=0 ; i<FRAMESPERBUFFER; i++ )  {
 	    n2 = data.iwave[ic];
 	    addnoise_(&n2);
