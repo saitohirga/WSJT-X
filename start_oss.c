@@ -94,10 +94,12 @@ start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   int i;
   char *p;
 
+  /* Remove space if present */
   p = strchr(devin_name, ' ');
   if(p != NULL)
     *p = '\0';
 
+  /* If there is a '/' in the name assume it is /dev/name */
   p = strchr(devin_name, '/');
   if(p != NULL)
     snprintf(dsp_in, MAXDSPNAME, "%s", devin_name);	/* assume /dev/... */
@@ -106,9 +108,9 @@ start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
 
   dsp_in[MAXDSPNAME] = '\0';
 
-  data.fd_in = open (dsp_in, O_RDWR, 0);
+  data.fd_in = open(dsp_in, O_RDWR, 0);
 
-  if (data.fd_in < 0) { 
+  if(data.fd_in < 0) { 
 	fprintf(stderr, "Cannot open %s for input.\n", dsp_in);
 	exit(-1);
   }
@@ -117,7 +119,7 @@ start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   strncpy(dsp_out, dsp_in, sizeof(dsp_out));
   dsp_out[sizeof(dsp_out)] = '\0';
 
-  if (ioctl(data.fd_in, SNDCTL_DSP_SETDUPLEX, 0) < 0) {
+  if(ioctl(data.fd_in, SNDCTL_DSP_SETDUPLEX, 0) < 0) {
     fprintf(stderr, "Cannot use %s for full duplex.\n", dsp_in);
     return(-1);
   }
@@ -142,23 +144,23 @@ start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   dnfs=(double)*nfsample;
 
   channels = 2;
-  if (ioctl (data.fd_in, SNDCTL_DSP_CHANNELS, &channels) == -1) {
+  if(ioctl (data.fd_in, SNDCTL_DSP_CHANNELS, &channels) == -1) {
 	fprintf (stderr, "Unable to set 2 channels for input.\n");
 	exit (-1);
   }
 
-  if (channels != 2) {
+  if(channels != 2) {
     fprintf (stderr, "Unable to set 2 channels.\n");
     exit (-1);
   }
 
   format = AFMT_S16_NE;
-  if (ioctl (data.fd_in, SNDCTL_DSP_SETFMT, &format) == -1) {
+  if(ioctl (data.fd_in, SNDCTL_DSP_SETFMT, &format) == -1) {
 	fprintf (stderr, "Unable to set format for input.\n");
 	exit (-1);
   }
 
-  if (ioctl (data.fd_in, SNDCTL_DSP_SPEED, &rate) == -1) {
+  if(ioctl (data.fd_in, SNDCTL_DSP_SPEED, &rate) == -1) {
 	fprintf (stderr, "Unable to set rate for input\n");
 	exit (-1);
   }
@@ -213,14 +215,14 @@ oss_loop(int *iarg)
     FD_SET(data.fd_out, &writefds);
 
     timeout.tv_usec = TIMEOUT;
-    if (select(FD_SETSIZE, &readfds, &writefds, NULL, &timeout) > 0) {
-      if (FD_ISSET(data.fd_in, &readfds)) {
+    if(select(FD_SETSIZE, &readfds, &writefds, NULL, &timeout) > 0) {
+      if(FD_ISSET(data.fd_in, &readfds)) {
 	    nread = read (data.fd_in, rcv_buf, AUDIOBUFSIZE);
-	    if (nread <= 0) {
+	    if(nread <= 0) {
 	      fprintf(stderr, "Read error %d\n", nread);
 	      return;
 	    }
-	    if (nread == AUDIOBUFSIZE) {
+	    if(nread == AUDIOBUFSIZE) {
 	      /* Get System time */
 	      gettimeofday(&tv, NULL);
 	      stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000000.0) +
@@ -250,25 +252,25 @@ oss_loop(int *iarg)
 	      fivehz_();                      /* Call fortran routine */
 	    }
       }
-      if (FD_ISSET(data.fd_in, &writefds)) {
+      if(FD_ISSET(data.fd_in, &writefds)) {
 	/* Get System time */
 	gettimeofday(&tv, NULL);
 	stime = (double) tv.tv_sec + ((double)tv.tv_usec / 1000000.0) +
 	  *(data.ndsec) * 0.1;
 	*(data.Tsec) = stime;
 
-	if(*(data.TxOK) && (!TxOKz))  {
+	if(*(data.TxOK) && (!TxOKz)) {
 	  nsec = (int)stime;
-	  n = nsec/(*(data.trperiod));
-	  ic = (int)(stime - *(data.trperiod)*n) * data.nfs;
+	  n = nsec / *(data.trperiod);
+	  ic = (int)(stime - *(data.trperiod) * n) * data.nfs;
 	  ic = ic % *(data.nwave);
 	}
 
 	TxOKz = *(data.TxOK);
 	*(data.Transmitting) = *(data.TxOK);
 	wptr = (int16_t *)tx_buf;		/* XXX */
-	    if(*(data.TxOK))  {
-	  for(i=0 ; i<FRAMESPERBUFFER; i++ )  {
+	if(*(data.TxOK))  {
+	  for(i=0 ; i<FRAMESPERBUFFER; i++)  {
 	    n2 = data.iwave[ic];
 	    addnoise_(&n2);
 	    *wptr++ = n2;			/* left */
@@ -283,8 +285,7 @@ oss_loop(int *iarg)
 	} else {
 	  memset(tx_buf, 0, AUDIOBUFSIZE);
 	}
-
-	if (write(data.fd_out, tx_buf, AUDIOBUFSIZE) < 0) {
+	if(write(data.fd_out, tx_buf, AUDIOBUFSIZE) < 0) {
 	  fprintf(stderr, "Can't write to soundcard.\n");
 	  return;
 	}
