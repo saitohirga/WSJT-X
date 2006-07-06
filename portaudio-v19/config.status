@@ -35,7 +35,7 @@ sed 's/%@/@@/; s/@%/@@/; s/%g$/@g/; /@g$/s/[\\&%]/\\&/g;
  s/@@/%@/; s/@@/@%/; s/@g$/%g/' > conftest.subs <<\CEOF
 /^[ 	]*VPATH[ 	]*=[^:]*$/d
 
-s%@SHELL@%/usr/local/bin/bash%g
+s%@SHELL@%/bin/sh%g
 s%@CFLAGS@%-g -O2 -Wall -pedantic -pipe -fPIC -DPA_LITTLE_ENDIAN%g
 s%@CPPFLAGS@%%g
 s%@CXXFLAGS@%%g

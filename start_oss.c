@@ -80,7 +80,8 @@ start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
 	       int *nwave, int *nfsample, int *nsamperbuf,
 	       int *TRPeriod, int *TxOK, int *ndebug,
 	       int *Transmitting, double *Tsec, int *ngo, int *nmode,
-	       double tbuf[], int *ibuf, int *ndsec)
+	       double tbuf[], int *ibuf, int *ndsec,
+	       char *PttPort, char *devin_name, char *devout_name)
 {
   pthread_t thread1,thread2;
   int iret1,iret2;
@@ -90,14 +91,19 @@ start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   int format;
   int channels;
   double dnfs;
+  int i;
+  char *p;
 
-  /* XXX OSS device is decoded from ndevin and ndevout
-   * This is not strictly speaking the way to do it and is
-   * probably specific to FreeBSD for now. 
-   * i.e. the .0 addition is a vchan; I'll add configure magic later. --db
-   */
-  snprintf(dsp_in, MAXDSPNAME, 
-	   "/dev/dsp%d.0", *ndevin);
+  p = strchr(devin_name, ' ');
+  if(p != NULL)
+    *p = '\0';
+
+  p = strchr(devin_name, '/');
+  if(p != NULL)
+    snprintf(dsp_in, MAXDSPNAME, "%s", devin_name);	/* assume /dev/... */
+  else
+    snprintf(dsp_in, MAXDSPNAME, "/dev/%s", devin_name);
+
   dsp_in[MAXDSPNAME] = '\0';
 
   data.fd_in = open (dsp_in, O_RDWR, 0);
@@ -107,15 +113,13 @@ start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
 	exit(-1);
   }
 
-  if (*ndevin == *ndevout) {
-    data.fd_out = data.fd_in;
-    strncpy(dsp_out, dsp_in, sizeof(dsp_out));
-    dsp_out[sizeof(dsp_out)] = '\0';
+  data.fd_out = data.fd_in;
+  strncpy(dsp_out, dsp_in, sizeof(dsp_out));
+  dsp_out[sizeof(dsp_out)] = '\0';
 
-    if (ioctl(data.fd_in, SNDCTL_DSP_SETDUPLEX, 0) < 0) {
-	fprintf(stderr, "Cannot use %s for full duplex.\n", dsp_in);
-	exit(-1);
-    }
+  if (ioctl(data.fd_in, SNDCTL_DSP_SETDUPLEX, 0) < 0) {
+    fprintf(stderr, "Cannot use %s for full duplex.\n", dsp_in);
+    return(-1);
   }
 
   data.Tsec = Tsec;
