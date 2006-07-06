@@ -1,0 +1,124 @@
+Notes on status of CoreAudio Implementation of PortAudio
+
+Document Last Updated December 9, 2005
+
+There are currently two implementations of PortAudio for Mac Core Audio.
+
+The original is in pa_mac_core_old.c, and the newer one is in pa_mac_core_auhal.c.
+Only pa_mac_core_auhal.c is currently developed and supported as it uses apple's
+current core audio technology. To select one of the implementations, copy the
+appropriate file to pa_mac_core.c, (eg. "cp pa_mac_core_auhal.c pa_mac_core.c")
+then run configure and make as usual.
+
+----------------------------------------
+
+Notes on Original/Default implementation:
+
+by Phil Burk and Darren Gibbs
+
+Last updated March 20, 2002
+
+WHAT WORKS
+
+Output with very low latency, <10 msec.
+Half duplex input or output.
+Full duplex on the same CoreAudio device.
+The paFLoat32, paInt16, paInt8, paUInt8 sample formats.
+Pa_GetCPULoad()
+Pa_StreamTime()
+
+KNOWN BUGS OR LIMITATIONS
+
+We do not yet support simultaneous input and output on different 
+devices. Note that some CoreAudio devices like the Roland UH30 look 
+like one device but are actually two different CoreAudio devices. The 
+Built-In audio is typically one CoreAudio device.
+
+Mono doesn't work.
+
+DEVICE MAPPING
+
+CoreAudio devices can support both input and output. But the sample 
+rates supported may be different. So we have map one or two PortAudio 
+device to each CoreAudio device depending on whether it supports 
+input, output or both.
+
+When we query devices, we first get a list of CoreAudio devices. Then 
+we scan the list and add a PortAudio device for each CoreAudio device 
+that supports input. Then we make a scan for output devices.
+
+-------------------------------------------
+
+Notes on Newer AUHAL implementation:
+
+by Bjorn Roche
+
+Last Updated December 9, 2005
+
+Principle of Operation:
+
+This implementation uses AUHAL for audio I/O. To some extent, it also
+operates at the "HAL" Layer, though this behavior can be limited by
+platform specific flags (see pa_mac_core.h for details). The default
+settings should be reasonable: they don't change the SR of the device and
+don't cause interruptions if other devices are using the device.
+
+Major Software Elements Used: Apple's HAL AUs provide output SR
+conversion transparently, however, only on output, so this
+implementation uses AudioConverters to convert the sample rate on input.
+A PortAudio ring buffer is used to buffer input when sample rate
+conversion is required or when separate audio units are used for duplex
+IO. Finally, a PortAudio buffer processor is used to convert formats and
+provide additional buffers if needed. Internally, interleaved floating
+point data streams are used exclusively - the audio unit converts from
+the audio hardware's native format to interleaved float PCM and
+PortAudio's Buffer processor is used for conversion to user formats.
+
+Simplex Input: Simplex input uses a single callback. If sample rate
+conversion is required, a ring buffer and AudioConverter are used as
+well.
+
+Simplex output: Simplex output uses a single callback. No ring buffer or
+audio converter is used because AUHAL does its own output SR conversion.
+
+Duplex, one device (no SR conversion): When one device is used, a single
+callback is used. This achieves very low latency.
+
+Duplex, separate devices or SR conversion: When SR conversion is
+required, data must be buffered before it is converted and data is not
+always available at the same times on input and output, so SR conversion
+requires the same treatment as separate devices. The input callback
+reads data and puts it in the ring buffer. The output callback reads the
+data off the ring buffer, into an audio converter and finally to the
+buffer processor.
+
+
+
+Known issues:
+
+- Latency: Latency settings are ignored except when doing I/O between different
+devices. Still, latency should be very low.
+
+- Timing info. It reports on stream time, but I'm probably doing something
+wrong since patest_sine_time often reports negative latency numbers.
+
+- xrun detection: The only xrun detection performed is when reading
+and writing the ring buffer. There is probably more that can be done.
+
+- abort/stop issues: stopping a stream is always a complete operation,
+but latency should be low enough to make the lack of a separate abort
+unnecessary. Apple clarifies its AudioOutputUnitStop() call here:
+http://lists.apple.com/archives/coreaudio-api/2005/Dec/msg00055.html
+
+- blocking interface: Not implemented.
+
+- multichannel: I don't have a multichannel IO box, so I didn't test it.
+It should work though ;) I haven't done anything with "channel maps"
+yet, so it's possible that more needs to be done.
+
+- sample rate conversion quality: the input audio converter is set to
+the highest quality. I don't do anything about the output converter, and
+I am not sure how AUHAL manages quality.
+
+- x86: I haven't tested it on an x86 Mac, but I tried to be aware of it, so
+it should work without too much trouble.
