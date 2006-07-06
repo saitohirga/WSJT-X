@@ -86,15 +86,22 @@ OBJS2C  = ${SRCS2C:.c=.o}
 # and mostly sorted
 # --db
 #
+#  @NEEDPORTAUDIO@ will be filled in with libportaudio.a if portaudio is used
+#
 SRCS3C	= ptt_unix.c igray.c wrapkarn.c cutil.c
 OBJS3C  = ${SRCS3C:.c=.o}
 AUDIOSRCS = @AUDIO@
 
 all:	wsjt6
+
 JT65code: $(OBJS1)
 	$(FC) -o JT65code $(OBJS1)
 
-wsjt6:	Audio.so #wsjt.spec
+portaudio-v19/lib/libportaudio.a:
+	(cd portaudio-v19;./configure --with-jack=no)
+	(cd portaudio-v19;${MAKE})
+
+wsjt6:	@NEEDPORTAUDIO@ Audio.so #wsjt.spec
 #	${PYTHON} c:\python23\installer\Build.py wsjt.spec
 #	${RM} wsjt6
 
@@ -116,4 +123,4 @@ wsjt.spec: wsjt.py astro.py g.py options.py palettes.py smeter.py specjt.py
 .PHONY : clean
 clean:
 	${RM} -f *.o *.so *~ JT65code wsjt6
-
+	(cd portaudio-v19;${MAKE} clean)
