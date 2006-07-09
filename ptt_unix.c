@@ -50,11 +50,11 @@
 #ifdef HAVE_DEV_PPBUS_PPI_H
 # include <dev/ppbus/ppi.h>
 # include <dev/ppbus/ppbconf.h>
+#endif
 
 int lp_reset (int fd);
 int lp_ptt (int fd, int onoff);
 
-#endif
 #ifdef HAVE_SYS_STAT_H
 # include <sys/stat.h>
 #endif
@@ -82,11 +82,13 @@ char nm[MAXPATHLEN];
  *
  * generic unix PTT routine called from Fortran
  *
- * unused	- Unused, to satisfy old windows calling convention
- * ptt_port	- device name serial or parallel
- * ntx		- pointer to fortran command on or off
- * iptt		- pointer to fortran command status on or off
- */
+ * Inputs	
+ * unused	Unused, to satisfy old windows calling convention
+ * ptt_port	device name serial or parallel
+ * ntx		pointer to fortran command on or off
+ * iptt		pointer to fortran command status on or off
+ * Returns	- non 0 if error
+*/
 
 /* Tiny state machine */
 #define STATE_PORT_CLOSED		0
@@ -166,8 +168,6 @@ ptt_serial(int fd, int *ntx, int *iptt)
 
 /* parport functions */
 
-int lp_reset (int fd);
-int lp_ptt (int fd, int onoff);
 
 /*
  * dev_is_parport(name): check to see whether 'name' is a parallel
@@ -183,21 +183,22 @@ dev_is_parport(const char *fname)
 {
        struct stat st;
        int fd;
+       int m;
 
        snprintf(nm, sizeof(nm), "/dev/%s", fname);
 
        if ((fd = open(nm, O_RDWR | O_NONBLOCK)) == -1)
-               return (-1);
+               return(-1);
        if (fstat(fd, &st) == -1)
                goto out;
        if ((st.st_mode & S_IFMT) != S_IFCHR)
                goto out;
        if (ioctl(fd, PPGETMODE, &m) == -1)
                goto out;
-       return (fd);
+       return(fd);
 out:
        close(fd);
-       return (-1);
+       return(-1);
 }
 
 #elif defined(HAVE_DEV_PPBUS_PPI_H)    /* FreeBSD (ppbus/ppi) */
@@ -216,17 +217,17 @@ dev_is_parport(const char *fname)
 	 snprintf(nm, sizeof(nm), "/dev/%s", fname);
 
        if ((fd = open(nm, O_RDWR | O_NONBLOCK)) == -1)
-               return (-1);
+               return(-1);
        if (fstat(fd, &st) == -1)
                goto out;
        if ((st.st_mode & S_IFMT) != S_IFCHR)
                goto out;
        if (ioctl(fd, PPISSTATUS, &c) == -1)
                goto out;
-       return (fd);
+       return(fd);
 out:
        close(fd);
-       return (-1);
+       return(-1);
 }
 
 #else                                  /* Fallback (nothing) */
@@ -234,7 +235,7 @@ out:
 int
 dev_is_parport(const char *fname)
 {
-       return (-1);
+       return(-1);
 }
 
 #endif
@@ -294,21 +295,21 @@ lp_init (int fd)
 	{
 		fprintf(stderr, "Setting parallel port mode");
 		close (fd);
-		exit (1);
+		return(-1);
 	}
 
 	if (ioctl (fd, PPEXCL, NULL) == -1)
 	{
-		fprintf(stderr, "Parallel port %s is already in use", dev->desc);
+		fprintf(stderr, "Parallel port is already in use.\n");
 		close (fd);
-		exit (1);
+		return(-1);
 	}
 	if (ioctl (fd, PPCLAIM, NULL) == -1)
 	{
-		fprintf(stderr, "Claiming parallel port %s", dev->desc);
-		debug ("HINT: did you unload the lp kernel module?");
+		fprintf(stderr, "Claiming parallel port.\n");
+		fprintf(stderr, "HINT: did you unload the lp kernel module?");
 		close (fd);
-		exit (1);
+		return(-1);
 	}
 
 	/* Enable CW & PTT - /STROBE bit (pin 1) */
@@ -318,7 +319,7 @@ lp_init (int fd)
 	parport_control (fd, STROBE, STROBE);
 #endif
 	lp_reset (fd);
-	return 0;
+	return(0);
 }
 
 /* release ppdev and close port */
@@ -338,7 +339,7 @@ lp_free (int fd)
 	parport_control (fd, STROBE, 0);
 #endif
 	close (fd);
-	return 0;
+	return(0);
 }
 
 /* set to a known state */
@@ -348,7 +349,7 @@ lp_reset (int fd)
 #if defined (HAVE_LINUX_PPDEV_H) || defined (HAVE_DEV_PPBUS_PPI_H)
 	lp_ptt (fd, 0);
 #endif
-	return 0;
+	return(0);
 }
 
 /* SSB PTT keying - /INIT bit (pin 16) (inverted) */
@@ -369,7 +370,7 @@ lp_ptt (int fd, int onoff)
 	else
 		parport_control (fd, nINIT, 0);
 #endif
-	return 0;
+	return(0);
 }
 
 /*
