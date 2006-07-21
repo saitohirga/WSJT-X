@@ -1,4 +1,4 @@
-#------------------------------------------------------------------- WSJT
+#------------------------------------------------------------------ WSJT
 from Tkinter import *
 from tkFileDialog import *
 import Pmw
@@ -15,7 +15,7 @@ from types import *
 import array
 
 root = Tk()
-Version="5.9.4 r" + "$Rev$"[6:-1]
+Version="5.9.5 r" + "$Rev$"[6:-1]
 print "******************************************************************"
 print "WSJT Version " + Version + ", by K1JT"
 print "Revision date: " + \

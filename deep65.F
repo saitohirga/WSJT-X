@@ -3,6 +3,7 @@
 
       parameter (MAXCALLS=7000,MAXRPT=63)
       real s3(64,63)
+      real pp(2*MAXCALLS + 2 + MAXRPT)
       character callsign*12,grid*4,message*22,hisgrid*6,c*1,ceme*3
       character*12 mycall,hiscall
       character*22 decoded,deepmsg
@@ -72,7 +73,7 @@
          callgrid(icall)=callsign(1:j2)
 
          mz=1
-         if(n.eq.1) mz=MAXRPT+1
+         if(n.eq.1 .and. j3.lt.1 .and. j4.lt.1) mz=MAXRPT+1
          do m=1,mz
             if(m.gt.1) grid=rpt(m-1)
             if(j3.lt.1 .and.j4.lt.1) 
@@ -100,6 +101,7 @@
 
       p1=-1.e30
       ip1=0
+      n=0
       do k=1,ntot
 C  If sync=OOO, no CQ messages
          if(flip.lt.0.0 .and. testmsg(k)(1:3).eq.'CQ ') go to 30
@@ -114,27 +116,46 @@ C  If sync=OOO, no CQ messages
                nhard=nhard+1
             endif
          enddo
-         sum=sum/ref
-         if(sum.gt.p1) then
-            p1=sum
+         p=sum/ref
+!         p=sum/ref0
+         n=n+1
+         pp(n)=p
+         if(p.gt.p1) then
+            p1=p
             ip1=k
+            sum1=sum
             ref1=ref
             nhard1=nhard
          endif
  30   enddo
 
-      qual=100.0*(p1-0.405)
-      if(mode65.eq.1) qual=100.0*(p1-0.335)
-      if(mode65.eq.4) qual=100.0*(p1-0.505)
-      if(qual.lt.0.) qual=0.
-      if(qual.gt.10.) qual=10.
+      ntot=n
+      call sort(ntot,pp)
+      do i=1,100
+         if(pp(ntot-i).ne.pp(ntot)) go to 40
+      enddo
+ 40   iref=min(ntot-i,nint(0.68*ntot))
+      pbias=1.04*pp(ntot-i)
+!      pbias=1.40*pp(iref)
+      qual=50.0*(p1-pbias)
+!      if(mode65.eq.1) qual=100.0*(p1-0.335)
+!      if(mode65.eq.4) qual=100.0*(p1-0.505)
       decoded='                      '
       c=' '
-      if(qual.gt.0.0) then
+
+      if(qual.gt.1.0) then
          if(qual.lt.4.0) c='?'
          decoded=testmsg(ip1)
       endif
       decoded(22:22)=c
+
+!      write(71,1010) mycall,qual,nhard1,p1,p1/pp(ntot-i),
+!     +  p1/pp(iref),nint(sum1),nint(ref0),nint(ref1),i,decoded
+!      write(*,1010) mycall,qual,nhard1,p1,p1/pp(ntot-i),
+!     +  p1/pp(iref),nint(sum1),nint(ref0),nint(ref1),i,decoded
+! 1010 format(a6,f6.1,i3,f6.3,2f6.2,4i5,1x,a22)
+      if(qual.lt.0.) qual=0.
+      if(qual.gt.10.) qual=10.
 
       return
       end
