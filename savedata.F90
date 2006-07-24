@@ -107,12 +107,16 @@ subroutine savedata
 
 #ifdef Win32
      open(17,file=longname,status='unknown',form='binary',err=20)
-#else
-     open(17,file=longname,status='unknown',form='unformatted',err=20)
-#endif
      write(17) ariff,nchunk,awave,afmt,lenfmt,nfmt2,nchan2,nsamrate, &
           nbytesec,nbytesam2,nbitsam2,adata,ndata,(d2a(j),j=1,jza)
      close(17)
+#else
+     open(17,file=longname,status='unknown',form='unformatted',      &
+          access='direct',recl=nbytes,err=20)
+     write(17,rec=1) ariff,nchunk,awave,afmt,lenfmt,nfmt2,nchan2,nsamrate, &
+          nbytesec,nbytesam2,nbitsam2,adata,ndata,(d2a(j),j=1,jza)
+     close(17)     
+#endif
      filetokillb=filetokilla
      filetokilla=longname
      go to 30
