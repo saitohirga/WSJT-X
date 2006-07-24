@@ -96,7 +96,7 @@ char nm[MAXPATHLEN];
 #define STATE_PORT_OPEN_SERIAL		2
 
 int
-ptt_(int unused, char *ptt_port, int *ntx, int *iptt)
+ptt_(int *unused, char *ptt_port, int *ntx, int *iptt)
 {
   static int state=0;
   char *p;
