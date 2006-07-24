@@ -212,9 +212,9 @@ end subroutine fivehztx
 
 subroutine addnoise(n)
   integer*2 n
-  real r(12)
   real*8 txsnrdb0
   include 'gcom1.f90'
+  data idum/0/
   save
 
   if(txsnrdb.gt.40.0) return
@@ -224,9 +224,7 @@ subroutine addnoise(n)
      if(snr.gt.1.0) fac=3000.0/snr
      txsnrdb0=txsnrdb
   endif
-  call random_number(r)
-  x=sum(r)-6.0
-  i=fac*(x + n*snr/32768.0)
+  i=fac*(gran(idum) + n*snr/32768.0)
   if(i>32767) i=32767;
   if(i<-32767) i=-32767;
   n=i
@@ -234,3 +232,14 @@ subroutine addnoise(n)
   return
 end subroutine addnoise
 
+real function gran(idum)
+  real r(12)
+  integer nseed(1)
+  data nseed/714478811/
+  if(idum.lt.0) then
+     call random_seed(PUT=nseed)
+     idum=0
+  endif
+  call random_number(r)
+  gran=sum(r)-6.0
+end function gran

@@ -73,7 +73,8 @@
          callgrid(icall)=callsign(1:j2)
 
          mz=1
-         if(n.eq.1 .and. j3.lt.1 .and. j4.lt.1) mz=MAXRPT+1
+         if(n.eq.1 .and. j3.lt.1 .and. j4.lt.1 .and.
+     +      flip.gt.0.0) mz=MAXRPT+1
          do m=1,mz
             if(m.gt.1) grid=rpt(m-1)
             if(j3.lt.1 .and.j4.lt.1) 
@@ -135,25 +136,19 @@ C  If sync=OOO, no CQ messages
          if(pp(ntot-i).ne.pp(ntot)) go to 40
       enddo
  40   iref=min(ntot-i,nint(0.68*ntot))
-      pbias=1.04*pp(ntot-i)
-!      pbias=1.40*pp(iref)
-      qual=50.0*(p1-pbias)
+      pbias=1.08*pp(ntot-i)
+      qual=100.0*(p1-pbias)
+
 !      if(mode65.eq.1) qual=100.0*(p1-0.335)
 !      if(mode65.eq.4) qual=100.0*(p1-0.505)
       decoded='                      '
       c=' '
 
       if(qual.gt.1.0) then
-         if(qual.lt.4.0) c='?'
+         if(qual.lt.6.0) c='?'
          decoded=testmsg(ip1)
       endif
       decoded(22:22)=c
-
-!      write(71,1010) mycall,qual,nhard1,p1,p1/pp(ntot-i),
-!     +  p1/pp(iref),nint(sum1),nint(ref0),nint(ref1),i,decoded
-!      write(*,1010) mycall,qual,nhard1,p1,p1/pp(ntot-i),
-!     +  p1/pp(iref),nint(sum1),nint(ref0),nint(ref1),i,decoded
-! 1010 format(a6,f6.1,i3,f6.3,2f6.2,4i5,1x,a22)
       if(qual.lt.0.) qual=0.
       if(qual.gt.10.) qual=10.
 
