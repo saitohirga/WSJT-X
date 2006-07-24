@@ -90,7 +90,7 @@
 	if(mode.eq.4 .and. jz.gt.330750) jz=330750	!### Fix this!
 
 	sum=0.
-	do j=1,jz            !Convert raw data from byte to real, remove DC
+	do j=1,jz            !Convert raw data from i*2 to real, remove DC
            dat(j)=0.1*d(j)
 	   sum=sum + dat(j)
 	enddo
@@ -110,6 +110,21 @@
 	   if(ierr.ne.0) print*,'Resample error.',samratio
 #endif
 
+	endif
+
+	if(ndiag.ne.0 .and. nclip.lt.0) then
+C  Intentionally degrade SNR by -nclip dB.
+	   sq=0.
+	   do i=1,jz
+	      sq=sq + dat(i)**2
+	   enddo
+	   p0=sq/jz
+	   p1=p0*10.0**(-0.1*nclip)
+	   dnoise=sqrt(p1-p0)
+	   idum=-1
+	   do i=1,jz
+	      dat(i)=dat(i) + dnoise*gran(idum)
+	   enddo
 	endif
 
 	if(mode.ne.2 .and. nzap.ne.0) then
@@ -306,3 +321,4 @@ C  Now the multi-tone decoding
 
  	return
  	end
+
