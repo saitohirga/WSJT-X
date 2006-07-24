@@ -112,7 +112,7 @@ start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
 
   if(data.fd_in < 0) { 
 	fprintf(stderr, "Cannot open %s for input.\n", dsp_in);
-	exit(-1);
+	return (-1);
   }
 
   data.fd_out = data.fd_in;
@@ -146,23 +146,23 @@ start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   channels = 2;
   if(ioctl (data.fd_in, SNDCTL_DSP_CHANNELS, &channels) == -1) {
 	fprintf (stderr, "Unable to set 2 channels for input.\n");
-	exit (-1);
+	return (-1);
   }
 
   if(channels != 2) {
     fprintf (stderr, "Unable to set 2 channels.\n");
-    exit (-1);
+    return (-1);
   }
 
   format = AFMT_S16_NE;
   if(ioctl (data.fd_in, SNDCTL_DSP_SETFMT, &format) == -1) {
 	fprintf (stderr, "Unable to set format for input.\n");
-	exit (-1);
+	return (-1);
   }
 
   if(ioctl (data.fd_in, SNDCTL_DSP_SPEED, &rate) == -1) {
 	fprintf (stderr, "Unable to set rate for input\n");
-	exit (-1);
+	return (-1);
   }
 
   printf("Audio OSS streams running normally.\n");
