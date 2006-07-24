@@ -1,7 +1,7 @@
       subroutine sync65(dat,jz,DFTolerance,NFreeze,NAFC,MouseDF,
      +  dtx,dfx,snrx,snrsync,ccfblue,ccfred,flip,width,ftrack)
 
-C  Synhronizes JT65 data, finding the best-fit DT and DF.  
+C  Synchronizes JT65 data, finding the best-fit DT and DF.  
 C  NB: at this stage, submodes ABC are processed in the same way.
 
       parameter (NP2=60*11025)         !Size of data array
