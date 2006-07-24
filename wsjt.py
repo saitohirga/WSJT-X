@@ -2016,12 +2016,15 @@ try:
 #        elif key == 'RxDelay': options.RxDelay.set(value)
 #        elif key == 'TxDelay': options.TxDelay.set(value)
         elif key == 'IDinterval': options.IDinterval.set(value)
-        elif key == 'ComPort':
+        elif key == 'PttPort':
             try:
-                options.ComPort.set(value)
-                Audio.gcom2.nport=options.ComPort.get()
+                options.PttPort.set(value)
+                try:
+                    Audio.gcom2.nport=int(options.PttPort.get())
+                except:
+                    Audio.gcom2.nport=0
             except:
-                options.ComPort.set(0)
+                options.PttPort.set("/dev/cuad0")
                 Audio.gcom2.nport=0
                 Audio.gcom2.pttport=(options.PttPort.get()+'            ')[:12]
         elif key == 'Mileskm': options.mileskm.set(value)
@@ -2132,7 +2135,7 @@ f.write("HisGrid " + t + "\n")
 #f.write("RxDelay " + str(options.RxDelay.get()) + "\n")
 #f.write("TxDelay " + str(options.TxDelay.get()) + "\n")
 f.write("IDinterval " + str(options.IDinterval.get()) + "\n")
-f.write("ComPort " + str(options.PttPort.get()) + "\n")
+f.write("PttPort " + str(options.PttPort.get()) + "\n")
 f.write("Mileskm " + str(options.mileskm.get()) + "\n")
 f.write("MsgStyle " + str(options.ireport.get()) + "\n")
 f.write("Region " + str(options.iregion.get()) + "\n")
