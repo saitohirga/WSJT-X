@@ -120,7 +120,7 @@ C  Intentionally degrade SNR by -nclip dB.
 	   enddo
 	   p0=sq/jz
 	   p1=p0*10.0**(-0.1*nclip)
-	   dnoise=sqrt(p1-p0)
+	   dnoise=sqrt(4*(p1-p0))
 	   idum=-1
 	   do i=1,jz
 	      dat(i)=dat(i) + dnoise*gran(idum)

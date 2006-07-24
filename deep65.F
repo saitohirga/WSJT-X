@@ -135,10 +135,10 @@ C  If sync=OOO, no CQ messages
       do i=1,100
          if(pp(ntot-i).ne.pp(ntot)) go to 40
       enddo
- 40   iref=min(ntot-i,nint(0.68*ntot))
-      pbias=1.08*pp(ntot-i)
-      qual=100.0*(p1-pbias)
 
+ 40   qual=100.0*(p1-1.08*pp(ntot-i))
+      if(mode65.eq.1) qual=100.0*(p1-1.12*pp(ntot-i))
+      if(mode65.eq.4) qual=100.0*(p1-1.04*pp(ntot-i))
 !      if(mode65.eq.1) qual=100.0*(p1-0.335)
 !      if(mode65.eq.4) qual=100.0*(p1-0.505)
       decoded='                      '
