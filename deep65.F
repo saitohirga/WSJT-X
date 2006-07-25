@@ -136,21 +136,20 @@ C  If sync=OOO, no CQ messages
          if(pp(ntot-i).ne.pp(ntot)) go to 40
       enddo
 
- 40   qual=100.0*(p1-1.08*pp(ntot-i))
-      if(mode65.eq.1) qual=100.0*(p1-1.12*pp(ntot-i))
-      if(mode65.eq.4) qual=100.0*(p1-1.04*pp(ntot-i))
-!      if(mode65.eq.1) qual=100.0*(p1-0.335)
-!      if(mode65.eq.4) qual=100.0*(p1-0.505)
+ 40   if(mode65.eq.1) bias=max(1.12*pp(ntot-i),0.335)
+      if(mode65.eq.2) bias=max(1.08*pp(ntot-i),0.405)
+      if(mode65.eq.4) bias=max(1.04*pp(ntot-i),0.505)
+      qual=100.0*(p1-bias)
       decoded='                      '
       c=' '
 
       if(qual.gt.1.0) then
          if(qual.lt.6.0) c='?'
          decoded=testmsg(ip1)
+      else
+         qual=0.
       endif
       decoded(22:22)=c
-      if(qual.lt.0.) qual=0.
-      if(qual.gt.10.) qual=10.
 
       return
       end

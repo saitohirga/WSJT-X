@@ -149,7 +149,7 @@ C  result from the Reed-Solomon decoder.
  200  continue
       kvqual=0
       if(ncount.ge.0) kvqual=1
-      nqual=qbest
+      nqual=min(qbest,10.0)
       if(nqual.ge.nq1 .and.kvqual.eq.0) then
          dtx=dtbest
          dfx=dfbest
