@@ -3,7 +3,8 @@
       character callsign*12
       character*8 c
       character addpfx*8
-      common/gcom4/addpfx              !Can't 'include' *.f90 in *.f 
+C  Can't 'include' *.f90 in *.f 
+      common/gcom4/addpfx
       include 'pfx.f'
 
       iz=index(callsign,' ') - 1
