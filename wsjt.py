@@ -1512,7 +1512,7 @@ def update():
     Audio.gcom2.nslim2=isync-4
     if nosh441.get()==1 and mode.get()=='FSK441': Audio.gcom2.nslim2=99
     try:
-        Audio.gcom2.nport=int(options.ComPort.get())
+        Audio.gcom2.nport=int(options.PttPort.get())
     except:
         Audio.gcom2.nport=0
 
