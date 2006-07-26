@@ -244,9 +244,9 @@ dev_is_parport(int fd)
 #else                                  /* Fallback (nothing) */
 
 int
-dev_is_parport(const char *fname)
+dev_is_parport(int fd)
 {
-       return(-1);
+       return(0);
 }
 
 #endif
