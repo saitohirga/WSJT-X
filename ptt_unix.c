@@ -218,7 +218,7 @@ dev_is_parport(int fd)
        int m;
 
        if ((fstat(fd, &st) == -1) ||
-	   ((st.st_mode & S_IFMT) != S_IFCHR) &&
+	   ((st.st_mode & S_IFMT) != S_IFCHR) ||
 	   (ioctl(fd, PPGETMODE, &m) == -1))
 	 return(0);
 
@@ -234,7 +234,7 @@ dev_is_parport(int fd)
        unsigned char c;
 
        if ((fstat(fd, &st) == -1) ||
-	   ((st.st_mode & S_IFMT) != S_IFCHR) &&
+	   ((st.st_mode & S_IFMT) != S_IFCHR) ||
 	   (ioctl(fd, PPISSTATUS, &c) == -1))
 	 return(0);
 
