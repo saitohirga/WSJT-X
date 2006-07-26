@@ -68,14 +68,12 @@ int lp_ptt (int fd, int onoff);
 #include <string.h>
 /* parport functions */
 
-int dev_is_parport(const char *fname);
+char *get_dev_name(char *fname);
+int dev_is_parport(int fd);
 int ptt_parallel(int fd, int *ntx, int *iptt);
 int ptt_serial(int fd, int *ntx, int *iptt);
 
 int fd=-1;		/* Used for both serial and parallel */
-
-
-char nm[MAXPATHLEN];
 
 /*
  * ptt_
@@ -101,26 +99,39 @@ ptt_(int *unused, char *ptt_port, int *ntx, int *iptt)
   static int state=0;
   char *p;
 
+  /* In the very unlikely event of a NULL pointer, just return.
+   * Yes, I realise this should not be possible in WSJT.
+   */
+  if (ptt_port == NULL) {
+    *iptt = *ntx;
+    return (0);
+  }
+    
   switch (state) {
   case STATE_PORT_CLOSED:
+
+     /* Remove trailing ' ' */
     if ((p = strchr(ptt_port, ' ')) != NULL)
       *p = '\0';
-    if (p == NULL || *p == '\0') {
+
+    /* If all that is left is a '\0' then also just return */
+    if (*ptt_port == '\0') {
       *iptt = *ntx;
       return(0);
     }
 
-    if ((fd = dev_is_parport(ptt_port)) > 0) {
+    /* Get ptt_name back or ptt_name with "/dev/" prepended */
+    ptt_port = get_dev_name(ptt_port);
+    if ((fd = open(ptt_port, O_RDWR | O_NDELAY)) < 0) {
+	fprintf(stderr, "Can't open %s.\n", ptt_port);
+	return (1);
+    }
+
+    if (dev_is_parport(fd)) {
       state = STATE_PORT_OPEN_PARALLEL;
       lp_reset(fd);
-    } else {
-      if ((fd = open(nm, O_RDWR | O_NDELAY)) < 0) {
-	fprintf(stderr, "Can't open %s.\n", nm);
-	return(1);
-      }
-      else
-	state = STATE_PORT_OPEN_SERIAL;
-    }
+    } else 
+      state = STATE_PORT_OPEN_SERIAL;
     break;
 
   case STATE_PORT_OPEN_PARALLEL:
@@ -168,66 +179,66 @@ ptt_serial(int fd, int *ntx, int *iptt)
 
 /* parport functions */
 
+/*
+ * get_dev_name
+ *
+ * inputs	- device name
+ * output	- pointer to copy or original name or copy of original
+ *		  with "/dev/" prepended
+ * side effects	- Uses local storage for result.
+ */
+
+char *
+get_dev_name(char *fname)
+{
+  static char nm[MAXPATHLEN];
+
+  if (strchr(fname, '/') != NULL)
+    strncpy(nm, fname, sizeof(nm));	/* Assume already has /dev/ */
+  else 
+    snprintf(nm, sizeof(nm), "/dev/%s", fname);
+
+  return(fname);
+}
 
 /*
- * dev_is_parport(name): check to see whether 'name' is a parallel
- *     port type character device.  Returns non-zero if the device is
- *     capable of use for a parallel port based keyer, and zero if it
- *     is not.  Unfortunately, this is platform specific.
+ * dev_is_parport(fd):
+ *
+ * inputs	- Already open fd
+ * output	- 1 if parallel port, 0 if not
+ * side effects	- Unfortunately, this is platform specific.
  */
 
 #if defined(HAVE_LINUX_PPDEV_H)                /* Linux (ppdev) */
 
 int
-dev_is_parport(const char *fname)
+dev_is_parport(int fd)
 {
        struct stat st;
-       int fd;
        int m;
 
-       snprintf(nm, sizeof(nm), "/dev/%s", fname);
+       if ((fstat(fd, &st) == -1) ||
+	   ((st.st_mode & S_IFMT) != S_IFCHR) &&
+	   (ioctl(fd, PPGETMODE, &m) == -1))
+	 return(0);
 
-       if ((fd = open(nm, O_RDWR | O_NONBLOCK)) == -1)
-               return(-1);
-       if (fstat(fd, &st) == -1)
-               goto out;
-       if ((st.st_mode & S_IFMT) != S_IFCHR)
-               goto out;
-       if (ioctl(fd, PPGETMODE, &m) == -1)
-               goto out;
-       return(fd);
-out:
-       close(fd);
-       return(-1);
+       return(1);
 }
 
 #elif defined(HAVE_DEV_PPBUS_PPI_H)    /* FreeBSD (ppbus/ppi) */
 
 int
-dev_is_parport(const char *fname)
+dev_is_parport(int fd)
 {
        struct stat st;
        unsigned char c;
-       int fd;
-       char *p;
 
-       if ((p = strchr(fname, '/')) != NULL)	/* Look for /dev */
-	 snprintf(nm, sizeof(nm), "%s", fname);
-       else
-	 snprintf(nm, sizeof(nm), "/dev/%s", fname);
+       if ((fstat(fd, &st) == -1) ||
+	   ((st.st_mode & S_IFMT) != S_IFCHR) &&
+	   (ioctl(fd, PPISSTATUS, &c) == -1))
+	 return(0);
 
-       if ((fd = open(nm, O_RDWR | O_NONBLOCK)) == -1)
-               return(-1);
-       if (fstat(fd, &st) == -1)
-               goto out;
-       if ((st.st_mode & S_IFMT) != S_IFCHR)
-               goto out;
-       if (ioctl(fd, PPISSTATUS, &c) == -1)
-               goto out;
-       return(fd);
-out:
-       close(fd);
-       return(-1);
+       return(1);
 }
 
 #else                                  /* Fallback (nothing) */
