@@ -2026,7 +2026,7 @@ try:
             except:
                 options.PttPort.set("/dev/cuad0")
                 Audio.gcom2.nport=0
-                Audio.gcom2.pttport=(options.PttPort.get()+'            ')[:12]
+            Audio.gcom2.pttport=(options.PttPort.get()+'            ')[:12]
         elif key == 'Mileskm': options.mileskm.set(value)
         elif key == 'MsgStyle': options.ireport.set(value)
         elif key == 'Region': options.iregion.set(value)
