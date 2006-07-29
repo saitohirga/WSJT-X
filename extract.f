@@ -20,12 +20,13 @@
       call interleave63(mrsym,-1)
       call interleave63(mrprob,-1)
 
-      ndec=0
+      ndec=1
       nemax=30
       maxe=8
-      if(ndepth.ge.2) ndec=1
-      if(ndepth.eq.2) xlambda=13.0
-      if(ndepth.eq.3) xlambda=15.0
+!      if(ndepth.ge.2) ndec=1
+!      if(ndepth.eq.2) xlambda=13.0
+!      if(ndepth.eq.3) xlambda=15.0
+      xlambda=15.0
 
       if(ndec.eq.1) then
          call graycode(mr2sym,63,-1)

@@ -3,7 +3,6 @@
 
       parameter (MAXCALLS=7000,MAXRPT=63)
       real s3(64,63)
-      real pp(2*MAXCALLS + 2 + MAXRPT)
       character callsign*12,grid*4,message*22,hisgrid*6,c*1,ceme*3
       character*12 mycall,hiscall
       character*22 decoded,deepmsg
@@ -75,6 +74,7 @@
          mz=1
          if(n.eq.1 .and. j3.lt.1 .and. j4.lt.1 .and.
      +      flip.gt.0.0) mz=MAXRPT+1
+C  Test for messages with MyCall + HisCall + report
          do m=1,mz
             if(m.gt.1) grid=rpt(m-1)
             if(j3.lt.1 .and.j4.lt.1) 
@@ -101,44 +101,41 @@
       enddo
 
       p1=-1.e30
-      ip1=0
+      p2=-1.e30
       n=0
       do k=1,ntot
 C  If sync=OOO, no CQ messages
          if(flip.lt.0.0 .and. testmsg(k)(1:3).eq.'CQ ') go to 30
          sum=0.
          ref=ref0
-         nhard=0
          do j=1,63
             i=ncode(j,k)+1
             sum=sum + s3(i,j)
             if(i.eq.mrs(j)) then
                ref=ref - s3(i,j) + s3(mrs2(j),j)
-               nhard=nhard+1
             endif
          enddo
          p=sum/ref
-!         p=sum/ref0
          n=n+1
-         pp(n)=p
          if(p.gt.p1) then
+            if(p1.gt.p2) then
+               p2=p1
+               ip2=ip1
+            endif
             p1=p
             ip1=k
-            sum1=sum
-            ref1=ref
-            nhard1=nhard
+         else if(p.gt.p2 .and. p.lt.p1) then
+            p2=p
+            ip2=k
          endif
  30   enddo
 
       ntot=n
-      call sort(ntot,pp)
-      do i=1,100
-         if(pp(ntot-i).ne.pp(ntot)) go to 40
-      enddo
 
- 40   if(mode65.eq.1) bias=max(1.12*pp(ntot-i),0.335)
-      if(mode65.eq.2) bias=max(1.08*pp(ntot-i),0.405)
-      if(mode65.eq.4) bias=max(1.04*pp(ntot-i),0.505)
+ 40   if(mode65.eq.1) bias=max(1.12*p2,0.335)
+      if(mode65.eq.2) bias=max(1.08*p2,0.405)
+      if(mode65.ge.4) bias=max(1.04*p2,0.505)
+
       qual=100.0*(p1-bias)
       decoded='                      '
       c=' '
