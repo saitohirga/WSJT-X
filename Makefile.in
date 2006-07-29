@@ -64,7 +64,9 @@ SRCS2F77 = wsjt1.f astro.f azdist.f coord.f dcoord.f deg2grid.f \
         interleave63.f k2grid.f limit.f lpf1.f deep65.f morse.f \
         nchar.f packcall.f packgrid.f packmsg.f packtext.f setup65.f \
         short65.f slope.f spec2d65.f sync65.f unpackcall.f \
-        unpackgrid.f unpackmsg.f unpacktext.f xcor.f xfft.f xfft2.f wsjt65.f
+        unpackgrid.f unpackmsg.f unpacktext.f xcor.f xfft.f xfft2.f wsjt65.f \
+	ftpeak65.f fil651.f fil652.f fil653.f symsync65.f
+
 OBJS2F77 = ${SRCS2F77:.f=.o}
 
 SRCS2C	= init_rs.c encode_rs.c decode_rs.c
