@@ -68,7 +68,6 @@ int lp_ptt (int fd, int onoff);
 #include <string.h>
 /* parport functions */
 
-char *get_dev_name(char *fname);
 int dev_is_parport(int fd);
 int ptt_parallel(int fd, int *ntx, int *iptt);
 int ptt_serial(int fd, int *ntx, int *iptt);
@@ -120,9 +119,7 @@ ptt_(int *unused, char *ptt_port, int *ntx, int *iptt)
       return(0);
     }
 
-    /* Get ptt_name back or ptt_name with "/dev/" prepended */
-    ptt_port = get_dev_name(ptt_port);
-    if ((fd = open(ptt_port, O_RDWR | O_NDELAY)) < 0) {
+    if ((fd = open(ptt_port, O_RDWR|O_NONBLOCK)) < 0) {
 	fprintf(stderr, "Can't open %s.\n", ptt_port);
 	return (1);
     }
@@ -178,28 +175,6 @@ ptt_serial(int fd, int *ntx, int *iptt)
 
 
 /* parport functions */
-
-/*
- * get_dev_name
- *
- * inputs	- device name
- * output	- pointer to copy or original name or copy of original
- *		  with "/dev/" prepended
- * side effects	- Uses local storage for result.
- */
-
-char *
-get_dev_name(char *fname)
-{
-  static char nm[MAXPATHLEN];
-
-  if (strchr(fname, '/') != NULL)
-    strncpy(nm, fname, sizeof(nm));	/* Assume already has /dev/ */
-  else 
-    snprintf(nm, sizeof(nm), "/dev/%s", fname);
-
-  return(fname);
-}
 
 /*
  * dev_is_parport(fd):
@@ -291,7 +266,7 @@ parport_control (int fd, unsigned char controlbits, int values)
 }
 #endif
 
-/* open port and setup ppdev */
+/* Initialise a parallel port, given open fd */
 int
 lp_init (int fd)
 {
