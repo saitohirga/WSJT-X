@@ -1,5 +1,5 @@
       subroutine sync65(dat,jz,DFTolerance,NFreeze,NAFC,MouseDF,
-     +  dtx,dfx,snrx,snrsync,ccfblue,ccfred,flip,width,ftrack)
+     +  dtx,dfx,snrx,snrsync,ccfblue,ccfred,flip,width)
 
 C  Synchronizes JT65 data, finding the best-fit DT and DF.  
 C  NB: at this stage, submodes ABC are processed in the same way.
@@ -16,7 +16,6 @@ C  NB: at this stage, submodes ABC are processed in the same way.
       real ccfred(-224:224)            !Peak of ccfblue, as function of freq
       real tmp(450)
       integer itry(100)
-      real ftrack(126)
       save
 
 C  Do FFTs of symbol length, stepped by half symbols.  Note that we have
@@ -95,15 +94,6 @@ C  If we found nothing with snrx > -30 dB, take the best sync that *was* found.
          flippk=flippk2
       endif
 
-C  Generate frequency-tracking information
-      if(NAFC.eq.1) then
-         call afc65(s2,ipk,lagpk,flippk,ftrack)
-      else
-         do j=1,126
-            ftrack(j)=0.
-         enddo
-      endif
-
 C  Peak up in frequency to fraction of channel
       base=0.25*(psavg(ipk-3)+psavg(ipk-2)+psavg(ipk+2)+psavg(ipk+3))
 !      call peakup(psavg(ipk-1),psavg(ipk),psavg(ipk+1),dx)
@@ -177,4 +167,3 @@ C  Compute width of sync tone to outermost -3 dB points
       return
       end
 
-      include 'afc65.f'

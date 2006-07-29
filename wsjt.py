@@ -1,4 +1,4 @@
-#------------------------------------------------------------------ WSJT
+#------------------------------------------------------------------- WSJT
 from Tkinter import *
 from tkFileDialog import *
 import Pmw
@@ -64,7 +64,6 @@ mode=StringVar()
 mode.set("")
 mrudir=os.getcwd()
 nafc=IntVar()
-naggressive=IntVar()
 naz=0
 ndepth=IntVar()
 nel=0
@@ -1500,7 +1499,6 @@ def update():
     Audio.gcom2.neme=neme.get()
     Audio.gcom2.ndepth=ndepth.get()
     Audio.gcom2.nsked=nsked.get()
-    Audio.gcom2.naggressive=naggressive.get()
     try:
         Audio.gcom2.idinterval=options.IDinterval.get()
     except:
@@ -1602,12 +1600,16 @@ decodemenu.FSK441=Menu(decodemenu,tearoff=0)
 decodemenu.FSK441.add_checkbutton(label='No shorthands',variable=nosh441)
 decodemenu.JT65=Menu(decodemenu,tearoff=0)
 decodemenu.JT65.add_checkbutton(label='Only EME calls',variable=neme)
-decodemenu.JT65.add_checkbutton(label='Aggressive',variable=naggressive)
 decodemenu.JT65.add_checkbutton(label='No Shorthands if Tx 1',variable=noshjt65)
 decodemenu.JT65.add_separator()
-decodemenu.JT65.add_radiobutton(label = 'Fast', variable=ndepth, value=1)
-decodemenu.JT65.add_radiobutton(label = 'Normal', variable=ndepth, value=2)
-decodemenu.JT65.add_radiobutton(label = 'Exhaustive', variable=ndepth, value=3)
+decodemenu.JT65.add_radiobutton(label = 'No Deep Search',
+                                variable=ndepth, value=0)
+decodemenu.JT65.add_radiobutton(label = 'Normal Deep Search',
+                                variable=ndepth, value=1)
+decodemenu.JT65.add_radiobutton(label = 'Aggressive Deep Search',
+                                variable=ndepth, value=2)
+decodemenu.JT65.add_radiobutton(label ='Include Average in Aggressive Deep Search',
+                                variable=ndepth, value=3)
 decodemenu.add_cascade(label = 'FSK441',menu=decodemenu.FSK441)
 decodemenu.add_cascade(label = 'JT65',menu=decodemenu.JT65)
 
@@ -1965,7 +1967,7 @@ ldate.after(100,update)
 lauto=0
 isync=1
 ntx.set(1)
-ndepth.set(2)
+ndepth.set(1)
 
 import options
 options.defaults()
@@ -2079,7 +2081,6 @@ try:
         elif key == 'Sked': nsked.set(value)
         elif key == 'NoSh441': nosh441.set(value)
         elif key == 'NoShJT65': noshjt65.set(value)
-        elif key == 'Aggressive': naggressive.set(value)
         elif key == 'NEME': neme.set(value)
         elif key == 'NDepth': ndepth.set(value)
         elif key == 'Debug': ndebug.set(value)
@@ -2174,7 +2175,6 @@ f.write("NAFC " + str(nafc.get()) + "\n")
 f.write("Sked " + str(nsked.get()) + "\n")
 f.write("NoSh441 " + str(nosh441.get()) + "\n")
 f.write("NoShJT65 " + str(noshjt65.get()) + "\n")
-f.write("Aggressive " + str(naggressive.get()) + "\n")
 f.write("NEME " + str(neme.get()) + "\n")
 f.write("NDepth " + str(ndepth.get()) + "\n")
 f.write("Debug " + str(ndebug.get()) + "\n")

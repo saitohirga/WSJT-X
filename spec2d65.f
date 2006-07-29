@@ -1,5 +1,5 @@
       subroutine spec2d65(dat,jz,nsym,flip,istart,f0,
-     +  ftrack,mode65,s2)
+     +  ftrack,nafc,mode65,s2)
 
 C  Computes the spectrum for each of 126 symbols.
 C  NB: At this point, istart, f0, and ftrack are supposedly known.
@@ -7,7 +7,7 @@ C  The JT65 signal has Sync bin + 2 guard bins + 64 data bins = 67 bins.
 C  We add 5 extra bins at top and bottom for drift, making 77 bins in all.
 
       parameter (NMAX=2048)                !Max length of FFTs
-      real dat(jz)                        !Raw data
+      real dat(jz)                         !Raw data
       real s2(77,126)                      !Spectra of all symbols
       real s(77)
       real ref(77)
@@ -22,12 +22,19 @@ c      complex work(NMAX)
       data twopi/6.28318530718d0/
       save
 
+C  Peak up in frequency and time, and compute ftrack.
+      call ftpeak65(dat,jz,istart,f0,flip,pr,nafc,ftrack)
+
       nfft=2048/mode65                     !Size of FFTs
       nh=nfft/2
       dt=2.0/11025.0
       df=0.5*11025.0/nfft
       call zero(ps,77)
       k=istart-nfft
+
+C  NB: this could be done starting with array c3, in ftpeak65, instead
+C  of the dat() array.  Would save some time this way ...
+
       do j=1,nsym
          call zero(s,77)
          do m=1,mode65

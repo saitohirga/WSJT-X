@@ -198,7 +198,7 @@ C  Intentionally degrade SNR by -nclip dB.
 !  Offset data by about 1 s.
  	   if(jz.ge.126*2048) call wsjt65(dat(4097),jz-4096,cfile6,
      +        NClearAve,MinSigdB,DFTolerance,NFreeze,NAFC,mode65,Nseg,
-     +        MouseDF,NAgain,naggressive,ndepth,neme,nsked,
+     +        MouseDF,NAgain,ndepth,neme,nsked,
      +        mycall,hiscall,hisgrid,lumsg,lcum,nspecial,ndf,
      +        nstest,dfsh,iderrsh,idriftsh,snrsh,
      +        NSyncOK,ccf,psavg,ndiag,nwsh)
