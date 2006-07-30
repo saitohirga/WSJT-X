@@ -127,8 +127,11 @@ ptt_(int *unused, char *ptt_port, int *ntx, int *iptt)
     if (dev_is_parport(fd)) {
       state = STATE_PORT_OPEN_PARALLEL;
       lp_reset(fd);
-    } else 
+      ptt_parallel(fd, ntx, iptt);
+    } else {
       state = STATE_PORT_OPEN_SERIAL;
+      ptt_serial(fd, ntx, iptt);
+    }
     break;
 
   case STATE_PORT_OPEN_PARALLEL:
