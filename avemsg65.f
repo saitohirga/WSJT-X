@@ -42,7 +42,8 @@ C  Compute the average of all flagged spectra for this segment.
       nqual=0
 C  Possibly should pass nadd=nused, also:
       if(ndepth.ge.3) then
-         call deep65(s3,mode65,neme,nsked,flip, 
+         flipx=1.0                     !Normal flip not relevant for ave msg
+         call deep65(s3,mode65,neme,nsked,flipx, 
      +   mycall,hiscall,hisgrid,deepmsg,qual)
          nqual=qual
          if(nqual.lt.nq1) deepmsg='                      '
@@ -55,6 +56,5 @@ C  Suppress "birdie messages":
       if(decoded(1:7).eq.'0L6MWK ') decoded='                      '
 
  100  if(nused.lt.1) decoded='                      '
-
       return
       end
