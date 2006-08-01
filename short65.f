@@ -34,6 +34,10 @@ C  Do 16 k FFTs, stepped by 8k.  (*** Maybe should step by 4k? ***)
       do j=1,nsteps
          k=(j-1)*NH + 1
          call ps(data(k),NFFT,s2(1,j))       !Get power spectra
+         if(mode65.eq.4) then
+            call smooth(s2(1,j),NQ)
+            call smooth(s2(1,j),NQ)
+         endif
          call add(psavg,s2(1,j),psavg,NQ)
       enddo
 

@@ -1,5 +1,5 @@
       subroutine sync65(dat,jz,DFTolerance,NFreeze,NAFC,MouseDF,
-     +  dtx,dfx,snrx,snrsync,ccfblue,ccfred,flip,width)
+     +  mode65,dtx,dfx,snrx,snrsync,ccfblue,ccfred,flip,width)
 
 C  Synchronizes JT65 data, finding the best-fit DT and DF.  
 C  NB: at this stage, submodes ABC are processed in the same way.
@@ -32,6 +32,7 @@ C  Compute power spectrum for each step and get average
          k=(j-1)*nh + 1
          call limit(dat(k),nfft)
          call ps(dat(k),nfft,s2(1,j))
+         if(mode65.eq.4) call smooth(s2(1,j),nh)
          call add(psavg,s2(1,j),psavg,nh)
       enddo
 
@@ -133,6 +134,7 @@ C  Find rms of the CCF, without the main peak
 C  Plus 3 dB because sync tone is on half the time.  (Don't understand 
 C  why an additional +2 dB is needed ...)
       if(ppmax.gt.0.0001) snrx=db(ppmax*df/2500.0) + 5.0    !###
+      if(mode65.eq.4) snrx=snrx + 2.0
       if(snrx.lt.-33.0) snrx=-33.0
 
 C  Compute width of sync tone to outermost -3 dB points
