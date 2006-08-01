@@ -57,7 +57,7 @@ C  already been done.
 
 C  Attempt to synchronize: look for sync tone, get DF and DT.
       call sync65(dat,npts,DFTolerance,NFreeze,NAFC,MouseDF,
-     +    dtx,dfx,snrx,snrsync,ccfblue,ccfred,flip,width)
+     +    mode65,dtx,dfx,snrx,snrsync,ccfblue,ccfred,flip,width)
       f0=1270.46 + dfx
       csync=' '
       decoded='                      '
@@ -69,6 +69,8 @@ C  Attempt to synchronize: look for sync tone, get DF and DT.
       ncount1=-1            !Flag for RS Decode of ave1
       ncount2=-1            !Flag for RS Decode of ave2
       NSyncOK=0
+      nqual1=0
+      nqual2=0
 
       if(nsave.lt.MAXAVE .and. (NAgain.eq.0 .or. NClearAve.eq.1)) 
      +  nsave=nsave+1
@@ -134,19 +136,22 @@ C  If we get here, we have achieved sync!
      +    nint(width),csync,special,decoded(1:19),cooo,kvqual,nqual
  1010 format(a6,i3,i5,f5.1,i5,i3,1x,a1,1x,a5,a19,1x,a3,i4,i4)
 
+C  Blank all end-of-line stuff if no decode
+      if(line(31:40).eq.'          ') line=line(:30)
+
 C  Blank DT if shorthand message  (### wrong logic? ###)
       if(special.ne.'     ') then
          line(15:19)='     '
-         ccfblue(-5)=-9999.0
-         if(ndiag.gt.0) write(line(51:57),1012) iderrsh,idriftsh
- 1012    format(i3,i4)
+         line=line(:35)
+          ccfblue(-5)=-9999.0
+!         if(ndiag.gt.0) write(line(51:57),1012) iderrsh,idriftsh
+! 1012    format(i3,i4)
       else
          nspecial=0
       endif
 
 C  Blank the end-of-line numbers
-      if(naggressive.eq.0 .and. ndiag.eq.0) line(58:67)='         '
-      if(ndiag.eq.0) line(66:67)='  '
+      if(naggressive.eq.0 .and. ndiag.eq.0) line(59:66)='         '
 
       if(lcum) write(21,1011) line
  1011 format(a67)
@@ -199,10 +204,8 @@ C  If Monitor segment #2 is available, write that line also
          ns20=ns2
       endif
 
-      if(ndiag.eq.0) then
-         ave1(58:67)='         '
-         ave2(58:67)='         '
-      endif
+      if(ave1(31:40).eq.'          ') ave1=ave1(:30)
+      if(ave2(31:40).eq.'          ') ave2=ave2(:30)
       write(12,1011) ave1
       write(12,1011) ave2
       call flushqqq(12)

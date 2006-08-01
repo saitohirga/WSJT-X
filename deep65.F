@@ -11,7 +11,8 @@
       character*180 line
       character*4 rpt(MAXRPT)
       logical first
-      integer ncode(63,2*MAXCALLS)
+      integer ncode(63,2*MAXCALLS + 2 + MAXRPT)
+      real pp(2*MAXCALLS + 2 + MAXRPT)
       common/tmp9/ mrs(63),mrs2(63)
 
       data neme0/-99/
@@ -73,7 +74,7 @@
 
          mz=1
          if(n.eq.1 .and. j3.lt.1 .and. j4.lt.1 .and.
-     +      flip.gt.0.0) mz=MAXRPT+1
+     +      flip.gt.0.0 .and. callsign(1:6).ne.'      ') mz=MAXRPT+1
 C  Test for messages with MyCall + HisCall + report
          do m=1,mz
             if(m.gt.1) grid=rpt(m-1)
@@ -83,7 +84,8 @@ C  Test for messages with MyCall + HisCall + report
             k=k+1
             testmsg(k)=message
             call encode65(message,ncode(1,k))
-            if(m.eq.1) then
+C  Insert CQ message unless sync=OOO (flip=-1).
+            if(m.eq.1 .and. flip.gt.0.0) then
                message='CQ '//callgrid(icall)
                k=k+1
                testmsg(k)=message
@@ -102,10 +104,7 @@ C  Test for messages with MyCall + HisCall + report
 
       p1=-1.e30
       p2=-1.e30
-      n=0
       do k=1,ntot
-C  If sync=OOO, no CQ messages
-         if(flip.lt.0.0 .and. testmsg(k)(1:3).eq.'CQ ') go to 30
          sum=0.
          ref=ref0
          do j=1,63
@@ -116,25 +115,24 @@ C  If sync=OOO, no CQ messages
             endif
          enddo
          p=sum/ref
-         n=n+1
+         pp(k)=p
          if(p.gt.p1) then
-            if(p1.gt.p2) then
-               p2=p1
-               ip2=ip1
-            endif
             p1=p
             ip1=k
-         else if(p.gt.p2 .and. p.lt.p1) then
-            p2=p
-            ip2=k
          endif
  30   enddo
 
-      ntot=n
+      p2=-1.e30
+      do i=1,ntot
+         if(pp(i).gt.p2 .and. pp(i).ne.p1) p2=pp(i)
+      enddo
 
- 40   if(mode65.eq.1) bias=max(1.12*p2,0.335)
+      if(mode65.eq.1) bias=max(1.12*p2,0.335)
       if(mode65.eq.2) bias=max(1.08*p2,0.405)
       if(mode65.ge.4) bias=max(1.04*p2,0.505)
+
+C  This is really weird, but do not remove the following statement!
+      rewind 23
 
       qual=100.0*(p1-bias)
       decoded='                      '
