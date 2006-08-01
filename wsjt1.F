@@ -295,7 +295,7 @@ C  Now the multi-tone decoding
      +          line(j)(29:31).eq.'   ') goto 10
 	      write(lumsg,1050) line(j)	!Write to decoded.txt
  1050	      format(a79)
-	      if(lcum) write(21,1050) line(j) !Write to decoded.cum
+	      if(lcum) write(21,1050) line(j) !Write to ALL.TXT
 	      read(line(j),1060) sig,msg3
  1060	      format(16x,f3.0,9x,a3)
 	      if(sig.gt.smax) then
@@ -315,9 +315,11 @@ C  Now the multi-tone decoding
  800	continue
         call s2shape(s2,nchan,nz,tbest)
 
- 900	continue
+ 900	LDecoded = ((NSyncOK.gt.0) .or. npkept.gt.0)
 	end file 11
-	LDecoded = ((NSyncOK.gt.0) .or. npkept.gt.0)
+	call flushqqq(11)
+	call flushqqq(12)
+	call flushqqq(21)
 
  	return
  	end
