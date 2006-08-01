@@ -620,9 +620,9 @@ def ModeCW(event=NONE):
         erase()
 
 #------------------------------------------------------ ModeEcho
-def ModeEcho(event=NONE):
+#def ModeEcho(event=NONE):
 #    mode.set("Echo")
-    stub()
+#    stub()
     
 #------------------------------------------------------ msgpos
 def msgpos():
@@ -642,11 +642,10 @@ def about(event=NONE):
     Label(about,text=t,font=(font1,16)).pack(padx=20,pady=5)
     t="""
 WSJT is a weak signal communications program.  It supports
-five operating modes: FSK441, a fast mode for meteor scatter;
+four operating modes: FSK441, a fast mode for meteor scatter;
 JT6M, specially optimized for meteor and ionospheric scatter
 on 50 MHz; JT65, an extremely sensitive mode for troposcatter
-and EME; CW at 15 WPM with messages structured for EME; and
-an EME Echo mode for measuring your own echoes from the moon.
+and EME; and CW at 15 WPM with messages structured for EME.
 
 WSJT is Copyright (c) 2001-2006 by Joseph H. Taylor, Jr., K1JT, 
 with contributions from additional authors.  It is Open Source 
@@ -681,7 +680,6 @@ F8		Set JT65A mode
 Shift-F8	Set JT65B mode
 CTRL-F8		Set JT65C mode
 Shift-CTRL-F8	Set CW mode
-F9		Set EME Echo mode
 F10             Toggle focus between WSJT screens
 Alt-1 to Alt-6  Tx1 to Tx6
 Alt-A           Toggle Auto On/Off
@@ -1333,8 +1331,8 @@ def update():
             msg2.configure(bg='#FF00FF')
         elif mode.get()=="CW":
             msg2.configure(bg='#00FF00')
-        elif mode.get()=="Echo":
-            msg2.configure(bg='#FF0000')
+#        elif mode.get()=="Echo":
+#            msg2.configure(bg='#FF0000')
         g.mode=mode.get()
         first=0
 
@@ -1588,8 +1586,8 @@ modemenu.add_radiobutton(label = 'JT65A', variable=mode, command = ModeJT65A)
 modemenu.add_radiobutton(label = 'JT65B', variable=mode, command = ModeJT65B)
 modemenu.add_radiobutton(label = 'JT65C', variable=mode, command = ModeJT65C)
 modemenu.add_radiobutton(label = 'CW', variable=mode, command = ModeCW)
-modemenu.add_radiobutton(label = 'Echo', variable=mode, command = ModeEcho,
-                         state=DISABLED)
+#modemenu.add_radiobutton(label = 'Echo', variable=mode, command = ModeEcho,
+#                         state=DISABLED)
 
 #------------------------------------------------------ Decode menu
 decodebutton = Menubutton(mbar, text = 'Decode', )
@@ -1705,7 +1703,7 @@ root.bind_all('<Shift-F8>', ModeJT65B)
 root.bind_all('<Control-F8>', ModeJT65C)
 root.bind_all('<Shift-F7>', ModeJT6M)
 root.bind_all('<Shift-Control-F8>', ModeCW)
-root.bind_all('<F9>', ModeEcho)
+#root.bind_all('<F9>', ModeEcho)
 root.bind_all('<F10>', showspecjt)
 
 root.bind_all('<Alt-Key-1>',btx1)
