@@ -1287,6 +1287,10 @@ def update():
                     options.auxra.get()+'         '[:9],     \
                     options.auxdec.get()+'         '[:9])
 
+            if len(HisGrid.get().strip())<4:
+                g.ndop=g.ndop00
+                g.dfdt=g.dfdt0
+
         if mode.get()[:4]=='JT65' or mode.get()[:2]=='CW' :
             graph2.delete(ALL)
             g2font='Helvetica 16'
