@@ -1,4 +1,4 @@
-      subroutine avesp2(dat,jza,nadd,f0,NFreeze,MouseDF,
+      subroutine avesp2(dat,jza,nadd,f0,mode,NFreeze,MouseDF,
      +  DFTolerance,fzap)
 
       real dat(jza)
@@ -27,20 +27,25 @@ C  Flatten s2 and get psa, ref, and birdie
       ia=300/df
       ib=2700/df
       n=0
+      fmouse=0.
+      if(mode.eq.2) fmouse=1270.46+MouseDF
+      if(mode.eq.4) fmouse=1076.66+MouseDF
+
       do i=ia,ib
          if(birdie(i)-ref(i).gt.3.0) then
             f=i*df
+
+C  Don't zap unless Freeze is OFF or birdie is outside the "Tol" range.
             if(NFreeze.eq.0 .or. 
-     +           abs(f-1270.46-MouseDF).gt.float(DFTolerance)) then
-             if(abs(f-f0).gt.25.0) then
+     +           abs(f-fmouse).gt.float(DFTolerance)) then
                if(n.lt.200 .and. variance(i-1).lt.2.5 .and.
-     +               variance(i).lt.2.5 .and. variance(i+1).lt.2.5) then
+     +              variance(i).lt.2.5.and.variance(i+1).lt.2.5) then
                   n=n+1
-                  fzap(n)=i*df
+                  fzap(n)=f
                endif
             endif
-           endif
-        endif
+
+         endif
       enddo
 
       return
