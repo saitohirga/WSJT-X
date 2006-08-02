@@ -1986,6 +1986,11 @@ try:
     params=f.readlines()
 except:
     params=""
+    if g.Win32:
+        options.PttPort.set("0")
+    else:
+        options.PttPort.set("/dev/cuad0")
+    Audio.gcom2.nport=0
 
 try:
     for i in range(len(params)):
@@ -2029,7 +2034,10 @@ try:
                 except:
                     Audio.gcom2.nport=0
             except:
-                options.PttPort.set("/dev/cuad0")
+                if g.Win32:
+                    options.PttPort.set("0")
+                else:
+                    options.PttPort.set("/dev/cuad0")
                 Audio.gcom2.nport=0
             Audio.gcom2.pttport=(options.PttPort.get()+'            ')[:12]
         elif key == 'Mileskm': options.mileskm.set(value)

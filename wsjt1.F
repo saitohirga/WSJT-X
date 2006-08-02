@@ -128,7 +128,9 @@ C  Intentionally degrade SNR by -nclip dB.
 	endif
 
 	if(mode.ne.2 .and. nzap.ne.0) then
-	   if(jz.gt.100000) call avesp2(dat,jz,2,f0a,NFreeze,MouseDF,
+	   nfrz=NFreeze
+	   if(mode.eq.1) nfrz=0
+	   if(jz.gt.100000) call avesp2(dat,jz,2,f0a,mode,nfrz,MouseDF,
      +         DFTolerance,fzap)
 	   nadd=1
  	   call bzap(dat,jz,nadd,mode,fzap)
@@ -184,7 +186,7 @@ C  Intentionally degrade SNR by -nclip dB.
  	   jz=jz2
  	   nadd=1
  	   fzap(1)=0.
- 	   if(nzap.eq.1) call avesp2(dat,jz,nadd,f0a,NFreeze,MouseDF,
+ 	   if(nzap.eq.1) call avesp2(dat,jz,nadd,f0a,mode,NFreeze,MouseDF,
      +       DFTolerance,fzap)
     	   if(nzap.eq.1.and.nstest.eq.0) call bzap(dat,jz,nadd,mode,fzap)
 
