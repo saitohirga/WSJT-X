@@ -22,7 +22,7 @@ subroutine get_fname(hiscall,ntime,trperiod,lauto,fname)
   i=index(hiscall,'/')
   if(i.ge.5) tag=hiscall(1:i-1)
   if(i.ge.2.and.i.le.4) tag=hiscall(i+1:)
-  if(lauto.eq.0) tag='Mon'
+  if(hiscall(1:1).eq.' ' .or. lauto.eq.0) tag='Mon'
   i=index(tag,' ')
   fname=tag(1:i-1)//fname
   
