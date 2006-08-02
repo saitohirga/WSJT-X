@@ -307,7 +307,7 @@ if test "$portaudio" = yes; then
 	AC_DEFINE(USE_PORTAUDIO, 1, [Define if you want PORTAUDIO used.])
 	AC_SUBST(AUDIO, "a2d.f90 jtaudio.c start_portaudio.c")
 	AC_SUBST(NEEDPORTAUDIO, "portaudio-v19/lib/libportaudio.a")
-	LDFLAGS="-Lportaudio-v19/lib/libportaudio.a ${LDFLAGS} -lsamplerate" 
+	LDFLAGS="portaudio-v19/lib/libportaudio.a ${LDFLAGS} -lsamplerate" 
 else
 	AC_SUBST(NEEDPORTAUDIO, "")
 fi
