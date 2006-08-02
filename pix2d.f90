@@ -1,4 +1,4 @@
-subroutine pix2d(d2,jz,mousebutton,mode,s2,nchan,nz,b)
+subroutine pix2d(d2,jz,mousebutton,mousedf,nfreeze,mode,s2,nchan,nz,b)
 
 ! Compute pixels to represent the 2-d spectrum s2(nchan,nz), and the
 ! green line.
@@ -111,6 +111,14 @@ subroutine pix2d(d2,jz,mousebutton,mode,s2,nchan,nz,b)
            b((ich-1)*500+j+248)=254
            b((ich-1)*500+j+495)=254
         enddo
+! Insert green tick at frequency indicated by MouseDF
+        if(NFreeze.gt.0) then
+           f=1076.66+mousedf
+           ich=60-nint(f/43.066)     !Why 58 for FSK441, above?
+           do j=1,7
+              b((ich-1)*500+j+2)=255
+           enddo
+        endif
      endif
 
 ! Mark the best ping with a red tick
