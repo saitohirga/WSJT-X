@@ -1,7 +1,6 @@
 dnl $Id$
 dnl Process this file with autoconf to produce a configure script.
 
-
 dnl AC_PREREQ(2.59)
 
 dnl Sneaky way to get an Id tag into the configure script
@@ -87,10 +86,10 @@ G95_LIB_PATH=`${G95} -print-file-name=`
 AC_MSG_RESULT(${G95_LIB_PATH})
 AC_PATH_PROG(GFORTRAN, gfortran)
 dnl
-dnl FreeBSD currently installs gfortran as gfortran41, considered experimental
+dnl FreeBSD currently installs gfortran as gfortran42
 dnl See http://gcc.gnu.org/fortran/
 dnl
-AC_PATH_PROG(GFORTRAN, gfortran41)
+AC_PATH_PROG(GFORTRAN, gfortran42)
 AC_MSG_CHECKING([gfortran lib path])
 GFORTRAN_LIB_PATH=`${GFORTRAN} -print-file-name=`
 AC_MSG_RESULT(${GFORTRAN_LIB_PATH})
@@ -233,13 +232,6 @@ AC_ARG_ENABLE(portaudio,
 AC_HELP_STRING([--enable-portaudio],[Force PORTAUDIO SOUND usage.]),
 [portaudio=$enableval], [portaudio=no])
 
-dnl jack soundsupport
-dnl =================
-
-AC_ARG_ENABLE(jack,
-AC_HELP_STRING([--enable-jack],[Force JACK usage.]),
-[jack=$enableval] , [jack=no])
-
 dnl pick gfortran or g95
 dnl ====================
 
@@ -290,7 +282,7 @@ dnl set defaults
 dnl ============
 
 if test "$alsa" != yes -a "$oss" != yes -a \
-	"$portaudio" != yes -a "$jack" != yes; then
+	"$portaudio" != yes; then
         if test $HAS_PORTAUDIO_H -eq 1; then
 		[portaudio=yes];
 	elif test $HAS_ASOUNDLIB_H -eq 1; then
@@ -318,12 +310,6 @@ if test "$portaudio" = yes; then
 	LDFLAGS="-Lportaudio-v19/lib/libportaudio.a ${LDFLAGS} -lsamplerate" 
 else
 	AC_SUBST(NEEDPORTAUDIO, "")
-fi
-
-if test "$jack" = yes; then
-	AC_DEFINE(USE_JACK, 1, [Define if you want JACK used.])
-	AC_SUBST(AUDIO, "start_jack.c")
-	LDFLAGS="${LDFLAGS} -ljack"
 fi
 
 dnl set conf flags
@@ -361,12 +347,6 @@ fi
 if test "$oss" = yes; then
 	if test $HAS_SOUNDCARD_H -eq 0; then
 		AC_MSG_ERROR([You need soundcard.h to use --enable-oss])
-	fi
-fi
-
-if test "$jack" = yes; then
-	if test $HAS_JACK_H -eq 0; then
-		AC_MSG_ERROR([You need jack.h to use --enable-jack])
 	fi
 fi
 
@@ -414,10 +394,6 @@ fi
 
 if test $oss == "yes"; then
 	echo "Using oss.";
-fi
-
-if test $jack == "yes"; then
-	echo "Using jack.";
 fi
 
 echo
