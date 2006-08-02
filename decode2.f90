@@ -75,8 +75,16 @@ subroutine decode2
      if(mousebutton.eq.0) istart=1
      if(mousebutton.gt.0) then
         jzz=lenpick
-        if(mode(1:4).eq.'JT6M') jzz=4*11025
-        istart=istart + 3300 - jzz/2
+
+!  This is a major kludge:
+        if(mode(1:4).eq.'JT6M') then          
+           jzz=4*11025
+           if(mousebutton.eq.3) jzz=10*11025
+           istart=istart+11025
+        else
+           istart=istart + 3300 - jzz/2
+        endif
+
         if(istart.lt.2) istart=2
         if(istart+jzz.gt.jzc) istart=jzc-jzz
      endif
