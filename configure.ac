@@ -86,10 +86,10 @@ G95_LIB_PATH=`${G95} -print-file-name=`
 AC_MSG_RESULT(${G95_LIB_PATH})
 AC_PATH_PROG(GFORTRAN, gfortran)
 dnl
-dnl FreeBSD currently installs gfortran as gfortran42
+dnl FreeBSD currently installs gfortran as gfortran41
 dnl See http://gcc.gnu.org/fortran/
 dnl
-AC_PATH_PROG(GFORTRAN, gfortran42)
+AC_PATH_PROG(GFORTRAN, gfortran41)
 AC_MSG_CHECKING([gfortran lib path])
 GFORTRAN_LIB_PATH=`${GFORTRAN} -print-file-name=`
 AC_MSG_RESULT(${GFORTRAN_LIB_PATH})
