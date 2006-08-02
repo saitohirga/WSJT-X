@@ -1,9 +1,10 @@
-subroutine pix2d(d2,jz,mousebutton,s2,nchan,nz,b)
+subroutine pix2d(d2,jz,mousebutton,mode,s2,nchan,nz,b)
 
 ! Compute pixels to represent the 2-d spectrum s2(nchan,nz), and the
 ! green line.
 
   integer*2 d2(jz)                   !Raw input data
+  character*6 mode
   real s2(nchan,nz)                  !2-d spectrum
   integer*2 b(60000)                 !Pixels corresponding to 2-d spectrum
   data nx0/0/
@@ -89,16 +90,28 @@ subroutine pix2d(d2,jz,mousebutton,s2,nchan,nz,b)
            ng0=ng
         endif
      enddo
+
+     if(mode.eq.'FSK441') then
 ! Insert yellow tick marks at frequencies of the FSK441 tones
-     do i=2,5
-        f=441*i
-        ich=58-nint(f/43.066)
+        do i=2,5
+           f=441*i
+           ich=58-nint(f/43.066)
+           do j=1,5
+              b((ich-1)*500+j+2)=254
+              b((ich-1)*500+j+248)=254
+              b((ich-1)*500+j+495)=254
+           enddo
+        enddo
+     else if(mode.eq.'JT6M') then
+! Insert yellow tick marks at frequencies of the JT6M sync tone
+        f=1076.66
+        ich=60-nint(f/43.066)     !Why 58 for FSK441, above?
         do j=1,5
            b((ich-1)*500+j+2)=254
            b((ich-1)*500+j+248)=254
            b((ich-1)*500+j+495)=254
         enddo
-     enddo
+     endif
 
 ! Mark the best ping with a red tick
      if(tbest.gt.0.0) then

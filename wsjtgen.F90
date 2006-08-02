@@ -85,7 +85,6 @@ subroutine wsjtgen
         enddo
 #endif
         nwave=ndata/2
-	print*,nwave
         do i=nwave,NTXMAX
            iwave(i)=0
         enddo

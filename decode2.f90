@@ -28,6 +28,7 @@ subroutine decode2
   endif
 
   istart=1.0 + 11025*0.001*npingtime - lenpick/2
+  if(mode(1:4).eq.'JT6M') istart=istart+11025
   if(istart.lt.2) istart=2
   if(ndecoding.eq.1) then
 ! Normal decoding at end of Rx period (or at t=53s in JT65)
@@ -80,7 +81,6 @@ subroutine decode2
         if(mode(1:4).eq.'JT6M') then          
            jzz=4*11025
            if(mousebutton.eq.3) jzz=10*11025
-           istart=istart+11025
         else
            istart=istart + 3300 - jzz/2
         endif
@@ -97,7 +97,6 @@ subroutine decode2
      if(istart+lenpick.gt.jza) istart=jza-lenpick
      call decode3(d2a(istart),lenpick,istart,fnamea)
   endif
-
   fnameb=fnamea
 
 999 return
