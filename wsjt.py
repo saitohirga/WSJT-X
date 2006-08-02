@@ -593,9 +593,12 @@ def ModeJT6M(event=NONE):
         lsync.configure(text=slabel+str(isync))
         shmsg.configure(state=DISABLED)
         cbfreeze.configure(state=NORMAL)
-        itol=5
+        itol=3
+        ltol.configure(text='Tol    '+str(ntol[itol]))
         inctol()
+        nfreeze.set(1)
         ntx.set(1)
+        Audio.gcom2.mousedf=0
         GenStdMsgs()
         erase()
         
@@ -936,12 +939,15 @@ def defaults():
     global slabel,isync,iclip,itol,idsec
     isync=1
     if g.mode=="FSK441": isync=2
-    if g.mode=="JT6M": isync=-10
     lsync.configure(text=slabel+str(isync))
     iclip=0
     lclip.configure(text='Clip   '+str(iclip))
     itol=5
     ltol.configure(text='Tol    '+str(ntol[itol]))
+    if g.mode=="JT6M":
+        isync=-10
+        itol=4
+        ltol.configure(text='Tol    '+str(ntol[itol]))
 
 #------------------------------------------------------ delwav
 def delwav():
