@@ -218,10 +218,12 @@ C  Intentionally degrade SNR by -nclip dB.
 	   if(jz/11025.0.lt.3.9 .or. sigma.lt.0.0) go to 900
 
 	   f0=1076.66
-	   if(NFreeze.eq.1) f0=1076.66+mousedf
+	   if(NFreeze.eq.1) f0=1076.66 + MouseDF
+	   f00=f0
 	   call syncf0(dat,jz,NFreeze,DFTolerance,jstart,f0,smax)
 	   call synct(dat,jz,jstart,f0,smax)
 	   call syncf1(dat,jz,jstart,f0,NFreeze,DFTolerance,smax,red)
+	   if(NFreeze.gt.0 .and. abs(f0-f00).gt.float(DFTolerance)) go to 800
 
 	   f0a=f0
 	   do i=1,512
