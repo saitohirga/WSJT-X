@@ -223,7 +223,8 @@ C  Intentionally degrade SNR by -nclip dB.
 	   call syncf0(dat,jz,NFreeze,DFTolerance,jstart,f0,smax)
 	   call synct(dat,jz,jstart,f0,smax)
 	   call syncf1(dat,jz,jstart,f0,NFreeze,DFTolerance,smax,red)
-	   if(NFreeze.gt.0 .and. abs(f0-f00).gt.float(DFTolerance)) go to 800
+ 	   if(NFreeze.gt.0 .and. abs(f0-f00).gt.float(DFTolerance)) 
+     +        go to 800
 
 	   f0a=f0
 	   do i=1,512
