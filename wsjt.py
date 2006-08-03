@@ -646,13 +646,15 @@ def about(event=NONE):
     Label(about,text=t,font=(font1,16)).pack(padx=20,pady=5)
     t="""
 WSJT is a weak signal communications program.  It supports
-four operating modes: FSK441, a fast mode for meteor scatter;
-JT6M, specially optimized for meteor and ionospheric scatter
-on 50 MHz; JT65, an extremely sensitive mode for troposcatter
-and EME; and CW at 15 WPM with messages structured for EME.
+four operating modes:
 
-WSJT is Copyright (c) 2001-2006 by Joseph H. Taylor, Jr., K1JT, 
-with contributions from additional authors.  It is Open Source 
+  1. FSK441 - fast mode for meteor scatter
+  2. JT6M   - optimized for meteor and ionospheric scatter on 50 MHz
+  3. JT65   - for EME and troposcatter
+  4. CW     - 15 WPM Morse code, messages structured for EME
+
+Copyright (c) 2001-2006 by Joseph H. Taylor, Jr., K1JT, with
+contributions from additional authors.  WSJT is Open Source 
 software, licensed under the GNU General Public License (GPL).
 Source code and programming information may be found at 
 http://developer.berlios.de/projects/wsjt/.
@@ -939,7 +941,6 @@ def defaults():
     global slabel,isync,iclip,itol,idsec
     isync=1
     if g.mode=="FSK441": isync=2
-    lsync.configure(text=slabel+str(isync))
     iclip=0
     lclip.configure(text='Clip   '+str(iclip))
     itol=5
@@ -948,6 +949,7 @@ def defaults():
         isync=-10
         itol=4
         ltol.configure(text='Tol    '+str(ntol[itol]))
+    lsync.configure(text=slabel+str(isync))
 
 #------------------------------------------------------ delwav
 def delwav():
