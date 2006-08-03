@@ -1,3 +1,141 @@
+Changes in WSJT 5.9.5 (r236):  August 3, 2006
+---------------------------------------------
+
+WSJT v5.9.5 r236 contains some major improvements for JT65 and a
+number of smaller enhancements affecting other modes.
+
+1. Changes to the JT65 Deep Search decoder have made it slightly more
+   sensitive, on average.  More importantly, the number of false
+   decodes has been dramatically reduced.  JT65 decoding can be as
+   much as 3 times faster than before.  For these reasons alone, you
+   should be sure to upgrade if you use JT65.
+
+2. A more useful menu of JT65 decoding options is provided.  You may
+   now select "No Deep Search", "Normal Deep Search", "Aggressive Deep
+   Search", or "Include Average in Aggressive Deep Search".
+
+3. The two end-of-line numbers (formerly displayed only if Aggressive
+   was checked) are now always displayed in JT65 mode.  The first
+   number is 1 if the Koetter-Vardy decoder succeeded, 0 otherwise.
+   The second number is the confidence level of the Deep Search
+   decoding (if enabled) on a 0 to 10 scale.
+
+4. The JT65 AFC function has been rewritten.  Drifting signals
+   (including Doppler-induced drifts at 1296 MHz) will usually decode
+   better with AFC turned on.
+
+5. Mode JT65C, which is used primarily at 1296 MHz, has been improved
+   in several ways.  Synchronizing is better by about 1 "sync" unit,
+   and signal strengths are measured more reliably.  Decoding of
+   shorthand messages is improved.
+
+6. When compiled for Linux and FreeBSD (see note below), WSJT now
+   allows use of parallel as well as serial ports for T/R control.
+
+7. Wave files are now saved correctly in Linux and FreeBSD versions.
+
+8. Support has been added for extra-long callsigns such as
+   VU4AN/VU3RYF.  The full augmented callsign must be no longer than
+   12 characters.  Enter the special add-on DXCC prefix or callsign
+   (in this case, VU4AN) on the Setup | Options page.
+
+9. If the "Grid" box on main WSJT window is blank, displayed values of
+   Doppler and df/dt will be those of your own echoes.
+
+10. If the ToRadio box is blank, "Mon_" (rather than "_" is now used
+   as the naming prefix for recorded wave files.
+
+11. The birdie-killing "Zap" feature has been changed so that if
+   Freeze is ON, nothing is zapped within Tol of the Freeze DF.  In
+   addition, the Zap behavior no longer depends on previous decoding
+   history.
+
+12. Bug fix: previously, if Freeze had been checked while operating in
+   another mode, Zap no longer worked correctly in FSK441 mode.  This
+   has been fixed.
+
+13. The selection of data for mouse-picked decodes in JT6M mode has
+   been corrected.  (In recent versions it was necessary to click a
+   few seconds to the right of a signal enhancement.)
+
+14. The logic that limits search for JT6M synchronization to a range
+   of frequencies (+/- Tol around FreezeDF) has been corrected.  A
+   small green tick at the left edge of the main graphical area
+   indicates the FreezeDF frequency.  The FreezeDF value is also
+   displayed digitally in the status bar.  You can change FreezeDF
+   with the left/right keyboard arrows.  Default settings for JT6M are
+   now Tol=200, Freeze On, MouseDF=0.
+
+15. If mouse-picked decoding was invoked, all wave files were
+   previously saved even if "Save none" was selected on the menu.
+   This has been fixed.
+
+16. On your first start-up with version 5.9.5, be sure to re-enter
+   your correct PTT port number on the Setup | Options page.  Under
+   Linux or FreeBSD, enter the appropriate device name, for example
+   /dev/ttyS0.
+
+Special note to Linux and FreeBSD users
+---------------------------------------
+
+WSJT is now being used by a number of people on Linux or FreeBSD
+systems.  Appearance and operational behavior is essentially identical
+to the Windows version.  At present you must compile the yourself for
+Linix or FreeBSD.  Instructions are available, and others who have
+succeeded will help you if help is needed.  This is not necessarily a
+trivial task, however.  
+
+Packaged versions of WSJT for specific *nix distributions may be
+provided if there is sufficient demand.
+
+For more information on WSJT for Linux and FreeBSD, or if you want to
+try compiling the program for Mac OS/X, contact the WSJT development
+team at wsjt-devel@lists.berlios.de.  
+
+WSJT is Open Source software.  The source code and related materials
+can be found at http://developer.berlios.de/projects/wsjt/.
+
+
+Changes in WSJT 5.9.4 (r159):  April 11, 2006
+---------------------------------------------
+
+This is a maintenance release.  
+
+1. Problems exhibited on some computers with dual or "hyperthreading"
+CPUs have been fixed (or at least reduced, see below).
+
+2. Problems with reading previously recorded files (such as the sample
+files in the WSJT tutorial) have been fixed.
+
+3. Bad data could cause an error message "Error in KV decoder, or no
+KV decoder present" in the console window.  Fixed.
+
+4. The delay between PTT assertion and start of Tx Audio, and the
+delay between end of Tx Audio and release of PTT, have been increased
+by 0.2 s.  In addition, a bug in the T/R timing logic was fixed.
+
+5. There was a minor bug in computing the position of the moon.  (The
+displayed Az and El of the "home station" were correct for a time 100
+seconds earlier than the actual time.)  This has been fixed.  In
+addition, refraction adjustments are no longer made in the Sun and
+Moon elevations.
+
+6. A minor bug when displaying large negative Doppler shifts in the
+file azel.dat has been fixed.
+
+7. As an aid to future development of WSJT, the program is now capable
+of transmitting "test files" with arbitrary audio content.
+
+NOTE: If you have a computer with multiple CPUs or a CPU with
+hyperthreading, and if WSJT 5.9.4 does not run properly for you,
+please reboot your machine, enter the BIOS Setup screen, disable
+hyperthreading, and see if WSJT then runs properly.  Then let me know
+the results of this test.  Note: you will probably notice very little
+(if any) degradation in performance by leaving hyperthreading turned
+off.  For now, this is the recommended procedure if you have problems
+with it turned on.
+
+
 Changes in WSJT 5.9.3: January 26, 2006
 ---------------------------------------
 This is a minor maintenance release.
@@ -8,9 +146,8 @@ This is a minor maintenance release.
 2. The occasional error message about "images do not match" has been
    trapped and should no longer occur.
 
-3. Code that required one's own grid locator to be entered with first
-   two letters in upper case, last two in lower case, has been made
-   case insensitive (as it should have been).
+3. It is no longer necessary to enter one's own grid locator with the
+   first two letters in upper case and the last two in lower case.
 
 4. Initialization of the PTT line to the "OFF" state has been fixed.
 
