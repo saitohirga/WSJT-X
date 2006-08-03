@@ -1,4 +1,3 @@
-
 !---------------------------------------------------- decode3
 subroutine decode3(d2,jz,istart,filename)
 
@@ -67,7 +66,6 @@ subroutine decode3(d2,jz,istart,filename)
      filetokilla=''
      filetokillb=''
   endif
-  if(mousebutton.ne.0) filetokilla=''
   if(nsavelast.eq.1) filetokillb=''
   nsavelast=0
   ierr=unlink(filetokillb)
