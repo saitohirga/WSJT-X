@@ -223,8 +223,6 @@ C  Intentionally degrade SNR by -nclip dB.
 	   call syncf0(dat,jz,NFreeze,DFTolerance,jstart,f0,smax)
 	   call synct(dat,jz,jstart,f0,smax)
 	   call syncf1(dat,jz,jstart,f0,NFreeze,DFTolerance,smax,red)
- 	   if(NFreeze.gt.0 .and. abs(f0-f00).gt.float(DFTolerance)) 
-     +        go to 800
 
 	   f0a=f0
 	   do i=1,512
@@ -247,8 +245,14 @@ C  Intentionally degrade SNR by -nclip dB.
 	   jz=jz-jstart+1
 	   nslim=MinSigdB
 	   NFixLen=0
-	   call decode6m(dat(jstart),jz,cfile6,nslim,istart,
-     +       NFixLen,lcum,f0,lumsg,npkept,yellow)
+
+C  Call the decoder if DF is in range or Freeze is off.
+ 	   if(NFreeze.eq.0 .or. 
+     +         abs(f0-f00).lt.float(DFTolerance)) then
+	      call decode6m(dat(jstart),jz,cfile6,nslim,istart,
+     +            NFixLen,lcum,f0,lumsg,npkept,yellow)
+	   endif
+
 	   if(npkept.eq.0) f0a=0.
 
 	   if(pick) then
