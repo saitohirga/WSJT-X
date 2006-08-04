@@ -1549,7 +1549,7 @@ filemenu.add('command', label = 'Open next in directory', command = opennext)
 filemenu.add('command', label = 'Decode remaining files in directory', \
              command = decodeall)
 filemenu.add_separator()
-filemenu.add('command', label = 'Delete all *.WAV files in RxWAV', \
+filemenu.add('command', label = 'Delete all *.WAV files in RxWav', \
              command = delwav)
 filemenu.add_separator()
 filemenu.add('command', label = 'Erase ALL.TXT', command = del_all)
