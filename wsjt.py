@@ -1,5 +1,6 @@
 #--------------------------------------------------------------- WSJT
-
+# $Date$ $Revision$
+#
 from Tkinter import *
 from tkFileDialog import *
 import Pmw
