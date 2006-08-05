@@ -105,7 +105,7 @@
 	      dat2(j)=dat(j)-ave
 	   enddo
 
-#ifdef Win32
+#if (USE_PORTAUDIO==1)  || defined(Win32)
 	   ierr=resample(dat2,dat,samratio,jz)
 	   if(ierr.ne.0) print*,'Resample error.',samratio
 #endif
