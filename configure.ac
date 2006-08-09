@@ -20,7 +20,7 @@ dnl Make sure autoconf doesn't interfere with cflags -jmallett
 CFLAGS="$OLD_CFLAGS"
 
 dnl Lets guess at some likely places for extra libs/includes XXX -db
-CPPFLAGS="-Iportaudio-v19/pa_common -I/usr/local/include -I/usr/include/alsa ${CPPFLAGS}"
+CPPFLAGS="-Iportaudio-v19/include -I/usr/local/include -I/usr/include/alsa ${CPPFLAGS}"
 LDFLAGS="-L/usr/local/lib -lpthread ${LDFLAGS}"
 
 AC_MSG_CHECKING([uname -s for Cygwin, Solaris or HPUX])
@@ -110,12 +110,12 @@ AC_HEADER_TIME
 AC_CHECK_HEADER([sys/soundcard.h], [HAS_SOUNDCARD_H=1], [HAS_SOUNDCARD_H=0])
 AC_CHECK_HEADER([alsa/asoundlib.h], [HAS_ASOUNDLIB_H=1], [HAS_ASOUNDLIB_H=0])
 AC_CHECK_HEADER([jack/jack.h], [HAS_JACK_H=1], [HAS_JACK_H=0])
-if test -e "portaudio-v19/pa_common/portaudio.h" ; then
+if test -e "portaudio-v19/include/portaudio.h" ; then
 	echo "Checking for portaudio...yes"
 	HAS_PORTAUDIO_H=1
 else
 	echo "Checking for portaudio...no"
-	HAS_SAMPLERATE_H=0
+	HAS_PORTAUDIO_H=0
 fi
 AC_CHECK_HEADER([samplerate.h], [HAS_SAMPLERATE_H=1], [HAS_SAMPLERATE_H=0])
 
@@ -306,8 +306,8 @@ fi
 if test "$portaudio" = yes; then
 	AC_DEFINE(USE_PORTAUDIO, 1, [Define if you want PORTAUDIO used.])
 	AC_SUBST(AUDIO, "a2d.f90 jtaudio.c resample.c start_portaudio.c")
-	AC_SUBST(NEEDPORTAUDIO, "portaudio-v19/lib/libportaudio.a")
-	LDFLAGS="portaudio-v19/lib/libportaudio.a ${LDFLAGS} -lsamplerate" 
+	AC_SUBST(NEEDPORTAUDIO, "portaudio-v19/lib/.libs/libportaudio.a")
+	LDFLAGS="portaudio-v19/lib/.libs/libportaudio.a ${LDFLAGS} -lsamplerate" 
 else
 	AC_SUBST(NEEDPORTAUDIO, "")
 fi
