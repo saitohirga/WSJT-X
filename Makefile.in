@@ -124,5 +124,5 @@ wsjt.spec: wsjt.py astro.py g.py options.py palettes.py smeter.py specjt.py
 
 .PHONY : clean
 clean:
-	${RM} -f *.o *.so *~ JT65code wsjt6
+	${RM} -f *.o *.pyc *.so *~ JT65code wsjt6
 	(cd portaudio-v19;${MAKE} clean)
