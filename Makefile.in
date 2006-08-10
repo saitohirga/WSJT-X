@@ -1,6 +1,7 @@
 CC ?= @CC@
 FFLAGS	= @FFLAGS@
 LDFLAGS	= @LDFLAGS@
+LIBS	= @LIBS@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS	= @CFLAGS@
 # WSJT specific C flags
@@ -28,7 +29,6 @@ FC=@FC@
 COMPILER += @FC_LIB_PATH@
 
 LDFLAGS	+= -L${COMPILER}
-LDFLAGS	+= -lg2c
 
 PYTHON	?= @PYTHON@
 RM	?= @RM@
@@ -112,7 +112,7 @@ wsjt6:	@NEEDPORTAUDIO@ Audio.so #wsjt.spec
 Audio.so: $(OBJS2C) $(OBJS3C) $(OBJS2F77) $(SRCS2F90) $(AUDIOSRCS)
 	 ${F2PY} -c --quiet --opt="-O ${CFLAGS} \
 	-fno-second-underscore"	$(OBJS2C) $(OBJS2F77) -m Audio \
-	--f77exec=${FC} --f90exec=${FC} ${CPPFLAGS} ${LDFLAGS} \
+	--f77exec=${FC} --f90exec=${FC} ${CPPFLAGS} ${LDFLAGS} ${LIBS} \
 	only: $(F2PYONLY) \
 	: $(SRCS2F90) \
 	${SRCS3C} ${AUDIOSRCS}

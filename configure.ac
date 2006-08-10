@@ -21,7 +21,8 @@ CFLAGS="$OLD_CFLAGS"
 
 dnl Lets guess at some likely places for extra libs/includes XXX -db
 CPPFLAGS="-Iportaudio-v19/include -I/usr/local/include -I/usr/include/alsa ${CPPFLAGS}"
-LDFLAGS="-L/usr/local/lib -lpthread ${LDFLAGS}"
+LDFLAGS="-L/usr/local/lib ${LDFLAGS}"
+LIBS=" -lpthread ${LIBS}"
 
 AC_MSG_CHECKING([uname -s for Cygwin, Solaris or HPUX])
 case `uname -s` in
@@ -133,6 +134,8 @@ gcc_cv_header_string,
 if test "$gcc_cv_header_string" = "yes"; then
 	AC_DEFINE(STRING_WITH_STRINGS, 1, [Define to 1 if string.h may be included along with strings.h])
 fi
+
+AC_CHECK_LIB(rt, clock_gettime, [RTLIBS=""], [RTLIBS="-lrt"])
 
 AC_CHECK_SIZEOF(int64_t)
 AC_CHECK_SIZEOF(long long)
@@ -295,7 +298,7 @@ fi
 if test "$alsa" = yes; then
 	AC_DEFINE(USE_ALSA, 1, [Define if you want ALSA used.])
 	AC_SUBST(AUDIO, "start_alsa.c")
-	LDFLAGS="${LDFLAGS} -lasound"
+	LIBS="${LIBS} -lasound"
 fi
 
 if test "$oss" = yes; then
@@ -307,7 +310,7 @@ if test "$portaudio" = yes; then
 	AC_DEFINE(USE_PORTAUDIO, 1, [Define if you want PORTAUDIO used.])
 	AC_SUBST(AUDIO, "a2d.f90 jtaudio.c resample.c start_portaudio.c")
 	AC_SUBST(NEEDPORTAUDIO, "portaudio-v19/lib/.libs/libportaudio.a")
-	LDFLAGS="portaudio-v19/lib/.libs/libportaudio.a ${LDFLAGS} -lsamplerate" 
+	LIBS="${LIBS} -lsamplerate ${RTLIBS} -lsamplerate ./portaudio-v19/lib/.libs/libportaudio.a"
 else
 	AC_SUBST(NEEDPORTAUDIO, "")
 fi
@@ -366,6 +369,7 @@ fi
 dnl 
 AC_SUBST(CPPFLAGS, "${CPPFLAGS}")
 AC_SUBST(LDFLAGS, "${LDFLAGS}")
+AC_SUBST(LIBS, "${LIBS}")
 AC_SUBST(CFLAGS)
 
 AC_OUTPUT
