@@ -135,7 +135,7 @@ if test "$gcc_cv_header_string" = "yes"; then
 	AC_DEFINE(STRING_WITH_STRINGS, 1, [Define to 1 if string.h may be included along with strings.h])
 fi
 
-AC_CHECK_LIB(rt, clock_gettime, [RTLIBS=""], [RTLIBS="-lrt"])
+AC_CHECK_LIB(rt, clock_gettime, [RTLIBS="-lrt"], [RTLIBS=""])
 
 AC_CHECK_SIZEOF(int64_t)
 AC_CHECK_SIZEOF(long long)
