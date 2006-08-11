@@ -20,7 +20,7 @@ dnl Make sure autoconf doesn't interfere with cflags -jmallett
 CFLAGS="$OLD_CFLAGS"
 
 dnl Lets guess at some likely places for extra libs/includes XXX -db
-CPPFLAGS="-Iportaudio-v19/include -I/usr/local/include -I/usr/include/alsa ${CPPFLAGS}"
+CPPFLAGS="-Iportaudio-v19/include -I/usr/local/include -I/usr/include/alsa -I/usr/local/include/alsa ${CPPFLAGS}"
 LDFLAGS="-L/usr/local/lib ${LDFLAGS}"
 LIBS=" -lpthread ${LIBS}"
 
@@ -136,6 +136,7 @@ if test "$gcc_cv_header_string" = "yes"; then
 fi
 
 AC_CHECK_LIB(rt, clock_gettime, [RTLIBS="-lrt"], [RTLIBS=""])
+AC_CHECK_LIB(asound, snd_pcm_open, [ASOUNDLIBS="-lasound"], [ASOUNDLIBS=""])
 
 AC_CHECK_SIZEOF(int64_t)
 AC_CHECK_SIZEOF(long long)
@@ -284,6 +285,7 @@ AC_SUBST(FC, "${FC}")
 dnl set defaults
 dnl ============
 
+
 if test "$alsa" != yes -a "$oss" != yes -a \
 	"$portaudio" != yes; then
         if test $HAS_PORTAUDIO_H -eq 1; then
@@ -310,7 +312,11 @@ if test "$portaudio" = yes; then
 	AC_DEFINE(USE_PORTAUDIO, 1, [Define if you want PORTAUDIO used.])
 	AC_SUBST(AUDIO, "a2d.f90 jtaudio.c resample.c start_portaudio.c")
 	AC_SUBST(NEEDPORTAUDIO, "portaudio-v19/lib/.libs/libportaudio.a")
+dnl
+dnl	new portaudio-v19 on linux will be referencing alsa.
+dnl
 	LIBS="${LIBS} ${RTLIBS} -lsamplerate ./portaudio-v19/lib/.libs/libportaudio.a"
+	LIBS="${LIBS} ${ASOUNDLIBS}"
 else
 	AC_SUBST(NEEDPORTAUDIO, "")
 fi
