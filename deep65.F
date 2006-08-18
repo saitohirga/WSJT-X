@@ -145,6 +145,11 @@ C  This is really weird, but do not remove the following statement!
          qual=0.
       endif
       decoded(22:22)=c
+C  Make sure everything is upper case.
+      do i=1,22
+         if(decoded(i:i).ge.'a' .and. decoded(i:i).le.'z') 
+     +     decoded(i:i)=char(ichar(decoded(i:i))-32)
+      enddo
 
       return
       end

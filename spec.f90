@@ -22,7 +22,7 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
   integer b0,c0
   real x(4096)                  !Data for FFT
   complex c(0:2048)             !Complex spectrum
-  real ss(1024)                 !Bottom half of power spectrum
+  real ss(2048)                 !Power spectrum
   logical first
   include 'gcom1.f90'
   include 'gcom2.f90'
@@ -36,12 +36,12 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
   save
 
   if(first) then
-     do i=1,nq
-        ss(i)=0.
-     enddo
      istep=2205
      nfft=4096
-     nq=nfft/4
+     nh=nfft/2
+     do i=1,nh
+        ss(i)=0.
+     enddo
      df=11025.0/nfft
      fac=2.0/10000.
      nsum=0
@@ -140,7 +140,7 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
 
   call xfft2(x,nfft)
 
-  do i=1,nq                               !Accumulate power spectrum
+  do i=1,nh                               !Accumulate power spectrum
      ss(i)=ss(i) + real(c(i))**2 + aimag(c(i))**2
   enddo
   nsum=nsum+1
@@ -159,17 +159,29 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
         enddo
      endif
 
-     if(nflat.gt.0) call flat2(ss,1024,nsum)
+     if(nflat.gt.0) call flat2(ss,nh,nsum)
 
-     do i=1,750                       !Insert new data in top row
-        j=i+182                       ! ?? was 186 ??
-        a0(i)=5*ss(j)/nsum
+     ia=1
+     if(nfrange.eq.2000) then
+        i0=182 + nint((nfmid-1500)/df)
+        if(i0.lt.0) ia=1-i0
+     else if(nfrange.eq.4000) then
+        i0=nint(nfmid/df - 752.0)
+        if(i0.lt.0) ia=1-i0/2
+     endif
+     do i=ia,750                       !Insert new data in top row
+        if(nfrange.eq.2000) then
+           a0(i)=5*ss(i+i0)/nsum
+        else if(nfrange.eq.4000) then
+           smax=max(ss(2*i+i0),ss(2*i+i0-1))
+           a0(i)=5*smax/nsum
+        endif
         xdb=-40.
         if(a0(i).gt.0.) xdb=10*log10(a0(i))
-     enddo
+20   enddo
      nsum=0
      newdat=1                          !Flag for new spectrum available
-     do i=1,nq                         !Zero the accumulating array
+     do i=1,nh                         !Zero the accumulating array
         ss(i)=0.
      enddo
      if(jz.lt.300) jz=jz+1

@@ -1,5 +1,4 @@
 #---------------------------------------------------- SpecJT
-
 from Tkinter import *
 from tkMessageBox import showwarning
 import time
@@ -39,6 +38,10 @@ c0=0
 g0=0
 g.cmap="Linrad"
 df=2.69165
+fmid=1500
+fmid0=1500
+frange=2000
+frange0=2000
 isec0=-99
 logmap=IntVar()
 logmap.set(0)
@@ -50,6 +53,8 @@ naxis=IntVar()
 ncall=0
 newMinute=0
 nflat=IntVar()
+nfr=IntVar()
+nfr.set(1)
 nfreeze0=0
 nmark=IntVar()
 nmark0=0
@@ -116,7 +121,8 @@ def tx_volume():
 # Readout of graphical cursor location
 def fdf_change(event):
     if nspeed0.get()<6:
-        g.DFreq=df*(event.x-288.7)
+        g.DFreq=df*(event.x-288.7) + fmid - 1500
+        if nfr.get()==2: g.DFreq=2*df*(event.x-375.5) + fmid - 1270.5
         g.Freq=g.DFreq+1270.46
         t="Freq: %5d    DF: %5d  (Hz)" % (int(g.Freq),int(g.DFreq))
     else:
@@ -133,9 +139,12 @@ def fdf_change(event):
 #---------------------------------------------------- set_freezedf
 def set_freezedf(event):
     if g.mode[:4]=='JT65':
-        n=int(df*(event.x-288.7))
-        if n<-600: n=-600
-        if n>600:  n=600
+        n=int(df*(event.x-288.7) + fmid - 1500)
+        if nfr.get()==2: n=int(2*df*(event.x-375.5) + fmid - 1270.5)
+#        if n<-600: n=-600
+#        if n>600:  n=600
+        if n<-1270: n=-1270
+        if n>3800: n=3800
         Audio.gcom2.mousedf=n
     else:
         decode_request(event)
@@ -156,19 +165,75 @@ def df_mark():
         if g.mode[4:5]=='C': fstep=4*fstep
 
 # Mark sync tone and top JT65 tone (green) and shorthand tones (red)
-        if g.mode[:4]=="JT65":
-            color='green'
-            x1=(Audio.gcom2.mousedf + 6.6*fstep)/df + 288.7
-            c.create_line(x1-0.5,25,x1-0.5,12,fill=color)
-            c.create_line(x1+0.5,25,x1+0.5,12,fill=color)
-            for i in range(5):
-                x1=(Audio.gcom2.mousedf+i*fstep)/df + 288.7
-                j=12
-                if i>0: j=15
-                if i!=1: c.create_line(x1-0.5,25,x1-0.5,j,fill=color)
-                if i!=1: c.create_line(x1+0.5,25,x1+0.5,j,fill=color)
-                color='red'
-    
+        if(frange==2000):
+            dx=288.7 + (1500-fmid)/df
+            if g.mode[:4]=="JT65":
+                color='green'
+                x1=(Audio.gcom2.mousedf + 6.6*fstep)/df + dx
+                c.create_line(x1-0.5,25,x1-0.5,12,fill=color)
+                c.create_line(x1+0.5,25,x1+0.5,12,fill=color)
+                for i in range(5):
+                    x1=(Audio.gcom2.mousedf + i*fstep)/df + dx
+                    j=12
+                    if i>0: j=15
+                    if i!=1: c.create_line(x1-0.5,25,x1-0.5,j,fill=color)
+                    if i!=1: c.create_line(x1+0.5,25,x1+0.5,j,fill=color)
+                    color='red'
+        if(frange==4000):
+            dx=375 + (1270.5-fmid)/(2*df)
+            if g.mode[:4]=="JT65":
+                color='green'
+                x1=(Audio.gcom2.mousedf + 6.6*fstep)/(2*df) + dx
+                c.create_line(x1-0.5,25,x1-0.5,12,fill=color)
+                c.create_line(x1+0.5,25,x1+0.5,12,fill=color)
+                for i in range(5):
+                    x1=(Audio.gcom2.mousedf + i*fstep)/(2*df) + dx
+                    j=12
+                    if i>0: j=15
+                    if i!=1: c.create_line(x1-0.5,25,x1-0.5,j,fill=color)
+                    if i!=1: c.create_line(x1+0.5,25,x1+0.5,j,fill=color)
+                    color='red'
+
+#---------------------------------------------------- change_fmid
+def change_fmid1():
+    global fmid
+    fmid=fmid+100
+    if fmid>5000-1000*nfr.get(): fmid=5000-1000*nfr.get()
+
+def change_fmid2():
+    global fmid
+    fmid=fmid-100
+    if fmid<1000*nfr.get(): fmid=1000*nfr.get()
+
+def set_fmid():
+    global fmid
+    if nfr.get()==1: fmid=1200
+    if nfr.get()==2: fmid=2200
+
+#---------------------------------------------------- freq_range
+def freq_range(event):
+# Move frequency scale left or right in 100 Hz increments
+    global fmid
+    if event.num==1:
+        fmid=fmid+100
+    else:
+        if event.num==3:
+            fmid=fmid-100
+    if fmid<1000*nfr.get(): fmid=1000*nfr.get()
+    if fmid>5000-1000*nfr.get(): fmid=5000-1000*nfr.get()
+
+def set_frange():
+    nfr.set(3-nfr.get())
+
+#---------------------------------------------------- freq_center
+##def freq_center(event):
+### Move clicked location to center of frequency scale
+##    global fmid,frange
+##    n=100*int(0.01*df*(event.x-375))
+##    fmid = fmid + n
+##    if fmid<1000: fmid=1000
+##    if fmid>1700: fmid=1700
+
 #---------------------------------------------------- decode_request
 def decode_request(event):
     if g.mode[:4]!='JT65' and nspeed0.get()>5:
@@ -192,7 +257,8 @@ def freeze_decode(event):
 #---------------------------------------------------- update
 def update():
     global a,b0,c0,g0,im,isec0,line0,newMinute,nscroll,nspeed00,pim, \
-           root_geom,t0,mousedf0,nfreeze0,tol0,mode0,nmark0,logm0
+           root_geom,t0,mousedf0,nfreeze0,tol0,mode0,nmark0,logm0, \
+           fmid,fmid0,frange,frange0
     
     utc=time.gmtime(time.time()+0.1*Audio.gcom1.ndsec)
     isec=utc[5]
@@ -300,35 +366,66 @@ def update():
     if newdat: Audio.gcom2.ndiskdat=0
     Audio.gcom2.nlines=0
     Audio.gcom2.nflat=nflat.get()
+    frange=nfr.get()*2000
+    if(fmid<>fmid0 or frange<>frange0):
+        if fmid<1000*nfr.get(): fmid=1000*nfr.get()
+        if fmid>5000-1000*nfr.get(): fmid=5000-1000*nfr.get()
+        draw_axis()
+        fmid0=fmid
+        frange0=frange
+    Audio.gcom2.nfmid=int(fmid)
+    Audio.gcom2.nfrange=int(frange)
+
     if g.focus==2:
         root.focus_set()
     ltime.after(200,update)                      #Reset the timer
 
 #-------------------------------------------------------- draw_axis
 def draw_axis():
-    xmid=1500
+    xmid=fmid
     if naxis.get(): xmid=xmid-1270.46
     c.delete(ALL)
     if nspeed0.get()<6:
-        for ix in range(-1000,2501,20):
-            i=374.5 + (ix-xmid)/df
-            j=20
-            if (ix%100)==0 :
-                j=16
-                x=i-2
-                if ix<1000 : x=x+2
-                y=8
-                c.create_text(x,y,text=str(ix))
-            c.create_line(i,25,i,j,fill='black')
+# Draw the frequency or DF tick marks
+        if(frange==2000):
+            for ix in range(-1300,5001,20):
+                i=374.5 + (ix-xmid)/df
+                j=20
+                if (ix%100)==0 :
+                    j=16
+                    x=i-2
+                    if ix<1000 : x=x+2
+                    y=8
+                    c.create_text(x,y,text=str(ix))
+                c.create_line(i,25,i,j,fill='black')
 
+        if(frange==4000):
+            for ix in range(-2600,5401,50):
+                i=374.5 + (ix-xmid)/(2*df)
+                j=20
+                if (ix%200)==0 :
+                    j=16
+                    x=i-2
+                    if ix<1000 : x=x+2
+                    y=8
+                    c.create_text(x,y,text=str(ix))
+                c.create_line(i,25,i,j,fill='black')
+                
         if g.mode[:4]=="JT65":
+            dx=288.7 + (1500-fmid)/df
+            dff=df
+            if frange==4000:
+                dx=375 + (1270.5-fmid)/(2*df)
+                dff=2*df
             if Audio.gcom2.nfreeze==0:
-                x1=-600/df + 288.7
-                x2=600/df + 288.7
+#                x1=-600/dff + dx
+#                x2=600/dff + dx
+                x1=0
+                x2=749
             else:
                 tol=Audio.gcom2.dftolerance    
-                x1=(Audio.gcom2.mousedf-tol)/df + 288.7
-                x2=(Audio.gcom2.mousedf+tol)/df + 288.7
+                x1=(Audio.gcom2.mousedf-tol)/dff + dx
+                x2=(Audio.gcom2.mousedf+tol)/dff + dx
             c.create_line(x1,25,x2,25,fill='green',width=2)
             
     else:
@@ -369,9 +466,6 @@ setupmenu.add_radiobutton(label='Frequency axis',command=draw_axis,
 setupmenu.add_radiobutton(label='JT65 DF axis',command=draw_axis,
             value=1,variable=naxis)
 setupmenu.add_separator()
-#setupmenu.add_radiobutton(label='High sensitivity',value=0,variable=logmap)
-#setupmenu.add_radiobutton(label='High dynamic range',value=1,variable=logmap)
-#setupmenu.add_separator()
 setupmenu.palettes=Menu(setupmenu,tearoff=0)
 setupmenu.palettes.add_radiobutton(label='Gray0',command=pal_gray0,
             value=0,variable=npal)
@@ -387,10 +481,24 @@ setupmenu.palettes.add_radiobutton(label='AFMHot',command=pal_AFMHot,
             value=5,variable=npal)
 setupmenu.add_cascade(label = 'Palette',menu=setupmenu.palettes)
 
-lab1=Label(mbar,padx=50,bd=0)
+lab1=Label(mbar,padx=40,bd=0)
 lab1.pack(side=LEFT)
-fdf=Label(mbar,width=12,bd=0,padx=90)
+fdf=Label(mbar,width=20,bd=0,padx=20)
 fdf.pack(side=LEFT)
+
+lab3=Label(mbar,padx=13,bd=0)
+lab3.pack(side=LEFT)
+bbw=Button(mbar,text='BW',command=set_frange,padx=1,pady=1)
+bbw.pack(side=LEFT)
+
+lab0=Label(mbar,padx=5,bd=0)
+lab0.pack(side=LEFT)
+bfmid1=Button(mbar,text='<',command=change_fmid1,padx=1,pady=1)
+bfmid2=Button(mbar,text='>',command=change_fmid2,padx=1,pady=1)
+bfmid3=Button(mbar,text='|',command=set_fmid,padx=3,pady=1)
+bfmid1.pack(side=LEFT)
+bfmid3.pack(side=LEFT)
+bfmid2.pack(side=LEFT)
 
 #------------------------------------------------- Speed selection buttons
 for i in (7, 6, 5, 4, 3, 2, 1):
@@ -405,6 +513,11 @@ lab2.pack(side=RIGHT)
 iframe1 = Frame(frame, bd=1, relief=SUNKEN)
 c=Canvas(iframe1, bg='white', width=750, height=25,bd=0)
 c.pack(side=TOP)
+Widget.bind(c,"<Shift-Button-1>",freq_range)
+Widget.bind(c,"<Shift-Button-2>",freq_range)
+Widget.bind(c,"<Shift-Button-3>",freq_range)
+#Widget.bind(c,"<Control-Button-1>",freq_center)
+
 graph1=Canvas(iframe1, bg='black', width=750, height=300,bd=0,cursor='crosshair')
 graph1.pack(side=TOP)
 Widget.bind(graph1,"<Motion>",fdf_change)
@@ -462,6 +575,8 @@ try:
         elif key == 'Flatten': nflat.set(value)
         elif key == 'LogMap': logmap.set(value)
         elif key == 'Palette': g.cmap=value
+        elif key == 'Frange': nfr.set(value)
+        elif key == 'Fmid': fmid=int(value)
         else: pass
 except:
     print 'Error reading WSJT.INI, continuing with defaults.'
@@ -526,6 +641,8 @@ f.write("MarkTones " + str(nmark.get()) + "\n")
 f.write("Flatten " + str(nflat.get()) + "\n")
 f.write("LogMap " + str(logmap.get()) + "\n")
 f.write("Palette " + g.cmap + "\n")
+f.write("Frange " + str(nfr.get()) + "\n")
+f.write("Fmid " + str(fmid) + "\n")
 root_geom=root_geom[root_geom.index("+"):]
 f.write("SpecJTGeometry " + root_geom + "\n")
 f.close()
