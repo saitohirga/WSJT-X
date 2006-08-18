@@ -39,11 +39,15 @@ C  Compute power spectrum for each step and get average
       call flat1(psavg,s2,nh,nsteps,NHMAX,NSMAX)        !Flatten the spectra
 
 C  Find the best frequency channel for CCF
-      fa= 670.46
-      fb=1870.46
+!      famin= 670.46
+!      fbmax=1870.46
+      famin=200
+      fbmax=3800
+      fa=famin
+      fb=fbmax
       if(NFreeze.eq.1) then
-         fa=max( 670.46,1270.46+MouseDF-DFTolerance)
-         fb=min(1870.46,1270.46+MouseDF+DFTolerance)
+         fa=max(famin,1270.46+MouseDF-DFTolerance)
+         fb=min(fbmax,1270.46+MouseDF+DFTolerance)
       endif
       ia=fa/df
       ib=fb/df
@@ -61,7 +65,8 @@ C  Find the best frequency channel for CCF
       do i=ia,ib
          call xcor(s2,i,nsteps,nsym,lag1,lag2,
      +        ccfblue,ccf0,lagpk0,flip,0.0)
-         ccfred(i-i0)=ccf0
+         j=i-i0
+         if(j.ge.-224 .and. j.le.224) ccfred(j)=ccf0
 
 C  Find rms of the CCF, without the main peak
          call slope(ccfblue(lag1),lag2-lag1+1,lagpk0-lag1+1.0)

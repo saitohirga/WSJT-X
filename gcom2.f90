@@ -35,6 +35,8 @@ integer mode65         !JT65 sub-mode (A/B/C ==> 1/2/4) GUI,SoundIn,Decoder
 integer nclip          !Clipping level                          GUI
 integer ndebug         !Write debugging info?                   GUI
 integer nblank         !Is NB checked?                          GUI
+integer nfmid          !Center frequency of main display        GUI
+integer nfrange        !Frequency range of main display         GUI
 integer nport          !Requested COM port number               GUI
 integer mousedf        !Mouse-selected freq offset, DF          GUI
 integer neme           !EME calls only in deep search?          GUI
@@ -89,7 +91,7 @@ common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),             &
      mousedf,neme,nsked,naggressive,ntx2,nslim2,nagain,nsavelast,     &
      shok,sendingsh,d2a(661500),d2b(661500),b(60000),jza,jzb,ntime,   &
      idinterval,msmax,lenappdir,ndiskdat,nlines,nflat,ntxreq,ntxnow,  &
-     ndepth,nspecial,ndf,ss1(-224:224),ss2(-224:224),                 &
+     ndepth,nspecial,ndf,nfmid,nfrange,ss1(-224:224),ss2(-224:224),   &
      mycall,hiscall,hisgrid,txmsg,sending,mode,fname0,fnamea,         &
      fnameb,decodedfile,AppDir,filetokilla,filetokillb,utcdate,pttport
 

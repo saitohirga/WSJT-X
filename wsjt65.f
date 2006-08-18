@@ -186,7 +186,7 @@ C  Write the average line
      +     avemsg1,nc1,nqual1
  1023    format(a6,i3,i4,'/',i3,18x,a19,i8,i4)
          if(lcum .and. (avemsg1.ne.'                  ')) 
-     +      write(21,1011) ave1(1:57)//'         '
+     +      write(21,1011) ave1
          ns10=ns1
       endif
 
@@ -200,7 +200,7 @@ C  If Monitor segment #2 is available, write that line also
          if(ns2.ge.100) write(ave2,1023) cfile6,2,nused2,ns2,avemsg2,
      +     nc2,nqual2
          if(lcum .and. (avemsg2.ne.'                  ')) 
-     +      write(21,1011) ave2(1:57)//'         '
+     +      write(21,1011) ave2
          ns20=ns2
       endif
 
