@@ -128,12 +128,10 @@ def fdf_change(event):
     else:
         g.PingTime=0.04*event.x
         g.PingFreq=(121-event.y)*21.533
-        g.PingFile="current"
         if event.y > 150:
-            g.PingFile="previous"
             g.PingFreq=(271-event.y)*21.533
         if g.PingFreq<400: g.PingFreq=0
-        t="Time: %4.1f s %s  Freq: %d Hz" % (g.PingTime,g.PingFile,g.PingFreq)
+        t="Time: %4.1f s  Freq: %d Hz" % (g.PingTime,g.PingFreq)
     fdf.configure(text=t)
 
 #---------------------------------------------------- set_freezedf
@@ -481,9 +479,9 @@ setupmenu.palettes.add_radiobutton(label='AFMHot',command=pal_AFMHot,
             value=5,variable=npal)
 setupmenu.add_cascade(label = 'Palette',menu=setupmenu.palettes)
 
-lab1=Label(mbar,padx=40,bd=0)
+lab1=Label(mbar,padx=20,bd=0)
 lab1.pack(side=LEFT)
-fdf=Label(mbar,width=20,bd=0,padx=20)
+fdf=Label(mbar,width=25,bd=0)
 fdf.pack(side=LEFT)
 
 lab3=Label(mbar,padx=13,bd=0)
@@ -491,7 +489,7 @@ lab3.pack(side=LEFT)
 bbw=Button(mbar,text='BW',command=set_frange,padx=1,pady=1)
 bbw.pack(side=LEFT)
 
-lab0=Label(mbar,padx=5,bd=0)
+lab0=Label(mbar,padx=10,bd=0)
 lab0.pack(side=LEFT)
 bfmid1=Button(mbar,text='<',command=change_fmid1,padx=1,pady=1)
 bfmid2=Button(mbar,text='>',command=change_fmid2,padx=1,pady=1)
