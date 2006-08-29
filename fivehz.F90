@@ -234,10 +234,8 @@ end subroutine addnoise
 
 real function gran(idum)
   real r(12)
-  integer nseed(1)
-  data nseed/714478811/
   if(idum.lt.0) then
-     call random_seed(PUT=nseed)
+     call random_seed
      idum=0
   endif
   call random_number(r)

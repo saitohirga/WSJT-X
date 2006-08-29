@@ -150,9 +150,6 @@ C  Blank DT if shorthand message  (### wrong logic? ###)
          nspecial=0
       endif
 
-C  Blank the end-of-line numbers
-      if(naggressive.eq.0 .and. ndiag.eq.0) line(59:66)='         '
-
       if(lcum) write(21,1011) line
  1011 format(a67)
 C  Write decoded msg unless this is an "Exclude" request:
