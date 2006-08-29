@@ -467,8 +467,9 @@ def clrToRadio(event):
     ToRadio.delete(0,END)
     HisGrid.delete(0,99)
     ToRadio.focus_set()
-    if kb8rq.get(): ntx.set(6)
-
+    if kb8rq.get():
+        ntx.set(6)
+        nfreeze.set(0)
 
 #------------------------------------------------------ whois
 def whois(hiscall):
