@@ -123,10 +123,10 @@ start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
       return(-1);
     }
   } else {
-    data.fd_out = open(devin_name, O_WRONLY, 0);
+    data.fd_out = open(devout_name, O_WRONLY, 0);
 
     if(data.fd_out < 0) { 
-      fprintf(stderr, "Cannot open %s for input.\n", devout_name);
+      fprintf(stderr, "Cannot open %s for output.\n", devout_name);
       return (-1);
     }
   }
