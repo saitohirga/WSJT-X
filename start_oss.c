@@ -12,13 +12,11 @@
 #define FRAMESPERBUFFER 1024
 #define TIMEOUT 1000L		/* select time out for audio device */
 
-char rcv_buf[AUDIOBUFSIZE];	/* XXX grab one from upper app later --db */
-char tx_buf[AUDIOBUFSIZE];	/* XXX grab one from upper app later --db */
+/* XXX probably safer to use a local buffer due to the wsjt threaded nature. */
+static char rcv_buf[AUDIOBUFSIZE];	
+static char tx_buf[AUDIOBUFSIZE];
 
-#define DSP "/dev/dsp0.0"
-#define MAXDSPNAME sizeof(DSP)+1	/* quick hack --db */
-char dsp_in[MAXDSPNAME];		/* Both of these must be same length */
-char dsp_out[MAXDSPNAME];
+#define MAXDSPNAME 16
 
 extern void decode1_(int *iarg);
 void oss_loop(int *iarg);
@@ -99,29 +97,38 @@ start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
   if(p != NULL)
     *p = '\0';
 
-  /* If there is a '/' in the name assume it is /dev/name */
-  p = strchr(devin_name, '/');
+  p = strchr(devout_name, ' ');
   if(p != NULL)
-    snprintf(dsp_in, MAXDSPNAME, "%s", devin_name);	/* assume /dev/... */
-  else
-    snprintf(dsp_in, MAXDSPNAME, "/dev/%s", devin_name);
+    *p = '\0';
 
-  dsp_in[MAXDSPNAME] = '\0';
-
-  data.fd_in = open(dsp_in, O_RDWR, 0);
+  data.fd_in = open(devin_name, O_RDONLY, 0);
 
   if(data.fd_in < 0) { 
-	fprintf(stderr, "Cannot open %s for input.\n", dsp_in);
+	fprintf(stderr, "Cannot open %s for input.\n", devin_name);
 	return (-1);
   }
 
-  data.fd_out = data.fd_in;
-  strncpy(dsp_out, dsp_in, sizeof(dsp_out));
-  dsp_out[sizeof(dsp_out)] = '\0';
+  if (*devout_name == '\0') {
+    close(data.fd_in);
+    data.fd_in = open(devin_name, O_RDWR, 0);
 
-  if(ioctl(data.fd_in, SNDCTL_DSP_SETDUPLEX, 0) < 0) {
-    fprintf(stderr, "Cannot use %s for full duplex.\n", dsp_in);
-    return(-1);
+    if(data.fd_in < 0) { 
+      fprintf(stderr, "Cannot open %s for input.\n", devin_name);
+      return (-1);
+    }
+
+    data.fd_out = data.fd_in;
+    if(ioctl(data.fd_in, SNDCTL_DSP_SETDUPLEX, 0) < 0) {
+      fprintf(stderr, "Cannot use %s for full duplex.\n", devin_name);
+      return(-1);
+    }
+  } else {
+    data.fd_out = open(devin_name, O_WRONLY, 0);
+
+    if(data.fd_out < 0) { 
+      fprintf(stderr, "Cannot open %s for input.\n", devout_name);
+      return (-1);
+    }
   }
 
   data.Tsec = Tsec;
@@ -167,8 +174,11 @@ start_threads_(int *ndevin, int *ndevout, short y1[], short y2[],
 
   printf("Audio OSS streams running normally.\n");
   printf("******************************************************************\n");
-  printf("Opened %s for input.\n", dsp_in);
-  printf("Opened %s for output.\n", dsp_out);
+  printf("Opened %s for input.\n", devin_name);
+  if (*devout_name != '\0')
+    printf("Opened %s for output.\n", devout_name);
+  else
+    printf("Opened %s for output.\n", devin_name);
   printf("Rate set = %d\n", rate);
 
   //  printf("start_threads: creating thread for oss_loop\n");
