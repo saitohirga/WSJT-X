@@ -24,7 +24,7 @@ void oss_loop(int *iarg);
 /*
  * local state data referencing some gcom common fortran variables as well
  */
-struct audio_data {
+static struct audio_data {
   int fd_in;		/* Audio fd in; used only locally in this function  */
   int fd_out;		/* Audio fd out; used only locally in this function */
   double *Tsec;		/* Present time                       SoundIn,SoundOut */
