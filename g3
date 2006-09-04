@@ -1,2 +1,0 @@
-python /home/joe/installer_6a2/Installer/Build.py wsjt.spec
-mv wsjt wsjt6

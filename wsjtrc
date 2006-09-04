@@ -1,6 +1,6 @@
-*font:			Arial 9
-*Label*font:		Arial 9
-*Text*font:		"Courier New" 10
+*font:			"bitstream vera sans" 11
+*Label*font:		"bitstream vera sans" 11
+*Text*font:		"terminus" 13
 *background:		gray85
 *Text*background:	white
 *Entry*background:	white

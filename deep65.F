@@ -131,7 +131,10 @@ C  Insert CQ message unless sync=OOO (flip=-1).
       if(mode65.eq.2) bias=max(1.08*p2,0.405)
       if(mode65.ge.4) bias=max(1.04*p2,0.505)
 
-C  This is really weird, but do not remove the following statement!
+
+C  This is really weird, but do not remove the following statements!
+      write(77,*) mode65,bias,p1,p2
+      rewind 77
       rewind 23
 
       qual=100.0*(p1-bias)
