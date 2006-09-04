@@ -44,7 +44,7 @@ available_tags=" CXX F77"
 
 # ### BEGIN LIBTOOL CONFIG
 
-# Libtool was configured on host pulsar21.Princeton.EDU:
+# Libtool was configured on host aubrey:
 
 # Shell to use when invoking shell scripts.
 SHELL="/bin/sh"
@@ -174,7 +174,7 @@ dlopen_self_static=unknown
 link_static_flag="-static"
 
 # Compiler flag to turn off builtin functions.
-no_builtin_flag=" -fno-builtin -fno-rtti -fno-exceptions"
+no_builtin_flag=" -fno-builtin"
 
 # Compiler flag to allow reflexive dlopens.
 export_dynamic_flag_spec="\${wl}--export-dynamic"
@@ -325,10 +325,10 @@ variables_saved_for_relink="PATH LD_LIBRARY_PATH LD_RUN_PATH GCC_EXEC_PREFIX COM
 link_all_deplibs=unknown
 
 # Compile-time system search path for libraries
-sys_lib_search_path_spec=" /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/ /usr/lib/gcc/i386-redhat-linux/3.2.2/ /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../../../i386-redhat-linux/lib/i386-redhat-linux/3.2.2/ /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../../../i386-redhat-linux/lib/ /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../../i386-redhat-linux/3.2.2/ /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../../ /lib/i386-redhat-linux/3.2.2/ /lib/ /usr/lib/i386-redhat-linux/3.2.2/ /usr/lib/"
+sys_lib_search_path_spec=" /usr/lib/gcc/i486-linux-gnu/4.1.2/ /usr/lib/gcc/i486-linux-gnu/4.1.2/ /usr/lib/gcc/i486-linux-gnu/4.1.2/../../../../i486-linux-gnu/lib/i486-linux-gnu/4.1.2/ /usr/lib/gcc/i486-linux-gnu/4.1.2/../../../../i486-linux-gnu/lib/ /usr/lib/gcc/i486-linux-gnu/4.1.2/../../../i486-linux-gnu/4.1.2/ /usr/lib/gcc/i486-linux-gnu/4.1.2/../../../ /lib/i486-linux-gnu/4.1.2/ /lib/ /usr/lib/i486-linux-gnu/4.1.2/ /usr/lib/"
 
 # Run-time system search path for libraries
-sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/kerberos/lib /usr/X11R6/lib /usr/local/lib /usr/local/pgplot /usr/lib/qt-3.1/lib /usr/lib/qt2/lib "
+sys_lib_dlsearch_path_spec="/lib /usr/lib /lib /usr/lib /usr/i486-linuxlibc1/lib /usr/local/lib /usr/lib/mozilla /usr/lib/atlas "
 
 # Fix the shell variable $srcfile for the compiler.
 fix_srcfile_path=""
@@ -7323,7 +7323,7 @@ disable_libs=static
 # End:
 # ### BEGIN LIBTOOL TAG CONFIG: CXX
 
-# Libtool was configured on host pulsar21.Princeton.EDU:
+# Libtool was configured on host aubrey:
 
 # Shell to use when invoking shell scripts.
 SHELL="/bin/sh"
@@ -7505,11 +7505,11 @@ striplib="strip --strip-unneeded"
 
 # Dependencies to place before the objects being linked to create a
 # shared library.
-predep_objects="/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../../crti.o /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/crtbeginS.o"
+predep_objects="/usr/lib/gcc/i486-linux-gnu/4.0.4/../../../../lib/crti.o /usr/lib/gcc/i486-linux-gnu/4.0.4/crtbeginS.o"
 
 # Dependencies to place after the objects being linked to create a
 # shared library.
-postdep_objects="/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/crtendS.o /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../../crtn.o"
+postdep_objects="/usr/lib/gcc/i486-linux-gnu/4.0.4/crtendS.o /usr/lib/gcc/i486-linux-gnu/4.0.4/../../../../lib/crtn.o"
 
 # Dependencies to place before the objects being linked to create a
 # shared library.
@@ -7521,7 +7521,7 @@ postdeps="-lstdc++ -lm -lgcc_s -lc -lgcc_s"
 
 # The library search path used internally by the compiler when linking
 # a shared library.
-compiler_lib_search_path="-L/usr/lib/gcc-lib/i386-redhat-linux/3.2.2 -L/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../.."
+compiler_lib_search_path="-L/usr/lib/gcc/i486-linux-gnu/4.0.4 -L/usr/lib/gcc/i486-linux-gnu/4.0.4 -L/usr/lib/gcc/i486-linux-gnu/4.0.4/../../../../lib -L/usr/lib/gcc/i486-linux-gnu/4.0.4/../../.. -L/lib/../lib -L/usr/lib/../lib"
 
 # Method to check whether dependent libraries are shared objects.
 deplibs_check_method="pass_all"
@@ -7601,10 +7601,10 @@ variables_saved_for_relink="PATH LD_LIBRARY_PATH LD_RUN_PATH GCC_EXEC_PREFIX COM
 link_all_deplibs=unknown
 
 # Compile-time system search path for libraries
-sys_lib_search_path_spec=" /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/ /usr/lib/gcc/i386-redhat-linux/3.2.2/ /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../../../i386-redhat-linux/lib/i386-redhat-linux/3.2.2/ /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../../../i386-redhat-linux/lib/ /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../../i386-redhat-linux/3.2.2/ /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../../ /lib/i386-redhat-linux/3.2.2/ /lib/ /usr/lib/i386-redhat-linux/3.2.2/ /usr/lib/"
+sys_lib_search_path_spec=" /usr/lib/gcc/i486-linux-gnu/4.0.4/ /usr/lib/gcc/i486-linux-gnu/4.0.4/ /usr/lib/gcc/i486-linux-gnu/4.0.4/../../../../i486-linux-gnu/lib/i486-linux-gnu/4.0.4/ /usr/lib/gcc/i486-linux-gnu/4.0.4/../../../../i486-linux-gnu/lib/ /usr/lib/gcc/i486-linux-gnu/4.0.4/../../../i486-linux-gnu/4.0.4/ /usr/lib/gcc/i486-linux-gnu/4.0.4/../../../ /lib/i486-linux-gnu/4.0.4/ /lib/ /usr/lib/i486-linux-gnu/4.0.4/ /usr/lib/"
 
 # Run-time system search path for libraries
-sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/kerberos/lib /usr/X11R6/lib /usr/local/lib /usr/local/pgplot /usr/lib/qt-3.1/lib /usr/lib/qt2/lib "
+sys_lib_dlsearch_path_spec="/lib /usr/lib /lib /usr/lib /usr/i486-linuxlibc1/lib /usr/local/lib /usr/lib/mozilla /usr/lib/atlas "
 
 # Fix the shell variable $srcfile for the compiler.
 fix_srcfile_path=""
@@ -7628,7 +7628,7 @@ include_expsyms=""
 
 # ### BEGIN LIBTOOL TAG CONFIG: F77
 
-# Libtool was configured on host pulsar21.Princeton.EDU:
+# Libtool was configured on host aubrey:
 
 # Shell to use when invoking shell scripts.
 SHELL="/bin/sh"
@@ -7672,7 +7672,7 @@ LTCC="gcc"
 LTCFLAGS="-g -O2"
 
 # A language-specific compiler.
-CC="g77"
+CC="f95"
 
 # Is the compiler the GNU C compiler?
 with_gcc=yes
@@ -7909,10 +7909,10 @@ variables_saved_for_relink="PATH LD_LIBRARY_PATH LD_RUN_PATH GCC_EXEC_PREFIX COM
 link_all_deplibs=unknown
 
 # Compile-time system search path for libraries
-sys_lib_search_path_spec=" /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/ /usr/lib/gcc/i386-redhat-linux/3.2.2/ /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../../../i386-redhat-linux/lib/i386-redhat-linux/3.2.2/ /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../../../i386-redhat-linux/lib/ /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../../i386-redhat-linux/3.2.2/ /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/../../../ /lib/i386-redhat-linux/3.2.2/ /lib/ /usr/lib/i386-redhat-linux/3.2.2/ /usr/lib/"
+sys_lib_search_path_spec=" /usr/lib/gcc/i486-linux-gnu/4.1.2/ /usr/lib/gcc/i486-linux-gnu/4.1.2/ /usr/lib/gcc/i486-linux-gnu/4.1.2/../../../../i486-linux-gnu/lib/i486-linux-gnu/4.1.2/ /usr/lib/gcc/i486-linux-gnu/4.1.2/../../../../i486-linux-gnu/lib/ /usr/lib/gcc/i486-linux-gnu/4.1.2/../../../i486-linux-gnu/4.1.2/ /usr/lib/gcc/i486-linux-gnu/4.1.2/../../../ /lib/i486-linux-gnu/4.1.2/ /lib/ /usr/lib/i486-linux-gnu/4.1.2/ /usr/lib/"
 
 # Run-time system search path for libraries
-sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/kerberos/lib /usr/X11R6/lib /usr/local/lib /usr/local/pgplot /usr/lib/qt-3.1/lib /usr/lib/qt2/lib "
+sys_lib_dlsearch_path_spec="/lib /usr/lib /lib /usr/lib /usr/i486-linuxlibc1/lib /usr/local/lib /usr/lib/mozilla /usr/lib/atlas "
 
 # Fix the shell variable $srcfile for the compiler.
 fix_srcfile_path=""
