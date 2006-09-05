@@ -1,6 +1,6 @@
       subroutine short65(data,jz,NFreeze,MouseDF,DFTolerance,
      +  mode65,nspecialbest,nstest,dfsh,iderrbest,idriftbest,
-     +  snrdb,ss1,ss2,nwsh)
+     +  snrdb,ss1a,ss2a,nwsh)
 
 C  Checks to see if this might be a shorthand message.
 C  This is done before zapping, downsampling, or normal decoding.
@@ -17,8 +17,10 @@ C  This is done before zapping, downsampling, or normal decoding.
       real ss(NQ,4)                          !Save spectra in four phase bins
       real psavg(NQ)
       real sigmax(4)                         !Peak of spectrum at each phase
-      real ss1(-224:224)                     !Lower magenta curve
-      real ss2(-224:224)                     !Upper magenta curve
+      real ss1a(-224:224)                    !Lower magenta curve
+      real ss2a(-224:224)                    !Upper magenta curve
+      real ss1(-473:1227)                    !Lower magenta curve (temp)
+      real ss2(-473:1227)                    !Upper magenta curve (temp)
       real ssavg(-10:10)
       integer ipk(4)                         !Peak bin at each phase
       save
@@ -139,19 +141,17 @@ C  Find strongest line in each of the 4 phases, repeating for each drift rate.
             ipk2=ntmp
          endif
 
-         call zero(ss1,449)
-         call zero(ss2,449)
+         call zero(ss1,1701)
+         call zero(ss2,1701)
          do i=ia2,ib2,4
             f=df*i
             k=nint((f-1270.46)/df4)
-            if(k.ge.-224 .and. k.le.224) then
-               ss1(k)=0.3 * (ss(i-2,n1) + ss(i-1,n1) + ss(i,n1) + 
-     +           ss(i+1,n1) + ss(i+2,n1))
-               ss2(k)=0.3 * (ss(i-2,n2) + ss(i-1,n2) + ss(i,n2) +
-     +           ss(i+1,n2) + ss(i+2,n2))
-            endif
+            ss1(k)=0.3 * (ss(i-2,n1) + ss(i-1,n1) + ss(i,n1) + 
+     +        ss(i+1,n1) + ss(i+2,n1))
+            ss2(k)=0.3 * (ss(i-2,n2) + ss(i-1,n2) + ss(i,n2) +
+     +        ss(i+1,n2) + ss(i+2,n2))
          enddo
-!         kpk1=nint(0.25*ipk(n1)-472.0)
+
          kpk1=nint(0.25*ipk1-472.0)
          kpk2=kpk1 + nspecial*mode65*10
          ssmax=0.
@@ -176,6 +176,11 @@ C  Find strongest line in each of the 4 phases, repeating for each drift rate.
  120     x=x+(ssavg(itop+(k-1))-shalf)/(ssavg(itop+(k-1))-ssavg(itop+k))
          nwsh=nint(x*df4)
       endif
+
+      do i=-224,224
+         ss1a(i)=ss1(i)
+         ss2a(i)=ss2(i)
+      enddo
 
       return
       end
