@@ -27,3 +27,14 @@ subroutine flushqqq(lu)
   return
 end subroutine flushqqq
 
+subroutine sleepqqq(n)
+#ifdef Win32
+  use dflib
+      call sleepqq(n)
+#else
+      call usleep(n*1000)
+#endif
+
+  return
+
+end subroutine sleepqqq
