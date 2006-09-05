@@ -5,12 +5,11 @@
       real s3(64,63)
       character callsign*12,grid*4,message*22,hisgrid*6,c*1,ceme*3
       character*12 mycall,hiscall
-      character*22 decoded,deepmsg
+      character*22 decoded
       character*22 testmsg(2*MAXCALLS + 2 + MAXRPT)
       character*15 callgrid(MAXCALLS)
       character*180 line
       character*4 rpt(MAXRPT)
-      logical first
       integer ncode(63,2*MAXCALLS + 2 + MAXRPT)
       real pp(2*MAXCALLS + 2 + MAXRPT)
       common/tmp9/ mrs(63),mrs2(63)
@@ -61,7 +60,7 @@
             if(neme.eq.1 .and. ceme.ne.'EME') go to 10
          endif
 
- 5       icall=icall+1
+         icall=icall+1
          j1=index(mycall,' ') - 1
          if(j1.le.-1) j1=12
          if(j1.lt.3) j1=6
@@ -120,7 +119,7 @@ C  Insert CQ message unless sync=OOO (flip=-1).
             p1=p
             ip1=k
          endif
- 30   enddo
+      enddo
 
       p2=-1.e30
       do i=1,ntot
@@ -133,9 +132,10 @@ C  Insert CQ message unless sync=OOO (flip=-1).
 
 
 C  This is really weird, but do not remove the following statements!
-      write(77,*) mode65,bias,p1,p2
-      rewind 77
-      rewind 23
+!      write(77,*) mode65,bias,p1,p2
+!      rewind 77
+!      rewind 23
+      call sleepqqq(1)
 
       qual=100.0*(p1-bias)
       decoded='                      '
