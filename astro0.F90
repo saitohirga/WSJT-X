@@ -1,4 +1,3 @@
-
 !--------------------------------------------------- astro0
 subroutine astro0(nyear,month,nday,uth8,nfreq,grid,cauxra,cauxdec,       &
      AzSun8,ElSun8,AzMoon8,ElMoon8,AzMoonB8,ElMoonB8,ntsky,ndop,ndop00,  &

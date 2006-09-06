@@ -7,7 +7,6 @@ subroutine audio_init(ndin,ndout)
   external a2d,decode1
 #endif
 
-  integer brightness,contrast
   include 'gcom1.f90'
   include 'gcom2.f90'
 
@@ -30,10 +29,6 @@ subroutine audio_init(ndin,ndout)
   nmax=nbufs*nspb
   nwave=60*nfsample
   ngo=1
-  brightness=0
-  contrast=0
-  nsec=1
-  df=11025.0/4096
   f0=800.0
   do i=1,nwave
      iwave(i)=nint(32767.0*sin(6.283185307*i*f0/nfsample))

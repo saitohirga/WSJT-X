@@ -29,7 +29,6 @@ subroutine savedata
   ibuf2=ibuf0-1
 1 jza=2048*(ibuf2-ibuf1)
   if(jza.lt.0) jza=jza+NRxMax
-  lenok=1
   if(jza.lt.110250) go to 999           !Don't save files less than 10 s
   if(jza.gt.60*11025) go to 999         !Don't save if something's fishy
   k=2048*(ibuf1-1)
@@ -127,7 +126,6 @@ subroutine savedata
 
 999 if(mode(1:4).ne.'JT65') then
      ibuf0z=ibuf0
-     ntime0=ntime
      call get_fname(hiscall,ntime,trperiod,lauto,fname0)
   endif
 

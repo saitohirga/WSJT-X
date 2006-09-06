@@ -13,7 +13,6 @@ subroutine pix2d65(d2,jz)
   nadd=nint(53.0*11025.0/500.0)
   ngreen=min(jz/nadd,500)
   k=0
-  j=0
   do i=1,ngreen
      sq=0.
      do n=1,nadd

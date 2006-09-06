@@ -17,10 +17,10 @@ subroutine fivehz
   parameter (NTRING=64)
   real*8 tt1(0:NTRING-1)
   real*8 tstart,tstop,t60
-  logical first,txtime,debug,filled
+  logical first,txtime,filled
   integer ptt
   integer TxOKz
-  real*8 fs,fsample,tt,tt0,u
+  real*8 fs,fsample,tt,u
   include 'gcom1.f90'
   include 'gcom2.f90'
   data first/.true./,nc0/1/,nc1/1/
@@ -37,14 +37,11 @@ subroutine fivehz
      first=.false.
      iptt=0
      ntr0=-99
-     debug=.false.
      rxdone=.false.
      ibuf00=-99
      ncall=-1
-     tt0=tt
      u=0.05d0
      fsample=11025.d0
-     maxms=0
      mfsample=110250
      filled=.false.
   endif
@@ -54,7 +51,6 @@ subroutine fivehz
 ! Measure average sampling frequency over a recent interval
   ncall=ncall+1
   if(ncall.eq.9) then
-     tt0=tt
      ntt0=0
      ntt1=0
      tt1(ntt1)=tt
@@ -199,7 +195,7 @@ subroutine fivehztx
   parameter (NTRING=64)
   real*8 tt1(0:NTRING-1)
   logical first,filled
-  real*8 fs,fsample,tt,tt0,u
+  real*8 fs,fsample,tt,u
   include 'gcom1.f90'
   data first/.true./
   save
@@ -212,17 +208,14 @@ subroutine fivehztx
      first=.false.
      ncall=-1
      fsample=11025.d0
-     nsec0=-999
      u=0.05d0
      mfsample2=110250
-     tt0=tt
      filled=.false.
   endif
 
 ! Measure average sampling frequency over a recent interval
   ncall=ncall+1
   if(ncall.eq.9) then
-     tt0=tt
      ntt0=0
      ntt1=0
      tt1(ntt1)=tt

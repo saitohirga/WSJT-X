@@ -41,7 +41,6 @@ C  Set up necessary constants
       dt=1.0/(samfac*11025.0)
       f0=118*11025.d0/1024
       dfgen=mode65*11025.0/4096.0
-      xn=0.
       t=0.d0
       phi=0.d0
       k=0

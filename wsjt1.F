@@ -37,23 +37,18 @@
 	real yellow(216)
 	real yellow0(216)
 	real fzap(200)
-
 	integer resample
 	real*8 samfacin,samratio
 	real dat2(NP2)
-
-	integer*1 dtmp
 	character msg3*3
 	character cfile6*6
 	logical lcum
 	integer indx(100)
 	character*90 line
-
 	common/avecom/dat(NP2),labdat,jza,modea
 	common/ccom/nline,tping(100),line(100)
 	common/limcom/ nslim2a
 	common/clipcom/ nclip
-	equivalence (dtmp,ntmp)
 	save
 
 	lcum=.true.

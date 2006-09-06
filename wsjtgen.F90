@@ -200,7 +200,6 @@ subroutine wsjtgen
   k=0
   df=11025.0/NSPD
   do m=1,ndits
-     j=itone(m)
      freq=(LTone-1+itone(m))*df
      dpha=twopi*freq*dt
      do i=1,NSPD

@@ -43,13 +43,11 @@ C  threshold.  However, for the average message we want all FFTs computed.
 
       call zero(ref,44)
 
-      nh=256
       nz=jz/512 - 1
       fac=1.0/512.0
       do j=1,nz        
          i0=512*(j-1) + 1
           do i=0,511
-c            fac=1.0/512.0 * abs(i-nh)/float(nh)       !Window OK?
             ct(i)=fac*c(i0+i)
          enddo
          call four2a(ct,512,1,-1,1)

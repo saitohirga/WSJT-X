@@ -1,4 +1,3 @@
-
 !---------------------------------------------------- decode2
 subroutine decode2
 
@@ -98,6 +97,6 @@ subroutine decode2
   endif
   fnameb=fnamea
 
-999 return
+  return
 
 end subroutine decode2

@@ -45,8 +45,7 @@ C  This is a kludge:
          enddo
       enddo
 
- 10   nzaps=izap
-      ia=70/df
+ 10   ia=70/df
       do i=1,ia
          c(i)=0.
       enddo

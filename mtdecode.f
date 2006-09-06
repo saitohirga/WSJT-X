@@ -24,9 +24,7 @@ C  Decode Multi-Tone FSK441 mesages.
       nf1=-DFTolerance
       nf2=DFTolerance
       msg3='   '
-      nq=64
       dt=1.0/11025.0
-      df=11025.0/256.0
 
 C  Find signal power at suitable intervals to search for pings.
       istep=221
@@ -137,7 +135,6 @@ C  If it's the best ping yet, save the spectrum:
          cf=' '
          if(nline.le.99) nline=nline+1
          tping(nline)=tstart
-         snr=10.0*log10(10.0**(0.1*peak)-1.0)
          write(line(nline),1050) cfile6,tstart,mswidth,int(peak),
      +        nwidth,nstrength,noffset,msg3,msg,cf
  1050    format(a6,f5.1,i5,i3,1x,2i1,i5,1x,a3,1x,a40,1x,a1)

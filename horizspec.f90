@@ -15,9 +15,7 @@ subroutine horizspec(x,brightness,contrast,a)
   nfft=512
   nq=nfft/4
   gain=50.0 * 3.0**(0.36+0.01*contrast)
-  gamma=1.3 + 0.01*contrast
   offset=0.5*(brightness+30.0)
-!  offset=0.5*(brightness+60.0)
   df=11025.0/512.0
   if(ntr.ne.ntr0) then
      if(lauto.eq.0 .or. ntr.eq.TxFirst) then
@@ -30,9 +28,6 @@ subroutine horizspec(x,brightness,contrast,a)
   i0=0
   do iter=1,5
      if(nx.lt.750) nx=nx+1
-     if(nx.eq.1) then
-        t0curr=Tsec
-     endif
      do i=1,nfft
         y(i)=1.4*x(i+i0)
      enddo
@@ -46,9 +41,7 @@ subroutine horizspec(x,brightness,contrast,a)
      do i=21,120
         p=p+ss(i)
         n=0
-! Use the gamma formula here!
         if(ss(i).gt.0.) n=gain*log10(0.05*ss(i)) + offset
-!        if(ss(i).gt.0.) n=(0.2*ss(i))**gamma + offset
         n=min(252,max(0,n))
         j=121-i
         a(nx,j)=n
