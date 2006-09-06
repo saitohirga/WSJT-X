@@ -556,6 +556,7 @@ def ModeJT65():
     graph2.configure(bg='#66FFFF')
     itol=5
     inctol()
+    nfreeze.set(0)
     ntx.set(1)
     GenStdMsgs()
     erase()
@@ -673,40 +674,40 @@ def shortcuts(event=NONE):
     scwid.geometry(msgpos())
     if g.Win32: scwid.iconbitmap("wsjt.ico")
     t="""
-F1		List keyboard shortcuts
+F1	List keyboard shortcuts
 Shift-F1	List special mouse commands
-CTRL-F1  	About WSJT
-F2		Options
-F3              Tx Mute
-F4		Clear "To Radio"
-F5		What message to send?
-F6		Open next file in directory
+CTRL-F1	About WSJT
+F2	Options
+F3	Tx Mute
+F4	Clear "To Radio"
+F5	What message to send?
+F6	Open next file in directory
 Shift-F6	Decode all wave files in directory
-F7		Set FSK441 mode
+F7	Set FSK441 mode
 Shift-F7	Set JT6M mode
-F8		Set JT65A mode
+F8	Set JT65A mode
 Shift-F8	Set JT65B mode
-CTRL-F8		Set JT65C mode
+CTRL-F8	Set JT65C mode
 Shift-CTRL-F8	Set CW mode
-F10             Toggle focus between WSJT screens
-Alt-1 to Alt-6  Tx1 to Tx6
-Alt-A           Toggle Auto On/Off
-Alt-D           Decode
-Alt-E           Erase
-Alt-F           Toggle Freeze
-Alt-G	    Generate Standard Messages
-Alt-I           Include
-Alt-L	    Lookup
-CTRL-L	    Lookup, then Generate Standard Messages
-Alt-M           Monitor
-Alt-O           Tx Stop
-Alt-P           Play
-Alt-Q           Log QSO
-Alt-S           Stop Monitoring or Decoding
-Alt-V           Save Last
-Alt-X           Exclude
-Alt-Z           Toggle Zap
-Right/Left Arrow    Increase/decrease Freeze DF
+F10	Toggle focus between WSJT screens
+Alt-1 to Alt-6	Tx1 to Tx6
+Alt-A	Toggle Auto On/Off
+Alt-D	Decode
+Alt-E	Erase
+Alt-F	Toggle Freeze
+Alt-G	Generate Standard Messages
+Alt-I	Include
+Alt-L	Lookup
+CTRL-L	Lookup, then Generate Standard Messages
+Alt-M	Monitor
+Alt-O	Tx Stop
+Alt-P	Play
+Alt-Q	Log QSO
+Alt-S	Stop Monitoring or Decoding
+Alt-V	Save Last
+Alt-X	Exclude
+Alt-Z	Toggle Zap
+Right/Left Arrow	Increase/decrease Freeze DF
 """
     Label(scwid,text=t,justify=LEFT).pack(padx=20)
     scwid.focus_set()
