@@ -26,7 +26,6 @@ subroutine decode3(d2,jz,istart,filename)
   endif
   if(mode.eq.'Echo') nmode=3
   if(mode.eq.'JT6M') nmode=4
-  mode441=1
 
   sum=0.
   do i=1,jz

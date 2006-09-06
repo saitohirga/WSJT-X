@@ -26,7 +26,6 @@ C  Peak up in frequency and time, and compute ftrack.
       call ftpeak65(dat,jz,istart,f0,flip,pr,nafc,ftrack)
 
       nfft=2048/mode65                     !Size of FFTs
-      nh=nfft/2
       dt=2.0/11025.0
       df=0.5*11025.0/nfft
       call zero(ps,77)

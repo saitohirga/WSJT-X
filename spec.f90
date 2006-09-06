@@ -170,9 +170,7 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
            smax=max(ss(2*i+i0),ss(2*i+i0-1))
            a0(i)=5*smax/nsum
         endif
-        xdb=-40.
-        if(a0(i).gt.0.) xdb=10*log10(a0(i))
-20   enddo
+     enddo
      nsum=0
      newdat=1                          !Flag for new spectrum available
      do i=1,nh                         !Zero the accumulating array

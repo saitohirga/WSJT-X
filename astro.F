@@ -48,13 +48,6 @@ C  NB: may want to smooth the Tsky map to 10 degrees or so.
       call sun(nyear,month,nday,uth,lon,lat,RASun,DecSun,LST,
      +    AzSun,ElSun,mjd)
 
-!      If(NStation.eq.1 .and. ElSun.gt.-2.0) then
-!         arg=ElSun + 8.6/(ElSun+4.4)
-!         refraction=0.0167/tan(arg/rad) !Refraction in degrees
-!         ElSun=ElSun+refraction
-!      endif
-
-      mjd2=mjd
       freq=nfreq*1.e6
 
       call MoonDop(nyear,month,nday,uth,lon,lat,RAMoon,DecMoon,
@@ -66,12 +59,6 @@ C  Compute spatial polarization offset
       yy=cos(lat/rad)*sin(AzMoon/rad)
       if(NStation.eq.1) poloffset1=rad*atan2(yy,xx)
       if(NStation.eq.2) poloffset2=rad*atan2(yy,xx)
-
-!      If(NStation.eq.1 .and. ElMoon.gt.-2.0) then
-!         arg=ElMoon + 8.6/(ElMoon+4.4)
-!         refraction=0.0167/tan(arg/rad) !Refraction in degrees
-!         ElMoon=ElMoon+refraction
-!      endif
 
       techo=2.0 * dist/2.99792458e5                 !Echo delay time
       doppler=-freq*vr/2.99792458e5                 !One-way Doppler

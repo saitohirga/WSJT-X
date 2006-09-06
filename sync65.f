@@ -52,9 +52,6 @@ C  Find the best frequency channel for CCF
       ib=fb/df
 
       i0=nint(1270.46/df)
-      ired0=ia-i0
-      ired1=ib-i0
-
       lag1=-5
       lag2=59
       syncbest=-1.e30
@@ -77,7 +74,6 @@ C  Find the best sync value
             ipk2=i
             lagpk2=lagpk0
             syncbest2=sync
-            flippk2=flip
          endif
 
 C  We are most interested if snrx will be more than -30 dB.
@@ -86,7 +82,6 @@ C  We are most interested if snrx will be more than -30 dB.
                ipk=i
                lagpk=lagpk0
                syncbest=sync
-               flippk=flip
             endif
          endif
       enddo
@@ -96,7 +91,6 @@ C  If we found nothing with snrx > -30 dB, take the best sync that *was* found.
          ipk=ipk2
          lagpk=lagpk2
          syncbest=syncbest2
-         flippk=flippk2
       endif
 
 C  Peak up in frequency to fraction of channel
@@ -165,10 +159,6 @@ C  Compute width of sync tone to outermost -3 dB points
       if(width.gt.1.2) width=sqrt(width**2 - 1.44)
       width=df*width
       width=max(0.0,min(99.0,width))
-
-      ic=600/df
-      nn=1800/df
-      nred=448
 
       return
       end

@@ -18,7 +18,6 @@
       tdit=1.2d0/wpm                   !Key-down dit time, seconds
       dt=1.d0/(11025.d0*samfac)
       nwave=ndits*tdit/dt
-      k=0
       pha=0.
       dpha=twopi*freqcw*dt
       t=0.d0
@@ -28,8 +27,6 @@
          t=t+dt
          pha=pha+dpha
          j=t/tdit + 1
-!         iwave(k)=0
-!         if(idat(j).ne.0) iwave(i)=nint(32767.d0*sin(pha))
          s=s + u*(idat(j)-s)
          iwave(i)=nint(s*32767.d0*sin(pha))
       enddo

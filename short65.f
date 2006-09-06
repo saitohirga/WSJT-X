@@ -114,9 +114,7 @@ C  Find strongest line in each of the 4 phases, repeating for each drift rate.
                if(nstest.lt.0) nstest=0
                if(nstest.gt.10) nstest=10
                dfsh=nint(xdf)
-               fdotbest=fdotsh
                iderrbest=iderr
-               idiffbest=idiff
                idriftbest=idrift
                snrdb=db(snr) - db(2500.0/df) - db(sqrt(nsteps/4.0))+1.8
                n1=nbest

@@ -69,8 +69,6 @@ subroutine decode1(iarg)
      mode0=mode
   endif
        
-20 continue
-
 #ifdef Win32
   call sleepqq(100)
 #else

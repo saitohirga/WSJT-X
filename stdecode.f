@@ -43,7 +43,6 @@ C  second best peak (excluding points around the first peak).
             do i=ia,ib
                if((abs(i-ipk).gt.iwidth) .and. s2(i,j).gt.smax2) then
                   smax2=s2(i,j)
-                  ipk2=i
                endif
             enddo
 

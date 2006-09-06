@@ -1,7 +1,7 @@
 	subroutine geodist(Eplat, Eplon, Stlat, Stlon,
      +	  Az, Baz, Dist)
 	implicit none
-	real eplat, eplon, stlat, stlon, az, baz, dist, deg
+	real eplat, eplon, stlat, stlon, az, baz, dist
 
 C JHT: In actual fact, I use the first two arguments for "My Location",
 C      the second two for "His location"; West longitude is positive.
@@ -68,7 +68,6 @@ c convert st/end pts to radians
         FF64 = F * F / 64.0
         Dist = AL*SD*(T -(F/4.0)*(T*X-Y)+FF64*(X*(A+(T-(A+E)
      +    /2.0)*X)+Y*(-2.0*D+E*Y)+D*X*Y))/1000.0
-        Deg = Dist/111.195
         TDLPM = Tan((DLR+(-((E*(4.0-X)+2.0*Y)*((F/2.0)*T+FF64*
      +    (32.0*T+(A-20.0*T)*X-2.0*(D+2.0)*Y))/4.0)*Tan(DLR)))/2.0)
         HAPBR = ATan2(SDTM,(CTM*TDLPM))
@@ -77,8 +76,8 @@ c convert st/end pts to radians
         A2M1 = Pi2 - HAMBR - HAPBR
 
 1	If ((A1M2 .ge. 0.0) .AND. (A1M2 .lt. Pi2)) GOTO 5
-2	If (A1M2 .lt. Pi2) GOTO 4
-3	A1M2 = A1M2 - Pi2
+ 	If (A1M2 .lt. Pi2) GOTO 4
+ 	A1M2 = A1M2 - Pi2
         GOTO 1
 4	A1M2 = A1M2 + Pi2
         GOTO 1
@@ -87,8 +86,8 @@ c all of this gens the proper az, baz (forward and back azimuth)
 c
 
 5	If ((A2M1 .ge. 0.0) .AND. (A2M1 .lt. Pi2)) GOTO 9
-6	If (A2M1 .lt. Pi2) GOTO 8
-7	A2M1 = A2M1 - Pi2
+ 	If (A2M1 .lt. Pi2) GOTO 8
+	A2M1 = A2M1 - Pi2
         GOTO 5
 8	A2M1 = A2M1 + Pi2
         GOTO 5

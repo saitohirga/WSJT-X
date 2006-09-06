@@ -55,13 +55,11 @@ C  already been done.
 C  Attempt to synchronize: look for sync tone, get DF and DT.
       call sync65(dat,npts,DFTolerance,NFreeze,MouseDF,
      +    mode65,dtx,dfx,snrx,snrsync,ccfblue,ccfred,flip,width)
-      f0=1270.46 + dfx
       csync=' '
       decoded='                      '
       deepmsg='                      '
       special='     '
       cooo='   '
-      itry=0
       ncount=-1             !Flag for RS decode of current record
       ncount1=-1            !Flag for RS Decode of ave1
       ncount2=-1            !Flag for RS Decode of ave2
@@ -204,7 +202,7 @@ C  If Monitor segment #2 is available, write that line also
       write(12,1011) ave2
       call flushqqq(12)
  
- 800  if(lumsg.ne.6) end file 11
+      if(lumsg.ne.6) end file 11
 
  900  continue
 
