@@ -1,5 +1,5 @@
       subroutine longx(dat,npts0,ps,DFTolerance,noffset,
-     +    msg,msglen,bauderr,MouseButton)
+     +    msg,msglen,bauderr)
 
 C  Look for 441-baud modulation, synchronize to it, and decode message.
 C  Longest allowed data analysis is 1 second.

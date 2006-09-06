@@ -7,7 +7,6 @@ subroutine audio_init(ndin,ndout)
   external a2d,decode1
 #endif
 
-  integer*2 a(225000)           !Pixel values for 750 x 300 array
   integer brightness,contrast
   include 'gcom1.f90'
   include 'gcom2.f90'

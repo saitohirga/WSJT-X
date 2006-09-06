@@ -9,7 +9,7 @@ subroutine decode1(iarg)
   use dflib
 #endif
 
-  character sending0*28,fcum*80,mode0*6,cshort*11
+  character sending0*28,mode0*6,cshort*11
   integer sendingsh0
   
   include 'gcom1.f90'

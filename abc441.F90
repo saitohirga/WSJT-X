@@ -1,11 +1,8 @@
 subroutine abc441(msg,nmsg,itone,ndits)
 
-  character msg*28,msg2*29
+  character msg*28
   integer itone(84)
   integer lookup(0:91)
-  integer codeword4(4,0:42)
-  integer codeword7(7,0:42)
-  character c*1
   character cc*43
   data cc/' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ.,?/#$'/
   data lookup/13, 15, 17, 46, 47, 45, 44, 12, 11, 14, &

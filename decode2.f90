@@ -5,7 +5,6 @@ subroutine decode2
 ! Get data and parameters from gcom, then call the decoders
 
   character fnamex*24
-  integer*2 d2d(30*11025)
   
   include 'gcom1.f90'
   include 'gcom2.f90'

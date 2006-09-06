@@ -7,10 +7,6 @@ C  Computes astronomical quantities for display in JT65, CW, and EME Echo mode.
 C  NB: may want to smooth the Tsky map to 10 degrees or so.
 
       character*80 AppDir,fname
-      character*240 Display
-      character*14 d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15
-      character*14 d1a,d2a,d3a
-      character*2 crlf
       character*6 MyGrid,HisGrid
       logical first,ltsky
       real LST

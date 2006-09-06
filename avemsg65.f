@@ -1,5 +1,5 @@
       subroutine avemsg65(mseg,mode65,ndepth,decoded,nused,
-     +  nq1,nq2,neme,nsked,flip,mycall,hiscall,hisgrid,qual,
+     +  nq1,nq2,neme,nsked,mycall,hiscall,hisgrid,qual,
      +  ns,ncount)
 
 C  Decodes averaged JT65 data for the specified segment (mseg=1 or 2).
@@ -36,7 +36,7 @@ C  Compute the average of all flagged spectra for this segment.
       enddo
 
       nadd=nused*mode65
-      call extract(s3,nadd,ndepth,ncount,decoded)     !Extract the message
+      call extract(s3,nadd,ncount,decoded)     !Extract the message
       if(ncount.lt.0) decoded='                      '
 
       nqual=0
@@ -48,6 +48,9 @@ C  Possibly should pass nadd=nused, also:
          nqual=qual
          if(nqual.lt.nq1) deepmsg='                      '
          if(nqual.ge.nq1 .and. nqual.lt.nq2) deepmsg(19:19)='?'
+      else
+         deepmsg='                      '
+         qual=0.
       endif
       if(ncount.lt.0) decoded=deepmsg
 

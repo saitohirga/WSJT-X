@@ -1,7 +1,7 @@
       subroutine wsjt65(dat,npts,cfile6,NClearAve,MinSigdB,
      +  DFTolerance,NFreeze,NAFC,mode65,Nseg,MouseDF,NAgain,
      +  ndepth,neme,nsked,mycall,hiscall,hisgrid,
-     +  lumsg,lcum,nspecial,ndf,nstest,dfsh,iderrsh,idriftsh,
+     +  lumsg,lcum,nspecial,ndf,nstest,dfsh,
      +  snrsh,NSyncOK,ccfblue,ccfred,ndiag,nwsh)
 
 C  Orchestrates the process of decoding JT65 messages, using data that
@@ -13,18 +13,15 @@ C  already been done.
       logical first
       logical lcum
       character decoded*22,cfile6*6,special*5,cooo*3
-      character*22 avemsg1,avemsg2,deepmsg,deepbest
+      character*22 avemsg1,avemsg2,deepmsg
       character*67 line,ave1,ave2
       character*1 csync,c1
       character*12 mycall
       character*12 hiscall
       character*6 hisgrid
       real ccfblue(-5:540),ccfred(-224:224)
-      real ftrack(126)
-      logical lmid
       integer itf(2,9)
       include 'avecom.h'
-      common/avecom2/f0a
       data first/.true./,ns10/0/,ns20/0/
       data itf/0,0, 1,0, -1,0, 0,-1, 0,1, 1,-1, 1,1, -1,-1, -1,1/
       save
@@ -56,7 +53,7 @@ C  already been done.
       endif
 
 C  Attempt to synchronize: look for sync tone, get DF and DT.
-      call sync65(dat,npts,DFTolerance,NFreeze,NAFC,MouseDF,
+      call sync65(dat,npts,DFTolerance,NFreeze,MouseDF,
      +    mode65,dtx,dfx,snrx,snrsync,ccfblue,ccfred,flip,width)
       f0=1270.46 + dfx
       csync=' '
@@ -115,7 +112,7 @@ C  If we get here, we have achieved sync!
       endif
 
       call decode65(dat,npts,dtx,dfx,flip,ndepth,neme,nsked,
-     +   nsnr,mycall,hiscall,hisgrid,mode65,nafc,decoded,
+     +   mycall,hiscall,hisgrid,mode65,nafc,decoded,
      +   ncount,deepmsg,qual)
       if(ncount.eq.-999) qual=0                 !Bad data
  200  kvqual=0
@@ -156,10 +153,10 @@ C  Write decoded msg unless this is an "Exclude" request:
       if(MinSigdB.lt.99) write(lumsg,1011) line
 
       if(nsave.ge.1) call avemsg65(1,mode65,ndepth,avemsg1,nused1,
-     +   nq1,nq2,neme,nsked,flip,mycall,hiscall,hisgrid,qual1,
+     +   nq1,nq2,neme,nsked,mycall,hiscall,hisgrid,qual1,
      +   ns1,ncount1)
       if(nsave.ge.1) call avemsg65(2,mode65,ndepth,avemsg2,nused2,
-     +   nq1,nq2,neme,nsked,flip,mycall,hiscall,hisgrid,qual2,
+     +   nq1,nq2,neme,nsked,mycall,hiscall,hisgrid,qual2,
      +   ns2,ncount2)
       nqual1=qual1
       nqual2=qual2
@@ -208,7 +205,6 @@ C  If Monitor segment #2 is available, write that line also
       call flushqqq(12)
  
  800  if(lumsg.ne.6) end file 11
-      f0a=f0
 
  900  continue
 

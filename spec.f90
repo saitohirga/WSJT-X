@@ -11,13 +11,7 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
 ! Output:
   integer*2 a(225000)           !Pixel values for 750 x 300 array
 
-  real psa(750)                 !Grand average spectrum
-  real ref(750)                 !Ref spect: smoothed ave of lower half
-  real birdie(750)              !Spec (with birdies) for plot, in dB
-  real variance(750)            !Variance in each spectral channel
-
   real a0(225000)               !Save the last 300 spectra
-  integer*2 idat(11025)         !Sound data, read from file
   integer nstep(5)
   integer b0,c0
   real x(4096)                  !Data for FFT

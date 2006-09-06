@@ -13,6 +13,10 @@
       integer ncode(63,2*MAXCALLS + 2 + MAXRPT)
       real pp(2*MAXCALLS + 2 + MAXRPT)
       common/tmp9/ mrs(63),mrs2(63)
+#ifdef Win32
+C  This prevents some optimizations that break this subroutine.
+      volatile p1,p2,bias
+#endif
 
       data neme0/-99/
       data rpt/'-01','-02','-03','-04','-05',
@@ -92,7 +96,8 @@ C  Insert CQ message unless sync=OOO (flip=-1).
             endif
          enddo
          if(nsked.eq.1) go to 20
- 10   enddo
+ 10      continue
+      enddo
  20   ntot=k
       neme0=neme
 
@@ -129,14 +134,6 @@ C  Insert CQ message unless sync=OOO (flip=-1).
       if(mode65.eq.1) bias=max(1.12*p2,0.335)
       if(mode65.eq.2) bias=max(1.08*p2,0.405)
       if(mode65.ge.4) bias=max(1.04*p2,0.505)
-
-
-C  This is really weird, but do not remove the following statements!
-!      write(77,*) mode65,bias,p1,p2
-!      rewind 77
-!      rewind 23
-      call sleepqqq(1)
-
       qual=100.0*(p1-bias)
       decoded='                      '
       c=' '

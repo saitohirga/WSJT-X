@@ -14,8 +14,10 @@ subroutine fivehz
   use dfport
 #endif
 
+  parameter (NTRING=64)
+  real*8 tt1(0:NTRING-1)
   real*8 tstart,tstop,t60
-  logical first,txtime,debug
+  logical first,txtime,debug,filled
   integer ptt
   integer TxOKz
   real*8 fs,fsample,tt,tt0,u
@@ -40,22 +42,36 @@ subroutine fivehz
      ibuf00=-99
      ncall=-1
      tt0=tt
-     u=0.1d0
+     u=0.05d0
      fsample=11025.d0
      maxms=0
      mfsample=110250
+     filled=.false.
   endif
 
   if(txdelay.lt.0.2d0) txdelay=0.2d0
 
 ! Measure average sampling frequency over a recent interval
-
   ncall=ncall+1
-  if(ncall.eq.9) tt0=tt
-  if(ncall.ge.10 .and. mod(ncall,2).eq.1) then
-     fs=(ncall-9)*2048.d0/(tt-tt0)
-     fsample=u*fs + (1.d0-u)*fsample
-     mfsample=nint(10.d0*fsample)
+  if(ncall.eq.9) then
+     tt0=tt
+     ntt0=0
+     ntt1=0
+     tt1(ntt1)=tt
+  endif
+!  if(ncall.ge.10 .and. mod(ncall,2).eq.1) then
+  if(ncall.ge.10) then
+     ntt1=iand(ntt1+1,NTRING-1)
+     tt1(ntt1)=tt
+     if(ntt1.eq.NTRING-1) filled=.true.
+     if(filled) ntt0=iand(ntt1+1,NTRING-1)
+     if(mod(ncall,2).eq.1) then
+        nd=ntt1-ntt0
+        if(nd.lt.0) nd=nd+NTRING
+        fs=nd*2048.d0/(tt1(ntt1)-tt1(ntt0))
+        fsample=u*fs + (1.d0-u)*fsample
+        mfsample=nint(10.d0*fsample)
+     endif
   endif
 
   if(trperiod.le.0) trperiod=30
@@ -180,7 +196,9 @@ subroutine fivehztx
   use dfport
 #endif
 
-  logical first
+  parameter (NTRING=64)
+  real*8 tt1(0:NTRING-1)
+  logical first,filled
   real*8 fs,fsample,tt,tt0,u
   include 'gcom1.f90'
   data first/.true./
@@ -195,18 +213,34 @@ subroutine fivehztx
      ncall=-1
      fsample=11025.d0
      nsec0=-999
-     u=0.1d0
+     u=0.05d0
      mfsample2=110250
      tt0=tt
+     filled=.false.
   endif
 
+! Measure average sampling frequency over a recent interval
   ncall=ncall+1
-  if(ncall.eq.9) tt0=tt
-  if(ncall.ge.10 .and. mod(ncall,2).eq.1) then
-     fs=(ncall-9)*2048.d0/(tt-tt0)
-     fsample=u*fs + (1.d0-u)*fsample
-     mfsample2=nint(10.d0*fsample)
+  if(ncall.eq.9) then
+     tt0=tt
+     ntt0=0
+     ntt1=0
+     tt1(ntt1)=tt
   endif
+  if(ncall.ge.10) then
+     ntt1=iand(ntt1+1,NTRING-1)
+     tt1(ntt1)=tt
+     if(ntt1.eq.NTRING-1) filled=.true.
+     if(filled) ntt0=iand(ntt1+1,NTRING-1)
+     if(mod(ncall,2).eq.1) then
+        nd=ntt1-ntt0
+        if(nd.lt.0) nd=nd+NTRING
+        fs=nd*2048.d0/(tt1(ntt1)-tt1(ntt0))
+        fsample=u*fs + (1.d0-u)*fsample
+        mfsample2=nint(10.d0*fsample)
+     endif
+  endif
+
   return
 end subroutine fivehztx
 

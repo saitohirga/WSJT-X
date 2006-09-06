@@ -10,7 +10,7 @@
       if(k.ge.1 .and. k.le.NZ) then
          iz=index(pfx(k),' ') - 1
          callsign=pfx(k)(1:iz)//'/'//callsign
-      else if(k.ge.401 .and. k.le.411) then
+      else if(k.ge.401 .and. k.le.400+NZ2) then
          iz=index(callsign,' ') - 1
          callsign=callsign(1:iz)//'/'//sfx(k-400)
       else if(k.eq.449) then
