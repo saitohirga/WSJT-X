@@ -1,9 +1,9 @@
       parameter (NZ=338)                     !Total number of prefixes
-      parameter (NZ2=11)                     !Total number of suffixes
+      parameter (NZ2=12)                     !Total number of suffixes
       character*1 sfx(NZ2)
       character*5 pfx(NZ)
 
-      data sfx/'P','0','1','2','3','4','5','6','7','8','9'/
+      data sfx/'P','0','1','2','3','4','5','6','7','8','9','A'/
       data pfx/
      +  '1A   ','1S   ','3A   ','3B6  ','3B8  ','3B9  ','3C   ','3C0  ',
      +  '3D2  ','3D2C ','3D2R ','3DA  ','3V   ','3W   ','3X   ','3Y   ',

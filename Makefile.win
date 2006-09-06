@@ -2,8 +2,10 @@
 !include <dfinc.mak>   #Some definitions for Compaq Visual Fortran
 gcc = cl
 FC = df
+#To do bounds checking (with useless reports) put "/check:all" in the
+# --opt= line below (line 56, more or less ...)
 #FFLAGS = /traceback /check:all
-FFLAGS = /traceback /fast
+FFLAGS = /traceback /fast /nologo
 
 all:    JT65code.exe WSJT6.EXE
 
@@ -16,7 +18,7 @@ OBJS1 = JT65code.obj nchar.obj grid2deg.obj packmsg.obj packtext.obj \
 	wrapkarn.obj
 
 JT65code.exe: $(OBJS1)
-	$(FC) /exe:JT65code.exe $(OBJS1)
+	$(FC) $(FFLAGS) /exe:JT65code.exe $(OBJS1)
 
 
 OBJS2C   = init_rs.o encode_rs.o decode_rs.o jtaudio.o
@@ -51,7 +53,8 @@ WSJT6.EXE: Audio.pyd wsjt.spec
 Audio.pyd: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C) 
 	python f2py.py -c \
 	--quiet --"fcompiler=compaqv" \
-	--opt="/traceback /fast /fpp /define:Win32 /define:USE_PORTAUDIO" \
+	--opt="/nologo /traceback /warn:errors /fast /fpp /define:Win32 \
+	      /define:USE_PORTAUDIO" \
 	$(OBJS2C) \
 	-lwinmm -lpa -llibsamplerate \
 	-m Audio \
@@ -63,31 +66,31 @@ wsjt.spec: wsjt.py astro.py g.py options.py palettes.py smeter.py specjt.py
 	--tk --onefile wsjt.py
 
 jtaudio.o: jtaudio.c
-	cl /c /DWin32 /Fojtaudio.o jtaudio.c
+	$(CC) /nologo /c /DWin32 /Fojtaudio.o jtaudio.c
 
 init_rs.obj: init_rs.c
-	$(CC) /c /DBIGSYM=1 init_rs.c
+	$(CC) /nologo /c /DBIGSYM=1 init_rs.c
 
 init_rs.o: init_rs.obj
-	$(CC) /c /DBIGSYM=1 /Foinit_rs.o init_rs.c
+	$(CC) /nologo /c /DBIGSYM=1 /Foinit_rs.o init_rs.c
 
 encode_rs.obj: encode_rs.c
-	$(CC) /c /DBIGSYM=1 encode_rs.c
+	$(CC) /nologo /c /DBIGSYM=1 encode_rs.c
 
 encode_rs.o: encode_rs.c
-	$(CC) /c /DBIGSYM=1 /Foencode_rs.o encode_rs.c
+	$(CC) /nologo /c /DBIGSYM=1 /Foencode_rs.o encode_rs.c
 
 decode_rs.obj: decode_rs.c
-	$(CC) /c /DBIGSYM=1 decode_rs.c
+	$(CC) /nologo /c /DBIGSYM=1 decode_rs.c
 
 decode_rs.o: decode_rs.c
-	$(CC) /c /DBIGSYM=1 /Ox /Zd /Fodecode_rs.o decode_rs.c
+	$(CC) /nologo /c /DBIGSYM=1 /Ox /Zd /Fodecode_rs.o decode_rs.c
 
 wrapkarn.obj: wrapkarn.c
-	$(CC) /c /DWin32=1 wrapkarn.c
+	$(CC) /nologo /c /DWin32=1 wrapkarn.c
 
 igray.obj: igray.c
-	$(CC) /c /DWin32=1 igray.c
+	$(CC) /nologo /c /DWin32=1 igray.c
 
 .PHONY : clean
 

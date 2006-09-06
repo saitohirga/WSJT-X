@@ -1,4 +1,4 @@
-      subroutine avesp2(dat,jza,nadd,f0,mode,NFreeze,MouseDF,
+      subroutine avesp2(dat,jza,nadd,mode,NFreeze,MouseDF,
      +  DFTolerance,fzap)
 
       real dat(jza)

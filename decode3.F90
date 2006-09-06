@@ -5,12 +5,9 @@ subroutine decode3(d2,jz,istart,filename)
   use dfport
 #endif
 
-  integer*2 d2(jz),d2d(60*11025)
-  real*8 sq
+  integer*2 d2(jz),d2d(65*11025)
   character*24 filename
   character FileID*40
-  character mycall0*12,hiscall0*12,hisgrid0*6
-  logical savefile
   include 'gcom1.f90'
   include 'gcom2.f90'
   
@@ -51,10 +48,20 @@ subroutine decode3(d2,jz,istart,filename)
   endif
 
   open(23,file=appdir(:lenappdir)//'/CALL3.TXT',status='unknown')
+  if(nadd5.eq.1) then
+     nzero=5*11025
+     do i=jz,nzero+1,-1
+        d2d(i)=d2d(i-nzero)
+     enddo
+     do i=1,nzero
+        d2d(i)=0
+     enddo
+     jz=min(60*11025,jz+nzero)
+  endif
   call wsjt1(d2d,jz,istart,samfacin,FileID,ndepth,MinSigdB,           &
-       NQRN,DFTolerance,NSaveCum,MouseButton,NClearAve,               &
-       nMode,NFreeze,NAFC,NZap,AppDir,utcdate,mode441,mode65,         &
-       MyCall,HisCall,HisGrid,neme,nsked,naggressive,ntx2,s2,         &
+       NQRN,DFTolerance,MouseButton,NClearAve,                        &
+       nMode,NFreeze,NAFC,NZap,mode65,                                &
+       MyCall,HisCall,HisGrid,neme,nsked,ntx2,s2,                     &
        ps0,npkept,lumsg,basevb,rmspower,nslim2,psavg,ccf,Nseg,        &
        MouseDF,NAgain,LDecoded,nspecial,ndf,ss1,ss2)
   close(23)

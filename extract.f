@@ -1,9 +1,8 @@
-      subroutine extract(s3,nadd,ndepth,ncount,decoded)
+      subroutine extract(s3,nadd,ncount,decoded)
 
       real s3(64,63)
       character decoded*22
-      integer*1 dat1(12)
-      integer dat(63),era(51),dat4(12),indx(63)
+      integer era(51),dat4(12),indx(63)
       integer mrsym(63),mr2sym(63),mrprob(63),mr2prob(63)
       logical first
       data first/.true./,nsec1/0/
@@ -23,9 +22,6 @@
       ndec=1
       nemax=30
       maxe=8
-!      if(ndepth.ge.2) ndec=1
-!      if(ndepth.eq.2) xlambda=13.0
-!      if(ndepth.eq.3) xlambda=15.0
       xlambda=15.0
 
       if(ndec.eq.1) then

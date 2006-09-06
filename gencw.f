@@ -5,7 +5,7 @@
       integer*2 iwave(NMAX)
       integer TRPeriod
 
-      integer*1 idat(5000),idat1(460),idat2(200),i1
+      integer*1 idat(5000),idat1(460),idat2(200)
       real*8 dt,t,twopi,pha,dpha,tdit,samfac
       data twopi/6.283185307d0/
 

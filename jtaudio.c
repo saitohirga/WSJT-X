@@ -1,5 +1,10 @@
 #include <stdio.h>
 #include <portaudio.h>
+#include <string.h>
+
+void fivehz_();
+void fivehztx_();
+void addnoise_(short int *n);
 
 //  Definition of structure pointing to the audio data
 typedef struct
@@ -66,7 +71,6 @@ static int SoundIn( void *inputBuffer, void *outputBuffer,
 {
   paTestData *data = (paTestData*)userData;
   short *in = (short*)inputBuffer;
-  short *wptr = (short*)outputBuffer;
   unsigned int i;
   static int n0;
   static int ia=0;
@@ -99,8 +103,8 @@ static int SoundIn( void *inputBuffer, void *outputBuffer,
   //  if((inputBuffer==NULL) & (ncall>2) & (stime>stime0)) {
   if((statusFlags!=0) & (ncall>2) & (stime>stime0)) {
     if(*data->ndebug) 
-      printf("Status flags %d at Tsec = %7.1f s, DT = %7.1f\n",stime,
-	   stime-stime0);
+      printf("Status flags %d at Tsec = %7.1f s, DT = %7.1f\n",
+		      statusFlags,stime,stime-stime0);
     stime0=stime;
   }
 
@@ -134,7 +138,6 @@ static int SoundOut( void *inputBuffer, void *outputBuffer,
 		       void *userData )
 {
   paTestData *data = (paTestData*)userData;
-  short *in = (short*)inputBuffer;
   short *wptr = (short*)outputBuffer;
   unsigned int i,n;
   static short int n2;
@@ -202,9 +205,9 @@ int jtaudio_(int *ndevin, int *ndevout, short y1[], short y2[],
   PaStream *outstream;
   PaStreamParameters inputParameters;
   PaStreamParameters outputParameters;
-  PaStreamInfo *streamInfo;
+  //  PaStreamInfo *streamInfo;
 
-  int i,nfs,ndin,ndout;
+  int nfs,ndin,ndout;
   PaError err1,err2,err2a,err3,err3a;
   double dnfs;
 
@@ -318,11 +321,11 @@ error:
 int padevsub_(int *numdev, int *ndefin, int *ndefout, 
 	      int nchin[], int nchout[])
 {
-  int      i,j,n;
+  int      i;
   int      numDevices;
   const    PaDeviceInfo *pdi;
   PaError  err;
-  PaHostApiInfo *hostapi;
+  //  PaHostApiInfo *hostapi;
   
   Pa_Initialize();
 

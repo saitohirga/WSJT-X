@@ -1,5 +1,5 @@
       subroutine decode65(dat,npts,dtx,dfx,flip,ndepth,neme,nsked,
-     +  nsnr,mycall,hiscall,hisgrid,mode65,nafc,decoded,ncount,
+     +  mycall,hiscall,hisgrid,mode65,nafc,decoded,ncount,
      +  deepmsg,qual)
 
 C  Decodes JT65 data, assuming that DT and DF have already been determined.
@@ -31,7 +31,7 @@ C  Compute spectra of the channel symbols
       enddo
       nadd=mode65
 
-      call extract(s3,nadd,ndepth,ncount,decoded)     !Extract the message
+      call extract(s3,nadd,ncount,decoded)     !Extract the message
       qual=0.
       if(ndepth.ge.1) call deep65(s3,mode65,neme,
      +    nsked,flip,mycall,hiscall,hisgrid,deepmsg,qual)

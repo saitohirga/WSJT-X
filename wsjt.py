@@ -884,22 +884,16 @@ def decdsec(event):
     ldsec.configure(text='Dsec  '+str(0.1*idsec),bg=bg)
     Audio.gcom1.ndsec=idsec
 
-###------------------------------------------------------ incrdsec
-##def incrdsec(event):
-##    global irdsec
-##    irdsec=irdsec+5
-##    bg='red'
-##    if irdsec==0: bg='white'
-##    lrdsec.configure(text='RDsec  '+str(0.1*irdsec),bg=bg)
-##
-###------------------------------------------------------ decrdsec
-##def decrdsec(event):
-##    global irdsec
-##    irdsec=irdsec-5
-##    bg='red'
-##    if irdsec==0: bg='white'
-##    lrdsec.configure(text='RDsec  '+str(0.1*irdsec),bg=bg)
-##
+#------------------------------------------------------ toggle_shift
+def toggle_shift(event):
+    Audio.gcom2.nadd5=1-Audio.gcom2.nadd5
+    if Audio.gcom2.nadd5:
+        bg='red'
+        lshift.configure(text='Shift 5.0',bg=bg)
+    else:
+        bg='white'
+        lshift.configure(text='Shift 0.0',bg=bg)
+
 #------------------------------------------------------ inctrperiod
 def inctrperiod(event):
     global ncwtrperiod
@@ -1874,14 +1868,11 @@ Button(f5b,text='Defaults',command=defaults,padx=1,pady=1).grid(column=0,
                               row=3,sticky='EW')
 ldsec=Label(f5b, bg='white', fg='black', text='Dsec  0.0', width=8, relief=RIDGE)
 ldsec.grid(column=0,row=4,ipadx=3,padx=2,pady=5,sticky='EW')
-#lrdsec=Label(f5b, bg='white', fg='black', text='RDsec  0.0', width=8, relief=RIDGE)
-#lrdsec.grid(column=1,row=4,ipadx=3,padx=2,pady=5,sticky='EW')
+lshift=Label(f5b, bg='white', fg='black', text='Shift 0.0', width=8, relief=RIDGE)
+lshift.grid(column=1,row=4,ipadx=3,padx=2,pady=5,sticky='EW')
 Widget.bind(ldsec,'<Button-1>',incdsec)
 Widget.bind(ldsec,'<Button-3>',decdsec)
-#Widget.bind(lrdsec,'<Button-1>',incrdsec)
-#Widget.bind(lrdsec,'<Button-3>',decrdsec)
-#Widget.bind(lrdsec,'<Button-1>',stub)
-#Widget.bind(lrdsec,'<Button-3>',stub)
+Widget.bind(lshift,'<Button-1>',toggle_shift)
 
 f5b.pack(side=LEFT,expand=0,fill=BOTH)
 

@@ -1,7 +1,7 @@
 	subroutine wsjt1(d,jz0,istart,samfacin,FileID,ndepth,MinSigdB,
-     +    NQRN,DFTolerance,NSaveCum,MouseButton,NClearAve,
-     +    Mode,NFreeze,NAFC,NZap,AppDir,utcdate,mode441,mode65,
-     +    MyCall,HisCall,HisGrid,neme,nsked,naggressive,ntx2,s2,
+     +    NQRN,DFTolerance,MouseButton,NClearAve,
+     +    Mode,NFreeze,NAFC,NZap,mode65,
+     +    MyCall,HisCall,HisGrid,neme,nsked,ntx2,s2,
      +    ps0,npkept,lumsg,basevb,rmspower,nslim2,psavg,ccf,Nseg,
      +    MouseDF,NAgain,LDecoded,nspecial,ndf,ss1,ss2)
 
@@ -13,10 +13,7 @@
 	integer MinSigdB        !Minimum ping strength, dB
 	integer NQRN            !QRN rejection parameter
 	integer DFTolerance     !Defines DF search range
-	integer NSaveCum        !Set to 1 if cumulative file is to be saved
 	integer NSyncOK         !Set to 1 if JT65 file synchronized OK
-	character AppDir*80     !Installation directory for WSJT
-	character*12 utcdate
 	character*12 mycall
 	character*12 hiscall
 	character*6 hisgrid
@@ -48,14 +45,11 @@
 	integer*1 dtmp
 	character msg3*3
 	character cfile6*6
-	character fname*99,fcum*99
 	logical lcum
 	integer indx(100)
 	character*90 line
-	character*24 today
 
 	common/avecom/dat(NP2),labdat,jza,modea
-	common/avecom2/f0a
 	common/ccom/nline,tping(100),line(100)
 	common/limcom/ nslim2a
 	common/clipcom/ nclip
@@ -130,7 +124,7 @@ C  Intentionally degrade SNR by -nclip dB.
 	if(mode.ne.2 .and. nzap.ne.0) then
 	   nfrz=NFreeze
 	   if(mode.eq.1) nfrz=0
-	   if(jz.gt.100000) call avesp2(dat,jz,2,f0a,mode,nfrz,MouseDF,
+	   if(jz.gt.100000) call avesp2(dat,jz,2,mode,nfrz,MouseDF,
      +         DFTolerance,fzap)
 	   nadd=1
  	   call bzap(dat,jz,nadd,mode,fzap)
@@ -186,7 +180,7 @@ C  Intentionally degrade SNR by -nclip dB.
  	   jz=jz2
  	   nadd=1
  	   fzap(1)=0.
- 	   if(nzap.eq.1) call avesp2(dat,jz,nadd,f0a,mode,NFreeze,MouseDF,
+ 	   if(nzap.eq.1) call avesp2(dat,jz,nadd,mode,NFreeze,MouseDF,
      +       DFTolerance,fzap)
     	   if(nzap.eq.1.and.nstest.eq.0) call bzap(dat,jz,nadd,mode,fzap)
 
@@ -202,7 +196,7 @@ C  Intentionally degrade SNR by -nclip dB.
      +        NClearAve,MinSigdB,DFTolerance,NFreeze,NAFC,mode65,Nseg,
      +        MouseDF,NAgain,ndepth,neme,nsked,
      +        mycall,hiscall,hisgrid,lumsg,lcum,nspecial,ndf,
-     +        nstest,dfsh,iderrsh,idriftsh,snrsh,
+     +        nstest,dfsh,snrsh,
      +        NSyncOK,ccf,psavg,ndiag,nwsh)
  	   goto 900
  	endif
@@ -224,7 +218,6 @@ C  Intentionally degrade SNR by -nclip dB.
 	   call synct(dat,jz,jstart,f0,smax)
 	   call syncf1(dat,jz,jstart,f0,NFreeze,DFTolerance,smax,red)
 
-	   f0a=f0
 	   do i=1,512
 	      ccf(i-6)=dB(red(i))
 	   enddo
@@ -252,8 +245,6 @@ C  Call the decoder if DF is in range or Freeze is off.
 	      call decode6m(dat(jstart),jz,cfile6,nslim,istart,
      +            NFixLen,lcum,f0,lumsg,npkept,yellow)
 	   endif
-
-	   if(npkept.eq.0) f0a=0.
 
 	   if(pick) then
 	      do i=1,216
@@ -289,9 +280,8 @@ C  Look for single-tone messages
 	if(nline.gt.nline0) STfound=.true.  !ST message(s) found
 
 C  Now the multi-tone decoding
-	call mtdecode(dat,jz,s2,nchan,nz,MinSigdB,MinWidth,
-     +    NQRN,DFTolerance,istart,pick,MouseButton,NSaveCum,
-     +    cfile6,ps0)
+	call mtdecode(dat,jz,nz,MinSigdB,MinWidth,
+     +    NQRN,DFTolerance,istart,pick,cfile6,ps0)
 
 	npkept=nline             !Number of pings that were kept
 	smax=0.

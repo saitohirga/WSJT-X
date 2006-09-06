@@ -1,11 +1,9 @@
-      subroutine mtdecode(dat,jz,s2,nchan,nz,MinSigdB,MinWidth,
-     +    NQRN,DFTolerance,istart,pick,MouseButton,NSaveCum,
-     +    cfile6,ps0)
+      subroutine mtdecode(dat,jz,nz,MinSigdB,MinWidth,
+     +    NQRN,DFTolerance,istart,pick,cfile6,ps0)
 
 C  Decode Multi-Tone FSK441 mesages.
 
       real dat(jz)                !Raw audio data
-      real s2(nchan,nz)            !2d spectrum of data
       integer NQRN
       integer DFTolerance
       logical pick
@@ -101,7 +99,7 @@ C  Compute average spectrum of this ping.
 C  Decode the message.
          msg=' '
          call longx(dat(jj),jjz,ps,DFTolerance,noffset,msg,
-     +     msglen,bauderr,MouseButton)
+     +     msglen,bauderr)
          qrnlimit=4.4*1.5**(5.0-NQRN)
          if(NQRN.eq.0) qrnlimit=99.
          if(msglen.eq.0) go to 100

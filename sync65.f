@@ -1,4 +1,4 @@
-      subroutine sync65(dat,jz,DFTolerance,NFreeze,NAFC,MouseDF,
+      subroutine sync65(dat,jz,DFTolerance,NFreeze,MouseDF,
      +  mode65,dtx,dfx,snrx,snrsync,ccfblue,ccfred,flip,width)
 
 C  Synchronizes JT65 data, finding the best-fit DT and DF.  
@@ -15,7 +15,6 @@ C  NB: at this stage, submodes ABC are processed in the same way.
       real ccfblue(-5:540)              !CCF with pseudorandom sequence
       real ccfred(-224:224)            !Peak of ccfblue, as function of freq
       real tmp(450)
-      integer itry(100)
       save
 
 C  Do FFTs of symbol length, stepped by half symbols.  Note that we have
