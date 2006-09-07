@@ -154,7 +154,7 @@ uninstall:
 	$(MAKE) uninstall-recursive
 
 clean:
-	$(LIBTOOL) --mode=clean rm -f $(LTOBJS) $(ALL_TESTS) lib/$(PALIB)
+	rm -f $(LTOBJS) $(ALL_TESTS) lib/$(PALIB)
 	rm -f bin-stamp lib-stamp
 	-rm -rf bin lib
 

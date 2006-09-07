@@ -127,3 +127,6 @@ wsjt.spec: wsjt.py astro.py g.py options.py palettes.py smeter.py specjt.py
 clean:
 	${RM} -f *.o *.pyc *.so *~ JT65code wsjt6
 	(cd portaudio-v19;${MAKE} clean)
+distclean: clean
+	${RM} -f config.log config.status Makefile
+	(cd portaudio-v19;${MAKE} distclean)
