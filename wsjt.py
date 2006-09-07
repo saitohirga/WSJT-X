@@ -253,7 +253,12 @@ def dbl_click_call(t,t1,event):
         else:
             ntx.set(2)
         if event.num==3 and not lauto: toggleauto()
-    
+
+def textkey(event=NONE):
+    text.configure(state=DISABLED)
+def avetextkey(event=NONE):
+    avetext.configure(state=DISABLED)
+
 #------------------------------------------------------ decode
 def decode(event=NONE):
     if Audio.gcom2.ndecoding==0:        #If already busy, ignore request
@@ -1436,7 +1441,7 @@ def update():
             for i in range(len(lines)):
                 text.insert(END,lines[i])
             text.see(END)
-            text.configure(state=DISABLED)
+#            text.configure(state=DISABLED)
 
             if mode.get()[:4]=='JT65':
                 try:
@@ -1451,7 +1456,7 @@ def update():
                 if len(lines)>1:
                     avetext.insert(END,lines[0])
                     avetext.insert(END,lines[1])
-                avetext.configure(state=DISABLED)
+#                avetext.configure(state=DISABLED)
             Audio.gcom2.ndecdone=2
         
         if g.cmap != cmap0:
@@ -1713,7 +1718,8 @@ iframe2.pack(expand=1, fill=X, padx=4)
 iframe4 = Frame(frame, bd=1, relief=SUNKEN)
 text=Text(iframe4, height=6, width=80)
 text.bind('<Double-Button-1>',dbl_click_text)
-text.bind('<Double-Button-3>',dbl_click_text)
+#text.bind('<Double-Button-3>',dbl_click_text)
+text.bind('<Key>',textkey)
 
 root.bind_all('<F1>', shortcuts)
 root.bind_all('<Shift-F1>', mouse_commands)
@@ -1785,9 +1791,9 @@ text.configure(yscrollcommand=sb.set)
 iframe4.pack(expand=1, fill=X, padx=4)
 iframe4b = Frame(frame, bd=1, relief=SUNKEN)
 avetext=Text(iframe4b, height=2, width=80)
-#avetext.bind('<Key>', lambda e: "break")
 avetext.bind('<Double-Button-1>',dbl_click_ave)
-avetext.bind('<Double-Button-3>',dbl_click_ave)
+#avetext.bind('<Double-Button-3>',dbl_click_ave)
+avetext.bind('<Key>',avetextkey)
 avetext.pack(side=LEFT, fill=X, padx=1)
 iframe4b.pack(expand=1, fill=X, padx=4)
 
