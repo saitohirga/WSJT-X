@@ -1299,8 +1299,11 @@ def update():
 
         if mode.get()[:4]=='JT65' or mode.get()[:2]=='CW' :
             graph2.delete(ALL)
-#            g2font='"Lucida Console" 16'
-            g2font='courier 16 bold'
+            if g.Win32:
+
+                g2font='"Lucida Console" 16'
+            else:
+                g2font='courier 16 bold'
             graph2.create_text(80,13,anchor=CENTER,text="Moon",font=g2font)
             graph2.create_text(13,37,anchor=W, text="Az: %6.2f" % g.AzMoon,font=g2font)
             graph2.create_text(13,61,anchor=W, text="El: %6.2f" % g.ElMoon,font=g2font)
