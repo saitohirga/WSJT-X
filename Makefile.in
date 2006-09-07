@@ -94,7 +94,7 @@ SRCS3C	= ptt_unix.c igray.c wrapkarn.c cutil.c
 OBJS3C  = ${SRCS3C:.c=.o}
 AUDIOSRCS = @AUDIO@
 
-all:	wsjt6
+all:	wsjt6 JT65code
 
 JT65code: $(OBJS1)
 	$(FC) -o JT65code $(OBJS1)
@@ -122,6 +122,13 @@ wsjt.spec: wsjt.py astro.py g.py options.py palettes.py smeter.py specjt.py
 #	${PYTHON} c:\python23\installer\makespec.py --icon wsjt.ico \
 #	--tk --onefile wsjt.py
 
+
+init_rs_int.o: init_rs.c
+	$(CC) $(CFLAGS) -c -DBIGSYM=1 -o init_rs_int.o init_rs.c
+encode_rs_int.o: encode_rs.c
+	$(CC) $(CFLAGS) -c -DBIGSYM=1 -o encode_rs_int.o encode_rs.c
+decode_rs_int.o: decode_rs.c
+	$(CC) $(CFLAGS) -c -DBIGSYM=1 -o decode_rs_int.o decode_rs.c
 
 .PHONY : clean
 clean:
