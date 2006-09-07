@@ -1299,12 +1299,12 @@ def update():
 
         if mode.get()[:4]=='JT65' or mode.get()[:2]=='CW' :
             graph2.delete(ALL)
-            g2font='Helvetica 16'
-            graph2.create_text(75,13,anchor=CENTER,text="Moon",font=g2font)
-            graph2.create_text(26,37,anchor=W, text="Az: %8.2f" % g.AzMoon,font=g2font)
-            graph2.create_text(26,61,anchor=W, text="El:  %8.2f" % g.ElMoon,font=g2font)
-            graph2.create_text(26,85,anchor=W, text="Dop:  %6d" % g.ndop,font=g2font)
-            graph2.create_text(26,109,anchor=W,text="Dgrd:%8.1f" % g.Dgrd,font=g2font)
+            g2font='"Lucida Console" 16'
+            graph2.create_text(80,13,anchor=CENTER,text="Moon",font=g2font)
+            graph2.create_text(13,37,anchor=W, text="Az: %6.2f" % g.AzMoon,font=g2font)
+            graph2.create_text(13,61,anchor=W, text="El: %6.2f" % g.ElMoon,font=g2font)
+            graph2.create_text(13,85,anchor=W, text="Dop:%6d" % g.ndop,font=g2font)
+            graph2.create_text(13,109,anchor=W,text="Dgrd:%5.1f" % g.Dgrd,font=g2font)
 
     if g.freeze_decode and mode.get()[:4]=='JT65':
         itol=2
