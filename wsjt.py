@@ -1300,7 +1300,6 @@ def update():
         if mode.get()[:4]=='JT65' or mode.get()[:2]=='CW' :
             graph2.delete(ALL)
             if g.Win32:
-
                 g2font='"Lucida Console" 16'
             else:
                 g2font='courier 16 bold'

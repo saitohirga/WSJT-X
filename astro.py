@@ -12,12 +12,6 @@ root.withdraw()
 root.protocol('WM_DELETE_WINDOW',done)
 if g.Win32: root.iconbitmap("wsjt.ico")
 root.title("Astronomical data")
-
-try:
-    root.option_readfile('astrorc')
-except:
-    pass
-
 frame=Frame(root)
 frame.pack()
 
@@ -50,7 +44,13 @@ def update():
     g.astro_geom=root.geometry()
     frame.after(1000,update)
 
-lab1=Label(frame,justify=LEFT,bg="#66FFFF",relief=RIDGE,bd=4,anchor=N)
+if g.Win32:
+    g2font='"Lucida Console" 16'
+else:
+    g2font='courier 16 bold'
+
+lab1=Label(frame,font=g2font,justify=LEFT,bg="#66FFFF",
+           relief=RIDGE,bd=4,anchor=N)
 lab1.pack(ipadx=4)
 
 frame.after(1000,update)
