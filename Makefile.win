@@ -71,7 +71,7 @@ jtaudio.o: jtaudio.c
 init_rs.obj: init_rs.c
 	$(CC) /nologo /c /DBIGSYM=1 init_rs.c
 
-init_rs.o: init_rs.obj
+init_rs.o: init_rs.c
 	$(CC) /nologo /c /DBIGSYM=1 /Foinit_rs.o init_rs.c
 
 encode_rs.obj: encode_rs.c
