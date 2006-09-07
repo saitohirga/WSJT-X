@@ -675,38 +675,38 @@ def shortcuts(event=NONE):
     if g.Win32: scwid.iconbitmap("wsjt.ico")
     t="""
 F1	List keyboard shortcuts
-Shift-F1	List special mouse commands
-CTRL-F1	About WSJT
+Shift+F1	List special mouse commands
+Ctrl+F1	About WSJT
 F2	Options
 F3	Tx Mute
 F4	Clear "To Radio"
 F5	What message to send?
 F6	Open next file in directory
-Shift-F6	Decode all wave files in directory
+Shift+F6	Decode all wave files in directory
 F7	Set FSK441 mode
-Shift-F7	Set JT6M mode
+Shift+F7	Set JT6M mode
 F8	Set JT65A mode
-Shift-F8	Set JT65B mode
-CTRL-F8	Set JT65C mode
-Shift-CTRL-F8	Set CW mode
-F10	Toggle focus between WSJT screens
-Alt-1 to Alt-6	Tx1 to Tx6
-Alt-A	Toggle Auto On/Off
-Alt-D	Decode
-Alt-E	Erase
-Alt-F	Toggle Freeze
-Alt-G	Generate Standard Messages
-Alt-I	Include
-Alt-L	Lookup
-CTRL-L	Lookup, then Generate Standard Messages
-Alt-M	Monitor
-Alt-O	Tx Stop
-Alt-P	Play
-Alt-Q	Log QSO
-Alt-S	Stop Monitoring or Decoding
-Alt-V	Save Last
-Alt-X	Exclude
-Alt-Z	Toggle Zap
+Shift+F8	Set JT65B mode
+Ctrl+F8	Set JT65C mode
+Shift+Ctrl+F8	Set CW mode
+F10	Show SpecJT
+Shift+F10   Show astronomical data
+Alt+1 to Alt+6	Tx1 to Tx6
+Alt+A	Toggle Auto On/Off
+Alt+D	Decode
+Alt+E	Erase
+Alt+F	Toggle Freeze
+Alt+G	Generate Standard Messages
+Alt+I	Include
+Alt+L	Lookup
+Ctrl+L	Lookup, then Generate Standard Messages
+Alt+M	Monitor
+Alt+O	Tx Stop
+Alt+Q	Log QSO
+Alt+S	Stop Monitoring or Decoding
+Alt+V	Save Last
+Alt+X	Exclude
+Alt+Z	Toggle Zap
 Right/Left Arrow	Increase/decrease Freeze DF
 """
     Label(scwid,text=t,justify=LEFT).pack(padx=20)
@@ -1541,10 +1541,12 @@ filebutton = Menubutton(mbar, text = 'File')
 filebutton.pack(side = LEFT)
 filemenu = Menu(filebutton, tearoff=0)
 filebutton['menu'] = filemenu
-filemenu.add('command', label = 'Open', command = openfile)
-filemenu.add('command', label = 'Open next in directory', command = opennext)
+filemenu.add('command', label = 'Open', command = openfile, \
+             accelerator='Ctrl+O')
+filemenu.add('command', label = 'Open next in directory', command = opennext, \
+             accelerator='F6')
 filemenu.add('command', label = 'Decode remaining files in directory', \
-             command = decodeall)
+             command = decodeall, accelerator='Shift+F6')
 filemenu.add_separator()
 filemenu.add('command', label = 'Delete all *.WAV files in RxWav', \
              command = delwav)
@@ -1554,11 +1556,12 @@ filemenu.add_separator()
 filemenu.add('command', label = 'Exit', command = quit)
 
 #------------------------------------------------------ Setup menu
-setupbutton = Menubutton(mbar, text = 'Setup', )
+setupbutton = Menubutton(mbar, text = 'Setup')
 setupbutton.pack(side = LEFT)
 setupmenu = Menu(setupbutton, tearoff=0)
 setupbutton['menu'] = setupmenu
-setupmenu.add('command', label = 'Options', command = options1)
+setupmenu.add('command', label = 'Options', command = options1, \
+              accelerator='F2')
 setupmenu.add_separator()
 setupmenu.add('command', label = 'Toggle size of text window', command=textsize)
 setupmenu.add('command', label = 'Generate messages for test tones', command=testmsgs)
@@ -1571,36 +1574,43 @@ setupmenu.add_separator()
 setupmenu.add_checkbutton(label = 'Enable diagnostics',variable=ndebug)
 
 #------------------------------------------------------ View menu
-viewbutton=Menubutton(mbar,text='View',)
+viewbutton=Menubutton(mbar,text='View')
 viewbutton.pack(side=LEFT)
 viewmenu=Menu(viewbutton,tearoff=0)
 viewbutton['menu']=viewmenu
-viewmenu.add('command', label = 'SpecJT', command = showspecjt)
-viewmenu.add('command', label = 'Astronomical data', command = astro1)
+viewmenu.add('command', label = 'SpecJT', command = showspecjt, \
+             accelerator='F10')
+viewmenu.add('command', label = 'Astronomical data', command = astro1, \
+             accelerator='Shift+F10')
 
 #------------------------------------------------------ Mode menu
-modebutton = Menubutton(mbar, text = 'Mode', )
+modebutton = Menubutton(mbar, text = 'Mode')
 modebutton.pack(side = LEFT)
 modemenu = Menu(modebutton, tearoff=0)
 modebutton['menu'] = modemenu
-modemenu.add_radiobutton(label = 'FSK441', variable=mode, command = ModeFSK441,
-    state=NORMAL)
+modemenu.add_radiobutton(label = 'FSK441', variable=mode, \
+    command = ModeFSK441, state=NORMAL, accelerator='F7')
 
 # To enable menu item 0:
 # modemenu.entryconfig(0,state=NORMAL)
 # Can use the following to retrieve the state:
 # state=modemenu.entrycget(0,"state")
 
-modemenu.add_radiobutton(label = 'JT6M', variable=mode, command = ModeJT6M)
-modemenu.add_radiobutton(label = 'JT65A', variable=mode, command = ModeJT65A)
-modemenu.add_radiobutton(label = 'JT65B', variable=mode, command = ModeJT65B)
-modemenu.add_radiobutton(label = 'JT65C', variable=mode, command = ModeJT65C)
-modemenu.add_radiobutton(label = 'CW', variable=mode, command = ModeCW)
+modemenu.add_radiobutton(label = 'JT6M', variable=mode, command = ModeJT6M, \
+                        accelerator='Shift+F7')
+modemenu.add_radiobutton(label = 'JT65A', variable=mode, command = ModeJT65A, \
+                         accelerator='F8')
+modemenu.add_radiobutton(label = 'JT65B', variable=mode, command = ModeJT65B, \
+                         accelerator='Shift+F8')
+modemenu.add_radiobutton(label = 'JT65C', variable=mode, command = ModeJT65C, \
+                         accelerator='Ctrl+F8')
+modemenu.add_radiobutton(label = 'CW', variable=mode, command = ModeCW, \
+                         accelerator='Shift+Ctrl+F8')
 #modemenu.add_radiobutton(label = 'Echo', variable=mode, command = ModeEcho,
 #                         state=DISABLED)
 
 #------------------------------------------------------ Decode menu
-decodebutton = Menubutton(mbar, text = 'Decode', )
+decodebutton = Menubutton(mbar, text = 'Decode')
 decodebutton.pack(side = LEFT)
 decodemenu = Menu(decodebutton, tearoff=1)
 decodebutton['menu'] = decodemenu
@@ -1650,12 +1660,16 @@ helpbutton = Menubutton(mbar, text = 'Help')
 helpbutton.pack(side = LEFT)
 helpmenu = Menu(helpbutton, tearoff=0)
 helpbutton['menu'] = helpmenu
-helpmenu.add('command', label = 'Keyboard shortcuts', command = shortcuts)
-helpmenu.add('command', label = 'Special mouse commands', command = mouse_commands)
-helpmenu.add('command', label = 'What message to send?', command = what2send)
+helpmenu.add('command', label = 'Keyboard shortcuts', command = shortcuts, \
+             accelerator='F1')
+helpmenu.add('command', label = 'Special mouse commands', \
+             command = mouse_commands, accelerator='Shift+F1')
+helpmenu.add('command', label = 'What message to send?', \
+             command = what2send, accelerator='F5')
 helpmenu.add('command', label = 'Available suffixes and add-on prefixes', \
              command = prefixes)
-helpmenu.add('command', label = 'About WSJT', command = about)
+helpmenu.add('command', label = 'About WSJT', command = about, \
+             accelerator='Ctrl+F1')
 
 #------------------------------------------------------ Graphics areas
 iframe1 = Frame(frame, bd=1, relief=SUNKEN)
@@ -1715,6 +1729,7 @@ root.bind_all('<Shift-F7>', ModeJT6M)
 root.bind_all('<Shift-Control-F8>', ModeCW)
 #root.bind_all('<F9>', ModeEcho)
 root.bind_all('<F10>', showspecjt)
+root.bind_all('<Shift-F10>', astro1)
 
 root.bind_all('<Alt-Key-1>',btx1)
 root.bind_all('<Alt-Key-2>',btx2)
@@ -1743,8 +1758,8 @@ root.bind_all('<Alt-m>',monitor)
 root.bind_all('<Alt-M>',monitor)
 root.bind_all('<Alt-o>',txstop)
 root.bind_all('<Alt-O>',txstop)
-root.bind_all('<Alt-p>',stub)
-root.bind_all('<Alt-P>',stub)
+root.bind_all('<Control-o>',openfile)
+root.bind_all('<Control-O>',openfile)
 root.bind_all('<Alt-q>',logqso)
 root.bind_all('<Alt-Q>',logqso)
 root.bind_all('<Alt-s>',stopmon)
@@ -1777,12 +1792,11 @@ iframe4b.pack(expand=1, fill=X, padx=4)
 iframe4c = Frame(frame, bd=1, relief=SUNKEN)
 blogqso=Button(iframe4c, text='Log QSO',underline=4,command=logqso,
                 padx=1,pady=1)
-#bplay=Button(iframe4c, text='Play',underline=0,command=stub)
 bstop=Button(iframe4c, text='Stop',underline=0,command=stopmon,
                 padx=1,pady=1)
 bmonitor=Button(iframe4c, text='Monitor',underline=0,command=monitor,
                 padx=1,pady=1)
-bsavelast=Button(iframe4c, text='Save',underline=3,command=savelast,
+bsavelast=Button(iframe4c, text='Save',underline=2,command=savelast,
                 padx=1,pady=1)
 bdecode=Button(iframe4c, text='Decode',underline=0,command=decode,
                 padx=1,pady=1)
