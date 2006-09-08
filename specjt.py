@@ -374,8 +374,8 @@ def update():
     Audio.gcom2.nfmid=int(fmid)
     Audio.gcom2.nfrange=int(frange)
 
-    if g.focus==2:
-        root.focus_set()
+#    if g.focus==2:
+#        root.focus_set()
     ltime.after(200,update)                      #Reset the timer
 
 #-------------------------------------------------------- draw_axis
