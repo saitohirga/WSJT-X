@@ -1,6 +1,6 @@
 	subroutine wsjt1(d,jz0,istart,samfacin,FileID,ndepth,MinSigdB,
      +    NQRN,DFTolerance,MouseButton,NClearAve,
-     +    Mode,NFreeze,NAFC,NZap,mode65,
+     +    Mode,NFreeze,NAFC,NZap,mode65,idf,
      +    MyCall,HisCall,HisGrid,neme,nsked,ntx2,s2,
      +    ps0,npkept,lumsg,basevb,rmspower,nslim2,psavg,ccf,Nseg,
      +    MouseDF,NAgain,LDecoded,nspecial,ndf,ss1,ss2)
@@ -171,11 +171,12 @@ C  Intentionally degrade SNR by -nclip dB.
      +        DFTolerance,mode65,nspecial,nstest,dfsh,iderrsh,
      +        idriftsh,snrsh,ss1,ss2,nwsh)
 !  Lowpass filter and decimate by 2
- 	   call lpf1(dat,jz,jz2)
+ 	   call lpf1(dat,jz,jz2,MouseDF,MouseDF2)
+	   idf=mousedf-mousedf2
  	   jz=jz2
  	   nadd=1
  	   fzap(1)=0.
- 	   if(nzap.eq.1) call avesp2(dat,jz,nadd,mode,NFreeze,MouseDF,
+ 	   if(nzap.eq.1) call avesp2(dat,jz,nadd,mode,NFreeze,MouseDF2,
      +       DFTolerance,fzap)
     	   if(nzap.eq.1.and.nstest.eq.0) call bzap(dat,jz,nadd,mode,fzap)
 
@@ -189,7 +190,7 @@ C  Intentionally degrade SNR by -nclip dB.
 !  Offset data by about 1 s.
  	   if(jz.ge.126*2048) call wsjt65(dat(4097),jz-4096,cfile6,
      +        NClearAve,MinSigdB,DFTolerance,NFreeze,NAFC,mode65,Nseg,
-     +        MouseDF,NAgain,ndepth,neme,nsked,
+     +        MouseDF2,NAgain,ndepth,neme,nsked,idf,
      +        mycall,hiscall,hisgrid,lumsg,lcum,nspecial,ndf,
      +        nstest,dfsh,snrsh,
      +        NSyncOK,ccf,psavg,ndiag,nwsh)

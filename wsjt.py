@@ -998,7 +998,8 @@ def dtdf_change(event):
         elif (event.y>=40 and event.y<95) or \
                  (event.y<95 and Audio.gcom2.nspecial>0):
             lab1.configure(text='DF (Hz)',bg='red')
-            t="%d" % int(1200.0*event.x/500.0-600.0,)
+            idf=Audio.gcom2.idf
+            t="%d" % int(idf+1200.0*event.x/500.0-600.0,)
             lab6.configure(text=t,bg="red")
         else:
             lab1.configure(text='Time (s)',bg='green')
@@ -1389,8 +1390,11 @@ def update():
 
     msg1.configure(text="%6.4f %6.4f" % (samfac_in,samfac_out))
     msg2.configure(text=mode.get())
-    t="Freeze DF:%4d" % (int(Audio.gcom2.mousedf),)
-    msg3.configure(text=t)
+    t="FrzDF:%4d" % (int(Audio.gcom2.mousedf),)
+    if abs(int(Audio.gcom2.mousedf))>600:
+        msg3.configure(text=t,fg='black',bg='red')
+    else:
+        msg3.configure(text=t,fg='black',bg='gray85')    
     bdecode.configure(bg='gray85')
     if Audio.gcom2.ndecoding:                   #Set button bg=light_blue
         bdecode.configure(bg='#66FFFF')         #while decoding
