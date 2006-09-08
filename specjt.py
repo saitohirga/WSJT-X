@@ -22,7 +22,6 @@ def hidespecjt():
 def showspecjt():
     root.deiconify()
     g.showspecjt=2
-    g.focus=1
 
 if(__name__=="__main__"):
     root = Tk()
@@ -374,8 +373,6 @@ def update():
     Audio.gcom2.nfmid=int(fmid)
     Audio.gcom2.nfrange=int(frange)
 
-#    if g.focus==2:
-#        root.focus_set()
     ltime.after(200,update)                      #Reset the timer
 
 #-------------------------------------------------------- draw_axis
