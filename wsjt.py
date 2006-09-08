@@ -53,6 +53,7 @@ ntol=(10,25,50,100,200,400)             #List of available tolerances
 idsec=0
 #irdsec=0
 lauto=0
+altmsg=0
 cmap0="Linrad"
 fileopened=""
 font1='Helvetica'
@@ -87,6 +88,7 @@ setseq=IntVar()
 ShOK=IntVar()
 slabel="Sync   "
 textheight=7
+tx6alt=""
 txsnrdb=99.
 TxFirst=IntVar()
 green=zeros(500,'f')
@@ -106,7 +108,7 @@ g.focus=0
 def showspecjt(event=NONE):
     if g.showspecjt>0:
         if g.focus>=1:
-            root.focus_set()
+#            root.focus_set()
             g.focus=0
         else:
             g.focus=2
@@ -702,6 +704,7 @@ Alt+D	Decode
 Alt+E	Erase
 Alt+F	Toggle Freeze
 Alt+G	Generate Standard Messages
+Ctrl+G	Generate Alternate JT65 Messages
 Alt+I	Include
 Alt+L	Lookup
 Ctrl+L	Lookup, then Generate Standard Messages
@@ -1052,6 +1055,7 @@ def left_arrow(event=NONE):
     
 #------------------------------------------------------ GenStdMsgs
 def GenStdMsgs(event=NONE):
+    global altmsg
     t=ToRadio.get().upper().strip()
     ToRadio.delete(0,99)
     ToRadio.insert(0,t)
@@ -1080,6 +1084,7 @@ def GenStdMsgs(event=NONE):
         tx5.insert(0,"73")
         t="CQ " + options.MyCall.get()+ " "+options.MyGrid.get()[:4]
         tx6.insert(0,t.upper())
+        altmsg=0
     elif mode.get()[:2]=="CW":
         tx1.insert(0,ToRadio.get() + " "+options.MyCall.get())
         tx2.insert(0,tx1.get()+" OOO")
@@ -1088,6 +1093,27 @@ def GenStdMsgs(event=NONE):
         tx5.insert(0,tx1.get()+" 73")
         tx6.insert(0,"CQ " + options.MyCall.get())
     
+#------------------------------------------------------ GenAltMsgs
+def GenAltMsgs(event=NONE):
+    global altmsg,tx6alt
+    t=ToRadio.get().upper().strip()
+    ToRadio.delete(0,99)
+    ToRadio.insert(0,t)
+    if k2txb.get()!=0: ntx.set(1)
+    Audio.gcom2.hiscall=(ToRadio.get()+'            ')[:12]
+    if mode.get()[:4]=="JT65" and ToRadio.get().find("/") == -1 and \
+               options.MyCall.get().find("/") == -1:
+        for m in (tx1, tx2, tx3, tx4, tx5, tx6):
+            m.delete(0,99)
+        t=ToRadio.get() + " "+options.MyCall.get()
+        tx1.insert(0,t.upper())
+        tx2.insert(0,tx1.get()+" OOO")
+        tx3.insert(0,tx1.get()+" RO")
+        tx4.insert(0,tx1.get()+" RRR")
+        tx5.insert(0,"TNX 73 GL ")
+        tx6.insert(0,tx6alt.upper())
+        altmsg=1
+
 #------------------------------------------------------ setmsg
 def setmsg(template,r):
     msg=""
@@ -1272,7 +1298,7 @@ def plot_yellow():
 def update():
     global root_geom,isec0,naz,nel,ndmiles,ndkm,nhotaz,nhotabetter,nopen, \
            im,pim,cmap0,isync,isync441,isync6m,isync65,isync_save,idsec, \
-           first,itol,txsnrdb
+           first,itol,txsnrdb,tx6alt
     
     utc=time.gmtime(time.time()+0.1*idsec)
     isec=utc[5]
@@ -1533,7 +1559,8 @@ def update():
 #    print 'About to init Audio.gcom2.PttPort in save some parameters'
     Audio.gcom2.pttport=(options.PttPort.get() + '            ')[:12]
 #    print Audio.gcom2.pttport
-    
+
+    if altmsg: tx6alt=tx6.get()    
 # Queue up the next update
     ldate.after(100,update)
     
@@ -1759,6 +1786,8 @@ root.bind_all('<Alt-f>',toggle_freeze)
 root.bind_all('<Alt-F>',toggle_freeze)
 root.bind_all('<Alt-g>',GenStdMsgs)
 root.bind_all('<Alt-G>',GenStdMsgs)
+root.bind_all('<Control-g>', GenAltMsgs)
+root.bind_all('<Control-G>', GenAltMsgs)
 root.bind_all('<Alt-i>',decode_include)
 root.bind_all('<Alt-I>',decode_include)
 root.bind_all('<Alt-l>',lookup)
@@ -2217,7 +2246,7 @@ f.write("Debug " + str(ndebug.get()) + "\n")
 #f.write("TRPeriod " + str(Audio.gcom1.trperiod) + "\n")
 mrudir2=mrudir.replace(" ","#")
 f.write("MRUDir " + mrudir2 + "\n")
-if g.astro_geom[:7]=="200x200": g.astro_geom="268x423" + g.astro_geom[7:]
+if g.astro_geom[:7]=="200x200": g.astro_geom="316x373" + g.astro_geom[7:]
 f.write("AstroGeometry " + g.astro_geom + "\n")
 f.write("CWTRPeriod " + str(ncwtrperiod) + "\n")
 f.close()
