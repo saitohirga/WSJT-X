@@ -103,18 +103,9 @@ g.ndevin=IntVar()
 g.ndevout=IntVar()
 g.DevinName=StringVar()
 g.DevoutName=StringVar()
-g.focus=0
 #------------------------------------------------------ showspecjt
 def showspecjt(event=NONE):
-    if g.showspecjt>0:
-        if g.focus>=1:
-#            root.focus_set()
-            g.focus=0
-        else:
-            g.focus=2
-    else:
-        g.showspecjt=1
-        g.focus=2
+    if g.showspecjt==0: g.showspecjt=1
 
 #------------------------------------------------------ restart
 def restart():
