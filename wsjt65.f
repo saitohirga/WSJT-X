@@ -1,6 +1,6 @@
       subroutine wsjt65(dat,npts,cfile6,NClearAve,MinSigdB,
      +  DFTolerance,NFreeze,NAFC,mode65,Nseg,MouseDF,NAgain,
-     +  ndepth,neme,nsked,mycall,hiscall,hisgrid,
+     +  ndepth,neme,nsked,idf,mycall,hiscall,hisgrid,
      +  lumsg,lcum,nspecial,ndf,nstest,dfsh,
      +  snrsh,NSyncOK,ccfblue,ccfred,ndiag,nwsh)
 
@@ -127,7 +127,7 @@ C  If we get here, we have achieved sync!
          c1=decoded(i:i)
          if(c1.ge.'a' .and. c1.le.'z') decoded(i:i)=char(ichar(c1)-32)
       enddo
-      write(line,1010) cfile6,nsync,nsnr,dtx-1.0,ndf,
+      write(line,1010) cfile6,nsync,nsnr,dtx-1.0,ndf+idf,
      +    nint(width),csync,special,decoded(1:19),cooo,kvqual,nqual
  1010 format(a6,i3,i5,f5.1,i5,i3,1x,a1,1x,a5,a19,1x,a3,i4,i4)
 

@@ -59,7 +59,7 @@ subroutine decode3(d2,jz,istart,filename)
   endif
   call wsjt1(d2d,jz,istart,samfacin,FileID,ndepth,MinSigdB,           &
        NQRN,DFTolerance,MouseButton,NClearAve,                        &
-       nMode,NFreeze,NAFC,NZap,mode65,                                &
+       nMode,NFreeze,NAFC,NZap,mode65,idf,                            &
        MyCall,HisCall,HisGrid,neme,nsked,ntx2,s2,                     &
        ps0,npkept,lumsg,basevb,rmspower,nslim2,psavg,ccf,Nseg,        &
        MouseDF,NAgain,LDecoded,nspecial,ndf,ss1,ss2)

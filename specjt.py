@@ -413,10 +413,8 @@ def draw_axis():
                 dx=375 + (1270.5-fmid)/(2*df)
                 dff=2*df
             if Audio.gcom2.nfreeze==0:
-#                x1=-600/dff + dx
-#                x2=600/dff + dx
-                x1=0
-                x2=749
+                x1=(Audio.gcom2.mousedf-600)/dff + dx
+                x2=(Audio.gcom2.mousedf+600)/dff + dx
             else:
                 tol=Audio.gcom2.dftolerance    
                 x1=(Audio.gcom2.mousedf-tol)/dff + dx

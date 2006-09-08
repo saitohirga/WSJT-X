@@ -58,6 +58,7 @@ integer ntime          !Integer Unix time (now)               SoundIn
 integer idinterval     !Interval between CWIDs, minutes         GUI
 integer msmax          !(why is this here?)
 integer lenappdir      !Length of Appdir string                 GUI
+integer idf            !Frequency offset in Hz                  Decoder
 integer ndiskdat       !1 if data read from disk, 0 otherwise   GUI
 integer nlines         !Available lines of waterfall data       GUI
 integer nflat          !Is waterfall to be flattened?           GUI
@@ -67,7 +68,7 @@ integer ndepth         !Requested "depth" of JT65 decoding      GUI
 integer nspecial       !JT65 shorthand msg#: RO=2 RRR=3 73=4    Decoder
 integer ndf            !Measured DF in Hz                       Decoder
 real ss1               !Magenta curve for JT65 shorthand msg    Decoder
-real ss2               !Orange curve for JT65 shorthand msg    Decoder
+real ss2               !Orange curve for JT65 shorthand msg     Decoder
 character mycall*12    !My call sign                            GUI
 character hiscall*12   !His call sign                           GUI
 character hisgrid*6    !His grid locator                        GUI
@@ -91,7 +92,7 @@ common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),             &
      nclearave,nfreeze,nafc,nmode,mode65,nclip,ndebug,nblank,nport,   &
      mousedf,neme,nsked,naggressive,ntx2,nslim2,nagain,nsavelast,     &
      shok,sendingsh,d2a(661500),d2b(661500),b(60000),jza,jzb,ntime,   &
-     idinterval,msmax,lenappdir,ndiskdat,nlines,nflat,ntxreq,ntxnow,  &
+     idinterval,msmax,lenappdir,idf,ndiskdat,nlines,nflat,ntxreq,ntxnow,  &
      ndepth,nspecial,ndf,nfmid,nfrange,ss1(-224:224),ss2(-224:224),   &
      mycall,hiscall,hisgrid,txmsg,sending,mode,fname0,fnamea,         &
      fnameb,decodedfile,AppDir,filetokilla,filetokillb,utcdate,pttport
