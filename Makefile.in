@@ -61,13 +61,13 @@ SRCS2F77 = wsjt1.f astro.f azdist.f coord.f dcoord.f deg2grid.f \
         ping.f longx.f peakup.f sync.f detect.f avemsg65.f decode65.f \
         demod64a.f encode65.f extract.f flat1.f four2.f rfile2.f \
         gencw.f getpfx1.f getpfx2.f getsnr.f graycode.f grid2k.f \
-        interleave63.f k2grid.f limit.f lpf1.f deep65.F morse.f \
+        interleave63.f k2grid.f limit.f lpf1.f morse.f \
         nchar.f packcall.f packgrid.f packmsg.f packtext.f setup65.f \
         short65.f slope.f spec2d65.f sync65.f unpackcall.f \
         unpackgrid.f unpackmsg.f unpacktext.f xcor.f xfft.f xfft2.f wsjt65.f \
 	ftpeak65.f fil651.f fil652.f fil653.f symsync65.f
 
-OBJS2F77 = ${SRCS2F77:.f=.o}
+OBJS2F77 = ${SRCS2F77:.f=.o} deep65.o
 
 SRCS2C	= init_rs.c encode_rs.c decode_rs.c
 OBJS2C  = ${SRCS2C:.c=.o}
@@ -107,8 +107,8 @@ wsjt6:	@NEEDPORTAUDIO@ Audio.so #wsjt.spec
 #	${PYTHON} c:\python23\installer\Build.py wsjt.spec
 #	${RM} wsjt6
 
-#deep65.o: deep65.F
-#	$(FC) -c -O0 -Wall deep65.F
+deep65.o: deep65.F
+	$(FC) -c -O0 -Wall deep65.F
 
 Audio.so: $(OBJS2C) $(OBJS3C) $(OBJS2F77) $(SRCS2F90) $(AUDIOSRCS)
 	 ${F2PY} -c --quiet --opt="-O ${CFLAGS} \
