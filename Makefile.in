@@ -108,7 +108,7 @@ wsjt6:	@NEEDPORTAUDIO@ Audio.so #wsjt.spec
 #	${RM} wsjt6
 
 deep65.o: deep65.F
-	$(FC) -c -O0 -Wall deep65.F
+	$(FC) -c -O0 -Wall -fPIC deep65.F
 
 Audio.so: $(OBJS2C) $(OBJS3C) $(OBJS2F77) $(SRCS2F90) $(AUDIOSRCS)
 	 ${F2PY} -c --quiet --opt="-O ${CFLAGS} \
