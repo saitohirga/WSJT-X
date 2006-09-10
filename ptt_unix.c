@@ -62,9 +62,6 @@ int lp_ptt (int fd, int onoff);
 # include <sys/param.h>
 #endif
 
-#ifndef BSD		/* #ifdef LINUX ? */
-#include <sys/io.h>
-#endif
 #include <string.h>
 /* parport functions */
 
