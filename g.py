@@ -6,6 +6,7 @@ report="26"
 rms=1.0
 mode_change=0
 showspecjt=0
+g2font='courier 16 bold'
 
 #------------------------------------------------------ ftnstr
 def ftnstr(x):

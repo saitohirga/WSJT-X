@@ -44,11 +44,7 @@ def update():
     g.astro_geom=root.geometry()
     frame.after(1000,update)
 
-if g.Win32:
-    g2font='"Lucida Console" 16'
-else:
-    g2font='courier 16 bold'
-
+g2font=g.g2font
 lab1=Label(frame,font=g2font,justify=LEFT,bg="#66FFFF",
            relief=RIDGE,bd=4,anchor=N)
 lab1.pack(ipadx=4)

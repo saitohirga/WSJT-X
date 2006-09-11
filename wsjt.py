@@ -1322,10 +1322,6 @@ def update():
 
         if mode.get()[:4]=='JT65' or mode.get()[:2]=='CW' :
             graph2.delete(ALL)
-            if g.Win32:
-                g2font='"Lucida Console" 16'
-            else:
-                g2font='courier 16 bold'
             graph2.create_text(80,13,anchor=CENTER,text="Moon",font=g2font)
             graph2.create_text(13,37,anchor=W, text="Az: %6.2f" % g.AzMoon,font=g2font)
             graph2.create_text(13,61,anchor=W, text="El: %6.2f" % g.ElMoon,font=g2font)
@@ -1712,6 +1708,8 @@ Widget.bind(graph1,"<Button-3>",mouse_click_g1)
 graph1.pack(side=LEFT)
 graph2=Canvas(iframe1, bg='black', width=150, height=120,cursor='crosshair')
 graph2.pack(side=LEFT)
+g2font=graph2.option_get("font","font")
+if g2font!="": g.g2font=g2font
 iframe1.pack(expand=1, fill=X, padx=4)
 
 #------------------------------------------------------ Labels under graphics
