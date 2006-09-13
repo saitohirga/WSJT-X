@@ -1386,7 +1386,7 @@ def update():
 
     msg1.configure(text="%6.4f %6.4f" % (samfac_in,samfac_out))
     msg2.configure(text=mode.get())
-    t="FrzDF:%4d" % (int(Audio.gcom2.mousedf),)
+    t="FreezeDF:%4d" % (int(Audio.gcom2.mousedf),)
     if abs(int(Audio.gcom2.mousedf))>600:
         msg3.configure(text=t,fg='black',bg='red')
     else:
