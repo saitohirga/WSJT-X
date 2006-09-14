@@ -22,6 +22,7 @@ C  compute ftrack.
       twopi=8*datan(1.d0)
       fsyncset=-300.d0
       dt=2.d0/11025.d0               !Input dt (WSJT has downsampled by 2)
+      n2 = NMAX/2
       call fil651(dat,jz,c2,n2)      !Filter and complex mix; rate 1/2
       dt=2.d0*dt                     !We're now downsampled by 4
 
@@ -32,6 +33,7 @@ C  compute ftrack.
          c2(i)=c2(i) * cmplx(cos(pha),-sin(pha))
       enddo
 
+      n3 = NMAX/4
       call fil652(c2,n2,c3,n3)       !Low-pass at +/- 500 Hz; rate 1/2
       dt=2.d0*dt                     !Down by 8
 
@@ -42,9 +44,11 @@ C  compute ftrack.
          c3(i)=c3(i) * cmplx(cos(pha),-sin(pha))
       enddo
 
+      n4 = NMAX/16
       call fil653(c3,n3,c4,n4)       !Low-pass at +/- 100 Hz; rate 1/4
       dt=4.d0*dt                     !Down by 32
 
+      n5 = NMAX/64
       call fil653(c4,n4,c5,n5)       !Low-pass at +/- 25 Hz; rate 1/4
       dt=4.d0*dt                     !Down by 128
 

@@ -15,7 +15,7 @@ C  BW          = 200        Hz
       parameter (NH=NTAPS/2)
       parameter (NDOWN=4)                !Downsample ratio
       complex c1(n1)
-      complex c2(*)
+      complex c2(n2)
 
 C  Filter coefficients:
       real a(-NH:NH)

@@ -16,7 +16,7 @@ C  fout        = 2706.25  Hz
       parameter (NDOWN=2)               !Downsample ratio
 
       real d(n1)
-      complex c(*)
+      complex c(n2)
 
       complex ck(-NH:NH)
       data ck/
