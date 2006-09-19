@@ -1,6 +1,6 @@
       subroutine short65(data,jz,NFreeze,MouseDF,DFTolerance,
      +  mode65,nspecialbest,nstest,dfsh,iderrbest,idriftbest,
-     +  snrdb,ss1a,ss2a,nwsh)
+     +  snrdb,ss1a,ss2a,nwsh,idfsh)
 
 C  Checks to see if this might be a shorthand message.
 C  This is done before zapping, downsampling, or normal decoding.
@@ -8,19 +8,18 @@ C  This is done before zapping, downsampling, or normal decoding.
       parameter (NP2=60*11025)               !Size of data array
       parameter (NFFT=16384)                 !FFT length
       parameter (NH=NFFT/2)                  !Step size
-      parameter (NQ=NFFT/4)                  !Saved spectral points
       parameter (MAXSTEPS=60*11025/NH)       !Max # of steps
 
       real data(jz)
       integer DFTolerance
       real s2(NH,MAXSTEPS)                   !2d spectrum
-      real ss(NQ,4)                          !Save spectra in four phase bins
-      real psavg(NQ)
+      real ss(NH,4)                          !Save spectra in four phase bins
+      real psavg(NH)
       real sigmax(4)                         !Peak of spectrum at each phase
       real ss1a(-224:224)                    !Lower magenta curve
       real ss2a(-224:224)                    !Upper magenta curve
-      real ss1(-473:1227)                    !Lower magenta curve (temp)
-      real ss2(-473:1227)                    !Upper magenta curve (temp)
+      real ss1(-473:1784)                    !Lower magenta curve (temp)
+      real ss2(-473:1784)                    !Upper magenta curve (temp)
       real ssavg(-10:10)
       integer ipk(4)                         !Peak bin at each phase
       save
@@ -30,38 +29,37 @@ C  This is done before zapping, downsampling, or normal decoding.
       df=11025.0/NFFT
 
 C  Do 16 k FFTs, stepped by 8k.  (*** Maybe should step by 4k? ***)
-      call zero(psavg,NQ)
+      call zero(psavg,NH)
       nsteps=(jz-NH)/(4*NH)
       nsteps=4*nsteps                        !Number of steps
       do j=1,nsteps
          k=(j-1)*NH + 1
          call ps(data(k),NFFT,s2(1,j))       !Get power spectra
          if(mode65.eq.4) then
-            call smooth(s2(1,j),NQ)
-            call smooth(s2(1,j),NQ)
+            call smooth(s2(1,j),NH)
+            call smooth(s2(1,j),NH)
          endif
-         call add(psavg,s2(1,j),psavg,NQ)
+         call add(psavg,s2(1,j),psavg,NH)
       enddo
 
-      call flat1(psavg,s2,NQ,nsteps,NH,MAXSTEPS)
+      call flat1(psavg,s2,NH,nsteps,NH,MAXSTEPS)
 
       nfac=40*mode65
       dtstep=0.5/df
       fac=dtstep/(60.0*df)
 
 C  Define range of frequencies to be searched
-      fa= 670.46
-      fb=1870.46
+      fa=max(200.0,1270.46+MouseDF-600.0)
+      fb=min(4800.0,1270.46+MouseDF+600.0)
       ia=fa/df
       ib=fb/df + 4.1*nfac  !Upper tone is above sync tone by 4*nfac*df Hz
-      if(ib.gt.NQ) ib=NQ
       if(NFreeze.eq.1) then
-         fa=max( 670.46,1270.46+MouseDF-DFTolerance)
-         fb=min(1870.46,1270.46+MouseDF+DFTolerance)
+         fa=max(200.0,1270.46+MouseDF-DFTolerance)
+         fb=min(4800.0,1270.46+MouseDF+DFTolerance)
       endif
       ia2=fa/df
       ib2=fb/df + 4.1*nfac  !Upper tone is above sync tone by 4*nfac*df Hz
-      if(ib2.gt.NQ) ib2=NQ
+      if(ib2.gt.NH) ib2=NH
 
 C  Find strongest line in each of the 4 phases, repeating for each drift rate.
       sbest=0.
@@ -69,7 +67,7 @@ C  Find strongest line in each of the 4 phases, repeating for each drift rate.
       idz=6.0/df                !Is this the right drift range?
       do idrift=-idz,idz
          drift=idrift*df*60.0/49.04
-         call zero(ss,4*NQ)     !Clear the accumulating array
+         call zero(ss,4*NH)     !Clear the accumulating array
          do j=1,nsteps
             n=mod(j-1,4)+1
             k=nint((j-nsteps/2)*drift*fac) + ia
@@ -139,8 +137,8 @@ C  Find strongest line in each of the 4 phases, repeating for each drift rate.
             ipk2=ntmp
          endif
 
-         call zero(ss1,1701)
-         call zero(ss2,1701)
+         call zero(ss1,2258)
+         call zero(ss2,2258)
          do i=ia2,ib2,4
             f=df*i
             k=nint((f-1270.46)/df4)
@@ -175,9 +173,17 @@ C  Find strongest line in each of the 4 phases, repeating for each drift rate.
          nwsh=nint(x*df4)
       endif
 
+C  See if orange/magenta curves need to be shifted:
+      idfsh=0
+      if(mousedf.lt.-600) idfsh=-670
+      if(mousedf.gt.600) idfsh=1000
+      if(mousedf.gt.1600) idfsh=2000
+      if(mousedf.gt.2600) idfsh=3000
+      i0=nint(idfsh/df4)
+
       do i=-224,224
-         ss1a(i)=ss1(i)
-         ss2a(i)=ss2(i)
+         ss1a(i)=ss1(i+i0)
+         ss2a(i)=ss2(i+i0)
       enddo
 
       return

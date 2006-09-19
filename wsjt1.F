@@ -169,7 +169,7 @@ C  Intentionally degrade SNR by -nclip dB.
  	   nstest=0
  	   if(ntx2.ne.1) call short65(dat,jz,NFreeze,MouseDF,
      +        DFTolerance,mode65,nspecial,nstest,dfsh,iderrsh,
-     +        idriftsh,snrsh,ss1,ss2,nwsh)
+     +        idriftsh,snrsh,ss1,ss2,nwsh,idfsh)
 !  Lowpass filter and decimate by 2
  	   call lpf1(dat,jz,jz2,MouseDF,MouseDF2)
 	   idf=mousedf-mousedf2
@@ -190,7 +190,7 @@ C  Intentionally degrade SNR by -nclip dB.
 !  Offset data by about 1 s.
  	   if(jz.ge.126*2048) call wsjt65(dat(4097),jz-4096,cfile6,
      +        NClearAve,MinSigdB,DFTolerance,NFreeze,NAFC,mode65,Nseg,
-     +        MouseDF2,NAgain,ndepth,neme,nsked,idf,
+     +        MouseDF2,NAgain,ndepth,neme,nsked,idf,idfsh,
      +        mycall,hiscall,hisgrid,lumsg,lcum,nspecial,ndf,
      +        nstest,dfsh,snrsh,
      +        NSyncOK,ccf,psavg,ndiag,nwsh)

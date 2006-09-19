@@ -1,6 +1,6 @@
       subroutine wsjt65(dat,npts,cfile6,NClearAve,MinSigdB,
      +  DFTolerance,NFreeze,NAFC,mode65,Nseg,MouseDF,NAgain,
-     +  ndepth,neme,nsked,idf,mycall,hiscall,hisgrid,
+     +  ndepth,neme,nsked,idf,idfsh,mycall,hiscall,hisgrid,
      +  lumsg,lcum,nspecial,ndf,nstest,dfsh,
      +  snrsh,NSyncOK,ccfblue,ccfred,ndiag,nwsh)
 
@@ -80,7 +80,7 @@ C  Attempt to synchronize: look for sync tone, get DF and DT.
 
 C  Good Sync takes precedence over a shorthand message:
       if(nsync.ge.MinSigdB .and. nsnr.ge.nsnrlim .and.
-     +   nsync.gt.nstest) nstest=0
+     +   nsync.ge.nstest) nstest=0
 
       if(nstest.gt.0) then
          dfx=dfsh
@@ -95,6 +95,7 @@ C  Good Sync takes precedence over a shorthand message:
          NSyncOK=1              !Mark this RX file as good (for "Save Decoded")
          if(NFreeze.eq.0 .or. DFTolerance.ge.200) special(5:5)='?'
          width=nwsh
+         idf=idfsh
          go to 200
       endif
 
@@ -127,7 +128,9 @@ C  If we get here, we have achieved sync!
          c1=decoded(i:i)
          if(c1.ge.'a' .and. c1.le.'z') decoded(i:i)=char(ichar(c1)-32)
       enddo
-      write(line,1010) cfile6,nsync,nsnr,dtx-1.0,ndf+idf,
+      jdf=ndf+idf
+      if(nstest.gt.0) jdf=ndf
+      write(line,1010) cfile6,nsync,nsnr,dtx-1.0,jdf,
      +    nint(width),csync,special,decoded(1:19),cooo,kvqual,nqual
  1010 format(a6,i3,i5,f5.1,i5,i3,1x,a1,1x,a5,a19,1x,a3,i4,i4)
 
