@@ -125,8 +125,8 @@ C  Find strongest line in each of the 4 phases, repeating for each drift rate.
  10   enddo
 
       if(nstest.eq.0) nspecialbest=0
+      df4=4.0*df
       if(nstest.gt.0) then
-         df4=4.0*df
 
          if(ipk1.gt.ipk2) then
             ntmp=n1
