@@ -2166,7 +2166,6 @@ Audio.gcom2.appdir=(appdir+'                                                    
 Audio.gcom2.ndepth=ndepth.get()
 Audio.ftn_init()
 GenStdMsgs()
-print 'D ',itol,ntol[itol]
 Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'        ')[:8]
 stopmon()
 first=1
