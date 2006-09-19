@@ -1,5 +1,5 @@
       subroutine sync65(dat,jz,DFTolerance,NFreeze,MouseDF,
-     +  mode65,dtx,dfx,snrx,snrsync,ccfblue,ccfred,flip,width)
+     +  mode65,dtx,dfx,snrx,snrsync,ccfblue,ccfred1,flip,width)
 
 C  Synchronizes JT65 data, finding the best-fit DT and DF.  
 C  NB: at this stage, submodes ABC are processed in the same way.
@@ -13,7 +13,8 @@ C  NB: at this stage, submodes ABC are processed in the same way.
       real psavg(NHMAX)                !Average spectrum of whole record
       real s2(NHMAX,NSMAX)             !2d spectrum, stepped by half-symbols
       real ccfblue(-5:540)              !CCF with pseudorandom sequence
-      real ccfred(-224:224)            !Peak of ccfblue, as function of freq
+      real ccfred(-372:372)            !Peak of ccfblue, as function of freq
+      real ccfred1(-224:224)            !Peak of ccfblue, as function of freq
       real tmp(450)
       save
 
@@ -60,12 +61,12 @@ C  Find the best frequency channel for CCF
       syncbest=-1.e30
       syncbest2=-1.e30
 
-      call zero(ccfred,449)
+      call zero(ccfred,745)
       do i=ia,ib
          call xcor(s2,i,nsteps,nsym,lag1,lag2,
      +        ccfblue,ccf0,lagpk0,flip,0.0)
          j=i-i0
-         if(j.ge.-224 .and. j.le.224) ccfred(j)=ccf0
+         if(j.ge.-372 .and. j.le.372) ccfred(j)=ccf0
 
 C  Find rms of the CCF, without the main peak
          call slope(ccfblue(lag1),lag2-lag1+1,lagpk0-lag1+1.0)
@@ -162,6 +163,10 @@ C  Compute width of sync tone to outermost -3 dB points
       if(width.gt.1.2) width=sqrt(width**2 - 1.44)
       width=df*width
       width=max(0.0,min(99.0,width))
+
+      do i=-224,224
+         ccfred1(i)=ccfred(i)
+      enddo
 
       return
       end
