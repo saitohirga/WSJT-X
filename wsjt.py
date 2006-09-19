@@ -1391,9 +1391,9 @@ def update():
         msg3.configure(text=t,fg='black',bg='red')
     else:
         msg3.configure(text=t,fg='black',bg='gray85')    
-    bdecode.configure(bg='gray85',highlightbackground='red')
+    bdecode.configure(bg='gray85',activebackground='gray95')
     if Audio.gcom2.ndecoding:       #Set button bg=light_blue while decoding
-        bdecode.configure(bg='#66FFFF',highlightbackground='red')
+        bdecode.configure(bg='#66FFFF',activebackground='#66FFFF')
     if mode.get()[:2]=="CW":
         msg5.configure(text="TR Period: %d s" % (Audio.gcom1.trperiod,), \
                        bg='white')
