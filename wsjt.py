@@ -1,4 +1,4 @@
-#------------------------------------------------------------------ WSJT
+#------------------------------------------------------------------- WSJT
 # $Date$ $Revision$
 #
 from Tkinter import *
@@ -48,8 +48,8 @@ isync6m=-10
 isync65=1
 isync_save=0
 iclip=0
-itol=5
-ntol=(10,25,50,100,200,400)             #List of available tolerances
+itol=5                                       #Default tol=400 Hz
+ntol=(10,25,50,100,200,400,600)              #List of available tolerances
 idsec=0
 #irdsec=0
 lauto=0
@@ -523,7 +523,7 @@ def ModeFSK441(event=NONE):
         report.configure(state=NORMAL)
         shmsg.configure(state=NORMAL)
         graph2.configure(bg='black')
-        itol=5
+        itol=4
         inctol()
         ntx.set(1)
         GenStdMsgs()
@@ -552,7 +552,7 @@ def ModeJT65():
     report.configure(state=DISABLED)
     shmsg.configure(state=DISABLED)
     graph2.configure(bg='#66FFFF')
-    itol=5
+    itol=4
     inctol()
     nfreeze.set(0)
     ntx.set(1)
@@ -857,7 +857,7 @@ def decclip(event):
 #------------------------------------------------------ inctol
 def inctol(event=NONE):
     global itol
-    if itol<5: itol=itol+1
+    if itol<6: itol=itol+1
     ltol.configure(text='Tol    '+str(ntol[itol]))
 
 #------------------------------------------------------ dectol
@@ -1011,7 +1011,7 @@ def mouse_click_g1(event):
     global nopen
     if not nopen:
         if mode.get()[:4]=="JT65":
-            Audio.gcom2.mousedf=int((event.x-250)*2.4)
+            Audio.gcom2.mousedf=int(Audio.gcom2.idf+(event.x-250)*2.4)
         else:
             if Audio.gcom2.ndecoding==0:              #If decoder is busy, ignore
                 Audio.gcom2.nagain=1
@@ -1168,7 +1168,7 @@ def plot_large():
         else:
             y1=[]
             y2=[]
-            for i in range(446):                #Find ymax for red curve
+            for i in range(446):        #Find ymax for magenta/orange curves
                 ss1=Audio.gcom2.ss1[i+1]
                 y1.append(ss1)
                 ss2=Audio.gcom2.ss2[i+1]
@@ -1179,7 +1179,7 @@ def plot_large():
             xy1=[]
             xy2=[]
             fac=500.0/446.0
-            for i in range(446):                #Make xy list for red curve
+            for i in range(446):        #Make xy list for magenta/orange curves
                 x=i*fac
                 ss1=Audio.gcom2.ss1[i+1]
                 n=int(90.0-yfac*ss1)
@@ -1386,14 +1386,14 @@ def update():
 
     msg1.configure(text="%6.4f %6.4f" % (samfac_in,samfac_out))
     msg2.configure(text=mode.get())
-    t="FreezeDF:%4d" % (int(Audio.gcom2.mousedf),)
+    t="Freeze DF:%4d" % (int(Audio.gcom2.mousedf),)
     if abs(int(Audio.gcom2.mousedf))>600:
         msg3.configure(text=t,fg='black',bg='red')
     else:
         msg3.configure(text=t,fg='black',bg='gray85')    
-    bdecode.configure(bg='gray85')
-    if Audio.gcom2.ndecoding:                   #Set button bg=light_blue
-        bdecode.configure(bg='#66FFFF')         #while decoding
+    bdecode.configure(bg='gray85',highlightbackground='red')
+    if Audio.gcom2.ndecoding:       #Set button bg=light_blue while decoding
+        bdecode.configure(bg='#66FFFF',highlightbackground='red')
     if mode.get()[:2]=="CW":
         msg5.configure(text="TR Period: %d s" % (Audio.gcom1.trperiod,), \
                        bg='white')
@@ -2018,7 +2018,6 @@ lauto=0
 isync=1
 ntx.set(1)
 ndepth.set(1)
-
 import options
 options.defaults()
 ModeFSK441()
@@ -2167,6 +2166,7 @@ Audio.gcom2.appdir=(appdir+'                                                    
 Audio.gcom2.ndepth=ndepth.get()
 Audio.ftn_init()
 GenStdMsgs()
+print 'D ',itol,ntol[itol]
 Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'        ')[:8]
 stopmon()
 first=1

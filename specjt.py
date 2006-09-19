@@ -367,7 +367,8 @@ def update():
     if(fmid<>fmid0 or frange<>frange0):
         if fmid<1000*nfr.get(): fmid=1000*nfr.get()
         if fmid>5000-1000*nfr.get(): fmid=5000-1000*nfr.get()
-        draw_axis()
+#        draw_axis()
+        df_mark()
         fmid0=fmid
         frange0=frange
     Audio.gcom2.nfmid=int(fmid)
@@ -454,9 +455,9 @@ setupmenu.add_separator()
 setupmenu.add('command', label = 'Rx volume control', command = rx_volume)
 setupmenu.add('command', label = 'Tx volume control', command = tx_volume)
 setupmenu.add_separator()
-setupmenu.add_radiobutton(label='Frequency axis',command=draw_axis,
+setupmenu.add_radiobutton(label='Frequency axis',command=df_mark,
             value=0,variable=naxis)
-setupmenu.add_radiobutton(label='JT65 DF axis',command=draw_axis,
+setupmenu.add_radiobutton(label='JT65 DF axis',command=df_mark,
             value=1,variable=naxis)
 setupmenu.add_separator()
 setupmenu.palettes=Menu(setupmenu,tearoff=0)

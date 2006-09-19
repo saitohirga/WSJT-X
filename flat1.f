@@ -2,7 +2,7 @@
 
       real psavg(nh)
       real s2(nhmax,nsmax)
-      real x(4096),tmp(33)
+      real x(8192),tmp(33)
 
       nsmo=33
       ia=nsmo/2 + 1

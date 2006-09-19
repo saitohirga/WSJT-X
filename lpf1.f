@@ -45,6 +45,9 @@ C  Shift frequency up or down by ndf Hz:
             do i=nh,-i0,-1
                c(i)=c(i+i0)
             enddo
+            do i=0,-i0-1
+               c(i)=0.
+            enddo
          else
             do i=0,nh-i0
                c(i)=c(i+i0)
