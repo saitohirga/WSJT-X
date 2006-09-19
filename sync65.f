@@ -38,8 +38,11 @@ C  Compute power spectrum for each step and get average
       call flat1(psavg,s2,nh,nsteps,NHMAX,NSMAX)        !Flatten the spectra
 
 C  Find the best frequency channel for CCF
-      famin= 670.46
-      fbmax=1870.46
+!      famin= 670.46
+!      fbmax=1870.46
+      famin=3.
+      fbmax=2700.
+
       fa=famin
       fb=fbmax
       if(NFreeze.eq.1) then
@@ -51,7 +54,6 @@ C  Find the best frequency channel for CCF
       endif
       ia=fa/df
       ib=fb/df
-
       i0=nint(1270.46/df)
       lag1=-5
       lag2=59
