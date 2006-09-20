@@ -12,9 +12,11 @@ C  NB: at this stage, submodes ABC are processed in the same way.
       real dat(jz)
       real psavg(NHMAX)                !Average spectrum of whole record
       real s2(NHMAX,NSMAX)             !2d spectrum, stepped by half-symbols
-      real ccfblue(-5:540)              !CCF with pseudorandom sequence
-      real ccfred(-372:372)            !Peak of ccfblue, as function of freq
-      real ccfred1(-224:224)            !Peak of ccfblue, as function of freq
+      real ccfblue(-5:540)             !CCF with pseudorandom sequence
+
+C  The value 450 is empirical:
+      real ccfred(-450:450)            !Peak of ccfblue, as function of freq
+      real ccfred1(-224:224)           !Peak of ccfblue, as function of freq
       real tmp(450)
       save
 
@@ -145,7 +147,7 @@ C  Compute width of sync tone to outermost -3 dB points
       jpk=ipk-i0
       stest=base + 0.5*(ccfred(jpk)-base)                ! -3 dB
       do i=-10,0
-         if(jpk+i.ge.-223) then 
+         if(jpk+i.ge.-371) then 
             if(ccfred(jpk+i).gt.stest) go to 30
          endif
       enddo
@@ -153,7 +155,7 @@ C  Compute width of sync tone to outermost -3 dB points
  30   x1=i-1+(stest-ccfred(jpk+i-1))/(ccfred(jpk+i)-ccfred(jpk+i-1))
 
       do i=10,0,-1
-         if(jpk+i.le.223) then
+         if(jpk+i.le.371) then
             if(ccfred(jpk+i).gt.stest) go to 32
          endif
       enddo
