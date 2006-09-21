@@ -20,7 +20,7 @@ C  This is done before zapping, downsampling, or normal decoding.
       real ss2a(-224:224)                    !Upper magenta curve
       real ss1(-473:1784)                    !Lower magenta curve (temp)
       real ss2(-473:1784)                    !Upper magenta curve (temp)
-      real ssavg(-10:10)
+      real ssavg(-11:11)
       integer ipk(4)                         !Peak bin at each phase
       save
 
