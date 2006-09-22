@@ -114,7 +114,7 @@ Audio.so: $(OBJS2C) $(OBJS3C) $(OBJS2F77) $(SRCS2F90) $(AUDIOSRCS)
 	 ${F2PY} -c --quiet --opt="-O ${CFLAGS} \
 	-fno-second-underscore"	$(OBJS2C) $(OBJS2F77) -m Audio \
 	--f77exec=${FC} --f90exec=${FC} ${CPPFLAGS} ${LDFLAGS} ${LIBS} \
-	only: $(F2PYONLY) \
+	only: --f77exec=${FC} --f90exec=${FC} $(F2PYONLY) \
 	: $(SRCS2F90) \
 	${SRCS3C} ${AUDIOSRCS}
 
