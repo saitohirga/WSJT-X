@@ -50,7 +50,7 @@ void GetSystemTime(SYSTEMTIME *st){
   struct timeval tmptimeofday;
   struct tm tmptmtime;
   gettimeofday(&tmptimeofday,NULL);
-  gmtime_r(&tmptimeofday.tv_sec,&tmptmtime);
+  gmtime_r((const time_t *)&tmptimeofday.tv_sec,&tmptmtime);
   st->Year = (short)tmptmtime.tm_year;
   st->Month = (short)tmptmtime.tm_year;
   st->DayOfWeek = (short)tmptmtime.tm_wday;
