@@ -6,7 +6,7 @@ dnl AC_PREREQ(2.59)
 dnl Sneaky way to get an Id tag into the configure script
 AC_COPYRIGHT([$Id$])
 
-AC_INIT([wsjt],[5.9.5])
+AC_INIT([wsjt],[5.9.6])
 
 AC_PREFIX_DEFAULT(/usr/local/)
 
