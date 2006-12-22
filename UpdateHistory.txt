@@ -1,3 +1,68 @@
+Changes in WSJT 5.9.6 (r309):  September 22, 2006
+-------------------------------------------------
+
+WSJT v5.9.6 r309 provides the following new features:
+
+1. In earlier versions the vertically-scrolling JT65 waterfall always
+   displayed the frequency range 500-2500 Hz.  The range has now been
+   optionally expanded and made more flexible.  By toggling a button
+   labeled "BW" at the top of the SpecJT window you can change the
+   displayed bandwidth to 4 kHz.  In addition, you can offset the
+   displayed region in 100 Hz steps by using buttons labeled "<" and
+   ">", and you can return the range to its default alignment with a
+   button labeled "|".
+
+   This new feature provides two significant advantages.  If your
+   receiver provides a bandwidth greater than 2 kHz in USB mode, you
+   can now display up to 4 kHz instantaneously (and with offsets, a
+   total range of 5 kHz).  The Kenwood TS-2000, for example, provides
+   a 5 kHz bandwidth.  The expanded range will make it easier to find
+   other stations to work -- e.g. in contests, and at 1296 MHz where
+   Doppler shifts are relatively large.  In addition, extending the
+   displayed spectrum to frequencies below 500 Hz is useful if you are
+   using WSJT as a display tool when operating on CW.
+
+2. When attempting to establish proper synchronization with a received
+   signal, the JT65 decoder searches values of DT from -2 to +10 s.
+   Toggling a new control labeled "Shift" (to the right of "Dsec")
+   will offset the received data by +5 s, thereby providing an
+   effective search range of -7 to +5 s.  In normal operation you
+   should leave this option turned OFF (i.e., "Shift 0.0").
+   Occasionally, however, using "Shift 5.0" may allow you to decode
+   transmissions from a station whose computer clock has a large
+   error.
+
+3. "Alt-G" is a keyboard shortcut equivalent to clicking "GenStdMsgs".
+   A new shortcut "Ctrl-G" now has a similar effect, but it generates
+   an alternate set of JT65 messages with callsigns included in the
+   "RO" and "RRR" messages.  These message forms can be useful in
+   pile-up situations.
+
+4. I have been told that the use of "/A" is a required callsign suffix
+   in some circumstances.  Therefore, the list of optional callsign
+   suffixes has been expanded to include "/A".  For this feature to
+   work properly it is necessary for both transmitting and receiving
+   stations to use WSJT v5.9.6 (or later).
+
+5. An improved algorithm is now used to measure the error in soundcard
+   sampling frequencies.  One effect is that the resulting numbers in
+   the status bar will restabilize correctly after your computer clock
+   has been reset.
+
+6. The default font used to display astronomical data has been changed
+   to a monospace font.  In addition, more flexibility is provided
+   for selecting suitable and attractive fonts when running WSJT under
+   Linux or FreeBSD.
+
+7. Switching from JT6M to JT65 mode now turns Freeze off.
+
+8. Appearance of the F1 help screen has been cleaned up.
+
+9. Shortcut reminders have been added to menu items.
+
+10. Cut-and-paste now works properly when running WSJT in Linux.
+
+
 Changes in WSJT 5.9.5 (r236):  August 3, 2006
 ---------------------------------------------
 

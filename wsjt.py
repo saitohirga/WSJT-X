@@ -857,7 +857,10 @@ def decclip(event):
 #------------------------------------------------------ inctol
 def inctol(event=NONE):
     global itol
-    if itol<6: itol=itol+1
+    maxitol=5
+    if mode.get()[:4]=='JT65':
+        maxitol=6
+    if itol<maxitol: itol=itol+1
     ltol.configure(text='Tol    '+str(ntol[itol]))
 
 #------------------------------------------------------ dectol

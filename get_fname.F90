@@ -3,9 +3,10 @@ subroutine get_fname(hiscall,ntime,trperiod,lauto,fname)
 
 #ifdef Win32
   use dfport
+#else
+  external gmtime_r
 #endif
 
-  external gmtime_r
   character hiscall*12,fname*24,tag*7
   integer ntime
   integer trperiod
@@ -14,7 +15,11 @@ subroutine get_fname(hiscall,ntime,trperiod,lauto,fname)
   n1=ntime
   n2=(n1+2)/trperiod
   n3=n2*trperiod
+#ifdef Win32
+  call gmtime(n3,it)
+#else
   call gmtime_r(n3,it)
+#endif
   it(5)=it(5)+1
   it(6)=mod(it(6),100)
   write(fname,1000) (it(j),j=6,1,-1)
