@@ -2038,7 +2038,7 @@ except:
     if g.Win32:
         options.PttPort.set("0")
     else:
-        options.PttPort.set("/dev/cuad0")
+        options.PttPort.set("/dev/ttyS0")
     Audio.gcom2.nport=0
 
 try:
@@ -2086,7 +2086,7 @@ try:
                 if g.Win32:
                     options.PttPort.set("0")
                 else:
-                    options.PttPort.set("/dev/cuad0")
+                    options.PttPort.set("/dev/ttyS0")
                 Audio.gcom2.nport=0
             Audio.gcom2.pttport=(options.PttPort.get()+'            ')[:12]
         elif key == 'Mileskm': options.mileskm.set(value)
