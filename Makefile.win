@@ -7,19 +7,7 @@ FC = df
 #FFLAGS = /traceback /check:all
 FFLAGS = /traceback /fast /nologo
 
-all:    JT65code.exe WSJT6.EXE
-
-OBJS1 = JT65code.obj nchar.obj grid2deg.obj packmsg.obj packtext.obj \
-	packcall.obj packgrid.obj unpackmsg.obj unpacktext.obj \
-	unpackcall.obj unpackgrid.obj deg2grid.obj packdxcc.obj \
-	chkmsg.obj getpfx1.obj getpfx2.obj k2grid.obj grid2k.obj \
-	interleave63.obj graycode.obj set.obj igray.obj \
-	init_rs.obj encode_rs.obj decode_rs.obj \
-	wrapkarn.obj
-
-JT65code.exe: $(OBJS1)
-	$(FC) $(FFLAGS) /exe:JT65code.exe $(OBJS1)
-
+all:    MAP65.EXE
 
 OBJS2C   = init_rs.o encode_rs.o decode_rs.o jtaudio.o
 F2PYONLY = ftn_init ftn_quit audio_init spec getfile azdist0 astro0
@@ -45,10 +33,8 @@ SRCS2F77 = wsjt1.f avesp2.f bzap.f spec441.f spec2d.f mtdecode.f \
 
 SRCS2C   = resample.c ptt.c igray.c wrapkarn.c
 
-WSJT6.EXE: Audio.pyd wsjt.spec
-	python c:\python23\installer\Build.py wsjt.spec
-	-del WSJT6.EXE
-	REN wsjt.exe WSJT6.EXE
+MAP65.EXE: Audio.pyd map65.spec
+	python c:\python23\installer\Build.py map65.spec
 
 Audio.pyd: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C) 
 	python f2py.py -c \
@@ -61,9 +47,9 @@ Audio.pyd: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C)
 	only: $(F2PYONLY) : \
 	$(SRCS2F90) $(SRCS2F77) $(SRCS2C)
 
-wsjt.spec: wsjt.py astro.py g.py options.py palettes.py smeter.py specjt.py
+map65.spec: map65.py astro.py g.py options.py palettes.py smeter.py specjt.py
 	python c:\python23\installer\makespec.py --icon wsjt.ico \
-	--tk --onefile wsjt.py
+	--tk --onefile map65.py
 
 jtaudio.o: jtaudio.c
 	$(CC) /nologo /c /DWin32 /Fojtaudio.o jtaudio.c
@@ -95,6 +81,6 @@ igray.obj: igray.c
 .PHONY : clean
 
 clean:
-    -del *.o *.obj JT65code.exe wsjt6.exe Audio.pyd
+    -del *.o *.obj MAP65.EXE Audio.pyd
 
 
