@@ -550,7 +550,7 @@ iframe2.pack(expand=1, fill=X)
 
 #----------------------------------------------- Restore params from INI file
 try:
-    f=open('WSJT.INI',mode='r')
+    f=open('MAP65.INI',mode='r')
     params=f.readlines()
 except:
     params=""
@@ -573,7 +573,7 @@ try:
         elif key == 'Fmid': fmid=int(value)
         else: pass
 except:
-    print 'Error reading WSJT.INI, continuing with defaults.'
+    print 'Error reading MAP65.INI, continuing with defaults.'
     print key,value
         
 #------------------------------------------------------  Select palette
@@ -618,13 +618,13 @@ ltime.after(200,update)
 root.deiconify()
 g.showspecjt=2
 if g.Win32: root.iconbitmap("wsjt.ico")
-root.title('  SpecJT     by K1JT')
+root.title('  MAP65     by K1JT')
 if(__name__=="__main__"):
     Audio.gcom2.monitoring=1
 root.mainloop()
 
 #-------------------------------------------------- Save user params and quit
-f=open('WSJT.INI',mode='w')
+f=open('MAP65.INI',mode='w')
 f.write("UpdateInterval " + str(nspeed0.get()) + "\n")
 f.write("Brightness " + str(b0)+ "\n")
 f.write("Contrast " + str(c0)+ "\n")
