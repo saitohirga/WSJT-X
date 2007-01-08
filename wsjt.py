@@ -1,4 +1,4 @@
-#------------------------------------------------------------------- WSJT
+#------------------------------------------------------------------- MAP65
 # $Date$ $Revision$
 #
 from Tkinter import *
@@ -17,9 +17,9 @@ from types import *
 import array
 
 root = Tk()
-Version="5.9.6 r" + "$Rev$"[6:-1]
+Version="0.1 r" + "$Rev$"[6:-1]
 print "******************************************************************"
-print "WSJT Version " + Version + ", by K1JT"
+print "MAP65 Version " + Version + ", by K1JT"
 print "Revision date: " + \
       "$Date$"[7:-1]
 print "Run date:   " + time.asctime(time.gmtime()) + " UTC"
@@ -29,12 +29,12 @@ g.Win32=0
 if sys.platform=="win32":
     g.Win32=1
     try:
-        root.option_readfile('wsjtrc.win')
+        root.option_readfile('map65rc.win')
     except:
         pass
 else:
     try:
-        root.option_readfile('wsjtrc')
+        root.option_readfile('map65rc')
     except:
         pass
 root_geom=""
@@ -54,6 +54,7 @@ idsec=0
 #irdsec=0
 lauto=0
 altmsg=0
+bm_geom=""
 cmap0="Linrad"
 fileopened=""
 font1='Helvetica'
@@ -189,7 +190,7 @@ def textsize():
 def logqso(event=NONE):
     t=time.strftime("%Y-%b-%d,%H:%M",time.gmtime())
     t=t+","+hiscall+","+hisgrid+","+str(g.nfreq)+","+g.mode+"\n"
-    t2="Please confirm making the following entry in WSJT.LOG:\n\n" + t
+    t2="Please confirm making the following entry in MAP65.LOG:\n\n" + t
     msg=Pmw.MessageDialog(root,buttons=('Yes','No'),message_text=t2)
     msg.geometry(msgpos())
     if g.Win32: msg.iconbitmap("wsjt.ico")
@@ -643,19 +644,14 @@ def about(event=NONE):
     about=Toplevel(root)
     about.geometry(msgpos())
     if g.Win32: about.iconbitmap("wsjt.ico")
-    t="WSJT Version " + Version + ", by K1JT"
+    t="MAP65 Version " + Version + ", by K1JT"
     Label(about,text=t,font=(font1,16)).pack(padx=20,pady=5)
     t="""
-WSJT is a weak signal communications program.  It supports
-four operating modes:
-
-  1. FSK441 - fast mode for meteor scatter
-  2. JT6M   - optimized for meteor and ionospheric scatter on 50 MHz
-  3. JT65   - for EME and troposcatter
-  4. CW     - 15 WPM Morse code, messages structured for EME
+MAP65 is a weak signal communications program designed primarily
+for the Earth-Moon-Earth (EME) propagation path.
 
 Copyright (c) 2001-2006 by Joseph H. Taylor, Jr., K1JT, with
-contributions from additional authors.  WSJT is Open Source 
+contributions from additional authors.  MAP65 is Open Source 
 software, licensed under the GNU General Public License (GPL).
 Source code and programming information may be found at 
 http://developer.berlios.de/projects/wsjt/.
@@ -674,7 +670,7 @@ def shortcuts(event=NONE):
     t="""
 F1	List keyboard shortcuts
 Shift+F1	List special mouse commands
-Ctrl+F1	About WSJT
+Ctrl+F1	About MAP65
 F2	Options
 F3	Tx Mute
 F4	Clear "To Radio"
@@ -1289,11 +1285,26 @@ def plot_yellow():
             xy2.append(n)
         graph1.create_line(xy2,fill="yellow")
 
+#------------------------------------------------------ bandmap
+def bandmap(event=NONE):
+    global Version,bm,bm_geom
+    bm=Toplevel(root)
+    bm.geometry(bm_geom)
+    if g.Win32: bm.iconbitmap("wsjt.ico")
+    iframe_bm1 = Frame(bm, bd=1, relief=SUNKEN)
+    text=Text(iframe_bm1, height=35, width=30, bg="Navy")
+    text.pack(side=LEFT, fill=X, padx=1)
+    text.pack(side=LEFT, fill=X, padx=1)
+    sb = Scrollbar(iframe_bm1, orient=VERTICAL, command=text.yview)
+    sb.pack(side=RIGHT, fill=Y)
+    text.configure(yscrollcommand=sb.set)
+    iframe_bm1.pack(expand=1, fill=X, padx=4)
+
 #------------------------------------------------------ update
 def update():
     global root_geom,isec0,naz,nel,ndmiles,ndkm,nhotaz,nhotabetter,nopen, \
            im,pim,cmap0,isync,isync441,isync6m,isync65,isync_save,idsec, \
-           first,itol,txsnrdb,tx6alt
+           first,itol,txsnrdb,tx6alt,bm_geom
     
     utc=time.gmtime(time.time()+0.1*idsec)
     isec=utc[5]
@@ -1304,6 +1315,7 @@ def update():
         Audio.gcom2.utcdate=t[:12]
         ldate.configure(text=t)
         root_geom=root.geometry()
+        bm_geom=bm.geometry()
         utchours=utc[3]+utc[4]/60.0 + utc[5]/3600.0
         naz,nel,ndmiles,ndkm,nhotaz,nhotabetter=Audio.azdist0( \
             options.MyGrid.get().upper(),HisGrid.get().upper(),utchours)
@@ -1697,7 +1709,7 @@ helpmenu.add('command', label = 'What message to send?', \
              command = what2send, accelerator='F5')
 helpmenu.add('command', label = 'Available suffixes and add-on prefixes', \
              command = prefixes)
-helpmenu.add('command', label = 'About WSJT', command = about, \
+helpmenu.add('command', label = 'About MAP65', command = about, \
              accelerator='Ctrl+F1')
 
 #------------------------------------------------------ Graphics areas
@@ -2031,7 +2043,7 @@ Audio.gcom1.mute=0
 
 #---------------------------------------------------------- Process INI file
 try:
-    f=open(appdir+'/WSJT.INI',mode='r')
+    f=open(appdir+'/MAP65.INI',mode='r')
     params=f.readlines()
 except:
     params=""
@@ -2044,7 +2056,8 @@ except:
 try:
     for i in range(len(params)):
         key,value=params[i].split()
-        if   key == 'WSJTGeometry': root.geometry(value)
+        if   key == 'MAP65Geometry': root.geometry(value)
+        elif key == 'BMGeometry': bm_geom=value
         elif key == 'Mode':
             mode.set(value)
             if value=='FSK441':
@@ -2156,7 +2169,7 @@ try:
             if mode.get()[:2]=="CW": Audio.gcom1.trperiod=ncwtrperiod
         else: pass
 except:
-    print 'Error reading WSJT.INI, continuing with defaults.'
+    print 'Error reading MAP65.INI, continuing with defaults.'
     print key,value
 
 g.mode=mode.get()
@@ -2173,7 +2186,8 @@ Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'        ')[:8]
 stopmon()
 first=1
 if g.Win32: root.iconbitmap("wsjt.ico")
-root.title('  WSJT 6     by K1JT')
+root.title('  MAP65     by K1JT')
+bandmap()
 import astro
 import specjt
 
@@ -2181,9 +2195,11 @@ import specjt
 #root.mainloop()   #Superseded by mainloop in SpecJT
 
 # Clean up and save user options before terminating
-f=open(appdir+'/WSJT.INI',mode='a')
+f=open(appdir+'/MAP65.INI',mode='a')
 root_geom=root_geom[root_geom.index("+"):]
-f.write("WSJTGeometry " + root_geom + "\n")
+f.write("MAP65Geometry " + root_geom + "\n")
+bm_geom=bm_geom[bm_geom.index("+"):]
+f.write("BMGeometry " + bm_geom + "\n")
 f.write("Mode " + g.mode + "\n")
 f.write("MyCall " + options.MyCall.get() + "\n")
 f.write("MyGrid " + options.MyGrid.get() + "\n")
