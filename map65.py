@@ -496,40 +496,6 @@ def cleartext():
     f.truncate(0)                           #Delete contents of decoded.ave
     f.close()
 
-#------------------------------------------------------ ModeFSK441
-def ModeFSK441(event=NONE):
-    global slabel,isync,isync441,textheight,itol
-    if g.mode != "FSK441":
-        if lauto: toggleauto()
-        mode.set("FSK441")
-        cleartext()
-        Audio.gcom1.trperiod=30
-        lab2.configure(text='FileID            T      Width    dB  Rpt       DF')
-        lab1.configure(text='Time (s)',bg="green")
-        lab4.configure(fg='black')
-        lab5.configure(fg='black')
-        lab6.configure(bg="green")
-        isync=isync441
-        slabel="S      "
-        lsync.configure(text=slabel+str(isync))
-        iframe4b.pack_forget()
-        textheight=9
-        text.configure(height=textheight)
-        bclravg.configure(state=DISABLED)
-        binclude.configure(state=DISABLED)
-        bexclude.configure(state=DISABLED)
-        cbfreeze.configure(state=DISABLED)
-        cbafc.configure(state=DISABLED)
-        sked.configure(state=DISABLED)
-        report.configure(state=NORMAL)
-        shmsg.configure(state=NORMAL)
-        graph2.configure(bg='black')
-        itol=4
-        inctol()
-        ntx.set(1)
-        GenStdMsgs()
-        erase()
-
 #------------------------------------------------------ ModeJT65
 def ModeJT65():
     global slabel,isync,isync65,textheight,itol
@@ -582,54 +548,6 @@ def ModeJT65C(event=NONE):
         mode.set("JT65C")
         ModeJT65()
 
-#------------------------------------------------------ ModeJT6M
-def ModeJT6M(event=NONE):
-    global slabel,isync,isync6m,itol
-    if g.mode != "JT6M":
-        if lauto: toggleauto()
-        cleartext()
-        ModeFSK441()
-        lab2.configure(text='FileID            T      Width      dB        DF')
-        mode.set("JT6M")
-        isync=isync6m
-        lsync.configure(text=slabel+str(isync))
-        shmsg.configure(state=DISABLED)
-        cbfreeze.configure(state=NORMAL)
-        itol=3
-        ltol.configure(text='Tol    '+str(ntol[itol]))
-        inctol()
-        nfreeze.set(1)
-        ntx.set(1)
-        Audio.gcom2.mousedf=0
-        GenStdMsgs()
-        erase()
-        
-
-#------------------------------------------------------ ModeCW
-def ModeCW(event=NONE):
-    if g.mode != "CW":
-        if lauto: toggleauto()
-        cleartext()
-        mode.set("CW")
-        Audio.gcom1.trperiod=ncwtrperiod
-        iframe4b.pack_forget()
-        text.configure(height=9)
-        bclravg.configure(state=DISABLED)
-        binclude.configure(state=DISABLED)
-        bexclude.configure(state=DISABLED)
-        cbfreeze.configure(state=DISABLED)
-        cbafc.configure(state=DISABLED)
-        sked.configure(state=DISABLED)
-        report.configure(state=NORMAL)
-        ntx.set(1)
-        GenStdMsgs()
-        erase()
-
-#------------------------------------------------------ ModeEcho
-#def ModeEcho(event=NONE):
-#    mode.set("Echo")
-#    stub()
-    
 #------------------------------------------------------ msgpos
 def msgpos():
     g=root_geom[root_geom.index("+"):]
@@ -677,8 +595,6 @@ F4	Clear "To Radio"
 F5	What message to send?
 F6	Open next file in directory
 Shift+F6	Decode all wave files in directory
-F7	Set FSK441 mode
-Shift+F7	Set JT6M mode
 F8	Set JT65A mode
 Shift+F8	Set JT65B mode
 Ctrl+F8	Set JT65C mode
@@ -715,16 +631,14 @@ def mouse_commands(event=NONE):
     t="""
 Click on          Action
 --------------------------------------------------------
-Waterfall        FSK441/JT6M: click to decode ping
-                      JT65: Click to set DF for Freeze
-                       Double-click to Freeze and Decode
+Waterfall         Click to set DF for Freeze
+                  Double-click to Freeze and Decode
 
-Main screen,     FSK441/JT6M: click to decode ping
-graphics area    JT65: Click to set DF for Freeze
-                           Double-click to Freeze and Decode
+Main screen,      Click to set DF for Freeze
+graphics area     Double-click to Freeze and Decode
 
-Main screen,     Double-click puts callsign in Tx messages
-text area           Right-double-click also sets Auto ON
+Main screen,      Double-click puts callsign in Tx messages
+text area         Right-double-click also sets Auto ON
 
 Sync, Clip,      Left/Right click to increase/decrease
 Tol, ...
@@ -742,18 +656,6 @@ To optimize your chances of completing a valid QSO using WSJT,
 use the following standard procedures and *do not* exchange pertinent
 information by other means (e.g., internet, telephone, ...) while the
 QSO is in progress!
-
-FSK441 or JT6M:   If you have received
-    ... less than both calls from the other station, send both calls.
-    ... both calls, send both calls and your signal report.
-    ... both calls and signal report, send R and your report.
-    ... R plus signal report, send RRR.
-    ... RRR, the QSO is complete.  However, the other station may not
-know this, so it is conventional to send 73 to signify that you are done.
-
-(Outside of North America, the customary procedures for FSK441
-and JT6M may be slightly different.)
-
 
 JT65:   If you have received
     ... less than both calls, send both calls and your grid locator.
@@ -935,15 +837,10 @@ def clear_avg(event=NONE):
 def defaults():
     global slabel,isync,iclip,itol,idsec
     isync=1
-    if g.mode=="FSK441": isync=2
     iclip=0
     lclip.configure(text='Clip   '+str(iclip))
     itol=5
     ltol.configure(text='Tol    '+str(ntol[itol]))
-    if g.mode=="JT6M":
-        isync=-10
-        itol=4
-        ltol.configure(text='Tol    '+str(ntol[itol]))
     lsync.configure(text=slabel+str(isync))
 
 #------------------------------------------------------ delwav
@@ -1054,35 +951,19 @@ def GenStdMsgs(event=NONE):
     Audio.gcom2.hiscall=(ToRadio.get()+'            ')[:12]
     for m in (tx1, tx2, tx3, tx4, tx5, tx6):
         m.delete(0,99)
-    if mode.get()=="FSK441" or mode.get()=="JT6M":
-        r=report.get()
-        tx1.insert(0,setmsg(options.tx1.get(),r))
-        tx2.insert(0,setmsg(options.tx2.get(),r))
-        tx3.insert(0,setmsg(options.tx3.get(),r))
-        tx4.insert(0,setmsg(options.tx4.get(),r))
-        tx5.insert(0,setmsg(options.tx5.get(),r))
-        tx6.insert(0,setmsg(options.tx6.get(),r))
-    elif mode.get()[:4]=="JT65":
-        if ToRadio.get().find("/") == -1 and \
-               options.MyCall.get().find("/") == -1:
-            t=ToRadio.get() + " "+options.MyCall.get() + " "+options.MyGrid.get()[:4]
-            tx1.insert(0,t.upper())
-        else:
-            tx1.insert(0,ToRadio.get() + " "+options.MyCall.get())
-        tx2.insert(0,tx1.get()+" OOO")
-        tx3.insert(0,"RO")
-        tx4.insert(0,"RRR")
-        tx5.insert(0,"73")
-        t="CQ " + options.MyCall.get()+ " "+options.MyGrid.get()[:4]
-        tx6.insert(0,t.upper())
-        altmsg=0
-    elif mode.get()[:2]=="CW":
+    if ToRadio.get().find("/") == -1 and \
+           options.MyCall.get().find("/") == -1:
+        t=ToRadio.get() + " "+options.MyCall.get() + " "+options.MyGrid.get()[:4]
+        tx1.insert(0,t.upper())
+    else:
         tx1.insert(0,ToRadio.get() + " "+options.MyCall.get())
-        tx2.insert(0,tx1.get()+" OOO")
-        tx3.insert(0,tx1.get()+" RO")
-        tx4.insert(0,tx1.get()+" RRR")
-        tx5.insert(0,tx1.get()+" 73")
-        tx6.insert(0,"CQ " + options.MyCall.get())
+    tx2.insert(0,tx1.get()+" OOO")
+    tx3.insert(0,"RO")
+    tx4.insert(0,"RRR")
+    tx5.insert(0,"73")
+    t="CQ " + options.MyCall.get()+ " "+options.MyGrid.get()[:4]
+    tx6.insert(0,t.upper())
+    altmsg=0
     
 #------------------------------------------------------ GenAltMsgs
 def GenAltMsgs(event=NONE):
@@ -1243,22 +1124,9 @@ def plot_small():
         x=int(i*df*fac)
         xy.append(x)
         psavg=Audio.gcom2.psavg[i]
-        if mode.get()=="JT6M": psavg=psavg + 27.959
         n=int(150.0-2*psavg)
         xy.append(n)
-        if mode.get()=='FSK441':    
-            ps0=Audio.gcom2.ps0[i]
-            n=int(150.0-2*ps0)
-            xy2.append(x)
-            xy2.append(n)
     graph2.create_line(xy,fill="magenta")
-    if mode.get()=='JT6M':
-        plot_yellow()
-    elif mode.get()=='FSK441':
-        graph2.create_line(xy2,fill="red")
-        for i in range(4):
-            x=(i+2)*441*fac
-            graph2.create_line([x,0,x,20],fill="yellow")
     for i in range(7):
         x=i*500*fac
         ytop=110
@@ -1370,16 +1238,7 @@ def update():
     t=t[:i]
     lab3.configure(text=t)
     if mode.get() != g.mode or first:
-        if mode.get()=="FSK441":
-            msg2.configure(bg='yellow')
-        elif mode.get()=="JT65A" or mode.get()=="JT65B" or mode.get()=="JT65C":
-            msg2.configure(bg='#00FFFF')
-        elif mode.get()=="JT6M":
-            msg2.configure(bg='#FF00FF')
-        elif mode.get()=="CW":
-            msg2.configure(bg='#00FF00')
-#        elif mode.get()=="Echo":
-#            msg2.configure(bg='#FF0000')
+        msg2.configure(bg='#00FFFF')
         g.mode=mode.get()
         first=0
 
@@ -1512,9 +1371,7 @@ def update():
 # Save some parameters
     g.mode=mode.get()
     g.report=report.get()
-    if mode.get()=='FSK441': isync441=isync
-    elif mode.get()=='JT6M': isync6m=isync
-    elif mode.get()[:4]=='JT65': isync65=isync
+    isync65=isync
     Audio.gcom1.txfirst=TxFirst.get()
     try:
         Audio.gcom1.samfacin=options.samfacin.get()
@@ -1556,7 +1413,6 @@ def update():
 #    Audio.gcom1.txdelay=float('0'+options.TxDelay.get())
     if ntx.get()==1 and noshjt65.get()==1: Audio.gcom2.ntx2=1
     Audio.gcom2.nslim2=isync-4
-    if nosh441.get()==1 and mode.get()=='FSK441': Audio.gcom2.nslim2=99
     try:
         Audio.gcom2.nport=int(options.PttPort.get())
     except:
@@ -1629,24 +1485,18 @@ modebutton = Menubutton(mbar, text = 'Mode')
 modebutton.pack(side = LEFT)
 modemenu = Menu(modebutton, tearoff=0)
 modebutton['menu'] = modemenu
-modemenu.add_radiobutton(label = 'FSK441', variable=mode, \
-    command = ModeFSK441, state=NORMAL, accelerator='F7')
 
 # To enable menu item 0:
 # modemenu.entryconfig(0,state=NORMAL)
 # Can use the following to retrieve the state:
 # state=modemenu.entrycget(0,"state")
 
-modemenu.add_radiobutton(label = 'JT6M', variable=mode, command = ModeJT6M, \
-                        accelerator='Shift+F7')
 modemenu.add_radiobutton(label = 'JT65A', variable=mode, command = ModeJT65A, \
                          accelerator='F8')
 modemenu.add_radiobutton(label = 'JT65B', variable=mode, command = ModeJT65B, \
                          accelerator='Shift+F8')
 modemenu.add_radiobutton(label = 'JT65C', variable=mode, command = ModeJT65C, \
                          accelerator='Ctrl+F8')
-modemenu.add_radiobutton(label = 'CW', variable=mode, command = ModeCW, \
-                         accelerator='Shift+Ctrl+F8')
 #modemenu.add_radiobutton(label = 'Echo', variable=mode, command = ModeEcho,
 #                         state=DISABLED)
 
@@ -1655,8 +1505,6 @@ decodebutton = Menubutton(mbar, text = 'Decode')
 decodebutton.pack(side = LEFT)
 decodemenu = Menu(decodebutton, tearoff=1)
 decodebutton['menu'] = decodemenu
-decodemenu.FSK441=Menu(decodemenu,tearoff=0)
-decodemenu.FSK441.add_checkbutton(label='No shorthands',variable=nosh441)
 decodemenu.JT65=Menu(decodemenu,tearoff=0)
 decodemenu.JT65.add_checkbutton(label='Only EME calls',variable=neme)
 decodemenu.JT65.add_checkbutton(label='No Shorthands if Tx 1',variable=noshjt65)
@@ -1669,7 +1517,6 @@ decodemenu.JT65.add_radiobutton(label = 'Aggressive Deep Search',
                                 variable=ndepth, value=2)
 decodemenu.JT65.add_radiobutton(label ='Include Average in Aggressive Deep Search',
                                 variable=ndepth, value=3)
-decodemenu.add_cascade(label = 'FSK441',menu=decodemenu.FSK441)
 decodemenu.add_cascade(label = 'JT65',menu=decodemenu.JT65)
 
 #------------------------------------------------------ Save menu
@@ -1765,13 +1612,9 @@ root.bind_all('<F4>', clrToRadio)
 root.bind_all('<F5>', what2send)
 root.bind_all('<F6>', opennext)
 root.bind_all('<Shift-F6>', decodeall)
-root.bind_all('<F7>', ModeFSK441)
 root.bind_all('<F8>', ModeJT65A)
 root.bind_all('<Shift-F8>', ModeJT65B)
 root.bind_all('<Control-F8>', ModeJT65C)
-root.bind_all('<Shift-F7>', ModeJT6M)
-root.bind_all('<Shift-Control-F8>', ModeCW)
-#root.bind_all('<F9>', ModeEcho)
 root.bind_all('<F10>', showspecjt)
 root.bind_all('<Shift-F10>', astro1)
 
@@ -2035,7 +1878,7 @@ ntx.set(1)
 ndepth.set(1)
 import options
 options.defaults()
-ModeFSK441()
+ModeJT65B()
 lookup()
 balloon.unbind(ToRadio)
 g.astro_geom0="+0+0"
@@ -2060,18 +1903,12 @@ try:
         elif key == 'BMGeometry': bm_geom=value
         elif key == 'Mode':
             mode.set(value)
-            if value=='FSK441':
-                ModeFSK441()
-            elif value=='JT65A':
+            if value=='JT65A':
                 ModeJT65A()
             elif value=='JT65B':
                 ModeJT65B()
             elif value=='JT65C':
                 ModeJT65C()
-            elif value=='JT6M':
-                ModeJT6M()
-            elif value=='CW':
-                ModeCW()
         elif key == 'MyCall': options.MyCall.set(value)
         elif key == 'MyGrid': options.MyGrid.set(value)
         elif key == 'HisCall':
@@ -2173,9 +2010,7 @@ except:
     print key,value
 
 g.mode=mode.get()
-if mode.get()=='FSK441': isync=isync441
-elif mode.get()=='JT6M': isync=isync6m
-elif mode.get()[:4]=='JT65': isync=isync65
+isync=isync65
 lsync.configure(text=slabel+str(isync))
 lclip.configure(text='Clip   '+str(iclip))
 Audio.gcom2.appdir=(appdir+'                                                                                          ')[:80]
