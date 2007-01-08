@@ -1160,12 +1160,13 @@ def bandmap(event=NONE):
     bm.geometry(bm_geom)
     if g.Win32: bm.iconbitmap("wsjt.ico")
     iframe_bm1 = Frame(bm, bd=1, relief=SUNKEN)
-    text=Text(iframe_bm1, height=35, width=30, bg="Navy")
-    text.pack(side=LEFT, fill=X, padx=1)
+    text=Text(iframe_bm1, height=35, width=30, bg="Navy", fg="yellow")
     text.pack(side=LEFT, fill=X, padx=1)
     sb = Scrollbar(iframe_bm1, orient=VERTICAL, command=text.yview)
     sb.pack(side=RIGHT, fill=Y)
     text.configure(yscrollcommand=sb.set)
+    text.insert(END,'144.118  K1JT\n')
+    text.insert(END,'144.127  KB8RQ')
     iframe_bm1.pack(expand=1, fill=X, padx=4)
 
 #------------------------------------------------------ update
