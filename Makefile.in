@@ -35,13 +35,6 @@ RM	?= @RM@
 F2PY	= @F2PY@
 
 
-OBJS1 = JT65code.o nchar.o grid2deg.o packmsg.o packtext.o \
-	packcall.o packgrid.o unpackmsg.o unpacktext.o unpackcall.o \
-	unpackgrid.o deg2grid.o packdxcc.o chkmsg.o getpfx1.o \
-	getpfx2.o k2grid.o grid2k.o interleave63.o graycode.o set.o \
-	igray.o init_rs_int.o encode_rs_int.o decode_rs_int.o \
-	wrapkarn.o
-
 F2PYONLY = ftn_init ftn_quit audio_init spec getfile azdist0 astro0
 
 SRCS2F90 = abc441.F90 astro0.F90 audio_init.F90 azdist0.f90 \
@@ -94,18 +87,14 @@ SRCS3C	= ptt_unix.c igray.c wrapkarn.c cutil.c
 OBJS3C  = ${SRCS3C:.c=.o}
 AUDIOSRCS = @AUDIO@
 
-all:	wsjt6 JT65code
-
-JT65code: $(OBJS1)
-	$(FC) -o JT65code $(OBJS1)
+all:	map65
 
 portaudio-v19/lib/.libs/libportaudio.a:
 	(cd portaudio-v19;./configure --with-jack=no)
 	(cd portaudio-v19;${MAKE})
 
-wsjt6:	@NEEDPORTAUDIO@ Audio.so #wsjt.spec
-#	${PYTHON} c:\python23\installer\Build.py wsjt.spec
-#	${RM} wsjt6
+map65:	@NEEDPORTAUDIO@ Audio.so # map65.spec
+#	${PYTHON} c:\python23\installer\Build.py map65.spec
 
 deep65.o: deep65.F
 	$(FC) -c -O0 -Wall -fPIC deep65.F
@@ -118,9 +107,9 @@ Audio.so: $(OBJS2C) $(OBJS3C) $(OBJS2F77) $(SRCS2F90) $(AUDIOSRCS)
 	: $(SRCS2F90) \
 	${SRCS3C} ${AUDIOSRCS}
 
-wsjt.spec: wsjt.py astro.py g.py options.py palettes.py smeter.py specjt.py
-#	${PYTHON} c:\python23\installer\makespec.py --icon wsjt.ico \
-#	--tk --onefile wsjt.py
+map65.spec: map65.py astro.py g.py options.py palettes.py smeter.py specjt.py
+	${PYTHON} c:\python23\installer\makespec.py --icon wsjt.ico \
+	--tk --onefile map65.py
 
 
 init_rs_int.o: init_rs.c
@@ -132,7 +121,7 @@ decode_rs_int.o: decode_rs.c
 
 .PHONY : clean
 clean:
-	${RM} -f *.o *.pyc *.so *~ JT65code wsjt6
+	${RM} -f *.o *.pyc *.so *~ map65
 	(cd portaudio-v19;${MAKE} clean)
 distclean: clean
 	${RM} -f config.log config.status Makefile
