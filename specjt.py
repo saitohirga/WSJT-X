@@ -119,32 +119,19 @@ def tx_volume():
 #---------------------------------------------------- fdf_change
 # Readout of graphical cursor location
 def fdf_change(event):
-    if nspeed0.get()<6:
-        g.DFreq=df*(event.x-288.7) + fmid - 1500
-        if nfr.get()==2: g.DFreq=2*df*(event.x-375.5) + fmid - 1270.5
-        g.Freq=g.DFreq+1270.46
-        t="Freq: %5d    DF: %5d  (Hz)" % (int(g.Freq),int(g.DFreq))
-    else:
-        g.PingTime=0.04*event.x
-        g.PingFreq=(121-event.y)*21.533
-        if event.y > 150:
-            g.PingFreq=(271-event.y)*21.533
-        if g.PingFreq<400: g.PingFreq=0
-        t="Time: %4.1f s  Freq: %d Hz" % (g.PingTime,g.PingFreq)
+    g.DFreq=df*(event.x-288.7) + fmid - 1500
+    if nfr.get()==2: g.DFreq=2*df*(event.x-375.5) + fmid - 1270.5
+    g.Freq=g.DFreq+1270.46
+    t="Freq: %5d    DF: %5d  (Hz)" % (int(g.Freq),int(g.DFreq))
     fdf.configure(text=t)
 
 #---------------------------------------------------- set_freezedf
 def set_freezedf(event):
-    if g.mode[:4]=='JT65':
-        n=int(df*(event.x-288.7) + fmid - 1500)
-        if nfr.get()==2: n=int(2*df*(event.x-375.5) + fmid - 1270.5)
-#        if n<-600: n=-600
-#        if n>600:  n=600
-        if n<-1270: n=-1270
-        if n>3800: n=3800
-        Audio.gcom2.mousedf=n
-    else:
-        decode_request(event)
+    n=int(df*(event.x-288.7) + fmid - 1500)
+    if nfr.get()==2: n=int(2*df*(event.x-375.5) + fmid - 1270.5)
+    if n<-1270: n=-1270
+    if n>3800: n=3800
+    Audio.gcom2.mousedf=n
 
 #------------------------------------------------------ ftnstr
 def ftnstr(x):
@@ -232,24 +219,23 @@ def set_frange():
 ##    if fmid>1700: fmid=1700
 
 #---------------------------------------------------- decode_request
-def decode_request(event):
-    if g.mode[:4]!='JT65' and nspeed0.get()>5:
-# If decoder is busy or we are not monitoring, ignore request
-        if Audio.gcom2.ndecoding==0 and Audio.gcom2.monitoring:
-            Audio.gcom2.mousebutton=event.num       #Left=1, Right=3
-            Audio.gcom2.npingtime=int(40*event.x)   #Time (ms) of selected ping
-            if event.y <= 150:
-                Audio.gcom2.ndecoding=2             #Mouse pick, top half
-            else:
-                Audio.gcom2.ndecoding=3             #Mouse pick, bottom half
+##def decode_request(event):
+##    if g.mode[:4]!='JT65' and nspeed0.get()>5:
+### If decoder is busy or we are not monitoring, ignore request
+##        if Audio.gcom2.ndecoding==0 and Audio.gcom2.monitoring:
+##            Audio.gcom2.mousebutton=event.num       #Left=1, Right=3
+##            Audio.gcom2.npingtime=int(40*event.x)   #Time (ms) of selected ping
+##            if event.y <= 150:
+##                Audio.gcom2.ndecoding=2             #Mouse pick, top half
+##            else:
+##                Audio.gcom2.ndecoding=3             #Mouse pick, bottom half
 
 #---------------------------------------------------- freeze_decode
 def freeze_decode(event):
-    if g.mode[:4]=='JT65' and nspeed0.get()<6:
 # If decoder is busy or we are not monitoring, ignore request
-        if Audio.gcom2.ndecoding==0 or Audio.gcom2.monitoring==0:
-            set_freezedf(event)
-            g.freeze_decode=1
+    if Audio.gcom2.ndecoding==0 or Audio.gcom2.monitoring==0:
+        set_freezedf(event)
+        g.freeze_decode=1
 
 #---------------------------------------------------- update
 def update():
@@ -350,9 +336,7 @@ def update():
         nfreeze0=int(Audio.gcom2.nfreeze)
 
     if g.mode!=mode0:
-        if g.mode[:4]=="JT65" and nspeed0.get()>5: nspeed0.set(3)
-        if g.mode=="FSK441" and nspeed0.get()<6: nspeed0.set(6)
-        if g.mode=="JT6M" and nspeed0.get()<6: nspeed0.set(6)
+#        if g.mode[:4]=="JT65" and nspeed0.get()>5: nspeed0.set(3)
         draw_axis()
         mode0=g.mode
 
@@ -516,7 +500,7 @@ graph1=Canvas(iframe1, bg='black', width=750, height=300,bd=0,cursor='crosshair'
 graph1.pack(side=TOP)
 Widget.bind(graph1,"<Motion>",fdf_change)
 #Widget.bind(graph1,"<Button-1>",decode_request)
-Widget.bind(graph1,"<Button-3>",decode_request)
+#Widget.bind(graph1,"<Button-3>",decode_request)
 Widget.bind(graph1,"<Button-1>",set_freezedf)
 Widget.bind(graph1,"<Double-Button-1>",freeze_decode)
 iframe1.pack(expand=1, fill=X)

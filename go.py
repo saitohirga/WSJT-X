@@ -1,1 +1,1 @@
-import wsjt
+import map65
