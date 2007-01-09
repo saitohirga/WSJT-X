@@ -63,10 +63,6 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
      npts=jzc/2048
      npts=2048*npts
      kread=0
-     if(nspeed.ge.6) then
-        call hscroll(a,nx)
-        nx=0
-     endif
   endif
   if(npts.lt.0) npts=npts+nmax
   if(npts.lt.nfft) go to 900               !Not enough data available
@@ -116,20 +112,6 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
         if(level.lt.0) level=0
         if(level.gt.100) level=100
      endif
-  endif
-
-  if(nspeed.ge.6) then
-     call horizspec(x,brightness,contrast,a)
-     ncall=Mod(ncall+1,5)
-     if(ncall.eq.1 .or. nspeed.eq.7) newdat=1
-     if(ndiskdat.eq.1) then
-        npts=jzc-kread
-     else
-        npts=iwrite-iread
-        if(npts.lt.0) npts=npts+nmax
-     endif
-     if(npts.ge.4096) go to 10
-     go to 900
   endif
 
   call xfft2(x,nfft)
