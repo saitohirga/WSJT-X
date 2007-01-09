@@ -1,17 +1,18 @@
 !---------------------------------------------------- spec
 subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
 
-! Called by SpecJT in its TopLevel Python code.  
+! Called by SpecJT.  
 ! Probably should use the "!f2py intent(...)" structure here.
 
 ! Input:
+  parameter (NX=750,NY=130,NTOT=NX*NY)
   integer brightness,contrast   !Display parameters
   integer ngain                 !Digital gain for input audio
   integer nspeed                !Scrolling speed index
 ! Output:
-  integer*2 a(225000)           !Pixel values for 750 x 300 array
+  integer*2 a(NTOT)             !Pixel values for NX x NY array
 
-  real a0(225000)               !Save the last 300 spectra
+  real a0(NTOT)                 !Save the last NY spectra
   integer nstep(5)
   integer b0,c0
   real x(4096)                  !Data for FFT
@@ -45,7 +46,6 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
      c0=-999
      logmap0=-999
      nspeed0=-999
-     nx=0
      ncall=0
      jza=0
      rms=0.
@@ -123,15 +123,15 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
 
   if(nsum.ge.nstep(nspeed)) then      !Integrate for specified time
      nlines=nlines+1
-     do i=225000,751,-1               !Move spectra up one row
-        a0(i)=a0(i-750)               ! (will be "down" on display)
+     do i=NTOT,NX+1,-1               !Move spectra up one row
+        a0(i)=a0(i-NX)               ! (will be "down" on display)
      enddo
      if(ndiskdat.eq.1 .and. nlines.eq.1) then
-        do i=1,750
+        do i=1,NX
            a0(i)=255
         enddo
-        do i=225000,751,-1
-           a0(i)=a0(i-750)
+        do i=NTOT,NX+1,-1
+           a0(i)=a0(i-NX)
         enddo
      endif
 
@@ -142,10 +142,10 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
         i0=182 + nint((nfmid-1500)/df)
         if(i0.lt.0) ia=1-i0
      else if(nfrange.eq.4000) then
-        i0=nint(nfmid/df - 752.0)
+        i0=nint(nfmid/df - (NX+2.0))
         if(i0.lt.0) ia=1-i0/2
      endif
-     do i=ia,750                       !Insert new data in top row
+     do i=ia,NX                       !Insert new data in top row
         if(nfrange.eq.2000) then
            a0(i)=5*ss(i+i0)/nsum
         else if(nfrange.eq.4000) then
@@ -158,7 +158,7 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
      do i=1,nh                         !Zero the accumulating array
         ss(i)=0.
      enddo
-     if(jz.lt.300) jz=jz+1
+     if(jz.lt.NY) jz=jz+1
   endif
 
   if(ndiskdat.eq.1) then
@@ -171,11 +171,11 @@ subroutine spec(brightness,contrast,logmap,ngain,nspeed,a)
   if(npts.ge.4096) go to 10
 
 !  Compute pixel values 
-  iz=750
+  iz=NX
   logmap=0
   if(brightness.ne.b0 .or. contrast.ne.c0 .or. logmap.ne.logmap0 .or.    &
           nspeed.ne.nspeed0 .or. nlines.gt.1) then
-     iz=225000
+     iz=NTOT
      gain=40*sqrt(nstep(nspeed)/5.0) * 5.0**(0.01*contrast)
      gamma=1.3 + 0.01*contrast
      offset=(brightness+64.0)/2

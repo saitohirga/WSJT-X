@@ -36,7 +36,6 @@ integer newdat         !New data available for waterfall?       GUI
 integer ndsec          !Dsec in units of 0.1 s                  GUI
 integer ndevin         !Device# for audio input                 GUI
 integer ndevout        !Device# for audio output                GUI
-integer nx             !x coordinate for waterfall pixmap       GUI
 integer mfsample       !Measured sample rate, input             SoundIn
 integer mfsample2      !Measured sample rate, output            SoundOut
 integer ns0            !Time at last ALL.TXT date entry         Decoder
@@ -46,7 +45,7 @@ common/gcom1/Tbuf(1024),ntrbuf(1024),Tsec,rxdelay,txdelay,              &
      samfacin,samfacout,txsnrdb,y1(NRXMAX),y2(NRXMAX),                  &
      nmax,iwrite,iread,iwave(NTXMAX),nwave,TxOK,Receiving,Transmitting, &
      TxFirst,TRPeriod,ibuf,ibuf0,ave,rms,ngo,level,mute,newdat,ndsec,   &
-     ndevin,ndevout,nx,mfsample,mfsample2,ns0,devin_name,devout_name
+     ndevin,ndevout,mfsample,mfsample2,ns0,devin_name,devout_name
 
 !### volatile /gcom1/
 
