@@ -48,11 +48,11 @@ SRCS2F77 = wsjt1.f astro.f azdist.f coord.f dcoord.f deg2grid.f \
 	dot.f ftsky.f geocentric.f GeoDist.f grid2deg.f moon2.f \
 	MoonDop.f sun.f toxyz.f pfxdump.f \
         avesp2.f bzap.f \
-        indexx.f s2shape.f flat2.f gen65.f chkmsg.f gentone.f \
+        indexx.f flat2.f gen65.f chkmsg.f gentone.f \
         set.f flatten.f db.f pctile.f sort.f ssort.f ps.f smooth.f \
-        peakup.f sync.f detect.f avemsg65.f decode65.f \
+        peakup.f avemsg65.f decode65.f \
         demod64a.f encode65.f extract.f flat1.f four2.f rfile2.f \
-        gencw.f getpfx1.f getpfx2.f getsnr.f graycode.f grid2k.f \
+        gencwid.f getpfx1.f getpfx2.f getsnr.f graycode.f grid2k.f \
         interleave63.f k2grid.f limit.f lpf1.f morse.f \
         nchar.f packcall.f packgrid.f packmsg.f packtext.f setup65.f \
         short65.f slope.f spec2d65.f sync65.f unpackcall.f \
