@@ -37,21 +37,20 @@ F2PY	= @F2PY@
 
 F2PYONLY = ftn_init ftn_quit audio_init spec getfile azdist0 astro0
 
-SRCS2F90 = abc441.F90 astro0.F90 audio_init.F90 azdist0.f90 \
-	blanker.f90 decode1.F90 decode2.f90 decode3.F90 ftn_init.F90 \
-	ftn_quit.f90 get_fname.F90 getfile.F90 horizspec.f90 hscroll.f90 \
-	i1tor4.f90 pix2d.f90 pix2d65.f90 rfile.f90 savedata.F90 spec.f90 \
+SRCS2F90 = astro0.F90 audio_init.F90 azdist0.f90 \
+	decode1.F90 decode2.f90 decode3.F90 ftn_init.F90 \
+	ftn_quit.f90 get_fname.F90 getfile.F90 \
+	i1tor4.f90 pix2d65.f90 rfile.f90 savedata.F90 spec.f90 \
 	wsjtgen.F90 runqqq.F90 fivehz.F90
 OBJS2F90 = ${SRCS2F90:.f90=.o}
 
 SRCS2F77 = wsjt1.f astro.f azdist.f coord.f dcoord.f deg2grid.f \
 	dot.f ftsky.f geocentric.f GeoDist.f grid2deg.f moon2.f \
 	MoonDop.f sun.f toxyz.f pfxdump.f \
-        avesp2.f bzap.f spec441.f spec2d.f mtdecode.f stdecode.f \
-        indexx.f s2shape.f flat2.f gen65.f chkmsg.f gen6m.f gentone.f \
-        syncf0.f syncf1.f synct.f decode6m.f avemsg6m.f \
+        avesp2.f bzap.f \
+        indexx.f s2shape.f flat2.f gen65.f chkmsg.f gentone.f \
         set.f flatten.f db.f pctile.f sort.f ssort.f ps.f smooth.f \
-        ping.f longx.f peakup.f sync.f detect.f avemsg65.f decode65.f \
+        peakup.f sync.f detect.f avemsg65.f decode65.f \
         demod64a.f encode65.f extract.f flat1.f four2.f rfile2.f \
         gencw.f getpfx1.f getpfx2.f getsnr.f graycode.f grid2k.f \
         interleave63.f k2grid.f limit.f lpf1.f morse.f \
