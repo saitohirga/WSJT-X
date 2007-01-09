@@ -4,7 +4,6 @@ from tkMessageBox import showwarning
 import time
 import os
 import Pmw
-import smeter
 import Audio
 import g
 import string
@@ -96,26 +95,6 @@ def pal_AFMHot():
     im.putpalette(Colormap2Palette(colormapAFMHot),"RGB")
 
 #--------------------------------------------------- Command button routines
-#--------------------------------------------------- rx_volume
-def rx_volume():
-    for path in string.split(os.environ["PATH"], os.pathsep):
-        file = os.path.join(path, "sndvol32") + ".exe"
-        try:
-            return os.spawnv(os.P_NOWAIT, file, (file,) + (" -r",))
-        except os.error:
-            pass
-    raise os.error, "Cannot find "+file
-
-#--------------------------------------------------- tx_volume
-def tx_volume():
-    for path in string.split(os.environ["PATH"], os.pathsep):
-        file = os.path.join(path, "sndvol32") + ".exe"
-        try:
-            return os.spawnv(os.P_NOWAIT, file, (file,))
-        except os.error:
-            pass
-    raise os.error, "Cannot find "+file
-
 #---------------------------------------------------- fdf_change
 # Readout of graphical cursor location
 def fdf_change(event):
@@ -151,32 +130,30 @@ def df_mark():
 # Mark sync tone and top JT65 tone (green) and shorthand tones (red)
         if(frange==2000):
             dx=288.7 + (1500-fmid)/df
-            if g.mode[:4]=="JT65":
-                color='green'
-                x1=(Audio.gcom2.mousedf + 6.6*fstep)/df + dx
-                c.create_line(x1-0.5,25,x1-0.5,12,fill=color)
-                c.create_line(x1+0.5,25,x1+0.5,12,fill=color)
-                for i in range(5):
-                    x1=(Audio.gcom2.mousedf + i*fstep)/df + dx
-                    j=12
-                    if i>0: j=15
-                    if i!=1: c.create_line(x1-0.5,25,x1-0.5,j,fill=color)
-                    if i!=1: c.create_line(x1+0.5,25,x1+0.5,j,fill=color)
-                    color='red'
+            color='green'
+            x1=(Audio.gcom2.mousedf + 6.6*fstep)/df + dx
+            c.create_line(x1-0.5,25,x1-0.5,12,fill=color)
+            c.create_line(x1+0.5,25,x1+0.5,12,fill=color)
+            for i in range(5):
+                x1=(Audio.gcom2.mousedf + i*fstep)/df + dx
+                j=12
+                if i>0: j=15
+                if i!=1: c.create_line(x1-0.5,25,x1-0.5,j,fill=color)
+                if i!=1: c.create_line(x1+0.5,25,x1+0.5,j,fill=color)
+                color='red'
         if(frange==4000):
             dx=375 + (1270.5-fmid)/(2*df)
-            if g.mode[:4]=="JT65":
-                color='green'
-                x1=(Audio.gcom2.mousedf + 6.6*fstep)/(2*df) + dx
-                c.create_line(x1-0.5,25,x1-0.5,12,fill=color)
-                c.create_line(x1+0.5,25,x1+0.5,12,fill=color)
-                for i in range(5):
-                    x1=(Audio.gcom2.mousedf + i*fstep)/(2*df) + dx
-                    j=12
-                    if i>0: j=15
-                    if i!=1: c.create_line(x1-0.5,25,x1-0.5,j,fill=color)
-                    if i!=1: c.create_line(x1+0.5,25,x1+0.5,j,fill=color)
-                    color='red'
+            color='green'
+            x1=(Audio.gcom2.mousedf + 6.6*fstep)/(2*df) + dx
+            c.create_line(x1-0.5,25,x1-0.5,12,fill=color)
+            c.create_line(x1+0.5,25,x1+0.5,12,fill=color)
+            for i in range(5):
+                x1=(Audio.gcom2.mousedf + i*fstep)/(2*df) + dx
+                j=12
+                if i>0: j=15
+                if i!=1: c.create_line(x1-0.5,25,x1-0.5,j,fill=color)
+                if i!=1: c.create_line(x1+0.5,25,x1+0.5,j,fill=color)
+                color='red'
 
 #---------------------------------------------------- change_fmid
 def change_fmid1():
@@ -275,7 +252,6 @@ def update():
     else:
         newdat=0
 
-    sm.updateProgress(newValue=Audio.gcom1.level) #S-meter bar
     if newdat or brightness!=b0 or contrast!=c0 or logm!=logm0:
         if brightness==b0 and contrast==c0 and logm==logm0 and nspeed<6:
             n=Audio.gcom2.nlines
@@ -321,8 +297,7 @@ def update():
 
         newMinute=0
 
-    if (Audio.gcom2.mousedf != mousedf0 or Audio.gcom2.dftolerance != tol0) \
-            and g.mode[:4]=='JT65':
+    if (Audio.gcom2.mousedf != mousedf0 or Audio.gcom2.dftolerance != tol0):
         df_mark()
         
 # The following int() calls are to ensure that the values copied to
@@ -336,7 +311,6 @@ def update():
         nfreeze0=int(Audio.gcom2.nfreeze)
 
     if g.mode!=mode0:
-#        if g.mode[:4]=="JT65" and nspeed0.get()>5: nspeed0.set(3)
         draw_axis()
         mode0=g.mode
 
@@ -391,20 +365,19 @@ def draw_axis():
                     c.create_text(x,y,text=str(ix))
                 c.create_line(i,25,i,j,fill='black')
                 
-        if g.mode[:4]=="JT65":
-            dx=288.7 + (1500-fmid)/df
-            dff=df
-            if frange==4000:
-                dx=375 + (1270.5-fmid)/(2*df)
-                dff=2*df
-            if Audio.gcom2.nfreeze==0:
-                x1=(Audio.gcom2.mousedf-600)/dff + dx
-                x2=(Audio.gcom2.mousedf+600)/dff + dx
-            else:
-                tol=Audio.gcom2.dftolerance    
-                x1=(Audio.gcom2.mousedf-tol)/dff + dx
-                x2=(Audio.gcom2.mousedf+tol)/dff + dx
-            c.create_line(x1,25,x2,25,fill='green',width=2)
+        dx=288.7 + (1500-fmid)/df
+        dff=df
+        if frange==4000:
+            dx=375 + (1270.5-fmid)/(2*df)
+            dff=2*df
+        if Audio.gcom2.nfreeze==0:
+            x1=(Audio.gcom2.mousedf-600)/dff + dx
+            x2=(Audio.gcom2.mousedf+600)/dff + dx
+        else:
+            tol=Audio.gcom2.dftolerance    
+            x1=(Audio.gcom2.mousedf-tol)/dff + dx
+            x2=(Audio.gcom2.mousedf+tol)/dff + dx
+        c.create_line(x1,25,x2,25,fill='green',width=2)
             
     else:
         for ix in range(1,31):
@@ -435,9 +408,6 @@ setupmenu.add_checkbutton(label = 'Mark T/R boundaries',variable=minsep)
 setupmenu.add_checkbutton(label='Flatten spectra',variable=nflat)
 setupmenu.add_checkbutton(label='Mark JT65 tones only if Freeze is checked',
             variable=nmark)
-setupmenu.add_separator()
-setupmenu.add('command', label = 'Rx volume control', command = rx_volume)
-setupmenu.add('command', label = 'Tx volume control', command = tx_volume)
 setupmenu.add_separator()
 setupmenu.add_radiobutton(label='Frequency axis',command=df_mark,
             value=0,variable=naxis)
@@ -479,10 +449,8 @@ bfmid3.pack(side=LEFT)
 bfmid2.pack(side=LEFT)
 
 #------------------------------------------------- Speed selection buttons
-for i in (7, 6, 5, 4, 3, 2, 1):
+for i in (5, 4, 3, 2, 1):
     t=str(i)
-    if i==6: t="H1"
-    if i==7: t="H2"
     Radiobutton(mbar,text=t,value=i,variable=nspeed0).pack(side=RIGHT)
 nspeed0.set(6)
 lab2=Label(mbar,text='Speed: ',bd=0)
@@ -496,7 +464,7 @@ Widget.bind(c,"<Shift-Button-2>",freq_range)
 Widget.bind(c,"<Shift-Button-3>",freq_range)
 #Widget.bind(c,"<Control-Button-1>",freq_center)
 
-graph1=Canvas(iframe1, bg='black', width=750, height=300,bd=0,cursor='crosshair')
+graph1=Canvas(iframe1, bg='black', width=750, height=130,bd=0,cursor='crosshair')
 graph1.pack(side=TOP)
 Widget.bind(graph1,"<Motion>",fdf_change)
 #Widget.bind(graph1,"<Button-1>",decode_request)
@@ -504,6 +472,23 @@ Widget.bind(graph1,"<Motion>",fdf_change)
 Widget.bind(graph1,"<Button-1>",set_freezedf)
 Widget.bind(graph1,"<Double-Button-1>",freeze_decode)
 iframe1.pack(expand=1, fill=X)
+
+c2=Canvas(iframe1, bg='white', width=750, height=25,bd=0)
+c2.pack(side=TOP)
+Widget.bind(c2,"<Shift-Button-1>",freq_range)
+Widget.bind(c2,"<Shift-Button-2>",freq_range)
+Widget.bind(c2,"<Shift-Button-3>",freq_range)
+#Widget.bind(c2,"<Control-Button-1>",freq_center)
+
+graph2=Canvas(iframe1, bg='black', width=750, height=130,bd=0,cursor='crosshair')
+graph2.pack(side=TOP)
+Widget.bind(graph2,"<Motion>",fdf_change)
+#Widget.bind(graph2,"<Button-1>",decode_request)
+#Widget.bind(graph2,"<Button-3>",decode_request)
+Widget.bind(graph2,"<Button-1>",set_freezedf)
+Widget.bind(graph2,"<Double-Button-1>",freeze_decode)
+iframe1.pack(expand=1, fill=X)
+
 
 #-------------------------------------------------- Status frame
 iframe2 = Frame(frame, bd=1, relief=SUNKEN)
@@ -526,10 +511,6 @@ sc3=Scale(iframe2,from_=-100.0,to_=100.0,orient='horizontal',
     showvalue=0,sliderlength=5)
 sc3.pack(side=LEFT)
 balloon.bind(sc3,"Gain", "Digital Gain")
-sm=smeter.Smeter(iframe2,fillColor='slateblue',width=150,
-    doLabel=1)
-sm.frame.pack(side=RIGHT)
-balloon.bind(sm.frame,"Rx noise level","Rx noise level")
 iframe2.pack(expand=1, fill=X)
 
 #----------------------------------------------- Restore params from INI file
