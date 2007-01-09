@@ -68,11 +68,19 @@ tol0=400
 ttot=0.0
 
 c=Canvas()
-a=zeros(225000,'s')
-im=Image.new('P',(750,300))
-line0=Image.new('P',(750,1))      #Image fragment for top line of waterfall
+
+a=zeros(750*130,'s')
+im=Image.new('P',(750,130))
+line0=Image.new('P',(750,1))  #Image fragment for top line of waterfall
 draw=ImageDraw.Draw(im)
 pim=ImageTk.PhotoImage(im)
+
+a2=zeros(750*130,'s')
+im2=Image.new('P',(750,130))
+line02=Image.new('P',(750,1)) #Image fragment for top line of zoomed waterfall
+draw2=ImageDraw.Draw(im2)
+pim2=ImageTk.PhotoImage(im2)
+
 balloon=Pmw.Balloon(root)
 
 def pal_gray0():

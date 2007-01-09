@@ -120,6 +120,7 @@ static int SoundOut( void *inputBuffer, void *outputBuffer,
   } else {
     memset((void*)outputBuffer, 0, 2*sizeof(short)*framesPerBuffer);
   }
+  fivehz_();                               //Call fortran routine
   fivehztx_();                             //Call fortran routine
   return 0;
 }
