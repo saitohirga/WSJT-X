@@ -79,7 +79,6 @@ nosh441=IntVar()
 noshjt65=IntVar()
 nsked=IntVar()
 setseq=IntVar()
-ShOK=IntVar()
 slabel="Sync   "
 textheight=7
 tx6alt=""
@@ -108,7 +107,6 @@ def restart():
 
 #------------------------------------------------------ restart2
 def restart2():
-    Audio.gcom2.shok=ShOK.get()
     Audio.gcom2.nrestart=1
 
 #------------------------------------------------------ toggle_freeze
@@ -491,8 +489,6 @@ def ModeJT65():
     cbfreeze.configure(state=NORMAL)
     cbafc.configure(state=NORMAL)
     sked.configure(state=NORMAL)
-    report.configure(state=DISABLED)
-    shmsg.configure(state=DISABLED)
     graph2.configure(bg='#66FFFF')
     itol=4
     inctol()
@@ -747,16 +743,6 @@ def decdsec(event):
     if idsec==0: bg='white'
     ldsec.configure(text='Dsec  '+str(0.1*idsec),bg=bg)
     Audio.gcom1.ndsec=idsec
-
-#------------------------------------------------------ toggle_shift
-def toggle_shift(event):
-    Audio.gcom2.nadd5=1-Audio.gcom2.nadd5
-    if Audio.gcom2.nadd5:
-        bg='red'
-        lshift.configure(text='Shift 5.0',bg=bg)
-    else:
-        bg='white'
-        lshift.configure(text='Shift 0.0',bg=bg)
 
 #------------------------------------------------------ erase
 def erase(event=NONE):
@@ -1102,7 +1088,7 @@ def bandmap(event=NONE):
 
 #------------------------------------------------------ update
 def update():
-    global root_geom,isec0,naz,nel,ndmiles,ndkm,nhotaz,nhotabetter,nopen, \
+    global root_geom,isec0,naz,nel,ndmiles,ndkm,nopen, \
            im,pim,cmap0,isync,isync_save,idsec,first,itol,txsnrdb,tx6alt,\
            bm_geom
     
@@ -1158,13 +1144,6 @@ def update():
             Audio.gcom2.ndecoding=4
             Audio.gcom2.nagain=1
         g.freeze_decode=0
-        
-    n=int(20.0*log10(g.rms/770.0+0.01))
-    t="Rx noise:%3d dB" % (n,)
-    if n>=-10 and n<=10:
-        msg4.configure(text=t,bg='gray85')
-    else:
-        msg4.configure(text=t,bg='red')
 
     t=g.ftnstr(Audio.gcom2.decodedfile)
 #    i=t.rfind(".")
@@ -1176,23 +1155,21 @@ def update():
         g.mode=mode.get()
         first=0
 
-    samfac_in=Audio.gcom1.mfsample/110250.0
     samfac_out=Audio.gcom1.mfsample2/110250.0
     xin=1
     xout=1
     try:
-        xin=samfac_in/options.samfacin.get()
         xout=samfac_out/options.samfacout.get()
-        if xin<0.999 or xin>1.001 or xout<0.999 or xout>1.001:
-            lab8.configure(text="%6.4f   %6.4f" \
-                % (options.samfacin.get(),options.samfacout.get()), \
+        if xout<0.999 or xout>1.001:
+            lab8.configure(text="%6.4f" \
+                % (options.samfacout.get()), \
                 fg='black',bg='red')
         else:
             lab8.configure(fg='gray85',bg='gray85')
     except:
         pass
 
-    msg1.configure(text="%6.4f %6.4f" % (samfac_in,samfac_out))
+    msg1.configure(text="%6.4f" % (samfac_out))
     msg2.configure(text=mode.get())
     t="Freeze DF:%4d" % (int(Audio.gcom2.mousedf),)
     if abs(int(Audio.gcom2.mousedf))>600:
@@ -1202,9 +1179,6 @@ def update():
     bdecode.configure(bg='gray85',activebackground='gray95')
     if Audio.gcom2.ndecoding:       #Set button bg=light_blue while decoding
         bdecode.configure(bg='#66FFFF',activebackground='#66FFFF')
-    msg5.configure(text="TR Period: %d s" % (Audio.gcom1.trperiod,), \
-                       bg='gray85')
-
     tx1.configure(bg='white')
     tx2.configure(bg='white')
     tx3.configure(bg='white')
@@ -1289,7 +1263,6 @@ def update():
 
 # Save some parameters
     g.mode=mode.get()
-    g.report=report.get()
     Audio.gcom1.txfirst=TxFirst.get()
     try:
         Audio.gcom1.samfacin=options.samfacin.get()
@@ -1309,7 +1282,6 @@ def update():
     tx=(tx1,tx2,tx3,tx4,tx5,tx6)
     Audio.gcom2.txmsg=(tx[ntx.get()-1].get()+'                            ')[:28]
     Audio.gcom2.mode=(mode.get()+'      ')[:6]
-    Audio.gcom2.shok=ShOK.get()
     Audio.gcom2.nsave=nsave.get()
     Audio.gcom2.nzap=nzap.get()
     Audio.gcom2.ndebug=ndebug.get()
@@ -1420,21 +1392,19 @@ modemenu.add_radiobutton(label = 'JT65C', variable=mode, command = ModeJT65C, \
 #------------------------------------------------------ Decode menu
 decodebutton = Menubutton(mbar, text = 'Decode')
 decodebutton.pack(side = LEFT)
-decodemenu = Menu(decodebutton, tearoff=1)
+decodemenu = Menu(decodebutton, tearoff=0)
 decodebutton['menu'] = decodemenu
-decodemenu.JT65=Menu(decodemenu,tearoff=0)
-decodemenu.JT65.add_checkbutton(label='Only EME calls',variable=neme)
-decodemenu.JT65.add_checkbutton(label='No Shorthands if Tx 1',variable=noshjt65)
-decodemenu.JT65.add_separator()
-decodemenu.JT65.add_radiobutton(label = 'No Deep Search',
+decodemenu.add_checkbutton(label='Only EME calls',variable=neme)
+decodemenu.add_checkbutton(label='No Shorthands if Tx 1',variable=noshjt65)
+decodemenu.add_separator()
+decodemenu.add_radiobutton(label = 'No Deep Search',
                                 variable=ndepth, value=0)
-decodemenu.JT65.add_radiobutton(label = 'Normal Deep Search',
+decodemenu.add_radiobutton(label = 'Normal Deep Search',
                                 variable=ndepth, value=1)
-decodemenu.JT65.add_radiobutton(label = 'Aggressive Deep Search',
+decodemenu.add_radiobutton(label = 'Aggressive Deep Search',
                                 variable=ndepth, value=2)
-decodemenu.JT65.add_radiobutton(label ='Include Average in Aggressive Deep Search',
+decodemenu.add_radiobutton(label ='Include Average in Aggressive Deep Search',
                                 variable=ndepth, value=3)
-decodemenu.add_cascade(label = 'JT65',menu=decodemenu.JT65)
 
 #------------------------------------------------------ Save menu
 savebutton = Menubutton(mbar, text = 'Save')
@@ -1459,6 +1429,7 @@ bandmenu.add_radiobutton(label = '144', variable=nfreq,value=144)
 bandmenu.add_radiobutton(label = '222', variable=nfreq,value=222)
 bandmenu.add_radiobutton(label = '432', variable=nfreq,value=432)
 bandmenu.add_radiobutton(label = '1296', variable=nfreq,value=1296)
+bandmenu.add_radiobutton(label = '2304', variable=nfreq,value=2304)
 nfreq.set(144)
 #------------------------------------------------------ Help menu
 helpbutton = Menubutton(mbar, text = 'Help')
@@ -1651,8 +1622,6 @@ bAdd=Button(f5a, text='Add',command=addtodb,padx=1,pady=1)
 bAdd.grid(column=2,row=1,sticky='EW',padx=4)
 labAz=Label(f5a,text='Az 257  El 15',width=11)
 labAz.grid(column=1,row=2)
-labHotAB=Label(f5a,bg='#FFCCFF',text='HotA: 247')
-labHotAB.grid(column=0,row=2,sticky='EW',padx=4,pady=3)
 labDist=Label(f5a,text='16753 km')
 labDist.grid(column=2,row=2)
 
@@ -1690,11 +1659,8 @@ Button(f5b,text='Defaults',command=defaults,padx=1,pady=1).grid(column=0,
                               row=3,sticky='EW')
 ldsec=Label(f5b, bg='white', fg='black', text='Dsec  0.0', width=8, relief=RIDGE)
 ldsec.grid(column=0,row=4,ipadx=3,padx=2,pady=5,sticky='EW')
-lshift=Label(f5b, bg='white', fg='black', text='Shift 0.0', width=8, relief=RIDGE)
-lshift.grid(column=1,row=4,ipadx=3,padx=2,pady=5,sticky='EW')
 Widget.bind(ldsec,'<Button-1>',incdsec)
 Widget.bind(ldsec,'<Button-3>',decdsec)
-Widget.bind(lshift,'<Button-1>',toggle_shift)
 
 f5b.pack(side=LEFT,expand=0,fill=BOTH)
 
@@ -1702,13 +1668,6 @@ f5b.pack(side=LEFT,expand=0,fill=BOTH)
 f5c=Frame(iframe5,bd=2,relief=GROOVE)
 txfirst=Checkbutton(f5c,text='Tx First',justify=RIGHT,variable=TxFirst)
 f5c2=Frame(f5c,bd=0)
-labreport=Label(f5c2,text='Rpt',width=4)
-report=Entry(f5c2, width=4)
-report.insert(0,'26')
-labreport.pack(side=RIGHT,expand=1,fill=BOTH)
-report.pack(side=RIGHT,expand=1,fill=BOTH)
-shmsg=Checkbutton(f5c,text='Sh Msg',justify=RIGHT,variable=ShOK,
-            command=restart2)
 sked=Checkbutton(f5c,text='Sked',justify=RIGHT,variable=nsked)
 genmsg=Button(f5c,text='GenStdMsgs',underline=0,command=GenStdMsgs,
             padx=1,pady=1)
@@ -1718,7 +1677,6 @@ auto.focus_set()
 
 txfirst.grid(column=0,row=0,sticky='W',padx=4)
 f5c2.grid(column=0,row=1,sticky='W',padx=4)
-shmsg.grid(column=0,row=2,sticky='W',padx=4)
 sked.grid(column=0,row=3,sticky='W',padx=4)
 genmsg.grid(column=0,row=4,sticky='W',padx=4)
 auto.grid(column=0,row=5,sticky='EW',padx=4)
@@ -1774,14 +1732,14 @@ iframe5.pack(expand=1, fill=X, padx=4)
 iframe6 = Frame(frame, bd=1, relief=SUNKEN)
 msg1=Message(iframe6, text='                    ', width=300,relief=SUNKEN)
 msg1.pack(side=LEFT, fill=X, padx=1)
-msg2=Message(iframe6, text='Message #2', width=300,relief=SUNKEN)
+msg2=Message(iframe6, text="Message #2", width=300,relief=SUNKEN)
 msg2.pack(side=LEFT, fill=X, padx=1)
 msg3=Message(iframe6,width=300,relief=SUNKEN)
 msg3.pack(side=LEFT, fill=X, padx=1)
-msg4=Message(iframe6, text='Message #4', width=300,relief=SUNKEN)
-msg4.pack(side=LEFT, fill=X, padx=1)
-msg5=Message(iframe6, text='Message #5', width=300,relief=SUNKEN)
-msg5.pack(side=LEFT, fill=X, padx=1)
+#msg4=Message(iframe6, text="", width=300,relief=SUNKEN)
+#msg4.pack(side=LEFT, fill=X, padx=1)
+#msg5=Message(iframe6, text="", width=300,relief=SUNKEN)
+#msg5.pack(side=LEFT, fill=X, padx=1)
 msg7=Message(iframe6, text='                        ', width=300,relief=SUNKEN)
 msg7.pack(side=RIGHT, fill=X, padx=1)
 iframe6.pack(expand=1, fill=X, padx=4)
@@ -1891,10 +1849,6 @@ try:
         elif key == 'KB8RQ': kb8rq.set(value)
         elif key == 'K2TXB': k2txb.set(value)
         elif key == 'SetSeq': setseq.set(value)
-        elif key == 'Report':
-            report.delete(0,99)
-            report.insert(0,value)
-        elif key == 'ShOK': ShOK.set(value)
         elif key == 'Nsave': nsave.set(value)
         elif key == 'Band': nfreq.set(value)
         elif key == 'Sync': isync=int(value)
@@ -1982,8 +1936,6 @@ f.write("TxFirst " + str(TxFirst.get()) + "\n")
 f.write("KB8RQ " + str(kb8rq.get()) + "\n")
 f.write("K2TXB " + str(k2txb.get()) + "\n")
 f.write("SetSeq " + str(setseq.get()) + "\n")
-f.write("Report " + g.report + "\n")
-f.write("ShOK " + str(ShOK.get()) + "\n")
 f.write("Nsave " + str(nsave.get()) + "\n")
 f.write("Band " + str(nfreq.get()) + "\n")
 f.write("Sync " + str(isync) + "\n")

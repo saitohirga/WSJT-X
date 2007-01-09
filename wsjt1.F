@@ -76,7 +76,6 @@
 	close(16)
 
  4	if(jz.gt.655360) jz=655360
-	if(mode.eq.4 .and. jz.gt.330750) jz=330750	!### Fix this!
 
 	sum=0.
 	do j=1,jz            !Convert raw data from i*2 to real, remove DC
@@ -116,15 +115,6 @@ C  Intentionally degrade SNR by -nclip dB.
 	   enddo
 	endif
 
-	if(mode.ne.2 .and. nzap.ne.0) then
-	   nfrz=NFreeze
-	   if(mode.eq.1) nfrz=0
-	   if(jz.gt.100000) call avesp2(dat,jz,2,mode,nfrz,MouseDF,
-     +         DFTolerance,fzap)
-	   nadd=1
- 	   call bzap(dat,jz,nadd,mode,fzap)
-	endif
-
 	sq=0.
 	do j=1,jz                  !Compute power level for whole array
 	   sq=sq + dat(j)**2
@@ -162,43 +152,36 @@ C  Intentionally degrade SNR by -nclip dB.
 	tbest=0.
         NsyncOK=0
 
-!  If we're in JT65 mode, call the decode65 routines.
-  	if(mode.eq.2) then
-! 	   if(rmspower.gt.34000.0) go to 900     !Reject very noisy data
+!  Only JT65 mode is supported.
 !  Check for a JT65 shorthand message
- 	   nstest=0
- 	   if(ntx2.ne.1) call short65(dat,jz,NFreeze,MouseDF,
-     +        DFTolerance,mode65,nspecial,nstest,dfsh,iderrsh,
-     +        idriftsh,snrsh,ss1,ss2,nwsh,idfsh)
+	nstest=0
+	if(ntx2.ne.1) call short65(dat,jz,NFreeze,MouseDF,
+     +     DFTolerance,mode65,nspecial,nstest,dfsh,iderrsh,
+     +     idriftsh,snrsh,ss1,ss2,nwsh,idfsh)
 !  Lowpass filter and decimate by 2
- 	   call lpf1(dat,jz,jz2,MouseDF,MouseDF2)
-	   idf=mousedf-mousedf2
- 	   jz=jz2
- 	   nadd=1
- 	   fzap(1)=0.
- 	   if(nzap.eq.1) call avesp2(dat,jz,nadd,mode,NFreeze,MouseDF2,
+	call lpf1(dat,jz,jz2,MouseDF,MouseDF2)
+	idf=mousedf-mousedf2
+	jz=jz2
+	nadd=1
+	fzap(1)=0.
+	if(nzap.eq.1) call avesp2(dat,jz,nadd,mode,NFreeze,MouseDF2,
      +       DFTolerance,fzap)
-    	   if(nzap.eq.1.and.nstest.eq.0) call bzap(dat,jz,nadd,mode,fzap)
+	if(nzap.eq.1.and.nstest.eq.0) call bzap(dat,jz,nadd,mode,fzap)
 
- 	   i=index(MyCall,char(0))
-	   if(i.le.0) i=index(MyCall,' ')
- 	   mycall=MyCall(1:i-1)//'            '
- 	   i=index(HisCall,char(0))
-	   if(i.le.0) i=index(HisCall,' ')
- 	   hiscall=HisCall(1:i-1)//'            '
+	i=index(MyCall,char(0))
+	if(i.le.0) i=index(MyCall,' ')
+	mycall=MyCall(1:i-1)//'            '
+	i=index(HisCall,char(0))
+	if(i.le.0) i=index(HisCall,' ')
+	hiscall=HisCall(1:i-1)//'            '
 
 !  Offset data by about 1 s.
- 	   if(jz.ge.126*2048) call wsjt65(dat(4097),jz-4096,cfile6,
-     +        NClearAve,MinSigdB,DFTolerance,NFreeze,NAFC,mode65,Nseg,
-     +        MouseDF2,NAgain,ndepth,neme,nsked,idf,idfsh,
-     +        mycall,hiscall,hisgrid,lumsg,lcum,nspecial,ndf,
-     +        nstest,dfsh,snrsh,
-     +        NSyncOK,ccf,psavg,ndiag,nwsh)
- 	   goto 900
- 	endif
-
- 800	continue
-        call s2shape(s2,nchan,nz,tbest)
+	if(jz.ge.126*2048) call wsjt65(dat(4097),jz-4096,cfile6,
+     +      NClearAve,MinSigdB,DFTolerance,NFreeze,NAFC,mode65,Nseg,
+     +      MouseDF2,NAgain,ndepth,neme,nsked,idf,idfsh,
+     +      mycall,hiscall,hisgrid,lumsg,lcum,nspecial,ndf,
+     +      nstest,dfsh,snrsh,
+     +      NSyncOK,ccf,psavg,ndiag,nwsh)
 
  900	LDecoded = ((NSyncOK.gt.0) .or. npkept.gt.0)
 	end file 11
