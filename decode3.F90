@@ -37,8 +37,6 @@ subroutine decode3(d2,jz,istart,filename)
      d2d(i)=d2(i)
   enddo
 
-  if(nblank.ne.0) call blanker(d2d,jz)
-
   nseg=1
   if(mode(1:4).eq.'JT65') then
      i=index(FileID,'.')-3
@@ -78,23 +76,7 @@ subroutine decode3(d2,jz,istart,filename)
   
   nclearave=0
   nagain=0
-  if(mode(1:4).eq.'JT65') then
-     call pix2d65(d2d,jz)
-  else if(mode.eq.'FSK441') then
-     nz=s2(1,1)
-     call pix2d(d2d,jz,mousebutton,MouseDF,NFreeze,mode,s2,64,nz,b)
-  else if(mode(1:4).eq.'JT6M' .and. mousebutton.eq.0) then
-     nz=s2(1,1)
-     call pix2d(d2d,jz,mousebutton,MouseDF,NFreeze,mode,s2,64,nz,b)
-  endif
-
-! Compute red and magenta cutves for small plot area, FSK441/JT6M only
-  if(mode.eq.'FSK441' .or. mode.eq.'JT6M') then
-     do i=1,128
-        if(mode.eq.'FSK441' .and. ps0(i).gt.0.0) ps0(i)=10.0*log10(ps0(i))
-        if(psavg(i).gt.0.0) psavg(i)=10.0*log10(psavg(i))
-     enddo
-  endif
+  call pix2d65(d2d,jz)
 
 999 return
 end subroutine decode3

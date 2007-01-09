@@ -1,3 +1,0 @@
-gcc -c -DBIGSYM=1 init_rs.c
-gcc -c -DBIGSYM=1 encode_rs.c
-gcc -c -DBIGSYM=1 decode_rs.c
