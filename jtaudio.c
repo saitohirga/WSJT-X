@@ -62,74 +62,6 @@ void GetSystemTime(SYSTEMTIME *st){
 }
 #endif
 
-//  Input callback routine:
-static int SoundIn( void *inputBuffer, void *outputBuffer,
-		       unsigned long framesPerBuffer,
-		       const PaStreamCallbackTimeInfo* timeInfo, 
-		       PaStreamCallbackFlags statusFlags,
-		       void *userData )
-{
-  paTestData *data = (paTestData*)userData;
-  short *in = (short*)inputBuffer;
-  unsigned int i;
-  static int n0;
-  static int ia=0;
-  static int ib=0;
-  static int ic=0;
-  static int TxOKz=0;
-  static int ncall=0;
-  static int nsec0=0;
-  static double stime0=86400.0;
-  int nsec;
-  double stime;
-  SYSTEMTIME st;
-
-  // Get System time
-  GetSystemTime(&st);
-  nsec = (int) (st.Hour*3600.0 + st.Minute*60.0 + st.Second);
-  stime = nsec + st.Millisecond*0.001 + *data->ndsec*0.1;
-  *data->Tsec = stime;
-  nsec=(int)stime;
-  ncall++;
-
-  // NB: inputBufferAdcTime and currentTime do not work properly.
-  /*
-  if(nsec!=nsec0) {
-    printf("%f %f %f %f\n",stime,timeInfo->inputBufferAdcTime,
-	   timeInfo->currentTime,timeInfo->outputBufferDacTime);
-  }
-  */
-
-  //  if((inputBuffer==NULL) & (ncall>2) & (stime>stime0)) {
-  if((statusFlags!=0) & (ncall>2) & (stime>stime0)) {
-    if(*data->ndebug) 
-      printf("Status flags %d at Tsec = %7.1f s, DT = %7.1f\n",
-		      statusFlags,stime,stime-stime0);
-    stime0=stime;
-  }
-
-  if((statusFlags&1)==0) {
-    //increment buffer pointers only if data available
-  ia=*data->iwrite;
-  ib=*data->ibuf;
-  ib++;                               //Increment ibuf
-  if(ib>1024) ib=1; 
-  *data->ibuf=ib;
-  data->tbuf[ib-1]=stime;
-    for(i=0; i<framesPerBuffer; i++) {
-      data->y1[ia] = (*in++);
-      data->y2[ia] = (*in++);
-      ia++;
-    }
-  }
-
-  if(ia >= data->nbuflen) ia=0;          //Wrap buffer pointer if necessary
-  *data->iwrite = ia;                    //Save buffer pointer
-  fivehz_();                             //Call fortran routine
-  nsec0=nsec;
-  return 0;
-}
-
 //  Output callback routine:
 static int SoundOut( void *inputBuffer, void *outputBuffer,
 		       unsigned long framesPerBuffer,
@@ -201,11 +133,8 @@ int jtaudio_(int *ndevin, int *ndevout, short y1[], short y2[],
 	     double tbuf[], int *ibuf, int *ndsec)
 {
   paTestData data;
-  PaStream *instream;
   PaStream *outstream;
-  PaStreamParameters inputParameters;
   PaStreamParameters outputParameters;
-  //  PaStreamInfo *streamInfo;
 
   int nfs,ndin,ndout;
   PaError err1,err2,err2a,err3,err3a;
@@ -239,27 +168,7 @@ int jtaudio_(int *ndevin, int *ndevout, short y1[], short y2[],
   ndin=*ndevin;
   ndout=*ndevout;
   dnfs=(double)nfs;
-  printf("Opening device %d for input, %d for output.\n",ndin,ndout);
-
-  inputParameters.device=*ndevin;
-  inputParameters.channelCount=2;
-  inputParameters.sampleFormat=paInt16;
-  inputParameters.suggestedLatency=1.0;
-  inputParameters.hostApiSpecificStreamInfo=NULL;
-  err2=Pa_OpenStream(
-		       &instream,       //address of stream
-		       &inputParameters,
-		       NULL,
-		       dnfs,            //Sample rate
-		       2048,            //Frames per buffer
-		       paNoFlag,
-		       SoundIn,         //Callback routine
-		       &data);          //address of data structure
-  if(err2) {
-    printf("Error opening Audio stream for input.\n");
-    printf("%s\n",Pa_GetErrorText(err2));
-    goto error;
-  }
+  printf("Opening device %d for output.\n",ndout);
 
   outputParameters.device=*ndevout;
   outputParameters.channelCount=2;
@@ -281,12 +190,6 @@ int jtaudio_(int *ndevin, int *ndevout, short y1[], short y2[],
     goto error;
   }
 
-  err3=Pa_StartStream(instream);             //Start input stream
-  if(err3) {
-    printf("Error starting input Audio stream\n");
-    printf("%s\n",Pa_GetErrorText(err3));
-    goto error;
-  }
   err3a=Pa_StartStream(outstream);             //Start output stream
   if(err3a) {
     printf("Error starting output Audio stream\n");
@@ -294,25 +197,21 @@ int jtaudio_(int *ndevin, int *ndevout, short y1[], short y2[],
     goto error;
   }
 
-  printf("Audio streams running normally.\n******************************************************************\n");
+  printf("Audio output stream running normally.\n******************************************************************\n");
 
-  while(Pa_IsStreamActive(instream))  {
+  while(Pa_IsStreamActive(outstream))  {
     if(*ngo==0) goto StopStream;
-    //    printf("CPU: %f\n",Pa_GetStreamCpuLoad(stream));
     Pa_Sleep(200);
   }
 
  StopStream:
-  Pa_AbortStream(instream);              // Abort stream
-  Pa_CloseStream(instream);             // Close stream, we're done.
   Pa_AbortStream(outstream);              // Abort stream
   Pa_CloseStream(outstream);             // Close stream, we're done.
   Pa_Terminate();
   return(0);
 
 error:
-  printf("%d  %d  %f  %d  %d  %d  %d  %d\n",ndin,ndout,dnfs,err1,
-	 err2,err2a,err3,err3a);
+  printf("%d  %f  %d  %d  %d\n",ndout,dnfs,err1,err2a,err3a);
   Pa_Terminate();
   return(1);
 }
@@ -328,16 +227,6 @@ int padevsub_(int *numdev, int *ndefin, int *ndefout,
   //  PaHostApiInfo *hostapi;
   
   Pa_Initialize();
-
-  /*
-  n=Pa_GetHostApiCount();
-  printf("HostAPI Type #Devices \n");
-  for(i=0; i<n; i++) {
-    hostapi=Pa_GetHostApiInfo(i);
-    printf(" %3d   %2d   %3d  %s\n",i,hostapi->type,
-	   hostapi->deviceCount,hostapi->name);
-  }
-  */
 
   //  numDevices = Pa_CountDevices();
   numDevices = Pa_GetDeviceCount();

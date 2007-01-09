@@ -22,7 +22,7 @@ SRCS2F90 = a2d.f90 astro0.f90 audio_init.f90 azdist0.f90 \
 SRCS2F77 = wsjt1.f avesp2.f bzap.f \
 	stdecode.f indexx.f s2shape.f flat2.f gen65.f chkmsg.f \
 	gentone.f \
-	set.f flatten.f db.f pctile.f sort.f ssort.f ps.f smooth.f ping.f \
+	set.f flatten.f db.f pctile.f sort.f ssort.f ps.f smooth.f \
 	peakup.f sync.f detect.f avemsg65.f decode65.f demod64a.f \
 	encode65.f extract.f flat1.f four2.f gencw.f getpfx1.f \
 	getpfx2.f getsnr.f graycode.f grid2k.f interleave63.f k2grid.f \
