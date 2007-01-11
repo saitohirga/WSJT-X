@@ -11,15 +11,16 @@ all:    MAP65.EXE
 
 OBJS2C   = init_rs.o encode_rs.o decode_rs.o jtaudio.o
 
-F2PYONLY = ftn_init ftn_quit audio_init spec getfile azdist0 astro0
+F2PYONLY = ftn_init ftn_quit audio_init spec getfile azdist0 astro0 map65a0
 
 SRCS2F90 = a2d.f90 astro0.f90 audio_init.f90 azdist0.f90 \
 	decode1.f90 decode2.f90 decode3.f90 ftn_init.f90 \
 	ftn_quit.f90 get_fname.f90 getfile.f90 \
 	i1tor4.f90 pix2d65.f90 rfile.f90 savedata.f90 spec.f90 \
-	wsjtgen.f90 runqqq.f90 fivehz.f90
+	wsjtgen.f90 runqqq.f90 fivehz.f90 \
+	flushqqq.f90 sysqqq.f90 map65a0.f90 rfile3a.f90
 
-SRCS2F77 = wsjt1.f bzap.f avesp2.f flatten.f \
+SRCS2F77 = map65a.f wsjt1.f bzap.f avesp2.f flatten.f \
 	indexx.f flat2.f gen65.f chkmsg.f \
 	gentone.f gencwid.f \
 	set.f db.f pctile.f sort.f ssort.f ps.f smooth.f \
@@ -32,9 +33,12 @@ SRCS2F77 = wsjt1.f bzap.f avesp2.f flatten.f \
 	xcor.f xfft.f xfft2.f wsjt65.f astro.f azdist.f coord.f dcoord.f \
 	deg2grid.f dot.f ftsky.f geocentric.f GeoDist.f grid2deg.f \
 	moon2.f MoonDop.f sun.f toxyz.f pfxdump.f \
-	ftpeak65.f fil651.f fil652.f fil653.f symsync65.f
+	ftpeak65.f fil651.f fil652.f fil653.f symsync65.f \
+	symspec.f ccf65.f trimlist.f display.f chkhist.f decode1a.f \
+	filbig.f fil659.f fil658.f fil6521.f twkfreq.f decode65b.f \
+	afc65b.f fchisq.f ccf2.f
 
-SRCS2C   = resample.c ptt.c igray.c wrapkarn.c
+SRCS2C   = resample.c ptt.c igray.c wrapkarn.c rfile3.c wfile3.c
 
 MAP65.EXE: Audio.pyd map65.spec
 	python c:\python23\installer\Build.py map65.spec
@@ -45,7 +49,7 @@ Audio.pyd: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C)
 	--opt="/nologo /traceback /warn:errors /fast /fpp /define:Win32 \
 	      /define:USE_PORTAUDIO" \
 	$(OBJS2C) \
-	-lwinmm -lpa -llibsamplerate \
+	-lwinmm -lpa -lfftw3single -llibsamplerate \
 	-m Audio \
 	only: $(F2PYONLY) : \
 	$(SRCS2F90) $(SRCS2F77) $(SRCS2C)
