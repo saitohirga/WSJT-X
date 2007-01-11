@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <samplerate.h>
 
-int resample_( float din[], float dout[], double *samfac, int *jz)
+int resample_(float din[], int *jzin, int *conv_type, int *channels, 
+	      double *samfac, float dout[], int *jzout)
 {
   SRC_DATA src_data;
   int input_len;
@@ -10,7 +11,7 @@ int resample_( float din[], float dout[], double *samfac, int *jz)
   double src_ratio;
 
   src_ratio=*samfac;
-  input_len=*jz;
+  input_len=*jzin;
   output_len=(int) (input_len*src_ratio);
 
   src_data.data_in=din;
@@ -19,10 +20,7 @@ int resample_( float din[], float dout[], double *samfac, int *jz)
   src_data.input_frames=input_len;
   src_data.output_frames=output_len;
 
-  ierr=src_simple(&src_data,2,1);
-  *jz=output_len;
-  /*   printf("%d  %d  %d  %d  %f\n",input_len,output_len,src_data.input_frames_used,
-	 src_data.output_frames_gen,src_ratio);
-  */
+  ierr=src_simple(&src_data,*conv_type,*channels);
+  *jzout=output_len;
   return ierr;
 }

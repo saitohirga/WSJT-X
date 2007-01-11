@@ -5,18 +5,17 @@
       real s3(64,63)
       character callsign*12,grid*4,message*22,hisgrid*6,c*1,ceme*3
       character*12 mycall,hiscall
+      character mycall0*12,hiscall0*12,hisgrid0*6
       character*22 decoded
       character*22 testmsg(2*MAXCALLS + 2 + MAXRPT)
       character*15 callgrid(MAXCALLS)
       character*180 line
       character*4 rpt(MAXRPT)
       integer ncode(63,2*MAXCALLS + 2 + MAXRPT)
+      integer nflip(2*MAXCALLS + 2 + MAXRPT)
+      integer istat23(13)
       real pp(2*MAXCALLS + 2 + MAXRPT)
-      common/tmp9/ mrs(63),mrs2(63)
-#ifdef Win32
-C  This prevents some optimizations that break this subroutine.
-      volatile p1,p2,bias
-#endif
+      common/mrscom/ mrs(63),mrs2(63)
 
       data neme0/-99/
       data rpt/'-01','-02','-03','-04','-05',
@@ -32,7 +31,13 @@ C  This prevents some optimizations that break this subroutine.
      +         'R-21','R-22','R-23','R-24','R-25',
      +         'R-26','R-27','R-28','R-29','R-30',
      +         'RO','RRR','73'/
+      save
 
+!      call fstatqqq(23,istat23,ierr)         !@@@
+!      modified=istat23(10)                   !@@@
+      modified=0                              !@@@
+      if(mycall.eq.mycall0 .and. hiscall.eq.hiscall0 .and. 
+     +   hisgrid.eq.hisgrid0 .and. modified.eq.modified0) go to 30
       rewind 23
       k=0
       icall=0
@@ -77,7 +82,7 @@ C  This prevents some optimizations that break this subroutine.
 
          mz=1
          if(n.eq.1 .and. j3.lt.1 .and. j4.lt.1 .and.
-     +      flip.gt.0.0 .and. callsign(1:6).ne.'      ') mz=MAXRPT+1
+     +      callsign(1:6).ne.'      ') mz=MAXRPT+1
 C  Test for messages with MyCall + HisCall + report
          do m=1,mz
             if(m.gt.1) grid=rpt(m-1)
@@ -87,12 +92,14 @@ C  Test for messages with MyCall + HisCall + report
             k=k+1
             testmsg(k)=message
             call encode65(message,ncode(1,k))
-C  Insert CQ message unless sync=OOO (flip=-1).
+            nflip(k)=flip
+C  Insert CQ message
             if(m.eq.1 .and. flip.gt.0.0) then
                message='CQ '//callgrid(icall)
                k=k+1
                testmsg(k)=message
                call encode65(message,ncode(1,k))
+               nflip(k)=flip
             endif
          enddo
          if(nsked.eq.1) go to 20
@@ -101,28 +108,33 @@ C  Insert CQ message unless sync=OOO (flip=-1).
  20   ntot=k
       neme0=neme
 
+ 30   mycall0=mycall
+      hiscall0=hiscall
+      hisgrid0=hisgrid
+      modified0=modified
       ref0=0.
       do j=1,63
          ref0=ref0 + s3(mrs(j),j)
       enddo
 
       p1=-1.e30
-      p2=-1.e30
       do k=1,ntot
-         sum=0.
-         ref=ref0
-         do j=1,63
-            i=ncode(j,k)+1
-            sum=sum + s3(i,j)
-            if(i.eq.mrs(j)) then
-               ref=ref - s3(i,j) + s3(mrs2(j),j)
+         if(flip.gt.0.0 .or. nflip(k).lt.0) then         !Skip CQ msg if flip=-1
+            sum=0.
+            ref=ref0
+            do j=1,63
+               i=ncode(j,k)+1
+               sum=sum + s3(i,j)
+               if(i.eq.mrs(j)) then
+                  ref=ref - s3(i,j) + s3(mrs2(j),j)
+               endif
+            enddo
+            p=sum/ref
+            pp(k)=p
+            if(p.gt.p1) then
+               p1=p
+               ip1=k
             endif
-         enddo
-         p=sum/ref
-         pp(k)=p
-         if(p.gt.p1) then
-            p1=p
-            ip1=k
          endif
       enddo
 
@@ -131,10 +143,18 @@ C  Insert CQ message unless sync=OOO (flip=-1).
          if(pp(i).gt.p2 .and. pp(i).ne.p1) p2=pp(i)
       enddo
 
+C  ### Find out why this needs to be here ### 
+C  ### It's OK without it, in Linux, if compiled without optimization.
+!      rewind 77
+!      write(77,*) p1,p2
+
       if(mode65.eq.1) bias=max(1.12*p2,0.335)
       if(mode65.eq.2) bias=max(1.08*p2,0.405)
       if(mode65.ge.4) bias=max(1.04*p2,0.505)
+
+      if(p2.eq.p1) stop 'Error in deep65'
       qual=100.0*(p1-bias)
+
       decoded='                      '
       c=' '
 
@@ -145,6 +165,7 @@ C  Insert CQ message unless sync=OOO (flip=-1).
          qual=0.
       endif
       decoded(22:22)=c
+
 C  Make sure everything is upper case.
       do i=1,22
          if(decoded(i:i).ge.'a' .and. decoded(i:i).le.'z') 

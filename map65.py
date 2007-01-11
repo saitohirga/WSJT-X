@@ -164,6 +164,22 @@ def testmsgs():
     tx5.insert(0,"@1000")
     tx6.insert(0,"@2000")
 
+#------------------------------------------------------ bandmap
+def bandmap(event=NONE):
+    global Version,bm,bm_geom,bmtext
+    bm=Toplevel(root)
+    bm.geometry(bm_geom)
+    if g.Win32: bm.iconbitmap("wsjt.ico")
+    iframe_bm1 = Frame(bm, bd=1, relief=SUNKEN)
+    bmtext=Text(iframe_bm1, height=35, width=45, bg="Navy", fg="yellow")
+    bmtext.pack(side=LEFT, fill=X, padx=1)
+    bmsb = Scrollbar(iframe_bm1, orient=VERTICAL, command=bmtext.yview)
+    bmsb.pack(side=RIGHT, fill=Y)
+    bmtext.configure(yscrollcommand=bmsb.set)
+#    bmtext.insert(END,'144.103  CQ EA3DXU JN11\n')
+#    bmtext.insert(END,'144.118  OH6KTL RA3AQ KO85 OOO')
+    iframe_bm1.pack(expand=1, fill=X, padx=4)
+
 #------------------------------------------------------ logqso
 def logqso(event=NONE):
     t=time.strftime("%Y-%b-%d,%H:%M",time.gmtime())
@@ -1070,22 +1086,6 @@ def plot_yellow():
             xy2.append(n)
         graph1.create_line(xy2,fill="yellow")
 
-#------------------------------------------------------ bandmap
-def bandmap(event=NONE):
-    global Version,bm,bm_geom
-    bm=Toplevel(root)
-    bm.geometry(bm_geom)
-    if g.Win32: bm.iconbitmap("wsjt.ico")
-    iframe_bm1 = Frame(bm, bd=1, relief=SUNKEN)
-    text=Text(iframe_bm1, height=35, width=32, bg="Navy", fg="yellow")
-    text.pack(side=LEFT, fill=X, padx=1)
-    sb = Scrollbar(iframe_bm1, orient=VERTICAL, command=text.yview)
-    sb.pack(side=RIGHT, fill=Y)
-    text.configure(yscrollcommand=sb.set)
-    text.insert(END,'144.103  CQ EA3DXU JN11\n')
-    text.insert(END,'144.118  OH6KTL RA3AQ KO85 OOO')
-    iframe_bm1.pack(expand=1, fill=X, padx=4)
-
 #------------------------------------------------------ update
 def update():
     global root_geom,isec0,naz,nel,ndmiles,ndkm,nopen, \
@@ -1179,6 +1179,10 @@ def update():
     bdecode.configure(bg='gray85',activebackground='gray95')
     if Audio.gcom2.ndecoding:       #Set button bg=light_blue while decoding
         bdecode.configure(bg='#66FFFF',activebackground='#66FFFF')
+#        print 'A'
+        Audio.map65a0()                     # @@@ Temporary @@@
+#        print 'B'
+
     tx1.configure(bg='white')
     tx2.configure(bg='white')
     tx3.configure(bg='white')
@@ -1251,6 +1255,21 @@ def update():
                 avetext.insert(END,lines[0])
                 avetext.insert(END,lines[1])
 #            avetext.configure(state=DISABLED)
+
+            try:
+                f=open(appdir+'/bandmap.txt',mode='r')
+                lines=f.readlines()
+                f.close()
+            except:
+                lines=""
+            bmtext.configure(state=NORMAL)
+            bmtext.insert(END,' Freq     DF Pol  UTC\n')
+            bmtext.insert(END,'--------------------------------------------\n')
+
+            for i in range(len(lines)):
+                bmtext.insert(END,lines[i])
+            bmtext.see(END)
+
             Audio.gcom2.ndecdone=2
         
         if g.cmap != cmap0:
@@ -1744,7 +1763,6 @@ msg7=Message(iframe6, text='                        ', width=300,relief=SUNKEN)
 msg7.pack(side=RIGHT, fill=X, padx=1)
 iframe6.pack(expand=1, fill=X, padx=4)
 frame.pack()
-
 ldate.after(100,update)
 lauto=0
 isync=1
