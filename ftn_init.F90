@@ -70,6 +70,15 @@ subroutine ftn_init
 #endif
 
 #ifdef Win32
+  open(19,file=appdir(:iz)//'/bandmap.txt',status='unknown',               &
+       share='denynone',err=910)
+#else
+  open(19,file=appdir(:iz)//'/bandmap.txt',status='unknown',               &
+       err=910)
+#endif
+  endfile 19
+
+#ifdef Win32
   open(21,file=appdir(:iz)//'/ALL.TXT',status='unknown',                   &
        access='append',share='denynone',err=950)
 #else

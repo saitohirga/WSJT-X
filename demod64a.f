@@ -14,7 +14,7 @@ C     mr2prob  probability that mr2sym was the transmitted value
       real*4 signal(64,63)
       real*8 fs(64)
       integer mrsym(63),mrprob(63),mr2sym(63),mr2prob(63)
-      common/tmp9/ mrs(63),mrs2(63)
+      common/mrscom/ mrs(63),mrs2(63)
 
       afac=1.1 * float(nadd)**0.64
       scale=255.999

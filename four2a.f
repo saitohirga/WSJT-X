@@ -19,8 +19,9 @@ C     The transform will be real and returned to the input array.
 
       parameter (NPMAX=100)
       complex a(nfft)
+      complex aa(32768)
       integer nn(NPMAX),ns(NPMAX),nf(NPMAX),nl(NPMAX)
-      integer plan(NPMAX)
+      integer*8 plan(NPMAX)
       data nplan/0/
       include 'fftw3.f'
       save
@@ -43,7 +44,12 @@ C     The transform will be real and returned to the input array.
 C  Planning: FFTW_ESTIMATE, FFTW_MEASURE, FFTW_PATIENT, FFTW_EXHAUSTIVE
       nspeed=FFTW_ESTIMATE
       if(nfft.le.16384) nspeed=FFTW_MEASURE
-
+      nspeed=FFTW_MEASURE
+      if(nfft.le.32768) then
+         do j=1,nfft
+            aa(j)=a(j)
+         enddo
+      endif
       if(isign.eq.-1 .and. iform.eq.1) then
          call sfftw_plan_dft_1d_(plan(i),nfft,a,a,
      +        FFTW_FORWARD,nspeed)
@@ -57,19 +63,19 @@ C  Planning: FFTW_ESTIMATE, FFTW_MEASURE, FFTW_PATIENT, FFTW_EXHAUSTIVE
       else
          stop 'Unsupported request in four2a'
       endif
-
       i=nplan
-!      write(*,3001) i,nn(i),ns(i),nf(i),nl(i),plan(i)
-! 3001 format(6i10)
+      if(nfft.le.32768) then
+         do j=1,nfft
+            a(j)=aa(j)
+         enddo
+      endif
 
  10   call sfftw_execute_(plan(i))
       return
 
  999  do i=1,nplan
-!         print*,i,nn(i),ns(i),nf(i),nl(i),plan(i)
          call sfftw_destroy_plan_(plan(i))
       enddo
-!      print*,'FFTW plans destroyed:',nplan
 
       return
       end
