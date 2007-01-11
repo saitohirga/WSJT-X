@@ -61,23 +61,23 @@ npal=IntVar()
 npal.set(2)
 nscroll=0
 nspeed0=IntVar()
-nspeed00=99
 root_geom=""
 t0=""
 tol0=400
 ttot=0.0
 
 c=Canvas()
-
-a=zeros(750*130,'s')
-im=Image.new('P',(750,130))
-line0=Image.new('P',(750,1))  #Image fragment for top line of waterfall
+NX=750
+NY=130
+a=zeros(NX*NY,'s')
+im=Image.new('P',(NX,NY))
+line0=Image.new('P',(NX,1))  #Image fragment for top line of waterfall
 draw=ImageDraw.Draw(im)
 pim=ImageTk.PhotoImage(im)
 
-a2=zeros(750*130,'s')
-im2=Image.new('P',(750,130))
-line02=Image.new('P',(750,1)) #Image fragment for top line of zoomed waterfall
+a2=zeros(NX*NY,'s')
+im2=Image.new('P',(NX,NY))
+line02=Image.new('P',(NX,1)) #Image fragment for top line of zoomed waterfall
 draw2=ImageDraw.Draw(im2)
 pim2=ImageTk.PhotoImage(im2)
 
@@ -224,7 +224,7 @@ def freeze_decode(event):
 
 #---------------------------------------------------- update
 def update():
-    global a,b0,c0,g0,im,isec0,line0,newMinute,nscroll,nspeed00,pim, \
+    global a,b0,c0,g0,im,isec0,line0,newMinute,nscroll,pim, \
            root_geom,t0,mousedf0,nfreeze0,tol0,mode0,nmark0,logm0, \
            fmid,fmid0,frange,frange0
     
@@ -243,10 +243,6 @@ def update():
     if g.showspecjt==1:
         showspecjt()
     nspeed=nspeed0.get()                        #Waterfall update rate
-    if (nspeed<6 and nspeed00>=6) or (nspeed>=6 and nspeed00<6):
-        draw_axis()
-    nspeed00=nspeed
-
     brightness=sc1.get()
     contrast=sc2.get()
     logm=logmap.get()
@@ -261,16 +257,16 @@ def update():
         newdat=0
 
     if newdat or brightness!=b0 or contrast!=c0 or logm!=logm0:
-        if brightness==b0 and contrast==c0 and logm==logm0 and nspeed<6:
+        if brightness==b0 and contrast==c0 and logm==logm0:
             n=Audio.gcom2.nlines
-            box=(0,0,750,300-n)                 #Define region
+            box=(0,0,NX,300-n)                 #Define region
             region=im.crop(box)                 #Get all but last line(s)
             try:
                 im.paste(region,(0,n))          #Move waterfall down
             except:
                 print "Images did not match, continuing anyway."
             for i in range(n):
-                line0.putdata(a[750*i:750*(i+1)])   #One row of pixels to line0
+                line0.putdata(a[NX*i:NX*(i+1)])   #One row of pixels to line0
                 im.paste(line0,(0,i))               #Paste in new top line
             nscroll=nscroll+n
         else:                                   #A scale factor has changed
@@ -293,16 +289,6 @@ def update():
         graph1.delete(ALL)
         #For some reason, top two lines are invisible, so we move down 2
         graph1.create_image(0,0+2,anchor='nw',image=pim)
-
-        if nspeed>5:
-            color="white"
-            if g.cmap=="gray1": color="black"
-            t=time.strftime("%H:%M:%S",time.gmtime(Audio.gcom2.ntime + \
-                0.1*Audio.gcom1.ndsec))
-            graph1.create_text(5,110,anchor=W,text=t,fill=color)
-            t=g.filetime(g.ftnstr(Audio.gcom2.fnamea))
-            graph1.create_text(5,260,anchor=W,text=t,fill=color)
-
         newMinute=0
 
     if (Audio.gcom2.mousedf != mousedf0 or Audio.gcom2.dftolerance != tol0):
@@ -347,57 +333,45 @@ def draw_axis():
     xmid=fmid
     if naxis.get(): xmid=xmid-1270.46
     c.delete(ALL)
-    if nspeed0.get()<6:
 # Draw the frequency or DF tick marks
-        if(frange==2000):
-            for ix in range(-1300,5001,20):
-                i=374.5 + (ix-xmid)/df
-                j=20
-                if (ix%100)==0 :
-                    j=16
-                    x=i-2
-                    if ix<1000 : x=x+2
-                    y=8
-                    c.create_text(x,y,text=str(ix))
-                c.create_line(i,25,i,j,fill='black')
-
-        if(frange==4000):
-            for ix in range(-2600,5401,50):
-                i=374.5 + (ix-xmid)/(2*df)
-                j=20
-                if (ix%200)==0 :
-                    j=16
-                    x=i-2
-                    if ix<1000 : x=x+2
-                    y=8
-                    c.create_text(x,y,text=str(ix))
-                c.create_line(i,25,i,j,fill='black')
-                
-        dx=288.7 + (1500-fmid)/df
-        dff=df
-        if frange==4000:
-            dx=375 + (1270.5-fmid)/(2*df)
-            dff=2*df
-        if Audio.gcom2.nfreeze==0:
-            x1=(Audio.gcom2.mousedf-600)/dff + dx
-            x2=(Audio.gcom2.mousedf+600)/dff + dx
-        else:
-            tol=Audio.gcom2.dftolerance    
-            x1=(Audio.gcom2.mousedf-tol)/dff + dx
-            x2=(Audio.gcom2.mousedf+tol)/dff + dx
-        c.create_line(x1,25,x2,25,fill='green',width=2)
-            
-    else:
-        for ix in range(1,31):
-            i=25*ix
+    if(frange==2000):
+        for ix in range(-1300,5001,20):
+            i=374.5 + (ix-xmid)/df
             j=20
-            if (ix%5)==0:
+            if (ix%100)==0 :
                 j=16
-                x=i
-                if x==750: x=745
-                c.create_text(x,8,text=str(ix))
+                x=i-2
+                if ix<1000 : x=x+2
+                y=8
+                c.create_text(x,y,text=str(ix))
             c.create_line(i,25,i,j,fill='black')
 
+    if(frange==4000):
+        for ix in range(-2600,5401,50):
+            i=374.5 + (ix-xmid)/(2*df)
+            j=20
+            if (ix%200)==0 :
+                j=16
+                x=i-2
+                if ix<1000 : x=x+2
+                y=8
+                c.create_text(x,y,text=str(ix))
+            c.create_line(i,25,i,j,fill='black')
+            
+    dx=288.7 + (1500-fmid)/df
+    dff=df
+    if frange==4000:
+        dx=375 + (1270.5-fmid)/(2*df)
+        dff=2*df
+    if Audio.gcom2.nfreeze==0:
+        x1=(Audio.gcom2.mousedf-600)/dff + dx
+        x2=(Audio.gcom2.mousedf+600)/dff + dx
+    else:
+        tol=Audio.gcom2.dftolerance    
+        x1=(Audio.gcom2.mousedf-tol)/dff + dx
+        x2=(Audio.gcom2.mousedf+tol)/dff + dx
+    c.create_line(x1,25,x2,25,fill='green',width=2)
+            
 #-------------------------------------------------------- Create GUI widgets
 
 #-------------------------------------------------------- Menu bar
@@ -460,19 +434,19 @@ bfmid2.pack(side=LEFT)
 for i in (5, 4, 3, 2, 1):
     t=str(i)
     Radiobutton(mbar,text=t,value=i,variable=nspeed0).pack(side=RIGHT)
-nspeed0.set(6)
+nspeed0.set(3)
 lab2=Label(mbar,text='Speed: ',bd=0)
 lab2.pack(side=RIGHT)
 #------------------------------------------------- Graphics frame
 iframe1 = Frame(frame, bd=1, relief=SUNKEN)
-c=Canvas(iframe1, bg='white', width=750, height=25,bd=0)
+c=Canvas(iframe1, bg='white', width=NX, height=25,bd=0)
 c.pack(side=TOP)
 Widget.bind(c,"<Shift-Button-1>",freq_range)
 Widget.bind(c,"<Shift-Button-2>",freq_range)
 Widget.bind(c,"<Shift-Button-3>",freq_range)
 #Widget.bind(c,"<Control-Button-1>",freq_center)
 
-graph1=Canvas(iframe1, bg='black', width=750, height=130,bd=0,cursor='crosshair')
+graph1=Canvas(iframe1, bg='black', width=NX, height=NY,bd=0,cursor='crosshair')
 graph1.pack(side=TOP)
 Widget.bind(graph1,"<Motion>",fdf_change)
 #Widget.bind(graph1,"<Button-1>",decode_request)
@@ -481,14 +455,14 @@ Widget.bind(graph1,"<Button-1>",set_freezedf)
 Widget.bind(graph1,"<Double-Button-1>",freeze_decode)
 iframe1.pack(expand=1, fill=X)
 
-c2=Canvas(iframe1, bg='white', width=750, height=25,bd=0)
+c2=Canvas(iframe1, bg='white', width=NX, height=25,bd=0)
 c2.pack(side=TOP)
 Widget.bind(c2,"<Shift-Button-1>",freq_range)
 Widget.bind(c2,"<Shift-Button-2>",freq_range)
 Widget.bind(c2,"<Shift-Button-3>",freq_range)
 #Widget.bind(c2,"<Control-Button-1>",freq_center)
 
-graph2=Canvas(iframe1, bg='black', width=750, height=130,bd=0,cursor='crosshair')
+graph2=Canvas(iframe1, bg='black', width=NX, height=NY,bd=0,cursor='crosshair')
 graph2.pack(side=TOP)
 Widget.bind(graph2,"<Motion>",fdf_change)
 #Widget.bind(graph2,"<Button-1>",decode_request)
