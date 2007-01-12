@@ -9,5 +9,6 @@ subroutine rfile3a(infile,ibuf,n,ierr)
   ierr=0
   go to 999
 998 ierr=1002
-999 return
+999 close(10)
+  return
 end subroutine rfile3a

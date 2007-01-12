@@ -32,16 +32,7 @@ subroutine map65a
   nmin=1
   infile='061111.0745'
 
-!  Initialize some constants
-
-!      open(22,file='kvasd.dat',access='direct',recl=1024,
-!     +     status='unknown')
   open(23,file='CALL3.TXT',status='unknown')
-
-!      nbytes=8*(4*96000+9000)           !Empirical, for 061111_0744.dat.48
-!      nskip=8*nint(96000*(tskip+4.09375))
-!      n=rfile3(infile,id,nskip)          !Skip to start of minute
-!      if(n.ne.nskip) go to 9999
 
   df=96000.0/NFFT                    !df = 96000/NFFT = 2.930 Hz
   fa=0.0
@@ -53,7 +44,6 @@ subroutine map65a
   nkk=1
 
   do nfile=1,nmin
-!         n=rfile3(infile,id,8*NSMAX)       !Read 60 s of data (approx 46 MB)
      n=8*NSMAX
      call rfile3a(infile,id,n,ierr)
      newdat=1
@@ -181,7 +171,6 @@ subroutine map65a
 
               if(freq-freq0.gt.ftol .or. sync1.gt.sync10) then
                  nflip=nint(flipk)
-
                  call decode1a(id,newdat,nfilt,freq,nflip,ipol,         &
                       sync2,a,dt,pol,nkv,nhist,qual,decoded)
                  kk=kk+1

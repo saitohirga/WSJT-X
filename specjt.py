@@ -251,6 +251,7 @@ def update():
     newspec=Audio.gcom2.newspec                   #True if new data available
     if newspec:
         Audio.spec(brightness,contrast,logm,g0,nspeed,a) #Call Fortran routine spec
+        pass
 
     if newspec or brightness!=b0 or contrast!=c0 or logm!=logm0:
         if brightness==b0 and contrast==c0 and logm==logm0:
@@ -428,10 +429,10 @@ bfmid3.pack(side=LEFT)
 bfmid2.pack(side=LEFT)
 
 #------------------------------------------------- Speed selection buttons
-for i in (5, 4, 3, 2, 1):
+for i in (4, 3, 2, 1):
     t=str(i)
     Radiobutton(mbar,text=t,value=i,variable=nspeed0).pack(side=RIGHT)
-nspeed0.set(3)
+nspeed0.set(1)
 lab2=Label(mbar,text='Speed: ',bd=0)
 lab2.pack(side=RIGHT)
 #------------------------------------------------- Graphics frame
