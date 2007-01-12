@@ -10,21 +10,17 @@ subroutine a2d(iarg)
 ! JTaudio goes into a test-and-sleep loop.
 
   write(*,1000)
-1000 format('Using PortAudio.')
-  idevin=ndevin
+1000 format('Using Linrad for input, PortAudio for output.')
   idevout=ndevout
   call padevsub(numdevs,ndefin,ndefout,nchin,nchout)
   
-  write(*,1002) ndefin,ndefout
-1002 format(/'Default   Input:',i3,'   Output:',i3)
-  write(*,1004) idevin,idevout
-1004 format('Requested Input:',i3,'   Output:',i3)
-  if(idevin.lt.0 .or. idevin.ge.numdevs) idevin=ndefin
+  write(*,1002) ndefout
+1002 format(/'Default Output:',i3)
+  write(*,1004) idevout
+1004 format('Requested Output:',i3)
   if(idevout.lt.0 .or. idevout.ge.numdevs) idevout=ndefout
-  if(idevin.eq.0 .and. idevout.eq.0) then
-     idevin=ndefin
-     idevout=ndefout
-  endif
+  if(idevout.eq.0) idevout=ndefout
+  idevin=0
   ierr=jtaudio(idevin,idevout,y1,y2,NMAX,iwrite,iwave,nwave,    &
        11025,NSPB,TRPeriod,TxOK,ndebug,Transmitting,            &
        Tsec,ngo,nmode,tbuf,ibuf,ndsec)
@@ -32,7 +28,7 @@ subroutine a2d(iarg)
      print*,'Error ',ierr,' in JTaudio, cannot continue.'
   else
      write(*,1006) 
-1006 format('Audio streams terminated normally.')
+1006 format('Audio output stream terminated normally.')
   endif
   return
 end subroutine a2d

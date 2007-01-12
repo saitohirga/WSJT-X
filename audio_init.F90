@@ -10,16 +10,10 @@ subroutine audio_init(ndin,ndout)
   include 'gcom1.f90'
   include 'gcom2.f90'
 
-  nmode=1
-  if(mode(1:4).eq.'JT65') then
-     nmode=2
-     if(mode(5:5).eq.'A') mode65=1
-     if(mode(5:5).eq.'B') mode65=2
-     if(mode(5:5).eq.'C') mode65=4
-  endif
-  if(mode.eq.'Echo') nmode=3
-  if(mode.eq.'JT6M') nmode=4
-  ndevin=ndin
+  nmode=2
+  if(mode(5:5).eq.'A') mode65=1
+  if(mode(5:5).eq.'B') mode65=2
+  if(mode(5:5).eq.'C') mode65=4
   ndevout=ndout
   TxOK=0
   Transmitting=0

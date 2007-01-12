@@ -238,19 +238,18 @@ int padevsub_(int *numdev, int *ndefin, int *ndefout,
   }
 
 
-  printf("\nAudio     Input    Output     Device Name\n");
-  printf("Device  Channels  Channels\n");
-  printf("------------------------------------------------------------------\n");
+  printf("\nAudio    Output    Device Name\n");
+  printf("Device  Channels\n");
+  printf("----------------------------------------------------------\n");
 
   for( i=0; i<numDevices; i++ )  {
     pdi = Pa_GetDeviceInfo( i );
-    //    if(i == Pa_GetDefaultInputDeviceID()) *ndefin=i;
-    //    if(i == Pa_GetDefaultOutputDeviceID()) *ndefout=i;
     if(i == Pa_GetDefaultInputDevice()) *ndefin=i;
     if(i == Pa_GetDefaultOutputDevice()) *ndefout=i;
     nchin[i]=pdi->maxInputChannels;
     nchout[i]=pdi->maxOutputChannels;
-    printf("  %2d       %2d        %2d       %s\n",i,nchin[i],nchout[i],pdi->name);
+    if(nchin[i]>0) 
+      printf("  %2d      %2d       %s\n",i,nchout[i],pdi->name);
   }
 
   Pa_Terminate();

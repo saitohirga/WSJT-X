@@ -13,7 +13,7 @@ C  f_stop = 750 Hz.
       real halfpulse(8)                !Impulse response of filter (one side)
       complex cfilt(NFFT2)                       !Filter (complex; imag = 0)
       real rfilt(NFFT2)                          !Filter (real)
-      integer*8 plan1,plan2,plan3,plan4,plan5
+      integer plan1,plan2,plan3,plan4,plan5
       logical first
       include 'fftw3.f'
       equivalence (rfilt,cfilt)
