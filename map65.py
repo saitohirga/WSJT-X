@@ -1264,6 +1264,7 @@ def update():
             except:
                 lines=""
             bmtext.configure(state=NORMAL)
+            bmtext.delete('1.0',END)
             bmtext.insert(END,' Freq     DF Pol  UTC\n')
             bmtext.insert(END,'--------------------------------------------\n')
             for i in range(len(lines)):
