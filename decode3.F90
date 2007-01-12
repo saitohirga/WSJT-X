@@ -55,12 +55,13 @@ subroutine decode3(d2,jz,istart,filename)
      enddo
      jz=min(60*11025,jz+nzero)
   endif
-  call wsjt1(d2d,jz,istart,samfacin,FileID,ndepth,MinSigdB,           &
-       NQRN,DFTolerance,MouseButton,NClearAve,                        &
-       nMode,NFreeze,NAFC,NZap,mode65,idf,                            &
-       MyCall,HisCall,HisGrid,neme,nsked,ntx2,s2,                     &
-       ps0,npkept,lumsg,basevb,rmspower,nslim2,psavg,ccf,Nseg,        &
-       MouseDF,NAgain,LDecoded,nspecial,ndf,ss1,ss2)
+!  call wsjt1(d2d,jz,istart,samfacin,FileID,ndepth,MinSigdB,           &
+!       NQRN,DFTolerance,MouseButton,NClearAve,                        &
+!       nMode,NFreeze,NAFC,NZap,mode65,idf,                            &
+!       MyCall,HisCall,HisGrid,neme,nsked,ntx2,s2,                     &
+!       ps0,npkept,lumsg,basevb,rmspower,nslim2,psavg,ccf,Nseg,        &
+!       MouseDF,NAgain,LDecoded,nspecial,ndf,ss1,ss2)
+  basevb=-999.
   close(23)
   if(basevb.le.-98.0) go to 999
 

@@ -1,4 +1,3 @@
-
 !---------------------------------------------------- decode1
 subroutine decode1(iarg)
 
@@ -24,22 +23,11 @@ subroutine decode1(iarg)
   ns0=999999
 
 10 continue
-  if(mode(1:4).eq.'JT65') then
-     if(rxdone) then
-        call savedata
-        rxdone=.false.
-     endif
-  else
-     if(ntr.ne.ntr0 .and. monitoring.gt.0) then
-        if(ntr.ne.TxFirst .or. (lauto.eq.0)) call savedata
-        ntr0=ntr
-     endif
-  endif
-
   if(ndecoding.gt.0) then
      ndecdone=0
-     call decode2
-     ndecdone=1
+!     call decode2
+     call map65a
+     ndecdone=2
      if(mousebutton.eq.0) ndecoding0=ndecoding
      ndecoding=0
   endif

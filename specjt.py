@@ -247,16 +247,12 @@ def update():
     contrast=sc2.get()
     logm=logmap.get()
     g0=sc3.get()
-    
-# Don't calculate spectra for waterfall while decoding
-    if Audio.gcom2.ndecoding==0 and \
-           (Audio.gcom2.monitoring or Audio.gcom2.ndiskdat):
-        Audio.spec(brightness,contrast,logm,g0,nspeed,a) #Call Fortran routine spec
-        newdat=Audio.gcom1.newdat                   #True if new data available
-    else:
-        newdat=0
 
-    if newdat or brightness!=b0 or contrast!=c0 or logm!=logm0:
+    newspec=Audio.gcom2.newspec                   #True if new data available
+    if newspec:
+        Audio.spec(brightness,contrast,logm,g0,nspeed,a) #Call Fortran routine spec
+
+    if newspec or brightness!=b0 or contrast!=c0 or logm!=logm0:
         if brightness==b0 and contrast==c0 and logm==logm0:
             n=Audio.gcom2.nlines
             box=(0,0,NX,300-n)                 #Define region
@@ -275,7 +271,7 @@ def update():
             c0=contrast
             logm0=logm
 
-    if newdat:
+    if newspec:
         if Audio.gcom2.monitoring:
             if minsep.get() and newMinute:
                 draw.line((0,0,749,0),fill=128)     #Draw the minute separator
@@ -290,6 +286,7 @@ def update():
         #For some reason, top two lines are invisible, so we move down 2
         graph1.create_image(0,0+2,anchor='nw',image=pim)
         newMinute=0
+        Audio.gcom2.newspec=0
 
     if (Audio.gcom2.mousedf != mousedf0 or Audio.gcom2.dftolerance != tol0):
         df_mark()
@@ -312,7 +309,7 @@ def update():
         df_mark()
         nmark0=nmark.get()
 
-    if newdat: Audio.gcom2.ndiskdat=0
+    if newspec: Audio.gcom2.ndiskdat=0
     Audio.gcom2.nlines=0
     Audio.gcom2.nflat=nflat.get()
     frange=nfr.get()*2000

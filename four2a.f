@@ -21,7 +21,7 @@ C     The transform will be real and returned to the input array.
       complex a(nfft)
       complex aa(32768)
       integer nn(NPMAX),ns(NPMAX),nf(NPMAX),nl(NPMAX)
-      integer*8 plan(NPMAX)
+      real*8 plan(NPMAX)                   !Should be i*8
       data nplan/0/
       include 'fftw3.f'
       save

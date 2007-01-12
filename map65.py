@@ -251,11 +251,12 @@ def avetextkey(event=NONE):
 def decode(event=NONE):
     if Audio.gcom2.ndecoding==0:        #If already busy, ignore request
         Audio.gcom2.nagain=1
-        Audio.gcom2.npingtime=0         #Decode whole record
         n=1
         Audio.gcom2.mousebutton=0
         if Audio.gcom2.ndecoding0==4: n=4
         Audio.gcom2.ndecoding=n         #Standard decode, full file (d2a)
+#    if Audio.gcom2.ndecoding:
+#        Audio.map65a0()                     # @@@ Temporary @@@
 
 #------------------------------------------------------ decode_include
 def decode_include(event=NONE):
@@ -490,7 +491,7 @@ def cleartext():
 def ModeJT65():
     global slabel,isync,textheight,itol
     cleartext()
-    lab2.configure(text='FileID      Sync      dB        DT       DF    W')
+    lab2.configure(text='FileID   Sync  dB       DT       DF    W')
     lab4.configure(fg='gray85')
     lab5.configure(fg='gray85')
     Audio.gcom1.trperiod=60
@@ -1179,9 +1180,6 @@ def update():
     bdecode.configure(bg='gray85',activebackground='gray95')
     if Audio.gcom2.ndecoding:       #Set button bg=light_blue while decoding
         bdecode.configure(bg='#66FFFF',activebackground='#66FFFF')
-#        print 'A'
-        Audio.map65a0()                     # @@@ Temporary @@@
-#        print 'B'
 
     tx1.configure(bg='white')
     tx2.configure(bg='white')
@@ -1225,7 +1223,7 @@ def update():
         t='Receiving'
     msg7.configure(text=t,bg=bgcolor)
 
-    if Audio.gcom2.ndecdone==1 or g.cmap != cmap0:
+    if Audio.gcom2.ndecdone>0 or g.cmap != cmap0:
         if Audio.gcom2.ndecdone==1:
             if isync==-99 or isync==99:
                 isync=isync_save
@@ -1255,7 +1253,10 @@ def update():
                 avetext.insert(END,lines[0])
                 avetext.insert(END,lines[1])
 #            avetext.configure(state=DISABLED)
+            Audio.gcom2.ndecdone=0
 
+
+        if Audio.gcom2.ndecdone==2:
             try:
                 f=open(appdir+'/bandmap.txt',mode='r')
                 lines=f.readlines()
@@ -1265,12 +1266,11 @@ def update():
             bmtext.configure(state=NORMAL)
             bmtext.insert(END,' Freq     DF Pol  UTC\n')
             bmtext.insert(END,'--------------------------------------------\n')
-
             for i in range(len(lines)):
                 bmtext.insert(END,lines[i])
             bmtext.see(END)
 
-            Audio.gcom2.ndecdone=2
+            Audio.gcom2.ndecdone=3
         
         if g.cmap != cmap0:
             im.putpalette(g.palette)

@@ -31,6 +31,7 @@ integer minsigdb       !Decoder threshold setting               GUI
 integer nclearave      !Set to 1 to clear JT65 avg         GUI,Decoder
 integer nfreeze        !Is Freeze checked?                      GUI
 integer nafc           !Is AFC checked?                         GUI
+integer newspec        !New spectra in ss(4,322,NSMAX)     GUI,Decoder
 integer nmode          !Which WSJT mode?                   GUI,Decoder
 integer mode65         !JT65 sub-mode (A/B/C ==> 1/2/4) GUI,SoundIn,Decoder
 integer nclip          !Clipping level                          GUI
@@ -89,7 +90,7 @@ common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),             &
      green(500),ngreen,dgain,iter,ndecoding,ndecoding0,mousebutton,   &
      ndecdone,npingtime,ierr,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5, &
      dftolerance,LDecoded,rxdone,monitoring,nzap,nsavecum,minsigdb,   &
-     nclearave,nfreeze,nafc,nmode,mode65,nclip,ndebug,nblank,nport,   &
+     nclearave,nfreeze,nafc,newspec,nmode,mode65,nclip,ndebug,nblank,nport,   &
      mousedf,neme,nsked,naggressive,ntx2,nslim2,nagain,nsavelast,     &
      shok,sendingsh,d2a(661500),d2b(661500),b(60000),jza,jzb,ntime,   &
      idinterval,msmax,lenappdir,idf,ndiskdat,nlines,nflat,ntxreq,ntxnow,  &
