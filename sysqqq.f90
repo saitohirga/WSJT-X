@@ -7,7 +7,7 @@ subroutine sysqqq(cmnd,iret)
 #endif
   character*(*) cmnd
 
-!  iret=system(cmnd)
+  iret=system(cmnd)
 
   return
 end subroutine sysqqq

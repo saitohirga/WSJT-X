@@ -9,7 +9,7 @@
 !   16  c:/wsjt.reg 
 !   17  wave files written to disk
 !   18  test file to be transmitted (wsjtgen.f90)
-!   19
+!   19  bandmap.txt
 !   20
 !   21  ALL.TXT
 !   22  kvasd.dat
@@ -97,8 +97,10 @@ subroutine ftn_init
        status='unknown')
 #endif
 
-  open(24,file=appdir(:iz)//'/tmp24.txt',status='unknown')
-  open(26,file=appdir(:iz)//'/tmp26.txt',status='unknown')
+!  open(24,file=appdir(:iz)//'/tmp24.txt',status='unknown',                 &
+!       share='denynone')
+  open(26,file=appdir(:iz)//'/tmp26.txt',status='unknown',                 &
+       share='denynone')
 
   return
 
