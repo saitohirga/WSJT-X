@@ -41,6 +41,7 @@ root_geom=""
 
 
 #------------------------------------------------------ Global variables
+nfile=0
 appdir=os.getcwd()
 isync=1
 isync_save=0
@@ -171,8 +172,8 @@ def bandmap(event=NONE):
     bm.geometry(bm_geom)
     if g.Win32: bm.iconbitmap("wsjt.ico")
     iframe_bm1 = Frame(bm, bd=1, relief=SUNKEN)
-    bmtext=Text(iframe_bm1, height=35, width=45, bg="Navy", fg="yellow")
-    bmtext.pack(side=LEFT, fill=X, padx=1)
+    bmtext=Text(iframe_bm1, height=35, width=41, bg="Navy", fg="yellow")
+    bmtext.pack(side=LEFT, fill=X, padx=1, pady=3)
     bmsb = Scrollbar(iframe_bm1, orient=VERTICAL, command=bmtext.yview)
     bmsb.pack(side=RIGHT, fill=Y)
     bmtext.configure(yscrollcommand=bmsb.set)
@@ -346,10 +347,6 @@ def txmute(event=NONE):
         lab7.configure(bg='red',fg='black')
     else:
         lab7.configure(bg='gray85',fg='gray85')
-
-#------------------------------------------------------ savelast
-def savelast(event=NONE):
-    Audio.gcom2.nsavelast=1
 
 #------------------------------------------------------ MsgBox
 def MsgBox(t):
@@ -602,7 +599,6 @@ Alt+M	Monitor
 Alt+O	Tx Stop
 Alt+Q	Log QSO
 Alt+S	Stop Monitoring or Decoding
-Alt+V	Save Last
 Alt+X	Exclude
 Alt+Z	Toggle Zap
 Right/Left Arrow	Increase/decrease Freeze DF
@@ -1091,7 +1087,7 @@ def plot_yellow():
 def update():
     global root_geom,isec0,naz,nel,ndmiles,ndkm,nopen, \
            im,pim,cmap0,isync,isync_save,idsec,first,itol,txsnrdb,tx6alt,\
-           bm_geom
+           bm_geom,nfile
     
     utc=time.gmtime(time.time()+0.1*idsec)
     isec=utc[5]
@@ -1265,14 +1261,16 @@ def update():
                 lines=""
             bmtext.configure(state=NORMAL)
             bmtext.delete('1.0',END)
-            bmtext.insert(END,' Freq     DF Pol  UTC\n')
-            bmtext.insert(END,'--------------------------------------------\n')
+            bmtext.insert(END,'Freq  DF Pol  UTC\n')
+            bmtext.insert(END,'----------------------------------------\n')
             for i in range(len(lines)):
                 bmtext.insert(END,lines[i])
             bmtext.see(END)
+            Audio.gcom2.ndecdone=0
+            nfile=nfile+1
+            if(nfile<11):
+                decode()
 
-            Audio.gcom2.ndecdone=3
-        
         if g.cmap != cmap0:
             im.putpalette(g.palette)
             cmap0=g.cmap
@@ -1562,8 +1560,6 @@ root.bind_all('<Alt-q>',logqso)
 root.bind_all('<Alt-Q>',logqso)
 root.bind_all('<Alt-s>',stopmon)
 root.bind_all('<Alt-S>',stopmon)
-root.bind_all('<Alt-v>',savelast)
-root.bind_all('<Alt-V>',savelast)
 root.bind_all('<Alt-x>',decode_exclude)
 root.bind_all('<Alt-X>',decode_exclude)
 root.bind_all('<Alt-z>',toggle_zap)
@@ -1594,8 +1590,6 @@ bstop=Button(iframe4c, text='Stop',underline=0,command=stopmon,
                 padx=1,pady=1)
 bmonitor=Button(iframe4c, text='Monitor',underline=0,command=monitor,
                 padx=1,pady=1)
-bsavelast=Button(iframe4c, text='Save',underline=2,command=savelast,
-                padx=1,pady=1)
 bdecode=Button(iframe4c, text='Decode',underline=0,command=decode,
                 padx=1,pady=1)
 berase=Button(iframe4c, text='Erase',underline=0,command=erase,
@@ -1613,7 +1607,6 @@ blogqso.pack(side=LEFT,expand=1,fill=X)
 #bplay.pack(side=LEFT,expand=1,fill=X)
 bstop.pack(side=LEFT,expand=1,fill=X)
 bmonitor.pack(side=LEFT,expand=1,fill=X)
-bsavelast.pack(side=LEFT,expand=1,fill=X)
 bdecode.pack(side=LEFT,expand=1,fill=X)
 berase.pack(side=LEFT,expand=1,fill=X)
 bclravg.pack(side=LEFT,expand=1,fill=X)
@@ -1682,7 +1675,7 @@ ldsec.grid(column=0,row=4,ipadx=3,padx=2,pady=5,sticky='EW')
 Widget.bind(ldsec,'<Button-1>',incdsec)
 Widget.bind(ldsec,'<Button-3>',decdsec)
 
-f5b.pack(side=LEFT,expand=0,fill=BOTH)
+f5b.pack(side=LEFT,expand=1,fill=BOTH)
 
 #------------------------------------------------------ Tx params and msgs
 f5c=Frame(iframe5,bd=2,relief=GROOVE)
@@ -1700,7 +1693,6 @@ f5c2.grid(column=0,row=1,sticky='W',padx=4)
 sked.grid(column=0,row=3,sticky='W',padx=4)
 genmsg.grid(column=0,row=4,sticky='W',padx=4)
 auto.grid(column=0,row=5,sticky='EW',padx=4)
-#txstop.grid(column=0,row=6,sticky='EW',padx=4)
 
 ntx=IntVar()
 tx1=Entry(f5c,width=24)
@@ -1745,7 +1737,7 @@ tx6.grid(column=1,row=5)
 rb6.grid(column=2,row=5)
 b6.grid(column=3,row=5)
 
-f5c.pack(side=LEFT,fill=BOTH)
+f5c.pack(side=LEFT,expand=1,fill=BOTH)
 iframe5.pack(expand=1, fill=X, padx=4)
 
 #------------------------------------------------------------ Status Bar

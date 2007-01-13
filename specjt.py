@@ -41,10 +41,6 @@ fmid0=1500
 frange=2000
 frange0=2000
 isec0=-99
-logmap=IntVar()
-logmap.set(0)
-logm0=0
-minsep=IntVar()
 mode0=""
 mousedf0=0
 naxis=IntVar()
@@ -86,21 +82,27 @@ balloon=Pmw.Balloon(root)
 def pal_gray0():
     g.cmap="gray0"
     im.putpalette(Colormap2Palette(colormapgray0),"RGB")
+    im2.putpalette(Colormap2Palette(colormapgray0),"RGB")
 def pal_gray1():
     g.cmap="gray1"
     im.putpalette(Colormap2Palette(colormapgray1),"RGB")
+    im2.putpalette(Colormap2Palette(colormapgray1),"RGB")
 def pal_linrad():
     g.cmap="Linrad"
     im.putpalette(Colormap2Palette(colormapLinrad),"RGB")
+    im2.putpalette(Colormap2Palette(colormapLinrad),"RGB")
 def pal_blue():
     g.cmap="blue"
     im.putpalette(Colormap2Palette(colormapblue),"RGB")
+    im2.putpalette(Colormap2Palette(colormapblue),"RGB")
 def pal_Hot():
     g.cmap="Hot"
     im.putpalette(Colormap2Palette(colormapHot),"RGB")
+    im2.putpalette(Colormap2Palette(colormapHot),"RGB")
 def pal_AFMHot():
     g.cmap="AFMHot"
     im.putpalette(Colormap2Palette(colormapAFMHot),"RGB")
+    im2.putpalette(Colormap2Palette(colormapAFMHot),"RGB")
 
 #--------------------------------------------------- Command button routines
 #---------------------------------------------------- fdf_change
@@ -224,8 +226,9 @@ def freeze_decode(event):
 
 #---------------------------------------------------- update
 def update():
-    global a,b0,c0,g0,im,isec0,line0,newMinute,nscroll,pim, \
-           root_geom,t0,mousedf0,nfreeze0,tol0,mode0,nmark0,logm0, \
+    global a,a2,b0,c0,g0,im,im2,isec0,line0,line02,newMinute,\
+           nscroll,pim,pim2, \
+           root_geom,t0,mousedf0,nfreeze0,tol0,mode0,nmark0, \
            fmid,fmid0,frange,frange0
     
     utc=time.gmtime(time.time()+0.1*Audio.gcom1.ndsec)
@@ -245,47 +248,55 @@ def update():
     nspeed=nspeed0.get()                        #Waterfall update rate
     brightness=sc1.get()
     contrast=sc2.get()
-    logm=logmap.get()
     g0=sc3.get()
 
     newspec=Audio.gcom2.newspec                   #True if new data available
     if newspec:
-        Audio.spec(brightness,contrast,logm,g0,nspeed,a) #Call Fortran routine spec
-        pass
+        Audio.spec(brightness,contrast,g0,nspeed,a,a2) #Call Fortran routine spec
 
-    if newspec or brightness!=b0 or contrast!=c0 or logm!=logm0:
-        if brightness==b0 and contrast==c0 and logm==logm0:
+    if newspec or brightness!=b0 or contrast!=c0:
+        if brightness==b0 and contrast==c0:
             n=Audio.gcom2.nlines
-            box=(0,0,NX,300-n)                 #Define region
+            box=(0,0,NX,130-n)                  #Define region
             region=im.crop(box)                 #Get all but last line(s)
+            region2=im2.crop(box)               #Get all but last line(s)
             try:
                 im.paste(region,(0,n))          #Move waterfall down
+                im2.paste(region2,(0,n))        #Move waterfall down
             except:
                 print "Images did not match, continuing anyway."
             for i in range(n):
-                line0.putdata(a[NX*i:NX*(i+1)])   #One row of pixels to line0
-                im.paste(line0,(0,i))               #Paste in new top line
+                line0.putdata(a[NX*i:NX*(i+1)]) #One row of pixels to line0
+                im.paste(line0,(0,i))           #Paste in new top line(s)
+                line02.putdata(a2[NX*i:NX*(i+1)])#One row of pixels to line0
+                im2.paste(line02,(0,i))         #Paste in new top line(s)
             nscroll=nscroll+n
         else:                                   #A scale factor has changed
             im.putdata(a)                       #Compute whole new image
+            im2.putdata(a2)                     #Compute whole new image
             b0=brightness                       #Save scale values
             c0=contrast
-            logm0=logm
 
     if newspec:
         if Audio.gcom2.monitoring:
-            if minsep.get() and newMinute:
+            if newMinute:
                 draw.line((0,0,749,0),fill=128)     #Draw the minute separator
+                draw2.line((0,0,749,0),fill=128)    #Draw the minute separator
             if nscroll == 13:
                 draw.text((5,2),t0[0:5],fill=253)   #Insert time label
+                draw2.text((5,2),t0[0:5],fill=253)  #Insert time label
         else:
-            if minsep.get():
-                draw.line((0,0,749,0),fill=128)     #Draw the minute separator
+            draw.line((0,0,749,0),fill=128)     #Draw the minute separator
+            draw2.line((0,0,749,0),fill=128)    #Draw the minute separator
 
         pim=ImageTk.PhotoImage(im)              #Convert Image to PhotoImage
         graph1.delete(ALL)
+        pim2=ImageTk.PhotoImage(im2)            #Convert Image to PhotoImage
+        graph2.delete(ALL)
         #For some reason, top two lines are invisible, so we move down 2
         graph1.create_image(0,0+2,anchor='nw',image=pim)
+        graph2.create_image(0,0+2,anchor='nw',image=pim2)
+
         newMinute=0
         Audio.gcom2.newspec=0
 
@@ -328,33 +339,23 @@ def update():
 
 #-------------------------------------------------------- draw_axis
 def draw_axis():
-    xmid=fmid
-    if naxis.get(): xmid=xmid-1270.46
     c.delete(ALL)
-# Draw the frequency or DF tick marks
-    if(frange==2000):
-        for ix in range(-1300,5001,20):
-            i=374.5 + (ix-xmid)/df
-            j=20
-            if (ix%100)==0 :
-                j=16
-                x=i-2
-                if ix<1000 : x=x+2
-                y=8
-                c.create_text(x,y,text=str(ix))
-            c.create_line(i,25,i,j,fill='black')
-
-    if(frange==4000):
-        for ix in range(-2600,5401,50):
-            i=374.5 + (ix-xmid)/(2*df)
-            j=20
-            if (ix%200)==0 :
-                j=16
-                x=i-2
-                if ix<1000 : x=x+2
-                y=8
-                c.create_text(x,y,text=str(ix))
-            c.create_line(i,25,i,j,fill='black')
+    xmid=125.0
+    bw=96.0
+    x1=int(xmid-0.5*bw)
+    x2=int(xmid+0.5*bw)
+    xdf=bw/NX
+    for ix in range(x1,x2,1):
+        i=0.5*NX + (ix-xmid)/xdf
+        j=20
+        if (ix%5)==0: j=16
+        if (ix%10)==0 :
+            j=16
+            x=i-1
+            if ix<100: x=x+1
+            y=8
+            c.create_text(x,y,text=str(ix))
+        c.create_line(i,25,i,j,fill='black')
             
     dx=288.7 + (1500-fmid)/df
     dff=df
@@ -369,7 +370,27 @@ def draw_axis():
         x1=(Audio.gcom2.mousedf-tol)/dff + dx
         x2=(Audio.gcom2.mousedf+tol)/dff + dx
     c.create_line(x1,25,x2,25,fill='green',width=2)
-            
+
+    c2.delete(ALL)
+    xmid2=0
+    bw2=750.0*96000.0/32768.0                     #approx 2197.27 Hz
+    x1=int(xmid-0.5*bw2)/100 - 1
+    x1=100*x1
+    x2=int(xmid+0.5*bw2)
+    xdf2=bw2/NX
+    for ix in range(x1,x2,20):
+        i=0.5*NX + (ix-xmid2)/xdf2
+        j=20
+#        if (ix%5)==0: j=16
+        if (ix%100)==0 :
+            j=16
+            x=i-1
+            if ix<1000: x=x+2
+            if ix<0: x=x-2
+            y=8
+            c2.create_text(x,y,text=str(ix))
+        c2.create_line(i,25,i,j,fill='black')
+
 #-------------------------------------------------------- Create GUI widgets
 
 #-------------------------------------------------------- Menu bar
@@ -384,7 +405,6 @@ setupbutton = Menubutton(mbar, text = 'Options', )
 setupbutton.pack(side = LEFT)
 setupmenu = Menu(setupbutton, tearoff=1)
 setupbutton['menu'] = setupmenu
-setupmenu.add_checkbutton(label = 'Mark T/R boundaries',variable=minsep)
 setupmenu.add_checkbutton(label='Flatten spectra',variable=nflat)
 setupmenu.add_checkbutton(label='Mark JT65 tones only if Freeze is checked',
             variable=nmark)
@@ -429,7 +449,7 @@ bfmid3.pack(side=LEFT)
 bfmid2.pack(side=LEFT)
 
 #------------------------------------------------- Speed selection buttons
-for i in (4, 3, 2, 1):
+for i in (5, 4, 3, 2, 1):
     t=str(i)
     Radiobutton(mbar,text=t,value=i,variable=nspeed0).pack(side=RIGHT)
 nspeed0.set(1)
@@ -508,11 +528,9 @@ try:
         elif key == 'Brightness': sc1.set(value)
         elif key == 'Contrast': sc2.set(value)
         elif key == 'DigitalGain': sc3.set(value)
-        elif key == 'MinuteSeparators': minsep.set(value)
         elif key == 'AxisLabel': naxis.set(value)
         elif key == 'MarkTones': nmark.set(value)
         elif key == 'Flatten': nflat.set(value)
-        elif key == 'LogMap': logmap.set(value)
         elif key == 'Palette': g.cmap=value
         elif key == 'Frange': nfr.set(value)
         elif key == 'Fmid': fmid=int(value)
@@ -574,11 +592,9 @@ f.write("UpdateInterval " + str(nspeed0.get()) + "\n")
 f.write("Brightness " + str(b0)+ "\n")
 f.write("Contrast " + str(c0)+ "\n")
 f.write("DigitalGain " + str(g0)+ "\n")
-f.write("MinuteSeparators " + str(minsep.get()) + "\n")
 f.write("AxisLabel " + str(naxis.get()) + "\n")
 f.write("MarkTones " + str(nmark.get()) + "\n")
 f.write("Flatten " + str(nflat.get()) + "\n")
-f.write("LogMap " + str(logmap.get()) + "\n")
 f.write("Palette " + g.cmap + "\n")
 f.write("Frange " + str(nfr.get()) + "\n")
 f.write("Fmid " + str(fmid) + "\n")

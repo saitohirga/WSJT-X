@@ -22,6 +22,7 @@ C  f_stop = 750 Hz.
      +  5.89886379,1.59355187,-2.49138308,0.60910773,-0.04248129/
       save
 
+      if(nmax.lt.0) go to 900
       if(first) then
          npatience=FFTW_ESTIMATE
 !         npatience=FFTW_MEASURE
@@ -99,6 +100,13 @@ C  Do the short reverse transform, to go back to time domain.
       call sfftw_execute_(plan3)
       call sfftw_execute_(plan4)
       n4=min(nmax/64,NFFT2)
+      go to 999
 
-      return
+ 900  call sfftw_destroy_plan_(plan1)
+      call sfftw_destroy_plan_(plan2)
+      call sfftw_destroy_plan_(plan3)
+      call sfftw_destroy_plan_(plan4)
+      call sfftw_destroy_plan_(plan5)
+
+ 999  return
       end
