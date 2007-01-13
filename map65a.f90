@@ -20,7 +20,7 @@ subroutine map65a
   logical done(MAXMSG)
   integer rfile3
   character decoded*22,blank*22,cbad*1
-  common/spcom/ss(4,322,NFFT)                !169 MB: half-symbol spectra
+  common/spcom/ip0,ss(4,322,NFFT)                !169 MB: half-symbol spectra
   data blank/'                      '/
   data shmsg0/'ATT','RO ','RRR','73 '/
   data nfile/0/
@@ -30,17 +30,30 @@ subroutine map65a
 
   rewind 11
   rewind 12
-  nfile=nfile+1
+1 nfile=nfile+1
   nutc=0744+nfile
+  if(nutc.eq.0747) go to 1
+  if(nutc.eq.0749) go to 1
+  if(nutc.eq.0751) go to 1
+  if(nutc.eq.0753) go to 1
   infile='061111.0745'
   write(infile(8:11),1001) nutc
 1001 format(i4.4)
 !  read(infile(8:11),*) nutc
 
   tskip=0.
-  fselect=0.
-  fselect=104.5303
-  nmin=1
+!  fselect=126.0 + 1.6 + 0.290
+!  nflip=-1
+!  ip0=1
+  fselect=128.0 + 1.6 + 0.220
+  nflip=1
+  ip0=3
+!  fselect=155.0 + 1.6 + 0.454
+!  nflip=1
+!  ip0=2
+!  fselect=103 + 1.6 - 0.07
+!  nflip=-1                     !May need to try both +/- 1
+!  ip0=4                       !Try all four?
 
   open(23,file='CALL3.TXT',status='unknown')
 
@@ -60,16 +73,14 @@ subroutine map65a
   if(fselect.gt.0.0) then
 
 !  nfilt=2 should be faster (but doesn't work right?)
-     nfilt=1                      !nfilt=2 is faster for selected freq
-!            freq=fselect+1.600
+     nfilt=2                      !nfilt=2 is faster for selected freq
      freq=fselect
-     nflip=-1                     !May need to try both +/- 1
-     ipol=4                       !Try all four?
      dt=2.314240                  !Not needed?
-
-     call decode1a(id,newdat,nfilt,freq,nflip,ipol,sync2,        &
+     call decode1a(id,newdat,nfilt,freq,nflip,ip0,sync2,        &
           a,dt,pol,nkv,nhist,qual,decoded)
+     nsync1=0
      nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
+     ndf=nint(a(1))
      nw=0
 !  Insert 'OOO' if flip<0.
      write(11,1010) nutc,nsync1,nsync2,dt,ndf,nw,decoded,        &
@@ -181,6 +192,8 @@ subroutine map65a
               nflip=nint(flipk)
               call decode1a(id,newdat,nfilt,freq,nflip,ipol,         &
                    sync2,a,dt,pol,nkv,nhist,qual,decoded)
+!              i9=index(decoded,'AA1YN')
+!              if(i9.gt.0) print*,i,i9,fselect,freq,decoded
               kk=kk+1
               sig(kk,1)=nfile
               sig(kk,2)=nutc
@@ -273,8 +286,8 @@ subroutine map65a
 !     +                    nkv,nqual
 !                  endif
 
-           write(19,1012) f0,ndf,npol,nutc,decoded
-1012       format(f7.3,i5,i4,i5.4,2x,a22)
+!           write(19,1012) f0,ndf,npol,nutc,decoded
+!1012       format(f7.3,i5,i4,i5.4,2x,a22)
            
            write(26,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
                 nsync2,nutc,decoded,nkv,nqual,nhist
