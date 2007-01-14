@@ -326,11 +326,11 @@ def update():
 #-------------------------------------------------------- draw_axis
 def draw_axis():
     c.delete(ALL)
-    xmid=125.0
+    xmid=125.0 - 2.1                            #Empirical
     bw=96.0
     x1=int(xmid-0.5*bw)
     x2=int(xmid+0.5*bw)
-    xdf=bw/NX
+    xdf=bw/NX                                    #128 Hz
     for ix in range(x1,x2,1):
         i=0.5*NX + (ix-xmid)/xdf
         j=20
