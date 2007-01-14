@@ -2,9 +2,7 @@ subroutine map65a
 
 !  Processes timf2 data from Linrad to find and decode JT65 signals.
 
-  parameter (NSMAX=60*96000)          !Samples per 60 s file
   parameter (MAXMSG=1000)            !Size of decoded message list
-  integer*2 id(4,NSMAX)               !46 MB: raw data from Linrad timf2
   parameter (NFFT=32768)             !Half symbol = 17833 samples;
   real savg(4,NFFT)
   real tavg(-50:50)                  !Temp for finding local base level
@@ -15,31 +13,24 @@ subroutine map65a
   real a(5)
   character*22 msg(MAXMSG)
   character*3 shmsg0(4),shmsg
-  character arg*12,infile*11,outfile*11
   integer indx(MAXMSG),nsiz(MAXMSG)
   logical done(MAXMSG)
-  integer rfile3
-  character decoded*22,blank*22,cbad*1
+  character decoded*22,blank*22
+  parameter (NSMAX=60*96000)          !Samples per 60 s file
+  integer*2 id(4,NSMAX)               !46 MB: raw data from Linrad timf2
+  common/datcom/nutc,newdat2,id
   common/spcom/ip0,ss(4,322,NFFT)                !169 MB: half-symbol spectra
   data blank/'                      '/
   data shmsg0/'ATT','RO ','RRR','73 '/
-  data nfile/0/
+  data nfile/0/,nutc0/-999/
   save
 
   include 'gcom2.f90'
 
   rewind 11
   rewind 12
-1 nfile=nfile+1
-  nutc=0744+nfile
-  if(nutc.eq.0747) go to 1
-  if(nutc.eq.0749) go to 1
-  if(nutc.eq.0751) go to 1
-  if(nutc.eq.0753) go to 1
-  infile='061111.0745'
-  write(infile(8:11),1001) nutc
-1001 format(i4.4)
-!  read(infile(8:11),*) nutc
+  if(nutc.ne.nutc0) nfile=nfile+1
+  nutc0=nutc
 
   tskip=0.
 !  fselect=126.0 + 1.6 + 0.290
@@ -66,9 +57,6 @@ subroutine map65a
   kk=0
   nkk=1
 
-  n=8*NSMAX
-  call rfile3a(infile,id,n,ierr)
-  newdat=1
   nz=n/8
   if(fselect.gt.0.0) then
 
@@ -76,18 +64,23 @@ subroutine map65a
      nfilt=2                      !nfilt=2 is faster for selected freq
      freq=fselect
      dt=2.314240                  !Not needed?
-     call decode1a(id,newdat,nfilt,freq,nflip,ip0,sync2,        &
+     call decode1a(id,newdat2,nfilt,freq,nflip,ip0,sync2,        &
           a,dt,pol,nkv,nhist,qual,decoded)
      nsync1=0
      nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
      ndf=nint(a(1))
      nw=0
+
 !  Insert 'OOO' if flip<0.
-     write(11,1010) nutc,nsync1,nsync2,dt,ndf,nw,decoded,        &
-          nkv,nqual
-1010 format(i4.4,i3,i4,f5.1,i5,i3,2x,a22,2i3)
+!     write(11,1010) nutc,nsync2,dt,ndf,nw,decoded,nkv,nqual
+!1010 format(i4.4,i4,f5.1,i5,i3,2x,a22,2i3)
+     nkHz=nint(freq-1.600)
+     npol=45*(ipol-1)
+     write(11,1010) nkHz,ndf,npol,nutc,nsync2,dt,nw,decoded,nkv,nqual
+1010 format(i3,i5,i4,i5.4,i4,f5.1,i3,2x,a22,2i3)
      ndecdone=1
   endif
+  if(newdat2.eq.0) go to 999
 
   nfilt=1
   do i=1,NFFT
@@ -190,7 +183,7 @@ subroutine map65a
 
            if(freq-freq0.gt.ftol .or. sync1.gt.sync10) then
               nflip=nint(flipk)
-              call decode1a(id,newdat,nfilt,freq,nflip,ipol,         &
+              call decode1a(id,newdat2,nfilt,freq,nflip,ipol,         &
                    sync2,a,dt,pol,nkv,nhist,qual,decoded)
 !              i9=index(decoded,'AA1YN')
 !              if(i9.gt.0) print*,i,i9,fselect,freq,decoded
@@ -244,6 +237,7 @@ subroutine map65a
         endif
      enddo
      i=ilatest
+
      if(i.ge.1) then
         if(.not.done(i)) then
            done(i)=.true.
@@ -279,16 +273,6 @@ subroutine map65a
            ndf2=nint(a(3))
            nsync1=sync1
            nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
-           cbad=' '
-
-!                  if(abs(f0-144.103).lt.0.001) then
-!                     write(11,1010) nutc,nsync1,nsync2,dt,ndf,decoded,
-!     +                    nkv,nqual
-!                  endif
-
-!           write(19,1012) f0,ndf,npol,nutc,decoded
-!1012       format(f7.3,i5,i4,i5.4,2x,a22)
-           
            write(26,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
                 nsync2,nutc,decoded,nkv,nqual,nhist
 1014       format(f7.3,i5,3i3,f5.1,i5,i3,i4,i5.4,2x,a22,3i3)
@@ -297,7 +281,8 @@ subroutine map65a
      endif
      j=j+nsiz(n)
   enddo
-  call display(nutc)
-  
-  return
+  call display
+  ndecdone=2
+    
+999 return
 end subroutine map65a

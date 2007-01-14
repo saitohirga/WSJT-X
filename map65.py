@@ -41,7 +41,6 @@ root_geom=""
 
 
 #------------------------------------------------------ Global variables
-nfile=0
 appdir=os.getcwd()
 isync=1
 isync_save=0
@@ -78,7 +77,7 @@ nfreeze=IntVar()
 nopen=0
 nosh441=IntVar()
 noshjt65=IntVar()
-nsked=IntVar()
+#nsked=IntVar()
 setseq=IntVar()
 slabel="Sync   "
 textheight=7
@@ -93,6 +92,7 @@ balloon=Pmw.Balloon(root)
 
 g.freeze_decode=0
 g.mode=""
+g.ndecphase=0
 g.ndevin=IntVar()
 g.ndevout=IntVar()
 g.DevinName=StringVar()
@@ -256,8 +256,6 @@ def decode(event=NONE):
         Audio.gcom2.mousebutton=0
         if Audio.gcom2.ndecoding0==4: n=4
         Audio.gcom2.ndecoding=n         #Standard decode, full file (d2a)
-#    if Audio.gcom2.ndecoding:
-#        Audio.map65a0()                     # @@@ Temporary @@@
 
 #------------------------------------------------------ decode_include
 def decode_include(event=NONE):
@@ -283,7 +281,7 @@ def openfile(event=NONE):
         os.chdir(mrudir)
     except:
         pass
-    fname=askopenfilename(filetypes=[("Wave files","*.wav *.WAV")])
+    fname=askopenfilename(filetypes=[("Linrad timf2 files","*.tf2 *.TF2")])
     if fname:
         Audio.getfile(fname,len(fname))
         if Audio.gcom2.ierr: print 'Error ',Audio.gcom2.ierr, \
@@ -299,12 +297,12 @@ def opennext(event=NONE):
         openfile()
         ncall=1
     else:
-# Make a list of *.wav files in mrudir
+# Make a list of *.tf2 files in mrudir
         la=os.listdir(mrudir)
         la.sort()
         lb=[]
         for i in range(len(la)):
-            j=la[i].find(".wav") + la[i].find(".WAV")
+            j=la[i].find(".tf2") + la[i].find(".TF2")
             if j>0: lb.append(la[i])
         for i in range(len(lb)):
             if lb[i]==fileopened:
@@ -318,7 +316,7 @@ def opennext(event=NONE):
             mrudir=os.path.dirname(fname)
             fileopened=os.path.basename(fname)
         else:
-            t="No more *.wav files in this directory."
+            t="No more files to process."
             msg=Pmw.MessageDialog(root,buttons=('OK',),message_text=t)
             msg.geometry(msgpos())
             if g.Win32: msg.iconbitmap("wsjt.ico")
@@ -488,9 +486,6 @@ def cleartext():
 def ModeJT65():
     global slabel,isync,textheight,itol
     cleartext()
-    lab2.configure(text='FileID   Sync  dB       DT       DF    W')
-    lab4.configure(fg='gray85')
-    lab5.configure(fg='gray85')
     Audio.gcom1.trperiod=60
     iframe4b.pack(after=iframe4,expand=1, fill=X, padx=4)
     textheight=7
@@ -502,7 +497,7 @@ def ModeJT65():
     bexclude.configure(state=NORMAL)
     cbfreeze.configure(state=NORMAL)
     cbafc.configure(state=NORMAL)
-    sked.configure(state=NORMAL)
+#    sked.configure(state=NORMAL)
     graph2.configure(bg='#66FFFF')
     itol=4
     inctol()
@@ -1087,7 +1082,7 @@ def plot_yellow():
 def update():
     global root_geom,isec0,naz,nel,ndmiles,ndkm,nopen, \
            im,pim,cmap0,isync,isync_save,idsec,first,itol,txsnrdb,tx6alt,\
-           bm_geom,nfile
+           bm_geom
     
     utc=time.gmtime(time.time()+0.1*idsec)
     isec=utc[5]
@@ -1175,7 +1170,12 @@ def update():
         msg3.configure(text=t,fg='black',bg='gray85')    
     bdecode.configure(bg='gray85',activebackground='gray95')
     if Audio.gcom2.ndecoding:       #Set button bg=light_blue while decoding
-        bdecode.configure(bg='#66FFFF',activebackground='#66FFFF')
+        bc='#66FFFF'
+        if g.ndecphase==1: bc='orange'
+        if g.ndecphase==2: bc='yellow'
+        bdecode.configure(bg=bc,activebackground=bc)
+    else:
+        g.ndecphase=0
 
     tx1.configure(bg='white')
     tx2.configure(bg='white')
@@ -1201,7 +1201,7 @@ def update():
     if Audio.gcom1.transmitting:
         nmsg=int(Audio.gcom2.nmsg)
         t=g.ftnstr(Audio.gcom2.sending)
-        if t[:3]=="CQ ": nsked.set(0)
+#        if t[:3]=="CQ ": nsked.set(0)
         t="Txing:  "+t[:nmsg]
         bgcolor='yellow'
         if Audio.gcom2.sendingsh==1:  bgcolor='#66FFFF'    #Shorthand (lt blue)
@@ -1234,6 +1234,7 @@ def update():
             for i in range(len(lines)):
                 text.insert(END,lines[i])
             text.see(END)
+            g.ndecphase=1
 #            text.configure(state=DISABLED)
 
             try:
@@ -1267,9 +1268,6 @@ def update():
                 bmtext.insert(END,lines[i])
             bmtext.see(END)
             Audio.gcom2.ndecdone=0
-            nfile=nfile+1
-            if(nfile<11):
-                decode()
 
         if g.cmap != cmap0:
             im.putpalette(g.palette)
@@ -1311,7 +1309,7 @@ def update():
     Audio.gcom2.dftolerance=ntol[itol]
     Audio.gcom2.neme=neme.get()
     Audio.gcom2.ndepth=ndepth.get()
-    Audio.gcom2.nsked=nsked.get()
+#    Audio.gcom2.nsked=nsked.get()
     try:
         Audio.gcom2.idinterval=options.IDinterval.get()
     except:
@@ -1486,14 +1484,11 @@ lab1=Label(iframe2a, text='Time (s)')
 lab1.place(x=250, y=6, anchor=CENTER)
 lab3=Label(iframe2a, text=' ')
 lab3.place(x=400,y=6, anchor=CENTER)
-lab4=Label(iframe2a, text='1             2            3')
-lab4.place(x=593,y=6, anchor=CENTER)
 iframe2a.pack(expand=1, fill=X, padx=1)
 iframe2 = Frame(frame, bd=1, relief=FLAT,height=15)
-lab2=Label(iframe2, text='FileID     Sync     dB        DT        DF      W')
+#lab2=Label(iframe2, text=' UTC      dB       DT        DF    W')
+lab2=Label(iframe2, text='Freq      DF     Pol    UTC     dB        DT     W')
 lab2.place(x=3,y=6, anchor='w')
-lab5=Label(iframe2, text='Freq (kHz)')
-lab5.place(x=580,y=6, anchor=CENTER)
 lab6=Label(iframe2a,text='0.0',bg='green')
 lab6.place(x=40,y=6, anchor=CENTER)
 lab7=Label(iframe2a,text='F3',fg='gray85')
@@ -1681,7 +1676,7 @@ f5b.pack(side=LEFT,expand=1,fill=BOTH)
 f5c=Frame(iframe5,bd=2,relief=GROOVE)
 txfirst=Checkbutton(f5c,text='Tx First',justify=RIGHT,variable=TxFirst)
 f5c2=Frame(f5c,bd=0)
-sked=Checkbutton(f5c,text='Sked',justify=RIGHT,variable=nsked)
+#sked=Checkbutton(f5c,text='Sked',justify=RIGHT,variable=nsked)
 genmsg=Button(f5c,text='GenStdMsgs',underline=0,command=GenStdMsgs,
             padx=1,pady=1)
 auto=Button(f5c,text='Auto is Off',underline=0,command=toggleauto,
@@ -1690,7 +1685,7 @@ auto.focus_set()
 
 txfirst.grid(column=0,row=0,sticky='W',padx=4)
 f5c2.grid(column=0,row=1,sticky='W',padx=4)
-sked.grid(column=0,row=3,sticky='W',padx=4)
+#sked.grid(column=0,row=3,sticky='W',padx=4)
 genmsg.grid(column=0,row=4,sticky='W',padx=4)
 auto.grid(column=0,row=5,sticky='EW',padx=4)
 
@@ -1762,7 +1757,6 @@ isync=1
 ntx.set(1)
 ndepth.set(1)
 import options
-options.defaults()
 ModeJT65B()
 lookup()
 balloon.unbind(ToRadio)
@@ -1825,16 +1819,6 @@ try:
                 Audio.gcom2.nport=0
             Audio.gcom2.pttport=(options.PttPort.get()+'            ')[:12]
         elif key == 'Mileskm': options.mileskm.set(value)
-        elif key == 'MsgStyle': options.ireport.set(value)
-        elif key == 'Region': options.iregion.set(value)
-        elif key == 'AudioIn':
-            try:
-                g.ndevin.set(value)
-            except:
-                g.ndevin.set(0)
-            g.DevinName.set(value)
-            options.DevinName.set(value)
-            Audio.gcom1.devin_name=(options.DevinName.get()+'            ')[:12]
         elif key == 'AudioOut':
             try:
                 g.ndevout.set(value)
@@ -1843,7 +1827,6 @@ try:
             g.DevoutName.set(value)
             options.DevoutName.set(value)
             Audio.gcom1.devout_name=(options.DevoutName.get()+'            ')[:12]
-        elif key == 'SamFacIn': options.samfacin.set(value)
         elif key == 'SamFacOut': options.samfacout.set(value)
         elif key == 'Template1': options.Template1.set(value.replace("_"," "))
         elif key == 'Template2': options.Template2.set(value.replace("_"," "))
@@ -1867,7 +1850,7 @@ try:
         elif key == 'Zap': nzap.set(value)
         elif key == 'NB': nblank.set(value)
         elif key == 'NAFC': nafc.set(value)
-        elif key == 'Sked': nsked.set(value)
+#        elif key == 'Sked': nsked.set(value)
         elif key == 'NoSh441': nosh441.set(value)
         elif key == 'NoShJT65': noshjt65.set(value)
         elif key == 'NEME': neme.set(value)
@@ -1924,11 +1907,7 @@ f.write("HisGrid " + t + "\n")
 f.write("IDinterval " + str(options.IDinterval.get()) + "\n")
 f.write("PttPort " + str(options.PttPort.get()) + "\n")
 f.write("Mileskm " + str(options.mileskm.get()) + "\n")
-f.write("MsgStyle " + str(options.ireport.get()) + "\n")
-f.write("Region " + str(options.iregion.get()) + "\n")
-f.write("AudioIn " + options.DevinName.get() + "\n")
 f.write("AudioOut " + options.DevoutName.get() + "\n")
-f.write("SamFacIn " + str(options.samfacin.get()) + "\n")
 f.write("SamFacOut " + str(options.samfacout.get()) + "\n")
 if options.Template6.get()=="": options.Template6.set("_")
 f.write("Template1 " + options.Template1.get().replace(" ","_") + "\n")
@@ -1954,7 +1933,7 @@ f.write("Clip " + str(iclip) + "\n")
 f.write("Zap " + str(nzap.get()) + "\n")
 f.write("NB " + str(nblank.get()) + "\n")
 f.write("NAFC " + str(nafc.get()) + "\n")
-f.write("Sked " + str(nsked.get()) + "\n")
+#f.write("Sked " + str(nsked.get()) + "\n")
 f.write("NoSh441 " + str(nosh441.get()) + "\n")
 f.write("NoShJT65 " + str(noshjt65.get()) + "\n")
 f.write("NEME " + str(neme.get()) + "\n")
