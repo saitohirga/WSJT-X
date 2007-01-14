@@ -22,21 +22,27 @@ subroutine map65a
   common/spcom/ip0,ss(4,322,NFFT)                !169 MB: half-symbol spectra
   data blank/'                      '/
   data shmsg0/'ATT','RO ','RRR','73 '/
-  data nfile/0/,nutc0/-999/
+  data nfile/0/,nutc0/-999/,nid/0/
   save
 
   include 'gcom2.f90'
 
+  if(newdat2.gt.0) nid=1
+  if(nid.eq.0) go to 999
   rewind 11
   rewind 12
   if(nutc.ne.nutc0) nfile=nfile+1
   nutc0=nutc
+  nutcdata=nutc
+  write(utcdata,1001) nutc
+1001 format(i4.4)
+  utcdata=utcdata(1:2)//':'//utcdata(3:4)
 
   tskip=0.
 !  fselect=126.0 + 1.6 + 0.290
 !  nflip=-1
 !  ip0=1
-  fselect=128.0 + 1.6 + 0.220
+  fselect=128.0 + 1.6 + 0.220               !AA1YN
   nflip=1
   ip0=3
 !  fselect=155.0 + 1.6 + 0.454

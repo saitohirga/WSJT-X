@@ -1268,14 +1268,14 @@ def update():
                 bmtext.insert(END,lines[i])
             bmtext.see(END)
             Audio.gcom2.ndecdone=0
+            if loopall: opennext()
+            nopen=0
 
         if g.cmap != cmap0:
             im.putpalette(g.palette)
             cmap0=g.cmap
 
-        plot_large()
-        if loopall: opennext()
-        nopen=0
+#        plot_large()
 
 # Save some parameters
     g.mode=mode.get()
