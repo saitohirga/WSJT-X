@@ -268,12 +268,17 @@ def update():
             if newMinute:
                 draw.line((0,0,749,0),fill=128)     #Draw the minute separator
                 draw2.line((0,0,749,0),fill=128)    #Draw the minute separator
-            if nscroll == 13:
-                draw.text((5,2),t0[0:5],fill=253)   #Insert time label
-                draw2.text((5,2),t0[0:5],fill=253)  #Insert time label
+#            if nscroll == 13:
+#                draw.text((5,2),t0[0:5],fill=253)   #Insert time label
+#                draw2.text((5,2),t0[0:5],fill=253)  #Insert time label
         else:
             draw.line((0,0,749,0),fill=128)     #Draw the minute separator
             draw2.line((0,0,749,0),fill=128)    #Draw the minute separator
+
+        t=g.ftnstr(Audio.gcom2.utcdata)
+        draw.text((4,1),t[0:5],fill=253)   #Insert time label
+        draw2.text((4,1),t[0:5],fill=253)  #Insert time label
+
 
         pim=ImageTk.PhotoImage(im)              #Convert Image to PhotoImage
         graph1.delete(ALL)
@@ -326,10 +331,10 @@ def update():
 #-------------------------------------------------------- draw_axis
 def draw_axis():
     c.delete(ALL)
-    xmid=125.0 - 2.1                            #Empirical
+    xmid=125.0 - 2.3                            #Empirical
     bw=96.0
-    x1=int(xmid-0.5*bw)
-    x2=int(xmid+0.5*bw)
+    x1=int(xmid-0.6*bw)
+    x2=int(xmid+0.6*bw)
     xdf=bw/NX                                    #128 Hz
     for ix in range(x1,x2,1):
         i=0.5*NX + (ix-xmid)/xdf

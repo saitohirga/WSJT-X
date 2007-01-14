@@ -46,7 +46,6 @@ integer neme           !EME calls only in deep search?          GUI
 integer nsked          !Sked mode for deep search?              GUI
 integer naggressive    !Is "Aggressive decoding" checked?       GUI
 integer ntx2           !Is "No shorthands if Tx1" checked?      GUI
-integer nslim2         !2nd Decoder threshold for FSK441. JT6M  GUI
 integer nagain         !Decode same file again?                 GUI
 integer nsavelast      !Save last file?                         GUI
 integer shok           !Shorthand messages OK?                  GUI
@@ -86,17 +85,19 @@ character*80 AppDir      !WSJT installation directory           GUI
 character*80 filetokilla !Filenames (full path)                 Decoder
 character*80 filetokillb
 character*12 pttport
+character*8 utcdata     !HHMM UTC for the processed data       Decoder
 
 common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),             &
      green(500),fselect,ngreen,dgain,iter,ndecoding,ndecoding0,mousebutton,   &
      ndecdone,npingtime,ierr,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5, &
      dftolerance,LDecoded,rxdone,monitoring,nzap,nsavecum,minsigdb,   &
      nclearave,nfreeze,nafc,newspec,nmode,mode65,nclip,ndebug,nblank,nport,   &
-     mousedf,neme,nsked,naggressive,ntx2,nslim2,nagain,nsavelast,     &
+     mousedf,neme,nsked,naggressive,ntx2,nagain,nsavelast,     &
      shok,sendingsh,d2a(661500),d2b(661500),b(60000),jza,jzb,ntime,   &
      idinterval,msmax,lenappdir,idf,ndiskdat,nlines,nflat,ntxreq,ntxnow,  &
      ndepth,nspecial,ndf,nfmid,nfrange,ss1(-224:224),ss2(-224:224),   &
      mycall,hiscall,hisgrid,txmsg,sending,mode,fname0,fnamea,         &
-     fnameb,decodedfile,AppDir,filetokilla,filetokillb,utcdate,pttport
+     fnameb,decodedfile,AppDir,filetokilla,filetokillb,utcdate,pttport,  &
+     utcdata
 
 !### volatile /gcom2/

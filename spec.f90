@@ -21,7 +21,7 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
   include 'gcom3.f90'
   include 'gcom4.f90'
   data first/.true./
-  data nstep/40,20,10,5,3/       !Integration limits
+  data nstep/28,20,14,10,7/       !Integration limits
   save
 
   if(first) then
@@ -39,11 +39,11 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
   ia=imid-374
   ib=ia+749
 
-  do n=1,nadd
-     do j=1,nlines
+  do j=1,nlines
+     do n=1,nadd
         k=k+1
         do i=1,NFFT
-           s(i,j)=s(i,j) + ss(3,k,i)
+           s(i,j)=s(i,j) + ss(2,k,i)          !### ip value is temporary ###
         enddo
      enddo
   enddo
@@ -60,7 +60,7 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
   k=0
   fac=20.0/nadd
   nbpp=NFFT/NX                        !Bins per pixel in wide waterfall
-  do j=1,nlines
+  do j=nlines,1,-1                    !Reverse order so last will be on top
      do i=1,NX
         k=k+1
 
