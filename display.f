@@ -1,4 +1,4 @@
-      subroutine display(nutc)
+      subroutine display
 
       parameter (MAXLINES=500)
       integer indx(MAXLINES)
@@ -19,6 +19,7 @@
       enddo
 
  10   nz=i-1
+      if(nz.lt.1) go to 999
       call indexx(nz,freqkHz,indx)
 
       nstart=1
@@ -32,10 +33,8 @@
             if(nstart.eq.0) write(24,3101)
             endfile 24
             if(nstart.eq.1) then
-!@@@               call sysqqq('sort -k 1.40 fort.24 | uniq > fort.13')
                nstart=0
             else
-!@@@               call sysqqq('sort -k 1.40 fort.24 | uniq >> fort.13')
             endif
             rewind 24
          endif
@@ -44,7 +43,6 @@
          j0=j
       enddo
       endfile 24
-!@@@      call sysqqq('sort -k 1.40 fort.24 | uniq >> fort.13')
 
-      return
+ 999  return
       end

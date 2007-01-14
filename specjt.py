@@ -138,32 +138,18 @@ def df_mark():
         if g.mode[4:5]=='C': fstep=4*fstep
 
 # Mark sync tone and top JT65 tone (green) and shorthand tones (red)
-        if(frange==2000):
-            dx=288.7 + (1500-fmid)/df
-            color='green'
-            x1=(Audio.gcom2.mousedf + 6.6*fstep)/df + dx
-            c.create_line(x1-0.5,25,x1-0.5,12,fill=color)
-            c.create_line(x1+0.5,25,x1+0.5,12,fill=color)
-            for i in range(5):
-                x1=(Audio.gcom2.mousedf + i*fstep)/df + dx
-                j=12
-                if i>0: j=15
-                if i!=1: c.create_line(x1-0.5,25,x1-0.5,j,fill=color)
-                if i!=1: c.create_line(x1+0.5,25,x1+0.5,j,fill=color)
-                color='red'
-        if(frange==4000):
-            dx=375 + (1270.5-fmid)/(2*df)
-            color='green'
-            x1=(Audio.gcom2.mousedf + 6.6*fstep)/(2*df) + dx
-            c.create_line(x1-0.5,25,x1-0.5,12,fill=color)
-            c.create_line(x1+0.5,25,x1+0.5,12,fill=color)
-            for i in range(5):
-                x1=(Audio.gcom2.mousedf + i*fstep)/(2*df) + dx
-                j=12
-                if i>0: j=15
-                if i!=1: c.create_line(x1-0.5,25,x1-0.5,j,fill=color)
-                if i!=1: c.create_line(x1+0.5,25,x1+0.5,j,fill=color)
-                color='red'
+        dx=288.7 + (1500-fmid)/df
+        color='green'
+        x1=(Audio.gcom2.mousedf + 6.6*fstep)/df + dx
+        c.create_line(x1-0.5,25,x1-0.5,12,fill=color)
+        c.create_line(x1+0.5,25,x1+0.5,12,fill=color)
+        for i in range(5):
+            x1=(Audio.gcom2.mousedf + i*fstep)/df + dx
+            j=12
+            if i>0: j=15
+            if i!=1: c.create_line(x1-0.5,25,x1-0.5,j,fill=color)
+            if i!=1: c.create_line(x1+0.5,25,x1+0.5,j,fill=color)
+            color='red'
 
 #---------------------------------------------------- change_fmid
 def change_fmid1():
@@ -296,7 +282,7 @@ def update():
         #For some reason, top two lines are invisible, so we move down 2
         graph1.create_image(0,0+2,anchor='nw',image=pim)
         graph2.create_image(0,0+2,anchor='nw',image=pim2)
-
+        g.ndecphase=2
         newMinute=0
         Audio.gcom2.newspec=0
 
@@ -357,20 +343,6 @@ def draw_axis():
             c.create_text(x,y,text=str(ix))
         c.create_line(i,25,i,j,fill='black')
             
-    dx=288.7 + (1500-fmid)/df
-    dff=df
-    if frange==4000:
-        dx=375 + (1270.5-fmid)/(2*df)
-        dff=2*df
-    if Audio.gcom2.nfreeze==0:
-        x1=(Audio.gcom2.mousedf-600)/dff + dx
-        x2=(Audio.gcom2.mousedf+600)/dff + dx
-    else:
-        tol=Audio.gcom2.dftolerance    
-        x1=(Audio.gcom2.mousedf-tol)/dff + dx
-        x2=(Audio.gcom2.mousedf+tol)/dff + dx
-    c.create_line(x1,25,x2,25,fill='green',width=2)
-
     c2.delete(ALL)
     xmid2=0
     bw2=750.0*96000.0/32768.0                     #approx 2197.27 Hz
@@ -390,6 +362,12 @@ def draw_axis():
             y=8
             c2.create_text(x,y,text=str(ix))
         c2.create_line(i,25,i,j,fill='black')
+
+    tol=Audio.gcom2.dftolerance
+    x1=(Audio.gcom2.mousedf-tol)/xdf2 + 0.5*NX
+    x2=(Audio.gcom2.mousedf+tol)/xdf2 + 0.5*NX
+    c2.create_line(x1,25,x2,25,fill='green',width=2)
+
 
 #-------------------------------------------------------- Create GUI widgets
 
