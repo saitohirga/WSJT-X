@@ -357,6 +357,7 @@ def txstop(event=NONE):
     if lauto: toggleauto()
     Audio.gcom1.txok=0
     Audio.gcom2.mantx=0
+    specjt.pal_gray0()
     
 #------------------------------------------------------ lookup
 def lookup(event=NONE):
@@ -1274,7 +1275,7 @@ def update():
         if g.cmap != cmap0:
             im.putpalette(g.palette)
             cmap0=g.cmap
-
+            
 #        plot_large()
 
 # Save some parameters

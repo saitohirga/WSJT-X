@@ -76,7 +76,6 @@ im2=Image.new('P',(NX,NY))
 line02=Image.new('P',(NX,1)) #Image fragment for top line of zoomed waterfall
 draw2=ImageDraw.Draw(im2)
 pim2=ImageTk.PhotoImage(im2)
-
 balloon=Pmw.Balloon(root)
 
 def pal_gray0():
@@ -246,6 +245,7 @@ def update():
             box=(0,0,NX,130-n)                  #Define region
             region=im.crop(box)                 #Get all but last line(s)
             region2=im2.crop(box)               #Get all but last line(s)
+            box=(125,0,624,120)
             try:
                 im.paste(region,(0,n))          #Move waterfall down
                 im2.paste(region2,(0,n))        #Move waterfall down
@@ -286,7 +286,7 @@ def update():
         graph2.delete(ALL)
         #For some reason, top two lines are invisible, so we move down 2
         graph1.create_image(0,0+2,anchor='nw',image=pim)
-        graph2.create_image(0,0+2,anchor='nw',image=pim2)
+        graph2.create_image(0,0+2,anchor='nw',image=pim2)        
         g.ndecphase=2
         newMinute=0
         Audio.gcom2.newspec=0
