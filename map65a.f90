@@ -19,7 +19,7 @@ subroutine map65a
   parameter (NSMAX=60*96000)          !Samples per 60 s file
   integer*2 id(4,NSMAX)               !46 MB: raw data from Linrad timf2
   common/datcom/nutc,newdat2,id
-  common/spcom/ip0,ss(5,322,NFFT)                !169 MB: half-symbol spectra
+  common/spcom/ip0,ss(4,322,NFFT),ss5(322,NFFT)
   data blank/'                      '/
   data shmsg0/'ATT','RO ','RRR','73 '/
   data nfile/0/,nutc0/-999/,nid/0/
@@ -95,7 +95,7 @@ subroutine map65a
      short(3,i)=0.
   enddo
 
-  call symspec(id,nz,ss,savg)
+  call symspec(id,nz,savg)
   newspec=1
      
   freq0=-999.

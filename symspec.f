@@ -1,14 +1,14 @@
-      subroutine symspec(id,nz,ss,savg)
+      subroutine symspec(id,nz,savg)
 
 C  Compute spectra at four polarizations, using half-symbol steps.
 
       parameter (NFFT=32768)
       integer*2 id(4,nz)
-      real ss(5,322,NFFT)
       real savg(4,NFFT)
       complex cx(NFFT),cy(NFFT)          !  pad to 32k with zeros
       complex z
       real*8 ts,hsym
+      common/spcom/ip0,ss(4,322,NFFT),ss5(322,NFFT)
 
       fac=1.e-4
       hsym=2048.d0*96000.d0/11025.d0     !Samples per half symbol
@@ -42,28 +42,29 @@ C  Compute spectra at four polarizations, using half-symbol steps.
          call four2a(cx,NFFT,1,1,1) !Do the FFTs
          call four2a(cy,NFFT,1,1,1)
             
-         do i=1,NFFT             !Save and accumulate power spectra
-            s1=real(cx(i))**2 + aimag(cx(i))**2
-            ss(1,n,i)=s1         ! Pol = 0
-            savg(1,i)=savg(1,i) + s1
+         do i=1,NFFT            !Save and accumulate power spectra
+            sx=real(cx(i))**2 + aimag(cx(i))**2
+            ss(1,n,i)=sx         ! Pol = 0
+            savg(1,i)=savg(1,i) + sx
 
             z=cx(i) + cy(i)
-            s2=0.5*(real(z)**2 + aimag(z)**2)
-            ss(2,n,i)=s2         ! Pol = 45
-            savg(2,i)=savg(2,i) + s2
+            s=0.5*(real(z)**2 + aimag(z)**2)
+            ss(2,n,i)=s         ! Pol = 45
+            savg(2,i)=savg(2,i) + s
 
-            s3=real(cy(i))**2 + aimag(cy(i))**2
-            ss(3,n,i)=s3         ! Pol = 90
-            savg(3,i)=savg(3,i) + s3
+            sy=real(cy(i))**2 + aimag(cy(i))**2
+            ss(3,n,i)=sy         ! Pol = 90
+            savg(3,i)=savg(3,i) + sy
 
             z=cx(i) - cy(i)
-            s4=0.5*(real(z)**2 + aimag(z)**2)
-            ss(4,n,i)=s4         ! Pol = 135
-            savg(4,i)=savg(4,i) + s4
+            s=0.5*(real(z)**2 + aimag(z)**2)
+            ss(4,n,i)=s         ! Pol = 135
+            savg(4,i)=savg(4,i) + s
 
-            z=cx(i) * conjg(cy(i))
-            ss(5,n,i)=0.5*(s1+s3) + (real(z)**2 + aimag(z)**2 - 
-     +         s1*s3)/(s1+s3)
+            z=cx(i)*conjg(cy(i))
+            ss5(n,i)=0.5*(sx+sy) + (real(z)**2 + aimag(z)**2 -
+     +          sx*sy)/(sx+sy)
+
          enddo
       enddo
 
