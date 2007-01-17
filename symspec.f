@@ -4,7 +4,7 @@ C  Compute spectra at four polarizations, using half-symbol steps.
 
       parameter (NFFT=32768)
       integer*2 id(4,nz)
-      real ss(4,322,NFFT)
+      real ss(5,322,NFFT)
       real savg(4,NFFT)
       complex cx(NFFT),cy(NFFT)          !  pad to 32k with zeros
       complex z
@@ -42,24 +42,28 @@ C  Compute spectra at four polarizations, using half-symbol steps.
          call four2a(cx,NFFT,1,1,1) !Do the FFTs
          call four2a(cy,NFFT,1,1,1)
             
-         do i=1,NFFT            !Save and accumulate power spectra
-            s=real(cx(i))**2 + aimag(cx(i))**2
-            ss(1,n,i)=s         ! Pol = 0
-            savg(1,i)=savg(1,i) + s
+         do i=1,NFFT             !Save and accumulate power spectra
+            s1=real(cx(i))**2 + aimag(cx(i))**2
+            ss(1,n,i)=s1         ! Pol = 0
+            savg(1,i)=savg(1,i) + s1
 
             z=cx(i) + cy(i)
-            s=0.5*(real(z)**2 + aimag(z)**2)
-            ss(2,n,i)=s         ! Pol = 45
-            savg(2,i)=savg(2,i) + s
+            s2=0.5*(real(z)**2 + aimag(z)**2)
+            ss(2,n,i)=s2         ! Pol = 45
+            savg(2,i)=savg(2,i) + s2
 
-            s=real(cy(i))**2 + aimag(cy(i))**2
-            ss(3,n,i)=s         ! Pol = 90
-            savg(3,i)=savg(3,i) + s
+            s3=real(cy(i))**2 + aimag(cy(i))**2
+            ss(3,n,i)=s3         ! Pol = 90
+            savg(3,i)=savg(3,i) + s3
 
             z=cx(i) - cy(i)
-            s=0.5*(real(z)**2 + aimag(z)**2)
-            ss(4,n,i)=s         ! Pol = 135
-            savg(4,i)=savg(4,i) + s
+            s4=0.5*(real(z)**2 + aimag(z)**2)
+            ss(4,n,i)=s4         ! Pol = 135
+            savg(4,i)=savg(4,i) + s4
+
+            z=cx(i) * conjg(cy(i))
+            ss(5,n,i)=0.5*(s1+s3) + (real(z)**2 + aimag(z)**2 - 
+     +         s1*s3)/(s1+s3)
          enddo
       enddo
 
