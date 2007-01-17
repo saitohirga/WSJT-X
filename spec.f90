@@ -15,7 +15,8 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
   integer nstep(5)
   integer b0,c0
   real s(NFFT,NY)
-  common/spcom/ip0,ss(5,322,NFFT)                !169 MB: half-symbol spectra
+!  Could save memory by doing the averaging-by-7 (or 10?) of ss5 in symspec.
+  common/spcom/ip0,ss(4,322,NFFT),ss5(322,NFFT)
   include 'gcom1.f90'
   include 'gcom2.f90'
   include 'gcom3.f90'
@@ -43,7 +44,7 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
      do n=1,nadd
         k=k+1
         do i=1,NFFT
-           s(i,j)=s(i,j) + ss(5,k,i)          !### ip value is temporary ###
+           s(i,j)=s(i,j) + ss5(k,i)
         enddo
      enddo
   enddo

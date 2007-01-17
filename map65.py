@@ -922,25 +922,6 @@ def GenAltMsgs(event=NONE):
         tx6.insert(0,tx6alt.upper())
         altmsg=1
 
-#------------------------------------------------------ setmsg
-def setmsg(template,r):
-    msg=""
-    npct=0
-    for i in range(len(template)):
-        if npct:
-            if template[i]=="M": msg=msg+options.MyCall.get().upper().strip()
-            if template[i]=="T": msg=msg+ToRadio.get().upper().strip()
-            if template[i]=="R": msg=msg+r
-            if template[i]=="G": msg=msg+options.MyGrid.get()[:4]
-            if template[i]=="L": msg=msg+options.MyGrid.get()
-            npct=0
-        else:
-            npct=0
-            if template[i]=="%":
-                npct=1
-            else:
-                msg=msg+template[i]            
-    return msg.upper()
     
 #------------------------------------------------------ plot_large
 def plot_large():
@@ -1852,14 +1833,6 @@ try:
             options.DevoutName.set(value)
             Audio.gcom1.devout_name=(options.DevoutName.get()+'            ')[:12]
         elif key == 'SamFacOut': options.samfacout.set(value)
-        elif key == 'Template1': options.Template1.set(value.replace("_"," "))
-        elif key == 'Template2': options.Template2.set(value.replace("_"," "))
-        elif key == 'Template3': options.Template3.set(value.replace("_"," "))
-        elif key == 'Template4': options.Template4.set(value.replace("_"," "))
-        elif key == 'Template5': options.Template5.set(value.replace("_"," "))
-        elif key == 'Template6':
-            options.Template6.set(value.replace("_"," "))
-            if options.Template6.get()==" ": options.Template6.set("")
         elif key == 'AddPrefix': options.addpfx.set(value.replace("_"," ").lstrip())
         elif key == 'AuxRA': options.auxra.set(value)
         elif key == 'AuxDEC': options.auxdec.set(value)
@@ -1936,13 +1909,6 @@ f.write("PttPort " + str(options.PttPort.get()) + "\n")
 f.write("Mileskm " + str(options.mileskm.get()) + "\n")
 f.write("AudioOut " + options.DevoutName.get() + "\n")
 f.write("SamFacOut " + str(options.samfacout.get()) + "\n")
-if options.Template6.get()=="": options.Template6.set("_")
-f.write("Template1 " + options.Template1.get().replace(" ","_") + "\n")
-f.write("Template2 " + options.Template2.get().replace(" ","_") + "\n")
-f.write("Template3 " + options.Template3.get().replace(" ","_") + "\n")
-f.write("Template4 " + options.Template4.get().replace(" ","_") + "\n")
-f.write("Template5 " + options.Template5.get().replace(" ","_") + "\n")
-f.write("Template6 " + options.Template6.get().replace(" ","_") + "\n")
 if options.addpfx.get().lstrip()=="": options.addpfx.set("_")
 f.write("AddPrefix " + options.addpfx.get().lstrip() + "\n")
 if options.auxra.get()=="": options.auxra.set("0")
