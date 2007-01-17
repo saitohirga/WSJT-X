@@ -6,6 +6,8 @@ subroutine display
   integer indx(MAXLINES),indx2(MX)
   character*80 line(MAXLINES),line2(MX),line3(MAXLINES)
   character out*41,cfreq0*3
+  character callsign*6,callsign0*6,freqcall*10(100)
+  character*36 bm2
   real freqkHz(MAXLINES)
   integer utc(MAXLINES),utc2(MX),utcz
   real*8 f0
@@ -97,7 +99,10 @@ subroutine display
   enddo
 
   rewind 19
+  rewind 20
   cfreq0='   '
+  nc=0
+  callsign0='          '
   do k=1,k3
      out=line3(k)(5:12)//line3(k)(28:31)//line3(k)(39:67)
      if(out(1:3).ne.'   ') then
@@ -108,8 +113,28 @@ subroutine display
         endif
         write(19,1030) out
 1030    format(a41)
+        i1=index(out(20:),' ')
+        callsign=out(i1+20:)
+        i2=index(callsign,' ')
+        if(i2.gt.1) callsign(i2:)='      '
+        if(callsign.ne.'      ' .and. callsign.ne.callsign0) then
+           nc=nc+1
+           freqcall(nc)=cfreq0//' '//callsign
+           callsign0=callsign
+        endif
      endif
   enddo
+  nc=nc+1
+  freqcall(nc)='          '
+  nc=nc+1
+  freqcall(nc)='          '
+  iz=(nc+2)/3
+  do i=1,iz
+     bm2=freqcall(i)//'  '//freqcall(i+iz)//'  '//freqcall(i+2*iz)
+     write(20,1040) bm2
+1040 format(a36)
+  enddo
+  write(*,1040)
 
   return
 end subroutine display
