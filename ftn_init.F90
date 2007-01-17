@@ -10,7 +10,7 @@
 !   17  wave files written to disk
 !   18  test file to be transmitted (wsjtgen.f90)
 !   19  bandmap.txt
-!   20
+!   20  bandmap2.txt
 !   21  ALL.TXT
 !   22  kvasd.dat
 !   23  CALL3.TXT
@@ -71,12 +71,21 @@ subroutine ftn_init
 
 #ifdef Win32
   open(19,file=appdir(:iz)//'/bandmap.txt',status='unknown',               &
-       share='denynone',err=910)
+       share='denynone',err=911)
 #else
   open(19,file=appdir(:iz)//'/bandmap.txt',status='unknown',               &
-       err=910)
+       err=911)
 #endif
   endfile 19
+
+#ifdef Win32
+  open(20,file=appdir(:iz)//'/bandmap2.txt',status='unknown',               &
+       share='denynone',err=912)
+#else
+  open(20,file=appdir(:iz)//'/bandmap2.txt',status='unknown',               &
+       err=912)
+#endif
+  endfile 20
 
 #ifdef Win32
   open(21,file=appdir(:iz)//'/ALL.TXT',status='unknown',                   &
@@ -105,6 +114,10 @@ subroutine ftn_init
   return
 
 910 print*,'Error opening DECODED.TXT'
+  stop
+911 print*,'Error opening bandmap.txt'
+  stop
+912 print*,'Error opening bandmap2.txt'
   stop
 920 print*,'Error opening DECODED.AVE'
   stop

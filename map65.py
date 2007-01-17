@@ -51,6 +51,7 @@ idsec=0
 lauto=0
 altmsg=0
 bm_geom=""
+bm2_geom=""
 cmap0="Linrad"
 fileopened=""
 font1='Helvetica'
@@ -177,9 +178,18 @@ def bandmap(event=NONE):
     bmsb = Scrollbar(iframe_bm1, orient=VERTICAL, command=bmtext.yview)
     bmsb.pack(side=RIGHT, fill=Y)
     bmtext.configure(yscrollcommand=bmsb.set)
-#    bmtext.insert(END,'144.103  CQ EA3DXU JN11\n')
-#    bmtext.insert(END,'144.118  OH6KTL RA3AQ KO85 OOO')
     iframe_bm1.pack(expand=1, fill=X, padx=4)
+
+#------------------------------------------------------ bandmap2
+def bandmap2(event=NONE):
+    global Version,bm2,bm2_geom,bm2text
+    bm2=Toplevel(root)
+    bm2.geometry(bm2_geom)
+    if g.Win32: bm2.iconbitmap("wsjt.ico")
+    iframe_bm2 = Frame(bm2, bd=1, relief=SUNKEN)
+    bm2text=Text(iframe_bm2, height=24, width=36, bg="Navy", fg="yellow")
+    bm2text.pack(side=LEFT, fill=X, padx=1, pady=3)
+    iframe_bm2.pack(expand=1, fill=X, padx=4)
 
 #------------------------------------------------------ logqso
 def logqso(event=NONE):
@@ -1083,7 +1093,7 @@ def plot_yellow():
 def update():
     global root_geom,isec0,naz,nel,ndmiles,ndkm,nopen, \
            im,pim,cmap0,isync,isync_save,idsec,first,itol,txsnrdb,tx6alt,\
-           bm_geom
+           bm_geom,bm2_geom
     
     utc=time.gmtime(time.time()+0.1*idsec)
     isec=utc[5]
@@ -1096,6 +1106,7 @@ def update():
         root_geom=root.geometry()
         try:
             bm_geom=bm.geometry()
+            bm2_geom=bm2.geometry()
         except:
             pass
         utchours=utc[3]+utc[4]/60.0 + utc[5]/3600.0
@@ -1268,6 +1279,19 @@ def update():
             for i in range(len(lines)):
                 bmtext.insert(END,lines[i])
             bmtext.see(END)
+
+            try:
+                f=open(appdir+'/bandmap2.txt',mode='r')
+                lines=f.readlines()
+                f.close()
+            except:
+                lines=""
+            bm2text.configure(state=NORMAL)
+            bm2text.delete('1.0',END)
+            for i in range(len(lines)):
+                bm2text.insert(END,lines[i])
+            bm2text.see(END)
+
             Audio.gcom2.ndecdone=0
             if loopall: opennext()
             nopen=0
@@ -1383,8 +1407,8 @@ viewmenu=Menu(viewbutton,tearoff=0)
 viewbutton['menu']=viewmenu
 viewmenu.add('command', label = 'SpecJT', command = showspecjt, \
              accelerator='F10')
-viewmenu.add('command', label = 'Band Map', command = bandmap, \
-             accelerator='Ctrl+F10')
+viewmenu.add('command', label = 'Band Map 1', command = bandmap)
+viewmenu.add('command', label = 'Band Map 2', command = bandmap2)
 viewmenu.add('command', label = 'Astronomical data', command = astro1, \
              accelerator='Shift+F10')
 
@@ -1519,8 +1543,6 @@ root.bind_all('<Shift-F8>', ModeJT65B)
 root.bind_all('<Control-F8>', ModeJT65C)
 root.bind_all('<F10>', showspecjt)
 root.bind_all('<Shift-F10>', astro1)
-root.bind_all('<Control-F10>', bandmap)
-
 root.bind_all('<Alt-Key-1>',btx1)
 root.bind_all('<Alt-Key-2>',btx2)
 root.bind_all('<Alt-Key-3>',btx3)
@@ -1781,6 +1803,7 @@ try:
         key,value=params[i].split()
         if   key == 'MAP65Geometry': root.geometry(value)
         elif key == 'BMGeometry': bm_geom=value
+        elif key == 'BM2Geometry': bm2_geom=value
         elif key == 'Mode':
             mode.set(value)
             if value=='JT65A':
@@ -1882,6 +1905,7 @@ first=1
 if g.Win32: root.iconbitmap("wsjt.ico")
 root.title('  MAP65     by K1JT')
 bandmap()
+bandmap2()
 import astro
 import specjt
 
@@ -1894,6 +1918,8 @@ root_geom=root_geom[root_geom.index("+"):]
 f.write("MAP65Geometry " + root_geom + "\n")
 bm_geom=bm_geom[bm_geom.index("+"):]
 f.write("BMGeometry " + bm_geom + "\n")
+bm2_geom=bm2_geom[bm2_geom.index("+"):]
+f.write("BM2Geometry " + bm2_geom + "\n")
 f.write("Mode " + g.mode + "\n")
 f.write("MyCall " + options.MyCall.get() + "\n")
 f.write("MyGrid " + options.MyGrid.get() + "\n")
