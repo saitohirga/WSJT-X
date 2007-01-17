@@ -134,7 +134,6 @@ subroutine display
      write(20,1040) bm2
 1040 format(a36)
   enddo
-  write(*,1040)
 
   return
 end subroutine display
