@@ -48,22 +48,33 @@ C  Compute spectra at four polarizations, using half-symbol steps.
             savg(1,i)=savg(1,i) + sx
 
             z=cx(i) + cy(i)
-            s=0.5*(real(z)**2 + aimag(z)**2)
-            ss(2,n,i)=s         ! Pol = 45
-            savg(2,i)=savg(2,i) + s
+            s45=0.5*(real(z)**2 + aimag(z)**2)
+            ss(2,n,i)=s45         ! Pol = 45
+            savg(2,i)=savg(2,i) + s45
 
             sy=real(cy(i))**2 + aimag(cy(i))**2
             ss(3,n,i)=sy         ! Pol = 90
             savg(3,i)=savg(3,i) + sy
 
             z=cx(i) - cy(i)
-            s=0.5*(real(z)**2 + aimag(z)**2)
-            ss(4,n,i)=s         ! Pol = 135
-            savg(4,i)=savg(4,i) + s
+            s135=0.5*(real(z)**2 + aimag(z)**2)
+            ss(4,n,i)=s135         ! Pol = 135
+            savg(4,i)=savg(4,i) + s135
 
             z=cx(i)*conjg(cy(i))
-            ss5(n,i)=0.5*(sx+sy) + (real(z)**2 + aimag(z)**2 -
-     +          sx*sy)/(sx+sy)
+
+! Leif's formula:
+!            ss5(n,i)=0.5*(sx+sy) + (real(z)**2 + aimag(z)**2 -
+!     +          sx*sy)/(sx+sy)
+
+! Leif's suggestion:
+!            ss5(n,i)=max(sx,s45,sy,s135)
+
+! Linearly polarized component, from the Stokes parameters:
+            q=sx - sy
+            u=2.0*real(z)
+!            v=2.0*aimag(z)
+            ss5(n,i)=0.707*sqrt(q*q + u*u)
 
          enddo
       enddo
