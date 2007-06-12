@@ -1,4 +1,4 @@
-#---------------------------------------------------- SpecJT
+#----------------------------------------------------- SpecJT
 from Tkinter import *
 from tkMessageBox import showwarning
 import time
@@ -110,7 +110,8 @@ def fdf_change(event):
     g.DFreq=df*(event.x-288.7) + fmid - 1500
     if nfr.get()==2: g.DFreq=2*df*(event.x-375.5) + fmid - 1270.5
     g.Freq=g.DFreq+1270.46
-    t="Freq: %5d    DF: %5d  (Hz)" % (int(g.Freq),int(g.DFreq))
+#    t="Freq: %5d    DF: %5d  (Hz)" % (int(g.Freq),int(g.DFreq))
+    t="Freq: %5d" % (event.x)
     fdf.configure(text=t)
 
 #---------------------------------------------------- set_freezedf
