@@ -1,13 +1,13 @@
       subroutine rfile2(fname,buf,n,nr)
 
-C  Write a wave file to disk.
+C  Read data from disk.
 
       integer RMODE
       parameter(RMODE=0)
       integer*1 buf(n)
       integer open,read,close
       integer fd
-      character fname*80
+      character fname*(*)
       data iz/0/                            !Silence g77 warning
 
       do i=80,1,-1

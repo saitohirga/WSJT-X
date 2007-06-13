@@ -1,4 +1,3 @@
-!----------------------------------------------------- getfile
 subroutine getfile2(fname,len)
 
 #ifdef Win32
@@ -31,16 +30,22 @@ subroutine getfile2(fname,len)
 10 filename=fname(i+1:)
   ierr=0
 
+  n=8*NSMAX
 #ifdef Win32
 !  open(10,file=fname,form='binary',status='old',err=998)
-  n=8*NSMAX
   call rfile3a(fname,id,n,ierr)
   if(ierr.ne.0) then
      print*,'Error opening or reading file: ',fname,ierr
      go to 999
   endif
 #else
-  call rfile2(fname,hdr,44+2*NDMAX,nr)
+  call rfile2(fname,id,n,nr)
+  if(nr.ne.n) then
+     print*,'Error opening or reading file: ',fname,n,nr
+     ierr=1002
+     go to 999
+  endif
+
 #endif
 
   read(filename(8:11),*) nutc

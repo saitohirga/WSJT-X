@@ -3,7 +3,8 @@
 C  Compute spectra at four polarizations, using half-symbol steps.
 
       parameter (NFFT=32768)
-      integer*2 id(4,nz)
+      parameter (NSMAX=60*96000)
+      integer*2 id(4,NSMAX)
       real savg(4,NFFT)
       complex cx(NFFT),cy(NFFT)          !  pad to 32k with zeros
       complex z

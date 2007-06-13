@@ -91,7 +91,8 @@ subroutine ftn_init
   open(21,file=appdir(:iz)//'/ALL.TXT',status='unknown',                   &
        access='append',share='denynone',err=950)
 #else
-  open(21,file=appdir(:iz)//'/ALL.TXT',status='unknown',err=950)
+  open(21,file=appdir(:iz)//'/ALL.TXT',status='unknown',                   &
+	access='append',err=950)
   do i=1,9999999
      read(21,*,end=10) cjunk
   enddo
@@ -106,10 +107,19 @@ subroutine ftn_init
        status='unknown')
 #endif
 
+#ifdef Win32
   open(24,file=appdir(:iz)//'/tmp24.txt',status='unknown',                 &
        share='denynone')
+#else
+  open(24,file=appdir(:iz)//'/tmp24.txt',status='unknown')
+#endif
+
+#ifdef Win32
   open(26,file=appdir(:iz)//'/tmp26.txt',status='unknown',                 &
        share='denynone')
+#else
+  open(26,file=appdir(:iz)//'/tmp26.txt',status='unknown')
+#endif
 
   return
 
