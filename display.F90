@@ -1,12 +1,15 @@
 subroutine display
 
+#ifdef Win32
   use dfport
+#endif
 
   parameter (MAXLINES=500,MX=500)
   integer indx(MAXLINES),indx2(MX)
   character*80 line(MAXLINES),line2(MX),line3(MAXLINES)
   character out*41,cfreq0*3
-  character callsign*6,callsign0*6,freqcall*10(100)
+  character*6 callsign,callsign0
+  character*10 freqcall(100)
   character*36 bm2
   real freqkHz(MAXLINES)
   integer utc(MAXLINES),utc2(MX),utcz
@@ -46,6 +49,7 @@ subroutine display
         write(26,1010) line(i)
      enddo
   endif
+  call flushqqq(26)
 
   call indexx(nz,freqkHz,indx)
 
@@ -124,6 +128,7 @@ subroutine display
         endif
      endif
   enddo
+  call flushqqq(19)
   nc=nc+1
   freqcall(nc)='          '
   nc=nc+1
@@ -134,6 +139,7 @@ subroutine display
      write(20,1040) bm2
 1040 format(a36)
   enddo
+  call flushqqq(20)
 
   return
 end subroutine display

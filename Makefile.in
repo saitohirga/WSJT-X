@@ -29,71 +29,63 @@ FC=@FC@
 COMPILER += @FC_LIB_PATH@
 
 LDFLAGS	+= -L${COMPILER}
+LIBS += /usr/lib/libfftw3f.a
 
 PYTHON	?= @PYTHON@
 RM	?= @RM@
 F2PY	= @F2PY@
 
+###
+all:    Audio.so
 
-F2PYONLY = ftn_init ftn_quit audio_init spec getfile azdist0 astro0
+OBJS2C   = init_rs.o encode_rs.o decode_rs.o
+
+F2PYONLY = ftn_init ftn_quit audio_init getfile azdist0 astro0 \
+	spec map65a0
 
 SRCS2F90 = astro0.F90 audio_init.F90 azdist0.f90 \
-	decode1.F90 decode2.f90 decode3.F90 ftn_init.F90 \
-	ftn_quit.f90 get_fname.F90 getfile.F90 \
-	i1tor4.f90 pix2d65.f90 rfile.f90 savedata.F90 spec.f90 \
-	wsjtgen.F90 runqqq.F90 fivehz.F90
-OBJS2F90 = ${SRCS2F90:.f90=.o}
+	decode1.F90 ftn_init.F90 ftn_quit.f90 wsjtgen.F90 \
+	runqqq.F90 fivehz.F90 flushqqq.F90 map65a0.f90 \
+	rfile.f90 rfile3a.f90 spec.f90 map65a.f90 display.F90 \
+	getfile.F90 getfile2.F90
 
-SRCS2F77 = wsjt1.f astro.f azdist.f coord.f dcoord.f deg2grid.f \
-	dot.f ftsky.f geocentric.f GeoDist.f grid2deg.f moon2.f \
-	MoonDop.f sun.f toxyz.f pfxdump.f \
-        avesp2.f bzap.f \
-        indexx.f flat2.f gen65.f chkmsg.f gentone.f \
-        set.f flatten.f db.f pctile.f sort.f ssort.f ps.f smooth.f \
-        peakup.f avemsg65.f decode65.f \
-        demod64a.f encode65.f extract.f flat1.f four2.f rfile2.f \
-        gencwid.f getpfx1.f getpfx2.f getsnr.f graycode.f grid2k.f \
-        interleave63.f k2grid.f limit.f lpf1.f morse.f \
-        nchar.f packcall.f packgrid.f packmsg.f packtext.f setup65.f \
-        short65.f slope.f spec2d65.f sync65.f unpackcall.f \
-        unpackgrid.f unpackmsg.f unpacktext.f xcor.f xfft.f xfft2.f wsjt65.f \
-	ftpeak65.f fil651.f fil652.f fil653.f symsync65.f
+SRCS2F77 = indexx.f gen65.f chkmsg.f \
+	gentone.f gencwid.f set.f db.f pctile.f sort.f ssort.f \
+	avemsg65.f demod64a.f encode65.f extract.f four2a.f getpfx1.f \
+	getpfx2.f graycode.f grid2k.f interleave63.f k2grid.f \
+	deep65.f morse.f nchar.f packcall.f packgrid.f \
+	packmsg.f packtext.f setup65.f unpackcall.f unpackgrid.f \
+	unpackmsg.f unpacktext.f astro.f azdist.f coord.f dcoord.f \
+	deg2grid.f dot.f ftsky.f geocentric.f GeoDist.f grid2deg.f \
+	moon2.f MoonDop.f sun.f toxyz.f pfxdump.f \
+	symspec.f ccf65.f trimlist.f chkhist.f decode1a.f \
+	filbig.f fil659.f fil658.f fil6521.f twkfreq.f decode65b.f \
+	afc65b.f fchisq.f ccf2.f rfile2.f
 
-OBJS2F77 = ${SRCS2F77:.f=.o} deep65.o
+SRCS2C   = resample.c ptt.c igray.c wrapkarn.c rfile3.c wfile3.c
 
-SRCS2C	= init_rs.c encode_rs.c decode_rs.c
-OBJS2C  = ${SRCS2C:.c=.o}
+OBJS2F77 = ${SRCS2F77:.f=.o}
 
-# ok, so far for now
-# Windows @AUDIO@ will be a2d.f90 jtaudio.c since it uses portaudio
-#            for *nix @AUDIO@ will also be a2d.f90, jtaudio.c
-#               and start_portaudio.c for systems using portaudio
-#            for *nix @AUDIO@ will be start_alsa.c for alsa
-#            for *nix @AUDIO@ will be start_oss.c for oss
-#
-# ptt_unix.c vs. ptt.c I'll sort out later. 
-# ditto for cutil.c (only used on *nix)
-# --db
-# jtaudio.c/start_threads.c mess will have to be sorted out later
-# to minimise #ifdef's 
-# --db
-# and mostly sorted
-# --db
-#
-#  @NEEDPORTAUDIO@ will be filled in with libportaudio.a if portaudio is used
-#
-SRCS3C	= ptt_unix.c igray.c wrapkarn.c cutil.c
-OBJS3C  = ${SRCS3C:.c=.o}
-AUDIOSRCS = @AUDIO@
+SRCS3C = ptt_unix.c igray.c wrapkarn.c cutil.c
+OBJS3C = ${SRCS3C:.c=.o}
+AUDIOSRCS = a2d.f90 jtaudio.c resample.c start_portaudio.c
 
-all:	map65
+#Audio.so: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C) 
+#	python f2py.py -c \
+#	--quiet --"fcompiler=compaqv" \
+#	--opt="/nologo /traceback /warn:errors /fast /fpp /define:Win32 \
+#	      /define:USE_PORTAUDIO" \
+#	$(OBJS2C) \
+#	-lwinmm -lpa -lfftw3single -llibsamplerate \
+#	-m Audio \
+#	only: $(F2PYONLY) : \
+#	$(SRCS2F90) $(SRCS2F77) $(SRCS2C)
 
-portaudio-v19/lib/.libs/libportaudio.a:
-	(cd portaudio-v19;./configure --with-jack=no)
-	(cd portaudio-v19;${MAKE})
+###
 
-map65:	@NEEDPORTAUDIO@ Audio.so # map65.spec
-#	${PYTHON} c:\python23\installer\Build.py map65.spec
+#portaudio-v19/lib/.libs/libportaudio.a:
+#	(cd portaudio-v19;./configure --with-jack=no)
+#	(cd portaudio-v19;${MAKE})
 
 deep65.o: deep65.F
 	$(FC) -c -O0 -Wall -fPIC deep65.F
@@ -105,10 +97,6 @@ Audio.so: $(OBJS2C) $(OBJS3C) $(OBJS2F77) $(SRCS2F90) $(AUDIOSRCS)
 	only: $(F2PYONLY) \
 	: $(SRCS2F90) \
 	${SRCS3C} ${AUDIOSRCS}
-
-map65.spec: map65.py astro.py g.py options.py palettes.py smeter.py specjt.py
-	${PYTHON} c:\python23\installer\makespec.py --icon wsjt.ico \
-	--tk --onefile map65.py
 
 
 init_rs_int.o: init_rs.c
