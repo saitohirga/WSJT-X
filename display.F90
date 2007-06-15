@@ -133,6 +133,7 @@ subroutine display
   freqcall(nc)='          '
   nc=nc+1
   freqcall(nc)='          '
+  freqcall(nc+1)='          '
   iz=(nc+2)/3
   do i=1,iz
      bm2=freqcall(i)//'  '//freqcall(i+iz)//'  '//freqcall(i+2*iz)
@@ -140,6 +141,7 @@ subroutine display
 1040 format(a36)
   enddo
   call flushqqq(20)
+	print*,3*iz,nc
 
   return
 end subroutine display
