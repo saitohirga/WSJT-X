@@ -141,7 +141,5 @@ subroutine display
 1040 format(a36)
   enddo
   call flushqqq(20)
-	print*,3*iz,nc
-
   return
 end subroutine display
