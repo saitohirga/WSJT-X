@@ -84,6 +84,7 @@ subroutine map65a
      npol=45*(ipol-1)
      write(11,1010) nkHz,ndf,npol,nutc,nsync2,dt,nw,decoded,nkv,nqual
 1010 format(i3,i5,i4,i5.4,i4,f5.1,i3,2x,a22,2i3)
+     call flushqqq(11)
      ndecdone=1
   endif
   if(newdat2.eq.0) go to 999
