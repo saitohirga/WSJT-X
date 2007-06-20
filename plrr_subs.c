@@ -1,10 +1,14 @@
+/*  The following don't seem to be needed?
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
 #include <time.h>
-#include <string.h>
 #include <stdio.h>
+*/
+
+#include <arpa/inet.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define HELLO_PORT 50004
 #define HELLO_GROUP "239.255.0.0"

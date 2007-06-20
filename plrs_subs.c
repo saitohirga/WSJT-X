@@ -1,11 +1,14 @@
+/*  The following don't seem to be needed?
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
 #include <time.h>
-#include <string.h>
 #include <stdio.h>
+*/
 
+#include <arpa/inet.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define HELLO_PORT 50004
 #define HELLO_GROUP "239.255.0.0"
@@ -20,7 +23,7 @@ void setup_ssocket_(void)
   /* create what looks like an ordinary UDP socket */
   if ((fd=socket(AF_INET,SOCK_DGRAM,0)) < 0) {
     perror("socket");
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 
   /* set up destination address */
@@ -35,5 +38,5 @@ void send_pkt_(char buf[])
   if (sendto(fd,buf,1416,0,(struct sockaddr *) &addr, 
 	     sizeof(addr)) <  0) { 
     perror("sendto");
-    exit(1);}
+    exit(EXIT_FAILURE);}
 }
