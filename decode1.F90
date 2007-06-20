@@ -1,4 +1,3 @@
-!---------------------------------------------------- decode1
 subroutine decode1(iarg)
 
 ! Get data and parameters from gcom, then call the decoders when needed.
@@ -14,7 +13,7 @@ subroutine decode1(iarg)
   parameter (NSMAX=60*96000)          !Samples per 60 s file
   integer*2 id(4,NSMAX)               !46 MB: raw data from Linrad timf2
   common/datcom/nutc,newdat2,id,fname80,nlen
-    include 'gcom1.f90'
+  include 'gcom1.f90'
   include 'gcom2.f90'
   include 'gcom3.f90'
   include 'gcom4.f90'
