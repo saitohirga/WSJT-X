@@ -30,14 +30,19 @@ subroutine recvpkt(iarg)
   nsec0=-999
 
 10 call recv_pkt(center_freq)
-  if((nblock-nblock0).ne.1 .and. .not.first) then
-     print*,'Lost packets?',nblock-nblock0,nblock,nblock0
+  lost=nblock-nblock0-1
+  if(lost.ne.0 .and. .not.first) then
+     print*,'Lost packets?',nblock,nblock0,lost
+     nlost=nlost + lost
+     do i=1,174*lost
+        k=k+1
+        d8(k)=0
+     enddo
   endif
   first=.false.
   nblock0=nblock
 
   if(monitoring.eq.1) then
-
      nsec=msec/1000
      if(mod(nsec,60).eq.1) nreset=1
      if(mod(nsec,60).eq.0 .and. nreset.eq.1) then
@@ -46,6 +51,7 @@ subroutine recvpkt(iarg)
         kb=3-kb
         k=0
         if(kb.eq.2) k=NSZ
+        nlost=0
      endif
 
      do i=1,174
@@ -64,9 +70,10 @@ subroutine recvpkt(iarg)
         nsec0=nsec
      endif
 
-     if(mod(nsec,60).eq.59) then
+     if(mod(nsec,60).eq.52) then
         kbuf=kb
         nutc=mutc
+        klost=nlost
         ndecoding=1
      endif
   endif
