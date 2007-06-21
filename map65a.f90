@@ -16,16 +16,16 @@ subroutine map65a
   integer indx(MAXMSG),nsiz(MAXMSG)
   logical done(MAXMSG)
   character decoded*22,blank*22
-  parameter (NSMAX=60*96000)          !Samples per 60 s file
-  integer*2 id(4,NSMAX)               !46 MB: raw data from Linrad timf2
-  common/datcom/nutc,newdat2,id
+  include 'datcom.f90'
   common/spcom/ip0,ss(4,322,NFFT),ss5(322,NFFT)
   data blank/'                      '/
   data shmsg0/'ATT','RO ','RRR','73 '/
   data nfile/0/,nutc0/-999/,nid/0/
+  include 'gcom2.f90'
   save
 
-  include 'gcom2.f90'
+!  print*,'A',newdat2,nutc,nfile
+  if(newdat2.eq.0) newdat2=1                      !###
 
   if(newdat2.gt.0) nid=1
   if(nid.eq.0) go to 999
@@ -70,8 +70,15 @@ subroutine map65a
      nfilt=2                      !nfilt=2 is faster for selected freq
      freq=fselect
      dt=2.314240                  !Not needed?
+!     print*,'B',newdat2,nfilt,freq,nflip,ip0
+
+      write(*,3001) newdat2,nfilt,nflip,ip0,freq,               &
+           (id(1,i),id(2,i),id(3,i),id(4,i),i=1,2)
+ 3001 format(4i5,f10.3,8i5)
+
      call decode1a(id,newdat2,nfilt,freq,nflip,ip0,sync2,        &
           a,dt,pol,nkv,nhist,qual,decoded)
+!     print*,'C',nkv,qual,decoded
      nsync1=0
      nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
      ndf=nint(a(1))
@@ -291,5 +298,6 @@ subroutine map65a
   call display
   ndecdone=2
     
-999 return
+999 newdat2=0
+  return
 end subroutine map65a

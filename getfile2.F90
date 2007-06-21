@@ -7,9 +7,8 @@ subroutine getfile2(fname,len)
   parameter (NDMAX=661500)  ! =60*11025
   character*(*) fname
   character infile*15
-  parameter (NSMAX=60*96000)          !Samples per 60 s file
-  integer*2 id(4,NSMAX)               !46 MB: raw data from Linrad timf2
-  common/datcom/nutc,newdat2,id
+
+  include 'datcom.f90'
   include 'gcom1.f90'
   include 'gcom2.f90'
   include 'gcom4.f90'
