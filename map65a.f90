@@ -73,10 +73,10 @@ subroutine map65a
 !     print*,'B',newdat2,nfilt,freq,nflip,ip0
 
       write(*,3001) newdat2,nfilt,nflip,ip0,freq,               &
-           (id(1,i),id(2,i),id(3,i),id(4,i),i=1,2)
+           (id(1,i,kbuf),id(2,i,kbuf),id(3,i,kbuf),id(4,i,kbuf),i=1,2)
  3001 format(4i5,f10.3,8i5)
 
-     call decode1a(id,newdat2,nfilt,freq,nflip,ip0,sync2,        &
+     call decode1a(id(1,1,kbuf),newdat2,nfilt,freq,nflip,ip0,sync2,        &
           a,dt,pol,nkv,nhist,qual,decoded)
 !     print*,'C',nkv,qual,decoded
      nsync1=0
@@ -103,7 +103,7 @@ subroutine map65a
      short(3,i)=0.
   enddo
 
-  call symspec(id,nz,savg)
+  call symspec(id(1,1,kbuf),nz,savg)
   newspec=1
      
   freq0=-999.
@@ -197,7 +197,7 @@ subroutine map65a
 
            if(freq-freq0.gt.ftol .or. sync1.gt.sync10) then
               nflip=nint(flipk)
-              call decode1a(id,newdat2,nfilt,freq,nflip,ipol,         &
+              call decode1a(id(1,1,kbuf),newdat2,nfilt,freq,nflip,ipol,         &
                    sync2,a,dt,pol,nkv,nhist,qual,decoded)
 !              i9=index(decoded,'AA1YN')
 !              if(i9.gt.0) print*,i,i9,fselect,freq,decoded
