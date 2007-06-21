@@ -30,6 +30,8 @@ subroutine getfile2(fname,len)
   ierr=0
 
   n=8*NSMAX
+  monitoring=0
+  kbuf=1
 #ifdef Win32
 !  open(10,file=fname,form='binary',status='old',err=998)
   call rfile3a(fname,id,n,ierr)
