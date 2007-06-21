@@ -1873,7 +1873,8 @@ Audio.gcom2.ndepth=ndepth.get()
 Audio.ftn_init()
 GenStdMsgs()
 Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'        ')[:8]
-stopmon()
+# stopmon()
+monitor()
 first=1
 if g.Win32: root.iconbitmap("wsjt.ico")
 root.title('  MAP65     by K1JT')
