@@ -9,10 +9,8 @@ subroutine decode1(iarg)
 
   character sending0*28,mode0*6,cshort*11
   integer sendingsh0
-  character*80 fname80
-  parameter (NSMAX=60*96000)          !Samples per 60 s file
-  integer*2 id(4,NSMAX)               !46 MB: raw data from Linrad timf2
-  common/datcom/nutc,newdat2,id,fname80,nlen
+
+  include 'datcom.f90'
   include 'gcom1.f90'
   include 'gcom2.f90'
   include 'gcom3.f90'

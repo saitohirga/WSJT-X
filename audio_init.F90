@@ -3,8 +3,8 @@ subroutine audio_init(ndin,ndout)
 
 #ifdef Win32
   use dfmt
-  integer Thread1,Thread2
-  external a2d,decode1
+  integer Thread1,Thread2,Thread3
+  external a2d,decode1,recvpkt
 #endif
 
   include 'gcom1.f90'
@@ -44,8 +44,10 @@ subroutine audio_init(ndin,ndout)
 !     THREAD_PRIORITY_TIME_CRITICAL     15
     
   m0=SetPriorityClass(GetCurrentProcess(),NORMAL_PRIORITY_CLASS)
+!  m0=SetPriorityClass(GetCurrentProcess(),HIGH_PRIORITY_CLASS)
 
 ! Start a thread for doing A/D and D/A with sound card.
+!  (actually, only D/A is used in MAP65)
   Thread1=CreateThread(0,0,a2d,0,CREATE_SUSPENDED,id1)
   m1=SetThreadPriority(Thread1,THREAD_PRIORITY_ABOVE_NORMAL)
   m2=ResumeThread(Thread1)
@@ -54,6 +56,12 @@ subroutine audio_init(ndin,ndout)
   Thread2=CreateThread(0,0,decode1,0,CREATE_SUSPENDED,id2)
   m3=SetThreadPriority(Thread2,THREAD_PRIORITY_BELOW_NORMAL)
   m4=ResumeThread(Thread2)
+
+! Start a thread to receive packets from Linrad
+  Thread3=CreateThread(0,0,recvpkt,0,CREATE_SUSPENDED,id3)
+  m5=SetThreadPriority(Thread3,THREAD_PRIORITY_ABOVE_NORMAL)
+  m6=ResumeThread(Thread3)
+
 #else
 !  print*,'Audio INIT called.'
   ierr=start_threads(ndevin,ndevout,y1,y2,nmax,iwrite,iwave,nwave,    &
