@@ -35,20 +35,22 @@ subroutine map65a
   if(nutc.ne.nutc0) nfile=nfile+1
   nutc0=nutc
   nutcdata=nutc
-  write(utcdata,1001) nutc
-1001 format(i4.4)
+  write(utcdata,1002) nutc
+1002 format(i4.4)
   utcdata=utcdata(1:2)//':'//utcdata(3:4)
 
-  tskip=0.
-!  fselect=126.0 + 1.6 + 0.290
+!  fselect=126.0 + 1.6 + 0.290                ! K6MYC (NG??)
 !  nflip=-1
 !  ip0=1
-  fselect=128.0 + 1.6 + 0.220               !AA1YN
+
+  fselect=128.0 + 1.6 + 0.220               ! AA1YN (OK)
   nflip=1
   ip0=3
-!  fselect=155.0 + 1.6 + 0.454
+
+!  fselect=155.0 + 1.6 + 0.454                ! N0AKC (OK)
 !  nflip=1
 !  ip0=2
+
 !  fselect=103 + 1.6 - 0.07
 !  nflip=-1                     !May need to try both +/- 1
 !  ip0=4                       !Try all four?
