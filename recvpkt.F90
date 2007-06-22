@@ -17,9 +17,10 @@ subroutine recvpkt(iarg)
   common/plrscom/center_freq,msec,fqso,iptr,nblock,userx_no,iusb,buf8(174)
 !                     8        4     4      4    2       1       1    1392
   include 'datcom.f90'
+  include 'gcom1.f90'
   include 'gcom2.f90'
   equivalence (id,d8)
-  data nblock0/0/,first/.true./,kb/1/
+  data nblock0/0/,first/.true./,kb/1/,ntx/0/
   save
 
 ! Open a socket to receive multicast data from Linrad
@@ -54,10 +55,17 @@ subroutine recvpkt(iarg)
         nlost=0
      endif
 
-     do i=1,174
-        k=k+1
-        d8(k)=buf8(i)
-     enddo
+     if(transmitting.eq.0) then
+        do i=1,174
+           k=k+1
+           d8(k)=buf8(i)
+        enddo
+     else
+        do i=1,174
+           k=k+1
+           d8(k)=0.d0
+        enddo
+     endif
 
      npkt=npkt+1
      if(nsec.ne.nsec0) then
@@ -68,14 +76,16 @@ subroutine recvpkt(iarg)
 !     write(*,1010) mutc,ns,0.001*msec,k
 !1010 format('UTC:',i5.4,'   ns:',i3,'   t:',f10.3,'   k:',i8)
         nsec0=nsec
+        ntx=ntx+transmitting
+        if(mod(nsec,60).eq.52) then
+           kbuf=kb
+           nutc=mutc
+           klost=nlost
+           if(ntx.lt.20) ndecoding=1
+           ntx=0
+        endif
      endif
 
-     if(mod(nsec,60).eq.52) then
-        kbuf=kb
-        nutc=mutc
-        klost=nlost
-        ndecoding=1
-     endif
   endif
   go to 10
 

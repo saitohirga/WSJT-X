@@ -104,22 +104,29 @@ def pal_AFMHot():
     im2.putpalette(Colormap2Palette(colormapAFMHot),"RGB")
 
 #--------------------------------------------------- Command button routines
+
 #---------------------------------------------------- fdf_change
 # Readout of graphical cursor location
 def fdf_change(event):
-    g.DFreq=df*(event.x-288.7) + fmid - 1500
-    if nfr.get()==2: g.DFreq=2*df*(event.x-375.5) + fmid - 1270.5
-    g.Freq=g.DFreq+1270.46
-#    t="Freq: %5d    DF: %5d  (Hz)" % (int(g.Freq),int(g.DFreq))
-    t="Freq: %5d" % (event.x)
+    df=96.0/750.0
+    fmid=122.8                                # empirical
+    g.Freq=df*(event.x-375) + fmid
+    t="Freq: %5.1f kHz" % (g.Freq,)
     fdf.configure(text=t)
+
+def fdf_change2(event):
+    g.DFreq=(2200.0/750.0)*(event.x-375)
+    t="Freq: %5.1f kHz" % (g.DFreq,)
+    fdf2.configure(text=t)
+
+#---------------------------------------------------- set_fqso
+def set_fqso(event):
+    n=int(g.Freq + 0.5)
+    Audio.gcom2.mousefqso=n
 
 #---------------------------------------------------- set_freezedf
 def set_freezedf(event):
-    n=int(df*(event.x-288.7) + fmid - 1500)
-    if nfr.get()==2: n=int(2*df*(event.x-375.5) + fmid - 1270.5)
-    if n<-1270: n=-1270
-    if n>3800: n=3800
+    n=int(g.DFreq + 0.5)
     Audio.gcom2.mousedf=n
 
 #------------------------------------------------------ ftnstr
@@ -152,20 +159,20 @@ def df_mark():
             color='red'
 
 #---------------------------------------------------- change_fmid
-def change_fmid1():
-    global fmid
-    fmid=fmid+100
-    if fmid>5000-1000*nfr.get(): fmid=5000-1000*nfr.get()
-
-def change_fmid2():
-    global fmid
-    fmid=fmid-100
-    if fmid<1000*nfr.get(): fmid=1000*nfr.get()
-
-def set_fmid():
-    global fmid
-    if nfr.get()==1: fmid=1200
-    if nfr.get()==2: fmid=2200
+##def change_fmid1():
+##    global fmid
+##    fmid=fmid+100
+##    if fmid>5000-1000*nfr.get(): fmid=5000-1000*nfr.get()
+##
+##def change_fmid2():
+##    global fmid
+##    fmid=fmid-100
+##    if fmid<1000*nfr.get(): fmid=1000*nfr.get()
+##
+##def set_fmid():
+##    global fmid
+##    if nfr.get()==1: fmid=1200
+##    if nfr.get()==2: fmid=2200
 
 #---------------------------------------------------- freq_range
 def freq_range(event):
@@ -179,8 +186,8 @@ def freq_range(event):
     if fmid<1000*nfr.get(): fmid=1000*nfr.get()
     if fmid>5000-1000*nfr.get(): fmid=5000-1000*nfr.get()
 
-def set_frange():
-    nfr.set(3-nfr.get())
+#def set_frange():
+#    nfr.set(3-nfr.get())
 
 #---------------------------------------------------- freq_center
 ##def freq_center(event):
@@ -415,22 +422,24 @@ setupmenu.add_cascade(label = 'Palette',menu=setupmenu.palettes)
 
 lab1=Label(mbar,padx=20,bd=0)
 lab1.pack(side=LEFT)
-fdf=Label(mbar,width=25,bd=0)
+fdf=Label(mbar,width=15,bd=0)
 fdf.pack(side=LEFT)
+fdf2=Label(mbar,width=15,bd=0)
+fdf2.pack(side=LEFT)
 
 lab3=Label(mbar,padx=13,bd=0)
 lab3.pack(side=LEFT)
-bbw=Button(mbar,text='BW',command=set_frange,padx=1,pady=1)
-bbw.pack(side=LEFT)
+#bbw=Button(mbar,text='BW',command=set_frange,padx=1,pady=1)
+#bbw.pack(side=LEFT)
 
 lab0=Label(mbar,padx=10,bd=0)
 lab0.pack(side=LEFT)
-bfmid1=Button(mbar,text='<',command=change_fmid1,padx=1,pady=1)
-bfmid2=Button(mbar,text='>',command=change_fmid2,padx=1,pady=1)
-bfmid3=Button(mbar,text='|',command=set_fmid,padx=3,pady=1)
-bfmid1.pack(side=LEFT)
-bfmid3.pack(side=LEFT)
-bfmid2.pack(side=LEFT)
+#bfmid1=Button(mbar,text='<',command=change_fmid1,padx=1,pady=1)
+#bfmid2=Button(mbar,text='>',command=change_fmid2,padx=1,pady=1)
+#bfmid3=Button(mbar,text='|',command=set_fmid,padx=3,pady=1)
+#bfmid1.pack(side=LEFT)
+#bfmid3.pack(side=LEFT)
+#bfmid2.pack(side=LEFT)
 
 #------------------------------------------------- Speed selection buttons
 for i in (5, 4, 3, 2, 1):
@@ -453,7 +462,7 @@ graph1.pack(side=TOP)
 Widget.bind(graph1,"<Motion>",fdf_change)
 #Widget.bind(graph1,"<Button-1>",decode_request)
 #Widget.bind(graph1,"<Button-3>",decode_request)
-Widget.bind(graph1,"<Button-1>",set_freezedf)
+Widget.bind(graph1,"<Button-1>",set_fqso)
 Widget.bind(graph1,"<Double-Button-1>",freeze_decode)
 iframe1.pack(expand=1, fill=X)
 
@@ -466,7 +475,7 @@ Widget.bind(c2,"<Shift-Button-3>",freq_range)
 
 graph2=Canvas(iframe1, bg='black', width=NX, height=NY,bd=0,cursor='crosshair')
 graph2.pack(side=TOP)
-Widget.bind(graph2,"<Motion>",fdf_change)
+Widget.bind(graph2,"<Motion>",fdf_change2)
 #Widget.bind(graph2,"<Button-1>",decode_request)
 #Widget.bind(graph2,"<Button-3>",decode_request)
 Widget.bind(graph2,"<Button-1>",set_freezedf)

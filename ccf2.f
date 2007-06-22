@@ -1,6 +1,7 @@
       subroutine ccf2(ss,nz,nflip,ccfbest,lagpk)
 
-      parameter (LAGMAX=20)
+!      parameter (LAGMAX=20)
+      parameter (LAGMAX=100)
       real ss(nz)
       real ccf(-LAGMAX:LAGMAX)
       integer npr(126)

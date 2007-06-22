@@ -367,7 +367,7 @@ def txstop(event=NONE):
     if lauto: toggleauto()
     Audio.gcom1.txok=0
     Audio.gcom2.mantx=0
-    specjt.pal_gray0()
+#    specjt.pal_gray0()      ????
     
 #------------------------------------------------------ lookup
 def lookup(event=NONE):
@@ -868,13 +868,15 @@ def mouse_up_g1(event):
 
 #------------------------------------------------------ right_arrow
 def right_arrow(event=NONE):
-    n=5*int(Audio.gcom2.mousedf/5) + 5
+    n=5*int(Audio.gcom2.mousedf/5)
+    if n>0: n=n+5
     if n==Audio.gcom2.mousedf: n=n+5
     Audio.gcom2.mousedf=n
-
+    
 #------------------------------------------------------ left_arrow
 def left_arrow(event=NONE):
     n=5*int(Audio.gcom2.mousedf/5)
+    if n<0: n=n-5
     if n==Audio.gcom2.mousedf: n=n-5
     Audio.gcom2.mousedf=n
     
@@ -1156,11 +1158,10 @@ def update():
 
     msg1.configure(text="%6.4f" % (samfac_out))
     msg2.configure(text=mode.get())
-    t="Freeze DF:%4d" % (int(Audio.gcom2.mousedf),)
-    if abs(int(Audio.gcom2.mousedf))>600:
-        msg3.configure(text=t,fg='black',bg='red')
-    else:
-        msg3.configure(text=t,fg='black',bg='gray85')    
+    t="QSO Freq:%4d" % (int(Audio.gcom2.mousefqso),)
+    msg3.configure(text=t)    
+    t="QSO DF:%4d" % (int(Audio.gcom2.mousedf),)
+    msg4.configure(text=t)    
     bdecode.configure(bg='gray85',activebackground='gray95')
     if Audio.gcom2.ndecoding:       #Set button bg=light_blue while decoding
         bc='#66FFFF'
@@ -1524,6 +1525,8 @@ root.bind_all('<Shift-F8>', ModeJT65B)
 root.bind_all('<Control-F8>', ModeJT65C)
 root.bind_all('<F10>', showspecjt)
 root.bind_all('<Shift-F10>', astro1)
+root.bind_all('<F11>',left_arrow)
+root.bind_all('<F12>',right_arrow)
 root.bind_all('<Alt-Key-1>',btx1)
 root.bind_all('<Alt-Key-2>',btx2)
 root.bind_all('<Alt-Key-3>',btx3)
@@ -1565,8 +1568,6 @@ root.bind_all('<Alt-z>',toggle_zap)
 root.bind_all('<Alt-Z>',toggle_zap)
 root.bind_all('<Control-l>',lookup_gen)
 root.bind_all('<Control-L>',lookup_gen)
-root.bind_all('<Left>',left_arrow)
-root.bind_all('<Right>',right_arrow)
 
 text.pack(side=LEFT, fill=X, padx=1)
 sb = Scrollbar(iframe4, orient=VERTICAL, command=text.yview)
@@ -1747,8 +1748,8 @@ msg2=Message(iframe6, text="Message #2", width=300,relief=SUNKEN)
 msg2.pack(side=LEFT, fill=X, padx=1)
 msg3=Message(iframe6,width=300,relief=SUNKEN)
 msg3.pack(side=LEFT, fill=X, padx=1)
-#msg4=Message(iframe6, text="", width=300,relief=SUNKEN)
-#msg4.pack(side=LEFT, fill=X, padx=1)
+msg4=Message(iframe6, text="", width=300,relief=SUNKEN)
+msg4.pack(side=LEFT, fill=X, padx=1)
 #msg5=Message(iframe6, text="", width=300,relief=SUNKEN)
 #msg5.pack(side=LEFT, fill=X, padx=1)
 msg7=Message(iframe6, text='                        ', width=300,relief=SUNKEN)
@@ -1873,6 +1874,7 @@ Audio.gcom2.ndepth=ndepth.get()
 Audio.ftn_init()
 GenStdMsgs()
 Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'        ')[:8]
+Audio.gcom2.mousefqso=125
 # stopmon()
 monitor()
 first=1

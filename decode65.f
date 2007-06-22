@@ -35,6 +35,7 @@ C  Compute spectra of the channel symbols
       qual=0.
       if(ndepth.ge.1) call deep65(s3,mode65,neme,
      +    nsked,flip,mycall,hiscall,hisgrid,deepmsg,qual)
+      print*,ndepth,qual,deepmsg
 
       if(ncount.lt.0) decoded='                      '
 

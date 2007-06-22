@@ -42,6 +42,7 @@ integer nfmid          !Center frequency of main display        GUI
 integer nfrange        !Frequency range of main display         GUI
 integer nport          !Requested COM port number               GUI
 integer mousedf        !Mouse-selected freq offset, DF          GUI
+integer mousefqso      !Mouse-selected QSO freq                 GUI
 integer neme           !EME calls only in deep search?          GUI
 integer nsked          !Sked mode for deep search?              GUI
 integer naggressive    !Is "Aggressive decoding" checked?       GUI
@@ -92,7 +93,7 @@ common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),             &
      ndecdone,npingtime,ierr,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5, &
      dftolerance,LDecoded,rxdone,monitoring,nzap,nsavecum,minsigdb,   &
      nclearave,nfreeze,nafc,newspec,nmode,mode65,nclip,ndebug,nblank,nport,   &
-     mousedf,neme,nsked,naggressive,ntx2,nagain,nsavelast,     &
+     mousedf,mousefqso,neme,nsked,naggressive,ntx2,nagain,nsavelast,     &
      shok,sendingsh,d2a(661500),d2b(661500),b(60000),jza,jzb,ntime,   &
      idinterval,msmax,lenappdir,idf,ndiskdat,nlines,nflat,ntxreq,ntxnow,  &
      ndepth,nspecial,ndf,nfmid,nfrange,ss1(-224:224),ss2(-224:224),   &

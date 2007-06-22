@@ -20,7 +20,7 @@ subroutine map65a
   common/spcom/ip0,ss(4,322,NFFT),ss5(322,NFFT)
   data blank/'                      '/
   data shmsg0/'ATT','RO ','RRR','73 '/
-  data nfile/0/,nutc0/-999/,nid/0/
+  data nfile/0/,nutc0/-999/,nid/0/,ip00/1/
   include 'gcom2.f90'
   save
 
@@ -43,7 +43,8 @@ subroutine map65a
 !  nflip=-1
 !  ip0=1
 
-  fselect=128.0 + 1.6 + 0.220               ! AA1YN (OK)
+!  fselect=128.0 + 1.6 + 0.220               ! AA1YN (OK)
+  fselect=mousefqso + 0.001*mousedf + 1.6
   nflip=1
   ip0=3
 
@@ -71,25 +72,42 @@ subroutine map65a
 
 !  nfilt=2 should be faster (but doesn't work right?)
      nfilt=2                      !nfilt=2 is faster for selected freq
-     freq=fselect
-     dt=2.314240                  !Not needed?
-     call decode1a(id(1,1,kbuf),newdat2,nfilt,freq,nflip,ip0,sync2,        &
-          a,dt,pol,nkv,nhist,qual,decoded)
-     nsync1=0
-     nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
-     ndf=nint(a(1))
-     nw=0
+     do kpol=0,3
+        freq=fselect
+        ip0=ip00+kpol
+        if(ip0.gt.4) ip0=ip0-4
+        dt00=2.314240
+        dt=dt00
+        call decode1a(id(1,1,kbuf),newdat2,nfilt,freq,nflip,ip0,sync2,   &
+             a,dt,pol,nkv,nhist,qual,decoded)
+        nsync1=0
+        nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
+        ndf=nint(a(1)) + mousedf
+        nw=0
+!        write(*,3000) freq,nflip,ip00,ndf,nsync2,nint(pol*57.2957795),   &
+!             dt00,dt,decoded
+!3000    format(f8.3,5i5,2f7.2,2x,a22)
+        if(nkv.gt.0) go to 5
+     enddo
 
-!  Insert 'OOO' if flip<0.
-!     write(11,1010) nutc,nsync2,dt,ndf,nw,decoded,nkv,nqual
-!1010 format(i4.4,i4,f5.1,i5,i3,2x,a22,2i3)
+5    ip00=ip0
      nkHz=nint(freq-1.600)
-     npol=45*(ipol-1)
-     write(11,1010) nkHz,ndf,npol,nutc,nsync2,dt,nw,decoded,nkv,nqual
+     npol=nint(57.2957795*pol)
+     nqual=qual
+     if(nflip.eq.-1) then                      !Should this be in decode1a ?
+        do i=22,9,-1
+           if(decoded(i:i).ne.' ') then
+              decoded(i+2:i+4)='OOO'
+              go to 6
+           endif
+        enddo
+     endif
+6     write(11,1010) nkHz,ndf,npol,nutc,nsync2,dt,nw,decoded,nkv,nqual
 1010 format(i3,i5,i4,i5.4,i4,f5.1,i3,2x,a22,2i3)
      call flushqqq(11)
      ndecdone=1
   endif
+  if(nagain.eq.1) go to 999
   if(newdat2.eq.0) go to 999
 
   nfilt=1
@@ -295,5 +313,6 @@ subroutine map65a
   ndecdone=2
     
 999 newdat2=0
+  nagain=0
   return
 end subroutine map65a
