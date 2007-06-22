@@ -9,7 +9,7 @@ FFLAGS = /traceback /fast /nologo /check:all
 
 all:    MAP65.EXE
 
-OBJS2C   = init_rs.o encode_rs.o decode_rs.o jtaudio.o
+OBJS2C   = init_rs.o encode_rs.o decode_rs.o jtaudio.o plrr_subs.o
 
 F2PYONLY = ftn_init ftn_quit audio_init getfile azdist0 astro0 \
 	spec map65a0
@@ -18,7 +18,7 @@ SRCS2F90 = a2d.f90 astro0.f90 audio_init.f90 azdist0.f90 \
 	decode1.f90 ftn_init.f90 ftn_quit.f90 wsjtgen.f90 \
 	runqqq.f90 fivehz.f90 flushqqq.f90 map65a0.f90 \
 	rfile.f90 rfile3a.f90 spec.f90 map65a.f90 display.F90 \
-	getfile.f90 getfile2.f90
+	getfile.f90 getfile2.f90 recvpkt.f90
 
 SRCS2F77 = indexx.f gen65.f chkmsg.f \
 	gentone.f gencwid.f set.f db.f pctile.f sort.f ssort.f \
@@ -44,7 +44,7 @@ Audio.pyd: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C)
 	--opt="/nologo /traceback /warn:errors /fast /fpp /define:Win32 \
 	      /define:USE_PORTAUDIO" \
 	$(OBJS2C) \
-	-lwinmm -lpa -lfftw3single -llibsamplerate \
+	-lwinmm -lws2_32 -lpa -lfftw3single -llibsamplerate \
 	-m Audio \
 	only: $(F2PYONLY) : \
 	$(SRCS2F90) $(SRCS2F77) $(SRCS2C)
@@ -79,6 +79,9 @@ wrapkarn.obj: wrapkarn.c
 
 igray.obj: igray.c
 	$(CC) /nologo /c /DWin32=1 igray.c
+
+plrr_subs.o: plrr_subs_win.c
+	$(CC) /nologo /c plrr_subs_win.c /Foplrr_subs.o
 
 .PHONY : clean
 
