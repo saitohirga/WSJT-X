@@ -38,7 +38,7 @@ F2PY	= @F2PY@
 ###
 all:    Audio.so
 
-OBJS2C   = init_rs.o encode_rs.o decode_rs.o
+OBJS2C   = init_rs.o encode_rs.o decode_rs.o plrr_subs.o
 
 F2PYONLY = ftn_init ftn_quit audio_init getfile azdist0 astro0 \
 	spec map65a0
@@ -47,7 +47,7 @@ SRCS2F90 = astro0.F90 audio_init.F90 azdist0.f90 \
 	decode1.F90 ftn_init.F90 ftn_quit.f90 wsjtgen.F90 \
 	runqqq.F90 fivehz.F90 flushqqq.F90 map65a0.f90 \
 	rfile.f90 rfile3a.f90 spec.f90 map65a.f90 display.F90 \
-	getfile.F90 getfile2.F90
+	getfile.F90 getfile2.F90 recvpkt.F90
 
 SRCS2F77 = indexx.f gen65.f chkmsg.f \
 	gentone.f gencwid.f set.f db.f pctile.f sort.f ssort.f \
