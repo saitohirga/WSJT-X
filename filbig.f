@@ -65,8 +65,8 @@ C  If we just have a new f0, continue with the existing ca and cb.
       if(newdat.ne.0) then
          nz=min(nmax,NFFT1)
          do i=1,nz
-            ca(i)=cmplx(float(id(1,i)),float(id(2,i)))
-            cb(i)=cmplx(float(id(3,i)),float(id(4,i)))
+            ca(i)=cmplx(float(int(id(1,i))),float(int(id(2,i))))
+            cb(i)=cmplx(float(int(id(3,i))),float(int(id(4,i))))
          enddo
          if(nmax.lt.NFFT1) then
             do i=nmax+1,NFFT1

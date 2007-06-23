@@ -15,22 +15,27 @@ program plrs
   integer fd
   integer open,read,close
   integer nm(11)
-  character*8 fname
+  character*8 fname,arg
+  logical fast
   real*8 center_freq,dmsec,dtmspacket,tmsec
   common/plrscom/center_freq,msec2,fsample,iptr,nblock,userx_no,iusb,buf8(174)
 !                     8        4      4      4    2       1       1    1392
   data nm/45,46,48,50,52,54,55,56,57,58,59/
-  data nblock/0/
+  data nblock/0/,fast/.false./
 
   nargs=iargc()
-  if(nargs.ne.1) then
-     print*,'Usage: plrs <iters>'
+  if(nargs.ne.1 .and. nargs.ne.2) then
+     print*,'Usage: plrs [-f] <iters>'
      go to 999
   endif
+  call getarg(1,arg)
+  if(arg(1:2).eq.'-f') then
+     fast=.true.
+     call getarg(2,arg)
+  endif
+  read(arg,*) iters
 
   fname="all.tf2"//char(0)
-  iters=1
-
   userx_no=0
   iusb=1
   center_freq=144.125d0
@@ -73,7 +78,7 @@ program plrs
               nsec=time()-nsec0
               nwait=msec-1000*nsec
 !  Pace the data at close to its real-time rate
-              if(nwait.gt.0) call usleep(nwait*1000)
+              if(nwait.gt.0 .and. .not.fast) call usleep(nwait*1000)
            endif
            ns=mod(msec2/1000,60)
            if(ns.ne.ns0) write(*,1010) npkt,ns,0.001*msec2,nwait
