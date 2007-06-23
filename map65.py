@@ -1,4 +1,4 @@
-#--------------------------------------------------------------------- MAP65
+#-------------------------------------------------------------------- MAP65
 # $Date$ $Revision$
 #
 from Tkinter import *
@@ -1871,6 +1871,9 @@ lsync.configure(text=slabel+str(isync))
 lclip.configure(text='Clip   '+str(iclip))
 Audio.gcom2.appdir=(appdir+'                                                                                          ')[:80]
 Audio.gcom2.ndepth=ndepth.get()
+f=open(appdir+'/tmp26.txt','w')
+f.truncate(0)
+f.close
 Audio.ftn_init()
 GenStdMsgs()
 Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'        ')[:8]

@@ -8,7 +8,7 @@ subroutine recvpkt(iarg)
   use dflib
 #endif
 
-  parameter (NSZ=60*96000)
+  parameter (NSZ=2*60*96000)
   real*8 d8(NSZ)
   integer*1 userx_no,iusb
   integer*2 nblock,nblock0
@@ -27,7 +27,6 @@ subroutine recvpkt(iarg)
   call setup_rsocket
   nreset=-1
   k=0
-  npkt=0
   nsec0=-999
 
 10 call recv_pkt(center_freq)
@@ -51,9 +50,12 @@ subroutine recvpkt(iarg)
         nreset=0
         kb=3-kb
         k=0
-        if(kb.eq.2) k=NSZ
+        if(kb.eq.2) k=NSMAX
         nlost=0
      endif
+
+     if(kb.eq.1 .and. (k+174).gt.NSMAX) go to 20
+     if(kb.eq.2 .and. (k+174).gt.2*NSMAX) go to 20
 
      if(transmitting.eq.0) then
         do i=1,174
@@ -66,9 +68,12 @@ subroutine recvpkt(iarg)
            d8(k)=0.d0
         enddo
      endif
+     if(k.lt.1 .or. k.gt.NSZ) then
+        print*,'Error in recvpkt: ',k,NSZ,NSMAX
+        stop
+     endif
 
-     npkt=npkt+1
-     if(nsec.ne.nsec0) then
+20   if(nsec.ne.nsec0) then
         mutch=nsec/3600
         mutcm=mod(nsec/60,60)
         mutc=100*mutch + mutcm
