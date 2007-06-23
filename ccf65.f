@@ -2,7 +2,8 @@
      +     snr2,ipol2,dt2)
 
       parameter (NFFT=512,NH=NFFT/2)
-      real ss(4,322)                   !Input: half-symbol powers, 4 pol'ns
+      real ss(4,322)
+!Input: half-symbol powers, 4 pol'ns
       real s(NFFT)                     !CCF = ss*pr
       complex cs(0:NH)                 !Complex FT of s
       real s2(NFFT)                    !CCF = ss*pr2

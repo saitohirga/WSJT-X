@@ -11,7 +11,8 @@ C  f_stop = 750 Hz.
       complex ca(NFFT1),cb(NFFT1)                !FFTs of input
       real*8 df
       real halfpulse(8)                !Impulse response of filter (one side)
-      complex cfilt(NFFT2)                       !Filter (complex; imag = 0)
+      complex cfilt(NFFT2)
+                       !Filter (complex; imag = 0)
       real rfilt(NFFT2)                          !Filter (real)
       integer plan1,plan2,plan3,plan4,plan5
       logical first
