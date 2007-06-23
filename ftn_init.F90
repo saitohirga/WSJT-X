@@ -77,7 +77,6 @@ subroutine ftn_init
        err=911)
 #endif
   endfile 19
-  rewind 19
 
 #ifdef Win32
   open(20,file=appdir(:iz)//'/bandmap2.txt',status='unknown',               &
@@ -87,7 +86,6 @@ subroutine ftn_init
        err=912)
 #endif
   endfile 20
-  rewind 20
 
 #ifdef Win32
   open(21,file=appdir(:iz)//'/ALL.TXT',status='unknown',                   &
@@ -122,8 +120,6 @@ subroutine ftn_init
 #else
   open(26,file=appdir(:iz)//'/tmp26.txt',status='unknown')
 #endif
-  end file 26
-  rewind 26
 
   return
 

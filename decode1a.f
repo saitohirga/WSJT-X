@@ -27,7 +27,6 @@ C  Mix sync tone to baseband, low-pass filter, and decimate by 64
       dt00=dt
 C  If freq=125.0 kHz, f0=48000 Hz.
       f0=1000*(freq-77.0)                  !Freq of sync tone (0-96000 Hz)
-
       if(nfilt.eq.1) then
          call filbig(id,NMAX,f0,newdat,cx,cy,n5)
          joff=0
