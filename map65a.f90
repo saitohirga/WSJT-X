@@ -56,7 +56,7 @@ subroutine map65a
 !  nflip=-1                     !May need to try both +/- 1
 !  ip0=4                       !Try all four?
 
-!  open(23,file='CALL3.TXT',status='old')
+  open(23,file='CALL3.TXT',status='old')
 
   df=96000.0/NFFT                    !df = 96000/NFFT = 2.930 Hz
   fa=0.0
@@ -314,5 +314,6 @@ subroutine map65a
     
 999 newdat2=0
   nagain=0
+  close(23)
   return
 end subroutine map65a
