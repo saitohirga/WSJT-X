@@ -33,7 +33,7 @@ subroutine recvpkt(iarg)
 10 call recv_pkt(center_freq)
   lost=nblock-nblock0-1
   if(lost.ne.0 .and. .not.first) then
-     print*,'Lost packets?',nblock,nblock0,lost
+!     print*,'Lost packets?',nblock,nblock0,lost
      nlost=nlost + lost
      do i=1,174*lost
         k=k+1

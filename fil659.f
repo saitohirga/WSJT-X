@@ -48,9 +48,9 @@ C  Loop over all output samples
          do j=-NH,NH
             w=w*wstep
             if(j.eq.3-NH) w0=w
-            z=a(j)*cmplx(float(id(1,j+k)),float(id(2,j+k)))*w
+            z=a(j)*cmplx(float(int(id(1,j+k))),float(int(id(2,j+k))))*w
             c2a(i)=c2a(i) + z
-            z=a(j)*cmplx(float(id(3,j+k)),float(id(4,j+k)))*w
+            z=a(j)*cmplx(float(int(id(3,j+k))),float(int(id(4,j+k))))*w
             c2b(i)=c2b(i) + z
          enddo
       enddo

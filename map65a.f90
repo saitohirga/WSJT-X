@@ -56,7 +56,7 @@ subroutine map65a
 !  nflip=-1                     !May need to try both +/- 1
 !  ip0=4                       !Try all four?
 
-  open(23,file='CALL3.TXT',status='unknown')
+!  open(23,file='CALL3.TXT',status='old')
 
   df=96000.0/NFFT                    !df = 96000/NFFT = 2.930 Hz
   fa=0.0
