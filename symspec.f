@@ -11,7 +11,8 @@ C  Compute spectra at four polarizations, using half-symbol steps.
       real*8 ts,hsym
       common/spcom/ip0,ss(4,322,NFFT),ss5(322,NFFT)
 
-      fac=1.e-4
+!      fac=1.e-4
+      fac=1.7e-4
       hsym=2048.d0*96000.d0/11025.d0     !Samples per half symbol
       npts=hsym                          !Integral samples per half symbol
       nsteps=322                         !Half symbols per transmission
