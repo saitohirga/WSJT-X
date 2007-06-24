@@ -6,6 +6,7 @@ real s2                !2d spectrum for horizontal waterfall    GUI
 real ccf               !CCF in time (blue curve)                Decoder
 real green             !Data for green line                     GUI
 real fselect           !Specified QSO frequency                 GUI
+real pctlost           !Percent of lost packets                 Decoder
 real rxnoise           !Rx noise in dB                        recvpkt
 integer ngreen         !Length of green                         GUI
 real dgain             !Digital audio gain setting              GUI
@@ -89,18 +90,18 @@ character*80 filetokillb
 character*12 pttport
 character*8 utcdata     !HHMM UTC for the processed data       Decoder
 
-common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),             &
-     green(500),fselect,rxnoise,ngreen,dgain,iter,ndecoding,          &
+common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),               &
+     green(500),fselect,pctlost,rxnoise,ngreen,dgain,iter,ndecoding,    &
      ndecoding0,mousebutton,   &
      ndecdone,npingtime,ierr,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5, &
-     dftolerance,LDecoded,rxdone,monitoring,nzap,nsavecum,minsigdb,   &
+     dftolerance,LDecoded,rxdone,monitoring,nzap,nsavecum,minsigdb,     &
      nclearave,nfreeze,nafc,newspec,nmode,mode65,nclip,ndebug,nblank,nport,   &
-     mousedf,mousefqso,neme,nsked,naggressive,ntx2,nagain,nsavelast,     &
-     shok,sendingsh,d2a(661500),d2b(661500),b(60000),jza,jzb,ntime,   &
-     idinterval,msmax,lenappdir,idf,ndiskdat,nlines,nflat,ntxreq,ntxnow,  &
-     ndepth,nspecial,ndf,nfmid,nfrange,ss1(-224:224),ss2(-224:224),   &
-     mycall,hiscall,hisgrid,txmsg,sending,mode,fname0,fnamea,         &
-     fnameb,decodedfile,AppDir,filetokilla,filetokillb,utcdate,pttport,  &
+     mousedf,mousefqso,neme,nsked,naggressive,ntx2,nagain,nsavelast,    &
+     shok,sendingsh,d2a(661500),d2b(661500),b(60000),jza,jzb,ntime,     &
+     idinterval,msmax,lenappdir,idf,ndiskdat,nlines,nflat,ntxreq,ntxnow,&
+     ndepth,nspecial,ndf,nfmid,nfrange,ss1(-224:224),ss2(-224:224),     &
+     mycall,hiscall,hisgrid,txmsg,sending,mode,fname0,fnamea,           &
+     fnameb,decodedfile,AppDir,filetokilla,filetokillb,utcdate,pttport, &
      utcdata
 
 !### volatile /gcom2/

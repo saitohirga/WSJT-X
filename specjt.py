@@ -43,6 +43,7 @@ frange0=2000
 isec0=-99
 mode0=""
 mousedf0=0
+mousefqso0=0
 naxis=IntVar()
 ncall=0
 newMinute=0
@@ -123,11 +124,13 @@ def fdf_change2(event):
 def set_fqso(event):
     n=int(g.Freq + 0.5)
     Audio.gcom2.mousefqso=n
+    df_mark()
 
 #---------------------------------------------------- set_freezedf
 def set_freezedf(event):
     n=int(g.DFreq + 0.5)
     Audio.gcom2.mousedf=n
+    df_mark()
 
 #------------------------------------------------------ ftnstr
 def ftnstr(x):
@@ -139,40 +142,27 @@ def ftnstr(x):
 #---------------------------------------------------- df_mark
 def df_mark():
     draw_axis()
-    if nmark.get()==0 or Audio.gcom2.nfreeze:
-        fstep=10.0*11025.0/4096.0
-        if g.mode[4:5]=='B': fstep=2*fstep
-        if g.mode[4:5]=='C': fstep=4*fstep
+#    if nmark.get()==0 or Audio.gcom2.nfreeze:
+# Mark QSO freq in top graph
+    color='green'
+    df=96.0/750.0
+    x1=393.0 + (Audio.gcom2.mousefqso-125)/df
+    c.create_line(x1-0.5,25,x1-0.5,12,fill=color)
+    c.create_line(x1+0.5,25,x1+0.5,12,fill=color)
 
+    df=96000.0/32768.0
 # Mark sync tone and top JT65 tone (green) and shorthand tones (red)
-        dx=288.7 + (1500-fmid)/df
-        color='green'
-        x1=(Audio.gcom2.mousedf + 6.6*fstep)/df + dx
-        c.create_line(x1-0.5,25,x1-0.5,12,fill=color)
-        c.create_line(x1+0.5,25,x1+0.5,12,fill=color)
-        for i in range(5):
-            x1=(Audio.gcom2.mousedf + i*fstep)/df + dx
-            j=12
-            if i>0: j=15
-            if i!=1: c.create_line(x1-0.5,25,x1-0.5,j,fill=color)
-            if i!=1: c.create_line(x1+0.5,25,x1+0.5,j,fill=color)
-            color='red'
-
-#---------------------------------------------------- change_fmid
-##def change_fmid1():
-##    global fmid
-##    fmid=fmid+100
-##    if fmid>5000-1000*nfr.get(): fmid=5000-1000*nfr.get()
-##
-##def change_fmid2():
-##    global fmid
-##    fmid=fmid-100
-##    if fmid<1000*nfr.get(): fmid=1000*nfr.get()
-##
-##def set_fmid():
-##    global fmid
-##    if nfr.get()==1: fmid=1200
-##    if nfr.get()==2: fmid=2200
+    fstep=20.0*11025.0/4096.0
+    x1=375.0 + (Audio.gcom2.mousedf + 6.6*fstep)/df
+    c2.create_line(x1-0.5,25,x1-0.5,12,fill=color)
+    c2.create_line(x1+0.5,25,x1+0.5,12,fill=color)
+    for i in range(5):
+        x1=375.0 + (Audio.gcom2.mousedf + i*fstep)/df
+        j=12
+        if i>0: j=15
+        if i!=1: c2.create_line(x1-0.5,25,x1-0.5,j,fill=color)
+        if i!=1: c2.create_line(x1+0.5,25,x1+0.5,j,fill=color)
+        color='red'
 
 #---------------------------------------------------- freq_range
 def freq_range(event):
@@ -221,7 +211,7 @@ def freeze_decode(event):
 def update():
     global a,a2,b0,c0,g0,im,im2,isec0,line0,line02,newMinute,\
            nscroll,pim,pim2, \
-           root_geom,t0,mousedf0,nfreeze0,tol0,mode0,nmark0, \
+           root_geom,t0,mousedf0,mousefqso0,nfreeze0,tol0,mode0,nmark0, \
            fmid,fmid0,frange,frange0
     
     utc=time.gmtime(time.time()+0.1*Audio.gcom1.ndsec)
@@ -299,13 +289,14 @@ def update():
         newMinute=0
         Audio.gcom2.newspec=0
 
-    if (Audio.gcom2.mousedf != mousedf0 or Audio.gcom2.dftolerance != tol0):
+    if (Audio.gcom2.mousedf != mousedf0 or
+            Audio.gcom2.mousefqso != mousefqso0):
         df_mark()
         
 # The following int() calls are to ensure that the values copied to
-# mousedf0 and tol0 are static.
+# mousedf0 and mousefqso0 are static.
         mousedf0=int(Audio.gcom2.mousedf)
-        tol0=int(Audio.gcom2.dftolerance)
+        mousefqso0=int(Audio.gcom2.mousefqso)
 
     if Audio.gcom2.nfreeze != nfreeze0:
         if not Audio.gcom2.nfreeze: draw_axis()
@@ -376,10 +367,10 @@ def draw_axis():
             c2.create_text(x,y,text=str(ix))
         c2.create_line(i,25,i,j,fill='black')
 
-    tol=Audio.gcom2.dftolerance
-    x1=(Audio.gcom2.mousedf-tol)/xdf2 + 0.5*NX
-    x2=(Audio.gcom2.mousedf+tol)/xdf2 + 0.5*NX
-    c2.create_line(x1,25,x2,25,fill='green',width=2)
+#    tol=Audio.gcom2.dftolerance
+#    x1=(Audio.gcom2.mousedf-tol)/xdf2 + 0.5*NX
+#    x2=(Audio.gcom2.mousedf+tol)/xdf2 + 0.5*NX
+#    c2.create_line(x1,25,x2,25,fill='green',width=2)
 
 
 #-------------------------------------------------------- Create GUI widgets
@@ -476,8 +467,6 @@ Widget.bind(c2,"<Shift-Button-3>",freq_range)
 graph2=Canvas(iframe1, bg='black', width=NX, height=NY,bd=0,cursor='crosshair')
 graph2.pack(side=TOP)
 Widget.bind(graph2,"<Motion>",fdf_change2)
-#Widget.bind(graph2,"<Button-1>",decode_request)
-#Widget.bind(graph2,"<Button-3>",decode_request)
 Widget.bind(graph2,"<Button-1>",set_freezedf)
 Widget.bind(graph2,"<Double-Button-1>",freeze_decode)
 iframe1.pack(expand=1, fill=X)
@@ -553,7 +542,9 @@ if g.cmap == "AFMHot":
     npal.set(5)
 
 #---------------------------------------------- Display GUI and start mainloop
-draw_axis()
+#draw_axis()
+df_mark()
+
 try:
     ndevin=g.ndevin.get()
 except:

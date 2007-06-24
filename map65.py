@@ -879,6 +879,14 @@ def left_arrow(event=NONE):
     if n<0: n=n-5
     if n==Audio.gcom2.mousedf: n=n-5
     Audio.gcom2.mousedf=n
+
+#------------------------------------------------------ inc_fqso
+def inc_fqso(event=NONE):
+    Audio.gcom2.mousefqso=Audio.gcom2.mousefqso + 1
+
+#------------------------------------------------------ dec_fqso
+def dec_fqso(event=NONE):
+    Audio.gcom2.mousefqso=Audio.gcom2.mousefqso - 1
     
 #------------------------------------------------------ GenStdMsgs
 def GenStdMsgs(event=NONE):
@@ -1086,8 +1094,10 @@ def update():
         t=time.strftime('%Y %b %d\n%H:%M:%S',utc)
         Audio.gcom2.utcdate=t[:12]
         ldate.configure(text=t)
-        t="Rx noise: %.1f" % Audio.gcom2.rxnoise
+        t="Rx noise: %.1f dB" % Audio.gcom2.rxnoise
         msg5.configure(text=t)
+        t="Drop: %.1f %%" % Audio.gcom2.pctlost
+        msg6.configure(text=t)
         root_geom=root.geometry()
         try:
             bm_geom=bm.geometry()
@@ -1363,7 +1373,7 @@ filemenu.add_separator()
 filemenu.add('command', label = 'Delete all *.WAV files in RxWav', \
              command = delwav)
 filemenu.add_separator()
-filemenu.add('command', label = 'Erase ALL.TXT', command = del_all)
+filemenu.add('command', label = 'Erase ALL65.TXT', command = del_all)
 filemenu.add_separator()
 filemenu.add('command', label = 'Exit', command = quit)
 
@@ -1528,7 +1538,9 @@ root.bind_all('<Control-F8>', ModeJT65C)
 root.bind_all('<F10>', showspecjt)
 root.bind_all('<Shift-F10>', astro1)
 root.bind_all('<F11>',left_arrow)
+root.bind_all('<Shift-F11>',dec_fqso)
 root.bind_all('<F12>',right_arrow)
+root.bind_all('<Shift-F12>',inc_fqso)
 root.bind_all('<Alt-Key-1>',btx1)
 root.bind_all('<Alt-Key-2>',btx2)
 root.bind_all('<Alt-Key-3>',btx3)
@@ -1754,6 +1766,8 @@ msg4=Message(iframe6, text="", width=300,relief=SUNKEN)
 msg4.pack(side=LEFT, fill=X, padx=1)
 msg5=Message(iframe6, text="", width=300,relief=SUNKEN)
 msg5.pack(side=LEFT, fill=X, padx=1)
+msg6=Message(iframe6, text="", width=300,relief=SUNKEN)
+msg6.pack(side=LEFT, fill=X, padx=1)
 msg7=Message(iframe6, text='                        ', width=300,relief=SUNKEN)
 msg7.pack(side=RIGHT, fill=X, padx=1)
 iframe6.pack(expand=1, fill=X, padx=4)

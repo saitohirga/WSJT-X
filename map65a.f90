@@ -15,17 +15,20 @@ subroutine map65a
   character*3 shmsg0(4),shmsg
   integer indx(MAXMSG),nsiz(MAXMSG)
   logical done(MAXMSG)
+  logical even
   character decoded*22,blank*22
   include 'datcom.f90'
   common/spcom/ip0,ss(4,322,NFFT),ss5(322,NFFT)
   data blank/'                      '/
   data shmsg0/'ATT','RO ','RRR','73 '/
-  data nfile/0/,nutc0/-999/,nid/0/,ip00/1/
+  data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/
   include 'gcom2.f90'
   save
 
-  if(nlost.ne.0) write(*,1001) nutc,nlost
-1001 format('UTC:',i5.4,'   Lost packets:',i6)
+  pctlost=nlost/331.03
+  if(nlost.ne.0) write(*,1001) nutc,nlost,pctlost
+1001 format('UTC:',i5.4,'   Lost packets:',i6,', or',f6.1,' %')
+  even=mod(nutc,2).eq.0
 
   if(newdat2.eq.0) newdat2=1                      !###
   if(newdat2.gt.0) nid=1
@@ -75,7 +78,8 @@ subroutine map65a
      nfilt=2                      !nfilt=2 is faster for selected freq
      do kpol=0,3
         freq=fselect + 0.001*mousedf
-        ip0=ip00+kpol
+        if(even) ip0=ip000+kpol
+        if(.not.even) ip0=ip001+kpol
         if(ip0.gt.4) ip0=ip0-4
         dt00=2.314240
         dt=dt00
@@ -91,7 +95,9 @@ subroutine map65a
         if(nkv.gt.0) go to 5
      enddo
 
-5    ip00=ip0
+5    if(even) ip000=ip0
+     if(.not.even) ip001=ip0
+
      nkHz=nint(freq-1.600)
      npol=nint(57.2957795*pol)
      nqual=qual
@@ -303,6 +309,8 @@ subroutine map65a
            nsync1=sync1
            nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
            write(26,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
+                nsync2,nutc,decoded,nkv,nqual,nhist
+           write(21,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
                 nsync2,nutc,decoded,nkv,nqual,nhist
 1014       format(f7.3,i5,3i3,f5.1,i5,i3,i4,i5.4,2x,a22,3i3)
 

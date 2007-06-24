@@ -13,7 +13,7 @@ C  Compute spectra at four polarizations, using half-symbol steps.
 
 !      fac=1.e-4
 !      fac=1.7e-4
-      fac=0.0002 * 10.0**(0.1*(-rxnoise))
+      fac=0.0002 * 10.0**(0.05*(-rxnoise))
 
       hsym=2048.d0*96000.d0/11025.d0     !Samples per half symbol
       npts=hsym                          !Integral samples per half symbol
