@@ -6,6 +6,7 @@ real s2                !2d spectrum for horizontal waterfall    GUI
 real ccf               !CCF in time (blue curve)                Decoder
 real green             !Data for green line                     GUI
 real fselect           !Specified QSO frequency                 GUI
+real rxnoise           !Rx noise in dB                        recvpkt
 integer ngreen         !Length of green                         GUI
 real dgain             !Digital audio gain setting              GUI
 integer iter           !(why is this here??)
@@ -89,7 +90,8 @@ character*12 pttport
 character*8 utcdata     !HHMM UTC for the processed data       Decoder
 
 common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),             &
-     green(500),fselect,ngreen,dgain,iter,ndecoding,ndecoding0,mousebutton,   &
+     green(500),fselect,rxnoise,ngreen,dgain,iter,ndecoding,          &
+     ndecoding0,mousebutton,   &
      ndecdone,npingtime,ierr,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5, &
      dftolerance,LDecoded,rxdone,monitoring,nzap,nsavecum,minsigdb,   &
      nclearave,nfreeze,nafc,newspec,nmode,mode65,nclip,ndebug,nblank,nport,   &
