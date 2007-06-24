@@ -39,14 +39,15 @@ subroutine map65a
 1002 format(i4.4)
   utcdata=utcdata(1:2)//':'//utcdata(3:4)
 
+  fselect=mousefqso + 1.6
+
 !  fselect=126.0 + 1.6 + 0.290                ! K6MYC (NG??)
 !  nflip=-1
 !  ip0=1
 
 !  fselect=128.0 + 1.6 + 0.220               ! AA1YN (OK)
-  fselect=mousefqso + 0.001*mousedf + 1.6
-  nflip=1
-  ip0=3
+!  nflip=1
+!  ip0=3
 
 !  fselect=155.0 + 1.6 + 0.454                ! N0AKC (OK)
 !  nflip=1
@@ -73,7 +74,7 @@ subroutine map65a
 !  nfilt=2 should be faster (but doesn't work right?)
      nfilt=2                      !nfilt=2 is faster for selected freq
      do kpol=0,3
-        freq=fselect
+        freq=fselect + 0.001*mousedf
         ip0=ip00+kpol
         if(ip0.gt.4) ip0=ip0-4
         dt00=2.314240
@@ -117,7 +118,7 @@ subroutine map65a
      short(3,i)=0.
   enddo
 
-  call symspec(id(1,1,kbuf),nz,savg)
+  call symspec(id(1,1,kbuf),nz,rxnoise,savg)
   newspec=1
      
   freq0=-999.

@@ -1086,7 +1086,7 @@ def update():
         t=time.strftime('%Y %b %d\n%H:%M:%S',utc)
         Audio.gcom2.utcdate=t[:12]
         ldate.configure(text=t)
-        t="Rx noise: %.1f" % (Audio.gcom2.rxnoise - 16.0)
+        t="Rx noise: %.1f" % Audio.gcom2.rxnoise
         msg5.configure(text=t)
         root_geom=root.geometry()
         try:

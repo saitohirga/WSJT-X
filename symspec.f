@@ -1,4 +1,4 @@
-      subroutine symspec(id,nz,savg)
+      subroutine symspec(id,nz,rxnoise,savg)
 
 C  Compute spectra at four polarizations, using half-symbol steps.
 
@@ -12,7 +12,9 @@ C  Compute spectra at four polarizations, using half-symbol steps.
       common/spcom/ip0,ss(4,322,NFFT),ss5(322,NFFT)
 
 !      fac=1.e-4
-      fac=1.7e-4
+!      fac=1.7e-4
+      fac=0.0002 * 10.0**(0.1*(-rxnoise))
+
       hsym=2048.d0*96000.d0/11025.d0     !Samples per half symbol
       npts=hsym                          !Integral samples per half symbol
       nsteps=322                         !Half symbols per transmission

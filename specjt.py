@@ -116,7 +116,7 @@ def fdf_change(event):
 
 def fdf_change2(event):
     g.DFreq=(2200.0/750.0)*(event.x-375)
-    t="Freq: %5.1f kHz" % (g.DFreq,)
+    t="DF: %d Hz" % int(g.DFreq)
     fdf2.configure(text=t)
 
 #---------------------------------------------------- set_fqso
