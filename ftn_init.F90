@@ -11,7 +11,7 @@
 !   18  test file to be transmitted (wsjtgen.f90)
 !   19  bandmap.txt
 !   20  bandmap2.txt
-!   21  ALL.TXT
+!   21  ALL65.TXT
 !   22  kvasd.dat
 !   23  CALL3.TXT
 
@@ -88,10 +88,10 @@ subroutine ftn_init
   endfile 20
 
 #ifdef Win32
-  open(21,file=appdir(:iz)//'/ALL.TXT',status='unknown',                   &
+  open(21,file=appdir(:iz)//'/ALL65.TXT',status='unknown',                   &
        access='append',share='denynone',err=950)
 #else
-  open(21,file=appdir(:iz)//'/ALL.TXT',status='unknown',                   &
+  open(21,file=appdir(:iz)//'/ALL65.TXT',status='unknown',                   &
 	access='append',err=950)
   do i=1,9999999
      read(21,*,end=10) cjunk
@@ -135,7 +135,7 @@ subroutine ftn_init
   stop
 940 print*,'Error opening DEBUG.TXT'
   stop
-950 print*,'Error opening ALL.TXT'
+950 print*,'Error opening ALL65.TXT'
   stop
 
 end subroutine ftn_init
