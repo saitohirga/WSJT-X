@@ -21,6 +21,7 @@ subroutine recvpkt(iarg)
   include 'gcom2.f90'
   equivalence (id,d8)
   data nblock0/0/,first/.true./,kb/1/,ntx/0/
+  data sqave/0.0/,u/0.001/,rxnoise/0.0/
   save
 
 ! Open a socket to receive multicast data from Linrad
@@ -32,7 +33,7 @@ subroutine recvpkt(iarg)
 10 call recv_pkt(center_freq)
   lost=nblock-nblock0-1
   if(lost.ne.0 .and. .not.first) then
-!     print*,'Lost packets?',nblock,nblock0,lost
+!     print*,'Lost packets?',nblock,nblock0,lost,rxnoise
      nlost=nlost + lost
      do i=1,174*lost
         k=k+1
@@ -58,10 +59,15 @@ subroutine recvpkt(iarg)
      if(kb.eq.2 .and. (k+174).gt.2*NSMAX) go to 20
 
      if(transmitting.eq.0) then
+        sq=0.
         do i=1,174
            k=k+1
            d8(k)=buf8(i)
+           sq=sq + float(id(1,k,1))**2 + float(id(1,k,1))**2 +      &
+                float(id(1,k,1))**2 + float(id(1,k,1))**2
         enddo
+        sqave=sqave + u*(sq-sqave)
+        rxnoise=10.0*log10(sqave) - 32.0
      else
         do i=1,174
            k=k+1
