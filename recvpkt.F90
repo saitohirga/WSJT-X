@@ -67,7 +67,7 @@ subroutine recvpkt(iarg)
                 float(id(1,k,1))**2 + float(id(1,k,1))**2
         enddo
         sqave=sqave + u*(sq-sqave)
-        rxnoise=10.0*log10(sqave) - 32.0
+        rxnoise=10.0*log10(sqave) - 48.0
      else
         do i=1,174
            k=k+1
@@ -84,7 +84,7 @@ subroutine recvpkt(iarg)
         mutcm=mod(nsec/60,60)
         mutc=100*mutch + mutcm
         ns=mod(nsec,60)
-!     write(*,1010) mutc,ns,0.001*msec,k
+!     write(*,1010) mutc,ns,0.001*msec,k,rxnoise
 !1010 format('UTC:',i5.4,'   ns:',i3,'   t:',f10.3,'   k:',i8)
         nsec0=nsec
         ntx=ntx+transmitting
