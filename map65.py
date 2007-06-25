@@ -1096,7 +1096,10 @@ def update():
             bmtext.insert(END,'Freq  DF Pol  UTC\n')
             bmtext.insert(END,'----------------------------------------\n')
             for i in range(len(lines)):
-                nage=int(lines[i][41:])
+                try:
+                    nage=int(lines[i][41:])
+                except:
+                    nage=0
                 lines[i]=lines[i][:41]
                 if nage==0: attr='age0'
                 if nage==1: attr='age1'
