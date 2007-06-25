@@ -17,7 +17,7 @@ from types import *
 import array
 
 root = Tk()
-Version="0.1 r" + "$Rev$"[6:-1]
+Version="0.7 r" + "$Rev$"[6:-1]
 print "******************************************************************"
 print "MAP65 Version " + Version + ", by K1JT"
 print "Revision date: " + \
@@ -174,10 +174,15 @@ def bandmap(event=NONE):
     if g.Win32: bm.iconbitmap("wsjt.ico")
     iframe_bm1 = Frame(bm, bd=1, relief=SUNKEN)
     bmtext=Text(iframe_bm1, height=35, width=41, bg="Navy", fg="yellow")
+    bmtext.bind('<Double-Button-1>',dbl_click_bmtext)
     bmtext.pack(side=LEFT, fill=X, padx=1, pady=3)
     bmsb = Scrollbar(iframe_bm1, orient=VERTICAL, command=bmtext.yview)
     bmsb.pack(side=RIGHT, fill=Y)
     bmtext.configure(yscrollcommand=bmsb.set)
+    bmtext.tag_configure('age0',foreground='red')
+    bmtext.tag_configure('age1',foreground='yellow')
+    bmtext.tag_configure('age2',foreground='gray75')
+    bmtext.tag_configure('age3',foreground='gray50')
     iframe_bm1.pack(expand=1, fill=X, padx=4)
 
 #------------------------------------------------------ bandmap2
@@ -188,7 +193,12 @@ def bandmap2(event=NONE):
     if g.Win32: bm2.iconbitmap("wsjt.ico")
     iframe_bm2 = Frame(bm2, bd=1, relief=SUNKEN)
     bm2text=Text(iframe_bm2, height=24, width=36, bg="Navy", fg="yellow")
+    bm2text.bind('<Double-Button-1>',dbl_click_bm2text)
     bm2text.pack(side=LEFT, fill=X, padx=1, pady=3)
+    bm2text.tag_configure('age0',foreground='red')
+    bm2text.tag_configure('age1',foreground='yellow')
+    bm2text.tag_configure('age2',foreground='gray75')
+    bm2text.tag_configure('age3',foreground='gray50')
     iframe_bm2.pack(expand=1, fill=X, padx=4)
 
 #------------------------------------------------------ logqso
@@ -222,6 +232,16 @@ def stopmon(event=NONE):
 def dbl_click_text(event):
     t=text.get('1.0',END)           #Entire contents of text box
     t1=text.get('1.0',CURRENT)      #Contents from start to cursor
+    dbl_click_call(t,t1,event)
+#------------------------------------------------------ dbl_click_bmtext
+def dbl_click_bmtext(event):
+    t=bmtext.get('1.0',END)           #Entire contents of text box
+    t1=bmtext.get('1.0',CURRENT)      #Contents from start to cursor
+    dbl_click_call(t,t1,event)
+#------------------------------------------------------ dbl_click_bm2text
+def dbl_click_bm2text(event):
+    t=bm2text.get('1.0',END)           #Entire contents of text box
+    t1=bm2text.get('1.0',CURRENT)      #Contents from start to cursor
     dbl_click_call(t,t1,event)
 #------------------------------------------------------ dbl_click_ave
 def dbl_click_ave(event):
@@ -1271,7 +1291,13 @@ def update():
             bmtext.insert(END,'Freq  DF Pol  UTC\n')
             bmtext.insert(END,'----------------------------------------\n')
             for i in range(len(lines)):
-                bmtext.insert(END,lines[i])
+                nage=int(lines[i][41:])
+                lines[i]=lines[i][:41]
+                if nage==0: attr='age0'
+                if nage==1: attr='age1'
+                if nage==2: attr='age2'
+                if nage>=3: attr='age3'
+                bmtext.insert(END,lines[i],attr)
             bmtext.see(END)
 
             try:
@@ -1283,7 +1309,21 @@ def update():
             bm2text.configure(state=NORMAL)
             bm2text.delete('1.0',END)
             for i in range(len(lines)):
-                bm2text.insert(END,lines[i])
+                for j in range(3):
+                    ka=14*j
+                    kb=ka+12
+                    t=lines[i][ka:kb]
+                    try:
+                        nage=int(t[10:])
+                    except:
+                        nage=0
+                    t=t[:11]+' '
+                    if j==2: t=t+'\n'
+                    if nage==0: attr='age0'
+                    if nage==1: attr='age1'
+                    if nage==2: attr='age2'
+                    if nage>=3: attr='age3'
+                    bm2text.insert(END,t,attr)
             bm2text.see(END)
 
             Audio.gcom2.ndecdone=0

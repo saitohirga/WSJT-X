@@ -6,11 +6,11 @@ subroutine display
 
   parameter (MAXLINES=500,MX=500)
   integer indx(MAXLINES),indx2(MX)
-  character*80 line(MAXLINES),line2(MX),line3(MAXLINES)
-  character out*41,cfreq0*3
+  character*81 line(MAXLINES),line2(MX),line3(MAXLINES)
+  character out*46,cfreq0*3
   character*6 callsign,callsign0
-  character*10 freqcall(100)
-  character*36 bm2
+  character*12 freqcall(100)
+  character*40 bm2
   real freqkHz(MAXLINES)
   integer utc(MAXLINES),utc2(MX),utcz
   real*8 f0
@@ -29,14 +29,25 @@ subroutine display
   enddo
 
 10 nz=i-1
+
   utcz=utc(nz)
-  ndiff=utcz-utc(1)
-  if(ndiff.lt.0) ndiff=ndiff+1440
-  if(ndiff.gt.nkeep) then
+  nquad=nkeep/4
+  do i=1,nz
+     nage=utcz-utc(i)
+     if(nage.lt.0) nage=nage+1440
+     iage=(nage/nquad) + 1
+     if(nage.le.1) iage=0
+     write(line(i)(78:81),1021) iage
+1021 format(i4)
+  enddo
+
+  nage=utcz-utc(1)
+  if(nage.lt.0) nage=nage+1440
+  if(nage.gt.nkeep) then
      do i=1,nz
-        ndiff=utcz-utc(i)
-        if(ndiff.lt.0) ndiff=ndiff+1440
-        if(ndiff.le.nkeep) go to 20
+        nage=utcz-utc(i)
+        if(nage.lt.0) nage=nage+1440
+        if(nage.le.nkeep) go to 20
      enddo
 20   i0=i
      nz=nz-i0+1
@@ -108,7 +119,7 @@ subroutine display
   nc=0
   callsign0='          '
   do k=1,k3
-     out=line3(k)(5:12)//line3(k)(28:31)//line3(k)(39:67)
+     out=line3(k)(5:12)//line3(k)(28:31)//line3(k)(39:67)//line3(k)(77:81)
      if(out(1:3).ne.'   ') then
         if(out(1:3).eq.cfreq0) then
            out(1:3)='   '
@@ -116,29 +127,32 @@ subroutine display
            cfreq0=out(1:3)
         endif
         write(19,1030) out
-1030    format(a41)
+1030    format(a46)
         i1=index(out(20:),' ')
         callsign=out(i1+20:)
         i2=index(callsign,' ')
         if(i2.gt.1) callsign(i2:)='      '
         if(callsign.ne.'      ' .and. callsign.ne.callsign0) then
            nc=nc+1
-           freqcall(nc)=cfreq0//' '//callsign
+           freqcall(nc)=cfreq0//' '//callsign//line3(k)(80:81)
            callsign0=callsign
+        endif
+        if(callsign.ne.'      ' .and. callsign.eq.callsign0) then
+           freqcall(nc)=cfreq0//' '//callsign//line3(k)(80:81)
         endif
      endif
   enddo
   call flushqqq(19)
   nc=nc+1
-  freqcall(nc)='          '
+  freqcall(nc)='            '
   nc=nc+1
-  freqcall(nc)='          '
-  freqcall(nc+1)='          '
+  freqcall(nc)='            '
+  freqcall(nc+1)='            '
   iz=(nc+2)/3
   do i=1,iz
      bm2=freqcall(i)//'  '//freqcall(i+iz)//'  '//freqcall(i+2*iz)
      write(20,1040) bm2
-1040 format(a36)
+1040 format(a40)
   enddo
   call flushqqq(20)
   return
