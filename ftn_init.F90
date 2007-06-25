@@ -14,6 +14,9 @@
 !   21  ALL65.TXT
 !   22  kvasd.dat
 !   23  CALL3.TXT
+!   24  meas24.dat
+!   25  meas25.dat
+!   26  tmp26.tmp
 
 !------------------------------------------------ ftn_init
 subroutine ftn_init
@@ -108,10 +111,17 @@ subroutine ftn_init
 #endif
 
 #ifdef Win32
-  open(24,file=appdir(:iz)//'/tmp24.txt',status='unknown',                 &
+  open(24,file=appdir(:iz)//'/meas24.txt',status='unknown',                 &
        share='denynone')
 #else
-  open(24,file=appdir(:iz)//'/tmp24.txt',status='unknown')
+  open(24,file=appdir(:iz)//'/meas24.txt',status='unknown')
+#endif
+
+#ifdef Win32
+  open(25,file=appdir(:iz)//'/meas25.txt',status='unknown',                 &
+       share='denynone')
+#else
+  open(25,file=appdir(:iz)//'/meas25.txt',status='unknown')
 #endif
 
 #ifdef Win32

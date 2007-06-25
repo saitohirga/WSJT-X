@@ -142,7 +142,6 @@ def ftnstr(x):
 #---------------------------------------------------- df_mark
 def df_mark():
     draw_axis()
-#    if nmark.get()==0 or Audio.gcom2.nfreeze:
 # Mark QSO freq in top graph
     color='green'
     df=96.0/750.0
@@ -175,30 +174,6 @@ def freq_range(event):
             fmid=fmid-100
     if fmid<1000*nfr.get(): fmid=1000*nfr.get()
     if fmid>5000-1000*nfr.get(): fmid=5000-1000*nfr.get()
-
-#def set_frange():
-#    nfr.set(3-nfr.get())
-
-#---------------------------------------------------- freq_center
-##def freq_center(event):
-### Move clicked location to center of frequency scale
-##    global fmid,frange
-##    n=100*int(0.01*df*(event.x-375))
-##    fmid = fmid + n
-##    if fmid<1000: fmid=1000
-##    if fmid>1700: fmid=1700
-
-#---------------------------------------------------- decode_request
-##def decode_request(event):
-##    if g.mode[:4]!='JT65' and nspeed0.get()>5:
-### If decoder is busy or we are not monitoring, ignore request
-##        if Audio.gcom2.ndecoding==0 and Audio.gcom2.monitoring:
-##            Audio.gcom2.mousebutton=event.num       #Left=1, Right=3
-##            Audio.gcom2.npingtime=int(40*event.x)   #Time (ms) of selected ping
-##            if event.y <= 150:
-##                Audio.gcom2.ndecoding=2             #Mouse pick, top half
-##            else:
-##                Audio.gcom2.ndecoding=3             #Mouse pick, bottom half
 
 #---------------------------------------------------- freeze_decode
 def freeze_decode(event):
@@ -318,7 +293,6 @@ def update():
     if(fmid<>fmid0 or frange<>frange0):
         if fmid<1000*nfr.get(): fmid=1000*nfr.get()
         if fmid>5000-1000*nfr.get(): fmid=5000-1000*nfr.get()
-#        draw_axis()
         df_mark()
         fmid0=fmid
         frange0=frange
@@ -367,12 +341,6 @@ def draw_axis():
             c2.create_text(x,y,text=str(ix))
         c2.create_line(i,25,i,j,fill='black')
 
-#    tol=Audio.gcom2.dftolerance
-#    x1=(Audio.gcom2.mousedf-tol)/xdf2 + 0.5*NX
-#    x2=(Audio.gcom2.mousedf+tol)/xdf2 + 0.5*NX
-#    c2.create_line(x1,25,x2,25,fill='green',width=2)
-
-
 #-------------------------------------------------------- Create GUI widgets
 
 #-------------------------------------------------------- Menu bar
@@ -382,34 +350,23 @@ frame.pack()
 mbar = Frame(frame)
 mbar.pack(fill=X)
 
-#--------------------------------------------------------- Options menu
-setupbutton = Menubutton(mbar, text = 'Options', )
+#--------------------------------------------------------- Palette menu
+setupbutton = Menubutton(mbar, text = 'Palette', )
 setupbutton.pack(side = LEFT)
-setupmenu = Menu(setupbutton, tearoff=1)
+setupmenu = Menu(setupbutton,tearoff=0)
 setupbutton['menu'] = setupmenu
-setupmenu.add_checkbutton(label='Flatten spectra',variable=nflat)
-setupmenu.add_checkbutton(label='Mark JT65 tones only if Freeze is checked',
-            variable=nmark)
-setupmenu.add_separator()
-setupmenu.add_radiobutton(label='Frequency axis',command=df_mark,
-            value=0,variable=naxis)
-setupmenu.add_radiobutton(label='JT65 DF axis',command=df_mark,
-            value=1,variable=naxis)
-setupmenu.add_separator()
-setupmenu.palettes=Menu(setupmenu,tearoff=0)
-setupmenu.palettes.add_radiobutton(label='Gray0',command=pal_gray0,
+setupmenu.add_radiobutton(label='Gray0',command=pal_gray0,
             value=0,variable=npal)
-setupmenu.palettes.add_radiobutton(label='Gray1',command=pal_gray1,
+setupmenu.add_radiobutton(label='Gray1',command=pal_gray1,
             value=1,variable=npal)
-setupmenu.palettes.add_radiobutton(label='Linrad',command=pal_linrad,
+setupmenu.add_radiobutton(label='Linrad',command=pal_linrad,
             value=2,variable=npal)
-setupmenu.palettes.add_radiobutton(label='Blue',command=pal_blue,
+setupmenu.add_radiobutton(label='Blue',command=pal_blue,
             value=3,variable=npal)
-setupmenu.palettes.add_radiobutton(label='Hot',command=pal_Hot,
+setupmenu.add_radiobutton(label='Hot',command=pal_Hot,
             value=4,variable=npal)
-setupmenu.palettes.add_radiobutton(label='AFMHot',command=pal_AFMHot,
+setupmenu.add_radiobutton(label='AFMHot',command=pal_AFMHot,
             value=5,variable=npal)
-setupmenu.add_cascade(label = 'Palette',menu=setupmenu.palettes)
 
 lab1=Label(mbar,padx=20,bd=0)
 lab1.pack(side=LEFT)
@@ -420,17 +377,9 @@ fdf2.pack(side=LEFT)
 
 lab3=Label(mbar,padx=13,bd=0)
 lab3.pack(side=LEFT)
-#bbw=Button(mbar,text='BW',command=set_frange,padx=1,pady=1)
-#bbw.pack(side=LEFT)
 
 lab0=Label(mbar,padx=10,bd=0)
 lab0.pack(side=LEFT)
-#bfmid1=Button(mbar,text='<',command=change_fmid1,padx=1,pady=1)
-#bfmid2=Button(mbar,text='>',command=change_fmid2,padx=1,pady=1)
-#bfmid3=Button(mbar,text='|',command=set_fmid,padx=3,pady=1)
-#bfmid1.pack(side=LEFT)
-#bfmid3.pack(side=LEFT)
-#bfmid2.pack(side=LEFT)
 
 #------------------------------------------------- Speed selection buttons
 for i in (5, 4, 3, 2, 1):
@@ -446,13 +395,10 @@ c.pack(side=TOP)
 Widget.bind(c,"<Shift-Button-1>",freq_range)
 Widget.bind(c,"<Shift-Button-2>",freq_range)
 Widget.bind(c,"<Shift-Button-3>",freq_range)
-#Widget.bind(c,"<Control-Button-1>",freq_center)
 
 graph1=Canvas(iframe1, bg='black', width=NX, height=NY,bd=0,cursor='crosshair')
 graph1.pack(side=TOP)
 Widget.bind(graph1,"<Motion>",fdf_change)
-#Widget.bind(graph1,"<Button-1>",decode_request)
-#Widget.bind(graph1,"<Button-3>",decode_request)
 Widget.bind(graph1,"<Button-1>",set_fqso)
 Widget.bind(graph1,"<Double-Button-1>",freeze_decode)
 iframe1.pack(expand=1, fill=X)
@@ -462,7 +408,6 @@ c2.pack(side=TOP)
 Widget.bind(c2,"<Shift-Button-1>",freq_range)
 Widget.bind(c2,"<Shift-Button-2>",freq_range)
 Widget.bind(c2,"<Shift-Button-3>",freq_range)
-#Widget.bind(c2,"<Control-Button-1>",freq_center)
 
 graph2=Canvas(iframe1, bg='black', width=NX, height=NY,bd=0,cursor='crosshair')
 graph2.pack(side=TOP)
