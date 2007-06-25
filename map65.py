@@ -73,14 +73,13 @@ ncall=0
 ndmiles=0
 ndkm=0
 ndebug=IntVar()
+ndebug.set(0)
 neme=IntVar()
 nfreeze=IntVar()
 nopen=0
 nosh441=IntVar()
 noshjt65=IntVar()
-#nsked=IntVar()
 setseq=IntVar()
-slabel="Sync   "
 textheight=7
 tx6alt=""
 txsnrdb=99.
@@ -515,20 +514,15 @@ def cleartext():
 
 #------------------------------------------------------ ModeJT65
 def ModeJT65():
-    global slabel,isync,textheight,itol
+    global isync,textheight,itol
     cleartext()
     Audio.gcom1.trperiod=60
     iframe4b.pack(after=iframe4,expand=1, fill=X, padx=4)
     textheight=7
     text.configure(height=textheight)
-    slabel="Sync   "
-    lsync.configure(text=slabel+str(isync))
     bclravg.configure(state=NORMAL)
     binclude.configure(state=NORMAL)
     bexclude.configure(state=NORMAL)
-    cbfreeze.configure(state=NORMAL)
-    cbafc.configure(state=NORMAL)
-#    sked.configure(state=NORMAL)
     graph2.configure(bg='#66FFFF')
     itol=4
     inctol()
@@ -722,36 +716,6 @@ def azdist():
     else:
         labDist.configure(text=str(int(1.609344*ndmiles))+" km")
     
-#------------------------------------------------------ incsync
-def incsync(event):
-    global isync
-    if isync<10:
-        isync=isync+1
-        lsync.configure(text=slabel+str(isync))
-
-#------------------------------------------------------ decsync
-def decsync(event):
-    global isync
-    if isync>-30:
-        isync=isync-1
-        lsync.configure(text=slabel+str(isync))
-
-#------------------------------------------------------ incclip
-def incclip(event):
-    global iclip
-    if iclip<5:
-        iclip=iclip+1
-        if iclip==5: iclip=99
-        lclip.configure(text='Clip   '+str(iclip))
-
-#------------------------------------------------------ decclip
-def decclip(event):
-    global iclip
-    if iclip>-5:
-        iclip=iclip-1
-        if iclip==98: iclip=4
-        lclip.configure(text='Clip   '+str(iclip))
-
 #------------------------------------------------------ inctol
 def inctol(event=NONE):
     global itol
@@ -803,16 +767,6 @@ def clear_avg(event=NONE):
     f.truncate(0)                           #Delete contents of decoded.ave
     f.close()
     Audio.gcom2.nclearave=1
-
-#------------------------------------------------------ defaults
-def defaults():
-    global slabel,isync,iclip,itol,idsec
-    isync=1
-    iclip=0
-    lclip.configure(text='Clip   '+str(iclip))
-    itol=5
-    ltol.configure(text='Tol    '+str(ntol[itol]))
-    lsync.configure(text=slabel+str(isync))
 
 #------------------------------------------------------ delwav
 def delwav():
@@ -882,8 +836,8 @@ def double_click_g1(event):
         g.freeze_decode=1
     
 #------------------------------------------------------ mouse_up_g1
-#(### What is this for? ###)
 def mouse_up_g1(event):
+# This is a fix for certain mouse-clicks
     pass
 
 #------------------------------------------------------ right_arrow
@@ -951,154 +905,6 @@ def GenAltMsgs(event=NONE):
         tx5.insert(0,"TNX 73 GL ")
         tx6.insert(0,tx6alt.upper())
         altmsg=1
-
-    
-#------------------------------------------------------ plot_large
-def plot_large():
-    "Plot the green, red, and blue curves in JT65 mode."
-    graph1.delete(ALL)
-    y=[]
-    ngreen=Audio.gcom2.ngreen
-    if ngreen>0:
-        for i in range(ngreen):             #Find ymax for green curve
-            green=Audio.gcom2.green[i]
-            y.append(green)
-        ymax=max(y)
-        if ymax<1: ymax=1
-        yfac=4.0
-        if ymax>75.0/yfac: yfac=75.0/ymax
-        xy=[]
-        for i in range(ngreen):             #Make xy list for green curve
-            green=Audio.gcom2.green[i]
-            n=int(105.0-yfac*green)
-            xy.append(i)
-            xy.append(n)
-        graph1.create_line(xy,fill="green")
-
-        if Audio.gcom2.nspecial==0:
-            y=[]
-            for i in range(446):                #Find ymax for red curve
-                psavg=Audio.gcom2.psavg[i+1]
-                y.append(psavg)
-            ymax=max(y)
-            yfac=30.0
-            if ymax>85.0/yfac: yfac=85.0/ymax
-            xy=[]
-            fac=500.0/446.0
-            for i in range(446):                #Make xy list for red curve
-                x=i*fac
-                psavg=Audio.gcom2.psavg[i+1]
-                n=int(90.0-yfac*psavg)
-                xy.append(x)
-                xy.append(n)
-            graph1.create_line(xy,fill="red")
-        else:
-            y1=[]
-            y2=[]
-            for i in range(446):        #Find ymax for magenta/orange curves
-                ss1=Audio.gcom2.ss1[i+1]
-                y1.append(ss1)
-                ss2=Audio.gcom2.ss2[i+1]
-                y2.append(ss2)
-            ymax=max(y1+y2)
-            yfac=30.0
-            if ymax>85.0/yfac: yfac=85.0/ymax
-            xy1=[]
-            xy2=[]
-            fac=500.0/446.0
-            for i in range(446):        #Make xy list for magenta/orange curves
-                x=i*fac
-                ss1=Audio.gcom2.ss1[i+1]
-                n=int(90.0-yfac*ss1)
-                xy1.append(x)
-                xy1.append(n)
-                ss2=Audio.gcom2.ss2[i+1]
-                n=int(90.0-yfac*ss2) - 20
-                xy2.append(x)
-                xy2.append(n)
-            graph1.create_line(xy1,fill="magenta")
-            graph1.create_line(xy2,fill="orange")
-
-            x1 = 250.0 + fac*Audio.gcom2.ndf/2.6916504
-            x2 = x1 + Audio.gcom2.mode65*Audio.gcom2.nspecial*10*fac
-            graph1.create_line([x1,85,x1,95],fill="yellow")
-            graph1.create_line([x2,85,x2,95],fill="yellow")
-            t="RO"
-            if Audio.gcom2.nspecial==3: t="RRR"
-            if Audio.gcom2.nspecial==4: t="73"
-            graph1.create_text(x2+3,93,anchor=W,text=t,fill="yellow")
-
-        if Audio.gcom2.ccf[0] != -9999.0:
-            y=[]
-            for i in range(65):             #Find ymax for blue curve
-                ccf=Audio.gcom2.ccf[i]
-                y.append(ccf)
-            ymax=max(y)
-            yfac=40.0
-            if ymax>55.0/yfac: yfac=55.0/ymax
-            xy2=[]
-            fac=500.0/64.6
-            for i in range(65):             #Make xy list for blue curve
-                x=(i+0.5)*fac
-                ccf=Audio.gcom2.ccf[i]
-                n=int(60.0-yfac*ccf)
-                xy2.append(x)
-                xy2.append(n)
-            graph1.create_line(xy2,fill='#33FFFF')
-
-#  Put in the tick marks
-        for i in range(13):
-            x=int(i*41.667)
-            j2=115
-            if i==1 or i==6 or i==11: j2=110
-            graph1.create_line([x,j2,x,125],fill="red")
-            if Audio.gcom2.nspecial==0:
-#                x=int((i-0.8)*41.667)
-                j1=9
-                if i==2 or i==7 or i==12: j1=14
-                graph1.create_line([x,0,x,j1],fill="#33FFFF")  #light blue
-            else:
-                graph1.create_line([x,0,x,125-j2],fill="red")
-
-#------------------------------------------------------ plot_small
-def plot_small():        
-    graph2.delete(ALL)
-    xy=[]
-    xy2=[]
-    df=11025.0/256.0
-    fac=150.0/3500.0
-    for i in range(81):
-        x=int(i*df*fac)
-        xy.append(x)
-        psavg=Audio.gcom2.psavg[i]
-        n=int(150.0-2*psavg)
-        xy.append(n)
-    graph2.create_line(xy,fill="magenta")
-    for i in range(7):
-        x=i*500*fac
-        ytop=110
-        if i%2: ytop=115
-        graph2.create_line([x,120,x,ytop],fill="white")
-
-#------------------------------------------------------ plot_yellow
-def plot_yellow():
-    nz=int(Audio.gcom2.ps0[215])
-    if nz>10:
-        y=[]
-        for i in range(nz):             #Find ymax for yellow curve
-            n=Audio.gcom2.ps0[i]
-            y.append(n)
-        ymax=max(y)
-        fac=1.0
-        if ymax>60: fac=60.0/ymax
-        xy2=[]
-        for i in range(nz):
-            x=int(2.34*i)
-            y=fac*Audio.gcom2.ps0[i] + 8
-            n=int(85.0-y)
-            xy2.append(x)
-            xy2.append(n)
-        graph1.create_line(xy2,fill="yellow")
 
 #------------------------------------------------------ update
 def update():
@@ -1227,7 +1033,6 @@ def update():
     if Audio.gcom1.transmitting:
         nmsg=int(Audio.gcom2.nmsg)
         t=g.ftnstr(Audio.gcom2.sending)
-#        if t[:3]=="CQ ": nsked.set(0)
         t="Txing:  "+t[:nmsg]
         bgcolor='yellow'
         if Audio.gcom2.sendingsh==1:  bgcolor='#66FFFF'    #Shorthand (lt blue)
@@ -1334,8 +1139,6 @@ def update():
             im.putpalette(g.palette)
             cmap0=g.cmap
             
-#        plot_large()
-
 # Save some parameters
     g.mode=mode.get()
     Audio.gcom1.txfirst=TxFirst.get()
@@ -1347,8 +1150,6 @@ def update():
         Audio.gcom1.samfacout=options.samfacout.get()
     except:
         Audio.gcom1.samfacout=1.0
-#    if Audio.gcom1.samfacin>1.01: Audio.gcom1.samfacin=1.01
-# ... etc.
     Audio.gcom2.mycall=(options.MyCall.get()+'            ')[:12]
     Audio.gcom2.hiscall=(ToRadio.get()+'            ')[:12]
     Audio.gcom2.hisgrid=(HisGrid.get()+'      ')[:6]
@@ -1368,7 +1169,6 @@ def update():
     Audio.gcom2.dftolerance=ntol[itol]
     Audio.gcom2.neme=neme.get()
     Audio.gcom2.ndepth=ndepth.get()
-#    Audio.gcom2.nsked=nsked.get()
     try:
         Audio.gcom2.idinterval=options.IDinterval.get()
     except:
@@ -1382,14 +1182,9 @@ def update():
         Audio.gcom2.nport=int(options.PttPort.get())
     except:
         Audio.gcom2.nport=0
-
-#    print 'About to init Audio.gcom2.PttPort in save some parameters'
     Audio.gcom2.pttport=(options.PttPort.get() + '            ')[:12]
-#    print Audio.gcom2.pttport
-
     if altmsg: tx6alt=tx6.get()    
-# Queue up the next update
-    ldate.after(100,update)
+    ldate.after(100,update)                       # Queue up the next update
     
 #------------------------------------------------------ Top level frame
 frame = Frame(root)
@@ -1431,8 +1226,6 @@ setupmenu.add_checkbutton(label = 'F4 sets Tx6',variable=kb8rq)
 setupmenu.add_checkbutton(label = 'Double-click on callsign sets TxFirst',
                           variable=setseq)
 setupmenu.add_checkbutton(label = 'GenStdMsgs sets Tx1',variable=k2txb)
-setupmenu.add_separator()
-setupmenu.add_checkbutton(label = 'Enable diagnostics',variable=ndebug)
 
 #------------------------------------------------------ View menu
 viewbutton=Menubutton(mbar,text='View')
@@ -1458,11 +1251,11 @@ modebutton['menu'] = modemenu
 # state=modemenu.entrycget(0,"state")
 
 modemenu.add_radiobutton(label = 'JT65A', variable=mode, command = ModeJT65A, \
-                         accelerator='F8')
+            state=DISABLED, accelerator='F8')
 modemenu.add_radiobutton(label = 'JT65B', variable=mode, command = ModeJT65B, \
                          accelerator='Shift+F8')
 modemenu.add_radiobutton(label = 'JT65C', variable=mode, command = ModeJT65C, \
-                         accelerator='Ctrl+F8')
+            state=DISABLED, accelerator='Ctrl+F8')
 
 #------------------------------------------------------ Decode menu
 decodebutton = Menubutton(mbar, text = 'Decode')
@@ -1488,9 +1281,9 @@ savemenu = Menu(savebutton, tearoff=1)
 savebutton['menu'] = savemenu
 nsave=IntVar()
 savemenu.add_radiobutton(label = 'None', variable=nsave,value=0)
-savemenu.add_radiobutton(label = 'Save decoded', variable=nsave,value=1)
-savemenu.add_radiobutton(label = 'Save if Auto On', variable=nsave,value=2)
-savemenu.add_radiobutton(label = 'Save all', variable=nsave,value=3)
+savemenu.add_radiobutton(label = 'Save timf2', variable=nsave,value=1)
+savemenu.add_radiobutton(label = 'Measure', variable=nsave,value=2)
+savemenu.add_radiobutton(label = 'Pulsar', variable=nsave,value=3)
 nsave.set(0)
 
 #------------------------------------------------------ Band menu
@@ -1701,29 +1494,11 @@ f5a.pack(side=LEFT,expand=1,fill=BOTH)
 
 #------------------------------------------------------ Receiving parameters
 f5b=Frame(iframe5,bd=2,relief=GROOVE)
-lsync=Label(f5b, bg='white', fg='black', text='Sync   1', width=8, relief=RIDGE)
-lsync.grid(column=0,row=0,padx=2,pady=1,sticky='EW')
-Widget.bind(lsync,'<Button-1>',incsync)
-Widget.bind(lsync,'<Button-3>',decsync)
 nzap=IntVar()
-cbzap=Checkbutton(f5b,text='Zap',underline=0,variable=nzap)
-cbzap.grid(column=1,row=0,padx=2,pady=1,sticky='W')
-cbnb=Checkbutton(f5b,text='NB',variable=nblank)
-cbnb.grid(column=1,row=1,padx=2,pady=1,sticky='W')
-cbfreeze=Checkbutton(f5b,text='Freeze',underline=0,variable=nfreeze)
-cbfreeze.grid(column=1,row=2,padx=2,sticky='W')
-cbafc=Checkbutton(f5b,text='AFC',variable=nafc)
-cbafc.grid(column=1,row=3,padx=2,pady=1,sticky='W')
-lclip=Label(f5b, bg='white', fg='black', text='Clip   0', width=8, relief=RIDGE)
-lclip.grid(column=0,row=1,padx=2,sticky='EW')
-Widget.bind(lclip,'<Button-1>',incclip)
-Widget.bind(lclip,'<Button-3>',decclip)
 ltol=Label(f5b, bg='white', fg='black', text='Tol    400', width=8, relief=RIDGE)
 ltol.grid(column=0,row=2,padx=2,pady=1,sticky='EW')
 Widget.bind(ltol,'<Button-1>',inctol)
 Widget.bind(ltol,'<Button-3>',dectol)
-Button(f5b,text='Defaults',command=defaults,padx=1,pady=1).grid(column=0,
-                              row=3,sticky='EW')
 ldsec=Label(f5b, bg='white', fg='black', text='Dsec  0.0', width=8, relief=RIDGE)
 ldsec.grid(column=0,row=4,ipadx=3,padx=2,pady=5,sticky='EW')
 Widget.bind(ldsec,'<Button-1>',incdsec)
@@ -1735,7 +1510,6 @@ f5b.pack(side=LEFT,expand=1,fill=BOTH)
 f5c=Frame(iframe5,bd=2,relief=GROOVE)
 txfirst=Checkbutton(f5c,text='Tx First',justify=RIGHT,variable=TxFirst)
 f5c2=Frame(f5c,bd=0)
-#sked=Checkbutton(f5c,text='Sked',justify=RIGHT,variable=nsked)
 genmsg=Button(f5c,text='GenStdMsgs',underline=0,command=GenStdMsgs,
             padx=1,pady=1)
 auto=Button(f5c,text='Auto is Off',underline=0,command=toggleauto,
@@ -1923,8 +1697,6 @@ except:
     print key,value
 
 g.mode=mode.get()
-lsync.configure(text=slabel+str(isync))
-lclip.configure(text='Clip   '+str(iclip))
 Audio.gcom2.appdir=(appdir+'                                                                                          ')[:80]
 Audio.gcom2.ndepth=ndepth.get()
 f=open(appdir+'/tmp26.txt','w')
@@ -1988,13 +1760,11 @@ f.write("Clip " + str(iclip) + "\n")
 f.write("Zap " + str(nzap.get()) + "\n")
 f.write("NB " + str(nblank.get()) + "\n")
 f.write("NAFC " + str(nafc.get()) + "\n")
-#f.write("Sked " + str(nsked.get()) + "\n")
 f.write("NoSh441 " + str(nosh441.get()) + "\n")
 f.write("NoShJT65 " + str(noshjt65.get()) + "\n")
 f.write("NEME " + str(neme.get()) + "\n")
 f.write("NDepth " + str(ndepth.get()) + "\n")
 f.write("Debug " + str(ndebug.get()) + "\n")
-#f.write("TRPeriod " + str(Audio.gcom1.trperiod) + "\n")
 mrudir2=mrudir.replace(" ","#")
 f.write("MRUDir " + mrudir2 + "\n")
 if g.astro_geom[:7]=="200x200": g.astro_geom="316x373" + g.astro_geom[7:]

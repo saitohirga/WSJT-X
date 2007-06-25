@@ -29,7 +29,6 @@ logical LDecoded       !Was a message decoded?                  Decoder
 logical rxdone         !Has the Rx sequence finished?      SoundIn,Decoder
 integer monitoring     !Are we monitoring?                      GUI
 integer nzap           !Is Zap checked?                         GUI
-integer nsavecum       !(why is this here?)
 integer minsigdb       !Decoder threshold setting               GUI
 integer nclearave      !Set to 1 to clear JT65 avg         GUI,Decoder
 integer nfreeze        !Is Freeze checked?                      GUI
@@ -50,7 +49,6 @@ integer nsked          !Sked mode for deep search?              GUI
 integer naggressive    !Is "Aggressive decoding" checked?       GUI
 integer ntx2           !Is "No shorthands if Tx1" checked?      GUI
 integer nagain         !Decode same file again?                 GUI
-integer nsavelast      !Save last file?                         GUI
 integer shok           !Shorthand messages OK?                  GUI
 integer sendingsh      !Sending a shorthand message?            SoundIn
 integer*2 d2a          !Rx data, extracted from y1              Decoder
@@ -94,9 +92,9 @@ common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),               &
      green(500),fselect,pctlost,rxnoise,ngreen,dgain,iter,ndecoding,    &
      ndecoding0,mousebutton,   &
      ndecdone,npingtime,ierr,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5, &
-     dftolerance,LDecoded,rxdone,monitoring,nzap,nsavecum,minsigdb,     &
-     nclearave,nfreeze,nafc,newspec,nmode,mode65,nclip,ndebug,nblank,nport,   &
-     mousedf,mousefqso,neme,nsked,naggressive,ntx2,nagain,nsavelast,    &
+     dftolerance,LDecoded,rxdone,monitoring,nzap,minsigdb,              &
+     nclearave,nfreeze,nafc,newspec,nmode,mode65,nclip,ndebug,nblank,   &
+     nport,mousedf,mousefqso,neme,nsked,naggressive,ntx2,nagain,        &
      shok,sendingsh,d2a(661500),d2b(661500),b(60000),jza,jzb,ntime,     &
      idinterval,msmax,lenappdir,idf,ndiskdat,nlines,nflat,ntxreq,ntxnow,&
      ndepth,nspecial,ndf,nfmid,nfrange,ss1(-224:224),ss2(-224:224),     &
