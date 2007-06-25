@@ -23,7 +23,7 @@ subroutine savetf2(id,nsave,nutc)
      t=t+dt
      t2=t2+dt
      if(nsave.eq.3) write(24,1010) t,t2,ss(i)
-1010 format(f6.6,f15.6,f10.3)
+1010 format(f9.6,f15.6,f10.3)
   enddo
 
   if(nsave.eq.2) then
