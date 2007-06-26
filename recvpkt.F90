@@ -20,7 +20,7 @@ subroutine recvpkt(iarg)
   include 'gcom1.f90'
   include 'gcom2.f90'
   equivalence (id,d8)
-  data nblock0/0/,first/.true./,kb/1/,ntx/0/
+  data nblock0/0/,first/.true./,kb/1/,ntx/0/,npkt/0/,nw/0/
   data sqave/0.0/,u/0.001/,rxnoise/0.0/
   save
 
@@ -31,19 +31,21 @@ subroutine recvpkt(iarg)
   nsec0=-999
 
 10 call recv_pkt(center_freq)
-  lost=nblock-nblock0-1
-  if(lost.ne.0 .and. .not.first) then
-!     print*,'Lost packets?',nblock,nblock0,lost,rxnoise
-     nlost=nlost + lost
-     do i=1,174*lost
-        k=k+1
-        d8(k)=0
-     enddo
-  endif
-  first=.false.
-  nblock0=nblock
-
   if(monitoring.eq.1) then
+     lost=nblock-nblock0-1
+     nblock0=nblock
+
+     if(lost.ne.0 .and. .not.first) then
+!        print*,'Lost packets?',nblock,nblock0,lost,rxnoise,mode
+!  Fill in zeros for the lost data.
+        nlost=nlost + lost
+        do i=1,174*lost
+           k=k+1
+           d8(k)=0
+        enddo
+     endif
+     first=.false.
+
      nsec=msec/1000
      if(mod(nsec,60).eq.1) nreset=1
      if(mod(nsec,60).eq.0 .and. nreset.eq.1) then
@@ -68,7 +70,24 @@ subroutine recvpkt(iarg)
         enddo
         sqave=sqave + u*(sq-sqave)
         rxnoise=10.0*log10(sqave) - 48.0
+
+        if(mode.eq.'Measur') then
+           npkt=npkt+1
+           if(npkt.ge.551) then
+              npkt=0
+              nw=nw+1
+              write(11,1000) nw,rxnoise
+1000          format(i6,f8.2)
+              call flushqqq(11)
+              ndecdone=1
+              write(24,1000) nw,rxnoise
+           endif
+        else
+           nw=0
+        endif
+
      else
+!  We're transmitting, zero out this packet.
         do i=1,174
            k=k+1
            d8(k)=0.d0
