@@ -111,7 +111,10 @@ subroutine recvpkt(iarg)
            kbuf=kb
            nutc=mutc
            klost=nlost
-           if(ntx.lt.20) ndecoding=1
+           if(ntx.lt.20) then
+              newdat=1
+              ndecoding=1
+           endif
            ntx=0
         endif
      endif

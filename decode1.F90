@@ -25,12 +25,14 @@ subroutine decode1(iarg)
 10 continue
   if(newdat2.gt.0) then
      call getfile2(fname80,nlen)
+     newdat=1
   endif
   if(ndecoding.gt.0 .and. mode(1:4).eq.'JT65') then
      ndecdone=0
-     call map65a
+     call map65a(newdat)
      if(mousebutton.eq.0) ndecoding0=ndecoding
      ndecoding=0
+     newdat2=0
   endif
 
   if(ns0.lt.0) then
