@@ -1103,7 +1103,7 @@ def update():
                     nage=int(lines[i][41:])
                 except:
                     nage=0
-                lines[i]=lines[i][:41]
+                lines[i]=lines[i][:41]+'\n'
                 if nage==0: attr='age0'
                 if nage==1: attr='age1'
                 if nage==2: attr='age2'
