@@ -1086,7 +1086,6 @@ def update():
 #            avetext.configure(state=DISABLED)
             Audio.gcom2.ndecdone=0
 
-
         if Audio.gcom2.ndecdone==2:
             try:
                 f=open(appdir+'/bandmap.txt',mode='r')

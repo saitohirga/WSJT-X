@@ -1,4 +1,4 @@
-subroutine map65a
+subroutine map65a(newdat)
 
 !  Processes timf2 data from Linrad to find and decode JT65 signals.
 
@@ -30,9 +30,6 @@ subroutine map65a
 1001 format('UTC:',i5.4,'   Lost packets:',i6,', or',f6.1,' %')
   even=mod(nutc,2).eq.0
 
-  if(newdat2.eq.0) newdat2=1                      !###
-  if(newdat2.gt.0) nid=1
-  if(nid.eq.0) go to 999
   rewind 11
   rewind 12
   if(nutc.ne.nutc0) nfile=nfile+1
@@ -54,50 +51,47 @@ subroutine map65a
   nkk=1
 
   nz=n/8
-  if(fselect.gt.0.0) then
 
-!  nfilt=2 should be faster (but doesn't work right?)
-     nfilt=2                      !nfilt=2 is faster for selected freq
-     do kpol=0,3
-        freq=fselect + 0.001*mousedf
-        if(even) ip0=ip000+kpol
-        if(.not.even) ip0=ip001+kpol
-        if(ip0.gt.4) ip0=ip0-4
-        dt00=2.314240
-        dt=dt00
-        call decode1a(id(1,1,kbuf),newdat2,nfilt,freq,nflip,ip0,sync2,   &
-             a,dt,pol,nkv,nhist,qual,decoded)
-        nsync1=0
-        nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
-        ndf=nint(a(1)) + mousedf
-        nw=0
-!        write(*,3000) freq,nflip,ip00,ndf,nsync2,nint(pol*57.2957795),   &
-!             dt00,dt,decoded
-!3000    format(f8.3,5i5,2f7.2,2x,a22)
-        if(nkv.gt.0) go to 5
+!  nfilt=2 should be faster (but doesn't work quite right?)
+  nfilt=1                      !nfilt=2 is faster for selected freq
+  do kpol=0,3
+     freq=fselect + 0.001*mousedf
+     if(even) ip0=ip000+kpol
+     if(.not.even) ip0=ip001+kpol
+     if(ip0.gt.4) ip0=ip0-4
+     dt00=2.314240
+     dt=dt00
+     call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,ip0,sync2,   &
+          a,dt,pol,nkv,nhist,qual,decoded)
+     nsync1=0
+     nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
+     ndf=nint(a(1)) + mousedf
+     nw=0
+     if(nkv.gt.0) go to 5
+  enddo
+
+5 if(even) ip000=ip0
+  if(.not.even) ip001=ip0
+
+  nkHz=nint(freq-1.600)
+  npol=nint(57.2957795*pol)
+  nqual=qual
+  if(nflip.eq.-1) then                      !Should this be in decode1a ?
+     do i=22,9,-1
+        if(decoded(i:i).ne.' ') then
+           decoded(i+2:i+4)='OOO'
+           go to 6
+        endif
      enddo
-
-5    if(even) ip000=ip0
-     if(.not.even) ip001=ip0
-
-     nkHz=nint(freq-1.600)
-     npol=nint(57.2957795*pol)
-     nqual=qual
-     if(nflip.eq.-1) then                      !Should this be in decode1a ?
-        do i=22,9,-1
-           if(decoded(i:i).ne.' ') then
-              decoded(i+2:i+4)='OOO'
-              go to 6
-           endif
-        enddo
-     endif
-6     write(11,1010) nkHz,ndf,npol,nutc,nsync2,dt,nw,decoded,nkv,nqual
-1010 format(i3,i5,i4,i5.4,i4,f5.1,i3,2x,a22,2i3)
-     call flushqqq(11)
-     ndecdone=1
   endif
+6 write(11,1010) nkHz,ndf,npol,nutc,nsync2,dt,nw,decoded,nkv,nqual
+1010 format(i3,i5,i4,i5.4,i4,f5.1,i3,2x,a22,2i3)
+  call flushqqq(11)
+  ndecdone=1
+
   if(nagain.eq.1) go to 999
-  if(newdat2.eq.0) go to 999
+!  if(newdat.eq.0) go to 999
+!  newdat=0
 
   nfilt=1
   do i=1,NFFT
@@ -200,7 +194,7 @@ subroutine map65a
 
            if(freq-freq0.gt.ftol .or. sync1.gt.sync10) then
               nflip=nint(flipk)
-              call decode1a(id(1,1,kbuf),newdat2,nfilt,freq,nflip,ipol,         &
+              call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,ipol,         &
                    sync2,a,dt,pol,nkv,nhist,qual,decoded)
 !              i9=index(decoded,'AA1YN')
 !              if(i9.gt.0) print*,i,i9,fselect,freq,decoded
@@ -305,8 +299,7 @@ subroutine map65a
 
   if(nsave.gt.0) call savetf2(id(1,1,kbuf),nsave,nutc)
     
-999 newdat2=0
-  nagain=0
+999 nagain=0
   close(23)
   return
 end subroutine map65a
