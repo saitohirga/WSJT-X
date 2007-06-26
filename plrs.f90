@@ -15,24 +15,26 @@ program plrs
   integer fd
   integer open,read,close
   integer nm(11)
-  character*8 fname,arg
-  logical fast
+  character*8 fname,arg,cjunk*1
+  logical fast,pause
   real*8 center_freq,dmsec,dtmspacket,tmsec
   common/plrscom/center_freq,msec2,fsample,iptr,nblock,userx_no,iusb,buf8(174)
 !                     8        4      4      4    2       1       1    1392
   data nm/45,46,48,50,52,54,55,56,57,58,59/
-  data nblock/0/,fast/.false./
+  data nblock/0/,fast/.false./,pause/.false./
 
   nargs=iargc()
-  if(nargs.ne.1 .and. nargs.ne.2) then
-     print*,'Usage: plrs [-f] <iters>'
+  if(nargs.ne.3) then
+     print*,'Usage: plrs <fast|pause|slow> <minutes> <iters>'
      go to 999
   endif
+
   call getarg(1,arg)
-  if(arg(1:2).eq.'-f') then
-     fast=.true.
-     call getarg(2,arg)
-  endif
+  if(arg(1:1).eq.'f' .or. arg(1:1).eq.'p') fast=.true.
+  if(arg(1:1).eq.'p') pause=.true.
+  call getarg(2,arg)
+  read(arg,*) nfiles
+  call getarg(3,arg)
   read(arg,*) iters
 
   fname="all.tf2"//char(0)
@@ -50,7 +52,7 @@ program plrs
      dmsec=-dtmspacket
      nsec0=time()
 
-     do ifile=1,11
+     do ifile=1,nfiles
         print*,'Reading file',ifile
         ns0=0
         tmsec=1000*(3600*7 + 60*nm(ifile))-dtmspacket
@@ -85,6 +87,10 @@ program plrs
 1010       format('npkt:',i10,'   ns:',i6,'   t:',f10.3,'   nwait:',i8)
            ns0=ns
         enddo
+        if(pause) then
+           print*,'Type anything to continue:'
+           read(*,*) cjunk
+        endif
      enddo
      i=close(fd)
   enddo
