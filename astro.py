@@ -11,7 +11,7 @@ root=Toplevel()
 root.withdraw()
 root.protocol('WM_DELETE_WINDOW',done)
 if g.Win32: root.iconbitmap("wsjt.ico")
-root.title("Astronomical data")
+root.title("AstroData")
 frame=Frame(root)
 frame.pack()
 

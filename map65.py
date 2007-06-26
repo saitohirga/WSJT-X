@@ -169,6 +169,7 @@ def testmsgs():
 def bandmap(event=NONE):
     global Version,bm,bm_geom,bmtext
     bm=Toplevel(root)
+    bm.title("Messages")
     bm.geometry(bm_geom)
     if g.Win32: bm.iconbitmap("wsjt.ico")
     iframe_bm1 = Frame(bm, bd=1, relief=SUNKEN)
@@ -188,6 +189,7 @@ def bandmap(event=NONE):
 def bandmap2(event=NONE):
     global Version,bm2,bm2_geom,bm2text
     bm2=Toplevel(root)
+    bm2.title("Band Map")
     bm2.geometry(bm2_geom)
     if g.Win32: bm2.iconbitmap("wsjt.ico")
     iframe_bm2 = Frame(bm2, bd=1, relief=SUNKEN)
@@ -956,7 +958,7 @@ def update():
         graph2.create_text(13,85,anchor=W, text="Dop:%6d" % g.ndop,font=g2font)
         graph2.create_text(13,109,anchor=W,text="Dgrd:%5.1f" % g.Dgrd,font=g2font)
 
-    if g.freeze_decode:
+    if g.freeze_decode and mode.get()[:4]=='JT65':
         itol=2
         ltol.configure(text='Tol    '+str(50))
         Audio.gcom2.dftolerance=50
@@ -1001,7 +1003,8 @@ def update():
     t="QSO DF:%4d" % (int(Audio.gcom2.mousedf),)
     msg4.configure(text=t)    
     bdecode.configure(bg='gray85',activebackground='gray95')
-    if Audio.gcom2.ndecoding:       #Set button bg=light_blue while decoding
+    if mode.get()[:4]=='JT65' and Audio.gcom2.ndecoding:
+#Set button bg while decoding
         bc='#66FFFF'
         if g.ndecphase==1: bc='orange'
         if g.ndecphase==2: bc='yellow'
@@ -1259,6 +1262,8 @@ modemenu.add_radiobutton(label = 'JT65B', variable=mode, command = ModeJT65B, \
                          accelerator='Shift+F8')
 modemenu.add_radiobutton(label = 'JT65C', variable=mode, command = ModeJT65C, \
             state=DISABLED, accelerator='Ctrl+F8')
+modemenu.add_radiobutton(label = 'Measure', variable=mode)
+modemenu.add_radiobutton(label = 'Pulsar', variable=mode,state=DISABLED)
 
 #------------------------------------------------------ Decode menu
 decodebutton = Menubutton(mbar, text = 'Decode')
@@ -1284,9 +1289,8 @@ savemenu = Menu(savebutton, tearoff=1)
 savebutton['menu'] = savemenu
 nsave=IntVar()
 savemenu.add_radiobutton(label = 'None', variable=nsave,value=0)
-savemenu.add_radiobutton(label = 'Save timf2', variable=nsave,value=1)
-savemenu.add_radiobutton(label = 'Measure', variable=nsave,value=2)
-savemenu.add_radiobutton(label = 'Pulsar', variable=nsave,value=3)
+savemenu.add_radiobutton(label = 'Save timf2', variable=nsave,value=1,
+            state=DISABLED)
 nsave.set(0)
 
 #------------------------------------------------------ Band menu

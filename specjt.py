@@ -510,7 +510,7 @@ ltime.after(200,update)
 root.deiconify()
 g.showspecjt=2
 if g.Win32: root.iconbitmap("wsjt.ico")
-root.title('  MAP65     by K1JT')
+root.title('Waterfall')
 if(__name__=="__main__"):
     Audio.gcom2.monitoring=1
 root.mainloop()
