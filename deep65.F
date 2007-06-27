@@ -143,10 +143,13 @@ C  Insert CQ message
          if(pp(i).gt.p2 .and. pp(i).ne.p1) p2=pp(i)
       enddo
 
-C  ### Find out why this needs to be here ### 
-C  ### It's OK without it, in Linux, if compiled without optimization.
-!      rewind 77
-!      write(77,*) p1,p2
+C  ### DO NOT REMOVE ### 
+      rewind 77
+      write(77,*) p1,p2
+C  ### Works OK without it (in both Windows and Linux) if compiled 
+C  ### without optimization.  However, in Windows this is a colossal 
+C  ### pain because of the way McMillan Installer wants to run the 
+C  ### compile step.
 
       if(mode65.eq.1) bias=max(1.12*p2,0.335)
       if(mode65.eq.2) bias=max(1.08*p2,0.405)
