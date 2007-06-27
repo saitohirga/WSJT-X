@@ -25,8 +25,8 @@ program pulsar
 
   sq=0.
   do i=1,NSPP
-     sq=sq + float(id(1,i))**2 + float(id(2,i))**2 +                      &
-          float(id(3,i))**2 + float(id(4,i))**2
+     sq=sq + float(int(id(1,i)))**2 + float(int(id(2,i)))**2 +      &
+          float(int(id(3,i)))**2 + float(int(id(4,i)))**2
   enddo
   sqave=sqave + u*(sq-sqave)
   rxnoise=10.0*log10(sqave) - 48.0
@@ -34,10 +34,10 @@ program pulsar
   k=k+1
   id2(k)=0.001*sq
   if(k.eq.1000) then
-     write(*,1000) center_freq,0.001*msec,sqave,rxnoise,id2(1)
-     write(13,1000) center_freq,0.001*msec,sqave,rxnoise,id2(1)
-1000 format(f7.3,f11.3,f10.0,f8.2,i8)
-     write(12) center_freq,msec1,id2
+     write(*,1000) center_freq,0.001*msec,nblock,sqave,rxnoise,id2(1)
+     write(13,1000) center_freq,0.001*msec,nblock,sqave,rxnoise,id2(1)
+1000 format(f7.3,f11.3,i7,f10.0,f8.2,i8)
+     write(12) center_freq,msec,nblock,id2
      call flush(12)
      call flush(13)
      k=0
