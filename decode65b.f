@@ -35,7 +35,7 @@ C  Suppress "birdie messages":
       endif
 
       qual=0.
-      if(nkv.eq.0) then
+!      if(nkv.eq.0) then
          mycall='K1JT'
          hiscall='W1ABC'
          hisgrid='EM79'
@@ -51,7 +51,7 @@ C  Save symbol spectra for possible decoding of average.
 !         if(flip.lt.0.0) k=mdat2(j)
 !         call move(s2(8,k),ppsave(1,j,nsave),64)
 !      enddo
-      endif
+!      endif
 
       if(nkv.eq.0 .and. qual.ge.1.0) decoded=deepmsg
 

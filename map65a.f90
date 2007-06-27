@@ -54,6 +54,7 @@ subroutine map65a(newdat)
 
 !  nfilt=2 should be faster (but doesn't work quite right?)
   nfilt=1                      !nfilt=2 is faster for selected freq
+  dphi=310/57.2957795
   do kpol=0,3
      freq=fselect + 0.001*mousedf
      if(even) ip0=ip000+kpol
@@ -61,8 +62,8 @@ subroutine map65a(newdat)
      if(ip0.gt.4) ip0=ip0-4
      dt00=2.314240
      dt=dt00
-     call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,ip0,sync2,   &
-          a,dt,pol,nkv,nhist,qual,decoded)
+     call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,dphi,ip0,     &
+          sync2,a,dt,pol,nkv,nhist,qual,decoded)
      nsync1=0
      nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
      ndf=nint(a(1)) + mousedf
@@ -194,8 +195,8 @@ subroutine map65a(newdat)
 
            if(freq-freq0.gt.ftol .or. sync1.gt.sync10) then
               nflip=nint(flipk)
-              call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,ipol,         &
-                   sync2,a,dt,pol,nkv,nhist,qual,decoded)
+              call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,dphi,  &
+                   ipol,sync2,a,dt,pol,nkv,nhist,qual,decoded)
 !              i9=index(decoded,'AA1YN')
 !              if(i9.gt.0) print*,i,i9,fselect,freq,decoded
               kk=kk+1
