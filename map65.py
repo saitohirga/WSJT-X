@@ -966,7 +966,8 @@ def update():
         Audio.gcom2.nfreeze=1
         if Audio.gcom2.monitoring:
             Audio.gcom2.ndecoding=1
-            Audio.gcom2.nagain=0
+ #           Audio.gcom2.nagain=0
+            Audio.gcom2.nagain=1
         else:
             Audio.gcom2.ndecoding=4
             Audio.gcom2.nagain=1
@@ -1009,7 +1010,7 @@ def update():
 #        if g.ndecphase==2: bc='yellow'
         bdecode.configure(bg=bc,activebackground=bc,state=DISABLED)
     else:
-        bdecode.configure(bg='gray85',activebackground='gray95',state=ACTIVE)
+        bdecode.configure(bg='gray85',activebackground='gray85',state=ACTIVE)
         g.ndecphase=0
 
     tx1.configure(bg='white')
