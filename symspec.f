@@ -1,4 +1,5 @@
-      subroutine symspec(id,kbuf,kk,kkdone,rxnoise,newspec)
+      subroutine symspec(id,kbuf,kk,kkdone,rxnoise,newspec,newdat,
+     +  ndecoding)
 
 C  Compute spectra at four polarizations, using half-symbol steps.
 
@@ -28,8 +29,9 @@ C  Compute spectra at four polarizations, using half-symbol steps.
       endif
 
       do nn=1,ntot
-         i0=ts+hsym             !Starting sample pointer
+         i0=ts+hsym                       !Starting sample pointer
          if((i0+npts-1).gt.kk) go to 999  !See if we have enough points
+         i1=ts+2*hsym                     !Next starting sample pointer
          ts=ts+hsym             !OK, update the exact sample pointer
          do i=1,npts            !Copy data to FFT arrays
             xr=fac*id(1,i0+i)
@@ -49,6 +51,7 @@ C  Compute spectra at four polarizations, using half-symbol steps.
          call four2a(cy,NFFT,1,1,1)
             
          n=n+1
+         print*,'B',n,kbuf,kkdone,kk,i0,npts
          do i=1,NFFT            !Save and accumulate power spectra
             sx=real(cx(i))**2 + aimag(cx(i))**2
             ss(1,n,i)=sx         ! Pol = 0
@@ -84,11 +87,15 @@ C  Compute spectra at four polarizations, using half-symbol steps.
             ss5(n,i)=0.707*sqrt(q*q + u*u)
 
          enddo
-         if(n.eq.ntot) then
+!         if(n.eq.ntot) then
+         if(n.ge.279) then
             newspec=1
+            newdat=1
+            ndecoding=1
             go to 999
          endif
       enddo
 
- 999  return
+ 999  kkdone=i1-1
+      return
       end

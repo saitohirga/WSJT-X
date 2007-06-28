@@ -257,9 +257,13 @@ def update():
             draw2.line((0,0,749,0),fill=128)    #Draw the minute separator
 
         t=g.ftnstr(Audio.gcom2.utcdata)
-        draw.text((4,1),t[0:5],fill=253)   #Insert time label
-        draw2.text((4,1),t[0:5],fill=253)  #Insert time label
 
+# This test shouldn.t be needed, but ...
+        try:
+            draw.text((4,1),t[0:5],fill=253)   #Insert time label
+            draw2.text((4,1),t[0:5],fill=253)  #Insert time label
+        except:
+            pass
 
         pim=ImageTk.PhotoImage(im)              #Convert Image to PhotoImage
         graph1.delete(ALL)
