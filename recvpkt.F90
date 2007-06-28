@@ -65,8 +65,8 @@ subroutine recvpkt(iarg)
         do i=1,174
            k=k+1
            d8(k)=buf8(i)
-           sq=sq + float(id(1,k,1))**2 + float(id(1,k,1))**2 +      &
-                float(id(1,k,1))**2 + float(id(1,k,1))**2
+           sq=sq + float(int(id(1,k,1)))**2 + float(int(id(1,k,1)))**2 +  &
+                float(int(id(1,k,1)))**2 + float(int(id(1,k,1)))**2
         enddo
         sqave=sqave + u*(sq-sqave)
         rxnoise=10.0*log10(sqave) - 48.0

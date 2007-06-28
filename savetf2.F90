@@ -16,8 +16,8 @@ subroutine savetf2(id,nsave,nutc)
   do i=1,NPKTS
      s=0.
      do n=1,NSPP
-        s=s + float(id(1,i))**2 + float(id(2,i))**2 + float(id(3,i))**2 + &
-             float(id(4,i))**2 
+        s=s + float(int(id(1,i)))**2 + float(int(id(2,i)))**2 +     &
+             float(int(id(3,i)))**2 + float(int(id(4,i)))**2 
      enddo
      ss(i)=fac*s
      t=t+dt
