@@ -1,4 +1,4 @@
-      subroutine symspec(id,kbuf,kk,kkdone,rxnoise)
+      subroutine symspec(id,kbuf,kk,kkdone,rxnoise,newspec)
 
 C  Compute spectra at four polarizations, using half-symbol steps.
 
@@ -84,7 +84,10 @@ C  Compute spectra at four polarizations, using half-symbol steps.
             ss5(n,i)=0.707*sqrt(q*q + u*u)
 
          enddo
-         if(n.eq.ntot) go to 999
+         if(n.eq.ntot) then
+            newspec=1
+            go to 999
+         endif
       enddo
 
  999  return
