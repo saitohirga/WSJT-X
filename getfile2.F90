@@ -4,7 +4,6 @@ subroutine getfile2(fname,len)
   use dflib
 #endif
 
-  parameter (NDMAX=661500)  ! =60*11025
   character*(*) fname
   character infile*15
 
@@ -50,6 +49,9 @@ subroutine getfile2(fname,len)
 #endif
 
   read(filename(8:11),*) nutc
+  kbuf=1
+  kk=NSMAX
+  kkdone=0
   ndiskdat=1
   ndecoding=4
   mousebutton=0
