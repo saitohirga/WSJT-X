@@ -46,6 +46,11 @@ subroutine recvpkt(iarg)
      endif
      first=.false.
 
+!###
+!     kbuf=kb
+!     kk=k
+!###
+
      nsec=msec/1000
      if(mod(nsec,60).eq.1) nreset=1
      if(mod(nsec,60).eq.0 .and. nreset.eq.1) then
@@ -108,13 +113,14 @@ subroutine recvpkt(iarg)
         nsec0=nsec
         ntx=ntx+transmitting
         if(mod(nsec,60).eq.52) then
+           kk=k
            kbuf=kb
            nutc=mutc
            klost=nlost
-           if(ntx.lt.20) then
-              newdat=1
-              ndecoding=1
-           endif
+!           if(ntx.lt.20) then
+!              newdat=1
+!              ndecoding=1
+!           endif
            ntx=0
         endif
      endif
