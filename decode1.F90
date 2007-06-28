@@ -27,6 +27,9 @@ subroutine decode1(iarg)
      call getfile2(fname80,nlen)
      newdat=1
   endif
+
+  if((kk-kkdone).gt.32768) call symspec(id,kbuf,kk,kkdone,rxnoise)
+
   if(ndecoding.gt.0 .and. mode(1:4).eq.'JT65') then
      ndecdone=0
      call map65a(newdat)

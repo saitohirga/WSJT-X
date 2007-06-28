@@ -1084,6 +1084,7 @@ def update():
                 avetext.insert(END,lines[0])
                 avetext.insert(END,lines[1])
 #            avetext.configure(state=DISABLED)
+            cleartext()
             Audio.gcom2.ndecdone=0
 
         if Audio.gcom2.ndecdone==2:

@@ -1,34 +1,36 @@
-      subroutine symspec(id,nz,rxnoise,savg)
+      subroutine symspec(id,kbuf,kk,kkdone,rxnoise)
 
 C  Compute spectra at four polarizations, using half-symbol steps.
 
       parameter (NFFT=32768)
       parameter (NSMAX=60*96000)
       integer*2 id(4,NSMAX)
-      real savg(4,NFFT)
       complex cx(NFFT),cy(NFFT)          !  pad to 32k with zeros
       complex z
       real*8 ts,hsym
-      common/spcom/ip0,ss(4,322,NFFT),ss5(322,NFFT)
+      common/spcom/ip0,ss(4,322,NFFT),ss5(322,NFFT),savg(4,NFFT)
 
-!      fac=1.e-4
-!      fac=1.7e-4
-      fac=0.0002 * 10.0**(0.05*(-rxnoise))
+      fac=1.e-4
+!       fac=1.7e-4
+!       fac=0.0002 * 10.0**(0.05*(-rxnoise))
+      hsym=2048.d0*96000.d0/11025.d0 !Samples per half symbol
+      npts=hsym                 !Integral samples per half symbol
+      ntot=322                  !Half symbols per transmission
 
-      hsym=2048.d0*96000.d0/11025.d0     !Samples per half symbol
-      npts=hsym                          !Integral samples per half symbol
-      nsteps=322                         !Half symbols per transmission
-
-      do ip=1,4
-         do i=1,NFFT
-            savg(ip,i)=0.
+      if(kkdone.eq.0) then
+         do ip=1,4
+            do i=1,NFFT
+               savg(ip,i)=0.
+            enddo
          enddo
-      enddo
+         ts=1.d0 - hsym
+         n=0
+      endif
 
-      ts=1.d0 - hsym
-      do n=1,nsteps
-         ts=ts+hsym             !Update exact sample pointer
-         i0=ts                  !Starting sample pointer
+      do nn=1,ntot
+         i0=ts+hsym             !Starting sample pointer
+         if((i0+npts-1).gt.kk) go to 999  !See if we have enough points
+         ts=ts+hsym             !OK, update the exact sample pointer
          do i=1,npts            !Copy data to FFT arrays
             xr=fac*id(1,i0+i)
             xi=fac*id(2,i0+i)
@@ -46,6 +48,7 @@ C  Compute spectra at four polarizations, using half-symbol steps.
          call four2a(cx,NFFT,1,1,1) !Do the FFTs
          call four2a(cy,NFFT,1,1,1)
             
+         n=n+1
          do i=1,NFFT            !Save and accumulate power spectra
             sx=real(cx(i))**2 + aimag(cx(i))**2
             ss(1,n,i)=sx         ! Pol = 0
@@ -81,7 +84,8 @@ C  Compute spectra at four polarizations, using half-symbol steps.
             ss5(n,i)=0.707*sqrt(q*q + u*u)
 
          enddo
+         if(n.eq.ntot) go to 999
       enddo
 
-      return
+ 999  return
       end
