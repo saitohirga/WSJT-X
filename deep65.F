@@ -94,13 +94,11 @@ C  Test for messages with MyCall + HisCall + report
             call encode65(message,ncode(1,k))
             nflip(k)=flip
 C  Insert CQ message
-            if(m.eq.1 .and. flip.gt.0.0) then
-               message='CQ '//callgrid(icall)
-               k=k+1
-               testmsg(k)=message
-               call encode65(message,ncode(1,k))
-               nflip(k)=flip
-            endif
+            message='CQ '//callgrid(icall)
+            k=k+1
+            testmsg(k)=message
+            call encode65(message,ncode(1,k))
+            nflip(k)=flip
          enddo
          if(nsked.eq.1) go to 20
  10      continue
@@ -118,8 +116,10 @@ C  Insert CQ message
       enddo
 
       p1=-1.e30
+      p2=-1.e30
       do k=1,ntot
-         if(flip.gt.0.0 .or. nflip(k).lt.0) then         !Skip CQ msg if flip=-1
+         pp(k)=0.
+!         if(flip.gt.0.0 .or. nflip(k).lt.0) then       !Skip CQ msg if flip=-1
             sum=0.
             ref=ref0
             do j=1,63
@@ -135,10 +135,9 @@ C  Insert CQ message
                p1=p
                ip1=k
             endif
-         endif
+!         endif
       enddo
 
-      p2=-1.e30
       do i=1,ntot
          if(pp(i).gt.p2 .and. pp(i).ne.p1) p2=pp(i)
       enddo
@@ -155,7 +154,7 @@ C  ### compile step.
       if(mode65.eq.2) bias=max(1.08*p2,0.405)
       if(mode65.ge.4) bias=max(1.04*p2,0.505)
 
-      if(p2.eq.p1) stop 'Error in deep65'
+      if(p2.eq.p1 .and. p1.ne.-1.e30) stop 'Error in deep65'
       qual=100.0*(p1-bias)
 
       decoded='                      '

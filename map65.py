@@ -959,9 +959,9 @@ def update():
         graph2.create_text(13,109,anchor=W,text="Dgrd:%5.1f" % g.Dgrd,font=g2font)
 
     if g.freeze_decode and mode.get()[:4]=='JT65':
-        itol=2
-        ltol.configure(text='Tol    '+str(50))
-        Audio.gcom2.dftolerance=50
+        itol=5
+        ltol.configure(text='Tol    '+str(500))
+        Audio.gcom2.dftolerance=500
         nfreeze.set(1)
         Audio.gcom2.nfreeze=1
         if Audio.gcom2.monitoring:
@@ -1002,14 +1002,14 @@ def update():
     msg3.configure(text=t)    
     t="QSO DF:%4d" % (int(Audio.gcom2.mousedf),)
     msg4.configure(text=t)    
-    bdecode.configure(bg='gray85',activebackground='gray95')
     if mode.get()[:4]=='JT65' and Audio.gcom2.ndecoding:
 #Set button bg while decoding
         bc='#66FFFF'
-        if g.ndecphase==1: bc='orange'
-        if g.ndecphase==2: bc='yellow'
-        bdecode.configure(bg=bc,activebackground=bc)
+#        if g.ndecphase==1: bc='orange'
+#        if g.ndecphase==2: bc='yellow'
+        bdecode.configure(bg=bc,activebackground=bc,state=DISABLED)
     else:
+        bdecode.configure(bg='gray85',activebackground='gray95',state=ACTIVE)
         g.ndecphase=0
 
     tx1.configure(bg='white')
@@ -1065,7 +1065,7 @@ def update():
             except:
                 lines=""
             text.configure(state=NORMAL)
-            for i in range(len(lines)):
+            for i in range(len(lines)-1):
                 text.insert(END,lines[i])
             text.see(END)
             g.ndecphase=1

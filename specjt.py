@@ -175,8 +175,15 @@ def freq_range(event):
     if fmid<1000*nfr.get(): fmid=1000*nfr.get()
     if fmid>5000-1000*nfr.get(): fmid=5000-1000*nfr.get()
 
-#---------------------------------------------------- freeze_decode
-def freeze_decode(event):
+#---------------------------------------------------- freeze_decode1
+def freeze_decode1(event):
+# If decoder is busy or we are not monitoring, ignore request
+    if Audio.gcom2.ndecoding==0 or Audio.gcom2.monitoring==0:
+        set_fqso(event)
+        g.freeze_decode=1
+
+#---------------------------------------------------- freeze_decode2
+def freeze_decode2(event):
 # If decoder is busy or we are not monitoring, ignore request
     if Audio.gcom2.ndecoding==0 or Audio.gcom2.monitoring==0:
         set_freezedf(event)
@@ -400,7 +407,7 @@ graph1=Canvas(iframe1, bg='black', width=NX, height=NY,bd=0,cursor='crosshair')
 graph1.pack(side=TOP)
 Widget.bind(graph1,"<Motion>",fdf_change)
 Widget.bind(graph1,"<Button-1>",set_fqso)
-Widget.bind(graph1,"<Double-Button-1>",freeze_decode)
+Widget.bind(graph1,"<Double-Button-1>",freeze_decode1)
 iframe1.pack(expand=1, fill=X)
 
 c2=Canvas(iframe1, bg='white', width=NX, height=25,bd=0)
@@ -413,7 +420,7 @@ graph2=Canvas(iframe1, bg='black', width=NX, height=NY,bd=0,cursor='crosshair')
 graph2.pack(side=TOP)
 Widget.bind(graph2,"<Motion>",fdf_change2)
 Widget.bind(graph2,"<Button-1>",set_freezedf)
-Widget.bind(graph2,"<Double-Button-1>",freeze_decode)
+Widget.bind(graph2,"<Double-Button-1>",freeze_decode2)
 iframe1.pack(expand=1, fill=X)
 
 

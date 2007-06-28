@@ -39,7 +39,7 @@ subroutine map65a(newdat)
   utcdata=utcdata(1:2)//':'//utcdata(3:4)
   open(23,file='CALL3.TXT',status='old')
 
-  fselect=mousefqso + 1.6 + 0.001*mousedf
+  fselect=mousefqso + 1.6
   df=96000.0/NFFT                    !df = 96000/NFFT = 2.930 Hz
   ftol=0.020                          !Frequency tolerance (kHz)
   nfilt=1
@@ -47,11 +47,10 @@ subroutine map65a(newdat)
 
   do nqd=1,0,-1
      if(nqd.eq.1) then
-        fa=1000.0*(fselect-100.0) - dftolerance
-        fb=1000.0*(fselect-100.0) + dftolerance
+        fa=1000.0*(fselect+0.001*mousedf-100.0) - dftolerance
+        fb=1000.0*(fselect+0.001*mousedf-100.0) + dftolerance
         ia=nint((fa+23000.0)/df + 1.0)     ! 23000 = 48000 - 25000
         ib=nint((fb+23000.0)/df + 1.0)
-        print*,dftolerance,ia,ib
      else
         fa=0.0
         fb=60000.0
@@ -63,15 +62,12 @@ subroutine map65a(newdat)
      nkk=1
      nz=n/8
 
-     ndecdone=1
-
      do i=1,NFFT
         short(1,i)=0.
         short(2,i)=0.
         short(3,i)=0.
      enddo
 
-     newspec=1
      freq0=-999.
      sync10=-999.
      fshort0=-999.
@@ -159,14 +155,12 @@ subroutine map65a(newdat)
 !  (Am I deleting any good decodes by doing this?  Any harm in omitting
 !  these statements??)
               if(freq-freq0.le.ftol .and. sync1.gt.sync10 .and.         &
-                   nkk.eq.1) kk=kk-1
+                   nkk.eq.1 .and.nqd.eq.0) kk=kk-1
 
-              if(freq-freq0.gt.ftol .or. sync1.gt.sync10) then
+              if(freq-freq0.gt.ftol .or. sync1.gt.sync10 .and. nqd.eq.0) then
                  nflip=nint(flipk)
                  call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,dphi,  &
                       ipol,sync2,a,dt,pol,nkv,nhist,qual,decoded)
-!              i9=index(decoded,'AA1YN')
-!              if(i9.gt.0) print*,i,i9,fselect,freq,decoded
                  kk=kk+1
                  sig(kk,1)=nfile
                  sig(kk,2)=nutc
@@ -195,21 +189,41 @@ subroutine map65a(newdat)
         endif
      enddo
      if(nqd.eq.1) then
-        nkHz=nint(freq-1.600)
-        npol=nint(57.2957795*pol)
-        nqual=qual
-        if(nflip.eq.-1) then                      !Should this be in decode1a ?
-           do i=22,9,-1
-              if(decoded(i:i).ne.' ') then
-                 decoded(i+2:i+4)='OOO'
-                 go to 6
+        do k=1,kk
+           decoded=msg(k)
+           if(decoded.ne.'                      ') then
+              nutc=sig(k,2)
+              freq=sig(k,3)
+              sync1=sig(k,4)
+              dt=sig(k,5)
+              npol=nint(57.2957795*sig(k,6))
+              flip=sig(k,7)
+              sync2=sig(k,8)
+              nkv=sig(k,9)
+              nqual=sig(k,10)
+              if(flip.lt.0.0) then
+                 do i=22,1,-1
+                    if(decoded(i:i).ne.' ') go to 8
+                 enddo
+                 stop 'Error in message format'
+8                if(i.le.18) decoded(i+2:i+4)='OOO'
               endif
-           enddo
-        endif
-        nw=0
-6       write(11,1010) nkHz,ndf,npol,nutc,nsync2,dt,nw,decoded,nkv,nqual
-1010    format(i3,i5,i4,i5.4,i4,f5.1,i3,2x,a22,2i3)
+              nkHz=nint(freq-1.600)
+              f0=144.0+0.001*nkHz
+              ndf=nint(1000.0*(freq-1.600-nkHz))
+!              ndf0=nint(a(1))
+!              ndf1=nint(a(2))
+!              ndf2=nint(a(3))
+              nsync1=sync1
+              nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
+              nw=0
+              write(11,1010) nkHz,ndf,npol,nutc,nsync2,dt,nw,decoded,nkv,nqual
+1010          format(i3,i5,i4,i5.4,i4,f5.1,i3,2x,a22,2i3)
+           endif
+        enddo
+        write(11,*) '$EOF'
         call flushqqq(11)
+        ndecdone=1
      endif
      if(nagain.eq.1) go to 999
   enddo
