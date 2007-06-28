@@ -1,4 +1,4 @@
-      subroutine decode1a(id,newdat,nfilt,freq,nflip,dphi,ipol,
+      subroutine decode1a(id,nqd,newdat,nfilt,freq,nflip,dphi,ipol,
      +  sync2,a,dt,pol,nkv,nhist,qual,decoded)
 
 C  Apply AFC corrections to a candidate JT65 signal, and then try
@@ -71,38 +71,43 @@ C  Find best DF, f1, f2, DT, and pol
 !      call afc65b(cx(i0),cy(i0),nz,fsample,nflip,ipol,a,dt,
 !     +    ccfbest,dtbest)
 
+!  Adjust for cable length difference:
+      z=cmplx(cos(dphi),sin(dphi))
+      do i=1,n5
+         cy(i)=z*cy(i)
+      enddo
+
       call fil6521(cx,n5,c5x,n6)
       call fil6521(cy,n5,c5y,n6)
 
-!  Adjust for cable length difference:
-      z=cmplx(cos(dphi),sin(dphi))
-      do i=1,n6
-         c5y(i)=z*c5y(i)
-      enddo
-
       fsample=1378.125/4.
-      a(5)=dt00
-      i0=nint((a(5)+0.5)*fsample) - 2
-      if(i0.lt.1) i0=1
-      nz=n6+1-i0
 
-      ip0=ipol
-      nflip=1
-      call afc65b(c5x(i0),c5y(i0),nz,fsample,nflip,ipol,a,dt,
-     +     ccfbest,dtbest)
+      if(nqd.eq.1) then
+         call findpol(c5x,c5y,n6,dt00,nflip,ipol,a,ccfbest,dtbest)
+      else
+         a(5)=dt00
+         i0=nint((a(5)+0.5)*fsample) - 2
+         if(i0.lt.1) i0=1
+         nz=n6+1-i0
 
-      nflip=-1
-      ipol=ip0
-      call afc65b(c5x(i0),c5y(i0),nz,fsample,nflip,ipol,a,dt,
-     +     ccfbest2,dtbest)
-
-      if(ccfbest2.lt.ccfbest) then
+         ip0=ipol
          nflip=1
-         ipol=ip0
          call afc65b(c5x(i0),c5y(i0),nz,fsample,nflip,ipol,a,dt,
      +        ccfbest,dtbest)
-      else
-         ccfbest=ccfbest
+
+         nflip=-1
+         ipol=ip0
+         call afc65b(c5x(i0),c5y(i0),nz,fsample,nflip,ipol,a,dt,
+     +        ccfbest2,dtbest)
+
+         if(ccfbest2.lt.ccfbest) then
+            nflip=1
+            ipol=ip0
+            call afc65b(c5x(i0),c5y(i0),nz,fsample,nflip,ipol,a,dt,
+     +           ccfbest,dtbest)
+         else
+            ccfbest=ccfbest
+         endif
       endif
 
       pol=a(4)/57.2957795
@@ -145,3 +150,5 @@ C  Adding or subtracting a small number (e.g., 5) to j may make it decode.
 
       return
       end
+
+      include 'findpol.f'
