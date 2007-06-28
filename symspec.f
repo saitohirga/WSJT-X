@@ -51,7 +51,7 @@ C  Compute spectra at four polarizations, using half-symbol steps.
          call four2a(cy,NFFT,1,1,1)
             
          n=n+1
-         print*,'B',n,kbuf,kkdone,kk,i0,npts
+         print*,'B',n,kbuf,kkdone,kk,i0
          do i=1,NFFT            !Save and accumulate power spectra
             sx=real(cx(i))**2 + aimag(cx(i))**2
             ss(1,n,i)=sx         ! Pol = 0

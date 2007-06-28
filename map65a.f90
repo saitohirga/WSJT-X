@@ -24,6 +24,7 @@ subroutine map65a(newdat)
   include 'gcom2.f90'
   save
 
+!  print*,'a',newdat,nagain,kbuf,kk,kkdone
   pctlost=nlost/331.03
   if(nlost.ne.0) write(*,1001) nutc,nlost,pctlost
 1001 format('UTC:',i5.4,'   Lost packets:',i6,', or',f6.1,' %')
