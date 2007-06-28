@@ -1,4 +1,4 @@
-#---------------------------------------------------------------------- MAP65
+#--------------------------------------------------------------------- MAP65
 # $Date$ $Revision$
 #
 from Tkinter import *
@@ -1137,7 +1137,7 @@ def update():
             bm2text.see(END)
 
             Audio.gcom2.ndecdone=0
-            if loopall: opennext()
+            if loopall and Audio.gcom2.ndecoding==0: opennext()
             nopen=0
 
         if g.cmap != cmap0:

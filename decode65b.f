@@ -44,7 +44,6 @@ C  Suppress "birdie messages":
          ndepth=5
          if(ndepth.ge.1) call deep65(s3,mode65,neme,
      +        nsked,flip,mycall,hiscall,hisgrid,deepmsg,qual)
-
 C  Save symbol spectra for possible decoding of average.
 !      do j=1,63
 !         k=mdat(j)
