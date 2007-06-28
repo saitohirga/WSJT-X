@@ -49,10 +49,8 @@ subroutine getfile2(fname,len)
 
 #endif
 
-  read(filename(8:11),*,err=996,end=996) nutc
-  go to 997
-996 print*,'Error reading UTC: ',filename,nutc
-997  ndiskdat=1
+  read(filename(8:11),*) nutc
+  ndiskdat=1
   ndecoding=4
   mousebutton=0
   go to 999
