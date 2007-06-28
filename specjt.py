@@ -44,6 +44,7 @@ isec0=-99
 mode0=""
 mousedf0=0
 mousefqso0=0
+dftolerance0=500
 naxis=IntVar()
 ncall=0
 newMinute=0
@@ -146,21 +147,21 @@ def df_mark():
     color='green'
     df=96.0/750.0
     x1=393.0 + (Audio.gcom2.mousefqso-125)/df
-    c.create_line(x1-0.5,25,x1-0.5,12,fill=color)
-    c.create_line(x1+0.5,25,x1+0.5,12,fill=color)
+    c.create_line(x1,25,x1,12,fill=color,width=2)
 
     df=96000.0/32768.0
 # Mark sync tone and top JT65 tone (green) and shorthand tones (red)
     fstep=20.0*11025.0/4096.0
     x1=375.0 + (Audio.gcom2.mousedf + 6.6*fstep)/df
-    c2.create_line(x1-0.5,25,x1-0.5,12,fill=color)
-    c2.create_line(x1+0.5,25,x1+0.5,12,fill=color)
+    c2.create_line(x1,25,x1,12,fill=color,width=2)
+    x1=375.0 + (Audio.gcom2.mousedf - Audio.gcom2.dftolerance)/df
+    x2=375.0 + (Audio.gcom2.mousedf + Audio.gcom2.dftolerance)/df
+    c2.create_line(x1,25,x2,25,fill=color,width=2)
     for i in range(5):
         x1=375.0 + (Audio.gcom2.mousedf + i*fstep)/df
         j=12
         if i>0: j=15
-        if i!=1: c2.create_line(x1-0.5,25,x1-0.5,j,fill=color)
-        if i!=1: c2.create_line(x1+0.5,25,x1+0.5,j,fill=color)
+        if i!=1: c2.create_line(x1,25,x1,j,fill=color,width=2)
         color='red'
 
 #---------------------------------------------------- freq_range
@@ -194,7 +195,7 @@ def update():
     global a,a2,b0,c0,g0,im,im2,isec0,line0,line02,newMinute,\
            nscroll,pim,pim2, \
            root_geom,t0,mousedf0,mousefqso0,nfreeze0,tol0,mode0,nmark0, \
-           fmid,fmid0,frange,frange0
+           fmid,fmid0,frange,frange0,dftolerance0
     
     utc=time.gmtime(time.time()+0.1*Audio.gcom1.ndsec)
     isec=utc[5]
@@ -272,13 +273,15 @@ def update():
         Audio.gcom2.newspec=0
 
     if (Audio.gcom2.mousedf != mousedf0 or
-            Audio.gcom2.mousefqso != mousefqso0):
+            Audio.gcom2.mousefqso != mousefqso0 or
+            Audio.gcom2.dftolerance != dftolerance0):
         df_mark()
         
 # The following int() calls are to ensure that the values copied to
 # mousedf0 and mousefqso0 are static.
         mousedf0=int(Audio.gcom2.mousedf)
         mousefqso0=int(Audio.gcom2.mousefqso)
+        dftolerance0=int(Audio.gcom2.dftolerance)
 
     if Audio.gcom2.nfreeze != nfreeze0:
         if not Audio.gcom2.nfreeze: draw_axis()
