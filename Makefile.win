@@ -18,7 +18,7 @@ SRCS2F90 = a2d.f90 astro0.f90 audio_init.f90 azdist0.f90 \
 	decode1.f90 ftn_init.f90 ftn_quit.f90 wsjtgen.f90 \
 	runqqq.f90 fivehz.f90 flushqqq.f90 map65a0.f90 \
 	rfile.f90 rfile3a.f90 spec.f90 map65a.f90 display.F90 \
-	getfile.f90 getfile2.f90 recvpkt.f90 savetf2.f90 \
+	getfile.f90 getfile2.f90 recvpkt.f90 savetf2.F90 \
 	symspec.f90
 
 SRCSCOM = datcom.f90 gcom1.f90 gcom2.f90 gcom3.f90 gcom4.f90 spcom.f90
