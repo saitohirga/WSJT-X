@@ -3,11 +3,9 @@ subroutine map65a(newdat)
 !  Processes timf2 data from Linrad to find and decode JT65 signals.
 
   parameter (MAXMSG=1000)            !Size of decoded message list
-  parameter (NFFT=32768)             !Half symbol = 17833 samples;
   real tavg(-50:50)                  !Temp for finding local base level
   real base(4)                       !Local basel level at 4 pol'ns
   real tmp (200)                     !Temp storage for pctile sorting
-  real short(3,NFFT)                 !SNR dt ipol for potential shorthands
   real sig(MAXMSG,30)                !Parameters of detected signals
   real a(5)
   character*22 msg(MAXMSG)
@@ -16,9 +14,10 @@ subroutine map65a(newdat)
   logical done(MAXMSG)
   logical even
   character decoded*22,blank*22
-  include 'datcom.f90'
+  include 'spcom.f90'
+  real short(3,NFFT)                 !SNR dt ipol for potential shorthands
   include 'gcom2.f90'
-  common/spcom/ip0,ss(4,322,NFFT),ss5(322,NFFT),savg(4,NFFT)
+  include 'datcom.f90'
   data blank/'                      '/
   data shmsg0/'ATT','RO ','RRR','73 '/
   data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/
@@ -96,7 +95,7 @@ subroutine map65a(newdat)
         if(smax.gt.1.1) then
            ntry=ntry+1
 !  Look for JT65 sync patterns and shorthand square-wave patterns.
-           call ccf65(ss(1,1,i),sync1,ipol,dt,flipk,                  &
+           call ccf65(ss(1,1,i),nhsym,sync1,ipol,dt,flipk,              &
                 syncshort,snr2,ipol2,dt2)
 
            shmsg='   '

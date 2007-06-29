@@ -47,7 +47,7 @@ SRCS2F90 = astro0.F90 audio_init.F90 azdist0.f90 \
 	decode1.F90 ftn_init.F90 ftn_quit.f90 wsjtgen.F90 \
 	runqqq.F90 fivehz.F90 flushqqq.F90 map65a0.f90 \
 	rfile.f90 rfile3a.f90 spec.f90 map65a.f90 display.F90 \
-	getfile.F90 getfile2.F90 recvpkt.F90
+	getfile.F90 getfile2.F90 recvpkt.F90 symspec.f90
 
 SRCS2F77 = indexx.f gen65.f chkmsg.f \
 	gentone.f gencwid.f set.f db.f pctile.f sort.f ssort.f \
@@ -58,7 +58,7 @@ SRCS2F77 = indexx.f gen65.f chkmsg.f \
 	unpackmsg.f unpacktext.f astro.f azdist.f coord.f dcoord.f \
 	deg2grid.f dot.f ftsky.f geocentric.f GeoDist.f grid2deg.f \
 	moon2.f MoonDop.f sun.f toxyz.f pfxdump.f \
-	symspec.f ccf65.f trimlist.f chkhist.f decode1a.f \
+	ccf65.f trimlist.f chkhist.f decode1a.f \
 	filbig.f fil659.f fil658.f fil6521.f twkfreq.f decode65b.f \
 	afc65b.f fchisq.f ccf2.f rfile2.f
 

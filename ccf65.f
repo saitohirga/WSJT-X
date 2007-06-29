@@ -1,4 +1,4 @@
-      subroutine ccf65(ss,sync1,ipol1,dt1,flipk,syncshort,
+      subroutine ccf65(ss,nhsym,sync1,ipol1,dt1,flipk,syncshort,
      +     snr2,ipol2,dt2)
 
       parameter (NFFT=512,NH=NFFT/2)
@@ -52,10 +52,10 @@ C  Look for JT65 sync pattern and shorthand square-wave pattern.
       ccfbest=0.
       ccfbest2=0.
       do ip=1,4                                    !Do all four pol'ns
-         do i=1,321
+         do i=1,nhsym                              ! ?? nhsym-1 ??
             s(i)=min(4.0,ss(ip,i)+ss(ip,i+1))
           enddo
-         do i=322,NFFT
+         do i=nhsym+1,NFFT                         ! ?? nhsym ??
             s(i)=0.
          enddo
          call four2a(s,NFFT,1,-1,0)                !Real-to-complex FFT
@@ -103,10 +103,10 @@ C  Find rms level on baseline of "ccfblue", for normalization.
       dt1=2.5 + lagpk*(2048.0/11025.0)
 
 C  Find base level for normalizing snr2.
-      do i=1,322
+      do i=1,nhsym
          tmp1(i)=ss(ipol2,i)
       enddo
-      call pctile(tmp1,tmp2,322,40,base)
+      call pctile(tmp1,tmp2,nhsym,40,base)
       snr2=0.398107*ccfbest2/base                !### empirical
       syncshort=0.5*ccfbest2/rms - 4.0           !### better normalizer than rms?
       dt2=2.5 + lagpk2*(2048.0/11025.0)
