@@ -107,18 +107,17 @@ subroutine recvpkt(iarg)
 !        kk=k
 !        kbuf=kb
 !###
-!        if(ns.eq.42) then
-!           nutc=mutc
-!           kbuf=kb
-!           kk=k
-!           t00=secnds(0.0)
-!        endif
+        if(ns.eq.48) then
+           nutc=mutc
+           kbuf=kb
+           kk=k
+           print*,'A1',mod(mid_sec(),60),nutc,kk,kbuf,kkdone
+        endif
         if(ns.eq.52) then
            nutc=mutc
            kbuf=kb
            kk=k
-           t00=secnds(0.0)
-           print*,'A ',0.0,nutc,kk,kbuf,kkdone
+           print*,'A2',mod(mid_sec(),60),nutc,kk,kbuf,kkdone
         endif
      endif
 

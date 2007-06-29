@@ -86,3 +86,14 @@ subroutine sleep_msec(n)
   return
 end subroutine sleep_msec
 
+integer function mid_sec()
+  integer time
+
+#ifdef Win32
+  mid_sec=int(secnds(0.0))
+#else
+  mid_sec=mod(time(),86400)
+#endif
+
+  return
+end function mid_sec
