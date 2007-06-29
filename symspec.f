@@ -93,6 +93,7 @@ C  Compute spectra at four polarizations, using half-symbol steps.
             ndecoding=1
             go to 999
          endif
+         call sleep_msec(0)
       enddo
 
  999  kkdone=i1-1
