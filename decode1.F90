@@ -25,6 +25,10 @@ subroutine decode1(iarg)
 10 continue
   if(newdat2.gt.0) then
      call getfile2(fname80,nlen)
+     newdat2=0
+     kbuf=1
+     kk=NSMAX
+     kkdone=0
      newdat=1
   endif
 
@@ -36,7 +40,6 @@ subroutine decode1(iarg)
      call map65a(newdat)
      if(mousebutton.eq.0) ndecoding0=ndecoding
      ndecoding=0
-     newdat2=0
   endif
 
   if(ns0.lt.0) then
