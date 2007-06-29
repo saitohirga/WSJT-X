@@ -1,6 +1,6 @@
 subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
 
-  parameter (NX=750,NY=130,NTOT=NX*NY,NFFT=32768)
+  parameter (NX=750,NY=130,NTOT=NX*NY)
 
 ! Input:
   integer brightness,contrast   !Display parameters
@@ -14,9 +14,10 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
   logical first
   integer nstep(5)
   integer b0,c0
-  real s(NFFT,NY)
+
 !  Could save memory by doing the averaging-by-7 (or 10?) of ss5 in symspec.
-  common/spcom/ip0,ss(4,322,NFFT),ss5(322,NFFT),savg(4,NFFT)
+  include 'spcom.f90'
+  real s(NFFT,NY)
   include 'gcom1.f90'
   include 'gcom2.f90'
   include 'gcom3.f90'

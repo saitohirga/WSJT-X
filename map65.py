@@ -317,8 +317,6 @@ def openfile(event=NONE):
         Audio.getfile(fname,len(fname))
         if Audio.gcom2.ierr: print 'Error ',Audio.gcom2.ierr, \
            'when trying to read file',fname
-        bdecode.configure(bg='#66FFFF',activebackground='#66FFFF', \
-            state=DISABLED)
         mrudir=os.path.dirname(fname)
         fileopened=os.path.basename(fname)
     os.chdir(appdir)
