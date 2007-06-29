@@ -89,7 +89,7 @@ program plrs
         enddo
         if(pause) then
            print*,'Type anything to continue:'
-           read(*,*) cjunk
+           read(*,*) cjunk,pause,fast
         endif
      enddo
      i=close(fd)
