@@ -110,7 +110,7 @@ subroutine recvpkt(iarg)
         ntx=ntx+transmitting
 
         nutc=mutc
-        if(mod(nsec,60).eq.43) kk=k           !### ??? ###
+!        if(mod(nsec,60).eq.43) kk=k           !### ??? ###
         if(mod(nsec,60).eq.52) then
            kk=k
            kbuf=kb
