@@ -23,7 +23,7 @@ subroutine map65a(newdat)
   data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/
   save
 
-  print*,'C ',secnds(t00),nutc,kk,kbuf,kkdone
+  print*,'C ',mod(mid_sec(),60),nutc,kk,kbuf,kkdone,nhsym
   pctlost=nlost/331.03
   if(nlost.ne.0) write(*,1001) nutc,nlost,pctlost
 1001 format('UTC:',i5.4,'   Lost packets:',i6,', or',f6.1,' %')
@@ -227,7 +227,7 @@ subroutine map65a(newdat)
    
         write(11,*) '$EOF'
         call flushqqq(11)
-        print*,'D ',secnds(t00),nutc,kk,kbuf,kkdone
+        print*,'D ',mod(mid_sec(),60),nutc,kk,kbuf,kkdone,nhsym
         ndecdone=1
      endif
      if(nagain.eq.1) go to 999
@@ -309,6 +309,6 @@ subroutine map65a(newdat)
   if(kbuf.eq.1) kkdone=60*96000
   if(kbuf.eq.2) kkdone=0
   kk=kkdone
-  print*,'E ',secnds(t00),nutc,kk,kbuf,kkdone
+  print*,'E ',mod(mid_sec(),60),nutc,kk,kbuf,kkdone,nhsym
   return
 end subroutine map65a

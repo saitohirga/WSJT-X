@@ -12,7 +12,7 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
   data kbuf0/-999/
   save
 
-  print*,'B ',secnds(t00),0,kk,kbuf,kkdone
+  print*,'B ',mod(mid_sec(),60),0,kk,kbuf,kkdone
   fac=0.0002 * 10.0**(0.05*(-rxnoise))
   hsym=2048.d0*96000.d0/11025.d0          !Samples per half symbol
   npts=hsym                               !Integral samples per half symbol
@@ -105,8 +105,6 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
      kkdone=i1-1
      nhsym=n
      call sleep_msec(0)
-     write(81,3001) n,kbuf,kk,kkdone
-3001 format(4i10)
   enddo
 
 999 kkdone=i1-1
