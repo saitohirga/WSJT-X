@@ -86,24 +86,24 @@ C  Find best DF, f1, f2, DT, and pol
       if(i0.lt.1) i0=1
       nz=n6+1-i0
 
-      ip0=ipol
-      nflip=1
+!      ip0=ipol
+!      nflip=1
       call afc65b(c5x(i0),c5y(i0),nz,fsample,nflip,ipol,a,dt,
      +     ccfbest,dtbest)
 
-      nflip=-1
-      ipol=ip0
-      call afc65b(c5x(i0),c5y(i0),nz,fsample,nflip,ipol,a,dt,
-     +     ccfbest2,dtbest)
-
-      if(ccfbest2.lt.ccfbest) then
-         nflip=1
-         ipol=ip0
-         call afc65b(c5x(i0),c5y(i0),nz,fsample,nflip,ipol,a,dt,
-     +        ccfbest,dtbest)
-      else
-         ccfbest=ccfbest
-      endif
+!      nflip=-1
+!      ipol=ip0
+!      call afc65b(c5x(i0),c5y(i0),nz,fsample,nflip,ipol,a,dt,
+!     +     ccfbest2,dtbest)
+!
+!      if(ccfbest2.lt.ccfbest) then
+!         nflip=1
+!         ipol=ip0
+!         call afc65b(c5x(i0),c5y(i0),nz,fsample,nflip,ipol,a,dt,
+!     +        ccfbest,dtbest)
+!      else
+!         ccfbest=ccfbest
+!      endif
 
       pol=a(4)/57.2957795
       aa=cos(pol)

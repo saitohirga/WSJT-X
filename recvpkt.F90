@@ -21,7 +21,7 @@ subroutine recvpkt(iarg)
   include 'gcom2.f90'
   equivalence (id,d8)
   data nblock0/0/,first/.true./,kb/1/,ntx/0/,npkt/0/,nw/0/
-  data sqave/0.0/,u/0.001/,rxnoise/0.0/
+  data sqave/0.0/,u/0.001/,rxnoise/0.0/,kbuf/1/
   save
 
 ! Open a socket to receive multicast data from Linrad
@@ -46,11 +46,6 @@ subroutine recvpkt(iarg)
      endif
      first=.false.
 
-!###
-!     kbuf=kb
-!     kk=k
-!###
-
      nsec=msec/1000
      if(mod(nsec,60).eq.1) nreset=1
      if(mod(nsec,60).eq.0 .and. nreset.eq.1) then
@@ -60,6 +55,7 @@ subroutine recvpkt(iarg)
         k=0
         if(kb.eq.2) k=NSMAX
         nlost=0
+        kbuf=kb
      endif
 
      if(kb.eq.1 .and. (k+174).gt.NSMAX) go to 20
@@ -112,17 +108,20 @@ subroutine recvpkt(iarg)
 !1010 format('UTC:',i5.4,'   ns:',i3,'   t:',f10.3,'   k:',i8)
         nsec0=nsec
         ntx=ntx+transmitting
+
+        nutc=mutc
+        if(mod(nsec,60).eq.43) kk=k           !### ??? ###
         if(mod(nsec,60).eq.52) then
            kk=k
            kbuf=kb
-           nutc=mutc
            klost=nlost
 !           if(ntx.lt.20) then
 !              newdat=1
 !              ndecoding=1
 !           endif
-           ntx=0
+!           ntx=0
         endif
+        print*,ns,nutc,kbuf,kk,kkdone
      endif
 
   endif

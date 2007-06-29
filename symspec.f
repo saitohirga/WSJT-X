@@ -11,9 +11,9 @@ C  Compute spectra at four polarizations, using half-symbol steps.
       real*8 ts,hsym
       common/spcom/ip0,ss(4,322,NFFT),ss5(322,NFFT),savg(4,NFFT)
 
-      fac=1.e-4
+!      fac=1.e-4
 !       fac=1.7e-4
-!       fac=0.0002 * 10.0**(0.05*(-rxnoise))
+       fac=0.0002 * 10.0**(0.05*(-rxnoise))
       hsym=2048.d0*96000.d0/11025.d0 !Samples per half symbol
       npts=hsym                 !Integral samples per half symbol
       ntot=322                  !Half symbols per transmission
@@ -51,7 +51,6 @@ C  Compute spectra at four polarizations, using half-symbol steps.
          call four2a(cy,NFFT,1,1,1)
             
          n=n+1
-         print*,'B',n,kbuf,kkdone,kk,i0
          do i=1,NFFT            !Save and accumulate power spectra
             sx=real(cx(i))**2 + aimag(cx(i))**2
             ss(1,n,i)=sx         ! Pol = 0

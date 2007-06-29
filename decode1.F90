@@ -30,11 +30,9 @@ subroutine decode1(iarg)
 
   if((kk-kkdone).gt.32768) call symspec(id,kbuf,kk,kkdone,rxnoise,     &
        newspec,newdat,ndecoding)
-  print*,'A',kbuf,kk,kkdone,newspec,newdat,ndecoding
 
   if(ndecoding.gt.0 .and. mode(1:4).eq.'JT65') then
      ndecdone=0
-     print*,'C',nutc,newdat,kbuf,kk,kkdone
      call map65a(newdat)
      if(mousebutton.eq.0) ndecoding0=ndecoding
      ndecoding=0

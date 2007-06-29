@@ -17,14 +17,13 @@ subroutine map65a(newdat)
   logical even
   character decoded*22,blank*22
   include 'datcom.f90'
+  include 'gcom2.f90'
   common/spcom/ip0,ss(4,322,NFFT),ss5(322,NFFT),savg(4,NFFT)
   data blank/'                      '/
   data shmsg0/'ATT','RO ','RRR','73 '/
   data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/
-  include 'gcom2.f90'
   save
 
-!  print*,'a',newdat,nagain,kbuf,kk,kkdone
   pctlost=nlost/331.03
   if(nlost.ne.0) write(*,1001) nutc,nlost,pctlost
 1001 format('UTC:',i5.4,'   Lost packets:',i6,', or',f6.1,' %')
@@ -219,7 +218,7 @@ subroutine map65a(newdat)
               nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
               nw=0
               write(11,1010) nkHz,ndf,npol,nutc,nsync2,dt,nw,decoded,nkv,nqual
-1010          format(i3,i5,i4,i5.4,i4,f5.1,i3,2x,a22,2i3)
+1010          format(i3,i5,i4,i5.4,i4,f5.1,i3,2x,a22,i3,i4)
            endif
         enddo
         write(11,*) '$EOF'
