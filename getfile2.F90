@@ -55,7 +55,7 @@ subroutine getfile2(fname,len)
   ndiskdat=1
   ndecoding=4
   mousebutton=0
-  rxnoise=7.0
+  rxnoise=8.0
   go to 999
 
 998 ierr=1001

@@ -63,14 +63,24 @@ subroutine decode1(iarg)
      sendingsh0=sendingsh
      mode0=mode
   endif
-       
-#ifdef Win32
-!  call sleepqq(100)
-  call sleepqq(1000)
-#else
-  call usleep(100*1000)
-#endif
 
+  call sleep_msec(1000)                  !### was 100
   go to 10
 
 end subroutine decode1
+
+subroutine sleep_msec(n)
+
+#ifdef Win32
+  use dflib
+#endif
+
+#ifdef Win32
+  call sleepqq(n)
+#else
+  call usleep(1000*n)
+#endif
+
+  return
+end subroutine sleep_msec
+
