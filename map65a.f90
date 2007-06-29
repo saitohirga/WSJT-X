@@ -36,7 +36,6 @@ subroutine map65a(newdat)
   nutcdata=nutc
   open(23,file='CALL3.TXT',status='old')
 
-  fselect=mousefqso + 1.6
   df=96000.0/NFFT                    !df = 96000/NFFT = 2.930 Hz
   ftol=0.020                          !Frequency tolerance (kHz)
   nfilt=1
