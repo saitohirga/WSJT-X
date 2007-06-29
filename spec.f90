@@ -37,6 +37,7 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
   nlines=322/nadd
   call zero(s,NFFT*NY)
   k=0
+  fselect=mousefqso + 1.6
   imid=nint(1000.0*(fselect-125.0+48.0)/df)
   ia=imid-374
   ib=ia+749
