@@ -23,6 +23,7 @@ subroutine map65a(newdat)
   data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/
   save
 
+  print*,'C ',secnds(t00),nutc,kk,kbuf,kkdone
   pctlost=nlost/331.03
   if(nlost.ne.0) write(*,1001) nutc,nlost,pctlost
 1001 format('UTC:',i5.4,'   Lost packets:',i6,', or',f6.1,' %')
@@ -33,9 +34,6 @@ subroutine map65a(newdat)
   if(nutc.ne.nutc0) nfile=nfile+1
   nutc0=nutc
   nutcdata=nutc
-  write(utcdata,1002) nutc
-1002 format(i4.4)
-  utcdata=utcdata(1:2)//':'//utcdata(3:4)
   open(23,file='CALL3.TXT',status='old')
 
   fselect=mousefqso + 1.6
@@ -57,8 +55,8 @@ subroutine map65a(newdat)
         ib=nint((fb+23000.0)/df + 1.0)
      endif
 
-     kk=0
-     nkk=1
+     km=0
+     nkm=1
      nz=n/8
 
      do i=1,NFFT
@@ -117,32 +115,32 @@ subroutine map65a(newdat)
 
 !  Keep only the best candidate within ftol.
                     if(fshort-fshort0.le.ftol .and. sync2.gt.sync20    &
-                         .and. nkk.eq.2) kk=kk-1
+                         .and. nkm.eq.2) km=km-1
                     if(fshort-fshort0.gt.ftol .or.                     &
                          sync2.gt.sync20) then
-                       kk=kk+1
-                       sig(kk,1)=nfile
-                       sig(kk,2)=nutc
-                       sig(kk,3)=fshort
-                       sig(kk,4)=syncshort
-                       sig(kk,5)=dt2
-                       sig(kk,6)=45*(ipol2-1)/57.2957795
-                       sig(kk,7)=0
-                       sig(kk,8)=snr2
-                       sig(kk,9)=0
-                       sig(kk,10)=0
-!                           sig(kk,11)=rms0
-                       sig(kk,12)=savg(ipol2,i)
-                       sig(kk,13)=0
-                       sig(kk,14)=0
-                       sig(kk,15)=0
-                       sig(kk,16)=0
-!                           sig(kk,17)=0
-                       sig(kk,18)=0
-                       msg(kk)=shmsg0(j)
+                       km=km+1
+                       sig(km,1)=nfile
+                       sig(km,2)=nutc
+                       sig(km,3)=fshort
+                       sig(km,4)=syncshort
+                       sig(km,5)=dt2
+                       sig(km,6)=45*(ipol2-1)/57.2957795
+                       sig(km,7)=0
+                       sig(km,8)=snr2
+                       sig(km,9)=0
+                       sig(km,10)=0
+!                           sig(km,11)=rms0
+                       sig(km,12)=savg(ipol2,i)
+                       sig(km,13)=0
+                       sig(km,14)=0
+                       sig(km,15)=0
+                       sig(km,16)=0
+!                           sig(km,17)=0
+                       sig(km,18)=0
+                       msg(km)=shmsg0(j)
                        fshort0=fshort
                        sync20=sync2
-                       nkk=2
+                       nkm=2
                     endif
                  endif
               enddo
@@ -155,42 +153,42 @@ subroutine map65a(newdat)
 !  (Am I deleting any good decodes by doing this?  Any harm in omitting
 !  these statements??)
               if(freq-freq0.le.ftol .and. sync1.gt.sync10 .and.         &
-                   nkk.eq.1 .and.nqd.eq.0) kk=kk-1
+                   nkm.eq.1 .and.nqd.eq.0) km=km-1
 
               if(freq-freq0.gt.ftol .or. sync1.gt.sync10 .and. nqd.eq.0) then
                  nflip=nint(flipk)
                  call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,dphi,  &
                       ipol,sync2,a,dt,pol,nkv,nhist,qual,decoded)
-                 kk=kk+1
-                 sig(kk,1)=nfile
-                 sig(kk,2)=nutc
-                 sig(kk,3)=freq
-                 sig(kk,4)=sync1
-                 sig(kk,5)=dt
-                 sig(kk,6)=pol
-                 sig(kk,7)=flipk
-                 sig(kk,8)=sync2
-                 sig(kk,9)=nkv
-                 sig(kk,10)=qual
-!                     sig(kk,11)=rms0                  
-                 sig(kk,12)=savg(ipol,i)
-                 sig(kk,13)=a(1)
-                 sig(kk,14)=a(2)
-                 sig(kk,15)=a(3)
-                 sig(kk,16)=a(4)
-!                     sig(kk,17)=a(5)
-                 sig(kk,18)=nhist
-                 msg(kk)=decoded
+                 km=km+1
+                 sig(km,1)=nfile
+                 sig(km,2)=nutc
+                 sig(km,3)=freq
+                 sig(km,4)=sync1
+                 sig(km,5)=dt
+                 sig(km,6)=pol
+                 sig(km,7)=flipk
+                 sig(km,8)=sync2
+                 sig(km,9)=nkv
+                 sig(km,10)=qual
+!                     sig(km,11)=rms0                  
+                 sig(km,12)=savg(ipol,i)
+                 sig(km,13)=a(1)
+                 sig(km,14)=a(2)
+                 sig(km,15)=a(3)
+                 sig(km,16)=a(4)
+!                     sig(km,17)=a(5)
+                 sig(km,18)=nhist
+                 msg(km)=decoded
                  freq0=freq
                  sync10=sync1
-                 nkk=1
+                 nkm=1
               endif
            endif
         endif
      enddo
      if(nqd.eq.1) then
         nwrite=0
-        do k=1,kk
+        do k=1,km
            decoded=msg(k)
            if(decoded.ne.'                      ') then
               nutc=sig(k,2)
@@ -229,6 +227,7 @@ subroutine map65a(newdat)
    
         write(11,*) '$EOF'
         call flushqqq(11)
+        print*,'D ',secnds(t00),nutc,kk,kbuf,kkdone
         ndecdone=1
      endif
      if(nagain.eq.1) go to 999
@@ -236,9 +235,9 @@ subroutine map65a(newdat)
 
 !  Trim the list and produce a sorted index and sizes of groups.
 !  (Should trimlist remove all but best SNR for given UTC and message content?)
-  call trimlist(sig,kk,indx,nsiz,nz)
+  call trimlist(sig,km,indx,nsiz,nz)
 
-  do i=1,kk
+  do i=1,km
      done(i)=.false.
   enddo
   j=0
@@ -307,5 +306,9 @@ subroutine map65a(newdat)
     
 999 nagain=0
   close(23)
+  if(kbuf.eq.1) kkdone=60*96000
+  if(kbuf.eq.2) kkdone=0
+  kk=kkdone
+  print*,'E ',secnds(t00),nutc,kk,kbuf,kkdone
   return
 end subroutine map65a

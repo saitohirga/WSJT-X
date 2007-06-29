@@ -28,12 +28,11 @@ subroutine decode1(iarg)
      newdat2=0
      kbuf=1
      kk=NSMAX
-     kkdone=0
+     kkdone=-1
      newdat=1
   endif
 
-  if((kk-kkdone).gt.32768) call symspec(id,kbuf,kk,kkdone,rxnoise,     &
-       newspec,newdat,ndecoding)
+  if((kk-kkdone).gt.32768) call symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
 
   if(ndecoding.gt.0 .and. mode(1:4).eq.'JT65') then
      ndecdone=0

@@ -4,9 +4,9 @@ subroutine recvpkt(iarg)
 ! Receive timf2 packets from Linrad, stuff data into id().
 ! This routine runs in a background thread and will never return.
 
-#ifdef Win32
-  use dflib
-#endif
+!#ifdef Win32
+!  use dflib
+!#endif
 
   parameter (NSZ=2*60*96000)
   real*8 d8(NSZ)
@@ -15,7 +15,6 @@ subroutine recvpkt(iarg)
   logical first
   real*8 center_freq,buf8
   common/plrscom/center_freq,msec,fqso,iptr,nblock,userx_no,iusb,buf8(174)
-!                     8        4     4      4    2       1       1    1392
   include 'datcom.f90'
   include 'gcom1.f90'
   include 'gcom2.f90'
@@ -36,9 +35,8 @@ subroutine recvpkt(iarg)
      nblock0=nblock
 
      if(lost.ne.0 .and. .not.first) then
-!        print*,'Lost packets?',nblock,nblock0,lost,rxnoise,mode
-!  Fill in zeros for the lost data.
-        nlost=nlost + lost
+!        print*,'Lost packets:',nblock,nblock0,lost
+        nlost=nlost + lost               ! Insert zeros for the lost data.
         do i=1,174*lost
            k=k+1
            d8(k)=0
@@ -55,7 +53,6 @@ subroutine recvpkt(iarg)
         k=0
         if(kb.eq.2) k=NSMAX
         nlost=0
-        kbuf=kb
      endif
 
      if(kb.eq.1 .and. (k+174).gt.NSMAX) go to 20
@@ -104,24 +101,25 @@ subroutine recvpkt(iarg)
         mutcm=mod(nsec/60,60)
         mutc=100*mutch + mutcm
         ns=mod(nsec,60)
-!     write(*,1010) mutc,ns,0.001*msec,k,rxnoise
-!1010 format('UTC:',i5.4,'   ns:',i3,'   t:',f10.3,'   k:',i8)
         nsec0=nsec
         ntx=ntx+transmitting
-
-        nutc=mutc
-!        if(mod(nsec,60).eq.43) kk=k           !### ??? ###
-        if(mod(nsec,60).eq.52) then
-           kk=k
+!###
+!        kk=k
+!        kbuf=kb
+!###
+!        if(ns.eq.42) then
+!           nutc=mutc
+!           kbuf=kb
+!           kk=k
+!           t00=secnds(0.0)
+!        endif
+        if(ns.eq.52) then
+           nutc=mutc
            kbuf=kb
-           klost=nlost
-!           if(ntx.lt.20) then
-!              newdat=1
-!              ndecoding=1
-!           endif
-!           ntx=0
+           kk=k
+           t00=secnds(0.0)
+           print*,'A ',0.0,nutc,kk,kbuf,kkdone
         endif
-        print*,ns,nutc,kbuf,kk,kkdone
      endif
 
   endif
