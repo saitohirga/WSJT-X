@@ -49,9 +49,6 @@ subroutine getfile2(fname,len)
 #endif
 
   read(filename(8:11),*) nutc
-  kbuf=1
-  kk=NSMAX
-  kkdone=0
   ndiskdat=1
   ndecoding=4
   mousebutton=0
