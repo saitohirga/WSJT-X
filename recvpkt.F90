@@ -108,12 +108,12 @@ subroutine recvpkt(iarg)
         kbuf=kb
         kk=k
         ndiskdat=0
-        write(*,3001) nutc,mod(mid_sec(),60),ns    !,kk,kbuf,kkdone
+        if(ndebug.gt.0) write(*,3001) nutc,mod(mid_sec(),60),ns
 3001    format('recvpkt 1:',i5.4,2i3.2)
      endif
      if(ns.eq.52) then
         kk=k
-        write(*,3002) nutc,mod(mid_sec(),60),ns    !,kk,kbuf,kkdone
+        if(ndebug.gt.0) write(*,3002) nutc,mod(mid_sec(),60),ns
 3002    format('recvpkt 2:',i5.4,2i3.2)
      endif
   endif

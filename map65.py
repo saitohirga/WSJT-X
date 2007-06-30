@@ -1002,8 +1002,11 @@ def update():
     t="QSO Freq:%4d" % (int(Audio.gcom2.mousefqso),)
     msg3.configure(text=t)    
     t="QSO DF:%4d" % (int(Audio.gcom2.mousedf),)
-    msg4.configure(text=t)    
-    if mode.get()[:4]=='JT65' and Audio.gcom2.ndecoding:
+    msg4.configure(text=t)
+
+    if mode.get()[:4]=='JT65' and \
+        (Audio.gcom2.ndecoding or (isec>45 and  Audio.gcom2.monitoring==1)):
+
 #Set button bg while decoding
         bc='#66FFFF'
 #        if g.ndecphase==1: bc='orange'
@@ -1233,6 +1236,8 @@ setupmenu.add_checkbutton(label = 'F4 sets Tx6',variable=kb8rq)
 setupmenu.add_checkbutton(label = 'Double-click on callsign sets TxFirst',
                           variable=setseq)
 setupmenu.add_checkbutton(label = 'GenStdMsgs sets Tx1',variable=k2txb)
+setupmenu.add_separator()
+setupmenu.add_checkbutton(label = 'Enable diagnostics',variable=ndebug)
 
 #------------------------------------------------------ View menu
 viewbutton=Menubutton(mbar,text='View')

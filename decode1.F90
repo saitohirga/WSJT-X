@@ -32,7 +32,8 @@ subroutine decode1(iarg)
      newdat=1
   endif
 
-  if((kk-kkdone).gt.32768) call symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
+  if(ndecoding.eq.0 .and. ((kk-kkdone).gt.32768))           &
+       call symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
 
   if(ndecoding.gt.0 .and. mode(1:4).eq.'JT65') then
      ndecdone=0
