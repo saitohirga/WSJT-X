@@ -38,6 +38,7 @@ subroutine map65a(newdat)
 
   df=96000.0/NFFT                    !df = 96000/NFFT = 2.930 Hz
   ftol=0.020                          !Frequency tolerance (kHz)
+  fselect=mousefqso + 1.6
   nfilt=1
   dphi=310/57.2957795
 
@@ -306,8 +307,8 @@ subroutine map65a(newdat)
 999 nagain=0
   close(23)
   if(kbuf.eq.1) kkdone=60*96000
-  if(kbuf.eq.2) kkdone=0
+  if(kbuf.eq.2 .or. ndiskdat.eq.1) kkdone=0
   kk=kkdone
-  print*,'E ',mod(mid_sec(),60),nutc,kk,kbuf,kkdone,nhsym
+  print*,'E ',mod(mid_sec(),60),nutc,kk,kbuf,kkdone,ndiskdat
   return
 end subroutine map65a

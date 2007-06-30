@@ -300,7 +300,7 @@ def update():
         df_mark()
         nmark0=nmark.get()
 
-    if newspec: Audio.gcom2.ndiskdat=0
+#    if newspec: Audio.gcom2.ndiskdat=0
     Audio.gcom2.nlines=0
     Audio.gcom2.nflat=nflat.get()
     frange=nfr.get()*2000
