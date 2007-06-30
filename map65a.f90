@@ -12,7 +12,6 @@ subroutine map65a(newdat)
   character*3 shmsg0(4),shmsg
   integer indx(MAXMSG),nsiz(MAXMSG)
   logical done(MAXMSG)
-  logical even
   character decoded*22,blank*22
   include 'spcom.f90'
   real short(3,NFFT)                 !SNR dt ipol for potential shorthands
@@ -23,11 +22,11 @@ subroutine map65a(newdat)
   data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/
   save
 
-  print*,'C ',mod(mid_sec(),60),nutc,kk,kbuf,kkdone,nhsym
-  pctlost=nlost/331.03
-  if(nlost.ne.0) write(*,1001) nutc,nlost,pctlost
-1001 format('UTC:',i5.4,'   Lost packets:',i6,', or',f6.1,' %')
-  even=mod(nutc,2).eq.0
+!  if(nlost.ne.0) then
+     pctlost=nlost/331.03
+     write(*,3001) nutc,mod(mid_sec(),60),nlost,pctlost
+3001 format('mod65a  1:',i5.4,i3.2,i8,f6.1,' %')
+!  endif
 
   rewind 11
   rewind 12
@@ -227,7 +226,8 @@ subroutine map65a(newdat)
    
         write(11,*) '$EOF'
         call flushqqq(11)
-        print*,'D ',mod(mid_sec(),60),nutc,kk,kbuf,kkdone,nhsym
+        write(*,3002) mod(mid_sec(),60)
+3002 format('mod65a  2:'i8.2)
         ndecdone=1
      endif
      if(nagain.eq.1) go to 999
@@ -309,6 +309,7 @@ subroutine map65a(newdat)
   if(kbuf.eq.1) kkdone=60*96000
   if(kbuf.eq.2 .or. ndiskdat.eq.1) kkdone=0
   kk=kkdone
-  print*,'E ',mod(mid_sec(),60),nutc,kk,kbuf,kkdone,ndiskdat
+  write(*,3003) mod(mid_sec(),60)
+3003 format('mod65a  3:'i8.2)
   return
 end subroutine map65a

@@ -12,7 +12,8 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
   data kbuf0/-999/
   save
 
-  print*,'B ',mod(mid_sec(),60),0,kk,kbuf,kkdone
+  write(*,3001) nutc,mod(mid_sec(),60)    !,kk,kbuf,kkdone
+3001 format('symspec 1:',i5.4,i3.2)
   fac=0.0002 * 10.0**(0.05*(-rxnoise))
   hsym=2048.d0*96000.d0/11025.d0          !Samples per half symbol
   npts=hsym                               !Integral samples per half symbol
@@ -33,7 +34,7 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
 
   do nn=1,ntot
      i0=ts+hsym                           !Starting sample pointer
-     if((i0+npts-1).gt.kk) go to 999      !See if we have enough points
+     if((i0+npts-1).gt.kk) go to 998      !See if we have enough points
      i1=ts+2*hsym                         !Next starting sample pointer
      ts=ts+hsym                         !OK, update the exact sample pointer
      do i=1,npts                        !Copy data to FFT arrays
@@ -100,13 +101,16 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
         call move(szavg,savg,4*NFFT)
         newdat=1
         ndecoding=1
-        return
+        go to 999
      endif
      kkdone=i1-1
      nhsym=n
      call sleep_msec(0)
   enddo
 
-999 kkdone=i1-1
+998 kkdone=i1-1
+999 continue
+  write(*,3002) mod(mid_sec(),60),n    !,kk,kbuf,kkdone
+3002 format('symspec 2:',i8.2,i5)
   return
 end subroutine symspec
