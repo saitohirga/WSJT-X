@@ -1007,11 +1007,8 @@ def update():
     if mode.get()[:4]=='JT65' and (Audio.gcom2.ndecoding>0 or \
          (isec>45 and  Audio.gcom2.monitoring==1 and \
           Audio.datcom.kkdone!=-99 and Audio.gcom2.ndiskdat!=1)):
-
 #Set button bg while decoding
         bc='#66FFFF'
-#        if g.ndecphase==1: bc='orange'
-#        if g.ndecphase==2: bc='yellow'
         bdecode.configure(bg=bc,activebackground=bc,state=DISABLED)
     else:
         bdecode.configure(bg='gray85',activebackground='gray85',state=ACTIVE)
