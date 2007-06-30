@@ -1004,8 +1004,9 @@ def update():
     t="QSO DF:%4d" % (int(Audio.gcom2.mousedf),)
     msg4.configure(text=t)
 
-    if mode.get()[:4]=='JT65' and \
-        (Audio.gcom2.ndecoding or (isec>45 and  Audio.gcom2.monitoring==1)):
+    if mode.get()[:4]=='JT65' and (Audio.gcom2.ndecoding>0 or \
+         (isec>45 and  Audio.gcom2.monitoring==1 and \
+          Audio.datcom.kkdone!=-99 and Audio.gcom2.ndiskdat!=1)):
 
 #Set button bg while decoding
         bc='#66FFFF'

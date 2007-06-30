@@ -19,6 +19,7 @@ subroutine decode1(iarg)
   data sending0/'                      '/
   save
 
+  kkdone=-99
   ntr0=ntr
   ns0=999999
 
@@ -32,7 +33,7 @@ subroutine decode1(iarg)
      newdat=1
   endif
 
-  if(ndecoding.eq.0 .and. ((kk-kkdone).gt.32768))           &
+  if((ndiskdat.eq.1 .or. ndecoding.eq.0) .and. ((kk-kkdone).gt.32768))  &
        call symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
 
   if(ndecoding.gt.0 .and. mode(1:4).eq.'JT65') then
