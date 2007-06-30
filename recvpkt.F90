@@ -102,20 +102,19 @@ subroutine recvpkt(iarg)
      ns=mod(nsec,60)
      nsec0=nsec
      ntx=ntx+transmitting
-     print*,ns,kb,kbuf,k,kk,kkdone
 
      if(ns.eq.48) then
         nutc=mutc
         kbuf=kb
         kk=k
-        print*,'A1',mod(mid_sec(),60),nutc,kk,kbuf,kkdone
+        ndiskdat=0
+        write(*,3001) nutc,mod(mid_sec(),60),ns    !,kk,kbuf,kkdone
+3001    format('recvpkt 1:',i5.4,2i3.2)
      endif
      if(ns.eq.52) then
-        nutc=mutc
-        kbuf=kb
         kk=k
-        ndiskdat=0
-        print*,'A2',mod(mid_sec(),60),nutc,kk,kbuf,kkdone
+        write(*,3002) nutc,mod(mid_sec(),60),ns    !,kk,kbuf,kkdone
+3002    format('recvpkt 2:',i5.4,2i3.2)
      endif
   endif
   go to 10
