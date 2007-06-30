@@ -29,6 +29,7 @@ subroutine getfile2(fname,len)
   ierr=0
 
   n=8*NSMAX
+  ndecoding=4
   monitoring=0
   kbuf=1
 #ifdef Win32
@@ -50,7 +51,6 @@ subroutine getfile2(fname,len)
 
   read(filename(8:11),*) nutc
   ndiskdat=1
-  ndecoding=4
   mousebutton=0
   rxnoise=8.0
   go to 999
