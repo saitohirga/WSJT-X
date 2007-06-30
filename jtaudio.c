@@ -231,6 +231,7 @@ int padevsub_(int *numdev, int *ndefin, int *ndefout,
 
   //  numDevices = Pa_CountDevices();
   numDevices = Pa_GetDeviceCount();
+ 
   *numdev=numDevices;
   if( numDevices < 0 )  {
     err = numDevices;
@@ -248,7 +249,7 @@ int padevsub_(int *numdev, int *ndefin, int *ndefout,
     if(i == Pa_GetDefaultOutputDevice()) *ndefout=i;
     nchin[i]=pdi->maxInputChannels;
     nchout[i]=pdi->maxOutputChannels;
-    if(nchin[i]>0) 
+    if(nchout[i]>0) 
       printf("  %2d      %2d       %s\n",i,nchout[i],pdi->name);
   }
 
