@@ -19,7 +19,7 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
   ntot=322                               !Half symbols per transmission
 !  ntot=279                                !Half symbols in 51.8 sec
 
-  if(kbuf.ne.kbuf0 .or. kkdone.eq.-1) then
+  if(kbuf.ne.kbuf0 .or. ndiskdat.eq.1) then
      kkdone=0
      kbuf0=kbuf
      ts=1.d0 - hsym

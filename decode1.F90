@@ -28,7 +28,7 @@ subroutine decode1(iarg)
      newdat2=0
      kbuf=1
      kk=NSMAX
-     kkdone=-1
+     kkdone=0
      newdat=1
   endif
 
