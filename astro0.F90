@@ -104,11 +104,13 @@ subroutine astro0(nyear,month,nday,uth8,nfreq,grid,cauxra,cauxdec,       &
      write(14,1010) ih,im,is,AzMoon,ElMoon,                          &
         ih,im,is,AzSun,ElSun,                                        &
         ih,im,is,AzAux,ElAux,                                        &
-        nfreq,doppler,dfdt,doppler00,dfdt0
+        nfreq,doppler,dfdt,doppler00,dfdt0,                          &
+        mousefqso
 1010 format(i2.2,':',i2.2,':',i2.2,',',f5.1,',',f5.1,',Moon'/        &
             i2.2,':',i2.2,':',i2.2,',',f5.1,',',f5.1,',Sun'/         &
             i2.2,':',i2.2,':',i2.2,',',f5.1,',',f5.1,',Source'/      &
-            i4,',',f8.1,',',f8.2,',',f8.1,',',f8.2,',Doppler')
+            i4,',',f8.1,',',f8.2,',',f8.1,',',f8.2,',Doppler'/       &
+            i4,',fQSO')
      rewind 14
      isec0=isec
   endif
