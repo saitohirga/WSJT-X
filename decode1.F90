@@ -72,30 +72,3 @@ subroutine decode1(iarg)
   go to 10
 
 end subroutine decode1
-
-subroutine sleep_msec(n)
-
-#ifdef Win32
-  use dflib
-#endif
-
-#ifdef Win32
-  call sleepqq(n)
-#else
-  call usleep(1000*n)
-#endif
-
-  return
-end subroutine sleep_msec
-
-integer function mid_sec()
-  integer time
-
-#ifdef Win32
-  mid_sec=int(secnds(0.0))
-#else
-  mid_sec=mod(time(),86400)
-#endif
-
-  return
-end function mid_sec

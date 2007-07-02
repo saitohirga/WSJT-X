@@ -31,7 +31,7 @@ subroutine recvpkt(iarg)
 
 10 call recv_pkt(center_freq)
 
-  isec=mid_sec()
+  isec=sec_midn()
   imin=isec/60
   if((monitoring.eq.0) .or. (lauto.eq.1 .and. mod(imin,2).eq.(1-TxFirst))) then
      first=.true.
@@ -108,12 +108,12 @@ subroutine recvpkt(iarg)
         kbuf=kb
         kk=k
         ndiskdat=0
-        if(ndebug.gt.0) write(*,3001) nutc,mod(mid_sec(),60),ns
+        if(ndebug.eq.2) write(*,3001) nutc,mod(int(sec_midn()),60),ns
 3001    format('recvpkt 1:',i5.4,2i3.2)
      endif
      if(ns.eq.52) then
         kk=k
-        if(ndebug.gt.0) write(*,3002) nutc,mod(mid_sec(),60),ns
+        if(ndebug.eq.2) write(*,3002) nutc,mod(int(sec_midn()),60),ns
 3002    format('recvpkt 2:',i5.4,2i3.2)
      endif
   endif

@@ -12,7 +12,7 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
   data kbuf0/-999/
   save
 
-  if(ndebug.gt.0) write(*,3001) nutc,mod(mid_sec(),60)
+  if(ndebug.eq.2) write(*,3001) nutc,mod(int(sec_midn()),60)
 3001 format('symspec 1:',i5.4,i3.2)
   fac=0.0002 * 10.0**(0.05*(-rxnoise))
   hsym=2048.d0*96000.d0/11025.d0          !Samples per half symbol
@@ -110,7 +110,7 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
 
 998 kkdone=i1-1
 999 continue
-  if(ndebug.gt.0) write(*,3002) mod(mid_sec(),60),n
+  if(ndebug.eq.2) write(*,3002) mod(int(sec_midn()),60),n
 3002 format('symspec 2:',i8.2,i5)
   return
 end subroutine symspec

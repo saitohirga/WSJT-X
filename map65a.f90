@@ -24,7 +24,7 @@ subroutine map65a(newdat)
 
 !  if(nlost.ne.0) then
      pctlost=nlost/331.03
-     if(ndebug.gt.0) write(*,3001) nutc,mod(mid_sec(),60),nlost,pctlost
+     if(ndebug.eq.2) write(*,3001) nutc,mod(int(sec_midn()),60),nlost,pctlost
 3001 format('mod65a  1:',i5.4,i3.2,i8,f6.1,' %')
 !  endif
 
@@ -226,7 +226,8 @@ subroutine map65a(newdat)
    
         write(11,*) '$EOF'
         call flushqqq(11)
-        if(ndebug.gt.0) write(*,3002) mod(mid_sec(),60)
+        t2=sec_midn()
+        if(ndebug.eq.2) write(*,3002) mod(int(t2),60)
 3002 format('mod65a  2:'i8.2)
         ndecdone=1
      endif
@@ -309,7 +310,10 @@ subroutine map65a(newdat)
   if(kbuf.eq.1) kkdone=60*96000
   if(kbuf.eq.2 .or. ndiskdat.eq.1) kkdone=0
   kk=kkdone
-  if(ndebug.gt.0) write(*,3003) mod(mid_sec(),60)
+  t3=sec_midn()
+  if(ndebug.eq.2) write(*,3003) mod(int(t3),60)
 3003 format('mod65a  3:'i8.2)
+  if(ndebug.eq.1) write(*,3004) mod(t2,60.0),mod(t3,60.0)
+3004 format('mod65a:',2f6.1)
   return
 end subroutine map65a
