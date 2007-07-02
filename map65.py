@@ -73,7 +73,9 @@ ncall=0
 ndmiles=0
 ndkm=0
 ndebug=IntVar()
+ndebug2=IntVar()
 ndebug.set(0)
+ndebug2.set(0)
 neme=IntVar()
 nfreeze=IntVar()
 nopen=0
@@ -1168,7 +1170,9 @@ def update():
     Audio.gcom2.mode=(mode.get()+'      ')[:6]
     Audio.gcom2.nsave=nsave.get()
     Audio.gcom2.nzap=nzap.get()
-    Audio.gcom2.ndebug=ndebug.get()
+    n=ndebug.get()
+    if ndebug2.get(): n=2
+    Audio.gcom2.ndebug=n
     Audio.gcom2.minsigdb=isync
     Audio.gcom2.nclip=iclip
     Audio.gcom2.nblank=nblank.get()
@@ -1236,6 +1240,7 @@ setupmenu.add_checkbutton(label = 'Double-click on callsign sets TxFirst',
 setupmenu.add_checkbutton(label = 'GenStdMsgs sets Tx1',variable=k2txb)
 setupmenu.add_separator()
 setupmenu.add_checkbutton(label = 'Enable diagnostics',variable=ndebug)
+setupmenu.add_checkbutton(label = 'Verbose diagnostics',variable=ndebug2)
 
 #------------------------------------------------------ View menu
 viewbutton=Menubutton(mbar,text='View')
@@ -1695,6 +1700,7 @@ try:
         elif key == 'NEME': neme.set(value)
         elif key == 'NDepth': ndepth.set(value)
         elif key == 'Debug': ndebug.set(value)
+        elif key == 'Debug2': ndebug2.set(value)
         elif key == 'HisCall':
             Audio.gcom2.hiscall=(value+'            ')[:12]
             ToRadio.delete(0,99)
@@ -1776,6 +1782,7 @@ f.write("NoShJT65 " + str(noshjt65.get()) + "\n")
 f.write("NEME " + str(neme.get()) + "\n")
 f.write("NDepth " + str(ndepth.get()) + "\n")
 f.write("Debug " + str(ndebug.get()) + "\n")
+f.write("Debug2 " + str(ndebug2.get()) + "\n")
 mrudir2=mrudir.replace(" ","#")
 f.write("MRUDir " + mrudir2 + "\n")
 if g.astro_geom[:7]=="200x200": g.astro_geom="316x373" + g.astro_geom[7:]
