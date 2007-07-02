@@ -218,7 +218,7 @@ subroutine map65a(newdat)
               nw=0                                !### Fix this! ###
               nwrite=nwrite+1
               write(11,1010) nkHz,ndf,npol,nutc,nsync2,dt,nw,decoded,nkv,nqual
-1010          format(i3,i5,i4,i5.4,i4,f5.1,i3,2x,a22,i3,i4)
+1010          format(i3,i5,i4,i5.4,i4,f5.1,i3,2x,a22,i5,i4)
            endif
         enddo
         if(nwrite.eq.0) then
