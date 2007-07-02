@@ -58,9 +58,10 @@ audioout=Pmw.EntryField(g1.interior(),labelpos=W,label_text='Audio Out:',
         value='0',entry_textvariable=DevoutName,entry_width=12)
 rateout=Pmw.EntryField(g1.interior(),labelpos=W,label_text='Rate Out:',
         value=1.0000,entry_textvariable=samfacout,entry_width=12)
-
+meas_rateout=Pmw.EntryField(g1.interior(),labelpos=W,label_text='Actual:',
+        value=1.0000,entry_width=12)
 #widgets = (mycall, mygrid, rxdelay,txdelay,idinterval,comport,audioin,audioout)
-widgets = (mycall, mygrid,idinterval,comport,audioout,rateout)
+widgets = (mycall, mygrid,idinterval,comport,audioout,rateout,meas_rateout)
 for widget in widgets:
     widget.pack(fill=X,expand=1,padx=10,pady=2)
 

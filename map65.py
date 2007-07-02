@@ -913,9 +913,9 @@ def update():
         Audio.gcom2.utcdate=t[:12]
         ldate.configure(text=t)
         t="Rx noise: %.1f dB" % Audio.gcom2.rxnoise
-        msg5.configure(text=t)
+        msg4.configure(text=t)
         t="Drop: %.1f %%" % Audio.gcom2.pctlost
-        msg6.configure(text=t)
+        msg5.configure(text=t)
         root_geom=root.geometry()
         try:
             bm_geom=bm.geometry()
@@ -971,30 +971,18 @@ def update():
     i=g.rfnd(t,".")
     t=t[:i]
     if mode.get() != g.mode or first:
-        msg2.configure(bg='#00FFFF')
+        msg1.configure(bg='#00FFFF')
         g.mode=mode.get()
         first=0
 
     samfac_out=Audio.gcom1.mfsample2/110250.0
-    xin=1
-    xout=1
-    try:
-        xout=samfac_out/options.samfacout.get()
-        if xout<0.999 or xout>1.001:
-            lab8.configure(text="%6.4f" \
-                % (options.samfacout.get()), \
-                fg='black',bg='red')
-        else:
-            lab8.configure(fg='gray85',bg='gray85')
-    except:
-        pass
-
-    msg1.configure(text="%6.4f" % (samfac_out))
-    msg2.configure(text=mode.get())
+    t="%6.4f" % (samfac_out)
+    options.meas_rateout.setvalue(t)
+    msg1.configure(text=mode.get())
     t="QSO Freq:%4d" % (int(Audio.gcom2.mousefqso),)
-    msg3.configure(text=t)    
+    msg2.configure(text=t)    
     t="QSO DF:%4d" % (int(Audio.gcom2.mousedf),)
-    msg4.configure(text=t)
+    msg3.configure(text=t)
 
     if mode.get()[:4]=='JT65' and (Audio.gcom2.ndecoding>0 or \
          (isec>45 and  Audio.gcom2.monitoring==1 and \
@@ -1045,7 +1033,7 @@ def update():
     else:
         bgcolor='green'
         t='Receiving'
-    msg7.configure(text=t,bg=bgcolor)
+    msg6.configure(text=t,bg=bgcolor)
 
     if Audio.gcom2.ndecdone>0 or g.cmap != cmap0:
         if Audio.gcom2.ndecdone==1:
@@ -1556,20 +1544,18 @@ iframe5.pack(expand=1, fill=X, padx=4)
 
 #------------------------------------------------------------ Status Bar
 iframe6 = Frame(frame, bd=1, relief=SUNKEN)
-msg1=Message(iframe6, text='                    ', width=300,relief=SUNKEN)
+msg1=Message(iframe6, text="Message #2", width=300,relief=SUNKEN)
 msg1.pack(side=LEFT, fill=X, padx=1)
-msg2=Message(iframe6, text="Message #2", width=300,relief=SUNKEN)
+msg2=Message(iframe6,width=300,relief=SUNKEN)
 msg2.pack(side=LEFT, fill=X, padx=1)
-msg3=Message(iframe6,width=300,relief=SUNKEN)
+msg3=Message(iframe6, text="", width=300,relief=SUNKEN)
 msg3.pack(side=LEFT, fill=X, padx=1)
 msg4=Message(iframe6, text="", width=300,relief=SUNKEN)
 msg4.pack(side=LEFT, fill=X, padx=1)
 msg5=Message(iframe6, text="", width=300,relief=SUNKEN)
 msg5.pack(side=LEFT, fill=X, padx=1)
-msg6=Message(iframe6, text="", width=300,relief=SUNKEN)
-msg6.pack(side=LEFT, fill=X, padx=1)
-msg7=Message(iframe6, text='                        ', width=300,relief=SUNKEN)
-msg7.pack(side=RIGHT, fill=X, padx=1)
+msg6=Message(iframe6, text='                        ', width=300,relief=SUNKEN)
+msg6.pack(side=RIGHT, fill=X, padx=1)
 iframe6.pack(expand=1, fill=X, padx=4)
 frame.pack()
 ldate.after(100,update)
