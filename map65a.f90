@@ -156,7 +156,8 @@ subroutine map65a(newdat)
 
               if(freq-freq0.gt.ftol .or. sync1.gt.sync10 .and. nqd.eq.0) then
                  nflip=nint(flipk)
-                 call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,dphi,  &
+                 call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,    &
+                      mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,      &
                       ipol,sync2,a,dt,pol,nkv,nhist,qual,decoded)
                  km=km+1
                  sig(km,1)=nfile

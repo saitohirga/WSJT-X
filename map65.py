@@ -1,4 +1,4 @@
-#--------------------------------------------------------------------- MAP65
+#-------------------------------------------------------------------- MAP65
 # $Date$ $Revision$
 #
 from Tkinter import *
@@ -82,7 +82,6 @@ nopen=0
 nosh441=IntVar()
 noshjt65=IntVar()
 setseq=IntVar()
-textheight=7
 tx6alt=""
 txsnrdb=99.
 TxFirst=IntVar()
@@ -167,8 +166,8 @@ def testmsgs():
     tx5.insert(0,"@1000")
     tx6.insert(0,"@2000")
 
-#------------------------------------------------------ bandmap
-def bandmap(event=NONE):
+#------------------------------------------------------ 
+def messages(event=NONE):
     global Version,bm,bm_geom,bmtext
     bm=Toplevel(root)
     bm.title("Messages")
@@ -187,8 +186,8 @@ def bandmap(event=NONE):
     bmtext.tag_configure('age3',foreground='gray50')
     iframe_bm1.pack(expand=1, fill=X, padx=4)
 
-#------------------------------------------------------ bandmap2
-def bandmap2(event=NONE):
+#------------------------------------------------------ bandmap
+def bandmap(event=NONE):
     global Version,bm2,bm2_geom,bm2text
     bm2=Toplevel(root)
     bm2.title("Band Map")
@@ -518,23 +517,19 @@ def cleartext():
 
 #------------------------------------------------------ ModeJT65
 def ModeJT65():
-    global isync,textheight,itol
+    global isync,itol
     cleartext()
     Audio.gcom1.trperiod=60
     iframe4b.pack(after=iframe4,expand=1, fill=X, padx=4)
-    textheight=7
-    text.configure(height=textheight)
     bclravg.configure(state=NORMAL)
     binclude.configure(state=NORMAL)
     bexclude.configure(state=NORMAL)
-    graph2.configure(bg='#66FFFF')
     itol=4
     inctol()
     nfreeze.set(0)
     ntx.set(1)
     GenStdMsgs()
     erase()
-#    graph2.pack_forget()
 
 #------------------------------------------------------ ModeJT65A
 def ModeJT65A(event=NONE):
@@ -607,13 +602,12 @@ Shift+F6	Decode all wave files in directory
 F8	Set JT65A mode
 Shift+F8	Set JT65B mode
 Ctrl+F8	Set JT65C mode
-F10	Show SpecJT
+F10	Show Waterfall
 Shift+F10   Show astronomical data
 Alt+1 to Alt+6	Tx1 to Tx6
 Alt+A	Toggle Auto On/Off
 Alt+D	Decode
 Alt+E	Erase
-Alt+F	Toggle Freeze
 Alt+G	Generate Standard Messages
 Ctrl+G	Generate Alternate JT65 Messages
 Alt+I	Include
@@ -624,7 +618,6 @@ Alt+O	Tx Stop
 Alt+Q	Log QSO
 Alt+S	Stop Monitoring or Decoding
 Alt+X	Exclude
-Alt+Z	Toggle Zap
 Right/Left Arrow	Increase/decrease Freeze DF
 """
     Label(scwid,text=t,justify=LEFT).pack(padx=20)
@@ -638,17 +631,14 @@ def mouse_commands(event=NONE):
     t="""
 Click on          Action
 --------------------------------------------------------
-Waterfall         Click to set DF for Freeze
-                  Double-click to Freeze and Decode
+Waterfall (upper)   Click to set QSO frequency; double-click to set
+                               QSO frequency and Decode
 
-Main screen,      Click to set DF for Freeze
-graphics area     Double-click to Freeze and Decode
+Waterfall (lower)   Click to set target DF; double-click to set
+                               target DF and Decode
 
-Main screen,      Double-click puts callsign in Tx messages
-text area         Right-double-click also sets Auto ON
-
-Sync, Clip,      Left/Right click to increase/decrease
-Tol, ...
+Main screen,          Double-click puts callsign in Tx messages
+text area
 """
     Label(scwid,text=t,justify=LEFT).pack(padx=20)
     scwid.focus_set()
@@ -753,14 +743,12 @@ def decdsec(event):
 
 #------------------------------------------------------ erase
 def erase(event=NONE):
-    graph1.delete(ALL)
     text.configure(state=NORMAL)
     text.delete('1.0',END)
     text.configure(state=DISABLED)
     avetext.configure(state=NORMAL)
     avetext.delete('1.0',END)
     avetext.configure(state=DISABLED)
-    lab3.configure(text=" ")
     Audio.gcom2.decodedfile="                        "
 #------------------------------------------------------ clear_avg
 def clear_avg(event=NONE):
@@ -952,13 +940,17 @@ def update():
             if len(HisGrid.get().strip())<4:
                 g.ndop=g.ndop00
                 g.dfdt=g.dfdt0
-
-        graph2.delete(ALL)
-        graph2.create_text(80,13,anchor=CENTER,text="Moon",font=g2font)
-        graph2.create_text(13,37,anchor=W, text="Az: %6.2f" % g.AzMoon,font=g2font)
-        graph2.create_text(13,61,anchor=W, text="El: %6.2f" % g.ElMoon,font=g2font)
-        graph2.create_text(13,85,anchor=W, text="Dop:%6d" % g.ndop,font=g2font)
-        graph2.create_text(13,109,anchor=W,text="Dgrd:%5.1f" % g.Dgrd,font=g2font)
+        astrotext.delete(1.0,END)
+        astrotext.insert(END,'   Moon\n')
+        astrotext.insert(END,"Az: %7.1f\n" % g.AzMoon)
+        astrotext.insert(END,"El: %7.1f\n" % g.ElMoon)
+        astrotext.insert(END,"DxAz: %5.1f\n" % g.AzMoonB)
+        astrotext.insert(END,"DxEl: %5.1f\n" % g.ElMoonB)
+        astrotext.insert(END,'    Sun\n')
+        astrotext.insert(END,"Az: %7.1f\n" % g.AzSun)
+        astrotext.insert(END,"El: %7.1f\n\n" % g.ElSun)
+        astrotext.insert(END,"Dop:%7d\n" % g.ndop)
+        astrotext.insert(END,"Dgrd:%6.1f\n" % g.Dgrd)
 
     if g.freeze_decode and mode.get()[:4]=='JT65':
         itol=5
@@ -976,10 +968,8 @@ def update():
         g.freeze_decode=0
 
     t=g.ftnstr(Audio.gcom2.decodedfile)
-#    i=t.rfind(".")
     i=g.rfnd(t,".")
     t=t[:i]
-    lab3.configure(text=t)
     if mode.get() != g.mode or first:
         msg2.configure(bg='#00FFFF')
         g.mode=mode.get()
@@ -1093,7 +1083,7 @@ def update():
 
         if Audio.gcom2.ndecdone==2:
             try:
-                f=open(appdir+'/bandmap.txt',mode='r')
+                f=open(appdir+'/messages.txt',mode='r')
                 lines=f.readlines()
                 f.close()
             except:
@@ -1116,7 +1106,7 @@ def update():
             bmtext.see(END)
 
             try:
-                f=open(appdir+'/bandmap2.txt',mode='r')
+                f=open(appdir+'/bandmap.txt',mode='r')
                 lines=f.readlines()
                 f.close()
             except:
@@ -1249,8 +1239,8 @@ viewmenu=Menu(viewbutton,tearoff=0)
 viewbutton['menu']=viewmenu
 viewmenu.add('command', label = 'SpecJT', command = showspecjt, \
              accelerator='F10')
-viewmenu.add('command', label = 'Band Map 1', command = bandmap)
-viewmenu.add('command', label = 'Band Map 2', command = bandmap2)
+viewmenu.add('command', label = 'Messages', command = messages)
+viewmenu.add('command', label = 'Band Map', command = bandmap)
 viewmenu.add('command', label = 'Astronomical data', command = astro1, \
              accelerator='Shift+F10')
 
@@ -1288,8 +1278,8 @@ decodemenu.add_radiobutton(label = 'Normal Deep Search',
                                 variable=ndepth, value=1)
 decodemenu.add_radiobutton(label = 'Aggressive Deep Search',
                                 variable=ndepth, value=2)
-decodemenu.add_radiobutton(label ='Include Average in Aggressive Deep Search',
-                                variable=ndepth, value=3)
+#decodemenu.add_radiobutton(label ='Include Average in Aggressive Deep Search',
+#                                variable=ndepth, value=3)
 
 #------------------------------------------------------ Save menu
 savebutton = Menubutton(mbar, text = 'Save')
@@ -1331,43 +1321,17 @@ helpmenu.add('command', label = 'Available suffixes and add-on prefixes', \
 helpmenu.add('command', label = 'About MAP65', command = about, \
              accelerator='Ctrl+F1')
 
-#------------------------------------------------------ Graphics areas
-iframe1 = Frame(frame, bd=1, relief=SUNKEN)
-graph1=Canvas(iframe1, bg='black', width=500, height=120,cursor='crosshair')
-Widget.bind(graph1,"<Motion>",dtdf_change)
-Widget.bind(graph1,"<Button-1>",mouse_click_g1)
-Widget.bind(graph1,"<Double-Button-1>",double_click_g1)
-Widget.bind(graph1,"<ButtonRelease-1>",mouse_up_g1)
-Widget.bind(graph1,"<Button-3>",mouse_click_g1)
-graph1.pack(side=LEFT)
-graph2=Canvas(iframe1, bg='black', width=150, height=120,cursor='crosshair')
-graph2.pack(side=LEFT)
-g2font=graph2.option_get("font","font")
-if g2font!="": g.g2font=g2font
-iframe1.pack(expand=1, fill=X, padx=4)
-
 #------------------------------------------------------ Labels under graphics
-iframe2a = Frame(frame, bd=1, relief=FLAT, height=15)
-lab1=Label(iframe2a, text='Time (s)')
-lab1.place(x=250, y=6, anchor=CENTER)
-lab3=Label(iframe2a, text=' ')
-lab3.place(x=400,y=6, anchor=CENTER)
-iframe2a.pack(expand=1, fill=X, padx=1)
 iframe2 = Frame(frame, bd=1, relief=FLAT,height=15)
-#lab2=Label(iframe2, text=' UTC      dB       DT        DF    W')
 lab2=Label(iframe2, text='Freq      DF     Pol    UTC     dB        DT     W')
 lab2.place(x=3,y=6, anchor='w')
-lab6=Label(iframe2a,text='0.0',bg='green')
-lab6.place(x=40,y=6, anchor=CENTER)
-lab7=Label(iframe2a,text='F3',fg='gray85')
+lab7=Label(iframe2,text='F3',fg='gray85')
 lab7.place(x=495,y=6, anchor=CENTER)
-lab8=Label(iframe2a,text='1.0000  1.0000',fg='gray85')
-lab8.place(x=135,y=6, anchor=CENTER)
 iframe2.pack(expand=1, fill=X, padx=4)
 
 #-------------------------------------------------------- Decoded text
-iframe4 = Frame(frame, bd=1, relief=SUNKEN)
-text=Text(iframe4, height=6, width=80)
+iframe4 = Frame(frame, bd=2, relief=SUNKEN)
+text=Text(iframe4, height=16, width=65)
 text.bind('<Double-Button-1>',dbl_click_text)
 #text.bind('<Double-Button-3>',dbl_click_text)
 text.bind('<Key>',textkey)
@@ -1434,11 +1398,18 @@ root.bind_all('<Control-L>',lookup_gen)
 
 text.pack(side=LEFT, fill=X, padx=1)
 sb = Scrollbar(iframe4, orient=VERTICAL, command=text.yview)
-sb.pack(side=RIGHT, fill=Y)
+sb.pack(side=LEFT, fill=Y)
 text.configure(yscrollcommand=sb.set)
+
+astrotext_font='"Lucida Console" 16'
+astrotext=Text(iframe4, bg="#66FFFF",height=10,width=11,font=astrotext_font)
+astrotext.pack(side=LEFT, fill=BOTH, padx=4)
+g2font=astrotext_font
+if g2font!="": g.g2font=g2font
+
 iframe4.pack(expand=1, fill=X, padx=4)
-iframe4b = Frame(frame, bd=1, relief=SUNKEN)
-avetext=Text(iframe4b, height=2, width=80)
+iframe4b = Frame(frame, bd=2, relief=SUNKEN)
+avetext=Text(iframe4b, height=2, width=65)
 avetext.bind('<Double-Button-1>',dbl_click_ave)
 #avetext.bind('<Double-Button-3>',dbl_click_ave)
 avetext.bind('<Key>',avetextkey)
@@ -1467,7 +1438,6 @@ btxstop=Button(iframe4c,text='TxStop',underline=4,command=txstop,
                 padx=1,pady=1)
 
 blogqso.pack(side=LEFT,expand=1,fill=X)
-#bplay.pack(side=LEFT,expand=1,fill=X)
 bstop.pack(side=LEFT,expand=1,fill=X)
 bmonitor.pack(side=LEFT,expand=1,fill=X)
 bdecode.pack(side=LEFT,expand=1,fill=X)
@@ -1728,8 +1698,8 @@ monitor()
 first=1
 if g.Win32: root.iconbitmap("wsjt.ico")
 root.title('  MAP65     by K1JT')
+messages()
 bandmap()
-bandmap2()
 import astro
 import specjt
 

@@ -1,4 +1,4 @@
-      subroutine deep65(s3,mode65,neme,nsked,flip,mycall,hiscall,
+      subroutine deep65(s3,mode65,neme,flip,mycall,hiscall,
      +  hisgrid,decoded,qual)
 
       parameter (MAXCALLS=7000,MAXRPT=63)
@@ -100,7 +100,6 @@ C  Insert CQ message
             call encode65(message,ncode(1,k))
             nflip(k)=flip
          enddo
-         if(nsked.eq.1) go to 20
  10      continue
       enddo
  20   ntot=k

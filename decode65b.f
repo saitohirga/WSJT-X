@@ -1,4 +1,5 @@
-      subroutine decode65b(s2,flip,nkv,nhist,qual,decoded)
+      subroutine decode65b(s2,flip,mycall,hiscall,hisgrid,neme,ndepth,
+     +  nqd,nkv,nhist,qual,decoded)
 
       real s2(256,126)
       real s3(64,63)
@@ -36,14 +37,9 @@ C  Suppress "birdie messages":
 
       qual=0.
 !      if(nkv.eq.0) then
-         mycall='K1JT'
-         hiscall='W1ABC'
-         hisgrid='EM79'
-         neme=0
-         nsked=0
-         ndepth=5
          if(ndepth.ge.1) call deep65(s3,mode65,neme,
-     +        nsked,flip,mycall,hiscall,hisgrid,deepmsg,qual)
+     +        flip,mycall,hiscall,hisgrid,deepmsg,qual)
+         if(nqd.ne.1 .and. qual.lt.10.0) qual=0.0
 
 C  Save symbol spectra for possible decoding of average.
 !      do j=1,63
@@ -51,6 +47,7 @@ C  Save symbol spectra for possible decoding of average.
 !         if(flip.lt.0.0) k=mdat2(j)
 !         call move(s2(8,k),ppsave(1,j,nsave),64)
 !      enddo
+
 !      endif
 
       if(nkv.eq.0 .and. qual.ge.1.0) decoded=deepmsg

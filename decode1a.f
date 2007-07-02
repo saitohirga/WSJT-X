@@ -1,5 +1,6 @@
-      subroutine decode1a(id,newdat,nfilt,freq,nflip,dphi,ipol,
-     +  sync2,a,dt,pol,nkv,nhist,qual,decoded)
+      subroutine decode1a(id,newdat,nfilt,freq,nflip,
+     +         mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,          
+     +         ipol,sync2,a,dt,pol,nkv,nhist,qual,decoded)
 
 C  Apply AFC corrections to a candidate JT65 signal, and then try
 C  to decode it.
@@ -21,6 +22,7 @@ C  to decode it.
       integer resample
       logical first
       character decoded*22
+      character mycall*12,hiscall*12,hisgrid*6
       data first/.true./,jjjmin/1000/,jjjmax/-1000/
       save
 
@@ -124,7 +126,8 @@ C  Adding or subtracting a small number (e.g., 5) to j may make it decode.
       enddo
 
       flip=nflip
-      call decode65b(s2,flip,nkv,nhist,qual,decoded)
+      call decode65b(s2,flip,mycall,hiscall,hisgrid,neme,ndepth,
+     +    nqd,nkv,nhist,qual,decoded)
       dt=dt00 + dtbest
 
       return
