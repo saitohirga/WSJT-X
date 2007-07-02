@@ -19,13 +19,12 @@ program plrs
   logical fast,pause
   real*8 center_freq,dmsec,dtmspacket,tmsec
   common/plrscom/center_freq,msec2,fsample,iptr,nblock,userx_no,iusb,buf8(174)
-!                     8        4      4      4    2       1       1    1392
   data nm/45,46,48,50,52,54,55,56,57,58,59/
   data nblock/0/,fast/.false./,pause/.false./
 
   nargs=iargc()
-  if(nargs.ne.3) then
-     print*,'Usage: plrs <fast|pause|slow> <minutes> <iters>'
+  if(nargs.ne.4) then
+     print*,'Usage: plrs <fast|pause|slow> <minutes> <iters> <iwait>'
      go to 999
   endif
 
@@ -36,8 +35,16 @@ program plrs
   read(arg,*) nfiles
   call getarg(3,arg)
   read(arg,*) iters
+  call getarg(4,arg)
+  read(arg,*) iwait
 
-  fname="all.tf2"//char(0)
+  if(iwait.ne.0) then
+1    if(mod(int(sec_midn()),60).eq.0) go to 2
+     call sleep_msec(100)
+     go to 1
+  endif
+
+2 fname="all.tf2"//char(0)
   userx_no=0
   iusb=1
   center_freq=144.125d0
@@ -50,10 +57,9 @@ program plrs
   do iter=1,iters
      fd=open(fname,RMODE)                  !Open file for reading
      dmsec=-dtmspacket
-     nsec0=time()
+     nsec0=sec_midn()
 
      do ifile=1,nfiles
-        print*,'Reading file',ifile
         ns0=0
         tmsec=1000*(3600*7 + 60*nm(ifile))-dtmspacket
         nr=read(fd,d,NBYTES)
@@ -77,14 +83,14 @@ program plrs
            npkt=npkt+1
               
            if(mod(npkt,100).eq.0) then
-              nsec=time()-nsec0
+              nsec=int(sec_midn())-nsec0
               nwait=msec-1000*nsec
 !  Pace the data at close to its real-time rate
               if(nwait.gt.0 .and. .not.fast) call usleep(nwait*1000)
            endif
            ns=mod(msec2/1000,60)
-           if(ns.ne.ns0) write(*,1010) npkt,ns,0.001*msec2,nwait
-1010       format('npkt:',i10,'   ns:',i6,'   t:',f10.3,'   nwait:',i8)
+           if(ns.ne.ns0) write(*,1010) ns,center_freq,0.001*msec2,sec_midn()
+1010       format('ns:',i3,'   f0:',f10.3,'   t1:',f10.3,'   t2:',f10.3)
            ns0=ns
         enddo
         if(pause) then

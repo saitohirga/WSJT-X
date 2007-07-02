@@ -36,9 +36,9 @@ RM	?= @RM@
 F2PY	= @F2PY@
 
 ###
-all:    Audio.so
+all:    Audio.so plrs plrr
 
-OBJS2C   = init_rs.o encode_rs.o decode_rs.o plrr_subs.o loc.o
+OBJS2C   = init_rs.o encode_rs.o decode_rs.o plrr_subs.o loc.o deep65.o
 
 F2PYONLY = ftn_init ftn_quit audio_init getfile azdist0 astro0 \
 	spec map65a0
@@ -54,7 +54,7 @@ SRCS2F77 = indexx.f gen65.f chkmsg.f \
 	gentone.f gencwid.f set.f db.f pctile.f sort.f ssort.f \
 	avemsg65.f demod64a.f encode65.f extract.f four2a.f getpfx1.f \
 	getpfx2.f graycode.f grid2k.f interleave63.f k2grid.f \
-	deep65.f morse.f nchar.f packcall.f packgrid.f \
+	morse.f nchar.f packcall.f packgrid.f \
 	packmsg.f packtext.f setup65.f unpackcall.f unpackgrid.f \
 	unpackmsg.f unpacktext.f astro.f azdist.f coord.f dcoord.f \
 	deg2grid.f dot.f ftsky.f geocentric.f GeoDist.f grid2deg.f \
@@ -71,7 +71,7 @@ SRCS3C = ptt_unix.c igray.c wrapkarn.c cutil.c
 OBJS3C = ${SRCS3C:.c=.o}
 AUDIOSRCS = a2d.f90 jtaudio.c resample.c start_portaudio.c
 
-#Audio.so: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C) 
+#Audio.so: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C)
 #	python f2py.py -c \
 #	--quiet --"fcompiler=compaqv" \
 #	--opt="/nologo /traceback /warn:errors /fast /fpp /define:Win32 \
@@ -107,10 +107,16 @@ encode_rs_int.o: encode_rs.c
 decode_rs_int.o: decode_rs.c
 	$(CC) $(CFLAGS) -c -DBIGSYM=1 -o decode_rs_int.o decode_rs.c
 
+plrr:   plrr.f90 sec_midn.F90 plrr_subs.c cutil.c
+	$(FC) -o plrr plrr.f90 sec_midn.F90 plrr_subs.c cutil.c
+
+plrs:   plrs.f90 sec_midn.F90 plrs_subs.c cutil.c
+	$(FC) -o plrs plrs.f90 sec_midn.F90 plrs_subs.c cutil.c
+
 .PHONY : clean
 clean:
 	${RM} -f *.o *.pyc *.so *~ map65
-	(cd portaudio-v19;${MAKE} clean)
+#	(cd portaudio-v19;${MAKE} clean)
 distclean: clean
 	${RM} -f config.log config.status Makefile
 	(cd portaudio-v19;${MAKE} distclean)
