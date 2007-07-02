@@ -81,7 +81,7 @@ time_t time_(void)
 double hrtime_(void)
 {
   struct timeval tv;
-  struct timezone tz;
-  gettimeofday(&tv,&tz);
+
+  gettimeofday(&tv,NULL);
   return(tv.tv_sec+1.e-6*tv.tv_usec);
 }
