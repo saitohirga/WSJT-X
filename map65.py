@@ -987,7 +987,7 @@ def update():
     txminute=0
     if Audio.gcom2.lauto and utc[4]%2 == Audio.gcom1.txfirst: txminute=1
     if mode.get()[:4]=='JT65' and (Audio.gcom2.ndecoding>0 or \
-         (isec>45 and  txminute==0 and \
+         (isec>45 and  (txminute==0 or Audio.gcom2.monitoring==0) and \
           Audio.datcom.kkdone!=-99 and Audio.gcom2.ndiskdat!=1)):
 #Set button bg while decoding
         bc='#66FFFF'
@@ -1313,7 +1313,7 @@ helpmenu.add('command', label = 'About MAP65', command = about, \
 
 #------------------------------------------------------ Labels under graphics
 iframe2 = Frame(frame, bd=1, relief=FLAT,height=15)
-lab2=Label(iframe2, text='Freq     DF     Pol    UTC       DT       dB')
+lab2=Label(iframe2, text='Freq      DF    Pol     UTC       DT      dB')
 lab2.place(x=3,y=6, anchor='w')
 lab7=Label(iframe2,text='F3',fg='gray85')
 lab7.place(x=495,y=6, anchor=CENTER)

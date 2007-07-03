@@ -95,6 +95,7 @@ subroutine map65a(newdat)
            call ccf65(ss(1,1,i),nhsym,sync1,ipol,dt,flipk,              &
                 syncshort,snr2,ipol2,dt2)
 
+! ########################### Search for Shorthand Messages #################
            shmsg='   '
 !  Is there a shorthand tone above threshold?
            if(syncshort.gt.1.0) then
@@ -144,17 +145,16 @@ subroutine map65a(newdat)
                  endif
               enddo
            endif
-        
+
+! ########################### Search for Normal Messages ###########
 !  Is sync1 above threshold?
            if(sync1.gt.1.0) then
 
 !  Keep only the best candidate within ftol.
-!  (Am I deleting any good decodes by doing this?  Any harm in omitting
-!  these statements??)
+!  (Am I deleting any good decodes by doing this?)
               if(freq-freq0.le.ftol .and. sync1.gt.sync10 .and.         &
-                   nkm.eq.1 .and.nqd.eq.0) km=km-1
-
-              if(freq-freq0.gt.ftol .or. sync1.gt.sync10 .and. nqd.eq.0) then
+                   nkm.eq.1) km=km-1
+              if(freq-freq0.gt.ftol .or. sync1.gt.sync10) then
                  nflip=nint(flipk)
                  call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,    &
                       mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,      &
@@ -222,8 +222,8 @@ subroutine map65a(newdat)
            endif
         enddo
         if(nwrite.eq.0) then
-           write(11,1011) mousefqso,mousedf,nutc
-1011          format(i3,i5,4x,i5.4)
+           write(11,1011) mousefqso,nutc
+1011          format(i3,9x,i5.4)
         endif
    
         write(11,*) '$EOF'
