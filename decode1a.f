@@ -1,5 +1,5 @@
       subroutine decode1a(id,newdat,nfilt,freq,nflip,
-     +         mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,          
+     +         mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,
      +         ipol,sync2,a,dt,pol,nkv,nhist,qual,decoded)
 
 C  Apply AFC corrections to a candidate JT65 signal, and then try
@@ -12,7 +12,7 @@ C  to decode it.
       complex c3x(NMAX/16),c3y(NMAX/16)  !After 1/16 filter and downsample
       complex c4x(NMAX/64),c4y(NMAX/64)  !After 1/64 filter and downsample
       complex cx(NMAX/64), cy(NMAX/64)   !Data at 1378.125 samples/s
-      complex c5x(NMAX/256),c5y(NMAX/256)
+      complex c5x(NMAX/256),c5y(NMAX/256),c5y0(NMAX/256)
       complex c5a(256),    c5b(256)
       complex z
 
@@ -74,12 +74,12 @@ C  Find best DF, f1, f2, DT, and pol
 !     +    ccfbest,dtbest)
 
       call fil6521(cx,n5,c5x,n6)
-      call fil6521(cy,n5,c5y,n6)
+      call fil6521(cy,n5,c5y0,n6)
 
 !  Adjust for cable length difference:
       z=cmplx(cos(dphi),sin(dphi))
       do i=1,n6
-         c5y(i)=z*c5y(i)
+         c5y(i)=z*c5y0(i)
       enddo
 
       fsample=1378.125/4.

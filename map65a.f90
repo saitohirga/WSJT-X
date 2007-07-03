@@ -155,12 +155,12 @@ subroutine map65a(newdat)
 
 !  Keep only the best candidate within ftol.
 !  (Am I deleting any good decodes by doing this?)
-              if(freq-freq0.le.ftol .and. sync1.gt.sync10 .and.         &
+              if(freq-freq0.le.ftol .and. sync1.gt.sync10 .and.               &
                    nkm.eq.1) km=km-1
               if(freq-freq0.gt.ftol .or. sync1.gt.sync10) then
                  nflip=nint(flipk)
-                 call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,    &
-                      mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,      &
+                 call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,          &
+                      mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,      &
                       ipol,sync2,a,dt,pol,nkv,nhist,qual,decoded)
                  km=km+1
                  sig(km,1)=nfile
