@@ -45,7 +45,7 @@ integer nport          !Requested COM port number               GUI
 integer mousedf        !Mouse-selected freq offset, DF          GUI
 integer mousefqso      !Mouse-selected QSO freq                 GUI
 integer neme           !EME calls only in deep search?          GUI
-integer nsked          !Sked mode for deep search?              GUI
+integer nrw26          !Request to rewind lu 26 (tmp26.txt)  GUI,Decoder
 integer naggressive    !Is "Aggressive decoding" checked?       GUI
 integer ntx2           !Is "No shorthands if Tx1" checked?      GUI
 integer nagain         !Decode same file again?                 GUI
@@ -94,7 +94,7 @@ common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),               &
      ndecdone,npingtime,ierr,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5, &
      dftolerance,LDecoded,rxdone,monitoring,nzap,minsigdb,              &
      nclearave,nfreeze,nafc,newspec,nmode,mode65,nclip,ndebug,nblank,   &
-     nport,mousedf,mousefqso,neme,nsked,naggressive,ntx2,nagain,        &
+     nport,mousedf,mousefqso,neme,nrw26,naggressive,ntx2,nagain,        &
      shok,sendingsh,d2a(661500),d2b(661500),b(60000),jza,jzb,ntime,     &
      idinterval,msmax,lenappdir,idf,ndiskdat,nlines,nflat,ntxreq,ntxnow,&
      ndepth,nspecial,ndf,nfmid,nfrange,ss1(-224:224),ss2(-224:224),     &

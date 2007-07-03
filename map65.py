@@ -168,22 +168,22 @@ def testmsgs():
 
 #------------------------------------------------------ 
 def messages(event=NONE):
-    global Version,bm,bm_geom,bmtext
+    global Version,bm,bm_geom,msgtext
     bm=Toplevel(root)
     bm.title("Messages")
     bm.geometry(bm_geom)
     if g.Win32: bm.iconbitmap("wsjt.ico")
     iframe_bm1 = Frame(bm, bd=1, relief=SUNKEN)
-    bmtext=Text(iframe_bm1, height=35, width=41, bg="Navy", fg="yellow")
-    bmtext.bind('<Double-Button-1>',dbl_click_bmtext)
-    bmtext.pack(side=LEFT, fill=X, padx=1, pady=3)
-    bmsb = Scrollbar(iframe_bm1, orient=VERTICAL, command=bmtext.yview)
+    msgtext=Text(iframe_bm1, height=35, width=41, bg="Navy", fg="yellow")
+    msgtext.bind('<Double-Button-1>',dbl_click_msgtext)
+    msgtext.pack(side=LEFT, fill=X, padx=1, pady=3)
+    bmsb = Scrollbar(iframe_bm1, orient=VERTICAL, command=msgtext.yview)
     bmsb.pack(side=RIGHT, fill=Y)
-    bmtext.configure(yscrollcommand=bmsb.set)
-    bmtext.tag_configure('age0',foreground='red')
-    bmtext.tag_configure('age1',foreground='yellow')
-    bmtext.tag_configure('age2',foreground='gray75')
-    bmtext.tag_configure('age3',foreground='gray50')
+    msgtext.configure(yscrollcommand=bmsb.set)
+    msgtext.tag_configure('age0',foreground='red')
+    msgtext.tag_configure('age1',foreground='yellow')
+    msgtext.tag_configure('age2',foreground='gray75')
+    msgtext.tag_configure('age3',foreground='gray50')
     iframe_bm1.pack(expand=1, fill=X, padx=4)
 
 #------------------------------------------------------ bandmap
@@ -201,7 +201,7 @@ def bandmap(event=NONE):
     bm2text.tag_configure('age1',foreground='yellow')
     bm2text.tag_configure('age2',foreground='gray75')
     bm2text.tag_configure('age3',foreground='gray50')
-    iframe_bm2.pack(expand=1, fill=X, padx=4)
+    iframe_bm2.pack(expand=1, fill=X, padx=4,pady=5)
 
 #------------------------------------------------------ logqso
 def logqso(event=NONE):
@@ -235,10 +235,10 @@ def dbl_click_text(event):
     t=text.get('1.0',END)           #Entire contents of text box
     t1=text.get('1.0',CURRENT)      #Contents from start to cursor
     dbl_click_call(t,t1,event)
-#------------------------------------------------------ dbl_click_bmtext
-def dbl_click_bmtext(event):
-    t=bmtext.get('1.0',END)           #Entire contents of text box
-    t1=bmtext.get('1.0',CURRENT)      #Contents from start to cursor
+#------------------------------------------------------ dbl_click_msgtext
+def dbl_click_msgtext(event):
+    t=msgtext.get('1.0',END)           #Entire contents of text box
+    t1=msgtext.get('1.0',CURRENT)      #Contents from start to cursor
     dbl_click_call(t,t1,event)
 #------------------------------------------------------ dbl_click_bm2text
 def dbl_click_bm2text(event):
@@ -784,6 +784,12 @@ def delwav():
 def del_all():
     Audio.gcom1.ns0=-999999
 
+#------------------------------------------------------ clr_all
+def clr_all():
+    Audio.gcom2.nrw26=1                 #Request rewind of tmp26.txt
+    msgtext.delete('1.0',END)
+    bm2text.delete('1.0',END)
+
 #------------------------------------------------------ toggleauto
 def toggleauto(event=NONE):
     global lauto
@@ -987,7 +993,7 @@ def update():
     txminute=0
     if Audio.gcom2.lauto and utc[4]%2 == Audio.gcom1.txfirst: txminute=1
     if mode.get()[:4]=='JT65' and (Audio.gcom2.ndecoding>0 or \
-         (isec>45 and  (txminute==0 or Audio.gcom2.monitoring==0) and \
+         (isec>45 and  txminute==0 and Audio.gcom2.monitoring==1 and \
           Audio.datcom.kkdone!=-99 and Audio.gcom2.ndiskdat!=1)):
 #Set button bg while decoding
         bc='#66FFFF'
@@ -1078,10 +1084,10 @@ def update():
                 f.close()
             except:
                 lines=""
-            bmtext.configure(state=NORMAL)
-            bmtext.delete('1.0',END)
-            bmtext.insert(END,'Freq  DF Pol  UTC\n')
-            bmtext.insert(END,'----------------------------------------\n')
+            msgtext.configure(state=NORMAL)
+            msgtext.delete('1.0',END)
+            msgtext.insert(END,'Freq  DF Pol  UTC\n')
+            msgtext.insert(END,'----------------------------------------\n')
             for i in range(len(lines)):
                 try:
                     nage=int(lines[i][41:])
@@ -1092,8 +1098,8 @@ def update():
                 if nage==1: attr='age1'
                 if nage==2: attr='age2'
                 if nage>=3: attr='age3'
-                bmtext.insert(END,lines[i],attr)
-            bmtext.see(END)
+                msgtext.insert(END,lines[i],attr)
+            msgtext.see(END)
 
             try:
                 f=open(appdir+'/bandmap.txt',mode='r')
@@ -1199,6 +1205,8 @@ filemenu.add('command', label = 'Decode remaining files in directory', \
 filemenu.add_separator()
 filemenu.add('command', label = 'Delete all *.WAV files in RxWav', \
              command = delwav)
+filemenu.add_separator()
+filemenu.add('command', label = 'Erase Band Map and Messages', command = clr_all)
 filemenu.add_separator()
 filemenu.add('command', label = 'Erase ALL65.TXT', command = del_all)
 filemenu.add_separator()

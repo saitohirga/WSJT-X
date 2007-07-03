@@ -30,6 +30,7 @@ subroutine ftn_init
 !  print*,'ftn_init.F90 nport=', nport, 'pttport=', pttport
   i=ptt(nport,pttport,0,iptt)                       !Clear the PTT line
   addpfx='    '
+  nrw26=0
 
   do i=80,1,-1
      if(AppDir(i:i).ne.' ') goto 1
