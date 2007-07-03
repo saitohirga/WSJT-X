@@ -166,6 +166,15 @@ def testmsgs():
     tx5.insert(0,"@1000")
     tx6.insert(0,"@2000")
 
+#------------------------------------------------------ delta_phi
+def delta_phi():
+    global lauto
+    Audio.gcom2.monitoring=0
+    lauto=0
+    Audio.gcom2.lauto=0
+    Audio.gcom2.ndphi=1
+    decode()
+
 #------------------------------------------------------ 
 def messages(event=NONE):
     global Version,bm,bm_geom,msgtext
@@ -188,19 +197,19 @@ def messages(event=NONE):
 
 #------------------------------------------------------ bandmap
 def bandmap(event=NONE):
-    global Version,bm2,bm2_geom,bm2text
+    global Version,bm2,bm2_geom,bmtext
     bm2=Toplevel(root)
     bm2.title("Band Map")
     bm2.geometry(bm2_geom)
     if g.Win32: bm2.iconbitmap("wsjt.ico")
     iframe_bm2 = Frame(bm2, bd=1, relief=SUNKEN)
-    bm2text=Text(iframe_bm2, height=24, width=36, bg="Navy", fg="yellow")
-    bm2text.bind('<Double-Button-1>',dbl_click_bm2text)
-    bm2text.pack(side=LEFT, fill=X, padx=1, pady=3)
-    bm2text.tag_configure('age0',foreground='red')
-    bm2text.tag_configure('age1',foreground='yellow')
-    bm2text.tag_configure('age2',foreground='gray75')
-    bm2text.tag_configure('age3',foreground='gray50')
+    bmtext=Text(iframe_bm2, height=24, width=36, bg="Navy", fg="yellow")
+    bmtext.bind('<Double-Button-1>',dbl_click_bmtext)
+    bmtext.pack(side=LEFT, fill=X, padx=1, pady=3)
+    bmtext.tag_configure('age0',foreground='red')
+    bmtext.tag_configure('age1',foreground='yellow')
+    bmtext.tag_configure('age2',foreground='gray75')
+    bmtext.tag_configure('age3',foreground='gray50')
     iframe_bm2.pack(expand=1, fill=X, padx=4,pady=5)
 
 #------------------------------------------------------ logqso
@@ -240,10 +249,10 @@ def dbl_click_msgtext(event):
     t=msgtext.get('1.0',END)           #Entire contents of text box
     t1=msgtext.get('1.0',CURRENT)      #Contents from start to cursor
     dbl_click_call(t,t1,event)
-#------------------------------------------------------ dbl_click_bm2text
-def dbl_click_bm2text(event):
-    t=bm2text.get('1.0',END)           #Entire contents of text box
-    t1=bm2text.get('1.0',CURRENT)      #Contents from start to cursor
+#------------------------------------------------------ dbl_click_bmtext
+def dbl_click_bmtext(event):
+    t=bmtext.get('1.0',END)           #Entire contents of text box
+    t1=bmtext.get('1.0',CURRENT)      #Contents from start to cursor
     dbl_click_call(t,t1,event)
 #------------------------------------------------------ dbl_click_ave
 def dbl_click_ave(event):
@@ -788,7 +797,7 @@ def del_all():
 def clr_all():
     Audio.gcom2.nrw26=1                 #Request rewind of tmp26.txt
     msgtext.delete('1.0',END)
-    bm2text.delete('1.0',END)
+    bmtext.delete('1.0',END)
 
 #------------------------------------------------------ toggleauto
 def toggleauto(event=NONE):
@@ -1107,8 +1116,8 @@ def update():
                 f.close()
             except:
                 lines=""
-            bm2text.configure(state=NORMAL)
-            bm2text.delete('1.0',END)
+            bmtext.configure(state=NORMAL)
+            bmtext.delete('1.0',END)
             for i in range(len(lines)):
                 for j in range(3):
                     ka=14*j
@@ -1124,8 +1133,9 @@ def update():
                     if nage==1: attr='age1'
                     if nage==2: attr='age2'
                     if nage>=3: attr='age3'
-                    bm2text.insert(END,t,attr)
-            bm2text.see(END)
+#                    print i,j,t
+                    bmtext.insert(END,t,attr)
+            bmtext.see(END)
 
             Audio.gcom2.ndecdone=0
             if loopall: opennext()
@@ -1221,6 +1231,7 @@ setupmenu.add('command', label = 'Options', command = options1, \
               accelerator='F2')
 setupmenu.add_separator()
 setupmenu.add('command', label = 'Generate messages for test tones', command=testmsgs)
+setupmenu.add('command', label = 'Find Delta Phi', command=delta_phi)
 setupmenu.add_separator()
 setupmenu.add_checkbutton(label = 'F4 sets Tx6',variable=kb8rq)
 setupmenu.add_checkbutton(label = 'Double-click on callsign sets TxFirst',
