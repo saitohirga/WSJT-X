@@ -307,15 +307,18 @@ subroutine map65a(newdat)
 
   if(nsave.gt.0) call savetf2(id(1,1,kbuf),nsave,nutc)
     
-999 nagain=0
-  close(23)
+999 close(23)
   if(kbuf.eq.1) kkdone=60*96000
   if(kbuf.eq.2 .or. ndiskdat.eq.1) kkdone=0
   kk=kkdone
-  t3=sec_midn()
-  if(ndebug.eq.2) write(*,3003) mod(int(t3),60)
+  if(nagain.eq.0) then
+     t3=sec_midn()
+     if(ndebug.eq.2) write(*,3003) mod(int(t3),60)
 3003 format('mod65a  3:'i8.2)
-  if(ndebug.eq.1) write(*,3004) mod(t2,60.0),mod(t3,60.0)
-3004 format('mod65a:',2f6.1)
+     if(ndebug.eq.1) write(*,3004) nutc,mod(t2,60.0),mod(t3,60.0),pctlost
+3004 format('mod65a:',i5.4,1x,2f6.1,f8.2,' %')
+  endif
+  nagain=0
+
   return
 end subroutine map65a

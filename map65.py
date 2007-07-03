@@ -914,7 +914,7 @@ def update():
         ldate.configure(text=t)
         t="Rx noise: %.1f dB" % Audio.gcom2.rxnoise
         msg4.configure(text=t)
-        t="Drop: %.1f %%" % Audio.gcom2.pctlost
+        t="Drop: %.2f %%" % Audio.gcom2.pctlost
         msg5.configure(text=t)
         root_geom=root.geometry()
         try:
@@ -984,8 +984,10 @@ def update():
     t="QSO DF:%4d" % (int(Audio.gcom2.mousedf),)
     msg3.configure(text=t)
 
+    txminute=0
+    if Audio.gcom2.lauto and utc[4]%2 == Audio.gcom1.txfirst: txminute=1
     if mode.get()[:4]=='JT65' and (Audio.gcom2.ndecoding>0 or \
-         (isec>45 and  Audio.gcom2.monitoring==1 and \
+         (isec>45 and  txminute==0 and \
           Audio.datcom.kkdone!=-99 and Audio.gcom2.ndiskdat!=1)):
 #Set button bg while decoding
         bc='#66FFFF'
