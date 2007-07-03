@@ -30,11 +30,9 @@ subroutine map65a(newdat)
 
   rewind 11
   rewind 12
-  if(nrw26.ne.0) then
-     print*,'Rewinding 26'
-     rewind 26
-     nrw26=0
-  endif
+  if(nrw26.ne.0) rewind 26
+  nrw26=0
+
   if(nutc.ne.nutc0) nfile=nfile+1
   nutc0=nutc
   nutcdata=nutc
