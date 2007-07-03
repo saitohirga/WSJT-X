@@ -219,30 +219,24 @@ def update():
     newspec=Audio.gcom2.newspec                   #True if new data available
     if newspec:
         Audio.spec(brightness,contrast,g0,nspeed,a,a2) #Call Fortran routine spec
-
-    if newspec or brightness!=b0 or contrast!=c0:
-        if brightness==b0 and contrast==c0:
-            n=Audio.gcom2.nlines
-            box=(0,0,NX,130-n)                  #Define region
-            region=im.crop(box)                 #Get all but last line(s)
-            region2=im2.crop(box)               #Get all but last line(s)
-            box=(125,0,624,120)
-            try:
-                im.paste(region,(0,n))          #Move waterfall down
-                im2.paste(region2,(0,n))        #Move waterfall down
-            except:
-                print "Images did not match, continuing anyway."
-            for i in range(n):
-                line0.putdata(a[NX*i:NX*(i+1)]) #One row of pixels to line0
-                im.paste(line0,(0,i))           #Paste in new top line(s)
-                line02.putdata(a2[NX*i:NX*(i+1)])#One row of pixels to line0
-                im2.paste(line02,(0,i))         #Paste in new top line(s)
-            nscroll=nscroll+n
-        else:                                   #A scale factor has changed
-            im.putdata(a)                       #Compute whole new image
-            im2.putdata(a2)                     #Compute whole new image
-            b0=brightness                       #Save scale values
-            c0=contrast
+        n=Audio.gcom2.nlines
+        box=(0,0,NX,130-n)                  #Define region
+        region=im.crop(box)                 #Get all but last line(s)
+        region2=im2.crop(box)               #Get all but last line(s)
+        box=(125,0,624,120)
+        try:
+            im.paste(region,(0,n))          #Move waterfall down
+            im2.paste(region2,(0,n))        #Move waterfall down
+        except:
+            print "Images did not match, continuing anyway."
+        for i in range(n):
+            line0.putdata(a[NX*i:NX*(i+1)]) #One row of pixels to line0
+            im.paste(line0,(0,i))           #Paste in new top line(s)
+            line02.putdata(a2[NX*i:NX*(i+1)])#One row of pixels to line0
+            im2.paste(line02,(0,i))         #Paste in new top line(s)
+        nscroll=nscroll+n
+#        b0=brightness                       #Save scale values
+#        c0=contrast
 
     if newspec:
         if Audio.gcom2.monitoring:
