@@ -262,7 +262,7 @@ def dbl_click_call(t,t1,event):
     i3=t1.rfind('\n')+1             #start of selected line
     if i>6 and i2>i1:
         try:
-            nsec=60*int(t1[i3+2:i3+4]) + int(t1[i3+4:i3+6])
+            nsec=3600*int(t1[i3+13:i3+15]) + 60*int(t1[i3+15:i3+17])
         except:
             nsec=0
         if setseq.get(): TxFirst.set((nsec/Audio.gcom1.trperiod)%2)
@@ -1311,7 +1311,7 @@ helpmenu.add('command', label = 'About MAP65', command = about, \
 
 #------------------------------------------------------ Labels under graphics
 iframe2 = Frame(frame, bd=1, relief=FLAT,height=15)
-lab2=Label(iframe2, text='Freq      DF     Pol    UTC     dB        DT     W')
+lab2=Label(iframe2, text='Freq     DF     Pol    UTC       DT       dB')
 lab2.place(x=3,y=6, anchor='w')
 lab7=Label(iframe2,text='F3',fg='gray85')
 lab7.place(x=495,y=6, anchor=CENTER)

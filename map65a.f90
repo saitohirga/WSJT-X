@@ -217,12 +217,13 @@ subroutine map65a(newdat)
               nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
               nw=0                                !### Fix this! ###
               nwrite=nwrite+1
-              write(11,1010) nkHz,ndf,npol,nutc,nsync2,dt,nw,decoded,nkv,nqual
-1010          format(i3,i5,i4,i5.4,i4,f5.1,i3,2x,a22,i5,i4)
+              write(11,1010) nkHz,ndf,npol,nutc,dt,nsync2,decoded,nkv,nqual
+1010          format(i3,i5,i4,i5.4,f5.1,i4,2x,a22,i5,i4)
            endif
         enddo
         if(nwrite.eq.0) then
-           write(11,1010) mousefqso,mousedf,0,nutc,-33,0.0,0    !### Needs work ###
+           write(11,1011) mousefqso,mousedf,nutc
+1011          format(i3,i5,4x,i5.4)
         endif
    
         write(11,*) '$EOF'
