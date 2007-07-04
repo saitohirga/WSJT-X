@@ -98,6 +98,9 @@ g.ndevin=IntVar()
 g.ndevout=IntVar()
 g.DevinName=StringVar()
 g.DevoutName=StringVar()
+
+g.fc=["" for i in range(200)]
+
 #------------------------------------------------------ showspecjt
 def showspecjt(event=NONE):
     if g.showspecjt==0: g.showspecjt=1
@@ -1133,9 +1136,21 @@ def update():
                     if nage==1: attr='age1'
                     if nage==2: attr='age2'
                     if nage>=3: attr='age3'
-#                    print i,j,t
                     bmtext.insert(END,t,attr)
+                    t=t[:12]
+                    if t!="            ":
+                        try:
+                            k=int(t[:3])
+                            c=t[4:10]
+                            if c!=NONE:
+                                t=g.fc[k]
+                                if t.find(c+" ") == -1:
+                                    g.fc[k]=g.fc[k] + c + " "
+                        except:
+                            pass
             bmtext.see(END)
+#            for i in range(100,160):
+#                if g.fc[i]!="": print i,g.fc[i]
 
             Audio.gcom2.ndecdone=0
             if loopall: opennext()
