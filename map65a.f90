@@ -22,16 +22,17 @@ subroutine map65a(newdat)
   data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/
   save
 
-!  if(nlost.ne.0) then
-     pctlost=nlost/331.03
-     if(ndebug.eq.2) write(*,3001) nutc,mod(int(sec_midn()),60),nlost,pctlost
+  pctlost=nlost/331.03
+  if(ndebug.eq.2) write(*,3001) nutc,mod(int(sec_midn()),60),nlost,pctlost
 3001 format('mod65a  1:',i5.4,i3.2,i8,f6.1,' %')
-!  endif
 
   rewind 11
   rewind 12
-  if(nrw26.ne.0) rewind 26
-  nrw26=0
+  if(nrw26.ne.0) then
+     endfile (26)              !Compiler bug?  Don't write "end file 26" !!!
+     rewind 26
+     nrw26=0
+  endif
 
   if(nutc.ne.nutc0) nfile=nfile+1
   nutc0=nutc
@@ -117,6 +118,8 @@ subroutine map65a(newdat)
                     fshort=0.001*((i0-1)*df - 23000) + 100.0
 
 !  Keep only the best candidate within ftol.
+!### NB: sync2 was not defined here!
+!###                    sync2=syncshort                   !### try this ???
                     if(fshort-fshort0.le.ftol .and. sync2.gt.sync20    &
                          .and. nkm.eq.2) km=km-1
                     if(fshort-fshort0.gt.ftol .or.                     &
@@ -295,6 +298,8 @@ subroutine map65a(newdat)
            ndf2=nint(a(3))
            nsync1=sync1
            nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
+           if(decoded(1:4).eq.'RO  ' .or. decoded(1:4).eq.'RRR  ' .or.  &
+                decoded(1:4).eq.'73  ') nsync2=nsync2-6
            write(26,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
                 nsync2,nutc,decoded,nkv,nqual,nhist
            write(21,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &

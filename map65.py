@@ -1230,9 +1230,7 @@ filemenu.add('command', label = 'Decode remaining files in directory', \
 filemenu.add_separator()
 filemenu.add('command', label = 'Delete all *.WAV files in RxWav', \
              command = delwav)
-filemenu.add_separator()
 filemenu.add('command', label = 'Erase Band Map and Messages', command = clr_all)
-filemenu.add_separator()
 filemenu.add('command', label = 'Erase ALL65.TXT', command = del_all)
 filemenu.add_separator()
 filemenu.add('command', label = 'Exit', command = quit)
@@ -1345,13 +1343,13 @@ helpmenu.add('command', label = 'Available suffixes and add-on prefixes', \
 helpmenu.add('command', label = 'About MAP65', command = about, \
              accelerator='Ctrl+F1')
 
-#------------------------------------------------------ Labels under graphics
+#------------------------------------------------------ Label above text
 iframe2 = Frame(frame, bd=1, relief=FLAT,height=15)
 lab2=Label(iframe2, text='Freq      DF    Pol     UTC       DT      dB')
 lab2.place(x=3,y=6, anchor='w')
 lab7=Label(iframe2,text='F3',fg='gray85')
 lab7.place(x=495,y=6, anchor=CENTER)
-iframe2.pack(expand=1, fill=X, padx=4)
+iframe2.pack(expand=1, fill=BOTH, padx=4)
 
 #-------------------------------------------------------- Decoded text
 iframe4 = Frame(frame, bd=2, relief=SUNKEN)
