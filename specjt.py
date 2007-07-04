@@ -113,13 +113,17 @@ def fdf_change(event):
     df=96.0/750.0
     fmid=122.8                                # empirical
     g.Freq=df*(event.x-375) + fmid
-    t="Freq: %5.1f kHz" % (g.Freq,)
+    n=int(g.Freq)
+    t="%d" % (n,)
+    if g.fc[n] != "":
+        t=t + ":  " + g.fc[n]
     fdf.configure(text=t)
 
 def fdf_change2(event):
-    g.DFreq=(2200.0/750.0)*(event.x-375)
-    t="DF: %d Hz" % int(g.DFreq)
-    fdf2.configure(text=t)
+    pass
+##    g.DFreq=(2200.0/750.0)*(event.x-375)
+##    t="DF: %d Hz" % int(g.DFreq)
+##    fdf2.configure(text=t)
 
 #---------------------------------------------------- set_fqso
 def set_fqso(event):
@@ -378,7 +382,7 @@ setupmenu.add_radiobutton(label='AFMHot',command=pal_AFMHot,
 
 lab1=Label(mbar,padx=20,bd=0)
 lab1.pack(side=LEFT)
-fdf=Label(mbar,width=15,bd=0)
+fdf=Label(mbar,width=30,bd=0)
 fdf.pack(side=LEFT)
 fdf2=Label(mbar,width=15,bd=0)
 fdf2.pack(side=LEFT)
