@@ -113,7 +113,7 @@ def fdf_change(event):
     df=96.0/750.0
     fmid=122.8                                # empirical
     g.Freq=df*(event.x-375) + fmid
-    n=int(g.Freq)
+    n=int(g.Freq+0.5)
     t="%d" % (n,)
     if g.fc[n] != "":
         t=t + ":  " + g.fc[n]
