@@ -34,10 +34,15 @@ subroutine map65a(newdat)
      nrw26=0
   endif
 
+#ifdef Win32
+  open(23,file='CALL3.TXT',status='unknown',share='denynone')
+#else
+  open(23,file='CALL3.TXT',status='unknown')
+#endif
+
   if(nutc.ne.nutc0) nfile=nfile+1
   nutc0=nutc
   nutcdata=nutc
-  open(23,file='CALL3.TXT',status='old')
 
   df=96000.0/NFFT                    !df = 96000/NFFT = 2.930 Hz
   ftol=0.020                          !Frequency tolerance (kHz)
