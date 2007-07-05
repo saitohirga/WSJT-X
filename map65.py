@@ -616,6 +616,10 @@ Shift+F8	Set JT65B mode
 Ctrl+F8	Set JT65C mode
 F10	Show Waterfall
 Shift+F10   Show astronomical data
+F11	Decrease DF
+F12	Increase DF
+Shift+F11   Decrease QSO Frequency
+Shift+F12   Increase QSO Frequency
 Alt+1 to Alt+6	Tx1 to Tx6
 Alt+A	Toggle Auto On/Off
 Alt+D	Decode
@@ -630,7 +634,6 @@ Alt+O	Tx Stop
 Alt+Q	Log QSO
 Alt+S	Stop Monitoring or Decoding
 Alt+X	Exclude
-Right/Left Arrow	Increase/decrease Freeze DF
 """
     Label(scwid,text=t,justify=LEFT).pack(padx=20)
     scwid.focus_set()
