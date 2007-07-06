@@ -15,6 +15,7 @@ void setup_rsocket_(void)
 {
   struct ip_mreq mreq;
   u_int yes=1;
+  int sndsize;
 
   // Make sure that we have compatible Winsock support
   WORD wVersionRequested;
@@ -75,6 +76,15 @@ void setup_rsocket_(void)
     perror("setsockopt");
     exit(1);
   }
+  err=getsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&sndsize,
+		 (int)sizeof(sndsize));
+  printf("sndsize: %d   %d\n",sndsize,err);
+  sndsize=65536;
+  err=setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&sndsize,
+		 (int)sizeof(sndsize));
+  err=getsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&sndsize,
+		 (int)sizeof(sndsize));
+  printf("sndsize: %d   %d\n",sndsize,err);
 }
 
 //void __stdcall RECV_PKT(char buf[])

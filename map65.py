@@ -992,7 +992,10 @@ def update():
     i=g.rfnd(t,".")
     t=t[:i]
     if mode.get() != g.mode or first:
-        msg1.configure(bg='#00FFFF')
+        if mode.get()[:4]=='JT65':
+            msg1.configure(bg='#00FFFF')
+        elif mode.get()=='Measure':
+            msg1.configure(bg='yellow')
         g.mode=mode.get()
         first=0
 
