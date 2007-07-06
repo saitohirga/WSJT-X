@@ -24,7 +24,7 @@ subroutine map65a(newdat)
 
   pctlost=nlost/331.03
   if(ndebug.eq.2) write(*,3001) nutc,mod(int(sec_midn()),60),nlost,pctlost
-3001 format('mod65a  1:',i5.4,i3.2,i8,f6.1,' %')
+3001 format('mod65a  1:',i5.4,i3.2,i8,f7.2,' %')
 
   rewind 11
   rewind 12
@@ -328,8 +328,9 @@ subroutine map65a(newdat)
      t3=sec_midn()
      if(ndebug.eq.2) write(*,3003) mod(int(t3),60)
 3003 format('mod65a  3:'i8.2)
-     if(ndebug.eq.1) write(*,3004) nutc,mod(t2,60.0),mod(t3,60.0),pctlost
-3004 format('mod65a:',i5.4,1x,2f6.1,f8.2,' %')
+     if(ndebug.eq.1) write(*,3004) nutc,mod(t2,60.0),mod(t3,60.0),    &
+          nlost,pctlost
+3004 format('mod65a:',i5.4,1x,2f6.1,i6,f8.2,' %')
   endif
   nagain=0
 

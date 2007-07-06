@@ -21,7 +21,7 @@ subroutine recvpkt(iarg)
   include 'gcom2.f90'
   equivalence (id,d8)
   data nblock0/0/,first/.true./,kb/1/,ntx/0/,npkt/0/,nw/0/
-  data sqave/0.0/,u/0.001/,rxnoise/0.0/,kbuf/1/
+  data sqave/0.0/,u/0.001/,rxnoise/0.0/,kbuf/1/,lost_tot/0/
   save
 
   call setup_rsocket            ! Open socket to receive multicast data
@@ -39,17 +39,19 @@ subroutine recvpkt(iarg)
   endif
 
   lost=nblock-nblock0-1
-  nblock0=nblock
-
   if(lost.ne.0 .and. .not.first) then
-!     print*,'Lost packets:',nblock,nblock0,lost
-     nlost=nlost + lost               ! Insert zeros for the lost data.
+     nb=nblock
+     if(nb.lt.0) nb=nb+65536
+     nb0=nblock0
+     if(nb0.lt.0) nb0=nb0+65536
+     if(ndebug.eq.2) print*,'Lost packets:',nb0,nb,lost
+     lost_tot=lost_tot + lost               ! Insert zeros for the lost data.
      do i=1,174*lost
         k=k+1
         d8(k)=0
      enddo
   endif
-  first=.false.
+   nblock0=nblock
 
   nsec=msec/1000
   if(mod(nsec,60).eq.1) nreset=1
@@ -59,7 +61,7 @@ subroutine recvpkt(iarg)
      kb=3-kb
      k=0
      if(kb.eq.2) k=NSMAX
-     nlost=0
+     lost_tot=0
   endif
 
   if(kb.eq.1 .and. (k+174).gt.NSMAX) go to 20
@@ -80,8 +82,10 @@ subroutine recvpkt(iarg)
      if(npkt.ge.551) then
         npkt=0
         nw=nw+1
+        rewind 11
         write(11,1000) nw,rxnoise
 1000    format(i6,f8.2)
+        write(11,*) '$EOF'
         call flushqqq(11)
         ndecdone=1
         write(24,1000) nw,rxnoise
@@ -115,8 +119,10 @@ subroutine recvpkt(iarg)
         kk=k
         if(ndebug.eq.2) write(*,3002) nutc,mod(int(sec_midn()),60),ns
 3002    format('recvpkt 2:',i5.4,2i3.2)
+        nlost=lost_tot                         ! Save stats for printout
      endif
   endif
+  first=.false.
   go to 10
 
 end subroutine recvpkt
