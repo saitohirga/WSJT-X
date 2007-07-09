@@ -18,7 +18,7 @@
 !   25  meas25.dat
 !   26  tmp26.tmp
 !   27  dphi.txt
-
+!   28  saved *.tf2 files
 !------------------------------------------------ ftn_init
 subroutine ftn_init
 

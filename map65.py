@@ -1,4 +1,4 @@
-#---------------------------------------------------------------------- MAP65
+#--------------------------------------------------------------------- MAP65
 # $Date$ $Revision$
 #
 from Tkinter import *
@@ -1342,8 +1342,7 @@ savemenu = Menu(savebutton, tearoff=1)
 savebutton['menu'] = savemenu
 nsave=IntVar()
 savemenu.add_radiobutton(label = 'None', variable=nsave,value=0)
-savemenu.add_radiobutton(label = 'Save timf2', variable=nsave,value=1,
-            state=DISABLED)
+savemenu.add_radiobutton(label = 'Save all', variable=nsave,value=1)
 nsave.set(0)
 
 #------------------------------------------------------ Band menu
