@@ -17,6 +17,7 @@
 !   24  meas24.dat
 !   25  meas25.dat
 !   26  tmp26.tmp
+!   27  dphi.txt
 
 !------------------------------------------------ ftn_init
 subroutine ftn_init
@@ -130,6 +131,13 @@ subroutine ftn_init
        share='denynone')
 #else
   open(26,file=appdir(:iz)//'/tmp26.txt',status='unknown')
+#endif
+
+#ifdef Win32
+  open(27,file=appdir(:iz)//'/dphi.txt',status='unknown',                 &
+       share='denynone')
+#else
+  open(27,file=appdir(:iz)//'/dphi.txt',status='unknown')
 #endif
 
   return
