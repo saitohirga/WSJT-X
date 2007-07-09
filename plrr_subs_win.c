@@ -15,7 +15,7 @@ void setup_rsocket_(void)
 {
   struct ip_mreq mreq;
   u_int yes=1;
-  int sndsize;
+  int i,j,k;
 
   // Make sure that we have compatible Winsock support
   WORD wVersionRequested;
@@ -51,6 +51,13 @@ void setup_rsocket_(void)
     exit(1);
   }
 
+  k=sizeof(int);
+  i=256*1024;
+  err=setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&i,k);
+  if (err<0) {
+    j=WSAGetLastError();
+    printf("Error: %d   %d\n",err,j);
+  }
   /* allow multiple sockets to use the same PORT number */
   if (setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(yes)) < 0) {
     perror("Reusing ADDR failed");
@@ -76,15 +83,6 @@ void setup_rsocket_(void)
     perror("setsockopt");
     exit(1);
   }
-  err=getsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&sndsize,
-		 (int)sizeof(sndsize));
-  printf("sndsize: %d   %d\n",sndsize,err);
-  sndsize=65536;
-  err=setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&sndsize,
-		 (int)sizeof(sndsize));
-  err=getsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&sndsize,
-		 (int)sizeof(sndsize));
-  printf("sndsize: %d   %d\n",sndsize,err);
 }
 
 //void __stdcall RECV_PKT(char buf[])
