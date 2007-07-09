@@ -167,9 +167,8 @@ subroutine map65a(newdat)
 !  Keep only the best candidate within ftol.
 !  (Am I deleting any good decodes by doing this?)
               if(freq-freq0.le.ftol .and. sync1.gt.sync10 .and.               &
-                   nkm.eq.1 .and.ndphi.eq.0) km=km-1
-              if(freq-freq0.gt.ftol .or. sync1.gt.sync10 .or.                 &
-                   ndphi.eq.1) then
+                   nkm.eq.1) km=km-1
+              if(freq-freq0.gt.ftol .or. sync1.gt.sync10) then
                  nflip=nint(flipk)
                  call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,          &
                       mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,      &
@@ -233,27 +232,34 @@ subroutine map65a(newdat)
               nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
               nw=0                                !### Fix this! ###
               nwrite=nwrite+1
-              write(11,1010) nkHz,ndf,npol,nutc,dt,nsync2,decoded,nkv,  &
-                   nqual,30*iloop
-1010          format(i3,i5,i4,i5.4,f5.1,i4,2x,a22,i5,i4,i4)
+              if(ndphi.eq.0) then
+                 write(11,1010) nkHz,ndf,npol,nutc,dt,nsync2,decoded,nkv,nqual
+1010             format(i3,i5,i4,i5.4,f5.1,i4,2x,a22,i5,i4,i4)
+              else
+                 write(11,1010) nkHz,ndf,npol,nutc,dt,nsync2,decoded,nkv,  &
+                      nqual,30*iloop
+                 write(27,1011) 30*iloop,nkHz,ndf,npol,nutc,  &
+                      dt,sync2,nkv,nqual,decoded
+1011             format(i3,i4,i5,i4,i5.4,f5.1,f7.1,i3,i5,2x,a22)
+              endif
            endif
         enddo
         if(nwrite.eq.0) then
-           write(11,1011) mousefqso,nutc
-1011          format(i3,9x,i5.4)
+           write(11,1012) mousefqso,nutc
+1012          format(i3,9x,i5.4)
         endif
    
-        write(11,*) '$EOF'
-        call flushqqq(11)
-        t2=sec_midn()
-        if(ndebug.eq.2) write(*,3002) mod(int(t2),60)
-3002 format('mod65a  2:'i8.2)
-        ndecdone=1
      endif
      if(ndphi.eq.1 .and.iloop.lt.12) then
         iloop=iloop+1
         go to 1
      endif
+     write(11,*) '$EOF'
+     call flushqqq(11)
+     ndecdone=1
+     t2=sec_midn()
+     if(ndebug.eq.2) write(*,3002) mod(int(t2),60)
+3002 format('mod65a  2:'i8.2)
      if(nagain.eq.1) go to 999
   enddo
 
