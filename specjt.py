@@ -120,10 +120,7 @@ def fdf_change(event):
     fdf.configure(text=t)
 
 def fdf_change2(event):
-    pass
-##    g.DFreq=(2200.0/750.0)*(event.x-375)
-##    t="DF: %d Hz" % int(g.DFreq)
-##    fdf2.configure(text=t)
+    g.DFreq=(2200.0/750.0)*(event.x-375)
 
 #---------------------------------------------------- set_fqso
 def set_fqso(event):
@@ -136,6 +133,7 @@ def set_freezedf(event):
     n=int(g.DFreq + 0.5)
     Audio.gcom2.mousedf=n
     df_mark()
+    print 'B',n
 
 #------------------------------------------------------ ftnstr
 def ftnstr(x):
