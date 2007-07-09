@@ -16,12 +16,8 @@ subroutine savetf2(id,nsave,ntime,nutc,savedir)
   integer it(9)
 
   if(nsave.eq.1) then
-     print*,nsave,nutc
-     print*,savedir
-
      n2=ntime/60
      n3=(n2-1)*60
-
 #ifdef Win32
      call gmtime(n3,it)
 #else
