@@ -334,8 +334,9 @@ subroutine map65a(newdat)
   call display(nkeep)
   ndecdone=2
 
-  if(nsave.gt.0) call savetf2(id(1,1,kbuf),nsave,nutc)
-    
+  if(nsave.gt.0 .and. ndiskdat.eq.0) call savetf2(id(1,1,kbuf),nsave,   &
+       ntime,nutc,savedir)
+
 999 close(23)
   ndphi=0
   if(kbuf.eq.1) kkdone=60*96000
