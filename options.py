@@ -41,6 +41,12 @@ Template6=StringVar()
 addpfx=StringVar()
 auxra=StringVar()
 auxdec=StringVar()
+nkeep=IntVar()
+dphi=IntVar()
+fa=IntVar()
+fb=IntVar()
+fcal=IntVar()
+savedir=StringVar()
 
 mycall=Pmw.EntryField(g1.interior(),labelpos=W,label_text='My Call:',
         value='K1JT',entry_textvariable=MyCall,entry_width=12)
@@ -51,7 +57,8 @@ mygrid=Pmw.EntryField(g1.interior(),labelpos=W,label_text='Grid Locator:',
 ##txdelay=Pmw.EntryField(g1.interior(),labelpos=W,label_text='Tx Delay (s):',
 ##        value='0.2',entry_textvariable=TxDelay)
 idinterval=Pmw.EntryField(g1.interior(),labelpos=W,label_text='ID Interval (m):',
-        value=10,entry_textvariable=IDinterval,entry_width=12)
+        value=10,validate={'validator':'numeric','min':0,'max':60}, \
+        entry_textvariable=IDinterval,entry_width=12)
 comport=Pmw.EntryField(g1.interior(),labelpos=W,label_text='PTT Port:',
         value='/dev/ttyS0',entry_textvariable=PttPort,entry_width=12)
 audioout=Pmw.EntryField(g1.interior(),labelpos=W,label_text='Audio Out:',
@@ -84,7 +91,20 @@ aux_ra=Pmw.EntryField(g3.interior(),labelpos=W,label_text='Source RA:',
     entry_width=9,entry_textvariable=auxra)
 aux_dec=Pmw.EntryField(g3.interior(),labelpos=W,label_text='Source DEC:',
     entry_width=9,entry_textvariable=auxdec)
-widgets = (temp_prefix,aux_ra,aux_dec)
+nkeep_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='nkeep (min):',
+    entry_width=9,value=20,entry_textvariable=nkeep)
+dphi_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='Dphi (deg):',
+    entry_width=9,entry_textvariable=dphi)
+fa_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='fa (kHz):',
+    entry_width=9,value=100,entry_textvariable=fa)
+fb_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='fb (kHz):',
+    entry_width=9,value=160,entry_textvariable=fb)
+fcal_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='fcal (Hz):',
+    entry_width=9,entry_textvariable=fcal)
+savedir_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='SaveDir:',
+    entry_width=20,value=g.appdir+'/save',entry_textvariable=savedir)
+widgets = (temp_prefix,aux_ra,aux_dec,nkeep_entry,dphi_entry, \
+           fa_entry,fb_entry,fcal_entry,savedir_entry,)
 for widget in widgets:
     widget.pack(padx=10,pady=2)
 Pmw.alignlabels(widgets)

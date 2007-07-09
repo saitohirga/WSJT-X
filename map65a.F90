@@ -46,10 +46,13 @@ subroutine map65a(newdat)
 
   df=96000.0/NFFT                    !df = 96000/NFFT = 2.930 Hz
   ftol=0.020                          !Frequency tolerance (kHz)
-  fselect=mousefqso + 1.6
+  foffset=0.001*(1270 + nfcal)
+  fselect=mousefqso + foffset
   nfilt=1
-  dphi=310/57.2957795
-
+  dphi=idphi/57.2957795
+  
+  iloop=0
+1 if(ndphi.eq.1) dphi=30*iloop/57.2957795
   do nqd=1,0,-1
      if(nqd.eq.1) then
         fa=1000.0*(fselect+0.001*mousedf-100.0) - dftolerance
@@ -57,8 +60,8 @@ subroutine map65a(newdat)
         ia=nint((fa+23000.0)/df + 1.0)     ! 23000 = 48000 - 25000
         ib=nint((fb+23000.0)/df + 1.0)
      else
-        fa=0.0
-        fb=60000.0
+        fa=1000*(nfa-100)
+        fb=1000*(nfb-100)
         ia=nint((fa+23000.0)/df + 1.0)     ! 23000 = 48000 - 25000
         ib=nint((fb+23000.0)/df + 1.0)
      endif
@@ -164,8 +167,9 @@ subroutine map65a(newdat)
 !  Keep only the best candidate within ftol.
 !  (Am I deleting any good decodes by doing this?)
               if(freq-freq0.le.ftol .and. sync1.gt.sync10 .and.               &
-                   nkm.eq.1) km=km-1
-              if(freq-freq0.gt.ftol .or. sync1.gt.sync10) then
+                   nkm.eq.1 .and.ndphi.eq.0) km=km-1
+              if(freq-freq0.gt.ftol .or. sync1.gt.sync10 .or.                 &
+                   ndphi.eq.1) then
                  nflip=nint(flipk)
                  call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,          &
                       mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,      &
@@ -181,7 +185,7 @@ subroutine map65a(newdat)
                  sig(km,8)=sync2
                  sig(km,9)=nkv
                  sig(km,10)=qual
-!                     sig(km,11)=rms0                  
+!                 sig(km,11)=idphi
                  sig(km,12)=savg(ipol,i)
                  sig(km,13)=a(1)
                  sig(km,14)=a(2)
@@ -211,6 +215,7 @@ subroutine map65a(newdat)
               sync2=sig(k,8)
               nkv=sig(k,9)
               nqual=sig(k,10)
+!              idphi=nint(sig(k,11))
               if(flip.lt.0.0) then
                  do i=22,1,-1
                     if(decoded(i:i).ne.' ') go to 8
@@ -218,9 +223,9 @@ subroutine map65a(newdat)
                  stop 'Error in message format'
 8                if(i.le.18) decoded(i+2:i+4)='OOO'
               endif
-              nkHz=nint(freq-1.600)
+              nkHz=nint(freq-foffset)
               f0=144.0+0.001*nkHz
-              ndf=nint(1000.0*(freq-1.600-nkHz))
+              ndf=nint(1000.0*(freq-foffset-nkHz))
 !              ndf0=nint(a(1))
 !              ndf1=nint(a(2))
 !              ndf2=nint(a(3))
@@ -228,8 +233,9 @@ subroutine map65a(newdat)
               nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
               nw=0                                !### Fix this! ###
               nwrite=nwrite+1
-              write(11,1010) nkHz,ndf,npol,nutc,dt,nsync2,decoded,nkv,nqual
-1010          format(i3,i5,i4,i5.4,f5.1,i4,2x,a22,i5,i4)
+              write(11,1010) nkHz,ndf,npol,nutc,dt,nsync2,decoded,nkv,  &
+                   nqual,30*iloop
+1010          format(i3,i5,i4,i5.4,f5.1,i4,2x,a22,i5,i4,i4)
            endif
         enddo
         if(nwrite.eq.0) then
@@ -243,6 +249,10 @@ subroutine map65a(newdat)
         if(ndebug.eq.2) write(*,3002) mod(int(t2),60)
 3002 format('mod65a  2:'i8.2)
         ndecdone=1
+     endif
+     if(ndphi.eq.1 .and.iloop.lt.12) then
+        iloop=iloop+1
+        go to 1
      endif
      if(nagain.eq.1) go to 999
   enddo
@@ -295,9 +305,9 @@ subroutine map65a(newdat)
               stop 'Error in message format'
 10            if(i.le.18) decoded(i+2:i+4)='OOO'
            endif
-           nkHz=nint(freq-1.600)
+           nkHz=nint(freq-foffset)
            f0=144.0+0.001*nkHz
-           ndf=nint(1000.0*(freq-1.600-nkHz))
+           ndf=nint(1000.0*(freq-foffset-nkHz))
            ndf0=nint(a(1))
            ndf1=nint(a(2))
            ndf2=nint(a(3))
@@ -315,12 +325,13 @@ subroutine map65a(newdat)
      endif
      j=j+nsiz(n)
   enddo
-  call display
+  call display(nkeep)
   ndecdone=2
 
   if(nsave.gt.0) call savetf2(id(1,1,kbuf),nsave,nutc)
     
 999 close(23)
+  ndphi=0
   if(kbuf.eq.1) kkdone=60*96000
   if(kbuf.eq.2 .or. ndiskdat.eq.1) kkdone=0
   kk=kkdone

@@ -35,6 +35,11 @@ integer nclearave      !Set to 1 to clear JT65 avg         GUI,Decoder
 integer nfreeze        !Is Freeze checked?                      GUI
 integer nafc           !Is AFC checked?                         GUI
 integer newspec        !New spectra in ss(4,322,NSMAX)     GUI,Decoder
+integer nfa            !Low end of map65 search (def 100 kHz)   GUI
+integer nfb            !High end of map65 search (def 160 kHz)  GUI
+integer nfcal          !Calibration offset, Hz                  GUI
+integer idphi          !Phase offset in Y channel (deg)         GUI
+integer nkeep          !Timeout limit for band maps (min)       GUI
 integer nmode          !Which WSJT mode?                   GUI,Decoder
 integer mode65         !JT65 sub-mode (A/B/C ==> 1/2/4) GUI,SoundIn,Decoder
 integer nclip          !Clipping level                          GUI
@@ -85,6 +90,7 @@ character*24 fnamea
 character*24 fnameb
 character*24 decodedfile
 character*80 AppDir      !WSJT installation directory           GUI
+character*80 SaveDir     !Directory for saved data files        GUI
 character*80 filetokilla !Filenames (full path)                 Decoder
 character*80 filetokillb
 character*12 pttport
@@ -95,13 +101,14 @@ common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),                   &
      ndecoding,ndecoding0,mousebutton,                                      &
      ndecdone,npingtime,ierr,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5,     &
      dftolerance,LDecoded,rxdone,monitoring,nzap,minsigdb,                  &
-     nclearave,nfreeze,nafc,newspec,nmode,mode65,nclip,ndebug,ndphi,        &
+     nclearave,nfreeze,nafc,newspec,nfa,nfb,nfcal,idphi,nkeep,              &
+     nmode,mode65,nclip,ndebug,ndphi,                                       &
      nblank,nport,mousedf,mousefqso,neme,nrw26,naggressive,ntx2,nagain,     &
      shok,sendingsh,d2a(661500),d2b(661500),b(60000),jza,jzb,ntime,         &
      idinterval,msmax,lenappdir,idf,ndiskdat,nlines,nflat,ntxreq,ntxnow,    &
      ndepth,nspecial,ndf,nfmid,nfrange,ss1(-224:224),ss2(-224:224),         &
      mycall,hiscall,hisgrid,txmsg,sending,mode,fname0,fnamea,               &
-     fnameb,decodedfile,AppDir,filetokilla,filetokillb,utcdate,pttport,     &
-     utcdata
+     fnameb,decodedfile,AppDir,SaveDir,filetokilla,filetokillb,utcdate,     &
+     pttport,utcdata
 
 !### volatile /gcom2/

@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------- MAP65
+#--------------------------------------------------------------------- MAP65
 # $Date$ $Revision$
 #
 from Tkinter import *
@@ -42,6 +42,7 @@ root_geom=""
 
 #------------------------------------------------------ Global variables
 appdir=os.getcwd()
+g.appdir=appdir
 isync=1
 isync_save=0
 iclip=0
@@ -1203,6 +1204,31 @@ def update():
     except:
         Audio.gcom2.idinterval=0
     Audio.gcom2.ntx2=0
+    try:
+        Audio.gcom2.nkeep=options.nkeep.get()
+    except:
+        Audio.gcom2.nkeep=20
+    try:
+        Audio.gcom2.idphi=options.dphi.get()
+    except:
+        Audio.gcom2.idphi=0
+    try:
+        Audio.gcom2.nfa=options.fa.get()
+    except:
+        Audio.gcom2.nfa=100
+    try:
+        Audio.gcom2.nfb=options.fb.get()
+    except:
+        Audio.gcom2.nfa=160
+    try:
+        Audio.gcom2.nfcal=options.fcal.get()
+    except:
+        Audio.gcom2.nfcal=0
+    t=options.savedir.get() + \
+        '                                        ' + \
+        '                                        '
+    Audio.gcom2.savedir=t[:80]
+    
 #    Audio.gcom1.rxdelay=float('0'+options.RxDelay.get())
 #    Audio.gcom1.txdelay=float('0'+options.TxDelay.get())
     if ntx.get()==1 and noshjt65.get()==1: Audio.gcom2.ntx2=1
@@ -1679,6 +1705,14 @@ try:
         elif key == 'AddPrefix': options.addpfx.set(value.replace("_"," ").lstrip())
         elif key == 'AuxRA': options.auxra.set(value)
         elif key == 'AuxDEC': options.auxdec.set(value)
+        
+        elif key == 'nkeep': options.nkeep.set(value)
+        elif key == 'fa': options.fa.set(value)
+        elif key == 'fb': options.fb.set(value)
+        elif key == 'fcal': options.fcal.set(value)
+        elif key == 'dphi': options.dphi.set(value)
+        elif key == 'savedir': options.savedir.set(value)
+        
         elif key == 'TxFirst': TxFirst.set(value)
         elif key == 'KB8RQ': kb8rq.set(value)
         elif key == 'K2TXB': k2txb.set(value)
@@ -1762,6 +1796,12 @@ if options.auxra.get()=="": options.auxra.set("0")
 if options.auxdec.get()=="": options.auxdec.set("0")
 f.write("AuxRA " + options.auxra.get() + "\n")
 f.write("AuxDEC " + options.auxdec.get() + "\n")
+f.write("nkeep " + str(options.nkeep.get()) + "\n")
+f.write("dphi " + str(options.dphi.get()) + "\n")
+f.write("fa " + str(options.fa.get()) + "\n")
+f.write("fb " + str(options.fb.get()) + "\n")
+f.write("fcal " + str(options.fcal.get()) + "\n")
+f.write("SaveDir " + str(options.savedir.get()) + "\n")
 f.write("TxFirst " + str(TxFirst.get()) + "\n")
 f.write("KB8RQ " + str(kb8rq.get()) + "\n")
 f.write("K2TXB " + str(k2txb.get()) + "\n")

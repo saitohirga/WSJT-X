@@ -1,4 +1,4 @@
-subroutine display
+subroutine display(nkeep)
 
 #ifdef Win32
   use dfport
@@ -14,7 +14,6 @@ subroutine display
   real freqkHz(MAXLINES)
   integer utc(MAXLINES),utc2(MX),utcz
   real*8 f0
-  data nkeep/20/
 
   ftol=0.02
   rewind 26
