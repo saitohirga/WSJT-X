@@ -6,6 +6,7 @@ subroutine getfile2(fname,len)
 
   character*(*) fname
   character infile*15
+  real*8 sq
 
   include 'datcom.f90'
   include 'gcom1.f90'
@@ -49,10 +50,18 @@ subroutine getfile2(fname,len)
 
 #endif
 
+  sq=0.
+  ka=0.1*NSMAX
+  kb=0.8*NSMAX
+  do k=ka,kb
+     sq=sq + float(int(id(1,k,1)))**2 + float(int(id(1,k,1)))**2 +    &
+          float(int(id(1,k,1)))**2 + float(int(id(1,k,1)))**2
+  enddo
+  sqave=174*sq/(kb-ka+1)
+  rxnoise=10.0*log10(sqave) - 48.0
   read(filename(8:11),*) nutc
   ndiskdat=1
   mousebutton=0
-  rxnoise=8.0
   go to 999
 
 998 ierr=1001
