@@ -155,13 +155,12 @@ def df_mark():
     fmid=0.5*float(Audio.gcom2.nfb + Audio.gcom2.nfa)
     if Audio.gcom2.nfullspec: fmid=125.0 - 2.3      #Empirical    
     df=bw/NX                                #kHz per pixel
-#    print 'A ',Audio.gcom2.nfullspec,bw,df,fmid
-#  These 375's were 393:
     x1=375.0 + (Audio.gcom2.mousefqso-fmid)/df    
     c.create_line(x1,25,x1,12,fill=color,width=2)
-    x1=375.0 + (Audio.gcom2.nfa-fmid)/df
-    x2=375.0 + (Audio.gcom2.nfb-fmid)/df
-    c.create_line(x1,25,x2,25,fill=color,width=2)
+    if Audio.gcom2.nfullspec:
+        x1=375.0 + (Audio.gcom2.nfa-fmid)/df
+        x2=375.0 + (Audio.gcom2.nfb-fmid)/df
+        c.create_line(x1,25,x2,25,fill=color,width=2)
 
     df=96000.0/32768.0
 # Mark sync tone and top JT65 tone (green) and shorthand tones (red)
