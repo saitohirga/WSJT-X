@@ -681,8 +681,8 @@ If you have received
     ... RRR, the QSO is complete.  However, the other station may not
 know this, so it is conventional to send 73 to signify that you are done.
 
-(Sending grid locators is conventional in JT65, but numerical signal
-reports may be substituted.)
+Sending grid locators is conventional in JT65, but numerical signal
+reports such as "-22" or "R-24" may be substituted.
 """
     Label(screenf5,text=t,justify=LEFT).pack(padx=20)
     screenf5.focus_set()
