@@ -28,8 +28,8 @@ subroutine display(nkeep)
   enddo
 
 10 nz=i-1
-
   utcz=utc(nz)
+  nz=nz-1
   nquad=nkeep/4
   do i=1,nz
      nage=utcz-utc(i)

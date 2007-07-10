@@ -83,6 +83,7 @@
          mz=1
          if(n.eq.1 .and. j3.lt.1 .and. j4.lt.1 .and.
      +      callsign(1:6).ne.'      ') mz=MAXRPT+1
+
 C  Test for messages with MyCall + HisCall + report
          do m=1,mz
             if(m.gt.1) grid=rpt(m-1)
@@ -93,7 +94,9 @@ C  Test for messages with MyCall + HisCall + report
             testmsg(k)=message
             call encode65(message,ncode(1,k))
             nflip(k)=flip
+
 C  Insert CQ message
+            if(j4.lt.1) callgrid(icall)=callsign(1:j2)//' '//grid
             message='CQ '//callgrid(icall)
             k=k+1
             testmsg(k)=message
