@@ -1761,6 +1761,7 @@ GenStdMsgs()
 Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'        ')[:8]
 Audio.gcom2.mousefqso=125
 Audio.gcom2.ncsmin=4
+Audio.gcom2.nfullspec=0
 monitor()
 first=1
 if g.Win32: root.iconbitmap("wsjt.ico")

@@ -110,8 +110,13 @@ def pal_AFMHot():
 #---------------------------------------------------- fdf_change
 # Readout of graphical cursor location
 def fdf_change(event):
-    df=96.0/750.0
-    fmid=122.8                                # empirical
+
+    bw=float(Audio.gcom2.nfb - Audio.gcom2.nfa)
+    fmid=130.0
+    if Audio.gcom2.nfullspec:
+        bw=96.0                                 #Total bw 96 kHz
+        fmid=125.0 - 2.2                        #Empirical    
+    df=bw/NX                                   #kHz per pixel
     g.Freq=df*(event.x-375) + fmid
     n=int(g.Freq+0.5)
     t="%d" % (n,)
@@ -319,11 +324,15 @@ def update():
 #-------------------------------------------------------- draw_axis
 def draw_axis():
     c.delete(ALL)
-    xmid=125.0 - 2.3                            #Empirical
-    bw=96.0
-    x1=int(xmid-0.6*bw)
-    x2=int(xmid+0.6*bw)
-    xdf=bw/NX                                    #128 Hz
+    bw=float(Audio.gcom2.nfb - Audio.gcom2.nfa)
+    xmid=130.0
+    if Audio.gcom2.nfullspec:
+        bw=96.0                                 #Total bw 96 kHz
+        xmid=125.0 - 2.3                        #Empirical    
+    xdf=bw/NX                                   #kHz per pixel
+    x1=int(xmid-0.6*bw)                         #Make it too wide, to be
+    x2=int(xmid+0.6*bw)                         #sure to get all the numbers
+#    print Audio.gcom2.nfullspec,bw,xdf,x1,x2
     for ix in range(x1,x2,1):
         i=0.5*NX + (ix-xmid)/xdf
         j=20
@@ -334,7 +343,7 @@ def draw_axis():
             if ix<100: x=x+1
             y=8
             c.create_text(x,y,text=str(ix))
-        c.create_line(i,25,i,j,fill='black')
+        c.create_line(i,25,i,j,fill='black')     #Draw the upper scale
             
     c2.delete(ALL)
     xmid2=0

@@ -37,11 +37,6 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
   nlines=322/nadd
   call zero(s,NFFT*NY)
   k=0
-  fselect=mousefqso + 1.6
-  imid=nint(1000.0*(fselect-125.0+48.0)/df)
-  ia=imid-374
-  ib=ia+749
-
   do j=1,nlines
      do n=1,nadd
         k=k+1
@@ -60,16 +55,30 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
   gain=40*sqrt(nstep(nspeed)/5.0) * 5.0**(0.01*contrast)
   gamma=1.3 + 0.01*contrast
   offset=(brightness+64.0)/2
-  k=0
   fac=20.0/nadd
-  nbpp=NFFT/NX                        !Bins per pixel in wide waterfall
-  do j=nlines,1,-1                    !Reverse order so last will be on top
+
+  nbpp=(nfb-nfa)*NFFT/(96.0*NX)  !Bins per pixel in wideband (upper) waterfall
+  fselect=mousefqso + 1.6
+  imid=nint(1000.0*(fselect-125.0+48.0)/df)
+  fmid=0.5*(nfa+nfb)
+  imid0=nint(1000.0*(fmid-125.0+48.0)/df)
+  i0=imid-374
+  ii0=imid-374*nbpp
+  if(nfullspec.eq.1) then
+     nbpp=NFFT/NX
+     ii0=0
+  endif
+
+  k=0
+  do j=nlines,1,-1               !Reverse order so last will be on top
      do i=1,NX
         k=k+1
 
         n=0
         x=0.
-        do ii=(i-1)*nbpp+1,i*nbpp
+        iia=(i-1)*nbpp + ii0 + 1
+        iib=i*nbpp + ii0
+        do ii=iia,iib
            x=max(x,s(ii,j))
         enddo
         x=fac*x
@@ -77,8 +86,9 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
         n=min(252,max(0,n))
         a(k)=n
 
+!  Now do the lower (zoomed) waterfall with one FFT bin per pixel.
         n=0
-        x=fac*s(ia+i-1,j)
+        x=fac*s(i0+i-1,j)
         if(x.gt.0.0) n=(3.0*x)**gamma + offset
         n=min(252,max(0,n))
         a2(k)=n
