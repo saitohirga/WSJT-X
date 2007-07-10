@@ -118,7 +118,8 @@ subroutine display(nkeep)
   nc=0
   callsign0='          '
   do k=1,k3
-     out=line3(k)(5:12)//line3(k)(28:31)//line3(k)(35:67)//line3(k)(77:81)
+     out=line3(k)(5:12)//line3(k)(28:31)//line3(k)(39:43)//       &
+          line3(k)(35:38)//line3(k)(44:67)//line3(k)(77:81)
      if(out(1:3).ne.'   ') then
         if(out(1:3).eq.cfreq0) then
            out(1:3)='   '
