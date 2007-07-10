@@ -8,6 +8,7 @@ C  Decodes averaged JT65 data for the specified segment (mseg=1 or 2).
       character decoded*22,deepmsg*22
       character mycall*12,hiscall*12,hisgrid*6
       real s3(64,63)
+      logical ltext
       common/ave/ppsave(64,63,MAXAVE),nflag(MAXAVE),nsave,iseg(MAXAVE)
 
 C  Count the available spectra for this Monitor segment (mseg=1 or 2),
@@ -36,7 +37,7 @@ C  Compute the average of all flagged spectra for this segment.
       enddo
 
       nadd=nused*mode65
-      call extract(s3,nadd,ncount,decoded)     !Extract the message
+      call extract(s3,nadd,ncount,decoded,ltext)     !Extract the message
       if(ncount.lt.0) decoded='                      '
 
       nqual=0
