@@ -34,6 +34,7 @@ integer minsigdb       !Decoder threshold setting               GUI
 integer nclearave      !Set to 1 to clear JT65 avg         GUI,Decoder
 integer nfreeze        !Is Freeze checked?                      GUI
 integer nafc           !Is AFC checked?                         GUI
+integer ncsmin         !Minimum length of callsign in bandmap   GUI
 integer newspec        !New spectra in ss(4,322,NSMAX)     GUI,Decoder
 integer nfa            !Low end of map65 search (def 100 kHz)   GUI
 integer nfb            !High end of map65 search (def 160 kHz)  GUI
@@ -101,7 +102,7 @@ common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),                   &
      ndecoding,ndecoding0,mousebutton,                                      &
      ndecdone,npingtime,ierr,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5,     &
      dftolerance,LDecoded,rxdone,monitoring,nzap,minsigdb,                  &
-     nclearave,nfreeze,nafc,newspec,nfa,nfb,nfcal,idphi,nkeep,              &
+     nclearave,nfreeze,nafc,ncsmin,newspec,nfa,nfb,nfcal,idphi,nkeep,       &
      nmode,mode65,nclip,ndebug,ndphi,                                       &
      nblank,nport,mousedf,mousefqso,neme,nrw26,naggressive,ntx2,nagain,     &
      shok,sendingsh,d2a(661500),d2b(661500),b(60000),jza,jzb,ntime,         &

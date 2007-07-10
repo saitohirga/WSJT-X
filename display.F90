@@ -1,4 +1,4 @@
-subroutine display(nkeep)
+subroutine display(nkeep,ncsmin)
 
 #ifdef Win32
   use dfport
@@ -133,9 +133,13 @@ subroutine display(nkeep)
         i2=index(callsign,' ')
         if(i2.gt.1) callsign(i2:)='      '
         if(callsign.ne.'      ' .and. callsign.ne.callsign0) then
-           nc=nc+1
-           freqcall(nc)=cfreq0//' '//callsign//line3(k)(80:81)
-           callsign0=callsign
+           len=i2-1
+           if(len.lt.0) len=6
+           if(len.ge.ncsmin) then                        !Omit short "callsigns"
+              nc=nc+1
+              freqcall(nc)=cfreq0//' '//callsign//line3(k)(80:81)
+              callsign0=callsign
+           endif
         endif
         if(callsign.ne.'      ' .and. callsign.eq.callsign0) then
            freqcall(nc)=cfreq0//' '//callsign//line3(k)(80:81)

@@ -336,7 +336,7 @@ subroutine map65a(newdat)
   write(26,1015) nutc
 1015 format(39x,i4.4)
   call flushqqq(26)
-  call display(nkeep)
+  call display(nkeep,ncsmin)
   ndecdone=2
 
   if(nsave.gt.0 .and. ndiskdat.eq.0) call savetf2(id(1,1,kbuf),nsave,   &
