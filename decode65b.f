@@ -3,7 +3,7 @@
 
       real s2(256,126)
       real s3(64,63)
-      logical first
+      logical first,ltext
       character decoded*22,deepmsg*22
       character mycall*12,hiscall*12,hisgrid*6
 !      include 'avecom.h'
@@ -25,10 +25,11 @@
       mode65=2
       nadd=mode65
 
-      call extract(s3,nadd,ncount,nhist,decoded)     !Extract the message
-C  Suppress "birdie messages":
+      call extract(s3,nadd,ncount,nhist,decoded,ltext)     !Extract the message
+C  Suppress "birdie messages" and other garbage decodes:
       if(decoded(1:7).eq.'000AAA ') ncount=-1
       if(decoded(1:7).eq.'0L6MWK ') ncount=-1
+      if(flip.lt.0.0 .and. ltext) ncount=-1
       nkv=1
       if(ncount.lt.0) then 
          nkv=0

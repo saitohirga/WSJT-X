@@ -1,11 +1,11 @@
-      subroutine extract(s3,nadd,ncount,nhist,decoded)
+      subroutine extract(s3,nadd,ncount,nhist,decoded,ltext)
 
       real s3(64,63)
       real tmp(4032)
       character decoded*22
       integer era(51),dat4(12),indx(64)
       integer mrsym(63),mr2sym(63),mrprob(63),mr2prob(63)
-      logical first
+      logical first,ltext
       data first/.true./,nsec1/0/
       save
 
@@ -55,8 +55,10 @@
          endif
          read(22,rec=2) nsec2,ncount,dat4
          decoded='                      '
+         ltext=.false.
          if(ncount.ge.0) then
             call unpackmsg(dat4,decoded) !Unpack the user message
+            if(iand(dat4(10),8).ne.0) ltext=.true.
          endif
       endif
  20   if(ndec.eq.0) then
