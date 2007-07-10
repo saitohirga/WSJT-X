@@ -289,7 +289,7 @@ def update():
         nfreeze0=int(Audio.gcom2.nfreeze)
 
     if g.mode!=mode0:
-        draw_axis()
+        df_mark()                        ### was draw_axis()
         mode0=g.mode
 
     if nmark.get()!=nmark0:

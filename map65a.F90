@@ -254,12 +254,14 @@ subroutine map65a(newdat)
         iloop=iloop+1
         go to 1
      endif
-     write(11,*) '$EOF'
-     call flushqqq(11)
-     ndecdone=1
-     t2=sec_midn()
-     if(ndebug.eq.2) write(*,3002) mod(int(t2),60)
-3002 format('mod65a  2:'i8.2)
+     if(nqd.eq.1) then
+        write(11,*) '$EOF'
+        call flushqqq(11)
+        ndecdone=1
+        t2=sec_midn()
+        if(ndebug.eq.2) write(*,3002) mod(int(t2),60)
+3002    format('mod65a  2:'i8.2)
+     endif
      if(nagain.eq.1) go to 999
   enddo
 
