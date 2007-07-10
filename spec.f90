@@ -56,14 +56,14 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
   gamma=1.3 + 0.01*contrast
   offset=(brightness+64.0)/2
   fac=20.0/nadd
-
+  foffset=0.001*(1270+nfcal)
   nbpp=(nfb-nfa)*NFFT/(96.0*NX)  !Bins per pixel in wideband (upper) waterfall
-  fselect=mousefqso + 1.6
+  fselect=mousefqso + foffset
   imid=nint(1000.0*(fselect-125.0+48.0)/df)
-  fmid=0.5*(nfa+nfb)
-  imid0=nint(1000.0*(fmid-125.0+48.0)/df)
-  i0=imid-374
-  ii0=imid-374*nbpp
+  fmid=0.5*(nfa+nfb) + foffset
+  imid0=nint(1000.0*(fmid-125.0+48.0)/df) - nbpp/2  !Last term is empirical
+  i0=imid-375
+  ii0=imid0-375*nbpp
   if(nfullspec.eq.1) then
      nbpp=NFFT/NX
      ii0=0

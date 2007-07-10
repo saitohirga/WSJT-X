@@ -35,6 +35,7 @@ b0=0
 c0=0
 g0=0
 g.cmap="Linrad"
+bw=96.0
 df=2.69165
 fmid=1500
 fmid0=1500
@@ -110,16 +111,14 @@ def pal_AFMHot():
 #---------------------------------------------------- fdf_change
 # Readout of graphical cursor location
 def fdf_change(event):
-
-    bw=float(Audio.gcom2.nfb - Audio.gcom2.nfa)
-    fmid=130.0
-    if Audio.gcom2.nfullspec:
-        bw=96.0                                 #Total bw 96 kHz
-        fmid=125.0 - 2.2                        #Empirical    
+    global bw
+    fmid=0.5*float(Audio.gcom2.nfb + Audio.gcom2.nfa)
+    if Audio.gcom2.nfullspec:  fmid=125.0 - 2.2         #Empirical
     df=bw/NX                                   #kHz per pixel
     g.Freq=df*(event.x-375) + fmid
     n=int(g.Freq+0.5)
     t="%d" % (n,)
+    t="%d   " % event.x + t                    ### for tests only
     if g.fc[n] != "":
         t=t + ":  " + g.fc[n]
     fdf.configure(text=t)
@@ -149,14 +148,19 @@ def ftnstr(x):
 
 #---------------------------------------------------- df_mark
 def df_mark():
+    global bw
     draw_axis()
 # Mark QSO freq in top graph
     color='green'
-    df=96.0/750.0
-    x1=393.0 + (Audio.gcom2.mousefqso-125)/df
+    fmid=0.5*float(Audio.gcom2.nfb + Audio.gcom2.nfa)
+    if Audio.gcom2.nfullspec: fmid=125.0 - 2.3      #Empirical    
+    df=bw/NX                                #kHz per pixel
+#    print 'A ',Audio.gcom2.nfullspec,bw,df,fmid
+#  These 375's were 393:
+    x1=375.0 + (Audio.gcom2.mousefqso-fmid)/df    
     c.create_line(x1,25,x1,12,fill=color,width=2)
-    x1=393.0 + (Audio.gcom2.nfa-125)/df
-    x2=393.0 + (Audio.gcom2.nfb-125)/df
+    x1=375.0 + (Audio.gcom2.nfa-fmid)/df
+    x2=375.0 + (Audio.gcom2.nfb-fmid)/df
     c.create_line(x1,25,x2,25,fill=color,width=2)
 
     df=96000.0/32768.0
@@ -173,6 +177,52 @@ def df_mark():
         if i>0: j=15
         if i!=1: c2.create_line(x1,25,x1,j,fill=color,width=2)
         color='red'
+
+#-------------------------------------------------------- draw_axis
+def draw_axis():
+    c.delete(ALL)
+    xdf=bw/NX                                   #kHz per pixel
+    xmid=0.5*float(Audio.gcom2.nfb + Audio.gcom2.nfa)
+    if Audio.gcom2.nfullspec:
+        xmid=125.0 - 2.3                        #Empirical    
+    x1=int(xmid-0.6*bw)                         #Make it too wide, to be
+    x2=int(xmid+0.6*bw)                         #sure to get all the numbers
+#    print 'B ',Audio.gcom2.nfullspec,bw,xdf,xmid
+    ilab=10
+    if bw <= 60.0: ilab=5
+    if bw <= 30.0: ilab=2
+    for ix in range(x1,x2,1):
+        i=0.5*NX + (ix-xmid)/xdf
+        j=20
+        if (ix%5)==0: j=16
+        if (ix%ilab)==0 :
+            j=16
+            x=i-1
+            if ix<100: x=x+1
+            y=8
+            c.create_text(x,y,text=str(ix))
+        c.create_line(i,25,i,j,fill='black')     #Draw the upper scale
+            
+    c2.delete(ALL)
+    xmid2=0
+    bw2=750.0*96000.0/32768.0                     #approx 2197.27 Hz
+    x1=int(xmid-0.5*bw2)/100 - 1
+    x1=100*x1
+    x2=int(xmid+0.5*bw2)
+    xdf2=bw2/NX
+    for ix in range(x1,x2,20):
+        i=0.5*NX + (ix-xmid2)/xdf2
+        j=20
+#        if (ix%5)==0: j=16
+        if (ix%100)==0 :
+            j=16
+            x=i-1
+            if ix<1000: x=x+2
+            if ix<0: x=x-2
+            y=8
+            c2.create_text(x,y,text=str(ix))
+        c2.create_line(i,25,i,j,fill='black')
+
 
 #---------------------------------------------------- freq_range
 def freq_range(event):
@@ -203,7 +253,7 @@ def freeze_decode2(event):
 #---------------------------------------------------- update
 def update():
     global a,a2,b0,c0,g0,im,im2,isec0,line0,line02,newMinute,\
-           nscroll,pim,pim2,nfa0,nfb0, \
+           nscroll,pim,pim2,nfa0,nfb0,bw, \
            root_geom,t0,mousedf0,mousefqso0,nfreeze0,tol0,mode0,nmark0, \
            fmid,fmid0,frange,frange0,dftolerance0
     
@@ -218,6 +268,12 @@ def update():
         g.rms=Audio.gcom1.rms
         if isec==0: nscroll=0
         if isec==59: newMinute=1
+
+    nbpp=int((Audio.gcom2.nfb - Audio.gcom2.nfa)*32768/(96.0*NX))
+    bw=750.0*(96.0/32768.0)*nbpp
+    if Audio.gcom2.nfullspec:
+        nbpp=int(32768.0/NX)
+        bw=750.0*(96.0/32768.0)*nbpp
 
     if g.showspecjt==1:
         showspecjt()
@@ -320,50 +376,6 @@ def update():
     Audio.gcom2.nfrange=int(frange)
 
     ltime.after(200,update)                      #Reset the timer
-
-#-------------------------------------------------------- draw_axis
-def draw_axis():
-    c.delete(ALL)
-    bw=float(Audio.gcom2.nfb - Audio.gcom2.nfa)
-    xmid=130.0
-    if Audio.gcom2.nfullspec:
-        bw=96.0                                 #Total bw 96 kHz
-        xmid=125.0 - 2.3                        #Empirical    
-    xdf=bw/NX                                   #kHz per pixel
-    x1=int(xmid-0.6*bw)                         #Make it too wide, to be
-    x2=int(xmid+0.6*bw)                         #sure to get all the numbers
-#    print Audio.gcom2.nfullspec,bw,xdf,x1,x2
-    for ix in range(x1,x2,1):
-        i=0.5*NX + (ix-xmid)/xdf
-        j=20
-        if (ix%5)==0: j=16
-        if (ix%10)==0 :
-            j=16
-            x=i-1
-            if ix<100: x=x+1
-            y=8
-            c.create_text(x,y,text=str(ix))
-        c.create_line(i,25,i,j,fill='black')     #Draw the upper scale
-            
-    c2.delete(ALL)
-    xmid2=0
-    bw2=750.0*96000.0/32768.0                     #approx 2197.27 Hz
-    x1=int(xmid-0.5*bw2)/100 - 1
-    x1=100*x1
-    x2=int(xmid+0.5*bw2)
-    xdf2=bw2/NX
-    for ix in range(x1,x2,20):
-        i=0.5*NX + (ix-xmid2)/xdf2
-        j=20
-#        if (ix%5)==0: j=16
-        if (ix%100)==0 :
-            j=16
-            x=i-1
-            if ix<1000: x=x+2
-            if ix<0: x=x-2
-            y=8
-            c2.create_text(x,y,text=str(ix))
-        c2.create_line(i,25,i,j,fill='black')
 
 #-------------------------------------------------------- Create GUI widgets
 
