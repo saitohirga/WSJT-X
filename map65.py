@@ -188,7 +188,7 @@ def messages(event=NONE):
     bm.geometry(bm_geom)
     if g.Win32: bm.iconbitmap("wsjt.ico")
     iframe_bm1 = Frame(bm, bd=1, relief=SUNKEN)
-    Label(iframe_bm1,text='Freq      DF     Pol     dB    UTC').pack(anchor=W, \
+    Label(iframe_bm1,text='Freq      DF     Pol     UTC     dB').pack(anchor=W, \
         pady=0,side='top')
     msgtext=Text(iframe_bm1, height=35, width=45, bg="Navy", fg="yellow")
     msgtext.bind('<Double-Button-1>',dbl_click_msgtext)
