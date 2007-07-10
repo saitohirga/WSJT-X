@@ -333,6 +333,9 @@ subroutine map65a(newdat)
      endif
      j=j+nsiz(n)
   enddo
+  write(26,1015) nutc
+1015 format(39x,i4.4)
+  call flushqqq(26)
   call display(nkeep)
   ndecdone=2
 

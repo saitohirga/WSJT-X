@@ -150,6 +150,9 @@ def df_mark():
     df=96.0/750.0
     x1=393.0 + (Audio.gcom2.mousefqso-125)/df
     c.create_line(x1,25,x1,12,fill=color,width=2)
+    x1=393.0 + (Audio.gcom2.nfa-125)/df
+    x2=393.0 + (Audio.gcom2.nfb-125)/df
+    c.create_line(x1,25,x2,25,fill=color,width=2)
 
     df=96000.0/32768.0
 # Mark sync tone and top JT65 tone (green) and shorthand tones (red)
@@ -195,7 +198,7 @@ def freeze_decode2(event):
 #---------------------------------------------------- update
 def update():
     global a,a2,b0,c0,g0,im,im2,isec0,line0,line02,newMinute,\
-           nscroll,pim,pim2, \
+           nscroll,pim,pim2,nfa0,nfb0, \
            root_geom,t0,mousedf0,mousefqso0,nfreeze0,tol0,mode0,nmark0, \
            fmid,fmid0,frange,frange0,dftolerance0
     
@@ -274,14 +277,16 @@ def update():
 
     if (Audio.gcom2.mousedf != mousedf0 or
             Audio.gcom2.mousefqso != mousefqso0 or
-            Audio.gcom2.dftolerance != dftolerance0):
+            Audio.gcom2.dftolerance != dftolerance0 or
+            Audio.gcom2.nfa != nfa0 or Audio.gcom2.nfb != nfb0): 
         df_mark()
-        
 # The following int() calls are to ensure that the values copied to
 # mousedf0 and mousefqso0 are static.
         mousedf0=int(Audio.gcom2.mousedf)
         mousefqso0=int(Audio.gcom2.mousefqso)
         dftolerance0=int(Audio.gcom2.dftolerance)
+        nfa0=int(Audio.gcom2.nfa)
+        nfb0=int(Audio.gcom2.nfb)
 
     if Audio.gcom2.nfreeze != nfreeze0:
         if not Audio.gcom2.nfreeze: draw_axis()
