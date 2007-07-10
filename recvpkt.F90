@@ -76,6 +76,7 @@ subroutine recvpkt(iarg)
   enddo
   sqave=sqave + u*(sq-sqave)
   rxnoise=10.0*log10(sqave) - 48.0
+  kxp=k
 
   if(mode.eq.'Measur') then
      npkt=npkt+1

@@ -17,7 +17,7 @@ from types import *
 import array
 
 root = Tk()
-Version="0.7 r" + "$Rev$"[6:-1]
+Version="0.8 r" + "$Rev$"[6:-1]
 print "******************************************************************"
 print "MAP65 Version " + Version + ", by K1JT"
 print "Revision date: " + \
@@ -61,6 +61,7 @@ hisgrid=""
 isec0=-99
 k2txb=IntVar()
 kb8rq=IntVar()
+kxp0=0
 loopall=0
 mode=StringVar()
 mode.set("")
@@ -187,6 +188,8 @@ def messages(event=NONE):
     bm.geometry(bm_geom)
     if g.Win32: bm.iconbitmap("wsjt.ico")
     iframe_bm1 = Frame(bm, bd=1, relief=SUNKEN)
+    Label(iframe_bm1,text='Freq      DF     Pol     UTC').pack(anchor=W, \
+        pady=0,side='top')
     msgtext=Text(iframe_bm1, height=35, width=41, bg="Navy", fg="yellow")
     msgtext.bind('<Double-Button-1>',dbl_click_msgtext)
     msgtext.pack(side=LEFT, fill=X, padx=1, pady=3)
@@ -922,7 +925,7 @@ def GenAltMsgs(event=NONE):
 
 #------------------------------------------------------ update
 def update():
-    global root_geom,isec0,naz,nel,ndmiles,ndkm,nopen, \
+    global root_geom,isec0,naz,nel,ndmiles,ndkm,nopen,kxp0, \
            im,pim,cmap0,isync,isync_save,idsec,first,itol,txsnrdb,tx6alt,\
            bm_geom,bm2_geom
     
@@ -949,6 +952,12 @@ def update():
             options.MyGrid.get().upper(),HisGrid.get().upper(),utchours)
         azdist()
         g.nfreq=nfreq.get()
+        kxp=int(Audio.datcom.kxp)
+        if kxp-kxp0 < 50000:
+            msg5.configure(text='No data',bg='red')
+        else:
+            msg5.configure(bg='gray85')            
+        kxp0=kxp
 
         if Audio.gcom2.ndecoding==0:
             g.AzSun,g.ElSun,g.AzMoon,g.ElMoon,g.AzMoonB,g.ElMoonB,g.ntsky, \
@@ -1105,8 +1114,6 @@ def update():
                 lines=""
             msgtext.configure(state=NORMAL)
             msgtext.delete('1.0',END)
-            msgtext.insert(END,'Freq  DF Pol  UTC\n')
-            msgtext.insert(END,'----------------------------------------\n')
             for i in range(len(lines)):
                 try:
                     nage=int(lines[i][41:])
