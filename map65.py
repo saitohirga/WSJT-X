@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------- MAP65
+#--------------------------------------------------------------------- MAP65
 # $Date$ $Revision$
 #
 from Tkinter import *
@@ -188,9 +188,9 @@ def messages(event=NONE):
     bm.geometry(bm_geom)
     if g.Win32: bm.iconbitmap("wsjt.ico")
     iframe_bm1 = Frame(bm, bd=1, relief=SUNKEN)
-    Label(iframe_bm1,text='Freq      DF     Pol     UTC').pack(anchor=W, \
+    Label(iframe_bm1,text='Freq      DF     Pol     dB    UTC').pack(anchor=W, \
         pady=0,side='top')
-    msgtext=Text(iframe_bm1, height=35, width=41, bg="Navy", fg="yellow")
+    msgtext=Text(iframe_bm1, height=35, width=45, bg="Navy", fg="yellow")
     msgtext.bind('<Double-Button-1>',dbl_click_msgtext)
     msgtext.pack(side=LEFT, fill=X, padx=1, pady=3)
     bmsb = Scrollbar(iframe_bm1, orient=VERTICAL, command=msgtext.yview)
@@ -931,6 +931,8 @@ def update():
     
     utc=time.gmtime(time.time()+0.1*idsec)
     isec=utc[5]
+    txminute=0
+    if Audio.gcom2.lauto and utc[4]%2 == Audio.gcom1.txfirst: txminute=1
 
     if isec != isec0:                           #Do once per second
         isec0=isec
@@ -953,8 +955,9 @@ def update():
         azdist()
         g.nfreq=nfreq.get()
         kxp=int(Audio.datcom.kxp)
-        if kxp-kxp0 < 50000:
-            msg5.configure(text='No data',bg='red')
+        if kxp-kxp0 < 50000 and \
+           ((not Audio.gcom2.lauto) or (not Audio.gcom1.transmitting)):
+            msg5.configure(text='No Rx data',bg='red')
         else:
             msg5.configure(bg='gray85')            
         kxp0=kxp
@@ -1018,8 +1021,6 @@ def update():
     t="QSO DF:%4d" % (int(Audio.gcom2.mousedf),)
     msg3.configure(text=t)
 
-    txminute=0
-    if Audio.gcom2.lauto and utc[4]%2 == Audio.gcom1.txfirst: txminute=1
     if mode.get()[:4]=='JT65' and (Audio.gcom2.ndecoding>0 or \
          (isec>45 and  txminute==0 and Audio.gcom2.monitoring==1 and \
           Audio.datcom.kkdone!=-99 and Audio.gcom2.ndiskdat!=1)):
@@ -1116,10 +1117,10 @@ def update():
             msgtext.delete('1.0',END)
             for i in range(len(lines)):
                 try:
-                    nage=int(lines[i][41:])
+                    nage=int(lines[i][45:])
                 except:
                     nage=0
-                lines[i]=lines[i][:41]+'\n'
+                lines[i]=lines[i][:45]+'\n'
                 if nage==0: attr='age0'
                 if nage==1: attr='age1'
                 if nage==2: attr='age2'

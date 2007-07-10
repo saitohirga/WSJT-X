@@ -91,22 +91,22 @@ aux_ra=Pmw.EntryField(g3.interior(),labelpos=W,label_text='Source RA:',
     entry_width=9,entry_textvariable=auxra)
 aux_dec=Pmw.EntryField(g3.interior(),labelpos=W,label_text='Source DEC:',
     entry_width=9,entry_textvariable=auxdec)
-nkeep_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='nkeep (min):',
+nkeep_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='Timeout (min):',
     entry_width=9,value=20,entry_textvariable=nkeep)
 dphi_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='Dphi (deg):',
     entry_width=9,entry_textvariable=dphi)
-fa_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='fa (kHz):',
+fa_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='Fmin (kHz):',
     entry_width=9,value=100,entry_textvariable=fa)
-fb_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='fb (kHz):',
+fb_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='Fmax (kHz):',
     entry_width=9,value=160,entry_textvariable=fb)
-fcal_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='fcal (Hz):',
+fcal_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='Fcal (Hz):',
     entry_width=9,entry_textvariable=fcal)
 savedir_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='SaveDir:',
-    entry_width=20,value=g.appdir+'/save',entry_textvariable=savedir)
+    entry_width=23,value=g.appdir+'\save',entry_textvariable=savedir)
 widgets = (temp_prefix,aux_ra,aux_dec,nkeep_entry,dphi_entry, \
            fa_entry,fb_entry,fcal_entry,savedir_entry,)
 for widget in widgets:
-    widget.pack(padx=10,pady=2)
+    widget.pack(padx=2,pady=2)
 Pmw.alignlabels(widgets)
 
 g1.pack(side=LEFT,fill=BOTH,expand=1,padx=6,pady=6)

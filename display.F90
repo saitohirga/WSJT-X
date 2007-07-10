@@ -7,7 +7,7 @@ subroutine display(nkeep)
   parameter (MAXLINES=500,MX=500)
   integer indx(MAXLINES),indx2(MX)
   character*81 line(MAXLINES),line2(MX),line3(MAXLINES)
-  character out*46,cfreq0*3
+  character out*50,cfreq0*3
   character*6 callsign,callsign0
   character*12 freqcall(100)
   character*40 bm2
@@ -118,7 +118,7 @@ subroutine display(nkeep)
   nc=0
   callsign0='          '
   do k=1,k3
-     out=line3(k)(5:12)//line3(k)(28:31)//line3(k)(39:67)//line3(k)(77:81)
+     out=line3(k)(5:12)//line3(k)(28:31)//line3(k)(35:67)//line3(k)(77:81)
      if(out(1:3).ne.'   ') then
         if(out(1:3).eq.cfreq0) then
            out(1:3)='   '
@@ -126,9 +126,9 @@ subroutine display(nkeep)
            cfreq0=out(1:3)
         endif
         write(19,1030) out
-1030    format(a46)
-        i1=index(out(20:),' ')
-        callsign=out(i1+20:)
+1030    format(a50)
+        i1=index(out(24:),' ')
+        callsign=out(i1+24:)
         i2=index(callsign,' ')
         if(i2.gt.1) callsign(i2:)='      '
         if(callsign.ne.'      ' .and. callsign.ne.callsign0) then
