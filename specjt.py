@@ -298,8 +298,8 @@ def update():
             line02.putdata(a2[NX*i:NX*(i+1)])#One row of pixels to line0
             im2.paste(line02,(0,i))         #Paste in new top line(s)
         nscroll=nscroll+n
-        b0=brightness                       #Save scale values
-        c0=contrast
+    b0=brightness                           #Save scale values
+    c0=contrast
 
     if newspec:
         if Audio.gcom2.monitoring:
