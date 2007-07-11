@@ -43,16 +43,21 @@ subroutine map65a(newdat)
   if(nutc.ne.nutc0) nfile=nfile+1
   nutc0=nutc
   nutcdata=nutc
-
   df=96000.0/NFFT                    !df = 96000/NFFT = 2.930 Hz
   ftol=0.020                          !Frequency tolerance (kHz)
   foffset=0.001*(1270 + nfcal)
   fselect=mousefqso + foffset
   nfilt=1
   dphi=idphi/57.2957795
-  
+
+  do i=12,3,-1
+     if(hiscall(i:i).ne.' ') go to 1
+  enddo
+  i=0
+1 len_hiscall=i
+
   iloop=0
-1 if(ndphi.eq.1) dphi=30*iloop/57.2957795
+2 if(ndphi.eq.1) dphi=30*iloop/57.2957795
   do nqd=1,0,-1
      if(nqd.eq.1) then
         fa=1000.0*(fselect+0.001*mousedf-100.0) - dftolerance
@@ -170,9 +175,17 @@ subroutine map65a(newdat)
                    nkm.eq.1) km=km-1
               if(freq-freq0.gt.ftol .or. sync1.gt.sync10) then
                  nflip=nint(flipk)
-                 call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,          &
-                      mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,      &
+                 call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,        &
+                      mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,    &
                       ipol,sync2,a,dt,pol,nkv,nhist,qual,decoded)
+
+!  If hiscall or hisgrid is in decoded message, save the pol'n angle.
+                 i1=index(decoded,hiscall(1:len_hiscall))
+                 i2=index(decoded,hisgrid(1:4))
+                 if(i1.ge.5 .or. i2.ge.9) then
+                    nhispol=nint(57.2957795*pol)
+                 endif
+
                  km=km+1
                  sig(km,1)=nfile
                  sig(km,2)=nutc
@@ -252,7 +265,7 @@ subroutine map65a(newdat)
      endif
      if(ndphi.eq.1 .and.iloop.lt.12) then
         iloop=iloop+1
-        go to 1
+        go to 2
      endif
      if(nqd.eq.1) then
         write(11,*) '$EOF'

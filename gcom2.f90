@@ -7,6 +7,7 @@ real ccf               !CCF in time (blue curve)                Decoder
 real green             !Data for green line                     GUI
 real fselect           !Specified QSO frequency                 GUI
 real pctlost           !Percent of lost packets                 Decoder
+real fcenter           !Linrad center freq, from pkt header   recvpkt
 real rxnoise           !Rx noise in dB                        recvpkt
 real dphi              !Phase shift between pol'n channels   GUI,Decoder
 integer ngreen         !Length of green                         GUI
@@ -47,6 +48,7 @@ integer nbpp           !# FFT Bins/pixel, wideband waterfall   Spec
 integer nfullspec      !Set to 1 to display full spectrum       GUI
 integer ndebug         !Write debugging info?                   GUI
 integer ndphi          !Set to 1 to compute dphi             GUI,Decoder
+integer nhispol        !Pol angle matching HisCall or HisGrid Decoder
 integer nblank         !Is NB checked?                          GUI
 integer nfmid          !Center frequency of main display        GUI
 integer nfrange        !Frequency range of main display         GUI
@@ -99,12 +101,12 @@ character*12 pttport
 character*8 utcdata     !HHMM UTC for the processed data       Decoder
 
 common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),                   &
-     green(500),fselect,pctlost,rxnoise,dphi,ngreen,dgain,iter,             &
+     green(500),fselect,pctlost,fcenter,rxnoise,dphi,ngreen,dgain,iter,     &
      ndecoding,ndecoding0,mousebutton,                                      &
      ndecdone,npingtime,ierr,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5,     &
      dftolerance,LDecoded,rxdone,monitoring,nzap,minsigdb,                  &
      nclearave,nfreeze,nafc,ncsmin,newspec,nfa,nfb,nfcal,idphi,nkeep,       &
-     nmode,mode65,nbpp,nfullspec,ndebug,ndphi,                              &
+     nmode,mode65,nbpp,nfullspec,ndebug,ndphi,nhispol,                      &
      nblank,nport,mousedf,mousefqso,neme,nrw26,naggressive,ntx2,nagain,     &
      shok,sendingsh,d2a(661500),d2b(661500),b(60000),jza,jzb,ntime,         &
      idinterval,msmax,lenappdir,idf,ndiskdat,nlines,nflat,ntxreq,ntxnow,    &
