@@ -781,22 +781,26 @@ def clear_avg(event=NONE):
 
 #------------------------------------------------------ delwav
 def delwav():
-    t="Are you sure you want to delete\nall *.WAV files in the RxWav directory?"
+    t="Are you sure you want to delete\nall *.tf2 files in " + \
+       options.savedir.get() + " ?"
     msg=Pmw.MessageDialog(root,buttons=('Yes','No'),message_text=t)
     msg.geometry(msgpos())
     if g.Win32: msg.iconbitmap("wsjt.ico")
     msg.focus_set()
     result=msg.activate()
     if result == 'Yes':
-# Make a list of *.wav files in RxWav
-        la=dircache.listdir(appdir+'/RxWav')
+# Make a list of *.tf2 in SaveDir
+        la=dircache.listdir(options.savedir.get())
         lb=[]
         for i in range(len(la)):
-            j=la[i].find(".wav") + la[i].find(".WAV")
+            j=la[i].find(".tf2") + la[i].find(".TF2")
             if j>0: lb.append(la[i])
 # Now delete them all.
+        savedir=options.savedir.get()
+        if savedir[-1:] != '/' and savedir[-1:] != '\\':
+            savedir=savedir + '/'
         for i in range(len(lb)):
-            fname=appdir+'/RxWav/'+lb[i]
+            fname=savedir+lb[i]
             os.remove(fname)
 
 #------------------------------------------------------ del_all
@@ -1266,7 +1270,7 @@ filemenu.add('command', label = 'Open next in directory', command = opennext, \
 filemenu.add('command', label = 'Decode remaining files in directory', \
              command = decodeall, accelerator='Shift+F6')
 filemenu.add_separator()
-filemenu.add('command', label = 'Delete all *.WAV files in RxWav', \
+filemenu.add('command', label = 'Delete all *.tf2 files in SaveDir', \
              command = delwav)
 filemenu.add('command', label = 'Erase Band Map and Messages', command = clr_all)
 filemenu.add('command', label = 'Erase ALL65.TXT', command = del_all)
