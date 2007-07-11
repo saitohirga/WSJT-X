@@ -137,7 +137,6 @@ def set_freezedf(event):
     n=int(g.DFreq + 0.5)
     Audio.gcom2.mousedf=n
     df_mark()
-    print 'B',n
 
 #------------------------------------------------------ ftnstr
 def ftnstr(x):
@@ -186,7 +185,6 @@ def draw_axis():
         xmid=125.0 - 2.3                        #Empirical    
     x1=int(xmid-0.6*bw)                         #Make it too wide, to be
     x2=int(xmid+0.6*bw)                         #sure to get all the numbers
-#    print 'B ',Audio.gcom2.nfullspec,bw,xdf,xmid
     ilab=10
     if bw <= 60.0: ilab=5
     if bw <= 30.0: ilab=2

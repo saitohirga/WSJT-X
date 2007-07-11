@@ -1164,8 +1164,6 @@ def update():
                         except:
                             pass
             bmtext.see(END)
-#            for i in range(100,160):
-#                if g.fc[i]!="": print i,g.fc[i]
 
             Audio.gcom2.ndecdone=0
             if loopall: opennext()
