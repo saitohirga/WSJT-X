@@ -1209,6 +1209,7 @@ def update():
     Audio.gcom2.dftolerance=ntol[itol]
     Audio.gcom2.neme=neme.get()
     Audio.gcom2.ndepth=ndepth.get()
+    Audio.gcom2.ncsmin=options.ncsmin.get()
     try:
         Audio.gcom2.idinterval=options.IDinterval.get()
     except:
@@ -1719,6 +1720,7 @@ try:
         elif key == 'fa': options.fa.set(value)
         elif key == 'fb': options.fb.set(value)
         elif key == 'fcal': options.fcal.set(value)
+        elif key == 'CSmin': options.ncsmin.set(value)
         elif key == 'dphi': options.dphi.set(value)
         elif key == 'savedir': options.savedir.set(value)
         
@@ -1762,7 +1764,6 @@ Audio.ftn_init()
 GenStdMsgs()
 Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'        ')[:8]
 Audio.gcom2.mousefqso=125
-Audio.gcom2.ncsmin=4
 Audio.gcom2.nfullspec=0
 monitor()
 first=1
@@ -1811,6 +1812,7 @@ f.write("dphi " + str(options.dphi.get()) + "\n")
 f.write("fa " + str(options.fa.get()) + "\n")
 f.write("fb " + str(options.fb.get()) + "\n")
 f.write("fcal " + str(options.fcal.get()) + "\n")
+f.write("CSmin " + str(options.ncsmin.get()) + "\n")
 f.write("SaveDir " + str(options.savedir.get()) + "\n")
 f.write("TxFirst " + str(TxFirst.get()) + "\n")
 f.write("KB8RQ " + str(kb8rq.get()) + "\n")
