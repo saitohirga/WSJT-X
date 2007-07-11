@@ -118,7 +118,6 @@ def fdf_change(event):
     g.Freq=df*(event.x-375) + fmid
     n=int(g.Freq+0.5)
     t="%d" % (n,)
-    t="%d   " % event.x + t                    ### for tests only
     if g.fc[n] != "":
         t=t + ":  " + g.fc[n]
     fdf.configure(text=t)
