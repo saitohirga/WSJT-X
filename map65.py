@@ -58,6 +58,7 @@ fileopened=""
 font1='Helvetica'
 hiscall=""
 hisgrid=""
+hisgrid0=""
 isec0=-99
 k2txb=IntVar()
 kb8rq=IntVar()
@@ -931,7 +932,7 @@ def GenAltMsgs(event=NONE):
 def update():
     global root_geom,isec0,naz,nel,ndmiles,ndkm,nopen,kxp0, \
            im,pim,cmap0,isync,isync_save,idsec,first,itol,txsnrdb,tx6alt,\
-           bm_geom,bm2_geom
+           bm_geom,bm2_geom,hisgrid0
     
     utc=time.gmtime(time.time()+0.1*idsec)
     isec=utc[5]
@@ -978,6 +979,21 @@ def update():
             if len(HisGrid.get().strip())<4:
                 g.ndop=g.ndop00
                 g.dfdt=g.dfdt0
+            if hisgrid != hisgrid0:
+                msg6.configure(text="        ",bg='gray85')
+                hisgrid0=hisgrid
+                Audio.gcom2.nhispol=-999
+            if Audio.gcom2.nhispol != -999:
+                txpol=(int(Audio.gcom2.nhispol) - 2*g.poloffset + 360) % 180
+                t="Tx pol: %d  " % txpol
+                if txpol < 45 or txpol > 135:
+                    t=t + 'H'
+                    color='pink'
+                else:
+                    t=t + 'V'
+                    color='yellow'
+                msg6.configure(text=t,bg=color)
+
         astrotext.delete(1.0,END)
         astrotext.insert(END,'   Moon\n')
         astrotext.insert(END,"Az: %7.1f\n" % g.AzMoon)
@@ -1074,7 +1090,7 @@ def update():
     else:
         bgcolor='green'
         t='Receiving'
-    msg6.configure(text=t,bg=bgcolor)
+    msg7.configure(text=t,bg=bgcolor)
 
     if Audio.gcom2.ndecdone>0 or g.cmap != cmap0:
         if Audio.gcom2.ndecdone==1:
@@ -1630,8 +1646,10 @@ msg4=Message(iframe6, text="", width=300,relief=SUNKEN)
 msg4.pack(side=LEFT, fill=X, padx=1)
 msg5=Message(iframe6, text="", width=300,relief=SUNKEN)
 msg5.pack(side=LEFT, fill=X, padx=1)
-msg6=Message(iframe6, text='                        ', width=300,relief=SUNKEN)
-msg6.pack(side=RIGHT, fill=X, padx=1)
+msg6=Message(iframe6, text="", width=300,relief=SUNKEN)
+msg6.pack(side=LEFT, fill=X, padx=1)
+msg7=Message(iframe6, text='                        ', width=300,relief=SUNKEN)
+msg7.pack(side=RIGHT, fill=X, padx=1)
 iframe6.pack(expand=1, fill=X, padx=4)
 frame.pack()
 ldate.after(100,update)
@@ -1765,6 +1783,7 @@ GenStdMsgs()
 Audio.gcom4.addpfx=(options.addpfx.get().lstrip()+'        ')[:8]
 Audio.gcom2.mousefqso=125
 Audio.gcom2.nfullspec=0
+Audio.gcom2.nhispol=-999
 monitor()
 first=1
 if g.Win32: root.iconbitmap("wsjt.ico")

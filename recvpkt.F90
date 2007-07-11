@@ -28,9 +28,11 @@ subroutine recvpkt(iarg)
   nreset=-1
   k=0
   nsec0=-999
+  fcenter=144.125               !Default (startup) frequency)
 
 10 call recv_pkt(center_freq)
 
+  if(nsec0.eq.-999) fcenter=center_freq
   isec=sec_midn()
   imin=isec/60
   if((monitoring.eq.0) .or. (lauto.eq.1 .and. mod(imin,2).eq.(1-TxFirst))) then
@@ -110,6 +112,7 @@ subroutine recvpkt(iarg)
 
      if(ns.eq.48) then
         nutc=mutc
+        fcenter=center_freq
         kbuf=kb
         kk=k
         ndiskdat=0
