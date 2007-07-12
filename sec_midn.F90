@@ -21,7 +21,8 @@ subroutine sleep_msec(n)
 #ifdef Win32
   call sleepqq(n)
 #else
-  call usleep(min(1,1000*n))
+!m=min(1,n)
+!  call usleep(m)
 #endif
 
   return
