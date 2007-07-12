@@ -110,7 +110,7 @@ subroutine recvpkt(iarg)
      nsec0=nsec
      ntx=ntx+transmitting
 
-     if(ns.eq.48) then
+     if(ns.eq.nt1) then
         nutc=mutc
         fcenter=center_freq
         kbuf=kb
@@ -119,7 +119,7 @@ subroutine recvpkt(iarg)
         if(ndebug.eq.2) write(*,3001) nutc,mod(int(sec_midn()),60),ns
 3001    format('recvpkt 1:',i5.4,2i3.2)
      endif
-     if(ns.eq.52) then
+     if(ns.eq.nt2) then
         kk=k
         if(ndebug.eq.2) write(*,3002) nutc,mod(int(sec_midn()),60),ns
 3002    format('recvpkt 2:',i5.4,2i3.2)

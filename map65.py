@@ -1224,7 +1224,6 @@ def update():
     Audio.gcom2.dftolerance=ntol[itol]
     Audio.gcom2.neme=neme.get()
     Audio.gcom2.ndepth=ndepth.get()
-    Audio.gcom2.ncsmin=options.ncsmin.get()
     try:
         Audio.gcom2.idinterval=options.IDinterval.get()
     except:
@@ -1250,6 +1249,19 @@ def update():
         Audio.gcom2.nfcal=options.fcal.get()
     except:
         Audio.gcom2.nfcal=0
+    try:
+        Audio.gcom2.ncsmin=options.ncsmin.get()
+    except:
+        Audio.gcom2.ncsmin=20
+    try:
+        Audio.gcom2.nt1=options.nt1.get()
+    except:
+        Audio.gcom2.nt1=48
+    try:
+        Audio.gcom2.nt2=options.nt2.get()
+    except:
+        Audio.gcom2.nt2=52
+
     t=options.savedir.get() + \
         '                                        ' + \
         '                                        '
@@ -1738,6 +1750,8 @@ try:
         elif key == 'fb': options.fb.set(value)
         elif key == 'fcal': options.fcal.set(value)
         elif key == 'CSmin': options.ncsmin.set(value)
+        elif key == 'Nt1': options.nt1.set(value)
+        elif key == 'Nt2': options.nt2.set(value)
         elif key == 'dphi': options.dphi.set(value)
         elif key == 'SaveDir': options.savedir.set(value)
         
@@ -1831,6 +1845,8 @@ f.write("fa " + str(options.fa.get()) + "\n")
 f.write("fb " + str(options.fb.get()) + "\n")
 f.write("fcal " + str(options.fcal.get()) + "\n")
 f.write("CSmin " + str(options.ncsmin.get()) + "\n")
+f.write("Nt1 " + str(options.nt1.get()) + "\n")
+f.write("Nt2 " + str(options.nt2.get()) + "\n")
 f.write("SaveDir " + str(options.savedir.get()) + "\n")
 f.write("TxFirst " + str(TxFirst.get()) + "\n")
 f.write("KB8RQ " + str(kb8rq.get()) + "\n")
