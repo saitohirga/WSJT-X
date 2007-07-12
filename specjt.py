@@ -1,4 +1,4 @@
------------------------------------------------------ SpecJT
+#----------------------------------------------------- SpecJT
 from Tkinter import *
 from tkMessageBox import showwarning
 import time
