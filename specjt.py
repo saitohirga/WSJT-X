@@ -1,4 +1,4 @@
-#----------------------------------------------------- SpecJT
+----------------------------------------------------- SpecJT
 from Tkinter import *
 from tkMessageBox import showwarning
 import time
@@ -404,12 +404,8 @@ lab1=Label(mbar,width=20,padx=20,bd=0)
 lab1.pack(side=LEFT)
 fdf=Label(mbar,width=30,bd=0,anchor=W)
 fdf.pack(side=LEFT)
-fdf2=Label(mbar,width=15,bd=0)
-fdf2.pack(side=LEFT)
-
 lab3=Label(mbar,padx=13,bd=0)
 lab3.pack(side=LEFT)
-
 lab0=Label(mbar,padx=10,bd=0)
 lab0.pack(side=LEFT)
 
