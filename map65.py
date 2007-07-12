@@ -18,6 +18,7 @@ import array
 
 root = Tk()
 Version="0.8 r" + "$Rev$"[6:-1]
+Version=Version.strip()
 print "******************************************************************"
 print "MAP65 Version " + Version + ", by K1JT"
 print "Revision date: " + \
@@ -616,9 +617,7 @@ F4	Clear "To Radio"
 F5	What message to send?
 F6	Open next file in directory
 Shift+F6	Decode all wave files in directory
-F8	Set JT65A mode
-Shift+F8	Set JT65B mode
-Ctrl+F8	Set JT65C mode
+Shift+F8  JT65B
 F10	Show Waterfall
 Shift+F10   Show astronomical data
 F11	Decrease DF
@@ -1336,12 +1335,12 @@ modebutton['menu'] = modemenu
 # Can use the following to retrieve the state:
 # state=modemenu.entrycget(0,"state")
 
-modemenu.add_radiobutton(label = 'JT65A', variable=mode, command = ModeJT65A, \
-            state=DISABLED, accelerator='F8')
+#modemenu.add_radiobutton(label = 'JT65A', variable=mode, command = ModeJT65A, \
+#            state=DISABLED, accelerator='F8')
 modemenu.add_radiobutton(label = 'JT65B', variable=mode, command = ModeJT65B, \
                          accelerator='Shift+F8')
-modemenu.add_radiobutton(label = 'JT65C', variable=mode, command = ModeJT65C, \
-            state=DISABLED, accelerator='Ctrl+F8')
+#modemenu.add_radiobutton(label = 'JT65C', variable=mode, command = ModeJT65C, \
+#            state=DISABLED, accelerator='Ctrl+F8')
 modemenu.add_radiobutton(label = 'Measure', variable=mode)
 modemenu.add_radiobutton(label = 'Pulsar', variable=mode,state=DISABLED)
 
@@ -1425,9 +1424,9 @@ root.bind_all('<F4>', clrToRadio)
 root.bind_all('<F5>', what2send)
 root.bind_all('<F6>', opennext)
 root.bind_all('<Shift-F6>', decodeall)
-root.bind_all('<F8>', ModeJT65A)
+#root.bind_all('<F8>', ModeJT65A)
 root.bind_all('<Shift-F8>', ModeJT65B)
-root.bind_all('<Control-F8>', ModeJT65C)
+#root.bind_all('<Control-F8>', ModeJT65C)
 root.bind_all('<F10>', showspecjt)
 root.bind_all('<Shift-F10>', astro1)
 root.bind_all('<F11>',left_arrow)
@@ -1740,7 +1739,7 @@ try:
         elif key == 'fcal': options.fcal.set(value)
         elif key == 'CSmin': options.ncsmin.set(value)
         elif key == 'dphi': options.dphi.set(value)
-        elif key == 'savedir': options.savedir.set(value)
+        elif key == 'SaveDir': options.savedir.set(value)
         
         elif key == 'TxFirst': TxFirst.set(value)
         elif key == 'KB8RQ': kb8rq.set(value)
