@@ -40,17 +40,4 @@ program plrr
 
 end program plrr
 
-! To compile: % gfortran -o plrr plrr.f90 plrr_subs.c
-
-
-real function sec_midn()
-  real*8 sec8,hrtime
-  sec_midn=secnds(0.0)
-  return
-end function sec_midn
-
-subroutine sleep_msec(n)
-  use dflib
-  call sleepqq(n)
-  return
-end subroutine sleep_msec
+! To compile: % gfortran -o plrr plrr.f90 sec_midn.F90 plrr_subs.c

@@ -15,6 +15,7 @@ subroutine map65a(newdat)
   character decoded*22,blank*22
   include 'spcom.f90'
   real short(3,NFFT)                 !SNR dt ipol for potential shorthands
+  real qphi(12)
   include 'gcom2.f90'
   include 'datcom.f90'
   data blank/'                      '/
@@ -249,6 +250,7 @@ subroutine map65a(newdat)
                  write(11,1010) nkHz,ndf,npol,nutc,dt,nsync2,decoded,nkv,nqual
 1010             format(i3,i5,i4,i5.4,f5.1,i4,2x,a22,i5,i4,i4)
               else
+		 qphi(iloop)=sig(k,10)
                  write(11,1010) nkHz,ndf,npol,nutc,dt,nsync2,decoded,nkv,  &
                       nqual,30*iloop
                  write(27,1011) 30*iloop,nkHz,ndf,npol,nutc,  &
@@ -267,6 +269,7 @@ subroutine map65a(newdat)
         iloop=iloop+1
         go to 2
      endif
+     if(ndphi.eq.1 .and.iloop.eq.12) call getdphi(qphi)
      if(nqd.eq.1) then
         write(11,*) '$EOF'
         call flushqqq(11)
