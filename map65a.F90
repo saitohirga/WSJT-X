@@ -250,7 +250,7 @@ subroutine map65a(newdat)
                  write(11,1010) nkHz,ndf,npol,nutc,dt,nsync2,decoded,nkv,nqual
 1010             format(i3,i5,i4,i5.4,f5.1,i4,2x,a22,i5,i4,i4)
               else
-		 qphi(iloop)=sig(k,10)
+		 if(iloop.ge.1) qphi(iloop)=sig(k,10)
                  write(11,1010) nkHz,ndf,npol,nutc,dt,nsync2,decoded,nkv,  &
                       nqual,30*iloop
                  write(27,1011) 30*iloop,nkHz,ndf,npol,nutc,  &
