@@ -15,7 +15,7 @@ subroutine decode1(iarg)
   include 'gcom2.f90'
   include 'gcom3.f90'
   include 'gcom4.f90'
-
+  data kbuf0/0/
   data sending0/'                      '/
   save
 
@@ -33,8 +33,12 @@ subroutine decode1(iarg)
      newdat=1
   endif
 
-  if((ndiskdat.eq.1 .or. ndecoding.eq.0) .and. ((kk-kkdone).gt.32768))  &
-       call symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
+  if(kbuf.ne.kbuf0) kkdone=0
+  kbuf0=kbuf
+  kkk=kk
+  if(kbuf.eq.2) kkk=kk-5760000
+  if((ndiskdat.eq.1 .or. ndecoding.eq.0) .and. ((kkk-kkdone).gt.32768))  &
+       call symspec(id,kbuf,kk,kkdone,nutc,newdat)
 
   if(ndecoding.gt.0 .and. mode(1:4).eq.'JT65') then
      ndecdone=0

@@ -1,4 +1,4 @@
-subroutine symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
+subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
 
 !  Compute spectra at four polarizations, using half-symbol steps.
 
@@ -9,8 +9,14 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
   include 'spcom.f90'
   include 'gcom2.f90'
   complex cx(NFFT),cy(NFFT)               !  pad to 32k with zeros
-  data kbuf0/-999/
+  data kbuf0/-999/,n/0/
   save
+
+  kkk=kk
+  if(kbuf.eq.2) kkk=kk-5760000
+  if(ndebug.gt.0) write(*,4001) 'A',nutc,mod(int(sec_midn()),60),   &
+       kbuf,kk,kkk,kkdone
+4001 format(a1,i5.4,2i3,3i9,i5)
 
   if(ndebug.eq.2) write(*,3001) nutc,mod(int(sec_midn()),60)
 3001 format('symspec 1:',i5.4,i3.2)
@@ -34,7 +40,7 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
 
   do nn=1,ntot
      i0=ts+hsym                           !Starting sample pointer
-     if((i0+npts-1).gt.kk) go to 998      !See if we have enough points
+     if((i0+npts-1).gt.kkk) go to 998      !See if we have enough points
      i1=ts+2*hsym                         !Next starting sample pointer
      ts=ts+hsym                         !OK, update the exact sample pointer
      do i=1,npts                        !Copy data to FFT arrays
@@ -110,6 +116,8 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,t00,newdat)
 
 998 kkdone=i1-1
 999 continue
+  if(ndebug.gt.0) write(*,4001) 'B',nutc,mod(int(sec_midn()),60),  &
+       kbuf,kk,kkk,kkdone,n
   if(ndebug.eq.2) write(*,3002) mod(int(sec_midn()),60),n
 3002 format('symspec 2:',i8.2,i5)
   return
