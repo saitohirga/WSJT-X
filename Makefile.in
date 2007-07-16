@@ -36,7 +36,7 @@ RM	?= @RM@
 F2PY	= @F2PY@
 
 ###
-all:    Audio.so plrs plrr
+all:    portaudio-v19/lib/.libs/libportaudio.a Audio.so plrs plrr
 
 OBJS2C   = init_rs.o encode_rs.o decode_rs.o plrr_subs.o loc.o deep65.o
 
@@ -83,9 +83,9 @@ AUDIOSRCS = a2d.f90 jtaudio.c resample.c start_portaudio.c
 
 ###
 
-#portaudio-v19/lib/.libs/libportaudio.a:
-#	(cd portaudio-v19;./configure --with-jack=no)
-#	(cd portaudio-v19;${MAKE})
+portaudio-v19/lib/.libs/libportaudio.a:
+	(cd portaudio-v19;./configure)
+	(cd portaudio-v19;${MAKE})
 
 deep65.o: deep65.F
 	$(FC) -c -O0 -Wall -fPIC deep65.F
