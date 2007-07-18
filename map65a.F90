@@ -117,7 +117,7 @@ subroutine map65a(newdat)
            shmsg='   '
 !  Is there a shorthand tone above threshold?
            if(syncshort.gt.1.0) then
-              
+
 ! ### Do shorthand AFC here (or maybe after finding a pair?) ###
 
               short(1,i)=syncshort
