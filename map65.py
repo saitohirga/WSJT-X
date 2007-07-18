@@ -224,7 +224,8 @@ def bandmap(event=NONE):
 #------------------------------------------------------ logqso
 def logqso(event=NONE):
     t=time.strftime("%Y-%b-%d,%H:%M",time.gmtime())
-    t=t+","+hiscall+","+hisgrid+","+str(g.nfreq)+","+g.mode+"\n"
+#    t=t+","+hiscall+","+hisgrid+","+str(g.nfreq)+","+g.mode+"\n"
+    t=t+","+ToRadio.get()+","+HisGrid.get()+","+str(g.nfreq)+","+g.mode+"\n"
     t2="Please confirm making the following entry in MAP65.LOG:\n\n" + t
     msg=Pmw.MessageDialog(root,buttons=('Yes','No'),message_text=t2)
     msg.geometry(msgpos())

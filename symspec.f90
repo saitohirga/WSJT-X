@@ -14,9 +14,9 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
 
   kkk=kk
   if(kbuf.eq.2) kkk=kk-5760000
-  if(ndebug.gt.0) write(*,4001) 'A',nutc,mod(int(sec_midn()),60),   &
-       kbuf,kk,kkk,kkdone
-4001 format(a1,i5.4,2i3,3i9,i5)
+!  if(ndebug.gt.0) write(*,4001) 'A',nutc,mod(int(sec_midn()),60),   &
+!       kbuf,kk,kkk,kkdone
+!4001 format(a1,i5.4,2i3,3i9,i5)
 
   if(ndebug.eq.2) write(*,3001) nutc,mod(int(sec_midn()),60)
 3001 format('symspec 1:',i5.4,i3.2)
@@ -116,8 +116,8 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
 
 998 kkdone=i1-1
 999 continue
-  if(ndebug.gt.0) write(*,4001) 'B',nutc,mod(int(sec_midn()),60),  &
-       kbuf,kk,kkk,kkdone,n
+!  if(ndebug.gt.0) write(*,4001) 'B',nutc,mod(int(sec_midn()),60),  &
+!       kbuf,kk,kkk,kkdone,n
   if(ndebug.eq.2) write(*,3002) mod(int(sec_midn()),60),n
 3002 format('symspec 2:',i8.2,i5)
   return

@@ -79,6 +79,7 @@ void setup_rsocket_(void)
   /* use setsockopt() to request that the kernel join a multicast group */
   mreq.imr_multiaddr.s_addr=inet_addr(HELLO_GROUP);
   mreq.imr_interface.s_addr=htonl(INADDR_ANY);
+  // NG: mreq.imr_interface.s_addr=htonl("192.168.10.13");
   if (setsockopt(fd,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq)) < 0) {
     perror("setsockopt");
     exit(1);
