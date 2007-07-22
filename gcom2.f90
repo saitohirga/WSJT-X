@@ -16,6 +16,7 @@ integer iter           !(why is this here??)
 integer ndecoding      !Decoder status (see decode2.f90)     GUI,Decoder
 integer ndecoding0     !Status on previous decode            GUI,Decoder
 integer mousebutton    !Which button was clicked?               GUI
+integer nagc           !Set to 1 to activate waterfall AGC      GUI
 integer ndecdone       !Is decoder finished?                 GUI,Decoder
 integer npingtime      !Time in file of mouse-selected ping  GUI,Decoder
 integer ierr           !(why is this here?)
@@ -104,7 +105,7 @@ character*8 utcdata     !HHMM UTC for the processed data       Decoder
 
 common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),                   &
      green(500),fselect,pctlost,fcenter,rxnoise,dphi,ngreen,dgain,iter,     &
-     ndecoding,ndecoding0,mousebutton,                                      &
+     ndecoding,ndecoding0,mousebutton,nagc,                                 &
      ndecdone,npingtime,ierr,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5,     &
      dftolerance,LDecoded,rxdone,monitoring,nzap,minsigdb,                  &
      nclearave,nfreeze,nafc,ncsmin,newspec,nfa,nfb,nfcal,idphi,nkeep,       &
@@ -118,3 +119,4 @@ common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),                   &
      pttport,utcdata
 
 !### volatile /gcom2/
+
