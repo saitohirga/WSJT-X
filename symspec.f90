@@ -20,7 +20,8 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
 
   if(ndebug.eq.2) write(*,3001) nutc,mod(int(sec_midn()),60)
 3001 format('symspec 1:',i5.4,i3.2)
-  fac=0.0002 * 10.0**(0.05*(-rxnoise))
+  fac=0.0002
+  if(nagc.ne.0) fac=0.0002 * 10.0**(0.05*(-rxnoise))
   hsym=2048.d0*96000.d0/11025.d0          !Samples per half symbol
   npts=hsym                               !Integral samples per half symbol
   ntot=322                               !Half symbols per transmission
