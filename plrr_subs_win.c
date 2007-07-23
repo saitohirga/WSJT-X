@@ -58,25 +58,28 @@ void setup_rsocket_(void)
     j=WSAGetLastError();
     printf("Error: %d   %d\n",err,j);
   }
-  /* allow multiple sockets to use the same PORT number */
+
+  /*
+  // allow multiple sockets to use the same PORT number
   if (setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(yes)) < 0) {
     perror("Reusing ADDR failed");
     exit(1);
   }
+  */
 
   /* set up destination address */
   memset(&addr,0,sizeof(addr));
   addr.sin_family=AF_INET;
-  addr.sin_addr.s_addr=htonl(INADDR_ANY); /* N.B.: differs from sender */
+  addr.sin_addr.s_addr=htonl(INADDR_ANY);
   addr.sin_port=htons(HELLO_PORT);
-     
-  /* bind to receive address */
+  /* Bind socket to a local source port */
   if (bind(fd,(struct sockaddr *) &addr,sizeof(addr)) < 0) {
     perror("bind");
     exit(1);
   }
-     
-  /* use setsockopt() to request that the kernel join a multicast group */
+
+  /*     
+  // use setsockopt() to request that the kernel join a multicast group
   mreq.imr_multiaddr.s_addr=inet_addr(HELLO_GROUP);
   mreq.imr_interface.s_addr=htonl(INADDR_ANY);
   // NG: mreq.imr_interface.s_addr=htonl("192.168.10.13");
@@ -84,6 +87,8 @@ void setup_rsocket_(void)
     perror("setsockopt");
     exit(1);
   }
+  */
+
 }
 
 //void __stdcall RECV_PKT(char buf[])
