@@ -1755,7 +1755,7 @@ try:
         elif key == 'Nt2': options.nt2.set(value)
         elif key == 'dphi': options.dphi.set(value)
         elif key == 'SaveDir': options.savedir.set(value)
-        
+        elif key == 'AzElDir': options.azeldir.set(value)        
         elif key == 'TxFirst': TxFirst.set(value)
         elif key == 'KB8RQ': kb8rq.set(value)
         elif key == 'K2TXB': k2txb.set(value)
@@ -1788,6 +1788,7 @@ except:
 
 g.mode=mode.get()
 Audio.gcom2.appdir=(appdir+'                                                                                          ')[:80]
+Audio.gcom2.azeldir=(options.azeldir.get()+'                                                                                          ')[:80]
 Audio.gcom2.ndepth=ndepth.get()
 f=open(appdir+'/tmp26.txt','w')
 f.truncate(0)
@@ -1849,6 +1850,7 @@ f.write("CSmin " + str(options.ncsmin.get()) + "\n")
 f.write("Nt1 " + str(options.nt1.get()) + "\n")
 f.write("Nt2 " + str(options.nt2.get()) + "\n")
 f.write("SaveDir " + str(options.savedir.get()) + "\n")
+f.write("AzElDir " + str(options.azeldir.get()) + "\n")
 f.write("TxFirst " + str(TxFirst.get()) + "\n")
 f.write("KB8RQ " + str(kb8rq.get()) + "\n")
 f.write("K2TXB " + str(k2txb.get()) + "\n")
