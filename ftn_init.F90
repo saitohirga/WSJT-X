@@ -40,6 +40,11 @@ subroutine ftn_init
   lenappdir=iz
   call pfxdump(appdir(:iz)//'/prefixes.txt')
 
+  do i=80,1,-1
+     if(AzElDir(i:i).ne.' ') goto 2
+  enddo
+2 iz2=i
+
 #ifdef Win32
   open(11,file=appdir(:iz)//'/decoded.txt',status='unknown',               &
        share='denynone',err=910)
@@ -59,10 +64,10 @@ subroutine ftn_init
   endfile 12
 
 #ifdef Win32
-  open(14,file=appdir(:iz)//'/azel.dat',status='unknown',                  &
+  open(14,file=azeldir(:iz2)//'/azel.dat',status='unknown',                  &
        share='denynone',err=930)
 #else
-  open(14,file=appdir(:iz)//'/azel.dat',status='unknown',                  &
+  open(14,file=azeldir(:iz2)//'/azel.dat',status='unknown',                  &
        err=930)
 #endif
 

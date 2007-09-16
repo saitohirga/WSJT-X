@@ -97,6 +97,7 @@ character*24 fnamea
 character*24 fnameb
 character*24 decodedfile
 character*80 AppDir      !WSJT installation directory           GUI
+character*80 AzElDir     !Directory for azel.dat                GUI
 character*80 SaveDir     !Directory for saved data files        GUI
 character*80 filetokilla !Filenames (full path)                 Decoder
 character*80 filetokillb
@@ -115,8 +116,8 @@ common/gcom2/ps0(431),psavg(450),s2(64,3100),ccf(-5:540),                   &
      idinterval,msmax,lenappdir,idf,ndiskdat,nlines,nflat,ntxreq,ntxnow,    &
      ndepth,nspecial,ndf,nfmid,nfrange,ss1(-224:224),ss2(-224:224),         &
      mycall,hiscall,hisgrid,txmsg,sending,mode,fname0,fnamea,               &
-     fnameb,decodedfile,AppDir,SaveDir,filetokilla,filetokillb,utcdate,     &
-     pttport,utcdata
+     fnameb,decodedfile,AppDir,AzElDir,SaveDir,filetokilla,filetokillb,     &
+     utcdate,pttport,utcdata
 
 !### volatile /gcom2/
 

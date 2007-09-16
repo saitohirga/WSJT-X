@@ -50,6 +50,7 @@ ncsmin=IntVar()
 nt1=IntVar()
 nt2=IntVar()
 savedir=StringVar()
+azeldir=StringVar()
 
 mycall=Pmw.EntryField(g1.interior(),labelpos=W,label_text='My Call:',
         value='K1JT',entry_textvariable=MyCall,entry_width=12)
@@ -112,9 +113,11 @@ nt2_entry=Pmw.EntryField(g3.interior(),labelpos=W, \
     label_text='Rx t2:',entry_width=9,value=52,entry_textvariable=nt2)
 savedir_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='SaveDir:',
     entry_width=23,value=g.appdir+'\save',entry_textvariable=savedir)
+azeldir_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='AzElDir:',
+    entry_width=23,value=g.appdir,entry_textvariable=azeldir)
 widgets = (temp_prefix,aux_ra,aux_dec,nkeep_entry,dphi_entry, \
            fa_entry,fb_entry,fcal_entry,min_callsign_entry, \
-           nt1_entry,nt2_entry,savedir_entry,)
+           nt1_entry,nt2_entry,savedir_entry,azeldir_entry,)
 for widget in widgets:
     widget.pack(padx=2,pady=2)
 Pmw.alignlabels(widgets)
