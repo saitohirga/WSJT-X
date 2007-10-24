@@ -24,8 +24,8 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
   if(nagc.ne.0) fac=0.0002 * 10.0**(0.05*(-rxnoise))
   hsym=2048.d0*96000.d0/11025.d0          !Samples per half symbol
   npts=hsym                               !Integral samples per half symbol
-  ntot=322                               !Half symbols per transmission
-!  ntot=279                                !Half symbols in 51.8 sec
+  ntot=322                                !Half symbols per transmission
+!  ntot=279                               !Half symbols in 51.8 sec
 
   if(kbuf.ne.kbuf0 .or. ndiskdat.eq.1) then
      kkdone=0
@@ -41,10 +41,10 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
 
   do nn=1,ntot
      i0=ts+hsym                           !Starting sample pointer
-     if((i0+npts-1).gt.kkk) go to 998      !See if we have enough points
+     if((i0+npts-1).gt.kkk) go to 998     !See if we have enough points
      i1=ts+2*hsym                         !Next starting sample pointer
-     ts=ts+hsym                         !OK, update the exact sample pointer
-     do i=1,npts                        !Copy data to FFT arrays
+     ts=ts+hsym                           !OK, update the exact sample pointer
+     do i=1,npts                          !Copy data to FFT arrays
         xr=fac*id(1,i0+i,kbuf)
         xi=fac*id(2,i0+i,kbuf)
         cx(i)=cmplx(xr,xi)

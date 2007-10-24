@@ -44,7 +44,7 @@ subroutine map65a(newdat)
   if(nutc.ne.nutc0) nfile=nfile+1
   nutc0=nutc
   nutcdata=nutc
-  df=96000.0/NFFT                    !df = 96000/NFFT = 2.930 Hz
+  df=96000.0/NFFT                     !df = 96000/NFFT = 2.930 Hz
   ftol=0.020                          !Frequency tolerance (kHz)
   foffset=0.001*(1270 + nfcal)
   fselect=mousefqso + foffset
@@ -60,12 +60,12 @@ subroutine map65a(newdat)
   iloop=0
 2 if(ndphi.eq.1) dphi=30*iloop/57.2957795
   do nqd=1,0,-1
-     if(nqd.eq.1) then
+     if(nqd.eq.1) then                     !Quick decode, at fQSO
         fa=1000.0*(fselect+0.001*mousedf-100.0) - dftolerance
         fb=1000.0*(fselect+0.001*mousedf-100.0) + dftolerance
         ia=nint((fa+23000.0)/df + 1.0)     ! 23000 = 48000 - 25000
         ib=nint((fb+23000.0)/df + 1.0)
-     else
+     else                                  !Wideband decode at all freqs
         fa=1000*(nfa-100)
         fb=1000*(nfb-100)
         ia=nint((fa+23000.0)/df + 1.0)     ! 23000 = 48000 - 25000
@@ -168,7 +168,9 @@ subroutine map65a(newdat)
 
 ! ########################### Search for Normal Messages ###########
 !  Is sync1 above threshold?
-           if(sync1.gt.1.0) then
+           thresh1=1.0
+           if(nqd.eq.1 .and. dftolerance.le.100) thresh1=0.  !Lower threshold at fQSO
+           if(sync1.gt.thresh1) then
 
 !  Keep only the best candidate within ftol.
 !  (Am I deleting any good decodes by doing this?)
@@ -186,7 +188,6 @@ subroutine map65a(newdat)
                  if(i1.ge.5 .or. i2.ge.9) then
                     nhispol=nint(57.2957795*pol)
                  endif
-
                  km=km+1
                  sig(km,1)=nfile
                  sig(km,2)=nutc
@@ -244,6 +245,8 @@ subroutine map65a(newdat)
 !              ndf2=nint(a(3))
               nsync1=sync1
               nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
+              if(decoded(1:4).eq.'RO  ' .or. decoded(1:4).eq.'RRR  ' .or.  &
+                 decoded(1:4).eq.'73  ') nsync2=nsync2-6
               nw=0                                !### Fix this! ###
               nwrite=nwrite+1
               if(ndphi.eq.0) then

@@ -245,7 +245,7 @@ def freeze_decode2(event):
 # If decoder is busy or we are not monitoring, ignore request
     if Audio.gcom2.ndecoding==0 or Audio.gcom2.monitoring==0:
         set_freezedf(event)
-        g.freeze_decode=1
+        g.freeze_decode=2
 
 #---------------------------------------------------- update
 def update():
