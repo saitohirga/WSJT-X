@@ -62,7 +62,7 @@ subroutine map65a(newdat)
   do nqd=1,0,-1
      if(nqd.eq.1) then                     !Quick decode, at fQSO
         fa=1000.0*(fselect+0.001*mousedf-100.0) - dftolerance
-        fb=1000.0*(fselect+0.001*mousedf-100.0) + dftolerance
+        fb=1000.0*(fselect+0.001*mousedf-100.0) + dftolerance + 4*53.8330078
         ia=nint((fa+23000.0)/df + 1.0)     ! 23000 = 48000 - 25000
         ib=nint((fb+23000.0)/df + 1.0)
      else                                  !Wideband decode at all freqs
@@ -133,7 +133,7 @@ subroutine map65a(newdat)
 
 !  Keep only the best candidate within ftol.
 !### NB: sync2 was not defined here!
-!###                    sync2=syncshort                   !### try this ???
+                    sync2=syncshort                   !### try this ???
                     if(fshort-fshort0.le.ftol .and. sync2.gt.sync20    &
                          .and. nkm.eq.2) km=km-1
                     if(fshort-fshort0.gt.ftol .or.                     &
@@ -169,7 +169,7 @@ subroutine map65a(newdat)
 ! ########################### Search for Normal Messages ###########
 !  Is sync1 above threshold?
            thresh1=1.0
-           if(nqd.eq.1 .and. dftolerance.le.100) thresh1=0.  !Lower threshold at fQSO
+           if(nqd.eq.1 .and. dftolerance.le.100) thresh1=0.  !Lower thresh1 at fQSO
            if(sync1.gt.thresh1) then
 
 !  Keep only the best candidate within ftol.
