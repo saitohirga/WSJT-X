@@ -30,7 +30,7 @@ subroutine display(nkeep,ncsmin)
 10 nz=i-1
   utcz=utc(nz)
   nz=nz-1
-  nquad=nkeep/4
+  nquad=max(nkeep/4,3)
   do i=1,nz
      nage=utcz-utc(i)
      if(nage.lt.0) nage=nage+1440
