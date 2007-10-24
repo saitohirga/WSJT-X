@@ -1007,9 +1007,14 @@ def update():
         astrotext.insert(END,"Dgrd:%6.1f\n" % g.Dgrd)
 
     if g.freeze_decode and mode.get()[:4]=='JT65':
-        itol=5
-        ltol.configure(text='Tol    '+str(500))
-        Audio.gcom2.dftolerance=500
+        if g.freeze_decode==1:
+            itol=5
+            ltol.configure(text='Tol    '+str(500))
+            Audio.gcom2.dftolerance=500
+        else:
+            itol=3
+            ltol.configure(text='Tol    '+str(100))
+            Audio.gcom2.dftolerance=100
         nfreeze.set(1)
         Audio.gcom2.nfreeze=1
         if Audio.gcom2.monitoring:

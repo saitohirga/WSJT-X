@@ -17,7 +17,7 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
 
 !  Could save memory by doing the averaging-by-7 (or 10?) of ss5 in symspec.
   include 'spcom.f90'
-  real s(NFFT,NY)
+  real s(NFFT,NY),savg2(NFFT),tmp(NFFT)
   include 'gcom1.f90'
   include 'gcom2.f90'
   include 'gcom3.f90'
@@ -45,6 +45,15 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
         enddo
      enddo
   enddo
+  call zero(savg2,NFFT)
+  do j=1,nlines
+     call add(savg2,s(1,j),savg2,NFFT)
+  enddo
+
+  ia=0.03*NFFT
+  nn=0.94*NFFT
+  call pctile(savg2(ia),tmp,nn,40,base)
+  base=base/(nadd*nlines)
 
   newpts=NX*nlines
   do i=newpts+1,NX*NY
@@ -56,6 +65,7 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
   gamma=1.3 + 0.01*contrast
   offset=(brightness+64.0)/2
   fac=20.0/nadd
+  fac=fac*(0.1537/base)
   foffset=0.001*(1270+nfcal)
   nbpp=(nfb-nfa)*NFFT/(96.0*NX)  !Bins per pixel in wideband (upper) waterfall
   fselect=mousefqso + foffset
@@ -73,7 +83,6 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
   do j=nlines,1,-1               !Reverse order so last will be on top
      do i=1,NX
         k=k+1
-
         n=0
         x=0.
         iia=(i-1)*nbpp + ii0 + 1
