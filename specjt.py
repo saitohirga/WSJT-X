@@ -288,7 +288,8 @@ def update():
         region2=im2.crop(box)               #Get all but last line(s)
         box=(125,0,624,120)
         try:
-            im.paste(region,(0,n))          #Move waterfall down
+            if newspec==1:
+                im.paste(region,(0,n))      #Move waterfall down
             im2.paste(region2,(0,n))        #Move waterfall down
         except:
             print "Images did not match, continuing anyway."

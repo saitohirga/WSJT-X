@@ -20,8 +20,11 @@ subroutine map65a(newdat)
   include 'datcom.f90'
   data blank/'                      '/
   data shmsg0/'ATT','RO ','RRR','73 '/
-  data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/
+  data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/,mousefqso0/-999/
   save
+
+  if(mousefqso.ne.mousefqso0 .and. nagain.eq.1) newspec=2
+  mousefqso0=mousefqso
 
   pctlost=nlost/331.03
   if(ndebug.eq.2) write(*,3001) nutc,mod(int(sec_midn()),60),nlost,pctlost
