@@ -254,7 +254,7 @@ def stopmon(event=NONE):
 def dbl_click_text(event):
     t=text.get('1.0',END)           #Entire contents of text box
     t1=text.get('1.0',CURRENT)      #Contents from start to cursor
-    dbl_click_call(t,t1,'OOO',event)
+    dbl_click_call(t,t1,'OOO',1,event)
 #------------------------------------------------------ dbl_click3_text
 def dbl_click3_text(event):
         t=text.get('1.0',END)           #Entire contents of text box
@@ -263,24 +263,24 @@ def dbl_click3_text(event):
         rpt=t1[n+24:n+27]
         if rpt[0:1] == " ": rpt=rpt[1:]
         print n,rpt,t1
-        dbl_click_call(t,t1,rpt,event)
+        dbl_click_call(t,t1,rpt,1,event)
 #------------------------------------------------------ dbl_click_msgtext
 def dbl_click_msgtext(event):
     t=msgtext.get('1.0',END)           #Entire contents of text box
     t1=msgtext.get('1.0',CURRENT)      #Contents from start to cursor
-    dbl_click_call(t,t1,'OOO',event)
+    dbl_click_call(t,t1,'OOO',2,event)
 #------------------------------------------------------ dbl_click_bmtext
 def dbl_click_bmtext(event):
     t=bmtext.get('1.0',END)           #Entire contents of text box
     t1=bmtext.get('1.0',CURRENT)      #Contents from start to cursor
-    dbl_click_call(t,t1,'OOO',event)
+    dbl_click_call(t,t1,'OOO',3,event)
 #------------------------------------------------------ dbl_click_ave
 def dbl_click_ave(event):
     t=avetext.get('1.0',END)        #Entire contents of text box
     t1=avetext.get('1.0',CURRENT)   #Contents from start to cursor
-    dbl_click_call(t,t1,'OOO',event)
+    dbl_click_call(t,t1,'OOO',1,event)
 #------------------------------------------------------ dbl_click_call
-def dbl_click_call(t,t1,rpt,event):
+def dbl_click_call(t,t1,rpt,nbox,event):
     global hiscall
     i=len(t1)                       #Length to mouse pointer
     i1=t1.rfind(' ')+1              #index of preceding space
@@ -291,10 +291,13 @@ def dbl_click_call(t,t1,rpt,event):
     i3=t1.rfind('\n')+1             #start of selected line
     if i>6 and i2>i1:
         try:
-            nsec=60*int(t1[i3+2:i3+4]) + int(t1[i3+4:i3+6])
+            if nbox==2:
+                nsec=3600*int(t1[i3+2:i3+4]) + 60*int(t1[i3+4:i3+6])
+            elif nbox==1:
+                nsec=3600*int(t1[i3+13:i3+15]) + 60*int(t1[i3+15:i3+17])
         except:
             nsec=0
-        if setseq.get(): TxFirst.set((nsec/Audio.gcom1.trperiod)%2)
+        if setseq.get() and nbox!=3: TxFirst.set((nsec/int(Audio.gcom1.trperiod))%2)
         lookup()
         GenStdMsgs()
         if rpt <> "OOO":
