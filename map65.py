@@ -253,24 +253,33 @@ def stopmon(event=NONE):
 def dbl_click_text(event):
     t=text.get('1.0',END)           #Entire contents of text box
     t1=text.get('1.0',CURRENT)      #Contents from start to cursor
-    dbl_click_call(t,t1,event)
+    dbl_click_call(t,t1,'OOO',event)
+#------------------------------------------------------ dbl_click3_text
+def dbl_click3_text(event):
+        t=text.get('1.0',END)           #Entire contents of text box
+        t1=text.get('1.0',CURRENT)      #Contents from start to mouse pointer
+        n=t1.rfind("\n")
+        rpt=t1[n+24:n+27]
+        if rpt[0:1] == " ": rpt=rpt[1:]
+        print n,rpt,t1
+        dbl_click_call(t,t1,rpt,event)
 #------------------------------------------------------ dbl_click_msgtext
 def dbl_click_msgtext(event):
     t=msgtext.get('1.0',END)           #Entire contents of text box
     t1=msgtext.get('1.0',CURRENT)      #Contents from start to cursor
-    dbl_click_call(t,t1,event)
+    dbl_click_call(t,t1,'OOO',event)
 #------------------------------------------------------ dbl_click_bmtext
 def dbl_click_bmtext(event):
     t=bmtext.get('1.0',END)           #Entire contents of text box
     t1=bmtext.get('1.0',CURRENT)      #Contents from start to cursor
-    dbl_click_call(t,t1,event)
+    dbl_click_call(t,t1,'OOO',event)
 #------------------------------------------------------ dbl_click_ave
 def dbl_click_ave(event):
     t=avetext.get('1.0',END)        #Entire contents of text box
     t1=avetext.get('1.0',CURRENT)   #Contents from start to cursor
-    dbl_click_call(t,t1,event)
+    dbl_click_call(t,t1,'OOO',event)
 #------------------------------------------------------ dbl_click_call
-def dbl_click_call(t,t1,event):
+def dbl_click_call(t,t1,rpt,event):
     global hiscall
     i=len(t1)                       #Length to mouse pointer
     i1=t1.rfind(' ')+1              #index of preceding space
@@ -281,12 +290,23 @@ def dbl_click_call(t,t1,event):
     i3=t1.rfind('\n')+1             #start of selected line
     if i>6 and i2>i1:
         try:
-            nsec=3600*int(t1[i3+13:i3+15]) + 60*int(t1[i3+15:i3+17])
+            nsec=60*int(t1[i3+2:i3+4]) + int(t1[i3+4:i3+6])
         except:
             nsec=0
         if setseq.get(): TxFirst.set((nsec/Audio.gcom1.trperiod)%2)
         lookup()
         GenStdMsgs()
+        if rpt <> "OOO":
+            n=tx1.get().rfind(" ")
+            t2=tx1.get()[0:n+1]
+            tx2.delete(0,END)
+            tx2.insert(0,t2+rpt)
+            tx3.delete(0,END)
+            tx3.insert(0,t2+"R"+rpt)
+            tx4.delete(0,END)
+            tx4.insert(0,t2+"RRR")
+            tx5.delete(0,END)
+            tx5.insert(0,t2+"73")
         i3=t[:i1].strip().rfind(' ')+1
         if t[i3:i1].strip() == 'CQ':
             ntx.set(1)
@@ -1161,6 +1181,7 @@ def update():
                 lines=""
             bmtext.configure(state=NORMAL)
             bmtext.delete('1.0',END)
+            g.fc=["" for i in range(200)]
             for i in range(len(lines)):
                 for j in range(3):
                     ka=14*j
@@ -1430,7 +1451,7 @@ iframe2.pack(expand=1, fill=BOTH, padx=4)
 iframe4 = Frame(frame, bd=2, relief=SUNKEN)
 text=Text(iframe4, height=16, width=65)
 text.bind('<Double-Button-1>',dbl_click_text)
-#text.bind('<Double-Button-3>',dbl_click_text)
+text.bind('<Double-Button-3>',dbl_click3_text)
 text.bind('<Key>',textkey)
 
 root.bind_all('<F1>', shortcuts)
