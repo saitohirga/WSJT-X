@@ -12,7 +12,6 @@
       character*180 line
       character*4 rpt(MAXRPT)
       integer ncode(63,2*MAXCALLS + 2 + MAXRPT)
-      integer nflip(2*MAXCALLS + 2 + MAXRPT)
       integer istat23(13)
       real pp(2*MAXCALLS + 2 + MAXRPT)
       common/mrscom/ mrs(63),mrs2(63)
@@ -76,15 +75,14 @@
          j2=index(callsign,' ') - 1
          if(j2.le.-1) j2=12
          if(j2.lt.3) j2=6
-         j3=index(mycall,'/')
-         j4=index(callsign,'/')
+         j3=index(mycall,'/')                 ! j3>0 means compound mycall
+         j4=index(callsign,'/')               ! j4>0 means compound hiscall
          callgrid(icall)=callsign(1:j2)
 
          mz=1
          if(n.eq.1 .and. j3.lt.1 .and. j4.lt.1 .and.
-     +      callsign(1:6).ne.'      ') mz=MAXRPT+1
+     +     callsign(1:6).ne.'      ') mz=MAXRPT+1 !Allow MyCall + HisCall + rpt
 
-C  Test for messages with MyCall + HisCall + report
          do m=1,mz
             if(m.gt.1) grid=rpt(m-1)
             if(j3.lt.1 .and.j4.lt.1) 
@@ -93,15 +91,15 @@ C  Test for messages with MyCall + HisCall + report
             k=k+1
             testmsg(k)=message
             call encode65(message,ncode(1,k))
-            nflip(k)=flip
 
+            if(n.ge.2) then
 C  Insert CQ message
-            if(j4.lt.1) callgrid(icall)=callsign(1:j2)//' '//grid
-            message='CQ '//callgrid(icall)
-            k=k+1
-            testmsg(k)=message
-            call encode65(message,ncode(1,k))
-            nflip(k)=flip
+               if(j4.lt.1) callgrid(icall)=callsign(1:j2)//' '//grid
+               message='CQ '//callgrid(icall)
+               k=k+1
+               testmsg(k)=message
+               call encode65(message,ncode(1,k))
+            endif
          enddo
  10      continue
       enddo
@@ -121,7 +119,8 @@ C  Insert CQ message
       p2=-1.e30
       do k=1,ntot
          pp(k)=0.
-!         if(flip.gt.0.0 .or. nflip(k).lt.0) then       !Skip CQ msg if flip=-1
+! Test all messages if flip=+1; skip the CQ messages if flip=-1.
+         if(flip.gt.0.0 .or. testmsg(k)(1:3).ne.'CQ ') then
             sum=0.
             ref=ref0
             do j=1,63
@@ -137,7 +136,7 @@ C  Insert CQ message
                p1=p
                ip1=k
             endif
-!         endif
+         endif
       enddo
 
       do i=1,ntot
