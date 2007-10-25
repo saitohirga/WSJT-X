@@ -57,6 +57,7 @@ bm2_geom=""
 cmap0="Linrad"
 fileopened=""
 font1='Helvetica'
+fqso0=125
 hiscall=""
 hisgrid=""
 hisgrid0=""
@@ -952,7 +953,7 @@ def GenAltMsgs(event=NONE):
 def update():
     global root_geom,isec0,naz,nel,ndmiles,ndkm,nopen,kxp0, \
            im,pim,cmap0,isync,isync_save,idsec,first,itol,txsnrdb,tx6alt,\
-           bm_geom,bm2_geom,hisgrid0
+           bm_geom,bm2_geom,hisgrid0,fqso0
     
     utc=time.gmtime(time.time()+0.1*idsec)
     isec=utc[5]
@@ -999,20 +1000,11 @@ def update():
             if len(HisGrid.get().strip())<4:
                 g.ndop=g.ndop00
                 g.dfdt=g.dfdt0
-            if hisgrid != hisgrid0:
-                msg6.configure(text="        ",bg='gray85')
-                hisgrid0=hisgrid
-                Audio.gcom2.nhispol=-999
-            if Audio.gcom2.nhispol != -999:
-                txpol=(int(Audio.gcom2.nhispol) - 2*g.poloffset + 360) % 180
-                t="Tx pol: %d  " % txpol
-                if txpol < 45 or txpol > 135:
-                    t=t + 'H'
-                    color='pink'
-                else:
-                    t=t + 'V'
-                    color='yellow'
-                msg6.configure(text=t,bg=color)
+
+        if (len(HisGrid.get().strip())<4) or (hisgrid != hisgrid0):
+            msg6.configure(text="        ",bg='gray85')
+            hisgrid0=hisgrid
+            Audio.gcom2.nhispol=-999
 
         astrotext.delete(1.0,END)
         astrotext.insert(END,'   Moon\n')
@@ -1065,6 +1057,11 @@ def update():
     msg2.configure(text=t)    
     t="QSO DF:%4d" % (int(Audio.gcom2.mousedf),)
     msg3.configure(text=t)
+    if int(Audio.gcom2.mousefqso) != fqso0:
+        itol=5
+        ltol.configure(text='Tol    '+str(500))
+        Audio.gcom2.dftolerance=500
+        fqso0=int(Audio.gcom2.mousefqso)
 
     if mode.get()[:4]=='JT65' and (Audio.gcom2.ndecoding>0 or \
          (isec>45 and  txminute==0 and Audio.gcom2.monitoring==1 and \
@@ -1133,6 +1130,18 @@ def update():
                 text.insert(END,lines[i])
             text.see(END)
             g.ndecphase=1
+
+            if Audio.gcom2.nhispol != -999:
+                txpol=(int(Audio.gcom2.nhispol) - 2*g.poloffset + 360) % 180
+                t="Tx pol: %d  " % txpol
+                if txpol < 45 or txpol > 135:
+                    t=t + 'H'
+                    color='pink'
+                else:
+                    t=t + 'V'
+                    color='yellow'
+                msg6.configure(text=t,bg=color)
+
 #            text.configure(state=DISABLED)
 
             try:
