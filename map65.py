@@ -289,15 +289,14 @@ def dbl_click_call(t,t1,rpt,nbox,event):
     ToRadio.delete(0,END)
     ToRadio.insert(0,hiscall)
     i3=t1.rfind('\n')+1             #start of selected line
-    if i>6 and i2>i1:
+    if i>=4 and i2>i1:
+        nsec=0
         try:
-            if nbox==2:
-                nsec=3600*int(t1[i3+2:i3+4]) + 60*int(t1[i3+4:i3+6])
-            elif nbox==1:
-                nsec=3600*int(t1[i3+13:i3+15]) + 60*int(t1[i3+15:i3+17])
+            nsec=3600*int(t1[i3+13:i3+15]) + 60*int(t1[i3+15:i3+17])
         except:
-            nsec=0
-        if setseq.get() and nbox!=3: TxFirst.set((nsec/int(Audio.gcom1.trperiod))%2)
+            pass
+        if setseq.get() and nbox!=3:
+            TxFirst.set((nsec/int(Audio.gcom1.trperiod))%2)
         lookup()
         GenStdMsgs()
         if rpt <> "OOO":
