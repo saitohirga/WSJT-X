@@ -15,7 +15,7 @@ subroutine decode1(iarg)
   include 'gcom2.f90'
   include 'gcom3.f90'
   include 'gcom4.f90'
-  data kbuf0/0/
+  data kbuf0/0/,ns00/-999/
   data sending0/'                      '/
   save
 
@@ -33,12 +33,24 @@ subroutine decode1(iarg)
      newdat=1
   endif
 
-  if(kbuf.ne.kbuf0) kkdone=0
+  if(kbuf.ne.kbuf0) then
+     kkdone=0
+     rewind 29
+  endif
   kbuf0=kbuf
   kkk=kk
   if(kbuf.eq.2) kkk=kk-5760000
-  if((ndiskdat.eq.1 .or. ndecoding.eq.0) .and. ((kkk-kkdone).gt.32768))  &
-       call symspec(id,kbuf,kk,kkdone,nutc,newdat)
+  n=Tsec
+  if(n.ne.ns00) then
+     write(29,3101) nutc,mod(n,60),ndiskdat,ndecoding,kbuf,  &
+          newdat,kk,kkdone
+3101 format('d1:',i5.4,i3.2,4i5,2i10)
+     ns00=n
+  endif
+  if((ndiskdat.eq.1 .or. ndecoding.eq.0) .and. ((kkk-kkdone).gt.32768)) then
+     call symspec(id,kbuf,kk,kkdone,nutc,newdat)
+     call sleep_msec(10)
+  endif
 
   if(ndecoding.gt.0 .and. mode(1:4).eq.'JT65') then
      ndecdone=0
@@ -51,7 +63,6 @@ subroutine decode1(iarg)
      rewind 21
      ns0=999999
   endif
-  n=Tsec
   if(n.lt.ns0 .and. utcdate(1:1).eq.'2') then
      write(21,1001) utcdate(:11)
 1001 format(/'UTC Date: ',a11/'---------------------')
@@ -72,7 +83,7 @@ subroutine decode1(iarg)
      mode0=mode
   endif
 
-  call sleep_msec(1000)                  !### was 100
+  call sleep_msec(100)                  !### was 100
   go to 10
 
 end subroutine decode1

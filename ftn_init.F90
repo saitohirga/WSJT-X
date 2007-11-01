@@ -16,9 +16,10 @@
 !   23  CALL3.TXT
 !   24  meas24.dat
 !   25  meas25.dat
-!   26  tmp26.tmp
+!   26  tmp26.txt
 !   27  dphi.txt
 !   28  saved *.tf2 files
+!   29  tmp29.txt
 !------------------------------------------------ ftn_init
 subroutine ftn_init
 
@@ -144,6 +145,14 @@ subroutine ftn_init
 #else
   open(27,file=appdir(:iz)//'/dphi.txt',status='unknown')
 #endif
+
+#ifdef Win32
+  open(29,file=appdir(:iz)//'/tmp29.txt',status='unknown',                 &
+       share='denynone')
+#else
+  open(29,file=appdir(:iz)//'/tmp29.txt',status='unknown')
+#endif
+
 
   return
 
