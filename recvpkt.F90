@@ -119,14 +119,16 @@ subroutine recvpkt(iarg)
         kk=k
         ndiskdat=0
         ndone1=1
-        if(ndebug.eq.2) write(*,3001) nutc,mod(int(sec_midn()),60),ns
-3001    format('recvpkt 1:',i5.4,2i3.2)
+        if(ndebug.eq.2) write(*,3001) nutc,mod(int(sec_midn()),60),ns,  &
+             kbuf,kk
+3001    format('r1:',i5.4,2i3.2,2i10)
      endif
      if(ns.ge.nt2 .and. ndone2.eq.0) then
         kk=k
         ndone2=1
-        if(ndebug.eq.2) write(*,3002) nutc,mod(int(sec_midn()),60),ns
-3002    format('recvpkt 2:',i5.4,2i3.2)
+        if(ndebug.eq.2) write(*,3002) nutc,mod(int(sec_midn()),60),ns,  &
+             kbuf,kk
+3002    format('r2:',i5.4,2i3.2,2i10)
         nlost=lost_tot                         ! Save stats for printout
      endif
   endif

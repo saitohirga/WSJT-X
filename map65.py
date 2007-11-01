@@ -62,6 +62,7 @@ hiscall=""
 hisgrid=""
 hisgrid0=""
 isec0=-99
+isec00=-99
 k2txb=IntVar()
 kb8rq=IntVar()
 kxp0=0
@@ -955,12 +956,12 @@ def GenAltMsgs(event=NONE):
 def update():
     global root_geom,isec0,naz,nel,ndmiles,ndkm,nopen,kxp0, \
            im,pim,cmap0,isync,isync_save,idsec,first,itol,txsnrdb,tx6alt,\
-           bm_geom,bm2_geom,hisgrid0,fqso0
+           bm_geom,bm2_geom,hisgrid0,fqso0,isec00
     
     utc=time.gmtime(time.time()+0.1*idsec)
     isec=utc[5]
     txminute=0
-    if Audio.gcom2.lauto and utc[4]%2 == Audio.gcom1.txfirst: txminute=1
+    if Audio.gcom2.lauto and utc[4]%2 != Audio.gcom1.txfirst: txminute=1
 
     if isec != isec0:                           #Do once per second
         isec0=isec
@@ -976,7 +977,7 @@ def update():
             bm_geom=bm.geometry()
             bm2_geom=bm2.geometry()
         except:
-            pass
+            pass        
         utchours=utc[3]+utc[4]/60.0 + utc[5]/3600.0
         naz,nel,ndmiles,ndkm,nhotaz,nhotabetter=Audio.azdist0( \
             options.MyGrid.get().upper(),HisGrid.get().upper(),utchours)
@@ -1065,8 +1066,16 @@ def update():
         Audio.gcom2.dftolerance=500
         fqso0=int(Audio.gcom2.mousefqso)
 
+#    if mode.get()[:4]=='JT65' and (Audio.gcom2.ndecoding>0 or \
+#         (isec>45 and  txminute==0 and Audio.gcom2.monitoring==1 and \
+#    if isec != isec00:
+#        print isec,Audio.gcom2.ndecoding,txminute,Audio.gcom2.monitoring, \
+#            Audio.datcom.kkdone
+#        isec00=isec
+
     if mode.get()[:4]=='JT65' and (Audio.gcom2.ndecoding>0 or \
-         (isec>45 and  txminute==0 and Audio.gcom2.monitoring==1 and \
+         (isec>=options.nt1.get() and txminute==0 and \
+          Audio.gcom2.monitoring==1 and \
           Audio.datcom.kkdone!=-99 and Audio.gcom2.ndiskdat!=1)):
 #Set button bg while decoding
         bc='#66FFFF'
