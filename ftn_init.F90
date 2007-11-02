@@ -5,7 +5,7 @@
 !   12  decoded.ave
 !   13  tsky.dat
 !   14  azel.dat
-!   15  debug.txt
+!   15  
 !   16  c:/wsjt.reg 
 !   17  wave files written to disk
 !   18  test file to be transmitted (wsjtgen.f90)
@@ -70,14 +70,6 @@ subroutine ftn_init
 #else
   open(14,file=azeldir(:iz2)//'/azel.dat',status='unknown',                  &
        err=930)
-#endif
-
-#ifdef Win32
-  open(15,file=appdir(:iz)//'/debug.txt',status='unknown',                 &
-       share='denynone',err=940)
-#else
-  open(15,file=appdir(:iz)//'/debug.txt',status='unknown',                 &
-       err=940)
 #endif
 
 #ifdef Win32
@@ -147,10 +139,10 @@ subroutine ftn_init
 #endif
 
 #ifdef Win32
-  open(29,file=appdir(:iz)//'/tmp29.txt',status='unknown',                 &
+  open(29,file=appdir(:iz)//'/debug.txt',status='unknown',                 &
        share='denynone')
 #else
-  open(29,file=appdir(:iz)//'/tmp29.txt',status='unknown')
+  open(29,file=appdir(:iz)//'/debug.txt',status='unknown')
 #endif
 
 
