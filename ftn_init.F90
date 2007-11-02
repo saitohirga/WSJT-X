@@ -19,7 +19,7 @@
 !   26  tmp26.txt
 !   27  dphi.txt
 !   28  saved *.tf2 files
-!   29  tmp29.txt
+!   29  debug.txt
 !------------------------------------------------ ftn_init
 subroutine ftn_init
 
