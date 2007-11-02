@@ -33,10 +33,7 @@ subroutine decode1(iarg)
      newdat=1
   endif
 
-  if(kbuf.ne.kbuf0) then
-     kkdone=0
-     rewind 29
-  endif
+  if(kbuf.ne.kbuf0) kkdone=0
   kbuf0=kbuf
   kkk=kk
   if(kbuf.eq.2) kkk=kk-5760000
