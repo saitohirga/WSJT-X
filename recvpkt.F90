@@ -46,7 +46,7 @@ subroutine recvpkt(iarg)
      if(nb.lt.0) nb=nb+65536
      nb0=nblock0
      if(nb0.lt.0) nb0=nb0+65536
-     if(ndebug.eq.2) print*,'Lost packets:',nb0,nb,lost
+     if(ndebug.gt.0) print*,'Lost packets:',nb0,nb,lost
      lost_tot=lost_tot + lost               ! Insert zeros for the lost data.
      do i=1,174*lost
         k=k+1
@@ -113,22 +113,23 @@ subroutine recvpkt(iarg)
      ntx=ntx+transmitting
 
      if(ns.ge.nt1 .and. ndone1.eq.0) then
+!  Time in this minute has reached designated time to start FFTs
         nutc=mutc
         fcenter=center_freq
         kbuf=kb
         kk=k
         ndiskdat=0
         ndone1=1
-        if(ndebug.eq.2) write(*,3001) nutc,mod(int(sec_midn()),60),ns,  &
+        if(ndebug.eq.2) write(29,3001) nutc,mod(int(sec_midn()),60),ns,  &
              kbuf,kk
-3001    format('r1:',i5.4,2i3.2,2i10)
+3001    format('r1:',i5.4,2i3.2,i5,i10)
      endif
      if(ns.ge.nt2 .and. ndone2.eq.0) then
         kk=k
         ndone2=1
-        if(ndebug.eq.2) write(*,3002) nutc,mod(int(sec_midn()),60),ns,  &
+        if(ndebug.eq.2) write(29,3002) nutc,mod(int(sec_midn()),60),ns,  &
              kbuf,kk
-3002    format('r2:',i5.4,2i3.2,2i10)
+3002    format('r2:',i5.4,2i3.2,i5,i10)
         nlost=lost_tot                         ! Save stats for printout
      endif
   endif
