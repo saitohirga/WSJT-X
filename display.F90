@@ -30,6 +30,7 @@ subroutine display(nkeep,ncsmin)
 10 nz=i-1
   utcz=utc(nz)
   nz=nz-1
+  if(nz.lt.1) go to 999
   nquad=max(nkeep/4,3)
   do i=1,nz
      nage=utcz-utc(i)
@@ -59,8 +60,8 @@ subroutine display(nkeep,ncsmin)
         write(26,1010) line(i)
      enddo
   endif
-  call flushqqq(26)
 
+  call flushqqq(26)
   call indexx(nz,freqkHz,indx)
 
   nstart=1
@@ -159,5 +160,5 @@ subroutine display(nkeep,ncsmin)
 1040 format(a40)
   enddo
   call flushqqq(20)
-  return
+999  return
 end subroutine display
