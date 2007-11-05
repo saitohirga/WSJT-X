@@ -22,16 +22,19 @@ subroutine recvpkt(iarg)
   equivalence (id,d8)
   data nblock0/0/,first/.true./,kb/1/,ntx/0/,npkt/0/,nw/0/
   data sqave/0.0/,u/0.001/,rxnoise/0.0/,kbuf/1/,lost_tot/0/
+  data multicast0/-99/
   save
 
-  call setup_rsocket            ! Open socket to receive multicast data
+1 call setup_rsocket(multicast)     !Open socket for multicast/unicast data
   nreset=-1
   k=0
   nsec0=-999
   fcenter=144.125               !Default (startup) frequency)
+  multicast0=multicast
 
-10 call recv_pkt(center_freq)
+10 if(multicast.ne.multicast0) go to 1
 
+  call recv_pkt(center_freq)
   if(nsec0.eq.-999) fcenter=center_freq
   isec=sec_midn()
   imin=isec/60
