@@ -70,6 +70,7 @@ loopall=0
 mode=StringVar()
 mode.set("")
 mrudir=os.getcwd()
+multicast=IntVar()
 nafc=IntVar()
 naz=0
 ndepth=IntVar()
@@ -250,6 +251,10 @@ def stopmon(event=NONE):
     loopall=0
     bmonitor.configure(bg='gray85')
     Audio.gcom2.monitoring=0
+
+###------------------------------------------------------- toggle_multicast
+##def toggle_multicast(event=NONE):
+##    print multicast.get()        
 
 #------------------------------------------------------ dbl_click_text
 def dbl_click_text(event):
@@ -1271,6 +1276,7 @@ def update():
     Audio.gcom2.dftolerance=ntol[itol]
     Audio.gcom2.neme=neme.get()
     Audio.gcom2.ndepth=ndepth.get()
+    Audio.gcom2.multicast=multicast.get()
     try:
         Audio.gcom2.idinterval=options.IDinterval.get()
     except:
@@ -1367,6 +1373,11 @@ setupmenu.add_checkbutton(label = 'F4 sets Tx6',variable=kb8rq)
 setupmenu.add_checkbutton(label = 'Double-click on callsign sets TxFirst',
                           variable=setseq)
 setupmenu.add_checkbutton(label = 'GenStdMsgs sets Tx1',variable=k2txb)
+setupmenu.add_separator()
+setupmenu.add_radiobutton(label = 'Input data multicast', variable=multicast, \
+            value=1)
+setupmenu.add_radiobutton(label = 'Input data unicast', variable=multicast, \
+            value=0)
 setupmenu.add_separator()
 setupmenu.add_checkbutton(label = 'Enable diagnostics',variable=ndebug)
 setupmenu.add_checkbutton(label = 'Verbose diagnostics',variable=ndebug2)
@@ -1818,6 +1829,7 @@ try:
         elif key == 'NoShJT65': noshjt65.set(value)
         elif key == 'NEME': neme.set(value)
         elif key == 'NDepth': ndepth.set(value)
+        elif key == 'Multicast': multicast.set(value)
         elif key == 'Debug': ndebug.set(value)
         elif key == 'Debug2': ndebug2.set(value)
         elif key == 'HisCall':
@@ -1836,6 +1848,7 @@ g.mode=mode.get()
 Audio.gcom2.appdir=(appdir+'                                                                                          ')[:80]
 Audio.gcom2.azeldir=(options.azeldir.get()+'                                                                                          ')[:80]
 Audio.gcom2.ndepth=ndepth.get()
+Audio.gcom2.multicast=multicast.get()
 f=open(appdir+'/tmp26.txt','w')
 f.truncate(0)
 f.close
@@ -1912,6 +1925,7 @@ f.write("NoSh441 " + str(nosh441.get()) + "\n")
 f.write("NoShJT65 " + str(noshjt65.get()) + "\n")
 f.write("NEME " + str(neme.get()) + "\n")
 f.write("NDepth " + str(ndepth.get()) + "\n")
+f.write("Multicast " + str(multicast.get()) + "\n")
 f.write("Debug " + str(ndebug.get()) + "\n")
 f.write("Debug2 " + str(ndebug2.get()) + "\n")
 mrudir2=mrudir.replace(" ","#")

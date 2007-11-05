@@ -11,7 +11,7 @@ struct sockaddr_in addr;
 int fd;
 
 //void __stdcall SETUP_RSOCKET(void)
-void setup_rsocket_(void)
+void setup_rsocket_(int *multicast0)
 {
   struct ip_mreq mreq;
   u_int yes=1;
@@ -59,13 +59,17 @@ void setup_rsocket_(void)
     printf("Error: %d   %d\n",err,j);
   }
 
-  /*
-  // allow multiple sockets to use the same PORT number
-  if (setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(yes)) < 0) {
-    perror("Reusing ADDR failed");
-    exit(1);
+  if (*multicast0) {
+    // allow multiple sockets to use the same PORT number
+    if (setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(yes)) < 0) {
+      perror("Reusing ADDR failed");
+      exit(1);
+    }
+    printf("Accepting multicast data from Linrad.\n");
   }
-  */
+  else {
+    printf("Accepting unicast data from Linrad.\n");
+  }
 
   /* set up destination address */
   memset(&addr,0,sizeof(addr));
@@ -78,17 +82,16 @@ void setup_rsocket_(void)
     exit(1);
   }
 
-  /*     
-  // use setsockopt() to request that the kernel join a multicast group
-  mreq.imr_multiaddr.s_addr=inet_addr(HELLO_GROUP);
-  mreq.imr_interface.s_addr=htonl(INADDR_ANY);
-  // NG: mreq.imr_interface.s_addr=htonl("192.168.10.13");
-  if (setsockopt(fd,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq)) < 0) {
-    perror("setsockopt");
-    exit(1);
+  if (*multicast0) {
+    // use setsockopt() to request that the kernel join a multicast group
+    mreq.imr_multiaddr.s_addr=inet_addr(HELLO_GROUP);
+    mreq.imr_interface.s_addr=htonl(INADDR_ANY);
+    // NG: mreq.imr_interface.s_addr=htonl("192.168.10.13");
+    if (setsockopt(fd,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq)) < 0) {
+      perror("setsockopt");
+      exit(1);
+    }
   }
-  */
-
 }
 
 //void __stdcall RECV_PKT(char buf[])
