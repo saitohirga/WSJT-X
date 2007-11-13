@@ -1031,6 +1031,7 @@ def update():
             itol=5
             ltol.configure(text='Tol    '+str(500))
             Audio.gcom2.dftolerance=500
+            Audio.gcom2.mousedf=0
         else:
             itol=3
             ltol.configure(text='Tol    '+str(100))
