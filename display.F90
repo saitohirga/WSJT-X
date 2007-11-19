@@ -52,6 +52,7 @@ subroutine display(nkeep,ncsmin)
 20   i0=i
      nz=nz-i0+1
      rewind 26
+     if(nz.lt.1) go to 999
      do i=1,nz
         j=i+i0-1
         line(i)=line(j)
@@ -67,8 +68,13 @@ subroutine display(nkeep,ncsmin)
   nstart=1
   k3=0
   k=1
-  line2(1)=line(indx(1))
-  utc2(1)=utc(indx(1))
+  m=indx(1)
+  if(m.lt.1 .or. m.gt.MAXLINES) then
+     print*,'Error in display.F90: ',nz,m
+     m=1
+  endif
+  line2(1)=line(m)
+  utc2(1)=utc(m)
   do i=2,nz
      j0=indx(i-1)
      j=indx(i)

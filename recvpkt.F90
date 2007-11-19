@@ -78,8 +78,14 @@ subroutine recvpkt(iarg)
   do i=1,174
      k=k+1
      d8(k)=buf8(i)
-     sq=sq + float(int(id(1,k,1)))**2 + float(int(id(1,k,1)))**2 +    &
-          float(int(id(1,k,1)))**2 + float(int(id(1,k,1)))**2
+     k2=k
+     n=1
+     if(k.gt.NSMAX) then
+        k2=k2-NSMAX
+        n=2
+     endif
+     sq=sq + float(int(id(1,k2,n)))**2 + float(int(id(1,k2,n)))**2 +    &
+          float(int(id(1,k2,n)))**2 + float(int(id(1,k2,n)))**2
   enddo
   sqave=sqave + u*(sq-sqave)
   rxnoise=10.0*log10(sqave) - 48.0
