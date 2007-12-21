@@ -18,7 +18,7 @@ from types import *
 import array
 
 root = Tk()
-Version="0.8 r" + "$Rev$"[6:-1]
+Version="0.9 r" + "$Rev$"[6:-1]
 Version=Version.strip()
 print "******************************************************************"
 print "MAP65 Version " + Version + ", by K1JT"
