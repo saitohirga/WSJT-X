@@ -46,7 +46,7 @@ subroutine ftn_init
   enddo
 2 iz2=i
 
-#ifdef Win32
+#ifdef CVF
   open(11,file=appdir(:iz)//'/decoded.txt',status='unknown',               &
        share='denynone',err=910)
 #else
@@ -55,7 +55,7 @@ subroutine ftn_init
 #endif
   endfile 11
 
-#ifdef Win32
+#ifdef CVF
   open(12,file=appdir(:iz)//'/decoded.ave',status='unknown',               &
        share='denynone',err=920)
 #else
@@ -64,7 +64,7 @@ subroutine ftn_init
 #endif
   endfile 12
 
-#ifdef Win32
+#ifdef CVF
   open(14,file=azeldir(:iz2)//'/azel.dat',status='unknown',                  &
        share='denynone',err=930)
 #else
@@ -72,7 +72,7 @@ subroutine ftn_init
        err=930)
 #endif
 
-#ifdef Win32
+#ifdef CVF
   open(19,file=appdir(:iz)//'/messages.txt',status='unknown',               &
        share='denynone',err=911)
 #else
@@ -81,7 +81,7 @@ subroutine ftn_init
 #endif
   endfile 19
 
-#ifdef Win32
+#ifdef CVF
   open(20,file=appdir(:iz)//'/bandmap.txt',status='unknown',               &
        share='denynone',err=912)
 #else
@@ -90,7 +90,7 @@ subroutine ftn_init
 #endif
   endfile 20
 
-#ifdef Win32
+#ifdef CVF
   open(21,file=appdir(:iz)//'/ALL65.TXT',status='unknown',                   &
        access='append',share='denynone',err=950)
 #else
@@ -102,7 +102,7 @@ subroutine ftn_init
 10 continue
 #endif
 
-#ifdef Win32
+#ifdef CVF
   open(22,file=appdir(:iz)//'/kvasd.dat',access='direct',recl=1024,        &
        status='unknown',share='denynone')
 #else
@@ -110,35 +110,35 @@ subroutine ftn_init
        status='unknown')
 #endif
 
-#ifdef Win32
+#ifdef CVF
   open(24,file=appdir(:iz)//'/meas24.txt',status='unknown',                 &
        share='denynone')
 #else
   open(24,file=appdir(:iz)//'/meas24.txt',status='unknown')
 #endif
 
-#ifdef Win32
+#ifdef CVF
   open(25,file=appdir(:iz)//'/meas25.txt',status='unknown',                 &
        share='denynone')
 #else
   open(25,file=appdir(:iz)//'/meas25.txt',status='unknown')
 #endif
 
-#ifdef Win32
+#ifdef CVF
   open(26,file=appdir(:iz)//'/tmp26.txt',status='unknown',                 &
        share='denynone')
 #else
   open(26,file=appdir(:iz)//'/tmp26.txt',status='unknown')
 #endif
 
-#ifdef Win32
+#ifdef CVF
   open(27,file=appdir(:iz)//'/dphi.txt',status='unknown',                 &
        share='denynone')
 #else
   open(27,file=appdir(:iz)//'/dphi.txt',status='unknown')
 #endif
 
-#ifdef Win32
+#ifdef CVF
   open(29,file=appdir(:iz)//'/debug.txt',status='unknown',                 &
        share='denynone')
 #else

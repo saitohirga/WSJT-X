@@ -1,7 +1,7 @@
 
 subroutine get_fname(hiscall,ntime,trperiod,lauto,fname)
 
-#ifdef Win32
+#ifdef CVF
   use dfport
 #else
   external gmtime_r
@@ -15,7 +15,7 @@ subroutine get_fname(hiscall,ntime,trperiod,lauto,fname)
   n1=ntime
   n2=(n1+2)/trperiod
   n3=n2*trperiod
-#ifdef Win32
+#ifdef CVF
   call gmtime(n3,it)
 #else
   call gmtime_r(n3,it)

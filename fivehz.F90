@@ -9,7 +9,7 @@ subroutine fivehz
 !  Disk I/O is a bad idea.  Writing to stdout (for diagnostic purposes)
 !  seems to be OK.
 
-#ifdef Win32
+#ifdef CVF
   use dflib
   use dfport
 #endif
@@ -187,7 +187,7 @@ subroutine fivehztx
 
 !  Called at interrupt level from the PortAudio output callback.
 
-#ifdef Win32
+#ifdef CVF
   use dflib
   use dfport
 #endif

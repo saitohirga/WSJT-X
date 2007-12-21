@@ -1,6 +1,6 @@
 subroutine flushqqq(lu)
 
-#ifdef Win32
+#ifdef CVF
   use dfport
 #endif
 

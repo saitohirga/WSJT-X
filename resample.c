@@ -1,5 +1,9 @@
 #include <stdio.h>
-#include <samplerate.h>
+//#ifdef Win32
+#include "samplerate.h"
+//#else
+//#include <samplerate.h>
+//#endif
 
 int resample_(float din[], int *jzin, int *conv_type, int *channels, 
 	      double *samfac, float dout[], int *jzout)

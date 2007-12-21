@@ -1,6 +1,6 @@
 subroutine display(nkeep,ncsmin)
 
-#ifdef Win32
+#ifdef CVF
   use dfport
 #endif
 
