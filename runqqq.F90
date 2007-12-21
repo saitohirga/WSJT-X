@@ -10,9 +10,7 @@ subroutine runqqq(fname,cmnd,iret)
 #ifdef CVF
   iret=runqq(fname,cmnd)
 #else
-!  iret=system('./KVASD -q >& /dev/null')
-  iret=system('KVASD -q')
-! print*,iret
+  iret=system('KVASD_g95 -q > dev_null')
 #endif
 
   return
