@@ -62,7 +62,7 @@ subroutine wsjtgen
      if(msg(2:2).eq.'/' .or. ichar(msg(2:2)).eq.92) then
         txmsg=msg
         testfile=msg(2:)
-#ifdef Win32
+#ifdef CVF
         open(18,file=testfile,form='binary',status='old',err=12)
         go to 14
 12      print*,'Cannot open test file ',msg(2:)

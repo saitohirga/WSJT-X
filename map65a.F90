@@ -38,7 +38,7 @@ subroutine map65a(newdat)
      nrw26=0
   endif
 
-#ifdef Win32
+#ifdef CVF
   open(23,file='CALL3.TXT',status='unknown',share='denynone')
 #else
   open(23,file='CALL3.TXT',status='unknown')

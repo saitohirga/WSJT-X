@@ -2,7 +2,7 @@ real function sec_midn()
 
 real*8 sec8,hrtime
 
-#ifdef Win32
+#ifdef CVF
   sec_midn=secnds(0.0)
 #else
   sec8=hrtime()
@@ -14,15 +14,14 @@ end function sec_midn
 
 subroutine sleep_msec(n)
 
-#ifdef Win32
+#ifdef CVF
   use dflib
 #endif
 
-#ifdef Win32
+#ifdef CVF
   call sleepqq(n)
 #else
-!m=min(1,n)
-!  call usleep(m)
+  call usleep(1000*n)
 #endif
 
   return

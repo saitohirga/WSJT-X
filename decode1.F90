@@ -3,7 +3,7 @@ subroutine decode1(iarg)
 ! Get data and parameters from gcom, then call the decoders when needed.
 ! This routine runs in a background thread and will never return.
 
-#ifdef Win32
+#ifdef CVF
   use dflib
 #endif
 
@@ -37,12 +37,10 @@ subroutine decode1(iarg)
   kbuf0=kbuf
   kkk=kk
   if(kbuf.eq.2) kkk=kk-5760000
-
   n=Tsec
   if(ndebug.eq.2 .and. n.ne.ns00) then
-     write(29,3101) nutc,mod(n,60),ndiskdat,ndecoding,kbuf,  &
-          newdat,kk,kkdone
-3101 format('d1:',i5.4,i3.2,4i5,2i10)
+     write(29,3101) nutc,mod(n,60),kbuf,kk,kkdone,ndecoding,newdat
+3101 format('d1:',i5.4,i3.2,i5,2i10,2i3)
      ns00=n
   endif
 

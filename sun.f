@@ -25,8 +25,10 @@ C  Other standard variables:
       real r                            !Distance to sun, AU
       real xv,yv                        !x and y coords in ecliptic
       real lonsun                       !Ecliptic long and lat of sun
-      real xs,ys                        !Ecliptic coords of sun (geocentric)
-      real xe,ye,ze                     !Equatorial coords of sun (geocentric)
+C Ecliptic coords of sun (geocentric)
+      real xs,ys
+C Equatorial coords of sun (geocentric)
+      real xe,ye,ze
       real lon,lat
       real GMST0,LST,HA
       real xx,yy,zz

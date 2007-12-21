@@ -1,6 +1,6 @@
 subroutine savetf2(id,nsave,ntime,nutc,savedir)
 
-#ifdef Win32
+#ifdef CVF
   use dfport
 #else
   external gmtime_r
@@ -18,7 +18,7 @@ subroutine savetf2(id,nsave,ntime,nutc,savedir)
   if(nsave.eq.1) then
      n2=ntime/60
      n3=(n2-1)*60
-#ifdef Win32
+#ifdef CVF
      call gmtime(n3,it)
 #else
      call gmtime_r(n3,it)
@@ -35,7 +35,7 @@ subroutine savetf2(id,nsave,ntime,nutc,savedir)
 
 1    iz=i
      fname=savedir(1:iz)//fname
-#ifdef Win32
+#ifdef CVF
      open(17,file=fname,status='unknown',form='binary',err=998)
      write(17) id
      close(17)

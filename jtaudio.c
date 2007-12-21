@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <portaudio.h>
+#include "portaudio.h"
 #include <string.h>
 
 void fivehz_();

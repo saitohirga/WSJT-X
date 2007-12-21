@@ -4,9 +4,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <sys/times.h>
-#include <time.h>
-#include <sys/time.h>
+// #include <sys/times.h>
+// #include <time.h>
+// #include <sys/time.h>
+#include "sleep.h"
+#include "timeval.h"
 
 /*  FORTRAN:  fd = close(filedes)      */
 int close_(int *filedes)
@@ -39,10 +41,10 @@ int lseek_(int *fd,int *offset, int *origin)
   return(lseek(*fd,*offset,*origin));
 }
 /* times(2) */
-int times_(struct tms *buf)
-{
-  return (times(buf));
-}
+//int times_(struct tms *buf)
+//{
+//  return (times(buf));
+//}
 /* ioperm(2) */
 //ioperm_(from,num,turn_on)
 //unsigned long *from,*num,*turn_on;
@@ -54,7 +56,7 @@ int times_(struct tms *buf)
 /* usleep(3) */
 int usleep_(unsigned long *microsec)
 {
-  return (usleep(*microsec));
+  usleep(*microsec);
 }
 
 /* returns random numbers between 0 and 32767 to FORTRAN program */
@@ -62,16 +64,19 @@ int iran_(int *arg)
 {
   return (rand());
 }
+
 int exit_(int *n)
 {
   printf("\n\n");
   exit(*n);
 }
+
 struct tm *
 gmtime_r_(const time_t *clock, struct tm *result)
 {
-  gmtime_r(clock, result);
+  //  gmtime_r(clock, result);
 }
+
 time_t time_(void)
 {
      return time(0);
@@ -81,7 +86,6 @@ time_t time_(void)
 double hrtime_(void)
 {
   struct timeval tv;
-
   gettimeofday(&tv,NULL);
   return(tv.tv_sec+1.e-6*tv.tv_usec);
 }
