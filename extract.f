@@ -33,7 +33,7 @@
       ndec=1
       nemax=30                              !Was 200 (30)
       maxe=8
-      xlambda=12.0                          !Was 15 (12)
+      xlambda=13.0                          !Was 12
 
       if(ndec.eq.1) then
          call graycode(mr2sym,63,-1)
