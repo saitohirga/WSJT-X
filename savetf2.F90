@@ -2,8 +2,6 @@ subroutine savetf2(id,nsave,ntime,nutc,savedir)
 
 #ifdef CVF
   use dfport
-#else
-  external gmtime_r
 #endif
 
   parameter (NZ=60*96000)
@@ -13,21 +11,29 @@ subroutine savetf2(id,nsave,ntime,nutc,savedir)
   real*4 ss(NPKTS),ss2(60)
   real*8 dt,t,t2
   character*80 savedir,fname
-  integer it(9)
+  character cdate*8,ctime2*10,czone*5
+  integer it(9),itt(8)
 
   if(nsave.eq.1) then
      n2=ntime/60
      n3=(n2-1)*60
 #ifdef CVF
      call gmtime(n3,it)
-#else
-     call gmtime_r(n3,it)
-#endif
      it(5)=it(5)+1
+#else
+     call date_and_time(cdate,ctime2,czone,itt)
+     it(6)=itt(1)
+     it(5)=itt(2)
+     it(4)=itt(3)
+     it(3)=itt(5)-itt(4)/60
+     if(it(3).lt.0) it(3)=it(3)+24
+     if(it(3).ge.24) it(3)=it(3)-24
+     it(2)=itt(6)
+     !  it(1)=itt(7)
+     it(1)=0
+#endif
      it(6)=mod(it(6),100)
-     nhr=nutc/100
-     nmin=mod(nutc,100)
-     write(fname,1000) it(6),it(5),it(4),nhr,nmin
+     write(fname,1000) (it(j),j=6,2,-1)
 1000 format('/',3i2.2,'_',2i2.2,'.tf2')
      do i=80,1,-1
         if(savedir(i:i).ne.' ') go to 1
