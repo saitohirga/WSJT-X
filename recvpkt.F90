@@ -91,6 +91,7 @@ subroutine recvpkt(iarg)
   rxnoise=10.0*log10(sqave) - 48.0
   kxp=k
 
+!  This may be a bad idea, because of non-reentrant Fortran I/O?
   if(mode.eq.'Measur') then
      npkt=npkt+1
      if(npkt.ge.551) then
