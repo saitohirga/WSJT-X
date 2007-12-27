@@ -1,13 +1,13 @@
 ! Fortran logical units used in WSJT6
 !
-!   10  wave files read from disk
+!   10
 !   11  decoded.txt
 !   12  decoded.ave
 !   13  tsky.dat
 !   14  azel.dat
 !   15  
-!   16  c:/wsjt.reg 
-!   17  wave files written to disk
+!   16
+!   17  saved *.tf2 files
 !   18  test file to be transmitted (wsjtgen.f90)
 !   19  messages.txt
 !   20  bandmap.txt
@@ -18,7 +18,7 @@
 !   25  meas25.dat
 !   26  tmp26.txt
 !   27  dphi.txt
-!   28  saved *.tf2 files
+!   28  
 !   29  debug.txt
 !------------------------------------------------ ftn_init
 subroutine ftn_init

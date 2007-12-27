@@ -34,8 +34,11 @@ C  NB: may want to smooth the Tsky map to 10 degrees or so.
         read(13) nsky
         close(13)
 #else
-        call rfile2(fname,nsky,129600,nr)
-        if(nr.ne.129600) go to 10
+        open(13,file=fname,status='old',access='stream',err=10)
+        read(13) nsky
+        close(13)
+!        call rfile2(fname,nsky,129600,nr)
+!        if(nr.ne.129600) go to 10
 #endif
         ltsky=.true.
         first=.false.
