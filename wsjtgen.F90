@@ -64,6 +64,9 @@ subroutine wsjtgen
         testfile=msg(2:)
 #ifdef CVF
         open(18,file=testfile,form='binary',status='old',err=12)
+#else
+        open(18,file=testfile,access='stream',status='old',err=12)
+#endif
         go to 14
 12      print*,'Cannot open test file ',msg(2:)
         go to 999
@@ -73,17 +76,17 @@ subroutine wsjtgen
         close(18)
         if(ierr.ne.0) print*,'Error reading test file ',msg(2:)
 
-#else
-        tfile2=testfile
-	call rfile2(tfile2,hdr,44+2*661500,nr)
-	if(nr.le.0) then
-           print*,'Error reading ',testfile
-	   stop
-        endif
-	do i=1,ndata/2
-	   iwave(i)=jwave(i)
-        enddo
-#endif
+!#else
+!        tfile2=testfile
+!	call rfile2(tfile2,hdr,44+2*661500,nr)
+!	if(nr.le.0) then
+!           print*,'Error reading ',testfile
+!	   stop
+!        endif
+!	do i=1,ndata/2
+!	   iwave(i)=jwave(i)
+!        enddo
+!#endif
         nwave=ndata/2
         do i=nwave,NTXMAX
            iwave(i)=0
