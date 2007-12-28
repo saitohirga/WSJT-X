@@ -89,9 +89,13 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
      a2(i)=a2(i-newpts)
   enddo
 
-  gain=40*sqrt(nstep(nspeed)/5.0) * 5.0**(0.01*contrast)
+  logmap=1
   gamma=1.3 + 0.01*contrast
   offset=(brightness+64.0)/2
+  if(logmap.eq.1) then
+     gain=40*sqrt(nstep(nspeed)/5.0) * 5.0**(0.01*contrast)
+     offset=brightness/2 + 10
+  endif
   fac=20.0/nadd
   fac=fac*0.065/base
  ! fac=fac*(0.1537/base)
@@ -120,14 +124,16 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
            x=max(x,s(ii,j))
         enddo
         x=fac*x
-        if(x.gt.0.0) n=(2.0*x)**gamma + offset
+        if(x.gt.0.0 .and. logmap.eq.0) n=(2.0*x)**gamma + offset
+        if(x.gt.0.0 .and. logmap.eq.1) n=gain*log10(1.0*x) + offset
         n=min(252,max(0,n))
         a(k)=n
 
 !  Now do the lower (zoomed) waterfall with one FFT bin per pixel.
         n=0
         x=fac*s(i0+i-1,j)
-        if(x.gt.0.0) n=(3.0*x)**gamma + offset
+        if(x.gt.0.0 .and. logmap.eq.0) n=(3.0*x)**gamma + offset
+        if(x.gt.0.0 .and. logmap.eq.1) n=1.2*gain*log10(1.0*x) + offset
         n=min(252,max(0,n))
         a2(k)=n
 

@@ -33,22 +33,12 @@ subroutine getfile2(fname,len)
   ndecoding=4
   monitoring=0
   kbuf=1
-!#ifdef CVF
-!  open(10,file=fname,form='binary',status='old',err=998)
+
   call rfile3a(fname,id,n,ierr)
   if(ierr.ne.0) then
      print*,'Error opening or reading file: ',fname,ierr
      go to 999
   endif
-!#else
-!  call rfile2(fname,id,n,nr)
-!  if(nr.ne.n) then
-!     print*,'Error opening or reading file: ',fname,n,nr
-!     ierr=1002
-!     go to 999
-!  endif
-!
-!#endif
 
   sq=0.
   ka=0.1*NSMAX
