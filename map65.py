@@ -1072,17 +1072,11 @@ def update():
         Audio.gcom2.dftolerance=500
         fqso0=int(Audio.gcom2.mousefqso)
 
-#    if mode.get()[:4]=='JT65' and (Audio.gcom2.ndecoding>0 or \
-#         (isec>45 and  txminute==0 and Audio.gcom2.monitoring==1 and \
-#    if isec != isec00:
-#        print isec,Audio.gcom2.ndecoding,txminute,Audio.gcom2.monitoring, \
-#            Audio.datcom.kkdone
-#        isec00=isec
-
-    if mode.get()[:4]=='JT65' and (Audio.gcom2.ndecoding>0 or \
-         (isec>=options.nt1.get() and txminute==0 and \
-          Audio.gcom2.monitoring==1 and \
-          Audio.datcom.kkdone!=-99 and Audio.gcom2.ndiskdat!=1)):
+##    if mode.get()[:4]=='JT65' and (Audio.gcom2.ndecoding>0 or \
+##         (isec>=options.nt1.get() and txminute==0 and \
+##          Audio.gcom2.monitoring==1 and \
+##          Audio.datcom.kkdone!=-99 and Audio.gcom2.ndiskdat!=1)):
+    if mode.get()[:4]=='JT65' and Audio.gcom2.ndecoding>0:
 #Set button bg while decoding
         bc='#66FFFF'
         bdecode.configure(bg=bc,activebackground=bc,state=DISABLED)

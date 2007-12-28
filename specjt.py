@@ -47,7 +47,6 @@ mode0=""
 mousedf0=0
 mousefqso0=0
 dftolerance0=500
-display_agc=IntVar()
 naxis=IntVar()
 ncall=0
 newMinute=0
@@ -377,7 +376,6 @@ def update():
         frange0=frange
     Audio.gcom2.nfmid=int(fmid)
     Audio.gcom2.nfrange=int(frange)
-    Audio.gcom2.nagc=display_agc.get()
 
     ltime.after(200,update)                      #Reset the timer
 
@@ -474,7 +472,6 @@ sc3=Scale(iframe2,from_=-100.0,to_=100.0,orient='horizontal',
     showvalue=0,sliderlength=5)
 sc3.pack(side=LEFT)
 balloon.bind(sc3,"Gain", "Digital Gain")
-Checkbutton(iframe2,text='Waterfall AGC',variable=display_agc).pack(side=RIGHT)
 iframe2.pack(expand=1, fill=X)
 
 #----------------------------------------------- Restore params from INI file
@@ -496,7 +493,6 @@ try:
             sc2.set(value)
             c0=sc2.get()
         elif key == 'DigitalGain': sc3.set(value)
-        elif key == 'DisplayAGC': display_agc.set(value)
         elif key == 'AxisLabel': naxis.set(value)
         elif key == 'MarkTones': nmark.set(value)
         elif key == 'Flatten': nflat.set(value)
@@ -565,7 +561,6 @@ f.write("UpdateInterval " + str(nspeed0.get()) + "\n")
 f.write("Brightness " + str(b0)+ "\n")
 f.write("Contrast " + str(c0)+ "\n")
 f.write("DigitalGain " + str(g0)+ "\n")
-f.write("DisplayAGC " + str(display_agc.get())+ "\n")
 f.write("AxisLabel " + str(naxis.get()) + "\n")
 f.write("MarkTones " + str(nmark.get()) + "\n")
 f.write("Flatten " + str(nflat.get()) + "\n")

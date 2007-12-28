@@ -72,7 +72,7 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
   do i=ia,ib
      n=savg2(i) * (300.0/ave)
      if(n.gt.1000) n=1000
-     hist(n)=hist(n)+1
+     if(n.ge.0 .and. n.le.1000) hist(n)=hist(n)+1
   enddo
 
   sum=0.
