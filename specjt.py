@@ -35,6 +35,7 @@ b0=0
 c0=0
 g0=0
 g.cmap="Linrad"
+g.cmap0="Linrad"
 bw=96.0
 df=2.69165
 fmid=1500
@@ -282,7 +283,7 @@ def update():
     g0=sc3.get()
 
     newspec=Audio.gcom2.newspec                   #True if new data available
-    if newspec:
+    if newspec or brightness != b0 or contrast != c0 or g.cmap != g.cmap0:
         Audio.spec(brightness,contrast,g0,nspeed,a,a2) #Call Fortran routine spec
         n=Audio.gcom2.nlines
         box=(0,0,NX,130-n)                  #Define region
@@ -292,7 +293,7 @@ def update():
         try:
             if newspec==1:
                 im.paste(region,(0,n))      #Move waterfall down
-            im2.paste(region2,(0,n))        #Move waterfall down
+                im2.paste(region2,(0,n))        #Move waterfall down
         except:
             print "Images did not match, continuing anyway."
         for i in range(n):
@@ -301,8 +302,6 @@ def update():
             line02.putdata(a2[NX*i:NX*(i+1)])#One row of pixels to line0
             im2.paste(line02,(0,i))         #Paste in new top line(s)
         nscroll=nscroll+n
-    b0=brightness                           #Save scale values
-    c0=contrast
 
     if newspec:
         if Audio.gcom2.monitoring:
@@ -325,6 +324,7 @@ def update():
         except:
             pass
 
+    if newspec or brightness != b0 or contrast != c0 or g.cmap != g.cmap0:
         pim=ImageTk.PhotoImage(im)              #Convert Image to PhotoImage
         graph1.delete(ALL)
         pim2=ImageTk.PhotoImage(im2)            #Convert Image to PhotoImage
@@ -335,6 +335,9 @@ def update():
         g.ndecphase=2
         newMinute=0
         Audio.gcom2.newspec=0
+        b0=brightness                           #Save scale values
+        c0=contrast
+        g.cmap0=g.cmap
 
     if (Audio.gcom2.mousedf != mousedf0 or
             Audio.gcom2.mousefqso != mousefqso0 or
@@ -486,14 +489,20 @@ try:
         key,value=params[i].split()
         if   key == 'SpecJTGeometry': root.geometry(value)
         elif key == 'UpdateInterval': nspeed0.set(value)
-        elif key == 'Brightness': sc1.set(value)
-        elif key == 'Contrast': sc2.set(value)
+        elif key == 'Brightness':
+            sc1.set(value)
+            b0=sc1.get()
+        elif key == 'Contrast':
+            sc2.set(value)
+            c0=sc2.get()
         elif key == 'DigitalGain': sc3.set(value)
         elif key == 'DisplayAGC': display_agc.set(value)
         elif key == 'AxisLabel': naxis.set(value)
         elif key == 'MarkTones': nmark.set(value)
         elif key == 'Flatten': nflat.set(value)
-        elif key == 'Palette': g.cmap=value
+        elif key == 'Palette':
+            g.cmap=value
+            g.cmap0=value
         elif key == 'Frange': nfr.set(value)
         elif key == 'Fmid': fmid=int(value)
         else: pass
