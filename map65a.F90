@@ -101,7 +101,11 @@ subroutine map65a(newdat)
               enddo
               call pctile(tavg,tmp,101,50,base(jp))
            enddo
+           bmax=max(base(1),base(2),base(3),base(4))
         endif
+
+!  Do not process extremely strong signals
+        if(nqd.eq.0 .and. bmax.gt.500.0) go to 70
 
 !  Find max signal at this frequency
         smax=0.
@@ -225,6 +229,7 @@ subroutine map65a(newdat)
               endif
            endif
         endif
+70      continue
      enddo
      if(nqd.eq.1) then
         nwrite=0
