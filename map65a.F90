@@ -93,7 +93,6 @@ subroutine map65a(newdat)
      do i=ia,ib                               !Search over freq range
         call sleep_msec(0)
         freq=0.001*((i-1)*df - 23000) + 100.0
-
 !  Find the local base level for each polarization; update every 10 bins.
         if(mod(i-ia,10).eq.0) then
            do jp=1,4
@@ -119,10 +118,12 @@ subroutine map65a(newdat)
 ! ########################### Search for Shorthand Messages #################
            shmsg='   '
 !  Is there a shorthand tone above threshold?
-           if(syncshort.gt.1.0) then
+           thresh0=1.0
+!  Use lower thresh0 at fQSO
+           if(nqd.eq.1 .and. dftolerance.le.100) thresh0=0.
 
+           if(syncshort.gt.thresh0) then
 ! ### Do shorthand AFC here (or maybe after finding a pair?) ###
-
               short(1,i)=syncshort
               short(2,i)=dt2
               short(3,i)=ipol2
@@ -134,36 +135,41 @@ subroutine map65a(newdat)
                  if(short(1,i0).gt.1.0) then
                     fshort=0.001*((i0-1)*df - 23000) + 100.0
 
+                    noffset=0
+                    if(nqd.eq.1) noffset=nint(1000.0*  &
+                         (fshort-foffset-mousefqso)-mousedf)
+                    if(abs(noffset).le.dftolerance) then
 !  Keep only the best candidate within ftol.
 !### NB: sync2 was not defined here!
-                    sync2=syncshort                   !### try this ???
-                    if(fshort-fshort0.le.ftol .and. sync2.gt.sync20    &
-                         .and. nkm.eq.2) km=km-1
-                    if(fshort-fshort0.gt.ftol .or.                     &
-                         sync2.gt.sync20) then
-                       km=km+1
-                       sig(km,1)=nfile
-                       sig(km,2)=nutc
-                       sig(km,3)=fshort
-                       sig(km,4)=syncshort
-                       sig(km,5)=dt2
-                       sig(km,6)=45*(ipol2-1)/57.2957795
-                       sig(km,7)=0
-                       sig(km,8)=snr2
-                       sig(km,9)=0
-                       sig(km,10)=0
+                       sync2=syncshort                   !### try this ???
+                       if(fshort-fshort0.le.ftol .and. sync2.gt.sync20    &
+                            .and. nkm.eq.2) km=km-1
+                       if(fshort-fshort0.gt.ftol .or.                     &
+                            sync2.gt.sync20) then
+                          km=km+1
+                          sig(km,1)=nfile
+                          sig(km,2)=nutc
+                          sig(km,3)=fshort
+                          sig(km,4)=syncshort
+                          sig(km,5)=dt2
+                          sig(km,6)=45*(ipol2-1)/57.2957795
+                          sig(km,7)=0
+                          sig(km,8)=snr2
+                          sig(km,9)=0
+                          sig(km,10)=0
 !                           sig(km,11)=rms0
-                       sig(km,12)=savg(ipol2,i)
-                       sig(km,13)=0
-                       sig(km,14)=0
-                       sig(km,15)=0
-                       sig(km,16)=0
+                          sig(km,12)=savg(ipol2,i)
+                          sig(km,13)=0
+                          sig(km,14)=0
+                          sig(km,15)=0
+                          sig(km,16)=0
 !                           sig(km,17)=0
-                       sig(km,18)=0
-                       msg(km)=shmsg0(j)
-                       fshort0=fshort
-                       sync20=sync2
-                       nkm=2
+                          sig(km,18)=0
+                          msg(km)=shmsg0(j)
+                          fshort0=fshort
+                          sync20=sync2
+                          nkm=2
+                       endif
                     endif
                  endif
               enddo
@@ -172,9 +178,11 @@ subroutine map65a(newdat)
 ! ########################### Search for Normal Messages ###########
 !  Is sync1 above threshold?
            thresh1=1.0
-           if(nqd.eq.1 .and. dftolerance.le.100) thresh1=0.  !Lower thresh1 at fQSO
-           if(sync1.gt.thresh1) then
-
+!  Use lower thresh1 at fQSO
+           if(nqd.eq.1 .and. dftolerance.le.100) thresh1=0.
+           noffset=0
+           if(nqd.eq.1) noffset=nint(1000.0*(freq-foffset-mousefqso)-mousedf)
+           if(sync1.gt.thresh1 .and. abs(noffset).le.dftolerance) then
 !  Keep only the best candidate within ftol.
 !  (Am I deleting any good decodes by doing this?)
               if(freq-freq0.le.ftol .and. sync1.gt.sync10 .and.               &
@@ -243,6 +251,7 @@ subroutine map65a(newdat)
               nkHz=nint(freq-foffset)
               f0=144.0+0.001*nkHz
               ndf=nint(1000.0*(freq-foffset-nkHz))
+
 !              ndf0=nint(a(1))
 !              ndf1=nint(a(2))
 !              ndf2=nint(a(3))
