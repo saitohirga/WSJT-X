@@ -895,14 +895,13 @@ def mouse_up_g1(event):
 #------------------------------------------------------ right_arrow
 def right_arrow(event=NONE):
     n=5*int(Audio.gcom2.mousedf/5)
-    if n>0: n=n+5
+    if n!=0: n=n+5
     if n==Audio.gcom2.mousedf: n=n+5
     Audio.gcom2.mousedf=n
     
 #------------------------------------------------------ left_arrow
 def left_arrow(event=NONE):
     n=5*int(Audio.gcom2.mousedf/5)
-    if n<0: n=n-5
     if n==Audio.gcom2.mousedf: n=n-5
     Audio.gcom2.mousedf=n
 
