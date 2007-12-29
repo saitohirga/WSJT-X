@@ -159,6 +159,7 @@ subroutine display(nkeep,ncsmin)
   nc=nc+1
   freqcall(nc)='            '
   freqcall(nc+1)='            '
+  freqcall(nc+2)='            '
   iz=(nc+2)/3
   do i=1,iz
      bm2=freqcall(i)//'  '//freqcall(i+iz)//'  '//freqcall(i+2*iz)
