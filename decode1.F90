@@ -75,6 +75,7 @@ subroutine decode1(iarg)
      if(sendingsh.eq.1) cshort='(Shorthand)'
      write(21,1010) ih,im,is,mode,sending,cshort
 1010 format(3i2.2,'  Transmitting: ',a6,2x,a28,2x,a11)
+     call flushqqq(21)
      sending0=sending
      sendingsh0=sendingsh
      mode0=mode
