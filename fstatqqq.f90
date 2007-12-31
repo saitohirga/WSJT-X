@@ -1,10 +1,10 @@
 subroutine fstatqqq(lu,istat,ierr)
 
-#ifdef Win32
+#ifdef CVF
   use dfport
 #endif
 
-#ifdef Win32
+#ifdef CVF
   ierr=fstat(lu,istat)
 #else
   call fstat(lu,istat,ierr)

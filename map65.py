@@ -8,8 +8,10 @@ from tkMessageBox import showwarning
 import g,os,time
 import Audio
 from math import log10
-#from Numeric import zeros
-from numpy import zeros
+try:
+    from numpy.oldnumeric import zeros
+except: 
+    from Numeric import zeros
 import dircache
 import Image,ImageTk  #, ImageDraw
 from palettes import colormapblue, colormapgray0, colormapHot, \

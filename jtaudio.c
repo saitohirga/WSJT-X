@@ -40,7 +40,7 @@ typedef struct _SYSTEMTIME
   short   Millisecond;
 } SYSTEMTIME;
 
-#ifdef Win32
+#ifdef CVF
 extern void __stdcall GetSystemTime(SYSTEMTIME *st);
 #else
 #include <sys/time.h>

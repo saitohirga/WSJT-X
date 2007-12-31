@@ -1,5 +1,5 @@
 #include <stdio.h>
-//#ifdef Win32
+//#ifdef CVF
 #include "samplerate.h"
 //#else
 //#include <samplerate.h>

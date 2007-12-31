@@ -1,6 +1,6 @@
 subroutine sysqqq(cmnd,iret)
 
-#ifdef Win32
+#ifdef CVF
   use dfport
 #else
   integer system
