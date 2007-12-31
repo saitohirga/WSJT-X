@@ -4,7 +4,7 @@ subroutine recvpkt(iarg)
 ! Receive timf2 packets from Linrad, stuff data into id().
 ! This routine runs in a background thread and will never return.
 
-!#ifdef Win32
+!#ifdef CVF
 !  use dflib
 !#endif
 

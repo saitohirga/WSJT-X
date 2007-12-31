@@ -9,7 +9,11 @@ import g
 import string
 import cPickle
 #from Numeric import zeros, multiarray
-import numpy
+#import numpy
+try:
+    from numpy.oldnumeric import zeros, multiarray
+except:
+    from Numeric import zeros, multiarray
 import Image, ImageTk, ImageDraw
 from palettes import colormapblue, colormapgray0, colormapHot, \
      colormapAFMHot, colormapgray1, colormapLinrad, Colormap2Palette
@@ -69,15 +73,15 @@ ttot=0.0
 c=Canvas()
 NX=750
 NY=130
-#a=zeros(NX*NY,'s')
-a=numpy.zeros(NX*NY,numpy.int16)
+a=zeros(NX*NY,'s')
+#a=numpy.zeros(NX*NY,numpy.int16)
 im=Image.new('P',(NX,NY))
 line0=Image.new('P',(NX,1))  #Image fragment for top line of waterfall
 draw=ImageDraw.Draw(im)
 pim=ImageTk.PhotoImage(im)
 
-#a2=zeros(NX*NY,'s')
-a2=numpy.zeros(NX*NY,numpy.int16)
+a2=zeros(NX*NY,'s')
+#a2=numpy.zeros(NX*NY,numpy.int16)
 im2=Image.new('P',(NX,NY))
 line02=Image.new('P',(NX,1)) #Image fragment for top line of zoomed waterfall
 draw2=ImageDraw.Draw(im2)

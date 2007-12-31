@@ -1,4 +1,4 @@
-#ifdef Win32
+#ifdef CVF
 extern int __stdcall IGRAY(int *n0, int *idir)
 #else
 int igray_(int *n0, int *idir)
