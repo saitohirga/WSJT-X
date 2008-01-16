@@ -35,7 +35,7 @@ SRCS2F77 = indexx.f gen65.f chkmsg.f \
 	filbig.f fil659.f fil658.f fil6521.f twkfreq.f decode65b.f \
 	afc65b.f fchisq.f ccf2.f
 
-SRCS2C   = resample.c ptt.c igray.c wrapkarn.c rfile3.c wfile3.c
+SRCS2C   = resample.c ptt.c igray.c wrapkarn.c rfile3.c
 
 MAP65.EXE: Audio.pyd map65.spec
 	python c:\python23\installer\Build.py map65.spec
@@ -43,7 +43,7 @@ MAP65.EXE: Audio.pyd map65.spec
 Audio.pyd: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C) $(SRCSCOM)
 	python f2py.py -c \
 	--quiet --"fcompiler=compaqv" \
-	--opt="/nologo /traceback /warn:errors /fast /fpp /define:Win32 \
+	--opt="/nologo /traceback /warn:errors /fast /fpp /define:CVF \
 	      /define:USE_PORTAUDIO" \
 	$(OBJS2C) \
 	-lwinmm -lws2_32 -lpa -lfftw3single -llibsamplerate \
@@ -56,7 +56,7 @@ map65.spec: map65.py astro.py g.py options.py palettes.py smeter.py specjt.py
 	--tk --onefile map65.py
 
 jtaudio.o: jtaudio.c
-	$(CC) /nologo /c /DWin32 /Fojtaudio.o jtaudio.c
+	$(CC) /nologo /c /DCVF /Fojtaudio.o jtaudio.c
 
 init_rs.obj: init_rs.c
 	$(CC) /nologo /c /DBIGSYM=1 init_rs.c
@@ -77,10 +77,10 @@ decode_rs.o: decode_rs.c
 	$(CC) /nologo /c /DBIGSYM=1 /Ox /Zd /Fodecode_rs.o decode_rs.c
 
 wrapkarn.obj: wrapkarn.c
-	$(CC) /nologo /c /DWin32=1 wrapkarn.c
+	$(CC) /nologo /c /DCVF=1 wrapkarn.c
 
 igray.obj: igray.c
-	$(CC) /nologo /c /DWin32=1 igray.c
+	$(CC) /nologo /c /DCVF=1 igray.c
 
 plrr_subs.o: plrr_subs_win.c
 	$(CC) /nologo /c plrr_subs_win.c /Foplrr_subs.o
