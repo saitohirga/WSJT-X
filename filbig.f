@@ -70,6 +70,7 @@ C  If we just have a new f0, continue with the existing ca and cb.
             ca(i)=cmplx(float(int(id(1,i))),float(int(id(2,i))))
             cb(i)=cmplx(float(int(id(3,i))),float(int(id(4,i))))
          enddo
+
          if(nmax.lt.NFFT1) then
             do i=nmax+1,NFFT1
                ca(i)=0.
@@ -93,7 +94,7 @@ C      i0 is the bin number in ca and cb closest to f0.
       enddo
       do i=nh+1,NFFT2
          j=i0+i-1-NFFT2
-         if(j.lt.1) j=j+NFFT2
+         if(j.lt.1) j=j+NFFT1
          c4a(i)=rfilt(i)*ca(j)
          c4b(i)=rfilt(i)*cb(j)
       enddo
