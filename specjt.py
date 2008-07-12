@@ -42,6 +42,7 @@ g.cmap="Linrad"
 g.cmap0="Linrad"
 bw=96.0
 df=2.69165
+fcenter0=0.
 fmid=1500
 fmid0=1500
 frange=2000
@@ -191,19 +192,21 @@ def draw_axis():
         xmid=125.0 - 2.3                        #Empirical    
     x1=int(xmid-0.6*bw)                         #Make it too wide, to be
     x2=int(xmid+0.6*bw)                         #sure to get all the numbers
+    ixadd=(int(1000.0*Audio.gcom2.fcenter) % 1000) - 125
     ilab=10
     if bw <= 60.0: ilab=5
     if bw <= 30.0: ilab=2
     for ix in range(x1,x2,1):
         i=0.5*NX + (ix-xmid)/xdf
         j=20
-        if (ix%5)==0: j=16
-        if (ix%ilab)==0 :
+        k=int(ix+ixadd+10000.5)%1000
+        if (k%5)==0: j=16
+        if (k%ilab)==0 :
             j=16
             x=i-1
-            if ix<100: x=x+1
+            if k<100: x=x+1
             y=8
-            c.create_text(x,y,text=str(ix))
+            c.create_text(x,y,text=str(k))
         c.create_line(i,25,i,j,fill='black')     #Draw the upper scale
             
     c2.delete(ALL)
@@ -258,7 +261,7 @@ def update():
     global a,a2,b0,c0,g0,im,im2,isec0,line0,line02,newMinute,\
            nscroll,pim,pim2,nfa0,nfb0,bw, \
            root_geom,t0,mousedf0,mousefqso0,nfreeze0,tol0,mode0,nmark0, \
-           fmid,fmid0,frange,frange0,dftolerance0
+           fmid,fmid0,frange,frange0,dftolerance0,fcenter0
     
     utc=time.gmtime(time.time()+0.1*Audio.gcom1.ndsec)
     isec=utc[5]
@@ -371,6 +374,10 @@ def update():
 #    if newspec: Audio.gcom2.ndiskdat=0
     Audio.gcom2.nlines=0
     Audio.gcom2.nflat=nflat.get()
+
+    if Audio.gcom2.fcenter!=fcenter0:
+        draw_axis()
+        fcenter0=float(Audio.gcom2.fcenter)
     frange=nfr.get()*2000
     if(fmid<>fmid0 or frange<>frange0):
         if fmid<1000*nfr.get(): fmid=1000*nfr.get()

@@ -979,6 +979,8 @@ def update():
         msg4.configure(text=t)
         t="Drop: %.2f %%" % Audio.gcom2.pctlost
         msg5.configure(text=t)
+        t="%d  %d   %d" % (Audio.datcom.kbuf,Audio.datcom.kk,Audio.datcom.kxp/96000)
+        msg7.configure(text=t)
         root_geom=root.geometry()
         try:
             bm_geom=bm.geometry()
@@ -1125,7 +1127,7 @@ def update():
     else:
         bgcolor='green'
         t='Receiving'
-    msg7.configure(text=t,bg=bgcolor)
+    msg8.configure(text=t,bg=bgcolor)
 
     if Audio.gcom2.ndecdone>0 or g.cmap != cmap0:
         if Audio.gcom2.ndecdone==1:
@@ -1714,8 +1716,10 @@ msg5=Message(iframe6, text="", width=300,relief=SUNKEN)
 msg5.pack(side=LEFT, fill=X, padx=1)
 msg6=Message(iframe6, text="", width=300,relief=SUNKEN)
 msg6.pack(side=LEFT, fill=X, padx=1)
-msg7=Message(iframe6, text='                        ', width=300,relief=SUNKEN)
-msg7.pack(side=RIGHT, fill=X, padx=1)
+msg7=Message(iframe6, text="", width=300,relief=SUNKEN)
+msg7.pack(side=LEFT, fill=X, padx=1)
+msg8=Message(iframe6, text='                        ', width=300,relief=SUNKEN)
+msg8.pack(side=RIGHT, fill=X, padx=1)
 iframe6.pack(expand=1, fill=X, padx=4)
 frame.pack()
 ldate.after(100,update)
