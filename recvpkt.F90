@@ -1,12 +1,7 @@
-!----------------------------------------------------- recvpkt
 subroutine recvpkt(iarg)
 
-! Receive timf2 packets from Linrad, stuff data into id().
-! This routine runs in a background thread and will never return.
-
-!#ifdef CVF
-!  use dflib
-!#endif
+! Receive timf2 packets from Linrad and stuff data into array id().
+! (This routine runs in a background thread and will never return.)
 
   parameter (NSZ=2*60*96000)
   real*8 d8(NSZ)
@@ -20,7 +15,7 @@ subroutine recvpkt(iarg)
   include 'gcom1.f90'
   include 'gcom2.f90'
   equivalence (id,d8)
-  data nblock0/0/,first/.true./,kb/1/,ntx/0/,npkt/0/,nw/0/
+  data nblock0/0/,first/.true./,kb/1/,npkt/0/,nw/0/
   data sqave/0.0/,u/0.001/,rxnoise/0.0/,kbuf/1/,lost_tot/0/
   data multicast0/-99/
   save
@@ -29,39 +24,59 @@ subroutine recvpkt(iarg)
   nreset=-1
   k=0
   nsec0=-999
-  fcenter=144.125               !Default (startup) frequency)
+  fcenter=144.125                   !Default (startup) frequency)
   multicast0=multicast
 
 10 if(multicast.ne.multicast0) go to 1
 
   call recv_pkt(center_freq)
-  if(nsec0.eq.-999) fcenter=center_freq
+  fcenter=center_freq
+
+! Wait for an even minute to start accepting Rx data.
+  if(nsec0.eq.-999) then
+     if(mod(msec/1000,60).ne.0) go to 10
+     nsec0=-998
+  endif
+
   isec=sec_midn()
   imin=isec/60
   if((monitoring.eq.0) .or. (lauto.eq.1 .and. mod(imin,2).eq.(1-TxFirst))) then
      first=.true.
+
+! If we're transmitting and were previously receiving in this minute,
+! switch buffers to prepare for the next Rx minute.
+     if(lauto.eq.1 .and. mod(imin,2).eq.(1-TxFirst) .and. reset.eq.1) then
+        nreset=0
+        kb=3-kb
+        k=0
+        if(kb.eq.2) k=NSMAX
+        lost_tot=0
+        ndone1=0
+        ndone2=0
+     endif
      go to 10
   endif
 
+! If we get here, we're in Rx mode
   lost=nblock-nblock0-1
   if(lost.ne.0 .and. .not.first) then
      nb=nblock
      if(nb.lt.0) nb=nb+65536
      nb0=nblock0
      if(nb0.lt.0) nb0=nb0+65536
-!     if(ndebug.gt.0) print*,'Lost packets:',nb0,nb,lost
      lost_tot=lost_tot + lost               ! Insert zeros for the lost data.
      do i=1,174*lost
         k=k+1
         d8(k)=0
      enddo
   endif
-   nblock0=nblock
+  nblock0=nblock
 
   nsec=msec/1000
   if(mod(nsec,60).eq.1) nreset=1
+
+! If this is the start of a new minute, switch buffers
   if(mod(nsec,60).eq.0 .and. nreset.eq.1) then
-! This is the start of a new minute, switch buffers
      nreset=0
      kb=3-kb
      k=0
@@ -91,7 +106,12 @@ subroutine recvpkt(iarg)
   rxnoise=10.0*log10(sqave) - 48.0
   kxp=k
 
-!  This may be a bad idea, because of non-reentrant Fortran I/O?
+  if(k.lt.1 .or. k.gt.NSZ) then
+     print*,'Error in recvpkt: ',k,NSZ,NSMAX
+     stop
+  endif
+
+! The following may be a bad idea because it uses non-reentrant Fortran I/O ???
   if(mode.eq.'Measur') then
      npkt=npkt+1
      if(npkt.ge.551) then
@@ -109,37 +129,27 @@ subroutine recvpkt(iarg)
      nw=0
   endif
 
-  if(k.lt.1 .or. k.gt.NSZ) then
-     print*,'Error in recvpkt: ',k,NSZ,NSMAX
-     stop
-  endif
-
 20 if(nsec.ne.nsec0) then
      mutch=nsec/3600
      mutcm=mod(nsec/60,60)
      mutc=100*mutch + mutcm
      ns=mod(nsec,60)
      nsec0=nsec
-     ntx=ntx+transmitting
 
+! See if it's time to start FFTs
      if(ns.ge.nt1 .and. ndone1.eq.0) then
-!  Time in this minute has reached designated time to start FFTs
         nutc=mutc
         fcenter=center_freq
         kbuf=kb
         kk=k
         ndiskdat=0
         ndone1=1
-!        if(ndebug.eq.2) write(29,3001) nutc,mod(int(sec_midn()),60),  &
-!             kbuf,kk,kkdone
-!3001    format('r1:',i5.4,i3.2,i5,2i10)
      endif
+
+! See if it's time to start second stage of processing
      if(ns.ge.nt2 .and. ndone2.eq.0) then
         kk=k
         ndone2=1
-!        if(ndebug.eq.2) write(29,3002) nutc,mod(int(sec_midn()),60),  &
-!             kbuf,kk,kkdone
-!3002    format('r2:',i5.4,i3.2,i5,2i10)
         nlost=lost_tot                         ! Save stats for printout
      endif
   endif

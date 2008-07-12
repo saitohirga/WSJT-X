@@ -94,7 +94,7 @@ C      i0 is the bin number in ca and cb closest to f0.
       enddo
       do i=nh+1,NFFT2
          j=i0+i-1-NFFT2
-         if(j.lt.1) j=j+NFFT1
+         if(j.lt.1) j=j+NFFT1                  !NFFT1 was NFFT2
          c4a(i)=rfilt(i)*ca(j)
          c4b(i)=rfilt(i)*cb(j)
       enddo
