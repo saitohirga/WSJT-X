@@ -45,7 +45,7 @@ subroutine recvpkt(iarg)
 
 ! If we're transmitting and were previously receiving in this minute,
 ! switch buffers to prepare for the next Rx minute.
-     if(lauto.eq.1 .and. mod(imin,2).eq.(1-TxFirst) .and. reset.eq.1) then
+     if(lauto.eq.1 .and. mod(imin,2).eq.(1-TxFirst) .and. nreset.eq.1) then
         nreset=0
         kb=3-kb
         k=0
