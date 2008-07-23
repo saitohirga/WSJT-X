@@ -82,7 +82,7 @@ subroutine recvpkt(iarg)
   endif
   nblock0=nblock
 
-  if(mod(nsec,60).eq.1 .or. transmitting) nreset=1
+  if(mod(nsec,60).eq.1 .or. transmitting.eq.1) nreset=1
   tdiff=mod(0.001d0*msec,60.d0)-mod(Tsec,60.d0)
   if(tdiff.lt.-30.) tdiff=tdiff+60.
   if(tdiff.gt.30.) tdiff=tdiff-60.
