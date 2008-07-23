@@ -23,9 +23,10 @@ subroutine map65a(newdat)
   data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/,mousefqso0/-999/
   save
 
-  nfoffset=nint(1000*(fcenter-144.125d0))
   if(mousefqso.ne.mousefqso0 .and. nagain.eq.1) newspec=2
   mousefqso0=mousefqso
+  nfoffset=nint(1000*(fcenter-144.125d0))
+  mfqso=mousefqso - nfoffset
 
   pctlost=nlost/331.03
   if(ndebug.eq.2) write(29,3001) nutc,mod(int(sec_midn()),60),nlost,pctlost
@@ -51,7 +52,7 @@ subroutine map65a(newdat)
   df=96000.0/NFFT                     !df = 96000/NFFT = 2.930 Hz
   ftol=0.020                          !Frequency tolerance (kHz)
   foffset=0.001*(1270 + nfcal)
-  fselect=mousefqso + foffset
+  fselect=mfqso + foffset
   nfilt=1
   dphi=idphi/57.2957795
 
@@ -142,7 +143,7 @@ subroutine map65a(newdat)
 
                     noffset=0
                     if(nqd.eq.1) noffset=nint(1000.0*  &
-                         (fshort-foffset-mousefqso)-mousedf)
+                         (fshort-foffset-mfqso)-mousedf)
                     if(abs(noffset).le.dftolerance) then
 !  Keep only the best candidate within ftol.
 !### NB: sync2 was not defined here!
@@ -186,7 +187,7 @@ subroutine map65a(newdat)
 !  Use lower thresh1 at fQSO
            if(nqd.eq.1 .and. dftolerance.le.100) thresh1=0.
            noffset=0
-           if(nqd.eq.1) noffset=nint(1000.0*(freq-foffset-mousefqso)-mousedf)
+           if(nqd.eq.1) noffset=nint(1000.0*(freq-foffset-mfqso)-mousedf)
            if(sync1.gt.thresh1 .and. abs(noffset).le.dftolerance) then
 !  Keep only the best candidate within ftol.
 !  (Am I deleting any good decodes by doing this?)
@@ -256,7 +257,7 @@ subroutine map65a(newdat)
               endif
               nkHz=nint(freq-foffset) + nfoffset
               f0=144.0+0.001*nkHz
-              ndf=nint(1000.0*(freq-foffset-nkHz))
+              ndf=nint(1000.0*(freq-foffset-nkHz+nfoffset))
 
 !              ndf0=nint(a(1))
 !              ndf1=nint(a(2))
@@ -281,7 +282,7 @@ subroutine map65a(newdat)
            endif
         enddo
         if(nwrite.eq.0) then
-           nfqso=mousefqso + nfoffset
+           nfqso=mfqso + nfoffset
            write(11,1012) nfqso,nutc
 1012          format(i3,9x,i5.4)
         endif
@@ -353,7 +354,7 @@ subroutine map65a(newdat)
            endif
            nkHz=nint(freq-foffset) + nfoffset
            f0=144.0+0.001*nkHz
-           ndf=nint(1000.0*(freq-foffset-nkHz))
+           ndf=nint(1000.0*(freq-foffset-nkHz+nfoffset))
            ndf0=nint(a(1))
            ndf1=nint(a(2))
            ndf2=nint(a(3))
