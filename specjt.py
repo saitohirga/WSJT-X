@@ -222,7 +222,6 @@ def draw_axis():
             c2.create_text(x,y,text=str(ix))
         c2.create_line(i,25,i,j,fill='black')
 
-
 #---------------------------------------------------- freq_range
 def freq_range(event):
 # Move frequency scale left or right in 100 Hz increments
@@ -335,6 +334,15 @@ def update():
         c0=contrast
         g.cmap0=g.cmap
 
+    if Audio.gcom2.nfreeze != nfreeze0:
+        if not Audio.gcom2.nfreeze: draw_axis()
+        if Audio.gcom2.nfreeze: df_mark()
+        nfreeze0=int(Audio.gcom2.nfreeze)
+
+    if Audio.gcom2.fcenter!=fcenter0:
+        draw_axis()
+        fcenter0=float(Audio.gcom2.fcenter)
+
     if (Audio.gcom2.mousedf != mousedf0 or
             Audio.gcom2.mousefqso != mousefqso0 or
             Audio.gcom2.dftolerance != dftolerance0 or
@@ -348,11 +356,6 @@ def update():
         nfa0=int(Audio.gcom2.nfa)
         nfb0=int(Audio.gcom2.nfb)
 
-    if Audio.gcom2.nfreeze != nfreeze0:
-        if not Audio.gcom2.nfreeze: draw_axis()
-        if Audio.gcom2.nfreeze: df_mark()
-        nfreeze0=int(Audio.gcom2.nfreeze)
-
     if g.mode!=mode0:
         df_mark()                        ### was draw_axis()
         mode0=g.mode
@@ -365,9 +368,6 @@ def update():
     Audio.gcom2.nlines=0
     Audio.gcom2.nflat=nflat.get()
 
-    if Audio.gcom2.fcenter!=fcenter0:
-        draw_axis()
-        fcenter0=float(Audio.gcom2.fcenter)
     frange=nfr.get()*2000
     if(fmid<>fmid0 or frange<>frange0):
         if fmid<1000*nfr.get(): fmid=1000*nfr.get()
