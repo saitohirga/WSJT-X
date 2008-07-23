@@ -15,7 +15,7 @@ subroutine recvpkt(iarg)
   include 'gcom1.f90'
   include 'gcom2.f90'
   equivalence (id,d8)
-  data nblock0/0/,first/.true./,kb/1/,npkt/0/,nw/0/
+  data nblock0/0/,first/.true./,kb/1/,npkt/0/,nw/0/,nseq/0/
   data sqave/0.0/,u/0.001/,rxnoise/0.0/,kbuf/1/,lost_tot/0/
   data multicast0/-99/
   save
@@ -31,15 +31,23 @@ subroutine recvpkt(iarg)
 
   call recv_pkt(center_freq)
   fcenter=center_freq
+  nsec=mod(Tsec,86400.d0)
 
-! Wait for an even minute to start accepting Rx data.
+! Wait for start of a minute to begin accepting Rx data.
+! (Alternative: wreset buffer pointers at start of minute?)
   if(nsec0.eq.-999) then
-     if(mod(msec/1000,60).ne.0) go to 10
+     if(mod(nsec,60).ne.0) go to 10
      nsec0=-998
   endif
 
   isec=sec_midn()
   imin=isec/60
+
+  if(transmitting.eq.1) then
+     ndone1=0
+     ndone2=0
+  endif
+
   if((monitoring.eq.0) .or. (lauto.eq.1 .and. mod(imin,2).eq.(1-TxFirst))) then
      first=.true.
 
@@ -58,6 +66,8 @@ subroutine recvpkt(iarg)
   endif
 
 ! If we get here, we're in Rx mode
+
+! Check for lost packets
   lost=nblock-nblock0-1
   if(lost.ne.0 .and. .not.first) then
      nb=nblock
@@ -72,8 +82,10 @@ subroutine recvpkt(iarg)
   endif
   nblock0=nblock
 
-  nsec=msec/1000
-  if(mod(nsec,60).eq.1) nreset=1
+  if(mod(nsec,60).eq.1 .or. transmitting) nreset=1
+  tdiff=mod(0.001d0*msec,60.d0)-mod(Tsec,60.d0)
+  if(tdiff.lt.-30.) tdiff=tdiff+60.
+  if(tdiff.gt.30.) tdiff=tdiff-60.
 
 ! If this is the start of a new minute, switch buffers
   if(mod(nsec,60).eq.0 .and. nreset.eq.1) then
@@ -84,11 +96,18 @@ subroutine recvpkt(iarg)
      lost_tot=0
      ndone1=0
      ndone2=0
+     nseq=nseq+1
+     kxp=k
   endif
 
-  if(kb.eq.1 .and. (k+174).gt.NSMAX) go to 20
-  if(kb.eq.2 .and. (k+174).gt.2*NSMAX) go to 20
+! Test for buffer full
+  if((kb.eq.1 .and. (k+174).gt.NSMAX) .or.                          &
+       (kb.eq.2 .and. (k+174).gt.2*NSMAX)) then
+     print*,'Recvpkt:',kb,k,NSMAX
+     go to 20
+  endif
 
+! Move data into Rx buffer and compute average signal level.
   sq=0.
   do i=1,174
      k=k+1
@@ -130,13 +149,15 @@ subroutine recvpkt(iarg)
   endif
 
 20 if(nsec.ne.nsec0) then
-     mutch=nsec/3600
-     mutcm=mod(nsec/60,60)
-     mutc=100*mutch + mutcm
-     ns=mod(nsec,60)
      nsec0=nsec
 
+     nseclr=msec/1000
+     mutch=nseclr/3600
+     mutcm=mod(nseclr/60,60)
+     mutc=100*mutch + mutcm
+
 ! See if it's time to start FFTs
+     ns=mod(nsec,60)
      if(ns.ge.nt1 .and. ndone1.eq.0) then
         nutc=mutc
         fcenter=center_freq
@@ -147,11 +168,17 @@ subroutine recvpkt(iarg)
      endif
 
 ! See if it's time to start second stage of processing
-     if(ns.ge.nt2 .and. ndone2.eq.0) then
+!     if(ns.ge.nt2 .and. ndone2.eq.0) then
+     if(ns.ge.nt2) then
         kk=k
         ndone2=1
         nlost=lost_tot                         ! Save stats for printout
      endif
+
+!     if(ns.le.5 .or. ns.ge.46) write(*,3001) ns,ndone1,ndone2,kb,  &
+!          kbuf,nreset,kk,tdiff
+!3001 format(6i4,i12,f8.2)
+
   endif
   first=.false.
   go to 10

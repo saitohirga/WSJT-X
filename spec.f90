@@ -107,10 +107,10 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
   imid0=nint(1000.0*(fmid-125.0+48.0)/df) - nbpp/2  !Last term is empirical
   i0=imid-375
   ii0=imid0-375*nbpp
-  if(nfullspec.eq.1) then
-     nbpp=NFFT/NX
-     ii0=0
-  endif
+!  if(nfullspec.eq.1) then
+!     nbpp=NFFT/NX
+!     ii0=0
+!  endif
 
   k=0
   do j=nlines,1,-1               !Reverse order so last will be on top

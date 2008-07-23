@@ -977,10 +977,10 @@ def update():
         ldate.configure(text=t)
         t="Rx noise: %.1f dB" % Audio.gcom2.rxnoise
         msg4.configure(text=t)
-        t="Drop: %.2f %%" % Audio.gcom2.pctlost
+##        t="Drop: %.2f %%" % Audio.gcom2.pctlost
+##        msg5.configure(text=t)
+        t="%d  %d   %d" % (Audio.datcom.kbuf,Audio.datcom.kk,Audio.datcom.kxp/96000)
         msg5.configure(text=t)
-##        t="%d  %d   %d" % (Audio.datcom.kbuf,Audio.datcom.kk,Audio.datcom.kxp/96000)
-##        msg7.configure(text=t)
         root_geom=root.geometry()
         try:
             bm_geom=bm.geometry()
