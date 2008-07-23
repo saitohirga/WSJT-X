@@ -120,8 +120,8 @@ def pal_AFMHot():
 # Readout of graphical cursor location
 def fdf_change(event):
     global bw
-    fmid=0.5*float(Audio.gcom2.nfb + Audio.gcom2.nfa)
-    if Audio.gcom2.nfullspec:  fmid=125.0 - 2.2         #Empirical
+    m=int(1000.0*Audio.gcom2.fcenter) % 1000 - 125
+    fmid=0.5*float(Audio.gcom2.nfa + Audio.gcom2.nfb) + m
     df=bw/NX                                   #kHz per pixel
     g.Freq=df*(event.x-375) + fmid
     n=int(g.Freq+0.5)
@@ -158,16 +158,11 @@ def df_mark():
     draw_axis()
 # Mark QSO freq in top graph
     color='green'
-    fmid=0.5*float(Audio.gcom2.nfb + Audio.gcom2.nfa)
-    if Audio.gcom2.nfullspec: fmid=125.0 - 2.3      #Empirical    
+    m=int(1000.0*Audio.gcom2.fcenter) % 1000 - 125
+    fmid=0.5*float(Audio.gcom2.nfa + Audio.gcom2.nfb) + m
     df=bw/NX                                #kHz per pixel
     x1=375.0 + (Audio.gcom2.mousefqso-fmid)/df    
     c.create_line(x1,25,x1,12,fill=color,width=2)
-    if Audio.gcom2.nfullspec:
-        x1=375.0 + (Audio.gcom2.nfa-fmid)/df
-        x2=375.0 + (Audio.gcom2.nfb-fmid)/df
-        c.create_line(x1,25,x2,25,fill=color,width=2)
-
     df=96000.0/32768.0
 # Mark sync tone and top JT65 tone (green) and shorthand tones (red)
     fstep=20.0*11025.0/4096.0
@@ -188,8 +183,6 @@ def draw_axis():
     c.delete(ALL)
     xdf=bw/NX                                   #kHz per pixel
     xmid=0.5*float(Audio.gcom2.nfb + Audio.gcom2.nfa)
-    if Audio.gcom2.nfullspec:
-        xmid=125.0 - 2.3                        #Empirical    
     x1=int(xmid-0.6*bw)                         #Make it too wide, to be
     x2=int(xmid+0.6*bw)                         #sure to get all the numbers
     ixadd=(int(1000.0*Audio.gcom2.fcenter) % 1000) - 125
@@ -277,9 +270,6 @@ def update():
 
     nbpp=int((Audio.gcom2.nfb - Audio.gcom2.nfa)*32768/(96.0*NX))
     bw=750.0*(96.0/32768.0)*nbpp
-    if Audio.gcom2.nfullspec:
-        nbpp=int(32768.0/NX)
-        bw=750.0*(96.0/32768.0)*nbpp
 
     if g.showspecjt==1:
         showspecjt()

@@ -46,7 +46,6 @@ integer nkeep          !Timeout limit for band maps (min)       GUI
 integer nmode          !Which WSJT mode?                   GUI,Decoder
 integer mode65         !JT65 sub-mode (A/B/C ==> 1/2/4) GUI,SoundIn,Decoder
 integer nbpp           !# FFT Bins/pixel, wideband waterfall   Spec
-integer nfullspec      !Set to 1 to display full spectrum       GUI
 integer ndebug         !Write debugging info?                   GUI
 integer ndphi          !Set to 1 to compute dphi             GUI,Decoder
 integer nhispol        !Pol angle matching HisCall or HisGrid Decoder
@@ -110,7 +109,7 @@ common/gcom2/fcenter,ps0(431),psavg(450),s2(64,3100),ccf(-5:540),           &
      ndecdone,npingtime,ierr,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5,     &
      dftolerance,LDecoded,rxdone,monitoring,nzap,minsigdb,                  &
      nclearave,nfreeze,nafc,ncsmin,newspec,nfa,nfb,nfcal,idphi,nkeep,       &
-     nmode,mode65,nbpp,nfullspec,ndebug,ndphi,nhispol,nt1,nt2,              &
+     nmode,mode65,nbpp,ndebug,ndphi,nhispol,nt1,nt2,                        &
      nblank,nport,mousedf,mousefqso,neme,nrw26,naggressive,ntx2,nagain,     &
      shok,sendingsh,d2a(661500),d2b(661500),b(60000),jza,jzb,ntime,         &
      idinterval,msmax,lenappdir,idf,ndiskdat,nlines,nflat,ntxreq,ntxnow,    &
