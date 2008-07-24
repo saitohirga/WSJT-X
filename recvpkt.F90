@@ -21,9 +21,10 @@ subroutine recvpkt(iarg)
 
 1 call setup_rsocket(multicast)     !Open socket for multicast/unicast data
   k=0
+  k0=0
   kk=0
   kxp=0
-  kb=1
+  kb=2
   nsec0=-999
   fcenter=144.125                   !Default (startup) frequency)
   multicast0=multicast
@@ -43,6 +44,7 @@ subroutine recvpkt(iarg)
   if(ns.lt.ns0) then
      if(ntx.eq.0) kb=3-kb
      k=(kb-1)*60*96000
+     k0=k
      ndone1=0
      ntx=0
      lost_tot=0
@@ -105,7 +107,7 @@ subroutine recvpkt(iarg)
 
 ! If we have not transmitted in this minute, see if it's time to start FFTs
      if(ntx.eq.0) then
-        if(ns.ge.nt1 .and. ndone1.eq.0) then
+        if(ns.ge.nt1 .and. ndone1.eq.0 .and. (k-k0)/96000.ge.48) then
            nutc=mutc
            fcenter=center_freq
            kbuf=kb
@@ -115,7 +117,7 @@ subroutine recvpkt(iarg)
         endif
 
 ! See if it's time to start second stage of processing
-        if(ns.ge.nt2) then
+        if(ndone1.eq.1 .and. ns.ge.nt2) then
            kk=k
            nlost=lost_tot                         ! Save stats for printout
         endif
