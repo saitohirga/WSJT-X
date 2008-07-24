@@ -994,7 +994,7 @@ def update():
         azdist()
         g.nfreq=nfreq.get()
         kxp=int(Audio.datcom.kxp)
-        if kxp-kxp0 < 50000 and \
+        if kxp-kxp0 >=0 and kxp-kxp0 < 50000 and \
            ((not Audio.gcom2.lauto) or (not Audio.gcom1.transmitting)):
             msg5.configure(text='No Rx data',bg='red')
         else:
