@@ -8,68 +8,54 @@ subroutine recvpkt(iarg)
   integer*1 userx_no,iusb
   integer*2 nblock,nblock0
   integer txnow
-  logical first
   real*8 center_freq,buf8
   common/plrscom/center_freq,msec,fqso,iptr,nblock,userx_no,iusb,buf8(174)
   include 'datcom.f90'
   include 'gcom1.f90'
   include 'gcom2.f90'
   equivalence (id,d8)
-  data nblock0/0/,first/.true./,kb/1/,npkt/0/,nw/0/,nseq/0/
+  data nblock0/0/,kb/1/,npkt/0/,nw/0/,ns0/99/
   data sqave/0.0/,u/0.001/,rxnoise/0.0/,kbuf/1/,lost_tot/0/
   data multicast0/-99/
   save
 
 1 call setup_rsocket(multicast)     !Open socket for multicast/unicast data
-  nreset=-1
   k=0
+  kk=0
+  kxp=0
+  kb=1
   nsec0=-999
   fcenter=144.125                   !Default (startup) frequency)
   multicast0=multicast
+  ntx=0
 
 10 if(multicast.ne.multicast0) go to 1
-
   call recv_pkt(center_freq)
+
+! Should receive a new packet every 174/96000 = 0.0018125 s
+  npkt=npkt+1
+  nsec=mod(Tsec,86400.d0)           !Time according to MAP65
+  nseclr=msec/1000                  !Time according to Linrad
   fcenter=center_freq
-  nsec=mod(Tsec,86400.d0)
 
-! Wait for start of a minute to begin accepting Rx data.
-! (Alternative: wreset buffer pointers at start of minute?)
-  if(nsec0.eq.-999) then
-     if(mod(nsec,60).ne.0) go to 10
-     nsec0=-998
-  endif
-
-  isec=sec_midn()
-  imin=isec/60
-
-  if(transmitting.eq.1) then
+! Reset buffer pointers at start of minute.
+  ns=mod(nsec,60)
+  if(ns.lt.ns0) then
+     if(ntx.eq.0) kb=3-kb
+     k=(kb-1)*60*96000
      ndone1=0
-     ndone2=0
+     ntx=0
+     lost_tot=0
+     kxp=k
+     npkt=0
   endif
+  ns0=ns
 
-  if((monitoring.eq.0) .or. (lauto.eq.1 .and. mod(imin,2).eq.(1-TxFirst))) then
-     first=.true.
-
-! If we're transmitting and were previously receiving in this minute,
-! switch buffers to prepare for the next Rx minute.
-     if(lauto.eq.1 .and. mod(imin,2).eq.(1-TxFirst) .and. nreset.eq.1) then
-        nreset=0
-        kb=3-kb
-        k=0
-        if(kb.eq.2) k=NSMAX
-        lost_tot=0
-        ndone1=0
-        ndone2=0
-     endif
-     go to 10
-  endif
-
-! If we get here, we're in Rx mode
+  if(transmitting.eq.1) ntx=1
 
 ! Check for lost packets
   lost=nblock-nblock0-1
-  if(lost.ne.0 .and. .not.first) then
+  if(lost.ne.0) then
      nb=nblock
      if(nb.lt.0) nb=nb+65536
      nb0=nblock0
@@ -82,30 +68,13 @@ subroutine recvpkt(iarg)
   endif
   nblock0=nblock
 
-  if(mod(nsec,60).eq.1 .or. transmitting.eq.1) nreset=1
   tdiff=mod(0.001d0*msec,60.d0)-mod(Tsec,60.d0)
   if(tdiff.lt.-30.) tdiff=tdiff+60.
   if(tdiff.gt.30.) tdiff=tdiff-60.
 
-! If this is the start of a new minute, switch buffers
-  if(mod(nsec,60).eq.0 .and. nreset.eq.1) then
-     nreset=0
-     kb=3-kb
-     k=0
-     if(kb.eq.2) k=NSMAX
-     lost_tot=0
-     ndone1=0
-     ndone2=0
-     nseq=nseq+1
-     kxp=k
-  endif
-
 ! Test for buffer full
   if((kb.eq.1 .and. (k+174).gt.NSMAX) .or.                          &
-       (kb.eq.2 .and. (k+174).gt.2*NSMAX)) then
-     print*,'Recvpkt:',kb,k,NSMAX
-     go to 20
-  endif
+       (kb.eq.2 .and. (k+174).gt.2*NSMAX)) go to 20
 
 ! Move data into Rx buffer and compute average signal level.
   sq=0.
@@ -118,69 +87,46 @@ subroutine recvpkt(iarg)
         k2=k2-NSMAX
         n=2
      endif
-     sq=sq + float(int(id(1,k2,n)))**2 + float(int(id(1,k2,n)))**2 +    &
-          float(int(id(1,k2,n)))**2 + float(int(id(1,k2,n)))**2
+     x1=id(1,k2,n)
+     x2=id(2,k2,n)
+     x3=id(3,k2,n)
+     x4=id(4,k2,n)
+     sq=sq + x1*x1 + x2*x2 + x3*x3 + x4*x4
   enddo
   sqave=sqave + u*(sq-sqave)
   rxnoise=10.0*log10(sqave) - 48.0
   kxp=k
 
-  if(k.lt.1 .or. k.gt.NSZ) then
-     print*,'Error in recvpkt: ',k,NSZ,NSMAX
-     stop
-  endif
-
-! The following may be a bad idea because it uses non-reentrant Fortran I/O ???
-  if(mode.eq.'Measur') then
-     npkt=npkt+1
-     if(npkt.ge.551) then
-        npkt=0
-        nw=nw+1
-        rewind 11
-        write(11,1000) nw,rxnoise
-1000    format(i6,f8.2)
-        write(11,*) '$EOF'
-        call flushqqq(11)
-        ndecdone=1
-        write(24,1000) nw,rxnoise
-     endif
-  else
-     nw=0
-  endif
-
 20 if(nsec.ne.nsec0) then
      nsec0=nsec
-
-     nseclr=msec/1000
      mutch=nseclr/3600
      mutcm=mod(nseclr/60,60)
      mutc=100*mutch + mutcm
 
-! See if it's time to start FFTs
-     ns=mod(nsec,60)
-     if(ns.ge.nt1 .and. ndone1.eq.0) then
-        nutc=mutc
-        fcenter=center_freq
-        kbuf=kb
-        kk=k
-        ndiskdat=0
-        ndone1=1
-     endif
+! If we have not transmitted in this minute, see if it's time to start FFTs
+     if(ntx.eq.0) then
+        if(ns.ge.nt1 .and. ndone1.eq.0) then
+           nutc=mutc
+           fcenter=center_freq
+           kbuf=kb
+           kk=k
+           ndiskdat=0
+           ndone1=1
+        endif
 
 ! See if it's time to start second stage of processing
-!     if(ns.ge.nt2 .and. ndone2.eq.0) then
-     if(ns.ge.nt2) then
-        kk=k
-        ndone2=1
-        nlost=lost_tot                         ! Save stats for printout
+        if(ns.ge.nt2) then
+           kk=k
+           nlost=lost_tot                         ! Save stats for printout
+        endif
      endif
 
-!     if(ns.le.5 .or. ns.ge.46) write(*,3001) ns,ndone1,ndone2,kb,  &
-!          kbuf,nreset,kk,tdiff
-!3001 format(6i4,i12,f8.2)
+     tt=npkt*174.0/96000.0
+!     if(ns.le.5 .or. ns.ge.46) write(*,3001) ns,ndone1,kb,  &
+!          kbuf,ntx,kk,tdiff,tt
+!3001 format(5i4,i11,2f8.2)
 
   endif
-  first=.false.
   go to 10
 
 end subroutine recvpkt

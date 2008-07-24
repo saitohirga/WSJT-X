@@ -1,4 +1,4 @@
-#--------------------------------------------------------------------- MAP65
+#-------------------------------------------------------------------- MAP65
 # $Date$ $Revision$
 #
 from Tkinter import *
@@ -977,9 +977,10 @@ def update():
         ldate.configure(text=t)
         t="Rx noise: %.1f dB" % Audio.gcom2.rxnoise
         msg4.configure(text=t)
-##        t="Drop: %.2f %%" % Audio.gcom2.pctlost
-##        msg5.configure(text=t)
-        t="%d  %d   %d" % (Audio.datcom.kbuf,Audio.datcom.kk,Audio.datcom.kxp/96000)
+        t="Drop: %.2f %%" % Audio.gcom2.pctlost
+        msg5.configure(text=t)
+##        t="%d  %.2f  %.2f" % (Audio.datcom.kbuf,Audio.datcom.kk/(60.0*96000.0), \
+##                            Audio.datcom.kxp/(60.0*96000.0))
         msg5.configure(text=t)
         root_geom=root.geometry()
         try:

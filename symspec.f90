@@ -14,13 +14,6 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
 
   kkk=kk
   if(kbuf.eq.2) kkk=kk-5760000
-!  if(ndebug.gt.0) write(*,4001) 'A',nutc,mod(int(sec_midn()),60),   &
-!       kbuf,kk,kkk,kkdone
-!4001 format(a1,i5.4,2i3,3i9,i5)
-
-  if(ndebug.eq.2) write(29,3001) nutc,mod(int(sec_midn()),60),  &
-       kbuf,kk,kkdone,ndecoding,newdat,n
-3001 format('s1:',i5.4,i3.2,i5,2i10,2i3,i5)
   fac=0.0002
   hsym=2048.d0*96000.d0/11025.d0          !Samples per half symbol
   npts=hsym                               !Integral samples per half symbol
@@ -117,11 +110,6 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
 
 998 kkdone=i1-1
 999 continue
-!  if(ndebug.gt.0) write(*,4001) 'B',nutc,mod(int(sec_midn()),60),  &
-!       kbuf,kk,kkk,kkdone,n
 
-  if(ndebug.eq.2) write(29,3002) nutc,mod(int(sec_midn()),60),  &
-       kbuf,kk,kkdone,ndecoding,newdat,n
-3002 format('s2:',i5.4,i3.2,i5,2i10,2i3,i5)
   return
 end subroutine symspec
