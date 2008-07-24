@@ -55,29 +55,33 @@ program plrs
   call setup_ssocket                       !Open a socket for multicasting
 
   do iter=1,iters
+#ifdef CVF
+     open(10,file=fname,form='binary',status='old')
+#else
      fd=open(fname,RMODE)                  !Open file for reading
+#endif
      dmsec=-dtmspacket
      nsec0=sec_midn()
 
      do ifile=1,nfiles
         ns0=0
         tmsec=1000*(3600*7 + 60*nm(ifile))-dtmspacket
-        nr=read(fd,d,NBYTES)
-        if(nr.ne.NBYTES) then
-           print*,'Error reading file all.tf2'
-           go to 999
-        endif
-
         k=0
         do ipacket=1,NPPR
            dmsec=dmsec+dtmspacket
            tmsec=tmsec+dtmspacket
            msec2=nint(tmsec)
            msec=nint(dmsec)
-           do i=1,NBPP/8
-              k=k+1
-              buf8(i)=d(k)
-           enddo
+
+#ifdef CVF
+           read(10) buf8
+#else
+           nr=read(fd,buf8,NBPP)
+           if(nr.ne.NBPP) then
+              print*,'Error reading file all.tf2'
+              go to 999
+           endif
+#endif
            nblock=nblock+1
            call send_pkt(center_freq)
            npkt=npkt+1
@@ -86,7 +90,7 @@ program plrs
               nsec=int(sec_midn())-nsec0
               nwait=msec-1000*nsec
 !  Pace the data at close to its real-time rate
-              if(nwait.gt.0 .and. .not.fast) call usleep(nwait*1000)
+              if(nwait.gt.0 .and. .not.fast) call sleep_msec(nwait)
            endif
            ns=mod(msec2/1000,60)
            if(ns.ne.ns0) write(*,1010) ns,center_freq,0.001*msec2,sec_midn()
@@ -98,7 +102,11 @@ program plrs
            read(*,*) cjunk,pause,fast
         endif
      enddo
+#ifdef CVF
+     close(10)
+#else
      i=close(fd)
+#endif
   enddo
 
 

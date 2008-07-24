@@ -7,7 +7,7 @@ FC = df
 #FFLAGS = /traceback /check:all
 FFLAGS = /traceback /fast /nologo /check:all
 
-all:    MAP65.EXE
+all:    MAP65.EXE plrs.exe
 
 OBJS2C   = init_rs.o encode_rs.o decode_rs.o jtaudio.o plrr_subs.o
 
@@ -39,6 +39,11 @@ SRCS2C   = resample.c ptt.c igray.c wrapkarn.c rfile3.c
 
 MAP65.EXE: Audio.pyd map65.spec
 	python c:\python23\installer\Build.py map65.spec
+
+plrs.exe: plrs.f90 sec_midn.F90 plrs_subs_win.c
+	cl /c /Foplrs_subs.obj plrs_subs_win.c
+	df /fpp /define:CVF plrs.f90 sec_midn.F90 plrs_subs.obj  \
+	  /link ws2_32.lib
 
 Audio.pyd: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C) $(SRCSCOM)
 	python f2py.py -c \
