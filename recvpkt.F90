@@ -7,7 +7,7 @@ subroutine recvpkt(iarg)
   real*8 d8(NSZ)
   integer*1 userx_no,iusb
   integer*2 nblock,nblock0
-  integer txnow
+  logical synced
   real*8 center_freq,buf8
   common/plrscom/center_freq,msec,fqso,iptr,nblock,userx_no,iusb,buf8(174)
   include 'datcom.f90'
@@ -21,14 +21,14 @@ subroutine recvpkt(iarg)
 
 1 call setup_rsocket(multicast)     !Open socket for multicast/unicast data
   k=0
-  k0=0
   kk=0
   kxp=0
-  kb=2
+  kb=1
   nsec0=-999
   fcenter=144.125                   !Default (startup) frequency)
   multicast0=multicast
   ntx=0
+  synced=.false.
 
 10 if(multicast.ne.multicast0) go to 1
   call recv_pkt(center_freq)
@@ -44,12 +44,12 @@ subroutine recvpkt(iarg)
   if(ns.lt.ns0) then
      if(ntx.eq.0) kb=3-kb
      k=(kb-1)*60*96000
-     k0=k
      ndone1=0
      ntx=0
      lost_tot=0
      kxp=k
      npkt=0
+     synced=.true.
   endif
   ns0=ns
 
@@ -107,7 +107,7 @@ subroutine recvpkt(iarg)
 
 ! If we have not transmitted in this minute, see if it's time to start FFTs
      if(ntx.eq.0) then
-        if(ns.ge.nt1 .and. ndone1.eq.0 .and. (k-k0)/96000.ge.48) then
+        if(ns.ge.nt1 .and. ndone1.eq.0 .and. synced) then
            nutc=mutc
            fcenter=center_freq
            kbuf=kb
