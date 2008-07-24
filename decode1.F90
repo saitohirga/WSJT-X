@@ -38,11 +38,6 @@ subroutine decode1(iarg)
   kkk=kk
   if(kbuf.eq.2) kkk=kk-5760000
   n=Tsec
-  if(ndebug.eq.2 .and. n.ne.ns00) then
-     write(29,3101) nutc,mod(n,60),kbuf,kk,kkdone,ndecoding,newdat
-3101 format('d1:',i5.4,i3.2,i5,2i10,2i3)
-     ns00=n
-  endif
 
   if((ndiskdat.eq.1 .or. ndecoding.eq.0) .and. ((kkk-kkdone).gt.32768)) then
      call symspec(id,kbuf,kk,kkdone,nutc,newdat)

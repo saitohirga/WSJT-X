@@ -28,10 +28,6 @@ subroutine map65a(newdat)
   nfoffset=nint(1000*(fcenter-144.125d0))
   mfqso=mousefqso - nfoffset
 
-  pctlost=nlost/331.03
-  if(ndebug.eq.2) write(29,3001) nutc,mod(int(sec_midn()),60),nlost,pctlost
-3001 format('m1:',i5.4,i3.2,i8,f7.2,' %')
-
   rewind 11
   rewind 12
   if(nrw26.ne.0) then
@@ -298,8 +294,6 @@ subroutine map65a(newdat)
         call flushqqq(11)
         ndecdone=1
         t2=sec_midn()
-        if(ndebug.eq.2) write(29,3002) mod(int(t2),60)
-3002    format('m2:'i8.2)
      endif
      if(nagain.eq.1) go to 999
   enddo
@@ -386,14 +380,6 @@ subroutine map65a(newdat)
   if(kbuf.eq.1) kkdone=60*96000
   if(kbuf.eq.2 .or. ndiskdat.eq.1) kkdone=0
   kk=kkdone
-  if(nagain.eq.0) then
-     t3=sec_midn()
-     if(ndebug.eq.2) write(29,3003) mod(int(t3),60)
-3003 format('m3:'i8.2)
-     if(ndebug.eq.1) write(*,3004) nutc,mod(t2,60.0),mod(t3,60.0),    &
-          nlost,pctlost
-3004 format('map65:',i5.4,1x,2f6.1,i6,f8.2,' %')
-  endif
   nagain=0
 
   return
