@@ -117,8 +117,9 @@ subroutine recvpkt(iarg)
            ndone1=1
         endif
 
-! See if it's time to start second stage of processing
-        if(ndone1.eq.1 .and. ns.ge.nt2 .and.ndone2.eq.0) then
+! See if it's time to start the full decoding procedure.
+        nhsym=(k-(kbuf-1)*60*96000)/17832.9252
+        if(ndone1.eq.1 .and. nhsym.ge.279 .and.ndone2.eq.0) then
            kk=k
            nlost=lost_tot                         ! Save stats for printout
            ndone2=1
