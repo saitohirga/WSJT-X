@@ -7,14 +7,14 @@ subroutine recvpkt(iarg)
   real*8 d8(NSZ)
   integer*1 userx_no,iusb
   integer*2 nblock,nblock0
-  logical synced
+  logical synced,reset
   real*8 center_freq,buf8
   common/plrscom/center_freq,msec,fqso,iptr,nblock,userx_no,iusb,buf8(174)
   include 'datcom.f90'
   include 'gcom1.f90'
   include 'gcom2.f90'
   equivalence (id,d8)
-  data nblock0/0/,kb/1/,nw/0/,ns0/99/
+  data nblock0/0/,kb/1/,ns0/99/
   data sqave/0.0/,u/0.001/,rxnoise/0.0/,kbuf/1/,lost_tot/0/
   data multicast0/-99/
   save
@@ -29,6 +29,7 @@ subroutine recvpkt(iarg)
   multicast0=multicast
   ntx=0
   synced=.false.
+  reset=.false.
 
 10 if(multicast.ne.multicast0) go to 1
   call recv_pkt(center_freq)
@@ -40,7 +41,7 @@ subroutine recvpkt(iarg)
 
 ! Reset buffer pointers at start of minute.
   ns=mod(nsec,60)
-  if(ns.lt.ns0 .and. (lauto+monitoring.ne.0)) then
+  if((ns.lt.ns0 .and. (lauto+monitoring.ne.0)) .or. reset) then
      if(ntx.eq.0) kb=3-kb
      k=(kb-1)*60*96000
      ndone1=0
@@ -49,6 +50,7 @@ subroutine recvpkt(iarg)
      lost_tot=0
      kxp=k
      synced=.true.
+     reset=.false.
   endif
   ns0=ns
 
@@ -75,7 +77,10 @@ subroutine recvpkt(iarg)
 
 ! Test for buffer full
   if((kb.eq.1 .and. (k+174).gt.NSMAX) .or.                          &
-       (kb.eq.2 .and. (k+174).gt.2*NSMAX)) go to 20
+       (kb.eq.2 .and. (k+174).gt.2*NSMAX)) then
+     reset=.true.
+     go to 20
+  endif
 
 ! Move data into Rx buffer and compute average signal level.
   sq=0.
