@@ -45,6 +45,7 @@ subroutine recvpkt(iarg)
      if(ntx.eq.0) kb=3-kb
      k=(kb-1)*60*96000
      ndone1=0
+     ndone2=0
      ntx=0
      lost_tot=0
      kxp=k
@@ -117,9 +118,10 @@ subroutine recvpkt(iarg)
         endif
 
 ! See if it's time to start second stage of processing
-        if(ndone1.eq.1 .and. ns.ge.nt2) then
+        if(ndone1.eq.1 .and. ns.ge.nt2 .and.ndone2.eq.0) then
            kk=k
            nlost=lost_tot                         ! Save stats for printout
+           ndone2=1
         endif
      endif
 
