@@ -236,8 +236,8 @@ def freq_range(event):
 
 #---------------------------------------------------- freeze_decode1
 def freeze_decode1(event):
-# If decoder is busy or we are not monitoring, ignore request
-    if Audio.gcom2.ndecoding==0 or Audio.gcom2.monitoring==0:
+# If decoder is busy, ignore request
+    if Audio.gcom2.ndecoding==0:
         set_fqso(event)
         g.freeze_decode=1
 
