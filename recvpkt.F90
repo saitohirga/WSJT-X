@@ -14,7 +14,7 @@ subroutine recvpkt(iarg)
   include 'gcom1.f90'
   include 'gcom2.f90'
   equivalence (id,d8)
-  data nblock0/0/,kb/1/,npkt/0/,nw/0/,ns0/99/
+  data nblock0/0/,kb/1/,nw/0/,ns0/99/
   data sqave/0.0/,u/0.001/,rxnoise/0.0/,kbuf/1/,lost_tot/0/
   data multicast0/-99/
   save
@@ -34,14 +34,13 @@ subroutine recvpkt(iarg)
   call recv_pkt(center_freq)
 
 ! Should receive a new packet every 174/96000 = 0.0018125 s
-  npkt=npkt+1
   nsec=mod(Tsec,86400.d0)           !Time according to MAP65
   nseclr=msec/1000                  !Time according to Linrad
   fcenter=center_freq
 
 ! Reset buffer pointers at start of minute.
   ns=mod(nsec,60)
-  if(ns.lt.ns0) then
+  if(ns.lt.ns0 .and. (lauto+monitoring.ne.0)) then
      if(ntx.eq.0) kb=3-kb
      k=(kb-1)*60*96000
      ndone1=0
@@ -49,7 +48,6 @@ subroutine recvpkt(iarg)
      ntx=0
      lost_tot=0
      kxp=k
-     npkt=0
      synced=.true.
   endif
   ns0=ns
@@ -107,7 +105,7 @@ subroutine recvpkt(iarg)
      mutc=100*mutch + mutcm
 
 ! If we have not transmitted in this minute, see if it's time to start FFTs
-     if(ntx.eq.0) then
+     if(ntx.eq.0 .and. lauto+monitoring.ne.0) then
         if(ns.ge.nt1 .and. ndone1.eq.0 .and. synced) then
            nutc=mutc
            fcenter=center_freq
@@ -126,10 +124,9 @@ subroutine recvpkt(iarg)
         endif
      endif
 
-     tt=npkt*174.0/96000.0
 !     if(ns.le.5 .or. ns.ge.46) write(*,3001) ns,ndone1,kb,  &
-!          kbuf,ntx,kk,tdiff,tt
-!3001 format(5i4,i11,2f8.2)
+!          kbuf,ntx,kk,tdiff
+!3001 format(5i4,i11,f8.2)
 
   endif
   go to 10
