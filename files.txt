@@ -1,0 +1,36 @@
+LU  fname          write          read                write thread
+--------------------------------------------------------------------------
+10  *.tf2                         getfile2
+11  prefixes.txt   pfxdump        GUI                 GUI     (once only)
+11  decoded.txt    map65a         GUI                 decoder (60 s)
+12
+13  tsky.dat                      astro0.F
+14  azel.dat       astro0.F                           GUI     (1 s)
+15
+16
+17  *.tf2          savetf2                            decoder
+18  TxData                        wsjtgen
+19  messages.txt   display.txt    GUI                 decoder
+20  bandmap.txt    display.txt    GUI                 decoder
+21  ALL65.TXT      map65a                             decoder
+22  kvasd.dat      extract        KVASD               decoder
+23  CALL3.TXT                     deep65              decoder
+24  meas24.txt     savetf2                            decoder
+25  meas25.txt     savetf2                            decoder
+26  tmp26.txt      map65a,display display             decoder
+27  dphi.txt       map65a                             decoder
+28
+29  debug.txt
+77                 deep65                             decoder
+--------------------------------------------------------------------------
+
+So ... the problem may be writing to azel.dat from the GUI thread?
+(Could put astro data into a common, and write to file from decode1.F90.)
+
+Also: look at write(line,...) forms ...
+
+  unpackgrid unpackmsg symspec display savetf2 (all in decoder thread)
+
+read(char,...) 
+
+  packcall packgrid astro0 display getfile2
