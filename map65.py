@@ -255,10 +255,6 @@ def stopmon(event=NONE):
     bmonitor.configure(bg='gray85')
     Audio.gcom2.monitoring=0
 
-###------------------------------------------------------- toggle_multicast
-##def toggle_multicast(event=NONE):
-##    print multicast.get()        
-
 #------------------------------------------------------ dbl_click_text
 def dbl_click_text(event):
     t=text.get('1.0',END)           #Entire contents of text box
@@ -271,7 +267,6 @@ def dbl_click3_text(event):
         n=t1.rfind("\n")
         rpt=t1[n+24:n+27]
         if rpt[0:1] == " ": rpt=rpt[1:]
-        print n,rpt,t1
         dbl_click_call(t,t1,rpt,1,event)
 #------------------------------------------------------ dbl_click_msgtext
 def dbl_click_msgtext(event):
