@@ -110,7 +110,7 @@ subroutine astro0(nyear,month,nday,uth8,nfreq,grid,cauxra,cauxdec,       &
             i2.2,':',i2.2,':',i2.2,',',f5.1,',',f5.1,',Source'/      &
             i4,',',f8.1,',',f8.2,',',f8.1,',',f8.2,',Doppler'/       &
             i4,',fQSO')
-     rewind 14
+     call flushqqq(14)
      isec0=isec
   endif
 
