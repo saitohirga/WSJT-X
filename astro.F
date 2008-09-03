@@ -19,7 +19,7 @@ C  NB: may want to smooth the Tsky map to 10 degrees or so.
       equivalence (n1sky,nsky)
       data first/.true./
       data rad/57.2957795/
-      save first
+      save
 
       if(first) then
 	do i=80,1,-1

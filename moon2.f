@@ -58,7 +58,7 @@ C  Orbital elements for Moon:
       e = 0.054900d0
       MM = mod(115.3654d0 + 13.0649929509d0 * d + 360000.d0,360.d0)
 
-      EE = MM + e*rad*sin(MM/rad) * (1.d0 + e*cos(M/rad))
+      EE = MM + e*rad*sin(MM/rad) * (1.d0 + e*cos(MM/rad))
       EE = EE - (EE - e*rad*sin(EE/rad)-MM) / (1.d0 - e*cos(EE/rad))
       EE = EE - (EE - e*rad*sin(EE/rad)-MM) / (1.d0 - e*cos(EE/rad))
 
