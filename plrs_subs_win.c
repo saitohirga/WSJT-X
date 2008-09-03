@@ -4,7 +4,8 @@
 #include <stdio.h>
 
 #define HELLO_PORT 50004
-#define HELLO_GROUP "239.255.0.0"
+//#define HELLO_GROUP "239.255.0.0"
+#define HELLO_GROUP "127.0.0.1"
 
 struct sockaddr_in addr;
 int fd;
