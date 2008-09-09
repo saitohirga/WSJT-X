@@ -45,7 +45,7 @@ F2PYONLY = ftn_init ftn_quit audio_init getfile azdist0 astro0 spec
 SRCS2F90 = astro0.F90 audio_init.F90 azdist0.f90 \
 	decode1.F90 ftn_init.F90 ftn_quit.f90 wsjtgen.F90 \
 	runqqq.F90 fivehz.F90 flushqqq.F90 \
-	rfile.f90 rfile3a.f90 spec.f90 map65a.F90 display.F90 \
+	rfile.f90 rfile3a.F90 spec.f90 map65a.F90 display.F90 \
 	getfile.F90 getfile2.F90 recvpkt.F90 savetf2.F90 \
 	symspec.f90 sec_midn.F90 getdphi.f90
 
@@ -109,8 +109,9 @@ decode_rs_int.o: decode_rs.c
 plrr:   plrr.f90 sec_midn.F90 plrr_subs.c cutil.c
 	$(FC) -o plrr plrr.f90 sec_midn.F90 plrr_subs.c cutil.c
 
-plrs:   plrs.f90 sec_midn.F90 plrs_subs.c cutil.c
-	$(FC) -o plrs plrs.f90 sec_midn.F90 plrs_subs.c cutil.c
+plrs:   plrs.F90 sec_midn.F90 plrs_subs.c cutil.c
+	$(CC) -c plrs_subs.c cutil.c
+	$(FC) -o plrs plrs.F90 sec_midn.F90 plrs_subs.o cutil.o
 
 .PHONY : clean
 clean:
