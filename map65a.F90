@@ -103,7 +103,7 @@ subroutine map65a(newdat)
         endif
 
 !  Do not process extremely strong signals
-        if(nqd.eq.0 .and. bmax.gt.500.0) go to 70
+        if(nqd.eq.0 .and. bmax.gt.1000.0) go to 70
 
 !  Find max signal at this frequency
         smax=0.
