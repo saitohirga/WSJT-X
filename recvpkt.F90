@@ -55,6 +55,10 @@ subroutine recvpkt(iarg)
 
   if(transmitting.eq.1) ntx=1
 
+! Test for buffer full
+  if((kb.eq.1 .and. (k+174).gt.NSMAX) .or.                          &
+       (kb.eq.2 .and. (k+174).gt.2*NSMAX)) go to 20
+
 ! Check for lost packets
   lost=nblock-nblock0-1
   if(lost.ne.0) then
@@ -73,10 +77,6 @@ subroutine recvpkt(iarg)
   tdiff=mod(0.001d0*msec,60.d0)-mod(Tsec,60.d0)
   if(tdiff.lt.-30.) tdiff=tdiff+60.
   if(tdiff.gt.30.) tdiff=tdiff-60.
-
-! Test for buffer full
-  if((kb.eq.1 .and. (k+174).gt.NSMAX) .or.                          &
-       (kb.eq.2 .and. (k+174).gt.2*NSMAX)) go to 20
 
 ! Move data into Rx buffer and compute average signal level.
   sq=0.
