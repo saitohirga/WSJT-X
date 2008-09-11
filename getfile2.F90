@@ -43,8 +43,8 @@ subroutine getfile2(fname,len)
   ka=0.1*NSMAX
   kb=0.8*NSMAX
   do k=ka,kb
-     sq=sq + float(int(id(1,k,1)))**2 + float(int(id(1,k,1)))**2 +    &
-          float(int(id(1,k,1)))**2 + float(int(id(1,k,1)))**2
+     sq=sq + float(int(id(1,k,1)))**2 + float(int(id(2,k,1)))**2 +    &
+          float(int(id(3,k,1)))**2 + float(int(id(4,k,1)))**2
   enddo
   sqave=174*sq/(kb-ka+1)
   rxnoise=10.0*log10(sqave) - 48.0
@@ -52,6 +52,5 @@ subroutine getfile2(fname,len)
   ndiskdat=1
   mousebutton=0
 
-999 close(10)
-  return
+999 return
 end subroutine getfile2

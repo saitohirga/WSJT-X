@@ -1,6 +1,6 @@
 ! Fortran logical units used in WSJT6
 !
-!   10
+!   10  binary input data, *.tf2 files
 !   11  decoded.txt
 !   12  decoded.ave
 !   13  tsky.dat
