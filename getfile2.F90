@@ -5,7 +5,6 @@ subroutine getfile2(fname,len)
 #endif
 
   character*(*) fname
-  character infile*15
   real*8 sq
 
   include 'datcom.f90'
@@ -52,9 +51,7 @@ subroutine getfile2(fname,len)
   read(filename(8:11),*) nutc
   ndiskdat=1
   mousebutton=0
-  go to 999
 
-998 ierr=1001
 999 close(10)
   return
 end subroutine getfile2
