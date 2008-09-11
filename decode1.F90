@@ -20,7 +20,6 @@ subroutine decode1(iarg)
   save
 
   kkdone=-99
-  ntr0=ntr
   ns0=999999
 
 10 continue

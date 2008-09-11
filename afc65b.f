@@ -21,7 +21,6 @@
       nfree=npts-nterms
 
 C  Start the iteration
-      free=nfree
       chisqr0=1.e6
       do iter=1,3                               !One iteration is enough?
          do j=1,nterms

@@ -12,13 +12,11 @@ subroutine wsjtgen
   parameter (NMSGMAX=28)             !Max characters per message
   parameter (NSPD=25)                !Samples per dit
   parameter (NDPC=3)                 !Dits per character
-  parameter (NWMAX=661500)         !Max length of waveform = 60*11025
+  parameter (NWMAX=661500)           !Max length of waveform = 60*11025
   parameter (NTONES=4)               !Number of FSK tones
-
-  integer   itone(84)
   character msg*28,msgsent*22,idmsg*22
-  real*8 freq,pha,dpha,twopi,dt
-  character testfile*27,tfile2*80
+  real*8 freq,dpha,twopi
+  character testfile*27
   logical lcwid
   integer*2 icwid(110250),jwave(NWMAX)
 
@@ -43,6 +41,7 @@ subroutine wsjtgen
 
   msg=txmsg
   ntxnow=ntxreq
+
 ! Convert all letters to upper case
   do i=1,28
      if(msg(i:i).ge.'a' .and. msg(i:i).le.'z')                  &
@@ -75,18 +74,6 @@ subroutine wsjtgen
         call rfile(18,iwave,ndata,ierr)
         close(18)
         if(ierr.ne.0) print*,'Error reading test file ',msg(2:)
-
-!#else
-!        tfile2=testfile
-!	call rfile2(tfile2,hdr,44+2*661500,nr)
-!	if(nr.le.0) then
-!           print*,'Error reading ',testfile
-!	   stop
-!        endif
-!	do i=1,ndata/2
-!	   iwave(i)=jwave(i)
-!        enddo
-!#endif
         nwave=ndata/2
         do i=nwave,NTXMAX
            iwave(i)=0
@@ -116,9 +103,6 @@ subroutine wsjtgen
      enddo
      goto 900
   endif
-
-  dt=1.d0/fsample_out
-  LTone=2
 
 !  We're in JT65 mode.
   if(mode(5:5).eq.'A') mode65=1

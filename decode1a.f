@@ -83,7 +83,6 @@ C  Adding or subtracting a small number (e.g., 5) to j may make it decode.
       nfft=256
       j=(dt00+dtbest+2.685)*1378.125 + joff
       if(j.lt.0) j=0
-      j0=j
       do k=1,nsym
          do i=1,nfft
             j=j+1

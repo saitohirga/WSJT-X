@@ -24,6 +24,7 @@
 subroutine ftn_init
 
   character*1 cjunk
+  integer ptt
   include 'gcom1.f90'
   include 'gcom2.f90'
   include 'gcom3.f90'
@@ -157,8 +158,6 @@ subroutine ftn_init
 920 print*,'Error opening DECODED.AVE'
   stop
 930 print*,'Error opening AZEL.DAT'
-  stop
-940 print*,'Error opening DEBUG.TXT'
   stop
 950 print*,'Error opening ALL65.TXT'
   stop
