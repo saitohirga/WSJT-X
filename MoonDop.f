@@ -28,7 +28,6 @@
       common/stcomx/km,bary,pvsun
       data rad/57.2957795130823d0/,twopi/6.28310530717959d0/
 
-      pi=0.5d0*twopi
       km=.true.
       dlat=lat4/rad
       dlong1=lon4/rad

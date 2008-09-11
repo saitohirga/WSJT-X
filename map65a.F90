@@ -49,7 +49,6 @@ subroutine map65a(newdat)
   ftol=0.020                          !Frequency tolerance (kHz)
   foffset=0.001*(1270 + nfcal)
   fselect=mfqso + foffset
-  nfilt=1
   dphi=idphi/57.2957795
 
   do i=12,3,-1
@@ -191,7 +190,7 @@ subroutine map65a(newdat)
                    nkm.eq.1) km=km-1
               if(freq-freq0.gt.ftol .or. sync1.gt.sync10) then
                  nflip=nint(flipk)
-                 call decode1a(id(1,1,kbuf),newdat,nfilt,freq,nflip,        &
+                 call decode1a(id(1,1,kbuf),newdat,freq,nflip,        &
                       mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,    &
                       ipol,sync2,a,dt,pol,nkv,nhist,qual,decoded)
 
