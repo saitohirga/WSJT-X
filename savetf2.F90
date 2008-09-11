@@ -15,9 +15,9 @@ subroutine savetf2(id,nsave,ntime,nutc,savedir)
   integer it(9),itt(8)
 
   if(nsave.eq.1) then
+#ifdef CVF
      n2=ntime/60
      n3=(n2-1)*60
-#ifdef CVF
      call gmtime(n3,it)
      it(5)=it(5)+1
 #else
@@ -43,14 +43,11 @@ subroutine savetf2(id,nsave,ntime,nutc,savedir)
      fname=savedir(1:iz)//fname
 #ifdef CVF
      open(17,file=fname,status='unknown',form='binary',err=998)
+#else
+     open(17,file=fname,status='unknown',access='stream',err=998)
+#endif
      write(17) id
      close(17)
-#else
-     open(17,file=fname,status='unknown',form='unformatted',      &
-          access='direct',recl=nbytes,err=998)
-     write(17,rec=1) id
-     close(17)     
-#endif
 
 
   else

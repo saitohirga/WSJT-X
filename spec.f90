@@ -13,8 +13,6 @@ subroutine spec(brightness,contrast,ngain,nspeed,a,a2)
 
   logical first
   integer nstep(5)
-  integer b0,c0
-
   integer hist(0:1000)
 !  Could save memory by doing the averaging-by-7 (or 10?) of ss5 in symspec.
   include 'spcom.f90'

@@ -9,7 +9,7 @@ subroutine map65a(newdat)
   real sig(MAXMSG,30)                !Parameters of detected signals
   real a(5)
   character*22 msg(MAXMSG)
-  character*3 shmsg0(4),shmsg
+  character*3 shmsg0(4)
   integer indx(MAXMSG),nsiz(MAXMSG)
   logical done(MAXMSG)
   character decoded*22,blank*22
@@ -44,7 +44,6 @@ subroutine map65a(newdat)
 
   if(nutc.ne.nutc0) nfile=nfile+1
   nutc0=nutc
-  nutcdata=nutc
   df=96000.0/NFFT                     !df = 96000/NFFT = 2.930 Hz
   ftol=0.020                          !Frequency tolerance (kHz)
   foffset=0.001*(1270 + nfcal)
@@ -117,7 +116,6 @@ subroutine map65a(newdat)
                 syncshort,snr2,ipol2,dt2)
 
 ! ########################### Search for Shorthand Messages #################
-           shmsg='   '
 !  Is there a shorthand tone above threshold?
            thresh0=1.0
 !  Use lower thresh0 at fQSO
@@ -261,7 +259,6 @@ subroutine map65a(newdat)
               nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
               if(decoded(1:4).eq.'RO  ' .or. decoded(1:4).eq.'RRR  ' .or.  &
                  decoded(1:4).eq.'73  ') nsync2=nsync2-6
-              nw=0                                !### Fix this! ###
               nwrite=nwrite+1
               if(ndphi.eq.0) then
                  write(11,1010) nkHz,ndf,npol,nutc,dt,nsync2,decoded,nkv,nqual
@@ -331,7 +328,6 @@ subroutine map65a(newdat)
            nkv=sig(i,9)
            nqual=min(sig(i,10),10.0)
 !                  rms0=sig(i,11)
-           nsavg=sig(i,12)                   !Was used for diagnostic ...
            do k=1,5
               a(k)=sig(i,12+k)
            enddo
