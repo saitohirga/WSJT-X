@@ -3,7 +3,7 @@
 CC = /mingw/bin/gcc
 FC = g95
 CFLAGS = -I. -fPIC
-FFLAGS = -Wall -Wno-precisiion-loss -fbounds-check -fPIC
+FFLAGS = -Wall -Wno-precision-loss -fbounds-check -fPIC
 
 .f.o:
 	${FC} ${CPPFLAGS} ${FFLAGS} -c -o ${<:.f=.o} $<
