@@ -54,7 +54,7 @@ int lseek_(int *fd,int *offset, int *origin)
 //}
 
 /* usleep(3) */
-int usleep_(unsigned long *microsec)
+void usleep_(unsigned long *microsec)
 {
   usleep(*microsec);
 }
@@ -71,11 +71,13 @@ int exit_(int *n)
   exit(*n);
 }
 
+/*
 struct tm *
 gmtime_r_(const time_t *clock, struct tm *result)
 {
-  //  gmtime_r(clock, result);
+  gmtime_r(clock, result);
 }
+*/
 
 time_t time_(void)
 {

@@ -1,4 +1,4 @@
-      subroutine decode1a(id,newdat,nfilt,freq,nflip,
+      subroutine decode1a(id,newdat,freq,nflip,
      +         mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,
      +         ipol,sync2,a,dt,pol,nkv,nhist,qual,decoded)
 
@@ -19,7 +19,6 @@ C  to decode it.
       real s2(256,126)
       real a(5)
       real*8 samratio
-      integer resample
       logical first
       character decoded*22
       character mycall*12,hiscall*12,hisgrid*6
@@ -30,30 +29,8 @@ C  Mix sync tone to baseband, low-pass filter, and decimate by 64
       dt00=dt
 C  If freq=125.0 kHz, f0=48000 Hz.
       f0=1000*(freq-77.0)                  !Freq of sync tone (0-96000 Hz)
-      if(nfilt.eq.1) then
-         call filbig(id,NMAX,f0,newdat,cx,cy,n5)
-         joff=0
-      else
-         call fil659(id,NMAX,f0,c2x,c2y,n2) !Pass 1: mix and filter both pol'ns
-         call fil658(c2x,n2,c3x,n3) !Pass 2
-         call fil658(c2y,n2,c3y,n3)
-         call fil658(c3x,n3,c4x,n4) !Pass 3
-         call fil658(c3y,n3,c4y,n4)
-         joff=-8
-
-C  Resample from 96000/64 = 1500 Hz to 1378.125 Hz
-C  Converter type: 0=Best quality sinc (band limited), BW=97%
-C                  1=medium quality sinc, BW=90%
-C                  2=fastest sinc,  BW=80%
-C                  3=stepwise (very fast)
-C                  4=linear (very fast)
-         nconv_type=2           !### test! ###
-         nchans=2
-         samratio=1378.125d0/1500.d0
-         i1=resample(c4x,n4,nconv_type,nchans,samratio,cx,n5)
-         i2=resample(c4y,n4,nconv_type,nchans,samratio,cy,n5)
-      endif
-
+      call filbig(id,NMAX,f0,newdat,cx,cy,n5)
+      joff=0
       sqa=0.
       sqb=0.
       do i=1,n5

@@ -3,7 +3,7 @@
 CC = /mingw/bin/gcc
 FC = g95
 CFLAGS = -I. -fPIC
-FFLAGS = -Wall -fbounds-check -fPIC
+FFLAGS = -Wall -Wno-precisiion-loss -fbounds-check -fPIC
 
 .f.o:
 	${FC} ${CPPFLAGS} ${FFLAGS} -c -o ${<:.f=.o} $<
@@ -33,12 +33,12 @@ SRCF77 = indexx.f gen65.f chkmsg.f \
 	deg2grid.f dot.f ftsky.f geocentric.f GeoDist.f grid2deg.f \
 	moon2.f MoonDop.f sun.f toxyz.f pfxdump.f \
 	ccf65.f trimlist.f chkhist.f decode1a.f \
-	fil659.f fil658.f fil6521.f twkfreq.f decode65b.f \
+	fil6521.f twkfreq.f decode65b.f \
 	afc65b.f fchisq.f ccf2.f
 
 SRC2F77 = four2a.f filbig.f
 
-SRCS2C   = resample.c ptt.c igray.c wrapkarn.c cutil.c \
+SRCS2C   = ptt.c igray.c wrapkarn.c cutil.c \
 	start_portaudio.c
 
 OBJF77 = ${SRCF77:.f=.o}

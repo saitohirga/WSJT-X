@@ -11,7 +11,8 @@ CFLAGS += ${DEFS}
 CPPFLAGS += ${DEFS} -I.
 
 # WSJT specific Fortran flags
-FFLAGS += -Wall -fbounds-check -fno-second-underscore -ffixed-line-length-none -fPIC
+FFLAGS += -Wall -Wno-precision-loss -fbounds-check -fno-second-underscore -fPIC
+#FFLAGS += -Wall -fbounds-check -fno-second-underscore -ffixed-line-length-none -fPIC
 #FFLAGS += -Wall -fbounds-check -fno-second-underscore -fPIC
 #FFLAGS += -cpp -fno-second-underscore
 # The default rules
@@ -59,10 +60,10 @@ SRCS2F77 = indexx.f gen65.f chkmsg.f \
 	deg2grid.f dot.f ftsky.f geocentric.f GeoDist.f grid2deg.f \
 	moon2.f MoonDop.f sun.f toxyz.f pfxdump.f \
 	ccf65.f trimlist.f chkhist.f decode1a.f \
-	filbig.f fil659.f fil658.f fil6521.f twkfreq.f decode65b.f \
+	filbig.f fil6521.f twkfreq.f decode65b.f \
 	afc65b.f fchisq.f ccf2.f rfile2.f
 
-SRCS2C   = resample.c ptt.c igray.c wrapkarn.c rfile3.c wfile3.c
+SRCS2C   = ptt.c igray.c wrapkarn.c rfile3.c wfile3.c
 
 OBJS2F77 = ${SRCS2F77:.f=.o}
 
