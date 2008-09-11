@@ -69,7 +69,7 @@ OBJS2F77 = ${SRCS2F77:.f=.o}
 
 SRCS3C = ptt_unix.c igray.c wrapkarn.c cutil.c
 OBJS3C = ${SRCS3C:.c=.o}
-AUDIOSRCS = a2d.f90 jtaudio.c resample.c start_portaudio.c
+AUDIOSRCS = a2d.f90 jtaudio.c start_portaudio.c
 
 #Audio.so: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C)
 #	python f2py.py -c \

@@ -289,7 +289,6 @@ subroutine map65a(newdat)
         write(11,*) '$EOF'
         call flushqqq(11)
         ndecdone=1
-        t2=sec_midn()
      endif
      if(nagain.eq.1) go to 999
   enddo
