@@ -970,12 +970,9 @@ def update():
         t=time.strftime('%Y %b %d\n%H:%M:%S',utc)
         Audio.gcom2.utcdate=t[:12]
         ldate.configure(text=t)
-        t="Rx noise: %.1f dB" % Audio.gcom2.rxnoise
+        t="Rx: %.1f dB  %.1f %%" % (Audio.gcom2.rxnoise,Audio.gcom2.pctblank)
         msg4.configure(text=t)
         t="Drop: %.2f %%" % Audio.gcom2.pctlost
-        msg5.configure(text=t)
-##        t="%d  %.2f  %.2f" % (Audio.datcom.kbuf,Audio.datcom.kk/(60.0*96000.0), \
-##                            Audio.datcom.kxp/(60.0*96000.0))
         msg5.configure(text=t)
         root_geom=root.geometry()
         try:
@@ -1620,12 +1617,14 @@ f5a.pack(side=LEFT,expand=1,fill=BOTH)
 #------------------------------------------------------ Receiving parameters
 f5b=Frame(iframe5,bd=2,relief=GROOVE)
 nzap=IntVar()
+bblank=Checkbutton(f5b,text='NB',justify=RIGHT,variable=nblank)
+bblank.grid(column=0,row=0,padx=2,pady=20,sticky='EW')
 ltol=Label(f5b, bg='white', fg='black', text='Tol    400', width=8, relief=RIDGE)
-ltol.grid(column=0,row=2,padx=2,pady=1,sticky='EW')
+ltol.grid(column=0,row=1,padx=2,pady=1,sticky='EW')
 Widget.bind(ltol,'<Button-1>',inctol)
 Widget.bind(ltol,'<Button-3>',dectol)
 ldsec=Label(f5b, bg='white', fg='black', text='Dsec  0.0', width=8, relief=RIDGE)
-ldsec.grid(column=0,row=4,ipadx=3,padx=2,pady=5,sticky='EW')
+ldsec.grid(column=0,row=2,ipadx=3,padx=2,pady=5,sticky='EW')
 Widget.bind(ldsec,'<Button-1>',incdsec)
 Widget.bind(ldsec,'<Button-3>',decdsec)
 
