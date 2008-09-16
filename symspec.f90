@@ -30,7 +30,64 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
            szavg(ip,i)=0.
         enddo
      enddo
+
+! Get baseline power level for this minute
+     n1=174                               !Block size (somewhat arbitrary)
+     n2=(kkk-kkdone)/n1                    !Number of blocks
+     k=0                                  !Starting place
+     sqq=0.
+     nsqq=0
+     do j=1,n2
+        sq=0.
+        do i=1,n1                         !Find power in each block
+           k=k+1
+           x1=id(1,k,kbuf)
+           x2=id(2,k,kbuf)
+           x3=id(3,k,kbuf)
+           x4=id(4,k,kbuf)
+           sq=sq + x1*x1 + x2*x2 + x3*x3 + x4*x4
+        enddo
+        if(sq.lt.n1*10000.) then          !Find power in good blocks
+           sqq=sqq+sq
+           nsqq=nsqq+1
+        endif
+     enddo
+     sqave=sqq/nsqq                       !Average power in good blocks
+     nclip=0
+     nz2=0
   endif
+
+  if(nblank.ne.0) then
+! Apply final noise blanking
+     n2=(kkk-kkdone)/n1
+     k=kkdone
+     do j=1,n2
+        sq=0.
+        do i=1,n1
+           k=k+1
+           x1=id(1,k,kbuf)
+           x2=id(2,k,kbuf)
+           x3=id(3,k,kbuf)
+           x4=id(4,k,kbuf)
+           sq=sq + x1*x1 + x2*x2 + x3*x3 + x4*x4
+        enddo
+! If power in this block is excessive, blank it.
+        if(sq.gt.1.5*sqave) then
+           do i=k-n1+1,k
+              id(1,i,kbuf)=0
+              id(2,i,kbuf)=0
+              id(3,i,kbuf)=0
+              id(4,i,kbuf)=0
+           enddo
+           nclip=nclip+1
+        endif
+     enddo
+     nz2=nz2+n2
+     pctblank=nclip*100.0/nz2
+!     write(*,3002) nblank,n2,nz2,nclip,kkk,kkdone,pctblank,sqave
+!3002 format(4i6,2i9,f8.1,f10.0)
+  endif
+!###
 
   do nn=1,ntot
      i0=ts+hsym                           !Starting sample pointer

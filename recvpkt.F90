@@ -15,7 +15,7 @@ subroutine recvpkt(iarg)
   include 'gcom2.f90'
   equivalence (id,d8)
   data nblock0/0/,kb/1/,ns00/99/
-  data sqave/0.0/,u/0.001/,rxnoise/0.0/,kbuf/1/,lost_tot/0/
+  data sqave/0.0/,u/0.001/,rxnoise/0.0/,pctblank/0.0/,kbuf/1/,lost_tot/0/
   data multicast0/-99/
   save
 
