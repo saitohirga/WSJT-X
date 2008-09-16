@@ -12,7 +12,6 @@
       character*180 line
       character*4 rpt(MAXRPT)
       integer ncode(63,2*MAXCALLS + 2 + MAXRPT)
-      integer istat23(13)
       real pp(2*MAXCALLS + 2 + MAXRPT)
       common/mrscom/ mrs(63),mrs2(63)
 
@@ -32,8 +31,6 @@
      +         'RO','RRR','73'/
       save
 
-!      call fstatqqq(23,istat23,ierr)         !@@@
-!      modified=istat23(10)                   !@@@
       modified=0                              !@@@
       if(mycall.eq.mycall0 .and. hiscall.eq.hiscall0 .and. 
      +   hisgrid.eq.hisgrid0 .and. modified.eq.modified0) go to 30
