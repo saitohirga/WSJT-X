@@ -32,8 +32,8 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
      enddo
 
 ! Get baseline power level for this minute
-     n1=174                               !Block size (somewhat arbitrary)
-     n2=(kkk-kkdone)/n1                    !Number of blocks
+     n1=200                               !Block size (somewhat arbitrary)
+     n2=(kkk-kkdone)/n1                   !Number of blocks
      k=0                                  !Starting place
      sqq=0.
      nsqq=0
