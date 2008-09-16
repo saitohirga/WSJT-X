@@ -107,12 +107,13 @@ encode_rs_int.o: encode_rs.c
 decode_rs_int.o: decode_rs.c
 	$(CC) $(CFLAGS) -c -DBIGSYM=1 -o decode_rs_int.o decode_rs.c
 
-plrr:   plrr.f90 sec_midn.F90 plrr_subs.c cutil.c
-	$(FC) -o plrr plrr.f90 sec_midn.F90 plrr_subs.c cutil.c
+plrr:   plrr.F90 sec_midn.F90 plrr_subs.c cutil.c
+	$(CC) -c plrs_subs.c cutil.c
+	$(FC) -o plrr -fno-second-underscore plrr.F90 sec_midn.F90 plrr_subs.o cutil.o
 
 plrs:   plrs.F90 sec_midn.F90 plrs_subs.c cutil.c
 	$(CC) -c plrs_subs.c cutil.c
-	$(FC) -o plrs plrs.F90 sec_midn.F90 plrs_subs.o cutil.o
+	$(FC) -o plrs -fno-second-underscore plrs.F90 sec_midn.F90 plrs_subs.o cutil.o
 
 .PHONY : clean
 clean:
