@@ -93,6 +93,4 @@ plrr_subs.o: plrr_subs_win.c
 .PHONY : clean
 
 clean:
-    -del *.o *.obj MAP65.EXE Audio.pyd
-
-
+    -del *.o *.obj MAP65.EXE Audio.pyd map65.spec

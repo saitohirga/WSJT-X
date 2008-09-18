@@ -117,7 +117,7 @@ plrs:   plrs.F90 sec_midn.F90 plrs_subs.c cutil.c
 
 .PHONY : clean
 clean:
-	${RM} -f *.o *.pyc *.so *~ map65
+	${RM} -f *.o *.pyc *.so *~ map65 map65.spec
 #	(cd portaudio-v19;${MAKE} clean)
 distclean: clean
 	${RM} -f config.log config.status Makefile
