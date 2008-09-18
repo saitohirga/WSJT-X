@@ -94,6 +94,7 @@ character utcdate*12   !UTC date                                GUI
 character*24 fname0    !Filenames to be recorded, read, ...     Decoder
 character*24 fnamea
 character*24 fnameb
+character*6  fnamedate
 character*24 decodedfile
 character*80 AppDir      !WSJT installation directory           GUI
 character*80 AzElDir     !Directory for azel.dat                GUI
@@ -115,8 +116,8 @@ common/gcom2/fcenter,ps0(431),psavg(450),s2(64,3100),ccf(-5:540),           &
      idinterval,msmax,lenappdir,idf,ndiskdat,nlines,nflat,ntxreq,ntxnow,    &
      ndepth,nspecial,ndf,nfmid,nfrange,ss1(-224:224),ss2(-224:224),         &
      mycall,hiscall,hisgrid,txmsg,sending,mode,fname0,fnamea,               &
-     fnameb,decodedfile,AppDir,AzElDir,SaveDir,filetokilla,filetokillb,     &
-     utcdate,pttport,utcdata
+     fnameb,fnamedate,decodedfile,AppDir,AzElDir,SaveDir,                   &
+     filetokilla,filetokillb,utcdate,pttport,utcdata
 
 !### volatile /gcom2/
 
