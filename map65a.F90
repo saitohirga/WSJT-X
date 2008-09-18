@@ -33,6 +33,9 @@ subroutine map65a(newdat)
   if(nrw26.ne.0) then
      endfile (26)              !Compiler bug?  Don't write "end file 26" !!!
      rewind 26
+     rewind 19
+     endfile (19)
+     rewind 19
      nrw26=0
   endif
 
