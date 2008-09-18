@@ -366,8 +366,8 @@ subroutine map65a(newdat)
   call display(nkeep,ncsmin)
   ndecdone=2
 
-  if(nsave.gt.0 .and. ndiskdat.eq.0) call savetf2(id(1,1,kbuf),nsave,   &
-       ntime,nutc,savedir)
+  if(nsave.gt.0 .and. ndiskdat.eq.0) call savetf2(id(1,1,kbuf),       &
+       fnamedate,savedir)
 
 999 close(23)
   ndphi=0

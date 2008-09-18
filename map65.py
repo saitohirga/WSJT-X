@@ -967,6 +967,8 @@ def update():
 
     if isec != isec0:                           #Do once per second
         isec0=isec
+        t=time.strftime('%y%m%d',utc)
+        Audio.gcom2.fnamedate=t[:6]
         t=time.strftime('%Y %b %d\n%H:%M:%S',utc)
         Audio.gcom2.utcdate=t[:12]
         ldate.configure(text=t)
