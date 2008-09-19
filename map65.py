@@ -303,38 +303,41 @@ def dbl_click_call(t,t1,rpt,nbox,event):
         if g.Win32: msg.iconbitmap("wsjt.ico")
         msg.focus_set()
         result=msg.activate()
-        if result == 'OK':
-            ToRadio.delete(0,END)
-            ToRadio.insert(0,hiscall)
-            i3=t1.rfind('\n')+1             #start of selected line
-            if i>=4 and i2>i1:
-                nsec=0
-                try:
-                    nsec=3600*int(t1[i3+13:i3+15]) + 60*int(t1[i3+15:i3+17])
-                except:
-                    pass
-                if setseq.get() and nbox!=3:
-                    TxFirst.set((nsec/int(Audio.gcom1.trperiod))%2)
-                lookup()
-                GenStdMsgs()
-                if rpt <> "OOO":
-                    n=tx1.get().rfind(" ")
-                    t2=tx1.get()[0:n+1]
-                    tx2.delete(0,END)
-                    tx2.insert(0,t2+rpt)
-                    tx3.delete(0,END)
-                    tx3.insert(0,t2+"R"+rpt)
-                    tx4.delete(0,END)
-                    tx4.insert(0,t2+"RRR")
-                    tx5.delete(0,END)
-                    tx5.insert(0,t2+"73")
-                i3=t[:i1].strip().rfind(' ')+1
-                if t[i3:i1].strip() == 'CQ' or nbox >= 2:
-                    ntx.set(1)
-                else:
-                    ntx.set(2)
-                if event.num==3 and not lauto: toggleauto()
+    else:
+        result='OK'
+    if result == 'OK':
+        ToRadio.delete(0,END)
+        ToRadio.insert(0,hiscall)
+        i3=t1.rfind('\n')+1             #start of selected line
+        if i>=4 and i2>i1:
+            nsec=0
+            try:
+                nsec=3600*int(t1[i3+13:i3+15]) + 60*int(t1[i3+15:i3+17])
+            except:
+                pass
+            if setseq.get() and nbox!=3:
+                TxFirst.set((nsec/int(Audio.gcom1.trperiod))%2)
+            lookup()
+            GenStdMsgs()
+            if rpt <> "OOO":
+                n=tx1.get().rfind(" ")
+                t2=tx1.get()[0:n+1]
+                tx2.delete(0,END)
+                tx2.insert(0,t2+rpt)
+                tx3.delete(0,END)
+                tx3.insert(0,t2+"R"+rpt)
+                tx4.delete(0,END)
+                tx4.insert(0,t2+"RRR")
+                tx5.delete(0,END)
+                tx5.insert(0,t2+"73")
+            i3=t[:i1].strip().rfind(' ')+1
+            if t[i3:i1].strip() == 'CQ' or nbox >= 2:
+                ntx.set(1)
+            else:
+                ntx.set(2)
+            if event.num==3 and not lauto: toggleauto()
 
+#----------------------------------------------------------- textkey
 def textkey(event=NONE):
     text.configure(state=DISABLED)
 def avetextkey(event=NONE):
