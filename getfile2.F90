@@ -48,8 +48,11 @@ subroutine getfile2(fname,len)
   enddo
   sqave=174*sq/(kb-ka+1)
   rxnoise=10.0*log10(sqave) - 48.0
-  read(filename(8:11),*) nutc
-  ndiskdat=1
+  read(filename(8:11),*,err=20,end=20) nutc
+  go to 30
+20 nutc=0
+
+30 ndiskdat=1
   mousebutton=0
 
 999 return

@@ -95,6 +95,7 @@ setseq=IntVar()
 tx6alt=""
 txsnrdb=99.
 TxFirst=IntVar()
+worked={}
 green=zeros(500,'f')
 im=Image.new('P',(500,120))
 im.putpalette(Colormap2Palette(colormapLinrad),"RGB")
@@ -218,7 +219,7 @@ def bandmap(event=NONE):
     bm2.geometry(bm2_geom)
     if g.Win32: bm2.iconbitmap("wsjt.ico")
     iframe_bm2 = Frame(bm2, bd=1, relief=SUNKEN)
-    bmtext=Text(iframe_bm2, height=24, width=36, bg="Navy", fg="yellow")
+    bmtext=Text(iframe_bm2, height=24, width=39, bg="Navy", fg="yellow")
     bmtext.bind('<Double-Button-1>',dbl_click_bmtext)
     bmtext.pack(side=LEFT, fill=X, padx=1, pady=3)
     bmtext.tag_configure('age0',foreground='red')
@@ -233,6 +234,8 @@ def logqso(event=NONE):
 #    t=t+","+hiscall+","+hisgrid+","+str(g.nfreq)+","+g.mode+"\n"
     t=t+","+ToRadio.get()+","+HisGrid.get()+","+str(g.nfreq)+","+g.mode+"\n"
     t2="Please confirm making the following entry in MAP65.LOG:\n\n" + t
+    if worked.has_key(hiscall.strip()):
+        t2=t2 + "\n\n*** Dupe: " + hiscall + "is already in LOG ***"
     msg=Pmw.MessageDialog(root,buttons=('Yes','No'),message_text=t2)
     msg.geometry(msgpos())
     if g.Win32: msg.iconbitmap("wsjt.ico")
@@ -242,6 +245,7 @@ def logqso(event=NONE):
         f=open(appdir+'/WSJT.LOG','a')
         f.write(t)
         f.close()
+        worked[hiscall.strip()]=1
     
 #------------------------------------------------------ monitor
 def monitor(event=NONE):
@@ -290,36 +294,46 @@ def dbl_click_call(t,t1,rpt,nbox,event):
     i1=t1.rfind(' ')+1              #index of preceding space
     i2=i1+t[i1:].find(' ')          #index of next space
     hiscall=t[i1:i2]                #selected word, assumed as callsign
-    ToRadio.delete(0,END)
-    ToRadio.insert(0,hiscall)
-    i3=t1.rfind('\n')+1             #start of selected line
-    if i>=4 and i2>i1:
-        nsec=0
-        try:
-            nsec=3600*int(t1[i3+13:i3+15]) + 60*int(t1[i3+15:i3+17])
-        except:
-            pass
-        if setseq.get() and nbox!=3:
-            TxFirst.set((nsec/int(Audio.gcom1.trperiod))%2)
-        lookup()
-        GenStdMsgs()
-        if rpt <> "OOO":
-            n=tx1.get().rfind(" ")
-            t2=tx1.get()[0:n+1]
-            tx2.delete(0,END)
-            tx2.insert(0,t2+rpt)
-            tx3.delete(0,END)
-            tx3.insert(0,t2+"R"+rpt)
-            tx4.delete(0,END)
-            tx4.insert(0,t2+"RRR")
-            tx5.delete(0,END)
-            tx5.insert(0,t2+"73")
-        i3=t[:i1].strip().rfind(' ')+1
-        if t[i3:i1].strip() == 'CQ' or nbox >= 2:
-            ntx.set(1)
-        else:
-            ntx.set(2)
-        if event.num==3 and not lauto: toggleauto()
+    if hiscall[:1]=='*': hiscall=hiscall[1:]
+    if worked.has_key(hiscall.strip()):
+#        MsgBox("Possible dupe: " + hiscall)
+        t="Possible dupe: " + hiscall
+        msg=Pmw.MessageDialog(root,buttons=('OK','Cancel'),message_text=t)
+        msg.geometry(msgpos())
+        if g.Win32: msg.iconbitmap("wsjt.ico")
+        msg.focus_set()
+        result=msg.activate()
+        if result == 'OK':
+            ToRadio.delete(0,END)
+            ToRadio.insert(0,hiscall)
+            i3=t1.rfind('\n')+1             #start of selected line
+            if i>=4 and i2>i1:
+                nsec=0
+                try:
+                    nsec=3600*int(t1[i3+13:i3+15]) + 60*int(t1[i3+15:i3+17])
+                except:
+                    pass
+                if setseq.get() and nbox!=3:
+                    TxFirst.set((nsec/int(Audio.gcom1.trperiod))%2)
+                lookup()
+                GenStdMsgs()
+                if rpt <> "OOO":
+                    n=tx1.get().rfind(" ")
+                    t2=tx1.get()[0:n+1]
+                    tx2.delete(0,END)
+                    tx2.insert(0,t2+rpt)
+                    tx3.delete(0,END)
+                    tx3.insert(0,t2+"R"+rpt)
+                    tx4.delete(0,END)
+                    tx4.insert(0,t2+"RRR")
+                    tx5.delete(0,END)
+                    tx5.insert(0,t2+"73")
+                i3=t[:i1].strip().rfind(' ')+1
+                if t[i3:i1].strip() == 'CQ' or nbox >= 2:
+                    ntx.set(1)
+                else:
+                    ntx.set(2)
+                if event.num==3 and not lauto: toggleauto()
 
 def textkey(event=NONE):
     text.configure(state=DISABLED)
@@ -958,7 +972,7 @@ def GenAltMsgs(event=NONE):
 def update():
     global root_geom,isec0,naz,nel,ndmiles,ndkm,nopen,kxp0, \
            im,pim,cmap0,isync,isync_save,idsec,first,itol,txsnrdb,tx6alt,\
-           bm_geom,bm2_geom,hisgrid0,fqso0,isec00
+           bm_geom,bm2_geom,hisgrid0,fqso0,isec00,worked
     
     utc=time.gmtime(time.time()+0.1*idsec)
     isec=utc[5]
@@ -1195,6 +1209,7 @@ def update():
                 msgtext.insert(END,lines[i],attr)
             msgtext.see(END)
 
+# Display Band Map information:
             try:
                 f=open(appdir+'/bandmap.txt',mode='r')
                 lines=f.readlines()
@@ -1214,12 +1229,21 @@ def update():
                     except:
                         nage=0
                     t=t[:11]+' '
-                    if j==2: t=t+'\n'
+                    t2=""
+                    if t[0]!=' ':
+                        fqso=t[:3]
+                        tcall=t[4:10]
+                        cstar=' *'
+                        if worked.has_key(tcall.strip()): cstar='  '
+                        t2=fqso + cstar + tcall + '  '
+                    if j==2:
+                        t=t+'\n'
+                        t2=t2+'\n'
                     if nage==0: attr='age0'
                     if nage==1: attr='age1'
                     if nage==2: attr='age2'
                     if nage>=3: attr='age3'
-                    bmtext.insert(END,t,attr)
+                    bmtext.insert(END,t2,attr)
                     t=t[:12]
                     if t!="            ":
                         try:
@@ -1717,6 +1741,20 @@ msg8=Message(iframe6, text='                        ', width=300,relief=SUNKEN)
 msg8.pack(side=RIGHT, fill=X, padx=1)
 iframe6.pack(expand=1, fill=X, padx=4)
 frame.pack()
+
+# Create "worked", a dictionary of all calls in WSJT.LOG
+try:
+    f=open(appdir+'/WSJT.LOG','r')
+    s=f.readlines()
+except:
+    print 'Error opening WSJT.LOG'
+    s=""
+f.close()
+tcall=""
+for i in range(len(s)):
+    tcall=s[i].split(',',3)[2]
+    worked[tcall]=1
+
 ldate.after(100,update)
 lauto=0
 isync=1
