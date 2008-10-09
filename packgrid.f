@@ -28,8 +28,8 @@ C  Test for numerical signal report, etc.
          go to 100
       endif
 
-      if(grid(1:1).lt.'A' .or. grid(1:1).gt.'Z') text=.true.
-      if(grid(2:2).lt.'A' .or. grid(2:2).gt.'Z') text=.true.
+      if(grid(1:1).lt.'A' .or. grid(1:1).gt.'R') text=.true.
+      if(grid(2:2).lt.'A' .or. grid(2:2).gt.'R') text=.true.
       if(grid(3:3).lt.'0' .or. grid(3:3).gt.'9') text=.true.
       if(grid(4:4).lt.'0' .or. grid(4:4).gt.'9') text=.true.
       if(text) go to 100
