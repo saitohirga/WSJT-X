@@ -927,6 +927,10 @@ def inc_fqso(event=NONE):
 def dec_fqso(event=NONE):
     Audio.gcom2.mousefqso=Audio.gcom2.mousefqso - 1
     
+#------------------------------------------------------ set_ftx
+def set_ftx(event=NONE):
+    Audio.gcom2.nsetftx=1
+
 #------------------------------------------------------ GenStdMsgs
 def GenStdMsgs(event=NONE):
     global altmsg
@@ -1555,8 +1559,8 @@ root.bind_all('<Control-o>',openfile)
 root.bind_all('<Control-O>',openfile)
 root.bind_all('<Alt-q>',logqso)
 root.bind_all('<Alt-Q>',logqso)
-root.bind_all('<Alt-s>',stopmon)
-root.bind_all('<Alt-S>',stopmon)
+root.bind_all('<Alt-s>',set_ftx)
+root.bind_all('<Alt-S>',set_ftx)
 root.bind_all('<Alt-x>',decode_exclude)
 root.bind_all('<Alt-X>',decode_exclude)
 root.bind_all('<Alt-z>',toggle_zap)
@@ -1588,7 +1592,7 @@ iframe4b.pack(expand=1, fill=X, padx=4)
 iframe4c = Frame(frame, bd=1, relief=SUNKEN)
 blogqso=Button(iframe4c, text='Log QSO',underline=4,command=logqso,
                 padx=1,pady=1)
-bstop=Button(iframe4c, text='Stop',underline=0,command=stopmon,
+bstop=Button(iframe4c, text='Stop',command=stopmon,
                 padx=1,pady=1)
 bmonitor=Button(iframe4c, text='Monitor',underline=0,command=monitor,
                 padx=1,pady=1)
@@ -1666,6 +1670,8 @@ f5b.pack(side=LEFT,expand=1,fill=BOTH)
 f5c=Frame(iframe5,bd=2,relief=GROOVE)
 txfirst=Checkbutton(f5c,text='Tx First',justify=RIGHT,variable=TxFirst)
 f5c2=Frame(f5c,bd=0)
+ftx=Button(f5c,text='Set fTx',underline=0,command=set_ftx,
+            padx=1,pady=1)
 genmsg=Button(f5c,text='GenStdMsgs',underline=0,command=GenStdMsgs,
             padx=1,pady=1)
 auto=Button(f5c,text='Auto is Off',underline=0,command=toggleauto,
@@ -1675,6 +1681,7 @@ auto.focus_set()
 txfirst.grid(column=0,row=0,sticky='W',padx=4)
 f5c2.grid(column=0,row=1,sticky='W',padx=4)
 #sked.grid(column=0,row=3,sticky='W',padx=4)
+ftx.grid(column=0,row=2,sticky='EW',padx=4)
 genmsg.grid(column=0,row=4,sticky='W',padx=4)
 auto.grid(column=0,row=5,sticky='EW',padx=4)
 
