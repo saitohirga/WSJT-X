@@ -96,7 +96,13 @@ subroutine map65a(newdat)
         if(mod(i-ia,10).eq.0) then
            do jp=1,4
               do ii=-50,50
-                 tavg(ii)=savg(jp,i+ii)
+                 iii=i+ii
+                 if(iii.ge.1 .and. iii.le.32768) then
+                    tavg(ii)=savg(jp,iii)
+                 else
+                    print*,'Error in iii:',iii,ia,ib,fa,fb
+                    stop
+                 endif
               enddo
               call pctile(tavg,tmp,101,50,base(jp))
            enddo
