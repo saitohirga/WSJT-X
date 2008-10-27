@@ -1670,7 +1670,7 @@ f5b.pack(side=LEFT,expand=1,fill=BOTH)
 f5c=Frame(iframe5,bd=2,relief=GROOVE)
 txfirst=Checkbutton(f5c,text='Tx First',justify=RIGHT,variable=TxFirst)
 f5c2=Frame(f5c,bd=0)
-ftx=Button(f5c,text='Set fTx',underline=0,command=set_ftx,
+ftx=Button(f5c,text='Set Tx Freq',underline=0,command=set_ftx,
             padx=1,pady=1)
 genmsg=Button(f5c,text='GenStdMsgs',underline=0,command=GenStdMsgs,
             padx=1,pady=1)

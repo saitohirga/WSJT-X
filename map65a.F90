@@ -101,7 +101,7 @@ subroutine map65a(newdat)
                     tavg(ii)=savg(jp,iii)
                  else
                     print*,'Error in iii:',iii,ia,ib,fa,fb
-                    stop
+                    go to 999
                  endif
               enddo
               call pctile(tavg,tmp,101,50,base(jp))
