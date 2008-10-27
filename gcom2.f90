@@ -13,14 +13,12 @@ real rxnoise           !Rx noise in dB                        recvpkt
 real dphi              !Phase shift between pol'n channels   GUI,Decoder
 integer ngreen         !Length of green                         GUI
 real dgain             !Digital audio gain setting              GUI
-integer iter           !(why is this here??)
 integer ndecoding      !Decoder status (see decode2.f90)     GUI,Decoder
 integer ndecoding0     !Status on previous decode            GUI,Decoder
 integer mousebutton    !Which button was clicked?               GUI
 integer multicast      !1 for multicast data, 0 for unicast     GUI
 integer ndecdone       !Is decoder finished?                 GUI,Decoder
-integer npingtime      !Time in file of mouse-selected ping  GUI,Decoder
-integer ierr           !(why is this here?)
+integer ierr           !Error opening *.tf2 file                GUI
 integer lauto          !Are we in Auto mode?                    GUI
 integer mantx          !Manual transmission requested?       GUI,SoundIn
 integer nrestart       !True if transmission should restart  GUI,SoundIn
@@ -28,7 +26,6 @@ integer ntr            !Are we in 2nd sequence?                 SoundIn
 integer nmsg           !Length of Tx message                    SoundIn
 integer nsave          !Which files to save?                    GUI
 integer nadd5          !Prepend 5 sec of 0's before decoding?   GUI 
-integer nsetftx        !1 to request setting TS-2000 freq    GUI,astro0
 integer dftolerance    !DF tolerance (Hz)                       GUI
 logical LDecoded       !Was a message decoded?                  Decoder
 logical rxdone         !Has the Rx sequence finished?      SoundIn,Decoder
@@ -106,10 +103,10 @@ character*12 pttport
 character*8 utcdata     !HHMM UTC for the processed data       Decoder
 
 common/gcom2/fcenter,ps0(431),psavg(450),s2(64,3100),ccf(-5:540),           &
-     green(500),fselect,pctlost,pctblank,rxnoise,dphi,ngreen,dgain,iter,    &
-     ndecoding,ndecoding0,mousebutton,multicast,                            &
-     ndecdone,npingtime,ierr,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5,     &
-     nsetftx,dftolerance,LDecoded,rxdone,monitoring,nzap,minsigdb,          &
+     green(500),fselect,pctlost,pctblank,rxnoise,dphi,ngreen,dgain,         &
+     ndecoding,ndecoding0,mousebutton,multicast,nsetftx,ierr,               &
+     ndecdone,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5,                    &
+     dftolerance,LDecoded,rxdone,monitoring,nzap,minsigdb,                  &
      nclearave,nfreeze,nafc,ncsmin,newspec,nfa,nfb,nfcal,idphi,nkeep,       &
      nmode,mode65,nbpp,ndebug,ndphi,nhispol,nt1,                            &
      nblank,nport,mousedf,mousefqso,neme,nrw26,naggressive,ntx2,nagain,     &
