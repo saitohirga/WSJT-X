@@ -1,4 +1,4 @@
-      parameter (NZ=338)                     !Total number of prefixes
+      parameter (NZ=339)                     !Total number of prefixes
       parameter (NZ2=12)                     !Total number of suffixes
       character*1 sfx(NZ2)
       character*5 pfx(NZ)
@@ -47,4 +47,4 @@
      +  'YJ   ','YK   ','YL   ','YN   ','YO   ','YS   ','YU   ','YV   ',
      +  'YV0  ','Z2   ','Z3   ','ZA   ','ZB   ','ZC4  ','ZD7  ','ZD8  ',
      +  'ZD9  ','ZF   ','ZK1N ','ZK1S ','ZK2  ','ZK3  ','ZL   ','ZL7  ',
-     +  'ZL8  ','ZL9  ','ZP   ','ZS   ','ZS8  ','KC4  '/
+     +  'ZL8  ','ZL9  ','ZP   ','ZS   ','ZS8  ','KC4  ','E5   '/
