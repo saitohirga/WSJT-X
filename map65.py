@@ -1166,7 +1166,9 @@ def update():
             g.ndecphase=1
 
             if Audio.gcom2.nhispol != -999:
-                txpol=(int(Audio.gcom2.nhispol) - 2*g.poloffset + 360) % 180
+                npol=int(Audio.gcom2.nhispol)
+                npol=180-npol                           #Reverse sign of x
+                txpol=(npol - 2*g.poloffset + 360) % 180
                 t="Tx pol: %d  " % txpol
                 if txpol < 45 or txpol > 135:
                     t=t + 'H'
@@ -1854,8 +1856,8 @@ try:
         elif key == 'CSmin': options.ncsmin.set(value)
         elif key == 'Nt1': options.nt1.set(value)
         elif key == 'dphi': options.dphi.set(value)
-        elif key == 'SaveDir': options.savedir.set(value)
-        elif key == 'AzElDir': options.azeldir.set(value)        
+        elif key == 'SaveDir': options.savedir.set(value.replace("#"," "))
+        elif key == 'AzElDir': options.azeldir.set(value.replace("#"," "))
         elif key == 'TxFirst': TxFirst.set(value)
         elif key == 'KB8RQ': kb8rq.set(value)
         elif key == 'K2TXB': k2txb.set(value)
@@ -1949,8 +1951,10 @@ f.write("fb " + str(options.fb.get()) + "\n")
 f.write("fcal " + str(options.fcal.get()) + "\n")
 f.write("CSmin " + str(options.ncsmin.get()) + "\n")
 f.write("Nt1 " + str(options.nt1.get()) + "\n")
-f.write("SaveDir " + str(options.savedir.get()) + "\n")
-f.write("AzElDir " + str(options.azeldir.get()) + "\n")
+savedir2=options.savedir.get().replace(" ","#")
+azeldir2=options.azeldir.get().replace(" ","#")
+f.write("SaveDir " + str(savedir2) + "\n")
+f.write("AzElDir " + str(azeldir2) + "\n")
 f.write("TxFirst " + str(TxFirst.get()) + "\n")
 f.write("KB8RQ " + str(kb8rq.get()) + "\n")
 f.write("K2TXB " + str(k2txb.get()) + "\n")

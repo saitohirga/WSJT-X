@@ -7,6 +7,8 @@ subroutine savetf2(id,fnamedate,savedir)
   character*80 savedir,fname
   character cdate*8,ctime2*10,czone*5,fnamedate*6
   integer  itt(8)
+  data nloc/-1/
+  save nloc
 
   call date_and_time(cdate,ctime2,czone,itt)
   nh=itt(5)-itt(4)/60
@@ -32,31 +34,22 @@ subroutine savetf2(id,fnamedate,savedir)
   open(17,file=fname,status='unknown',access='stream',err=998)
 #endif
 
-!  write(17,err=997) id
-  do i=1,1024
-     i0=(i-1)*5625 + 1
-     call w17(id(1,i0),ierr)
-     if(ierr.ne.0) print*,'Error writing tf2 file'
-  enddo
-
+  if(nloc.eq.-1) nloc=loc(id)
+  n=abs(loc(id)-nloc)
+  if(n.eq.0 .or. n.eq.46080000) then
+     write(17,err=997) id
+  else
+     print*,'Address of id() clobbered???',nloc,loc(id)
+  endif
   close(17)
   go to 999
 
-!997 print*,'Error writing tf2 file'
-!  print*,fname
-!  go to 999
+997 print*,'Error writing tf2 file'
+  print*,fname
+  go to 999
 
 998 print*,'Cannot open file:'
   print*,fname
 
 999 return
 end subroutine savetf2
-
-subroutine w17(id,ierr)
-  integer*2 id(4,5625)
-  write(17,err=998) id
-  ierr=0
-  go to 999
-998 ierr=1
-999 return
-end subroutine w17
