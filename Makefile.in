@@ -4,17 +4,21 @@ LDFLAGS	= @LDFLAGS@
 LIBS	= @LIBS@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS	= @CFLAGS@
-# WSJT specific C flags
+# Map65 specific C flags
 CFLAGS	+= -DBIGSYM=1 -fPIC
 DEFS = @DEFS@
 CFLAGS += ${DEFS}
 CPPFLAGS += ${DEFS} -I.
 
-# WSJT specific Fortran flags
-FFLAGS += -Wall -Wno-precision-loss -fbounds-check -fno-second-underscore -fPIC
+# MAP65 specific Fortran flags
+# gfortran has no -Wno-precission-loss
+FFLAGS += -Wall -fbounds-check -fno-second-underscore -fPIC#FFLAGS += -Wall -Wno-precision-loss -fbounds-check -fno-second-underscore -fPIC
 #FFLAGS += -Wall -fbounds-check -fno-second-underscore -ffixed-line-length-none -fPIC
 #FFLAGS += -Wall -fbounds-check -fno-second-underscore -fPIC
 #FFLAGS += -cpp -fno-second-underscore
+
+all:    Audio.so plrs plrr
+
 # The default rules
 .c.o:
 	${CC} ${CPPFLAGS} ${CFLAGS} -c -o ${<:.c=.o} $<
@@ -30,14 +34,14 @@ FC=@FC@
 COMPILER += @FC_LIB_PATH@
 
 LDFLAGS	+= -L${COMPILER}
-LIBS += /usr/lib/libfftw3f.a
 
 PYTHON	?= @PYTHON@
 RM	?= @RM@
 F2PY	= @F2PY@
 
 ###
-all:    Audio.so plrs plrr
+
+
 
 OBJS2C   = init_rs.o encode_rs.o decode_rs.o plrr_subs.o loc.o deep65.o
 
@@ -70,19 +74,6 @@ OBJS2F77 = ${SRCS2F77:.f=.o}
 SRCS3C = ptt_unix.c igray.c wrapkarn.c cutil.c
 OBJS3C = ${SRCS3C:.c=.o}
 AUDIOSRCS = a2d.f90 jtaudio.c start_portaudio.c
-
-#Audio.so: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C)
-#	python f2py.py -c \
-#	--quiet --"fcompiler=compaqv" \
-#	--opt="/nologo /traceback /warn:errors /fast /fpp /define:Win32 \
-#	      /define:USE_PORTAUDIO" \
-#	$(OBJS2C) \
-#	-lwinmm -lpa -lfftw3single -llibsamplerate \
-#	-m Audio \
-#	only: $(F2PYONLY) : \
-#	$(SRCS2F90) $(SRCS2F77) $(SRCS2C)
-
-###
 
 deep65.o: deep65.F
 	$(FC) -c -O0 -Wall -fPIC deep65.F

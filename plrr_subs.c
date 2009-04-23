@@ -1,7 +1,7 @@
-/*  The following don't seem to be needed?
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+/*  The following don't seem to be needed?
 #include <time.h>
 #include <stdio.h>
 */
