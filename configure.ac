@@ -1,12 +1,12 @@
 dnl $Id$
 dnl Process this file with autoconf to produce a configure script.
 
-dnl AC_PREREQ(2.59)
+dnl AC_PREREQ(2.61)
 
 dnl Sneaky way to get an Id tag into the configure script
 AC_COPYRIGHT([$Id$])
 
-AC_INIT([wsjt],[5.9.6])
+AC_INIT([map65],[0.9])
 
 AC_PREFIX_DEFAULT(/usr/local/)
 
@@ -20,7 +20,7 @@ dnl Make sure autoconf doesn't interfere with cflags -jmallett
 CFLAGS="$OLD_CFLAGS"
 
 dnl Lets guess at some likely places for extra libs/includes XXX -db
-CPPFLAGS="-Iportaudio-v19/include -I/usr/local/include -I/usr/include/alsa -I/usr/local/include/alsa ${CPPFLAGS}"
+CPPFLAGS="-I/usr/local/include ${CPPFLAGS}"
 LDFLAGS="-L/usr/local/lib ${LDFLAGS}"
 LIBS=" -lpthread ${LIBS}"
 
@@ -86,11 +86,7 @@ AC_MSG_CHECKING([g95 lib path])
 G95_LIB_PATH=`${G95} -print-file-name=`
 AC_MSG_RESULT(${G95_LIB_PATH})
 AC_PATH_PROG(GFORTRAN, gfortran)
-dnl
-dnl FreeBSD currently installs gfortran as gfortran41
-dnl See http://gcc.gnu.org/fortran/
-dnl
-AC_PATH_PROG(GFORTRAN, gfortran41)
+AC_PATH_PROG(GFORTRAN, gfortran43)
 AC_MSG_CHECKING([gfortran lib path])
 GFORTRAN_LIB_PATH=`${GFORTRAN} -print-file-name=`
 AC_MSG_RESULT(${GFORTRAN_LIB_PATH})
@@ -108,17 +104,11 @@ sys/resource.h linux/ppdev.h dev/ppbus/ppi.h sys/stat.h fcntl.h sys/ioctl.h ])
 
 AC_HEADER_TIME
 
-AC_CHECK_HEADER([sys/soundcard.h], [HAS_SOUNDCARD_H=1], [HAS_SOUNDCARD_H=0])
-AC_CHECK_HEADER([alsa/asoundlib.h], [HAS_ASOUNDLIB_H=1], [HAS_ASOUNDLIB_H=0])
-AC_CHECK_HEADER([jack/jack.h], [HAS_JACK_H=1], [HAS_JACK_H=0])
-if test -e "portaudio-v19/include/portaudio.h" ; then
-	echo "Checking for portaudio...yes"
-	HAS_PORTAUDIO_H=1
-else
-	echo "Checking for portaudio...no"
-	HAS_PORTAUDIO_H=0
-fi
 AC_CHECK_HEADER([samplerate.h], [HAS_SAMPLERATE_H=1], [HAS_SAMPLERATE_H=0])
+
+HAS_PORTAUDIO_H=0
+HAS_PORTAUDIO_LIB=0
+HAS_PORTAUDIO=0
 
 dnl See whether we can include both string.h and strings.h.
 AC_CACHE_CHECK([whether string.h and strings.h may both be included],
@@ -215,27 +205,6 @@ AC_CONFIG_FILES(		\
 	Makefile		
 )
 
-dnl alsa soundsupport
-dnl =================
-
-AC_ARG_ENABLE(alsa,
-AC_HELP_STRING([--enable-alsa],[Force ALSA SOUNDCARD usage.]),
-[alsa=$enableval] , [alsa=no])
-
-dnl oss soundsupport
-dnl ================
-
-AC_ARG_ENABLE(oss,
-AC_HELP_STRING([--enable-oss],[Force OSS SOUND usage.]),
-[oss=$enableval] , [oss=no])
-
-dnl portaudio soundsupport
-dnl ======================
-
-AC_ARG_ENABLE(portaudio,
-AC_HELP_STRING([--enable-portaudio],[Force PORTAUDIO SOUND usage.]),
-[portaudio=$enableval], [portaudio=no])
-
 dnl pick gfortran or g95
 dnl ====================
 
@@ -286,86 +255,90 @@ dnl set defaults
 dnl ============
 
 
-if test "$alsa" != yes -a "$oss" != yes -a \
-	"$portaudio" != yes; then
-        if test $HAS_PORTAUDIO_H -eq 1; then
-		[portaudio=yes];
-	elif test $HAS_ASOUNDLIB_H -eq 1; then
-		[alsa=yes];
-	elif test $HAS_SOUNDCARD_H -eq 1; then
-		[oss=yes];
+AC_MSG_CHECKING([for a v19 portaudio ])
+
+portaudio_lib_dir="/usr/lib"
+portaudio_include_dir="/usr/include"
+
+AC_ARG_WITH([portaudio-include-dir],
+AC_HELP_STRING([--with-portaudio-include-dir=<path>],
+    [path to portaudio include files]),
+    [portaudio_include_dir=$with_portaudio_include_dir])
+
+AC_ARG_WITH([portaudio-lib-dir],
+AC_HELP_STRING([--with-portaudio-lib-dir=<path>],
+    [path to portaudio lib files]),
+    [portaudio_lib_dir=$with_portaudio_lib_dir])
+
+if test -e ${portaudio_include_dir}/portaudio.h; then
+	HAS_PORTAUDIO_H=1
+fi
+
+if test -e ${portaudio_lib_dir}/libportaudio.so \
+    -o -e ${portaudio_lib_dir}/libportaudio.a;then
+	HAS_PORTAUDIO_LIB=1
+fi
+
+if test $HAS_PORTAUDIO_H -eq 1 -a $HAS_PORTAUDIO_LIB -eq 1; then
+	LDFLAGS="-L${portaudio_lib_dir} ${LDFLAGS}"
+	LIBS="${LIBS} -lportaudio"
+	CPPFLAGS="-I${portaudio_include_dir} ${CPPFLAGS}"
+	AC_CHECK_LIB(portaudio, Pa_GetVersion, \
+		[HAS_PORTAUDIO_VERSION=1], [HAS_PORTAUDIO_VERSION=0])
+	if test $HAS_PORTAUDIO_VERSION -eq 0; then
+		AC_MSG_RESULT([This is likely portaudio v18; you need portaudio v19])
+	else
+		HAS_PORTAUDIO=1
 	fi
-fi
-
-if test "$alsa" = yes; then
-	AC_DEFINE(USE_ALSA, 1, [Define if you want ALSA used.])
-	AC_SUBST(AUDIO, "start_alsa.c")
-	LIBS="${LIBS} -lasound"
-fi
-
-if test "$oss" = yes; then
-	AC_DEFINE(USE_OSS, 1, [Define if you want OSS used.])
-	AC_SUBST(AUDIO, "start_oss.c")
-fi
-
-if test "$portaudio" = yes; then
-	AC_DEFINE(USE_PORTAUDIO, 1, [Define if you want PORTAUDIO used.])
-	AC_SUBST(AUDIO, "a2d.f90 jtaudio.c resample.c start_portaudio.c")
-	AC_SUBST(NEEDPORTAUDIO, "portaudio-v19/lib/.libs/libportaudio.a")
-dnl
-dnl	new portaudio-v19 on linux will be referencing alsa.
-dnl
-	LIBS="${LIBS} ${RTLIBS} -lsamplerate ./portaudio-v19/lib/.libs/libportaudio.a"
-	LIBS="${LIBS} ${ASOUNDLIBS}"
 else
-	AC_SUBST(NEEDPORTAUDIO, "")
-fi
+	AC_MSG_RESULT([portaudio not found trying FreeBSD paths ])
+	portaudio_lib_dir="/usr/local/lib/portaudio2"
+	portaudio_include_dir="/usr/local/include/portaudio2"
+dnl
+dnl Try again to make sure portaudio dirs are valid
+dnl
+	AC_MSG_CHECKING([for a v19 portaudio in FreeBSD paths.])
+	HAS_PORTAUDIO_H=0
+	HAS_PORTAUDIO_LIB=0
 
-dnl set conf flags
-dnl ==============
+	if test -e ${portaudio_include_dir}/portaudio.h; then
+		HAS_PORTAUDIO_H=1
+	fi
 
-if test $HAS_ASOUNDLIB_H -eq 1; then
-	AC_DEFINE(HAS_ASOUNDLIB_H, 1, )
-fi
+	if test -e ${portaudio_lib_dir}/libportaudio.so \
+	    -o -e ${portaudio_lib_dir}/libportaudio.a;then
+		HAS_PORTAUDIO_LIB=1
+	fi
 
-if test $HAS_SOUNDCARD_H -eq 1; then
-	AC_DEFINE(HAS_SOUNDCARD_H, 1, )
-fi
-
-if test $HAS_JACK_H -eq 1; then
-	AC_DEFINE(HAS_JACK_H, 1, )
-fi
-
-if test $HAS_PORTAUDIO_H -eq 1; then
-	AC_DEFINE(HAS_PORTAUDIO_H, 1, )
-fi
-
-if test $HAS_SAMPLERATE_H -eq 1; then
-        AC_DEFINE(HAS_SAMPLERATE_H, 1, )
+	if test $HAS_PORTAUDIO_H -eq 1 -a $HAS_PORTAUDIO_LIB -eq 1; then
+		AC_MSG_RESULT([found portaudio in FreeBSD paths, double checking it is v19 ])
+		LDFLAGS="-L${portaudio_lib_dir} ${LDFLAGS}"
+		LIBS="${LIBS} -lportaudio"
+		CPPFLAGS="-I${portaudio_include_dir} ${CPPFLAGS}"
+		AC_CHECK_LIB(portaudio, Pa_GetVersion, \
+			[HAS_PORTAUDIO_VERSION=1], [HAS_PORTAUDIO_VERSION=0])
+		if test $HAS_PORTAUDIO_VERSION -eq 0; then
+			AC_MSG_RESULT([How did you end up with a portaudio v18 here?])
+		else
+			AC_MSG_RESULT([found v19])
+			HAS_PORTAUDIO=1
+			HAS_PORTAUDIO_H=1
+		fi
+	fi
 fi
 
 dnl sanity tests.
 dnl =============
 
-if test "$alsa" = yes; then
-	if test $HAS_ASOUNDLIB_H -eq 0; then
-		AC_MSG_ERROR([You need asoundlib.h to use --enable-alsa])
-	fi
-fi
-
-if test "$oss" = yes; then
-	if test $HAS_SOUNDCARD_H -eq 0; then
-		AC_MSG_ERROR([You need soundcard.h to use --enable-oss])
-	fi
-fi
-
-if test "$portaudio" = yes; then
-	if test $HAS_PORTAUDIO_H -eq 0; then
-		AC_MSG_ERROR([You need portaudio.h to use --enable-portaudio])
-	fi
-	if test $HAS_SAMPLERATE_H -eq 0; then
-		AC_MSG_ERROR([You need samplerate.h to use --enable-portaudio])
-	fi
+if test $HAS_PORTAUDIO -eq 1; then
+	AC_DEFINE(HAS_PORTAUDIO, 1, )
+	AC_DEFINE(HAS_PORTAUDIO_H, 1, )
+	AC_DEFINE(HAS_PORTAUDIO_LIB, 1, )
+else
+	fail=1
+	echo "This program needs portaudio v19 to compile."
+	echo "Please use --with-portaudio-include-dir= and"
+	echo " --with-portaudio-lib-dir= to set the paths."
 fi
 
 if test "$F2PY" = ""; then
@@ -386,24 +359,12 @@ dnl do summary
 echo
 echo
 
-if test $g95 == "yes"; then
+if test $g95 = "yes"; then
 	echo "Using g95 as fortran compiler.";
 fi
 
-if test $gfortran == "yes"; then
+if test $gfortran = "yes"; then
 	echo "Using gfortran as fortran compiler.";
-fi
-
-if test $portaudio == "yes"; then
-	echo "Using portaudio.";
-fi
-
-if test $alsa == "yes"; then
-	echo "Using alsa.";
-fi
-
-if test $oss == "yes"; then
-	echo "Using oss.";
 fi
 
 echo

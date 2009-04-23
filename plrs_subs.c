@@ -1,10 +1,8 @@
-/*  The following don't seem to be needed?
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <time.h>
 #include <stdio.h>
-*/
 
 #include <arpa/inet.h>
 #include <string.h>
