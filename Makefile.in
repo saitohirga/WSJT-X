@@ -37,7 +37,7 @@ RM	?= @RM@
 F2PY	= @F2PY@
 
 ###
-all:    portaudio-v19/lib/.libs/libportaudio.a Audio.so plrs plrr
+all:    Audio.so plrs plrr
 
 OBJS2C   = init_rs.o encode_rs.o decode_rs.o plrr_subs.o loc.o deep65.o
 
@@ -84,10 +84,6 @@ AUDIOSRCS = a2d.f90 jtaudio.c start_portaudio.c
 
 ###
 
-portaudio-v19/lib/.libs/libportaudio.a:
-	(cd portaudio-v19;./configure)
-	(cd portaudio-v19;${MAKE})
-
 deep65.o: deep65.F
 	$(FC) -c -O0 -Wall -fPIC deep65.F
 
@@ -118,7 +114,7 @@ plrs:   plrs.F90 sec_midn.F90 plrs_subs.c cutil.c
 .PHONY : clean
 clean:
 	${RM} -f *.o *.pyc *.so *~ map65 map65.spec
-#	(cd portaudio-v19;${MAKE} clean)
+
 distclean: clean
 	${RM} -f config.log config.status Makefile
 	(cd portaudio-v19;${MAKE} distclean)

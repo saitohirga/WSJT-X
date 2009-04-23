@@ -2502,7 +2502,7 @@ CFLAGS="$OLD_CFLAGS"
 
 CPPFLAGS="-Iportaudio-v19/include -I/usr/local/include -I/usr/include/alsa -I/usr/local/include/alsa ${CPPFLAGS}"
 LDFLAGS="-L/usr/local/lib ${LDFLAGS}"
-LIBS=" -lpthread ${LIBS}"
+LIBS=" -lpthread -lportaudio ${LIBS}"
 
 echo "$as_me:$LINENO: checking uname -s for Cygwin, Solaris or HPUX" >&5
 echo $ECHO_N "checking uname -s for Cygwin, Solaris or HPUX... $ECHO_C" >&6
