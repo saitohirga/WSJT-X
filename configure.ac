@@ -1,4 +1,4 @@
-	dnl $Id$
+dnl $Id$
 dnl Process this file with autoconf to produce a configure script.
 
 dnl AC_PREREQ(2.61)
@@ -179,23 +179,15 @@ if test "$assert" = no; then
 	AC_DEFINE(NDEBUG, 1, [Define this to disable debugging support.])
 fi
 
-
 if test "$prefix" = "NONE"; then 
-	AC_DEFINE_UNQUOTED(PREFIX, "$ac_default_prefix", [Prefix where wsjt is installed.])
-
+	prefix=${ac_default_prefix}
 else
 
 dnl Don't get bitten by Cygwin's stupidity if the user specified
 dnl a custom prefix with a trailing slash
 
-	prefix=`echo $prefix | sed 's/\/$//'`
-	AC_DEFINE_UNQUOTED(PREFIX, "$prefix", [Prefix where wsjt is installed.])
-	
+	prefix=`echo ${ac_default_prefix} | sed 's/\/$//'`
 fi
-
-AC_CONFIG_FILES(		\
-	Makefile		
-)
 
 dnl pick gfortran or g95
 dnl ====================
@@ -211,31 +203,28 @@ AC_HELP_STRING([--enable-gfortran],[Use gfortran compiler if available.]),
 dnl now set conf.h,, CPPFLAGS and CFLAGS flags as needed
 dnl ====================================================
 
-if test ! -z $GFORTRAN ; then
-	echo "*** gfortran compiler found at ${GFORTRAN}"
-	if test "$gfortran" = yes; then
-       		FC_LIB_PATH=`${GFORTRAN} -print-file-name=`
-		FC=`basename ${GFORTRAN}`
-		g95=no
-		FFLAGS="${FFLAGS_GFORTRAN}"
-		FCV="gnu95"
-	fi
-else
-	echo "*** No gfortran compiler found"
+if test "$g95" = yes; then
+        FC_LIB_PATH=${G95_LIB_PATH}
+	FC=${G95}
+	gfortran=no
+elif test "$gfortran" = yes; then
+        FC_LIB_PATH=${GFORTRAN_LIB_PATH}
+	FC=${GFORTRAN}
+	g95=no
 fi
 
-if test ! -z $G95 ; then
-	echo "*** g95 compiler found at ${G95}"
-	if test "$g95" = yes; then
-       		FC_LIB_PATH=`${G95} -print-file-name=`
-		FC=`basename ${G95}`
-		gfortran=no
-		FFLAGS="${FFLAGS_G95}"
-		FCV=${FCV_G95}
+if test -z $FC ; then
+	if test ! -z $GFORTRAN ; then
+       		FC_LIB_PATH=${GFORTRAN_LIB_PATH}
+	        FC=${GFORTRAN}
+		gfortran=yes
+	elif test ! -z $G95 ; then
+       		FC_LIB_PATH=${G95_LIB_PATH}
+	        FC=${G95}
+		g95=yes
 	fi
-else
-	echo "*** No g95 compiler found"
 fi
+
 dnl
 dnl if FC is not set by now, pick a compiler for user
 dnl
@@ -268,6 +257,8 @@ AC_DEFINE_UNQUOTED(FC_LIB_PATH, "${FC_LIB_PATH}", [Path to fortran libs.])
 AC_SUBST(FC_LIB_PATH, "${FC_LIB_PATH}")
 AC_DEFINE_UNQUOTED(FC, "${FC}", [Fortran compiler.])
 AC_SUBST(FC, "${FC}")
+AC_SUBST(FCV, "${FCV}")
+AC_SUBST(PREFIX, "${prefix}")
 
 dnl set defaults
 dnl ============
