@@ -1,9 +1,13 @@
+MV ?= mv
 CC ?= @CC@
+MKDIR ?= mkdir
+INSTALL=	install
 FFLAGS	= @FFLAGS@
 LDFLAGS	= @LDFLAGS@
 LIBS	= @LIBS@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS	= @CFLAGS@
+PREFIX	= @PREFIX@
 # Map65 specific C flags
 CFLAGS	+= -DBIGSYM=1 -fPIC
 DEFS = @DEFS@
@@ -12,7 +16,7 @@ CPPFLAGS += ${DEFS} -I.
 
 # MAP65 specific Fortran flags
 # gfortran has no -Wno-precission-loss
-FFLAGS += -Wall -fbounds-check -fno-second-underscore -fPIC#FFLAGS += -Wall -Wno-precision-loss -fbounds-check -fno-second-underscore -fPIC
+#FFLAGS += -Wall -fbounds-check -fno-second-underscore -fPIC#FFLAGS += -Wall -Wno-precision-loss -fbounds-check -fno-second-underscore -fPIC
 #FFLAGS += -Wall -fbounds-check -fno-second-underscore -ffixed-line-length-none -fPIC
 #FFLAGS += -Wall -fbounds-check -fno-second-underscore -fPIC
 #FFLAGS += -cpp -fno-second-underscore
@@ -40,8 +44,6 @@ RM	?= @RM@
 F2PY	= @F2PY@
 
 ###
-
-
 
 OBJS2C   = init_rs.o encode_rs.o decode_rs.o plrr_subs.o loc.o deep65.o
 
@@ -108,4 +110,3 @@ clean:
 
 distclean: clean
 	${RM} -f config.log config.status Makefile
-	(cd portaudio-v19;${MAKE} distclean)
