@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "portaudio.h"
+#include <portaudio.h>
 #include <string.h>
 
 void fivehz_();
@@ -183,8 +183,8 @@ int jtaudio_(int *ndevin, int *ndevout, short y1[], short y2[],
 		       dnfs,            //Sample rate
 		       2048,            //Frames per buffer
 		       paNoFlag,
-		       SoundOut,        //Callback routine
-		       &data);          //address of data structure
+		       (PaStreamCallback *)SoundOut, //Callback routine
+		       (void *)&data);               //address of data structure
   if(err2a) {
     printf("Error opening Audio stream for output.\n");
     printf("%s\n",Pa_GetErrorText(err2a));
