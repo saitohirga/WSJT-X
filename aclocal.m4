@@ -131,7 +131,6 @@ AC_SUBST(FC_LIB_PATH, "${FC_LIB_PATH}")
 AC_DEFINE_UNQUOTED(FC, "${FC}", [Fortran compiler.])
 AC_SUBST(FC, "${FC}")
 AC_SUBST(FCV, "${FCV}")
-AC_SUBST(PREFIX, "${prefix}")
 
 dnl =========================================
 dnl pick gfortran or g95
