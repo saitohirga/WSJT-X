@@ -129,13 +129,6 @@ dnl a custom prefix with a trailing slash
 	prefix=`echo ${ac_default_prefix} | sed 's/\/$//'`
 fi
 
-AC_DEFINE_UNQUOTED(FC_LIB_PATH, "${FC_LIB_PATH}", [Path to fortran libs.])
-AC_SUBST(FC_LIB_PATH, "${FC_LIB_PATH}")
-AC_DEFINE_UNQUOTED(FC, "${FC}", [Fortran compiler.])
-AC_SUBST(FC, "${FC}")
-AC_SUBST(FCV, "${FCV}")
-AC_SUBST(PREFIX, "${prefix}")
-
 dnl sanity tests.
 dnl =============
 
@@ -180,7 +173,7 @@ if test $HAS_FFTW3FLIBS -eq 1; then
 	AC_DEFINE(HAS_FFTW3FLIBS, 1, )
 else
 	fail =1
-	echo "You are missing the fortran shim libs in libfftw3."
+	echo "You are missing the fortran shim in libfftw3."
 fi
 
 if test "$F2PY" = ""; then
@@ -197,6 +190,7 @@ if test $fail -eq 1; then
 	AC_MSG_ERROR([Please check error messages and install missing packages.])
 fi
 
+AC_SUBST(PREFIX, "${prefix}")
 AC_SUBST(CPPFLAGS, "${CPPFLAGS}")
 AC_SUBST(LDFLAGS, "${LDFLAGS}")
 AC_SUBST(LIBS, "${LIBS}")
