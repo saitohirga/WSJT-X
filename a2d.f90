@@ -1,4 +1,3 @@
-!---------------------------------------------------- a2d
 subroutine a2d(iarg)
 
 ! Start the PortAudio streams for audio input and output.
@@ -9,6 +8,7 @@ subroutine a2d(iarg)
 ! This call does not normally return, as the background portion of
 ! JTaudio goes into a test-and-sleep loop.
 
+  call cs_lock('a2d')
   write(*,1000)
 1000 format('Using Linrad for input, PortAudio for output.')
   idevout=ndevout
@@ -21,6 +21,7 @@ subroutine a2d(iarg)
   if(idevout.lt.0 .or. idevout.ge.numdevs) idevout=ndefout
   if(idevout.eq.0) idevout=ndefout
   idevin=0
+  call cs_unlock
   ierr=jtaudio(idevin,idevout,y1,y2,NMAX,iwrite,iwave,nwave,    &
        11025,NSPB,TRPeriod,TxOK,ndebug,Transmitting,            &
        Tsec,ngo,nmode,tbuf,ibuf,ndsec)

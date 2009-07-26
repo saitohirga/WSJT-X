@@ -30,7 +30,8 @@ subroutine ftn_init
   include 'gcom3.f90'
   include 'gcom4.f90'
 
-!  print*,'ftn_init.F90 nport=', nport, 'pttport=', pttport
+  call cs_init
+  call cs_lock('ftn_init')
   i=ptt(nport,pttport,0,iptt)                       !Clear the PTT line
   addpfx='    '
   nrw26=0
@@ -146,7 +147,7 @@ subroutine ftn_init
   open(29,file=appdir(:iz)//'/debug.txt',status='unknown')
 #endif
 
-
+  call cs_unlock
   return
 
 910 print*,'Error opening DECODED.TXT'
