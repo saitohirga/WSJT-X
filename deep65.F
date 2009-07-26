@@ -34,6 +34,8 @@
       modified=0                              !@@@
       if(mycall.eq.mycall0 .and. hiscall.eq.hiscall0 .and. 
      +   hisgrid.eq.hisgrid0 .and. modified.eq.modified0) go to 30
+
+      call cs_lock('deep65a')
       rewind 23
       k=0
       icall=0
@@ -100,7 +102,10 @@ C  Insert CQ message
          enddo
  10      continue
       enddo
- 20   ntot=k
+
+ 20   continue
+      call cs_unlock
+      ntot=k
       neme0=neme
 
  30   mycall0=mycall
@@ -141,8 +146,11 @@ C  Insert CQ message
       enddo
 
 C  ### DO NOT REMOVE ### 
+      call cs_lock('deep65b')
       rewind 77
       write(77,*) p1,p2
+      call cs_unlock
+
 C  ### Works OK without it (in both Windows and Linux) if compiled 
 C  ### without optimization.  However, in Windows this is a colossal 
 C  ### pain because of the way McMillan Installer wants to run the 

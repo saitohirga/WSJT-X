@@ -24,11 +24,12 @@ C  NB: may want to smooth the Tsky map to 10 degrees or so.
       if(first) then
 	do i=80,1,-1
 	   if(ichar(AppDir(i:i)).ne.0 .and. 
-     +            ichar(AppDir(i:i)).ne.32) goto 1
+     +            ichar(AppDir(i:i)).ne.32) go to 1
 	enddo
  1	lenappdir=i
         call zero(nsky,180*180)
 	fname=Appdir(1:lenappdir)//'/TSKY.DAT'
+        call cs_lock('astro')
 #ifdef CVF
         open(13,file=fname,status='old',form='binary',err=10)
         read(13) nsky
@@ -40,9 +41,11 @@ C  NB: may want to smooth the Tsky map to 10 degrees or so.
 #endif
         ltsky=.true.
         first=.false.
+        call cs_unlock
       endif
       go to 20
  10   ltsky=.false.
+      call cs_unlock
 
  20   call grid2deg(MyGrid,elon,lat)
       lon=-elon

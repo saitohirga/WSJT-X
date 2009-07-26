@@ -1,4 +1,3 @@
-!--------------------------------------------------- astro0
 subroutine astro0(nyear,month,nday,uth8,nfreq,grid,cauxra,cauxdec,       &
      AzSun8,ElSun8,AzMoon8,ElMoon8,AzMoonB8,ElMoonB8,ntsky,ndop,ndop00,  &
      dbMoon8,RAMoon8,DecMoon8,HA8,Dgrd8,sd8,poloffset8,xnr8,dfdt,dfdt0,  &
@@ -16,6 +15,7 @@ subroutine astro0(nyear,month,nday,uth8,nfreq,grid,cauxra,cauxdec,       &
   data uth8z/0.d0/,imin0/-99/
   save
 
+  call cs_lock('astro0a')
   auxra=0.
   i=index(cauxra,':')
   if(i.eq.0) then
@@ -48,6 +48,7 @@ subroutine astro0(nyear,month,nday,uth8,nfreq,grid,cauxra,cauxdec,       &
   if(mode.eq.'JT6M') nmode=4
   uth=uth8
 
+  call cs_unlock
   call astro(AppDir,nyear,month,nday,uth,nfreq,hisgrid,2,nmode,1,    &
        AzSun,ElSun,AzMoon,ElMoon,ntsky,doppler00,doppler,            &
        dbMoon,RAMoon,DecMoon,HA,Dgrd,sd,poloffset,xnr,auxra,auxdec,  &
@@ -96,6 +97,7 @@ subroutine astro0(nyear,month,nday,uth8,nfreq,grid,cauxra,cauxdec,       &
   isec=3600*uth8
 
   if(isec.ne.isec0 .and. ndecoding.eq.0) then
+     call cs_lock('astro0b')
      ih=uth8
      im=mod(imin,60)
      is=mod(isec,60)
@@ -113,6 +115,7 @@ subroutine astro0(nyear,month,nday,uth8,nfreq,grid,cauxra,cauxdec,       &
      call flushqqq(14)
      nsetftx=0
      isec0=isec
+     call cs_unlock
   endif
 
   return
