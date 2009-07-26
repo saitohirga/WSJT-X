@@ -69,10 +69,12 @@ subroutine wsjtgen
         go to 14
 12      print*,'Cannot open test file ',msg(2:)
         go to 999
-14      read(18) hdr
+14      call cs_lock('wsjtgena')
+        read(18) hdr
         if(ndata.gt.NTxMax) ndata=NTxMax
         call rfile(18,iwave,ndata,ierr)
         close(18)
+        call cs_unlock
         if(ierr.ne.0) print*,'Error reading test file ',msg(2:)
         nwave=ndata/2
         do i=nwave,NTXMAX
@@ -90,13 +92,15 @@ subroutine wsjtgen
      if(msg(2:2).eq.'C' .or. msg(2:2).eq.'c') freq=1764
      if(msg(2:2).eq.'D' .or. msg(2:2).eq.'d') freq=2205
      if(freq.eq.1000.0) then
+        call cs_lock('wsjtgenb')
         read(msg(2:),*,err=1) freq
         goto 2
 1       txmsg='@1000'
         nmsg=5
         nmsg0=5
+2       call cs_unlock
      endif
-2    nwave=60*fsample_out
+     nwave=60*fsample_out
      dpha=twopi*freq/fsample_out
      do i=1,nwave
         iwave(i)=32767.0*sin(i*dpha)
@@ -108,7 +112,9 @@ subroutine wsjtgen
   if(mode(5:5).eq.'A') mode65=1
   if(mode(5:5).eq.'B') mode65=2
   if(mode(5:5).eq.'C') mode65=4
+  call cs_lock('wsjtgenc')
   call gen65(msg,mode65,samfacout,iwave,nwave,sendingsh,msgsent)
+  call cs_unlock
 
   if(lcwid) then
 !  Generate and insert the CW ID.

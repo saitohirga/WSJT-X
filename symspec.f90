@@ -84,10 +84,7 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
      enddo
      nz2=nz2+n2
      pctblank=nclip*100.0/nz2
-!     write(*,3002) nblank,n2,nz2,nclip,kkk,kkdone,pctblank,sqave
-!3002 format(4i6,2i9,f8.1,f10.0)
   endif
-!###
 
   do nn=1,ntot
      i0=ts+hsym                           !Starting sample pointer
@@ -150,8 +147,10 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
 !         if(n.eq.ntot) then
      if(n.ge.279) then
         call move(ssz5,ss5,322*NFFT)
+        call cs_lock('symspec')
         write(utcdata,1002) nutc
 1002    format(i4.4)
+        call cs_unlock
         utcdata=utcdata(1:2)//':'//utcdata(3:4)
         newspec=1
         call move(ssz,ss,4*322*NFFT)

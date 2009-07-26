@@ -33,7 +33,9 @@ subroutine getfile2(fname,len)
   monitoring=0
   kbuf=1
 
+  call cs_lock('getfile2a')
   call rfile3a(fname,id,n,ierr)
+  call cs_unlock
   if(ierr.ne.0) then
      print*,'Error opening or reading file: ',fname,ierr
      go to 999
@@ -48,7 +50,9 @@ subroutine getfile2(fname,len)
   enddo
   sqave=174*sq/(kb-ka+1)
   rxnoise=10.0*log10(sqave) - 48.0
+  call cs_lock('getfile2b')
   read(filename(8:11),*,err=20,end=20) nutc
+  call cs_unlock
   go to 30
 20 nutc=0
 

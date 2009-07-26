@@ -41,14 +41,18 @@
          call interleave63(mr2prob,-1)
 
          nsec1=nsec1+1
+         call cs_lock('extracta')
          write(22,rec=1) nsec1,xlambda,maxe,200,
      +        mrsym,mrprob,mr2sym,mr2prob
          call flushqqq(22)
+         call cs_unlock
          call runqqq('kvasd.exe','-q',iret)
          if(iret.ne.0) then
+            call cs_lock('extractb')
             if(first) write(*,1000) iret
  1000       format('Error in KV decoder, or no KV decoder present.'/
      +         'Return code:',i8,'.  Will use BM algorithm.')
+            call cs_unlock
             ndec=0
             first=.false.
             go to 20
