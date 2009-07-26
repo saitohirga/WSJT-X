@@ -10,6 +10,7 @@ subroutine savetf2(id,fnamedate,savedir)
   data nloc/-1/
   save nloc
 
+  call cs_lock('savetf2')
   call date_and_time(cdate,ctime2,czone,itt)
   nh=itt(5)-itt(4)/60
   nm=itt(6)
@@ -51,5 +52,7 @@ subroutine savetf2(id,fnamedate,savedir)
 998 print*,'Cannot open file:'
   print*,fname
 
-999 return
+999 continue
+  call cs_unlock
+  return
 end subroutine savetf2

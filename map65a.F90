@@ -269,6 +269,7 @@ subroutine map65a(newdat)
               if(decoded(1:4).eq.'RO  ' .or. decoded(1:4).eq.'RRR  ' .or.  &
                  decoded(1:4).eq.'73  ') nsync2=nsync2-6
               nwrite=nwrite+1
+              call cs_lock('map65aa')
               if(ndphi.eq.0) then
                  write(11,1010) nkHz,ndf,npol,nutc,dt,nsync2,decoded,nkv,nqual
 1010             format(i3,i5,i4,i5.4,f5.1,i4,2x,a22,i5,i4,i4)
@@ -280,12 +281,15 @@ subroutine map65a(newdat)
                       dt,sync2,nkv,nqual,decoded
 1011             format(i3,i4,i5,i4,i5.4,f5.1,f7.1,i3,i5,2x,a22)
               endif
+              call cs_unlock
            endif
         enddo
         if(nwrite.eq.0) then
            nfqso=mfqso + nfoffset
+           call cs_lock('map65ab')
            write(11,1012) nfqso,nutc
 1012          format(i3,9x,i5.4)
+           call cs_unlock
         endif
    
      endif
@@ -359,19 +363,23 @@ subroutine map65a(newdat)
            nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
            if(decoded(1:4).eq.'RO  ' .or. decoded(1:4).eq.'RRR  ' .or.  &
                 decoded(1:4).eq.'73  ') nsync2=nsync2-6
+           call cs_lock('map65ac')
            write(26,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
                 nsync2,nutc,decoded,nkv,nqual,nhist
            write(21,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
                 nsync2,nutc,decoded,nkv,nqual,nhist
 1014       format(f7.3,i5,3i3,f5.1,i5,i3,i4,i5.4,2x,a22,3i3)
+           call cs_unlock
 
         endif
      endif
      j=j+nsiz(n)
   enddo
+  call cs_lock('map65ad')
   write(26,1015) nutc
 1015 format(39x,i4.4)
   call flushqqq(26)
+  call cs_unlock
   call display(nkeep,ncsmin)
   ndecdone=2
 

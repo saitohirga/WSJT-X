@@ -15,6 +15,7 @@ subroutine display(nkeep,ncsmin)
   integer utc(MAXLINES),utc2(MX),utcz
   real*8 f0
 
+  call cs_lock('display')
   ftol=0.02
   rewind 26
 
@@ -167,5 +168,7 @@ subroutine display(nkeep,ncsmin)
 1040 format(a40)
   enddo
   call flushqqq(20)
-999  return
+999  continue
+  call cs_unlock
+  return
 end subroutine display

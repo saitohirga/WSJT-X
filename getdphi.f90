@@ -11,8 +11,10 @@ subroutine getdphi(qphi)
   enddo
 
   dphi=57.2957795*atan2(s,c)
+  call cs_lock('getdphi')
   write(11,1010) nint(dphi)
 1010 format('Best-fit Dphi =',i4,' deg')
+  call cs_unlock
 
   return
   end
