@@ -21,6 +21,8 @@ subroutine decode1(iarg)
 
   kkdone=-99
   ns0=999999
+  newdat2=0
+  kbuf=1
 
 10 continue
   if(newdat2.gt.0) then
