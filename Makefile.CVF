@@ -51,7 +51,7 @@ Audio.pyd: $(OBJS2C) $(SRCS2F90) $(SRCS2F77) $(SRCS2C) $(SRCSCOM)
 	--opt="/nologo /traceback /warn:errors /fast /fpp /define:CVF \
 	      /define:USE_PORTAUDIO" \
 	$(OBJS2C) \
-	-lwinmm -lws2_32 -lpa -lfftw3single -llibsamplerate \
+	-lwinmm -lws2_32 -lpa -lfftw3single \
 	-m Audio \
 	only: $(F2PYONLY) : \
 	$(SRCS2F90) $(SRCS2F77) $(SRCS2C)

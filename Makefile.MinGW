@@ -50,7 +50,7 @@ Audio.pyd: $(OBJC1) $(OBJF77) $(SRCF90) $(SRC2F77) $(SRCS2C) $(SRCCOM) Makefile
 	--quiet --fcompiler=g95 \
 	--opt="-fbounds-check -O2 -cpp -DUSE_PORTAUDIO" \
 	--compiler=mingw32 \
-	$(OBJC1) $(OBJF77) libfftw3f.a libsamplerate.a \
+	$(OBJC1) $(OBJF77) libfftw3f.a \
 	libportaudio.a libpthreadGC2.a -lwinmm -lws2_32 \
 	-m Audio \
 	only: $(F2PYONLY) : \
