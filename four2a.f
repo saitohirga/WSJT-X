@@ -1,4 +1,4 @@
-      SUBROUTINE FOUR2a (a,nfft,NDIM,ISIGN,IFORM)
+      subroutine four2a(a,nfft,ndim,isign,iform)
 
 C     IFORM = 1, 0 or -1, as data is
 C     complex, real, or the first half of a complex array.  Transform
@@ -18,13 +18,15 @@ C     to -1.  In the N array, N(1) must be the true N(1), not N(1)/2+1.
 C     The transform will be real and returned to the input array.
 
       parameter (NPMAX=100)
+      parameter (NSMALL=16384)
       complex a(nfft)
       complex aa(32768)
       integer nn(NPMAX),ns(NPMAX),nf(NPMAX),nl(NPMAX)
-      real*8 plan(NPMAX)                   !Should be i*8
+      real*8 plan(NPMAX)             !Actually should be i*8, but no matter
       data nplan/0/
       include 'fftw3.f'
-      save
+      common/patience/npatience
+      save plan,nplan,nn,ns,nf,nl
 
       if(nfft.lt.0) go to 999
 
@@ -41,12 +43,19 @@ C     The transform will be real and returned to the input array.
       nf(i)=iform
       nl(i)=nloc
 
-C  Planning: FFTW_ESTIMATE, FFTW_MEASURE, FFTW_PATIENT, FFTW_EXHAUSTIVE
+C  Planning: FFTW_ESTIMATE, FFTW_ESTIMATE_PATIENT, FFTW_MEASURE, 
+C            FFTW_PATIENT,  FFTW_EXHAUSTIVE
+C  NB: "EXHAUSTIVE" takes more or less forever, for long transforms.
       nspeed=FFTW_ESTIMATE
-      if(nfft.le.16384) nspeed=FFTW_MEASURE
-      nspeed=FFTW_MEASURE
-      if(nfft.le.32768) then
-         do j=1,nfft
+      if(npatience.eq.1) nspeed=FFTW_ESTIMATE_PATIENT
+      if(npatience.eq.2) nspeed=FFTW_MEASURE
+      if(npatience.eq.3) nspeed=FFTW_PATIENT
+      if(npatience.eq.4) nspeed=FFTW_EXHAUSTIVE
+      nspeed=nspeed + FFTW_THREADSAFE+FFTW_USE_WISDOM
+      if(nfft.le.NSMALL) then
+         jz=nfft
+         if(iform.eq.0) jz=nfft/2
+         do j=1,jz
             aa(j)=a(j)
          enddo
       endif
@@ -66,13 +75,16 @@ C  Planning: FFTW_ESTIMATE, FFTW_MEASURE, FFTW_PATIENT, FFTW_EXHAUSTIVE
       endif
       call sleep_msec(0)
       i=nplan
-      if(nfft.le.32768) then
-         do j=1,nfft
+      if(nfft.le.NSMALL) then
+         jz=nfft
+         if(iform.eq.0) jz=nfft/2
+         do j=1,jz
             a(j)=aa(j)
          enddo
       endif
 
- 10   call sleep_msec(0)
+ 10   continue
+      call sleep_msec(0)
       call sfftw_execute_(plan(i))
       call sleep_msec(0)
       return
