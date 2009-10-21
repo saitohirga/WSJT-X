@@ -32,9 +32,8 @@ SRCF77 = indexx.f gen65.f chkmsg.f \
 	unpackmsg.f unpacktext.f astro.f azdist.f coord.f dcoord.f \
 	deg2grid.f dot.f ftsky.f geocentric.f GeoDist.f grid2deg.f \
 	moon2.f MoonDop.f sun.f toxyz.f pfxdump.f \
-	ccf65.f trimlist.f chkhist.f decode1a.f \
-	fil6521.f twkfreq.f decode65b.f \
-	afc65b.f fchisq.f ccf2.f
+	ccf65.f trimlist.f chkhist.f decode1a.f f77_wisdom.f \
+	fil6521.f twkfreq.f decode65b.f afc65b.f fchisq.f ccf2.f 
 
 SRC2F77 = four2a.f filbig.f
 

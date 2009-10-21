@@ -18,7 +18,7 @@
 !   25  meas25.dat
 !   26  tmp26.txt
 !   27  dphi.txt
-!   28  
+!   28  fftw_wisdom.dat
 !   29  debug.txt
 !------------------------------------------------ ftn_init
 subroutine ftn_init
@@ -139,6 +139,12 @@ subroutine ftn_init
 #else
   open(27,file=appdir(:iz)//'/dphi.txt',status='unknown')
 #endif
+
+  open(28,file='fftw_wisdom.dat',status='unknown')
+  call import_wisdom_from_file(isuccess,28)
+  close(28)
+  if(isuccess.ne.0) write(*,1000) 
+1000 format('Using optimized FFTs.')
 
 #ifdef CVF
   open(29,file=appdir(:iz)//'/debug.txt',status='unknown',                 &
