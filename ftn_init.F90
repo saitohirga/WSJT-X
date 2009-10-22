@@ -138,13 +138,12 @@ subroutine ftn_init
        share='denynone')
 #else
   open(27,file=appdir(:iz)//'/dphi.txt',status='unknown')
-#endif
-
   open(28,file='fftw_wisdom.dat',status='unknown')
   call import_wisdom_from_file(isuccess,28)
   close(28)
   if(isuccess.ne.0) write(*,1000) 
 1000 format('Using optimized FFTs.')
+#endif
 
 #ifdef CVF
   open(29,file=appdir(:iz)//'/debug.txt',status='unknown',                 &

@@ -20,12 +20,11 @@ C     The transform will be real and returned to the input array.
       parameter (NPMAX=100)
       parameter (NSMALL=16384)
       complex a(nfft)
-      complex aa(32768)
+      complex aa(NSMALL)
       integer nn(NPMAX),ns(NPMAX),nf(NPMAX),nl(NPMAX)
       real*8 plan(NPMAX)             !Actually should be i*8, but no matter
       data nplan/0/
       include 'fftw3.f'
-      common/patience/npatience
       save plan,nplan,nn,ns,nf,nl
 
       if(nfft.lt.0) go to 999
@@ -46,12 +45,12 @@ C     The transform will be real and returned to the input array.
 C  Planning: FFTW_ESTIMATE, FFTW_ESTIMATE_PATIENT, FFTW_MEASURE, 
 C            FFTW_PATIENT,  FFTW_EXHAUSTIVE
 C  NB: "EXHAUSTIVE" takes more or less forever, for long transforms.
-      nspeed=FFTW_ESTIMATE
-      if(npatience.eq.1) nspeed=FFTW_ESTIMATE_PATIENT
-      if(npatience.eq.2) nspeed=FFTW_MEASURE
-      if(npatience.eq.3) nspeed=FFTW_PATIENT
-      if(npatience.eq.4) nspeed=FFTW_EXHAUSTIVE
-      nspeed=nspeed + FFTW_THREADSAFE+FFTW_USE_WISDOM
+      npatience=1
+      nflags=FFTW_ESTIMATE
+      if(npatience.eq.1) nflags=FFTW_ESTIMATE_PATIENT
+      if(npatience.eq.2) nflags=FFTW_MEASURE
+      if(npatience.eq.3) nflags=FFTW_PATIENT
+      if(npatience.eq.4) nflags=FFTW_EXHAUSTIVE
       if(nfft.le.NSMALL) then
          jz=nfft
          if(iform.eq.0) jz=nfft/2
@@ -62,14 +61,14 @@ C  NB: "EXHAUSTIVE" takes more or less forever, for long transforms.
       call sleep_msec(0)
       if(isign.eq.-1 .and. iform.eq.1) then
          call sfftw_plan_dft_1d_(plan(i),nfft,a,a,
-     +        FFTW_FORWARD,nspeed)
+     +        FFTW_FORWARD,nflags)
       else if(isign.eq.1 .and. iform.eq.1) then
          call sfftw_plan_dft_1d_(plan(i),nfft,a,a,
-     +        FFTW_BACKWARD,nspeed)
+     +        FFTW_BACKWARD,nflags)
       else if(isign.eq.-1 .and. iform.eq.0) then
-         call sfftw_plan_dft_r2c_1d_(plan(i),nfft,a,a,nspeed)
+         call sfftw_plan_dft_r2c_1d_(plan(i),nfft,a,a,nflags)
       else if(isign.eq.1 .and. iform.eq.-1) then
-         call sfftw_plan_dft_c2r_1d_(plan(i),nfft,a,a,nspeed)
+         call sfftw_plan_dft_c2r_1d_(plan(i),nfft,a,a,nflags)
       else
          stop 'Unsupported request in four2a'
       endif
