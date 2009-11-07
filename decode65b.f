@@ -37,10 +37,12 @@ C  Suppress "birdie messages" and other garbage decodes:
       endif
 
       qual=0.
-!      if(nkv.eq.0) then
-         if(ndepth.ge.1) call deep65(s3,mode65,neme,
-     +        flip,mycall,hiscall,hisgrid,deepmsg,qual)
+
+      if(ndepth.ge.1 .and. (nqd.eq.1 .or. flip.eq.1.0)) then
+         call deep65(s3,mode65,neme,flip,mycall,hiscall,
+     +       hisgrid,deepmsg,qual)
          if(nqd.ne.1 .and. qual.lt.10.0) qual=0.0
+      endif
 
 C  Save symbol spectra for possible decoding of average.
 !      do j=1,63
