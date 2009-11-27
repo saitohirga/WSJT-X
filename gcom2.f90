@@ -15,6 +15,7 @@ integer ngreen         !Length of green                         GUI
 real dgain             !Digital audio gain setting              GUI
 integer ndecoding      !Decoder status (see decode2.f90)     GUI,Decoder
 integer ndecoding0     !Status on previous decode            GUI,Decoder
+integer mcall3         !CALL3.TXT has been modified          GUI,Decoder
 integer mousebutton    !Which button was clicked?               GUI
 integer multicast      !1 for multicast data, 0 for unicast     GUI
 integer ndecdone       !Is decoder finished?                 GUI,Decoder
@@ -104,7 +105,7 @@ character*8 utcdata     !HHMM UTC for the processed data       Decoder
 
 common/gcom2/fcenter,ps0(431),psavg(450),s2(64,3100),ccf(-5:540),           &
      green(500),fselect,pctlost,pctblank,rxnoise,dphi,ngreen,dgain,         &
-     ndecoding,ndecoding0,mousebutton,multicast,nsetftx,ierr,               &
+     ndecoding,ndecoding0,mcall3,mousebutton,multicast,nsetftx,ierr,        &
      ndecdone,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5,                    &
      dftolerance,LDecoded,rxdone,monitoring,nzap,minsigdb,                  &
      nclearave,nfreeze,nafc,ncsmin,newspec,nfa,nfb,nfcal,idphi,nkeep,       &
