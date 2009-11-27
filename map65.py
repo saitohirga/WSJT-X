@@ -542,6 +542,7 @@ def addtodb():
             if os.path.exists("CALL3.OLD"): os.remove("CALL3.OLD")
             os.rename("CALL3.TXT","CALL3.OLD")
             os.rename("CALL3.TMP","CALL3.TXT")
+            Audio.gcom2.mcall3=1
 
 #-------------------------------------------------------- clrToRadio
 def clrToRadio(event):

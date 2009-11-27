@@ -14,6 +14,7 @@
       integer ncode(63,2*MAXCALLS + 2 + MAXRPT)
       real pp(2*MAXCALLS + 2 + MAXRPT)
       common/mrscom/ mrs(63),mrs2(63)
+      common/c3com/ mcall3a
 
       data neme0/-99/
       data rpt/'-01','-02','-03','-04','-05',
@@ -31,10 +32,11 @@
      +         'RO','RRR','73'/
       save
 
-      modified=0                              !@@@
       if(mycall.eq.mycall0 .and. hiscall.eq.hiscall0 .and. 
-     +   hisgrid.eq.hisgrid0 .and. modified.eq.modified0) go to 30
+     +   hisgrid.eq.hisgrid0 .and. mcall3a.eq.0 .and.
+     +   neme.eq.neme0) go to 30
 
+      mcall3a=0
       call cs_lock('deep65a')
       rewind 23
       k=0

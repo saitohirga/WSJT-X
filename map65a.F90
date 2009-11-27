@@ -18,11 +18,15 @@ subroutine map65a(newdat)
   real qphi(12)
   include 'gcom2.f90'
   include 'datcom.f90'
+  common/c3com/ mcall3a
+  
   data blank/'                      '/
   data shmsg0/'ATT','RO ','RRR','73 '/
   data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/,mousefqso0/-999/
   save
 
+  mcall3a=mcall3
+  if(mcall3.eq.1) mcall3=0
   if(mousefqso.ne.mousefqso0 .and. nagain.eq.1) newspec=2
   mousefqso0=mousefqso
   nfoffset=nint(1000*(fcenter-144.125d0))
