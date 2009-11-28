@@ -297,8 +297,8 @@ def dbl_click_call(t,t1,rpt,nbox,event):
     if hiscall[:1]=='*': hiscall=hiscall[1:]
     if worked.has_key(hiscall.strip()):
 #        MsgBox("Possible dupe: " + hiscall)
-        t="Possible dupe: " + hiscall
-        msg=Pmw.MessageDialog(root,buttons=('OK','Cancel'),message_text=t)
+        t3="Possible dupe: " + hiscall
+        msg=Pmw.MessageDialog(root,buttons=('OK','Cancel'),message_text=t3)
         msg.geometry(msgpos())
         if g.Win32: msg.iconbitmap("wsjt.ico")
         msg.focus_set()
@@ -331,6 +331,9 @@ def dbl_click_call(t,t1,rpt,nbox,event):
                 tx5.delete(0,END)
                 tx5.insert(0,t2+"73")
             i3=t[:i1].strip().rfind(' ')+1
+            print 'A ',t
+            print 'B',i3,i1,t[i3:i1]
+            print 'C ',t[i3:i1].strip()
             if t[i3:i1].strip() == 'CQ' or nbox >= 2:
                 ntx.set(1)
             else:
