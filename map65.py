@@ -331,9 +331,6 @@ def dbl_click_call(t,t1,rpt,nbox,event):
                 tx5.delete(0,END)
                 tx5.insert(0,t2+"73")
             i3=t[:i1].strip().rfind(' ')+1
-            print 'A ',t
-            print 'B',i3,i1,t[i3:i1]
-            print 'C ',t[i3:i1].strip()
             if t[i3:i1].strip() == 'CQ' or nbox >= 2:
                 ntx.set(1)
             else:
