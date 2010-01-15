@@ -2,8 +2,9 @@ subroutine cs_init
   use dfmt
   type (RTL_CRITICAL_SECTION) ncrit1
   character*12 csub0
-  common/mtxcom/ltrace,mtx,mtxstate,csub0
-  ltrace=1
+  integer*8 mtx
+  common/mtxcom/mtx,ltrace,mtxstate,csub0
+  ltrace=0
   mtx=loc(ncrit1)
   mtxstate=0
   csub0='**unlocked**'
@@ -15,7 +16,8 @@ subroutine cs_destroy
   use dfmt
   type (RTL_CRITICAL_SECTION) ncrit1
   character*12 csub0
-  common/mtxcom/ltrace,mtx,mtxstate,csub0
+  integer*8 mtx
+  common/mtxcom/mtx,ltrace,mtxstate,csub0
   call DeleteCriticalSection(mtx)
   return
 end subroutine cs_destroy
@@ -38,7 +40,8 @@ subroutine cs_lock(csub)
   use dfmt
   character*(*) csub
   character*12 csub0
-  common/mtxcom/ltrace,mtx,mtxstate,csub0
+  integer*8 mtx
+  common/mtxcom/mtx,ltrace,mtxstate,csub0
   n=TryEnterCriticalSection(mtx)
   if(n.eq.0) then
 ! Another thread has already locked the mutex
@@ -56,7 +59,8 @@ end subroutine cs_lock
 subroutine cs_unlock
   use dfmt
   character*12 csub0
-  common/mtxcom/ltrace,mtx,mtxstate,csub0
+  integer*8 mtx
+  common/mtxcom/mtx,ltrace,mtxstate,csub0
   mtxstate=0
   if(ltrace.ge.3) print*,'Mutex unlocked'
   call LeaveCriticalSection(mtx)

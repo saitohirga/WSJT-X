@@ -19,7 +19,10 @@ subroutine recvpkt(iarg)
   data multicast0/-99/
   save
 
-1 call setup_rsocket(multicast)     !Open socket for multicast/unicast data
+1 continue
+  call cs_lock('recvpkt')
+  call setup_rsocket(multicast)     !Open socket for multicast/unicast data
+  call cs_unlock
   k=0
   kk=0
   kxp=0
