@@ -34,7 +34,8 @@ subroutine astro0(nyear,month,nday,uth8,nfreq,grid,cauxra,cauxdec,       &
      read(cauxdec(1:i-1),*,err=2,end=2) id
      read(cauxdec(i+1:i+2),*,err=2,end=2) im
      read(cauxdec(i+4:i+5),*,err=2,end=2) is
-     auxdec=id + im/60.0 + is/3600.0
+     auxdec=abs(id) + im/60.0 + is/3600.0
+     if(cauxdec(1:1).eq.'-') auxdec=-auxdec
   endif
 
 2 nmode=1
