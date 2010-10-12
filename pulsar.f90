@@ -31,10 +31,9 @@ program pulsar
 1001 format(3i2.2,'_',3i2.2,'.raw')
   open(20,file=fname20,access='stream',status='unknown')
   write(20) cdate,ctime,czone,nt,pname       !Write header
-!  write(fname21,1002) nt(1)-2000,nt(2),nt(3),nt(5),nt(6),nt(7)
-!1002 format(3i2.2,'_',3i2.2,'.sq')
-!  open(21,file=fname21,access='stream',status='unknown')
-!  write(21) cdate,ctime,czone,nt,pname       !Write header
+  fname21=fname20(1:13)//'.sq'
+  open(21,file=fname21,access='stream',status='unknown')
+  write(21) cdate,ctime,czone,nt,pname       !Write header
 
   call setup_rsocket                         !Prepare to receive UDP packets
   k=0
@@ -64,10 +63,11 @@ program pulsar
      is=mod(nsec,60)
      nw=nw+1
      write(*,1000) nw,center_freq,ih,im,is,nblock,sqave,rxnoise,id2(1)
-!     write(13,1000) nw,center_freq,0.001*msec,nblock,sqave,rxnoise,id2(1)
+     write(13,1000) nw,center_freq,0.001*msec,nblock,sqave,rxnoise,id2(1)
 1000 format(i10,f7.3,i4,2i3.2,i7,f10.0,f8.2,i8)
      write(21) id2
 
+     call flush(13)
      call flush(20)
      call flush(21)
      k=0
