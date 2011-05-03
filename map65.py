@@ -1307,6 +1307,7 @@ def update():
     Audio.gcom2.neme=neme.get()
     Audio.gcom2.ndepth=ndepth.get()
     Audio.gcom2.multicast=multicast.get()
+    Audio.gcom2.nxant=options.xant.get()
     try:
         Audio.gcom2.idinterval=options.IDinterval.get()
     except:
@@ -1836,6 +1837,7 @@ try:
                 Audio.gcom2.nport=0
             Audio.gcom2.pttport=(options.PttPort.get()+'            ')[:12]
         elif key == 'Mileskm': options.mileskm.set(value)
+        elif key == 'Xant': options.xant.set(value)
         elif key == 'AudioOut':
             try:
                 g.ndevout.set(value)
@@ -1936,6 +1938,7 @@ f.write("HisGrid " + t + "\n")
 f.write("IDinterval " + str(options.IDinterval.get()) + "\n")
 f.write("PttPort " + str(options.PttPort.get()) + "\n")
 f.write("Mileskm " + str(options.mileskm.get()) + "\n")
+f.write("Xant " + str(options.xant.get()) + "\n")
 f.write("AudioOut " + options.DevoutName.get() + "\n")
 f.write("SamFacOut " + str(options.samfacout.get()) + "\n")
 if options.addpfx.get().lstrip()=="": options.addpfx.set("_")

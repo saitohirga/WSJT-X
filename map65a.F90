@@ -273,6 +273,10 @@ subroutine map65a(newdat)
               if(decoded(1:4).eq.'RO  ' .or. decoded(1:4).eq.'RRR  ' .or.  &
                  decoded(1:4).eq.'73  ') nsync2=nsync2-6
               nwrite=nwrite+1
+              if(nxant.ne.0) then
+                 npol=npol-45
+                 if(npol.lt.0) npol=npol+180
+              endif
               call cs_lock('map65aa')
               if(ndphi.eq.0) then
                  write(11,1010) nkHz,ndf,npol,nutc,dt,nsync2,decoded,nkv,nqual
@@ -367,6 +371,10 @@ subroutine map65a(newdat)
            nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
            if(decoded(1:4).eq.'RO  ' .or. decoded(1:4).eq.'RRR  ' .or.  &
                 decoded(1:4).eq.'73  ') nsync2=nsync2-6
+           if(nxant.ne.0) then
+              npol=npol-45
+              if(npol.lt.0) npol=npol+180
+           endif
            call cs_lock('map65ac')
            write(26,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
                 nsync2,nutc,decoded,nkv,nqual,nhist

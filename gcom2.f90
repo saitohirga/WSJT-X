@@ -50,6 +50,7 @@ integer ndebug         !Write debugging info?                   GUI
 integer ndphi          !Set to 1 to compute dphi             GUI,Decoder
 integer nhispol        !Pol angle matching HisCall or HisGrid Decoder
 integer nt1            !Time to start FFTs                      GUI
+integer nxant          !Antenna configuration: 0='+', 1='x'     GUI
 integer nblank         !Is NB checked?                          GUI
 integer nfmid          !Center frequency of main display        GUI
 integer nfrange        !Frequency range of main display         GUI
@@ -109,7 +110,7 @@ common/gcom2/fcenter,ps0(431),psavg(450),s2(64,3100),ccf(-5:540),           &
      ndecdone,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5,                    &
      dftolerance,LDecoded,rxdone,monitoring,nzap,minsigdb,                  &
      nclearave,nfreeze,nafc,ncsmin,newspec,nfa,nfb,nfcal,idphi,nkeep,       &
-     nmode,mode65,nbpp,ndebug,ndphi,nhispol,nt1,                            &
+     nmode,mode65,nbpp,ndebug,ndphi,nhispol,nt1,nxant,                      &
      nblank,nport,mousedf,mousefqso,neme,nrw26,naggressive,ntx2,nagain,     &
      shok,sendingsh,d2a(661500),d2b(661500),b(60000),jza,jzb,ntime,         &
      idinterval,msmax,lenappdir,idf,ndiskdat,nlines,nflat,ntxreq,ntxnow,    &
