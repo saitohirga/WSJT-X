@@ -86,6 +86,15 @@ rb5.pack(anchor=W,side=LEFT,padx=2,pady=2)
 rb6.pack(anchor=W,side=LEFT,padx=2,pady=2)
 f1.pack()
 
+f2=Frame(g1.interior(),width=100,height=20)
+xant=IntVar()
+Label(f2,text='Antennas:  ').pack(side=LEFT)
+rb7=Radiobutton(f2,text='+ ',value=0,variable=xant)
+rb8=Radiobutton(f2,text='x',value=1,variable=xant)
+rb7.pack(anchor=W,side=LEFT,padx=2,pady=2)
+rb8.pack(anchor=W,side=LEFT,padx=2,pady=2)
+f2.pack()
+
 #g3=Pmw.Group(root)
 g3=Pmw.Group(root,tag_text="Miscellaneous")
 temp_prefix=Pmw.EntryField(g3.interior(),labelpos=W,label_text='DXCC prefix:',
