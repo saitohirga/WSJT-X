@@ -42,6 +42,7 @@ program pulsar
   nb=nblock
   if(nb.lt.0) nb=nb+65536
   lost=nb-nb0-1
+  if(lost.eq.-65536) lost=0
   if(lost.ne.0 .and. nb0.ne.0) print*,'Lost packets:',lost,nb,nb0
 
   write(20) id                               !Write raw data
@@ -62,8 +63,8 @@ program pulsar
      im=mod(nsec/60,60)
      is=mod(nsec,60)
      nw=nw+1
-     write(*,1000) nw,center_freq,ih,im,is,nblock,sqave,rxnoise,id2(1)
-     write(13,1000) nw,center_freq,0.001*msec,nblock,sqave,rxnoise,id2(1)
+     write(*,1000)  nw,center_freq,ih,im,is,nblock,sqave,rxnoise,id2(1)
+     write(13,1000) nw,center_freq,ih,im,is,nblock,sqave,rxnoise,id2(1)
 1000 format(i10,f7.3,i4,2i3.2,i7,f10.0,f8.2,i8)
      write(21) id2
 
