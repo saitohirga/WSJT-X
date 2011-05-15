@@ -84,6 +84,8 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
      enddo
      nz2=nz2+n2
      pctblank=nclip*100.0/nz2
+  else
+     pctblank=0.
   endif
 
   do nn=1,ntot
