@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define HELLO_PORT 50004
+#define HELLO_PORT 50004                       // timf2 data
+//#define HELLO_PORT 50000                       // raw data
 #define HELLO_GROUP "239.255.0.0"
 #define MSGBUFSIZE 1416
 

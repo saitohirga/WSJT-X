@@ -7,14 +7,14 @@ subroutine recvpkt(iarg)
   real*8 d8(NSZ)
   integer*1 userx_no,iusb
   integer*2 nblock,nblock0
-  logical synced
+  logical first,synced
   real*8 center_freq,buf8
   common/plrscom/center_freq,msec,fqso,iptr,nblock,userx_no,iusb,buf8(174)
   include 'datcom.f90'
   include 'gcom1.f90'
   include 'gcom2.f90'
   equivalence (id,d8)
-  data nblock0/0/,kb/1/,ns00/99/
+  data nblock0/0/,kb/1/,ns00/99/,first/.true./
   data sqave/0.0/,u/0.001/,rxnoise/0.0/,pctblank/0.0/,kbuf/1/,lost_tot/0/
   data multicast0/-99/
   save
@@ -46,6 +46,7 @@ subroutine recvpkt(iarg)
   if(ns.lt.ns00 .and. (lauto+monitoring.ne.0)) then
 !     print*,'new minute:',mod(nsec/60,60),ns00,ns,ntx,kb
      if(ntx.eq.0) kb=3-kb
+     if(first) kb=1
      k=(kb-1)*60*96000
      kxp=k
      ndone1=0
@@ -62,19 +63,22 @@ subroutine recvpkt(iarg)
   if((kb.eq.1 .and. (k+174).gt.NSMAX) .or.                          &
        (kb.eq.2 .and. (k+174).gt.2*NSMAX)) go to 20
 
+  if(.not.first) then
 ! Check for lost packets
-  lost=nblock-nblock0-1
-  if(lost.ne.0) then
-     nb=nblock
-     if(nb.lt.0) nb=nb+65536
-     nb0=nblock0
-     if(nb0.lt.0) nb0=nb0+65536
-     lost_tot=lost_tot + lost               ! Insert zeros for the lost data.
-     do i=1,174*lost
-        k=k+1
-        d8(k)=0
-     enddo
+     lost=nblock-nblock0-1
+     if(lost.ne.0) then
+        nb=nblock
+        if(nb.lt.0) nb=nb+65536
+        nb0=nblock0
+        if(nb0.lt.0) nb0=nb0+65536
+        lost_tot=lost_tot + lost               ! Insert zeros for the lost data.
+        do i=1,174*lost
+           k=k+1
+           d8(k)=0
+        enddo
+     endif
   endif
+  first=.false.
   nblock0=nblock
 
   tdiff=mod(0.001d0*msec,60.d0)-mod(Tsec,60.d0)
