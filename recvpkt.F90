@@ -1,19 +1,23 @@
 subroutine recvpkt(iarg)
 
-! Receive timf2 packets from Linrad and stuff data into array id().
+! Receive timf2 packets from Linrad and stuff data into array dd().
 ! (This routine runs in a background thread and will never return.)
 
   parameter (NSZ=2*60*96000)
-  real*8 d8(NSZ)
   integer*1 userx_no,iusb
   integer*2 nblock,nblock0
   logical first,synced
-  real*8 center_freq,buf8
+  real*8 center_freq,d8,buf8
+  complex*16 c16,buf16(87)
+  integer*2 jd(4)
+  real*4 xd(4)
   common/plrscom/center_freq,msec,fqso,iptr,nblock,userx_no,iusb,buf8(174)
   include 'datcom.f90'
   include 'gcom1.f90'
   include 'gcom2.f90'
-  equivalence (id,d8)
+  equivalence (jd,d8)
+  equivalence (xd,c16)
+  equivalence (buf8,buf16)
   data nblock0/0/,kb/1/,ns00/99/,first/.true./
   data sqave/0.0/,u/0.001/,rxnoise/0.0/,pctblank/0.0/,kbuf/1/,lost_tot/0/
   data multicast0/-99/
@@ -35,6 +39,9 @@ subroutine recvpkt(iarg)
 
 10 if(multicast.ne.multicast0) go to 1
   call recv_pkt(center_freq)
+
+  iz=174
+  if(nfloat.ne.0) iz=87
 
 ! Should receive a new packet every 174/96000 = 0.0018125 s
   nsec=mod(Tsec,86400.d0)           !Time according to MAP65
@@ -60,8 +67,8 @@ subroutine recvpkt(iarg)
   if(transmitting.eq.1) ntx=1
 
 ! Test for buffer full
-  if((kb.eq.1 .and. (k+174).gt.NSMAX) .or.                          &
-       (kb.eq.2 .and. (k+174).gt.2*NSMAX)) go to 20
+  if((kb.eq.1 .and. (k+iz).gt.NSMAX) .or.                          &
+       (kb.eq.2 .and. (k+iz).gt.2*NSMAX)) go to 20
 
   if(.not.first) then
 ! Check for lost packets
@@ -72,10 +79,12 @@ subroutine recvpkt(iarg)
         nb0=nblock0
         if(nb0.lt.0) nb0=nb0+65536
         lost_tot=lost_tot + lost               ! Insert zeros for the lost data.
-        do i=1,174*lost
-           k=k+1
-           d8(k)=0
-        enddo
+!###
+!        do i=1,iz*lost
+!           k=k+1
+!           d8(k)=0
+!        enddo
+!###
      endif
   endif
   first=.false.
@@ -87,23 +96,42 @@ subroutine recvpkt(iarg)
 
 ! Move data into Rx buffer and compute average signal level.
   sq=0.
-  do i=1,174
+  do i=1,iz
      k=k+1
-     d8(k)=buf8(i)
      k2=k
      n=1
      if(k.gt.NSMAX) then
         k2=k2-NSMAX
         n=2
      endif
-     x1=id(1,k2,n)
-     x2=id(2,k2,n)
-     x3=id(3,k2,n)
-     x4=id(4,k2,n)
-     sq=sq + x1*x1 + x2*x2 + x3*x3 + x4*x4
+
+     if(nfloat.eq.0) then
+        d8=buf8(i)
+        x1=jd(1)
+        x2=jd(2)
+        x3=jd(3)
+        x4=jd(4)
+        dd(1,k2,n)=x1
+        dd(2,k2,n)=x2
+        dd(3,k2,n)=x3
+        dd(4,k2,n)=x4
+        sq=sq + x1*x1 + x2*x2 + x3*x3 + x4*x4
+     else
+        c16=buf16(i)
+        x1=xd(1)
+        x2=xd(2)
+        x3=xd(3)
+        x4=xd(4)
+        dd(1,k2,n)=x1
+        dd(2,k2,n)=x2
+        dd(3,k2,n)=x3
+        dd(4,k2,n)=x4
+        sq=sq + x1*x1 + x2*x2 + x3*x3 + x4*x4
+     endif
   enddo
+  sq=sq/(2.0*iz)
   sqave=sqave + u*(sq-sqave)
-  rxnoise=10.0*log10(sqave) - 48.0
+  rxnoise=10.0*log10(sqave) - 20.0            ! Was -48.0
   kxp=k
 
 20 if(nsec.ne.nsec0) then

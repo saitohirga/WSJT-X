@@ -11,6 +11,7 @@ subroutine getfile2(fname,len)
   include 'gcom1.f90'
   include 'gcom2.f90'
   include 'gcom4.f90'
+  integer*2 id(4,NSMAX)
 
 1 if(ndecoding.eq.0) go to 2
 #ifdef CVF
@@ -34,7 +35,15 @@ subroutine getfile2(fname,len)
   kbuf=1
 
   call cs_lock('getfile2a')
+!###
+! NB: not really necessary to read whole file at once.  Save memory!
   call rfile3a(fname,id,n,ierr)
+  do i=1,NSMAX
+     dd(1,i,1)=id(1,i)
+     dd(2,i,1)=id(2,i)
+  enddo
+!###
+
   call cs_unlock
   if(ierr.ne.0) then
      print*,'Error opening or reading file: ',fname,ierr
@@ -45,8 +54,7 @@ subroutine getfile2(fname,len)
   ka=0.1*NSMAX
   kb=0.8*NSMAX
   do k=ka,kb
-     sq=sq + float(int(id(1,k,1)))**2 + float(int(id(2,k,1)))**2 +    &
-          float(int(id(3,k,1)))**2 + float(int(id(4,k,1)))**2
+     sq=sq + dd(1,k,1)**2 + dd(2,k,1)**2 + dd(3,k,1)**2 + dd(4,k,1)**2
   enddo
   sqave=174*sq/(kb-ka+1)
   rxnoise=10.0*log10(sqave) - 48.0

@@ -201,7 +201,7 @@ subroutine map65a(newdat)
                    nkm.eq.1) km=km-1
               if(freq-freq0.gt.ftol .or. sync1.gt.sync10) then
                  nflip=nint(flipk)
-                 call decode1a(id(1,1,kbuf),newdat,freq,nflip,        &
+                 call decode1a(dd(1,1,kbuf),newdat,freq,nflip,        &
                       mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,    &
                       ipol,sync2,a,dt,pol,nkv,nhist,qual,decoded)
 
@@ -395,8 +395,10 @@ subroutine map65a(newdat)
   call display(nkeep,ncsmin)
   ndecdone=2
 
-  if(nsave.gt.0 .and. ndiskdat.eq.0) call savetf2(id(1,1,kbuf),       &
-       fnamedate,savedir)
+!### Temporarily disable the optional saving of raw data
+!  if(nsave.gt.0 .and. ndiskdat.eq.0) call savetf2(id(1,1,kbuf),       &
+!       fnamedate,savedir)
+!###
 
 999 close(23)
   ndphi=0

@@ -41,7 +41,7 @@ subroutine decode1(iarg)
   n=Tsec
 
   if((ndiskdat.eq.1 .or. ndecoding.eq.0) .and. ((kkk-kkdone).gt.32768)) then
-     call symspec(id,kbuf,kk,kkdone,nutc,newdat)
+     call symspec(dd,kbuf,kk,kkdone,nutc,newdat)
      call sleep_msec(10)
   endif
 
