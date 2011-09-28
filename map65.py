@@ -1344,6 +1344,10 @@ def update():
         Audio.gcom2.nt1=options.nt1.get()
     except:
         Audio.gcom2.nt1=48
+    try:
+        Audio.gcom2.forcefcenter=options.forceFcenter.get()
+    except:
+        Audio.gcom2.forcefcenter=0.0
     t=options.savedir.get() + \
         '                                        ' + \
         '                                        '
@@ -1862,6 +1866,7 @@ try:
         elif key == 'fcal': options.fcal.set(value)
         elif key == 'CSmin': options.ncsmin.set(value)
         elif key == 'Nt1': options.nt1.set(value)
+        elif key == 'ForceFcenter': options.forceFcenter.set(value)
         elif key == 'dphi': options.dphi.set(value)
         elif key == 'SaveDir': options.savedir.set(value.replace("#"," "))
         elif key == 'AzElDir': options.azeldir.set(value.replace("#"," "))
@@ -1960,6 +1965,7 @@ f.write("fb " + str(options.fb.get()) + "\n")
 f.write("fcal " + str(options.fcal.get()) + "\n")
 f.write("CSmin " + str(options.ncsmin.get()) + "\n")
 f.write("Nt1 " + str(options.nt1.get()) + "\n")
+f.write("ForceFcenter " + str(options.forceFcenter.get()) + "\n")
 savedir2=options.savedir.get().replace(" ","#")
 azeldir2=options.azeldir.get().replace(" ","#")
 f.write("SaveDir " + str(savedir2) + "\n")

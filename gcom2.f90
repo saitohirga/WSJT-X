@@ -1,6 +1,7 @@
 ! Variable             Purpose                              Set in Thread
 !-------------------------------------------------------------------------
 real*8 fcenter         !Linrad center freq, from pkt header   recvpkt
+real*8 forcefcenter    !Optional override of fcenter            GUI
 real ps0               !Spectrum of best ping, FSK441/JT6m      Decoder
 real psavg             !Average spectrum                        Decoder
 real s2                !2d spectrum for horizontal waterfall    GUI
@@ -105,7 +106,7 @@ character*80 filetokillb
 character*12 pttport
 character*8 utcdata     !HHMM UTC for the processed data       Decoder
 
-common/gcom2/fcenter,ps0(431),psavg(450),s2(64,3100),ccf(-5:540),           &
+common/gcom2/fcenter,forcefcenter,ps0(431),psavg(450),s2(64,3100),ccf(-5:540), &
      green(500),fselect,pctlost,pctblank,rxnoise,dphi,ngreen,dgain,         &
      ndecoding,ndecoding0,mcall3,mousebutton,multicast,nsetftx,ierr,        &
      ndecdone,nfloat,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5,             &
