@@ -1,12 +1,12 @@
-      subroutine filbig(id,nmax,f0,newdat,c4a,c4b,n4)
+      subroutine filbig(dd,nmax,f0,newdat,c4a,c4b,n4)
 
 C  Filter and downsample complex data for X and Y polarizations,
-C  stored in array id(4,nmax).  Output is downsampled from 96000 Hz
+C  stored in array dd(4,nmax).  Output is downsampled from 96000 Hz
 C  to 1500 Hz, and the low-pass filter has f_cutoff = 375 Hz and 
 C  f_stop = 750 Hz.
 
       parameter (NFFT1=5376000,NFFT2=77175)
-      integer*2 id(4,nmax)                       !Input data
+      real*4  dd(4,nmax)                         !Input data
       complex c4a(NFFT2),c4b(NFFT2)              !Output data
       complex ca(NFFT1),cb(NFFT1)                !FFTs of input
       real*8 df
@@ -71,8 +71,8 @@ C  If we just have a new f0, continue with the existing ca and cb.
       if(newdat.ne.0) then
          nz=min(nmax,NFFT1)
          do i=1,nz
-            ca(i)=cmplx(float(int(id(1,i))),float(int(id(2,i))))
-            cb(i)=cmplx(float(int(id(3,i))),float(int(id(4,i))))
+            ca(i)=cmplx(dd(1,i),dd(2,i))
+            cb(i)=cmplx(dd(3,i),dd(4,i))
          enddo
 
          if(nmax.lt.NFFT1) then

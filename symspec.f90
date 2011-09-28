@@ -1,9 +1,9 @@
-subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
+subroutine symspec(dd,kbuf,kk,kkdone,nutc,newdat)
 
 !  Compute spectra at four polarizations, using half-symbol steps.
 
   parameter (NSMAX=60*96000)
-  integer*2 id(4,NSMAX,2)
+  real*4  dd(4,NSMAX,2)
   complex z
   real*8 ts,hsym
   include 'spcom.f90'
@@ -41,10 +41,10 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
         sq=0.
         do i=1,n1                         !Find power in each block
            k=k+1
-           x1=id(1,k,kbuf)
-           x2=id(2,k,kbuf)
-           x3=id(3,k,kbuf)
-           x4=id(4,k,kbuf)
+           x1=dd(1,k,kbuf)
+           x2=dd(2,k,kbuf)
+           x3=dd(3,k,kbuf)
+           x4=dd(4,k,kbuf)
            sq=sq + x1*x1 + x2*x2 + x3*x3 + x4*x4
         enddo
         if(sq.lt.n1*10000.) then          !Find power in good blocks
@@ -65,19 +65,19 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
         sq=0.
         do i=1,n1
            k=k+1
-           x1=id(1,k,kbuf)
-           x2=id(2,k,kbuf)
-           x3=id(3,k,kbuf)
-           x4=id(4,k,kbuf)
+           x1=dd(1,k,kbuf)
+           x2=dd(2,k,kbuf)
+           x3=dd(3,k,kbuf)
+           x4=dd(4,k,kbuf)
            sq=sq + x1*x1 + x2*x2 + x3*x3 + x4*x4
         enddo
 ! If power in this block is excessive, blank it.
         if(sq.gt.1.5*sqave) then
            do i=k-n1+1,k
-              id(1,i,kbuf)=0
-              id(2,i,kbuf)=0
-              id(3,i,kbuf)=0
-              id(4,i,kbuf)=0
+              dd(1,i,kbuf)=0
+              dd(2,i,kbuf)=0
+              dd(3,i,kbuf)=0
+              dd(4,i,kbuf)=0
            enddo
            nclip=nclip+1
         endif
@@ -94,11 +94,11 @@ subroutine symspec(id,kbuf,kk,kkdone,nutc,newdat)
      i1=ts+2*hsym                         !Next starting sample pointer
      ts=ts+hsym                           !OK, update the exact sample pointer
      do i=1,npts                          !Copy data to FFT arrays
-        xr=fac*id(1,i0+i,kbuf)
-        xi=fac*id(2,i0+i,kbuf)
+        xr=fac*dd(1,i0+i,kbuf)
+        xi=fac*dd(2,i0+i,kbuf)
         cx(i)=cmplx(xr,xi)
-        yr=fac*id(3,i0+i,kbuf)
-        yi=fac*id(4,i0+i,kbuf)
+        yr=fac*dd(3,i0+i,kbuf)
+        yi=fac*dd(4,i0+i,kbuf)
         cy(i)=cmplx(yr,yi)
      enddo
 

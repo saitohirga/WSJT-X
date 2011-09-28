@@ -1,4 +1,4 @@
-      subroutine decode1a(id,newdat,freq,nflip,
+      subroutine decode1a(dd,newdat,freq,nflip,
      +         mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,
      +         ipol,sync2,a,dt,pol,nkv,nhist,qual,decoded)
 
@@ -7,7 +7,7 @@ C  to decode it.
 
       parameter (NFFT1=77760,NFFT2=2430)
       parameter (NMAX=60*96000)          !Samples per 60 s
-      integer*2 id(4,NMAX)               !46 MB: raw data from Linrad timf2
+      real*4  dd(4,NMAX)                 !92 MB: raw data from Linrad timf2
       complex c2x(NMAX/4), c2y(NMAX/4)   !After 1/4 filter and downsample
       complex c3x(NMAX/16),c3y(NMAX/16)  !After 1/16 filter and downsample
       complex c4x(NMAX/64),c4y(NMAX/64)  !After 1/64 filter and downsample
@@ -29,7 +29,7 @@ C  Mix sync tone to baseband, low-pass filter, and decimate by 64
       dt00=dt
 C  If freq=125.0 kHz, f0=48000 Hz.
       f0=1000*(freq-77.0)                  !Freq of sync tone (0-96000 Hz)
-      call filbig(id,NMAX,f0,newdat,cx,cy,n5)
+      call filbig(dd,NMAX,f0,newdat,cx,cy,n5)
       joff=0
       sqa=0.
       sqb=0.

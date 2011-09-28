@@ -1,5 +1,5 @@
 parameter (NSMAX=60*96000)          !Samples per 60 s file
-integer*2 id                        !46 MB: raw data from Linrad timf2
+real*4 dd                           !92 MB: raw data from Linrad timf2
 character*80 fname80
-common/datcom/id(4,NSMAX,2),nutc,newdat2,kbuf,kxp,kk,kkdone,nlost,   &
+common/datcom/dd(4,NSMAX,2),nutc,newdat2,kbuf,kxp,kk,kkdone,nlost,   &
      nlen,fname80
