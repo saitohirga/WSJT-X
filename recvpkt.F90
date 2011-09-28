@@ -47,6 +47,7 @@ subroutine recvpkt(iarg)
   nsec=mod(Tsec,86400.d0)           !Time according to MAP65
   nseclr=msec/1000                  !Time according to Linrad
   fcenter=center_freq
+  if(forcefcenter.gt.0.0) fcenter=forcefcenter
 
 ! Reset buffer pointers at start of minute.
   ns=mod(nsec,60)
@@ -145,6 +146,7 @@ subroutine recvpkt(iarg)
         if(ns.ge.nt1 .and. ndone1.eq.0 .and. synced) then
            nutc=mutc
            fcenter=center_freq
+           if(forcefcenter.gt.0.0) fcenter=forcefcenter
            kbuf=kb
            kk=k
            ndiskdat=0
