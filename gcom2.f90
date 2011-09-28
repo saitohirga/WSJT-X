@@ -19,6 +19,7 @@ integer mcall3         !CALL3.TXT has been modified          GUI,Decoder
 integer mousebutton    !Which button was clicked?               GUI
 integer multicast      !1 for multicast data, 0 for unicast     GUI
 integer ndecdone       !Is decoder finished?                 GUI,Decoder
+integer nfloat         !Floating-point data from Linrad?        GUI
 integer ierr           !Error opening *.tf2 file                GUI
 integer lauto          !Are we in Auto mode?                    GUI
 integer mantx          !Manual transmission requested?       GUI,SoundIn
@@ -107,7 +108,7 @@ character*8 utcdata     !HHMM UTC for the processed data       Decoder
 common/gcom2/fcenter,ps0(431),psavg(450),s2(64,3100),ccf(-5:540),           &
      green(500),fselect,pctlost,pctblank,rxnoise,dphi,ngreen,dgain,         &
      ndecoding,ndecoding0,mcall3,mousebutton,multicast,nsetftx,ierr,        &
-     ndecdone,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5,                    &
+     ndecdone,nfloat,lauto,mantx,nrestart,ntr,nmsg,nsave,nadd5,             &
      dftolerance,LDecoded,rxdone,monitoring,nzap,minsigdb,                  &
      nclearave,nfreeze,nafc,ncsmin,newspec,nfa,nfb,nfcal,idphi,nkeep,       &
      nmode,mode65,nbpp,ndebug,ndphi,nhispol,nt1,nxant,                      &

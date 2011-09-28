@@ -59,6 +59,8 @@ bm_geom=""
 bm2_geom=""
 cmap0="Linrad"
 fileopened=""
+floatpt=IntVar()
+floatpt.set(0)
 font1='Helvetica'
 fqso0=125
 hiscall=""
@@ -1307,6 +1309,7 @@ def update():
     Audio.gcom2.neme=neme.get()
     Audio.gcom2.ndepth=ndepth.get()
     Audio.gcom2.multicast=multicast.get()
+    Audio.gcom2.nfloat=floatpt.get()
     Audio.gcom2.nxant=options.xant.get()
     try:
         Audio.gcom2.idinterval=options.IDinterval.get()
@@ -1404,6 +1407,8 @@ setupmenu.add_radiobutton(label = 'Input data multicast', variable=multicast, \
             value=1)
 setupmenu.add_radiobutton(label = 'Input data unicast', variable=multicast, \
             value=0)
+setupmenu.add_separator()
+setupmenu.add_checkbutton(label = 'Floating point data', variable=floatpt)
 setupmenu.add_separator()
 setupmenu.add_checkbutton(label = 'Enable diagnostics',variable=ndebug)
 setupmenu.add_checkbutton(label = 'Verbose diagnostics',variable=ndebug2)
@@ -1879,6 +1884,7 @@ try:
         elif key == 'Multicast': multicast.set(value)
         elif key == 'Debug': ndebug.set(value)
         elif key == 'Debug2': ndebug2.set(value)
+        elif key == 'FloatPt': floatpt.set(value)
         elif key == 'HisCall':
             Audio.gcom2.hiscall=(value+'            ')[:12]
             ToRadio.delete(0,99)
@@ -1976,6 +1982,7 @@ f.write("NDepth " + str(ndepth.get()) + "\n")
 f.write("Multicast " + str(multicast.get()) + "\n")
 f.write("Debug " + str(ndebug.get()) + "\n")
 f.write("Debug2 " + str(ndebug2.get()) + "\n")
+f.write("FloatPt " + str(floatpt.get()) + "\n")
 mrudir2=mrudir.replace(" ","#")
 f.write("MRUDir " + mrudir2 + "\n")
 if g.astro_geom[:7]=="200x200": g.astro_geom="316x373" + g.astro_geom[7:]
