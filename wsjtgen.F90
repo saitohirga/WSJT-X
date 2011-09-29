@@ -40,21 +40,9 @@ subroutine wsjtgen
   endif
 
   msg=txmsg
-  ntxnow=ntxreq
-
-! Convert all letters to upper case
-  do i=1,28
-     if(msg(i:i).ge.'a' .and. msg(i:i).le.'z')                  &
-          msg(i:i)= char(ichar(msg(i:i))+ichar('A')-ichar('a'))
-  enddo
+  call msgtrim(msg,nmsg)
   txmsg=msg
-
-! Find message length
-  do i=NMSGMAX,1,-1
-     if(msg(i:i).ne.' ') go to 10
-  enddo
-  i=1
-10 nmsg=i
+  ntxnow=ntxreq
   nmsg0=nmsg
 
   if(msg(1:1).eq.'@') then

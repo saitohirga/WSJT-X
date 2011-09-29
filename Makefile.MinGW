@@ -19,7 +19,7 @@ SRCF90 = a2d.f90 astro0.f90 audio_init.f90 azdist0.f90 \
 	runqqq.f90 fivehz.f90 flushqqq.f90 \
 	rfile.f90 rfile3a.F90 spec.f90 map65a.F90 display.F90 \
 	getfile.f90 getfile2.f90 recvpkt.f90 savetf2.F90 \
-	symspec.f90 sec_midn.F90 getdphi.f90 thnix.f90 four2a.f90
+	symspec.f90 sec_midn.F90 getdphi.f90 thnix.f90 msgtrim.f90
 
 SRCCOM = datcom.f90 gcom1.f90 gcom2.f90 gcom3.f90 gcom4.f90 spcom.f90
 
@@ -35,7 +35,7 @@ SRCF77 = indexx.f gen65.f chkmsg.f \
 	ccf65.f trimlist.f chkhist.f decode1a.f f77_wisdom.f \
 	fil6521.f twkfreq.f decode65b.f afc65b.f fchisq.f ccf2.f 
 
-SRC2F77 = filbig.f
+SRC2F77 = four2a.f filbig.f
 
 SRCS2C   = ptt.c igray.c wrapkarn.c cutil.c start_portaudio.c fthread.c
 
@@ -47,7 +47,7 @@ MAP65.EXE: Audio.pyd map65.spec
 Audio.pyd: $(OBJC1) $(OBJF77) $(SRCF90) $(SRC2F77) $(SRCS2C) $(SRCCOM) Makefile
 	c:/Python25/python C:/python25/scripts/f2py.py -c -I. \
 	--quiet --fcompiler=g95 \
-	--opt="-fbounds-check -O2 -cpp -DUSE_PORTAUDIO" \
+	--opt="-fbounds-check -O0 -cpp" \
 	--compiler=mingw32 \
 	$(OBJC1) $(OBJF77) libfftw3f_win.a \
 	libportaudio.a libpthreadGC2.a -lwinmm -lws2_32 \
