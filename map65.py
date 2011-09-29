@@ -95,6 +95,7 @@ nosh441=IntVar()
 noshjt65=IntVar()
 setseq=IntVar()
 tx6alt=""
+txminute=0
 txsnrdb=99.
 TxFirst=IntVar()
 worked={}
@@ -348,11 +349,16 @@ def textkey(event=NONE):
 #------------------------------------------------------ decode
 def decode(event=NONE):
     if Audio.gcom2.ndecoding==0:        #If already busy, ignore request
-        Audio.gcom2.nagain=1
-        n=1
-        Audio.gcom2.mousebutton=0
-        if Audio.gcom2.ndecoding0==4: n=4
-        Audio.gcom2.ndecoding=n         #Standard decode, full file (d2a)
+        if isec0>=45 and txminute==0 and Audio.gcom2.monitoring==1 and \
+          Audio.datcom.kkdone!=-99 and Audio.gcom2.ndiskdat!=1:
+            bc='yellow'
+            bdecode.configure(bg=bc,activebackground=bc,state=DISABLED)
+        else:
+            Audio.gcom2.nagain=1
+            n=1
+            Audio.gcom2.mousebutton=0
+            if Audio.gcom2.ndecoding0==4: n=4
+            Audio.gcom2.ndecoding=n         #Standard decode, full file (d2a)
 
 #------------------------------------------------------ decode_include
 def decode_include(event=NONE):
@@ -982,7 +988,7 @@ def GenAltMsgs(event=NONE):
 def update():
     global root_geom,isec0,naz,nel,ndmiles,ndkm,nopen,kxp0, \
            im,pim,cmap0,isync,isync_save,idsec,first,itol,txsnrdb,tx6alt,\
-           bm_geom,bm2_geom,hisgrid0,fqso0,isec00,worked
+           bm_geom,bm2_geom,hisgrid0,fqso0,isec00,worked,txminute
     
     utc=time.gmtime(time.time()+0.1*idsec)
     isec=utc[5]
