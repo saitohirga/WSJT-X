@@ -284,11 +284,11 @@ def dbl_click_bmtext(event):
     t=bmtext.get('1.0',END)           #Entire contents of text box
     t1=bmtext.get('1.0',CURRENT)      #Contents from start to cursor
     dbl_click_call(t,t1,'OOO',3,event)
-#------------------------------------------------------ dbl_click_ave
-def dbl_click_ave(event):
-    t=avetext.get('1.0',END)        #Entire contents of text box
-    t1=avetext.get('1.0',CURRENT)   #Contents from start to cursor
-    dbl_click_call(t,t1,'OOO',1,event)
+###------------------------------------------------------ dbl_click_ave
+##def dbl_click_ave(event):
+##    t=avetext.get('1.0',END)        #Entire contents of text box
+##    t1=avetext.get('1.0',CURRENT)   #Contents from start to cursor
+##    dbl_click_call(t,t1,'OOO',1,event)
 #------------------------------------------------------ dbl_click_call
 def dbl_click_call(t,t1,rpt,nbox,event):
     global hiscall
@@ -342,8 +342,8 @@ def dbl_click_call(t,t1,rpt,nbox,event):
 #----------------------------------------------------------- textkey
 def textkey(event=NONE):
     text.configure(state=DISABLED)
-def avetextkey(event=NONE):
-    avetext.configure(state=DISABLED)
+##def avetextkey(event=NONE):
+##    avetext.configure(state=DISABLED)
 
 #------------------------------------------------------ decode
 def decode(event=NONE):
@@ -586,10 +586,10 @@ def ModeJT65():
     global isync,itol
     cleartext()
     Audio.gcom1.trperiod=60
-    iframe4b.pack(after=iframe4,expand=1, fill=X, padx=4)
-    bclravg.configure(state=NORMAL)
-    binclude.configure(state=NORMAL)
-    bexclude.configure(state=NORMAL)
+##    iframe4b.pack(after=iframe4,expand=1, fill=X, padx=4)
+##    bclravg.configure(state=NORMAL)
+##    binclude.configure(state=NORMAL)
+##    bexclude.configure(state=NORMAL)
     itol=4
     inctol()
     nfreeze.set(0)
@@ -813,19 +813,19 @@ def erase(event=NONE):
     text.configure(state=NORMAL)
     text.delete('1.0',END)
     text.configure(state=DISABLED)
-    avetext.configure(state=NORMAL)
-    avetext.delete('1.0',END)
-    avetext.configure(state=DISABLED)
+##    avetext.configure(state=NORMAL)
+##    avetext.delete('1.0',END)
+##    avetext.configure(state=DISABLED)
     Audio.gcom2.decodedfile="                        "
-#------------------------------------------------------ clear_avg
-def clear_avg(event=NONE):
-    avetext.configure(state=NORMAL)
-    avetext.delete('1.0',END)
-    avetext.configure(state=DISABLED)
-    f=open(appdir+'/decoded.ave',mode='w')
-    f.truncate(0)                           #Delete contents of decoded.ave
-    f.close()
-    Audio.gcom2.nclearave=1
+###------------------------------------------------------ clear_avg
+##def clear_avg(event=NONE):
+##    avetext.configure(state=NORMAL)
+##    avetext.delete('1.0',END)
+##    avetext.configure(state=DISABLED)
+##    f=open(appdir+'/decoded.ave',mode='w')
+##    f.truncate(0)                           #Delete contents of decoded.ave
+##    f.close()
+##    Audio.gcom2.nclearave=1
 
 #------------------------------------------------------ delwav
 def delwav():
@@ -1189,12 +1189,12 @@ def update():
             except:
                 lines[0]=""
                 lines[1]=""
-            avetext.configure(state=NORMAL)
-            avetext.delete('1.0',END)
-            if len(lines)>1:
-                avetext.insert(END,lines[0])
-                avetext.insert(END,lines[1])
-#            avetext.configure(state=DISABLED)
+##            avetext.configure(state=NORMAL)
+##            avetext.delete('1.0',END)
+##            if len(lines)>1:
+##                avetext.insert(END,lines[0])
+##                avetext.insert(END,lines[1])
+###            avetext.configure(state=DISABLED)
             cleartext()
             Audio.gcom2.ndecdone=0
 
@@ -1547,8 +1547,8 @@ root.bind_all('<Alt-Key-6>',btx6)
 
 root.bind_all('<Alt-a>',toggleauto)
 root.bind_all('<Alt-A>',toggleauto)
-root.bind_all('<Alt-c>',clear_avg)
-root.bind_all('<Alt-C>',clear_avg)
+##root.bind_all('<Alt-c>',clear_avg)
+##root.bind_all('<Alt-C>',clear_avg)
 root.bind_all('<Alt-d>',decode)
 root.bind_all('<Alt-D>',decode)
 root.bind_all('<Alt-e>',erase)
@@ -1590,15 +1590,15 @@ astrotext=Text(iframe4, bg="#66FFFF",height=10,width=11,font=astrotext_font)
 astrotext.pack(side=LEFT, fill=BOTH, padx=4)
 g2font=astrotext_font
 if g2font!="": g.g2font=g2font
-
 iframe4.pack(expand=1, fill=X, padx=4)
-iframe4b = Frame(frame, bd=2, relief=SUNKEN)
-avetext=Text(iframe4b, height=2, width=65)
-avetext.bind('<Double-Button-1>',dbl_click_ave)
-#avetext.bind('<Double-Button-3>',dbl_click_ave)
-avetext.bind('<Key>',avetextkey)
-avetext.pack(side=LEFT, fill=X, padx=1)
-iframe4b.pack(expand=1, fill=X, padx=4)
+
+##iframe4b = Frame(frame, bd=2, relief=SUNKEN)
+##avetext=Text(iframe4b, height=2, width=65)
+##avetext.bind('<Double-Button-1>',dbl_click_ave)
+###avetext.bind('<Double-Button-3>',dbl_click_ave)
+##avetext.bind('<Key>',avetextkey)
+##avetext.pack(side=LEFT, fill=X, padx=1)
+##iframe4b.pack(expand=1, fill=X, padx=4)
 
 #------------------------------------------------------- Button Bar
 iframe4c = Frame(frame, bd=1, relief=SUNKEN)
@@ -1612,12 +1612,12 @@ bdecode=Button(iframe4c, text='Decode',underline=0,command=decode,
                 padx=1,pady=1)
 berase=Button(iframe4c, text='Erase',underline=0,command=erase,
                 padx=1,pady=1)
-bclravg=Button(iframe4c, text='Clear Avg',underline=0,command=clear_avg,
-                padx=1,pady=1)
-binclude=Button(iframe4c, text='Include',underline=0,
-                command=decode_include,padx=1,pady=1)
-bexclude=Button(iframe4c, text='Exclude',underline=1,
-                command=decode_exclude,padx=1,pady=1)
+##bclravg=Button(iframe4c, text='Clear Avg',underline=0,command=clear_avg,
+##                padx=1,pady=1)
+##binclude=Button(iframe4c, text='Include',underline=0,
+##                command=decode_include,padx=1,pady=1)
+##bexclude=Button(iframe4c, text='Exclude',underline=1,
+##                command=decode_exclude,padx=1,pady=1)
 btxstop=Button(iframe4c,text='TxStop',underline=4,command=txstop,
                 padx=1,pady=1)
 
@@ -1626,9 +1626,9 @@ bstop.pack(side=LEFT,expand=1,fill=X)
 bmonitor.pack(side=LEFT,expand=1,fill=X)
 bdecode.pack(side=LEFT,expand=1,fill=X)
 berase.pack(side=LEFT,expand=1,fill=X)
-bclravg.pack(side=LEFT,expand=1,fill=X)
-binclude.pack(side=LEFT,expand=1,fill=X)
-bexclude.pack(side=LEFT,expand=1,fill=X)
+##bclravg.pack(side=LEFT,expand=1,fill=X)
+##binclude.pack(side=LEFT,expand=1,fill=X)
+##bexclude.pack(side=LEFT,expand=1,fill=X)
 btxstop.pack(side=LEFT,expand=1,fill=X)
 iframe4c.pack(expand=1, fill=X, padx=4)
 

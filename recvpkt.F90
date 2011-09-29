@@ -19,7 +19,7 @@ subroutine recvpkt(iarg)
   equivalence (xd,c16)
   equivalence (buf8,buf16)
   data nblock0/0/,kb/1/,ns00/99/,first/.true./
-  data sqave/0.0/,u/0.001/,rxnoise/0.0/,pctblank/0.0/,kbuf/1/,lost_tot/0/
+  data sqave/0.0/,rxnoise/0.0/,pctblank/0.0/,kbuf/1/,lost_tot/0/
   data multicast0/-99/
   save
 
@@ -131,6 +131,8 @@ subroutine recvpkt(iarg)
      endif
   enddo
   sq=sq/(2.0*iz)
+  u=0.001
+  if(nfloat.ne.1) u=2.0*u
   sqave=sqave + u*(sq-sqave)
   rxnoise=10.0*log10(sqave) - 20.0            ! Was -48.0
   kxp=k

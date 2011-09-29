@@ -90,14 +90,14 @@ subroutine display(nkeep,ncsmin)
            call indexx(kz,utc2,indx2)
            k3=0
            do k=1,kz
-              k3=k3+1
+              k3=min(k3+1,500)
               line3(k3)=line2(indx2(k))
            enddo
            nstart=0
         else
            call indexx(kz,utc2,indx2)
            do k=1,kz
-              k3=k3+1
+              k3=min(k3+1,500)
               line3(k3)=line2(indx2(k))
            enddo
         endif
