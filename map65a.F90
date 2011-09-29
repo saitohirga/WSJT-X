@@ -392,7 +392,7 @@ subroutine map65a(newdat)
 1015 format(39x,i4.4)
   call flushqqq(26)
   call cs_unlock
-  call display(nkeep,ncsmin)
+  call display(nkeep)
   ndecdone=2
 
 !### Temporarily disable the optional saving of raw data

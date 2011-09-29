@@ -47,7 +47,6 @@ dphi=IntVar()
 fa=IntVar()
 fb=IntVar()
 fcal=IntVar()
-ncsmin=IntVar()
 nt1=IntVar()
 savedir=StringVar()
 azeldir=StringVar()
@@ -114,8 +113,6 @@ fb_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='Fmax (kHz):',
     entry_width=9,value=160,entry_textvariable=fb)
 fcal_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='Fcal (Hz):',
     entry_width=9,entry_textvariable=fcal)
-min_callsign_entry=Pmw.EntryField(g3.interior(),labelpos=W, \
-    label_text='CSmin:',entry_width=9,value=4,entry_textvariable=ncsmin)
 nt1_entry=Pmw.EntryField(g3.interior(),labelpos=W, \
     label_text='Rx t1:',entry_width=9,value=48,entry_textvariable=nt1)
 forceFreq_entry=Pmw.EntryField(g3.interior(),labelpos=W, \
@@ -125,8 +122,8 @@ savedir_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='SaveDir:',
 azeldir_entry=Pmw.EntryField(g3.interior(),labelpos=W,label_text='AzElDir:',
     entry_width=23,value=g.appdir,entry_textvariable=azeldir)
 widgets = (temp_prefix,aux_ra,aux_dec,nkeep_entry,dphi_entry, \
-           fa_entry,fb_entry,fcal_entry,min_callsign_entry, \
-           nt1_entry,forceFreq_entry,savedir_entry,azeldir_entry,)
+           fa_entry,fb_entry,fcal_entry,nt1_entry,forceFreq_entry, \
+           savedir_entry,azeldir_entry)
 for widget in widgets:
     widget.pack(padx=2,pady=2)
 Pmw.alignlabels(widgets)

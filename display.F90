@@ -1,4 +1,4 @@
-subroutine display(nkeep,ncsmin)
+subroutine display(nkeep)
 
 #ifdef CVF
   use dfport
@@ -143,7 +143,7 @@ subroutine display(nkeep,ncsmin)
         if(callsign.ne.'      ' .and. callsign.ne.callsign0) then
            len=i2-1
            if(len.lt.0) len=6
-           if(len.ge.ncsmin) then                        !Omit short "callsigns"
+           if(len.ge.4) then                        !Omit short "callsigns"
               nc=nc+1
               freqcall(nc)=cfreq0//' '//callsign//line3(k)(80:81)
               callsign0=callsign
