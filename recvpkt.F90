@@ -40,6 +40,12 @@ subroutine recvpkt(iarg)
 10 if(multicast.ne.multicast0) go to 1
   call recv_pkt(center_freq)
 
+  if(userx_no.lt.0) then
+     nfloat=1
+  else
+     nfloat=0
+  endif
+
   iz=174
   if(nfloat.ne.0) iz=87
 

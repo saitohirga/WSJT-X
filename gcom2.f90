@@ -20,7 +20,7 @@ integer mcall3         !CALL3.TXT has been modified          GUI,Decoder
 integer mousebutton    !Which button was clicked?               GUI
 integer multicast      !1 for multicast data, 0 for unicast     GUI
 integer ndecdone       !Is decoder finished?                 GUI,Decoder
-integer nfloat         !Floating-point data from Linrad?        GUI
+integer nfloat         !Floating-point data from Linrad?      recvpkt
 integer ierr           !Error opening *.tf2 file                GUI
 integer lauto          !Are we in Auto mode?                    GUI
 integer mantx          !Manual transmission requested?       GUI,SoundIn
