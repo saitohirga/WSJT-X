@@ -12,6 +12,11 @@ program plrs
   integer*1 userx_no,iusb
   integer*2 nblock
   real*8 d(NZ),buf8
+
+  real*8 buf8a(174)
+  integer*2 id(4,174)
+  real*4 buf4(4,87)
+
   integer fd
   integer open,read,close
   integer nm(11)
@@ -19,12 +24,14 @@ program plrs
   logical fast,pause
   real*8 center_freq,dmsec,dtmspacket,tmsec
   common/plrscom/center_freq,msec2,fsample,iptr,nblock,userx_no,iusb,buf8(174)
+  equivalence (id,buf8a)
+  equivalence (buf8,buf4)
   data nm/45,46,48,50,52,54,55,56,57,58,59/
   data nblock/0/,fast/.false./,pause/.false./
 
   nargs=iargc()
-  if(nargs.ne.4) then
-     print*,'Usage: plrs <fast|pause|slow> <minutes> <iters> <iwait>'
+  if(nargs.ne.5) then
+     print*,'Usage: plrs <fast|pause|slow> <minutes> <iters> <iwait> <ifloat>'
      go to 999
   endif
 
@@ -37,6 +44,8 @@ program plrs
   read(arg,*) iters
   call getarg(4,arg)
   read(arg,*) iwait
+  call getarg(5,arg)
+  read(arg,*) ifloat
 
   if(iwait.ne.0) then
 1    if(mod(int(sec_midn()),60).eq.0) go to 2
@@ -45,10 +54,12 @@ program plrs
   endif
 
 2 fname="all.tf2"//char(0)
-  userx_no=0
+  userx_no=2
+  if(ifloat.ne.0) userx_no=-2
   iusb=1
   center_freq=144.125d0
   dtmspacket=1000.d0*NBPP/(8.d0*96000.d0)
+  if(ifloat.ne.0) dtmspacket=0.5*dtmspacket
   fsample=96000.0
   npkt=0
 
@@ -61,7 +72,7 @@ program plrs
      fd=open(fname,RMODE)                  !Open file for reading
 #endif
      dmsec=-dtmspacket
-     nsec0=sec_midn()
+     sec0=sec_midn()
 
      do ifile=1,nfiles
         ns0=0
@@ -82,13 +93,43 @@ program plrs
               go to 999
            endif
 #endif
+           if(ifloat.ne.0) then
+              buf8a=buf8
+              do i=1,87
+                 buf4(1,i)=id(1,i)
+                 buf4(2,i)=id(2,i)
+                 buf4(3,i)=id(3,i)
+                 buf4(4,i)=id(4,i)
+              enddo
+           endif
+
            nblock=nblock+1
            call send_pkt(center_freq)
            npkt=npkt+1
+
+           if(ifloat.ne.0) then
+! Send a second packet if format is floating point
+              do i=1,87
+                 buf4(1,i)=id(1,i+87)
+                 buf4(2,i)=id(2,i+87)
+                 buf4(3,i)=id(3,i+87)
+                 buf4(4,i)=id(4,i+87)
+              enddo
+
+              dmsec=dmsec+dtmspacket
+              tmsec=tmsec+dtmspacket
+              msec2=nint(tmsec)
+              msec=nint(dmsec)
+              nblock=nblock+1
+              call send_pkt(center_freq)
+              npkt=npkt+1
+           endif
+
+
               
            if(mod(npkt,100).eq.0) then
-              nsec=int(sec_midn())-nsec0
-              nwait=msec-1000*nsec
+              sec=int(sec_midn())-sec0
+              nwait=msec-1000*sec
 !  Pace the data at close to its real-time rate
               if(nwait.gt.0 .and. .not.fast) call sleep_msec(nwait)
            endif

@@ -27,7 +27,8 @@ void setup_ssocket_(void)
   /* set up destination address */
   memset(&addr,0,sizeof(addr));
   addr.sin_family=AF_INET;
-  addr.sin_addr.s_addr=inet_addr(HELLO_GROUP);
+  //  addr.sin_addr.s_addr=inet_addr(HELLO_GROUP);
+  addr.sin_addr.s_addr=inet_addr("128.112.87.74");
   addr.sin_port=htons(HELLO_PORT);
 }
 
