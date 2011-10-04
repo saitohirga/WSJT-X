@@ -17,9 +17,9 @@ F2PYONLY = ftn_init ftn_quit audio_init getfile azdist0 astro0 spec
 SRCF90 = a2d.f90 astro0.f90 audio_init.f90 azdist0.f90 \
 	decode1.f90 ftn_init.f90 ftn_quit.f90 wsjtgen.f90 \
 	runqqq.f90 fivehz.f90 flushqqq.f90 \
-	rfile.f90 rfile3a.F90 spec.f90 map65a.F90 display.F90 \
-	getfile.f90 getfile2.f90 recvpkt.f90 savetf2.F90 \
-	symspec.f90 sec_midn.F90 getdphi.f90 thnix.f90 msgtrim.f90
+	rfile.f90 rfile3a.f90 spec.f90 map65a.f90 display.f90 \
+	getfile.f90 getfile2.f90 recvpkt.f90 savetf2.f90 \
+	symspec.f90 sec_midn.f90 getdphi.f90 thnix.f90 msgtrim.f90
 
 SRCCOM = datcom.f90 gcom1.f90 gcom2.f90 gcom3.f90 gcom4.f90 spcom.f90
 
@@ -59,8 +59,8 @@ map65.spec: map65.py astro.py g.py options.py palettes.py smeter.py specjt.py
 	C:/Python25/python C:/Python25/pyinstaller-1.3/makespec.py \
 	--icon wsjt.ico --tk --onefile map65.py
 
-deep65.o: deep65.F
-	$(FC) -c -O0 -Wall -fPIC -fno-second-underscore deep65.F
+deep65.o: deep65.f
+	$(FC) -c -O0 -Wall -fPIC -fno-second-underscore deep65.f
 
 jtaudio.o: jtaudio.c
 	$(CC) -c -DWin32 -o jtaudio.o jtaudio.c
