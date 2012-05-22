@@ -27,7 +27,7 @@ Messages*  g_pMessages = NULL;
 BandMap*   g_pBandMap = NULL;
 QSharedMemory mem_m65("mem_m65");
 
-QString rev="$Rev: 631 $";
+QString rev="$Rev$";
 QString Program_Title_Version="  MAP65   v2.3.0, r" + rev.mid(6,3) +
                               "    by K1JT";
 
