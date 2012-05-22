@@ -31,7 +31,7 @@ OBJS1 = trimlist.o display.o getdphi.o pctile.o ccf65.o \
 	astro.o tm2.o sun.o moondop.o coord.o tmoonsub.o \
 	geocentric.o moon2.o toxyz.o dot.o dcoord.o f77_wisdom.o \
 	gen65.o chkmsg.o ptt.o astrosub.o astro0.o recvpkt.o symspec.o \
-	iqcal.o iqfix.o timf2.o
+	iqcal.o iqfix.o timf2.o s3avg.o
 
 libm65.a: $(OBJS1)
 	ar cr libm65.a $(OBJS1) 
@@ -44,7 +44,7 @@ LIBS3    = -L'c:/QtSDK/Desktop/Qt/4.7.4/mingw/lib' -lQtCore4
 m65.exe: $(OBJS3) libm65.a
 	g++ -o m65.exe $(OBJS3) $(LIBS3) libm65.a ../libfftw3f_win.a \
 	c:/MinGW/lib/libf95.a
-	cp m65.exe ../../install
+	cp m65.exe ../../map65_install
 
 OBJS2 = JT65code.o
 JT65code.exe: $(OBJS2) libm65.a
