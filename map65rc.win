@@ -1,9 +1,0 @@
-*font:			Arial 8
-*Label*font:		Arial 8
-*Text*font:		"Courier New" 9
-*Canvas*font:           "Lucida Console" 16
-*background:		gray85
-*Text*background:	white
-*Entry*background:	white
-*foreground:		black
-*Listbox*foreground:	RoyalBlue
