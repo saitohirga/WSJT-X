@@ -14,7 +14,7 @@ TEMPLATE = app
 
 win32 {
 DEFINES = WIN32
-DESTDIR = ../install
+DESTDIR = ../map65_install
 F90 = g95
 g95.output = ${QMAKE_FILE_BASE}.o
 g95.commands = $$F90 -c -O2 -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_NAME}
@@ -24,7 +24,7 @@ QMAKE_EXTRA_COMPILERS += g95
 
 unix {
 DEFINES = UNIX
-DESTDIR = ../install
+DESTDIR = ../map65_install
 F90 = gfortran
 gfortran.output = ${QMAKE_FILE_BASE}.o
 gfortran.commands = $$F90 -c -O2 -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_NAME}
@@ -55,7 +55,7 @@ RC_FILE = map65.rc
 unix {
 INCLUDEPATH += $$quote(/usr/include/qwt-qt4)
 LIBS += -lfftw3f /usr/lib/libgfortran.so.3
-LIBS += ../trunk/libm65/libm65.a
+LIBS += ../map65/libm65/libm65.a
 LIBS += /usr/lib/libqwt-qt4.so
 LIBS += -lportaudio
 #LIBS +- -lusb
@@ -63,8 +63,8 @@ LIBS += -lportaudio
 
 win32 {
 INCLUDEPATH += c:/qwt-6.0.1/include
-LIBS += ../trunk/libm65/libm65.a
-LIBS += ../trunk/libfftw3f_win.a
+LIBS += ../map65/libm65/libm65.a
+LIBS += ../map65/libfftw3f_win.a
 LIBS += ../QtSupport/palir-02.dll
 LIBS += libwsock32
 LIBS += C:/MinGW/lib/libf95.a
