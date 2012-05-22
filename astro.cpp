@@ -54,18 +54,18 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
 
   sprintf(cc,"Az:    %6.1f\n"
           "El:    %6.1f\n"
-          "Dec:   %6.1f\n"
+          "Dop:   %6d\n"
           "DxAz:  %6.1f\n"
           "DxEl:  %6.1f\n"
+          "DxDop: %6d\n"
+          "Dec:   %6.1f\n"
           "SunAz: %6.1f\n"
           "SunEl: %6.1f\n"
-          "Dop:   %6d\n"
-          "DXDop: %6d\n"
           "Tsky:  %6d\n"
           "MNR:   %6.1f\n"
           "Dgrd:  %6.1f",
-          azmoon,elmoon,decmoon,azmoondx,elmoondx,azsun,elsun,
-          ndop,ndop00,ntsky,xnr,dgrd);
+          azmoon,elmoon,ndop00,azmoondx,elmoondx,ndop,decmoon,azsun,elsun,
+          ntsky,xnr,dgrd);
   ui->astroTextBrowser->setText(" "+ date + "\nUTC: " + utc + "\n" + cc);
 
   QString fname=azelDir+"/azel.dat";
