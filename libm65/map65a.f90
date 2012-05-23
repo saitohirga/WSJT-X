@@ -300,7 +300,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
               if(ndphi.eq.0) then
                  write(*,1010) nkHz,ndf,npol,nutc,dt,nsync2,    &
                       decoded,nkv,nqual,ntxpol,cp
-1010             format('!',i3,i5,i4,i5.4,f5.1,i4,2x,a22,i5,i4,i5,1x,a1)
+1010             format('!',i3,i5,i4,i5.4,f5.1,i4,2x,a22,i4,i5,i5,1x,a1)
               else
                  if(iloop.ge.1) qphi(iloop)=sig(k,10)
                  write(*,1010) nkHz,ndf,npol,nutc,dt,nsync2,    &

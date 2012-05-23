@@ -19,11 +19,9 @@ bool btxok;                           //True if OK to transmit
 double outputLatency;                 //Latency in seconds
 qint16 id[4*60*96000];
 
-
 Astro*     g_pAstro = NULL;
 WideGraph* g_pWideGraph = NULL;
 Messages*  g_pMessages = NULL;
-
 BandMap*   g_pBandMap = NULL;
 QSharedMemory mem_m65("mem_m65");
 

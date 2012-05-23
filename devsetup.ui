@@ -502,10 +502,10 @@
                </size>
               </property>
               <property name="minimum">
-               <number>-90</number>
+               <number>-180</number>
               </property>
               <property name="maximum">
-               <number>90</number>
+               <number>180</number>
               </property>
               <property name="singleStep">
                <number>10</number>
@@ -922,7 +922,7 @@
       <attribute name="title">
        <string>Si570</string>
       </attribute>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>70</x>
