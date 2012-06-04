@@ -1003,10 +1003,10 @@
              <number>3</number>
             </property>
             <property name="minimum">
-             <double>-100.000000000000000</double>
+             <double>-200.000000000000000</double>
             </property>
             <property name="maximum">
-             <double>100.000000000000000</double>
+             <double>200.000000000000000</double>
             </property>
            </widget>
           </item>

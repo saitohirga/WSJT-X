@@ -52,7 +52,8 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
     astroBusy=false;
   }
 
-  sprintf(cc,"Az:    %6.1f\n"
+  sprintf(cc,
+          "Az:    %6.1f\n"
           "El:    %6.1f\n"
           "MyDop: %6d\n"
           "DxAz:  %6.1f\n"
