@@ -1,4 +1,4 @@
-subroutine timf2(nxpol,nfft,nwindow,nb,peaklimit,iqadjust,iqapply,faclim,   &
+subroutine timf2(k,nxpol,nfft,nwindow,nb,peaklimit,iqadjust,iqapply,faclim,   &
   cx0,cy0,gainx,gainy,phasex,phasey,cx1,cy1,slimit,lstrong,px,py,nzap)
 
 ! Sequential processing of time-domain I/Q data, using Linrad-like
@@ -37,17 +37,14 @@ subroutine timf2(nxpol,nfft,nwindow,nb,peaklimit,iqadjust,iqapply,faclim,   &
   complex h,u,v
   logical first
   data first/.true./
-  save w,covxs,covxw,covys,covyw,s,ntc,ntot,nh,kstep,fac,first
+  data k0/99999999/
+  save w,covxs,covxw,covys,covyw,s,ntc,ntot,nh,kstep,fac,first,k0
 
   if(first) then
      pi=4.0*atan(1.0)
      do i=0,nfft-1
         w(i)=(sin(i*pi/nfft))**2
      enddo
-     covxs=0.
-     covxw=0.
-     covys=0.
-     covyw=0.
      s=0.
      ntc=0
      ntot=0
@@ -58,6 +55,14 @@ subroutine timf2(nxpol,nfft,nwindow,nb,peaklimit,iqadjust,iqapply,faclim,   &
      slimit=1.e30
      first=.false.
   endif
+
+  if(k.lt.k0) then
+     covxs=0.
+     covxw=0.
+     covys=0.
+     covyw=0.
+  endif
+  k0=k
 
   cx(0:nfft-1)=cx0
   if(nwindow.eq.2) cx(0:nfft-1)=w(0:nfft-1)*cx(0:nfft-1)
