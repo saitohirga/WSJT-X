@@ -38,13 +38,20 @@ subroutine symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,   &
      ihsym=0
      go to 999             !Wait for enough samples to start
   endif
-  if(k.lt.k0) k1=0
   if(k0.eq.99999999) then
      pi=4.0*atan(1.0)
      do i=1,NFFT
         w(i)=(sin(i*pi/NFFT))**2
      enddo
   endif
+  if(k.lt.k0) then
+     ts=1.d0 - hsym
+     savg=0.
+     ihsym=0
+     k1=0
+     dd(1:4,k+1:5760000)=0.             !### Should not be needed ??? ###
+  endif
+  k0=k
 
   nzap=0
   sigmas=1.5*(10.0**(0.01*nbslider)) + 0.7
@@ -57,6 +64,7 @@ subroutine symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,   &
   iqadjust0=0
   if(iqadjust.ne.0) iqapply0=0
   nwindow=2
+!  nwindow=0                                    !### No wondowing ###
   nfft2=1024
   kstep=nfft2
   if(nwindow.ne.0) kstep=nfft2/2
@@ -67,7 +75,7 @@ subroutine symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,   &
         cx0(i)=cmplx(dd(1,j+i),dd(2,j+i))
         if(nxpol.ne.0) cy0(i)=cmplx(dd(3,j+i),dd(4,j+i))
      enddo
-     call timf2(nxpol,nfft2,nwindow,nb,peaklimit,iqadjust0,iqapply0,faclim,  &
+     call timf2(k,nxpol,nfft2,nwindow,nb,peaklimit,iqadjust0,iqapply0,faclim,  &
           cx0,cy0,gainx,gainy,phasex,phasey,cx1,cy1,slimit,lstrong,          &
           px,py,nzap)
 
@@ -86,12 +94,6 @@ subroutine symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,   &
   if(nfsample.eq.95238)   hsym=2048.d0*95238.1d0/11025.d0
   npts=NFFT                           !Samples used in each half-symbol FFT
 
-  if(k.lt.k0) then
-     ts=1.d0 - hsym
-     savg=0.
-     ihsym=0
-  endif
-  k0=k
   ihsym=ihsym+1
   ja=ts+hsym                          !Index of first sample
   jb=ja+npts-1                        !Last sample
