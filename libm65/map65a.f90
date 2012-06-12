@@ -194,8 +194,8 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                  if((nqd.eq.1 .and. ntry.ge.40) .or.                  &
                           (nqd.eq.0 .and. ntry.ge.400)) then
 ! Too many calls to decode1a!
-                    write(*,*) '! Signal too strong?  Decoding aborted.'
-                    write(13,*) 'Signal too strong?  Decoding aborted.'
+                    write(*,*) '! Signal too strong, or suspect data?  Decoding aborted.'
+                    write(13,*) 'Signal too strong, or suspect data?  Decoding aborted.'
                     call flush(13)
                     go to 999
                  endif

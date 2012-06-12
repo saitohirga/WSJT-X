@@ -49,7 +49,7 @@ subroutine symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,   &
      savg=0.
      ihsym=0
      k1=0
-     dd(1:4,k+1:5760000)=0.             !### Should not be needed ??? ###
+     if(ndiskdat.eq.0) dd(1:4,k+1:5760000)=0.  !### Should not be needed ??? ###
   endif
   k0=k
 
