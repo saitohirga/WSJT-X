@@ -875,7 +875,7 @@ void MainWindow::stub()                                        //stub()
 void MainWindow::on_actionOnline_Users_Guide_triggered()      //Display manual
 {
   QDesktopServices::openUrl(QUrl(
-  "http://www.physics.princeton.edu/pulsar/K1JT/MAP65_Beta_Release.pdf",
+  "http://www.physics.princeton.edu/pulsar/K1JT/MAP65_Users_Guide.pdf",
                               QUrl::TolerantMode));
 }
 
