@@ -39,7 +39,6 @@ public slots:
   void m65_error();
   void guiUpdate();
   void doubleClickOnCall(QString hiscall, bool ctrl);
-  void doubleClickOnMessages(QString hiscall, QString t2);
 
 protected:
   virtual void keyPressEvent( QKeyEvent *e );
@@ -63,17 +62,13 @@ private slots:
   void on_autoButton_clicked();
   void on_stopTxButton_clicked();
   void on_tolSpinBox_valueChanged(int arg1);
-  void on_actionAstro_Data_triggered();
   void on_stopButton_clicked();
   void on_actionOnline_Users_Guide_triggered();
   void on_actionWide_Waterfall_triggered();
-  void on_actionBand_Map_triggered();
-  void on_actionMessages_triggered();
   void on_actionOpen_triggered();
   void on_actionOpen_next_in_directory_triggered();
   void on_actionDecode_remaining_files_in_directory_triggered();
   void on_actionDelete_all_tf2_files_in_SaveDir_triggered();
-  void on_actionErase_Band_Map_and_Messages_triggered();
   void on_actionFind_Delta_Phi_triggered();
   void on_actionF4_sets_Tx6_triggered();
   void on_actionOnly_EME_calls_triggered();
@@ -107,8 +102,8 @@ private slots:
   void on_genStdMsgsPushButton_clicked();
   void bumpDF(int n);
   void on_logQSOButton_clicked();
-  void on_actionErase_map65_rx_log_triggered();
-  void on_actionErase_map65_tx_log_triggered();
+//  void on_actionErase_jtms3_rx_log_triggered();
+  void on_actionErase_jtms3_tx_log_triggered();
   void on_NBcheckBox_toggled(bool checked);
   void on_actionJT65A_triggered();
   void on_actionJT65B_triggered();
@@ -134,7 +129,6 @@ private:
     qint32  m_QSOfreq0;
     qint32  m_ntx;
     qint32  m_pttPort;
-    qint32  m_astroFont;
     qint32  m_timeout;
     qint32  m_dPhi;
     qint32  m_fCal;
@@ -142,7 +136,7 @@ private:
     qint32  m_setftx;
     qint32  m_ndepth;
     qint32  m_sec0;
-    qint32  m_map65RxLog;
+    qint32  m_jtms3RxLog;
     qint32  m_nutc0;
     qint32  m_mode65;
     qint32  m_nrx;
@@ -190,10 +184,7 @@ private:
     float   m_phasey;
     float   m_pctZap;
 
-    QRect   m_astroGeom;
     QRect   m_wideGraphGeom;
-    QRect   m_messagesGeom;
-    QRect   m_bandMapGeom;
 
     QLabel* lab1;                            // labels in status bar
     QLabel* lab2;
@@ -216,8 +207,6 @@ private:
     QString m_pbdecoding_style1;
     QString m_pbmonitor_style;
     QString m_pbAutoOn_style;
-    QString m_messagesText;
-    QString m_bandmapText;
     QString m_myCall;
     QString m_myGrid;
     QString m_hisCall;

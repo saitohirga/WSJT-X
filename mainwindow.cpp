@@ -4,10 +4,7 @@
 #include "devsetup.h"
 #include "plotter.h"
 #include "about.h"
-#include "astro.h"
 #include "widegraph.h"
-#include "messages.h"
-#include "bandmap.h"
 #include "sleep.h"
 #include <portaudio.h>
 
@@ -19,14 +16,11 @@ bool btxok;                           //True if OK to transmit
 double outputLatency;                 //Latency in seconds
 qint16 id[4*60*96000];
 
-Astro*     g_pAstro = NULL;
 WideGraph* g_pWideGraph = NULL;
-Messages*  g_pMessages = NULL;
-BandMap*   g_pBandMap = NULL;
 QSharedMemory mem_m65("mem_m65");
 
 QString rev="$Rev$";
-QString Program_Title_Version="  MAP65   v2.3.0, r" + rev.mid(6,4) +
+QString Program_Title_Version="  JTMS3   v0.1, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 extern const int RxDataFrequency = 96000;
@@ -115,8 +109,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_myCall="K1JT";
   m_myGrid="FN20qi";
   m_appDir = QApplication::applicationDirPath();
-  m_saveDir="/users/joe/map65/install/save";
-  m_azelDir="/users/joe/map65/install/";
+  m_saveDir="/users/joe/jtms3/install/save";
   m_txFreq=125;
   m_setftx=0;
   m_loopall=false;
@@ -126,7 +119,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_sec0=-1;
   m_hsym0=-1;
   m_palette="CuteSDR";
-  m_map65RxLog=1;                     //Write Date and Time to all65.txt
+  m_jtms3RxLog=1;                     //Write Date and Time to RxLog
   m_nutc0=9999;
   m_kb8rq=false;
   m_NB=false;
@@ -173,7 +166,7 @@ MainWindow::MainWindow(QWidget *parent) :
   lockFile.open(QIODevice::ReadWrite);
   QFile quitFile(m_appDir + "/.lock");
   quitFile.remove();
-  proc_m65.start(QDir::toNativeSeparators(m_appDir + "/m65 -s"));
+//  proc_m65.start(QDir::toNativeSeparators(m_appDir + "/m65 -s"));
 
   m_pbdecoding_style1="QPushButton{background-color: cyan; \
       border-style: outset; border-width: 1px; border-radius: 5px; \
@@ -187,13 +180,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   genStdMsgs("");
 
-  on_actionAstro_Data_triggered();           //Create the other windows
   on_actionWide_Waterfall_triggered();
-  on_actionMessages_triggered();
-  on_actionBand_Map_triggered();
-  g_pMessages->setColors(m_colors);
-  g_pBandMap->setColors(m_colors);
-  g_pAstro->setFontSize(m_astroFont);
   if(m_mode=="JT65A") on_actionJT65A_triggered();
   if(m_mode=="JT65B") on_actionJT65B_triggered();
   if(m_mode=="JT65C") on_actionJT65C_triggered();
@@ -276,7 +263,7 @@ MainWindow::~MainWindow()
 //-------------------------------------------------------- writeSettings()
 void MainWindow::writeSettings()
 {
-  QString inifile = m_appDir + "/map65.ini";
+  QString inifile = m_appDir + "/jtms3.ini";
   QSettings settings(inifile, QSettings::IniFormat);
 
   settings.beginGroup("MainWindow");
@@ -286,23 +273,11 @@ void MainWindow::writeSettings()
   settings.setValue("DXcall",ui->dxCallEntry->text());
   settings.setValue("DXgrid",ui->dxGridEntry->text());
 
-  if(g_pAstro->isVisible()) {
-    m_astroGeom = g_pAstro->geometry();
-    settings.setValue("AstroGeom",m_astroGeom);
-  }
-
   if(g_pWideGraph->isVisible()) {
     m_wideGraphGeom = g_pWideGraph->geometry();
     settings.setValue("WideGraphGeom",m_wideGraphGeom);
   }
-  if(g_pMessages->isVisible()) {
-    m_messagesGeom = g_pMessages->geometry();
-    settings.setValue("MessagesGeom",m_messagesGeom);
-  }
-  if(g_pBandMap->isVisible()) {
-    m_bandMapGeom = g_pBandMap->geometry();
-    settings.setValue("BandMapGeom",m_bandMapGeom);
-  }
+
   settings.endGroup();
 
   settings.beginGroup("Common");
@@ -310,7 +285,6 @@ void MainWindow::writeSettings()
   settings.setValue("MyGrid",m_myGrid);
   settings.setValue("IDint",m_idInt);
   settings.setValue("PTTport",m_pttPort);
-  settings.setValue("AstroFont",m_astroFont);
   settings.setValue("Xpol",m_xpol);
   settings.setValue("XpolX",m_xpolx);
   settings.setValue("SaveDir",m_saveDir);
@@ -358,21 +332,14 @@ void MainWindow::writeSettings()
 //---------------------------------------------------------- readSettings()
 void MainWindow::readSettings()
 {
-  QString inifile = m_appDir + "/map65.ini";
+  QString inifile = m_appDir + "/jtms3.ini";
   QSettings settings(inifile, QSettings::IniFormat);
   settings.beginGroup("MainWindow");
   restoreGeometry(settings.value("geometry").toByteArray());
   ui->dxCallEntry->setText(settings.value("DXcall","").toString());
   ui->dxGridEntry->setText(settings.value("DXgrid","").toString());
-
-  m_astroGeom = settings.value("AstroGeom", QRect(71,390,227,403)).toRect();
-
   m_wideGraphGeom = settings.value("WideGraphGeom", \
                                    QRect(45,30,1023,340)).toRect();
-  m_messagesGeom = settings.value("MessagesGeom", \
-                                  QRect(800,400,381,400)).toRect();
-  m_bandMapGeom = settings.value("BandMapGeom", \
-                                  QRect(280,400,142,400)).toRect();
   m_path = settings.value("MRUdir", m_appDir + "/save").toString();
   m_txFirst = settings.value("TxFirst",false).toBool();
   ui->txFirstCheckBox->setChecked(m_txFirst);
@@ -383,7 +350,6 @@ void MainWindow::readSettings()
   m_myGrid=settings.value("MyGrid","").toString();
   m_idInt=settings.value("IDint",0).toInt();
   m_pttPort=settings.value("PTTport",0).toInt();
-  m_astroFont=settings.value("AstroFont",20).toInt();
   m_xpol=settings.value("Xpol",false).toBool();
   ui->actionFind_Delta_Phi->setEnabled(m_xpol);
   m_xpolx=settings.value("XpolX",false).toBool();
@@ -574,7 +540,6 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_myGrid=m_myGrid;
   dlg.m_idInt=m_idInt;
   dlg.m_pttPort=m_pttPort;
-  dlg.m_astroFont=m_astroFont;
   dlg.m_xpol=m_xpol;
   dlg.m_xpolx=m_xpolx;
   dlg.m_saveDir=m_saveDir;
@@ -602,8 +567,6 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_myGrid=dlg.m_myGrid;
     m_idInt=dlg.m_idInt;
     m_pttPort=dlg.m_pttPort;
-    m_astroFont=dlg.m_astroFont;
-    if(g_pAstro->isVisible()) g_pAstro->setFontSize(m_astroFont);
     m_xpol=dlg.m_xpol;
     ui->actionFind_Delta_Phi->setEnabled(m_xpol);
     m_xpolx=dlg.m_xpolx;
@@ -626,8 +589,6 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_10db=dlg.m_10db;
     m_initIQplus=dlg.m_initIQplus;
     m_colors=dlg.m_colors;
-    g_pMessages->setColors(m_colors);
-    g_pBandMap->setColors(m_colors);
     m_cal570=dlg.m_cal570;
     m_mult570=dlg.m_mult570;
     g_pWideGraph->m_mult570=m_mult570;
@@ -875,21 +836,8 @@ void MainWindow::stub()                                        //stub()
 void MainWindow::on_actionOnline_Users_Guide_triggered()      //Display manual
 {
   QDesktopServices::openUrl(QUrl(
-  "http://www.physics.princeton.edu/pulsar/K1JT/MAP65_Users_Guide.pdf",
+  "http://www.physics.princeton.edu/pulsar/K1JT/JTMS3_Users_Guide.pdf",
                               QUrl::TolerantMode));
-}
-
-void MainWindow::on_actionAstro_Data_triggered()             //Display Astro
-{
-  if(g_pAstro==NULL) {
-    g_pAstro = new Astro(0);
-    g_pAstro->setWindowTitle("Astronomical Data");
-    Qt::WindowFlags flags = Qt::Dialog | Qt::WindowCloseButtonHint |
-        Qt::WindowMinimizeButtonHint;
-    g_pAstro->setWindowFlags(flags);
-    g_pAstro->setGeometry(m_astroGeom);
-  }
-  g_pAstro->show();
 }
 
 void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
@@ -909,46 +857,13 @@ void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
   g_pWideGraph->show();
 }
 
-void MainWindow::on_actionBand_Map_triggered()              //Display BandMap
-{
-  if(g_pBandMap==NULL) {
-    g_pBandMap = new BandMap(0);
-    g_pBandMap->setWindowTitle("Band Map");
-    Qt::WindowFlags flags = Qt::Dialog | Qt::WindowCloseButtonHint |
-        Qt::WindowMinimizeButtonHint;
-    g_pBandMap->setWindowFlags(flags);
-    g_pBandMap->setGeometry(m_bandMapGeom);
-  }
-  g_pBandMap->show();
-}
-
-void MainWindow::on_actionMessages_triggered()              //Display Messages
-{
-  if(g_pMessages==NULL) {
-    g_pMessages = new Messages(0);
-    g_pMessages->setWindowTitle("Messages");
-    Qt::WindowFlags flags = Qt::Dialog | Qt::WindowCloseButtonHint |
-        Qt::WindowMinimizeButtonHint;
-    g_pMessages->setWindowFlags(flags);
-    g_pMessages->setGeometry(m_messagesGeom);
-    connect(g_pMessages, SIGNAL(click2OnCallsign(QString, QString)),this,
-            SLOT(doubleClickOnMessages(QString, QString)));
-  }
-  g_pMessages->show();
-}
-
 void MainWindow::on_actionOpen_triggered()                     //Open File
 {
   m_monitoring=false;
   soundInThread.setMonitoring(m_monitoring);
   QString fname;
-  if(m_xpol) {
-    fname=QFileDialog::getOpenFileName(this, "Open File", m_path,
-                                       "MAP65 Files (*.tf2)");
-  } else {
-    fname=QFileDialog::getOpenFileName(this, "Open File", m_path,
-                                       "MAP65 Files (*.iq)");
-  }
+  fname=QFileDialog::getOpenFileName(this, "Open File", m_path,
+                                       "JTMS3 Files (*.wav)");
   if(fname != "") {
     m_path=fname;
     int i;
@@ -1050,17 +965,10 @@ void MainWindow::on_actionDelete_all_tf2_files_in_SaveDir_triggered()
     }
   }
 }
-                                          //Clear BandMap and Messages windows
-void MainWindow::on_actionErase_Band_Map_and_Messages_triggered()
-{
-  g_pBandMap->setText("");
-  g_pMessages->setText("");
-  m_map65RxLog |= 4;
-}
 
 void MainWindow::on_actionFind_Delta_Phi_triggered()              //Find dPhi
 {
-  m_map65RxLog |= 8;
+  m_jtms3RxLog |= 8;
   on_DecodeButton_clicked();
 }
 
@@ -1186,9 +1094,9 @@ void MainWindow::decode()                                       //decode()
   datcom_.ntol=m_tol;
   datcom_.nxant=0;
   if(m_xpolx) datcom_.nxant=1;
-  if(datcom_.nutc < m_nutc0) m_map65RxLog |= 1;  //Date and Time to all65.txt
+  if(datcom_.nutc < m_nutc0) m_jtms3RxLog |= 1;  //Date and Time to all65.txt
   m_nutc0=datcom_.nutc;
-  datcom_.map65RxLog=m_map65RxLog;
+//  datcom_.jtms3RxLog=m_jtms3RxLog;
   datcom_.nfsample=96000;
   if(!m_fs96000) datcom_.nfsample=95238;
   datcom_.nxpol=0;
@@ -1251,15 +1159,13 @@ void MainWindow::readFromStdout()                             //readFromStdout
     QByteArray t=proc_m65.readLine();
     if(t.indexOf("<m65aFinished>") >= 0) {
       if(m_widebandDecode) {
-        g_pMessages->setText(m_messagesText);
-        g_pBandMap->setText(m_bandmapText);
         m_widebandDecode=false;
       }
       QFile lockFile(m_appDir + "/.lock");
       lockFile.open(QIODevice::ReadWrite);
       ui->DecodeButton->setStyleSheet("");
       decodeBusy(false);
-      m_map65RxLog=0;
+      m_jtms3RxLog=0;
       m_startAnother=m_loopall;
       return;
     }
@@ -1270,12 +1176,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if(n<30) ui->decodedTextBrowser->append(t.mid(1,n-3));
       n=ui->decodedTextBrowser->verticalScrollBar()->maximum();
       ui->decodedTextBrowser->verticalScrollBar()->setValue(n);
-      m_messagesText="";
-      m_bandmapText="";
     }
 
     if(t.indexOf("@") >= 0) {
-      m_messagesText += t.mid(1);
+//      m_messagesText += t.mid(1);
       m_widebandDecode=true;
     }
 
@@ -1289,7 +1193,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         } else {
           q=q.mid(1,4) + " *" + q.mid(5);
         }
-        m_bandmapText += q;
+//        m_bandmapText += q;
       }
     }
   }
@@ -1373,7 +1277,7 @@ void MainWindow::guiUpdate()
     msgsent[22]=0;
 
     if(m_restart) {
-      QFile f("map65_tx.log");
+      QFile f("jtms3_tx.log");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
       out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
@@ -1395,7 +1299,7 @@ void MainWindow::guiUpdate()
     btxok=true;
     m_transmitting=true;
 
-    QFile f("map65_tx.log");
+    QFile f("jtms3_tx.log");
     f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
     QTextStream out(&f);
     out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
@@ -1485,8 +1389,6 @@ void MainWindow::guiUpdate()
 
     QDateTime t = QDateTime::currentDateTimeUtc();
     int fQSO=g_pWideGraph->QSOfreq();
-    g_pAstro->astroUpdate(t, m_myGrid, m_hisGrid, fQSO, m_setftx,
-                          m_txFreq, m_azelDir);
     m_setftx=0;
     QString utc = " " + t.time().toString() + " ";
     ui->labUTC->setText(utc);
@@ -1599,26 +1501,6 @@ void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
   if(ctrl) rpt=t2.mid(23,3);
   lookup();
   genStdMsgs(rpt);
-  if(t2.indexOf(m_myCall)>0) {
-    m_ntx=2;
-    ui->txrb2->setChecked(true);
-  } else {
-    m_ntx=1;
-    ui->txrb1->setChecked(true);
-  }
-}
-                                                      //doubleClickOnMessages
-void MainWindow::doubleClickOnMessages(QString hiscall, QString t2)
-{
-  if(m_worked[hiscall]) {
-    msgBox("Possible dupe: " + hiscall + " already in log.");
-  }
-  ui->dxCallEntry->setText(hiscall);
-  int n = 60*t2.mid(13,2).toInt() + t2.mid(15,2).toInt();
-  m_txFirst = ((n%2) == 1);
-  ui->txFirstCheckBox->setChecked(m_txFirst);
-  lookup();
-  genStdMsgs("");
   if(t2.indexOf(m_myCall)>0) {
     m_ntx=2;
     ui->txrb2->setChecked(true);
@@ -1894,23 +1776,25 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   m_worked[m_hisCall]=true;
 }
 
-void MainWindow::on_actionErase_map65_rx_log_triggered()     //Erase Rx log
+/*
+void MainWindow::on_actionErase_jtms3_rx_log_triggered()     //Erase Rx log
 {
   int ret = QMessageBox::warning(this, "Confirm Erase",
-      "Are you sure you want to erase file map65_rx.log ?",
+      "Are you sure you want to erase file jtms3_rx.log ?",
        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
   if(ret==QMessageBox::Yes) {
-    m_map65RxLog |= 2;                      // Rewind map65_rx.log
+    m_jtms3RxLog |= 2;                      // Rewind jtms3_rx.log
   }
 }
+*/
 
-void MainWindow::on_actionErase_map65_tx_log_triggered()     //Erase Tx log
+void MainWindow::on_actionErase_jtms3_tx_log_triggered()     //Erase Tx log
 {
   int ret = QMessageBox::warning(this, "Confirm Erase",
-      "Are you sure you want to erase file map65_tx.log ?",
+      "Are you sure you want to erase file jtms3_tx.log ?",
        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
   if(ret==QMessageBox::Yes) {
-    QFile f("map65_tx.log");
+    QFile f("jtms3_tx.log");
     f.remove();
   }
 }
