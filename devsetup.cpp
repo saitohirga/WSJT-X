@@ -115,6 +115,8 @@ void DevSetup::initDlg()
   ui.comboBoxSndOut->setCurrentIndex(m_nDevOut);
   m_paInDevice=m_inDevList[m_nDevIn];
   m_paOutDevice=m_outDevList[m_nDevOut];
+  qDebug() << "A" << m_nDevIn << m_paInDevice << m_nDevOut << m_paOutDevice;
+
 
 }
 
@@ -141,7 +143,8 @@ void DevSetup::accept()
   m_paInDevice=m_inDevList[m_nDevIn];
   m_nDevOut=ui.comboBoxSndOut->currentIndex();
   m_paOutDevice=m_outDevList[m_nDevOut];
-
   QDialog::accept();
+  qDebug() << "B" << m_nDevIn << m_paInDevice << m_nDevOut << m_paOutDevice;
+
 }
 

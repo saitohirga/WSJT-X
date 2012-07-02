@@ -280,7 +280,7 @@ void WideGraph::on_fCenterLineEdit_editingFinished()
 }
 
 void WideGraph::on_pbSetRxHardware_clicked()
-{
+{/*
 #ifdef WIN32
   int iret=set570(m_mult570*(1.0+0.000001*m_cal570)*m_dForceCenterFreq);
   if(iret != 0) {
@@ -290,12 +290,14 @@ void WideGraph::on_pbSetRxHardware_clicked()
     mb.exec();
   }
 #endif
+*/
 }
 
 void WideGraph::initIQplus()
 {
+/*
 #ifdef WIN32
-  int iret=set570(288.0);
+//  int iret=set570(288.0);
   if(iret != 0) {
     QMessageBox mb;
     if(iret==-1) mb.setText("Failed to open Si570.");
@@ -305,6 +307,7 @@ void WideGraph::initIQplus()
     on_pbSetRxHardware_clicked();
   }
 #endif
+*/
 }
 
 void WideGraph::on_cbSpec2d_toggled(bool b)
