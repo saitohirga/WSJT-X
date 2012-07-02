@@ -132,7 +132,6 @@ MainWindow::MainWindow(QWidget *parent) :
   m_colors="000066ff0000ffff00969696646464";
 
   ui->xThermo->setFillBrush(Qt::green);
-  ui->yThermo->setFillBrush(Qt::magenta);
 
 #ifdef WIN32
   while(true) {
@@ -180,7 +179,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   genStdMsgs("");
 
-  on_actionWide_Waterfall_triggered();
+  on_actionWide_Waterfall_triggered();                   //###
   if(m_mode=="JT65A") on_actionJT65A_triggered();
   if(m_mode=="JT65B") on_actionJT65B_triggered();
   if(m_mode=="JT65C") on_actionJT65C_triggered();
@@ -467,7 +466,6 @@ void MainWindow::dataSink(int k)
   if(!m_xpol) t.sprintf(" Rx noise: %5.1f  %5.1f %% ",px,m_pctZap);
   lab4->setText(t);
   ui->xThermo->setValue((double)px);   //Update the bargraphs
-  ui->yThermo->setValue((double)py);
   if(m_monitoring || m_diskData) {
     g_pWideGraph->dataSink2(s,nkhz,ihsym,m_diskData,lstrong);
   }
@@ -821,7 +819,7 @@ void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
     connect(g_pWideGraph, SIGNAL(f11f12(int)),this,
             SLOT(bumpDF(int)));
   }
-  g_pWideGraph->show();
+//  g_pWideGraph->show();
 }
 
 void MainWindow::on_actionOpen_triggered()                     //Open File
@@ -1191,19 +1189,20 @@ void MainWindow::guiUpdate()
   static char msgsent[23];
   static int nsendingsh=0;
   int khsym=0;
+  double trperiod=30.0;
 
   double tx1=0.0;
-  double tx2=126.0*4096.0/11025.0 + 1.8;          //### depend on TxDelay? ###
+  double tx2=trperiod;
 
   if(!m_txFirst) {
-    tx1 += 60.0;
-    tx2 += 60.0;
+    tx1 += trperiod;
+    tx2 += trperiod;
   }
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
   int nsec=ms/1000;
   double tsec=0.001*ms;
-  double t120=fmod(tsec,120.0);
-  bool bTxTime = t120 >= tx1 && t120 < tx2;
+  double t2p=fmod(tsec,2*trperiod);
+  bool bTxTime = t2p >= tx1 && t2p < tx2;
 
   if(m_auto) {
     if(bTxTime and iptt==0 and !m_txMute) {
@@ -1237,9 +1236,10 @@ void MainWindow::guiUpdate()
 
     ba2msg(ba,message);
     int len1=22;
+
+//### Wrong mode!
     int mode65=m_mode65;
     double samfac=1.0;
-
     gen65_(message,&mode65,&samfac,&nsendingsh,msgsent,iwave,&nwave,len1,len1);
     msgsent[22]=0;
 
@@ -1260,7 +1260,6 @@ void MainWindow::guiUpdate()
   if(nc1 <= 0) nc1++;
   if(nc1 == 0) {
     ui->xThermo->setValue(0.0);   //Set the Thermos to zero
-    ui->yThermo->setValue(0.0);
     m_monitoring=false;
     soundInThread.setMonitoring(false);
     btxok=true;
@@ -1360,9 +1359,8 @@ void MainWindow::guiUpdate()
     QString utc = " " + t.time().toString() + " ";
     ui->labUTC->setText(utc);
     if((!m_monitoring and !m_diskData) or (khsym==m_hsym0)) {
-      ui->xThermo->setValue(0.0);                      // Set Rx levels to 0
-      ui->yThermo->setValue(0.0);
-      lab4->setText(" Rx noise:    0.0     0.0  0.0% ");
+      ui->xThermo->setValue(0.0);                      // Set Rx level to 20
+      lab4->setText(" Rx noise:    0.0     0.0% ");
     }
     m_hsym0=khsym;
     m_sec0=nsec;

@@ -38,7 +38,7 @@ SOURCES += main.cpp mainwindow.cpp plotter.cpp about.cpp \
     displaytext.cpp getdev.cpp
 
 win32 {
-SOURCES += killbyname.cpp     set570.cpp
+SOURCES += killbyname.cpp
 }
 
 HEADERS  += mainwindow.h plotter.h soundin.h soundout.h \

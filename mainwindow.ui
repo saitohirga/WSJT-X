@@ -244,7 +244,7 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item>
-         <widget class="QwtThermo" name="xThermo" native="true">
+         <widget class="QwtThermo" name="xThermo">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -257,50 +257,19 @@ p, li { white-space: pre-wrap; }
             <height>180</height>
            </size>
           </property>
-          <property name="borderWidth" stdset="0">
+          <property name="borderWidth">
            <number>1</number>
           </property>
-          <property name="maxValue" stdset="0">
+          <property name="maxValue">
            <double>60.000000000000000</double>
           </property>
-          <property name="minValue" stdset="0">
+          <property name="minValue">
            <double>0.000000000000000</double>
           </property>
-          <property name="pipeWidth" stdset="0">
+          <property name="pipeWidth">
            <number>8</number>
           </property>
-          <property name="value" stdset="0">
-           <double>0.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QwtThermo" name="yThermo" native="true">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>12</width>
-            <height>177</height>
-           </size>
-          </property>
-          <property name="borderWidth" stdset="0">
-           <number>1</number>
-          </property>
-          <property name="maxValue" stdset="0">
-           <double>60.000000000000000</double>
-          </property>
-          <property name="minValue" stdset="0">
-           <double>0.000000000000000</double>
-          </property>
-          <property name="pipeWidth" stdset="0">
-           <number>8</number>
-          </property>
-          <property name="value" stdset="0">
+          <property name="value">
            <double>0.000000000000000</double>
           </property>
          </widget>
@@ -1185,7 +1154,6 @@ p, li { white-space: pre-wrap; }
     <property name="title">
      <string>Decode</string>
     </property>
-    <addaction name="separator"/>
     <addaction name="actionNo_Deep_Search"/>
    </widget>
    <widget class="QMenu" name="menuSave">
@@ -1366,7 +1334,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>No Deep Search</string>
+    <string>TBD...</string>
    </property>
   </action>
   <action name="actionNormal_Deep_Search">
@@ -1556,14 +1524,14 @@ p, li { white-space: pre-wrap; }
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>DisplayText</class>
-   <extends>QTextBrowser</extends>
-   <header>displaytext.h</header>
-  </customwidget>
-  <customwidget>
    <class>QwtThermo</class>
    <extends>QWidget</extends>
    <header>qwt_thermo.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DisplayText</class>
+   <extends>QTextBrowser</extends>
+   <header>displaytext.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

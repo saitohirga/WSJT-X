@@ -125,7 +125,7 @@ void SoundOutThread::run()
   paerr=Pa_IsFormatSupported(NULL,&outParam,11025.0);
   if(paerr<0) {
     qDebug() << "PortAudio says requested output format not supported.";
-    qDebug() << paerr;
+    qDebug() << paerr << m_nDevOut;
     return;
   }
 
@@ -135,7 +135,7 @@ void SoundOutThread::run()
   paerr=Pa_OpenStream(&outStream,           //Output stream
         NULL,                               //No input parameters
         &outParam,                          //Output parameters
-        11025.0,                            //Sample rate
+        12000.0,                            //Sample rate
         FRAMES_PER_BUFFER,                  //Frames per buffer
         paClipOff,                          //No clipping
         d2aCallback,                        //output callbeck routine
