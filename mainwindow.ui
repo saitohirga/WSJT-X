@@ -1149,10 +1149,9 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionOpen_next_in_directory"/>
     <addaction name="actionDecode_remaining_files_in_directory"/>
     <addaction name="separator"/>
-    <addaction name="actionDelete_all_tf2_files_in_SaveDir"/>
-    <addaction name="actionErase_Band_Map_and_Messages"/>
-    <addaction name="actionErase_map65_rx_log"/>
-    <addaction name="actionErase_map65_tx_log"/>
+    <addaction name="actionDelete_all_wav_files_in_SaveDir"/>
+    <addaction name="actionErase_jtms3_rx_log"/>
+    <addaction name="actionErase_jtms3_tx_log"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -1162,13 +1161,8 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionDeviceSetup"/>
     <addaction name="separator"/>
-    <addaction name="actionAdjust_IQ_Calibration"/>
-    <addaction name="actionApply_IQ_Calibration"/>
-    <addaction name="actionFind_Delta_Phi"/>
-    <addaction name="separator"/>
     <addaction name="actionF4_sets_Tx6"/>
     <addaction name="separator"/>
-    <addaction name="actionFUNcube_Dongle"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -1183,9 +1177,6 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionAFMHot"/>
      <addaction name="actionBlue"/>
     </widget>
-    <addaction name="actionAstro_Data"/>
-    <addaction name="actionBand_Map"/>
-    <addaction name="actionMessages"/>
     <addaction name="actionWide_Waterfall"/>
     <addaction name="separator"/>
     <addaction name="menuWaterfall_palette"/>
@@ -1194,12 +1185,8 @@ p, li { white-space: pre-wrap; }
     <property name="title">
      <string>Decode</string>
     </property>
-    <addaction name="actionOnly_EME_calls"/>
-    <addaction name="actionNo_shorthands_if_Tx1"/>
     <addaction name="separator"/>
     <addaction name="actionNo_Deep_Search"/>
-    <addaction name="actionNormal_Deep_Search"/>
-    <addaction name="actionAggressive_Deep_Search"/>
    </widget>
    <widget class="QMenu" name="menuSave">
     <property name="title">
@@ -1222,9 +1209,6 @@ p, li { white-space: pre-wrap; }
     <property name="title">
      <string>Mode</string>
     </property>
-    <addaction name="actionJT65A"/>
-    <addaction name="actionJT65B"/>
-    <addaction name="actionJT65C"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSetup"/>
@@ -1258,7 +1242,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string> About MAP65</string>
+    <string> About JTMS3</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F1</string>
@@ -1308,9 +1292,9 @@ p, li { white-space: pre-wrap; }
     <string>Shift+F6</string>
    </property>
   </action>
-  <action name="actionDelete_all_tf2_files_in_SaveDir">
+  <action name="actionDelete_all_wav_files_in_SaveDir">
    <property name="text">
-    <string>Delete all *.tf2 and *.iq files in SaveDir</string>
+    <string>Delete all *.wav files in SaveDir</string>
    </property>
   </action>
   <action name="actionErase_Band_Map_and_Messages">
@@ -1318,9 +1302,9 @@ p, li { white-space: pre-wrap; }
     <string>Erase Band Map and Messages</string>
    </property>
   </action>
-  <action name="actionErase_map65_rx_log">
+  <action name="actionErase_jtms3_rx_log">
    <property name="text">
-    <string>Erase map65_rx.log</string>
+    <string>Erase jtms3_rx.log</string>
    </property>
   </action>
   <action name="actionLinrad">
@@ -1494,9 +1478,9 @@ p, li { white-space: pre-wrap; }
     <string>Available suffixes and add-on-prefixes</string>
    </property>
   </action>
-  <action name="actionErase_map65_tx_log">
+  <action name="actionErase_jtms3_tx_log">
    <property name="text">
-    <string>Erase map65_tx.log</string>
+    <string>Erase jtms3_tx.log</string>
    </property>
   </action>
   <action name="actionJT65A">

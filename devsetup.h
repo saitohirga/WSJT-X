@@ -53,8 +53,6 @@ public slots:
   void accept();
 
 private slots:
-  void on_soundCardRadioButton_toggled(bool checked);
-  void on_cbXpol_stateChanged(int arg1);
   void on_cal570SpinBox_valueChanged(double ppm);
   void on_mult570SpinBox_valueChanged(int mult);
   void on_sbBackgroundRed_valueChanged(int arg1);

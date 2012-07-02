@@ -68,7 +68,7 @@ private slots:
   void on_actionOpen_triggered();
   void on_actionOpen_next_in_directory_triggered();
   void on_actionDecode_remaining_files_in_directory_triggered();
-  void on_actionDelete_all_tf2_files_in_SaveDir_triggered();
+  void on_actionDelete_all_wav_files_in_SaveDir_triggered();
   void on_actionFind_Delta_Phi_triggered();
   void on_actionF4_sets_Tx6_triggered();
   void on_actionOnly_EME_calls_triggered();
