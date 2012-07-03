@@ -71,6 +71,8 @@ extern "C" int a2dCallback( const void *inputBuffer, void *outputBuffer,
   float tmp;
   float fac;
 
+  if(framesToProcess != -99)   return paContinue;    //###
+
   if( (statusFlags&paInputOverflow) != 0) {
     qDebug() << "Input Overflow";
   }
@@ -135,15 +137,8 @@ void SoundInThread::run()                           //SoundInThread::run()
 {
   quitExecution = false;
 
-  if (m_net) {
-//    qDebug() << "Start inputUDP()";
-    inputUDP();
-//    qDebug() << "Finished inputUDP()";
-    return;
-  }
-
 //---------------------------------------------------- Soundcard Setup
-//  qDebug() << "Start souncard input";
+  qDebug() << "Start souncard input";
 
   PaError paerr;
   PaStreamParameters inParam;
@@ -152,17 +147,14 @@ void SoundInThread::run()                           //SoundInThread::run()
 
   udata.kin=0;                              //Buffer pointer
   udata.bzero=false;                        //Flag to request reset of kin
-  udata.nrx=m_nrx;                          //Number of polarizations
-  udata.iqswap=m_IQswap;
-  udata.b10db=m_10db;
 
   inParam.device=m_nDevIn;                  //### Input Device Number ###
-  inParam.channelCount=2*m_nrx;             //Number of analog channels
+  inParam.channelCount=2;                   //Number of analog channels
   inParam.sampleFormat=paFloat32;           //Get floats from Portaudio
   inParam.suggestedLatency=0.05;
   inParam.hostApiSpecificStreamInfo=NULL;
 
-  paerr=Pa_IsFormatSupported(&inParam,NULL,96000.0);
+  paerr=Pa_IsFormatSupported(&inParam,NULL,48000.0);
   if(paerr<0) {
     emit error("PortAudio says requested soundcard format not supported.");
 //    return;
@@ -170,7 +162,7 @@ void SoundInThread::run()                           //SoundInThread::run()
   paerr=Pa_OpenStream(&inStream,            //Input stream
         &inParam,                           //Input parameters
         NULL,                               //No output parameters
-        96000.0,                            //Sample rate
+        48000.0,                            //Sample rate
         FRAMES_PER_BUFFER,                  //Frames per buffer
 //        paClipOff+paDitherOff,              //No clipping or dithering
         paClipOff,                          //No clipping
@@ -185,10 +177,10 @@ void SoundInThread::run()                           //SoundInThread::run()
 //  const PaStreamInfo* p=Pa_GetStreamInfo(inStream);
 
   bool qe = quitExecution;
-  int n60z=99;
+  int n30z=99;
   int k=0;
   int nsec;
-  int n60;
+  int n30;
   int nBusy=0;
   int nhsym0=0;
 
@@ -198,53 +190,31 @@ void SoundInThread::run()                           //SoundInThread::run()
     if (qe) break;
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     nsec = ms/1000;             // Time according to this computer
-    n60 = nsec % 60;
+    n30 = nsec % 30;
 
 // Reset buffer pointer and symbol number at start of minute
-    if(n60 < n60z or !m_monitoring) {
+    if(n30 < n30z or !m_monitoring) {
       nhsym0=0;
       udata.bzero=true;
     }
     k=udata.kin;
-    udata.iqswap=m_IQswap;
-    udata.b10db=m_10db;
     if(m_monitoring) {
-      if(m_bForceCenterFreq) {
-        datcom_.fcenter=m_dForceCenterFreq;\
-      } else {
-        datcom_.fcenter=144.125;
-      }
       m_hsym=(k-2048)*11025.0/(2048.0*m_rate);
       if(m_hsym != nhsym0) {
         if(m_dataSinkBusy) {
           nBusy++;
         } else {
           m_dataSinkBusy=true;
-          emit readyForFFT(k);         //Signal to compute new FFTs
+//          emit readyForFFT(k);         //Signal to compute new FFTs
         }
         nhsym0=m_hsym;
       }
     }
     msleep(100);
-    n60z=n60;
+    n30z=n30;
   }
   Pa_StopStream(inStream);
   Pa_CloseStream(inStream);
-}
-
-void SoundInThread::setSwapIQ(bool b)
-{
-  m_IQswap=b;
-}
-
-void SoundInThread::set10db(bool b)
-{
-  m_10db=b;
-}
-void SoundInThread::setPort(int n)                              //setPort()
-{
-  if (isRunning()) return;
-  this->m_udpPort=n;
 }
 
 void SoundInThread::setInputDevice(int n)                  //setInputDevice()
@@ -253,32 +223,9 @@ void SoundInThread::setInputDevice(int n)                  //setInputDevice()
   this->m_nDevIn=n;
 }
 
-void SoundInThread::setRate(double rate)                         //setRate()
-{
-  if (isRunning()) return;
-  this->m_rate = rate;
-}
-
-void SoundInThread::setBufSize(unsigned n)                      //setBufSize()
-{
-  if (isRunning()) return;
-  this->bufSize = n;
-}
-
-void SoundInThread::setFadd(double x)
-{
-  m_fAdd=x;
-}
-
-
 void SoundInThread::quit()                                       //quit()
 {
   quitExecution = true;
-}
-
-void SoundInThread::setNetwork(bool b)                          //setNetwork()
-{
-  m_net = b;
 }
 
 void SoundInThread::setMonitoring(bool b)                    //setMonitoring()
@@ -286,118 +233,8 @@ void SoundInThread::setMonitoring(bool b)                    //setMonitoring()
   m_monitoring = b;
 }
 
-void SoundInThread::setForceCenterFreqBool(bool b)
-{
-  m_bForceCenterFreq=b;
-
-}
-
-void SoundInThread::setForceCenterFreqMHz(double d)
-{
-  m_dForceCenterFreq=d;
-}
-
-void SoundInThread::setNrx(int n)                              //setNrx()
-{
-  m_nrx = n;
-}
-
-int SoundInThread::nrx()
-{
-  return m_nrx;
-}
 
 int SoundInThread::mhsym()
 {
   return m_hsym;
-}
-
-//--------------------------------------------------------------- inputUDP()
-void SoundInThread::inputUDP()
-{
-  udpSocket = new QUdpSocket();
-  if(!udpSocket->bind(m_udpPort,QUdpSocket::ShareAddress) )
-  {
-    emit error(tr("UDP Socket bind failed."));
-    return;
-  }
-
-  // Set this socket's total buffer space for received UDP packets
-  int v=141600;
-  ::setsockopt(udpSocket->socketDescriptor(), SOL_SOCKET, SO_RCVBUF,
-               (char *)&v, sizeof(v));
-
-  bool qe = quitExecution;
-  struct linradBuffer {
-    double cfreq;
-    int msec;
-    float userfreq;
-    int iptr;
-    quint16 iblk;
-    qint8 nrx;
-    char iusb;
-    double d8[174];
-  } b;
-
-  int n60z=99;
-  int k=0;
-  int nsec;
-  int n60;
-  int nhsym0=0;
-  int iz=174;
-  int nBusy=0;
-
-  // Main loop for input of UDP packets over the network:
-  while (!qe) {
-    qe = quitExecution;
-    if (qe) break;
-    if (!udpSocket->hasPendingDatagrams()) {
-      msleep(2);                  // Sleep if no packet available
-    } else {
-      int nBytesRead = udpSocket->readDatagram((char *)&b,1416);
-      if (nBytesRead != 1416) qDebug() << "UDP Read Error:" << nBytesRead;
-
-      qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-      nsec = ms/1000;             // Time according to this computer
-      n60 = nsec % 60;
-
-// Reset buffer pointer and symbol number at start of minute
-      if(n60 < n60z) {
-        k=0;
-        nhsym0=0;
-      }
-      n60z=n60;
-
-      if(m_monitoring) {
-        m_nrx=b.nrx;
-        if(m_nrx == +1) iz=348;                 //One RF channel, i*2 data
-        if(m_nrx == -1 or m_nrx == +2) iz=174;  //One Rf channel, r*4 data
-                                                // or 2 RF channels, i*2 data
-        if(m_nrx == -2) iz=87;                  // Two RF channels, r*4 data
-
-        // If buffer will not overflow, move data into datcom_
-        if ((k+iz) <= 60*96000) {
-          int nsam=-1;
-          recvpkt_(&nsam, &b.iblk, &b.nrx, &k, b.d8, b.d8, b.d8);
-          if(m_bForceCenterFreq) {
-            datcom_.fcenter=m_dForceCenterFreq;
-          } else {
-            datcom_.fcenter=b.cfreq + m_fAdd;
-          }
-        }
-
-        m_hsym=(k-2048)*11025.0/(2048.0*m_rate);
-        if(m_hsym != nhsym0) {
-          if(m_dataSinkBusy) {
-            nBusy++;
-          } else {
-            m_dataSinkBusy=true;
-            emit readyForFFT(k);         //Signal to compute new FFTs
-          }
-          nhsym0=m_hsym;
-        }
-      }
-    }
-  }
-  delete udpSocket;
 }

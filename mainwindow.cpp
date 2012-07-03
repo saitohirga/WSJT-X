@@ -194,13 +194,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 // Assign input device and start input thread
   soundInThread.setInputDevice(m_paInDevice);
-  if(m_fs96000) soundInThread.setRate(96000.0);
-  if(!m_fs96000) soundInThread.setRate(95238.1);
-  soundInThread.setBufSize(10*7056);
-  soundInThread.setNetwork(m_network);
-  soundInThread.setPort(m_udpPort);
-  if(!m_xpol) soundInThread.setNrx(1);
-  if(m_xpol) soundInThread.setNrx(2);
   soundInThread.start(QThread::HighestPriority);
 
   // Assign output device and start output thread
@@ -363,20 +356,12 @@ void MainWindow::readSettings()
   m_dPhi=settings.value("dPhi",0).toInt();
   m_fCal=settings.value("Fcal",0).toInt();
   m_fAdd=settings.value("FAdd",0).toDouble();
-  soundInThread.setFadd(m_fAdd);
   m_network = settings.value("NetworkInput",true).toBool();
   m_fs96000 = settings.value("FSam96000",true).toBool();
   m_nDevIn = settings.value("SoundInIndex", 0).toInt();
   m_paInDevice = settings.value("paInDevice",0).toInt();
   m_nDevOut = settings.value("SoundOutIndex", 0).toInt();
   m_paOutDevice = settings.value("paOutDevice",0).toInt();
-  m_IQswap = settings.value("IQswap",false).toBool();
-  m_10db = settings.value("Plus10dB",false).toBool();
-  m_initIQplus = settings.value("InitIQplus",false).toBool();
-  m_udpPort = settings.value("UDPport",50004).toInt();
-  soundInThread.setSwapIQ(m_IQswap);
-  soundInThread.set10db(m_10db);
-  soundInThread.setPort(m_udpPort);
   ui->actionCuteSDR->setChecked(settings.value(
                                   "PaletteCuteSDR",true).toBool());
   ui->actionLinrad->setChecked(settings.value(
@@ -556,20 +541,10 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_paInDevice=dlg.m_paInDevice;
     m_nDevOut=dlg.m_nDevOut;
     m_paOutDevice=dlg.m_paOutDevice;
-    g_pWideGraph->m_mult570=m_mult570;
-    g_pWideGraph->m_cal570=m_cal570;
-    soundInThread.setSwapIQ(m_IQswap);
-    soundInThread.set10db(m_10db);
 
     if(dlg.m_restartSoundIn) {
       soundInThread.quit();
       soundInThread.wait(1000);
-      soundInThread.setNetwork(m_network);
-      if(m_fs96000) soundInThread.setRate(96000.0);
-      if(!m_fs96000) soundInThread.setRate(95238.1);
-      soundInThread.setFadd(m_fAdd);
-      if(!m_xpol) soundInThread.setNrx(1);
-      if(m_xpol) soundInThread.setNrx(2);
       soundInThread.setInputDevice(m_paInDevice);
       soundInThread.start(QThread::HighestPriority);
     }
@@ -1310,8 +1285,6 @@ void MainWindow::guiUpdate()
   }
 
   if(nsec != m_sec0) {                                     //Once per second
-    soundInThread.setForceCenterFreqMHz(g_pWideGraph->m_dForceCenterFreq);
-    soundInThread.setForceCenterFreqBool(g_pWideGraph->m_bForceCenterFreq);
 
     if(m_pctZap>30.0 and !m_transmitting) {
       lab4->setStyleSheet("QLabel{background-color: #ff0000}");
@@ -1332,7 +1305,6 @@ void MainWindow::guiUpdate()
       lab1->setText(s);
     } else if(m_monitoring) {
       lab1->setStyleSheet("QLabel{background-color: #00ff00}");
-      m_nrx=soundInThread.nrx();
       khsym=soundInThread.mhsym();
       QString t;
       if(m_network) {
