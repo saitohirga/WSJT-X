@@ -10,7 +10,7 @@
 
 #define NFFT 32768
 
-short int iwave[60*11025];            //Wave file for Tx audio
+short int iwave[30*48000];            //Wave file for Tx audio
 int nwave;                            //Length of Tx waveform
 bool btxok;                           //True if OK to transmit
 double outputLatency;                 //Latency in seconds
@@ -1236,12 +1236,15 @@ void MainWindow::guiUpdate()
 
     ba2msg(ba,message);
     int len1=22;
-
-//### Wrong mode!
+/*
+    //### Wrong mode!
     int mode65=m_mode65;
     double samfac=1.0;
     gen65_(message,&mode65,&samfac,&nsendingsh,msgsent,iwave,&nwave,len1,len1);
+*/
+    genjtms3_(message,msgsent,iwave,&nwave,len1,len1);
     msgsent[22]=0;
+    qDebug() << msgsent << nwave;
 
     if(m_restart) {
       QFile f("jtms3_tx.log");

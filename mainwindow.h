@@ -254,6 +254,9 @@ extern "C" {
                 float* py, float s[], int* nkhz, int* nhsym, int* nzap,
                 float* slimit, uchar lstrong[]);
 
+  void genjtms3_(char* message, char* msgsent, short iwave[],
+                 int* nwave, int len1, int len2);
+
   void gen65_(char* msg, int* mode65, double* samfac, int* nsendingsh,
               char* msgsent, short iwave[], int* nwave, int len1, int len2);
 
