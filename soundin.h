@@ -2,7 +2,6 @@
 #define SOUNDIN_H
 
 #include <QtCore>
-#include <QtNetwork/QUdpSocket>
 #include <QDebug>
 #include <valarray>
 
@@ -35,19 +34,8 @@ public:
   {
   }
 
-  void setSwapIQ(bool b);
-  void set10db(bool b);
-  void setPort(qint32 n);
   void setInputDevice(qint32 n);
-  void setRate(double rate);
-  void setBufSize(unsigned bufSize);
-  void setNetwork(bool b);
   void setMonitoring(bool b);
-  void setFadd(double x);
-  void setNrx(int n);
-  void setForceCenterFreqBool(bool b);
-  void setForceCenterFreqMHz(double d);
-  int  nrx();
   int  mhsym();
 
 signals:
@@ -60,7 +48,6 @@ public slots:
   void quit();
 
 private:
-  void inputUDP();
 
   double m_fAdd;
   bool   m_net;
@@ -72,9 +59,7 @@ private:
   qint32 m_nrx;
   qint32 m_hsym;
   qint32 m_nDevIn;
-  qint32 m_udpPort;
 
-  QUdpSocket *udpSocket;
 };
 
 extern "C" {
