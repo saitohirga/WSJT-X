@@ -8,7 +8,7 @@ extern "C" {
 
 extern float gran();                  //Noise generator (for tests only)
 
-extern short int iwave[60*11025];     //Wave file for Tx audio
+extern short int iwave[30*48000];     //Wave file for Tx audio
 extern int nwave;
 extern bool btxok;
 extern double outputLatency;
@@ -54,7 +54,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
 //      t0=timeInfo->currentTime;
     } else {
       if(n != nminStart) { //Late start in new minute: compute starting index
-        ic=(int)(tstart*11025.0);
+        ic=(int)(tstart*48000.0);
 //        ic0=ic;
 //        t0=timeInfo->currentTime;
 //        qDebug() << "B" << t0 << ic0;
@@ -122,7 +122,7 @@ void SoundOutThread::run()
   outParam.suggestedLatency=0.05;
   outParam.hostApiSpecificStreamInfo=NULL;
 
-  paerr=Pa_IsFormatSupported(NULL,&outParam,11025.0);
+  paerr=Pa_IsFormatSupported(NULL,&outParam,48000.0);
   if(paerr<0) {
     qDebug() << "PortAudio says requested output format not supported.";
     qDebug() << paerr << m_nDevOut;
@@ -135,7 +135,7 @@ void SoundOutThread::run()
   paerr=Pa_OpenStream(&outStream,           //Output stream
         NULL,                               //No input parameters
         &outParam,                          //Output parameters
-        12000.0,                            //Sample rate
+        48000.0,                            //Sample rate
         FRAMES_PER_BUFFER,                  //Frames per buffer
         paClipOff,                          //No clipping
         d2aCallback,                        //output callbeck routine
