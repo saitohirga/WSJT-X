@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="ioTabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -392,7 +392,7 @@
       <attribute name="title">
        <string>I/O Devices</string>
       </attribute>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>1</x>

@@ -1,0 +1,75 @@
+	JTMS v3.0: Possible New Mode for Meteor Scatter
+	-----------------------------------------------
+
+1. Transmitting
+
+Type 1 messages are 72 user-information bits, source encoded as in
+JT65.  Convolutional FEC (K=32, r=1/2) increases the number of bits to
+(72+31)*2 = 206.  Nine bits are sent twice, extending the array to 215
+bits.  These are interleaved by bit-reversal of index values.  Then 43
+sync bits are inserted, spread evenly so as to fall at positions 1, 7,
+13, ...  253.  Frame size is 258 bits: 215 information-carrying bits
+and 43 sync bits.  Frame duration is 129 ms.
+
+[Optional: Type 2 messages convey 4 user information bits (report,
+R+report, RRR, 73) encoded with a (15,4,8) block code, plus a 12-bit
+CRC for each callsign encoded with the Golay (23,12) code.  This
+makes for 15 + 2*23 = 61 information-carrying bits.  One dummy bit is
+added, and the 62 bits are interspersed with 31 sync bits, making a
+frams of 93 bits and frame time 46.5 ms.]
+
+2. Modulation is BPSK at 2000 baud.  For sample rate 48000 Hz, this
+means nsps = 48000/2000 = 24 samples per symbol.  The baseband
+waveform is built as follows:
+
+ a. Replicate each bit nsps times into array y(npts=30*48000),
+    substituting -1 for 0.  Repeat the whole message enough times
+    to fill npts, then pad with zeros to length 2*npts.
+
+ b. Compute real-to-complex FFT of y(2*nsym*nsps).  Roll off the complex
+    spectrum at f=1000 Hz.  Translate the half-band 0-1000 upward to
+    1500-2500 Hz, and insert conjugate values at 1500 down to 500 Hz.
+
+ c. The inverse (complex-to-real) FFT yields the Tx audio waveform.
+
+3. Receiving
+
+  a. Compute real-to-complex windowed FFTs, N=12288 (t=256 ms),
+     stepped by 128 ms (say).  Zap birdies, remove frequency
+     components outside the range 300 - 2700 Hz, and convert to an
+     analytic time-domain signal.
+
+  b. Square the complex signal, cx2=cx*cx, and compute N=12288 FFT of
+     cx2 (resolution = 3.9 Hz).  Look for carrier at 3000 + 2*DF Hz
+     +/- 2*Tol.
+
+  c. If carrier is found, measure frequency f and phase phi.  Multiply
+     cx by exp(-twopi*i*f*t - phi) to recover the real baseband signal
+     x() to within a sign ambiguity.
+
+  d. Apply matched filter for the Tx pulse shape to x().  (This is just 
+     a rectangular BPF, 500 - 25-- Hz ?)
+
+  e. Establish PSK symbol sync (offset i0, 0 to nsps-1 samples) by finding
+     maximum of Sum(sum*sum) over groups of nsps consecutive samples.
+
+  f. Read off the soft symbols, sym(1:512), and compute CCF with 3
+     versions of the 43-bit sync vector (rotated by 0, 14, 29 out of
+     its 43 positions) and three of the 31-bit sync vector (rotated by
+     0, 10, 20 of 31).
+
+  g. If the best CCF abs(peak) exceeds a specified threshold, the sign
+     of peak resolves the sign ambiguity.  
+
+  h. For Type 1 messages: Gather the proper set of 215
+     information-carrying soft symbols.  Form averages using the 9
+     extra symbols, reducing the number to 206, and remove
+     interleaving to re-order the symbols.  Then run the fano232
+     decoder.  If decoding fails, add soft symbols into an
+     accumulation array and (if nsum is 2 or more) try decoding the
+     average.
+
+  i. For Type 2 messages: Gather the proper set of 62 soft symbols.
+     Decode Nrpt using an exhaustive search over all possibilities.
+     For the CRCs, also do exhaustive searches -- and make sure that 
+     the expected values are best (or fall in the top few, anyway).

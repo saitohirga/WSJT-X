@@ -79,6 +79,11 @@ void DevSetup::initDlg()
       QString t(p2);
       ui.comboBoxSndIn->addItem(t);
     }
+  }
+
+  k=0;
+  for(id=0; id<numDevices; id++ )  {
+    pdi=Pa_GetDeviceInfo(id);
     nchout=pdi->maxOutputChannels;
     if(nchout>=2) {
       m_outDevList[k]=id;
@@ -115,8 +120,6 @@ void DevSetup::initDlg()
   ui.comboBoxSndOut->setCurrentIndex(m_nDevOut);
   m_paInDevice=m_inDevList[m_nDevIn];
   m_paOutDevice=m_outDevList[m_nDevOut];
-  qDebug() << "A" << m_nDevIn << m_paInDevice << m_nDevOut << m_paOutDevice;
-
 
 }
 
@@ -144,7 +147,5 @@ void DevSetup::accept()
   m_nDevOut=ui.comboBoxSndOut->currentIndex();
   m_paOutDevice=m_outDevList[m_nDevOut];
   QDialog::accept();
-  qDebug() << "B" << m_nDevIn << m_paInDevice << m_nDevOut << m_paOutDevice;
-
 }
 
