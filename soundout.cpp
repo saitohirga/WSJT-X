@@ -26,12 +26,8 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
 {
   paUserData *udata=(paUserData*)userData;
   short *wptr = (short*)outputBuffer;
-  unsigned int i,n;
+  unsigned int i;
   static int ic=0;
-  static bool btxok0=false;
-  static int nminStart=0;
-  double tsec,tstart;
-  int nsec;
 
   for(i=0 ; i<framesToProcess; i++ )  {
     short int i2=iwave[ic];
@@ -39,11 +35,9 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
 //      i2 = 500.0*(i2/32767.0 + 5.0*gran());      //Add noise (tests only!)
     if(!btxok) i2=0;
     *wptr++ = i2;                   //left
-//      *wptr++ = i2;                   //right
     ic++;
   }
-  if(ic > nwave) {
-//    btxok=0;
+  if(ic >= nwave) {
     ic=0;
   }
   return 0;

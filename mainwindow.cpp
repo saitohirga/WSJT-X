@@ -406,23 +406,8 @@ void MainWindow::readSettings()
 //-------------------------------------------------------------- dataSink()
 void MainWindow::dataSink(int k)
 {
-  static float s[NFFT],splot[NFFT];
-  static int n=0;
-  static int ihsym=0;
-  static int nzap=0;
-  static int n60z=0;
-  static int nkhz;
-  static int nfsample=96000;
-  static int nxpol=0;
-  static float fgreen;
   static int ndiskdat;
-  static int nb;
-  static int nadj=0;
-  static float px=0.0,py=0.0;
-  static uchar lstrong[1024];
-  static float rejectx;
-  static float rejecty;
-  static float slimit;
+  static float px=0.0;
 
   if(m_diskData) {
     ndiskdat=1;
@@ -1205,12 +1190,6 @@ void MainWindow::guiUpdate()
 
     ba2msg(ba,message);
     int len1=22;
-/*
-    //### Wrong mode!
-    int mode65=m_mode65;
-    double samfac=1.0;
-    gen65_(message,&mode65,&samfac,&nsendingsh,msgsent,iwave,&nwave,len1,len1);
-*/
     genjtms3_(message,msgsent,iwave,&nwave,len1,len1);
     msgsent[22]=0;
 

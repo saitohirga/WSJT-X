@@ -73,7 +73,6 @@ void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
 void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
 {
   static int x00=-99;
-  int ihr,imin;
 
   if(m_paintEventBusy) return;
   m_paintEventBusy=true;
@@ -135,8 +134,7 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
 
 void CPlotter::draw(float s[], int i0, float splot[])                       //draw()
 {
-  int i,j,k,w,h;
-  int ihr,imin;
+  int i,j,w,h;
   float y;
 
   m_i0=i0;

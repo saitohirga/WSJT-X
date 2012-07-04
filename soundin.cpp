@@ -34,7 +34,7 @@ extern "C" int a2dCallback( const void *inputBuffer, void *outputBuffer,
   (void) outputBuffer;          //Prevent unused variable warnings.
   (void) timeInfo;
   (void) userData;
-  int nbytes,i,j,k;
+  int nbytes,k;
 
 //  if(framesToProcess != -99)   return paContinue;    //###
 
