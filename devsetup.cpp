@@ -20,13 +20,6 @@ DevSetup::~DevSetup()
 void DevSetup::initDlg()
 {
   int k,id;
-  int valid_devices=0;
-  int minChan[MAXDEVICES];
-  int maxChan[MAXDEVICES];
-  int minSpeed[MAXDEVICES];
-  int maxSpeed[MAXDEVICES];
-  char hostAPI_DeviceName[MAXDEVICES][50];
-  char s[60];
   int numDevices=Pa_GetDeviceCount();
 
   const PaDeviceInfo *pdi;
