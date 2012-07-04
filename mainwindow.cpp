@@ -197,7 +197,8 @@ MainWindow::MainWindow(QWidget *parent) :
   soundInThread.start(QThread::HighestPriority);
 
   // Assign output device and start output thread
-  soundOutThread.setOutputDevice(m_paOutDevice);
+//  soundOutThread.setOutputDevice(m_paOutDevice);
+  soundOutThread.setOutputDevice(13);                      //###???###
 //  soundOutThread.start(QThread::HighPriority);
 
   m_monitoring=true;                           // Start with Monitoring ON
@@ -534,6 +535,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_myCall=dlg.m_myCall;
     m_myGrid=dlg.m_myGrid;
     m_idInt=dlg.m_idInt;
+    m_pttPort=dlg.m_pttPort;
     m_saveDir=dlg.m_saveDir;
     m_dxccPfx=dlg.m_dxccPfx;
     g_pWideGraph->setFcal(m_fCal);
@@ -1219,7 +1221,6 @@ void MainWindow::guiUpdate()
 */
     genjtms3_(message,msgsent,iwave,&nwave,len1,len1);
     msgsent[22]=0;
-    qDebug() << msgsent << nwave;
 
     if(m_restart) {
       QFile f("jtms3_tx.log");
