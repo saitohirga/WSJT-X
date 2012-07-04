@@ -5,32 +5,22 @@
 
 Type 1 messages are 72 user-information bits, source encoded as in
 JT65.  Convolutional FEC (K=32, r=1/2) increases the number of bits to
-(72+31)*2 = 206.  Nine bits are sent twice, extending the array to 215
+(72+31)*2 = 206; nine bits are sent twice, extending the array to 215
 bits.  These are interleaved by bit-reversal of index values.  Then 43
 sync bits are inserted, spread evenly so as to fall at positions 1, 7,
 13, ...  253.  Frame size is 258 bits: 215 information-carrying bits
 and 43 sync bits.  Frame duration is 129 ms.
 
-[Optional: Type 2 messages convey 4 user information bits (report,
-R+report, RRR, 73) encoded with a (15,4,8) block code, plus a 12-bit
-CRC for each callsign encoded with the Golay (23,12) code.  This
-makes for 15 + 2*23 = 61 information-carrying bits.  One dummy bit is
-added, and the 62 bits are interspersed with 31 sync bits, making a
-frams of 93 bits and frame time 46.5 ms.]
+Type 2 messages convey 4 user information bits (report, R+report, RRR,
+73) encoded with a (15,4,8) block code, plus a 12-bit CRC for each
+callsign, encoded with the Golay (23,12) code.  This makes for 15 +
+2*23 = 61 information-carrying bits.  One dummy bit is added, and the
+62 bits are interspersed with 31 sync bits, making a frame of 93 bits
+and frame time 46.5 ms.
 
-2. Modulation is BPSK at 2000 baud.  For sample rate 48000 Hz, this
-means nsps = 48000/2000 = 24 samples per symbol.  The baseband
-waveform is built as follows:
-
- a. Replicate each bit nsps times into array y(npts=30*48000),
-    substituting -1 for 0.  Repeat the whole message enough times
-    to fill npts, then pad with zeros to length 2*npts.
-
- b. Compute real-to-complex FFT of y(2*nsym*nsps).  Roll off the complex
-    spectrum at f=1000 Hz.  Translate the half-band 0-1000 upward to
-    1500-2500 Hz, and insert conjugate values at 1500 down to 500 Hz.
-
- c. The inverse (complex-to-real) FFT yields the Tx audio waveform.
+2. Modulation is BPSK at 2000 baud, 24 samples per symbol at 48000 Hz
+asmple rate.  The baseband waveform is built by inserting a tapered
+sinc function for each bit, then multiplying by a 1500 Hz sine wave.
 
 3. Receiving
 

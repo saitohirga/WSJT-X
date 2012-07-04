@@ -20,6 +20,7 @@ subroutine genjtms3(msg,msgsent,iwave,nwave)
 
   call scr258(isync,datsym,1,chansym)   !Insert sync and data into chansym(258)
 
+  if(msg(1:1).eq.'@') chansym=0
   twopi=8.0*atan(1.0)
   f0=1500.0
   dphi=twopi*f0/48000.0
