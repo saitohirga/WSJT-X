@@ -219,6 +219,7 @@ void CPlotter::draw(float s[], int i0, float splot[])                       //dr
 
 void CPlotter::UTCstr()
 {
+  /*
   int ihr,imin;
   if(datcom_.ndiskdat != 0) {
     ihr=datcom_.nutc/100;
@@ -230,6 +231,7 @@ void CPlotter::UTCstr()
     imin=imin % 60;
   }
   sprintf(m_sutc,"%2.2d:%2.2d",ihr,imin);
+  */
 }
 
 void CPlotter::DrawOverlay()                                 //DrawOverlay()

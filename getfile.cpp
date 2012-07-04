@@ -22,7 +22,7 @@ void getfile(QString fname, bool xpol, int dbDgrd)
   FILE* fp=fopen(name,"rb");
 
   if(fp != NULL) {
-    fread(&datcom_.fcenter,sizeof(datcom_.fcenter),1,fp);
+//    fread(&datcom_.fcenter,sizeof(datcom_.fcenter),1,fp);
     fread(id,2,npts,fp);
     int j=0;
 
@@ -41,6 +41,7 @@ void getfile(QString fname, bool xpol, int dbDgrd)
     }
     fclose(fp);
 
+    /*
     datcom_.ndiskdat=1;
     int nfreq=(int)datcom_.fcenter;
     if(nfreq!=144 and nfreq != 432 and nfreq != 1296) datcom_.fcenter=144.125;
@@ -49,11 +50,13 @@ void getfile(QString fname, bool xpol, int dbDgrd)
     datcom_.nutc=0;
     if(i0>0) datcom_.nutc=100*fname.mid(i0-4,2).toInt() +
         fname.mid(i0-2,2).toInt();
+        */
   }
 }
 
 void savetf2(QString fname, bool xpol)
 {
+  /*
   int npts=2*52*96000;
   if(xpol) npts=2*npts;
 
@@ -74,6 +77,7 @@ void savetf2(QString fname, bool xpol)
     fclose(fp);
   }
   free(buf);
+  */
 }
 
 //#define	MAX_RANDOM	0x7fffffff

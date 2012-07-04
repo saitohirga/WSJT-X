@@ -7,7 +7,6 @@ extern "C" {
 }
 
 extern float gran();                  //Noise generator (for tests only)
-
 extern short int iwave[30*48000];     //Wave file for Tx audio
 extern int nwave;
 extern bool btxok;
@@ -29,80 +28,22 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   short *wptr = (short*)outputBuffer;
   unsigned int i,n;
   static int ic=0;
-//  static int ic0=0;
-//  static int nsec0=-99;
   static bool btxok0=false;
   static int nminStart=0;
-//  static t0,t1;
   double tsec,tstart;
-
   int nsec;
 
-  // Get System time
-  qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-  tsec = 0.001*ms;
-  nsec = ms/1000;
-
-  if(btxok and !btxok0) {       //Start (or re-start) a transmission
-    n=nsec/60;
-    tstart=tsec - n*60.0 - 1.0;
-
-    if(tstart<1.0) {
-      ic=0;                      //Start of minute, set starting index to 0
-//      ic0=ic;
-      nminStart=n;
-//      t0=timeInfo->currentTime;
-    } else {
-      if(n != nminStart) { //Late start in new minute: compute starting index
-        ic=(int)(tstart*48000.0);
-//        ic0=ic;
-//        t0=timeInfo->currentTime;
-//        qDebug() << "B" << t0 << ic0;
-        nminStart=n;
-      }
-    }
-    /*
-    qDebug() << "A" << n << ic
-             << QString::number( tsec, 'f', 3 )
-             << QString::number( tstart, 'f', 3 )
-             << QString::number( timeInfo->currentTime, 'f', 3 )
-             << QString::number( timeInfo->outputBufferDacTime, 'f', 3 )
-             << QString::number( timeInfo->outputBufferDacTime -
-                                 timeInfo->currentTime, 'f', 3 )
-             << QString::number( timeInfo->currentTime - tsec, 'f', 3 );
-    */
-  }
-  btxok0=btxok;
-
-  /*
-  if(nsec!=nsec0) {
-    double txt=timeInfo->currentTime - t0;
-    double r=0.0;
-    if(txt>0.0) r=(ic-ic0)/txt;
-    qDebug() << "C" << txt << ic-ic0 << r;
-    nsec0=nsec;
-  }
-  */
-
-  if(btxok) {
-    for(i=0 ; i<framesToProcess; i++ )  {
-      short int i2=iwave[ic];
-      if(ic > nwave) i2=0;
+  for(i=0 ; i<framesToProcess; i++ )  {
+    short int i2=iwave[ic];
+    if(ic > nwave) i2=0;
 //      i2 = 500.0*(i2/32767.0 + 5.0*gran());      //Add noise (tests only!)
-      if(!btxok) i2=0;
-      *wptr++ = i2;                   //left
-      *wptr++ = i2;                   //right
-      ic++;
-    }
-  } else {
-    for(i=0 ; i<framesToProcess; i++ )  {
-      *wptr++ = 0;
-      *wptr++ = 0;
-      ic++;
-    }
+    if(!btxok) i2=0;
+    *wptr++ = i2;                   //left
+//      *wptr++ = i2;                   //right
+    ic++;
   }
   if(ic > nwave) {
-    btxok=0;
+//    btxok=0;
     ic=0;
   }
   return 0;
@@ -117,7 +58,7 @@ void SoundOutThread::run()
   quitExecution = false;
 
   outParam.device=m_nDevOut;                 //Output device number
-  outParam.channelCount=2;                   //Number of analog channels
+  outParam.channelCount=1;                   //Number of analog channels
   outParam.sampleFormat=paInt16;             //Send short ints to PortAudio
   outParam.suggestedLatency=0.05;
   outParam.hostApiSpecificStreamInfo=NULL;
