@@ -14,7 +14,7 @@ short int iwave[30*48000];            //Wave file for Tx audio
 int nwave;                            //Length of Tx waveform
 bool btxok;                           //True if OK to transmit
 double outputLatency;                 //Latency in seconds
-qint16 id[4*60*96000];
+qint16 id[30*48000];
 
 WideGraph* g_pWideGraph = NULL;
 QSharedMemory mem_m65("mem_m65");
@@ -22,9 +22,6 @@ QSharedMemory mem_m65("mem_m65");
 QString rev="$Rev$";
 QString Program_Title_Version="  JTMS3   v0.1, r" + rev.mid(6,4) +
                               "    by K1JT";
-
-extern const int RxDataFrequency = 96000;
-extern const int TxDataFrequency = 11025;
 
 //-------------------------------------------------- MainWindow constructor
 MainWindow::MainWindow(QWidget *parent) :
@@ -206,12 +203,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_diskData=false;
   m_tol=500;
   g_pWideGraph->setTol(m_tol);
-  g_pWideGraph->setFcal(m_fCal);
-  if(m_fs96000) g_pWideGraph->setFsample(96000);
-  if(!m_fs96000) g_pWideGraph->setFsample(95238);
-  g_pWideGraph->m_mult570=m_mult570;
-  g_pWideGraph->m_cal570=m_cal570;
-  if(m_initIQplus) g_pWideGraph->initIQplus();
+  g_pWideGraph->setFsample(48000);
 
 // Create "m_worked", a dictionary of all calls in wsjt.log
   QFile f("wsjt.log");
@@ -462,23 +454,19 @@ void MainWindow::dataSink(int k)
     n60z=n60;
     n=0;
   }
+*/
 
+  int ihsym=0;
   if(ihsym == 279) {
-    datcom_.newdat=1;
-    datcom_.nagain=0;
     QDateTime t = QDateTime::currentDateTimeUtc();
     m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
-    decode();                                           //Start the decoder
     if(m_saveAll) {
       QString fname=m_saveDir + "/" + t.date().toString("yyMMdd") + "_" +
-          t.time().toString("hhmm");
-      if(m_xpol) fname += ".tf2";
-      if(!m_xpol) fname += ".iq";
-      *future2 = QtConcurrent::run(savetf2, fname, m_xpol);
+          t.time().toString("hhmm") + ".wav";
+      *future2 = QtConcurrent::run(savewav, fname);
       watcher2->setFuture(*future2);
     }
   }
-  */
   soundInThread.m_dataSinkBusy=false;
 }
 
@@ -838,11 +826,12 @@ void MainWindow::on_actionDecode_remaining_files_in_directory_triggered()
 
 void MainWindow::diskDat()                                   //diskDat()
 {
-  double hsym;
   //These may be redundant??
   m_diskData=true;
 //  datcom_.newdat=1;
 
+  /*
+  double hsym;
   if(m_fs96000) hsym=2048.0*96000.0/11025.0;   //Samples per JT65 half-symbol
   if(!m_fs96000) hsym=2048.0*95238.1/11025.0;
   for(int i=0; i<281; i++) {              // Do the half-symbol FFTs
@@ -850,6 +839,7 @@ void MainWindow::diskDat()                                   //diskDat()
     dataSink(k);
     if(i%10 == 0) qApp->processEvents();   //Keep the GUI responsive
   }
+  */
 }
 
 void MainWindow::diskWriteFinished()                       //diskWriteFinished

@@ -54,7 +54,7 @@ void getfile(QString fname, bool xpol, int dbDgrd)
   }
 }
 
-void savetf2(QString fname, bool xpol)
+void savewav(QString fname)
 {
   /*
   int npts=2*52*96000;
