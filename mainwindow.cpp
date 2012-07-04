@@ -141,7 +141,7 @@ MainWindow::MainWindow(QWidget *parent) :
                            QString::number(iret));
   }
 #endif
-
+/*
   if(!mem_m65.attach()) {
     if (!mem_m65.create(sizeof(datcom_))) {
       msgBox("Unable to create shared memory segment.");
@@ -155,7 +155,7 @@ MainWindow::MainWindow(QWidget *parent) :
     size -= noffset;
   }
   memset(to,0,size);         //Zero all decoding params in shared memory
-
+*/
   PaError paerr=Pa_Initialize();                    //Initialize Portaudio
   if(paerr!=paNoError) {
     msgBox("Unable to initialize PortAudio.");
@@ -424,7 +424,6 @@ void MainWindow::dataSink(int k)
   static float rejecty;
   static float slimit;
 
-
   if(m_diskData) {
     ndiskdat=1;
     datcom_.ndiskdat=1;
@@ -432,39 +431,24 @@ void MainWindow::dataSink(int k)
     ndiskdat=0;
     datcom_.ndiskdat=0;
   }
-// Get x and y power, polarized spectrum, nkhz, and ihsym
-  nb=0;
-  if(m_NB) nb=1;
-  nfsample=96000;
-  if(!m_fs96000) nfsample=95238;
-  nxpol=0;
-  if(m_xpol) nxpol=1;
-  fgreen=(float)g_pWideGraph->fGreen();
-  nadj++;
-  if(m_adjustIQ==0) nadj=0;
-  symspec_(&k, &nxpol, &ndiskdat, &nb, &m_NBslider, &m_dPhi, &nfsample,
-           &fgreen, &m_adjustIQ, &m_applyIQcal, &m_gainx, &m_gainy, &m_phasex,
-           &m_phasey, &rejectx, &rejecty, &px, &py, s, &nkhz,
-           &ihsym, &nzap, &slimit, lstrong);
+
+  double sq=0.0;
+  float x;
+  for(int i=0; i<6192; i++) {
+    x=datcom_.d4[k-6192+i];
+    sq += x*x;
+  }
+  px = 10.0*log10(sq/6192.0) + 70.0;          // Why +70 ???
+  if(px>60.0) px=60.0;
+  if(px<0.0) px=0.0;
   QString t;
-  m_pctZap=nzap/178.3;
-  if(m_xpol) t.sprintf(" Rx noise: %5.1f  %5.1f %5.1f %% ",px,py,m_pctZap);
-  if(!m_xpol) t.sprintf(" Rx noise: %5.1f  %5.1f %% ",px,m_pctZap);
+  t.sprintf(" Rx noise: %5.1f ",px);
   lab4->setText(t);
   ui->xThermo->setValue((double)px);   //Update the bargraphs
+
+  /*
   if(m_monitoring || m_diskData) {
     g_pWideGraph->dataSink2(s,nkhz,ihsym,m_diskData,lstrong);
-  }
-
-  if(nadj == 10) {
-    if(m_xpol) {
-      t.sprintf("Amp: %6.4f %6.4f   Phase: %6.4f %6.4f",
-                m_gainx,m_gainy,m_phasex,m_phasey);
-    } else {
-      t.sprintf("Amp: %6.4f   Phase: %6.4f",m_gainx,m_phasex);
-    }
-    ui->decodedTextBrowser->append(t);
-    m_adjustIQ=0;
   }
 
   //Average over specified number of spectra
@@ -493,6 +477,7 @@ void MainWindow::dataSink(int k)
     n60z=n60;
     n=0;
   }
+
   if(ihsym == 279) {
     datcom_.newdat=1;
     datcom_.nagain=0;
@@ -508,6 +493,7 @@ void MainWindow::dataSink(int k)
       watcher2->setFuture(*future2);
     }
   }
+  */
   soundInThread.m_dataSinkBusy=false;
 }
 
@@ -870,7 +856,7 @@ void MainWindow::diskDat()                                   //diskDat()
   double hsym;
   //These may be redundant??
   m_diskData=true;
-  datcom_.newdat=1;
+//  datcom_.newdat=1;
 
   if(m_fs96000) hsym=2048.0*96000.0/11025.0;   //Samples per JT65 half-symbol
   if(!m_fs96000) hsym=2048.0*95238.1/11025.0;
@@ -973,6 +959,7 @@ void MainWindow::on_actionAvailable_suffixes_and_add_on_prefixes_triggered()
 
 void MainWindow::on_DecodeButton_clicked()                    //Decode request
 {
+  /*
   int n=m_sec0%60;
   if(m_monitoring and n>47 and (n<52 or m_decoderBusy)) return;
   if(!m_decoderBusy) {
@@ -980,10 +967,12 @@ void MainWindow::on_DecodeButton_clicked()                    //Decode request
     datcom_.nagain=1;
     decode();
   }
+  */
 }
 
 void MainWindow::freezeDecode(int n)                          //freezeDecode()
 {
+  /*
   if(n==2) {
     ui->tolSpinBox->setValue(5);
     datcom_.ntol=m_tol;
@@ -997,10 +986,12 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
     datcom_.newdat=0;
     decode();
   }
+  */
 }
 
 void MainWindow::decode()                                       //decode()
 {
+/*
   ui->DecodeButton->setStyleSheet(m_pbdecoding_style1);
   if(datcom_.nagain==0 && (!m_diskData)) {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
@@ -1077,6 +1068,7 @@ void MainWindow::decode()                                       //decode()
   lockFile.remove();
 
   decodeBusy(true);
+  */
 }
 
 void MainWindow::m65_error()                                     //m65_error
@@ -1287,12 +1279,6 @@ void MainWindow::guiUpdate()
 
   if(nsec != m_sec0) {                                     //Once per second
 
-    if(m_pctZap>30.0 and !m_transmitting) {
-      lab4->setStyleSheet("QLabel{background-color: #ff0000}");
-    } else {
-      lab4->setStyleSheet("");
-    }
-
     if(m_transmitting) {
       if(nsendingsh==1) {
         lab1->setStyleSheet("QLabel{background-color: #66ffff}");
@@ -1306,7 +1292,7 @@ void MainWindow::guiUpdate()
       lab1->setText(s);
     } else if(m_monitoring) {
       lab1->setStyleSheet("QLabel{background-color: #00ff00}");
-      khsym=soundInThread.mhsym();
+      khsym=soundInThread.mstep();
       QString t;
       if(m_network) {
         if(m_nrx==-1) t="F1";
@@ -1330,13 +1316,12 @@ void MainWindow::guiUpdate()
     }
 
     QDateTime t = QDateTime::currentDateTimeUtc();
-    int fQSO=g_pWideGraph->QSOfreq();
     m_setftx=0;
     QString utc = " " + t.time().toString() + " ";
     ui->labUTC->setText(utc);
     if((!m_monitoring and !m_diskData) or (khsym==m_hsym0)) {
       ui->xThermo->setValue(0.0);                      // Set Rx level to 20
-      lab4->setText(" Rx noise:    0.0     0.0% ");
+      lab4->setText(" Rx noise:    0.0 ");
     }
     m_hsym0=khsym;
     m_sec0=nsec;
@@ -1701,7 +1686,7 @@ void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
 
 void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 {
-  int nMHz=int(datcom_.fcenter);
+  int nMHz=144;
   QDateTime t = QDateTime::currentDateTimeUtc();
   QString logEntry=t.date().toString("yyyy-MMM-dd,") +
       t.time().toString("hh:mm,") + m_hisCall + "," + m_hisGrid + "," +

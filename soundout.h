@@ -18,8 +18,6 @@ public:
 // Constructs (but does not start) a SoundOutThread
   SoundOutThread()
     :   quitExecution(false)           // Initialize some private members
-    ,   m_rate(0)
-    ,   m_nwave(48*11025)
     ,   m_txOK(false)
     ,   m_txMute(false)
   {
@@ -32,9 +30,7 @@ public:
 
 // Private members
 private:
-  double  m_rate;               //Sample rate
   qint32  m_nDevOut;            //Output device number
-  qint32  m_nwave;              //Length of wave file
   bool    m_txOK;               //Enable Tx audio
   bool    m_txMute;             //Mute temporarily
 };

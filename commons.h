@@ -6,7 +6,10 @@
 extern "C" {
 
 extern struct {                     //This is "common/datcom/..." in Fortran
-  float d4[4*5760000];              //Raw I/Q data from Linrad
+  float d4[30*48000];               //Raw data
+  int kin;
+  int ndiskdat;
+  /*
   float ss[4*322*NFFT];             //Half-symbol spectra at 0,45,90,135 deg pol
   float savg[4*NFFT];               //Avg spectra at 0,45,90,135 deg pol
   double fcenter;                   //Center freq from Linrad (MHz)
@@ -36,6 +39,7 @@ extern struct {                     //This is "common/datcom/..." in Fortran
   char hiscall[12];
   char hisgrid[6];
   char datetime[20];
+  */
 } datcom_;
 }
 

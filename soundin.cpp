@@ -7,46 +7,15 @@
 extern "C" {
 #include <portaudio.h>
 extern struct {
-  double d8[2*60*96000];   //This is "common/datcom/..." in fortran
-  float ss[4*322*NFFT];
-  float savg[4*NFFT];
-  double fcenter;
-  int nutc;
-  int idphi;                        //Phase correction for Y pol'n, degrees
-  int mousedf;                      //User-selected DF
-  int mousefqso;                    //User-selected QSO freq (kHz)
-  int nagain;                       //1 ==> decode only at fQSO +/- Tol
-  int ndepth;                       //How much hinted decoding to do?
-  int ndiskdat;                     //1 ==> data read from *.tf2 or *.iq file
-  int neme;                         //Hinted decoding tries only for EME calls
-  int newdat;                       //1 ==> new data, must do long FFT
-  int nfa;                          //Low decode limit (kHz)
-  int nfb;                          //High decode limit (kHz)
-  int nfcal;                        //Frequency correction, for calibration (Hz)
-  int nfshift;                      //Shift of displayed center freq (kHz)
-  int mcall3;                       //1 ==> CALL3.TXT has been modified
-  int ntimeout;                     //Max for timeouts in Messages and BandMap
-  int ntol;                         //+/- decoding range around fQSO (Hz)
-  int nxant;                        //1 ==> add 45 deg to measured pol angle
-  int map65RxLog;                   //Flags to control log files
-  int nfsample;                     //Input sample rate
-  int nxpol;                        //1 if using xpol antennas, 0 otherwise
-  int mode65;                       //JT65 sub-mode: A=1, B=2, C=4
-  char mycall[12];
-  char mygrid[6];
-  char hiscall[12];
-  char hisgrid[6];
-  char datetime[20];
+  float d4[30*48000];                //This is "common/datcom/..." in fortran
+  int kin;
 } datcom_;
 }
 
 typedef struct
 {
   int kin;          //Parameters sent to/from the portaudio callback function
-  int nrx;
   bool bzero;
-  bool iqswap;
-  bool b10db;
 } paUserData;
 
 //--------------------------------------------------------------- a2dCallback
@@ -65,71 +34,34 @@ extern "C" int a2dCallback( const void *inputBuffer, void *outputBuffer,
   (void) outputBuffer;          //Prevent unused variable warnings.
   (void) timeInfo;
   (void) userData;
-  int nbytes,i,j;
-  float d4[4*FRAMES_PER_BUFFER];
-  float d4a[4*FRAMES_PER_BUFFER];
-  float tmp;
-  float fac;
+  int nbytes,i,j,k;
 
-  if(framesToProcess != -99)   return paContinue;    //###
+//  if(framesToProcess != -99)   return paContinue;    //###
 
   if( (statusFlags&paInputOverflow) != 0) {
     qDebug() << "Input Overflow";
   }
-  if(udata->bzero) {           //Start of a new minute
+  if(udata->bzero) {           //Start of a new Rx sequence
     udata->kin=0;              //Reset buffer pointer
     udata->bzero=false;
   }
 
-  nbytes=udata->nrx*8*framesToProcess;        //Bytes per frame
-  memcpy(d4,inputBuffer,nbytes);              //Copy all samples to d4
-
-  fac=32767.0;
-  if(udata->b10db) fac=103618.35;
-
-  if(udata->nrx==2) {
-    for(i=0; i<4*int(framesToProcess); i++) {     //Negate odd-numbered frames
-      d4[i]=fac*d4[i];
-      j=i/4;
-      if((j%2)==1) d4[i]=-d4[i];
-    }
-    if(!udata->iqswap) {
-      for(i=0; i<int(framesToProcess); i++) {
-        j=4*i;
-        tmp=d4[j];
-        d4[j]=d4[j+1];
-        d4[j+1]=tmp;
-        tmp=d4[j+2];
-        d4[j+2]=d4[j+3];
-        d4[j+3]=tmp;
-      }
-    }
-    memcpy(&datcom_.d8[2*udata->kin],d4,nbytes); //Copy from d4 to dd()
-  } else {
-    int k=0;
-    for(i=0; i<2*int(framesToProcess); i+=2) {    //Negate odd-numbered frames
-      j=i/2;
-      if(j%2==0) {
-        d4a[k++]=fac*d4[i];
-        d4a[k++]=fac*d4[i+1];
-      } else {
-        d4a[k++]=-fac*d4[i];
-        d4a[k++]=-fac*d4[i+1];
-      }
-      d4a[k++]=0.0;
-      d4a[k++]=0.0;
-    }
-    if(!udata->iqswap) {
-      for(i=0; i<int(framesToProcess); i++) {
-        j=4*i;
-        tmp=d4a[j];
-        d4a[j]=d4a[j+1];
-        d4a[j+1]=tmp;
-      }
-    }
-    memcpy(&datcom_.d8[2*udata->kin],d4a,2*nbytes); //Copy from d4a to dd()
-  }
+  nbytes=4*framesToProcess;        //Bytes per frame
+  k=udata->kin;
+  memcpy(&datcom_.d4[k],inputBuffer,nbytes);          //Copy all samples to d4
   udata->kin += framesToProcess;
+  datcom_.kin=udata->kin;
+
+/*
+  double sq=0.0;
+  float x;
+  for(i=0; i<int(framesToProcess); i++) {
+    x=datcom_.d4[k++];
+    sq += x*x;
+  }
+  float rms = 32767.0*sqrt(sq/framesToProcess);
+  qDebug() << "A" << udata->kin/48000.0 << rms;
+*/
   return paContinue;
 }
 
@@ -138,8 +70,6 @@ void SoundInThread::run()                           //SoundInThread::run()
   quitExecution = false;
 
 //---------------------------------------------------- Soundcard Setup
-  qDebug() << "Start souncard input";
-
   PaError paerr;
   PaStreamParameters inParam;
   PaStream *inStream;
@@ -149,7 +79,7 @@ void SoundInThread::run()                           //SoundInThread::run()
   udata.bzero=false;                        //Flag to request reset of kin
 
   inParam.device=m_nDevIn;                  //### Input Device Number ###
-  inParam.channelCount=2;                   //Number of analog channels
+  inParam.channelCount=1;                   //Number of analog channels
   inParam.sampleFormat=paFloat32;           //Get floats from Portaudio
   inParam.suggestedLatency=0.05;
   inParam.hostApiSpecificStreamInfo=NULL;
@@ -174,7 +104,6 @@ void SoundInThread::run()                           //SoundInThread::run()
     emit error("Failed to start audio input stream.");
     return;
   }
-//  const PaStreamInfo* p=Pa_GetStreamInfo(inStream);
 
   bool qe = quitExecution;
   int n30z=99;
@@ -182,7 +111,7 @@ void SoundInThread::run()                           //SoundInThread::run()
   int nsec;
   int n30;
   int nBusy=0;
-  int nhsym0=0;
+  int nstep0=0;
 
 //---------------------------------------------- Soundcard input loop
   while (!qe) {
@@ -194,20 +123,20 @@ void SoundInThread::run()                           //SoundInThread::run()
 
 // Reset buffer pointer and symbol number at start of minute
     if(n30 < n30z or !m_monitoring) {
-      nhsym0=0;
+      nstep0=0;
       udata.bzero=true;
     }
     k=udata.kin;
     if(m_monitoring) {
-      m_hsym=(k-2048)*11025.0/(2048.0*m_rate);
-      if(m_hsym != nhsym0) {
+      m_step=k/(2*6192);
+      if(m_step != nstep0) {
         if(m_dataSinkBusy) {
           nBusy++;
         } else {
-          m_dataSinkBusy=true;
-//          emit readyForFFT(k);         //Signal to compute new FFTs
+//          m_dataSinkBusy=true;
+          emit readyForFFT(k);         //Signal to compute new FFTs
         }
-        nhsym0=m_hsym;
+        nstep0=m_step;
       }
     }
     msleep(100);
@@ -234,7 +163,7 @@ void SoundInThread::setMonitoring(bool b)                    //setMonitoring()
 }
 
 
-int SoundInThread::mhsym()
+int SoundInThread::mstep()
 {
-  return m_hsym;
+  return m_step;
 }
