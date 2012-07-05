@@ -6,7 +6,7 @@
 extern "C" {
 
 extern struct {                     //This is "common/datcom/..." in Fortran
-  float d4[30*48000];               //Raw data
+  float d2[30*48000];               //Raw data
   int kin;
   int ndiskdat;
   /*
