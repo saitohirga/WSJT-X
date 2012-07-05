@@ -7,7 +7,7 @@
 extern "C" {
 #include <portaudio.h>
 extern struct {
-  float d4[30*48000];                //This is "common/datcom/..." in fortran
+  short int d2[30*48000];             //This is "common/datcom/..." in fortran
   int kin;
 } datcom_;
 }
@@ -46,22 +46,12 @@ extern "C" int a2dCallback( const void *inputBuffer, void *outputBuffer,
     udata->bzero=false;
   }
 
-  nbytes=4*framesToProcess;        //Bytes per frame
+  nbytes=2*framesToProcess;        //Bytes per frame
   k=udata->kin;
-  memcpy(&datcom_.d4[k],inputBuffer,nbytes);          //Copy all samples to d4
+  memcpy(&datcom_.d2[k],inputBuffer,nbytes);          //Copy all samples to d2
   udata->kin += framesToProcess;
   datcom_.kin=udata->kin;
 
-/*
-  double sq=0.0;
-  float x;
-  for(i=0; i<int(framesToProcess); i++) {
-    x=datcom_.d4[k++];
-    sq += x*x;
-  }
-  float rms = 32767.0*sqrt(sq/framesToProcess);
-  qDebug() << "A" << udata->kin/48000.0 << rms;
-*/
   return paContinue;
 }
 
@@ -80,7 +70,7 @@ void SoundInThread::run()                           //SoundInThread::run()
 
   inParam.device=m_nDevIn;                  //### Input Device Number ###
   inParam.channelCount=1;                   //Number of analog channels
-  inParam.sampleFormat=paFloat32;           //Get floats from Portaudio
+  inParam.sampleFormat=paInt16;             //Get i*2 from Portaudio
   inParam.suggestedLatency=0.05;
   inParam.hostApiSpecificStreamInfo=NULL;
 
@@ -94,7 +84,7 @@ void SoundInThread::run()                           //SoundInThread::run()
         NULL,                               //No output parameters
         48000.0,                            //Sample rate
         FRAMES_PER_BUFFER,                  //Frames per buffer
-//        paClipOff+paDitherOff,              //No clipping or dithering
+//        paClipOff+paDitherOff,            //No clipping or dithering
         paClipOff,                          //No clipping
         a2dCallback,                        //Input callbeck routine
         &udata);                            //userdata
@@ -134,6 +124,7 @@ void SoundInThread::run()                           //SoundInThread::run()
           nBusy++;
         } else {
 //          m_dataSinkBusy=true;
+//          qDebug() << "A" << k;
           emit readyForFFT(k);         //Signal to compute new FFTs
         }
         nstep0=m_step;

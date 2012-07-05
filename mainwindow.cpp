@@ -194,8 +194,7 @@ MainWindow::MainWindow(QWidget *parent) :
   soundInThread.start(QThread::HighestPriority);
 
   // Assign output device and start output thread
-//  soundOutThread.setOutputDevice(m_paOutDevice);
-  soundOutThread.setOutputDevice(13);                      //###???###
+  soundOutThread.setOutputDevice(m_paOutDevice);
 //  soundOutThread.start(QThread::HighPriority);
 
   m_monitoring=true;                           // Start with Monitoring ON
@@ -399,7 +398,13 @@ void MainWindow::readSettings()
 void MainWindow::dataSink(int k)
 {
   static int ndiskdat;
+  static int nwrite=0;
+  static int k0=99999999;
   static float px=0.0;
+
+  if(k < k0) {
+    nwrite=0;
+  }
 
   if(m_diskData) {
     ndiskdat=1;
@@ -412,7 +417,7 @@ void MainWindow::dataSink(int k)
   double sq=0.0;
   float x;
   for(int i=0; i<6192; i++) {
-    x=datcom_.d4[k-6192+i];
+    x=datcom_.d2[k-6192+i];
     sq += x*x;
   }
   px = 10.0*log10(sq/6192.0) + 70.0;          // Why +70 ???
@@ -456,17 +461,18 @@ void MainWindow::dataSink(int k)
   }
 */
 
-  int ihsym=0;
-  if(ihsym == 279) {
-    QDateTime t = QDateTime::currentDateTimeUtc();
-    m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
+  if(k >= (int)(29.5*48000) and nwrite==0) {
+    nwrite=1;
     if(m_saveAll) {
+      QDateTime t = QDateTime::currentDateTimeUtc();
+      m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
       QString fname=m_saveDir + "/" + t.date().toString("yyMMdd") + "_" +
           t.time().toString("hhmm") + ".wav";
       *future2 = QtConcurrent::run(savewav, fname);
       watcher2->setFuture(*future2);
     }
   }
+  k0=k;
   soundInThread.m_dataSinkBusy=false;
 }
 
@@ -861,9 +867,7 @@ void MainWindow::on_actionDelete_all_wav_files_in_SaveDir_triggered()
     QList<QString>::iterator f;
     for(f=files.begin(); f!=files.end(); ++f) {
       fname=*f;
-      i=(fname.indexOf(".tf2"));
-      if(i==11) dir.remove(fname);
-      i=(fname.indexOf(".iq"));
+      i=(fname.indexOf(".wav"));
       if(i==11) dir.remove(fname);
     }
   }
