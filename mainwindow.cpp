@@ -174,7 +174,7 @@ MainWindow::MainWindow(QWidget *parent) :
       border-style: outset; border-width: 1px; border-radius: 5px; \
       border-color: black; min-width: 5em; padding: 3px;}";
 
-  genStdMsgs("-26");
+  genStdMsgs("26");
   on_actionWide_Waterfall_triggered();                   //###
 
   future1 = new QFuture<void>;
@@ -618,13 +618,13 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
     break;
   case Qt::Key_G:
     if(e->modifiers() & Qt::AltModifier) {
-      genStdMsgs("-26");
+      genStdMsgs("26");
       break;
     }
   case Qt::Key_L:
     if(e->modifiers() & Qt::ControlModifier) {
       lookup();
-      genStdMsgs("-26");
+      genStdMsgs("26");
       break;
     }
   }
@@ -1402,7 +1402,7 @@ void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
   QString rpt="";
   if(ctrl) rpt=t2.mid(23,3);
   lookup();
-  rpt="-26";
+  rpt="26";
   genStdMsgs(rpt);
   if(t2.indexOf(m_myCall)>0) {
     m_ntx=2;
@@ -1427,6 +1427,8 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
     msgtype("RRR", ui->tx4);
     msgtype("73", ui->tx5);
   } else {
+    if(rpt=="26") rpt="-26";
+    if(rpt=="27") rpt="-27";
     t=t0 + rpt;
     msgtype(t, ui->tx2);
     t=t0 + "R" + rpt;
@@ -1652,7 +1654,7 @@ void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
 
 void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
 {
-  genStdMsgs("");
+  genStdMsgs("26");
 }
 
 void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
