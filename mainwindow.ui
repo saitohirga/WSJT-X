@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>616</width>
-    <height>477</height>
+    <height>460</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -244,7 +244,7 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item>
-         <widget class="QwtThermo" name="xThermo">
+         <widget class="QwtThermo" name="xThermo" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -257,19 +257,19 @@ p, li { white-space: pre-wrap; }
             <height>180</height>
            </size>
           </property>
-          <property name="borderWidth">
+          <property name="borderWidth" stdset="0">
            <number>1</number>
           </property>
-          <property name="maxValue">
+          <property name="maxValue" stdset="0">
            <double>60.000000000000000</double>
           </property>
-          <property name="minValue">
+          <property name="minValue" stdset="0">
            <double>0.000000000000000</double>
           </property>
-          <property name="pipeWidth">
+          <property name="pipeWidth" stdset="0">
            <number>8</number>
           </property>
-          <property name="value">
+          <property name="value" stdset="0">
            <double>0.000000000000000</double>
           </property>
          </widget>
@@ -531,19 +531,6 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="setTxFreqButton">
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Set Tx Freq</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <spacer name="verticalSpacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -558,44 +545,6 @@ p, li { white-space: pre-wrap; }
              </size>
             </property>
            </spacer>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="NBcheckBox">
-            <property name="text">
-             <string>NB</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSlider" name="NBslider">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="minimum">
-             <number>0</number>
-            </property>
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>40</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout">
