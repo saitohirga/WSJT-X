@@ -423,7 +423,7 @@ void MainWindow::dataSink(int k)
   if(px<0.0) px=0.0;
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);
-  lab4->setText(t);
+  lab2->setText(t);
   ui->xThermo->setValue((double)px);   //Update the bargraphs
 
   /*
@@ -666,18 +666,19 @@ void MainWindow::createStatusBar()                           //createStatusBar
   lab1->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab1);
 
-  lab2 = new QLabel("QSO freq:  125");
+  lab2 = new QLabel("");
   lab2->setAlignment(Qt::AlignHCenter);
   lab2->setMinimumSize(QSize(90,10));
   lab2->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab2);
 
-  lab3 = new QLabel("QSO DF:   0");
+  lab3 = new QLabel("Freeze DF:   0");
   lab3->setAlignment(Qt::AlignHCenter);
   lab3->setMinimumSize(QSize(80,10));
   lab3->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab3);
 
+  /*
   lab4 = new QLabel("");
   lab4->setAlignment(Qt::AlignHCenter);
   lab4->setMinimumSize(QSize(80,10));
@@ -689,6 +690,7 @@ void MainWindow::createStatusBar()                           //createStatusBar
   lab5->setMinimumSize(QSize(50,10));
   lab5->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab5);
+  */
 }
 
 void MainWindow::on_tolSpinBox_valueChanged(int i)             //tolSpinBox
@@ -1244,8 +1246,7 @@ void MainWindow::guiUpdate()
     ui->monitorButton->setStyleSheet("");
   }
 
-  lab2->setText("QSO Freq:  " + QString::number(g_pWideGraph->QSOfreq()));
-  lab3->setText("QSO DF:  " + QString::number(g_pWideGraph->DF()));
+  lab3->setText("Freeze DF:  " + QString::number(g_pWideGraph->DF()));
 
   if(m_startAnother) {
     m_startAnother=false;
@@ -1296,7 +1297,7 @@ void MainWindow::guiUpdate()
     ui->labUTC->setText(utc);
     if((!m_monitoring and !m_diskData) or (khsym==m_hsym0)) {
       ui->xThermo->setValue(0.0);                      // Set Rx level to 20
-      lab4->setText(" Rx noise:    0.0 ");
+      lab2->setText(" Rx noise:    0.0 ");
     }
     m_hsym0=khsym;
     m_sec0=nsec;
