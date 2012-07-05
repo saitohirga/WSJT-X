@@ -175,11 +175,7 @@ MainWindow::MainWindow(QWidget *parent) :
       border-color: black; min-width: 5em; padding: 3px;}";
 
   genStdMsgs("-26");
-
   on_actionWide_Waterfall_triggered();                   //###
-  if(m_mode=="JT65A") on_actionJT65A_triggered();
-  if(m_mode=="JT65B") on_actionJT65B_triggered();
-  if(m_mode=="JT65C") on_actionJT65C_triggered();
 
   future1 = new QFuture<void>;
   watcher1 = new QFutureWatcher<void>;
@@ -371,10 +367,6 @@ void MainWindow::readSettings()
   ui->actionOnly_EME_calls->setChecked(m_onlyEME);
   m_kb8rq=settings.value("KB8RQ",false).toBool();
   ui->actionF4_sets_Tx6->setChecked(m_kb8rq);
-  m_NB=settings.value("NB",false).toBool();
-  ui->NBcheckBox->setChecked(m_NB);
-  m_NBslider=settings.value("NBslider",40).toInt();
-  ui->NBslider->setValue(m_NBslider);
   m_gainx=settings.value("GainX",1.0).toFloat();
   m_gainy=settings.value("GainY",1.0).toFloat();
   m_phasex=settings.value("PhaseX",0.0).toFloat();
@@ -1639,12 +1631,6 @@ void MainWindow::on_tx6_editingFinished()                       //tx6 edited
   msgtype(t, ui->tx6);
 }
 
-void MainWindow::on_setTxFreqButton_clicked()                  //Set Tx Freq
-{
-  m_setftx=1;
-  m_txFreq=g_pWideGraph->QSOfreq();
-}
-
 void MainWindow::on_dxCallEntry_textChanged(const QString &t) //dxCall changed
 {
   m_hisCall=t.toUpper().trimmed();
@@ -1707,57 +1693,4 @@ void MainWindow::on_actionErase_jtms3_tx_log_triggered()     //Erase Tx log
     QFile f("jtms3_tx.log");
     f.remove();
   }
-}
-
-void MainWindow::on_actionJT65A_triggered()
-{
-  m_mode="JT65A";
-  m_mode65=1;
-  g_pWideGraph->setMode65(m_mode65);
-  lab5->setText(m_mode);
-  ui->actionJT65A->setChecked(true);
-}
-
-void MainWindow::on_actionJT65B_triggered()
-{
-  m_mode="JT65B";
-  m_mode65=2;
-  g_pWideGraph->setMode65(m_mode65);
-  lab5->setText(m_mode);
-  ui->actionJT65B->setChecked(true);
-}
-
-void MainWindow::on_actionJT65C_triggered()
-{
-  m_mode="JT65C";
-  m_mode65=4;
-  g_pWideGraph->setMode65(m_mode65);
-  lab5->setText(m_mode);
-  ui->actionJT65C->setChecked(true);
-}
-
-void MainWindow::on_NBcheckBox_toggled(bool checked)
-{
-  m_NB=checked;
-  ui->NBslider->setEnabled(m_NB);
-}
-
-void MainWindow::on_NBslider_valueChanged(int n)
-{
-  m_NBslider=n;
-}
-
-void MainWindow::on_actionAdjust_IQ_Calibration_triggered()
-{
-  m_adjustIQ=1;
-}
-
-void MainWindow::on_actionApply_IQ_Calibration_triggered()
-{
-  m_applyIQcal= 1-m_applyIQcal;
-}
-
-void MainWindow::on_actionFUNcube_Dongle_triggered()
-{
-  proc_qthid.start(QDir::toNativeSeparators(m_appDir + "/qthid"));
 }
