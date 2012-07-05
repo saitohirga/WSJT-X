@@ -174,7 +174,7 @@ MainWindow::MainWindow(QWidget *parent) :
       border-style: outset; border-width: 1px; border-radius: 5px; \
       border-color: black; min-width: 5em; padding: 3px;}";
 
-  genStdMsgs("");
+  genStdMsgs("-26");
 
   on_actionWide_Waterfall_triggered();                   //###
   if(m_mode=="JT65A") on_actionJT65A_triggered();
@@ -401,6 +401,8 @@ void MainWindow::dataSink(int k)
   static int nwrite=0;
   static int k0=99999999;
   static float px=0.0;
+  static float sq0=0.0;
+  static float sqave=1000.0;
 
   if(k < k0) {
     nwrite=0;
@@ -414,13 +416,17 @@ void MainWindow::dataSink(int k)
     datcom_.ndiskdat=0;
   }
 
-  double sq=0.0;
+  float sq=0.0;
   float x;
+  float fac=1.0/30.0;
   for(int i=0; i<6192; i++) {
-    x=datcom_.d2[k-6192+i];
+    x=fac*datcom_.d2[k-6192+i];
     sq += x*x;
   }
-  px = 10.0*log10(sq/6192.0) + 70.0;          // Why +70 ???
+  sqave=0.5*(sq+sq0);
+  sq0=sq;
+//  qDebug() << "rms:" << sqrt(sq/6192.0);
+  px = 10.0*log10(sqave/6192.0);
   if(px>60.0) px=60.0;
   if(px<0.0) px=0.0;
   QString t;
@@ -466,8 +472,12 @@ void MainWindow::dataSink(int k)
     if(m_saveAll) {
       QDateTime t = QDateTime::currentDateTimeUtc();
       m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
-      QString fname=m_saveDir + "/" + t.date().toString("yyMMdd") + "_" +
-          t.time().toString("hhmm") + ".wav";
+      QString fname=m_saveDir + "/" + m_hisCall + "_" +
+          t.date().toString("yyMMdd") + "_" +
+          t.time().toString("hhmmss") + ".wav";
+      int i0=fname.indexOf(".wav");
+      if(fname.mid(i0-2,2)=="29") fname=fname.mid(0,i0-2)+"00.wav";
+      if(fname.mid(i0-2,2)=="59") fname=fname.mid(0,i0-2)+"30.wav";
       *future2 = QtConcurrent::run(savewav, fname);
       watcher2->setFuture(*future2);
     }
@@ -616,13 +626,13 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
     break;
   case Qt::Key_G:
     if(e->modifiers() & Qt::AltModifier) {
-      genStdMsgs("");
+      genStdMsgs("-26");
       break;
     }
   case Qt::Key_L:
     if(e->modifiers() & Qt::ControlModifier) {
       lookup();
-      genStdMsgs("");
+      genStdMsgs("-26");
       break;
     }
   }
@@ -852,7 +862,7 @@ void MainWindow::diskWriteFinished()                       //diskWriteFinished
 {
 //  qDebug() << "diskWriteFinished";
 }
-                                                        //Delete ../save/*.tf2
+                                                        //Delete ../save/*.wav
 void MainWindow::on_actionDelete_all_wav_files_in_SaveDir_triggered()
 {
   int i;
@@ -868,7 +878,7 @@ void MainWindow::on_actionDelete_all_wav_files_in_SaveDir_triggered()
     for(f=files.begin(); f!=files.end(); ++f) {
       fname=*f;
       i=(fname.indexOf(".wav"));
-      if(i==11) dir.remove(fname);
+      if(i>10) dir.remove(fname);
     }
   }
 }
@@ -1399,6 +1409,7 @@ void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
   QString rpt="";
   if(ctrl) rpt=t2.mid(23,3);
   lookup();
+  rpt="-26";
   genStdMsgs(rpt);
   if(t2.indexOf(m_myCall)>0) {
     m_ntx=2;

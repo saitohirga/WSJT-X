@@ -25,6 +25,22 @@ void getfile(QString fname, bool xpol, int dbDgrd)
 
 void savewav(QString fname)
 {
+  struct {
+    char ariff[4];
+    int nchunk;
+    char awave[4];
+    char afmt[4];
+    int lenfmt;
+    short int nfmt2;
+    short int nchan2;
+    int nsamrate;
+    int nbytesec;
+    short int nbytesam2;
+    short int nbitsam2;
+    char adata[4];
+    int ndata;
+  } hdr;
+
   int npts=30*48000;
 //  qint16* buf=(qint16*)malloc(2*npts);
   char name[80];
@@ -33,8 +49,33 @@ void savewav(QString fname)
 
   if(fp != NULL) {
 // Write a WAV header
-//    fwrite(&datcom_.fcenter,sizeof(datcom_.fcenter),1,fp);
+    hdr.ariff[0]='R';
+    hdr.ariff[1]='I';
+    hdr.ariff[2]='F';
+    hdr.ariff[3]='F';
+    hdr.nchunk=0;
+    hdr.awave[0]='W';
+    hdr.awave[0]='A';
+    hdr.awave[0]='V';
+    hdr.awave[0]='E';
+    hdr.afmt[0]='f';
+    hdr.afmt[1]='m';
+    hdr.afmt[2]='t';
+    hdr.afmt[3]=' ';
+    hdr.lenfmt=16;
+    hdr.nfmt2=1;
+    hdr.nchan2=1;
+    hdr.nsamrate=48000;
+    hdr.nbytesec=2*48000;
+    hdr.nbytesam2=2;
+    hdr.nbitsam2=16;
+    hdr.adata[0]='d';
+    hdr.adata[1]='a';
+    hdr.adata[2]='t';
+    hdr.adata[3]='a';
+    hdr.ndata=2*npts;
 
+    fwrite(&hdr,sizeof(hdr),1,fp);
 //    memcpy(datcom_.d2,buf,2*npts);
 //    fwrite(buf,2,npts,fp);
     fwrite(datcom_.d2,2,npts,fp);
