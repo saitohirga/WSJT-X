@@ -95,7 +95,6 @@ private slots:
   void on_txb6_clicked();
   void on_lookupButton_clicked();
   void on_addButton_clicked();
-  void on_setTxFreqButton_clicked();
   void on_dxCallEntry_textChanged(const QString &arg1);
   void on_dxGridEntry_textChanged(const QString &arg1);
   void selectCall2(bool ctrl);
@@ -104,19 +103,8 @@ private slots:
   void on_logQSOButton_clicked();
 //  void on_actionErase_jtms3_rx_log_triggered();
   void on_actionErase_jtms3_tx_log_triggered();
-  void on_NBcheckBox_toggled(bool checked);
-  void on_actionJT65A_triggered();
-  void on_actionJT65B_triggered();
-  void on_actionJT65C_triggered();
-  void on_NBslider_valueChanged(int value);
-  void on_actionAdjust_IQ_Calibration_triggered();
-  void on_actionApply_IQ_Calibration_triggered();
-
   void on_actionAFMHot_triggered();
-
   void on_actionBlue_triggered();
-
-  void on_actionFUNcube_Dongle_triggered();
 
 private:
     Ui::MainWindow *ui;
