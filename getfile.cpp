@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-extern qint16 id[4*60*96000];
-
 void getfile(QString fname, bool xpol, int dbDgrd)
 {
 
@@ -17,8 +15,10 @@ void getfile(QString fname, bool xpol, int dbDgrd)
   memset(datcom_.d2,0,2*npts);
 
   if(fp != NULL) {
-//    Should read WAV header first
-    fread(datcom_.d2,2,npts,fp);
+// Read (and ignore) a 44-byte WAV header; then read data
+    fread(datcom_.d2,1,44,fp);
+    int nrd=fread(datcom_.d2,2,npts,fp);
+    qDebug() << "Getfile" << npts << nrd;
     fclose(fp);
   }
 }

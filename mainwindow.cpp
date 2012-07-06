@@ -193,7 +193,7 @@ MainWindow::MainWindow(QWidget *parent) :
   soundOutThread.setOutputDevice(m_paOutDevice);
 //  soundOutThread.start(QThread::HighPriority);
 
-  m_monitoring=true;                           // Start with Monitoring ON
+  m_monitoring=false;                           // Start with Monitoring OFF
   soundInThread.setMonitoring(m_monitoring);
   m_diskData=false;
   m_tol=500;
@@ -418,7 +418,6 @@ void MainWindow::dataSink(int k)
   }
   sqave=0.5*(sq+sq0);
   sq0=sq;
-//  qDebug() << "rms:" << sqrt(sq/6192.0);
   px = 10.0*log10(sqave/6192.0);
   if(px>60.0) px=60.0;
   if(px<0.0) px=0.0;
@@ -452,7 +451,7 @@ void MainWindow::dataSink(int k)
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
   int n300 = (ms/100) % 300;
 
-  qDebug() << "dataSink" << k << n300 << nwrite;
+  qDebug() << "dataSink" << k << ms % 60000;
   if(n300 >= 295 and nwrite==0) {
     nwrite=1;
     if(m_saveAll) {
@@ -781,7 +780,7 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
     on_stopButton_clicked();
     m_diskData=true;
     int dbDgrd=0;
-    if(m_myCall=="K1JT" and m_idInt<0) dbDgrd=m_idInt;
+//    if(m_myCall=="K1JT" and m_idInt<0) dbDgrd=m_idInt;
     *future1 = QtConcurrent::run(getfile, fname, m_xpol, dbDgrd);
     watcher1->setFuture(*future1);
   }
@@ -830,20 +829,17 @@ void MainWindow::on_actionDecode_remaining_files_in_directory_triggered()
 
 void MainWindow::diskDat()                                   //diskDat()
 {
-  //These may be redundant??
+  int kstep=4096;
+  int nsteps;
   m_diskData=true;
-//  datcom_.newdat=1;
 
-  /*
-  double hsym;
-  if(m_fs96000) hsym=2048.0*96000.0/11025.0;   //Samples per JT65 half-symbol
-  if(!m_fs96000) hsym=2048.0*95238.1/11025.0;
-  for(int i=0; i<281; i++) {              // Do the half-symbol FFTs
-    int k = i*hsym + 2048.5;
+  nsteps=29.5*48000/kstep;
+
+  for(int n=1; n<nsteps; n++) {              // Do the half-symbol FFTs
+    int k=(n+1)*kstep;
     dataSink(k);
-    if(i%10 == 0) qApp->processEvents();   //Keep the GUI responsive
+    if(n%10 == 0) qApp->processEvents();   //Keep the GUI responsive
   }
-  */
 }
 
 void MainWindow::diskWriteFinished()                       //diskWriteFinished
