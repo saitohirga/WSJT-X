@@ -392,6 +392,7 @@ void MainWindow::dataSink(int k)
   static int ndiskdat;
   static int nwrite=0;
   static int k0=99999999;
+  static int n300z=9999;
   static float px=0.0;
   static float sq0=0.0;
   static float sqave=1000.0;
@@ -446,20 +447,13 @@ void MainWindow::dataSink(int k)
         splot[i] /= n;                           //Normalize the average
     }
 
-// Time according to this computer
-    qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-    int n60 = (ms/1000) % 60;
-    if((m_diskData && ihsym <= m_waterfallAvg) || (!m_diskData && n60<n60z)) {
-      for (int i=0; i<NFFT; i++) {
-        splot[i] = 1.e30;
-      }
-    }
-    n60z=n60;
-    n=0;
-  }
 */
+// Time according to this computer
+  qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
+  int n300 = (ms/100) % 300;
 
-  if(k >= (int)(29.5*48000) and nwrite==0) {
+  qDebug() << "dataSink" << k << n300 << nwrite;
+  if(n300 >= 295 and nwrite==0) {
     nwrite=1;
     if(m_saveAll) {
       QDateTime t = QDateTime::currentDateTimeUtc();
@@ -854,7 +848,7 @@ void MainWindow::diskDat()                                   //diskDat()
 
 void MainWindow::diskWriteFinished()                       //diskWriteFinished
 {
-//  qDebug() << "diskWriteFinished";
+  qDebug() << "diskWriteFinished";
 }
                                                         //Delete ../save/*.wav
 void MainWindow::on_actionDelete_all_wav_files_in_SaveDir_triggered()
@@ -1169,6 +1163,7 @@ void MainWindow::guiUpdate()
       if(!soundOutThread.isRunning()) {
         soundOutThread.start(QThread::HighPriority);
       }
+      qDebug() << "PTT raised, soundOut started";
     }
     if(!bTxTime || m_txMute) {
       btxok=false;

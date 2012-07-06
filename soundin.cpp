@@ -124,7 +124,7 @@ void SoundInThread::run()                           //SoundInThread::run()
           nBusy++;
         } else {
 //          m_dataSinkBusy=true;
-//          qDebug() << "A" << k;
+//          qDebug() << "Calling dataSink" << k;
           emit readyForFFT(k);         //Signal to compute new FFTs
         }
         nstep0=m_step;
