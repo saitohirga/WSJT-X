@@ -50,7 +50,6 @@ protected:
 private slots:
   void on_waterfallAvgSpinBox_valueChanged(int arg1);
   void on_freqSpanSpinBox_valueChanged(int arg1);
-  void on_freqOffsetSpinBox_valueChanged(int arg1);
   void on_zeroSpinBox_valueChanged(int arg1);
   void on_gainSpinBox_valueChanged(int arg1);
   void on_autoZeroPushButton_clicked();

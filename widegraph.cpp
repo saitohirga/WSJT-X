@@ -133,11 +133,6 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
   }
 }
 
-void WideGraph::on_freqOffsetSpinBox_valueChanged(int f)
-{
-  ui->widePlot->SetFreqOffset(f);
-}
-
 void WideGraph::on_freqSpanSpinBox_valueChanged(int n)
 {
   ui->widePlot->setNSpan(n);
