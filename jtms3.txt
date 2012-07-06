@@ -23,8 +23,8 @@ sinc function for each bit, then multiplying by a 1500 Hz sine wave.
 
 3. Receiving
 
-  a. Compute real-to-complex windowed FFTs, N=16384 (t=341 ms),
-     stepped by 8k (say).  Zap birdies, remove frequency components
+  a. Compute real-to-complex windowed FFTs, N=8192 (t=170 ms),
+     stepped by 4k (say).  Zap birdies, remove frequency components
      outside the range 300 - 2700 Hz, and convert to analytic
      time-domain signal.
 
