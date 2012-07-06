@@ -198,7 +198,6 @@ MainWindow::MainWindow(QWidget *parent) :
   m_diskData=false;
   m_tol=500;
   g_pWideGraph->setTol(m_tol);
-  g_pWideGraph->setFsample(48000);
 
 // Create "m_worked", a dictionary of all calls in wsjt.log
   QFile f("wsjt.log");
@@ -758,7 +757,7 @@ void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
     connect(g_pWideGraph, SIGNAL(f11f12(int)),this,
             SLOT(bumpDF(int)));
   }
-//  g_pWideGraph->show();
+  g_pWideGraph->show();
 }
 
 void MainWindow::on_actionOpen_triggered()                     //Open File

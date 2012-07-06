@@ -36,11 +36,6 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->widePlot->setBinsPerPixel(nbpp);
   m_waterfallAvg = settings.value("WaterfallAvg",10).toInt();
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
-  ui->freqOffsetSpinBox->setValue(settings.value("FreqOffset",0).toInt());
-  m_bForceCenterFreq=settings.value("ForceCenterFreqBool",false).toBool();
-  m_dForceCenterFreq=settings.value("ForceCenterFreqMHz",144.125).toDouble();
-  ui->cbFcenter->setChecked(m_bForceCenterFreq);
-  ui->fCenterLineEdit->setText(QString::number(m_dForceCenterFreq));
   settings.endGroup();
 }
 
@@ -249,65 +244,6 @@ void WideGraph::on_autoZeroPushButton_clicked()
 void WideGraph::setPalette(QString palette)
 {
   ui->widePlot->setPalette(palette);
-}
-void WideGraph::setFsample(int n)
-{
-  m_fSample=n;
-  ui->widePlot->setFsample(n);
-}
-
-void WideGraph::setMode65(int n)
-{
-  m_mode65=n;
-  ui->widePlot->setMode65(n);
-}
-
-void WideGraph::on_cbFcenter_stateChanged(int n)
-{
-  m_bForceCenterFreq = (n!=0);
-  if(m_bForceCenterFreq) {
-    ui->fCenterLineEdit->setEnabled(true);
-    ui->pbSetRxHardware->setEnabled(true);
-  } else {
-    ui->fCenterLineEdit->setDisabled(true);
-    ui->pbSetRxHardware->setDisabled(true);
-  }
-}
-
-void WideGraph::on_fCenterLineEdit_editingFinished()
-{
-  m_dForceCenterFreq=ui->fCenterLineEdit->text().toDouble();
-}
-
-void WideGraph::on_pbSetRxHardware_clicked()
-{/*
-#ifdef WIN32
-  int iret=set570(m_mult570*(1.0+0.000001*m_cal570)*m_dForceCenterFreq);
-  if(iret != 0) {
-    QMessageBox mb;
-    if(iret==-1) mb.setText("Failed to open Si570.");
-    if(iret==-2) mb.setText("Frequency out of permitted range.");
-    mb.exec();
-  }
-#endif
-*/
-}
-
-void WideGraph::initIQplus()
-{
-/*
-#ifdef WIN32
-//  int iret=set570(288.0);
-  if(iret != 0) {
-    QMessageBox mb;
-    if(iret==-1) mb.setText("Failed to open Si570.");
-    if(iret==-2) mb.setText("Frequency out of permitted range.");
-    mb.exec();
-  } else {
-    on_pbSetRxHardware_clicked();
-  }
-#endif
-*/
 }
 
 void WideGraph::on_cbSpec2d_toggled(bool b)

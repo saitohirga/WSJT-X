@@ -32,7 +32,6 @@ public:
   void   setTol(int n);
   void   setFcal(int n);
   void   setPalette(QString palette);
-  void   setFsample(int n);
   void   setMode65(int n);
   double fGreen();
 
@@ -44,7 +43,6 @@ signals:
 
 public slots:
   void wideFreezeDecode(int n);
-  void initIQplus();
 
 protected:
   virtual void keyPressEvent( QKeyEvent *e );
@@ -56,9 +54,6 @@ private slots:
   void on_zeroSpinBox_valueChanged(int arg1);
   void on_gainSpinBox_valueChanged(int arg1);
   void on_autoZeroPushButton_clicked();
-  void on_cbFcenter_stateChanged(int arg1);
-  void on_fCenterLineEdit_editingFinished();
-  void on_pbSetRxHardware_clicked();
   void on_cbSpec2d_toggled(bool checked);
 
 private:
