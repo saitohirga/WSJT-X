@@ -261,6 +261,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
 
   //draw tick marks on wideband (upper) scale
   pixperdiv = FreqPerDiv/df;
+  qDebug() << w << m_hdivs << pixperdiv;
   for( int i=1; i<m_hdivs; i++) {     //major ticks
     x = (int)( (float)i*pixperdiv );
     painter0.drawLine(x,18,x,30);
