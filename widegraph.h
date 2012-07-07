@@ -19,8 +19,7 @@ public:
   double m_dForceCenterFreq;
   double m_cal570;
 
-  void   dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
-                   uchar lstrong[]);
+  void   dataSink2(float green[], int ig);
   int    QSOfreq();
   int    nSpan();
   int    nStartFreq();

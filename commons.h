@@ -5,11 +5,11 @@
 
 extern "C" {
 
-extern struct {                     //This is "common/datcom/..." in Fortran
+extern struct {                     //This is "common/mscom/..." in Fortran
   short int d2[30*48000];           //Raw data
   int kin;
   int ndiskdat;
-} datcom_;
+} mscom_;
 }
 
 #endif // COMMONS_H

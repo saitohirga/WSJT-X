@@ -7,9 +7,9 @@
 extern "C" {
 #include <portaudio.h>
 extern struct {
-  short int d2[30*48000];             //This is "common/datcom/..." in fortran
+  short int d2[30*48000];             //This is "common/mscom/..." in fortran
   int kin;
-} datcom_;
+} mscom_;
 }
 
 typedef struct
@@ -48,9 +48,9 @@ extern "C" int a2dCallback( const void *inputBuffer, void *outputBuffer,
 
   nbytes=2*framesToProcess;        //Bytes per frame
   k=udata->kin;
-  memcpy(&datcom_.d2[k],inputBuffer,nbytes);          //Copy all samples to d2
+  memcpy(&mscom_.d2[k],inputBuffer,nbytes);          //Copy all samples to d2
   udata->kin += framesToProcess;
-  datcom_.kin=udata->kin;
+  mscom_.kin=udata->kin;
 
   return paContinue;
 }
@@ -118,19 +118,18 @@ void SoundInThread::run()                           //SoundInThread::run()
     }
     k=udata.kin;
     if(m_monitoring) {
-      m_step=k/(2*6192);
+      m_step=k/2048;
       if(m_step != nstep0) {
         if(m_dataSinkBusy) {
           nBusy++;
         } else {
 //          m_dataSinkBusy=true;
-//          qDebug() << "Calling dataSink" << k;
           emit readyForFFT(k);         //Signal to compute new FFTs
         }
         nstep0=m_step;
       }
     }
-    msleep(100);
+    msleep(10);
     n30z=n30;
   }
   Pa_StopStream(inStream);

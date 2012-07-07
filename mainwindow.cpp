@@ -140,13 +140,13 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 /*
   if(!mem_m65.attach()) {
-    if (!mem_m65.create(sizeof(datcom_))) {
+    if (!mem_m65.create(sizeof(mscom_))) {
       msgBox("Unable to create shared memory segment.");
     }
   }
   char *to = (char*)mem_m65.data();
-  int size=sizeof(datcom_);
-  if(datcom_.newdat==0) {
+  int size=sizeof(mscom_);
+  if(mscom_.newdat==0) {
     int noffset = 4*4*5760000 + 4*4*322*32768 + 4*4*32768;
     to += noffset;
     size -= noffset;
@@ -392,43 +392,34 @@ void MainWindow::dataSink(int k)
   static int nwrite=0;
   static int k0=99999999;
   static float px=0.0;
-  static float sq0=0.0;
-  static float sqave=1000.0;
+  static float green[704];
+  static int ig=0;
 
   if(k < k0) {
     nwrite=0;
+    ig=0;
   }
 
   if(m_diskData) {
     ndiskdat=1;
-    datcom_.ndiskdat=1;
+    mscom_.ndiskdat=1;
   } else {
     ndiskdat=0;
-    datcom_.ndiskdat=0;
+    mscom_.ndiskdat=0;
   }
 
-  float sq=0.0;
-  float x;
-  float fac=1.0/30.0;
-  for(int i=0; i<6192; i++) {
-    x=fac*datcom_.d2[k-6192+i];
-    sq += x*x;
-  }
-  sqave=0.5*(sq+sq0);
-  sq0=sq;
-  px = 10.0*log10(sqave/6192.0);
-  if(px>60.0) px=60.0;
-  if(px<0.0) px=0.0;
+  specjtms_(&k,&px);
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);
   lab2->setText(t);
-  ui->xThermo->setValue((double)px);   //Update the bargraphs
+  ui->xThermo->setValue((double)px);                      //Update the Thermo
 
-  /*
   if(m_monitoring || m_diskData) {
-    g_pWideGraph->dataSink2(s,nkhz,ihsym,m_diskData,lstrong);
+    green[ig++]=px;
+    g_pWideGraph->dataSink2(green,ig-1);
   }
 
+  /*
   //Average over specified number of spectra
   if (n==0) {
     for (int i=0; i<NFFT; i++)
@@ -449,7 +440,7 @@ void MainWindow::dataSink(int k)
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
   int n300 = (ms/100) % 300;
 
-  qDebug() << "dataSink" << k << ms % 60000;
+//  qDebug() << k/2048 << 0.001*(ms % 60000);
   if(n300 >= 295 and nwrite==0) {
     nwrite=1;
     if(m_saveAll) {
@@ -933,8 +924,8 @@ void MainWindow::on_DecodeButton_clicked()                    //Decode request
   int n=m_sec0%60;
   if(m_monitoring and n>47 and (n<52 or m_decoderBusy)) return;
   if(!m_decoderBusy) {
-    datcom_.newdat=0;
-    datcom_.nagain=1;
+    mscom_.newdat=0;
+    mscom_.nagain=1;
     decode();
   }
   */
@@ -945,15 +936,15 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
   /*
   if(n==2) {
     ui->tolSpinBox->setValue(5);
-    datcom_.ntol=m_tol;
-    datcom_.mousedf=0;
+    mscom_.ntol=m_tol;
+    mscom_.mousedf=0;
   } else {
     ui->tolSpinBox->setValue(3);
-    datcom_.ntol=m_tol;
+    mscom_.ntol=m_tol;
   }
   if(!m_decoderBusy) {
-    datcom_.nagain=1;
-    datcom_.newdat=0;
+    mscom_.nagain=1;
+    mscom_.newdat=0;
     decode();
   }
   */
@@ -963,75 +954,75 @@ void MainWindow::decode()                                       //decode()
 {
 /*
   ui->DecodeButton->setStyleSheet(m_pbdecoding_style1);
-  if(datcom_.nagain==0 && (!m_diskData)) {
+  if(mscom_.nagain==0 && (!m_diskData)) {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int imin=ms/60000;
     int ihr=imin/60;
     imin=imin % 60;
-    datcom_.nutc=100*ihr + imin;
+    mscom_.nutc=100*ihr + imin;
   }
 
-  datcom_.idphi=m_dPhi;
-  datcom_.mousedf=g_pWideGraph->DF();
-  datcom_.mousefqso=g_pWideGraph->QSOfreq();
-  datcom_.ndepth=m_ndepth;
-  datcom_.ndiskdat=0;
-  if(m_diskData) datcom_.ndiskdat=1;
-  datcom_.neme=0;
-  if(ui->actionOnly_EME_calls->isChecked()) datcom_.neme=1;
+  mscom_.idphi=m_dPhi;
+  mscom_.mousedf=g_pWideGraph->DF();
+  mscom_.mousefqso=g_pWideGraph->QSOfreq();
+  mscom_.ndepth=m_ndepth;
+  mscom_.ndiskdat=0;
+  if(m_diskData) mscom_.ndiskdat=1;
+  mscom_.neme=0;
+  if(ui->actionOnly_EME_calls->isChecked()) mscom_.neme=1;
 
   int ispan=int(g_pWideGraph->fSpan());
   if(ispan%2 == 1) ispan++;
-  int ifc=int(1000.0*(datcom_.fcenter - int(datcom_.fcenter))+0.5);
+  int ifc=int(1000.0*(mscom_.fcenter - int(mscom_.fcenter))+0.5);
   int nfa=g_pWideGraph->nStartFreq();
   int nfb=nfa+ispan;
   int nfshift=nfa + ispan/2 - ifc;
 
-  datcom_.nfa=nfa;
-  datcom_.nfb=nfb;
-  datcom_.nfcal=m_fCal;
-  datcom_.nfshift=nfshift;
-  datcom_.mcall3=0;
-  if(m_call3Modified) datcom_.mcall3=1;
-  datcom_.ntimeout=m_timeout;
-  datcom_.ntol=m_tol;
-  datcom_.nxant=0;
-  if(m_xpolx) datcom_.nxant=1;
-  if(datcom_.nutc < m_nutc0) m_jtms3RxLog |= 1;  //Date and Time to all65.txt
-  m_nutc0=datcom_.nutc;
-//  datcom_.jtms3RxLog=m_jtms3RxLog;
-  datcom_.nfsample=96000;
-  if(!m_fs96000) datcom_.nfsample=95238;
-  datcom_.nxpol=0;
-  if(m_xpol) datcom_.nxpol=1;
-  datcom_.mode65=m_mode65;
+  mscom_.nfa=nfa;
+  mscom_.nfb=nfb;
+  mscom_.nfcal=m_fCal;
+  mscom_.nfshift=nfshift;
+  mscom_.mcall3=0;
+  if(m_call3Modified) mscom_.mcall3=1;
+  mscom_.ntimeout=m_timeout;
+  mscom_.ntol=m_tol;
+  mscom_.nxant=0;
+  if(m_xpolx) mscom_.nxant=1;
+  if(mscom_.nutc < m_nutc0) m_jtms3RxLog |= 1;  //Date and Time to all65.txt
+  m_nutc0=mscom_.nutc;
+//  mscom_.jtms3RxLog=m_jtms3RxLog;
+  mscom_.nfsample=96000;
+  if(!m_fs96000) mscom_.nfsample=95238;
+  mscom_.nxpol=0;
+  if(m_xpol) mscom_.nxpol=1;
+  mscom_.mode65=m_mode65;
 
   QString mcall=(m_myCall+"            ").mid(0,12);
   QString mgrid=(m_myGrid+"            ").mid(0,6);
   QString hcall=(ui->dxCallEntry->text()+"            ").mid(0,12);
   QString hgrid=(ui->dxGridEntry->text()+"      ").mid(0,6);
 
-  strncpy(datcom_.mycall, mcall.toAscii(), 12);
-  strncpy(datcom_.mygrid, mgrid.toAscii(), 6);
-  strncpy(datcom_.hiscall, hcall.toAscii(), 12);
-  strncpy(datcom_.hisgrid, hgrid.toAscii(), 6);
-  strncpy(datcom_.datetime, m_dateTime.toAscii(), 20);
+  strncpy(mscom_.mycall, mcall.toAscii(), 12);
+  strncpy(mscom_.mygrid, mgrid.toAscii(), 6);
+  strncpy(mscom_.hiscall, hcall.toAscii(), 12);
+  strncpy(mscom_.hisgrid, hgrid.toAscii(), 6);
+  strncpy(mscom_.datetime, m_dateTime.toAscii(), 20);
 
   //newdat=1  ==> this is new data, must do the big FFT
   //nagain=1  ==> decode only at fQSO +/- Tol
 
   char *to = (char*)mem_m65.data();
-  char *from = (char*) datcom_.d4;
-  int size=sizeof(datcom_);
-  if(datcom_.newdat==0) {
+  char *from = (char*) mscom_.d4;
+  int size=sizeof(mscom_);
+  if(mscom_.newdat==0) {
     int noffset = 4*4*5760000 + 4*4*322*32768 + 4*4*32768;
     to += noffset;
     from += noffset;
     size -= noffset;
   }
   memcpy(to, from, qMin(mem_m65.size(), size));
-  datcom_.nagain=0;
-  datcom_.ndiskdat=0;
+  mscom_.nagain=0;
+  mscom_.ndiskdat=0;
   m_call3Modified=false;
 
   QFile lockFile(m_appDir + "/.lock");       // Allow m65 to start
