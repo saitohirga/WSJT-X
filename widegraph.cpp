@@ -31,7 +31,7 @@ WideGraph::WideGraph(QWidget *parent) :
   int n = settings.value("FreqSpan",60).toInt();
   int w = settings.value("PlotWidth",1000).toInt();
   ui->freqSpanSpinBox->setValue(n);
-  ui->widePlot->setNSpan(n);
+//  ui->widePlot->setNSpan(n);
   int nbpp = n * 32768.0/(w*96.0) + 0.5;
   ui->widePlot->setBinsPerPixel(nbpp);
   m_waterfallAvg = settings.value("WaterfallAvg",10).toInt();
@@ -59,15 +59,13 @@ void WideGraph::saveSettings()
   settings.setValue("PlotWidth",ui->widePlot->plotWidth());
   settings.setValue("FreqSpan",ui->freqSpanSpinBox->value());
   settings.setValue("WaterfallAvg",ui->waterfallAvgSpinBox->value());
-  settings.setValue("FreqOffset",ui->widePlot->freqOffset());
-  settings.setValue("ForceCenterFreqBool",m_bForceCenterFreq);
-  settings.setValue("ForceCenterFreqMHz",m_dForceCenterFreq);
   settings.endGroup();
 }
 
 void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
                           uchar lstrong[])
 {
+  /*
   static float splot[NFFT];
   float swide[2048];
   float smax;
@@ -76,6 +74,7 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
   static int n=0;
   static int nkhz0=-999;
   static int n60z=0;
+
 
   df = m_fSample/32768.0;
   if(nkhz != nkhz0) {
@@ -131,17 +130,15 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
     n60z=n60;
     ui->widePlot->draw(swide,i0,splot);
   }
+  */
 }
 
 void WideGraph::on_freqSpanSpinBox_valueChanged(int n)
 {
-  ui->widePlot->setNSpan(n);
+//  ui->widePlot->setNSpan(n);
   int w = ui->widePlot->plotWidth();
   int nbpp = n * 32768.0/(w*96.0) + 0.5;
   if(nbpp < 1) nbpp=1;
-  if(w > 0) {
-    ui->widePlot->setBinsPerPixel(nbpp);
-  }
 }
 
 void WideGraph::on_waterfallAvgSpinBox_valueChanged(int n)
@@ -174,26 +171,6 @@ void WideGraph::keyPressEvent(QKeyEvent *e)
   }
 }
 
-int WideGraph::QSOfreq()
-{
-  return ui->widePlot->fQSO();
-}
-
-int WideGraph::nSpan()
-{
-  return ui->widePlot->m_nSpan;
-}
-
-float WideGraph::fSpan()
-{
-  return ui->widePlot->m_fSpan;
-}
-
-int WideGraph::nStartFreq()
-{
-  return ui->widePlot->startFreq();
-}
-
 void WideGraph::wideFreezeDecode(int n)
 {
   emit freezeDecode2(n);
@@ -218,13 +195,6 @@ void WideGraph::setDF(int n)
   ui->widePlot->update();
 }
 
-void WideGraph::setFcal(int n)
-{
-  m_fCal=n;
-  ui->widePlot->setFcal(n);
-}
-
-
 int WideGraph::DF()
 {
   return ui->widePlot->m_DF;
@@ -244,9 +214,4 @@ void WideGraph::setPalette(QString palette)
 void WideGraph::on_cbSpec2d_toggled(bool b)
 {
   ui->widePlot->set2Dspec(b);
-}
-
-double WideGraph::fGreen()
-{
-  return ui->widePlot->fGreen();
 }

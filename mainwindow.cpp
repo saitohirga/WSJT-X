@@ -391,7 +391,6 @@ void MainWindow::dataSink(int k)
   static int ndiskdat;
   static int nwrite=0;
   static int k0=99999999;
-  static int n300z=9999;
   static float px=0.0;
   static float sq0=0.0;
   static float sqave=1000.0;
@@ -497,7 +496,6 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_pttPort=dlg.m_pttPort;
     m_saveDir=dlg.m_saveDir;
     m_dxccPfx=dlg.m_dxccPfx;
-    g_pWideGraph->setFcal(m_fCal);
     m_nDevIn=dlg.m_nDevIn;
     m_paInDevice=dlg.m_paInDevice;
     m_nDevOut=dlg.m_nDevOut;
