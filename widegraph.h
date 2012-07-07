@@ -33,7 +33,6 @@ public:
   void   setFcal(int n);
   void   setPalette(QString palette);
   void   setMode65(int n);
-  double fGreen();
 
   qint32 m_qsoFreq;
 

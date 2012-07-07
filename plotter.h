@@ -28,13 +28,9 @@ public:
   QColor  m_ColorTbl[256];
   int     m_plotZero;
   int     m_plotGain;
-  float   m_fSpan;
-  qint32  m_nSpan;
   qint32  m_binsPerPixel;
-  qint32  m_fQSO;
   qint32  m_DF;
   qint32  m_tol;
-  qint32  m_fCal;
 
   void draw(float sw[], int i0, float splot[]);		//Update the waterfalls
   void SetRunningState(bool running);
@@ -55,7 +51,6 @@ public:
   void setTol(int n);
   void setBinsPerPixel(int n);
   int  binsPerPixel();
-  void setFQSO(int n, bool bf);
   void setFcal(int n);
   void setNkhz(int n);
   void DrawOverlay();
@@ -66,7 +61,6 @@ public:
   void setFsample(int n);
   void setMode65(int n);
   void set2Dspec(bool b);
-  double fGreen();
 
 signals:
   void freezeDecode0(int n);
@@ -79,10 +73,9 @@ protected:
 
 private:
 
-  void MakeFrequencyStrs();
-  void UTCstr();
-  int XfromFreq(float f);
-  float FreqfromX(int x);
+  void MakeTimeStrs();
+  int xFromTime(float f);
+  float timeFromX(int x);
   qint64 RoundFreq(qint64 freq, int resolution);
 
   QPixmap m_WaterfallPixmap;
@@ -99,8 +92,6 @@ private:
   bool    m_2Dspec;
   bool    m_paintAllZoom;
   double  m_CenterFreq;
-  double  m_fGreen;
-  qint64  m_StartFreq;
   qint64  m_ZoomStartFreq;
   qint64  m_FreqOffset;
   qint32  m_dBStepSize;
