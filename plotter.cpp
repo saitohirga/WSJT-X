@@ -356,15 +356,6 @@ void CPlotter::setTol(int n)                                 //setTol()
   DrawOverlay();
 }
 
-void CPlotter::setBinsPerPixel(int n) {m_binsPerPixel = n;}  //set nbpp
-
-int CPlotter::binsPerPixel(){return m_binsPerPixel;}         //get nbpp
-
-void CPlotter::setNkhz(int n)                                  //setNkhz()
-{
-  m_nkhz=n;
-}
-
 int CPlotter::DF() {return m_DF;}                              // get DF
 
 void CPlotter::mousePressEvent(QMouseEvent *event)       //mousePressEvent
@@ -508,18 +499,6 @@ void CPlotter::setPalette(QString palette)                      //setPalette()
     }
   }
 
-}
-
-void CPlotter::setFsample(int n)
-{
-  m_fSample=n;
-}
-
-void CPlotter::setMode65(int n)
-{
-  m_mode65=n;
-  DrawOverlay();                         //Redraw scales and ticks
-  update();                              //trigger a new paintEvent
 }
 
 void CPlotter::set2Dspec(bool b)

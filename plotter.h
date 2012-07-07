@@ -28,7 +28,6 @@ public:
   QColor  m_ColorTbl[256];
   int     m_plotZero;
   int     m_plotGain;
-  qint32  m_binsPerPixel;
   qint32  m_DF;
   qint32  m_tol;
 
@@ -38,28 +37,16 @@ public:
   int  getPlotZero();
   void setPlotGain(int plotGain);
   int  getPlotGain();
-  void SetCenterFreq(int f);
-  qint64 centerFreq();
-  void SetStartFreq(quint64 f);
-  qint64 startFreq();
-  void SetFreqOffset(quint64 f);
-  qint64 freqOffset();
   int  plotWidth();
   void setNSpan(int n);
   void UpdateOverlay();
   void setDataFromDisk(bool b);
   void setTol(int n);
-  void setBinsPerPixel(int n);
-  int  binsPerPixel();
-  void setFcal(int n);
-  void setNkhz(int n);
   void DrawOverlay();
   int  fQSO();
   int  DF();
   int  autoZero();
   void setPalette(QString palette);
-  void setFsample(int n);
-  void setMode65(int n);
   void set2Dspec(bool b);
 
 signals:
