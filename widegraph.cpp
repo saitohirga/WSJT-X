@@ -62,9 +62,9 @@ void WideGraph::saveSettings()
   settings.endGroup();
 }
 
-void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
-                          uchar lstrong[])
+void WideGraph::dataSink2(float green[], int ig)
 {
+  ui->widePlot->draw(green,ig);
   /*
   static float splot[NFFT];
   float swide[2048];

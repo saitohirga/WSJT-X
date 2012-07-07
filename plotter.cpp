@@ -77,8 +77,9 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
   int h = (m_Size.height()-60)/2;
   painter.drawPixmap(0,0,m_ScalePixmap);
   painter.drawPixmap(0,30,m_WaterfallPixmap);
+  m_2Dspec=true;
   if(m_2Dspec) {
-    painter.drawPixmap(0,h+30,m_ScalePixmap);
+//    painter.drawPixmap(0,h+30,m_ScalePixmap);
     painter.drawPixmap(0,h+60,m_2DPixmap);
     m_paintEventBusy=false;
     return;
@@ -106,12 +107,11 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
   m_paintEventBusy=false;
 }
 
-void CPlotter::draw(float s[], int i0, float splot[])                       //draw()
+void CPlotter::draw(float green[], int ig)                       //draw()
 {
   int i,j,w,h;
   float y;
 
-  m_i0=i0;
   w = m_WaterfallPixmap.width();
   h = m_WaterfallPixmap.height();
   double gain = pow(10.0,0.05*(m_plotGain+7));
@@ -124,63 +124,24 @@ void CPlotter::draw(float s[], int i0, float splot[])                       //dr
   QPainter painter1(&m_WaterfallPixmap);
   QPainter painter2D(&m_2DPixmap);
 
-  for(i=0; i<256; i++) {                     //Zero the histograms
-    m_hist1[i]=0;
-    m_hist2[i]=0;
-  }
-
   painter2D.setPen(Qt::green);
   QRect tmp(0,0,w,h);
   painter2D.fillRect(tmp,Qt::black);
   QPoint LineBuf[MAX_SCREENSIZE];
   j=0;
-  bool strong0=false;
-  bool strong=false;
 
-  for(i=0; i<w; i++) {
-    strong=false;
-    if(s[i]<0) {
-      strong=true;
-      s[i]=-s[i];
-    }
-    y = 10.0*log10(s[i]);
-    int y1 = 5.0*gain*(y + 29 -m_plotZero);
-    if (y1<0) y1=0;
-    if (y1>254) y1=254;
-    if (s[i]>1.e29) y1=255;
-    m_hist1[y1]++;
-    painter1.setPen(m_ColorTbl[y1]);
+  painter2D.setPen(Qt::green);
+  for(i=0; i<ig; i++) {
+    y = green[i];
     painter1.drawPoint(i,0);
-    if(m_2Dspec) {
-      int y2 = gain*(y + 34 -m_plotZero);
-      if (y2<0) y2=0;
-      if (y2>254) y2=254;
-      if (s[i]>1.e29) y2=255;
-      if(strong != strong0 or i==w-1) {
-        painter2D.drawPolyline(LineBuf,j);
-        j=0;
-        strong0=strong;
-        if(strong0) painter2D.setPen(Qt::red);
-        if(!strong0) painter2D.setPen(Qt::green);
-      }
-      LineBuf[j].setX(i);
-      LineBuf[j].setY(h-y2);
-      j++;
-    }
+    int y2 = 7*(y-m_plotZero);
+    if (y2<0) y2=0;
+    if (y2>254) y2=254;
+    LineBuf[j].setX(i);
+    LineBuf[j].setY(h-y2);
+    j++;
   }
-
-  for(i=0; i<32768; i++) {
-    y = 10.0*log10(splot[i]);
-    int y1 = 5.0*gain*(y + 30 - m_plotZero);
-    if (y1<0) y1=0;
-    if (y1>254) y1=254;
-    if (splot[i]>1.e29) y1=255;
-    m_hist2[y1]++;
-    m_zwf[i]=y1;
-  }
-
-  if(s[0]>1.0e29) m_line=0;
-  m_line++;
+  painter2D.drawPolyline(LineBuf,ig);
   update();                              //trigger a new paintEvent
 }
 

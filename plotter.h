@@ -31,19 +31,17 @@ public:
   qint32  m_DF;
   qint32  m_tol;
 
-  void draw(float sw[], int i0, float splot[]);		//Update the waterfalls
+  void draw(float green[], int ig);	       //Update the graphics
   void SetRunningState(bool running);
   void setPlotZero(int plotZero);
   int  getPlotZero();
   void setPlotGain(int plotGain);
   int  getPlotGain();
   int  plotWidth();
-  void setNSpan(int n);
   void UpdateOverlay();
   void setDataFromDisk(bool b);
   void setTol(int n);
   void DrawOverlay();
-  int  fQSO();
   int  DF();
   int  autoZero();
   void setPalette(QString palette);

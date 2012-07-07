@@ -235,12 +235,7 @@ extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
 
 extern "C" {
 //----------------------------------------------------- C and Fortran routines
-  void symspec_(int* k, int* nxpol, int* ndiskdat, int* nb, int* m_NBslider,
-                int* idphi, int* nfsample, float* fgreen, int* iqadjust,
-                int* iqapply, float* gainx, float* gainy, float* phasex,
-                float* phasey, float* rejectx, float* rejecty, float* px,
-                float* py, float s[], int* nkhz, int* nhsym, int* nzap,
-                float* slimit, uchar lstrong[]);
+  void specjtms_(int* k, float* px);
 
   void genjtms3_(char* message, char* msgsent, short iwave[],
                  int* nwave, int len1, int len2);
