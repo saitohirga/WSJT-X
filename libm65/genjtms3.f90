@@ -11,10 +11,15 @@ subroutine genjtms3(msg,msgsent,iwave,nwave)
   real*4 s(6192)
   real*4 carrier(6192)
   logical first
+  integer*1 isync(43)
   integer indx0(9)                               !Indices of duplicated symbols
   data indx0 /16,38,60,82,104,126,148,170,192/
   data first/.true./
+  data isync/0,1,0,0,1,0,1,0,0,1,1,1,0,1,1,1,1,1,0,0,                 &
+             0,1,0,1,1,1,0,0,0,0,0,1,0,0,0,1,1,0,1,0,                 &
+             1,1,0/                              !Hadamard-43 sync code
   save
+
   sinc(x)=sin(pi*x)/(pi*x)
 
   if(first) then
@@ -28,7 +33,6 @@ subroutine genjtms3(msg,msgsent,iwave,nwave)
         if(k.gt.3096) k=k-6192
         x=x+dx
         p(k)=sinc(x) * (sinc(x/2.0))**2
-!        p(k)=sinc(x) * exp(-(x/2.0)**2)
         if(k.ne.3096) p(-k)=p(k)
      enddo
      p(0)=1.0
@@ -75,8 +79,14 @@ subroutine genjtms3(msg,msgsent,iwave,nwave)
      iwave(i)=n
   enddo
 
-!  print*,'nmax:',nmax
-  nwave=6192
+  nblk=30*48000/6192
+  do n=2,nblk
+     ib=n*6192
+     ia=ib-6191
+     iwave(ia:ib)=iwave(1:6192)
+  enddo
+
+  nwave=ib
   msgsent=msg
 
   return
