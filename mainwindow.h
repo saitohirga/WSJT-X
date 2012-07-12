@@ -237,8 +237,7 @@ extern "C" {
 //----------------------------------------------------- C and Fortran routines
   void specjtms_(int* k, float* px);
 
-  void genjtms3_(char* message, char* msgsent, short iwave[],
-                 int* nwave, int len1, int len2);
+  void genjtms3_(char* message, short iwave[], int* nwave, int len1);
 
   void gen65_(char* msg, int* mode65, double* samfac, int* nsendingsh,
               char* msgsent, short iwave[], int* nwave, int len1, int len2);

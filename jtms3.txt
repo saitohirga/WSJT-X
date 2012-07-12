@@ -3,63 +3,48 @@
 
 1. Transmitting
 
-Type 1 messages are 72 user-information bits, source encoded as in
-JT65.  Convolutional FEC (K=32, r=1/2) increases the number of bits to
-(72+31)*2 = 206; nine bits are sent twice, extending the array to 215
-bits.  These are interleaved by bit-reversal of index values.  Then 43
-sync bits are inserted, spread evenly so as to fall at positions 1, 7,
-13, ...  253.  Frame size is 258 bits: 215 information-carrying bits
-and 43 sync bits.  Frame duration is 129 ms.
+Messages are sent character-by character, 6 bits plus even parity.
+Message length can be one of {5 7 9 11 13 17 19 23 29}; if necessary
+the message is padded with blanks to the next available length.  No
+other FEC is used.
 
-Type 2 messages convey 4 user information bits (report, R+report, RRR,
-73) encoded with a (15,4,8) block code, plus an 11-bit CRC derived
-from MyCall + HisCall, encoded with the (16,11) extended Hamming code.
-This makes for 31 information-carrying bits.  They are interspersed
-with 31 sync bits, making a frame of 62 bits and frame time 31 ms.
+Modulation is BPSK at 2000 baud.  The baseband waveform is built by
+inserting a tapered sinc function for each bit, then multiplying by a
+sine wave at frequency f0 = 10000.0/7 = 1428.57 Hz.  Agt sample rate
+48000 Hz there are 24 samples per PSK symbol and 7*24=168 samples per
+character.  The carrier phase increment over one character is 
+f0*(168/48000) = 5 cycles.  
 
-2. Modulation is BPSK at 2000 baud, 24 samples per symbol at 48000 Hz
-asmple rate.  The baseband waveform is built by inserting a tapered
-sinc function for each bit, then multiplying by a 1500 Hz sine wave.
+2. Receiving
 
-3. Receiving
+  a. Pings are detected (or mouse-picked data is selected) as in
+     WSJT9.
 
-  a. Compute real-to-complex windowed FFTs, N=8192 (t=170 ms),
-     stepped by 4k (say).  Zap birdies, remove frequency components
-     outside the range 300 - 2700 Hz, and convert to analytic
-     time-domain signal.
+  b. Compute real-to-complex FFT.  Zap birdies, remove frequency 
+     components outside the range 300 - 2700 Hz, and convert to analytic
+     time-domain signal.  (analytic)
 
-  b. Square the complex signal, cx2=cx*cx, and compute N=8k FFT of
-     cx2 (resolution = 5.9 Hz).  Look for carrier at 3000 + 2*DF Hz
-     +/- 2*Tol.
+  c. Square the complex signal, cx2=cx*cx, and compute FFT.  Look for
+     carrier at frequency 3000 + 2*DF +/- 2*Tol.  (msdf)
 
-  c. If carrier is found, measure frequency f and phase phi.  Multiply
+  d. If carrier is found, measure frequency f and phase phi.  Multiply
      cx by exp(-twopi*i*f*t - phi) to recover the real baseband signal
-     x() to within a sign ambiguity.
+     x() to within a sign ambiguity.  (tweak1)
 
-  d. Apply matched filter for the Tx pulse shape to x().  This is 
-     essentially a rectangular BPF, -1000 to +1000 Hz ?
+  e. Apply matched filter for the Tx pulse shape to x().  This is
+     essentially a rectangular BPF, -1000 to +1000 Hz ?  (Or convolve
+     with the generated PSK pulse shape, the tapered sinc() function.)
 
-  e. Establish PSK symbol sync (offset i0, 0 to nsps-1 samples) by finding
-     maximum of Sum(sum*sum) over groups of nsps consecutive samples.
+  f. Establish symbol and character sync by cross-correlating with
+     conjg(cwb), where cwb is the baseband PSK waveform for the
+     <space> character.
 
-  f. Read off the soft symbols, sym(1:512), and compute CCF with 3
-     versions of the 43-bit sync vector (rotated by 0, 14, 29 out of
-     its 43 positions) and three of the 31-bit sync vector (rotated by
-     0, 10, 20 of 31).
+  g. Find message length by computing ACF (of what?  cdat?  soft
+     symbol values?)
 
-  g. If the best CCF abs(peak) exceeds a specified threshold, the
-     signal is detected and synchronized.  Sign of peak resolves the
-     sign ambiguity.
+  h. Decode the message by cross-correlating character-length segments
+     of cdat against complex waveforms for each possible character.
 
-  h. For Type 1 messages: Gather the proper set of 215
-     information-carrying soft symbols.  Form averages using the 9
-     extra symbols, reducing the number to 206; and remove
-     interleaving to re-order the symbols.  Then run the fano232
-     decoder.  If decoding fails, add soft symbols into an
-     accumulation array and (if nsum is 2 or more) try decoding the
-     average.
+  i. If msglen is established and long enough, try folding the data and
+     determining best-fit characters as above.
 
-  i. For Type 2 messages: Gather the proper set of 31 soft symbols.
-     Decode Nrpt using exhaustive search (find peak lag of ccf).  For
-     the CRC, also do an exhaustive search -- and make sure that the
-     expected value is best (or in the top few, anyway).

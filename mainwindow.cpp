@@ -408,7 +408,7 @@ void MainWindow::dataSink(int k)
     mscom_.ndiskdat=0;
   }
 
-  specjtms_(&k,&px);
+//  specjtms_(&k,&px);
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);
   lab2->setText(t);
@@ -1116,7 +1116,7 @@ void MainWindow::guiUpdate()
   static bool btxok0=false;
   static int nc0=1;
   static int nc1=1;
-  static char msgsent[23];
+  static char msgsent[29];
   static int nsendingsh=0;
   int khsym=0;
   double trperiod=30.0;
@@ -1147,7 +1147,6 @@ void MainWindow::guiUpdate()
       if(!soundOutThread.isRunning()) {
         soundOutThread.start(QThread::HighPriority);
       }
-      qDebug() << "PTT raised, soundOut started";
     }
     if(!bTxTime || m_txMute) {
       btxok=false;
@@ -1156,7 +1155,7 @@ void MainWindow::guiUpdate()
 
 // Calculate Tx waveform when needed
   if((iptt==1 && iptt0==0) || m_restart) {
-    char message[23];
+    char message[29];
     QByteArray ba;
     if(m_ntx == 1) ba=ui->tx1->text().toLocal8Bit();
     if(m_ntx == 2) ba=ui->tx2->text().toLocal8Bit();
@@ -1166,9 +1165,9 @@ void MainWindow::guiUpdate()
     if(m_ntx == 6) ba=ui->tx6->text().toLocal8Bit();
 
     ba2msg(ba,message);
-    int len1=22;
-    genjtms3_(message,msgsent,iwave,&nwave,len1,len1);
-    msgsent[22]=0;
+    ba2msg(ba,msgsent);
+    int len1=28;
+    genjtms3_(message,iwave,&nwave,len1);
 
     if(m_restart) {
       QFile f("jtms3_tx.log");

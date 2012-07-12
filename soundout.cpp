@@ -83,7 +83,6 @@ void SoundOutThread::run()
   }
   const PaStreamInfo* p=Pa_GetStreamInfo(outStream);
   outputLatency = p->outputLatency;
-  qDebug() << "SoundOut started, latency =" << outputLatency;
   bool qe = quitExecution;
 
 //---------------------------------------------- Soundcard output loop
@@ -97,7 +96,6 @@ void SoundOutThread::run()
   }
   Pa_StopStream(outStream);
   Pa_CloseStream(outStream);
-  qDebug() << "SoundOut terminated";
 }
 
 void SoundOutThread::setOutputDevice(int n)      //setOutputDevice()
