@@ -43,7 +43,7 @@ subroutine scr258(isync,idat,ndir,ichan)
   else
      do i=1,258
         j=indx(i)
-!        if(j.lt.0) isync(-j)=ichan(i)
+        if(j.lt.0) isync(-j)=ichan(i)
         if(j.gt.0) idat(j)=ichan(i)
      enddo
   endif
