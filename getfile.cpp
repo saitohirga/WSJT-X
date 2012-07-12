@@ -18,7 +18,6 @@ void getfile(QString fname, bool xpol, int dbDgrd)
 // Read (and ignore) a 44-byte WAV header; then read data
     fread(mscom_.d2,1,44,fp);
     int nrd=fread(mscom_.d2,2,npts,fp);
-    qDebug() << "Getfile" << npts << nrd;
     fclose(fp);
   }
 }

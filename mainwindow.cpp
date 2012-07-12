@@ -392,6 +392,7 @@ void MainWindow::dataSink(int k)
   static int nwrite=0;
   static int k0=99999999;
   static float px=0.0;
+  static float sqave=0.0;
   static float green[704];
   static int ig=0;
 
@@ -408,9 +409,18 @@ void MainWindow::dataSink(int k)
     mscom_.ndiskdat=0;
   }
 
+  float d,sq=0;
+  for(int i=0; i<2048; i++) {
+    d=mscom_.d2[k-2048+i];
+    sq += d*d;
+  }
+  px=10.0*log10(sq/2048.0) - 23.0;
+  sqave=0.95*sqave + 0.05*sq;
+  float pxave=10.0*log10(sqave/2048.0) - 23.0;
+
 //  specjtms_(&k,&px);
   QString t;
-  t.sprintf(" Rx noise: %5.1f ",px);
+  t.sprintf(" Rx noise: %5.1f ",pxave);
   lab2->setText(t);
   ui->xThermo->setValue((double)px);                      //Update the Thermo
 
@@ -779,22 +789,16 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
   int i,len;
   QFileInfo fi(m_path);
   QStringList list;
-  if(m_xpol) {
-      list= fi.dir().entryList().filter(".tf2");
-      len=15;
-  } else {
-      list= fi.dir().entryList().filter(".iq");
-      len=14;
-  }
+  list= fi.dir().entryList().filter(".wav");
   for (i = 0; i < list.size()-1; ++i) {
     if(i==list.size()-2) m_loopall=false;
+    len=list.at(i).length();
     if(list.at(i)==m_path.right(len)) {
       int n=m_path.length();
       QString fname=m_path.replace(n-len,len,list.at(i+1));
       m_path=fname;
       int i;
-      i=fname.indexOf(".iq") - 11;
-      if(m_xpol) i=fname.indexOf(".tf2") - 11;
+      i=fname.indexOf(".wav") - 11;
       if(i>=0) {
         lab1->setStyleSheet("QLabel{background-color: #66ff66}");
         lab1->setText(" " + fname.mid(i,len) + " ");
@@ -817,11 +821,11 @@ void MainWindow::on_actionDecode_remaining_files_in_directory_triggered()
 
 void MainWindow::diskDat()                                   //diskDat()
 {
-  int kstep=4096;
+  int kstep=2048;
   int nsteps;
   m_diskData=true;
 
-  nsteps=29.5*48000/kstep;
+  nsteps=29.8*48000/kstep;
 
   for(int n=1; n<nsteps; n++) {              // Do the half-symbol FFTs
     int k=(n+1)*kstep;
