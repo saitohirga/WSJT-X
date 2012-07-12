@@ -129,14 +129,14 @@ subroutine genjtms3(msg28,iwave,nwave)
   fac=32767.0/wmax
   iwave(1:nsam)=fac*wave(1:nsam)
 
-  nwave=nsam
+!  nwave=nsam
 
-!  nblk=30*48000/nsam
-!  do n=2,nblk
-!     i0=(n-1)*nsam
-!     iwave(i0+1:i0+nsam)=iwave(1:nsam)
-!  enddo
-!  nwave=i0+nsam
+  nblk=30*48000/nsam
+  do n=2,nblk
+     i0=(n-1)*nsam
+     iwave(i0+1:i0+nsam)=iwave(1:nsam)
+  enddo
+  nwave=i0+nsam
 
 ! Compute the spectrum
 !  nfft=nsam
