@@ -1168,7 +1168,7 @@ void MainWindow::guiUpdate()
     ba2msg(ba,msgsent);
     int len1=28;
     genjtms3_(message,iwave,&nwave,len1);
-
+//    makepings_(iwave,&nwave);
     if(m_restart) {
       QFile f("jtms3_tx.log");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
