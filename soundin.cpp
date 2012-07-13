@@ -8,7 +8,11 @@ extern "C" {
 #include <portaudio.h>
 extern struct {
   short int d2[30*48000];             //This is "common/mscom/..." in fortran
+  float s1[215];
+  float s2[215];
   int kin;
+  int ndiskdat;
+  int kline;
 } mscom_;
 }
 

@@ -8,7 +8,7 @@ subroutine specjtms(k,px,pxsmo,spk0,f0)
   real x(MAXFFT)
   complex cx(MAXFFT),cx2(MAXFFT)
   logical first
-  common/mscom/id(1440000),s1(215),s2(215)
+  common/mscom/id(1440000),s1(215),s2(215),kin,ndiskdat,kline
   data first/.true./
   save
  
@@ -80,9 +80,10 @@ subroutine specjtms(k,px,pxsmo,spk0,f0)
      endif
   enddo
   spk0=0.5*db(spk0) - 7.0
+  kline=k/2048
 !  write(14,3001) k/2048,spk0,f0,phi0
 !3001 format(i8,3f12.3)
-  call flush(14)
+!  call flush(14)
 
   return
 end subroutine specjtms

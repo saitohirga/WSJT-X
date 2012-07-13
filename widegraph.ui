@@ -283,7 +283,7 @@
        <item>
         <widget class="QCheckBox" name="cbSpec2d">
          <property name="text">
-          <string>2D Spectrum</string>
+          <string>PSK Spectrum</string>
          </property>
         </widget>
        </item>
