@@ -145,7 +145,7 @@ void CPlotter::draw(float green[], int ig)                       //draw()
         y1 = 5.0*gain*(y + 20 - m_plotZero);
       } else {
         y=10.0*log10(std::max(mscom_.s1[2*i-1],mscom_.s1[2*i]));
-        y1 = 5.0*gain*(y + 55 - m_plotZero);
+        y1 = 5.0*gain*(y + 51 - m_plotZero);
       }
     } else {
       y1=0;
