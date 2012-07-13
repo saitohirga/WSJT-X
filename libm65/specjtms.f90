@@ -20,6 +20,8 @@ subroutine specjtms(k,px,pxsmo,spk0,f0)
      sqsmo=0.
   endif
 
+  if(k.lt.kstep .or. k.gt.NSMAX) return
+
   t=k/48000.0
   nfft=4096
   df=48000.0/nfft
@@ -38,10 +40,12 @@ subroutine specjtms(k,px,pxsmo,spk0,f0)
   px=db(sq) - 23.0
   pxsmo=db(sqsmo) - 23.0
 
-  do i=i0,ia-1
-     d=id(i)
-     sq=sq + d*d
-  enddo
+  if(i0.gt.0) then
+     do i=i0,ia-1
+        d=id(i)
+        sq=sq + d*d
+     enddo
+  endif
   sq0=sq
 !  write(13,1010) t,rms,sq,px,pxsmo
 !1010 format(5f12.3)
@@ -71,7 +75,8 @@ subroutine specjtms(k,px,pxsmo,spk0,f0)
   
   call four2a(cx2,nfft,1,-1,1)                   !Forward c2c FFT of cx2
 
-  j0=nint(2.0*1428.57/df)
+!  j0=nint(2.0*1428.57/df)
+  j0=nint(2.0*1500.0/df)
   ja=j0-107
   jb=j0+107
   do j=ja,jb
