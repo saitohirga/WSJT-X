@@ -1425,8 +1425,6 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
     msgtype("RRR", ui->tx4);
     msgtype("73", ui->tx5);
   } else {
-    if(rpt=="26") rpt="-26";
-    if(rpt=="27") rpt="-27";
     t=t0 + rpt;
     msgtype(t, ui->tx2);
     t=t0 + "R" + rpt;
@@ -1573,7 +1571,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)                //msgtype()
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
   gen65_(message,&mode65,&samfac,&nsendingsh,msgsent,iwave,&mwave,len1,len1);
-
+  nsendingsh=0;
   QPalette p(tx->palette());
   if(nsendingsh==1) {
     p.setColor(QPalette::Base,"#66ffff");
