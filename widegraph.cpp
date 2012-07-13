@@ -28,17 +28,13 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->widePlot->setPlotGain(settings.value("PlotGain", 0).toInt());
   ui->zeroSpinBox->setValue(ui->widePlot->getPlotZero());
   ui->gainSpinBox->setValue(ui->widePlot->getPlotGain());
-  int n = settings.value("FreqSpan",60).toInt();
-  int w = settings.value("PlotWidth",1000).toInt();
+  int n = settings.value("FreqSpan",0).toInt();
+  int w = settings.value("PlotWidth",704).toInt();
   ui->freqSpanSpinBox->setValue(n);
-//  ui->widePlot->setNSpan(n);
-//  int nbpp = n * 32768.0/(w*96.0) + 0.5;
-//  ui->widePlot->setBinsPerPixel(nbpp);
-  m_waterfallAvg = settings.value("WaterfallAvg",10).toInt();
+  m_waterfallAvg = settings.value("WaterfallAvg",0).toInt();
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
   settings.endGroup();
 }
-
 
 WideGraph::~WideGraph()
 {
