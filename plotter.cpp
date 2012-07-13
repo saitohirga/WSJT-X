@@ -77,8 +77,7 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
   int h = (m_Size.height()-60)/2;
   painter.drawPixmap(0,0,m_ScalePixmap);
   painter.drawPixmap(0,30,m_WaterfallPixmap);
-  m_2Dspec=true;
-  if(m_2Dspec) {
+  if(true) {
 //    painter.drawPixmap(0,h+30,m_ScalePixmap);
     painter.drawPixmap(0,h+60,m_2DPixmap);
     m_paintEventBusy=false;
@@ -111,26 +110,54 @@ void CPlotter::draw(float green[], int ig)                       //draw()
 {
   int i,j,w,h;
   float y;
+  int y1;
 
   w = m_WaterfallPixmap.width();
   h = m_WaterfallPixmap.height();
   double gain = pow(10.0,0.05*(m_plotGain+7));
 
-  //move current data down one line
-  //(must do this before attaching a QPainter object)
-  m_WaterfallPixmap.scroll(0,1,0,0,w,h);
-  m_ZoomWaterfallPixmap.scroll(0,1,0,0, w, h);
-  memmove(&m_zwf[32768],m_zwf,32768*(h-1));
+//move current data down one line
+//(must do this before attaching a QPainter object)
+//  m_WaterfallPixmap.scroll(0,1,0,0,w,h);
+//  m_ZoomWaterfallPixmap.scroll(0,1,0,0, w, h);
+//  memmove(&m_zwf[32768],m_zwf,32768*(h-1));
+
   QPainter painter1(&m_WaterfallPixmap);
   QPainter painter2D(&m_2DPixmap);
-
   painter2D.setPen(Qt::green);
   QRect tmp(0,0,w,h);
   painter2D.fillRect(tmp,Qt::black);
   QPoint LineBuf[MAX_SCREENSIZE];
-  j=0;
+
+  for(i=0; i<256; i++) {                     //Zero the histograms
+    m_hist1[i]=0;
+    m_hist2[i]=0;
+  }
+
+
+  int kline=mscom_.kline;
+
+  for(i=0; i<h; i++) {
+    if(2*i < 215) {
+      if(m_2Dspec) {
+        y=10.0*log10(0.5*(mscom_.s2[2*i-1] + mscom_.s2[2*i]));
+        y1 = 5.0*gain*(y + 13 - m_plotZero);
+      } else {
+        y=10.0*log10(0.5*(mscom_.s1[2*i-1] + mscom_.s1[2*i]));
+        y1 = 5.0*gain*(y + 55 - m_plotZero);
+      }
+    } else {
+      y1=0;
+    }
+    if (y1<0) y1=0;
+    if (y1>254) y1=254;
+    m_hist1[y1]++;
+    painter1.setPen(m_ColorTbl[y1]);
+    painter1.drawPoint(kline,h-i);
+  }
 
   painter2D.setPen(Qt::green);
+  j=0;
   for(i=0; i<ig; i++) {
     y = green[i];
     painter1.drawPoint(i,0);
