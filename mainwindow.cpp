@@ -420,8 +420,22 @@ void MainWindow::dataSink(int k)
   float pxave=10.0*log10(sqave/2048.0) - 23.0;
 
   specjtms_(&k,&px,&pxsmo,&spk0,&f0);
-//  if(spk0 > 3.0) qDebug() << (k-2048.0)/48000.0 << spk0 << f0;
   QString t;
+  if(spk0 > 2.0) {
+    qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
+    int isec=ms/1000;
+    int imin=ms/60000;
+    int ihr=imin/60;
+    imin=imin % 60;
+    isec=isec % 60;
+    if(isec<30) isec=0;
+    if(isec>30) isec=30;
+    int nutc=10000*ihr + 100*imin + isec;
+    t.sprintf("%6.6d  %4.1f   %4.1f   %4d",nutc,(k-2048.0)/48000.0,
+              spk0,int(f0));
+    ui->decodedTextBrowser->append(t);
+  }
+
   t.sprintf(" Rx noise: %5.1f ",pxave);
   lab2->setText(t);
   ui->xThermo->setValue((double)px);                      //Update the Thermo

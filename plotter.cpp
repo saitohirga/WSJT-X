@@ -1,6 +1,7 @@
 #include "plotter.h"
 #include <math.h>
 #include <QDebug>
+#include <algorithm>
 
 #define MAX_SCREENSIZE 2048
 
@@ -141,9 +142,9 @@ void CPlotter::draw(float green[], int ig)                       //draw()
     if(2*i < 215) {
       if(m_2Dspec) {
         y=10.0*log10(0.5*(mscom_.s2[2*i-1] + mscom_.s2[2*i]));
-        y1 = 5.0*gain*(y + 13 - m_plotZero);
+        y1 = 5.0*gain*(y + 20 - m_plotZero);
       } else {
-        y=10.0*log10(0.5*(mscom_.s1[2*i-1] + mscom_.s1[2*i]));
+        y=10.0*log10(std::max(mscom_.s1[2*i-1],mscom_.s1[2*i]));
         y1 = 5.0*gain*(y + 55 - m_plotZero);
       }
     } else {
