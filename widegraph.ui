@@ -78,37 +78,37 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>60</width>
+           <width>40</width>
            <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>60</width>
+           <width>40</width>
            <height>16777215</height>
           </size>
          </property>
          <property name="suffix">
-          <string> kHz</string>
+          <string/>
          </property>
          <property name="minimum">
-          <number>5</number>
+          <number>0</number>
          </property>
          <property name="maximum">
-          <number>90</number>
+          <number>100</number>
          </property>
          <property name="singleStep">
-          <number>5</number>
+          <number>1</number>
          </property>
          <property name="value">
-          <number>60</number>
+          <number>0</number>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Freq Span</string>
+          <string>p1</string>
          </property>
         </widget>
        </item>
@@ -149,17 +149,20 @@
           </size>
          </property>
          <property name="minimum">
-          <number>1</number>
+          <number>0</number>
          </property>
          <property name="maximum">
-          <number>20</number>
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>0</number>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>N Avg</string>
+          <string>p2</string>
          </property>
         </widget>
        </item>

@@ -1,4 +1,4 @@
-//--------------------------------------------------------------- MainWindow
+//-------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -20,7 +20,7 @@ WideGraph* g_pWideGraph = NULL;
 QSharedMemory mem_m65("mem_m65");
 
 QString rev="$Rev$";
-QString Program_Title_Version="  JTMS3   v0.1, r" + rev.mid(6,4) +
+QString Program_Title_Version="  JTMS3   v0.2, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 //-------------------------------------------------- MainWindow constructor

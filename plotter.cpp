@@ -143,7 +143,7 @@ void CPlotter::draw(float green[], int ig)                       //draw()
     if(2*i < 215) {
       if(m_2Dspec) {
         y=10.0*log10(0.5*(mscom_.s2[2*i-1] + mscom_.s2[2*i]));
-        y1 = 5.0*gain*(y + 20 - m_plotZero);
+        y1 = 7.0*gain*(y + 16 - m_plotZero);
       } else {
         y=10.0*log10(std::max(mscom_.s1[2*i-1],mscom_.s1[2*i]));
         y1 = 5.0*gain*(y + 51 - m_plotZero);
