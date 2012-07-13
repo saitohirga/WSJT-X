@@ -4,21 +4,21 @@
 1. Transmitting
 
 Messages are sent character-by character, 6 bits plus even parity.
-Message length can be one of {5 7 9 11 13 17 19 23 29}; if necessary
-the message is padded with blanks to the next available length.  No
-other FEC is used.
+Message length can be one of {5 7 9 11 13 17 19 23 29}; messages are
+padded with blanks up to the next available length.  
 
 Modulation is BPSK at 2000 baud.  The baseband waveform is built by
 inserting a tapered sinc function for each bit, then multiplying by a
-sine wave at frequency f0 = 10000.0/7 = 1428.57 Hz.  Agt sample rate
-48000 Hz there are 24 samples per PSK symbol and 7*24=168 samples per
-character.  The carrier phase increment over one character is 
-f0*(168/48000) = 5 cycles.  
+sine wave at frequency f0 = 10000.0/7 = 1428.57 Hz.  At fsample=48000
+Hz there are 24 samples per PSK symbol and 7*24=168 samples per
+character.  Carrier phase increment over one character is
+f0*(168/48000) = 5 cycles, exactly.
 
 2. Receiving
 
   a. Pings are detected (or mouse-picked data is selected) as in
-     WSJT9.
+     WSJT9.  Pings can also be detected from the squared analytic
+     signal.  Experience may tell which is better.
 
   b. Compute real-to-complex FFT.  Zap birdies, remove frequency 
      components outside the range 300 - 2700 Hz, and convert to analytic
