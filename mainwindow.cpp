@@ -318,7 +318,7 @@ void MainWindow::readSettings()
   ui->dxCallEntry->setText(settings.value("DXcall","").toString());
   ui->dxGridEntry->setText(settings.value("DXgrid","").toString());
   m_wideGraphGeom = settings.value("WideGraphGeom", \
-                                   QRect(45,30,1023,340)).toRect();
+                                   QRect(45,30,726,301)).toRect();
   m_path = settings.value("MRUdir", m_appDir + "/save").toString();
   m_txFirst = settings.value("TxFirst",false).toBool();
   ui->txFirstCheckBox->setChecked(m_txFirst);
