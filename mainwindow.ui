@@ -53,7 +53,7 @@
          </size>
         </property>
         <property name="title">
-         <string>   Freq        DF      Pol      UTC         DT        dB                                                                        KV       DS          TxPol</string>
+         <string>         UTC              T                dB                DF</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_9">
          <item>
