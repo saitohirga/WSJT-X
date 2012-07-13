@@ -1,6 +1,6 @@
 subroutine specjtms(k,px,pxsmo,spk0,f0)
 
-! Starting code for a JTMS3 decoder.
+! Compute noise level and 2D spectra, for GUI display.
 
   parameter (NSMAX=30*48000)
   parameter (MAXFFT=8192)
