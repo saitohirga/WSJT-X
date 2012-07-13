@@ -112,17 +112,18 @@ void CPlotter::draw(float green[], int ig)                       //draw()
   int i,j,w,h;
   float y;
   int y1;
+  static int ig0=99999;
 
   w = m_WaterfallPixmap.width();
   h = m_WaterfallPixmap.height();
+  if(ig<ig0) {
+    m_WaterfallPixmap.fill(Qt::black);
+    m_ZoomWaterfallPixmap.fill(Qt::black);
+    m_2DPixmap.fill(Qt::black);
+  }
+  ig0=ig;
+
   double gain = pow(10.0,0.05*(m_plotGain+7));
-
-//move current data down one line
-//(must do this before attaching a QPainter object)
-//  m_WaterfallPixmap.scroll(0,1,0,0,w,h);
-//  m_ZoomWaterfallPixmap.scroll(0,1,0,0, w, h);
-//  memmove(&m_zwf[32768],m_zwf,32768*(h-1));
-
   QPainter painter1(&m_WaterfallPixmap);
   QPainter painter2D(&m_2DPixmap);
   painter2D.setPen(Qt::green);
