@@ -235,10 +235,8 @@ extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
 
 extern "C" {
 //----------------------------------------------------- C and Fortran routines
-  void specjtms_(int* k, float* px);
-
+  void specjtms_(int* k, float* px, float* pxsmo, float* spk0, float* f0);
   void genjtms3_(char* message, short iwave[], int* nwave, int len1);
-
   void makepings_(short iwave[], int* nwave);
 
   void gen65_(char* msg, int* mode65, double* samfac, int* nsendingsh,

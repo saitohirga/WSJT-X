@@ -134,7 +134,7 @@ void CPlotter::draw(float green[], int ig)                       //draw()
   for(i=0; i<ig; i++) {
     y = green[i];
     painter1.drawPoint(i,0);
-    int y2 = 7*(y-m_plotZero);
+    int y2 = 4*(y-m_plotZero);
     if (y2<0) y2=0;
     if (y2>254) y2=254;
     LineBuf[j].setX(i);

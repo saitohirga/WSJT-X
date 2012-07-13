@@ -392,6 +392,7 @@ void MainWindow::dataSink(int k)
   static int nwrite=0;
   static int k0=99999999;
   static float px=0.0;
+  static float pxsmo,spk0,f0;
   static float sqave=0.0;
   static float green[704];
   static int ig=0;
@@ -418,7 +419,8 @@ void MainWindow::dataSink(int k)
   sqave=0.95*sqave + 0.05*sq;
   float pxave=10.0*log10(sqave/2048.0) - 23.0;
 
-//  specjtms_(&k,&px);
+  specjtms_(&k,&px,&pxsmo,&spk0,&f0);
+  if(spk0 > 3.0) qDebug() << (k-2048.0)/48000.0 << spk0 << f0;
   QString t;
   t.sprintf(" Rx noise: %5.1f ",pxave);
   lab2->setText(t);
