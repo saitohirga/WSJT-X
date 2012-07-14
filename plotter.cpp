@@ -130,13 +130,6 @@ void CPlotter::draw(float green[], int ig)                       //draw()
   QRect tmp(0,0,w,h);
   painter2D.fillRect(tmp,Qt::black);
   QPoint LineBuf[MAX_SCREENSIZE];
-
-  for(i=0; i<256; i++) {                     //Zero the histograms
-    m_hist1[i]=0;
-    m_hist2[i]=0;
-  }
-
-
   int kline=mscom_.kline;
 
   for(i=0; i<h; i++) {
@@ -153,7 +146,6 @@ void CPlotter::draw(float green[], int ig)                       //draw()
     }
     if (y1<0) y1=0;
     if (y1>254) y1=254;
-    m_hist1[y1]++;
     painter1.setPen(m_ColorTbl[y1]);
     painter1.drawPoint(kline,h-i);
   }
@@ -161,7 +153,7 @@ void CPlotter::draw(float green[], int ig)                       //draw()
   painter2D.setPen(Qt::green);
   j=0;
   for(i=0; i<ig; i++) {
-    y = green[i];
+    y=green[i];
     painter1.drawPoint(i,0);
     int y2 = 4*(y-m_plotZero);
     if (y2<0) y2=0;
@@ -170,6 +162,7 @@ void CPlotter::draw(float green[], int ig)                       //draw()
     LineBuf[j].setY(h-y2);
     j++;
   }
+  m_aveGreen=0.9*m_aveGreen + 0.1*green[ig];
   painter2D.drawPolyline(LineBuf,ig);
   update();                              //trigger a new paintEvent
 }
@@ -381,28 +374,7 @@ void CPlotter::mouseDoubleClickEvent(QMouseEvent *event)  //mouse2click
 
 int CPlotter::autoZero()                                        //autoZero()
 {
-  m_z1=0;
-  m_z2=0;
-  int sum1=0;
-  for(int i=0; i<256; i++) {
-    sum1 += m_hist1[i];
-    if(sum1 > m_Size.width()/2) {
-      m_z1=i;
-      break;
-    }
-  }
-  int sum2=0;
-  for(int i=0; i<256; i++) {
-    sum2 += m_hist2[i];
-    if(sum2 > 16384) {
-      m_z2=i;
-      break;
-    }
-  }
-  double gain = pow(10.0,0.05*(m_plotGain+7));
-//  double dz1 = (m_z1-38)/(5.0*gain);
-  double dz2 = (m_z2-28)/(5.0*gain);
-  if(m_z2 < 255) m_plotZero = int(m_plotZero + dz2 + 0.5);
+  m_plotZero=m_aveGreen-5;
   return m_plotZero;
 }
 

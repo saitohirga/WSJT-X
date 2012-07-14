@@ -140,6 +140,7 @@ void WideGraph::on_freqSpanSpinBox_valueChanged(int n)
 void WideGraph::on_waterfallAvgSpinBox_valueChanged(int n)
 {
   m_waterfallAvg = n;
+  ui->widePlot->m_waterfallAvg = n;
 }
 
 void WideGraph::on_zeroSpinBox_valueChanged(int value)

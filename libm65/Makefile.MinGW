@@ -17,7 +17,7 @@ CFLAGS = -I. -fbounds-check
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    libm65.a ms3.exe JTMScode.exe
+all:    libm65.a ms3.exe t1.exe
 
 OBJS1 = trimlist.o display.o getdphi.o pctile.o ccf65.o \
 	decode1a.o sort.o filbig.o fil6521.o afc65b.o \
@@ -31,19 +31,20 @@ OBJS1 = trimlist.o display.o getdphi.o pctile.o ccf65.o \
 	astro.o tm2.o sun.o moondop.o coord.o tmoonsub.o \
 	geocentric.o moon2.o toxyz.o dot.o dcoord.o f77_wisdom.o \
 	gen65.o chkmsg.o ptt.o astrosub.o astro0.o recvpkt.o symspec.o \
-	iqcal.o iqfix.o timf2.o s3avg.o genjtms3.o \
-	entail.o encode232.o scr258.o analytic.o db.o
+	iqcal.o iqfix.o timf2.o s3avg.o genjtms3.o analytic.o \
+	db.o specjtms.o genmsk.o
+
 libm65.a: $(OBJS1)
 	ar cr libm65.a $(OBJS1) 
 	ranlib libm65.a
 
-OBJS3 = ms3.o specjtms.o
+OBJS3 = ms3.o 
 ms3.exe: $(OBJS3) libm65.a
-	$(FC) -o ms3.exe $(OBJS3) libm65.a ../libfftw3f_win.a 
+	$(FC) -o ms3.exe $(OBJS3) libm65.a ../libfftw3f_win.a \
 
-OBJS2 = JTMScode.o genjtms3a.o fano232.o
-JTMScode.exe: $(OBJS2) libm65.a
-	$(FC) -o JTMScode.exe $(OBJS2) libm65.a ../libfftw3f_win.a 
+OBJS2 = JT65code.o
+JT65code.exe: $(OBJS2) libm65.a
+	$(FC) -o JT65code.exe $(OBJS2) libm65.a
 
 INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
 	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
@@ -65,9 +66,9 @@ OBJS4 = tastro.o astro0.o libm65.a
 tastro.exe: $(OBJS4)
 	$(FC) $(FFLAGS) -o tastro.exe $(OBJS4) libm65.a 
 
-OBJS5 = t1.o timer.o libm65.a
+OBJS5 = t1.o genms.o libm65.a
 t1.exe: $(OBJS5)
-	$(FC) $(FFLAGS) -o t1.exe $(OBJS5) libm65.a 
+	$(FC) $(FFLAGS) -o t1.exe $(OBJS5) libm65.a ../libfftw3f_win.a \
 
 #astro0.o: ../astro0.f90
 #	$(FC) -c $(FFLAGS) -o astro0.o ../astro0.f90
