@@ -1187,7 +1187,8 @@ void MainWindow::guiUpdate()
     ba2msg(ba,message);
     ba2msg(ba,msgsent);
     int len1=28;
-    genjtms3_(message,iwave,&nwave,len1);
+//    genjtms3_(message,iwave,&nwave,len1);
+    genmsk_(message,iwave,&nwave,len1);
 //    makepings_(iwave,&nwave);
     if(m_restart) {
       QFile f("jtms3_tx.log");

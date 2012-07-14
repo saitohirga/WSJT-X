@@ -28,6 +28,7 @@ public:
   QColor  m_ColorTbl[256];
   int     m_plotZero;
   int     m_plotGain;
+  qint32  m_waterfallAvg;
   qint32  m_DF;
   qint32  m_tol;
 
@@ -77,6 +78,7 @@ private:
   bool    m_2Dspec;
   bool    m_paintAllZoom;
   double  m_CenterFreq;
+  double  m_aveGreen;
   qint64  m_ZoomStartFreq;
   qint64  m_FreqOffset;
   qint32  m_dBStepSize;
@@ -85,8 +87,6 @@ private:
   bool    m_dataFromDisk;
   char    m_sutc[5];
   qint32  m_line;
-  qint32  m_hist1[256];
-  qint32  m_hist2[256];
   qint32  m_z1;
   qint32  m_z2;
   qint32  m_nkhz;
