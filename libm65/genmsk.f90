@@ -65,7 +65,6 @@ subroutine genmsk(msg28,iwave,nwave)
   f0=48000.d0/nsps
   dfgen=0.5d0*f0
   foffset=1500.d0 - f0
-  print*,f0,dfgen,foffset
   t=0.d0
   k=0
   phi=0.d0
@@ -94,6 +93,10 @@ subroutine genmsk(msg28,iwave,nwave)
 
   if(isrch.eq.0) iwave(k+1:)=0
   nwave=k
+
+!  call makepings(iwave,nwave)
+!  write(71) iwave
+!  call flush(71)
 
   return
 end subroutine genmsk

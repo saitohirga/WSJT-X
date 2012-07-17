@@ -2,9 +2,10 @@ subroutine analytic(d,npts,nfft,s,c)
 
 ! Convert real data to analytic signal
 
+  parameter (NFFTMAX=128*1024)
   real d(npts)
   real s(npts)
-  complex c(npts)
+  complex c(NFFTMAX)
 
   nh=nfft/2
   fac=2.0/nfft

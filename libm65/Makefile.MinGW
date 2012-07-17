@@ -17,7 +17,7 @@ CFLAGS = -I. -fbounds-check
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    libm65.a ms3.exe t1.exe
+all:    libm65.a msk.exe 
 
 OBJS1 = trimlist.o display.o getdphi.o pctile.o ccf65.o \
 	decode1a.o sort.o filbig.o fil6521.o afc65b.o \
@@ -32,15 +32,17 @@ OBJS1 = trimlist.o display.o getdphi.o pctile.o ccf65.o \
 	geocentric.o moon2.o toxyz.o dot.o dcoord.o f77_wisdom.o \
 	gen65.o chkmsg.o ptt.o astrosub.o astro0.o recvpkt.o symspec.o \
 	iqcal.o iqfix.o timf2.o s3avg.o genjtms3.o analytic.o \
-	db.o specjtms.o genmsk.o
+	db.o specjtms.o genmsk.o mskdf.o tweak1.o syncmsk.o \
+	lenmsk.o decodemsk.o ping.o makepings.o alignmsg.o match.o \
+	rtping.o jtmsk.o hipass.o setupmsk.o foldmsk.o 
 
 libm65.a: $(OBJS1)
 	ar cr libm65.a $(OBJS1) 
 	ranlib libm65.a
 
-OBJS3 = ms3.o 
-ms3.exe: $(OBJS3) libm65.a
-	$(FC) -o ms3.exe $(OBJS3) libm65.a ../libfftw3f_win.a \
+OBJS3 = msk.o 
+msk.exe: $(OBJS3) libm65.a
+	$(FC) -o msk.exe $(OBJS3) libm65.a ../libfftw3f_win.a 
 
 OBJS2 = JT65code.o
 JT65code.exe: $(OBJS2) libm65.a

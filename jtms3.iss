@@ -1,6 +1,6 @@
 [Setup]
 AppName=JTMS3
-AppVerName=JTMS3 Version 0.2 r2516
+AppVerName=JTMS3 Version 0.2 r2517
 AppCopyright=Copyright (C) 2001-2012 by Joe Taylor, K1JT
 DefaultDirName=c:\JTMS3
 DefaultGroupName=JTMS3
