@@ -6,10 +6,10 @@
 
 QT       += core gui network
 CONFIG   += qwt thread
-#CONFIG   += console
+CONFIG   += console
 
 TARGET = jtms3
-VERSION = 0.1
+VERSION = 0.2
 TEMPLATE = app
 
 win32 {
