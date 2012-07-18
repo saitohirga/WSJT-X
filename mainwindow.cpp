@@ -8,8 +8,6 @@
 #include "sleep.h"
 #include <portaudio.h>
 
-#define NFFT 32768
-
 short int iwave[30*48000];            //Wave file for Tx audio
 int nwave;                            //Length of Tx waveform
 bool btxok;                           //True if OK to transmit
@@ -17,7 +15,6 @@ double outputLatency;                 //Latency in seconds
 qint16 id[30*48000];
 
 WideGraph* g_pWideGraph = NULL;
-QSharedMemory mem_m65("mem_m65");
 
 QString rev="$Rev$";
 QString Program_Title_Version="  JTMS3   v0.2, r" + rev.mid(6,4) +
@@ -79,15 +76,6 @@ MainWindow::MainWindow(QWidget *parent) :
           SLOT(showStatusMessage(QString)));
   createStatusBar();
 
-  connect(&proc_m65, SIGNAL(readyReadStandardOutput()),
-                    this, SLOT(readFromStdout()));
-
-  connect(&proc_m65, SIGNAL(error(QProcess::ProcessError)),
-          this, SLOT(m65_error()));
-
-  connect(&proc_m65, SIGNAL(readyReadStandardError()),
-          this, SLOT(readFromStderr()));
-
   QTimer *guiTimer = new QTimer(this);
   connect(guiTimer, SIGNAL(timeout()), this, SLOT(guiUpdate()));
   guiTimer->start(100);                            //Don't change the 100 ms!
@@ -114,56 +102,20 @@ MainWindow::MainWindow(QWidget *parent) :
   m_saveAll=false;
   m_onlyEME=false;
   m_sec0=-1;
-  m_hsym0=-1;
   m_palette="CuteSDR";
   m_jtms3RxLog=1;                     //Write Date and Time to RxLog
   m_nutc0=9999;
-  m_kb8rq=false;
   m_NB=false;
-  m_mode="JT65B";
-  m_mode65=2;
-  m_fs96000=true;
-  m_udpPort=50004;
-  m_adjustIQ=0;
-  m_applyIQcal=0;
+  m_mode="JTMSK";
   m_colors="000066ff0000ffff00969696646464";
 
   ui->xThermo->setFillBrush(Qt::green);
 
-#ifdef WIN32
-  while(true) {
-      int iret=killbyname("m65.exe");
-      if(iret == 603) break;
-      if(iret != 0) msgBox("KillByName return code: " +
-                           QString::number(iret));
-  }
-#endif
-/*
-  if(!mem_m65.attach()) {
-    if (!mem_m65.create(sizeof(mscom_))) {
-      msgBox("Unable to create shared memory segment.");
-    }
-  }
-  char *to = (char*)mem_m65.data();
-  int size=sizeof(mscom_);
-  if(mscom_.newdat==0) {
-    int noffset = 4*4*5760000 + 4*4*322*32768 + 4*4*32768;
-    to += noffset;
-    size -= noffset;
-  }
-  memset(to,0,size);         //Zero all decoding params in shared memory
-*/
   PaError paerr=Pa_Initialize();                    //Initialize Portaudio
   if(paerr!=paNoError) {
     msgBox("Unable to initialize PortAudio.");
   }
   readSettings();		             //Restore user's setup params
-  QFile lockFile(m_appDir + "/.lock"); //Create .lock so m65 will wait
-  lockFile.open(QIODevice::ReadWrite);
-  QFile quitFile(m_appDir + "/.lock");
-  quitFile.remove();
-//  proc_m65.start(QDir::toNativeSeparators(m_appDir + "/m65 -s"));
-
   m_pbdecoding_style1="QPushButton{background-color: cyan; \
       border-style: outset; border-width: 1px; border-radius: 5px; \
       border-color: black; min-width: 5em; padding: 3px;}";
@@ -357,7 +309,7 @@ void MainWindow::readSettings()
                                  "PaletteAFMHot",false).toBool());
   ui->actionBlue->setChecked(settings.value(
                                  "PaletteBlue",false).toBool());
-  m_mode=settings.value("Mode","JT65B").toString();
+  m_mode=settings.value("Mode","JTMSK").toString();
   ui->actionNone->setChecked(settings.value("SaveNone",true).toBool());
   ui->actionSave_all->setChecked(settings.value("SaveAll",false).toBool());
   m_saveAll=ui->actionSave_all->isChecked();
@@ -445,23 +397,6 @@ void MainWindow::dataSink(int k)
     g_pWideGraph->dataSink2(green,ig-1);
   }
 
-  /*
-  //Average over specified number of spectra
-  if (n==0) {
-    for (int i=0; i<NFFT; i++)
-      splot[i]=s[i];
-  } else {
-    for (int i=0; i<NFFT; i++)
-      splot[i] += s[i];
-  }
-  n++;
-
-  if (n>=m_waterfallAvg) {
-    for (int i=0; i<NFFT; i++) {
-        splot[i] /= n;                           //Normalize the average
-    }
-
-*/
 // Time according to this computer
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
   int n300 = (ms/100) % 300;
@@ -722,14 +657,6 @@ void MainWindow::OnExit()
 {
   g_pWideGraph->saveSettings();
   m_killAll=true;
-  mem_m65.detach();
-  QFile quitFile(m_appDir + "/.quit");
-  quitFile.open(QIODevice::ReadWrite);
-  QFile lockFile(m_appDir + "/.lock");
-  lockFile.remove();                      // Allow m65 to terminate
-  bool b=proc_m65.waitForFinished(1000);
-  if(!b) proc_m65.kill();
-  quitFile.remove();
   qApp->exit(0);                          // Exit the event loop
 }
 
@@ -972,147 +899,9 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
 
 void MainWindow::decode()                                       //decode()
 {
-/*
-  ui->DecodeButton->setStyleSheet(m_pbdecoding_style1);
-  if(mscom_.nagain==0 && (!m_diskData)) {
-    qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-    int imin=ms/60000;
-    int ihr=imin/60;
-    imin=imin % 60;
-    mscom_.nutc=100*ihr + imin;
-  }
 
-  mscom_.idphi=m_dPhi;
-  mscom_.mousedf=g_pWideGraph->DF();
-  mscom_.mousefqso=g_pWideGraph->QSOfreq();
-  mscom_.ndepth=m_ndepth;
-  mscom_.ndiskdat=0;
-  if(m_diskData) mscom_.ndiskdat=1;
-  mscom_.neme=0;
-  if(ui->actionOnly_EME_calls->isChecked()) mscom_.neme=1;
-
-  int ispan=int(g_pWideGraph->fSpan());
-  if(ispan%2 == 1) ispan++;
-  int ifc=int(1000.0*(mscom_.fcenter - int(mscom_.fcenter))+0.5);
-  int nfa=g_pWideGraph->nStartFreq();
-  int nfb=nfa+ispan;
-  int nfshift=nfa + ispan/2 - ifc;
-
-  mscom_.nfa=nfa;
-  mscom_.nfb=nfb;
-  mscom_.nfcal=m_fCal;
-  mscom_.nfshift=nfshift;
-  mscom_.mcall3=0;
-  if(m_call3Modified) mscom_.mcall3=1;
-  mscom_.ntimeout=m_timeout;
-  mscom_.ntol=m_tol;
-  mscom_.nxant=0;
-  if(m_xpolx) mscom_.nxant=1;
-  if(mscom_.nutc < m_nutc0) m_jtms3RxLog |= 1;  //Date and Time to all65.txt
-  m_nutc0=mscom_.nutc;
-//  mscom_.jtms3RxLog=m_jtms3RxLog;
-  mscom_.nfsample=96000;
-  if(!m_fs96000) mscom_.nfsample=95238;
-  mscom_.nxpol=0;
-  if(m_xpol) mscom_.nxpol=1;
-  mscom_.mode65=m_mode65;
-
-  QString mcall=(m_myCall+"            ").mid(0,12);
-  QString mgrid=(m_myGrid+"            ").mid(0,6);
-  QString hcall=(ui->dxCallEntry->text()+"            ").mid(0,12);
-  QString hgrid=(ui->dxGridEntry->text()+"      ").mid(0,6);
-
-  strncpy(mscom_.mycall, mcall.toAscii(), 12);
-  strncpy(mscom_.mygrid, mgrid.toAscii(), 6);
-  strncpy(mscom_.hiscall, hcall.toAscii(), 12);
-  strncpy(mscom_.hisgrid, hgrid.toAscii(), 6);
-  strncpy(mscom_.datetime, m_dateTime.toAscii(), 20);
-
-  //newdat=1  ==> this is new data, must do the big FFT
-  //nagain=1  ==> decode only at fQSO +/- Tol
-
-  char *to = (char*)mem_m65.data();
-  char *from = (char*) mscom_.d4;
-  int size=sizeof(mscom_);
-  if(mscom_.newdat==0) {
-    int noffset = 4*4*5760000 + 4*4*322*32768 + 4*4*32768;
-    to += noffset;
-    from += noffset;
-    size -= noffset;
-  }
-  memcpy(to, from, qMin(mem_m65.size(), size));
-  mscom_.nagain=0;
-  mscom_.ndiskdat=0;
-  m_call3Modified=false;
-
-  QFile lockFile(m_appDir + "/.lock");       // Allow m65 to start
-  lockFile.remove();
-
-  decodeBusy(true);
-  */
 }
 
-void MainWindow::m65_error()                                     //m65_error
-{
-  if(!m_killAll) {
-    msgBox("Error starting or running\n" + m_appDir + "/m65 -s");
-    exit(1);
-  }
-}
-
-void MainWindow::readFromStderr()                             //readFromStderr
-{
-  QByteArray t=proc_m65.readAllStandardError();
-  msgBox(t);
-}
-
-
-void MainWindow::readFromStdout()                             //readFromStdout
-{
-  while(proc_m65.canReadLine())
-  {
-    QByteArray t=proc_m65.readLine();
-    if(t.indexOf("<m65aFinished>") >= 0) {
-      if(m_widebandDecode) {
-        m_widebandDecode=false;
-      }
-      QFile lockFile(m_appDir + "/.lock");
-      lockFile.open(QIODevice::ReadWrite);
-      ui->DecodeButton->setStyleSheet("");
-      decodeBusy(false);
-      m_jtms3RxLog=0;
-      m_startAnother=m_loopall;
-      return;
-    }
-
-    if(t.indexOf("!") >= 0) {
-      int n=t.length();
-      if(n>=30) ui->decodedTextBrowser->append(t.mid(1,n-3));
-      if(n<30) ui->decodedTextBrowser->append(t.mid(1,n-3));
-      n=ui->decodedTextBrowser->verticalScrollBar()->maximum();
-      ui->decodedTextBrowser->verticalScrollBar()->setValue(n);
-    }
-
-    if(t.indexOf("@") >= 0) {
-//      m_messagesText += t.mid(1);
-      m_widebandDecode=true;
-    }
-
-    if(t.indexOf("&") >= 0) {
-      QString q(t);
-      QString callsign=q.mid(5);
-      callsign=callsign.mid(0,callsign.indexOf(" "));
-      if(callsign.length()>2) {
-        if(m_worked[callsign]) {
-          q=q.mid(1,4) + "  " + q.mid(5);
-        } else {
-          q=q.mid(1,4) + " *" + q.mid(5);
-        }
-//        m_bandmapText += q;
-      }
-    }
-  }
-}
 
 void MainWindow::on_EraseButton_clicked()                          //Erase
 {
@@ -1660,7 +1449,7 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   QDateTime t = QDateTime::currentDateTimeUtc();
   QString logEntry=t.date().toString("yyyy-MMM-dd,") +
       t.time().toString("hh:mm,") + m_hisCall + "," + m_hisGrid + "," +
-      QString::number(nMHz) + ",JT65B\n";
+      QString::number(nMHz) + ",JTMSK\n";
   QFile f("wsjt.log");
   if(!f.open(QFile::Append)) {
     msgBox("Cannot open file \"wsjt.log\".");
