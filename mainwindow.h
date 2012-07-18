@@ -235,11 +235,8 @@ extern "C" {
   void specjtms_(int* k, float* px, float* pxsmo, float* spk0, float* f0);
   void genjtms3_(char* message, short iwave[], int* nwave, int len1);
   void genmsk_(char* message, short iwave[], int* nwave, int len1);
-  void makepings_(short iwave[], int* nwave);
-
   void gen65_(char* msg, int* mode65, double* samfac, int* nsendingsh,
               char* msgsent, short iwave[], int* nwave, int len1, int len2);
-
   int ptt_(int* nport, int* itx, int* iptt);
   }
 
