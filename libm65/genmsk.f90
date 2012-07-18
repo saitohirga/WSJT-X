@@ -13,9 +13,9 @@ subroutine genmsk(msg28,iwave,nwave)
   real*8 dt,phi,f,f0,dfgen,dphi,twopi,foffset,samfac
   integer np(9)
   data np/5,7,9,11,13,17,19,23,29/  !Permissible message lengths
-!                   1         2         3         4         5         6
+!                    1         2         3         4         5         6
 !          0123456789012345678901234567890123456789012345678901234567890123
-  data cc/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ./?-                 _     @'/
+  data cc/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ./?-    _                  @'/
 
 !###
   samfac=1.d0
@@ -35,12 +35,14 @@ subroutine genmsk(msg28,iwave,nwave)
   i=8
 2 msglen=np(i)
 
-! Convert message to a bit sequence, 7 bits per character (6 + even parity)
+! Convert message to a bit sequence, 7 bits per character (6 + odd parity)
+! Use odd parity because then code 44 (from a 0-63 range) is the 7-bit
+! Barker code.
 3  sent=0
   k=0
   do j=1,msglen
      if(msg(j:j).eq.' ') then
-        i=58
+        i=1 + 44
         go to 5
      else
         do i=1,64
@@ -54,7 +56,7 @@ subroutine genmsk(msg28,iwave,nwave)
         m=m+sent(k)
      enddo
      k=k+1
-     sent(k)=iand(m,1)                      !Insert parity bit
+     sent(k) = 1 - iand(m,1)                !Insert odd parity bit
   enddo
   nsym=k
 
