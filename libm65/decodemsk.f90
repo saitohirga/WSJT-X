@@ -18,7 +18,7 @@ subroutine decodemsk(cdat,npts,cw,i1,nchar,s2,msg)
      smax=0.
      do k=0,40
         kk=k
-        if(k.eq.40) kk=57
+        if(k.eq.40) kk=44
         z=0.
         do i=1,168
            z=z + cdat(ia+i)*conjg(cw(i,kk))
@@ -32,7 +32,7 @@ subroutine decodemsk(cdat,npts,cw,i1,nchar,s2,msg)
         endif
      enddo
      msg(j:j)=cc(kpk+1:kpk+1)
-     if(kpk.eq.57) msg(j:j)=' '
+     if(kpk.eq.44) msg(j:j)=' '
   enddo
 
   return

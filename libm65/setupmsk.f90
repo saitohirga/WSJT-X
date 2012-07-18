@@ -7,9 +7,9 @@ subroutine setupmsk(cw,cwb)
   integer nb(7)
 !  real*8 twopi,dt,f0,f1
   character cc*64
-!                   1         2         3         4         5         6
+!                    1         2         3         4         5         6
 !          0123456789012345678901234567890123456789012345678901234567890123
-  data cc/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ./?-                 _     @'/
+  data cc/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ./?-    _                  @'/
 
   nsps=24
   twopi=8.d0*atan(1.d0)
@@ -28,7 +28,7 @@ subroutine setupmsk(cw,cwb)
         m=m+nb(k)
      enddo
      k=k+1
-     nb(k)=iand(m,1)                      !Insert parity bit
+     nb(k) = 1 - iand(m,1)                !Insert odd parity bit
 
      phi=0.
      j=0
@@ -45,7 +45,7 @@ subroutine setupmsk(cw,cwb)
         enddo
      enddo
   enddo
-  cwb=cw(1:168,57)
+  cwb=cw(1:168,44)
 
   return
 end subroutine setupmsk
