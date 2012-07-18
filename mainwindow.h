@@ -34,9 +34,6 @@ public slots:
   void diskDat();
   void diskWriteFinished();
   void freezeDecode(int n);
-  void readFromStdout();
-  void readFromStderr();
-  void m65_error();
   void guiUpdate();
   void doubleClickOnCall(QString hiscall, bool ctrl);
 
