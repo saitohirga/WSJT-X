@@ -1,0 +1,64 @@
+	  JTMSK: Possible New Mode for Meteor Scatter
+	  -------------------------------------------
+
+1. Transmitting
+
+Messages are sent character-by character, 6 bits plus odd parity.
+Message length can be one of {5 7 9 11 13 17 19 23 29}; messages are
+padded with blanks up to the next available length from this list.
+
+Modulation is Minimum Shift Keying (MSK) at 2000 baud.  This is a form
+of constant-envelope, continuous-phase modulation, equivalent to FSK
+with offset equal to half the bit rate.  JTMSK sends a "0" bit with
+0.5 ms of a sine wave at f0=1000 Hz, and a "1" bit at f1=2000 Hz.
+Carrier phase increment over one bit is therefore 0.5 cycles (pi
+radians) at f0 and 1.0 cycles (two*pi radians) at f1.  With odd parity
+there is always an odd number of 1's and even number of 0's in a
+character, so the phase increment over a full character is always an
+integer number of cycles.
+
+2. Receiving
+
+  a. Pings are detected (or mouse-picked data is selected) as in
+     WSJT9, except that it's done in real time rather than at the end
+     of an Rx interval.  
+
+  b. Compute real-to-complex FFT.  Zap birdies, remove frequency 
+     components outside the range 300 - 2700 Hz, and convert to analytic
+     time-domain signal.  (analytic)
+
+  c. Square the complex signal, cx2=cx*cx, and compute FFT.  Look for
+     narrow carriers at frequency 2000 + 2*DF +/- 2*Tol and 2000 Hz
+     higher.  (msdf)
+
+  d. If carrier is found, measure frequency f and phase phi.  Multiply
+     cx by exp(-twopi*i*(f-1500)*t - phi) to recover the
+     standard-frequency baseband signal.  (tweak1)
+
+  e. Establish symbol and character sync by cross-correlating with
+     conjg(cwb), where cwb is the MSK waveform for the <space>
+     character.
+
+  f. Find message length by computing ACF (of what?  cdat?  soft
+     symbol values?)
+ 
+  g. Cross-correlate the complex standard-frequency signal against
+     conjugated templates for each character in the JTMSK alphabet.
+     Best match yields the decoded character.
+
+  h. Decode the message by cross-correlating character-length segments
+     of cdat against complex waveforms for each possible character.
+
+  i. If msglen is established and long enough, try folding the data and
+     determining best-fit characters as above.
+
+3. Comparison of modes:
+
+                   |    Meteor Scatter     |    IonoScatter
+                   |  FSK441  JTMS  JTMSK  |   JT6M    ISCAT
+-------------------+-----------------------+-------------------
+T/R period (s)     |    30     30    30    |    30       30
+Modulation type    |  4-FSK   MSK*  MSK*   |  44-FSK    41-FSK
+Keying rate (baud) |   441   1378  2000    |   21.5     43.1
+Characters/s       |   147    197   286    |   14.3     32.3
+Bandwidth (Hz)     |  1764   1378  2000    |   947      1809
