@@ -169,10 +169,10 @@ MainWindow::MainWindow(QWidget *parent) :
   if(ui->actionCuteSDR->isChecked()) on_actionCuteSDR_triggered();
   if(ui->actionAFMHot->isChecked()) on_actionAFMHot_triggered();
   if(ui->actionBlue->isChecked()) on_actionBlue_triggered();
-                                             // End of MainWindow constructor
-}
 
-  //--------------------------------------------------- MainWindow destructor
+}                                          // End of MainWindow constructor
+
+//--------------------------------------------------- MainWindow destructor
 MainWindow::~MainWindow()
 {
   writeSettings();
@@ -203,12 +203,10 @@ void MainWindow::writeSettings()
   settings.setValue("TxFirst",m_txFirst);
   settings.setValue("DXcall",ui->dxCallEntry->text());
   settings.setValue("DXgrid",ui->dxGridEntry->text());
-
   if(g_pWideGraph->isVisible()) {
     m_wideGraphGeom = g_pWideGraph->geometry();
     settings.setValue("WideGraphGeom",m_wideGraphGeom);
   }
-
   settings.endGroup();
 
   settings.beginGroup("Common");
@@ -399,9 +397,8 @@ void MainWindow::dataSink(int k)
 
 // Time according to this computer
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-  int n300 = (ms/100) % 300;
 
-//  qDebug() << k/2048 << 0.001*(ms % 60000);
+  int n300 = (ms/100) % 300;
   if(n300 >= 295 and nwrite==0) {
     nwrite=1;
     if(m_saveAll) {
@@ -464,7 +461,6 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
       soundOutThread.quitExecution=true;
       soundOutThread.wait(1000);
       soundOutThread.setOutputDevice(m_paOutDevice);
-//      soundOutThread.start(QThread::HighPriority);
     }
   }
 }
@@ -721,7 +717,6 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
     on_stopButton_clicked();
     m_diskData=true;
     int dbDgrd=0;
-//    if(m_myCall=="K1JT" and m_idInt<0) dbDgrd=m_idInt;
     *future1 = QtConcurrent::run(getfile, fname, m_xpol, dbDgrd);
     watcher1->setFuture(*future1);
   }
@@ -843,58 +838,33 @@ void MainWindow::on_actionNone_triggered()                    //Save None
   m_saveAll=false;
 }
 
-// ### Implement "Save Last" here? ###
-
 void MainWindow::on_actionSave_all_triggered()                //Save All
 {
   m_saveAll=true;
 }
-                                          //Display list of keyboard shortcuts
+
 void MainWindow::on_actionKeyboard_shortcuts_triggered()
 {
-  stub();
+  stub();                                 //Display list of keyboard shortcuts
 }
-                                              //Display list of mouse commands
+
 void MainWindow::on_actionSpecial_mouse_commands_triggered()
 {
-  stub();
+  stub();                                    //Display list of mouse commands
 }
-                                              //Diaplay list of Add-On pfx/sfx
 void MainWindow::on_actionAvailable_suffixes_and_add_on_prefixes_triggered()
 {
-  stub();
+  stub();                                    //Display list of Add-On pfx/sfx
 }
 
 void MainWindow::on_DecodeButton_clicked()                    //Decode request
 {
-  /*
-  int n=m_sec0%60;
-  if(m_monitoring and n>47 and (n<52 or m_decoderBusy)) return;
-  if(!m_decoderBusy) {
-    mscom_.newdat=0;
-    mscom_.nagain=1;
-    decode();
-  }
-  */
+
 }
 
 void MainWindow::freezeDecode(int n)                          //freezeDecode()
 {
-  /*
-  if(n==2) {
-    ui->tolSpinBox->setValue(5);
-    mscom_.ntol=m_tol;
-    mscom_.mousedf=0;
-  } else {
-    ui->tolSpinBox->setValue(3);
-    mscom_.ntol=m_tol;
-  }
-  if(!m_decoderBusy) {
-    mscom_.nagain=1;
-    mscom_.newdat=0;
-    decode();
-  }
-  */
+
 }
 
 void MainWindow::decode()                                       //decode()
@@ -976,9 +946,7 @@ void MainWindow::guiUpdate()
     ba2msg(ba,message);
     ba2msg(ba,msgsent);
     int len1=28;
-//    genjtms3_(message,iwave,&nwave,len1);
     genmsk_(message,iwave,&nwave,len1);
-//    makepings_(iwave,&nwave);
     if(m_restart) {
       QFile f("jtms3_tx.log");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
