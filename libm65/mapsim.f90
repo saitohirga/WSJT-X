@@ -34,23 +34,23 @@ program mapsim
   b=sin(pol/rad)
   dt=1.d0/fsample
 
-  do isig=10,10
-     f=-23 + 3*isig 
-     dt=0.05d0*(isig-1)
+  do isig=1,20
+     f=-23000 + 3000*(isig-1)
+     dphi=twopi*f*dt + 0.5*twopi
+
 !     snrdb=-(19.0 + (isig-1)/2.0)
      snrdb=-20.0
-     sig=sqrt(2500.0/96000.0) * 10.0**(0.05*snrdb)
-     sig=1.6*sig
-     dphi=twopi*f*dt
+     sig=sqrt(2.0*2500.0/96000.0) * 10.0**(0.05*snrdb)
+
      phi=0.
-     i0=fsample*(3.5d0+dt)
-     print*,f,dt,dphi,i0,sig
+     i0=fsample*(3.5d0+0.05d0*(isig-1))
 
      do i=1,nwave
         phi=phi + dphi
-!        if(phi.gt.twopi) phi=phi-twopi
-!        xphi=phi
-        z=sig*cwave(i)*cmplx(cos(phi),sin(phi))
+        if(phi.lt.-twopi) phi=phi+twopi
+        if(phi.gt.twopi) phi=phi-twopi
+        xphi=phi
+        z=sig*cwave(i)*cmplx(cos(xphi),-sin(xphi))
         zx=a*z
         zy=b*z
         j=i+i0
