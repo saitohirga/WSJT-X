@@ -15,6 +15,10 @@ program mapsim
   if(nargs.ne.9) then
      print*,'Usage: mapsim level "message"    mode f1 f2 nsigs pol SNR nfiles'
      print*,'Example:        25 "CQ K1ABC FN42" B -22 33  20    45 -20    1'
+     print*,' '
+     print*,'Enter message = "" to use entries in msgs.txt.'
+     print*,'Enter pol = -1 to generate a range of polarization angles.'
+     print*,'Enter SNR = 0 to generate a range of SNRs.'
      go to 999
   endif
 
