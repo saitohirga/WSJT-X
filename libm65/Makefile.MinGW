@@ -17,7 +17,7 @@ CFLAGS = -I. -fbounds-check
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    libm65.a m65.exe JT65code.exe
+all:    libm65.a m65.exe JT65code.exe mapsim.exe
 
 OBJS1 = trimlist.o display.o getdphi.o pctile.o ccf65.o \
 	decode1a.o sort.o filbig.o fil6521.o afc65b.o \
@@ -49,6 +49,10 @@ m65.exe: $(OBJS3) libm65.a
 OBJS2 = JT65code.o
 JT65code.exe: $(OBJS2) libm65.a
 	$(FC) -o JT65code.exe $(OBJS2) libm65.a
+
+OBJS6 = mapsim.o cgen65.o noisegen.o gran.o
+mapsim.exe: $(OBJS6) libm65.a
+	$(FC) -o mapsim.exe $(OBJS6) libm65.a
 
 INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
 	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
