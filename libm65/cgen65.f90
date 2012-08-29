@@ -1,4 +1,4 @@
-subroutine cgen65(message,mode65,samfac,nsendingsh,msgsent,cwave,nwave)
+subroutine cgen65(message,mode65,nfast,samfac,nsendingsh,msgsent,cwave,nwave)
 
 ! Encodes a JT65 message into a wavefile.  
 ! Executes in 17 ms on opti-745.
@@ -7,7 +7,7 @@ subroutine cgen65(message,mode65,samfac,nsendingsh,msgsent,cwave,nwave)
   character*22 message          !Message to be generated
   character*22 msgsent          !Message as it will be received
   character*3 cok               !'   ' or 'OOO'
-  real*8 dt,phi,f,f0,dfgen,dphi,twopi,samfac
+  real*8 t,dt,phi,f,f0,dfgen,dphi,twopi,samfac,tsymbol
   complex cwave(NMAX)           !Generated complex wave file
   integer dgen(12)
   integer sent(63)
@@ -31,7 +31,7 @@ subroutine cgen65(message,mode65,samfac,nsendingsh,msgsent,cwave,nwave)
      first=.false.
   endif
 
-  call chkmsg(message,cok,nspecial,flip)
+  call chkmsg(message,cok,nspecial,flip) !See if it's a shorthand
   if(nspecial.eq.0) then
      call packmsg(message,dgen)          !Pack message into 72 bits
      nsendingsh=0
@@ -41,43 +41,44 @@ subroutine cgen65(message,mode65,samfac,nsendingsh,msgsent,cwave,nwave)
      call interleave63(sent,1)           !Apply interleaving
      call graycode(sent,63,1)            !Apply Gray code
      nsym=126                            !Symbols per transmission
-     nsps=4096
+     tsymbol=4096.d0/(nfast*11025.d0)    !Time per symbol
   else
+     nsendingsh=1                        !Flag for shorthand message
      nsym=32
-     nsps=16384
-     nsendingsh=1                         !Flag for shorthand message
+     tsymbol=16384.d0/11025.d0
   endif
-  if(mode65.eq.0) go to 900
-
-  nsps=nint(nsps*96000.d0/11025.d0)
 
 ! Set up necessary constants
   dt=1.d0/(samfac*96000.d0)
   f0=118*11025.d0/1024
   dfgen=mode65*11025.d0/4096.d0
+  t=0.d0
   phi=0.d0
-  i=0
   k=0
-  do j=1,nsym
-     f=f0
-     if(nspecial.ne.0 .and. mod(j,2).eq.0) f=f0+10*nspecial*dfgen
-     if(nspecial.eq.0 .and. flip*pr(j).lt.0.0) then
-        k=k+1
-        f=f0+(sent(k)+2)*dfgen
+  j0=0
+  ndata=nsym*96000.d0*samfac*tsymbol
+
+  do i=1,ndata
+     t=t+dt
+     j=int(t/tsymbol) + 1                    !Symbol number, 1-126
+     if(j.ne.j0) then
+        f=f0
+        if(nspecial.ne.0 .and. mod(j,2).eq.0) f=f0+10*nspecial*dfgen
+        if(nspecial.eq.0 .and. flip*pr(j).lt.0.0) then
+           k=k+1
+           f=f0+(sent(k)+2)*dfgen
+        endif
+        dphi=twopi*dt*f
+        j0=j
      endif
-     dphi=twopi*dt*f
-     do ii=1,nsps
-        phi=phi+dphi
-        if(phi.gt.twopi) phi=phi-twopi
-        xphi=phi
-        i=i+1
-!        iwave(i)=32767.0*sin(xphi)
-        cwave(i)=cmplx(cos(xphi),-sin(xphi))
-     enddo
+     phi=phi+dphi
+     if(phi.gt.twopi) phi=phi-twopi
+     xphi=phi
+     cwave(i)=cmplx(cos(xphi),-sin(xphi))
   enddo
 
-  cwave(nsym*nsps+1:)=0
-  nwave=nsym*nsps + 5512
+  cwave(ndata+1:)=0
+  nwave=ndata + 48000
   call unpackmsg(dgen,msgsent)
   if(flip.lt.0.0) then
      do i=22,1,-1
@@ -92,5 +93,5 @@ subroutine cgen65(message,mode65,samfac,nsendingsh,msgsent,cwave,nwave)
      if(nspecial.eq.4) msgsent='73'
   endif
 
-900 return
+  return
 end subroutine cgen65

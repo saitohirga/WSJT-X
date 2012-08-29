@@ -9,7 +9,7 @@ program mapsim
   complex cwave(NMAX)                 !Generated complex waveform (no noise)
   complex z,zx,zy
   real*8 fcenter,fsample,samfac,f,dt,twopi,phi,dphi
-  character msg0*22,message*22,msgsent*22,arg*8,fname*14,mode*2
+  character msg0*22,message*22,msgsent*22,arg*8,fname*13,mode*2
 
   nargs=iargc()
   if(nargs.ne.9) then
@@ -51,6 +51,8 @@ program mapsim
   mode65=1
   if(mode(1:1).eq.'B') mode65=2
   if(mode(1:1).eq.'C') mode65=4
+  nfast=1
+  if(mode(2:2).eq.'2') nfast=2
   open(12,file='msgs.txt',status='old')
 
   write(*,1000)
@@ -68,7 +70,7 @@ program mapsim
      call noisegen(d4,NMAX)                      !Generate Gaussuian noise
 
      if(msg0.ne.'                      ') then
-        call cgen65(message,mode65,samfac,nsendingsh,msgsent,cwave,nwave)
+        call cgen65(message,mode65,nfast,samfac,nsendingsh,msgsent,cwave,nwave)
      endif
 
      rewind 12
@@ -77,7 +79,8 @@ program mapsim
         if(msg0.eq.'                      ') then
            read(12,1004) message
 1004       format(a22)
-           call cgen65(message,mode65,samfac,nsendingsh,msgsent,cwave,nwave)
+           call cgen65(message,mode65,nfast,samfac,nsendingsh,msgsent,    &
+                cwave,nwave)
         endif
            
         if(npol.lt.0) pol=(isig-1)*180.0/nsigs
@@ -89,7 +92,7 @@ program mapsim
         snrdbx=snrdb
         if(snrdb.ge.-1.0) snrdbx=-15.0 - 15.0*(isig-1.0)/nsigs
         sig=sqrt(2.2*2500.0/96000.0) * 10.0**(0.05*snrdbx)
-        write(*,1020) isig,0.001*f,snrdbx,nint(pol),message
+        write(*,1020) isig,0.001*f,snrdbx,nint(pol),msgsent
 1020    format(i3,f8.3,f7.1,i5,2x,a22)
 
         phi=0.

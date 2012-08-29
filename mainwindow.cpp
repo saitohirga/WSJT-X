@@ -1,4 +1,4 @@
-//-------------------------------------------------------------- MainWindow
+//--------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -981,6 +981,8 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
   }
   for (i = 0; i < list.size()-1; ++i) {
     if(i==list.size()-2) m_loopall=false;
+    qDebug() << len << m_path;
+
     if(list.at(i)==m_path.right(len)) {
       int n=m_path.length();
       QString fname=m_path.replace(n-len,len,list.at(i+1));
