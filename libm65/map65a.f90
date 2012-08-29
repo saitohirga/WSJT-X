@@ -204,8 +204,9 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                  ikHz=nint(freq+0.5*(nfa+nfb)-foffset)-nfshift
                  idf=nint(1000.0*(freq+0.5*(nfa+nfb)-foffset-(ikHz+nfshift)))
                  call decode1a(dd,newdat,f00,nflip,mode65,nfsample,xpol,  &
-                      mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,        &
-                      nutc,ikHz,idf,ipol,sync2,a,dt,pol,nkv,nhist,qual,decoded)
+                      mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,  &
+                      iloop,nutc,ikHz,idf,ipol,sync2,a,dt,pol,nkv,nhist,  &
+                      qual,decoded)
                  dt=dt+0.8                           !### empirical tweak
                  call timer('decode1a',1)
 

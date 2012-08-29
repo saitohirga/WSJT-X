@@ -1,5 +1,5 @@
-      subroutine afc65b(cx,cy,npts,fsample,nflip,ipol,xpol,a,
-     +  ccfbest,dtbest)
+      subroutine afc65b(cx,cy,npts,fsample,nflip,ipol,xpol,ndphi,iloop,
+     +  a,ccfbest,dtbest)
 
       logical xpol
       complex cx(npts)
@@ -17,9 +17,12 @@
       deltaa(5)=0.05
       nterms=3
       if(xpol) nterms=4
-      chisqr=0.
 
-C  Start the iteration
+! Don't fit polarization when solving for dphi
+      if(ndphi.ne.0) nterms=3
+
+!  Start the iteration
+      chisqr=0.
       chisqr0=1.e6
       do iter=1,3                               !One iteration is enough?
          do j=1,nterms
