@@ -11,7 +11,7 @@ subroutine decode0(dd,ss,savg,nstandalone)
   common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,                &
        ndepth,ndiskdat,neme,newdat,nfa,nfb,nfcal,nfshift,                 &
        mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,mode65,              &
-       mycall,mygrid,hiscall,hisgrid,datetime
+       nfast,nsave,mycall,mygrid,hiscall,hisgrid,datetime
   common/tracer/ limtrace,lu
   data neme0/-99/,mcall3b/1/
   save
@@ -53,12 +53,16 @@ subroutine decode0(dd,ss,savg,nstandalone)
   call timer('map65a  ',0)
   call map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,           &
        mousedf,mousefqso,nagain,ndecdone,ndiskdat,nfshift,ndphi,           &
-       nfcal,nkeep,mcall3b,nsave,nxant,rmsdd,mycall,mygrid,                &
+       nfcal,nkeep,mcall3b,nsum,nsave0,nxant,rmsdd,mycall,mygrid,          &
        neme,ndepth,hiscall,hisgrid,nhsym,nfsample,nxpol,mode65)
 
   call timer('map65a  ',1)
   call timer('decode0 ',1)
   if(nstandalone.eq.0) call timer('decode0 ',101)
+
+  write(*,1010) nsum,nsave0
+1010 format('<m65aFinished>',2i4)
+  flush(6)
 
   return
 end subroutine decode0

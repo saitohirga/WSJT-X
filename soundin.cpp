@@ -32,6 +32,8 @@ extern struct {
   int nfsample;                     //Input sample rate
   int nxpol;                        //1 if using xpol antennas, 0 otherwise
   int mode65;                       //JT65 sub-mode: A=1, B=2, C=4
+  int nfast;                        //1 for sub-modes ABC; 2 for B2, C2
+  int nsave;                        //Number of s3(64,63) spectra saved
   char mycall[12];
   char mygrid[6];
   char hiscall[12];

@@ -137,6 +137,8 @@ MainWindow::MainWindow(QWidget *parent) :
   m_adjustIQ=0;
   m_applyIQcal=0;
   m_colors="000066ff0000ffff00969696646464";
+  m_nfast=1;
+  m_nsave=0;
 
   ui->xThermo->setFillBrush(Qt::green);
   ui->yThermo->setFillBrush(Qt::magenta);
@@ -1196,6 +1198,8 @@ void MainWindow::decode()                                       //decode()
   datcom_.nxpol=0;
   if(m_xpol) datcom_.nxpol=1;
   datcom_.mode65=m_mode65;
+  datcom_.nfast=m_nfast;
+  datcom_.nsave=m_nsave;
 
   QString mcall=(m_myCall+"            ").mid(0,12);
   QString mgrid=(m_myGrid+"            ").mid(0,6);
@@ -1227,7 +1231,6 @@ void MainWindow::decode()                                       //decode()
 
   QFile lockFile(m_appDir + "/.lock");       // Allow m65 to start
   lockFile.remove();
-
   decodeBusy(true);
 }
 
@@ -1252,6 +1255,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
   {
     QByteArray t=proc_m65.readLine();
     if(t.indexOf("<m65aFinished>") >= 0) {
+//      int nsum,nsave;
+//      scanf("<m65aFinished> %d %d",&nsum,&nsave);
+//      m_nsum=nsum;
+//      m_nsave=nsave;
+//      qDebug() << m_nsum << m_nsave;
+      qDebug() << t;
       if(m_widebandDecode) {
         g_pMessages->setText(m_messagesText);
         g_pBandMap->setText(m_bandmapText);

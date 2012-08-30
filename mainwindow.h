@@ -154,6 +154,9 @@ private:
     qint32  m_adjustIQ;
     qint32  m_applyIQcal;
     qint32  m_mult570;
+    qint32  m_nfast;
+    qint32  m_nsum;
+    qint32  m_nsave;
 
     double  m_fAdd;
     double  m_IQamp;

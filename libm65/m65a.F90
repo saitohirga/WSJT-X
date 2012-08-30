@@ -45,10 +45,6 @@ subroutine m65a
   p_m65=>address_m65()
   call m65b(p_m65,nbytes)
 
-  write(*,1010) 
-1010 format('<m65aFinished>')
-  flush(6)
-
 100 inquire(file=trim(cwd)//'/.lock',exist=fileExists)
   if(fileExists) go to 10
   call sleep_msec(100)
@@ -70,14 +66,14 @@ subroutine m65c(dd,ss,savg,nparams0)
   integer*1 detach_m65
   real*4 dd(4,5760000),ss(4,322,32768),savg(4,32768)
   real*8 fcenter
-  integer nparams0(37),nparams(37)
+  integer nparams0(40),nparams(40)
   character*12 mycall,hiscall
   character*6 mygrid,hisgrid
   character*20 datetime
   common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,              &
        ndepth,ndiskdat,neme,newdat,nfa,nfb,nfcal,nfshift,               &
        mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,mode65,            &
-       mycall,mygrid,hiscall,hisgrid,datetime
+       nfast,nsave,mycall,mygrid,hiscall,hisgrid,datetime
   equivalence (nparams,fcenter)
   
   nparams=nparams0                     !Copy parameters into common/npar/

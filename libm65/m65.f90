@@ -13,11 +13,11 @@ program m65
   real*8 fc0,fcenter
   character*80 arg,infile
   character mycall*12,hiscall*12,mygrid*6,hisgrid*6,datetime*20
-  common/datcom/dd(4,5760000),ss(4,322,NFFT),savg(4,NFFT),fc0,nutc0,junk(34)
+  common/datcom/dd(4,5760000),ss(4,322,NFFT),savg(4,NFFT),fc0,nutc0,junk(36)
   common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,                &
        ndepth,ndiskdat,neme,newdat,nfa,nfb,nfcal,nfshift,                 &
        mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,mode65,              &
-       mycall,mygrid,hiscall,hisgrid,datetime
+       nfast,nsave,mycall,mygrid,hiscall,hisgrid,datetime
 
   nargs=iargc()
   if(nargs.lt.1) then

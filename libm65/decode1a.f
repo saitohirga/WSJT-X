@@ -1,6 +1,7 @@
       subroutine decode1a(dd,newdat,f0,nflip,mode65,nfsample,xpol,
      +  mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,iloop,
-     +  nutc,nkhz,ndf,ipol,sync2,a,dt,pol,nkv,nhist,nsave,qual,decoded)
+     +  nutc,nkhz,ndf,ipol,sync2,a,dt,pol,nkv,nhist,nsum,nsave,
+     +  qual,decoded)
 
 !  Apply AFC corrections to a candidate JT65 signal, then decode it.
 
@@ -139,7 +140,8 @@
             nkhz0=nkhz
             nsave=min(32,nsave+1)
             npol=nint(57.296*pol)
-            call s3avg(nsave,mode65,nutc,ndf,dt+0.8,npol,s3,nkv,decoded)
+            call s3avg(nsave,mode65,nutc,ndf,dt+0.8,npol,s3,nsum,
+     +                 nkv,decoded)
             syncbest=sync2
          endif
          nutc0=nutc

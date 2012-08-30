@@ -1,6 +1,6 @@
 subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      mousedf,mousefqso,nagain,ndecdone,ndiskdat,nfshift,ndphi,              &
-     nfcal,nkeep,mcall3b,nsave,nxant,rmsdd,mycall,mygrid,                    &
+     nfcal,nkeep,mcall3b,nsum,nsave,nxant,rmsdd,mycall,mygrid,              &
      neme,ndepth,hiscall,hisgrid,nhsym,nfsample,nxpol,mode65)
 
 !  Processes timf2 data from Linrad to find and decode JT65 signals.
@@ -206,7 +206,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                  call decode1a(dd,newdat,f00,nflip,mode65,nfsample,xpol,  &
                       mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,  &
                       iloop,nutc,ikHz,idf,ipol,sync2,a,dt,pol,nkv,nhist,  &
-                      nsave,qual,decoded)
+                      nsum,nsave,qual,decoded)
                  dt=dt+0.8                           !### empirical tweak
                  call timer('decode1a',1)
 
