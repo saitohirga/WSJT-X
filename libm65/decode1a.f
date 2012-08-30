@@ -1,6 +1,6 @@
       subroutine decode1a(dd,newdat,f0,nflip,mode65,nfsample,xpol,
      +  mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,iloop,
-     +  nutc,nkhz,ndf,ipol,sync2,a,dt,pol,nkv,nhist,nsum,nsave,
+     +  nutc,nkhz,ndf,ipol,ntol,sync2,a,dt,pol,nkv,nhist,nsum,nsave,
      +  qual,decoded)
 
 !  Apply AFC corrections to a candidate JT65 signal, then decode it.
@@ -134,14 +134,15 @@
 
       if(nqd.eq.1 .and. nkv.eq.0) then
          nhz=1000*nkhz + ndf
-         if(nutc.ne.nutc0 .or. abs(nhz-nhz0).ge.1000) syncbest=0.   !### 1000 ??
+         ihzdiff=min(500,ntol)
+         if(nutc.ne.nutc0 .or. abs(nhz-nhz0).ge.ihzdiff) syncbest=0.
          if(sync2.gt.syncbest) then
             nsave=nsave+1
             nsave=mod(nsave-1,64)+1
             npol=nint(57.296*pol)
             xdt=dt+0.8
 
-            call s3avg(nsave,mode65,nutc,nhz,xdt,npol,s3,nsum,
+            call s3avg(nsave,mode65,nutc,nhz,xdt,npol,ntol,s3,nsum,
      +                 nkv,decoded)
             syncbest=sync2
             nhz0=nhz

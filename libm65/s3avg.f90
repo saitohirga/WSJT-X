@@ -1,4 +1,4 @@
-subroutine s3avg(nsave,mode65,nutc,nhz,xdt,npol,s3,nsum,nkv,decoded)
+subroutine s3avg(nsave,mode65,nutc,nhz,xdt,npol,ntol,s3,nsum,nkv,decoded)
 
 ! Save the current synchronized spectra, s3(64,63), for possible
 ! decoding of average.
@@ -18,7 +18,7 @@ subroutine s3avg(nsave,mode65,nutc,nhz,xdt,npol,s3,nsum,nkv,decoded)
      ihz=0
      ipol=0
      first=.false.
-     ihzdiff=100
+     ihzdiff=min(100,ntol)
      dtdiff=0.2
   endif
 
