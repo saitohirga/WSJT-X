@@ -325,6 +325,11 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      endif
      
      if(ndphi.eq.1 .and.iloop.eq.12) call getdphi(qphi)
+     if(nqd.eq.1) then
+        write(*,1013) nsum,nsave
+1013    format('<QuickDecodeDone>',2i4)
+        flush(6)
+     endif
      if(nagain.eq.1) go to 999
   enddo
 

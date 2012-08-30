@@ -821,6 +821,12 @@ void MainWindow::createStatusBar()                           //createStatusBar
   lab5->setMinimumSize(QSize(50,10));
   lab5->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab5);
+
+  lab6 = new QLabel("Avg: 0/0");
+  lab6->setAlignment(Qt::AlignHCenter);
+  lab6->setMinimumSize(QSize(50,10));
+  lab6->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  statusBar()->addWidget(lab6);
 }
 
 void MainWindow::on_tolSpinBox_valueChanged(int i)             //tolSpinBox
@@ -1254,13 +1260,14 @@ void MainWindow::readFromStdout()                             //readFromStdout
   while(proc_m65.canReadLine())
   {
     QByteArray t=proc_m65.readLine();
-    if(t.indexOf("<m65aFinished>") >= 0) {
-//      int nsum,nsave;
-//      scanf("<m65aFinished> %d %d",&nsum,&nsave);
-//      m_nsum=nsum;
-//      m_nsave=nsave;
-//      qDebug() << m_nsum << m_nsave;
-      qDebug() << t;
+    if(t.indexOf("<QuickDecodeDone>") >= 0) {
+      m_nsum=t.mid(17,4).toInt();
+      m_nsave=t.mid(21,4).toInt();
+      QString t2;
+      t2.sprintf("Avg: %d/%d",m_nsum,m_nsave);
+      lab6->setText(t2);
+    }
+    if(t.indexOf("<DecodeFinished>") >= 0) {
       if(m_widebandDecode) {
         g_pMessages->setText(m_messagesText);
         g_pBandMap->setText(m_bandmapText);
