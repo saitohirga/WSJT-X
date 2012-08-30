@@ -136,7 +136,7 @@
          nhz=1000*nkhz + ndf
          ihzdiff=min(500,ntol)
          if(nutc.ne.nutc0 .or. abs(nhz-nhz0).ge.ihzdiff) syncbest=0.
-         if(sync2.gt.syncbest) then
+         if(sync2.gt.0.99999*syncbest) then
             nsave=nsave+1
             nsave=mod(nsave-1,64)+1
             npol=nint(57.296*pol)

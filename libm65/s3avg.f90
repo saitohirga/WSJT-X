@@ -25,7 +25,7 @@ subroutine s3avg(nsave,mode65,nutc,nhz,xdt,npol,ntol,s3,nsum,nkv,decoded)
   do i=1,64
      if(nutc.eq.iutc(i) .and. abs(nhz-ihz(i)).lt.ihzdiff) then
         nsave=mod(nsave-1+64,64)+1
-        go to 900
+        go to 10
      endif
   enddo
   
@@ -35,7 +35,7 @@ subroutine s3avg(nsave,mode65,nutc,nhz,xdt,npol,ntol,s3,nsum,nkv,decoded)
   dt(nsave)=xdt                             !Save DT
   s3a(1:64,1:63,nsave)=s3                   !Save the spectra
 
-  s3b=0.
+10 s3b=0.
   do i=1,64                                 !Accumulate avg spectra
      if(iutc(i).lt.0) cycle
      if(mod(iutc(i),2).ne.mod(nutc,2)) cycle !Use only same sequence
@@ -45,8 +45,8 @@ subroutine s3avg(nsave,mode65,nutc,nhz,xdt,npol,ntol,s3,nsum,nkv,decoded)
      nsum=nsum+1
   enddo
 
-!  write(71,3001) nutc,nsave,nhz,npol,xdt
-!3001 format(4i8,1f8.1)
+!  write(71,3001) nutc,nsum,nsave,nhz,npol,xdt
+!3001 format(5i8,1f8.1)
 !  flush(71)
  
   decoded='                      '
@@ -60,5 +60,5 @@ subroutine s3avg(nsave,mode65,nutc,nhz,xdt,npol,ntol,s3,nsum,nkv,decoded)
      endif
   endif
 
-900 return
+  return
 end subroutine s3avg
