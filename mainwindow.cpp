@@ -822,7 +822,7 @@ void MainWindow::createStatusBar()                           //createStatusBar
   lab5->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab5);
 
-  lab6 = new QLabel("Avg: 0/0");
+  lab6 = new QLabel("Avg: 0");
   lab6->setAlignment(Qt::AlignHCenter);
   lab6->setMinimumSize(QSize(50,10));
   lab6->setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -1264,7 +1264,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       m_nsum=t.mid(17,4).toInt();
       m_nsave=t.mid(21,4).toInt();
       QString t2;
-      t2.sprintf("Avg: %d/%d",m_nsum,m_nsave);
+      t2.sprintf("Avg: %d",m_nsum);
       lab6->setText(t2);
     }
     if(t.indexOf("<DecodeFinished>") >= 0) {
@@ -1337,7 +1337,6 @@ void MainWindow::guiUpdate()
   static int nc1=1;
   static char msgsent[23];
   static int nsendingsh=0;
-  static int fQSOz=-1;
   int khsym=0;
 
   double tx1=0.0;
@@ -1504,11 +1503,6 @@ void MainWindow::guiUpdate()
 
     QDateTime t = QDateTime::currentDateTimeUtc();
     int fQSO=g_pWideGraph->QSOfreq();
-    if(fQSO != fQSOz) {
-      qDebug() << fQSOz << fQSO << m_nutc0;
-      m_nsave=0;
-      fQSOz=fQSO;
-    }
     g_pAstro->astroUpdate(t, m_myGrid, m_hisGrid, fQSO, m_setftx,
                           m_txFreq, m_azelDir);
     m_setftx=0;

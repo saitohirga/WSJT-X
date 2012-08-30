@@ -1,39 +1,54 @@
-subroutine s3avg(nsave,mode65,nutc,ndf,xdt,npol,s3,nsum,nkv,decoded)
+subroutine s3avg(nsave,mode65,nutc,nhz,xdt,npol,s3,nsum,nkv,decoded)
 
 ! Save the current synchronized spectra, s3(64,63), for possible
 ! decoding of average.
 
   real s3(64,63)                        !Synchronized spectra for 63 symbols
-  real s3a(64,63,32)                    !Saved spectra
-  real s3b(64,63)                       !Average
-  integer iutc(32),idf(32),ipol(32)
-  real dt(32)
+  real s3a(64,63,64)                    !Saved spectra
+  real s3b(64,63)                       !Average spectra
+  integer iutc(64),ihz(64),ipol(64)
+  real dt(64)
   character*22 decoded
-  logical ltext
+  logical ltext,first
+  data first/.true./
   save
+
+  if(first) then
+     iutc=-1
+     ihz=0
+     ipol=0
+     first=.false.
+     ihzdiff=100
+     dtdiff=0.2
+  endif
+
+  do i=1,64
+     if(nutc.eq.iutc(i) .and. abs(nhz-ihz(i)).lt.ihzdiff) then
+        nsave=mod(nsave-1+64,64)+1
+        go to 900
+     endif
+  enddo
   
   iutc(nsave)=nutc                          !Save UTC
-  idf(nsave)=ndf                            !Save DF
+  ihz(nsave)=nhz                            !Save freq in Hz
   ipol(nsave)=npol                          !Save pol
   dt(nsave)=xdt                             !Save DT
   s3a(1:64,1:63,nsave)=s3                   !Save the spectra
 
-  write(71,3001) nsave,nutc,ndf,npol,xdt
-3001 format(4i5,f8.1)
-  flush(71)
-
   s3b=0.
-  nsum=0
-  idfdiff=100
-  dtdiff=0.2
-  do i=1,nsave                              !Accumulate avg spectra
-     if(mod(iutc(i),2).ne.mod(nutc,2)) cycle !Use only 1st or 2nd sequence
-     if(abs(ndf-idf(i)).gt.idfdiff) cycle   !DF must match
+  do i=1,64                                 !Accumulate avg spectra
+     if(iutc(i).lt.0) cycle
+     if(mod(iutc(i),2).ne.mod(nutc,2)) cycle !Use only same sequence
+     if(abs(nhz-ihz(i)).gt.ihzdiff) cycle   !Freq must match
      if(abs(xdt-dt(i)).gt.dtdiff) cycle     !DT must match
      s3b=s3b + s3a(1:64,1:63,i)
      nsum=nsum+1
   enddo
 
+!  write(71,3001) nutc,nsave,nhz,npol,xdt
+!3001 format(4i8,1f8.1)
+!  flush(71)
+ 
   decoded='                      '
   if(nsum.ge.2) then                        !Try decoding the sverage
      nadd=mode65*nsum
@@ -45,5 +60,5 @@ subroutine s3avg(nsave,mode65,nutc,ndf,xdt,npol,s3,nsum,nkv,decoded)
      endif
   endif
 
-  return
+900 return
 end subroutine s3avg

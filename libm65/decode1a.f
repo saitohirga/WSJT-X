@@ -18,7 +18,7 @@
       character decoded*22
       character mycall*12,hiscall*12,hisgrid*6
       data first/.true./,jjjmin/1000/,jjjmax/-1000/
-      data nutc0/-999/,nkhz0/-999/
+      data nutc0/-999/,nhz0/-9999999/
       save
 
 !  Mix sync tone to baseband, low-pass filter, downsample to 1378.125 Hz
@@ -133,17 +133,18 @@
       call timer('dec65b  ',1)
 
       if(nqd.eq.1 .and. nkv.eq.0) then
-         if(nutc.ne.nutc0 .or. nkhz.ne.nkhz0) syncbest=0.
+         nhz=1000*nkhz + ndf
+         if(nutc.ne.nutc0 .or. abs(nhz-nhz0).ge.1000) syncbest=0.   !### 1000 ??
          if(sync2.gt.syncbest) then
-            if(nutc.eq.nutc0 .and. nkhz.eq.nkhz0) nsave=nsave-1
-            if(nkhz.ne.nkhz0) nsave=0
-            nkhz0=nkhz
-            nsave=min(32,nsave+1)
-            nsave=max(1,nsave)
+            nsave=nsave+1
+            nsave=mod(nsave-1,64)+1
             npol=nint(57.296*pol)
-            call s3avg(nsave,mode65,nutc,ndf,dt+0.8,npol,s3,nsum,
+            xdt=dt+0.8
+
+            call s3avg(nsave,mode65,nutc,nhz,xdt,npol,s3,nsum,
      +                 nkv,decoded)
             syncbest=sync2
+            nhz0=nhz
          endif
          nutc0=nutc
       endif

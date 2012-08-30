@@ -37,6 +37,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   mousefqso0=mousefqso
   xpol=(nxpol.ne.0)
   if(.not.xpol) ndphi=0
+  nsum=0
 
 !### Should use AppDir! ###
 !  open(23,file='release/CALL3.TXT',status='unknown')
