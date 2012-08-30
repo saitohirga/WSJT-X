@@ -1,6 +1,6 @@
       subroutine decode1a(dd,newdat,f0,nflip,mode65,nfsample,xpol,
-     +     mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,iloop,
-     +     nutc,nkhz,ndf,ipol,sync2,a,dt,pol,nkv,nhist,qual,decoded)
+     +  mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,iloop,
+     +  nutc,nkhz,ndf,ipol,sync2,a,dt,pol,nkv,nhist,nsave,qual,decoded)
 
 !  Apply AFC corrections to a candidate JT65 signal, then decode it.
 

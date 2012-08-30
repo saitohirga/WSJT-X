@@ -974,15 +974,15 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
   QStringList list;
   if(m_xpol) {
       list= fi.dir().entryList().filter(".tf2");
-      len=15;
+//      len=15;
   } else {
       list= fi.dir().entryList().filter(".iq");
-      len=14;
+//      len=14;
   }
   for (i = 0; i < list.size()-1; ++i) {
     if(i==list.size()-2) m_loopall=false;
-    qDebug() << len << m_path;
-
+//    qDebug() << len << i << list.at(i) << list.at(i).length();
+    len=list.at(i).length();
     if(list.at(i)==m_path.right(len)) {
       int n=m_path.length();
       QString fname=m_path.replace(n-len,len,list.at(i+1));

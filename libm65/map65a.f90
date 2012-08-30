@@ -206,7 +206,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                  call decode1a(dd,newdat,f00,nflip,mode65,nfsample,xpol,  &
                       mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,  &
                       iloop,nutc,ikHz,idf,ipol,sync2,a,dt,pol,nkv,nhist,  &
-                      qual,decoded)
+                      nsave,qual,decoded)
                  dt=dt+0.8                           !### empirical tweak
                  call timer('decode1a',1)
 
