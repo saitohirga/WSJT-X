@@ -133,12 +133,13 @@
       call timer('dec65b  ',1)
 
       if(nqd.eq.1 .and. nkv.eq.0) then
-         if(nutc.ne.nutc0) syncbest=0.
+         if(nutc.ne.nutc0 .or. nkhz.ne.nkhz0) syncbest=0.
          if(sync2.gt.syncbest) then
-            if(nutc.eq.nutc0) nsave=nsave-1
+            if(nutc.eq.nutc0 .and. nkhz.eq.nkhz0) nsave=nsave-1
             if(nkhz.ne.nkhz0) nsave=0
             nkhz0=nkhz
             nsave=min(32,nsave+1)
+            nsave=max(1,nsave)
             npol=nint(57.296*pol)
             call s3avg(nsave,mode65,nutc,ndf,dt+0.8,npol,s3,nsum,
      +                 nkv,decoded)

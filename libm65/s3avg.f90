@@ -18,6 +18,10 @@ subroutine s3avg(nsave,mode65,nutc,ndf,xdt,npol,s3,nsum,nkv,decoded)
   dt(nsave)=xdt                             !Save DT
   s3a(1:64,1:63,nsave)=s3                   !Save the spectra
 
+  write(71,3001) nsave,nutc,ndf,npol,xdt
+3001 format(4i5,f8.1)
+  flush(71)
+
   s3b=0.
   nsum=0
   idfdiff=100

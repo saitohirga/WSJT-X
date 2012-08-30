@@ -1337,6 +1337,7 @@ void MainWindow::guiUpdate()
   static int nc1=1;
   static char msgsent[23];
   static int nsendingsh=0;
+  static int fQSOz=-1;
   int khsym=0;
 
   double tx1=0.0;
@@ -1503,6 +1504,11 @@ void MainWindow::guiUpdate()
 
     QDateTime t = QDateTime::currentDateTimeUtc();
     int fQSO=g_pWideGraph->QSOfreq();
+    if(fQSO != fQSOz) {
+      qDebug() << fQSOz << fQSO << m_nutc0;
+      m_nsave=0;
+      fQSOz=fQSO;
+    }
     g_pAstro->astroUpdate(t, m_myGrid, m_hisGrid, fQSO, m_setftx,
                           m_txFreq, m_azelDir);
     m_setftx=0;
