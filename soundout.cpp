@@ -30,7 +30,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   unsigned int i,n;
   static int ic=0;
   static bool btxok0=false;
-  static int nminStart=0;
+  static int nStart=0;
   double tsec,tstart;
   int nsec;
   int nTRperiod=udata->nTRperiod;
@@ -45,12 +45,12 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     tstart=tsec - n*nTRperiod - 1.0;
 
     if(tstart<1.0) {
-      ic=0;                      //Start of minute, set starting index to 0
-      nminStart=n;
+      ic=0;                      //Start of Tx cycle, set starting index to 0
+      nStart=n;
     } else {
-      if(n != nminStart) { //Late start in new minute: compute starting index
+      if(n != nStart) { //Late start in new Tx cycle: compute starting index
         ic=(int)(tstart*11025.0);
-        nminStart=n;
+        nStart=n;
       }
     }
   }
@@ -95,14 +95,12 @@ void SoundOutThread::run()
   outParam.hostApiSpecificStreamInfo=NULL;
 
   udata.nTRperiod=m_TRperiod;
-
   paerr=Pa_IsFormatSupported(NULL,&outParam,11025.0);
   if(paerr<0) {
     qDebug() << "PortAudio says requested output format not supported.";
     qDebug() << paerr;
     return;
   }
-
   paerr=Pa_OpenStream(&outStream,           //Output stream
         NULL,                               //No input parameters
         &outParam,                          //Output parameters

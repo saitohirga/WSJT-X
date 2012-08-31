@@ -274,8 +274,9 @@ extern "C" {
                 float* py, float s[], int* nkhz, int* nhsym, int* nzap,
                 float* slimit, uchar lstrong[]);
 
-  void gen65_(char* msg, int* mode65, double* samfac, int* nsendingsh,
-              char* msgsent, short iwave[], int* nwave, int len1, int len2);
+  void gen65_(char* msg, int* mode65, int* nfast, double* samfac,
+              int* nsendingsh, char* msgsent, short iwave[], int* nwave,
+              int len1, int len2);
 
   int ptt_(int* nport, int* itx, int* iptt);
   }

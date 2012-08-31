@@ -20,12 +20,12 @@ program m65
        nfast,nsave,mycall,mygrid,hiscall,hisgrid,datetime
 
   nargs=iargc()
-  if(nargs.lt.1) then
-     print*,'Usage: m65 [95238] file1 [file2 ...]'
-     print*,'       Reads data from *.tf2 files.'
+  if(nargs.lt.1 .or. nargs.eq.2) then
+     print*,'Usage: m65 <submode> <95238|96000> file1 [file2 ...]'
+     print*,'  (Reads data from *.tf2 files.)'
      print*,''
      print*,'       m65 -s'
-     print*,'       Gets data from shared memory region.'
+     print*,'  (Gets data from MAP65, via shared memory region.)'
      go to 999
   endif
   call getarg(1,arg)
@@ -34,16 +34,20 @@ program m65
      call ftnquit
      go to 999
   endif
+  if(arg(1:1).eq.'A') mode65=1
+  if(arg(1:1).eq.'B') mode65=2
+  if(arg(1:1).eq.'C') mode65=4
+  nfast=1
+  if(arg(2:2).eq.'2') nfast=2
   nfsample=96000
-  nxpol=1
-  mode65=2
-  ifile1=1
+  call getarg(2,arg)
   if(arg.eq.'95238') then
      nfsample=95238
-     call getarg(2,arg)
-     ifile1=2
+     call getarg(3,arg)
   endif
 
+  nxpol=1
+  ifile1=3
   limtrace=0
   lu=12
   nfa=100
@@ -69,7 +73,7 @@ program m65
      k=0
      fcenter=144.125d0
      mousedf=0
-     mousefqso=125
+     mousefqso=126
      newdat=1
      mycall='K1JT'
 
@@ -95,8 +99,8 @@ program m65
 ! Emit signal readyForFFT
            call timer('symspec ',0)
            fgreen=-13.0
-           iqadjust=1
-           iqapply=1
+           iqadjust=0
+           iqapply=0
            nbslider=100
            gainx=0.9962
            gainy=1.0265

@@ -57,8 +57,8 @@ program mapsim
   open(12,file='msgs.txt',status='old')
 
   write(*,1000)
-1000 format('  N   freq     S/N  pol  Message'/    &
-            '-----------------------------------------------')
+1000 format('File  N   freq     S/N  pol  Message'/    &
+            '---------------------------------------------------')
 
   do ifile=1,nfiles
      nmin=ifile-1
@@ -93,8 +93,8 @@ program mapsim
         snrdbx=snrdb
         if(snrdb.ge.-1.0) snrdbx=-15.0 - 15.0*(isig-1.0)/nsigs
         sig=sqrt(2.2*2500.0/96000.0) * 10.0**(0.05*snrdbx)
-        write(*,1020) isig,0.001*f,snrdbx,nint(pol),msgsent
-1020    format(i3,f8.3,f7.1,i5,2x,a22)
+        write(*,1020) ifile,isig,0.001*f,snrdbx,nint(pol),msgsent
+1020    format(i3,i4,f8.3,f7.1,i5,2x,a22)
 
         phi=0.
         i0=fsample*(3.5d0+0.05d0*(isig-1))

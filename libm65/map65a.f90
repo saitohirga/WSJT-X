@@ -1,7 +1,7 @@
 subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      mousedf,mousefqso,nagain,ndecdone,ndiskdat,nfshift,ndphi,              &
      nfcal,nkeep,mcall3b,nsum,nsave,nxant,rmsdd,mycall,mygrid,              &
-     neme,ndepth,hiscall,hisgrid,nhsym,nfsample,nxpol,mode65)
+     neme,ndepth,hiscall,hisgrid,nhsym,nfsample,nxpol,mode65,nfast)
 
 !  Processes timf2 data from Linrad to find and decode JT65 signals.
 

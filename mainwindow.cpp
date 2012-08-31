@@ -1354,7 +1354,7 @@ void MainWindow::guiUpdate()
   int khsym=0;
 
   double tx1=0.0;
-  double tx2=126.0*4096.0/11025.0 + 1.8;          //### depend on TxDelay? ###
+  double tx2=126.0*4096.0/(m_nfast*11025.0) + 1.8;    //### depend on TxDelay?
 
   if(!m_txFirst) {
     tx1 += m_TRperiod;
@@ -1363,8 +1363,8 @@ void MainWindow::guiUpdate()
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
   int nsec=ms/1000;
   double tsec=0.001*ms;
-  double t120=fmod(tsec,120.0);
-  bool bTxTime = t120 >= tx1 && t120 < tx2;
+  double t2p=fmod(tsec,120.0/m_nfast);
+  bool bTxTime = t2p >= tx1 && t2p < tx2;
 
   if(m_auto) {
     if(bTxTime and iptt==0 and !m_txMute) {
@@ -1399,9 +1399,11 @@ void MainWindow::guiUpdate()
     ba2msg(ba,message);
     int len1=22;
     int mode65=m_mode65;
+    int nfast=m_nfast;
     double samfac=1.0;
 
-    gen65_(message,&mode65,&samfac,&nsendingsh,msgsent,iwave,&nwave,len1,len1);
+    gen65_(message,&mode65,&nfast,&samfac,&nsendingsh,msgsent,iwave,
+           &nwave,len1,len1);
     msgsent[22]=0;
 
     if(m_restart) {
@@ -1819,7 +1821,9 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)                //msgtype()
   int i1=t.indexOf(" OOO");
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
-  gen65_(message,&mode65,&samfac,&nsendingsh,msgsent,iwave,&mwave,len1,len1);
+  int nfast=m_nfast;
+  gen65_(message,&mode65,&nfast,&samfac,&nsendingsh,msgsent,iwave,
+         &mwave,len1,len1);
 
   QPalette p(tx->palette());
   if(nsendingsh==1) {
@@ -1990,6 +1994,7 @@ void MainWindow::on_actionJT65B2_triggered()
   m_nfast=2;
   m_TRperiod=30;
   soundInThread.setPeriod(m_TRperiod);
+  soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
   lab5->setText(m_mode);
   ui->actionJT65B2->setChecked(true);
@@ -2002,6 +2007,7 @@ void MainWindow::on_actionJT65C2_triggered()
   m_nfast=2;
   m_TRperiod=30;
   soundInThread.setPeriod(m_TRperiod);
+  soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
   lab5->setText(m_mode);
   ui->actionJT65C2->setChecked(true);
