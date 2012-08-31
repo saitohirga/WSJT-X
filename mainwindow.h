@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QDateTime>
 #include <QHash>
+#include "getfile.h"
 #include "soundin.h"
 #include "soundout.h"
 #include "commons.h"
@@ -123,6 +124,10 @@ private slots:
 
   void on_actionFUNcube_Dongle_triggered();
 
+  void on_actionJT65B2_triggered();
+
+  void on_actionJT65C2_triggered();
+
 private:
     Ui::MainWindow *ui;
     qint32  m_nDevIn;
@@ -157,6 +162,7 @@ private:
     qint32  m_nfast;
     qint32  m_nsum;
     qint32  m_nsave;
+    qint32  m_TRperiod;
 
     double  m_fAdd;
     double  m_IQamp;

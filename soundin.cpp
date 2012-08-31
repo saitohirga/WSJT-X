@@ -187,10 +187,10 @@ void SoundInThread::run()                           //SoundInThread::run()
 //  const PaStreamInfo* p=Pa_GetStreamInfo(inStream);
 
   bool qe = quitExecution;
-  int n60z=99;
+  int ntrz=99;
   int k=0;
   int nsec;
-  int n60;
+  int ntr;
   int nBusy=0;
   int nhsym0=0;
 
@@ -200,10 +200,10 @@ void SoundInThread::run()                           //SoundInThread::run()
     if (qe) break;
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     nsec = ms/1000;             // Time according to this computer
-    n60 = nsec % 60;
+    ntr = nsec % m_TRperiod;
 
 // Reset buffer pointer and symbol number at start of minute
-    if(n60 < n60z or !m_monitoring) {
+    if(ntr < ntrz or !m_monitoring) {
       nhsym0=0;
       udata.bzero=true;
     }
@@ -228,7 +228,7 @@ void SoundInThread::run()                           //SoundInThread::run()
       }
     }
     msleep(100);
-    n60z=n60;
+    ntrz=ntr;
   }
   Pa_StopStream(inStream);
   Pa_CloseStream(inStream);
@@ -314,6 +314,11 @@ int SoundInThread::mhsym()
   return m_hsym;
 }
 
+void SoundInThread::setPeriod(int n)
+{
+  m_TRperiod=n;
+}
+
 //--------------------------------------------------------------- inputUDP()
 void SoundInThread::inputUDP()
 {
@@ -341,10 +346,10 @@ void SoundInThread::inputUDP()
     double d8[174];
   } b;
 
-  int n60z=99;
+  int ntrz=99;
   int k=0;
   int nsec;
-  int n60;
+  int ntr;
   int nhsym0=0;
   int iz=174;
   int nBusy=0;
@@ -361,14 +366,14 @@ void SoundInThread::inputUDP()
 
       qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
       nsec = ms/1000;             // Time according to this computer
-      n60 = nsec % 60;
+      ntr = nsec % m_TRperiod;
 
 // Reset buffer pointer and symbol number at start of minute
-      if(n60 < n60z) {
+      if(ntr < ntrz) {
         k=0;
         nhsym0=0;
       }
-      n60z=n60;
+      ntrz=ntr;
 
       if(m_monitoring) {
         m_nrx=b.nrx;

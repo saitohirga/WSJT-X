@@ -27,6 +27,7 @@ public:
 
 public:
   void setOutputDevice(qint32 n);
+  void setPeriod(int n);
   bool quitExecution;           //If true, thread exits gracefully
 
 
@@ -35,6 +36,7 @@ private:
   double  m_rate;               //Sample rate
   qint32  m_nDevOut;            //Output device number
   qint32  m_nwave;              //Length of wave file
+  qint32  m_TRperiod;           //T/R period (30 or 60 s)
   bool    m_txOK;               //Enable Tx audio
   bool    m_txMute;             //Mute temporarily
 };

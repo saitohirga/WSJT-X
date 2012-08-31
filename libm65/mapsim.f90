@@ -53,6 +53,7 @@ program mapsim
   if(mode(1:1).eq.'C') mode65=4
   nfast=1
   if(mode(2:2).eq.'2') nfast=2
+  npts=NMAX/nfast
   open(12,file='msgs.txt',status='old')
 
   write(*,1000)
@@ -67,7 +68,7 @@ program mapsim
      open(10,file=fname//'.iq',access='stream',status='unknown')
      open(11,file=fname//'.tf2',access='stream',status='unknown')
 
-     call noisegen(d4,NMAX)                      !Generate Gaussuian noise
+     call noisegen(d4,npts)                      !Generate Gaussuian noise
 
      if(msg0.ne.'                      ') then
         call cgen65(message,mode65,nfast,samfac,nsendingsh,msgsent,cwave,nwave)
@@ -113,7 +114,7 @@ program mapsim
         enddo
      enddo
 
-     do i=1,NMAX
+     do i=1,npts
         id4(1,i)=nint(rms*d4(1,i))
         id4(2,i)=nint(rms*d4(2,i))
         id4(3,i)=nint(rms*d4(3,i))
@@ -122,8 +123,8 @@ program mapsim
         id2(2,i)=id4(2,i)
      enddo
 
-     write(10) fcenter,id2
-     write(11) fcenter,id4
+     write(10) fcenter,id2(1:2,1:npts)
+     write(11) fcenter,id4(1:4,1:npts)
      close(10)
      close(11)
   enddo

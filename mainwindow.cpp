@@ -57,6 +57,8 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->actionJT65A->setActionGroup(modeGroup);
   ui->actionJT65B->setActionGroup(modeGroup);
   ui->actionJT65C->setActionGroup(modeGroup);
+  ui->actionJT65B2->setActionGroup(modeGroup);
+  ui->actionJT65C2->setActionGroup(modeGroup);
 
   QActionGroup* saveGroup = new QActionGroup(this);
   ui->actionSave_all->setActionGroup(saveGroup);
@@ -199,6 +201,8 @@ MainWindow::MainWindow(QWidget *parent) :
   if(m_mode=="JT65A") on_actionJT65A_triggered();
   if(m_mode=="JT65B") on_actionJT65B_triggered();
   if(m_mode=="JT65C") on_actionJT65C_triggered();
+  if(m_mode=="JT65B2") on_actionJT65B2_triggered();
+  if(m_mode=="JT65C2") on_actionJT65C2_triggered();
 
   future1 = new QFuture<void>;
   watcher1 = new QFutureWatcher<void>;
@@ -461,7 +465,7 @@ void MainWindow::dataSink(int k)
   static int n=0;
   static int ihsym=0;
   static int nzap=0;
-  static int n60z=0;
+  static int ntrz=0;
   static int nkhz;
   static int nfsample=96000;
   static int nxpol=0;
@@ -536,27 +540,34 @@ void MainWindow::dataSink(int k)
 
 // Time according to this computer
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-    int n60 = (ms/1000) % 60;
-    if((m_diskData && ihsym <= m_waterfallAvg) || (!m_diskData && n60<n60z)) {
+    int ntr = (ms/1000) % m_TRperiod;
+    if((m_diskData && ihsym <= m_waterfallAvg) || (!m_diskData && ntr<ntrz)) {
       for (int i=0; i<NFFT; i++) {
         splot[i] = 1.e30;
       }
     }
-    n60z=n60;
+    ntrz=ntr;
     n=0;
   }
-  if(ihsym == 279) {
+  if(ihsym == 279/m_nfast) {
     datcom_.newdat=1;
     datcom_.nagain=0;
     QDateTime t = QDateTime::currentDateTimeUtc();
     m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
     decode();                                           //Start the decoder
-    if(m_saveAll) {
+    if(m_saveAll and !m_diskData) {
       QString fname=m_saveDir + "/" + t.date().toString("yyMMdd") + "_" +
           t.time().toString("hhmm");
+      if(m_nfast==2) {
+        if(t.time().second() < 30) {
+          fname += "00";
+        } else {
+          fname += "30";
+        }
+      }
       if(m_xpol) fname += ".tf2";
       if(!m_xpol) fname += ".iq";
-      *future2 = QtConcurrent::run(savetf2, fname, m_xpol);
+      *future2 = QtConcurrent::run(savetf2, fname, m_xpol, m_nfast);
       watcher2->setFuture(*future2);
     }
   }
@@ -970,7 +981,7 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
     m_diskData=true;
     int dbDgrd=0;
     if(m_myCall=="K1JT" and m_idInt<0) dbDgrd=m_idInt;
-    *future1 = QtConcurrent::run(getfile, fname, m_xpol, dbDgrd);
+    *future1 = QtConcurrent::run(getfile, fname, m_xpol, dbDgrd, m_nfast);
     watcher1->setFuture(*future1);
   }
 }
@@ -1005,7 +1016,7 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
       m_diskData=true;
       int dbDgrd=0;
       if(m_myCall=="K1JT" and m_idInt<0) dbDgrd=m_idInt;
-      *future1 = QtConcurrent::run(getfile, fname, m_xpol, dbDgrd);
+      *future1 = QtConcurrent::run(getfile, fname, m_xpol, dbDgrd, m_nfast);
       watcher1->setFuture(*future1);
       return;
     }
@@ -1027,14 +1038,14 @@ void MainWindow::diskDat()                                   //diskDat()
 
   if(m_fs96000) hsym=2048.0*96000.0/11025.0;   //Samples per JT65 half-symbol
   if(!m_fs96000) hsym=2048.0*95238.1/11025.0;
-  for(int i=0; i<281; i++) {              // Do the half-symbol FFTs
+  for(int i=0; i<282/m_nfast; i++) {           // Do the half-symbol FFTs
     int k = i*hsym + 2048.5;
     dataSink(k);
-    if(i%10 == 0) qApp->processEvents();   //Keep the GUI responsive
+    if(i%10 == 0) qApp->processEvents();       //Keep the GUI responsive
   }
 }
 
-void MainWindow::diskWriteFinished()                       //diskWriteFinished
+void MainWindow::diskWriteFinished()                      //diskWriteFinished
 {
 //  qDebug() << "diskWriteFinished";
 }
@@ -1133,8 +1144,11 @@ void MainWindow::on_actionAvailable_suffixes_and_add_on_prefixes_triggered()
 
 void MainWindow::on_DecodeButton_clicked()                    //Decode request
 {
-  int n=m_sec0%60;
-  if(m_monitoring and n>47 and (n<52 or m_decoderBusy)) return;
+  int n=m_sec0%m_TRperiod;
+  if(m_nfast==1) {
+    if(m_monitoring and n>47 and (n<52 or m_decoderBusy)) return;
+  } else {
+    if(m_monitoring and n>21 and (n<26 or m_decoderBusy)) return;  }
   if(!m_decoderBusy) {
     datcom_.newdat=0;
     datcom_.nagain=1;
@@ -1343,8 +1357,8 @@ void MainWindow::guiUpdate()
   double tx2=126.0*4096.0/11025.0 + 1.8;          //### depend on TxDelay? ###
 
   if(!m_txFirst) {
-    tx1 += 60.0;
-    tx2 += 60.0;
+    tx1 += m_TRperiod;
+    tx2 += m_TRperiod;
   }
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
   int nsec=ms/1000;
@@ -1900,7 +1914,7 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   QDateTime t = QDateTime::currentDateTimeUtc();
   QString logEntry=t.date().toString("yyyy-MMM-dd,") +
       t.time().toString("hh:mm,") + m_hisCall + "," + m_hisGrid + "," +
-      QString::number(nMHz) + ",JT65B\n";
+      QString::number(nMHz) + "," + m_mode;
   QFile f("wsjt.log");
   if(!f.open(QFile::Append)) {
     msgBox("Cannot open file \"wsjt.log\".");
@@ -1937,6 +1951,9 @@ void MainWindow::on_actionJT65A_triggered()
 {
   m_mode="JT65A";
   m_mode65=1;
+  m_nfast=1;
+  m_TRperiod=60;
+  soundInThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
   lab5->setText(m_mode);
   ui->actionJT65A->setChecked(true);
@@ -1946,6 +1963,9 @@ void MainWindow::on_actionJT65B_triggered()
 {
   m_mode="JT65B";
   m_mode65=2;
+  m_nfast=1;
+  m_TRperiod=60;
+  soundInThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
   lab5->setText(m_mode);
   ui->actionJT65B->setChecked(true);
@@ -1955,9 +1975,36 @@ void MainWindow::on_actionJT65C_triggered()
 {
   m_mode="JT65C";
   m_mode65=4;
+  m_nfast=1;
+  m_TRperiod=60;
+  soundInThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
   lab5->setText(m_mode);
   ui->actionJT65C->setChecked(true);
+}
+
+void MainWindow::on_actionJT65B2_triggered()
+{
+  m_mode="JT65B2";
+  m_mode65=2;
+  m_nfast=2;
+  m_TRperiod=30;
+  soundInThread.setPeriod(m_TRperiod);
+  g_pWideGraph->setMode65(m_mode65);
+  lab5->setText(m_mode);
+  ui->actionJT65B2->setChecked(true);
+}
+
+void MainWindow::on_actionJT65C2_triggered()
+{
+  m_mode="JT65C2";
+  m_mode65=4;
+  m_nfast=2;
+  m_TRperiod=30;
+  soundInThread.setPeriod(m_TRperiod);
+  g_pWideGraph->setMode65(m_mode65);
+  lab5->setText(m_mode);
+  ui->actionJT65C2->setChecked(true);
 }
 
 void MainWindow::on_NBcheckBox_toggled(bool checked)

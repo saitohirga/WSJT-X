@@ -15,7 +15,7 @@ extern double outputLatency;
 
 typedef struct   //Parameters sent to or received from callback function
 {
-  int dummy;
+  int nTRperiod;
 } paUserData;
 
 //--------------------------------------------------------------- d2aCallback
@@ -29,14 +29,11 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   short *wptr = (short*)outputBuffer;
   unsigned int i,n;
   static int ic=0;
-//  static int ic0=0;
-//  static int nsec0=-99;
   static bool btxok0=false;
   static int nminStart=0;
-//  static t0,t1;
   double tsec,tstart;
-
   int nsec;
+  int nTRperiod=udata->nTRperiod;
 
   // Get System time
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
@@ -44,45 +41,20 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   nsec = ms/1000;
 
   if(btxok and !btxok0) {       //Start (or re-start) a transmission
-    n=nsec/60;
-    tstart=tsec - n*60.0 - 1.0;
+    n=nsec/nTRperiod;
+    tstart=tsec - n*nTRperiod - 1.0;
 
     if(tstart<1.0) {
       ic=0;                      //Start of minute, set starting index to 0
-//      ic0=ic;
       nminStart=n;
-//      t0=timeInfo->currentTime;
     } else {
       if(n != nminStart) { //Late start in new minute: compute starting index
         ic=(int)(tstart*11025.0);
-//        ic0=ic;
-//        t0=timeInfo->currentTime;
-//        qDebug() << "B" << t0 << ic0;
         nminStart=n;
       }
     }
-    /*
-    qDebug() << "A" << n << ic
-             << QString::number( tsec, 'f', 3 )
-             << QString::number( tstart, 'f', 3 )
-             << QString::number( timeInfo->currentTime, 'f', 3 )
-             << QString::number( timeInfo->outputBufferDacTime, 'f', 3 )
-             << QString::number( timeInfo->outputBufferDacTime -
-                                 timeInfo->currentTime, 'f', 3 )
-             << QString::number( timeInfo->currentTime - tsec, 'f', 3 );
-    */
   }
   btxok0=btxok;
-
-  /*
-  if(nsec!=nsec0) {
-    double txt=timeInfo->currentTime - t0;
-    double r=0.0;
-    if(txt>0.0) r=(ic-ic0)/txt;
-    qDebug() << "C" << txt << ic-ic0 << r;
-    nsec0=nsec;
-  }
-  */
 
   if(btxok) {
     for(i=0 ; i<framesToProcess; i++ )  {
@@ -122,15 +94,14 @@ void SoundOutThread::run()
   outParam.suggestedLatency=0.05;
   outParam.hostApiSpecificStreamInfo=NULL;
 
+  udata.nTRperiod=m_TRperiod;
+
   paerr=Pa_IsFormatSupported(NULL,&outParam,11025.0);
   if(paerr<0) {
     qDebug() << "PortAudio says requested output format not supported.";
     qDebug() << paerr;
     return;
   }
-
-//  udata.nwave=m_nwave;
-//  udata.btxok=false;
 
   paerr=Pa_OpenStream(&outStream,           //Output stream
         NULL,                               //No input parameters
@@ -154,9 +125,6 @@ void SoundOutThread::run()
   while (!qe) {
     qe = quitExecution;
     if (qe) break;
-//    udata.nwave=m_nwave;
-//    if(m_txOK) udata.btxok=1;
-//    if(!m_txOK) udata.btxok=0;
     msleep(100);
   }
   Pa_StopStream(outStream);
@@ -167,4 +135,9 @@ void SoundOutThread::setOutputDevice(int n)      //setOutputDevice()
 {
   if (isRunning()) return;
   this->m_nDevOut=n;
+}
+
+void SoundOutThread::setPeriod(int n)
+{
+  m_TRperiod=n;
 }

@@ -1225,6 +1225,8 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionJT65A"/>
     <addaction name="actionJT65B"/>
     <addaction name="actionJT65C"/>
+    <addaction name="actionJT65B2"/>
+    <addaction name="actionJT65C2"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSetup"/>
@@ -1566,6 +1568,22 @@ p, li { white-space: pre-wrap; }
   <action name="actionFUNcube_Dongle">
    <property name="text">
     <string>FUNcube Dongle Settings</string>
+   </property>
+  </action>
+  <action name="actionJT65B2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>JT65B2</string>
+   </property>
+  </action>
+  <action name="actionJT65C2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>JT65C2</string>
    </property>
   </action>
  </widget>

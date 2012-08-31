@@ -47,6 +47,7 @@ public:
   void setNrx(int n);
   void setForceCenterFreqBool(bool b);
   void setForceCenterFreqMHz(double d);
+  void setPeriod(int n);
   int  nrx();
   int  mhsym();
 
@@ -73,6 +74,7 @@ private:
   qint32 m_hsym;
   qint32 m_nDevIn;
   qint32 m_udpPort;
+  qint32 m_TRperiod;
 
   QUdpSocket *udpSocket;
 };
