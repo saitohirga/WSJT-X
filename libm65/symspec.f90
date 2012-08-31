@@ -64,7 +64,7 @@ subroutine symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,   &
   iqadjust0=0
   if(iqadjust.ne.0) iqapply0=0
   nwindow=2
-!  nwindow=0                                    !### No wondowing ###
+!  nwindow=0                                    !### No windowing ###
   nfft2=1024
   kstep=nfft2
   if(nwindow.ne.0) kstep=nfft2/2
