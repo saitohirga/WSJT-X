@@ -1958,6 +1958,7 @@ void MainWindow::on_actionJT65A_triggered()
   m_nfast=1;
   m_TRperiod=60;
   soundInThread.setPeriod(m_TRperiod);
+  soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
   lab5->setText(m_mode);
   ui->actionJT65A->setChecked(true);
@@ -1970,6 +1971,7 @@ void MainWindow::on_actionJT65B_triggered()
   m_nfast=1;
   m_TRperiod=60;
   soundInThread.setPeriod(m_TRperiod);
+  soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
   lab5->setText(m_mode);
   ui->actionJT65B->setChecked(true);
@@ -1982,6 +1984,7 @@ void MainWindow::on_actionJT65C_triggered()
   m_nfast=1;
   m_TRperiod=60;
   soundInThread.setPeriod(m_TRperiod);
+  soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
   lab5->setText(m_mode);
   ui->actionJT65C->setChecked(true);
