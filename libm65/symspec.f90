@@ -75,8 +75,8 @@ subroutine symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,   &
         cx0(i)=cmplx(dd(1,j+i),dd(2,j+i))
         if(nxpol.ne.0) cy0(i)=cmplx(dd(3,j+i),dd(4,j+i))
      enddo
-     call timf2(k,nxpol,nfft2,nwindow,nb,peaklimit,iqadjust0,iqapply0,faclim,  &
-          cx0,cy0,gainx,gainy,phasex,phasey,cx1,cy1,slimit,lstrong,          &
+     call timf2(k,nxpol,nfft2,nwindow,nb,peaklimit,iqadjust0,iqapply0,       &
+          faclim,cx0,cy0,gainx,gainy,phasex,phasey,cx1,cy1,slimit,lstrong,   &
           px,py,nzap)
 
      do i=0,kstep-1

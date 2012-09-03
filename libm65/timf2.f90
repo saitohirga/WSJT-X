@@ -1,4 +1,4 @@
-subroutine timf2(k,nxpol,nfft,nwindow,nb,peaklimit,iqadjust,iqapply,faclim,   &
+subroutine timf2(k,nxpol,nfft,nwindow,nb,peaklimit,iqadjust,iqapply,faclim, &
   cx0,cy0,gainx,gainy,phasex,phasey,cx1,cy1,slimit,lstrong,px,py,nzap)
 
 ! Sequential processing of time-domain I/Q data, using Linrad-like
@@ -31,14 +31,14 @@ subroutine timf2(k,nxpol,nfft,nwindow,nb,peaklimit,iqadjust,iqapply,faclim,   &
   complex cxw(0:MAXFFT-1),covxw(0:MAXNH-1)     !Weak X signals
   complex cyw(0:MAXFFT-1),covyw(0:MAXNH-1)     !Weak Y signals
   real*4 w(0:MAXFFT-1)
-  real*4 s(0:MAXFFT-1),stmp(0:MAXFFT-1)
+  real*4 s(0:MAXFFT-1)
   logical*1 lstrong(0:MAXFFT-1),lprev
   integer ia(MAXSIGS),ib(MAXSIGS)
   complex h,u,v
   logical first
   data first/.true./
   data k0/99999999/
-  save w,covxs,covxw,covys,covyw,s,ntc,ntot,nh,kstep,fac,first,k0
+  save
 
   if(first) then
      pi=4.0*atan(1.0)
@@ -46,8 +46,6 @@ subroutine timf2(k,nxpol,nfft,nwindow,nb,peaklimit,iqadjust,iqapply,faclim,   &
         w(i)=(sin(i*pi/nfft))**2
      enddo
      s=0.
-     ntc=0
-     ntot=0
      nh=nfft/2
      kstep=nfft
      if(nwindow.eq.2) kstep=nh
@@ -111,22 +109,13 @@ subroutine timf2(k,nxpol,nfft,nwindow,nb,peaklimit,iqadjust,iqapply,faclim,   &
 ! Identify frequencies with strong signals, copy frequency-domain
 ! data into array cs (strong) or cw (weak).
 
-  ntot=ntot+1
-  if(mod(ntot,128).eq.5) then
-     call pctile(s,stmp,1024,50,xmedian)
-     slimit=faclim*xmedian
-  endif
-
-  if(ntc.lt.96000/nfft) ntc=ntc+1
-  uu=1.0/ntc
-  smax=0.
   do i=0,nfft-1
      p=real(cxt(i))**2 + aimag(cxt(i))**2
      if(nxpol.ne.0) p=p + real(cyt(i))**2 + aimag(cyt(i))**2
-     s(i)=(1.0-uu)*s(i) + uu*p
-     lstrong(i)=(s(i).gt.slimit)
-     if(s(i).gt.smax) smax=s(i)
+     s(i)=p
   enddo
+  ave=sum(s(0:nfft-1))/nfft
+  lstrong(0:nfft-1)=s(0:nfft-1).gt.10.0*ave
 
   nsigs=0
   lprev=.false.
