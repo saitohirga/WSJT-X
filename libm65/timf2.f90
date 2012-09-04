@@ -64,15 +64,15 @@ subroutine timf2(k,nxpol,nfft,nwindow,nb,peaklimit,iqadjust,iqapply,faclim, &
 
   cx(0:nfft-1)=cx0
   if(nwindow.eq.2) cx(0:nfft-1)=w(0:nfft-1)*cx(0:nfft-1)
-  call four2a(cx,nfft,1,1,1)                       !First forward FFT
+  call four2a(cx,nfft,1,1,1)                       !First forward FFT (X)
 
   if(nxpol.ne.0) then
      cy(0:nfft-1)=cy0
      if(nwindow.eq.2) cy(0:nfft-1)=w(0:nfft-1)*cy(0:nfft-1)
-     call four2a(cy,nfft,1,1,1)                    !First forward FFT
+     call four2a(cy,nfft,1,1,1)                    !First forward FFT (Y)
   endif
 
-  if(iqapply.ne.0) then                            !Apply I/Q corrections
+  if(iqapply.ne.0) then                            !Apply I/Q corrections (X)
      h=gainx*cmplx(cos(phasex),sin(phasex))
      v=0.
      do i=0,nfft-1
@@ -89,7 +89,7 @@ subroutine timf2(k,nxpol,nfft,nwindow,nb,peaklimit,iqadjust,iqapply,faclim, &
   endif
 
   if(nxpol.ne.0) then
-     if(iqapply.ne.0) then                         !Apply I/Q corrections
+     if(iqapply.ne.0) then                         !Apply I/Q corrections (Y)
         h=gainy*cmplx(cos(phasey),sin(phasey))
         v=0.
         do i=0,nfft-1
@@ -205,9 +205,9 @@ subroutine timf2(k,nxpol,nfft,nwindow,nb,peaklimit,iqadjust,iqapply,faclim, &
      if(nxpol.ne.0) py=py + real(cyw(i))**2 + aimag(cyw(i))**2
   enddo
 
-  cx1(0:kstep-1)=cxw(0:kstep-1) + cxs(0:kstep-1)     !Recombine weak + strong
+  cx1(0:kstep-1)=cxw(0:kstep-1) + cxs(0:kstep-1)       !Weak + strong (X)
   if(nxpol.ne.0) then
-     cy1(0:kstep-1)=cyw(0:kstep-1) + cys(0:kstep-1)    !Weak + strong
+     cy1(0:kstep-1)=cyw(0:kstep-1) + cys(0:kstep-1)    !Weak + strong (Y)
   endif
 
   return
