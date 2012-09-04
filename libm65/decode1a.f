@@ -101,7 +101,7 @@
 !  submodes B and C).
 
       nsym=126
-      nfft=512/mode65
+      nfft=512/(nfast*mode65)
       j=(dt00+dtbest+2.685)*1378.125 + joff
       if(j.lt.0) j=0
 
