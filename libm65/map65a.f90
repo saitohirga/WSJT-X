@@ -56,6 +56,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 2  if(ndphi.eq.1) dphi=30*iloop/57.2957795
 
   do nqd=1,0,-1
+!  do nqd=1,1,-1
      if(nqd.eq.1) then                     !Quick decode, at fQSO
         fa=1000.0*(fqso+0.001*mousedf) - ntol
         fb=1000.0*(fqso+0.001*mousedf) + ntol + 4*53.8330078
@@ -114,8 +115,8 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            call timer('ccf65   ',0)
 !           ssmax=4.0*(rmsdd/22.5)**2
            ssmax=savg(jpmax,i)
-           call ccf65(ss(1,1,i),nhsym,ssmax,sync1,ipol,jpz,dt,flipk,     &
-                syncshort,snr2,ipol2,dt2)
+           call ccf65(ss(1,1,i),nhsym,nfast,ssmax,sync1,ipol,jpz,dt,     &
+                flipk,syncshort,snr2,ipol2,dt2)
            call timer('ccf65   ',1)
 
 ! ########################### Search for Shorthand Messages #################
@@ -204,10 +205,11 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                  ifreq=i
                  ikHz=nint(freq+0.5*(nfa+nfb)-foffset)-nfshift
                  idf=nint(1000.0*(freq+0.5*(nfa+nfb)-foffset-(ikHz+nfshift)))
-                 call decode1a(dd,newdat,f00,nflip,mode65,nfsample,xpol,  &
-                      mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,  &
-                      iloop,nutc,ikHz,idf,ipol,ntol,sync2,a,dt,pol,nkv,   &
-                      nhist,nsum,nsave,qual,decoded)
+!                 print*,ikhz,idf,dt,sync1,dt
+                 call decode1a(dd,newdat,f00,nflip,mode65,nfast,nfsample, &
+                      xpol,mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,   &
+                      ndphi,iloop,nutc,ikHz,idf,ipol,ntol,sync2,a,dt,     &
+                      pol,nkv,nhist,nsum,nsave,qual,decoded)
                  dt=dt+0.8                           !### empirical tweak
                  call timer('decode1a',1)
 

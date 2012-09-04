@@ -1,5 +1,5 @@
-subroutine ccf65(ss,nhsym,ssmax,sync1,ipol1,jpz,dt1,flipk,syncshort,      &
-     snr2,ipol2,dt2)
+subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
+     syncshort,snr2,ipol2,dt2)
 
   parameter (NFFT=512,NH=NFFT/2)
   real ss(4,322)                   !Input: half-symbol powers, 4 pol'ns
@@ -103,7 +103,7 @@ subroutine ccf65(ss,nhsym,ssmax,sync1,ipol1,jpz,dt1,flipk,syncshort,      &
   enddo
   rms=sqrt(sq/49.0)
   sync1=ccfbest/rms - 4.0
-  dt1=2.5 + lagpk*(2048.0/11025.0)
+  dt1=(2.5 + lagpk*(2048.0/11025.0))/nfast
 
 ! Find base level for normalizing snr2.
   do i=1,nhsym
@@ -112,7 +112,7 @@ subroutine ccf65(ss,nhsym,ssmax,sync1,ipol1,jpz,dt1,flipk,syncshort,      &
   call pctile(tmp1,tmp2,nhsym,40,base)
   snr2=0.398107*ccfbest2/base                !### empirical
   syncshort=0.5*ccfbest2/rms - 4.0           !### better normalizer than rms?
-  dt2=2.5 + lagpk2*(2048.0/11025.0)
+  dt2=(2.5 + lagpk2*(2048.0/11025.0))/nfast
 
   return
 end subroutine ccf65

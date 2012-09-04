@@ -1,5 +1,5 @@
-      subroutine afc65b(cx,cy,npts,fsample,nflip,ipol,xpol,ndphi,iloop,
-     +  a,ccfbest,dtbest)
+      subroutine afc65b(cx,cy,npts,nfast,fsample,nflip,ipol,xpol,
+     +  ndphi,iloop,a,ccfbest,dtbest)
 
       logical xpol
       complex cx(npts)
@@ -26,11 +26,11 @@
       chisqr0=1.e6
       do iter=1,3                               !One iteration is enough?
          do j=1,nterms
-            chisq1=fchisq(cx,cy,npts,fsample,nflip,a,ccfmax,dtmax)
+            chisq1=fchisq(cx,cy,npts,nfast,fsample,nflip,a,ccfmax,dtmax)
             fn=0.
             delta=deltaa(j)
  10         a(j)=a(j)+delta
-            chisq2=fchisq(cx,cy,npts,fsample,nflip,a,ccfmax,dtmax)
+            chisq2=fchisq(cx,cy,npts,nfast,fsample,nflip,a,ccfmax,dtmax)
             if(chisq2.eq.chisq1) go to 10
             if(chisq2.gt.chisq1) then
                delta=-delta                      !Reverse direction
@@ -41,7 +41,7 @@
             endif
  20         fn=fn+1.0
             a(j)=a(j)+delta
-            chisq3=fchisq(cx,cy,npts,fsample,nflip,a,ccfmax,dtmax)
+            chisq3=fchisq(cx,cy,npts,nfast,fsample,nflip,a,ccfmax,dtmax)
             if(chisq3.lt.chisq2) then
                chisq1=chisq2
                chisq2=chisq3
@@ -53,7 +53,7 @@ C  Find minimum of parabola defined by last three points
             a(j)=a(j)-delta
             deltaa(j)=deltaa(j)*fn/3.
          enddo
-         chisqr=fchisq(cx,cy,npts,fsample,nflip,a,ccfmax,dtmax)
+         chisqr=fchisq(cx,cy,npts,nfast,fsample,nflip,a,ccfmax,dtmax)
          if(chisqr/chisqr0.gt.0.9999) go to 30
          chisqr0=chisqr
       enddo

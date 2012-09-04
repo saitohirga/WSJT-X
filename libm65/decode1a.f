@@ -1,4 +1,4 @@
-      subroutine decode1a(dd,newdat,f0,nflip,mode65,nfsample,xpol,
+      subroutine decode1a(dd,newdat,f0,nflip,mode65,nfast,nfsample,xpol,
      +  mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,iloop,
      +  nutc,nkhz,ndf,ipol,ntol,sync2,a,dt,pol,nkv,nhist,nsum,nsave,
      +  qual,decoded)
@@ -24,7 +24,7 @@
 !  Mix sync tone to baseband, low-pass filter, downsample to 1378.125 Hz
       dt00=dt
       call timer('filbig  ',0)
-      call filbig(dd,NMAX,f0,newdat,nfsample,xpol,cx,cy,n5)
+      call filbig(dd,NMAX,nfast,f0,newdat,nfsample,xpol,cx,cy,n5)
 !  NB: cx, cy have sample rate 96000*77125/5376000 = 1378.125 Hz
       call timer('filbig  ',1)
       joff=0
@@ -32,17 +32,19 @@
       sqb=0.
       do i=1,n5
          sqa=sqa + real(cx(i))**2 + aimag(cx(i))**2
-         sqb=sqb + real(cy(i))**2 + aimag(cy(i))**2
+         if(xpol) sqb=sqb + real(cy(i))**2 + aimag(cy(i))**2
       enddo
       sqa=sqa/n5
       sqb=sqb/n5
 
 !  Find best DF, f1, f2, DT, and pol.  Start by downsampling to 344.53125 Hz
-      z=cmplx(cos(dphi),sin(dphi))
-      cy(:n5)=z*cy(:n5)                   !Adjust for cable length difference
+      if(xpol) then
+         z=cmplx(cos(dphi),sin(dphi))
+         cy(:n5)=z*cy(:n5)                !Adjust for cable length difference
+      endif
       call timer('fil6521 ',0)
       call fil6521(cx,n5,c5x,n6)
-      call fil6521(cy,n5,c5y,n6)
+      if(xpol) call fil6521(cy,n5,c5y,n6)
       call timer('fil6521 ',1)
 
 ! Add some zeros at start of c5 arrays -- empirical fix for negative DT's
@@ -53,8 +55,10 @@
       c5tmp(1:nadd)=0.
       c5tmp(1+nadd:n6+nadd)=c5x(1:n6)
       c5x(1:n6+nadd)=c5tmp(1:n6+nadd)
-      c5tmp(1+nadd:n6+nadd)=c5y(1:n6)
-      c5y(1:n6+nadd)=c5tmp(1:n6+nadd)
+      if(xpol) then
+         c5tmp(1+nadd:n6+nadd)=c5y(1:n6)
+         c5y(1:n6+nadd)=c5tmp(1:n6+nadd)
+      endif
       n6=n6+nadd
 
       fsample=1378.125/4.
@@ -71,7 +75,7 @@
 ! factor of 1/8, say?  Should be a significant execution speed-up.
       call timer('afc65b  ',0)
 ! Best fit for DF, f1, f2, pol
-      call afc65b(c5x(i0),c5y(i0),nz,fsample,nflip,ipol,xpol,
+      call afc65b(c5x(i0),c5y(i0),nz,nfast,fsample,nflip,ipol,xpol,
      +     ndphi,iloop,a,ccfbest,dtbest)
       call timer('afc65b  ',1)
 
@@ -80,6 +84,8 @@
       bb=sin(pol)
       sq0=aa*aa*sqa + bb*bb*sqb
       sync2=3.7*ccfbest/sq0
+
+!      print*,n6,dt00,i0,nz,a(1),sync2
 
 !  Apply AFC corrections to the time-domain signal
 !  Now we are back to using the 1378.125 Hz sample rate, enough to 

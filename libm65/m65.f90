@@ -106,9 +106,9 @@ program m65
            gainy=1.0265
            phasex=0.01426
            phasey=-0.01195
-           call symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,  &
-                iqadjust,iqapply,gainx,gainy,phasex,phasey,rejectx,rejecty,  &
-                pxdb,pydb,ssz5a,nkhz,ihsym,nzap,slimit,lstrong)
+           call symspec(k,nfast,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,   &
+                fgreen,iqadjust,iqapply,gainx,gainy,phasex,phasey,rejectx,   &
+                rejecty,pxdb,pydb,ssz5a,nkhz,ihsym,nzap,slimit,lstrong)
            call timer('symspec ',1)
            nhsym0=nhsym
            if(ihsym.ge.278) go to 10

@@ -1,4 +1,4 @@
-subroutine symspec(k,nfast, nxpol,ndiskdat,nb,nbslider,idphi,nfsample,   &
+subroutine symspec(k,nfast,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,    &
      fgreen,iqadjust,iqapply,gainx,gainy,phasex,phasey,rejectx,rejecty,  &
      pxdb,pydb,ssz5a,nkhz,ihsym,nzap,slimit,lstrong)
 

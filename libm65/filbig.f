@@ -1,4 +1,5 @@
-      subroutine filbig(dd,nmax,f0,newdat,nfsample,xpol,c4a,c4b,n4)
+      subroutine filbig(dd,nmax,nfast,f0,newdat,nfsample,xpol,
+     +    c4a,c4b,n4)
 
 C  Filter and downsample complex data stored in array dd(4,nmax).  
 C  Output is downsampled from 96000 Hz to 1375.125 Hz.
@@ -20,11 +21,20 @@ C  Output is downsampled from 96000 Hz to 1375.125 Hz.
      +  5.89886379,1.59355187,-2.49138308,0.60910773,-0.04248129/
       save
 
-      nfft1=MAXFFT1
-      nfft2=MAXFFT2
-      if(nfsample.eq.95238) then
-         nfft1=5120000
-         nfft2=74088
+      if(nfast.eq.1) then
+         nfft1=MAXFFT1
+         nfft2=MAXFFT2
+         if(nfsample.eq.95238) then
+            nfft1=5120000
+            nfft2=74088
+         endif
+      else
+         nfft1=2621440
+         nfft2=37632
+         if(nfsample.eq.95238) then
+            nfft1=2560000
+            nfft2=37044
+         endif
       endif
       if(nmax.lt.0) go to 900
       if(first) then

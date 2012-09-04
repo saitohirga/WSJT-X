@@ -1,4 +1,5 @@
-      real function fchisq(cx,cy,npts,fsample,nflip,a,ccfmax,dtmax)
+      real function fchisq(cx,cy,npts,nfast,fsample,nflip,a,
+     +  ccfmax,dtmax)
 
       parameter (NMAX=60*96000)          !Samples per 60 s
       complex cx(npts),cy(npts)
@@ -10,7 +11,13 @@
       save
 
       call timer('fchisq  ',0)
-      baud=11025.0/4096.0
+      baud=nfast*11025.0/4096.0
+      nsps=nint(fsample/baud)                  !Samples per symbol
+      nsph=nsps/2                              !Samples per half-symbol
+      ndiv=16                                  !Output ss() steps per symbol
+      nout=ndiv*npts/nsps
+      dtstep=1.0/(ndiv*baud)                   !Time per output step
+
       if(a(1).ne.a1 .or. a(2).ne.a2 .or. a(3).ne.a3) then
          a1=a(1)
          a2=a(2)
@@ -42,12 +49,6 @@ C  Compute 1/2-symbol powers at 1/16-symbol steps.
       pol=a(4)/57.2957795
       aa=cos(pol)
       bb=sin(pol)
-      nsps=nint(fsample/baud)                  !Samples per symbol
-      nsph=nsps/2                              !Samples per half-symbol
-
-      ndiv=16                                  !Output ss() steps per symbol
-      nout=ndiv*npts/nsps
-      dtstep=1.0/(ndiv*baud)                   !Time per output step
 
       do i=1,nout
          j=i*nsps/ndiv
