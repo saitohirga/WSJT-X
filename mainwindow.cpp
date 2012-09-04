@@ -497,10 +497,10 @@ void MainWindow::dataSink(int k)
   fgreen=(float)g_pWideGraph->fGreen();
   nadj++;
   if(m_adjustIQ==0) nadj=0;
-  symspec_(&k, &nxpol, &ndiskdat, &nb, &m_NBslider, &m_dPhi, &nfsample,
-           &fgreen, &m_adjustIQ, &m_applyIQcal, &m_gainx, &m_gainy, &m_phasex,
-           &m_phasey, &rejectx, &rejecty, &px, &py, s, &nkhz,
-           &ihsym, &nzap, &slimit, lstrong);
+  symspec_(&k, &m_nfast, &nxpol, &ndiskdat, &nb, &m_NBslider, &m_dPhi,
+           &nfsample, &fgreen, &m_adjustIQ, &m_applyIQcal,
+           &m_gainx, &m_gainy, &m_phasex, &m_phasey, &rejectx, &rejecty,
+           &px, &py, s, &nkhz, &ihsym, &nzap, &slimit, lstrong);
   QString t;
   m_pctZap=nzap/178.3;
   if(m_xpol) t.sprintf(" Rx noise: %5.1f  %5.1f %5.1f %% ",px,py,m_pctZap);
@@ -549,7 +549,7 @@ void MainWindow::dataSink(int k)
     ntrz=ntr;
     n=0;
   }
-  if(ihsym == 279/m_nfast) {
+  if(ihsym == 280) {
     datcom_.newdat=1;
     datcom_.nagain=0;
     QDateTime t = QDateTime::currentDateTimeUtc();
@@ -1038,7 +1038,7 @@ void MainWindow::diskDat()                                   //diskDat()
 
   if(m_fs96000) hsym=2048.0*96000.0/11025.0;   //Samples per JT65 half-symbol
   if(!m_fs96000) hsym=2048.0*95238.1/11025.0;
-  for(int i=0; i<282/m_nfast; i++) {           // Do the half-symbol FFTs
+  for(int i=0; i<284/m_nfast; i++) {           // Do the half-symbol FFTs
     int k = i*hsym + 2048.5;
     dataSink(k);
     if(i%10 == 0) qApp->processEvents();       //Keep the GUI responsive
@@ -1399,10 +1399,9 @@ void MainWindow::guiUpdate()
     ba2msg(ba,message);
     int len1=22;
     int mode65=m_mode65;
-    int nfast=m_nfast;
     double samfac=1.0;
 
-    gen65_(message,&mode65,&nfast,&samfac,&nsendingsh,msgsent,iwave,
+    gen65_(message,&mode65,&m_nfast,&samfac,&nsendingsh,msgsent,iwave,
            &nwave,len1,len1);
     msgsent[22]=0;
 
@@ -1821,8 +1820,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)                //msgtype()
   int i1=t.indexOf(" OOO");
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
-  int nfast=m_nfast;
-  gen65_(message,&mode65,&nfast,&samfac,&nsendingsh,msgsent,iwave,
+  gen65_(message,&mode65,&m_nfast,&samfac,&nsendingsh,msgsent,iwave,
          &mwave,len1,len1);
 
   QPalette p(tx->palette());

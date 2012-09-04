@@ -267,12 +267,12 @@ extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
 
 extern "C" {
 //----------------------------------------------------- C and Fortran routines
-  void symspec_(int* k, int* nxpol, int* ndiskdat, int* nb, int* m_NBslider,
-                int* idphi, int* nfsample, float* fgreen, int* iqadjust,
-                int* iqapply, float* gainx, float* gainy, float* phasex,
-                float* phasey, float* rejectx, float* rejecty, float* px,
-                float* py, float s[], int* nkhz, int* nhsym, int* nzap,
-                float* slimit, uchar lstrong[]);
+  void symspec_(int* k, int* nfast, int* nxpol, int* ndiskdat, int* nb,
+                int* m_NBslider, int* idphi, int* nfsample, float* fgreen,
+                int* iqadjust, int* iqapply, float* gainx, float* gainy,
+                float* phasex, float* phasey, float* rejectx, float* rejecty,
+                float* px, float* py, float s[], int* nkhz, int* nhsym,
+                int* nzap, float* slimit, uchar lstrong[]);
 
   void gen65_(char* msg, int* mode65, int* nfast, double* samfac,
               int* nsendingsh, char* msgsent, short iwave[], int* nwave,

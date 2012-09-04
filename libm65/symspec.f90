@@ -1,5 +1,5 @@
-subroutine symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,   &
-     iqadjust,iqapply,gainx,gainy,phasex,phasey,rejectx,rejecty,         &
+subroutine symspec(k,nfast, nxpol,ndiskdat,nb,nbslider,idphi,nfsample,   &
+     fgreen,iqadjust,iqapply,gainx,gainy,phasex,phasey,rejectx,rejecty,  &
      pxdb,pydb,ssz5a,nkhz,ihsym,nzap,slimit,lstrong)
 
 !  k        pointer to the most recent new data
@@ -23,10 +23,11 @@ subroutine symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,   &
   real*8 ts,hsym
   real*8 fcenter
   common/datcom/dd(4,5760000),ss(4,322,NFFT),savg(4,NFFT),fcenter,nutc,junk(36)
-  real*4 ssz5a(NFFT),w(NFFT)
+  real*4 ssz5a(NFFT),w(NFFT),w2a(NFFT),w2b(NFFT)
   complex z,zfac
   complex zsumx,zsumy
   complex cx(NFFT),cy(NFFT)
+  complex cx00(NFFT),cy00(NFFT)
   complex cx0(0:1023),cx1(0:1023)
   complex cy0(0:1023),cy1(0:1023)
   logical*1 lstrong(0:1023)
@@ -40,10 +41,19 @@ subroutine symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,   &
   endif
   if(k0.eq.99999999) then
      pi=4.0*atan(1.0)
+     w2a=0.
+     w2b=0.
      do i=1,NFFT
-        w(i)=(sin(i*pi/NFFT))**2
+        w(i)=(sin(i*pi/NFFT))**2                          !Window for nfast=1
+        if(i.lt.17833) w2a(i)=(sin(i*pi/17832.925))**2    !Window a for nfast=2
+        j=i-8916
+        if(j.lt.17833) w2b(i)=(sin(j*pi/17832.925))**2    !Window b for nfast=2
      enddo
   endif
+
+  hsym=2048.d0*96000.d0/11025.d0      !Samples per JT65 half-symbol
+  if(nfsample.eq.95238)   hsym=2048.d0*95238.1d0/11025.d0
+
   if(k.lt.k0) then
      ts=1.d0 - hsym
      savg=0.
@@ -90,15 +100,12 @@ subroutine symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,   &
      k1=k1+kstep
   enddo
 
-  hsym=2048.d0*96000.d0/11025.d0      !Samples per JT65 half-symbol
-  if(nfsample.eq.95238)   hsym=2048.d0*95238.1d0/11025.d0
   npts=NFFT                           !Samples used in each half-symbol FFT
 
-  ihsym=ihsym+1
-  ja=ts+hsym                          !Index of first sample
+  ts=ts+hsym
+  ja=ts                               !Index of first sample
   jb=ja+npts-1                        !Last sample
 
-  ts=ts+hsym
   i=0
   fac=0.0002
   dphi=idphi/57.2957795
@@ -133,54 +140,102 @@ subroutine symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,   &
   if(pxdb.gt.60.0) pxdb=60.0
   if(pydb.gt.60.0) pydb=60.0
 
-  cx=w*cx                             !Apply window for 2nd forward FFT
-  if(nxpol.ne.0) cy=w*cy
+  cx00=cx
+  if(nxpol.ne.0) cy00=cy
 
-  call four2a(cx,NFFT,1,1,1)          !Second forward FFT
-  if(iqadjust.eq.0) nadjx=0
-  if(iqadjust.ne.0 .and. nadjx.lt.50) call iqcal(nadjx,cx,NFFT,gainx,phasex, &
-                                                 zsumx,ipkx,rejectx0)
-  if(iqapply.ne.0) call iqfix(cx,NFFT,gainx,phasex)
+  do mm=1,nfast
+     if(nfast.eq.1) then
+        cx=w*cx00                           !Apply window for 2nd forward FFT
+        if(nxpol.ne.0) cy=w*cy00
+     else
+        if(mm.eq.1) then
+           cx=w2a*cx00
+           if(nxpol.ne.0) cy=w2a*cy00
+        else
+           cx=w2b*cx00
+           if(nxpol.ne.0) cy=w2b*cy00
+        endif
+     endif
 
-  if(nxpol.ne.0) then
-     call four2a(cy,NFFT,1,1,1)
-     if(iqadjust.eq.0) nadjy=0
-     if(iqadjust.ne.0 .and. nadjy.lt.50) call iqcal(nadjy,cy,NFFT,gainy,phasey,&
-                                                 zsumy,ipky,rejecty)
-     if(iqapply.ne.0) call iqfix(cy,NFFT,gainy,phasey)
-  endif
+     call four2a(cx,NFFT,1,1,1)          !Second forward FFT (X)
+     if(iqadjust.eq.0) nadjx=0
+     if(iqadjust.ne.0 .and. nadjx.lt.50) call iqcal(nadjx,cx,NFFT,    &
+          gainx,phasex,zsumx,ipkx,rejectx0)
+     if(iqapply.ne.0) call iqfix(cx,NFFT,gainx,phasex)
 
-  n=ihsym
-  do i=1,NFFT
-     sx=real(cx(i))**2 + aimag(cx(i))**2  
-     ss(1,n,i)=sx                    ! Pol = 0
-     savg(1,i)=savg(1,i) + sx
-     
      if(nxpol.ne.0) then
-        z=cx(i) + cy(i)
-        s45=0.5*(real(z)**2 + aimag(z)**2)
-        ss(2,n,i)=s45                   ! Pol = 45
-        savg(2,i)=savg(2,i) + s45
+        call four2a(cy,NFFT,1,1,1)       !Second forward FFT (Y)
+        if(iqadjust.eq.0) nadjy=0
+        if(iqadjust.ne.0 .and. nadjy.lt.50) call iqcal(nadjy,cy,NFFT, &
+             gainy,phasey,zsumy,ipky,rejecty)
+        if(iqapply.ne.0) call iqfix(cy,NFFT,gainy,phasey)
+     endif
 
-        sy=real(cy(i))**2 + aimag(cy(i))**2
-        ss(3,n,i)=sy                    ! Pol = 90
-        savg(3,i)=savg(3,i) + sy
+     ihsym=ihsym+1
+     n=ihsym
+     if(mm.eq.1) then
+        do i=1,NFFT
+           sx=real(cx(i))**2 + aimag(cx(i))**2  
+           ss(1,n,i)=sx                    ! Pol = 0
+           savg(1,i)=savg(1,i) + sx
+     
+           if(nxpol.ne.0) then
+              z=cx(i) + cy(i)
+              s45=0.5*(real(z)**2 + aimag(z)**2)
+              ss(2,n,i)=s45                   ! Pol = 45
+              savg(2,i)=savg(2,i) + s45
+
+              sy=real(cy(i))**2 + aimag(cy(i))**2
+              ss(3,n,i)=sy                    ! Pol = 90
+              savg(3,i)=savg(3,i) + sy
         
-        z=cx(i) - cy(i)
-        s135=0.5*(real(z)**2 + aimag(z)**2)
-        ss(4,n,i)=s135                  ! Pol = 135
-        savg(4,i)=savg(4,i) + s135
+              z=cx(i) - cy(i)
+              s135=0.5*(real(z)**2 + aimag(z)**2)
+              ss(4,n,i)=s135                  ! Pol = 135
+              savg(4,i)=savg(4,i) + s135
 
-        z=cx(i)*conjg(cy(i))
-        q=sx - sy
-        u=2.0*real(z)
-        ssz5a(i)=0.707*sqrt(q*q + u*u)    !Spectrum of linear polarization
+              z=cx(i)*conjg(cy(i))
+              q=sx - sy
+              u=2.0*real(z)
+              ssz5a(i)=0.707*sqrt(q*q + u*u)    !Spectrum of linear polarization
 ! Leif's formula:
 !     ssz5a(i)=0.5*(sx+sy) + (real(z)**2 + aimag(z)**2 - sx*sy)/(sx+sy)
+           else
+              ssz5a(i)=sx
+           endif
+        enddo
      else
-        ssz5a(i)=sx
+        do i=1,NFFT
+           sx=real(cx(i))**2 + aimag(cx(i))**2  
+           ss(1,n,i)=ss(1,n,i) + sx                    ! Pol = 0
+           savg(1,i)=savg(1,i) + sx
+     
+           if(nxpol.ne.0) then
+              z=cx(i) + cy(i)
+              s45=0.5*(real(z)**2 + aimag(z)**2)
+              ss(2,n,i)=ss(2,n,i) + s45                ! Pol = 45
+              savg(2,i)=savg(2,i) + s45
+
+              sy=real(cy(i))**2 + aimag(cy(i))**2
+              ss(3,n,i)=ss(3,n,i) + sy                 ! Pol = 90
+              savg(3,i)=savg(3,i) + sy
+        
+              z=cx(i) - cy(i)
+              s135=0.5*(real(z)**2 + aimag(z)**2)
+              ss(4,n,i)=ss(4,n,i) + s135               ! Pol = 135
+              savg(4,i)=savg(4,i) + s135
+
+              z=cx(i)*conjg(cy(i))
+              q=sx - sy
+              u=2.0*real(z)
+              ssz5a(i)=ssz5a(i) + 0.707*sqrt(q*q + u*u)    !Spectrum of lin pol
+           else
+              ssz5a(i)=ssz5a(i) + sx
+           endif
+        enddo
      endif
   enddo
+
   if(ihsym.eq.278) then
      if(iqadjust.ne.0 .and. ipkx.ne.0 .and. ipky.ne.0) then
         rejectx=10.0*log10(savg(1,1+nfft-ipkx)/savg(1,1+ipkx))
