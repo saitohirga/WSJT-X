@@ -101,8 +101,10 @@
 !  submodes B and C).
 
       nsym=126
-      nfft=512/(nfast*mode65)
+!      nfft=512/(nfast*mode65)
+      nfft=512/nfast
       j=(dt00+dtbest+2.685)*1378.125 + joff
+      if(nfast.eq.2) j=j-1506
       if(j.lt.0) j=0
 
       call timer('sh_ffts ',0)
@@ -111,7 +113,8 @@
 ! (Tried this, found no significant difference in decodes.)
 
       do k=1,nsym
-         do n=1,mode65
+!         do n=1,mode65
+         do n=1,1
             do i=1,nfft
                j=j+1
                c5a(i)=aa*cx(j) + bb*cy(j)
@@ -119,7 +122,10 @@
             call four2a(c5a,nfft,1,1,1)
             if(n.eq.1) then
                do i=1,66
-                  s2(i,k)=real(c5a(i))**2 + aimag(c5a(i))**2
+!                  s2(i,k)=real(c5a(i))**2 + aimag(c5a(i))**2
+                  jj=i
+                  if(nfast.eq.1) jj=2*i-1
+                  s2(i,k)=real(c5a(jj))**2 + aimag(c5a(jj))**2
                enddo
             else
                do i=1,66

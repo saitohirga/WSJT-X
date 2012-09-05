@@ -13,7 +13,7 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
   complex cpr2(0:NH)               !Complex FT of pr2
   real tmp1(322)
   real tmp2(322)
-  real ccf(-27:27,4)
+  real ccf(-11:54,4)
   logical first
   integer npr(126)
   data first/.true./
@@ -71,8 +71,10 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
      call four2a(cs,NFFT,1,1,-1)               !Complex-to-real inv-FFT
      call four2a(cs2,NFFT,1,1,-1)              !Complex-to-real inv-FFT
 
-     do lag=-27,27                             !Check for best JT65 sync
-        ccf(lag,ip)=s(lag+28)                  
+     do lag=-11,54                             !Check for best JT65 sync
+        j=lag
+        if(j.lt.1) j=j+NFFT
+        ccf(lag,ip)=s(j)
         if(abs(ccf(lag,ip)).gt.ccfbest) then
            ccfbest=abs(ccf(lag,ip))
            lagpk=lag
@@ -95,17 +97,18 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
 
 ! Find rms level on baseline of "ccfblue", for normalization.
   sum=0.
-  do lag=-26,26
+  do lag=-11,54
      if(abs(lag-lagpk).gt.1) sum=sum + ccf(lag,ipol1)
   enddo
   base=sum/50.0
   sq=0.
-  do lag=-26,26
+  do lag=-11,54
      if(abs(lag-lagpk).gt.1) sq=sq + (ccf(lag,ipol1)-base)**2
   enddo
   rms=sqrt(sq/49.0)
   sync1=ccfbest/rms - 4.0
-  dt1=(2.5 + lagpk*(2048.0/11025.0))/nfast
+!  dt1=(2.5 + lagpk*(2048.0/11025.0))/nfast
+  dt1=lagpk*(2048.0/11025.0)/nfast - 2.5
 
 ! Find base level for normalizing snr2.
   do i=1,nhsym
