@@ -44,7 +44,7 @@ subroutine cgen65(message,mode65,nfast,samfac,nsendingsh,msgsent,cwave,nwave)
      tsymbol=4096.d0/(nfast*11025.d0)    !Time per symbol
   else
      nsendingsh=1                        !Flag for shorthand message
-     nsym=32
+     nsym=32/nfast
      tsymbol=16384.d0/11025.d0
   endif
 

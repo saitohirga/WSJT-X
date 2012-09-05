@@ -87,7 +87,8 @@ program mapsim
         if(npol.lt.0) pol=(isig-1)*180.0/nsigs
         a=cos(pol/rad)
         b=sin(pol/rad)
-        f=1000.0*(f1 + (isig-1)*(f2-f1)/(nsigs-1.0))
+        f=1000.0*(f1+f2)/2.0
+        if(nsigs.gt.1) f=1000.0*(f1 + (isig-1)*(f2-f1)/(nsigs-1.0))
         dphi=twopi*f*dt + 0.5*twopi
 
         snrdbx=snrdb
