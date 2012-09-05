@@ -60,6 +60,8 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
 !        s(i)=ss(ip,i)+ss(ip,i+1)
         s(i)=min(ssmax,ss(ip,i)+ss(ip,i+1))
      enddo
+     call pctile(s,tmp1,nhsym-1,50,base)
+     s(1:nhsym-1)=s(1:nhsym-1)-base
      s(nhsym:NFFT)=0.
      call four2a(s,NFFT,1,-1,0)                !Real-to-complex FFT
      do i=0,NH
@@ -68,7 +70,7 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
      enddo
      call four2a(cs,NFFT,1,1,-1)               !Complex-to-real inv-FFT
      call four2a(cs2,NFFT,1,1,-1)              !Complex-to-real inv-FFT
-     
+
      do lag=-27,27                             !Check for best JT65 sync
         ccf(lag,ip)=s(lag+28)                  
         if(abs(ccf(lag,ip)).gt.ccfbest) then
