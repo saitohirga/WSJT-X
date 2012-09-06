@@ -49,6 +49,8 @@ subroutine symspec(k,nfast,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,    &
         j=i-8916
         if(j.gt.0 .and. j.lt.17833) w2b(i)=(sin(j*pi/17832.925))**2    ! b
      enddo
+     w2a=sqrt(2.0)*w2a
+     w2b=sqrt(2.0)*w2b
   endif
 
   hsym=2048.d0*96000.d0/11025.d0      !Samples per JT65 half-symbol

@@ -1,4 +1,4 @@
-//------------------------------------------------------------- MainWindow
+//-------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -16,7 +16,7 @@
 short int iwave[60*11025];            //Wave file for Tx audio
 int nwave;                            //Length of Tx waveform
 bool btxok;                           //True if OK to transmit
-double outputLatency;                 //Latency in seconds
+double outputLatency;                  //Latency in seconds
 qint16 id[4*60*96000];
 
 Astro*     g_pAstro = NULL;
