@@ -56,6 +56,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 2  if(ndphi.eq.1) dphi=30*iloop/57.2957795
 
   do nqd=1,0,-1
+!  do nqd=1,1,-1
      if(nqd.eq.1) then                     !Quick decode, at fQSO
         fa=1000.0*(fqso+0.001*mousedf) - ntol
         fb=1000.0*(fqso+0.001*mousedf) + ntol + 4*53.8330078
@@ -80,6 +81,8 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      jpz=1
      if(xpol) jpz=4
 
+!     ia=17160
+!     ib=17160
      do i=ia,ib                               !Search over freq range
         freq=0.001*(i-16385)*df
 !  Find the local base level for each polarization; update every 10 bins.

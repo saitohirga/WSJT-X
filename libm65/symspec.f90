@@ -47,7 +47,7 @@ subroutine symspec(k,nfast,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,    &
         w(i)=(sin(i*pi/NFFT))**2                          !Window for nfast=1
         if(i.lt.17833) w2a(i)=(sin(i*pi/17832.925))**2    !Window a for nfast=2
         j=i-8916
-        if(j.lt.17833) w2b(i)=(sin(j*pi/17832.925))**2    !Window b for nfast=2
+        if(j.gt.0 .and. j.lt.17833) w2b(i)=(sin(j*pi/17832.925))**2    ! b
      enddo
   endif
 
@@ -144,6 +144,7 @@ subroutine symspec(k,nfast,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,    &
   if(nxpol.ne.0) cy00=cy
 
   do mm=1,nfast
+     ihsym=ihsym+1
      if(nfast.eq.1) then
         cx=w*cx00                           !Apply window for 2nd forward FFT
         if(nxpol.ne.0) cy=w*cy00
@@ -171,69 +172,37 @@ subroutine symspec(k,nfast,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,    &
         if(iqapply.ne.0) call iqfix(cy,NFFT,gainy,phasey)
      endif
 
-     ihsym=ihsym+1
      n=ihsym
-     if(mm.eq.1) then
-        do i=1,NFFT
-           sx=real(cx(i))**2 + aimag(cx(i))**2  
-           ss(1,n,i)=sx                    ! Pol = 0
-           savg(1,i)=savg(1,i) + sx
-     
-           if(nxpol.ne.0) then
-              z=cx(i) + cy(i)
-              s45=0.5*(real(z)**2 + aimag(z)**2)
-              ss(2,n,i)=s45                   ! Pol = 45
-              savg(2,i)=savg(2,i) + s45
+     do i=1,NFFT
+        sx=real(cx(i))**2 + aimag(cx(i))**2  
+        ss(1,n,i)=sx                    ! Pol = 0
+        savg(1,i)=savg(1,i) + sx
 
-              sy=real(cy(i))**2 + aimag(cy(i))**2
-              ss(3,n,i)=sy                    ! Pol = 90
-              savg(3,i)=savg(3,i) + sy
+        if(nxpol.ne.0) then
+           z=cx(i) + cy(i)
+           s45=0.5*(real(z)**2 + aimag(z)**2)
+           ss(2,n,i)=s45                   ! Pol = 45
+           savg(2,i)=savg(2,i) + s45
+
+           sy=real(cy(i))**2 + aimag(cy(i))**2
+           ss(3,n,i)=sy                    ! Pol = 90
+           savg(3,i)=savg(3,i) + sy
         
-              z=cx(i) - cy(i)
-              s135=0.5*(real(z)**2 + aimag(z)**2)
-              ss(4,n,i)=s135                  ! Pol = 135
-              savg(4,i)=savg(4,i) + s135
+           z=cx(i) - cy(i)
+           s135=0.5*(real(z)**2 + aimag(z)**2)
+           ss(4,n,i)=s135                  ! Pol = 135
+           savg(4,i)=savg(4,i) + s135
 
-              z=cx(i)*conjg(cy(i))
-              q=sx - sy
-              u=2.0*real(z)
-              ssz5a(i)=0.707*sqrt(q*q + u*u)    !Spectrum of linear polarization
+           z=cx(i)*conjg(cy(i))
+           q=sx - sy
+           u=2.0*real(z)
+           ssz5a(i)=0.707*sqrt(q*q + u*u)    !Spectrum of linear polarization
 ! Leif's formula:
 !     ssz5a(i)=0.5*(sx+sy) + (real(z)**2 + aimag(z)**2 - sx*sy)/(sx+sy)
-           else
-              ssz5a(i)=sx
-           endif
-        enddo
-     else
-        do i=1,NFFT
-           sx=real(cx(i))**2 + aimag(cx(i))**2  
-           ss(1,n,i)=ss(1,n,i) + sx                    ! Pol = 0
-           savg(1,i)=savg(1,i) + sx
-     
-           if(nxpol.ne.0) then
-              z=cx(i) + cy(i)
-              s45=0.5*(real(z)**2 + aimag(z)**2)
-              ss(2,n,i)=ss(2,n,i) + s45                ! Pol = 45
-              savg(2,i)=savg(2,i) + s45
-
-              sy=real(cy(i))**2 + aimag(cy(i))**2
-              ss(3,n,i)=ss(3,n,i) + sy                 ! Pol = 90
-              savg(3,i)=savg(3,i) + sy
-        
-              z=cx(i) - cy(i)
-              s135=0.5*(real(z)**2 + aimag(z)**2)
-              ss(4,n,i)=ss(4,n,i) + s135               ! Pol = 135
-              savg(4,i)=savg(4,i) + s135
-
-              z=cx(i)*conjg(cy(i))
-              q=sx - sy
-              u=2.0*real(z)
-              ssz5a(i)=ssz5a(i) + 0.707*sqrt(q*q + u*u)    !Spectrum of lin pol
-           else
-              ssz5a(i)=ssz5a(i) + sx
-           endif
-        enddo
-     endif
+        else
+           ssz5a(i)=sx
+        endif
+     enddo
   enddo
 
   if(ihsym.eq.278) then
