@@ -16,10 +16,12 @@ C  Output is downsampled from 96000 Hz to 1375.125 Hz.
       logical first,xpol
       include 'fftw3.f'
       equivalence (rfilt,cfilt)
-      data first/.true./,npatience/1/
+      data first/.true./,npatience/1/,nfast0/0/
       data halfpulse/114.97547150,36.57879257,-20.93789101,
      +  5.89886379,1.59355187,-2.49138308,0.60910773,-0.04248129/
       save
+
+      if(nmax.lt.0) go to 900
 
       if(nfast.eq.1) then
          nfft1=MAXFFT1
@@ -36,8 +38,18 @@ C  Output is downsampled from 96000 Hz to 1375.125 Hz.
             nfft2=37044
          endif
       endif
-      if(nmax.lt.0) go to 900
-      if(first) then
+
+      if(nfast.ne.nfast0) then
+         if(nfast0.ne.0) then
+            call sfftw_destroy_plan(plan1)
+            call sfftw_destroy_plan(plan2)
+            call sfftw_destroy_plan(plan3)
+            call sfftw_destroy_plan(plan4)
+            call sfftw_destroy_plan(plan5)
+         endif
+      endif
+
+      if(first .or. nfast.ne.nfast0) then
          nflags=FFTW_ESTIMATE
          if(npatience.eq.1) nflags=FFTW_ESTIMATE_PATIENT
          if(npatience.eq.2) nflags=FFTW_MEASURE
@@ -80,6 +92,7 @@ C  Convert impulse response to filter function
          if(nfsample.eq.95238) df=95238.1d0/nfft1
          first=.false.
       endif
+      nfast0=nfast
 
 C  When new data comes along, we need to compute a new "big FFT"
 C  If we just have a new f0, continue with the existing ca and cb.
