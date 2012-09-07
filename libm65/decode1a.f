@@ -85,8 +85,6 @@
       sq0=aa*aa*sqa + bb*bb*sqb
       sync2=3.7*ccfbest/sq0
 
-!      print*,n6,dt00,i0,nz,a(1),sync2
-
 !  Apply AFC corrections to the time-domain signal
 !  Now we are back to using the 1378.125 Hz sample rate, enough to 
 !  accommodate the full JT65C bandwidth.
@@ -124,7 +122,9 @@
                do i=1,66
 !                  s2(i,k)=real(c5a(i))**2 + aimag(c5a(i))**2
                   jj=i
-                  if(nfast.eq.1) jj=2*i-1
+                  if(nfast.eq.1 .and. mode65.eq.2) jj=2*i-1
+                  if(nfast.eq.2 .and. mode65.eq.4) jj=2*i-1
+                  if(nfast.eq.1 .and. mode65.eq.4) jj=4*i-3
                   s2(i,k)=real(c5a(jj))**2 + aimag(c5a(jj))**2
                enddo
             else
