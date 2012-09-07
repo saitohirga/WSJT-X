@@ -37,6 +37,7 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
         pr(i)=0.
         pr2(i)=0.
         k=2*mod((i-1)/8,2)-1
+        if(nfast.eq.2) k=2*mod((i-1)/16,2)-1
         if(i.le.NH) pr2(i)=fac*k
      enddo
      do i=1,126
@@ -84,7 +85,7 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
         endif
      enddo
 
-     do lag=-8,7                               !Check for best shorthand
+     do lag=-11,54                             !Check for best shorthand
         ccf2=s2(lag+28)
         if(ccf2.gt.ccfbest2) then
            ccfbest2=ccf2

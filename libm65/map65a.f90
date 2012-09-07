@@ -272,6 +272,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
               ndf=nint(1000.0*(freq-foffset-(nkHz+nfshift)))
               nsync1=sync1
               nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
+              if(nfast.eq.2) nsync2=nsync2 + 7
               if(decoded(1:4).eq.'RO  ' .or. decoded(1:4).eq.'RRR  ' .or.  &
                    decoded(1:4).eq.'73  ') nsync2=nsync2-6
               nwrite=nwrite+1
@@ -394,6 +395,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            ndf2=nint(a(3))
            nsync1=sync1
            nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
+           if(nfast.eq.2) nsync2=nsync2 + 7
            if(decoded(1:4).eq.'RO  ' .or. decoded(1:4).eq.'RRR  ' .or.  &
                 decoded(1:4).eq.'73  ') nsync2=nsync2-6
            if(nxant.ne.0) then
