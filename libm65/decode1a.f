@@ -103,6 +103,7 @@
       nfft=512/nfast
       j=(dt00+dtbest+2.685)*1378.125 + joff
       if(nfast.eq.2) j=j-1506
+!      print*,'B',dt00,dtbest,j
       if(j.lt.0) j=0
 
       call timer('sh_ffts ',0)
@@ -141,7 +142,8 @@
       call timer('dec65b  ',0)
       call decode65b(s2,flip,mycall,hiscall,hisgrid,mode65,neme,ndepth,
      +    nqd,nkv,nhist,qual,decoded,s3,sy)
-      dt=dt00 + dtbest
+      dt=dt00 + dtbest + 1.7
+      if(nfast.eq.2) dt=dt00 + dtbest + 0.6
       call timer('dec65b  ',1)
 
       if(nqd.eq.1 .and. nkv.eq.0) then
@@ -152,7 +154,6 @@
             nsave=nsave+1
             nsave=mod(nsave-1,64)+1
             npol=nint(57.296*pol)
-            xdt=dt+0.8
 
             call s3avg(nsave,mode65,nutc,nhz,xdt,npol,ntol,s3,nsum,
      +                 nkv,decoded)

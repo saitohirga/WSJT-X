@@ -212,7 +212,6 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                       xpol,mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,   &
                       ndphi,iloop,nutc,ikHz,idf,ipol,ntol,sync2,a,dt,     &
                       pol,nkv,nhist,nsum,nsave,qual,decoded)
-                 dt=dt+0.8                           !### empirical tweak
                  call timer('decode1a',1)
 
                  if(km.lt.MAXMSG) km=km+1

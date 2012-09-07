@@ -13,8 +13,8 @@ program mapsim
 
   nargs=iargc()
   if(nargs.ne.9) then
-     print*,'Usage: mapsim level "message"    mode f1 f2 nsigs pol SNR nfiles'
-     print*,'Example:        25 "CQ K1ABC FN42" B -22 33  20    45 -20    1'
+     print*,'Usage: mapsim  DT "message"     mode f1 f2 nsigs pol SNR nfiles'
+     print*,'Example:      2.5 "CQ K1ABC FN42" B -22 33  20    45 -20    1'
      print*,' '
      print*,'Enter message = "" to use entries in msgs.txt.'
      print*,'Enter pol = -1 to generate a range of polarization angles.'
@@ -23,8 +23,7 @@ program mapsim
   endif
 
   call getarg(1,arg)
-  read(arg,*) rmsdb                  !Average noise level in dB
-  rms=10.0**(0.05*rmsdb)
+  read(arg,*) dt0                    !Time delay
   call getarg(2,msg0)
   message=msg0                       !Transmitted message
   call getarg(3,mode)                !JT65 sub-mode (A B C B2 C2)
@@ -42,6 +41,8 @@ program mapsim
   call getarg(9,arg)
   read(arg,*) nfiles                 !Number of files
 
+  rmsdb=25.
+  rms=10.0**(0.05*rmsdb)
   fcenter=144.125d0                  !Center frequency (MHz)
   fsample=96000.d0                   !Sample rate (Hz)
   dt=1.d0/fsample                    !Sample interval (s)
@@ -98,7 +99,8 @@ program mapsim
 1020    format(i3,i4,f8.3,f7.1,i5,2x,a22)
 
         phi=0.
-        i0=fsample*(3.5d0+0.05d0*(isig-1))
+!        i0=fsample*(3.5d0+0.05d0*(isig-1))
+        i0=fsample*(1.d0 + dt0)
         do i=1,nwave
            phi=phi + dphi
            if(phi.lt.-twopi) phi=phi+twopi

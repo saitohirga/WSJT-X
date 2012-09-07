@@ -108,7 +108,6 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
   enddo
   rms=sqrt(sq/49.0)
   sync1=ccfbest/rms - 4.0
-!  dt1=(2.5 + lagpk*(2048.0/11025.0))/nfast
   dt1=lagpk*(2048.0/11025.0)/nfast - 2.5
 
 ! Find base level for normalizing snr2.
