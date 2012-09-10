@@ -22,6 +22,7 @@ subroutine four2a(a,nfft,ndim,isign,iform)
   complex aa(NSMALL)
   integer nn(NPMAX),ns(NPMAX),nf(NPMAX),nl(NPMAX)
   integer*8 plan(NPMAX)             !Actually should be i*8, but no matter
+!  character cfftw*12
   data nplan/0/,npatience/1/
   include 'fftw3.f'
   save plan,nplan,nn,ns,nf,nl
@@ -40,6 +41,16 @@ subroutine four2a(a,nfft,ndim,isign,iform)
   ns(i)=isign
   nf(i)=iform
   nl(i)=nloc
+
+!  cfftw(1:2)='ci'
+!  if(nf(i).ne.1) cfftw(1:2)='ri'
+!  cfftw(3:3)='f'
+!  if(ns(i).eq.1) cfftw(3:3)='b'
+!  write(cfftw(4:),*) nn(i)
+!  cfftw=cfftw(1:3)//cfftw(5:)
+!  write(13,3999) i,nn(i),ns(i),nf(i),cfftw
+!3999 format(4i10,2x,a12)
+!  flush(13)
 
 ! Planning: FFTW_ESTIMATE, FFTW_ESTIMATE_PATIENT, FFTW_MEASURE, 
 !            FFTW_PATIENT,  FFTW_EXHAUSTIVE
@@ -84,6 +95,5 @@ subroutine four2a(a,nfft,ndim,isign,iform)
 ! The test is only to silence a compiler warning:
      if(ndim.ne.-999) call sfftw_destroy_plan(plan(i))
   enddo
-
   return
 end subroutine four2a

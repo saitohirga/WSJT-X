@@ -26,7 +26,7 @@ BandMap*   g_pBandMap = NULL;
 QSharedMemory mem_m65("mem_m65");
 
 QString rev="$Rev$";
-QString Program_Title_Version="  MAP65   v2.3.0, r" + rev.mid(6,4) +
+QString Program_Title_Version="  MAP65   v2.4.0, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 extern const int RxDataFrequency = 96000;
