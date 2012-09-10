@@ -27,7 +27,6 @@
       call filbig(dd,NMAX,nfast,f0,newdat,nfsample,xpol,cx,cy,n5)
 !  NB: cx, cy have sample rate 96000*77125/5376000 = 1378.125 Hz
       call timer('filbig  ',1)
-      joff=0
       sqa=0.
       sqb=0.
       do i=1,n5
@@ -43,27 +42,21 @@
          cy(:n5)=z*cy(:n5)                !Adjust for cable length difference
       endif
       call timer('fil6521 ',0)
-      call fil6521(cx,n5,c5x,n6)
-      if(xpol) call fil6521(cy,n5,c5y,n6)
-      call timer('fil6521 ',1)
-
 ! Add some zeros at start of c5 arrays -- empirical fix for negative DT's
-! NB: might be better to add zeros to cx and cy, rather than here.
-! Q: is the DT search range big enough?
-
-      nadd=200
-      c5tmp(1:nadd)=0.
-      c5tmp(1+nadd:n6+nadd)=c5x(1:n6)
-      c5x(1:n6+nadd)=c5tmp(1:n6+nadd)
+      nadd=1089
+      c5x(:nadd)=0.
+      call fil6521(cx,n5,c5x(nadd+1),n6)
       if(xpol) then
-         c5tmp(1+nadd:n6+nadd)=c5y(1:n6)
-         c5y(1:n6+nadd)=c5tmp(1:n6+nadd)
+         c5y(:nadd)=0.
+         call fil6521(cy,n5,c5y(nadd+1),n6)
       endif
       n6=n6+nadd
+      call timer('fil6521 ',1)
 
       fsample=1378.125/4.
       a(5)=dt00
-      i0=nint((a(5)+0.5)*fsample) - 2 + 200
+      i0=nint((a(5)+0.5)*fsample) - 2 + nadd
+      i00=i0
       if(i0.lt.1) then
          write(13,*) 'i0 too small in decode1a:',i0,f0
          flush(13)
@@ -101,7 +94,8 @@
       nsym=126
 !      nfft=512/(nfast*mode65)
       nfft=512/nfast
-      j=(dt00+dtbest+2.685)*1378.125 + joff
+      j=(dt00+dtbest+2.685)*1378.125
+      j00=j
       if(nfast.eq.2) j=j-1506
 !      print*,'B',dt00,dtbest,j
       if(j.lt.0) j=0
@@ -162,6 +156,10 @@
          endif
          nutc0=nutc
       endif
+
+      write(71,3000) dt00,i00,j00,dtbest,sync2,qual,decoded
+ 3000 format(f7.2,2i6,3f7.2,2x,a22)
+      flush(71)
 
       return
       end
