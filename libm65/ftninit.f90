@@ -23,7 +23,7 @@
 subroutine ftninit(appd)
 
   character*(*) appd
-  character cjunk*1,firstline*30
+  character firstline*30
   character addpfx*8
   integer junk(256)
   common/pfxcom/addpfx
@@ -53,7 +53,8 @@ subroutine ftninit(appd)
   if(isuccess.ne.0) write(13,1010) firstline
 1010 format('Imported FFTW wisdom: ',a30)
 
-30  return
+30 flush(13)
+  return
 
 920 write(0,*) '!Error opening timer.out'
   stop

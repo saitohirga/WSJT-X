@@ -44,10 +44,6 @@ subroutine s3avg(nsave,mode65,nutc,nhz,xdt,npol,ntol,s3,nsum,nkv,decoded)
      s3b=s3b + s3a(1:64,1:63,i)
      nsum=nsum+1
   enddo
-
-!  write(71,3001) nutc,nsum,nsave,nhz,npol,xdt
-!3001 format(5i8,1f8.1)
-!  flush(71)
  
   decoded='                      '
   if(nsum.ge.2) then                        !Try decoding the sverage
