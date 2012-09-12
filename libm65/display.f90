@@ -2,8 +2,8 @@ subroutine display(nkeep,ftol)
 
   parameter (MAXLINES=400,MX=400)
   integer indx(MAXLINES),indx2(MX)
-  character*81 line(MAXLINES),line2(MX),line3(MAXLINES)
-  character out*50,cfreq0*3,cqlive*52
+  character*83 line(MAXLINES),line2(MX),line3(MAXLINES)
+  character out*52,cfreq0*3,livecq*52
   character*6 callsign,callsign0
   character*12 freqcall(100)
   real freqkHz(MAXLINES)
@@ -14,7 +14,7 @@ subroutine display(nkeep,ftol)
 
   do i=1,MAXLINES
      read(26,1010,end=10) line(i)
-1010 format(a80)
+1010 format(a72)
      read(line(i),1020) f0,ndf,nh,nm
 1020 format(f8.3,i5,25x,i3,i2)
      utc(i)=60*nh + nm
@@ -30,7 +30,7 @@ subroutine display(nkeep,ftol)
      nage=utcz-utc(i)
      if(nage.lt.0) nage=nage+1440
      iage=nage/nquad
-     write(line(i)(80:81),1021) iage
+     write(line(i)(73:74),1021) iage
 1021 format(i2)
   enddo
 
@@ -118,20 +118,20 @@ subroutine display(nkeep,ftol)
   nc=0
   callsign0='      '
   do k=1,k3
-     out=line3(k)(6:13)//line3(k)(28:31)//line3(k)(39:43)//       &
-          line3(k)(35:38)//line3(k)(44:67)//line3(k)(77:81)
+     out=line3(k)(6:13)//line3(k)(28:31)//line3(k)(39:45)//       &
+          line3(k)(35:38)//line3(k)(46:74)
      if(out(1:3).ne.'   ') then
         cfreq0=out(1:3)
         if(iw.lt.MAXLINES-1) iw=iw+1
-        cqlive=line3(k)(6:13)//line3(k)(28:31)//line3(k)(39:43)//       &
-             line3(k)(23:27)//line3(k)(35:38)//line3(k)(44:67)//        &
-             line3(k)(80:81)
-        if(index(cqlive,' CQ ').gt.0 .or. index(cqlive,' QRZ ').gt.0 .or.   &
-           index(cqlive,' QRT ').gt.0 .or. index(cqlive,' CQV ').gt.0 .or.  &
-           index(cqlive,' CQH ').gt.0) write(19,1029) cqlive
+        livecq=line3(k)(6:13)//line3(k)(28:31)//line3(k)(39:45)//       &
+             line3(k)(23:27)//line3(k)(35:38)//line3(k)(46:70)//        &
+             line3(k)(73:74)
+        if(index(livecq,' CQ ').gt.0 .or. index(livecq,' QRZ ').gt.0 .or.   &
+           index(livecq,' QRT ').gt.0 .or. index(livecq,' CQV ').gt.0 .or.  &
+           index(livecq,' CQH ').gt.0) write(19,1029) livecq
 1029    format(a52)
-        write(*,1030) out
-1030    format('@',a50)
+        write(*,1030) out                           !Messages
+1030    format('@',a52)
         i1=index(out(24:),' ')
         callsign=out(i1+24:)
         i2=index(callsign,' ')
@@ -157,10 +157,9 @@ subroutine display(nkeep,ftol)
   freqcall(nc)='            '
   freqcall(nc+1)='            '
   freqcall(nc+2)='            '
-  iz=(nc+2)/3
 
   do i=1,nc
-  write(*,1042) freqcall(i)
+  write(*,1042) freqcall(i)                         !Band Map
 1042 format('&',a12)
   enddo
 

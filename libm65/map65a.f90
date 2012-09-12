@@ -302,25 +302,25 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                     endif
                  endif
               endif
-              
+
               if(ndphi.eq.0) then
                  write(*,1010) nkHz,ndf,npol,nutc,dt,nsync2,    &
                       decoded,nkv,nqual,ntxpol,cp
-1010             format('!',i3,i5,i4,i5.4,f5.1,i4,2x,a22,i4,i5,i5,1x,a1)
+1010             format('!',i3,i5,i4,i7.6,f5.1,i4,2x,a22,i2,i5,i5,1x,a1)
               else
                  if(iloop.ge.1) qphi(iloop)=sig(k,10)
                  write(*,1010) nkHz,ndf,npol,nutc,dt,nsync2,    &
                       decoded,nkv,nqual,30*iloop
                  write(27,1011) 30*iloop,nkHz,ndf,npol,nutc,  &
                       dt,sync2,nkv,nqual,decoded
-1011             format(i3,i4,i5,i4,i5.4,f5.1,f7.1,i3,i5,2x,a22)
+1011             format(i3,i4,i5,i4,i7.6,f5.1,f7.1,i3,i5,2x,a22)
               endif
            endif
         enddo
 
         if(nwrite.eq.0) then
            write(*,1012) mousefqso,nutc
-1012       format('!',i3,9x,i5.4,' ')
+1012       format('!',i3,9x,i7.6,' ')
         endif
    
      endif
@@ -425,17 +425,17 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
               endif
            endif
            write(26,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
-                nsync2,nutc,decoded,nkv,nqual,nhist,cp
+                nsync2,nutc,decoded,cp
            write(21,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
-                nsync2,nutc,decoded,nkv,nqual,nhist
-1014       format(f8.3,i5,3i3,f5.1,i4,i3,i4,i5.4,2x,a22,3i3,1x,a1)
+                nsync2,nutc,decoded,cp
+1014       format(f8.3,i5,3i3,f5.1,i4,i3,i4,i7.6,2x,a22,2x,a1)
 
         endif
      endif
      j=j+nsiz(n)
   enddo
   write(26,1015) nutc
-1015 format(39x,i4.4)
+1015 format(39x,i6.6)
   call flush(21)
   call flush(26)
   call display(nkeep,ftol)

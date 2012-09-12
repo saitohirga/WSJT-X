@@ -16,7 +16,7 @@
 short int iwave[60*11025];            //Wave file for Tx audio
 int nwave;                            //Length of Tx waveform
 bool btxok;                           //True if OK to transmit
-double outputLatency;                  //Latency in seconds
+double outputLatency;                 //Latency in seconds
 qint16 id[4*60*96000];
 
 Astro*     g_pAstro = NULL;
@@ -1181,7 +1181,9 @@ void MainWindow::decode()                                       //decode()
     int imin=ms/60000;
     int ihr=imin/60;
     imin=imin % 60;
-    datcom_.nutc=100*ihr + imin;
+    int isec=(ms/1000) % 60;
+    datcom_.nutc=100*(100*ihr + imin);
+    if(isec>29) datcom_.nutc += 30;
   }
 
   datcom_.idphi=m_dPhi;

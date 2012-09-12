@@ -73,7 +73,6 @@ void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
 void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
 {
   static int x00=-99;
-  int ihr,imin;
 
   if(m_paintEventBusy) return;
   m_paintEventBusy=true;
@@ -114,7 +113,7 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
         painter2.setPen(m_ColorTbl[m_zwf[i+k]]);
         painter2.drawPoint(i,j);
       }
-      if(j == 15) {
+      if(j == 15) {                           //Does this do nothing ???
         painter2.setPen(m_ColorTbl[255]);
         painter2.drawText(5,10,m_sutc);
       }
@@ -135,8 +134,7 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
 
 void CPlotter::draw(float s[], int i0, float splot[])                       //draw()
 {
-  int i,j,k,w,h;
-  int ihr,imin;
+  int i,j,w,h;
   float y;
 
   m_i0=i0;
@@ -219,17 +217,19 @@ void CPlotter::draw(float s[], int i0, float splot[])                       //dr
 
 void CPlotter::UTCstr()
 {
-  int ihr,imin;
+  int ihr,imin,isec;
   if(datcom_.ndiskdat != 0) {
-    ihr=datcom_.nutc/100;
-    imin=datcom_.nutc%100;
+    ihr=datcom_.nutc/10000;
+    imin=(datcom_.nutc/100) % 100;
+    isec=datcom_.nutc % 100;
   } else {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     imin=ms/60000;
     ihr=imin/60;
     imin=imin % 60;
+    isec=(ms/1000) % 60;
   }
-  sprintf(m_sutc,"%2.2d:%2.2d",ihr,imin);
+  sprintf(m_sutc,"%2.2d:%2.2d:%2.2d",ihr,imin,isec);
 }
 
 void CPlotter::DrawOverlay()                                 //DrawOverlay()
