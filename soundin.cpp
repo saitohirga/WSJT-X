@@ -187,7 +187,7 @@ void SoundInThread::run()                           //SoundInThread::run()
 //  const PaStreamInfo* p=Pa_GetStreamInfo(inStream);
 
   bool qe = quitExecution;
-  int ntrz=99;
+  int ntr0=99;
   int k=0;
   int nsec;
   int ntr;
@@ -203,9 +203,10 @@ void SoundInThread::run()                           //SoundInThread::run()
     ntr = nsec % m_TRperiod;
 
 // Reset buffer pointer and symbol number at start of minute
-    if(ntr < ntrz or !m_monitoring) {
+    if(ntr < ntr0 or !m_monitoring or m_TRperiod!=m_TRperiod0) {
       nhsym0=0;
       udata.bzero=true;
+      m_TRperiod0=m_TRperiod;
     }
     k=udata.kin;
     udata.iqswap=m_IQswap;
@@ -228,7 +229,7 @@ void SoundInThread::run()                           //SoundInThread::run()
       }
     }
     msleep(100);
-    ntrz=ntr;
+    ntr0=ntr;
   }
   Pa_StopStream(inStream);
   Pa_CloseStream(inStream);
@@ -346,7 +347,7 @@ void SoundInThread::inputUDP()
     double d8[174];
   } b;
 
-  int ntrz=99;
+  int ntr0=99;
   int k=0;
   int nsec;
   int ntr;
@@ -369,11 +370,12 @@ void SoundInThread::inputUDP()
       ntr = nsec % m_TRperiod;
 
 // Reset buffer pointer and symbol number at start of minute
-      if(ntr < ntrz) {
+      if(ntr < ntr0 or !m_monitoring or m_TRperiod!=m_TRperiod0) {
         k=0;
         nhsym0=0;
+        m_TRperiod0=m_TRperiod;
       }
-      ntrz=ntr;
+      ntr0=ntr;
 
       if(m_monitoring) {
         m_nrx=b.nrx;

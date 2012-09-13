@@ -75,6 +75,7 @@ private:
   qint32 m_nDevIn;
   qint32 m_udpPort;
   qint32 m_TRperiod;
+  qint32 m_TRperiod0;
 
   QUdpSocket *udpSocket;
 };

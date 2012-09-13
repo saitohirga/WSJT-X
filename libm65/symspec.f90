@@ -174,7 +174,7 @@ subroutine symspec(k,nfast,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,    &
         if(iqapply.ne.0) call iqfix(cy,NFFT,gainy,phasey)
      endif
 
-     n=ihsym
+     n=min(322,ihsym)
      do i=1,NFFT
         sx=real(cx(i))**2 + aimag(cx(i))**2  
         ss(1,n,i)=sx                    ! Pol = 0
