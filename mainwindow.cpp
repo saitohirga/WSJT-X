@@ -26,7 +26,7 @@ BandMap*   g_pBandMap = NULL;
 QSharedMemory mem_m65("mem_m65");
 
 QString rev="$Rev$";
-QString Program_Title_Version="  MAP65   v2.4.0, r" + rev.mid(6,4) +
+QString Program_Title_Version="  MAP65   v2.4.1, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 extern const int RxDataFrequency = 96000;
@@ -1183,7 +1183,7 @@ void MainWindow::decode()                                       //decode()
     imin=imin % 60;
     int isec=(ms/1000) % 60;
     datcom_.nutc=100*(100*ihr + imin);
-    if(isec>29) datcom_.nutc += 30;
+    if((m_mode=="JT65B2" or m_mode=="JT65C2") and isec>30) datcom_.nutc += 30;
   }
 
   datcom_.idphi=m_dPhi;
