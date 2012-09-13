@@ -124,9 +124,9 @@ unsigned char Si570usbOpenDevice(usb_dev_handle **device, char *usbSerialID)
   char                string[256];
   int                 len;
   int  vendor        = USBDEV_SHARED_VENDOR;
-  char *vendorName   = VENDOR_NAME;
+  char *vendorName   = (char *)VENDOR_NAME;
   int  product       = USBDEV_SHARED_PRODUCT;
-  char *productName  = PRODUCT_NAME;
+  char *productName  = (char *)PRODUCT_NAME;
   char serialNumberString[20];
   static int  didUsbInit = 0;
 

@@ -29,9 +29,9 @@ public:
 
   SoundInThread():
     quitExecution(false),
-    m_dataSinkBusy(false),
     m_rate(0),
-    bufSize(0)
+    bufSize(0),
+    m_dataSinkBusy(false)
   {
   }
 

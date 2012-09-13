@@ -27,7 +27,8 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
 {
   paUserData *udata=(paUserData*)userData;
   short *wptr = (short*)outputBuffer;
-  unsigned int i,n;
+  unsigned int i;
+  int n;
   static int ic=0;
   static bool btxok0=false;
   static int nStart=0;
