@@ -16,7 +16,7 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
   real ccf(-11:54,4)
   logical first
   integer npr(126)
-  data first/.true./
+  data first/.true./,nfast0/-99/
   equivalence (s,cs),(pr,cpr),(s2,cs2),(pr2,cpr2)
   save
 
@@ -30,7 +30,7 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
       0,1,0,1,0,0,1,1,0,0,1,0,0,1,0,0,0,0,1,1,     &
       1,1,1,1,1,1/
 
-  if(first) then
+  if(first .or. nfast.ne.nfast0) then
 ! Initialize pr, pr2; compute cpr, cpr2.
      fac=1.0/NFFT
      do i=1,NFFT
@@ -49,6 +49,7 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
      call four2a(pr,NFFT,1,-1,0)
      call four2a(pr2,NFFT,1,-1,0)
      first=.false.
+     nfast0=nfast
   endif
 
 ! Look for JT65 sync pattern and shorthand square-wave pattern.
