@@ -1960,6 +1960,7 @@ void MainWindow::on_actionJT65A_triggered()
   soundInThread.setPeriod(m_TRperiod);
   soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
+  g_pWideGraph->setPeriod(m_TRperiod);
   lab5->setStyleSheet("QLabel{background-color: #ff6ec7}");
   lab5->setText(m_mode);
   ui->actionJT65A->setChecked(true);
@@ -1974,6 +1975,7 @@ void MainWindow::on_actionJT65B_triggered()
   soundInThread.setPeriod(m_TRperiod);
   soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
+  g_pWideGraph->setPeriod(m_TRperiod);
   lab5->setStyleSheet("QLabel{background-color: #ffff00}");
   lab5->setText(m_mode);
   ui->actionJT65B->setChecked(true);
@@ -1988,6 +1990,7 @@ void MainWindow::on_actionJT65C_triggered()
   soundInThread.setPeriod(m_TRperiod);
   soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
+  g_pWideGraph->setPeriod(m_TRperiod);
   lab5->setStyleSheet("QLabel{background-color: #ffa500}");
   lab5->setText(m_mode);
   ui->actionJT65C->setChecked(true);
@@ -2002,6 +2005,7 @@ void MainWindow::on_actionJT65B2_triggered()
   soundInThread.setPeriod(m_TRperiod);
   soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
+  g_pWideGraph->setPeriod(m_TRperiod);
   lab5->setStyleSheet("QLabel{background-color: #7fff00}");
   lab5->setText(m_mode);
   ui->actionJT65B2->setChecked(true);
@@ -2016,6 +2020,7 @@ void MainWindow::on_actionJT65C2_triggered()
   soundInThread.setPeriod(m_TRperiod);
   soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
+  g_pWideGraph->setPeriod(m_TRperiod);
   lab5->setStyleSheet("QLabel{background-color: #97ffff}");
   lab5->setText(m_mode);
   ui->actionJT65C2->setChecked(true);

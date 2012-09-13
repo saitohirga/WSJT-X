@@ -5,7 +5,7 @@
       complex cx(npts),cy(npts)
       real a(5)
       complex w,wstep,za,zb,z
-      real ss(2600)
+      real ss(3000)
       complex csx(0:NMAX/64),csy(0:NMAX/64)
       data twopi/6.283185307/a1,a2,a3/99.,99.,99./
       save

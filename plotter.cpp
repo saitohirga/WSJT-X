@@ -109,16 +109,18 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
     int k=x0;
     for(int j=1; j<h; j++) {
       k += 32768;
-      for(int i=0; i<w; i++) {
-        painter2.setPen(m_ColorTbl[m_zwf[i+k]]);
-        painter2.drawPoint(i,j);
+      if(x0 != x00 and x00 != -99) {
+        for(int i=0; i<w; i++) {
+          painter2.setPen(m_ColorTbl[m_zwf[i+k]]);
+          painter2.drawPoint(i,j);
+        }
       }
-      if(j == 15) {                           //Does this do nothing ???
+      if(j == 13 and x0 == x00) {
         painter2.setPen(m_ColorTbl[255]);
         painter2.drawText(5,10,m_sutc);
       }
     }
-  } else if(m_line == 15) {
+  } else if(m_line == 13) {
     painter2.setPen(m_ColorTbl[255]);
     UTCstr();
     painter2.drawText(5,10,m_sutc);
@@ -132,7 +134,7 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
   m_paintEventBusy=false;
 }
 
-void CPlotter::draw(float s[], int i0, float splot[])                       //draw()
+void CPlotter::draw(float s[], int i0, float splot[])                 //draw()
 {
   int i,j,w,h;
   float y;
@@ -207,10 +209,11 @@ void CPlotter::draw(float s[], int i0, float splot[])                       //dr
 
   if(s[0]>1.0e29) m_line=0;
   m_line++;
-  if(m_line == 15) {
+  if(m_line == 13) {
     UTCstr();
     painter1.setPen(m_ColorTbl[255]);
     painter1.drawText(5,10,m_sutc);
+    m_paintAllZoom=true;
   }
   update();                              //trigger a new paintEvent
 }
@@ -229,6 +232,8 @@ void CPlotter::UTCstr()
     imin=imin % 60;
     isec=(ms/1000) % 60;
   }
+  if(isec<30) isec=0;
+  if(isec>=30) isec=30;
   sprintf(m_sutc,"%2.2d:%2.2d:%2.2d",ihr,imin,isec);
 }
 
