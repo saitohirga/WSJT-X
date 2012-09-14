@@ -270,10 +270,16 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
               f0=mhz+0.001*nkHz
               ndf=nint(1000.0*(freq-foffset-(nkHz+nfshift)))
               nsync1=sync1
-              nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
-              if(nfast.eq.2) nsync2=nsync2 + 7
+
+              s2db=10.0*log10(sync2) - 40             !### empirical ###
+              nsync2=nint(s2db)
+              if(nfast.eq.2) nsync2=nint(s2db + 6.5)
               if(decoded(1:4).eq.'RO  ' .or. decoded(1:4).eq.'RRR  ' .or.  &
-                   decoded(1:4).eq.'73  ') nsync2=nsync2-6
+                   decoded(1:4).eq.'73  ') then
+                 if(nfast.eq.1) nsync2=nint(1.33*s2db + 2.0)
+                 if(nfast.eq.2) nsync2=nint(1.33*s2db + 2.7)
+              endif
+
               nwrite=nwrite+1
               if(nxant.ne.0) then
                  npol=npol-45
@@ -393,10 +399,16 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            ndf1=nint(a(2))
            ndf2=nint(a(3))
            nsync1=sync1
-           nsync2=nint(10.0*log10(sync2)) - 40 !### empirical ###
-           if(nfast.eq.2) nsync2=nsync2 + 7
+
+           s2db=10.0*log10(sync2) - 40             !### empirical ###
+           nsync2=nint(s2db)
+           if(nfast.eq.2) nsync2=nint(s2db + 6.5)
            if(decoded(1:4).eq.'RO  ' .or. decoded(1:4).eq.'RRR  ' .or.  &
-                decoded(1:4).eq.'73  ') nsync2=nsync2-6
+                decoded(1:4).eq.'73  ') then
+              if(nfast.eq.1) nsync2=nint(1.33*s2db + 2.0)
+              if(nfast.eq.2) nsync2=nint(1.33*s2db + 2.7)
+           endif
+
            if(nxant.ne.0) then
               npol=npol-45
               if(npol.lt.0) npol=npol+180

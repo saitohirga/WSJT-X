@@ -1627,8 +1627,12 @@ void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
   QString t1 = t.mid(0,i2);              //contents up to text cursor
   int i1=t1.lastIndexOf("\n") + 1;
   QString t2 = t1.mid(i1,i2-i1);         //selected line
-  int n = 60*t2.mid(13,2).toInt() + t2.mid(15,2).toInt();
-  m_txFirst = ((n%2) == 1);
+  if(m_nfast==1) {
+    int n = 60*t2.mid(13,2).toInt() + t2.mid(15,2).toInt();
+    m_txFirst = ((n%2) == 1);
+  } else {
+    m_txFirst = (t2.mid(17,2).toInt()==30);
+  }
   ui->txFirstCheckBox->setChecked(m_txFirst);
   QString rpt="";
   if(ctrl) rpt=t2.mid(23,3);
@@ -1649,8 +1653,12 @@ void MainWindow::doubleClickOnMessages(QString hiscall, QString t2)
     msgBox("Possible dupe: " + hiscall + " already in log.");
   }
   ui->dxCallEntry->setText(hiscall);
-  int n = 60*t2.mid(13,2).toInt() + t2.mid(15,2).toInt();
-  m_txFirst = ((n%2) == 1);
+  if(m_nfast==1) {
+    int n = 60*t2.mid(13,2).toInt() + t2.mid(15,2).toInt();
+    m_txFirst = ((n%2) == 1);
+  } else {
+    m_txFirst = (t2.mid(17,2).toInt()==30);
+  }
   ui->txFirstCheckBox->setChecked(m_txFirst);
   lookup();
   genStdMsgs("");
