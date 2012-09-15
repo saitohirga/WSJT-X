@@ -1270,7 +1270,6 @@ void MainWindow::readFromStderr()                             //readFromStderr
   msgBox(t);
 }
 
-
 void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_m65.canReadLine())

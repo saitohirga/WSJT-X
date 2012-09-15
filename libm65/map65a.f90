@@ -450,7 +450,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 1015 format(39x,i6.6)
   call flush(21)
   call flush(26)
-  call display(nkeep,ftol)
+  call display(nkeep,ftol,mode65,nfast)
   ndecdone=2
 
 999 close(23)
