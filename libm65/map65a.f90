@@ -22,7 +22,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   integer indx(MAXMSG),nsiz(MAXMSG)
   logical done(MAXMSG)
   logical xpol
-  character decoded*22,blank*22
+  character decoded*22,blank*22,cmode*2
   real short(3,NFFT)                 !SNR dt ipol for potential shorthands
   real qphi(12)
   common/c3com/ mcall3a
@@ -436,11 +436,15 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                  endif
               endif
            endif
+           cmode='A '
+           if(mode65.eq.2) cmode='B '
+           if(mode65.eq.4) cmode='C '
+           if(nfast.eq.2) cmode(2:2)='2'
            write(26,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
-                nsync2,nutc,decoded,cp
+                nsync2,nutc,decoded,cp,cmode
            write(21,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
                 nsync2,nutc,decoded,cp
-1014       format(f8.3,i5,3i3,f5.1,i4,i3,i4,i7.6,2x,a22,2x,a1)
+1014       format(f8.3,i5,3i3,f5.1,i4,i3,i4,i7.6,2x,a22,2x,a1,3x,a2)
 
         endif
      endif
@@ -450,7 +454,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 1015 format(39x,i6.6)
   call flush(21)
   call flush(26)
-  call display(nkeep,ftol,mode65,nfast)
+  call display(nkeep,ftol)
   ndecdone=2
 
 999 close(23)

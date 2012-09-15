@@ -1,4 +1,4 @@
-subroutine display(nkeep,ftol,mode65,nfast)
+subroutine display(nkeep,ftol)
 
   parameter (MAXLINES=400,MX=400)
   integer indx(MAXLINES),indx2(MX)
@@ -6,20 +6,15 @@ subroutine display(nkeep,ftol,mode65,nfast)
   character out*52,cfreq0*3,livecq*58
   character*6 callsign,callsign0
   character*12 freqcall(100)
-  character*2 cmode
   real freqkHz(MAXLINES)
   integer utc(MAXLINES),utc2(MX),utcz
   real*8 f0
 
   rewind 26
-  cmode='A '
-  if(mode65.eq.2) cmode='B '
-  if(mode65.eq.4) cmode='C '
-  if(nfast.eq.2) cmode(2:2)='2'
 
   do i=1,MAXLINES
      read(26,1010,end=10) line(i)
-1010 format(a72)
+1010 format(a77)
      read(line(i),1020) f0,ndf,nh,nm
 1020 format(f8.3,i5,25x,i3,i2)
      utc(i)=60*nh + nm
@@ -35,8 +30,8 @@ subroutine display(nkeep,ftol,mode65,nfast)
      nage=utcz-utc(i)
      if(nage.lt.0) nage=nage+1440
      iage=nage/nquad
-     write(line(i)(73:77),1021) iage,cmode
-1021 format(i2,1x,a2)
+     write(line(i)(73:74),1021) iage
+1021 format(i2)
   enddo
 
   nage=utcz-utc(1)
