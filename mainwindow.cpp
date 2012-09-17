@@ -1603,7 +1603,7 @@ void MainWindow::on_txb6_clicked()                                //txb6
   m_restart=true;
 }
 
-void MainWindow::selectCall2(bool ctrl)                                //selectCall2
+void MainWindow::selectCall2(bool ctrl)                         //selectCall2
 {
   QString t = ui->decodedTextBrowser->toPlainText();   //Full contents
   int i=ui->decodedTextBrowser->textCursor().position();
@@ -1634,7 +1634,7 @@ void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
   }
   ui->txFirstCheckBox->setChecked(m_txFirst);
   QString rpt="";
-  if(ctrl) rpt=t2.mid(23,3);
+  if(ctrl) rpt=t2.mid(25,3);
   lookup();
   genStdMsgs(rpt);
   if(t2.indexOf(m_myCall)>0) {
