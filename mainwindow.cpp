@@ -1925,7 +1925,12 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   QDateTime t = QDateTime::currentDateTimeUtc();
   QString logEntry=t.date().toString("yyyy-MMM-dd,") +
       t.time().toString("hh:mm,") + m_hisCall + "," + m_hisGrid + "," +
-      QString::number(nMHz) + "," + m_mode;
+          QString::number(nMHz) + "," + m_mode + "\n";
+
+  int ret = QMessageBox::warning(this, "Log Entry",
+       "Please confirm log entry:\n\n" + logEntry + "\n",
+       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+  if(ret==QMessageBox::No) return;
   QFile f("wsjt.log");
   if(!f.open(QFile::Append)) {
     msgBox("Cannot open file \"wsjt.log\".");
@@ -2057,4 +2062,10 @@ void MainWindow::on_actionApply_IQ_Calibration_triggered()
 void MainWindow::on_actionFUNcube_Dongle_triggered()
 {
   proc_qthid.start(QDir::toNativeSeparators(m_appDir + "/qthid"));
+}
+
+void MainWindow::on_actionEdit_wsjt_log_triggered()
+{
+  QString cmnd="notepad " + m_appDir + "/wsjt.log";
+  proc_editor.start(QDir::toNativeSeparators(cmnd));
 }

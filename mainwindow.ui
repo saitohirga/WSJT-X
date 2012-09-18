@@ -1149,6 +1149,8 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionOpen_next_in_directory"/>
     <addaction name="actionDecode_remaining_files_in_directory"/>
     <addaction name="separator"/>
+    <addaction name="actionEdit_wsjt_log"/>
+    <addaction name="separator"/>
     <addaction name="actionDelete_all_tf2_files_in_SaveDir"/>
     <addaction name="actionErase_Band_Map_and_Messages"/>
     <addaction name="actionErase_map65_rx_log"/>
@@ -1584,6 +1586,11 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>JT65C2</string>
+   </property>
+  </action>
+  <action name="actionEdit_wsjt_log">
+   <property name="text">
+    <string>Edit wsjt.log</string>
    </property>
   </action>
  </widget>

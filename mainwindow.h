@@ -128,6 +128,8 @@ private slots:
 
   void on_actionJT65C2_triggered();
 
+  void on_actionEdit_wsjt_log_triggered();
+
 private:
     Ui::MainWindow *ui;
     qint32  m_nDevIn;
@@ -220,6 +222,8 @@ private:
 
     QProcess proc_m65;
     QProcess proc_qthid;
+    QProcess proc_editor;
+
 
     QString m_path;
     QString m_pbdecoding_style1;
