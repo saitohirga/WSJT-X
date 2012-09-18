@@ -99,6 +99,9 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(&proc_m65, SIGNAL(readyReadStandardError()),
           this, SLOT(readFromStderr()));
 
+  connect(&proc_editor, SIGNAL(error(QProcess::ProcessError)),
+          this, SLOT(editor_error()));
+
   QTimer *guiTimer = new QTimer(this);
   connect(guiTimer, SIGNAL(timeout()), this, SLOT(guiUpdate()));
   guiTimer->start(100);                            //Don't change the 100 ms!
@@ -119,6 +122,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_appDir = QApplication::applicationDirPath();
   m_saveDir="/users/joe/map65/install/save";
   m_azelDir="/users/joe/map65/install/";
+  m_editorCommand="notepad";
   m_txFreq=125;
   m_setftx=0;
   m_loopall=false;
@@ -321,6 +325,7 @@ void MainWindow::writeSettings()
   settings.setValue("XpolX",m_xpolx);
   settings.setValue("SaveDir",m_saveDir);
   settings.setValue("AzElDir",m_azelDir);
+  settings.setValue("Editor",m_editorCommand);
   settings.setValue("DXCCpfx",m_dxccPfx);
   settings.setValue("Timeout",m_timeout);
   settings.setValue("IQamp",m_IQamp);
@@ -395,6 +400,7 @@ void MainWindow::readSettings()
   m_xpolx=settings.value("XpolX",false).toBool();
   m_saveDir=settings.value("SaveDir",m_appDir + "/save").toString();
   m_azelDir=settings.value("AzElDir",m_appDir).toString();
+  m_editorCommand=settings.value("Editor","notepad").toString();
   m_dxccPfx=settings.value("DXCCpfx","").toString();
   m_timeout=settings.value("Timeout",20).toInt();
   m_IQamp=settings.value("IQamp",1.0000).toDouble();
@@ -592,6 +598,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_xpolx=m_xpolx;
   dlg.m_saveDir=m_saveDir;
   dlg.m_azelDir=m_azelDir;
+  dlg.m_editorCommand=m_editorCommand;
   dlg.m_dxccPfx=m_dxccPfx;
   dlg.m_timeout=m_timeout;
   dlg.m_dPhi=m_dPhi;
@@ -622,6 +629,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_xpolx=dlg.m_xpolx;
     m_saveDir=dlg.m_saveDir;
     m_azelDir=dlg.m_azelDir;
+    m_editorCommand=dlg.m_editorCommand;
     m_dxccPfx=dlg.m_dxccPfx;
     m_timeout=dlg.m_timeout;
     m_dPhi=dlg.m_dPhi;
@@ -1261,6 +1269,13 @@ void MainWindow::m65_error()                                     //m65_error
   if(!m_killAll) {
     msgBox("Error starting or running\n" + m_appDir + "/m65 -s");
     exit(1);
+  }
+}
+
+void MainWindow::editor_error()                                 //editor_error
+{
+  if(!m_killAll) {
+    msgBox("Error starting or running\n" + m_appDir + "/" + m_editorCommand);
   }
 }
 
@@ -1925,7 +1940,7 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   QDateTime t = QDateTime::currentDateTimeUtc();
   QString logEntry=t.date().toString("yyyy-MMM-dd,") +
       t.time().toString("hh:mm,") + m_hisCall + "," + m_hisGrid + "," +
-          QString::number(nMHz) + "," + m_mode + "\n";
+          QString::number(nMHz) + "," + m_mode + "\r\n";
 
   int ret = QMessageBox::warning(this, "Log Entry",
        "Please confirm log entry:\n\n" + logEntry + "\n",
@@ -2066,6 +2081,6 @@ void MainWindow::on_actionFUNcube_Dongle_triggered()
 
 void MainWindow::on_actionEdit_wsjt_log_triggered()
 {
-  QString cmnd="notepad " + m_appDir + "/wsjt.log";
+  QString cmnd=m_editorCommand + " " + m_appDir + "/wsjt.log";
   proc_editor.start(QDir::toNativeSeparators(cmnd));
 }

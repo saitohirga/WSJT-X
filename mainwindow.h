@@ -38,6 +38,7 @@ public slots:
   void readFromStdout();
   void readFromStderr();
   void m65_error();
+  void editor_error();
   void guiUpdate();
   void doubleClickOnCall(QString hiscall, bool ctrl);
   void doubleClickOnMessages(QString hiscall, QString t2);
@@ -243,6 +244,7 @@ private:
     QString m_dateTime;
     QString m_mode;
     QString m_colors;
+    QString m_editorCommand;
 
     QHash<QString,bool> m_worked;
 

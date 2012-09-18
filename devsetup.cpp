@@ -86,6 +86,7 @@ void DevSetup::initDlg()
   ui.rbAntennaX->setChecked(m_xpolx);
   ui.saveDirEntry->setText(m_saveDir);
   ui.azelDirEntry->setText(m_azelDir);
+  ui.editorEntry->setText(m_editorCommand);
   ui.dxccEntry->setText(m_dxccPfx);
   ui.timeoutSpinBox->setValue(m_timeout);
   ui.dPhiSpinBox->setValue(m_dPhi);
@@ -153,6 +154,7 @@ void DevSetup::accept()
   m_xpolx=ui.rbAntennaX->isChecked();
   m_saveDir=ui.saveDirEntry->text();
   m_azelDir=ui.azelDirEntry->text();
+  m_editorCommand=ui.editorEntry->text();
   m_dxccPfx=ui.dxccEntry->text();
   m_timeout=ui.timeoutSpinBox->value();
   m_dPhi=ui.dPhiSpinBox->value();

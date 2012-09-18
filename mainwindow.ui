@@ -1592,6 +1592,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Edit wsjt.log</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+Shift+E</string>
+   </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

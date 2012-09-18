@@ -46,6 +46,7 @@ public:
   QString m_azelDir;
   QString m_dxccPfx;
   QString m_colors;
+  QString m_editorCommand;
 
   QColor  m_colorBackground;
 
