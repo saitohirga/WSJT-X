@@ -98,8 +98,8 @@ private slots:
   void on_genStdMsgsPushButton_clicked();
   void bumpDF(int n);
   void on_logQSOButton_clicked();
-//  void on_actionErase_jtms3_rx_log_triggered();
-  void on_actionErase_jtms3_tx_log_triggered();
+//  void on_actionErase_wsjt-x_rx_log_triggered();
+  void on_actionErase_wsjtx_tx_log_triggered();
   void on_actionAFMHot_triggered();
   void on_actionBlue_triggered();
 
@@ -121,7 +121,7 @@ private:
     qint32  m_setftx;
     qint32  m_ndepth;
     qint32  m_sec0;
-    qint32  m_jtms3RxLog;
+    qint32  m_RxLog;
     qint32  m_nutc0;
     qint32  m_mode65;
     qint32  m_nrx;

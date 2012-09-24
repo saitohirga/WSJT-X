@@ -17,7 +17,7 @@ qint16 id[30*48000];
 WideGraph* g_pWideGraph = NULL;
 
 QString rev="$Rev$";
-QString Program_Title_Version="  JTMS3   v0.2, r" + rev.mid(6,4) +
+QString Program_Title_Version="  WSJT-X   v0.1, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 //-------------------------------------------------- MainWindow constructor
@@ -94,7 +94,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_myCall="K1JT";
   m_myGrid="FN20qi";
   m_appDir = QApplication::applicationDirPath();
-  m_saveDir="/users/joe/jtms3/install/save";
+  m_saveDir="/users/joe/wsjt-x/install/save";
   m_txFreq=125;
   m_setftx=0;
   m_loopall=false;
@@ -103,7 +103,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_onlyEME=false;
   m_sec0=-1;
   m_palette="CuteSDR";
-  m_jtms3RxLog=1;                     //Write Date and Time to RxLog
+  m_RxLog=1;                     //Write Date and Time to RxLog
   m_nutc0=9999;
   m_NB=false;
   m_mode="JTMSK";
@@ -194,7 +194,7 @@ MainWindow::~MainWindow()
 //-------------------------------------------------------- writeSettings()
 void MainWindow::writeSettings()
 {
-  QString inifile = m_appDir + "/jtms3.ini";
+  QString inifile = m_appDir + "/wsjt-x.ini";
   QSettings settings(inifile, QSettings::IniFormat);
 
   settings.beginGroup("MainWindow");
@@ -261,7 +261,7 @@ void MainWindow::writeSettings()
 //---------------------------------------------------------- readSettings()
 void MainWindow::readSettings()
 {
-  QString inifile = m_appDir + "/jtms3.ini";
+  QString inifile = m_appDir + "/wsjt-x.ini";
   QSettings settings(inifile, QSettings::IniFormat);
   settings.beginGroup("MainWindow");
   restoreGeometry(settings.value("geometry").toByteArray());
@@ -677,7 +677,7 @@ void MainWindow::stub()                                        //stub()
 void MainWindow::on_actionOnline_Users_Guide_triggered()      //Display manual
 {
   QDesktopServices::openUrl(QUrl(
-  "http://www.physics.princeton.edu/pulsar/K1JT/JTMS3_Users_Guide.pdf",
+  "http://www.physics.princeton.edu/pulsar/K1JT/WSJT-X_Users_Guide.pdf",
                               QUrl::TolerantMode));
 }
 
@@ -704,7 +704,7 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
   soundInThread.setMonitoring(m_monitoring);
   QString fname;
   fname=QFileDialog::getOpenFileName(this, "Open File", m_path,
-                                       "JTMS3 Files (*.wav)");
+                                       "WSJT Files (*.wav)");
   if(fname != "") {
     m_path=fname;
     int i;
@@ -799,7 +799,7 @@ void MainWindow::on_actionDelete_all_wav_files_in_SaveDir_triggered()
 
 void MainWindow::on_actionFind_Delta_Phi_triggered()              //Find dPhi
 {
-  m_jtms3RxLog |= 8;
+  m_RxLog |= 8;
   on_DecodeButton_clicked();
 }
 
@@ -948,7 +948,7 @@ void MainWindow::guiUpdate()
     int len1=28;
     genmsk_(message,iwave,&nwave,len1);
     if(m_restart) {
-      QFile f("jtms3_tx.log");
+      QFile f("wsjt-x_tx.log");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
       out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
@@ -969,7 +969,7 @@ void MainWindow::guiUpdate()
     btxok=true;
     m_transmitting=true;
 
-    QFile f("jtms3_tx.log");
+    QFile f("wsjt-x_tx.log");
     f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
     QTextStream out(&f);
     out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
@@ -1430,24 +1430,24 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 }
 
 /*
-void MainWindow::on_actionErase_jtms3_rx_log_triggered()     //Erase Rx log
+void MainWindow::on_actionErase_wsjtx_rx_log_triggered()     //Erase Rx log
 {
   int ret = QMessageBox::warning(this, "Confirm Erase",
-      "Are you sure you want to erase file jtms3_rx.log ?",
+      "Are you sure you want to erase file wsjt-x_rx.log ?",
        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
   if(ret==QMessageBox::Yes) {
-    m_jtms3RxLog |= 2;                      // Rewind jtms3_rx.log
+    m_RxLog |= 2;                      // Rewind wsjt-x_rx.log
   }
 }
 */
 
-void MainWindow::on_actionErase_jtms3_tx_log_triggered()     //Erase Tx log
+void MainWindow::on_actionErase_wsjtx_tx_log_triggered()     //Erase Tx log
 {
   int ret = QMessageBox::warning(this, "Confirm Erase",
-      "Are you sure you want to erase file jtms3_tx.log ?",
+      "Are you sure you want to erase file wsjt-x_tx.log ?",
        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
   if(ret==QMessageBox::Yes) {
-    QFile f("jtms3_tx.log");
+    QFile f("wsjt-x_tx.log");
     f.remove();
   }
 }

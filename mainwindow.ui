@@ -1068,8 +1068,8 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionDecode_remaining_files_in_directory"/>
     <addaction name="separator"/>
     <addaction name="actionDelete_all_wav_files_in_SaveDir"/>
-    <addaction name="actionErase_jtms3_rx_log"/>
-    <addaction name="actionErase_jtms3_tx_log"/>
+    <addaction name="actionErase_wsjtx_rx_log"/>
+    <addaction name="actionErase_wsjtx_tx_log"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -1159,7 +1159,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string> About JTMS3</string>
+    <string> About WSJTX</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F1</string>
@@ -1219,9 +1219,9 @@ p, li { white-space: pre-wrap; }
     <string>Erase Band Map and Messages</string>
    </property>
   </action>
-  <action name="actionErase_jtms3_rx_log">
+  <action name="actionErase_wsjtx_rx_log">
    <property name="text">
-    <string>Erase jtms3_rx.log</string>
+    <string>Erase wsjtx_rx.log</string>
    </property>
   </action>
   <action name="actionLinrad">
@@ -1395,9 +1395,9 @@ p, li { white-space: pre-wrap; }
     <string>Available suffixes and add-on-prefixes</string>
    </property>
   </action>
-  <action name="actionErase_jtms3_tx_log">
+  <action name="actionErase_wsjtx_tx_log">
    <property name="text">
-    <string>Erase jtms3_tx.log</string>
+    <string>Erase wsjtx_tx.log</string>
    </property>
   </action>
   <action name="actionJT65A">

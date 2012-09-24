@@ -8,13 +8,13 @@ QT       += core gui network
 CONFIG   += qwt thread
 #CONFIG   += console
 
-TARGET = jtms3
+TARGET = wsjtx
 VERSION = 0.2
 TEMPLATE = app
 
 win32 {
 DEFINES = WIN32
-DESTDIR = ../jtms3_install
+DESTDIR = ../wsjtx_install
 F90 = g95
 g95.output = ${QMAKE_FILE_BASE}.o
 g95.commands = $$F90 -c -O2 -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_NAME}
@@ -24,7 +24,7 @@ QMAKE_EXTRA_COMPILERS += g95
 
 unix {
 DEFINES = UNIX
-DESTDIR = ../jtms3_install
+DESTDIR = ../wsjtx_install
 F90 = gfortran
 gfortran.output = ${QMAKE_FILE_BASE}.o
 gfortran.commands = $$F90 -c -O2 -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_NAME}
@@ -49,12 +49,12 @@ DEFINES += __cplusplus
 
 FORMS    += mainwindow.ui about.ui devsetup.ui widegraph.ui
 
-RC_FILE = jtms3.rc
+RC_FILE = wsjtx.rc
 
 unix {
 INCLUDEPATH += $$quote(/usr/include/qwt-qt4)
 LIBS += -lfftw3f /usr/lib/libgfortran.so.3
-LIBS += ../jtms3/libm65/libm65.a
+LIBS += ../wsjtx/libm65/libm65.a
 LIBS += /usr/lib/libqwt-qt4.so
 LIBS += -lportaudio
 #LIBS +- -lusb
@@ -62,8 +62,8 @@ LIBS += -lportaudio
 
 win32 {
 INCLUDEPATH += c:/qwt-6.0.1/include
-LIBS += ../jtms3/libm65/libm65.a
-LIBS += ../jtms3/libfftw3f_win.a
+LIBS += ../wsjtx/libm65/libm65.a
+LIBS += ../wsjtx/libfftw3f_win.a
 LIBS += ../QtSupport/palir-02.dll
 LIBS += libwsock32
 LIBS += C:/MinGW/lib/libf95.a
