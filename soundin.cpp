@@ -7,12 +7,13 @@
 extern "C" {
 #include <portaudio.h>
 extern struct {
-  short int d2[30*48000];             //This is "common/mscom/..." in fortran
+  short int d2[120*12000];             //This is "common/mscom/..." in fortran
   float s1[215];
   float s2[215];
   int kin;
   int ndiskdat;
   int kline;
+  int nutc;
 } mscom_;
 }
 
@@ -78,7 +79,7 @@ void SoundInThread::run()                           //SoundInThread::run()
   inParam.suggestedLatency=0.05;
   inParam.hostApiSpecificStreamInfo=NULL;
 
-  paerr=Pa_IsFormatSupported(&inParam,NULL,48000.0);
+  paerr=Pa_IsFormatSupported(&inParam,NULL,12000.0);
   if(paerr<0) {
     emit error("PortAudio says requested soundcard format not supported.");
 //    return;
@@ -86,7 +87,7 @@ void SoundInThread::run()                           //SoundInThread::run()
   paerr=Pa_OpenStream(&inStream,            //Input stream
         &inParam,                           //Input parameters
         NULL,                               //No output parameters
-        48000.0,                            //Sample rate
+        12000.0,                            //Sample rate
         FRAMES_PER_BUFFER,                  //Frames per buffer
 //        paClipOff+paDitherOff,            //No clipping or dithering
         paClipOff,                          //No clipping

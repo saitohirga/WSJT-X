@@ -398,10 +398,12 @@ void MainWindow::dataSink(int k)
   lab2->setText(t);
   ui->xThermo->setValue((double)px);                      //Update the Thermo
 
+  /*
   if(m_monitoring || m_diskData) {
     green[ig++]=px;
     g_pWideGraph->dataSink2(green,ig-1);
   }
+  */
 
 // Time according to this computer
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
