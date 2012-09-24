@@ -98,10 +98,20 @@ private slots:
   void on_genStdMsgsPushButton_clicked();
   void bumpDF(int n);
   void on_logQSOButton_clicked();
-//  void on_actionErase_wsjt-x_rx_log_triggered();
+//  void on_actionErase_wsjtx_rx_log_triggered();
   void on_actionErase_wsjtx_tx_log_triggered();
   void on_actionAFMHot_triggered();
   void on_actionBlue_triggered();
+
+  void on_actionJT8_2_triggered();
+
+  void on_actionJT8_1_triggered();
+
+  void on_actionJT8_5_triggered();
+
+  void on_actionJT8_30_triggered();
+
+  void on_actionJT8_10_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -133,6 +143,7 @@ private:
     qint32  m_adjustIQ;
     qint32  m_applyIQcal;
     qint32  m_mult570;
+    qint32  m_TRperiod;
 
     double  m_fAdd;
     double  m_IQamp;

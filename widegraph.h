@@ -32,6 +32,7 @@ public:
   void   setFcal(int n);
   void   setPalette(QString palette);
   void   setMode65(int n);
+  void   setPeriod(int n);
 
   qint32 m_qsoFreq;
 
@@ -58,6 +59,7 @@ private:
   qint32 m_fCal;
   qint32 m_fSample;
   qint32 m_mode65;
+  qint32 m_TRperiod;
 
   Ui::WideGraph *ui;
 };

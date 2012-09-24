@@ -42,9 +42,11 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->actionBlue->setActionGroup(paletteGroup);
 
   QActionGroup* modeGroup = new QActionGroup(this);
-  ui->actionJT65A->setActionGroup(modeGroup);
-  ui->actionJT65B->setActionGroup(modeGroup);
-  ui->actionJT65C->setActionGroup(modeGroup);
+  ui->actionJT8_1->setActionGroup(modeGroup);
+  ui->actionJT8_2->setActionGroup(modeGroup);
+  ui->actionJT8_5->setActionGroup(modeGroup);
+  ui->actionJT8_10->setActionGroup(modeGroup);
+  ui->actionJT8_30->setActionGroup(modeGroup);
 
   QActionGroup* saveGroup = new QActionGroup(this);
   ui->actionSave_all->setActionGroup(saveGroup);
@@ -94,7 +96,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_myCall="K1JT";
   m_myGrid="FN20qi";
   m_appDir = QApplication::applicationDirPath();
-  m_saveDir="/users/joe/wsjt-x/install/save";
+  m_saveDir="/users/joe/wsjtx/install/save";
   m_txFreq=125;
   m_setftx=0;
   m_loopall=false;
@@ -106,7 +108,8 @@ MainWindow::MainWindow(QWidget *parent) :
   m_RxLog=1;                     //Write Date and Time to RxLog
   m_nutc0=9999;
   m_NB=false;
-  m_mode="JTMSK";
+  m_mode="JT8-1";
+  m_TRperiod=60;
   m_colors="000066ff0000ffff00969696646464";
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -126,8 +129,13 @@ MainWindow::MainWindow(QWidget *parent) :
       border-style: outset; border-width: 1px; border-radius: 5px; \
       border-color: black; min-width: 5em; padding: 3px;}";
 
-  genStdMsgs("26");
+  genStdMsgs("-30");
   on_actionWide_Waterfall_triggered();                   //###
+  if(m_mode=="JT8-1") on_actionJT8_1_triggered();
+  if(m_mode=="JT8-2") on_actionJT8_2_triggered();
+  if(m_mode=="JT8-5") on_actionJT8_5_triggered();
+  if(m_mode=="JT8-10") on_actionJT8_10_triggered();
+  if(m_mode=="JT8-30") on_actionJT8_30_triggered();
 
   future1 = new QFuture<void>;
   watcher1 = new QFutureWatcher<void>;
@@ -194,7 +202,7 @@ MainWindow::~MainWindow()
 //-------------------------------------------------------- writeSettings()
 void MainWindow::writeSettings()
 {
-  QString inifile = m_appDir + "/wsjt-x.ini";
+  QString inifile = m_appDir + "/wsjtx.ini";
   QSettings settings(inifile, QSettings::IniFormat);
 
   settings.beginGroup("MainWindow");
@@ -261,7 +269,7 @@ void MainWindow::writeSettings()
 //---------------------------------------------------------- readSettings()
 void MainWindow::readSettings()
 {
-  QString inifile = m_appDir + "/wsjt-x.ini";
+  QString inifile = m_appDir + "/wsjtx.ini";
   QSettings settings(inifile, QSettings::IniFormat);
   settings.beginGroup("MainWindow");
   restoreGeometry(settings.value("geometry").toByteArray());
@@ -307,7 +315,7 @@ void MainWindow::readSettings()
                                  "PaletteAFMHot",false).toBool());
   ui->actionBlue->setChecked(settings.value(
                                  "PaletteBlue",false).toBool());
-  m_mode=settings.value("Mode","JTMSK").toString();
+  m_mode=settings.value("Mode","JT8-1").toString();
   ui->actionNone->setChecked(settings.value("SaveNone",true).toBool());
   ui->actionSave_all->setChecked(settings.value("SaveAll",false).toBool());
   m_saveAll=ui->actionSave_all->isChecked();
@@ -556,13 +564,13 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
     break;
   case Qt::Key_G:
     if(e->modifiers() & Qt::AltModifier) {
-      genStdMsgs("26");
+      genStdMsgs("-30");
       break;
     }
   case Qt::Key_L:
     if(e->modifiers() & Qt::ControlModifier) {
       lookup();
-      genStdMsgs("26");
+      genStdMsgs("-30");
       break;
     }
   }
@@ -616,13 +624,13 @@ void MainWindow::createStatusBar()                           //createStatusBar
   lab3->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab3);
 
-  /*
   lab4 = new QLabel("");
   lab4->setAlignment(Qt::AlignHCenter);
   lab4->setMinimumSize(QSize(80,10));
   lab4->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab4);
 
+/*
   lab5 = new QLabel("");
   lab5->setAlignment(Qt::AlignHCenter);
   lab5->setMinimumSize(QSize(50,10));
@@ -898,19 +906,18 @@ void MainWindow::guiUpdate()
   static char msgsent[29];
   static int nsendingsh=0;
   int khsym=0;
-  double trperiod=30.0;
 
   double tx1=0.0;
-  double tx2=trperiod;
+  double tx2=m_TRperiod;
 
   if(!m_txFirst) {
-    tx1 += trperiod;
-    tx2 += trperiod;
+    tx1 += m_TRperiod;
+    tx2 += m_TRperiod;
   }
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
   int nsec=ms/1000;
   double tsec=0.001*ms;
-  double t2p=fmod(tsec,2*trperiod);
+  double t2p=fmod(tsec,2*m_TRperiod);
   bool bTxTime = t2p >= tx1 && t2p < tx2;
 
   if(m_auto) {
@@ -948,7 +955,7 @@ void MainWindow::guiUpdate()
     int len1=28;
     genmsk_(message,iwave,&nwave,len1);
     if(m_restart) {
-      QFile f("wsjt-x_tx.log");
+      QFile f("wsjtx_tx.log");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
       out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
@@ -969,7 +976,7 @@ void MainWindow::guiUpdate()
     btxok=true;
     m_transmitting=true;
 
-    QFile f("wsjt-x_tx.log");
+    QFile f("wsjtx_tx.log");
     f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
     QTextStream out(&f);
     out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
@@ -1010,7 +1017,6 @@ void MainWindow::guiUpdate()
   }
 
   if(nsec != m_sec0) {                                     //Once per second
-
     if(m_transmitting) {
       if(nsendingsh==1) {
         lab1->setStyleSheet("QLabel{background-color: #66ffff}");
@@ -1158,7 +1164,7 @@ void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
   QString rpt="";
   if(ctrl) rpt=t2.mid(23,3);
   lookup();
-  rpt="26";
+  rpt="-30";
   genStdMsgs(rpt);
   if(t2.indexOf(m_myCall)>0) {
     m_ntx=2;
@@ -1408,7 +1414,7 @@ void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
 
 void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
 {
-  genStdMsgs("26");
+  genStdMsgs("-30");
 }
 
 void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
@@ -1433,10 +1439,10 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 void MainWindow::on_actionErase_wsjtx_rx_log_triggered()     //Erase Rx log
 {
   int ret = QMessageBox::warning(this, "Confirm Erase",
-      "Are you sure you want to erase file wsjt-x_rx.log ?",
+      "Are you sure you want to erase file wsjtx_rx.log ?",
        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
   if(ret==QMessageBox::Yes) {
-    m_RxLog |= 2;                      // Rewind wsjt-x_rx.log
+    m_RxLog |= 2;                      // Rewind wsjtx_rx.log
   }
 }
 */
@@ -1444,10 +1450,70 @@ void MainWindow::on_actionErase_wsjtx_rx_log_triggered()     //Erase Rx log
 void MainWindow::on_actionErase_wsjtx_tx_log_triggered()     //Erase Tx log
 {
   int ret = QMessageBox::warning(this, "Confirm Erase",
-      "Are you sure you want to erase file wsjt-x_tx.log ?",
+      "Are you sure you want to erase file wsjtx_tx.log ?",
        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
   if(ret==QMessageBox::Yes) {
-    QFile f("wsjt-x_tx.log");
+    QFile f("wsjtx_tx.log");
     f.remove();
   }
+}
+
+void MainWindow::on_actionJT8_1_triggered()
+{
+  m_mode="JT8-1";
+  m_TRperiod=60;
+  soundInThread.setPeriod(m_TRperiod);
+  soundOutThread.setPeriod(m_TRperiod);
+  g_pWideGraph->setPeriod(m_TRperiod);
+  lab4->setStyleSheet("QLabel{background-color: #ff6ec7}");
+  lab4->setText(m_mode);
+  ui->actionJT8_1->setChecked(true);
+}
+
+void MainWindow::on_actionJT8_2_triggered()
+{
+  m_mode="JT8-2";
+  m_TRperiod=120;
+  soundInThread.setPeriod(m_TRperiod);
+  soundOutThread.setPeriod(m_TRperiod);
+  g_pWideGraph->setPeriod(m_TRperiod);
+  lab4->setStyleSheet("QLabel{background-color: #ffff00}");
+  lab4->setText(m_mode);
+  ui->actionJT8_2->setChecked(true);
+}
+
+void MainWindow::on_actionJT8_5_triggered()
+{
+  m_mode="JT8-5";
+  m_TRperiod=300;
+  soundInThread.setPeriod(m_TRperiod);
+  soundOutThread.setPeriod(m_TRperiod);
+  g_pWideGraph->setPeriod(m_TRperiod);
+  lab4->setStyleSheet("QLabel{background-color: #ffa500}");
+  lab4->setText(m_mode);
+  ui->actionJT8_5->setChecked(true);
+}
+
+void MainWindow::on_actionJT8_10_triggered()
+{
+  m_mode="JT8-10";
+  m_TRperiod=600;
+  soundInThread.setPeriod(m_TRperiod);
+  soundOutThread.setPeriod(m_TRperiod);
+  g_pWideGraph->setPeriod(m_TRperiod);
+  lab4->setStyleSheet("QLabel{background-color: #7fff00}");
+  lab4->setText(m_mode);
+  ui->actionJT8_10->setChecked(true);
+}
+
+void MainWindow::on_actionJT8_30_triggered()
+{
+  m_mode="JT8-30";
+  m_TRperiod=1800;
+  soundInThread.setPeriod(m_TRperiod);
+  soundOutThread.setPeriod(m_TRperiod);
+  g_pWideGraph->setPeriod(m_TRperiod);
+  lab4->setStyleSheet("QLabel{background-color: #97ffff}");
+  lab4->setText(m_mode);
+  ui->actionJT8_30->setChecked(true);
 }

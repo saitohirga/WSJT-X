@@ -1,0 +1,31 @@
+JT8 is a mode designed for amateur QSOs and beacon-like transmissions
+at MF and LF.  The mode uses the same 72-bit user messages as JT65,
+augmented by a 12-bit cyclic redundancy check (CRC).  Error-control
+coding uses a convolutional code with constraint length K=16, rate
+r=1/2, and a zero tail, leading to an encoded message length of
+(72+12+15)*2 = 198 bits.  Modulation is 8-FSK, so a transmission
+requires 198/3 = 66 information-carrying channel symbols.  Two 8x8
+Costas arrays are added to each transmission for purposes of time and
+frequency synchronization.  A full transmission thus contains 66 + 16
+= 82 symbols.  Tone spacing df of the 8-FSK modulation is equal to the
+keying rate; symbol duration tsym = 1/df, and the total occupied
+bandwidth is 8*df.  The actual transmission length TxT is slightly
+less than the T/R sequence time, to allow for possible message
+decoding before the next transmission starts.
+
+Parameters of the five JT8 sub-modes are summarized in the following
+table, along with S/N thresholds measured by simulation on an AWGN
+(additive white Gaussian noise) channel.  Parameter nsps is the number
+of samples per symbol at sample rate 1500 Hz.
+
+-----------------------------------------------------
+Mode   T/R    TxT    nsps    df    tsym   BW    S/N*
+       (m)    (s)           (Hz)    (s)  (Hz)   (dB)
+-----------------------------------------------------
+JT8-1    1    52.5    960  1.562   0.64  12.6  -26.9
+JT8-2    2   112.0   2048  0.732   1.37   5.9  -30.2
+JT8-5    5   293.9   5376  0.279   3.58   2.2  -34.4
+JT8-10  10   587.8  10752  0.140   7.17   1.1  -37.5
+JT8-30  30  1791.3  32768  0.046  21.85   0.4  -42.3
+-----------------------------------------------------
+* Noise power measured in a 2500 Hz bandwidth.
