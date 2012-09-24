@@ -19,7 +19,8 @@ public:
   double m_dForceCenterFreq;
   double m_cal570;
 
-  void   dataSink2(float green[], int ig);
+  void   dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
+                   uchar lstrong[]);
   int    QSOfreq();
   int    nSpan();
   int    nStartFreq();
@@ -31,8 +32,10 @@ public:
   void   setTol(int n);
   void   setFcal(int n);
   void   setPalette(QString palette);
+  void   setFsample(int n);
   void   setMode65(int n);
   void   setPeriod(int n);
+  double fGreen();
 
   qint32 m_qsoFreq;
 
@@ -42,6 +45,7 @@ signals:
 
 public slots:
   void wideFreezeDecode(int n);
+  void initIQplus();
 
 protected:
   virtual void keyPressEvent( QKeyEvent *e );
@@ -49,9 +53,13 @@ protected:
 private slots:
   void on_waterfallAvgSpinBox_valueChanged(int arg1);
   void on_freqSpanSpinBox_valueChanged(int arg1);
+  void on_freqOffsetSpinBox_valueChanged(int arg1);
   void on_zeroSpinBox_valueChanged(int arg1);
   void on_gainSpinBox_valueChanged(int arg1);
   void on_autoZeroPushButton_clicked();
+//  void on_cbFcenter_stateChanged(int arg1);
+  void on_fCenterLineEdit_editingFinished();
+  void on_pbSetRxHardware_clicked();
   void on_cbSpec2d_toggled(bool checked);
 
 private:

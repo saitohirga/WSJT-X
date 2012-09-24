@@ -7,7 +7,7 @@ extern "C" {
 }
 
 extern float gran();                  //Noise generator (for tests only)
-extern short int iwave[30*48000];     //Wave file for Tx audio
+extern short int iwave[120*12000];     //Wave file for Tx audio
 extern int nwave;
 extern bool btxok;
 extern double outputLatency;
@@ -57,7 +57,7 @@ void SoundOutThread::run()
   outParam.suggestedLatency=0.05;
   outParam.hostApiSpecificStreamInfo=NULL;
 
-  paerr=Pa_IsFormatSupported(NULL,&outParam,48000.0);
+  paerr=Pa_IsFormatSupported(NULL,&outParam,12000.0);
   if(paerr<0) {
     qDebug() << "PortAudio says requested output format not supported.";
     qDebug() << paerr << m_nDevOut;
@@ -70,7 +70,7 @@ void SoundOutThread::run()
   paerr=Pa_OpenStream(&outStream,           //Output stream
         NULL,                               //No input parameters
         &outParam,                          //Output parameters
-        48000.0,                            //Sample rate
+        12000.0,                            //Sample rate
         FRAMES_PER_BUFFER,                  //Frames per buffer
         paClipOff,                          //No clipping
         d2aCallback,                        //output callbeck routine

@@ -28,25 +28,45 @@ public:
   QColor  m_ColorTbl[256];
   int     m_plotZero;
   int     m_plotGain;
-  qint32  m_waterfallAvg;
+  float   m_fSpan;
+  qint32  m_nSpan;
+  qint32  m_binsPerPixel;
+  qint32  m_fQSO;
   qint32  m_DF;
   qint32  m_tol;
+  qint32  m_fCal;
 
-  void draw(float green[], int ig);	       //Update the graphics
+  void draw(float sw[], int i0, float splot[]);		//Update the waterfalls
   void SetRunningState(bool running);
   void setPlotZero(int plotZero);
   int  getPlotZero();
   void setPlotGain(int plotGain);
   int  getPlotGain();
+  void SetCenterFreq(int f);
+  qint64 centerFreq();
+  void SetStartFreq(quint64 f);
+  qint64 startFreq();
+  void SetFreqOffset(quint64 f);
+  qint64 freqOffset();
   int  plotWidth();
+  void setNSpan(int n);
   void UpdateOverlay();
   void setDataFromDisk(bool b);
   void setTol(int n);
+  void setBinsPerPixel(int n);
+  int  binsPerPixel();
+  void setFQSO(int n, bool bf);
+  void setFcal(int n);
+  void setNkhz(int n);
   void DrawOverlay();
+  int  fQSO();
   int  DF();
   int  autoZero();
   void setPalette(QString palette);
+  void setFsample(int n);
+  void setMode65(int n);
   void set2Dspec(bool b);
+  double fGreen();
 
 signals:
   void freezeDecode0(int n);
@@ -59,9 +79,10 @@ protected:
 
 private:
 
-  void MakeTimeStrs();
-  int xFromTime(float f);
-  float timeFromX(int x);
+  void MakeFrequencyStrs();
+  void UTCstr();
+  int XfromFreq(float f);
+  float FreqfromX(int x);
   qint64 RoundFreq(qint64 freq, int resolution);
 
   QPixmap m_WaterfallPixmap;
@@ -78,7 +99,8 @@ private:
   bool    m_2Dspec;
   bool    m_paintAllZoom;
   double  m_CenterFreq;
-  double  m_aveGreen;
+  double  m_fGreen;
+  qint64  m_StartFreq;
   qint64  m_ZoomStartFreq;
   qint64  m_FreqOffset;
   qint32  m_dBStepSize;
@@ -87,6 +109,8 @@ private:
   bool    m_dataFromDisk;
   char    m_sutc[5];
   qint32  m_line;
+  qint32  m_hist1[256];
+  qint32  m_hist2[256];
   qint32  m_z1;
   qint32  m_z2;
   qint32  m_nkhz;

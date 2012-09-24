@@ -8,7 +8,7 @@ subroutine specjtms(k,px,pxsmo,spk0,f0)
   real x(MAXFFT)
   complex cx(MAXFFT),cx2(MAXFFT)
   logical first
-  common/mscom/id(1440000),s1(215),s2(215),kin,ndiskdat,kline
+  common/mscom/id(1440000),s1(215),s2(215),kin,ndiskdat,kline,nutc
   data first/.true./
   save
  
