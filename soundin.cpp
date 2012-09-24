@@ -156,6 +156,10 @@ void SoundInThread::setMonitoring(bool b)                    //setMonitoring()
   m_monitoring = b;
 }
 
+void SoundInThread::setPeriod(int n)
+{
+  m_TRperiod=n;
+}
 
 int SoundInThread::mstep()
 {

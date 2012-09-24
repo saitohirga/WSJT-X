@@ -208,6 +208,11 @@ void WideGraph::setPalette(QString palette)
   ui->widePlot->setPalette(palette);
 }
 
+void WideGraph::setPeriod(int n)
+{
+  m_TRperiod=n;
+}
+
 void WideGraph::on_cbSpec2d_toggled(bool b)
 {
   ui->widePlot->set2Dspec(b);

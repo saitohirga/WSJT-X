@@ -103,3 +103,8 @@ void SoundOutThread::setOutputDevice(int n)      //setOutputDevice()
   if (isRunning()) return;
   this->m_nDevOut=n;
 }
+
+void SoundOutThread::setPeriod(int n)
+{
+  m_TRperiod=n;
+}
