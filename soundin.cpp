@@ -1,20 +1,33 @@
 #include "soundin.h"
 #include <stdexcept>
 
-#define NFFT 32768
 #define FRAMES_PER_BUFFER 1024
 
 extern "C" {
 #include <portaudio.h>
 extern struct {
-  short int d2[120*12000];             //This is "common/mscom/..." in fortran
-  float s1[215];
-  float s2[215];
+  short int d2[1800*12000];         //This is "common/jt8com/..." in fortran
+  float ss[184*32768];
+  float savg[32768];
+  double fcenter;                   //USB dial freq (kHz)
+  int nutc;                         //UTC as integer, HHMM
+  int mousedf;                      //User-selected DF
+  int mousefqso;                    //User-selected QSO freq (kHz)
+  int nagain;                       //1 ==> decode only at fQSO +/- Tol
+  int ndepth;                       //How much hinted decoding to do?
+  int ndiskdat;                     //1 ==> data read from *.tf2 or *.iq file
+  int newdat;                       //1 ==> new data, must do long FFT
+  int nfa;                          //Low decode limit (kHz)
+  int nfb;                          //High decode limit (kHz)
+  int ntol;                         //+/- decoding range around fQSO (Hz)
+  int map65RxLog;                   //Flags to control log files
+  int nfsample;                     //Input sample rate
+  int ntrperiod;
+  int nsave;                        //Number of s3(64,63) spectra saved
   int kin;
-  int ndiskdat;
   int kline;
-  int nutc;
-} mscom_;
+  char datetime[20];
+} jt8com_;
 }
 
 typedef struct
@@ -53,9 +66,9 @@ extern "C" int a2dCallback( const void *inputBuffer, void *outputBuffer,
 
   nbytes=2*framesToProcess;        //Bytes per frame
   k=udata->kin;
-  memcpy(&mscom_.d2[k],inputBuffer,nbytes);          //Copy all samples to d2
+  memcpy(&jt8com_.d2[k],inputBuffer,nbytes);          //Copy all samples to d2
   udata->kin += framesToProcess;
-  mscom_.kin=udata->kin;
+  jt8com_.kin=udata->kin;
 
   return paContinue;
 }

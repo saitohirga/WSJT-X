@@ -12,12 +12,12 @@ void getfile(QString fname, bool xpol, int dbDgrd)
   FILE* fp=fopen(name,"rb");
 
   int npts=30*48000;
-  memset(mscom_.d2,0,2*npts);
+  memset(jt8com_.d2,0,2*npts);
 
   if(fp != NULL) {
 // Read (and ignore) a 44-byte WAV header; then read data
-    fread(mscom_.d2,1,44,fp);
-    int nrd=fread(mscom_.d2,2,npts,fp);
+    fread(jt8com_.d2,1,44,fp);
+    int nrd=fread(jt8com_.d2,2,npts,fp);
     fclose(fp);
   }
 }
@@ -75,9 +75,9 @@ void savewav(QString fname)
     hdr.ndata=2*npts;
 
     fwrite(&hdr,sizeof(hdr),1,fp);
-//    memcpy(mscom_.d2,buf,2*npts);
+//    memcpy(jt8com_.d2,buf,2*npts);
 //    fwrite(buf,2,npts,fp);
-    fwrite(mscom_.d2,2,npts,fp);
+    fwrite(jt8com_.d2,2,npts,fp);
     fclose(fp);
   }
 //  free(buf);

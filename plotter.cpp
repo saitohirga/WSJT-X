@@ -221,10 +221,10 @@ void CPlotter::draw(float s[], int i0, float splot[])                 //draw()
 void CPlotter::UTCstr()
 {
   int ihr,imin,isec;
-  if(mscom_.ndiskdat != 0) {
-    ihr=mscom_.nutc/10000;
-    imin=(mscom_.nutc/100) % 100;
-    isec=mscom_.nutc % 100;
+  if(jt8com_.ndiskdat != 0) {
+    ihr=jt8com_.nutc/10000;
+    imin=(jt8com_.nutc/100) % 100;
+    isec=jt8com_.nutc % 100;
   } else {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     imin=ms/60000;
