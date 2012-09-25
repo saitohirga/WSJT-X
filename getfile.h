@@ -6,7 +6,7 @@
 #include "commons.h"
 
 void getfile(QString fname, bool xpol, int dbDgrd);
-void savetf2(QString fname, bool xpol);
+void savetf2(QString fname);
 float gran();
 
 #endif // GETFILE_H

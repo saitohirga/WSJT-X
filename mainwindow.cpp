@@ -287,22 +287,8 @@ void MainWindow::readSettings()
   m_myGrid=settings.value("MyGrid","").toString();
   m_idInt=settings.value("IDint",0).toInt();
   m_pttPort=settings.value("PTTport",0).toInt();
-  m_xpol=settings.value("Xpol",false).toBool();
-  ui->actionFind_Delta_Phi->setEnabled(m_xpol);
-  m_xpolx=settings.value("XpolX",false).toBool();
   m_saveDir=settings.value("SaveDir",m_appDir + "/save").toString();
-  m_azelDir=settings.value("AzElDir",m_appDir).toString();
   m_dxccPfx=settings.value("DXCCpfx","").toString();
-  m_timeout=settings.value("Timeout",20).toInt();
-  m_IQamp=settings.value("IQamp",1.0000).toDouble();
-  m_IQphase=settings.value("IQphase",0.0).toDouble();
-  m_applyIQcal=settings.value("ApplyIQcal",0).toInt();
-  ui->actionApply_IQ_Calibration->setChecked(m_applyIQcal!=0);
-  m_dPhi=settings.value("dPhi",0).toInt();
-  m_fCal=settings.value("Fcal",0).toInt();
-  m_fAdd=settings.value("FAdd",0).toDouble();
-  m_network = settings.value("NetworkInput",true).toBool();
-  m_fs96000 = settings.value("FSam96000",true).toBool();
   m_nDevIn = settings.value("SoundInIndex", 0).toInt();
   m_paInDevice = settings.value("paInDevice",0).toInt();
   m_nDevOut = settings.value("SoundOutIndex", 0).toInt();
@@ -318,19 +304,14 @@ void MainWindow::readSettings()
   m_mode=settings.value("Mode","JT8-1").toString();
   ui->actionNone->setChecked(settings.value("SaveNone",true).toBool());
   ui->actionSave_all->setChecked(settings.value("SaveAll",false).toBool());
+  m_NB=settings.value("NB",false).toBool();
+  ui->NBcheckBox->setChecked(m_NB);
+  m_NBslider=settings.value("NBslider",40).toInt();
+  ui->NBslider->setValue(m_NBslider);
   m_saveAll=ui->actionSave_all->isChecked();
   m_ndepth=settings.value("NDepth",0).toInt();
   m_onlyEME=settings.value("NEME",false).toBool();
-  ui->actionOnly_EME_calls->setChecked(m_onlyEME);
-  m_kb8rq=settings.value("KB8RQ",false).toBool();
   ui->actionF4_sets_Tx6->setChecked(m_kb8rq);
-  m_gainx=settings.value("GainX",1.0).toFloat();
-  m_gainy=settings.value("GainY",1.0).toFloat();
-  m_phasex=settings.value("PhaseX",0.0).toFloat();
-  m_phasey=settings.value("PhaseY",0.0).toFloat();
-  m_mult570=settings.value("Mult570",2).toInt();
-  m_cal570=settings.value("Cal570",0.0).toDouble();
-  m_colors=settings.value("Colors","000066ff0000ffff00969696646464").toString();
   settings.endGroup();
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
@@ -346,19 +327,22 @@ void MainWindow::readSettings()
 //-------------------------------------------------------------- dataSink()
 void MainWindow::dataSink(int k)
 {
+  static float s[NFFT],splot[NFFT];
+  static int n=0;
+  static int ihsym=0;
+  static int nzap=0;
+  static int ntr0=0;
+  static int nkhz;
+  static int nfsample=96000;
+  static int nxpol=0;
+  static float fgreen;
   static int ndiskdat;
-  static int nwrite=0;
-  static int k0=99999999;
-  static float px=0.0;
-  static float pxsmo,spk0,f0;
-  static float sqave=0.0;
-  static float green[704];
-  static int ig=0;
+  static int nb;
+  static int nadj=0;
+  static float px=0.0,py=0.0;
+  static uchar lstrong[1024];
+  static float slimit;
 
-  if(k < k0) {
-    nwrite=0;
-    ig=0;
-  }
 
   if(m_diskData) {
     ndiskdat=1;
@@ -367,64 +351,71 @@ void MainWindow::dataSink(int k)
     ndiskdat=0;
     jt8com_.ndiskdat=0;
   }
-
-  float d,sq=0;
-  for(int i=0; i<2048; i++) {
-    d=jt8com_.d2[k-2048+i];
-    sq += d*d;
-  }
-  px=10.0*log10(sq/2048.0) - 23.0;
-  sqave=0.95*sqave + 0.05*sq;
-  float pxave=10.0*log10(sqave/2048.0) - 23.0;
-
-  specjtms_(&k,&px,&pxsmo,&spk0,&f0);
+// Get power, spectrum, nkhz, and ihsym
+  nb=0;
+  if(m_NB) nb=1;
+  symspecx_(&k, &ndiskdat, &nb, &m_NBslider, &m_TRperiod,
+           &px, s, &nkhz, &ihsym, &nzap, &slimit, lstrong);
+//  qDebug() << "A" << k << k/12000 << m_TRperiod << ihsym << px;
   QString t;
-  if(spk0 > 2.0) {
-    qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-    int isec=ms/1000;
-    int imin=ms/60000;
-    int ihr=imin/60;
-    imin=imin % 60;
-    isec=isec % 60;
-    if(isec<30) isec=0;
-    if(isec>30) isec=30;
-    int nutc=10000*ihr + 100*imin + isec;
-    t.sprintf("%6.6d  %4.1f   %4.1f   %4d",nutc,(k-2048.0)/48000.0,
-              spk0,int(f0));
-    ui->decodedTextBrowser->append(t);
-  }
-
-  t.sprintf(" Rx noise: %5.1f ",pxave);
-  lab2->setText(t);
-  ui->xThermo->setValue((double)px);                      //Update the Thermo
-
-  /*
+  m_pctZap=nzap/178.3;
+  t.sprintf(" Rx noise: %5.1f  %5.1f %% ",px,m_pctZap);
+  lab4->setText(t);
+  ui->xThermo->setValue((double)px);   //Update the thermometer
   if(m_monitoring || m_diskData) {
-    green[ig++]=px;
-    g_pWideGraph->dataSink2(green,ig-1);
+//    g_pWideGraph->dataSink2(s,nkhz,ihsym,m_diskData,lstrong);
   }
-  */
+
+  if(nadj == 10) {
+    if(m_xpol) {
+      t.sprintf("Amp: %6.4f %6.4f   Phase: %6.4f %6.4f",
+                m_gainx,m_gainy,m_phasex,m_phasey);
+    } else {
+      t.sprintf("Amp: %6.4f   Phase: %6.4f",m_gainx,m_phasex);
+    }
+    ui->decodedTextBrowser->append(t);
+    m_adjustIQ=0;
+  }
+
+  //Average over specified number of spectra
+  if (n==0) {
+    for (int i=0; i<NFFT; i++)
+      splot[i]=s[i];
+  } else {
+    for (int i=0; i<NFFT; i++)
+      splot[i] += s[i];
+  }
+  n++;
+
+  if (n>=m_waterfallAvg) {
+    for (int i=0; i<NFFT; i++) {
+        splot[i] /= n;                           //Normalize the average
+    }
 
 // Time according to this computer
-  qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-
-  int n300 = (ms/100) % 300;
-  if(n300 >= 295 and nwrite==0) {
-    nwrite=1;
-    if(m_saveAll) {
-      QDateTime t = QDateTime::currentDateTimeUtc();
-      m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
-      QString fname=m_saveDir + "/" + m_hisCall + "_" +
-          t.date().toString("yyMMdd") + "_" +
-          t.time().toString("hhmmss") + ".wav";
-      int i0=fname.indexOf(".wav");
-      if(fname.mid(i0-2,2)=="29") fname=fname.mid(0,i0-2)+"00.wav";
-      if(fname.mid(i0-2,2)=="59") fname=fname.mid(0,i0-2)+"30.wav";
+    qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
+    int ntr = (ms/1000) % m_TRperiod;
+    if((m_diskData && ihsym <= m_waterfallAvg) || (!m_diskData && ntr<ntr0)) {
+      for (int i=0; i<NFFT; i++) {
+        splot[i] = 1.e30;
+      }
+    }
+    ntr0=ntr;
+    n=0;
+  }
+  if(ihsym == 184) {
+    jt8com_.newdat=1;
+    jt8com_.nagain=0;
+    QDateTime t = QDateTime::currentDateTimeUtc();
+    m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
+    decode();                                           //Start the decoder
+    if(m_saveAll and !m_diskData) {
+      QString fname=m_saveDir + "/" + t.date().toString("yyMMdd") + "_" +
+          t.time().toString("hhmm") + ".wav";
       *future2 = QtConcurrent::run(savewav, fname);
       watcher2->setFuture(*future2);
     }
   }
-  k0=k;
   soundInThread.m_dataSinkBusy=false;
 }
 
@@ -632,13 +623,11 @@ void MainWindow::createStatusBar()                           //createStatusBar
   lab4->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab4);
 
-/*
   lab5 = new QLabel("");
   lab5->setAlignment(Qt::AlignHCenter);
   lab5->setMinimumSize(QSize(50,10));
   lab5->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab5);
-  */
 }
 
 void MainWindow::on_tolSpinBox_valueChanged(int i)             //tolSpinBox
@@ -955,7 +944,7 @@ void MainWindow::guiUpdate()
     ba2msg(ba,message);
     ba2msg(ba,msgsent);
     int len1=28;
-    genmsk_(message,iwave,&nwave,len1);
+//    genjt8_(message,iwave,&nwave,len1);
     if(m_restart) {
       QFile f("wsjtx_tx.log");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
@@ -1336,7 +1325,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)                //msgtype()
   int i1=t.indexOf(" OOO");
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
-  gen65_(message,&mode65,&samfac,&nsendingsh,msgsent,iwave,&mwave,len1,len1);
+//  gen65_(message,&mode65,&samfac,&nsendingsh,msgsent,iwave,&mwave,len1,len1);
   nsendingsh=0;
   QPalette p(tx->palette());
   if(nsendingsh==1) {
@@ -1467,8 +1456,8 @@ void MainWindow::on_actionJT8_1_triggered()
   soundInThread.setPeriod(m_TRperiod);
   soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setPeriod(m_TRperiod);
-  lab4->setStyleSheet("QLabel{background-color: #ff6ec7}");
-  lab4->setText(m_mode);
+  lab5->setStyleSheet("QLabel{background-color: #ff6ec7}");
+  lab5->setText(m_mode);
   ui->actionJT8_1->setChecked(true);
 }
 
@@ -1479,8 +1468,8 @@ void MainWindow::on_actionJT8_2_triggered()
   soundInThread.setPeriod(m_TRperiod);
   soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setPeriod(m_TRperiod);
-  lab4->setStyleSheet("QLabel{background-color: #ffff00}");
-  lab4->setText(m_mode);
+  lab5->setStyleSheet("QLabel{background-color: #ffff00}");
+  lab5->setText(m_mode);
   ui->actionJT8_2->setChecked(true);
 }
 
@@ -1491,8 +1480,8 @@ void MainWindow::on_actionJT8_5_triggered()
   soundInThread.setPeriod(m_TRperiod);
   soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setPeriod(m_TRperiod);
-  lab4->setStyleSheet("QLabel{background-color: #ffa500}");
-  lab4->setText(m_mode);
+  lab5->setStyleSheet("QLabel{background-color: #ffa500}");
+  lab5->setText(m_mode);
   ui->actionJT8_5->setChecked(true);
 }
 
@@ -1503,8 +1492,8 @@ void MainWindow::on_actionJT8_10_triggered()
   soundInThread.setPeriod(m_TRperiod);
   soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setPeriod(m_TRperiod);
-  lab4->setStyleSheet("QLabel{background-color: #7fff00}");
-  lab4->setText(m_mode);
+  lab5->setStyleSheet("QLabel{background-color: #7fff00}");
+  lab5->setText(m_mode);
   ui->actionJT8_10->setChecked(true);
 }
 
@@ -1515,7 +1504,18 @@ void MainWindow::on_actionJT8_30_triggered()
   soundInThread.setPeriod(m_TRperiod);
   soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setPeriod(m_TRperiod);
-  lab4->setStyleSheet("QLabel{background-color: #97ffff}");
-  lab4->setText(m_mode);
+  lab5->setStyleSheet("QLabel{background-color: #97ffff}");
+  lab5->setText(m_mode);
   ui->actionJT8_30->setChecked(true);
+}
+
+void MainWindow::on_NBcheckBox_toggled(bool checked)
+{
+  m_NB=checked;
+  ui->NBslider->setEnabled(m_NB);
+}
+
+void MainWindow::on_NBslider_valueChanged(int n)
+{
+  m_NBslider=n;
 }

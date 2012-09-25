@@ -11,6 +11,7 @@ extern struct {
   float savg[32768];
   double fcenter;                   //USB dial freq (kHz)
   int nutc;                         //UTC as integer, HHMM
+  int ntrperiod;                    //TR period (seconds)
   int mousedf;                      //User-selected DF
   int mousefqso;                    //User-selected QSO freq (kHz)
   int nagain;                       //1 ==> decode only at fQSO +/- Tol
@@ -22,7 +23,6 @@ extern struct {
   int ntol;                         //+/- decoding range around fQSO (Hz)
   int map65RxLog;                   //Flags to control log files
   int nfsample;                     //Input sample rate
-  int ntrperiod;
   int nsave;                        //Number of s3(64,63) spectra saved
   int kin;
   int kline;
@@ -114,10 +114,10 @@ void SoundInThread::run()                           //SoundInThread::run()
   }
 
   bool qe = quitExecution;
-  int n30z=99;
+  int ntr0=99;
   int k=0;
   int nsec;
-  int n30;
+  int ntr;
   int nBusy=0;
   int nstep0=0;
 
@@ -127,10 +127,10 @@ void SoundInThread::run()                           //SoundInThread::run()
     if (qe) break;
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     nsec = ms/1000;             // Time according to this computer
-    n30 = nsec % 30;
+    ntr = nsec % m_TRperiod;
 
 // Reset buffer pointer and symbol number at start of minute
-    if(n30 < n30z or !m_monitoring) {
+    if(ntr < ntr0 or !m_monitoring) {
       nstep0=0;
       udata.bzero=true;
     }
@@ -148,7 +148,7 @@ void SoundInThread::run()                           //SoundInThread::run()
       }
     }
     msleep(10);
-    n30z=n30;
+    ntr0=ntr;
   }
   Pa_StopStream(inStream);
   Pa_CloseStream(inStream);
