@@ -362,15 +362,15 @@ void MainWindow::dataSink(int k)
 
   if(m_diskData) {
     ndiskdat=1;
-    mscom_.ndiskdat=1;
+    jt8com_.ndiskdat=1;
   } else {
     ndiskdat=0;
-    mscom_.ndiskdat=0;
+    jt8com_.ndiskdat=0;
   }
 
   float d,sq=0;
   for(int i=0; i<2048; i++) {
-    d=mscom_.d2[k-2048+i];
+    d=jt8com_.d2[k-2048+i];
     sq += d*d;
   }
   px=10.0*log10(sq/2048.0) - 23.0;

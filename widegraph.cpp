@@ -37,8 +37,7 @@ WideGraph::WideGraph(QWidget *parent) :
   m_waterfallAvg = settings.value("WaterfallAvg",10).toInt();
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
   ui->freqOffsetSpinBox->setValue(settings.value("FreqOffset",0).toInt());
-  m_bForceCenterFreq=settings.value("ForceCenterFreqBool",false).toBool();
-  m_dForceCenterFreq=settings.value("ForceCenterFreqMHz",144.125).toDouble();
+  m_dForceCenterFreq=settings.value("ForceCenterFreqMHz",473.000).toDouble();
 //  ui->cbFcenter->setChecked(m_bForceCenterFreq);
   ui->fCenterLineEdit->setText(QString::number(m_dForceCenterFreq));
   settings.endGroup();
@@ -65,7 +64,6 @@ void WideGraph::saveSettings()
   settings.setValue("FreqSpan",ui->freqSpanSpinBox->value());
   settings.setValue("WaterfallAvg",ui->waterfallAvgSpinBox->value());
   settings.setValue("FreqOffset",ui->widePlot->freqOffset());
-  settings.setValue("ForceCenterFreqBool",m_bForceCenterFreq);
   settings.setValue("ForceCenterFreqMHz",m_dForceCenterFreq);
   settings.endGroup();
 }
@@ -262,27 +260,9 @@ void WideGraph::setMode65(int n)
   ui->widePlot->setMode65(n);
 }
 
-/*
-void WideGraph::on_cbFcenter_stateChanged(int n)
-{
-  m_bForceCenterFreq = (n!=0);
-  if(m_bForceCenterFreq) {
-    ui->fCenterLineEdit->setEnabled(true);
-    ui->pbSetRxHardware->setEnabled(true);
-  } else {
-    ui->fCenterLineEdit->setDisabled(true);
-    ui->pbSetRxHardware->setDisabled(true);
-  }
-}
-*/
-
 void WideGraph::on_fCenterLineEdit_editingFinished()
 {
   m_dForceCenterFreq=ui->fCenterLineEdit->text().toDouble();
-}
-
-void WideGraph::on_pbSetRxHardware_clicked()
-{
 }
 
 void WideGraph::initIQplus()

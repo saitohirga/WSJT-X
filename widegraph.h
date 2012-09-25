@@ -14,10 +14,7 @@ public:
   explicit WideGraph(QWidget *parent = 0);
   ~WideGraph();
 
-  bool   m_bForceCenterFreq;
-  qint32 m_mult570;
   double m_dForceCenterFreq;
-  double m_cal570;
 
   void   dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
                    uchar lstrong[]);
@@ -59,7 +56,6 @@ private slots:
   void on_autoZeroPushButton_clicked();
 //  void on_cbFcenter_stateChanged(int arg1);
   void on_fCenterLineEdit_editingFinished();
-  void on_pbSetRxHardware_clicked();
   void on_cbSpec2d_toggled(bool checked);
 
 private:
