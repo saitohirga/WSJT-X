@@ -113,6 +113,10 @@ private slots:
 
   void on_actionJT8_10_triggered();
 
+  void on_NBcheckBox_toggled(bool checked);
+
+  void on_NBslider_valueChanged(int value);
+
 private:
     Ui::MainWindow *ui;
     qint32  m_nDevIn;
@@ -243,12 +247,12 @@ extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
 
 extern "C" {
 //----------------------------------------------------- C and Fortran routines
-  void specjtms_(int* k, float* px, float* pxsmo, float* spk0, float* f0);
-  void genjtms3_(char* message, short iwave[], int* nwave, int len1);
-  void genmsk_(char* message, short iwave[], int* nwave, int len1);
-  void gen65_(char* msg, int* mode65, double* samfac, int* nsendingsh,
-              char* msgsent, short iwave[], int* nwave, int len1, int len2);
-  int ptt_(int* nport, int* itx, int* iptt);
+void symspecx_(int* k, int* ndiskdat, int* nb, int* m_NBslider,
+               int* ntrperiod, float* px, float s[], int* nkhz,
+               int* nhsym, int* nzap, float* slimit, uchar lstrong[]);
+void genjt8_(char* msg, char* msgsent, short itone[], int* nsym,
+             int len1, int len2);
+int ptt_(int* nport, int* itx, int* iptt);
   }
 
 #endif // MAINWINDOW_H
