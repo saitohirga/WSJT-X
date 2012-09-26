@@ -68,7 +68,6 @@ private slots:
   void on_actionDelete_all_wav_files_in_SaveDir_triggered();
   void on_actionFind_Delta_Phi_triggered();
   void on_actionF4_sets_Tx6_triggered();
-  void on_actionOnly_EME_calls_triggered();
   void on_actionNo_shorthands_if_Tx1_triggered();
   void on_actionNo_Deep_Search_triggered();
   void on_actionNormal_Deep_Search_triggered();
@@ -129,31 +128,19 @@ private:
     qint32  m_ntx;
     qint32  m_pttPort;
     qint32  m_timeout;
-    qint32  m_dPhi;
-    qint32  m_fCal;
     qint32  m_txFreq;
     qint32  m_setftx;
     qint32  m_ndepth;
     qint32  m_sec0;
     qint32  m_RxLog;
     qint32  m_nutc0;
-    qint32  m_mode65;
     qint32  m_nrx;
     qint32  m_hsym0;
     qint32  m_paInDevice;
     qint32  m_paOutDevice;
-    qint32  m_udpPort;
     qint32  m_NBslider;
-    qint32  m_adjustIQ;
-    qint32  m_applyIQcal;
-    qint32  m_mult570;
     qint32  m_TRperiod;
     qint32  m_nsps;
-
-    double  m_fAdd;
-    double  m_IQamp;
-    double  m_IQphase;
-    double  m_cal570;
 
     bool    m_monitoring;
     bool    m_transmitting;
@@ -165,24 +152,12 @@ private:
     bool    m_txMute;
     bool    m_restart;
     bool    m_killAll;
-    bool    m_xpol;
-    bool    m_xpolx;
-    bool    m_call3Modified;
     bool    m_startAnother;
     bool    m_saveAll;
-    bool    m_onlyEME;
     bool    m_widebandDecode;
     bool    m_kb8rq;
     bool    m_NB;
-    bool    m_fs96000;
-    bool    m_IQswap;
-    bool    m_10db;
-    bool    m_initIQplus;
 
-    float   m_gainx;
-    float   m_gainy;
-    float   m_phasex;
-    float   m_phasey;
     float   m_pctZap;
 
     QRect   m_wideGraphGeom;
@@ -202,7 +177,6 @@ private:
     QFutureWatcher<void>* watcher2;
 
     QProcess proc_m65;
-    QProcess proc_qthid;
 
     QString m_path;
     QString m_pbdecoding_style1;
@@ -214,14 +188,10 @@ private:
     QString m_hisGrid;
     QString m_appDir;
     QString m_saveDir;
-    QString m_azelDir;
     QString m_dxccPfx;
     QString m_palette;
     QString m_dateTime;
     QString m_mode;
-    QString m_colors;
-
-    QHash<QString,bool> m_worked;
 
     SoundInThread soundInThread;             //Instantiate the audio threads
     SoundOutThread soundOutThread;
@@ -239,8 +209,8 @@ private:
     void stub();
 };
 
-extern void getfile(QString fname, bool xpol, int idInt);
-extern void savewav(QString fname);
+extern void getfile(QString fname, int ntrperiod);
+extern void savewav(QString fname, int ntrperiod);
 extern int killbyname(const char* progName);
 extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
                    int minChan[], int maxChan[],

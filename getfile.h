@@ -5,8 +5,8 @@
 #include <QDebug>
 #include "commons.h"
 
-void getfile(QString fname, bool xpol, int dbDgrd);
-void savetf2(QString fname);
+void getfile(QString fname, int ntrperiod);
+void savetf2(QString fname, int ntrperiod);
 float gran();
 
 #endif // GETFILE_H

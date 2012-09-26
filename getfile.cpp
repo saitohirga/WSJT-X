@@ -4,14 +4,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-void getfile(QString fname, bool xpol, int dbDgrd)
+void getfile(QString fname, int ntrperiod)
 {
 
   char name[80];
   strcpy(name,fname.toAscii());
   FILE* fp=fopen(name,"rb");
 
-  int npts=30*48000;
+  int npts=ntrperiod*12000;
   memset(jt8com_.d2,0,2*npts);
 
   if(fp != NULL) {
@@ -19,10 +19,11 @@ void getfile(QString fname, bool xpol, int dbDgrd)
     fread(jt8com_.d2,1,44,fp);
     int nrd=fread(jt8com_.d2,2,npts,fp);
     fclose(fp);
+    for(int i=0; i<npts; i++) jt8com_.d2[i]/=100;
   }
 }
 
-void savewav(QString fname)
+void savewav(QString fname, int ntrperiod)
 {
   struct {
     char ariff[4];
@@ -40,7 +41,7 @@ void savewav(QString fname)
     int ndata;
   } hdr;
 
-  int npts=30*48000;
+  int npts=ntrperiod*12000;
 //  qint16* buf=(qint16*)malloc(2*npts);
   char name[80];
   strcpy(name,fname.toAscii());
@@ -64,8 +65,8 @@ void savewav(QString fname)
     hdr.lenfmt=16;
     hdr.nfmt2=1;
     hdr.nchan2=1;
-    hdr.nsamrate=48000;
-    hdr.nbytesec=2*48000;
+    hdr.nsamrate=12000;
+    hdr.nbytesec=2*12000;
     hdr.nbytesam2=2;
     hdr.nbitsam2=16;
     hdr.adata[0]='d';

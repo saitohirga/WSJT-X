@@ -29,7 +29,7 @@
    <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -1282,14 +1282,6 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>F4 sets Tx6</string>
-   </property>
-  </action>
-  <action name="actionOnly_EME_calls">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Only EME calls</string>
    </property>
   </action>
   <action name="actionNo_shorthands_if_Tx1">
