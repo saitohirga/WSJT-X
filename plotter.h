@@ -35,6 +35,7 @@ public:
   qint32  m_DF;
   qint32  m_tol;
   qint32  m_fCal;
+  qint32  m_nsps;
 
   void draw(float sw[], int i0, float splot[]);		//Update the waterfalls
   void SetRunningState(bool running);
