@@ -104,8 +104,8 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
     n=0;
 
     int w=ui->widePlot->plotWidth();
-    qint64 sf = nkhz + ui->widePlot->freqOffset() - 0.5*w*nbpp*df/1000.0;
-    if(sf != ui->widePlot->startFreq()) ui->widePlot->SetStartFreq(sf);
+//    qint64 sf = nkhz + ui->widePlot->freqOffset() - 0.5*w*nbpp*df/1000.0;
+//    if(sf != ui->widePlot->startFreq()) ui->widePlot->SetStartFreq(sf);
     int i0=16384.0+(ui->widePlot->startFreq()-nkhz+1.27046+0.001*m_fCal) *
         1000.0/df + 0.5;
     i0=0;                            //###
@@ -286,4 +286,5 @@ void WideGraph::setPeriod(int ntrperiod, int nsps)
 {
   m_TRperiod=ntrperiod;
   m_nsps=nsps;
+  ui->widePlot->m_nsps=nsps;
 }

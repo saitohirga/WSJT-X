@@ -15,8 +15,9 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   setAttribute(Qt::WA_OpaquePaintEvent, false);
   setAttribute(Qt::WA_NoSystemBackground, true);
 
-  m_StartFreq = 100;
-  m_nSpan=65;                    //Units: kHz
+  m_CenterFreq = 1500;
+  m_StartFreq = 1000;
+  m_nSpan=1000;                    //Units: Hz
   m_fSpan=(float)m_nSpan;
   m_hdivs = HORZ_DIVS;
   m_FreqUnits = 1;
@@ -30,7 +31,8 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   m_Size = QSize(0,0);
   m_fQSO = 125;
   m_line = 0;
-  m_fSample = 96000;
+  m_fSample = 12000;
+  m_nsps=7168;
   m_paintAllZoom = false;
 }
 
@@ -256,9 +258,13 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   painter0.setFont(Font);
   painter0.setPen(Qt::black);
 
-  m_binsPerPixel = m_nSpan * 32768.0/(w*0.001*m_fSample) + 0.5;
-  double FreqPerDiv=5.0;
-  double df = m_binsPerPixel*0.001*m_fSample/32768.0;
+  double fftBinWidth=12000.0/m_nsps;
+//  m_binsPerPixel = m_nSpan * 32768.0/(w*0.001*m_fSample) + 0.5;
+  m_binsPerPixel = (m_nSpan/fftBinWidth)/w + 0.5;
+  if(m_binsPerPixel < 1) m_binsPerPixel=1;
+  double FreqPerDiv=50.0;
+  double df = m_binsPerPixel*fftBinWidth;
+
   m_hdivs = w*df/FreqPerDiv + 0.9999;
   m_fSpan = w*df;
   m_ScalePixmap.fill(Qt::white);
@@ -371,58 +377,14 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
 
 void CPlotter::MakeFrequencyStrs()                       //MakeFrequencyStrs
 {
-  float StartFreq = m_StartFreq;
   float freq;
   int i,j;
-  int FreqPerDiv=5;
+  int FreqPerDiv=50;
 
-  if(m_hdivs > 100) {
-    m_FreqUnits = 1;
-    FreqPerDiv = 200;
-    int w = m_WaterfallPixmap.width();
-    float df=m_fSample/32768.0;
-    StartFreq = -w*df/2;
-    int n=StartFreq/FreqPerDiv;
-    StartFreq=n*200;
-    m_ZoomStartFreq = (int)StartFreq;
-  }
-  int numfractdigits = (int)log10((double)m_FreqUnits);
-
-  if(1 == m_FreqUnits) {
-    //if units is Hz then just output integer freq
-    for(int i=0; i<=m_hdivs; i++) {
-      freq = StartFreq/(float)m_FreqUnits;
-      m_HDivText[i].setNum((int)freq);
-      StartFreq += FreqPerDiv;
-    }
-    return;
-  }
-  //here if is fractional frequency values
-  //so create max sized text based on frequency units
   for(int i=0; i<=m_hdivs; i++) {
-    freq = StartFreq/(float)m_FreqUnits;
-    m_HDivText[i].setNum(freq,'f', numfractdigits);
-    StartFreq += FreqPerDiv;
-  }
-  //now find the division text with the longest non-zero digit
-  //to the right of the decimal point.
-  int max = 0;
-  for(i=0; i<=m_hdivs; i++) {
-    int dp = m_HDivText[i].indexOf('.');
-    int l = m_HDivText[i].length()-1;
-    for(j=l; j>dp; j--) {
-      if(m_HDivText[i][j] != '0')
-        break;
-    }
-    if( (j-dp) > max)
-      max = j-dp;
-  }
-  //truncate all strings to maximum fractional length
-  StartFreq = m_CenterFreq - 0.5*m_fSpan;
-  for( i=0; i<=m_hdivs; i++) {
-    freq = (float)StartFreq/(float)m_FreqUnits;
-    m_HDivText[i].setNum(freq,'f', max);
-    StartFreq += FreqPerDiv;
+    freq = m_StartFreq + i*FreqPerDiv;
+    m_HDivText[i].setNum((int)freq);
+    //      StartFreq += FreqPerDiv;
   }
 }
 
@@ -469,11 +431,13 @@ int CPlotter::getPlotGain()                               //getPlotGain()
 
 void CPlotter::SetCenterFreq(int f)                   //setCenterFreq()
 {
+  /*
 // f is the integer kHz portion of cfreq, from Linrad packets
   if(f<0) f=m_nkhz;
   int ns = (f+m_FreqOffset-0.5*m_fSpan)/5.0 + 0.5;
   double fs = 5*ns;
   m_CenterFreq = fs + 0.5*m_fSpan;
+  */
 }
 
 qint64 CPlotter::centerFreq()                             //centerFreq()
