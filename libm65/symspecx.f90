@@ -69,17 +69,17 @@ subroutine symspecx(k,nsps,ndiskdat,nb,nbslider,pxdb,s,nkhz,ihsym,   &
   nzh=min(nint(500.0/df),2200)
   nz=2*nzh
   i0=nint(1500.0/df) - nzh
-!  rewind 71
+  rewind 71
   do i=1,nz
      sx=real(cx(i0+i))**2 + aimag(cx(i0+i))**2
-     sx=1.e-5*sx
+     sx=1.e-8*sx
      s(i)=sx
      savg(i)=savg(i) + sx
      if(ihsym.le.184) ss(ihsym,i)=sx
-!     write(71,3001) (i-1)*df,savg(i)
-!3001 format(f12.6,e12.3)
+     write(71,3001) (i0+i-1)*df,savg(i),db(savg(i))
+3001 format(f12.6,2f12.3)
   enddo
-!  flush(71)
+  flush(71)
 
   nkhz=100
 

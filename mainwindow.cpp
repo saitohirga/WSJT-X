@@ -102,7 +102,6 @@ MainWindow::MainWindow(QWidget *parent) :
   m_loopall=false;
   m_startAnother=false;
   m_saveAll=false;
-  m_onlyEME=false;
   m_sec0=-1;
   m_palette="CuteSDR";
   m_RxLog=1;                     //Write Date and Time to RxLog
@@ -110,7 +109,6 @@ MainWindow::MainWindow(QWidget *parent) :
   m_NB=false;
   m_mode="JT8-1";
   m_TRperiod=60;
-  m_colors="000066ff0000ffff00969696646464";
 
   ui->xThermo->setFillBrush(Qt::green);
 
@@ -168,7 +166,6 @@ MainWindow::MainWindow(QWidget *parent) :
     if(line.length()<=0) break;
     t=line.mid(18,12);
     callsign=t.mid(0,t.indexOf(","));
-    m_worked[callsign]=true;
   }
   f.close();
 
@@ -221,28 +218,12 @@ void MainWindow::writeSettings()
   settings.setValue("MyGrid",m_myGrid);
   settings.setValue("IDint",m_idInt);
   settings.setValue("PTTport",m_pttPort);
-  settings.setValue("Xpol",m_xpol);
-  settings.setValue("XpolX",m_xpolx);
   settings.setValue("SaveDir",m_saveDir);
-  settings.setValue("AzElDir",m_azelDir);
   settings.setValue("DXCCpfx",m_dxccPfx);
-  settings.setValue("Timeout",m_timeout);
-  settings.setValue("IQamp",m_IQamp);
-  settings.setValue("IQphase",m_IQphase);
-  settings.setValue("ApplyIQcal",m_applyIQcal);
-  settings.setValue("dPhi",m_dPhi);
-  settings.setValue("Fcal",m_fCal);
-  settings.setValue("Fadd",m_fAdd);
-  settings.setValue("NetworkInput", m_network);
-  settings.setValue("FSam96000", m_fs96000);
   settings.setValue("SoundInIndex",m_nDevIn);
   settings.setValue("paInDevice",m_paInDevice);
   settings.setValue("SoundOutIndex",m_nDevOut);
   settings.setValue("paOutDevice",m_paOutDevice);
-  settings.setValue("IQswap",m_IQswap);
-  settings.setValue("Plus10dB",m_10db);
-  settings.setValue("InitIQplus",m_initIQplus);
-  settings.setValue("UDPport",m_udpPort);
   settings.setValue("PaletteCuteSDR",ui->actionCuteSDR->isChecked());
   settings.setValue("PaletteLinrad",ui->actionLinrad->isChecked());
   settings.setValue("PaletteAFMHot",ui->actionAFMHot->isChecked());
@@ -251,17 +232,9 @@ void MainWindow::writeSettings()
   settings.setValue("SaveNone",ui->actionNone->isChecked());
   settings.setValue("SaveAll",ui->actionSave_all->isChecked());
   settings.setValue("NDepth",m_ndepth);
-  settings.setValue("NEME",m_onlyEME);
   settings.setValue("KB8RQ",m_kb8rq);
   settings.setValue("NB",m_NB);
   settings.setValue("NBslider",m_NBslider);
-  settings.setValue("GainX",(double)m_gainx);
-  settings.setValue("GainY",(double)m_gainy);
-  settings.setValue("PhaseX",(double)m_phasex);
-  settings.setValue("PhaseY",(double)m_phasey);
-  settings.setValue("Mult570",m_mult570);
-  settings.setValue("Cal570",m_cal570);
-  settings.setValue("Colors",m_colors);
   settings.endGroup();
 }
 
@@ -309,7 +282,6 @@ void MainWindow::readSettings()
   ui->NBslider->setValue(m_NBslider);
   m_saveAll=ui->actionSave_all->isChecked();
   m_ndepth=settings.value("NDepth",0).toInt();
-  m_onlyEME=settings.value("NEME",false).toBool();
   ui->actionF4_sets_Tx6->setChecked(m_kb8rq);
   settings.endGroup();
 
@@ -362,17 +334,6 @@ void MainWindow::dataSink(int k)
     g_pWideGraph->dataSink2(s,nkhz,ihsym,m_diskData,lstrong);
   }
 
-  if(nadj == 10) {
-    if(m_xpol) {
-      t.sprintf("Amp: %6.4f %6.4f   Phase: %6.4f %6.4f",
-                m_gainx,m_gainy,m_phasex,m_phasey);
-    } else {
-      t.sprintf("Amp: %6.4f   Phase: %6.4f",m_gainx,m_phasex);
-    }
-    ui->decodedTextBrowser->append(t);
-    m_adjustIQ=0;
-  }
-
   //Average over specified number of spectra
   if (n==0) {
     for (int i=0; i<NFFT; i++)
@@ -408,7 +369,7 @@ void MainWindow::dataSink(int k)
     if(m_saveAll and !m_diskData) {
       QString fname=m_saveDir + "/" + t.date().toString("yyMMdd") + "_" +
           t.time().toString("hhmm") + ".wav";
-      *future2 = QtConcurrent::run(savewav, fname);
+      *future2 = QtConcurrent::run(savewav, fname, m_TRperiod);
       watcher2->setFuture(*future2);
     }
   }
@@ -429,7 +390,6 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_idInt=m_idInt;
   dlg.m_pttPort=m_pttPort;
   dlg.m_saveDir=m_saveDir;
-  dlg.m_azelDir=m_azelDir;
   dlg.m_dxccPfx=m_dxccPfx;
   dlg.m_nDevIn=m_nDevIn;
   dlg.m_nDevOut=m_nDevOut;
@@ -703,8 +663,7 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
   if(fname != "") {
     m_path=fname;
     int i;
-    i=fname.indexOf(".iq") - 11;
-    if(m_xpol) i=fname.indexOf(".tf2") - 11;
+    i=fname.indexOf(".wav") - 11;
     if(i>=0) {
       lab1->setStyleSheet("QLabel{background-color: #66ff66}");
       lab1->setText(" " + fname.mid(i,15) + " ");
@@ -712,7 +671,7 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
     on_stopButton_clicked();
     m_diskData=true;
     int dbDgrd=0;
-    *future1 = QtConcurrent::run(getfile, fname, m_xpol, dbDgrd);
+    *future1 = QtConcurrent::run(getfile, fname, m_TRperiod);
     watcher1->setFuture(*future1);
   }
 }
@@ -739,7 +698,7 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
       m_diskData=true;
       int dbDgrd=0;
       if(m_myCall=="K1JT" and m_idInt<0) dbDgrd=m_idInt;
-      *future1 = QtConcurrent::run(getfile, fname, m_xpol, dbDgrd);
+      *future1 = QtConcurrent::run(getfile, fname, m_TRperiod);
       watcher1->setFuture(*future1);
       return;
     }
@@ -754,13 +713,10 @@ void MainWindow::on_actionDecode_remaining_files_in_directory_triggered()
 
 void MainWindow::diskDat()                                   //diskDat()
 {
-  int kstep=2048;
-  int nsteps;
+  int kstep=m_nsps/2;
   m_diskData=true;
 
-  nsteps=29.8*48000/kstep;
-
-  for(int n=1; n<nsteps; n++) {              // Do the half-symbol FFTs
+  for(int n=1; n<=184; n++) {              // Do the half-symbol FFTs
     int k=(n+1)*kstep;
     dataSink(k);
     if(n%10 == 0) qApp->processEvents();   //Keep the GUI responsive
@@ -801,11 +757,6 @@ void MainWindow::on_actionFind_Delta_Phi_triggered()              //Find dPhi
 void MainWindow::on_actionF4_sets_Tx6_triggered()                //F4 sets Tx6
 {
   m_kb8rq = !m_kb8rq;
-}
-
-void MainWindow::on_actionOnly_EME_calls_triggered()          //EME calls only
-{
-  m_onlyEME = ui->actionOnly_EME_calls->isChecked();
 }
 
 void MainWindow::on_actionNo_shorthands_if_Tx1_triggered()
@@ -1119,9 +1070,6 @@ void MainWindow::selectCall2(bool ctrl)                          //selectCall2
                                                           //doubleClickOnCall
 void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
 {
-  if(m_worked[hiscall]) {
-    msgBox("Possible dupe: " + hiscall + " already in log.");
-  }
   ui->dxCallEntry->setText(hiscall);
   QString t = ui->decodedTextBrowser->toPlainText();   //Full contents
   int i2=ui->decodedTextBrowser->textCursor().position();
@@ -1216,78 +1164,6 @@ void MainWindow::on_lookupButton_clicked()                    //Lookup button
 
 void MainWindow::on_addButton_clicked()                       //Add button
 {
-  if(ui->dxGridEntry->text()=="") {
-    msgBox("Please enter a valid grid locator.");
-    return;
-  }
-  m_call3Modified=false;
-  QString hiscall=ui->dxCallEntry->text().toUpper().trimmed();
-  QString hisgrid=ui->dxGridEntry->text().trimmed();
-  QString newEntry=hiscall + "," + hisgrid;
-
-  int ret = QMessageBox::warning(this, "Add",
-       newEntry + "\n" + "Is this station known to be active on EME?",
-       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-  if(ret==QMessageBox::Yes) {
-    newEntry += ",EME,,";
-  } else {
-    newEntry += ",,,";
-  }
-  QString call3File = m_appDir + "/CALL3.TXT";
-  QFile f1(call3File);
-  if(!f1.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    msgBox("Cannot open " + call3File);
-    return;
-  }
-  QString tmpFile = m_appDir + "/CALL3.TMP";
-  QFile f2(tmpFile);
-  if(!f2.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    msgBox("Cannot open " + tmpFile);
-    return;
-  }
-  QTextStream in(&f1);
-  QTextStream out(&f2);
-  QString hc=hiscall;
-  QString hc1="";
-  QString hc2="";
-  QString s;
-  do {
-    s=in.readLine();
-    hc1=hc2;
-    if(s.mid(0,2)=="//") {
-      out << s + "\n";
-    } else {
-      int i1=s.indexOf(",");
-      hc2=s.mid(0,i1);
-      if(hc>hc1 && hc<hc2) {
-        out << newEntry + "\n";
-        m_call3Modified=true;
-      } else if(hc==hc2) {
-        QString t=s + "\n\n is already in CALL3.TXT\n" +
-            "Do you wish to replace it?";
-        int ret = QMessageBox::warning(this, "Add",t,
-             QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-        if(ret==QMessageBox::Yes) {
-          out << newEntry + "\n";
-          m_call3Modified=true;
-        }
-      } else {
-        out << s + "\n";
-      }
-    }
-  } while(!s.isNull());
-
-  f1.close();
-  if(hc>hc1 && !m_call3Modified)
-    out << newEntry + "\n";
-  if(m_call3Modified) {
-    QFile f0(m_appDir + "/CALL3.OLD");
-    if(f0.exists()) f0.remove();
-    QFile f1(m_appDir + "/CALL3.TXT");
-    f1.rename(m_appDir + "/CALL3.OLD");
-    f2.rename(m_appDir + "/CALL3.TXT");
-    f2.close();
-  }
 }
 
 void MainWindow::msgtype(QString t, QLineEdit* tx)                //msgtype()
@@ -1402,7 +1278,6 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   QTextStream out(&f);
   out << logEntry;
   f.close();
-  m_worked[m_hisCall]=true;
 }
 
 /*
