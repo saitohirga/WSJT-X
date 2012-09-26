@@ -19,7 +19,7 @@ void getfile(QString fname, int ntrperiod)
     fread(jt8com_.d2,1,44,fp);
     int nrd=fread(jt8com_.d2,2,npts,fp);
     fclose(fp);
-    for(int i=0; i<npts; i++) jt8com_.d2[i]/=100;
+//    for(int i=0; i<npts; i++) jt8com_.d2[i]/=100;
   }
 }
 
