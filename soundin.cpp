@@ -7,8 +7,8 @@ extern "C" {
 #include <portaudio.h>
 extern struct {
   short int d2[1800*12000];         //This is "common/jt8com/..." in fortran
-  float ss[184*32768];
-  float savg[32768];
+  float ss[184*4400];
+  float savg[4400];
   double fcenter;                   //USB dial freq (kHz)
   int nutc;                         //UTC as integer, HHMM
   int ntrperiod;                    //TR period (seconds)
@@ -114,7 +114,7 @@ void SoundInThread::run()                           //SoundInThread::run()
   }
 
   bool qe = quitExecution;
-  int ntr0=99;
+  static int ntr0=99;
   int k=0;
   int nsec;
   int ntr;
@@ -136,7 +136,8 @@ void SoundInThread::run()                           //SoundInThread::run()
     }
     k=udata.kin;
     if(m_monitoring) {
-      m_step=k/2048;
+      int kstep=m_nsps/2;
+      m_step=k/kstep;
       if(m_step != nstep0) {
         if(m_dataSinkBusy) {
           nBusy++;
@@ -147,7 +148,7 @@ void SoundInThread::run()                           //SoundInThread::run()
         nstep0=m_step;
       }
     }
-    msleep(10);
+    msleep(100);
     ntr0=ntr;
   }
   Pa_StopStream(inStream);
@@ -170,9 +171,10 @@ void SoundInThread::setMonitoring(bool b)                    //setMonitoring()
   m_monitoring = b;
 }
 
-void SoundInThread::setPeriod(int n)
+void SoundInThread::setPeriod(int ntrperiod, int nsps)
 {
-  m_TRperiod=n;
+  m_TRperiod=ntrperiod;
+  m_nsps=nsps;
 }
 
 int SoundInThread::mstep()

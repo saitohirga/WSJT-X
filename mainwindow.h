@@ -148,6 +148,7 @@ private:
     qint32  m_applyIQcal;
     qint32  m_mult570;
     qint32  m_TRperiod;
+    qint32  m_nsps;
 
     double  m_fAdd;
     double  m_IQamp;
@@ -247,9 +248,9 @@ extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
 
 extern "C" {
 //----------------------------------------------------- C and Fortran routines
-void symspecx_(int* k, int* ndiskdat, int* nb, int* m_NBslider,
-               int* ntrperiod, float* px, float s[], int* nkhz,
-               int* nhsym, int* nzap, float* slimit, uchar lstrong[]);
+void symspecx_(int* k, int* nsps, int* ndiskdat, int* nb, int* m_NBslider,
+               float* px, float s[], int* nkhz, int* nhsym, int* nzap,
+               float* slimit, uchar lstrong[]);
 void genjt8_(char* msg, char* msgsent, short itone[], int* nsym,
              int len1, int len2);
 int ptt_(int* nport, int* itx, int* iptt);

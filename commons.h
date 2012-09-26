@@ -7,8 +7,8 @@ extern "C" {
 
 extern struct {
   short int d2[1800*12000];         //This is "common/jt8com/..." in fortran
-  float ss[184*32768];
-  float savg[32768];
+  float ss[184*4400];
+  float savg[4400];
   double fcenter;                   //USB dial freq (kHz)
   int nutc;                         //UTC as integer, HHMM
   int ntrperiod;                    //TR period (seconds)

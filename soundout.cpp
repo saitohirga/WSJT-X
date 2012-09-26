@@ -104,7 +104,8 @@ void SoundOutThread::setOutputDevice(int n)      //setOutputDevice()
   this->m_nDevOut=n;
 }
 
-void SoundOutThread::setPeriod(int n)
+void SoundOutThread::setPeriod(int ntrperiod, int nsps)
 {
-  m_TRperiod=n;
+  m_TRperiod=ntrperiod;
+  m_nsps=nsps;
 }
