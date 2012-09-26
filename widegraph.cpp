@@ -1,7 +1,7 @@
 #include "widegraph.h"
 #include "ui_widegraph.h"
 
-#define NFFT 32768
+#define NSMAX 4400
 
 WideGraph::WideGraph(QWidget *parent) :
   QDialog(parent),
@@ -71,7 +71,7 @@ void WideGraph::saveSettings()
 void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
                           uchar lstrong[])
 {
-  static float splot[NFFT];
+  static float splot[NSMAX];
   float swide[2048];
   float smax;
   double df;
@@ -80,7 +80,7 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
   static int nkhz0=-999;
   static int ntrz=0;
 
-  df = m_fSample/32768.0;
+  df = 12000.0/m_nsps;
   if(nkhz != nkhz0) {
     ui->widePlot->setNkhz(nkhz);                   //Why do we need both?
     ui->widePlot->SetCenterFreq(nkhz);             //Why do we need both?
@@ -90,16 +90,16 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
 
   //Average spectra over specified number, m_waterfallAvg
   if (n==0) {
-    for (int i=0; i<NFFT; i++)
+    for (int i=0; i<NSMAX; i++)
       splot[i]=s[i];
   } else {
-    for (int i=0; i<NFFT; i++)
+    for (int i=0; i<NSMAX; i++)
       splot[i] += s[i];
   }
   n++;
 
   if (n>=m_waterfallAvg) {
-    for (int i=0; i<NFFT; i++)
+    for (int i=0; i<NSMAX; i++)
         splot[i] /= n;                       //Normalize the average
     n=0;
 
@@ -108,6 +108,8 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
     if(sf != ui->widePlot->startFreq()) ui->widePlot->SetStartFreq(sf);
     int i0=16384.0+(ui->widePlot->startFreq()-nkhz+1.27046+0.001*m_fCal) *
         1000.0/df + 0.5;
+    i0=0;                            //###
+    nbpp=1;                          //###
     int i=i0;
     for (int j=0; j<2048; j++) {
         smax=0;
@@ -119,6 +121,7 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
         if(lstrong[1 + i/32]!=0) swide[j]=-smax;   //Tag strong signals
     }
 
+//    qDebug() << "B" << ihsym << smax << s[100];
 // Time according to this computer
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int ntr = (ms/1000) % m_TRperiod;
@@ -279,7 +282,8 @@ double WideGraph::fGreen()
   return ui->widePlot->fGreen();
 }
 
-void WideGraph::setPeriod(int n)
+void WideGraph::setPeriod(int ntrperiod, int nsps)
 {
-  m_TRperiod=n;
+  m_TRperiod=ntrperiod;
+  m_nsps=nsps;
 }

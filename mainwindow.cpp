@@ -148,7 +148,6 @@ MainWindow::MainWindow(QWidget *parent) :
 // Assign input device and start input thread
   soundInThread.setInputDevice(m_paInDevice);
   soundInThread.start(QThread::HighestPriority);
-
   // Assign output device and start output thread
   soundOutThread.setOutputDevice(m_paOutDevice);
 //  soundOutThread.start(QThread::HighPriority);
@@ -333,13 +332,10 @@ void MainWindow::dataSink(int k)
   static int nzap=0;
   static int ntr0=0;
   static int nkhz;
-  static int nfsample=96000;
-  static int nxpol=0;
-  static float fgreen;
   static int ndiskdat;
-  static int nb;
   static int nadj=0;
-  static float px=0.0,py=0.0;
+  static int nb;
+  static float px=0.0;
   static uchar lstrong[1024];
   static float slimit;
 
@@ -354,16 +350,16 @@ void MainWindow::dataSink(int k)
 // Get power, spectrum, nkhz, and ihsym
   nb=0;
   if(m_NB) nb=1;
-  symspecx_(&k, &ndiskdat, &nb, &m_NBslider, &m_TRperiod,
-           &px, s, &nkhz, &ihsym, &nzap, &slimit, lstrong);
-//  qDebug() << "A" << k << k/12000 << m_TRperiod << ihsym << px;
+  symspecx_(&k, & m_nsps, &ndiskdat, &nb, &m_NBslider, &px, s,
+            &nkhz, &ihsym, &nzap, &slimit, lstrong);
+  if(ihsym <=0) return;
   QString t;
   m_pctZap=nzap/178.3;
   t.sprintf(" Rx noise: %5.1f  %5.1f %% ",px,m_pctZap);
   lab4->setText(t);
   ui->xThermo->setValue((double)px);   //Update the thermometer
   if(m_monitoring || m_diskData) {
-//    g_pWideGraph->dataSink2(s,nkhz,ihsym,m_diskData,lstrong);
+    g_pWideGraph->dataSink2(s,nkhz,ihsym,m_diskData,lstrong);
   }
 
   if(nadj == 10) {
@@ -1021,24 +1017,7 @@ void MainWindow::guiUpdate()
       lab1->setText(s);
     } else if(m_monitoring) {
       lab1->setStyleSheet("QLabel{background-color: #00ff00}");
-      khsym=soundInThread.mstep();
-      QString t;
-      if(m_network) {
-        if(m_nrx==-1) t="F1";
-        if(m_nrx==1) t="I1";
-        if(m_nrx==-2) t="F2";
-        if(m_nrx==+2) t="I2";
-      } else {
-        if(m_nrx==1) t="S1";
-        if(m_nrx==2) t="S2";
-      }
-      if((abs(m_nrx)==1 and m_xpol) or (abs(m_nrx)==2 and !m_xpol))
-        lab1->setStyleSheet("QLabel{background-color: #ff1493}");
-      if(khsym==m_hsym0) {
-        t="Nil";
-        lab1->setStyleSheet("QLabel{background-color: #ffc0cb}");
-      }
-      lab1->setText("Receiving " + t);
+      lab1->setText("Receiving ");
     } else if (!m_diskData) {
       lab1->setStyleSheet("");
       lab1->setText("");
@@ -1048,7 +1027,7 @@ void MainWindow::guiUpdate()
     m_setftx=0;
     QString utc = " " + t.time().toString() + " ";
     ui->labUTC->setText(utc);
-    if((!m_monitoring and !m_diskData) or (khsym==m_hsym0)) {
+    if(!m_monitoring and !m_diskData) {
       ui->xThermo->setValue(0.0);                      // Set Rx level to 20
       lab2->setText(" Rx noise:    0.0 ");
     }
@@ -1126,7 +1105,7 @@ void MainWindow::on_txb6_clicked()                                //txb6
   m_restart=true;
 }
 
-void MainWindow::selectCall2(bool ctrl)                                //selectCall2
+void MainWindow::selectCall2(bool ctrl)                          //selectCall2
 {
   QString t = ui->decodedTextBrowser->toPlainText();   //Full contents
   int i=ui->decodedTextBrowser->textCursor().position();
@@ -1453,9 +1432,10 @@ void MainWindow::on_actionJT8_1_triggered()
 {
   m_mode="JT8-1";
   m_TRperiod=60;
-  soundInThread.setPeriod(m_TRperiod);
-  soundOutThread.setPeriod(m_TRperiod);
-  g_pWideGraph->setPeriod(m_TRperiod);
+  m_nsps=7168;
+  soundInThread.setPeriod(m_TRperiod,m_nsps);
+  soundOutThread.setPeriod(m_TRperiod,m_nsps);
+  g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
   lab5->setStyleSheet("QLabel{background-color: #ff6ec7}");
   lab5->setText(m_mode);
   ui->actionJT8_1->setChecked(true);
@@ -1465,9 +1445,10 @@ void MainWindow::on_actionJT8_2_triggered()
 {
   m_mode="JT8-2";
   m_TRperiod=120;
-  soundInThread.setPeriod(m_TRperiod);
-  soundOutThread.setPeriod(m_TRperiod);
-  g_pWideGraph->setPeriod(m_TRperiod);
+  m_nsps=16000;
+  soundInThread.setPeriod(m_TRperiod,m_nsps);
+  soundOutThread.setPeriod(m_TRperiod,m_nsps);
+  g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
   lab5->setStyleSheet("QLabel{background-color: #ffff00}");
   lab5->setText(m_mode);
   ui->actionJT8_2->setChecked(true);
@@ -1477,9 +1458,10 @@ void MainWindow::on_actionJT8_5_triggered()
 {
   m_mode="JT8-5";
   m_TRperiod=300;
-  soundInThread.setPeriod(m_TRperiod);
-  soundOutThread.setPeriod(m_TRperiod);
-  g_pWideGraph->setPeriod(m_TRperiod);
+  m_nsps=42336;
+  soundInThread.setPeriod(m_TRperiod,m_nsps);
+  soundOutThread.setPeriod(m_TRperiod,m_nsps);
+  g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
   lab5->setStyleSheet("QLabel{background-color: #ffa500}");
   lab5->setText(m_mode);
   ui->actionJT8_5->setChecked(true);
@@ -1489,9 +1471,10 @@ void MainWindow::on_actionJT8_10_triggered()
 {
   m_mode="JT8-10";
   m_TRperiod=600;
-  soundInThread.setPeriod(m_TRperiod);
-  soundOutThread.setPeriod(m_TRperiod);
-  g_pWideGraph->setPeriod(m_TRperiod);
+  m_nsps=86400;
+  soundInThread.setPeriod(m_TRperiod,m_nsps);
+  soundOutThread.setPeriod(m_TRperiod,m_nsps);
+  g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
   lab5->setStyleSheet("QLabel{background-color: #7fff00}");
   lab5->setText(m_mode);
   ui->actionJT8_10->setChecked(true);
@@ -1501,9 +1484,10 @@ void MainWindow::on_actionJT8_30_triggered()
 {
   m_mode="JT8-30";
   m_TRperiod=1800;
-  soundInThread.setPeriod(m_TRperiod);
-  soundOutThread.setPeriod(m_TRperiod);
-  g_pWideGraph->setPeriod(m_TRperiod);
+  m_nsps=262144;
+  soundInThread.setPeriod(m_TRperiod,m_nsps);
+  soundOutThread.setPeriod(m_TRperiod,m_nsps);
+  g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
   lab5->setStyleSheet("QLabel{background-color: #97ffff}");
   lab5->setText(m_mode);
   ui->actionJT8_30->setChecked(true);

@@ -26,7 +26,7 @@ public:
 
   void setInputDevice(qint32 n);
   void setMonitoring(bool b);
-  void setPeriod(int n);
+  void setPeriod(int ntrperiod, int nsps);
   int  mstep();
 
 signals:
@@ -44,6 +44,7 @@ private:
   qint32 m_nDevIn;
   qint32 m_TRperiod;
   qint32 m_TRperiod0;
+  qint32 m_nsps;
 
 };
 
