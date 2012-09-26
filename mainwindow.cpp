@@ -360,7 +360,7 @@ void MainWindow::dataSink(int k)
     ntr0=ntr;
     n=0;
   }
-  if(ihsym == 184) {
+  if(ihsym == 179) {
     jt8com_.newdat=1;
     jt8com_.nagain=0;
     QDateTime t = QDateTime::currentDateTimeUtc();

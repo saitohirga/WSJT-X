@@ -259,12 +259,11 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   painter0.setPen(Qt::black);
 
   double fftBinWidth=12000.0/m_nsps;
-//  m_binsPerPixel = m_nSpan * 32768.0/(w*0.001*m_fSample) + 0.5;
   m_binsPerPixel = (m_nSpan/fftBinWidth)/w + 0.5;
   if(m_binsPerPixel < 1) m_binsPerPixel=1;
   double FreqPerDiv=50.0;
   double df = m_binsPerPixel*fftBinWidth;
-
+//  qDebug() << "A" << fftBinWidth << m_binsPerPixel << df;
   m_hdivs = w*df/FreqPerDiv + 0.9999;
   m_fSpan = w*df;
   m_ScalePixmap.fill(Qt::white);
@@ -332,10 +331,10 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   painter3.setFont(Font);
   painter3.setPen(Qt::black);
 
-  FreqPerDiv=0.2;
-  df = 0.001*m_fSample/32768.0;
-  m_hdivs = 32768*df/FreqPerDiv + 0.9999;
-  int nlabs=df*w/0.2 + 1.0;
+  FreqPerDiv=100;
+  df = 12000.0/m_nsps;
+  m_hdivs = 4400*df/FreqPerDiv + 0.9999;
+  int nlabs=df*w/FreqPerDiv + 1.0;
   m_ZoomScalePixmap.fill(Qt::white);
   painter3.drawRect(0, 0, w, 30);
 
@@ -343,7 +342,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   for( int i=0; i<10*nlabs; i++) {
     x = i*pixperdiv/10;
     y=24;
-    if ((i%5) == 0) y=18;
+    if ((i%10) == 0) y=18;
     painter3.drawLine(x,y,x,30);
   }
 
