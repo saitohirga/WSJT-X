@@ -3,7 +3,7 @@ CC = gcc
 FC = g95
 
 FFLAGS = -O2 -fbounds-check -Wall -Wno-precision-loss -fno-second-underscore
-CFLAGS = -I. -fbounds-check
+CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
 
 # Default rules
 %.o: %.c
@@ -17,7 +17,7 @@ CFLAGS = -I. -fbounds-check
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    libm65.a msk.exe 
+all:    libm65.a jt9sim.exe
 
 OBJS1 = trimlist.o display.o getdphi.o pctile.o ccf65.o \
 	decode1a.o sort.o filbig.o fil6521.o afc65b.o \
@@ -30,19 +30,20 @@ OBJS1 = trimlist.o display.o getdphi.o pctile.o ccf65.o \
 	four2a.o rfile3a.o grid2deg.o pfxdump.o dpol.o \
 	astro.o tm2.o sun.o moondop.o coord.o tmoonsub.o \
 	geocentric.o moon2.o toxyz.o dot.o dcoord.o f77_wisdom.o \
-	gen65.o chkmsg.o ptt.o astrosub.o astro0.o recvpkt.o symspec.o \
+	gen65.o chkmsg.o ptt.o astrosub.o astro0.o recvpkt.o symspecx.o \
 	iqcal.o iqfix.o timf2.o s3avg.o genjtms3.o analytic.o \
 	db.o specjtms.o genmsk.o mskdf.o tweak1.o syncmsk.o \
 	lenmsk.o decodemsk.o ping.o makepings.o alignmsg.o match.o \
-	rtping.o jtmsk.o hipass.o setupmsk.o foldmsk.o 
+	rtping.o jtmsk.o hipass.o setupmsk.o foldmsk.o genjt9.o \
+	packbits.o unpackbits.o vit216.o tab.o
 
 libm65.a: $(OBJS1)
 	ar cr libm65.a $(OBJS1) 
 	ranlib libm65.a
 
-OBJS3 = msk.o 
-msk.exe: $(OBJS3) libm65.a
-	$(FC) -o msk.exe $(OBJS3) libm65.a ../libfftw3f_win.a 
+OBJS3 = jt9sim.o noisegen.o gran.o tab.o
+jt9sim.exe: $(OBJS3) libm65.a
+	$(FC) -o jt9sim.exe $(OBJS3) libm65.a
 
 OBJS2 = JT65code.o
 JT65code.exe: $(OBJS2) libm65.a
