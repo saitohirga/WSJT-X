@@ -1,19 +1,18 @@
 program jt9sim
 
-! Generate simulated data for testing of MAP65
+! Generate simulated data for testing of WSJT-X
 
   parameter (NMAX=1800*12000)
-  real*4 d4(NMAX)                     !Floating-point data
   integer ihdr(11)
-  integer*2 id2(NMAX)                 !i*2 data
-  integer*2 iwave(NMAX)               !Generated waveform (no noise)
-  real*8 f0,f,dt,twopi,phi,dphi,baud
+  integer*2 iwave                     !Generated waveform (no noise)
+  real*8 f0,f,dt,twopi,phi,dphi,baud,fspan
   character msg0*22,message*22,msgsent*22,arg*8,fname*11
   logical lwave
-  integer*1 d7(81)
+  integer*4 d8(85)
+  common/acom/dat(NMAX),iwave(NMAX)
 
   nargs=iargc()
-  if(nargs.ne.9) then
+  if(nargs.ne.6) then
      print*,'Usage: jt9sim "message" fspan nsigs minutes SNR nfiles'
      print*,'Example:  "CQ K1ABC FN42" 200  20      2    -28    1'
      print*,' '
@@ -41,21 +40,21 @@ program jt9sim
   fsample=12000.d0                   !Sample rate (Hz)
   dt=1.d0/fsample                    !Sample interval (s)
   twopi=8.d0*atan(1.d0)
-  rad=360.0/twopi
   npts=12000*(60*minutes-6)
   lwave=.false.
-  nsps1=0
-  if(minutes.eq.1)  nsps1=7168
-  if(minutes.eq.2)  nsps1=16000
-  if(minutes.eq.5)  nsps1=42336
-  if(minutes.eq.10) nsps1=86400
-  if(minutes.eq.30) nsps1=262144
-  if(nsps1.eq.0) stop 'Bad value for minutes.'
+  nsps=0
+  if(minutes.eq.1)  nsps=6912
+  if(minutes.eq.2)  nsps=15360
+  if(minutes.eq.5)  nsps=40960
+  if(minutes.eq.10) nsps=82944
+  if(minutes.eq.30) nsps=250880
+  if(nsps.eq.0) stop 'Bad value for minutes.'
+  ihdr=0                             !Temporary ###
   
   open(12,file='msgs.txt',status='old')
 
   write(*,1000)
-1000 format('File  N   freq     S/N  Message'/    &
+1000 format('File  N    freq      S/N  Message'/    &
             '---------------------------------------------------')
 
   do ifile=1,nfiles
@@ -66,10 +65,14 @@ program jt9sim
 1002 format('000000_',2i2.2)
      open(10,file=fname//'.wav',access='stream',status='unknown')
 
-     call noisegen(d4,npts)                      !Generate Gaussian noise
+     if(snrdb.lt.90) then
+        call noisegen(dat,npts)                 !Generate Gaussian noise
+     else
+        dat(1:npts)=0.
+     endif
 
      if(msg0.ne.'                      ') then
-        call genjt9(message,minutes,lwave,msgsent,d7,iwave,nwave)
+        call genjt9(message,minutes,lwave,msgsent,d8,iwave,nwave)
      endif
 
      rewind 12
@@ -78,40 +81,48 @@ program jt9sim
         if(msg0.eq.'                      ') then
            read(12,1004) message
 1004       format(a22)
-           call genjt9(message,minutes,lwave,msgsent,d7,iwave,nwave)
+           call genjt9(message,minutes,lwave,msgsent,d8,iwave,nwave)
         endif
-           
-        f=1500.d0
-        if(nsigs.gt.1) f=1500.0 - 0.5* fspan + fspan*(isig-1.0)/(nsigs-1.0)
+
+        f=f0
+        if(nsigs.gt.1) f=f0 - 0.5d0*fspan + fspan*(isig-1.d0)/(nsigs-1.d0)
         snrdbx=snrdb
-        if(snrdb.ge.-1.0) snrdbx=-15.0 - 15.0*(isig-1.0)/nsigs
-        sig=sqrt(2.2*2500.0/96000.0) * 10.0**(0.05*snrdbx)
-        write(*,1020) ifile,isig,0.001*f,snrdbx,msgsent
-1020    format(i3,i4,f8.3,f7.1,2x,a22)
+!        if(snrdb.ge.-1.0) snrdbx=-15.0 - 15.0*(isig-1.0)/nsigs
+        sig=sqrt(2500.0/12000.0) * 10.0**(0.05*snrdbx)
+        write(*,1020) ifile,isig,f,snrdbx,msgsent
+1020    format(i3,i4,f10.3,f7.1,2x,a22)
 
         phi=0.
-        baud=12000.0/nsps1
+        baud=12000.0/nsps
         k=12000                             !Start at t = 1 s
-        do isym=1,81
-           freq=f + d7(isym)*baud
-           dphi=twopi*freq*dt + 0.5*twopi
-           do i=1,nsps1
+        do isym=1,85
+           freq=f + d8(isym)*baud
+           dphi=twopi*freq*dt
+           do i=1,nsps
               phi=phi + dphi
               if(phi.lt.-twopi) phi=phi+twopi
               if(phi.gt.twopi) phi=phi-twopi
               xphi=phi
               k=k+1
-              d4(k)=d4(k) + sin(phi)
+              dat(k)=dat(k) + sig*sin(xphi)
            enddo
         enddo
      enddo
 
      do i=1,npts
-        id2(i)=nint(rms*d4(i))
+        iwave(i)=nint(rms*dat(i))
+!        iwave(i)=nint(100.0*dat(i))
      enddo
 
-     write(10) ihdr,id2(1:npts)
+     write(10) ihdr,iwave(1:npts)
      close(10)
+
+     
+     do i=1,30000
+        write(71,3001) i,iwave(12000+i)
+3001    format(2i8)
+     enddo
+
   enddo
 
 999 end program jt9sim
