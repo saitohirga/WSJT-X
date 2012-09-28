@@ -1,65 +1,63 @@
 JT9 is a mode designed for amateur QSOs and beacon-like transmissions
-at MF and LF.  The mode uses the same 72-bit user messages as JT65,
-augmented by a 12-bit cyclic redundancy check (CRC).  Error-control
-coding uses a convolutional code with constraint length K=16, rate
-r=1/2, and a zero tail, leading to an encoded message length of
-(72+12+15)*2 = 198 bits.  Modulation is 9-FSK -- 8 tones for data, and
-one for a synchronization vector.  With 15 symbol intervals used for
-synchronization, a transmission requires a total of 198/3 + 15 = 81
-channel symbols.  Tone spacing df of the 9-FSK modulation is equal to
-the keying rate; symbol duration tsym = 1/df, and the total occupied
-bandwidth is 9*df.  Transmission length is slightly less than the T/R
-sequence time, to allow for message decoding at time Tdec, a time 
-Tfree seconds before the next transmission starts.
+at MF and LF.  The mode uses the same 72-bit user messages as JT65.
+Convolutional error-control coding (ECC) uses constraint length K=32,
+rate r=1/2, and a zero tail, which leads to an encoded message length
+of (72+31)*2 = 206 bits.  Modulation is 9-FSK: 8 tones for data, one
+for synchronization.  Sixteen symbol intervals are used for
+synchronization, so a transmission requires a total of 207/3 + 16 = 85
+channel symbols.  Symbol durations tsym are set to approximately
+(TRperiod-10)/85, where TRperiod is the T/R sequence length in
+seconds.  The exact symbol lengths are chosen so as to make nsps, the
+number of samples at 12000 samples per second, a number rich in
+factors less than 7.  This choice makes for efficient FFTs.  Tone
+spacing of the 9-FSK modulation is df=1/tsym, the same as the keying
+rate.  The total occupied bandwidth is 9*df.
 
 Parameters of the five JT9 sub-modes are summarized in the following
 table, along with S/N thresholds measured by simulation on an AWGN
-(additive white Gaussian noise) channel.  Parameter nsps1 is the number
-of samples per symbol at sample rate 12000 Hz; nsps is the same 
-quantity at 750 Hz.
+(additive white Gaussian noise) channel.  
 
-------------------------------------------------------------------------
-Mode    nsps1  nsps   df    tsym  BW    S/N*   Tdec  Tfree   Factors 
+-------------------------------------------------------------------------
+Mode     nsps nsps2   df    tsym  BW    S/N*   Tdec  Tfree   Factors 
         12000   750  (Hz)   (s)  (Hz)   (dB)   (s)    (s)    of nsps
-------------------------------------------------------------------------
-JT9-1    7168   448  1.674  0.60 15.1  -26.9   51.9   8.1   2^10 7
-JT9-2   16000  1000  0.750  1.33  6.8  -30.2  111.5   8.5   2^7 5^3
-JT9-5   42336  2646  0.283  3.53  2.5  -34.4  289.4  10.6   2^5 3^3 7^2
-JT9-10  86400  5400  0.139  7.20  1.3  -37.5  586.7  13.3   2^7 3^3 5^2
-JT9-30 262144 16384  0.046 21.85  0.4  -42.3 1773.4  26.6   2^18
-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+JT9-1    6912   432  1.736  0.58 15.6  -26.9   52.5   7.5   2^8 3^3
+JT9-2   15360   960  0.781  1.28  7.0  -30.2  112.3   7.7   2^10 3 5
+JT9-5   40960  2560  0.293  3.41  2.6  -34.4  293.6   6.4   2^13 5
+JT9-10  82944  5184  0.145  6.91  1.3  -37.5  591.0   9.0   2^10 3^4
+JT9-30 250880 15750  0.048 20.91  0.4  -42.3 1788.5  11.5   2^5 3^2 5^3 7
+-------------------------------------------------------------------------
 * Noise power measured in a 2500 Hz bandwidth.
 
 
 Transmitting
 ------------
 1. Source encode the structured message to 72 bits
-2. Add 12-bit CRC
-3. Convolutionally encode (K=16, r=1/2) to (72+12+15)*2 = 198 bits
-4. Interleave to scramble the bit order
-5. Assemble 3-bit groups to make 198/3 = 66 symbols
-6. Apply Gray code to the symbol values
-7. Insert 15 sync symbols ==> 66+15=81 channel symbols with values 0-8
+2. Convolutionally encode (K=32, r=1/2) to (72+31)*2 = 206 bits
+3. Interleave to scramble the bit order
+4. Assemble 3-bit groups to make (206+1)/3 = 69 symbols
+5. Gray-code the symbol values
+6. Insert 16 sync symbols ==> 69+15=81 channel symbols, values 0-8
 
 
 Receiving
 ---------
 1.  Apply noise blanking with the timf2 method
 2.  Filter to 500 Hz bandwidth, downsample (1/16) to 750 Hz complex
-    using FIR filter with 61 taps.  Data in array c0(1800*750) (1.35M)
+    (FIR filter with 61 taps).  Complex data to array c0 (max 1.35M)
 3.  Compute symbol-length spectra at half-symbol steps.  Use for
-    waterfalls s(16384) and save in ss(180,16384), savg(16384)
-4.  At time Tdec, look for sync vectors in ss() to get  estimates of DF, DT
-5.  Do full-length FFTs of length NFFT1=96*nsps
-6.  For each candidate JT9 signal, do inverse FFT of length 1536.  This 
-    gives 16 complex samples per symbol, sync tone should be close to f=0.
+    waterfalls s(15750) and detecting sync vectors; save in ss(184,15750)
+    and savg(15750)
+4.  At time Tdec, look for sync vectors in ss(); get estimates of DF, DT
+5.  Do full-length FFTs, NFFT1=96*nsps2
+6.  For each candidate signal, do inverse FFT of length 1536.  This 
+    will provide 16 complex samples per symbol, and sync tone should be 
+    close to f=0.
 7.  Use afc65b method to get improved values of DF, DT.
 8.  Tweak freq and time offset to 0.
-9.  Compute 8-bin spectra of 66 data symbols: s2(8,66).  Re-order the
+9.  Compute 8-bin spectra of 69 data symbols: s2(8,69).  Re-order the
     bins by removing Gray code.
-10. Compute soft symbols for 198 bits
+10. Compute soft symbols for 206 bits
 11. Re-order the bits by removing interleaving.
-12. Pack bits into bytes, send to Viterbi decoder ==> 72-bit message, 
-    12-bit CRC, and metric.
-13. Declare erasure if CRC check fails
-14. If CRC is good, remove source encoding and display user message.
+12. Pack bits into bytes, send to Fano decoder
+13. If Fano succeeds, remove source encoding and display user message.
