@@ -3,7 +3,7 @@ subroutine interleave9(ia,ndir,ib)
   integer j0(0:205)
   logical first
   data first/.true./
-  save first,j0
+  save first,j0                     !Save not working, or j0 overwritten ???
 
   if(first) then
      k=-1
