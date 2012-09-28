@@ -32,7 +32,7 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   m_fQSO = 125;
   m_line = 0;
   m_fSample = 12000;
-  m_nsps=7168;
+  m_nsps=6912;
   m_paintAllZoom = false;
 }
 
@@ -62,7 +62,7 @@ void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
     m_WaterfallPixmap.fill(Qt::black);
     m_ZoomWaterfallPixmap.fill(Qt::black);
     m_2DPixmap.fill(Qt::black);
-    memset(m_zwf,0,32768*h);
+    memset(m_zwf,0,NSMAX*h);
     m_ScalePixmap = QPixmap(w,30);
     m_ZoomScalePixmap = QPixmap(w,30);    //(no change on resize...)
     m_ScalePixmap.fill(Qt::white);
@@ -97,9 +97,11 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
   QRect source(0,0,w,30);
   painter.drawPixmap(target,m_ZoomScalePixmap,source);
 
-  float df=m_fSample/32768.0;
-  int x0=16384 + (0.001*(m_ZoomStartFreq+m_fCal)+m_fQSO-m_nkhz+1.27046) * \
-      1000.0/df + 0.5;
+//  float df=m_fSample/32768.0;
+//  int x0=16384 + (0.001*(m_ZoomStartFreq+m_fCal)+m_fQSO-m_nkhz+1.27046) * \
+//      1000.0/df + 0.5;
+  float df=12000.0/m_nsps;
+  int x0=0;                         //### TEMP ###
 
   QPainter painter2(&m_ZoomWaterfallPixmap);
   for(int i=0; i<w; i++) {                      //Paint the top row
@@ -136,7 +138,7 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
   m_paintEventBusy=false;
 }
 
-void CPlotter::draw(float s[], int i0, float splot[])                 //draw()
+void CPlotter::draw(float swide[], int i0, float splot[])                 //draw()
 {
   int i,j,w,h;
   float y;
@@ -169,15 +171,15 @@ void CPlotter::draw(float s[], int i0, float splot[])                 //draw()
 
   for(i=0; i<w; i++) {
     strong=false;
-    if(s[i]<0) {
+    if(swide[i]<0) {
       strong=true;
-      s[i]=-s[i];
+      swide[i]=-swide[i];
     }
-    y = 10.0*log10(s[i]);
+    y = 10.0*log10(swide[i]);
     int y1 = 5.0*gain*(y + 29 -m_plotZero);
     if (y1<0) y1=0;
     if (y1>254) y1=254;
-    if (s[i]>1.e29) y1=255;
+    if (swide[i]>1.e29) y1=255;
     m_hist1[y1]++;
     painter1.setPen(m_ColorTbl[y1]);
     painter1.drawPoint(i,0);
@@ -185,7 +187,7 @@ void CPlotter::draw(float s[], int i0, float splot[])                 //draw()
       int y2 = gain*(y + 34 -m_plotZero);
       if (y2<0) y2=0;
       if (y2>254) y2=254;
-      if (s[i]>1.e29) y2=255;
+      if (swide[i]>1.e29) y2=255;
       if(strong != strong0 or i==w-1) {
         painter2D.drawPolyline(LineBuf,j);
         j=0;
@@ -199,9 +201,9 @@ void CPlotter::draw(float s[], int i0, float splot[])                 //draw()
     }
   }
 
-  for(i=0; i<32768; i++) {
+  for(i=0; i<NSMAX; i++) {
     y = 10.0*log10(splot[i]);
-    int y1 = 5.0*gain*(y + 30 - m_plotZero);
+    int y1 = 5.0*gain*(y + 29 -m_plotZero);
     if (y1<0) y1=0;
     if (y1>254) y1=254;
     if (splot[i]>1.e29) y1=255;
@@ -209,7 +211,7 @@ void CPlotter::draw(float s[], int i0, float splot[])                 //draw()
     m_zwf[i]=y1;
   }
 
-  if(s[0]>1.0e29) m_line=0;
+  if(swide[0]>1.0e29) m_line=0;
   m_line++;
   if(m_line == 13) {
     UTCstr();

@@ -1,7 +1,7 @@
 #include "widegraph.h"
 #include "ui_widegraph.h"
 
-#define NSMAX 4400
+#define NSMAX 15750
 
 WideGraph::WideGraph(QWidget *parent) :
   QDialog(parent),
@@ -89,6 +89,7 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
   }
 
   //Average spectra over specified number, m_waterfallAvg
+//  qDebug() << "A" << ihsym << NSMAX << df << nbpp;
   if (n==0) {
     for (int i=0; i<NSMAX; i++)
       splot[i]=s[i];
@@ -108,20 +109,30 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
 //    if(sf != ui->widePlot->startFreq()) ui->widePlot->SetStartFreq(sf);
 //    int i0=16384.0+(ui->widePlot->startFreq()-nkhz+1.27046+0.001*m_fCal) *
 //        1000.0/df + 0.5;
+
     int i0=0;                            //###
     nbpp=1;                          //###
+
     int i=i0;
     for (int j=0; j<2048; j++) {
-        smax=0;
-        for (int k=0; k<nbpp; k++) {
-            i++;
-            if(splot[i]>smax) smax=splot[i];
-        }
-        swide[j]=smax;
-        if(lstrong[1 + i/32]!=0) swide[j]=-smax;   //Tag strong signals
+      smax=0;
+      for (int k=0; k<nbpp; k++) {
+        if(splot[i]>smax) smax=splot[i];
+        i++;
+      }
+      swide[j]=smax;
+/*
+      float sum=0;
+      for (int k=0; k<nbpp; k++) {
+        i++;
+        sum += splot[i];
+      }
+        swide[j]=sum;
+*/
+      if(lstrong[1 + i/32]!=0) swide[j]=-smax;   //Tag strong signals
     }
 
-//    qDebug() << "B" << ihsym << smax << s[100];
+//    qDebug() << "B" << ihsym << swide[1000] << splot[1000];
 // Time according to this computer
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int ntr = (ms/1000) % m_TRperiod;
