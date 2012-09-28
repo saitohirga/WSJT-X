@@ -12,7 +12,7 @@ subroutine symspecx(k,nsps,ndiskdat,nb,nbslider,pxdb,s,nkhz,ihsym,   &
 !  nzap     number of samples zero'ed by noise blanker
 
   parameter (NMAX=1800*12000)        !Total sample intervals per 30 minutes
-  parameter (NSMAX=4400)             !Max length of saved spectra
+  parameter (NSMAX=15750)             !Max length of saved spectra
   parameter (MAXFFT=262144)          !Max length of FFTs
   integer*2 id2
   real*8 ts,hsym

@@ -1,14 +1,14 @@
 #ifndef COMMONS_H
 #define COMMONS_H
 
-#define NFFT 32768
+#define NSMAX 15750
 
 extern "C" {
 
 extern struct {
   short int d2[1800*12000];         //This is "common/jt8com/..." in fortran
-  float ss[184*4400];
-  float savg[4400];
+  float ss[184*NSMAX];
+  float savg[NSMAX];
   double fcenter;                   //USB dial freq (kHz)
   int nutc;                         //UTC as integer, HHMM
   int ntrperiod;                    //TR period (seconds)

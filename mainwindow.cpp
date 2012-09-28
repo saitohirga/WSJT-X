@@ -1307,7 +1307,7 @@ void MainWindow::on_actionJT8_1_triggered()
 {
   m_mode="JT8-1";
   m_TRperiod=60;
-  m_nsps=7168;
+  m_nsps=6912;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
@@ -1320,7 +1320,7 @@ void MainWindow::on_actionJT8_2_triggered()
 {
   m_mode="JT8-2";
   m_TRperiod=120;
-  m_nsps=16000;
+  m_nsps=15360;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
@@ -1333,7 +1333,7 @@ void MainWindow::on_actionJT8_5_triggered()
 {
   m_mode="JT8-5";
   m_TRperiod=300;
-  m_nsps=42336;
+  m_nsps=40960;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
@@ -1346,7 +1346,7 @@ void MainWindow::on_actionJT8_10_triggered()
 {
   m_mode="JT8-10";
   m_TRperiod=600;
-  m_nsps=86400;
+  m_nsps=82944;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
@@ -1359,7 +1359,7 @@ void MainWindow::on_actionJT8_30_triggered()
 {
   m_mode="JT8-30";
   m_TRperiod=1800;
-  m_nsps=262144;
+  m_nsps=250880;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
