@@ -1,7 +1,7 @@
 #ifndef COMMONS_H
 #define COMMONS_H
 
-#define NSMAX 15750
+#define NSMAX 10000
 
 extern "C" {
 

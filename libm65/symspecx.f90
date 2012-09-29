@@ -12,7 +12,7 @@ subroutine symspecx(k,nsps,ndiskdat,nb,nbslider,pxdb,s,nkhz,ihsym,   &
 !  nzap     number of samples zero'ed by noise blanker
 
   parameter (NMAX=1800*12000)        !Total sample intervals per 30 minutes
-  parameter (NSMAX=15750)             !Max length of saved spectra
+  parameter (NSMAX=10000)             !Max length of saved spectra
   parameter (MAXFFT=262144)          !Max length of FFTs
   integer*2 id2
   real*8 ts,hsym
@@ -66,20 +66,19 @@ subroutine symspecx(k,nsps,ndiskdat,nb,nbslider,pxdb,s,nkhz,ihsym,   &
   ihsym=ihsym+1
   call four2a(x,nfft,1,-1,0)          !Forward FFT of symbol length
   df=12000.0/nfft
-  nzh=min(nint(500.0/df),2200)
-  nz=2*nzh
-  i0=nint(1500.0/df) - nzh
-  rewind 71
+  i0=nint(1000.0/df)
+  nz=min(NSMAX,nfft/2)
+!  rewind 71
   do i=1,nz
      sx=real(cx(i0+i))**2 + aimag(cx(i0+i))**2
      sx=1.e-8*sx
      s(i)=sx
      savg(i)=savg(i) + sx
      if(ihsym.le.184) ss(ihsym,i)=sx
-     write(71,3001) (i0+i-1)*df,savg(i),db(savg(i))
-3001 format(f12.6,2f12.3)
+!     write(71,3001) (i0+i-1)*df,savg(i),db(savg(i))
+!3001 format(f12.6,2f12.3)
   enddo
-  flush(71)
+!  flush(71)
 
   nkhz=100
 
