@@ -164,7 +164,7 @@ void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
   m_line++;
   if(m_line == 13) {
     UTCstr();
-    painter1.setPen(m_ColorTbl[255]);
+    painter1.setPen(Qt::white);
     painter1.drawText(5,10,m_sutc);
     m_paintAllZoom=true;
   }
@@ -177,17 +177,15 @@ void CPlotter::UTCstr()
   if(jt8com_.ndiskdat != 0) {
     ihr=jt8com_.nutc/10000;
     imin=(jt8com_.nutc/100) % 100;
-    isec=jt8com_.nutc % 100;
   } else {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     imin=ms/60000;
     ihr=imin/60;
     imin=imin % 60;
-    isec=(ms/1000) % 60;
   }
   if(isec<30) isec=0;
   if(isec>=30) isec=30;
-  sprintf(m_sutc,"%2.2d:%2.2d:%2.2d",ihr,imin,isec);
+  sprintf(m_sutc,"%2.2d:%2.2d",ihr,imin);
 }
 
 void CPlotter::DrawOverlay()                                 //DrawOverlay()
@@ -222,8 +220,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   if(n>70) m_freqPerDiv=100;
   if(n>250) m_freqPerDiv=500;
   m_hdivs = w*df/m_freqPerDiv + 0.9999;
-  qDebug() << "B" << m_binsPerPixel << df << m_freqPerDiv << pixperdiv
-           << m_hdivs << m_fSpan;
+//  qDebug() << "B" << m_binsPerPixel << df << m_freqPerDiv << pixperdiv << m_hdivs << m_fSpan;
   m_ScalePixmap.fill(Qt::white);
   painter0.drawRect(0, 0, w, 30);
 
