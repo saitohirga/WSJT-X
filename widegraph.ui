@@ -138,37 +138,37 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>60</width>
+           <width>40</width>
            <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>60</width>
+           <width>40</width>
            <height>16777215</height>
           </size>
          </property>
          <property name="suffix">
-          <string> Hz</string>
+          <string/>
          </property>
          <property name="minimum">
-          <number>20</number>
+          <number>1</number>
          </property>
          <property name="maximum">
           <number>1000</number>
          </property>
          <property name="singleStep">
-          <number>5</number>
+          <number>1</number>
          </property>
          <property name="value">
-          <number>200</number>
+          <number>1</number>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Freq Span</string>
+          <string>Nbpp</string>
          </property>
         </widget>
        </item>

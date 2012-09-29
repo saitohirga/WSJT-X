@@ -56,7 +56,6 @@ private slots:
   void on_autoZeroPushButton_clicked();
 //  void on_cbFcenter_stateChanged(int arg1);
   void on_fCenterLineEdit_editingFinished();
-  void on_cbSpec2d_toggled(bool checked);
 
 private:
   qint32 m_waterfallAvg;
