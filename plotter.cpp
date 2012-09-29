@@ -99,7 +99,6 @@ void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
 
   for(i=0; i<256; i++) {                     //Zero the histograms
     m_hist1[i]=0;
-    m_hist2[i]=0;
   }
 
   painter2D.setPen(Qt::green);
@@ -117,14 +116,14 @@ void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
       swide[i]=-swide[i];
     }
     y = 10.0*log10(swide[i]);
-    int y1 = 5.0*gain*(y + 29 -m_plotZero);
+    int y1 = 5.0*gain*(y + 37 - m_plotZero);
     if (y1<0) y1=0;
     if (y1>254) y1=254;
     if (swide[i]>1.e29) y1=255;
     m_hist1[y1]++;
     painter1.setPen(m_ColorTbl[y1]);
     painter1.drawPoint(i,0);
-    int y2 = gain*(y + 34 -m_plotZero);
+    int y2 = 0.7*gain*(y + 54 - m_plotZero);
     if (y2<0) y2=0;
     if (y2>254) y2=254;
     if (swide[i]>1.e29) y2=255;
@@ -138,15 +137,6 @@ void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
     LineBuf[j].setX(i);
     LineBuf[j].setY(h-y2);
     j++;
-  }
-
-  for(i=0; i<NSMAX; i++) {
-    y = 10.0*log10(splot[i]);
-    int y1 = 5.0*gain*(y + 29 -m_plotZero);
-    if (y1<0) y1=0;
-    if (y1>254) y1=254;
-    if (splot[i]>1.e29) y1=255;
-    m_hist2[y1]++;
   }
 
   if(swide[0]>1.0e29) m_line=0;
@@ -413,28 +403,23 @@ void CPlotter::mouseDoubleClickEvent(QMouseEvent *event)  //mouse2click
 
 int CPlotter::autoZero()                                        //autoZero()
 {
+  int w = m_Size.width();
   m_z1=0;
-  m_z2=0;
   int sum1=0;
   for(int i=0; i<256; i++) {
     sum1 += m_hist1[i];
-    if(sum1 > m_Size.width()/2) {
+    if(sum1 > int(0.7*w)) {
       m_z1=i;
       break;
     }
   }
-  int sum2=0;
-  for(int i=0; i<256; i++) {
-    sum2 += m_hist2[i];
-    if(sum2 > 16384) {
-      m_z2=i;
-      break;
-    }
-  }
+
   double gain = pow(10.0,0.05*(m_plotGain+7));
-//  double dz1 = (m_z1-38)/(5.0*gain);
-  double dz2 = (m_z2-28)/(5.0*gain);
-  if(m_z2 < 255) m_plotZero = int(m_plotZero + dz2 + 0.5);
+  if(m_z1 < 255) {
+    double dz1 = m_z1/(5.0*gain);
+    m_plotZero = int(m_plotZero + dz1 + 0.5);
+    if(m_z1==0) m_plotZero = m_plotZero - 5;
+  }
   return m_plotZero;
 }
 

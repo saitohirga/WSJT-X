@@ -98,7 +98,6 @@ private:
   char    m_sutc[5];
   qint32  m_line;
   qint32  m_hist1[256];
-  qint32  m_hist2[256];
   qint32  m_z1;
   qint32  m_z2;
   qint32  m_fSample;
