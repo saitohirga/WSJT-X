@@ -1,7 +1,7 @@
 #include "widegraph.h"
 #include "ui_widegraph.h"
 
-#define NSMAX 15750
+#define NSMAX 10000
 
 WideGraph::WideGraph(QWidget *parent) :
   QDialog(parent),
@@ -281,11 +281,6 @@ void WideGraph::on_fCenterLineEdit_editingFinished()
 
 void WideGraph::initIQplus()
 {
-}
-
-void WideGraph::on_cbSpec2d_toggled(bool b)
-{
-  ui->widePlot->set2Dspec(b);
 }
 
 double WideGraph::fGreen()

@@ -11,7 +11,6 @@
 #include "sleep.h"
 
 #define NFFT 32768
-#define NSMAX 5760000
 
 //--------------------------------------------------------------- MainWindow
 namespace Ui {

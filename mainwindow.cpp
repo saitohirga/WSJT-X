@@ -298,7 +298,7 @@ void MainWindow::readSettings()
 //-------------------------------------------------------------- dataSink()
 void MainWindow::dataSink(int k)
 {
-  static float s[NFFT],splot[NFFT];
+  static float s[NSMAX],splot[NSMAX];
   static int n=0;
   static int ihsym=0;
   static int nzap=0;
@@ -336,16 +336,16 @@ void MainWindow::dataSink(int k)
 
   //Average over specified number of spectra
   if (n==0) {
-    for (int i=0; i<NFFT; i++)
+    for (int i=0; i<NSMAX; i++)
       splot[i]=s[i];
   } else {
-    for (int i=0; i<NFFT; i++)
+    for (int i=0; i<NSMAX; i++)
       splot[i] += s[i];
   }
   n++;
 
   if (n>=m_waterfallAvg) {
-    for (int i=0; i<NFFT; i++) {
+    for (int i=0; i<NSMAX; i++) {
         splot[i] /= n;                           //Normalize the average
     }
 
@@ -353,7 +353,7 @@ void MainWindow::dataSink(int k)
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int ntr = (ms/1000) % m_TRperiod;
     if((m_diskData && ihsym <= m_waterfallAvg) || (!m_diskData && ntr<ntr0)) {
-      for (int i=0; i<NFFT; i++) {
+      for (int i=0; i<NSMAX; i++) {
         splot[i] = 1.e30;
       }
     }

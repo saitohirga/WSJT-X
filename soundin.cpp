@@ -2,7 +2,7 @@
 #include <stdexcept>
 
 #define FRAMES_PER_BUFFER 1024
-#define NSMAX 15750
+#define NSMAX 10000
 
 extern "C" {
 #include <portaudio.h>

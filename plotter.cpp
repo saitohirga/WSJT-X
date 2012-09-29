@@ -83,62 +83,12 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
   int h = (m_Size.height()-60)/2;
   painter.drawPixmap(0,0,m_ScalePixmap);
   painter.drawPixmap(0,30,m_WaterfallPixmap);
-  if(m_2Dspec) {
-    painter.drawPixmap(0,h+30,m_ScalePixmap);
-    painter.drawPixmap(0,h+60,m_2DPixmap);
-    m_paintEventBusy=false;
-    return;
-  }
-
-  painter.drawPixmap(0,h+30,m_ZoomScalePixmap);
-  painter.drawPixmap(0,h+60,m_ZoomWaterfallPixmap);
-
-  QRect target(0,h+30,w,30);           // (x,y,width,height)
-  QRect source(0,0,w,30);
-  painter.drawPixmap(target,m_ZoomScalePixmap,source);
-
-//  float df=m_fSample/32768.0;
-//  int x0=16384 + (0.001*(m_ZoomStartFreq+m_fCal)+m_fQSO-m_nkhz+1.27046) * \
-//      1000.0/df + 0.5;
-  float df=12000.0/m_nsps;
-  int x0=0;                         //### TEMP ###
-
-  QPainter painter2(&m_ZoomWaterfallPixmap);
-  for(int i=0; i<w; i++) {                      //Paint the top row
-    painter2.setPen(m_ColorTbl[m_zwf[x0+i]]);
-    painter2.drawPoint(i,0);
-  }
-  if(m_paintAllZoom or (x0 != x00 and x00 != -99)) {
-    // If new fQSO, paint all rows
-    int k=x0;
-    for(int j=1; j<h; j++) {
-      k += 32768;
-      if(x0 != x00 and x00 != -99) {
-        for(int i=0; i<w; i++) {
-          painter2.setPen(m_ColorTbl[m_zwf[i+k]]);
-          painter2.drawPoint(i,j);
-        }
-      }
-      if(j == 13 and x0 == x00) {
-        painter2.setPen(m_ColorTbl[255]);
-        painter2.drawText(5,10,m_sutc);
-      }
-    }
-  } else if(m_line == 13) {
-    painter2.setPen(m_ColorTbl[255]);
-    UTCstr();
-    painter2.drawText(5,10,m_sutc);
-  }
-  m_paintAllZoom=false;
-  x00=x0;
-
-  QRect target2(0,h+60,w,h);           // (x,y,width,height)
-  QRect source2(0,0,w,h);
-  painter.drawPixmap(target2,m_ZoomWaterfallPixmap,source2);
+  painter.drawPixmap(0,h+30,m_ScalePixmap);
+  painter.drawPixmap(0,h+60,m_2DPixmap);
   m_paintEventBusy=false;
 }
 
-void CPlotter::draw(float swide[], int i0, float splot[])                 //draw()
+void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
 {
   int i,j,w,h;
   float y;
@@ -183,22 +133,20 @@ void CPlotter::draw(float swide[], int i0, float splot[])                 //draw
     m_hist1[y1]++;
     painter1.setPen(m_ColorTbl[y1]);
     painter1.drawPoint(i,0);
-    if(m_2Dspec) {
-      int y2 = gain*(y + 34 -m_plotZero);
-      if (y2<0) y2=0;
-      if (y2>254) y2=254;
-      if (swide[i]>1.e29) y2=255;
-      if(strong != strong0 or i==w-1) {
-        painter2D.drawPolyline(LineBuf,j);
-        j=0;
-        strong0=strong;
-        if(strong0) painter2D.setPen(Qt::red);
-        if(!strong0) painter2D.setPen(Qt::green);
-      }
-      LineBuf[j].setX(i);
-      LineBuf[j].setY(h-y2);
-      j++;
+    int y2 = gain*(y + 34 -m_plotZero);
+    if (y2<0) y2=0;
+    if (y2>254) y2=254;
+    if (swide[i]>1.e29) y2=255;
+    if(strong != strong0 or i==w-1) {
+      painter2D.drawPolyline(LineBuf,j);
+      j=0;
+      strong0=strong;
+      if(strong0) painter2D.setPen(Qt::red);
+      if(!strong0) painter2D.setPen(Qt::green);
     }
+    LineBuf[j].setX(i);
+    LineBuf[j].setY(h-y2);
+    j++;
   }
 
   for(i=0; i<NSMAX; i++) {
@@ -308,23 +256,16 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   }
 
 
-  if(m_2Dspec) {
-    QPen pen0(Qt::green, 3);                 //Mark Cal Freq with green tick
-    painter0.setPen(pen0);
-    x = m_xClick;
-    painter0.drawLine(x,15,x,30);
-    int x0=(16384-m_i0)/m_binsPerPixel;
-    m_fGreen=(x-x0)*df;
-    x0 += (x0-x);
-    QPen pen3(Qt::red, 3);
-    painter0.setPen(pen3);
-    if(x0>0 and x0<w) painter0.drawLine(x0,15,x0,30);
-  } else {
-    QPen pen0(Qt::green, 3);                 //Mark fQSO with green tick
-    painter0.setPen(pen0);
-    x = XfromFreq(float(fQSO()));
-    painter0.drawLine(x,15,x,30);
-  }
+  QPen pen0(Qt::green, 3);                 //Mark Cal Freq with green tick
+  painter0.setPen(pen0);
+  x = m_xClick;
+  painter0.drawLine(x,15,x,30);
+  int x0=(16384-m_i0)/m_binsPerPixel;
+  m_fGreen=(x-x0)*df;
+  x0 += (x0-x);
+  QPen pen3(Qt::red, 3);
+  painter0.setPen(pen3);
+  if(x0>0 and x0<w) painter0.drawLine(x0,15,x0,30);
 
   // Now make the zoomed scale, using m_ZoomScalePixmap and painter3
   QRect rect1;
@@ -669,7 +610,7 @@ void CPlotter::setMode65(int n)
 
 void CPlotter::set2Dspec(bool b)
 {
-  m_2Dspec=b;
+//  m_2Dspec=b;
   m_paintAllZoom=!b;
   DrawOverlay();                         //Redraw scales and ticks
   update();                              //trigger a new paintEvent}
