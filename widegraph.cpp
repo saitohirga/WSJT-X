@@ -87,7 +87,7 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
   }
 
   //Average spectra over specified number, m_waterfallAvg
-//  qDebug() << "A" << ihsym << NSMAX << df << nbpp;
+//  qDebug() << "C" << ihsym << NSMAX << df << nbpp;
   if (n==0) {
     for (int i=0; i<NSMAX; i++)
       splot[i]=s[i];
@@ -108,7 +108,7 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
 //        1000.0/df + 0.5;
 
     int i0=0;                            //###
-    nbpp=1;                          //###
+//    nbpp=1;                          //###
 
     int i=i0;
     for (int j=0; j<2048; j++) {
@@ -149,13 +149,7 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
 
 void WideGraph::on_freqSpanSpinBox_valueChanged(int n)
 {
-  ui->widePlot->setNSpan(n);
-  int w = ui->widePlot->plotWidth();
-  int nbpp = n * 32768.0/(w*96.0) + 0.5;
-  if(nbpp < 1) nbpp=1;
-  if(w > 0) {
-    ui->widePlot->setBinsPerPixel(nbpp);
-  }
+  ui->widePlot->setBinsPerPixel(n);
 }
 
 void WideGraph::on_waterfallAvgSpinBox_valueChanged(int n)
@@ -254,17 +248,6 @@ void WideGraph::setPalette(QString palette)
 {
   ui->widePlot->setPalette(palette);
 }
-void WideGraph::setFsample(int n)
-{
-  m_fSample=n;
-  ui->widePlot->setFsample(n);
-}
-
-void WideGraph::setMode65(int n)
-{
-  m_mode65=n;
-  ui->widePlot->setMode65(n);
-}
 
 void WideGraph::on_fCenterLineEdit_editingFinished()
 {
@@ -284,5 +267,5 @@ void WideGraph::setPeriod(int ntrperiod, int nsps)
 {
   m_TRperiod=ntrperiod;
   m_nsps=nsps;
-  ui->widePlot->m_nsps=nsps;
+  ui->widePlot->setNsps(nsps);
 }
