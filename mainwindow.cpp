@@ -150,7 +150,7 @@ MainWindow::MainWindow(QWidget *parent) :
   soundOutThread.setOutputDevice(m_paOutDevice);
 //  soundOutThread.start(QThread::HighPriority);
 
-  m_monitoring=false;                           // Start with Monitoring OFF
+  m_monitoring=true;                           // Start with Monitoring ON
   soundInThread.setMonitoring(m_monitoring);
   m_diskData=false;
   m_tol=500;
