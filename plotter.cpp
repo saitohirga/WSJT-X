@@ -373,13 +373,6 @@ int CPlotter::getPlotGain()                               //getPlotGain()
 
 void CPlotter::SetCenterFreq(int f)                   //setCenterFreq()
 {
-  /*
-// f is the integer kHz portion of cfreq, from Linrad packets
-  if(f<0) f=m_nkhz;
-  int ns = (f+m_FreqOffset-0.5*m_fSpan)/5.0 + 0.5;
-  double fs = 5*ns;
-  m_CenterFreq = fs + 0.5*m_fSpan;
-  */
 }
 
 qint64 CPlotter::centerFreq()                             //centerFreq()
@@ -399,13 +392,6 @@ qint64 CPlotter::startFreq()                              //startFreq()
   return m_StartFreq;
 }
 
-void CPlotter::SetFreqOffset(quint64 f)                   //SetFreqOffset()
-{
-  m_FreqOffset=f;
-  DrawOverlay();
-}
-
-qint64 CPlotter::freqOffset() {return m_FreqOffset;}         //freqOffset()
 int CPlotter::plotWidth(){return m_WaterfallPixmap.width();}
 void CPlotter::UpdateOverlay() {DrawOverlay();}
 void CPlotter::setDataFromDisk(bool b) {m_dataFromDisk=b;}

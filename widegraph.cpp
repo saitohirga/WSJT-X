@@ -36,7 +36,6 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->widePlot->setBinsPerPixel(nbpp);
   m_waterfallAvg = settings.value("WaterfallAvg",10).toInt();
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
-  ui->freqOffsetSpinBox->setValue(settings.value("FreqOffset",0).toInt());
   m_dForceCenterFreq=settings.value("ForceCenterFreqMHz",473.000).toDouble();
 //  ui->cbFcenter->setChecked(m_bForceCenterFreq);
   ui->fCenterLineEdit->setText(QString::number(m_dForceCenterFreq));
@@ -63,7 +62,6 @@ void WideGraph::saveSettings()
   settings.setValue("PlotWidth",ui->widePlot->plotWidth());
   settings.setValue("FreqSpan",ui->freqSpanSpinBox->value());
   settings.setValue("WaterfallAvg",ui->waterfallAvgSpinBox->value());
-  settings.setValue("FreqOffset",ui->widePlot->freqOffset());
   settings.setValue("ForceCenterFreqMHz",m_dForceCenterFreq);
   settings.endGroup();
 }
@@ -105,7 +103,6 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
     n=0;
 
     int w=ui->widePlot->plotWidth();
-//    qint64 sf = nkhz + ui->widePlot->freqOffset() - 0.5*w*nbpp*df/1000.0;
 //    if(sf != ui->widePlot->startFreq()) ui->widePlot->SetStartFreq(sf);
 //    int i0=16384.0+(ui->widePlot->startFreq()-nkhz+1.27046+0.001*m_fCal) *
 //        1000.0/df + 0.5;
@@ -148,11 +145,6 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
     ntr0=ntr;
     ui->widePlot->draw(swide,i0,splot);
   }
-}
-
-void WideGraph::on_freqOffsetSpinBox_valueChanged(int f)
-{
-  ui->widePlot->SetFreqOffset(f);
 }
 
 void WideGraph::on_freqSpanSpinBox_valueChanged(int n)

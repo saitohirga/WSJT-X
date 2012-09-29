@@ -47,8 +47,6 @@ public:
   qint64 centerFreq();
   void SetStartFreq(quint64 f);
   qint64 startFreq();
-  void SetFreqOffset(quint64 f);
-  qint64 freqOffset();
   int  plotWidth();
   void setNSpan(int n);
   void UpdateOverlay();
@@ -103,7 +101,6 @@ private:
   double  m_fGreen;
   qint64  m_StartFreq;
   qint64  m_ZoomStartFreq;
-  qint64  m_FreqOffset;
   qint32  m_dBStepSize;
   qint32  m_FreqUnits;
   qint32  m_hdivs;
