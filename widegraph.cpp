@@ -32,8 +32,8 @@ WideGraph::WideGraph(QWidget *parent) :
   int w = settings.value("PlotWidth",1000).toInt();
   ui->freqSpanSpinBox->setValue(n);
   ui->widePlot->setNSpan(n);
-  int nbpp = n * 32768.0/(w*96.0) + 0.5;
-  ui->widePlot->setBinsPerPixel(nbpp);
+//  int nbpp = n * 32768.0/(w*96.0) + 0.5;
+  ui->widePlot->setBinsPerPixel(1);
   m_waterfallAvg = settings.value("WaterfallAvg",10).toInt();
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
   m_dialFreq=settings.value("DialFreqMHz",473.000).toDouble();
