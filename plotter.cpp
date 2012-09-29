@@ -58,7 +58,6 @@ void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
     m_2DPixmap = QPixmap(w,h);
     m_WaterfallPixmap.fill(Qt::black);
     m_2DPixmap.fill(Qt::black);
-    memset(m_zwf,0,NSMAX*h);
     m_ScalePixmap = QPixmap(w,30);
     m_LowerScalePixmap = QPixmap(w,30);    //(no change on resize...)
     m_ScalePixmap.fill(Qt::white);
@@ -97,7 +96,6 @@ void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
   //move current data down one line
   //(must do this before attaching a QPainter object)
   m_WaterfallPixmap.scroll(0,1,0,0,w,h);
-  memmove(&m_zwf[32768],m_zwf,32768*(h-1));
   QPainter painter1(&m_WaterfallPixmap);
   QPainter painter2D(&m_2DPixmap);
 
@@ -106,7 +104,6 @@ void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
     m_hist2[i]=0;
   }
 
-//  qDebug() << "A" << m_binsPerPixel << m_nSpan << m_fSpan;
   painter2D.setPen(Qt::green);
   QRect tmp(0,0,w,h);
   painter2D.fillRect(tmp,Qt::black);
@@ -152,7 +149,6 @@ void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
     if (y1>254) y1=254;
     if (splot[i]>1.e29) y1=255;
     m_hist2[y1]++;
-    m_zwf[i]=y1;
   }
 
   if(swide[0]>1.0e29) m_line=0;
@@ -202,9 +198,9 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   painter0.setFont(Font);
   painter0.setPen(Qt::black);
 
-  double fftBinWidth=12000.0/m_nsps;
+  m_fftBinWidth=12000.0/m_nsps;
   if(m_binsPerPixel < 1) m_binsPerPixel=1;
-  double df = m_binsPerPixel*fftBinWidth;
+  double df = m_binsPerPixel*m_fftBinWidth;
   m_fSpan = w*df;
 //  m_freqPerDiv=50*m_binsPerPixel;
 //  m_freqPerDiv=nHzDiv[m_binsPerPixel];
@@ -214,7 +210,6 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   if(n>70) m_freqPerDiv=100;
   if(n>250) m_freqPerDiv=500;
   m_hdivs = w*df/m_freqPerDiv + 0.9999;
-//  qDebug() << "B" << m_binsPerPixel << df << m_freqPerDiv << pixperdiv << m_hdivs << m_fSpan;
   m_ScalePixmap.fill(Qt::white);
   painter0.drawRect(0, 0, w, 30);
 
@@ -275,11 +270,9 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   painter3.setPen(Qt::black);
 
   df = 12000.0/m_nsps;
-  m_hdivs = 4400*df/m_freqPerDiv + 0.9999;
   int nlabs=df*w/m_freqPerDiv + 1.0;
   m_LowerScalePixmap.fill(Qt::white);
   painter3.drawRect(0, 0, w, 30);
-
   pixperdiv = m_freqPerDiv/df;
   for( int i=0; i<10*nlabs; i++) {
     x = i*pixperdiv/10;
@@ -321,9 +314,7 @@ int CPlotter::XfromFreq(float f)                               //XfromFreq()
 
 float CPlotter::FreqfromX(int x)                               //FreqfromX()
 {
-  float w = m_WaterfallPixmap.width();
-  float f =m_CenterFreq - 0.5*m_fSpan + m_fSpan * x/w;
-  return f;
+  return float(1000.0 + m_fftBinWidth*x);
 }
 
 void CPlotter::SetRunningState(bool running)              //SetRunningState()

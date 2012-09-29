@@ -85,7 +85,6 @@ private:
 
   QPixmap m_WaterfallPixmap;
   QPixmap m_2DPixmap;
-  unsigned char m_zwf[32768*400];
   QPixmap m_ScalePixmap;
   QPixmap m_LowerScalePixmap;
   QSize   m_Size;
@@ -96,6 +95,7 @@ private:
   bool    m_2Dspec;
   double  m_CenterFreq;
   double  m_fGreen;
+  double  m_fftBinWidth;
   qint64  m_StartFreq;
   qint32  m_dBStepSize;
   qint32  m_FreqUnits;
