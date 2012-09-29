@@ -14,9 +14,9 @@ public:
   explicit WideGraph(QWidget *parent = 0);
   ~WideGraph();
 
-  double m_dForceCenterFreq;
+  double m_dialFreq;
 
-  void   dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
+  void   dataSink2(float s[], int ihsym, int ndiskdata,
                    uchar lstrong[]);
   int    QSOfreq();
   int    nSpan();
@@ -52,8 +52,7 @@ private slots:
   void on_zeroSpinBox_valueChanged(int arg1);
   void on_gainSpinBox_valueChanged(int arg1);
   void on_autoZeroPushButton_clicked();
-//  void on_cbFcenter_stateChanged(int arg1);
-  void on_fCenterLineEdit_editingFinished();
+  void on_fDialLineEdit_editingFinished();
 
 private:
   qint32 m_waterfallAvg;

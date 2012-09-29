@@ -15,7 +15,6 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   setAttribute(Qt::WA_OpaquePaintEvent, false);
   setAttribute(Qt::WA_NoSystemBackground, true);
 
-  m_CenterFreq = 1500;
   m_StartFreq = 1000;
   m_nSpan=1000;                    //Units: Hz
   m_fSpan=(float)m_nSpan;
@@ -63,7 +62,6 @@ void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
     m_ScalePixmap.fill(Qt::white);
     m_LowerScalePixmap.fill(Qt::yellow);
   }
-  SetCenterFreq(-1);
   DrawOverlay();
 }
 
@@ -250,7 +248,6 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     }
   }
 
-
   QPen pen0(Qt::green, 3);                 //Mark Cal Freq with green tick
   painter0.setPen(pen0);
   x = m_xClick;
@@ -342,15 +339,6 @@ int CPlotter::getPlotGain()                               //getPlotGain()
   return m_plotGain;
 }
 
-void CPlotter::SetCenterFreq(int f)                   //setCenterFreq()
-{
-}
-
-qint64 CPlotter::centerFreq()                             //centerFreq()
-{
-  return m_CenterFreq;
-}
-
 void CPlotter::SetStartFreq(quint64 f)                    //SetStartFreq()
 {
   m_StartFreq=f;
@@ -399,11 +387,6 @@ void CPlotter::setFQSO(int x, bool bf)                       //setFQSO()
 void CPlotter::setFcal(int n)                                  //setFcal()
 {
   m_fCal=n;
-}
-
-void CPlotter::setNkhz(int n)                                  //setNkhz()
-{
-  m_nkhz=n;
 }
 
 int CPlotter::fQSO() {return m_fQSO;}                          //get fQSO

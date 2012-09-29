@@ -42,8 +42,6 @@ public:
   int  getPlotZero();
   void setPlotGain(int plotGain);
   int  getPlotGain();
-  void SetCenterFreq(int f);
-  qint64 centerFreq();
   void SetStartFreq(quint64 f);
   qint64 startFreq();
   int  plotWidth();
@@ -55,14 +53,12 @@ public:
   int  binsPerPixel();
   void setFQSO(int n, bool bf);
   void setFcal(int n);
-  void setNkhz(int n);
   void DrawOverlay();
   int  fQSO();
   int  DF();
   int  autoZero();
   void setPalette(QString palette);
   void setFsample(int n);
-  void set2Dspec(bool b);
   void setNsps(int n);
   double fGreen();
 
@@ -92,8 +88,6 @@ private:
   QString m_HDivText[483];
   bool    m_Running;
   bool    m_paintEventBusy;
-  bool    m_2Dspec;
-  double  m_CenterFreq;
   double  m_fGreen;
   double  m_fftBinWidth;
   qint64  m_StartFreq;
@@ -107,7 +101,6 @@ private:
   qint32  m_hist2[256];
   qint32  m_z1;
   qint32  m_z2;
-  qint32  m_nkhz;
   qint32  m_fSample;
   qint32  m_i0;
   qint32  m_xClick;
