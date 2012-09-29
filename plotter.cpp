@@ -194,7 +194,8 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   m_freqPerDiv=10;
   if(n>25) m_freqPerDiv=50;
   if(n>70) m_freqPerDiv=100;
-  if(n>250) m_freqPerDiv=500;
+  if(n>140) m_freqPerDiv=200;
+  if(n>310) m_freqPerDiv=500;
   m_hdivs = w*df/m_freqPerDiv + 0.9999;
   m_ScalePixmap.fill(Qt::white);
   painter0.drawRect(0, 0, w, 30);
@@ -205,8 +206,10 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     x = (int)( (float)i*pixperdiv );
     painter0.drawLine(x,18,x,30);
   }
-  for( int i=1; i<5*m_hdivs; i++) {   //minor ticks
-    x = i*pixperdiv/5.0;
+  int minor=5;
+  if(m_freqPerDiv==200) minor=4;
+  for( int i=1; i<minor*m_hdivs; i++) {   //minor ticks
+    x = i*pixperdiv/minor;
     painter0.drawLine(x,24,x,30);
   }
 
@@ -355,7 +358,10 @@ void CPlotter::setBinsPerPixel(int n)                       // set nbpp
   update();                              //trigger a new paintEvent}
 }
 
-int CPlotter::binsPerPixel(){return m_binsPerPixel;}         //get nbpp
+int CPlotter::binsPerPixel()                                // get nbpp
+{
+  return m_binsPerPixel;
+}
 
 void CPlotter::setFQSO(int x, bool bf)                       //setFQSO()
 {
