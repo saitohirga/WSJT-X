@@ -102,7 +102,7 @@
        <item>
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Nbpp</string>
+          <string>FFT Bins / Pixel</string>
          </property>
         </widget>
        </item>

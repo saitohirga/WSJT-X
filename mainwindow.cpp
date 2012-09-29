@@ -323,7 +323,7 @@ void MainWindow::dataSink(int k)
   nb=0;
   if(m_NB) nb=1;
   symspecx_(&k, & m_nsps, &ndiskdat, &nb, &m_NBslider, &px, s,
-            &nkhz, &ihsym, &nzap, &slimit, lstrong);
+            &ihsym, &nzap, &slimit, lstrong);
   if(ihsym <=0) return;
   QString t;
   m_pctZap=nzap/178.3;

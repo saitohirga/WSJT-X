@@ -190,8 +190,6 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   if(m_binsPerPixel < 1) m_binsPerPixel=1;
   double df = m_binsPerPixel*m_fftBinWidth;
   m_fSpan = w*df;
-//  m_freqPerDiv=50*m_binsPerPixel;
-//  m_freqPerDiv=nHzDiv[m_binsPerPixel];
   int n=m_fSpan/10;
   m_freqPerDiv=10;
   if(n>25) m_freqPerDiv=50;
@@ -201,8 +199,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   m_ScalePixmap.fill(Qt::white);
   painter0.drawRect(0, 0, w, 30);
 
-  //draw tick marks on wideband (upper) scale
-//  pixperdiv = m_binsPerPixel*m_freqPerDiv/df;
+//draw tick marks on upper scale
   pixperdiv = m_freqPerDiv/df;
   for( int i=1; i<m_hdivs; i++) {     //major ticks
     x = (int)( (float)i*pixperdiv );

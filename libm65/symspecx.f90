@@ -1,4 +1,4 @@
-subroutine symspecx(k,nsps,ndiskdat,nb,nbslider,pxdb,s,nkhz,ihsym,   &
+subroutine symspecx(k,nsps,ndiskdat,nb,nbslider,pxdb,s,ihsym,   &
      nzap,slimit,lstrong)
 
 !  k        pointer to the most recent new data
@@ -7,7 +7,6 @@ subroutine symspecx(k,nsps,ndiskdat,nb,nbslider,pxdb,s,nkhz,ihsym,   &
 !  nb       0/1 status of noise blanker (off/on)
 !  pxdb     power (0-60 dB)
 !  s        spectrum for waterfall display
-!  nkhz     integer kHz portion of center frequency, e.g., 125 for 144.125
 !  ihsym    index number of this half-symbol (1-322)
 !  nzap     number of samples zero'ed by noise blanker
 
@@ -79,8 +78,6 @@ subroutine symspecx(k,nsps,ndiskdat,nb,nbslider,pxdb,s,nkhz,ihsym,   &
 !3001 format(f12.6,2f12.3)
   enddo
 !  flush(71)
-
-  nkhz=100
 
 999 return
 end subroutine symspecx
