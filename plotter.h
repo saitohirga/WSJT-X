@@ -84,22 +84,19 @@ private:
   qint64 RoundFreq(qint64 freq, int resolution);
 
   QPixmap m_WaterfallPixmap;
-  QPixmap m_ZoomWaterfallPixmap;
   QPixmap m_2DPixmap;
   unsigned char m_zwf[32768*400];
   QPixmap m_ScalePixmap;
-  QPixmap m_ZoomScalePixmap;
+  QPixmap m_LowerScalePixmap;
   QSize   m_Size;
   QString m_Str;
   QString m_HDivText[483];
   bool    m_Running;
   bool    m_paintEventBusy;
   bool    m_2Dspec;
-  bool    m_paintAllZoom;
   double  m_CenterFreq;
   double  m_fGreen;
   qint64  m_StartFreq;
-  qint64  m_ZoomStartFreq;
   qint32  m_dBStepSize;
   qint32  m_FreqUnits;
   qint32  m_hdivs;
