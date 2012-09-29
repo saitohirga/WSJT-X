@@ -35,7 +35,6 @@ public:
   qint32  m_DF;
   qint32  m_tol;
   qint32  m_fCal;
-  qint32  m_nsps;
 
   void draw(float sw[], int i0, float splot[]);		//Update the waterfalls
   void SetRunningState(bool running);
@@ -63,8 +62,8 @@ public:
   int  autoZero();
   void setPalette(QString palette);
   void setFsample(int n);
-  void setMode65(int n);
   void set2Dspec(bool b);
+  void setNsps(int n);
   double fGreen();
 
 signals:
@@ -113,9 +112,10 @@ private:
   qint32  m_z2;
   qint32  m_nkhz;
   qint32  m_fSample;
-  qint32  m_mode65;
   qint32  m_i0;
   qint32  m_xClick;
+  qint32  m_freqPerDiv;
+  qint32  m_nsps;
 
 private slots:
   void mousePressEvent(QMouseEvent *event);

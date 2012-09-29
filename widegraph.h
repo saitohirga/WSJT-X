@@ -30,7 +30,6 @@ public:
   void   setFcal(int n);
   void   setPalette(QString palette);
   void   setFsample(int n);
-  void   setMode65(int n);
   void   setPeriod(int ntrperiod, int nsps);
   double fGreen();
 
@@ -60,7 +59,6 @@ private:
   qint32 m_waterfallAvg;
   qint32 m_fCal;
   qint32 m_fSample;
-  qint32 m_mode65;
   qint32 m_TRperiod;
   qint32 m_nsps;
 
