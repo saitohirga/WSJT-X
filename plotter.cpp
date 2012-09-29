@@ -24,16 +24,14 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   m_Running = false;
   m_paintEventBusy=false;
   m_WaterfallPixmap = QPixmap(0,0);
-  m_ZoomWaterfallPixmap = QPixmap(0,0);
   m_2DPixmap = QPixmap(0,0);
   m_ScalePixmap = QPixmap(0,0);
-  m_ZoomScalePixmap = QPixmap(0,0);
+  m_LowerScalePixmap = QPixmap(0,0);
   m_Size = QSize(0,0);
   m_fQSO = 125;
   m_line = 0;
   m_fSample = 12000;
   m_nsps=6912;
-  m_paintAllZoom = false;
 }
 
 CPlotter::~CPlotter() { }                                      // Destructor
@@ -57,16 +55,14 @@ void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
     int w = m_Size.width();
     int h = (m_Size.height()-60)/2;
     m_WaterfallPixmap = QPixmap(w,h);
-    m_ZoomWaterfallPixmap = QPixmap(w,h);
     m_2DPixmap = QPixmap(w,h);
     m_WaterfallPixmap.fill(Qt::black);
-    m_ZoomWaterfallPixmap.fill(Qt::black);
     m_2DPixmap.fill(Qt::black);
     memset(m_zwf,0,NSMAX*h);
     m_ScalePixmap = QPixmap(w,30);
-    m_ZoomScalePixmap = QPixmap(w,30);    //(no change on resize...)
+    m_LowerScalePixmap = QPixmap(w,30);    //(no change on resize...)
     m_ScalePixmap.fill(Qt::white);
-    m_ZoomScalePixmap.fill(Qt::yellow);
+    m_LowerScalePixmap.fill(Qt::yellow);
   }
   SetCenterFreq(-1);
   DrawOverlay();
@@ -101,7 +97,6 @@ void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
   //move current data down one line
   //(must do this before attaching a QPainter object)
   m_WaterfallPixmap.scroll(0,1,0,0,w,h);
-  m_ZoomWaterfallPixmap.scroll(0,1,0,0, w, h);
   memmove(&m_zwf[32768],m_zwf,32768*(h-1));
   QPainter painter1(&m_WaterfallPixmap);
   QPainter painter2D(&m_2DPixmap);
@@ -166,7 +161,6 @@ void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
     UTCstr();
     painter1.setPen(Qt::white);
     painter1.drawText(5,10,m_sutc);
-    m_paintAllZoom=true;
   }
   update();                              //trigger a new paintEvent
 }
@@ -273,9 +267,9 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   painter0.setPen(pen3);
   if(x0>0 and x0<w) painter0.drawLine(x0,15,x0,30);
 
-  // Now make the zoomed scale, using m_ZoomScalePixmap and painter3
+  // Now make the lower scale, using m_LowerScalePixmap and painter3
   QRect rect1;
-  QPainter painter3(&m_ZoomScalePixmap);
+  QPainter painter3(&m_LowerScalePixmap);
   painter3.initFrom(this);
   painter3.setFont(Font);
   painter3.setPen(Qt::black);
@@ -283,7 +277,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   df = 12000.0/m_nsps;
   m_hdivs = 4400*df/m_freqPerDiv + 0.9999;
   int nlabs=df*w/m_freqPerDiv + 1.0;
-  m_ZoomScalePixmap.fill(Qt::white);
+  m_LowerScalePixmap.fill(Qt::white);
   painter3.drawRect(0, 0, w, 30);
 
   pixperdiv = m_freqPerDiv/df;
@@ -430,13 +424,7 @@ void CPlotter::mousePressEvent(QMouseEvent *event)       //mousePressEvent
   int h = (m_Size.height()-60)/2;
   int x=event->x();
   int y=event->y();
-  if(y < h+30) {
-    setFQSO(x,false);                               // Wideband waterfall
-  } else {
-    m_DF=int(m_ZoomStartFreq + x*m_fSample/32768.0);  // Zoomed waterfall
-    DrawOverlay();
-    update();
-  }
+  setFQSO(x,false);                               // Wideband waterfall
 }
 
 void CPlotter::mouseDoubleClickEvent(QMouseEvent *event)  //mouse2click
@@ -444,16 +432,9 @@ void CPlotter::mouseDoubleClickEvent(QMouseEvent *event)  //mouse2click
   int h = (m_Size.height()-60)/2;
   int x=event->x();
   int y=event->y();
-  if(y < h+30) {
-    m_DF=0;
-    setFQSO(x,false);
-    emit freezeDecode1(2);                  //### ???
-  } else {
-    float f = m_ZoomStartFreq + x*m_fSample/32768.0;
-    m_DF=int(f);
-    emit freezeDecode1(1);
-    DrawOverlay();
-  }
+  m_DF=0;
+  setFQSO(x,false);
+  emit freezeDecode1(2);                  //### ???
 }
 
 int CPlotter::autoZero()                                        //autoZero()
@@ -571,14 +552,6 @@ void CPlotter::setPalette(QString palette)                      //setPalette()
     }
   }
 
-}
-
-void CPlotter::set2Dspec(bool b)
-{
-//  m_2Dspec=b;
-  m_paintAllZoom=!b;
-  DrawOverlay();                         //Redraw scales and ticks
-  update();                              //trigger a new paintEvent}
 }
 
 double CPlotter::fGreen()
