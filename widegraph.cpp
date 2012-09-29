@@ -36,9 +36,8 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->widePlot->setBinsPerPixel(nbpp);
   m_waterfallAvg = settings.value("WaterfallAvg",10).toInt();
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
-  m_dForceCenterFreq=settings.value("ForceCenterFreqMHz",473.000).toDouble();
-//  ui->cbFcenter->setChecked(m_bForceCenterFreq);
-  ui->fCenterLineEdit->setText(QString::number(m_dForceCenterFreq));
+  m_dialFreq=settings.value("DialFreqMHz",473.000).toDouble();
+  ui->fDialLineEdit->setText(QString::number(m_dialFreq));
   settings.endGroup();
 }
 
@@ -62,11 +61,11 @@ void WideGraph::saveSettings()
   settings.setValue("PlotWidth",ui->widePlot->plotWidth());
   settings.setValue("FreqSpan",ui->freqSpanSpinBox->value());
   settings.setValue("WaterfallAvg",ui->waterfallAvgSpinBox->value());
-  settings.setValue("ForceCenterFreqMHz",m_dForceCenterFreq);
+  settings.setValue("DialFreqMHz",m_dialFreq);
   settings.endGroup();
 }
 
-void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
+void WideGraph::dataSink2(float s[], int ihsym, int ndiskdata,
                           uchar lstrong[])
 {
   static float splot[NSMAX];
@@ -79,15 +78,8 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
   static int ntr0=0;
 
   df = 12000.0/m_nsps;
-  if(nkhz != nkhz0) {
-    ui->widePlot->setNkhz(nkhz);                   //Why do we need both?
-    ui->widePlot->SetCenterFreq(nkhz);             //Why do we need both?
-    ui->widePlot->setFQSO(nkhz,true);
-    nkhz0 = nkhz;
-  }
 
   //Average spectra over specified number, m_waterfallAvg
-//  qDebug() << "C" << ihsym << NSMAX << df << nbpp;
   if (n==0) {
     for (int i=0; i<NSMAX; i++)
       splot[i]=s[i];
@@ -103,29 +95,25 @@ void WideGraph::dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
     n=0;
 
     int w=ui->widePlot->plotWidth();
-//    if(sf != ui->widePlot->startFreq()) ui->widePlot->SetStartFreq(sf);
-//    int i0=16384.0+(ui->widePlot->startFreq()-nkhz+1.27046+0.001*m_fCal) *
-//        1000.0/df + 0.5;
-
     int i0=0;                            //###
-//    nbpp=1;                          //###
-
     int i=i0;
     for (int j=0; j<2048; j++) {
+      /*
       smax=0;
       for (int k=0; k<nbpp; k++) {
         if(splot[i]>smax) smax=splot[i];
         i++;
       }
       swide[j]=smax;
-/*
+      */
+
       float sum=0;
       for (int k=0; k<nbpp; k++) {
         i++;
         sum += splot[i];
       }
         swide[j]=sum;
-*/
+
       if(lstrong[1 + i/32]!=0) swide[j]=-smax;   //Tag strong signals
     }
 
@@ -249,9 +237,9 @@ void WideGraph::setPalette(QString palette)
   ui->widePlot->setPalette(palette);
 }
 
-void WideGraph::on_fCenterLineEdit_editingFinished()
+void WideGraph::on_fDialLineEdit_editingFinished()
 {
-  m_dForceCenterFreq=ui->fCenterLineEdit->text().toDouble();
+  m_dialFreq=ui->fDialLineEdit->text().toDouble();
 }
 
 void WideGraph::initIQplus()

@@ -282,7 +282,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="fCenterLineEdit">
+        <widget class="QLineEdit" name="fDialLineEdit">
          <property name="enabled">
           <bool>true</bool>
          </property>
