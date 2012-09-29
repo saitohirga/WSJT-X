@@ -947,6 +947,7 @@ void MainWindow::guiUpdate()
     ui->monitorButton->setStyleSheet("");
   }
 
+  lab2->setText("QSO Freq:  " + QString::number(g_pWideGraph->QSOfreq()));
   lab3->setText("Freeze DF:  " + QString::number(g_pWideGraph->DF()));
 
   if(m_startAnother) {
