@@ -61,6 +61,8 @@ public:
   void setFsample(int n);
   void setNsps(int n);
   double fGreen();
+  void SetPercent2DScreen(int percent){m_Percent2DScreen=percent;}
+
 
 signals:
   void freezeDecode0(int n);
@@ -82,7 +84,8 @@ private:
   QPixmap m_WaterfallPixmap;
   QPixmap m_2DPixmap;
   QPixmap m_ScalePixmap;
-  QPixmap m_LowerScalePixmap;
+  QPixmap m_OverlayPixmap;
+//  QPixmap m_LowerScalePixmap;
   QSize   m_Size;
   QString m_Str;
   QString m_HDivText[483];
@@ -105,6 +108,11 @@ private:
   qint32  m_xClick;
   qint32  m_freqPerDiv;
   qint32  m_nsps;
+  qint32  m_Percent2DScreen;
+  qint32  m_w;
+  qint32  m_h;
+  qint32  m_h1;
+  qint32  m_h2;
 
 private slots:
   void mousePressEvent(QMouseEvent *event);

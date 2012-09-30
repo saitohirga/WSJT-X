@@ -25,12 +25,14 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   m_WaterfallPixmap = QPixmap(0,0);
   m_2DPixmap = QPixmap(0,0);
   m_ScalePixmap = QPixmap(0,0);
-  m_LowerScalePixmap = QPixmap(0,0);
+  m_OverlayPixmap = QPixmap(0,0);
   m_Size = QSize(0,0);
   m_fQSO = 125;
   m_line = 0;
   m_fSample = 12000;
   m_nsps=6912;
+  m_dBStepSize=10;
+  m_Percent2DScreen = 30;	//percent of screen used for 2D display
 }
 
 CPlotter::~CPlotter() { }                                      // Destructor
@@ -48,19 +50,23 @@ QSize CPlotter::sizeHint() const
 void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
 {
   if(!size().isValid()) return;
-  if( m_Size != size() ) {
-    //if changed, resize pixmaps to new screensize
+  if( m_Size != size() ) {  //if changed, resize pixmaps to new screensize
     m_Size = size();
-    int w = m_Size.width();
-    int h = (m_Size.height()-60)/2;
-    m_WaterfallPixmap = QPixmap(w,h);
-    m_2DPixmap = QPixmap(w,h);
+    m_w = m_Size.width();
+    m_h = m_Size.height();
+    m_h1 = (100-m_Percent2DScreen)*(m_Size.height()-30)/100;
+    m_h2 = (m_Percent2DScreen)*(m_Size.height()-30)/100;
+
+    m_2DPixmap = QPixmap(m_Size.width(), m_h2);
+    m_2DPixmap.fill(Qt::black);
+    m_WaterfallPixmap = QPixmap(m_Size.width(), m_h1);
+    m_OverlayPixmap = QPixmap(m_Size.width(), m_h2);
+    m_OverlayPixmap.fill(Qt::black);
+
     m_WaterfallPixmap.fill(Qt::black);
     m_2DPixmap.fill(Qt::black);
-    m_ScalePixmap = QPixmap(w,30);
-    m_LowerScalePixmap = QPixmap(w,30);    //(no change on resize...)
+    m_ScalePixmap = QPixmap(m_w,30);
     m_ScalePixmap.fill(Qt::white);
-    m_LowerScalePixmap.fill(Qt::yellow);
   }
   DrawOverlay();
 }
@@ -72,44 +78,37 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
   if(m_paintEventBusy) return;
   m_paintEventBusy=true;
   QPainter painter(this);
-  int w = m_Size.width();
-  int h = (m_Size.height()-60)/2;
   painter.drawPixmap(0,0,m_ScalePixmap);
   painter.drawPixmap(0,30,m_WaterfallPixmap);
-  painter.drawPixmap(0,h+30,m_ScalePixmap);
-  painter.drawPixmap(0,h+60,m_2DPixmap);
+  painter.drawPixmap(0,m_h1,m_2DPixmap);
   m_paintEventBusy=false;
 }
 
 void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
 {
-  int i,j,w,h;
+  int j;
   float y;
 
   m_i0=i0;
-  w = m_WaterfallPixmap.width();
-  h = m_WaterfallPixmap.height();
   double gain = pow(10.0,0.05*(m_plotGain+7));
 
-  //move current data down one line
-  //(must do this before attaching a QPainter object)
-  m_WaterfallPixmap.scroll(0,1,0,0,w,h);
+//move current data down one line (must do this before attaching a QPainter object)
+  m_WaterfallPixmap.scroll(0,1,0,0,m_w,m_h1);
   QPainter painter1(&m_WaterfallPixmap);
+  m_2DPixmap = m_OverlayPixmap.copy(0,0,m_w,m_h2);
   QPainter painter2D(&m_2DPixmap);
 
-  for(i=0; i<256; i++) {                     //Zero the histograms
+  for(int i=0; i<256; i++) {                     //Zero the histograms
     m_hist1[i]=0;
   }
 
   painter2D.setPen(Qt::green);
-  QRect tmp(0,0,w,h);
-  painter2D.fillRect(tmp,Qt::black);
   QPoint LineBuf[MAX_SCREENSIZE];
   j=0;
   bool strong0=false;
   bool strong=false;
 
-  for(i=0; i<w; i++) {
+  for(int i=0; i<m_w; i++) {
     strong=false;
     if(swide[i]<0) {
       strong=true;
@@ -127,7 +126,7 @@ void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
     if (y2<0) y2=0;
     if (y2>254) y2=254;
     if (swide[i]>1.e29) y2=255;
-    if(strong != strong0 or i==w-1) {
+    if(strong != strong0 or i==m_w-1) {
       painter2D.drawPolyline(LineBuf,j);
       j=0;
       strong0=strong;
@@ -135,7 +134,7 @@ void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
       if(!strong0) painter2D.setPen(Qt::green);
     }
     LineBuf[j].setX(i);
-    LineBuf[j].setY(h-y2);
+    LineBuf[j].setY(m_h-y2-320);
     j++;
   }
 
@@ -168,11 +167,67 @@ void CPlotter::UTCstr()
 
 void CPlotter::DrawOverlay()                                 //DrawOverlay()
 {
+  if(m_OverlayPixmap.isNull()) return;
   if(m_WaterfallPixmap.isNull()) return;
   int w = m_WaterfallPixmap.width();
   int x,y;
   int nHzDiv[11]={0,50,100,200,200,200,500,500,500,500,500};
   float pixperdiv;
+
+//###
+  QRect rect;
+  QPainter painter(&m_OverlayPixmap);
+  painter.initFrom(this);
+  QLinearGradient gradient(0, 0, 0 ,m_h2);  //fill background with gradient
+  gradient.setColorAt(1, Qt::black);
+  gradient.setColorAt(0, Qt::darkBlue);
+  painter.setBrush(gradient);
+  painter.drawRect(0, 0, m_w, m_h2);
+  painter.setBrush(Qt::SolidPattern);
+
+  //draw vertical grids
+  double df = m_binsPerPixel*m_fftBinWidth;
+  pixperdiv = m_freqPerDiv/df;
+  y = m_h2 - m_h2/VERT_DIVS;
+  for( int i=1; i<m_hdivs; i++)
+  {
+    x = (int)( (float)i*pixperdiv );
+    painter.setPen(QPen(Qt::white, 1,Qt::DotLine));
+    painter.drawLine(x, 0, x , y);
+    painter.drawLine(x, m_h2-5, x , m_h2);
+  }
+
+  //draw horizontal grids
+  pixperdiv = (float)m_h2 / (float)VERT_DIVS;
+  painter.setPen(QPen(Qt::white, 1,Qt::DotLine));
+  for( int i=1; i<VERT_DIVS; i++)
+  {
+          y = (int)( (float)i*pixperdiv );
+          painter.drawLine(0, y, w, y);
+  }
+
+  //draw amplitude values
+  painter.setPen(Qt::yellow);
+//  Font.setWeight(QFont::Light);
+//  painter.setFont(Font);
+//  int dB = m_MaxdB;
+  int dB = 50;
+  for( int i=0; i<VERT_DIVS-1; i++)
+  {
+    y = (int)( (float)i*pixperdiv );
+    painter.drawStaticText(5, y-1, QString::number(dB)+" dB");
+    dB -= m_dBStepSize;
+  }
+  // m_MindB = m_MaxdB - (VERT_DIVS)*m_dBStepSize;
+
+  if(!m_Running)
+  {	//if not running so is no data updates to draw to screen
+          //copy into 2Dbitmap the overlay bitmap.
+    m_2DPixmap = m_OverlayPixmap.copy(0,0,m_w,m_h2);
+          //trigger a new paintEvent
+    update();
+  }
+//###
 
   QRect rect0;
   QPainter painter0(&m_ScalePixmap);
@@ -188,7 +243,6 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
 
   m_fftBinWidth=12000.0/m_nsps;
   if(m_binsPerPixel < 1) m_binsPerPixel=1;
-  double df = m_binsPerPixel*m_fftBinWidth;
   m_fSpan = w*df;
   int n=m_fSpan/10;
   m_freqPerDiv=10;
@@ -251,31 +305,32 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
 
   // Now make the lower scale, using m_LowerScalePixmap and painter3
   QRect rect1;
-  QPainter painter3(&m_LowerScalePixmap);
-  painter3.initFrom(this);
-  painter3.setFont(Font);
-  painter3.setPen(Qt::black);
+//  QPainter painter3(&m_LowerScalePixmap);
+//  painter3.initFrom(this);
+//  painter3.setFont(Font);
+//  painter3.setPen(Qt::black);
 
   df = 12000.0/m_nsps;
   int nlabs=df*w/m_freqPerDiv + 1.0;
-  m_LowerScalePixmap.fill(Qt::white);
-  painter3.drawRect(0, 0, w, 30);
+//  m_LowerScalePixmap.fill(Qt::white);
+//  painter3.drawRect(0, 0, w, 30);
   pixperdiv = m_freqPerDiv/df;
   for( int i=0; i<10*nlabs; i++) {
     x = i*pixperdiv/10;
     y=24;
     if ((i%10) == 0) y=18;
-    painter3.drawLine(x,y,x,30);
+//    painter3.drawLine(x,y,x,30);
   }
 
+  /*
   //draw frequency values
   MakeFrequencyStrs();
   for( int i=0; i<=nlabs; i++) {
     x = (int)( (float)i*pixperdiv - pixperdiv/2);
     rect1.setRect(x,0, (int)pixperdiv, 20);
-    painter3.drawText(rect1, Qt::AlignHCenter|Qt::AlignVCenter,
-                      m_HDivText[i]);
+//    painter3.drawText(rect1, Qt::AlignHCenter|Qt::AlignVCenter,m_HDivText[i]);
   }
+  */
 }
 
 void CPlotter::MakeFrequencyStrs()                       //MakeFrequencyStrs
