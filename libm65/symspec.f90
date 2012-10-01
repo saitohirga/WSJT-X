@@ -1,5 +1,5 @@
-subroutine symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,ihsym,   &
-     nzap,slimit,lstrong)
+subroutine symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,df3,    &
+     ihsym,nzap,slimit,lstrong)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -141,9 +141,16 @@ subroutine symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,ihsym,   &
 
   if(ihsym.eq.168) then
      do i=1,iz
-        write(71,3001) i*df3,savg(i),10.0*log10(savg(i))
-3001    format(f12.6,e12.3,f12.3)
+        write(71,3001) i,i*df3,savg(i),10.0*log10(savg(i))
+3001    format(i8,3f12.3)
      enddo
+
+     i0=673
+     do j=1,ihsym
+        write(72,3002) j,(ss(j,i),i=i0,i0+8)
+3002    format(i3,9f8.3)
+     enddo
+
   endif
 
 999 return
