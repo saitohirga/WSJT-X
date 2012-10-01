@@ -1,55 +1,52 @@
-subroutine symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,   &
-     iqadjust,iqapply,gainx,gainy,phasex,phasey,rejectx,rejecty,         &
-     pxdb,pydb,ssz5a,nkhz,ihsym,nzap,slimit,lstrong)
+subroutine symspecx(k,nsps,ndiskdat,nb,nbslider,pxdb,s,ihsym,   &
+     nzap,slimit,lstrong)
 
 !  k        pointer to the most recent new data
-!  nxpol    0/1 to indicate single- or dual-polarization
+!  nsps     samples per symbol (at 12000 Hz)
 !  ndiskdat 0/1 to indicate if data from disk
-!  nb       0/1 status of noise blanker
-!  idphi    Phase correction for Y channel, degrees
-!  nfsample sample rate (Hz)
-!  fgreen   Frequency of green marker in I/Q calibrate mode (-48.0 to +48.0 kHz)
-!  iqadjust 0/1 to indicate whether IQ adjustment is active
-!  iqapply  0/1 to indicate whether to apply I/Q calibration
-!  pxdb     power in x channel (0-60 dB)
-!  pydb     power in y channel (0-60 dB)
-!  ssz5a    polarized spectrum, for waterfall display
-!  nkhz     integer kHz portion of center frequency, e.g., 125 for 144.125
+!  nb       0/1 status of noise blanker (off/on)
+!  pxdb     power (0-60 dB)
+!  s        spectrum for waterfall display
 !  ihsym    index number of this half-symbol (1-322)
 !  nzap     number of samples zero'ed by noise blanker
 
-  parameter (NSMAX=60*96000)          !Total sample intervals per minute
-  parameter (NFFT=32768)              !Length of FFTs
+  parameter (NMAX=1800*12000)        !Total sample intervals per 30 minutes
+  parameter (NSMAX=10000)             !Max length of saved spectra
+  parameter (MAXFFT=262144)          !Max length of FFTs
+  integer*2 id2
   real*8 ts,hsym
   real*8 fcenter
-  common/datcom/dd(4,5760000),ss(4,322,NFFT),savg(4,NFFT),fcenter,nutc,junk(34)
-  real*4 ssz5a(NFFT),w(NFFT)
+  real*4 s(NFFT),w(NFFT)
   complex z,zfac
-  complex zsumx,zsumy
-  complex cx(NFFT),cy(NFFT)
+  complex zsumx
+  complex cx(NFFT)
+  complex cx00(NFFT)
   complex cx0(0:1023),cx1(0:1023)
-  complex cy0(0:1023),cy1(0:1023)
   logical*1 lstrong(0:1023)
-  data rms/999.0/,k0/99999999/,nadjx/0/,nadjy/0/
+  common/jt8com/id2(NMAX),ss(184,NSMAX),savg(NSMAX),fcenter,nutc,junk(20)
+  data rms/999.0/,k0/99999999/,ntrperiod0/0/
   save
 
-  if(k.gt.5751000) go to 999
-  if(k.lt.NFFT) then
+  nfft3=nsps
+  hsym=nsps/2
+  if(k.gt.NMAX) go to 999
+  if(k.lt.nfft3) then
      ihsym=0
      go to 999             !Wait for enough samples to start
   endif
   if(k0.eq.99999999) then
      pi=4.0*atan(1.0)
-     do i=1,NFFT
-        w(i)=(sin(i*pi/NFFT))**2
+     do i=1,nfft3
+        w(i)=(sin(i*pi/nfft3))**2                     !Window for nfft3
      enddo
   endif
+
   if(k.lt.k0) then
      ts=1.d0 - hsym
      savg=0.
      ihsym=0
      k1=0
-     if(ndiskdat.eq.0) dd(1:4,k+1:5760000)=0.  !### Should not be needed ??? ###
+     if(ndiskdat.eq.0) id2(k+1:)=0.        !### Should not be needed ??? ###
   endif
   k0=k
 
@@ -58,138 +55,64 @@ subroutine symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,   &
   peaklimit=sigmas*max(10.0,rms)
   faclim=3.0
   px=0.
-  py=0.
 
-  iqapply0=0
-  iqadjust0=0
-  if(iqadjust.ne.0) iqapply0=0
   nwindow=2
-!  nwindow=0                                    !### No wondowing ###
-  nfft2=1024
-  kstep=nfft2
-  if(nwindow.ne.0) kstep=nfft2/2
+!  nwindow=0                                    !### No windowing ###
+  nfft1=1024
+  kstep=nfft1
+  if(nwindow.ne.0) kstep=nfft1/2
   nblks=(k-k1)/kstep
   do nblk=1,nblks
      j=k1+1
-     do i=0,nfft2-1
+     do i=0,nfft1-1
         cx0(i)=cmplx(dd(1,j+i),dd(2,j+i))
-        if(nxpol.ne.0) cy0(i)=cmplx(dd(3,j+i),dd(4,j+i))
      enddo
-     call timf2(k,nxpol,nfft2,nwindow,nb,peaklimit,iqadjust0,iqapply0,faclim,  &
-          cx0,cy0,gainx,gainy,phasex,phasey,cx1,cy1,slimit,lstrong,          &
-          px,py,nzap)
+     call timf2x(k,nfft1,nwindow,nb,peaklimit,faclim,cx0,cx1,    &
+          slimit,lstrong,px,nzap)
 
      do i=0,kstep-1
         dd(1,j+i)=real(cx1(i))
-        dd(2,j+i)=aimag(cx1(i))
-        if(nxpol.ne.0) then
-           dd(3,j+i)=real(cy1(i))
-           dd(4,j+i)=aimag(cy1(i))
-        endif
      enddo
      k1=k1+kstep
   enddo
 
-  hsym=2048.d0*96000.d0/11025.d0      !Samples per JT65 half-symbol
-  if(nfsample.eq.95238)   hsym=2048.d0*95238.1d0/11025.d0
-  npts=NFFT                           !Samples used in each half-symbol FFT
-
-  ihsym=ihsym+1
-  ja=ts+hsym                          !Index of first sample
-  jb=ja+npts-1                        !Last sample
-
   ts=ts+hsym
+  ja=ts                               !Index of first sample
+  jb=ja+nfft3-1                       !Last sample
+
   i=0
   fac=0.0002
-  dphi=idphi/57.2957795
-  zfac=fac*cmplx(cos(dphi),sin(dphi))
-  do j=ja,jb                          !Copy data into cx, cy
+  do j=ja,jb                          !Copy data into cx
      x1=dd(1,j)
-     x2=dd(2,j)
-     if(nxpol.ne.0) then
-        x3=dd(3,j)
-        x4=dd(4,j)
-     else
-        x3=0.
-        x4=0.
-     endif
      i=i+1
      cx(i)=fac*cmplx(x1,x2)
-     cy(i)=zfac*cmplx(x3,x4)          !NB: cy includes dphi correction
   enddo
 
   if(nzap/178.lt.50 .and. (ndiskdat.eq.0 .or. ihsym.lt.280)) then
      nsum=nblks*kstep - nzap
      if(nsum.le.0) nsum=1
      rmsx=sqrt(0.5*px/nsum)
-     rmsy=sqrt(0.5*py/nsum)
      rms=rmsx
-     if(nxpol.ne.0) rms=sqrt((px+py)/(4.0*nsum))
   endif
   pxdb=0.
-  pydb=0.
   if(rmsx.gt.1.0) pxdb=20.0*log10(rmsx)
-  if(rmsy.gt.1.0) pydb=20.0*log10(rmsy)
   if(pxdb.gt.60.0) pxdb=60.0
-  if(pydb.gt.60.0) pydb=60.0
 
-  cx=w*cx                             !Apply window for 2nd forward FFT
-  if(nxpol.ne.0) cy=w*cy
+  cx00=cx
 
-  call four2a(cx,NFFT,1,1,1)          !Second forward FFT
-  if(iqadjust.eq.0) nadjx=0
-  if(iqadjust.ne.0 .and. nadjx.lt.50) call iqcal(nadjx,cx,NFFT,gainx,phasex, &
-                                                 zsumx,ipkx,rejectx0)
-  if(iqapply.ne.0) call iqfix(cx,NFFT,gainx,phasex)
-
-  if(nxpol.ne.0) then
-     call four2a(cy,NFFT,1,1,1)
-     if(iqadjust.eq.0) nadjy=0
-     if(iqadjust.ne.0 .and. nadjy.lt.50) call iqcal(nadjy,cy,NFFT,gainy,phasey,&
-                                                 zsumy,ipky,rejecty)
-     if(iqapply.ne.0) call iqfix(cy,NFFT,gainy,phasey)
-  endif
-
-  n=ihsym
-  do i=1,NFFT
-     sx=real(cx(i))**2 + aimag(cx(i))**2  
-     ss(1,n,i)=sx                    ! Pol = 0
-     savg(1,i)=savg(1,i) + sx
+  ihsym=ihsym+1
+  cx=w*cx00                           !Apply window for 2nd forward FFT
      
-     if(nxpol.ne.0) then
-        z=cx(i) + cy(i)
-        s45=0.5*(real(z)**2 + aimag(z)**2)
-        ss(2,n,i)=s45                   ! Pol = 45
-        savg(2,i)=savg(2,i) + s45
+  call four2a(cx,nfft3,1,1,1)         !Second forward FFT (X)
 
-        sy=real(cy(i))**2 + aimag(cy(i))**2
-        ss(3,n,i)=sy                    ! Pol = 90
-        savg(3,i)=savg(3,i) + sy
-        
-        z=cx(i) - cy(i)
-        s135=0.5*(real(z)**2 + aimag(z)**2)
-        ss(4,n,i)=s135                  ! Pol = 135
-        savg(4,i)=savg(4,i) + s135
-
-        z=cx(i)*conjg(cy(i))
-        q=sx - sy
-        u=2.0*real(z)
-        ssz5a(i)=0.707*sqrt(q*q + u*u)    !Spectrum of linear polarization
-! Leif's formula:
-!     ssz5a(i)=0.5*(sx+sy) + (real(z)**2 + aimag(z)**2 - sx*sy)/(sx+sy)
-     else
-        ssz5a(i)=sx
-     endif
+  n=min(322,ihsym)
+  do i=1,nfft3
+     sx=real(cx(i))**2 + aimag(cx(i))**2  
+     ss(1,n,i)=sx
+     savg(1,i)=savg(1,i) + sx
+     ssz5a(i)=sx
   enddo
-  if(ihsym.eq.278) then
-     if(iqadjust.ne.0 .and. ipkx.ne.0 .and. ipky.ne.0) then
-        rejectx=10.0*log10(savg(1,1+nfft-ipkx)/savg(1,1+ipkx))
-        rejecty=10.0*log10(savg(3,1+nfft-ipky)/savg(3,1+ipky))
-     endif
-  endif
 
-  nkhz=nint(1000.d0*(fcenter-int(fcenter)))
-  if(fcenter.eq.0.d0) nkhz=125
 
 999 return
 end subroutine symspec
