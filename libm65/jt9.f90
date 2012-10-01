@@ -32,7 +32,7 @@ program jt9
   endif
   read(arg,*) ntrperiod
   ifile1=2
-  limtrace=10000
+  limtrace=0
   lu=12
   call timer('jt9     ',0)                      !###
 

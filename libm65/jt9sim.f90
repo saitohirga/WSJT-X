@@ -95,7 +95,9 @@ program jt9sim
      open(10,file=fname//'.wav',access='stream',status='unknown')
 
      if(snrdb.lt.90) then
-        call noisegen(dat,npts)                 !Generate Gaussian noise
+        do i=1,npts
+           dat(i)=gran()
+        enddo
      else
         dat(1:npts)=0.
      endif

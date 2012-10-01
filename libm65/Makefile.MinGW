@@ -17,7 +17,8 @@ CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    libm65.a jt9sim.exe
+all:    libm65.a jt9sim.exe jt9.exe
+#all:    libm65.a jt9.exe
 
 OBJS1 = trimlist.o display.o getdphi.o pctile.o ccf65.o \
 	decode1a.o sort.o filbig.o fil6521.o afc65b.o \
@@ -35,19 +36,20 @@ OBJS1 = trimlist.o display.o getdphi.o pctile.o ccf65.o \
 	db.o specjtms.o genmsk.o mskdf.o tweak1.o syncmsk.o \
 	lenmsk.o decodemsk.o ping.o makepings.o alignmsg.o match.o \
 	rtping.o jtmsk.o hipass.o setupmsk.o foldmsk.o genjt9.o \
-	packbits.o unpackbits.o vit216.o tab.o
+	packbits.o unpackbits.o encode232.o interleave9.o entail.o \
+	fano232.o
 
 libm65.a: $(OBJS1)
 	ar cr libm65.a $(OBJS1) 
 	ranlib libm65.a
 
-OBJS3 = jt9sim.o noisegen.o gran.o tab.o
+OBJS3 = jt9sim.o gran.o
 jt9sim.exe: $(OBJS3) libm65.a
 	$(FC) -o jt9sim.exe $(OBJS3) libm65.a
 
-OBJS2 = JT65code.o
-JT65code.exe: $(OBJS2) libm65.a
-	$(FC) -o JT65code.exe $(OBJS2) libm65.a
+OBJS2 = jt9.o symspec.o timf2x.o timer.o
+jt9.exe: $(OBJS2) libm65.a
+	$(FC) -o jt9.exe $(OBJS2) libm65.a ../libfftw3f_win.a 
 
 INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
 	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
@@ -56,36 +58,17 @@ INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
 ipcomm.o: ipcomm.cpp
 	g++ -c $(INCPATH) ipcomm.cpp
 
-#m65a.o:	m65a.f90
-#	$(FC) -c -fno-second-underscore -cpp m65a.f90
-
 sec_midn.o: sec_midn.f90
 	$(FC) -c -fno-second-underscore sec_midn.f90
 
 #symspec.o: ../symspec.f90
 #	$(FC) -c $(FFLAGS) -o symspec.o ../symspec.f90
 
-OBJS4 = tastro.o astro0.o libm65.a
-tastro.exe: $(OBJS4)
-	$(FC) $(FFLAGS) -o tastro.exe $(OBJS4) libm65.a 
-
-OBJS5 = t1.o genms.o libm65.a
-t1.exe: $(OBJS5)
-	$(FC) $(FFLAGS) -o t1.exe $(OBJS5) libm65.a ../libfftw3f_win.a \
-
-#astro0.o: ../astro0.f90
-#	$(FC) -c $(FFLAGS) -o astro0.o ../astro0.f90
-
-init_rs.o: init_rs.c
-	$(CC) -c -DBIGSYM=1 -o init_rs.o init_rs.c
-
-encode_rs.o: encode_rs.c
-	$(CC) -c -DBIGSYM=1 -o encode_rs.o encode_rs.c
-
-decode_rs.o: decode_rs.c
-	$(CC) -c -DBIGSYM=1 -o decode_rs.o decode_rs.c
+OBJS5 = t1.o 
+t1.exe: $(OBJS5) libm65.a
+	$(FC) -o t1.exe $(OBJS5) libm65.a ../libfftw3f_win.a 
 
 .PHONY : clean
 
 clean:
-	rm -f *.o libm65.a m65.exe jt65code.exe
+	rm -f *.o libm65.a wsjtx.exe jt9sim.exe jt9.exe

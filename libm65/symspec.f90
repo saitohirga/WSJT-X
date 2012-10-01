@@ -139,7 +139,7 @@ subroutine symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,ihsym,   &
      s(i)=sx
   enddo
 
-  if(ihsym.eq.175) then
+  if(ihsym.eq.168) then
      do i=1,iz
         write(71,3001) i*df3,savg(i),10.0*log10(savg(i))
 3001    format(f12.6,e12.3,f12.3)
