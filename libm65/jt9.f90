@@ -3,25 +3,21 @@ program jt9
 ! Decoder for JT9.  Can run stand-alone, reading data from *.wav files;
 ! or as the back end of wsjt-x, with data placed in a shared memory region.
 
-  parameter (NSMAX=60*96000)
-  parameter (NFFT=32768)
-  integer*2 i2(4,87)
-  real*8 hsym
-  real*4 ssz5a(NFFT)
-  logical*1 lstrong(0:1023)
-  common/tracer/limtrace,lu
-  real*8 fc0,fcenter
   character*80 arg,infile
-  character mycall*12,hiscall*12,mygrid*6,hisgrid*6,datetime*20
-  common/datcom/dd(4,5760000),ss(4,322,NFFT),savg(4,NFFT),fc0,nutc0,junk(34)
-  common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,                &
-       ndepth,ndiskdat,neme,newdat,nfa,nfb,nfcal,nfshift,                 &
-       mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,mode65,              &
-       mycall,mygrid,hiscall,hisgrid,datetime
+  parameter (NMAX=1800*12000)        !Total sample intervals per 30 minutes
+  parameter (NDMAX=1800*1500)        !Sample intervals at 1500 Hz rate
+  parameter (NSMAX=22000)            !Max length of saved spectra
+  integer*4 ihdr(11)
+  real*4 s(NSMAX)
+  logical*1 lstrong(0:1023)
+  integer*2 id2
+  complex c0
+  common/jt8com/id2(NMAX),ss(184,NSMAX),savg(NSMAX),c0(NDMAX),nutc,junk(20)
+  common/tracer/limtrace,lu
 
   nargs=iargc()
   if(nargs.lt.1) then
-     print*,'Usage: jt9 TRp file1 [file2 ...]'
+     print*,'Usage: jt9 TRperiod file1 [file2 ...]'
      print*,'       Reads data from *.wav files.'
      print*,''
      print*,'       jt9 -s'
@@ -30,101 +26,83 @@ program jt9
   endif
   call getarg(1,arg)
   if(arg(1:2).eq.'-s') then
-     call m65a
-     call ftnquit
+!     call jt9a
+!     call ftnquit
      go to 999
   endif
-  nfsample=96000
-  nxpol=1
-  mode65=2
-  ifile1=1
-  if(arg.eq.'95238') then
-     nfsample=95238
-     call getarg(2,arg)
-     ifile1=2
-  endif
-
-  limtrace=0
+  read(arg,*) ntrperiod
+  ifile1=2
+  limtrace=10000
   lu=12
-  nfa=100
-  nfb=162
-  nfshift=6
-  ndepth=2
-  nfcal=344
-  idphi=-50
-  ntol=500
-  nkeep=10
+  call timer('jt9     ',0)                      !###
 
-  call ftninit('.')
+  nfa=1000
+  nfb=2000
+  ntol=500
+  mousedf=0
+  mousefqso=1500
+  newdat=1
+  nb=0
+  nbslider=100
+
+!  call ftninit('.')
 
   do ifile=ifile1,nargs
      call getarg(ifile,infile)
      open(10,file=infile,access='stream',status='old',err=998)
-     i1=index(infile,'.tf2')
+     read(10) ihdr
+     i1=index(infile,'.wav')
      read(infile(i1-4:i1-1),*,err=1) nutc0
      go to 2
 1    nutc0=0
-2    hsym=2048.d0*96000.d0/11025.d0          !Samples per half symbol
-     nhsym0=-999
-     k=0
-     fcenter=144.125d0
-     mousedf=0
-     mousefqso=125
-     newdat=1
-     mycall='K1JT'
+2    nsps=0
+     if(ntrperiod.eq.1)  nsps=6912
+     if(ntrperiod.eq.2)  nsps=15360
+     if(ntrperiod.eq.5)  nsps=40960
+     if(ntrperiod.eq.10) nsps=82944
+     if(ntrperiod.eq.30) nsps=252000
+     if(nsps.eq.0) stop 'Error: bad TRprtiod'
 
-     if(ifile.eq.ifile1) call timer('m65     ',0)
-     do irec=1,9999999
-        call timer('read_tf2',0)
-        read(10) i2
-        call timer('read_tf2',1)
-        
-        call timer('float   ',0)
-        do i=1,87
-           k=k+1
-           dd(1,k)=i2(1,i)
-           dd(2,k)=i2(2,i)
-           dd(3,k)=i2(3,i)
-           dd(4,k)=i2(4,i)
-        enddo
-        call timer('float   ',1)
-        nhsym=(k-2048)/hsym
+     kstep=nsps/2
+     k=0
+     nhsym0=-999
+     npts=(60*ntrperiod-6)*12000
+     call timer('read_wav',0)
+     read(10) id2(1:npts)
+     call timer('read_wav',1)
+
+!     do i=1,npts
+!        id2(i)=100.0*sin(6.283185307*1046.875*i/12000.0)
+!     enddo
+
+!     if(ifile.eq.ifile1) call timer('jt9     ',0)
+     do iblk=1,npts/kstep
+        k=iblk*kstep
+        nhsym=(k-2048)/kstep
         if(nhsym.ge.1 .and. nhsym.ne.nhsym0) then
-           ndiskdat=1
-           nb=0
 ! Emit signal readyForFFT
            call timer('symspec ',0)
-           fgreen=-13.0
-           iqadjust=1
-           iqapply=1
-           nbslider=100
-           gainx=0.9962
-           gainy=1.0265
-           phasex=0.01426
-           phasey=-0.01195
-           call symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,fgreen,  &
-                iqadjust,iqapply,gainx,gainy,phasex,phasey,rejectx,rejecty,  &
-                pxdb,pydb,ssz5a,nkhz,ihsym,nzap,slimit,lstrong)
+           call symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,    &
+                ihsym,nzap,slimit,lstrong)
            call timer('symspec ',1)
            nhsym0=nhsym
-           if(ihsym.ge.278) go to 10
+           if(ihsym.ge.184) go to 10
         endif
      enddo
 
 10   continue
-     if(iqadjust.ne.0) write(*,3002) rejectx,rejecty
-3002 format('Image rejection:',2f7.1,' dB')
+
      nutc=nutc0
      nstandalone=1
-     call decode0(dd,ss,savg,nstandalone,nfsample)
+!     call decode0(dd,ss,savg,nstandalone,nfsample)
   enddo
 
-  call timer('m65     ',1)
-  call timer('m65     ',101)
-  call ftnquit
+  call timer('jt9     ',1)
+  call timer('jt9     ',101)
+!  call ftnquit
   go to 999
 
 998 print*,'Cannot open file:'
   print*,infile
 
-999 end program m65
+999 end program jt9
