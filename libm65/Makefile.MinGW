@@ -47,7 +47,7 @@ OBJS3 = jt9sim.o gran.o
 jt9sim.exe: $(OBJS3) libm65.a
 	$(FC) -o jt9sim.exe $(OBJS3) libm65.a
 
-OBJS2 = jt9.o symspec.o timf2x.o timer.o
+OBJS2 = jt9.o symspec.o timf2x.o timer.o sync9.o
 jt9.exe: $(OBJS2) libm65.a
 	$(FC) -o jt9.exe $(OBJS2) libm65.a ../libfftw3f_win.a 
 

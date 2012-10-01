@@ -44,7 +44,7 @@ Receiving
 ---------
 1.  Apply noise blanking with the timf2 method
 2.  Filter to 1000 Hz bandwidth and downsample (1/8) to 1500 Hz, saving
-    complex data to array c0(1350000).  (FIR?  FFT2?)
+    complex data to array c0(1350000).  (use FIR?  NFFT2/NFFT2A?)
 3.  Compute symbol-length spectra at half-symbol steps.  Use for
     waterfall display s(22000) and save in ss(184,22000) and 
     savg(22000), for detecting sync vectors.

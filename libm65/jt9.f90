@@ -82,7 +82,7 @@ program jt9
         if(nhsym.ge.1 .and. nhsym.ne.nhsym0) then
 ! Emit signal readyForFFT
            call timer('symspec ',0)
-           call symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,    &
+           call symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,df3,  &
                 ihsym,nzap,slimit,lstrong)
            call timer('symspec ',1)
            nhsym0=nhsym
@@ -94,6 +94,7 @@ program jt9
 
      nutc=nutc0
      nstandalone=1
+     call sync9(ss,df3)
 !     call decode0(dd,ss,savg,nstandalone,nfsample)
   enddo
 
