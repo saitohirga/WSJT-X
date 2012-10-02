@@ -3,6 +3,8 @@ program jt9
 ! Decoder for JT9.  Can run stand-alone, reading data from *.wav files;
 ! or as the back end of wsjt-x, with data placed in a shared memory region.
 
+! NB: For unknown reason, ***MUST*** be compiled by g95 with -O0 !!!
+
   character*80 arg,infile
   parameter (NMAX=1800*12000)        !Total sample intervals per 30 minutes
   parameter (NDMAX=1800*1500)        !Sample intervals at 1500 Hz rate
@@ -12,7 +14,8 @@ program jt9
   logical*1 lstrong(0:1023)
   integer*2 id2
   complex c0
-  common/jt8com/id2(NMAX),ss(184,NSMAX),savg(NSMAX),c0(NDMAX),nutc,junk(20)
+  common/jt8com/id2(NMAX),ss(184,NSMAX),savg(NSMAX),c0(NDMAX),    &
+       nutc,npts8,junk(20)
   common/tracer/limtrace,lu
 
   nargs=iargc()
@@ -31,6 +34,7 @@ program jt9
      go to 999
   endif
   read(arg,*) ntrperiod
+
   ifile1=2
   limtrace=0
   lu=12
@@ -64,6 +68,7 @@ program jt9
      if(nsps.eq.0) stop 'Error: bad TRprtiod'
 
      kstep=nsps/2
+     tstep=kstep/12000.0
      k=0
      nhsym0=-999
      npts=(60*ntrperiod-6)*12000
@@ -82,8 +87,8 @@ program jt9
         if(nhsym.ge.1 .and. nhsym.ne.nhsym0) then
 ! Emit signal readyForFFT
            call timer('symspec ',0)
-           call symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,df3,  &
-                ihsym,nzap,slimit,lstrong)
+           call symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,   &
+                s,f0a,df3,ihsym,nzap,slimit,lstrong)
            call timer('symspec ',1)
            nhsym0=nhsym
            if(ihsym.ge.184) go to 10
@@ -92,9 +97,21 @@ program jt9
 
 10   continue
 
+     do i=0,512
+        if(lstrong(i)) print*,'Strong signal at ',12000.0*i/1024.0
+     enddo
+
+     nz=1000.0/df3
+     do i=1,nz
+        freq=f0a + (i-1)*df3
+        write(78,3001) i,freq,savg(i)
+3001    format(i8,2f12.3)
+     enddo
+
+     print*,npts8,npts8/1500.0
      nutc=nutc0
      nstandalone=1
-     call sync9(ss,df3)
+     call sync9(ss,tstep,f0a,df3)
 !     call decode0(dd,ss,savg,nstandalone,nfsample)
   enddo
 

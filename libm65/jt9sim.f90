@@ -7,7 +7,7 @@ program jt9sim
   integer*2 iwave                     !Generated waveform (no noise)
   real*8 f0,f,dt,twopi,phi,dphi,baud,fspan
   character msg*22,msg0*22,message*22,msgsent*22,arg*8,fname*11
-  integer*4 d6(85)
+  integer*4 itone(85)
 
   integer*4 mettab(0:255,0:1)
   integer*4 t0(13)              !72-bit message as 6-bit words
@@ -64,15 +64,15 @@ program jt9sim
   if(minutes.eq.2)  nsps=15360
   if(minutes.eq.5)  nsps=40960
   if(minutes.eq.10) nsps=82944
-  if(minutes.eq.30) nsps=250880
+  if(minutes.eq.30) nsps=252000
   if(nsps.eq.0) stop 'Bad value for minutes.'
   ihdr=0                             !Temporary ###
   
   open(12,file='msgs.txt',status='old')
 
 ! Get the metric table
-  bias=0.37
-  scale=10                        !Optimize?
+  bias=0.37                          !To be optimized, in decoder program
+  scale=10                           !  ... ditto ...
   open(19,file='met8.21',status='old')
 
   do i=0,255
@@ -87,7 +87,7 @@ program jt9sim
             '---------------------------------------------------')
 
   do ifile=1,nfiles
-     nmin=(ifile-1)*minutes
+     nmin=(ifile-1)*2*minutes
      ihr=nmin/60
      imin=mod(nmin,60)
      write(fname,1002) ihr,imin                !Create the output filenames
@@ -103,7 +103,7 @@ program jt9sim
      endif
 
      if(msg0.ne.'                      ') then
-        call genjt9(message,minutes,msgsent,d6)
+        call genjt9(message,minutes,msgsent,itone)
      endif
 
      rewind 12
@@ -112,14 +112,14 @@ program jt9sim
         if(msg0.eq.'                      ') then
            read(12,1004) message
 1004       format(a22)
-           call genjt9(message,minutes,msgsent,d6)
+           call genjt9(message,minutes,msgsent,itone)
         endif
 
         f=f0
         if(nsigs.gt.1) f=f0 - 0.5d0*fspan + fspan*(isig-1.d0)/(nsigs-1.d0)
         snrdbx=snrdb
 !        if(snrdb.ge.-1.0) snrdbx=-15.0 - 15.0*(isig-1.0)/nsigs
-        sig=sqrt(2500.0/12000.0) * 10.0**(0.05*snrdbx)
+        sig=sqrt(2500.0/6000.0) * 10.0**(0.05*snrdbx)
         write(*,1020) ifile,isig,f,snrdbx,msgsent
 1020    format(i3,i4,f10.3,f7.1,2x,a22)
 
@@ -127,7 +127,7 @@ program jt9sim
         baud=12000.0/nsps
         k=12000                             !Start at t = 1 s
         do isym=1,85
-           freq=f + d6(isym)*baud
+           freq=f + itone(isym)*baud
            dphi=twopi*freq*dt
            do i=1,nsps
               phi=phi + dphi
@@ -135,7 +135,7 @@ program jt9sim
               if(phi.gt.twopi) phi=phi-twopi
               xphi=phi
               k=k+1
-              dat(k)=dat(k) + sig*sin(xphi)
+              dat(k)=dat(k) + sig*sin(xphi)  !Use lookup table for i*2 sin(x) ?
            enddo
         enddo
      enddo
@@ -147,12 +147,12 @@ program jt9sim
      write(10) ihdr,iwave(1:npts)
      close(10)
 
-! We're done!  Now decode the data in d6, as a test.
+! We're done!  Now decode the data in itone, as a test.
      j=0
      do i=1,85
         if(isync(i).eq.1) cycle
         j=j+1
-        t5(j)=d6(i)-1
+        t5(j)=itone(i)-1
      enddo
 
      call graycode(t5,69,-1,t4)
