@@ -1,25 +1,18 @@
-subroutine sync9(ss,tstep,f0a,df3)
+subroutine sync9(ss,tstep,f0a,df3,lagpk,fpk)
 
   parameter (NSMAX=22000)            !Max length of saved spectra
   real ss(184,NSMAX)
 
-  integer ii(16)
-  integer isync(85)             !Sync vector
+  integer ii0(16)
+  integer ii(16)                     !Locations of sync half-symbols
+  data ii/1,11,21,31,41,51,61,77,89,101,113,125,137,149,161,169/
+  integer isync(85)                  !Sync vector for half-symbols
   data isync/                                    &
        1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,  &
        1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1,0,  &
        0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,  &
        0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,  &
        1,0,0,0,1/
-  
-  ii=0
-  k=0
-  do i=1,85
-     if(isync(i).eq.1) then
-        k=k+1
-        ii(k)=2*i-1
-     endif
-  enddo
 
   nz=1000.0/df3
 
@@ -40,9 +33,9 @@ subroutine sync9(ss,tstep,f0a,df3)
      enddo
   enddo
 
-  freq=f0a + (npk-1)*df3
-  write(*,1010) lagpk,npk,freq
-1010 format('lagpk:',i4,'   npk:',i6,'   freq:',f8.2)
+  fpk=f0a + (npk-1)*df3
+  write(*,1010) lagpk,npk,fpk
+1010 format('lagpk:',i4,'   npk:',i6,'   fpk:',f8.2)
 
   do lag=-lagmax,lagmax
      sum=0.

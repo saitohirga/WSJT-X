@@ -108,10 +108,10 @@ program jt9
 3001    format(i8,2f12.3)
      enddo
 
-     print*,npts8,npts8/1500.0
      nutc=nutc0
      nstandalone=1
-     call sync9(ss,tstep,f0a,df3)
+     call sync9(ss,tstep,f0a,df3,lagpk,fpk)
+     call spec9(c0,npts8,nsps,f0a,lagpk,fpk)
 !     call decode0(dd,ss,savg,nstandalone,nfsample)
   enddo
 

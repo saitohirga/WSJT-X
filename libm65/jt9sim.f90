@@ -155,9 +155,11 @@ program jt9sim
         t5(j)=itone(i)-1
      enddo
 
-     call graycode(t5,69,-1,t4)
+!     call graycode(t5,69,-1,t4)
+     t4=t5
      call unpackbits(t4,69,3,t3)
-     call interleave9(t3,-1,t2)
+!     call interleave9(t3,-1,t2)
+     t2=t3
 
      nbits=72
      ndelta=17
@@ -168,9 +170,12 @@ program jt9sim
         i4=i4+128
         t2(i)=i1
      enddo
+
+     print*,t2
   
      call fano232(t2,nbits+31,mettab,ndelta,limit,t1,ncycles,metric,ierr,   &
           maxmetric,maxnp)
+     print*,ncycles
 
      nbytes=(nbits+7)/8
      do i=1,nbytes
