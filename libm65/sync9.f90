@@ -1,4 +1,4 @@
-subroutine sync9(ss,df3)
+subroutine sync9(ss,tstep,f0a,df3)
 
   parameter (NSMAX=22000)            !Max length of saved spectra
   real ss(184,NSMAX)
@@ -24,7 +24,7 @@ subroutine sync9(ss,df3)
   nz=1000.0/df3
 
   smax=0.
-  lagmax=10
+  lagmax=2.5/tstep + 0.9999
   do n=1,nz
      do lag=-lagmax,lagmax
         sum=0.
@@ -35,21 +35,25 @@ subroutine sync9(ss,df3)
         if(sum.gt.smax) then
            smax=sum
            npk=n
+           lagpk=lag
         endif
      enddo
   enddo
 
-  print*,'npk:',npk
-  n=npk
+  freq=f0a + (npk-1)*df3
+  write(*,1010) lagpk,npk,freq
+1010 format('lagpk:',i4,'   npk:',i6,'   freq:',f8.2)
+
   do lag=-lagmax,lagmax
      sum=0.
      do i=1,16
         k=ii(i) + lag
-        if(k.ge.1) sum=sum + ss(k,n)
+        if(k.ge.1) sum=sum + ss(k,npk)
      enddo
-     write(*,3000) lag,sum
-3000 format(i3,f12.3)
+!     write(73,3000) lag,sum
+!3000 format(i3,f12.3)
   enddo
+  flush(73)
 
   return
 end subroutine sync9

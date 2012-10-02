@@ -1,4 +1,4 @@
-subroutine symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,df3,    &
+subroutine symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
      ihsym,nzap,slimit,lstrong)
 
 ! Input:
@@ -34,10 +34,11 @@ subroutine symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,df3,    &
   complex cx(MAXFFT3)
   complex cx00(NFFT1)
   complex cx0(0:1023),cx1(0:1023)
-  logical*1 lstrong(0:1023)
+  logical*1 lstrong(0:1023)               !Should be (0:512)
   integer*2 id2
   complex c0
-  common/jt8com/id2(NMAX),ss(184,NSMAX),savg(NSMAX),c0(NDMAX),nutc,junk(20)
+  common/jt8com/id2(NMAX),ss(184,NSMAX),savg(NSMAX),c0(NDMAX),     &
+       nutc,npts8,junk(20)
   equivalence (x2,cx2)
   data rms/999.0/,k0/99999999/,ntrperiod0/0/,nfft3z/0/
   save
@@ -90,18 +91,20 @@ subroutine symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,df3,    &
      do i=1,NFFT1
         x0(i)=fac*id2(k1+i)
      enddo
-!     call timf2x(k,NFFT1,nwindow,nb,peaklimit,faclim,x0,x1,    &
-!          slimit,lstrong,px,nzap)
-     x1=x0                                     !###
+     call timf2x(x0,k,NFFT1,nwindow,nb,peaklimit,faclim,x1,   &
+          slimit,lstrong,px,nzap)
+!     x1=x0
      x2=x1
      call four2a(x2,NFFT2,1,-1,0)              !Second forward FFT, r2c
 
-     i0=nint(1000.0/df2) + 1
+     i0=nint(1000.0/df2)
+     f0a=i0*df2
      cx2a(1:NFFT2A/2)=cx2(i0:NFFT2A/2+i0-1)
      cx2a(NFFT2A/2+1:NFFT2A)=cx2(i0-1-NFFT2A/2:i0-1)
      call four2a(cx2a,NFFT2A,1,1,1)
 
      c0(k8+1:k8+NFFT2A)=cx2a
+     npts8=k8+NFFT2A
 
 !###                                   Test for gliches at multiples of 128
 !     if(k8.lt.1000) then
@@ -138,20 +141,6 @@ subroutine symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,df3,    &
      savg(i)=savg(i) + sx
      s(i)=sx
   enddo
-
-  if(ihsym.eq.168) then
-     do i=1,iz
-        write(71,3001) i,i*df3,savg(i),10.0*log10(savg(i))
-3001    format(i8,3f12.3)
-     enddo
-
-     i0=673
-     do j=1,ihsym
-        write(72,3002) j,(ss(j,i),i=i0,i0+8)
-3002    format(i3,9f8.3)
-     enddo
-
-  endif
 
 999 return
 end subroutine symspecx
