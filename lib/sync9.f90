@@ -35,13 +35,17 @@ subroutine sync9(ss,tstep,f0a,df3,lagpk,fpk)
 
   fpk=f0a + (npk-1)*df3
 
-  do lag=-lagmax,lagmax
-     sum=0.
-     do i=1,16
-        k=ii(i) + lag
-        if(k.ge.1) sum=sum + ss(k,npk)
-     enddo
-  enddo
+! This loop for tests only:
+!  do lag=-lagmax,lagmax
+!     sum=0.
+!     do i=1,16
+!        k=ii(i) + lag
+!        if(k.ge.1) sum=sum + ss(k,npk)
+!     enddo
+!     write(71,3001) lag,sum
+!3001 format(i8,f12.3)
+!  enddo
+!  flush(71)
 
   return
 end subroutine sync9

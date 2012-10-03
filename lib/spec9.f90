@@ -3,45 +3,39 @@ subroutine spec9(c0,npts8,nsps,f0a,lagpk,fpk,i1SoftSymbols)
   parameter (MAXFFT=31500)
   complex c0(0:npts8-1)
   real s(0:MAXFFT-1)
-  real ssym(0:8,184)
-  real ssymg(0:8,184)
+  real ssym(0:8,85)
   complex c(0:MAXFFT-1)
   integer*1 i1SoftSymbolsScrambled(207)
   integer*1 i1SoftSymbols(207)
-  integer ibit(207)
-
-  integer*1 t1(13)              !72 bits and zero tail as 8-bit bytes
-  integer*4 t4(69)              !Symbols from t5, values 0-7
-  integer*4 mettab(0:255,0:1)
-  integer*1 tmp(72)
-  character*22 msg
-
-  integer isync(85)
+  integer isync(85)                !Sync vector
+  data isync/                                    &
+       1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,  &
+       1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1,0,  &
+       0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,  &
+       0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,  &
+       1,0,0,0,1/
   integer ii(16)                       !Locations of sync symbols
   data ii/1,6,11,16,21,26,31,39,45,51,57,63,69,75,81,85/
   integer ig(0:7)
-  data ig/0,1,3,2,7,6,4,5/
-!  data ig/0,1,3,2,6,7,5,4/
+  data ig/0,1,3,2,7,6,4,5/             !Gray code removal
+  save
 
-  isync=0
-  do i=1,16
-     isync(ii(i))=1
-  enddo
+  nsps8=nsps/8
 
   idt=-400
   idf=0.
   fshift=fpk-f0a + 0.1*idf
   twopi=8.0*atan(1.0)
   dphi=twopi*fshift/1500.0
-  nsps8=nsps/8
+
   nfft=nsps8
-  df=1500.0/nfft
   s=0.
-  istart=lagpk*nsps8 + idt
+!  istart=lagpk*nsps8 + idt
+  istart=1520
   nsym=min((npts8-istart)/nsps8,85)
 
-  do j=0,nsym-1
-     ia=j*nsps8 + istart
+  do j=1,nsym
+     ia=(j-1)*nsps8 + istart
      ib=ia+nsps8-1
      c(0:nfft-1)=c0(ia:ib)
 
@@ -54,16 +48,8 @@ subroutine spec9(c0,npts8,nsps,f0a,lagpk,fpk,i1SoftSymbols)
      call four2a(c,nfft,1,-1,1)
      do i=0,nfft-1
         sx=real(c(i))**2 + aimag(c(i))**2
-        if(i.le.8) ssym(i,1+j)=sx
+        if(i.ge.1 .and. i.le.8) ssym(ig(i-1)+1,j)=sx
         s(i)=s(i) + sx
-     enddo
-  enddo
-
-  ssymg=ssym
-  do j=1,nsym
-     ssym(0,j)=ssymg(0,j)
-     do i=0,7
-        ssym(ig(i)+1,j)=ssymg(i+1,j)
      enddo
   enddo
 
