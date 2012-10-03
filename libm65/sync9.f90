@@ -34,8 +34,6 @@ subroutine sync9(ss,tstep,f0a,df3,lagpk,fpk)
   enddo
 
   fpk=f0a + (npk-1)*df3
-  write(*,1010) lagpk,npk,fpk
-1010 format('lagpk:',i4,'   npk:',i6,'   fpk:',f8.2)
 
   do lag=-lagmax,lagmax
      sum=0.
@@ -43,10 +41,7 @@ subroutine sync9(ss,tstep,f0a,df3,lagpk,fpk)
         k=ii(i) + lag
         if(k.ge.1) sum=sum + ss(k,npk)
      enddo
-!     write(73,3000) lag,sum
-!3000 format(i3,f12.3)
   enddo
-  flush(73)
 
   return
 end subroutine sync9
