@@ -18,7 +18,6 @@ program jt9
   complex c0
   common/jt8com/id2(NMAX),ss(184,NSMAX),savg(NSMAX),c0(NDMAX),    &
        nutc,npts8,junk(20)
-  common/tracer/limtrace,lu
 
   nargs=iargc()
   if(nargs.lt.1) then
@@ -38,9 +37,6 @@ program jt9
   read(arg,*) ntrperiod
 
   ifile1=2
-  limtrace=0
-  lu=12
-  call timer('jt9     ',0)                      !###
 
   nfa=1000
   nfb=2000
@@ -74,24 +70,19 @@ program jt9
      k=0
      nhsym0=-999
      npts=(60*ntrperiod-6)*12000
-     call timer('read_wav',0)
      read(10) id2(1:npts)
-     call timer('read_wav',1)
 
 !     do i=1,npts
 !        id2(i)=100.0*sin(6.283185307*1046.875*i/12000.0)
 !     enddo
 
-!     if(ifile.eq.ifile1) call timer('jt9     ',0)
      do iblk=1,npts/kstep
         k=iblk*kstep
         nhsym=(k-2048)/kstep
         if(nhsym.ge.1 .and. nhsym.ne.nhsym0) then
 ! Emit signal readyForFFT
-           call timer('symspec ',0)
            call symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,   &
                 s,f0a,df3,ihsym,nzap,slimit,lstrong)
-           call timer('symspec ',1)
            nhsym0=nhsym
            if(ihsym.ge.184) go to 10
         endif
@@ -115,12 +106,11 @@ program jt9
      call sync9(ss,tstep,f0a,df3,lagpk,fpk)
      call spec9(c0,npts8,nsps,f0a,lagpk,fpk,i1SoftSymbols)
      call decode9(i1SoftSymbols,msg)
-     print*,msg
+     xdt=lagpk*0.5*nsps/12000.0
+     write(*,1010) nutc,xdt,fpk,msg
+1010 format(i4.4,f6.1,f7.1,2x,a22)
   enddo
 
-  call timer('jt9     ',1)
-  call timer('jt9     ',101)
-!  call ftnquit
   go to 999
 
 998 print*,'Cannot open file:'
