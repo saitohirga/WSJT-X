@@ -31,10 +31,10 @@ subroutine genjt9(message,minutes,msgsent,d6)
   call encode232(d1,nsym2,d2)        !Convolutional code, K=32, r=1/2
   call interleave9(d2,1,d3)          !Interleave the single bits
   call packbits(d3,nsym2,3,d4)       !Pack 3-bit groups into words
-  d5=d4
-  print*,d5
-  
-!  call graycode(d4,69,1,d5)          !Apply Gray code
+
+!  d5=d4
+!  print*,d5
+  call graycode(d4,69,1,d5)          !Apply Gray code
 
 ! Insert sync symbols (ntone=0) and add 1 to the data-tone numbers.
   j=0
