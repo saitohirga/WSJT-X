@@ -2,12 +2,12 @@
 #include <stdexcept>
 
 #define FRAMES_PER_BUFFER 1024
-#define NSMAX 10000
+#define NSMAX 22000
 
 extern "C" {
 #include <portaudio.h>
 extern struct {
-  short int d2[1800*12000];         //This is "common/jt8com/..." in fortran
+  short int d2[1800*12000];         //This is "common/jt9com/..." in fortran
   float ss[184*NSMAX];
   float savg[NSMAX];
   double fcenter;                   //USB dial freq (kHz)
@@ -28,7 +28,7 @@ extern struct {
   int kin;
   int kline;
   char datetime[20];
-} jt8com_;
+} jt9com_;
 }
 
 typedef struct
@@ -67,9 +67,9 @@ extern "C" int a2dCallback( const void *inputBuffer, void *outputBuffer,
 
   nbytes=2*framesToProcess;        //Bytes per frame
   k=udata->kin;
-  memcpy(&jt8com_.d2[k],inputBuffer,nbytes);          //Copy all samples to d2
+  memcpy(&jt9com_.d2[k],inputBuffer,nbytes);          //Copy all samples to d2
   udata->kin += framesToProcess;
-  jt8com_.kin=udata->kin;
+  jt9com_.kin=udata->kin;
 
   return paContinue;
 }

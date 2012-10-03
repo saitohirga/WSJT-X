@@ -37,7 +37,7 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
   logical*1 lstrong(0:1023)               !Should be (0:512)
   integer*2 id2
   complex c0
-  common/jt8com/id2(NMAX),ss(184,NSMAX),savg(NSMAX),c0(NDMAX),     &
+  common/jt9com/id2(NMAX),ss(184,NSMAX),savg(NSMAX),c0(NDMAX),     &
        nutc,npts8,junk(20)
   equivalence (x2,cx2)
   data rms/999.0/,k0/99999999/,ntrperiod0/0/,nfft3z/0/

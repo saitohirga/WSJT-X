@@ -12,14 +12,14 @@ void getfile(QString fname, int ntrperiod)
   FILE* fp=fopen(name,"rb");
 
   int npts=ntrperiod*12000;
-  memset(jt8com_.d2,0,2*npts);
+  memset(jt9com_.d2,0,2*npts);
 
   if(fp != NULL) {
 // Read (and ignore) a 44-byte WAV header; then read data
-    fread(jt8com_.d2,1,44,fp);
-    int nrd=fread(jt8com_.d2,2,npts,fp);
+    fread(jt9com_.d2,1,44,fp);
+    int nrd=fread(jt9com_.d2,2,npts,fp);
     fclose(fp);
-//    for(int i=0; i<npts; i++) jt8com_.d2[i]/=100;
+//    for(int i=0; i<npts; i++) jt9com_.d2[i]/=100;
   }
 }
 
@@ -76,9 +76,9 @@ void savewav(QString fname, int ntrperiod)
     hdr.ndata=2*npts;
 
     fwrite(&hdr,sizeof(hdr),1,fp);
-//    memcpy(jt8com_.d2,buf,2*npts);
+//    memcpy(jt9com_.d2,buf,2*npts);
 //    fwrite(buf,2,npts,fp);
-    fwrite(jt8com_.d2,2,npts,fp);
+    fwrite(jt9com_.d2,2,npts,fp);
     fclose(fp);
   }
 //  free(buf);
