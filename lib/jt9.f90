@@ -92,10 +92,9 @@ program jt9
 
      nutc=nutc0
      nstandalone=1
-     call sync9(ss,tstep,f0a,df3,lagpk,fpk)      !Find sig, get rough DT and DF
-     call spec9(c0,npts8,nsps,f0a,lagpk,fpk,i1SoftSymbols)
+     call sync9(ss,tstep,f0a,df3,fpk)                 !Find sig, get rough freq
+     call spec9(c0,npts8,nsps,f0a,fpk,xdt,i1SoftSymbols)
      call decode9(i1SoftSymbols,msg)
-     xdt=lagpk*0.5*nsps/12000.0
      write(*,1010) nutc,xdt,fpk,msg
 1010 format(i4.4,f6.1,f7.1,2x,a22)
   enddo

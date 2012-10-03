@@ -1,4 +1,4 @@
-subroutine peakdt9(c0,npts8,nsps8,istart,foffset,idt)
+subroutine peakdt9(c0,npts8,nsps8,istart,foffset,idtpk)
 
   complex c0(0:npts8-1)
   complex zsum
@@ -10,15 +10,15 @@ subroutine peakdt9(c0,npts8,nsps8,istart,foffset,idt)
 
   f0=foffset
   dphi=twopi*f0/1500.0
-  do idt=-10,10
-     i0=istart + 0.1*nsps8*idt
+  do idt=-5,5
+     i0=istart + 0.0625*nsps8*idt
     sum=0.
      do j=1,16
         i1=(ii(j)-1)*nsps8 + i0
         phi=0.
         zsum=0.
         do i=i1,i1+nsps8-1
-           if(i.lt.0) cycle
+           if(i.lt.0 .or. i.gt.npts8-1) cycle
            phi=phi + dphi
            zsum=zsum + c0(i) * cmplx(cos(phi),-sin(phi))
         enddo
@@ -29,10 +29,6 @@ subroutine peakdt9(c0,npts8,nsps8,istart,foffset,idt)
         smax=sum
      endif
   enddo
-
-  tpk=idtpk/1500.0
-  write(*,3001) idtpk,tpk,smax
-3001 format('DT:'i5,f8.2,f12.3)
 
   return
 end subroutine peakdt9
