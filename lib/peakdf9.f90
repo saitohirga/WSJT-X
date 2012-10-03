@@ -1,4 +1,4 @@
-subroutine peakdf9(c0,npts8,nsps8,istart,foffset,xdf)
+subroutine peakdf9(c0,npts8,nsps8,istart,foffset,idfpk)
 
   complex c0(0:npts8-1)
   complex zsum
@@ -8,7 +8,7 @@ subroutine peakdf9(c0,npts8,nsps8,istart,foffset,xdf)
   twopi=8.0*atan(1.0)
   df=1500.0/nsps8
   smax=0.
-  do idf=-10,10
+  do idf=-5,5
      f0=foffset + 0.1*df*idf
      dphi=twopi*f0/1500.0
      sum=0.
@@ -17,7 +17,7 @@ subroutine peakdf9(c0,npts8,nsps8,istart,foffset,xdf)
         phi=0.
         zsum=0.
         do i=i1,i1+nsps8-1
-           if(i.lt.0) cycle
+           if(i.lt.0 .or. i.gt.npts8-1) cycle
            phi=phi + dphi
            zsum=zsum + c0(i) * cmplx(cos(phi),-sin(phi))
         enddo
@@ -25,13 +25,11 @@ subroutine peakdf9(c0,npts8,nsps8,istart,foffset,xdf)
      enddo
      if(sum.gt.smax) then
         idfpk=idf
-        fpk=f0
         smax=sum
      endif
+     write(71,3001) idf,sum
+3001 format(i5,f12.3)
   enddo
-
-  write(*,3001) idfpk,fpk,smax
-3001 format('DF:'i5,f8.2,f12.3)
 
   return
 end subroutine peakdf9

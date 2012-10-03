@@ -1,4 +1,4 @@
-subroutine sync9(ss,tstep,f0a,df3,lagpk,fpk)
+subroutine sync9(ss,tstep,f0a,df3,fpk)
 
   parameter (NSMAX=22000)            !Max length of saved spectra
   real ss(184,NSMAX)
