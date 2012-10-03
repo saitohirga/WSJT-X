@@ -91,7 +91,7 @@ subroutine symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
      do i=1,NFFT1
         x0(i)=fac*id2(k1+i)
      enddo
-     call timf2x(x0,k,NFFT1,nwindow,nb,peaklimit,faclim,x1,   &
+     call timf2(x0,k,NFFT1,nwindow,nb,peaklimit,faclim,x1,   &
           slimit,lstrong,px,nzap)
 !     x1=x0
      x2=x1
