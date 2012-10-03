@@ -12,7 +12,7 @@ short int iwave[30*48000];            //Wave file for Tx audio
 int nwave;                            //Length of Tx waveform
 bool btxok;                           //True if OK to transmit
 double outputLatency;                 //Latency in seconds
-qint16 id[30*48000];
+//qint16 id[30*48000];
 
 WideGraph* g_pWideGraph = NULL;
 
