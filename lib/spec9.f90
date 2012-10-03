@@ -3,7 +3,7 @@ subroutine spec9(c0,npts8,nsps,f0a,lagpk,fpk,i1SoftSymbols)
   parameter (MAXFFT=31500)
   complex c0(0:npts8-1)
   real s(0:MAXFFT-1)
-  real ssym(0:8,85)
+  real ssym(0:7,69)
   complex c(0:MAXFFT-1)
   integer*1 i1SoftSymbolsScrambled(207)
   integer*1 i1SoftSymbols(207)
@@ -34,7 +34,10 @@ subroutine spec9(c0,npts8,nsps,f0a,lagpk,fpk,i1SoftSymbols)
   istart=1520
   nsym=min((npts8-istart)/nsps8,85)
 
+  k=0
   do j=1,nsym
+     if(isync(j).eq.1) cycle
+     k=k+1
      ia=(j-1)*nsps8 + istart
      ib=ia+nsps8-1
      c(0:nfft-1)=c0(ia:ib)
@@ -48,7 +51,7 @@ subroutine spec9(c0,npts8,nsps,f0a,lagpk,fpk,i1SoftSymbols)
      call four2a(c,nfft,1,-1,1)
      do i=0,nfft-1
         sx=real(c(i))**2 + aimag(c(i))**2
-        if(i.ge.1 .and. i.le.8) ssym(ig(i-1)+1,j)=sx
+        if(i.ge.1 .and. i.le.8) ssym(ig(i-1),k)=sx
         s(i)=s(i) + sx
      enddo
   enddo
@@ -56,17 +59,16 @@ subroutine spec9(c0,npts8,nsps,f0a,lagpk,fpk,i1SoftSymbols)
   m0=3
   ntones=8
   k=0
-  do j=1,nsym
-     if(isync(j).eq.1) cycle
+  do j=1,69
      do m=m0-1,0,-1                   !Get bit-wise soft symbols
         n=2**m
         r1=0.
         r2=0.
         do i=0,ntones-1
            if(iand(i,n).ne.0) then
-              r1=max(r1,ssym(i+1,j))
+              r1=max(r1,ssym(i,j))
            else
-              r2=max(r2,ssym(i+1,j))
+              r2=max(r2,ssym(i,j))
            endif
         enddo
         k=k+1
