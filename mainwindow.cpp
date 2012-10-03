@@ -335,7 +335,7 @@ void MainWindow::dataSink(int k)
   lab4->setText(t);
   ui->xThermo->setValue((double)px);   //Update the thermometer
   if(m_monitoring || m_diskData) {
-    g_pWideGraph->dataSink2(s,ihsym,m_diskData,lstrong);
+    g_pWideGraph->dataSink2(s,df3,ihsym,m_diskData,lstrong);
   }
 
   //Average over specified number of spectra

@@ -152,8 +152,8 @@ void CPlotter::UTCstr()
 {
   int ihr,imin,isec;
   if(jt9com_.ndiskdat != 0) {
-    ihr=jt9com_.nutc/10000;
-    imin=(jt9com_.nutc/100) % 100;
+    ihr=jt9com_.nutc/100;
+    imin=jt9com_.nutc % 100;
   } else {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     imin=ms/60000;
@@ -241,7 +241,6 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   painter0.setFont(Font);
   painter0.setPen(Qt::black);
 
-  m_fftBinWidth=12000.0/m_nsps;
   if(m_binsPerPixel < 1) m_binsPerPixel=1;
   m_fSpan = w*df;
   int n=m_fSpan/10;
@@ -579,6 +578,11 @@ double CPlotter::fGreen()
 void CPlotter::setNsps(int n)                                  //setNSpan()
 {
   m_nsps=n;
+  m_fftBinWidth=1500.0/1024.0;
+  if(m_nsps==15360)  m_fftBinWidth=1500.0/2048.0;
+  if(m_nsps==40960)  m_fftBinWidth=1500.0/6144.0;
+  if(m_nsps==82944)  m_fftBinWidth=1500.0/12288.0;
+  if(m_nsps==252000) m_fftBinWidth=1500.0/32768.0;
   DrawOverlay();                         //Redraw scales and ticks
   update();                              //trigger a new paintEvent}
 }

@@ -16,7 +16,7 @@ public:
 
   double m_dialFreq;
 
-  void   dataSink2(float s[], int ihsym, int ndiskdata,
+  void   dataSink2(float s[], float df3, int ihsym, int ndiskdata,
                    uchar lstrong[]);
   int    QSOfreq();
   int    nSpan();
