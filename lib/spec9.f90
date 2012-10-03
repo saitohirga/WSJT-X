@@ -2,7 +2,6 @@ subroutine spec9(c0,npts8,nsps,f0a,lagpk,fpk,i1SoftSymbols)
 
   parameter (MAXFFT=31500)
   complex c0(0:npts8-1)
-  real s(0:MAXFFT-1)
   real ssym(0:7,69)
   complex c(0:MAXFFT-1)
   integer*1 i1SoftSymbolsScrambled(207)
@@ -21,17 +20,19 @@ subroutine spec9(c0,npts8,nsps,f0a,lagpk,fpk,i1SoftSymbols)
   save
 
   nsps8=nsps/8
+  foffset=fpk-f0a
+  istart=1520
+  idt=0
+  xdf=0.
 
-  idt=-400
-  idf=0.
-  fshift=fpk-f0a + 0.1*idf
+  call peakdf9(c0,npts8,nsps8,istart,foffset,xdf)
+  call peakdt9(c0,npts8,nsps8,istart,foffset,idt)
+
+  fshift=foffset + xdf
   twopi=8.0*atan(1.0)
   dphi=twopi*fshift/1500.0
 
   nfft=nsps8
-  s=0.
-!  istart=lagpk*nsps8 + idt
-  istart=1520
   nsym=min((npts8-istart)/nsps8,85)
 
   k=0
@@ -52,7 +53,6 @@ subroutine spec9(c0,npts8,nsps,f0a,lagpk,fpk,i1SoftSymbols)
      do i=0,nfft-1
         sx=real(c(i))**2 + aimag(c(i))**2
         if(i.ge.1 .and. i.le.8) ssym(ig(i-1),k)=sx
-        s(i)=s(i) + sx
      enddo
   enddo
 
