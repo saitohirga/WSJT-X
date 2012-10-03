@@ -138,7 +138,6 @@ program jt9sim
         j=j+1
         i4DataSymNoGray(j)=igray(itone(i)-1,-1)
      enddo
-
      call unpackbits(i4DataSymNoGray,69,3,i1ScrambledBits)
      call interleave9(i1ScrambledBits,-1,i1Bits)
 
