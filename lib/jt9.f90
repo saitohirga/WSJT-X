@@ -16,7 +16,7 @@ program jt9
   character*22 msg
   integer*2 id2
   complex c0
-  common/jt8com/id2(NMAX),ss(184,NSMAX),savg(NSMAX),c0(NDMAX),    &
+  common/jt9com/id2(NMAX),ss(184,NSMAX),savg(NSMAX),c0(NDMAX),    &
        nutc,npts8,junk(20)
 
   nargs=iargc()
@@ -90,20 +90,9 @@ program jt9
 
 10   continue
 
-     do i=0,512
-        if(lstrong(i)) print*,'Strong signal at ',12000.0*i/1024.0
-     enddo
-
-     nz=1000.0/df3
-     do i=1,nz
-        freq=f0a + (i-1)*df3
-        write(78,3001) i,freq,savg(i)
-3001    format(i8,2f12.3)
-     enddo
-
      nutc=nutc0
      nstandalone=1
-     call sync9(ss,tstep,f0a,df3,lagpk,fpk)
+     call sync9(ss,tstep,f0a,df3,lagpk,fpk)      !Find sig, get rough DT and DF
      call spec9(c0,npts8,nsps,f0a,lagpk,fpk,i1SoftSymbols)
      call decode9(i1SoftSymbols,msg)
      xdt=lagpk*0.5*nsps/12000.0

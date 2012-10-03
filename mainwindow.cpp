@@ -317,10 +317,10 @@ void MainWindow::dataSink(int k)
 
   if(m_diskData) {
     ndiskdat=1;
-    jt8com_.ndiskdat=1;
+    jt9com_.ndiskdat=1;
   } else {
     ndiskdat=0;
-    jt8com_.ndiskdat=0;
+    jt9com_.ndiskdat=0;
   }
 // Get power, spectrum, nkhz, and ihsym
   nb=0;
@@ -365,8 +365,8 @@ void MainWindow::dataSink(int k)
     n=0;
   }
   if(ihsym == 179) {
-    jt8com_.newdat=1;
-    jt8com_.nagain=0;
+    jt9com_.newdat=1;
+    jt9com_.nagain=0;
     QDateTime t = QDateTime::currentDateTimeUtc();
     m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
     decode();                                           //Start the decoder

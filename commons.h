@@ -1,12 +1,12 @@
 #ifndef COMMONS_H
 #define COMMONS_H
 
-#define NSMAX 10000
+#define NSMAX 22000
 
 extern "C" {
 
 extern struct {
-  short int d2[1800*12000];         //This is "common/jt8com/..." in fortran
+  short int d2[1800*12000];         //This is "common/jt9com/..." in fortran
   float ss[184*NSMAX];
   float savg[NSMAX];
   double fcenter;                   //USB dial freq (kHz)
@@ -27,7 +27,7 @@ extern struct {
   int kin;
   int kline;
   char datetime[20];
-} jt8com_;
+} jt9com_;
 
 }
 

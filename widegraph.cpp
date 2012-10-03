@@ -1,7 +1,7 @@
 #include "widegraph.h"
 #include "ui_widegraph.h"
 
-#define NSMAX 10000
+#define NSMAX 22000
 
 WideGraph::WideGraph(QWidget *parent) :
   QDialog(parent),
