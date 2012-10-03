@@ -307,7 +307,10 @@ void MainWindow::dataSink(int k)
   static int ndiskdat;
   static int nadj=0;
   static int nb;
+  static int trmin;
   static float px=0.0;
+  static float f0a;
+  static float df3;
   static uchar lstrong[1024];
   static float slimit;
 
@@ -322,8 +325,9 @@ void MainWindow::dataSink(int k)
 // Get power, spectrum, nkhz, and ihsym
   nb=0;
   if(m_NB) nb=1;
-  symspecx_(&k, & m_nsps, &ndiskdat, &nb, &m_NBslider, &px, s,
-            &ihsym, &nzap, &slimit, lstrong);
+  trmin=m_TRperiod/60;
+  symspec_(&k, &trmin, &m_nsps, &ndiskdat, &nb, &m_NBslider, &px, s,
+           &f0a, &df3, &ihsym, &nzap, &slimit, lstrong);
   if(ihsym <=0) return;
   QString t;
   m_pctZap=nzap/178.3;
