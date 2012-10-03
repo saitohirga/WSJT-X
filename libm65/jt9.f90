@@ -12,6 +12,8 @@ program jt9
   integer*4 ihdr(11)
   real*4 s(NSMAX)
   logical*1 lstrong(0:1023)
+  integer*1 i1SoftSymbols(207)
+  character*22 msg
   integer*2 id2
   complex c0
   common/jt8com/id2(NMAX),ss(184,NSMAX),savg(NSMAX),c0(NDMAX),    &
@@ -111,8 +113,9 @@ program jt9
      nutc=nutc0
      nstandalone=1
      call sync9(ss,tstep,f0a,df3,lagpk,fpk)
-     call spec9(c0,npts8,nsps,f0a,lagpk,fpk)
-!     call decode0(dd,ss,savg,nstandalone,nfsample)
+     call spec9(c0,npts8,nsps,f0a,lagpk,fpk,i1SoftSymbols)
+     call decode9(i1SoftSymbols,msg)
+     print*,msg
   enddo
 
   call timer('jt9     ',1)

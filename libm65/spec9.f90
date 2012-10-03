@@ -1,4 +1,4 @@
-subroutine spec9(c0,npts8,nsps,f0a,lagpk,fpk)
+subroutine spec9(c0,npts8,nsps,f0a,lagpk,fpk,i1SoftSymbols)
 
   parameter (MAXFFT=31500)
   complex c0(0:npts8-1)
@@ -88,46 +88,7 @@ subroutine spec9(c0,npts8,nsps,f0a,lagpk,fpk)
      enddo
   enddo
 
-  ibit=0
-  do i=1,207
-     if(i1SoftSymbolsScrambled(i).lt.0) ibit(i)=1
-  enddo
-
-! Get the metric table
-  bias=0.37                          !To be optimized, in decoder program
-  scale=10                           !  ... ditto ...
-  open(19,file='met8.21',status='old')
-
-  do i=0,255
-     read(19,*) x00,x0,x1
-     mettab(i,0)=nint(scale*(x0-bias))
-     mettab(i,1)=nint(scale*(x1-bias))    !### Check range, etc.  ###
-  enddo
-  close(19)
-  nbits=72
-  ndelta=17
-  limit=1000
-
   call interleave9(i1SoftSymbolsScrambled,-1,i1SoftSymbols)
-  call fano232(i1SoftSymbols,nbits+31,mettab,ndelta,limit,t1,ncycles,    &
-       metric,ierr,maxmetric,maxnp)
-
-  nbytes=(nbits+7)/8
-  do i=1,nbytes
-     n=t1(i)
-     t4(i)=iand(n,255)
-  enddo
-  call unpackbits(t4,nbytes,8,tmp)
-  call packbits(tmp,12,6,t4)
-  do i=1,12
-     if(t4(i).lt.128) t1(i)=t4(i)
-     if(t4(i).ge.128) t1(i)=t4(i)-256
-  enddo
-  do i=1,12
-     t4(i)=t1(i)
-  enddo
-  call unpackmsg(t4,msg)         !Unpack decoded msg
-  print*,msg
 
   return
 end subroutine spec9
