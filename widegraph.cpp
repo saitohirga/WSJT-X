@@ -65,19 +65,19 @@ void WideGraph::saveSettings()
   settings.endGroup();
 }
 
-void WideGraph::dataSink2(float s[], int ihsym, int ndiskdata,
+void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata,
                           uchar lstrong[])
 {
   static float splot[NSMAX];
   float swide[2048];
   float smax;
-  double df;
+//  double df;
   int nbpp = ui->widePlot->binsPerPixel();
   static int n=0;
   static int nkhz0=-999;
   static int ntr0=0;
 
-  df = 12000.0/m_nsps;
+//  df = 12000.0/m_nsps;
 
   //Average spectra over specified number, m_waterfallAvg
   if (n==0) {
