@@ -1,4 +1,4 @@
-subroutine symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
+subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
      ihsym,nzap,slimit,lstrong)
 
 ! Input:
@@ -143,4 +143,4 @@ subroutine symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
   enddo
 
 999 return
-end subroutine symspecx
+end subroutine symspec

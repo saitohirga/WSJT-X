@@ -217,8 +217,9 @@ extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
 
 extern "C" {
 //----------------------------------------------------- C and Fortran routines
-void symspecx_(int* k, int* nsps, int* ndiskdat, int* nb, int* m_NBslider,
-               float* px, float s[], int* nhsym, int* nzap,
+void symspec_(int* k, int* ntrperiod, int* nsps, int* ndiskdat,
+              int* nb, int* m_NBslider, float* px, float s[],
+              float* f0a, float* df3, int* nhsym, int* nzap,
                float* slimit, uchar lstrong[]);
 void genjt8_(char* msg, char* msgsent, short itone[], int* nsym,
              int len1, int len2);

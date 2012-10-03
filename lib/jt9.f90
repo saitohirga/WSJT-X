@@ -81,7 +81,7 @@ program jt9
         nhsym=(k-2048)/kstep
         if(nhsym.ge.1 .and. nhsym.ne.nhsym0) then
 ! Emit signal readyForFFT
-           call symspecx(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,   &
+           call symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,   &
                 s,f0a,df3,ihsym,nzap,slimit,lstrong)
            nhsym0=nhsym
            if(ihsym.ge.184) go to 10
