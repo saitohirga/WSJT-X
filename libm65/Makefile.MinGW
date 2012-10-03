@@ -37,7 +37,7 @@ OBJS1 = trimlist.o display.o getdphi.o pctile.o ccf65.o \
 	lenmsk.o decodemsk.o ping.o makepings.o alignmsg.o match.o \
 	rtping.o jtmsk.o hipass.o setupmsk.o foldmsk.o genjt9.o \
 	packbits.o unpackbits.o encode232.o interleave9.o entail.o \
-	fano232.o
+	fano232.o spec9.o
 
 libm65.a: $(OBJS1)
 	ar cr libm65.a $(OBJS1) 
