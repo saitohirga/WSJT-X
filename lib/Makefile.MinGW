@@ -1,4 +1,7 @@
 # Makefile for MinGW on Windows
+# Windows re-direct:
+#   C> make > junk1 2>&1
+
 CC = gcc
 FC = g95
 
@@ -17,58 +20,52 @@ CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    libm65.a jt9sim.exe jt9.exe
-#all:    libm65.a jt9.exe
+all:    libjt9.a jt9sim.exe jt9.exe
 
-OBJS1 = trimlist.o display.o getdphi.o pctile.o ccf65.o \
-	decode1a.o sort.o filbig.o fil6521.o afc65b.o \
-	twkfreq.o decode65b.o indexx.o ssort.o fchisq.o setup65.o \
-	extract.o deep65.o ccf2.o demod64a.o chkhist.o graycode.o \
-	interleave63.o unpackmsg.o encode65.o igray.o set.o unpackcall.o \
-	unpackgrid.o grid2k.o unpacktext.o getpfx2.o packmsg.o \
-	deg2grid.o packtext.o getpfx1.o packcall.o k2grid.o packgrid.o \
-	wrapkarn.o nchar.o init_rs.o encode_rs.o decode_rs.o \
-	four2a.o rfile3a.o grid2deg.o pfxdump.o dpol.o \
-	astro.o tm2.o sun.o moondop.o coord.o tmoonsub.o \
-	geocentric.o moon2.o toxyz.o dot.o dcoord.o f77_wisdom.o \
-	gen65.o chkmsg.o ptt.o astrosub.o astro0.o recvpkt.o symspecx.o \
-	iqcal.o iqfix.o timf2.o s3avg.o genjtms3.o analytic.o \
-	db.o specjtms.o genmsk.o mskdf.o tweak1.o syncmsk.o \
-	lenmsk.o decodemsk.o ping.o makepings.o alignmsg.o match.o \
-	rtping.o jtmsk.o hipass.o setupmsk.o foldmsk.o genjt9.o \
-	packbits.o unpackbits.o encode232.o interleave9.o entail.o \
-	fano232.o spec9.o decode9.o
+OBJS1 = trimlist.o pctile.o sort.o indexx.o ssort.o graycode.o \
+	unpackmsg.o igray.o set.o unpackcall.o unpackgrid.o \
+	grid2k.o unpacktext.o getpfx2.o packmsg.o deg2grid.o \
+	packtext.o getpfx1.o packcall.o k2grid.o packgrid.o \
+	nchar.o four2a.o grid2deg.o pfxdump.o f77_wisdom.o \
+	symspecx.o timf2x.o analytic.o db.o genjt9.o ptt.o \
+	packbits.o unpackbits.o encode232.o interleave9.o \
+	entail.o fano232.o gran.o spec9.o decode9.o
 
-libm65.a: $(OBJS1)
-	ar cr libm65.a $(OBJS1) 
-	ranlib libm65.a
+libjt9.a: $(OBJS1)
+	ar cr libjt9.a $(OBJS1) 
+	ranlib libjt9.a
 
-OBJS3 = jt9sim.o gran.o
-jt9sim.exe: $(OBJS3) libm65.a
-	$(FC) -o jt9sim.exe $(OBJS3) libm65.a
+OBJS2 = jt9.o symspec.o timf2x.o sync9.o
+jt9.exe: $(OBJS2) libjt9.a
+	$(FC) -o jt9.exe $(OBJS2) libjt9.a ../libfftw3f_win.a 
 
-OBJS2 = jt9.o symspec.o timf2x.o timer.o sync9.o
-jt9.exe: $(OBJS2) libm65.a
-	$(FC) -o jt9.exe $(OBJS2) libm65.a ../libfftw3f_win.a 
+OBJS3 = jt9sim.o 
+jt9sim.exe: $(OBJS3) libjt9.a
+	$(FC) -o jt9sim.exe $(OBJS3) libjt9.a
+
+OBJS4 = t1.o 
+t1.exe: $(OBJS4) libjt9.a
+	$(FC) -o t1.exe $(OBJS4) libjt9.a ../libfftw3f_win.a 
+
+OBJS5 = t2.o 
+t2.exe: $(OBJS5) libjt9.a
+	$(FC) -o t2.exe $(OBJS5) libjt9.a ../libfftw3f_win.a 
 
 INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
 	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
 	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/ActiveQt' \
 	 -I'release' -I'.' -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/mkspecs/win32-g++'
+
+#jt9.o:	jt9.f90
+#	$(FC) -O0 -c jt9.f90
+
 ipcomm.o: ipcomm.cpp
 	g++ -c $(INCPATH) ipcomm.cpp
 
 sec_midn.o: sec_midn.f90
 	$(FC) -c -fno-second-underscore sec_midn.f90
 
-#symspec.o: ../symspec.f90
-#	$(FC) -c $(FFLAGS) -o symspec.o ../symspec.f90
-
-OBJS5 = t1.o 
-t1.exe: $(OBJS5) libm65.a
-	$(FC) -o t1.exe $(OBJS5) libm65.a ../libfftw3f_win.a 
-
 .PHONY : clean
 
 clean:
-	rm -f *.o libm65.a wsjtx.exe jt9sim.exe jt9.exe
+	rm -f *.o libjt9.a wsjtx.exe jt9sim.exe jt9.exe t1.exe t2.exe
