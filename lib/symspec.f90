@@ -65,6 +65,7 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
      k1=0
      k8=0
      x2=0.
+     if(ndiskdat.eq.0) id2(k+1:60*ntrperiod*12000)=0
   endif
   k0=k
  
@@ -99,14 +100,9 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
 
   npts8=k8
   ja=ja+jstep                         !Index of first sample
-  if(ja.lt.0 .or. npts8.lt.ja+nfft3) go to 999
-  do i=0,nfft3-1                      !Copy data into cx
-     cx(i)=c0(ja+i+1)
-  enddo
-
+  nsum=nblks*kstep1 - nzap
 !###
 !  if(nzap/178.lt.50 .and. (ndiskdat.eq.0 .or. ihsym.lt.280)) then
-  nsum=nblks*kstep1 - nzap
   if(nsum.le.0) nsum=1
   rms=sqrt(0.5*px/nsum)
 !  endif
@@ -114,30 +110,36 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
   if(rms.gt.0.0) pxdb=20.0*log10(rms)
   if(pxdb.gt.60.0) pxdb=60.0
 !###
+!  if(ja.lt.0 .or. npts8.lt.ja+nfft3) go to 999
 
+  if(ja.gt.0) then
+     do i=0,nfft3-1                      !Copy data into cx
+        cx(i)=c0(ja+i+1)
+     enddo
 
-  ihsym=ihsym+1
-  cx(0:nfft3-1)=w3(1:nfft3)*cx(0:nfft3-1)  !Apply window w3
-  call four2a(cx,nfft3,1,1,1)           !Third forward FFT (X)
+     ihsym=ihsym+1
+     cx(0:nfft3-1)=w3(1:nfft3)*cx(0:nfft3-1)  !Apply window w3
+     call four2a(cx,nfft3,1,1,1)           !Third forward FFT (X)
 
-  n=min(184,ihsym)
-  df3=1500.0/nfft3
-  i0=nint(-500.0/df3)
-  iz=min(NSMAX,nint(1000.0/df3))
-  fac=(1.0/nfft3)**2
-  do i=1,iz
-     j=i0+i-1
-     if(j.lt.0) j=j+nfft3
-     sx=fac*(real(cx(j))**2 + aimag(cx(j))**2)
-     ss(n,i)=sx
-     savg(i)=savg(i) + sx
-     s(i)=sx
-  enddo
+     n=min(184,ihsym)
+     df3=1500.0/nfft3
+     i0=nint(-500.0/df3)
+     iz=min(NSMAX,nint(1000.0/df3))
+     fac=(1.0/nfft3)**2
+     do i=1,iz
+        j=i0+i-1
+        if(j.lt.0) j=j+nfft3
+        sx=fac*(real(cx(j))**2 + aimag(cx(j))**2)
+        ss(n,i)=sx
+        savg(i)=savg(i) + sx
+        s(i)=sx
+     enddo
+  endif
 
 999 continue
-!  write(71,3003) k,nsum,nzap,px,rms,pxdb
-!3003 format(3i10,3f12.2)
-!  flush(71)
+!  write(71,*) ja,npts8,ja,ja+nfft3,px,rms,pxdb
+!3003 format(5i9,3f11.0)
+!   flush(71)
 
   return
 end subroutine symspec
