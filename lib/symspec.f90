@@ -125,9 +125,20 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
      cx(i)=c0(ja+i)
   enddo
 
+!###
+!  if(nzap/178.lt.50 .and. (ndiskdat.eq.0 .or. ihsym.lt.280)) then
+     nsum=nblks*kstep1 - nzap
+     if(nsum.le.0) nsum=1
+     rms=sqrt(0.5*px/nsum)
+!  endif
   pxdb=0.
-  if(rmsx.gt.1.0) pxdb=20.0*log10(rmsx)
+  pxdb=20.0*log10(rms) + 166.0           !### ??? ###
   if(pxdb.gt.60.0) pxdb=60.0
+!  write(71,*) kstep1,nzap,nsum,px,rms,pxdb
+!  flush(71)
+
+!###
+
 
   ihsym=ihsym+1
   call four2a(cx,nfft3,1,-1,1)           !Third forward FFT (X)
