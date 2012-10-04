@@ -42,11 +42,11 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->actionBlue->setActionGroup(paletteGroup);
 
   QActionGroup* modeGroup = new QActionGroup(this);
-  ui->actionJT8_1->setActionGroup(modeGroup);
-  ui->actionJT8_2->setActionGroup(modeGroup);
-  ui->actionJT8_5->setActionGroup(modeGroup);
-  ui->actionJT8_10->setActionGroup(modeGroup);
-  ui->actionJT8_30->setActionGroup(modeGroup);
+  ui->actionJT9_1->setActionGroup(modeGroup);
+  ui->actionJT9_2->setActionGroup(modeGroup);
+  ui->actionJT9_5->setActionGroup(modeGroup);
+  ui->actionJT9_10->setActionGroup(modeGroup);
+  ui->actionJT9_30->setActionGroup(modeGroup);
 
   QActionGroup* saveGroup = new QActionGroup(this);
   ui->actionSave_all->setActionGroup(saveGroup);
@@ -107,7 +107,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_RxLog=1;                     //Write Date and Time to RxLog
   m_nutc0=9999;
   m_NB=false;
-  m_mode="JT8-1";
+  m_mode="JT9-1";
   m_TRperiod=60;
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -129,11 +129,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
   genStdMsgs("-30");
   on_actionWide_Waterfall_triggered();                   //###
-  if(m_mode=="JT8-1") on_actionJT8_1_triggered();
-  if(m_mode=="JT8-2") on_actionJT8_2_triggered();
-  if(m_mode=="JT8-5") on_actionJT8_5_triggered();
-  if(m_mode=="JT8-10") on_actionJT8_10_triggered();
-  if(m_mode=="JT8-30") on_actionJT8_30_triggered();
+  if(m_mode=="JT9-1") on_actionJT9_1_triggered();
+  if(m_mode=="JT9-2") on_actionJT9_2_triggered();
+  if(m_mode=="JT9-5") on_actionJT9_5_triggered();
+  if(m_mode=="JT9-10") on_actionJT9_10_triggered();
+  if(m_mode=="JT9-30") on_actionJT9_30_triggered();
 
   future1 = new QFuture<void>;
   watcher1 = new QFutureWatcher<void>;
@@ -273,7 +273,7 @@ void MainWindow::readSettings()
                                  "PaletteAFMHot",false).toBool());
   ui->actionBlue->setChecked(settings.value(
                                  "PaletteBlue",false).toBool());
-  m_mode=settings.value("Mode","JT8-1").toString();
+  m_mode=settings.value("Mode","JT9-1").toString();
   ui->actionNone->setChecked(settings.value("SaveNone",true).toBool());
   ui->actionSave_all->setChecked(settings.value("SaveAll",false).toBool());
   m_NB=settings.value("NB",false).toBool();
@@ -893,7 +893,7 @@ void MainWindow::guiUpdate()
     ba2msg(ba,message);
     ba2msg(ba,msgsent);
     int len1=28;
-//    genjt8_(message,iwave,&nwave,len1);
+//    genjt9_(message,iwave,&nwave,len1);
     if(m_restart) {
       QFile f("wsjtx_tx.log");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
@@ -1306,9 +1306,9 @@ void MainWindow::on_actionErase_wsjtx_tx_log_triggered()     //Erase Tx log
   }
 }
 
-void MainWindow::on_actionJT8_1_triggered()
+void MainWindow::on_actionJT9_1_triggered()
 {
-  m_mode="JT8-1";
+  m_mode="JT9-1";
   m_TRperiod=60;
   m_nsps=6912;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
@@ -1316,12 +1316,12 @@ void MainWindow::on_actionJT8_1_triggered()
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
   lab5->setStyleSheet("QLabel{background-color: #ff6ec7}");
   lab5->setText(m_mode);
-  ui->actionJT8_1->setChecked(true);
+  ui->actionJT9_1->setChecked(true);
 }
 
-void MainWindow::on_actionJT8_2_triggered()
+void MainWindow::on_actionJT9_2_triggered()
 {
-  m_mode="JT8-2";
+  m_mode="JT9-2";
   m_TRperiod=120;
   m_nsps=15360;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
@@ -1329,12 +1329,12 @@ void MainWindow::on_actionJT8_2_triggered()
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
   lab5->setStyleSheet("QLabel{background-color: #ffff00}");
   lab5->setText(m_mode);
-  ui->actionJT8_2->setChecked(true);
+  ui->actionJT9_2->setChecked(true);
 }
 
-void MainWindow::on_actionJT8_5_triggered()
+void MainWindow::on_actionJT9_5_triggered()
 {
-  m_mode="JT8-5";
+  m_mode="JT9-5";
   m_TRperiod=300;
   m_nsps=40960;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
@@ -1342,12 +1342,12 @@ void MainWindow::on_actionJT8_5_triggered()
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
   lab5->setStyleSheet("QLabel{background-color: #ffa500}");
   lab5->setText(m_mode);
-  ui->actionJT8_5->setChecked(true);
+  ui->actionJT9_5->setChecked(true);
 }
 
-void MainWindow::on_actionJT8_10_triggered()
+void MainWindow::on_actionJT9_10_triggered()
 {
-  m_mode="JT8-10";
+  m_mode="JT9-10";
   m_TRperiod=600;
   m_nsps=82944;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
@@ -1355,12 +1355,12 @@ void MainWindow::on_actionJT8_10_triggered()
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
   lab5->setStyleSheet("QLabel{background-color: #7fff00}");
   lab5->setText(m_mode);
-  ui->actionJT8_10->setChecked(true);
+  ui->actionJT9_10->setChecked(true);
 }
 
-void MainWindow::on_actionJT8_30_triggered()
+void MainWindow::on_actionJT9_30_triggered()
 {
-  m_mode="JT8-30";
+  m_mode="JT9-30";
   m_TRperiod=1800;
   m_nsps=250880;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
@@ -1368,7 +1368,7 @@ void MainWindow::on_actionJT8_30_triggered()
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
   lab5->setStyleSheet("QLabel{background-color: #97ffff}");
   lab5->setText(m_mode);
-  ui->actionJT8_30->setChecked(true);
+  ui->actionJT9_30->setChecked(true);
 }
 
 void MainWindow::on_NBcheckBox_toggled(bool checked)

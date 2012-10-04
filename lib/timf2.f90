@@ -35,7 +35,8 @@ subroutine timf2(x0,k,nfft,nwindow,nb,peaklimit,faclim,x1,     &
   equivalence (x,cx),(xw,cxw),(xs,cxs)
   data first/.true./
   data k0/99999999/
-  save w,xsov,xwov,s,ntc,ntot,nh,kstep,fac,first,k0
+!  save w,xsov,xwov,s,ntc,ntot,nh,kstep,fac,first,k0
+  save
 
   if(first) then
      pi=4.0*atan(1.0)

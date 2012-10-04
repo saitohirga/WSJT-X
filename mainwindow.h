@@ -101,15 +101,15 @@ private slots:
   void on_actionAFMHot_triggered();
   void on_actionBlue_triggered();
 
-  void on_actionJT8_2_triggered();
+  void on_actionJT9_2_triggered();
 
-  void on_actionJT8_1_triggered();
+  void on_actionJT9_1_triggered();
 
-  void on_actionJT8_5_triggered();
+  void on_actionJT9_5_triggered();
 
-  void on_actionJT8_30_triggered();
+  void on_actionJT9_30_triggered();
 
-  void on_actionJT8_10_triggered();
+  void on_actionJT9_10_triggered();
 
   void on_NBcheckBox_toggled(bool checked);
 
@@ -221,7 +221,7 @@ void symspec_(int* k, int* ntrperiod, int* nsps, int* ndiskdat,
               int* nb, int* m_NBslider, float* px, float s[],
               float* f0a, float* df3, int* nhsym, int* nzap,
                float* slimit, uchar lstrong[]);
-void genjt8_(char* msg, char* msgsent, short itone[], int* nsym,
+void genJT9_(char* msg, char* msgsent, short itone[], int* nsym,
              int len1, int len2);
 int ptt_(int* nport, int* itx, int* iptt);
   }
