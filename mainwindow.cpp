@@ -1,4 +1,4 @@
-//----------------------------------------------------------- MainWindow
+//------------------------------------------------------------ MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -313,7 +313,6 @@ void MainWindow::dataSink(int k)
   static float df3;
   static uchar lstrong[1024];
   static float slimit;
-
 
   if(m_diskData) {
     ndiskdat=1;
@@ -719,7 +718,6 @@ void MainWindow::diskDat()                                   //diskDat()
 {
   int kstep=m_nsps/2;
   m_diskData=true;
-
   for(int n=1; n<=184; n++) {              // Do the half-symbol FFTs
     int k=(n+1)*kstep;
     dataSink(k);

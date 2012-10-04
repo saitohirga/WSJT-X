@@ -147,7 +147,6 @@ subroutine timf2(x0,k,nfft,nwindow,nb,peaklimit,faclim,x1,     &
   do i=0,kstep-1
      px=px + xw(i)*xw(i)
   enddo
-  px=px/kstep
 
   x1(0:kstep-1)=xw(0:kstep-1) + xs(0:kstep-1)     !Recombine weak + strong
 

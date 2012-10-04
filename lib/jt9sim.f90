@@ -63,6 +63,8 @@ program jt9sim
   if(minutes.eq.30) nsps=252000
   if(nsps.eq.0) stop 'Bad value for minutes.'
   ihdr=0                             !Temporary ###
+
+  if(msg0(1:3).eq.'sin') read(msg0(4:),*) sinfreq
   
   open(12,file='msgs.txt',status='old')
 
@@ -111,6 +113,7 @@ program jt9sim
         k=12000                             !Start at t = 1 s
         do isym=1,85
            freq=f + itone(isym)*baud
+           if(msg0(1:3).eq.'sin') freq=sinfreq
            dphi=twopi*freq*dt
            do i=1,nsps
               phi=phi + dphi
