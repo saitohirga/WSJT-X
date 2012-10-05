@@ -29,7 +29,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   paUserData *udata=(paUserData*)userData;
   short *wptr = (short*)outputBuffer;
 
-  static double twopi=6.283185307;
+  static double twopi=2.0*3.141592653589793238462;
   static double baud=12000.0/udata->nsps;
   static double phi=0.0;
   static double dphi;
