@@ -84,7 +84,7 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
   m_paintEventBusy=false;
 }
 
-void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
+void CPlotter::draw(float swide[], int i0)             //draw()
 {
   int j;
   float y;
@@ -108,7 +108,9 @@ void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
   bool strong0=false;
   bool strong=false;
 
+  int iz=XfromFreq(2000.0);
   for(int i=0; i<m_w; i++) {
+    if(i>iz) swide[i]=0;
     strong=false;
     if(swide[i]<0) {
       strong=true;
@@ -142,7 +144,7 @@ void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
   m_line++;
   if(m_line == 13) {
     UTCstr();
-    painter1.setPen(Qt::red);
+    painter1.setPen(Qt::white);
     painter1.drawText(5,10,m_sutc);
   }
   update();                              //trigger a new paintEvent

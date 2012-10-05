@@ -36,7 +36,7 @@ public:
   qint32  m_tol;
   qint32  m_fCal;
 
-  void draw(float sw[], int i0, float splot[]);		//Update the waterfalls
+  void draw(float sw[], int i0);		//Update the waterfalls
   void SetRunningState(bool running);
   void setPlotZero(int plotZero);
   int  getPlotZero();

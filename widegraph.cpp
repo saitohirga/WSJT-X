@@ -130,7 +130,7 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata,
       }
     }
     ntr0=ntr;
-    ui->widePlot->draw(swide,i0,splot);
+    ui->widePlot->draw(swide,i0);
   }
 }
 

@@ -235,6 +235,7 @@ void MainWindow::writeSettings()
   settings.setValue("KB8RQ",m_kb8rq);
   settings.setValue("NB",m_NB);
   settings.setValue("NBslider",m_NBslider);
+  settings.setValue("TxFreq",m_txFreq);
   settings.endGroup();
 }
 
@@ -280,6 +281,8 @@ void MainWindow::readSettings()
   ui->NBcheckBox->setChecked(m_NB);
   m_NBslider=settings.value("NBslider",40).toInt();
   ui->NBslider->setValue(m_NBslider);
+  m_txFreq=settings.value("TxFreq",1500).toInt();
+  ui->TxFreqSpinBox->setValue(m_txFreq);
   m_saveAll=ui->actionSave_all->isChecked();
   m_ndepth=settings.value("NDepth",0).toInt();
   ui->actionF4_sets_Tx6->setChecked(m_kb8rq);
@@ -1384,3 +1387,10 @@ void MainWindow::on_NBslider_valueChanged(int n)
 {
   m_NBslider=n;
 }
+
+void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
+{
+  m_txFreq=n;
+  soundOutThread.setTxFreq(n);
+}
+

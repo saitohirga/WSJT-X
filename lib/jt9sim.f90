@@ -50,7 +50,6 @@ program jt9sim
 
   rmsdb=25.
   rms=10.0**(0.05*rmsdb)
-  f0=1500.d0                         !Center frequency (MHz)
   fsample=12000.d0                   !Sample rate (Hz)
   dt=1.d0/fsample                    !Sample interval (s)
   twopi=8.d0*atan(1.d0)
@@ -62,6 +61,11 @@ program jt9sim
   if(minutes.eq.10) nsps=82944
   if(minutes.eq.30) nsps=252000
   if(nsps.eq.0) stop 'Bad value for minutes.'
+  f0=1500.d0                         !Center frequency (MHz)
+  if(minutes.eq.5)  f0=1100.
+  if(minutes.eq.10) f0=1050.
+  if(minutes.eq.30) f0=1025.
+  
   ihdr=0                             !Temporary ###
 
   if(msg0(1:3).eq.'sin') read(msg0(4:),*) sinfreq
