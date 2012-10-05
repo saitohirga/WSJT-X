@@ -26,6 +26,7 @@ public:
 public:
   void setOutputDevice(qint32 n);
   void setPeriod(int ntrperiod, int nsps);
+  void setTxFreq(int n);
   bool quitExecution;           //If true, thread exits gracefully
 
 // Private members
@@ -35,6 +36,7 @@ private:
   bool    m_txMute;             //Mute temporarily
   qint32  m_TRperiod;           //T/R period (s)
   qint32  m_nsps;               //Samples per symbol (at 12000 Hz)
+  qint32  m_txFreq;
 };
 
 #endif

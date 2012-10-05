@@ -100,20 +100,14 @@ private slots:
   void on_actionErase_wsjtx_tx_log_triggered();
   void on_actionAFMHot_triggered();
   void on_actionBlue_triggered();
-
   void on_actionJT9_2_triggered();
-
   void on_actionJT9_1_triggered();
-
   void on_actionJT9_5_triggered();
-
   void on_actionJT9_30_triggered();
-
   void on_actionJT9_10_triggered();
-
   void on_NBcheckBox_toggled(bool checked);
-
   void on_NBslider_valueChanged(int value);
+  void on_TxFreqSpinBox_valueChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;

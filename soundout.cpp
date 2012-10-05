@@ -14,6 +14,7 @@ typedef struct   //Parameters sent to or received from callback function
 {
   int nsps;
   int ntrperiod;
+  int ntxfreq;
   bool txOK;
   bool txMute;
   bool bRestart;
@@ -43,12 +44,12 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     int mstr = ms % (1000*udata->ntrperiod );
     if(mstr<1000) return 0;
     ic=(mstr-1000)*12;
-    qDebug() << "Start at:" << 0.001*mstr;
+//    qDebug() << "Start at:" << 0.001*mstr << udata->ntxfreq;
     udata->bRestart=false;
   }
   int isym=ic/udata->nsps;
   if(isym>=85) return 0;
-  freq=1500.0 + itone[isym]*baud;
+  freq=udata->ntxfreq + itone[isym]*baud;
   dphi=twopi*freq/12000.0;
 /*
   if(ic<10000) qDebug() << "a" << ic << udata->nsps << itone[0]
@@ -98,6 +99,7 @@ void SoundOutThread::run()
 
   udata.nsps=m_nsps;
   udata.ntrperiod=m_TRperiod;
+  udata.ntxfreq=m_txFreq;
   udata.txOK=false;
   udata.txMute=m_txMute;
   udata.bRestart=true;
@@ -127,6 +129,7 @@ void SoundOutThread::run()
 
     udata.nsps=m_nsps;
     udata.ntrperiod=m_TRperiod;
+    udata.ntxfreq=m_txFreq;
     udata.txOK=m_txOK;
     udata.txMute=m_txMute;
     msleep(100);
@@ -145,4 +148,9 @@ void SoundOutThread::setPeriod(int ntrperiod, int nsps)
 {
   m_TRperiod=ntrperiod;
   m_nsps=nsps;
+}
+
+void SoundOutThread::setTxFreq(int n)
+{
+  m_txFreq=n;
 }
