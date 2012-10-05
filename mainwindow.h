@@ -221,7 +221,7 @@ void symspec_(int* k, int* ntrperiod, int* nsps, int* ndiskdat,
               int* nb, int* m_NBslider, float* px, float s[],
               float* f0a, float* df3, int* nhsym, int* nzap,
                float* slimit, uchar lstrong[]);
-void genJT9_(char* msg, char* msgsent, short itone[], int* nsym,
+void genjt9_(char* msg, int* minutes, char* msgsent, int itone[],
              int len1, int len2);
 int ptt_(int* nport, int* itx, int* iptt);
   }

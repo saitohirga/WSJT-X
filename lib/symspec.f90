@@ -70,7 +70,7 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
   k0=k
  
   nzap=0
-  sigmas=1.5*(10.0**(0.01*nbslider)) + 0.7
+  sigmas=1.0*(10.0**(0.01*nbslider)) + 0.7
   peaklimit=sigmas*max(10.0,rms)
   faclim=3.0
   px=0.
@@ -104,7 +104,7 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
 !###
 !  if(nzap/178.lt.50 .and. (ndiskdat.eq.0 .or. ihsym.lt.280)) then
   if(nsum.le.0) nsum=1
-  rms=sqrt(0.5*px/nsum)
+  rms=sqrt(px/nsum)
 !  endif
   pxdb=0.
   if(rms.gt.0.0) pxdb=20.0*log10(rms)

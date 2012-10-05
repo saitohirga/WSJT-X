@@ -142,7 +142,7 @@ void CPlotter::draw(float swide[], int i0, float splot[])             //draw()
   m_line++;
   if(m_line == 13) {
     UTCstr();
-    painter1.setPen(Qt::white);
+    painter1.setPen(Qt::red);
     painter1.drawText(5,10,m_sutc);
   }
   update();                              //trigger a new paintEvent

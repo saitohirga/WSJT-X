@@ -33,7 +33,7 @@ private:
   qint32  m_nDevOut;            //Output device number
   bool    m_txOK;               //Enable Tx audio
   bool    m_txMute;             //Mute temporarily
-  qint32  m_TRperiod;           //T/R period (30 or 60 s)
+  qint32  m_TRperiod;           //T/R period (s)
   qint32  m_nsps;               //Samples per symbol (at 12000 Hz)
 };
 

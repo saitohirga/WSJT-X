@@ -7,14 +7,16 @@ extern "C" {
 }
 
 extern float gran();                  //Noise generator (for tests only)
-extern short int iwave[120*12000];     //Wave file for Tx audio
-extern int nwave;
-extern bool btxok;
+extern int itone[85];                 //Tx audio tones for 85 symbols
 extern double outputLatency;
 
 typedef struct   //Parameters sent to or received from callback function
 {
-  int dummy;
+  int nsps;
+  int ntrperiod;
+  bool txOK;
+  bool txMute;
+  bool bRestart;
 } paUserData;
 
 //--------------------------------------------------------------- d2aCallback
@@ -26,19 +28,49 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
 {
   paUserData *udata=(paUserData*)userData;
   short *wptr = (short*)outputBuffer;
-  unsigned int i;
-  static int ic=0;
 
-  for(i=0 ; i<framesToProcess; i++ )  {
-    short int i2=iwave[ic];
-    if(ic > nwave) i2=0;
+  static double twopi=6.283185307;
+  static double baud=12000.0/udata->nsps;
+  static double phi=0.0;
+  static double dphi;
+  static double freq;
+  static int ic=0;
+  static short int i2;
+
+  if(udata->bRestart) {
+ // Time according to this computer
+    qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
+    int mstr = ms % (1000*udata->ntrperiod );
+    if(mstr<1000) return 0;
+    ic=(mstr-1000)*12;
+    qDebug() << "Start at:" << 0.001*mstr;
+    udata->bRestart=false;
+  }
+  int isym=ic/udata->nsps;
+  if(isym>=85) return 0;
+  freq=1500.0 + itone[isym]*baud;
+  dphi=twopi*freq/12000.0;
+/*
+  if(ic<10000) qDebug() << "a" << ic << udata->nsps << itone[0]
+                        << itone[1] << itone[2] << itone[3] << itone[4]
+                        << itone[5] << itone[6] << itone[7] << itone[8]
+                        << itone[9] << itone[10] << itone[11] << itone[12]
+                        << itone[13] << itone[14] << itone[15] << itone[16];
+                        */
+//  qDebug() << ic << isym << freq << dphi << phi << i2;
+
+  for(int i=0 ; i<framesToProcess; i++ )  {
+    phi += dphi;
+    if(phi>twopi) phi -= twopi;
+    i2=32767.0*sin(phi);
 //      i2 = 500.0*(i2/32767.0 + 5.0*gran());      //Add noise (tests only!)
-    if(!btxok) i2=0;
+    /*
+    if(udata->txMute) i2=0;
+    if(!udata->txOK)  i2=0;
+    if(ic > 85*udata->nsps) i2=0;
+    */
     *wptr++ = i2;                   //left
     ic++;
-  }
-  if(ic >= nwave) {
-    ic=0;
   }
   return 0;
 }
@@ -64,8 +96,11 @@ void SoundOutThread::run()
     return;
   }
 
-//  udata.nwave=m_nwave;
-//  udata.btxok=false;
+  udata.nsps=m_nsps;
+  udata.ntrperiod=m_TRperiod;
+  udata.txOK=false;
+  udata.txMute=m_txMute;
+  udata.bRestart=true;
 
   paerr=Pa_OpenStream(&outStream,           //Output stream
         NULL,                               //No input parameters
@@ -89,9 +124,11 @@ void SoundOutThread::run()
   while (!qe) {
     qe = quitExecution;
     if (qe) break;
-//    udata.nwave=m_nwave;
-//    if(m_txOK) udata.btxok=1;
-//    if(!m_txOK) udata.btxok=0;
+
+    udata.nsps=m_nsps;
+    udata.ntrperiod=m_TRperiod;
+    udata.txOK=m_txOK;
+    udata.txMute=m_txMute;
     msleep(100);
   }
   Pa_StopStream(outStream);
