@@ -121,6 +121,7 @@ void SoundInThread::run()                           //SoundInThread::run()
   int ntr;
   int nBusy=0;
   int nstep0=0;
+  int nsps0=0;
 
 //---------------------------------------------- Soundcard input loop
   while (!qe) {
@@ -131,8 +132,9 @@ void SoundInThread::run()                           //SoundInThread::run()
     ntr = nsec % m_TRperiod;
 
 // Reset buffer pointer and symbol number at start of minute
-    if(ntr < ntr0 or !m_monitoring) {
+    if(ntr < ntr0 or !m_monitoring or m_nsps!=nsps0) {
       nstep0=0;
+      nsps0=m_nsps;
       udata.bzero=true;
     }
     k=udata.kin;
