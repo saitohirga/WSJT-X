@@ -66,22 +66,30 @@ subroutine timf2(x0,k,nfft,nwindow,nb,peaklimit,faclim,x1,     &
   cxt(0:nh)=cx(0:nh)
 
 ! Identify frequencies with strong signals.
-
-  ntot=ntot+1
-  if(mod(ntot,128).eq.5) then
-     call pctile(s,stmp,nh,50,xmedian)
-     slimit=faclim*xmedian
-  endif
-
-  if(ntc.lt.12000/nfft) ntc=ntc+1
-  uu=1.0/ntc
-  smax=0.
+!###
   do i=0,nh
      p=real(cxt(i))**2 + aimag(cxt(i))**2
-     s(i)=(1.0-uu)*s(i) + uu*p
-     lstrong(i)=(s(i).gt.slimit)
-     if(s(i).gt.smax) smax=s(i)
+     s(i)=p
   enddo
+  ave=sum(s(0:nh))/nh
+  lstrong(0:nh)=s(0:nh).gt.10.0*ave
+!###
+
+!  ntot=ntot+1
+!  if(mod(ntot,128).eq.5) then
+!     call pctile(s,stmp,nh,50,xmedian)
+!     slimit=faclim*xmedian
+!  endif
+
+!  if(ntc.lt.12000/nfft) ntc=ntc+1
+!  uu=1.0/ntc
+!  smax=0.
+!  do i=0,nh
+!     p=real(cxt(i))**2 + aimag(cxt(i))**2
+!     s(i)=(1.0-uu)*s(i) + uu*p
+!     lstrong(i)=(s(i).gt.slimit)
+!     if(s(i).gt.smax) smax=s(i)
+!  enddo
 
   nsigs=0
   lprev=.false.
@@ -146,7 +154,7 @@ subroutine timf2(x0,k,nfft,nwindow,nb,peaklimit,faclim,x1,     &
 
 ! Compute power levels from weak data only
   do i=0,kstep-1
-     px=px + xw(i)*xw(i)
+     px=px + xw(i)**2
   enddo
 
   x1(0:kstep-1)=xw(0:kstep-1) + xs(0:kstep-1)     !Recombine weak + strong

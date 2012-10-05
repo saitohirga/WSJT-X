@@ -138,13 +138,15 @@ void SoundInThread::run()                           //SoundInThread::run()
     k=udata.kin;
     if(m_monitoring) {
       int kstep=m_nsps/2;
-      m_step=k/kstep;
+//      m_step=k/kstep;
+      m_step=(k-1)/kstep;
       if(m_step != nstep0) {
         if(m_dataSinkBusy) {
           nBusy++;
         } else {
 //          m_dataSinkBusy=true;
-          emit readyForFFT(k);         //Signal to compute new FFTs
+//          emit readyForFFT(k);         //Signal to compute new FFTs
+          emit readyForFFT(k-1);         //Signal to compute new FFTs
         }
         nstep0=m_step;
       }

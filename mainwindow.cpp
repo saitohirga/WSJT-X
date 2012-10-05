@@ -8,7 +8,7 @@
 #include "sleep.h"
 #include <portaudio.h>
 
-short int iwave[30*48000];            //Wave file for Tx audio
+int itone[85];                        //Tx audio tones for 85 symbols
 int nwave;                            //Length of Tx waveform
 bool btxok;                           //True if OK to transmit
 double outputLatency;                 //Latency in seconds
@@ -675,7 +675,7 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
     m_diskData=true;
     int dbDgrd=0;
     *future1 = QtConcurrent::run(getfile, fname, m_TRperiod);
-    watcher1->setFuture(*future1);
+    watcher1->setFuture(*future1);         // call diskDat() when done
   }
 }
 
@@ -848,7 +848,8 @@ void MainWindow::guiUpdate()
   int khsym=0;
 
   double tx1=0.0;
-  double tx2=m_TRperiod;
+//  double tx2=m_TRperiod;
+  double tx2=1.0 + 85.0*m_nsps/12000.0;
 
   if(!m_txFirst) {
     tx1 += m_TRperiod;
@@ -892,8 +893,9 @@ void MainWindow::guiUpdate()
 
     ba2msg(ba,message);
     ba2msg(ba,msgsent);
-    int len1=28;
-//    genjt9_(message,iwave,&nwave,len1);
+    int len1=22;
+    int len2=22;
+    genjt9_(message,&m_TRperiod,msgsent,itone,len1,len2);
     if(m_restart) {
       QFile f("wsjtx_tx.log");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
@@ -983,7 +985,7 @@ void MainWindow::guiUpdate()
     ui->labUTC->setText(utc);
     if(!m_monitoring and !m_diskData) {
       ui->xThermo->setValue(0.0);                      // Set Rx level to 20
-      lab2->setText(" Rx noise:    0.0 ");
+//      lab4->setText(" Rx noise:    0.0 ");
     }
     m_hsym0=khsym;
     m_sec0=nsec;
@@ -1362,7 +1364,7 @@ void MainWindow::on_actionJT9_30_triggered()
 {
   m_mode="JT9-30";
   m_TRperiod=1800;
-  m_nsps=250880;
+  m_nsps=252000;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
