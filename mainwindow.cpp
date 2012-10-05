@@ -1,4 +1,4 @@
-//------------------------------------------------------------- MainWindow
+//-------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -327,6 +327,7 @@ void MainWindow::dataSink(int k)
   trmin=m_TRperiod/60;
   symspec_(&k, &trmin, &m_nsps, &ndiskdat, &nb, &m_NBslider, &px, s,
            &f0a, &df3, &ihsym, &nzap, &slimit, lstrong);
+//  qDebug() << "a" << k << m_nsps << ihsym << px << df3 << s[250];
   if(ihsym <=0) return;
   QString t;
   m_pctZap=nzap/178.3;

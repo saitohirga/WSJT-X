@@ -137,8 +137,8 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
   endif
 
 999 continue
-!  write(71,*) ja,npts8,ja,ja+nfft3,px,rms,pxdb
-!3003 format(5i9,3f11.0)
+!  write(71,3003) k,nsps,ihsym,nfft3,pxdb,df3,s(250)
+!3003 format(4i9,3f11.3)
 !   flush(71)
 
   return
