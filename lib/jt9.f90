@@ -90,6 +90,18 @@ program jt9
 
 10   continue
 
+! Fix up the data in c0()
+     twopi=8.0*atan(1.0)
+     phi=0.
+     dphi=twopi*500.0/1500.0
+     do i=1,npts8
+        phi=phi+dphi
+        if(phi.gt.twopi) phi=phi-twopi
+        if(phi.lt.-twopi) phi=phi+twopi
+        c0(i)=cmplx(aimag(c0(i)),real(c0(i)))*cmplx(cos(phi),sin(phi))
+     enddo
+
+! Now do the decoding
      nutc=nutc0
      nstandalone=1
      call sync9(ss,tstep,f0a,df3,fpk)                 !Find sig, get rough freq
