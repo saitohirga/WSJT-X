@@ -107,7 +107,7 @@ program jt9
      call sync9(ss,tstep,f0a,df3,fpk)                 !Find sig, get rough freq
      call spec9(c0,npts8,nsps,f0a,fpk,xdt,i1SoftSymbols)
      call decode9(i1SoftSymbols,msg)
-     write(*,1010) nutc,xdt,fpk,msg
+     write(*,1010) nutc,xdt,1000.0+fpk,msg
 1010 format(i4.4,f6.1,f7.1,2x,a22)
   enddo
 
