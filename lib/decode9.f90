@@ -20,7 +20,8 @@ subroutine decode9(i1SoftSymbols,msg)
 
   if(first) then
 ! Get the metric table
-     bias=0.37                          !To be optimized, in decoder program
+!     bias=0.37                         !To be optimized, in decoder program
+     bias=0.0                           !Seems better, in jt9.exe ???
      scale=10                           !  ... ditto ...
      open(19,file='met8.21',status='old')
      do i=0,255

@@ -108,7 +108,8 @@ program jt9sim
         f=f0
         if(nsigs.gt.1) f=f0 - 0.5d0*fspan + fspan*(isig-1.d0)/(nsigs-1.d0)
         snrdbx=snrdb
-        sig=sqrt(2500.0/6000.0) * 10.0**(0.05*snrdbx)
+!        sig=sqrt(2500.0/6000.0) * 10.0**(0.05*snrdbx)
+        sig=10.0**(0.05*snrdbx)
         write(*,1020) ifile,isig,f,snrdbx,msgsent
 1020    format(i3,i4,f10.3,f7.1,2x,a22)
 
