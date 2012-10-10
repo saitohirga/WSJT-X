@@ -11,6 +11,7 @@ program jt9
   parameter (NSMAX=22000)            !Max length of saved spectra
   integer*4 ihdr(11)
   real*4 s(NSMAX)
+  real*4 ccfred(NSMAX)
   logical*1 lstrong(0:1023)
   integer*1 i1SoftSymbols(207)
   character*22 msg
@@ -90,25 +91,28 @@ program jt9
 
 10   continue
 
-! Fix up the data in c0()
-     twopi=8.0*atan(1.0)
-     phi=0.
-     dphi=twopi*500.0/1500.0
-     do i=1,npts8
-        phi=phi+dphi
-        if(phi.gt.twopi) phi=phi-twopi
-        if(phi.lt.-twopi) phi=phi+twopi
-        c0(i)=cmplx(aimag(c0(i)),real(c0(i)))*cmplx(cos(phi),sin(phi))
-     enddo
-
 ! Now do the decoding
      nutc=nutc0
      nstandalone=1
-     call sync9(ss,tstep,f0a,df3,fpk)                 !Find sig, get rough freq
+
+     ntol=500
+     nfqso=1500
+
+! Get sync, approx freq
+     call sync9(ss,tstep,f0a,df3,ntol,nfqso,sync,fpk,ccfred)    
+     fpk0=fpk
+     iz=1000.0/df3
+     do i=1,iz
+        freq=1000.0 + (i-1)*df3
+        write(72,3001) freq,ccfred(i)
+3001    format(2f10.3)
+     enddo
+     flush(72)
+
      call spec9(c0,npts8,nsps,f0a,fpk,xdt,i1SoftSymbols)
      call decode9(i1SoftSymbols,msg)
-     write(*,1010) nutc,xdt,1000.0+fpk,msg
-1010 format(i4.4,f6.1,f7.1,2x,a22)
+     write(*,1010) nutc,xdt,1000.0+fpk,msg,sync,fpk0
+1010 format(i4.4,f6.1,f7.1,2x,a22,2f9.1)
   enddo
 
   go to 999

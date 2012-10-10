@@ -19,6 +19,17 @@ subroutine spec9(c0,npts8,nsps,f0a,fpk,xdt,i1SoftSymbols)
   data ig/0,1,3,2,7,6,4,5/             !Gray code removal
   save
 
+! Fix up the data in c0()
+  twopi=8.0*atan(1.0)
+  phi=0.
+  dphi=twopi*500.0/1500.0
+  do i=0,npts8-1
+     phi=phi+dphi
+     if(phi.gt.twopi) phi=phi-twopi
+     if(phi.lt.-twopi) phi=phi+twopi
+     c0(i)=cmplx(aimag(c0(i)),real(c0(i)))*cmplx(cos(phi),sin(phi))
+  enddo
+
   nsps8=nsps/8
   foffset=fpk-f0a
   istart=1520
