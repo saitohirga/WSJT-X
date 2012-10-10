@@ -1,7 +1,8 @@
-subroutine sync9(ss,tstep,f0a,df3,fpk)
+subroutine sync9(ss,tstep,f0a,df3,ntol,nfqso,sync,fpk,ccfred)
 
   parameter (NSMAX=22000)            !Max length of saved spectra
   real ss(184,NSMAX)
+  real ccfred(NSMAX)
 
   integer ii0(16)
   integer ii(16)                     !Locations of sync half-symbols
@@ -14,38 +15,45 @@ subroutine sync9(ss,tstep,f0a,df3,fpk)
        0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,  &
        1,0,0,0,1/
 
-  nz=1000.0/df3
+  ia=1
+  ib=min(1000,nint(1000.0/df3))
 
-  smax=0.
+  if(ntol.lt.1000) then
+     ia=nint((nfqso-1000-ntol)/df3)
+     ib=nint((nfqso-1000+ntol)/df3)
+     if(ia.lt.1) ia=1
+     if(ib.gt.NSMAX) ib=NSMAX
+  endif
+  print*,ia,ib,df3*ia+1000,df3*ib+1000
+
+  sbest=0.
   lagmax=2.5/tstep + 0.9999
-  do n=1,nz
+  ccfred=0.
+
+  do i=ia,ib
+     smax=0.
      do lag=-lagmax,lagmax
         sum=0.
-        do i=1,16
-           k=ii(i) + lag
-           if(k.ge.1) sum=sum + ss(k,n)
+        do j=1,16
+           k=ii(j) + lag
+           if(k.ge.1) sum=sum + ss(k,i)
         enddo
         if(sum.gt.smax) then
            smax=sum
-           npk=n
+           ipk=i
            lagpk=lag
         endif
      enddo
+     if(smax.gt.sbest) then
+        sbest=smax
+        ipkbest=ipk
+        lagpkbest=lagpk
+     endif
+     ccfred(i)=smax
   enddo
 
-  fpk=f0a + (npk-1)*df3
-
-! This loop for tests only:
-!  do lag=-lagmax,lagmax
-!     sum=0.
-!     do i=1,16
-!        k=ii(i) + lag
-!        if(k.ge.1) sum=sum + ss(k,npk)
-!     enddo
-!     write(71,3001) lag,sum
-!3001 format(i8,f12.3)
-!  enddo
-!  flush(71)
+  fpk=f0a + (ipkbest-1)*df3
+  sync=sbest
 
   return
 end subroutine sync9
