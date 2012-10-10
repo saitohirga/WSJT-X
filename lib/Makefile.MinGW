@@ -20,7 +20,7 @@ CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    libjt9.a jt9sim.exe jt9.exe
+all:    libjt9.a jt9sim.exe jt9.exe tt9.exe
 
 OBJS1 = trimlist.o pctile.o sort.o indexx.o ssort.o graycode.o \
 	unpackmsg.o igray.o set.o unpackcall.o unpackgrid.o \
@@ -30,7 +30,7 @@ OBJS1 = trimlist.o pctile.o sort.o indexx.o ssort.o graycode.o \
 	symspec.o timf2.o analytic.o db.o genjt9.o ptt.o \
 	packbits.o unpackbits.o encode232.o interleave9.o \
 	entail.o fano232.o gran.o spec9.o sync9.o decode9.o \
-	peakdt9.o peakdf9.o
+	peakdt9.o peakdf9.o fil3.o
 
 libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
@@ -51,6 +51,10 @@ t1.exe: $(OBJS4) libjt9.a
 OBJS5 = t2.o 
 t2.exe: $(OBJS5) libjt9.a
 	$(FC) -o t2.exe $(OBJS5) libjt9.a ../libfftw3f_win.a 
+
+OBJS6 = tt9.o 
+tt9.exe: $(OBJS6) libjt9.a
+	$(FC) -o tt9.exe $(OBJS6) libjt9.a ../libfftw3f_win.a 
 
 INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
 	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
