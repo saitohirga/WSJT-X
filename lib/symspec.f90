@@ -143,9 +143,12 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
   call pctile(ssum,iz,50,xmed1)
   savg(1:iz)=ssum(1:iz)/xmed1
 
-!  if(ihsym.ge.1) then
-!     write(71,3003) ihsym,ave0,xmed0,smax0,ave1,xmed1,smax1
-!3003 format(i3,6f12.6)
+!  if(ihsym.eq.160) then
+!     rewind 71
+!     do i=1,iz
+!        write(71,3003) 1000+i*df3,savg(i)
+!3003    format(2f12.3)
+!     enddo
 !     flush(71)
 !  endif
 
