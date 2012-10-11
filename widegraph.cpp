@@ -43,6 +43,8 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->widePlot->m_bCurrent=settings.value("Current",true).toBool();
   ui->rbCurrent->setChecked(ui->widePlot->m_bCurrent);
   ui->rbCumulative->setChecked(!ui->widePlot->m_bCurrent);
+  int nbpp=settings.value("BinsPerPixel",1).toInt();
+  ui->widePlot->setBinsPerPixel(nbpp);
   settings.endGroup();
 }
 
@@ -68,6 +70,7 @@ void WideGraph::saveSettings()
   settings.setValue("WaterfallAvg",ui->waterfallAvgSpinBox->value());
   settings.setValue("DialFreqMHz",m_dialFreq);
   settings.setValue("Current",ui->widePlot->m_bCurrent);
+  settings.setValue("BinsPerPixel",ui->widePlot->binsPerPixel());
   settings.endGroup();
 }
 
