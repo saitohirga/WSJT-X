@@ -67,8 +67,6 @@ void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
     m_2DPixmap.fill(Qt::black);
     m_ScalePixmap = QPixmap(m_w,30);
     m_ScalePixmap.fill(Qt::white);
-
-    qDebug() << "A" << m_h << m_h1 << m_h2 ;
   }
   DrawOverlay();
 }
@@ -119,18 +117,19 @@ void CPlotter::draw(float swide[], int i0)             //draw()
       swide[i]=-swide[i];
     }
     y = 10.0*log10(swide[i]);
-    int y1 = 5.0*gain*(y + 37 - m_plotZero);
+    int y1 = 5.0*gain*y + 10*m_plotZero;
     if (y1<0) y1=0;
     if (y1>254) y1=254;
     if (swide[i]>1.e29) y1=255;
     m_hist1[y1]++;
     painter1.setPen(m_ColorTbl[y1]);
     painter1.drawPoint(i,0);
-    int y2 = 0.7*gain*(y + 54 - m_plotZero);
-    if(!m_bCurrent) y2=10.0*jt9com_.savg[i];
+    int y2 = gain*y + 30;
+    if(!m_bCurrent) y2=5.0*gain*jt9com_.savg[i] + 20;
     if (y2<0) y2=0;
     if (y2>254) y2=254;
     if (swide[i]>1.e29) y2=255;
+
     if(strong != strong0 or i==m_w-1) {
       painter2D.drawPolyline(LineBuf,j);
       j=0;
@@ -139,7 +138,8 @@ void CPlotter::draw(float swide[], int i0)             //draw()
       if(!strong0) painter2D.setPen(Qt::green);
     }
     LineBuf[j].setX(i);
-    LineBuf[j].setY(m_h-y2-320);
+    LineBuf[j].setY(m_h-(y2+180));
+//    if(m_line==10) qDebug() << i << FreqfromX(i) << m_h << y2 << m_h-y2;
     j++;
   }
 

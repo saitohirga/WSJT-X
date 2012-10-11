@@ -330,7 +330,6 @@ void MainWindow::dataSink(int k)
   trmin=m_TRperiod/60;
   symspec_(&k, &trmin, &m_nsps, &ndiskdat, &nb, &m_NBslider, &px, s,
            &f0a, &df3, &ihsym, &nzap, &slimit, lstrong);
-//  qDebug() << "a" << k << m_nsps << ihsym << px << df3 << s[250];
   if(ihsym <=0) return;
   QString t;
   m_pctZap=nzap/178.3;
@@ -367,7 +366,7 @@ void MainWindow::dataSink(int k)
     ntr0=ntr;
     n=0;
   }
-  if(ihsym == 179) {
+  if(ihsym == m_hsymStop) {
     jt9com_.newdat=1;
     jt9com_.nagain=0;
     QDateTime t = QDateTime::currentDateTimeUtc();
@@ -722,10 +721,10 @@ void MainWindow::diskDat()                                   //diskDat()
 {
   int kstep=m_nsps/2;
   m_diskData=true;
-  for(int n=1; n<=184; n++) {              // Do the half-symbol FFTs
+  for(int n=1; n<=m_hsymStop; n++) {              // Do the half-symbol FFTs
     int k=(n+1)*kstep;
     dataSink(k);
-    if(n%10 == 0) qApp->processEvents();   //Keep the GUI responsive
+    if(n%10 == 1 or n == m_hsymStop) qApp->processEvents();   //Keep GUI responsive
   }
 }
 
@@ -1317,6 +1316,7 @@ void MainWindow::on_actionJT9_1_triggered()
   m_mode="JT9-1";
   m_TRperiod=60;
   m_nsps=6912;
+  m_hsymStop=181;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
@@ -1330,6 +1330,7 @@ void MainWindow::on_actionJT9_2_triggered()
   m_mode="JT9-2";
   m_TRperiod=120;
   m_nsps=15360;
+  m_hsymStop=178;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
@@ -1343,6 +1344,7 @@ void MainWindow::on_actionJT9_5_triggered()
   m_mode="JT9-5";
   m_TRperiod=300;
   m_nsps=40960;
+  m_hsymStop=172;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
@@ -1356,6 +1358,7 @@ void MainWindow::on_actionJT9_10_triggered()
   m_mode="JT9-10";
   m_TRperiod=600;
   m_nsps=82944;
+  m_hsymStop=171;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
@@ -1369,6 +1372,7 @@ void MainWindow::on_actionJT9_30_triggered()
   m_mode="JT9-30";
   m_TRperiod=1800;
   m_nsps=252000;
+  m_hsymStop=167;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);

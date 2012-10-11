@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>602</width>
-    <height>502</height>
+    <height>480</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>0</width>
-    <height>500</height>
+    <height>475</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -35,13 +35,13 @@
    <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>-10</y>
+      <x>11</x>
+      <y>2</y>
       <width>565</width>
-      <height>467</height>
+      <height>423</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -62,7 +62,7 @@
        <property name="maximumSize">
         <size>
          <width>620</width>
-         <height>200</height>
+         <height>300</height>
         </size>
        </property>
        <property name="title">
@@ -86,7 +86,7 @@
           <property name="maximumSize">
            <size>
             <width>610</width>
-            <height>180</height>
+            <height>280</height>
            </size>
           </property>
           <property name="font">
