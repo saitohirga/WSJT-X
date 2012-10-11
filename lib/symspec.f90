@@ -24,10 +24,10 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
   parameter (NFFT2=1024,NFFT2A=NFFT2/8)
   parameter (MAXFFT3=32768)
   real*4 s(NSMAX),w(NFFT1),w3(MAXFFT3)
-  real*4 stmp(NFFT2/2)
   real*4 x0(NFFT1),x1(NFFT1)
   real*4 x2(NFFT1+105)
   real*4 xx(NMAX)
+  real*4 ssum(NSMAX)
   complex cx(0:MAXFFT3-1)
   logical*1 lstrong(0:1023)               !Should be (0:512)
   integer*2 id2
@@ -54,13 +54,12 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
      do i=1,nfft3
         w3(i)=2.0*(sin(i*pi/nfft3))**2             !Window for nfft3
      enddo
-     stmp=0.
      nfft3z=nfft3
   endif
 
   if(k.lt.k0) then
      ja=-3*jstep
-     savg=0.
+     ssum=0.
      ihsym=0
      k1=0
      k8=0
@@ -131,15 +130,24 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
         if(j.lt.0) j=j+nfft3
         sx=fac*(real(cx(j))**2 + aimag(cx(j))**2)
         ss(n,i)=sx
-        savg(i)=savg(i) + sx
+        ssum(i)=ssum(i) + sx
         s(i)=sx
      enddo
   endif
 
 999 continue
-!  write(71,3003) k,nsps,ihsym,nfft3,pxdb,df3,s(250)
-!3003 format(4i9,3f11.3)
-!   flush(71)
+
+
+  call pctile(s,iz,50,xmed0)
+  s(1:iz)=s(1:iz)/xmed0
+  call pctile(ssum,iz,50,xmed1)
+  savg(1:iz)=ssum(1:iz)/xmed1
+
+!  if(ihsym.ge.1) then
+!     write(71,3003) ihsym,ave0,xmed0,smax0,ave1,xmed1,smax1
+!3003 format(i3,6f12.6)
+!     flush(71)
+!  endif
 
   return
 end subroutine symspec

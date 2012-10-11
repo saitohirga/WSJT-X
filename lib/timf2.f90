@@ -77,7 +77,7 @@ subroutine timf2(x0,k,nfft,nwindow,nb,peaklimit,faclim,x1,     &
 
 !  ntot=ntot+1
 !  if(mod(ntot,128).eq.5) then
-!     call pctile(s,stmp,nh,50,xmedian)
+!     call pctile(s,nh,50,xmedian)
 !     slimit=faclim*xmedian
 !  endif
 

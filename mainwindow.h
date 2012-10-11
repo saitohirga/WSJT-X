@@ -134,6 +134,7 @@ private:
     qint32  m_NBslider;
     qint32  m_TRperiod;
     qint32  m_nsps;
+    qint32  m_hsymStop;
 
     bool    m_monitoring;
     bool    m_transmitting;
