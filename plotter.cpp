@@ -54,8 +54,8 @@ void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
     m_Size = size();
     m_w = m_Size.width();
     m_h = m_Size.height();
-    m_h1 = (100-m_Percent2DScreen)*(m_Size.height()-30)/100;
-    m_h2 = (m_Percent2DScreen)*(m_Size.height()-30)/100;
+    m_h1 = (100-m_Percent2DScreen)*(m_Size.height())/100;
+    m_h2 = (m_Percent2DScreen)*(m_Size.height())/100;
 
     m_2DPixmap = QPixmap(m_Size.width(), m_h2);
     m_2DPixmap.fill(Qt::black);
@@ -67,6 +67,8 @@ void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
     m_2DPixmap.fill(Qt::black);
     m_ScalePixmap = QPixmap(m_w,30);
     m_ScalePixmap.fill(Qt::white);
+
+    qDebug() << "A" << m_h << m_h1 << m_h2 ;
   }
   DrawOverlay();
 }
@@ -445,7 +447,7 @@ int CPlotter::DF() {return m_DF;}                              // get DF
 
 void CPlotter::mousePressEvent(QMouseEvent *event)       //mousePressEvent
 {
-  int h = (m_Size.height()-60)/2;
+//  int h = (m_Size.height()-60)/2;
   int x=event->x();
   int y=event->y();
   setFQSO(x,false);                               // Wideband waterfall
@@ -453,7 +455,7 @@ void CPlotter::mousePressEvent(QMouseEvent *event)       //mousePressEvent
 
 void CPlotter::mouseDoubleClickEvent(QMouseEvent *event)  //mouse2click
 {
-  int h = (m_Size.height()-60)/2;
+//  int h = (m_Size.height()-60)/2;
   int x=event->x();
   int y=event->y();
   m_DF=0;
