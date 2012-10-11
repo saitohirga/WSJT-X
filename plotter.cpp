@@ -357,7 +357,7 @@ int CPlotter::XfromFreq(float f)                               //XfromFreq()
 
 float CPlotter::FreqfromX(int x)                               //FreqfromX()
 {
-  return float(1000.0 + m_fftBinWidth*x);
+  return float(1000.0 + x*m_binsPerPixel*m_fftBinWidth);
 }
 
 void CPlotter::SetRunningState(bool running)              //SetRunningState()
