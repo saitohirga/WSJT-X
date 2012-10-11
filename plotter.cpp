@@ -125,11 +125,7 @@ void CPlotter::draw(float swide[], int i0)             //draw()
     painter1.setPen(m_ColorTbl[y1]);
     painter1.drawPoint(i,0);
     int y2 = gain*y + 30;
-    if(!m_bCurrent) y2=5.0*gain*jt9com_.savg[i] + 20;
-    if (y2<0) y2=0;
-    if (y2>254) y2=254;
-    if (swide[i]>1.e29) y2=255;
-
+    if(!m_bCurrent) y2=gain*10.0*log10(jt9com_.savg[i]);
     if(strong != strong0 or i==m_w-1) {
       painter2D.drawPolyline(LineBuf,j);
       j=0;
@@ -138,8 +134,9 @@ void CPlotter::draw(float swide[], int i0)             //draw()
       if(!strong0) painter2D.setPen(Qt::green);
     }
     LineBuf[j].setX(i);
-    LineBuf[j].setY(m_h-(y2+180));
+//    y2 = m_h*float(i)/m_w;
 //    if(m_line==10) qDebug() << i << FreqfromX(i) << m_h << y2 << m_h-y2;
+    LineBuf[j].setY(m_h-(y2+0.8*m_h));
     j++;
   }
 
