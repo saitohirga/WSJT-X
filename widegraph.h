@@ -54,6 +54,10 @@ private slots:
   void on_autoZeroPushButton_clicked();
   void on_fDialLineEdit_editingFinished();
 
+  void on_rbCurrent_toggled(bool checked);
+
+  void on_rbCumulative_toggled(bool checked);
+
 private:
   qint32 m_waterfallAvg;
   qint32 m_fCal;

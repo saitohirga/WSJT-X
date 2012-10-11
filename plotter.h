@@ -26,6 +26,7 @@ public:
   QSize minimumSizeHint() const;
   QSize sizeHint() const;
   QColor  m_ColorTbl[256];
+  bool    m_bCurrent;
   int     m_plotZero;
   int     m_plotGain;
   float   m_fSpan;

@@ -125,6 +125,7 @@ void CPlotter::draw(float swide[], int i0)             //draw()
     painter1.setPen(m_ColorTbl[y1]);
     painter1.drawPoint(i,0);
     int y2 = 0.7*gain*(y + 54 - m_plotZero);
+    if(!m_bCurrent) y2=10.0*jt9com_.savg[i];
     if (y2<0) y2=0;
     if (y2>254) y2=254;
     if (swide[i]>1.e29) y2=255;

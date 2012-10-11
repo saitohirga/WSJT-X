@@ -1,5 +1,6 @@
 #include "widegraph.h"
 #include "ui_widegraph.h"
+#include "commons.h"
 
 #define NSMAX 22000
 
@@ -14,6 +15,7 @@ WideGraph::WideGraph(QWidget *parent) :
   this->setMaximumWidth(2048);
   this->setMaximumHeight(880);
   ui->widePlot->setMaximumHeight(800);
+  ui->widePlot->m_bCurrent=false;
 
   connect(ui->widePlot, SIGNAL(freezeDecode1(int)),this,
           SLOT(wideFreezeDecode(int)));
@@ -38,6 +40,9 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
   m_dialFreq=settings.value("DialFreqMHz",473.000).toDouble();
   ui->fDialLineEdit->setText(QString::number(m_dialFreq));
+  ui->widePlot->m_bCurrent=settings.value("Current",true).toBool();
+  ui->rbCurrent->setChecked(ui->widePlot->m_bCurrent);
+  ui->rbCumulative->setChecked(!ui->widePlot->m_bCurrent);
   settings.endGroup();
 }
 
@@ -62,6 +67,7 @@ void WideGraph::saveSettings()
   settings.setValue("FreqSpan",ui->freqSpanSpinBox->value());
   settings.setValue("WaterfallAvg",ui->waterfallAvgSpinBox->value());
   settings.setValue("DialFreqMHz",m_dialFreq);
+  settings.setValue("Current",ui->widePlot->m_bCurrent);
   settings.endGroup();
 }
 
@@ -255,4 +261,14 @@ void WideGraph::setPeriod(int ntrperiod, int nsps)
   m_TRperiod=ntrperiod;
   m_nsps=nsps;
   ui->widePlot->setNsps(nsps);
+}
+
+void WideGraph::on_rbCurrent_toggled(bool checked)
+{
+  ui->widePlot->m_bCurrent=checked;
+}
+
+void WideGraph::on_rbCumulative_toggled(bool checked)
+{
+  ui->widePlot->m_bCurrent=!checked;
 }
