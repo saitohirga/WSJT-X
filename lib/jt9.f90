@@ -11,7 +11,7 @@ program jt9
   parameter (NSMAX=22000)            !Max length of saved spectra
   integer*4 ihdr(11)
   real*4 s(NSMAX)
-  real*4 ccfred(NSMAX)
+  real*4 red(NSMAX)
   logical*1 lstrong(0:1023)
   integer*1 i1SoftSymbols(207)
   character*22 msg
@@ -83,7 +83,7 @@ program jt9
         if(nhsym.ge.1 .and. nhsym.ne.nhsym0) then
 ! Emit signal readyForFFT
            call symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,   &
-                s,f0a,df3,ihsym,nzap,slimit,lstrong)
+                s,red,f0a,df3,ihsym,nzap,slimit,lstrong)
            nhsym0=nhsym
            if(ihsym.ge.184) go to 10
         endif
@@ -99,13 +99,13 @@ program jt9
      nfqso=1500
 
 ! Get sync, approx freq
-     call sync9(ss,tstep,f0a,df3,ntol,nfqso,sync,fpk,ccfred)    
+     call sync9(ss,tstep,f0a,df3,ntol,nfqso,sync,fpk,red)    
      fpk0=fpk
      iz=1000.0/df3
      do i=1,iz
         freq=1000.0 + (i-1)*df3
-        write(72,3001) freq,ccfred(i)
-3001    format(2f10.3)
+        write(72,3001) freq,red(i),db(red(i))
+3001    format(3f10.3)
      enddo
      flush(72)
 

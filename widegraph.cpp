@@ -41,8 +41,11 @@ WideGraph::WideGraph(QWidget *parent) :
   m_dialFreq=settings.value("DialFreqMHz",473.000).toDouble();
   ui->fDialLineEdit->setText(QString::number(m_dialFreq));
   ui->widePlot->m_bCurrent=settings.value("Current",true).toBool();
+  ui->widePlot->m_bCumulative=settings.value("Cumulative",false).toBool();
+  ui->widePlot->m_bJT9Sync=settings.value("JT9Sync",false).toBool();
   ui->rbCurrent->setChecked(ui->widePlot->m_bCurrent);
-  ui->rbCumulative->setChecked(!ui->widePlot->m_bCurrent);
+  ui->rbCumulative->setChecked(ui->widePlot->m_bCumulative);
+  ui->rbJT9Sync->setChecked(ui->widePlot->m_bJT9Sync);
   int nbpp=settings.value("BinsPerPixel",1).toInt();
   ui->widePlot->setBinsPerPixel(nbpp);
   settings.endGroup();
@@ -70,12 +73,14 @@ void WideGraph::saveSettings()
   settings.setValue("WaterfallAvg",ui->waterfallAvgSpinBox->value());
   settings.setValue("DialFreqMHz",m_dialFreq);
   settings.setValue("Current",ui->widePlot->m_bCurrent);
+  settings.setValue("Cumulative",ui->widePlot->m_bCumulative);
+  settings.setValue("JT9Sync",ui->widePlot->m_bJT9Sync);
   settings.setValue("BinsPerPixel",ui->widePlot->binsPerPixel());
   settings.endGroup();
 }
 
-void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata,
-                          uchar lstrong[])
+void WideGraph::dataSink2(float s[], float red[], float df3, int ihsym,
+                          int ndiskdata, uchar lstrong[])
 {
   static float splot[NSMAX];
   static float swide[2048];
@@ -139,7 +144,7 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata,
       }
     }
     ntr0=ntr;
-    ui->widePlot->draw(swide,i0);
+    ui->widePlot->draw(swide,red,i0);
   }
 }
 
@@ -266,12 +271,23 @@ void WideGraph::setPeriod(int ntrperiod, int nsps)
   ui->widePlot->setNsps(nsps);
 }
 
-void WideGraph::on_rbCurrent_toggled(bool checked)
+void WideGraph::on_rbCurrent_clicked()
 {
-  ui->widePlot->m_bCurrent=checked;
+  ui->widePlot->m_bCurrent=true;
+  ui->widePlot->m_bCumulative=false;
+  ui->widePlot->m_bJT9Sync=false;
 }
 
-void WideGraph::on_rbCumulative_toggled(bool checked)
+void WideGraph::on_rbCumulative_clicked()
 {
-  ui->widePlot->m_bCurrent=!checked;
+  ui->widePlot->m_bCurrent=false;
+  ui->widePlot->m_bCumulative=true;
+  ui->widePlot->m_bJT9Sync=false;
+}
+
+void WideGraph::on_rbJT9Sync_clicked()
+{
+  ui->widePlot->m_bCurrent=false;
+  ui->widePlot->m_bCumulative=false;
+  ui->widePlot->m_bJT9Sync=true;
 }

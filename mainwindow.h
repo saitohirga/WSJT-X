@@ -65,7 +65,6 @@ private slots:
   void on_actionOpen_next_in_directory_triggered();
   void on_actionDecode_remaining_files_in_directory_triggered();
   void on_actionDelete_all_wav_files_in_SaveDir_triggered();
-  void on_actionFind_Delta_Phi_triggered();
   void on_actionF4_sets_Tx6_triggered();
   void on_actionNo_shorthands_if_Tx1_triggered();
   void on_actionNo_Deep_Search_triggered();
@@ -213,7 +212,7 @@ extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
 extern "C" {
 //----------------------------------------------------- C and Fortran routines
 void symspec_(int* k, int* ntrperiod, int* nsps, int* ndiskdat,
-              int* nb, int* m_NBslider, float* px, float s[],
+              int* nb, int* m_NBslider, float* px, float s[], float red[],
               float* f0a, float* df3, int* nhsym, int* nzap,
                float* slimit, uchar lstrong[]);
 void genjt9_(char* msg, int* minutes, char* msgsent, int itone[],

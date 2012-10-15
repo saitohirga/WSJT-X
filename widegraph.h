@@ -16,8 +16,8 @@ public:
 
   double m_dialFreq;
 
-  void   dataSink2(float s[], float df3, int ihsym, int ndiskdata,
-                   uchar lstrong[]);
+  void   dataSink2(float s[], float red[], float df3, int ihsym,
+                   int ndiskdata, uchar lstrong[]);
   int    QSOfreq();
   int    nSpan();
   int    nStartFreq();
@@ -53,10 +53,9 @@ private slots:
   void on_gainSpinBox_valueChanged(int arg1);
   void on_autoZeroPushButton_clicked();
   void on_fDialLineEdit_editingFinished();
-
-  void on_rbCurrent_toggled(bool checked);
-
-  void on_rbCumulative_toggled(bool checked);
+  void on_rbCurrent_clicked();
+  void on_rbCumulative_clicked();
+  void on_rbJT9Sync_clicked();
 
 private:
   qint32 m_waterfallAvg;

@@ -1,5 +1,5 @@
-subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
-     ihsym,nzap,slimit,lstrong)
+subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,red,    &
+     f0a,df3,ihsym,nzap,slimit,lstrong)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -23,11 +23,11 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
   parameter (NFFT1=1024)
   parameter (NFFT2=1024,NFFT2A=NFFT2/8)
   parameter (MAXFFT3=32768)
-  real*4 s(NSMAX),w(NFFT1),w3(MAXFFT3)
+  real*4 s(NSMAX),w3(MAXFFT3)
   real*4 x0(NFFT1),x1(NFFT1)
   real*4 x2(NFFT1+105)
-  real*4 xx(NMAX)
   real*4 ssum(NSMAX)
+  real*4 red(NSMAX)
   complex cx(0:MAXFFT3-1)
   logical*1 lstrong(0:1023)               !Should be (0:512)
   integer*2 id2
@@ -73,7 +73,6 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
   peaklimit=sigmas*max(10.0,rms)
   faclim=3.0
   px=0.
-  df2=12000.0/NFFT2
 
   nwindow=2
 !  nwindow=0                                    !### No windowing ###
@@ -137,20 +136,22 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,f0a,df3,    &
 
 999 continue
 
-
   call pctile(s,iz,50,xmed0)
   s(1:iz)=s(1:iz)/xmed0
   call pctile(ssum,iz,50,xmed1)
   savg(1:iz)=ssum(1:iz)/xmed1
 
-!  if(ihsym.eq.160) then
-!     rewind 71
-!     do i=1,iz
-!        write(71,3003) 1000+i*df3,savg(i)
-!3003    format(2f12.3)
-!     enddo
-!     flush(71)
-!  endif
+  call redsync(ss,ntrperiod,ihsym,iz,red)
+
+  if(ihsym.eq.160) then
+     rewind 71
+     do i=1,iz
+        write(71,3003) 1000+i*df3,savg(i),red(i)
+3003    format(3f12.3)
+     enddo
+     flush(71)
+  endif
+
 
   return
 end subroutine symspec

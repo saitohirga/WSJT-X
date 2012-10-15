@@ -35,7 +35,7 @@
    <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>11</x>
@@ -627,7 +627,7 @@ p, li { white-space: pre-wrap; }
               </size>
              </property>
              <property name="text">
-              <string>500</string>
+              <string>50</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -661,7 +661,7 @@ p, li { white-space: pre-wrap; }
               <number>0</number>
              </property>
              <property name="maximum">
-              <number>6</number>
+              <number>9</number>
              </property>
              <property name="value">
               <number>5</number>
