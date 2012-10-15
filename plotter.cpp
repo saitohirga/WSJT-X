@@ -27,7 +27,7 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   m_ScalePixmap = QPixmap(0,0);
   m_OverlayPixmap = QPixmap(0,0);
   m_Size = QSize(0,0);
-  m_fQSO = 125;
+  m_fQSO = 1050;
   m_line = 0;
   m_fSample = 12000;
   m_nsps=6912;
@@ -84,9 +84,9 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
   m_paintEventBusy=false;
 }
 
-void CPlotter::draw(float swide[], int i0)             //draw()
+void CPlotter::draw(float swide[], float red[], int i0)             //draw()
 {
-  int j;
+  int j,y2;
   float y;
 
   m_i0=i0;
@@ -103,6 +103,8 @@ void CPlotter::draw(float swide[], int i0)             //draw()
   }
 
   painter2D.setPen(Qt::green);
+  if(m_bJT9Sync) painter2D.setPen(Qt::red);
+
   QPoint LineBuf[MAX_SCREENSIZE];
   j=0;
   bool strong0=false;
@@ -124,8 +126,9 @@ void CPlotter::draw(float swide[], int i0)             //draw()
     m_hist1[y1]++;
     painter1.setPen(m_ColorTbl[y1]);
     painter1.drawPoint(i,0);
-    int y2 = gain*y + 30;
-    if(!m_bCurrent) y2=gain*10.0*log10(jt9com_.savg[i]);
+    if(m_bCurrent) y2 = gain*y + 30;
+    if(m_bCumulative) y2=gain*10.0*log10(jt9com_.savg[i]);
+    if(m_bJT9Sync) y2=3*gain*red[i];
     if(strong != strong0 or i==m_w-1) {
       painter2D.drawPolyline(LineBuf,j);
       j=0;
@@ -297,19 +300,10 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   painter0.setPen(pen0);
   x = m_xClick;
   painter0.drawLine(x,15,x,30);
-  int x0=(16384-m_i0)/m_binsPerPixel;
-  m_fGreen=(x-x0)*df;
-  x0 += (x0-x);
-  QPen pen3(Qt::red, 3);
-  painter0.setPen(pen3);
-  if(x0>0 and x0<w) painter0.drawLine(x0,15,x0,30);
-
-  // Now make the lower scale, using m_LowerScalePixmap and painter3
-  QRect rect1;
-//  QPainter painter3(&m_LowerScalePixmap);
-//  painter3.initFrom(this);
-//  painter3.setFont(Font);
-//  painter3.setPen(Qt::black);
+  int x1=x - m_tol/df;
+  int x2=x + m_tol/df;
+  pen0.setWidth(6);
+  painter0.drawLine(x1,28,x2,28);
 
   df = 12000.0/m_nsps;
   int nlabs=df*w/m_freqPerDiv + 1.0;
@@ -322,16 +316,6 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     if ((i%10) == 0) y=18;
 //    painter3.drawLine(x,y,x,30);
   }
-
-  /*
-  //draw frequency values
-  MakeFrequencyStrs();
-  for( int i=0; i<=nlabs; i++) {
-    x = (int)( (float)i*pixperdiv - pixperdiv/2);
-    rect1.setRect(x,0, (int)pixperdiv, 20);
-//    painter3.drawText(rect1, Qt::AlignHCenter|Qt::AlignVCenter,m_HDivText[i]);
-  }
-  */
 }
 
 void CPlotter::MakeFrequencyStrs()                       //MakeFrequencyStrs

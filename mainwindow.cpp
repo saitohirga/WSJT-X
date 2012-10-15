@@ -97,7 +97,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_myGrid="FN20qi";
   m_appDir = QApplication::applicationDirPath();
   m_saveDir="/users/joe/wsjtx/install/save";
-  m_txFreq=125;
+  m_txFreq=1500;
   m_setftx=0;
   m_loopall=false;
   m_startAnother=false;
@@ -153,7 +153,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_monitoring=true;                           // Start with Monitoring ON
   soundInThread.setMonitoring(m_monitoring);
   m_diskData=false;
-  m_tol=500;
+  m_tol=50;
   g_pWideGraph->setTol(m_tol);
 
 // Create "m_worked", a dictionary of all calls in wsjt.log
@@ -301,7 +301,7 @@ void MainWindow::readSettings()
 //-------------------------------------------------------------- dataSink()
 void MainWindow::dataSink(int k)
 {
-  static float s[NSMAX],splot[NSMAX];
+  static float s[NSMAX],red[NSMAX],splot[NSMAX];
   static int n=0;
   static int ihsym=0;
   static int nzap=0;
@@ -328,7 +328,7 @@ void MainWindow::dataSink(int k)
   nb=0;
   if(m_NB) nb=1;
   trmin=m_TRperiod/60;
-  symspec_(&k, &trmin, &m_nsps, &ndiskdat, &nb, &m_NBslider, &px, s,
+  symspec_(&k, &trmin, &m_nsps, &ndiskdat, &nb, &m_NBslider, &px, s, red,
            &f0a, &df3, &ihsym, &nzap, &slimit, lstrong);
   if(ihsym <=0) return;
   QString t;
@@ -337,7 +337,7 @@ void MainWindow::dataSink(int k)
   lab4->setText(t);
   ui->xThermo->setValue((double)px);   //Update the thermometer
   if(m_monitoring || m_diskData) {
-    g_pWideGraph->dataSink2(s,df3,ihsym,m_diskData,lstrong);
+    g_pWideGraph->dataSink2(s,red,df3,ihsym,m_diskData,lstrong);
   }
 
   //Average over specified number of spectra
@@ -594,7 +594,7 @@ void MainWindow::createStatusBar()                           //createStatusBar
 
 void MainWindow::on_tolSpinBox_valueChanged(int i)             //tolSpinBox
 {
-  static int ntol[] = {10,20,50,100,200,500,1000};
+  static int ntol[] = {1,2,5,10,20,50,100,200,500,1000};
   m_tol=ntol[i];
   g_pWideGraph->setTol(m_tol);
   ui->labTol1->setText(QString::number(ntol[i]));
@@ -753,12 +753,6 @@ void MainWindow::on_actionDelete_all_wav_files_in_SaveDir_triggered()
   }
 }
 
-void MainWindow::on_actionFind_Delta_Phi_triggered()              //Find dPhi
-{
-  m_RxLog |= 8;
-  on_DecodeButton_clicked();
-}
-
 void MainWindow::on_actionF4_sets_Tx6_triggered()                //F4 sets Tx6
 {
   m_kb8rq = !m_kb8rq;
@@ -810,7 +804,7 @@ void MainWindow::on_actionAvailable_suffixes_and_add_on_prefixes_triggered()
 
 void MainWindow::on_DecodeButton_clicked()                    //Decode request
 {
-
+  qDebug() << "A" << g_pWideGraph->QSOfreq() << m_tol;
 }
 
 void MainWindow::freezeDecode(int n)                          //freezeDecode()

@@ -4,7 +4,6 @@ subroutine sync9(ss,tstep,f0a,df3,ntol,nfqso,sync,fpk,ccfred)
   real ss(184,NSMAX)
   real ccfred(NSMAX)
 
-  integer ii0(16)
   integer ii(16)                     !Locations of sync half-symbols
   data ii/1,11,21,31,41,51,61,77,89,101,113,125,137,149,161,169/
   integer isync(85)                  !Sync vector for half-symbols
