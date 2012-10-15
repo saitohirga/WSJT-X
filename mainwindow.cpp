@@ -143,6 +143,10 @@ MainWindow::MainWindow(QWidget *parent) :
   watcher2 = new QFutureWatcher<void>;
   connect(watcher2, SIGNAL(finished()),this,SLOT(diskWriteFinished()));
 
+  future3 = new QFuture<void>;
+  watcher3 = new QFutureWatcher<void>;
+  connect(watcher3, SIGNAL(finished()),this,SLOT(decoderFinished()));
+
 // Assign input device and start input thread
   soundInThread.setInputDevice(m_paInDevice);
   soundInThread.start(QThread::HighestPriority);
@@ -732,7 +736,13 @@ void MainWindow::diskWriteFinished()                       //diskWriteFinished
 {
   qDebug() << "diskWriteFinished";
 }
-                                                        //Delete ../save/*.wav
+
+void MainWindow::decoderFinished()                       //decoderFinished
+{
+  qDebug() << "Decoder Finished";
+}
+
+//Delete ../save/*.wav
 void MainWindow::on_actionDelete_all_wav_files_in_SaveDir_triggered()
 {
   int i;
@@ -804,7 +814,7 @@ void MainWindow::on_actionAvailable_suffixes_and_add_on_prefixes_triggered()
 
 void MainWindow::on_DecodeButton_clicked()                    //Decode request
 {
-  qDebug() << "A" << g_pWideGraph->QSOfreq() << m_tol;
+  decode();
 }
 
 void MainWindow::freezeDecode(int n)                          //freezeDecode()
@@ -814,7 +824,10 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
 
 void MainWindow::decode()                                       //decode()
 {
+//  jt9DecodeThread.start(QThread::NormalPriority);
 
+  *future3 = QtConcurrent::run(decoder_, &m_TRperiod);
+  watcher3->setFuture(*future2);
 }
 
 
@@ -1391,4 +1404,3 @@ void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
   m_txFreq=n;
   soundOutThread.setTxFreq(n);
 }
-
