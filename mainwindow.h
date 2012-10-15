@@ -7,6 +7,7 @@
 #include <QHash>
 #include "soundin.h"
 #include "soundout.h"
+#include "jt9decode.h"
 #include "commons.h"
 #include "sleep.h"
 
@@ -32,6 +33,7 @@ public slots:
   void dataSink(int k);
   void diskDat();
   void diskWriteFinished();
+  void decoderFinished();
   void freezeDecode(int n);
   void guiUpdate();
   void doubleClickOnCall(QString hiscall, bool ctrl);
@@ -166,8 +168,10 @@ private:
 
     QFuture<void>* future1;
     QFuture<void>* future2;
+    QFuture<void>* future3;
     QFutureWatcher<void>* watcher1;
     QFutureWatcher<void>* watcher2;
+    QFutureWatcher<void>* watcher3;
 
     QProcess proc_m65;
 
@@ -188,6 +192,7 @@ private:
 
     SoundInThread soundInThread;             //Instantiate the audio threads
     SoundOutThread soundOutThread;
+    JT9DecodeThread jt9DecodeThread;
 
 //---------------------------------------------------- private functions
     void readSettings();
@@ -215,8 +220,12 @@ void symspec_(int* k, int* ntrperiod, int* nsps, int* ndiskdat,
               int* nb, int* m_NBslider, float* px, float s[], float red[],
               float* f0a, float* df3, int* nhsym, int* nzap,
                float* slimit, uchar lstrong[]);
+
 void genjt9_(char* msg, int* minutes, char* msgsent, int itone[],
              int len1, int len2);
+
+void decoder_(int* ntrperiod);
+
 int ptt_(int* nport, int* itx, int* iptt);
   }
 
