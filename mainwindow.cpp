@@ -824,8 +824,7 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
 
 void MainWindow::decode()                                       //decode()
 {
-//  jt9DecodeThread.start(QThread::NormalPriority);
-
+  m_len1=80;
   *future3 = QtConcurrent::run(decoder_, &m_TRperiod);
   watcher3->setFuture(*future2);
 }

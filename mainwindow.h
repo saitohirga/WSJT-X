@@ -7,7 +7,6 @@
 #include <QHash>
 #include "soundin.h"
 #include "soundout.h"
-#include "jt9decode.h"
 #include "commons.h"
 #include "sleep.h"
 
@@ -136,6 +135,7 @@ private:
     qint32  m_TRperiod;
     qint32  m_nsps;
     qint32  m_hsymStop;
+    qint32  m_len1;
 
     bool    m_monitoring;
     bool    m_transmitting;
@@ -152,6 +152,8 @@ private:
     bool    m_widebandDecode;
     bool    m_kb8rq;
     bool    m_NB;
+
+    char    m_decoded[80];
 
     float   m_pctZap;
 
@@ -192,7 +194,6 @@ private:
 
     SoundInThread soundInThread;             //Instantiate the audio threads
     SoundOutThread soundOutThread;
-    JT9DecodeThread jt9DecodeThread;
 
 //---------------------------------------------------- private functions
     void readSettings();
