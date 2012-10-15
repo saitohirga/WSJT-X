@@ -739,7 +739,18 @@ void MainWindow::diskWriteFinished()                       //diskWriteFinished
 
 void MainWindow::decoderFinished()                       //decoderFinished
 {
+
   qDebug() << "Decoder Finished";
+  QFile f("fort.73");
+  f.open(QIODevice::ReadOnly);
+  QTextStream in(&f);
+  QString line;
+  for(int i=0; i<99999; i++) {
+    line=in.readLine();
+    if(line.length()<=0) break;
+    qDebug() << line;
+  }
+  f.close();
 }
 
 //Delete ../save/*.wav
