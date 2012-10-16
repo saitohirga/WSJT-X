@@ -217,15 +217,14 @@ extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
 
 extern "C" {
 //----------------------------------------------------- C and Fortran routines
-void symspec_(int* k, int* ntrperiod, int* nsps, int* ndiskdat,
-              int* nb, int* m_NBslider, float* px, float s[], float red[],
-              float* f0a, float* df3, int* nhsym, int* nzap,
-               float* slimit, uchar lstrong[]);
+void symspec_(int* k, int* ntrperiod, int* nsps, int* nb, int* m_NBslider,
+              float* px, float s[], float red[], float* df3, int* nhsym,
+              int* nzap, float* slimit, uchar lstrong[], float c0[],
+              int* npts8);
 
-void genjt9_(char* msg, int* minutes, char* msgsent, int itone[],
-             int len1, int len2);
+void genjt9_(char* msg, char* msgsent, int itone[], int len1, int len2);
 
-void decoder_(int* ntrperiod);
+void decoder_(int* ntrperiod, float c0[]);
 
 int ptt_(int* nport, int* itx, int* iptt);
   }

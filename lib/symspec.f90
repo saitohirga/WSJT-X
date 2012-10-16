@@ -1,4 +1,4 @@
-subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,red,    &
+subroutine symspec(k,ntrperiod,nsps,nb,nbslider,pxdb,s,red,    &
      df3,ihsym,nzap,slimit,lstrong,c0,npts8)
 
 ! Input:
@@ -32,7 +32,8 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,red,    &
   logical*1 lstrong(0:1023)               !Should be (0:512)
   integer*2 id2
   complex c0(NDMAX)
-  common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX)
+  common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,    &
+       ntr,mousefqso,nagain,newdat,nfa,nfb,ntol,kin
   data rms/999.0/,k0/99999999/,ntrperiod0/0/,nfft3z/0/
   save
 
@@ -140,16 +141,6 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,red,    &
   savg(1:iz)=ssum(1:iz)/xmed1
 
   call redsync(ss,ntrperiod,ihsym,iz,red)
-
-  if(ihsym.eq.160) then
-     rewind 71
-     do i=1,iz
-        write(71,3003) 1000+i*df3,savg(i),red(i)
-3003    format(3f12.3)
-     enddo
-     flush(71)
-  endif
-
 
   return
 end subroutine symspec

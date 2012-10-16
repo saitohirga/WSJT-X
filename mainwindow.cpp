@@ -12,6 +12,8 @@ int itone[85];                        //Tx audio tones for 85 symbols
 int nwave;                            //Length of Tx waveform
 bool btxok;                           //True if OK to transmit
 double outputLatency;                 //Latency in seconds
+float c0[2*1800*1500];
+
 //qint16 id[30*48000];
 
 WideGraph* g_pWideGraph = NULL;
@@ -315,8 +317,8 @@ void MainWindow::dataSink(int k)
   static int nadj=0;
   static int nb;
   static int trmin;
+  static int npts8;
   static float px=0.0;
-  static float f0a;
   static float df3;
   static uchar lstrong[1024];
   static float slimit;
@@ -332,8 +334,8 @@ void MainWindow::dataSink(int k)
   nb=0;
   if(m_NB) nb=1;
   trmin=m_TRperiod/60;
-  symspec_(&k, &trmin, &m_nsps, &ndiskdat, &nb, &m_NBslider, &px, s, red,
-           &f0a, &df3, &ihsym, &nzap, &slimit, lstrong);
+  symspec_(&k, &trmin, &m_nsps, &nb, &m_NBslider, &px, s, red,
+           &df3, &ihsym, &nzap, &slimit, lstrong, c0, &npts8);
   if(ihsym <=0) return;
   QString t;
   m_pctZap=nzap/178.3;
@@ -739,16 +741,14 @@ void MainWindow::diskWriteFinished()                       //diskWriteFinished
 
 void MainWindow::decoderFinished()                       //decoderFinished
 {
-
-  qDebug() << "Decoder Finished";
-  QFile f("fort.73");
+  QFile f("decoded.txt");
   f.open(QIODevice::ReadOnly);
   QTextStream in(&f);
   QString line;
   for(int i=0; i<99999; i++) {
     line=in.readLine();
     if(line.length()<=0) break;
-    qDebug() << line;
+    ui->decodedTextBrowser->append(line);
   }
   f.close();
 }
@@ -836,8 +836,8 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
 void MainWindow::decode()                                       //decode()
 {
   m_len1=80;
-  *future3 = QtConcurrent::run(decoder_, &m_TRperiod);
-  watcher3->setFuture(*future2);
+  *future3 = QtConcurrent::run(decoder_, &m_TRperiod, &c0[0]);
+  watcher3->setFuture(*future3);
 }
 
 
@@ -915,7 +915,7 @@ void MainWindow::guiUpdate()
     ba2msg(ba,msgsent);
     int len1=22;
     int len2=22;
-    genjt9_(message,&m_TRperiod,msgsent,itone,len1,len2);
+    genjt9_(message,msgsent,itone,len1,len2);
     if(m_restart) {
       QFile f("wsjtx_tx.log");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
