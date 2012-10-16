@@ -1,4 +1,4 @@
-subroutine spec9(c0,npts8,nsps,f0a,fpk,xdt,i1SoftSymbols)
+subroutine spec9(c0,npts8,nsps,fpk,xdt,i1SoftSymbols)
 
   parameter (MAXFFT=31500)
   complex c0(0:npts8-1)
@@ -31,7 +31,7 @@ subroutine spec9(c0,npts8,nsps,f0a,fpk,xdt,i1SoftSymbols)
   enddo
 
   nsps8=nsps/8
-  foffset=fpk-f0a
+  foffset=fpk
   istart=1520
 
   call peakdf9(c0,npts8,nsps8,istart,foffset,idf)
