@@ -1,5 +1,5 @@
 subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,red,    &
-     df3,ihsym,nzap,slimit,lstrong)
+     df3,ihsym,nzap,slimit,lstrong,c0,npts8)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -31,9 +31,8 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,red,    &
   complex cx(0:MAXFFT3-1)
   logical*1 lstrong(0:1023)               !Should be (0:512)
   integer*2 id2
-  complex c0
-  common/jt9com/id2(NMAX),ss(184,NSMAX),savg(NSMAX),c0(NDMAX),     &
-       nutc,npts8,junk(20)
+  complex c0(NDMAX)
+  common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX)
   data rms/999.0/,k0/99999999/,ntrperiod0/0/,nfft3z/0/
   save
 
