@@ -17,7 +17,8 @@ program jt9
   character*22 msg
   integer*2 id2
   complex c0(NDMAX)
-  common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX)
+  common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,    &
+       ntr,mousefqso,nagain,newdat,nfa,nfb,ntol,kin
 
   nargs=iargc()
   if(nargs.lt.1) then
@@ -74,7 +75,7 @@ program jt9
         nhsym=(k-2048)/kstep
         if(nhsym.ge.1 .and. nhsym.ne.nhsym0) then
 ! Emit signal readyForFFT
-           call symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,   &
+           call symspec(k,ntrperiod,nsps,nb,nbslider,pxdb,   &
                 s,red,df3,ihsym,nzap,slimit,lstrong,c0,npts8)
            nhsym0=nhsym
            if(ihsym.ge.184) go to 10
@@ -83,14 +84,14 @@ program jt9
 
 10   close(10)
      iz=1000.0/df3
-     print*,'A',ihsym,nhsym,tstep,df3,ntol,nfqso
+!     print*,'A',ihsym,nhsym,tstep,df3,ntol,nfqso
 
 ! Now do the decoding
      nutc=nutc0
 
 ! Get sync, approx freq
      call sync9(ss,tstep,df3,ntol,nfqso,sync,fpk,red)
-     print*,'B',sync,fpk
+!     print*,'B',sync,fpk,npts8,nsps
      call spec9(c0,npts8,nsps,fpk,xdt,i1SoftSymbols)
      call decode9(i1SoftSymbols,msg)
      write(*,1010) nutc,sync,xdt,1000.0+fpk,msg

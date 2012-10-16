@@ -27,8 +27,6 @@ subroutine peakdf9(c0,npts8,nsps8,istart,foffset,idfpk)
         idfpk=idf
         smax=sum
      endif
-     write(71,3001) idf,sum
-3001 format(i5,f12.3)
   enddo
 
   return
