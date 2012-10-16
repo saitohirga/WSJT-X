@@ -14,6 +14,8 @@ subroutine sync9(ss,tstep,f0a,df3,ntol,nfqso,sync,fpk,ccfred)
        0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,  &
        1,0,0,0,1/
 
+  ipk=0
+  ipkbest=0
   ia=1
   ib=min(1000,nint(1000.0/df3))
 
@@ -46,7 +48,7 @@ subroutine sync9(ss,tstep,f0a,df3,ntol,nfqso,sync,fpk,ccfred)
      if(smax.gt.sbest) then
         sbest=smax
         ipkbest=ipk
-        lagpkbest=lagpk
+!        lagpkbest=lagpk
      endif
      ccfred(i)=smax
   enddo

@@ -4,7 +4,7 @@
       parameter (NBASE2=262178562)
       character*22 msg
       integer dat(12)
-      character*12 c1,c2,c2z
+      character*12 c1,c2
       character*4 c3
       character*6 grid6
 c      character*3 dxcc                  !Where is DXCC implemented?
@@ -52,7 +52,6 @@ C  ... and if so, does it have a reply frequency?
       if(c3.eq.'OOO ') c3='    '           !Strip out the OOO flag
       call getpfx1(c1,k1,junk)
       call packcall(c1,nc1,text1)
-      c2z=c2
       call getpfx1(c2,k2,nv2)
       call packcall(c2,nc2,text2)
       if(nv2.eq.0) then

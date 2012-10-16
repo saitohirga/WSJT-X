@@ -31,8 +31,6 @@ program jt9
   endif
   call getarg(1,arg)
   if(arg(1:2).eq.'-s') then
-!     call jt9a
-!     call ftnquit
      go to 999
   endif
   read(arg,*) ntrperiod
@@ -42,13 +40,10 @@ program jt9
   nfa=1000
   nfb=2000
   ntol=500
-  mousedf=0
-  mousefqso=1500
+  nfqso=1500
   newdat=1
   nb=0
   nbslider=100
-
-!  call ftninit('.')
 
   do ifile=ifile1,nargs
      call getarg(ifile,infile)
@@ -83,7 +78,7 @@ program jt9
         if(nhsym.ge.1 .and. nhsym.ne.nhsym0) then
 ! Emit signal readyForFFT
            call symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,   &
-                s,red,f0a,df3,ihsym,nzap,slimit,lstrong)
+                s,red,df3,ihsym,nzap,slimit,lstrong)
            nhsym0=nhsym
            if(ihsym.ge.184) go to 10
         endif
@@ -93,21 +88,17 @@ program jt9
 
 ! Now do the decoding
      nutc=nutc0
-     nstandalone=1
-
-     ntol=500
-     nfqso=1500
 
 ! Get sync, approx freq
      call sync9(ss,tstep,f0a,df3,ntol,nfqso,sync,fpk,red)    
      fpk0=fpk
-     iz=1000.0/df3
-     do i=1,iz
-        freq=1000.0 + (i-1)*df3
-        write(72,3001) freq,red(i),db(red(i))
-3001    format(3f10.3)
-     enddo
-     flush(72)
+!     iz=1000.0/df3
+!     do i=1,iz
+!        freq=1000.0 + (i-1)*df3
+!        write(72,3001) freq,red(i),db(red(i))
+!3001    format(3f10.3)
+!     enddo
+!     flush(72)
 
      call spec9(c0,npts8,nsps,f0a,fpk,xdt,i1SoftSymbols)
      call decode9(i1SoftSymbols,msg)
