@@ -1,5 +1,5 @@
 subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,red,    &
-     f0a,df3,ihsym,nzap,slimit,lstrong)
+     df3,ihsym,nzap,slimit,lstrong)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -71,7 +71,6 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,red,    &
   nzap=0
   sigmas=1.0*(10.0**(0.01*nbslider)) + 0.7
   peaklimit=sigmas*max(10.0,rms)
-  faclim=3.0
   px=0.
 
   nwindow=2
@@ -85,7 +84,7 @@ subroutine symspec(k,ntrperiod,nsps,ndiskdat,nb,nbslider,pxdb,s,red,    &
      do i=1,NFFT1
         x0(i)=id2(k1+i)
      enddo
-     call timf2(x0,k,NFFT1,nwindow,nb,peaklimit,faclim,x1,   &
+     call timf2(x0,k,NFFT1,nwindow,nb,peaklimit,x1,   &
           slimit,lstrong,px,nzap)
 
 ! Mix at 1500 Hz, lowpass at +/-750 Hz, and downsample to 1500 Hz complex.

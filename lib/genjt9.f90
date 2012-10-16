@@ -1,4 +1,4 @@
-subroutine genjt9(message,minutes,msgsent,d6)
+subroutine genjt9(message,msgsent,d6)
 
 ! Encodes a JT9 message and returns msgsent, the message as it will
 ! be decoded, and an integer array d6(85) of 9-FSK tone values 

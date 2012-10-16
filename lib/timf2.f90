@@ -1,4 +1,4 @@
-subroutine timf2(x0,k,nfft,nwindow,nb,peaklimit,faclim,x1,     &
+subroutine timf2(x0,k,nfft,nwindow,nb,peaklimit,x1,     &
      slimit,lstrong,px,nzap)
 
 ! Sequential processing of time-domain I/Q data, using Linrad-like
@@ -28,7 +28,7 @@ subroutine timf2(x0,k,nfft,nwindow,nb,peaklimit,faclim,x1,     &
   complex cxs(0:MAXFFT-1)                     !Strong signals
   complex cxw(0:MAXFFT-1)                     !Weak signals
   real*4 w(0:MAXFFT-1)
-  real*4 s(0:MAXNH),stmp(0:MAXNH)
+  real*4 s(0:MAXNH)
   logical*1 lstrong(0:MAXNH),lprev
   integer ia(MAXSIGS),ib(MAXSIGS)
   logical first
