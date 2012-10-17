@@ -58,7 +58,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
                         << itone[9] << itone[10] << itone[11] << itone[12]
                         << itone[13] << itone[14] << itone[15] << itone[16];
                         */
-//  qDebug() << ic << isym << freq << dphi << phi << i2;
+  //if(ic<10000) qDebug() << ic << isym << freq << dphi << phi << i2;
 
   for(int i=0 ; i<framesToProcess; i++ )  {
     phi += dphi;

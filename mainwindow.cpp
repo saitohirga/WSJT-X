@@ -1,4 +1,4 @@
-//---------------------------------------------------------------- MainWindow
+//--------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -154,7 +154,7 @@ MainWindow::MainWindow(QWidget *parent) :
   soundInThread.start(QThread::HighestPriority);
   // Assign output device and start output thread
   soundOutThread.setOutputDevice(m_paOutDevice);
-//  soundOutThread.start(QThread::HighPriority);
+  soundOutThread.setTxFreq(m_txFreq);
 
   m_monitoring=true;                           // Start with Monitoring ON
   soundInThread.setMonitoring(m_monitoring);
@@ -289,6 +289,7 @@ void MainWindow::readSettings()
   ui->NBslider->setValue(m_NBslider);
   m_txFreq=settings.value("TxFreq",1500).toInt();
   ui->TxFreqSpinBox->setValue(m_txFreq);
+  soundOutThread.setTxFreq(m_txFreq);
   m_saveAll=ui->actionSave_all->isChecked();
   m_ndepth=settings.value("NDepth",0).toInt();
   ui->actionF4_sets_Tx6->setChecked(m_kb8rq);
