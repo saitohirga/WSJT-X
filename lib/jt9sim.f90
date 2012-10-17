@@ -8,10 +8,10 @@ program jt9sim
   real*8 f0,f,dt,twopi,phi,dphi,baud,fspan
   character msg*22,msg0*22,message*22,msgsent*22,arg*8,fname*11
 
-  integer*4 itone(85)              !Channel symbols (values 0-8)
+  integer*4 i4tone(85)             !Channel symbols (values 0-8)
   integer*4 i4DataSymNoGray(69)    !Data Symbols, values 0-7
-  integer*1 i1ScrambledBits(207)   !Hard-decision demodulated bits, interleaved
-  integer*1 i1Bits(207)          !Encoded information-carrying bits
+  integer*1 i1ScrambledBits(207)   !Unpacked bits, scrambled order
+  integer*1 i1Bits(207)            !Encoded information-carrying bits
   integer*1 i1SoftSymbols(207)
   integer*1 i1
   equivalence (i1,i4)
@@ -76,11 +76,11 @@ program jt9sim
 1000 format('File  N    freq      S/N  Message'/    &
             '---------------------------------------------------')
 
-  do ifile=1,nfiles
+  do ifile=1,nfiles                            !Loop over all files
      nmin=(ifile-1)*2*minutes
      ihr=nmin/60
      imin=mod(nmin,60)
-     write(fname,1002) ihr,imin                !Create the output filenames
+     write(fname,1002) ihr,imin                !Create output filename
 1002 format('000000_',2i2.2)
      open(10,file=fname//'.wav',access='stream',status='unknown')
 
@@ -93,31 +93,30 @@ program jt9sim
      endif
 
      if(msg0.ne.'                      ') then
-        call genjt9(message,minutes,msgsent,itone)
+        call genjt9(message,minutes,msgsent,i4tone) !Encode message into tone #s
      endif
 
      rewind 12
-     do isig=1,nsigs
+     do isig=1,nsigs                            !Loop over multiple signals
 
         if(msg0.eq.'                      ') then
-           read(12,1004) message
+           read(12,1004) message                !Use pre-generated message texts
 1004       format(a22)
-           call genjt9(message,minutes,msgsent,itone)
+           call genjt9(message,minutes,msgsent,i4tone)
         endif
 
         f=f0
         if(nsigs.gt.1) f=f0 - 0.5d0*fspan + fspan*(isig-1.d0)/(nsigs-1.d0)
         snrdbx=snrdb
-!        sig=sqrt(2500.0/6000.0) * 10.0**(0.05*snrdbx)
         sig=10.0**(0.05*snrdbx)
         write(*,1020) ifile,isig,f,snrdbx,msgsent
 1020    format(i3,i4,f10.3,f7.1,2x,a22)
 
         phi=0.
         baud=12000.0/nsps
-        k=12000                             !Start at t = 1 s
+        k=12000                             !Start audio at t = 1.0 s
         do isym=1,85
-           freq=f + itone(isym)*baud
+           freq=f + i4tone(isym)*baud
            if(msg0(1:3).eq.'sin') freq=sinfreq
            dphi=twopi*freq*dt
            do i=1,nsps
@@ -138,27 +137,27 @@ program jt9sim
      write(10) ihdr,iwave(1:npts)
      close(10)
 
-! We're done!  Now decode the data symbols from itone, as a test.
-     j=0
-     do i=1,85
-        if(isync(i).eq.1) cycle
-        j=j+1
-        i4DataSymNoGray(j)=igray(itone(i)-1,-1)
-     enddo
-     call unpackbits(i4DataSymNoGray,69,3,i1ScrambledBits)
-     call interleave9(i1ScrambledBits,-1,i1Bits)
+! We're done!  Now decode the data symbols from i4tone, as a test.
+     if(msg0.ne.'                      ') then
+        j=0
+        do i=1,85
+           if(isync(i).eq.1) cycle
+           j=j+1
+           i4DataSymNoGray(j)=igray(i4tone(i)-1,-1)
+        enddo
+        call unpackbits(i4DataSymNoGray,69,3,i1ScrambledBits)
+        call interleave9(i1ScrambledBits,-1,i1Bits)
 
-     do i=1,206
-        i4=-10
-        if(i1Bits(i).eq.1) i4=10
-        i4=i4+128
-        i1SoftSymbols(i)=i1
-     enddo
+        do i=1,206
+           i4=-10
+           if(i1Bits(i).eq.1) i4=10
+           i4=i4+128
+           i1SoftSymbols(i)=i1
+        enddo
 
-     call decode9(i1SoftSymbols,msg)
-
-     if(msg.ne.msg0) print*,'Decode error: ',msg0,' ',msg
-
+        call decode9(i1SoftSymbols,msg)
+        if(msg.ne.msg0) print*,'Decode error: ',msg0,' ',msg
+     endif
   enddo
 
 999 end program jt9sim
