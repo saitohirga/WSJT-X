@@ -18,6 +18,7 @@ public:
 
   void   dataSink2(float s[], float red[], float df3, int ihsym,
                    int ndiskdata, uchar lstrong[]);
+  void   setQSOfreq(int n);
   int    QSOfreq();
   int    nSpan();
   int    nStartFreq();

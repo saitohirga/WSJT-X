@@ -16,7 +16,7 @@ extern struct {
   int mousefqso;                    //User-selected QSO freq (kHz)
   int nagain;                       //1 ==> decode only at fQSO +/- Tol
   int newdat;                       //1 ==> new data, must do long FFT
-  int nfa;                          //Low decode limit (kHz)
+  int npts8;                        //npts in c0() array
   int nfb;                          //High decode limit (kHz)
   int ntol;                         //+/- decoding range around fQSO (Hz)
   int kin;

@@ -37,7 +37,7 @@ subroutine symspec(k,ntrperiod,nsps,nb,nbslider,pxdb,s,red,    &
   data rms/999.0/,k0/99999999/,ntrperiod0/0/,nfft3z/0/
   save
 
-  if(ntrperiod.eq.1)  nfft3=1024
+  if(ntrperiod.eq.1)  nfft3=2048
   if(ntrperiod.eq.2)  nfft3=2048
   if(ntrperiod.eq.5)  nfft3=6144
   if(ntrperiod.eq.10) nfft3=12288
