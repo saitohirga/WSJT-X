@@ -136,6 +136,7 @@ private:
     qint32  m_nsps;
     qint32  m_hsymStop;
     qint32  m_len1;
+    qint32  m_fQSO;
 
     bool    m_monitoring;
     bool    m_transmitting;

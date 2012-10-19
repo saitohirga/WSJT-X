@@ -373,9 +373,9 @@ void MainWindow::dataSink(int k)
     ntr0=ntr;
     n=0;
   }
-  if(ihsym == m_hsymStop) {
-    jt9com_.newdat=1;
-    jt9com_.nagain=0;
+  // This is a bit strange.  Why do we need the "-3" ??
+  if(ihsym == m_hsymStop-3) {
+    jt9com_.npts8=(ihsym*m_nsps)/16;
     QDateTime t = QDateTime::currentDateTimeUtc();
     m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
     decode();                                           //Start the decoder
@@ -509,19 +509,17 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
   case Qt::Key_F11:
     if(e->modifiers() & Qt::ShiftModifier) {
     } else {
-      int n0=g_pWideGraph->DF();
-      int n=(n0 + 10000) % 5;
-      if(n==0) n=5;
-      g_pWideGraph->setDF(n0-n);
+      int n=g_pWideGraph->QSOfreq();
+      n--;
+      g_pWideGraph->setQSOfreq(n);
     }
     break;
   case Qt::Key_F12:
     if(e->modifiers() & Qt::ShiftModifier) {
     } else {
-      int n0=g_pWideGraph->DF();
-      int n=(n0 + 10000) % 5;
-      if(n==0) n=5;
-      g_pWideGraph->setDF(n0+n);
+      int n=g_pWideGraph->QSOfreq();
+      n++;
+      g_pWideGraph->setQSOfreq(n);
     }
     break;
   case Qt::Key_G:
@@ -726,10 +724,12 @@ void MainWindow::on_actionDecode_remaining_files_in_directory_triggered()
 
 void MainWindow::diskDat()                                   //diskDat()
 {
+  int k;
   int kstep=m_nsps/2;
   m_diskData=true;
   for(int n=1; n<=m_hsymStop; n++) {              // Do the half-symbol FFTs
-    int k=(n+1)*kstep;
+    k=(n+1)*kstep;
+    jt9com_.npts8=k/8;
     dataSink(k);
     if(n%10 == 1 or n == m_hsymStop) qApp->processEvents();   //Keep GUI responsive
   }
@@ -831,12 +831,16 @@ void MainWindow::on_DecodeButton_clicked()                    //Decode request
 
 void MainWindow::freezeDecode(int n)                          //freezeDecode()
 {
-
+  decode();
 }
 
 void MainWindow::decode()                                       //decode()
 {
-  m_len1=80;
+  jt9com_.newdat=1;
+  jt9com_.nagain=0;
+  jt9com_.nfqso=g_pWideGraph->QSOfreq();
+  m_tol=g_pWideGraph->Tol();
+  jt9com_.ntol=m_tol;
   *future3 = QtConcurrent::run(decoder_, &m_TRperiod, &c0[0]);
   watcher3->setFuture(*future3);
 }

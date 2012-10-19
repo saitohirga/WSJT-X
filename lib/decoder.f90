@@ -14,7 +14,7 @@ subroutine decoder(ntrSeconds,c0)
   integer*2 id2
   complex c0(NDMAX)
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,    &
-       ntr,mousefqso,nagain,newdat,nfa,nfb,ntol,kin
+       ntr,nfqso,nagain,newdat,npts8,nfb,ntol,kin
 
   ntrMinutes=ntrSeconds/60
   newdat=1
@@ -35,24 +35,22 @@ subroutine decoder(ntrSeconds,c0)
 
 ! Now do the decoding
   nutc=0
+  kstep=nsps/2
   tstep=kstep/12000.0
-
-  ntol=500
-  nfqso=1500
 
 ! Get sync, approx freq
   call sync9(ss,tstep,df3,ntol,nfqso,sync,fpk,red)
-  npts8=170880                                        !### TEST ONLY ###
+  print*,'A',nfqso,ntol,fpk
   call spec9(c0,npts8,nsps,fpk,xdt,i1SoftSymbols)
   call decode9(i1SoftSymbols,msg)
 
-  open(73,file='decoded.txt',status='unknown')
-  rewind 73
+  open(13,file='decoded.txt',status='unknown')
+  rewind 13
 !  write(*,1010) nutc,sync,xdt,1000.0+fpk,msg
-  write(73,1010) nutc,sync,xdt,1000.0+fpk,msg
+  write(13,1010) nutc,sync,xdt,1000.0+fpk,msg
 1010 format(i4.4,3f7.1,2x,a22)
-  call flush(73)
-  close(73)
+  call flush(13)
+  close(13)
 
   return
 end subroutine decoder

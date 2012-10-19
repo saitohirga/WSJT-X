@@ -183,6 +183,12 @@ void WideGraph::keyPressEvent(QKeyEvent *e)
   }
 }
 
+void WideGraph::setQSOfreq(int n)
+{
+  m_qsoFreq=n;
+  ui->widePlot->setFQSO(m_qsoFreq,true);
+}
+
 int WideGraph::QSOfreq()
 {
   return ui->widePlot->fQSO();

@@ -1,7 +1,7 @@
 JT9 is a mode designed for amateur QSOs at MF and LF.  The mode uses
 the same 72-bit structured messages as JT65.  Error control coding
-(ECC) uses a convolutional code with constraint length K=32, rate
-r=1/2, and a zero tail, leading to an encoded message length of
+(ECC) uses a strong convolutional code with constraint length K=32,
+rate r=1/2, and a zero tail, leading to an encoded message length of
 (72+31)*2 = 206 information-carrying bits.  Modulation is 9-FSK: 8
 tones for data, one for synchronization.  Sixteen symbol intervals are
 used for synchronization, so a transmission requires a total of 207/3
@@ -10,12 +10,14 @@ used for synchronization, so a transmission requires a total of 207/3
 Exact symbol lengths are chosen so that nsps, the number of samples
 per symbol (at 12000 samples per second) is a number with no prime
 factor greater than 7.  This choice makes for efficient FFTs.  Tone
-spacing of the 9-FSK modulation is df=1/tsym=12000/nsps, equal to
-the keying rate.  The total occupied bandwidth is 9*df.
+spacing of the 9-FSK modulation is df=1/tsym=12000/nsps, equal to the
+keying rate.  The total occupied bandwidth is 9*df.  The generated
+signal has continuous phase, and there are no key clicks.
 
 Parameters of five JT9 sub-modes are summarized in the following
 table, along with S/N thresholds measured by simulation on an AWGN
-channel.
+channel.  Numbers following "JT9-" in the sub-mode names specify the
+T/R period in minutes.
 
 --------------------------------------------------------------------------
 Mode     nsps nsps2  df    tsym  BW   S/N*   Tdec Tfree Factors 
@@ -46,12 +48,12 @@ Receiving
 2.  Filter to 1000 Hz bandwidth and downsample (1/8) to 1500 Hz, saving
     complex data to array c0(2,700,000).
 3.  Compute spectra at half-symbol steps.  Use for waterfall display 
-    s(22000) and save in ss(184,22000) and 
-    savg(22000), for detecting sync vectors.
+    s(22000) and save in ss(184,22000) and savg(22000) for detecting 
+    sync vectors.
 4.  At time Tdec, find sync vectors in ss(); get approx DF or list of DFs
 5.  Do full-length FFT, NFFT1=96*nsps2, zero-padded as required.
 6.  For each candidate signal, do inverse FFT of length 1536 (or 3072?).  
-    This yields 16 complex samples per symbol, and sync tone should be 
+    This yields 16 complex samples per symbol; sync tone should be 
     close to zero frequency.
 7.  Use afc65b method to get improved values of DF, DT.
 8.  Tweak freq and time offset to 0.

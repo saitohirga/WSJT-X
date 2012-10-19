@@ -2,6 +2,7 @@ subroutine spec9(c0,npts8,nsps,fpk,xdt,i1SoftSymbols)
 
   parameter (MAXFFT=31500)
   complex c0(0:npts8-1)
+  complex c1(0:2700000)
   real ssym(0:7,69)
   complex c(0:MAXFFT-1)
   integer*1 i1SoftSymbolsScrambled(207)
@@ -27,17 +28,17 @@ subroutine spec9(c0,npts8,nsps,fpk,xdt,i1SoftSymbols)
      phi=phi+dphi
      if(phi.gt.twopi) phi=phi-twopi
      if(phi.lt.-twopi) phi=phi+twopi
-     c0(i)=cmplx(aimag(c0(i)),real(c0(i)))*cmplx(cos(phi),sin(phi))
+     c1(i)=cmplx(aimag(c0(i)),real(c0(i)))*cmplx(cos(phi),sin(phi))
   enddo
 
   nsps8=nsps/8
   foffset=fpk
   istart=1520
 
-  call peakdf9(c0,npts8,nsps8,istart,foffset,idf)
+  call peakdf9(c1,npts8,nsps8,istart,foffset,idf)
   fpk=fpk + idf*0.1*1500.0/nsps8
   foffset=foffset + idf*0.1*1500.0/nsps8
-  call peakdt9(c0,npts8,nsps8,istart,foffset,idt)
+  call peakdt9(c1,npts8,nsps8,istart,foffset,idt)
   istart=istart + 0.0625*nsps8*idt
   xdt=istart/1500.0 - 1.0
 !  write(*,3002)  0.0625*nsps8*idt/1500.0,idf*0.1*1500.0/nsps8
@@ -57,7 +58,7 @@ subroutine spec9(c0,npts8,nsps,fpk,xdt,i1SoftSymbols)
      k=k+1
      ia=(j-1)*nsps8 + istart
      ib=ia+nsps8-1
-     c(0:nfft-1)=c0(ia:ib)
+     c(0:nfft-1)=c1(ia:ib)
 
      phi=0.
      do i=0,nfft-1

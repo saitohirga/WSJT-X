@@ -27,7 +27,7 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   m_ScalePixmap = QPixmap(0,0);
   m_OverlayPixmap = QPixmap(0,0);
   m_Size = QSize(0,0);
-  m_fQSO = 1050;
+  m_fQSO = 1020;
   m_line = 0;
   m_fSample = 12000;
   m_nsps=6912;
@@ -296,7 +296,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     }
   }
 
-  QPen pen0(Qt::green, 3);                 //Mark Cal Freq with green tick
+  QPen pen0(Qt::green, 3);                 //Mark QSO Freq with green tick
   painter0.setPen(pen0);
   x = m_xClick;
   painter0.drawLine(x,15,x,30);
@@ -407,6 +407,7 @@ void CPlotter::setFQSO(int x, bool bf)                       //setFQSO()
 {
   if(bf) {
     m_fQSO=x;         // x is freq in kHz
+    m_xClick=XfromFreq(m_fQSO);
   } else {
     if(x<0) x=0;      // x is pixel number
     if(x>m_Size.width()) x=m_Size.width();
@@ -564,7 +565,7 @@ double CPlotter::fGreen()
 void CPlotter::setNsps(int n)                                  //setNSpan()
 {
   m_nsps=n;
-  m_fftBinWidth=1500.0/1024.0;
+  m_fftBinWidth=1500.0/2048.0;
   if(m_nsps==15360)  m_fftBinWidth=1500.0/2048.0;
   if(m_nsps==40960)  m_fftBinWidth=1500.0/6144.0;
   if(m_nsps==82944)  m_fftBinWidth=1500.0/12288.0;
