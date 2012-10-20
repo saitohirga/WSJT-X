@@ -39,7 +39,6 @@ subroutine decoder(ntrSeconds,c0)
   if(nsps.eq.0) stop 'Error: bad TRperiod'    !Better: return an error code###
 
 ! Now do the decoding
-  nutc=0
   kstep=nsps/2
   tstep=kstep/12000.0
 

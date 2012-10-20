@@ -11,6 +11,10 @@ void getfile(QString fname, int ntrperiod)
   strcpy(name,fname.toAscii());
   FILE* fp=fopen(name,"rb");
 
+  int i0=fname.indexOf(".wav");
+  jt9com_.nutc=0;
+  if(i0>0) jt9com_.nutc=100*fname.mid(i0-4,2).toInt() +
+      fname.mid(i0-2,2).toInt();
   int npts=ntrperiod*12000;
   memset(jt9com_.d2,0,2*npts);
 
