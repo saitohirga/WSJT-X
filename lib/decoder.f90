@@ -18,20 +18,25 @@ subroutine decoder(ntrSeconds,c0)
 
   ntrMinutes=ntrSeconds/60
   newdat=1
-  nb=0
-  nbslider=100
 
   nsps=0
-  if(ntrMinutes.eq.1)  nsps=6912
-  if(ntrMinutes.eq.2)  then
+  if(ntrMinutes.eq.1) then
+     nsps=6912
+     df3=1500.0/2048.0
+  else if(ntrMinutes.eq.2) then
      nsps=15360
-     df3=0.7324219
+     df3=1500.0/2048.0
+  else if(ntrMinutes.eq.5) then
+     nsps=40960
+     df3=1500.0/6144.0
+  else if(ntrMinutes.eq.10) then
+     nsps=82944
+     df3=1500.0/12288.0
+  else if(ntrMinutes.eq.30) then
+     nsps=252000
+     df3=1500.0/32768.0
   endif
-  if(ntrMinutes.eq.5)  nsps=40960
-  if(ntrMinutes.eq.10) nsps=82944
-  if(ntrMinutes.eq.30) nsps=252000
-  if(nsps.eq.0) stop 'Error: bad TRperiod'
-
+  if(nsps.eq.0) stop 'Error: bad TRperiod'    !Better: return an error code###
 
 ! Now do the decoding
   nutc=0

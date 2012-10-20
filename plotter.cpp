@@ -179,7 +179,6 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   int nHzDiv[11]={0,50,100,200,200,200,500,500,500,500,500};
   float pixperdiv;
 
-//###
   QRect rect;
   QPainter painter(&m_OverlayPixmap);
   painter.initFrom(this);
@@ -190,11 +189,10 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   painter.drawRect(0, 0, m_w, m_h2);
   painter.setBrush(Qt::SolidPattern);
 
-  //draw vertical grids
   double df = m_binsPerPixel*m_fftBinWidth;
   pixperdiv = m_freqPerDiv/df;
   y = m_h2 - m_h2/VERT_DIVS;
-  for( int i=1; i<m_hdivs; i++)
+  for( int i=1; i<m_hdivs; i++)                   //draw vertical grids
   {
     x = (int)( (float)i*pixperdiv );
     painter.setPen(QPen(Qt::white, 1,Qt::DotLine));
@@ -202,10 +200,9 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     painter.drawLine(x, m_h2-5, x , m_h2);
   }
 
-  //draw horizontal grids
   pixperdiv = (float)m_h2 / (float)VERT_DIVS;
   painter.setPen(QPen(Qt::white, 1,Qt::DotLine));
-  for( int i=1; i<VERT_DIVS; i++)
+  for( int i=1; i<VERT_DIVS; i++)                 //draw horizontal grids
   {
           y = (int)( (float)i*pixperdiv );
           painter.drawLine(0, y, w, y);
@@ -223,8 +220,8 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     painter.drawStaticText(5, y-1, QString::number(dB)+" dB");
     dB -= m_dBStepSize;
   }
-  // m_MindB = m_MaxdB - (VERT_DIVS)*m_dBStepSize;
 
+/*
   if(!m_Running)
   {	//if not running so is no data updates to draw to screen
           //copy into 2Dbitmap the overlay bitmap.
@@ -232,7 +229,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
           //trigger a new paintEvent
     update();
   }
-//###
+*/
 
   QRect rect0;
   QPainter painter0(&m_ScalePixmap);
@@ -305,6 +302,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   pen0.setWidth(6);
   painter0.drawLine(x1,28,x2,28);
 
+  /*
   df = 12000.0/m_nsps;
   int nlabs=df*w/m_freqPerDiv + 1.0;
 //  m_LowerScalePixmap.fill(Qt::white);
@@ -316,6 +314,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     if ((i%10) == 0) y=18;
 //    painter3.drawLine(x,y,x,30);
   }
+  */
 }
 
 void CPlotter::MakeFrequencyStrs()                       //MakeFrequencyStrs
@@ -429,9 +428,7 @@ int CPlotter::DF() {return m_DF;}                              // get DF
 
 void CPlotter::mousePressEvent(QMouseEvent *event)       //mousePressEvent
 {
-//  int h = (m_Size.height()-60)/2;
   int x=event->x();
-  int y=event->y();
   setFQSO(x,false);                               // Wideband waterfall
 }
 
