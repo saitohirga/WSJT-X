@@ -36,7 +36,7 @@ subroutine decode9(i1SoftSymbols,msg)
   msg='                      '
   nbits=72
   ndelta=17
-  limit=10000
+  limit=100000
   call fano232(i1SoftSymbols,nbits+31,mettab,ndelta,limit,i1DecodedBytes,   &
        ncycles,metric,ierr)
 

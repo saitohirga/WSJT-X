@@ -135,11 +135,12 @@ subroutine symspec(k,ntrperiod,nsps,nb,nbslider,pxdb,s,red,    &
 
 999 continue
 
-  call pctile(s,iz,50,xmed0)
-  s(1:iz)=s(1:iz)/xmed0
-  call pctile(ssum,iz,50,xmed1)
-  savg(1:iz)=ssum(1:iz)/xmed1
-
+!  call pctile(s,iz,50,xmed0)
+  ave0=sum(s(1:iz))/iz
+  s(1:iz)=s(1:iz)/ave0
+!  call pctile(ssum,iz,50,xmed1)
+  ave1=sum(ssum(1:iz))/iz
+  savg(1:iz)=ssum(1:iz)/ave1
   call redsync(ss,ntrperiod,ihsym,iz,red)
 
   return

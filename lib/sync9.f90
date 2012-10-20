@@ -1,4 +1,4 @@
-subroutine sync9(ss,tstep,df3,ntol,nfqso,sync,fpk,ccfred)
+subroutine sync9(ss,tstep,df3,ntol,nfqso,sync,snr,fpk,ccfred)
 
   parameter (NSMAX=22000)            !Max length of saved spectra
   real ss(184,NSMAX)
@@ -52,8 +52,20 @@ subroutine sync9(ss,tstep,df3,ntol,nfqso,sync,fpk,ccfred)
      ccfred(i)=smax
   enddo
 
+  sum=0.
+  nsum=0
+  do i=ia,ib
+     if(abs(i-ipkbest).ge.2) then
+        sum=sum+ccfred(i)
+        nsum=nsum+1
+     endif
+  enddo
+  ave=sum/nsum
+  snr=10.0*log10(sbest/ave) - 10.0*log10(2500.0/df3)
+  sync=sbest/ave - 2.0
+  if(sync.lt.0.0) sync=0.0
+  if(sync.gt.10.0) sync=10.0
   fpk=(ipkbest-1)*df3
-  sync=sbest
 
   return
 end subroutine sync9

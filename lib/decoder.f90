@@ -9,7 +9,7 @@ subroutine decoder(ntrSeconds,c0)
   parameter (NDMAX=1800*1500)        !Sample intervals at 1500 Hz rate
   parameter (NSMAX=22000)            !Max length of saved spectra
   character*22 msg
-  real*4 red(NSMAX)
+  real*4 ccfred(NSMAX)
   integer*1 i1SoftSymbols(207)
   integer*2 id2
   complex c0(NDMAX)
@@ -44,16 +44,16 @@ subroutine decoder(ntrSeconds,c0)
   tstep=kstep/12000.0
 
 ! Get sync, approx freq
-  call sync9(ss,tstep,df3,ntol,nfqso,sync,fpk,red)
-  print*,'A',nfqso,ntol,fpk
-  call spec9(c0,npts8,nsps,fpk,xdt,i1SoftSymbols)
+  call sync9(ss,tstep,df3,ntol,nfqso,sync,snr,fpk0,ccfred)
+  call spec9(c0,npts8,nsps,fpk0,fpk,xdt,i1SoftSymbols)
   call decode9(i1SoftSymbols,msg)
 
   open(13,file='decoded.txt',status='unknown')
   rewind 13
 !  write(*,1010) nutc,sync,xdt,1000.0+fpk,msg
-  write(13,1010) nutc,sync,xdt,1000.0+fpk,msg
-1010 format(i4.4,3f7.1,2x,a22)
+  nsync=sync
+  write(13,1010) nutc,nsync,snr,xdt,1000.0+fpk,msg
+1010 format(i4.4,i4,f7.1,f6.1,f8.1,3x,a22,e12.3)
   call flush(13)
   close(13)
 
