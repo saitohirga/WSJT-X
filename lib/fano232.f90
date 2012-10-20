@@ -1,14 +1,14 @@
 subroutine fano232(symbol,nbits,mettab,ndelta,maxcycles,dat,     &
-     ncycles,metric,ierr,maxmetric,maxnp)
+     ncycles,metric,ierr)
 
 ! Sequential decoder for K=32, r=1/2 convolutional code using 
 ! the Fano algorithm.  Translated from C routine for same purpose
 ! written by Phil Karn, KA9Q.
 
   parameter (MAXBITS=103)
-  parameter (MAXDAT=(MAXBITS+7)/8)
-  integer*1 symbol(0:2*MAXBITS-1)
-  integer*1 dat(MAXDAT)            !Decoded user data, 8 bits per byte
+  parameter (MAXBYTES=(MAXBITS+7)/8)
+  integer*1 symbol(0:2*MAXBITS-1)  !Soft symbols (as unsigned i*1)
+  integer*1 dat(MAXBYTES)          !Decoded user data, 8 bits per byte
   integer mettab(0:255,0:1)        !Metric table
 
 ! These were the "node" structure in Karn's C code:
@@ -19,10 +19,8 @@ subroutine fano232(symbol,nbits,mettab,ndelta,maxcycles,dat,     &
   integer ii(0:MAXBITS-1)          !Current branch being tested
 
   logical noback
-  include 'conv232.f90'
+  include 'conv232.f90'            !Polynomials defined here
 
-  maxmetric=-9999999
-  maxnp=-9999999
   ntail=nbits-31
 
 ! Compute all possible branch metrics for each symbol pair.
@@ -44,9 +42,8 @@ subroutine fano232(symbol,nbits,mettab,ndelta,maxcycles,dat,     &
   np=0
   nstate(np)=0
 
-! Compute and sort branch metrics from the root node
-  n=iand(nstate(np),npoly1)
-  n=ieor(n,ishft(n,-16))
+  n=iand(nstate(np),npoly1)                  !Compute and sort branch metrics 
+  n=ieor(n,ishft(n,-16))                     !from the root node
   lsym=partab(iand(ieor(n,ishft(n,-8)),255))
   n=iand(nstate(np),npoly2)
   n=ieor(n,ishft(n,-16))
@@ -54,38 +51,27 @@ subroutine fano232(symbol,nbits,mettab,ndelta,maxcycles,dat,     &
   m0=metrics(lsym,np)
   m1=metrics(ieor(3,lsym),np)
   if(m0.gt.m1) then
-     tm(0,np)=m0                      !0-branch has better metric
+     tm(0,np)=m0                             !0-branch has better metric
      tm(1,np)=m1
   else
-     tm(0,np)=m1                      !1-branch is better
+     tm(0,np)=m1                             !1-branch is better
      tm(1,np)=m0
-     nstate(np)=nstate(np) + 1        !Set low bit
+     nstate(np)=nstate(np) + 1               !Set low bit
   endif
 
-! Start with best branch
-  ii(np)=0
+  ii(np)=0                                   !Start with best branch
   gamma(np)=0
   nt=0
 
-! Start the Fano decoder
-  do i=1,nbits*maxcycles
-! Look forward
-     ngamma=gamma(np) + tm(ii(np),np)
+  do i=1,nbits*maxcycles                     !Start the Fano decoder
+     ngamma=gamma(np) + tm(ii(np),np)        !Look forward
      if(ngamma.ge.nt) then
-
 ! Node is acceptable.  If first time visiting this node, tighten threshold:
         if(gamma(np).lt.(nt+ndelta)) nt=nt + ndelta * ((ngamma-nt)/ndelta)
-
-! Move forward
-        gamma(np+1)=ngamma
+        gamma(np+1)=ngamma                   !Move forward
         nstate(np+1)=ishft(nstate(np),1)
         np=np+1
-!        if(ngamma.gt.maxmetric) then
-        if(np.gt.maxnp) then
-           maxmetric=ngamma
-           maxnp=np
-        endif
-        if(np.eq.nbits-1) go to 100     !We're done!
+        if(np.eq.nbits-1) go to 100          !We're done!
 
         n=iand(nstate(np),npoly1)
         n=ieor(n,ishft(n,-16))
@@ -95,7 +81,7 @@ subroutine fano232(symbol,nbits,mettab,ndelta,maxcycles,dat,     &
         lsym=lsym+lsym+partab(iand(ieor(n,ishft(n,-8)),255))
             
         if(np.ge.ntail) then
-           tm(0,np)=metrics(lsym,np)      !We're in the tail, all zeros
+           tm(0,np)=metrics(lsym,np)      !We're in the tail, now all zeros
         else
            m0=metrics(lsym,np)
            m1=metrics(ieor(3,lsym),np)
@@ -108,46 +94,37 @@ subroutine fano232(symbol,nbits,mettab,ndelta,maxcycles,dat,     &
               nstate(np)=nstate(np) + 1   !Set low bit
            endif
         endif
-
         ii(np)=0                          !Start with best branch
-        go to 99
-     endif
+     else
+        do while(.true.)
+           noback=.false.                 !Threshold violated, can't go forward
+           if(np.eq.0) noback=.true.
+           if(np.gt.0) then
+              if(gamma(np-1).lt.nt) noback=.true.
+           endif
 
-! Threshold violated, can't go forward
-10   noback=.false.
-     if(np.eq.0) noback=.true.
-     if(np.gt.0) then
-        if(gamma(np-1).lt.nt) noback=.true.
-     endif
+           if(noback) then               !Can't back up, either
+              nt=nt-ndelta               !Relax threshold and look forward again
+              if(ii(np).ne.0) then
+                 ii(np)=0
+                 nstate(np)=ieor(nstate(np),1)
+              endif
+              exit
+           endif
 
-     if(noback) then
-! Can't back up, either.  Relax threshold and look forward again 
-! to a better branch.
-        nt=nt-ndelta
-        if(ii(np).ne.0) then
-           ii(np)=0
-           nstate(np)=ieor(nstate(np),1)
-        endif
-        go to 99
+           np=np-1                       !Back up
+           if(np.lt.ntail .and. ii(np).ne.1) then
+              ii(np)=ii(np)+1            !Search the next best branch
+              nstate(np)=ieor(nstate(np),1)
+              exit
+           endif
+        enddo
      endif
-
-! Back up
-     np=np-1
-     if(np.lt.ntail .and. ii(np).ne.1) then
-! Search the next best branch
-        ii(np)=ii(np)+1
-        nstate(np)=ieor(nstate(np),1)
-        go to 99
-     endif
-     go to 10
-99   continue
   enddo
   i=nbits*maxcycles
   
 100 metric=gamma(np)                       !Final path metric
-
-! Copy decoded data to user's buffer
-  nbytes=(nbits+7)/8
+  nbytes=(nbits+7)/8                       !Copy decoded data to user's buffer
   np=7
   do j=1,nbytes-1
      i4a=nstate(np)
@@ -155,7 +132,6 @@ subroutine fano232(symbol,nbits,mettab,ndelta,maxcycles,dat,     &
      np=np+8
   enddo
   dat(nbytes)=0
-  
   ncycles=i+1
   ierr=0
   if(i.ge.maxcycles*nbits) ierr=-1

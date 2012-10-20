@@ -93,7 +93,7 @@ program jt9sim
      endif
 
      if(msg0.ne.'                      ') then
-        call genjt9(message,minutes,msgsent,i4tone) !Encode message into tone #s
+        call genjt9(message,msgsent,i4tone) !Encode message into tone #s
      endif
 
      rewind 12
@@ -102,7 +102,7 @@ program jt9sim
         if(msg0.eq.'                      ') then
            read(12,1004) message                !Use pre-generated message texts
 1004       format(a22)
-           call genjt9(message,minutes,msgsent,i4tone)
+           call genjt9(message,msgsent,i4tone)
         endif
 
         f=f0
