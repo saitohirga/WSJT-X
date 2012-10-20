@@ -1,4 +1,4 @@
-subroutine spec9(c0,npts8,nsps,fpk,xdt,i1SoftSymbols)
+subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,i1SoftSymbols)
 
   parameter (MAXFFT=31500)
   complex c0(0:npts8-1)
@@ -21,6 +21,12 @@ subroutine spec9(c0,npts8,nsps,fpk,xdt,i1SoftSymbols)
   save
 
 ! Fix up the data in c0()
+  sum=0.
+  do i=0,npts8-1
+     sum=sum + real(c0(i))**2 + aimag(c0(i))**2
+  enddo
+  rms=sqrt(sum/npts8)
+  fac=1.0/rms
   twopi=8.0*atan(1.0)
   phi=0.
   dphi=twopi*500.0/1500.0
@@ -28,15 +34,15 @@ subroutine spec9(c0,npts8,nsps,fpk,xdt,i1SoftSymbols)
      phi=phi+dphi
      if(phi.gt.twopi) phi=phi-twopi
      if(phi.lt.-twopi) phi=phi+twopi
-     c1(i)=cmplx(aimag(c0(i)),real(c0(i)))*cmplx(cos(phi),sin(phi))
+     c1(i)=fac*cmplx(aimag(c0(i)),real(c0(i)))*cmplx(cos(phi),sin(phi))
   enddo
 
   nsps8=nsps/8
-  foffset=fpk
+  foffset=fpk0
   istart=1520
 
   call peakdf9(c1,npts8,nsps8,istart,foffset,idf)
-  fpk=fpk + idf*0.1*1500.0/nsps8
+  fpk=fpk0 + idf*0.1*1500.0/nsps8
   foffset=foffset + idf*0.1*1500.0/nsps8
   call peakdt9(c1,npts8,nsps8,istart,foffset,idt)
   istart=istart + 0.0625*nsps8*idt

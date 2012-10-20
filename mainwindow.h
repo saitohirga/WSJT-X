@@ -108,6 +108,7 @@ private slots:
   void on_NBcheckBox_toggled(bool checked);
   void on_NBslider_valueChanged(int value);
   void on_TxFreqSpinBox_valueChanged(int arg1);
+  void on_pbTxFreq_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -136,7 +137,6 @@ private:
     qint32  m_nsps;
     qint32  m_hsymStop;
     qint32  m_len1;
-    qint32  m_fQSO;
 
     bool    m_monitoring;
     bool    m_transmitting;

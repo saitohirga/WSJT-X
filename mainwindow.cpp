@@ -1413,3 +1413,10 @@ void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
   m_txFreq=n;
   soundOutThread.setTxFreq(n);
 }
+
+void MainWindow::on_pbTxFreq_clicked()
+{
+  int ntx=g_pWideGraph->QSOfreq();
+  m_txFreq=ntx;
+  ui->TxFreqSpinBox->setValue(ntx);
+}
