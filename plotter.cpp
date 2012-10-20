@@ -127,7 +127,7 @@ void CPlotter::draw(float swide[], float red[], int i0)             //draw()
     painter1.setPen(m_ColorTbl[y1]);
     painter1.drawPoint(i,0);
     if(m_bCurrent) y2 = gain*y + 30;
-    if(m_bCumulative) y2=gain*10.0*log10(jt9com_.savg[i]);
+    if(m_bCumulative) y2=3*gain*10.0*log10(jt9com_.savg[i]);
     if(m_bJT9Sync) y2=3*gain*red[i];
     if(strong != strong0 or i==m_w-1) {
       painter2D.drawPolyline(LineBuf,j);

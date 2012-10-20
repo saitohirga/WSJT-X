@@ -341,7 +341,7 @@ void MainWindow::dataSink(int k)
   QString t;
   m_pctZap=nzap/178.3;
   t.sprintf(" Rx noise: %5.1f  %5.1f %% ",px,m_pctZap);
-  lab4->setText(t);
+  lab3->setText(t);
   ui->xThermo->setValue((double)px);   //Update the thermometer
   if(m_monitoring || m_diskData) {
     g_pWideGraph->dataSink2(s,red,df3,ihsym,m_diskData,lstrong);
@@ -578,7 +578,7 @@ void MainWindow::createStatusBar()                           //createStatusBar
   lab2->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab2);
 
-  lab3 = new QLabel("Freeze DF:   0");
+  lab3 = new QLabel("");
   lab3->setAlignment(Qt::AlignHCenter);
   lab3->setMinimumSize(QSize(80,10));
   lab3->setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -586,15 +586,9 @@ void MainWindow::createStatusBar()                           //createStatusBar
 
   lab4 = new QLabel("");
   lab4->setAlignment(Qt::AlignHCenter);
-  lab4->setMinimumSize(QSize(80,10));
+  lab4->setMinimumSize(QSize(50,10));
   lab4->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab4);
-
-  lab5 = new QLabel("");
-  lab5->setAlignment(Qt::AlignHCenter);
-  lab5->setMinimumSize(QSize(50,10));
-  lab5->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  statusBar()->addWidget(lab5);
 }
 
 void MainWindow::on_tolSpinBox_valueChanged(int i)             //tolSpinBox
@@ -752,6 +746,7 @@ void MainWindow::decoderFinished()                       //decoderFinished
     ui->decodedTextBrowser->append(line);
   }
   f.close();
+  if(m_loopall) on_actionOpen_next_in_directory_triggered();
 }
 
 //Delete ../save/*.wav
@@ -977,7 +972,6 @@ void MainWindow::guiUpdate()
   }
 
   lab2->setText("QSO Freq:  " + QString::number(g_pWideGraph->QSOfreq()));
-  lab3->setText("Freeze DF:  " + QString::number(g_pWideGraph->DF()));
 
   if(m_startAnother) {
     m_startAnother=false;
@@ -1010,7 +1004,7 @@ void MainWindow::guiUpdate()
     ui->labUTC->setText(utc);
     if(!m_monitoring and !m_diskData) {
       ui->xThermo->setValue(0.0);                      // Set Rx level to 20
-//      lab4->setText(" Rx noise:    0.0 ");
+//      lab3->setText(" Rx noise:    0.0 ");
     }
     m_hsym0=khsym;
     m_sec0=nsec;
@@ -1342,8 +1336,8 @@ void MainWindow::on_actionJT9_1_triggered()
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
-  lab5->setStyleSheet("QLabel{background-color: #ff6ec7}");
-  lab5->setText(m_mode);
+  lab4->setStyleSheet("QLabel{background-color: #ff6ec7}");
+  lab4->setText(m_mode);
   ui->actionJT9_1->setChecked(true);
 }
 
@@ -1356,8 +1350,8 @@ void MainWindow::on_actionJT9_2_triggered()
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
-  lab5->setStyleSheet("QLabel{background-color: #ffff00}");
-  lab5->setText(m_mode);
+  lab4->setStyleSheet("QLabel{background-color: #ffff00}");
+  lab4->setText(m_mode);
   ui->actionJT9_2->setChecked(true);
 }
 
@@ -1370,8 +1364,8 @@ void MainWindow::on_actionJT9_5_triggered()
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
-  lab5->setStyleSheet("QLabel{background-color: #ffa500}");
-  lab5->setText(m_mode);
+  lab4->setStyleSheet("QLabel{background-color: #ffa500}");
+  lab4->setText(m_mode);
   ui->actionJT9_5->setChecked(true);
 }
 
@@ -1384,8 +1378,8 @@ void MainWindow::on_actionJT9_10_triggered()
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
-  lab5->setStyleSheet("QLabel{background-color: #7fff00}");
-  lab5->setText(m_mode);
+  lab4->setStyleSheet("QLabel{background-color: #7fff00}");
+  lab4->setText(m_mode);
   ui->actionJT9_10->setChecked(true);
 }
 
@@ -1398,8 +1392,8 @@ void MainWindow::on_actionJT9_30_triggered()
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
-  lab5->setStyleSheet("QLabel{background-color: #97ffff}");
-  lab5->setText(m_mode);
+  lab4->setStyleSheet("QLabel{background-color: #97ffff}");
+  lab4->setText(m_mode);
   ui->actionJT9_30->setChecked(true);
 }
 
