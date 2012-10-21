@@ -61,8 +61,8 @@ subroutine sync9(ss,tstep,df3,ntol,nfqso,sync,snr,fpk,ccfred)
      endif
   enddo
   ave=sum/nsum
-  snr=10.0*log10(sbest/ave) - 10.0*log10(2500.0/df3)
-  sync=sbest/ave - 2.0
+  snr=10.0*log10(sbest/ave) - 10.0*log10(2500.0/df3) + 2.0
+  sync=sbest/ave - 1.0
   if(sync.lt.0.0) sync=0.0
   if(sync.gt.10.0) sync=10.0
   fpk=(ipkbest-1)*df3
