@@ -746,6 +746,8 @@ void MainWindow::decoderFinished()                       //decoderFinished
     ui->decodedTextBrowser->append(line);
   }
   f.close();
+  ui->DecodeButton->setStyleSheet("");
+  decodeBusy(false);
   if(m_loopall) on_actionOpen_next_in_directory_triggered();
 }
 
@@ -831,6 +833,8 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
 
 void MainWindow::decode()                                       //decode()
 {
+  decodeBusy(true);
+  ui->DecodeButton->setStyleSheet(m_pbdecoding_style1);
   jt9com_.newdat=1;
   jt9com_.nagain=0;
   jt9com_.nfqso=g_pWideGraph->QSOfreq();
