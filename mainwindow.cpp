@@ -9,12 +9,10 @@
 #include <portaudio.h>
 
 int itone[85];                        //Tx audio tones for 85 symbols
-int nwave;                            //Length of Tx waveform
 bool btxok;                           //True if OK to transmit
 double outputLatency;                 //Latency in seconds
 float c0[2*1800*1500];
 
-//qint16 id[30*48000];
 
 WideGraph* g_pWideGraph = NULL;
 
@@ -149,13 +147,10 @@ MainWindow::MainWindow(QWidget *parent) :
   watcher3 = new QFutureWatcher<void>;
   connect(watcher3, SIGNAL(finished()),this,SLOT(decoderFinished()));
 
-// Assign input device and start input thread
   soundInThread.setInputDevice(m_paInDevice);
   soundInThread.start(QThread::HighestPriority);
-  // Assign output device and start output thread
   soundOutThread.setOutputDevice(m_paOutDevice);
   soundOutThread.setTxFreq(m_txFreq);
-
   m_monitoring=true;                           // Start with Monitoring ON
   soundInThread.setMonitoring(m_monitoring);
   m_diskData=false;
@@ -331,7 +326,8 @@ void MainWindow::dataSink(int k)
     ndiskdat=0;
     jt9com_.ndiskdat=0;
   }
-// Get power, spectrum, nkhz, and ihsym
+
+// Get power, spectrum, and ihsym
   nb=0;
   if(m_NB) nb=1;
   trmin=m_TRperiod/60;
@@ -373,7 +369,7 @@ void MainWindow::dataSink(int k)
     ntr0=ntr;
     n=0;
   }
-  // This is a bit strange.  Why do we need the "-3" ??
+  // This is a bit strange.  Why do we need the "-3" ???
   if(ihsym == m_hsymStop-3) {
     jt9com_.npts8=(ihsym*m_nsps)/16;
     QDateTime t = QDateTime::currentDateTimeUtc();
@@ -555,7 +551,6 @@ void MainWindow::bumpDF(int n)                                  //bumpDF()
 bool MainWindow::eventFilter(QObject *object, QEvent *event)  //eventFilter()
 {
   if (event->type() == QEvent::KeyPress) {
-    //Use the event in parent using its keyPressEvent()
     QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
     MainWindow::keyPressEvent(keyEvent);
     return QObject::eventFilter(object, event);
@@ -613,7 +608,7 @@ void MainWindow::OnExit()
 {
   g_pWideGraph->saveSettings();
   m_killAll=true;
-  qApp->exit(0);                          // Exit the event loop
+  qApp->exit(0);                                      // Exit the event loop
 }
 
 void MainWindow::on_stopButton_clicked()                       //stopButton
@@ -1007,8 +1002,7 @@ void MainWindow::guiUpdate()
     QString utc = " " + t.time().toString() + " ";
     ui->labUTC->setText(utc);
     if(!m_monitoring and !m_diskData) {
-      ui->xThermo->setValue(0.0);                      // Set Rx level to 20
-//      lab3->setText(" Rx noise:    0.0 ");
+      ui->xThermo->setValue(0.0);
     }
     m_hsym0=khsym;
     m_sec0=nsec;
@@ -1196,11 +1190,9 @@ void MainWindow::on_addButton_clicked()                       //Add button
 
 void MainWindow::msgtype(QString t, QLineEdit* tx)                //msgtype()
 {
-//  if(t.length()<1) return 0;
   char message[23];
   char msgsent[23];
   int len1=22;
-  int mode65=0;            //mode65 ==> check message but don't make wave()
   double samfac=1.0;
   int nsendingsh=0;
   int mwave;
