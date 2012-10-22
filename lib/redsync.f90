@@ -3,8 +3,7 @@ subroutine redsync(ss,ntrperiod,ihsym,iz,red)
   Parameter (NSMAX=22000)
   real*4 ss(184,NSMAX)
   real*4 red(NSMAX)
-  integer ii(16)                     !Locations of sync half-symbols
-  data ii/1,11,21,31,41,51,61,77,89,101,113,125,137,149,161,169/
+  include 'jt9sync.f90'
 
   lagmax=9
   if(ntrperiod.eq.2) lagmax=5
@@ -20,7 +19,7 @@ subroutine redsync(ss,ntrperiod,ihsym,iz,red)
         ref=0.
         nr=0
         do j=1,16
-           k=ii(j)+lag
+           k=ii2(j)+lag
            if(k.ge.1 .and. k.le.ihsym) then
               sig=sig + ss(k,i)
               ns=ns+1

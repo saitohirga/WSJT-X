@@ -2,8 +2,7 @@ subroutine peakdt9(c0,npts8,nsps8,istart,foffset,idtpk)
 
   complex c0(0:npts8-1)
   complex zsum
-  integer ii(16)                       !Locations of sync symbols
-  data ii/1,6,11,16,21,26,31,39,45,51,57,63,69,75,81,85/
+  include 'jt9sync.f90'
 
   twopi=8.0*atan(1.0)
   smax=0.

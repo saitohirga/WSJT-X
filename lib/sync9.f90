@@ -3,16 +3,7 @@ subroutine sync9(ss,tstep,df3,ntol,nfqso,sync,snr,fpk,ccfred)
   parameter (NSMAX=22000)            !Max length of saved spectra
   real ss(184,NSMAX)
   real ccfred(NSMAX)
-
-  integer ii(16)                     !Locations of sync half-symbols
-  data ii/1,11,21,31,41,51,61,77,89,101,113,125,137,149,161,169/
-  integer isync(85)                  !Sync vector for half-symbols
-  data isync/                                    &
-       1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,  &
-       1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1,0,  &
-       0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,  &
-       0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,  &
-       1,0,0,0,1/
+  include 'jt9sync.f90'
 
   ipk=0
   ipkbest=0
@@ -35,7 +26,7 @@ subroutine sync9(ss,tstep,df3,ntol,nfqso,sync,snr,fpk,ccfred)
      do lag=-lagmax,lagmax
         sum=0.
         do j=1,16
-           k=ii(j) + lag
+           k=ii2(j) + lag
            if(k.ge.1) sum=sum + ss(k,i)
         enddo
         if(sum.gt.smax) then
@@ -44,18 +35,18 @@ subroutine sync9(ss,tstep,df3,ntol,nfqso,sync,snr,fpk,ccfred)
            lagpk=lag
         endif
      enddo
+     ccfred(i)=smax                        !Best at this freq, over all lags
      if(smax.gt.sbest) then
         sbest=smax
         ipkbest=ipk
-!        lagpkbest=lagpk
+        lagpkbest=lagpk
      endif
-     ccfred(i)=smax
   enddo
 
   sum=0.
   nsum=0
   do i=ia,ib
-     if(abs(i-ipkbest).ge.2) then
+     if(abs(i-ipkbest).ge.4) then
         sum=sum+ccfred(i)
         nsum=nsum+1
      endif
@@ -66,6 +57,12 @@ subroutine sync9(ss,tstep,df3,ntol,nfqso,sync,snr,fpk,ccfred)
   if(sync.lt.0.0) sync=0.0
   if(sync.gt.10.0) sync=10.0
   fpk=(ipkbest-1)*df3
+
+  do i=1,184
+     write(72,3007) i,ss(i,684)
+3007 format(i3,f12.3)
+  enddo
+  call flush(72)
 
   return
 end subroutine sync9
