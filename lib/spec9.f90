@@ -3,7 +3,6 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,i1SoftSymbols)
   parameter (MAXFFT=31500)
   complex c0(0:npts8-1)
   complex c1(0:2700000)
-  complex c2(0:2700000)
   real ssym(0:7,69)
   complex c(0:MAXFFT-1)
   integer*1 i1SoftSymbolsScrambled(207)
@@ -29,22 +28,6 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,i1SoftSymbols)
      if(phi.lt.-twopi) phi=phi+twopi
      c1(i)=fac*cmplx(aimag(c0(i)),real(c0(i)))*cmplx(cos(phi),sin(phi))
   enddo
-
-!###
-  c2(0:npts8-1)=c1(0:npts8-1)
-  c2(npts8:)=0.
-  nfft4=256*1024
-  df4=1500.0/nfft4
-  call four2a(c2,nfft4,1,-1,1)
-  rewind 71
-  do i=0,nfft4/2
-     freq=i*df4
-     p=1.e-5*(real(c2(i))**2 + aimag(c2(i))**2)
-     write(71,3001) freq,p
-3001 format(2f15.3)
-  enddo
-  call flush(71)
-!###
 
   nsps8=nsps/8
   foffset=fpk0
