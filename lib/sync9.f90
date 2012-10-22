@@ -58,11 +58,5 @@ subroutine sync9(ss,tstep,df3,ntol,nfqso,sync,snr,fpk,ccfred)
   if(sync.gt.10.0) sync=10.0
   fpk=(ipkbest-1)*df3
 
-  do i=1,184
-     write(72,3007) i,ss(i,684)
-3007 format(i3,f12.3)
-  enddo
-  call flush(72)
-
   return
 end subroutine sync9
