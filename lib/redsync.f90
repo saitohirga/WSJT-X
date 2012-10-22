@@ -35,7 +35,8 @@ subroutine redsync(ss,ntrperiod,ihsym,iz,red)
         if(ref.gt.0.0) s=(sig/ns)/(ref/nr)
         if(s.gt.smax) smax=s
      enddo
-     red(i)=db(smax)
+!     red(i)=db(smax)
+     red(i)=smax
   enddo
 
   return
