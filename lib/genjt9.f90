@@ -13,13 +13,7 @@ subroutine genjt9(message,msgsent,i4tone)
   integer*4 i4DataSymbols(69)             !Data symbols (values 0-7)
   integer*4 i4GrayCodedSymbols(69)        !Gray-coded symbols (values 0-7)
   integer*4 i4tone(85)                    !Tone #s, data and sync (values 0-8)
-  integer isync(85)                       !Sync vector
-  data isync/                                    &
-       1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,  &
-       1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1,0,  &
-       0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,  &
-       0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,  &
-       1,0,0,0,1/
+  include 'jt9sync.f90'
   save
 
   call packmsg(message,i4Msg6BitWords)    !Pack message into 12 6-bit bytes

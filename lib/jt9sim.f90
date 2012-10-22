@@ -15,14 +15,7 @@ program jt9sim
   integer*1 i1SoftSymbols(207)
   integer*1 i1
   equivalence (i1,i4)
-
-  integer isync(85)                !Sync vector
-  data isync/                                    &
-       1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,  &
-       1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1,0,  &
-       0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,  &
-       0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,  &
-       1,0,0,0,1/
+  include 'jt9sync.f90'
   common/acom/dat(NMAX),iwave(NMAX)
 
   nargs=iargc()
