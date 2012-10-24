@@ -70,7 +70,7 @@ program jt9sim
             '---------------------------------------------------')
 
   do ifile=1,nfiles                            !Loop over all files
-     nmin=(ifile-1)*2*minutes
+     nmin=(ifile-1)*minutes
      ihr=nmin/60
      imin=mod(nmin,60)
      write(fname,1002) ihr,imin                !Create output filename

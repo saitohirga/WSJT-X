@@ -1103,7 +1103,6 @@ void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
   int nmod=n%(m_TRperiod/30);
   m_txFirst=(nmod!=0);
   ui->txFirstCheckBox->setChecked(m_txFirst);
-  qDebug() << t2.mid(0,2) << t2.mid(2,2) << n << nmod << m_txFirst;
   QString rpt=t2.mid(10,3);
   if(ctrl) {
     int i4=t.mid(i2,20).indexOf(" ");
