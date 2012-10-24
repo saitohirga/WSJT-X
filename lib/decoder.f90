@@ -51,8 +51,10 @@ subroutine decoder(ntrSeconds,c0)
   rewind 13
 !  write(*,1010) nutc,sync,xdt,1000.0+fpk,msg
   nsync=sync
-  write(13,1010) nutc,nsync,snr,xdt,1000.0+fpk,msg
-1010 format(i4.4,i4,f7.1,f6.1,f8.1,3x,a22,e12.3)
+  nsnr=nint(snr)
+  width=0.0
+  write(13,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
+1010 format(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)
   call flush(13)
   close(13)
 
