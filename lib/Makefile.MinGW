@@ -30,7 +30,8 @@ OBJS1 = pctile.o graycode.o \
 	symspec.o timf2.o analytic.o db.o genjt9.o ptt.o \
 	packbits.o unpackbits.o encode232.o interleave9.o \
 	entail.o fano232.o gran.o spec9.o sync9.o decode9.o \
-	peakdt9.o peakdf9.o fil3.o redsync.o decoder.o
+	peakdt9.o peakdf9.o fil3.o redsync.o decoder.o \
+	grid2n.o n2grid.o
 
 libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
@@ -46,7 +47,7 @@ jt9sim.exe: $(OBJS3) libjt9.a
 
 OBJS4 = t1.o 
 t1.exe: $(OBJS4) libjt9.a
-	$(FC) -o t1.exe $(OBJS4) libjt9.a ../libfftw3f_win.a 
+	$(FC) -o t1.exe $(OBJS4) libjt9.a 
 
 OBJS5 = t2.o 
 t2.exe: $(OBJS5) libjt9.a
@@ -59,6 +60,27 @@ INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
 
 #jt9.o:	jt9.f90
 #	$(FC) -O0 -c jt9.f90
+
+sync9.o: sync9.f90 jt9sync.f90
+	$(FC) $(FFLAGS) -c sync9.f90
+
+spec9.o: spec9.f90 jt9sync.f90
+	$(FC) $(FFLAGS) -c spec9.f90
+
+peakdf9.o: peakdf9.f90 jt9sync.f90
+	$(FC) $(FFLAGS) -c peakdf9.f90
+
+peakdt9.o: peakdt9.f90 jt9sync.f90
+	$(FC) $(FFLAGS) -c peakdt9.f90
+
+jt9sim.o: jt9sim.f90 jt9sync.f90
+	$(FC) $(FFLAGS) -c jt9sim.f90
+
+genjt9.o: genjt9.f90 jt9sync.f90
+	$(FC) $(FFLAGS) -c genjt9.f90
+
+redsync.o: redsync.f90 jt9sync.f90
+	$(FC) $(FFLAGS) -c redsync.f90
 
 ipcomm.o: ipcomm.cpp
 	g++ -c $(INCPATH) ipcomm.cpp
