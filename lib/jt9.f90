@@ -90,12 +90,18 @@ program jt9
      nutc=nutc0
 
 ! Get sync, approx freq
-     call sync9(ss,tstep,df3,ntol,nfqso,sync,fpk,red)
+     call sync9(ss,tstep,df3,ntol,nfqso,sync,snr,fpk0,red)
 !     print*,'B',sync,fpk,npts8,nsps
-     call spec9(c0,npts8,nsps,fpk,xdt,i1SoftSymbols)
+     call spec9(c0,npts8,nsps,fpk0,fpk,xdt,i1SoftSymbols)
      call decode9(i1SoftSymbols,msg)
-     write(*,1010) nutc,sync,xdt,1000.0+fpk,msg
-1010 format(i4.4,3f7.1,2x,a22)
+     nsync=sync
+     nsnr=nint(snr)
+     width=0.0
+     write(*,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
+1010 format(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)
+
+!     write(*,1010) nutc,sync,xdt,1000.0+fpk,msg
+!1010 format(i4.4,3f7.1,2x,a22)
   enddo
 
   go to 999
