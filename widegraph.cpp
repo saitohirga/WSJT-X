@@ -22,23 +22,23 @@ WideGraph::WideGraph(QWidget *parent) :
 
   //Restore user's settings
   QString inifile(QApplication::applicationDirPath());
-  inifile += "/map65.ini";
+  inifile += "/wsjtx.ini";
   QSettings settings(inifile, QSettings::IniFormat);
 
   settings.beginGroup("WideGraph");
-  ui->widePlot->setPlotZero(settings.value("PlotZero", 20).toInt());
+  ui->widePlot->setPlotZero(settings.value("PlotZero", 0).toInt());
   ui->widePlot->setPlotGain(settings.value("PlotGain", 0).toInt());
   ui->zeroSpinBox->setValue(ui->widePlot->getPlotZero());
   ui->gainSpinBox->setValue(ui->widePlot->getPlotGain());
-  int n = settings.value("FreqSpan",60).toInt();
+  int n = settings.value("FreqSpan",1).toInt();
   int w = settings.value("PlotWidth",1000).toInt();
   ui->freqSpanSpinBox->setValue(n);
   ui->widePlot->setNSpan(n);
 //  int nbpp = n * 32768.0/(w*96.0) + 0.5;
   ui->widePlot->setBinsPerPixel(1);
-  m_waterfallAvg = settings.value("WaterfallAvg",10).toInt();
+  m_waterfallAvg = settings.value("WaterfallAvg",5).toInt();
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
-  m_dialFreq=settings.value("DialFreqMHz",473.000).toDouble();
+  m_dialFreq=settings.value("DialFreqMHz",474.000).toDouble();
   ui->fDialLineEdit->setText(QString::number(m_dialFreq));
   ui->widePlot->m_bCurrent=settings.value("Current",true).toBool();
   ui->widePlot->m_bCumulative=settings.value("Cumulative",false).toBool();
@@ -62,7 +62,7 @@ void WideGraph::saveSettings()
 {
   //Save user's settings
   QString inifile(QApplication::applicationDirPath());
-  inifile += "/map65.ini";
+  inifile += "/wsjtx.ini";
   QSettings settings(inifile, QSettings::IniFormat);
 
   settings.beginGroup("WideGraph");
