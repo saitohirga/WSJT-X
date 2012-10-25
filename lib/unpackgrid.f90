@@ -9,6 +9,14 @@
       dlong=(ng/180)*2 - 180 + 2
       call deg2grid(dlong,dlat,grid6)
       grid=grid6(:4)
+      if(grid(2:2).eq.'A' .and. grid(4:4).eq.'0') then
+         i=ichar(grid(1:1))
+         if(i.ge.ichar('A') .and. i.le.ichar('D')) then
+            call grid2n(grid,n)
+            if(n.ge.-50) write(grid,1012) n
+            if(n.lt.-50) write(grid,1022) n+20
+         endif
+      endif
       go to 100
 
  10   n=ng-NGBASE-1
