@@ -375,8 +375,12 @@ void MainWindow::dataSink(int k)
     m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
     decode();                                           //Start the decoder
     if(m_saveAll and !m_diskData) {
+      int ihr=t.time().toString("hh").toInt();
+      int imin=t.time().toString("mm").toInt();
+      imin=imin - (imin%(m_TRperiod/60));
+      QString t2=QString::number(100*ihr + imin);
       QString fname=m_saveDir + "/" + t.date().toString("yyMMdd") + "_" +
-          t.time().toString("hhmm") + ".wav";
+            t2 + ".wav";
       *future2 = QtConcurrent::run(savewav, fname, m_TRperiod);
       watcher2->setFuture(*future2);
     }
@@ -725,7 +729,7 @@ void MainWindow::diskDat()                                   //diskDat()
 
 void MainWindow::diskWriteFinished()                       //diskWriteFinished
 {
-  qDebug() << "diskWriteFinished";
+//  qDebug() << "diskWriteFinished";
 }
 
 void MainWindow::decoderFinished()                       //decoderFinished
@@ -880,6 +884,11 @@ void MainWindow::guiUpdate()
   bool bTxTime = t2p >= tx1 && t2p < tx2;
 
   if(m_auto) {
+
+    QFile f("txboth");
+    if(f.exists() and fmod(tsec,m_TRperiod)<1.0 + 85.0*m_nsps/12000.0)
+      bTxTime=true;
+
     if(bTxTime and iptt==0 and !m_txMute) {
       int itx=1;
       int ierr = ptt_(&m_pttPort,&itx,&iptt);       // Raise PTT
@@ -894,7 +903,6 @@ void MainWindow::guiUpdate()
         double snr=t.mid(1,5).toDouble();
         if(snr>0.0 or snr < -50.0) snr=99.0;
         soundOutThread.setTxSNR(snr);
-        qDebug() << t << snr;
         soundOutThread.start(QThread::HighPriority);
       }
     }
@@ -982,6 +990,7 @@ void MainWindow::guiUpdate()
   }
 
   if(nsec != m_sec0) {                                     //Once per second
+    QDateTime t = QDateTime::currentDateTimeUtc();
     if(m_transmitting) {
       if(nsendingsh==1) {
         lab1->setStyleSheet("QLabel{background-color: #66ffff}");
@@ -1001,7 +1010,6 @@ void MainWindow::guiUpdate()
       lab1->setText("");
     }
 
-    QDateTime t = QDateTime::currentDateTimeUtc();
     m_setftx=0;
     QString utc = " " + t.time().toString() + " ";
     ui->labUTC->setText(utc);

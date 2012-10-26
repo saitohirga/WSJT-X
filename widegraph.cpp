@@ -89,7 +89,6 @@ void WideGraph::dataSink2(float s[], float red[], float df3, int ihsym,
   int nbpp = ui->widePlot->binsPerPixel();
   static int n=0;
   static int nkhz0=-999;
-  static int ntr0=0;
 
 //  df = 12000.0/m_nsps;
 
@@ -134,16 +133,12 @@ void WideGraph::dataSink2(float s[], float red[], float df3, int ihsym,
 // Time according to this computer
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int ntr = (ms/1000) % m_TRperiod;
-
-    if((ndiskdata && ihsym <= m_waterfallAvg) || (!ndiskdata && ntr<ntr0)) {
+    if((ndiskdata && ihsym <= m_waterfallAvg) || (!ndiskdata && ntr<m_ntr0)) {
       for (int i=0; i<2048; i++) {
         swide[i] = 1.e30;
       }
-      for (int i=0; i<32768; i++) {
-        splot[i] = 1.e30;
-      }
     }
-    ntr0=ntr;
+    m_ntr0=ntr;
     ui->widePlot->draw(swide,red,i0);
   }
 }

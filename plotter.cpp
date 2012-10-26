@@ -208,6 +208,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
           painter.drawLine(0, y, w, y);
   }
 
+/*
   //draw amplitude values
   painter.setPen(Qt::yellow);
 //  Font.setWeight(QFont::Light);
@@ -219,15 +220,6 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     y = (int)( (float)i*pixperdiv );
     painter.drawStaticText(5, y-1, QString::number(dB)+" dB");
     dB -= m_dBStepSize;
-  }
-
-/*
-  if(!m_Running)
-  {	//if not running so is no data updates to draw to screen
-          //copy into 2Dbitmap the overlay bitmap.
-    m_2DPixmap = m_OverlayPixmap.copy(0,0,m_w,m_h2);
-          //trigger a new paintEvent
-    update();
   }
 */
 
