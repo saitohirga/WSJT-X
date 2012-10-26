@@ -64,6 +64,7 @@ private:
   qint32 m_fSample;
   qint32 m_TRperiod;
   qint32 m_nsps;
+  qint32 m_ntr0;
 
   Ui::WideGraph *ui;
 };
