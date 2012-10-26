@@ -371,6 +371,8 @@ void MainWindow::dataSink(int k)
   // This is a bit strange.  Why do we need the "-3" ???
   if(ihsym == m_hsymStop-3) {
     jt9com_.npts8=(ihsym*m_nsps)/16;
+    jt9com_.newdat=1;
+    jt9com_.nagain=0;
     QDateTime t = QDateTime::currentDateTimeUtc();
     m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
     decode();                                           //Start the decoder
@@ -821,23 +823,42 @@ void MainWindow::on_actionAvailable_suffixes_and_add_on_prefixes_triggered()
 
 void MainWindow::on_DecodeButton_clicked()                    //Decode request
 {
-  decode();
+  if(!m_decoderBusy) {
+    jt9com_.newdat=0;
+    jt9com_.nagain=1;
+    decode();
+  }
 }
 
 void MainWindow::freezeDecode(int n)                          //freezeDecode()
 {
-  decode();
+  if(!m_decoderBusy) {
+    jt9com_.newdat=0;
+    jt9com_.nagain=1;
+    decode();
+  }
 }
 
 void MainWindow::decode()                                       //decode()
 {
   decodeBusy(true);
   ui->DecodeButton->setStyleSheet(m_pbdecoding_style1);
-  jt9com_.newdat=1;
-  jt9com_.nagain=0;
+
+  if(jt9com_.nagain==0 && (!m_diskData)) {
+    qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
+    int imin=ms/60000;
+    int ihr=imin/60;
+    imin=imin%60;
+    if(m_TRperiod>60) imin=imin - imin%(m_TRperiod/60);
+    jt9com_.nutc=100*ihr + imin;
+  }
+
+//  jt9com_.newdat=1;
+//  jt9com_.nagain=0;
   jt9com_.nfqso=g_pWideGraph->QSOfreq();
   m_tol=g_pWideGraph->Tol();
   jt9com_.ntol=m_tol;
+  qDebug() << "A" << jt9com_.newdat << jt9com_.nagain;
   *future3 = QtConcurrent::run(decoder_, &m_TRperiod, &c0[0]);
   watcher3->setFuture(*future3);
 }
