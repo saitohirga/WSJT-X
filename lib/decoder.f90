@@ -15,6 +15,9 @@ subroutine decoder(ntrSeconds,c0)
   complex c0(NDMAX)
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,    &
        ntr,nfqso,nagain,newdat,npts8,nfb,ntol,kin
+  logical first
+  data first/.true./
+  save
 
   ntrMinutes=ntrSeconds/60
   newdat=1
@@ -47,16 +50,21 @@ subroutine decoder(ntrSeconds,c0)
   call spec9(c0,npts8,nsps,fpk0,fpk,xdt,i1SoftSymbols)
   call decode9(i1SoftSymbols,msg)
 
-  open(13,file='decoded.txt',status='unknown')
-  rewind 13
-!  write(*,1010) nutc,sync,xdt,1000.0+fpk,msg
   nsync=sync
   nsnr=nint(snr)
   width=0.0
+  open(13,file='decoded.txt',status='unknown')
+  rewind 13
   write(13,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
 1010 format(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)
   call flush(13)
   close(13)
+  if(first) then
+     open(14,file='wsjtx_rx.log',status='unknown',position='append')
+     first=.false.
+  endif
+  write(14,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
+  call flush(14)
 
   return
 end subroutine decoder
