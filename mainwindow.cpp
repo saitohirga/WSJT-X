@@ -13,7 +13,6 @@ bool btxok;                           //True if OK to transmit
 double outputLatency;                 //Latency in seconds
 float c0[2*1800*1500];
 
-
 WideGraph* g_pWideGraph = NULL;
 
 QString rev="$Rev$";
@@ -891,6 +890,11 @@ void MainWindow::guiUpdate()
         msgBox(s);
       }
       if(!soundOutThread.isRunning()) {
+        QString t=ui->tx6->text();
+        double snr=t.mid(1,5).toDouble();
+        if(snr>0.0 or snr < -50.0) snr=99.0;
+        soundOutThread.setTxSNR(snr);
+        qDebug() << t << snr;
         soundOutThread.start(QThread::HighPriority);
       }
     }
@@ -1264,6 +1268,9 @@ void MainWindow::on_tx6_editingFinished()                       //tx6 edited
 {
   QString t=ui->tx6->text();
   msgtype(t, ui->tx6);
+  double snr=t.mid(1,5).toDouble();
+  if(snr>0.0 or snr < -50.0) snr=99.0;
+  soundOutThread.setTxSNR(snr);
 }
 
 void MainWindow::on_dxCallEntry_textChanged(const QString &t) //dxCall changed

@@ -12,12 +12,13 @@ extern double outputLatency;
 
 typedef struct   //Parameters sent to or received from callback function
 {
-  int nsps;
-  int ntrperiod;
-  int ntxfreq;
-  bool txOK;
-  bool txMute;
-  bool bRestart;
+  double txsnrdb;
+  int    nsps;
+  int    ntrperiod;
+  int    ntxfreq;
+  bool   txOK;
+  bool   txMute;
+  bool   bRestart;
 } paUserData;
 
 //--------------------------------------------------------------- d2aCallback
@@ -35,6 +36,8 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   static double phi=0.0;
   static double dphi;
   static double freq;
+  static double snr;
+  static double fac;
   static int ic=0;
   static short int i2;
 
@@ -44,27 +47,29 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     int mstr = ms % (1000*udata->ntrperiod );
     if(mstr<1000) return 0;
     ic=(mstr-1000)*12;
-//    qDebug() << "Start at:" << 0.001*mstr << udata->ntxfreq;
     udata->bRestart=false;
   }
   int isym=ic/udata->nsps;
   if(isym>=85) return 0;
   freq=udata->ntxfreq + itone[isym]*baud;
   dphi=twopi*freq/12000.0;
-/*
-  if(ic<10000) qDebug() << "a" << ic << udata->nsps << itone[0]
-                        << itone[1] << itone[2] << itone[3] << itone[4]
-                        << itone[5] << itone[6] << itone[7] << itone[8]
-                        << itone[9] << itone[10] << itone[11] << itone[12]
-                        << itone[13] << itone[14] << itone[15] << itone[16];
-                        */
-  //if(ic<10000) qDebug() << ic << isym << freq << dphi << phi << i2;
+  if(udata->txsnrdb < 0.0) {
+    snr=pow(10.0,0.05*(udata->txsnrdb-1.0));
+    fac=3000.0;
+    if(snr>1.0) fac=3000.0/snr;
+  }
 
-  for(int i=0 ; i<framesToProcess; i++ )  {
+  for(uint i=0 ; i<framesToProcess; i++ )  {
     phi += dphi;
     if(phi>twopi) phi -= twopi;
     i2=32767.0*sin(phi);
 //      i2 = 500.0*(i2/32767.0 + 5.0*gran());      //Add noise (tests only!)
+    if(udata->txsnrdb < 0.0) {
+      int i4=fac*(gran() + i2*snr/32768.0);
+      if(i4>32767) i4=32767;
+      if(i4<-32767) i4=-32767;
+      i2=i4;
+    }
     /*
     if(udata->txMute) i2=0;
     if(!udata->txOK)  i2=0;
@@ -97,6 +102,7 @@ void SoundOutThread::run()
     return;
   }
 
+  udata.txsnrdb=99.0;
   udata.nsps=m_nsps;
   udata.ntrperiod=m_TRperiod;
   udata.ntxfreq=m_txFreq;
@@ -127,6 +133,7 @@ void SoundOutThread::run()
     qe = quitExecution;
     if (qe) break;
 
+    udata.txsnrdb=m_txsnrdb;
     udata.nsps=m_nsps;
     udata.ntrperiod=m_TRperiod;
     udata.ntxfreq=m_txFreq;
@@ -153,4 +160,10 @@ void SoundOutThread::setPeriod(int ntrperiod, int nsps)
 void SoundOutThread::setTxFreq(int n)
 {
   m_txFreq=n;
+}
+
+
+void SoundOutThread::setTxSNR(double snr)
+{
+  m_txsnrdb=snr;
 }
