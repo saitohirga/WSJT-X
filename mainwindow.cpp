@@ -380,7 +380,8 @@ void MainWindow::dataSink(int k)
       int ihr=t.time().toString("hh").toInt();
       int imin=t.time().toString("mm").toInt();
       imin=imin - (imin%(m_TRperiod/60));
-      QString t2=QString::number(100*ihr + imin);
+      QString t2;
+      t2.sprintf("%2.2d%2.2d",ihr,imin);
       QString fname=m_saveDir + "/" + t.date().toString("yyMMdd") + "_" +
             t2 + ".wav";
       *future2 = QtConcurrent::run(savewav, fname, m_TRperiod);
@@ -858,7 +859,6 @@ void MainWindow::decode()                                       //decode()
   jt9com_.nfqso=g_pWideGraph->QSOfreq();
   m_tol=g_pWideGraph->Tol();
   jt9com_.ntol=m_tol;
-  qDebug() << "A" << jt9com_.newdat << jt9com_.nagain;
   *future3 = QtConcurrent::run(decoder_, &m_TRperiod, &c0[0]);
   watcher3->setFuture(*future3);
 }
