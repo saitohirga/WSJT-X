@@ -96,7 +96,7 @@ private slots:
   void on_genStdMsgsPushButton_clicked();
   void bumpDF(int n);
   void on_logQSOButton_clicked();
-//  void on_actionErase_wsjtx_rx_log_triggered();
+  void on_actionErase_wsjtx_rx_log_triggered();
   void on_actionErase_wsjtx_tx_log_triggered();
   void on_actionAFMHot_triggered();
   void on_actionBlue_triggered();
@@ -225,7 +225,7 @@ void symspec_(int* k, int* ntrperiod, int* nsps, int* nb, int* m_NBslider,
 
 void genjt9_(char* msg, char* msgsent, int itone[], int len1, int len2);
 
-void decoder_(int* ntrperiod, float c0[]);
+void decoder_(int* ntrperiod, int* mRxLog, float c0[]);
 
 int ptt_(int* nport, int* itx, int* iptt);
   }

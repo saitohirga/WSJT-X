@@ -859,7 +859,9 @@ void MainWindow::decode()                                       //decode()
   jt9com_.nfqso=g_pWideGraph->QSOfreq();
   m_tol=g_pWideGraph->Tol();
   jt9com_.ntol=m_tol;
-  *future3 = QtConcurrent::run(decoder_, &m_TRperiod, &c0[0]);
+  if(jt9com_.nutc < m_nutc0) m_RxLog |= 1;  //Date and Time to wsjtx_rx.log
+  m_nutc0=jt9com_.nutc;
+  *future3 = QtConcurrent::run(decoder_, &m_TRperiod, &m_RxLog, &c0[0]);
   watcher3->setFuture(*future3);
 }
 
@@ -1342,7 +1344,6 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   f.close();
 }
 
-/*
 void MainWindow::on_actionErase_wsjtx_rx_log_triggered()     //Erase Rx log
 {
   int ret = QMessageBox::warning(this, "Confirm Erase",
@@ -1352,7 +1353,6 @@ void MainWindow::on_actionErase_wsjtx_rx_log_triggered()     //Erase Rx log
     m_RxLog |= 2;                      // Rewind wsjtx_rx.log
   }
 }
-*/
 
 void MainWindow::on_actionErase_wsjtx_tx_log_triggered()     //Erase Tx log
 {
