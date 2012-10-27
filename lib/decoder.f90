@@ -1,4 +1,4 @@
-subroutine decoder(ntrSeconds,c0)
+subroutine decoder(ntrSeconds,nRxLog,c0)
 
 ! Decoder for JT9.  Can run stand-alone, reading data from *.wav files;
 ! or as the back end of wsjt-x, with data placed in a shared memory region.
@@ -62,6 +62,10 @@ subroutine decoder(ntrSeconds,c0)
   if(first) then
      open(14,file='wsjtx_rx.log',status='unknown',position='append')
      first=.false.
+  endif
+  if(iand(nRxLog,2).ne.0) rewind 14
+  if(iand(nRxLog,1).ne.0) then
+! Write date and time to lu 14     
   endif
   write(14,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
   call flush(14)
