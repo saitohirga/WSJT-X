@@ -1227,6 +1227,84 @@ void MainWindow::on_lookupButton_clicked()                    //Lookup button
 
 void MainWindow::on_addButton_clicked()                       //Add button
 {
+  if(ui->dxGridEntry->text()=="") {
+    msgBox("Please enter a valid grid locator.");
+    return;
+  }
+  m_call3Modified=false;
+  QString hiscall=ui->dxCallEntry->text().toUpper().trimmed();
+  QString hisgrid=ui->dxGridEntry->text().trimmed();
+  QString newEntry=hiscall + "," + hisgrid;
+
+//  int ret = QMessageBox::warning(this, "Add",
+//       newEntry + "\n" + "Is this station known to be active on EME?",
+//       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+//  if(ret==QMessageBox::Yes) {
+//    newEntry += ",EME,,";
+//  } else {
+    newEntry += ",,,";
+//  }
+
+  QString call3File = m_appDir + "/CALL3.TXT";
+  QFile f1(call3File);
+  if(!f1.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    msgBox("Cannot open " + call3File);
+    return;
+  }
+  QString tmpFile = m_appDir + "/CALL3.TMP";
+  QFile f2(tmpFile);
+  if(!f2.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    msgBox("Cannot open " + tmpFile);
+    return;
+  }
+  QTextStream in(&f1);
+  QTextStream out(&f2);
+  QString hc=hiscall;
+  QString hc1="";
+  QString hc2="AAAAAA";
+  QString s;
+  do {
+    s=in.readLine();
+    hc1=hc2;
+    if(s.mid(0,2)=="//") {
+      out << s + "\n";
+    } else {
+      int i1=s.indexOf(",");
+      hc2=s.mid(0,i1);
+      if(hc>hc1 && hc<hc2) {
+        out << newEntry + "\n";
+        if(s.mid(0,6)=="ZZZZZZ") {
+          out << s + "\n";
+          exit;
+        }
+        m_call3Modified=true;
+      } else if(hc==hc2) {
+        QString t=s + "\n\n is already in CALL3.TXT\n" +
+            "Do you wish to replace it?";
+        int ret = QMessageBox::warning(this, "Add",t,
+             QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+        if(ret==QMessageBox::Yes) {
+          out << newEntry + "\n";
+          m_call3Modified=true;
+        }
+      } else {
+        if(s!="") out << s + "\n";
+      }
+    }
+  } while(!s.isNull());
+
+  f1.close();
+  if(hc>hc1 && !m_call3Modified) {
+    out << newEntry + "\n";
+  }
+  if(m_call3Modified) {
+    QFile f0(m_appDir + "/CALL3.OLD");
+    if(f0.exists()) f0.remove();
+    QFile f1(m_appDir + "/CALL3.TXT");
+    f1.rename(m_appDir + "/CALL3.OLD");
+    f2.rename(m_appDir + "/CALL3.TXT");
+    f2.close();
+  }
 }
 
 void MainWindow::msgtype(QString t, QLineEdit* tx)                //msgtype()

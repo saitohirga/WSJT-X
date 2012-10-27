@@ -153,6 +153,7 @@ private:
     bool    m_widebandDecode;
     bool    m_kb8rq;
     bool    m_NB;
+    bool    m_call3Modified;
 
     char    m_decoded[80];
 
