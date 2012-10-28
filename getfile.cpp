@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <windows.h>
 
 void getfile(QString fname, int ntrperiod)
 {
@@ -113,4 +114,50 @@ float gran()
   gset = v1*fac;
   iset++;
   return v2*fac;
+}
+
+int ptt(int nport, int ntx, int *iptt)
+{
+  static HANDLE hFile;
+  static int open=0;
+  char s[10];
+  int i3=1,i4=1,i5=1,i6=1,i9=1,i00=1;
+
+  if(nport==0) {
+    *iptt=ntx;
+    return(0);
+  }
+
+  if(ntx && (!open)) {
+    sprintf(s,"COM%d",nport);
+    hFile=CreateFile(TEXT(s),GENERIC_WRITE,0,NULL,OPEN_EXISTING,
+                     FILE_ATTRIBUTE_NORMAL,NULL);
+    if(hFile==INVALID_HANDLE_VALUE) {
+      //      printf("PTT: Cannot open COM port %d.\n",nport);
+      return 1;
+    }
+    open=1;
+  }
+
+  if(ntx && open) {
+    i3=EscapeCommFunction(hFile,SETRTS);
+    i5=EscapeCommFunction(hFile,SETDTR);
+    *iptt=1;
+  }
+
+  else {
+    i4=EscapeCommFunction(hFile,CLRRTS);
+    i6=EscapeCommFunction(hFile,CLRDTR);
+    i9=EscapeCommFunction(hFile,CLRBREAK);
+    i00=CloseHandle(hFile);
+    *iptt=0;
+    open=0;
+  }
+  if(i3==0) return -(SETRTS);
+  if(i4==0) return -(CLRRTS);
+  if(i5==0) return -(SETDTR);
+  if(i6==0) return -(CLRDTR);
+  if(i9==0) return -(CLRBREAK);
+  if(i00==0) return -10;
+  return 0;
 }

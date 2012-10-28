@@ -25,18 +25,24 @@ int ptt_(int *nport, int *ntx, int *iptt)
   }
 
   if(*ntx && open) {
-    EscapeCommFunction(hFile,3);
-    EscapeCommFunction(hFile,5);
+    i3=EscapeCommFunction(hFile,3);
+    i5=EscapeCommFunction(hFile,5);
     *iptt=1;
   }
 
   else {
-    EscapeCommFunction(hFile,4);
-    EscapeCommFunction(hFile,6);
-    EscapeCommFunction(hFile,9);
+    i4=EscapeCommFunction(hFile,4);
+    i6=EscapeCommFunction(hFile,6);
+    i9=EscapeCommFunction(hFile,9);
     i00=CloseHandle(hFile);
     *iptt=0;
     open=0;
   }
+  if(i3==0) return 3;
+  if(i4==0) return 4;
+  if(i5==0) return 5;
+  if(i6==0) return 6;
+  if(i9==0) return 9;
+  if(i00==0) return 10;
   return 0;
 }

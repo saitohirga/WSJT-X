@@ -216,6 +216,8 @@ extern int killbyname(const char* progName);
 extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
                    int minChan[], int maxChan[],
                    int minSpeed[], int maxSpeed[]);
+extern int ptt(int nport, int itx, int* iptt);
+
 
 extern "C" {
 //----------------------------------------------------- C and Fortran routines
@@ -227,8 +229,6 @@ void symspec_(int* k, int* ntrperiod, int* nsps, int* nb, int* m_NBslider,
 void genjt9_(char* msg, char* msgsent, int itone[], int len1, int len2);
 
 void decoder_(int* ntrperiod, int* mRxLog, float c0[]);
-
-int ptt_(int* nport, int* itx, int* iptt);
-  }
+}
 
 #endif // MAINWINDOW_H
