@@ -32,14 +32,16 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   short *wptr = (short*)outputBuffer;
 
   static double twopi=2.0*3.141592653589793238462;
-  static double baud=12000.0/udata->nsps;
+  static double baud;
   static double phi=0.0;
   static double dphi;
   static double freq;
   static double snr;
   static double fac;
   static int ic=0;
+  static int isym0=-99;
   static short int i2;
+  int isym;
 
   if(udata->bRestart) {
  // Time according to this computer
@@ -49,8 +51,9 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     ic=(mstr-1000)*12;
     udata->bRestart=false;
   }
-  int isym=ic/udata->nsps;
+  isym=ic/udata->nsps;
   if(isym>=85) return 0;
+  baud=12000.0/udata->nsps;
   freq=udata->ntxfreq + itone[isym]*baud;
   dphi=twopi*freq/12000.0;
   if(udata->txsnrdb < 0.0) {

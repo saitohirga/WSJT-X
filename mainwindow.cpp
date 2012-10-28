@@ -6,6 +6,7 @@
 #include "about.h"
 #include "widegraph.h"
 #include "sleep.h"
+#include "getfile.h"
 #include <portaudio.h>
 
 int itone[85];                        //Tx audio tones for 85 symbols
@@ -914,11 +915,11 @@ void MainWindow::guiUpdate()
 
     if(bTxTime and iptt==0 and !m_txMute) {
       int itx=1;
-      int ierr = ptt_(&m_pttPort,&itx,&iptt);       // Raise PTT
-      if(ierr != 0) {
+      int ierr = ptt(m_pttPort,itx,&iptt);       // Raise PTT
+      if(ierr<0) {
         on_stopTxButton_clicked();
         char s[18];
-        sprintf(s,"Cannot open COM%d",m_pttPort);
+        sprintf(s,"PTT Error %d",ierr);
         msgBox(s);
       }
       if(!soundOutThread.isRunning()) {
@@ -985,7 +986,12 @@ void MainWindow::guiUpdate()
   if(nc0 <= 0) nc0++;
   if(nc0 == 0) {
     int itx=0;
-    ptt_(&m_pttPort,&itx,&iptt);       // Lower PTT
+    int ierr=ptt(m_pttPort,itx,&iptt);       // Lower PTT
+    if(ierr<0) {
+      char s[18];
+      sprintf(s,"PTT Error %d",ierr);
+      msgBox(s);
+    }
     if(!m_txMute) soundOutThread.quitExecution=true;
     m_transmitting=false;
     if(m_auto) {

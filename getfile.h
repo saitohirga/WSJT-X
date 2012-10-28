@@ -8,5 +8,6 @@
 void getfile(QString fname, int ntrperiod);
 void savetf2(QString fname, int ntrperiod);
 float gran();
+int ptt(int* nport, int* ntx, int* iptt);
 
 #endif // GETFILE_H
