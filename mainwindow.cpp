@@ -17,7 +17,7 @@ float c0[2*1800*1500];
 WideGraph* g_pWideGraph = NULL;
 
 QString rev="$Rev$";
-QString Program_Title_Version="  WSJT-X   v0.1, r" + rev.mid(6,4) +
+QString Program_Title_Version="  WSJT-X   v0.2, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 //-------------------------------------------------- MainWindow constructor
