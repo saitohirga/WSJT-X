@@ -39,12 +39,10 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   static double snr;
   static double fac;
   static int ic=0;
-  static int ncall=0;
   static int isym0=-99;
   static short int i2;
   int isym;
 
-  ncall++;
   if(udata->bRestart) {
  // Time according to this computer
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
