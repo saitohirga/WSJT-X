@@ -32,6 +32,7 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->gainSpinBox->setValue(ui->widePlot->getPlotGain());
   int n = settings.value("FreqSpan",1).toInt();
   int w = settings.value("PlotWidth",1000).toInt();
+  ui->widePlot->m_w=w;
   ui->freqSpanSpinBox->setValue(n);
   ui->widePlot->setNSpan(n);
 //  int nbpp = n * 32768.0/(w*96.0) + 0.5;
@@ -48,9 +49,10 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->rbJT9Sync->setChecked(ui->widePlot->m_bJT9Sync);
   int nbpp=settings.value("BinsPerPixel",1).toInt();
   ui->widePlot->setBinsPerPixel(nbpp);
+  m_qsoFreq=settings.value("QSOfreq",1010).toInt();
+  ui->widePlot->setFQSO(m_qsoFreq,true);
   settings.endGroup();
 }
-
 
 WideGraph::~WideGraph()
 {
@@ -76,6 +78,7 @@ void WideGraph::saveSettings()
   settings.setValue("Cumulative",ui->widePlot->m_bCumulative);
   settings.setValue("JT9Sync",ui->widePlot->m_bJT9Sync);
   settings.setValue("BinsPerPixel",ui->widePlot->binsPerPixel());
+  settings.setValue("QSOfreq",ui->widePlot->fQSO());
   settings.endGroup();
 }
 

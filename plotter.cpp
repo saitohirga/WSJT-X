@@ -323,10 +323,10 @@ void CPlotter::MakeFrequencyStrs()                       //MakeFrequencyStrs
 
 int CPlotter::XfromFreq(float f)                               //XfromFreq()
 {
-  float w = m_WaterfallPixmap.width();
-  int x = (int) w * (f - m_StartFreq)/m_fSpan;
+//  float w = m_WaterfallPixmap.width();
+  int x = (int) m_w * (f - m_StartFreq)/m_fSpan;
   if(x<0 ) return 0;
-  if(x>(int)w) return m_WaterfallPixmap.width();
+  if(x>m_w) return m_w;
   return x;
 }
 
@@ -397,7 +397,7 @@ int CPlotter::binsPerPixel()                                // get nbpp
 void CPlotter::setFQSO(int x, bool bf)                       //setFQSO()
 {
   if(bf) {
-    m_fQSO=x;         // x is freq in kHz
+    m_fQSO=x;         // x is freq in Hz
     m_xClick=XfromFreq(m_fQSO);
   } else {
     if(x<0) x=0;      // x is pixel number

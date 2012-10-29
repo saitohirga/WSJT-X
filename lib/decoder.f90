@@ -9,6 +9,7 @@ subroutine decoder(ntrSeconds,nRxLog,c0)
   parameter (NDMAX=1800*1500)        !Sample intervals at 1500 Hz rate
   parameter (NSMAX=22000)            !Max length of saved spectra
   character*22 msg
+  character*33 line
   real*4 ccfred(NSMAX)
   integer*1 i1SoftSymbols(207)
   integer*2 id2
@@ -46,19 +47,10 @@ subroutine decoder(ntrSeconds,nRxLog,c0)
   tstep=kstep/12000.0
 
 ! Get sync, approx freq
-  call sync9(ss,tstep,df3,ntol,nfqso,sync,snr,fpk0,ccfred)
-  call spec9(c0,npts8,nsps,fpk0,fpk,xdt,i1SoftSymbols)
-  call decode9(i1SoftSymbols,msg)
+  call sync9(ss,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk)
 
-  nsync=sync
-  nsnr=nint(snr)
-  width=0.0
   open(13,file='decoded.txt',status='unknown')
   rewind 13
-  write(13,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
-1010 format(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)
-  call flush(13)
-  close(13)
   if(first) then
      open(14,file='wsjtx_rx.log',status='unknown',position='append')
      first=.false.
@@ -67,8 +59,48 @@ subroutine decoder(ntrSeconds,nRxLog,c0)
   if(iand(nRxLog,1).ne.0) then
 ! Write date and time to lu 14     
   endif
-  write(14,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
+
+  fgood=0.
+  df8=1500.0/(nsps/8)
+  sbest=0.
+  do i=ia,ib
+     f=(i-1)*df3
+     if((i.eq.ipk .or. ccfred(i).ge.10.0) .and. f.gt.fgood+10.0*df8) then
+        call spec9(c0,npts8,nsps,f,fpk,xdt,i1SoftSymbols)
+        call decode9(i1SoftSymbols,msg)
+        call pctile(ccfred(ia),ib-ia+1,50,xmed)
+
+        snr=10.0*log10(ccfred(i)/xmed) - 10.0*log10(2500.0/df3) + 2.0
+        sync=ccfred(i)/xmed - 2.0
+        if(sync.lt.0.0) sync=0.0
+        nsync=sync
+        if(nsync.gt.10) nsync=10
+        nsnr=nint(snr)
+        width=0.0
+
+        if(ccfred(i).gt.sbest .and. fgood.eq.0.0) then
+           sbest=ccfred(i)
+           write(line,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width
+        endif
+
+        if(msg.ne.'                      ') then
+           write(13,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
+1010       format(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)
+           write(14,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
+           fgood=f
+        endif
+     endif
+  enddo
+
+  if(fgood.eq.0.0) then
+     write(13,1020) line
+     write(14,1020) line
+1020 format(a33)
+  endif
+
+  call flush(13)
   call flush(14)
+  close(13)
 
   return
 end subroutine decoder
