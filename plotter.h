@@ -38,6 +38,7 @@ public:
   qint32  m_DF;
   qint32  m_tol;
   qint32  m_fCal;
+  qint32  m_w;
 
   void draw(float sw[], float red[], int i0);		//Update the waterfall
   void SetRunningState(bool running);
@@ -112,7 +113,6 @@ private:
   qint32  m_freqPerDiv;
   qint32  m_nsps;
   qint32  m_Percent2DScreen;
-  qint32  m_w;
   qint32  m_h;
   qint32  m_h1;
   qint32  m_h2;

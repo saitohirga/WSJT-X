@@ -1,4 +1,4 @@
-subroutine sync9(ss,tstep,df3,ntol,nfqso,sync,snr,fpk,ccfred)
+subroutine sync9(ss,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipkbest)
 
   parameter (NSMAX=22000)            !Max length of saved spectra
   real ss(184,NSMAX)
@@ -27,7 +27,8 @@ subroutine sync9(ss,tstep,df3,ntol,nfqso,sync,snr,fpk,ccfred)
         sum=0.
         do j=1,16
            k=ii2(j) + lag
-           if(k.ge.1) sum=sum + ss(k,i)
+!           if(k.ge.1) sum=sum + ss(k,i) 
+           if(k.ge.1) sum=sum + ss(k,i) - 0.5*(ss(k+2,i)+ss(k+4,i))
         enddo
         if(sum.gt.smax) then
            smax=sum
@@ -42,28 +43,6 @@ subroutine sync9(ss,tstep,df3,ntol,nfqso,sync,snr,fpk,ccfred)
         lagpkbest=lagpk
      endif
   enddo
-
-  sum=0.
-  nsum=0
-  do i=ia,ib
-     if(abs(i-ipkbest).ge.4) then
-        sum=sum+ccfred(i)
-        nsum=nsum+1
-     endif
-  enddo
-  ave=sum/nsum
-  snr=10.0*log10(sbest/ave) - 10.0*log10(2500.0/df3) + 2.0
-  sync=sbest/ave - 1.0
-  if(sync.lt.0.0) sync=0.0
-  if(sync.gt.10.0) sync=10.0
-  fpk=(ipkbest-1)*df3
-
-!  rewind 71
-!  do j=1,184
-!     write(71,3001) j,ss(j,ipkbest)
-!3001 format(i5,f12.6)
-!  enddo
-!  call flush(71)
 
   return
 end subroutine sync9
