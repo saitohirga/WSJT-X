@@ -1,6 +1,6 @@
 #include "soundout.h"
 
-#define FRAMES_PER_BUFFER 256
+#define FRAMES_PER_BUFFER 1024
 
 extern "C" {
 #include <portaudio.h>
@@ -39,23 +39,25 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   static double snr;
   static double fac;
   static int ic=0;
+  static int ncall=0;
   static int isym0=-99;
   static short int i2;
   int isym;
 
+  ncall++;
   if(udata->bRestart) {
  // Time according to this computer
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int mstr = ms % (1000*udata->ntrperiod );
     if(mstr<1000) return 0;
-    ic=(mstr-1000)*12;
+    ic=(mstr-1000)*48;
     udata->bRestart=false;
   }
-  isym=ic/udata->nsps;
-  if(isym>=85) return 0;
+  isym=ic/(4*udata->nsps);                      //Actual fsample=48000
+  if(isym>=85) return 1;
   baud=12000.0/udata->nsps;
   freq=udata->ntxfreq + itone[isym]*baud;
-  dphi=twopi*freq/12000.0;
+  dphi=twopi*freq/48000.0;
   if(udata->txsnrdb < 0.0) {
     snr=pow(10.0,0.05*(udata->txsnrdb-1.0));
     fac=3000.0;
@@ -98,7 +100,7 @@ void SoundOutThread::run()
   outParam.suggestedLatency=0.05;
   outParam.hostApiSpecificStreamInfo=NULL;
 
-  paerr=Pa_IsFormatSupported(NULL,&outParam,12000.0);
+  paerr=Pa_IsFormatSupported(NULL,&outParam,48000.0);
   if(paerr<0) {
     qDebug() << "PortAudio says requested output format not supported.";
     qDebug() << paerr << m_nDevOut;
@@ -116,7 +118,7 @@ void SoundOutThread::run()
   paerr=Pa_OpenStream(&outStream,           //Output stream
         NULL,                               //No input parameters
         &outParam,                          //Output parameters
-        12000.0,                            //Sample rate
+        48000.0,                            //Sample rate
         FRAMES_PER_BUFFER,                  //Frames per buffer
         paClipOff,                          //No clipping
         d2aCallback,                        //output callbeck routine
