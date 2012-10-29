@@ -564,10 +564,10 @@ p, li { white-space: pre-wrap; }
             <string>Tx +</string>
            </property>
            <property name="minimum">
-            <number>1000</number>
+            <number>500</number>
            </property>
            <property name="maximum">
-            <number>2000</number>
+            <number>20000</number>
            </property>
            <property name="value">
             <number>1500</number>
