@@ -64,7 +64,10 @@ subroutine symspec(k,ntrperiod,nsps,nb,nbslider,pxdb,s,red,    &
      k1=0
      k8=0
      x2=0.
-     if(ndiskdat.eq.0) id2(k+1:60*ntrperiod*12000)=0
+     if(ndiskdat.eq.0) then
+        id2(k+1:)=0
+        c0=0.          !This is necessary to prevent "ghosts".  Not sure why.
+     endif
   endif
   k0=k
  

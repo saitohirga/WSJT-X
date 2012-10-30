@@ -16,6 +16,11 @@ subroutine genjt9(message,msgsent,i4tone)
   include 'jt9sync.f90'
   save
 
+  do i=1,22
+     if(message(1:1).ne.' ') exit
+     message=message(i+1:)
+  enddo
+
   call packmsg(message,i4Msg6BitWords)    !Pack message into 12 6-bit bytes
   call unpackmsg(i4Msg6BitWords,msgsent)  !Unpack to get msgsent
   call entail(i4Msg6BitWords,i1Msg8BitBytes)  !Add tail, convert to 8-bit bytes

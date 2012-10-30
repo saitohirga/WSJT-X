@@ -44,5 +44,8 @@ subroutine sync9(ss,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipkbest)
      endif
   enddo
 
+  call pctile(ccfred(ia),ib-ia+1,50,xmed)
+  ccfred=ccfred/xmed
+
   return
 end subroutine sync9

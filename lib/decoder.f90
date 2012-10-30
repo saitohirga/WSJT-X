@@ -68,10 +68,8 @@ subroutine decoder(ntrSeconds,nRxLog,c0)
      if((i.eq.ipk .or. ccfred(i).ge.10.0) .and. f.gt.fgood+10.0*df8) then
         call spec9(c0,npts8,nsps,f,fpk,xdt,i1SoftSymbols)
         call decode9(i1SoftSymbols,msg)
-        call pctile(ccfred(ia),ib-ia+1,50,xmed)
-
-        snr=10.0*log10(ccfred(i)/xmed) - 10.0*log10(2500.0/df3) + 2.0
-        sync=ccfred(i)/xmed - 2.0
+        snr=10.0*log10(ccfred(i)) - 10.0*log10(2500.0/df3) + 2.0
+        sync=ccfred(i) - 2.0
         if(sync.lt.0.0) sync=0.0
         nsync=sync
         if(nsync.gt.10) nsync=10
