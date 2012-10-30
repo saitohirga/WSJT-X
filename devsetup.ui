@@ -23,7 +23,7 @@
       <attribute name="title">
        <string>Station</string>
       </attribute>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -121,6 +121,9 @@
             </item>
             <item>
              <widget class="QSpinBox" name="idIntSpinBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>60</width>

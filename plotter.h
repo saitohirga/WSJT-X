@@ -35,7 +35,6 @@ public:
   qint32  m_nSpan;
   qint32  m_binsPerPixel;
   qint32  m_fQSO;
-  qint32  m_DF;
   qint32  m_tol;
   qint32  m_fCal;
   qint32  m_w;
@@ -59,7 +58,6 @@ public:
   void setFcal(int n);
   void DrawOverlay();
   int  fQSO();
-  int  DF();
   int  autoZero();
   void setPalette(QString palette);
   void setFsample(int n);

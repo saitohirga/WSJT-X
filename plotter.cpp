@@ -416,8 +416,6 @@ void CPlotter::setFcal(int n)                                  //setFcal()
 
 int CPlotter::fQSO() {return m_fQSO;}                          //get fQSO
 
-int CPlotter::DF() {return m_DF;}                              // get DF
-
 void CPlotter::mousePressEvent(QMouseEvent *event)       //mousePressEvent
 {
   int x=event->x();
@@ -429,7 +427,6 @@ void CPlotter::mouseDoubleClickEvent(QMouseEvent *event)  //mouse2click
 //  int h = (m_Size.height()-60)/2;
   int x=event->x();
   int y=event->y();
-  m_DF=0;
   setFQSO(x,false);
   emit freezeDecode1(2);                  //### ???
 }

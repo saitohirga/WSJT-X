@@ -94,7 +94,6 @@ private slots:
   void on_dxGridEntry_textChanged(const QString &arg1);
   void selectCall2(bool ctrl);
   void on_genStdMsgsPushButton_clicked();
-  void bumpDF(int n);
   void on_logQSOButton_clicked();
   void on_actionErase_wsjtx_rx_log_triggered();
   void on_actionErase_wsjtx_tx_log_triggered();
@@ -110,13 +109,16 @@ private slots:
   void on_TxFreqSpinBox_valueChanged(int arg1);
   void on_pbTxFreq_clicked();
 
+  void on_actionSave_synced_triggered();
+
+  void on_actionSave_decoded_triggered();
+
 private:
     Ui::MainWindow *ui;
     qint32  m_nDevIn;
     qint32  m_nDevOut;
     qint32  m_idInt;
     qint32  m_waterfallAvg;
-    qint32  m_DF;
     qint32  m_tol;
     qint32  m_QSOfreq0;
     qint32  m_ntx;
@@ -149,6 +151,8 @@ private:
     bool    m_restart;
     bool    m_killAll;
     bool    m_startAnother;
+    bool    m_saveSynced;
+    bool    m_saveDecoded;
     bool    m_saveAll;
     bool    m_widebandDecode;
     bool    m_kb8rq;
