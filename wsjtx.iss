@@ -1,6 +1,6 @@
 [Setup]
 AppName=wsjtx
-AppVerName=wsjtx Version 0.1 r2695
+AppVerName=wsjtx Version 0.2 r2704
 AppCopyright=Copyright (C) 2001-2012 by Joe Taylor, K1JT
 DefaultDirName=c:\wsjtx
 DefaultGroupName=wsjtx
@@ -14,7 +14,7 @@ Source: "c:\Users\joe\wsjt\wsjtx_install\met8.21";           DestDir: "{app}";
 Source: "c:\Users\joe\wsjt\wsjtx_install\CALL3.TXT";         DestDir: "{app}";
 Source: "c:\Users\joe\wsjt\wsjtx\WSJT-X_Quick_Start_Guide.pdf";  DestDir: "{app}";
 Source: "c:\Users\joe\wsjt\QtSupport\*.dll";                 DestDir: "{sys}";  Flags: onlyifdoesntexist
-Source: "c:\Users\joe\wsjt\wsjtx_install\save\000000_0000.wav"; DestDir: "{app}\save";
+Source: "c:\Users\joe\wsjt\wsjtx_install\000000_0000.wav";   DestDir: "{app}\save";
 
 [Icons]
 Name: "{group}\wsjtx";        Filename: "{app}\wsjtx.exe";   WorkingDir: {app}; IconFilename: {app}\wsjt.ico
