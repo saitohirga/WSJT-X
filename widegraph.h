@@ -24,8 +24,6 @@ public:
   int    nStartFreq();
   float  fSpan();
   void   saveSettings();
-  void   setDF(int n);
-  int    DF();
   int    Tol();
   void   setTol(int n);
   void   setFcal(int n);

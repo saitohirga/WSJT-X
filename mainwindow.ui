@@ -1186,6 +1186,8 @@ p, li { white-space: pre-wrap; }
      <string>Save</string>
     </property>
     <addaction name="actionNone"/>
+    <addaction name="actionSave_synced"/>
+    <addaction name="actionSave_decoded"/>
     <addaction name="actionSave_all"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -1580,6 +1582,28 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>JT9-30</string>
+   </property>
+  </action>
+  <action name="actionSave_synced">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save synced</string>
+   </property>
+  </action>
+  <action name="actionSave_decoded">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save decoded</string>
    </property>
   </action>
  </widget>

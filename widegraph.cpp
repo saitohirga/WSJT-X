@@ -224,23 +224,10 @@ int WideGraph::Tol()
   return ui->widePlot->m_tol;
 }
 
-void WideGraph::setDF(int n)
-{
-  ui->widePlot->m_DF=n;
-  ui->widePlot->DrawOverlay();
-  ui->widePlot->update();
-}
-
 void WideGraph::setFcal(int n)
 {
   m_fCal=n;
   ui->widePlot->setFcal(n);
-}
-
-
-int WideGraph::DF()
-{
-  return ui->widePlot->m_DF;
 }
 
 void WideGraph::on_autoZeroPushButton_clicked()

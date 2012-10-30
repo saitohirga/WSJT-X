@@ -15,13 +15,15 @@ subroutine decoder(ntrSeconds,nRxLog,c0)
   integer*2 id2
   complex c0(NDMAX)
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,    &
-       ntr,nfqso,nagain,newdat,npts8,nfb,ntol,kin
+       ntr,nfqso,nagain,newdat,npts8,nfb,ntol,kin,nsynced,ndecoded
   logical first
   data first/.true./
   save
 
   ntrMinutes=ntrSeconds/60
   newdat=1
+  nsynced=0
+  ndecoded=0
 
   nsps=0
   if(ntrMinutes.eq.1) then
@@ -79,6 +81,7 @@ subroutine decoder(ntrSeconds,nRxLog,c0)
         if(ccfred(i).gt.sbest .and. fgood.eq.0.0) then
            sbest=ccfred(i)
            write(line,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width
+           if(nsync.gt.0) nsynced=1
         endif
 
         if(msg.ne.'                      ') then
@@ -86,6 +89,8 @@ subroutine decoder(ntrSeconds,nRxLog,c0)
 1010       format(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)
            write(14,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
            fgood=f
+           nsynced=1
+           ndecoded=1
         endif
      endif
   enddo

@@ -49,8 +49,10 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->actionJT9_30->setActionGroup(modeGroup);
 
   QActionGroup* saveGroup = new QActionGroup(this);
-  ui->actionSave_all->setActionGroup(saveGroup);
   ui->actionNone->setActionGroup(saveGroup);
+  ui->actionSave_synced->setActionGroup(saveGroup);
+  ui->actionSave_decoded->setActionGroup(saveGroup);
+  ui->actionSave_all->setActionGroup(saveGroup);
 
   QActionGroup* DepthGroup = new QActionGroup(this);
   ui->actionNo_Deep_Search->setActionGroup(DepthGroup);
@@ -101,6 +103,8 @@ MainWindow::MainWindow(QWidget *parent) :
   m_setftx=0;
   m_loopall=false;
   m_startAnother=false;
+  m_saveSynced=false;
+  m_saveDecoded=false;
   m_saveAll=false;
   m_sec0=-1;
   m_palette="CuteSDR";
@@ -231,6 +235,8 @@ void MainWindow::writeSettings()
   settings.setValue("PaletteBlue",ui->actionBlue->isChecked());
   settings.setValue("Mode",m_mode);
   settings.setValue("SaveNone",ui->actionNone->isChecked());
+  settings.setValue("SaveSynced",ui->actionSave_synced->isChecked());
+  settings.setValue("SaveDecoded",ui->actionSave_decoded->isChecked());
   settings.setValue("SaveAll",ui->actionSave_all->isChecked());
   settings.setValue("NDepth",m_ndepth);
   settings.setValue("KB8RQ",m_kb8rq);
@@ -277,6 +283,10 @@ void MainWindow::readSettings()
                                  "PaletteBlue",false).toBool());
   m_mode=settings.value("Mode","JT9-1").toString();
   ui->actionNone->setChecked(settings.value("SaveNone",true).toBool());
+  ui->actionSave_synced->setChecked(settings.value(
+                                        "SaveSynced",false).toBool());
+  ui->actionSave_decoded->setChecked(settings.value(
+                                         "SaveDecoded",false).toBool());
   ui->actionSave_all->setChecked(settings.value("SaveAll",false).toBool());
   m_NB=settings.value("NB",false).toBool();
   ui->NBcheckBox->setChecked(m_NB);
@@ -285,6 +295,8 @@ void MainWindow::readSettings()
   m_txFreq=settings.value("TxFreq",1500).toInt();
   ui->TxFreqSpinBox->setValue(m_txFreq);
   soundOutThread.setTxFreq(m_txFreq);
+  m_saveSynced=ui->actionSave_synced->isChecked();
+  m_saveDecoded=ui->actionSave_decoded->isChecked();
   m_saveAll=ui->actionSave_all->isChecked();
   m_ndepth=settings.value("NDepth",0).toInt();
   ui->actionF4_sets_Tx6->setChecked(m_kb8rq);
@@ -377,7 +389,9 @@ void MainWindow::dataSink(int k)
     QDateTime t = QDateTime::currentDateTimeUtc();
     m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
     decode();                                           //Start the decoder
-    if(m_saveAll and !m_diskData) {
+    if(!m_diskData and
+       (m_saveAll or (m_saveSynced and (jt9com_.nsynced==1))
+                  or (m_saveDecoded and (jt9com_.ndecoded==1)))) {
       int ihr=t.time().toString("hh").toInt();
       int imin=t.time().toString("mm").toInt();
       imin=imin - (imin%(m_TRperiod/60));
@@ -539,22 +553,6 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
   }
 }
 
-void MainWindow::bumpDF(int n)                                  //bumpDF()
-{
-  if(n==11) {
-    int n0=g_pWideGraph->DF();
-    int n=(n0 + 10000) % 5;
-    if(n==0) n=5;
-    g_pWideGraph->setDF(n0-n);
-  }
-  if(n==12) {
-    int n0=g_pWideGraph->DF();
-    int n=(n0 + 10000) % 5;
-    if(n==0) n=5;
-    g_pWideGraph->setDF(n0+n);
-  }
-}
-
 bool MainWindow::eventFilter(QObject *object, QEvent *event)  //eventFilter()
 {
   if (event->type() == QEvent::KeyPress) {
@@ -654,8 +652,6 @@ void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
     g_pWideGraph->setWindowFlags(flags);
     connect(g_pWideGraph, SIGNAL(freezeDecode2(int)),this,
             SLOT(freezeDecode(int)));
-    connect(g_pWideGraph, SIGNAL(f11f12(int)),this,
-            SLOT(bumpDF(int)));
   }
   g_pWideGraph->show();
 }
@@ -801,12 +797,34 @@ void MainWindow::on_actionAggressive_Deep_Search_triggered()  //Aggressive DS
 
 void MainWindow::on_actionNone_triggered()                    //Save None
 {
+  m_saveSynced=false;
+  m_saveDecoded=false;
   m_saveAll=false;
+  ui->actionNone->setChecked(true);
+}
+
+void MainWindow::on_actionSave_synced_triggered()
+{
+  m_saveSynced=true;
+  m_saveDecoded=false;
+  m_saveAll=false;
+  ui->actionSave_synced->setChecked(true);
+}
+
+void MainWindow::on_actionSave_decoded_triggered()
+{
+  m_saveSynced=false;
+  m_saveDecoded=true;
+  m_saveAll=false;
+  ui->actionSave_decoded->setChecked(true);
 }
 
 void MainWindow::on_actionSave_all_triggered()                //Save All
 {
+  m_saveSynced=false;
+  m_saveDecoded=false;
   m_saveAll=true;
+  ui->actionSave_all->setChecked(true);
 }
 
 void MainWindow::on_actionKeyboard_shortcuts_triggered()
