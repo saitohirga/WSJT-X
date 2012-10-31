@@ -1,4 +1,4 @@
-subroutine decoder(ntrSeconds,nRxLog,c0)
+subroutine decoder(ntrSeconds,ndepth,nRxLog,c0)
 
 ! Decoder for JT9.  Can run stand-alone, reading data from *.wav files;
 ! or as the back end of wsjt-x, with data placed in a shared memory region.
@@ -24,6 +24,9 @@ subroutine decoder(ntrSeconds,nRxLog,c0)
   newdat=1
   nsynced=0
   ndecoded=0
+  limit=1000
+  if(ndepth.ge.2) limit=20000
+  if(ndepth.ge.3) limit=100000
 
   nsps=0
   if(ntrMinutes.eq.1) then
@@ -67,9 +70,9 @@ subroutine decoder(ntrSeconds,nRxLog,c0)
   sbest=0.
   do i=ia,ib
      f=(i-1)*df3
-     if((i.eq.ipk .or. ccfred(i).ge.10.0) .and. f.gt.fgood+10.0*df8) then
+     if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. f.gt.fgood+10.0*df8) then
         call spec9(c0,npts8,nsps,f,fpk,xdt,i1SoftSymbols)
-        call decode9(i1SoftSymbols,msg)
+        call decode9(i1SoftSymbols,limit,nlim,msg)
         snr=10.0*log10(ccfred(i)) - 10.0*log10(2500.0/df3) + 2.0
         sync=ccfred(i) - 2.0
         if(sync.lt.0.0) sync=0.0

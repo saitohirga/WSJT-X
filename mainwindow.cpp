@@ -1,4 +1,4 @@
-//-------------------------------------------------------------- MainWindow
+//--------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -55,9 +55,9 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->actionSave_all->setActionGroup(saveGroup);
 
   QActionGroup* DepthGroup = new QActionGroup(this);
-  ui->actionNo_Deep_Search->setActionGroup(DepthGroup);
-  ui->actionNormal_Deep_Search->setActionGroup(DepthGroup);
-  ui->actionAggressive_Deep_Search->setActionGroup(DepthGroup);
+  ui->actionQuickDecode->setActionGroup(DepthGroup);
+  ui->actionMediumDecode->setActionGroup(DepthGroup);
+  ui->actionDeepestDecode->setActionGroup(DepthGroup);
 
   QButtonGroup* txMsgButtonGroup = new QButtonGroup;
   txMsgButtonGroup->addButton(ui->txrb1,1);
@@ -113,6 +113,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_NB=false;
   m_mode="JT9-1";
   m_TRperiod=60;
+  decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
 
@@ -192,10 +193,6 @@ MainWindow::~MainWindow()
   if (soundOutThread.isRunning()) {
     soundOutThread.quitExecution=true;
     soundOutThread.wait(3000);
-  }
-  if(!m_decoderBusy) {
-    QFile lockFile(m_appDir + "/.lock");
-    lockFile.remove();
   }
   delete ui;
 }
@@ -307,9 +304,9 @@ void MainWindow::readSettings()
     on_actionLinrad_triggered();
     ui->actionLinrad->setChecked(true);
   }
-  if(m_ndepth==0) ui->actionNo_Deep_Search->setChecked(true);
-  if(m_ndepth==1) ui->actionNormal_Deep_Search->setChecked(true);
-  if(m_ndepth==2) ui->actionAggressive_Deep_Search->setChecked(true);
+  if(m_ndepth==1) ui->actionQuickDecode->setChecked(true);
+  if(m_ndepth==2) ui->actionMediumDecode->setChecked(true);
+  if(m_ndepth==3) ui->actionDeepestDecode->setChecked(true);
 }
 
 //-------------------------------------------------------------- dataSink()
@@ -780,21 +777,6 @@ void MainWindow::on_actionNo_shorthands_if_Tx1_triggered()
   stub();
 }
 
-void MainWindow::on_actionNo_Deep_Search_triggered()          //No Deep Search
-{
-  m_ndepth=0;
-}
-
-void MainWindow::on_actionNormal_Deep_Search_triggered()      //Normal DS
-{
-  m_ndepth=1;
-}
-
-void MainWindow::on_actionAggressive_Deep_Search_triggered()  //Aggressive DS
-{
-  m_ndepth=2;
-}
-
 void MainWindow::on_actionNone_triggered()                    //Save None
 {
   m_saveSynced=false;
@@ -880,7 +862,8 @@ void MainWindow::decode()                                       //decode()
   jt9com_.ntol=m_tol;
   if(jt9com_.nutc < m_nutc0) m_RxLog |= 1;  //Date and Time to wsjtx_rx.log
   m_nutc0=jt9com_.nutc;
-  *future3 = QtConcurrent::run(decoder_, &m_TRperiod, &m_RxLog, &c0[0]);
+  *future3 = QtConcurrent::run(decoder_, &m_TRperiod, &m_ndepth,
+                               &m_RxLog, &c0[0]);
   watcher3->setFuture(*future3);
 }
 
@@ -1559,4 +1542,22 @@ void MainWindow::on_pbTxFreq_clicked()
   int ntx=g_pWideGraph->QSOfreq();
   m_txFreq=ntx;
   ui->TxFreqSpinBox->setValue(ntx);
+}
+
+void MainWindow::on_actionQuickDecode_triggered()
+{
+  m_ndepth=1;
+  ui->actionQuickDecode->setChecked(true);
+}
+
+void MainWindow::on_actionMediumDecode_triggered()
+{
+  m_ndepth=2;
+  ui->actionMediumDecode->setChecked(true);
+}
+
+void MainWindow::on_actionDeepestDecode_triggered()
+{
+  m_ndepth=3;
+  ui->actionDeepestDecode->setChecked(true);
 }
