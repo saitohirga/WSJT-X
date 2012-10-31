@@ -1600,7 +1600,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Medium</string>
+    <string>Normal</string>
    </property>
   </action>
   <action name="actionDeepestDecode">
