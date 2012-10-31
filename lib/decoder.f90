@@ -76,7 +76,6 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c0)
         snr=10.0*log10(ccfred(i)) - 10.0*log10(2500.0/df3) + 2.0
         sync=ccfred(i) - 2.0
         if(sync.lt.0.0) sync=0.0
-        print*,f,ccfred(i),sync,snr,msg
         nsync=sync
         if(nsync.gt.10) nsync=10
         nsnr=nint(snr)
