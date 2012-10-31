@@ -3,7 +3,22 @@ subroutine pctile(x,npts,npct,xmedian)
   real x(npts)
   integer hist(0:1000)
 
+  if(npts.le.0) then
+     xmedian=1.0
+     go to 900
+  endif
+
   ave=sum(x)/npts
+  s=0.
+  ns=0
+  do i=1,npts
+     if(x(i).lt.3.0*ave) then
+        s=s+x(i)
+        ns=ns+1
+     endif
+  enddo
+  ave=s/ns
+
   hist=0
   do i=1,npts
      j=nint(100.0*x(i)/ave)
@@ -20,6 +35,8 @@ subroutine pctile(x,npts,npct,xmedian)
   enddo
 
   xmedian=j*ave/100.0
+  if(j.lt.10) xmedian=1.0
 
+900 continue
   return
 end subroutine pctile
