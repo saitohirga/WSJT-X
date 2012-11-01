@@ -1,4 +1,4 @@
-subroutine decoder(ntrSeconds,ndepth,nRxLog,c0)
+subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
 
 ! Decoder for JT9.  Can run stand-alone, reading data from *.wav files;
 ! or as the back end of wsjt-x, with data placed in a shared memory region.
@@ -13,12 +13,20 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c0)
   real*4 ccfred(NSMAX)
   integer*1 i1SoftSymbols(207)
   integer*2 id2
-  complex c0(NDMAX)
-  common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,    &
-       ntr,nfqso,nagain,newdat,npts8,nfb,ntol,kin,nsynced,ndecoded
+  complex c0(NDMAX),c00(NDMAX)
+  common/jt9com/ss0(184,NSMAX),savg(NSMAX),id2(NMAX),nutc0,ndiskdat,    &
+       ntr,nfqso,nagain,newdat,npts80,nfb,ntol,kin,nsynced,ndecoded
+  common/jt9comB/ss(184,NSMAX),c0
   logical first
   data first/.true./
   save
+
+  if(newdat.ne.0) then
+     ss=ss0
+     c0=c00
+     nutc=nutc0
+     npts8=npts80
+  endif
 
   ntrMinutes=ntrSeconds/60
   newdat=1

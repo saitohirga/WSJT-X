@@ -382,6 +382,11 @@ void CPlotter::setTol(int n)                                 //setTol()
   DrawOverlay();
 }
 
+int CPlotter::Tol()                                         //Tol()
+{
+  return m_tol;
+}
+
 void CPlotter::setBinsPerPixel(int n)                       // set nbpp
 {
   m_binsPerPixel = n;

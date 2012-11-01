@@ -113,6 +113,8 @@ MainWindow::MainWindow(QWidget *parent) :
   m_NB=false;
   m_mode="JT9-1";
   m_TRperiod=60;
+  m_inGain=0;
+  m_dataAvailable=false;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -159,8 +161,11 @@ MainWindow::MainWindow(QWidget *parent) :
   m_monitoring=true;                           // Start with Monitoring ON
   soundInThread.setMonitoring(m_monitoring);
   m_diskData=false;
-  m_tol=50;
   g_pWideGraph->setTol(m_tol);
+  static int ntol[] = {1,2,5,10,20,50,100,200,500,1000};
+  for (int i=0; i<10; i++) {
+    if(ntol[i]==m_tol) ui->tolSpinBox->setValue(i);
+  }
 
 // Create "m_worked", a dictionary of all calls in wsjt.log
   QFile f("wsjt.log");
@@ -240,6 +245,8 @@ void MainWindow::writeSettings()
   settings.setValue("NB",m_NB);
   settings.setValue("NBslider",m_NBslider);
   settings.setValue("TxFreq",m_txFreq);
+  settings.setValue("Tol",m_tol);
+  settings.setValue("InGain",m_inGain);
   settings.endGroup();
 }
 
@@ -296,6 +303,9 @@ void MainWindow::readSettings()
   m_saveDecoded=ui->actionSave_decoded->isChecked();
   m_saveAll=ui->actionSave_all->isChecked();
   m_ndepth=settings.value("NDepth",0).toInt();
+  m_tol=settings.value("Tol",5).toInt();
+  m_inGain=settings.value("InGain",0).toInt();
+  ui->inGain->setValue(m_inGain);
   ui->actionF4_sets_Tx6->setChecked(m_kb8rq);
   settings.endGroup();
 
@@ -340,7 +350,7 @@ void MainWindow::dataSink(int k)
   nb=0;
   if(m_NB) nb=1;
   trmin=m_TRperiod/60;
-  symspec_(&k, &trmin, &m_nsps, &nb, &m_NBslider, &px, s, red,
+  symspec_(&k, &trmin, &m_nsps, &m_inGain, &nb, &m_NBslider, &px, s, red,
            &df3, &ihsym, &nzap, &slimit, lstrong, c0, &npts8);
   if(ihsym <=0) return;
   QString t;
@@ -380,6 +390,7 @@ void MainWindow::dataSink(int k)
   }
   // This is a bit strange.  Why do we need the "-3" ???
   if(ihsym == m_hsymStop-3) {
+    m_dataAvailable=true;
     jt9com_.npts8=(ihsym*m_nsps)/16;
     jt9com_.newdat=1;
     jt9com_.nagain=0;
@@ -731,6 +742,7 @@ void MainWindow::diskWriteFinished()                       //diskWriteFinished
 
 void MainWindow::decoderFinished()                       //decoderFinished
 {
+  jt9com_.newdat=0;
   QFile f("decoded.txt");
   f.open(QIODevice::ReadOnly);
   QTextStream in(&f);
@@ -834,15 +846,26 @@ void MainWindow::on_DecodeButton_clicked()                    //Decode request
 
 void MainWindow::freezeDecode(int n)                          //freezeDecode()
 {
+  static int ntol[] = {1,2,5,10,20,50,100,200,500,1000};
   if(!m_decoderBusy) {
     jt9com_.newdat=0;
     jt9com_.nagain=1;
+    int i;
+    if(m_mode=="JT9-1") i=4;
+    if(m_mode=="JT9-2") i=4;
+    if(m_mode=="JT9-5") i=3;
+    if(m_mode=="JT9-10") i=2;
+    if(m_mode=="JT9-30") i=1;
+    m_tol=ntol[i];
+    g_pWideGraph->setTol(m_tol);
+    ui->tolSpinBox->setValue(i);
     decode();
   }
 }
 
 void MainWindow::decode()                                       //decode()
 {
+  if(!m_dataAvailable) return;
   decodeBusy(true);
   ui->DecodeButton->setStyleSheet(m_pbdecoding_style1);
 
@@ -855,8 +878,6 @@ void MainWindow::decode()                                       //decode()
     jt9com_.nutc=100*ihr + imin;
   }
 
-//  jt9com_.newdat=1;
-//  jt9com_.nagain=0;
   jt9com_.nfqso=g_pWideGraph->QSOfreq();
   m_tol=g_pWideGraph->Tol();
   jt9com_.ntol=m_tol;
@@ -1560,4 +1581,9 @@ void MainWindow::on_actionDeepestDecode_triggered()
 {
   m_ndepth=3;
   ui->actionDeepestDecode->setChecked(true);
+}
+
+void MainWindow::on_inGain_valueChanged(int n)
+{
+  m_inGain=n;
 }

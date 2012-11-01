@@ -105,16 +105,12 @@ private slots:
   void on_NBslider_valueChanged(int value);
   void on_TxFreqSpinBox_valueChanged(int arg1);
   void on_pbTxFreq_clicked();
-
   void on_actionSave_synced_triggered();
-
   void on_actionSave_decoded_triggered();
-
   void on_actionQuickDecode_triggered();
-
   void on_actionMediumDecode_triggered();
-
   void on_actionDeepestDecode_triggered();
+  void on_inGain_valueChanged(int n);
 
 private:
     Ui::MainWindow *ui;
@@ -142,6 +138,7 @@ private:
     qint32  m_nsps;
     qint32  m_hsymStop;
     qint32  m_len1;
+    qint32  m_inGain;
 
     bool    m_monitoring;
     bool    m_transmitting;
@@ -161,6 +158,7 @@ private:
     bool    m_kb8rq;
     bool    m_NB;
     bool    m_call3Modified;
+    bool    m_dataAvailable;
 
     char    m_decoded[80];
 
@@ -228,10 +226,10 @@ extern int ptt(int nport, int itx, int* iptt);
 
 extern "C" {
 //----------------------------------------------------- C and Fortran routines
-void symspec_(int* k, int* ntrperiod, int* nsps, int* nb, int* m_NBslider,
-              float* px, float s[], float red[], float* df3, int* nhsym,
-              int* nzap, float* slimit, uchar lstrong[], float c0[],
-              int* npts8);
+void symspec_(int* k, int* ntrperiod, int* nsps, int* ingain, int* nb,
+              int* m_NBslider, float* px, float s[], float red[],
+              float* df3, int* nhsym, int* nzap, float* slimit,
+              uchar lstrong[], float c0[], int* npts8);
 
 void genjt9_(char* msg, char* msgsent, int itone[], int len1, int len2);
 

@@ -29,6 +29,7 @@ typedef struct
 {
   int kin;          //Parameters sent to/from the portaudio callback function
   bool bzero;
+  bool monitoring;
 } paUserData;
 
 //--------------------------------------------------------------- a2dCallback
@@ -61,7 +62,9 @@ extern "C" int a2dCallback( const void *inputBuffer, void *outputBuffer,
 
   nbytes=2*framesToProcess;        //Bytes per frame
   k=udata->kin;
-  memcpy(&jt9com_.d2[k],inputBuffer,nbytes);          //Copy all samples to d2
+  if(udata->monitoring) {
+    memcpy(&jt9com_.d2[k],inputBuffer,nbytes);      //Copy all samples to d2
+  }
   udata->kin += framesToProcess;
   jt9com_.kin=udata->kin;
 
@@ -80,6 +83,7 @@ void SoundInThread::run()                           //SoundInThread::run()
 
   udata.kin=0;                              //Buffer pointer
   udata.bzero=false;                        //Flag to request reset of kin
+  udata.monitoring=m_monitoring;
 
   inParam.device=m_nDevIn;                  //### Input Device Number ###
   inParam.channelCount=1;                   //Number of analog channels
@@ -99,7 +103,7 @@ void SoundInThread::run()                           //SoundInThread::run()
         FRAMES_PER_BUFFER,                  //Frames per buffer
 //        paClipOff+paDitherOff,            //No clipping or dithering
         paClipOff,                          //No clipping
-        a2dCallback,                        //Input callbeck routine
+        a2dCallback,                        //Input callback routine
         &udata);                            //userdata
 
   paerr=Pa_StartStream(inStream);
@@ -121,6 +125,7 @@ void SoundInThread::run()                           //SoundInThread::run()
   while (!qe) {
     qe = quitExecution;
     if (qe) break;
+    udata.monitoring=m_monitoring;
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     nsec = ms/1000;             // Time according to this computer
     ntr = nsec % m_TRperiod;

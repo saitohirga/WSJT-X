@@ -140,15 +140,15 @@ program jt9sim
         enddo
         call unpackbits(i4DataSymNoGray,69,3,i1ScrambledBits)
         call interleave9(i1ScrambledBits,-1,i1Bits)
-
+ 
         do i=1,206
            i4=-10
            if(i1Bits(i).eq.1) i4=10
            i4=i4+128
            i1SoftSymbols(i)=i1
         enddo
-
-        call decode9(i1SoftSymbols,msg)
+        limit=1000
+        call decode9(i1SoftSymbols,limit,nlim,msg)
         if(msg.ne.msg0) print*,'Decode error: ',msg0,' ',msg
      endif
   enddo
