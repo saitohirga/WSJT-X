@@ -40,7 +40,7 @@
      <rect>
       <x>11</x>
       <y>2</y>
-      <width>565</width>
+      <width>571</width>
       <height>423</height>
      </rect>
     </property>
@@ -284,6 +284,25 @@ p, li { white-space: pre-wrap; }
          </property>
          <property name="value" stdset="0">
           <double>0.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="inGain">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>190</height>
+          </size>
+         </property>
+         <property name="minimum">
+          <number>-50</number>
+         </property>
+         <property name="maximum">
+          <number>50</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
         </widget>
        </item>

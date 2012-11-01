@@ -214,14 +214,14 @@ void WideGraph::wideFreezeDecode(int n)
 
 void WideGraph::setTol(int n)
 {
-  ui->widePlot->m_tol=n;
+  ui->widePlot->setTol(n);
   ui->widePlot->DrawOverlay();
   ui->widePlot->update();
 }
 
 int WideGraph::Tol()
 {
-  return ui->widePlot->m_tol;
+  return ui->widePlot->Tol();
 }
 
 void WideGraph::setFcal(int n)

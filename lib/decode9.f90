@@ -83,6 +83,7 @@ subroutine decode9(i1SoftSymbols,limit,nlim,msg)
      call packbits(i1DecodedBits,12,6,i4Decoded6BitWords)
      call unpackmsg(i4Decoded6BitWords,msg)                !Unpack decoded msg
      if(index(msg,'000AAA ').gt.0) msg='                      '
+     if(index(msg,'15P6715P67WCV').gt.0) msg='                      '
   endif
 
   return

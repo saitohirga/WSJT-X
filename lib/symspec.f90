@@ -1,4 +1,4 @@
-subroutine symspec(k,ntrperiod,nsps,nb,nbslider,pxdb,s,red,    &
+subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
      df3,ihsym,nzap,slimit,lstrong,c0,npts8)
 
 ! Input:
@@ -82,10 +82,11 @@ subroutine symspec(k,ntrperiod,nsps,nb,nbslider,pxdb,s,red,    &
   if(nwindow.ne.0) kstep1=NFFT1/2
   fac=2.0/NFFT1
   nblks=(k-k1)/kstep1
+  gain=10.0**(0.05*ingain)
   do nblk=1,nblks
      j=k1+1
      do i=1,NFFT1
-        x0(i)=id2(k1+i)
+        x0(i)=gain*id2(k1+i)
      enddo
      call timf2(x0,k,NFFT1,nwindow,nb,peaklimit,x1,   &
           slimit,lstrong,px,nzap)
