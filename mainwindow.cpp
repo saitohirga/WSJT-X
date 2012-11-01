@@ -158,7 +158,7 @@ MainWindow::MainWindow(QWidget *parent) :
   soundInThread.start(QThread::HighestPriority);
   soundOutThread.setOutputDevice(m_paOutDevice);
   soundOutThread.setTxFreq(m_txFreq);
-  m_monitoring=true;                           // Start with Monitoring ON
+  m_monitoring=false;                           // Start with Monitoring OFF
   soundInThread.setMonitoring(m_monitoring);
   m_diskData=false;
   g_pWideGraph->setTol(m_tol);

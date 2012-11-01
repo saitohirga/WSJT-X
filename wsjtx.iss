@@ -1,6 +1,6 @@
 [Setup]
 AppName=wsjtx
-AppVerName=wsjtx Version 0.2 r2712
+AppVerName=wsjtx Version 0.2 r2713
 AppCopyright=Copyright (C) 2001-2012 by Joe Taylor, K1JT
 DefaultDirName=c:\wsjtx
 DefaultGroupName=wsjtx
