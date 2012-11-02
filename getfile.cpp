@@ -31,19 +31,19 @@ void getfile(QString fname, int ntrperiod)
 void savewav(QString fname, int ntrperiod)
 {
   struct {
-    char ariff[4];
-    int nchunk;
-    char awave[4];
-    char afmt[4];
-    int lenfmt;
-    short int nfmt2;
-    short int nchan2;
-    int nsamrate;
-    int nbytesec;
-    short int nbytesam2;
-    short int nbitsam2;
-    char adata[4];
-    int ndata;
+    char ariff[4];         //ChunkID:    "RIFF"
+    int nchunk;            //ChunkSize: 36+SubChunk2Size
+    char awave[4];         //Format: "WAVE"
+    char afmt[4];          //Subchunk1ID: "fmt "
+    int lenfmt;            //Subchunk1Size: 16
+    short int nfmt2;       //AudioFormat: 1
+    short int nchan2;      //NumChannels: 1
+    int nsamrate;          //SampleRate: 12000
+    int nbytesec;          //ByteRate: SampleRate*NumChannels*BitsPerSample/8
+    short int nbytesam2;   //BlockAlign: NumChannels*BitsPerSample/8
+    short int nbitsam2;    //BitsPerSample: 16
+    char adata[4];         //Subchunk2ID: "data"
+    int ndata;             //Subchunk2Size: numSamples*NumChannels*BitsPerSample/8
   } hdr;
 
   int npts=ntrperiod*12000;
@@ -58,11 +58,11 @@ void savewav(QString fname, int ntrperiod)
     hdr.ariff[1]='I';
     hdr.ariff[2]='F';
     hdr.ariff[3]='F';
-    hdr.nchunk=0;
+    hdr.nchunk=36 + 2*npts;
     hdr.awave[0]='W';
-    hdr.awave[0]='A';
-    hdr.awave[0]='V';
-    hdr.awave[0]='E';
+    hdr.awave[1]='A';
+    hdr.awave[2]='V';
+    hdr.awave[3]='E';
     hdr.afmt[0]='f';
     hdr.afmt[1]='m';
     hdr.afmt[2]='t';
