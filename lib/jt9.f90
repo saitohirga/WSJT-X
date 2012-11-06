@@ -11,7 +11,7 @@ program jt9
   parameter (NSMAX=22000)            !Max length of saved spectra
   integer*4 ihdr(11)
   real*4 s(NSMAX)
-  real*4 red(NSMAX)
+  real*4 ccfred(NSMAX)
   logical*1 lstrong(0:1023)
   integer*1 i1SoftSymbols(207)
   character*22 msg
@@ -37,11 +37,13 @@ program jt9
 
   nfa=1000
   nfb=2000
-  ntol=500
+!  ntol=500
+  ntol=20
   nfqso=1500
   newdat=1
   nb=0
   nbslider=100
+  limit=20000
 
   do ifile=ifile1,nargs
      call getarg(ifile,infile)
@@ -75,8 +77,9 @@ program jt9
         nhsym=(k-2048)/kstep
         if(nhsym.ge.1 .and. nhsym.ne.nhsym0) then
 ! Emit signal readyForFFT
-           call symspec(k,ntrperiod,nsps,nb,nbslider,pxdb,   &
-                s,red,df3,ihsym,nzap,slimit,lstrong,c0,npts8)
+           ingain=0
+           call symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,   &
+                s,ccfred,df3,ihsym,nzap,slimit,lstrong,c0,npts8)
            nhsym0=nhsym
            if(ihsym.ge.184) go to 10
         endif
@@ -84,24 +87,53 @@ program jt9
 
 10   close(10)
      iz=1000.0/df3
-!     print*,'A',ihsym,nhsym,tstep,df3,ntol,nfqso
 
 ! Now do the decoding
      nutc=nutc0
 
 ! Get sync, approx freq
-     call sync9(ss,tstep,df3,ntol,nfqso,sync,snr,fpk0,red)
-!     print*,'B',sync,fpk,npts8,nsps
-     call spec9(c0,npts8,nsps,fpk0,fpk,xdt,i1SoftSymbols)
-     call decode9(i1SoftSymbols,msg)
-     nsync=sync
-     nsnr=nint(snr)
-     width=0.0
-     write(*,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
-1010 format(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)
+     call sync9(ss,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk)
 
-!     write(*,1010) nutc,sync,xdt,1000.0+fpk,msg
-!1010 format(i4.4,3f7.1,2x,a22)
+     fgood=0.
+     df8=1500.0/(nsps/8)
+     sbest=0.
+     do i=ia,ib
+        f=(i-1)*df3
+        if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. f.gt.fgood+10.0*df8) then
+           call spec9(c0,npts8,nsps,f,fpk,xdt,i1SoftSymbols)
+           call decode9(i1SoftSymbols,limit,nlim,msg)
+           print*,msg
+           snr=10.0*log10(ccfred(i)) - 10.0*log10(2500.0/df3) + 2.0
+           sync=ccfred(i) - 2.0
+           if(sync.lt.0.0) sync=0.0
+           nsync=sync
+           if(nsync.gt.10) nsync=10
+           nsnr=nint(snr)
+           width=0.0
+
+           if(ccfred(i).gt.sbest .and. fgood.eq.0.0) then
+              sbest=ccfred(i)
+              write(line,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width
+              if(nsync.gt.0) nsynced=1
+           endif
+
+           if(msg.ne.'                      ') then
+              write(13,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
+1010          format(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)
+              write(14,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
+              fgood=f
+              nsynced=1
+              ndecoded=1
+           endif
+        endif
+     enddo
+
+     if(fgood.eq.0.0) then
+        write(13,1020) line
+        write(14,1020) line
+1020    format(a33)
+     endif
+
   enddo
 
   go to 999
