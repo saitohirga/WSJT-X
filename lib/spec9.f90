@@ -1,4 +1,4 @@
-subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,i1SoftSymbols)
+subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
 
   parameter (MAXFFT=31500)
   complex c0(0:npts8-1)
@@ -71,16 +71,23 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,i1SoftSymbols)
   enddo
 
   sum=0.
+  sig=0.
   do j=1,69
      smax=0.
      do i=0,7
         smax=max(smax,ssym(i,j))
         sum=sum+ssym(i,j)
      enddo
+     sig=sig+smax
      sum=sum-smax
   enddo
   ave=sum/(69*7)
   ssym=ssym/ave
+  sig=sig/69.
+  snr=sig/ave
+  df8=1500.0/nsps8
+  snrdb=db(snr) - db(2500.0/df8)
+!  print*,ave,sig,snr,df8,snrdb
      
   m0=3
   ntones=8

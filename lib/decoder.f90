@@ -79,7 +79,7 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   do i=ia,ib
      f=(i-1)*df3
      if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. f.gt.fgood+10.0*df8) then
-        call spec9(c0,npts8,nsps,f,fpk,xdt,i1SoftSymbols)
+        call spec9(c0,npts8,nsps,f,fpk,xdt,snrdb,i1SoftSymbols)
         call decode9(i1SoftSymbols,limit,nlim,msg)
         snr=10.0*log10(ccfred(i)) - 10.0*log10(2500.0/df3) + 2.0
         sync=ccfred(i) - 2.0
