@@ -101,10 +101,11 @@ program jt9
      do i=ia,ib
         f=(i-1)*df3
         if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. f.gt.fgood+10.0*df8) then
-           call spec9(c0,npts8,nsps,f,fpk,xdt,i1SoftSymbols)
+           call spec9(c0,npts8,nsps,f,fpk,xdt,snrdb,i1SoftSymbols)
            call decode9(i1SoftSymbols,limit,nlim,msg)
-           print*,msg
-           snr=10.0*log10(ccfred(i)) - 10.0*log10(2500.0/df3) + 2.0
+!           print*,msg
+!           snr=10.0*log10(ccfred(i)) - 10.0*log10(2500.0/df3) + 2.0
+           snr=snrdb
            sync=ccfred(i) - 2.0
            if(sync.lt.0.0) sync=0.0
            nsync=sync
@@ -119,9 +120,8 @@ program jt9
            endif
 
            if(msg.ne.'                      ') then
-              write(13,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
+              write(*,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
 1010          format(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)
-              write(14,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
               fgood=f
               nsynced=1
               ndecoded=1
@@ -130,8 +130,7 @@ program jt9
      enddo
 
      if(fgood.eq.0.0) then
-        write(13,1020) line
-        write(14,1020) line
+        write(*,1020) line
 1020    format(a33)
      endif
 
