@@ -7,7 +7,9 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,i1SoftSymbols)
   complex c(0:MAXFFT-1)
   integer*1 i1SoftSymbolsScrambled(207)
   integer*1 i1SoftSymbols(207)
+  integer*1 i1
   integer ig(0:7)
+  equivalence (i1,i4)
   data ig/0,1,3,2,7,6,4,5/             !Gray code removal
   include 'jt9sync.f90'
   save
@@ -39,9 +41,6 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,i1SoftSymbols)
   call peakdt9(c1,npts8,nsps8,istart,foffset,idt)
   istart=istart + 0.0625*nsps8*idt
   xdt=istart/1500.0 - 1.0
-!  write(*,3002)  0.0625*nsps8*idt/1500.0,idf*0.1*1500.0/nsps8
-!3002 format(2f8.2)
-
 
   fshift=foffset
   twopi=8.0*atan(1.0)
@@ -71,6 +70,18 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,i1SoftSymbols)
      enddo
   enddo
 
+  sum=0.
+  do j=1,69
+     smax=0.
+     do i=0,7
+        smax=max(smax,ssym(i,j))
+        sum=sum+ssym(i,j)
+     enddo
+     sum=sum-smax
+  enddo
+  ave=sum/(69*7)
+  ssym=ssym/ave
+     
   m0=3
   ntones=8
   k=0
@@ -87,11 +98,17 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,i1SoftSymbols)
            endif
         enddo
         k=k+1
-        i1SoftSymbolsScrambled(k)=min(127,max(-127,nint(10.0*(r1-r2)))) + 128
+        i4=nint(10.0*(r1-r2))
+        if(i4.lt.-127) i4=-127
+        if(i4.gt.127) i4=127
+        i4=i4+128
+        i1SoftSymbolsScrambled(k)=i1
      enddo
   enddo
 
   call interleave9(i1SoftSymbolsScrambled,-1,i1SoftSymbols)
+  call flush(81)
+  call flush(82)
 
   return
 end subroutine spec9
