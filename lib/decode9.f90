@@ -56,7 +56,7 @@ subroutine decode9(i1SoftSymbols,limit,nlim,msg)
   if(first) then
 ! Get the metric table
 !     bias=0.37                         !To be optimized, in decoder program
-     bias=0.0                           !Seems better, in jt9.exe ???
+     bias=0.5
      scale=10                           !  ... ditto ...
      do i=0,255
         mettab(i,0)=nint(scale*(xx0(i)-bias))
