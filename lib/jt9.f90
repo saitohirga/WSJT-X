@@ -15,6 +15,7 @@ program jt9
   logical*1 lstrong(0:1023)
   integer*1 i1SoftSymbols(207)
   character*22 msg
+  character*33 line
   integer*2 id2
   complex c0(NDMAX)
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,    &
