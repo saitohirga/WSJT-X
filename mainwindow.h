@@ -1,16 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 #include <QtGui>
-#include <QLabel>
 #include <QTimer>
 #include <QDateTime>
-#include <QHash>
 #include "soundin.h"
 #include "soundout.h"
 #include "commons.h"
-#include "sleep.h"
-
-#define NFFT 32768
 
 //--------------------------------------------------------------- MainWindow
 namespace Ui {
@@ -24,7 +19,6 @@ class MainWindow : public QMainWindow
 public:
   explicit MainWindow(QWidget *parent = 0);
   ~MainWindow();
-  bool m_network;
 
 public slots:
   void showSoundInError(const QString& errorMsg);
@@ -149,7 +143,6 @@ private:
     bool    m_auto;
     bool    m_txMute;
     bool    m_restart;
-    bool    m_killAll;
     bool    m_startAnother;
     bool    m_saveSynced;
     bool    m_saveDecoded;
@@ -159,31 +152,22 @@ private:
     bool    m_NB;
     bool    m_call3Modified;
     bool    m_dataAvailable;
-
     char    m_decoded[80];
-
     float   m_pctZap;
-
     QRect   m_wideGraphGeom;
-
     QLabel* lab1;                            // labels in status bar
     QLabel* lab2;
     QLabel* lab3;
     QLabel* lab4;
     QLabel* lab5;
     QLabel* lab6;
-
     QMessageBox msgBox0;
-
     QFuture<void>* future1;
     QFuture<void>* future2;
     QFuture<void>* future3;
     QFutureWatcher<void>* watcher1;
     QFutureWatcher<void>* watcher2;
     QFutureWatcher<void>* watcher3;
-
-    QProcess proc_m65;
-
     QString m_path;
     QString m_pbdecoding_style1;
     QString m_pbmonitor_style;

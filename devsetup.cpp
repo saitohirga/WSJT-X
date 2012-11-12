@@ -8,7 +8,7 @@
 //----------------------------------------------------------- DevSetup()
 DevSetup::DevSetup(QWidget *parent) :	QDialog(parent)
 {
-  ui.setupUi(this);	//setup the dialog form
+  ui.setupUi(this);	                              //setup the dialog form
   m_restartSoundIn=false;
   m_restartSoundOut=false;
 }
@@ -30,26 +30,11 @@ void DevSetup::initDlg()
   char pa_device_name[128];
   char pa_device_hostapi[128];
 
-/*
-  getDev(&numDevices,hostAPI_DeviceName,minChan,maxChan,minSpeed,maxSpeed);
-  k=0;
-  for(id=0; id<numDevices; id++)  {
-    if(48000 >= minSpeed[id] && 48000 <= maxSpeed[id]) {
-      m_inDevList[k]=id;
-      k++;
-      sprintf(s,"%2d   %d  %-49s",id,maxChan[id],hostAPI_DeviceName[id]);
-      QString t(s);
-      ui.comboBoxSndIn->addItem(t);
-      valid_devices++;
-    }
-  }
-*/
-
   k=0;
   for(id=0; id<numDevices; id++ )  {
     pdi=Pa_GetDeviceInfo(id);
     nchin=pdi->maxInputChannels;
-    if(nchin>=2) {
+    if(nchin>0) {
       m_inDevList[k]=id;
       k++;
       sprintf((char*)(pa_device_name),"%s",pdi->name);
@@ -68,7 +53,7 @@ void DevSetup::initDlg()
       p=strstr(pa_device_hostapi,"WDM-KS");
       if(p!=NULL) p1=(char*)"WDM-KS";
 
-      sprintf(p2,"%2d   %-8s  %-39s",id,p1,pa_device_name);
+      sprintf(p2,"%2d   %d   %-8s  %-39s",id,nchin,p1,pa_device_name);
       QString t(p2);
       ui.comboBoxSndIn->addItem(t);
     }
@@ -78,7 +63,7 @@ void DevSetup::initDlg()
   for(id=0; id<numDevices; id++ )  {
     pdi=Pa_GetDeviceInfo(id);
     nchout=pdi->maxOutputChannels;
-    if(nchout>=2) {
+    if(nchout>0) {
       m_outDevList[k]=id;
       k++;
       sprintf((char*)(pa_device_name),"%s",pdi->name);
@@ -97,7 +82,7 @@ void DevSetup::initDlg()
       p=strstr(pa_device_hostapi,"WDM-KS");
       if(p!=NULL) p1=(char*)"WDM-KS";
 
-      sprintf(p2,"%2d   %-8s  %-39s",id,p1,pa_device_name);
+      sprintf(p2,"%2d   %d   %-8s  %-39s",id,nchout,p1,pa_device_name);
       QString t(p2);
       ui.comboBoxSndOut->addItem(t);
     }

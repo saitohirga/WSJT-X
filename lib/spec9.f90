@@ -84,10 +84,9 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
   ave=sum/(69*7)
   ssym=ssym/ave
   sig=sig/69.
-  snr=sig/ave
   df8=1500.0/nsps8
-  snrdb=db(snr) - db(2500.0/df8)
-!  print*,ave,sig,snr,df8,snrdb
+  t=max(1.0,sig/ave - 1.0)
+  snrdb=db(t) - db(2500.0/df8)
      
   m0=3
   ntones=8

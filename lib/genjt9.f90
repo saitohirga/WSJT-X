@@ -23,6 +23,7 @@ subroutine genjt9(message,msgsent,i4tone)
 
   call packmsg(message,i4Msg6BitWords)    !Pack message into 12 6-bit bytes
   call unpackmsg(i4Msg6BitWords,msgsent)  !Unpack to get msgsent
+  if(i4tone(1).eq.-99) go to 999
   call entail(i4Msg6BitWords,i1Msg8BitBytes)  !Add tail, convert to 8-bit bytes
   nsym2=206
   call encode232(i1Msg8BitBytes,nsym2,i1EncodedBits)   !Encode K=32, r=1/2
@@ -41,5 +42,5 @@ subroutine genjt9(message,msgsent,i4tone)
      endif
   enddo
 
-  return
+999 return
 end subroutine genjt9

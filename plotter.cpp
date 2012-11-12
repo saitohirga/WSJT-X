@@ -73,8 +73,6 @@ void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
 
 void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
 {
-  static int x00=-99;
-
   if(m_paintEventBusy) return;
   m_paintEventBusy=true;
   QPainter painter(this);
