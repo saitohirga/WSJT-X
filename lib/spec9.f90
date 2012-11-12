@@ -3,7 +3,8 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
   parameter (MAXFFT=31500)
   complex c0(0:npts8-1)
   complex c1(0:2700000)
-  real ssym(0:7,69)
+  real*4 ssym(0:7,69)
+  real*4 sx(0:31500-1)
   complex c(0:MAXFFT-1)
   integer*1 i1SoftSymbolsScrambled(207)
   integer*1 i1SoftSymbols(207)
@@ -65,8 +66,8 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
 
      call four2a(c,nfft,1,-1,1)
      do i=0,nfft-1
-        sx=real(c(i))**2 + aimag(c(i))**2
-        if(i.ge.1 .and. i.le.8) ssym(ig(i-1),k)=sx
+        sx(i)=real(c(i))**2 + aimag(c(i))**2
+        if(i.ge.1 .and. i.le.8) ssym(ig(i-1),k)=sx(i)
      enddo
   enddo
 
@@ -82,11 +83,12 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
      sum=sum-smax
   enddo
   ave=sum/(69*7)
+  call pctile(sx,nsps8,50,xmed)
   ssym=ssym/ave
   sig=sig/69.
   df8=1500.0/nsps8
-  t=max(1.0,sig/ave - 1.0)
-  snrdb=db(t) - db(2500.0/df8)
+  t=max(1.0,sig/xmed - 1.0)
+  snrdb=db(t) - db(2500.0/df8) - 5.0
      
   m0=3
   ntones=8
