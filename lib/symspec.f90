@@ -58,7 +58,8 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   endif
 
   if(k.lt.k0) then
-     ja=-3*jstep
+!     ja=-3*jstep
+     ja=0
      ssum=0.
      ihsym=0
      k1=0
@@ -84,7 +85,6 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   nblks=(k-k1)/kstep1
   gain=10.0**(0.05*ingain)
   do nblk=1,nblks
-     j=k1+1
      do i=1,NFFT1
         x0(i)=gain*id2(k1+i)
      enddo
@@ -102,20 +102,18 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   npts8=k8
   ja=ja+jstep                         !Index of first sample
   nsum=nblks*kstep1 - nzap
-!###
-!  if(nzap/178.lt.50 .and. (ndiskdat.eq.0 .or. ihsym.lt.280)) then
+
   if(nsum.le.0) nsum=1
   rms=sqrt(px/nsum)
-!  endif
   pxdb=0.
   if(rms.gt.0.0) pxdb=20.0*log10(rms)
   if(pxdb.gt.60.0) pxdb=60.0
-!###
-!  if(ja.lt.0 .or. npts8.lt.ja+nfft3) go to 999
 
   if(ja.gt.0) then
      do i=0,nfft3-1                      !Copy data into cx
-        cx(i)=c0(ja+i+1)
+        cx(i)=0.
+        j=ja+i-(nfft3-1)
+        if(j.ge.1) cx(i)=c0(j)
      enddo
 
      if(ihsym.lt.184) ihsym=ihsym+1
@@ -150,10 +148,6 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
 !  fac1=1.0/max(ave1,0.006*ihsym)
   savg(1:iz)=fac1*ssum(1:iz)
   call redsync(ss,ntrperiod,ihsym,iz,red)
-
-!  write(77,3001) ihsym,ave0,xmed0,ave1,xmed1
-!3001 format(i5,4f15.3)
-!  call flush(77)
 
   return
 end subroutine symspec
