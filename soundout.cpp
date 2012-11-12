@@ -57,7 +57,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   freq=udata->ntxfreq + itone[isym]*baud;
   dphi=twopi*freq/48000.0;
   if(udata->txsnrdb < 0.0) {
-    snr=pow(10.0,0.05*(udata->txsnrdb-1.0));
+    snr=pow(10.0,0.05*(udata->txsnrdb-6.0));
     fac=3000.0;
     if(snr>1.0) fac=3000.0/snr;
   }
@@ -66,7 +66,6 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     phi += dphi;
     if(phi>twopi) phi -= twopi;
     i2=32767.0*sin(phi);
-//      i2 = 500.0*(i2/32767.0 + 5.0*gran());      //Add noise (tests only!)
     if(udata->txsnrdb < 0.0) {
       int i4=fac*(gran() + i2*snr/32768.0);
       if(i4>32767) i4=32767;
