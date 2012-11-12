@@ -14,7 +14,6 @@ extern struct {
   int ndiskdat;                     //1 ==> data read from *.wav file
   int ntrperiod;                    //TR period (seconds)
   int mousefqso;                    //User-selected QSO freq (kHz)
-  int nagain;                       //1 ==> decode only at fQSO +/- Tol
   int newdat;                       //1 ==> new data, must do long FFT
   int npts8;                        //npts in c0() array
   int nfb;                          //High decode limit (kHz)

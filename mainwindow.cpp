@@ -86,13 +86,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
   m_auto=false;
   m_waterfallAvg = 1;
-  m_network = true;
   m_txFirst=false;
   m_txMute=false;
   btxok=false;
   m_restart=false;
   m_transmitting=false;
-  m_killAll=false;
   m_widebandDecode=false;
   m_ntx=1;
   m_myCall="K1JT";
@@ -322,7 +320,7 @@ void MainWindow::readSettings()
 //-------------------------------------------------------------- dataSink()
 void MainWindow::dataSink(int k)
 {
-  static float s[NSMAX],red[NSMAX],splot[NSMAX];
+  static float s[NSMAX],red[NSMAX];
   static int n=0;
   static int ihsym=0;
   static int nzap=0;
@@ -354,7 +352,7 @@ void MainWindow::dataSink(int k)
            &df3, &ihsym, &nzap, &slimit, lstrong, c0, &npts8);
   if(ihsym <=0) return;
   QString t;
-  m_pctZap=nzap/178.3;
+  m_pctZap=nzap*100.0/m_nsps;
   t.sprintf(" Rx noise: %5.1f  %5.1f %% ",px,m_pctZap);
   lab3->setText(t);
   ui->xThermo->setValue((double)px);   //Update the thermometer
@@ -362,38 +360,11 @@ void MainWindow::dataSink(int k)
     g_pWideGraph->dataSink2(s,red,df3,ihsym,m_diskData,lstrong);
   }
 
-  //Average over specified number of spectra
-  if (n==0) {
-    for (int i=0; i<NSMAX; i++)
-      splot[i]=s[i];
-  } else {
-    for (int i=0; i<NSMAX; i++)
-      splot[i] += s[i];
-  }
-  n++;
-
-  if (n>=m_waterfallAvg) {
-    for (int i=0; i<NSMAX; i++) {
-        splot[i] /= n;                           //Normalize the average
-    }
-
-// Time according to this computer
-    qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-    int ntr = (ms/1000) % m_TRperiod;
-    if((m_diskData && ihsym <= m_waterfallAvg) || (!m_diskData && ntr<ntr0)) {
-      for (int i=0; i<NSMAX; i++) {
-        splot[i] = 1.e30;
-      }
-    }
-    ntr0=ntr;
-    n=0;
-  }
   // This is a bit strange.  Why do we need the "-3" ???
   if(ihsym == m_hsymStop-3) {
     m_dataAvailable=true;
     jt9com_.npts8=(ihsym*m_nsps)/16;
     jt9com_.newdat=1;
-    jt9com_.nagain=0;
     QDateTime t = QDateTime::currentDateTimeUtc();
     m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
     decode();                                           //Start the decoder
@@ -620,7 +591,6 @@ void MainWindow::closeEvent(QCloseEvent*)
 void MainWindow::OnExit()
 {
   g_pWideGraph->saveSettings();
-  m_killAll=true;
   qApp->exit(0);                                      // Exit the event loop
 }
 
@@ -731,7 +701,8 @@ void MainWindow::diskDat()                                   //diskDat()
     k=(n+1)*kstep;
     jt9com_.npts8=k/8;
     dataSink(k);
-    if(n%10 == 1 or n == m_hsymStop) qApp->processEvents();   //Keep GUI responsive
+    if(n%10 == 1 or n == m_hsymStop)
+        qApp->processEvents();                   //Keep GUI responsive
   }
 }
 
@@ -839,7 +810,6 @@ void MainWindow::on_DecodeButton_clicked()                    //Decode request
 {
   if(!m_decoderBusy) {
     jt9com_.newdat=0;
-    jt9com_.nagain=1;
     decode();
   }
 }
@@ -849,7 +819,6 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
   static int ntol[] = {1,2,5,10,20,50,100,200,500,1000};
   if(!m_decoderBusy) {
     jt9com_.newdat=0;
-    jt9com_.nagain=1;
     int i;
     if(m_mode=="JT9-1") i=4;
     if(m_mode=="JT9-2") i=4;
@@ -869,7 +838,7 @@ void MainWindow::decode()                                       //decode()
   decodeBusy(true);
   ui->DecodeButton->setStyleSheet(m_pbdecoding_style1);
 
-  if(jt9com_.nagain==0 && (!m_diskData)) {
+  if(!m_diskData) {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int imin=ms/60000;
     int ihr=imin/60;
@@ -927,7 +896,7 @@ void MainWindow::guiUpdate()
   int nsec=ms/1000;
   double tsec=0.001*ms;
   double t2p=fmod(tsec,2*m_TRperiod);
-  bool bTxTime = t2p >= tx1 && t2p < tx2;
+  bool bTxTime = (t2p >= tx1) && (t2p < tx2);
 
   if(m_auto) {
 
@@ -969,10 +938,10 @@ void MainWindow::guiUpdate()
     if(m_ntx == 6) ba=ui->tx6->text().toLocal8Bit();
 
     ba2msg(ba,message);
-    ba2msg(ba,msgsent);
+//    ba2msg(ba,msgsent);
     int len1=22;
-    int len2=22;
-    genjt9_(message,msgsent,itone,len1,len2);
+    genjt9_(message,msgsent,itone,len1,len1);
+    msgsent[22]=0;
     if(m_restart) {
       QFile f("wsjtx_tx.log");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
@@ -989,7 +958,7 @@ void MainWindow::guiUpdate()
   if(iptt==1 && iptt0==0) nc1=-9;    // TxDelay = 0.8 s
   if(nc1 <= 0) nc1++;
   if(nc1 == 0) {
-    ui->xThermo->setValue(0.0);   //Set the Thermos to zero
+    ui->xThermo->setValue(0.0);   //Set Thermo to zero
     m_monitoring=false;
     soundInThread.setMonitoring(false);
     btxok=true;
@@ -1062,7 +1031,8 @@ void MainWindow::guiUpdate()
     }
 
     m_setftx=0;
-    QString utc = " " + t.time().toString() + " ";
+    QString utc = t.date().toString("yyyy MMM dd") + "\n " +
+            t.time().toString() + " ";
     ui->labUTC->setText(utc);
     if(!m_monitoring and !m_diskData) {
       ui->xThermo->setValue(0.0);
@@ -1340,6 +1310,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)                //msgtype()
   char message[23];
   char msgsent[23];
   int len1=22;
+  int jtone[1];
   double samfac=1.0;
   int nsendingsh=0;
   int mwave;
@@ -1347,7 +1318,8 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)                //msgtype()
   int i1=t.indexOf(" OOO");
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
-//  gen65_(message,&mode65,&samfac,&nsendingsh,msgsent,iwave,&mwave,len1,len1);
+  jtone[0]=-99;
+  genjt9_(message,msgsent,jtone,len1,len1);
   nsendingsh=0;
   QPalette p(tx->palette());
   if(nsendingsh==1) {

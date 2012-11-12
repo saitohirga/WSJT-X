@@ -1,8 +1,6 @@
 subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
 
-! Decoder for JT9.  Can run stand-alone, reading data from *.wav files;
-! or as the back end of wsjt-x, with data placed in a shared memory region.
-
+! Decoder for JT9.  
 ! NB: For unknown reason, ***MUST*** be compiled by g95 with -O0 !!!
 
   parameter (NMAX=1800*12000)        !Total sample intervals per 30 minutes
@@ -15,7 +13,7 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   integer*2 id2
   complex c0(NDMAX),c00(NDMAX)
   common/jt9com/ss0(184,NSMAX),savg(NSMAX),id2(NMAX),nutc0,ndiskdat,    &
-       ntr,nfqso,nagain,newdat,npts80,nfb,ntol,kin,nsynced,ndecoded
+       ntr,nfqso,newdat,npts80,nfb,ntol,kin,nsynced,ndecoded
   common/jt9comB/ss(184,NSMAX),c0
   logical first
   data first/.true./
@@ -55,12 +53,10 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   endif
   if(nsps.eq.0) stop 'Error: bad TRperiod'    !Better: return an error code###
 
-! Now do the decoding
   kstep=nsps/2
   tstep=kstep/12000.0
 
-! Get sync, approx freq
-  call sync9(ss,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk)
+  call sync9(ss,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk)  ! Get sync, approx freq
 
   open(13,file='decoded.txt',status='unknown')
   rewind 13
@@ -81,7 +77,8 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
      if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. f.gt.fgood+10.0*df8) then
         call spec9(c0,npts8,nsps,f,fpk,xdt,snrdb,i1SoftSymbols)
         call decode9(i1SoftSymbols,limit,nlim,msg)
-        snr=10.0*log10(ccfred(i)) - 10.0*log10(2500.0/df3) + 2.0
+!        snr=10.0*log10(ccfred(i)) - 10.0*log10(2500.0/df3) + 2.0
+        snr=snrdb
         sync=ccfred(i) - 2.0
         if(sync.lt.0.0) sync=0.0
         nsync=sync

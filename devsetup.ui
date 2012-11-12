@@ -29,7 +29,7 @@
          <x>10</x>
          <y>34</y>
          <width>421</width>
-         <height>216</height>
+         <height>221</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -319,6 +319,13 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>                  Dev Ch API      Name</string>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_6">

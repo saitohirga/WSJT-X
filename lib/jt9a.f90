@@ -74,7 +74,7 @@ subroutine m65c(dd,ss,savg,nparams0)
   character*12 mycall,hiscall
   character*6 mygrid,hisgrid
   character*20 datetime
-  common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,              &
+  common/npar/fcenter,nutc,idphi,mousedf,mousefqso,                     &
        ndepth,ndiskdat,neme,newdat,nfa,nfb,nfcal,nfshift,               &
        mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,mode65,            &
        mycall,mygrid,hiscall,hisgrid,datetime

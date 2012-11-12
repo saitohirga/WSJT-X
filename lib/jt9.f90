@@ -19,7 +19,7 @@ program jt9
   integer*2 id2
   complex c0(NDMAX)
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,    &
-       ntr,mousefqso,nagain,newdat,nfa,nfb,ntol,kin
+       ntr,mousefqso,newdat,nfa,nfb,ntol,kin
 
   nargs=iargc()
   if(nargs.lt.1) then
