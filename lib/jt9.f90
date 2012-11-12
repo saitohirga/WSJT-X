@@ -39,7 +39,7 @@ program jt9
   nfa=1000
   nfb=2000
 !  ntol=500
-  ntol=20
+  ntol=500
   nfqso=1500
   newdat=1
   nb=0
@@ -60,7 +60,7 @@ program jt9
      if(ntrperiod.eq.5)  nsps=40960
      if(ntrperiod.eq.10) nsps=82944
      if(ntrperiod.eq.30) nsps=252000
-     if(nsps.eq.0) stop 'Error: bad TRprtiod'
+     if(nsps.eq.0) stop 'Error: bad TRperiod'
 
      kstep=nsps/2
      tstep=kstep/12000.0
