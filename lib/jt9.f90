@@ -45,6 +45,7 @@ program jt9
   nb=0
   nbslider=100
   limit=20000
+  ndiskdat=1
 
   do ifile=ifile1,nargs
      call getarg(ifile,infile)
@@ -69,7 +70,7 @@ program jt9
      npts=(60*ntrperiod-6)*12000
 
 !     do i=1,npts
-!        id2(i)=100.0*sin(6.283185307*1046.875*i/12000.0)
+!        id2(i)=100.0*sin(6.283185307*1600.0*i/12000.0)
 !     enddo
 
      do iblk=1,npts/kstep
@@ -88,12 +89,9 @@ program jt9
 
 10   close(10)
      iz=1000.0/df3
-
-! Now do the decoding
      nutc=nutc0
 
-! Get sync, approx freq
-     call sync9(ss,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk)
+     call sync9(ss,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk)  !Get sync, freq
 
      fgood=0.
      df8=1500.0/(nsps/8)
@@ -103,8 +101,6 @@ program jt9
         if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. f.gt.fgood+10.0*df8) then
            call spec9(c0,npts8,nsps,f,fpk,xdt,snrdb,i1SoftSymbols)
            call decode9(i1SoftSymbols,limit,nlim,msg)
-!           print*,msg
-!           snr=10.0*log10(ccfred(i)) - 10.0*log10(2500.0/df3) + 2.0
            snr=snrdb
            sync=ccfred(i) - 2.0
            if(sync.lt.0.0) sync=0.0

@@ -361,7 +361,8 @@ void MainWindow::dataSink(int k)
   }
 
   // This is a bit strange.  Why do we need the "-3" ???
-  if(ihsym == m_hsymStop-3) {
+//  if(ihsym == m_hsymStop-3) {
+  if(ihsym == m_hsymStop) {
     m_dataAvailable=true;
     jt9com_.npts8=(ihsym*m_nsps)/16;
     jt9com_.newdat=1;
