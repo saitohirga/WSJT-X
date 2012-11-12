@@ -109,31 +109,29 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   if(rms.gt.0.0) pxdb=20.0*log10(rms)
   if(pxdb.gt.60.0) pxdb=60.0
 
-  if(ja.gt.0) then
-     do i=0,nfft3-1                      !Copy data into cx
-        cx(i)=0.
-        j=ja+i-(nfft3-1)
-        if(j.ge.1) cx(i)=c0(j)
-     enddo
+  do i=0,nfft3-1                      !Copy data into cx
+     cx(i)=0.
+     j=ja+i-(nfft3-1)
+     if(j.ge.1) cx(i)=c0(j)
+  enddo
 
-     if(ihsym.lt.184) ihsym=ihsym+1
-     cx(0:nfft3-1)=w3(1:nfft3)*cx(0:nfft3-1)  !Apply window w3
-     call four2a(cx,nfft3,1,1,1)           !Third forward FFT (X)
+  if(ihsym.lt.184) ihsym=ihsym+1
+  cx(0:nfft3-1)=w3(1:nfft3)*cx(0:nfft3-1)  !Apply window w3
+  call four2a(cx,nfft3,1,1,1)           !Third forward FFT (X)
 
-     n=min(184,ihsym)
-     df3=1500.0/nfft3
-     i0=nint(-500.0/df3)
-     iz=min(NSMAX,nint(1000.0/df3))
-     fac=(1.0/nfft3)**2
-     do i=1,iz
-        j=i0+i-1
-        if(j.lt.0) j=j+nfft3
-        sx=fac*(real(cx(j))**2 + aimag(cx(j))**2)
-        ss(n,i)=sx
-        ssum(i)=ssum(i) + sx
-        s(i)=sx
-     enddo
-  endif
+  n=min(184,ihsym)
+  df3=1500.0/nfft3
+  i0=nint(-500.0/df3)
+  iz=min(NSMAX,nint(1000.0/df3))
+  fac=(1.0/nfft3)**2
+  do i=1,iz
+     j=i0+i-1
+     if(j.lt.0) j=j+nfft3
+     sx=fac*(real(cx(j))**2 + aimag(cx(j))**2)
+     ss(n,i)=sx
+     ssum(i)=ssum(i) + sx
+     s(i)=sx
+  enddo
 
 999 continue
 
