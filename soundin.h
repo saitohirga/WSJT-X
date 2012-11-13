@@ -28,6 +28,7 @@ public:
   void setMonitoring(bool b);
   void setPeriod(int ntrperiod, int nsps);
   int  mstep();
+  double samFacIn();
 
 signals:
   void readyForFFT(int k);
@@ -38,14 +39,13 @@ public slots:
   void quit();
 
 private:
-
-  bool   m_monitoring;
+  double m_SamFacIn;                    //(Input sample rate)/12000.0
   qint32 m_step;
   qint32 m_nDevIn;
   qint32 m_TRperiod;
   qint32 m_TRperiod0;
   qint32 m_nsps;
-
+  bool   m_monitoring;
 };
 
 extern "C" {
