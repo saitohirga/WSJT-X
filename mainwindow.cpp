@@ -547,28 +547,34 @@ void MainWindow::createStatusBar()                           //createStatusBar
 {
   lab1 = new QLabel("Receiving");
   lab1->setAlignment(Qt::AlignHCenter);
-  lab1->setMinimumSize(QSize(80,10));
+  lab1->setMinimumSize(QSize(80,18));
   lab1->setStyleSheet("QLabel{background-color: #00ff00}");
   lab1->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab1);
 
   lab2 = new QLabel("");
   lab2->setAlignment(Qt::AlignHCenter);
-  lab2->setMinimumSize(QSize(90,10));
+  lab2->setMinimumSize(QSize(90,18));
   lab2->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab2);
 
   lab3 = new QLabel("");
   lab3->setAlignment(Qt::AlignHCenter);
-  lab3->setMinimumSize(QSize(80,10));
+  lab3->setMinimumSize(QSize(80,18));
   lab3->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab3);
 
   lab4 = new QLabel("");
   lab4->setAlignment(Qt::AlignHCenter);
-  lab4->setMinimumSize(QSize(50,10));
+  lab4->setMinimumSize(QSize(50,18));
   lab4->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab4);
+
+  lab5 = new QLabel("");
+  lab5->setAlignment(Qt::AlignHCenter);
+  lab5->setMinimumSize(QSize(50,18));
+  lab5->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  statusBar()->addWidget(lab5);
 }
 
 void MainWindow::on_tolSpinBox_valueChanged(int i)             //tolSpinBox
@@ -1040,6 +1046,14 @@ void MainWindow::guiUpdate()
     }
     m_hsym0=khsym;
     m_sec0=nsec;
+    if(m_myCall=="K1JT") {
+      char s[20];
+      double t1=soundInThread.samFacIn();
+      double t2=1.0;
+      if(soundOutThread.isRunning()) t2=soundOutThread.samFacOut();
+      sprintf(s,"%6.4f  %6.4f",t1,t2);
+      lab5->setText(s);
+    }
   }
   iptt0=iptt;
   btxok0=btxok;

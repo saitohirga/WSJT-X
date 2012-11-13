@@ -3,13 +3,16 @@ subroutine peakdt9(c0,npts8,nsps8,istart,foffset,idtpk)
   complex c0(0:npts8-1)
   complex zsum
   include 'jt9sync.f90'
+  save
 
   twopi=8.0*atan(1.0)
   smax=0.
+  tstep=0.0625*nsps8/1500.0
+  idtmax=2.5/tstep
 
   f0=foffset
   dphi=twopi*f0/1500.0
-  do idt=-5,5
+  do idt=-idtmax,idtmax
      i0=istart + 0.0625*nsps8*idt
     sum=0.
      do j=1,16

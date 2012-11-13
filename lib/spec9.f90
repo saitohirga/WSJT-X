@@ -36,17 +36,15 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
   foffset=fpk0
   istart=1520
 
-  call peakdf9(c1,npts8,nsps8,istart,foffset,idf)
-  fpk=fpk0 + idf*0.1*1500.0/nsps8
-  foffset=foffset + idf*0.1*1500.0/nsps8
   call peakdt9(c1,npts8,nsps8,istart,foffset,idt)
   istart=istart + 0.0625*nsps8*idt
   xdt=istart/1500.0 - 1.0
 
-  fshift=foffset
+  call peakdf9(c1,npts8,nsps8,istart,foffset,idf)
+  fpk=fpk0 + idf*0.1*1500.0/nsps8
+  foffset=foffset + idf*0.1*1500.0/nsps8
   twopi=8.0*atan(1.0)
-  dphi=twopi*fshift/1500.0
-
+  dphi=twopi*foffset/1500.0
   nfft=nsps8
   nsym=min((npts8-istart)/nsps8,85)
 
@@ -56,7 +54,12 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
      k=k+1
      ia=(j-1)*nsps8 + istart
      ib=ia+nsps8-1
-     c(0:nfft-1)=c1(ia:ib)
+
+!     c(0:nfft-1)=c1(ia:ib)
+     do i=0,nfft-1
+        c(i)=0.
+        if(ia+i.ge.0 .and. ia+i.lt.2700000-1) c(i)=c1(ia+i)
+     enddo
 
      phi=0.
      do i=0,nfft-1

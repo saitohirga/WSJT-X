@@ -27,6 +27,7 @@ extern struct {
 typedef struct
 {
   int kin;          //Parameters sent to/from the portaudio callback function
+  int ncall;
   bool bzero;
   bool monitoring;
 } paUserData;
@@ -49,8 +50,7 @@ extern "C" int a2dCallback( const void *inputBuffer, void *outputBuffer,
   (void) userData;
   int nbytes,k;
 
-//  if(framesToProcess != -99)   return paContinue;    //###
-
+  udata->ncall++;
   if( (statusFlags&paInputOverflow) != 0) {
     qDebug() << "Input Overflow";
   }
@@ -81,6 +81,7 @@ void SoundInThread::run()                           //SoundInThread::run()
   paUserData udata;
 
   udata.kin=0;                              //Buffer pointer
+  udata.ncall=0;                            //Number of callbacks
   udata.bzero=false;                        //Flag to request reset of kin
   udata.monitoring=m_monitoring;
 
@@ -119,13 +120,19 @@ void SoundInThread::run()                           //SoundInThread::run()
   int nBusy=0;
   int nstep0=0;
   int nsps0=0;
+  qint64 ms0 = QDateTime::currentMSecsSinceEpoch();
 
 //---------------------------------------------- Soundcard input loop
   while (!qe) {
     qe = quitExecution;
     if (qe) break;
     udata.monitoring=m_monitoring;
-    qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
+    qint64 ms = QDateTime::currentMSecsSinceEpoch();
+    m_SamFacIn=1.0;
+    if(udata.ncall>100) {
+      m_SamFacIn=udata.ncall*FRAMES_PER_BUFFER*1000.0/(12000.0*(ms-ms0-50));
+    }
+    ms=ms % 86400000;
     nsec = ms/1000;             // Time according to this computer
     ntr = nsec % m_TRperiod;
 
@@ -183,4 +190,9 @@ void SoundInThread::setPeriod(int ntrperiod, int nsps)
 int SoundInThread::mstep()
 {
   return m_step;
+}
+
+double SoundInThread::samFacIn()
+{
+  return m_SamFacIn;
 }

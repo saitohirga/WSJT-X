@@ -28,11 +28,13 @@ public:
   void setPeriod(int ntrperiod, int nsps);
   void setTxFreq(int n);
   void setTxSNR(double snr);
+  double samFacOut();
   bool quitExecution;           //If true, thread exits gracefully
 
 // Private members
 private:
   double  m_txsnrdb;            //if < 0, add noise to Tx audio
+  double  m_SamFacOut;          //(Output sample rate)/48000.0
   qint32  m_nDevOut;            //Output device number
   qint32  m_TRperiod;           //T/R period (s)
   qint32  m_nsps;               //Samples per symbol (at 12000 Hz)

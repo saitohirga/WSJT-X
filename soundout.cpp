@@ -16,6 +16,7 @@ typedef struct   //Parameters sent to or received from callback function
   int    nsps;
   int    ntrperiod;
   int    ntxfreq;
+  int    ncall;
   bool   txOK;
   bool   txMute;
   bool   bRestart;
@@ -39,10 +40,10 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   static double snr;
   static double fac;
   static int ic=0;
-  static int isym0=-99;
   static short int i2;
   int isym;
 
+  udata->ncall++;
   if(udata->bRestart) {
  // Time according to this computer
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
@@ -50,6 +51,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     if(mstr<1000) return 0;
     ic=(mstr-1000)*48;
     udata->bRestart=false;
+    srand(mstr);                                //Initialize random seed
   }
   isym=ic/(4*udata->nsps);                      //Actual fsample=48000
   if(isym>=85) return 1;
@@ -108,6 +110,7 @@ void SoundOutThread::run()
   udata.nsps=m_nsps;
   udata.ntrperiod=m_TRperiod;
   udata.ntxfreq=m_txFreq;
+  udata.ncall=0;
   udata.txOK=false;
   udata.txMute=m_txMute;
   udata.bRestart=true;
@@ -129,6 +132,7 @@ void SoundOutThread::run()
   const PaStreamInfo* p=Pa_GetStreamInfo(outStream);
   outputLatency = p->outputLatency;
   bool qe = quitExecution;
+  qint64 ms0 = QDateTime::currentMSecsSinceEpoch();
 
 //---------------------------------------------- Soundcard output loop
   while (!qe) {
@@ -141,6 +145,12 @@ void SoundOutThread::run()
     udata.ntxfreq=m_txFreq;
     udata.txOK=m_txOK;
     udata.txMute=m_txMute;
+
+    m_SamFacOut=1.0;
+    if(udata.ncall>400) {
+      qint64 ms = QDateTime::currentMSecsSinceEpoch();
+      m_SamFacOut=udata.ncall*FRAMES_PER_BUFFER*1000.0/(48000.0*(ms-ms0-50));
+    }
     msleep(100);
   }
   Pa_StopStream(outStream);
@@ -168,4 +178,9 @@ void SoundOutThread::setTxFreq(int n)
 void SoundOutThread::setTxSNR(double snr)
 {
   m_txsnrdb=snr;
+}
+
+double SoundOutThread::samFacOut()
+{
+  return m_SamFacOut;
 }
