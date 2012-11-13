@@ -58,7 +58,6 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   endif
 
   if(k.lt.k0) then
-!     ja=-3*jstep
      ja=0
      ssum=0.
      ihsym=0
@@ -110,9 +109,9 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   if(pxdb.gt.60.0) pxdb=60.0
 
   do i=0,nfft3-1                      !Copy data into cx
-     cx(i)=0.
      j=ja+i-(nfft3-1)
-     if(j.ge.1) cx(i)=c0(j)
+     cx(i)=0.
+     if(j.ge.1 .and. j.le.NDMAX) cx(i)=c0(j)
   enddo
 
   if(ihsym.lt.184) ihsym=ihsym+1
