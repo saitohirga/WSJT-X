@@ -1,7 +1,6 @@
 subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
 
-! Decoder for JT9.  
-! NB: For unknown reason, ***MUST*** be compiled by g95 with -O0 !!!
+! Decoder for JT9.
 
   parameter (NMAX=1800*12000)        !Total sample intervals per 30 minutes
   parameter (NDMAX=1800*1500)        !Sample intervals at 1500 Hz rate
@@ -81,20 +80,18 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   do i=ia,ib
      f=(i-1)*df3
      if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. f.gt.fgood+10.0*df8) then
-        call spec9(c0,npts8,nsps,f,fpk,xdt,snrdb,i1SoftSymbols)
+        call spec9(c0,npts8,nsps,f,fpk,xdt,snr,i1SoftSymbols)
         call decode9(i1SoftSymbols,limit,nlim,msg)
-!        snr=10.0*log10(ccfred(i)) - 10.0*log10(2500.0/df3) + 2.0
-        snr=snrdb
         sync=ccfred(i) - 2.0
         if(sync.lt.0.0) sync=0.0
         nsync=sync
         if(nsync.gt.10) nsync=10
         nsnr=nint(snr)
-        width=0.0
+        drift=0.0
 
         if(ccfred(i).gt.sbest .and. fgood.eq.0.0) then
            sbest=ccfred(i)
-           write(line,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,width
+           write(line,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift
            if(nsync.gt.0) nsynced=1
         endif
 
