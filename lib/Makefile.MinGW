@@ -5,7 +5,7 @@
 CC = gcc
 FC = g95
 
-FFLAGS = -O2 -fbounds-check -Wall -Wno-precision-loss -fno-second-underscore
+FFLAGS = -O0 -fbounds-check -Wall -Wno-precision-loss -fno-second-underscore
 CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
 
 # Default rules
@@ -20,18 +20,18 @@ CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    libjt9.a jt9sim.exe jt9.exe
+all:    libjt9.a jt9sim.exe jt9.exe jt9code.exe
 
-OBJS1 = pctile.o graycode.o \
+OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	unpackmsg.o igray.o unpackcall.o unpackgrid.o \
 	grid2k.o unpacktext.o getpfx2.o packmsg.o deg2grid.o \
 	packtext.o getpfx1.o packcall.o k2grid.o packgrid.o \
 	nchar.o four2a.o grid2deg.o pfxdump.o f77_wisdom.o \
-	symspec.o timf2.o analytic.o db.o genjt9.o ptt.o \
+	symspec.o timf2.o analytic.o db.o genjt9.o \
 	packbits.o unpackbits.o encode232.o interleave9.o \
 	entail.o fano232.o gran.o spec9.o sync9.o decode9.o \
 	peakdt9.o peakdf9.o fil3.o redsync.o decoder.o \
-	grid2n.o n2grid.o
+	grid2n.o n2grid.o timer.o
 
 libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
@@ -45,13 +45,9 @@ OBJS3 = jt9sim.o
 jt9sim.exe: $(OBJS3) libjt9.a
 	$(FC) -o jt9sim.exe $(OBJS3) libjt9.a
 
-OBJS4 = t1.o 
-t1.exe: $(OBJS4) libjt9.a
-	$(FC) -o t1.exe $(OBJS4) libjt9.a 
-
-OBJS5 = t2.o 
-t2.exe: $(OBJS5) libjt9.a
-	$(FC) -o t2.exe $(OBJS5) libjt9.a ../libfftw3f_win.a 
+OBJS4 = jt9code.o 
+jt9code.exe: $(OBJS4) libjt9.a
+	$(FC) -o jt9code.exe $(OBJS4) libjt9.a
 
 INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
 	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
