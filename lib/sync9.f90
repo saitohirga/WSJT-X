@@ -27,7 +27,6 @@ subroutine sync9(ss,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipkbest)
         sum=0.
         do j=1,16
            k=ii2(j) + lag
-!           if(k.ge.1) sum=sum + ss(k,i) 
            if(k.ge.1) sum=sum + ss(k,i) - 0.5*(ss(k+2,i)+ss(k+4,i))
         enddo
         if(sum.gt.smax) then

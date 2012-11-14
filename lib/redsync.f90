@@ -28,6 +28,12 @@ subroutine redsync(ss,ntrperiod,ihsym,iz,red)
   call pctile(red,iz,50,xmed)
   if(xmed.le.0.0) xmed=1.0
   red=red/xmed
+  smax=0.
+  do i=1,iz
+     smax=max(smax,red(i))
+  enddo
+  h=50.
+  if(smax.gt.h) red=red*(h/smax)
 
   return
 end subroutine redsync
