@@ -87,13 +87,8 @@ void WideGraph::dataSink2(float s[], float red[], float df3, int ihsym,
 {
   static float splot[NSMAX];
   static float swide[2048];
-  float smax;
-//  double df;
   int nbpp = ui->widePlot->binsPerPixel();
   static int n=0;
-  static int nkhz0=-999;
-
-//  df = 12000.0/m_nsps;
 
   //Average spectra over specified number, m_waterfallAvg
   if (n==0) {
@@ -110,20 +105,11 @@ void WideGraph::dataSink2(float s[], float red[], float df3, int ihsym,
         splot[i] /= n;                       //Normalize the average
     n=0;
 
-    int w=ui->widePlot->plotWidth();
+//    int w=ui->widePlot->plotWidth();
     int i0=0;                            //###
     int i=i0;
     int jz=1000.0/df3;
     for (int j=0; j<jz; j++) {
-      /*
-      smax=0;
-      for (int k=0; k<nbpp; k++) {
-        if(splot[i]>smax) smax=splot[i];
-        i++;
-      }
-      swide[j]=smax;
-      */
-
       float sum=0;
       for (int k=0; k<nbpp; k++) {
         i++;

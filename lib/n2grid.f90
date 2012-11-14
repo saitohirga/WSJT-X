@@ -1,6 +1,5 @@
 subroutine n2grid(n,grid)
   character*4 grid
-  character*1 c1,c2
 
   if(n.gt.-31 .or. n.lt.-70) stop 'Error in n2grid'
   i=-(n+31)                           !NB: 0 <= i <= 39

@@ -15,29 +15,19 @@ subroutine redsync(ss,ntrperiod,ihsym,iz,red)
      smax=0.
      do lag=-lagmax,lagmax
         sig=0.
-        ns=0
-        ref=0.
-        nr=0
         do j=1,16
            k=ii2(j)+lag
-           if(k.ge.1 .and. k.le.ihsym) then
-              sig=sig + ss(k,i)
-              ns=ns+1
+           if(k.ge.5 .and. k.le.ihsym) then
+              sig=sig + ss(k,i) - 0.5*(ss(k-2,i)+ss(k-4,i))
            endif
-           do n=k+2,k+8,2
-              if(n.ge.1 .and. n.le.ihsym) then
-                 ref=ref + ss(n,i)
-                 nr=nr+1
-              endif
-           enddo
         enddo
-        s=0.
-        if(ref.gt.0.0) s=(sig/ns)/(ref/nr)
-        if(s.gt.smax) smax=s
+        if(sig.gt.smax) smax=sig
      enddo
-!     red(i)=db(smax)
      red(i)=smax
   enddo
+  call pctile(red,iz,50,xmed)
+  if(xmed.le.0.0) xmed=1.0
+  red=red/xmed
 
   return
 end subroutine redsync

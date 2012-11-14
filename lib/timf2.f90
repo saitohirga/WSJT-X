@@ -35,7 +35,6 @@ subroutine timf2(x0,k,nfft,nwindow,nb,peaklimit,x1,     &
   equivalence (x,cx),(xw,cxw),(xs,cxs)
   data first/.true./
   data k0/99999999/
-!  save w,xsov,xwov,s,ntc,ntot,nh,kstep,fac,first,k0
   save
 
   if(first) then
@@ -44,8 +43,6 @@ subroutine timf2(x0,k,nfft,nwindow,nb,peaklimit,x1,     &
         w(i)=(sin(i*pi/nfft))**2
      enddo
      s=0.
-     ntc=0
-     ntot=0
      nh=nfft/2
      kstep=nfft
      if(nwindow.eq.2) kstep=nh
@@ -66,30 +63,12 @@ subroutine timf2(x0,k,nfft,nwindow,nb,peaklimit,x1,     &
   cxt(0:nh)=cx(0:nh)
 
 ! Identify frequencies with strong signals.
-!###
   do i=0,nh
      p=real(cxt(i))**2 + aimag(cxt(i))**2
      s(i)=p
   enddo
   ave=sum(s(0:nh))/nh
   lstrong(0:nh)=s(0:nh).gt.10.0*ave
-!###
-
-!  ntot=ntot+1
-!  if(mod(ntot,128).eq.5) then
-!     call pctile(s,nh,50,xmedian)
-!     slimit=faclim*xmedian
-!  endif
-
-!  if(ntc.lt.12000/nfft) ntc=ntc+1
-!  uu=1.0/ntc
-!  smax=0.
-!  do i=0,nh
-!     p=real(cxt(i))**2 + aimag(cxt(i))**2
-!     s(i)=(1.0-uu)*s(i) + uu*p
-!     lstrong(i)=(s(i).gt.slimit)
-!     if(s(i).gt.smax) smax=s(i)
-!  enddo
 
   nsigs=0
   lprev=.false.

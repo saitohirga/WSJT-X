@@ -22,7 +22,7 @@ void getfile(QString fname, int ntrperiod)
   if(fp != NULL) {
 // Read (and ignore) a 44-byte WAV header; then read data
     fread(jt9com_.d2,1,44,fp);
-    int nrd=fread(jt9com_.d2,2,npts,fp);
+    fread(jt9com_.d2,2,npts,fp);
     fclose(fp);
     jt9com_.newdat=1;
   }

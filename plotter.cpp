@@ -124,9 +124,10 @@ void CPlotter::draw(float swide[], float red[], int i0)             //draw()
     m_hist1[y1]++;
     painter1.setPen(m_ColorTbl[y1]);
     painter1.drawPoint(i,0);
+    y2=0;
     if(m_bCurrent) y2 = gain*y + 30;
     if(m_bCumulative) y2=3*gain*10.0*log10(jt9com_.savg[i]);
-    if(m_bJT9Sync) y2=7*gain*red[i] - 30;
+    if(m_bJT9Sync) y2=0.1*gain*red[i] - 20;
     if(strong != strong0 or i==m_w-1) {
       painter2D.drawPolyline(LineBuf,j);
       j=0;
@@ -153,7 +154,7 @@ void CPlotter::draw(float swide[], float red[], int i0)             //draw()
 
 void CPlotter::UTCstr()
 {
-  int ihr,imin,isec;
+  int ihr,imin;
   if(jt9com_.ndiskdat != 0) {
     ihr=jt9com_.nutc/100;
     imin=jt9com_.nutc % 100;
@@ -164,8 +165,6 @@ void CPlotter::UTCstr()
     imin=imin % 60;
     imin=imin - (imin % (m_TRperiod/60));
   }
-  if(isec<30) isec=0;
-  if(isec>=30) isec=30;
   sprintf(m_sutc,"%2.2d:%2.2d",ihr,imin);
 }
 
@@ -175,7 +174,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   if(m_WaterfallPixmap.isNull()) return;
   int w = m_WaterfallPixmap.width();
   int x,y;
-  int nHzDiv[11]={0,50,100,200,200,200,500,500,500,500,500};
+//  int nHzDiv[11]={0,50,100,200,200,200,500,500,500,500,500};
   float pixperdiv;
 
   QRect rect;
@@ -311,8 +310,6 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
 void CPlotter::MakeFrequencyStrs()                       //MakeFrequencyStrs
 {
   float freq;
-  int i,j;
-
   for(int i=0; i<=m_hdivs; i++) {
     freq = m_StartFreq + i*m_freqPerDiv;
     m_HDivText[i].setNum((int)freq);
@@ -430,7 +427,6 @@ void CPlotter::mouseDoubleClickEvent(QMouseEvent *event)  //mouse2click
 {
 //  int h = (m_Size.height()-60)/2;
   int x=event->x();
-  int y=event->y();
   setFQSO(x,false);
   emit freezeDecode1(2);                  //### ???
 }
