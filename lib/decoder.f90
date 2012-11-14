@@ -110,8 +110,8 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
         endif
 
         if(msg.ne.'                      ') then
-           write(13,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
-           write(14,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
+           write(13,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,msg
+           write(14,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,msg
            fgood=f
            nsynced=1
            ndecoded=1

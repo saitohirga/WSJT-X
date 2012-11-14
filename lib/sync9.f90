@@ -33,14 +33,12 @@ subroutine sync9(ss,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipkbest)
         if(sum.gt.smax) then
            smax=sum
            ipk=i
-           lagpk=lag
         endif
      enddo
      ccfred(i)=smax                        !Best at this freq, over all lags
      if(smax.gt.sbest) then
         sbest=smax
         ipkbest=ipk
-        lagpkbest=lagpk
      endif
   enddo
 

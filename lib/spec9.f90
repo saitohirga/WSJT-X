@@ -58,7 +58,6 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
      if(isync(j).eq.1) cycle
      k=k+1
      ia=(j-1)*nsps8 + istart
-     ib=ia+nsps8-1
 
 !     c(0:nfft-1)=c1(ia:ib)
      do i=0,nfft-1

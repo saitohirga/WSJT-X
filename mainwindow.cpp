@@ -321,13 +321,8 @@ void MainWindow::readSettings()
 void MainWindow::dataSink(int k)
 {
   static float s[NSMAX],red[NSMAX];
-  static int n=0;
   static int ihsym=0;
   static int nzap=0;
-  static int ntr0=0;
-  static int nkhz;
-  static int ndiskdat;
-  static int nadj=0;
   static int nb;
   static int trmin;
   static int npts8;
@@ -337,10 +332,8 @@ void MainWindow::dataSink(int k)
   static float slimit;
 
   if(m_diskData) {
-    ndiskdat=1;
     jt9com_.ndiskdat=1;
   } else {
-    ndiskdat=0;
     jt9com_.ndiskdat=0;
   }
 
@@ -658,7 +651,6 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
     }
     on_stopButton_clicked();
     m_diskData=true;
-    int dbDgrd=0;
     *future1 = QtConcurrent::run(getfile, fname, m_TRperiod);
     watcher1->setFuture(*future1);         // call diskDat() when done
   }
@@ -684,8 +676,6 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
         lab1->setText(" " + fname.mid(i,len) + " ");
       }
       m_diskData=true;
-      int dbDgrd=0;
-      if(m_myCall=="K1JT" and m_idInt<0) dbDgrd=m_idInt;
       *future1 = QtConcurrent::run(getfile, fname, m_TRperiod);
       watcher1->setFuture(*future1);
       return;
@@ -1289,7 +1279,7 @@ void MainWindow::on_addButton_clicked()                       //Add button
         out << newEntry + "\n";
         if(s.mid(0,6)=="ZZZZZZ") {
           out << s + "\n";
-          exit;
+//          exit;                             //Statement has no effect!
         }
         m_call3Modified=true;
       } else if(hc==hc2) {
@@ -1327,9 +1317,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)                //msgtype()
   char msgsent[23];
   int len1=22;
   int jtone[1];
-  double samfac=1.0;
   int nsendingsh=0;
-  int mwave;
   t=t.toUpper();
   int i1=t.indexOf(" OOO");
   QByteArray s=t.toUpper().toLocal8Bit();
