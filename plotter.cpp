@@ -162,6 +162,7 @@ void CPlotter::UTCstr()
     imin=ms/60000;
     ihr=imin/60;
     imin=imin % 60;
+    imin=imin - (imin % (m_TRperiod/60));
   }
   if(isec<30) isec=0;
   if(isec>=30) isec=30;
@@ -551,9 +552,10 @@ double CPlotter::fGreen()
   return m_fGreen;
 }
 
-void CPlotter::setNsps(int n)                                  //setNSpan()
+void CPlotter::setNsps(int ntrperiod, int nsps)                                  //setNSpan()
 {
-  m_nsps=n;
+  m_TRperiod=ntrperiod;
+  m_nsps=nsps;
   m_fftBinWidth=1500.0/2048.0;
   if(m_nsps==15360)  m_fftBinWidth=1500.0/2048.0;
   if(m_nsps==40960)  m_fftBinWidth=1500.0/6144.0;

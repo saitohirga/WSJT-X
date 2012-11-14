@@ -15,9 +15,20 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   common/jt9com/ss0(184,NSMAX),savg(NSMAX),id2(NMAX),nutc0,ndiskdat,    &
        ntr,nfqso,newdat,npts80,nfb,ntol,kin,nsynced,ndecoded
   common/jt9comB/ss(184,NSMAX),c0
+  common/tracer/limtrace,lu
   logical first
   data first/.true./
   save
+
+  if(first) then
+     limtrace=0
+     lu=12
+     open(12,file='timer.out',status='unknown')
+     open(14,file='wsjtx_rx.log',status='unknown',position='append')
+     first=.false.
+  endif
+
+  call timer('decoder ',0)
 
   if(newdat.ne.0) then
      ss=ss0
@@ -38,7 +49,7 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   if(ntrMinutes.eq.1) then
      nsps=6912
      df3=1500.0/2048.0
-     fmt='(i4.4,i4,i5,f6.1,f8.0,f6.2,3x,a22)'
+     fmt='(i4.4,i4,i5,f6.1,f8.0,f6.1,3x,a22)'
   else if(ntrMinutes.eq.2) then
      nsps=15360
      df3=1500.0/2048.0
@@ -61,14 +72,12 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   kstep=nsps/2
   tstep=kstep/12000.0
 
+  call timer('sync9   ',0)
   call sync9(ss,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk)  ! Get sync, approx freq
+  call timer('sync9   ',1)
 
   open(13,file='decoded.txt',status='unknown')
   rewind 13
-  if(first) then
-     open(14,file='wsjtx_rx.log',status='unknown',position='append')
-     first=.false.
-  endif
   if(iand(nRxLog,2).ne.0) rewind 14
   if(iand(nRxLog,1).ne.0) then
 ! Write date and time to lu 14     
@@ -80,8 +89,13 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   do i=ia,ib
      f=(i-1)*df3
      if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. f.gt.fgood+10.0*df8) then
+        call timer('spec9   ',0)
         call spec9(c0,npts8,nsps,f,fpk,xdt,snr,i1SoftSymbols)
+        call timer('spec9   ',1)
+
+        call timer('decode9 ',0)
         call decode9(i1SoftSymbols,limit,nlim,msg)
+        call timer('decode9 ',1)
         sync=ccfred(i) - 2.0
         if(sync.lt.0.0) sync=0.0
         nsync=sync
@@ -114,6 +128,9 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   call flush(13)
   call flush(14)
   close(13)
+
+  call timer('decoder ',1)
+  call timer('decoder ',101)
 
   return
 end subroutine decoder

@@ -15,15 +15,14 @@ subroutine peakdt9(c0,npts8,nsps8,istart,foffset,idtpk)
      i0=istart + 0.0625*nsps8*idt
     sum=0.
      do j=1,16
-        i1=(ii(j)-1)*nsps8 + i0
+        i1=max(0,(ii(j)-1)*nsps8 + i0)
+        i2=min(npts8-1,i1+nsps8-1)
         phi=0.
         zsum=0.
-        do i=i1,i1+nsps8-1
+        do i=i1,i2
            if(i.lt.0 .or. i.gt.npts8-1) cycle
            phi=phi + dphi
-           if(i.ge.0 .and. i.le.npts8-1) then
-              zsum=zsum + c0(i)*cmplx(cos(phi),-sin(phi))
-           endif
+           zsum=zsum + c0(i)*cmplx(cos(phi),-sin(phi))
         enddo
         sum=sum + real(zsum)**2 + aimag(zsum)**2
      enddo

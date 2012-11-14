@@ -35,13 +35,19 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
   foffset=fpk0
   istart=1520
 
+  call timer('peakdt9 ',0)
   call peakdt9(c1,npts8,nsps8,istart,foffset,idt)
+  call timer('peakdt9 ',1)
   istart=istart + 0.0625*nsps8*idt
   xdt=istart/1500.0 - 1.0
 
+  call timer('peakdf9 ',0)
   call peakdf9(c1,npts8,nsps8,istart,foffset,idf)
+  call timer('peakdf9 ',1)
+
   fpk=fpk0 + idf*0.1*1500.0/nsps8
   foffset=foffset + idf*0.1*1500.0/nsps8
+
   twopi=8.0*atan(1.0)
   dphi=twopi*foffset/1500.0
   nfft=nsps8

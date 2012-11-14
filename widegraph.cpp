@@ -259,7 +259,7 @@ void WideGraph::setPeriod(int ntrperiod, int nsps)
 {
   m_TRperiod=ntrperiod;
   m_nsps=nsps;
-  ui->widePlot->setNsps(nsps);
+  ui->widePlot->setNsps(ntrperiod, nsps);
 }
 
 void WideGraph::on_rbCurrent_clicked()
