@@ -322,6 +322,9 @@
        </item>
        <item>
         <widget class="QLabel" name="label_5">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>USB Dial Freq (kHz)</string>
          </property>
@@ -330,7 +333,7 @@
        <item>
         <widget class="QLineEdit" name="fDialLineEdit">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">

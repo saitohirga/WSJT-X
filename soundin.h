@@ -47,10 +47,4 @@ private:
   qint32 m_nsps;
   bool   m_monitoring;
 };
-
-extern "C" {
-  void recvpkt_(int* nsam, quint16* iblk, qint8* nrx, int* k, double s1[],
-                double s2[], double s3[]);
-}
-
 #endif // SOUNDIN_H

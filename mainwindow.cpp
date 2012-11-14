@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
   ui->setupUi(this);
 
+  freopen("wsjtx.log","w",stderr);
   on_EraseButton_clicked();
   ui->labUTC->setStyleSheet( \
         "QLabel { background-color : black; color : yellow; }");
@@ -1151,6 +1152,7 @@ void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
   m_txFirst=(nmod!=0);
   ui->txFirstCheckBox->setChecked(m_txFirst);
   QString rpt=t2.mid(10,3);
+  if(rpt.indexOf(" ")==0) rpt=rpt.mid(1,2);
   if(ctrl) {
     int i4=t.mid(i2,20).indexOf(" ");
     QString hisgrid=t.mid(i2,20).mid(i4+1,4);
