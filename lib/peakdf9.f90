@@ -3,7 +3,6 @@ subroutine peakdf9(c0,npts8,nsps8,istart,foffset,idfpk)
   complex c0(0:npts8-1)
   complex zsum
   include 'jt9sync.f90'
-  save
 
   twopi=8.0*atan(1.0)
   df=1500.0/nsps8

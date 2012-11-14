@@ -6,7 +6,7 @@
 
 QT       += core gui network
 CONFIG   += qwt thread
-CONFIG   += console
+#CONFIG   += console
 
 TARGET = wsjtx
 VERSION = 0.2
@@ -57,7 +57,6 @@ LIBS += -lfftw3f /usr/lib/libgfortran.so.3
 LIBS += ../wsjtx/lib/libjt9.a
 LIBS += /usr/lib/libqwt-qt4.so
 LIBS += -lportaudio
-#LIBS +- -lusb
 }
 
 win32 {

@@ -3,7 +3,6 @@ subroutine peakdt9(c0,npts8,nsps8,istart,foffset,idtpk)
   complex c0(0:npts8-1)
   complex zsum
   include 'jt9sync.f90'
-  save
 
   twopi=8.0*atan(1.0)
   smax=0.
@@ -22,7 +21,9 @@ subroutine peakdt9(c0,npts8,nsps8,istart,foffset,idtpk)
         do i=i1,i1+nsps8-1
            if(i.lt.0 .or. i.gt.npts8-1) cycle
            phi=phi + dphi
-           zsum=zsum + c0(i) * cmplx(cos(phi),-sin(phi))
+           if(i.ge.0 .and. i.le.npts8-1) then
+              zsum=zsum + c0(i)*cmplx(cos(phi),-sin(phi))
+           endif
         enddo
         sum=sum + real(zsum)**2 + aimag(zsum)**2
      enddo
