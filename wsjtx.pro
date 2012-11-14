@@ -6,7 +6,7 @@
 
 QT       += core gui network
 CONFIG   += qwt thread
-#CONFIG   += console
+CONFIG   += console
 
 TARGET = wsjtx
 VERSION = 0.2
