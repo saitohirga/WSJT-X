@@ -13,7 +13,6 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
   equivalence (i1,i4)
   data ig/0,1,3,2,7,6,4,5/             !Gray code removal
   include 'jt9sync.f90'
-  save
 
 ! Fix up the data in c0()
   sum=0.

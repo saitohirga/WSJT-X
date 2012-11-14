@@ -17,7 +17,7 @@ float c0[2*1800*1500];
 WideGraph* g_pWideGraph = NULL;
 
 QString rev="$Rev$";
-QString Program_Title_Version="  WSJT-X   v0.3, r" + rev.mid(6,4) +
+QString Program_Title_Version="  WSJT-X   v0.4, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 //-------------------------------------------------- MainWindow constructor
@@ -182,7 +182,6 @@ MainWindow::MainWindow(QWidget *parent) :
   if(ui->actionCuteSDR->isChecked()) on_actionCuteSDR_triggered();
   if(ui->actionAFMHot->isChecked()) on_actionAFMHot_triggered();
   if(ui->actionBlue->isChecked()) on_actionBlue_triggered();
-
 }                                          // End of MainWindow constructor
 
 //--------------------------------------------------- MainWindow destructor
