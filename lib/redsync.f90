@@ -30,9 +30,10 @@ subroutine redsync(ss,ntrperiod,ihsym,iz,red)
   red=red/xmed
   smax=0.
   do i=1,iz
+!     red(i)=0.3*db(red(i))
      smax=max(smax,red(i))
   enddo
-  h=50.
+  h=10.
   if(smax.gt.h) red=red*(h/smax)
 
   return
