@@ -11,6 +11,7 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   real*4 ccfred(NSMAX)
   integer*1 i1SoftSymbols(207)
   integer*2 id2
+  integer ii(1)
   complex c0(NDMAX),c00(NDMAX)
   common/jt9com/ss0(184,NSMAX),savg(NSMAX),id2(NMAX),nutc0,ndiskdat,    &
        ntr,nfqso,newdat,npts80,nfb,ntol,kin,nsynced,ndecoded
@@ -86,38 +87,43 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   fgood=0.
   df8=1500.0/(nsps/8)
   sbest=0.
-  do i=ia,ib
-     f=(i-1)*df3
-     if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. f.gt.fgood+10.0*df8) then
-        call timer('spec9   ',0)
-        call spec9(c0,npts8,nsps,f,fpk,xdt,snr,i1SoftSymbols)
-        call timer('spec9   ',1)
 
-        call timer('decode9 ',0)
-        call decode9(i1SoftSymbols,limit,nlim,msg)
-        call timer('decode9 ',1)
-        sync=ccfred(i) - 2.0
-        if(sync.lt.0.0) sync=0.0
-        nsync=sync
-        if(nsync.gt.10) nsync=10
-        nsnr=nint(snr)
-        drift=0.0
+10 continue
+  ii=maxloc(ccfred(ia:ib))
+  i=ii(1) + ia - 1
+  f=(i-1)*df3
 
-        if(ccfred(i).gt.sbest .and. fgood.eq.0.0) then
-           sbest=ccfred(i)
-           write(line,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift
-           if(nsync.gt.0) nsynced=1
-        endif
+  if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. abs(f-fgood).gt.10.0*df8) then
+     call timer('spec9   ',0)
+     call spec9(c0,npts8,nsps,f,fpk,xdt,snr,i1SoftSymbols)
+     call timer('spec9   ',1)
 
-        if(msg.ne.'                      ') then
-           write(13,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,msg
-           write(14,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,msg
-           fgood=f
-           nsynced=1
-           ndecoded=1
-        endif
+     call timer('decode9 ',0)
+     call decode9(i1SoftSymbols,limit,nlim,msg)
+     call timer('decode9 ',1)
+     sync=ccfred(i) - 2.0
+     if(sync.lt.0.0) sync=0.0
+     nsync=sync
+     if(nsync.gt.10) nsync=10
+     nsnr=nint(snr)
+     drift=0.0
+
+     if(ccfred(i).gt.sbest .and. fgood.eq.0.0) then
+        sbest=ccfred(i)
+        write(line,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift
+        if(nsync.gt.0) nsynced=1
      endif
-  enddo
+
+     if(msg.ne.'                      ') then
+        write(13,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,msg
+        write(14,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,msg
+        fgood=f
+        nsynced=1
+        ndecoded=1
+     endif
+  endif
+  ccfred(i-10:i+10)=0.
+  if(maxval(ccfred(ia:ib)).gt.3.0) go to 10
 
   if(fgood.eq.0.0) then
      write(13,1020) line

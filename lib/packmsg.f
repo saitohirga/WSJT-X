@@ -7,17 +7,23 @@
       character*12 c1,c2
       character*4 c3
       character*6 grid6
-c      character*3 dxcc                  !Where is DXCC implemented?
       logical text1,text2,text3
 
 C  Convert all letters to upper case
       do i=1,22
          if(msg(i:i).ge.'a' .and. msg(i:i).le.'z') 
      +     msg(i:i)= char(ichar(msg(i:i))+ichar('A')-ichar('a'))
+         if(msg(i:i).ne.' ') iz=i
+      enddo
+      do iter=1,5                           !Collapse multiple blanks into one
+         ib2=index(msg(1:iz),'  ')
+         if(ib2.lt.1) go to 5
+         msg=msg(1:ib2)//msg(ib2+2:)
+         iz=iz-1
       enddo
 
 C  See if it's a CQ message
-      if(msg(1:3).eq.'CQ ') then
+ 5    if(msg(1:3).eq.'CQ ') then
          i=3
 C  ... and if so, does it have a reply frequency?
          if(msg(4:4).ge.'0' .and. msg(4:4).le.'9' .and. 

@@ -1133,16 +1133,17 @@ void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
   ui->dxCallEntry->setText(hiscall);
   QString t = ui->decodedTextBrowser->toPlainText();   //Full contents
   int i2=ui->decodedTextBrowser->textCursor().position();
-  int i3=t.mid(i2,99).indexOf("\n")-1;   //points to last char of line
-  QString t1 = t.mid(0,i3);              //contents up to \n on selected line
+  QString t1 = t.mid(0,i2);              //contents up to \n on selected line
   int i1=t1.lastIndexOf("\n") + 1;       //points to first char of line
-  QString t2 = t1.mid(i1,i3-i1);         //selected line
+  QString t2 = t1.mid(i1,i2-i1);         //selected line
   int n = 60*t2.mid(0,2).toInt() + t2.mid(2,2).toInt();
   int nmod=n%(m_TRperiod/30);
   m_txFirst=(nmod!=0);
   ui->txFirstCheckBox->setChecked(m_txFirst);
   QString rpt=t2.mid(10,3);
   if(rpt.indexOf(" ")==0) rpt=rpt.mid(1,2);
+  if(rpt.toInt()>-1) rpt="-01";
+  if(rpt.toInt()<-50) rpt="-50";
   if(ctrl) {
     int i4=t.mid(i2,20).indexOf(" ");
     QString hisgrid=t.mid(i2,20).mid(i4+1,4);
