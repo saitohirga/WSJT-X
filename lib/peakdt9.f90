@@ -11,7 +11,14 @@ subroutine peakdt9(c0,npts8,nsps8,istart,foffset,idtpk)
 
   f0=foffset
   dphi=twopi*f0/1500.0
-  do idt=-idtmax,idtmax
+
+  idtstep=4
+  if(idtmax.lt.30) idtstep=2
+  if(idtmax.lt.15) idtstep=1
+  idt1=-idtmax
+  idt2=idtmax
+
+10 do idt=idt1,idt2,idtstep
      i0=istart + 0.0625*nsps8*idt
     sum=0.
      do j=1,16
@@ -31,6 +38,13 @@ subroutine peakdt9(c0,npts8,nsps8,istart,foffset,idtpk)
         smax=sum
      endif
   enddo
+
+  if(idtstep.gt.1) then
+     idtstep=1
+     idt1=idtpk-1
+     idt2=idtpk+1
+     go to 10
+  endif
 
   return
 end subroutine peakdt9
