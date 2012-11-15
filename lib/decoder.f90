@@ -50,23 +50,23 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   if(ntrMinutes.eq.1) then
      nsps=6912
      df3=1500.0/2048.0
-     fmt='(i4.4,i4,i5,f6.1,f8.0,f6.1,3x,a22)'
+     fmt='(i4.4,i4,i5,f6.1,f8.0,f6.1,3x,a22,5x,i6)'
   else if(ntrMinutes.eq.2) then
      nsps=15360
      df3=1500.0/2048.0
-     fmt='(i4.4,i4,i5,f6.1,f8.1,f6.2,3x,a22)'
+     fmt='(i4.4,i4,i5,f6.1,f8.1,f6.2,3x,a22,5x,i6)'
   else if(ntrMinutes.eq.5) then
      nsps=40960
      df3=1500.0/6144.0
-     fmt='(i4.4,i4,i5,f6.1,f8.1,f6.2,3x,a22)'
+     fmt='(i4.4,i4,i5,f6.1,f8.1,f6.2,3x,a22,5x,i6)'
   else if(ntrMinutes.eq.10) then
      nsps=82944
      df3=1500.0/12288.0
-     fmt='(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)'
+     fmt='(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22,5x,i6)'
   else if(ntrMinutes.eq.30) then
      nsps=252000
      df3=1500.0/32768.0
-     fmt='(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)'
+     fmt='(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22,5x,i6)'
   endif
   if(nsps.eq.0) stop 'Error: bad TRperiod'    !Better: return an error code###
 
@@ -116,7 +116,7 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
 
      if(msg.ne.'                      ') then
         write(13,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,msg
-        write(14,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,msg
+        write(14,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,msg,nlim
         fgood=f
         nsynced=1
         ndecoded=1
