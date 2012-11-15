@@ -122,7 +122,9 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
         ndecoded=1
      endif
   endif
-  ccfred(i-10:i+10)=0.
+  i1=max(ia,i-10)
+  i2=min(ib,i+10)
+  ccfred(i1:i2)=0.
   if(maxval(ccfred(ia:ib)).gt.3.0) go to 10
 
   if(fgood.eq.0.0) then
