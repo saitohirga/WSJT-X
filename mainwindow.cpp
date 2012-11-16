@@ -114,6 +114,8 @@ MainWindow::MainWindow(QWidget *parent) :
   m_dataAvailable=false;
   decodeBusy(false);
 
+  qDebug() << "AA";
+
   ui->xThermo->setFillBrush(Qt::green);
   PaError paerr=Pa_Initialize();                    //Initialize Portaudio
   if(paerr!=paNoError) {
@@ -1048,7 +1050,8 @@ void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
 {
   bool eom;
   eom=false;
-  for(int i=0;i<28; i++) {
+  int iz=ba.length();
+  for(int i=0;i<iz; i++) {
     if((int)ba[i] == 0) eom=true;
     if(eom) {
       message[i]=32;
@@ -1308,14 +1311,13 @@ void MainWindow::on_addButton_clicked()                       //Add button
   }
 }
 
-void MainWindow::msgtype(QString t, QLineEdit* tx)                //msgtype()
+void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
 {
-#ifdef WIN32
-// Needs work for compiling in Linux
+
   char message[23];
   char msgsent[23];
   int len1=22;
-  int jtone[1];
+  int jtone[85];
   int nsendingsh=0;
   t=t.toUpper();
   int i1=t.indexOf(" OOO");
@@ -1344,7 +1346,6 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)                //msgtype()
   } else {
     tx->setText(t);
   }
-#endif
 }
 
 void MainWindow::on_tx1_editingFinished()                       //tx1 edited
