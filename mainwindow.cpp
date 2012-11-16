@@ -1051,15 +1051,19 @@ void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
   bool eom;
   eom=false;
   int iz=ba.length();
-  for(int i=0;i<iz; i++) {
-    if((int)ba[i] == 0) eom=true;
+//  qDebug() << ba << iz;
+  for(int i=0;i<iz+1; i++) {
+    if((int)ba[i] == 0) {
+//      qDebug() << i;
+      eom=true;
+    }
     if(eom) {
       message[i]=32;
     } else {
       message[i]=ba[i];
     }
   }
-  message[28]=0;
+  message[iz]=0;
 }
 
 void MainWindow::on_txFirstCheckBox_stateChanged(int nstate)        //TxFirst

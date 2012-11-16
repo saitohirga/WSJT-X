@@ -1,9 +1,10 @@
-subroutine genjt9(message,msgsent,i4tone)
+subroutine genjt9(msg0,msgsent,i4tone)
 
 ! Encodes a JT9 message and returns msgsent, the message as it will
 ! be decoded, and an integer array i4tone(85) of 9-FSK tone values 
 ! in the range 0-8.  
 
+  character*22 msg0
   character*22 message                    !Message to be generated
   character*22 msgsent                    !Message as it will be received
   integer*4 i4Msg6BitWords(13)            !72-bit message as 6-bit words
@@ -16,7 +17,15 @@ subroutine genjt9(message,msgsent,i4tone)
   include 'jt9sync.f90'
   save
 
+  message=msg0
   do i=1,22
+     if(ichar(message(i:i)).eq.0) then
+        message(i:)='                      '
+        exit
+     endif
+  enddo
+
+  do i=1,22                               !Omit leading blanks
      if(message(1:1).ne.' ') exit
      message=message(i+1:)
   enddo
