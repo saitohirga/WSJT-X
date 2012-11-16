@@ -39,9 +39,11 @@
 #if HAVE_SYS_IOCTL_H
 # include <sys/ioctl.h>
 #endif
-#if HAVE_FCNTL_H
+//#if HAVE_FCNTL_H
 # include <fcntl.h>
-#endif
+//#endif
+#include <stdio.h>
+#include <sys/ioctl.h>
 
 #ifdef HAVE_LINUX_PPDEV_H
 # include <linux/ppdev.h>
