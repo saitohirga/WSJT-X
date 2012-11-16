@@ -10,6 +10,7 @@
       logical text1,text2,text3
 
 C  Convert all letters to upper case
+      iz=22
       do i=1,22
          if(msg(i:i).ge.'a' .and. msg(i:i).le.'z') 
      +     msg(i:i)= char(ichar(msg(i:i))+ichar('A')-ichar('a'))
