@@ -72,7 +72,6 @@ MainWindow::MainWindow(QWidget *parent) :
           SLOT(selectCall2(bool)));
 
   setWindowTitle(Program_Title_Version);
-
   connect(&soundInThread, SIGNAL(readyForFFT(int)),
              this, SLOT(dataSink(int)));
   connect(&soundInThread, SIGNAL(error(QString)), this,
@@ -84,7 +83,6 @@ MainWindow::MainWindow(QWidget *parent) :
   QTimer *guiTimer = new QTimer(this);
   connect(guiTimer, SIGNAL(timeout()), this, SLOT(guiUpdate()));
   guiTimer->start(100);                            //Don't change the 100 ms!
-
   m_auto=false;
   m_waterfallAvg = 1;
   m_txFirst=false;
@@ -117,7 +115,6 @@ MainWindow::MainWindow(QWidget *parent) :
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
-
   PaError paerr=Pa_Initialize();                    //Initialize Portaudio
   if(paerr!=paNoError) {
     msgBox("Unable to initialize PortAudio.");
@@ -132,7 +129,6 @@ MainWindow::MainWindow(QWidget *parent) :
   m_pbAutoOn_style="QPushButton{background-color: red; \
       border-style: outset; border-width: 1px; border-radius: 5px; \
       border-color: black; min-width: 5em; padding: 3px;}";
-
   genStdMsgs("-30");
   on_actionWide_Waterfall_triggered();                   //###
   if(m_mode=="JT9-1") on_actionJT9_1_triggered();
@@ -140,7 +136,6 @@ MainWindow::MainWindow(QWidget *parent) :
   if(m_mode=="JT9-5") on_actionJT9_5_triggered();
   if(m_mode=="JT9-10") on_actionJT9_10_triggered();
   if(m_mode=="JT9-30") on_actionJT9_30_triggered();
-
   future1 = new QFuture<void>;
   watcher1 = new QFutureWatcher<void>;
   connect(watcher1, SIGNAL(finished()),this,SLOT(diskDat()));
@@ -1184,6 +1179,7 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
     t=t0 + "73";
     msgtype(t, ui->tx5);
   }
+
   t="CQ " + m_myCall + " " + m_myGrid.mid(0,4);
   msgtype(t, ui->tx6);
   m_ntx=1;
@@ -1314,6 +1310,8 @@ void MainWindow::on_addButton_clicked()                       //Add button
 
 void MainWindow::msgtype(QString t, QLineEdit* tx)                //msgtype()
 {
+#ifdef WIN32
+// Needs work for compiling in Linux
   char message[23];
   char msgsent[23];
   int len1=22;
@@ -1346,6 +1344,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)                //msgtype()
   } else {
     tx->setText(t);
   }
+#endif
 }
 
 void MainWindow::on_tx1_editingFinished()                       //tx1 edited
