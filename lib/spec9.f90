@@ -33,12 +33,12 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
 
   nsps8=nsps/8
   foffset=fpk0
-  istart=1520
+  istart=1500
 
   call timer('peakdt9 ',0)
   call peakdt9(c1,npts8,nsps8,istart,foffset,idt)
   call timer('peakdt9 ',1)
-  istart=istart + 0.0625*nsps8*idt
+  istart=istart + nint(0.0625*nsps8*idt)
   xdt=istart/1500.0 - 1.0
 
   call timer('peakdf9 ',0)
@@ -122,8 +122,6 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
   enddo
 
   call interleave9(i1SoftSymbolsScrambled,-1,i1SoftSymbols)
-  call flush(81)
-  call flush(82)
 
   return
 end subroutine spec9
