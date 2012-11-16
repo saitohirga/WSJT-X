@@ -3,7 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+
+#ifdef WIN32
 #include <windows.h>
+#endif
 
 void getfile(QString fname, int ntrperiod)
 {
@@ -119,6 +122,7 @@ float gran()
 
 int ptt(int nport, int ntx, int *iptt)
 {
+#ifdef WIN32
   static HANDLE hFile;
   static int open=0;
   char s[10];
@@ -161,4 +165,5 @@ int ptt(int nport, int ntx, int *iptt)
   if(i9==0) return -(CLRBREAK);
   if(i00==0) return -10;
   return 0;
+#endif
 }
