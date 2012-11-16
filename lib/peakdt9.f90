@@ -41,8 +41,8 @@ subroutine peakdt9(c0,npts8,nsps8,istart,foffset,idtpk)
 
   if(idtstep.gt.1) then
      idtstep=1
-     idt1=idtpk-1
-     idt2=idtpk+1
+     idt1=idtpk-3
+     idt2=idtpk+3
      go to 10
   endif
 
