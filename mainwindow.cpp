@@ -27,7 +27,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
   ui->setupUi(this);
 
+#ifdef WIN32
   freopen("wsjtx.log","w",stderr);
+#endif
   on_EraseButton_clicked();
   ui->labUTC->setStyleSheet( \
         "QLabel { background-color : black; color : yellow; }");
@@ -113,8 +115,6 @@ MainWindow::MainWindow(QWidget *parent) :
   m_inGain=0;
   m_dataAvailable=false;
   decodeBusy(false);
-
-  qDebug() << "AA";
 
   ui->xThermo->setFillBrush(Qt::green);
   PaError paerr=Pa_Initialize();                    //Initialize Portaudio
