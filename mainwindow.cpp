@@ -874,6 +874,7 @@ void MainWindow::guiUpdate()
   static bool btxok0=false;
   static int nc0=1;
   static int nc1=1;
+  static char message[29];
   static char msgsent[29];
   static int nsendingsh=0;
   int khsym=0;
@@ -922,7 +923,6 @@ void MainWindow::guiUpdate()
 
 // Calculate Tx waveform when needed
   if((iptt==1 && iptt0==0) || m_restart) {
-    char message[29];
     QByteArray ba;
     if(m_ntx == 1) ba=ui->tx1->text().toLocal8Bit();
     if(m_ntx == 2) ba=ui->tx2->text().toLocal8Bit();
@@ -1033,11 +1033,14 @@ void MainWindow::guiUpdate()
     }
     m_hsym0=khsym;
     m_sec0=nsec;
+
     if(m_myCall=="K1JT") {
       char s[20];
-      double t1=soundInThread.samFacIn();
+      double t1=1.0;
+//Better: use signals from sound threads?
+//      if(soundInThread.isRunning()) t1=soundInThread.samFacIn();
       double t2=1.0;
-      if(soundOutThread.isRunning()) t2=soundOutThread.samFacOut();
+//      if(soundOutThread.isRunning()) t2=soundOutThread.samFacOut();
       sprintf(s,"%6.4f  %6.4f",t1,t2);
       lab5->setText(s);
     }
@@ -1051,10 +1054,8 @@ void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
   bool eom;
   eom=false;
   int iz=ba.length();
-//  qDebug() << ba << iz;
   for(int i=0;i<iz+1; i++) {
     if((int)ba[i] == 0) {
-//      qDebug() << i;
       eom=true;
     }
     if(eom) {
