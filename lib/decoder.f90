@@ -94,8 +94,7 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   df8=1500.0/(nsps/8)
   sbest=0.
 
-10 continue
-  ii=maxloc(ccfred(ia:ib))
+10 ii=maxloc(ccfred(ia:ib))
   i=ii(1) + ia - 1
   f=(i-1)*df3
   if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. abs(f-fgood).gt.10.0*df8) then
