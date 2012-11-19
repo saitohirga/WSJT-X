@@ -33,7 +33,7 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   integer*2 id2
   complex c0(NDMAX)
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,    &
-       ntr,mousefqso,newdat,nfa,nfb,ntol,kin
+       ntr,mousefqso,newdat,nfa,nfb,ntol,kin,nzhsym,nsynced,ndecoded
   data rms/999.0/,k0/99999999/,ntrperiod0/0/,nfft3z/0/
   save
 

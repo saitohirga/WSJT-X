@@ -350,12 +350,11 @@ void MainWindow::dataSink(int k)
     g_pWideGraph->dataSink2(s,red,df3,ihsym,m_diskData,lstrong);
   }
 
-  // This is a bit strange.  Why do we need the "-3" ???
-//  if(ihsym == m_hsymStop-3) {
   if(ihsym == m_hsymStop) {
     m_dataAvailable=true;
     jt9com_.npts8=(ihsym*m_nsps)/16;
     jt9com_.newdat=1;
+    jt9com_.nzhsym=m_hsymStop;
     QDateTime t = QDateTime::currentDateTimeUtc();
     m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
     decode();                                           //Start the decoder

@@ -4,6 +4,10 @@
   integer ii2(16)                      !Locations of sync half-symbols
   data ii2/1,3,9,19,31,45,65,69,101,103,109,119,131,145,165,169/
 
+  integer ka(16),kb(16)                !Reference symbols for sync
+  data ka/5,5,11,21,33,47,63,71,97,105,111,121,133,147,159,163/
+  data kb/7,7,13,23,35,49,67,73,99,107,113,123,135,149,161,167/
+
 
   integer isync(85)                    !Sync vector
   data isync/                                     &

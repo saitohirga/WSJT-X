@@ -14,7 +14,7 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   integer ii(1)
   complex c0(NDMAX),c00(NDMAX)
   common/jt9com/ss0(184,NSMAX),savg(NSMAX),id2(NMAX),nutc0,ndiskdat,    &
-       ntr,nfqso,newdat,npts80,nfb,ntol,kin,nsynced,ndecoded
+       ntr,nfqso,newdat,npts80,nfb,ntol,kin,nzhsym,nsynced,ndecoded
   common/jt9comB/ss(184,NSMAX),c0
   common/tracer/limtrace,lu
   logical first
@@ -79,7 +79,7 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   tstep=kstep/12000.0
 
   call timer('sync9   ',0)
-  call sync9(ss,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk)  ! Get sync, approx freq
+  call sync9(ss,nzhsym,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk)  !Compute ccfred
   call timer('sync9   ',1)
 
   open(13,file='decoded.txt',status='unknown')
@@ -98,7 +98,6 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   ii=maxloc(ccfred(ia:ib))
   i=ii(1) + ia - 1
   f=(i-1)*df3
-  print*,ipk,i,ccfred(i),f,abs(f-fgood)
   if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. abs(f-fgood).gt.10.0*df8) then
      call timer('spec9   ',0)
      call spec9(c0,npts8,nsps,f,fpk,xdt,snr,i1SoftSymbols)
