@@ -30,7 +30,8 @@ subroutine redsync(ss,ntrperiod,ihsym,iz,red)
   red=red/xmed
   smax=0.
   do i=1,iz
-     red(i)=2.0*sqrt(red(i))
+     red(i)=0.2*db(red(i))
+!     red(i)=2.0*sqrt(red(i))
      smax=max(smax,red(i))
   enddo
   h=10.
@@ -38,4 +39,3 @@ subroutine redsync(ss,ntrperiod,ihsym,iz,red)
 
   return
 end subroutine redsync
-        
