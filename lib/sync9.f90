@@ -1,4 +1,4 @@
-subroutine sync9(ss,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipkbest)
+subroutine sync9(ss,nzhsym,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipkbest)
 
   parameter (NSMAX=22000)            !Max length of saved spectra
   real ss(184,NSMAX)
@@ -18,16 +18,20 @@ subroutine sync9(ss,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipkbest)
   endif
 
   sbest=0.
-  lagmax=2.5/tstep + 0.9999
+  lag1=-(2.5/tstep + 0.9999)
+  lag2=5.0/tstep + 0.9999
   ccfred=0.
 
   do i=ia,ib
      smax=0.
-     do lag=-lagmax,lagmax
+     do lag=lag1,lag2
         sum=0.
         do j=1,16
            k=ii2(j) + lag
-           if(k.ge.1) sum=sum + ss(k,i) - 0.5*(ss(k+2,i)+ss(k+4,i))
+           kaa=ka(j)+lag
+           kbb=kb(j)+lag
+           if(k.ge.1 .and. k.le.nzhsym) sum=sum + ss(k,i) -      &
+                0.5*(ss(kaa,i)+ss(kbb,i))
         enddo
         if(sum.gt.smax) then
            smax=sum

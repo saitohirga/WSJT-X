@@ -19,6 +19,7 @@ extern struct {
   int nfb;                          //High decode limit (kHz)
   int ntol;                         //+/- decoding range around fQSO (Hz)
   int kin;
+  int nzhsym;
   int nsynced;
   int ndecoded;
 } jt9com_;
