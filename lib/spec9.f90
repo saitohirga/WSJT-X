@@ -33,7 +33,7 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
 
   nsps8=nsps/8
   foffset=fpk0
-  istart=1500
+  istart=1520
 
   call timer('peakdt9 ',0)
   call peakdt9(c1,npts8,nsps8,istart,foffset,idt)
@@ -74,7 +74,7 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
      call four2a(c,nfft,1,-1,1)
      do i=0,nfft-1
         sx(i)=real(c(i))**2 + aimag(c(i))**2
-        if(i.ge.1 .and. i.le.8) ssym(ig(i-1),k)=sx(i)
+        if(i.ge.1 .and. i.le.8) ssym(i-1,k)=sx(i)
      enddo
   enddo
 
@@ -92,6 +92,7 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
   ave=sum/(69*7)
   call pctile(sx,nsps8,50,xmed)
   ssym=ssym/ave
+
   sig=sig/69.
   df8=1500.0/nsps8
   t=max(1.0,sig/xmed - 1.0)
@@ -101,26 +102,34 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
   ntones=8
   k=0
   do j=1,69
-     do m=m0-1,0,-1                   !Get bit-wise soft symbols
-        n=2**m
-        r1=0.
-        r2=0.
-        do i=0,ntones-1
-           if(iand(i,n).ne.0) then
-              r1=max(r1,ssym(i,j))
-           else
-              r2=max(r2,ssym(i,j))
+        smax=0.
+        do i=0,7
+           if(ssym(i,j).gt.smax) then
+              smax=ssym(i,j)
+              ipk=i
            endif
         enddo
+
+     do m=m0-1,0,-1                   !Get bit-wise soft symbols
+        if(m.eq.2) then
+           r1=max(ssym(4,j),ssym(5,j),ssym(6,j),ssym(7,j))
+           r0=max(ssym(0,j),ssym(1,j),ssym(2,j),ssym(3,j))
+        else if(m.eq.1) then
+           r1=max(ssym(2,j),ssym(3,j),ssym(4,j),ssym(5,j))
+           r0=max(ssym(0,j),ssym(1,j),ssym(6,j),ssym(7,j))
+        else
+           r1=max(ssym(1,j),ssym(2,j),ssym(4,j),ssym(7,j))
+           r0=max(ssym(0,j),ssym(3,j),ssym(5,j),ssym(6,j))
+        endif
+
         k=k+1
-        i4=nint(10.0*(r1-r2))
+        i4=nint(10.0*(r1-r0))
         if(i4.lt.-127) i4=-127
         if(i4.gt.127) i4=127
         i4=i4+128
         i1SoftSymbolsScrambled(k)=i1
      enddo
   enddo
-
   call interleave9(i1SoftSymbolsScrambled,-1,i1SoftSymbols)
 
   return

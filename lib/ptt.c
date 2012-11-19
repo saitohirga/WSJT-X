@@ -6,7 +6,7 @@ int ptt_(int *nport, int *ntx, int *iptt)
   static HANDLE hFile;
   static int open=0;
   char s[10];
-  int i3,i4,i5,i6,i9,i00;
+  int i3=1,i4=1,i5=1,i6=1,i9=1,i00=1;
 
   if(*nport==0) {
     *iptt=*ntx;
@@ -14,7 +14,7 @@ int ptt_(int *nport, int *ntx, int *iptt)
   }
 
   if(*ntx && (!open)) {
-    sprintf(s,"COM%d",*nport);
+    sprintf(s,"\\\\.\\COM%d",*nport);
     hFile=CreateFile(TEXT(s),GENERIC_WRITE,0,NULL,OPEN_EXISTING,
 		     FILE_ATTRIBUTE_NORMAL,NULL);
     if(hFile==INVALID_HANDLE_VALUE) {
@@ -38,11 +38,13 @@ int ptt_(int *nport, int *ntx, int *iptt)
     *iptt=0;
     open=0;
   }
+  /*
   if(i3==0) return 3;
   if(i4==0) return 4;
   if(i5==0) return 5;
   if(i6==0) return 6;
   if(i9==0) return 9;
   if(i00==0) return 10;
+  */
   return 0;
 }
