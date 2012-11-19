@@ -135,7 +135,7 @@ int ptt(int nport, int ntx, int *iptt)
   }
 
   if(ntx && (!open)) {
-    sprintf(s,"COM%d",nport);
+    sprintf(s,"\\\\.\\COM%d",nport);
     hFile=CreateFile(TEXT(s),GENERIC_WRITE,0,NULL,OPEN_EXISTING,
                      FILE_ATTRIBUTE_NORMAL,NULL);
     if(hFile==INVALID_HANDLE_VALUE) {
@@ -159,12 +159,14 @@ int ptt(int nport, int ntx, int *iptt)
     *iptt=0;
     open=0;
   }
+  /*
   if(i3==0) return -(SETRTS);
   if(i4==0) return -(CLRRTS);
   if(i5==0) return -(SETDTR);
   if(i6==0) return -(CLRDTR);
   if(i9==0) return -(CLRBREAK);
   if(i00==0) return -10;
+  */
   return 0;
 #endif
 }
