@@ -98,7 +98,7 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   ii=maxloc(ccfred(ia:ib))
   i=ii(1) + ia - 1
   f=(i-1)*df3
-
+  print*,ipk,i,ccfred(i),f,abs(f-fgood)
   if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. abs(f-fgood).gt.10.0*df8) then
      call timer('spec9   ',0)
      call spec9(c0,npts8,nsps,f,fpk,xdt,snr,i1SoftSymbols)
@@ -127,12 +127,11 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
         fgood=f
         nsynced=1
         ndecoded=1
+        ccfred(max(ia,i):min(ib,i+8))=0.
      endif
   endif
-  i1=max(ia,i-10)
-  i2=min(ib,i+10)
-  ccfred(i1:i2)=0.
-   if(maxval(ccfred(ia:ib)).gt.3.0) go to 10
+  ccfred(i)=0.
+  if(maxval(ccfred(ia:ib)).gt.3.0) go to 10
 
   if(fgood.eq.0.0) then
      write(13,1020) line
