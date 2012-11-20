@@ -30,6 +30,9 @@ public slots:
   void freezeDecode(int n);
   void guiUpdate();
   void doubleClickOnCall(QString hiscall, bool ctrl);
+  void readFromStdout();
+  void readFromStderr();
+  void jt9_error();
 
 protected:
   virtual void keyPressEvent( QKeyEvent *e );
@@ -152,6 +155,7 @@ private:
     bool    m_NB;
     bool    m_call3Modified;
     bool    m_dataAvailable;
+    bool    m_killAll;
     char    m_decoded[80];
     float   m_pctZap;
     QRect   m_wideGraphGeom;
@@ -168,6 +172,7 @@ private:
     QFutureWatcher<void>* watcher1;
     QFutureWatcher<void>* watcher2;
     QFutureWatcher<void>* watcher3;
+    QProcess proc_jt9;
     QString m_path;
     QString m_pbdecoding_style1;
     QString m_pbmonitor_style;
