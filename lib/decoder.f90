@@ -106,7 +106,7 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
      call decode9(i1SoftSymbols,limit,nlim,msg)
      call timer('decode9 ',1)
  
-     sync=ccfred(i) - 2.0
+     sync=(ccfred(i)-1.0)/2.0
      if(sync.lt.0.0) sync=0.0
      nsync=sync
      if(nsync.gt.10) nsync=10
@@ -125,7 +125,7 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
         fgood=f
         nsynced=1
         ndecoded=1
-        ccfred(max(ia,i):min(ib,i+8))=0.
+        ccfred(max(ia,i-3):min(ib,i+11))=0.
      endif
   endif
   ccfred(i)=0.
