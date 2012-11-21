@@ -20,6 +20,7 @@ program jt9
   complex c0
   common/jt9com/ss(184,NSMAX),savg(NSMAX),c0(NDMAX),id2(NMAX),nutc,ndiskdat,  &
        ntr,mousefqso,newdat,nfa,nfb,ntol,kin,nzhsym,nsynced,ndecoded
+  common/tracer/limtrace,lu
 
   nargs=iargc()
   if(nargs.lt.1) then
@@ -40,9 +41,10 @@ program jt9
 
   ifile1=2
 
+  limtrace=0
+  lu=12
   nfa=1000
   nfb=2000
-!  ntol=500
   ntol=500
   nfqso=1500
   newdat=1
@@ -83,7 +85,10 @@ program jt9
      k=0
      nhsym0=-999
      npts=(60*ntrperiod-6)*12000
-     if(ifile.eq.ifile1) call timer('jt9     ',0)
+     if(ifile.eq.ifile1) then
+        open(12,file='timer.out',status='unknown')
+        call timer('jt9     ',0)
+     endif
 
 !     do i=1,npts
 !        id2(i)=100.0*sin(6.283185307*1600.0*i/12000.0)
@@ -101,7 +106,7 @@ program jt9
            ingain=0
            call timer('symspec ',0)
            call symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,   &
-                s,ccfred,df3,ihsym,nzap,slimit,lstrong,c0,npts8)
+                s,ccfred,df3,ihsym,nzap,slimit,lstrong,npts8)
            call timer('symspec ',1)
            nhsym0=nhsym
            if(ihsym.ge.184) go to 10
@@ -112,7 +117,9 @@ program jt9
      iz=1000.0/df3
      nutc=nutc0
 
+     call timer('sync9   ',0)
      call sync9(ss,nzhsym,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk) !Get sync, freq
+     call timer('sync9   ',1)
 
      fgood=0.
      df8=1500.0/(nsps/8)
@@ -120,8 +127,13 @@ program jt9
      do i=ia,ib
         f=(i-1)*df3
         if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. f.gt.fgood+10.0*df8) then
+           call timer('spec9   ',0)
            call spec9(c0,npts8,nsps,f,fpk,xdt,snrdb,i1SoftSymbols)
+           call timer('spec9   ',1)
+
+           call timer('decode9 ',0)
            call decode9(i1SoftSymbols,limit,nlim,msg)
+           call timer('decode9 ',1)
            snr=snrdb
            sync=ccfred(i) - 2.0
            if(sync.lt.0.0) sync=0.0
