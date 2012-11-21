@@ -2,33 +2,33 @@
 #include <qsharedmemory.h>
 #include <QSystemSemaphore>
 
-QSharedMemory mem_m65("mem_m65");
-QSystemSemaphore sem_m65("sem_m65", 1, QSystemSemaphore::Open);
+QSharedMemory mem_jt9("mem_jt9");
+QSystemSemaphore sem_jt9("sem_jt9", 1, QSystemSemaphore::Open);
 
 extern "C" {
-  bool attach_m65_();
-  bool create_m65_(int nsize);
-  bool detach_m65_();
-  bool lock_m65_();
-  bool unlock_m65_();
-  char* address_m65_();
-  int size_m65_();
+  bool attach_jt9_();
+  bool create_jt9_(int nsize);
+  bool detach_jt9_();
+  bool lock_jt9_();
+  bool unlock_jt9_();
+  char* address_jt9_();
+  int size_jt9_();
 
-  bool acquire_m65_();
-  bool release_m65_();
+  bool acquire_jt9_();
+  bool release_jt9_();
 
   extern struct {
     char c[10];
-  } m65com_;
+  } jt9com_;
 }
 
-bool attach_m65_() {return mem_m65.attach();}
-bool create_m65_(int nsize) {return mem_m65.create(nsize);}
-bool detach_m65_() {return mem_m65.detach();}
-bool lock_m65_() {return mem_m65.lock();}
-bool unlock_m65_() {return mem_m65.unlock();}
-char* address_m65_() {return (char*)mem_m65.constData();}
-int size_m65_() {return (int)mem_m65.size();}
+bool attach_jt9_() {return mem_jt9.attach();}
+bool create_jt9_(int nsize) {return mem_jt9.create(nsize);}
+bool detach_jt9_() {return mem_jt9.detach();}
+bool lock_jt9_() {return mem_jt9.lock();}
+bool unlock_jt9_() {return mem_jt9.unlock();}
+char* address_jt9_() {return (char*)mem_jt9.constData();}
+int size_jt9_() {return (int)mem_jt9.size();}
 
-bool acquire_m65_() {return sem_m65.acquire();}
-bool release_m65_() {return sem_m65.release();}
+bool acquire_jt9_() {return sem_jt9.acquire();}
+bool release_jt9_() {return sem_jt9.release();}

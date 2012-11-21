@@ -136,6 +136,7 @@ private:
     qint32  m_hsymStop;
     qint32  m_len1;
     qint32  m_inGain;
+    qint32  m_nsave;
 
     bool    m_monitoring;
     bool    m_transmitting;
@@ -218,11 +219,11 @@ extern "C" {
 void symspec_(int* k, int* ntrperiod, int* nsps, int* ingain, int* nb,
               int* m_NBslider, float* px, float s[], float red[],
               float* df3, int* nhsym, int* nzap, float* slimit,
-              uchar lstrong[], float c0[], int* npts8);
+              uchar lstrong[], int* npts8);
 
 void genjt9_(char* msg, char* msgsent, int itone[], int len1, int len2);
 
-void decoder_(int* ntrperiod, int* ndepth, int* mRxLog, float c0[]);
+//void decoder_(int* ntrperiod, int* ndepth, int* mRxLog, float c0[]);
 }
 
 #endif // MAINWINDOW_H
