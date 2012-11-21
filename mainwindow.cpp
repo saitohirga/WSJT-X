@@ -845,6 +845,7 @@ void MainWindow::on_DecodeButton_clicked()                    //Decode request
 {
   if(!m_decoderBusy) {
     jt9com_.newdat=0;
+    jt9com_.nagain=1;
     decode();
   }
 }
@@ -854,6 +855,7 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
   static int ntol[] = {1,2,5,10,20,50,100,200,500,1000};
   if(!m_decoderBusy) {
     jt9com_.newdat=0;
+    jt9com_.nagain=1;
     int i;
     if(m_mode=="JT9-1") i=4;
     if(m_mode=="JT9-2") i=4;
@@ -875,7 +877,7 @@ void MainWindow::decode()                                       //decode()
     int imin=ms/60000;
     int ihr=imin/60;
     imin=imin % 60;
-    jt9com_.nutc=100*(100*ihr + imin);
+    jt9com_.nutc=100*ihr + imin;
   }
 
   jt9com_.nfqso=g_pWideGraph->QSOfreq();
@@ -904,14 +906,14 @@ void MainWindow::decode()                                       //decode()
   char *to = (char*)mem_jt9.data();
   char *from = (char*) jt9com_.ss;
   int size=sizeof(jt9com_);
-  /*
+
   if(jt9com_.newdat==0) {
-    int noffset = 4*4*5760000 + 4*4*322*32768 + 4*4*32768;
+    int noffset = 4*184*22000 + 4*22000 + 4*2*1800*1500 + 2*1800*12000;
     to += noffset;
     from += noffset;
     size -= noffset;
   }
-  */
+
   memcpy(to, from, qMin(mem_jt9.size(), size));
   jt9com_.nagain=0;
   jt9com_.ndiskdat=0;

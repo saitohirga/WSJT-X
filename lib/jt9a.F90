@@ -85,6 +85,8 @@ subroutine jt9c(ss,savg,c0,id2,nparams0)
   nparams=nparams0                     !Copy parameters into common/npar/
   npatience=1
 
+  call flush(6)
+
   if(iand(nrxlog,1).ne.0) then
 !     write(21,1000) datetime(:17)
 !1000 format(/'UTC Date: 'a17/78('-'))
