@@ -866,32 +866,6 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
     decode();
   }
 }
-/*
-void MainWindow::decode()                                       //decode()
-{
-  if(!m_dataAvailable) return;
-  decodeBusy(true);
-  ui->DecodeButton->setStyleSheet(m_pbdecoding_style1);
-
-  if(!m_diskData) {
-    qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-    int imin=ms/60000;
-    int ihr=imin/60;
-    imin=imin%60;
-    if(m_TRperiod>60) imin=imin - imin%(m_TRperiod/60);
-    jt9com_.nutc=100*ihr + imin;
-  }
-
-  jt9com_.nfqso=g_pWideGraph->QSOfreq();
-  m_tol=g_pWideGraph->Tol();
-  jt9com_.ntol=m_tol;
-  if(jt9com_.nutc < m_nutc0) m_RxLog |= 1;  //Date and Time to wsjtx_rx.log
-  m_nutc0=jt9com_.nutc;
-  *future3 = QtConcurrent::run(decoder_, &m_TRperiod, &m_ndepth,
-                               &m_RxLog, &c0[0]);
-  watcher3->setFuture(*future3);
-}
-*/
 
 void MainWindow::decode()                                       //decode()
 {
