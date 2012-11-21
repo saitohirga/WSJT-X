@@ -18,7 +18,7 @@ WideGraph* g_pWideGraph = NULL;
 QSharedMemory mem_jt9("mem_jt9");
 
 QString rev="$Rev$";
-QString Program_Title_Version="  WSJT-X   v0.4, r" + rev.mid(6,4) +
+QString Program_Title_Version="  WSJT-X   v0.5, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 //-------------------------------------------------- MainWindow constructor
