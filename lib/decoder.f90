@@ -1,25 +1,31 @@
-subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
+subroutine decoder(ss,c0)
 
 ! Decoder for JT9.
 
   parameter (NMAX=1800*12000)        !Total sample intervals per 30 minutes
   parameter (NDMAX=1800*1500)        !Sample intervals at 1500 Hz rate
   parameter (NSMAX=22000)            !Max length of saved spectra
+  real ss(184,NSMAX)
   character*22 msg
   character*33 line
   character*80 fmt,fmt14
+  character*20 datetime
   real*4 ccfred(NSMAX)
   integer*1 i1SoftSymbols(207)
   integer*2 id2
   integer ii(1)
-  complex c0(NDMAX),c00(NDMAX)
-  common/jt9com/ss0(184,NSMAX),savg(NSMAX),id2(NMAX),nutc0,ndiskdat,    &
-       ntr,nfqso,newdat,npts80,nfb,ntol,kin,nzhsym,nsynced,ndecoded
-  common/jt9comB/ss(184,NSMAX),c0
+  complex c0(NDMAX)
+! common/jt9com/ss0(184,NSMAX),savg(NSMAX),id2(NMAX),nutc0,ndiskdat,    &
+!      ntr,nfqso,newdat,npts80,nfb,ntol,kin,nzhsym,nsynced,ndecoded
+!  common/jt9comB/ss(184,NSMAX),c0
+  common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfb,ntol,  &
+       kin,nzhsym,nsave,nagain,ndepth,nrxlog,nfsample,datetime
   common/tracer/limtrace,lu
   logical first
   data first/.true./
   save
+
+  call timer('decoder ',0)
 
   if(first) then
      limtrace=0
@@ -29,16 +35,14 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
      first=.false.
   endif
 
-  call timer('decoder ',0)
+! if(newdat.ne.0) then
+!    ss=ss0
+!    c0=c00
+!    nutc=nutc0
+!    npts8=npts80
+! endif
 
-  if(newdat.ne.0) then
-     ss=ss0
-     c0=c00
-     nutc=nutc0
-     npts8=npts80
-  endif
-
-  ntrMinutes=ntrSeconds/60
+  ntrMinutes=ntrperiod/60
   newdat=1
   nsynced=0
   ndecoded=0
@@ -82,8 +86,8 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   call sync9(ss,nzhsym,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk)  !Compute ccfred
   call timer('sync9   ',1)
 
-  open(13,file='decoded.txt',status='unknown')
-  rewind 13
+!  open(13,file='decoded.txt',status='unknown')
+!  rewind 13
   if(iand(nRxLog,2).ne.0) rewind 14
   if(iand(nRxLog,1).ne.0) then
 ! Write date and time to lu 14     
@@ -120,7 +124,7 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
      endif
 
      if(msg.ne.'                      ') then
-        write(13,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,msg
+        write(*,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,msg
         write(14,fmt14) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,nlim,msg
         fgood=f
         nsynced=1
@@ -132,17 +136,20 @@ subroutine decoder(ntrSeconds,ndepth,nRxLog,c00)
   if(maxval(ccfred(ia:ib)).gt.3.0) go to 10
 
   if(fgood.eq.0.0) then
-     write(13,1020) line
+     write(*,1020) line
      write(14,1020) line
 1020 format(a33)
   endif
 
-  call flush(13)
+  write(*,1010) nsum,nsave
+1010 format('<DecodeFinished>',2i4)
+  flush(6)
+
+  call flush(6)
   call flush(14)
-  close(13)
 
   call timer('decoder ',1)
-  call timer('decoder ',101)
+  if(nstandalone.eq.0) call timer('decoder ',101)
 
   return
 end subroutine decoder

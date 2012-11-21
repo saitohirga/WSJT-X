@@ -12,7 +12,7 @@
 int itone[85];                        //Tx audio tones for 85 symbols
 bool btxok;                           //True if OK to transmit
 double outputLatency;                 //Latency in seconds
-float c0[2*1800*1500];
+//float c0[2*1800*1500];
 
 WideGraph* g_pWideGraph = NULL;
 QSharedMemory mem_jt9("mem_jt9");
@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->setupUi(this);
 
 #ifdef WIN32
-  freopen("wsjtx.log","w",stderr);
+//  freopen("wsjtx.log","w",stderr);
 #endif
   on_EraseButton_clicked();
   ui->labUTC->setStyleSheet( \
@@ -147,11 +147,11 @@ MainWindow::MainWindow(QWidget *parent) :
     msgBox("Unable to initialize PortAudio.");
   }
   readSettings();		             //Restore user's setup params
-  QFile lockFile(m_appDir + "/.lock");     //Create .lock so m65 will wait
+  QFile lockFile(m_appDir + "/.lock");     //Create .lock so jt9 will wait
   lockFile.open(QIODevice::ReadWrite);
   QFile quitFile(m_appDir + "/.lock");
   quitFile.remove();
-//  proc_jt9.start(QDir::toNativeSeparators(m_appDir + "/jt9 -s"));
+  proc_jt9.start(QDir::toNativeSeparators(m_appDir + "/jt9 -s"));
 
   m_pbdecoding_style1="QPushButton{background-color: cyan; \
       border-style: outset; border-width: 1px; border-radius: 5px; \
@@ -374,7 +374,7 @@ void MainWindow::dataSink(int k)
   if(m_NB) nb=1;
   trmin=m_TRperiod/60;
   symspec_(&k, &trmin, &m_nsps, &m_inGain, &nb, &m_NBslider, &px, s, red,
-           &df3, &ihsym, &nzap, &slimit, lstrong, c0, &npts8);
+           &df3, &ihsym, &nzap, &slimit, lstrong, &npts8);
   if(ihsym <=0) return;
   QString t;
   m_pctZap=nzap*100.0/m_nsps;
@@ -393,9 +393,7 @@ void MainWindow::dataSink(int k)
     QDateTime t = QDateTime::currentDateTimeUtc();
     m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
     decode();                                           //Start the decoder
-    if(!m_diskData and
-       (m_saveAll or (m_saveSynced and (jt9com_.nsynced==1))
-                  or (m_saveDecoded and (jt9com_.ndecoded==1)))) {
+    if(!m_diskData and m_saveAll) {
       int ihr=t.time().toString("hh").toInt();
       int imin=t.time().toString("mm").toInt();
       imin=imin - (imin%(m_TRperiod/60));
@@ -627,7 +625,7 @@ void MainWindow::OnExit()
   QFile quitFile(m_appDir + "/.quit");
   quitFile.open(QIODevice::ReadWrite);
   QFile lockFile(m_appDir + "/.lock");
-  lockFile.remove();                      // Allow m65 to terminate
+  lockFile.remove();                      // Allow jt9 to terminate
   bool b=proc_jt9.waitForFinished(1000);
   if(!b) proc_jt9.kill();
   quitFile.remove();
@@ -868,7 +866,7 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
     decode();
   }
 }
-
+/*
 void MainWindow::decode()                                       //decode()
 {
   if(!m_dataAvailable) return;
@@ -893,97 +891,66 @@ void MainWindow::decode()                                       //decode()
                                &m_RxLog, &c0[0]);
   watcher3->setFuture(*future3);
 }
+*/
 
-/*
 void MainWindow::decode()                                       //decode()
 {
   ui->DecodeButton->setStyleSheet(m_pbdecoding_style1);
-  if(datcom_.nagain==0 && (!m_diskData)) {
+  if(jt9com_.nagain==0 && (!m_diskData)) {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int imin=ms/60000;
     int ihr=imin/60;
     imin=imin % 60;
-    int isec=(ms/1000) % 60;
-    datcom_.nutc=100*(100*ihr + imin);
-    if((m_mode=="JT65B2" or m_mode=="JT65C2") and isec>30) datcom_.nutc += 30;
+    jt9com_.nutc=100*(100*ihr + imin);
   }
 
-  datcom_.idphi=m_dPhi;
-  datcom_.mousedf=g_pWideGraph->DF();
-  datcom_.mousefqso=g_pWideGraph->QSOfreq();
-  datcom_.ndepth=m_ndepth;
-  datcom_.ndiskdat=0;
-  if(m_diskData) datcom_.ndiskdat=1;
-  datcom_.neme=0;
-  if(ui->actionOnly_EME_calls->isChecked()) datcom_.neme=1;
+  jt9com_.nfqso=g_pWideGraph->QSOfreq();
+  jt9com_.ndepth=m_ndepth;
+  jt9com_.ndiskdat=0;
+  if(m_diskData) jt9com_.ndiskdat=1;
 
-  int ispan=int(g_pWideGraph->fSpan());
-  if(ispan%2 == 1) ispan++;
-  int ifc=int(1000.0*(datcom_.fcenter - int(datcom_.fcenter))+0.5);
-  int nfa=g_pWideGraph->nStartFreq();
-  int nfb=nfa+ispan;
-  int nfshift=nfa + ispan/2 - ifc;
+  jt9com_.nfa=1000;                         //### temporary ###
+  jt9com_.nfb=2000;
 
-  datcom_.nfa=nfa;
-  datcom_.nfb=nfb;
-  datcom_.nfcal=m_fCal;
-  datcom_.nfshift=nfshift;
-  datcom_.mcall3=0;
-  if(m_call3Modified) datcom_.mcall3=1;
-  datcom_.ntimeout=m_timeout;
-  datcom_.ntol=m_tol;
-  datcom_.nxant=0;
-  if(m_xpolx) datcom_.nxant=1;
-  if(datcom_.nutc < m_nutc0) m_map65RxLog |= 1;  //Date and Time to all65.txt
-  m_nutc0=datcom_.nutc;
-  datcom_.map65RxLog=m_map65RxLog;
-  datcom_.nfsample=96000;
-  if(!m_fs96000) datcom_.nfsample=95238;
-  datcom_.nxpol=0;
-  if(m_xpol) datcom_.nxpol=1;
-  datcom_.mode65=m_mode65;
-  datcom_.nfast=m_nfast;
-  datcom_.nsave=m_nsave;
-
-  QString mcall=(m_myCall+"            ").mid(0,12);
-  QString mgrid=(m_myGrid+"            ").mid(0,6);
-  QString hcall=(ui->dxCallEntry->text()+"            ").mid(0,12);
-  QString hgrid=(ui->dxGridEntry->text()+"      ").mid(0,6);
-
-  strncpy(datcom_.mycall, mcall.toAscii(), 12);
-  strncpy(datcom_.mygrid, mgrid.toAscii(), 6);
-  strncpy(datcom_.hiscall, hcall.toAscii(), 12);
-  strncpy(datcom_.hisgrid, hgrid.toAscii(), 6);
-  strncpy(datcom_.datetime, m_dateTime.toAscii(), 20);
+  jt9com_.ntol=m_tol;
+  if(jt9com_.nutc < m_nutc0) m_RxLog |= 1;  //Date and Time to all65.txt
+  m_nutc0=jt9com_.nutc;
+  jt9com_.nrxlog=m_RxLog;
+  jt9com_.nfsample=12000;
+  jt9com_.ntrperiod=m_TRperiod;
+  m_nsave=0;
+  if(m_saveSynced) m_nsave=1;
+  if(m_saveDecoded) m_nsave=2;
+  jt9com_.nsave=m_nsave;
+  strncpy(jt9com_.datetime, m_dateTime.toAscii(), 20);
 
   //newdat=1  ==> this is new data, must do the big FFT
   //nagain=1  ==> decode only at fQSO +/- Tol
 
-  char *to = (char*)mem_m65.data();
-  char *from = (char*) datcom_.d4;
-  int size=sizeof(datcom_);
-  if(datcom_.newdat==0) {
+  char *to = (char*)mem_jt9.data();
+  char *from = (char*) jt9com_.ss;
+  int size=sizeof(jt9com_);
+  /*
+  if(jt9com_.newdat==0) {
     int noffset = 4*4*5760000 + 4*4*322*32768 + 4*4*32768;
     to += noffset;
     from += noffset;
     size -= noffset;
   }
-  memcpy(to, from, qMin(mem_m65.size(), size));
-  datcom_.nagain=0;
-  datcom_.ndiskdat=0;
-  m_call3Modified=false;
+  */
+  memcpy(to, from, qMin(mem_jt9.size(), size));
+  jt9com_.nagain=0;
+  jt9com_.ndiskdat=0;
 
-  QFile lockFile(m_appDir + "/.lock");       // Allow m65 to start
+  QFile lockFile(m_appDir + "/.lock");       // Allow jt9 to start
   lockFile.remove();
   decodeBusy(true);
 }
 
-*/
-
-void MainWindow::jt9_error()                                     //m65_error
+void MainWindow::jt9_error()                                     //jt9_error
 {
   if(!m_killAll) {
-    msgBox("Error starting or running\n" + m_appDir + "/m65 -s");
+    msgBox("Error starting or running\n" + m_appDir + "/jt9 -s");
     exit(1);
   }
 }
@@ -1015,11 +982,15 @@ void MainWindow::readFromStdout()                             //readFromStdout
       lockFile.open(QIODevice::ReadWrite);
       ui->DecodeButton->setStyleSheet("");
       decodeBusy(false);
-//      m_map65RxLog=0;
+      m_RxLog=0;
       m_startAnother=m_loopall;
       return;
+    } else {
+      int n=t.length();
+      ui->decodedTextBrowser->append(t.mid(0,n-2));
     }
 
+    /*
     if(t.indexOf("!") >= 0) {
       int n=t.length();
       if(n>=30) ui->decodedTextBrowser->append(t.mid(1,n-3));
@@ -1030,7 +1001,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
 //      m_bandmapText="";
     }
 
-    /*
     if(t.indexOf("@") >= 0) {
       m_messagesText += t.mid(1);
       m_widebandDecode=true;

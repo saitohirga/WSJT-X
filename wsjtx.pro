@@ -6,7 +6,7 @@
 
 QT       += core gui network
 CONFIG   += qwt thread
-CONFIG   += console release
+#CONFIG   += console
 
 TARGET = wsjtx
 VERSION = 0.2
@@ -38,7 +38,7 @@ SOURCES += main.cpp mainwindow.cpp plotter.cpp about.cpp \
     displaytext.cpp getdev.cpp
 
 win32 {
-SOURCES +=
+SOURCES += killbyname.cpp
 }
 
 HEADERS  += mainwindow.h plotter.h soundin.h soundout.h \

@@ -17,9 +17,9 @@ program jt9
   character*22 msg
   character*33 line
   integer*2 id2
-  complex c0(NDMAX)
-  common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,    &
-       ntr,mousefqso,newdat,nfa,nfb,ntol,kin
+  complex c0
+  common/jt9com/ss(184,NSMAX),savg(NSMAX),c0(NDMAX),id2(NMAX),nutc,ndiskdat,  &
+       ntr,mousefqso,newdat,nfa,nfb,ntol,kin,nzhsym,nsynced,ndecoded
 
   nargs=iargc()
   if(nargs.lt.1) then
@@ -31,7 +31,11 @@ program jt9
      go to 999
   endif
   call getarg(1,arg)
-  if(arg(1:2).eq.'-s') go to 999
+  if(arg(1:2).eq.'-s') then
+     call jt9a
+!    call ftnquit
+     go to 999
+  endif
   read(arg,*) ntrperiod
 
   ifile1=2
@@ -56,11 +60,22 @@ program jt9
      go to 2
 1    nutc0=0
 2    nsps=0
-     if(ntrperiod.eq.1)  nsps=6912
-     if(ntrperiod.eq.2)  nsps=15360
-     if(ntrperiod.eq.5)  nsps=40960
-     if(ntrperiod.eq.10) nsps=82944
-     if(ntrperiod.eq.30) nsps=252000
+     if(ntrperiod.eq.1)  then
+        nsps=6912
+        nzhsym=181
+     else if(ntrperiod.eq.2)  then
+        nsps=15360
+        nzhsym=178
+     else if(ntrperiod.eq.5)  then
+        nsps=40960
+        nzhsym=172
+     else if(ntrperiod.eq.10) then
+        nsps=82944
+        nzhsym=171
+     else if(ntrperiod.eq.30) then
+        nsps=252000
+        nzhsym=167
+     endif
      if(nsps.eq.0) stop 'Error: bad TRperiod'
 
      kstep=nsps/2
@@ -68,6 +83,7 @@ program jt9
      k=0
      nhsym0=-999
      npts=(60*ntrperiod-6)*12000
+     if(ifile.eq.ifile1) call timer('jt9     ',0)
 
 !     do i=1,npts
 !        id2(i)=100.0*sin(6.283185307*1600.0*i/12000.0)
@@ -75,13 +91,18 @@ program jt9
 
      do iblk=1,npts/kstep
         k=iblk*kstep
+        call timer('read_wav',0)
         read(10,end=10) id2(k-kstep+1:k)
+        call timer('read_wav',1)
+
         nhsym=(k-2048)/kstep
         if(nhsym.ge.1 .and. nhsym.ne.nhsym0) then
 ! Emit signal readyForFFT
            ingain=0
+           call timer('symspec ',0)
            call symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,   &
                 s,ccfred,df3,ihsym,nzap,slimit,lstrong,c0,npts8)
+           call timer('symspec ',1)
            nhsym0=nhsym
            if(ihsym.ge.184) go to 10
         endif
@@ -91,7 +112,7 @@ program jt9
      iz=1000.0/df3
      nutc=nutc0
 
-     call sync9(ss,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk)  !Get sync, freq
+     call sync9(ss,nzhsym,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk) !Get sync, freq
 
      fgood=0.
      df8=1500.0/(nsps/8)
@@ -132,6 +153,9 @@ program jt9
 
   enddo
 
+  call timer('jt9     ',1)
+  call timer('jt9     ',101)
+!  call ftnquit
   go to 999
 
 998 print*,'Cannot open file:'
