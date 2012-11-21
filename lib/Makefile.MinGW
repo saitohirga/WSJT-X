@@ -5,7 +5,7 @@
 CC = gcc
 FC = g95
 
-FFLAGS = -O0 -fbounds-check -Wall -Wno-precision-loss -fno-second-underscore
+FFLAGS = -O2 -fbounds-check -Wall -Wno-precision-loss -fno-second-underscore
 CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
 
 # Default rules
@@ -20,7 +20,7 @@ CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    libjt9.a jt9sim.exe jt9.exe jt9code.exe
+all:    libjt9.a jt9sim.exe jt9.exe jt9code.exe jt9test.exe
 
 OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	unpackmsg.o igray.o unpackcall.o unpackgrid.o \
@@ -31,15 +31,18 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	packbits.o unpackbits.o encode232.o interleave9.o \
 	entail.o fano232.o gran.o spec9.o sync9.o decode9.o \
 	peakdt9.o peakdf9.o fil3.o redsync.o decoder.o \
-	grid2n.o n2grid.o timer.o
+	grid2n.o n2grid.o timer.o 
 
 libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
 	ranlib libjt9.a
 
-OBJS2 = jt9.o 
+OBJS2 = jt9.o jt9a.o ipcomm.o sleep_msec.o
+LIBS2 = -L'c:/QtSDK/Desktop/Qt/4.7.4/mingw/lib' -lQtCore4
 jt9.exe: $(OBJS2) libjt9.a
-	$(FC) -o jt9.exe $(OBJS2) libjt9.a ../libfftw3f_win.a 
+	g++ -o jt9.exe $(OBJS2) $(LIBS2) libjt9.a ../libfftw3f_win.a \
+	c:/MinGW/lib/libf95.a
+	cp jt9.exe ../../wsjtx_install
 
 OBJS3 = jt9sim.o 
 jt9sim.exe: $(OBJS3) libjt9.a
@@ -48,6 +51,10 @@ jt9sim.exe: $(OBJS3) libjt9.a
 OBJS4 = jt9code.o 
 jt9code.exe: $(OBJS4) libjt9.a
 	$(FC) -o jt9code.exe $(OBJS4) libjt9.a
+
+OBJS5 = jt9test.o 
+jt9test.exe: $(OBJS5) libjt9.a
+	$(FC) -o jt9test.exe $(OBJS5) libjt9.a ../libfftw3f_win.a 
 
 INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
 	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
@@ -87,4 +94,4 @@ sec_midn.o: sec_midn.f90
 .PHONY : clean
 
 clean:
-	rm -f *.o libjt9.a wsjtx.exe jt9sim.exe jt9.exe t1.exe t2.exe
+	rm -f *.o libjt9.a wsjtx.exe jt9sim.exe jt9.exe jt9test.exe
