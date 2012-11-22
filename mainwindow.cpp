@@ -1051,12 +1051,14 @@ void MainWindow::guiUpdate()
     if(bTxTime and iptt==0 and !m_txMute) {
       int itx=1;
       int ierr = ptt(m_pttPort,itx,&iptt);       // Raise PTT
+      /*
       if(ierr<0) {
         on_stopTxButton_clicked();
         char s[18];
         sprintf(s,"PTT Error %d",ierr);
         msgBox(s);
       }
+      */
       if(!soundOutThread.isRunning()) {
         QString t=ui->tx6->text();
         double snr=t.mid(1,5).toDouble();
@@ -1121,11 +1123,13 @@ void MainWindow::guiUpdate()
   if(nc0 == 0) {
     int itx=0;
     int ierr=ptt(m_pttPort,itx,&iptt);       // Lower PTT
+    /*
     if(ierr<0) {
       char s[18];
       sprintf(s,"PTT Error %d",ierr);
       msgBox(s);
     }
+    */
     if(!m_txMute) soundOutThread.quitExecution=true;
     m_transmitting=false;
     if(m_auto) {
