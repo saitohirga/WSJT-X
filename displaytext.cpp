@@ -9,7 +9,7 @@ DisplayText::DisplayText(QWidget *parent) :
 
 void DisplayText::mouseDoubleClickEvent(QMouseEvent *e)
 {
-  bool ctrl = (e->modifiers() & 0x4000000);
+  bool ctrl = (e->modifiers() & Qt::ControlModifier);
   emit(selectCallsign(ctrl));
   QTextBrowser::mouseDoubleClickEvent(e);
 }
