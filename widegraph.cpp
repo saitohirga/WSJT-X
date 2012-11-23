@@ -156,11 +156,16 @@ void WideGraph::keyPressEvent(QKeyEvent *e)
 {  
   switch(e->key())
   {
+  int n;
   case Qt::Key_F11:
-    emit f11f12(11);
+    n=11;
+    if(e->modifiers() & Qt::ControlModifier) n+=100;
+    emit f11f12(n);
     break;
   case Qt::Key_F12:
-    emit f11f12(12);
+    n=12;
+    if(e->modifiers() & Qt::ControlModifier) n+=100;
+    emit f11f12(n);
     break;
   default:
     e->ignore();
@@ -267,4 +272,9 @@ void WideGraph::on_rbJT9Sync_clicked()
   ui->widePlot->m_bCurrent=false;
   ui->widePlot->m_bCumulative=false;
   ui->widePlot->m_bJT9Sync=true;
+}
+
+void WideGraph::setTxFreq(int n)
+{
+  ui->widePlot->setTxFreq(n);
 }

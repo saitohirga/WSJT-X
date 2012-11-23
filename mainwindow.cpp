@@ -164,6 +164,7 @@ MainWindow::MainWindow(QWidget *parent) :
       border-color: black; min-width: 5em; padding: 3px;}";
   genStdMsgs("-30");
   on_actionWide_Waterfall_triggered();                   //###
+  g_pWideGraph->setTxFreq(m_txFreq);
   if(m_mode=="JT9-1") on_actionJT9_1_triggered();
   if(m_mode=="JT9-2") on_actionJT9_2_triggered();
   if(m_mode=="JT9-5") on_actionJT9_5_triggered();
@@ -189,7 +190,7 @@ MainWindow::MainWindow(QWidget *parent) :
   soundInThread.setMonitoring(m_monitoring);
   m_diskData=false;
   g_pWideGraph->setTol(m_tol);
-  static int ntol[] = {1,2,5,10,20,50,100,200,500,1000};
+  static int ntol[] = {1,2,5,10,20,50,100,200,500};
   for (int i=0; i<10; i++) {
     if(ntol[i]==m_tol) ui->tolSpinBox->setValue(i);
   }
@@ -508,6 +509,7 @@ void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
 
 void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
 {
+  int n;
   switch(e->key())
   {
   case Qt::Key_F3:
@@ -526,20 +528,14 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
     }
     break;
   case Qt::Key_F11:
-    if(e->modifiers() & Qt::ShiftModifier) {
-    } else {
-      int n=g_pWideGraph->QSOfreq();
-      n--;
-      g_pWideGraph->setQSOfreq(n);
-    }
+    n=11;
+    if(e->modifiers() & Qt::ControlModifier) n+=100;
+    bumpFqso(n);
     break;
   case Qt::Key_F12:
-    if(e->modifiers() & Qt::ShiftModifier) {
-    } else {
-      int n=g_pWideGraph->QSOfreq();
-      n++;
-      g_pWideGraph->setQSOfreq(n);
-    }
+    n=12;
+    if(e->modifiers() & Qt::ControlModifier) n+=100;
+    bumpFqso(n);
     break;
   case Qt::Key_G:
     if(e->modifiers() & Qt::AltModifier) {
@@ -552,6 +548,22 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
       genStdMsgs("-30");
       break;
     }
+  }
+}
+
+void MainWindow::bumpFqso(int n)                                 //bumpFqso()
+{
+  if((n%100)==11) {
+    int i=g_pWideGraph->QSOfreq();
+    i--;
+    g_pWideGraph->setQSOfreq(i);
+    if(n<100) g_pWideGraph->setTxFreq(i);
+  }
+  if((n%100)==12) {
+    int i=g_pWideGraph->QSOfreq();
+    i++;
+    g_pWideGraph->setQSOfreq(i);
+    if(n<100) g_pWideGraph->setTxFreq(i);
   }
 }
 
@@ -601,7 +613,7 @@ void MainWindow::createStatusBar()                           //createStatusBar
 
 void MainWindow::on_tolSpinBox_valueChanged(int i)             //tolSpinBox
 {
-  static int ntol[] = {1,2,5,10,20,50,100,200,500,1000};
+  static int ntol[] = {1,2,5,10,20,50,100,200,500};
   m_tol=ntol[i];
   g_pWideGraph->setTol(m_tol);
   ui->labTol1->setText(QString::number(ntol[i]));
@@ -668,6 +680,8 @@ void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
     g_pWideGraph->setWindowFlags(flags);
     connect(g_pWideGraph, SIGNAL(freezeDecode2(int)),this,
             SLOT(freezeDecode(int)));
+    connect(g_pWideGraph, SIGNAL(f11f12(int)),this,
+            SLOT(bumpFqso(int)));
   }
   g_pWideGraph->show();
 }
@@ -852,7 +866,7 @@ void MainWindow::on_DecodeButton_clicked()                    //Decode request
 
 void MainWindow::freezeDecode(int n)                          //freezeDecode()
 {
-  static int ntol[] = {1,2,5,10,20,50,100,200,500,1000};
+  static int ntol[] = {1,2,5,10,20,50,100,200,500};
   if(!m_decoderBusy) {
     jt9com_.newdat=0;
     jt9com_.nagain=1;
@@ -1690,6 +1704,7 @@ void MainWindow::on_NBslider_valueChanged(int n)
 void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
 {
   m_txFreq=n;
+  if(g_pWideGraph!=NULL) g_pWideGraph->setTxFreq(n);
   soundOutThread.setTxFreq(n);
 }
 

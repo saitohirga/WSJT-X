@@ -30,6 +30,7 @@ public:
   void   setPalette(QString palette);
   void   setFsample(int n);
   void   setPeriod(int ntrperiod, int nsps);
+  void   setTxFreq(int n);
   double fGreen();
 
   qint32 m_qsoFreq;

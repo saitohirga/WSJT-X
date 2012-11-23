@@ -62,6 +62,7 @@ public:
   void setPalette(QString palette);
   void setFsample(int n);
   void setNsps(int ntrperiod, int nsps);
+  void setTxFreq(int n);
   double fGreen();
   void SetPercent2DScreen(int percent){m_Percent2DScreen=percent;}
 
@@ -115,6 +116,7 @@ private:
   qint32  m_h2;
   qint32  m_tol;
   qint32  m_TRperiod;
+  qint32  m_txFreq;
 
 private slots:
   void mousePressEvent(QMouseEvent *event);

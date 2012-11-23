@@ -108,6 +108,7 @@ private slots:
   void on_actionMediumDecode_triggered();
   void on_actionDeepestDecode_triggered();
   void on_inGain_valueChanged(int n);
+  void bumpFqso(int n);
 
 private:
     Ui::MainWindow *ui;
