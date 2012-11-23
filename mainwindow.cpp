@@ -980,6 +980,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
       return;
     } else {
       int n=t.length();
+      QString bg="white";
+      if(t.indexOf(" CQ ")>0) bg="#66ff66";
+      if(t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666";
+      ui->decodedTextBrowser->setTextBackgroundColor(bg);
       ui->decodedTextBrowser->append(t.mid(0,n-2));
     }
 
