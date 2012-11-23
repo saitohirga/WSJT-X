@@ -33,6 +33,7 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   m_nsps=6912;
   m_dBStepSize=10;
   m_Percent2DScreen = 30;	//percent of screen used for 2D display
+  m_txFreq=0;
 }
 
 CPlotter::~CPlotter() { }                                      // Destructor
@@ -136,8 +137,6 @@ void CPlotter::draw(float swide[], float red[], int i0)             //draw()
       if(!strong0) painter2D.setPen(Qt::green);
     }
     LineBuf[j].setX(i);
-//    y2 = m_h*float(i)/m_w;
-//    if(m_line==10) qDebug() << i << FreqfromX(i) << m_h << y2 << m_h-y2;
     LineBuf[j].setY(m_h-(y2+0.8*m_h));
     j++;
   }
@@ -285,12 +284,19 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
 
   QPen pen0(Qt::green, 3);                 //Mark QSO Freq with green tick
   painter0.setPen(pen0);
-  x = m_xClick;
-  painter0.drawLine(x,15,x,30);
+  x=XfromFreq(m_fQSO);
+  painter0.drawLine(x,17,x,30);
   int x1=x - m_tol/df;
   int x2=x + m_tol/df;
   pen0.setWidth(6);
   painter0.drawLine(x1,28,x2,28);
+
+  QPen pen1(Qt::red, 3);                 //Mark TxFreq with red tick
+  painter0.setPen(pen1);
+  x = XfromFreq(m_txFreq);
+  painter0.drawLine(x,0,x,13);
+  painter0.drawLine(x,13,x-2,11);
+  painter0.drawLine(x,13,x+2,11);
 
   /*
   df = 12000.0/m_nsps;
@@ -421,6 +427,8 @@ void CPlotter::mousePressEvent(QMouseEvent *event)       //mousePressEvent
 {
   int x=event->x();
   setFQSO(x,false);                               // Wideband waterfall
+  bool ctrl = (event->modifiers() & 0x4000000);
+  if(!ctrl) setTxFreq(m_fQSO);
 }
 
 void CPlotter::mouseDoubleClickEvent(QMouseEvent *event)  //mouse2click
@@ -559,4 +567,11 @@ void CPlotter::setNsps(int ntrperiod, int nsps)                                 
   if(m_nsps==252000) m_fftBinWidth=1500.0/32768.0;
   DrawOverlay();                         //Redraw scales and ticks
   update();                              //trigger a new paintEvent}
+}
+
+void CPlotter::setTxFreq(int n)                                 //setTol()
+{
+  m_txFreq=n;
+  DrawOverlay();
+  update();
 }
