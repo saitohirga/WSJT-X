@@ -553,17 +553,16 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
 
 void MainWindow::bumpFqso(int n)                                 //bumpFqso()
 {
-  if((n%100)==11) {
-    int i=g_pWideGraph->QSOfreq();
-    i--;
-    g_pWideGraph->setQSOfreq(i);
-    if(n<100) g_pWideGraph->setTxFreq(i);
-  }
-  if((n%100)==12) {
-    int i=g_pWideGraph->QSOfreq();
-    i++;
-    g_pWideGraph->setQSOfreq(i);
-    if(n<100) g_pWideGraph->setTxFreq(i);
+  int i;
+  bool ctrl = (n>=100);
+  n=n%100;
+  i=g_pWideGraph->QSOfreq();
+  if(n==11) i--;
+  if(n==12) i++;
+  g_pWideGraph->setQSOfreq(i);
+  if(!ctrl) {
+    ui->TxFreqSpinBox->setValue(i);
+    g_pWideGraph->setTxFreq(i);
   }
 }
 
@@ -866,20 +865,24 @@ void MainWindow::on_DecodeButton_clicked()                    //Decode request
 
 void MainWindow::freezeDecode(int n)                          //freezeDecode()
 {
-  static int ntol[] = {1,2,5,10,20,50,100,200,500};
-  if(!m_decoderBusy) {
-    jt9com_.newdat=0;
-    jt9com_.nagain=1;
-    int i;
-    if(m_mode=="JT9-1") i=4;
-    if(m_mode=="JT9-2") i=4;
-    if(m_mode=="JT9-5") i=3;
-    if(m_mode=="JT9-10") i=2;
-    if(m_mode=="JT9-30") i=1;
-    m_tol=ntol[i];
-    g_pWideGraph->setTol(m_tol);
-    ui->tolSpinBox->setValue(i);
-    decode();
+  if(n==1) {
+    bumpFqso(0);
+  } else {
+    static int ntol[] = {1,2,5,10,20,50,100,200,500};
+    if(!m_decoderBusy) {
+      jt9com_.newdat=0;
+      jt9com_.nagain=1;
+      int i;
+      if(m_mode=="JT9-1") i=4;
+      if(m_mode=="JT9-2") i=4;
+      if(m_mode=="JT9-5") i=3;
+      if(m_mode=="JT9-10") i=2;
+      if(m_mode=="JT9-30") i=1;
+      m_tol=ntol[i];
+      g_pWideGraph->setTol(m_tol);
+      ui->tolSpinBox->setValue(i);
+      decode();
+    }
   }
 }
 

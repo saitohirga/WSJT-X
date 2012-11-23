@@ -427,8 +427,11 @@ void CPlotter::mousePressEvent(QMouseEvent *event)       //mousePressEvent
 {
   int x=event->x();
   setFQSO(x,false);                               // Wideband waterfall
-  bool ctrl = (event->modifiers() & 0x4000000);
-  if(!ctrl) setTxFreq(m_fQSO);
+  bool ctrl = (event->modifiers() & Qt::ControlModifier);
+  if(!ctrl) {
+    setTxFreq(m_fQSO);
+    emit freezeDecode1(1);                  //### ???
+  }
 }
 
 void CPlotter::mouseDoubleClickEvent(QMouseEvent *event)  //mouse2click
