@@ -14,8 +14,6 @@ public:
   explicit WideGraph(QWidget *parent = 0);
   ~WideGraph();
 
-  double m_dialFreq;
-
   void   dataSink2(float s[], float red[], float df3, int ihsym,
                    int ndiskdata, uchar lstrong[]);
   void   setQSOfreq(int n);
@@ -32,6 +30,7 @@ public:
   void   setPeriod(int ntrperiod, int nsps);
   void   setTxFreq(int n);
   double fGreen();
+  double dialFreq();
 
   qint32 m_qsoFreq;
 
@@ -41,7 +40,6 @@ signals:
 
 public slots:
   void wideFreezeDecode(int n);
-  void initIQplus();
 
 protected:
   virtual void keyPressEvent( QKeyEvent *e );
@@ -64,6 +62,8 @@ private:
   qint32 m_TRperiod;
   qint32 m_nsps;
   qint32 m_ntr0;
+
+  double m_dialFreq;
 
   Ui::WideGraph *ui;
 };

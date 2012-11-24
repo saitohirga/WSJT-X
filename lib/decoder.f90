@@ -18,19 +18,9 @@ subroutine decoder(ss,c0)
   common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfb,ntol,  &
        kin,nzhsym,nsave,nagain,ndepth,nrxlog,nfsample,datetime
   common/tracer/limtrace,lu
-  logical first
-  data first/.true./
   save
 
   call timer('decoder ',0)
-
-  if(first) then
-     limtrace=0
-     lu=12
-     open(12,file='timer.out',status='unknown')
-     open(14,file='wsjtx_rx.log',status='unknown',position='append')
-     first=.false.
-  endif
 
   ntrMinutes=ntrperiod/60
   newdat=1
