@@ -133,3 +133,16 @@ void DevSetup::accept()
   QDialog::accept();
 }
 
+
+void DevSetup::on_myCallEntry_editingFinished()
+{
+  QString t=ui.myCallEntry->text();
+  ui.myCallEntry->setText(t.toUpper());
+}
+
+void DevSetup::on_myGridEntry_editingFinished()
+{
+  QString t=ui.myGridEntry->text();
+  t=t.mid(0,4).toUpper()+t.mid(4,2).toLower();
+  ui.myGridEntry->setText(t);
+}
