@@ -1202,6 +1202,7 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionDeviceSetup"/>
     <addaction name="separator"/>
+    <addaction name="actionMonitor_OFF_at_startup"/>
     <addaction name="actionF4_sets_Tx6"/>
     <addaction name="separator"/>
    </widget>
@@ -1656,6 +1657,14 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Deepest</string>
+   </property>
+  </action>
+  <action name="actionMonitor_OFF_at_startup">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Monitor OFF at startup</string>
    </property>
   </action>
  </widget>
