@@ -1441,36 +1441,32 @@ void MainWindow::on_addButton_clicked()                       //Add button
 
 void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
 {
-
   char message[23];
   char msgsent[23];
   int len1=22;
   int jtone[85];
-  int nsendingsh=0;
   t=t.toUpper();
-  int i1=t.indexOf(" OOO");
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
   jtone[0]=-99;
   genjt9_(message,msgsent,jtone,len1,len1);
-  nsendingsh=0;
+  msgsent[22]=0;
+  bool text=false;
+  if(jtone[1]==1) text=true;
+  QString t1;
+  t1.fromAscii(msgsent);
+  if(text) t1=t1.mid(0,13);
   QPalette p(tx->palette());
-  if(nsendingsh==1) {
-    p.setColor(QPalette::Base,"#66ffff");
-  } else if(nsendingsh==-1) {
+  if(text) {
     p.setColor(QPalette::Base,"#ffccff");
   } else {
     p.setColor(QPalette::Base,Qt::white);
   }
   tx->setPalette(p);
   int len=t.length();
-  if(nsendingsh==-1) {
+  if(text) {
     len=qMin(len,13);
-    if(i1>10) {
-      tx->setText(t.mid(0,len).toUpper() + " OOO");
-    } else {
-      tx->setText(t.mid(0,len).toUpper());
-    }
+    tx->setText(t.mid(0,len).toUpper());
   } else {
     tx->setText(t);
   }

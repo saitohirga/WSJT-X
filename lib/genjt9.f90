@@ -14,6 +14,7 @@ subroutine genjt9(msg0,msgsent,i4tone)
   integer*4 i4DataSymbols(69)             !Data symbols (values 0-7)
   integer*4 i4GrayCodedSymbols(69)        !Gray-coded symbols (values 0-7)
   integer*4 i4tone(85)                    !Tone #s, data and sync (values 0-8)
+  logical text
   include 'jt9sync.f90'
   save
 
@@ -30,9 +31,13 @@ subroutine genjt9(msg0,msgsent,i4tone)
      message=message(i+1:)
   enddo
 
-  call packmsg(message,i4Msg6BitWords)    !Pack message into 12 6-bit bytes
-  call unpackmsg(i4Msg6BitWords,msgsent)  !Unpack to get msgsent
-  if(i4tone(1).eq.-99) go to 999
+  call packmsg(message,i4Msg6BitWords,text)   !Pack message into 12 6-bit bytes
+  call unpackmsg(i4Msg6BitWords,msgsent)      !Unpack to get msgsent
+  if(i4tone(1).eq.-99) then
+     i4tone(2)=0
+     if(text) i4tone(2)=1
+     go to 999
+  endif
   call entail(i4Msg6BitWords,i1Msg8BitBytes)  !Add tail, convert to 8-bit bytes
   nsym2=206
   call encode232(i1Msg8BitBytes,nsym2,i1EncodedBits)   !Encode K=32, r=1/2
