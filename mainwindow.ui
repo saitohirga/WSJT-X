@@ -1622,7 +1622,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Save synced</string>
@@ -1633,7 +1633,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Save decoded</string>

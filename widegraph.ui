@@ -326,7 +326,7 @@
           <bool>true</bool>
          </property>
          <property name="text">
-          <string>USB Dial Freq (kHz)</string>
+          <string>Dial Freq (kHz)</string>
          </property>
         </widget>
        </item>

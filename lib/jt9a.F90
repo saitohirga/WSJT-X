@@ -19,6 +19,8 @@ subroutine jt9a
 
   call getcwd(cwd)
 !  call ftninit(trim(cwd))
+  open(12,file='timer.out',status='unknown')
+  open(14,file='wsjtx_rx.log',status='unknown',position='append')
 
   limtrace=0
   lu=12
@@ -88,15 +90,15 @@ subroutine jt9c(ss,savg,c0,id2,nparams0)
   call flush(6)
 
   if(iand(nrxlog,1).ne.0) then
-!     write(21,1000) datetime(:17)
-!1000 format(/'UTC Date: 'a17/78('-'))
-!     flush(21)
+     write(14,1000) datetime(:17)
+1000 format(/'UTC Date: 'a17/78('-'))
+     flush(14)
   endif
-!  if(iand(nrxlog,2).ne.0) rewind 21
+  if(iand(nrxlog,2).ne.0) rewind 14
 !  if(iand(nrxlog,4).ne.0) rewind 26
 
   nstandalone=0
-  if(sum(nparams).ne.0) call decoder(ss,c0,ntrperiod,ndepth,nrxlog)
+  if(sum(nparams).ne.0) call decoder(ss,c0)
 
   return
 end subroutine jt9c
