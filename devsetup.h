@@ -33,6 +33,11 @@ public:
 public slots:
   void accept();
 
+private slots:
+  void on_myCallEntry_editingFinished();
+
+  void on_myGridEntry_editingFinished();
+
 private:
   Ui::DialogSndCard ui;
 };
