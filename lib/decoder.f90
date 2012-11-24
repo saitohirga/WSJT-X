@@ -15,9 +15,6 @@ subroutine decoder(ss,c0)
   integer*2 id2
   integer ii(1)
   complex c0(NDMAX)
-! common/jt9com/ss0(184,NSMAX),savg(NSMAX),id2(NMAX),nutc0,ndiskdat,    &
-!      ntr,nfqso,newdat,npts80,nfb,ntol,kin,nzhsym,nsynced,ndecoded
-!  common/jt9comB/ss(184,NSMAX),c0
   common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfb,ntol,  &
        kin,nzhsym,nsave,nagain,ndepth,nrxlog,nfsample,datetime
   common/tracer/limtrace,lu
@@ -35,13 +32,6 @@ subroutine decoder(ss,c0)
      first=.false.
   endif
 
-! if(newdat.ne.0) then
-!    ss=ss0
-!    c0=c00
-!    nutc=nutc0
-!    npts8=npts80
-! endif
-
   ntrMinutes=ntrperiod/60
   newdat=1
   nsynced=0
@@ -55,27 +45,27 @@ subroutine decoder(ss,c0)
      nsps=6912
      df3=1500.0/2048.0
      fmt='(i4.4,i4,i5,f6.1,f8.0,f6.1,3x,a22)'
-     fmt14='(i4.4,i4,i5,f6.1,f8.0,f6.1,i8,3x,a22)'
+     fmt14='(i4.4,i4,i5,f6.1,f8.0,f6.1,i3,i8,3x,a22)'
   else if(ntrMinutes.eq.2) then
      nsps=15360
      df3=1500.0/2048.0
      fmt='(i4.4,i4,i5,f6.1,f8.1,f6.2,3x,a22)'
-     fmt14='(i4.4,i4,i5,f6.1,f8.1,f6.2,i8,3x,a22)'
+     fmt14='(i4.4,i4,i5,f6.1,f8.1,f6.2,i3,i8,3x,a22)'
   else if(ntrMinutes.eq.5) then
      nsps=40960
      df3=1500.0/6144.0
      fmt='(i4.4,i4,i5,f6.1,f8.1,f6.2,3x,a22)' 
-     fmt14='(i4.4,i4,i5,f6.1,f8.1,f6.2,i8,3x,a22)'
+     fmt14='(i4.4,i4,i5,f6.1,f8.1,f6.2,i3,i8,3x,a22)'
  else if(ntrMinutes.eq.10) then
      nsps=82944
      df3=1500.0/12288.0
      fmt='(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)'
-     fmt14='(i4.4,i4,i5,f6.1,f8.2,f6.2,i8,3x,a22)'
+     fmt14='(i4.4,i4,i5,f6.1,f8.2,f6.2,i3,i8,3x,a22)'
   else if(ntrMinutes.eq.30) then
      nsps=252000
      df3=1500.0/32768.0
      fmt='(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)'
-     fmt14='(i4.4,i4,i5,f6.1,f8.2,f6.2,i8,3x,a22)'
+     fmt14='(i4.4,i4,i5,f6.1,f8.2,f6.2,i3,i8,3x,a22)'
   endif
   if(nsps.eq.0) stop 'Error: bad TRperiod'    !Better: return an error code###
 
@@ -125,7 +115,7 @@ subroutine decoder(ss,c0)
 
      if(msg.ne.'                      ') then
         write(*,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,msg
-        write(14,fmt14) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,nlim,msg
+        write(14,fmt14) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,ntrMinutes,nlim,msg
         fgood=f
         nsynced=1
         ndecoded=1
@@ -141,7 +131,7 @@ subroutine decoder(ss,c0)
 1020 format(a33)
   endif
 
-  write(*,1010) nsum,nsave
+  write(*,1010) nsynced,ndecoded
 1010 format('<DecodeFinished>',2i4)
   flush(6)
 
