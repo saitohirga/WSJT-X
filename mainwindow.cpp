@@ -182,7 +182,7 @@ MainWindow::MainWindow(QWidget *parent) :
   soundInThread.start(QThread::HighestPriority);
   soundOutThread.setOutputDevice(m_paOutDevice);
   soundOutThread.setTxFreq(m_txFreq);
-  m_monitoring=false;                           // Start with Monitoring OFF
+  m_monitoring=!m_monitorStartOFF;           // Start with Monitoring ON/OFF
   soundInThread.setMonitoring(m_monitoring);
   m_diskData=false;
   g_pWideGraph->setTol(m_tol);
@@ -269,6 +269,7 @@ void MainWindow::writeSettings()
   settings.setValue("SaveAll",ui->actionSave_all->isChecked());
   settings.setValue("NDepth",m_ndepth);
   settings.setValue("KB8RQ",m_kb8rq);
+  settings.setValue("MonitorOFF",m_monitorStartOFF);
   settings.setValue("NB",m_NB);
   settings.setValue("NBslider",m_NBslider);
   settings.setValue("TxFreq",m_txFreq);
@@ -333,7 +334,10 @@ void MainWindow::readSettings()
   m_tol=settings.value("Tol",5).toInt();
   m_inGain=settings.value("InGain",0).toInt();
   ui->inGain->setValue(m_inGain);
+  m_kb8rq=settings.value("KB8RQ",false).toBool();
   ui->actionF4_sets_Tx6->setChecked(m_kb8rq);
+  m_monitorStartOFF=settings.value("MonitorOFF",false).toBool();
+  ui->actionMonitor_OFF_at_startup->setChecked(m_monitorStartOFF);
   settings.endGroup();
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
@@ -602,7 +606,7 @@ void MainWindow::createStatusBar()                           //createStatusBar
 
   lab5 = new QLabel("");
   lab5->setAlignment(Qt::AlignHCenter);
-  lab5->setMinimumSize(QSize(50,18));
+  lab5->setMinimumSize(QSize(100,18));
   lab5->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab5);
 }
@@ -940,7 +944,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if(!keepFile) {
         QFile savedFile(m_fname);
         savedFile.remove();
-        qDebug() << "Removed" << m_fname;
       }
       jt9com_.nagain=0;
       jt9com_.ndiskdat=0;
@@ -1049,6 +1052,7 @@ void MainWindow::guiUpdate()
     int len1=22;
     genjt9_(message,msgsent,itone,len1,len1);
     msgsent[22]=0;
+    lab5->setText("Last Tx:  " + QString::fromAscii(msgsent));
     if(m_restart) {
       QFile f("wsjtx_tx.log");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
@@ -1056,6 +1060,7 @@ void MainWindow::guiUpdate()
       out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
           << "  Tx message:  " << QString::fromAscii(msgsent) << endl;
       f.close();
+
     }
 
     m_restart=false;
@@ -1149,16 +1154,19 @@ void MainWindow::guiUpdate()
     m_hsym0=khsym;
     m_sec0=nsec;
 
+/*
     if(m_myCall=="K1JT") {
       char s[20];
       double t1=1.0;
 //Better: use signals from sound threads?
-//      if(soundInThread.isRunning()) t1=soundInThread.samFacIn();
+      if(soundInThread.isRunning()) t1=soundInThread.samFacIn();
       double t2=1.0;
-//      if(soundOutThread.isRunning()) t2=soundOutThread.samFacOut();
+      if(soundOutThread.isRunning()) t2=soundOutThread.samFacOut();
       sprintf(s,"%6.4f  %6.4f",t1,t2);
       lab5->setText(s);
     }
+*/
+
   }
   iptt0=iptt;
   btxok0=btxok;
@@ -1684,4 +1692,9 @@ void MainWindow::on_actionDeepestDecode_triggered()
 void MainWindow::on_inGain_valueChanged(int n)
 {
   m_inGain=n;
+}
+
+void MainWindow::on_actionMonitor_OFF_at_startup_triggered()
+{
+  m_monitorStartOFF=!m_monitorStartOFF;
 }

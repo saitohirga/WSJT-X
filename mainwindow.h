@@ -108,6 +108,7 @@ private slots:
   void on_actionDeepestDecode_triggered();
   void on_inGain_valueChanged(int n);
   void bumpFqso(int n);
+  void on_actionMonitor_OFF_at_startup_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -159,6 +160,7 @@ private:
     bool    m_killAll;
     bool    m_bsynced;
     bool    m_bdecoded;
+    bool    m_monitorStartOFF;
 
     char    m_decoded[80];
 
