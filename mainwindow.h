@@ -26,7 +26,6 @@ public slots:
   void dataSink(int k);
   void diskDat();
   void diskWriteFinished();
-  void decoderFinished();
   void freezeDecode(int n);
   void guiUpdate();
   void doubleClickOnCall(QString hiscall, bool ctrl);
@@ -158,23 +157,33 @@ private:
     bool    m_call3Modified;
     bool    m_dataAvailable;
     bool    m_killAll;
+    bool    m_bsynced;
+    bool    m_bdecoded;
+
     char    m_decoded[80];
+
     float   m_pctZap;
+
     QRect   m_wideGraphGeom;
+
     QLabel* lab1;                            // labels in status bar
     QLabel* lab2;
     QLabel* lab3;
     QLabel* lab4;
     QLabel* lab5;
     QLabel* lab6;
+
     QMessageBox msgBox0;
+
     QFuture<void>* future1;
     QFuture<void>* future2;
     QFuture<void>* future3;
     QFutureWatcher<void>* watcher1;
     QFutureWatcher<void>* watcher2;
     QFutureWatcher<void>* watcher3;
+
     QProcess proc_jt9;
+
     QString m_path;
     QString m_pbdecoding_style1;
     QString m_pbmonitor_style;
@@ -189,6 +198,7 @@ private:
     QString m_palette;
     QString m_dateTime;
     QString m_mode;
+    QString m_fname;
 
     SoundInThread soundInThread;             //Instantiate the audio threads
     SoundOutThread soundOutThread;

@@ -178,10 +178,6 @@ MainWindow::MainWindow(QWidget *parent) :
   watcher2 = new QFutureWatcher<void>;
   connect(watcher2, SIGNAL(finished()),this,SLOT(diskWriteFinished()));
 
-  future3 = new QFuture<void>;
-  watcher3 = new QFutureWatcher<void>;
-  connect(watcher3, SIGNAL(finished()),this,SLOT(decoderFinished()));
-
   soundInThread.setInputDevice(m_paInDevice);
   soundInThread.start(QThread::HighestPriority);
   soundOutThread.setOutputDevice(m_paOutDevice);
@@ -381,7 +377,7 @@ void MainWindow::dataSink(int k)
   m_pctZap=nzap*100.0/m_nsps;
   t.sprintf(" Rx noise: %5.1f  %5.1f %% ",px,m_pctZap);
   lab3->setText(t);
-  ui->xThermo->setValue((double)px);   //Update the thermometer
+  ui->xThermo->setValue((double)px);                    //Update thermometer
   if(m_monitoring || m_diskData) {
     g_pWideGraph->dataSink2(s,red,df3,ihsym,m_diskData,lstrong);
   }
@@ -390,19 +386,20 @@ void MainWindow::dataSink(int k)
     m_dataAvailable=true;
     jt9com_.npts8=(ihsym*m_nsps)/16;
     jt9com_.newdat=1;
+    jt9com_.nagain=0;
     jt9com_.nzhsym=m_hsymStop;
     QDateTime t = QDateTime::currentDateTimeUtc();
     m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
-    decode();                                           //Start the decoder
-    if(!m_diskData and m_saveAll) {
+    decode();                                                //Start decoder
+    if(!m_diskData) {                        //Always save; may delete later
       int ihr=t.time().toString("hh").toInt();
       int imin=t.time().toString("mm").toInt();
       imin=imin - (imin%(m_TRperiod/60));
       QString t2;
       t2.sprintf("%2.2d%2.2d",ihr,imin);
-      QString fname=m_saveDir + "/" + t.date().toString("yyMMdd") + "_" +
+      m_fname=m_saveDir + "/" + t.date().toString("yyMMdd") + "_" +
             t2 + ".wav";
-      *future2 = QtConcurrent::run(savewav, fname, m_TRperiod);
+      *future2 = QtConcurrent::run(savewav, m_fname, m_TRperiod);
       watcher2->setFuture(*future2);
     }
   }
@@ -759,24 +756,6 @@ void MainWindow::diskWriteFinished()                       //diskWriteFinished
 //  qDebug() << "diskWriteFinished";
 }
 
-void MainWindow::decoderFinished()                       //decoderFinished
-{
-  jt9com_.newdat=0;
-  QFile f("decoded.txt");
-  f.open(QIODevice::ReadOnly);
-  QTextStream in(&f);
-  QString line;
-  for(int i=0; i<99999; i++) {
-    line=in.readLine();
-    if(line.length()<=0) break;
-    ui->decodedTextBrowser->append(line);
-  }
-  f.close();
-  ui->DecodeButton->setStyleSheet("");
-  decodeBusy(false);
-  if(m_loopall) on_actionOpen_next_in_directory_triggered();
-}
-
 //Delete ../save/*.wav
 void MainWindow::on_actionDelete_all_wav_files_in_SaveDir_triggered()
 {
@@ -901,7 +880,6 @@ void MainWindow::decode()                                       //decode()
   jt9com_.ndepth=m_ndepth;
   jt9com_.ndiskdat=0;
   if(m_diskData) jt9com_.ndiskdat=1;
-
   jt9com_.nfa=1000;                         //### temporary ###
   jt9com_.nfb=2000;
 
@@ -923,17 +901,13 @@ void MainWindow::decode()                                       //decode()
   char *to = (char*)mem_jt9.data();
   char *from = (char*) jt9com_.ss;
   int size=sizeof(jt9com_);
-
   if(jt9com_.newdat==0) {
     int noffset = 4*184*22000 + 4*22000 + 4*2*1800*1500 + 2*1800*12000;
     to += noffset;
     from += noffset;
     size -= noffset;
   }
-
   memcpy(to, from, qMin(mem_jt9.size(), size));
-  jt9com_.nagain=0;
-  jt9com_.ndiskdat=0;
 
   QFile lockFile(m_appDir + "/.lock");       // Allow jt9 to start
   lockFile.remove();
@@ -958,19 +932,18 @@ void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine()) {
     QByteArray t=proc_jt9.readLine();
-    if(t.indexOf("<QuickDecodeDone>") >= 0) {
-//      m_nsum=t.mid(17,4).toInt();
-//      m_nsave=t.mid(21,4).toInt();
-//      QString t2;
-//      t2.sprintf("Avg: %d",m_nsum);
-//      lab6->setText(t2);
-    }
     if(t.indexOf("<DecodeFinished>") >= 0) {
-      if(m_widebandDecode) {
-//        g_pMessages->setText(m_messagesText);
-//        g_pBandMap->setText(m_bandmapText);
-        m_widebandDecode=false;
+      m_bsynced = (t.mid(19,1).toInt()==1);
+      m_bdecoded = (t.mid(23,1).toInt()==1);
+      bool keepFile=m_saveAll or (m_saveSynced and m_bsynced) or
+          (m_saveDecoded and m_bdecoded);
+      if(!keepFile) {
+        QFile savedFile(m_fname);
+        savedFile.remove();
+        qDebug() << "Removed" << m_fname;
       }
+      jt9com_.nagain=0;
+      jt9com_.ndiskdat=0;
       QFile lockFile(m_appDir + "/.lock");
       lockFile.open(QIODevice::ReadWrite);
       ui->DecodeButton->setStyleSheet("");
@@ -989,8 +962,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
     }
   }
 }
-
-
 
 void MainWindow::on_EraseButton_clicked()                          //Erase
 {
