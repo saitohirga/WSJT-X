@@ -981,42 +981,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
     } else {
       int n=t.length();
       QString bg="white";
-      if(t.indexOf(" CQ ")>0) bg="#66ff66";
-      if(t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666";
+      if(t.indexOf(" CQ ")>0) bg="#66ff66";                //Light green
+      if(t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666";      //Light red
       ui->decodedTextBrowser->setTextBackgroundColor(bg);
-      ui->decodedTextBrowser->append(t.mid(0,n-2));
+      t=t.mid(0,n-2) + "                                                  ";
+      ui->decodedTextBrowser->append(t);
     }
-
-    /*
-    if(t.indexOf("!") >= 0) {
-      int n=t.length();
-      if(n>=30) ui->decodedTextBrowser->append(t.mid(1,n-3));
-      if(n<30) ui->decodedTextBrowser->append(t.mid(1,n-3));
-      n=ui->decodedTextBrowser->verticalScrollBar()->maximum();
-      ui->decodedTextBrowser->verticalScrollBar()->setValue(n);
-//      m_messagesText="";
-//      m_bandmapText="";
-    }
-
-    if(t.indexOf("@") >= 0) {
-      m_messagesText += t.mid(1);
-      m_widebandDecode=true;
-    }
-
-    if(t.indexOf("&") >= 0) {
-      QString q(t);
-      QString callsign=q.mid(5);
-      callsign=callsign.mid(0,callsign.indexOf(" "));
-      if(callsign.length()>2) {
-        if(m_worked[callsign]) {
-          q=q.mid(1,4) + "  " + q.mid(5);
-        } else {
-          q=q.mid(1,4) + " *" + q.mid(5);
-        }
-        m_bandmapText += q;
-      }
-    }
-    */
   }
 }
 
