@@ -1,4 +1,4 @@
-      subroutine packmsg(msg,dat)
+      subroutine packmsg(msg,dat,text)
 
       parameter (NBASE=37*36*10*27*27*27)
       parameter (NBASE2=262178562)
@@ -7,8 +7,9 @@
       character*12 c1,c2
       character*4 c3
       character*6 grid6
-      logical text1,text2,text3
+      logical text1,text2,text3,text
 
+      text=.false.
 C  Convert all letters to upper case
       iz=22
       do i=1,22
@@ -88,7 +89,8 @@ C  ... and if so, does it have a reply frequency?
       endif
 
 C  The message will be treated as plain text.
- 10   call packtext(msg,nc1,nc2,ng)
+ 10   text=.true.
+      call packtext(msg,nc1,nc2,ng)
       ng=ng+32768
 
 C  Encode data into 6-bit words
