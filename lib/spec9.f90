@@ -99,7 +99,6 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
   snrdb=db(t) - db(2500.0/df8) - 5.0
      
   m0=3
-  ntones=8
   k=0
   do j=1,69
         smax=0.
