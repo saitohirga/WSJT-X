@@ -5,7 +5,7 @@ program jt9sim
   parameter (NMAX=1800*12000)
   integer ihdr(11)
   integer*2 iwave                  !Generated waveform (no noise)
-  real*8 f0,f,dt,twopi,phi,dphi,baud,fspan
+  real*8 f0,f,dt,twopi,phi,dphi,baud,fspan,fsample,freq
   character msg*22,msg0*22,message*22,msgsent*22,arg*8,fname*11
 
   integer*4 i4tone(85)             !Channel symbols (values 0-8)
@@ -106,7 +106,7 @@ program jt9sim
 1020    format(i3,i4,f10.3,f7.1,2x,a22)
 
         phi=0.
-        baud=12000.0/nsps
+        baud=12000.d0/nsps
         k=12000                             !Start audio at t = 1.0 s
         do isym=1,85
            freq=f + i4tone(isym)*baud
