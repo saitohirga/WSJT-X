@@ -116,9 +116,6 @@ program jt9test
 10   close(10)
 
      nsps8=nsps/8
-     c1(0:npts8-1)=conjg(c0(1:npts8))
-     call test9(c1,npts8,nsps8)
-
      iz=1000.0/df3
      nutc=nutc0
 
@@ -132,29 +129,33 @@ program jt9test
      do i=ia,ib
         f=(i-1)*df3
         if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. f.gt.fgood+10.0*df8) then
-           call timer('spec9   ',0)
-           call spec9(c0,npts8,nsps,f,fpk,xdt,snrdb,i1SoftSymbols)
-           call timer('spec9   ',1)
+
+           call timer('test9   ',0)
+           fpk=1000.0 + df3*(i-1)
+           c1(0:npts8-1)=conjg(c0(1:npts8))
+           call test9(c1,npts8,nsps8,fpk,syncpk,snrdb,xdt,freq,drift,   &
+                i1SoftSymbols)
+           call timer('test9   ',1)
 
            call timer('decode9 ',0)
            call decode9(i1SoftSymbols,limit,nlim,msg)
            call timer('decode9 ',1)
            snr=snrdb
-           sync=ccfred(i) - 2.0
+           sync=syncpk - 2.0
            if(sync.lt.0.0) sync=0.0
            nsync=sync
            if(nsync.gt.10) nsync=10
            nsnr=nint(snr)
            width=0.0
 
-           if(ccfred(i).gt.sbest .and. fgood.eq.0.0) then
-              sbest=ccfred(i)
+           if(sync.gt.sbest .and. fgood.eq.0.0) then
+              sbest=sync
               write(line,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width
               if(nsync.gt.0) nsynced=1
            endif
 
            if(msg.ne.'                      ') then
-              write(*,1010) nutc,nsync,nsnr,xdt,1000.0+fpk,width,msg
+              write(*,1010) nutc,nsync,nsnr,xdt,freq,drift,msg
 1010          format(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)
               fgood=f
               nsynced=1

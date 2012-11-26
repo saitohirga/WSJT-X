@@ -55,9 +55,9 @@ program jt9sim
   if(minutes.eq.30) nsps=252000
   if(nsps.eq.0) stop 'Bad value for minutes.'
   f0=1500.d0                         !Center frequency (MHz)
-  if(minutes.eq.5)  f0=1100.
-  if(minutes.eq.10) f0=1050.
-  if(minutes.eq.30) f0=1025.
+!  if(minutes.eq.5)  f0=1100.
+!  if(minutes.eq.10) f0=1050.
+!  if(minutes.eq.30) f0=1025.
   
   ihdr=0                             !Temporary ###
 
