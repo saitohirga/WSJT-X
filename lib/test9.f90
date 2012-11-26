@@ -23,31 +23,34 @@ subroutine test9(c0,npts8,nsps8)
 
   nspsd=nsps8/ndown
   nz=npts8/ndown
+
+! Start of afc loop here: solve for DT, f0, f1, f2, (phi0) ?
   p=0.
   i0=5*nspsd
   do i=0,nz-1
      z=sum(c2(max(i-(nspsd-1),0):i))       !Integrate
      p(i0+i)=real(z)**2 + aimag(z)**2      !Symbol power at freq=0
-!     write(51,3001) i,p(i)
+! Option here for coherent processing ?
   enddo
 
   iz=85*nspsd
-  fac0=1.0/69.0
-  fac1=1.0/16.0
   lagmax=13*nspsd
   do lag=0,lagmax                          
-     ss=0.
-     do i=0,iz-1
-        if(isync(1+i/nspsd).eq.1) then
-           ss=ss + fac1*p(i+lag)           !Add the sync powers
+     sum0=0.
+     sum1=0.
+     j=-nspsd
+     do i=1,85
+        j=j+nspsd
+        if(isync(i).eq.1) then
+           sum1=sum1+p(j+lag)
         else
-           ss=ss - fac0*p(i+lag)           !Subtract the non-sync powers
+           sum0=sum0+p(j+lag)
         endif
      enddo
+     ss=(sum1/16.0)/(sum0/69.0) - 1.0
      write(52,3001) lag,ss
 3001 format(i5,f12.3)
   enddo
 
   return
 end subroutine test9
-  
