@@ -15,6 +15,7 @@ subroutine decoder(ss,c0)
   integer*2 id2
   integer ii(1)
   complex c0(NDMAX)
+  complex c1(NDMAX)
   common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfb,ntol,  &
        kin,nzhsym,nsave,nagain,ndepth,nrxlog,nfsample,datetime
   common/tracer/limtrace,lu
@@ -75,37 +76,43 @@ subroutine decoder(ss,c0)
 
   nRxLog=0
   fgood=0.
-  df8=1500.0/(nsps/8)
+  nsps8=nsps/8
+  df8=1500.0/nsps8
   sbest=0.
 
 10 ii=maxloc(ccfred(ia:ib))
   i=ii(1) + ia - 1
   f=(i-1)*df3
   if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. abs(f-fgood).gt.10.0*df8) then
-     call timer('spec9   ',0)
-     call spec9(c0,npts8,nsps,f,fpk,xdt,snr,i1SoftSymbols)
-     call timer('spec9   ',1)
+!     call timer('spec9   ',0)
+!     call spec9(c0,npts8,nsps,f,fpk,xdt,snr,i1SoftSymbols)
+!     call timer('spec9   ',1)
+
+     call timer('test9   ',0)
+     fpk=1000.0 + df3*(i-1)
+     c1(1:npts8)=conjg(c0(1:npts8))
+     call test9(c1,npts8,nsps8,fpk,syncpk,snrdb,xdt,freq,drift,i1SoftSymbols)
+     call timer('test9   ',1)
 
      call timer('decode9 ',0)
      call decode9(i1SoftSymbols,limit,nlim,msg)
      call timer('decode9 ',1)
  
-     sync=(ccfred(i)-1.0)/2.0
+     sync=(syncpk-1.0)/2.0
      if(sync.lt.0.0) sync=0.0
      nsync=sync
      if(nsync.gt.10) nsync=10
-     nsnr=nint(snr)
-     drift=0.0
+     nsnr=nint(snrdb)
 
-     if(ccfred(i).gt.sbest .and. fgood.eq.0.0) then
-        sbest=ccfred(i)
-        write(line,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift
+     if(sync.gt.sbest .and. fgood.eq.0.0) then
+        sbest=sync
+        write(line,fmt) nutc,nsync,nsnr,xdt,freq,drift
         if(nsync.gt.0) nsynced=1
      endif
 
      if(msg.ne.'                      ') then
-        write(*,fmt) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,msg
-        write(14,fmt14) nutc,nsync,nsnr,xdt,1000.0+fpk,drift,ntrMinutes,nlim,msg
+        write(*,fmt) nutc,nsync,nsnr,xdt,freq,drift,msg
+        write(14,fmt14) nutc,nsync,nsnr,xdt,freq,drift,ntrMinutes,nlim,msg
         fgood=f
         nsynced=1
         ndecoded=1

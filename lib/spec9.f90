@@ -9,9 +9,7 @@ subroutine spec9(c0,npts8,nsps,fpk0,fpk,xdt,snrdb,i1SoftSymbols)
   integer*1 i1SoftSymbolsScrambled(207)
   integer*1 i1SoftSymbols(207)
   integer*1 i1
-  integer ig(0:7)
   equivalence (i1,i4)
-  data ig/0,1,3,2,7,6,4,5/             !Gray code removal
   include 'jt9sync.f90'
 
 ! Fix up the data in c0()
