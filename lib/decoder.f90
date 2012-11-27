@@ -78,15 +78,13 @@ subroutine decoder(ss,c0)
   fgood=0.
   nsps8=nsps/8
   df8=1500.0/nsps8
-  sbest=0.
+  sbest=-1.0
+  dblim=db(864.0/nsps8) - 26.2
 
 10 ii=maxloc(ccfred(ia:ib))
   i=ii(1) + ia - 1
   f=(i-1)*df3
   if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. abs(f-fgood).gt.10.0*df8) then
-!     call timer('spec9   ',0)
-!     call spec9(c0,npts8,nsps,f,fpk,xdt,snr,i1SoftSymbols)
-!     call timer('spec9   ',1)
 
      call timer('decode9a',0)
      fpk=1000.0 + df3*(i-1)
@@ -99,11 +97,11 @@ subroutine decoder(ss,c0)
      call timer('decode9 ',1)
  
      sync=(syncpk-1.0)/2.0
-     if(sync.lt.0.0) sync=0.0
+     if(sync.lt.0.0 .or. snrdb.lt.dblim-2.0) sync=0.0
      nsync=sync
      if(nsync.gt.10) nsync=10
      nsnr=nint(snrdb)
-
+     
      if(sync.gt.sbest .and. fgood.eq.0.0) then
         sbest=sync
         write(line,fmt) nutc,nsync,nsnr,xdt,freq,drift
