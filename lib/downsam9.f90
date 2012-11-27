@@ -6,6 +6,7 @@ subroutine downsam9(c0,npts8,nsps8,nspsd,fpk,c2,nz2)
   complex c0(0:npts8-1)
   complex c1(0:NMAX-1)
   complex c2(0:4096-1)
+  real s(1000)
 
   fac=1.e-4
   c1(0:npts8-1)=fac*c0                     !Copy c0 into c1
@@ -18,12 +19,22 @@ subroutine downsam9(c0,npts8,nsps8,nspsd,fpk,c2,nz2)
   df1=1500.0/nfft1
   call four2a(c1,nfft1,1,-1,1)             !Forward FFT
 
-!  do i=0,nfft1-1
-!     f=i*df1
-!     pp=real(c1(i))**2 + aimag(c1(i))**2
-!     write(50,3009) i,f,1.e-6*pp
-!3009 format(i8,f12.3,f12.3)
-!  enddo   
+  ia=nint(250.0/df1)
+  nadd=1.0/df1
+  j=250/df1
+  s=0.
+  do i=1,1000
+     do n=1,nadd
+        j=j+1
+        s(i)=s(i)+real(c1(j))**2 + aimag(c1(j))**2
+     enddo
+!     write(50,3000) i,(j-nadd/2)*df1,s(i)
+!3000 format(i5,2f12.3)
+  enddo
+  call pctile(s,1000,40,avenoise)
+!  write(71,*) avenoise,nadd
+!  call flush(50)
+!  call flush(71)
   
   ndown=nsps8/16                           !Downsample factor
   nfft2=nfft1/ndown                        !Backward FFT length
@@ -31,10 +42,11 @@ subroutine downsam9(c0,npts8,nsps8,nspsd,fpk,c2,nz2)
    
   fshift=fpk-1500.0
   i0=nh1 + fshift/df1
+  fac=1.0/avenoise
   do i=0,nfft2-1
      j=i0+i
      if(i.gt.nh2) j=j-nfft2
-     c2(i)=c1(j)
+     c2(i)=fac*c1(j)
   enddo
 
   call four2a(c2,nfft2,1,1,1)              !Backward FFT

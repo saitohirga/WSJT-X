@@ -49,9 +49,13 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,snrdb,i1SoftSymbolsScrambled)
 
   sig=sig/69.
   df8=1500.0/nsps8
-  t=max(1.0,sig/xmed - 1.0)
-  snrdb=db(t) - db(2500.0/df8) - 4.5
-!  print*,'A',ave,xmed,sig,t,df8,snrdb
+!  t=max(1.0,sig/xmed - 1.0)
+!  snrdb=db(t) - db(2500.0/df8) - 4.5
+  t=max(1.0,sig - 1.0)
+  snrdb=db(t) - 60.3
+!  write(71,3001) ave,xmed,sig,db(sig),t,snrdb
+!3001 format(6f12.2)
+!  call flush(71)
      
   m0=3
   k=0

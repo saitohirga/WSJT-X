@@ -102,7 +102,8 @@ program jt9sim
 
         f=f0
         if(nsigs.gt.1) f=f0 - 0.5d0*fspan + fspan*(isig-1.d0)/(nsigs-1.d0)
-        snrdbx=snrdb
+        snrdbx=snrdb 
+!        snrdbx=snrdb + (ifile-1)*4.0
         sig=10.0**(0.05*snrdbx)
         write(*,1020) ifile,isig,f,snrdbx,msgsent
 1020    format(i3,i4,f10.3,f7.1,2x,a22)
@@ -110,8 +111,9 @@ program jt9sim
         phi=0.
         baud=12000.d0/nsps
         k=12000                             !Start audio at t = 1.0 s
-        f1=0.0001 * (ifile-1)
-        print*,ifile-2,f1
+!        f1=0.0001 * (ifile-1)
+        f1=0.
+!        print*,ifile-1,f1
         dphi2=0.
         ddphi2=twopi*f1*dt/60.0
         do isym=1,85
