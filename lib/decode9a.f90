@@ -16,7 +16,7 @@ subroutine decode9a(c0,npts8,nsps8,fpk,syncpk,snrdb,xdt,freq,drift,   &
   ndown=nsps8/nspsd
 
 ! Downsample to 16 samples/symbol
-  call downsam9(c0,npts8,nsps8,nspsd,fpk,c2,nz2) 
+  call downsam9(c0,npts8,nsps8,nspsd,fpk,c2,nz2)
 
   call peakdt9(c2,nz2,nsps8,nspsd,c3,nz3,xdt)
 
