@@ -28,13 +28,8 @@ subroutine downsam9(c0,npts8,nsps8,nspsd,fpk,c2,nz2)
         j=j+1
         s(i)=s(i)+real(c1(j))**2 + aimag(c1(j))**2
      enddo
-!     write(50,3000) i,(j-nadd/2)*df1,s(i)
-!3000 format(i5,2f12.3)
   enddo
   call pctile(s,1000,40,avenoise)
-!  write(71,*) avenoise,nadd
-!  call flush(50)
-!  call flush(71)
   
   ndown=nsps8/16                           !Downsample factor
   nfft2=nfft1/ndown                        !Backward FFT length
@@ -42,7 +37,7 @@ subroutine downsam9(c0,npts8,nsps8,nspsd,fpk,c2,nz2)
    
   fshift=fpk-1500.0
   i0=nh1 + fshift/df1
-  fac=1.0/avenoise
+  fac=sqrt(1.0/avenoise)
   do i=0,nfft2-1
      j=i0+i
      if(i.gt.nh2) j=j-nfft2
