@@ -54,7 +54,9 @@ program jt9sim
   if(minutes.eq.10) nsps=82944
   if(minutes.eq.30) nsps=252000
   if(nsps.eq.0) stop 'Bad value for minutes.'
-  f0=1500.d0                         !Center frequency (MHz)
+
+  f0=1400.d0                         !Center frequency (MHz)
+!  f0=1500.0
 !  if(minutes.eq.5)  f0=1100.
 !  if(minutes.eq.10) f0=1050.
 !  if(minutes.eq.30) f0=1025.
@@ -108,12 +110,17 @@ program jt9sim
         phi=0.
         baud=12000.d0/nsps
         k=12000                             !Start audio at t = 1.0 s
+        f1=0.0001 * (ifile-1)
+        print*,ifile-2,f1
+        dphi2=0.
+        ddphi2=twopi*f1*dt/60.0
         do isym=1,85
            freq=f + i4tone(isym)*baud
            if(msg0(1:3).eq.'sin') freq=sinfreq
-           dphi=twopi*freq*dt
+           dphi=twopi*freq*dt + dphi2
            do i=1,nsps
               phi=phi + dphi
+              dphi2=dphi2 + ddphi2
               if(phi.lt.-twopi) phi=phi+twopi
               if(phi.gt.twopi) phi=phi-twopi
               xphi=phi

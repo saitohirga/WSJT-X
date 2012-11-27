@@ -1,50 +1,59 @@
-subroutine peakdt9(c0,npts8,nsps8,istart,foffset,idtpk)
+subroutine peakdt9(c2,nz2,nsps8,nspsd,c3,nz3,xdt)
 
-  complex c0(0:npts8-1)
-  complex zsum
+  complex c2(0:4096-1)
+  complex c3(0:4096-1)
+  complex z
+  real p(0:3300)
   include 'jt9sync.f90'
 
-  twopi=8.0*atan(1.0)
+  p=0.
+  i0=5*nspsd
+  do i=0,nz2-1
+     z=1.e-3*sum(c2(max(i-(nspsd-1),0):i))       !Integrate
+     p(i0+i)=real(z)**2 + aimag(z)**2      !Symbol power at freq=0
+! Option here for coherent processing ?
+!     write(53,3301) i,z,p(i0+i),atan2(aimag(z),real(z))
+!3301 format(i6,4e12.3)
+  enddo
+
+  call getlags(nsps8,lag0,lag1,lag2)
+  tsymbol=nsps8/1500.0
+  dtlag=tsymbol/nspsd
   smax=0.
-  tstep=0.0625*nsps8/1500.0
-  idtmax=2.5/tstep
-
-  f0=foffset
-  dphi=twopi*f0/1500.0
-
-  idtstep=4
-  if(idtmax.lt.30) idtstep=2
-  if(idtmax.lt.15) idtstep=1
-  idt1=-idtmax
-  idt2=idtmax
-
-10 do idt=idt1,idt2,idtstep
-     i0=istart + 0.0625*nsps8*idt
-    sum=0.
-     do j=1,16
-        i1=max(0,(ii(j)-1)*nsps8 + i0)
-        i2=min(npts8-1,i1+nsps8-1)
-        phi=0.
-        zsum=0.
-        do i=i1,i2
-           if(i.lt.0 .or. i.gt.npts8-1) cycle
-           phi=phi + dphi
-           zsum=zsum + c0(i)*cmplx(cos(phi),-sin(phi))
-        enddo
-        sum=sum + real(zsum)**2 + aimag(zsum)**2
+  lagpk=0
+  do lag=lag1,lag2
+     sum0=0.
+     sum1=0.
+     j=-nspsd
+     do i=1,85
+        j=j+nspsd
+        if(isync(i).eq.1) then
+           sum1=sum1+p(j+lag)
+        else
+           sum0=sum0+p(j+lag)
+        endif
      enddo
-     if(sum.gt.smax) then
-        idtpk=idt
-        smax=sum
+     ss=(sum1/16.0)/(sum0/69.0) - 1.0
+     xdt=(lag-lag0)*dtlag
+!     write(52,3001) lag,xdt,ss
+!3001 format(i5,2f12.3)
+     if(ss.gt.smax) then
+        smax=ss
+        lagpk=lag
      endif
   enddo
 
-  if(idtstep.gt.1) then
-     idtstep=1
-     idt1=idtpk-3
-     idt2=idtpk+3
-     go to 10
-  endif
+  xdt=(lagpk-lag0)*dtlag
 
+  nz3=nspsd*85
+  do i=0,nz3-1
+     j=i+lagpk-i0-nspsd+1
+     if(j.ge.0 .and. j.le.nz2) then
+        c3(i)=c2(j)
+     else
+        c3(i)=0.
+     endif
+  enddo
+ 
   return
 end subroutine peakdt9
