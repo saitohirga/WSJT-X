@@ -146,7 +146,6 @@ private:
     bool    m_decoderBusy;
     bool    m_txFirst;
     bool    m_auto;
-    bool    m_txMute;
     bool    m_restart;
     bool    m_startAnother;
     bool    m_saveSynced;
