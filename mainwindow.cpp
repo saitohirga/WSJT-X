@@ -1536,11 +1536,11 @@ void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
 
 void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 {
-  int nMHz=144;
+  double dialFreq=g_pWideGraph->dialFreq();
   QDateTime t = QDateTime::currentDateTimeUtc();
   QString logEntry=t.date().toString("yyyy-MMM-dd,") +
       t.time().toString("hh:mm,") + m_hisCall + "," + m_hisGrid + "," +
-      QString::number(nMHz) + ",JTMSK\n";
+      QString::number(dialFreq) + "," + m_mode + "\n";
   QFile f("wsjt.log");
   if(!f.open(QFile::Append)) {
     msgBox("Cannot open file \"wsjt.log\".");
