@@ -35,28 +35,28 @@ subroutine decoder(ss,c0)
   if(ntrMinutes.eq.1) then
      nsps=6912
      df3=1500.0/2048.0
-     fmt='(i4.4,i4,i5,f6.1,f8.0,f6.1,3x,a22)'
-     fmt14='(i4.4,i4,i5,f6.1,f8.0,f6.1,i3,i8,3x,a22)'
+     fmt='(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22)'
+     fmt14='(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,i8,i3)'
   else if(ntrMinutes.eq.2) then
      nsps=15360
      df3=1500.0/2048.0
-     fmt='(i4.4,i4,i5,f6.1,f8.1,f6.2,3x,a22)'
-     fmt14='(i4.4,i4,i5,f6.1,f8.1,f6.2,i3,i8,3x,a22)'
+     fmt='(i4.4,i4,i5,f6.1,f8.1,i4,3x,a22)'
+     fmt14='(i4.4,i4,i5,f6.1,f8.1,i4,3x,a22,i8,i3)'
   else if(ntrMinutes.eq.5) then
      nsps=40960
      df3=1500.0/6144.0
-     fmt='(i4.4,i4,i5,f6.1,f8.1,f6.2,3x,a22)' 
-     fmt14='(i4.4,i4,i5,f6.1,f8.1,f6.2,i3,i8,3x,a22)'
+     fmt='(i4.4,i4,i5,f6.1,f8.1,i4,3x,a22)' 
+     fmt14='(i4.4,i4,i5,f6.1,f8.1,i4,3x,a22,i8,i3)'
  else if(ntrMinutes.eq.10) then
      nsps=82944
      df3=1500.0/12288.0
-     fmt='(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)'
-     fmt14='(i4.4,i4,i5,f6.1,f8.2,f6.2,i3,i8,3x,a22)'
+     fmt='(i4.4,i4,i5,f6.1,f8.2,i4,3x,a22)'
+     fmt14='(i4.4,i4,i5,f6.1,f8.2,i4,3x,a22,i8,i3)'
   else if(ntrMinutes.eq.30) then
      nsps=252000
      df3=1500.0/32768.0
-     fmt='(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)'
-     fmt14='(i4.4,i4,i5,f6.1,f8.2,f6.2,i3,i8,3x,a22)'
+     fmt='(i4.4,i4,i5,f6.1,f8.2,i4,3x,a22)'
+     fmt14='(i4.4,i4,i5,f6.1,f8.2,i4,3x,a22,i8,i3)'
   endif
   if(nsps.eq.0) stop 'Error: bad TRperiod'    !Better: return an error code###
 
@@ -101,16 +101,17 @@ subroutine decoder(ss,c0)
      nsync=sync
      if(nsync.gt.10) nsync=10
      nsnr=nint(snrdb)
+     ndrift=nint(drift/df3)
      
      if(sync.gt.sbest .and. fgood.eq.0.0) then
         sbest=sync
-        write(line,fmt) nutc,nsync,nsnr,xdt,freq,drift
+        write(line,fmt) nutc,nsync,nsnr,xdt,freq,ndrift
         if(nsync.gt.0) nsynced=1
      endif
 
      if(msg.ne.'                      ') then
-        write(*,fmt) nutc,nsync,nsnr,xdt,freq,drift,msg
-        write(14,fmt14) nutc,nsync,nsnr,xdt,freq,drift,ntrMinutes,nlim,msg
+        write(*,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
+        write(14,fmt14) nutc,nsync,nsnr,xdt,freq,ndrift,msg,nlim,ntrMinutes
         fgood=f
         nsynced=1
         ndecoded=1
