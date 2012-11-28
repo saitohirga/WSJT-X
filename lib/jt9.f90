@@ -130,20 +130,19 @@ program jt9
         f=(i-1)*df3
         if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. f.gt.fgood+10.0*df8) then
 
-           call timer('test9   ',0)
+           call timer('decode9a',0)
            fpk=1000.0 + df3*(i-1)
            c1(1:npts8)=conjg(c0(1:npts8))
-           call test9(c1,npts8,nsps8,fpk,syncpk,snrdb,xdt,freq,drift,   &
-                i1SoftSymbols)
-           call timer('test9   ',1)
-
+           call decode9a(c1,npts8,nsps8,fpk,syncpk,snrdb,xdt,freq,    &
+                drift,i1SoftSymbols)
+           call timer('decode9a',1)
 
            call timer('decode9 ',0)
            call decode9(i1SoftSymbols,limit,nlim,msg)
            call timer('decode9 ',1)
-
+ 
            sync=(syncpk-1.0)/2.0
-           if(sync.lt.0.0) sync=0.0
+           if(sync.lt.0.0 .or. snrdb.lt.dblim-2.0) sync=0.0
            nsync=sync
            if(nsync.gt.10) nsync=10
            nsnr=nint(snrdb)
