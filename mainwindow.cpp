@@ -1276,9 +1276,11 @@ void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
   m_txFirst=(nmod!=0);
   ui->txFirstCheckBox->setChecked(m_txFirst);
   QString rpt=t2.mid(10,3);
-  if(rpt.indexOf(" ")==0) rpt=rpt.mid(1,2);
-  if(rpt.toInt()>-1) rpt="-01";
+  if(rpt.indexOf("  ")==0) rpt="+" + rpt.mid(2,2);
+  if(rpt.indexOf(" -")==0) rpt=rpt.mid(1,2);
+  if(rpt.indexOf(" ")==0) rpt="+" + rpt.mid(1,2);
   if(rpt.toInt()<-50) rpt="-50";
+  if(rpt.toInt()>49) rpt="+49";
   if(ctrl) {
     int i4=t.mid(i2,20).indexOf(" ");
     QString hisgrid=t.mid(i2,20).mid(i4+1,4);
