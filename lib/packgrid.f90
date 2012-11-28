@@ -2,33 +2,26 @@ subroutine packgrid(grid,ng,text)
 
   parameter (NGBASE=180*180)
   character*4 grid
+  character*1 c1
   logical text
 
   text=.false.
   if(grid.eq.'    ') go to 90               !Blank grid is OK
 
-  if(grid(1:1).eq.'-') then                 !Test for numerical signal report
-     read(grid(2:3),*,err=1,end=1) n        !NB: n is positive
-     if(n.lt.1) n=1
-     if(n.gt.50) n=50
-     if(n.gt.30) then
-        call n2grid(-n,grid)                !Very low S/N use locators near -90
-        go to 10
+  n=99
+  c1=grid(1:1)
+  read(grid,*,err=1) n
+  go to 2
+1 read(grid(2:4),*,err=2) n
+2 if(n.ge.-50 .and. n.le.49) then
+     if(c1.eq.'R') then
+        write(grid,1002) n+50
+1002    format('LA',i2.2)
+     else
+        write(grid,1003) n+50
+1003    format('KA',i2.2)
      endif
-1    ng=NGBASE+1+n
-     go to 100
-  else if(grid(1:2).eq.'R-') then
-     read(grid(3:4),*,err=2,end=2) n
-     if(n.lt.1) n=1
-     if(n.gt.50) n=50
-     if(n.gt.30) then
-        call n2grid(-n-20,grid)           !Very low S/N use locators near -90
-        go to 10
-     endif
-
-2    if(n.eq.0) go to 90
-     ng=NGBASE+31+n
-     go to 100
+     go to 10
   else if(grid(1:2).eq.'RO') then
      ng=NGBASE+62
      go to 100
@@ -54,6 +47,7 @@ subroutine packgrid(grid,ng,text)
 
 90 ng=NGBASE + 1
 
-100 return
+100 continue
+  return
 end subroutine packgrid
 
