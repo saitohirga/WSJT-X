@@ -11,6 +11,7 @@
 
 int itone[85];                        //Tx audio tones for 85 symbols
 bool btxok;                           //True if OK to transmit
+bool btxMute;
 double outputLatency;                 //Latency in seconds
 //float c0[2*1800*1500];
 
@@ -98,7 +99,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_auto=false;
   m_waterfallAvg = 1;
   m_txFirst=false;
-  m_txMute=false;
+  btxMute=false;
   btxok=false;
   m_restart=false;
   m_transmitting=false;
@@ -523,7 +524,7 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
   switch(e->key())
   {
   case Qt::Key_F3:
-    m_txMute=!m_txMute;
+    btxMute=!btxMute;
     break;
   case Qt::Key_F4:
     ui->dxCallEntry->setText("");
@@ -1022,7 +1023,7 @@ void MainWindow::guiUpdate()
     if(f.exists() and fmod(tsec,m_TRperiod)<1.0 + 85.0*m_nsps/12000.0)
       bTxTime=true;
 
-    if(bTxTime and iptt==0 and !m_txMute) {
+    if(bTxTime and iptt==0 and !btxMute) {
       int itx=1;
       int ierr = ptt(m_pttPort,itx,&iptt);       // Raise PTT
       /*
@@ -1041,7 +1042,7 @@ void MainWindow::guiUpdate()
         soundOutThread.start(QThread::HighPriority);
       }
     }
-    if(!bTxTime || m_txMute) {
+    if(!bTxTime || btxMute) {
       btxok=false;
     }
   }
@@ -1095,7 +1096,9 @@ void MainWindow::guiUpdate()
 
 // If btxok was just lowered, start a countdown for lowering PTT
   if(!btxok && btxok0 && iptt==1) nc0=-11;  //RxDelay = 1.0 s
-  if(nc0 <= 0) nc0++;
+  if(nc0 <= 0) {
+    nc0++;
+  }
   if(nc0 == 0) {
     int itx=0;
     int ierr=ptt(m_pttPort,itx,&iptt);       // Lower PTT
@@ -1106,7 +1109,7 @@ void MainWindow::guiUpdate()
       msgBox(s);
     }
     */
-    if(!m_txMute) soundOutThread.quitExecution=true;
+    if(!btxMute) soundOutThread.quitExecution=true;
     m_transmitting=false;
     if(m_auto) {
       m_monitoring=true;

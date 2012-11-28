@@ -8,6 +8,8 @@ extern "C" {
 
 extern float gran();                  //Noise generator (for tests only)
 extern int itone[85];                 //Tx audio tones for 85 symbols
+extern bool btxok;
+extern bool btxMute;
 extern double outputLatency;
 
 typedef struct   //Parameters sent to or received from callback function
@@ -17,7 +19,6 @@ typedef struct   //Parameters sent to or received from callback function
   int    ntrperiod;
   int    ntxfreq;
   int    ncall;
-  bool   txOK;
   bool   txMute;
   bool   bRestart;
 } paUserData;
@@ -74,11 +75,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
       if(i4<-32767) i4=-32767;
       i2=i4;
     }
-    /*
-    if(udata->txMute) i2=0;
-    if(!udata->txOK)  i2=0;
-    if(ic > 85*udata->nsps) i2=0;
-    */
+    if(!btxok or btxMute)  i2=0;
     *wptr++ = i2;                   //left
     ic++;
   }
@@ -111,7 +108,6 @@ void SoundOutThread::run()
   udata.ntrperiod=m_TRperiod;
   udata.ntxfreq=m_txFreq;
   udata.ncall=0;
-  udata.txOK=false;
   udata.txMute=m_txMute;
   udata.bRestart=true;
 
@@ -143,7 +139,6 @@ void SoundOutThread::run()
     udata.nsps=m_nsps;
     udata.ntrperiod=m_TRperiod;
     udata.ntxfreq=m_txFreq;
-    udata.txOK=m_txOK;
     udata.txMute=m_txMute;
 
     m_SamFacOut=1.0;
