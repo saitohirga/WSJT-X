@@ -102,6 +102,7 @@ MainWindow::MainWindow(QWidget *parent) :
   btxok=false;
   m_restart=false;
   m_transmitting=false;
+  m_killAll=false;
   m_widebandDecode=false;
   m_ntx=1;
   m_myCall="K1JT";
@@ -128,6 +129,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
   ui->xThermo->setFillBrush(Qt::green);
 
+#ifdef WIN32
+  while(true) {
+      int iret=killbyname("jt9.exe");
+      if(iret == 603) break;
+      if(iret != 0) msgBox("KillByName return code: " +
+                           QString::number(iret));
+  }
+#endif
   if(!mem_jt9.attach()) {
     if (!mem_jt9.create(sizeof(jt9com_))) {
       msgBox("Unable to create shared memory segment.");
