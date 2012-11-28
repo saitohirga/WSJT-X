@@ -1,4 +1,4 @@
-//-------------------------------------------------------------- MainWindow
+//--------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -160,7 +160,7 @@ MainWindow::MainWindow(QWidget *parent) :
   lockFile.open(QIODevice::ReadWrite);
   QFile quitFile(m_appDir + "/.lock");
   quitFile.remove();
-  proc_jt9.start(QDir::toNativeSeparators(m_appDir + "/jt9 -s"));
+  proc_jt9.start(QDir::toNativeSeparators('"' + m_appDir + '"' + "/jt9 -s"));
 
   m_pbdecoding_style1="QPushButton{background-color: cyan; \
       border-style: outset; border-width: 1px; border-radius: 5px; \
