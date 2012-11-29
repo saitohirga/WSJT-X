@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->setupUi(this);
 
 #ifdef WIN32
-//  freopen("wsjtx.log","w",stderr);
+  freopen("wsjtx.log","w",stderr);
 #endif
   on_EraseButton_clicked();
   ui->labUTC->setStyleSheet( \
@@ -1189,17 +1189,14 @@ void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
   bool eom;
   eom=false;
   int iz=ba.length();
-  for(int i=0;i<iz+1; i++) {
-    if((int)ba[i] == 0) {
-      eom=true;
-    }
-    if(eom) {
-      message[i]=32;
-    } else {
+  for(int i=0;i<22; i++) {
+    if(i<iz) {
       message[i]=ba[i];
+    } else {
+      message[i]=32;
     }
   }
-  message[iz]=0;
+  message[22]=0;
 }
 
 void MainWindow::on_txFirstCheckBox_stateChanged(int nstate)        //TxFirst
