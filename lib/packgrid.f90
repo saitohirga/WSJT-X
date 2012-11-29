@@ -38,9 +38,9 @@ subroutine packgrid(grid,ng,text)
 ! Now check for extended-range signal reports: -50 to -31, and 0 to +49.
 10 n=99
   c1=grid(1:1)
-  read(grid,*,err=20) n
+  read(grid,*,err=20,end=20) n
   go to 30
-20 read(grid(2:4),*,err=30) n
+20 read(grid(2:4),*,err=30,end=30) n
 30 if(n.ge.-50 .and. n.le.49) then
      if(c1.eq.'R') then
         write(grid,1002) n+50
