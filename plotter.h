@@ -58,7 +58,6 @@ public:
   void setFcal(int n);
   void DrawOverlay();
   int  fQSO();
-  int  autoZero();
   void setPalette(QString palette);
   void setFsample(int n);
   void setNsps(int ntrperiod, int nsps);
@@ -102,9 +101,6 @@ private:
   bool    m_dataFromDisk;
   char    m_sutc[5];
   qint32  m_line;
-  qint32  m_hist1[256];
-  qint32  m_z1;
-  qint32  m_z2;
   qint32  m_fSample;
   qint32  m_i0;
   qint32  m_xClick;

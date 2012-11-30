@@ -1,4 +1,4 @@
-//--------------------------------------------------------------- MainWindow
+//---------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -887,6 +887,7 @@ void MainWindow::decode()                                       //decode()
     int imin=ms/60000;
     int ihr=imin/60;
     imin=imin % 60;
+    imin=imin - (imin % (m_TRperiod/60));
     jt9com_.nutc=100*ihr + imin;
   }
 
