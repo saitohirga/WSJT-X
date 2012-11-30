@@ -97,10 +97,6 @@ void CPlotter::draw(float swide[], float red[], int i0)             //draw()
   m_2DPixmap = m_OverlayPixmap.copy(0,0,m_w,m_h2);
   QPainter painter2D(&m_2DPixmap);
 
-  for(int i=0; i<256; i++) {                     //Zero the histograms
-    m_hist1[i]=0;
-  }
-
   painter2D.setPen(Qt::green);
   if(m_bJT9Sync) painter2D.setPen(Qt::red);
 
@@ -122,13 +118,12 @@ void CPlotter::draw(float swide[], float red[], int i0)             //draw()
     if (y1<0) y1=0;
     if (y1>254) y1=254;
     if (swide[i]>1.e29) y1=255;
-    m_hist1[y1]++;
     painter1.setPen(m_ColorTbl[y1]);
     painter1.drawPoint(i,0);
     y2=0;
-    if(m_bCurrent) y2 = gain*y + 30;
-    if(m_bCumulative) y2=3*gain*10.0*log10(jt9com_.savg[i]);
-    if(m_bJT9Sync) y2=3.0*gain*red[i] - 20;
+    if(m_bCurrent) y2 = 0.4*gain*y - 15;
+    if(m_bCumulative) y2=1.5*gain*10.0*log10(jt9com_.savg[i]) - 20;
+    if(m_bJT9Sync) y2=3.0*gain*red[i] - 15;
     if(strong != strong0 or i==m_w-1) {
       painter2D.drawPolyline(LineBuf,j);
       j=0;
@@ -440,28 +435,6 @@ void CPlotter::mouseDoubleClickEvent(QMouseEvent *event)  //mouse2click
   int x=event->x();
   setFQSO(x,false);
   emit freezeDecode1(2);                  //### ???
-}
-
-int CPlotter::autoZero()                                        //autoZero()
-{
-  int w = m_Size.width();
-  m_z1=0;
-  int sum1=0;
-  for(int i=0; i<256; i++) {
-    sum1 += m_hist1[i];
-    if(sum1 > int(0.7*w)) {
-      m_z1=i;
-      break;
-    }
-  }
-
-  double gain = pow(10.0,0.05*(m_plotGain+7));
-  if(m_z1 < 255) {
-    double dz1 = m_z1/(5.0*gain);
-    m_plotZero = int(m_plotZero + dz1 + 0.5);
-    if(m_z1==0) m_plotZero = m_plotZero - 5;
-  }
-  return m_plotZero;
 }
 
 void CPlotter::setNSpan(int n)                                  //setNSpan()

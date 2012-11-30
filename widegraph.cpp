@@ -221,12 +221,6 @@ void WideGraph::setFcal(int n)
   ui->widePlot->setFcal(n);
 }
 
-void WideGraph::on_autoZeroPushButton_clicked()
-{
-   int nzero=ui->widePlot->autoZero();
-   ui->zeroSpinBox->setValue(nzero);
-}
-
 void WideGraph::setPalette(QString palette)
 {
   ui->widePlot->setPalette(palette);

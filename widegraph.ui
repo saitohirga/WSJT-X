@@ -258,29 +258,6 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="autoZeroPushButton">
-         <property name="text">
-          <string>Auto Zero</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Preferred</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QRadioButton" name="rbCurrent">
          <property name="text">
           <string>Current</string>
