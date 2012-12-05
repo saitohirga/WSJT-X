@@ -443,7 +443,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            write(26,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
                 nsync2,nutc,decoded,cp,cmode
            write(21,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
-                nsync2,nutc,decoded,cp
+                nsync2,nutc,decoded,cp,cmode
 1014       format(f8.3,i5,3i3,f5.1,i4,i3,i4,i7.6,2x,a22,2x,a1,3x,a2)
 
         endif
