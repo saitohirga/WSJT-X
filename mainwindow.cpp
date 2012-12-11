@@ -1061,7 +1061,8 @@ void MainWindow::guiUpdate()
     ba2msg(ba,message);
 //    ba2msg(ba,msgsent);
     int len1=22;
-    genjt9_(message,msgsent,itone,len1,len1);
+    int ichk=0,itext=0;
+    genjt9_(message,&ichk,msgsent,itone,&itext,len1,len1);
     msgsent[22]=0;
     lab5->setText("Last Tx:  " + QString::fromAscii(msgsent));
     if(m_restart) {
@@ -1457,14 +1458,15 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   char msgsent[23];
   int len1=22;
   int jtone[85];
+
   t=t.toUpper();
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
-  jtone[0]=-99;
-  genjt9_(message,msgsent,jtone,len1,len1);
+  int ichk=1,itext=0;
+  genjt9_(message,&ichk,msgsent,itone,&itext,len1,len1);
   msgsent[22]=0;
   bool text=false;
-  if(jtone[1]==1) text=true;
+  if(itext!=0) text=true;
   QString t1;
   t1.fromAscii(msgsent);
   if(text) t1=t1.mid(0,13);

@@ -26,10 +26,14 @@ program jt9code
   write(*,1000) msg0
 1000 format('Message:',3x,a22)
   msg=msg0
-  call genjt9(msg,decoded,i4tone)               !Encode message into tone #s
+  ichk=0
+  itext=0
+  call genjt9(msg,ichk,decoded,i4tone,itext)       !Encode message into tone #s
   write(*,1002) i4tone
 1002 format('Channel symbols:'/(30i2))
-  write(*,1004) decoded
+  if(itext.eq.0) write(*,1004) decoded
 1004 format('Decoded message:',1x,a22)
+  if(itext.ne.0) write(*,1005) decoded
+1005 format('Decoded message:',1x,a22,3x,'(free text)')
 
 999 end program jt9code

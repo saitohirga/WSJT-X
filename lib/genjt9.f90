@@ -1,4 +1,4 @@
-subroutine genjt9(msg0,msgsent,i4tone)
+subroutine genjt9(msg0,ichk,msgsent,i4tone,itext)
 
 ! Encodes a JT9 message and returns msgsent, the message as it will
 ! be decoded, and an integer array i4tone(85) of 9-FSK tone values 
@@ -32,12 +32,10 @@ subroutine genjt9(msg0,msgsent,i4tone)
   enddo
 
   call packmsg(message,i4Msg6BitWords,text)   !Pack message into 12 6-bit bytes
+  itext=0
+  if(text) itext=1
   call unpackmsg(i4Msg6BitWords,msgsent)      !Unpack to get msgsent
-  if(i4tone(1).eq.-99) then
-     i4tone(2)=0
-     if(text) i4tone(2)=1
-     go to 999
-  endif
+  if(ichk.ne.0) go to 999
   call entail(i4Msg6BitWords,i1Msg8BitBytes)  !Add tail, convert to 8-bit bytes
   nsym2=206
   call encode232(i1Msg8BitBytes,nsym2,i1EncodedBits)   !Encode K=32, r=1/2
