@@ -96,5 +96,8 @@ subroutine unpackmsg(dat,msg)
      msg(j:j)=' '
   endif
 
-100 return
+100 continue
+  if(msg(1:6).eq.'CQ9DX ') msg(3:3)=' '
+
+  return
 end subroutine unpackmsg

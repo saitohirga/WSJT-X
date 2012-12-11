@@ -24,8 +24,10 @@ subroutine packmsg(msg,dat,text)
      iz=iz-1
   enddo
 
+5 if(msg(1:6).eq.'CQ DX ') msg(3:3)='9'
+
 ! See if it's a CQ message
-5 if(msg(1:3).eq.'CQ ') then
+  if(msg(1:3).eq.'CQ ') then
      i=3
 ! ... and if so, does it have a reply frequency?
      if(msg(4:4).ge.'0' .and. msg(4:4).le.'9' .and.                  &
