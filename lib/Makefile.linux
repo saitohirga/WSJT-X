@@ -27,15 +27,17 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	packbits.o unpackbits.o encode232.o interleave9.o \
 	entail.o fano232.o gran.o spec9.o sync9.o decode9.o \
 	peakdt9.o peakdf9.o fil3.o redsync.o decoder.o \
-	grid2n.o n2grid.o timer.o
+	grid2n.o n2grid.o timer.o jt9a.o ipcomm.o sleep_msec.o
 
 libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
 	ranlib libjt9.a
 
 OBJS2 = jt9.o 
+
 jt9: 	$(OBJS2) libjt9.a
-	$(FC) -o jt9 $(OBJS2) libjt9.a -lfftw3f
+	g++ -o jt9 $(OBJS2) -lQtCore libjt9.a -lfftw3f -lgfortran
+	cp jt9 ../../wsjtx_install
 
 OBJS3 = jt9sim.o 
 jt9sim: $(OBJS3) libjt9.a
@@ -45,10 +47,12 @@ OBJS4 = jt9code.o
 jt9code: $(OBJS4) libjt9.a
 	$(FC) -o jt9code $(OBJS4) libjt9.a
 
-INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
-	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
-	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/ActiveQt' \
-	 -I'release' -I'.' -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/mkspecs/win32-g++'
+#INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
+#	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
+#	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/ActiveQt' \
+#	 -I'release' -I'.' -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/mkspecs/win32-g++'
+
+INCPATH =  -I'/usr/include/qt4' -I'/usr/include/qt4/QtCore' 
 
 #jt9.o:	jt9.f90
 #	$(FC) -O0 -c jt9.f90
@@ -73,6 +77,9 @@ genjt9.o: genjt9.f90 jt9sync.f90
 
 redsync.o: redsync.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c redsync.f90
+
+jt9a.o: jt9a.F90
+	$(FC) -DUNIX $(FFLAGS) -c jt9a.F90
 
 ipcomm.o: ipcomm.cpp
 	g++ -c $(INCPATH) ipcomm.cpp
