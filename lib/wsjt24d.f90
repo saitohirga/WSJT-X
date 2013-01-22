@@ -27,6 +27,7 @@ program wsjt24d
 !     write(*,3000) ifile,cfile6,jz,mode,mode4,idf
 !3000 format(i3,2x,a6,i10,3i5)
 
+!    call wsjt24(dat(4097),jz-4096,cfile6,NClearAve,MinSigdB,DFTolerance,  &
     call wsjt24(dat,jz,cfile6,NClearAve,MinSigdB,DFTolerance,             &
          NFreeze,mode,mode4,Nseg,MouseDF2,NAgain,idf,lumsg,lcum,nspecial, &
          ndf,NSyncOK,ccfblue,ccfred,ndiag)
