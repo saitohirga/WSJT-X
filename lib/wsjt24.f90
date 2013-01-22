@@ -173,8 +173,6 @@ subroutine wsjt24(dat,npts,cfile6,NClearAve,MinSigdB,                  &
 !  write(12,1011) ave1
 !  write(12,1011) ave2
 !  call flush(12)
- 
-  if(lumsg.ne.6) end file 11
 !  call cs_unlock
   
 900 continue

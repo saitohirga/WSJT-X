@@ -1,6 +1,6 @@
 program genmet
 
-! Former name: tstprob
+! Generate metric table for M-FSK modulation.
 
   character*12 arg
   real*4 r(0:255)
