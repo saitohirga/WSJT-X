@@ -11,18 +11,18 @@ subroutine decode24(dat,npts,dtx,dfx,flip,mode,mode4,decoded,ncount,   &
   real*8 dt,df,phi,f0,dphi,twopi,phi1,dphi1
   complex*16 cz,cz1,c0,c1
   integer*1 symbol(207)
-  real*4 rsymbol(207)
+  real*4 rsymbol(207,7)
+  integer nsum(7)
   integer*1 data1(13)                   !Decoded data (8-bit bytes)
   integer   data4a(9)                   !Decoded data (8-bit bytes)
   integer   data4(12)                   !Decoded data (6-bit bytes)
   integer amp,delta
   integer mettab(0:255,0:1)             !Metric table
-  integer fano
   integer nch(7)
   integer npr2(207)
 !  common/ave/ppsave(64,63,MAXAVE),nflag(MAXAVE),nsave,iseg(MAXAVE)
   data mode0/-999/
-  data nsum/0/,rsymbol/207*0.0/
+  data nsum/7*0/,rsymbol/1449*0.0/
   data npr2/                                                         &
        0,0,0,0,1,1,0,0,0,1,1,0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,1,1,0,0,  &
        0,0,0,0,0,0,0,0,0,0,1,0,1,1,0,1,1,0,1,0,1,1,1,1,1,0,1,0,0,0,  &
@@ -35,7 +35,7 @@ subroutine decode24(dat,npts,dtx,dfx,flip,mode,mode4,decoded,ncount,   &
   data nch/1,2,4,9,18,36,72/
   save mettab,mode0,nsum,rsymbol
 
-  if(mode.ne.mode0) call genmet24(mode,mettab)
+  if(mode.ne.mode0) call getmet24(mode,mettab)
   mode0=mode
   twopi=8*atan(1.d0)
   dt=2.d0/11025             !Sample interval (2x downsampled data)
@@ -44,7 +44,6 @@ subroutine decode24(dat,npts,dtx,dfx,flip,mode,mode4,decoded,ncount,   &
   amp=15
   istart=nint(dtx/dt)              !Start index for synced FFTs
   if(istart.lt.0) istart=0
-  idfbest=0
   nchips=0
   ich=0
 
@@ -53,10 +52,8 @@ subroutine decode24(dat,npts,dtx,dfx,flip,mode,mode4,decoded,ncount,   &
 ! Compute soft symbols using differential BPSK demodulation
   c0=0.                                !### C0=amp ???
   k=istart
-  fac=1.e-4
   phi=0.d0
   phi1=0.d0
-  ang0=0.
 
 40 ich=ich+1
   nchips=nch(ich)
@@ -106,14 +103,14 @@ subroutine decode24(dat,npts,dtx,dfx,flip,mode,mode4,decoded,ncount,   &
      if(i4.gt.127) i4=i4-256
      if(j.ge.1) then
         symbol(j)=i4
-        rsymbol(j)=rsymbol(j) + rsym
+        rsymbol(j,ich)=rsymbol(j,ich) + rsym
      endif
   enddo
   
 !###  The following does simple message averaging:
-  nsum=nsum+1
+  nsum(ich)=nsum(ich)+1
   do j=1,207
-     r=rsymbol(j)/nsum + 128.
+     r=rsymbol(j,ich)/nsum(ich) + 128.
      if(r.gt.255.0) r=255.0
      if(r.lt.0.0) r=0.0
      i4=nint(r)
@@ -123,7 +120,7 @@ subroutine decode24(dat,npts,dtx,dfx,flip,mode,mode4,decoded,ncount,   &
 !###
   
   nbits=72+31
-  delta=100
+  delta=50
   limit=100000
   ncycles=0
   ncount=-1

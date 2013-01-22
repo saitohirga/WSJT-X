@@ -1,22 +1,11 @@
-subroutine decode9(i1SoftSymbols,limit,nlim,msg)
+subroutine getmet24(mode,mettab)
 
-! Decoder for JT9
-! Input:   i1SoftSymbols(207) - Single-bit soft symbols
-! Output:  msg                - decoded message (blank if erasure)
+! Return appropriate metric table for soft-decision convolutional decoder.
 
-  character*22 msg
-  integer*4 i4DecodedBytes(9)
-  integer*4 i4Decoded6BitWords(12)
-  integer*1 i1DecodedBytes(13)   !72 bits and zero tail as 8-bit bytes
-  integer*1 i1SoftSymbols(207)
-  integer*1 i1DecodedBits(72)
-
+! Metric table (RxSymbol,TxSymbol)
+  integer mettab(0:255,0:1)
   real*4 xx0(0:255)
-
-  integer*1 i1
   logical first
-  integer*4 mettab(0:255,0:1)
-  equivalence (i1,i4)
   data first/.true./
   data xx0/                                                      &
         1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000,  &
@@ -54,10 +43,8 @@ subroutine decode9(i1SoftSymbols,limit,nlim,msg)
   save
 
   if(first) then
-! Get the metric table
-!     bias=0.37                         !To be optimized, in decoder program
      bias=0.5
-     scale=10                           !  ... ditto ...
+     scale=10.0
      do i=0,255
         mettab(i,0)=nint(scale*(xx0(i)-bias))
         if(i.ge.1) mettab(256-i,1)=mettab(i,0)
@@ -65,25 +52,6 @@ subroutine decode9(i1SoftSymbols,limit,nlim,msg)
      first=.false.
   endif
 
-  msg='                      '
-  nbits=72
-  ndelta=17
-  call fano232(i1SoftSymbols,nbits+31,mettab,ndelta,limit,i1DecodedBytes,   &
-       ncycles,metric,ierr)
-
-  nlim=ncycles/nbits
-  if(ncycles.lt.(nbits*limit)) then
-     nbytes=(nbits+7)/8
-     do i=1,nbytes
-        n=i1DecodedBytes(i)
-        i4DecodedBytes(i)=iand(n,255)
-     enddo
-     call unpackbits(i4DecodedBytes,nbytes,8,i1DecodedBits)
-     call packbits(i1DecodedBits,12,6,i4Decoded6BitWords)
-     call unpackmsg(i4Decoded6BitWords,msg)                !Unpack decoded msg
-     if(index(msg,'000AAA ').gt.0) msg='                      '
-!     if(index(msg,'15P6715P67WCV').gt.0) msg='                      '
-  endif
-
   return
-end subroutine decode9
+end subroutine getmet24
+
