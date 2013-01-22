@@ -20,7 +20,7 @@ CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    libjt9.a jt9sim.exe jt9.exe jt9code.exe jt9test.exe
+all:    libjt9.a jt9sim.exe jt9.exe jt9code.exe wsjt24d.exe
 
 OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	unpackmsg.o igray.o unpackcall.o unpackgrid.o \
@@ -30,8 +30,9 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	symspec.o timf2.o analytic.o db.o genjt9.o \
 	packbits.o unpackbits.o encode232.o interleave9.o \
 	entail.o fano232.o gran.o spec9.o sync9.o decode9.o \
-	peakdt9.o peakdf9.o fil3.o redsync.o decoder.o \
-	grid2n.o n2grid.o timer.o 
+	fil3.o redsync.o decoder.o grid2n.o n2grid.o timer.o \
+	decode9a.o getlags.o afc9.o fchisq.o twkfreq.o downsam9.o \
+	peakdt9.o symspec2.o
 
 libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
@@ -53,8 +54,13 @@ jt9code.exe: $(OBJS4) libjt9.a
 	$(FC) -o jt9code.exe $(OBJS4) libjt9.a
 
 OBJS5 = jt9test.o 
-jt9test.exe: $(OBJS5) libjt9.a
-	$(FC) -o jt9test.exe $(OBJS5) libjt9.a ../libfftw3f_win.a 
+jt9test.exe: $(OBJS5) libjt9.a 
+	$(FC) -o jt9test.exe $(OBJS5) libjt9.a ../libfftw3f_win.a
+
+OBJS6 = wsjt24d.o wsjt24.o sync24.o decode24.o ps24.o flat1.o \
+	xcor24.o slope.o peakup.o interleave24.o genmet24.o
+wsjt24d.exe: $(OBJS6) libjt9.a 
+	$(FC) -o wsjt24d.exe $(OBJS6) libjt9.a ../libfftw3f_win.a
 
 INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
 	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
