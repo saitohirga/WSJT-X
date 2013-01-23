@@ -5,6 +5,7 @@ program wsjt24d
   character*12 arg
   real ccfblue(-5:540)        !X-cor function in JT65 mode (blue line)
   real ccfred(450)            !Average spectrum of the whole file
+  integer dftolerance
 
   nargs=iargc()
   if(nargs.ne.2) then
@@ -16,6 +17,7 @@ program wsjt24d
   call getarg(2,arg)
   read(arg,*) ifile2
 
+  open(23,file='CALL3.TXT',status='old')
   open(50,file='vk7mo.dat',form='unformatted',status='old')
 
   do ifile=1,ifile2
@@ -26,6 +28,10 @@ program wsjt24d
 
 !     write(*,3000) ifile,cfile6,jz,mode,mode4,idf
 !3000 format(i3,2x,a6,i10,3i5)
+
+     dftolerance=100
+     nfreeze=1
+     neme=0
 
 !    call wsjt24(dat(4097),jz-4096,cfile6,NClearAve,MinSigdB,DFTolerance,  &
     call wsjt24(dat,jz,cfile6,NClearAve,MinSigdB,DFTolerance,             &

@@ -92,7 +92,7 @@ subroutine wsjt24(dat,npts,cfile6,NClearAve,MinSigdB,                  &
   endif
 
   call decode24(dat,npts,dtx,dfx,flip,mode,mode4,decoded,           &
-       ncount,nlim,deepmsg,qual,submode)
+       ncount,deepmsg,qual,submode)
 
 200 kvqual=0
   if(ncount.ge.0) kvqual=1
@@ -112,8 +112,8 @@ subroutine wsjt24(dat,npts,cfile6,NClearAve,MinSigdB,                  &
 
 !  call cs_lock('wsjt24')
   write(line,1010) cfile6,nsync,nsnr,dtx-1.0,jdf,nint(width),         &
-       csync,special,decoded(1:19),cooo,kvqual,nqual,submode,nlim
-1010 format(a6,i3,i5,f5.1,i5,i3,1x,a1,1x,a5,a19,1x,a3,i4,i4,1x,a1,i8)
+       csync,special,decoded(1:19),cooo,kvqual,nqual,submode
+1010 format(a6,i3,i5,f5.1,i5,i3,1x,a1,1x,a5,a19,1x,a3,i3,i5,1x,a1)
 
 ! Blank all end-of-line stuff if no decode
   if(line(31:40).eq.'          ') line=line(:30)
