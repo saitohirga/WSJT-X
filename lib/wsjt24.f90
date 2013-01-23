@@ -22,8 +22,7 @@ subroutine wsjt24(dat,npts,cfile6,NClearAve,MinSigdB,                  &
   character*6 hisgrid
   character submode*1
   real*4 ccfbluesum(-5:540),ccfredsum(-224:224)
-!  common/ave/ppsave(64,63,MAXAVE),nflag(MAXAVE),nsave,iseg(MAXAVE) !For msg avg
-  integer nflag(MAXAVE),iseg(MAXAVE)
+  common/ave/ppsave(207,7,MAXAVE),nflag(MAXAVE),nsave,iseg(MAXAVE)
   data first/.true./,ns10/0/,ns20/0/
   save
 
@@ -37,6 +36,7 @@ subroutine wsjt24(dat,npts,cfile6,NClearAve,MinSigdB,                  &
      if(nspecial.eq.999) go to 900        !Silence compiler warning
   endif
 
+  ndepth=3                                !###
   naggressive=0
   if(ndepth.ge.2) naggressive=1
   nq1=3
@@ -118,18 +118,18 @@ subroutine wsjt24(dat,npts,cfile6,NClearAve,MinSigdB,                  &
 ! Blank all end-of-line stuff if no decode
   if(line(31:40).eq.'          ') line=line(:30)
 
-!  if(lcum) write(21,1011) line
+  if(lcum) write(21,1011) line
 
 ! Write decoded msg unless this is an "Exclude" request:
   if(MinSigdB.lt.99) write(*,1011) line
 1011 format(a77)
 
-!  if(nsave.ge.1) call avemsg65(1,mode65,ndepth,                      &
-!       avemsg1,nused1,nq1,nq2,neme,mycall,hiscall,hisgrid,qual1,     &
-!       ns1,ncount1)
-!  if(nsave.ge.1) call avemsg65(2,mode65,ndepth,                      &
-!       avemsg2,nused2,nq1,nq2,neme,mycall,hiscall,hisgrid,qual2,     &
-!       ns2,ncount2)
+  if(nsave.ge.1) call avemsg4(1,mode4,ndepth,                        &
+       avemsg1,nused1,nq1,nq2,neme,mycall,hiscall,hisgrid,qual1,     &
+       ns1,ncount1)
+  if(nsave.ge.1) call avemsg4(2,mode4,ndepth,                        &
+       avemsg2,nused2,nq1,nq2,neme,mycall,hiscall,hisgrid,qual2,     &
+       ns2,ncount2)
   nqual1=qual1
   nqual2=qual2
   if(ndiag.eq.0 .and. nqual1.gt.10) nqual1=10
@@ -140,59 +140,42 @@ subroutine wsjt24(dat,npts,cfile6,NClearAve,MinSigdB,                  &
   if(ncount2.ge.0) nc2=1
 
 ! Write the average line
-!      if(ns1.ge.1 .and. ns1.ne.ns10) then
-
-!  if(ns1.ge.1) then
-!     if(ns1.lt.10) write(ave1,1021) cfile6,1,nused1,ns1,avemsg1,nc1,nqual1
-!1021 format(a6,i3,i4,'/',i1,20x,a19,i8,i4)
-!     if(ns1.ge.10 .and. nsave.le.99) write(ave1,1022) cfile6,        &
-!          1,nused1,ns1,avemsg1,nc1,nqual1
-!1022 format(a6,i3,i4,'/',i2,19x,a19,i8,i4)
-!     if(ns1.ge.100) write(ave1,1023) cfile6,1,nused1,ns1,            &
-!          avemsg1,nc1,nqual1
-!1023 format(a6,i3,i4,'/',i3,18x,a19,i8,i4)
-!     if(lcum .and. (avemsg1.ne.'                  '))                &
-!          write(21,1011) ave1
-!     ns10=ns1
-!  endif
+  if(ns1.ge.1) then
+     if(ns1.lt.10) write(ave1,1021) cfile6,1,nused1,ns1,avemsg1,nc1,nqual1
+1021 format(a6,i3,i4,'/',i1,20x,a19,i7,i5)
+     if(ns1.ge.10 .and. nsave.le.99) write(ave1,1022) cfile6,        &
+          1,nused1,ns1,avemsg1,nc1,nqual1
+1022 format(a6,i3,i4,'/',i2,19x,a19,i7,i5)
+     if(ns1.ge.100) write(ave1,1023) cfile6,1,nused1,ns1,            &
+          avemsg1,nc1,nqual1
+1023 format(a6,i3,i4,'/',i3,18x,a19,i7,i5)
+     if(lcum .and. (avemsg1.ne.'                  '))                &
+          write(21,1011) ave1
+     ns10=ns1
+  endif
 
 ! If Monitor segment #2 is available, write that line also
-!      if(ns2.ge.1 .and. ns2.ne.ns20) then     !***Why the 2nd part?? ***
-!  if(ns2.ge.1) then
-!     if(ns2.lt.10) write(ave2,1021) cfile6,2,nused2,ns2,avemsg2,nc2,nqual2
-!     if(ns2.ge.10 .and. nsave.le.99) write(ave2,1022) cfile6,       &
-!          2,nused2,ns2,avemsg2,nc2,nqual2
-!     if(ns2.ge.100) write(ave2,1023) cfile6,2,nused2,ns2,avemsg2,nc2,nqual2
-!     if(lcum .and. (avemsg2.ne.'                  '))               &
-!          write(21,1011) ave2
-!     ns20=ns2
-!  endif
+  if(ns2.ge.1) then
+     if(ns2.lt.10) write(ave2,1021) cfile6,2,nused2,ns2,avemsg2,nc2,nqual2
+     if(ns2.ge.10 .and. nsave.le.99) write(ave2,1022) cfile6,       &
+          2,nused2,ns2,avemsg2,nc2,nqual2
+     if(ns2.ge.100) write(ave2,1023) cfile6,2,nused2,ns2,avemsg2,nc2,nqual2
+     if(lcum .and. (avemsg2.ne.'                  '))               &
+          write(21,1011) ave2
+     ns20=ns2
+  endif
 
   if(ave1(31:40).eq.'          ') ave1=ave1(:30)
   if(ave2(31:40).eq.'          ') ave2=ave2(:30)
-!  write(12,1011) ave1
-!  write(12,1011) ave2
-!  call flush(12)
+  write(12,1011) ave1
+  write(12,1011) ave2
+  call flush(12)
 !  call cs_unlock
   
 900 continue
 
   ccfbluesum=ccfbluesum + ccfblue
   ccfredsum=ccfredsum + ccfred
-
-! This was for testing message averaging:
-
-!  rewind 71
-!  rewind 72
-!  do i=-5,540
-!     write(71,3001) 0.2 + i*0.057143,ccfbluesum(i)
-!3001 format(2f12.3)
-!  enddo
-!  do i=-224,224
-!     write(72,3001) i*2.1875,ccfredsum(i)
-!  enddo
-!  call flush(71)
-!  call flush(72)
 
   return
 end subroutine wsjt24

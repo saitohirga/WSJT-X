@@ -5,8 +5,6 @@ subroutine getmet24(mode,mettab)
 ! Metric table (RxSymbol,TxSymbol)
   integer mettab(0:255,0:1)
   real*4 xx0(0:255)
-  logical first
-  data first/.true./
   data xx0/                                                      &
         1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000,  &
         1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000,  &
@@ -42,15 +40,12 @@ subroutine getmet24(mode,mettab)
        -9.966,-9.966,-9.966,-9.966,-9.966,-9.966,-9.966,-9.966/
   save
 
-  if(first) then
-     bias=0.5
-     scale=10.0
-     do i=0,255
-        mettab(i,0)=nint(scale*(xx0(i)-bias))
-        if(i.ge.1) mettab(256-i,1)=mettab(i,0)
-     enddo
-     first=.false.
-  endif
+  bias=0.5
+  scale=10.0
+  do i=0,255
+     mettab(i,0)=nint(scale*(xx0(i)-bias))
+     if(i.ge.1) mettab(256-i,1)=mettab(i,0)
+  enddo
 
   return
 end subroutine getmet24

@@ -1,11 +1,11 @@
 subroutine decode24(dat,npts,dtx,dfx,flip,mode,mode4,decoded,ncount,   &
-     deepmsg,qual,submode)
+     deepbest,qbest,submode)
 
 ! Decodes JT65 data, assuming that DT and DF have already been determined.
 
   parameter (MAXAVE=120)
   real dat(npts)                        !Raw data
-  character decoded*22,deepmsg*22
+  character decoded*22,deepmsg*22,deepbest*22
   character*12 mycall,hiscall
   character*6 hisgrid
   character*72 c72
@@ -23,7 +23,7 @@ subroutine decode24(dat,npts,dtx,dfx,flip,mode,mode4,decoded,ncount,   &
   integer mettab(0:255,0:1)             !Metric table
   integer nch(7)
   integer npr2(207)
-!  common/ave/ppsave(64,63,MAXAVE),nflag(MAXAVE),nsave,iseg(MAXAVE)
+  common/ave/ppsave(207,7,MAXAVE),nflag(MAXAVE),nsave,iseg(MAXAVE)
   data mode0/-999/
   data nsum/7*0/,rsymbol/1449*0.0/
   data npr2/                                                         &
@@ -128,59 +128,49 @@ subroutine decode24(dat,npts,dtx,dfx,flip,mode,mode4,decoded,ncount,   &
 !  enddo
 !###
   
-  nbits=72+31
-  delta=50
-  limit=100000
-  ncycles=0
-  ncount=-1
-  call interleave24(symbol(2),-1)         !Remove the interleaving
+  call extract4(sym,nadd,ncount,decoded)     !Do the KV decode
 
-  call fano232(symbol(2),nbits,mettab,delta,limit,data1,ncycles,metric,ncount)
-  nlim=ncycles/nbits
-
-!### Try deep search
-  qual=0.
+  qual=0.                                    !Now try deep search
   neme=1
   mycall='VK7MO'
   hiscall='W5LUA'
   hisgrid='EM13'
-  call deep24(sym(2),neme,flip,mycall,hiscall,hisgrid,decoded,qual)
+  call deep24(sym(2),neme,flip,mycall,hiscall,hisgrid,deepmsg,qual)
   if(qual.gt.qbest) then
      qbest=qual
-     deepmsg=decoded
+     deepbest=deepmsg
      ichbest=ich
   endif
-!###
 
   if(ncount.ge.0) go to 100
   if(mode.eq.7 .and. nchips.lt.mode4) go to 40
 
-100 do i=1,9
-     i4=data1(i)
-     if(i4.lt.0) i4=i4+256
-     data4a(i)=i4
-  enddo
-  write(c72,1100) (data4a(i),i=1,9)
-1100 format(9b8.8)
-  read(c72,1102) data4
-1102 format(12b6)
+100 continue
+!100 do i=1,9
+!     i4=data1(i)
+!     if(i4.lt.0) i4=i4+256
+!     data4a(i)=i4
+!  enddo
+!  write(c72,1100) (data4a(i),i=1,9)
+!1100 format(9b8.8)
+!  read(c72,1102) data4
+!1102 format(12b6)
 
-  decoded='                      '
-  submode=' '
-  if(ncount.ge.0) then
-     call unpackmsg(data4,decoded)
-     submode=char(ichar('A')+ich-1)
-  else
-     decoded=deepmsg
+!  decoded='                      '
+!  submode=' '
+
+  if(ncount.lt.0) then
+     decoded=deepbest
      submode=char(ichar('A')+ichbest-1)
      qual=qbest
   endif
-  if(decoded(1:6).eq.'000AAA') then
-     decoded='***WRONG MODE?***'
-     ncount=-1
-  endif
+!  if(decoded(1:6).eq.'000AAA') then
+!     decoded='***WRONG MODE?***'
+!     ncount=-1
+!  endif
 
 ! Save symbol spectra for possible decoding of average.
+  ppsave(1:207,1:7,nsave)=rsymbol(1:207,1:7)
 
   return
 end subroutine decode24
