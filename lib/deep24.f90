@@ -1,9 +1,9 @@
-subroutine deep24(s3,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
+subroutine deep24(sym,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
 
 ! Have barely begun converting this from JT65 to JT4
 
   parameter (MAXCALLS=7000,MAXRPT=63)
-  real s3(64,63)
+  real*4 sym(206)
   character callsign*12,grid*4,message*22,hisgrid*6,c*1,ceme*3
   character*12 mycall,hiscall
   character mycall0*12,hiscall0*12,hisgrid0*6
@@ -12,10 +12,10 @@ subroutine deep24(s3,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
   character*15 callgrid(MAXCALLS)
   character*180 line
   character*4 rpt(MAXRPT)
-  integer ncode(63,2*MAXCALLS + 2 + MAXRPT)
+  integer ncode(206)
+  real*4   code(206,2*MAXCALLS + 2 + MAXRPT)
   real pp(2*MAXCALLS + 2 + MAXRPT)
-  common/mrscom/ mrs(63),mrs2(63)
-  common/c3com/ mcall3a
+!  common/c3com/ mcall3a
 
   data neme0/-99/
   data rpt/'-01','-02','-03','-04','-05',          &
@@ -78,7 +78,7 @@ subroutine deep24(s3,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
      j3=index(mycall,'/')                 ! j3>0 means compound mycall
      j4=index(callsign,'/')               ! j4>0 means compound hiscall
      callgrid(icall)=callsign(1:j2)
-     
+
      mz=1
 ! Allow MyCall + HisCall + rpt (?)
      if(n.eq.1 .and. j3.lt.1 .and. j4.lt.1 .and.                       &
@@ -89,15 +89,16 @@ subroutine deep24(s3,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
         message=mycall(1:j1)//' '//callgrid(icall)
         k=k+1
         testmsg(k)=message
-!        call encode65(message,ncode(1,k))
-        
+        call encode4(message,ncode)
+        code(1:206,k)=2*ncode(1:206)-1
         if(n.ge.2) then
 ! Insert CQ message
            if(j4.lt.1) callgrid(icall)=callsign(1:j2)//' '//grid
            message='CQ '//callgrid(icall)
            k=k+1
            testmsg(k)=message
-!           call encode65(message,ncode(1,k))
+           call encode4(message,ncode)
+        code(1:206,k)=2*ncode(1:206)-1
         endif
      enddo
 10   continue
@@ -110,10 +111,13 @@ subroutine deep24(s3,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
 30 mycall0=mycall
   hiscall0=hiscall
   hisgrid0=hisgrid
-  ref0=0.
-  do j=1,63
-     ref0=ref0 + s3(mrs(j),j)
+
+  sq=0.
+  do j=1,206
+     sq=sq + sym(j)**2
   enddo
+  rms=sqrt(sq/206.0)
+  sym=sym/rms
 
   p1=-1.e30
   p2=-1.e30
@@ -121,14 +125,11 @@ subroutine deep24(s3,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
      pp(k)=0.
 ! Test all messages if flip=+1; skip the CQ messages if flip=-1.
      if(flip.gt.0.0 .or. testmsg(k)(1:3).ne.'CQ ') then
-        sum=0.
-        ref=ref0
-        do j=1,63
-           i=ncode(j,k)+1
-           sum=sum + s3(i,j)
-           if(i.eq.mrs(j)) ref=ref - s3(i,j) + s3(mrs2(j),j)
+        p=0.
+        do j=1,206
+           i=code(j,k)+1
+           p=p + code(j,k)*sym(j)
         enddo
-        p=sum/ref
         pp(k)=p
         if(p.gt.p1) then
            p1=p
@@ -142,15 +143,20 @@ subroutine deep24(s3,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
   enddo
 
 ! ### DO NOT REMOVE ### 
-  rewind 77
-  write(77,*) p1,p2
+!  rewind 77
+!  write(77,*) p1,p2
 ! ### Works OK without it (in both Windows and Linux) if compiled 
 ! ### without optimization.  However, in Windows this is a colossal 
 ! ### pain because of the way F2PY wants to run the compile step.
 
 
+  bias=1.1*p2
+!  if(mode65.eq.1) bias=max(1.12*p2,0.335)
+!  if(mode65.eq.2) bias=max(1.08*p2,0.405)
+!  if(mode65.ge.4) bias=max(1.04*p2,0.505)
+
   if(p2.eq.p1 .and. p1.ne.-1.e30) stop 'Error in deep24'
-  qual=100.0*(p1-bias)
+  qual=10.0*(p1-bias)
 
   decoded='                      '
   c=' '
@@ -168,6 +174,9 @@ subroutine deep24(s3,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
      if(decoded(i:i).ge.'a' .and. decoded(i:i).le.'z')                &
           decoded(i:i)=char(ichar(decoded(i:i))-32)
   enddo
+
+!  write(*,3010) p1,p2,p1-p2,p1/p2,qual,decoded
+!3010 format('DS:',5f9.1,2x,a22)
 
   return
 end subroutine deep24

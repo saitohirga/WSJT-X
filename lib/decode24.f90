@@ -1,17 +1,20 @@
 subroutine decode24(dat,npts,dtx,dfx,flip,mode,mode4,decoded,ncount,   &
-     nlim,deepmsg,qual,submode)
+     deepmsg,qual,submode)
 
 ! Decodes JT65 data, assuming that DT and DF have already been determined.
 
   parameter (MAXAVE=120)
   real dat(npts)                        !Raw data
   character decoded*22,deepmsg*22
+  character*12 mycall,hiscall
+  character*6 hisgrid
   character*72 c72
   character submode*1
   real*8 dt,df,phi,f0,dphi,twopi,phi1,dphi1
   complex*16 cz,cz1,c0,c1
   integer*1 symbol(207)
   real*4 rsymbol(207,7)
+  real*4 sym(207)
   integer nsum(7)
   integer*1 data1(13)                   !Decoded data (8-bit bytes)
   integer   data4a(9)                   !Decoded data (8-bit bytes)
@@ -46,6 +49,9 @@ subroutine decode24(dat,npts,dtx,dfx,flip,mode,mode4,decoded,ncount,   &
   if(istart.lt.0) istart=0
   nchips=0
   ich=0
+  qbest=0.
+  deepmsg='                      '
+  ichbest=-1
 
 ! Should amp be adjusted according to signal strength?
 
@@ -103,20 +109,23 @@ subroutine decode24(dat,npts,dtx,dfx,flip,mode,mode4,decoded,ncount,   &
      if(i4.gt.127) i4=i4-256
      if(j.ge.1) then
         symbol(j)=i4
-        rsymbol(j,ich)=rsymbol(j,ich) + rsym
+!        rsymbol(j,ich)=rsymbol(j,ich) + rsym
+        rsymbol(j,ich)=rsym
+        sym(j)=rsym
      endif
   enddo
   
 !###  The following does simple message averaging:
-  nsum(ich)=nsum(ich)+1
-  do j=1,207
-     r=rsymbol(j,ich)/nsum(ich) + 128.
-     if(r.gt.255.0) r=255.0
-     if(r.lt.0.0) r=0.0
-     i4=nint(r)
-     if(i4.gt.127) i4=i4-256
-     symbol(j)=i4
-  enddo
+!  nsum(ich)=nsum(ich)+1
+!  do j=1,207
+!     sym(j)=rsymbol(j,ich)/nsum(ich)
+!     r=sym(j) + 128.
+!     if(r.gt.255.0) r=255.0
+!     if(r.lt.0.0) r=0.0
+!     i4=nint(r)
+!     if(i4.gt.127) i4=i4-256
+!     symbol(j)=i4
+!  enddo
 !###
   
   nbits=72+31
@@ -129,6 +138,20 @@ subroutine decode24(dat,npts,dtx,dfx,flip,mode,mode4,decoded,ncount,   &
   call fano232(symbol(2),nbits,mettab,delta,limit,data1,ncycles,metric,ncount)
   nlim=ncycles/nbits
 
+!### Try deep search
+  qual=0.
+  neme=1
+  mycall='VK7MO'
+  hiscall='W5LUA'
+  hisgrid='EM13'
+  call deep24(sym(2),neme,flip,mycall,hiscall,hisgrid,decoded,qual)
+  if(qual.gt.qbest) then
+     qbest=qual
+     deepmsg=decoded
+     ichbest=ich
+  endif
+!###
+
   if(ncount.ge.0) go to 100
   if(mode.eq.7 .and. nchips.lt.mode4) go to 40
 
@@ -137,26 +160,25 @@ subroutine decode24(dat,npts,dtx,dfx,flip,mode,mode4,decoded,ncount,   &
      if(i4.lt.0) i4=i4+256
      data4a(i)=i4
   enddo
-!  call cs_lock('decode24')
   write(c72,1100) (data4a(i),i=1,9)
 1100 format(9b8.8)
   read(c72,1102) data4
 1102 format(12b6)
-!  call cs_unlock
 
   decoded='                      '
   submode=' '
   if(ncount.ge.0) then
      call unpackmsg(data4,decoded)
      submode=char(ichar('A')+ich-1)
+  else
+     decoded=deepmsg
+     submode=char(ichar('A')+ichbest-1)
+     qual=qbest
   endif
   if(decoded(1:6).eq.'000AAA') then
      decoded='***WRONG MODE?***'
      ncount=-1
   endif
-
-  qual=0.
-  deepmsg='                      '
 
 ! Save symbol spectra for possible decoding of average.
 
