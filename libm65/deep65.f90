@@ -76,8 +76,8 @@ subroutine deep65(s3,mode65,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
 
      mz=1
 ! Allow MyCall + HisCall + rpt (?)
-     if(n.eq.1 .and. j3.lt.1 .and. j4.lt.1 .and.                       &
-          flip.gt.0.0 .and. callsign(1:6).ne.'      ') mz=MAXRPT+1
+     if(n.eq.1 .and. j3.lt.1 .and. j4.lt.1 .and. callsign(1:6).ne.'      ')  &
+          mz=MAXRPT+1
      do m=1,mz
         if(m.gt.1) grid=rpt(m-1)
         if(j3.lt.1 .and.j4.lt.1) callgrid(icall)=callsign(1:j2)//' '//grid
@@ -111,6 +111,7 @@ subroutine deep65(s3,mode65,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
   p2=-1.e30
   do k=1,ntot
      pp(k)=0.
+     if(k.ge.2 .and. k.le.64 .and. flip.lt.0.0) cycle
 ! Test all messages if flip=+1; skip the CQ messages if flip=-1.
      if(flip.gt.0.0 .or. testmsg(k)(1:3).ne.'CQ ') then
         sum=0.
