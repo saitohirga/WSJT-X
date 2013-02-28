@@ -28,7 +28,7 @@ public slots:
   void diskWriteFinished();
   void freezeDecode(int n);
   void guiUpdate();
-  void doubleClickOnCall(QString hiscall, bool ctrl);
+  void doubleClickOnCall(bool ctrl);
   void readFromStdout();
   void readFromStderr();
   void jt9_error();
@@ -85,7 +85,6 @@ private slots:
   void on_addButton_clicked();
   void on_dxCallEntry_textChanged(const QString &arg1);
   void on_dxGridEntry_textChanged(const QString &arg1);
-  void selectCall2(bool ctrl);
   void on_genStdMsgsPushButton_clicked();
   void on_logQSOButton_clicked();
   void on_actionErase_wsjtx_rx_log_triggered();
