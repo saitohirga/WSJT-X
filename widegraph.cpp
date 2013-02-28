@@ -119,7 +119,7 @@ void WideGraph::dataSink2(float s[], float red[], float df3, int ihsym,
         rsum += red[i];
       }
       swide[j]=sum;
-      rwide[j]=rsum;
+      rwide[j]=rsum/nbpp;
 //      if(lstrong[1 + i/32]!=0) swide[j]=-smax;   //Tag strong signals
     }
 

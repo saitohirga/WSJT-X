@@ -73,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent) :
   txMsgButtonGroup->addButton(ui->txrb6,6);
   connect(txMsgButtonGroup,SIGNAL(buttonClicked(int)),SLOT(set_ntx(int)));
   connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool)),this,
-          SLOT(selectCall2(bool)));
+          SLOT(doubleClickOnCall(bool)));
 
   setWindowTitle(Program_Title_Version);
   connect(&soundInThread, SIGNAL(readyForFFT(int)),
@@ -1253,31 +1253,25 @@ void MainWindow::on_txb6_clicked()                                //txb6
   m_restart=true;
 }
 
-void MainWindow::selectCall2(bool ctrl)                          //selectCall2
+void MainWindow::doubleClickOnCall(bool ctrl)
 {
-  QString t = ui->decodedTextBrowser->toPlainText();   //Full contents
-  int i=ui->decodedTextBrowser->textCursor().position();
-  int i0=t.lastIndexOf(" ",i);
-  int i1=t.indexOf(" ",i);
-  QString hiscall=t.mid(i0+1,i1-i0-1);
-  if(hiscall!="") {
-    if(hiscall.length() < 13) doubleClickOnCall(hiscall, ctrl);
-  }
-}
-                                                          //doubleClickOnCall
-void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
-{
-  ui->dxCallEntry->setText(hiscall);
   QString t = ui->decodedTextBrowser->toPlainText();   //Full contents
   int i2=ui->decodedTextBrowser->textCursor().position();
   QString t1 = t.mid(0,i2);              //contents up to \n on selected line
   int i1=t1.lastIndexOf("\n") + 1;       //points to first char of line
   QString t2 = t1.mid(i1,i2-i1);         //selected line
+  int i4=t.mid(i1).length();
+  if(i4>60) i4=60;
+  QString t3=t.mid(i1,i4);
+  QStringList t4=t3.split(" ",QString::SkipEmptyParts);
+  ui->TxFreqSpinBox->setValue(int(t4.at(4).toFloat()));
+  QString hiscall=t4.at(7);
+  ui->dxCallEntry->setText(hiscall);
   int n = 60*t2.mid(0,2).toInt() + t2.mid(2,2).toInt();
   int nmod=n%(m_TRperiod/30);
   m_txFirst=(nmod!=0);
   ui->txFirstCheckBox->setChecked(m_txFirst);
-  QString rpt=t2.mid(10,3);
+  QString rpt=t4.at(2);
   if(rpt.indexOf("  ")==0) rpt="+" + rpt.mid(2,2);
   if(rpt.indexOf(" -")==0) rpt=rpt.mid(1,2);
   if(rpt.indexOf(" ")==0) rpt="+" + rpt.mid(1,2);
