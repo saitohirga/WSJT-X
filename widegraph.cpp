@@ -87,6 +87,7 @@ void WideGraph::dataSink2(float s[], float red[], float df3, int ihsym,
 {
   static float splot[NSMAX];
   static float swide[2048];
+  static float rwide[2048];
   int nbpp = ui->widePlot->binsPerPixel();
   static int n=0;
 
@@ -111,11 +112,14 @@ void WideGraph::dataSink2(float s[], float red[], float df3, int ihsym,
     int jz=1000.0/df3;
     for (int j=0; j<jz; j++) {
       float sum=0;
+      float rsum=0;
       for (int k=0; k<nbpp; k++) {
         i++;
         sum += splot[i];
+        rsum += red[i];
       }
       swide[j]=sum;
+      rwide[j]=rsum;
 //      if(lstrong[1 + i/32]!=0) swide[j]=-smax;   //Tag strong signals
     }
 
@@ -128,7 +132,7 @@ void WideGraph::dataSink2(float s[], float red[], float df3, int ihsym,
       }
     }
     m_ntr0=ntr;
-    ui->widePlot->draw(swide,red,i0);
+    ui->widePlot->draw(swide,rwide,i0);
   }
 }
 
