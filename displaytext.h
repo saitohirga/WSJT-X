@@ -10,7 +10,7 @@ public:
     explicit DisplayText(QWidget *parent = 0);
 
 signals:
-  void selectCallsign(bool ctrl);
+  void selectCallsign(bool shift, bool ctrl);
 
 public slots:
 

@@ -72,8 +72,8 @@ MainWindow::MainWindow(QWidget *parent) :
   txMsgButtonGroup->addButton(ui->txrb5,5);
   txMsgButtonGroup->addButton(ui->txrb6,6);
   connect(txMsgButtonGroup,SIGNAL(buttonClicked(int)),SLOT(set_ntx(int)));
-  connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool)),this,
-          SLOT(doubleClickOnCall(bool)));
+  connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool,bool)),this,
+          SLOT(doubleClickOnCall(bool,bool)));
 
   setWindowTitle(Program_Title_Version);
   connect(&soundInThread, SIGNAL(readyForFFT(int)),
@@ -1253,7 +1253,7 @@ void MainWindow::on_txb6_clicked()                                //txb6
   m_restart=true;
 }
 
-void MainWindow::doubleClickOnCall(bool ctrl)
+void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 {
   QTextCursor cursor=ui->decodedTextBrowser->textCursor();
   cursor.select(QTextCursor::LineUnderCursor);
@@ -1266,10 +1266,12 @@ void MainWindow::doubleClickOnCall(bool ctrl)
   if(i4>60) i4=60;
   QString t3=t.mid(i1,i4);
   QStringList t4=t3.split(" ",QString::SkipEmptyParts);
-  if(t4.length() <7) return;
-  int nfreq=int(t4.at(4).toFloat());
-  ui->TxFreqSpinBox->setValue(nfreq);
-  g_pWideGraph->setQSOfreq(nfreq);
+  if(t4.length() <7) return;           //Skip the rest if no decoded text
+  if(!shift) {                         //Don't change freqs if Shift key down
+    int nfreq=int(t4.at(4).toFloat());
+    ui->TxFreqSpinBox->setValue(nfreq);
+    g_pWideGraph->setQSOfreq(nfreq);
+  }
   QString hiscall=t4.at(7);
   ui->dxCallEntry->setText(hiscall);
   int n = 60*t2.mid(0,2).toInt() + t2.mid(2,2).toInt();

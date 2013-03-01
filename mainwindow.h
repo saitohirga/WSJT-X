@@ -28,7 +28,7 @@ public slots:
   void diskWriteFinished();
   void freezeDecode(int n);
   void guiUpdate();
-  void doubleClickOnCall(bool ctrl);
+  void doubleClickOnCall(bool shift, bool ctrl);
   void readFromStdout();
   void readFromStderr();
   void jt9_error();
