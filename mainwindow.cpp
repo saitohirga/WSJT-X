@@ -1266,6 +1266,7 @@ void MainWindow::doubleClickOnCall(bool ctrl)
   if(i4>60) i4=60;
   QString t3=t.mid(i1,i4);
   QStringList t4=t3.split(" ",QString::SkipEmptyParts);
+  if(t4.length() <7) return;
   int nfreq=int(t4.at(4).toFloat());
   ui->TxFreqSpinBox->setValue(nfreq);
   g_pWideGraph->setQSOfreq(nfreq);
