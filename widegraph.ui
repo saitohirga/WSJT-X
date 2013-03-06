@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1178</width>
+    <width>811</width>
     <height>326</height>
    </rect>
   </property>
@@ -258,27 +258,25 @@
         </spacer>
        </item>
        <item>
-        <widget class="QRadioButton" name="rbCurrent">
-         <property name="text">
-          <string>Current</string>
+        <widget class="QComboBox" name="spec2dComboBox">
+         <property name="currentIndex">
+          <number>2</number>
          </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="rbCumulative">
-         <property name="text">
-          <string>Cumulative</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="rbJT9Sync">
-         <property name="text">
-          <string>JT9 Sync</string>
-         </property>
+         <item>
+          <property name="text">
+           <string>Current</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Cumulative</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>JT9 Sync</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item>
