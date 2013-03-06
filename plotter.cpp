@@ -122,7 +122,14 @@ void CPlotter::draw(float swide[], float red[], int i0)             //draw()
     painter1.drawPoint(i,0);
     y2=0;
     if(m_bCurrent) y2 = 0.4*gain*y - 15;
-    if(m_bCumulative) y2=1.5*gain*10.0*log10(jt9com_.savg[i]) - 20;
+    if(m_bCumulative) {
+      float sum=0.0;
+      int j=m_binsPerPixel*i;
+      for(int k=0; k<m_binsPerPixel; k++) {
+        sum+=jt9com_.savg[j++];
+      }
+      y2=gain*10.0*log10(sum/m_binsPerPixel) - 20;
+    }
     if(m_bJT9Sync) y2=3.0*gain*red[i] - 15;
     if(strong != strong0 or i==m_w-1) {
       painter2D.drawPolyline(LineBuf,j);
