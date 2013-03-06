@@ -44,9 +44,9 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->widePlot->m_bCurrent=settings.value("Current",true).toBool();
   ui->widePlot->m_bCumulative=settings.value("Cumulative",false).toBool();
   ui->widePlot->m_bJT9Sync=settings.value("JT9Sync",false).toBool();
-  ui->rbCurrent->setChecked(ui->widePlot->m_bCurrent);
-  ui->rbCumulative->setChecked(ui->widePlot->m_bCumulative);
-  ui->rbJT9Sync->setChecked(ui->widePlot->m_bJT9Sync);
+  if(ui->widePlot->m_bCurrent) ui->spec2dComboBox->setCurrentIndex(0);
+  if(ui->widePlot->m_bCumulative) ui->spec2dComboBox->setCurrentIndex(1);
+  if(ui->widePlot->m_bJT9Sync) ui->spec2dComboBox->setCurrentIndex(2);
   int nbpp=settings.value("BinsPerPixel",1).toInt();
   ui->widePlot->setBinsPerPixel(nbpp);
   m_qsoFreq=settings.value("QSOfreq",1010).toInt();
@@ -252,28 +252,17 @@ void WideGraph::setPeriod(int ntrperiod, int nsps)
   ui->widePlot->setNsps(ntrperiod, nsps);
 }
 
-void WideGraph::on_rbCurrent_clicked()
-{
-  ui->widePlot->m_bCurrent=true;
-  ui->widePlot->m_bCumulative=false;
-  ui->widePlot->m_bJT9Sync=false;
-}
-
-void WideGraph::on_rbCumulative_clicked()
-{
-  ui->widePlot->m_bCurrent=false;
-  ui->widePlot->m_bCumulative=true;
-  ui->widePlot->m_bJT9Sync=false;
-}
-
-void WideGraph::on_rbJT9Sync_clicked()
-{
-  ui->widePlot->m_bCurrent=false;
-  ui->widePlot->m_bCumulative=false;
-  ui->widePlot->m_bJT9Sync=true;
-}
-
 void WideGraph::setTxFreq(int n)
 {
   ui->widePlot->setTxFreq(n);
+}
+
+void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)
+{
+  ui->widePlot->m_bCurrent=false;
+  ui->widePlot->m_bCumulative=false;
+  ui->widePlot->m_bJT9Sync=false;
+  if(arg1=="Current") ui->widePlot->m_bCurrent=true;
+  if(arg1=="Cumulative") ui->widePlot->m_bCumulative=true;
+  if(arg1=="JT9 Sync") ui->widePlot->m_bJT9Sync=true;
 }
