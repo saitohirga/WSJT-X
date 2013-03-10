@@ -63,6 +63,7 @@ win32 {
 INCLUDEPATH += c:/qwt-6.0.1/include
 LIBS += ../wsjtx/lib/libjt9.a
 LIBS += ../wsjtx/libfftw3f_win.a
+LIBS += ../wsjtx/libpskreporter.a
 LIBS += ../QtSupport/palir-02.dll
 LIBS += libwsock32
 LIBS += C:/MinGW/lib/libf95.a

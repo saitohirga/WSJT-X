@@ -23,20 +23,20 @@ public:
 
   bool    m_restartSoundIn;
   bool    m_restartSoundOut;
+  bool    m_pskReporter;
 
   QString m_myCall;
   QString m_myGrid;
   QString m_saveDir;
   QString m_azelDir;
-  QString m_dxccPfx;
 
 public slots:
   void accept();
 
 private slots:
   void on_myCallEntry_editingFinished();
-
   void on_myGridEntry_editingFinished();
+  void on_cbPSKReporter_clicked(bool checked);
 
 private:
   Ui::DialogSndCard ui;
