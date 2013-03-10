@@ -99,12 +99,11 @@ void DevSetup::initDlg()
   ui.idIntSpinBox->setValue(m_idInt);
   ui.pttComboBox->setCurrentIndex(m_pttPort);
   ui.saveDirEntry->setText(m_saveDir);
-  ui.dxccEntry->setText(m_dxccPfx);
   ui.comboBoxSndIn->setCurrentIndex(m_nDevIn);
   ui.comboBoxSndOut->setCurrentIndex(m_nDevOut);
+  ui.cbPSKReporter->setChecked(m_pskReporter);
   m_paInDevice=m_inDevList[m_nDevIn];
   m_paOutDevice=m_outDevList[m_nDevOut];
-
 }
 
 //------------------------------------------------------- accept()
@@ -125,7 +124,6 @@ void DevSetup::accept()
   m_idInt=ui.idIntSpinBox->value();
   m_pttPort=ui.pttComboBox->currentIndex();
   m_saveDir=ui.saveDirEntry->text();
-  m_dxccPfx=ui.dxccEntry->text();
   m_nDevIn=ui.comboBoxSndIn->currentIndex();
   m_paInDevice=m_inDevList[m_nDevIn];
   m_nDevOut=ui.comboBoxSndOut->currentIndex();
@@ -145,4 +143,9 @@ void DevSetup::on_myGridEntry_editingFinished()
   QString t=ui.myGridEntry->text();
   t=t.mid(0,4).toUpper()+t.mid(4,2).toLower();
   ui.myGridEntry->setText(t);
+}
+
+void DevSetup::on_cbPSKReporter_clicked(bool b)
+{
+  m_pskReporter=b;
 }

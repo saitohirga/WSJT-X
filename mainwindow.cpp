@@ -218,6 +218,28 @@ MainWindow::MainWindow(QWidget *parent) :
   if(ui->actionCuteSDR->isChecked()) on_actionCuteSDR_triggered();
   if(ui->actionAFMHot->isChecked()) on_actionAFMHot_triggered();
   if(ui->actionBlue->isChecked()) on_actionBlue_triggered();
+
+  /*
+  if(m_pskReporter) {
+    int rc=0;
+    rc=ReporterInitialize(NULL,NULL);
+    qDebug() << "A" << m_pskReporter << rc;
+
+    wchar_t buffer[256];
+    rc=ReporterGetInformation(buffer,256);
+    qDebug() << "B" << rc << QString::fromStdWString(buffer);
+
+    const wchar_t* tremote=L"call\0W8WNA\0gridsquare\0EM77\0freq\050280000\0mode\0JT9\0snr\0-17\0\0";
+    const wchar_t* tlocal=L"station_callsign\0K1JT\0my_gridsquare\0FN20qi\0programid\0WSJT-X\0\0";
+    int flags=REPORTER_SOURCE_AUTOMATIC | REPORTER_SOURCE_TEST;
+    rc=ReporterSeenCallsign(tremote,tlocal,flags);
+    rc=ReporterGetInformation(buffer,256);
+    qDebug() << "C" << rc << QString::fromStdWString(buffer);
+    rc=ReporterUninitialize();
+    qDebug() << "D" << rc;
+  }
+  */
+
 }                                          // End of MainWindow constructor
 
 //--------------------------------------------------- MainWindow destructor
@@ -263,7 +285,6 @@ void MainWindow::writeSettings()
   settings.setValue("IDint",m_idInt);
   settings.setValue("PTTport",m_pttPort);
   settings.setValue("SaveDir",m_saveDir);
-  settings.setValue("DXCCpfx",m_dxccPfx);
   settings.setValue("SoundInIndex",m_nDevIn);
   settings.setValue("paInDevice",m_paInDevice);
   settings.setValue("SoundOutIndex",m_nDevOut);
@@ -285,6 +306,7 @@ void MainWindow::writeSettings()
   settings.setValue("TxFreq",m_txFreq);
   settings.setValue("Tol",m_tol);
   settings.setValue("InGain",m_inGain);
+  settings.setValue("PSKReporter",m_pskReporter);
   settings.endGroup();
 }
 
@@ -310,7 +332,6 @@ void MainWindow::readSettings()
   m_idInt=settings.value("IDint",0).toInt();
   m_pttPort=settings.value("PTTport",0).toInt();
   m_saveDir=settings.value("SaveDir",m_appDir + "/save").toString();
-  m_dxccPfx=settings.value("DXCCpfx","").toString();
   m_nDevIn = settings.value("SoundInIndex", 0).toInt();
   m_paInDevice = settings.value("paInDevice",0).toInt();
   m_nDevOut = settings.value("SoundOutIndex", 0).toInt();
@@ -348,6 +369,7 @@ void MainWindow::readSettings()
   ui->actionF4_sets_Tx6->setChecked(m_kb8rq);
   m_monitorStartOFF=settings.value("MonitorOFF",false).toBool();
   ui->actionMonitor_OFF_at_startup->setChecked(m_monitorStartOFF);
+  m_pskReporter=settings.value("PSKReporter",false).toBool();
   settings.endGroup();
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
@@ -434,9 +456,9 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_idInt=m_idInt;
   dlg.m_pttPort=m_pttPort;
   dlg.m_saveDir=m_saveDir;
-  dlg.m_dxccPfx=m_dxccPfx;
   dlg.m_nDevIn=m_nDevIn;
   dlg.m_nDevOut=m_nDevOut;
+  dlg.m_pskReporter=m_pskReporter;
 
   dlg.initDlg();
   if(dlg.exec() == QDialog::Accepted) {
@@ -445,11 +467,11 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_idInt=dlg.m_idInt;
     m_pttPort=dlg.m_pttPort;
     m_saveDir=dlg.m_saveDir;
-    m_dxccPfx=dlg.m_dxccPfx;
     m_nDevIn=dlg.m_nDevIn;
     m_paInDevice=dlg.m_paInDevice;
     m_nDevOut=dlg.m_nDevOut;
     m_paOutDevice=dlg.m_paOutDevice;
+    m_pskReporter=dlg.m_pskReporter;
 
     if(dlg.m_restartSoundIn) {
       soundInThread.quit();

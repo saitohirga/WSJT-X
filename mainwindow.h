@@ -6,6 +6,7 @@
 #include "soundin.h"
 #include "soundout.h"
 #include "commons.h"
+#include "PSKReporter.h"
 
 //--------------------------------------------------------------- MainWindow
 namespace Ui {
@@ -159,6 +160,7 @@ private:
     bool    m_bsynced;
     bool    m_bdecoded;
     bool    m_monitorStartOFF;
+    bool    m_pskReporter;
 
     char    m_decoded[80];
 
@@ -223,6 +225,7 @@ extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
                    int minChan[], int maxChan[],
                    int minSpeed[], int maxSpeed[]);
 extern int ptt(int nport, int itx, int* iptt);
+//extern int ReporterInitialize(char* hostname, char* port);
 
 
 extern "C" {
