@@ -32,7 +32,7 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	entail.o fano232.o gran.o spec9.o sync9.o decode9.o \
 	fil3.o redsync.o decoder.o grid2n.o n2grid.o timer.o \
 	decode9a.o getlags.o afc9.o fchisq.o twkfreq.o downsam9.o \
-	peakdt9.o symspec2.o
+	peakdt9.o symspec2.o stdmsg.o
 
 libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
@@ -58,7 +58,8 @@ jt9test.exe: $(OBJS5) libjt9.a
 	$(FC) -o jt9test.exe $(OBJS5) libjt9.a ../libfftw3f_win.a
 
 OBJS6 = wsjt24d.o wsjt24.o sync24.o decode24.o ps24.o flat1.o \
-	xcor24.o slope.o peakup.o interleave24.o genmet24.o
+	xcor24.o slope.o peakup.o interleave24.o getmet24.o smo.o \
+	deep24.o encode4.o chkmsg.o avemsg4.o extract4.o
 wsjt24d.exe: $(OBJS6) libjt9.a 
 	$(FC) -o wsjt24d.exe $(OBJS6) libjt9.a ../libfftw3f_win.a
 
