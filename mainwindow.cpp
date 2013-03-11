@@ -1003,15 +1003,13 @@ void MainWindow::readFromStdout()                             //readFromStdout
       ui->decodedTextBrowser->append(t);
       QString msg=t.mid(34,22);
       bool b=stdmsg_(msg.toAscii().constData());
-//      if(m_pskReporterInit and b and !m_diskData) {
-      if(m_pskReporterInit and b) {
-        qDebug() << "Uploading to PSK Reporter";
+      if(m_pskReporterInit and b and !m_diskData) {
+//      if(m_pskReporterInit and b) {
         int i1=msg.indexOf(" ");
         QString c2=msg.mid(i1+1);
         int i2=c2.indexOf(" ");
         QString g2=c2.mid(i2+1,4);
         c2=c2.mid(0,i2);
-        qDebug() << c2 << g2;
         QString remote="call," + c2 + ",";
         if(g2.mid(0,1).compare("A")>=0 and
            g2.mid(0,1).compare("R")<=0 and
@@ -1023,26 +1021,36 @@ void MainWindow::readFromStdout()                             //readFromStdout
            g2.mid(3,1).compare("9")<=0) {
           remote += "gridsquare," + g2 + ",";
         }
+        int nHz=t.mid(22,4).toInt();
+        uint nfreq=1000000.0*g_pWideGraph->dialFreq() + nHz + 0.5;
+        remote += "freq," + QString::number(nfreq);
+        int nsnr=t.mid(10,3).toInt();
+        remote += ",mode,JT9,snr," + QString::number(nsnr) + ",,";
+
         wchar_t tremote[256];
         remote.toWCharArray(tremote);
 
         QString local="station_callsign," + m_myCall + "," +
             "my_gridsquare," + m_myGrid + "," +
-            "programid,WSJT-X,programversion," + rev.mid(6,4);
+            "programid,WSJT-X,programversion," + rev.mid(6,4) + ",,";
+
         wchar_t tlocal[256];
         local.toWCharArray(tlocal);
-        qDebug() << QString::fromWCharArray(tremote,remote.length());
-        qDebug() << QString::fromWCharArray(tlocal,local.length());
-        /*
-        const wchar_t* tremote=L"call,W8WNA,gridsquare,EM77,freq,50293000,mode,JT9,snr,-17,,";
-        const wchar_t* tlocal=L"station_callsign,K1JT,my_gridsquare,FN20qi,programid,WSJT-X,,";
-        int flags=REPORTER_SOURCE_AUTOMATIC | REPORTER_SOURCE_TEST;
+
+//        qDebug() << "A:" << QString::fromWCharArray(tlocal,local.length());
+//        qDebug() << "B:" << QString::fromWCharArray(tremote,remote.length());
+
+        int flags=REPORTER_SOURCE_AUTOMATIC;
         rc=ReporterSeenCallsign(tremote,tlocal,flags);
-        rc=ReporterGetInformation(buffer,256);
-        qDebug() << "C" << rc << QString::fromStdWString(buffer);
-        rc=ReporterUninitialize();
-        qDebug() << "D" << rc;
-        */
+        if(rc!=0) {
+          ReporterGetInformation(buffer,256);
+          qDebug() << "C:" << rc << QString::fromStdWString(buffer);
+        }
+        rc=ReporterTickle();
+        if(rc!=0) {
+          rc=ReporterGetInformation(buffer,256);
+          qDebug() << "D:" << QString::fromStdWString(buffer);
+        }
       }
     }
   }
