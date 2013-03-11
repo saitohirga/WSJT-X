@@ -161,6 +161,7 @@ private:
     bool    m_bdecoded;
     bool    m_monitorStartOFF;
     bool    m_pskReporter;
+    bool    m_pskReporterInit;
 
     char    m_decoded[80];
 
@@ -238,7 +239,7 @@ void symspec_(int* k, int* ntrperiod, int* nsps, int* ingain, int* nb,
 void genjt9_(char* msg, int* ichk, char* msgsent, int itone[],
              int* itext, int len1, int len2);
 
-//void decoder_(int* ntrperiod, int* ndepth, int* mRxLog, float c0[]);
+bool stdmsg_(const char* msg);
 }
 
 #endif // MAINWINDOW_H

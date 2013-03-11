@@ -10,6 +10,8 @@
 #include <portaudio.h>
 
 int itone[85];                        //Tx audio tones for 85 symbols
+int rc;
+wchar_t buffer[256];
 bool btxok;                           //True if OK to transmit
 bool btxMute;
 double outputLatency;                 //Latency in seconds
@@ -219,27 +221,16 @@ MainWindow::MainWindow(QWidget *parent) :
   if(ui->actionAFMHot->isChecked()) on_actionAFMHot_triggered();
   if(ui->actionBlue->isChecked()) on_actionBlue_triggered();
 
-  /*
   if(m_pskReporter) {
-    int rc=0;
     rc=ReporterInitialize(NULL,NULL);
-    qDebug() << "A" << m_pskReporter << rc;
-
-    wchar_t buffer[256];
-    rc=ReporterGetInformation(buffer,256);
-    qDebug() << "B" << rc << QString::fromStdWString(buffer);
-
-    const wchar_t* tremote=L"call\0W8WNA\0gridsquare\0EM77\0freq\050280000\0mode\0JT9\0snr\0-17\0\0";
-    const wchar_t* tlocal=L"station_callsign\0K1JT\0my_gridsquare\0FN20qi\0programid\0WSJT-X\0\0";
-    int flags=REPORTER_SOURCE_AUTOMATIC | REPORTER_SOURCE_TEST;
-    rc=ReporterSeenCallsign(tremote,tlocal,flags);
-    rc=ReporterGetInformation(buffer,256);
-    qDebug() << "C" << rc << QString::fromStdWString(buffer);
-    rc=ReporterUninitialize();
-    qDebug() << "D" << rc;
+    if(rc==0) {
+      m_pskReporterInit=true;
+    } else {
+      m_pskReporterInit=false;
+      rc=ReporterGetInformation(buffer,256);
+      msgBox(QString::fromStdWString(buffer));
+    }
   }
-  */
-
 }                                          // End of MainWindow constructor
 
 //--------------------------------------------------- MainWindow destructor
@@ -471,6 +462,21 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_paInDevice=dlg.m_paInDevice;
     m_nDevOut=dlg.m_nDevOut;
     m_paOutDevice=dlg.m_paOutDevice;
+    if(dlg.m_pskReporter!=m_pskReporter) {
+      if(dlg.m_pskReporter) {
+        int rc=ReporterInitialize(NULL,NULL);
+        if(rc==0) {
+          m_pskReporterInit=true;
+        } else {
+          m_pskReporterInit=false;
+          rc=ReporterGetInformation(buffer,256);
+          msgBox(QString::fromStdWString(buffer));
+        }
+      } else {
+        rc=ReporterUninitialize();
+        m_pskReporterInit=false;
+      }
+    }
     m_pskReporter=dlg.m_pskReporter;
 
     if(dlg.m_restartSoundIn) {
@@ -995,6 +1001,49 @@ void MainWindow::readFromStdout()                             //readFromStdout
       ui->decodedTextBrowser->setTextBackgroundColor(bg);
       t=t.mid(0,n-2) + "                                                  ";
       ui->decodedTextBrowser->append(t);
+      QString msg=t.mid(34,22);
+      bool b=stdmsg_(msg.toAscii().constData());
+//      if(m_pskReporterInit and b and !m_diskData) {
+      if(m_pskReporterInit and b) {
+        qDebug() << "Uploading to PSK Reporter";
+        int i1=msg.indexOf(" ");
+        QString c2=msg.mid(i1+1);
+        int i2=c2.indexOf(" ");
+        QString g2=c2.mid(i2+1,4);
+        c2=c2.mid(0,i2);
+        qDebug() << c2 << g2;
+        QString remote="call," + c2 + ",";
+        if(g2.mid(0,1).compare("A")>=0 and
+           g2.mid(0,1).compare("R")<=0 and
+           g2.mid(1,1).compare("A")>=0 and
+           g2.mid(1,1).compare("R")<=0 and
+           g2.mid(2,1).compare("0")>=0 and
+           g2.mid(2,1).compare("9")<=0 and
+           g2.mid(3,1).compare("0")>=0 and
+           g2.mid(3,1).compare("9")<=0) {
+          remote += "gridsquare," + g2 + ",";
+        }
+        wchar_t tremote[256];
+        remote.toWCharArray(tremote);
+
+        QString local="station_callsign," + m_myCall + "," +
+            "my_gridsquare," + m_myGrid + "," +
+            "programid,WSJT-X,programversion," + rev.mid(6,4);
+        wchar_t tlocal[256];
+        local.toWCharArray(tlocal);
+        qDebug() << QString::fromWCharArray(tremote,remote.length());
+        qDebug() << QString::fromWCharArray(tlocal,local.length());
+        /*
+        const wchar_t* tremote=L"call,W8WNA,gridsquare,EM77,freq,50293000,mode,JT9,snr,-17,,";
+        const wchar_t* tlocal=L"station_callsign,K1JT,my_gridsquare,FN20qi,programid,WSJT-X,,";
+        int flags=REPORTER_SOURCE_AUTOMATIC | REPORTER_SOURCE_TEST;
+        rc=ReporterSeenCallsign(tremote,tlocal,flags);
+        rc=ReporterGetInformation(buffer,256);
+        qDebug() << "C" << rc << QString::fromStdWString(buffer);
+        rc=ReporterUninitialize();
+        qDebug() << "D" << rc;
+        */
+      }
     }
   }
 }
