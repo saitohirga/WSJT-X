@@ -52,6 +52,16 @@ WideGraph::WideGraph(QWidget *parent) :
   m_qsoFreq=settings.value("QSOfreq",1010).toInt();
   ui->widePlot->setFQSO(m_qsoFreq,true);
   settings.endGroup();
+
+  QFile f("wsjtx_qrg.txt");
+  if(f.open(QFile::WriteOnly)) {
+    QTextStream out(&f);
+    out << m_dialFreq;
+    f.close();
+  } else {
+//    msgBox("Cannot open file \"wsjtx_qrg.txt\".");
+    qDebug() << "Cannot open file \"wsjtx_qrg.txt\".";
+  }
 }
 
 WideGraph::~WideGraph()
@@ -233,6 +243,15 @@ void WideGraph::setPalette(QString palette)
 void WideGraph::on_fDialLineEdit_editingFinished()
 {
   m_dialFreq=ui->fDialLineEdit->text().toDouble();
+  QFile f("wsjtx_qrg.txt");
+  if(!f.open(QFile::WriteOnly)) {
+//    msgBox("Cannot open file \"wsjtx_qrg.txt\".");
+    qDebug() << "Cannot open file \"wsjtx_qrg.txt\".";
+    return;
+  }
+  QTextStream out(&f);
+  out << m_dialFreq;
+  f.close();
 }
 
 double WideGraph::fGreen()
