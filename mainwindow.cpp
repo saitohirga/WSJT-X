@@ -21,7 +21,7 @@ WideGraph* g_pWideGraph = NULL;
 QSharedMemory mem_jt9("mem_jt9");
 
 QString rev="$Rev$";
-QString Program_Title_Version="  WSJT-X   v0.5, r" + rev.mid(6,4) +
+QString Program_Title_Version="  WSJT-X   v0.6, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 //-------------------------------------------------- MainWindow constructor
@@ -203,8 +203,8 @@ MainWindow::MainWindow(QWidget *parent) :
     if(ntol[i]==m_tol) ui->tolSpinBox->setValue(i);
   }
 
-// Create "m_worked", a dictionary of all calls in wsjt.log
-  QFile f("wsjt.log");
+// Create "m_worked", a dictionary of all calls in wsjtx.log
+  QFile f("wsjtx.log");
   f.open(QIODevice::ReadOnly);
   QTextStream in(&f);
   QString line,t,callsign;
@@ -1611,6 +1611,14 @@ void MainWindow::on_dxCallEntry_textChanged(const QString &t) //dxCall changed
 {
   m_hisCall=t.toUpper().trimmed();
   ui->dxCallEntry->setText(m_hisCall);
+  QFile f("wsjtx_txcall.txt");
+  if(!f.open(QFile::WriteOnly)) {
+    msgBox("Cannot open file \"wsjtx_txcall.txt\".");
+    return;
+  }
+  QTextStream out(&f);
+  out << m_hisCall;
+  f.close();
 }
 
 void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
@@ -1637,9 +1645,9 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   QString logEntry=t.date().toString("yyyy-MMM-dd,") +
       t.time().toString("hh:mm,") + m_hisCall + "," + m_hisGrid + "," +
       QString::number(dialFreq) + "," + m_mode + "\n";
-  QFile f("wsjt.log");
+  QFile f("wsjtx.log");
   if(!f.open(QFile::Append)) {
-    msgBox("Cannot open file \"wsjt.log\".");
+    msgBox("Cannot open file \"wsjtx.log\".");
     return;
   }
   QTextStream out(&f);
