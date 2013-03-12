@@ -231,7 +231,7 @@
             <item>
              <widget class="QCheckBox" name="cbPSKReporter">
               <property name="text">
-               <string>ENable PSK Reporter</string>
+               <string>Enable PSK Reporter</string>
               </property>
              </widget>
             </item>
