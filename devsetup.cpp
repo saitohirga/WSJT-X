@@ -11,6 +11,7 @@ DevSetup::DevSetup(QWidget *parent) :	QDialog(parent)
   ui.setupUi(this);	                              //setup the dialog form
   m_restartSoundIn=false;
   m_restartSoundOut=false;
+  m_firstCall=true;
 }
 
 DevSetup::~DevSetup()
@@ -29,6 +30,15 @@ void DevSetup::initDlg()
   char p2[50];
   char pa_device_name[128];
   char pa_device_hostapi[128];
+
+  if(m_firstCall) {
+    QString t;
+    for(int i=14; i<100; i++) {
+      t.sprintf("COM%d",i);
+      ui.pttComboBox->addItem(t);
+    }
+    m_firstCall=false;
+  }
 
   k=0;
 #ifdef WIN32

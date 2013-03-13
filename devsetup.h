@@ -24,6 +24,7 @@ public:
   bool    m_restartSoundIn;
   bool    m_restartSoundOut;
   bool    m_pskReporter;
+  bool    m_firstCall;
 
   QString m_myCall;
   QString m_myGrid;
