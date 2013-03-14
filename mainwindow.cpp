@@ -1617,7 +1617,7 @@ void MainWindow::on_dxCallEntry_textChanged(const QString &t) //dxCall changed
     return;
   }
   QTextStream out(&f);
-  out << m_hisCall;
+  out << m_hisCall << "\r\n";
   f.close();
 }
 
@@ -1651,7 +1651,7 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
     return;
   }
   QTextStream out(&f);
-  out << logEntry;
+  out << logEntry << "\r\n";
   f.close();
 }
 
