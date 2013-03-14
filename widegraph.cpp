@@ -56,7 +56,7 @@ WideGraph::WideGraph(QWidget *parent) :
   QFile f("wsjtx_qrg.txt");
   if(f.open(QFile::WriteOnly)) {
     QTextStream out(&f);
-    out << m_dialFreq;
+    out << m_dialFreq << "\r\n";
     f.close();
   } else {
 //    msgBox("Cannot open file \"wsjtx_qrg.txt\".");
