@@ -204,7 +204,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 // Create "m_worked", a dictionary of all calls in wsjtx.log
   QFile f("wsjtx.log");
-  f.open(QIODevice::ReadOnly);
+  f.open(QIODevice::ReadOnly | QIODevice::Text);
   QTextStream in(&f);
   QString line,t,callsign;
   for(int i=0; i<99999; i++) {
@@ -614,12 +614,12 @@ void MainWindow::dialFreqChanged2(double f)
 void MainWindow::statusChanged()
 {
   QFile f("wsjtx_status.txt");
-  if(!f.open(QFile::WriteOnly)) {
+  if(!f.open(QFile::WriteOnly | QIODevice::Text)) {
     msgBox("Cannot open file \"wsjtx_status.txt\".");
     return;
   }
   QTextStream out(&f);
-  out << m_dialFreq << ";" << m_mode << ";" << m_hisCall << "\r\n";
+  out << m_dialFreq << ";" << m_mode << ";" << m_hisCall << endl;
   f.close();
 }
 
@@ -1020,11 +1020,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if(m_RxLog & 1) {
         out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
             << endl;
+        m_RxLog=0;
       }
-      out << t << endl;
+      int n=t.length();
+      out << t.mid(0,n-2) << endl;
       f.close();
 
-      int n=t.length();
       QString bg="white";
       if(t.indexOf(" CQ ")>0) bg="#66ff66";                //Light green
       if(t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666";      //Light red
@@ -1034,7 +1035,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       QString msg=t.mid(34,22);
       bool b=stdmsg_(msg.toAscii().constData());
       QStringList w=msg.split(" ",QString::SkipEmptyParts);
-      if(b and w[1]==m_myCall) {
+      if(b and w[0]==m_myCall) {
         QString tt=w[2];
         int i1;
         bool ok;
@@ -1050,6 +1051,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
         }
       }
+
       if(m_pskReporterInit and b and !m_diskData) {
 //      if(m_pskReporterInit and b) {
         int i1=msg.indexOf(" ");
@@ -1196,8 +1198,8 @@ void MainWindow::guiUpdate()
       QFile f("ALL.TXT");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
-      out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-          << "  Tx message:  " << t << endl;
+      out << QDateTime::currentDateTimeUtc().toString("hhmm")
+          << "  Transmitted:  " << t << endl;
       f.close();
     }
     QStringList w=t.split(" ",QString::SkipEmptyParts);
@@ -1702,43 +1704,40 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 {
   double dialFreq=g_pWideGraph->dialFreq();
   QDateTime t = QDateTime::currentDateTimeUtc();
+  QString date=t.toString("yyyyMMdd");
   QFile f("wsjtx.log");
-  if(!f.open(QFile::Append)) {
+  if(!f.open(QIODevice::Text | QIODevice::Append)) {
     msgBox("Cannot open file \"wsjtx.log\".");
   } else {
     QString logEntry=t.date().toString("yyyy-MMM-dd,") +
         t.time().toString("hh:mm,") + m_hisCall + "," + m_hisGrid + "," +
         QString::number(dialFreq) + "," + m_mode + "," +
-        m_rptSent + "," + m_rptRcvd;   QTextStream out(&f);
+        m_rptSent + "," + m_rptRcvd;
+    QTextStream out(&f);
 //  out << logEntry << "\r\n";
     out << logEntry << endl;
     f.close();
   }
 
   QFile f2("wsjtx_log.adi");
-  if(!f2.open(QFile::Append)) {
+  if(!f2.open(QIODevice::Text | QIODevice::Append)) {
     msgBox("Cannot open file \"wsjtx_log.adi\".");
   } else {
 
     QTextStream out(&f2);
     if(f2.size()==0) out << "WSJT-X ADIF Export<eoh>" << endl;
-/*
-<CALL:5>K1ABC<GRIDSQUARE:4>FN42<MODE:4>JT65<RST_RCVD:3>-15
-<RST_SENT:3>-17<QSO_DATE:0><TIME_ON:4>1355<TIME_OFF:4>1357
-<TX_PWR:1>5<COMMENT:3>Jim<STATION_CALLSIGN:4>K1JT<MY_GRIDSQUARE:4>FN20<eor>
-*/
+
     QString t;
     t="<call:" + QString::number(m_hisCall.length()) + ">" + m_hisCall;
-    t+="<gridsquare:" + QString::number(m_hisGrid.length()) + ">" + m_hisGrid;
-    t+="<mode:" + QString::number(m_mode.length()) + ">" + m_mode;
-    t+="<rst_sent:" + QString::number(m_rptSent.length()) + ">" + m_rptSent;
-    t+="<rst_rcvd:" + QString::number(m_rptRcvd.length()) + ">" + m_rptRcvd;
-    t+="<qso_date:0>";
-    t+="<time_on:4>" + m_qsoStart;
-    t+="<time_off:4>" + m_qsoStop;
-    t+="<station_callsign:" + QString::number(m_myCall.length()) + ">" + m_myCall;
-    t+="<my_gridsquare:" + QString::number(m_myGrid.length()) + ">" + m_myGrid;
-//        t.date.toString("yyyymmdd");
+    t+= "<gridsquare:" + QString::number(m_hisGrid.length()) + ">" + m_hisGrid;
+    t+= "<mode:" + QString::number(m_mode.length()) + ">" + m_mode;
+    t+= "<rst_sent:" + QString::number(m_rptSent.length()) + ">" + m_rptSent;
+    t+= "<rst_rcvd:" + QString::number(m_rptRcvd.length()) + ">" + m_rptRcvd;
+    t+= "<qso_date:0>";
+    t+= "<time_on:4>" + m_qsoStart;
+    t+= "<time_off:4>" + m_qsoStop;
+    t+= "<station_callsign:" + QString::number(m_myCall.length()) + ">" + m_myCall;
+    t+= "<my_gridsquare:" + QString::number(m_myGrid.length()) + ">" + m_myGrid;
     out << t << endl;
     f2.close();
   }
