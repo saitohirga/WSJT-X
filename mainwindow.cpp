@@ -1240,7 +1240,7 @@ void MainWindow::guiUpdate()
     f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
     QTextStream out(&f);
     out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-        << "  Tx message:  " << QString::fromAscii(msgsent) << endl;
+        << "  Transmitting:  " << QString::fromAscii(msgsent) << endl;
     f.close();
   }
 
@@ -1882,6 +1882,7 @@ void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT
   if(ret==QMessageBox::Yes) {
     QFile f("ALL.TXT");
     f.remove();
+    m_RxLog=1;
   }
 }
 
