@@ -371,6 +371,7 @@ void MainWindow::readSettings()
   if(m_ndepth==1) ui->actionQuickDecode->setChecked(true);
   if(m_ndepth==2) ui->actionMediumDecode->setChecked(true);
   if(m_ndepth==3) ui->actionDeepestDecode->setChecked(true);
+  statusChanged();
 }
 
 //-------------------------------------------------------------- dataSink()
@@ -605,6 +606,24 @@ void MainWindow::bumpFqso(int n)                                 //bumpFqso()
   }
 }
 
+void MainWindow::dialFreqChanged2(double f)
+{
+  m_dialFreq=f;
+  statusChanged();
+}
+
+void MainWindow::statusChanged()
+{
+  QFile f("wsjtx_status.txt");
+  if(!f.open(QFile::WriteOnly)) {
+    msgBox("Cannot open file \"wsjtx_status.txt\".");
+    return;
+  }
+  QTextStream out(&f);
+  out << m_dialFreq << ";" << m_mode << ";" << m_hisCall << "\r\n";
+  f.close();
+}
+
 bool MainWindow::eventFilter(QObject *object, QEvent *event)  //eventFilter()
 {
   if (event->type() == QEvent::KeyPress) {
@@ -720,7 +739,8 @@ void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
             SLOT(freezeDecode(int)));
     connect(g_pWideGraph, SIGNAL(f11f12(int)),this,
             SLOT(bumpFqso(int)));
-  }
+    connect(g_pWideGraph, SIGNAL(dialFreqChanged(double)),this,
+            SLOT(dialFreqChanged2(double)));  }
   g_pWideGraph->show();
 }
 
@@ -1611,14 +1631,7 @@ void MainWindow::on_dxCallEntry_textChanged(const QString &t) //dxCall changed
 {
   m_hisCall=t.toUpper().trimmed();
   ui->dxCallEntry->setText(m_hisCall);
-  QFile f("wsjtx_txcall.txt");
-  if(!f.open(QFile::WriteOnly)) {
-    msgBox("Cannot open file \"wsjtx_txcall.txt\".");
-    return;
-  }
-  QTextStream out(&f);
-  out << m_hisCall << "\r\n";
-  f.close();
+  statusChanged();
 }
 
 void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
@@ -1679,6 +1692,7 @@ void MainWindow::on_actionErase_wsjtx_tx_log_triggered()     //Erase Tx log
 void MainWindow::on_actionJT9_1_triggered()
 {
   m_mode="JT9-1";
+  statusChanged();
   m_TRperiod=60;
   m_nsps=6912;
   m_hsymStop=181;
@@ -1693,6 +1707,7 @@ void MainWindow::on_actionJT9_1_triggered()
 void MainWindow::on_actionJT9_2_triggered()
 {
   m_mode="JT9-2";
+  statusChanged();
   m_TRperiod=120;
   m_nsps=15360;
   m_hsymStop=178;
@@ -1707,6 +1722,7 @@ void MainWindow::on_actionJT9_2_triggered()
 void MainWindow::on_actionJT9_5_triggered()
 {
   m_mode="JT9-5";
+  statusChanged();
   m_TRperiod=300;
   m_nsps=40960;
   m_hsymStop=172;
@@ -1721,6 +1737,7 @@ void MainWindow::on_actionJT9_5_triggered()
 void MainWindow::on_actionJT9_10_triggered()
 {
   m_mode="JT9-10";
+  statusChanged();
   m_TRperiod=600;
   m_nsps=82944;
   m_hsymStop=171;
@@ -1735,6 +1752,7 @@ void MainWindow::on_actionJT9_10_triggered()
 void MainWindow::on_actionJT9_30_triggered()
 {
   m_mode="JT9-30";
+  statusChanged();
   m_TRperiod=1800;
   m_nsps=252000;
   m_hsymStop=167;

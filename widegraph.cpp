@@ -39,7 +39,7 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->widePlot->setBinsPerPixel(1);
   m_waterfallAvg = settings.value("WaterfallAvg",5).toInt();
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
-  m_dialFreq=settings.value("DialFreqkHz",474.000).toDouble();
+  m_dialFreq=settings.value("DialFreqMHz",14.078).toDouble();
   ui->fDialLineEdit->setText(QString::number(m_dialFreq));
   ui->widePlot->m_bCurrent=settings.value("Current",true).toBool();
   ui->widePlot->m_bCumulative=settings.value("Cumulative",false).toBool();
@@ -53,6 +53,8 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->widePlot->setFQSO(m_qsoFreq,true);
   settings.endGroup();
 
+// Change the following to a slot in mainwindow; emit a corresponding
+// signal here, instead.
   QFile f("wsjtx_qrg.txt");
   if(f.open(QFile::WriteOnly)) {
     QTextStream out(&f);
@@ -83,7 +85,7 @@ void WideGraph::saveSettings()
   settings.setValue("PlotWidth",ui->widePlot->plotWidth());
   settings.setValue("FreqSpan",ui->freqSpanSpinBox->value());
   settings.setValue("WaterfallAvg",ui->waterfallAvgSpinBox->value());
-  settings.setValue("DialFreqkHz",m_dialFreq);
+  settings.setValue("DialFreqMHz",m_dialFreq);
   settings.setValue("Current",ui->widePlot->m_bCurrent);
   settings.setValue("Cumulative",ui->widePlot->m_bCumulative);
   settings.setValue("JT9Sync",ui->widePlot->m_bJT9Sync);
@@ -243,15 +245,7 @@ void WideGraph::setPalette(QString palette)
 void WideGraph::on_fDialLineEdit_editingFinished()
 {
   m_dialFreq=ui->fDialLineEdit->text().toDouble();
-  QFile f("wsjtx_qrg.txt");
-  if(!f.open(QFile::WriteOnly)) {
-//    msgBox("Cannot open file \"wsjtx_qrg.txt\".");
-    qDebug() << "Cannot open file \"wsjtx_qrg.txt\".";
-    return;
-  }
-  QTextStream out(&f);
-  out << m_dialFreq;
-  f.close();
+  emit dialFreqChanged(m_dialFreq);
 }
 
 double WideGraph::fGreen()
