@@ -52,18 +52,7 @@ WideGraph::WideGraph(QWidget *parent) :
   m_qsoFreq=settings.value("QSOfreq",1010).toInt();
   ui->widePlot->setFQSO(m_qsoFreq,true);
   settings.endGroup();
-
-// Change the following to a slot in mainwindow; emit a corresponding
-// signal here, instead.
-  QFile f("wsjtx_qrg.txt");
-  if(f.open(QFile::WriteOnly)) {
-    QTextStream out(&f);
-    out << m_dialFreq << "\r\n";
-    f.close();
-  } else {
-//    msgBox("Cannot open file \"wsjtx_qrg.txt\".");
-    qDebug() << "Cannot open file \"wsjtx_qrg.txt\".";
-  }
+  emit dialFreqChanged(m_dialFreq);
 }
 
 WideGraph::~WideGraph()
