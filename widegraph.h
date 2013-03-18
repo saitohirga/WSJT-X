@@ -37,6 +37,7 @@ public:
 signals:
   void freezeDecode2(int n);
   void f11f12(int n);
+  void dialFreqChanged(double f);
 
 public slots:
   void wideFreezeDecode(int n);

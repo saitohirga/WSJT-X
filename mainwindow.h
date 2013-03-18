@@ -109,9 +109,13 @@ private slots:
   void on_inGain_valueChanged(int n);
   void bumpFqso(int n);
   void on_actionMonitor_OFF_at_startup_triggered();
+  void dialFreqChanged2(double f);
 
 private:
     Ui::MainWindow *ui;
+
+    double  m_dialFreq;
+
     qint32  m_nDevIn;
     qint32  m_nDevOut;
     qint32  m_idInt;
@@ -217,6 +221,7 @@ private:
     void ba2msg(QByteArray ba, char* message);
     void msgtype(QString t, QLineEdit* tx);
     void stub();
+    void statusChanged();
 };
 
 extern void getfile(QString fname, int ntrperiod);
