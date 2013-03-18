@@ -88,8 +88,6 @@ private slots:
   void on_dxGridEntry_textChanged(const QString &arg1);
   void on_genStdMsgsPushButton_clicked();
   void on_logQSOButton_clicked();
-  void on_actionErase_wsjtx_rx_log_triggered();
-  void on_actionErase_wsjtx_tx_log_triggered();
   void on_actionAFMHot_triggered();
   void on_actionBlue_triggered();
   void on_actionJT9_2_triggered();
@@ -110,6 +108,10 @@ private slots:
   void bumpFqso(int n);
   void on_actionMonitor_OFF_at_startup_triggered();
   void dialFreqChanged2(double f);
+
+  void on_actionErase_ALL_TXT_triggered();
+
+  void on_actionErase_wsjtx_log_adi_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -206,6 +208,10 @@ private:
     QString m_dateTime;
     QString m_mode;
     QString m_fname;
+    QString m_rptSent;
+    QString m_rptRcvd;
+    QString m_qsoStart;
+    QString m_qsoStop;
 
     SoundInThread soundInThread;             //Instantiate the audio threads
     SoundOutThread soundOutThread;

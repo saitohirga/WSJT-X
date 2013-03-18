@@ -8,7 +8,7 @@ subroutine decoder(ss,c0)
   real ss(184,NSMAX)
   character*22 msg
   character*33 line
-  character*80 fmt,fmt14
+  character*80 fmt
   character*20 datetime
   real*4 ccfred(NSMAX)
   integer*1 i1SoftSymbols(207)
@@ -36,27 +36,22 @@ subroutine decoder(ss,c0)
      nsps=6912
      df3=1500.0/2048.0
      fmt='(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22)'
-     fmt14='(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,i8,i3)'
   else if(ntrMinutes.eq.2) then
      nsps=15360
      df3=1500.0/2048.0
      fmt='(i4.4,i4,i5,f6.1,f8.1,i4,3x,a22)'
-     fmt14='(i4.4,i4,i5,f6.1,f8.1,i4,3x,a22,i8,i3)'
   else if(ntrMinutes.eq.5) then
      nsps=40960
      df3=1500.0/6144.0
      fmt='(i4.4,i4,i5,f6.1,f8.1,i4,3x,a22)' 
-     fmt14='(i4.4,i4,i5,f6.1,f8.1,i4,3x,a22,i8,i3)'
  else if(ntrMinutes.eq.10) then
      nsps=82944
      df3=1500.0/12288.0
      fmt='(i4.4,i4,i5,f6.1,f8.2,i4,3x,a22)'
-     fmt14='(i4.4,i4,i5,f6.1,f8.2,i4,3x,a22,i8,i3)'
   else if(ntrMinutes.eq.30) then
      nsps=252000
      df3=1500.0/32768.0
      fmt='(i4.4,i4,i5,f6.1,f8.2,i4,3x,a22)'
-     fmt14='(i4.4,i4,i5,f6.1,f8.2,i4,3x,a22,i8,i3)'
   endif
   if(nsps.eq.0) stop 'Error: bad TRperiod'    !Better: return an error code###
 
@@ -66,13 +61,6 @@ subroutine decoder(ss,c0)
   call timer('sync9   ',0)
   call sync9(ss,nzhsym,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk)  !Compute ccfred
   call timer('sync9   ',1)
-
-!  open(13,file='decoded.txt',status='unknown')
-!  rewind 13
-  if(iand(nRxLog,2).ne.0) rewind 14
-  if(iand(nRxLog,1).ne.0) then
-! Write date and time to lu 14     
-  endif
 
   nRxLog=0
   fgood=0.
@@ -111,7 +99,6 @@ subroutine decoder(ss,c0)
 
      if(msg.ne.'                      ') then
         write(*,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
-        write(14,fmt14) nutc,nsync,nsnr,xdt,freq,ndrift,msg,nlim,ntrMinutes
         fgood=f
         nsynced=1
         ndecoded=1
@@ -123,7 +110,6 @@ subroutine decoder(ss,c0)
 
   if(fgood.eq.0.0) then
      write(*,1020) line
-     write(14,1020) line
 1020 format(a33)
   endif
 
@@ -132,7 +118,6 @@ subroutine decoder(ss,c0)
   flush(6)
 
   call flush(6)
-  call flush(14)
 
   call timer('decoder ',1)
   if(nstandalone.eq.0) call timer('decoder ',101)

@@ -1,4 +1,4 @@
-//-------------------------------------------------------------- MainWindow
+//--------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -31,9 +31,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
   ui->setupUi(this);
 
-#ifdef WIN32
-  freopen("wsjtx.log","w",stderr);
-#endif
   on_EraseButton_clicked();
   ui->labUTC->setStyleSheet( \
         "QLabel { background-color : black; color : yellow; }");
@@ -177,6 +174,8 @@ MainWindow::MainWindow(QWidget *parent) :
   genStdMsgs("-30");
   on_actionWide_Waterfall_triggered();                   //###
   g_pWideGraph->setTxFreq(m_txFreq);
+  m_dialFreq=g_pWideGraph->dialFreq();
+
   if(m_mode=="JT9-1") on_actionJT9_1_triggered();
   if(m_mode=="JT9-2") on_actionJT9_2_triggered();
   if(m_mode=="JT9-5") on_actionJT9_5_triggered();
@@ -1014,6 +1013,17 @@ void MainWindow::readFromStdout()                             //readFromStdout
       m_startAnother=m_loopall;
       return;
     } else {
+
+      QFile f("ALL.TXT");
+      f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+      QTextStream out(&f);
+      if(m_RxLog & 1) {
+        out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
+            << endl;
+      }
+      out << t << endl;
+      f.close();
+
       int n=t.length();
       QString bg="white";
       if(t.indexOf(" CQ ")>0) bg="#66ff66";                //Light green
@@ -1023,6 +1033,23 @@ void MainWindow::readFromStdout()                             //readFromStdout
       ui->decodedTextBrowser->append(t);
       QString msg=t.mid(34,22);
       bool b=stdmsg_(msg.toAscii().constData());
+      QStringList w=msg.split(" ",QString::SkipEmptyParts);
+      if(b and w[1]==m_myCall) {
+        QString tt=w[2];
+        int i1;
+        bool ok;
+        i1=tt.toInt(&ok);
+        if(ok and i1>=-50 and i1<50) {
+          m_rptRcvd=tt;
+        } else {
+          if(tt.mid(0,1)=="R") {
+            i1=tt.mid(1).toInt(&ok);
+            if(ok and i1>=-50 and i1<50) {
+              m_rptRcvd=tt.mid(1);
+            }
+          }
+        }
+      }
       if(m_pskReporterInit and b and !m_diskData) {
 //      if(m_pskReporterInit and b) {
         int i1=msg.indexOf(" ");
@@ -1147,7 +1174,7 @@ void MainWindow::guiUpdate()
     }
   }
 
-// Calculate Tx waveform when needed
+// Calculate Tx tones when needed
   if((iptt==1 && iptt0==0) || m_restart) {
     QByteArray ba;
     if(m_ntx == 1) ba=ui->tx1->text().toLocal8Bit();
@@ -1164,16 +1191,36 @@ void MainWindow::guiUpdate()
     genjt9_(message,&ichk,msgsent,itone,&itext,len1,len1);
     msgsent[22]=0;
     lab5->setText("Last Tx:  " + QString::fromAscii(msgsent));
+    QString t=QString::fromAscii(msgsent);
     if(m_restart) {
-      QFile f("wsjtx_tx.log");
+      QFile f("ALL.TXT");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
       out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-          << "  Tx message:  " << QString::fromAscii(msgsent) << endl;
+          << "  Tx message:  " << t << endl;
       f.close();
-
     }
-
+    QStringList w=t.split(" ",QString::SkipEmptyParts);
+    QString t2=QDateTime::currentDateTimeUtc().toString("hhmm");
+    if(itext==0 and w[1]==m_myCall) {
+      t=w[2];
+      int i1;
+      bool ok;
+      i1=t.toInt(&ok);
+      if(ok and i1>=-50 and i1<50) {
+        m_rptSent=t;
+        m_qsoStart=t2;
+      } else {
+        if(t.mid(0,1)=="R") {
+          i1=t.mid(1).toInt(&ok);
+          if(ok and i1>=-50 and i1<50) {
+            m_rptSent=t.mid(1);
+            m_qsoStart=t2;
+          }
+        }
+      }
+    }
+    if(itext==1 or w[2]=="73") m_qsoStop=t2;
     m_restart=false;
   }
 
@@ -1187,7 +1234,7 @@ void MainWindow::guiUpdate()
     btxok=true;
     m_transmitting=true;
 
-    QFile f("wsjtx_tx.log");
+    QFile f("ALL.TXT");
     f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
     QTextStream out(&f);
     out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
@@ -1655,38 +1702,49 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 {
   double dialFreq=g_pWideGraph->dialFreq();
   QDateTime t = QDateTime::currentDateTimeUtc();
-  QString logEntry=t.date().toString("yyyy-MMM-dd,") +
-      t.time().toString("hh:mm,") + m_hisCall + "," + m_hisGrid + "," +
-      QString::number(dialFreq) + "," + m_mode + "\n";
   QFile f("wsjtx.log");
   if(!f.open(QFile::Append)) {
     msgBox("Cannot open file \"wsjtx.log\".");
-    return;
+  } else {
+    QString logEntry=t.date().toString("yyyy-MMM-dd,") +
+        t.time().toString("hh:mm,") + m_hisCall + "," + m_hisGrid + "," +
+        QString::number(dialFreq) + "," + m_mode + "," +
+        m_rptSent + "," + m_rptRcvd;   QTextStream out(&f);
+//  out << logEntry << "\r\n";
+    out << logEntry << endl;
+    f.close();
   }
-  QTextStream out(&f);
-  out << logEntry << "\r\n";
-  f.close();
-}
 
-void MainWindow::on_actionErase_wsjtx_rx_log_triggered()     //Erase Rx log
-{
-  int ret = QMessageBox::warning(this, "Confirm Erase",
-      "Are you sure you want to erase file wsjtx_rx.log ?",
-       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-  if(ret==QMessageBox::Yes) {
-    m_RxLog |= 2;                      // Rewind wsjtx_rx.log
-  }
-}
+  QFile f2("wsjtx_log.adi");
+  if(!f2.open(QFile::Append)) {
+    msgBox("Cannot open file \"wsjtx_log.adi\".");
+  } else {
 
-void MainWindow::on_actionErase_wsjtx_tx_log_triggered()     //Erase Tx log
-{
-  int ret = QMessageBox::warning(this, "Confirm Erase",
-      "Are you sure you want to erase file wsjtx_tx.log ?",
-       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-  if(ret==QMessageBox::Yes) {
-    QFile f("wsjtx_tx.log");
-    f.remove();
+    QTextStream out(&f2);
+    if(f2.size()==0) out << "WSJT-X ADIF Export<eoh>" << endl;
+/*
+<CALL:5>K1ABC<GRIDSQUARE:4>FN42<MODE:4>JT65<RST_RCVD:3>-15
+<RST_SENT:3>-17<QSO_DATE:0><TIME_ON:4>1355<TIME_OFF:4>1357
+<TX_PWR:1>5<COMMENT:3>Jim<STATION_CALLSIGN:4>K1JT<MY_GRIDSQUARE:4>FN20<eor>
+*/
+    QString t;
+    t="<call:" + QString::number(m_hisCall.length()) + ">" + m_hisCall;
+    t+="<gridsquare:" + QString::number(m_hisGrid.length()) + ">" + m_hisGrid;
+    t+="<mode:" + QString::number(m_mode.length()) + ">" + m_mode;
+    t+="<rst_sent:" + QString::number(m_rptSent.length()) + ">" + m_rptSent;
+    t+="<rst_rcvd:" + QString::number(m_rptRcvd.length()) + ">" + m_rptRcvd;
+    t+="<qso_date:0>";
+    t+="<time_on:4>" + m_qsoStart;
+    t+="<time_off:4>" + m_qsoStop;
+    t+="<station_callsign:" + QString::number(m_myCall.length()) + ">" + m_myCall;
+    t+="<my_gridsquare:" + QString::number(m_myGrid.length()) + ">" + m_myGrid;
+//        t.date.toString("yyyymmdd");
+    out << t << endl;
+    f2.close();
   }
+
+  m_rptSent="";
+  m_rptRcvd="";
 }
 
 void MainWindow::on_actionJT9_1_triggered()
@@ -1815,4 +1873,26 @@ void MainWindow::on_inGain_valueChanged(int n)
 void MainWindow::on_actionMonitor_OFF_at_startup_triggered()
 {
   m_monitorStartOFF=!m_monitorStartOFF;
+}
+
+void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT
+{
+  int ret = QMessageBox::warning(this, "Confirm Erase",
+      "Are you sure you want to erase file ALL.TXT ?",
+       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+  if(ret==QMessageBox::Yes) {
+    QFile f("ALL.TXT");
+    f.remove();
+  }
+}
+
+void MainWindow::on_actionErase_wsjtx_log_adi_triggered()
+{
+  int ret = QMessageBox::warning(this, "Confirm Erase",
+      "Are you sure you want to erase file wsjtx_log.adi ?",
+       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+  if(ret==QMessageBox::Yes) {
+    QFile f("wsjtx_log.adi");
+    f.remove();
+  }
 }

@@ -1191,8 +1191,8 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionDecode_remaining_files_in_directory"/>
     <addaction name="separator"/>
     <addaction name="actionDelete_all_wav_files_in_SaveDir"/>
-    <addaction name="actionErase_wsjtx_rx_log"/>
-    <addaction name="actionErase_wsjtx_tx_log"/>
+    <addaction name="actionErase_ALL_TXT"/>
+    <addaction name="actionErase_wsjtx_log_adi"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -1352,11 +1352,6 @@ p, li { white-space: pre-wrap; }
     <string>Erase Band Map and Messages</string>
    </property>
   </action>
-  <action name="actionErase_wsjtx_rx_log">
-   <property name="text">
-    <string>Erase wsjtx_rx.log</string>
-   </property>
-  </action>
   <action name="actionLinrad">
    <property name="checkable">
     <bool>true</bool>
@@ -1502,11 +1497,6 @@ p, li { white-space: pre-wrap; }
   <action name="actionAvailable_suffixes_and_add_on_prefixes">
    <property name="text">
     <string>Available suffixes and add-on-prefixes</string>
-   </property>
-  </action>
-  <action name="actionErase_wsjtx_tx_log">
-   <property name="text">
-    <string>Erase wsjtx_tx.log</string>
    </property>
   </action>
   <action name="actionJT65A">
@@ -1665,6 +1655,16 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Monitor OFF at startup</string>
+   </property>
+  </action>
+  <action name="actionErase_ALL_TXT">
+   <property name="text">
+    <string>Erase ALL.TXT</string>
+   </property>
+  </action>
+  <action name="actionErase_wsjtx_log_adi">
+   <property name="text">
+    <string>Erase wsjtx_log.adi</string>
    </property>
   </action>
  </widget>
