@@ -1239,7 +1239,7 @@ void MainWindow::guiUpdate()
     QFile f("ALL.TXT");
     f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
     QTextStream out(&f);
-    out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
+    out << QDateTime::currentDateTimeUtc().toString("hhmm")
         << "  Transmitting:  " << QString::fromAscii(msgsent) << endl;
     f.close();
   }
