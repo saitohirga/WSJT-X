@@ -92,6 +92,10 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(&proc_jt9, SIGNAL(readyReadStandardError()),
           this, SLOT(readFromStderr()));
 
+  ui->tx5->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(ui->tx5, SIGNAL(customContextMenuRequested(const QPoint&)),
+      this, SLOT(showMacros(const QPoint&)));
+
   QTimer *guiTimer = new QTimer(this);
   connect(guiTimer, SIGNAL(timeout()), this, SLOT(guiUpdate()));
   guiTimer->start(100);                            //Don't change the 100 ms!
@@ -1895,4 +1899,27 @@ void MainWindow::on_actionErase_wsjtx_log_adi_triggered()
     QFile f("wsjtx_log.adi");
     f.remove();
   }
+}
+
+void MainWindow::showMacros(const QPoint &pos)
+{
+  QPoint globalPos = ui->tx5->mapToGlobal(pos);
+  QMenu popupMenu;
+  QAction* popup1 = new QAction("5W DIP 73 GL",ui->tx5);
+  QAction* popup2 = new QAction("TNX 73 GL",ui->tx5);
+  popupMenu.addAction(popup1);
+  popupMenu.addAction(popup2);
+  connect(popup1,SIGNAL(triggered()), this, SLOT(onPopup1()));
+  connect(popup2,SIGNAL(triggered()), this, SLOT(onPopup2()));
+  QAction* selectedItem = popupMenu.exec(globalPos);
+}
+
+void MainWindow::onPopup1()
+{
+  ui->tx5->setText("5W DIP 73 GL");
+}
+
+void MainWindow::onPopup2()
+{
+  ui->tx5->setText("TNX 73 GL");
 }
