@@ -108,12 +108,14 @@ private slots:
   void bumpFqso(int n);
   void on_actionMonitor_OFF_at_startup_triggered();
   void dialFreqChanged2(double f);
-
   void on_actionErase_ALL_TXT_triggered();
-
   void on_actionErase_wsjtx_log_adi_triggered();
 
-private:
+  void showMacros(const QPoint& pos);
+  void onPopup1();
+  void onPopup2();
+
+  private:
     Ui::MainWindow *ui;
 
     double  m_dialFreq;
