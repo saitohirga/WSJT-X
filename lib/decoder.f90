@@ -11,6 +11,7 @@ subroutine decoder(ss,c0)
   character*80 fmt
   character*20 datetime
   real*4 ccfred(NSMAX)
+  logical ccfok(NSMAX)
   integer*1 i1SoftSymbols(207)
   integer*2 id2
   integer ii(1)
@@ -28,8 +29,15 @@ subroutine decoder(ss,c0)
   nsynced=0
   ndecoded=0
   limit=200
-  if(ndepth.ge.2) limit=2000
-  if(ndepth.ge.3) limit=20000
+  ccflim=20.0
+  if(ndepth.ge.2) then
+     limit=2000
+     ccflim=10.0
+  endif
+  if(ndepth.ge.3) then
+     limit=20000
+     ccflim=8.0
+  endif
 
   nsps=0
   if(ntrMinutes.eq.1) then
@@ -62,18 +70,30 @@ subroutine decoder(ss,c0)
   call sync9(ss,nzhsym,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk)  !Compute ccfred
   call timer('sync9   ',1)
 
+  ccfok=.false.
+  do i=ia+9,ib-25
+     t1=ccfred(i)/max(ccfred(i-8),ccfred(i-7),ccfred(i-6))
+     t2=ccfred(i)/max(ccfred(i+23),ccfred(i+24),ccfred(i+25))
+     if(t1.ge.ccflim .and. t2.ge.ccflim) ccfok(i)=.true.
+  enddo
+
   nRxLog=0
   fgood=0.
   nsps8=nsps/8
   df8=1500.0/nsps8
   sbest=-1.0
   dblim=db(864.0/nsps8) - 26.2
+  i1=max(nint((nfqso-1000)/df3 - 10),ia)
+  i2=min(nint((nfqso-1000)/df3 + 10),ib)
+  ii=maxloc(ccfred(i1:i2))
+  i=ii(1) + i1 - 1
+  go to 12
 
 10 ii=maxloc(ccfred(ia:ib))
   i=ii(1) + ia - 1
-  f=(i-1)*df3
-  if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. abs(f-fgood).gt.10.0*df8) then
-
+12 f=(i-1)*df3
+  if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. abs(f-fgood).gt.10.0*df8 .and.    &
+       ccfok(i)) then
      call timer('decode9a',0)
      fpk=1000.0 + df3*(i-1)
      c1(1:npts8)=conjg(c0(1:npts8))
