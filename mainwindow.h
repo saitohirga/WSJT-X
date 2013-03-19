@@ -230,6 +230,8 @@ private slots:
     void msgtype(QString t, QLineEdit* tx);
     void stub();
     void statusChanged();
+
+    bool gridOK(QString g);
 };
 
 extern void getfile(QString fname, int ntrperiod);
