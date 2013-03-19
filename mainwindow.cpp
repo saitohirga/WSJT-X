@@ -1064,16 +1064,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         QString g2=c2.mid(i2+1,4);
         c2=c2.mid(0,i2);
         QString remote="call," + c2 + ",";
-        if(g2.mid(0,1).compare("A")>=0 and
-           g2.mid(0,1).compare("R")<=0 and
-           g2.mid(1,1).compare("A")>=0 and
-           g2.mid(1,1).compare("R")<=0 and
-           g2.mid(2,1).compare("0")>=0 and
-           g2.mid(2,1).compare("9")<=0 and
-           g2.mid(3,1).compare("0")>=0 and
-           g2.mid(3,1).compare("9")<=0) {
-          remote += "gridsquare," + g2 + ",";
-        }
+        if(gridOK(g2)) remote += "gridsquare," + g2 + ",";
         int nHz=t.mid(22,4).toInt();
         uint nfreq=1000000.0*g_pWideGraph->dialFreq() + nHz + 0.5;
         remote += "freq," + QString::number(nfreq);
@@ -1089,9 +1080,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
         wchar_t tlocal[256];
         local.toWCharArray(tlocal);
-
-//        qDebug() << "A:" << QString::fromWCharArray(tlocal,local.length());
-//        qDebug() << "B:" << QString::fromWCharArray(tremote,remote.length());
 
         int flags=REPORTER_SOURCE_AUTOMATIC;
         rc=ReporterSeenCallsign(tremote,tlocal,flags);
@@ -1427,7 +1415,11 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
     g_pWideGraph->setQSOfreq(nfreq);
   }
   QString hiscall=t4.at(7);
+  QString hisgrid="";
+  if(t4.length()>=9) hisgrid=t4.at(8);
   ui->dxCallEntry->setText(hiscall);
+  lookup();
+  if(ui->dxGridEntry->text()=="" and gridOK(hisgrid)) ui->dxGridEntry->setText(hisgrid);
   int n = 60*t2.mid(0,2).toInt() + t2.mid(2,2).toInt();
   int nmod=n%(m_TRperiod/30);
   m_txFirst=(nmod!=0);
@@ -1438,13 +1430,6 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   if(rpt.indexOf(" ")==0) rpt="+" + rpt.mid(1,2);
   if(rpt.toInt()<-50) rpt="-50";
   if(rpt.toInt()>49) rpt="+49";
-  if(ctrl) {
-    int i4=t.mid(i2,20).indexOf(" ");
-    QString hisgrid=t.mid(i2,20).mid(i4+1,4);
-    ui->dxGridEntry->setText(hisgrid);
-  } else {
-    lookup();
-  }
   genStdMsgs(rpt);
   if(t2.indexOf(m_myCall)>0) {
     m_ntx=2;
@@ -1550,6 +1535,14 @@ void MainWindow::on_addButton_clicked()                       //Add button
   if(!f1.open(QIODevice::ReadOnly | QIODevice::Text)) {
     msgBox("Cannot open " + call3File);
     return;
+  }
+  if(f1.size()==0) {
+    f1.close();
+    f1.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream out(&f1);
+    out << "ZZZZZZ" << endl;
+    f1.close();
+    f1.open(QIODevice::ReadOnly | QIODevice::Text);
   }
   QString tmpFile = m_appDir + "/CALL3.TMP";
   QFile f2(tmpFile);
@@ -1731,17 +1724,20 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
     QTextStream out(&f2);
     if(f2.size()==0) out << "WSJT-X ADIF Export<eoh>" << endl;
 
+    if(m_qsoStop=="") m_qsoStop=m_qsoStart;
+    if(m_qsoStart=="") m_qsoStart=m_qsoStop;
+
     QString t;
     t="<call:" + QString::number(m_hisCall.length()) + ">" + m_hisCall;
-    t+= "<gridsquare:" + QString::number(m_hisGrid.length()) + ">" + m_hisGrid;
-    t+= "<mode:" + QString::number(m_mode.length()) + ">" + m_mode;
-    t+= "<rst_sent:" + QString::number(m_rptSent.length()) + ">" + m_rptSent;
-    t+= "<rst_rcvd:" + QString::number(m_rptRcvd.length()) + ">" + m_rptRcvd;
-    t+= "<qso_date:0>";
-    t+= "<time_on:4>" + m_qsoStart;
-    t+= "<time_off:4>" + m_qsoStop;
-    t+= "<station_callsign:" + QString::number(m_myCall.length()) + ">" + m_myCall;
-    t+= "<my_gridsquare:" + QString::number(m_myGrid.length()) + ">" + m_myGrid;
+    t+=" <gridsquare:" + QString::number(m_hisGrid.length()) + ">" + m_hisGrid;
+    t+=" <mode:" + QString::number(m_mode.length()) + ">" + m_mode;
+    t+=" <rst_sent:" + QString::number(m_rptSent.length()) + ">" + m_rptSent;
+    t+=" <rst_rcvd:" + QString::number(m_rptRcvd.length()) + ">" + m_rptRcvd;
+    t+=" <qso_date:8>" + date;
+    t+=" <time_on:4>" + m_qsoStart;
+    t+=" <time_off:4>" + m_qsoStop;
+    t+=" <station_callsign:" + QString::number(m_myCall.length()) + ">" + m_myCall;
+    t+=" <my_gridsquare:" + QString::number(m_myGrid.length()) + ">" + m_myGrid;
     out << t << endl;
     f2.close();
   }
@@ -1911,7 +1907,7 @@ void MainWindow::showMacros(const QPoint &pos)
   popupMenu.addAction(popup2);
   connect(popup1,SIGNAL(triggered()), this, SLOT(onPopup1()));
   connect(popup2,SIGNAL(triggered()), this, SLOT(onPopup2()));
-  QAction* selectedItem = popupMenu.exec(globalPos);
+  popupMenu.exec(globalPos);
 }
 
 void MainWindow::onPopup1()
@@ -1922,4 +1918,17 @@ void MainWindow::onPopup1()
 void MainWindow::onPopup2()
 {
   ui->tx5->setText("TNX 73 GL");
+}
+
+bool MainWindow::gridOK(QString g)
+{
+  bool b=g.mid(0,1).compare("A")>=0 and
+      g.mid(0,1).compare("R")<=0 and
+      g.mid(1,1).compare("A")>=0 and
+      g.mid(1,1).compare("R")<=0 and
+      g.mid(2,1).compare("0")>=0 and
+      g.mid(2,1).compare("9")<=0 and
+      g.mid(3,1).compare("0")>=0 and
+      g.mid(3,1).compare("9")<=0;
+  return b;
 }
