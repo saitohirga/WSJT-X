@@ -1738,6 +1738,7 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
     t+=" <time_off:4>" + m_qsoStop;
     t+=" <station_callsign:" + QString::number(m_myCall.length()) + ">" + m_myCall;
     t+=" <my_gridsquare:" + QString::number(m_myGrid.length()) + ">" + m_myGrid;
+    t+=" <eor>";
     out << t << endl;
     f2.close();
   }
