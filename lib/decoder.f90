@@ -92,8 +92,8 @@ subroutine decoder(ss,c0)
 10 ii=maxloc(ccfred(ia:ib))
   i=ii(1) + ia - 1
 12 f=(i-1)*df3
-  if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. abs(f-fgood).gt.10.0*df8 .and.    &
-       ccfok(i)) then
+  if((i.eq.ipk .or. (ccfred(i).ge.3.0) .and. abs(f-fgood).gt.10.0*df8 .and.    &
+       ccfok(i))) then
      call timer('decode9a',0)
      fpk=1000.0 + df3*(i-1)
      c1(1:npts8)=conjg(c0(1:npts8))
@@ -135,8 +135,6 @@ subroutine decoder(ss,c0)
 
   write(*,1010) nsynced,ndecoded
 1010 format('<DecodeFinished>',2i4)
-  flush(6)
-
   call flush(6)
 
   call timer('decoder ',1)
