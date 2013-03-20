@@ -1726,6 +1726,7 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 
     if(m_qsoStop=="") m_qsoStop=m_qsoStart;
     if(m_qsoStart=="") m_qsoStart=m_qsoStop;
+    QString strDialFreq(QString::number(m_dialFreq,'f',6));
 
     QString t;
     t="<call:" + QString::number(m_hisCall.length()) + ">" + m_hisCall;
@@ -1736,6 +1737,7 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
     t+=" <qso_date:8>" + date;
     t+=" <time_on:4>" + m_qsoStart;
     t+=" <time_off:4>" + m_qsoStop;
+    t+=" <freq:" + QString::number(strDialFreq.length()) + ">" + strDialFreq;
     t+=" <station_callsign:" + QString::number(m_myCall.length()) + ">" + m_myCall;
     t+=" <my_gridsquare:" + QString::number(m_myGrid.length()) + ">" + m_myGrid;
     t+=" <eor>";
