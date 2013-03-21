@@ -6,7 +6,10 @@
 #include "soundin.h"
 #include "soundout.h"
 #include "commons.h"
+
+#ifdef WIN32
 #include "PSKReporter.h"
+#endif
 
 //--------------------------------------------------------------- MainWindow
 namespace Ui {

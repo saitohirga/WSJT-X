@@ -28,7 +28,8 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	entail.o fano232.o gran.o spec9.o sync9.o decode9.o \
 	fil3.o redsync.o decoder.o grid2n.o n2grid.o timer.o \
 	decode9a.o peakdt9.o getlags.o afc9.o fchisq.o \
-	twkfreq.o downsam9.o symspec2.o ipcomm.o sleep_msec.o 
+	twkfreq.o downsam9.o symspec2.o ipcomm.o sleep_msec.o \
+	stdmsg.o
 
 libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 

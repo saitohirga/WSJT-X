@@ -224,6 +224,7 @@ MainWindow::MainWindow(QWidget *parent) :
   if(ui->actionAFMHot->isChecked()) on_actionAFMHot_triggered();
   if(ui->actionBlue->isChecked()) on_actionBlue_triggered();
 
+#ifdef WIN32
   if(m_pskReporter) {
     rc=ReporterInitialize(NULL,NULL);
     if(rc==0) {
@@ -234,6 +235,7 @@ MainWindow::MainWindow(QWidget *parent) :
       msgBox(QString::fromStdWString(buffer));
     }
   }
+#endif
 }                                          // End of MainWindow constructor
 
 //--------------------------------------------------- MainWindow destructor
@@ -466,6 +468,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_paInDevice=dlg.m_paInDevice;
     m_nDevOut=dlg.m_nDevOut;
     m_paOutDevice=dlg.m_paOutDevice;
+#ifdef WIN32
     if(dlg.m_pskReporter!=m_pskReporter) {
       if(dlg.m_pskReporter) {
         int rc=ReporterInitialize(NULL,NULL);
@@ -481,6 +484,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
         m_pskReporterInit=false;
       }
     }
+#endif
     m_pskReporter=dlg.m_pskReporter;
 
     if(dlg.m_restartSoundIn) {
@@ -1056,6 +1060,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         }
       }
 
+#ifdef WIN32
       if(m_pskReporterInit and b and !m_diskData) {
 //      if(m_pskReporterInit and b) {
         int i1=msg.indexOf(" ");
@@ -1093,6 +1098,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           qDebug() << "D:" << QString::fromStdWString(buffer);
         }
       }
+#endif
     }
   }
 }
