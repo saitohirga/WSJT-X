@@ -35,7 +35,8 @@ QMAKE_EXTRA_COMPILERS += gfortran
 SOURCES += main.cpp mainwindow.cpp plotter.cpp about.cpp \
     soundin.cpp soundout.cpp devsetup.cpp \
     widegraph.cpp getfile.cpp \
-    displaytext.cpp getdev.cpp
+    displaytext.cpp getdev.cpp \
+    logqso.cpp
 
 win32 {
 SOURCES += killbyname.cpp
@@ -43,11 +44,13 @@ SOURCES += killbyname.cpp
 
 HEADERS  += mainwindow.h plotter.h soundin.h soundout.h \
             about.h devsetup.h widegraph.h getfile.h \
-            commons.h sleep.h displaytext.h
+            commons.h sleep.h displaytext.h \
+    logqso.h
 
 DEFINES += __cplusplus
 
-FORMS    += mainwindow.ui about.ui devsetup.ui widegraph.ui
+FORMS    += mainwindow.ui about.ui devsetup.ui widegraph.ui \
+    logqso.ui
 
 RC_FILE = wsjtx.rc
 
