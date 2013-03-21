@@ -120,6 +120,17 @@ void DevSetup::initDlg()
   ui.cbPSKReporter->setChecked(m_pskReporter);
   m_paInDevice=m_inDevList[m_nDevIn];
   m_paOutDevice=m_outDevList[m_nDevOut];
+  ui.macro1->setText(m_macro[0].toUpper());
+  ui.macro2->setText(m_macro[1].toUpper());
+  ui.macro3->setText(m_macro[2].toUpper());
+  ui.macro4->setText(m_macro[3].toUpper());
+  ui.macro5->setText(m_macro[4].toUpper());
+  ui.macro6->setText(m_macro[5].toUpper());
+  ui.macro7->setText(m_macro[6].toUpper());
+  ui.macro8->setText(m_macro[7].toUpper());
+  ui.macro9->setText(m_macro[8].toUpper());
+  ui.macro10->setText(m_macro[9].toUpper());
+
 }
 
 //------------------------------------------------------- accept()
@@ -144,6 +155,19 @@ void DevSetup::accept()
   m_paInDevice=m_inDevList[m_nDevIn];
   m_nDevOut=ui.comboBoxSndOut->currentIndex();
   m_paOutDevice=m_outDevList[m_nDevOut];
+
+  m_macro.clear();
+  m_macro.append(ui.macro1->text());
+  m_macro.append(ui.macro2->text());
+  m_macro.append(ui.macro3->text());
+  m_macro.append(ui.macro4->text());
+  m_macro.append(ui.macro5->text());
+  m_macro.append(ui.macro6->text());
+  m_macro.append(ui.macro7->text());
+  m_macro.append(ui.macro8->text());
+  m_macro.append(ui.macro9->text());
+  m_macro.append(ui.macro10->text());
+
   QDialog::accept();
 }
 

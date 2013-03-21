@@ -304,6 +304,7 @@ void MainWindow::writeSettings()
   settings.setValue("Tol",m_tol);
   settings.setValue("InGain",m_inGain);
   settings.setValue("PSKReporter",m_pskReporter);
+  settings.setValue("Macros",m_macro);
   settings.endGroup();
 }
 
@@ -367,6 +368,7 @@ void MainWindow::readSettings()
   m_monitorStartOFF=settings.value("MonitorOFF",false).toBool();
   ui->actionMonitor_OFF_at_startup->setChecked(m_monitorStartOFF);
   m_pskReporter=settings.value("PSKReporter",false).toBool();
+  m_macro=settings.value("Macros","").toStringList();
   settings.endGroup();
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
@@ -457,6 +459,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_nDevIn=m_nDevIn;
   dlg.m_nDevOut=m_nDevOut;
   dlg.m_pskReporter=m_pskReporter;
+  dlg.m_macro=m_macro;
 
   dlg.initDlg();
   if(dlg.exec() == QDialog::Accepted) {
@@ -469,6 +472,8 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_paInDevice=dlg.m_paInDevice;
     m_nDevOut=dlg.m_nDevOut;
     m_paOutDevice=dlg.m_paOutDevice;
+    m_macro=dlg.m_macro;
+
 #ifdef WIN32
     if(dlg.m_pskReporter!=m_pskReporter) {
       if(dlg.m_pskReporter) {
@@ -1008,7 +1013,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       m_bdecoded = (t.mid(23,1).toInt()==1);
       bool keepFile=m_saveAll or (m_saveSynced and m_bsynced) or
           (m_saveDecoded and m_bdecoded);
-      if(!keepFile) {
+      if(!keepFile and !m_diskData) {
         QFile savedFile(m_fname);
         savedFile.remove();
       }
@@ -1718,46 +1723,19 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
         QString::number(dialFreq) + "," + m_mode + "," +
         m_rptSent + "," + m_rptRcvd;
     QTextStream out(&f);
-//  out << logEntry << "\r\n";
     out << logEntry << endl;
     f.close();
   }
 
-  QFile f2("wsjtx_log.adi");
-  if(!f2.open(QIODevice::Text | QIODevice::Append)) {
-    msgBox("Cannot open file \"wsjtx_log.adi\".");
-  } else {
-
-    QTextStream out(&f2);
-    if(f2.size()==0) out << "WSJT-X ADIF Export<eoh>" << endl;
-
-    if(m_qsoStop=="") m_qsoStop=m_qsoStart;
-    if(m_qsoStart=="") m_qsoStart=m_qsoStop;
-    QString strDialFreq(QString::number(m_dialFreq,'f',6));
-
-    QString t;
-    t="<call:" + QString::number(m_hisCall.length()) + ">" + m_hisCall;
-    t+=" <gridsquare:" + QString::number(m_hisGrid.length()) + ">" + m_hisGrid;
-    t+=" <mode:" + QString::number(m_mode.length()) + ">" + m_mode;
-    t+=" <rst_sent:" + QString::number(m_rptSent.length()) + ">" + m_rptSent;
-    t+=" <rst_rcvd:" + QString::number(m_rptRcvd.length()) + ">" + m_rptRcvd;
-    t+=" <qso_date:8>" + date;
-    t+=" <time_on:4>" + m_qsoStart;
-    t+=" <time_off:4>" + m_qsoStop;
-    t+=" <freq:" + QString::number(strDialFreq.length()) + ">" + strDialFreq;
-    t+=" <station_callsign:" + QString::number(m_myCall.length()) + ">" + m_myCall;
-    t+=" <my_gridsquare:" + QString::number(m_myGrid.length()) + ">" + m_myGrid;
-    t+=" <eor>";
-    out << t << endl;
-    f2.close();
-    LogQSO logDlg(this);
-    logDlg.initLogQSO();
-    if(logDlg.exec() == QDialog::Accepted) {
-      qDebug() << "ZZ";
-    }
+  LogQSO logDlg(this);
+  logDlg.initLogQSO(m_hisCall,m_hisGrid,m_mode,m_rptSent,m_rptRcvd,date,
+                    m_qsoStart,m_qsoStop,m_dialFreq,m_myCall,m_myGrid);
+  if(logDlg.exec() == QDialog::Accepted) {
   }
   m_rptSent="";
   m_rptRcvd="";
+  m_qsoStart="";
+  m_qsoStop="";
 }
 
 void MainWindow::on_actionJT9_1_triggered()
@@ -1915,24 +1893,52 @@ void MainWindow::showMacros(const QPoint &pos)
 {
   QPoint globalPos = ui->tx5->mapToGlobal(pos);
   QMenu popupMenu;
-  QAction* popup1 = new QAction("5W DIP 73 GL",ui->tx5);
-  QAction* popup2 = new QAction("TNX 73 GL",ui->tx5);
-  popupMenu.addAction(popup1);
-  popupMenu.addAction(popup2);
+  QAction* popup1 = new QAction(m_macro[0],ui->tx5);
+  QAction* popup2 = new QAction(m_macro[1],ui->tx5);
+  QAction* popup3 = new QAction(m_macro[2],ui->tx5);
+  QAction* popup4 = new QAction(m_macro[3],ui->tx5);
+  QAction* popup5 = new QAction(m_macro[4],ui->tx5);
+  QAction* popup6 = new QAction(m_macro[5],ui->tx5);
+  QAction* popup7 = new QAction(m_macro[6],ui->tx5);
+  QAction* popup8 = new QAction(m_macro[7],ui->tx5);
+  QAction* popup9 = new QAction(m_macro[8],ui->tx5);
+  QAction* popup10 = new QAction(m_macro[9],ui->tx5);
+
+  if(m_macro[0]!="") popupMenu.addAction(popup1);
+  if(m_macro[1]!="") popupMenu.addAction(popup2);
+  if(m_macro[2]!="") popupMenu.addAction(popup3);
+  if(m_macro[3]!="") popupMenu.addAction(popup4);
+  if(m_macro[4]!="") popupMenu.addAction(popup5);
+  if(m_macro[5]!="") popupMenu.addAction(popup6);
+  if(m_macro[6]!="") popupMenu.addAction(popup7);
+  if(m_macro[7]!="") popupMenu.addAction(popup8);
+  if(m_macro[8]!="") popupMenu.addAction(popup9);
+  if(m_macro[9]!="") popupMenu.addAction(popup10);
+
   connect(popup1,SIGNAL(triggered()), this, SLOT(onPopup1()));
   connect(popup2,SIGNAL(triggered()), this, SLOT(onPopup2()));
+  connect(popup3,SIGNAL(triggered()), this, SLOT(onPopup3()));
+  connect(popup4,SIGNAL(triggered()), this, SLOT(onPopup4()));
+  connect(popup5,SIGNAL(triggered()), this, SLOT(onPopup5()));
+  connect(popup6,SIGNAL(triggered()), this, SLOT(onPopup6()));
+  connect(popup7,SIGNAL(triggered()), this, SLOT(onPopup7()));
+  connect(popup8,SIGNAL(triggered()), this, SLOT(onPopup8()));
+  connect(popup9,SIGNAL(triggered()), this, SLOT(onPopup9()));
+  connect(popup10,SIGNAL(triggered()), this, SLOT(onPopup10()));
   popupMenu.exec(globalPos);
 }
 
-void MainWindow::onPopup1()
-{
-  ui->tx5->setText("5W DIP 73 GL");
-}
+void MainWindow::onPopup1() { ui->tx5->setText(m_macro[0]); }
+void MainWindow::onPopup2() { ui->tx5->setText(m_macro[1]); }
+void MainWindow::onPopup3() { ui->tx5->setText(m_macro[2]); }
+void MainWindow::onPopup4() { ui->tx5->setText(m_macro[3]); }
+void MainWindow::onPopup5() { ui->tx5->setText(m_macro[4]); }
+void MainWindow::onPopup6() { ui->tx5->setText(m_macro[5]); }
+void MainWindow::onPopup7() { ui->tx5->setText(m_macro[6]); }
+void MainWindow::onPopup8() { ui->tx5->setText(m_macro[7]); }
+void MainWindow::onPopup9() { ui->tx5->setText(m_macro[8]); }
+void MainWindow::onPopup10() { ui->tx5->setText(m_macro[9]); }
 
-void MainWindow::onPopup2()
-{
-  ui->tx5->setText("TNX 73 GL");
-}
 
 bool MainWindow::gridOK(QString g)
 {

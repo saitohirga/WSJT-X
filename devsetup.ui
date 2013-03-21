@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="ioTabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -391,7 +391,7 @@
       <attribute name="title">
        <string>Tx Macros</string>
       </attribute>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>110</x>
@@ -828,7 +828,7 @@
          </widget>
         </item>
         <item row="9" column="1">
-         <widget class="QLineEdit" name="macroG10">
+         <widget class="QLineEdit" name="macro10">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
