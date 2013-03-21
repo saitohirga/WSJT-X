@@ -41,7 +41,6 @@ void DevSetup::initDlg()
   }
 
   k=0;
-#ifdef WIN32
 // Needs work to compile for Linux
   for(id=0; id<numDevices; id++ )  {
     pdi=Pa_GetDeviceInfo(id);
@@ -53,6 +52,7 @@ void DevSetup::initDlg()
       sprintf((char*)(pa_device_hostapi),"%s",
               Pa_GetHostApiInfo(pdi->hostApi)->name);
 
+#ifdef WIN32
       p1=(char*)"";
       p=strstr(pa_device_hostapi,"MME");
       if(p!=NULL) p1=(char*)"MME";
@@ -67,10 +67,13 @@ void DevSetup::initDlg()
 
       sprintf(p2,"%2d   %d   %-8s  %-39s",id,nchin,p1,pa_device_name);
       QString t(p2);
+#else
+      QString t;
+      t.sprintf("%2d   %d   %-8s  %-39s",id,nchin,p1,pdi->name);
+#endif
       ui.comboBoxSndIn->addItem(t);
     }
   }
-#endif
 
   k=0;
   for(id=0; id<numDevices; id++ )  {
@@ -99,8 +102,11 @@ void DevSetup::initDlg()
       if(p!=NULL) p1=(char*)"WDM-KS";
       sprintf(p2,"%2d   %d   %-8s  %-39s",id,nchout,p1,pa_device_name);
       QString t(p2);
-      ui.comboBoxSndOut->addItem(t);
+#else
+      QString t;
+      t.sprintf("%2d   %d   %-8s  %-39s",id,nchin,p1,pdi->name);
 #endif
+      ui.comboBoxSndOut->addItem(t);
     }
   }
 
