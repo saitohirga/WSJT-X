@@ -31,6 +31,8 @@ public:
   QString m_saveDir;
   QString m_azelDir;
 
+  QStringList m_macro;
+
 public slots:
   void accept();
 

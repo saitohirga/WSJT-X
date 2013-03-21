@@ -86,52 +86,41 @@ subroutine decoder(ss,c0)
   i1=max(nint((nfqso-1000)/df3 - 10),ia)
   i2=min(nint((nfqso-1000)/df3 + 10),ib)
   ii=maxloc(ccfred(i1:i2))
-  i=ii(1) + i1 - 1
-  go to 12
+  i00=ii(1) + i1 - 1
 
-10 ii=maxloc(ccfred(ia:ib))
-  i=ii(1) + ia - 1
-12 f=(i-1)*df3
-  if((i.eq.ipk .or. (ccfred(i).ge.3.0) .and. abs(f-fgood).gt.10.0*df8 .and.    &
-       ccfok(i))) then
-     call timer('decode9a',0)
-     fpk=1000.0 + df3*(i-1)
-     c1(1:npts8)=conjg(c0(1:npts8))
-     call decode9a(c1,npts8,nsps8,fpk,syncpk,snrdb,xdt,freq,drift,i1SoftSymbols)
-     call timer('decode9a',1)
+  do j=ia,ib
+     i=j
+     if(i.eq.i1) i=i00
+     f=(i-1)*df3
+     if(.not.ccfok(i)) cycle
+     if((i.eq.ipk .or. (ccfred(i).ge.3.0) .and. abs(f-fgood).gt.10.0*df8)) then
+        call timer('decode9a',0)
+        fpk=1000.0 + df3*(i-1)
+        c1(1:npts8)=conjg(c0(1:npts8))
+        call decode9a(c1,npts8,nsps8,fpk,syncpk,snrdb,xdt,freq,drift,   &
+             i1SoftSymbols)
+        call timer('decode9a',1)
 
-     call timer('decode9 ',0)
-     call decode9(i1SoftSymbols,limit,nlim,msg)
-     call timer('decode9 ',1)
+        call timer('decode9 ',0)
+        call decode9(i1SoftSymbols,limit,nlim,msg)
+        call timer('decode9 ',1)
  
-     sync=(syncpk-1.0)/2.0
-     if(sync.lt.0.0 .or. snrdb.lt.dblim-2.0) sync=0.0
-     nsync=sync
-     if(nsync.gt.10) nsync=10
-     nsnr=nint(snrdb)
-     ndrift=nint(drift/df3)
-     
-     if(sync.gt.sbest .and. fgood.eq.0.0) then
-        sbest=sync
-        write(line,fmt) nutc,nsync,nsnr,xdt,freq,ndrift
-        if(nsync.gt.0) nsynced=1
+        sync=(syncpk-1.0)/2.0
+        if(sync.lt.0.0 .or. snrdb.lt.dblim-2.0) sync=0.0
+        nsync=sync
+        if(nsync.gt.10) nsync=10
+        nsnr=nint(snrdb)
+        ndrift=nint(drift/df3)
+        if(msg.ne.'                      ') then
+           write(*,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
+           fgood=f
+           nsynced=1
+           ndecoded=1
+!           ccfred(max(ia,i-3):min(ib,i+11))=0.
+           ccfok(max(ia,i-3):min(ib,i+11))=.false.
+        endif
      endif
-
-     if(msg.ne.'                      ') then
-        write(*,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
-        fgood=f
-        nsynced=1
-        ndecoded=1
-        ccfred(max(ia,i-3):min(ib,i+11))=0.
-     endif
-  endif
-  ccfred(i)=0.
-  if(maxval(ccfred(ia:ib)).gt.3.0) go to 10
-
-  if(fgood.eq.0.0) then
-     write(*,1020) line
-1020 format(a33)
-  endif
+  enddo
 
   write(*,1010) nsynced,ndecoded
 1010 format('<DecodeFinished>',2i4)

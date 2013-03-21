@@ -117,6 +117,14 @@ private slots:
   void showMacros(const QPoint& pos);
   void onPopup1();
   void onPopup2();
+  void onPopup3();
+  void onPopup4();
+  void onPopup5();
+  void onPopup6();
+  void onPopup7();
+  void onPopup8();
+  void onPopup9();
+  void onPopup10();
 
   private:
     Ui::MainWindow *ui;
@@ -217,6 +225,8 @@ private slots:
     QString m_rptRcvd;
     QString m_qsoStart;
     QString m_qsoStop;
+
+    QStringList m_macro;
 
     SoundInThread soundInThread;             //Instantiate the audio threads
     SoundOutThread soundOutThread;
