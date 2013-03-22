@@ -99,7 +99,7 @@ private:
   qint32  m_FreqUnits;
   qint32  m_hdivs;
   bool    m_dataFromDisk;
-  char    m_sutc[5];
+  char    m_sutc[6];
   qint32  m_line;
   qint32  m_fSample;
   qint32  m_i0;

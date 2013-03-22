@@ -37,6 +37,9 @@ void DevSetup::initDlg()
       t.sprintf("COM%d",i);
       ui.pttComboBox->addItem(t);
     }
+    for(int i=0; i<10; i++) {
+      m_macro.append("");
+    }
     m_firstCall=false;
   }
 
@@ -120,6 +123,7 @@ void DevSetup::initDlg()
   ui.cbPSKReporter->setChecked(m_pskReporter);
   m_paInDevice=m_inDevList[m_nDevIn];
   m_paOutDevice=m_outDevList[m_nDevOut];
+
   ui.macro1->setText(m_macro[0].toUpper());
   ui.macro2->setText(m_macro[1].toUpper());
   ui.macro3->setText(m_macro[2].toUpper());
