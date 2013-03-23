@@ -406,7 +406,7 @@
       <item>
        <widget class="QLabel" name="lab9">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -427,7 +427,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Op Name</string>
+         <string>Name</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -507,7 +507,7 @@
       <item>
        <widget class="QLineEdit" name="name">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -549,7 +549,7 @@
       <item>
        <widget class="QLabel" name="lab10">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>Comments</string>
@@ -559,7 +559,7 @@
       <item>
        <widget class="QLineEdit" name="comments">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>

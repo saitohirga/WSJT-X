@@ -306,6 +306,9 @@ void MainWindow::writeSettings()
   settings.setValue("InGain",m_inGain);
   settings.setValue("PSKReporter",m_pskReporter);
   settings.setValue("Macros",m_macro);
+  settings.setValue("toRTTY",m_toRTTY);
+  settings.setValue("NoSuffix",m_noSuffix);
+  settings.setValue("dBtoComments",m_dBtoComments);
   settings.endGroup();
 }
 
@@ -370,6 +373,12 @@ void MainWindow::readSettings()
   ui->actionMonitor_OFF_at_startup->setChecked(m_monitorStartOFF);
   m_pskReporter=settings.value("PSKReporter",false).toBool();
   m_macro=settings.value("Macros","").toStringList();
+  m_toRTTY=settings.value("toRTTY",false).toBool();
+  ui->actionConvert_JT9_x_to_RTTY->setChecked(m_toRTTY);
+  m_noSuffix=settings.value("NoSuffix",false).toBool();
+  ui->actionLog_JT9_without_submode->setChecked(m_noSuffix);
+  m_dBtoComments=settings.value("dBtoComments",false).toBool();
+  ui->actionLog_dB_reports_to_Comments->setChecked(m_dBtoComments);
   settings.endGroup();
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
@@ -546,11 +555,11 @@ void MainWindow::on_autoButton_clicked()                     //Auto
   m_auto = !m_auto;
   if(m_auto) {
     ui->autoButton->setStyleSheet(m_pbAutoOn_style);
-    ui->autoButton->setText("Auto is ON");
+//    ui->autoButton->setText("Auto is ON");
   } else {
     btxok=false;
     ui->autoButton->setStyleSheet("");
-    ui->autoButton->setText("Auto is OFF");
+//    ui->autoButton->setText("Auto is OFF");
     on_monitorButton_clicked();
   }
 }
@@ -1743,7 +1752,8 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 
   LogQSO logDlg(this);
   logDlg.initLogQSO(m_hisCall,m_hisGrid,m_mode,m_rptSent,m_rptRcvd,date,
-                    m_qsoStart,m_qsoStop,m_dialFreq,m_myCall,m_myGrid);
+                    m_qsoStart,m_qsoStop,m_dialFreq,m_myCall,m_myGrid,
+                    m_noSuffix,m_toRTTY,m_dBtoComments);
   if(logDlg.exec() == QDialog::Accepted) {
   }
   m_rptSent="";
@@ -1758,7 +1768,7 @@ void MainWindow::on_actionJT9_1_triggered()
   statusChanged();
   m_TRperiod=60;
   m_nsps=6912;
-  m_hsymStop=181;
+  m_hsymStop=173;
   soundInThread.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
@@ -1966,4 +1976,19 @@ bool MainWindow::gridOK(QString g)
       g.mid(3,1).compare("0")>=0 and
       g.mid(3,1).compare("9")<=0;
   return b;
+}
+
+void MainWindow::on_actionConvert_JT9_x_to_RTTY_triggered(bool checked)
+{
+  m_toRTTY=checked;
+}
+
+void MainWindow::on_actionLog_JT9_without_submode_triggered(bool checked)
+{
+  m_noSuffix=checked;
+}
+
+void MainWindow::on_actionLog_dB_reports_to_Comments_triggered(bool checked)
+{
+  m_dBtoComments=checked;
 }

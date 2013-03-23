@@ -19,10 +19,19 @@ LogQSO::~LogQSO()
 void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
                         QString rptSent, QString rptRcvd, QString date,
                         QString qsoStart, QString qsoStop, double dialFreq,
-                        QString myCall, QString myGrid)
+                        QString myCall, QString myGrid, bool noSuffix,
+                        bool toRTTY, bool dBtoComments)
 {
   ui->call->setText(hisCall);
   ui->grid->setText(hisGrid);
+  if(dBtoComments) {
+    QString t=mode;
+    if(rptSent!="") t+="  Sent: " + rptSent;
+    if(rptRcvd!="") t+="  Rcvd: " + rptRcvd;
+    ui->comments->setText(t);
+  }
+  if(noSuffix and mode.mid(0,3)=="JT9") mode="JT9";
+  if(toRTTY and mode.mid(0,3)=="JT9") mode="RTTY";
   ui->mode->setText(mode);
   ui->sent->setText(rptSent);
   ui->rcvd->setText(rptRcvd);
@@ -71,6 +80,7 @@ void LogQSO::accept()
     m.exec();
   } else {
     QString hisCall,hisGrid,mode,rptSent,rptRcvd,date,qsoStart,band;
+    QString comments,name;
 //    if(qsoStart=="") qsoStart=qsoStop;
 //    if(qsoStop=="") qsoStop=qsoStart;
 
@@ -83,6 +93,8 @@ void LogQSO::accept()
     date=date.mid(0,4) + date.mid(5,2) + date.mid(8,2);
     qsoStart=ui->time->text();
     band=ui->band->text();
+    name=ui->name->text();
+    comments=ui->comments->text();
 
     QString strDialFreq(QString::number(m_dialFreq,'f',6));
 
@@ -104,6 +116,10 @@ void LogQSO::accept()
         m_myCall;
     t+=" <my_gridsquare:" + QString::number(m_myGrid.length()) + ">" +
         m_myGrid;
+    if(comments!="") t+=" <comment:" + QString::number(comments.length()) +
+        ">" + comments;
+    if(name!="") t+=" <name:" + QString::number(name.length()) +
+        ">" + name;
     t+=" <eor>";
     out << t << endl;
     f2.close();
