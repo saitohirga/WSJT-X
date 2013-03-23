@@ -18,7 +18,8 @@ public:
   void initLogQSO(QString hisCall, QString hisGrid, QString mode,
                   QString rptSent, QString rptRcvd, QString date,
                   QString qsoStart, QString qsoStop, double dialFreq,
-                  QString myCall, QString myGrid);
+                  QString myCall, QString myGrid, bool noSuffix,
+                  bool toRTTY, bool dBtoComments);
 
   double m_dialFreq;
   QString m_myCall;

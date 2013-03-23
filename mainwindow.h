@@ -125,8 +125,12 @@ private slots:
   void onPopup8();
   void onPopup9();
   void onPopup10();
+  void on_actionConvert_JT9_x_to_RTTY_triggered(bool checked);
+  void on_actionLog_JT9_without_submode_triggered(bool checked);
 
-  private:
+  void on_actionLog_dB_reports_to_Comments_triggered(bool checked);
+
+private:
     Ui::MainWindow *ui;
 
     double  m_dialFreq;
@@ -181,6 +185,9 @@ private slots:
     bool    m_monitorStartOFF;
     bool    m_pskReporter;
     bool    m_pskReporterInit;
+    bool    m_noSuffix;
+    bool    m_toRTTY;
+    bool    m_dBtoComments;
 
     char    m_decoded[80];
 
