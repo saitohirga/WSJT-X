@@ -268,6 +268,10 @@ void genjt9_(char* msg, int* ichk, char* msgsent, int itone[],
              int* itext, int len1, int len2);
 
 bool stdmsg_(const char* msg);
+
+void azdist_(char* MyGrid, char* HisGrid, double* utch, int* nAz, int* nEl,
+             int* nDmiles, int* nDkm, int* nHotAz, int* nHotABetter,
+             int len1, int len2);
 }
 
 #endif // MAINWINDOW_H

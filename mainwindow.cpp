@@ -133,6 +133,7 @@ MainWindow::MainWindow(QWidget *parent) :
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
+  ui->labAzDist->setStyleSheet("border: 0px;");
 
 #ifdef WIN32
   while(true) {
@@ -1702,6 +1703,19 @@ void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
   if(n==6) m_hisGrid=t.mid(0,2).toUpper() + t.mid(2,2) +
       t.mid(4,2).toLower();
   ui->dxGridEntry->setText(m_hisGrid);
+  if(gridOK(m_hisGrid)) {
+    qint64 nsec = QDateTime::currentMSecsSinceEpoch() % 86400;
+    double utch=nsec/3600.0;
+    int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
+
+    azdist_(m_myGrid.toAscii().data(),m_hisGrid.toAscii().data(),&utch,
+           &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
+    QString t;
+    t.sprintf("Az: %d       %d km",nAz,nDkm);
+    ui->labAzDist->setText(t);
+  } else {
+    ui->labAzDist->setText("");
+  }
 }
 
 void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
@@ -1891,6 +1905,7 @@ void MainWindow::on_actionErase_wsjtx_log_adi_triggered()
 
 void MainWindow::showMacros(const QPoint &pos)
 {
+  if(m_macro.length()<10) return;
   QPoint globalPos = ui->tx5->mapToGlobal(pos);
   QMenu popupMenu;
   QAction* popup1 = new QAction(m_macro[0],ui->tx5);
