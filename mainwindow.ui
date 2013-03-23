@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>643</width>
-    <height>536</height>
+    <height>527</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -321,7 +321,7 @@ p, li { white-space: pre-wrap; }
             <property name="maximumSize">
              <size>
               <width>290</width>
-              <height>115</height>
+              <height>135</height>
              </size>
             </property>
             <property name="styleSheet">
@@ -355,7 +355,7 @@ p, li { white-space: pre-wrap; }
                <x>8</x>
                <y>14</y>
                <width>128</width>
-               <height>87</height>
+               <height>113</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -457,6 +457,22 @@ p, li { white-space: pre-wrap; }
                </layout>
               </item>
               <item>
+               <widget class="QLabel" name="labAzDist">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="genStdMsgsPushButton">
                 <property name="maximumSize">
                  <size>
@@ -478,7 +494,7 @@ p, li { white-space: pre-wrap; }
             <property name="maximumSize">
              <size>
               <width>150</width>
-              <height>60</height>
+              <height>52</height>
              </size>
             </property>
             <property name="font">
@@ -499,7 +515,8 @@ p, li { white-space: pre-wrap; }
              <number>0</number>
             </property>
             <property name="text">
-             <string> 01:23:45 </string>
+             <string>2013 Mar 23
+ 01:23:45 </string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
