@@ -3,16 +3,15 @@ subroutine jt9a
 ! NB: this interface block is required by g95, but must be omitted
 !     for gfortran.  (????)
 
-#ifndef UNIX
   interface
      function address_jt9()
+     integer*1, pointer :: address_jt9
      end function address_jt9
   end interface
-#endif
   
   integer*1 attach_jt9,lock_jt9,unlock_jt9
   integer size_jt9
-  integer*1, pointer :: address_jt9,p_jt9
+  integer*1, pointer :: p_jt9
   character*80 cwd
   logical fileExists
   common/tracer/limtrace,lu

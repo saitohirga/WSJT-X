@@ -56,10 +56,9 @@ RC_FILE = wsjtx.rc
 
 unix {
 INCLUDEPATH += $$quote(/usr/include/qwt-qt4)
-LIBS += -lfftw3f /usr/lib/libgfortran.so.3
 LIBS += ../wsjtx/lib/libjt9.a
 LIBS += /usr/lib/libqwt-qt4.so
-LIBS += -lportaudio
+LIBS += -lportaudio -lgfortran -lfftw3f
 }
 
 win32 {
