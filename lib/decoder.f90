@@ -28,14 +28,14 @@ subroutine decoder(ss,c0)
   newdat=1
   nsynced=0
   ndecoded=0
-  limit=200
+  limit=5000
   ccflim=20.0
   if(ndepth.ge.2) then
-     limit=2000
+     limit=50000
      ccflim=10.0
   endif
   if(ndepth.ge.3) then
-     limit=20000
+     limit=500000
      ccflim=8.0
   endif
 
