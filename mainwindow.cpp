@@ -94,6 +94,12 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(&proc_jt9, SIGNAL(readyReadStandardError()),
           this, SLOT(readFromStderr()));
 
+  ui->bandComboBox->setEditable(true);
+  ui->bandComboBox->lineEdit()->setReadOnly(true);
+  ui->bandComboBox->lineEdit()->setAlignment(Qt::AlignCenter);
+  for(int i = 0; i < ui->bandComboBox->count(); i++)
+    ui->bandComboBox->setItemData(i, Qt::AlignCenter, Qt::TextAlignmentRole);
+
   ui->tx5->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(ui->tx5, SIGNAL(customContextMenuRequested(const QPoint&)),
       this, SLOT(showMacros(const QPoint&)));
