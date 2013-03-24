@@ -139,6 +139,7 @@ private:
     qint32  m_nDevOut;
     qint32  m_idInt;
     qint32  m_waterfallAvg;
+    qint32  m_pttMethodIndex;
     qint32  m_tol;
     qint32  m_QSOfreq0;
     qint32  m_ntx;
@@ -161,6 +162,20 @@ private:
     qint32  m_len1;
     qint32  m_inGain;
     qint32  m_nsave;
+    qint32  m_catPortIndex;
+    qint32  m_rig;
+    qint32  m_rigIndex;
+    qint32  m_serialRate;
+    qint32  m_serialRateIndex;
+    qint32  m_dataBits;
+    qint32  m_dataBitsIndex;
+    qint32  m_stopBits;
+    qint32  m_stopBitsIndex;
+    qint32  m_handshakeIndex;
+    qint32  m_ncw;
+    qint32  m_secID;
+    qint32  m_COMportOpen;
+    qint32  m_iptt;
 
     bool    m_monitoring;
     bool    m_transmitting;
@@ -188,6 +203,7 @@ private:
     bool    m_noSuffix;
     bool    m_toRTTY;
     bool    m_dBtoComments;
+    bool    m_catEnabled;
 
     char    m_decoded[80];
 
@@ -212,6 +228,7 @@ private:
     QFutureWatcher<void>* watcher3;
 
     QProcess proc_jt9;
+    QProcess p3;
 
     QString m_path;
     QString m_pbdecoding_style1;
@@ -232,8 +249,10 @@ private:
     QString m_rptRcvd;
     QString m_qsoStart;
     QString m_qsoStop;
-
+    QString m_catPort;
+    QString m_handshake;
     QStringList m_macro;
+    QString m_cmnd;
 
     SoundInThread soundInThread;             //Instantiate the audio threads
     SoundOutThread soundOutThread;
@@ -250,8 +269,8 @@ private:
     void msgtype(QString t, QLineEdit* tx);
     void stub();
     void statusChanged();
-
     bool gridOK(QString g);
+    QString rig_command();
 };
 
 extern void getfile(QString fname, int ntrperiod);
