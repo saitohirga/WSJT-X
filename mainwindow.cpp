@@ -1247,8 +1247,9 @@ void MainWindow::guiUpdate()
   if(m_auto) {
 
     QFile f("txboth");
-    if(f.exists() and fmod(tsec,m_TRperiod)<1.0 + 85.0*m_nsps/12000.0)
+    if(f.exists() and fmod(tsec,m_TRperiod) < (1.0 + 85.0*m_nsps/12000.0)) {
       bTxTime=true;
+    }
 
     if(bTxTime and m_iptt==0 and !btxMute) {
 #define NEW
@@ -1333,16 +1334,20 @@ void MainWindow::guiUpdate()
     m_restart=false;
   }
 
+
 // If PTT was just raised, start a countdown for raising TxOK:
-  if(m_iptt==1 && iptt0==0) nc1=-9;    // TxDelay = 0.8 s
-  if(nc1 <= 0) nc1++;
+  if(m_iptt == 1 && iptt0 == 0) {
+      nc1=-9;    // TxDelay = 0.8 s
+  }
+  if(nc1 <= 0) {
+      nc1++;
+  }
   if(nc1 == 0) {
     ui->xThermo->setValue(0.0);   //Set Thermo to zero
     m_monitoring=false;
     soundInThread.setMonitoring(false);
     btxok=true;
     m_transmitting=true;
-
     QFile f("ALL.TXT");
     f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
     QTextStream out(&f);
@@ -1453,7 +1458,7 @@ QString MainWindow::rig_command()
 void MainWindow::startTx2()
 {
   if(!soundOutThread.isRunning()) {
-//    qDebug() << "startTx2";
+    //qDebug() << "startTx2";
 
     if(!soundOutThread.isRunning()) {
       QString t=ui->tx6->text();
@@ -1461,6 +1466,7 @@ void MainWindow::startTx2()
       if(snr>0.0 or snr < -50.0) snr=99.0;
       soundOutThread.setTxSNR(snr);
       soundOutThread.start(QThread::HighPriority);
+       //qDebug() << "soundOutThread.start()";
     }
 
     ui->xThermo->setValue(0.0);   //Set Thermo to zero
@@ -1468,7 +1474,6 @@ void MainWindow::startTx2()
     soundInThread.setMonitoring(false);
     btxok=true;
     m_transmitting=true;
-//    qDebug() << btxok << m_transmitting << m_monitoring;
 /*
     QFile f("ALL.TXT");
     f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
