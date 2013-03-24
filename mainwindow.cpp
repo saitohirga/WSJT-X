@@ -35,10 +35,10 @@ MainWindow::MainWindow(QWidget *parent) :
   on_EraseButton_clicked();
   ui->labUTC->setStyleSheet( \
         "QLabel { background-color : black; color : yellow; }");
-  ui->labTol1->setStyleSheet( \
-        "QLabel { background-color : white; color : black; }");
-  ui->labTol1->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  ui->dxStationGroupBox->setStyleSheet("QFrame{border: 5px groove red}");
+  //ui->labTol1->setStyleSheet( \
+  //      "QLabel { background-color : white; color : black; }");
+  //ui->labTol1->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  //ui->dxStationGroupBox->setStyleSheet("QFrame{border: 5px groove red}");
 
   QActionGroup* paletteGroup = new QActionGroup(this);
   ui->actionCuteSDR->setActionGroup(paletteGroup);
@@ -133,7 +133,7 @@ MainWindow::MainWindow(QWidget *parent) :
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
-  ui->labAzDist->setStyleSheet("border: 0px;");
+  //ui->labAzDist->setStyleSheet("border: 0px;");
 
 #ifdef WIN32
   while(true) {
@@ -164,8 +164,8 @@ MainWindow::MainWindow(QWidget *parent) :
   readSettings();		             //Restore user's setup params
   QFile lockFile(m_appDir + "/.lock");     //Create .lock so jt9 will wait
   lockFile.open(QIODevice::ReadWrite);
-  QFile quitFile(m_appDir + "/.lock");
-  quitFile.remove();
+  //QFile quitFile(m_appDir + "/.lock");
+  //quitFile.remove();
   proc_jt9.start(QDir::toNativeSeparators('"' + m_appDir + '"' + "/jt9 -s"));
 
   m_pbdecoding_style1="QPushButton{background-color: cyan; \
@@ -205,7 +205,7 @@ MainWindow::MainWindow(QWidget *parent) :
   g_pWideGraph->setTol(m_tol);
   static int ntol[] = {1,2,5,10,20,50,100,200,500};
   for (int i=0; i<10; i++) {
-    if(ntol[i]==m_tol) ui->tolSpinBox->setValue(i);
+    if(ntol[i]==m_tol) ui->tolSlider->setValue(i);
   }
 
 // Create "m_worked", a dictionary of all calls in wsjtx.log
@@ -225,6 +225,10 @@ MainWindow::MainWindow(QWidget *parent) :
   if(ui->actionCuteSDR->isChecked()) on_actionCuteSDR_triggered();
   if(ui->actionAFMHot->isChecked()) on_actionAFMHot_triggered();
   if(ui->actionBlue->isChecked()) on_actionBlue_triggered();
+
+  ui->decodedTextLabel->setFont(ui->decodedTextBrowser->font());
+  //                             2241  10   -8   0.2   1184.   0   VK7XX N1ISA FN41
+  ui->decodedTextLabel->setText("UTC  Sync  dB    DT   Freq   Dr   Msg");
 
 #ifdef WIN32
   if(m_pskReporter) {
@@ -747,12 +751,12 @@ void MainWindow::createStatusBar()                           //createStatusBar
   statusBar()->addWidget(lab5);
 }
 
-void MainWindow::on_tolSpinBox_valueChanged(int i)             //tolSpinBox
+void MainWindow::on_tolSlider_valueChanged(int i)             //tolSlider
 {
   static int ntol[] = {1,2,5,10,20,50,100,200,500};
   m_tol=ntol[i];
   g_pWideGraph->setTol(m_tol);
-  ui->labTol1->setText(QString::number(ntol[i]));
+  ui->labTol1->setText("Tolerance: " + QString::number(ntol[i]));
 }
 
 void MainWindow::on_actionExit_triggered()                     //Exit()
@@ -1000,7 +1004,7 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
       if(m_mode=="JT9-30") i=1;
       m_tol=ntol[i];
       g_pWideGraph->setTol(m_tol);
-      ui->tolSpinBox->setValue(i);
+      ui->tolSlider->setValue(i);
       decode();
     }
   }
@@ -1109,9 +1113,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
       QString bg="white";
       if(t.indexOf(" CQ ")>0) bg="#66ff66";                //Light green
       if(t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666";      //Light red
-      ui->decodedTextBrowser->setTextBackgroundColor(bg);
-      t=t.mid(0,n-2) + "                                                  ";
-      ui->decodedTextBrowser->append(t);
+      //ui->decodedTextBrowser->setTextBackgroundColor(bg);
+      //t=t.mid(0,n-2) + "                                                  ";
+      ui->decodedTextBrowser->append("<table border=0 cellspacing=0 width=100%>"
+                                     "<tr><td bgcolor=\""+ bg + "\"><pre>"+ t + "</pre></td></tr>"
+                                     "</table>");
       QString msg=t.mid(34,22);
       bool b=stdmsg_(msg.toAscii().constData());
       QStringList w=msg.split(" ",QString::SkipEmptyParts);
@@ -1800,9 +1806,9 @@ void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
            &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
     QString t;
     t.sprintf("Az: %d       %d km",nAz,nDkm);
-    ui->labAzDist->setText(t);
+    //ui->labAzDist->setText(t);
   } else {
-    ui->labAzDist->setText("");
+    //ui->labAzDist->setText("");
   }
 }
 
@@ -1925,6 +1931,7 @@ void MainWindow::on_NBcheckBox_toggled(bool checked)
 void MainWindow::on_NBslider_valueChanged(int n)
 {
   m_NBslider=n;
+  ui->NBcheckBox->setText("NB: " + QString::number(n));
 }
 
 void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
