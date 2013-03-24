@@ -1,4 +1,4 @@
-//--------------------------------------------------------------- MainWindow
+//---------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -281,6 +281,7 @@ void MainWindow::writeSettings()
   settings.setValue("MyCall",m_myCall);
   settings.setValue("MyGrid",m_myGrid);
   settings.setValue("IDint",m_idInt);
+  settings.setValue("PTTmethod",m_pttMethodIndex);
   settings.setValue("PTTport",m_pttPort);
   settings.setValue("SaveDir",m_saveDir);
   settings.setValue("SoundInIndex",m_nDevIn);
@@ -309,6 +310,19 @@ void MainWindow::writeSettings()
   settings.setValue("toRTTY",m_toRTTY);
   settings.setValue("NoSuffix",m_noSuffix);
   settings.setValue("dBtoComments",m_dBtoComments);
+  settings.setValue("catEnabled",m_catEnabled);
+  settings.setValue("Rig",m_rig);
+  settings.setValue("RigIndex",m_rigIndex);
+  settings.setValue("CATport",m_catPort);
+  settings.setValue("CATportIndex",m_catPortIndex);
+  settings.setValue("SerialRate",m_serialRate);
+  settings.setValue("SerialRateIndex",m_serialRateIndex);
+  settings.setValue("DataBits",m_dataBits);
+  settings.setValue("DataBitsIndex",m_dataBitsIndex);
+  settings.setValue("StopBits",m_stopBits);
+  settings.setValue("StopBitsIndex",m_stopBitsIndex);
+  settings.setValue("Handshake",m_handshake);
+  settings.setValue("HandshakeIndex",m_handshakeIndex);
   settings.endGroup();
 }
 
@@ -332,6 +346,7 @@ void MainWindow::readSettings()
   m_myCall=settings.value("MyCall","").toString();
   m_myGrid=settings.value("MyGrid","").toString();
   m_idInt=settings.value("IDint",0).toInt();
+  m_pttMethodIndex=settings.value("PTTmethod",1).toInt();
   m_pttPort=settings.value("PTTport",0).toInt();
   m_saveDir=settings.value("SaveDir",m_appDir + "/save").toString();
   m_nDevIn = settings.value("SoundInIndex", 0).toInt();
@@ -379,6 +394,20 @@ void MainWindow::readSettings()
   ui->actionLog_JT9_without_submode->setChecked(m_noSuffix);
   m_dBtoComments=settings.value("dBtoComments",false).toBool();
   ui->actionLog_dB_reports_to_Comments->setChecked(m_dBtoComments);
+  m_catEnabled=settings.value("catEnabled",false).toBool();
+  m_rig=settings.value("Rig",214).toInt();
+  m_rigIndex=settings.value("RigIndex",100).toInt();
+  m_catPort=settings.value("CATport","None").toString();
+  m_catPortIndex=settings.value("CATportIndex",0).toInt();
+  m_serialRate=settings.value("SerialRate",4800).toInt();
+  m_serialRateIndex=settings.value("SerialRateIndex",1).toInt();
+  m_dataBits=settings.value("DataBits",8).toInt();
+  m_dataBitsIndex=settings.value("DataBitsIndex",1).toInt();
+  m_stopBits=settings.value("StopBits",8).toInt();
+  m_stopBitsIndex=settings.value("StopBitsIndex",1).toInt();
+  m_handshake=settings.value("Handshake","None").toString();
+  m_handshakeIndex=settings.value("HandshakeIndex",0).toInt();
+
   settings.endGroup();
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
@@ -464,18 +493,32 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_myCall=m_myCall;
   dlg.m_myGrid=m_myGrid;
   dlg.m_idInt=m_idInt;
+  dlg.m_pttMethodIndex=m_pttMethodIndex;
   dlg.m_pttPort=m_pttPort;
   dlg.m_saveDir=m_saveDir;
   dlg.m_nDevIn=m_nDevIn;
   dlg.m_nDevOut=m_nDevOut;
   dlg.m_pskReporter=m_pskReporter;
   dlg.m_macro=m_macro;
-
+  dlg.m_catEnabled=m_catEnabled;
+  dlg.m_rig=m_rig;
+  dlg.m_rigIndex=m_rigIndex;
+  dlg.m_catPort=m_catPort;
+  dlg.m_catPortIndex=m_catPortIndex;
+  dlg.m_serialRate=m_serialRate;
+  dlg.m_serialRateIndex=m_serialRateIndex;
+  dlg.m_dataBits=m_dataBits;
+  dlg.m_dataBitsIndex=m_dataBitsIndex;
+  dlg.m_stopBits=m_stopBits;
+  dlg.m_stopBitsIndex=m_stopBitsIndex;
+  dlg.m_handshake=m_handshake;
+  dlg.m_handshakeIndex=m_handshakeIndex;
   dlg.initDlg();
   if(dlg.exec() == QDialog::Accepted) {
     m_myCall=dlg.m_myCall;
     m_myGrid=dlg.m_myGrid;
     m_idInt=dlg.m_idInt;
+    m_pttMethodIndex=dlg.m_pttMethodIndex;
     m_pttPort=dlg.m_pttPort;
     m_saveDir=dlg.m_saveDir;
     m_nDevIn=dlg.m_nDevIn;
@@ -483,6 +526,19 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_nDevOut=dlg.m_nDevOut;
     m_paOutDevice=dlg.m_paOutDevice;
     m_macro=dlg.m_macro;
+    m_catEnabled=dlg.m_catEnabled;
+    m_rig=dlg.m_rig;
+    m_rigIndex=dlg.m_rigIndex;
+    m_catPort=dlg.m_catPort;
+    m_catPortIndex=dlg.m_catPortIndex;
+    m_serialRate=dlg.m_serialRate;
+    m_serialRateIndex=dlg.m_serialRateIndex;
+    m_dataBits=dlg.m_dataBits;
+    m_dataBitsIndex=dlg.m_dataBitsIndex;
+    m_stopBits=dlg.m_stopBits;
+    m_stopBitsIndex=dlg.m_stopBitsIndex;
+    m_handshake=dlg.m_handshake;
+    m_handshakeIndex=dlg.m_handshakeIndex;
 
 #ifdef WIN32
     if(dlg.m_pskReporter!=m_pskReporter) {
@@ -1167,16 +1223,22 @@ void MainWindow::guiUpdate()
       bTxTime=true;
 
     if(bTxTime and iptt==0 and !btxMute) {
+
       int itx=1;
       int ierr = ptt(m_pttPort,itx,&iptt);       // Raise PTT
-      /*
-      if(ierr<0) {
-        on_stopTxButton_clicked();
-        char s[18];
-        sprintf(s,"PTT Error %d",ierr);
-        msgBox(s);
-      }
-      */
+
+ /*
+      //Raise PTT
+        if(m_pttMethodIndex==0) {
+          m_cmnd=rig_command() + " T 1";
+          p3.start(m_cmnd);
+          p3.waitForFinished();
+        }
+        if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
+//          ptt(m_pttPort,1,&m_iptt,&m_COMportOpen);
+          ptt(m_pttPort,1,&m_iptt);
+        }
+*/
       if(!soundOutThread.isRunning()) {
         QString t=ui->tx6->text();
         double snr=t.mid(1,5).toDouble();
@@ -1266,13 +1328,20 @@ void MainWindow::guiUpdate()
   if(nc0 == 0) {
     int itx=0;
     int ierr=ptt(m_pttPort,itx,&iptt);       // Lower PTT
-    /*
-    if(ierr<0) {
-      char s[18];
-      sprintf(s,"PTT Error %d",ierr);
-      msgBox(s);
-    }
-    */
+
+/*
+    //Lower PTT
+      if(m_pttMethodIndex==0) {
+        m_cmnd=rig_command() + " T 0";
+        p3.start(m_cmnd);
+        p3.waitForFinished();
+      }
+      if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
+//        ptt(m_pttPort,0,&m_iptt,&m_COMportOpen);
+        ptt(m_pttPort,0,&m_iptt);
+      }
+*/
+
     if(!btxMute) soundOutThread.quitExecution=true;
     m_transmitting=false;
     if(m_auto) {
@@ -1346,6 +1415,17 @@ void MainWindow::guiUpdate()
   }
   iptt0=iptt;
   btxok0=btxok;
+}
+
+QString MainWindow::rig_command()
+{
+  QString cmnd1,cmnd2;
+  cmnd1.sprintf("rigctl -m %d -r ",m_rig);
+  cmnd1+=m_catPort;
+  cmnd2.sprintf(" -s %d -C data_bits=%d -C stop_bits=%d -C serial_handshake=",
+                m_serialRate,m_dataBits,m_stopBits);
+  cmnd2+=m_handshake;
+  return cmnd1+cmnd2;
 }
 
 void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
@@ -1627,7 +1707,6 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   char message[23];
   char msgsent[23];
   int len1=22;
-  int jtone[85];
 
   t=t.toUpper();
   QByteArray s=t.toUpper().toLocal8Bit();

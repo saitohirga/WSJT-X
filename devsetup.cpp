@@ -113,9 +113,19 @@ void DevSetup::initDlg()
     }
   }
 
+  connect(&p4, SIGNAL(readyReadStandardOutput()),
+                    this, SLOT(p4ReadFromStdout()));
+  connect(&p4, SIGNAL(readyReadStandardError()),
+          this, SLOT(p4ReadFromStderr()));
+  connect(&p4, SIGNAL(error(QProcess::ProcessError)),
+          this, SLOT(p4Error()));
+  p4.start("rigctl -l");
+  p4.waitForFinished(1000);
+
   ui.myCallEntry->setText(m_myCall);
   ui.myGridEntry->setText(m_myGrid);
   ui.idIntSpinBox->setValue(m_idInt);
+  ui.pttMethodComboBox->setCurrentIndex(m_pttMethodIndex);
   ui.pttComboBox->setCurrentIndex(m_pttPort);
   ui.saveDirEntry->setText(m_saveDir);
   ui.comboBoxSndIn->setCurrentIndex(m_nDevIn);
@@ -123,6 +133,20 @@ void DevSetup::initDlg()
   ui.cbPSKReporter->setChecked(m_pskReporter);
   m_paInDevice=m_inDevList[m_nDevIn];
   m_paOutDevice=m_outDevList[m_nDevOut];
+  ui.cbEnableCAT->setChecked(m_catEnabled);
+  ui.catPortComboBox->setEnabled(m_catEnabled);
+  ui.rigComboBox->setEnabled(m_catEnabled);
+  ui.serialRateComboBox->setEnabled(m_catEnabled);
+  ui.dataBitsComboBox->setEnabled(m_catEnabled);
+  ui.stopBitsComboBox->setEnabled(m_catEnabled);
+  ui.handshakeComboBox->setEnabled(m_catEnabled);
+
+  ui.rigComboBox->setCurrentIndex(m_rigIndex);
+  ui.catPortComboBox->setCurrentIndex(m_catPortIndex);
+  ui.serialRateComboBox->setCurrentIndex(m_serialRateIndex);
+  ui.dataBitsComboBox->setCurrentIndex(m_dataBitsIndex);
+  ui.stopBitsComboBox->setCurrentIndex(m_stopBitsIndex);
+  ui.handshakeComboBox->setCurrentIndex(m_handshakeIndex);
 
   ui.macro1->setText(m_macro[0].toUpper());
   ui.macro2->setText(m_macro[1].toUpper());
@@ -153,6 +177,7 @@ void DevSetup::accept()
   m_myCall=ui.myCallEntry->text();
   m_myGrid=ui.myGridEntry->text();
   m_idInt=ui.idIntSpinBox->value();
+  m_pttMethodIndex=ui.pttMethodComboBox->currentIndex();
   m_pttPort=ui.pttComboBox->currentIndex();
   m_saveDir=ui.saveDirEntry->text();
   m_nDevIn=ui.comboBoxSndIn->currentIndex();
@@ -175,6 +200,39 @@ void DevSetup::accept()
   QDialog::accept();
 }
 
+void DevSetup::p4ReadFromStdout()                        //p4readFromStdout
+{
+  while(p4.canReadLine()) {
+    QString t(p4.readLine());
+    QString t1,t2,t3;
+    if(t.mid(0,6)!=" Rig #") {
+      t1=t.mid(0,6);
+      t2=t.mid(8,22).trimmed();
+      t3=t.mid(31,23).trimmed();
+      t=t1 + "  " + t2 + "  " + t3;
+      ui.rigComboBox->addItem(t);
+    }
+  }
+}
+
+void DevSetup::p4ReadFromStderr()                        //p4readFromStderr
+{
+  QByteArray t=p4.readAllStandardError();
+  if(t.length()>0) {
+    msgBox(t);
+  }
+}
+
+void DevSetup::p4Error()                                     //p4rror
+{
+  msgBox("Error running 'rigctl -l'.");
+}
+
+void DevSetup::msgBox(QString t)                             //msgBox
+{
+  msgBox0.setText(t);
+  msgBox0.exec();
+}
 
 void DevSetup::on_myCallEntry_editingFinished()
 {
@@ -192,4 +250,57 @@ void DevSetup::on_myGridEntry_editingFinished()
 void DevSetup::on_cbPSKReporter_clicked(bool b)
 {
   m_pskReporter=b;
+}
+
+void DevSetup::on_pttMethodComboBox_activated(int index)
+{
+  m_pttMethodIndex=index;
+}
+
+void DevSetup::on_catPortComboBox_activated(int index)
+{
+  m_catPortIndex=index;
+  m_catPort=ui.catPortComboBox->itemText(index);
+}
+
+void DevSetup::on_cbEnableCAT_toggled(bool b)
+{
+  m_catEnabled=b;
+  ui.catPortComboBox->setEnabled(b);
+  ui.rigComboBox->setEnabled(b);
+  ui.serialRateComboBox->setEnabled(b);
+  ui.dataBitsComboBox->setEnabled(b);
+  ui.stopBitsComboBox->setEnabled(b);
+  ui.handshakeComboBox->setEnabled(b);
+}
+
+void DevSetup::on_serialRateComboBox_activated(int index)
+{
+  m_serialRateIndex=index;
+  m_serialRate=ui.serialRateComboBox->itemText(index).toInt();
+}
+
+void DevSetup::on_handshakeComboBox_activated(int index)
+{
+  m_handshakeIndex=index;
+  m_handshake=ui.handshakeComboBox->itemText(index);
+}
+
+void DevSetup::on_dataBitsComboBox_activated(int index)
+{
+  m_dataBitsIndex=index;
+  m_dataBits=ui.dataBitsComboBox->itemText(index).toInt();
+}
+
+void DevSetup::on_stopBitsComboBox_activated(int index)
+{
+  m_stopBitsIndex=index;
+  m_stopBits=ui.stopBitsComboBox->itemText(index).toInt();
+}
+
+void DevSetup::on_rigComboBox_activated(int index)
+{
+  m_rigIndex=index;
+  QString t=ui.rigComboBox->itemText(index);
+  m_rig=t.mid(0,7).toInt();
 }
