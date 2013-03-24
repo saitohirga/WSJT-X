@@ -31,6 +31,7 @@ public:
   void   setTxFreq(int n);
   double fGreen();
   double dialFreq();
+  void   setDialFreq(double freq);
 
   qint32 m_qsoFreq;
 
