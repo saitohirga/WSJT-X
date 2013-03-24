@@ -1391,7 +1391,7 @@ p, li { white-space: pre-wrap; }
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>24</height>
+                 <height>27</height>
                 </size>
                </property>
                <property name="maximumSize">
