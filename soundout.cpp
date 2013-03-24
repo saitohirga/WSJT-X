@@ -77,8 +77,13 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     }
     if(!btxok or btxMute)  i2=0;
     *wptr++ = i2;                   //left
+#ifdef unix
+    *wptr++ = i2;                   //right
+#endif
+
     ic++;
   }
+  //qDebug() << "PA Callback";
   return 0;
 }
 
@@ -146,6 +151,7 @@ void SoundOutThread::run()
       qint64 ms = QDateTime::currentMSecsSinceEpoch();
       m_SamFacOut=udata.ncall*FRAMES_PER_BUFFER*1000.0/(48000.0*(ms-ms0-50));
     }
+    //qDebug() << "btxok = " << btxok << "btxMute = " << btxMute;
     msleep(100);
   }
   Pa_StopStream(outStream);
