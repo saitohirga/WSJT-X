@@ -58,7 +58,7 @@ private slots:
   void on_actionCuteSDR_triggered();
   void on_autoButton_clicked();
   void on_stopTxButton_clicked();
-  void on_tolSpinBox_valueChanged(int arg1);
+  void on_tolSlider_valueChanged(int arg1);
   void on_stopButton_clicked();
   void on_actionOnline_Users_Guide_triggered();
   void on_actionWide_Waterfall_triggered();
