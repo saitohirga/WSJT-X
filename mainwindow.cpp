@@ -1130,9 +1130,16 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if(t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666";      //Light red
       //ui->decodedTextBrowser->setTextBackgroundColor(bg);
       //t=t.mid(0,n-2) + "                                                  ";
-      ui->decodedTextBrowser->append("<table border=0 cellspacing=0 width=100%>"
-                                     "<tr><td bgcolor=\""+ bg + "\"><pre>"+ t + "</pre></td></tr>"
-                                     "</table>");
+      //ui->decodedTextBrowser->append(t);
+
+      QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\""+ bg + "\"><pre>" + t.replace("\n","") + "</pre></td></tr></table>";
+      QTextCursor cursor = ui->decodedTextBrowser->textCursor();
+      cursor.movePosition(QTextCursor::End);
+      QTextBlockFormat bf = cursor.blockFormat();
+      bf.setBackground(QBrush(QColor(bg)));
+      cursor.insertHtml(s);
+      ui->decodedTextBrowser->setTextCursor(cursor);
+
       QString msg=t.mid(34,22);
       bool b=stdmsg_(msg.toAscii().constData());
       QStringList w=msg.split(" ",QString::SkipEmptyParts);
@@ -1592,10 +1599,12 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   }
   QString hiscall=t4.at(7);
   QString hisgrid="";
-  if(t4.length()>=9) hisgrid=t4.at(8);
+  if(t4.length()>=9)
+      hisgrid=t4.at(8);
   ui->dxCallEntry->setText(hiscall);
   lookup();
-  if(ui->dxGridEntry->text()=="" and gridOK(hisgrid)) ui->dxGridEntry->setText(hisgrid);
+  if(ui->dxGridEntry->text()=="" and gridOK(hisgrid))
+      ui->dxGridEntry->setText(hisgrid);
   int n = 60*t2.mid(0,2).toInt() + t2.mid(2,2).toInt();
   int nmod=n%(m_TRperiod/30);
   m_txFirst=(nmod!=0);
