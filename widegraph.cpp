@@ -259,6 +259,13 @@ void WideGraph::setTxFreq(int n)
   ui->widePlot->setTxFreq(n);
 }
 
+void WideGraph::setDialFreq(double f)
+{
+  m_dialFreq=f;
+  ui->fDialLineEdit->setText(QString::number(m_dialFreq));
+  emit dialFreqChanged(m_dialFreq);
+}
+
 void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)
 {
   ui->widePlot->m_bCurrent=false;

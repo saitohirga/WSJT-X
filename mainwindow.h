@@ -101,7 +101,6 @@ private slots:
   void on_NBcheckBox_toggled(bool checked);
   void on_NBslider_valueChanged(int value);
   void on_TxFreqSpinBox_valueChanged(int arg1);
-  void on_pbTxFreq_clicked();
   void on_actionSave_synced_triggered();
   void on_actionSave_decoded_triggered();
   void on_actionQuickDecode_triggered();
@@ -127,6 +126,11 @@ private slots:
   void on_actionConvert_JT9_x_to_RTTY_triggered(bool checked);
   void on_actionLog_JT9_without_submode_triggered(bool checked);
   void on_actionLog_dB_reports_to_Comments_triggered(bool checked);
+  void startTx2();
+  void stopTx();
+  void stopTx2();
+
+  void on_bandComboBox_currentIndexChanged(int index);
 
 private:
     Ui::MainWindow *ui;
@@ -174,6 +178,7 @@ private:
     qint32  m_secID;
     qint32  m_COMportOpen;
     qint32  m_iptt;
+    qint32  m_band;
 
     bool    m_monitoring;
     bool    m_transmitting;
@@ -227,6 +232,9 @@ private:
 
     QProcess proc_jt9;
     QProcess p3;
+
+    QTimer* ptt0Timer;
+    QTimer* ptt1Timer;
 
     QString m_path;
     QString m_pbdecoding_style1;

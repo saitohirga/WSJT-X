@@ -878,25 +878,6 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="2" column="8">
-         <widget class="QPushButton" name="pbTxFreq">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Tx = QSO Freq</string>
-          </property>
-         </widget>
-        </item>
         <item row="5" column="5" rowspan="2" colspan="2">
          <widget class="QLabel" name="labUTC">
           <property name="sizePolicy">
@@ -1549,6 +1530,93 @@ p, li { white-space: pre-wrap; }
           <property name="alignment">
            <set>Qt::AlignCenter</set>
           </property>
+         </widget>
+        </item>
+        <item row="2" column="8">
+         <widget class="QComboBox" name="bandComboBox">
+          <property name="currentIndex">
+           <number>7</number>
+          </property>
+          <item>
+           <property name="text">
+            <string>2200 m</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>630 m</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>160 m</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>80 m</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>60 m</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>40 m</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>30 m</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>20 m</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>17 m</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>15 m</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>12 m</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>10 m</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>6 m</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>4 m</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>2 m</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Other</string>
+           </property>
+          </item>
          </widget>
         </item>
        </layout>
