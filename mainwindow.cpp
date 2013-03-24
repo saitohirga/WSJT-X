@@ -100,6 +100,7 @@ MainWindow::MainWindow(QWidget *parent) :
   QTimer *guiTimer = new QTimer(this);
   connect(guiTimer, SIGNAL(timeout()), this, SLOT(guiUpdate()));
   guiTimer->start(100);                            //Don't change the 100 ms!
+
   m_auto=false;
   m_waterfallAvg = 1;
   m_txFirst=false;
@@ -130,6 +131,8 @@ MainWindow::MainWindow(QWidget *parent) :
   m_TRperiod=60;
   m_inGain=0;
   m_dataAvailable=false;
+  m_iptt=0;
+  m_COMportOpen=0;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -1228,23 +1231,24 @@ void MainWindow::guiUpdate()
     if(f.exists() and fmod(tsec,m_TRperiod)<1.0 + 85.0*m_nsps/12000.0)
       bTxTime=true;
 
-    if(bTxTime and iptt==0 and !btxMute) {
+    if(bTxTime and iptt==0 and !btxMute) { 
+/*
+      //Raise PTT
+      if(m_pttMethodIndex==0) {
+        m_cmnd=rig_command() + " T 1";
+        p3.start(m_cmnd);
+        p3.waitForFinished();
+      }
+      if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
+          ptt(m_pttPort,1,&m_iptt,&m_COMportOpen);
+//        ptt(m_pttPort,1,&m_iptt);
+      }
+      qDebug() << "ptt1Timer A";
+      ptt1Timer->start(200);                       //Sequencer delay
+*/
 
       int itx=1;
-      int ierr = ptt(m_pttPort,itx,&iptt);       // Raise PTT
-
- /*
-      //Raise PTT
-        if(m_pttMethodIndex==0) {
-          m_cmnd=rig_command() + " T 1";
-          p3.start(m_cmnd);
-          p3.waitForFinished();
-        }
-        if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
-//          ptt(m_pttPort,1,&m_iptt,&m_COMportOpen);
-          ptt(m_pttPort,1,&m_iptt);
-        }
-*/
+      ptt(m_pttPort,itx,&iptt,&m_COMportOpen);       // Raise PTT
       if(!soundOutThread.isRunning()) {
         QString t=ui->tx6->text();
         double snr=t.mid(1,5).toDouble();
@@ -1252,6 +1256,7 @@ void MainWindow::guiUpdate()
         soundOutThread.setTxSNR(snr);
         soundOutThread.start(QThread::HighPriority);
       }
+
     }
     if(!bTxTime || btxMute) {
       btxok=false;
@@ -1332,10 +1337,8 @@ void MainWindow::guiUpdate()
     nc0++;
   }
   if(nc0 == 0) {
-    int itx=0;
-    int ierr=ptt(m_pttPort,itx,&iptt);       // Lower PTT
 
-/*
+    /*
     //Lower PTT
       if(m_pttMethodIndex==0) {
         m_cmnd=rig_command() + " T 0";
@@ -1343,10 +1346,13 @@ void MainWindow::guiUpdate()
         p3.waitForFinished();
       }
       if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
-//        ptt(m_pttPort,0,&m_iptt,&m_COMportOpen);
-        ptt(m_pttPort,0,&m_iptt);
+        ptt(m_pttPort,0,&m_iptt,&m_COMportOpen);
+//        ptt(m_pttPort,0,&m_iptt);
       }
-*/
+      */
+
+    int itx=0;
+    ptt(m_pttPort,itx,&iptt,&m_COMportOpen);       // Lower PTT
 
     if(!btxMute) soundOutThread.quitExecution=true;
     m_transmitting=false;
@@ -1404,19 +1410,6 @@ void MainWindow::guiUpdate()
     }
     m_hsym0=khsym;
     m_sec0=nsec;
-
-/*
-    if(m_myCall=="K1JT") {
-      char s[20];
-      double t1=1.0;
-//Better: use signals from sound threads?
-      if(soundInThread.isRunning()) t1=soundInThread.samFacIn();
-      double t2=1.0;
-      if(soundOutThread.isRunning()) t2=soundOutThread.samFacOut();
-      sprintf(s,"%6.4f  %6.4f",t1,t2);
-      lab5->setText(s);
-    }
-*/
 
   }
   iptt0=iptt;

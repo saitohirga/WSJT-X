@@ -113,7 +113,6 @@ private slots:
   void dialFreqChanged2(double f);
   void on_actionErase_ALL_TXT_triggered();
   void on_actionErase_wsjtx_log_adi_triggered();
-
   void showMacros(const QPoint& pos);
   void onPopup1();
   void onPopup2();
@@ -127,7 +126,6 @@ private slots:
   void onPopup10();
   void on_actionConvert_JT9_x_to_RTTY_triggered(bool checked);
   void on_actionLog_JT9_without_submode_triggered(bool checked);
-
   void on_actionLog_dB_reports_to_Comments_triggered(bool checked);
 
 private:
