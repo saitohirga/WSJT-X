@@ -231,7 +231,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   ui->decodedTextLabel->setFont(ui->decodedTextBrowser->font());
   //                             2241  10   -8   0.2   1184.   0   VK7XX N1ISA FN41
-  ui->decodedTextLabel->setText("UTC  Sync  dB    DT   Freq   Dr   Msg");
+  ui->decodedTextLabel->setText("UTC  Sync  dB    DT   Freq  Drift Message");
 
 #ifdef WIN32
   if(m_pskReporter) {
