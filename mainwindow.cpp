@@ -37,11 +37,12 @@ MainWindow::MainWindow(QWidget *parent) :
   on_EraseButton_clicked();
   ui->labUTC->setStyleSheet( \
         "QLabel { background-color : black; color : yellow; }");
-  //ui->labTol1->setStyleSheet( \
-  //      "QLabel { background-color : white; color : black; }");
-  //ui->labTol1->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  //ui->dxStationGroupBox->setStyleSheet("QFrame{border: 5px groove red}");
-
+/*
+  ui->labTol1->setStyleSheet( \
+        "QLabel { background-color : white; color : black; }");
+  ui->labTol1->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  ui->dxStationGroupBox->setStyleSheet("QFrame{border: 5px groove red}");
+*/
   QActionGroup* paletteGroup = new QActionGroup(this);
   ui->actionCuteSDR->setActionGroup(paletteGroup);
   ui->actionLinrad->setActionGroup(paletteGroup);
@@ -325,6 +326,7 @@ void MainWindow::writeSettings()
   settings.setValue("MonitorOFF",m_monitorStartOFF);
   settings.setValue("NB",m_NB);
   settings.setValue("NBslider",m_NBslider);
+  settings.setValue("DialFreq",m_dialFreq);
   settings.setValue("TxFreq",m_txFreq);
   settings.setValue("Tol",m_tol);
   settings.setValue("InGain",m_inGain);
@@ -398,6 +400,8 @@ void MainWindow::readSettings()
   ui->NBcheckBox->setChecked(m_NB);
   m_NBslider=settings.value("NBslider",40).toInt();
   ui->NBslider->setValue(m_NBslider);
+  m_dialFreq=settings.value("DialFreq",14.078).toDouble();
+  dialFreqChanged2(m_dialFreq);
   m_txFreq=settings.value("TxFreq",1500).toInt();
   ui->TxFreqSpinBox->setValue(m_txFreq);
   soundOutThread.setTxFreq(m_txFreq);
@@ -719,6 +723,11 @@ void MainWindow::bumpFqso(int n)                                 //bumpFqso()
 void MainWindow::dialFreqChanged2(double f)
 {
   m_dialFreq=f;
+  QString t;
+  t.sprintf("%.6f",m_dialFreq);
+  int n=t.length();
+  t=t.mid(0,n-3) + " " + t.mid(n-3,3) + "   MHz";
+  ui->labDialFreq->setText(t);
   statusChanged();
 }
 
