@@ -380,7 +380,7 @@ void MainWindow::readSettings()
 
   settings.beginGroup("Common");
   m_myCall=settings.value("MyCall","").toString();
-  //morse_(m_myCall.toAscii().data(),icw,&m_ncw,m_myCall.length());
+  morse_(m_myCall.toAscii().data(),icw,&m_ncw,m_myCall.length());
   m_myGrid=settings.value("MyGrid","").toString();
   m_idInt=settings.value("IDint",0).toInt();
   m_pttMethodIndex=settings.value("PTTmethod",1).toInt();
