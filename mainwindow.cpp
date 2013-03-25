@@ -346,6 +346,7 @@ void MainWindow::writeSettings()
   settings.setValue("StopBitsIndex",m_stopBitsIndex);
   settings.setValue("Handshake",m_handshake);
   settings.setValue("HandshakeIndex",m_handshakeIndex);
+  settings.setValue("BandIndex",m_band);
   settings.endGroup();
 }
 
@@ -432,6 +433,8 @@ void MainWindow::readSettings()
   m_stopBitsIndex=settings.value("StopBitsIndex",1).toInt();
   m_handshake=settings.value("Handshake","None").toString();
   m_handshakeIndex=settings.value("HandshakeIndex",0).toInt();
+  m_band=settings.value("BandIndex",7).toInt();
+  ui->bandComboBox->setCurrentIndex(m_band);
 
   settings.endGroup();
 
@@ -1639,6 +1642,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   int nr=rpt.toInt();
   if(nr<-50) rpt="-50";
   if(nr>49) rpt="+49";
+  if(nr>=-9 and nr<=-1) rpt="-0" + rpt.mid(1);
   if(nr>=0 and nr<=9) rpt="+0" + rpt;
   if(nr>=10) rpt="+" + rpt;
   genStdMsgs(rpt);
