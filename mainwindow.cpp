@@ -2205,7 +2205,8 @@ void MainWindow::on_actionLog_dB_reports_to_Comments_triggered(bool checked)
 void MainWindow::on_bandComboBox_currentIndexChanged(int index)
 {
   m_band=index;
-  m_dialFreq=dFreq[index];
+  QString t=m_dFreq[index];
+  m_dialFreq=t.toDouble();
   dialFreqChanged2(m_dialFreq);
   if(m_catEnabled) {
     int nHz=int(1000000.0*m_dialFreq + 0.5);
