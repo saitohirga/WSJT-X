@@ -434,7 +434,7 @@ void MainWindow::readSettings()
   m_serialRateIndex=settings.value("SerialRateIndex",1).toInt();
   m_dataBits=settings.value("DataBits",8).toInt();
   m_dataBitsIndex=settings.value("DataBitsIndex",1).toInt();
-  m_stopBits=settings.value("StopBits",8).toInt();
+  m_stopBits=settings.value("StopBits",2).toInt();
   m_stopBitsIndex=settings.value("StopBitsIndex",1).toInt();
   m_handshake=settings.value("Handshake","None").toString();
   m_handshakeIndex=settings.value("HandshakeIndex",0).toInt();

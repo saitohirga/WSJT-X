@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>686</width>
+    <width>680</width>
     <height>598</height>
    </rect>
   </property>
@@ -18,13 +18,13 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>686</width>
+    <width>680</width>
     <height>475</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>686</width>
+    <width>680</width>
     <height>1028</height>
    </size>
   </property>
@@ -322,14 +322,14 @@ p, li { white-space: pre-wrap; }
         <item row="3" column="9">
          <widget class="QLineEdit" name="tx3">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>160</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <property name="minimumSize">
            <size>
-            <width>180</width>
+            <width>100</width>
             <height>24</height>
            </size>
           </property>
@@ -799,14 +799,14 @@ p, li { white-space: pre-wrap; }
         <item row="6" column="9">
          <widget class="QLineEdit" name="tx6">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>160</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <property name="minimumSize">
            <size>
-            <width>180</width>
+            <width>100</width>
             <height>24</height>
            </size>
           </property>
@@ -991,14 +991,14 @@ p, li { white-space: pre-wrap; }
         <item row="1" column="9">
          <widget class="QLineEdit" name="tx1">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>160</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <property name="minimumSize">
            <size>
-            <width>180</width>
+            <width>100</width>
             <height>24</height>
            </size>
           </property>
@@ -1106,14 +1106,14 @@ p, li { white-space: pre-wrap; }
         <item row="5" column="9">
          <widget class="QLineEdit" name="tx5">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>160</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <property name="minimumSize">
            <size>
-            <width>180</width>
+            <width>100</width>
             <height>24</height>
            </size>
           </property>
@@ -1122,14 +1122,14 @@ p, li { white-space: pre-wrap; }
         <item row="4" column="9">
          <widget class="QLineEdit" name="tx4">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>160</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <property name="minimumSize">
            <size>
-            <width>180</width>
+            <width>100</width>
             <height>24</height>
            </size>
           </property>
@@ -1151,14 +1151,14 @@ p, li { white-space: pre-wrap; }
         <item row="2" column="9">
          <widget class="QLineEdit" name="tx2">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>160</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <property name="minimumSize">
            <size>
-            <width>180</width>
+            <width>100</width>
             <height>24</height>
            </size>
           </property>
@@ -1172,9 +1172,15 @@ p, li { white-space: pre-wrap; }
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="maximumSize">
            <size>
-            <width>200</width>
+            <width>16777215</width>
             <height>16777215</height>
            </size>
           </property>
@@ -1629,7 +1635,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>686</width>
+     <width>680</width>
      <height>21</height>
     </rect>
    </property>
