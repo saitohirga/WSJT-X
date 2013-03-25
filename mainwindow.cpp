@@ -11,6 +11,7 @@
 #include "logqso.h"
 
 int itone[85];                        //Tx audio tones for 85 symbols
+int icw[250];                         //Dits for CW ID
 int rc;
 wchar_t buffer[256];
 bool btxok;                           //True if OK to transmit
@@ -146,6 +147,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_dataAvailable=false;
   m_iptt=0;
   m_COMportOpen=0;
+  m_secID=0;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -326,6 +328,7 @@ void MainWindow::writeSettings()
   settings.setValue("Tol",m_tol);
   settings.setValue("InGain",m_inGain);
   settings.setValue("PSKReporter",m_pskReporter);
+  settings.setValue("After73",m_After73);
   settings.setValue("Macros",m_macro);
   settings.setValue("toRTTY",m_toRTTY);
   settings.setValue("NoSuffix",m_noSuffix);
@@ -364,6 +367,7 @@ void MainWindow::readSettings()
 
   settings.beginGroup("Common");
   m_myCall=settings.value("MyCall","").toString();
+  morse_(m_myCall.toAscii().data(),icw,&m_ncw,m_myCall.length());
   m_myGrid=settings.value("MyGrid","").toString();
   m_idInt=settings.value("IDint",0).toInt();
   m_pttMethodIndex=settings.value("PTTmethod",1).toInt();
@@ -407,6 +411,7 @@ void MainWindow::readSettings()
   m_monitorStartOFF=settings.value("MonitorOFF",false).toBool();
   ui->actionMonitor_OFF_at_startup->setChecked(m_monitorStartOFF);
   m_pskReporter=settings.value("PSKReporter",false).toBool();
+  m_After73=settings.value("After73",false).toBool();
   m_macro=settings.value("Macros","").toStringList();
   m_toRTTY=settings.value("toRTTY",false).toBool();
   ui->actionConvert_JT9_x_to_RTTY->setChecked(m_toRTTY);
@@ -519,6 +524,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_nDevIn=m_nDevIn;
   dlg.m_nDevOut=m_nDevOut;
   dlg.m_pskReporter=m_pskReporter;
+  dlg.m_After73=m_After73;
   dlg.m_macro=m_macro;
   dlg.m_catEnabled=m_catEnabled;
   dlg.m_rig=m_rig;
@@ -578,6 +584,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     }
 #endif
     m_pskReporter=dlg.m_pskReporter;
+    m_After73=dlg.m_After73;
 
     if(dlg.m_restartSoundIn) {
       soundInThread.quit();
@@ -1231,8 +1238,7 @@ void MainWindow::guiUpdate()
   int khsym=0;
 
   double tx1=0.0;
-//  double tx2=m_TRperiod;
-  double tx2=1.0 + 85.0*m_nsps/12000.0;
+  double tx2=1.0 + 85.0*m_nsps/12000.0 + icw[0]*2048.0/48000.0;
 
   if(!m_txFirst) {
     tx1 += m_TRperiod;
@@ -1252,6 +1258,7 @@ void MainWindow::guiUpdate()
     }
 
     if(bTxTime and m_iptt==0 and !btxMute) {
+      icw[0]=m_ncw;
 #define NEW
 #ifdef NEW
       //Raise PTT
@@ -1307,10 +1314,21 @@ void MainWindow::guiUpdate()
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
       out << QDateTime::currentDateTimeUtc().toString("hhmm")
-          << "  Transmitted:  " << t << endl;
+          << "  Transmitting:  " << t << endl;
       f.close();
     }
     QStringList w=t.split(" ",QString::SkipEmptyParts);
+    icw[0]=0;
+    if(m_After73 and (w[2]=="73" or itext!=0)) icw[0]=m_ncw;
+
+    if(m_idInt>0) {
+      int nmin=(m_sec0-m_secID)/60;
+      if(nmin >= m_idInt) {
+        icw[0]=m_ncw;
+        m_secID=m_sec0;
+      }
+    }
+
     QString t2=QDateTime::currentDateTimeUtc().toString("hhmm");
     if(itext==0 and w[1]==m_myCall) {
       t=w[2];
@@ -1618,8 +1636,11 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   if(rpt.indexOf("  ")==0) rpt="+" + rpt.mid(2,2);
   if(rpt.indexOf(" -")==0) rpt=rpt.mid(1,2);
   if(rpt.indexOf(" ")==0) rpt="+" + rpt.mid(1,2);
-  if(rpt.toInt()<-50) rpt="-50";
-  if(rpt.toInt()>49) rpt="+49";
+  int nr=rpt.toInt();
+  if(nr<-50) rpt="-50";
+  if(nr>49) rpt="+49";
+  if(nr>=0 and nr<=9) rpt="+0" + rpt;
+  if(nr>=10) rpt="+" + rpt;
   genStdMsgs(rpt);
   if(t2.indexOf(m_myCall)>0) {
     m_ntx=2;

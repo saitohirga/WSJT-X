@@ -130,6 +130,7 @@ void DevSetup::initDlg()
   ui.saveDirEntry->setText(m_saveDir);
   ui.comboBoxSndIn->setCurrentIndex(m_nDevIn);
   ui.comboBoxSndOut->setCurrentIndex(m_nDevOut);
+  ui.cbID73->setChecked(m_After73);
   ui.cbPSKReporter->setChecked(m_pskReporter);
   m_paInDevice=m_inDevList[m_nDevIn];
   m_paOutDevice=m_outDevList[m_nDevOut];
@@ -303,4 +304,9 @@ void DevSetup::on_rigComboBox_activated(int index)
   m_rigIndex=index;
   QString t=ui.rigComboBox->itemText(index);
   m_rig=t.mid(0,7).toInt();
+}
+
+void DevSetup::on_cbID73_toggled(bool checked)
+{
+  m_After73=checked;
 }

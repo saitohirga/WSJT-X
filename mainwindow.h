@@ -207,6 +207,7 @@ private:
     bool    m_toRTTY;
     bool    m_dBtoComments;
     bool    m_catEnabled;
+    bool    m_After73;
 
     char    m_decoded[80];
 
@@ -304,6 +305,8 @@ bool stdmsg_(const char* msg);
 void azdist_(char* MyGrid, char* HisGrid, double* utch, int* nAz, int* nEl,
              int* nDmiles, int* nDkm, int* nHotAz, int* nHotABetter,
              int len1, int len2);
+
+void morse_(char* msg, int* icw, int* ncw, int len);
 }
 
 #endif // MAINWINDOW_H
