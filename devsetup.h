@@ -39,6 +39,7 @@ public:
   bool    m_pskReporter;
   bool    m_firstCall;
   bool    m_catEnabled;
+  bool    m_After73;
 
   QString m_myCall;
   QString m_myGrid;
@@ -66,14 +67,11 @@ private slots:
   void on_catPortComboBox_activated(int index);
   void on_cbEnableCAT_toggled(bool checked);
   void on_serialRateComboBox_activated(int index);
-
   void on_handshakeComboBox_activated(int index);
-
   void on_dataBitsComboBox_activated(int index);
-
   void on_stopBitsComboBox_activated(int index);
-
   void on_rigComboBox_activated(int index);
+  void on_cbID73_toggled(bool checked);
 
 private:
   void msgBox(QString t);

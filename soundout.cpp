@@ -8,6 +8,7 @@ extern "C" {
 
 extern float gran();                  //Noise generator (for tests only)
 extern int itone[85];                 //Tx audio tones for 85 symbols
+extern int icw[250];                  //Dits for CW ID
 extern bool btxok;
 extern bool btxMute;
 extern double outputLatency;
@@ -40,7 +41,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   static double freq;
   static double snr;
   static double fac;
-  static int ic=0;
+  static int ic=0,j=0;
   static short int i2;
   int isym;
 
@@ -55,16 +56,46 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     srand(mstr);                                //Initialize random seed
   }
   isym=ic/(4*udata->nsps);                      //Actual fsample=48000
-  if(isym>=85) return 1;
-  baud=12000.0/udata->nsps;
-  freq=udata->ntxfreq + itone[isym]*baud;
-  dphi=twopi*freq/48000.0;
   if(udata->txsnrdb < 0.0) {
     snr=pow(10.0,0.05*(udata->txsnrdb-6.0));
     fac=3000.0;
     if(snr>1.0) fac=3000.0/snr;
   }
 
+  if(isym>=85 and icw[0]>0) {              //Output the CW ID
+    freq=udata->ntxfreq;
+    dphi=twopi*freq/48000.0;
+//    float wpm=20.0;
+//    int nspd=1.2*48000.0/wpm;
+    int nspd=3072;                         //18.75 wpm
+    nspd=2048;
+    int ic0=85*4*udata->nsps;
+    for(int i=0 ; i<framesToProcess; i++ )  {
+      phi += dphi;
+      if(phi>twopi) phi -= twopi;
+      i2=32767.0*sin(phi);
+      j=(ic-ic0)/nspd;
+      if(icw[j]==0) i2=0;
+      if(udata->txsnrdb < 0.0) {
+        int i4=fac*(gran() + i2*snr/32768.0);
+        if(i4>32767) i4=32767;
+        if(i4<-32767) i4=-32767;
+        i2=i4;
+      }
+      if(!btxok or btxMute)  i2=0;
+      *wptr++ = i2;                   //left
+#ifdef unix
+      *wptr++ = i2;                   //right
+#endif
+      ic++;
+    }
+    return paContinue;
+  }
+
+  if(isym>=85 and itone[0]>=0) return paComplete;
+  baud=12000.0/udata->nsps;
+  freq=udata->ntxfreq + itone[isym]*baud;
+  dphi=twopi*freq/48000.0;
   for(uint i=0 ; i<framesToProcess; i++ )  {
     phi += dphi;
     if(phi>twopi) phi -= twopi;
@@ -80,11 +111,9 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
 #ifdef unix
     *wptr++ = i2;                   //right
 #endif
-
     ic++;
   }
-  //qDebug() << "PA Callback";
-  return 0;
+  return paContinue;
 }
 
 void SoundOutThread::run()
