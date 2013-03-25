@@ -30,15 +30,12 @@ public:
   void   setPeriod(int ntrperiod, int nsps);
   void   setTxFreq(int n);
   double fGreen();
-  double dialFreq();
-  void   setDialFreq(double freq);
 
   qint32 m_qsoFreq;
 
 signals:
   void freezeDecode2(int n);
   void f11f12(int n);
-  void dialFreqChanged(double f);
 
 public slots:
   void wideFreezeDecode(int n);
@@ -51,7 +48,6 @@ private slots:
   void on_freqSpanSpinBox_valueChanged(int arg1);
   void on_zeroSpinBox_valueChanged(int arg1);
   void on_gainSpinBox_valueChanged(int arg1);
-  void on_fDialLineEdit_editingFinished();
   void on_spec2dComboBox_currentIndexChanged(const QString &arg1);
 
 private:
@@ -61,8 +57,6 @@ private:
   qint32 m_TRperiod;
   qint32 m_nsps;
   qint32 m_ntr0;
-
-  double m_dialFreq;
 
   Ui::WideGraph *ui;
 };

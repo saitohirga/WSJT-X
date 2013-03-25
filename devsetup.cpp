@@ -5,6 +5,8 @@
 
 #define MAXDEVICES 100
 
+extern double dFreq[16];
+
 //----------------------------------------------------------- DevSetup()
 DevSetup::DevSetup(QWidget *parent) :	QDialog(parent)
 {
@@ -17,6 +19,7 @@ DevSetup::DevSetup(QWidget *parent) :	QDialog(parent)
 DevSetup::~DevSetup()
 {
 }
+
 
 void DevSetup::initDlg()
 {
@@ -160,6 +163,23 @@ void DevSetup::initDlg()
   ui.macro9->setText(m_macro[8].toUpper());
   ui.macro10->setText(m_macro[9].toUpper());
 
+  ui.f1->setText(m_dFreq[0]);
+  ui.f2->setText(m_dFreq[1]);
+  ui.f3->setText(m_dFreq[2]);
+  ui.f4->setText(m_dFreq[3]);
+  ui.f5->setText(m_dFreq[4]);
+  ui.f6->setText(m_dFreq[5]);
+  ui.f7->setText(m_dFreq[6]);
+  ui.f8->setText(m_dFreq[7]);
+  ui.f9->setText(m_dFreq[8]);
+  ui.f10->setText(m_dFreq[9]);
+  ui.f11->setText(m_dFreq[10]);
+  ui.f12->setText(m_dFreq[11]);
+  ui.f13->setText(m_dFreq[12]);
+  ui.f14->setText(m_dFreq[13]);
+  ui.f15->setText(m_dFreq[14]);
+  ui.f16->setText(m_dFreq[15]);
+
 }
 
 //------------------------------------------------------- accept()
@@ -197,6 +217,24 @@ void DevSetup::accept()
   m_macro.append(ui.macro8->text());
   m_macro.append(ui.macro9->text());
   m_macro.append(ui.macro10->text());
+
+  m_dFreq.clear();
+  m_dFreq.append(ui.f1->text());
+  m_dFreq.append(ui.f2->text());
+  m_dFreq.append(ui.f3->text());
+  m_dFreq.append(ui.f4->text());
+  m_dFreq.append(ui.f5->text());
+  m_dFreq.append(ui.f6->text());
+  m_dFreq.append(ui.f7->text());
+  m_dFreq.append(ui.f8->text());
+  m_dFreq.append(ui.f9->text());
+  m_dFreq.append(ui.f10->text());
+  m_dFreq.append(ui.f11->text());
+  m_dFreq.append(ui.f12->text());
+  m_dFreq.append(ui.f13->text());
+  m_dFreq.append(ui.f14->text());
+  m_dFreq.append(ui.f15->text());
+  m_dFreq.append(ui.f16->text());
 
   QDialog::accept();
 }

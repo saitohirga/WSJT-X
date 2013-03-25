@@ -109,7 +109,6 @@ private slots:
   void on_inGain_valueChanged(int n);
   void bumpFqso(int n);
   void on_actionMonitor_OFF_at_startup_triggered();
-  void dialFreqChanged2(double f);
   void on_actionErase_ALL_TXT_triggered();
   void on_actionErase_wsjtx_log_adi_triggered();
   void showMacros(const QPoint& pos);
@@ -258,8 +257,10 @@ private:
     QString m_qsoStop;
     QString m_catPort;
     QString m_handshake;
-    QStringList m_macro;
     QString m_cmnd;
+
+    QStringList m_macro;
+    QStringList m_dFreq;
 
     SoundInThread soundInThread;             //Instantiate the audio threads
     SoundOutThread soundOutThread;
@@ -276,6 +277,7 @@ private:
     void msgtype(QString t, QLineEdit* tx);
     void stub();
     void statusChanged();
+    void dialFreqChanged2(double f);
     bool gridOK(QString g);
     QString rig_command();
 };
