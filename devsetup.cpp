@@ -152,6 +152,27 @@ void DevSetup::initDlg()
   ui.stopBitsComboBox->setCurrentIndex(m_stopBitsIndex);
   ui.handshakeComboBox->setCurrentIndex(m_handshakeIndex);
 
+  // PY2SDR -- Per OS serial port names
+  ui.catPortComboBox->clear();
+  ui.catPortComboBox->addItem("None");
+#ifdef WIN32
+  for ( int i = 1; i < 100; i++ ) {
+    ui.catPortComboBox->addItem("COM" + QString::number(i));
+  }
+  ui.catPortComboBox->addItem("USB");
+#else
+  ui.catPortComboBox->addItem("/dev/ttyS0");
+  ui.catPortComboBox->addItem("/dev/ttyS1");
+  ui.catPortComboBox->addItem("/dev/ttyS2");
+  ui.catPortComboBox->addItem("/dev/ttyS3");
+  ui.catPortComboBox->addItem("/dev/ttyUSB0");
+  ui.catPortComboBox->addItem("/dev/ttyUSB1");
+  ui.catPortComboBox->addItem("/dev/ttyUSB2");
+  ui.catPortComboBox->addItem("/dev/ttyUSB3");
+#endif
+  ui.catPortComboBox->setCurrentIndex(m_catPortIndex);
+
+
   ui.macro1->setText(m_macro[0].toUpper());
   ui.macro2->setText(m_macro[1].toUpper());
   ui.macro3->setText(m_macro[2].toUpper());
