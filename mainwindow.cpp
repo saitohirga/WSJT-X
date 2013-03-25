@@ -2206,6 +2206,7 @@ void MainWindow::on_bandComboBox_currentIndexChanged(int index)
 {
   m_band=index;
   m_dialFreq=dFreq[index];
+  dialFreqChanged2(m_dialFreq);
   if(m_catEnabled) {
     int nHz=int(1000000.0*m_dialFreq + 0.5);
     QString cmnd1,cmnd3;
