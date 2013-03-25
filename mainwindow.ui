@@ -304,11 +304,17 @@ p, li { white-space: pre-wrap; }
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="4" colspan="2">
          <widget class="QLabel" name="labDialFreq">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="font">
            <font>
-            <pointsize>12</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
+            <pointsize>16</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
            </font>
           </property>
           <property name="text">

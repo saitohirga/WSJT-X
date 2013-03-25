@@ -18,13 +18,13 @@ bool btxok;                           //True if OK to transmit
 bool btxMute;
 double outputLatency;                 //Latency in seconds
 double dFreq[]={0.136,0.4742,1.838,3.578,5.2872,7.078,10.130,14.078,
-           18.1046,21.078,24.9246,28.078,50.293,70.091,144.489,0.0};
+           18.1046,21.078,24.9246,28.078,50.293,70.091,144.489,432.178};
 
 WideGraph* g_pWideGraph = NULL;
 QSharedMemory mem_jt9("mem_jt9");
 
 QString rev="$Rev$";
-QString Program_Title_Version="  WSJT-X   v0.7, r" + rev.mid(6,4) +
+QString Program_Title_Version="  WSJT-X   v0.8, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 //-------------------------------------------------- MainWindow constructor
@@ -36,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
   on_EraseButton_clicked();
   ui->labUTC->setStyleSheet( \
+        "QLabel { background-color : black; color : yellow; }");
+  ui->labDialFreq->setStyleSheet( \
         "QLabel { background-color : black; color : yellow; }");
 /*
   ui->labTol1->setStyleSheet( \
@@ -171,9 +173,6 @@ MainWindow::MainWindow(QWidget *parent) :
   char *to = (char*)mem_jt9.data();
   int size=sizeof(jt9com_);
   if(jt9com_.newdat==0) {
-//    int noffset = 4*4*5760000 + 4*4*322*32768 + 4*4*32768;
-//    to += noffset;
-//    size -= noffset;
   }
   memset(to,0,size);         //Zero all decoding params in shared memory
 
@@ -182,6 +181,16 @@ MainWindow::MainWindow(QWidget *parent) :
     msgBox("Unable to initialize PortAudio.");
   }
   readSettings();		             //Restore user's setup params
+
+  if(m_dFreq.length()<=1) {
+    m_dFreq.clear();
+    for(int i=0; i<16; i++) {
+      QString t;
+      t.sprintf("%f",dFreq[i]);
+      m_dFreq.append(t);
+    }
+  }
+
   QFile lockFile(m_appDir + "/.lock");     //Create .lock so jt9 will wait
   lockFile.open(QIODevice::ReadWrite);
   //QFile quitFile(m_appDir + "/.lock");
@@ -200,7 +209,6 @@ MainWindow::MainWindow(QWidget *parent) :
   genStdMsgs("-30");
   on_actionWide_Waterfall_triggered();                   //###
   g_pWideGraph->setTxFreq(m_txFreq);
-  m_dialFreq=g_pWideGraph->dialFreq();
 
   if(m_mode=="JT9-1") on_actionJT9_1_triggered();
   if(m_mode=="JT9-2") on_actionJT9_2_triggered();
@@ -333,6 +341,7 @@ void MainWindow::writeSettings()
   settings.setValue("PSKReporter",m_pskReporter);
   settings.setValue("After73",m_After73);
   settings.setValue("Macros",m_macro);
+  settings.setValue("DefaultFreqs",m_dFreq);
   settings.setValue("toRTTY",m_toRTTY);
   settings.setValue("NoSuffix",m_noSuffix);
   settings.setValue("dBtoComments",m_dBtoComments);
@@ -419,6 +428,7 @@ void MainWindow::readSettings()
   m_pskReporter=settings.value("PSKReporter",false).toBool();
   m_After73=settings.value("After73",false).toBool();
   m_macro=settings.value("Macros","").toStringList();
+  m_dFreq=settings.value("DefaultFreqs","").toStringList();
   m_toRTTY=settings.value("toRTTY",false).toBool();
   ui->actionConvert_JT9_x_to_RTTY->setChecked(m_toRTTY);
   m_noSuffix=settings.value("NoSuffix",false).toBool();
@@ -534,6 +544,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_pskReporter=m_pskReporter;
   dlg.m_After73=m_After73;
   dlg.m_macro=m_macro;
+  dlg.m_dFreq=m_dFreq;
   dlg.m_catEnabled=m_catEnabled;
   dlg.m_rig=m_rig;
   dlg.m_rigIndex=m_rigIndex;
@@ -560,6 +571,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_nDevOut=dlg.m_nDevOut;
     m_paOutDevice=dlg.m_paOutDevice;
     m_macro=dlg.m_macro;
+    m_dFreq=dlg.m_dFreq;
     m_catEnabled=dlg.m_catEnabled;
     m_rig=dlg.m_rig;
     m_rigIndex=dlg.m_rigIndex;
@@ -726,7 +738,7 @@ void MainWindow::dialFreqChanged2(double f)
   QString t;
   t.sprintf("%.6f",m_dialFreq);
   int n=t.length();
-  t=t.mid(0,n-3) + " " + t.mid(n-3,3) + "   MHz";
+  t=t.mid(0,n-3) + " " + t.mid(n-3,3);
   ui->labDialFreq->setText(t);
   statusChanged();
 }
@@ -858,8 +870,9 @@ void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
             SLOT(freezeDecode(int)));
     connect(g_pWideGraph, SIGNAL(f11f12(int)),this,
             SLOT(bumpFqso(int)));
-    connect(g_pWideGraph, SIGNAL(dialFreqChanged(double)),this,
-            SLOT(dialFreqChanged2(double)));  }
+//    connect(g_pWideGraph, SIGNAL(dialFreqChanged(double)),this,
+//            SLOT(dialFreqChanged2(double)));
+  }
   g_pWideGraph->show();
 }
 
@@ -1191,7 +1204,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         QString remote="call," + c2 + ",";
         if(gridOK(g2)) remote += "gridsquare," + g2 + ",";
         int nHz=t.mid(22,4).toInt();
-        uint nfreq=1000000.0*g_pWideGraph->dialFreq() + nHz + 0.5;
+        uint nfreq=1000000.0*m_dialFreq + nHz + 0.5;
         remote += "freq," + QString::number(nfreq);
         int nsnr=t.mid(10,3).toInt();
         remote += ",mode,JT9,snr," + QString::number(nsnr) + ",,";
@@ -1547,8 +1560,6 @@ void MainWindow::stopTx2()
 
 void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
 {
-  bool eom;
-  eom=false;
   int iz=ba.length();
   for(int i=0;i<22; i++) {
     if(i<iz) {
@@ -1939,7 +1950,6 @@ void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
 
 void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 {
-  double dialFreq=g_pWideGraph->dialFreq();
   QDateTime t = QDateTime::currentDateTimeUtc();
   QString date=t.toString("yyyyMMdd");
   QFile f("wsjtx.log");
@@ -1948,7 +1958,7 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   } else {
     QString logEntry=t.date().toString("yyyy-MMM-dd,") +
         t.time().toString("hh:mm,") + m_hisCall + "," + m_hisGrid + "," +
-        QString::number(dialFreq) + "," + m_mode + "," +
+        QString::number(m_dialFreq) + "," + m_mode + "," +
         m_rptSent + "," + m_rptRcvd;
     QTextStream out(&f);
     out << logEntry << endl;
@@ -2196,7 +2206,6 @@ void MainWindow::on_bandComboBox_currentIndexChanged(int index)
 {
   m_band=index;
   m_dialFreq=dFreq[index];
-  if(g_pWideGraph!=NULL) g_pWideGraph->setDialFreq(m_dialFreq);
   if(m_catEnabled) {
     int nHz=int(1000000.0*m_dialFreq + 0.5);
     QString cmnd1,cmnd3;

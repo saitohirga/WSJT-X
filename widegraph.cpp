@@ -39,8 +39,6 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->widePlot->setBinsPerPixel(1);
   m_waterfallAvg = settings.value("WaterfallAvg",5).toInt();
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
-  m_dialFreq=settings.value("DialFreqMHz",14.078).toDouble();
-  ui->fDialLineEdit->setText(QString::number(m_dialFreq));
   ui->widePlot->m_bCurrent=settings.value("Current",true).toBool();
   ui->widePlot->m_bCumulative=settings.value("Cumulative",false).toBool();
   ui->widePlot->m_bJT9Sync=settings.value("JT9Sync",false).toBool();
@@ -52,7 +50,6 @@ WideGraph::WideGraph(QWidget *parent) :
   m_qsoFreq=settings.value("QSOfreq",1010).toInt();
   ui->widePlot->setFQSO(m_qsoFreq,true);
   settings.endGroup();
-  emit dialFreqChanged(m_dialFreq);
 }
 
 WideGraph::~WideGraph()
@@ -74,7 +71,6 @@ void WideGraph::saveSettings()
   settings.setValue("PlotWidth",ui->widePlot->plotWidth());
   settings.setValue("FreqSpan",ui->freqSpanSpinBox->value());
   settings.setValue("WaterfallAvg",ui->waterfallAvgSpinBox->value());
-  settings.setValue("DialFreqMHz",m_dialFreq);
   settings.setValue("Current",ui->widePlot->m_bCurrent);
   settings.setValue("Cumulative",ui->widePlot->m_bCumulative);
   settings.setValue("JT9Sync",ui->widePlot->m_bJT9Sync);
@@ -231,20 +227,9 @@ void WideGraph::setPalette(QString palette)
   ui->widePlot->setPalette(palette);
 }
 
-void WideGraph::on_fDialLineEdit_editingFinished()
-{
-  m_dialFreq=ui->fDialLineEdit->text().toDouble();
-  emit dialFreqChanged(m_dialFreq);
-}
-
 double WideGraph::fGreen()
 {
   return ui->widePlot->fGreen();
-}
-
-double WideGraph::dialFreq()
-{
-  return m_dialFreq;
 }
 
 void WideGraph::setPeriod(int ntrperiod, int nsps)
@@ -257,13 +242,6 @@ void WideGraph::setPeriod(int ntrperiod, int nsps)
 void WideGraph::setTxFreq(int n)
 {
   ui->widePlot->setTxFreq(n);
-}
-
-void WideGraph::setDialFreq(double f)
-{
-  m_dialFreq=f;
-  ui->fDialLineEdit->setText(QString::number(m_dialFreq));
-  emit dialFreqChanged(m_dialFreq);
 }
 
 void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)

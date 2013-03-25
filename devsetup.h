@@ -14,6 +14,7 @@ public:
   ~DevSetup();
 
   void initDlg();
+
   qint32  m_idInt;
   qint32  m_pttMethodIndex;
   qint32  m_pttPort;
@@ -49,6 +50,7 @@ public:
   QString m_handshake;
 
   QStringList m_macro;
+  QStringList m_dFreq;
 
   QProcess p4;
   QMessageBox msgBox0;
