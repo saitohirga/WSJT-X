@@ -555,7 +555,7 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <layout class="QHBoxLayout" name="horizontalLayout_1">
            <item>
             <widget class="QLabel" name="label_21">
              <property name="sizePolicy">
@@ -1046,7 +1046,7 @@
           </layout>
          </item>
          <item>
-          <spacer name="verticalSpacer_2">
+          <spacer name="verticalSpacer_1">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
