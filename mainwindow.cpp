@@ -151,7 +151,8 @@ MainWindow::MainWindow(QWidget *parent) :
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
-  ui->labAzDist->setStyleSheet("border: 0px;");
+  ui->labAz->setStyleSheet("border: 0px;");
+  ui->labDist->setStyleSheet("border: 0px;");
 
 #ifdef WIN32
   while(true) {
@@ -1912,10 +1913,13 @@ void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
     azdist_(m_myGrid.toAscii().data(),m_hisGrid.toAscii().data(),&utch,
            &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
     QString t;
-    t.sprintf("Az: %d       %d km",nAz,nDkm);
-    ui->labAzDist->setText(t);
+    t.sprintf("Az: %d",nAz);
+    ui->labAz->setText(t);
+    t.sprintf("%d km",nDkm);
+    ui->labDist->setText(t);
   } else {
-    ui->labAzDist->setText("");
+    ui->labAz->setText("");
+    ui->labDist->setText("");
   }
 }
 
