@@ -43,7 +43,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   static double fac;
   static int ic=0,j=0;
   static short int i2;
-  int isym;
+  int isym,nspd;
 
   udata->ncall++;
   if(udata->bRestart) {
@@ -67,8 +67,8 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     dphi=twopi*freq/48000.0;
 //    float wpm=20.0;
 //    int nspd=1.2*48000.0/wpm;
-    int nspd=3072;                         //18.75 wpm
-    nspd=2048;
+//    nspd=3072;                           //18.75 wpm
+    nspd=2048;                             //28.125 wpm
     int ic0=85*4*udata->nsps;
     for(int i=0 ; i<framesToProcess; i++ )  {
       phi += dphi;
