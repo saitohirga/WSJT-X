@@ -129,6 +129,9 @@
              <property name="text">
               <string>My Grid:</string>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
             </widget>
            </item>
            <item>
@@ -265,6 +268,9 @@
              </property>
              <property name="text">
               <string>PTT Port:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
@@ -607,126 +613,6 @@
              <item>
               <property name="text">
                <string>None</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>COM1</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>COM2</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>COM3</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>COM4</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>COM5</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>COM6</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>COM7</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>COM8</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>COM9</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>COM10</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>COM11</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>COM12</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>COM13</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>COM14</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>COM15</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>USB</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>/dev/ttyS0</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>/dev/ttyS1</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>/dev/ttyS2</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>/dev/ttyS3</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>/dev/ttyUSB0</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>/dev/ttyUSB1</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>/dev/ttyUSB2</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>/dev/ttyUSB3</string>
               </property>
              </item>
             </widget>
