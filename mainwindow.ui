@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>680</width>
-    <height>598</height>
+    <height>475</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -559,7 +559,7 @@ p, li { white-space: pre-wrap; }
                 </size>
                </property>
                <property name="text">
-                <string>Tolerance: 50</string>
+                <string>Tolerance: 500</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -578,6 +578,9 @@ p, li { white-space: pre-wrap; }
                 </size>
                </property>
                <property name="maximum">
+                <number>8</number>
+               </property>
+               <property name="value">
                 <number>8</number>
                </property>
                <property name="orientation">
