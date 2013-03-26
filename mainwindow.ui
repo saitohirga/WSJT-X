@@ -1671,6 +1671,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionLog_JT9_without_submode"/>
     <addaction name="actionConvert_JT9_x_to_RTTY"/>
     <addaction name="actionLog_dB_reports_to_Comments"/>
+    <addaction name="actionPrompt_to_log_QSO"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -1861,7 +1862,7 @@ p, li { white-space: pre-wrap; }
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Quick</string>
+    <string>Fast</string>
    </property>
   </action>
   <action name="actionNone">
@@ -2147,6 +2148,14 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Log dB reports to Comments</string>
+   </property>
+  </action>
+  <action name="actionPrompt_to_log_QSO">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Prompt to log QSO</string>
    </property>
   </action>
  </widget>

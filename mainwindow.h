@@ -131,6 +131,8 @@ private slots:
 
   void on_bandComboBox_currentIndexChanged(int index);
 
+  void on_actionPrompt_to_log_QSO_triggered(bool checked);
+
 private:
     Ui::MainWindow *ui;
 
@@ -207,6 +209,7 @@ private:
     bool    m_dBtoComments;
     bool    m_catEnabled;
     bool    m_After73;
+    bool    m_promptToLog;
 
     char    m_decoded[80];
 

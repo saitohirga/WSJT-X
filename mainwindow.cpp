@@ -151,6 +151,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_iptt=0;
   m_COMportOpen=0;
   m_secID=0;
+  m_promptToLog=false;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -359,6 +360,7 @@ void MainWindow::writeSettings()
   settings.setValue("Handshake",m_handshake);
   settings.setValue("HandshakeIndex",m_handshakeIndex);
   settings.setValue("BandIndex",m_band);
+  settings.setValue("PromptToLog",m_promptToLog);
   settings.endGroup();
 }
 
@@ -450,6 +452,8 @@ void MainWindow::readSettings()
   m_handshakeIndex=settings.value("HandshakeIndex",0).toInt();
   m_band=settings.value("BandIndex",7).toInt();
   ui->bandComboBox->setCurrentIndex(m_band);
+  m_promptToLog=settings.value("PromptToLog",false).toBool();
+  ui->actionPrompt_to_log_QSO->setChecked(m_promptToLog);
 
   settings.endGroup();
 
@@ -1264,7 +1268,7 @@ void MainWindow::guiUpdate()
   int khsym=0;
 
   double tx1=0.0;
-  double tx2=1.0 + 85.0*m_nsps/12000.0 + icw[0]*2048.0/48000.0;
+  double tx2=1.0 + 85.0*m_nsps/12000.0 + icw[0]*2560.0/48000.0;
 
   if(!m_txFirst) {
     tx1 += m_TRperiod;
@@ -1345,7 +1349,10 @@ void MainWindow::guiUpdate()
     }
     QStringList w=t.split(" ",QString::SkipEmptyParts);
     icw[0]=0;
-    if(m_After73 and (w[2]=="73" or itext!=0)) icw[0]=m_ncw;
+    if(m_After73 and (w[2]=="73" or itext!=0)) {
+      icw[0]=m_ncw;
+      if(m_promptToLog) on_logQSOButton_clicked();
+    }
 
     if(m_idInt>0) {
       int nmin=(m_sec0-m_secID)/60;
@@ -2217,4 +2224,9 @@ void MainWindow::on_bandComboBox_currentIndexChanged(int index)
     p3.start(m_cmnd);
     p3.waitForFinished();
   }
+}
+
+void MainWindow::on_actionPrompt_to_log_QSO_triggered(bool checked)
+{
+  m_promptToLog=checked;
 }
