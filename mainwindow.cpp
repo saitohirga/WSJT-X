@@ -1,4 +1,4 @@
-//---------------------------------------------------------------- MainWindow
+//--------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -128,7 +128,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_killAll=false;
   m_widebandDecode=false;
   m_ntx=1;
-  m_myCall="K1JT";
+  m_myCall="";
   m_myGrid="FN20qi";
   m_appDir = QApplication::applicationDirPath();
   m_saveDir="/users/joe/wsjtx/install/save";
@@ -231,11 +231,11 @@ MainWindow::MainWindow(QWidget *parent) :
   m_monitoring=!m_monitorStartOFF;           // Start with Monitoring ON/OFF
   soundInThread.setMonitoring(m_monitoring);
   m_diskData=false;
-  g_pWideGraph->setTol(m_tol);
   static int ntol[] = {1,2,5,10,20,50,100,200,500};
   for (int i=0; i<10; i++) {
     if(ntol[i]==m_tol) ui->tolSlider->setValue(i);
   }
+  g_pWideGraph->setTol(m_tol);
 
 // Create "m_worked", a dictionary of all calls in wsjtx.log
   QFile f("wsjtx.log");
@@ -419,8 +419,8 @@ void MainWindow::readSettings()
   m_saveSynced=ui->actionSave_synced->isChecked();
   m_saveDecoded=ui->actionSave_decoded->isChecked();
   m_saveAll=ui->actionSave_all->isChecked();
-  m_ndepth=settings.value("NDepth",0).toInt();
-  m_tol=settings.value("Tol",5).toInt();
+  m_ndepth=settings.value("NDepth",2).toInt();
+  m_tol=settings.value("Tol",500).toInt();
   m_inGain=settings.value("InGain",0).toInt();
   ui->inGain->setValue(m_inGain);
   m_kb8rq=settings.value("KB8RQ",false).toBool();
@@ -1164,7 +1164,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
       QString bg="white";
       if(t.indexOf(" CQ ")>0) bg="#66ff66";                //Light green
-      if(t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666";      //Light red
+      if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //Light red
       //ui->decodedTextBrowser->setTextBackgroundColor(bg);
       //t=t.mid(0,n-2) + "                                                  ";
       //ui->decodedTextBrowser->append(t);
