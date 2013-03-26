@@ -51,8 +51,7 @@ subroutine jt9a
 
 100 inquire(file=trim(cwd)//'/.lock',exist=fileExists)
   if(fileExists) go to 10
-  !call sleep_msec(100)
-  call usleep(100*1000)
+  call sleep_msec(100)
   go to 100
 
 999 return
