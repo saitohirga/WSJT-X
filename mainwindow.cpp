@@ -1639,7 +1639,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   if(t4.length() <7) return;           //Skip the rest if no decoded text
   QString firstcall=t4.at(6);
   //Don't change freqs if Shift key down or a station is calling me.
-  if(!shift and firstcall!=m_myCall) {
+  if(!shift and (firstcall!=m_myCall or ctrl)) {
     int nfreq=int(t4.at(4).toFloat());
     ui->TxFreqSpinBox->setValue(nfreq);
     g_pWideGraph->setQSOfreq(nfreq);

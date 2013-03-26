@@ -29,14 +29,14 @@ subroutine decoder(ss,c0)
   nsynced=0
   ndecoded=0
   limit=5000
-  ccflim=20.0
+  ccflim=4.0
   if(ndepth.ge.2) then
      limit=50000
-     ccflim=10.0
+     ccflim=3.0
   endif
   if(ndepth.ge.3) then
-     limit=500000
-     ccflim=8.0
+     limit=200000
+     ccflim=2.5
   endif
 
   nsps=0
@@ -71,11 +71,16 @@ subroutine decoder(ss,c0)
   call timer('sync9   ',1)
 
   ccfok=.false.
+  ccfok(max(ipk-1,1):min(ipk+1,NSMAX))=.true.
+!  nok=0
   do i=ia+9,ib-25
-     t1=ccfred(i)/max(ccfred(i-8),ccfred(i-7),ccfred(i-6))
-     t2=ccfred(i)/max(ccfred(i+23),ccfred(i+24),ccfred(i+25))
+     t1=ccfred(i)/(sum(ccfred(i-8:i-6)/3.0))
+     t2=ccfred(i)/(sum(ccfred(i+23:i+25)/3.0))
      if(t1.ge.ccflim .and. t2.ge.ccflim) ccfok(i)=.true.
+!     if(ccfok(i)) nok=nok+1
   enddo
+!  write(39,*) nok,(ib-25) - (ia+9) +1
+!  call flush(39)
 
   nRxLog=0
   fgood=0.
@@ -90,10 +95,10 @@ subroutine decoder(ss,c0)
 
   do j=ia,ib
      i=j
-     if(i.eq.i1) i=i00
+     if(i.eq.ia) i=i00                       !Examine QSO frequency first
      f=(i-1)*df3
      if(.not.ccfok(i)) cycle
-     if((i.eq.ipk .or. (ccfred(i).ge.3.0) .and. abs(f-fgood).gt.10.0*df8)) then
+     if((i.eq.i00 .or. (ccfred(i).ge.3.0) .and. abs(f-fgood).gt.10.0*df8)) then
         call timer('decode9a',0)
         fpk=1000.0 + df3*(i-1)
         c1(1:npts8)=conjg(c0(1:npts8))
