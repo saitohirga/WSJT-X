@@ -1188,7 +1188,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       ui->decodedTextBrowser->setTextCursor(cursor);
 
       QString msg=t.mid(34,22);
-      bool b=stdmsg_(msg.toAscii().constData());
+      bool b=stdmsg_(msg.toAscii().constData(),22);
       QStringList w=msg.split(" ",QString::SkipEmptyParts);
       if(b and w[0]==m_myCall) {
         QString tt=w[2];
