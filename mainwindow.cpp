@@ -98,6 +98,9 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(&proc_jt9, SIGNAL(readyReadStandardError()),
           this, SLOT(readFromStderr()));
 
+  connect(&p3, SIGNAL(error(QProcess::ProcessError)),
+          this, SLOT(p3_error()));
+
   ui->bandComboBox->setEditable(true);
   ui->bandComboBox->lineEdit()->setReadOnly(true);
   ui->bandComboBox->lineEdit()->setAlignment(Qt::AlignCenter);
@@ -1120,6 +1123,13 @@ void MainWindow::jt9_error()                                     //jt9_error
   }
 }
 
+void MainWindow::p3_error()                                     //jt9_error
+{
+  if(!m_killAll) {
+    QString t="Error running the command\n" + m_cmnd;
+    msgBox(t);
+  }
+}
 void MainWindow::readFromStderr()                             //readFromStderr
 {
   QByteArray t=proc_jt9.readAllStandardError();
@@ -1289,32 +1299,22 @@ void MainWindow::guiUpdate()
 
     if(bTxTime and m_iptt==0 and !btxMute) {
       icw[0]=m_ncw;
-#define NEW
-#ifdef NEW
+
       //Raise PTT
-      if(m_pttMethodIndex==0) {
+      if(m_pttMethodIndex==0) {                  //CAT control for PTT
         m_cmnd=rig_command() + " T 1";
         p3.start(m_cmnd);
         p3.waitForFinished();
         m_iptt=1;
       }
-      if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
+      if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {  //DTR or RTS
           ptt(m_pttPort,1,&m_iptt,&m_COMportOpen);
 //        ptt(m_pttPort,1,&m_iptt);
       }
-//      qDebug() << "ptt1Timer" << m_iptt;
-      ptt1Timer->start(200);                       //Sequencer delay
-#else
-      int itx=1;
-      ptt(m_pttPort,itx,&m_iptt,&m_COMportOpen);       // Raise PTT
-      if(!soundOutThread.isRunning()) {
-        QString t=ui->tx6->text();
-        double snr=t.mid(1,5).toDouble();
-        if(snr>0.0 or snr < -50.0) snr=99.0;
-        soundOutThread.setTxSNR(snr);
-        soundOutThread.start(QThread::HighPriority);
+      if(m_pttMethodIndex==3) {                  //VOX
+        m_iptt=1;
       }
-#endif
+      ptt1Timer->start(200);                       //Sequencer delay
     }
     if(!bTxTime || btxMute) {
       btxok=false;
@@ -1417,28 +1417,18 @@ void MainWindow::guiUpdate()
   }
   if(nc0 == 0) {
 
-#ifdef NEW
-
     //Lower PTT
-      if(m_pttMethodIndex==0) {
+      if(m_pttMethodIndex==0) {                         //CAT
         m_cmnd=rig_command() + " T 0";
         p3.start(m_cmnd);
         p3.waitForFinished();
       }
-      if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
+      if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {  //DTR-RTS
         ptt(m_pttPort,0,&m_iptt,&m_COMportOpen);
       }
-#else
-    int itx=0;
-    ptt(m_pttPort,itx,&m_iptt,&m_COMportOpen);       // Lower PTT
-
-    if(!btxMute) soundOutThread.quitExecution=true;
-    m_transmitting=false;
-    if(m_auto) {
-      m_monitoring=true;
-      soundInThread.setMonitoring(m_monitoring);
-    }
-#endif
+      if(m_pttMethodIndex==3) {                         //VOX
+        m_iptt=0;
+      }
   }
 
   if(m_iptt == 0 && !btxok) {
@@ -1509,8 +1499,6 @@ QString MainWindow::rig_command()
 void MainWindow::startTx2()
 {
   if(!soundOutThread.isRunning()) {
-    //qDebug() << "startTx2";
-
     if(!soundOutThread.isRunning()) {
       QString t=ui->tx6->text();
       double snr=t.mid(1,5).toDouble();
@@ -1978,6 +1966,10 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
                     m_noSuffix,m_toRTTY,m_dBtoComments);
   if(logDlg.exec() == QDialog::Accepted) {
   }
+  m_hisCall="";
+  ui->dxCallEntry->setText("");
+  m_hisGrid="";
+  ui->dxGridEntry->setText("");
   m_rptSent="";
   m_rptRcvd="";
   m_qsoStart="";

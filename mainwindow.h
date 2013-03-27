@@ -36,6 +36,7 @@ public slots:
   void readFromStdout();
   void readFromStderr();
   void jt9_error();
+  void p3_error();
 
 protected:
   virtual void keyPressEvent( QKeyEvent *e );
