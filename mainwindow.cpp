@@ -17,8 +17,8 @@ wchar_t buffer[256];
 bool btxok;                           //True if OK to transmit
 bool btxMute;
 double outputLatency;                 //Latency in seconds
-double dFreq[]={0.136,0.4742,1.838,3.578,5.2872,7.078,10.130,14.078,
-           18.1046,21.078,24.9246,28.078,50.293,70.091,144.489,432.178};
+double dFreq[]={0.136,0.4742,1.838,3.578,5.357,7.078,10.130,14.078,
+           18.104,21.078,24.918,28.078,50.293,70.091,144.489,432.178};
 
 WideGraph* g_pWideGraph = NULL;
 QSharedMemory mem_jt9("mem_jt9");
