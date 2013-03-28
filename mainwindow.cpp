@@ -1348,8 +1348,10 @@ void MainWindow::guiUpdate()
       f.close();
     }
     QStringList w=t.split(" ",QString::SkipEmptyParts);
+    t="";
+    if(w.length()==3) t=w[2];
     icw[0]=0;
-    if(m_After73 and (w[2]=="73" or itext!=0)) {
+    if(m_After73 and (t=="73" or itext!=0)) {
       icw[0]=m_ncw;
       if(m_promptToLog) on_logQSOButton_clicked();
     }
@@ -1945,6 +1947,7 @@ void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
 
 void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 {
+  if(m_hisCall=="") return;
   QDateTime t = QDateTime::currentDateTimeUtc();
   QString date=t.toString("yyyyMMdd");
   QFile f("wsjtx.log");
