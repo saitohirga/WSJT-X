@@ -1754,7 +1754,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string> About WSJTX</string>
+    <string> About WSJT-X</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F1</string>
@@ -2158,7 +2158,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Prompt to log QSO</string>
+    <string>Prompt me to log QSO</string>
    </property>
   </action>
  </widget>

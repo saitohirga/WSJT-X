@@ -20,7 +20,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>About MAP65</string>
+   <string>About WSJT-X</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
