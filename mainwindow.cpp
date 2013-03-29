@@ -121,6 +121,10 @@ MainWindow::MainWindow(QWidget *parent) :
   ptt1Timer->setSingleShot(true);
   connect(ptt1Timer, SIGNAL(timeout()), this, SLOT(startTx2()));
 
+  logQSOTimer = new QTimer(this);
+  logQSOTimer->setSingleShot(true);
+  connect(logQSOTimer, SIGNAL(timeout()), this, SLOT(on_logQSOButton_clicked()));
+
   m_auto=false;
   m_waterfallAvg = 1;
   m_txFirst=false;
@@ -155,6 +159,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_COMportOpen=0;
   m_secID=0;
   m_promptToLog=false;
+  m_blankLine=false;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -1157,6 +1162,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       decodeBusy(false);
       m_RxLog=0;
       m_startAnother=m_loopall;
+      m_blankLine=true;
       return;
     } else {
 
@@ -1172,17 +1178,30 @@ void MainWindow::readFromStdout()                             //readFromStdout
       out << t.mid(0,n-2) << endl;
       f.close();
 
+      QTextCursor cursor;
+      QTextBlockFormat bf;
+      if(m_blankLine) {
+        QString bg="#9fb6cd";
+        bf.setBackground(QBrush(QColor(bg)));
+        QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
+            bg + "\"><pre>" + " " + "</pre></td></tr></table>";
+        cursor = ui->decodedTextBrowser->textCursor();
+        cursor.movePosition(QTextCursor::End);
+        bf = cursor.blockFormat();
+        bf.setBackground(QBrush(QColor(bg)));
+        cursor.insertHtml(s);
+        m_blankLine=false;
+      }
+
       QString bg="white";
       if(t.indexOf(" CQ ")>0) bg="#66ff66";                //Light green
       if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //Light red
-      //ui->decodedTextBrowser->setTextBackgroundColor(bg);
-      //t=t.mid(0,n-2) + "                                                  ";
-      //ui->decodedTextBrowser->append(t);
 
-      QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\""+ bg + "\"><pre>" + t.replace("\n","") + "</pre></td></tr></table>";
-      QTextCursor cursor = ui->decodedTextBrowser->textCursor();
+      QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
+          bg + "\"><pre>" + t.replace("\n","") + "</pre></td></tr></table>";
+      cursor = ui->decodedTextBrowser->textCursor();
       cursor.movePosition(QTextCursor::End);
-      QTextBlockFormat bf = cursor.blockFormat();
+      bf = cursor.blockFormat();
       bf.setBackground(QBrush(QColor(bg)));
       cursor.insertHtml(s);
       ui->decodedTextBrowser->setTextCursor(cursor);
@@ -1353,7 +1372,8 @@ void MainWindow::guiUpdate()
     icw[0]=0;
     if(m_After73 and (t=="73" or itext!=0)) {
       icw[0]=m_ncw;
-      if(m_promptToLog) on_logQSOButton_clicked();
+//      if(m_promptToLog) on_logQSOButton_clicked();
+      if(m_promptToLog) logQSOTimer->start(200);
     }
 
     if(m_idInt>0) {
@@ -1485,7 +1505,7 @@ void MainWindow::guiUpdate()
   }
   iptt0=m_iptt;
   btxok0=btxok;
-}
+}               //End of GUIupdate
 
 QString MainWindow::rig_command()
 {
