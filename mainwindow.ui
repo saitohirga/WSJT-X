@@ -911,7 +911,7 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
           <property name="text">
-           <string>Tx first</string>
+           <string>Tx even</string>
           </property>
          </widget>
         </item>
@@ -1717,7 +1717,6 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionOnline_Users_Guide"/>
     <addaction name="actionKeyboard_shortcuts"/>
     <addaction name="actionSpecial_mouse_commands"/>
-    <addaction name="actionAvailable_suffixes_and_add_on_prefixes"/>
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuMode">

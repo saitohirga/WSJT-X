@@ -211,6 +211,7 @@ private:
     bool    m_catEnabled;
     bool    m_After73;
     bool    m_promptToLog;
+    bool    m_blankLine;
 
     char    m_decoded[80];
 
@@ -237,8 +238,9 @@ private:
     QProcess proc_jt9;
     QProcess p3;
 
-    QTimer* ptt0Timer;
-    QTimer* ptt1Timer;
+    QTimer* ptt1Timer;                 //StartTx delay
+    QTimer* ptt0Timer;                 //StopTx delay
+    QTimer* logQSOTimer;
 
     QString m_path;
     QString m_pbdecoding_style1;
