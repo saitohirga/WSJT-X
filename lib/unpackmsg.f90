@@ -16,7 +16,7 @@ subroutine unpackmsg(dat,msg)
 
   ng=ishft(iand(dat(10),15),12) + ishft(dat(11),6) + dat(12)
 
-  if(ng.gt.32768) then
+  if(ng.ge.32768) then
      call unpacktext(nc1,nc2,ng,msg)
      go to 100
   endif
