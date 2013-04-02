@@ -2,7 +2,7 @@
 
       parameter (MASK28=2**28 - 1)
       character*13 msg
-      character*44 c
+      character*42 c
       data c/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ +-./?'/
 
       nc1=0
@@ -10,7 +10,7 @@
       nc3=0
 
       do i=1,5                                !First 5 characters in nc1
-         do j=1,44                            !Get character code
+         do j=1,42                            !Get character code
             if(msg(i:i).eq.c(j:j)) go to 10
          enddo
          j=37
@@ -19,7 +19,7 @@
       enddo
 
       do i=6,10                               !Characters 6-10 in nc2
-         do j=1,44                            !Get character code
+         do j=1,42                            !Get character code
             if(msg(i:i).eq.c(j:j)) go to 20
          enddo
          j=37
@@ -28,7 +28,7 @@
       enddo
 
       do i=11,13                              !Characters 11-13 in nc3
-         do j=1,44                            !Get character code
+         do j=1,42                            !Get character code
             if(msg(i:i).eq.c(j:j)) go to 30
          enddo
          j=37
