@@ -1,18 +1,14 @@
 subroutine m65a
 
-! NB: this interface block is required by g95, but must be omitted
-!     for gfortran.  (????)
-
-#ifndef UNIX
   interface
      function address_m65()
+     integer*1, pointer :: address_m65
      end function address_m65
   end interface
-#endif
   
   integer*1 attach_m65,lock_m65,unlock_m65
   integer size_m65
-  integer*1, pointer :: address_m65,p_m65
+  integer*1, pointer :: p_m65
   character*80 cwd
   logical fileExists
   common/tracer/limtrace,lu

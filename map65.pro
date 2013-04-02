@@ -53,11 +53,9 @@ FORMS    += mainwindow.ui about.ui devsetup.ui widegraph.ui \
 RC_FILE = map65.rc
 
 unix {
-INCLUDEPATH += $$quote(/usr/include/qwt-qt4)
-LIBS += -lfftw3f /usr/lib/libgfortran.so.3
+INCLUDEPATH += -lqwt
 LIBS += ../map65/libm65/libm65.a
-LIBS += /usr/lib/libqwt-qt4.so
-LIBS += -lportaudio
+LIBS += -lfftw3f -lportaudio -lgfortran
 #LIBS +- -lusb
 }
 
