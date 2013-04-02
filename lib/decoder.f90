@@ -24,6 +24,7 @@ subroutine decoder(ss,c0)
 
   call timer('decoder ',0)
 
+  open(13,file='decoded.txt',status='unknown')
   ntrMinutes=ntrperiod/60
   newdat=1
   nsynced=0
@@ -118,11 +119,12 @@ subroutine decoder(ss,c0)
         ndrift=nint(drift/df3)
         if(msg.ne.'                      ') then
            write(*,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
+           write(13,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
            fgood=f
            nsynced=1
            ndecoded=1
-!           ccfred(max(ia,i-3):min(ib,i+11))=0.
            ccfok(max(ia,i-3):min(ib,i+11))=.false.
+           call flush(6)
         endif
      endif
   enddo
@@ -130,6 +132,7 @@ subroutine decoder(ss,c0)
   write(*,1010) nsynced,ndecoded
 1010 format('<DecodeFinished>',2i4)
   call flush(6)
+  close(13)
 
   call timer('decoder ',1)
   if(nstandalone.eq.0) call timer('decoder ',101)
