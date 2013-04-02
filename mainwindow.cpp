@@ -1385,8 +1385,7 @@ void MainWindow::guiUpdate()
     }
 
     QString t2=QDateTime::currentDateTimeUtc().toString("hhmm");
-    if(itext==0 and w[1]==m_myCall) {
-      t=w[2];
+    if(itext==0 and w[1]==m_myCall and w.length()>=3) {
       int i1;
       bool ok;
       i1=t.toInt(&ok);
@@ -1403,7 +1402,7 @@ void MainWindow::guiUpdate()
         }
       }
     }
-    if(itext==1 or w[2]=="73") m_qsoStop=t2;
+    if(itext==1 or (w.length()==3 and w[2]=="73")) m_qsoStop=t2;
     m_restart=false;
   }
 
