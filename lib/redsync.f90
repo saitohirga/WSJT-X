@@ -25,13 +25,12 @@ subroutine redsync(ss,ntrperiod,ihsym,iz,red)
      enddo
      red(i)=smax
   enddo
-  call pctile(red,iz,50,xmed)
+  call pctile(red,iz,40,xmed)
   if(xmed.le.0.0) xmed=1.0
   red=red/xmed
   smax=0.
   do i=1,iz
      red(i)=0.2*db(red(i))
-!     red(i)=2.0*sqrt(red(i))
      smax=max(smax,red(i))
   enddo
   h=10.

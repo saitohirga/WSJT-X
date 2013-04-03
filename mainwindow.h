@@ -134,6 +134,10 @@ private slots:
   void on_fMinSpinBox_valueChanged(int n);
   void on_fMaxSpinBox_valueChanged(int n);
 
+  void on_actionClear_DX_Call_and_Grid_after_logging_triggered(bool checked);
+
+  void on_actionDisplay_distance_in_miles_triggered(bool checked);
+
 private:
     Ui::MainWindow *ui;
 
@@ -214,6 +218,8 @@ private:
     bool    m_promptToLog;
     bool    m_blankLine;
     bool    m_insertBlank;
+    bool    m_clearCallGrid;
+    bool    m_bMiles;
 
     char    m_decoded[80];
 

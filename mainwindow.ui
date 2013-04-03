@@ -526,7 +526,7 @@ p, li { white-space: pre-wrap; }
           <property name="lineWidth">
            <number>1</number>
           </property>
-          <widget class="QWidget" name="">
+          <widget class="QWidget" name="layoutWidget">
            <property name="geometry">
             <rect>
              <x>2</x>
@@ -1711,12 +1711,13 @@ p, li { white-space: pre-wrap; }
     <addaction name="separator"/>
     <addaction name="actionMonitor_OFF_at_startup"/>
     <addaction name="actionF4_sets_Tx6"/>
-    <addaction name="separator"/>
     <addaction name="actionLog_JT9_without_submode"/>
     <addaction name="actionConvert_JT9_x_to_RTTY"/>
     <addaction name="actionLog_dB_reports_to_Comments"/>
     <addaction name="actionPrompt_to_log_QSO"/>
     <addaction name="actionBlank_line_between_decoding_periods"/>
+    <addaction name="actionClear_DX_Call_and_Grid_after_logging"/>
+    <addaction name="actionDisplay_distance_in_miles"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -2211,6 +2212,27 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Blank line between decoding periods</string>
+   </property>
+  </action>
+  <action name="actionClear_DX_Call_and_Grid_after_logging">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Clear DX Call and Grid after logging</string>
+   </property>
+  </action>
+  <action name="actionDistance_in_miles">
+   <property name="text">
+    <string>Distance in miles</string>
+   </property>
+  </action>
+  <action name="actionDisplay_distance_in_miles">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Display distance in miles</string>
    </property>
   </action>
  </widget>
