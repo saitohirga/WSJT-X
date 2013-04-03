@@ -161,6 +161,8 @@ MainWindow::MainWindow(QWidget *parent) :
   m_promptToLog=false;
   m_blankLine=false;
   m_insertBlank=false;
+  m_clearCallGrid=false;
+  m_bMiles=false;
   m_fMin=1000;
   ui->fMinSpinBox->setValue(m_fMin);
   decodeBusy(false);
@@ -367,6 +369,8 @@ void MainWindow::writeSettings()
   settings.setValue("BandIndex",m_band);
   settings.setValue("PromptToLog",m_promptToLog);
   settings.setValue("InsertBlank",m_insertBlank);
+  settings.setValue("ClearCallGrid",m_clearCallGrid);
+  settings.setValue("Miles",m_bMiles);
   settings.endGroup();
 }
 
@@ -461,8 +465,10 @@ void MainWindow::readSettings()
   ui->actionPrompt_to_log_QSO->setChecked(m_promptToLog);
   m_insertBlank=settings.value("InsertBlank",false).toBool();
   ui->actionBlank_line_between_decoding_periods->setChecked(m_insertBlank);
-
-  settings.endGroup();
+  m_clearCallGrid=settings.value("ClearCallGrid",false).toBool();
+  ui->actionClear_DX_Call_and_Grid_after_logging->setChecked(m_clearCallGrid);
+    m_bMiles=settings.value("Miles",false).toBool();
+  ui->actionDisplay_distance_in_miles->setChecked(m_bMiles);
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
     !ui->actionAFMHot->isChecked() && !ui->actionBlue->isChecked()) {
@@ -1156,7 +1162,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       QTextCursor cursor;
       QTextBlockFormat bf;
       if(m_insertBlank and m_blankLine) {
-        QString bg="#9fb6cd";
+        QString bg="#d3d3d3";
         bf.setBackground(QBrush(QColor(bg)));
         QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
             bg + "\"><pre>" + " " + "</pre></td></tr></table>";
@@ -1928,7 +1934,8 @@ void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
     QString t;
     t.sprintf("Az: %d",nAz);
     ui->labAz->setText(t);
-    t.sprintf("%d km",nDkm);
+    if(m_bMiles) t.sprintf("%d mi",int(0.621371*nDkm));
+    if(!m_bMiles) t.sprintf("%d km",nDkm);
     ui->labDist->setText(t);
   } else {
     ui->labAz->setText("");
@@ -1965,14 +1972,16 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
                     m_noSuffix,m_toRTTY,m_dBtoComments);
   if(logDlg.exec() == QDialog::Accepted) {
   }
-  m_hisCall="";
-  ui->dxCallEntry->setText("");
-  m_hisGrid="";
-  ui->dxGridEntry->setText("");
-  m_rptSent="";
-  m_rptRcvd="";
-  m_qsoStart="";
-  m_qsoStop="";
+  if(m_clearCallGrid) {
+    m_hisCall="";
+    ui->dxCallEntry->setText("");
+    m_hisGrid="";
+    ui->dxGridEntry->setText("");
+    m_rptSent="";
+    m_rptRcvd="";
+    m_qsoStart="";
+    m_qsoStop="";
+  }
 }
 
 void MainWindow::on_actionJT9_1_triggered()
@@ -2247,4 +2256,15 @@ void MainWindow::on_fMaxSpinBox_valueChanged(int n)
 {
   m_fMax=n;
   g_pWideGraph->setRxRange(m_fMin,m_fMax);
+}
+
+void MainWindow::on_actionClear_DX_Call_and_Grid_after_logging_triggered(bool checked)
+{
+  m_clearCallGrid=checked;
+}
+
+void MainWindow::on_actionDisplay_distance_in_miles_triggered(bool checked)
+{
+  m_bMiles=checked;
+  on_dxGridEntry_textChanged(m_hisGrid);
 }
