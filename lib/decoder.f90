@@ -67,68 +67,78 @@ subroutine decoder(ss,c0)
   kstep=nsps/2
   tstep=kstep/12000.0
 
-  call timer('sync9   ',0)
-! Compute ccfred()
-  call sync9(ss,nzhsym,tstep,df3,nfa,nfb,ntol,nfqso,ccfred,ia,ib,ipk)
-  call timer('sync9   ',1)
-
-  ccfok=.false.
-  ccfok(max(ipk-1,1):min(ipk+1,NSMAX))=.true.
-!  nok=0
-  do i=ia+9,ib-25
-     t1=ccfred(i)/(sum(ccfred(i-8:i-6)/3.0))
-     t2=ccfred(i)/(sum(ccfred(i+23:i+25)/3.0))
-     if(t1.ge.ccflim .and. t2.ge.ccflim) ccfok(i)=.true.
-!     if(ccfok(i)) nok=nok+1
-  enddo
-!  write(39,*) nok,(ib-25) - (ia+9) +1
-!  call flush(39)
-
-  nRxLog=0
-  fgood=0.
-  nsps8=nsps/8
-  df8=1500.0/nsps8
-  sbest=-1.0
-  dblim=db(864.0/nsps8) - 26.2
-  i1=max(nint((nfqso-1000)/df3 - 10),ia)
-  i2=min(nint((nfqso-1000)/df3 + 10),ib)
-  ii=maxloc(ccfred(i1:i2))
-  i00=ii(1) + i1 - 1
-
-  do j=ia,ib
-     i=j
-     if(i.eq.ia) i=i00                       !Examine QSO frequency first
-     f=(i-1)*df3
-     if(.not.ccfok(i)) cycle
-     if((i.eq.i00 .or. (ccfred(i).ge.3.0) .and. abs(f-fgood).gt.10.0*df8)) then
-        call timer('decode9a',0)
-        fpk=1000.0 + df3*(i-1)
-        c1(1:npts8)=conjg(c0(1:npts8))
-        call decode9a(c1,npts8,nsps8,fpk,syncpk,snrdb,xdt,freq,drift,   &
-             i1SoftSymbols)
-        call timer('decode9a',1)
-
-        call timer('decode9 ',0)
-        call decode9(i1SoftSymbols,limit,nlim,msg)
-        call timer('decode9 ',1)
- 
-!        sync=(syncpk-1.0)/2.0
-        sync=(syncpk+1)/4.0
-        if(sync.lt.0.0 .or. snrdb.lt.dblim-2.0) sync=0.0
-        nsync=sync
-        if(nsync.gt.10) nsync=10
-        nsnr=nint(snrdb)
-        ndrift=nint(drift/df3)
-        if(msg.ne.'                      ') then
-           write(*,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
-           write(13,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
-           fgood=f
-           nsynced=1
-           ndecoded=1
-           ccfok(max(ia,i-3):min(ib,i+11))=.false.
-           call flush(6)
-        endif
+  do nqd=1,0,-1
+     if(nqd.eq.1) then
+        nfa1=nfqso-ntol
+        nfb1=nfqso+ntol
+     else
+        nfa1=nfa
+        nfb1=nfb
      endif
+     call timer('sync9   ',0)
+! Compute ccfred()
+     call sync9(ss,nzhsym,tstep,df3,nfa1,nfb1,ntol,nfqso,ccfred,ia,ib,ipk)
+     call timer('sync9   ',1)
+
+     ccfok=.false.
+     ccfok(max(ipk-1,1):min(ipk+1,NSMAX))=.true.
+     if(nqd.eq.1) then
+        ia1=ia
+        ib1=ib
+     else
+        do i=ia+9,ib-25
+           t1=ccfred(i)/(sum(ccfred(i-8:i-6)/3.0))
+           t2=ccfred(i)/(sum(ccfred(i+23:i+25)/3.0))
+           if(t1.ge.ccflim .and. t2.ge.ccflim) ccfok(i)=.true.
+        enddo
+        ccfok(ia1:ib1)=.false.
+     endif
+
+     nRxLog=0
+     fgood=0.
+     nsps8=nsps/8
+     df8=1500.0/nsps8
+     sbest=-1.0
+     dblim=db(864.0/nsps8) - 26.2
+     i1=max(nint((nfqso-1000)/df3 - 10),ia)
+     i2=min(nint((nfqso-1000)/df3 + 10),ib)
+     ii=maxloc(ccfred(i1:i2))
+     i00=ii(1) + i1 - 1
+
+     do i=ia,ib
+        f=(i-1)*df3
+        if(.not.ccfok(i)) cycle
+        if(nqd.eq.1 .or.                                                  &
+           (ccfred(i).ge.3.0 .and. abs(f-fgood).gt.10.0*df8)) then
+           call timer('decode9a',0)
+           fpk=1000.0 + df3*(i-1)
+           c1(1:npts8)=conjg(c0(1:npts8))
+           call decode9a(c1,npts8,nsps8,fpk,syncpk,snrdb,xdt,freq,drift,   &
+                i1SoftSymbols)
+           call timer('decode9a',1)
+
+           call timer('decode9 ',0)
+           call decode9(i1SoftSymbols,limit,nlim,msg)
+           call timer('decode9 ',1)
+ 
+           sync=(syncpk+1)/4.0
+           if(sync.lt.0.0 .or. snrdb.lt.dblim-2.0) sync=0.0
+           nsync=sync
+           if(nsync.gt.10) nsync=10
+           nsnr=nint(snrdb)
+           ndrift=nint(drift/df3)
+           if(msg.ne.'                      ') then
+              write(*,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
+              write(13,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
+              fgood=f
+              nsynced=1
+              ndecoded=1
+              ccfok(max(ia,i-3):min(ib,i+11))=.false.
+              call flush(6)
+           endif
+        endif
+     enddo
+     call flush(6)
   enddo
 
   write(*,1010) nsynced,ndecoded

@@ -174,7 +174,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   if(m_OverlayPixmap.isNull()) return;
   if(m_WaterfallPixmap.isNull()) return;
   int w = m_WaterfallPixmap.width();
-  int x,y,x1,x2;
+  int x,y,x1,x2,dx;
 //  int nHzDiv[11]={0,50,100,200,200,200,500,500,500,500,500};
   float pixperdiv;
 
@@ -269,21 +269,43 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     }
   }
 
-  QPen pen0(Qt::green, 3);                 //Mark QSO Freq with green tick
-  painter0.setPen(pen0);
-  x=XfromFreq(m_fQSO);
-  painter0.drawLine(x,17,x,30);
-  x1=XfromFreq(m_fMin);                    //Mark the decoding range
-  x2=XfromFreq(m_fMax);
-  pen0.setWidth(6);
-  painter0.drawLine(x1,28,x2,28);
+  x1=XfromFreq(m_fMin);
+  int bw=9.0*12000.0/m_nsps;
+  dx=XfromFreq(m_fMin+bw) - x1;
 
-  QPen pen1(Qt::red, 3);                 //Mark TxFreq with red tick
+  QPen pen0(Qt::green, 3);                 //Mark Rx Freq with green
+  painter0.setPen(pen0);
+  x1=XfromFreq(m_fQSO);
+  x2=x1+dx;
+  painter0.drawLine(x1,24,x1,30);
+  painter0.drawLine(x1,28,x2,28);
+  painter0.drawLine(x2,24,x2,30);
+
+  QPen pen2(Qt::blue, 3);                //Mark the decoding range
+  painter0.setPen(pen2);
+  x1=XfromFreq(m_fMin);
+  if(x1<2) x1=2;
+  x2=x1+30;
+//  pen2.setWidth(6);
+  painter0.drawLine(x1,18,x1,28);
+  painter0.drawLine(x1,23,x2,23);
+  painter0.drawLine(x2,23,x2-5,18);
+  painter0.drawLine(x2,23,x2-5,28);
+  x2=XfromFreq(m_fMax);
+  x1=x2-30;
+//  pen2.setWidth(6);
+  painter0.drawLine(x2,18,x2,28);
+  painter0.drawLine(x1,23,x2,23);
+  painter0.drawLine(x1,23,x1+5,18);
+  painter0.drawLine(x1,23,x1+5,28);
+
+  QPen pen1(Qt::red, 3);                   //Mark Tx freq with red
   painter0.setPen(pen1);
-  x=XfromFreq(m_txFreq);
-  painter0.drawLine(x,0,x,13);
-  painter0.drawLine(x,13,x-2,11);
-  painter0.drawLine(x,13,x+2,11);
+  x1=XfromFreq(m_txFreq);
+  x2=x1+dx;
+  painter0.drawLine(x1,17,x1,21);
+  painter0.drawLine(x1,17,x2,17);
+  painter0.drawLine(x2,17,x2,21);
 }
 
 void CPlotter::MakeFrequencyStrs()                       //MakeFrequencyStrs
