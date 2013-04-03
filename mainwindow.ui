@@ -1633,6 +1633,23 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
+        <item row="0" column="11">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Now</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="10">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Next</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
@@ -1675,6 +1692,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionConvert_JT9_x_to_RTTY"/>
     <addaction name="actionLog_dB_reports_to_Comments"/>
     <addaction name="actionPrompt_to_log_QSO"/>
+    <addaction name="actionBlank_line_between_decoding_periods"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -1744,6 +1762,9 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
   <action name="actionDeviceSetup">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Options</string>
    </property>
@@ -2158,6 +2179,14 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Prompt me to log QSO</string>
+   </property>
+  </action>
+  <action name="actionBlank_line_between_decoding_periods">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Blank line between decoding periods</string>
    </property>
   </action>
  </widget>

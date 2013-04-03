@@ -160,6 +160,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_secID=0;
   m_promptToLog=false;
   m_blankLine=false;
+  m_insertBlank=false;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -369,6 +370,7 @@ void MainWindow::writeSettings()
   settings.setValue("HandshakeIndex",m_handshakeIndex);
   settings.setValue("BandIndex",m_band);
   settings.setValue("PromptToLog",m_promptToLog);
+  settings.setValue("InsertBlank",m_insertBlank);
   settings.endGroup();
 }
 
@@ -462,6 +464,8 @@ void MainWindow::readSettings()
   ui->bandComboBox->setCurrentIndex(m_band);
   m_promptToLog=settings.value("PromptToLog",false).toBool();
   ui->actionPrompt_to_log_QSO->setChecked(m_promptToLog);
+  m_insertBlank=settings.value("InsertBlank",false).toBool();
+  ui->actionBlank_line_between_decoding_periods->setChecked(m_insertBlank);
 
   settings.endGroup();
 
@@ -1180,7 +1184,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
       QTextCursor cursor;
       QTextBlockFormat bf;
-      if(m_blankLine) {
+      if(m_insertBlank and m_blankLine) {
         QString bg="#9fb6cd";
         bf.setBackground(QBrush(QColor(bg)));
         QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
@@ -1651,6 +1655,8 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   int i4=t.mid(i1).length();
   if(i4>60) i4=60;
   QString t3=t.mid(i1,i4);
+  int i5=t3.indexOf(" CQ DX ");
+  if(i5>0) t3=t3.mid(0,i5+3) + "_" + t3.mid(i5+4);  //Make it "CQ_DX" (one word)
   QStringList t4=t3.split(" ",QString::SkipEmptyParts);
   if(t4.length() <7) return;           //Skip the rest if no decoded text
   QString firstcall=t4.at(6);
@@ -2243,4 +2249,9 @@ void MainWindow::on_bandComboBox_currentIndexChanged(int index)
 void MainWindow::on_actionPrompt_to_log_QSO_triggered(bool checked)
 {
   m_promptToLog=checked;
+}
+
+void MainWindow::on_actionBlank_line_between_decoding_periods_triggered(bool checked)
+{
+  m_insertBlank=checked;
 }
