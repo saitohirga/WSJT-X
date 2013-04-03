@@ -129,10 +129,9 @@ private slots:
   void startTx2();
   void stopTx();
   void stopTx2();
-
   void on_bandComboBox_currentIndexChanged(int index);
-
   void on_actionPrompt_to_log_QSO_triggered(bool checked);
+  void on_actionBlank_line_between_decoding_periods_triggered(bool checked);
 
 private:
     Ui::MainWindow *ui;
@@ -212,6 +211,7 @@ private:
     bool    m_After73;
     bool    m_promptToLog;
     bool    m_blankLine;
+    bool    m_insertBlank;
 
     char    m_decoded[80];
 

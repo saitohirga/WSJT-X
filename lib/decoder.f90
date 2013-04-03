@@ -111,7 +111,8 @@ subroutine decoder(ss,c0)
         call decode9(i1SoftSymbols,limit,nlim,msg)
         call timer('decode9 ',1)
  
-        sync=(syncpk-1.0)/2.0
+!        sync=(syncpk-1.0)/2.0
+        sync=(syncpk+1)/4.0
         if(sync.lt.0.0 .or. snrdb.lt.dblim-2.0) sync=0.0
         nsync=sync
         if(nsync.gt.10) nsync=10
