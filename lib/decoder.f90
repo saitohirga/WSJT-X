@@ -66,6 +66,7 @@ subroutine decoder(ss,c0)
 
   kstep=nsps/2
   tstep=kstep/12000.0
+  idf=ntol/df3 + 0.999
 
   do nqd=1,0,-1
      if(nqd.eq.1) then
@@ -81,7 +82,7 @@ subroutine decoder(ss,c0)
      call timer('sync9   ',1)
 
      ccfok=.false.
-     ccfok(max(ipk-1,1):min(ipk+1,NSMAX))=.true.
+     ccfok(max(ipk-idf,1):min(ipk+idf,NSMAX))=.true.
      if(nqd.eq.1) then
         ia1=ia
         ib1=ib
