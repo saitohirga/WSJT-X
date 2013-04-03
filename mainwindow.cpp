@@ -161,6 +161,8 @@ MainWindow::MainWindow(QWidget *parent) :
   m_promptToLog=false;
   m_blankLine=false;
   m_insertBlank=false;
+  m_fMin=1000;
+  ui->fMinSpinBox->setValue(m_fMin);
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -190,8 +192,7 @@ MainWindow::MainWindow(QWidget *parent) :
   if(paerr!=paNoError) {
     msgBox("Unable to initialize PortAudio.");
   }
-  readSettings();		             //Restore user's setup params
-
+  readSettings();		             //Restore user's setup params  
   if(m_dFreq.length()<=1) {
     m_dFreq.clear();
     for(int i=0; i<16; i++) {
@@ -225,6 +226,7 @@ MainWindow::MainWindow(QWidget *parent) :
   if(m_mode=="JT9-5") on_actionJT9_5_triggered();
   if(m_mode=="JT9-10") on_actionJT9_10_triggered();
   if(m_mode=="JT9-30") on_actionJT9_30_triggered();
+  g_pWideGraph->setRxRange(m_fMin,m_fMax);
   future1 = new QFuture<void>;
   watcher1 = new QFutureWatcher<void>;
   connect(watcher1, SIGNAL(finished()),this,SLOT(diskDat()));
@@ -240,11 +242,6 @@ MainWindow::MainWindow(QWidget *parent) :
   m_monitoring=!m_monitorStartOFF;           // Start with Monitoring ON/OFF
   soundInThread.setMonitoring(m_monitoring);
   m_diskData=false;
-  static int ntol[] = {1,2,5,10,20,50,100,200,500};
-  for (int i=0; i<10; i++) {
-    if(ntol[i]==m_tol) ui->tolSlider->setValue(i);
-  }
-  g_pWideGraph->setTol(m_tol);
 
 // Create "m_worked", a dictionary of all calls in wsjtx.log
   QFile f("wsjtx.log");
@@ -346,7 +343,6 @@ void MainWindow::writeSettings()
   settings.setValue("NBslider",m_NBslider);
   settings.setValue("DialFreq",m_dialFreq);
   settings.setValue("TxFreq",m_txFreq);
-  settings.setValue("Tol",m_tol);
   settings.setValue("InGain",m_inGain);
   settings.setValue("PSKReporter",m_pskReporter);
   settings.setValue("After73",m_After73);
@@ -430,7 +426,6 @@ void MainWindow::readSettings()
   m_saveDecoded=ui->actionSave_decoded->isChecked();
   m_saveAll=ui->actionSave_all->isChecked();
   m_ndepth=settings.value("NDepth",2).toInt();
-  m_tol=settings.value("Tol",500).toInt();
   m_inGain=settings.value("InGain",0).toInt();
   ui->inGain->setValue(m_inGain);
   m_kb8rq=settings.value("KB8RQ",false).toBool();
@@ -815,14 +810,6 @@ void MainWindow::createStatusBar()                           //createStatusBar
   statusBar()->addWidget(lab5);
 }
 
-void MainWindow::on_tolSlider_valueChanged(int i)             //tolSlider
-{
-  static int ntol[] = {1,2,5,10,20,50,100,200,500};
-  m_tol=ntol[i];
-  g_pWideGraph->setTol(m_tol);
-  ui->labTol1->setText("Tolerance: " + QString::number(ntol[i]));
-}
-
 void MainWindow::on_actionExit_triggered()                     //Exit()
 {
   OnExit();
@@ -1055,22 +1042,6 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
 {
   if(n==1) {
     bumpFqso(0);
-  } else {
-    static int ntol[] = {1,2,5,10,20,50,100,200,500};
-    if(!m_decoderBusy) {
-      jt9com_.newdat=0;
-      jt9com_.nagain=1;
-      int i;
-      if(m_mode=="JT9-1") i=4;
-      if(m_mode=="JT9-2") i=4;
-      if(m_mode=="JT9-5") i=3;
-      if(m_mode=="JT9-10") i=2;
-      if(m_mode=="JT9-30") i=1;
-      m_tol=ntol[i];
-      g_pWideGraph->setTol(m_tol);
-      ui->tolSlider->setValue(i);
-      decode();
-    }
   }
 }
 
@@ -1093,7 +1064,7 @@ void MainWindow::decode()                                       //decode()
   jt9com_.nfa=1000;                         //### temporary ###
   jt9com_.nfb=2000;
 
-  jt9com_.ntol=m_tol;
+  jt9com_.ntol=10;
   if(jt9com_.nutc < m_nutc0) m_RxLog |= 1;  //Date and Time to all65.txt
   m_nutc0=jt9com_.nutc;
   jt9com_.nrxlog=m_RxLog;
@@ -2017,6 +1988,8 @@ void MainWindow::on_actionJT9_1_triggered()
   lab4->setStyleSheet("QLabel{background-color: #ff6ec7}");
   lab4->setText(m_mode);
   ui->actionJT9_1->setChecked(true);
+  m_fMax=2000;
+  ui->fMaxSpinBox->setValue(m_fMax);
 }
 
 void MainWindow::on_actionJT9_2_triggered()
@@ -2032,6 +2005,8 @@ void MainWindow::on_actionJT9_2_triggered()
   lab4->setStyleSheet("QLabel{background-color: #ffff00}");
   lab4->setText(m_mode);
   ui->actionJT9_2->setChecked(true);
+  m_fMax=2000;
+  ui->fMaxSpinBox->setValue(m_fMax);
 }
 
 void MainWindow::on_actionJT9_5_triggered()
@@ -2047,6 +2022,8 @@ void MainWindow::on_actionJT9_5_triggered()
   lab4->setStyleSheet("QLabel{background-color: #ffa500}");
   lab4->setText(m_mode);
   ui->actionJT9_5->setChecked(true);
+  m_fMax=1300;
+  ui->fMaxSpinBox->setValue(m_fMax);
 }
 
 void MainWindow::on_actionJT9_10_triggered()
@@ -2062,6 +2039,8 @@ void MainWindow::on_actionJT9_10_triggered()
   lab4->setStyleSheet("QLabel{background-color: #7fff00}");
   lab4->setText(m_mode);
   ui->actionJT9_10->setChecked(true);
+  m_fMax=1150;
+  ui->fMaxSpinBox->setValue(m_fMax);
 }
 
 void MainWindow::on_actionJT9_30_triggered()
@@ -2077,6 +2056,8 @@ void MainWindow::on_actionJT9_30_triggered()
   lab4->setStyleSheet("QLabel{background-color: #97ffff}");
   lab4->setText(m_mode);
   ui->actionJT9_30->setChecked(true);
+  m_fMax=1050;
+  ui->fMaxSpinBox->setValue(m_fMax);
 }
 
 void MainWindow::on_NBcheckBox_toggled(bool checked)
@@ -2254,4 +2235,16 @@ void MainWindow::on_actionPrompt_to_log_QSO_triggered(bool checked)
 void MainWindow::on_actionBlank_line_between_decoding_periods_triggered(bool checked)
 {
   m_insertBlank=checked;
+}
+
+void MainWindow::on_fMinSpinBox_valueChanged(int n)
+{
+  m_fMin=n;
+  g_pWideGraph->setRxRange(m_fMin,m_fMax);
+}
+
+void MainWindow::on_fMaxSpinBox_valueChanged(int n)
+{
+  m_fMax=n;
+  g_pWideGraph->setRxRange(m_fMin,m_fMax);
 }

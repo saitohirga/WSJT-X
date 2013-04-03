@@ -68,7 +68,8 @@ subroutine decoder(ss,c0)
   tstep=kstep/12000.0
 
   call timer('sync9   ',0)
-  call sync9(ss,nzhsym,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk)  !Compute ccfred
+! Compute ccfred()
+  call sync9(ss,nzhsym,tstep,df3,nfa,nfb,ntol,nfqso,ccfred,ia,ib,ipk)
   call timer('sync9   ',1)
 
   ccfok=.false.
