@@ -202,16 +202,11 @@ void WideGraph::wideFreezeDecode(int n)
   emit freezeDecode2(n);
 }
 
-void WideGraph::setTol(int n)
+void WideGraph::setRxRange(int fMin, int fMax)
 {
-  ui->widePlot->setTol(n);
+  ui->widePlot->setRxRange(fMin,fMax);
   ui->widePlot->DrawOverlay();
   ui->widePlot->update();
-}
-
-int WideGraph::Tol()
-{
-  return ui->widePlot->Tol();
 }
 
 void WideGraph::setFcal(int n)

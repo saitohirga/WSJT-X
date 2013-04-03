@@ -22,8 +22,7 @@ public:
   int    nStartFreq();
   float  fSpan();
   void   saveSettings();
-  int    Tol();
-  void   setTol(int n);
+  void   setRxRange(int fMin, int fMax);
   void   setFcal(int n);
   void   setPalette(QString palette);
   void   setFsample(int n);

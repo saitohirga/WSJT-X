@@ -174,7 +174,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   if(m_OverlayPixmap.isNull()) return;
   if(m_WaterfallPixmap.isNull()) return;
   int w = m_WaterfallPixmap.width();
-  int x,y;
+  int x,y,x1,x2;
 //  int nHzDiv[11]={0,50,100,200,200,200,500,500,500,500,500};
   float pixperdiv;
 
@@ -206,21 +206,6 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
           y = (int)( (float)i*pixperdiv );
           painter.drawLine(0, y, w, y);
   }
-
-/*
-  //draw amplitude values
-  painter.setPen(Qt::yellow);
-//  Font.setWeight(QFont::Light);
-//  painter.setFont(Font);
-//  int dB = m_MaxdB;
-  int dB = 50;
-  for( int i=0; i<VERT_DIVS-1; i++)
-  {
-    y = (int)( (float)i*pixperdiv );
-    painter.drawStaticText(5, y-1, QString::number(dB)+" dB");
-    dB -= m_dBStepSize;
-  }
-*/
 
   QRect rect0;
   QPainter painter0(&m_ScalePixmap);
@@ -288,31 +273,17 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   painter0.setPen(pen0);
   x=XfromFreq(m_fQSO);
   painter0.drawLine(x,17,x,30);
-  int x1=x - m_tol/df;
-  int x2=x + m_tol/df;
+  x1=XfromFreq(m_fMin);                    //Mark the decoding range
+  x2=XfromFreq(m_fMax);
   pen0.setWidth(6);
   painter0.drawLine(x1,28,x2,28);
 
   QPen pen1(Qt::red, 3);                 //Mark TxFreq with red tick
   painter0.setPen(pen1);
-  x = XfromFreq(m_txFreq);
+  x=XfromFreq(m_txFreq);
   painter0.drawLine(x,0,x,13);
   painter0.drawLine(x,13,x-2,11);
   painter0.drawLine(x,13,x+2,11);
-
-  /*
-  df = 12000.0/m_nsps;
-  int nlabs=df*w/m_freqPerDiv + 1.0;
-//  m_LowerScalePixmap.fill(Qt::white);
-//  painter3.drawRect(0, 0, w, 30);
-  pixperdiv = m_freqPerDiv/df;
-  for( int i=0; i<10*nlabs; i++) {
-    x = i*pixperdiv/10;
-    y=24;
-    if ((i%10) == 0) y=18;
-//    painter3.drawLine(x,y,x,30);
-  }
-  */
 }
 
 void CPlotter::MakeFrequencyStrs()                       //MakeFrequencyStrs
@@ -380,15 +351,10 @@ int CPlotter::plotWidth(){return m_WaterfallPixmap.width();}
 void CPlotter::UpdateOverlay() {DrawOverlay();}
 void CPlotter::setDataFromDisk(bool b) {m_dataFromDisk=b;}
 
-void CPlotter::setTol(int n)                                 //setTol()
+void CPlotter::setRxRange(int fMin, int fMax)
 {
-  m_tol=n;
-  DrawOverlay();
-}
-
-int CPlotter::Tol()                                         //Tol()
-{
-  return m_tol;
+  m_fMin=fMin;
+  m_fMax=fMax;
 }
 
 void CPlotter::setBinsPerPixel(int n)                       // set nbpp

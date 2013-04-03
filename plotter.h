@@ -50,8 +50,7 @@ public:
   void setNSpan(int n);
   void UpdateOverlay();
   void setDataFromDisk(bool b);
-  void setTol(int n);
-  int  Tol();
+  void setRxRange(int fMin, int fMax);
   void setBinsPerPixel(int n);
   int  binsPerPixel();
   void setFQSO(int n, bool bf);
@@ -110,9 +109,10 @@ private:
   qint32  m_h;
   qint32  m_h1;
   qint32  m_h2;
-  qint32  m_tol;
   qint32  m_TRperiod;
   qint32  m_txFreq;
+  qint32  m_fMin;
+  qint32  m_fMax;
 
 private slots:
   void mousePressEvent(QMouseEvent *event);
