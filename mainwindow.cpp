@@ -268,11 +268,11 @@ MainWindow::MainWindow(QWidget *parent) :
   if(ui->actionBlue->isChecked()) on_actionBlue_triggered();
 
   ui->decodedTextLabel->setFont(ui->decodedTextBrowser->font());
-  ui->decodedTextLabel->setFont(ui->decodedTextBrowser2->font());
-  //         2022   0  0.1 1446  W5NZ EA6BB JM19
+  ui->decodedTextLabel2->setFont(ui->decodedTextBrowser2->font());
+  // 2022   0  0.1 1446  W5NZ EA6BB JM19
   t="UTC   dB   DT Freq  Message";
-  t=t + "                  " + t;
   ui->decodedTextLabel->setText(t);
+  ui->decodedTextLabel2->setText(t);
 
 #ifdef WIN32
   if(m_pskReporter) {
