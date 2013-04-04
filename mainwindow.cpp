@@ -79,6 +79,8 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(txMsgButtonGroup,SIGNAL(buttonClicked(int)),SLOT(set_ntx(int)));
   connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool,bool)),this,
           SLOT(doubleClickOnCall(bool,bool)));
+  connect(ui->decodedTextBrowser2,SIGNAL(selectCallsign(bool,bool)),this,
+          SLOT(doubleClickOnCall2(bool,bool)));
 
   setWindowTitle(Program_Title_Version);
   connect(&soundInThread, SIGNAL(readyForFFT(int)),
@@ -164,7 +166,9 @@ MainWindow::MainWindow(QWidget *parent) :
   m_clearCallGrid=false;
   m_bMiles=false;
   m_fMin=1000;
+  m_decodedText2=false;
   ui->fMinSpinBox->setValue(m_fMin);
+
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -264,8 +268,11 @@ MainWindow::MainWindow(QWidget *parent) :
   if(ui->actionBlue->isChecked()) on_actionBlue_triggered();
 
   ui->decodedTextLabel->setFont(ui->decodedTextBrowser->font());
-  //                             2241  10   -8   0.2   1184.   0   VK7XX N1ISA FN41
-  ui->decodedTextLabel->setText("UTC  Sync  dB    DT   Freq  Drift Message");
+  ui->decodedTextLabel->setFont(ui->decodedTextBrowser2->font());
+  //         2022   0  0.1 1446  W5NZ EA6BB JM19
+  t="UTC   dB   DT Freq  Message";
+  t=t + "                  " + t;
+  ui->decodedTextLabel->setText(t);
 
 #ifdef WIN32
   if(m_pskReporter) {
@@ -1177,15 +1184,25 @@ void MainWindow::readFromStdout()                             //readFromStdout
       QString bg="white";
       if(t.indexOf(" CQ ")>0) bg="#66ff66";                //Light green
       if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //Light red
-
+      bool bQSO=abs(t.mid(22,4).toInt() - g_pWideGraph->QSOfreq()) < 10;
+      QString t1=t.mid(0,5) + t.mid(10,4) + t.mid(15,5) + t.mid(22,4) +
+          t.mid(32);
       QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-          bg + "\"><pre>" + t.replace("\n","") + "</pre></td></tr></table>";
-      cursor = ui->decodedTextBrowser->textCursor();
+          bg + "\"><pre>" + t1.replace("\n","") + "</pre></td></tr></table>";
+      if(bQSO) {
+        cursor = ui->decodedTextBrowser->textCursor();
+        cursor.movePosition(QTextCursor::End);
+        bf = cursor.blockFormat();
+        bf.setBackground(QBrush(QColor(bg)));
+        cursor.insertHtml(s);
+        ui->decodedTextBrowser->setTextCursor(cursor);
+      }
+      cursor = ui->decodedTextBrowser2->textCursor();
       cursor.movePosition(QTextCursor::End);
       bf = cursor.blockFormat();
       bf.setBackground(QBrush(QColor(bg)));
       cursor.insertHtml(s);
-      ui->decodedTextBrowser->setTextCursor(cursor);
+      ui->decodedTextBrowser2->setTextCursor(cursor);
 
       QString msg=t.mid(34,22);
       bool b=stdmsg_(msg.toAscii().constData(),22);
@@ -1253,6 +1270,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 void MainWindow::on_EraseButton_clicked()                          //Erase
 {
   ui->decodedTextBrowser->clear();
+  ui->decodedTextBrowser2->clear();
 }
 
 void MainWindow::decodeBusy(bool b)                             //decodeBusy()
@@ -1620,33 +1638,45 @@ void MainWindow::on_txb6_clicked()                                //txb6
   m_restart=true;
 }
 
+void MainWindow::doubleClickOnCall2(bool shift, bool ctrl)
+{
+  m_decodedText2=true;
+  doubleClickOnCall(shift,ctrl);
+  m_decodedText2=false;
+}
 void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 {
-  QTextCursor cursor=ui->decodedTextBrowser->textCursor();
+  QTextCursor cursor;
+  if(!m_decodedText2) cursor=ui->decodedTextBrowser->textCursor();
+  if(m_decodedText2) cursor=ui->decodedTextBrowser2->textCursor();
   cursor.select(QTextCursor::LineUnderCursor);
   int i2=cursor.position();
-  QString t = ui->decodedTextBrowser->toPlainText();   //Full contents
+
+  QString t;
+  if(!m_decodedText2) t= ui->decodedTextBrowser->toPlainText(); //Full contents
+  if(m_decodedText2) t= ui->decodedTextBrowser2->toPlainText();
+
   QString t1 = t.mid(0,i2);              //contents up to \n on selected line
   int i1=t1.lastIndexOf("\n") + 1;       //points to first char of line
   QString t2 = t1.mid(i1,i2-i1);         //selected line
   int i4=t.mid(i1).length();
-  if(i4>60) i4=60;
+  if(i4>55) i4=55;
   QString t3=t.mid(i1,i4);
   int i5=t3.indexOf(" CQ DX ");
   if(i5>0) t3=t3.mid(0,i5+3) + "_" + t3.mid(i5+4);  //Make it "CQ_DX" (one word)
   QStringList t4=t3.split(" ",QString::SkipEmptyParts);
-  if(t4.length() <7) return;           //Skip the rest if no decoded text
-  QString firstcall=t4.at(6);
+  if(t4.length() <5) return;           //Skip the rest if no decoded text
+  QString firstcall=t4.at(4);
   //Don't change freqs if Shift key down or a station is calling me.
   if(!shift and (firstcall!=m_myCall or ctrl)) {
-    int nfreq=int(t4.at(4).toFloat());
+    int nfreq=int(t4.at(3).toFloat());
     ui->TxFreqSpinBox->setValue(nfreq);
     g_pWideGraph->setQSOfreq(nfreq);
   }
-  QString hiscall=t4.at(7);
+  QString hiscall=t4.at(5);
   QString hisgrid="";
-  if(t4.length()>=9)
-      hisgrid=t4.at(8);
+  if(t4.length()>=7)
+      hisgrid=t4.at(6);
   ui->dxCallEntry->setText(hiscall);
   lookup();
   if(ui->dxGridEntry->text()=="" and gridOK(hisgrid))
@@ -1655,7 +1685,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   int nmod=n%(m_TRperiod/30);
   m_txFirst=(nmod!=0);
   ui->txFirstCheckBox->setChecked(m_txFirst);
-  QString rpt=t4.at(2);
+  QString rpt=t4.at(1);
   if(rpt.indexOf("  ")==0) rpt="+" + rpt.mid(2,2);
   if(rpt.indexOf(" -")==0) rpt=rpt.mid(1,2);
   if(rpt.indexOf(" ")==0) rpt="+" + rpt.mid(1,2);

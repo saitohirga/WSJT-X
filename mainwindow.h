@@ -33,6 +33,7 @@ public slots:
   void freezeDecode(int n);
   void guiUpdate();
   void doubleClickOnCall(bool shift, bool ctrl);
+  void doubleClickOnCall2(bool shift, bool ctrl);
   void readFromStdout();
   void readFromStderr();
   void jt9_error();
@@ -220,6 +221,7 @@ private:
     bool    m_insertBlank;
     bool    m_clearCallGrid;
     bool    m_bMiles;
+    bool    m_decodedText2;
 
     char    m_decoded[80];
 
