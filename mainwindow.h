@@ -132,8 +132,8 @@ private slots:
   void on_bandComboBox_currentIndexChanged(int index);
   void on_actionPrompt_to_log_QSO_triggered(bool checked);
   void on_actionBlank_line_between_decoding_periods_triggered(bool checked);
-  void on_fMinSpinBox_valueChanged(int n);
-  void on_fMaxSpinBox_valueChanged(int n);
+  //void on_fMinSpinBox_valueChanged(int n);
+  //void on_fMaxSpinBox_valueChanged(int n);
 
   void on_actionClear_DX_Call_and_Grid_after_logging_triggered(bool checked);
 
@@ -149,8 +149,8 @@ private:
     qint32  m_idInt;
     qint32  m_waterfallAvg;
     qint32  m_pttMethodIndex;
-    qint32  m_fMin;
-    qint32  m_fMax;
+    //qint32  m_fMin;
+    //qint32  m_fMax;
     qint32  m_QSOfreq0;
     qint32  m_ntx;
     qint32  m_pttPort;

@@ -20,6 +20,9 @@ WideGraph::WideGraph(QWidget *parent) :
   connect(ui->widePlot, SIGNAL(freezeDecode1(int)),this,
           SLOT(wideFreezeDecode(int)));
 
+  m_fMin=1000;
+  ui->fMinSpinBox->setValue(m_fMin);
+
   //Restore user's settings
   QString inifile(QApplication::applicationDirPath());
   inifile += "/wsjtx.ini";
@@ -209,6 +212,12 @@ void WideGraph::setRxRange(int fMin, int fMax)
   ui->widePlot->update();
 }
 
+void WideGraph::setfMax(int n)
+{
+  m_fMax = n;
+  setRxRange(m_fMin,m_fMax);
+}
+
 void WideGraph::setFcal(int n)
 {
   m_fCal=n;
@@ -246,3 +255,16 @@ void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)
   if(arg1=="Cumulative") ui->widePlot->m_bCumulative=true;
   if(arg1=="JT9 Sync") ui->widePlot->m_bJT9Sync=true;
 }
+
+void WideGraph::on_fMinSpinBox_valueChanged(int n)
+{
+  m_fMin=n;
+  setRxRange(m_fMin,m_fMax);
+}
+
+void WideGraph::on_fMaxSpinBox_valueChanged(int n)
+{
+  m_fMax=n;
+  setRxRange(m_fMin,m_fMax);
+}
+
