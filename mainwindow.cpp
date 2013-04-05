@@ -165,9 +165,9 @@ MainWindow::MainWindow(QWidget *parent) :
   m_insertBlank=false;
   m_clearCallGrid=false;
   m_bMiles=false;
-  m_fMin=1000;
+  //m_fMin=1000;
   m_decodedText2=false;
-  ui->fMinSpinBox->setValue(m_fMin);
+  //ui->fMinSpinBox->setValue(m_fMin);
 
   decodeBusy(false);
 
@@ -232,7 +232,7 @@ MainWindow::MainWindow(QWidget *parent) :
   if(m_mode=="JT9-5") on_actionJT9_5_triggered();
   if(m_mode=="JT9-10") on_actionJT9_10_triggered();
   if(m_mode=="JT9-30") on_actionJT9_30_triggered();
-  g_pWideGraph->setRxRange(m_fMin,m_fMax);
+  //g_pWideGraph->setRxRange(m_fMin,m_fMax);
   future1 = new QFuture<void>;
   watcher1 = new QFutureWatcher<void>;
   connect(watcher1, SIGNAL(finished()),this,SLOT(diskDat()));
@@ -582,6 +582,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_stopBitsIndex=m_stopBitsIndex;
   dlg.m_handshake=m_handshake;
   dlg.m_handshakeIndex=m_handshakeIndex;
+
   dlg.initDlg();
   if(dlg.exec() == QDialog::Accepted) {
     m_myCall=dlg.m_myCall;
@@ -2027,8 +2028,9 @@ void MainWindow::on_actionJT9_1_triggered()
   lab4->setStyleSheet("QLabel{background-color: #ff6ec7}");
   lab4->setText(m_mode);
   ui->actionJT9_1->setChecked(true);
-  m_fMax=2000;
-  ui->fMaxSpinBox->setValue(m_fMax);
+  //m_fMax=2000;
+  //ui->fMaxSpinBox->setValue(m_fMax);
+  g_pWideGraph->setfMax(2000);
 }
 
 void MainWindow::on_actionJT9_2_triggered()
@@ -2044,8 +2046,9 @@ void MainWindow::on_actionJT9_2_triggered()
   lab4->setStyleSheet("QLabel{background-color: #ffff00}");
   lab4->setText(m_mode);
   ui->actionJT9_2->setChecked(true);
-  m_fMax=2000;
-  ui->fMaxSpinBox->setValue(m_fMax);
+  //m_fMax=2000;
+  //ui->fMaxSpinBox->setValue(m_fMax);
+  g_pWideGraph->setfMax(2000);
 }
 
 void MainWindow::on_actionJT9_5_triggered()
@@ -2061,8 +2064,9 @@ void MainWindow::on_actionJT9_5_triggered()
   lab4->setStyleSheet("QLabel{background-color: #ffa500}");
   lab4->setText(m_mode);
   ui->actionJT9_5->setChecked(true);
-  m_fMax=1300;
-  ui->fMaxSpinBox->setValue(m_fMax);
+  //m_fMax=1300;
+  //ui->fMaxSpinBox->setValue(m_fMax);
+  g_pWideGraph->setfMax(1300);
 }
 
 void MainWindow::on_actionJT9_10_triggered()
@@ -2078,8 +2082,9 @@ void MainWindow::on_actionJT9_10_triggered()
   lab4->setStyleSheet("QLabel{background-color: #7fff00}");
   lab4->setText(m_mode);
   ui->actionJT9_10->setChecked(true);
-  m_fMax=1150;
-  ui->fMaxSpinBox->setValue(m_fMax);
+  //m_fMax=1150;
+  //ui->fMaxSpinBox->setValue(m_fMax);
+  g_pWideGraph->setfMax(1150);
 }
 
 void MainWindow::on_actionJT9_30_triggered()
@@ -2095,8 +2100,9 @@ void MainWindow::on_actionJT9_30_triggered()
   lab4->setStyleSheet("QLabel{background-color: #97ffff}");
   lab4->setText(m_mode);
   ui->actionJT9_30->setChecked(true);
-  m_fMax=1050;
-  ui->fMaxSpinBox->setValue(m_fMax);
+  //m_fMax=1050;
+  //ui->fMaxSpinBox->setValue(m_fMax);
+  g_pWideGraph->setfMax(1050);
 }
 
 void MainWindow::on_NBcheckBox_toggled(bool checked)
@@ -2276,6 +2282,7 @@ void MainWindow::on_actionBlank_line_between_decoding_periods_triggered(bool che
   m_insertBlank=checked;
 }
 
+/*
 void MainWindow::on_fMinSpinBox_valueChanged(int n)
 {
   m_fMin=n;
@@ -2287,6 +2294,7 @@ void MainWindow::on_fMaxSpinBox_valueChanged(int n)
   m_fMax=n;
   g_pWideGraph->setRxRange(m_fMin,m_fMax);
 }
+*/
 
 void MainWindow::on_actionClear_DX_Call_and_Grid_after_logging_triggered(bool checked)
 {
