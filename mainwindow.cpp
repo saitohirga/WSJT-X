@@ -1205,12 +1205,15 @@ void MainWindow::readFromStdout()                             //readFromStdout
         cursor.insertHtml(s);
         ui->decodedTextBrowser->setTextCursor(cursor);
       }
-      cursor = ui->decodedTextBrowser2->textCursor();
-      cursor.movePosition(QTextCursor::End);
-      bf = cursor.blockFormat();
-      bf.setBackground(QBrush(QColor(bg)));
-      cursor.insertHtml(s);
-      ui->decodedTextBrowser2->setTextCursor(cursor);
+
+      if(jt9com_.nagain==0) {
+        cursor = ui->decodedTextBrowser2->textCursor();
+        cursor.movePosition(QTextCursor::End);
+        bf = cursor.blockFormat();
+        bf.setBackground(QBrush(QColor(bg)));
+        cursor.insertHtml(s);
+        ui->decodedTextBrowser2->setTextCursor(cursor);
+      }
 
       QString msg=t.mid(34,22);
       bool b=stdmsg_(msg.toAscii().constData(),22);
@@ -1712,6 +1715,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
     if(ui->tabWidget->currentIndex()==1) {
       ui->genMsg->setText(ui->tx2->text());
       m_ntx=7;
+      ui->rbGenMsg->setChecked(true);
     }
   } else {
     m_ntx=1;
@@ -2318,20 +2322,6 @@ void MainWindow::on_actionBlank_line_between_decoding_periods_triggered(bool che
   m_insertBlank=checked;
 }
 
-/*
-void MainWindow::on_fMinSpinBox_valueChanged(int n)
-{
-  m_fMin=n;
-  g_pWideGraph->setRxRange(m_fMin,m_fMax);
-}
-
-void MainWindow::on_fMaxSpinBox_valueChanged(int n)
-{
-  m_fMax=n;
-  g_pWideGraph->setRxRange(m_fMin,m_fMax);
-}
-*/
-
 void MainWindow::on_actionClear_DX_Call_and_Grid_after_logging_triggered(bool checked)
 {
   m_clearCallGrid=checked;
@@ -2348,7 +2338,8 @@ void MainWindow::on_pbCallCQ_clicked()
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx6->text());
   m_ntx=7;
-  if(m_freeText) m_ntx=8;
+  ui->rbGenMsg->setChecked(true);
+  if(m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_pbAnswerCaller_clicked()
@@ -2356,7 +2347,8 @@ void MainWindow::on_pbAnswerCaller_clicked()
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx2->text());
   m_ntx=7;
-  if(m_freeText) m_ntx=8;
+  ui->rbGenMsg->setChecked(true);
+  if(m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_pbSendRRR_clicked()
@@ -2364,7 +2356,8 @@ void MainWindow::on_pbSendRRR_clicked()
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx4->text());
   m_ntx=7;
-  if(m_freeText) m_ntx=8;
+  ui->rbGenMsg->setChecked(true);
+  if(m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_pbAnswerCQ_clicked()
@@ -2372,7 +2365,8 @@ void MainWindow::on_pbAnswerCQ_clicked()
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx1->text());
   m_ntx=7;
-  if(m_freeText) m_ntx=8;
+  ui->rbGenMsg->setChecked(true);
+  if(m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_pbSendReport_clicked()
@@ -2380,7 +2374,8 @@ void MainWindow::on_pbSendReport_clicked()
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx3->text());
   m_ntx=7;
-  if(m_freeText) m_ntx=8;
+  ui->rbGenMsg->setChecked(true);
+  if(m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_pbSend73_clicked()
@@ -2388,7 +2383,8 @@ void MainWindow::on_pbSend73_clicked()
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx5->text());
   m_ntx=7;
-  if(m_freeText) m_ntx=8;
+  ui->rbGenMsg->setChecked(true);
+  if(m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_rbGenMsg_toggled(bool checked)

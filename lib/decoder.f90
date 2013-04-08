@@ -140,6 +140,7 @@ subroutine decoder(ss,c0)
         endif
      enddo
      call flush(6)
+     if(nagain.ne.0) exit
   enddo
 
   write(*,1010) nsynced,ndecoded
