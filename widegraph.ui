@@ -80,7 +80,7 @@
           <bool>true</bool>
          </property>
          <property name="text">
-          <string>FFT B/P</string>
+          <string>FFT Bins/Pixel</string>
          </property>
          <property name="margin">
           <number>2</number>

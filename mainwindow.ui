@@ -643,8 +643,8 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="maximumSize">
            <size>
-            <width>43</width>
-            <height>200</height>
+            <width>40</width>
+            <height>180</height>
            </size>
           </property>
           <property name="borderWidth" stdset="0">
@@ -675,13 +675,13 @@ p, li { white-space: pre-wrap; }
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>200</height>
+            <height>180</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>200</height>
+            <height>180</height>
            </size>
           </property>
           <property name="minimum">
@@ -1318,15 +1318,21 @@ p, li { white-space: pre-wrap; }
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>260</height>
+            <height>230</height>
            </size>
+          </property>
+          <property name="tabPosition">
+           <enum>QTabWidget::West</enum>
+          </property>
+          <property name="tabShape">
+           <enum>QTabWidget::Triangular</enum>
           </property>
           <property name="currentIndex">
            <number>0</number>
           </property>
           <widget class="QWidget" name="tab">
            <attribute name="title">
-            <string>WSJT Traditional</string>
+            <string>1</string>
            </attribute>
            <widget class="QWidget" name="layoutWidget">
             <property name="geometry">
@@ -1743,7 +1749,7 @@ p, li { white-space: pre-wrap; }
           </widget>
           <widget class="QWidget" name="tab_2">
            <attribute name="title">
-            <string>New Message Controls</string>
+            <string>2</string>
            </attribute>
            <widget class="QWidget" name="layoutWidget_1">
             <property name="geometry">
@@ -1829,6 +1835,38 @@ p, li { white-space: pre-wrap; }
           </widget>
          </widget>
         </item>
+        <item row="4" column="7">
+         <widget class="QSpinBox" name="rptSpinBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="minimum">
+           <number>-50</number>
+          </property>
+          <property name="maximum">
+           <number>49</number>
+          </property>
+          <property name="value">
+           <number>-15</number>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="7">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>Report</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
@@ -1873,6 +1911,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionBlank_line_between_decoding_periods"/>
     <addaction name="actionClear_DX_Call_and_Grid_after_logging"/>
     <addaction name="actionDisplay_distance_in_miles"/>
+    <addaction name="actionDouble_click_on_call_sets_Tx_Enable"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -1943,7 +1982,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionDeviceSetup">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Options</string>
@@ -2388,6 +2427,14 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Display distance in miles</string>
+   </property>
+  </action>
+  <action name="actionDouble_click_on_call_sets_Tx_Enable">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Double-click on call sets Tx Enable</string>
    </property>
   </action>
  </widget>
