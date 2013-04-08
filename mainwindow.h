@@ -132,30 +132,19 @@ private slots:
   void on_bandComboBox_currentIndexChanged(int index);
   void on_actionPrompt_to_log_QSO_triggered(bool checked);
   void on_actionBlank_line_between_decoding_periods_triggered(bool checked);
-  //void on_fMinSpinBox_valueChanged(int n);
-  //void on_fMaxSpinBox_valueChanged(int n);
-
   void on_actionClear_DX_Call_and_Grid_after_logging_triggered(bool checked);
-
   void on_actionDisplay_distance_in_miles_triggered(bool checked);
-
   void on_pbCallCQ_clicked();
-
   void on_pbAnswerCaller_clicked();
-
   void on_pbSendRRR_clicked();
-
   void on_pbAnswerCQ_clicked();
-
   void on_pbSendReport_clicked();
-
   void on_pbSend73_clicked();
-
   void on_rbGenMsg_toggled(bool checked);
-
   void on_rbFreeText_toggled(bool checked);
-
   void on_freeTextMsg_editingFinished();
+  void on_actionDouble_click_on_call_sets_Tx_Enable_triggered(bool checked);
+  void on_rptSpinBox_valueChanged(int n);
 
 private:
     Ui::MainWindow *ui;
@@ -205,6 +194,7 @@ private:
     qint32  m_COMportOpen;
     qint32  m_iptt;
     qint32  m_band;
+    qint32  m_repeatMsg;
 
     bool    m_monitoring;
     bool    m_transmitting;
@@ -241,6 +231,7 @@ private:
     bool    m_bMiles;
     bool    m_decodedText2;
     bool    m_freeText;
+    bool    m_quickCall;
 
     char    m_decoded[80];
 
@@ -277,6 +268,7 @@ private:
     QString m_pbAutoOn_style;
     QString m_myCall;
     QString m_myGrid;
+    QString m_baseCall;
     QString m_hisCall;
     QString m_hisGrid;
     QString m_appDir;
@@ -294,6 +286,7 @@ private:
     QString m_catPort;
     QString m_handshake;
     QString m_cmnd;
+    QString m_msgSent0;
 
     QStringList m_macro;
     QStringList m_dFreq;
@@ -317,6 +310,7 @@ private:
     void freeText();
     bool gridOK(QString g);
     QString rig_command();
+    QString baseCall(QString t);
 };
 
 extern void getfile(QString fname, int ntrperiod);

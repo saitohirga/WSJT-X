@@ -13,6 +13,7 @@
       if(iz.lt.0) iz=12
       islash=index(callsign(1:iz),'/')
       k=0
+      if(k.eq.0) go to 10                             !### Always use JT65v2 ###
       c='   '
       if(islash.gt.0 .and. islash.le.(iz-4)) then
 !  Add-on prefix

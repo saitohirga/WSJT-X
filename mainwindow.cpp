@@ -158,6 +158,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_nutc0=9999;
   m_NB=false;
   m_mode="JT9-1";
+  m_rpt="-15";
   m_TRperiod=60;
   m_inGain=0;
   m_dataAvailable=false;
@@ -169,10 +170,8 @@ MainWindow::MainWindow(QWidget *parent) :
   m_insertBlank=false;
   m_clearCallGrid=false;
   m_bMiles=false;
-  //m_fMin=1000;
   m_decodedText2=false;
-  //ui->fMinSpinBox->setValue(m_fMin);
-
+  m_freeText=false;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -227,7 +226,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_pbAutoOn_style="QPushButton{background-color: red; \
       border-style: outset; border-width: 1px; border-radius: 5px; \
       border-color: black; min-width: 5em; padding: 3px;}";
-  genStdMsgs("-30");
+  genStdMsgs(m_rpt);
   on_actionWide_Waterfall_triggered();                   //###
   g_pWideGraph->setTxFreq(m_txFreq);
 
@@ -382,6 +381,8 @@ void MainWindow::writeSettings()
   settings.setValue("InsertBlank",m_insertBlank);
   settings.setValue("ClearCallGrid",m_clearCallGrid);
   settings.setValue("Miles",m_bMiles);
+  settings.setValue("GUItab",ui->tabWidget->currentIndex());
+  settings.setValue("QuickCall",m_quickCall);
   settings.endGroup();
 }
 
@@ -478,8 +479,12 @@ void MainWindow::readSettings()
   ui->actionBlank_line_between_decoding_periods->setChecked(m_insertBlank);
   m_clearCallGrid=settings.value("ClearCallGrid",false).toBool();
   ui->actionClear_DX_Call_and_Grid_after_logging->setChecked(m_clearCallGrid);
-    m_bMiles=settings.value("Miles",false).toBool();
+  m_bMiles=settings.value("Miles",false).toBool();
   ui->actionDisplay_distance_in_miles->setChecked(m_bMiles);
+  int n=settings.value("GUItab",0).toInt();
+  ui->tabWidget->setCurrentIndex(n);
+  m_quickCall=settings.value("QuickCall",false).toBool();
+  ui->actionDouble_click_on_call_sets_Tx_Enable->setChecked(m_quickCall);
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
     !ui->actionAFMHot->isChecked() && !ui->actionBlue->isChecked()) {
@@ -687,11 +692,9 @@ void MainWindow::on_autoButton_clicked()                     //Auto
   m_auto = !m_auto;
   if(m_auto) {
     ui->autoButton->setStyleSheet(m_pbAutoOn_style);
-//    ui->autoButton->setText("Auto is ON");
   } else {
     btxok=false;
     ui->autoButton->setStyleSheet("");
-//    ui->autoButton->setText("Auto is OFF");
     on_monitorButton_clicked();
   }
 }
@@ -734,13 +737,13 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
     break;
   case Qt::Key_G:
     if(e->modifiers() & Qt::AltModifier) {
-      genStdMsgs("-30");
+      genStdMsgs(m_rpt);
       break;
     }
   case Qt::Key_L:
     if(e->modifiers() & Qt::ControlModifier) {
       lookup();
-      genStdMsgs("-30");
+      genStdMsgs(m_rpt);
       break;
     }
   }
@@ -1362,8 +1365,8 @@ void MainWindow::guiUpdate()
     int ichk=0,itext=0;
     genjt9_(message,&ichk,msgsent,itone,&itext,len1,len1);
     msgsent[22]=0;
-    lab5->setText("Last Tx:  " + QString::fromAscii(msgsent));
     QString t=QString::fromAscii(msgsent);
+    lab5->setText("Last Tx:  " + t);
     if(m_restart) {
       QFile f("ALL.TXT");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
@@ -1421,6 +1424,17 @@ void MainWindow::guiUpdate()
       nc1++;
   }
   if(nc1 == 0) {
+    QString t=QString::fromAscii(msgsent);
+    if(t==m_msgSent0) {
+      m_repeatMsg++;
+      if(m_repeatMsg>5) {
+        msgBox("Runaway Tx watchdog");
+        m_repeatMsg=0;
+      }
+    } else {
+      m_repeatMsg=0;
+      m_msgSent0=t;
+    }
     ui->xThermo->setValue(0.0);   //Set Thermo to zero
     m_monitoring=false;
     soundInThread.setMonitoring(false);
@@ -1430,11 +1444,10 @@ void MainWindow::guiUpdate()
     f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
     QTextStream out(&f);
     out << QDateTime::currentDateTimeUtc().toString("hhmm")
-        << "  Transmitting:  " << QString::fromAscii(msgsent) << endl;
+        << "  Transmitting:  " << t << endl;
     f.close();
   }
 
-//###
   if(!btxok && btxok0 && m_iptt==1) stopTx();
 
 // If btxok was just lowered, start a countdown for lowering PTT
@@ -1532,22 +1545,11 @@ void MainWindow::startTx2()
       if(snr>0.0 or snr < -50.0) snr=99.0;
       soundOutThread.setTxSNR(snr);
       soundOutThread.start(QThread::HighPriority);
-       //qDebug() << "soundOutThread.start()";
     }
-
-    ui->xThermo->setValue(0.0);   //Set Thermo to zero
+    ui->xThermo->setValue(0.0);                         //Set Thermo to zero
     m_monitoring=false;
     soundInThread.setMonitoring(false);
     btxok=true;
-    m_transmitting=true;
-/*
-    QFile f("ALL.TXT");
-    f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-    QTextStream out(&f);
-    out << QDateTime::currentDateTimeUtc().toString("hhmm")
-        << "  Transmitting:  " << QString::fromAscii(msgsent) << endl;
-    f.close();
-*/
     m_transmitting=true;
   }
 }
@@ -1702,6 +1704,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   if(nr>=-9 and nr<=-1) rpt="-0" + rpt.mid(1);
   if(nr>=0 and nr<=9) rpt="+0" + rpt;
   if(nr>=10) rpt="+" + rpt;
+  ui->rptSpinBox->setValue(rpt.toInt());
   genStdMsgs(rpt);
   if(t2.indexOf(m_myCall)>0) {
     m_ntx=2;
@@ -1718,14 +1721,21 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
       m_ntx=7;
     }
   }
+  if(m_quickCall) {
+    m_auto=true;
+    ui->autoButton->setStyleSheet(m_pbAutoOn_style);
+  }
 }
 
 void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
 {
-  QString hiscall=ui->dxCallEntry->text().toUpper().trimmed();
-  ui->dxCallEntry->setText(hiscall);
-  QString t0=hiscall + " " + m_myCall + " ";
+  QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
+  ui->dxCallEntry->setText(hisCall);
+  QString hisBase=baseCall(hisCall);
+  QString myBase=baseCall(m_myCall);
+  QString t0=hisBase + " " + myBase + " ";
   QString t=t0 + m_myGrid.mid(0,4);
+  if(myBase!=m_myCall) t="DE " + m_myCall + " " + m_myGrid.mid(0,4);
   msgtype(t, ui->tx1);
   if(rpt == "") {
     t=t+" OOO";
@@ -1741,6 +1751,7 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
     t=t0 + "RRR";
     msgtype(t, ui->tx4);
     t=t0 + "73";
+    if(myBase!=m_myCall) t="DE " + m_myCall + " 73";
     msgtype(t, ui->tx5);
   }
 
@@ -1751,10 +1762,19 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
   m_rpt=rpt;
 }
 
+QString MainWindow::baseCall(QString t)
+{
+  int n1=t.indexOf("/");
+  if(n1<0) return t;
+  int n2=t.length()-n1-1;
+  if(n2>=n1) return t.mid(n1+1);
+  return t.mid(0,n1);
+}
+
 void MainWindow::lookup()                                       //lookup()
 {
-  QString hiscall=ui->dxCallEntry->text().toUpper().trimmed();
-  ui->dxCallEntry->setText(hiscall);
+  QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
+  ui->dxCallEntry->setText(hisCall);
   QString call3File = m_appDir + "/CALL3.TXT";
   QFile f(call3File);
   if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -1770,7 +1790,7 @@ void MainWindow::lookup()                                       //lookup()
       break;
      }
     QString t=QString(c);
-    if(t.indexOf(hiscall)==0) {
+    if(t.indexOf(hisCall)==0) {
       int i1=t.indexOf(",");
       QString hisgrid=t.mid(i1+1,6);
       i1=hisgrid.indexOf(",");
@@ -1798,9 +1818,9 @@ void MainWindow::on_addButton_clicked()                       //Add button
     return;
   }
   m_call3Modified=false;
-  QString hiscall=ui->dxCallEntry->text().toUpper().trimmed();
+  QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
   QString hisgrid=ui->dxGridEntry->text().trimmed();
-  QString newEntry=hiscall + "," + hisgrid;
+  QString newEntry=hisCall + "," + hisgrid;
 
 //  int ret = QMessageBox::warning(this, "Add",
 //       newEntry + "\n" + "Is this station known to be active on EME?",
@@ -1833,7 +1853,7 @@ void MainWindow::on_addButton_clicked()                       //Add button
   }
   QTextStream in(&f1);
   QTextStream out(&f2);
-  QString hc=hiscall;
+  QString hc=hisCall;
   QString hc1="";
   QString hc2="AAAAAA";
   QString s;
@@ -1991,7 +2011,7 @@ void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
 
 void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
 {
-  genStdMsgs("-30");
+  genStdMsgs(m_rpt);
 }
 
 void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
@@ -2327,53 +2347,78 @@ void MainWindow::on_pbCallCQ_clicked()
 {
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx6->text());
+  m_ntx=7;
+  if(m_freeText) m_ntx=8;
 }
 
 void MainWindow::on_pbAnswerCaller_clicked()
 {
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx2->text());
+  m_ntx=7;
+  if(m_freeText) m_ntx=8;
 }
 
 void MainWindow::on_pbSendRRR_clicked()
 {
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx4->text());
+  m_ntx=7;
+  if(m_freeText) m_ntx=8;
 }
 
 void MainWindow::on_pbAnswerCQ_clicked()
 {
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx1->text());
+  m_ntx=7;
+  if(m_freeText) m_ntx=8;
 }
 
 void MainWindow::on_pbSendReport_clicked()
 {
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx3->text());
+  m_ntx=7;
+  if(m_freeText) m_ntx=8;
 }
 
 void MainWindow::on_pbSend73_clicked()
 {
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx5->text());
+  m_ntx=7;
+  if(m_freeText) m_ntx=8;
 }
 
 void MainWindow::on_rbGenMsg_toggled(bool checked)
 {
   m_freeText=false;
+  m_ntx=7;
+  if(m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_rbFreeText_toggled(bool checked)
 {
   m_freeText=true;
-  m_ntx=7;
+  m_ntx=8;
+  if(m_transmitting) m_restart=true;
+
 }
 
 void MainWindow::on_freeTextMsg_editingFinished()
 {
   QString t=ui->freeTextMsg->text();
   msgtype(t, ui->freeTextMsg);
-  m_ntx=8;
-  qDebug() << m_ntx;
+}
+
+void MainWindow::on_actionDouble_click_on_call_sets_Tx_Enable_triggered(bool checked)
+{
+  m_quickCall=checked;
+}
+
+void MainWindow::on_rptSpinBox_valueChanged(int n)
+{
+  m_rpt=QString::number(n);
+  genStdMsgs(m_rpt);
 }
