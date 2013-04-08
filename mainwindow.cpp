@@ -113,6 +113,10 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(ui->tx5, SIGNAL(customContextMenuRequested(const QPoint&)),
       this, SLOT(showMacros(const QPoint&)));
 
+  ui->freeTextMsg->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(ui->freeTextMsg, SIGNAL(customContextMenuRequested(const QPoint&)),
+      this, SLOT(showMacros(const QPoint&)));
+
   QTimer *guiTimer = new QTimer(this);
   connect(guiTimer, SIGNAL(timeout()), this, SLOT(guiUpdate()));
   guiTimer->start(100);                            //Don't change the 100 ms!
@@ -1349,6 +1353,8 @@ void MainWindow::guiUpdate()
     if(m_ntx == 4) ba=ui->tx4->text().toLocal8Bit();
     if(m_ntx == 5) ba=ui->tx5->text().toLocal8Bit();
     if(m_ntx == 6) ba=ui->tx6->text().toLocal8Bit();
+    if(m_ntx == 7) ba=ui->genMsg->text().toLocal8Bit();
+    if(m_ntx == 8) ba=ui->freeTextMsg->text().toLocal8Bit();
 
     ba2msg(ba,message);
 //    ba2msg(ba,msgsent);
@@ -1700,9 +1706,17 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   if(t2.indexOf(m_myCall)>0) {
     m_ntx=2;
     ui->txrb2->setChecked(true);
+    if(ui->tabWidget->currentIndex()==1) {
+      ui->genMsg->setText(ui->tx2->text());
+      m_ntx=7;
+    }
   } else {
     m_ntx=1;
     ui->txrb1->setChecked(true);
+    if(ui->tabWidget->currentIndex()==1) {
+      ui->genMsg->setText(ui->tx1->text());
+      m_ntx=7;
+    }
   }
 }
 
@@ -1734,6 +1748,7 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
   msgtype(t, ui->tx6);
   m_ntx=1;
   ui->txrb1->setChecked(true);
+  m_rpt=rpt;
 }
 
 void MainWindow::lookup()                                       //lookup()
@@ -2215,17 +2230,18 @@ void MainWindow::showMacros(const QPoint &pos)
   popupMenu.exec(globalPos);
 }
 
-void MainWindow::onPopup1() { ui->tx5->setText(m_macro[0]); }
-void MainWindow::onPopup2() { ui->tx5->setText(m_macro[1]); }
-void MainWindow::onPopup3() { ui->tx5->setText(m_macro[2]); }
-void MainWindow::onPopup4() { ui->tx5->setText(m_macro[3]); }
-void MainWindow::onPopup5() { ui->tx5->setText(m_macro[4]); }
-void MainWindow::onPopup6() { ui->tx5->setText(m_macro[5]); }
-void MainWindow::onPopup7() { ui->tx5->setText(m_macro[6]); }
-void MainWindow::onPopup8() { ui->tx5->setText(m_macro[7]); }
-void MainWindow::onPopup9() { ui->tx5->setText(m_macro[8]); }
-void MainWindow::onPopup10() { ui->tx5->setText(m_macro[9]); }
+void MainWindow::onPopup1() { ui->tx5->setText(m_macro[0]); freeText(); }
+void MainWindow::onPopup2() { ui->tx5->setText(m_macro[1]); freeText(); }
+void MainWindow::onPopup3() { ui->tx5->setText(m_macro[2]); freeText(); }
+void MainWindow::onPopup4() { ui->tx5->setText(m_macro[3]); freeText(); }
+void MainWindow::onPopup5() { ui->tx5->setText(m_macro[4]); freeText(); }
+void MainWindow::onPopup6() { ui->tx5->setText(m_macro[5]); freeText(); }
+void MainWindow::onPopup7() { ui->tx5->setText(m_macro[6]); freeText(); }
+void MainWindow::onPopup8() { ui->tx5->setText(m_macro[7]); freeText(); }
+void MainWindow::onPopup9() { ui->tx5->setText(m_macro[8]); freeText(); }
+void MainWindow::onPopup10() { ui->tx5->setText(m_macro[9]); freeText(); }
 
+void MainWindow::freeText() { ui->freeTextMsg->setText(ui->tx5->text()); }
 
 bool MainWindow::gridOK(QString g)
 {
@@ -2305,4 +2321,59 @@ void MainWindow::on_actionDisplay_distance_in_miles_triggered(bool checked)
 {
   m_bMiles=checked;
   on_dxGridEntry_textChanged(m_hisGrid);
+}
+
+void MainWindow::on_pbCallCQ_clicked()
+{
+  genStdMsgs(m_rpt);
+  ui->genMsg->setText(ui->tx6->text());
+}
+
+void MainWindow::on_pbAnswerCaller_clicked()
+{
+  genStdMsgs(m_rpt);
+  ui->genMsg->setText(ui->tx2->text());
+}
+
+void MainWindow::on_pbSendRRR_clicked()
+{
+  genStdMsgs(m_rpt);
+  ui->genMsg->setText(ui->tx4->text());
+}
+
+void MainWindow::on_pbAnswerCQ_clicked()
+{
+  genStdMsgs(m_rpt);
+  ui->genMsg->setText(ui->tx1->text());
+}
+
+void MainWindow::on_pbSendReport_clicked()
+{
+  genStdMsgs(m_rpt);
+  ui->genMsg->setText(ui->tx3->text());
+}
+
+void MainWindow::on_pbSend73_clicked()
+{
+  genStdMsgs(m_rpt);
+  ui->genMsg->setText(ui->tx5->text());
+}
+
+void MainWindow::on_rbGenMsg_toggled(bool checked)
+{
+  m_freeText=false;
+}
+
+void MainWindow::on_rbFreeText_toggled(bool checked)
+{
+  m_freeText=true;
+  m_ntx=7;
+}
+
+void MainWindow::on_freeTextMsg_editingFinished()
+{
+  QString t=ui->freeTextMsg->text();
+  msgtype(t, ui->freeTextMsg);
+  m_ntx=8;
+  qDebug() << m_ntx;
 }

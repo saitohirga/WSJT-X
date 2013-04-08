@@ -139,6 +139,24 @@ private slots:
 
   void on_actionDisplay_distance_in_miles_triggered(bool checked);
 
+  void on_pbCallCQ_clicked();
+
+  void on_pbAnswerCaller_clicked();
+
+  void on_pbSendRRR_clicked();
+
+  void on_pbAnswerCQ_clicked();
+
+  void on_pbSendReport_clicked();
+
+  void on_pbSend73_clicked();
+
+  void on_rbGenMsg_toggled(bool checked);
+
+  void on_rbFreeText_toggled(bool checked);
+
+  void on_freeTextMsg_editingFinished();
+
 private:
     Ui::MainWindow *ui;
 
@@ -222,6 +240,7 @@ private:
     bool    m_clearCallGrid;
     bool    m_bMiles;
     bool    m_decodedText2;
+    bool    m_freeText;
 
     char    m_decoded[80];
 
@@ -267,6 +286,7 @@ private:
     QString m_dateTime;
     QString m_mode;
     QString m_fname;
+    QString m_rpt;
     QString m_rptSent;
     QString m_rptRcvd;
     QString m_qsoStart;
@@ -294,6 +314,7 @@ private:
     void stub();
     void statusChanged();
     void dialFreqChanged2(double f);
+    void freeText();
     bool gridOK(QString g);
     QString rig_command();
 };
