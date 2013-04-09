@@ -146,6 +146,8 @@ private slots:
   void on_actionDouble_click_on_call_sets_Tx_Enable_triggered(bool checked);
   void on_rptSpinBox_valueChanged(int n);
 
+  void on_actionColor_highlighting_in_left_window_triggered(bool checked);
+
 private:
     Ui::MainWindow *ui;
 
@@ -232,6 +234,7 @@ private:
     bool    m_decodedText2;
     bool    m_freeText;
     bool    m_quickCall;
+    bool    m_leftColor;
 
     char    m_decoded[80];
 
