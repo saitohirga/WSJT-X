@@ -65,7 +65,6 @@ public:
   void SetPercent2DScreen(int percent){m_Percent2DScreen=percent;}
 
 signals:
-  void freezeDecode0(int n);
   void freezeDecode1(int n);
 
 protected:

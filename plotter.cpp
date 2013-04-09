@@ -418,18 +418,20 @@ void CPlotter::mousePressEvent(QMouseEvent *event)       //mousePressEvent
   int x=event->x();
   setFQSO(x,false);                               // Wideband waterfall
   bool ctrl = (event->modifiers() & Qt::ControlModifier);
-  if(!ctrl) {
-    setTxFreq(m_fQSO);
-    emit freezeDecode1(1);                  //### ???
-  }
+  int n=1;
+  if(ctrl) n+=100;
+  emit freezeDecode1(n);
+  if(ctrl) setTxFreq(m_fQSO);
 }
 
 void CPlotter::mouseDoubleClickEvent(QMouseEvent *event)  //mouse2click
 {
-//  int h = (m_Size.height()-60)/2;
-  int x=event->x();
-  setFQSO(x,false);
-  emit freezeDecode1(2);                  //### ???
+//  int x=event->x();
+//  setFQSO(x,false);
+  bool ctrl = (event->modifiers() & Qt::ControlModifier);
+  int n=2;
+  if(ctrl) n+=100;
+  emit freezeDecode1(n);
 }
 
 void CPlotter::setNSpan(int n)                                  //setNSpan()

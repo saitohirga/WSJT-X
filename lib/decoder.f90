@@ -29,18 +29,8 @@ subroutine decoder(ss,c0)
   newdat=1
   nsynced=0
   ndecoded=0
-  limit=5000
-  ccflim=4.0
-  if(ndepth.ge.2) then
-     limit=50000
-     ccflim=3.0
-  endif
-  if(ndepth.ge.3) then
-     limit=200000
-     ccflim=2.5
-  endif
-
   nsps=0
+
   if(ntrMinutes.eq.1) then
      nsps=6912
      df3=1500.0/2048.0
@@ -69,6 +59,18 @@ subroutine decoder(ss,c0)
   idf=ntol/df3 + 0.999
 
   do nqd=1,0,-1
+
+     limit=5000
+     ccflim=4.0
+     if(ndepth.ge.2) then
+        limit=50000
+        ccflim=3.0
+     endif
+     if(ndepth.ge.3 .or. nqd.eq.1) then
+        limit=200000
+        ccflim=2.5
+     endif
+
      if(nqd.eq.1) then
         nfa1=nfqso-ntol
         nfb1=nfqso+ntol
