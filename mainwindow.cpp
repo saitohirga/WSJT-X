@@ -1063,7 +1063,6 @@ void MainWindow::on_DecodeButton_clicked()                    //Decode request
 
 void MainWindow::freezeDecode(int n)                          //freezeDecode()
 {
-  qDebug() << "A" << n;
   bool ctrl = (n>=100);
   int i=g_pWideGraph->QSOfreq();
   if(ctrl) {
