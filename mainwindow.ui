@@ -1912,6 +1912,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionClear_DX_Call_and_Grid_after_logging"/>
     <addaction name="actionDisplay_distance_in_miles"/>
     <addaction name="actionDouble_click_on_call_sets_Tx_Enable"/>
+    <addaction name="actionColor_highlighting_in_left_window"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -2435,6 +2436,14 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Double-click on call sets Tx Enable</string>
+   </property>
+  </action>
+  <action name="actionColor_highlighting_in_left_window">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Color highlighting in left window</string>
    </property>
   </action>
  </widget>

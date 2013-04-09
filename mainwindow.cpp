@@ -383,6 +383,7 @@ void MainWindow::writeSettings()
   settings.setValue("Miles",m_bMiles);
   settings.setValue("GUItab",ui->tabWidget->currentIndex());
   settings.setValue("QuickCall",m_quickCall);
+  settings.setValue("LeftColor",m_leftColor);
   settings.endGroup();
 }
 
@@ -485,7 +486,8 @@ void MainWindow::readSettings()
   ui->tabWidget->setCurrentIndex(n);
   m_quickCall=settings.value("QuickCall",false).toBool();
   ui->actionDouble_click_on_call_sets_Tx_Enable->setChecked(m_quickCall);
-
+  m_leftColor=settings.value("LeftColor",false).toBool();
+  ui->actionColor_highlighting_in_left_window->setChecked(m_leftColor);
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
     !ui->actionAFMHot->isChecked() && !ui->actionBlue->isChecked()) {
     on_actionLinrad_triggered();
@@ -1190,6 +1192,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
 
       QString bg="white";
+      if(m_leftColor) {
+        if(t.indexOf(" CQ ")>0) bg="#66ff66";                          //green
+        if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
+      }
       bool bQSO=abs(t.mid(22,4).toInt() - g_pWideGraph->QSOfreq()) < 10;
       QString t1=t.mid(0,5) + t.mid(10,4) + t.mid(15,5) + t.mid(22,4) +
           t.mid(32);
@@ -1206,8 +1212,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
 
       if(jt9com_.nagain==0) {
-        if(t.indexOf(" CQ ")>0) bg="#66ff66";                          //green
-        if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
+        if(!m_leftColor) {
+          if(t.indexOf(" CQ ")>0) bg="#66ff66";                          //green
+          if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
+        }
         QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
             bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
         cursor = ui->decodedTextBrowser2->textCursor();
@@ -2420,4 +2428,9 @@ void MainWindow::on_rptSpinBox_valueChanged(int n)
 {
   m_rpt=QString::number(n);
   genStdMsgs(m_rpt);
+}
+
+void MainWindow::on_actionColor_highlighting_in_left_window_triggered(bool checked)
+{
+  m_leftColor=checked;
 }
