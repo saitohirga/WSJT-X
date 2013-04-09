@@ -663,6 +663,7 @@ void MainWindow::on_monitorButton_clicked()                  //Monitor
   soundInThread.setMonitoring(true);
   m_diskData=false;
 }
+
 void MainWindow::on_actionLinrad_triggered()                 //Linrad palette
 {
   if(g_pWideGraph != NULL) g_pWideGraph->setPalette("Linrad");
@@ -1692,14 +1693,12 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   int i5=t3.indexOf(" CQ DX ");
   if(i5>0) t3=t3.mid(0,i5+3) + "_" + t3.mid(i5+4);  //Make it "CQ_DX" (one word)
   QStringList t4=t3.split(" ",QString::SkipEmptyParts);
-  if(t4.length() <5) return;           //Skip the rest if no decoded text
+  if(t4.length() <5) return;             //Skip the rest if no decoded text
+  int nfreq=int(t4.at(3).toFloat());
+  g_pWideGraph->setQSOfreq(nfreq);       //Set Rx freq
   QString firstcall=t4.at(4);
-  //Don't change freqs if Shift key down or a station is calling me.
-  if(!shift and (firstcall!=m_myCall or ctrl)) {
-    int nfreq=int(t4.at(3).toFloat());
-    ui->TxFreqSpinBox->setValue(nfreq);
-    g_pWideGraph->setQSOfreq(nfreq);
-  }
+  //Don't change freqs if a station is calling me, unless CTRL is held down
+  if(firstcall!=m_myCall or ctrl) ui->TxFreqSpinBox->setValue(nfreq);
   QString hiscall=t4.at(5);
   QString hisgrid="";
   if(t4.length()>=7)
