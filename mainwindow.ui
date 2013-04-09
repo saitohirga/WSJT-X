@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>690</width>
+    <width>711</width>
     <height>583</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>690</width>
+    <width>711</width>
     <height>475</height>
    </size>
   </property>
@@ -1020,22 +1020,6 @@ p, li { white-space: pre-wrap; }
           </property>
          </spacer>
         </item>
-        <item row="2" column="8">
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>13</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
         <item row="3" column="4">
          <widget class="QLabel" name="labAz">
           <property name="autoFillBackground">
@@ -1301,7 +1285,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="0" column="9" rowspan="6">
+        <item row="0" column="8" rowspan="6">
          <widget class="QTabWidget" name="tabWidget">
           <property name="minimumSize">
            <size>
@@ -1923,7 +1907,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>690</width>
+     <width>711</width>
      <height>25</height>
     </rect>
    </property>
