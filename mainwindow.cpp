@@ -760,7 +760,7 @@ void MainWindow::bumpFqso(int n)                                 //bumpFqso()
   if(n==11) i--;
   if(n==12) i++;
   g_pWideGraph->setQSOfreq(i);
-  if(!ctrl) {
+  if(ctrl) {
     ui->TxFreqSpinBox->setValue(i);
     g_pWideGraph->setTxFreq(i);
   }
@@ -1063,9 +1063,14 @@ void MainWindow::on_DecodeButton_clicked()                    //Decode request
 
 void MainWindow::freezeDecode(int n)                          //freezeDecode()
 {
-  if(n==1) {
-    bumpFqso(0);
+  qDebug() << "A" << n;
+  bool ctrl = (n>=100);
+  int i=g_pWideGraph->QSOfreq();
+  if(ctrl) {
+    ui->TxFreqSpinBox->setValue(i);
+    g_pWideGraph->setTxFreq(i);
   }
+  if((n%100)==2) on_DecodeButton_clicked();
 }
 
 void MainWindow::decode()                                       //decode()

@@ -96,10 +96,15 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   baud=12000.0/udata->nsps;
   freq=udata->ntxfreq + itone[isym]*baud;
   dphi=twopi*freq/48000.0;
+  double amp=32767.0;
+  int i0=84.983*4.0*udata->nsps;
   for(uint i=0 ; i<framesToProcess; i++ )  {
     phi += dphi;
     if(phi>twopi) phi -= twopi;
-    i2=32767.0*sin(phi);
+    if(ic>i0) {
+      amp=0.98*amp;
+    }
+    i2=amp*sin(phi);
     if(udata->txsnrdb < 0.0) {
       int i4=fac*(gran() + i2*snr/32768.0);
       if(i4>32767) i4=32767;
@@ -113,6 +118,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
 #endif
     ic++;
   }
+  if(amp<1.0 and itone[0]>=0) return paComplete;
   return paContinue;
 }
 
