@@ -59,7 +59,6 @@ subroutine decoder(ss,c0)
   idf=ntol/df3 + 0.999
 
   do nqd=1,0,-1
-
      limit=5000
      ccflim=4.0
      if(ndepth.ge.2) then
@@ -110,7 +109,8 @@ subroutine decoder(ss,c0)
 
      do i=ia,ib
         f=(i-1)*df3
-        if(.not.ccfok(i)) cycle
+        if(.not.ccfok(i) .or. ccfred(i).lt.ccflim-1.0 .or.                &
+             ccfred(i).lt.ccfred(i+1)) cycle
         if(nqd.eq.1 .or.                                                  &
            (ccfred(i).ge.3.0 .and. abs(f-fgood).gt.10.0*df8)) then
            call timer('decode9a',0)
@@ -122,6 +122,8 @@ subroutine decoder(ss,c0)
 
            call timer('decode9 ',0)
            call decode9(i1SoftSymbols,limit,nlim,msg)
+!           write(69,3300) nqd,i,f+1000.0,ccflim,ccfred(i),limit,nlim,msg(1:18)
+!3300       format(i1,i6,f10.3,2f8.1,2i9,2x,a18)
            call timer('decode9 ',1)
  
            sync=(syncpk+1)/4.0
@@ -149,6 +151,7 @@ subroutine decoder(ss,c0)
 1010 format('<DecodeFinished>',2i4)
   call flush(6)
   close(13)
+!  call flush(69)
 
   call timer('decoder ',1)
   if(nstandalone.eq.0) call timer('decoder ',101)

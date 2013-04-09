@@ -92,7 +92,10 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     return paContinue;
   }
 
-  if(isym>=85 and itone[0]>=0) return paComplete;
+  if(isym>=85 and icw[0]>=0) {
+//    qDebug() << "C" << isym << icw[0];
+    return paComplete;
+  }
   baud=12000.0/udata->nsps;
   freq=udata->ntxfreq + itone[isym]*baud;
   dphi=twopi*freq/48000.0;
@@ -118,7 +121,10 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
 #endif
     ic++;
   }
-  if(amp<1.0 and itone[0]>=0) return paComplete;
+  if(amp<1.0 and icw[0]==0) {
+//    qDebug() << "A" << isym << amp << icw[0];
+    return paComplete;
+  }
   return paContinue;
 }
 
