@@ -1190,13 +1190,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
 
       QString bg="white";
-      if(t.indexOf(" CQ ")>0) bg="#66ff66";                //Light green
-      if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //Light red
       bool bQSO=abs(t.mid(22,4).toInt() - g_pWideGraph->QSOfreq()) < 10;
       QString t1=t.mid(0,5) + t.mid(10,4) + t.mid(15,5) + t.mid(22,4) +
           t.mid(32);
+      t1=t1.replace("\n","").mid(0,t1.length()-4);
       QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-          bg + "\"><pre>" + t1.replace("\n","") + "</pre></td></tr></table>";
+          bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
       if(bQSO) {
         cursor = ui->decodedTextBrowser->textCursor();
         cursor.movePosition(QTextCursor::End);
@@ -1207,6 +1206,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
 
       if(jt9com_.nagain==0) {
+        if(t.indexOf(" CQ ")>0) bg="#66ff66";                          //green
+        if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
+        QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
+            bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
         cursor = ui->decodedTextBrowser2->textCursor();
         cursor.movePosition(QTextCursor::End);
         bf = cursor.blockFormat();
