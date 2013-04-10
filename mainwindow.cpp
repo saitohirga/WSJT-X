@@ -1183,7 +1183,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
       QTextCursor cursor;
       QTextBlockFormat bf;
-      if(m_insertBlank and m_blankLine) {
+      if(m_insertBlank and m_blankLine and jt9com_.nagain==0) {
         QString bg="#d3d3d3";
         bf.setBackground(QBrush(QColor(bg)));
         QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
