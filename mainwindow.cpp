@@ -1188,7 +1188,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         bf.setBackground(QBrush(QColor(bg)));
         QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
             bg + "\"><pre>" + " " + "</pre></td></tr></table>";
-        cursor = ui->decodedTextBrowser->textCursor();
+        cursor = ui->decodedTextBrowser2->textCursor();
         cursor.movePosition(QTextCursor::End);
         bf = cursor.blockFormat();
         bf.setBackground(QBrush(QColor(bg)));
