@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -24,7 +24,7 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>750</width>
+    <width>900</width>
     <height>1028</height>
    </size>
   </property>
@@ -59,7 +59,7 @@
           </property>
           <property name="maximumSize">
            <size>
-            <width>400</width>
+            <width>500</width>
             <height>20</height>
            </size>
           </property>
@@ -148,7 +148,7 @@
           </property>
           <property name="maximumSize">
            <size>
-            <width>400</width>
+            <width>500</width>
             <height>20</height>
            </size>
           </property>
@@ -230,7 +230,7 @@
         <item row="4" column="1">
          <widget class="DisplayText" name="decodedTextBrowser2">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -243,7 +243,7 @@
           </property>
           <property name="maximumSize">
            <size>
-            <width>400</width>
+            <width>500</width>
             <height>1000</height>
            </size>
           </property>
@@ -263,6 +263,12 @@
         </item>
         <item row="1" column="1">
          <widget class="QLabel" name="label_7">
+          <property name="maximumSize">
+           <size>
+            <width>500</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <pointsize>10</pointsize>
@@ -280,6 +286,12 @@
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_6">
+          <property name="maximumSize">
+           <size>
+            <width>500</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <pointsize>10</pointsize>
@@ -295,10 +307,30 @@
           </property>
          </widget>
         </item>
+        <item row="2" column="0">
+         <widget class="Line" name="line">
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="Line" name="line_2">
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
         <item row="4" column="0">
          <widget class="DisplayText" name="decodedTextBrowser">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -311,7 +343,7 @@
           </property>
           <property name="maximumSize">
            <size>
-            <width>400</width>
+            <width>500</width>
             <height>1000</height>
            </size>
           </property>
@@ -342,26 +374,6 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="openLinks">
            <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="Line" name="line">
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="Line" name="line_2">
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -1950,7 +1962,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>711</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
