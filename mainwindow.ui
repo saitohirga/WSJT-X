@@ -1614,7 +1614,7 @@ p, li { white-space: pre-wrap; }
                  </size>
                 </property>
                 <property name="text">
-                 <string>Generate Std Messages</string>
+                 <string>Generate Std Msgs</string>
                 </property>
                </widget>
               </item>
@@ -1774,7 +1774,7 @@ p, li { white-space: pre-wrap; }
            <attribute name="title">
             <string>2</string>
            </attribute>
-           <widget class="QWidget" name="">
+           <widget class="QWidget" name="layoutWidget">
             <property name="geometry">
              <rect>
               <x>5</x>
