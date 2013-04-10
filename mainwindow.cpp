@@ -1,4 +1,4 @@
-//-------------------------------------------------------------- MainWindow
+//--------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -1231,12 +1231,13 @@ void MainWindow::readFromStdout()                             //readFromStdout
         ui->decodedTextBrowser2->setTextCursor(cursor);
       }
 
-      QString msg=t.mid(34,22);
-      bool b=stdmsg_(msg.toAscii().constData(),22);
+      QString msg=t.mid(34);
+      int i1=msg.indexOf("\r");
+      if(i1>0) msg=msg.mid(0,i1-1) + "                      ";
+      bool b=stdmsg_(msg.mid(0,22).toAscii().constData(),22);
       QStringList w=msg.split(" ",QString::SkipEmptyParts);
       if(b and w[0]==m_myCall) {
         QString tt=w[2];
-        int i1;
         bool ok;
         i1=tt.toInt(&ok);
         if(ok and i1>=-50 and i1<50) {
@@ -1249,6 +1250,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
             }
           }
         }
+        qDebug() << b << w[0] << w[1] << w[2] << tt << i1 << ok << m_rptRcvd;
       }
 
 #ifdef WIN32
@@ -1723,7 +1725,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   if(nr>=10) rpt="+" + rpt;
   ui->rptSpinBox->setValue(rpt.toInt());
   genStdMsgs(rpt);
-  if(t2.indexOf(m_myCall)>0) {
+  if(t2.indexOf(m_myCall)>=0) {
     m_ntx=2;
     ui->txrb2->setChecked(true);
     if(ui->tabWidget->currentIndex()==1) {
@@ -1737,6 +1739,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
     if(ui->tabWidget->currentIndex()==1) {
       ui->genMsg->setText(ui->tx1->text());
       m_ntx=7;
+      ui->rbGenMsg->setChecked(true);
     }
   }
   if(m_quickCall) {
