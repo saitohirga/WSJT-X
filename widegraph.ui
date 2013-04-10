@@ -317,7 +317,7 @@
           <bool>true</bool>
          </property>
          <property name="text">
-          <string>fMin</string>
+          <string>f Min</string>
          </property>
          <property name="margin">
           <number>2</number>
@@ -371,7 +371,7 @@
           <bool>true</bool>
          </property>
          <property name="text">
-          <string>fMax</string>
+          <string>f Max</string>
          </property>
          <property name="margin">
           <number>2</number>

@@ -20,6 +20,8 @@ public:
   int    QSOfreq();
   int    nSpan();
   int    nStartFreq();
+  int    getFmin();
+  int    getFmax();
   float  fSpan();
   void   saveSettings();
   void   setRxRange(int fMin, int fMax);

@@ -212,6 +212,16 @@ void WideGraph::setRxRange(int fMin, int fMax)
   ui->widePlot->update();
 }
 
+int WideGraph::getFmin()
+{
+  return m_fMin;
+}
+
+int WideGraph::getFmax()
+{
+  return m_fMax;
+}
+
 void WideGraph::setfMax(int n)
 {
   m_fMax = n;

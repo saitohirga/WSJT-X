@@ -1089,8 +1089,8 @@ void MainWindow::decode()                                       //decode()
   jt9com_.ndepth=m_ndepth;
   jt9com_.ndiskdat=0;
   if(m_diskData) jt9com_.ndiskdat=1;
-  jt9com_.nfa=1000;                         //### temporary ###
-  jt9com_.nfb=2000;
+  jt9com_.nfa=g_pWideGraph->getFmin();
+  jt9com_.nfb=g_pWideGraph->getFmax();
 
   jt9com_.ntol=10;
   if(jt9com_.nutc < m_nutc0) m_RxLog |= 1;  //Date and Time to all65.txt
