@@ -1451,7 +1451,7 @@ void MainWindow::guiUpdate()
     }
 
     QString t2=QDateTime::currentDateTimeUtc().toString("hhmm");
-    if(itext==0 and w[1]==m_myCall and w.length()>=3) {
+    if(itext==0 and w.length()>=3 and w[1]==m_myCall) {
       int i1;
       bool ok;
       i1=t.toInt(&ok);
