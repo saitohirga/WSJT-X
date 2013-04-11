@@ -174,6 +174,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_freeText=false;
   m_msErase=0;
   m_sent73=false;
+  m_watchdogLimit=5;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -1484,16 +1485,11 @@ void MainWindow::guiUpdate()
     QString t=QString::fromAscii(msgsent);
     if(t==m_msgSent0) {
       m_repeatMsg++;
-      if(m_runaway and m_repeatMsg>0) {
-        on_stopTxButton_clicked();
-        msgBox0.setText("Runaway Tx watchdog");
-        msgBox0.show();
-        m_repeatMsg=0;
-      }
     } else {
       m_repeatMsg=0;
       m_msgSent0=t;
     }
+
     ui->xThermo->setValue(0.0);   //Set Thermo to zero
     m_monitoring=false;
     soundInThread.setMonitoring(false);
@@ -1640,6 +1636,13 @@ void MainWindow::stopTx2()
     ptt(m_pttPort,0,&m_iptt,&m_COMportOpen);
   }
   if(m_73TxDisable and m_sent73) on_stopTxButton_clicked();
+
+  if(m_runaway and m_repeatMsg>m_watchdogLimit) {
+    on_stopTxButton_clicked();
+    msgBox0.setText("Runaway Tx watchdog");
+    msgBox0.show();
+    m_repeatMsg=0;
+  }
 }
 
 void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
