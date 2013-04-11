@@ -172,6 +172,8 @@ MainWindow::MainWindow(QWidget *parent) :
   m_bMiles=false;
   m_decodedText2=false;
   m_freeText=false;
+  m_msErase=0;
+  m_sent73=false;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -384,6 +386,8 @@ void MainWindow::writeSettings()
   settings.setValue("GUItab",ui->tabWidget->currentIndex());
   settings.setValue("QuickCall",m_quickCall);
   settings.setValue("LeftColor",m_leftColor);
+  settings.setValue("73TxDisable",m_73TxDisable);
+  settings.setValue("Runaway",m_runaway);
   settings.endGroup();
 }
 
@@ -488,6 +492,11 @@ void MainWindow::readSettings()
   ui->actionDouble_click_on_call_sets_Tx_Enable->setChecked(m_quickCall);
   m_leftColor=settings.value("LeftColor",false).toBool();
   ui->actionColor_highlighting_in_left_window->setChecked(m_leftColor);
+  m_73TxDisable=settings.value("73TxDisable",false).toBool();
+  ui->action_73TxDisable->setChecked(m_73TxDisable);
+  m_runaway=settings.value("Runaway",false).toBool();
+  ui->actionRunaway_Tx_watchdog->setChecked(m_runaway);
+
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
     !ui->actionAFMHot->isChecked() && !ui->actionBlue->isChecked()) {
     on_actionLinrad_triggered();
@@ -713,6 +722,15 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
   int n;
   switch(e->key())
   {
+  case Qt::Key_D:
+    if(e->modifiers() & Qt::ShiftModifier) {
+      if(!m_decoderBusy) {
+        jt9com_.newdat=0;
+        jt9com_.nagain=0;
+        decode();
+      }
+    }
+    break;
   case Qt::Key_F3:
     btxMute=!btxMute;
     break;
@@ -738,9 +756,25 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
     if(e->modifiers() & Qt::ControlModifier) n+=100;
     bumpFqso(n);
     break;
+  case Qt::Key_F:
+    if(e->modifiers() & Qt::ControlModifier) {
+      if(ui->tabWidget->currentIndex()==0) {
+        ui->tx5->clear();
+        ui->tx5->setFocus();
+      } else {
+        ui->freeTextMsg->clear();
+        ui->freeTextMsg->setFocus();
+      }
+      break;
+    }
   case Qt::Key_G:
     if(e->modifiers() & Qt::AltModifier) {
       genStdMsgs(m_rpt);
+      break;
+    }
+  case Qt::Key_H:
+    if(e->modifiers() & Qt::AltModifier) {
+      on_stopTxButton_clicked();
       break;
     }
   case Qt::Key_L:
@@ -1250,7 +1284,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
             }
           }
         }
-        qDebug() << b << w[0] << w[1] << w[2] << tt << i1 << ok << m_rptRcvd;
       }
 
 #ifdef WIN32
@@ -1298,8 +1331,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
 void MainWindow::on_EraseButton_clicked()                          //Erase
 {
+  qint64 ms=QDateTime::currentMSecsSinceEpoch();
   ui->decodedTextBrowser->clear();
-  ui->decodedTextBrowser2->clear();
+  if((ms-m_msErase)<500) ui->decodedTextBrowser2->clear();
+  m_msErase=ms;
 }
 
 void MainWindow::decodeBusy(bool b)                             //decodeBusy()
@@ -1400,7 +1435,8 @@ void MainWindow::guiUpdate()
     t="";
     if(w.length()==3) t=w[2];
     icw[0]=0;
-    if(m_After73 and (t=="73" or itext!=0)) {
+    m_sent73=(t=="73" or itext!=0);
+    if(m_sent73 and m_After73) {
       icw[0]=m_ncw;
 //      if(m_promptToLog) on_logQSOButton_clicked();
       if(m_promptToLog) logQSOTimer->start(200);
@@ -1448,8 +1484,10 @@ void MainWindow::guiUpdate()
     QString t=QString::fromAscii(msgsent);
     if(t==m_msgSent0) {
       m_repeatMsg++;
-      if(m_repeatMsg>5) {
-        msgBox("Runaway Tx watchdog");
+      if(m_runaway and m_repeatMsg>0) {
+        on_stopTxButton_clicked();
+        msgBox0.setText("Runaway Tx watchdog");
+        msgBox0.show();
         m_repeatMsg=0;
       }
     } else {
@@ -1601,6 +1639,7 @@ void MainWindow::stopTx2()
   if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
     ptt(m_pttPort,0,&m_iptt,&m_COMportOpen);
   }
+  if(m_73TxDisable and m_sent73) on_stopTxButton_clicked();
 }
 
 void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
@@ -2439,4 +2478,14 @@ void MainWindow::on_rptSpinBox_valueChanged(int n)
 void MainWindow::on_actionColor_highlighting_in_left_window_triggered(bool checked)
 {
   m_leftColor=checked;
+}
+
+void MainWindow::on_action_73TxDisable_triggered(bool checked)
+{
+  m_73TxDisable=checked;
+}
+
+void MainWindow::on_actionRunaway_Tx_watchdog_triggered(bool checked)
+{
+  m_runaway=checked;
 }
