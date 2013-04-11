@@ -473,7 +473,7 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
           <property name="text">
-           <string>Enable Tx</string>
+           <string>E&amp;nable Tx</string>
           </property>
          </widget>
         </item>
@@ -492,7 +492,7 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
           <property name="text">
-           <string>Halt Tx</string>
+           <string>&amp;Halt Tx</string>
           </property>
          </widget>
         </item>
@@ -1312,7 +1312,7 @@ p, li { white-space: pre-wrap; }
            <enum>QTabWidget::Triangular</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tab">
            <attribute name="title">
@@ -1996,6 +1996,8 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionDisplay_distance_in_miles"/>
     <addaction name="actionDouble_click_on_call_sets_Tx_Enable"/>
     <addaction name="actionColor_highlighting_in_left_window"/>
+    <addaction name="action_73TxDisable"/>
+    <addaction name="actionRunaway_Tx_watchdog"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -2527,6 +2529,22 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Color highlighting in left window</string>
+   </property>
+  </action>
+  <action name="action_73TxDisable">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Tx disabled after sending 73</string>
+   </property>
+  </action>
+  <action name="actionRunaway_Tx_watchdog">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Runaway Tx watchdog</string>
    </property>
   </action>
  </widget>

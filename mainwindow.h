@@ -145,14 +145,17 @@ private slots:
   void on_freeTextMsg_editingFinished();
   void on_actionDouble_click_on_call_sets_Tx_Enable_triggered(bool checked);
   void on_rptSpinBox_valueChanged(int n);
-
   void on_actionColor_highlighting_in_left_window_triggered(bool checked);
+  void on_action_73TxDisable_triggered(bool checked);
+
+  void on_actionRunaway_Tx_watchdog_triggered(bool checked);
 
 private:
     Ui::MainWindow *ui;
 
     double  m_dialFreq;
 
+    qint64  m_msErase;
     qint32  m_nDevIn;
     qint32  m_nDevOut;
     qint32  m_idInt;
@@ -235,6 +238,9 @@ private:
     bool    m_freeText;
     bool    m_quickCall;
     bool    m_leftColor;
+    bool    m_73TxDisable;
+    bool    m_sent73;
+    bool    m_runaway;
 
     char    m_decoded[80];
 
