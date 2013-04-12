@@ -1998,6 +1998,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionColor_highlighting_in_left_window"/>
     <addaction name="action_73TxDisable"/>
     <addaction name="actionRunaway_Tx_watchdog"/>
+    <addaction name="actionTx2QSO"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -2068,10 +2069,10 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionDeviceSetup">
    <property name="checkable">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
-    <string>Options</string>
+    <string>Configuration</string>
    </property>
    <property name="shortcut">
     <string>F2</string>
@@ -2545,6 +2546,14 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Runaway Tx watchdog</string>
+   </property>
+  </action>
+  <action name="actionTx2QSO">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Tx messages echoed to QSO window</string>
    </property>
   </action>
  </widget>

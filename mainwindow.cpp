@@ -131,6 +131,10 @@ MainWindow::MainWindow(QWidget *parent) :
   logQSOTimer->setSingleShot(true);
   connect(logQSOTimer, SIGNAL(timeout()), this, SLOT(on_logQSOButton_clicked()));
 
+  killFileTimer = new QTimer(this);
+  killFileTimer->setSingleShot(true);
+  connect(killFileTimer, SIGNAL(timeout()), this, SLOT(killFile()));
+
   m_auto=false;
   m_waterfallAvg = 1;
   m_txFirst=false;
@@ -389,6 +393,7 @@ void MainWindow::writeSettings()
   settings.setValue("LeftColor",m_leftColor);
   settings.setValue("73TxDisable",m_73TxDisable);
   settings.setValue("Runaway",m_runaway);
+  settings.setValue("Tx2QSO",m_tx2QSO);
   settings.endGroup();
 }
 
@@ -497,6 +502,8 @@ void MainWindow::readSettings()
   ui->action_73TxDisable->setChecked(m_73TxDisable);
   m_runaway=settings.value("Runaway",false).toBool();
   ui->actionRunaway_Tx_watchdog->setChecked(m_runaway);
+  m_tx2QSO=settings.value("Tx2QSO",false).toBool();
+  ui->actionTx2QSO->setChecked(m_tx2QSO);
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
     !ui->actionAFMHot->isChecked() && !ui->actionBlue->isChecked()) {
@@ -782,6 +789,11 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
     if(e->modifiers() & Qt::ControlModifier) {
       lookup();
       genStdMsgs(m_rpt);
+      break;
+    }
+  case Qt::Key_V:
+    if(e->modifiers() & Qt::AltModifier) {
+      m_fileToSave=m_fname;
       break;
     }
   }
@@ -1188,10 +1200,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       m_bdecoded = (t.mid(23,1).toInt()==1);
       bool keepFile=m_saveAll or (m_saveSynced and m_bsynced) or
           (m_saveDecoded and m_bdecoded);
-      if(!keepFile and !m_diskData) {
-        QFile savedFile(m_fname);
-        savedFile.remove();
-      }
+      if(!keepFile and !m_diskData) killFileTimer->start(45*1000); //Kill in 45 s
       jt9com_.nagain=0;
       jt9com_.ndiskdat=0;
       QFile lockFile(m_appDir + "/.lock");
@@ -1203,7 +1212,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
       m_blankLine=true;
       return;
     } else {
-
       QFile f("ALL.TXT");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
@@ -1330,6 +1338,15 @@ void MainWindow::readFromStdout()                             //readFromStdout
   }
 }
 
+void MainWindow::killFile()
+{
+  if(m_fname==m_fileToSave) {
+  } else {
+    QFile savedFile(m_fname);
+    savedFile.remove();
+  }
+}
+
 void MainWindow::on_EraseButton_clicked()                          //Erase
 {
   qint64 ms=QDateTime::currentMSecsSinceEpoch();
@@ -1431,7 +1448,9 @@ void MainWindow::guiUpdate()
       out << QDateTime::currentDateTimeUtc().toString("hhmm")
           << "  Transmitting:  " << t << endl;
       f.close();
+      displayTxMsg(t);
     }
+
     QStringList w=t.split(" ",QString::SkipEmptyParts);
     t="";
     if(w.length()==3) t=w[2];
@@ -1501,6 +1520,7 @@ void MainWindow::guiUpdate()
     out << QDateTime::currentDateTimeUtc().toString("hhmm")
         << "  Transmitting:  " << t << endl;
     f.close();
+    displayTxMsg(t);
   }
 
   if(!btxok && btxok0 && m_iptt==1) stopTx();
@@ -1579,6 +1599,22 @@ void MainWindow::guiUpdate()
   iptt0=m_iptt;
   btxok0=btxok;
 }               //End of GUIupdate
+
+void MainWindow::displayTxMsg(QString t)
+{
+      QString bg="yellow";
+      QTextBlockFormat bf;
+      QTextCursor cursor;
+      t=QDateTime::currentDateTimeUtc().toString("hhmmss Tx: ") + t;
+      QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
+          bg + "\"><pre>" + t + "</pre></td></tr></table>";
+      cursor = ui->decodedTextBrowser->textCursor();
+      cursor.movePosition(QTextCursor::End);
+      bf = cursor.blockFormat();
+      bf.setBackground(QBrush(QColor(bg)));
+      cursor.insertHtml(s);
+      ui->decodedTextBrowser->setTextCursor(cursor);
+}
 
 QString MainWindow::rig_command()
 {
@@ -2491,4 +2527,9 @@ void MainWindow::on_action_73TxDisable_triggered(bool checked)
 void MainWindow::on_actionRunaway_Tx_watchdog_triggered(bool checked)
 {
   m_runaway=checked;
+}
+
+void MainWindow::on_actionTx2QSO_triggered(bool checked)
+{
+  m_tx2QSO=checked;
 }
