@@ -1239,7 +1239,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       bool bQSO=abs(t.mid(22,4).toInt() - g_pWideGraph->QSOfreq()) < 10;
       QString t1=t.mid(0,5) + t.mid(10,4) + t.mid(15,5) + t.mid(22,4) +
           t.mid(32);
-      t1=t1.replace("\n","").mid(0,t1.length()-2);
+      t1=t1.replace("\n","").mid(0,t1.length()-4);
       QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
           bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
       if(bQSO) {
