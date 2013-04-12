@@ -147,8 +147,9 @@ private slots:
   void on_rptSpinBox_valueChanged(int n);
   void on_actionColor_highlighting_in_left_window_triggered(bool checked);
   void on_action_73TxDisable_triggered(bool checked);
-
   void on_actionRunaway_Tx_watchdog_triggered(bool checked);
+  void on_actionTx2QSO_triggered(bool checked);
+  void killFile();
 
 private:
     Ui::MainWindow *ui;
@@ -242,6 +243,7 @@ private:
     bool    m_73TxDisable;
     bool    m_sent73;
     bool    m_runaway;
+    bool    m_tx2QSO;
 
     char    m_decoded[80];
 
@@ -271,6 +273,8 @@ private:
     QTimer* ptt1Timer;                 //StartTx delay
     QTimer* ptt0Timer;                 //StopTx delay
     QTimer* logQSOTimer;
+    QTimer* killFileTimer;
+
 
     QString m_path;
     QString m_pbdecoding_style1;
@@ -297,6 +301,7 @@ private:
     QString m_handshake;
     QString m_cmnd;
     QString m_msgSent0;
+    QString m_fileToSave;
 
     QStringList m_macro;
     QStringList m_dFreq;
@@ -318,6 +323,7 @@ private:
     void statusChanged();
     void dialFreqChanged2(double f);
     void freeText();
+    void displayTxMsg(QString t);
     bool gridOK(QString g);
     QString rig_command();
     QString baseCall(QString t);
