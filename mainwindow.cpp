@@ -193,23 +193,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   }
 #endif
   mem_jt9 = shdmem;
-  /*
-  if(!mem_jt9.attach()) {
-    if (!mem_jt9.create(sizeof(jt9com_))) {
-      msgBox("Unable to create shared memory segment.");
-    }
-  }
-  char *to = (char*)mem_jt9.data();
-  int size=sizeof(jt9com_);
-  if(jt9com_.newdat==0) {
-  }
-  memset(to,0,size);         //Zero all decoding params in shared memory
-*/
 
-  PaError paerr=Pa_Initialize();                    //Initialize Portaudio
-  if(paerr!=paNoError) {
-    msgBox("Unable to initialize PortAudio.");
-  }
   readSettings();		             //Restore user's setup params  
   if(m_dFreq.length()<=1) {
     m_dFreq.clear();
