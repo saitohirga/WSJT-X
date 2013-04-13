@@ -1448,7 +1448,7 @@ void MainWindow::guiUpdate()
       out << QDateTime::currentDateTimeUtc().toString("hhmm")
           << "  Transmitting:  " << t << endl;
       f.close();
-      displayTxMsg(t);
+      if(m_tx2QSO) displayTxMsg(t);
     }
 
     QStringList w=t.split(" ",QString::SkipEmptyParts);
@@ -1520,7 +1520,7 @@ void MainWindow::guiUpdate()
     out << QDateTime::currentDateTimeUtc().toString("hhmm")
         << "  Transmitting:  " << t << endl;
     f.close();
-    displayTxMsg(t);
+    if(m_tx2QSO) displayTxMsg(t);
   }
 
   if(!btxok && btxok0 && m_iptt==1) stopTx();
