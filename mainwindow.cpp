@@ -21,14 +21,13 @@ double dFreq[]={0.136,0.4742,1.838,3.578,5.357,7.078,10.130,14.078,
            18.104,21.078,24.918,28.078,50.293,70.091,144.489,432.178};
 
 WideGraph* g_pWideGraph = NULL;
-QSharedMemory mem_jt9("mem_jt9");
 
 QString rev="$Rev$";
 QString Program_Title_Version="  WSJT-X   v0.9, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 //-------------------------------------------------- MainWindow constructor
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow)
 {
@@ -193,6 +192,8 @@ MainWindow::MainWindow(QWidget *parent) :
                            QString::number(iret));
   }
 #endif
+  mem_jt9 = shdmem;
+  /*
   if(!mem_jt9.attach()) {
     if (!mem_jt9.create(sizeof(jt9com_))) {
       msgBox("Unable to create shared memory segment.");
@@ -203,6 +204,7 @@ MainWindow::MainWindow(QWidget *parent) :
   if(jt9com_.newdat==0) {
   }
   memset(to,0,size);         //Zero all decoding params in shared memory
+*/
 
   PaError paerr=Pa_Initialize();                    //Initialize Portaudio
   if(paerr!=paNoError) {
@@ -895,7 +897,7 @@ void MainWindow::OnExit()
 {
   g_pWideGraph->saveSettings();
   m_killAll=true;
-  mem_jt9.detach();
+  mem_jt9->detach();
   QFile quitFile(m_appDir + "/.quit");
   quitFile.open(QIODevice::ReadWrite);
   QFile lockFile(m_appDir + "/.lock");
@@ -1154,7 +1156,7 @@ void MainWindow::decode()                                       //decode()
   //newdat=1  ==> this is new data, must do the big FFT
   //nagain=1  ==> decode only at fQSO +/- Tol
 
-  char *to = (char*)mem_jt9.data();
+  char *to = (char*)mem_jt9->data();
   char *from = (char*) jt9com_.ss;
   int size=sizeof(jt9com_);
   if(jt9com_.newdat==0) {
@@ -1163,7 +1165,7 @@ void MainWindow::decode()                                       //decode()
     from += noffset;
     size -= noffset;
   }
-  memcpy(to, from, qMin(mem_jt9.size(), size));
+  memcpy(to, from, qMin(mem_jt9->size(), size));
 
   QFile lockFile(m_appDir + "/.lock");       // Allow jt9 to start
   lockFile.remove();
