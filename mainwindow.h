@@ -36,6 +36,7 @@ public slots:
   void doubleClickOnCall2(bool shift, bool ctrl);
   void readFromStdout();
   void readFromStderr();
+  void readFromP3();
   void jt9_error();
   void p3_error();
 

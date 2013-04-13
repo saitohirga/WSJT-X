@@ -99,6 +99,9 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   connect(&proc_jt9, SIGNAL(readyReadStandardError()),
           this, SLOT(readFromStderr()));
 
+  connect(&p3, SIGNAL(readyReadStandardOutput()),
+                    this, SLOT(readFromP3()));
+
   connect(&p3, SIGNAL(error(QProcess::ProcessError)),
           this, SLOT(p3_error()));
 
@@ -1171,6 +1174,7 @@ void MainWindow::p3_error()                                     //jt9_error
     msgBox(t);
   }
 }
+
 void MainWindow::readFromStderr()                             //readFromStderr
 {
   QByteArray t=proc_jt9.readAllStandardError();
@@ -1322,6 +1326,14 @@ void MainWindow::readFromStdout()                             //readFromStdout
 #endif
     }
   }
+}
+
+void MainWindow::readFromP3()                             //readFromP3
+{
+  QByteArray t=p3.readAllStandardOutput();
+  QString s=t;
+  double fMHz=s.toDouble()/1000000.0;
+  dialFreqChanged2(fMHz);
 }
 
 void MainWindow::killFile()
@@ -1582,7 +1594,13 @@ void MainWindow::guiUpdate()
     m_hsym0=khsym;
     m_sec0=nsec;
 
+//###
+    m_cmnd=rig_command() + " f";
+    p3.start(m_cmnd);
+    p3.waitForFinished();
+//###
   }
+
   iptt0=m_iptt;
   btxok0=btxok;
 }               //End of GUIupdate
