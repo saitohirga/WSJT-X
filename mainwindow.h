@@ -21,7 +21,7 @@ class MainWindow : public QMainWindow
   Q_OBJECT
 
 public:
-  explicit MainWindow(QWidget *parent = 0);
+  explicit MainWindow(QSharedMemory *shdmem, QWidget *parent = 0);
   ~MainWindow();
 
 public slots:
@@ -308,6 +308,8 @@ private:
 
     SoundInThread soundInThread;             //Instantiate the audio threads
     SoundOutThread soundOutThread;
+
+    QSharedMemory *mem_jt9;
 
 //---------------------------------------------------- private functions
     void readSettings();
