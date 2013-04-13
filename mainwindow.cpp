@@ -1399,7 +1399,8 @@ void MainWindow::guiUpdate()
       bTxTime=true;
     }
 
-    if(bTxTime and m_iptt==0 and !btxMute) {
+    float fTR=float((nsec%m_TRperiod))/m_TRperiod;
+    if(bTxTime and m_iptt==0 and !btxMute and fTR<0.4) {
       icw[0]=m_ncw;
 
       //Raise PTT
