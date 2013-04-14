@@ -459,6 +459,13 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="tuneButton">
+          <property name="text">
+           <string>&amp;Tune</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="autoButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">

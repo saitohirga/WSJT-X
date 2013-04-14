@@ -151,6 +151,7 @@ private slots:
   void on_actionRunaway_Tx_watchdog_triggered(bool checked);
   void on_actionTx2QSO_triggered(bool checked);
   void killFile();
+  void on_tuneButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -245,6 +246,7 @@ private:
     bool    m_sent73;
     bool    m_runaway;
     bool    m_tx2QSO;
+    bool    m_tune;
 
     char    m_decoded[80];
 
@@ -281,6 +283,7 @@ private:
     QString m_pbdecoding_style1;
     QString m_pbmonitor_style;
     QString m_pbAutoOn_style;
+    QString m_pbTune_style;
     QString m_myCall;
     QString m_myGrid;
     QString m_baseCall;

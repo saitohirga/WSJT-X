@@ -22,6 +22,7 @@ typedef struct   //Parameters sent to or received from callback function
   int    ncall;
   bool   txMute;
   bool   bRestart;
+  bool   btune;
 } paUserData;
 
 //--------------------------------------------------------------- d2aCallback
@@ -57,6 +58,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     srand(mstr);                                //Initialize random seed
   }
   isym=ic/(4*udata->nsps);                      //Actual fsample=48000
+  if(udata->btune) isym=0;                      //If tuning, send pure tone
   if(udata->txsnrdb < 0.0) {
     snr=pow(10.0,0.05*(udata->txsnrdb-6.0));
     fac=3000.0;
@@ -100,6 +102,10 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   amp=32767.0;
   int i0=84.983*4.0*udata->nsps;
   int i1=85*4*udata->nsps;
+  if(udata->btune) {                           //If tuning, no ramp down
+    i0=999*udata->nsps;
+    i1=i0;
+  }
   for(uint i=0 ; i<framesToProcess; i++ )  {
     phi += dphi;
     if(phi>twopi) phi -= twopi;
@@ -154,6 +160,7 @@ void SoundOutThread::run()
   udata.ncall=0;
   udata.txMute=m_txMute;
   udata.bRestart=true;
+  udata.btune=m_tune;
 
   paerr=Pa_OpenStream(&outStream,           //Output stream
         NULL,                               //No input parameters
@@ -217,6 +224,11 @@ void SoundOutThread::setTxFreq(int n)
 void SoundOutThread::setTxSNR(double snr)
 {
   m_txsnrdb=snr;
+}
+
+void SoundOutThread::setTune(bool b)
+{
+  m_tune=b;
 }
 
 double SoundOutThread::samFacOut()

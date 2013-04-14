@@ -28,6 +28,7 @@ public:
   void setPeriod(int ntrperiod, int nsps);
   void setTxFreq(int n);
   void setTxSNR(double snr);
+  void setTune(bool b);
   double samFacOut();
   bool quitExecution;           //If true, thread exits gracefully
 
@@ -41,6 +42,7 @@ private:
   qint32  m_txFreq;
   bool    m_txOK;               //Enable Tx audio
   bool    m_txMute;             //Mute temporarily
+  bool    m_tune;
 };
 
 #endif

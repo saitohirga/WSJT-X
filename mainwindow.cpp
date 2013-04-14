@@ -38,12 +38,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
         "QLabel { background-color : black; color : yellow; }");
   ui->labDialFreq->setStyleSheet( \
         "QLabel { background-color : black; color : yellow; }");
-/*
-  ui->labTol1->setStyleSheet( \
-        "QLabel { background-color : white; color : black; }");
-  ui->labTol1->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  ui->dxStationGroupBox->setStyleSheet("QFrame{border: 5px groove red}");
-*/
   QActionGroup* paletteGroup = new QActionGroup(this);
   ui->actionCuteSDR->setActionGroup(paletteGroup);
   ui->actionLinrad->setActionGroup(paletteGroup);
@@ -181,6 +175,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_msErase=0;
   m_sent73=false;
   m_watchdogLimit=5;
+  m_tune=false;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -222,6 +217,10 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_pbAutoOn_style="QPushButton{background-color: red; \
       border-style: outset; border-width: 1px; border-radius: 5px; \
       border-color: black; min-width: 5em; padding: 3px;}";
+  m_pbTune_style="QPushButton{background-color: red; \
+      border-style: outset; border-width: 1px; border-radius: 5px; \
+      border-color: black; min-width: 5em; padding: 3px;}";
+
   genStdMsgs(m_rpt);
   on_actionWide_Waterfall_triggered();                   //###
   g_pWideGraph->setTxFreq(m_txFreq);
@@ -710,6 +709,7 @@ void MainWindow::on_autoButton_clicked()                     //Auto
 
 void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
 {
+  if(m_tune) on_tuneButton_clicked();
   if(m_auto) on_autoButton_clicked();
   btxok=false;
 }
@@ -1386,9 +1386,9 @@ void MainWindow::guiUpdate()
   int nsec=ms/1000;
   double tsec=0.001*ms;
   double t2p=fmod(tsec,2*m_TRperiod);
-  bool bTxTime = (t2p >= tx1) && (t2p < tx2);
+  bool bTxTime = ((t2p >= tx1) and (t2p < tx2)) or m_tune;
 
-  if(m_auto) {
+  if(m_auto or m_tune) {
 
     QFile f("txboth");
     if(f.exists() and fmod(tsec,m_TRperiod) < (1.0 + 85.0*m_nsps/12000.0)) {
@@ -1396,7 +1396,8 @@ void MainWindow::guiUpdate()
     }
 
     float fTR=float((nsec%m_TRperiod))/m_TRperiod;
-    if(bTxTime and m_iptt==0 and !btxMute and fTR<0.4) {
+//    if(bTxTime and m_iptt==0 and !btxMute and fTR<0.4) {
+    if(m_iptt==0 and ((bTxTime and !btxMute and fTR<0.4) or m_tune )) {
       icw[0]=m_ncw;
 
       //Raise PTT
@@ -1439,6 +1440,7 @@ void MainWindow::guiUpdate()
     genjt9_(message,&ichk,msgsent,itone,&itext,len1,len1);
     msgsent[22]=0;
     QString t=QString::fromAscii(msgsent);
+    if(m_tune) t="TUNE";
     lab5->setText("Last Tx:  " + t);
     if(m_restart) {
       QFile f("ALL.TXT");
@@ -1519,7 +1521,7 @@ void MainWindow::guiUpdate()
     out << QDateTime::currentDateTimeUtc().toString("hhmm")
         << "  Transmitting:  " << t << endl;
     f.close();
-    if(m_tx2QSO) displayTxMsg(t);
+    if(m_tx2QSO and !m_tune) displayTxMsg(t);
   }
 
   if(!btxok && btxok0 && m_iptt==1) stopTx();
@@ -1594,11 +1596,11 @@ void MainWindow::guiUpdate()
     m_hsym0=khsym;
     m_sec0=nsec;
 
-//###
-    m_cmnd=rig_command() + " f";
-    p3.start(m_cmnd);
-    p3.waitForFinished();
-//###
+    if(m_catEnabled) {
+      m_cmnd=rig_command() + " f";
+      p3.start(m_cmnd);
+      p3.waitForFinished();
+    }
   }
 
   iptt0=m_iptt;
@@ -2537,4 +2539,17 @@ void MainWindow::on_actionRunaway_Tx_watchdog_triggered(bool checked)
 void MainWindow::on_actionTx2QSO_triggered(bool checked)
 {
   m_tx2QSO=checked;
+}
+
+void MainWindow::on_tuneButton_clicked()
+{
+  m_tune=!m_tune;
+  soundOutThread.setTune(m_tune);
+  if(m_tune) {
+    ui->tuneButton->setStyleSheet(m_pbTune_style);
+  } else {
+    btxok=false;
+    ui->tuneButton->setStyleSheet("");
+    on_monitorButton_clicked();
+  }
 }
