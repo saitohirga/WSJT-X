@@ -42,7 +42,7 @@ subroutine decoder(ss,c0)
   else if(ntrMinutes.eq.5) then
      nsps=40960
      df3=1500.0/6144.0
-     fmt='(i4.4,i4,i5,f6.1,f8.1,i4,3x,a22)' 
+     fmt='(i4.4,i4,i5,f6.1,f8.1,i4,3x,a22)'
  else if(ntrMinutes.eq.10) then
      nsps=82944
      df3=1500.0/12288.0
@@ -56,6 +56,7 @@ subroutine decoder(ss,c0)
 
   kstep=nsps/2
   tstep=kstep/12000.0
+  tstep=0.5*tstep
   idf=ntol/df3 + 0.999
 
   do nqd=1,0,-1
@@ -122,8 +123,6 @@ subroutine decoder(ss,c0)
 
            call timer('decode9 ',0)
            call decode9(i1SoftSymbols,limit,nlim,msg)
-!           write(69,3300) nqd,i,f+1000.0,ccflim,ccfred(i),limit,nlim,msg(1:18)
-!3300       format(i1,i6,f10.3,2f8.1,2i9,2x,a18)
            call timer('decode9 ',1)
  
            sync=(syncpk+1)/4.0
@@ -135,6 +134,8 @@ subroutine decoder(ss,c0)
            if(msg.ne.'                      ') then
               write(*,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
               write(13,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
+!              write(14,1014) nutc,nsync,nsnr,xdt,freq,ndrift,ccfred(i),nlim,msg
+!1014          format(i4.4,i4,i5,f6.1,f8.0,i4,f9.1,i9,3x,a22)
               fgood=f
               nsynced=1
               ndecoded=1
@@ -151,7 +152,7 @@ subroutine decoder(ss,c0)
 1010 format('<DecodeFinished>',2i4)
   call flush(6)
   close(13)
-!  call flush(69)
+!  call flush(14)
 
   call timer('decoder ',1)
   if(nstandalone.eq.0) call timer('decoder ',101)
