@@ -362,6 +362,13 @@ void azdist_(char* MyGrid, char* HisGrid, double* utch, int* nAz, int* nEl,
              int len1, int len2);
 
 void morse_(char* msg, int* icw, int* ncw, int len);
+
+//void rig_control(int nrig, int verbose);
+
+void rigOpen(int nrig, int verbose);
+void rigSetFreq(int fHz);
+int rigFreq();
+
 }
 
 #endif // MAINWINDOW_H
