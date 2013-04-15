@@ -247,7 +247,6 @@ private:
     bool    m_runaway;
     bool    m_tx2QSO;
     bool    m_tune;
-    bool    m_bRigOpen;
 
     char    m_decoded[80];
 
@@ -342,7 +341,7 @@ extern int killbyname(const char* progName);
 extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
                    int minChan[], int maxChan[],
                    int minSpeed[], int maxSpeed[]);
-extern int ptt(int nport, int itx, int* iptt, int* nopen);
+extern int ptt(int nport, int itx, int* iptt);
 //extern int ReporterInitialize(char* hostname, char* port);
 
 
@@ -366,13 +365,9 @@ void morse_(char* msg, int* icw, int* ncw, int len);
 
 //void rig_control(int nrig, int verbose);
 
-int rigOpen(int vervose, int nrig, const char* rig_file, int serial_rate,
-            const char* conf_parms);
-
+int rigOpen(int nrig, int verbose);
 void rigSetFreq(int fHz);
-int rigFreq(int *fHz);
-int rigSetPTT(int iptt);
-void rigClose();
+int rigFreq();
 
 }
 

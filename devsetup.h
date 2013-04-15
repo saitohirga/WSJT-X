@@ -34,9 +34,6 @@ public:
   qint32  m_stopBits;
   qint32  m_stopBitsIndex;
   qint32  m_handshakeIndex;
-  qint32  m_count;
-  qint32  m_iptt;
-  qint32  m_COMportOpen;
 
   bool    m_restartSoundIn;
   bool    m_restartSoundOut;
@@ -44,7 +41,6 @@ public:
   bool    m_firstCall;
   bool    m_catEnabled;
   bool    m_After73;
-  bool    m_bRigOpen;
 
   QString m_myCall;
   QString m_myGrid;
@@ -78,9 +74,6 @@ private slots:
   void on_stopBitsComboBox_activated(int index);
   void on_rigComboBox_activated(int index);
   void on_cbID73_toggled(bool checked);
-  void on_testCATButton_clicked();
-
-  void on_testPTTButton_clicked();
 
 private:
   void msgBox(QString t);

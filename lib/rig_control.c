@@ -23,9 +23,6 @@ int set_conf(RIG *my_rig, char *conf_parms)
     *q++ = '\0';
     n = strchr(q, ',');
     if (n) *n++ = '\0';
-
-    printf("%s   %s\n",p,q);
-
     iret = rig_set_conf(my_rig, rig_token_lookup(my_rig, p), q);
     if (iret != RIG_OK)
       return iret;
