@@ -2097,7 +2097,7 @@ answer callers</string>
   </action>
   <action name="actionDeviceSetup">
    <property name="checkable">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Configuration</string>

@@ -14,9 +14,6 @@ DevSetup::DevSetup(QWidget *parent) :	QDialog(parent)
   m_restartSoundIn=false;
   m_restartSoundOut=false;
   m_firstCall=true;
-  m_count=0;
-  m_iptt=0;
-  m_bRigOpen=false;
 }
 
 DevSetup::~DevSetup()
@@ -371,39 +368,4 @@ void DevSetup::on_rigComboBox_activated(int index)
 void DevSetup::on_cbID73_toggled(bool checked)
 {
   m_After73=checked;
-}
-
-void DevSetup::on_testCATButton_clicked()
-{
-  if(!m_catEnabled) return;
-  if(!m_bRigOpen) {
-    QString conf_parms;
-    conf_parms.sprintf("data_bits=%d,stop_bits=%d,serial_handshake=",
-                       m_dataBits,m_stopBits);
-    conf_parms+=m_handshake;
-    int iret=rigOpen(0,m_rig,m_catPort.toAscii().data(),m_serialRate,
-                     conf_parms.toAscii().data());
-    if(iret!=0) {
-      msgBox("Failed to open connection to radio.");
-      return;
-    }
-    m_bRigOpen=true;
-  }
-  m_count=1-m_count;
-  int freq=10130000;
-  if(m_count!=1) freq=14078000;
-  rigSetFreq(freq);
-}
-
-void DevSetup::on_testPTTButton_clicked()
-{
-  int iret=0;
-  m_iptt=1-m_iptt;
-  if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
-    int iptt=m_iptt;
-    ptt(m_pttPort,iptt,&m_iptt,&m_COMportOpen);
-  }
-  if(m_pttMethodIndex==0 and m_bRigOpen) {
-    iret=rigSetPTT(m_iptt);
-  }
 }
