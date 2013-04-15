@@ -365,7 +365,7 @@ void morse_(char* msg, int* icw, int* ncw, int len);
 
 //void rig_control(int nrig, int verbose);
 
-void rigOpen(int nrig, int verbose);
+int rigOpen(int nrig, int verbose);
 void rigSetFreq(int fHz);
 int rigFreq();
 

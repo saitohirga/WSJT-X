@@ -176,6 +176,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_sent73=false;
   m_watchdogLimit=5;
   m_tune=false;
+  m_repeatMsg=0;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -704,6 +705,7 @@ void MainWindow::on_autoButton_clicked()                     //Auto
     btxok=false;
     ui->autoButton->setStyleSheet("");
     on_monitorButton_clicked();
+    m_repeatMsg=0;
   }
 }
 
@@ -712,6 +714,7 @@ void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
   if(m_tune) on_tuneButton_clicked();
   if(m_auto) on_autoButton_clicked();
   btxok=false;
+  m_repeatMsg=0;
 }
 
 void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
@@ -2403,6 +2406,7 @@ void MainWindow::on_bandComboBox_currentIndexChanged(int index)
   QString t=m_dFreq[index];
   m_dialFreq=t.toDouble();
   dialFreqChanged2(m_dialFreq);
+  m_repeatMsg=0;
   if(m_catEnabled) {
     int nHz=int(1000000.0*m_dialFreq + 0.5);
     QString cmnd1,cmnd3;
