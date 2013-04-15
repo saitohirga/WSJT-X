@@ -177,6 +177,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_watchdogLimit=5;
   m_tune=false;
   m_repeatMsg=0;
+  m_bRigOpen=false;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -285,6 +286,23 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
     }
   }
 #endif
+
+//###
+  if(m_catEnabled) {
+    QString conf_parms;
+    conf_parms.sprintf("data_bits=%d,stop_bits=%d,serial_handshake=",
+                       m_dataBits,m_stopBits);
+    conf_parms+=m_handshake;
+    int iret=rigOpen(0,m_rig,m_catPort.toAscii().data(),m_serialRate,
+                     conf_parms.toAscii().data());
+    if(iret!=0) {
+      msgBox("Failed to open connection to radio.");
+      return;
+    }
+    m_bRigOpen=true;
+  }
+//###
+
 }                                          // End of MainWindow constructor
 
 //--------------------------------------------------- MainWindow destructor
@@ -599,6 +617,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_stopBitsIndex=m_stopBitsIndex;
   dlg.m_handshake=m_handshake;
   dlg.m_handshakeIndex=m_handshakeIndex;
+  dlg.m_bRigOpen=m_bRigOpen;
 
   dlg.initDlg();
   if(dlg.exec() == QDialog::Accepted) {
@@ -627,6 +646,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_stopBitsIndex=dlg.m_stopBitsIndex;
     m_handshake=dlg.m_handshake;
     m_handshakeIndex=dlg.m_handshakeIndex;
+    m_bRigOpen=dlg.m_bRigOpen;
 
 #ifdef WIN32
     if(dlg.m_pskReporter!=m_pskReporter) {
@@ -1406,8 +1426,8 @@ void MainWindow::guiUpdate()
       //Raise PTT
       if(m_pttMethodIndex==0) {                  //CAT control for PTT
         m_cmnd=rig_command() + " T 1";
-        p3.start(m_cmnd);
-        p3.waitForFinished();
+//        p3.start(m_cmnd);
+//        p3.waitForFinished();
         m_iptt=1;
       }
       if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {  //DTR or RTS
@@ -1539,8 +1559,8 @@ void MainWindow::guiUpdate()
     //Lower PTT
       if(m_pttMethodIndex==0) {                         //CAT
         m_cmnd=rig_command() + " T 0";
-        p3.start(m_cmnd);
-        p3.waitForFinished();
+//        p3.start(m_cmnd);
+//        p3.waitForFinished();
       }
       if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {  //DTR-RTS
         ptt(m_pttPort,0,&m_iptt,&m_COMportOpen);
@@ -1598,11 +1618,19 @@ void MainWindow::guiUpdate()
     }
     m_hsym0=khsym;
     m_sec0=nsec;
-
+/*
     if(m_catEnabled) {
       m_cmnd=rig_command() + " f";
       p3.start(m_cmnd);
       p3.waitForFinished();
+    }
+*/
+    if(m_bRigOpen) {
+      int fHz;
+      int iret=rigFreq(&fHz);
+      double fMHz=fHz/1000000.0;
+      int d=1000000.0*(fMHz-m_dialFreq);
+      if(abs(d)>0) dialFreqChanged2(fMHz);
     }
   }
 
@@ -1675,8 +1703,8 @@ void MainWindow::stopTx2()
 //Lower PTT
   if(m_pttMethodIndex==0) {
     m_cmnd=rig_command() + " T 0";
-    p3.start(m_cmnd);
-    p3.waitForFinished();
+//    p3.start(m_cmnd);
+//    p3.waitForFinished();
   }
   if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
     ptt(m_pttPort,0,&m_iptt,&m_COMportOpen);
@@ -2407,8 +2435,9 @@ void MainWindow::on_bandComboBox_currentIndexChanged(int index)
   m_dialFreq=t.toDouble();
   dialFreqChanged2(m_dialFreq);
   m_repeatMsg=0;
+  int nHz=int(1000000.0*m_dialFreq + 0.5);
+/*
   if(m_catEnabled) {
-    int nHz=int(1000000.0*m_dialFreq + 0.5);
     QString cmnd1,cmnd3;
     cmnd1=rig_command();
     cmnd3.sprintf(" F %d",nHz);
@@ -2416,6 +2445,9 @@ void MainWindow::on_bandComboBox_currentIndexChanged(int index)
     p3.start(m_cmnd);
     p3.waitForFinished();
   }
+*/
+
+  if(m_bRigOpen) rigSetFreq(nHz);
 }
 
 void MainWindow::on_actionPrompt_to_log_QSO_triggered(bool checked)

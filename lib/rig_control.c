@@ -12,7 +12,7 @@ int set_conf(RIG *my_rig, char *conf_parms);
 int set_conf(RIG *my_rig, char *conf_parms)
 {
   char *p, *q, *n;
-  int ret;
+  int iret;
 
   p = conf_parms;
   while (p && *p != '\0') {
@@ -26,38 +26,40 @@ int set_conf(RIG *my_rig, char *conf_parms)
 
     printf("%s   %s\n",p,q);
 
-    ret = rig_set_conf(my_rig, rig_token_lookup(my_rig, p), q);
-    if (ret != RIG_OK)
-      return ret;
+    iret = rig_set_conf(my_rig, rig_token_lookup(my_rig, p), q);
+    if (iret != RIG_OK)
+      return iret;
     p = n;
   }
   return RIG_OK;
 }
 
 //------------------------------------------------------------------------
-int rigOpen(rig_model_t my_model, int verbose)
+int rigOpen(int verbose, rig_model_t my_model, const char* rig_file,
+	    int serial_rate, const char* conf_parms2)
 {
-  int retcode;		/* generic return code from functions */
+  int iret;		/* generic return code from functions */
   char *civaddr = NULL;	/* NULL means no need to set conf */
-  const char *rig_file;
-  const char *conf_parms2;
-  int serial_rate;
+  //  const char *rig_file;
+  //  const char *conf_parms2;
+  //  int serial_rate;
 
   rig_set_debug(verbose);
   my_rig=rig_init(my_model);
   
   if (!my_rig) {
-    fprintf(stderr, "Unknown rig num %d, or initialization error.\n",my_model);
-    exit(2);
+    //    fprintf(stderr, "Unknown rig num %d, or initialization error.\n",my_model);
+    return -1;
   }
-  rig_file="COM1";
-  serial_rate=4800;
-  conf_parms2="data_bits=8,stop_bits=2,serial_handshake=Hardware";
 
-  retcode=set_conf(my_rig, conf_parms2);
-  if (retcode!=RIG_OK) {
-    fprintf(stderr, "Config parameter error: %s\n", rigerror(retcode));
-    exit(2);
+  //  rig_file="COM1";
+  //  serial_rate=4800;
+  //  conf_parms2="data_bits=8,stop_bits=2,serial_handshake=Hardware";
+
+  iret=set_conf(my_rig, conf_parms2);
+  if (iret!=RIG_OK) {
+    //    fprintf(stderr, "Config parameter error: %s\n", rigerror(iret));
+    return -2;
   }
 
   if (rig_file)
@@ -69,7 +71,8 @@ int rigOpen(rig_model_t my_model, int verbose)
   if (civaddr)
     rig_set_conf(my_rig, rig_token_lookup(my_rig, "civaddr"), civaddr);
 
-  retcode = rig_open(my_rig);
+  iret = rig_open(my_rig);
+  if(iret!=0) return -3;
   return 0;
 }
 
@@ -78,17 +81,18 @@ int rigSetFreq(int fHz)
   return rig_set_freq(my_rig,RIG_VFO_CURR,fHz);
 }
 
-int rigFreq()
+int rigFreq(int *fHz)
 {
   int iret=0;
   freq_t freq;
   iret=rig_get_freq(my_rig, RIG_VFO_CURR, &freq);
-  if (iret == RIG_OK ) {
-    printf("rig_get_freq: freq = %"PRIfreq"\n", freq);
-  } else {
-    printf("rig_get_freq: error =  %s \n", rigerror(iret));
-  }
-  return freq;
+  *fHz=freq;
+  return iret;
+}
+
+int rigSetPTT(int iptt)
+{
+  return rig_set_ptt(my_rig, RIG_VFO_CURR, iptt);
 }
 
 void rigClose()
