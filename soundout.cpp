@@ -191,6 +191,7 @@ void SoundOutThread::run()
     udata.ntrperiod=m_TRperiod;
     udata.ntxfreq=m_txFreq;
     udata.txMute=m_txMute;
+    udata.btune=m_tune;
 
     m_SamFacOut=1.0;
     if(udata.ncall>400) {

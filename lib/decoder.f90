@@ -12,6 +12,7 @@ subroutine decoder(ss,c0)
   character*20 datetime
   real*4 ccfred(NSMAX)
   logical ccfok(NSMAX)
+  logical done(NSMAX)
   integer*1 i1SoftSymbols(207)
   integer*2 id2
   integer ii(1)
@@ -56,8 +57,9 @@ subroutine decoder(ss,c0)
 
   kstep=nsps/2
   tstep=kstep/12000.0
-  tstep=0.5*tstep
+!  tstep=0.5*tstep
   idf=ntol/df3 + 0.999
+  done=.false.
 
   do nqd=1,0,-1
      limit=5000
@@ -110,9 +112,9 @@ subroutine decoder(ss,c0)
 
      do i=ia,ib
         f=(i-1)*df3
-        if(.not.ccfok(i) .or. ccfred(i).lt.ccflim-1.0 .or.                &
-             ccfred(i).lt.ccfred(i+1)) cycle
-        if(nqd.eq.1 .or.                                                  &
+        if(done(i) .or. (.not.ccfok(i)) .or. (ccfred(i).lt.ccflim-1.0) .or. &
+             (ccfred(i).lt.ccfred(i+1))) cycle
+        if(nqd.eq.1 .or.                                                   &
            (ccfred(i).ge.3.0 .and. abs(f-fgood).gt.10.0*df8)) then
            call timer('decode9a',0)
            fpk=1000.0 + df3*(i-1)
@@ -136,10 +138,13 @@ subroutine decoder(ss,c0)
               write(13,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
 !              write(14,1014) nutc,nsync,nsnr,xdt,freq,ndrift,ccfred(i),nlim,msg
 !1014          format(i4.4,i4,i5,f6.1,f8.0,i4,f9.1,i9,3x,a22)
+              iaa=max(1,i-3)
+              ibb=min(NSMAX,i+11)
               fgood=f
               nsynced=1
               ndecoded=1
-              ccfok(max(ia,i-3):min(ib,i+11))=.false.
+              ccfok(iaa:ibb)=.false.
+              done(iaa:ibb)=.true.              
               call flush(6)
            endif
         endif
