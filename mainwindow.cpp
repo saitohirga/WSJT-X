@@ -1,4 +1,4 @@
-//-------------------------------------------------------------- MainWindow
+//--------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -244,6 +244,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   soundInThread.start(QThread::HighestPriority);
   soundOutThread.setOutputDevice(m_paOutDevice);
   soundOutThread.setTxFreq(m_txFreq);
+  soundOutThread.setTune(false);
   m_monitoring=!m_monitorStartOFF;           // Start with Monitoring ON/OFF
   soundInThread.setMonitoring(m_monitoring);
   m_diskData=false;
