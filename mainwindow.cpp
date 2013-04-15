@@ -2552,4 +2552,9 @@ void MainWindow::on_tuneButton_clicked()
     ui->tuneButton->setStyleSheet("");
     on_monitorButton_clicked();
   }
+  /*
+  rigOpen(214,0);
+  rigSetFreq(10138700);
+  qDebug() << "Freq:" << rigFreq();
+  */
 }
