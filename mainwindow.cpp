@@ -286,6 +286,9 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
     }
   }
 #endif
+  ui->label_9->setStyleSheet("QLabel{background-color: #aabec8}");
+  ui->label_10->setStyleSheet("QLabel{background-color: #aabec8}");
+
 }                                          // End of MainWindow constructor
 
 //--------------------------------------------------- MainWindow destructor
