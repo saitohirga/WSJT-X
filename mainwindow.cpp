@@ -1,4 +1,4 @@
-//-------------------------------------------------------------- MainWindow
+//--------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -1355,17 +1355,18 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
 #ifdef unix
       if(b and !m_diskData) {
+          qDebug() << msg;
           int i1=msg.indexOf(" ");
           QString c2=msg.mid(i1+1);
           int i2=c2.indexOf(" ");
           QString g2=c2.mid(i2+1,4);
           c2=c2.mid(0,i2);
-          QString grid;
-          if(gridOK(g2)) grid = g2;
           int nHz=t.mid(22,4).toInt();
-          QString freq = QString::number(1000000.0*m_dialFreq + nHz + 0.5);
+          QString freq = QString::number((int)(1000000.0*m_dialFreq + nHz + 0.5));
+          qDebug() << freq;
           QString snr= QString::number(t.mid(10,3).toInt());
-          psk_Reporter->addRemoteStation(c2,grid,freq,"JT9",snr,QString::number(QDateTime::currentDateTime().toTime_t()));
+          if(gridOK(g2))
+           psk_Reporter->addRemoteStation(c2,g2,freq,"JT9",snr,QString::number(QDateTime::currentDateTime().toTime_t()));
       }
 #endif
     }
