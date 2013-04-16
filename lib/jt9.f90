@@ -65,7 +65,7 @@ program jt9
 2    nsps=0
      if(ntrperiod.eq.1)  then
         nsps=6912
-        nzhsym=181
+        nzhsym=173
      else if(ntrperiod.eq.2)  then
         nsps=15360
         nzhsym=178
@@ -115,64 +115,12 @@ program jt9
      enddo
 
 10   close(10)
-     iz=1000.0/df3
-     nutc=nutc0
-
-     call timer('sync9   ',0)
-     call sync9(ss,nzhsym,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk) !Get sync, freq
-     call timer('sync9   ',1)
-
-     fgood=0.
-     nsps8=nsps/8
-     df8=1500.0/nsps8
-     sbest=0.
-     do i=ia,ib
-        f=(i-1)*df3
-        if((i.eq.ipk .or. ccfred(i).ge.3.0) .and. f.gt.fgood+10.0*df8) then
-
-           call timer('decode9a',0)
-           fpk=1000.0 + df3*(i-1)
-           c1(1:npts8)=conjg(c0(1:npts8))
-           call decode9a(c1,npts8,nsps8,fpk,syncpk,snrdb,xdt,freq,    &
-                drift,i1SoftSymbols)
-           call timer('decode9a',1)
-
-           call timer('decode9 ',0)
-           call decode9(i1SoftSymbols,limit,nlim,msg)
-           call timer('decode9 ',1)
- 
-           sync=(syncpk-1.0)/2.0
-           if(sync.lt.0.0 .or. snrdb.lt.dblim-2.0) sync=0.0
-           nsync=sync
-           if(nsync.gt.10) nsync=10
-           nsnr=nint(snrdb)
-
-           if(sync.gt.sbest .and. fgood.eq.0.0) then
-              sbest=sync
-              write(line,1010) nutc,nsync,nsnr,xdt,freq,drift
-              if(nsync.gt.0) nsynced=1
-           endif
-
-           if(msg.ne.'                      ') then
-              write(*,1010) nutc,nsync,nsnr,xdt,freq,drift,msg
-1010          format(i4.4,i4,i5,f6.1,f8.2,f6.2,3x,a22)
-              fgood=f
-              nsynced=1
-              ndecoded=1
-           endif
-        endif
-     enddo
-
-     if(fgood.eq.0.0) then
-        write(*,1020) line
-1020    format(a33)
-     endif
-
+     call fillcom(nutc0)
+     call decoder(ss,c0,1)
   enddo
 
   call timer('jt9     ',1)
   call timer('jt9     ',101)
-!  call ftnquit
   go to 999
 
 998 print*,'Cannot open file:'
