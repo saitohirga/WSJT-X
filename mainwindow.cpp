@@ -286,6 +286,12 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
     }
   }
 #endif
+
+#ifdef unix
+  psk_Reporter = new PSK_Reporter(this);
+  psk_Reporter->setLocalStation(m_myCall,m_myGrid, "WSJT-X r" + rev.mid(6,4) );
+#endif
+
   ui->label_9->setStyleSheet("QLabel{background-color: #aabec8}");
   ui->label_10->setStyleSheet("QLabel{background-color: #aabec8}");
 
@@ -649,6 +655,11 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
       }
     }
 #endif
+
+#ifdef unix
+    psk_Reporter->setLocalStation(m_myCall,m_myGrid, "WSJT-X r" + rev.mid(6,4) );
+#endif
+
     m_pskReporter=dlg.m_pskReporter;
     m_After73=dlg.m_After73;
 
@@ -1329,6 +1340,22 @@ void MainWindow::readFromStdout()                             //readFromStdout
           rc=ReporterGetInformation(buffer,256);
           qDebug() << "D:" << QString::fromStdWString(buffer);
         }
+      }
+#endif
+
+#ifdef unix
+      if(b and !m_diskData) {
+          int i1=msg.indexOf(" ");
+          QString c2=msg.mid(i1+1);
+          int i2=c2.indexOf(" ");
+          QString g2=c2.mid(i2+1,4);
+          c2=c2.mid(0,i2);
+          QString grid;
+          if(gridOK(g2)) grid = g2;
+          int nHz=t.mid(22,4).toInt();
+          QString freq = QString::number(1000000.0*m_dialFreq + nHz + 0.5);
+          QString snr= QString::number(t.mid(10,3).toInt());
+          psk_Reporter->addRemoteStation(c2,grid,freq,"JT9",snr,QString::number(QDateTime::currentDateTime().toTime_t()));
       }
 #endif
     }

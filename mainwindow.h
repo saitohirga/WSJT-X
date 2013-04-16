@@ -6,6 +6,7 @@
 #include "soundin.h"
 #include "soundout.h"
 #include "commons.h"
+#include "psk_reporter.h"
 
 #ifdef WIN32
 #include "PSKReporter.h"
@@ -314,6 +315,8 @@ private:
     SoundOutThread soundOutThread;
 
     QSharedMemory *mem_jt9;
+
+    PSK_Reporter *psk_Reporter;
 
 //---------------------------------------------------- private functions
     void readSettings();
