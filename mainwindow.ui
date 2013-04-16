@@ -1389,7 +1389,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1420,7 +1420,7 @@ p, li { white-space: pre-wrap; }
                  <bool>true</bool>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1448,7 +1448,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1598,7 +1598,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1731,7 +1731,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1759,7 +1759,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1798,8 +1798,8 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>5</x>
               <y>1</y>
-              <width>261</width>
-              <height>221</height>
+              <width>280</width>
+              <height>229</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -1880,6 +1880,12 @@ answer callers</string>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>150</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="readOnly">
                   <bool>true</bool>
                  </property>
@@ -1900,7 +1906,7 @@ answer callers</string>
                   </size>
                  </property>
                  <property name="text">
-                  <string>Generated message</string>
+                  <string>Generated msg</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -1919,6 +1925,12 @@ answer callers</string>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>150</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                 </widget>
                </item>
                <item>
@@ -1936,7 +1948,7 @@ answer callers</string>
                   </size>
                  </property>
                  <property name="text">
-                  <string>Free text message</string>
+                  <string>Free text msg</string>
                  </property>
                 </widget>
                </item>
@@ -1948,7 +1960,7 @@ answer callers</string>
          </widget>
         </item>
         <item row="1" column="1" rowspan="5">
-         <widget class="QwtThermo" name="xThermo" native="true">
+         <widget class="QwtThermo" name="xThermo">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -1961,19 +1973,19 @@ answer callers</string>
             <height>180</height>
            </size>
           </property>
-          <property name="borderWidth" stdset="0">
+          <property name="borderWidth">
            <number>1</number>
           </property>
-          <property name="maxValue" stdset="0">
+          <property name="maxValue">
            <double>60.000000000000000</double>
           </property>
-          <property name="minValue" stdset="0">
+          <property name="minValue">
            <double>0.000000000000000</double>
           </property>
-          <property name="pipeWidth" stdset="0">
+          <property name="pipeWidth">
            <number>8</number>
           </property>
-          <property name="value" stdset="0">
+          <property name="value">
            <double>0.000000000000000</double>
           </property>
          </widget>
@@ -1990,7 +2002,7 @@ answer callers</string>
      <x>0</x>
      <y>0</y>
      <width>711</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
