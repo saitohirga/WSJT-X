@@ -32,7 +32,6 @@ PSK_Reporter::PSK_Reporter(QObject *parent) :
     m_randomId_h = QString("%1").arg(qrand(),8,16,QChar('0'));
 
     m_udpSocket = new QUdpSocket(this);
-    m_udpSocket->bind(QHostAddress::LocalHost,14739); // Force udp source port
 
     reportTimer = new QTimer(this);
     connect(reportTimer, SIGNAL(timeout()), this, SLOT(sendReport()));
@@ -43,7 +42,7 @@ void PSK_Reporter::setLocalStation(QString call, QString gridSquare, QString pro
     m_rxCall = call;
     m_rxGrid = gridSquare;
     m_progId = programInfo;
-    reportTimer->start(5*60*1000); // 5 minutes;
+    reportTimer->start(1*60*1000); // 5 minutes;
 }
 
 void PSK_Reporter::addRemoteStation(QString call, QString grid, QString freq, QString mode, QString snr, QString time )
@@ -63,6 +62,8 @@ void PSK_Reporter::sendReport()
     if (m_spotQueue.isEmpty())
         return;
 
+    qDebug() << m_rxCall << m_rxGrid << m_progId;
+
     // Header
     QString header_h = m_header_h;
     header_h.replace("tttttttt", QString("%1").arg(QDateTime::currentDateTime().toTime_t(),8,16,QChar('0')));
@@ -81,13 +82,12 @@ void PSK_Reporter::sendReport()
     QString txInfoData_h = "50E3llll";
     while (!m_spotQueue.isEmpty()) {
         QHash<QString,QString> spot = m_spotQueue.dequeue();
-        qDebug() << spot;
         txInfoData_h += QString("%1").arg(spot["call"].length(),2,16,QChar('0')) + spot["call"].toUtf8().toHex();
         txInfoData_h += QString("%1").arg(spot["freq"].toLongLong(),8,16,QChar('0'));
         txInfoData_h += QString("%1").arg(spot["snr"].toInt(),1,16,QChar('0')).mid(14,2);
         txInfoData_h += QString("%1").arg(spot["mode"].length(),2,16,QChar('0')) + spot["mode"].toUtf8().toHex();
         txInfoData_h += QString("%1").arg(spot["grid"].length(),2,16,QChar('0')) + spot["grid"].toUtf8().toHex();
-        txInfoData_h += QString("%1").arg(1,2,16,QChar('0'));;
+        txInfoData_h += QString("%1").arg(1,2,16,QChar('0')); // REPORTER_SOURCE_AUTOMATIC
         txInfoData_h += QString("%1").arg(spot["time"].toInt(),8,16,QChar('0'));
     }
     txInfoData_h += "0000";
@@ -99,15 +99,17 @@ void PSK_Reporter::sendReport()
     QByteArray report = QByteArray::fromHex(report_h.toUtf8());
 
     // Get IP address for pskreporter.info and send report via UDP
-    QHostInfo info = QHostInfo::fromName("pskreporter.info");
+    QHostInfo info = QHostInfo::fromName("report.pskreporter.info");
     m_udpSocket->writeDatagram(report,info.addresses().at(0),4739);
 
+    /*
     qDebug() << header_h;
     qDebug() << m_rxInfoDescriptor_h;
     qDebug() << m_txInfoDescriptor_h;
     qDebug() << rxInfoData_h;
     qDebug() << txInfoData_h;
     qDebug() << report.toHex();
+    */
 }
 
 
