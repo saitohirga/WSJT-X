@@ -1377,7 +1377,8 @@ void MainWindow::readFromP3()                             //readFromP3
   QByteArray t=p3.readAllStandardOutput();
   QString s=t;
   double fMHz=s.toDouble()/1000000.0;
-  dialFreqChanged2(fMHz);
+  int ndiff=1000000.0*(fMHz-m_dialFreq);
+  if(ndiff!=0) dialFreqChanged2(fMHz);
 }
 
 void MainWindow::killFile()
