@@ -1461,9 +1461,8 @@ void MainWindow::guiUpdate()
     if(w.length()==3) t=w[2];
     icw[0]=0;
     m_sent73=(t=="73" or itext!=0);
-    if(m_sent73 and m_After73) {
-      icw[0]=m_ncw;
-//      if(m_promptToLog) on_logQSOButton_clicked();
+    if(m_sent73)  {
+      if(m_After73)  icw[0]=m_ncw;
       if(m_promptToLog) logQSOTimer->start(200);
     }
 
