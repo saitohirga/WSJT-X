@@ -1,4 +1,4 @@
-subroutine decoder(ss,c0)
+subroutine decoder(ss,c0,nstandalone)
 
 ! Decoder for JT9.
 
@@ -126,7 +126,7 @@ subroutine decoder(ss,c0)
            call timer('decode9 ',0)
            call decode9(i1SoftSymbols,limit,nlim,msg)
            call timer('decode9 ',1)
- 
+
            sync=(syncpk+1)/4.0
            if(sync.lt.0.0 .or. snrdb.lt.dblim-2.0) sync=0.0
            nsync=sync
@@ -136,8 +136,8 @@ subroutine decoder(ss,c0)
            if(msg.ne.'                      ') then
               write(*,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
               write(13,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
-!              write(14,1014) nutc,nsync,nsnr,xdt,freq,ndrift,ccfred(i),nlim,msg
-!1014          format(i4.4,i4,i5,f6.1,f8.0,i4,f9.1,i9,3x,a22)
+              write(14,1014) nutc,nsync,nsnr,xdt,freq,ndrift,ccfred(i),nlim,msg
+1014          format(i4.4,i4,i5,f6.1,f8.0,i4,f9.1,i9,3x,a22)
               iaa=max(1,i-3)
               ibb=min(NSMAX,i+11)
               fgood=f
@@ -157,7 +157,7 @@ subroutine decoder(ss,c0)
 1010 format('<DecodeFinished>',2i4)
   call flush(6)
   close(13)
-!  call flush(14)
+  call flush(14)
 
   call timer('decoder ',1)
   if(nstandalone.eq.0) call timer('decoder ',101)
