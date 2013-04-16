@@ -25,7 +25,7 @@ program jt9
 
   nargs=iargc()
   if(nargs.lt.1) then
-     print*,'Usage: jt9 TRperiod file1 [file2 ...]'
+     print*,'Usage: jt9 TRperiod ndepth file1 [file2 ...]'
      print*,'       Reads data from *.wav files.'
      print*,''
      print*,'       jt9 -s'
@@ -39,8 +39,10 @@ program jt9
      go to 999
   endif
   read(arg,*) ntrperiod
+  call getarg(2,arg)
+  read(arg,*) ndepth
 
-  ifile1=2
+  ifile1=3
 
   limtrace=0
   lu=12
@@ -50,7 +52,7 @@ program jt9
   nfqso=1500
   newdat=1
   nb=0
-  nbslider=100
+  nbslider=30
   limit=20000
   ndiskdat=1
 
@@ -110,12 +112,12 @@ program jt9
                 s,ccfred,df3,ihsym,nzap,slimit,lstrong,npts8)
            call timer('symspec ',1)
            nhsym0=nhsym
-           if(ihsym.ge.184) go to 10
+           if(ihsym.ge.173) go to 10
         endif
      enddo
 
 10   close(10)
-     call fillcom(nutc0)
+     call fillcom(nutc0,ndepth)
      call decoder(ss,c0,1)
   enddo
 
