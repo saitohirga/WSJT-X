@@ -481,6 +481,8 @@ void MainWindow::readSettings()
   m_stopBitsIndex=settings.value("StopBitsIndex",1).toInt();
   m_handshake=settings.value("Handshake","None").toString();
   m_handshakeIndex=settings.value("HandshakeIndex",0).toInt();
+  ui->bandComboBox->setCurrentIndex(0);
+  ui->bandComboBox->setCurrentIndex(1);
   m_band=settings.value("BandIndex",7).toInt();
   ui->bandComboBox->setCurrentIndex(m_band);
   m_promptToLog=settings.value("PromptToLog",false).toBool();
@@ -828,6 +830,14 @@ void MainWindow::dialFreqChanged2(double f)
   t.sprintf("%.6f",m_dialFreq);
   int n=t.length();
   t=t.mid(0,n-3) + " " + t.mid(n-3,3);
+  float r=m_dialFreq/m_dialFreq0;
+  if(r>0.9 and r<1.1) {
+    ui->labDialFreq->setStyleSheet(
+          "QLabel {background-color : black; color : yellow; }");
+  } else {
+    ui->labDialFreq->setStyleSheet(
+          "QLabel{background-color: red;  color : yellow; }");
+  }
   ui->labDialFreq->setText(t);
   statusChanged();
 }
@@ -2435,6 +2445,7 @@ void MainWindow::on_bandComboBox_currentIndexChanged(int index)
   m_band=index;
   QString t=m_dFreq[index];
   m_dialFreq=t.toDouble();
+  m_dialFreq0=m_dialFreq;
   dialFreqChanged2(m_dialFreq);
   m_repeatMsg=0;
   if(m_catEnabled) {
