@@ -158,6 +158,7 @@ private:
     Ui::MainWindow *ui;
 
     double  m_dialFreq;
+    double  m_dialFreq0;
 
     qint64  m_msErase;
     qint32  m_nDevIn;
