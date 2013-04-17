@@ -1805,6 +1805,12 @@ p, li { white-space: pre-wrap; }
               <property name="spacing">
                <number>6</number>
               </property>
+              <property name="leftMargin">
+               <number>2</number>
+              </property>
+              <property name="rightMargin">
+               <number>2</number>
+              </property>
               <item>
                <layout class="QGridLayout" name="gridLayout_4">
                 <property name="spacing">
