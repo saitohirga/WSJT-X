@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>711</width>
-    <height>583</height>
+    <height>495</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1389,7 +1389,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1420,7 +1420,7 @@ p, li { white-space: pre-wrap; }
                  <bool>true</bool>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1448,7 +1448,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1598,7 +1598,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1731,7 +1731,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1759,7 +1759,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1793,186 +1793,203 @@ p, li { white-space: pre-wrap; }
            <attribute name="title">
             <string>2</string>
            </attribute>
-           <widget class="QWidget" name="layoutWidget">
-            <property name="geometry">
-             <rect>
-              <x>5</x>
-              <y>1</y>
-              <width>280</width>
-              <height>229</height>
-             </rect>
+           <layout class="QVBoxLayout" name="verticalLayout_9">
+            <property name="spacing">
+             <number>0</number>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_7">
-             <item>
-              <layout class="QGridLayout" name="gridLayout_4">
-               <item row="1" column="0">
-                <widget class="QPushButton" name="pbCallCQ">
-                 <property name="text">
-                  <string>Call CQ</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QPushButton" name="pbAnswerCaller">
-                 <property name="text">
-                  <string>Answer Caller</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QPushButton" name="pbAnswerCQ">
-                 <property name="text">
-                  <string>Answer CQ</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QPushButton" name="pbSendRRR">
-                 <property name="text">
-                  <string>Send RRR</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QPushButton" name="pbSendReport">
-                 <property name="text">
-                  <string>Send Report</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0" colspan="2">
-                <widget class="QPushButton" name="pbSend73">
-                 <property name="text">
-                  <string>Send 73</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_9">
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>30</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Call CQ and
-answer callers</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QLabel" name="label_10">
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>30</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Answering CQ</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_3">
-               <item>
-                <widget class="QLineEdit" name="genMsg">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>150</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="readOnly">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="rbGenMsg">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>26</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Generated msg</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout">
-               <item>
-                <widget class="QLineEdit" name="freeTextMsg">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>150</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="rbFreeText">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>26</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Free text msg</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-            </layout>
-           </widget>
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_7">
+              <property name="spacing">
+               <number>6</number>
+              </property>
+              <item>
+               <layout class="QGridLayout" name="gridLayout_4">
+                <property name="spacing">
+                 <number>2</number>
+                </property>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_9">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Calling CQ </string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QPushButton" name="pbAnswerCQ">
+                  <property name="text">
+                   <string>Answer CQ</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0" colspan="2">
+                 <widget class="QPushButton" name="pbSend73">
+                  <property name="text">
+                   <string>Send 73</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QPushButton" name="pbCallCQ">
+                  <property name="text">
+                   <string>Call CQ</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QPushButton" name="pbSendReport">
+                  <property name="text">
+                   <string>Send Report</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QPushButton" name="pbSendRRR">
+                  <property name="text">
+                   <string>Send RRR</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QPushButton" name="pbAnswerCaller">
+                  <property name="text">
+                   <string>Answer Caller</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLabel" name="label_10">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Answering CQ</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_3">
+                <item>
+                 <widget class="QLineEdit" name="genMsg">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>150</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="rbGenMsg">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>26</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Gen msg</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout">
+                <item>
+                 <widget class="QLineEdit" name="freeTextMsg">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>150</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="rbFreeText">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>26</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Free msg</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
           </widget>
          </widget>
         </item>
         <item row="1" column="1" rowspan="5">
-         <widget class="QwtThermo" name="xThermo" native="true">
+         <widget class="QwtThermo" name="xThermo">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -1985,19 +2002,19 @@ answer callers</string>
             <height>180</height>
            </size>
           </property>
-          <property name="borderWidth" stdset="0">
+          <property name="borderWidth">
            <number>1</number>
           </property>
-          <property name="maxValue" stdset="0">
+          <property name="maxValue">
            <double>60.000000000000000</double>
           </property>
-          <property name="minValue" stdset="0">
+          <property name="minValue">
            <double>0.000000000000000</double>
           </property>
-          <property name="pipeWidth" stdset="0">
+          <property name="pipeWidth">
            <number>8</number>
           </property>
-          <property name="value" stdset="0">
+          <property name="value">
            <double>0.000000000000000</double>
           </property>
          </widget>
@@ -2014,7 +2031,7 @@ answer callers</string>
      <x>0</x>
      <y>0</y>
      <width>711</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
