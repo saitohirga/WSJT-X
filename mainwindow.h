@@ -277,7 +277,7 @@ private:
     QTimer* ptt0Timer;                 //StopTx delay
     QTimer* logQSOTimer;
     QTimer* killFileTimer;
-
+    QTimer* tuneButtonTimer;
 
     QString m_path;
     QString m_pbdecoding_style1;
