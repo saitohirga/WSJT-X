@@ -1355,7 +1355,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
 #ifdef unix
       if(b and !m_diskData) {
-          qDebug() << msg;
           int i1=msg.indexOf(" ");
           QString c2=msg.mid(i1+1);
           int i2=c2.indexOf(" ");
@@ -1363,10 +1362,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
           c2=c2.mid(0,i2);
           int nHz=t.mid(22,4).toInt();
           QString freq = QString::number((int)(1000000.0*m_dialFreq + nHz + 0.5));
-          qDebug() << freq;
           QString snr= QString::number(t.mid(10,3).toInt());
           if(gridOK(g2))
-           psk_Reporter->addRemoteStation(c2,g2,freq,"JT9",snr,QString::number(QDateTime::currentDateTime().toTime_t()));
+              psk_Reporter->addRemoteStation(c2,g2,freq,"JT9",snr,QString::number(QDateTime::currentDateTime().toTime_t()));
       }
 #endif
     }
