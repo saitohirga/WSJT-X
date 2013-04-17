@@ -33,10 +33,8 @@ QMAKE_EXTRA_COMPILERS += gfortran
 }
 
 SOURCES += main.cpp mainwindow.cpp plotter.cpp about.cpp \
-    soundin.cpp soundout.cpp devsetup.cpp \
-    widegraph.cpp getfile.cpp \
-    displaytext.cpp getdev.cpp \
-    logqso.cpp \
+    soundin.cpp soundout.cpp devsetup.cpp widegraph.cpp \
+    getfile.cpp displaytext.cpp getdev.cpp logqso.cpp \
     psk_reporter.cpp
 
 win32 {
@@ -45,9 +43,8 @@ SOURCES += killbyname.cpp
 
 HEADERS  += mainwindow.h plotter.h soundin.h soundout.h \
             about.h devsetup.h widegraph.h getfile.h \
-            commons.h sleep.h displaytext.h \
-    logqso.h \
-    psk_reporter.h
+            commons.h sleep.h displaytext.h logqso.h \
+            psk_reporter.h
 
 DEFINES += __cplusplus
 
@@ -65,7 +62,6 @@ LIBS += -lportaudio -lgfortran -lfftw3f -lqwt-qt4
 win32 {
 INCLUDEPATH += c:/qwt-6.0.1/include
 LIBS += ../wsjtx/lib/libjt9.a
-LIBS += ../wsjtx/lib/libhamlib.dll.a
 LIBS += ../wsjtx/libfftw3f_win.a
 LIBS += ../wsjtx/libpskreporter.a
 LIBS += ../QtSupport/palir-02.dll

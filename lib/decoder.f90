@@ -63,15 +63,16 @@ subroutine decoder(ss,c0,nstandalone)
 
   do nqd=1,0,-1
      limit=5000
-     ccflim=3.7
+     ccflim=4.0
      if(ndepth.ge.2) then
         limit=50000
-        ccflim=2.9
+        ccflim=3.0
      endif
      if(ndepth.ge.3 .or. nqd.eq.1) then
         limit=200000
         ccflim=2.5
      endif
+!     if(nstandalone.eq.1) ccflim=0.9*ccflim
 
      if(nqd.eq.1) then
         nfa1=nfqso-ntol
@@ -92,8 +93,8 @@ subroutine decoder(ss,c0,nstandalone)
         ib1=ib
      else
         do i=ia+9,ib-25
-           t1=ccfred(i)/(sum(ccfred(i-8:i-6)/ccflim))
-           t2=ccfred(i)/(sum(ccfred(i+23:i+25)/ccflim))
+           t1=ccfred(i)/(sum(ccfred(i-8:i-6)/3.0))
+           t2=ccfred(i)/(sum(ccfred(i+23:i+25)/3.0))
            if(t1.ge.ccflim .and. t2.ge.ccflim) ccfok(i)=.true.
         enddo
         ccfok(ia1:ib1)=.false.

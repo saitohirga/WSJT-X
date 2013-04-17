@@ -37,7 +37,6 @@ public slots:
   void doubleClickOnCall2(bool shift, bool ctrl);
   void readFromStdout();
   void readFromStderr();
-  void readFromP3();
   void jt9_error();
   void p3_error();
 
@@ -158,7 +157,6 @@ private:
     Ui::MainWindow *ui;
 
     double  m_dialFreq;
-    double  m_dialFreq0;
 
     qint64  m_msErase;
     qint32  m_nDevIn;
@@ -366,13 +364,6 @@ void azdist_(char* MyGrid, char* HisGrid, double* utch, int* nAz, int* nEl,
              int len1, int len2);
 
 void morse_(char* msg, int* icw, int* ncw, int len);
-
-//void rig_control(int nrig, int verbose);
-
-int rigOpen(int nrig, int verbose);
-void rigSetFreq(int fHz);
-int rigFreq();
-
 }
 
 #endif // MAINWINDOW_H

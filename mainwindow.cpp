@@ -93,9 +93,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   connect(&proc_jt9, SIGNAL(readyReadStandardError()),
           this, SLOT(readFromStderr()));
 
-  connect(&p3, SIGNAL(readyReadStandardOutput()),
-                    this, SLOT(readFromP3()));
-
   connect(&p3, SIGNAL(error(QProcess::ProcessError)),
           this, SLOT(p3_error()));
 
@@ -830,14 +827,6 @@ void MainWindow::dialFreqChanged2(double f)
   t.sprintf("%.6f",m_dialFreq);
   int n=t.length();
   t=t.mid(0,n-3) + " " + t.mid(n-3,3);
-  float r=m_dialFreq/m_dialFreq0;
-  if(r>0.9 and r<1.1) {
-    ui->labDialFreq->setStyleSheet(
-          "QLabel {background-color : black; color : yellow; }");
-  } else {
-    ui->labDialFreq->setStyleSheet(
-          "QLabel{background-color: red;  color : yellow; }");
-  }
   ui->labDialFreq->setText(t);
   statusChanged();
 }
@@ -1371,15 +1360,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
   }
 }
 
-void MainWindow::readFromP3()                             //readFromP3
-{
-  QByteArray t=p3.readAllStandardOutput();
-  QString s=t;
-  double fMHz=s.toDouble()/1000000.0;
-  int ndiff=1000000.0*(fMHz-m_dialFreq);
-  if(ndiff!=0) dialFreqChanged2(fMHz);
-}
-
 void MainWindow::killFile()
 {
   if(m_fname==m_fileToSave) {
@@ -1444,8 +1424,8 @@ void MainWindow::guiUpdate()
     if(m_iptt==0 and ((bTxTime and !btxMute and fTR<0.4) or m_tune )) {
       icw[0]=m_ncw;
 
-      //Raise PTT
-      if(m_pttMethodIndex==0) {                  //CAT control for PTT
+//Raise PTT
+      if(m_pttMethodIndex==0) {                  //CAT control for PTT=1
         m_cmnd=rig_command() + " T 1";
         p3.start(m_cmnd);
         p3.waitForFinished();
@@ -1453,7 +1433,6 @@ void MainWindow::guiUpdate()
       }
       if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {  //DTR or RTS
           ptt(m_pttPort,1,&m_iptt,&m_COMportOpen);
-//        ptt(m_pttPort,1,&m_iptt);
       }
       if(m_pttMethodIndex==3) {                  //VOX
         m_iptt=1;
@@ -1577,7 +1556,7 @@ void MainWindow::guiUpdate()
   if(nc0 == 0) {
 
     //Lower PTT
-      if(m_pttMethodIndex==0) {                         //CAT
+      if(m_pttMethodIndex==0) {                         //CAT for PTT=0
         m_cmnd=rig_command() + " T 0";
         p3.start(m_cmnd);
         p3.waitForFinished();
@@ -1618,9 +1597,13 @@ void MainWindow::guiUpdate()
       } else {
         lab1->setStyleSheet("QLabel{background-color: #ffff33}");
       }
-      char s[37];
-      sprintf(s,"Tx: %s",msgsent);
-      lab1->setText(s);
+      if(m_tune) {
+        lab1->setText("Tx: TUNE");
+      } else {
+          char s[37];
+          sprintf(s,"Tx: %s",msgsent);
+          lab1->setText(s);
+      }
     } else if(m_monitoring) {
       lab1->setStyleSheet("QLabel{background-color: #00ff00}");
       lab1->setText("Receiving ");
@@ -1638,12 +1621,6 @@ void MainWindow::guiUpdate()
     }
     m_hsym0=khsym;
     m_sec0=nsec;
-
-    if(m_catEnabled) {
-      m_cmnd=rig_command() + " f";
-      p3.start(m_cmnd);
-      p3.waitForFinished();
-    }
   }
 
   iptt0=m_iptt;
@@ -1680,18 +1657,17 @@ QString MainWindow::rig_command()
 void MainWindow::startTx2()
 {
   if(!soundOutThread.isRunning()) {
-    if(!soundOutThread.isRunning()) {
-      QString t=ui->tx6->text();
-      double snr=t.mid(1,5).toDouble();
-      if(snr>0.0 or snr < -50.0) snr=99.0;
-      soundOutThread.setTxSNR(snr);
-      soundOutThread.start(QThread::HighPriority);
-    }
+    QString t=ui->tx6->text();
+    double snr=t.mid(1,5).toDouble();
+    if(snr>0.0 or snr < -50.0) snr=99.0;
+    soundOutThread.setTxSNR(snr);
+    soundOutThread.start(QThread::HighPriority);
     ui->xThermo->setValue(0.0);                         //Set Thermo to zero
     m_monitoring=false;
     soundInThread.setMonitoring(false);
     btxok=true;
     m_transmitting=true;
+    ui->tuneButton->setEnabled(true);
   }
 }
 
@@ -1714,7 +1690,7 @@ void MainWindow::stopTx2()
 {
 //Lower PTT
   if(m_pttMethodIndex==0) {
-    m_cmnd=rig_command() + " T 0";
+    m_cmnd=rig_command() + " T 0";             //CAT for PTT=0
     p3.start(m_cmnd);
     p3.waitForFinished();
   }
@@ -2445,7 +2421,6 @@ void MainWindow::on_bandComboBox_currentIndexChanged(int index)
   m_band=index;
   QString t=m_dFreq[index];
   m_dialFreq=t.toDouble();
-  m_dialFreq0=m_dialFreq;
   dialFreqChanged2(m_dialFreq);
   m_repeatMsg=0;
   if(m_catEnabled) {
@@ -2589,17 +2564,14 @@ void MainWindow::on_actionTx2QSO_triggered(bool checked)
 void MainWindow::on_tuneButton_clicked()
 {
   m_tune=!m_tune;
+  m_repeatMsg=0;
   soundOutThread.setTune(m_tune);
   if(m_tune) {
     ui->tuneButton->setStyleSheet(m_pbTune_style);
+    ui->tuneButton->setEnabled(false);
   } else {
     btxok=false;
     ui->tuneButton->setStyleSheet("");
     on_monitorButton_clicked();
   }
-  /*
-  rigOpen(214,0);
-  rigSetFreq(10138700);
-  qDebug() << "Freq:" << rigFreq();
-  */
 }
