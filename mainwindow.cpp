@@ -13,6 +13,7 @@
 int itone[85];                        //Tx audio tones for 85 symbols
 int icw[250];                         //Dits for CW ID
 int rc;
+static int nc1=1;
 wchar_t buffer[256];
 bool btxok;                           //True if OK to transmit
 bool btxMute;
@@ -483,8 +484,6 @@ void MainWindow::readSettings()
   m_stopBitsIndex=settings.value("StopBitsIndex",1).toInt();
   m_handshake=settings.value("Handshake","None").toString();
   m_handshakeIndex=settings.value("HandshakeIndex",0).toInt();
-  ui->bandComboBox->setCurrentIndex(0);
-  ui->bandComboBox->setCurrentIndex(1);
   m_band=settings.value("BandIndex",7).toInt();
   ui->bandComboBox->setCurrentIndex(m_band);
   m_promptToLog=settings.value("PromptToLog",false).toBool();
@@ -1390,7 +1389,6 @@ void MainWindow::guiUpdate()
 //  static int iptt=0;
   static bool btxok0=false;
   static int nc0=1;
-  static int nc1=1;
   static char message[29];
   static char msgsent[29];
   static int nsendingsh=0;
@@ -1417,7 +1415,6 @@ void MainWindow::guiUpdate()
     }
 
     float fTR=float((nsec%m_TRperiod))/m_TRperiod;
-//    if(bTxTime and m_iptt==0 and !btxMute and fTR<0.4) {
     if(m_iptt==0 and ((bTxTime and !btxMute and fTR<0.4) or m_tune )) {
       icw[0]=m_ncw;
 
@@ -2561,6 +2558,8 @@ void MainWindow::on_tuneButton_clicked()
 {
   if(m_tune) {
     m_tune=false;
+    soundOutThread.setTune(m_tune);
+    nc1=1;                                 //disable the countdown timer
     tuneButtonTimer->start(1000);
   } else {
     m_tune=true;
