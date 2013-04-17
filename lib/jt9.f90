@@ -97,6 +97,8 @@ program jt9
 !        id2(i)=100.0*sin(6.283185307*1600.0*i/12000.0)
 !     enddo
 
+     id2=0                               !??? Why is this necessary ???
+
      do iblk=1,npts/kstep
         k=iblk*kstep
         call timer('read_wav',0)
