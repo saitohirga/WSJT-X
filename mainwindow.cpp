@@ -124,6 +124,11 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   logQSOTimer->setSingleShot(true);
   connect(logQSOTimer, SIGNAL(timeout()), this, SLOT(on_logQSOButton_clicked()));
 
+  tuneButtonTimer= new QTimer(this);
+  tuneButtonTimer->setSingleShot(true);
+  connect(tuneButtonTimer, SIGNAL(timeout()), this,
+          SLOT(on_stopTxButton_clicked()));
+
   killFileTimer = new QTimer(this);
   killFileTimer->setSingleShot(true);
   connect(killFileTimer, SIGNAL(timeout()), this, SLOT(killFile()));
@@ -721,14 +726,6 @@ void MainWindow::on_autoButton_clicked()                     //Auto
     on_monitorButton_clicked();
     m_repeatMsg=0;
   }
-}
-
-void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
-{
-  if(m_tune) on_tuneButton_clicked();
-  if(m_auto) on_autoButton_clicked();
-  btxok=false;
-  m_repeatMsg=0;
 }
 
 void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
@@ -1667,7 +1664,6 @@ void MainWindow::startTx2()
     soundInThread.setMonitoring(false);
     btxok=true;
     m_transmitting=true;
-    ui->tuneButton->setEnabled(true);
   }
 }
 
@@ -2563,15 +2559,24 @@ void MainWindow::on_actionTx2QSO_triggered(bool checked)
 
 void MainWindow::on_tuneButton_clicked()
 {
-  m_tune=!m_tune;
-  m_repeatMsg=0;
-  soundOutThread.setTune(m_tune);
   if(m_tune) {
-    ui->tuneButton->setStyleSheet(m_pbTune_style);
-    ui->tuneButton->setEnabled(false);
+    m_tune=false;
+    tuneButtonTimer->start(1000);
   } else {
-    btxok=false;
-    ui->tuneButton->setStyleSheet("");
-    on_monitorButton_clicked();
+    m_tune=true;
+    soundOutThread.setTune(m_tune);
+    m_repeatMsg=0;
+    ui->tuneButton->setStyleSheet(m_pbTune_style);
   }
+}
+
+void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
+{
+  if(m_tune) {
+    on_tuneButton_clicked();
+  }
+  if(m_auto) on_autoButton_clicked();
+  btxok=false;
+  m_repeatMsg=0;
+  ui->tuneButton->setStyleSheet("");
 }
