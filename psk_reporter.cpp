@@ -25,7 +25,7 @@ PSK_Reporter::PSK_Reporter(QObject *parent) :
                            "800AFFFF0000768F" // 10. Tx Mode
                            "8003FFFF0000768F" // 3. Tx Grid
                            "800B00010000768F" // 11. Tx info src
-                           "00960004";        // Tx time
+                           "00960004";        // Report time
 
 
     qsrand(QDateTime::currentDateTime().toTime_t());
@@ -42,7 +42,7 @@ void PSK_Reporter::setLocalStation(QString call, QString gridSquare, QString pro
     m_rxCall = call;
     m_rxGrid = gridSquare;
     m_progId = programInfo;
-    reportTimer->start(1*60*1000); // 5 minutes;
+    reportTimer->start(5*60*1000); // 5 minutes;
 }
 
 void PSK_Reporter::addRemoteStation(QString call, QString grid, QString freq, QString mode, QString snr, QString time )
@@ -61,8 +61,6 @@ void PSK_Reporter::sendReport()
 {
     if (m_spotQueue.isEmpty())
         return;
-
-    qDebug() << m_rxCall << m_rxGrid << m_progId;
 
     // Header
     QString header_h = m_header_h;
@@ -84,7 +82,7 @@ void PSK_Reporter::sendReport()
         QHash<QString,QString> spot = m_spotQueue.dequeue();
         txInfoData_h += QString("%1").arg(spot["call"].length(),2,16,QChar('0')) + spot["call"].toUtf8().toHex();
         txInfoData_h += QString("%1").arg(spot["freq"].toLongLong(),8,16,QChar('0'));
-        txInfoData_h += QString("%1").arg(spot["snr"].toInt(),1,16,QChar('0')).mid(14,2);
+        txInfoData_h += QString("%1").arg(spot["snr"].toInt(),8,16,QChar('0')).right(2);
         txInfoData_h += QString("%1").arg(spot["mode"].length(),2,16,QChar('0')) + spot["mode"].toUtf8().toHex();
         txInfoData_h += QString("%1").arg(spot["grid"].length(),2,16,QChar('0')) + spot["grid"].toUtf8().toHex();
         txInfoData_h += QString("%1").arg(1,2,16,QChar('0')); // REPORTER_SOURCE_AUTOMATIC
