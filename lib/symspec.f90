@@ -134,17 +134,19 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
 
 999 continue
 
-  call pctile(s,iz,50,xmed0)
-  fac0=1.0/max(xmed0,0.006)
-!  ave0=sum(s(1:iz))/iz
-!  fac0=1.0/max(ave0,0.006)
+  fac00=0.35
+  npct=20
+  call pctile(s,iz,npct,xmed0)
+  fac0=fac00/max(xmed0,0.006)
   s(1:iz)=fac0*s(1:iz)
-  call pctile(ssum,iz,50,xmed1)
-  fac1=1.0/max(xmed1,0.006*ihsym)
-!  ave1=sum(ssum(1:iz))/iz
-!  fac1=1.0/max(ave1,0.006*ihsym)
+  call pctile(ssum,iz,npct,xmed1)
+  fac1=fac00/max(xmed1,0.006*ihsym)
   savg(1:iz)=fac1*ssum(1:iz)
   call redsync(ss,ntrperiod,ihsym,iz,red)
+
+!  write(67,3101) ihsym,k,xmed0,fac0,xmed1,fac1
+!3101 format(i4,i8,4e12.3)
+!  call flush(67)
 
   return
 end subroutine symspec
