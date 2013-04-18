@@ -1342,7 +1342,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 #endif
 
 #ifdef unix
-      if(b and !m_diskData and and okToPost) {
+      if(b and !m_diskData and okToPost) {
           int i1=msg.indexOf(" ");
           QString c2=msg.mid(i1+1);
           int i2=c2.indexOf(" ");
