@@ -180,6 +180,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_watchdogLimit=5;
   m_tune=false;
   m_repeatMsg=0;
+  m_secBandChanged=0;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -1298,9 +1299,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
         }
       }
 
+      int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
+      bool okToPost=(nsec>50);
+
 #ifdef WIN32
-      if(m_pskReporterInit and b and !m_diskData) {
-//      if(m_pskReporterInit and b) {
+      if(m_pskReporterInit and b and !m_diskData and okToPost) {
         int i1=msg.indexOf(" ");
         QString c2=msg.mid(i1+1);
         int i2=c2.indexOf(" ");
@@ -1339,7 +1342,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 #endif
 
 #ifdef unix
-      if(b and !m_diskData) {
+      if(b and !m_diskData and and okToPost) {
           int i1=msg.indexOf(" ");
           QString c2=msg.mid(i1+1);
           int i2=c2.indexOf(" ");
@@ -1408,7 +1411,6 @@ void MainWindow::guiUpdate()
   bool bTxTime = ((t2p >= tx1) and (t2p < tx2)) or m_tune;
 
   if(m_auto or m_tune) {
-
     QFile f("txboth");
     if(f.exists() and fmod(tsec,m_TRperiod) < (1.0 + 85.0*m_nsps/12000.0)) {
       bTxTime=true;
@@ -1642,6 +1644,9 @@ QString MainWindow::rig_command()
   QString cmnd1,cmnd2;
   cmnd1.sprintf("rigctl -m %d -r ",m_rig);
   cmnd1+=m_catPort;
+// For K2:
+//  cmnd2.sprintf(" -s %d -C rts_state=OFF -C dtr_state=OFF -C data_bits=%d -C stop_bits=%d -C serial_handshake=",
+//                m_serialRate,m_dataBits,m_stopBits);
   cmnd2.sprintf(" -s %d -C data_bits=%d -C stop_bits=%d -C serial_handshake=",
                 m_serialRate,m_dataBits,m_stopBits);
   cmnd2+=m_handshake;
@@ -2416,6 +2421,7 @@ void MainWindow::on_bandComboBox_currentIndexChanged(int index)
   m_dialFreq=t.toDouble();
   dialFreqChanged2(m_dialFreq);
   m_repeatMsg=0;
+  m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
   if(m_catEnabled) {
     int nHz=int(1000000.0*m_dialFreq + 0.5);
     QString cmnd1,cmnd3;
@@ -2563,6 +2569,7 @@ void MainWindow::on_tuneButton_clicked()
     tuneButtonTimer->start(1000);
   } else {
     m_tune=true;
+    m_sent73=false;
     soundOutThread.setTune(m_tune);
     m_repeatMsg=0;
     ui->tuneButton->setStyleSheet(m_pbTune_style);

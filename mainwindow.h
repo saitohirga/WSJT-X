@@ -159,13 +159,13 @@ private:
     double  m_dialFreq;
 
     qint64  m_msErase;
+    qint64  m_secBandChanged;
+
     qint32  m_nDevIn;
     qint32  m_nDevOut;
     qint32  m_idInt;
     qint32  m_waterfallAvg;
     qint32  m_pttMethodIndex;
-    //qint32  m_fMin;
-    //qint32  m_fMax;
     qint32  m_QSOfreq0;
     qint32  m_ntx;
     qint32  m_pttPort;
