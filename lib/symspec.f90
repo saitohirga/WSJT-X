@@ -4,15 +4,16 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
 ! Input:
 !  k         pointer to the most recent new data
 !  ntrperiod T/R sequence length, minutes
-!  nsps      samples per symbol (12000 Hz)
+!  nsps      samples per symbol, at 12000 Hz
 !  ndiskdat  0/1 to indicate if data from disk
 !  nb        0/1 status of noise blanker (off/on)
 !  nbslider  NB setting, 0-100
 
 ! Output:
 !  pxdb      power (0-60 dB)
-!  s         spectrum for waterfall display
-!  ihsym     index number of this half-symbol (1-322)
+!  s()       spectrum for waterfall display
+!  red()     first cut at JT9 sync amplitude
+!  ihsym     index number of this half-symbol (1-184)
 !  nzap      number of samples zero'ed by noise blanker
 !  slimit    NB scale adjustment
 !  lstrong   true if strong signal at this freq
@@ -43,21 +44,21 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   if(ntrperiod.eq.10) nfft3=12288
   if(ntrperiod.eq.30) nfft3=32768
 
-  jstep=nsps/16
+  jstep=nsps/16                                !Step size = half-symbol in c0()
   if(k.gt.NMAX) go to 999
   if(k.lt.nfft3) then
      ihsym=0
      go to 999                                 !Wait for enough samples to start
   endif
-  if(nfft3.ne.nfft3z) then
+  if(nfft3.ne.nfft3z) then                     !New nfft3, compute window
      pi=4.0*atan(1.0)
      do i=1,nfft3
-        w3(i)=2.0*(sin(i*pi/nfft3))**2             !Window for nfft3
+        w3(i)=2.0*(sin(i*pi/nfft3))**2         !Window for nfft3 spectrum
      enddo
      nfft3z=nfft3
   endif
 
-  if(k.lt.k0) then
+  if(k.lt.k0) then                             !Start a new data block
      ja=0
      ssum=0.
      ihsym=0
@@ -116,10 +117,10 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
 
   if(ihsym.lt.184) ihsym=ihsym+1
   cx(0:nfft3-1)=w3(1:nfft3)*cx(0:nfft3-1)  !Apply window w3
-  call four2a(cx,nfft3,1,1,1)           !Third forward FFT (X)
+  call four2a(cx,nfft3,1,1,1)              !Third FFT (forward)
 
   n=min(184,ihsym)
-  df3=1500.0/nfft3
+  df3=1500.0/nfft3                    !JT9-a: 0.732 Hz = 0.42 * tone spacing
   i0=nint(-500.0/df3)
   iz=min(NSMAX,nint(1000.0/df3))
   fac=(1.0/nfft3)**2

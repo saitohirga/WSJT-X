@@ -53,9 +53,7 @@ subroutine decoder(ss,c0,nstandalone)
   endif
   if(nsps.eq.0) stop 'Error: bad TRperiod'    !Better: return an error code###
 
-  kstep=nsps/2
-  tstep=kstep/12000.0
-!  tstep=0.5*tstep
+  tstep=0.5*nsps/12000.0                      !Half-symbol step (seconds)
   idf=ntol/df3 + 0.999
   done=.false.
 
@@ -86,6 +84,7 @@ subroutine decoder(ss,c0,nstandalone)
 
      ccfok=.false.
      ccfok(max(ipk-idf,1):min(ipk+idf,NSMAX))=.true.
+
      if(nqd.eq.1) then
         ia1=ia
         ib1=ib
@@ -113,12 +112,12 @@ subroutine decoder(ss,c0,nstandalone)
              (ccfred(i).lt.ccfred(i+1))) cycle
         if(nqd.eq.1 .or.                                                   &
            (ccfred(i).ge.ccflim .and. abs(f-fgood).gt.10.0*df8)) then
-           call timer('decode9a',0)
+           call timer('softsym ',0)
            fpk=1000.0 + df3*(i-1)
            c1(1:npts8)=conjg(c0(1:npts8))
-           call decode9a(c1,npts8,nsps8,fpk,syncpk,snrdb,xdt,freq,drift,   &
+           call softsym(c1,npts8,nsps8,fpk,syncpk,snrdb,xdt,freq,drift,   &
                 i1SoftSymbols)
-           call timer('decode9a',1)
+           call timer('softsym ',1)
 
            call timer('decode9 ',0)
            call decode9(i1SoftSymbols,limit,nlim,msg)

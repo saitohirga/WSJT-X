@@ -1,5 +1,7 @@
 subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,snrdb,i1SoftSymbolsScrambled)
 
+! Compute soft symbols from the final downsampled data
+
   complex c5(0:4096-1)
   complex z
   integer*1 i1SoftSymbolsScrambled(207)
@@ -13,20 +15,20 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,snrdb,i1SoftSymbolsScrambled)
   aa(1)=-1500.0/nsps8
   aa(2)=0.
   aa(3)=0.
-  do i=0,8
+  do i=0,8                                         !Loop over the 9 tones
      if(i.ge.1) call twkfreq(c5,c5,nz3,fsample,aa)
      m=0
      k=-1
-     do j=1,85
+     do j=1,85                                     !Loop over all symbols
         z=0.
-        do n=1,nspsd
+        do n=1,nspsd                               !Sum over 16 samples
            k=k+1
            z=z+c5(k)
         enddo
-        ss2(i,j)=real(z)**2 + aimag(z)**2
+        ss2(i,j)=real(z)**2 + aimag(z)**2        !Symbol speactra, data and sync
         if(i.ge.1 .and. isync(j).eq.0) then
            m=m+1
-           ss3(i-1,m)=ss2(i,j)
+           ss3(i-1,m)=ss2(i,j)                   !Symbol speactra, data only
         endif
      enddo
   enddo
@@ -43,11 +45,10 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,snrdb,i1SoftSymbolsScrambled)
      sig=sig+smax
      ss=ss-smax
   enddo
-  ave=ss/(69*7) 
+  ave=ss/(69*7)                           !Baseline
   call pctile(ss2,9*85,35,xmed)
   ss3=ss3/ave
-
-  sig=sig/69.
+  sig=sig/69.                             !Signal
   t=max(1.0,sig - 1.0)
   snrdb=db(t) - 61.3
      

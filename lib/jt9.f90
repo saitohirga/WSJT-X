@@ -3,8 +3,6 @@ program jt9
 ! Decoder for JT9.  Can run stand-alone, reading data from *.wav files;
 ! or as the back end of wsjt-x, with data placed in a shared memory region.
 
-! NB: For unknown reason, ***MUST*** be compiled by g95 with -O0 !!!
-
   character*80 arg,infile
   parameter (NMAX=1800*12000)        !Total sample intervals per 30 minutes
   parameter (NDMAX=1800*1500)        !Sample intervals at 1500 Hz rate
@@ -31,20 +29,17 @@ program jt9
   call getarg(1,arg)
   if(arg(1:2).eq.'-s') then
      call jt9a
-!    call ftnquit
      go to 999
   endif
   read(arg,*) ntrperiod
   call getarg(2,arg)
   read(arg,*) ndepth
-
   ifile1=3
 
   limtrace=0
   lu=12
   nfa=1000
   nfb=2000
-  ntol=500
   mousefqso=1500
   newdat=1
   nb=0

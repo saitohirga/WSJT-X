@@ -1372,7 +1372,11 @@ void MainWindow::on_EraseButton_clicked()                          //Erase
 {
   qint64 ms=QDateTime::currentMSecsSinceEpoch();
   ui->decodedTextBrowser->clear();
-  if((ms-m_msErase)<500) ui->decodedTextBrowser2->clear();
+  if((ms-m_msErase)<500) {
+      ui->decodedTextBrowser2->clear();
+      QFile f(m_appDir + "/decoded.txt");
+      if(f.exists()) f.remove();
+  }
   m_msErase=ms;
 }
 
