@@ -120,7 +120,7 @@ program jt9test
      nutc=nutc0
 
      call timer('sync9   ',0)
-     call sync9(ss,nzhsym,tstep,df3,ntol,nfqso,ccfred,ia,ib,ipk) !Get sync, freq
+     call sync9(ss,nzhsym,tstep,df3,ccfred,ia,ib,ipk) !Get sync, freq
      call timer('sync9   ',1)
 
      fgood=0.

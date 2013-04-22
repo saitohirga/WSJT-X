@@ -1,4 +1,4 @@
-subroutine sync9(ss,nzhsym,tstep,df3,nfa,nfb,ntol,nfqso,ccfred,ia,ib,ipkbest)
+subroutine sync9(ss,nzhsym,tstep,df3,nfa,nfb,ccfred,ia,ib,ipkbest)
 
   parameter (NSMAX=22000)            !Max length of saved spectra
   real ss(184,NSMAX)

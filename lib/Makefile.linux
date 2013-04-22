@@ -25,7 +25,7 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	nchar.o four2a.o grid2deg.o pfxdump.o f77_wisdom.o \
 	symspec.o timf2.o analytic.o db.o genjt9.o ptt_unix.o \
 	packbits.o unpackbits.o encode232.o interleave9.o \
-	entail.o fano232.o gran.o spec9.o sync9.o decode9.o \
+	entail.o fano232.o gran.o sync9.o decode9.o \
 	fil3.o redsync.o decoder.o grid2n.o n2grid.o timer.o \
 	decode9a.o peakdt9.o getlags.o afc9.o fchisq.o \
 	twkfreq.o downsam9.o symspec2.o ipcomm.o sleep_msec.o \
