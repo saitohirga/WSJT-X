@@ -1,5 +1,9 @@
 subroutine redsync(ss,ntrperiod,ihsym,iz,red)
 
+! Compute the red curve (approx JT9 sync amplitude).
+! NB: red() is used for real-time display only.  A better ccfred() is
+! computed during the decode procedure.
+
   Parameter (NSMAX=22000)
   real*4 ss(184,NSMAX)
   real*4 red(NSMAX)
@@ -11,9 +15,9 @@ subroutine redsync(ss,ntrperiod,ihsym,iz,red)
   if(ntrperiod.eq.10) lagmax=1
   if(ntrperiod.eq.30) lagmax=1
 
-  do i=1,iz
+  do i=1,iz                                !Loop over frequency range
      smax=0.
-     do lag=-lagmax,lagmax
+     do lag=-lagmax,lagmax                 !Loop over DT lags
         sig=0.
         do j=1,16
            k=ii2(j)+lag

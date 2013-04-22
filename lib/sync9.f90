@@ -15,11 +15,11 @@ subroutine sync9(ss,nzhsym,tstep,df3,nfa,nfb,ccfred,ia,ib,ipkbest)
   lag2=5.0/tstep + 0.9999
   ccfred=0.
 
-  do i=ia,ib
+  do i=ia,ib                         !Loop over freq range
      smax=0.
-     do lag=lag1,lag2
+     do lag=lag1,lag2                !DT = 2.5 to 5.0 s
         sum=0.
-        do j=1,16
+        do j=1,16                    !Sum over 16 sync symbols
            k=ii2(j) + lag
            kaa=ka(j)+lag
            kbb=kb(j)+lag

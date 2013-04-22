@@ -1,7 +1,6 @@
 subroutine jt9a
 
-! NB: this interface block is required by g95, but must be omitted
-!     for gfortran.  (????)
+! These routines connect the shared memory region to the decoder.
 
   interface
      function address_jt9()
@@ -44,10 +43,6 @@ subroutine jt9a
   endif
   p_jt9=>address_jt9()
   call jt9b(p_jt9,nbytes)
-
-!  write(*,1010) 
-!1010 format('<jt9aFinished>')
-!  flush(6)
 
 100 inquire(file=trim(cwd)//'/.lock',exist=fileExists)
   if(fileExists) go to 10
