@@ -20,7 +20,7 @@ CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    libjt9.a jt9sim.exe jt9.exe jt9code.exe wsjt24d.exe
+all:    libjt9.a jt9sim.exe jt9.exe jt9code.exe
 
 OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	unpackmsg.o igray.o unpackcall.o unpackgrid.o \
@@ -29,10 +29,11 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	nchar.o four2a.o grid2deg.o pfxdump.o f77_wisdom.o \
 	symspec.o timf2.o analytic.o db.o genjt9.o \
 	packbits.o unpackbits.o encode232.o interleave9.o \
-	entail.o fano232.o gran.o spec9.o sync9.o decode9.o \
+	entail.o fano232.o gran.o sync9.o decode9.o \
 	fil3.o redsync.o decoder.o grid2n.o n2grid.o timer.o \
 	decode9a.o getlags.o afc9.o fchisq.o twkfreq.o downsam9.o \
-	peakdt9.o symspec2.o stdmsg.o morse.o azdist.o geodist.o
+	peakdt9.o symspec2.o stdmsg.o morse.o azdist.o geodist.o \
+	rig_control.o fillcom.o
 
 libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
@@ -97,6 +98,12 @@ ipcomm.o: ipcomm.cpp
 
 sec_midn.o: sec_midn.f90
 	$(FC) -c -fno-second-underscore sec_midn.f90
+
+rig_control.o: rig_control.c
+	$(CC) -c -Wall -I..\..\..\hamlib-1.2.15.3\include rig_control.c
+
+tstrig.o: tstrig.c
+	$(CC) -c -Wall -I..\..\..\hamlib-1.2.15.3\include tstrig.c
 
 .PHONY : clean
 

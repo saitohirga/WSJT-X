@@ -48,7 +48,6 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,snrdb,i1SoftSymbolsScrambled)
   ss3=ss3/ave
 
   sig=sig/69.
-  df8=1500.0/nsps8
   t=max(1.0,sig - 1.0)
   snrdb=db(t) - 61.3
      

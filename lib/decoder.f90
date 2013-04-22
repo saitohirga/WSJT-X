@@ -7,14 +7,12 @@ subroutine decoder(ss,c0,nstandalone)
   parameter (NSMAX=22000)            !Max length of saved spectra
   real ss(184,NSMAX)
   character*22 msg
-  character*33 line
   character*80 fmt
   character*20 datetime
   real*4 ccfred(NSMAX)
   logical ccfok(NSMAX)
   logical done(NSMAX)
   integer*1 i1SoftSymbols(207)
-  integer*2 id2
   integer ii(1)
   complex c0(NDMAX)
   complex c1(NDMAX)
@@ -83,7 +81,7 @@ subroutine decoder(ss,c0,nstandalone)
      endif
      call timer('sync9   ',0)
 ! Compute ccfred()
-     call sync9(ss,nzhsym,tstep,df3,nfa1,nfb1,ntol,nfqso,ccfred,ia,ib,ipk)
+     call sync9(ss,nzhsym,tstep,df3,nfa1,nfb1,ccfred,ia,ib,ipk)
      call timer('sync9   ',1)
 
      ccfok=.false.
@@ -104,12 +102,10 @@ subroutine decoder(ss,c0,nstandalone)
      fgood=0.
      nsps8=nsps/8
      df8=1500.0/nsps8
-     sbest=-1.0
      dblim=db(864.0/nsps8) - 26.2
      i1=max(nint((nfqso-1000)/df3 - 10),ia)
      i2=min(nint((nfqso-1000)/df3 + 10),ib)
      ii=maxloc(ccfred(i1:i2))
-     i00=ii(1) + i1 - 1
 
      do i=ia,ib
         f=(i-1)*df3

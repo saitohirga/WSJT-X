@@ -19,7 +19,6 @@ subroutine downsam9(c0,npts8,nsps8,nspsd,fpk,c2,nz2)
   df1=1500.0/nfft1
   call four2a(c1,nfft1,1,-1,1)             !Forward FFT
 
-  ia=nint(250.0/df1)
   nadd=1.0/df1
   j=250/df1
   s=0.

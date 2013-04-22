@@ -5,7 +5,6 @@ real function fchisq(c3,npts,fsample,a)
   complex c4(NMAX)
   real a(3)
   complex z
-  complex w,wstep
   data a1,a2,a3/99.,99.,99./
   include 'jt9sync.f90'
   save

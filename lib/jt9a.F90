@@ -82,7 +82,6 @@ subroutine jt9c(ss,savg,c0,id2,nparams0)
   equivalence (nparams,nutc)
   
   nparams=nparams0                     !Copy parameters into common/npar/
-  npatience=1
 
   call flush(6)
   if(sum(nparams).ne.0) call decoder(ss,c0,0)

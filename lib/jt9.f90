@@ -13,12 +13,8 @@ program jt9
   real*4 s(NSMAX)
   real*4 ccfred(NSMAX)
   logical*1 lstrong(0:1023)
-  integer*1 i1SoftSymbols(207)
-  character*22 msg
-  character*33 line
   integer*2 id2
   complex c0
-  complex c1(NDMAX)
   common/jt9com/ss(184,NSMAX),savg(NSMAX),c0(NDMAX),id2(NMAX),nutc,ndiskdat,  &
        ntr,mousefqso,newdat,nfa,nfb,ntol,kin,nzhsym,nsynced,ndecoded
   common/tracer/limtrace,lu
@@ -49,11 +45,10 @@ program jt9
   nfa=1000
   nfb=2000
   ntol=500
-  nfqso=1500
+  mousefqso=1500
   newdat=1
   nb=0
   nbslider=30
-  limit=20000
   ndiskdat=1
 
   do ifile=ifile1,nargs
@@ -84,7 +79,6 @@ program jt9
      if(nsps.eq.0) stop 'Error: bad TRperiod'
 
      kstep=nsps/2
-     tstep=kstep/12000.0
      k=0
      nhsym0=-999
      npts=(60*ntrperiod-6)*12000
