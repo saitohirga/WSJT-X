@@ -199,7 +199,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
 #endif
   mem_jt9 = shdmem;
 
-  readSettings();		             //Restore user's setup params  
+  readSettings();		             //Restore user's setup params
   if(m_dFreq.length()<=1) {
     m_dFreq.clear();
     for(int i=0; i<16; i++) {
@@ -517,6 +517,7 @@ void MainWindow::readSettings()
   if(m_ndepth==1) ui->actionQuickDecode->setChecked(true);
   if(m_ndepth==2) ui->actionMediumDecode->setChecked(true);
   if(m_ndepth==3) ui->actionDeepestDecode->setChecked(true);
+
   statusChanged();
 }
 
@@ -2439,6 +2440,9 @@ void MainWindow::on_bandComboBox_currentIndexChanged(int index)
   m_repeatMsg=0;
   m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
   if(m_catEnabled) {
+    if(!m_bRigOpen) {
+      rigOpen();
+    }
     rig->setFreq(MHz(m_dialFreq));
   }
 }
