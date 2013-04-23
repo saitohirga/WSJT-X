@@ -2442,6 +2442,7 @@ void MainWindow::on_bandComboBox_currentIndexChanged(int index)
   if(m_catEnabled) {
     if(!m_bRigOpen) {
       rigOpen();
+      m_bRigOpen = true;
     }
     rig->setFreq(MHz(m_dialFreq));
   }
