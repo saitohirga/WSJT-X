@@ -616,6 +616,13 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_handshake=m_handshake;
   dlg.m_handshakeIndex=m_handshakeIndex;
 
+  if(m_bRigOpen) {
+    rig->close();
+    delete rig;
+    m_bRigOpen=false;
+    m_catEnabled=false;
+  }
+
   dlg.initDlg();
   if(dlg.exec() == QDialog::Accepted) {
     m_myCall=dlg.m_myCall;
@@ -681,6 +688,10 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
       soundOutThread.wait(1000);
       soundOutThread.setOutputDevice(m_paOutDevice);
     }
+  }
+  m_catEnabled=dlg.m_catEnabled;
+  if(m_catEnabled) {
+    rigOpen();
   }
 }
 
@@ -1428,16 +1439,14 @@ void MainWindow::guiUpdate()
       icw[0]=m_ncw;
 
 //Raise PTT
-      if(m_pttMethodIndex==0) {                  //CAT control for PTT=1
-        m_cmnd=rig_command() + " T 1";
-        p3.start(m_cmnd);
-        p3.waitForFinished();
+      if(m_catEnabled and m_bRigOpen and  m_pttMethodIndex==0) {
         m_iptt=1;
+        rig->setPTT((ptt_t)m_iptt, RIG_VFO_CURR);  //CAT control for PTT=1
       }
       if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {  //DTR or RTS
           ptt(m_pttPort,1,&m_iptt,&m_COMportOpen);
       }
-      if(m_pttMethodIndex==3) {                  //VOX
+      if(m_pttMethodIndex==3) {                    //VOX
         m_iptt=1;
       }
       ptt1Timer->start(200);                       //Sequencer delay
@@ -1556,20 +1565,19 @@ void MainWindow::guiUpdate()
   if(nc0 <= 0) {
     nc0++;
   }
-  if(nc0 == 0) {
 
+  if(nc0 == 0) {
     //Lower PTT
-      if(m_pttMethodIndex==0) {                         //CAT for PTT=0
-        m_cmnd=rig_command() + " T 0";
-        p3.start(m_cmnd);
-        p3.waitForFinished();
-      }
-      if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {  //DTR-RTS
-        ptt(m_pttPort,0,&m_iptt,&m_COMportOpen);
-      }
-      if(m_pttMethodIndex==3) {                         //VOX
-        m_iptt=0;
-      }
+    if(m_catEnabled and m_bRigOpen and  m_pttMethodIndex==0) {
+      m_iptt=0;
+      rig->setPTT((ptt_t)m_iptt, RIG_VFO_CURR);  //CAT control for PTT=1
+    }
+    if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {  //DTR-RTS
+      ptt(m_pttPort,0,&m_iptt,&m_COMportOpen);
+    }
+    if(m_pttMethodIndex==3) {                         //VOX
+      m_iptt=0;
+    }
   }
 
   if(m_iptt == 0 && !btxok) {
@@ -1656,20 +1664,6 @@ void MainWindow::displayTxMsg(QString t)
       ui->decodedTextBrowser->setTextCursor(cursor);
 }
 
-QString MainWindow::rig_command()
-{
-  QString cmnd1,cmnd2;
-  cmnd1.sprintf("rigctl -m %d -r ",m_rig);
-  cmnd1+=m_catPort;
-// For K2:
-//  cmnd2.sprintf(" -s %d -C rts_state=OFF -C dtr_state=OFF -C data_bits=%d -C stop_bits=%d -C serial_handshake=",
-//                m_serialRate,m_dataBits,m_stopBits);
-  cmnd2.sprintf(" -s %d -C data_bits=%d -C stop_bits=%d -C serial_handshake=",
-                m_serialRate,m_dataBits,m_stopBits);
-  cmnd2+=m_handshake;
-  return cmnd1+cmnd2;
-}
-
 void MainWindow::startTx2()
 {
   if(!soundOutThread.isRunning()) {
@@ -1704,10 +1698,8 @@ void MainWindow::stopTx()
 void MainWindow::stopTx2()
 {
 //Lower PTT
-  if(m_pttMethodIndex==0) {
-    m_cmnd=rig_command() + " T 0";             //CAT for PTT=0
-    p3.start(m_cmnd);
-    p3.waitForFinished();
+  if(m_catEnabled and m_bRigOpen and  m_pttMethodIndex==0) {
+    rig->setPTT((ptt_t)m_iptt, RIG_VFO_CURR);  //CAT control for PTT=0
   }
   if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
     ptt(m_pttPort,0,&m_iptt,&m_COMportOpen);
@@ -2621,6 +2613,7 @@ void MainWindow::rigOpen()
   catch (const RigException &Ex) {
     m_catEnabled=false;
     m_bRigOpen=false;
-    msgBox("Failed to open rig");
+    msgBox("Failed to open rig (B)");
+    delete rig;
   }
 }
