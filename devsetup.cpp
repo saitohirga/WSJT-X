@@ -1,5 +1,4 @@
 #include "devsetup.h"
-#include "mainwindow.h"
 #include <QDebug>
 #include <portaudio.h>
 
@@ -14,12 +13,13 @@ DevSetup::DevSetup(QWidget *parent) :	QDialog(parent)
   m_restartSoundIn=false;
   m_restartSoundOut=false;
   m_firstCall=true;
+  m_iptt=0;
+  m_bRigOpen=false;
 }
 
 DevSetup::~DevSetup()
 {
 }
-
 
 void DevSetup::initDlg()
 {
@@ -47,7 +47,6 @@ void DevSetup::initDlg()
   }
 
   k=0;
-// Needs work to compile for Linux
   for(id=0; id<numDevices; id++ )  {
     pdi=Pa_GetDeviceInfo(id);
     nchin=pdi->maxInputChannels;
@@ -257,6 +256,12 @@ void DevSetup::accept()
   m_dFreq.append(ui.f15->text());
   m_dFreq.append(ui.f16->text());
 
+  if(m_bRigOpen) {
+    rig->close();
+    delete rig;
+    m_bRigOpen=false;
+  }
+
   QDialog::accept();
 }
 
@@ -368,4 +373,51 @@ void DevSetup::on_rigComboBox_activated(int index)
 void DevSetup::on_cbID73_toggled(bool checked)
 {
   m_After73=checked;
+}
+
+void DevSetup::on_testCATButton_clicked()
+{
+
+  if(!m_catEnabled) return;
+  if(m_bRigOpen) {
+    rig->close();
+    delete rig;
+    m_bRigOpen=false;
+  }
+  rig = new Rig(m_rig);
+  try {
+    rig->setConf("rig_pathname", m_catPort.toAscii().data());
+    char buf[80];
+    sprintf(buf,"%d",m_serialRate);
+    rig->setConf("serial_speed",buf);
+    sprintf(buf,"%d",m_dataBits);
+    rig->setConf("data_bits",buf);
+    sprintf(buf,"%d",m_stopBits);
+    rig->setConf("stop_bits",buf);
+    rig->setConf("serial_handshake",m_handshake.toAscii().data());
+    rig->open();
+    m_bRigOpen=true;
+  }
+  catch (const RigException &Ex) {
+    m_bRigOpen=false;
+    msgBox("Failed to open rig (A)");
+    return;
+  }
+  double fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
+  QString t;
+  t.sprintf("Rig control working.\nDial Frequency: %.6f",fMHz);
+  msgBox(t);
+}
+
+void DevSetup::on_testPTTButton_clicked()
+{
+  int iret=0;
+  m_iptt=1-m_iptt;
+  if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
+    int iptt=m_iptt;
+    ptt(m_pttPort,iptt,&m_iptt,&m_COMportOpen);
+  }
+  if(m_pttMethodIndex==0 and m_bRigOpen) {
+    rig->setPTT((ptt_t)m_iptt, RIG_VFO_CURR);
+  }
 }

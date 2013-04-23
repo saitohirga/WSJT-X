@@ -336,7 +336,6 @@ private:
     void displayTxMsg(QString t);
     void rigOpen();
     bool gridOK(QString g);
-    QString rig_command();
     QString baseCall(QString t);
 };
 
@@ -346,9 +345,7 @@ extern int killbyname(const char* progName);
 extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
                    int minChan[], int maxChan[],
                    int minSpeed[], int maxSpeed[]);
-extern int ptt(int nport, int itx, int* iptt);
-//extern int ReporterInitialize(char* hostname, char* port);
-
+extern int ptt(int nport, int ntx, int* iptt, int* nopen);
 
 extern "C" {
 //----------------------------------------------------- C and Fortran routines
