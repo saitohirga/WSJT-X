@@ -22,6 +22,7 @@ double dFreq[]={0.136,0.4742,1.838,3.578,5.357,7.078,10.130,14.078,
            18.104,21.078,24.918,28.078,50.293,70.091,144.489,432.178};
 
 WideGraph* g_pWideGraph = NULL;
+Rig* rig = NULL;
 
 QString rev="$Rev$";
 QString Program_Title_Version="  WSJT-X   v0.9, r" + rev.mid(6,4) +
@@ -180,6 +181,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_watchdogLimit=5;
   m_tune=false;
   m_repeatMsg=0;
+  m_bRigOpen=false;
   m_secBandChanged=0;
   decodeBusy(false);
 
@@ -298,7 +300,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
 
   ui->label_9->setStyleSheet("QLabel{background-color: #aabec8}");
   ui->label_10->setStyleSheet("QLabel{background-color: #aabec8}");
-
 }                                          // End of MainWindow constructor
 
 //--------------------------------------------------- MainWindow destructor
@@ -831,13 +832,14 @@ void MainWindow::dialFreqChanged2(double f)
 void MainWindow::statusChanged()
 {
   QFile f("wsjtx_status.txt");
-  if(!f.open(QFile::WriteOnly | QIODevice::Text)) {
+  if(f.open(QFile::WriteOnly | QIODevice::Text)) {
+    QTextStream out(&f);
+    out << m_dialFreq << ";" << m_mode << ";" << m_hisCall << endl;
+    f.close();
+  } else {
     msgBox("Cannot open file \"wsjtx_status.txt\".");
     return;
   }
-  QTextStream out(&f);
-  out << m_dialFreq << ";" << m_mode << ";" << m_hisCall << endl;
-  f.close();
 }
 
 bool MainWindow::eventFilter(QObject *object, QEvent *event)  //eventFilter()
@@ -1587,6 +1589,10 @@ void MainWindow::guiUpdate()
     on_actionOpen_next_in_directory_triggered();
   }
 
+  if(m_catEnabled and !m_bRigOpen) {
+    rigOpen();
+  }
+
   if(nsec != m_sec0) {                                     //Once per second
     QDateTime t = QDateTime::currentDateTimeUtc();
     if(m_transmitting) {
@@ -1621,6 +1627,12 @@ void MainWindow::guiUpdate()
     }
     m_hsym0=khsym;
     m_sec0=nsec;
+
+    if(m_catEnabled) {
+      double fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
+      int ndiff=1000000.0*(fMHz-m_dialFreq);
+      if(ndiff!=0) dialFreqChanged2(fMHz);
+    }
   }
 
   iptt0=m_iptt;
@@ -2427,13 +2439,7 @@ void MainWindow::on_bandComboBox_currentIndexChanged(int index)
   m_repeatMsg=0;
   m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
   if(m_catEnabled) {
-    int nHz=int(1000000.0*m_dialFreq + 0.5);
-    QString cmnd1,cmnd3;
-    cmnd1=rig_command();
-    cmnd3.sprintf(" F %d",nHz);
-    m_cmnd=cmnd1 + cmnd3;
-    p3.start(m_cmnd);
-    p3.waitForFinished();
+    rig->setFreq(MHz(m_dialFreq));
   }
 }
 
@@ -2589,4 +2595,27 @@ void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
   btxok=false;
   m_repeatMsg=0;
   ui->tuneButton->setStyleSheet("");
+}
+
+void MainWindow::rigOpen()
+{
+  rig = new Rig(m_rig);
+  try {
+    rig->setConf("rig_pathname", m_catPort.toAscii().data());
+    char buf[80];
+    sprintf(buf,"%d",m_serialRate);
+    rig->setConf("serial_speed",buf);
+    sprintf(buf,"%d",m_dataBits);
+    rig->setConf("data_bits",buf);
+    sprintf(buf,"%d",m_stopBits);
+    rig->setConf("stop_bits",buf);
+    rig->setConf("serial_handshake",m_handshake.toAscii().data());
+    rig->open();
+    m_bRigOpen=true;
+  }
+  catch (const RigException &Ex) {
+    m_catEnabled=false;
+    m_bRigOpen=false;
+    msgBox("Failed to open rig");
+  }
 }
