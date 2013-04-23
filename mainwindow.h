@@ -7,6 +7,7 @@
 #include "soundout.h"
 #include "commons.h"
 #include "psk_reporter.h"
+#include <hamlib/rigclass.h>
 
 #ifdef WIN32
 #include "PSKReporter.h"
@@ -247,6 +248,7 @@ private:
     bool    m_runaway;
     bool    m_tx2QSO;
     bool    m_tune;
+    bool    m_bRigOpen;
 
     char    m_decoded[80];
 
@@ -332,6 +334,7 @@ private:
     void dialFreqChanged2(double f);
     void freeText();
     void displayTxMsg(QString t);
+    void rigOpen();
     bool gridOK(QString g);
     QString rig_command();
     QString baseCall(QString t);
