@@ -155,6 +155,10 @@ private slots:
 
   void on_actionAllow_multiple_instances_triggered(bool checked);
 
+  void on_pbR2T_clicked();
+
+  void on_pbT2R_clicked();
+
 private:
     Ui::MainWindow *ui;
 

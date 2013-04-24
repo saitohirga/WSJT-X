@@ -300,6 +300,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
 
   ui->label_9->setStyleSheet("QLabel{background-color: #aabec8}");
   ui->label_10->setStyleSheet("QLabel{background-color: #aabec8}");
+//  ui->frame->hide();
 }                                          // End of MainWindow constructor
 
 //--------------------------------------------------- MainWindow destructor
@@ -2540,7 +2541,9 @@ void MainWindow::on_rptSpinBox_valueChanged(int n)
 {
   m_rpt=QString::number(n);
   int ntx0=m_ntx;
+  QString t=ui->tx5->text();
   genStdMsgs(m_rpt);
+  ui->tx5->setText(t);
   m_ntx=ntx0;
   if(m_ntx==1) ui->txrb1->setChecked(true);
   if(m_ntx==2) ui->txrb2->setChecked(true);
@@ -2624,4 +2627,15 @@ void MainWindow::rigOpen()
 void MainWindow::on_actionAllow_multiple_instances_triggered(bool checked)
 {
   m_bMultipleOK=checked;
+}
+
+void MainWindow::on_pbR2T_clicked()
+{
+  int n=g_pWideGraph->QSOfreq();
+  ui->TxFreqSpinBox->setValue(n);
+}
+
+void MainWindow::on_pbT2R_clicked()
+{
+  g_pWideGraph->setQSOfreq(m_txFreq);
 }
