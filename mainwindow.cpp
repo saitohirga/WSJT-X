@@ -1,4 +1,4 @@
-//--------------------------------------------------------------- MainWindow
+//---------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -36,10 +36,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   ui->setupUi(this);
 
   on_EraseButton_clicked();
-  ui->labUTC->setStyleSheet( \
-        "QLabel { background-color : black; color : yellow; }");
-  ui->labDialFreq->setStyleSheet( \
-        "QLabel { background-color : black; color : yellow; }");
   QActionGroup* paletteGroup = new QActionGroup(this);
   ui->actionCuteSDR->setActionGroup(paletteGroup);
   ui->actionLinrad->setActionGroup(paletteGroup);
@@ -300,6 +296,10 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
 
   ui->label_9->setStyleSheet("QLabel{background-color: #aabec8}");
   ui->label_10->setStyleSheet("QLabel{background-color: #aabec8}");
+  ui->labUTC->setStyleSheet( \
+        "QLabel { background-color : black; color : yellow; }");
+  ui->labDialFreq->setStyleSheet( \
+        "QLabel { background-color : black; color : yellow; }");
 //  ui->frame->hide();
 }                                          // End of MainWindow constructor
 
@@ -841,6 +841,14 @@ void MainWindow::dialFreqChanged2(double f)
   t.sprintf("%.6f",m_dialFreq);
   int n=t.length();
   t=t.mid(0,n-3) + " " + t.mid(n-3,3);
+  if(qAbs(m_dialFreq-dFreq[m_band])<0.01) {
+    ui->labDialFreq->setStyleSheet( \
+        "QLabel { background-color : black; color : yellow; }");
+  } else {
+    ui->labDialFreq->setStyleSheet( \
+          "QLabel { background-color : red; color : yellow; }");
+    ui->labDialFreq->setText(t);
+  }
   ui->labDialFreq->setText(t);
   statusChanged();
 }

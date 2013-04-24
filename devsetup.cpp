@@ -14,7 +14,9 @@ DevSetup::DevSetup(QWidget *parent) :	QDialog(parent)
   m_restartSoundOut=false;
   m_firstCall=true;
   m_iptt=0;
+  m_test=0;
   m_bRigOpen=false;
+  m_COMportOpen=0;
 }
 
 DevSetup::~DevSetup()
@@ -412,10 +414,9 @@ void DevSetup::on_testCATButton_clicked()
 void DevSetup::on_testPTTButton_clicked()
 {
   int iret=0;
-  m_iptt=1-m_iptt;
+  m_test=1-m_test;
   if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
-    int iptt=m_iptt;
-    ptt(m_pttPort,iptt,&m_iptt,&m_COMportOpen);
+    ptt(m_pttPort,m_test,&m_iptt,&m_COMportOpen);
   }
   if(m_pttMethodIndex==0 and m_bRigOpen) {
     rig->setPTT((ptt_t)m_iptt, RIG_VFO_CURR);

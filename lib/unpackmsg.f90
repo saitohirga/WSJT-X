@@ -39,6 +39,10 @@ subroutine unpackmsg(dat,msg)
 
   if(iv2.gt.0) then
 ! This is a JT65v2 message
+     do i=1,4
+        if(ichar(psfx(i:i)).eq.0) psfx(i:i)=' '
+     enddo
+
      n1=len_trim(psfx)
      n2=len_trim(c2)
      if(iv2.eq.1) msg='CQ '//psfx(:n1)//'/'//c2(:n2)//' '//grid
