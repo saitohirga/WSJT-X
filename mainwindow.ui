@@ -2058,6 +2058,12 @@ p, li { white-space: pre-wrap; }
     <property name="title">
      <string>Setup</string>
     </property>
+    <widget class="QMenu" name="menuAdvanced">
+     <property name="title">
+      <string>Advanced</string>
+     </property>
+     <addaction name="actionAllow_multiple_instances"/>
+    </widget>
     <addaction name="actionDeviceSetup"/>
     <addaction name="separator"/>
     <addaction name="actionMonitor_OFF_at_startup"/>
@@ -2074,6 +2080,8 @@ p, li { white-space: pre-wrap; }
     <addaction name="action_73TxDisable"/>
     <addaction name="actionRunaway_Tx_watchdog"/>
     <addaction name="actionTx2QSO"/>
+    <addaction name="separator"/>
+    <addaction name="menuAdvanced"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -2629,6 +2637,14 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Tx messages echoed to QSO window</string>
+   </property>
+  </action>
+  <action name="actionAllow_multiple_instances">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Allow multiple instances</string>
    </property>
   </action>
  </widget>
