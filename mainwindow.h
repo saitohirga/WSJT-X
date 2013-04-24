@@ -39,7 +39,6 @@ public slots:
   void readFromStdout();
   void readFromStderr();
   void jt9_error();
-  void p3_error();
 
 protected:
   virtual void keyPressEvent( QKeyEvent *e );
@@ -273,7 +272,6 @@ private:
     QFutureWatcher<void>* watcher3;
 
     QProcess proc_jt9;
-    QProcess p3;
 
     QTimer* ptt1Timer;                 //StartTx delay
     QTimer* ptt0Timer;                 //StopTx delay
