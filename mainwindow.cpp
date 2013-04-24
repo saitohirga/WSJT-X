@@ -180,6 +180,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_repeatMsg=0;
   m_bRigOpen=false;
   m_secBandChanged=0;
+  m_bMultipleOK=false;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -187,11 +188,13 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   ui->labDist->setStyleSheet("border: 0px;");
 
 #ifdef WIN32
-  while(true) {
+  if(!m_bMultipleOK) {
+    while(true) {
       int iret=killbyname("jt9.exe");
       if(iret == 603) break;
       if(iret != 0) msgBox("KillByName return code: " +
                            QString::number(iret));
+    }
   }
 #endif
   mem_jt9 = shdmem;
@@ -395,6 +398,7 @@ void MainWindow::writeSettings()
   settings.setValue("73TxDisable",m_73TxDisable);
   settings.setValue("Runaway",m_runaway);
   settings.setValue("Tx2QSO",m_tx2QSO);
+  settings.setValue("MultipleOK",m_bMultipleOK);
   settings.endGroup();
 }
 
@@ -505,6 +509,8 @@ void MainWindow::readSettings()
   ui->actionRunaway_Tx_watchdog->setChecked(m_runaway);
   m_tx2QSO=settings.value("Tx2QSO",false).toBool();
   ui->actionTx2QSO->setChecked(m_tx2QSO);
+  m_bMultipleOK=settings.value("MultipleOK",false).toBool();
+  ui->actionAllow_multiple_instances->setChecked(m_bMultipleOK);
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
     !ui->actionAFMHot->isChecked() && !ui->actionBlue->isChecked()) {
@@ -2613,4 +2619,9 @@ void MainWindow::rigOpen()
     msgBox("Failed to open rig (B)");
     delete rig;
   }
+}
+
+void MainWindow::on_actionAllow_multiple_instances_triggered(bool checked)
+{
+  m_bMultipleOK=checked;
 }

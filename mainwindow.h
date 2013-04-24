@@ -153,6 +153,8 @@ private slots:
   void killFile();
   void on_tuneButton_clicked();
 
+  void on_actionAllow_multiple_instances_triggered(bool checked);
+
 private:
     Ui::MainWindow *ui;
 
@@ -248,7 +250,7 @@ private:
     bool    m_tx2QSO;
     bool    m_tune;
     bool    m_bRigOpen;
-
+    bool    m_bMultipleOK;
     char    m_decoded[80];
 
     float   m_pctZap;
