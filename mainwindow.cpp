@@ -95,9 +95,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   connect(&proc_jt9, SIGNAL(readyReadStandardError()),
           this, SLOT(readFromStderr()));
 
-  connect(&p3, SIGNAL(error(QProcess::ProcessError)),
-          this, SLOT(p3_error()));
-
   ui->bandComboBox->setEditable(true);
   ui->bandComboBox->lineEdit()->setReadOnly(true);
   ui->bandComboBox->lineEdit()->setAlignment(Qt::AlignCenter);
@@ -1192,14 +1189,6 @@ void MainWindow::jt9_error()                                     //jt9_error
   if(!m_killAll) {
     msgBox("Error starting or running\n" + m_appDir + "/jt9 -s");
     exit(1);
-  }
-}
-
-void MainWindow::p3_error()                                     //jt9_error
-{
-  if(!m_killAll) {
-    QString t="Error running the command\n" + m_cmnd;
-    msgBox(t);
   }
 }
 
@@ -2544,9 +2533,17 @@ void MainWindow::on_actionDouble_click_on_call_sets_Tx_Enable_triggered(bool che
 void MainWindow::on_rptSpinBox_valueChanged(int n)
 {
   m_rpt=QString::number(n);
+  int ntx0=m_ntx;
   genStdMsgs(m_rpt);
-}
+  m_ntx=ntx0;
+  if(m_ntx==1) ui->txrb1->setChecked(true);
+  if(m_ntx==2) ui->txrb2->setChecked(true);
+  if(m_ntx==3) ui->txrb3->setChecked(true);
+  if(m_ntx==4) ui->txrb4->setChecked(true);
+  if(m_ntx==5) ui->txrb5->setChecked(true);
+  if(m_ntx==6) ui->txrb6->setChecked(true);
 
+}
 void MainWindow::on_actionColor_highlighting_in_left_window_triggered(bool checked)
 {
   m_leftColor=checked;
