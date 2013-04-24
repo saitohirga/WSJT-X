@@ -17,6 +17,7 @@ static int nc1=1;
 wchar_t buffer[256];
 bool btxok;                           //True if OK to transmit
 bool btxMute;
+bool bDTRoff;
 double outputLatency;                 //Latency in seconds
 double dFreq[]={0.136,0.4742,1.838,3.578,5.357,7.078,10.130,14.078,
            18.104,21.078,24.918,28.078,50.293,70.091,144.489,432.178};
@@ -400,6 +401,7 @@ void MainWindow::writeSettings()
   settings.setValue("Runaway",m_runaway);
   settings.setValue("Tx2QSO",m_tx2QSO);
   settings.setValue("MultipleOK",m_bMultipleOK);
+  settings.setValue("DTRoff",bDTRoff);
   settings.endGroup();
 }
 
@@ -512,6 +514,7 @@ void MainWindow::readSettings()
   ui->actionTx2QSO->setChecked(m_tx2QSO);
   m_bMultipleOK=settings.value("MultipleOK",false).toBool();
   ui->actionAllow_multiple_instances->setChecked(m_bMultipleOK);
+  bDTRoff=settings.value("DTRoff",false).toBool();
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
     !ui->actionAFMHot->isChecked() && !ui->actionBlue->isChecked()) {
@@ -619,6 +622,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_stopBitsIndex=m_stopBitsIndex;
   dlg.m_handshake=m_handshake;
   dlg.m_handshakeIndex=m_handshakeIndex;
+  dlg.m_bDTRoff=bDTRoff;
 
   if(m_bRigOpen) {
     rig->close();
@@ -654,6 +658,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_stopBitsIndex=dlg.m_stopBitsIndex;
     m_handshake=dlg.m_handshake;
     m_handshakeIndex=dlg.m_handshakeIndex;
+    bDTRoff=dlg.m_bDTRoff;
 
 #ifdef WIN32
     if(dlg.m_pskReporter!=m_pskReporter) {
@@ -2621,13 +2626,17 @@ void MainWindow::rigOpen()
     sprintf(buf,"%d",m_stopBits);
     rig->setConf("stop_bits",buf);
     rig->setConf("serial_handshake",m_handshake.toAscii().data());
+    if(bDTRoff) {
+      rig->setConf("rts_state","OFF");
+      rig->setConf("dtr_state","OFF");
+    }
     rig->open();
     m_bRigOpen=true;
   }
   catch (const RigException &Ex) {
     m_catEnabled=false;
     m_bRigOpen=false;
-    msgBox("Failed to open rig (B)");
+    msgBox("Failed to open rig (mainwindow)");
     delete rig;
   }
 }

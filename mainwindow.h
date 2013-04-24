@@ -255,6 +255,8 @@ private:
     bool    m_tune;
     bool    m_bRigOpen;
     bool    m_bMultipleOK;
+//    bool    junk999;
+
     char    m_decoded[80];
 
     float   m_pctZap;
