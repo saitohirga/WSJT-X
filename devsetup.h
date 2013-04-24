@@ -5,7 +5,7 @@
 #include <QProcess>
 #include <QMessageBox>
 #include "ui_devsetup.h"
-#include "mainwindow.h"
+#include <hamlib/rigclass.h>
 
 class DevSetup : public QDialog
 {
@@ -46,6 +46,7 @@ public:
   bool    m_catEnabled;
   bool    m_After73;
   bool    m_bRigOpen;
+  bool    m_bDTRoff;
 
   QString m_myCall;
   QString m_myGrid;
@@ -56,8 +57,6 @@ public:
 
   QStringList m_macro;
   QStringList m_dFreq;
-
-  Rig* rig;
 
   QProcess p4;
   QMessageBox msgBox0;
@@ -85,9 +84,14 @@ private slots:
 
   void on_testPTTButton_clicked();
 
+  void on_cbDTRoff_toggled(bool checked);
+
 private:
+  Rig* rig;
   void msgBox(QString t);
   Ui::DialogSndCard ui;
 };
+
+extern int ptt(int nport, int ntx, int* iptt, int* nopen);
 
 #endif // DEVSETUP_H

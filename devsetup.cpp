@@ -139,6 +139,7 @@ void DevSetup::initDlg()
   m_paInDevice=m_inDevList[m_nDevIn];
   m_paOutDevice=m_outDevList[m_nDevOut];
   ui.cbEnableCAT->setChecked(m_catEnabled);
+  ui.cbDTRoff->setChecked(m_bDTRoff);
   ui.catPortComboBox->setEnabled(m_catEnabled);
   ui.rigComboBox->setEnabled(m_catEnabled);
   ui.serialRateComboBox->setEnabled(m_catEnabled);
@@ -397,12 +398,16 @@ void DevSetup::on_testCATButton_clicked()
     sprintf(buf,"%d",m_stopBits);
     rig->setConf("stop_bits",buf);
     rig->setConf("serial_handshake",m_handshake.toAscii().data());
+    if(m_bDTRoff) {
+      rig->setConf("rts_state","OFF");
+      rig->setConf("dtr_state","OFF");
+    }
     rig->open();
     m_bRigOpen=true;
   }
   catch (const RigException &Ex) {
     m_bRigOpen=false;
-    msgBox("Failed to open rig (A)");
+    msgBox("Failed to open rig (devsetup)");
     return;
   }
   double fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
@@ -413,7 +418,6 @@ void DevSetup::on_testCATButton_clicked()
 
 void DevSetup::on_testPTTButton_clicked()
 {
-  int iret=0;
   m_test=1-m_test;
   if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
     ptt(m_pttPort,m_test,&m_iptt,&m_COMportOpen);
@@ -421,4 +425,9 @@ void DevSetup::on_testPTTButton_clicked()
   if(m_pttMethodIndex==0 and m_bRigOpen) {
     rig->setPTT((ptt_t)m_iptt, RIG_VFO_CURR);
   }
+}
+
+void DevSetup::on_cbDTRoff_toggled(bool checked)
+{
+  m_bDTRoff=checked;
 }
