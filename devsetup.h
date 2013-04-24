@@ -36,6 +36,7 @@ public:
   qint32  m_stopBitsIndex;
   qint32  m_handshakeIndex;
   qint32  m_iptt;
+  qint32  m_test;
   qint32  m_COMportOpen;
 
   bool    m_restartSoundIn;
