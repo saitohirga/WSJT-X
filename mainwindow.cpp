@@ -2589,10 +2589,8 @@ void MainWindow::on_actionTx2QSO_triggered(bool checked)
 void MainWindow::on_tuneButton_clicked()
 {
   if(m_tune) {
-    m_tune=false;
-    soundOutThread.setTune(m_tune);
     nc1=1;                                 //disable the countdown timer
-    tuneButtonTimer->start(1000);
+    tuneButtonTimer->start(250);
   } else {
     m_tune=true;
     m_sent73=false;
@@ -2605,7 +2603,8 @@ void MainWindow::on_tuneButton_clicked()
 void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
 {
   if(m_tune) {
-    on_tuneButton_clicked();
+    m_tune=false;
+    soundOutThread.setTune(m_tune);
   }
   if(m_auto) on_autoButton_clicked();
   btxok=false;
@@ -2631,6 +2630,7 @@ void MainWindow::rigOpen()
       rig->setConf("dtr_state","OFF");
     }
     rig->open();
+    rig->getVFO();
     m_bRigOpen=true;
   }
   catch (const RigException &Ex) {

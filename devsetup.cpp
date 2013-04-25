@@ -126,8 +126,17 @@ void DevSetup::initDlg()
   p4.start("rigctl -l");
   p4.waitForFinished(1000);
 
+  QPalette pal(ui.myCallEntry->palette());
+  if(m_myCall=="") {
+    pal.setColor(QPalette::Base,"#ffccff");
+  } else {
+    pal.setColor(QPalette::Base,Qt::white);
+  }
+  ui.myCallEntry->setPalette(pal);
+  ui.myGridEntry->setPalette(pal);
   ui.myCallEntry->setText(m_myCall);
   ui.myGridEntry->setText(m_myGrid);
+
   ui.idIntSpinBox->setValue(m_idInt);
   ui.pttMethodComboBox->setCurrentIndex(m_pttMethodIndex);
   ui.pttComboBox->setCurrentIndex(m_pttPort);
@@ -402,14 +411,19 @@ void DevSetup::on_testCATButton_clicked()
       rig->setConf("rts_state","OFF");
       rig->setConf("dtr_state","OFF");
     }
+//    qDebug() << "B6";
     rig->open();
+    rig->getVFO();
+//    qDebug() << "B7" << rig->getVFO();
     m_bRigOpen=true;
   }
   catch (const RigException &Ex) {
+//    qDebug() << "B8";
     m_bRigOpen=false;
     msgBox("Failed to open rig (devsetup)");
     return;
   }
+//  qDebug() << "B9";
   double fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
   QString t;
   t.sprintf("Rig control working.\nDial Frequency: %.6f",fMHz);
