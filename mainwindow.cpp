@@ -401,6 +401,7 @@ void MainWindow::writeSettings()
   settings.setValue("Tx2QSO",m_tx2QSO);
   settings.setValue("MultipleOK",m_bMultipleOK);
   settings.setValue("DTRoff",m_bDTRoff);
+  settings.setValue("pttData",m_pttData);
   settings.endGroup();
 }
 
@@ -514,6 +515,7 @@ void MainWindow::readSettings()
   m_bMultipleOK=settings.value("MultipleOK",false).toBool();
   ui->actionAllow_multiple_instances->setChecked(m_bMultipleOK);
   m_bDTRoff=settings.value("DTRoff",false).toBool();
+  m_pttData=settings.value("pttData",false).toBool();
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
     !ui->actionAFMHot->isChecked() && !ui->actionBlue->isChecked()) {
@@ -622,6 +624,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_handshake=m_handshake;
   dlg.m_handshakeIndex=m_handshakeIndex;
   dlg.m_bDTRoff=m_bDTRoff;
+  dlg.m_pttData=m_pttData;
 
   if(m_bRigOpen) {
     rig->close();
@@ -658,6 +661,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_handshake=dlg.m_handshake;
     m_handshakeIndex=dlg.m_handshakeIndex;
     m_bDTRoff=dlg.m_bDTRoff;
+    m_pttData=dlg.m_pttData;
 
 #ifdef WIN32
     if(dlg.m_pskReporter!=m_pskReporter) {
@@ -1450,7 +1454,8 @@ void MainWindow::guiUpdate()
 //Raise PTT
       if(m_catEnabled and m_bRigOpen and  m_pttMethodIndex==0) {
         m_iptt=1;
-        rig->setPTT((ptt_t)m_iptt, RIG_VFO_CURR);  //CAT control for PTT=1
+        if(m_pttData) rig->setPTT(RIG_PTT_ON_DATA, RIG_VFO_CURR);
+        if(!m_pttData) rig->setPTT(RIG_PTT_ON_MIC, RIG_VFO_CURR);
       }
       if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {  //DTR or RTS
           ptt(m_pttPort,1,&m_iptt,&m_COMportOpen);
@@ -1579,7 +1584,7 @@ void MainWindow::guiUpdate()
     //Lower PTT
     if(m_catEnabled and m_bRigOpen and  m_pttMethodIndex==0) {
       m_iptt=0;
-      rig->setPTT((ptt_t)m_iptt, RIG_VFO_CURR);  //CAT control for PTT=1
+      rig->setPTT(RIG_PTT_OFF, RIG_VFO_CURR);  //CAT control for PTT=0
     }
     if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {  //DTR-RTS
       ptt(m_pttPort,0,&m_iptt,&m_COMportOpen);
@@ -1708,7 +1713,7 @@ void MainWindow::stopTx2()
 {
 //Lower PTT
   if(m_catEnabled and m_bRigOpen and  m_pttMethodIndex==0) {
-    rig->setPTT((ptt_t)m_iptt, RIG_VFO_CURR);  //CAT control for PTT=0
+    rig->setPTT(RIG_PTT_OFF, RIG_VFO_CURR);  //CAT control for PTT=0
   }
   if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
     ptt(m_pttPort,0,&m_iptt,&m_COMportOpen);

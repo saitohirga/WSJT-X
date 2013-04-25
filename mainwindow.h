@@ -256,6 +256,7 @@ private:
     bool    m_bRigOpen;
     bool    m_bMultipleOK;
     bool    m_bDTRoff;
+    bool    m_pttData;
 
     char    m_decoded[80];
 
