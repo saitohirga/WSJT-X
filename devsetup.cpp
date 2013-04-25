@@ -411,10 +411,10 @@ void DevSetup::on_testCATButton_clicked()
       rig->setConf("rts_state","OFF");
       rig->setConf("dtr_state","OFF");
     }
-//    qDebug() << "B6";
+    //qDebug() << "B6";
     rig->open();
-//    rig->getVFO();
-//    qDebug() << "B7" << rig->getVFO();
+    //rig->getVFO();
+    //qDebug() << "B7" << rig->getVFO();
     m_bRigOpen=true;
   }
   catch (const RigException &Ex) {
