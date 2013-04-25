@@ -300,7 +300,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
         "QLabel { background-color : black; color : yellow; }");
   ui->labDialFreq->setStyleSheet( \
         "QLabel { background-color : black; color : yellow; }");
-//  ui->frame->hide();
+  ui->frame->hide();
 }                                          // End of MainWindow constructor
 
 //--------------------------------------------------- MainWindow destructor
