@@ -2630,7 +2630,7 @@ void MainWindow::rigOpen()
       rig->setConf("dtr_state","OFF");
     }
     rig->open();
-    rig->getVFO();
+//    rig->getVFO();
     m_bRigOpen=true;
   }
   catch (const RigException &Ex) {

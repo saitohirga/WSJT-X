@@ -413,7 +413,7 @@ void DevSetup::on_testCATButton_clicked()
     }
 //    qDebug() << "B6";
     rig->open();
-    rig->getVFO();
+//    rig->getVFO();
 //    qDebug() << "B7" << rig->getVFO();
     m_bRigOpen=true;
   }
