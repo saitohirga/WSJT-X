@@ -155,13 +155,13 @@ void DevSetup::initDlg()
   ui.dataBitsComboBox->setEnabled(m_catEnabled);
   ui.stopBitsComboBox->setEnabled(m_catEnabled);
   ui.handshakeComboBox->setEnabled(m_catEnabled);
-
   ui.rigComboBox->setCurrentIndex(m_rigIndex);
   ui.catPortComboBox->setCurrentIndex(m_catPortIndex);
   ui.serialRateComboBox->setCurrentIndex(m_serialRateIndex);
   ui.dataBitsComboBox->setCurrentIndex(m_dataBitsIndex);
   ui.stopBitsComboBox->setCurrentIndex(m_stopBitsIndex);
   ui.handshakeComboBox->setCurrentIndex(m_handshakeIndex);
+  ui.rbData->setChecked(m_pttData);
 
   // PY2SDR -- Per OS serial port names
   ui.catPortComboBox->clear();
@@ -436,12 +436,24 @@ void DevSetup::on_testPTTButton_clicked()
   if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
     ptt(m_pttPort,m_test,&m_iptt,&m_COMportOpen);
   }
+  if(m_pttMethodIndex==0 and !m_bRigOpen) {
+    on_testCATButton_clicked();
+  }
   if(m_pttMethodIndex==0 and m_bRigOpen) {
-    rig->setPTT((ptt_t)m_iptt, RIG_VFO_CURR);
+    if(m_test==0) rig->setPTT(RIG_PTT_OFF, RIG_VFO_CURR);
+    if(m_test==1) {
+      if(m_pttData) rig->setPTT(RIG_PTT_ON_DATA, RIG_VFO_CURR);
+      if(!m_pttData) rig->setPTT(RIG_PTT_ON_MIC, RIG_VFO_CURR);
+    }
   }
 }
 
 void DevSetup::on_cbDTRoff_toggled(bool checked)
 {
   m_bDTRoff=checked;
+}
+
+void DevSetup::on_rbData_toggled(bool checked)
+{
+  m_pttData=checked;
 }

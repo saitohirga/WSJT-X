@@ -47,6 +47,7 @@ public:
   bool    m_After73;
   bool    m_bRigOpen;
   bool    m_bDTRoff;
+  bool    m_pttData;
 
   QString m_myCall;
   QString m_myGrid;
@@ -81,10 +82,9 @@ private slots:
   void on_rigComboBox_activated(int index);
   void on_cbID73_toggled(bool checked);
   void on_testCATButton_clicked();
-
   void on_testPTTButton_clicked();
-
   void on_cbDTRoff_toggled(bool checked);
+  void on_rbData_toggled(bool checked);
 
 private:
   Rig* rig;
