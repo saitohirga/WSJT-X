@@ -2635,7 +2635,10 @@ void MainWindow::rigOpen()
       rig->setConf("dtr_state","OFF");
     }
     rig->open();
-    //rig->getVFO();
+    pbwidth_t bw;
+    rmode_t rigMode;
+    rigMode=rig->getMode(bw);
+    if(rigMode!=RIG_MODE_USB) rig->setMode(RIG_MODE_USB);
     m_bRigOpen=true;
   }
   catch (const RigException &Ex) {
