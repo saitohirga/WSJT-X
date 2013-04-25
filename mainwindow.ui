@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>730</width>
-    <height>702</height>
+    <width>711</width>
+    <height>475</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -718,7 +718,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string notr="true">buttonGroup</string>
+                 <string>buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -749,7 +749,7 @@ p, li { white-space: pre-wrap; }
                  <bool>true</bool>
                 </property>
                 <attribute name="buttonGroup">
-                 <string notr="true">buttonGroup</string>
+                 <string>buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -777,7 +777,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string notr="true">buttonGroup</string>
+                 <string>buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -927,7 +927,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string notr="true">buttonGroup</string>
+                 <string>buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1060,7 +1060,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string notr="true">buttonGroup</string>
+                 <string>buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1088,7 +1088,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string notr="true">buttonGroup</string>
+                 <string>buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1324,7 +1324,7 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item row="1" column="1" rowspan="5">
-         <widget class="QwtThermo" name="xThermo">
+         <widget class="QwtThermo" name="xThermo" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -1337,19 +1337,19 @@ p, li { white-space: pre-wrap; }
             <height>180</height>
            </size>
           </property>
-          <property name="borderWidth">
+          <property name="borderWidth" stdset="0">
            <number>1</number>
           </property>
-          <property name="maxValue">
+          <property name="maxValue" stdset="0">
            <double>60.000000000000000</double>
           </property>
-          <property name="minValue">
+          <property name="minValue" stdset="0">
            <double>0.000000000000000</double>
           </property>
-          <property name="pipeWidth">
+          <property name="pipeWidth" stdset="0">
            <number>8</number>
           </property>
-          <property name="value">
+          <property name="value" stdset="0">
            <double>0.000000000000000</double>
           </property>
          </widget>
@@ -1936,7 +1936,7 @@ p, li { white-space: pre-wrap; }
          <widget class="QFrame" name="frame_4">
           <property name="maximumSize">
            <size>
-            <width>16777215</width>
+            <width>72</width>
             <height>16777215</height>
            </size>
           </property>
@@ -2094,8 +2094,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>730</width>
-     <height>25</height>
+     <width>711</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
