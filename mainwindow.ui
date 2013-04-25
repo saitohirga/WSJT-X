@@ -1756,7 +1756,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="maximumSize">
              <size>
-              <width>48</width>
+              <width>49</width>
               <height>16777215</height>
              </size>
             </property>
@@ -1775,7 +1775,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="maximumSize">
              <size>
-              <width>48</width>
+              <width>49</width>
               <height>16777215</height>
              </size>
             </property>
