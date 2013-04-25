@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>711</width>
-    <height>575</height>
+    <height>618</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -46,6 +46,56 @@
         <property name="verticalSpacing">
          <number>1</number>
         </property>
+        <item row="4" column="0">
+         <widget class="DisplayText" name="decodedTextBrowser">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>100</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>500</width>
+            <height>1000</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Courier New</family>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Panel</enum>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="html">
+           <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Courier New'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="acceptRichText">
+           <bool>false</bool>
+          </property>
+          <property name="openLinks">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
         <item row="3" column="1">
          <widget class="QLabel" name="decodedTextLabel2">
           <property name="minimumSize">
@@ -321,56 +371,6 @@
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="DisplayText" name="decodedTextBrowser">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>300</width>
-            <height>100</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>500</width>
-            <height>1000</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>Courier New</family>
-            <pointsize>10</pointsize>
-           </font>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::Panel</enum>
-          </property>
-          <property name="verticalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOn</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="html">
-           <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Courier New'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="acceptRichText">
-           <bool>false</bool>
-          </property>
-          <property name="openLinks">
-           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -718,7 +718,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -749,7 +749,7 @@ p, li { white-space: pre-wrap; }
                  <bool>true</bool>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -777,7 +777,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -927,7 +927,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1060,7 +1060,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1088,7 +1088,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <attribute name="buttonGroup">
-                 <string>buttonGroup</string>
+                 <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
@@ -1324,7 +1324,7 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item row="1" column="1" rowspan="5">
-         <widget class="QwtThermo" name="xThermo" native="true">
+         <widget class="QwtThermo" name="xThermo">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -1337,19 +1337,19 @@ p, li { white-space: pre-wrap; }
             <height>180</height>
            </size>
           </property>
-          <property name="borderWidth" stdset="0">
+          <property name="borderWidth">
            <number>1</number>
           </property>
-          <property name="maxValue" stdset="0">
+          <property name="maxValue">
            <double>60.000000000000000</double>
           </property>
-          <property name="minValue" stdset="0">
+          <property name="minValue">
            <double>0.000000000000000</double>
           </property>
-          <property name="pipeWidth" stdset="0">
+          <property name="pipeWidth">
            <number>8</number>
           </property>
-          <property name="value" stdset="0">
+          <property name="value">
            <double>0.000000000000000</double>
           </property>
          </widget>
@@ -1605,7 +1605,7 @@ p, li { white-space: pre-wrap; }
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <widget class="QWidget" name="">
+          <widget class="QWidget" name="layoutWidget">
            <property name="geometry">
             <rect>
              <x>1</x>
@@ -1688,7 +1688,7 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="maximumSize">
            <size>
-            <width>100</width>
+            <width>140</width>
             <height>16777215</height>
            </size>
           </property>
@@ -1743,6 +1743,9 @@ p, li { white-space: pre-wrap; }
         </item>
         <item row="2" column="7">
          <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <property name="spacing">
+           <number>4</number>
+          </property>
           <item>
            <widget class="QPushButton" name="pbR2T">
             <property name="sizePolicy">
@@ -1753,7 +1756,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="maximumSize">
              <size>
-              <width>41</width>
+              <width>48</width>
               <height>16777215</height>
              </size>
             </property>
@@ -1772,7 +1775,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="maximumSize">
              <size>
-              <width>41</width>
+              <width>48</width>
               <height>16777215</height>
              </size>
             </property>
@@ -1786,7 +1789,7 @@ p, li { white-space: pre-wrap; }
         <item row="3" column="0">
          <widget class="QLabel" name="label">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+           <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -2089,7 +2092,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>711</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
