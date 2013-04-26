@@ -50,6 +50,8 @@ static int hamlibpp_freq_event(RIG *rig, vfo_t vfo, freq_t freq, rig_ptr_t arg)
 }
 
 Rig::Rig(rig_model_t rig_model) {
+  rig_set_debug_level( RIG_DEBUG_WARN);
+
   theRig = rig_init(rig_model);
   if (!theRig)
     THROW(new RigException ("Rig initialization error"));
