@@ -69,12 +69,10 @@ private slots:
   void on_actionDecode_remaining_files_in_directory_triggered();
   void on_actionDelete_all_wav_files_in_SaveDir_triggered();
   void on_actionF4_sets_Tx6_triggered();
-  void on_actionNo_shorthands_if_Tx1_triggered();
   void on_actionNone_triggered();
   void on_actionSave_all_triggered();
   void on_actionKeyboard_shortcuts_triggered();
   void on_actionSpecial_mouse_commands_triggered();
-  void on_actionAvailable_suffixes_and_add_on_prefixes_triggered();
   void on_DecodeButton_clicked();
   void decode();
   void decodeBusy(bool b);
