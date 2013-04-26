@@ -31,7 +31,7 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	packbits.o unpackbits.o encode232.o interleave9.o \
 	entail.o fano232.o gran.o sync9.o decode9.o \
 	fil3.o redsync.o decoder.o grid2n.o n2grid.o timer.o \
-	decode9a.o getlags.o afc9.o fchisq.o twkfreq.o downsam9.o \
+	softsym.o getlags.o afc9.o fchisq.o twkfreq.o downsam9.o \
 	peakdt9.o symspec2.o stdmsg.o morse.o azdist.o geodist.o \
 	rig_control.o fillcom.o
 
@@ -68,9 +68,6 @@ INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
 	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
 	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/ActiveQt' \
 	 -I'release' -I'.' -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/mkspecs/win32-g++'
-
-#jt9.o:	jt9.f90
-#	$(FC) -O0 -c jt9.f90
 
 sync9.o: sync9.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c sync9.f90
