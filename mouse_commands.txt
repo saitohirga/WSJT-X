@@ -1,0 +1,18 @@
+Click on	Action
+__________________________________________________________
+
+Waterfall:	 Set Rx frequency
+	 Double-click to set Rx frequency and decode there
+	 Ctrl-click to set Rx and Tx frequencies and decode
+
+Decoded text:	 Double-click to copy second callsign to Dx Call,
+	 locator to Dx Grid; change Rx and Tx frequencies to 
+	 decoded signal's frequency; generate standard messages. 
+	 If first callsign is your own, Tx frequency is not 
+	 changed unless Ctrl is held down when double-clicking.
+
+Erase button:	 Click to erase QSO window
+      	 Double-click to erase QSO and Band Activity windows
+
+Tx5 Entry:	 Right-click to select a macro message
+
