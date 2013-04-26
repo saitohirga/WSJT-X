@@ -155,6 +155,12 @@ void DevSetup::initDlg()
   ui.dataBitsComboBox->setEnabled(m_catEnabled);
   ui.stopBitsComboBox->setEnabled(m_catEnabled);
   ui.handshakeComboBox->setEnabled(m_catEnabled);
+  ui.testCATButton->setEnabled(m_catEnabled);
+  ui.cbDTRoff->setEnabled(m_catEnabled);
+  ui.rbData->setEnabled(m_catEnabled);
+  ui.rbMic->setEnabled(m_catEnabled);
+  bool b=m_pttMethodIndex==1 or m_pttMethodIndex==2 or m_catEnabled;
+  ui.testPTTButton->setEnabled(b);
   ui.rigComboBox->setCurrentIndex(m_rigIndex);
   ui.catPortComboBox->setCurrentIndex(m_catPortIndex);
   ui.serialRateComboBox->setCurrentIndex(m_serialRateIndex);
@@ -332,6 +338,9 @@ void DevSetup::on_cbPSKReporter_clicked(bool b)
 void DevSetup::on_pttMethodComboBox_activated(int index)
 {
   m_pttMethodIndex=index;
+  bool b=m_pttMethodIndex==1 or m_pttMethodIndex==2 or
+      (m_catEnabled and m_pttMethodIndex==0);
+  ui.testPTTButton->setEnabled(b);
 }
 
 void DevSetup::on_catPortComboBox_activated(int index)
@@ -349,6 +358,13 @@ void DevSetup::on_cbEnableCAT_toggled(bool b)
   ui.dataBitsComboBox->setEnabled(b);
   ui.stopBitsComboBox->setEnabled(b);
   ui.handshakeComboBox->setEnabled(b);
+  ui.testCATButton->setEnabled(b);
+  ui.cbDTRoff->setEnabled(b);
+  ui.rbData->setEnabled(b);
+  ui.rbMic->setEnabled(b);
+  bool b2=(m_pttMethodIndex==1 or m_pttMethodIndex==2 or m_catEnabled) and
+      !(m_pttMethodIndex==3);
+  ui.testPTTButton->setEnabled(b2);
 }
 
 void DevSetup::on_serialRateComboBox_activated(int index)

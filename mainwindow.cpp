@@ -25,7 +25,7 @@ WideGraph* g_pWideGraph = NULL;
 Rig* rig = NULL;
 
 QString rev="$Rev$";
-QString Program_Title_Version="  WSJT-X   v0.9, r" + rev.mid(6,4) +
+QString Program_Title_Version="  WSJT-X   v0.95, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 //-------------------------------------------------- MainWindow constructor
@@ -233,7 +233,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   if(m_mode=="JT9-5") on_actionJT9_5_triggered();
   if(m_mode=="JT9-10") on_actionJT9_10_triggered();
   if(m_mode=="JT9-30") on_actionJT9_30_triggered();
-  //g_pWideGraph->setRxRange(m_fMin,m_fMax);
   future1 = new QFuture<void>;
   watcher1 = new QFutureWatcher<void>;
   connect(watcher1, SIGNAL(finished()),this,SLOT(diskDat()));
@@ -957,11 +956,6 @@ void MainWindow::msgBox(QString t)                             //msgBox
   msgBox0.exec();
 }
 
-void MainWindow::stub()                                        //stub()
-{
-  msgBox("Not yet implemented.");
-}
-
 void MainWindow::on_actionOnline_Users_Guide_triggered()      //Display manual
 {
   QDesktopServices::openUrl(QUrl(
@@ -1087,11 +1081,6 @@ void MainWindow::on_actionF4_sets_Tx6_triggered()                //F4 sets Tx6
   m_kb8rq = !m_kb8rq;
 }
 
-void MainWindow::on_actionNo_shorthands_if_Tx1_triggered()
-{
-  stub();
-}
-
 void MainWindow::on_actionNone_triggered()                    //Save None
 {
   m_saveSynced=false;
@@ -1126,16 +1115,57 @@ void MainWindow::on_actionSave_all_triggered()                //Save All
 
 void MainWindow::on_actionKeyboard_shortcuts_triggered()
 {
-  stub();                                 //Display list of keyboard shortcuts
+  QTextEdit* pShortcuts;
+  pShortcuts = new QTextEdit(0);
+  pShortcuts->setReadOnly(true);
+  pShortcuts->setFontPointSize(10);
+  pShortcuts->setWindowTitle("Keyboard Shortcuts");
+//  pShortcuts->setGeometry(m_wideGraphGeom);
+  pShortcuts->setGeometry(QRect(45,50,430,420));
+  Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
+      Qt::WindowMinimizeButtonHint;
+  pShortcuts->setWindowFlags(flags);
+  QString shortcuts = m_appDir + "/shortcuts.txt";
+  QFile f(shortcuts);
+  if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    msgBox("Cannot open " + shortcuts);
+    return;
+  }
+  QTextStream s(&f);
+  QString t;
+  for(int i=0; i<100; i++) {
+    t=s.readLine();
+    pShortcuts->append(t);
+    if(s.atEnd()) break;
+  }
+  pShortcuts->show();
 }
 
 void MainWindow::on_actionSpecial_mouse_commands_triggered()
 {
-  stub();                                    //Display list of mouse commands
-}
-void MainWindow::on_actionAvailable_suffixes_and_add_on_prefixes_triggered()
-{
-  stub();                                    //Display list of Add-On pfx/sfx
+  QTextEdit* pMouseCmnds;
+  pMouseCmnds = new QTextEdit(0);
+  pMouseCmnds->setReadOnly(true);
+  pMouseCmnds->setFontPointSize(10);
+  pMouseCmnds->setWindowTitle("Special Mouse Commands");
+  pMouseCmnds->setGeometry(QRect(45,50,440,300));
+  Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
+      Qt::WindowMinimizeButtonHint;
+  pMouseCmnds->setWindowFlags(flags);
+  QString mouseCmnds = m_appDir + "/mouse_commands.txt";
+  QFile f(mouseCmnds);
+  if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    msgBox("Cannot open " + mouseCmnds);
+    return;
+  }
+  QTextStream s(&f);
+  QString t;
+  for(int i=0; i<100; i++) {
+    t=s.readLine();
+    pMouseCmnds->append(t);
+    if(s.atEnd()) break;
+  }
+  pMouseCmnds->show();
 }
 
 void MainWindow::on_DecodeButton_clicked()                    //Decode request
