@@ -305,7 +305,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
   QTextStream out(&f2);
   out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-      << m_dialFreq << " MHz  " << m_mode << endl;
+      << "  " << m_dialFreq << " MHz  " << m_mode << endl;
   f2.close();
 
 }                                          // End of MainWindow constructor
@@ -1286,7 +1286,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       QTextStream out(&f);
       if(m_RxLog && 1) {
         out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-            << m_dialFreq << " MHz  " << m_mode << endl;
+            << "  " << m_dialFreq << " MHz  " << m_mode << endl;
         m_RxLog=0;
       }
       int n=t.length();
