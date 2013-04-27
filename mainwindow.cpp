@@ -2494,6 +2494,13 @@ void MainWindow::on_bandComboBox_currentIndexChanged(int index)
     }
     rig->setFreq(MHz(m_dialFreq));
   }
+
+  QFile f2("ALL.TXT");
+  f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+  QTextStream out(&f2);
+  out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
+      << "  " << m_dialFreq << " MHz  " << m_mode << endl;
+  f2.close();
 }
 
 void MainWindow::on_actionPrompt_to_log_QSO_triggered(bool checked)
