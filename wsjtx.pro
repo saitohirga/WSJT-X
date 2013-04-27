@@ -10,7 +10,7 @@ CONFIG   += qwt thread
 
 TARGET = wsjtx
 DESTDIR = ../wsjtx_install
-VERSION = 0.9
+VERSION = 0.95
 TEMPLATE = app
 
 win32 {
