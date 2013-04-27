@@ -300,6 +300,14 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   ui->labDialFreq->setStyleSheet( \
         "QLabel { background-color : black; color : yellow; }");
   ui->frame->hide();
+
+  QFile f2("ALL.TXT");
+  f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+  QTextStream out(&f2);
+  out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
+      << m_dialFreq << " MHz  " << m_mode << endl;
+  f2.close();
+
 }                                          // End of MainWindow constructor
 
 //--------------------------------------------------- MainWindow destructor
@@ -1276,9 +1284,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
       QFile f("ALL.TXT");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
-      if(m_RxLog & 1) {
+      if(m_RxLog && 1) {
         out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-            << endl;
+            << m_dialFreq << " MHz  " << m_mode << endl;
         m_RxLog=0;
       }
       int n=t.length();
@@ -1526,7 +1534,8 @@ void MainWindow::guiUpdate()
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
       out << QDateTime::currentDateTimeUtc().toString("hhmm")
-          << "  Transmitting:  " << t << endl;
+          << "  Transmitting " << m_dialFreq << " MHz  " << m_mode
+          << ":  " << t << endl;
       f.close();
       if(m_tx2QSO) displayTxMsg(t);
     }
@@ -1593,12 +1602,15 @@ void MainWindow::guiUpdate()
     soundInThread.setMonitoring(false);
     btxok=true;
     m_transmitting=true;
-    QFile f("ALL.TXT");
-    f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-    QTextStream out(&f);
-    out << QDateTime::currentDateTimeUtc().toString("hhmm")
-        << "  Transmitting:  " << t << endl;
-    f.close();
+    if(!m_tune) {
+      QFile f("ALL.TXT");
+      f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+      QTextStream out(&f);
+      out << QDateTime::currentDateTimeUtc().toString("hhmm")
+          << "  Transmitting " << m_dialFreq << " MHz  " << m_mode
+          << ":  " << t << endl;
+      f.close();
+    }
     if(m_tx2QSO and !m_tune) displayTxMsg(t);
   }
 
