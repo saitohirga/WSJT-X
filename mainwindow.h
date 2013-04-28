@@ -253,7 +253,6 @@ private:
     bool    m_bMultipleOK;
     bool    m_bDTRoff;
     bool    m_pttData;
-    bool    m_bLogGeom;
 
     char    m_decoded[80];
 
