@@ -43,7 +43,8 @@ SOURCES += killbyname.cpp
 HEADERS  += mainwindow.h plotter.h soundin.h soundout.h \
             about.h devsetup.h widegraph.h getfile.h \
             commons.h sleep.h displaytext.h logqso.h \
-            psk_reporter.h
+            psk_reporter.h \
+    rigclass.h
 
 DEFINES += __cplusplus
 
@@ -55,7 +56,7 @@ RC_FILE = wsjtx.rc
 unix {
 INCLUDEPATH += $$quote(/usr/include/qwt-qt4)
 LIBS += ../wsjtx/lib/libjt9.a
-LIBS += -lhamlib++ -lhamlib
+LIBS += -lhamlib
 LIBS += -lportaudio -lgfortran -lfftw3f -lqwt-qt4
 }
 
