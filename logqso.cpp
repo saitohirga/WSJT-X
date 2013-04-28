@@ -124,5 +124,6 @@ void LogQSO::accept()
     out << t << endl;
     f2.close();
   }
+  emit(acceptQSO(true));
   QDialog::accept();
 }

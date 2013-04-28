@@ -150,12 +150,10 @@ private slots:
   void on_actionTx2QSO_triggered(bool checked);
   void killFile();
   void on_tuneButton_clicked();
-
   void on_actionAllow_multiple_instances_triggered(bool checked);
-
   void on_pbR2T_clicked();
-
   void on_pbT2R_clicked();
+  void acceptQSO2(bool accepted);
 
 private:
     Ui::MainWindow *ui;
@@ -316,6 +314,8 @@ private:
 
     QStringList m_macro;
     QStringList m_dFreq;
+
+    QDateTime dateTimeQSO;
 
     SoundInThread soundInThread;             //Instantiate the audio threads
     SoundOutThread soundOutThread;

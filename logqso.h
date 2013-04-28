@@ -28,6 +28,9 @@ public:
 public slots:
   void accept();
 
+signals:
+  void acceptQSO(bool accepted);
+
 private:
   Ui::LogQSO *ui;
 };
