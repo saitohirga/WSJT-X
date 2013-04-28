@@ -2205,26 +2205,32 @@ void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
 void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 {
   if(m_hisCall=="") return;
-  QDateTime t = QDateTime::currentDateTimeUtc();
-  QString date=t.toString("yyyyMMdd");
+  dateTimeQSO = QDateTime::currentDateTimeUtc();
+  QString date=dateTimeQSO.toString("yyyyMMdd");
+
+  LogQSO* logDlg;
+  logDlg = new LogQSO(0);
+  logDlg->initLogQSO(m_hisCall,m_hisGrid,m_mode,m_rptSent,m_rptRcvd,date,
+                    m_qsoStart,m_qsoStop,m_dialFreq,m_myCall,m_myGrid,
+                    m_noSuffix,m_toRTTY,m_dBtoComments);
+  connect(logDlg, SIGNAL(acceptQSO(bool)),this,SLOT(acceptQSO2(bool)));
+  logDlg->show();
+}
+
+void MainWindow::acceptQSO2(bool accepted)
+{
+  QString date=dateTimeQSO.toString("yyyyMMdd");
   QFile f("wsjtx.log");
   if(!f.open(QIODevice::Text | QIODevice::Append)) {
     msgBox("Cannot open file \"wsjtx.log\".");
   } else {
-    QString logEntry=t.date().toString("yyyy-MMM-dd,") +
-        t.time().toString("hh:mm,") + m_hisCall + "," + m_hisGrid + "," +
-        QString::number(m_dialFreq) + "," + m_mode + "," +
-        m_rptSent + "," + m_rptRcvd;
+    QString logEntry=dateTimeQSO.date().toString("yyyy-MMM-dd,") +
+        dateTimeQSO.time().toString("hh:mm,") + m_hisCall + "," +
+        m_hisGrid + "," + QString::number(m_dialFreq) + "," + m_mode +
+        "," + m_rptSent + "," + m_rptRcvd;
     QTextStream out(&f);
     out << logEntry << endl;
     f.close();
-  }
-
-  LogQSO logDlg(this);
-  logDlg.initLogQSO(m_hisCall,m_hisGrid,m_mode,m_rptSent,m_rptRcvd,date,
-                    m_qsoStart,m_qsoStop,m_dialFreq,m_myCall,m_myGrid,
-                    m_noSuffix,m_toRTTY,m_dBtoComments);
-  if(logDlg.exec() == QDialog::Accepted) {
   }
   if(m_clearCallGrid) {
     m_hisCall="";
