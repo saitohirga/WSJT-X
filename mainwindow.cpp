@@ -179,7 +179,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_bRigOpen=false;
   m_secBandChanged=0;
   m_bMultipleOK=false;
-  m_bLogGeom=false;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -411,6 +410,8 @@ void MainWindow::writeSettings()
   settings.setValue("MultipleOK",m_bMultipleOK);
   settings.setValue("DTRoff",m_bDTRoff);
   settings.setValue("pttData",m_pttData);
+  settings.setValue("LogQSOgeom",m_logQSOgeom);
+
   settings.endGroup();
 }
 
@@ -525,6 +526,7 @@ void MainWindow::readSettings()
   ui->actionAllow_multiple_instances->setChecked(m_bMultipleOK);
   m_bDTRoff=settings.value("DTRoff",false).toBool();
   m_pttData=settings.value("pttData",false).toBool();
+  m_logQSOgeom=settings.value("LogQSOgeom",QRect(500,400,424,283)).toRect();
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
     !ui->actionAFMHot->isChecked() && !ui->actionBlue->isChecked()) {
@@ -2215,14 +2217,13 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
                     m_qsoStart,m_qsoStop,m_dialFreq,m_myCall,m_myGrid,
                     m_noSuffix,m_toRTTY,m_dBtoComments);
   connect(logDlg, SIGNAL(acceptQSO(bool)),this,SLOT(acceptQSO2(bool)));
-  if(m_bLogGeom) logDlg->setGeometry(m_logQSOgeom);
+  if(m_logQSOgeom != QRect(500,400,424,283)) logDlg->setGeometry(m_logQSOgeom);
   logDlg->show();
 }
 
 void MainWindow::acceptQSO2(bool accepted)
 {
   m_logQSOgeom=logDlg->geometry();
-  m_bLogGeom=true;
   QString date=dateTimeQSO.toString("yyyyMMdd");
   QFile f("wsjtx.log");
   if(!f.open(QIODevice::Text | QIODevice::Append)) {
