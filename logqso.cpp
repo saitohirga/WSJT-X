@@ -127,3 +127,9 @@ void LogQSO::accept()
   emit(acceptQSO(true));
   QDialog::accept();
 }
+
+void LogQSO::reject()
+{
+  emit(acceptQSO(false));
+  QDialog::reject();
+}

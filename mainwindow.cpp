@@ -22,6 +22,7 @@ double dFreq[]={0.136,0.4742,1.838,3.578,5.357,7.078,10.130,14.078,
            18.104,21.078,24.918,28.078,50.293,70.091,144.489,432.178};
 
 WideGraph* g_pWideGraph = NULL;
+LogQSO* logDlg = NULL;
 Rig* rig = NULL;
 
 QString rev="$Rev$";
@@ -177,6 +178,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_bRigOpen=false;
   m_secBandChanged=0;
   m_bMultipleOK=false;
+  m_bLogGeom=false;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -2208,17 +2210,19 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   dateTimeQSO = QDateTime::currentDateTimeUtc();
   QString date=dateTimeQSO.toString("yyyyMMdd");
 
-  LogQSO* logDlg;
   logDlg = new LogQSO(0);
   logDlg->initLogQSO(m_hisCall,m_hisGrid,m_mode,m_rptSent,m_rptRcvd,date,
                     m_qsoStart,m_qsoStop,m_dialFreq,m_myCall,m_myGrid,
                     m_noSuffix,m_toRTTY,m_dBtoComments);
   connect(logDlg, SIGNAL(acceptQSO(bool)),this,SLOT(acceptQSO2(bool)));
+  if(m_bLogGeom) logDlg->setGeometry(m_logQSOgeom);
   logDlg->show();
 }
 
 void MainWindow::acceptQSO2(bool accepted)
 {
+  m_logQSOgeom=logDlg->geometry();
+  m_bLogGeom=true;
   QString date=dateTimeQSO.toString("yyyyMMdd");
   QFile f("wsjtx.log");
   if(!f.open(QIODevice::Text | QIODevice::Append)) {

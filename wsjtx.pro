@@ -43,8 +43,7 @@ SOURCES += killbyname.cpp
 HEADERS  += mainwindow.h plotter.h soundin.h soundout.h \
             about.h devsetup.h widegraph.h getfile.h \
             commons.h sleep.h displaytext.h logqso.h \
-            psk_reporter.h \
-    rigclass.h
+            psk_reporter.h rigclass.h
 
 DEFINES += __cplusplus
 

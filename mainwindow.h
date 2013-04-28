@@ -253,12 +253,14 @@ private:
     bool    m_bMultipleOK;
     bool    m_bDTRoff;
     bool    m_pttData;
+    bool    m_bLogGeom;
 
     char    m_decoded[80];
 
     float   m_pctZap;
 
     QRect   m_wideGraphGeom;
+    QRect   m_logQSOgeom;
 
     QLabel* lab1;                            // labels in status bar
     QLabel* lab2;
