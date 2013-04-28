@@ -24,6 +24,7 @@ double dFreq[]={0.136,0.4742,1.838,3.578,5.357,7.078,10.130,14.078,
 WideGraph* g_pWideGraph = NULL;
 LogQSO* logDlg = NULL;
 Rig* rig = NULL;
+QTextEdit* pShortcuts;
 
 QString rev="$Rev$";
 QString Program_Title_Version="  WSJT-X   v0.95, r" + rev.mid(6,4) +
@@ -1125,7 +1126,6 @@ void MainWindow::on_actionSave_all_triggered()                //Save All
 
 void MainWindow::on_actionKeyboard_shortcuts_triggered()
 {
-  QTextEdit* pShortcuts;
   pShortcuts = new QTextEdit(0);
   pShortcuts->setReadOnly(true);
   pShortcuts->setFontPointSize(10);
@@ -1549,7 +1549,7 @@ void MainWindow::guiUpdate()
     m_sent73=(t=="73" or itext!=0);
     if(m_sent73)  {
       if(m_After73)  icw[0]=m_ncw;
-      if(m_promptToLog) logQSOTimer->start(200);
+      if(m_promptToLog and !m_tune) logQSOTimer->start(200);
     }
 
     if(m_idInt>0) {
