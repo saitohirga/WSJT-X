@@ -307,7 +307,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
       << "  " << m_dialFreq << " MHz  " << m_mode << endl;
   f2.close();
-
 }                                          // End of MainWindow constructor
 
 //--------------------------------------------------- MainWindow destructor
@@ -483,7 +482,6 @@ void MainWindow::readSettings()
   ui->actionLog_JT9_without_submode->setChecked(m_noSuffix);
   m_dBtoComments=settings.value("dBtoComments",false).toBool();
   ui->actionLog_dB_reports_to_Comments->setChecked(m_dBtoComments);
-  m_catEnabled=settings.value("catEnabled",false).toBool();
   m_rig=settings.value("Rig",214).toInt();
   m_rigIndex=settings.value("RigIndex",100).toInt();
   m_catPort=settings.value("CATport","None").toString();
@@ -499,6 +497,7 @@ void MainWindow::readSettings()
   m_band=settings.value("BandIndex",7).toInt();
   ui->bandComboBox->setCurrentIndex(m_band);
   dialFreqChanged2(m_dialFreq);
+  m_catEnabled=settings.value("catEnabled",false).toBool();
   m_promptToLog=settings.value("PromptToLog",false).toBool();
   ui->actionPrompt_to_log_QSO->setChecked(m_promptToLog);
   m_insertBlank=settings.value("InsertBlank",false).toBool();
@@ -635,6 +634,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
 
   if(m_bRigOpen) {
     rig->close();
+    ui->labRigOpen->setStyleSheet("");
     delete rig;
     m_bRigOpen=false;
     m_catEnabled=false;
@@ -2490,11 +2490,9 @@ void MainWindow::on_bandComboBox_currentIndexChanged(int index)
   if(m_catEnabled) {
     if(!m_bRigOpen) {
       rigOpen();
-      m_bRigOpen = true;
     }
-    rig->setFreq(MHz(m_dialFreq));
+    if(m_bRigOpen) rig->setFreq(MHz(m_dialFreq));
   }
-
   QFile f2("ALL.TXT");
   f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
   QTextStream out(&f2);
@@ -2689,11 +2687,12 @@ void MainWindow::rigOpen()
     rigMode=rig->getMode(bw);
     if(rigMode!=RIG_MODE_USB) rig->setMode(RIG_MODE_USB);
     m_bRigOpen=true;
+    ui->labRigOpen->setStyleSheet("QLabel{background-color: red}");
   }
   catch (const RigException &Ex) {
     m_catEnabled=false;
     m_bRigOpen=false;
-    msgBox("Failed to open rig (mainwindow)");
+    ui->labRigOpen->setStyleSheet("");
     delete rig;
   }
 }
