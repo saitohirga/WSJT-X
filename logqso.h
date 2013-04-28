@@ -27,6 +27,7 @@ public:
 
 public slots:
   void accept();
+  void reject();
 
 signals:
   void acceptQSO(bool accepted);
