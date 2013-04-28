@@ -8,6 +8,7 @@
  */
 
 /*
+ *
  *  Hamlib C++ bindings - main file
  *  Copyright (c) 2001-2003 by Stephane Fillod
  *
@@ -33,7 +34,7 @@
 #endif
 
 #include <hamlib/rig.h>
-#include <hamlib/rigclass.h>
+#include "rigclass.h"
 
 #define CHECK_RIG(cmd) { int _retval = cmd; if (_retval != RIG_OK) \
   THROW(new RigException (_retval)); }
