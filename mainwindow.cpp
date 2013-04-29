@@ -2528,7 +2528,7 @@ void MainWindow::on_actionLog_dB_reports_to_Comments_triggered(bool checked)
   m_dBtoComments=checked;
 }
 
-void MainWindow::on_bandComboBox_currentIndexChanged(int index)
+void MainWindow::on_bandComboBox_activated(int index)
 {
   m_band=index;
   QString t=m_dFreq[index];
@@ -2761,3 +2761,4 @@ void MainWindow::on_pbT2R_clicked()
 {
   g_pWideGraph->setQSOfreq(m_txFreq);
 }
+

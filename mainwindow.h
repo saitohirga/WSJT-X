@@ -128,7 +128,6 @@ private slots:
   void startTx2();
   void stopTx();
   void stopTx2();
-  void on_bandComboBox_currentIndexChanged(int index);
   void on_actionPrompt_to_log_QSO_triggered(bool checked);
   void on_actionBlank_line_between_decoding_periods_triggered(bool checked);
   void on_actionClear_DX_Call_and_Grid_after_logging_triggered(bool checked);
@@ -154,6 +153,7 @@ private slots:
   void on_pbR2T_clicked();
   void on_pbT2R_clicked();
   void acceptQSO2(bool accepted);
+  void on_bandComboBox_activated(int index);
 
 private:
     Ui::MainWindow *ui;
