@@ -862,7 +862,7 @@ void MainWindow::dialFreqChanged2(double f)
   t.sprintf("%.6f",m_dialFreq);
   int n=t.length();
   t=t.mid(0,n-3) + " " + t.mid(n-3,3);
-  if(qAbs(m_dialFreq-dFreq[m_band])<0.01) {
+  if(qAbs(m_dialFreq-dFreq[m_band])<0.1) {
     ui->labDialFreq->setStyleSheet( \
         "QLabel { background-color : black; color : yellow; }");
   } else {
@@ -1897,13 +1897,51 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   ui->rptSpinBox->setValue(rpt.toInt());
   genStdMsgs(rpt);
   if(t2.indexOf(m_myCall)>=0) {
-    m_ntx=2;
-    ui->txrb2->setChecked(true);
-    if(ui->tabWidget->currentIndex()==1) {
-      ui->genMsg->setText(ui->tx2->text());
-      m_ntx=7;
-      ui->rbGenMsg->setChecked(true);
+    if(t4.length()>=7 and !gridOK(t4.at(6))) {
+      QString r=t4.at(6);
+      if(r.mid(0,3)=="RRR") {
+        m_ntx=5;
+        ui->txrb5->setChecked(true);
+        if(ui->tabWidget->currentIndex()==1) {
+          ui->genMsg->setText(ui->tx5->text());
+          m_ntx=7;
+          ui->rbGenMsg->setChecked(true);
+        }
+      } else if(r.mid(0,1)=="R") {
+        m_ntx=4;
+        ui->txrb4->setChecked(true);
+        if(ui->tabWidget->currentIndex()==1) {
+          ui->genMsg->setText(ui->tx4->text());
+          m_ntx=7;
+          ui->rbGenMsg->setChecked(true);
+        }
+      } else if(r.toInt()>=-50 and r.toInt()<=49) {
+        m_ntx=3;
+        ui->txrb3->setChecked(true);
+        if(ui->tabWidget->currentIndex()==1) {
+          ui->genMsg->setText(ui->tx3->text());
+          m_ntx=7;
+          ui->rbGenMsg->setChecked(true);
+        }
+      } else if(r.toInt()==73) {
+        m_ntx=6;
+        ui->txrb6->setChecked(true);
+        if(ui->tabWidget->currentIndex()==1) {
+          ui->genMsg->setText(ui->tx6->text());
+          m_ntx=7;
+          ui->rbGenMsg->setChecked(true);
+        }
+      }
+    } else {
+      m_ntx=2;
+      ui->txrb2->setChecked(true);
+      if(ui->tabWidget->currentIndex()==1) {
+        ui->genMsg->setText(ui->tx2->text());
+        m_ntx=7;
+        ui->rbGenMsg->setChecked(true);
+      }
     }
+
   } else {
     m_ntx=1;
     ui->txrb1->setChecked(true);
