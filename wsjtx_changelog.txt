@@ -4,19 +4,20 @@
 We are getting close to a stable "Version 1.0" release of WSJT-X.  At
 that point program features will be frozen temporarily while we
 concentrate on any necessary bug fixes.  If you have bug reports on
-version 0.95 r3226, or very important feature requests, send them to
-wsjtgroup@yahoogroups.com now!  
+version 0.95 r3242, or important feature requests, send them to us
+at wsjtgroup@yahoogroups.com now!
 
-April 25, 2013: v0.95, r3226
+April 29, 2013: v0.95, r3242
 ----------------------------
 
-1. Bi-directionsl CAT control re-established using calls to hamlib
-functions.  Display dial frequency highlighted with red background if
-frequency differs from nominal for the selected band by more than 10
-kHz.  (Is there a more useful or logical condition to flag?)  Mode is
-set to USB when rig is opened in main window.  (Note: CAT control
-diagnostics are presently rather rudimentary, we're still working on
-this.  Feedback is welcome!)
+1. Now has bi-directionsl CAT control using direct calls to hamlib
+   functions.  Highlights displayed dial frequency with red background
+   if frequency differs from nominal for the selected band by more
+   than 100 kHz.  (Is there a more useful or logical condition to
+   flag?)  Small red square between Band selector and Dial Frequency
+   display to indicate that CAT control is active.  Mode is set to USB
+   on startup.  (Note: CAT control diagnostics are presently rather
+   rudimentary, we're still working on this.  Feedback is welcome!)
 
 2. New controls on Setup | Configuration screen: 
    - RTS/DTR OFF -- needed by K2 and maybe other radios
@@ -28,13 +29,14 @@ this.  Feedback is welcome!)
    via F3) and Special Mouse Commands (F4).
 
 4. Option "Setup | Advanced | Allow multiple instances" enables the
-   use of more than one instance of WSJT-X.  (The program must be
-   copied and run from different directories.)
+   use of more than one instance of WSJT-X for special applications.
+   (The program must be copied into and run from different
+   directories.)
 
-5. Posts to PSK Reporter are suppressed if band was changed during the
-reception period.
+5. No posts to PSK Reporter if band was changed during the reception
+   period.
 
-6. Tune button On/Off action was improved.
+6. Improved behavior of Tune button.
 
 7. Improved inter-process communication between WSJT-X and JT-Alert-X.
 
@@ -42,11 +44,25 @@ reception period.
 
 9. Removed the NB checkbox and slider.  (Has anyone found these useful?)
 
-10. New buttons on main window: "Tx=Rx" sets Tx frequency to current Rx
-frequency; "Rx=Tx" does the opposite.
+10. New buttons on main window: "Tx=Rx" sets Tx frequency to current
+    Rx frequency; "Rx=Tx" does the opposite.
 
-11. Finally: a bug causing occasional, seemingly unpredictable program
-crashes has been fixed.
+11. Log QSO confirmation window is now "non-modal": you can keep it 
+    open and still access controls on the main window.
+
+12. Tab-order has been rationalized on most screens.
+
+13. Dial frequency and mode written to file ALL.TXT.
+
+14. Double-click on decoded line sets Tx message #3 if message has
+     the form "MyCall Call2 rpt".
+
+15. Bug causing occasional, seemingly unpredictable program crashes
+    has been fixed.
+
+16. The WSJT-X User's Guide is somewhat closer to being complete.  User
+    feedback on the Guide will be most welcome.  What is unclear?  What
+    is missing?
 
 April 17, 2013: v0.9, r3195
 ---------------------------
