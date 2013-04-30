@@ -411,6 +411,7 @@ void MainWindow::writeSettings()
   settings.setValue("DTRoff",m_bDTRoff);
   settings.setValue("pttData",m_pttData);
   settings.setValue("LogQSOgeom",m_logQSOgeom);
+  settings.setValue("Polling",m_poll);
 
   settings.endGroup();
 }
@@ -526,6 +527,7 @@ void MainWindow::readSettings()
   ui->actionAllow_multiple_instances->setChecked(m_bMultipleOK);
   m_bDTRoff=settings.value("DTRoff",false).toBool();
   m_pttData=settings.value("pttData",false).toBool();
+  m_poll=settings.value("Polling",0).toInt();
   m_logQSOgeom=settings.value("LogQSOgeom",QRect(500,400,424,283)).toRect();
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
@@ -636,6 +638,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_handshakeIndex=m_handshakeIndex;
   dlg.m_bDTRoff=m_bDTRoff;
   dlg.m_pttData=m_pttData;
+  dlg.m_poll=m_poll;
 
   if(m_bRigOpen) {
     rig->close();
@@ -674,6 +677,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_handshakeIndex=dlg.m_handshakeIndex;
     m_bDTRoff=dlg.m_bDTRoff;
     m_pttData=dlg.m_pttData;
+    m_poll=dlg.m_poll;
 
 #ifdef WIN32
     if(dlg.m_pskReporter!=m_pskReporter) {

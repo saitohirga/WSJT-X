@@ -168,6 +168,7 @@ void DevSetup::initDlg()
   ui.stopBitsComboBox->setCurrentIndex(m_stopBitsIndex);
   ui.handshakeComboBox->setCurrentIndex(m_handshakeIndex);
   ui.rbData->setChecked(m_pttData);
+  ui.pollSpinBox->setValue(m_poll);
 
   // PY2SDR -- Per OS serial port names
   ui.catPortComboBox->clear();
@@ -217,6 +218,8 @@ void DevSetup::initDlg()
   ui.f14->setText(m_dFreq[13]);
   ui.f15->setText(m_dFreq[14]);
   ui.f16->setText(m_dFreq[15]);
+
+  qDebug() << "A" << m_poll;
 
 }
 
@@ -472,4 +475,9 @@ void DevSetup::on_cbDTRoff_toggled(bool checked)
 void DevSetup::on_rbData_toggled(bool checked)
 {
   m_pttData=checked;
+}
+
+void DevSetup::on_pollSpinBox_valueChanged(int n)
+{
+  m_poll=n;
 }

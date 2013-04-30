@@ -4,10 +4,10 @@
 We are getting close to a stable "Version 1.0" release of WSJT-X.  At
 that point program features will be frozen temporarily while we
 concentrate on any necessary bug fixes.  If you have bug reports on
-version 0.95 r3242, or important feature requests, send them to us
-at wsjtgroup@yahoogroups.com now!
+version 0.95 r3243, or important feature requests, send them to us
+at wsjtgroup@yahoogroups.com as soon as possible!
 
-April 29, 2013: v0.95, r3242
+April 29, 2013: v0.95, r3243
 ----------------------------
 
 1. Now has bi-directionsl CAT control using direct calls to hamlib
