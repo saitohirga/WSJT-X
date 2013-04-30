@@ -38,6 +38,7 @@ public:
   qint32  m_iptt;
   qint32  m_test;
   qint32  m_COMportOpen;
+  qint32  m_poll;
 
   bool    m_restartSoundIn;
   bool    m_restartSoundOut;
@@ -85,6 +86,7 @@ private slots:
   void on_testPTTButton_clicked();
   void on_cbDTRoff_toggled(bool checked);
   void on_rbData_toggled(bool checked);
+  void on_pollSpinBox_valueChanged(int n);
 
 private:
   Rig* rig;
