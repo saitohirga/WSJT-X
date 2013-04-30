@@ -1050,7 +1050,7 @@
          <item>
           <widget class="QLabel" name="label_47">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -1062,7 +1062,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Polling interval:</string>
+            <string>Polling interval (s):</string>
            </property>
           </widget>
          </item>

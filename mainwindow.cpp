@@ -179,6 +179,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_bRigOpen=false;
   m_secBandChanged=0;
   m_bMultipleOK=false;
+  m_dontReadFreq=false;
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -866,7 +867,7 @@ void MainWindow::dialFreqChanged2(double f)
   t.sprintf("%.6f",m_dialFreq);
   int n=t.length();
   t=t.mid(0,n-3) + " " + t.mid(n-3,3);
-  if(qAbs(m_dialFreq-dFreq[m_band])<0.1) {
+  if(qAbs(m_dialFreq-dFreq[m_band])<0.01) {
     ui->labDialFreq->setStyleSheet( \
         "QLabel { background-color : black; color : yellow; }");
   } else {
@@ -1466,13 +1467,14 @@ void MainWindow::decodeBusy(bool b)                             //decodeBusy()
 void MainWindow::guiUpdate()
 {
   static int iptt0=0;
-//  static int iptt=0;
   static bool btxok0=false;
   static int nc0=1;
   static char message[29];
   static char msgsent[29];
   static int nsendingsh=0;
   int khsym=0;
+  int ret=0;
+  QString rt;
 
   double tx1=0.0;
   double tx2=1.0 + 85.0*m_nsps/12000.0 + icw[0]*2560.0/48000.0;
@@ -1500,8 +1502,13 @@ void MainWindow::guiUpdate()
 //Raise PTT
       if(m_catEnabled and m_bRigOpen and  m_pttMethodIndex==0) {
         m_iptt=1;
-        if(m_pttData) rig->setPTT(RIG_PTT_ON_DATA, RIG_VFO_CURR);
-        if(!m_pttData) rig->setPTT(RIG_PTT_ON_MIC, RIG_VFO_CURR);
+        if(m_pttData) ret=rig->setPTT(RIG_PTT_ON_DATA, RIG_VFO_CURR);
+        if(!m_pttData) ret=rig->setPTT(RIG_PTT_ON_MIC, RIG_VFO_CURR);
+        if(ret!=RIG_OK) {
+          rt.sprintf("CAT control PTT failed:  %d",ret);
+          msgBox(rt);
+        }
+
       }
       if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {  //DTR or RTS
           ptt(m_pttPort,1,&m_iptt,&m_COMportOpen);
@@ -1634,7 +1641,11 @@ void MainWindow::guiUpdate()
     //Lower PTT
     if(m_catEnabled and m_bRigOpen and  m_pttMethodIndex==0) {
       m_iptt=0;
-      rig->setPTT(RIG_PTT_OFF, RIG_VFO_CURR);  //CAT control for PTT=0
+      ret=rig->setPTT(RIG_PTT_OFF, RIG_VFO_CURR);  //CAT control for PTT=0
+      if(ret!=RIG_OK) {
+        rt.sprintf("CAT control PTT failed:  %d",ret);
+        msgBox(rt);
+      }
     }
     if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {  //DTR-RTS
       ptt(m_pttPort,0,&m_iptt,&m_COMportOpen);
@@ -1698,14 +1709,26 @@ void MainWindow::guiUpdate()
     if(!m_monitoring and !m_diskData) {
       ui->xThermo->setValue(0.0);
     }
+
+    if(m_catEnabled and m_poll>0 and (nsec%m_poll)==0) {
+      if(m_dontReadFreq) {
+        m_dontReadFreq=false;
+      } else {
+        double fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
+        if(fMHz<0.0) {
+          rt.sprintf("Rig control error %d\nFailed to read frequency.",
+                    int(1000000.0*fMHz));
+          msgBox(rt);
+          m_catEnabled=false;
+        }
+
+        int ndiff=1000000.0*(fMHz-m_dialFreq);
+        if(ndiff!=0) dialFreqChanged2(fMHz);
+      }
+    }
+
     m_hsym0=khsym;
     m_sec0=nsec;
-
-    if(m_catEnabled) {
-      double fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
-      int ndiff=1000000.0*(fMHz-m_dialFreq);
-      if(ndiff!=0) dialFreqChanged2(fMHz);
-    }
   }
 
   iptt0=m_iptt;
@@ -1761,9 +1784,16 @@ void MainWindow::stopTx()
 
 void MainWindow::stopTx2()
 {
+  int ret=0;
+  QString rt;
+
 //Lower PTT
   if(m_catEnabled and m_bRigOpen and  m_pttMethodIndex==0) {
-    rig->setPTT(RIG_PTT_OFF, RIG_VFO_CURR);  //CAT control for PTT=0
+    ret=rig->setPTT(RIG_PTT_OFF, RIG_VFO_CURR);  //CAT control for PTT=0
+    if(ret!=RIG_OK) {
+      rt.sprintf("CAT control PTT failed:  %d",ret);
+      msgBox(rt);
+    }
   }
   if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
     ptt(m_pttPort,0,&m_iptt,&m_COMportOpen);
@@ -2534,6 +2564,9 @@ void MainWindow::on_actionLog_dB_reports_to_Comments_triggered(bool checked)
 
 void MainWindow::on_bandComboBox_activated(int index)
 {
+  int ret=0;
+  QString rt;
+
   m_band=index;
   QString t=m_dFreq[index];
   m_dialFreq=t.toDouble();
@@ -2544,7 +2577,14 @@ void MainWindow::on_bandComboBox_activated(int index)
     if(!m_bRigOpen) {
       rigOpen();
     }
-    if(m_bRigOpen) rig->setFreq(MHz(m_dialFreq));
+    if(m_bRigOpen) {
+      m_dontReadFreq=true;
+      ret=rig->setFreq(MHz(m_dialFreq));
+      if(ret!=RIG_OK) {
+        rt.sprintf("Set rig frequency failed:  %d",ret);
+        msgBox(rt);
+      }
+    }
   }
   QFile f2("ALL.TXT");
   f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
@@ -2719,34 +2759,36 @@ void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
 
 void MainWindow::rigOpen()
 {
+  QString t;
+  int ret;
+
   rig = new Rig(m_rig);
-  try {
-    rig->setConf("rig_pathname", m_catPort.toAscii().data());
-    char buf[80];
-    sprintf(buf,"%d",m_serialRate);
-    rig->setConf("serial_speed",buf);
-    sprintf(buf,"%d",m_dataBits);
-    rig->setConf("data_bits",buf);
-    sprintf(buf,"%d",m_stopBits);
-    rig->setConf("stop_bits",buf);
-    rig->setConf("serial_handshake",m_handshake.toAscii().data());
-    if(m_bDTRoff) {
-      rig->setConf("rts_state","OFF");
-      rig->setConf("dtr_state","OFF");
-    }
-    rig->open();
-    pbwidth_t bw;
-    rmode_t rigMode;
-    rigMode=rig->getMode(bw);
-    if(rigMode!=RIG_MODE_USB) rig->setMode(RIG_MODE_USB);
-    m_bRigOpen=true;
-    ui->labRigOpen->setStyleSheet("QLabel{background-color: red}");
+  rig->setConf("rig_pathname", m_catPort.toAscii().data());
+  char buf[80];
+  sprintf(buf,"%d",m_serialRate);
+  rig->setConf("serial_speed",buf);
+  sprintf(buf,"%d",m_dataBits);
+  rig->setConf("data_bits",buf);
+  sprintf(buf,"%d",m_stopBits);
+  rig->setConf("stop_bits",buf);
+  rig->setConf("serial_handshake",m_handshake.toAscii().data());
+  if(m_bDTRoff) {
+    rig->setConf("rts_state","OFF");
+    rig->setConf("dtr_state","OFF");
   }
-  catch (const RigException &Ex) {
-    m_catEnabled=false;
-    m_bRigOpen=false;
-    ui->labRigOpen->setStyleSheet("");
-    delete rig;
+
+  ret=rig->open();
+  if(ret==RIG_OK) {
+    m_bRigOpen=true;
+  } else {
+    t="Open rig failed";
+    msgBox(t);
+  }
+
+  if(m_poll>0) {
+    ui->labRigOpen->setStyleSheet("QLabel{background-color: red}");
+  } else {
+    ui->labRigOpen->setStyleSheet("QLabel{background-color: orange}");
   }
 }
 

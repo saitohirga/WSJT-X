@@ -25,6 +25,7 @@
 #include <hamlib/rig.h>
 #include <iostream>
 
+//extern   int hamlibError(int retcode);
 
 class BACKEND_IMPEXP Rig {
 private:
@@ -39,25 +40,27 @@ public:
   const struct rig_caps *caps;
 
   // This method open the communication port to the rig
-  void open(void);
+  int open(void);
 
   // This method close the communication port to the rig
-  void close(void);
+  int close(void);
 
-  void setConf(token_t token, const char *val);
-  void setConf(const char *name, const char *val);
+  int setConf(const char *name, const char *val);
+  int setFreq(freq_t freq, vfo_t vfo = RIG_VFO_CURR);
+  freq_t getFreq(vfo_t vfo = RIG_VFO_CURR);
+  int setPTT (ptt_t ptt, vfo_t vfo = RIG_VFO_CURR);
+
+  int setConf(token_t token, const char *val);
   void getConf(token_t token, char *val);
   void getConf(const char *name, char *val);
   token_t tokenLookup(const char *name);
 
-  void setFreq(freq_t freq, vfo_t vfo = RIG_VFO_CURR);
-  freq_t getFreq(vfo_t vfo = RIG_VFO_CURR);
+
   void setMode(rmode_t, pbwidth_t width = RIG_PASSBAND_NORMAL, vfo_t vfo = RIG_VFO_CURR);
   rmode_t getMode(pbwidth_t&, vfo_t vfo = RIG_VFO_CURR);
   void setVFO(vfo_t);
   vfo_t getVFO();
 
-  void setPTT (ptt_t ptt, vfo_t vfo = RIG_VFO_CURR);
   ptt_t getPTT (vfo_t vfo = RIG_VFO_CURR);
   dcd_t getDCD (vfo_t vfo = RIG_VFO_CURR);
 
@@ -272,6 +275,5 @@ inline void THROW(const RigException *e) {
 }
 
 #define THROWS(s)
-
 
 #endif	// _RIGCLASS_H
