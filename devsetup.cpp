@@ -218,9 +218,6 @@ void DevSetup::initDlg()
   ui.f14->setText(m_dFreq[13]);
   ui.f15->setText(m_dFreq[14]);
   ui.f16->setText(m_dFreq[15]);
-
-  qDebug() << "A" << m_poll;
-
 }
 
 //------------------------------------------------------- accept()
@@ -408,6 +405,8 @@ void DevSetup::on_cbID73_toggled(bool checked)
 
 void DevSetup::on_testCATButton_clicked()
 {
+  QString t;
+  int ret;
 
   if(!m_catEnabled) return;
   if(m_bRigOpen) {
@@ -416,36 +415,44 @@ void DevSetup::on_testCATButton_clicked()
     m_bRigOpen=false;
   }
   rig = new Rig(m_rig);
-  try {
-    rig->setConf("rig_pathname", m_catPort.toAscii().data());
-    char buf[80];
-    sprintf(buf,"%d",m_serialRate);
-    rig->setConf("serial_speed",buf);
-    sprintf(buf,"%d",m_dataBits);
-    rig->setConf("data_bits",buf);
-    sprintf(buf,"%d",m_stopBits);
-    rig->setConf("stop_bits",buf);
-    rig->setConf("serial_handshake",m_handshake.toAscii().data());
-    if(m_bDTRoff) {
-      rig->setConf("rts_state","OFF");
-      rig->setConf("dtr_state","OFF");
-    }
-    //qDebug() << "B6";
-    rig->open();
-    //rig->getVFO();
-    //qDebug() << "B7" << rig->getVFO();
-    m_bRigOpen=true;
+  rig->setConf("rig_pathname", m_catPort.toAscii().data());
+  char buf[80];
+  sprintf(buf,"%d",m_serialRate);
+  rig->setConf("serial_speed",buf);
+  sprintf(buf,"%d",m_dataBits);
+  rig->setConf("data_bits",buf);
+  sprintf(buf,"%d",m_stopBits);
+  rig->setConf("stop_bits",buf);
+  rig->setConf("serial_handshake",m_handshake.toAscii().data());
+
+  if(m_bDTRoff) {
+    rig->setConf("rts_state","OFF");
+    rig->setConf("dtr_state","OFF");
   }
-  catch (const RigException &Ex) {
-//    qDebug() << "B8";
-    m_bRigOpen=false;
-    msgBox("Failed to open rig (devsetup)");
+
+  ret=rig->open();
+  if(ret==RIG_OK) {
+    m_bRigOpen=true;
+  } else {
+    t="Open rig failed";
+    msgBox(t);
+    m_catEnabled=false;
+    ui.cbEnableCAT->setChecked(false);
     return;
   }
-//  qDebug() << "B9";
+
   double fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
-  QString t;
-  t.sprintf("Rig control working.\nDial Frequency: %.6f",fMHz);
+  if(fMHz>0.0) {
+    t.sprintf("Rig control appears to be working.\nDial Frequency:  %.6f MHz",
+              fMHz);
+  } else {
+    t.sprintf("Rig control error %d\nFailed to read frequency.",
+              int(1000000.0*fMHz));
+    if(m_poll>0) {
+      m_catEnabled=false;
+      ui.cbEnableCAT->setChecked(false);
+    }
+  }
   msgBox(t);
 }
 

@@ -35,9 +35,13 @@
 
 #include <hamlib/rig.h>
 #include "rigclass.h"
+#include <QDebug>
 
 #define CHECK_RIG(cmd) { int _retval = cmd; if (_retval != RIG_OK) \
   THROW(new RigException (_retval)); }
+
+#define CHECK_RIG2(cmd) { int _retval = cmd; if (_retval != RIG_OK) \
+  return _retval; }
 
 static int hamlibpp_freq_event(RIG *rig, vfo_t vfo, freq_t freq, rig_ptr_t arg);
 
@@ -68,22 +72,39 @@ Rig::~Rig() {
   caps = NULL;
 }
 
-void Rig::open(void) {
-  CHECK_RIG( rig_open(theRig) );
+int Rig::open(void) {
+  CHECK_RIG2( rig_open(theRig) );
 }
 
-void Rig::close(void) {
-  CHECK_RIG( rig_close(theRig) );
+int Rig::close(void) {
+  CHECK_RIG2( rig_close(theRig) );
 }
 
-void Rig::setConf(token_t token, const char *val)
+int Rig::setConf(const char *name, const char *val)
+{
+  CHECK_RIG2( rig_set_conf(theRig, tokenLookup(name), val) );
+}
+
+int Rig::setPTT(ptt_t ptt, vfo_t vfo)
+{
+  CHECK_RIG2( rig_set_ptt(theRig, vfo, ptt) );
+}
+
+int Rig::setFreq(freq_t freq, vfo_t vfo) {
+  CHECK_RIG2( rig_set_freq(theRig, vfo, freq) );
+}
+
+freq_t Rig::getFreq(vfo_t vfo)
+{
+  freq_t freq;
+  CHECK_RIG2( rig_get_freq(theRig, vfo, &freq) );
+  return freq;
+}
+
+//--------------------------------------------------------------
+int Rig::setConf(token_t token, const char *val)
 {
   CHECK_RIG( rig_set_conf(theRig, token, val) );
-}
-
-void Rig::setConf(const char *name, const char *val)
-{
-  CHECK_RIG( rig_set_conf(theRig, tokenLookup(name), val) );
 }
 
 void Rig::getConf(token_t token, char *val)
@@ -99,17 +120,6 @@ void Rig::getConf(const char *name, char *val)
 token_t Rig::tokenLookup(const char *name)
 {
   return rig_token_lookup(theRig, name);
-}
-
-void Rig::setFreq(freq_t freq, vfo_t vfo) {
-  CHECK_RIG( rig_set_freq(theRig, vfo, freq) );
-}
-
-freq_t Rig::getFreq(vfo_t vfo)
-{
-  freq_t freq;
-  CHECK_RIG( rig_get_freq(theRig, vfo, &freq) );
-  return freq;
 }
 
 void Rig::setMode(rmode_t mode, pbwidth_t width, vfo_t vfo) {
@@ -134,10 +144,6 @@ vfo_t Rig::getVFO()
   return vfo;
 }
 
-void Rig::setPTT(ptt_t ptt, vfo_t vfo)
-{
-  CHECK_RIG( rig_set_ptt(theRig, vfo, ptt) );
-}
 
 ptt_t Rig::getPTT(vfo_t vfo)
 {

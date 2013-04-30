@@ -206,3 +206,8 @@ int ptt(int nport, int ntx, int* iptt, int* nopen)
   return 0;
 #endif
 }
+
+int hamlibError(int retcode)
+{
+  qDebug() << "Hamlib error" << retcode;
+}

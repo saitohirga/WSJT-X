@@ -5,7 +5,7 @@
 #include <QProcess>
 #include <QMessageBox>
 #include "ui_devsetup.h"
-#include <hamlib/rigclass.h>
+#include "rigclass.h"
 
 class DevSetup : public QDialog
 {

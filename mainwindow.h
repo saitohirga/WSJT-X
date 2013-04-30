@@ -7,7 +7,7 @@
 #include "soundout.h"
 #include "commons.h"
 #include "psk_reporter.h"
-#include <hamlib/rigclass.h>
+#include "rigclass.h"
 
 #ifdef WIN32
 #include "PSKReporter.h"
@@ -254,6 +254,7 @@ private:
     bool    m_bMultipleOK;
     bool    m_bDTRoff;
     bool    m_pttData;
+    bool    m_dontReadFreq;
 
     char    m_decoded[80];
 
