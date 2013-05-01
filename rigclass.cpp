@@ -48,22 +48,32 @@ static int hamlibpp_freq_event(RIG *rig, vfo_t vfo, freq_t freq, rig_ptr_t arg)
   return ((Rig*)rig->state.obj)->FreqEvent(vfo, freq, arg);
 }
 
-Rig::Rig(rig_model_t rig_model) {
+Rig::Rig()
+{
   rig_set_debug_level( RIG_DEBUG_WARN);
-
-  theRig = rig_init(rig_model);
-  if (!theRig)
-    THROW(new RigException ("Rig initialization error"));
-
-  caps = theRig->caps;
-  theRig->callbacks.freq_event = &hamlibpp_freq_event;
-  theRig->state.obj = (rig_ptr_t)this;
 }
 
 Rig::~Rig() {
   theRig->state.obj = NULL;
   rig_cleanup(theRig);
   caps = NULL;
+}
+
+int Rig::init(rig_model_t rig_model)
+{
+    int initOk;
+
+    theRig = rig_init(rig_model);
+    if (!theRig)
+        initOk = false;
+    else
+        initOk = true;
+
+    caps = theRig->caps;
+    theRig->callbacks.freq_event = &hamlibpp_freq_event;
+    theRig->state.obj = (rig_ptr_t)this;
+
+    return initOk;
 }
 
 int Rig::open(void) {

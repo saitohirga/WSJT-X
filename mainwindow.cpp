@@ -2762,7 +2762,12 @@ void MainWindow::rigOpen()
   QString t;
   int ret;
 
-  rig = new Rig(m_rig);
+  rig = new Rig();
+  if (!rig->init(m_rig)) {
+      msgBox("Rig init failure");
+      return;
+  }
+
   rig->setConf("rig_pathname", m_catPort.toAscii().data());
   char buf[80];
   sprintf(buf,"%d",m_serialRate);

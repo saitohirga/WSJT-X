@@ -32,11 +32,13 @@ private:
 
 protected:
 public:
-  Rig(rig_model_t rig_model);
-
+  Rig();
   virtual ~Rig();
 
   const struct rig_caps *caps;
+
+  // Initialize rig
+  int init(rig_model_t rig_model);
 
   // This method open the communication port to the rig
   int open(void);
@@ -73,110 +75,7 @@ public:
   virtual int DCDEvent(vfo_t, dcd_t, rig_ptr_t) const {
 		  return RIG_OK;
   }
-
-
 };
-
-
-
-#ifdef __GNUG__
-#  if ((__GNUG__ <= 2) && (__GNUC_MINOR__ < 8))
-#    if HAVE_TYPEINFO
-#      include <typeinfo>
-#    endif
-#  endif
-#endif
-
-#if defined(__GNUG__)
-#  if HAVE_BUILTIN_H || HAVE_GXX_BUILTIN_H || HAVE_GPP_BUILTIN_H
-#    if ETIP_NEEDS_MATH_H
-#      if ETIP_NEEDS_MATH_EXCEPTION
-#        undef exception
-#        define exception math_exception
-#      endif
-#      include <math.h>
-#    endif
-#    undef exception
-#    define exception builtin_exception
-#    if HAVE_GPP_BUILTIN_H
-#     include <gpp/builtin.h>
-#    elif HAVE_GXX_BUILTIN_H
-#     include <g++/builtin.h>
-#    else
-#     include <builtin.h>
-#    endif
-#    undef exception
-#  endif
-#elif defined (__SUNPRO_CC)
-#  include <generic.h>
-#  include <string.h>
-#else
-#  include <string.h>
-#endif
-
-
-extern "C" {
-#if HAVE_VALUES_H
-#  include <values.h>
-#endif
-
-#include <assert.h>
-#include <errno.h>
-}
-
-#include <iostream>
-#if !(defined(__GNUG__)||defined(__SUNPRO_CC))
-   extern "C" void exit(int);
-#endif
-
-// Forward Declarations
-
-class BACKEND_IMPEXP RigException
-{
-public:
-  const char *message;
-  int errorno;
-
-  RigException (const char* msg, int err)
-    : message(msg), errorno (err)
-    {};
-
-  RigException (int err)
-    : message(rigerror(err)), errorno (err)
-    {};
-
-  RigException (const char* msg)
-    : message(msg), errorno (-RIG_EINTERNAL)
-    {};
-
-  virtual ~RigException()
-    {};
-
-  void print() const {
-	  std::cerr << "Rig exception: " << message << std::endl;
-  }
-  virtual const char *classname() const {
-    return "Rig";
-  }
-};
-
-inline void THROW(const RigException *e) {
-#if defined(__GNUG__)
-#  if ((__GNUG__ <= 2) && (__GNUC_MINOR__ < 8))
-      (*lib_error_handler)(e?e->classname():"",e?e->message:"");
-#else
-      throw *e;
-#endif
-#elif defined(__SUNPRO_CC)
-  genericerror(1, ((e != 0) ? (char *)(e->message) : ""));
-#else
-  if (e)
-    std::cerr << e->message << endl;
-  exit(0);
-#endif
-}
-
-#define THROWS(s)
 
 
 #endif	// _RIGCLASS_H
