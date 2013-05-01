@@ -22,7 +22,8 @@ c            = -2  means sort x in decreasing order and carry y along.
 !      real x(n), y(n)
 !      real r, t, tt, tty, ty
       integer x(n), y(n)
-      integer r, t, tt, tty, ty
+      real r
+      integer t, tt, tty, ty
       integer i, ij, j, k, kk, l, m, nn
       integer il(21), iu(21)
 
