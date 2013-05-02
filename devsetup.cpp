@@ -159,6 +159,7 @@ void DevSetup::initDlg()
   ui.cbDTRoff->setEnabled(m_catEnabled);
   ui.rbData->setEnabled(m_catEnabled);
   ui.rbMic->setEnabled(m_catEnabled);
+  ui.pollSpinBox->setEnabled(m_catEnabled);
   bool b=m_pttMethodIndex==1 or m_pttMethodIndex==2 or m_catEnabled;
   ui.testPTTButton->setEnabled(b);
   ui.rigComboBox->setCurrentIndex(m_rigIndex);
@@ -362,6 +363,7 @@ void DevSetup::on_cbEnableCAT_toggled(bool b)
   ui.cbDTRoff->setEnabled(b);
   ui.rbData->setEnabled(b);
   ui.rbMic->setEnabled(b);
+  ui.pollSpinBox->setEnabled(m_catEnabled);
   bool b2=(m_pttMethodIndex==1 or m_pttMethodIndex==2 or m_catEnabled) and
       !(m_pttMethodIndex==3);
   ui.testPTTButton->setEnabled(b2);
