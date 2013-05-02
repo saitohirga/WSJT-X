@@ -273,8 +273,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
 
   ui->decodedTextLabel->setFont(ui->decodedTextBrowser->font());
   ui->decodedTextLabel2->setFont(ui->decodedTextBrowser2->font());
-  // 2022   0  0.1 1446  W5NZ EA6BB JM19
-  t="UTC   dB   DT Freq  Message";
+  t="UTC  dB   DT Freq   Message";
   ui->decodedTextLabel->setText(t);
   ui->decodedTextLabel2->setText(t);
 
@@ -2781,7 +2780,6 @@ void MainWindow::rigOpen()
     rig->setConf("rts_state","OFF");
     rig->setConf("dtr_state","OFF");
   }
-
   ret=rig->open();
   if(ret==RIG_OK) {
     m_bRigOpen=true;
