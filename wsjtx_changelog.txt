@@ -3,9 +3,35 @@
 
 We are getting close to a stable "Version 1.0" release of WSJT-X.  At
 that point program features will be frozen temporarily while we
-concentrate on any necessary bug fixes.  If you have bug reports on
-version 0.95 r3243, or important feature requests, send them to us
-at wsjtgroup@yahoogroups.com as soon as possible!
+concentrate on any necessary bug fixes and improvements to the
+decoder.  If you have bug reports on version 0.95 r3251, or important
+feature requests, please send them to us at wsjtgroup@yahoogroups.com
+as soon as possible!
+
+May 2, 2013: v0.95, r3251
+-------------------------
+
+1. The "band change" function is executed whenever the Band combobox
+   is activated, even if the selected band has not changed.
+
+2. The program does not set rig mode.  That task is left to the user.
+
+3. Time interval for polling rig frequency is now a user parameter on
+   the setup screen.  I set mine to 1 second, which works fine with
+   the Kenwood TS-2000.  Set it to 0 if you want no polling for
+   frequency (which means unidirectional CAT control from program to
+   radio).  Choose something like 10 s for the K3.
+
+4. Much new work on the WSJT-X User's Guide, which is approaching its
+   final form for Version 1.0.  Please read it and tell us about
+   anything you find unclear or missing!
+
+These changes address nearly all of the CAT issues found by a few
+users -- those with K3, IC-746, IC-706, in particular.  
+
+One additional piece of advice when running WSJT-X in Windows: connect
+and turn on the radio and any interface equipment before starting
+WSJT-X, and exit the program before turning such equipment off.
 
 April 29, 2013: v0.95, r3243
 ----------------------------
