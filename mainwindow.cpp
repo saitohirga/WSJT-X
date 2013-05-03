@@ -2790,6 +2790,7 @@ void MainWindow::rigOpen()
 
   if(m_poll>0) {
     ui->labRigOpen->setStyleSheet("QLabel{background-color: red}");
+    ui->readFreq->setStyleSheet("QPushButton{background-color: #00ff00}");
   } else {
     ui->labRigOpen->setStyleSheet("QLabel{background-color: orange}");
   }
