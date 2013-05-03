@@ -8,6 +8,7 @@ DefaultGroupName=wsjtx
 [Files]
 Source: "c:\Users\joe\wsjt\wsjtx_install\wsjtx.exe";         DestDir: "{app}"
 Source: "c:\Users\joe\wsjt\wsjtx_install\jt9.exe";           DestDir: "{app}"
+Source: "c:\Users\joe\wsjt\wsjtx\lib\jt9code.exe";           DestDir: "{app}"
 Source: "c:\Users\joe\wsjt\wsjtx_install\rigctl.exe";        DestDir: "{app}"
 Source: "c:\Users\joe\wsjt\wsjtx_install\wsjt.ico";          DestDir: "{app}"
 Source: "c:\Users\joe\wsjt\wsjtx_install\afmhot.dat";        DestDir: "{app}";
