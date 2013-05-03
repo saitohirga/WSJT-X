@@ -88,6 +88,8 @@ private slots:
   void on_rbData_toggled(bool checked);
   void on_pollSpinBox_valueChanged(int n);
 
+  void on_pttComboBox_currentIndexChanged(int index);
+
 private:
   Rig* rig;
   void msgBox(QString t);
