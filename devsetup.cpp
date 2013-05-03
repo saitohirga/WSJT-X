@@ -495,3 +495,8 @@ void DevSetup::on_pollSpinBox_valueChanged(int n)
 {
   m_poll=n;
 }
+
+void DevSetup::on_pttComboBox_currentIndexChanged(int index)
+{
+  m_pttPort=index;
+}
