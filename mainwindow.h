@@ -155,6 +155,8 @@ private slots:
   void acceptQSO2(bool accepted);
   void on_bandComboBox_activated(int index);
 
+  void on_readFreq_clicked();
+
 private:
     Ui::MainWindow *ui;
 

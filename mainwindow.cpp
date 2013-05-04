@@ -180,6 +180,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_secBandChanged=0;
   m_bMultipleOK=false;
   m_dontReadFreq=false;
+  ui->readFreq->setEnabled(false);
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -642,7 +643,8 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
 
   if(m_bRigOpen) {
     rig->close();
-    ui->labRigOpen->setStyleSheet("");
+    ui->readFreq->setStyleSheet("");
+    ui->readFreq->setEnabled(false);
     delete rig;
     m_bRigOpen=false;
     m_catEnabled=false;
@@ -1720,7 +1722,6 @@ void MainWindow::guiUpdate()
           msgBox(rt);
           m_catEnabled=false;
         }
-
         int ndiff=1000000.0*(fMHz-m_dialFreq);
         if(ndiff!=0) dialFreqChanged2(fMHz);
       }
@@ -2783,16 +2784,18 @@ void MainWindow::rigOpen()
   ret=rig->open();
   if(ret==RIG_OK) {
     m_bRigOpen=true;
+    if(m_poll==0) ui->readFreq->setEnabled(true);
   } else {
     t="Open rig failed";
     msgBox(t);
   }
 
   if(m_poll>0) {
-    ui->labRigOpen->setStyleSheet("QLabel{background-color: red}");
-    ui->readFreq->setStyleSheet("QPushButton{background-color: #00ff00}");
+    ui->readFreq->setStyleSheet("QPushButton{background-color: red; \
+    border-width: 0px; border-radius: 5px;}");
   } else {
-    ui->labRigOpen->setStyleSheet("QLabel{background-color: orange}");
+    ui->readFreq->setStyleSheet("QPushButton{background-color: orange; \
+    border-width: 0px; border-radius: 5px;}");
   }
 }
 
@@ -2812,3 +2815,22 @@ void MainWindow::on_pbT2R_clicked()
   g_pWideGraph->setQSOfreq(m_txFreq);
 }
 
+
+void MainWindow::on_readFreq_clicked()
+{
+  if(m_dontReadFreq) {
+    m_dontReadFreq=false;
+  } else {
+    double fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
+    if(fMHz<0.0) {
+      QString rt;
+      rt.sprintf("Rig control error %d\nFailed to read frequency.",
+                int(1000000.0*fMHz));
+      msgBox(rt);
+      m_catEnabled=false;
+    }
+    int ndiff=1000000.0*(fMHz-m_dialFreq);
+    if(ndiff!=0) dialFreqChanged2(fMHz);
+    qDebug() << "A" << fMHz << ndiff;
+}
+}
