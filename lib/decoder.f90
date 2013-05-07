@@ -37,7 +37,7 @@ subroutine decoder(ss,c0,nstandalone)
   else if(ntrMinutes.eq.2) then
      nsps=15360
      df3=1500.0/2048.0
-     fmt='(i4.4,i4,i5,f6.1,f8.1,i4,3x,a22)'
+     fmt='(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22)'
   else if(ntrMinutes.eq.5) then
      nsps=40960
      df3=1500.0/6144.0
