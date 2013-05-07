@@ -284,6 +284,13 @@ void DevSetup::accept()
   QDialog::accept();
 }
 
+//------------------------------------------------------- reject()
+void DevSetup::reject()
+{
+  if(m_bRigOpen) rig->close();
+  QDialog::reject();
+}
+
 void DevSetup::p4ReadFromStdout()                        //p4readFromStdout
 {
   while(p4.canReadLine()) {
