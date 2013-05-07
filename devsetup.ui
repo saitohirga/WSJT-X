@@ -408,7 +408,7 @@
             </size>
            </property>
            <property name="minimum">
-            <number>-20</number>
+            <number>0</number>
            </property>
            <property name="maximum">
             <number>10</number>
