@@ -572,8 +572,8 @@ void MainWindow::dataSink(int k)
   if(ihsym <=0) return;
   QString t;
   m_pctZap=nzap*100.0/m_nsps;
-  t.sprintf(" Rx noise: %5.1f  %5.1f %% ",px,m_pctZap);
-  lab3->setText(t);
+  t.sprintf(" Rx noise: %5.1f ",px);
+  lab2->setText(t);
   ui->xThermo->setValue((double)px);                    //Update thermometer
   if(m_monitoring || m_diskData) {
     g_pWideGraph->dataSink2(s,red,df3,ihsym,m_diskData,lstrong);
@@ -914,13 +914,13 @@ void MainWindow::createStatusBar()                           //createStatusBar
 
   lab2 = new QLabel("");
   lab2->setAlignment(Qt::AlignHCenter);
-  lab2->setMinimumSize(QSize(90,18));
+  lab2->setMinimumSize(QSize(80,18));
   lab2->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab2);
 
   lab3 = new QLabel("");
   lab3->setAlignment(Qt::AlignHCenter);
-  lab3->setMinimumSize(QSize(80,18));
+  lab3->setMinimumSize(QSize(90,18));
   lab3->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab3);
 
@@ -932,7 +932,7 @@ void MainWindow::createStatusBar()                           //createStatusBar
 
   lab5 = new QLabel("");
   lab5->setAlignment(Qt::AlignHCenter);
-  lab5->setMinimumSize(QSize(100,18));
+  lab5->setMinimumSize(QSize(150,18));
   lab5->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab5);
 }
@@ -1668,7 +1668,7 @@ void MainWindow::guiUpdate()
     ui->monitorButton->setStyleSheet("");
   }
 
-  lab2->setText("QSO Freq:  " + QString::number(g_pWideGraph->QSOfreq()));
+  lab3->setText("QSO Freq:  " + QString::number(g_pWideGraph->QSOfreq()));
 
   if(m_startAnother) {
     m_startAnother=false;

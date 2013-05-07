@@ -65,6 +65,7 @@ public:
 
 public slots:
   void accept();
+  void reject();
   void p4ReadFromStdout();
   void p4ReadFromStderr();
   void p4Error();
