@@ -950,6 +950,7 @@ void MainWindow::closeEvent(QCloseEvent*)
 void MainWindow::OnExit()
 {
   g_pWideGraph->saveSettings();
+  if(m_fname != "") killFile();
   m_killAll=true;
   mem_jt9->detach();
   QFile quitFile(m_appDir + "/.quit");
@@ -2818,19 +2819,17 @@ void MainWindow::on_pbT2R_clicked()
 
 void MainWindow::on_readFreq_clicked()
 {
-  if(m_dontReadFreq) {
-    m_dontReadFreq=false;
-  } else {
-    double fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
-    if(fMHz<0.0) {
-      QString rt;
-      rt.sprintf("Rig control error %d\nFailed to read frequency.",
-                int(1000000.0*fMHz));
-      msgBox(rt);
-      m_catEnabled=false;
-    }
-    int ndiff=1000000.0*(fMHz-m_dialFreq);
-    if(ndiff!=0) dialFreqChanged2(fMHz);
-    qDebug() << "A" << fMHz << ndiff;
+  m_dontReadFreq=false;
+  double fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
+  if(fMHz<0.0) {
+    QString rt;
+    rt.sprintf("Rig control error %d\nFailed to read frequency.",
+               int(1000000.0*fMHz));
+    msgBox(rt);
+    m_catEnabled=false;
+  }
+  if(fMHz<0.01 or fMHz>1300.0) fMHz=0;
+  int ndiff=1000000.0*(fMHz-m_dialFreq);
+  if(ndiff!=0) dialFreqChanged2(fMHz);
 }
-}
+
