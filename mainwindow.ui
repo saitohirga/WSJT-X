@@ -1080,45 +1080,24 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="1">
-                    <widget class="QPushButton" name="pbAnswerCQ">
-                     <property name="text">
-                      <string>Answer CQ</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="0" colspan="2">
-                    <widget class="QPushButton" name="pbSend73">
-                     <property name="text">
-                      <string>Send 73</string>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="1" column="0">
                     <widget class="QPushButton" name="pbCallCQ">
                      <property name="text">
-                      <string>Call CQ</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="1">
-                    <widget class="QPushButton" name="pbSendReport">
-                     <property name="text">
-                      <string>Send Report</string>
+                      <string>CQ</string>
                      </property>
                     </widget>
                    </item>
                    <item row="3" column="0">
                     <widget class="QPushButton" name="pbSendRRR">
                      <property name="text">
-                      <string>Send RRR</string>
+                      <string>RRR</string>
                      </property>
                     </widget>
                    </item>
                    <item row="2" column="0">
                     <widget class="QPushButton" name="pbAnswerCaller">
                      <property name="text">
-                      <string>Answer Caller</string>
+                      <string>dB</string>
                      </property>
                     </widget>
                    </item>
@@ -1141,6 +1120,27 @@ p, li { white-space: pre-wrap; }
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QPushButton" name="pbAnswerCQ">
+                     <property name="text">
+                      <string>Grid</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QPushButton" name="pbSendReport">
+                     <property name="text">
+                      <string>R+dB</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QPushButton" name="pbSend73">
+                     <property name="text">
+                      <string>73</string>
                      </property>
                     </widget>
                    </item>
@@ -2859,11 +2859,8 @@ p, li { white-space: pre-wrap; }
   <tabstop>pbCallCQ</tabstop>
   <tabstop>pbAnswerCaller</tabstop>
   <tabstop>pbSendRRR</tabstop>
-  <tabstop>pbSend73</tabstop>
   <tabstop>genMsg</tabstop>
   <tabstop>freeTextMsg</tabstop>
-  <tabstop>pbAnswerCQ</tabstop>
-  <tabstop>pbSendReport</tabstop>
   <tabstop>rbGenMsg</tabstop>
   <tabstop>rbFreeText</tabstop>
   <tabstop>genStdMsgsPushButton</tabstop>
