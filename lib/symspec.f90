@@ -52,9 +52,18 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   endif
   if(nfft3.ne.nfft3z) then                     !New nfft3, compute window
      pi=4.0*atan(1.0)
-     do i=1,nfft3
-        w3(i)=2.0*(sin(i*pi/nfft3))**2         !Window for nfft3 spectrum
-     enddo
+     if(ntrperiod.eq.1) then                 !Compute window for nfft3 spectrun
+        do i=1,nfft3
+           xx=float(i-1)/(nfft3-1)
+           w3(i)=0.40897 -0.5*cos(2.0*pi*xx) + 0.09103*cos(4.0*pi*xx)
+!           write(67,3101) i,xx,w3(i)
+!3101       format(i8,2f12.6)
+        enddo
+     else
+        do i=1,nfft3
+           w3(i)=2.0*(sin(i*pi/nfft3))**2         !Window for nfft3 spectrum
+        enddo
+     endif
      nfft3z=nfft3
   endif
 
@@ -145,8 +154,8 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   savg(1:iz)=fac1*ssum(1:iz)
   call redsync(ss,ntrperiod,ihsym,iz,red)
 
-!  write(67,3101) ihsym,k,xmed0,fac0,xmed1,fac1
-!3101 format(i4,i8,4e12.3)
+!  write(67,3101) nfft3,jstep,ja
+!3101 format(3i10)
 !  call flush(67)
 
   return
