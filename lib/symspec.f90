@@ -56,8 +56,8 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
         do i=1,nfft3
            xx=float(i-1)/(nfft3-1)
            w3(i)=0.40897 -0.5*cos(2.0*pi*xx) + 0.09103*cos(4.0*pi*xx)
-!           write(67,3101) i,xx,w3(i)
-!3101       format(i8,2f12.6)
+!           w3(i)=0.355768 - 0.487306*cos(2.0*pi*xx) + 0.144232*cos(4.0*pi*xx) &
+!                - 0.012604*cos(6.0*pi*xx)
         enddo
      else
         do i=1,nfft3
@@ -153,10 +153,6 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   fac1=fac00/max(xmed1,0.006*ihsym)
   savg(1:iz)=fac1*ssum(1:iz)
   call redsync(ss,ntrperiod,ihsym,iz,red)
-
-!  write(67,3101) nfft3,jstep,ja
-!3101 format(3i10)
-!  call flush(67)
 
   return
 end subroutine symspec
