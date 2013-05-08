@@ -63,9 +63,6 @@ INCPATH =  -I'/usr/include/qt4' -I'/usr/include/qt4/QtCore'
 sync9.o: sync9.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c sync9.f90
 
-spec9.o: spec9.f90 jt9sync.f90
-	$(FC) $(FFLAGS) -c spec9.f90
-
 peakdf9.o: peakdf9.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c peakdf9.f90
 
