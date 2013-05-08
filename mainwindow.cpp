@@ -885,7 +885,8 @@ void MainWindow::statusChanged()
   QFile f("wsjtx_status.txt");
   if(f.open(QFile::WriteOnly | QIODevice::Text)) {
     QTextStream out(&f);
-    out << m_dialFreq << ";" << m_mode << ";" << m_hisCall << endl;
+    out << m_dialFreq << ";" << m_mode << ";" << m_hisCall << ";"
+        << ui->rptSpinBox->value() << endl;
     f.close();
   } else {
     msgBox("Cannot open file \"wsjtx_status.txt\".");
@@ -2710,7 +2711,7 @@ void MainWindow::on_rptSpinBox_valueChanged(int n)
   if(m_ntx==4) ui->txrb4->setChecked(true);
   if(m_ntx==5) ui->txrb5->setChecked(true);
   if(m_ntx==6) ui->txrb6->setChecked(true);
-
+  statusChanged();
 }
 void MainWindow::on_actionColor_highlighting_in_left_window_triggered(bool checked)
 {
@@ -2789,14 +2790,20 @@ void MainWindow::rigOpen()
   } else {
     t="Open rig failed";
     msgBox(t);
+    m_catEnabled=false;
+    m_bRigOpen=false;
   }
 
-  if(m_poll>0) {
-    ui->readFreq->setStyleSheet("QPushButton{background-color: red; \
-    border-width: 0px; border-radius: 5px;}");
+  if(m_bRigOpen) {
+    if(m_poll>0) {
+      ui->readFreq->setStyleSheet("QPushButton{background-color: red; \
+                                  border-width: 0px; border-radius: 5px;}");
+    } else {
+      ui->readFreq->setStyleSheet("QPushButton{background-color: orange; \
+                                  border-width: 0px; border-radius: 5px;}");
+    }
   } else {
-    ui->readFreq->setStyleSheet("QPushButton{background-color: orange; \
-    border-width: 0px; border-radius: 5px;}");
+    ui->readFreq->setStyleSheet("");
   }
 }
 
