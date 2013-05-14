@@ -105,7 +105,7 @@ void WideGraph::dataSink2(float s[], float red[], float df3, int ihsym,
     n=0;
 
 //    int w=ui->widePlot->plotWidth();
-    int i0=0;                            //###
+    int i0=-1;                            //###
     int i=i0;
     int jz=1000.0/df3;
     for (int j=0; j<jz; j++) {
