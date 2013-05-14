@@ -459,13 +459,6 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="tuneButton">
-          <property name="text">
-           <string>&amp;Tune</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QPushButton" name="autoButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -500,6 +493,13 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="text">
            <string>&amp;Halt Tx</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="tuneButton">
+          <property name="text">
+           <string>&amp;Tune</string>
           </property>
          </widget>
         </item>
@@ -2845,7 +2845,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>monitorButton</tabstop>
   <tabstop>DecodeButton</tabstop>
   <tabstop>EraseButton</tabstop>
-  <tabstop>tuneButton</tabstop>
   <tabstop>autoButton</tabstop>
   <tabstop>stopTxButton</tabstop>
   <tabstop>bandComboBox</tabstop>

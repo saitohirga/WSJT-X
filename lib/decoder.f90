@@ -139,8 +139,8 @@ subroutine decoder(ss,c0,nstandalone)
            nsnr=nint(snrdb)
            ndrift=nint(drift/df3)
 
-           write(38,3002) nutc,nsnr,i,ccfred(i),nlim,msg
-3002       format(i4.4,i5,i6,f8.1,i9,2x,a22)
+           write(38,3002) nutc,nsnr,i,freq,ccfred(i),nlim,msg
+3002       format(i4.4,i5,i6,2f8.1,i9,2x,a22)
 
            if(msg.ne.'                      ') then
               if(nqd.eq.0) ndecodes0=ndecodes0+1
@@ -176,7 +176,7 @@ subroutine decoder(ss,c0,nstandalone)
   if(nstandalone.eq.0) call timer('decoder ',101)
 
   call system_clock(iclock,iclock_rate,iclock_max)
-  write(39,3001) nutc,nfreqs1,nfreqs0,ndecodes1,ndecodes0,       &
+  write(39,3001) nutc,nfreqs1,nfreqs0,ndecodes1,ndecodes0+ndecodes1,       &
        float(iclock-iclock0)/iclock_rate
 3001 format(5i8,f10.3)
   call flush(38)
