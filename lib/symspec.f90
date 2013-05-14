@@ -152,6 +152,7 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   call pctile(ssum,iz,npct,xmed1)
   fac1=fac00/max(xmed1,0.006*ihsym)
   savg(1:iz)=fac1*ssum(1:iz)
+  savg(iz+1:iz+20)=savg(iz)
   call redsync(ss,ntrperiod,ihsym,iz,red)
 
   return

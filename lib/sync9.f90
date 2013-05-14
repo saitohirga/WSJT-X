@@ -13,10 +13,10 @@ subroutine sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,ipkbest)
 
   do i=ia,ib                         !Loop over freq range
      ss1=ss(1:184,i)
-     call pctile(ss1,nzhsym,50,xmed)
+     call pctile(ss1,nzhsym,40,xmed)
      ss1=ss1/xmed - 1.0
      do j=1,nzhsym
-        if(ss1(j).gt.3.0) ss1(j)=5.0
+        if(ss1(j).gt.3.0) ss1(j)=3.0
      enddo
 
      smax=0.
@@ -40,7 +40,7 @@ subroutine sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,ipkbest)
 
   call pctile(ccfred(ia),ib-ia+1,50,xmed)
   if(xmed.le.0.0) xmed=1.0
-  ccfred=1.33*ccfred/xmed
+  ccfred=2.0*ccfred/xmed
 
   return
 end subroutine sync9
