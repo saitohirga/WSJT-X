@@ -13,9 +13,7 @@ subroutine decoder(ss,c0,nstandalone)
   logical ccfok(NSMAX)
   logical done(NSMAX)
   integer*1 i1SoftSymbols(207)
-  integer ii(1)
   complex c0(NDMAX)
-  complex c1(NDMAX)
   common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfb,ntol,  &
        kin,nzhsym,nsave,nagain,ndepth,nrxlog,nfsample,datetime
   common/tracer/limtrace,lu
@@ -60,7 +58,7 @@ subroutine decoder(ss,c0,nstandalone)
   if(nsps.eq.0) stop 'Error: bad TRperiod'    !Better: return an error code###
 
   tstep=0.5*nsps/12000.0                      !Half-symbol step (seconds)
-  idf=ntol/df3 + 0.999
+!  idf=ntol/df3 + 0.999
   done=.false.
 
   do nqd=1,0,-1
@@ -74,7 +72,6 @@ subroutine decoder(ss,c0,nstandalone)
         limit=200000
         ccflim=2.5
      endif
-!     if(nstandalone.eq.1) ccflim=0.9*ccflim
 
      if(nqd.eq.1) then
         nfa1=nfqso-ntol
@@ -83,22 +80,27 @@ subroutine decoder(ss,c0,nstandalone)
         nfa1=nfa
         nfb1=nfb
      endif
+     ia=max(1,nint((nfa1-1000)/df3))
+     ib=min(NSMAX,nint((nfb1-1000)/df3))
+     lag1=-(2.5/tstep + 0.9999)
+     lag2=5.0/tstep + 0.9999
      call timer('sync9   ',0)
 ! Compute ccfred()
-     call sync9(ss,nzhsym,tstep,df3,nfa1,nfb1,ccfred,ia,ib,ipk)
+     call sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,ipk)
      call timer('sync9   ',1)
 
      ccfok=.false.
-     ccfok(max(ipk-idf,1):min(ipk+idf,NSMAX))=.true.
 
      if(nqd.eq.1) then
+        ccfok(ipk)=.true.
+        do i=ia,ib
+           ccfok(i)=ccfred(i).gt.ccflim
+        enddo
         ia1=ia
         ib1=ib
      else
-        do i=ia+9,ib-25
-           t1=ccfred(i)/(sum(ccfred(i-8:i-6)/3.0))
-           t2=ccfred(i)/(sum(ccfred(i+23:i+25)/3.0))
-           if(t1.ge.ccflim .and. t2.ge.ccflim) ccfok(i)=.true.
+        do i=ia,ib
+           ccfok(i)=ccfred(i).gt.ccflim
         enddo
         ccfok(ia1:ib1)=.false.
      endif
@@ -108,9 +110,6 @@ subroutine decoder(ss,c0,nstandalone)
      nsps8=nsps/8
      df8=1500.0/nsps8
      dblim=db(864.0/nsps8) - 26.2
-     i1=max(nint((nfqso-1000)/df3 - 10),ia)
-     i2=min(nint((nfqso-1000)/df3 + 10),ib)
-     ii=maxloc(ccfred(i1:i2))
 
      do i=ia,ib
         f=(i-1)*df3
@@ -124,9 +123,6 @@ subroutine decoder(ss,c0,nstandalone)
 
            call timer('softsym ',0)
            fpk=1000.0 + df3*(i-1)
-!           c1(1:npts8)=conjg(c0(1:npts8))
-!           call softsym(c1,npts8,nsps8,fpk,syncpk,snrdb,xdt,freq,drift,   &
-!                i1SoftSymbols)
            call softsym(c0,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,freq,   &
                 drift,i1SoftSymbols)
 
@@ -143,8 +139,8 @@ subroutine decoder(ss,c0,nstandalone)
            nsnr=nint(snrdb)
            ndrift=nint(drift/df3)
 
-           write(38,3002) nutc,freq,ccfred(i),nlim,msg
-3002       format(i4.4,2f8.1,i9,2x,a22)
+           write(38,3002) nutc,nsnr,i,ccfred(i),nlim,msg
+3002       format(i4.4,i5,i6,f8.1,i9,2x,a22)
 
            if(msg.ne.'                      ') then
               if(nqd.eq.0) ndecodes0=ndecodes0+1
