@@ -21,6 +21,12 @@ subroutine decoder(ss,c0,nstandalone)
   common/tracer/limtrace,lu
   save
 
+  call system_clock(iclock0,iclock_rate,iclock_max)           !###
+  nfreqs0=0
+  nfreqs1=0
+  ndecodes0=0
+  ndecodes1=0
+
   call timer('decoder ',0)
 
   open(13,file='decoded.txt',status='unknown')
@@ -112,11 +118,18 @@ subroutine decoder(ss,c0,nstandalone)
              (ccfred(i).lt.ccfred(i+1))) cycle
         if(nqd.eq.1 .or.                                                   &
            (ccfred(i).ge.ccflim .and. abs(f-fgood).gt.10.0*df8)) then
+
+           if(nqd.eq.0) nfreqs0=nfreqs0+1
+           if(nqd.eq.1) nfreqs1=nfreqs1+1
+
            call timer('softsym ',0)
            fpk=1000.0 + df3*(i-1)
-           c1(1:npts8)=conjg(c0(1:npts8))
-           call softsym(c1,npts8,nsps8,fpk,syncpk,snrdb,xdt,freq,drift,   &
-                i1SoftSymbols)
+!           c1(1:npts8)=conjg(c0(1:npts8))
+!           call softsym(c1,npts8,nsps8,fpk,syncpk,snrdb,xdt,freq,drift,   &
+!                i1SoftSymbols)
+           call softsym(c0,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,freq,   &
+                drift,i1SoftSymbols)
+
            call timer('softsym ',1)
 
            call timer('decode9 ',0)
@@ -129,11 +142,19 @@ subroutine decoder(ss,c0,nstandalone)
            if(nsync.gt.10) nsync=10
            nsnr=nint(snrdb)
            ndrift=nint(drift/df3)
+
+           write(38,3002) nutc,freq,ccfred(i),nlim,msg
+3002       format(i4.4,2f8.1,i9,2x,a22)
+
            if(msg.ne.'                      ') then
+              if(nqd.eq.0) ndecodes0=ndecodes0+1
+              if(nqd.eq.1) ndecodes1=ndecodes1+1
+
               write(*,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
               write(13,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
 !              write(14,1014) nutc,nsync,nsnr,xdt,freq,ndrift,ccfred(i),nlim,msg
 !1014          format(i4.4,i4,i5,f6.1,f8.0,i4,f9.1,i9,3x,a22)
+
               iaa=max(1,i-3)
               ibb=min(NSMAX,i+11)
               fgood=f
@@ -157,6 +178,13 @@ subroutine decoder(ss,c0,nstandalone)
 
   call timer('decoder ',1)
   if(nstandalone.eq.0) call timer('decoder ',101)
+
+  call system_clock(iclock,iclock_rate,iclock_max)
+  write(39,3001) nutc,nfreqs1,nfreqs0,ndecodes1,ndecodes0,       &
+       float(iclock-iclock0)/iclock_rate
+3001 format(5i8,f10.3)
+  call flush(38)
+  call flush(39)
 
   return
 end subroutine decoder
