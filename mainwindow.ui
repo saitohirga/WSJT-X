@@ -327,7 +327,7 @@ p, li { white-space: pre-wrap; }
            </font>
           </property>
           <property name="text">
-           <string>Band Activity</string>
+           <string>QSO Frequency</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -350,7 +350,7 @@ p, li { white-space: pre-wrap; }
            </font>
           </property>
           <property name="text">
-           <string>QSO Frequency</string>
+           <string>Band Activity</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>

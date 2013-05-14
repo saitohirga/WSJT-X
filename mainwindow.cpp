@@ -70,9 +70,9 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   txMsgButtonGroup->addButton(ui->txrb5,5);
   txMsgButtonGroup->addButton(ui->txrb6,6);
   connect(txMsgButtonGroup,SIGNAL(buttonClicked(int)),SLOT(set_ntx(int)));
-  connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool,bool)),this,
-          SLOT(doubleClickOnCall(bool,bool)));
   connect(ui->decodedTextBrowser2,SIGNAL(selectCallsign(bool,bool)),this,
+          SLOT(doubleClickOnCall(bool,bool)));
+  connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool,bool)),this,
           SLOT(doubleClickOnCall2(bool,bool)));
 
   setWindowTitle(Program_Title_Version);
@@ -272,8 +272,8 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   if(ui->actionAFMHot->isChecked()) on_actionAFMHot_triggered();
   if(ui->actionBlue->isChecked()) on_actionBlue_triggered();
 
-  ui->decodedTextLabel->setFont(ui->decodedTextBrowser->font());
-  ui->decodedTextLabel2->setFont(ui->decodedTextBrowser2->font());
+  ui->decodedTextLabel->setFont(ui->decodedTextBrowser2->font());
+  ui->decodedTextLabel2->setFont(ui->decodedTextBrowser->font());
   t="UTC  dB   DT Freq   Message";
   ui->decodedTextLabel->setText(t);
   ui->decodedTextLabel2->setText(t);
@@ -1312,7 +1312,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         bf.setBackground(QBrush(QColor(bg)));
         QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
             bg + "\"><pre>" + " " + "</pre></td></tr></table>";
-        cursor = ui->decodedTextBrowser2->textCursor();
+        cursor = ui->decodedTextBrowser->textCursor();
         cursor.movePosition(QTextCursor::End);
         bf = cursor.blockFormat();
         bf.setBackground(QBrush(QColor(bg)));
@@ -1332,12 +1332,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
       QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
           bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
       if(bQSO) {
-        cursor = ui->decodedTextBrowser->textCursor();
+        cursor = ui->decodedTextBrowser2->textCursor();
         cursor.movePosition(QTextCursor::End);
         bf = cursor.blockFormat();
         bf.setBackground(QBrush(QColor(bg)));
         cursor.insertHtml(s);
-        ui->decodedTextBrowser->setTextCursor(cursor);
+        ui->decodedTextBrowser2->setTextCursor(cursor);
       }
 
       if(jt9com_.nagain==0) {
@@ -1347,12 +1347,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
         }
         QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
             bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
-        cursor = ui->decodedTextBrowser2->textCursor();
+        cursor = ui->decodedTextBrowser->textCursor();
         cursor.movePosition(QTextCursor::End);
         bf = cursor.blockFormat();
         bf.setBackground(QBrush(QColor(bg)));
         cursor.insertHtml(s);
-        ui->decodedTextBrowser2->setTextCursor(cursor);
+        ui->decodedTextBrowser->setTextCursor(cursor);
       }
 
       QString msg=t.mid(34);
@@ -1448,9 +1448,9 @@ void MainWindow::killFile()
 void MainWindow::on_EraseButton_clicked()                          //Erase
 {
   qint64 ms=QDateTime::currentMSecsSinceEpoch();
-  ui->decodedTextBrowser->clear();
+  ui->decodedTextBrowser2->clear();
   if((ms-m_msErase)<500) {
-      ui->decodedTextBrowser2->clear();
+      ui->decodedTextBrowser->clear();
       QFile f(m_appDir + "/decoded.txt");
       if(f.exists()) f.remove();
   }
@@ -1745,12 +1745,12 @@ void MainWindow::displayTxMsg(QString t)
       t=QDateTime::currentDateTimeUtc().toString("hhmmss Tx: ") + t;
       QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
           bg + "\"><pre>" + t + "</pre></td></tr></table>";
-      cursor = ui->decodedTextBrowser->textCursor();
+      cursor = ui->decodedTextBrowser2->textCursor();
       cursor.movePosition(QTextCursor::End);
       bf = cursor.blockFormat();
       bf.setBackground(QBrush(QColor(bg)));
       cursor.insertHtml(s);
-      ui->decodedTextBrowser->setTextCursor(cursor);
+      ui->decodedTextBrowser2->setTextCursor(cursor);
 }
 
 void MainWindow::startTx2()
@@ -1884,14 +1884,14 @@ void MainWindow::doubleClickOnCall2(bool shift, bool ctrl)
 void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 {
   QTextCursor cursor;
-  if(!m_decodedText2) cursor=ui->decodedTextBrowser->textCursor();
-  if(m_decodedText2) cursor=ui->decodedTextBrowser2->textCursor();
+  if(!m_decodedText2) cursor=ui->decodedTextBrowser2->textCursor();
+  if(m_decodedText2) cursor=ui->decodedTextBrowser->textCursor();
   cursor.select(QTextCursor::LineUnderCursor);
   int i2=cursor.position();
 
   QString t;
-  if(!m_decodedText2) t= ui->decodedTextBrowser->toPlainText(); //Full contents
-  if(m_decodedText2) t= ui->decodedTextBrowser2->toPlainText();
+  if(!m_decodedText2) t= ui->decodedTextBrowser2->toPlainText(); //Full contents
+  if(m_decodedText2) t= ui->decodedTextBrowser->toPlainText();
 
   QString t1 = t.mid(0,i2);              //contents up to \n on selected line
   int i1=t1.lastIndexOf("\n") + 1;       //points to first char of line

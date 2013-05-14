@@ -128,7 +128,7 @@ void CPlotter::draw(float swide[], float red[], int i0)             //draw()
       for(int k=0; k<m_binsPerPixel; k++) {
         sum+=jt9com_.savg[j++];
       }
-      y2=gain*10.0*log10(sum/m_binsPerPixel) - 20;
+      y2=gain*6.0*log10(sum/m_binsPerPixel) - 10.0;
     }
     if(m_bJT9Sync) y2=3.0*gain*red[i] - 15;
     if(strong != strong0 or i==m_w-1) {
