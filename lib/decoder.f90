@@ -62,18 +62,20 @@ subroutine decoder(ss,c0,nstandalone)
   done=.false.
 
   do nqd=1,0,-1
-     limit=5000
+     limit=1000
      ccflim=4.0
-     if(ndepth.ge.2) then
-        limit=50000
-        ccflim=3.0
+     if(ndepth.eq.2) then
+        limit=10000
+        ccflim=3.5
      endif
-     if(ndepth.ge.3 .or. nqd.eq.1) then
-        limit=200000
-        ccflim=2.5
+     if(ndepth.ge.3) then
+        limit=100000
+        ccflim=3.0
      endif
 
      if(nqd.eq.1) then
+        limit=200000
+        ccflim=2.5
         nfa1=nfqso-ntol
         nfb1=nfqso+ntol
      else
