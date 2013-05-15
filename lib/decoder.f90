@@ -126,41 +126,45 @@ subroutine decoder(ss,c0,nstandalone)
            call timer('softsym ',0)
            fpk=1000.0 + df3*(i-1)
            call softsym(c0,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,freq,   &
-                drift,i1SoftSymbols)
-
+                drift,schk,i1SoftSymbols)
            call timer('softsym ',1)
 
-           call timer('decode9 ',0)
-           call decode9(i1SoftSymbols,limit,nlim,msg)
-           call timer('decode9 ',1)
+           if(schk.ge.3.0) then
 
-           sync=(syncpk+1)/4.0
-           if(sync.lt.0.0 .or. snrdb.lt.dblim-2.0) sync=0.0
-           nsync=sync
-           if(nsync.gt.10) nsync=10
-           nsnr=nint(snrdb)
-           ndrift=nint(drift/df3)
+              call timer('decode9 ',0)
+              call decode9(i1SoftSymbols,limit,nlim,msg)
+              call timer('decode9 ',1)
 
-           write(38,3002) nutc,nsnr,i,freq,ccfred(i),nlim,msg
-3002       format(i4.4,i5,i6,2f8.1,i9,2x,a22)
+              sync=(syncpk+1)/4.0
+              if(sync.lt.0.0 .or. snrdb.lt.dblim-2.0) sync=0.0
+              nsync=sync
+              if(nsync.gt.10) nsync=10
+              nsnr=nint(snrdb)
+              ndrift=nint(drift/df3)
+              
+              write(38,3002) nutc,nsnr,i,freq,ccfred(i),schk,nlim,msg
+3002          format(i4.4,i5,i6,f8.1,2f6.1,i9,2x,a22)
 
-           if(msg.ne.'                      ') then
-              if(nqd.eq.0) ndecodes0=ndecodes0+1
-              if(nqd.eq.1) ndecodes1=ndecodes1+1
-
-              write(*,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
-              write(13,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
+              if(msg.ne.'                      ') then
+                 if(nqd.eq.0) ndecodes0=ndecodes0+1
+                 if(nqd.eq.1) ndecodes1=ndecodes1+1
+                 
+                 write(*,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
+                 write(13,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
 !              write(14,1014) nutc,nsync,nsnr,xdt,freq,ndrift,ccfred(i),nlim,msg
 !1014          format(i4.4,i4,i5,f6.1,f8.0,i4,f9.1,i9,3x,a22)
 
-              iaa=max(1,i-3)
-              ibb=min(NSMAX,i+11)
-              fgood=f
-              nsynced=1
-              ndecoded=1
-              ccfok(iaa:ibb)=.false.
-              done(iaa:ibb)=.true.              
-              call flush(6)
+                 iaa=max(1,i-1)
+                 ibb=min(NSMAX,i+22)
+                 fgood=f
+                 nsynced=1
+                 ndecoded=1
+                 ccfok(iaa:ibb)=.false.
+                 done(iaa:ibb)=.true.              
+                 call flush(6)
+              endif
+           else
+              write(38,3002) nutc,-99,i,freq,ccfred(i),schk,0
            endif
         endif
      enddo

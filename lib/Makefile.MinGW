@@ -33,7 +33,7 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	fil3.o redsync.o decoder.o grid2n.o n2grid.o timer.o \
 	softsym.o getlags.o afc9.o fchisq.o twkfreq.o downsam9.o \
 	peakdt9.o symspec2.o stdmsg.o morse.o azdist.o geodist.o \
-	rig_control.o fillcom.o
+	rig_control.o fillcom.o chkss2.o zplot9.o
 
 libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
