@@ -14,6 +14,8 @@ subroutine sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,ipkbest)
   do i=ia,ib                         !Loop over freq range
      ss1=ss(1:184,i)
      call pctile(ss1,nzhsym,40,xmed)
+!     xmed=sum(ss1(1:nzhsym))/nzhsym
+
      ss1=ss1/xmed - 1.0
      do j=1,nzhsym
         if(ss1(j).gt.3.0) ss1(j)=3.0
@@ -21,13 +23,13 @@ subroutine sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,ipkbest)
 
      smax=0.
      do lag=lag1,lag2                !DT = 2.5 to 5.0 s
-        sum=0.
+        sum1=0.
         do j=1,16                    !Sum over 16 sync symbols
            k=ii2(j) + lag
-           if(k.ge.1 .and. k.le.nzhsym) sum=sum + ss1(k)
+           if(k.ge.1 .and. k.le.nzhsym) sum1=sum1 + ss1(k)
         enddo
-        if(sum.gt.smax) then
-           smax=sum
+        if(sum1.gt.smax) then
+           smax=sum1
            ipk=i 
         endif
      enddo

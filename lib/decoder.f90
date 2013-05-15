@@ -74,8 +74,8 @@ subroutine decoder(ss,c0,nstandalone)
      endif
 
      if(nqd.eq.1) then
-        limit=200000
-        ccflim=2.5
+        limit=100000
+        ccflim=2.0
         nfa1=nfqso-ntol
         nfb1=nfqso+ntol
      else
@@ -115,8 +115,7 @@ subroutine decoder(ss,c0,nstandalone)
 
      do i=ia,ib
         f=(i-1)*df3
-        if(done(i) .or. (.not.ccfok(i)) .or. (ccfred(i).lt.ccflim-1.0) .or. &
-             (ccfred(i).lt.ccfred(i+1))) cycle
+        if(done(i) .or. (.not.ccfok(i)) .or. (ccfred(i).lt.ccflim-1.0)) cycle
         if(nqd.eq.1 .or.                                                   &
            (ccfred(i).ge.ccflim .and. abs(f-fgood).gt.10.0*df8)) then
 
@@ -129,7 +128,7 @@ subroutine decoder(ss,c0,nstandalone)
                 drift,schk,i1SoftSymbols)
            call timer('softsym ',1)
 
-           if(schk.ge.3.0) then
+           if(schk.ge.2.0) then
 
               call timer('decode9 ',0)
               call decode9(i1SoftSymbols,limit,nlim,msg)
