@@ -1,5 +1,5 @@
 subroutine softsym(c0,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,freq,drift,   &
-     i1SoftSymbols)
+     schk,i1SoftSymbols)
 
 ! Compute the soft symbols
 
@@ -23,17 +23,18 @@ subroutine softsym(c0,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,freq,drift,   &
   fsample=1500.0/ndown
   a=0.
   call afc9(c3,nz3,fsample,a,syncpk)  !Find deltaF, fDot, fDDot
+  freq=fpk - a(1)
+  drift=-2.0*a(2)
 
   call twkfreq(c3,c5,nz3,fsample,a)   !Correct for deltaF, fDot, fDDot
 
 ! Compute soft symbols (in scrambled order)
-  call symspec2(c5,nz3,nsps8,nspsd,fsample,snrdb,i1SoftSymbolsScrambled)
+  call symspec2(c5,nz3,nsps8,nspsd,fsample,freq,drift,snrdb,schk,      &
+       i1SoftSymbolsScrambled)
+  if(snrdb.lt.-99.0) return
 
 ! Remove interleaving
   call interleave9(i1SoftSymbolsScrambled,-1,i1SoftSymbols)
-  
-  freq=fpk - a(1)
-  drift=-2.0*a(2)
 
   return
 end subroutine softsym

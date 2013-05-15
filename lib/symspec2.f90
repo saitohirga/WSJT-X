@@ -1,4 +1,5 @@
-subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,snrdb,i1SoftSymbolsScrambled)
+subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,freq,drift,snrdb,schk,    &
+     i1SoftSymbolsScrambled)
 
 ! Compute soft symbols from the final downsampled data
 
@@ -33,6 +34,11 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,snrdb,i1SoftSymbolsScrambled)
      enddo
   enddo
 
+!###
+!  write(30) freq,drift,ss2
+!  call flush(30)
+  call chkss2(ss2,schk)
+  if(schk.lt.3.0) go to 900
 !###
   ss=0.
   sig=0.
@@ -81,5 +87,5 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,snrdb,i1SoftSymbolsScrambled)
      enddo
   enddo
 
-  return
+900 return
 end subroutine symspec2
