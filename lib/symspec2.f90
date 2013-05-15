@@ -38,7 +38,7 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,freq,drift,snrdb,schk,    &
 !  write(30) freq,drift,ss2
 !  call flush(30)
   call chkss2(ss2,schk)
-  if(schk.lt.3.0) go to 900
+  if(schk.lt.2.0) go to 900
 !###
   ss=0.
   sig=0.
