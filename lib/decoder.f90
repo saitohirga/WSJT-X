@@ -141,8 +141,8 @@ subroutine decoder(ss,c0,nstandalone)
               nsnr=nint(snrdb)
               ndrift=nint(drift/df3)
               
-              write(38,3002) nutc,nsnr,i,freq,ccfred(i),schk,nlim,msg
-3002          format(i4.4,i5,i6,f8.1,2f6.1,i9,2x,a22)
+              write(38,3002) nutc,nqd,nsnr,i,freq,ccfred(i),schk,nlim,msg
+3002          format(i4.4,i2,i5,i6,f8.1,2f6.1,i9,2x,a22)
 
               if(msg.ne.'                      ') then
                  if(nqd.eq.0) ndecodes0=ndecodes0+1
@@ -163,7 +163,7 @@ subroutine decoder(ss,c0,nstandalone)
                  call flush(6)
               endif
            else
-              write(38,3002) nutc,-99,i,freq,ccfred(i),schk,0
+              write(38,3002) nutc,nqd,-99,i,freq,ccfred(i),schk,0
            endif
         endif
      enddo
