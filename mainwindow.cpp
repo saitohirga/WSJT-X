@@ -181,6 +181,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_bMultipleOK=false;
   m_dontReadFreq=false;
   ui->readFreq->setEnabled(false);
+  m_QSOmsg="";
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -404,7 +405,6 @@ void MainWindow::writeSettings()
   settings.setValue("Miles",m_bMiles);
   settings.setValue("GUItab",ui->tabWidget->currentIndex());
   settings.setValue("QuickCall",m_quickCall);
-  settings.setValue("LeftColor",m_leftColor);
   settings.setValue("73TxDisable",m_73TxDisable);
   settings.setValue("Runaway",m_runaway);
   settings.setValue("Tx2QSO",m_tx2QSO);
@@ -516,8 +516,6 @@ void MainWindow::readSettings()
   ui->tabWidget->setCurrentIndex(n);
   m_quickCall=settings.value("QuickCall",false).toBool();
   ui->actionDouble_click_on_call_sets_Tx_Enable->setChecked(m_quickCall);
-  m_leftColor=settings.value("LeftColor",false).toBool();
-  ui->actionColor_highlighting_in_left_window->setChecked(m_leftColor);
   m_73TxDisable=settings.value("73TxDisable",false).toBool();
   ui->action_73TxDisable->setChecked(m_73TxDisable);
   m_runaway=settings.value("Runaway",false).toBool();
@@ -1321,10 +1319,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
 
       QString bg="white";
-      if(m_leftColor) {
-        if(t.indexOf(" CQ ")>0) bg="#66ff66";                          //green
-        if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
-      }
+      if(t.indexOf(" CQ ")>0) bg="#66ff66";                          //green
+      if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
       bool bQSO=abs(t.mid(22,4).toInt() - g_pWideGraph->QSOfreq()) < 10;
       QString t1=t.mid(0,5) + t.mid(10,4) + t.mid(15,5) + t.mid(22,4) +
           t.mid(32);
@@ -1338,13 +1334,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
         bf.setBackground(QBrush(QColor(bg)));
         cursor.insertHtml(s);
         ui->decodedTextBrowser2->setTextCursor(cursor);
+        m_QSOmsg=t1;
       }
 
       if(jt9com_.nagain==0) {
-        if(!m_leftColor) {
-          if(t.indexOf(" CQ ")>0) bg="#66ff66";                          //green
-          if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
-        }
+        if(t.indexOf(" CQ ")>0) bg="#66ff66";                          //green
+        if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
         QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
             bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
         cursor = ui->decodedTextBrowser->textCursor();
@@ -1449,6 +1444,7 @@ void MainWindow::on_EraseButton_clicked()                          //Erase
 {
   qint64 ms=QDateTime::currentMSecsSinceEpoch();
   ui->decodedTextBrowser2->clear();
+  m_QSOmsg="";
   if((ms-m_msErase)<500) {
       ui->decodedTextBrowser->clear();
       QFile f(m_appDir + "/decoded.txt");
@@ -1903,6 +1899,24 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   if(i5>0) t3=t3.mid(0,i5+3) + "_" + t3.mid(i5+4);  //Make it "CQ_DX" (one word)
   QStringList t4=t3.split(" ",QString::SkipEmptyParts);
   if(t4.length() <5) return;             //Skip the rest if no decoded text
+
+  int i9=m_QSOmsg.indexOf(t2);
+  if(i9<0) {
+    QString bg="white";
+    if(t2.indexOf(" CQ ")>0) bg="#66ff66";                           //green
+    if(m_myCall!="" and t2.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
+    QTextBlockFormat bf;
+    QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
+        bg + "\"><pre>" + t2 + "</pre></td></tr></table>";
+    cursor = ui->decodedTextBrowser2->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    bf = cursor.blockFormat();
+    bf.setBackground(QBrush(QColor(bg)));
+    cursor.insertHtml(s);
+    ui->decodedTextBrowser2->setTextCursor(cursor);
+    m_QSOmsg=t2;
+  }
+
   int nfreq=int(t4.at(3).toFloat());
   g_pWideGraph->setQSOfreq(nfreq);       //Set Rx freq
   QString firstcall=t4.at(4);
@@ -2712,10 +2726,6 @@ void MainWindow::on_rptSpinBox_valueChanged(int n)
   if(m_ntx==5) ui->txrb5->setChecked(true);
   if(m_ntx==6) ui->txrb6->setChecked(true);
   statusChanged();
-}
-void MainWindow::on_actionColor_highlighting_in_left_window_triggered(bool checked)
-{
-  m_leftColor=checked;
 }
 
 void MainWindow::on_action_73TxDisable_triggered(bool checked)

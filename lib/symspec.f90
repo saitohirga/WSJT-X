@@ -88,10 +88,12 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   fac=2.0/NFFT1
   nblks=(k-k1)/kstep1
   gain=10.0**(0.05*ingain)
+  sq=0.
   do nblk=1,nblks
      do i=1,NFFT1
         x1(i)=gain*id2(k1+i)
      enddo
+     sq=sq + dot_product(x1,x1)
 ! Mix at 1500 Hz, lowpass at +/-750 Hz, and downsample to 1500 Hz complex.
      x2(106:105+kstep1)=x1(1:kstep1)
      call fil3(x2,kstep1+105,c0(k8+1),n2)
@@ -102,10 +104,7 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
 
   npts8=k8
   ja=ja+jstep                         !Index of first sample
-  nsum=nblks*kstep1 - nzap
-
-  if(nsum.le.0) nsum=1
-  rms=sqrt(px/nsum)
+  rms=sqrt(sq/(nblks*NFFT1))
   pxdb=0.
   if(rms.gt.0.0) pxdb=20.0*log10(rms)
   if(pxdb.gt.60.0) pxdb=60.0
