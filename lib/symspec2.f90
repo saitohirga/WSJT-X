@@ -11,7 +11,7 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,freq,drift,snrdb,schk,    &
   real ss3(0:7,69)
   integer*1 i1
   equivalence (i1,i4)
-  include 'jt9sync.f90' 
+  include 'jt9sync.f90'
 
   aa(1)=-1500.0/nsps8
   aa(2)=0.
@@ -37,7 +37,9 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,freq,drift,snrdb,schk,    &
 !###
 !  write(30) freq,drift,ss2
 !  call flush(30)
-  call chkss2(ss2,schk)
+  call chkss2(ss2,freq,drift,schk)
+  freq0=freq
+  drift0=drift
   if(schk.lt.2.0) go to 900
 !###
   ss=0.

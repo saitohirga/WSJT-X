@@ -34,7 +34,6 @@ subroutine downsam9(c0,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
 !3001    format(i5,2f12.3,i8)
      enddo
      call pctile(s,1000,40,avenoise)
-     newdat=0
   endif
 
   ndown=nsps8/16                           !Downsample factor

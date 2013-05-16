@@ -10,6 +10,7 @@ subroutine decoder(ss,c0,nstandalone)
   character*80 fmt
   character*20 datetime
   real*4 ccfred(NSMAX)
+  real*4 red2(NSMAX)
   logical ccfok(NSMAX)
   logical done(NSMAX)
   integer*1 i1SoftSymbols(207)
@@ -61,6 +62,16 @@ subroutine decoder(ss,c0,nstandalone)
 !  idf=ntol/df3 + 0.999
   done=.false.
 
+  ia=max(1,nint((nfa-1000)/df3))
+  ib=min(NSMAX,nint((nfb-1000)/df3))
+  lag1=-(2.5/tstep + 0.9999)
+  lag2=5.0/tstep + 0.9999
+  call timer('sync9   ',0)
+  call sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,red2,ipk)
+  call timer('sync9   ',1)
+  red2lim=1.6
+  schklim=2.2
+
   do nqd=1,0,-1
      limit=1000
      ccflim=4.0
@@ -70,7 +81,7 @@ subroutine decoder(ss,c0,nstandalone)
      endif
      if(ndepth.ge.3) then
         limit=100000
-        ccflim=3.0
+        ccflim=2.5
      endif
 
      if(nqd.eq.1) then
@@ -82,27 +93,20 @@ subroutine decoder(ss,c0,nstandalone)
         nfa1=nfa
         nfb1=nfb
      endif
+
      ia=max(1,nint((nfa1-1000)/df3))
      ib=min(NSMAX,nint((nfb1-1000)/df3))
-     lag1=-(2.5/tstep + 0.9999)
-     lag2=5.0/tstep + 0.9999
-     call timer('sync9   ',0)
-! Compute ccfred()
-     call sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,ipk)
-     call timer('sync9   ',1)
-
      ccfok=.false.
-
      if(nqd.eq.1) then
         ccfok(ipk)=.true.
         do i=ia,ib
-           ccfok(i)=ccfred(i).gt.ccflim
+           ccfok(i)=ccfred(i).gt.ccflim .and. red2(i).gt.red2lim
         enddo
         ia1=ia
         ib1=ib
      else
         do i=ia,ib
-           ccfok(i)=ccfred(i).gt.ccflim
+           ccfok(i)=ccfred(i).gt.ccflim .and. red2(i).gt.red2lim
         enddo
         ccfok(ia1:ib1)=.false.
      endif
@@ -128,7 +132,7 @@ subroutine decoder(ss,c0,nstandalone)
                 drift,schk,i1SoftSymbols)
            call timer('softsym ',1)
 
-           if(schk.ge.2.0) then
+           if(schk.ge.schklim) then
 
               call timer('decode9 ',0)
               call decode9(i1SoftSymbols,limit,nlim,msg)
@@ -141,8 +145,9 @@ subroutine decoder(ss,c0,nstandalone)
               nsnr=nint(snrdb)
               ndrift=nint(drift/df3)
               
-              write(38,3002) nutc,nqd,nsnr,i,freq,ccfred(i),schk,nlim,msg
-3002          format(i4.4,i2,i5,i6,f8.1,2f6.1,i9,2x,a22)
+!              write(38,3002) nutc,nqd,nsnr,i,freq,ccfred(i),red2(i),     &
+!                   schk,nlim,msg
+!3002          format(i4.4,i2,i5,i6,f8.1,3f6.1,i9,2x,a22)
 
               if(msg.ne.'                      ') then
                  if(nqd.eq.0) ndecodes0=ndecodes0+1
@@ -163,7 +168,7 @@ subroutine decoder(ss,c0,nstandalone)
                  call flush(6)
               endif
            else
-              write(38,3002) nutc,nqd,-99,i,freq,ccfred(i),schk,0
+!              write(38,3002) nutc,nqd,-99,i,freq,ccfred(i),red2(i),schk,0
            endif
         endif
      enddo
@@ -181,11 +186,11 @@ subroutine decoder(ss,c0,nstandalone)
   if(nstandalone.eq.0) call timer('decoder ',101)
 
   call system_clock(iclock,iclock_rate,iclock_max)
-  write(39,3001) nutc,nfreqs1,nfreqs0,ndecodes1,ndecodes0+ndecodes1,       &
-       float(iclock-iclock0)/iclock_rate
-3001 format(5i8,f10.3)
-  call flush(38)
-  call flush(39)
+!  write(39,3001) nutc,nfreqs1,nfreqs0,ndecodes1,ndecodes0+ndecodes1,       &
+!       float(iclock-iclock0)/iclock_rate
+!3001 format(5i8,f10.3)
+!  call flush(38)
+!  call flush(39)
 
   return
 end subroutine decoder

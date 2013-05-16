@@ -25,7 +25,7 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   parameter (NFFT2=1024,NFFT2A=NFFT2/8)
   parameter (MAXFFT3=32768)
   real*4 s(NSMAX),w3(MAXFFT3)
-  real*4 x0(NFFT1),x1(NFFT1)
+  real*4 x1(NFFT1)
   real*4 x2(NFFT1+105)
   real*4 ssum(NSMAX)
   real*4 red(NSMAX)
@@ -82,24 +82,16 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   k0=k
  
   nzap=0
-  sigmas=1.0*(10.0**(0.01*nbslider)) + 0.7
-  peaklimit=sigmas*max(10.0,rms)
   px=0.
 
-  nwindow=2
-!  nwindow=0                                    !### No windowing ###
   kstep1=NFFT1
-  if(nwindow.ne.0) kstep1=NFFT1/2
   fac=2.0/NFFT1
   nblks=(k-k1)/kstep1
   gain=10.0**(0.05*ingain)
   do nblk=1,nblks
      do i=1,NFFT1
-        x0(i)=gain*id2(k1+i)
+        x1(i)=gain*id2(k1+i)
      enddo
-     call timf2(x0,k,NFFT1,nwindow,nb,peaklimit,x1,   &
-          slimit,lstrong,px,nzap)
-
 ! Mix at 1500 Hz, lowpass at +/-750 Hz, and downsample to 1500 Hz complex.
      x2(106:105+kstep1)=x1(1:kstep1)
      call fil3(x2,kstep1+105,c0(k8+1),n2)
@@ -152,6 +144,7 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   call pctile(ssum,iz,npct,xmed1)
   fac1=fac00/max(xmed1,0.006*ihsym)
   savg(1:iz)=fac1*ssum(1:iz)
+  savg(iz+1:iz+20)=savg(iz)
   call redsync(ss,ntrperiod,ihsym,iz,red)
 
   return

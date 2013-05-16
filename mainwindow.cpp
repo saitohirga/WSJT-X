@@ -1760,7 +1760,7 @@ void MainWindow::startTx2()
     double snr=t.mid(1,5).toDouble();
     if(snr>0.0 or snr < -50.0) snr=99.0;
     soundOutThread.setTxSNR(snr);
-    soundOutThread.start(QThread::HighPriority);
+    soundOutThread.start(QThread::HighestPriority);
     ui->xThermo->setValue(0.0);                         //Set Thermo to zero
     m_monitoring=false;
     soundInThread.setMonitoring(false);
