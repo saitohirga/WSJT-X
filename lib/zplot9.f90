@@ -1,10 +1,12 @@
-subroutine zplot9(s)
+subroutine zplot9(s,freq,drift)
 
   real s(0:8,85)
   character*1 line(85),mark(0:6)
   data mark/' ',' ','.','-','+','X','$'/
   include 'jt9sync.f90'
 
+  write(32,1000) freq,drift
+1000 format('Freq:',f7.1,'   Drift:',f5.1,'  ',60('-'))
   do j=8,0,-1
      do i=1,85
         n=(s(j,i))
@@ -23,7 +25,7 @@ subroutine zplot9(s)
 1015 format(87('-'))
   write(32,1020) line
 1020 format(2x,85a1)
-  write(32,1015)
+  call flush(32)
 
   return
 end subroutine zplot9

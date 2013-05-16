@@ -1,9 +1,14 @@
-subroutine sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,ipkbest)
+subroutine sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,red2,ipkbest)
 
   parameter (NSMAX=22000)            !Max length of saved spectra
   real ss(184,NSMAX)
   real ss1(184)
   real ccfred(NSMAX)
+  real savg(NSMAX)
+  real savg2(NSMAX)
+  real smo(-5:25)
+  real sq(NSMAX)
+  real red2(NSMAX)
   include 'jt9sync.f90'
 
   ipk=0
@@ -42,7 +47,43 @@ subroutine sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,ipkbest)
 
   call pctile(ccfred(ia),ib-ia+1,50,xmed)
   if(xmed.le.0.0) xmed=1.0
-  ccfred=2.0*ccfred/xmed
+  ccfred=2.0*ccfred/xmed 
+!  ccfred=4.0*(ccfred/xmed - 1.0)
+
+  savg=0.
+  do j=1,nzhsym
+     savg(ia:ib)=savg(ia:ib) + ss(j,ia:ib)
+  enddo
+  df=1500.0/2048.0                          ! 0.732422
+  df9=12000.0/6912.0                        ! 1.736111
+  savg(ia:ib)=savg(ia:ib)/nzhsym
+  smo(0:20)=1.0/21.0
+  smo(-5:-1)=-(1.0/21.0)*(21.0/10.0)
+  smo(21:25)=smo(-5)
+
+  do i=ia,ib
+     sm=0.
+     do j=-5,25
+        if(i+j.ge.1 .and. i+j.lt.NSMAX) sm=sm + smo(j)*savg(i+j)
+     enddo
+     savg2(i)=sm
+     sq(i)=sm*sm
+  enddo
+
+  call pctile(sq(ia:ib),ib-ia+1,20,sq0)
+  rms=sqrt(sq0)
+  savg2(ia:ib)=savg2(ia:ib)/(5.0*rms)
+
+  red2=0.
+  do i=ia+11,ib-10
+     ref=max(savg2(i-10),savg2(i+10))
+     red2(i)=savg2(i)-ref
+     if(red2(i).lt.-99.0) red2(i)=-99.0
+     if(red2(i).gt.99.0) red2(i)=99.0
+!     write(30,3001) i,i*df+1000.0,savg2(i),red2(i),ccfred(i)
+!3001 format(i8,4f10.3)
+  enddo
+!  call flush(30)
 
   return
 end subroutine sync9

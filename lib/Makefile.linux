@@ -30,7 +30,7 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	softsym.o peakdt9.o getlags.o afc9.o fchisq.o \
 	twkfreq.o downsam9.o symspec2.o ipcomm.o sleep_msec.o \
 	stdmsg.o sec_midn.o cutil.o azdist.o geodist.o morse.o \
-	fillcom.o
+	fillcom.o chkss2.o 
 
 libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
