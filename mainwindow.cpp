@@ -1227,7 +1227,7 @@ void MainWindow::decode()                                       //decode()
   jt9com_.nfa=g_pWideGraph->getFmin();
   jt9com_.nfb=g_pWideGraph->getFmax();
 
-  jt9com_.ntol=10;
+  jt9com_.ntol=3;
   if(jt9com_.nutc < m_nutc0) m_RxLog |= 1;  //Date and Time to all65.txt
   m_nutc0=jt9com_.nutc;
   jt9com_.nrxlog=m_RxLog;
