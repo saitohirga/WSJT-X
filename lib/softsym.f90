@@ -11,8 +11,6 @@ subroutine softsym(c0,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,freq,drift,   &
   integer*1 i1SoftSymbolsScrambled(207)
   integer*1 i1SoftSymbols(207)
   include 'jt9sync.f90'
-  data freq0/-999.0/,drift0/-999.0/
-  save freq0,drift0
 
   nspsd=16
   ndown=nsps8/nspsd
@@ -27,14 +25,6 @@ subroutine softsym(c0,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,freq,drift,   &
   call afc9(c3,nz3,fsample,a,syncpk)  !Find deltaF, fDot, fDDot
   freq=fpk - a(1)
   drift=-2.0*a(2)
-
-  if(abs(freq-freq0).lt.0.1 .and. abs(drift-drift0).lt.0.1) then
-     schk=0.
-     go to 999
-  endif
-  freq0=freq
-  drift0=drift
-  newdat=0
 
   call twkfreq(c3,c5,nz3,fsample,a)   !Correct for deltaF, fDot, fDDot
 

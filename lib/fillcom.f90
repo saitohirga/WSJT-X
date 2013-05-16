@@ -12,7 +12,7 @@ subroutine fillcom(nutc0,ndepth0)
   npts8=74736
   nfa=1000
   nfb=2000
-  ntol=10
+  ntol=3
   kin=1024
   nzhsym=173
   nsave=0
