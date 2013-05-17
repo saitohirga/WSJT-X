@@ -4,9 +4,52 @@
 We are getting close to a stable "Version 1.0" release of WSJT-X.  At
 that point program features will be frozen temporarily while we
 concentrate on any necessary bug fixes and improvements to the
-decoder.  If you have bug reports on version 0.95 r3251, or important
+decoder.  If you have bug reports on version 0.95 r3278, or important
 feature requests, please send them to us at wsjtgroup@yahoogroups.com
 as soon as possible!
+
+May 17, 2013: v0.95, r3278
+--------------------------
+1.  Double-clicking on a decoded text line in "Band Activity" window
+    now copies the line into the "QSO Frequency" window if it was not
+    already there.
+
+2.  Option "Color highlighting in left window" removed from Setup
+    menu.  Highlighting is now always done.
+
+3.  Positions of "QSO Frequency" and "Band Activity" windows have been
+    swapped.  
+
+4.  F4 was restored to its previous use; F5 is now used to display
+    Special Mouse Commands
+
+5.  Small square between Band selector and Frequency readout was made
+    a control button.  Orange indicates one-way CAT control from
+    program to radio, red indicates bi-directional control.  Clicking
+    the orange button causes a one-time readout of dial frequency.
+
+6.  If Save=None, the last recorded file is deleted on program exit.
+    This prevents unwanted accumulation of files in the Save
+    directory.
+
+7.  Status-bar messages were re-arranged in a more logical order.
+
+8.  Tx signal report was added to wsjtx_status.txt (for JT-Alert)
+
+9.  More informative labels were placed on the "Tab 2" GUI controls.
+
+10. Better default scaling for the "Cumulative" spectrum.
+
+11. New algorithm for identifying JT9 signals to send to decoder,
+    resulting major improvements in decoder speed.
+
+12. Bug fixes:
+     - Incorrect displayed frequencies for JT9-2 signals
+     - Infinitely repeated "Error rigOpen -1" messages
+     - User tries to open CAT control using busy or nonexistent serial port
+
+13. Many updates to the User's Guide
+
 
 May 2, 2013: v0.95, r3251
 -------------------------
