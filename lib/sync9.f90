@@ -1,4 +1,4 @@
-subroutine sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,red2,red3,ipkbest)
+subroutine sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,red2,ipkbest)
 
   parameter (NSMAX=22000)            !Max length of saved spectra
   real ss(184,NSMAX)
@@ -9,7 +9,6 @@ subroutine sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,red2,red3,ipkbest)
   real smo(-5:25)
   real sq(NSMAX)
   real red2(NSMAX)
-  real red3(NSMAX)
   include 'jt9sync.f90'
 
   ipk=0
@@ -33,7 +32,6 @@ subroutine sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,red2,red3,ipkbest)
      rms=sqrt(sq0/(nzhsym-1))
 
      smax=0.
-     smax2=0.
      do lag=lag1,lag2                !DT = 2.5 to 5.0 s
         sum1=0.
         sq2=sq0
@@ -51,10 +49,8 @@ subroutine sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,red2,red3,ipkbest)
            ipk=i 
         endif
         rms=sqrt(sq2/(nsum-1))
-        if(sum1/rms.gt.smax2) smax2=sum1/rms
      enddo
      ccfred(i)=smax                        !Best at this freq, over all lags
-     red3(i)=0.1*smax2 - 1.0
      if(smax.gt.sbest) then
         sbest=smax
         ipkbest=ipk

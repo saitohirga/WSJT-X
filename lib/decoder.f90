@@ -11,7 +11,6 @@ subroutine decoder(ss,c0,nstandalone)
   character*20 datetime
   real*4 ccfred(NSMAX)
   real*4 red2(NSMAX)
-  real*4 red3(NSMAX)
   logical ccfok(NSMAX)
   logical done(NSMAX)
   integer*1 i1SoftSymbols(207)
@@ -20,6 +19,11 @@ subroutine decoder(ss,c0,nstandalone)
        kin,nzhsym,nsave,nagain,ndepth,nrxlog,nfsample,datetime
   common/tracer/limtrace,lu
   save
+
+!  write(40) nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfb,ntol,  &
+!       kin,nzhsym,nsave,nagain,ndepth,nrxlog,nfsample,datetime,       &
+!       ss(1:184,1:1365),c0(1:npts8)
+!  call flush(40)
 
   call system_clock(iclock0,iclock_rate,iclock_max)           !###
   nfreqs0=0
@@ -68,7 +72,7 @@ subroutine decoder(ss,c0,nstandalone)
   lag1=-(2.5/tstep + 0.9999)
   lag2=5.0/tstep + 0.9999
   call timer('sync9   ',0)
-  call sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,red2,red3,ipk)
+  call sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,red2,ipk)
   call timer('sync9   ',1)
 
   nsps8=nsps/8
@@ -145,8 +149,8 @@ subroutine decoder(ss,c0,nstandalone)
               ndrift=nint(drift/df3)
               
 !              write(38,3002) nutc,nqd,nsnr,i,freq,ccfred(i),red2(i),     &
-!                   red3(i),schk,nlim,msg
-!3002          format(i4.4,i2,i4,i5,f7.1,f5.1,f6.1,2f5.1,i8,1x,a22)
+!                   schk,nlim,msg
+!3002          format(i4.4,i2,i4,i5,f7.1,f5.1,f6.1,f5.1,i8,1x,a22)
 
               if(msg.ne.'                      ') then
                  if(nqd.eq.0) ndecodes0=ndecodes0+1
@@ -167,7 +171,7 @@ subroutine decoder(ss,c0,nstandalone)
                  call flush(6)
               endif
            else
-!              write(38,3002) nutc,nqd,-99,i,freq,ccfred(i),red2(i),red3(i),  &
+!              write(38,3002) nutc,nqd,-99,i,freq,ccfred(i),red2(i),  &
 !                   schk,0
            endif
         endif
