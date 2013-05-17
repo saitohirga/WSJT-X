@@ -20,11 +20,6 @@ subroutine decoder(ss,c0,nstandalone)
   common/tracer/limtrace,lu
   save
 
-!  write(40) nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfb,ntol,  &
-!       kin,nzhsym,nsave,nagain,ndepth,nrxlog,nfsample,datetime,       &
-!       ss(1:184,1:1365),c0(1:npts8)
-!  call flush(40)
-
   call system_clock(iclock0,iclock_rate,iclock_max)           !###
   nfreqs0=0
   nfreqs1=0
@@ -64,7 +59,6 @@ subroutine decoder(ss,c0,nstandalone)
   if(nsps.eq.0) stop 'Error: bad TRperiod'    !Better: return an error code###
 
   tstep=0.5*nsps/12000.0                      !Half-symbol step (seconds)
-!  idf=ntol/df3 + 0.999
   done=.false.
 
   ia=max(1,nint((nfa-1000)/df3))
@@ -97,9 +91,6 @@ subroutine decoder(ss,c0,nstandalone)
      if(nqd.eq.1) then
         limit=100000
         ccfok(ia:ib)=.true.
-!        ccflim=2.0
-!        red2lim=-20.
-!        schklim=1.0
         nfa1=nfqso-ntol
         nfb1=nfqso+ntol
         ia=max(1,nint((nfa1-1000)/df3))
@@ -148,9 +139,9 @@ subroutine decoder(ss,c0,nstandalone)
               nsnr=nint(snrdb)
               ndrift=nint(drift/df3)
               
-!              write(38,3002) nutc,nqd,nsnr,i,freq,ccfred(i),red2(i),     &
-!                   schk,nlim,msg
-!3002          format(i4.4,i2,i4,i5,f7.1,f5.1,f6.1,f5.1,i8,1x,a22)
+!              write(38,3002) nutc,nqd,nsnr,i,freq,ndrift,ccfred(i),    &
+!                   red2(i),schk,nlim,msg
+!3002          format(i4.4,i2,i4,i5,f7.1,i4,f5.1,f6.1,f5.1,i8,1x,a22)
 
               if(msg.ne.'                      ') then
                  if(nqd.eq.0) ndecodes0=ndecodes0+1
@@ -158,8 +149,6 @@ subroutine decoder(ss,c0,nstandalone)
                  
                  write(*,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
                  write(13,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
-!              write(14,1014) nutc,nsync,nsnr,xdt,freq,ndrift,ccfred(i),nlim,msg
-!1014          format(i4.4,i4,i5,f6.1,f8.0,i4,f9.1,i9,3x,a22)
 
                  iaa=max(1,i-1)
                  ibb=min(NSMAX,i+22)
@@ -171,8 +160,7 @@ subroutine decoder(ss,c0,nstandalone)
                  call flush(6)
               endif
            else
-!              write(38,3002) nutc,nqd,-99,i,freq,ccfred(i),red2(i),  &
-!                   schk,0
+!              write(38,3002) nutc,nqd,-99,i,freq,ndrift,ccfred(i),red2(i),schk,0
            endif
         endif
      enddo
@@ -190,7 +178,7 @@ subroutine decoder(ss,c0,nstandalone)
   if(nstandalone.eq.0) call timer('decoder ',101)
 
   call system_clock(iclock,iclock_rate,iclock_max)
-!  write(39,3001) nutc,nfreqs1,nfreqs0,ndecodes1,ndecodes0+ndecodes1,       &
+!  write(39,3001) nutc,nfreqs1,nfreqs0,ndecodes1,ndecodes0,       &
 !       float(iclock-iclock0)/iclock_rate
 !3001 format(5i8,f10.3)
 !  call flush(38)
