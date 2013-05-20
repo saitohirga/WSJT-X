@@ -2636,6 +2636,9 @@ p, li { white-space: pre-wrap; }
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>JT9-5</string>
    </property>
@@ -2644,6 +2647,9 @@ p, li { white-space: pre-wrap; }
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>JT9-10</string>
    </property>
@@ -2651,6 +2657,9 @@ p, li { white-space: pre-wrap; }
   <action name="actionJT9_30">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>JT9-30</string>

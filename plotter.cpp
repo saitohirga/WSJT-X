@@ -102,17 +102,10 @@ void CPlotter::draw(float swide[], float red[], int i0)             //draw()
 
   QPoint LineBuf[MAX_SCREENSIZE];
   j=0;
-  bool strong0=false;
-  bool strong=false;
 
   int iz=XfromFreq(2000.0);
   for(int i=0; i<m_w; i++) {
     if(i>iz) swide[i]=0;
-    strong=false;
-    if(swide[i]<0) {
-      strong=true;
-      swide[i]=-swide[i];
-    }
     y=0.0;
     if(swide[i]>0.0) y = 10.0*log10(swide[i]);
     int y1 = 5.0*gain*y + 10*m_plotZero;
@@ -132,13 +125,7 @@ void CPlotter::draw(float swide[], float red[], int i0)             //draw()
       y2=gain*6.0*log10(sum/m_binsPerPixel) - 10.0;
     }
     if(m_bJT9Sync) y2=3.0*gain*red[i] - 15;
-    if(strong != strong0 or i==m_w-1) {
-      painter2D.drawPolyline(LineBuf,j);
-      j=0;
-      strong0=strong;
-      if(strong0) painter2D.setPen(Qt::red);
-      if(!strong0) painter2D.setPen(Qt::green);
-    }
+    if(i==m_w-2) painter2D.drawPolyline(LineBuf,j);
     LineBuf[j].setX(i);
     LineBuf[j].setY(m_h-(y2+0.8*m_h));
     j++;

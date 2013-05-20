@@ -4,7 +4,7 @@ subroutine redsync(ss,ntrperiod,ihsym,iz,red)
 ! NB: red() is used for real-time display only.  A better ccfred() is
 ! computed during the decode procedure.
 
-  Parameter (NSMAX=22000)
+  Parameter (NSMAX=1365)
   real*4 ss(184,NSMAX)
   real*4 red(NSMAX)
   include 'jt9sync.f90'

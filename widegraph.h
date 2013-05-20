@@ -15,7 +15,7 @@ public:
   ~WideGraph();
 
   void   dataSink2(float s[], float red[], float df3, int ihsym,
-                   int ndiskdata, uchar lstrong[]);
+                   int ndiskdata);
   void   setQSOfreq(int n);
   int    QSOfreq();
   int    nSpan();

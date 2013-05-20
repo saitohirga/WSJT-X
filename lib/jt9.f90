@@ -3,16 +3,17 @@ program jt9
 ! Decoder for JT9.  Can run stand-alone, reading data from *.wav files;
 ! or as the back end of wsjt-x, with data placed in a shared memory region.
 
-  character*80 arg,infile
-  parameter (NMAX=1800*12000)        !Total sample intervals per 30 minutes
-  parameter (NDMAX=1800*1500)        !Sample intervals at 1500 Hz rate
-  parameter (NSMAX=22000)            !Max length of saved spectra
+  parameter (NTMAX=120)
+  parameter (NMAX=NTMAX*12000)        !Total sample intervals per 30 minutes
+  parameter (NDMAX=NTMAX*1500)        !Sample intervals at 1500 Hz rate
+  parameter (NSMAX=1365)              !Max length of saved spectra
   integer*4 ihdr(11)
   real*4 s(NSMAX)
   real*4 ccfred(NSMAX)
   logical*1 lstrong(0:1023)
   integer*2 id2
   complex c0
+  character*80 arg,infile
   common/jt9com/ss(184,NSMAX),savg(NSMAX),c0(NDMAX),id2(NMAX),nutc,ndiskdat,  &
        ntr,mousefqso,newdat,nfa,nfb,ntol,kin,nzhsym,nsynced,ndecoded
   common/tracer/limtrace,lu

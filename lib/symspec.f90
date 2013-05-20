@@ -1,5 +1,5 @@
 subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
-     df3,ihsym,nzap,slimit,lstrong,npts8)
+     df3,ihsym,npts8)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -14,13 +14,11 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
 !  s()       spectrum for waterfall display
 !  red()     first cut at JT9 sync amplitude
 !  ihsym     index number of this half-symbol (1-184)
-!  nzap      number of samples zero'ed by noise blanker
-!  slimit    NB scale adjustment
-!  lstrong   true if strong signal at this freq
 
-  parameter (NMAX=1800*12000)        !Total sample intervals per 30 minutes
-  parameter (NDMAX=1800*1500)        !Sample intervals at 1500 Hz rate
-  parameter (NSMAX=22000)            !Max length of saved spectra
+  parameter (NTMAX=120)
+  parameter (NMAX=NTMAX*12000)        !Total sample intervals per 30 minutes
+  parameter (NDMAX=NTMAX*1500)        !Sample intervals at 1500 Hz rate
+  parameter (NSMAX=1365)              !Max length of saved spectra
   parameter (NFFT1=1024)
   parameter (NFFT2=1024,NFFT2A=NFFT2/8)
   parameter (MAXFFT3=32768)
@@ -30,7 +28,6 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   real*4 ssum(NSMAX)
   real*4 red(NSMAX)
   complex cx(0:MAXFFT3-1)
-  logical*1 lstrong(0:1023)               !Should be (0:512)
   integer*2 id2
   complex c0
   common/jt9com/ss(184,NSMAX),savg(NSMAX),c0(NDMAX),id2(NMAX),nutc,ndiskdat, &
@@ -80,10 +77,6 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
      endif
   endif
   k0=k
- 
-  nzap=0
-  px=0.
-
   kstep1=NFFT1
   fac=2.0/NFFT1
   nblks=(k-k1)/kstep1
@@ -143,7 +136,7 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
   call pctile(ssum,iz,npct,xmed1)
   fac1=fac00/max(xmed1,0.006*ihsym)
   savg(1:iz)=fac1*ssum(1:iz)
-  savg(iz+1:iz+20)=savg(iz)
+!  savg(iz+1:iz+20)=savg(iz)
   call redsync(ss,ntrperiod,ihsym,iz,red)
 
   return
