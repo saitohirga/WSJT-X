@@ -1243,7 +1243,7 @@ void MainWindow::decode()                                       //decode()
   char *from = (char*) jt9com_.ss;
   int size=sizeof(jt9com_);
   if(jt9com_.newdat==0) {
-    int noffset = 4*184*22000 + 4*22000 + 4*2*1800*1500 + 2*1800*12000;
+    int noffset = 4*184*NSMAX + 4*NSMAX + 4*2*NTMAX*1500 + 2*NTMAX*12000;
     to += noffset;
     from += noffset;
     size -= noffset;
