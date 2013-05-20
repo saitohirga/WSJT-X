@@ -182,6 +182,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_dontReadFreq=false;
   ui->readFreq->setEnabled(false);
   m_QSOmsg="";
+  m_pttPort="None";
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -439,7 +440,7 @@ void MainWindow::readSettings()
   m_myGrid=settings.value("MyGrid","").toString();
   m_idInt=settings.value("IDint",0).toInt();
   m_pttMethodIndex=settings.value("PTTmethod",1).toInt();
-  m_pttPort=settings.value("PTTport",0).toInt();
+  m_pttPort=settings.value("PTTport","None").toString();
   m_saveDir=settings.value("SaveDir",m_appDir + "/save").toString();
   m_nDevIn = settings.value("SoundInIndex", 0).toInt();
   m_paInDevice = settings.value("paInDevice",0).toInt();
@@ -552,8 +553,6 @@ void MainWindow::dataSink(int k)
   static int npts8;
   static float px=0.0;
   static float df3;
-  static uchar lstrong[1024];
-  static float slimit;
 
   if(m_diskData) {
     jt9com_.ndiskdat=1;

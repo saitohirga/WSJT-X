@@ -148,7 +148,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>60</width>
+             <width>80</width>
              <height>16777215</height>
             </size>
            </property>
@@ -273,7 +273,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="pttComboBox">
+          <widget class="QLineEdit" name="pttPortEntry">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -288,95 +288,10 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>60</width>
+             <width>80</width>
              <height>16777215</height>
             </size>
            </property>
-           <item>
-            <property name="text">
-             <string>None</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>COM1</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>COM2</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>COM3</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>COM4</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>COM5</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>COM6</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>COM7</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>COM8</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>COM9</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>COM10</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>COM11</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>COM12</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>COM13</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>COM14</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>COM15</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>USB</string>
-            </property>
-           </item>
           </widget>
          </item>
         </layout>
@@ -2458,7 +2373,6 @@
   <tabstop>myCallEntry</tabstop>
   <tabstop>myGridEntry</tabstop>
   <tabstop>pttMethodComboBox</tabstop>
-  <tabstop>pttComboBox</tabstop>
   <tabstop>idIntSpinBox</tabstop>
   <tabstop>cbID73</tabstop>
   <tabstop>cbPSKReporter</tabstop>
