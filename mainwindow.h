@@ -171,6 +171,7 @@ private:
     qint32  m_pttMethodIndex;
     qint32  m_QSOfreq0;
     qint32  m_ntx;
+    qint32  m_pttPort;
     qint32  m_timeout;
     qint32  m_txFreq;
     qint32  m_setftx;
@@ -314,7 +315,6 @@ private:
     QString m_msgSent0;
     QString m_fileToSave;
     QString m_QSOmsg;
-    QString m_pttPort;
 
     QStringList m_macro;
     QStringList m_dFreq;

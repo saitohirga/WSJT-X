@@ -121,15 +121,57 @@ float gran()
   return v2*fac;
 }
 
-int ptt(QString pttPort, int ntx, int* iptt, int* nopen)
+/*
+int ptt(int nport, int ntx, int *iptt)
 {
 #ifdef WIN32
-  int nport;
+  static HANDLE hFile;
+  static int open=0;
+  char s[10];
+  int i3=1,i4=1,i5=1,i6=1,i9=1,i00=1;
+
+  if(nport==0) {
+    *iptt=ntx;
+    return(0);
+  }
+
+  if(ntx && (!open)) {
+    sprintf(s,"\\\\.\\COM%d",nport);
+    hFile=CreateFile(TEXT(s),GENERIC_WRITE,0,NULL,OPEN_EXISTING,
+                     FILE_ATTRIBUTE_NORMAL,NULL);
+    if(hFile==INVALID_HANDLE_VALUE) {
+      //      printf("PTT: Cannot open COM port %d.\n",nport);
+      return 1;
+    }
+    open=1;
+  }
+
+  if(ntx && open) {
+    i3=EscapeCommFunction(hFile,SETRTS);
+    i5=EscapeCommFunction(hFile,SETDTR);
+    *iptt=1;
+  }
+
+  else {
+    i4=EscapeCommFunction(hFile,CLRRTS);
+    i6=EscapeCommFunction(hFile,CLRDTR);
+    i9=EscapeCommFunction(hFile,CLRBREAK);
+    i00=CloseHandle(hFile);
+    *iptt=0;
+    open=0;
+  }
+  return 0;
+#endif
+}
+*/
+
+int ptt(int nport, int ntx, int* iptt, int* nopen)
+{
+#ifdef WIN32
   static HANDLE hFile;
   char s[10];
   int i3=1,i4=1,i5=1,i6=1,i9=1,i00=1;
 
-  nport=pttPort.mid(3).toInt();
   if(nport==0) {
     *iptt=ntx;
     return(0);
@@ -163,4 +205,9 @@ int ptt(QString pttPort, int ntx, int* iptt, int* nopen)
   }
   return 0;
 #endif
+}
+
+int hamlibError(int retcode)
+{
+  qDebug() << "Hamlib error" << retcode;
 }

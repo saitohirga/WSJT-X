@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>548</width>
-    <height>521</height>
+    <height>465</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -148,7 +148,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>60</width>
              <height>16777215</height>
             </size>
            </property>
@@ -273,7 +273,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="pttPortEntry">
+          <widget class="QComboBox" name="pttComboBox">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -288,10 +288,15 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>60</width>
              <height>16777215</height>
             </size>
            </property>
+           <item>
+            <property name="text">
+             <string>None</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>
@@ -2373,6 +2378,7 @@
   <tabstop>myCallEntry</tabstop>
   <tabstop>myGridEntry</tabstop>
   <tabstop>pttMethodComboBox</tabstop>
+  <tabstop>pttComboBox</tabstop>
   <tabstop>idIntSpinBox</tabstop>
   <tabstop>cbID73</tabstop>
   <tabstop>cbPSKReporter</tabstop>

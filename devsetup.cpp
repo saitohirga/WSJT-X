@@ -36,6 +36,19 @@ void DevSetup::initDlg()
   char pa_device_name[128];
   char pa_device_hostapi[128];
 
+  /*
+  if(m_firstCall) {
+    QString t;
+    for(int i=14; i<100; i++) {
+      t.sprintf("COM%d",i);
+      ui.pttComboBox->addItem(t);
+    }
+    for(int i=0; i<10; i++) {
+      m_macro.append("");
+    }
+    m_firstCall=false;
+  }
+*/
   k=0;
   for(id=0; id<numDevices; id++ )  {
     pdi=Pa_GetDeviceInfo(id);
@@ -127,7 +140,6 @@ void DevSetup::initDlg()
 
   ui.idIntSpinBox->setValue(m_idInt);
   ui.pttMethodComboBox->setCurrentIndex(m_pttMethodIndex);
-  ui.pttPortEntry->setText(m_pttPort);
   ui.saveDirEntry->setText(m_saveDir);
   ui.comboBoxSndIn->setCurrentIndex(m_nDevIn);
   ui.comboBoxSndOut->setCurrentIndex(m_nDevOut);
@@ -148,7 +160,9 @@ void DevSetup::initDlg()
   ui.rbData->setEnabled(m_catEnabled);
   ui.rbMic->setEnabled(m_catEnabled);
   ui.pollSpinBox->setEnabled(m_catEnabled);
-  bool b=m_pttMethodIndex==1 or m_pttMethodIndex==2 or m_catEnabled;
+  bool b=m_pttMethodIndex==1 or m_pttMethodIndex==2;
+  ui.pttComboBox->setEnabled(b);
+  b=b or m_catEnabled;
   ui.testPTTButton->setEnabled(b);
   ui.rigComboBox->setCurrentIndex(m_rigIndex);
   ui.catPortComboBox->setCurrentIndex(m_catPortIndex);
@@ -160,12 +174,17 @@ void DevSetup::initDlg()
   ui.pollSpinBox->setValue(m_poll);
 
   // PY2SDR -- Per OS serial port names
+  m_tmp=m_pttPort;
+  ui.pttComboBox->clear();
   ui.catPortComboBox->clear();
+  ui.pttComboBox->addItem("None");
   ui.catPortComboBox->addItem("None");
 #ifdef WIN32
   for ( int i = 1; i < 100; i++ ) {
+    ui.pttComboBox->addItem("COM" + QString::number(i));
     ui.catPortComboBox->addItem("COM" + QString::number(i));
   }
+  ui.pttComboBox->addItem("USB");
   ui.catPortComboBox->addItem("USB");
 #else
   ui.catPortComboBox->addItem("/dev/ttyS0");
@@ -176,9 +195,18 @@ void DevSetup::initDlg()
   ui.catPortComboBox->addItem("/dev/ttyUSB1");
   ui.catPortComboBox->addItem("/dev/ttyUSB2");
   ui.catPortComboBox->addItem("/dev/ttyUSB3");
-#endif
-  ui.catPortComboBox->setCurrentIndex(m_catPortIndex);
 
+  ui.pttComboBox->addItem("/dev/ttyS0");
+  ui.pttComboBox->addItem("/dev/ttyS1");
+  ui.pttComboBox->addItem("/dev/ttyS2");
+  ui.pttComboBox->addItem("/dev/ttyS3");
+  ui.pttComboBox->addItem("/dev/ttyUSB0");
+  ui.pttComboBox->addItem("/dev/ttyUSB1");
+  ui.pttComboBox->addItem("/dev/ttyUSB2");
+  ui.pttComboBox->addItem("/dev/ttyUSB3");
+#endif
+  ui.pttComboBox->setCurrentIndex(m_tmp);
+  ui.catPortComboBox->setCurrentIndex(m_catPortIndex);
 
   ui.macro1->setText(m_macro[0].toUpper());
   ui.macro2->setText(m_macro[1].toUpper());
@@ -226,7 +254,7 @@ void DevSetup::accept()
   m_myGrid=ui.myGridEntry->text();
   m_idInt=ui.idIntSpinBox->value();
   m_pttMethodIndex=ui.pttMethodComboBox->currentIndex();
-  m_pttPort=ui.pttPortEntry->text();
+  m_pttPort=ui.pttComboBox->currentIndex();
   m_saveDir=ui.saveDirEntry->text();
   m_nDevIn=ui.comboBoxSndIn->currentIndex();
   m_paInDevice=m_inDevList[m_nDevIn];
@@ -334,9 +362,7 @@ void DevSetup::on_cbPSKReporter_clicked(bool b)
 void DevSetup::on_pttMethodComboBox_activated(int index)
 {
   m_pttMethodIndex=index;
-  bool b=(m_pttMethodIndex==1 or m_pttMethodIndex==2);
-  ui.pttPortEntry->setEnabled(b);
-  b=m_pttMethodIndex==1 or m_pttMethodIndex==2 or
+  bool b=m_pttMethodIndex==1 or m_pttMethodIndex==2 or
       (m_catEnabled and m_pttMethodIndex==0);
   ui.testPTTButton->setEnabled(b);
 }
@@ -493,7 +519,14 @@ void DevSetup::on_pollSpinBox_valueChanged(int n)
   m_poll=n;
 }
 
-void DevSetup::on_pttPortEntry_editingFinished()
+void DevSetup::on_pttComboBox_currentIndexChanged(int index)
 {
-  m_pttPort=ui.pttPortEntry->text();
+  m_pttPort=index;
+}
+
+void DevSetup::on_pttMethodComboBox_currentIndexChanged(int index)
+{
+  m_pttMethodIndex=index;
+  bool b=m_pttMethodIndex==1 or m_pttMethodIndex==2;
+  ui.pttComboBox->setEnabled(b);
 }
