@@ -36,18 +36,6 @@ void DevSetup::initDlg()
   char pa_device_name[128];
   char pa_device_hostapi[128];
 
-  if(m_firstCall) {
-    QString t;
-    for(int i=14; i<100; i++) {
-      t.sprintf("COM%d",i);
-      ui.pttComboBox->addItem(t);
-    }
-    for(int i=0; i<10; i++) {
-      m_macro.append("");
-    }
-    m_firstCall=false;
-  }
-
   k=0;
   for(id=0; id<numDevices; id++ )  {
     pdi=Pa_GetDeviceInfo(id);
@@ -139,7 +127,7 @@ void DevSetup::initDlg()
 
   ui.idIntSpinBox->setValue(m_idInt);
   ui.pttMethodComboBox->setCurrentIndex(m_pttMethodIndex);
-  ui.pttComboBox->setCurrentIndex(m_pttPort);
+  ui.pttPortEntry->setText(m_pttPort);
   ui.saveDirEntry->setText(m_saveDir);
   ui.comboBoxSndIn->setCurrentIndex(m_nDevIn);
   ui.comboBoxSndOut->setCurrentIndex(m_nDevOut);
@@ -238,7 +226,7 @@ void DevSetup::accept()
   m_myGrid=ui.myGridEntry->text();
   m_idInt=ui.idIntSpinBox->value();
   m_pttMethodIndex=ui.pttMethodComboBox->currentIndex();
-  m_pttPort=ui.pttComboBox->currentIndex();
+  m_pttPort=ui.pttPortEntry->text();
   m_saveDir=ui.saveDirEntry->text();
   m_nDevIn=ui.comboBoxSndIn->currentIndex();
   m_paInDevice=m_inDevList[m_nDevIn];
@@ -346,7 +334,9 @@ void DevSetup::on_cbPSKReporter_clicked(bool b)
 void DevSetup::on_pttMethodComboBox_activated(int index)
 {
   m_pttMethodIndex=index;
-  bool b=m_pttMethodIndex==1 or m_pttMethodIndex==2 or
+  bool b=(m_pttMethodIndex==1 or m_pttMethodIndex==2);
+  ui.pttPortEntry->setEnabled(b);
+  b=m_pttMethodIndex==1 or m_pttMethodIndex==2 or
       (m_catEnabled and m_pttMethodIndex==0);
   ui.testPTTButton->setEnabled(b);
 }
@@ -503,7 +493,7 @@ void DevSetup::on_pollSpinBox_valueChanged(int n)
   m_poll=n;
 }
 
-void DevSetup::on_pttComboBox_currentIndexChanged(int index)
+void DevSetup::on_pttPortEntry_editingFinished()
 {
-  m_pttPort=index;
+  m_pttPort=ui.pttPortEntry->text();
 }
