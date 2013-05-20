@@ -2,15 +2,16 @@
 #include <stdexcept>
 
 #define FRAMES_PER_BUFFER 1024
-#define NSMAX 22000
+#define NSMAX 1365
+#define NTMAX 120
 
 extern "C" {
 #include <portaudio.h>
 extern struct {
   float ss[184*NSMAX];              //This is "common/jt9com/..." in fortran
   float savg[NSMAX];
-  float c0[2*1800*1500];
-  short int d2[1800*12000];
+  float c0[2*NTMAX*1500];
+  short int d2[NTMAX*12000];
   int nutc;                         //UTC as integer, HHMM
   int ndiskdat;                     //1 ==> data read from *.wav file
   int ntrperiod;                    //TR period (seconds)

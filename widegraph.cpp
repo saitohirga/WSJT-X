@@ -2,8 +2,6 @@
 #include "ui_widegraph.h"
 #include "commons.h"
 
-#define NSMAX 22000
-
 WideGraph::WideGraph(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::WideGraph)
@@ -81,7 +79,7 @@ void WideGraph::saveSettings()
 }
 
 void WideGraph::dataSink2(float s[], float red[], float df3, int ihsym,
-                          int ndiskdata, uchar lstrong[])
+                          int ndiskdata)
 {
   static float splot[NSMAX];
   static float swide[2048];

@@ -2,7 +2,8 @@ program jt9sim
 
 ! Generate simulated data for testing of WSJT-X
 
-  parameter (NMAX=1800*12000)
+  parameter (NTMAX=120)
+  parameter (NMAX=NTMAX*12000)
   integer ihdr(11)
   integer*2 iwave                  !Generated waveform (no noise)
   real*8 f0,f,dt,twopi,phi,dphi,baud,fspan,fsample,freq

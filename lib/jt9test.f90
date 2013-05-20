@@ -5,10 +5,10 @@ program jt9test
 
 ! NB: For unknown reason, ***MUST*** be compiled by g95 with -O0 !!!
 
-  character*80 arg,infile
-  parameter (NMAX=1800*12000)        !Total sample intervals per 30 minutes
-  parameter (NDMAX=1800*1500)        !Sample intervals at 1500 Hz rate
-  parameter (NSMAX=22000)            !Max length of saved spectra
+  parameter (NTMAX=120)
+  parameter (NMAX=NTMAX*12000)        !Total sample intervals per 30 minutes
+  parameter (NDMAX=NTMAX*1500)        !Sample intervals at 1500 Hz rate
+  parameter (NSMAX=1365)              !Max length of saved spectra
   integer*4 ihdr(11)
   real*4 s(NSMAX)
   real*4 ccfred(NSMAX)
@@ -16,6 +16,7 @@ program jt9test
   integer*1 i1SoftSymbols(207)
   character*22 msg
   character*33 line
+  character*80 arg,infile
   integer*2 id2
   complex c0
   complex c1(0:2700000)

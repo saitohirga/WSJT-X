@@ -53,22 +53,25 @@ subroutine jt9a
 end subroutine jt9a
 
 subroutine jt9b(jt9com,nbytes)
+  parameter (NTMAX=120)
+  parameter (NSMAX=1365)
   integer*1 jt9com(0:nbytes-1)
   kss=0
-  ksavg=kss + 4*184*22000
-  kc0=ksavg + 4*22000
-  kid2=kc0 + 2*4*1800*1500
-  knutc=kid2 + 2*1800*12000
+  ksavg=kss + 4*184*NSMAX
+  kc0=ksavg + 4*NSMAX
+  kid2=kc0 + 2*4*NTMAX*1500
+  knutc=kid2 + 2*NTMAX*12000
   call jt9c(jt9com(kss),jt9com(ksavg),jt9com(kc0),jt9com(kid2),jt9com(knutc))
   return
 end subroutine jt9b
 
 subroutine jt9c(ss,savg,c0,id2,nparams0)
-  parameter (NSMAX=22000)
+  parameter (NTMAX=120)
+  parameter (NSMAX=1365)
   integer*1 detach_jt9
   real*4 ss(184*NSMAX),savg(NSMAX)
-  complex c0(1800*1500)
-  integer*2 id2(1800*12000)
+  complex c0(NTMAX*1500)
+  integer*2 id2(NTMAX*12000)
 
   integer nparams0(21),nparams(21)
   character*20 datetime

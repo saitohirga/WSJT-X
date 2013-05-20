@@ -566,7 +566,7 @@ void MainWindow::dataSink(int k)
   if(m_NB) nb=1;
   trmin=m_TRperiod/60;
   symspec_(&k, &trmin, &m_nsps, &m_inGain, &nb, &m_NBslider, &px, s, red,
-           &df3, &ihsym, &nzap, &slimit, lstrong, &npts8);
+           &df3, &ihsym, &npts8);
   if(ihsym <=0) return;
   QString t;
   m_pctZap=nzap*100.0/m_nsps;
@@ -574,7 +574,7 @@ void MainWindow::dataSink(int k)
   lab2->setText(t);
   ui->xThermo->setValue((double)px);                    //Update thermometer
   if(m_monitoring || m_diskData) {
-    g_pWideGraph->dataSink2(s,red,df3,ihsym,m_diskData,lstrong);
+    g_pWideGraph->dataSink2(s,red,df3,ihsym,m_diskData);
   }
 
   if(ihsym == m_hsymStop) {
@@ -1244,7 +1244,7 @@ void MainWindow::decode()                                       //decode()
   char *from = (char*) jt9com_.ss;
   int size=sizeof(jt9com_);
   if(jt9com_.newdat==0) {
-    int noffset = 4*184*22000 + 4*22000 + 4*2*1800*1500 + 2*1800*12000;
+    int noffset = 4*184*NSMAX + 4*NSMAX + 4*2*NTMAX*1500 + 2*NTMAX*12000;
     to += noffset;
     from += noffset;
     size -= noffset;

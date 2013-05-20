@@ -35,5 +35,5 @@ subroutine softsym(c0,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,freq,drift,   &
 ! Remove interleaving
   call interleave9(i1SoftSymbolsScrambled,-1,i1SoftSymbols)
 
-999 return
+  return
 end subroutine softsym

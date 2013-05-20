@@ -360,8 +360,7 @@ extern "C" {
 //----------------------------------------------------- C and Fortran routines
 void symspec_(int* k, int* ntrperiod, int* nsps, int* ingain, int* nb,
               int* m_NBslider, float* px, float s[], float red[],
-              float* df3, int* nhsym, int* nzap, float* slimit,
-              uchar lstrong[], int* npts8);
+              float* df3, int* nhsym, int* npts8);
 
 void genjt9_(char* msg, int* ichk, char* msgsent, int itone[],
              int* itext, int len1, int len2);
