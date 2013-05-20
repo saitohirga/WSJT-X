@@ -18,6 +18,7 @@ public:
 
   qint32  m_idInt;
   qint32  m_pttMethodIndex;
+  qint32  m_pttPort;
   qint32  m_nDevIn;
   qint32  m_nDevOut;
   qint32  m_inDevList[100];
@@ -38,6 +39,7 @@ public:
   qint32  m_test;
   qint32  m_COMportOpen;
   qint32  m_poll;
+  qint32  m_tmp;
 
   bool    m_restartSoundIn;
   bool    m_restartSoundOut;
@@ -55,7 +57,6 @@ public:
   QString m_azelDir;
   QString m_catPort;
   QString m_handshake;
-  QString m_pttPort;
 
   QStringList m_macro;
   QStringList m_dFreq;
@@ -88,7 +89,9 @@ private slots:
   void on_cbDTRoff_toggled(bool checked);
   void on_rbData_toggled(bool checked);
   void on_pollSpinBox_valueChanged(int n);
-  void on_pttPortEntry_editingFinished();
+  void on_pttComboBox_currentIndexChanged(int index);
+
+  void on_pttMethodComboBox_currentIndexChanged(int index);
 
 private:
   Rig* rig;
@@ -96,6 +99,6 @@ private:
   Ui::DialogSndCard ui;
 };
 
-extern int ptt(QString pttPort, int ntx, int* iptt, int* nopen);
+extern int ptt(int nport, int ntx, int* iptt, int* nopen);
 
 #endif // DEVSETUP_H

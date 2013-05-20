@@ -182,7 +182,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_dontReadFreq=false;
   ui->readFreq->setEnabled(false);
   m_QSOmsg="";
-  m_pttPort="None";
   decodeBusy(false);
 
   ui->xThermo->setFillBrush(Qt::green);
@@ -440,7 +439,7 @@ void MainWindow::readSettings()
   m_myGrid=settings.value("MyGrid","").toString();
   m_idInt=settings.value("IDint",0).toInt();
   m_pttMethodIndex=settings.value("PTTmethod",1).toInt();
-  m_pttPort=settings.value("PTTport","None").toString();
+  m_pttPort=settings.value("PTTport",0).toInt();
   m_saveDir=settings.value("SaveDir",m_appDir + "/save").toString();
   m_nDevIn = settings.value("SoundInIndex", 0).toInt();
   m_paInDevice = settings.value("paInDevice",0).toInt();
@@ -884,6 +883,7 @@ void MainWindow::statusChanged()
     QTextStream out(&f);
     out << m_dialFreq << ";" << m_mode << ";" << m_hisCall << ";"
         << ui->rptSpinBox->value() << endl;
+//    out << m_dialFreq << ";" << m_mode << ";" << m_hisCall << endl;
     f.close();
   } else {
     msgBox("Cannot open file \"wsjtx_status.txt\".");
@@ -1243,7 +1243,7 @@ void MainWindow::decode()                                       //decode()
   char *from = (char*) jt9com_.ss;
   int size=sizeof(jt9com_);
   if(jt9com_.newdat==0) {
-    int noffset = 4*184*NSMAX + 4*NSMAX + 4*2*NTMAX*1500 + 2*NTMAX*12000;
+    int noffset = 4*184*22000 + 4*22000 + 4*2*1800*1500 + 2*1800*12000;
     to += noffset;
     from += noffset;
     size -= noffset;
