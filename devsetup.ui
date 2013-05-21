@@ -105,6 +105,13 @@
           </spacer>
          </item>
          <item>
+          <widget class="QPushButton" name="pbHRD">
+           <property name="text">
+            <string>HRD</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="label_2">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">

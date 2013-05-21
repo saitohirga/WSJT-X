@@ -93,6 +93,8 @@ private slots:
 
   void on_pttMethodComboBox_currentIndexChanged(int index);
 
+  void on_pbHRD_clicked();
+
 private:
   Rig* rig;
   void msgBox(QString t);
@@ -100,5 +102,13 @@ private:
 };
 
 extern int ptt(int nport, int ntx, int* iptt, int* nopen);
+
+extern "C" {
+  const bool HRDInterfaceConnect(const wchar_t *host, const ushort);
+  void HRDInterfaceDisconnect();
+  const bool HRDInterfaceIsConnected();
+  const wchar_t* HRDInterfaceSendMessage(const wchar_t *msg);
+  void HRDInterfaceFreeString(const wchar_t *lstring);
+}
 
 #endif // DEVSETUP_H

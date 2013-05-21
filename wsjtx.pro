@@ -66,6 +66,7 @@ LIBS += ../../hamlib-1.2.15.3/src/.libs/libhamlib.dll.a
 LIBS += ../wsjtx/lib/libjt9.a
 LIBS += ../wsjtx/libfftw3f_win.a
 LIBS += ../wsjtx/libpskreporter.a
+LIBS += ../wsjtx/libHRDInterface001.a
 LIBS += ../QtSupport/palir-02.dll
 LIBS += libwsock32
 LIBS += C:/MinGW/lib/libf95.a

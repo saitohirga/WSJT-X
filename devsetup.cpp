@@ -126,6 +126,7 @@ void DevSetup::initDlg()
           this, SLOT(p4Error()));
   p4.start("rigctl -l");
   p4.waitForFinished(1000);
+  ui.rigComboBox->addItem("  9999 Ham Radio Deluxe");
 
   QPalette pal(ui.myCallEntry->palette());
   if(m_myCall=="") {
@@ -244,6 +245,7 @@ void DevSetup::accept()
   // Check to see whether SoundInThread must be restarted,
   // and save user parameters.
 
+  qDebug() << "a";
   if(m_nDevIn!=ui.comboBoxSndIn->currentIndex() or
      m_paInDevice!=m_inDevList[m_nDevIn]) m_restartSoundIn=true;
 
@@ -291,9 +293,12 @@ void DevSetup::accept()
   m_dFreq.append(ui.f15->text());
   m_dFreq.append(ui.f16->text());
 
+  qDebug() << "b";
+
   if(m_bRigOpen) {
     rig->close();
-    delete rig;
+    if(m_rig!=9999) delete rig;
+    qDebug() << "c";
     m_bRigOpen=false;
   }
 
@@ -436,31 +441,34 @@ void DevSetup::on_testCATButton_clicked()
   if(!m_catEnabled) return;
   if(m_bRigOpen) {
     rig->close();
-    delete rig;
+    if(m_rig!=9999) delete rig;
     m_bRigOpen=false;
   }
+
   rig = new Rig();
-  if (!rig->init(m_rig)) {
+  if(m_rig != 9999) {
+    if (!rig->init(m_rig)) {
       msgBox("Rig init failure");
       return;
+    }
+
+    rig->setConf("rig_pathname", m_catPort.toAscii().data());
+    char buf[80];
+    sprintf(buf,"%d",m_serialRate);
+    rig->setConf("serial_speed",buf);
+    sprintf(buf,"%d",m_dataBits);
+    rig->setConf("data_bits",buf);
+    sprintf(buf,"%d",m_stopBits);
+    rig->setConf("stop_bits",buf);
+    rig->setConf("serial_handshake",m_handshake.toAscii().data());
+
+    if(m_bDTRoff) {
+      rig->setConf("rts_state","OFF");
+      rig->setConf("dtr_state","OFF");
+    }
   }
 
-  rig->setConf("rig_pathname", m_catPort.toAscii().data());
-  char buf[80];
-  sprintf(buf,"%d",m_serialRate);
-  rig->setConf("serial_speed",buf);
-  sprintf(buf,"%d",m_dataBits);
-  rig->setConf("data_bits",buf);
-  sprintf(buf,"%d",m_stopBits);
-  rig->setConf("stop_bits",buf);
-  rig->setConf("serial_handshake",m_handshake.toAscii().data());
-
-  if(m_bDTRoff) {
-    rig->setConf("rts_state","OFF");
-    rig->setConf("dtr_state","OFF");
-  }
-
-  ret=rig->open();
+  ret=rig->open(m_rig);
   if(ret==RIG_OK) {
     m_bRigOpen=true;
   } else {
@@ -529,4 +537,41 @@ void DevSetup::on_pttMethodComboBox_currentIndexChanged(int index)
   m_pttMethodIndex=index;
   bool b=m_pttMethodIndex==1 or m_pttMethodIndex==2;
   ui.pttComboBox->setEnabled(b);
+}
+
+void DevSetup::on_pbHRD_clicked()
+{
+
+  bool bConnect=false;
+  bConnect = HRDInterfaceConnect(L"localhost",7809);
+  if(bConnect) {
+    QString t2;
+
+    const wchar_t* context=HRDInterfaceSendMessage(L"Get Context");
+    QString qc="[" + QString::fromWCharArray (context,-1) + "] ";
+
+    const wchar_t* cmnd = (const wchar_t*) (qc+"Get Frequency").utf16();
+    const wchar_t* freqString=HRDInterfaceSendMessage(cmnd);
+    t2=QString::fromWCharArray (freqString,-1);
+    qDebug() << "Freq1:" << t2;
+
+    cmnd = (const wchar_t*) (qc+"Set Frequency-Hz 14070000").utf16();
+    const wchar_t* result=HRDInterfaceSendMessage(cmnd);
+    t2=QString::fromWCharArray (result,-1);
+    qDebug() << "Freq2:" << t2;
+
+    cmnd = (const wchar_t*) (qc+"Get Frequency").utf16();
+    freqString=HRDInterfaceSendMessage(cmnd);
+    t2=QString::fromWCharArray (freqString,-1);
+    qDebug() << "Freq3:" << t2;
+
+
+    HRDInterfaceDisconnect();
+    bConnect = HRDInterfaceIsConnected();
+    HRDInterfaceFreeString(context);
+    HRDInterfaceFreeString(freqString);
+    HRDInterfaceFreeString(cmnd);
+  } else {
+    qDebug() << "Connection to HRD failed.";
+  }
 }
