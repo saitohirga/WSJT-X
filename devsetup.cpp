@@ -245,7 +245,6 @@ void DevSetup::accept()
   // Check to see whether SoundInThread must be restarted,
   // and save user parameters.
 
-  qDebug() << "a";
   if(m_nDevIn!=ui.comboBoxSndIn->currentIndex() or
      m_paInDevice!=m_inDevList[m_nDevIn]) m_restartSoundIn=true;
 
@@ -293,12 +292,9 @@ void DevSetup::accept()
   m_dFreq.append(ui.f15->text());
   m_dFreq.append(ui.f16->text());
 
-  qDebug() << "b";
-
   if(m_bRigOpen) {
     rig->close();
     if(m_rig!=9999) delete rig;
-    qDebug() << "c";
     m_bRigOpen=false;
   }
 
@@ -446,12 +442,12 @@ void DevSetup::on_testCATButton_clicked()
   }
 
   rig = new Rig();
+
   if(m_rig != 9999) {
     if (!rig->init(m_rig)) {
       msgBox("Rig init failure");
       return;
     }
-
     rig->setConf("rig_pathname", m_catPort.toAscii().data());
     char buf[80];
     sprintf(buf,"%d",m_serialRate);
@@ -461,7 +457,6 @@ void DevSetup::on_testCATButton_clicked()
     sprintf(buf,"%d",m_stopBits);
     rig->setConf("stop_bits",buf);
     rig->setConf("serial_handshake",m_handshake.toAscii().data());
-
     if(m_bDTRoff) {
       rig->setConf("rts_state","OFF");
       rig->setConf("dtr_state","OFF");

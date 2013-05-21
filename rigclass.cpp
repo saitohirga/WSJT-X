@@ -114,7 +114,6 @@ int Rig::setFreq(freq_t freq, vfo_t vfo) {
     QString t;
     int nhz=(int)freq;
     t=m_context + "Set Frequency-Hz " + QString::number(nhz);
-    qDebug() << "a" << freq << nhz << t;
     const wchar_t* cmnd = (const wchar_t*) t.utf16();
     const wchar_t* result=HRDInterfaceSendMessage(cmnd);
     QString t2=QString::fromWCharArray (result,-1);

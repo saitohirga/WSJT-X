@@ -641,7 +641,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     rig->close();
     ui->readFreq->setStyleSheet("");
     ui->readFreq->setEnabled(false);
-    delete rig;
+    if(m_rig!=9999) delete rig;
     m_bRigOpen=false;
     m_catEnabled=false;
   }
@@ -2775,26 +2775,27 @@ void MainWindow::rigOpen()
   QString t;
   int ret;
   rig = new Rig();
+
   if(m_rig != 9999) {
     if (!rig->init(m_rig)) {
       msgBox("Rig init failure");
       return;
     }
+    rig->setConf("rig_pathname", m_catPort.toAscii().data());
+    char buf[80];
+    sprintf(buf,"%d",m_serialRate);
+    rig->setConf("serial_speed",buf);
+    sprintf(buf,"%d",m_dataBits);
+    rig->setConf("data_bits",buf);
+    sprintf(buf,"%d",m_stopBits);
+    rig->setConf("stop_bits",buf);
+    rig->setConf("serial_handshake",m_handshake.toAscii().data());
+    if(m_bDTRoff) {
+      rig->setConf("rts_state","OFF");
+      rig->setConf("dtr_state","OFF");
+    }
   }
 
-  rig->setConf("rig_pathname", m_catPort.toAscii().data());
-  char buf[80];
-  sprintf(buf,"%d",m_serialRate);
-  rig->setConf("serial_speed",buf);
-  sprintf(buf,"%d",m_dataBits);
-  rig->setConf("data_bits",buf);
-  sprintf(buf,"%d",m_stopBits);
-  rig->setConf("stop_bits",buf);
-  rig->setConf("serial_handshake",m_handshake.toAscii().data());
-  if(m_bDTRoff) {
-    rig->setConf("rts_state","OFF");
-    rig->setConf("dtr_state","OFF");
-  }
   ret=rig->open(m_rig);
   if(ret==RIG_OK) {
     m_bRigOpen=true;
