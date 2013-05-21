@@ -35,6 +35,7 @@
 
 #include <hamlib/rig.h>
 #include "rigclass.h"
+#include <QDebug>
 
 
 static int hamlibpp_freq_event(RIG *rig, vfo_t vfo, freq_t freq, rig_ptr_t arg);
@@ -76,12 +77,31 @@ int Rig::init(rig_model_t rig_model)
     return initOk;
 }
 
-int Rig::open(void) {
-  return rig_open(theRig);
+int Rig::open(int n) {
+  m_hrd=(n==9999);
+  if(m_hrd) {
+    bool bConnect=false;
+    bConnect = HRDInterfaceConnect(L"localhost",7809);
+    if(bConnect) {
+      const wchar_t* context=HRDInterfaceSendMessage(L"Get Context");
+      m_context="[" + QString::fromWCharArray (context,-1) + "] ";
+      return 0;
+    } else {
+      m_hrd=false;
+      return -1;
+    }
+  } else {
+    return rig_open(theRig);
+  }
 }
 
 int Rig::close(void) {
-  return rig_close(theRig);
+  if(m_hrd) {
+    HRDInterfaceDisconnect();
+
+  } else {
+    return rig_close(theRig);
+  }
 }
 
 int Rig::setConf(const char *name, const char *val)
@@ -90,14 +110,38 @@ int Rig::setConf(const char *name, const char *val)
 }
 
 int Rig::setFreq(freq_t freq, vfo_t vfo) {
-  return rig_set_freq(theRig, vfo, freq);
+  if(m_hrd) {
+    QString t;
+    int nhz=(int)freq;
+    t=m_context + "Set Frequency-Hz " + QString::number(nhz);
+    qDebug() << "a" << freq << nhz << t;
+    const wchar_t* cmnd = (const wchar_t*) t.utf16();
+    const wchar_t* result=HRDInterfaceSendMessage(cmnd);
+    QString t2=QString::fromWCharArray (result,-1);
+    if(t2=="OK") {
+      return 0;
+    } else {
+      return -1;
+    }
+  } else {
+    return rig_set_freq(theRig, vfo, freq);
+  }
 }
 
 freq_t Rig::getFreq(vfo_t vfo)
 {
   freq_t freq;
-  rig_get_freq(theRig, vfo, &freq);
-  return freq;
+  if(m_hrd) {
+    const wchar_t* cmnd = (const wchar_t*) (m_context+"Get Frequency").utf16();
+    const wchar_t* freqString=HRDInterfaceSendMessage(cmnd);
+    QString t2=QString::fromWCharArray (freqString,-1);
+    HRDInterfaceFreeString(freqString);
+    freq=t2.toDouble();
+    return freq;
+  } else {
+    rig_get_freq(theRig, vfo, &freq);
+    return freq;
+  }
 }
 
 int Rig::setMode(rmode_t mode, pbwidth_t width, vfo_t vfo) {

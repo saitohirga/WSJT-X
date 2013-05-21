@@ -24,11 +24,13 @@
 
 #include <hamlib/rig.h>
 #include <iostream>
-
+#include <QString>
 
 class BACKEND_IMPEXP Rig {
 private:
   RIG* theRig;  // Global ref. to the rig
+  bool m_hrd;
+  QString m_context;
 
 protected:
 public:
@@ -41,7 +43,7 @@ public:
   int init(rig_model_t rig_model);
 
   // This method open the communication port to the rig
-  int open(void);
+  int open(int n);
 
   // This method close the communication port to the rig
   int close(void);
@@ -77,5 +79,12 @@ public:
   }
 };
 
+extern "C" {
+  const bool HRDInterfaceConnect(const wchar_t *host, const ushort);
+  void HRDInterfaceDisconnect();
+  const bool HRDInterfaceIsConnected();
+  const wchar_t* HRDInterfaceSendMessage(const wchar_t *msg);
+  void HRDInterfaceFreeString(const wchar_t *lstring);
+}
 
 #endif	// _RIGCLASS_H

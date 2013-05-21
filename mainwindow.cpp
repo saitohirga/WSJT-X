@@ -716,6 +716,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     }
   }
   m_catEnabled=dlg.m_catEnabled;
+
   if(m_catEnabled) {
     rigOpen();
   }
@@ -2773,11 +2774,12 @@ void MainWindow::rigOpen()
 {
   QString t;
   int ret;
-
   rig = new Rig();
-  if (!rig->init(m_rig)) {
+  if(m_rig != 9999) {
+    if (!rig->init(m_rig)) {
       msgBox("Rig init failure");
       return;
+    }
   }
 
   rig->setConf("rig_pathname", m_catPort.toAscii().data());
@@ -2793,7 +2795,7 @@ void MainWindow::rigOpen()
     rig->setConf("rts_state","OFF");
     rig->setConf("dtr_state","OFF");
   }
-  ret=rig->open();
+  ret=rig->open(m_rig);
   if(ret==RIG_OK) {
     m_bRigOpen=true;
     if(m_poll==0) ui->readFreq->setEnabled(true);
