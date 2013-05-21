@@ -80,6 +80,7 @@ int Rig::init(rig_model_t rig_model)
 int Rig::open(int n) {
   m_hrd=(n==9999);
   if(m_hrd) {
+#ifdef WIN32
     bool bConnect=false;
     bConnect = HRDInterfaceConnect(L"localhost",7809);
     if(bConnect) {
@@ -91,6 +92,7 @@ int Rig::open(int n) {
       m_hrd=false;
       return -1;
     }
+#endif
   } else {
     return rig_open(theRig);
   }
@@ -98,8 +100,9 @@ int Rig::open(int n) {
 
 int Rig::close(void) {
   if(m_hrd) {
+#ifdef WIN32
     HRDInterfaceDisconnect();
-
+#endif
   } else {
     return rig_close(theRig);
   }
@@ -112,6 +115,7 @@ int Rig::setConf(const char *name, const char *val)
 
 int Rig::setFreq(freq_t freq, vfo_t vfo) {
   if(m_hrd) {
+#ifdef WIN32
     QString t;
     int nhz=(int)freq;
     t=m_context + "Set Frequency-Hz " + QString::number(nhz);
@@ -124,6 +128,7 @@ int Rig::setFreq(freq_t freq, vfo_t vfo) {
     } else {
       return -1;
     }
+#endif
   } else {
     return rig_set_freq(theRig, vfo, freq);
   }
@@ -133,12 +138,14 @@ freq_t Rig::getFreq(vfo_t vfo)
 {
   freq_t freq;
   if(m_hrd) {
+#ifdef WIN32
     const wchar_t* cmnd = (const wchar_t*) (m_context+"Get Frequency").utf16();
     const wchar_t* freqString=HRDInterfaceSendMessage(cmnd);
     QString t2=QString::fromWCharArray (freqString,-1);
     HRDInterfaceFreeString(freqString);
     freq=t2.toDouble();
     return freq;
+#endif
   } else {
     rig_get_freq(theRig, vfo, &freq);
     return freq;

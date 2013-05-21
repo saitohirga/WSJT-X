@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>548</width>
-    <height>465</height>
+    <height>468</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -103,13 +103,6 @@
             </size>
            </property>
           </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pbHRD">
-           <property name="text">
-            <string>HRD</string>
-           </property>
-          </widget>
          </item>
          <item>
           <widget class="QLabel" name="label_2">

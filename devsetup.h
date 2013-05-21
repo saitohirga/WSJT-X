@@ -90,10 +90,7 @@ private slots:
   void on_rbData_toggled(bool checked);
   void on_pollSpinBox_valueChanged(int n);
   void on_pttComboBox_currentIndexChanged(int index);
-
   void on_pttMethodComboBox_currentIndexChanged(int index);
-
-  void on_pbHRD_clicked();
 
 private:
   Rig* rig;
