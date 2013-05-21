@@ -1307,8 +1307,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if(m_insertBlank and m_blankLine and jt9com_.nagain==0) {
         QString bg="#d3d3d3";
         bf.setBackground(QBrush(QColor(bg)));
+        QString tt="----------------------------------------";
         QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-            bg + "\"><pre>" + " " + "</pre></td></tr></table>";
+            bg + "\"><pre>" + tt + "</pre></td></tr></table>";
         cursor = ui->decodedTextBrowser->textCursor();
         cursor.movePosition(QTextCursor::End);
         bf = cursor.blockFormat();

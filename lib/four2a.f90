@@ -20,10 +20,10 @@ subroutine four2a(a,nfft,ndim,isign,iform)
   parameter (NSMALL=16384)
   complex a(nfft)
   complex aa(NSMALL)
-  integer nn(NPMAX),ns(NPMAX),nf(NPMAX),nl(NPMAX)
-  integer*8 plan(NPMAX)             !Actually should be i*8, but no matter
-!  data nplan/0/,npatience/1/
-  data nplan/0/,npatience/0/
+  integer nn(NPMAX),ns(NPMAX),nf(NPMAX)
+  integer*8 plan(NPMAX),nl(NPMAX),nloc
+  data nplan/0/,npatience/1/
+!  data nplan/0/,npatience/0/
   include 'fftw3.f'
   save plan,nplan,nn,ns,nf,nl
 
