@@ -85,6 +85,7 @@ int Rig::open(int n) {
     if(bConnect) {
       const wchar_t* context=HRDInterfaceSendMessage(L"Get Context");
       m_context="[" + QString::fromWCharArray (context,-1) + "] ";
+      HRDInterfaceFreeString(context);
       return 0;
     } else {
       m_hrd=false;
@@ -117,6 +118,7 @@ int Rig::setFreq(freq_t freq, vfo_t vfo) {
     const wchar_t* cmnd = (const wchar_t*) t.utf16();
     const wchar_t* result=HRDInterfaceSendMessage(cmnd);
     QString t2=QString::fromWCharArray (result,-1);
+    HRDInterfaceFreeString(result);
     if(t2=="OK") {
       return 0;
     } else {
