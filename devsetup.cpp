@@ -534,6 +534,7 @@ void DevSetup::on_pttMethodComboBox_currentIndexChanged(int index)
   ui.pttComboBox->setEnabled(b);
 }
 
+/*
 void DevSetup::on_pbHRD_clicked()
 {
 
@@ -570,3 +571,4 @@ void DevSetup::on_pbHRD_clicked()
     qDebug() << "Connection to HRD failed.";
   }
 }
+*/
