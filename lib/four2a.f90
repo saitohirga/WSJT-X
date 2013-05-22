@@ -24,7 +24,7 @@ subroutine four2a(a,nfft,ndim,isign,iform)
   integer*8 plan(NPMAX),nl(NPMAX),nloc
   data nplan/0/,npatience/1/
 !  data nplan/0/,npatience/0/
-  include 'fftw3.f'
+  include 'fftw3.f90'
   save plan,nplan,nn,ns,nf,nl
 
   if(nfft.lt.0) go to 999
