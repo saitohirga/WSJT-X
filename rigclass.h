@@ -79,6 +79,7 @@ public:
   }
 };
 
+#ifdef WIN32
 extern "C" {
   const bool HRDInterfaceConnect(const wchar_t *host, const ushort);
   void HRDInterfaceDisconnect();
@@ -86,5 +87,6 @@ extern "C" {
   const wchar_t* HRDInterfaceSendMessage(const wchar_t *msg);
   void HRDInterfaceFreeString(const wchar_t *lstring);
 }
+#endif
 
 #endif	// _RIGCLASS_H
