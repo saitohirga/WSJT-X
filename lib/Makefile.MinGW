@@ -20,14 +20,14 @@ CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    libjt9.a jt9sim.exe jt9.exe jt9code.exe
+all:    libjt9.a jt9sim.exe jt9.exe jt9code.exe test9.exe
 
 OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	unpackmsg.o igray.o unpackcall.o unpackgrid.o \
 	grid2k.o unpacktext.o getpfx2.o packmsg.o deg2grid.o \
 	packtext.o getpfx1.o packcall.o k2grid.o packgrid.o \
 	nchar.o four2a.o grid2deg.o pfxdump.o f77_wisdom.o \
-	symspec.o timf2.o analytic.o db.o genjt9.o \
+	symspec.o analytic.o db.o genjt9.o \
 	packbits.o unpackbits.o encode232.o interleave9.o \
 	entail.o fano232.o gran.o sync9.o decode9.o \
 	fil3.o redsync.o decoder.o grid2n.o n2grid.o timer.o \
@@ -54,9 +54,9 @@ OBJS4 = jt9code.o
 jt9code.exe: $(OBJS4) libjt9.a
 	$(FC) -o jt9code.exe $(OBJS4) libjt9.a
 
-OBJS5 = jt9test.o 
-jt9test.exe: $(OBJS5) libjt9.a 
-	$(FC) -o jt9test.exe $(OBJS5) libjt9.a ../libfftw3f_win.a
+OBJS5 = test9.o 
+test9.exe: $(OBJS5) libjt9.a 
+	$(FC) -o test9.exe $(OBJS5) libjt9.a ../libfftw3f_win.a
 
 OBJS6 = wsjt24d.o wsjt24.o sync24.o decode24.o ps24.o flat1.o \
 	xcor24.o slope.o peakup.o interleave24.o getmet24.o smo.o \
