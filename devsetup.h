@@ -95,6 +95,7 @@ private slots:
 private:
   Rig* rig;
   void msgBox(QString t);
+  void enableWidgets();
   Ui::DialogSndCard ui;
 };
 
