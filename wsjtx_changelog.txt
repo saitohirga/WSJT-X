@@ -8,7 +8,7 @@ concentrate on any necessary bug fixes.  If you have bug reports on
 version 0.99 r3295, please send them to us at
 wsjtgroup@yahoogroups.com as soon as possible!
 
-May 22, 2013: v0.99, r3295
+May 22, 2013: v0.99, r3297
 --------------------------
 
 1. CAT control via Ham Radio Deluxe is now available.  For setup
@@ -24,6 +24,9 @@ May 22, 2013: v0.99, r3295
    Linux.
 
 4. Gray bar between decoding periods now contains a dashed line.
+
+5. Corrected a bug that prevented use of Setup | Configuration with
+   no existing wsjtx.ini file.
 
 May 17, 2013: v0.95, r3278
 --------------------------
