@@ -1,12 +1,29 @@
 			WSJT-X ChangeLog
 ------------------------------------------------------------------
 
-We are getting close to a stable "Version 1.0" release of WSJT-X.  At
-that point program features will be frozen temporarily while we
-concentrate on any necessary bug fixes and improvements to the
-decoder.  If you have bug reports on version 0.95 r3278, or important
-feature requests, please send them to us at wsjtgroup@yahoogroups.com
-as soon as possible!
+We are getting VERY close to a stable "Version 1.0" release of WSJT-X.
+
+At that point program features will be frozen temporarily while we
+concentrate on any necessary bug fixes.  If you have bug reports on
+version 0.99 r3295, please send them to us at
+wsjtgroup@yahoogroups.com as soon as possible!
+
+May 22, 2013: v0.99, r3295
+--------------------------
+
+1. CAT control via Ham Radio Deluxe is now available.  For setup
+   details see item #5 at the top of page 6 of the updated WSJT-X
+   User's Guide.
+
+2. Submodes JT9-5, JT8-10, JT9-30 have been de-activated.  (As far as I
+   know, nobody was using them.)  This action makes the program smaller 
+   by some 150 MB and able to run effectively on some older computers.
+
+3. Bizarre ordering of COM port numbers on the drop-down list has been
+   corrected, and suitable serial ports added to the list displayed in
+   Linux.
+
+4. Gray bar between decoding periods now contains a dashed line.
 
 May 17, 2013: v0.95, r3278
 --------------------------
