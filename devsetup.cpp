@@ -182,16 +182,17 @@ void DevSetup::initDlg()
   ui.pttComboBox->setCurrentIndex(m_tmp);
   ui.catPortComboBox->setCurrentIndex(m_catPortIndex);
 
-  ui.macro1->setText(m_macro[0].toUpper());
-  ui.macro2->setText(m_macro[1].toUpper());
-  ui.macro3->setText(m_macro[2].toUpper());
-  ui.macro4->setText(m_macro[3].toUpper());
-  ui.macro5->setText(m_macro[4].toUpper());
-  ui.macro6->setText(m_macro[5].toUpper());
-  ui.macro7->setText(m_macro[6].toUpper());
-  ui.macro8->setText(m_macro[7].toUpper());
-  ui.macro9->setText(m_macro[8].toUpper());
-  ui.macro10->setText(m_macro[9].toUpper());
+  int n=m_macro.length();
+  if(n>=1) ui.macro1->setText(m_macro[0].toUpper());
+  if(n>=2) ui.macro2->setText(m_macro[1].toUpper());
+  if(n>=3) ui.macro3->setText(m_macro[2].toUpper());
+  if(n>=4) ui.macro4->setText(m_macro[3].toUpper());
+  if(n>=5) ui.macro5->setText(m_macro[4].toUpper());
+  if(n>=6) ui.macro6->setText(m_macro[5].toUpper());
+  if(n>=7) ui.macro7->setText(m_macro[6].toUpper());
+  if(n>=8) ui.macro8->setText(m_macro[7].toUpper());
+  if(n>=8) ui.macro9->setText(m_macro[8].toUpper());
+  if(n>=10) ui.macro10->setText(m_macro[9].toUpper());
 
   ui.f1->setText(m_dFreq[0]);
   ui.f2->setText(m_dFreq[1]);
