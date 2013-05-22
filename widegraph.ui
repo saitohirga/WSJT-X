@@ -419,7 +419,7 @@
        <item>
         <widget class="QComboBox" name="spec2dComboBox">
          <property name="currentIndex">
-          <number>2</number>
+          <number>1</number>
          </property>
          <item>
           <property name="text">
