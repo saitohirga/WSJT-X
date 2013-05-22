@@ -101,6 +101,7 @@ private:
 
 extern int ptt(int nport, int ntx, int* iptt, int* nopen);
 
+#ifdef WIN32
 extern "C" {
   const bool HRDInterfaceConnect(const wchar_t *host, const ushort);
   void HRDInterfaceDisconnect();
@@ -108,5 +109,6 @@ extern "C" {
   const wchar_t* HRDInterfaceSendMessage(const wchar_t *msg);
   void HRDInterfaceFreeString(const wchar_t *lstring);
 }
+#endif
 
 #endif // DEVSETUP_H
