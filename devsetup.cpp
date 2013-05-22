@@ -36,19 +36,6 @@ void DevSetup::initDlg()
   char pa_device_name[128];
   char pa_device_hostapi[128];
 
-  /*
-  if(m_firstCall) {
-    QString t;
-    for(int i=14; i<100; i++) {
-      t.sprintf("COM%d",i);
-      ui.pttComboBox->addItem(t);
-    }
-    for(int i=0; i<10; i++) {
-      m_macro.append("");
-    }
-    m_firstCall=false;
-  }
-*/
   k=0;
   for(id=0; id<numDevices; id++ )  {
     pdi=Pa_GetDeviceInfo(id);
@@ -148,23 +135,9 @@ void DevSetup::initDlg()
   ui.cbPSKReporter->setChecked(m_pskReporter);
   m_paInDevice=m_inDevList[m_nDevIn];
   m_paOutDevice=m_outDevList[m_nDevOut];
-  ui.cbEnableCAT->setChecked(m_catEnabled);
-  ui.cbDTRoff->setChecked(m_bDTRoff);
-  ui.catPortComboBox->setEnabled(m_catEnabled);
-  ui.rigComboBox->setEnabled(m_catEnabled);
-  ui.serialRateComboBox->setEnabled(m_catEnabled);
-  ui.dataBitsComboBox->setEnabled(m_catEnabled);
-  ui.stopBitsComboBox->setEnabled(m_catEnabled);
-  ui.handshakeComboBox->setEnabled(m_catEnabled);
-  ui.testCATButton->setEnabled(m_catEnabled);
-  ui.cbDTRoff->setEnabled(m_catEnabled);
-  ui.rbData->setEnabled(m_catEnabled);
-  ui.rbMic->setEnabled(m_catEnabled);
-  ui.pollSpinBox->setEnabled(m_catEnabled);
-  bool b=m_pttMethodIndex==1 or m_pttMethodIndex==2;
-  ui.pttComboBox->setEnabled(b);
-  b=b or m_catEnabled;
-  ui.testPTTButton->setEnabled(b);
+
+  enableWidgets();
+
   ui.rigComboBox->setCurrentIndex(m_rigIndex);
   ui.catPortComboBox->setCurrentIndex(m_catPortIndex);
   ui.serialRateComboBox->setCurrentIndex(m_serialRateIndex);
@@ -364,7 +337,7 @@ void DevSetup::on_pttMethodComboBox_activated(int index)
 {
   m_pttMethodIndex=index;
   bool b=m_pttMethodIndex==1 or m_pttMethodIndex==2 or
-      (m_catEnabled and m_pttMethodIndex==0);
+      (m_catEnabled and m_pttMethodIndex==0 and m_rig!=9999);
   ui.testPTTButton->setEnabled(b);
 }
 
@@ -377,17 +350,7 @@ void DevSetup::on_catPortComboBox_activated(int index)
 void DevSetup::on_cbEnableCAT_toggled(bool b)
 {
   m_catEnabled=b;
-  ui.catPortComboBox->setEnabled(b);
-  ui.rigComboBox->setEnabled(b);
-  ui.serialRateComboBox->setEnabled(b);
-  ui.dataBitsComboBox->setEnabled(b);
-  ui.stopBitsComboBox->setEnabled(b);
-  ui.handshakeComboBox->setEnabled(b);
-  ui.testCATButton->setEnabled(b);
-  ui.cbDTRoff->setEnabled(b);
-  ui.rbData->setEnabled(b);
-  ui.rbMic->setEnabled(b);
-  ui.pollSpinBox->setEnabled(m_catEnabled);
+  enableWidgets();
   bool b2=(m_pttMethodIndex==1 or m_pttMethodIndex==2 or m_catEnabled) and
       !(m_pttMethodIndex==3);
   ui.testPTTButton->setEnabled(b2);
@@ -422,6 +385,7 @@ void DevSetup::on_rigComboBox_activated(int index)
   m_rigIndex=index;
   QString t=ui.rigComboBox->itemText(index);
   m_rig=t.mid(0,7).toInt();
+  enableWidgets();
 }
 
 void DevSetup::on_cbID73_toggled(bool checked)
@@ -534,41 +498,33 @@ void DevSetup::on_pttMethodComboBox_currentIndexChanged(int index)
   ui.pttComboBox->setEnabled(b);
 }
 
-/*
-void DevSetup::on_pbHRD_clicked()
+void DevSetup::enableWidgets()
 {
+  ui.cbEnableCAT->setChecked(m_catEnabled);
+  ui.cbDTRoff->setChecked(m_bDTRoff);
+  ui.rigComboBox->setEnabled(m_catEnabled);
+  ui.testCATButton->setEnabled(m_catEnabled);
+  ui.label_4->setEnabled(m_catEnabled);
+  ui.label_47->setEnabled(m_catEnabled);
 
-  bool bConnect=false;
-  bConnect = HRDInterfaceConnect(L"localhost",7809);
-  if(bConnect) {
-    QString t2;
+  bool bSerial=m_catEnabled and (m_rig!=9999);
+  ui.catPortComboBox->setEnabled(bSerial);
+  ui.serialRateComboBox->setEnabled(bSerial);
+  ui.dataBitsComboBox->setEnabled(bSerial);
+  ui.stopBitsComboBox->setEnabled(bSerial);
+  ui.handshakeComboBox->setEnabled(bSerial);
+  ui.cbDTRoff->setEnabled(bSerial);
+  ui.rbData->setEnabled(bSerial);
+  ui.rbMic->setEnabled(bSerial);
+  ui.label_21->setEnabled(bSerial);
+  ui.label_22->setEnabled(bSerial);
+  ui.label_23->setEnabled(bSerial);
+  ui.label_24->setEnabled(bSerial);
+  ui.label_25->setEnabled(bSerial);
 
-    const wchar_t* context=HRDInterfaceSendMessage(L"Get Context");
-    QString qc="[" + QString::fromWCharArray (context,-1) + "] ";
-
-    const wchar_t* cmnd = (const wchar_t*) (qc+"Get Frequency").utf16();
-    const wchar_t* freqString=HRDInterfaceSendMessage(cmnd);
-    t2=QString::fromWCharArray (freqString,-1);
-    qDebug() << "Freq1:" << t2;
-
-    cmnd = (const wchar_t*) (qc+"Set Frequency-Hz 14070000").utf16();
-    const wchar_t* result=HRDInterfaceSendMessage(cmnd);
-    t2=QString::fromWCharArray (result,-1);
-    qDebug() << "Freq2:" << t2;
-
-    cmnd = (const wchar_t*) (qc+"Get Frequency").utf16();
-    freqString=HRDInterfaceSendMessage(cmnd);
-    t2=QString::fromWCharArray (freqString,-1);
-    qDebug() << "Freq3:" << t2;
-
-
-    HRDInterfaceDisconnect();
-    bConnect = HRDInterfaceIsConnected();
-    HRDInterfaceFreeString(context);
-    HRDInterfaceFreeString(freqString);
-    HRDInterfaceFreeString(cmnd);
-  } else {
-    qDebug() << "Connection to HRD failed.";
-  }
+  ui.pollSpinBox->setEnabled(m_catEnabled);
+  bool b=(m_pttMethodIndex==1 or m_pttMethodIndex==2) and m_rig!=9999;
+  ui.pttComboBox->setEnabled(b);
+  b=b or m_catEnabled;
+  ui.testPTTButton->setEnabled(b);
 }
-*/
