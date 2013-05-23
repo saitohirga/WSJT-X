@@ -1,6 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+#ifdef QT5
+#include <QtWidgets>
+#else
 #include <QtGui>
+#endif
 #include <QTimer>
 #include <QDateTime>
 #include "soundin.h"

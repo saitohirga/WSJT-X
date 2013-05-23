@@ -1,8 +1,11 @@
 #ifndef LogQSO_H
 #define LogQSO_H
 
+#ifdef QT5
+#include <QtWidgets>
+#else
 #include <QtGui>
-//#include <QDialog>
+#endif
 
 namespace Ui {
 class LogQSO;

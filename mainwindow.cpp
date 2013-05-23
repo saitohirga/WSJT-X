@@ -9,8 +9,11 @@
 #include "getfile.h"
 #include <portaudio.h>
 #include "logqso.h"
-//#include <QtConcurrent/QtConcurrentMap>
-//#include <QtConcurrent/QtConcurrentRun>
+
+#ifdef QT5
+#include <QtConcurrent/QtConcurrentMap>
+#include <QtConcurrent/QtConcurrentRun>
+#endif
 
 int itone[85];                        //Tx audio tones for 85 symbols
 int icw[250];                         //Dits for CW ID

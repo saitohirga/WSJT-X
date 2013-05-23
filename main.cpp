@@ -1,4 +1,8 @@
+#ifdef QT5
+#include <QtWidgets>
+#else
 #include <QtGui>
+#endif
 #include <QApplication>
 #include <portaudio.h>
 #include "mainwindow.h"
