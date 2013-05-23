@@ -43,8 +43,6 @@ program jt9
   nfb=2000
   mousefqso=1500
   newdat=1
-  nb=0
-  nbslider=30
   ndiskdat=1
 
   do ifile=ifile1,nargs
