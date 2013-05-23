@@ -81,10 +81,10 @@ public:
 
 #ifdef WIN32
 extern "C" {
-  const bool HRDInterfaceConnect(const wchar_t *host, const ushort);
+  bool HRDInterfaceConnect(const wchar_t *host, const ushort);
   void HRDInterfaceDisconnect();
-  const bool HRDInterfaceIsConnected();
-  const wchar_t* HRDInterfaceSendMessage(const wchar_t *msg);
+  bool HRDInterfaceIsConnected();
+  wchar_t* HRDInterfaceSendMessage(const wchar_t *msg);
   void HRDInterfaceFreeString(const wchar_t *lstring);
 }
 #endif
