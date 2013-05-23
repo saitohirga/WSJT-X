@@ -411,7 +411,7 @@ void DevSetup::on_testCATButton_clicked()
       msgBox("Rig init failure");
       return;
     }
-    rig->setConf("rig_pathname", m_catPort.toAscii().data());
+    rig->setConf("rig_pathname", m_catPort.toLatin1().data());
     char buf[80];
     sprintf(buf,"%d",m_serialRate);
     rig->setConf("serial_speed",buf);
@@ -419,7 +419,7 @@ void DevSetup::on_testCATButton_clicked()
     rig->setConf("data_bits",buf);
     sprintf(buf,"%d",m_stopBits);
     rig->setConf("stop_bits",buf);
-    rig->setConf("serial_handshake",m_handshake.toAscii().data());
+    rig->setConf("serial_handshake",m_handshake.toLatin1().data());
     if(m_bDTRoff) {
       rig->setConf("rts_state","OFF");
       rig->setConf("dtr_state","OFF");

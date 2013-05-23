@@ -5,12 +5,14 @@
 #-------------------------------------------------
 
 QT       += core gui network
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG   += qwt thread
 #CONFIG   += console
 
 TARGET = wsjtx
 DESTDIR = ../wsjtx_install
-VERSION = 0.95
+#DESTDIR = ../qt5_install
+VERSION = 0.99
 TEMPLATE = app
 
 win32 {
@@ -75,6 +77,6 @@ CONFIG(release) {
    LIBS += C:/qwt-6.0.1/lib/qwt.dll
 } else {
    LIBS += C:/qwt-6.0.1/lib/qwtd.dll
+   LIBS += -lusb
 }
-LIBS += -lusb
 }

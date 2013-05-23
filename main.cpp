@@ -1,5 +1,5 @@
 #include <QtGui>
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <portaudio.h>
 #include "mainwindow.h"
 
