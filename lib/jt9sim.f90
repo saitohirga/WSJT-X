@@ -14,8 +14,6 @@ program jt9sim
   integer*1 i1ScrambledBits(207)   !Unpacked bits, scrambled order
   integer*1 i1Bits(207)            !Encoded information-carrying bits
   integer*1 i1SoftSymbols(207)
-  integer*1 i1
-  equivalence (i1,i4)
   include 'jt9sync.f90'
   common/acom/dat(NMAX),iwave(NMAX)
 
@@ -56,13 +54,14 @@ program jt9sim
   if(minutes.eq.30) nsps=252000
   if(nsps.eq.0) stop 'Bad value for minutes.'
 
-  f0=1400.d0                         !Center frequency (MHz)
+  f0=1400.d0                         !Center frequency (Hz)
 !  f0=1500.0
 !  if(minutes.eq.5)  f0=1100.
 !  if(minutes.eq.10) f0=1050.
 !  if(minutes.eq.30) f0=1025.
   
   ihdr=0                             !Temporary ###
+  k=0                                !Silence compiler warning
 
   if(msg0(1:3).eq.'sin') read(msg0(4:),*) sinfreq
   
@@ -155,7 +154,8 @@ program jt9sim
            i4=-10
            if(i1Bits(i).eq.1) i4=10
            i4=i4+128
-           i1SoftSymbols(i)=i1
+           if(i4.le.127) i1SoftSymbols(k)=i4
+           if(i4.ge.128) i1SoftSymbols(k)=i4-256
         enddo
         limit=1000
         call decode9(i1SoftSymbols,limit,nlim,msg)

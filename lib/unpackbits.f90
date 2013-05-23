@@ -6,8 +6,6 @@ subroutine unpackbits(sym,nsymd,m0,dbits)
 
   integer sym(nsymd)
   integer*1 dbits(*)
-  integer*1 n1
-  equivalence (n,n1)
 
   k=0
   do i=1,nsymd

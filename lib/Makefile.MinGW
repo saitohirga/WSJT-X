@@ -33,13 +33,13 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	fil3.o redsync.o decoder.o grid2n.o n2grid.o timer.o \
 	softsym.o getlags.o afc9.o fchisq.o twkfreq.o downsam9.o \
 	peakdt9.o symspec2.o stdmsg.o morse.o azdist.o geodist.o \
-	rig_control.o fillcom.o chkss2.o zplot9.o
+	fillcom.o chkss2.o zplot9.o
 
 libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
 	ranlib libjt9.a
 
-OBJS2 = jt9.o jt9a.o ipcomm.o sec_midn.o cutil.o
+OBJS2 = jt9.o jt9a.o jt9c.o ipcomm.o sec_midn.o cutil.o
 LIBS2 = -L'c:/QtSDK/Desktop/Qt/4.7.4/mingw/lib' -lQtCore4
 jt9.exe: $(OBJS2) libjt9.a
 	g++ -o jt9.exe $(OBJS2) $(LIBS2) libjt9.a ../libfftw3f_win.a \
@@ -99,8 +99,8 @@ ipcomm.o: ipcomm.cpp
 sec_midn.o: sec_midn.f90
 	$(FC) -c -fno-second-underscore sec_midn.f90
 
-rig_control.o: rig_control.c
-	$(CC) -c -Wall -I..\..\..\hamlib-1.2.15.3\include rig_control.c
+#rig_control.o: rig_control.c
+#	$(CC) -c -Wall -I..\..\..\hamlib-1.2.15.3\include rig_control.c
 
 tstrig.o: tstrig.c
 	$(CC) -c -Wall -I..\..\..\hamlib-1.2.15.3\include tstrig.c

@@ -9,8 +9,6 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,freq,drift,snrdb,schk,    &
   real aa(3)
   real ss2(0:8,85)
   real ss3(0:7,69)
-  integer*1 i1
-  equivalence (i1,i4)
   include 'jt9sync.f90'
 
   aa(1)=-1500.0/nsps8
@@ -83,7 +81,8 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,freq,drift,snrdb,schk,    &
         if(i4.lt.-127) i4=-127
         if(i4.gt.127) i4=127
         i4=i4+128
-        i1SoftSymbolsScrambled(k)=i1
+        if(i4.le.127) i1SoftSymbolsScrambled(k)=i4
+        if(i4.ge.128) i1SoftSymbolsScrambled(k)=i4-256
      enddo
   enddo
 

@@ -51,6 +51,7 @@ program jt9
      call getarg(ifile,infile)
      open(10,file=infile,access='stream',status='old',err=998)
      read(10) ihdr
+     nutc0=ihdr(1)                           !Silence compiler warning
      i1=index(infile,'.wav')
      read(infile(i1-4:i1-1),*,err=1) nutc0
      go to 2
