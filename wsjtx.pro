@@ -45,7 +45,8 @@ HEADERS  += mainwindow.h plotter.h soundin.h soundout.h \
             commons.h sleep.h displaytext.h logqso.h \
             psk_reporter.h rigclass.h
 
-DEFINES += __cplusplus
+# (Is the following really needed???)
+#DEFINES += __cplusplus
 
 FORMS    += mainwindow.ui about.ui devsetup.ui widegraph.ui \
     logqso.ui
