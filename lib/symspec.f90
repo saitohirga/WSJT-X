@@ -1,5 +1,4 @@
-subroutine symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,s,red,    &
-     df3,ihsym,npts8)
+subroutine symspec(k,ntrperiod,nsps,ingain,pxdb,s,red,df3,ihsym,npts8)
 
 ! Input:
 !  k         pointer to the most recent new data
