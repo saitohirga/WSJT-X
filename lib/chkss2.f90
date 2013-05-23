@@ -6,6 +6,7 @@ subroutine chkss2(ss2,freq,drift,schk)
   include 'jt9sync.f90'
 
   ave=sum(ss2)/(9*85)
+  if(freq+drift.eq.-999999.0) ave=0.      !To silence compiler warning
   s=ss2/ave-1.0
 
 !  call zplot9(s,freq,drift)

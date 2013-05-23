@@ -9,7 +9,7 @@ subroutine deg2grid(dlong0,dlat,grid)
   if(dlong.gt.180.0) dlong=dlong-360.0
 
 ! Convert to units of 5 min of longitude, working east from 180 deg.
-  nlong=60.0*(180.0-dlong)/5.0
+  nlong=int(60.0*(180.0-dlong)/5.0)
   n1=nlong/240                      !20-degree field
   n2=(nlong-240*n1)/24              !2 degree square
   n3=nlong-240*n1-24*n2             !5 minute subsquare
@@ -18,7 +18,7 @@ subroutine deg2grid(dlong0,dlat,grid)
   grid(5:5)=char(ichar('a')+n3)
 
 ! Convert to units of 2.5 min of latitude, working north from -90 deg.
-  nlat=60.0*(dlat+90)/2.5
+  nlat=int(60.0*(dlat+90)/2.5)
   n1=nlat/240                       !10-degree field
   n2=(nlat-240*n1)/24               !1 degree square
   n3=nlat-240*n1-24*n2              !2.5 minuts subsquare

@@ -61,8 +61,8 @@ subroutine packgrid(grid,ng,text)
 
 ! OK, we have a properly formatted grid locator
 40 call grid2deg(grid//'mm',dlong,dlat)
-  long=dlong
-  lat=dlat+ 90.0
+  long=int(dlong)
+  lat=int(dlat+ 90.0)
   ng=((long+180)/2)*180 + lat
   go to 900
 

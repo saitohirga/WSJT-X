@@ -39,7 +39,7 @@ libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
 	ranlib libjt9.a
 
-OBJS2 = jt9.o jt9a.o jt9c.o ipcomm.o sec_midn.o cutil.o
+OBJS2 = jt9.o jt9a.o jt9b.o jt9c.o ipcomm.o sec_midn.o cutil.o
 LIBS2 = -L'c:/QtSDK/Desktop/Qt/4.7.4/mingw/lib' -lQtCore4
 jt9.exe: $(OBJS2) libjt9.a
 	g++ -o jt9.exe $(OBJS2) $(LIBS2) libjt9.a ../libfftw3f_win.a \

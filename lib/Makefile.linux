@@ -1,7 +1,7 @@
 CC = gcc
 FC = gfortran
 
-FFLAGS = -O2 -fbounds-check -Wall -fno-second-underscore
+FFLAGS = -O2 -fbounds-check -Wall -Wno-conversion -fno-second-underscore
 CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
 
 # Default rules
@@ -36,7 +36,7 @@ libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
 	ranlib libjt9.a
 
-OBJS2 = jt9.o jt9a.o jt9c.o
+OBJS2 = jt9.o jt9a.o jt9b.o jt9c.o
 
 jt9: 	$(OBJS2) libjt9.a
 	g++ -o jt9 $(OBJS2) libjt9.a -lfftw3f -lgfortran -lQtCore
@@ -77,9 +77,6 @@ genjt9.o: genjt9.f90 jt9sync.f90
 
 redsync.o: redsync.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c redsync.f90
-
-jt9a.o: jt9a.F90
-	$(FC) -DUNIX $(FFLAGS) -c jt9a.F90
 
 ipcomm.o: ipcomm.cpp
 	g++ -c $(INCPATH) ipcomm.cpp

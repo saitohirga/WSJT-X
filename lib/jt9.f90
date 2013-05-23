@@ -101,8 +101,8 @@ program jt9
 ! Emit signal readyForFFT
            ingain=0
            call timer('symspec ',0)
-           call symspec(k,ntrperiod,nsps,ingain,nb,nbslider,pxdb,   &
-                s,ccfred,df3,ihsym,nzap,slimit,lstrong,npts8)
+           call symspec(k,ntrperiod,nsps,ingain,pxdb,s,ccfred,df3,  &
+                ihsym,nzap,slimit,lstrong,npts8)
            call timer('symspec ',1)
            nhsym0=nhsym
            if(ihsym.ge.173) go to 10
