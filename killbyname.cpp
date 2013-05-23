@@ -35,7 +35,8 @@ int killbyname(const char *szToTerminate)
   HANDLE hProc,hSnapShot,hSnapShotm;
   OSVERSIONINFO osvi;
   HINSTANCE hInstLib;
-  int iLen,iLenP,indx;
+//  int iLen,iLenP,indx;
+  int iLenP,indx;
   HMODULE hMod;
   PROCESSENTRY32 procentry;
   MODULEENTRY32 modentry;
@@ -116,7 +117,8 @@ int killbyname(const char *szToTerminate)
       // Now, get the process name
       if(hProc) {
         if(lpfEnumProcessModules(hProc,&hMod,sizeof(hMod),&iCbneeded) ) {
-          iLen=lpfGetModuleBaseName(hProc,hMod,szName,MAX_PATH);
+//          iLen=lpfGetModuleBaseName(hProc,hMod,szName,MAX_PATH);
+          lpfGetModuleBaseName(hProc,hMod,szName,MAX_PATH);
         }
       }
       CloseHandle(hProc);
