@@ -9,6 +9,8 @@
 #include "getfile.h"
 #include <portaudio.h>
 #include "logqso.h"
+//#include <QtConcurrent/QtConcurrentMap>
+//#include <QtConcurrent/QtConcurrentRun>
 
 int itone[85];                        //Tx audio tones for 85 symbols
 int icw[250];                         //Dits for CW ID
@@ -435,7 +437,7 @@ void MainWindow::readSettings()
 
   settings.beginGroup("Common");
   m_myCall=settings.value("MyCall","").toString();
-  morse_(m_myCall.toAscii().data(),icw,&m_ncw,m_myCall.length());
+  morse_(m_myCall.toLatin1().data(),icw,&m_ncw,m_myCall.length());
   m_myGrid=settings.value("MyGrid","").toString();
   m_idInt=settings.value("IDint",0).toInt();
   m_pttMethodIndex=settings.value("PTTmethod",1).toInt();
@@ -1231,7 +1233,7 @@ void MainWindow::decode()                                       //decode()
   if(m_saveSynced) m_nsave=1;
   if(m_saveDecoded) m_nsave=2;
   jt9com_.nsave=m_nsave;
-  strncpy(jt9com_.datetime, m_dateTime.toAscii(), 20);
+  strncpy(jt9com_.datetime, m_dateTime.toLatin1(), 20);
 
   //newdat=1  ==> this is new data, must do the big FFT
   //nagain=1  ==> decode only at fQSO +/- Tol
@@ -1350,7 +1352,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       QString msg=t.mid(34);
       int i1=msg.indexOf("\r");
       if(i1>0) msg=msg.mid(0,i1-1) + "                      ";
-      bool b=stdmsg_(msg.mid(0,22).toAscii().constData(),22);
+      bool b=stdmsg_(msg.mid(0,22).toLatin1().constData(),22);
       QStringList w=msg.split(" ",QString::SkipEmptyParts);
       if(b and w[0]==m_myCall) {
         QString tt=w[2];
@@ -1537,7 +1539,7 @@ void MainWindow::guiUpdate()
     int ichk=0,itext=0;
     genjt9_(message,&ichk,msgsent,itone,&itext,len1,len1);
     msgsent[22]=0;
-    QString t=QString::fromAscii(msgsent);
+    QString t=QString::fromLatin1(msgsent);
     if(m_tune) t="TUNE";
     lab5->setText("Last Tx:  " + t);
     if(m_restart) {
@@ -1600,7 +1602,7 @@ void MainWindow::guiUpdate()
       nc1++;
   }
   if(nc1 == 0) {
-    QString t=QString::fromAscii(msgsent);
+    QString t=QString::fromLatin1(msgsent);
     if(t==m_msgSent0) {
       m_repeatMsg++;
     } else {
@@ -2193,7 +2195,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   bool text=false;
   if(itext!=0) text=true;
   QString t1;
-  t1.fromAscii(msgsent);
+  t1.fromLatin1(msgsent);
   if(text) t1=t1.mid(0,13);
   QPalette p(tx->palette());
   if(text) {
@@ -2272,7 +2274,7 @@ void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
     double utch=nsec/3600.0;
     int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
 
-    azdist_(m_myGrid.toAscii().data(),m_hisGrid.toAscii().data(),&utch,
+    azdist_(m_myGrid.toLatin1().data(),m_hisGrid.toLatin1().data(),&utch,
            &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
     QString t;
     t.sprintf("Az: %d",nAz);
@@ -2777,7 +2779,7 @@ void MainWindow::rigOpen()
       msgBox("Rig init failure");
       return;
     }
-    rig->setConf("rig_pathname", m_catPort.toAscii().data());
+    rig->setConf("rig_pathname", m_catPort.toLatin1().data());
     char buf[80];
     sprintf(buf,"%d",m_serialRate);
     rig->setConf("serial_speed",buf);
@@ -2785,7 +2787,7 @@ void MainWindow::rigOpen()
     rig->setConf("data_bits",buf);
     sprintf(buf,"%d",m_stopBits);
     rig->setConf("stop_bits",buf);
-    rig->setConf("serial_handshake",m_handshake.toAscii().data());
+    rig->setConf("serial_handshake",m_handshake.toLatin1().data());
     if(m_bDTRoff) {
       rig->setConf("rts_state","OFF");
       rig->setConf("dtr_state","OFF");
