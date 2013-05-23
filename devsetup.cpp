@@ -337,9 +337,7 @@ void DevSetup::on_cbPSKReporter_clicked(bool b)
 void DevSetup::on_pttMethodComboBox_activated(int index)
 {
   m_pttMethodIndex=index;
-  bool b=m_pttMethodIndex==1 or m_pttMethodIndex==2 or
-      (m_catEnabled and m_pttMethodIndex==0 and m_rig!=9999);
-  ui.testPTTButton->setEnabled(b);
+  enableWidgets();
 }
 
 void DevSetup::on_catPortComboBox_activated(int index)
@@ -526,6 +524,6 @@ void DevSetup::enableWidgets()
   ui.pollSpinBox->setEnabled(m_catEnabled);
   bool b=(m_pttMethodIndex==1 or m_pttMethodIndex==2) and m_rig!=9999;
   ui.pttComboBox->setEnabled(b);
-  b=b or m_catEnabled;
+  b=b or (m_catEnabled and m_pttMethodIndex==0);
   ui.testPTTButton->setEnabled(b);
 }
