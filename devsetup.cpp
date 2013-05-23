@@ -527,6 +527,6 @@ void DevSetup::enableWidgets()
   bool b2 = (m_catEnabled and m_pttMethodIndex==1 and m_rig!=9999) or
             (m_catEnabled and m_pttMethodIndex==2 and m_rig!=9999);
   bool b3 = (m_catEnabled and m_pttMethodIndex==0 and m_rig==9999);
-  ui.testPTTButton->setEnabled(b1 or b2);
-//  ui.testPTTButton->setEnabled(b1 or b2 or b3);
+//  ui.testPTTButton->setEnabled(b1 or b2);
+  ui.testPTTButton->setEnabled(b1 or b2 or b3);  //Include PTT via HRD
 }
