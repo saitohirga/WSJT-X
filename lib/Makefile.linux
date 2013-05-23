@@ -36,7 +36,7 @@ libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
 	ranlib libjt9.a
 
-OBJS2 = jt9.o jt9a.o
+OBJS2 = jt9.o jt9a.o jt9c.o
 
 jt9: 	$(OBJS2) libjt9.a
 	g++ -o jt9 $(OBJS2) libjt9.a -lfftw3f -lgfortran -lQtCore
