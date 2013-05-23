@@ -13,10 +13,8 @@ subroutine decode9(i1SoftSymbols,limit,nlim,msg)
 
   real*4 xx0(0:255)
 
-  integer*1 i1
   logical first
   integer*4 mettab(0:255,0:1)
-  equivalence (i1,i4)
   data first/.true./
   data xx0/                                                      &
         1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000,  &

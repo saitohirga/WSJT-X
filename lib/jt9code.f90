@@ -4,8 +4,6 @@ program jt9code
 
   character msg*22,msg0*22,decoded*22
   integer*4 i4tone(85)                     !Channel symbols (values 0-8)
-  integer*1 i1
-  equivalence (i1,i4)
   include 'jt9sync.f90'
 
   nargs=iargc()

@@ -8,7 +8,8 @@ subroutine jt9a
      end function address_jt9
   end interface
   
-  integer*1 attach_jt9,lock_jt9,unlock_jt9
+  integer*1 attach_jt9
+!  integer*1 lock_jt9,unlock_jt9
   integer size_jt9
   integer*1, pointer :: p_jt9
   character*80 cwd
@@ -31,9 +32,10 @@ subroutine jt9a
   inquire(file=trim(cwd)//'/.quit',exist=fileExists)
   if(fileExists) then
 !     call ftnquit
-     i=detach_jt9()
+     i1=detach_jt9()
      go to 999
   endif
+  if(i1.eq.999999) stop                  !Silence compiler warning
   
   nbytes=size_jt9()
   if(nbytes.le.0) then
@@ -64,25 +66,3 @@ subroutine jt9b(jt9com,nbytes)
   call jt9c(jt9com(kss),jt9com(ksavg),jt9com(kc0),jt9com(kid2),jt9com(knutc))
   return
 end subroutine jt9b
-
-subroutine jt9c(ss,savg,c0,id2,nparams0)
-  parameter (NTMAX=120)
-  parameter (NSMAX=1365)
-  integer*1 detach_jt9
-  real*4 ss(184*NSMAX),savg(NSMAX)
-  complex c0(NTMAX*1500)
-  integer*2 id2(NTMAX*12000)
-
-  integer nparams0(21),nparams(21)
-  character*20 datetime
-  common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfb,ntol,  &
-       kin,nzhsym,nsave,nagain,ndepth,nrxlog,nfsample,datetime
-  equivalence (nparams,nutc)
-  
-  nparams=nparams0                     !Copy parameters into common/npar/
-
-  call flush(6)
-  if(sum(nparams).ne.0) call decoder(ss,c0,0)
-
-  return
-end subroutine jt9c
