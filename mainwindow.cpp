@@ -547,7 +547,6 @@ void MainWindow::dataSink(int k)
   static float s[NSMAX],red[NSMAX];
   static int ihsym=0;
   static int nzap=0;
-  static int nb;
   static int trmin;
   static int npts8;
   static float px=0.0;
@@ -560,8 +559,6 @@ void MainWindow::dataSink(int k)
   }
 
 // Get power, spectrum, and ihsym
-  nb=0;
-  if(m_NB) nb=1;
   trmin=m_TRperiod/60;
   symspec_(&k,&trmin,&m_nsps,&m_inGain,&px,s,red,&df3,&ihsym,&npts8);
   if(ihsym <=0) return;
