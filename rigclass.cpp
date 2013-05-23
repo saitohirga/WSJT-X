@@ -102,6 +102,7 @@ int Rig::close(void) {
   if(m_hrd) {
 #ifdef WIN32
     HRDInterfaceDisconnect();
+    return 0;
 #endif
   } else {
     return rig_close(theRig);

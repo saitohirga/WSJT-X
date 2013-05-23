@@ -126,7 +126,7 @@ int ptt(int nport, int ntx, int* iptt, int* nopen)
 #ifdef WIN32
   static HANDLE hFile;
   char s[10];
-  int i3=1,i4=1,i5=1,i6=1,i9=1,i00=1;
+  int i3=1,i4=1,i5=1,i6=1,i9=1,i00=1;  //Defs to silence compiler warning
 
   if(nport==0) {
     *iptt=ntx;
@@ -159,6 +159,7 @@ int ptt(int nport, int ntx, int* iptt, int* nopen)
     *iptt=0;
     *nopen=0;
   }
+  if((i3+i4+i5+i6+i9+i00)==-999) return 1;   //Silence compiler warning
   return 0;
 #endif
 }
