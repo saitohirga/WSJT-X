@@ -178,21 +178,26 @@ vfo_t Rig::getVFO()
 int Rig::setPTT(ptt_t ptt, vfo_t vfo)
 {
   if(m_hrd) {
-/*
+
 #ifdef WIN32
-    const wchar_t* cmnd = (const wchar_t*) (m_context +
-       "Set Button-Select Send 1").utf16();
+    wchar_t* cmnd;
+    if(ptt==0) {
+      cmnd = (wchar_t*) (m_context +
+                             "Set Button-Select TX 0").utf16();
+    } else {
+      cmnd = (wchar_t*) (m_context +
+                             "Set Button-Select TX 1").utf16();
+    }
     const wchar_t* result=HRDInterfaceSendMessage(cmnd);
     QString t2=QString::fromWCharArray (result,-1);
     HRDInterfaceFreeString(result);
-    qDebug() << t2;
     if(t2=="OK") {
       return 0;
     } else {
       return -1;
     }
 #endif
-*/
+
   } else {
     return rig_set_ptt(theRig, vfo, ptt);
   }
