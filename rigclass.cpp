@@ -79,8 +79,8 @@ int Rig::init(rig_model_t rig_model)
 
 int Rig::open(int n) {
   m_hrd=(n==9999);
-  if(m_hrd) {
 #ifdef WIN32
+  if(m_hrd) {
     bool bConnect=false;
     bConnect = HRDInterfaceConnect(L"localhost",7809);
     if(bConnect) {
@@ -92,10 +92,12 @@ int Rig::open(int n) {
       m_hrd=false;
       return -1;
     }
-#endif
   } else {
     return rig_open(theRig);
   }
+#else
+  return rig_open(theRig);
+#endif
 }
 
 int Rig::close(void) {

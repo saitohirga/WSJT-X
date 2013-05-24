@@ -1,6 +1,6 @@
 #include "soundout.h"
 
-#define FRAMES_PER_BUFFER 1024
+//#define FRAMES_PER_BUFFER 1024
 
 extern "C" {
 #include <portaudio.h>
@@ -9,6 +9,7 @@ extern "C" {
 extern float gran();                  //Noise generator (for tests only)
 extern int itone[85];                 //Tx audio tones for 85 symbols
 extern int icw[250];                  //Dits for CW ID
+extern int outBufSize;
 extern bool btxok;
 extern bool btxMute;
 extern double outputLatency;
@@ -166,7 +167,7 @@ void SoundOutThread::run()
         NULL,                               //No input parameters
         &outParam,                          //Output parameters
         48000.0,                            //Sample rate
-        FRAMES_PER_BUFFER,                  //Frames per buffer
+        outBufSize,                         //Frames per buffer
         paClipOff,                          //No clipping
         d2aCallback,                        //output callbeck routine
         &udata);                            //userdata
@@ -196,7 +197,7 @@ void SoundOutThread::run()
     m_SamFacOut=1.0;
     if(udata.ncall>400) {
       qint64 ms = QDateTime::currentMSecsSinceEpoch();
-      m_SamFacOut=udata.ncall*FRAMES_PER_BUFFER*1000.0/(48000.0*(ms-ms0-50));
+      m_SamFacOut=udata.ncall*outBufSize*1000.0/(48000.0*(ms-ms0-50));
     }
     msleep(100);
   }

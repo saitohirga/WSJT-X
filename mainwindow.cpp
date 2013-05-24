@@ -17,6 +17,7 @@
 
 int itone[85];                        //Tx audio tones for 85 symbols
 int icw[250];                         //Dits for CW ID
+int outBufSize;
 int rc;
 static int nc1=1;
 wchar_t buffer[256];
@@ -418,7 +419,7 @@ void MainWindow::writeSettings()
   settings.setValue("pttData",m_pttData);
   settings.setValue("LogQSOgeom",m_logQSOgeom);
   settings.setValue("Polling",m_poll);
-
+  settings.setValue("OutBufSize",outBufSize);
   settings.endGroup();
 }
 
@@ -533,6 +534,8 @@ void MainWindow::readSettings()
   m_pttData=settings.value("pttData",false).toBool();
   m_poll=settings.value("Polling",0).toInt();
   m_logQSOgeom=settings.value("LogQSOgeom",QRect(500,400,424,283)).toRect();
+  outBufSize=settings.value("OutBufSize",4096).toInt();
+  settings.endGroup();
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
     !ui->actionAFMHot->isChecked() && !ui->actionBlue->isChecked()) {
@@ -774,6 +777,36 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
   int n;
   switch(e->key())
   {
+  case Qt::Key_1:
+    if(e->modifiers() & Qt::AltModifier) {
+      ui->txrb1->setChecked(true);
+      break;
+    }
+  case Qt::Key_2:
+    if(e->modifiers() & Qt::AltModifier) {
+      ui->txrb2->setChecked(true);
+      break;
+    }
+  case Qt::Key_3:
+    if(e->modifiers() & Qt::AltModifier) {
+      ui->txrb3->setChecked(true);
+      break;
+    }
+  case Qt::Key_4:
+    if(e->modifiers() & Qt::AltModifier) {
+      ui->txrb4->setChecked(true);
+      break;
+    }
+  case Qt::Key_5:
+    if(e->modifiers() & Qt::AltModifier) {
+      ui->txrb5->setChecked(true);
+      break;
+    }
+  case Qt::Key_6:
+    if(e->modifiers() & Qt::AltModifier) {
+      ui->txrb6->setChecked(true);
+      break;
+    }
   case Qt::Key_D:
     if(e->modifiers() & Qt::ShiftModifier) {
       if(!m_decoderBusy) {
@@ -782,9 +815,6 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
         decode();
       }
     }
-    break;
-  case Qt::Key_F3:
-    btxMute=!btxMute;
     break;
   case Qt::Key_F4:
     ui->dxCallEntry->setText("");
@@ -1139,8 +1169,7 @@ void MainWindow::on_actionKeyboard_shortcuts_triggered()
   pShortcuts->setReadOnly(true);
   pShortcuts->setFontPointSize(10);
   pShortcuts->setWindowTitle("Keyboard Shortcuts");
-//  pShortcuts->setGeometry(m_wideGraphGeom);
-  pShortcuts->setGeometry(QRect(45,50,430,420));
+  pShortcuts->setGeometry(QRect(45,50,430,440));
   Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
       Qt::WindowMinimizeButtonHint;
   pShortcuts->setWindowFlags(flags);
