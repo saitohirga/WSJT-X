@@ -107,6 +107,9 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string>Compression factor for frequency scale</string>
+         </property>
          <property name="suffix">
           <string/>
          </property>
@@ -179,6 +182,9 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string>Number of FFTs averaged (controls waterfall scrolling rate)</string>
+         </property>
          <property name="minimum">
           <number>1</number>
          </property>
@@ -229,6 +235,9 @@
            <width>38</width>
            <height>16777215</height>
           </size>
+         </property>
+         <property name="toolTip">
+          <string>Scaling (dB) applied to spectra before plotting</string>
          </property>
          <property name="minimum">
           <number>-20</number>
@@ -281,6 +290,9 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string>Constant offset applied to waterfall data</string>
+         </property>
          <property name="minimum">
           <number>-100</number>
          </property>
@@ -331,6 +343,9 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Minimum frequency for wideband decodes</string>
          </property>
          <property name="minimum">
           <number>1000</number>
@@ -386,6 +401,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="toolTip">
+          <string>Maximum frequency for wideband decodes</string>
+         </property>
          <property name="minimum">
           <number>1000</number>
          </property>
@@ -418,6 +436,9 @@
        </item>
        <item>
         <widget class="QComboBox" name="spec2dComboBox">
+         <property name="toolTip">
+          <string>Select data for display curve</string>
+         </property>
          <property name="currentIndex">
           <number>1</number>
          </property>

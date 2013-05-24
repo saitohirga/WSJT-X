@@ -161,7 +161,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_palette="CuteSDR";
   m_RxLog=1;                     //Write Date and Time to RxLog
   m_nutc0=9999;
-  m_NB=false;
   m_mode="JT9-1";
   m_rpt="-15";
   m_TRperiod=60;
@@ -309,7 +308,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
         "QLabel { background-color : black; color : yellow; }");
   ui->labDialFreq->setStyleSheet( \
         "QLabel { background-color : black; color : yellow; }");
-  ui->frame->hide();
 
   QFile f2("ALL.TXT");
   f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
@@ -379,8 +377,6 @@ void MainWindow::writeSettings()
   settings.setValue("NDepth",m_ndepth);
   settings.setValue("KB8RQ",m_kb8rq);
   settings.setValue("MonitorOFF",m_monitorStartOFF);
-  settings.setValue("NB",m_NB);
-  settings.setValue("NBslider",m_NBslider);
   settings.setValue("DialFreq",m_dialFreq);
   settings.setValue("TxFreq",m_txFreq);
   settings.setValue("InGain",m_inGain);
@@ -466,10 +462,6 @@ void MainWindow::readSettings()
   ui->actionSave_decoded->setChecked(settings.value(
                                          "SaveDecoded",false).toBool());
   ui->actionSave_all->setChecked(settings.value("SaveAll",false).toBool());
-  m_NB=settings.value("NB",false).toBool();
-  ui->NBcheckBox->setChecked(m_NB);
-  m_NBslider=settings.value("NBslider",40).toInt();
-  ui->NBslider->setValue(m_NBslider);
   m_dialFreq=settings.value("DialFreq",14.078).toDouble();
   m_txFreq=settings.value("TxFreq",1500).toInt();
   ui->TxFreqSpinBox->setValue(m_txFreq);
@@ -2456,18 +2448,6 @@ void MainWindow::on_actionJT9_30_triggered()
   //m_fMax=1050;
   //ui->fMaxSpinBox->setValue(m_fMax);
   g_pWideGraph->setfMax(1050);
-}
-
-void MainWindow::on_NBcheckBox_toggled(bool checked)
-{
-  m_NB=checked;
-  ui->NBslider->setEnabled(m_NB);
-}
-
-void MainWindow::on_NBslider_valueChanged(int n)
-{
-  m_NBslider=n;
-  ui->NBcheckBox->setText("NB: " + QString::number(n));
 }
 
 void MainWindow::on_TxFreqSpinBox_valueChanged(int n)

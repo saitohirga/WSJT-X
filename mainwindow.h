@@ -102,8 +102,6 @@ private slots:
   void on_actionJT9_5_triggered();
   void on_actionJT9_30_triggered();
   void on_actionJT9_10_triggered();
-  void on_NBcheckBox_toggled(bool checked);
-  void on_NBslider_valueChanged(int value);
   void on_TxFreqSpinBox_valueChanged(int arg1);
   void on_actionSave_synced_triggered();
   void on_actionSave_decoded_triggered();
@@ -187,7 +185,6 @@ private:
     qint32  m_hsym0;
     qint32  m_paInDevice;
     qint32  m_paOutDevice;
-    qint32  m_NBslider;
     qint32  m_TRperiod;
     qint32  m_nsps;
     qint32  m_hsymStop;
@@ -227,7 +224,6 @@ private:
     bool    m_saveAll;
     bool    m_widebandDecode;
     bool    m_kb8rq;
-    bool    m_NB;
     bool    m_call3Modified;
     bool    m_dataAvailable;
     bool    m_killAll;
