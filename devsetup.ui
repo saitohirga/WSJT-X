@@ -83,6 +83,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="toolTip">
+            <string>Station callsign</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -152,6 +155,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="toolTip">
+            <string>Maidenhead locator</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -205,6 +211,9 @@
              <width>90</width>
              <height>16777215</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Select method for T/R switching</string>
            </property>
            <property name="currentIndex">
             <number>1</number>
@@ -292,6 +301,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="toolTip">
+            <string>Select port for hardware T/R switching</string>
+           </property>
            <item>
             <property name="text">
              <string>None</string>
@@ -327,6 +339,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="toolTip">
+            <string>Select CW ID interval (0 for none)</string>
+           </property>
            <property name="minimum">
             <number>0</number>
            </property>
@@ -350,6 +365,9 @@
          </item>
          <item>
           <widget class="QCheckBox" name="cbID73">
+           <property name="toolTip">
+            <string>Send CW ID after a message with 73 or free text</string>
+           </property>
            <property name="text">
             <string>ID after 73</string>
            </property>
@@ -387,6 +405,9 @@
              <width>146</width>
              <height>16777215</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Send spots to PSK Reporter web site</string>
            </property>
            <property name="text">
             <string>Enable PSK Reporter</string>
@@ -429,6 +450,9 @@
              <width>100</width>
              <height>16777215</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Enable computer control of transceiver</string>
            </property>
            <property name="text">
             <string>Enable CAT</string>
@@ -473,6 +497,9 @@
              <width>200</width>
              <height>0</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Select radio type</string>
            </property>
           </widget>
          </item>
@@ -524,6 +551,9 @@
              <width>90</width>
              <height>16777215</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Select port for CAT control</string>
            </property>
            <property name="currentIndex">
             <number>0</number>
@@ -872,6 +902,9 @@
          </item>
          <item>
           <widget class="QRadioButton" name="rbData">
+           <property name="toolTip">
+            <string>Use special Tx command for &quot;data&quot;</string>
+           </property>
            <property name="text">
             <string>Data</string>
            </property>
@@ -879,6 +912,9 @@
          </item>
          <item>
           <widget class="QRadioButton" name="rbMic">
+           <property name="toolTip">
+            <string>Use normal Tx command</string>
+           </property>
            <property name="text">
             <string>Mic</string>
            </property>
@@ -924,6 +960,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="toolTip">
+            <string>Check to see if CAT control is working</string>
+           </property>
            <property name="text">
             <string>Test CAT Control</string>
            </property>
@@ -948,6 +987,9 @@
              <width>90</width>
              <height>16777215</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Test to see if T/R switching is working</string>
            </property>
            <property name="text">
             <string>Test PTT</string>
@@ -993,6 +1035,9 @@
              <width>50</width>
              <height>0</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Select interval for reading dial frequency</string>
            </property>
            <property name="maximum">
             <number>60</number>
@@ -1087,6 +1132,9 @@
              <property name="enabled">
               <bool>true</bool>
              </property>
+             <property name="toolTip">
+              <string>Select audio input device and driver API</string>
+             </property>
             </widget>
            </item>
           </layout>
@@ -1119,7 +1167,11 @@
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBoxSndOut"/>
+            <widget class="QComboBox" name="comboBoxSndOut">
+             <property name="toolTip">
+              <string>select audio output device and driver API</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -1146,6 +1198,9 @@
            </item>
            <item>
             <widget class="QLineEdit" name="saveDirEntry">
+             <property name="toolTip">
+              <string>Directory for saved audio files</string>
+             </property>
              <property name="text">
               <string>C:\Users\joe\wsjt\map65\save</string>
              </property>
