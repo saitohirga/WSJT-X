@@ -78,8 +78,8 @@ int Rig::init(rig_model_t rig_model)
 }
 
 int Rig::open(int n) {
+#ifdef WIN32	// Ham radio Deluxe only on Windows
   m_hrd=(n==9999);
-#ifdef WIN32
   if(m_hrd) {
     bool bConnect=false;
     bConnect = HRDInterfaceConnect(L"localhost",7809);
@@ -92,21 +92,21 @@ int Rig::open(int n) {
       m_hrd=false;
       return -1;
     }
-  } else {
+  } else
+#endif
+    {
     return rig_open(theRig);
   }
-#else
-  return rig_open(theRig);
-#endif
 }
 
 int Rig::close(void) {
+#ifdef WIN32	// Ham Radio Deluxe only on Windows
   if(m_hrd) {
-#ifdef WIN32
     HRDInterfaceDisconnect();
     return 0;
+  } else
 #endif
-  } else {
+    {
     return rig_close(theRig);
   }
 }
@@ -117,8 +117,8 @@ int Rig::setConf(const char *name, const char *val)
 }
 
 int Rig::setFreq(freq_t freq, vfo_t vfo) {
+#ifdef WIN32	// Ham Radio Deluxe only on Windows
   if(m_hrd) {
-#ifdef WIN32
     QString t;
     int nhz=(int)freq;
     t=m_context + "Set Frequency-Hz " + QString::number(nhz);
@@ -131,8 +131,9 @@ int Rig::setFreq(freq_t freq, vfo_t vfo) {
     } else {
       return -1;
     }
+  } else
 #endif
-  } else {
+    {
     return rig_set_freq(theRig, vfo, freq);
   }
 }
@@ -140,16 +141,17 @@ int Rig::setFreq(freq_t freq, vfo_t vfo) {
 freq_t Rig::getFreq(vfo_t vfo)
 {
   freq_t freq;
+#ifdef WIN32	// Ham Radio Deluxe only on Windows
   if(m_hrd) {
-#ifdef WIN32
     const wchar_t* cmnd = (const wchar_t*) (m_context+"Get Frequency").utf16();
     const wchar_t* freqString=HRDInterfaceSendMessage(cmnd);
     QString t2=QString::fromWCharArray (freqString,-1);
     HRDInterfaceFreeString(freqString);
     freq=t2.toDouble();
     return freq;
+  } else
 #endif
-  } else {
+    {
     rig_get_freq(theRig, vfo, &freq);
     return freq;
   }
@@ -179,10 +181,10 @@ vfo_t Rig::getVFO()
 
 int Rig::setPTT(ptt_t ptt, vfo_t vfo)
 {
+#ifdef WIN32	// Ham Radio Deluxe only on Windows
   if(m_hrd) {
-
-#ifdef WIN32
     wchar_t* cmnd;
+
     if(ptt==0) {
       cmnd = (wchar_t*) (m_context +
                              "Set Button-Select TX 0").utf16();
@@ -198,9 +200,9 @@ int Rig::setPTT(ptt_t ptt, vfo_t vfo)
     } else {
       return -1;
     }
+  } else
 #endif
-
-  } else {
+    {
     return rig_set_ptt(theRig, vfo, ptt);
   }
 }
