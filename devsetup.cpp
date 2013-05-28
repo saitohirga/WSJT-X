@@ -64,7 +64,8 @@ void DevSetup::initDlg()
       QString t(p2);
 #else
       QString t;
-      t.sprintf("%2d   %d   %-8s  %-39s",id,nchin,p1,pdi->name);
+      t.sprintf("%2d   %d   %-8s  %-39s",id,nchin,
+                Pa_GetHostApiInfo(pdi->hostApi)->name,pdi->name);
 #endif
       ui.comboBoxSndIn->addItem(t);
     }
@@ -84,7 +85,7 @@ void DevSetup::initDlg()
 #ifdef WIN32
 // Needs work to compile for Linux
       p1=(char*)"";
-      p=strstr(pa_device_hostapi,"MME");
+      p=strstr(pa_device_hostapi,"MME");Pa_GetHostApiInfo(pdi->hostApi)->name
 
       if(p!=NULL) p1=(char*)"MME";
       p=strstr(pa_device_hostapi,"Direct");
@@ -99,7 +100,8 @@ void DevSetup::initDlg()
       QString t(p2);
 #else
       QString t;
-      t.sprintf("%2d   %d   %-8s  %-39s",id,nchin,p1,pdi->name);
+      t.sprintf("%2d   %d   %-8s  %-39s",id,nchout,
+                Pa_GetHostApiInfo(pdi->hostApi)->name,pdi->name);
 #endif
       ui.comboBoxSndOut->addItem(t);
     }
