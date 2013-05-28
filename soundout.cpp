@@ -143,6 +143,9 @@ void SoundOutThread::run()
 
   outParam.device=m_nDevOut;                 //Output device number
   outParam.channelCount=1;                   //Number of analog channels
+#ifdef unix
+  outParam.channelCount=2;                   //Number of analog channels
+#endif
   outParam.sampleFormat=paInt16;             //Send short ints to PortAudio
   outParam.suggestedLatency=0.05;
   outParam.hostApiSpecificStreamInfo=NULL;
