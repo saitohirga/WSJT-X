@@ -2271,6 +2271,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="action_73TxDisable"/>
     <addaction name="actionRunaway_Tx_watchdog"/>
     <addaction name="actionTx2QSO"/>
+    <addaction name="actionLockTxFreq"/>
     <addaction name="separator"/>
     <addaction name="menuAdvanced"/>
    </widget>
@@ -2846,6 +2847,19 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Allow multiple instances</string>
+   </property>
+  </action>
+  <action name="actionTx_frequency_always_follows_Rx_frequency">
+   <property name="text">
+    <string>Tx frequency always follows Rx frequency</string>
+   </property>
+  </action>
+  <action name="actionLockTxFreq">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Tx freq locked to Rx freq</string>
    </property>
   </action>
  </widget>
