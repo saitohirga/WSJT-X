@@ -1161,7 +1161,7 @@ void MainWindow::on_actionKeyboard_shortcuts_triggered()
   pShortcuts->setReadOnly(true);
   pShortcuts->setFontPointSize(10);
   pShortcuts->setWindowTitle("Keyboard Shortcuts");
-  pShortcuts->setGeometry(QRect(45,50,430,440));
+  pShortcuts->setGeometry(QRect(45,50,430,460));
   Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
       Qt::WindowMinimizeButtonHint;
   pShortcuts->setWindowFlags(flags);
