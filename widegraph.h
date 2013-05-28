@@ -34,6 +34,7 @@ public:
   double fGreen();
 
   qint32 m_qsoFreq;
+  bool   m_lockTxFreq;
 
 signals:
   void freezeDecode2(int n);

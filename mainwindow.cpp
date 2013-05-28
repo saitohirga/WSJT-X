@@ -1,4 +1,4 @@
-//------------------------------------------------------------ MainWindow
+//------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -33,7 +33,7 @@ Rig* rig = NULL;
 QTextEdit* pShortcuts;
 
 QString rev="$Rev$";
-QString Program_Title_Version="  WSJT-X   v0.99, r" + rev.mid(6,4) +
+QString Program_Title_Version="  WSJT-X   v1.0, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 //-------------------------------------------------- MainWindow constructor
@@ -416,6 +416,7 @@ void MainWindow::writeSettings()
   settings.setValue("LogQSOgeom",m_logQSOgeom);
   settings.setValue("Polling",m_poll);
   settings.setValue("OutBufSize",outBufSize);
+  settings.setValue("LockTxFreq",m_lockTxFreq);
   settings.endGroup();
 }
 
@@ -527,6 +528,8 @@ void MainWindow::readSettings()
   m_poll=settings.value("Polling",0).toInt();
   m_logQSOgeom=settings.value("LogQSOgeom",QRect(500,400,424,283)).toRect();
   outBufSize=settings.value("OutBufSize",4096).toInt();
+  m_lockTxFreq=settings.value("LockTxFreq",false).toBool();
+  ui->actionLockTxFreq->setChecked(m_lockTxFreq);
   settings.endGroup();
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
@@ -1248,7 +1251,7 @@ void MainWindow::decode()                                       //decode()
   jt9com_.nfb=g_pWideGraph->getFmax();
 
   jt9com_.ntol=3;
-  if(jt9com_.nutc < m_nutc0) m_RxLog |= 1;  //Date and Time to all65.txt
+  if(jt9com_.nutc < m_nutc0) m_RxLog |= 1;  //Date and Time to all.txt
   m_nutc0=jt9com_.nutc;
   jt9com_.nrxlog=m_RxLog;
   jt9com_.nfsample=12000;
@@ -1943,8 +1946,10 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   int nfreq=int(t4.at(3).toFloat());
   g_pWideGraph->setQSOfreq(nfreq);       //Set Rx freq
   QString firstcall=t4.at(4);
-  //Don't change freqs if a station is calling me, unless CTRL is held down
-  if(firstcall!=m_myCall or ctrl) ui->TxFreqSpinBox->setValue(nfreq);
+  // Don't change Tx freq if a station is calling me, unless m_lockTxFreq
+  // is true or CTRL is held down or
+  if((firstcall!=m_myCall) or m_lockTxFreq or ctrl)
+    ui->TxFreqSpinBox->setValue(nfreq);
   QString hiscall=t4.at(5);
   QString hisgrid="";
   if(t4.length()>=7)
@@ -2863,3 +2868,9 @@ void MainWindow::on_readFreq_clicked()
   if(ndiff!=0) dialFreqChanged2(fMHz);
 }
 
+
+void MainWindow::on_actionLockTxFreq_triggered(bool checked)
+{
+  m_lockTxFreq=checked;
+  g_pWideGraph->m_lockTxFreq=checked;
+}

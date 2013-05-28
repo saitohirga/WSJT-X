@@ -85,8 +85,7 @@ void DevSetup::initDlg()
 #ifdef WIN32
 // Needs work to compile for Linux
       p1=(char*)"";
-      p=strstr(pa_device_hostapi,"MME");Pa_GetHostApiInfo(pdi->hostApi)->name
-
+      p=strstr(pa_device_hostapi,"MME");
       if(p!=NULL) p1=(char*)"MME";
       p=strstr(pa_device_hostapi,"Direct");
       if(p!=NULL) p1=(char*)"DirectX";

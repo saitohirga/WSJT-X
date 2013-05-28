@@ -176,6 +176,7 @@ void WideGraph::setQSOfreq(int n)
 {
   m_qsoFreq=n;
   ui->widePlot->setFQSO(m_qsoFreq,true);
+  if(m_lockTxFreq) setTxFreq(m_qsoFreq);
 }
 
 int WideGraph::QSOfreq()

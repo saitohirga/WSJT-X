@@ -158,6 +158,8 @@ private slots:
 
   void on_readFreq_clicked();
 
+  void on_actionLockTxFreq_triggered(bool checked);
+
 private:
     Ui::MainWindow *ui;
 
@@ -255,6 +257,7 @@ private:
     bool    m_bDTRoff;
     bool    m_pttData;
     bool    m_dontReadFreq;
+    bool    m_lockTxFreq;
 
     char    m_decoded[80];
 
