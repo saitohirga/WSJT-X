@@ -298,7 +298,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   }
 #endif
 
-#ifdef unix
+#ifdef UNIX
   psk_Reporter = new PSK_Reporter(this);
   psk_Reporter->setLocalStation(m_myCall,m_myGrid, "WSJT-X r" + rev.mid(6,4) );
 #endif
@@ -695,7 +695,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     }
 #endif
 
-#ifdef unix
+#ifdef UNIX
     psk_Reporter->setLocalStation(m_myCall,m_myGrid, "WSJT-X r" + rev.mid(6,4) );
 #endif
 
