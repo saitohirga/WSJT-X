@@ -1437,9 +1437,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           qDebug() << "D:" << QString::fromStdWString(buffer);
         }
       }
-#endif
-
-#ifdef unix
+#else
       if(b and !m_diskData and okToPost) {
           int i1=msg.indexOf(" ");
           QString c2=msg.mid(i1+1);
@@ -1910,6 +1908,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   if(m_decodedText2) cursor=ui->decodedTextBrowser->textCursor();
   cursor.select(QTextCursor::LineUnderCursor);
   int i2=cursor.position();
+  if(shift and i2==-9999) return;        //Silence compiler warning
 
   QString t;
   if(!m_decodedText2) t= ui->decodedTextBrowser2->toPlainText(); //Full contents
@@ -2339,29 +2338,31 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 
 void MainWindow::acceptQSO2(bool accepted)
 {
-  m_logQSOgeom=logDlg->geometry();
-  QString date=dateTimeQSO.toString("yyyyMMdd");
-  QFile f("wsjtx.log");
-  if(!f.open(QIODevice::Text | QIODevice::Append)) {
-    msgBox("Cannot open file \"wsjtx.log\".");
-  } else {
-    QString logEntry=dateTimeQSO.date().toString("yyyy-MMM-dd,") +
-        dateTimeQSO.time().toString("hh:mm,") + m_hisCall + "," +
-        m_hisGrid + "," + QString::number(m_dialFreq) + "," + m_mode +
-        "," + m_rptSent + "," + m_rptRcvd;
-    QTextStream out(&f);
-    out << logEntry << endl;
-    f.close();
-  }
-  if(m_clearCallGrid) {
-    m_hisCall="";
-    ui->dxCallEntry->setText("");
-    m_hisGrid="";
-    ui->dxGridEntry->setText("");
-    m_rptSent="";
-    m_rptRcvd="";
-    m_qsoStart="";
-    m_qsoStop="";
+  if(accepted) {
+    m_logQSOgeom=logDlg->geometry();
+    QString date=dateTimeQSO.toString("yyyyMMdd");
+    QFile f("wsjtx.log");
+    if(!f.open(QIODevice::Text | QIODevice::Append)) {
+      msgBox("Cannot open file \"wsjtx.log\".");
+    } else {
+      QString logEntry=dateTimeQSO.date().toString("yyyy-MMM-dd,") +
+          dateTimeQSO.time().toString("hh:mm,") + m_hisCall + "," +
+          m_hisGrid + "," + QString::number(m_dialFreq) + "," + m_mode +
+          "," + m_rptSent + "," + m_rptRcvd;
+      QTextStream out(&f);
+      out << logEntry << endl;
+      f.close();
+    }
+    if(m_clearCallGrid) {
+      m_hisCall="";
+      ui->dxCallEntry->setText("");
+      m_hisGrid="";
+      ui->dxGridEntry->setText("");
+      m_rptSent="";
+      m_rptRcvd="";
+      m_qsoStart="";
+      m_qsoStop="";
+    }
   }
 }
 
@@ -2703,17 +2704,20 @@ void MainWindow::on_pbSend73_clicked()
 
 void MainWindow::on_rbGenMsg_toggled(bool checked)
 {
-  m_freeText=false;
-  m_ntx=7;
-  if(m_transmitting) m_restart=true;
+  m_freeText=!checked;
+  if(!m_freeText) {
+    m_ntx=7;
+    if(m_transmitting) m_restart=true;
+  }
 }
 
 void MainWindow::on_rbFreeText_toggled(bool checked)
 {
-  m_freeText=true;
-  m_ntx=8;
-  if(m_transmitting) m_restart=true;
-
+  m_freeText=checked;
+  if(m_freeText) {
+    m_ntx=8;
+    if (m_transmitting) m_restart=true;
+  }
 }
 
 void MainWindow::on_freeTextMsg_editingFinished()

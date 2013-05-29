@@ -94,7 +94,8 @@ int Rig::open(int n) {
     }
   } else
 #endif
-    {
+  {
+    if(n==-99999) return -1;                 //Silence compiler warning
     return rig_open(theRig);
   }
 }
