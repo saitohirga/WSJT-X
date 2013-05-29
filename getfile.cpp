@@ -24,11 +24,11 @@ void getfile(QString fname, int ntrperiod)
 
   if(fp != NULL) {
 // Read (and ignore) a 44-byte WAV header; then read data
-    fread(jt9com_.d2,1,44,fp);
-//    fread(jt9com_.d2,2,30000,fp);
-    fread(jt9com_.d2,2,npts,fp);
+    int n=fread(jt9com_.d2,1,44,fp);
+    n=fread(jt9com_.d2,2,npts,fp);
     fclose(fp);
     jt9com_.newdat=1;
+    if(n==-99999) jt9com_.newdat=2;             //Silence compiler warning
   }
 }
 
@@ -159,7 +159,9 @@ int ptt(int nport, int ntx, int* iptt, int* nopen)
     *iptt=0;
     *nopen=0;
   }
-  if((i3+i4+i5+i6+i9+i00)==-999) return 1;   //Silence compiler warning
+  if((i3+i4+i5+i6+i9+i00)==-999) return 1;    //Silence compiler warning
   return 0;
 #endif
+  if((nport+ntx+(*iptt)==-99999)) *nopen=0;   //Silence compiler warning
+  return 0;
 }

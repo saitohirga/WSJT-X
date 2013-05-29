@@ -490,11 +490,12 @@ void CPlotter::setPalette(QString palette)                      //setPalette()
     int n,r,g,b;
     float xr,xg,xb;
     for(int i=0; i<256; i++) {
-      fscanf(fp,"%d%f%f%f",&n,&xr,&xg,&xb);
+      int nn=fscanf(fp,"%d%f%f%f",&n,&xr,&xg,&xb);
       r=255.0*xr + 0.5;
       g=255.0*xg + 0.5;
       b=255.0*xb + 0.5;
       m_ColorTbl[i].setRgb(r,g,b);
+      if(nn==-999999) i++;                  //Silence compiler warning
     }
   }
 
@@ -503,11 +504,12 @@ void CPlotter::setPalette(QString palette)                      //setPalette()
     int n,r,g,b;
     float xr,xg,xb;
     for(int i=0; i<256; i++) {
-      fscanf(fp,"%d%f%f%f",&n,&xr,&xg,&xb);
+      int nn=fscanf(fp,"%d%f%f%f",&n,&xr,&xg,&xb);
       r=255.0*xr + 0.5;
       g=255.0*xg + 0.5;
       b=255.0*xb + 0.5;
       m_ColorTbl[i].setRgb(r,g,b);
+      if(nn==-999999) i++;                  //Silence compiler warning
     }
   }
 

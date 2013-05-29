@@ -94,6 +94,8 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
       ic++;
     }
     if(j>icw[0]) return paComplete;
+    if(statusFlags==999999 and timeInfo==NULL and
+       inputBuffer==NULL) return paContinue;   //Silence compiler warning:
     return paContinue;
   }
 

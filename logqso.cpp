@@ -38,6 +38,7 @@ void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
   date=date.mid(0,4) + "-" + date.mid(4,2) + "-" + date.mid(6,2);
   ui->date->setText(date);
   ui->time->setText(qsoStart);
+  if(qsoStart=="") ui->time->setText(qsoStop);    //Silence compiler warning
   m_dialFreq=dialFreq;
   m_myCall=myCall;
   m_myGrid=myGrid;

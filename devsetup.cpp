@@ -31,8 +31,6 @@ void DevSetup::initDlg()
   const PaDeviceInfo *pdi;
   int nchin;
   int nchout;
-  char *p,*p1;
-  char p2[50];
   char pa_device_name[128];
   char pa_device_hostapi[128];
 
@@ -48,6 +46,8 @@ void DevSetup::initDlg()
               Pa_GetHostApiInfo(pdi->hostApi)->name);
 
 #ifdef WIN32
+      char *p,*p1;
+      char p2[50];
       p1=(char*)"";
       p=strstr(pa_device_hostapi,"MME");
       if(p!=NULL) p1=(char*)"MME";
