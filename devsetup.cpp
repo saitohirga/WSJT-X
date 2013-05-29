@@ -83,7 +83,8 @@ void DevSetup::initDlg()
               Pa_GetHostApiInfo(pdi->hostApi)->name);
 
 #ifdef WIN32
-// Needs work to compile for Linux
+      char *p,*p1;
+      char p2[50];
       p1=(char*)"";
       p=strstr(pa_device_hostapi,"MME");
       if(p!=NULL) p1=(char*)"MME";

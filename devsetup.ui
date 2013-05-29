@@ -2449,37 +2449,38 @@
   <tabstop>rbMic</tabstop>
   <tabstop>testCATButton</tabstop>
   <tabstop>testPTTButton</tabstop>
+  <tabstop>pollSpinBox</tabstop>
   <tabstop>comboBoxSndIn</tabstop>
   <tabstop>comboBoxSndOut</tabstop>
   <tabstop>saveDirEntry</tabstop>
+  <tabstop>macro1</tabstop>
+  <tabstop>macro2</tabstop>
+  <tabstop>macro3</tabstop>
+  <tabstop>macro4</tabstop>
+  <tabstop>macro5</tabstop>
+  <tabstop>macro6</tabstop>
+  <tabstop>macro7</tabstop>
+  <tabstop>macro8</tabstop>
+  <tabstop>macro9</tabstop>
+  <tabstop>macro10</tabstop>
+  <tabstop>f1</tabstop>
+  <tabstop>f2</tabstop>
+  <tabstop>f3</tabstop>
+  <tabstop>f4</tabstop>
+  <tabstop>f5</tabstop>
+  <tabstop>f6</tabstop>
+  <tabstop>f7</tabstop>
+  <tabstop>f8</tabstop>
+  <tabstop>f9</tabstop>
+  <tabstop>f10</tabstop>
+  <tabstop>f11</tabstop>
+  <tabstop>f12</tabstop>
   <tabstop>f13</tabstop>
   <tabstop>f14</tabstop>
   <tabstop>f15</tabstop>
   <tabstop>f16</tabstop>
-  <tabstop>macro2</tabstop>
   <tabstop>buttonBox</tabstop>
-  <tabstop>macro7</tabstop>
-  <tabstop>macro5</tabstop>
-  <tabstop>macro6</tabstop>
   <tabstop>ioTabWidget</tabstop>
-  <tabstop>f12</tabstop>
-  <tabstop>f11</tabstop>
-  <tabstop>macro4</tabstop>
-  <tabstop>macro1</tabstop>
-  <tabstop>macro3</tabstop>
-  <tabstop>f10</tabstop>
-  <tabstop>macro10</tabstop>
-  <tabstop>macro8</tabstop>
-  <tabstop>macro9</tabstop>
-  <tabstop>f1</tabstop>
-  <tabstop>f4</tabstop>
-  <tabstop>f2</tabstop>
-  <tabstop>f8</tabstop>
-  <tabstop>f5</tabstop>
-  <tabstop>f9</tabstop>
-  <tabstop>f3</tabstop>
-  <tabstop>f6</tabstop>
-  <tabstop>f7</tabstop>
  </tabstops>
  <resources/>
  <connections>
