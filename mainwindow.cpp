@@ -237,6 +237,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   genStdMsgs(m_rpt);
   on_actionWide_Waterfall_triggered();                   //###
   g_pWideGraph->setTxFreq(m_txFreq);
+  g_pWideGraph->m_lockTxFreq=m_lockTxFreq;
 
   if(m_mode=="JT9-1") on_actionJT9_1_triggered();
   if(m_mode=="JT9-2") on_actionJT9_2_triggered();
@@ -1947,8 +1948,9 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   QString firstcall=t4.at(4);
   // Don't change Tx freq if a station is calling me, unless m_lockTxFreq
   // is true or CTRL is held down or
-  if((firstcall!=m_myCall) or m_lockTxFreq or ctrl)
+  if((firstcall!=m_myCall) or m_lockTxFreq or ctrl) {
     ui->TxFreqSpinBox->setValue(nfreq);
+  }
   QString hiscall=t4.at(5);
   QString hisgrid="";
   if(t4.length()>=7)
@@ -2001,10 +2003,10 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
           ui->rbGenMsg->setChecked(true);
         }
       } else if(r.toInt()==73) {
-        m_ntx=6;
-        ui->txrb6->setChecked(true);
+        m_ntx=5;
+        ui->txrb5->setChecked(true);
         if(ui->tabWidget->currentIndex()==1) {
-          ui->genMsg->setText(ui->tx6->text());
+          ui->genMsg->setText(ui->tx5->text());
           m_ntx=7;
           ui->rbGenMsg->setChecked(true);
         }

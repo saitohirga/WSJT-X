@@ -2884,7 +2884,12 @@ p, li { white-space: pre-wrap; }
   <tabstop>EraseButton</tabstop>
   <tabstop>autoButton</tabstop>
   <tabstop>stopTxButton</tabstop>
+  <tabstop>tuneButton</tabstop>
   <tabstop>bandComboBox</tabstop>
+  <tabstop>readFreq</tabstop>
+  <tabstop>inGain</tabstop>
+  <tabstop>dxCallEntry</tabstop>
+  <tabstop>dxGridEntry</tabstop>
   <tabstop>lookupButton</tabstop>
   <tabstop>addButton</tabstop>
   <tabstop>txFirstCheckBox</tabstop>
@@ -2892,13 +2897,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>pbR2T</tabstop>
   <tabstop>pbT2R</tabstop>
   <tabstop>rptSpinBox</tabstop>
-  <tabstop>pbCallCQ</tabstop>
-  <tabstop>pbAnswerCaller</tabstop>
-  <tabstop>pbSendRRR</tabstop>
-  <tabstop>genMsg</tabstop>
-  <tabstop>freeTextMsg</tabstop>
-  <tabstop>rbGenMsg</tabstop>
-  <tabstop>rbFreeText</tabstop>
+  <tabstop>tabWidget</tabstop>
   <tabstop>genStdMsgsPushButton</tabstop>
   <tabstop>tx1</tabstop>
   <tabstop>tx2</tabstop>
@@ -2918,9 +2917,18 @@ p, li { white-space: pre-wrap; }
   <tabstop>txb4</tabstop>
   <tabstop>txb5</tabstop>
   <tabstop>txb6</tabstop>
-  <tabstop>inGain</tabstop>
-  <tabstop>decodedTextBrowser2</tabstop>
   <tabstop>decodedTextBrowser</tabstop>
+  <tabstop>decodedTextBrowser2</tabstop>
+  <tabstop>pbCallCQ</tabstop>
+  <tabstop>rbFreeText</tabstop>
+  <tabstop>genMsg</tabstop>
+  <tabstop>rbGenMsg</tabstop>
+  <tabstop>pbAnswerCQ</tabstop>
+  <tabstop>pbSendReport</tabstop>
+  <tabstop>pbSend73</tabstop>
+  <tabstop>pbSendRRR</tabstop>
+  <tabstop>pbAnswerCaller</tabstop>
+  <tabstop>freeTextMsg</tabstop>
  </tabstops>
  <resources/>
  <connections>

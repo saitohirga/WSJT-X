@@ -12,7 +12,8 @@ CAboutDlg::CAboutDlg(QWidget *parent, QString Revision) :
   m_Str += "WSJT-X implements experimental mode JT9 for <br>";
   m_Str += "Amateur Radio communication at HF, MF, and LF.  <br><br>";
   m_Str += "Copyright 2001-2013 by Joe Taylor, K1JT.   Additional <br>";
-  m_Str += "contributions from AE4JY, PY2SDR, VK4BDJ, and AC6SL. <br>";
+  m_Str += "contributions from AC6SL, AE4JY, G4KLA, PY2SDR, <br>";
+  m_Str += "and VK4BDJ.<br>";
   ui->labelTxt->setText(m_Str);
 }
 

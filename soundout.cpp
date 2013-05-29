@@ -145,7 +145,7 @@ void SoundOutThread::run()
 
   outParam.device=m_nDevOut;                 //Output device number
   outParam.channelCount=1;                   //Number of analog channels
-#ifdef unix
+#ifdef UNIX
   outParam.channelCount=2;                   //Number of analog channels
 #endif
   outParam.sampleFormat=paInt16;             //Send short ints to PortAudio
