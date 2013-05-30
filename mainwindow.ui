@@ -561,16 +561,7 @@ p, li { white-space: pre-wrap; }
            <property name="spacing">
             <number>0</number>
            </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
+           <property name="margin">
             <number>0</number>
            </property>
            <item>
@@ -670,7 +661,7 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <attribute name="buttonGroup">
-                    <string notr="true">buttonGroup</string>
+                    <string>buttonGroup</string>
                    </attribute>
                   </widget>
                  </item>
@@ -704,7 +695,7 @@ p, li { white-space: pre-wrap; }
                     <bool>true</bool>
                    </property>
                    <attribute name="buttonGroup">
-                    <string notr="true">buttonGroup</string>
+                    <string>buttonGroup</string>
                    </attribute>
                   </widget>
                  </item>
@@ -735,7 +726,7 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <attribute name="buttonGroup">
-                    <string notr="true">buttonGroup</string>
+                    <string>buttonGroup</string>
                    </attribute>
                   </widget>
                  </item>
@@ -903,7 +894,7 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <attribute name="buttonGroup">
-                    <string notr="true">buttonGroup</string>
+                    <string>buttonGroup</string>
                    </attribute>
                   </widget>
                  </item>
@@ -1051,7 +1042,7 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <attribute name="buttonGroup">
-                    <string notr="true">buttonGroup</string>
+                    <string>buttonGroup</string>
                    </attribute>
                   </widget>
                  </item>
@@ -1082,7 +1073,7 @@ p, li { white-space: pre-wrap; }
                     <string/>
                    </property>
                    <attribute name="buttonGroup">
-                    <string notr="true">buttonGroup</string>
+                    <string>buttonGroup</string>
                    </attribute>
                   </widget>
                  </item>
@@ -1120,16 +1111,7 @@ p, li { white-space: pre-wrap; }
                <property name="spacing">
                 <number>0</number>
                </property>
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
+               <property name="margin">
                 <number>0</number>
                </property>
                <item>
@@ -2324,9 +2306,6 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionJT9_1"/>
     <addaction name="actionJT9_2"/>
-    <addaction name="actionJT9_5"/>
-    <addaction name="actionJT9_10"/>
-    <addaction name="actionJT9_30"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSetup"/>
