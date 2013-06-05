@@ -446,9 +446,21 @@ void MainWindow::readSettings()
   m_pttPort=settings.value("PTTport",0).toInt();
   m_saveDir=settings.value("SaveDir",m_appDir + "/save").toString();
   m_nDevIn = settings.value("SoundInIndex", 0).toInt();
-  m_paInDevice = settings.value("paInDevice",0).toInt();
+  m_paInDevice = settings.value("paInDevice", paNoDevice).toInt();
+  if (m_paInDevice == paNoDevice) { // no saved input device?
+    m_paInDevice = Pa_GetDefaultInputDevice();
+    if (m_paInDevice == paNoDevice) { // no default input device?
+      m_paInDevice = 0;
+    }
+  }
   m_nDevOut = settings.value("SoundOutIndex", 0).toInt();
-  m_paOutDevice = settings.value("paOutDevice",0).toInt();
+  m_paOutDevice = settings.value("paOutDevice", paNoDevice).toInt();
+  if (m_paOutDevice == paNoDevice) { // no saved output device?
+    m_paOutDevice = Pa_GetDefaultOutputDevice();
+    if (m_paOutDevice == paNoDevice) { // no default output device?
+      m_paOutDevice = 0;
+    }
+  }
   ui->actionCuteSDR->setChecked(settings.value(
                                   "PaletteCuteSDR",true).toBool());
   ui->actionLinrad->setChecked(settings.value(
