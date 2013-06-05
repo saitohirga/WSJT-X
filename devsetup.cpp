@@ -167,6 +167,10 @@ void DevSetup::initDlg()
   ui.catPortComboBox->addItem("/dev/ttyS1");
   ui.catPortComboBox->addItem("/dev/ttyS2");
   ui.catPortComboBox->addItem("/dev/ttyS3");
+  ui.catPortComboBox->addItem("/dev/ttyS4");
+  ui.catPortComboBox->addItem("/dev/ttyS5");
+  ui.catPortComboBox->addItem("/dev/ttyS6");
+  ui.catPortComboBox->addItem("/dev/ttyS7");
   ui.catPortComboBox->addItem("/dev/ttyUSB0");
   ui.catPortComboBox->addItem("/dev/ttyUSB1");
   ui.catPortComboBox->addItem("/dev/ttyUSB2");
@@ -176,6 +180,10 @@ void DevSetup::initDlg()
   ui.pttComboBox->addItem("/dev/ttyS1");
   ui.pttComboBox->addItem("/dev/ttyS2");
   ui.pttComboBox->addItem("/dev/ttyS3");
+  ui.pttComboBox->addItem("/dev/ttyS4");
+  ui.pttComboBox->addItem("/dev/ttyS5");
+  ui.pttComboBox->addItem("/dev/ttyS6");
+  ui.pttComboBox->addItem("/dev/ttyS7");
   ui.pttComboBox->addItem("/dev/ttyUSB0");
   ui.pttComboBox->addItem("/dev/ttyUSB1");
   ui.pttComboBox->addItem("/dev/ttyUSB2");
