@@ -1383,7 +1383,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
       bool b=stdmsg_(msg.mid(0,22).toLatin1().constData(),22);
       QStringList w=msg.split(" ",QString::SkipEmptyParts);
       if(b and w[0]==m_myCall) {
-        QString tt=w[2];
+        QString tt="";
+        if(w.length()>=3) tt=w[2];
         bool ok;
         i1=tt.toInt(&ok);
         if(ok and i1>=-50 and i1<50) {

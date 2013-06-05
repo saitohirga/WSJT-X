@@ -1,12 +1,32 @@
 			WSJT-X ChangeLog
 ------------------------------------------------------------------
 
-We are getting VERY close to a stable "Version 1.0" release of WSJT-X.
+May 30, 2013: Version 1.0, r3323
+--------------------------------
 
-At that point program features will be frozen temporarily while we
-concentrate on any necessary bug fixes.  If you have bug reports on
-version 0.99 r3295, please send them to us at
-wsjtgroup@yahoogroups.com as soon as possible!
+With this release of WSJT-X Version 1.0 we include a few (relatively
+minor) enhancements in response to user requests, as well as some
+program polishing and cleanup.  Active program development will
+continue, but new releases will become less frequent.
+
+1. New option on the Setup menu: "Tx freq locked to Rx freq".
+
+2. Double-click on a decoded "73" message now sets Tx5, rather than Tx6.
+
+3. New keyboard shortcuts: Alt+1 through Alt+6 set the next Tx message 
+   at the corresponding number.
+
+4. PTT control via Ham Radio Deluxe has been imnplemented and tested.
+
+5. "Tool Tips" are now provided for most on-screen controls.
+
+6. Under Linux and OS X, listings of available audio devices and APIs
+   have been corrected.
+
+7. Tab order among GUI controls has been cleaned up.
+
+8. Updates to the WSJT-X User's Guide.
+
 
 May 22, 2013: v0.99, r3297
 --------------------------
