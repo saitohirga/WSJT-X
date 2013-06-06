@@ -1,4 +1,4 @@
-//--------------------------------------------------------------- MainWindow
+//-------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -418,6 +418,10 @@ void MainWindow::writeSettings()
   settings.setValue("Polling",m_poll);
   settings.setValue("OutBufSize",outBufSize);
   settings.setValue("LockTxFreq",m_lockTxFreq);
+  settings.setValue("SaveTxPower",m_saveTxPower);
+  settings.setValue("SaveComments",m_saveComments);
+  settings.setValue("TxPower",m_txPower);
+  settings.value("LogComments",m_logComments);
   settings.endGroup();
 }
 
@@ -543,6 +547,10 @@ void MainWindow::readSettings()
   outBufSize=settings.value("OutBufSize",4096).toInt();
   m_lockTxFreq=settings.value("LockTxFreq",false).toBool();
   ui->actionLockTxFreq->setChecked(m_lockTxFreq);
+  m_saveTxPower=settings.value("SaveTxPower",false).toBool();
+  m_saveComments=settings.value("SaveComments",false).toBool();
+  m_txPower=settings.value("TxPower","").toString();
+  m_logComments=settings.value("LogComments","").toString();
   settings.endGroup();
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
@@ -2342,6 +2350,10 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   m_dateTimeQSO=QDateTime::currentDateTimeUtc();
 
   logDlg = new LogQSO(0);
+  logDlg->m_saveTxPower=m_saveTxPower;
+  logDlg->m_saveComments=m_saveComments;
+  logDlg->m_txPower=m_txPower;
+  logDlg->m_comments=m_logComments;
   logDlg->initLogQSO(m_hisCall,m_hisGrid,m_mode,m_rptSent,m_rptRcvd,
                      m_dateTimeQSO,m_dialFreq,m_myCall,m_myGrid,
                      m_noSuffix,m_toRTTY,m_dBtoComments);
@@ -2354,6 +2366,10 @@ void MainWindow::acceptQSO2(bool accepted)
 {
   if(accepted) {
     m_logQSOgeom=logDlg->geometry();
+    m_saveTxPower=logDlg->m_saveTxPower;
+    m_saveComments=logDlg->m_saveComments;
+    m_txPower=logDlg->m_txPower;
+    m_logComments=logDlg->m_comments;
     if(m_clearCallGrid) {
       m_hisCall="";
       ui->dxCallEntry->setText("");

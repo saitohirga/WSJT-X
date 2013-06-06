@@ -25,8 +25,13 @@ public:
 
   double m_dialFreq;
 
+  bool m_saveTxPower;
+  bool m_saveComments;
+
   QString m_myCall;
   QString m_myGrid;
+  QString m_txPower;
+  QString m_comments;
 
   QDateTime m_dateTime;
 
@@ -36,6 +41,10 @@ public slots:
 
 signals:
   void acceptQSO(bool accepted);
+
+private slots:
+  void on_cbTxPower_toggled(bool checked);
+  void on_cbComments_toggled(bool checked);
 
 private:
   Ui::LogQSO *ui;
