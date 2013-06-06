@@ -2339,13 +2339,12 @@ void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
 void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 {
   if(m_hisCall=="") return;
-  dateTimeQSO = QDateTime::currentDateTimeUtc();
-  QString date=dateTimeQSO.toString("yyyyMMdd");
+  m_dateTimeQSO=QDateTime::currentDateTimeUtc();
 
   logDlg = new LogQSO(0);
-  logDlg->initLogQSO(m_hisCall,m_hisGrid,m_mode,m_rptSent,m_rptRcvd,date,
-                    m_qsoStart,m_qsoStop,m_dialFreq + m_txFreq / 1e6,m_myCall,m_myGrid,
-                    m_noSuffix,m_toRTTY,m_dBtoComments);
+  logDlg->initLogQSO(m_hisCall,m_hisGrid,m_mode,m_rptSent,m_rptRcvd,
+                     m_dateTimeQSO,m_dialFreq,m_myCall,m_myGrid,
+                     m_noSuffix,m_toRTTY,m_dBtoComments);
   connect(logDlg, SIGNAL(acceptQSO(bool)),this,SLOT(acceptQSO2(bool)));
   if(m_logQSOgeom != QRect(500,400,424,283)) logDlg->setGeometry(m_logQSOgeom);
   logDlg->show();
@@ -2355,19 +2354,6 @@ void MainWindow::acceptQSO2(bool accepted)
 {
   if(accepted) {
     m_logQSOgeom=logDlg->geometry();
-    QString date=dateTimeQSO.toString("yyyyMMdd");
-    QFile f("wsjtx.log");
-    if(!f.open(QIODevice::Text | QIODevice::Append)) {
-      msgBox("Cannot open file \"wsjtx.log\".");
-    } else {
-      QString logEntry=dateTimeQSO.date().toString("yyyy-MMM-dd,") +
-          dateTimeQSO.time().toString("hh:mm,") + m_hisCall + "," +
-          m_hisGrid + "," + QString::number(m_dialFreq) + "," + m_mode +
-          "," + m_rptSent + "," + m_rptRcvd;
-      QTextStream out(&f);
-      out << logEntry << endl;
-      f.close();
-    }
     if(m_clearCallGrid) {
       m_hisCall="";
       ui->dxCallEntry->setText("");
