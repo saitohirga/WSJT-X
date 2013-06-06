@@ -5,22 +5,21 @@
 
 
 LogQSO::LogQSO(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::LogQSO)
+  QDialog(parent),
+  ui(new Ui::LogQSO)
 {
-    ui->setupUi(this);
+  ui->setupUi(this);
 }
 
 LogQSO::~LogQSO()
 {
-    delete ui;
+  delete ui;
 }
 
 void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
-                        QString rptSent, QString rptRcvd, QString date,
-                        QString qsoStart, QString qsoStop, double dialFreq,
-                        QString myCall, QString myGrid, bool noSuffix,
-                        bool toRTTY, bool dBtoComments)
+                        QString rptSent, QString rptRcvd, QDateTime dateTime,
+                        double dialFreq, QString myCall, QString myGrid,
+                        bool noSuffix, bool toRTTY, bool dBtoComments)
 {
   ui->call->setText(hisCall);
   ui->grid->setText(hisGrid);
@@ -35,10 +34,11 @@ void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
   ui->mode->setText(mode);
   ui->sent->setText(rptSent);
   ui->rcvd->setText(rptRcvd);
-  date=date.mid(0,4) + "-" + date.mid(4,2) + "-" + date.mid(6,2);
+  m_dateTime=dateTime;
+  QString date=dateTime.toString("yyyy-MM-dd");
   ui->date->setText(date);
-  ui->time->setText(qsoStart);
-  if(qsoStart=="") ui->time->setText(qsoStop);    //Silence compiler warning
+  QString time=dateTime.toString("hhmm");
+  ui->time->setText(time);
   m_dialFreq=dialFreq;
   m_myCall=myCall;
   m_myGrid=myGrid;
@@ -74,31 +74,29 @@ void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
 
 void LogQSO::accept()
 {
+  QString hisCall,hisGrid,mode,rptSent,rptRcvd,date,time,band;
+  QString comments,name;
+
+  hisCall=ui->call->text();
+  hisGrid=ui->grid->text();
+  mode=ui->mode->text();
+  rptSent=ui->sent->text();
+  rptRcvd=ui->rcvd->text();
+  date=ui->date->text();
+  date=date.mid(0,4) + date.mid(5,2) + date.mid(8,2);
+  time=ui->time->text();
+  band=ui->band->text();
+  name=ui->name->text();
+  comments=ui->comments->text();
+  QString strDialFreq(QString::number(m_dialFreq,'f',6));
+
+//Log this QSO to file wsjtx_log.adi
   QFile f2("wsjtx_log.adi");
   if(!f2.open(QIODevice::Text | QIODevice::Append)) {
     QMessageBox m;
     m.setText("Cannot open file \"wsjtx_log.adi\".");
     m.exec();
   } else {
-    QString hisCall,hisGrid,mode,rptSent,rptRcvd,date,qsoStart,band;
-    QString comments,name;
-//    if(qsoStart=="") qsoStart=qsoStop;
-//    if(qsoStop=="") qsoStop=qsoStart;
-
-    hisCall=ui->call->text();
-    hisGrid=ui->grid->text();
-    mode=ui->mode->text();
-    rptSent=ui->sent->text();
-    rptRcvd=ui->rcvd->text();
-    date=ui->date->text();
-    date=date.mid(0,4) + date.mid(5,2) + date.mid(8,2);
-    qsoStart=ui->time->text();
-    band=ui->band->text();
-    name=ui->name->text();
-    comments=ui->comments->text();
-
-    QString strDialFreq(QString::number(m_dialFreq,'f',6));
-
     QTextStream out(&f2);
     if(f2.size()==0) out << "WSJT-X ADIF Export<eoh>" << endl;
 
@@ -109,8 +107,7 @@ void LogQSO::accept()
     t+=" <rst_sent:" + QString::number(rptSent.length()) + ">" + rptSent;
     t+=" <rst_rcvd:" + QString::number(rptRcvd.length()) + ">" + rptRcvd;
     t+=" <qso_date:8>" + date;
-    t+=" <time_on:4>" + qsoStart;
-//    t+=" <time_off:4>" + qsoStop;
+    t+=" <time_on:4>" + time;
     t+=" <band:" + QString::number(band.length()) + ">" + band;
     t+=" <freq:" + QString::number(strDialFreq.length()) + ">" + strDialFreq;
     t+=" <station_callsign:" + QString::number(m_myCall.length()) + ">" +
@@ -125,6 +122,24 @@ void LogQSO::accept()
     out << t << endl;
     f2.close();
   }
+
+//Log this QSO to file wsjtx.log
+  QFile f("wsjtx.log");
+  if(!f.open(QIODevice::Text | QIODevice::Append)) {
+    QMessageBox m;
+    m.setText("Cannot open file \"wsjtx.log\".");
+    m.exec();
+  } else {
+    QString logEntry=m_dateTime.date().toString("yyyy-MMM-dd,") +
+        m_dateTime.time().toString("hh:mm,") + hisCall + "," +
+        hisGrid + "," + strDialFreq + "," + mode +
+            "," + rptSent + "," + rptRcvd + "," + comments;
+    QTextStream out(&f);
+    out << logEntry << endl;
+    f.close();
+  }
+
+//Clean up and finish logging
   emit(acceptQSO(true));
   QDialog::accept();
 }

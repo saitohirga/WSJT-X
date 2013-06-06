@@ -322,7 +322,7 @@ private:
     QStringList m_macro;
     QStringList m_dFreq;
 
-    QDateTime dateTimeQSO;
+    QDateTime m_dateTimeQSO;
 
     SoundInThread soundInThread;             //Instantiate the audio threads
     SoundOutThread soundOutThread;
