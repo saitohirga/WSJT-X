@@ -1946,6 +1946,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   QString t1 = t.mid(0,i2);              //contents up to \n on selected line
   int i1=t1.lastIndexOf("\n") + 1;       //points to first char of line
   QString t2 = t1.mid(i1,i2-i1);         //selected line
+  if(t2.indexOf("Tx:")==7) return;       //Ignore Tx line
   int i4=t.mid(i1).length();
   if(i4>55) i4=55;
   QString t3=t.mid(i1,i4);
@@ -1981,12 +1982,12 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   }
   QString hiscall=t4.at(5);
   QString hisgrid="";
-  if(t4.length()>=7)
-      hisgrid=t4.at(6);
+  if(t4.length()>=7) hisgrid=t4.at(6);
   ui->dxCallEntry->setText(hiscall);
-  lookup();
-  if(ui->dxGridEntry->text()=="" and gridOK(hisgrid))
-      ui->dxGridEntry->setText(hisgrid);
+  ui->dxGridEntry->setText("");
+  if(gridOK(hisgrid)) ui->dxGridEntry->setText(hisgrid);
+  if(ui->dxGridEntry->text()=="") lookup();
+  m_hisGrid=ui->dxGridEntry->text();
   int n = 60*t2.mid(0,2).toInt() + t2.mid(2,2).toInt();
   int nmod=n%(m_TRperiod/30);
   m_txFirst=(nmod!=0);
