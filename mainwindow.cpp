@@ -2362,8 +2362,8 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   logDlg->m_txPower=m_txPower;
   logDlg->m_comments=m_logComments;
   logDlg->initLogQSO(m_hisCall,m_hisGrid,m_mode,m_rptSent,m_rptRcvd,
-                     m_dateTimeQSO,m_dialFreq,m_myCall,m_myGrid,
-                     m_noSuffix,m_toRTTY,m_dBtoComments);
+                     m_dateTimeQSO,m_dialFreq+m_txFreq/1.0e6,
+                     m_myCall,m_myGrid,m_noSuffix,m_toRTTY,m_dBtoComments);
   connect(logDlg, SIGNAL(acceptQSO(bool)),this,SLOT(acceptQSO2(bool)));
   if(m_logQSOgeom != QRect(500,400,424,283)) logDlg->setGeometry(m_logQSOgeom);
   logDlg->show();
