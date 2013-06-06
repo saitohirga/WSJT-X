@@ -705,6 +705,22 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>call</tabstop>
+  <tabstop>date</tabstop>
+  <tabstop>time</tabstop>
+  <tabstop>mode</tabstop>
+  <tabstop>band</tabstop>
+  <tabstop>sent</tabstop>
+  <tabstop>rcvd</tabstop>
+  <tabstop>grid</tabstop>
+  <tabstop>name</tabstop>
+  <tabstop>txPower</tabstop>
+  <tabstop>cbTxPower</tabstop>
+  <tabstop>comments</tabstop>
+  <tabstop>cbComments</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
