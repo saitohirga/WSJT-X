@@ -2448,7 +2448,10 @@
   <tabstop>myGridEntry</tabstop>
   <tabstop>pttMethodComboBox</tabstop>
   <tabstop>pttComboBox</tabstop>
+  <tabstop>cbPSKReporter</tabstop>
+  <tabstop>cbID73</tabstop>
   <tabstop>idIntSpinBox</tabstop>
+  <tabstop>pskReporterAntenna</tabstop>
   <tabstop>cbEnableCAT</tabstop>
   <tabstop>rigComboBox</tabstop>
   <tabstop>catPortComboBox</tabstop>
