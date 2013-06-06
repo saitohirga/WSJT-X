@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>548</width>
-    <height>521</height>
+    <height>493</height>
    </rect>
   </property>
   <property name="maximumSize">
    <size>
-    <width>548</width>
-    <height>521</height>
+    <width>569</width>
+    <height>493</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -316,37 +316,30 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
-          <widget class="QLabel" name="label_3">
+          <widget class="QCheckBox" name="cbPSKReporter">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
-             <width>0</width>
-             <height>20</height>
+             <width>146</width>
+             <height>0</height>
             </size>
-           </property>
-           <property name="text">
-            <string>ID Interval (min):</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="idIntSpinBox">
-           <property name="enabled">
-            <bool>true</bool>
            </property>
            <property name="maximumSize">
             <size>
-             <width>60</width>
+             <width>146</width>
              <height>16777215</height>
             </size>
            </property>
            <property name="toolTip">
-            <string>Select CW ID interval (0 for none)</string>
+            <string>Send spots to PSK Reporter web site</string>
            </property>
-           <property name="minimum">
-            <number>0</number>
-           </property>
-           <property name="maximum">
-            <number>10</number>
+           <property name="text">
+            <string>Enable PSK Reporter</string>
            </property>
           </widget>
          </item>
@@ -387,32 +380,53 @@
           </spacer>
          </item>
          <item>
-          <widget class="QCheckBox" name="cbPSKReporter">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+          <widget class="QLabel" name="label_3">
            <property name="minimumSize">
             <size>
-             <width>146</width>
-             <height>0</height>
+             <width>0</width>
+             <height>20</height>
             </size>
+           </property>
+           <property name="text">
+            <string>ID Interval (min):</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="idIntSpinBox">
+           <property name="enabled">
+            <bool>true</bool>
            </property>
            <property name="maximumSize">
             <size>
-             <width>146</width>
+             <width>60</width>
              <height>16777215</height>
             </size>
            </property>
            <property name="toolTip">
-            <string>Send spots to PSK Reporter web site</string>
+            <string>Select CW ID interval (0 for none)</string>
            </property>
-           <property name="text">
-            <string>Enable PSK Reporter</string>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>10</number>
            </property>
           </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_12">
+         <item>
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Antenna for PSK Reporter:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="pskReporterAntenna"/>
          </item>
         </layout>
        </item>
@@ -2435,8 +2449,6 @@
   <tabstop>pttMethodComboBox</tabstop>
   <tabstop>pttComboBox</tabstop>
   <tabstop>idIntSpinBox</tabstop>
-  <tabstop>cbID73</tabstop>
-  <tabstop>cbPSKReporter</tabstop>
   <tabstop>cbEnableCAT</tabstop>
   <tabstop>rigComboBox</tabstop>
   <tabstop>catPortComboBox</tabstop>

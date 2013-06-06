@@ -127,6 +127,7 @@ void DevSetup::initDlg()
   ui.myGridEntry->setPalette(pal);
   ui.myCallEntry->setText(m_myCall);
   ui.myGridEntry->setText(m_myGrid);
+  ui.pskReporterAntenna->setText(m_pskAntenna);
 
   ui.idIntSpinBox->setValue(m_idInt);
   ui.pttMethodComboBox->setCurrentIndex(m_pttMethodIndex);
@@ -237,6 +238,7 @@ void DevSetup::accept()
 
   m_myCall=ui.myCallEntry->text();
   m_myGrid=ui.myGridEntry->text();
+  m_pskAntenna=ui.pskReporterAntenna->text();
   m_idInt=ui.idIntSpinBox->value();
   m_pttMethodIndex=ui.pttMethodComboBox->currentIndex();
   m_pttPort=ui.pttComboBox->currentIndex();
@@ -342,6 +344,8 @@ void DevSetup::on_myGridEntry_editingFinished()
 void DevSetup::on_cbPSKReporter_clicked(bool b)
 {
   m_pskReporter=b;
+  ui.label_8->setEnabled(m_pskReporter);
+  ui.pskReporterAntenna->setEnabled(m_pskReporter);
 }
 
 void DevSetup::on_pttMethodComboBox_activated(int index)
@@ -509,6 +513,9 @@ void DevSetup::on_pttMethodComboBox_currentIndexChanged(int index)
 
 void DevSetup::enableWidgets()
 {
+  ui.label_8->setEnabled(m_pskReporter);
+  ui.pskReporterAntenna->setEnabled(m_pskReporter);
+
   ui.cbEnableCAT->setChecked(m_catEnabled);
   ui.cbDTRoff->setChecked(m_bDTRoff);
   ui.rigComboBox->setEnabled(m_catEnabled);
