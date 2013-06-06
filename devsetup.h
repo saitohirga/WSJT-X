@@ -57,6 +57,7 @@ public:
   QString m_azelDir;
   QString m_catPort;
   QString m_handshake;
+  QString m_pskAntenna;
 
   QStringList m_macro;
   QStringList m_dFreq;

@@ -322,6 +322,7 @@ private:
     QString m_QSOmsg;
     QString m_txPower;
     QString m_logComments;
+    QString m_pskAntenna;
 
     QStringList m_macro;
     QStringList m_dFreq;

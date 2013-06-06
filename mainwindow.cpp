@@ -421,7 +421,8 @@ void MainWindow::writeSettings()
   settings.setValue("SaveTxPower",m_saveTxPower);
   settings.setValue("SaveComments",m_saveComments);
   settings.setValue("TxPower",m_txPower);
-  settings.value("LogComments",m_logComments);
+  settings.setValue("LogComments",m_logComments);
+  settings.setValue("PSKantenna",m_pskAntenna);
   settings.endGroup();
 }
 
@@ -551,6 +552,7 @@ void MainWindow::readSettings()
   m_saveComments=settings.value("SaveComments",false).toBool();
   m_txPower=settings.value("TxPower","").toString();
   m_logComments=settings.value("LogComments","").toString();
+  m_pskAntenna=settings.value("PSKantenna","").toString();
   settings.endGroup();
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
@@ -630,6 +632,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   DevSetup dlg(this);
   dlg.m_myCall=m_myCall;
   dlg.m_myGrid=m_myGrid;
+  dlg.m_pskAntenna=m_pskAntenna;
   dlg.m_idInt=m_idInt;
   dlg.m_pttMethodIndex=m_pttMethodIndex;
   dlg.m_pttPort=m_pttPort;
@@ -670,6 +673,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   if(dlg.exec() == QDialog::Accepted) {
     m_myCall=dlg.m_myCall;
     m_myGrid=dlg.m_myGrid;
+    m_pskAntenna=dlg.m_pskAntenna;
     m_idInt=dlg.m_idInt;
     m_pttMethodIndex=dlg.m_pttMethodIndex;
     m_pttPort=dlg.m_pttPort;
@@ -1441,8 +1445,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
         remote.toWCharArray(tremote);
 
         QString local="station_callsign," + m_myCall + "," +
-            "my_gridsquare," + m_myGrid + "," +
-            "programid,WSJT-X,programversion," + rev.mid(6,4) + ",,";
+            "my_gridsquare," + m_myGrid + ",";
+        if(m_pskAntenna!="") local += "my_antenna," + m_pskAntenna + ",";
+        local += "programid,WSJT-X,programversion," + rev.mid(6,4) + ",,";
 
         wchar_t tlocal[256];
         local.toWCharArray(tlocal);
@@ -1461,16 +1466,18 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
 #else
       if(b and !m_diskData and okToPost) {
-          int i1=msg.indexOf(" ");
-          QString c2=msg.mid(i1+1);
-          int i2=c2.indexOf(" ");
-          QString g2=c2.mid(i2+1,4);
-          c2=c2.mid(0,i2);
-          int nHz=t.mid(22,4).toInt();
-          QString freq = QString::number((int)(1000000.0*m_dialFreq + nHz + 0.5));
-          QString snr= QString::number(t.mid(10,3).toInt());
-          if(gridOK(g2))
-              psk_Reporter->addRemoteStation(c2,g2,freq,"JT9",snr,QString::number(QDateTime::currentDateTime().toTime_t()));
+        int i1=msg.indexOf(" ");
+        QString c2=msg.mid(i1+1);
+        int i2=c2.indexOf(" ");
+        QString g2=c2.mid(i2+1,4);
+        c2=c2.mid(0,i2);
+        int nHz=t.mid(22,4).toInt();
+        QString freq = QString::number((int)(1000000.0*m_dialFreq +
+                                               nHz + 0.5));
+        QString snr= QString::number(t.mid(10,3).toInt());
+        if(gridOK(g2))
+          psk_Reporter->addRemoteStation(c2,g2,freq,"JT9",snr,
+                   QString::number(QDateTime::currentDateTime().toTime_t()));
       }
 #endif
     }
