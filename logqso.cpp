@@ -23,6 +23,10 @@ void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
 {
   ui->call->setText(hisCall);
   ui->grid->setText(hisGrid);
+  ui->txPower->setText("");
+  ui->comments->setText("");
+  if(m_saveTxPower) ui->txPower->setText(m_txPower);
+  if(m_saveComments) ui->comments->setText(m_comments);
   if(dBtoComments) {
     QString t=mode;
     if(rptSent!="") t+="  Sent: " + rptSent;
@@ -70,6 +74,8 @@ void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
   if(dialFreq>47000.0 and dialFreq<47200.0) band="6mm";
   if(dialFreq>75500.0 and dialFreq<81000.0) band="4mm";
   ui->band->setText(band);
+  ui->cbTxPower->setChecked(m_saveTxPower);
+  ui->cbComments->setChecked(m_saveComments);
 }
 
 void LogQSO::accept()
@@ -87,10 +93,12 @@ void LogQSO::accept()
   time=ui->time->text();
   band=ui->band->text();
   name=ui->name->text();
+  m_txPower=ui->txPower->text();
   comments=ui->comments->text();
+  m_comments=comments;
   QString strDialFreq(QString::number(m_dialFreq,'f',6));
 
-//Log this QSO to file wsjtx_log.adi
+//Log this QSO to file "wsjtx_log.adi"
   QFile f2("wsjtx_log.adi");
   if(!f2.open(QIODevice::Text | QIODevice::Append)) {
     QMessageBox m;
@@ -114,6 +122,8 @@ void LogQSO::accept()
         m_myCall;
     t+=" <my_gridsquare:" + QString::number(m_myGrid.length()) + ">" +
         m_myGrid;
+    if(m_txPower!="") t+= " <tx_pwr:" + QString::number(m_txPower.length()) +
+        ">" + m_txPower;
     if(comments!="") t+=" <comment:" + QString::number(comments.length()) +
         ">" + comments;
     if(name!="") t+=" <name:" + QString::number(name.length()) +
@@ -123,7 +133,7 @@ void LogQSO::accept()
     f2.close();
   }
 
-//Log this QSO to file wsjtx.log
+//Log this QSO to file "wsjtx.log"
   QFile f("wsjtx.log");
   if(!f.open(QIODevice::Text | QIODevice::Append)) {
     QMessageBox m;
@@ -148,4 +158,14 @@ void LogQSO::reject()
 {
   emit(acceptQSO(false));
   QDialog::reject();
+}
+
+void LogQSO::on_cbTxPower_toggled(bool checked)
+{
+  m_saveTxPower=checked;
+}
+
+void LogQSO::on_cbComments_toggled(bool checked)
+{
+  m_saveComments=checked;
 }
