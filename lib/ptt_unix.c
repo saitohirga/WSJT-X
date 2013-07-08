@@ -68,7 +68,7 @@ int lp_ptt (int fd, int onoff);
 /* parport functions */
 
 int dev_is_parport(int fd);
-int ptt_parallel(int fd, int *ntx, int *iptt);
+int ptt_parallel(int fd, int ntx, int *iptt);
 int ptt_serial(int fd, int *ntx, int *iptt);
 
 int fd=-1;		/* Used for both serial and parallel */
@@ -91,53 +91,42 @@ int fd=-1;		/* Used for both serial and parallel */
 #define STATE_PORT_OPEN_PARALLEL	1
 #define STATE_PORT_OPEN_SERIAL		2
 
-//int ptt_(int *unused, char *ptt_port, int *ntx, int *iptt)
-int ptt_(int *unused, int *ntx, int *iptt)
+//int ptt_(int *unused, int *ntx, int *iptt)
+int ptt_(int nport, int ntx, int *iptt, int *nopen)
 {
   static int state=0;
   char *p;
+  char ptt_port[]="/dev/ttyUSB0";
+  fflush(stdout);
 
-// ### Temporary:
-  char* ptt_port;
-  if(*unused != -99) {
-    *iptt=*ntx;
-    return 0;
-  }
-// ###
-
-  /* In the very unlikely event of a NULL pointer, just return.
-   * Yes, I realise this should not be possible in WSJT.
-   */
+  // In the very unlikely event of a NULL pointer, just return.
   if (ptt_port == NULL) {
-    *iptt = *ntx;
+    *iptt = ntx;
     return (0);
   }
-    
   switch (state) {
   case STATE_PORT_CLOSED:
-
-     /* Remove trailing ' ' */
+ 
+  // Remove trailing ' '
     if ((p = strchr(ptt_port, ' ')) != NULL)
       *p = '\0';
 
-    /* If all that is left is a '\0' then also just return */
+  //  If all that is left is a '\0' then also just return
     if (*ptt_port == '\0') {
-      *iptt = *ntx;
+      *iptt = ntx;
       return(0);
     }
-
     if ((fd = open(ptt_port, O_RDWR|O_NONBLOCK)) < 0) {
 	fprintf(stderr, "Can't open %s.\n", ptt_port);
 	return (1);
     }
-
     if (dev_is_parport(fd)) {
       state = STATE_PORT_OPEN_PARALLEL;
       lp_reset(fd);
       ptt_parallel(fd, ntx, iptt);
     } else {
       state = STATE_PORT_OPEN_SERIAL;
-      ptt_serial(fd, ntx, iptt);
+      ptt_serial(fd, &ntx, iptt);
     }
     break;
 
@@ -146,7 +135,7 @@ int ptt_(int *unused, int *ntx, int *iptt)
     break;
 
   case STATE_PORT_OPEN_SERIAL:
-    ptt_serial(fd, ntx, iptt);
+    ptt_serial(fd, &ntx, iptt);
     break;
 
   default:
@@ -155,8 +144,10 @@ int ptt_(int *unused, int *ntx, int *iptt)
     state = STATE_PORT_CLOSED;
     break;
   }
+  *iptt=ntx;
   return(0);
 }
+
 
 /*
  * ptt_serial
@@ -180,6 +171,8 @@ ptt_serial(int fd, int *ntx, int *iptt)
     ioctl(fd, TIOCMBIC, &control);
     *iptt = 0;
   }
+  printf("ptt_serial: %d %d",*ntx,*iptt);
+  fflush(stdout);
   return(0);
 }
 
@@ -379,10 +372,9 @@ lp_ptt (int fd, int onoff)
  * iptt		- pointer to fortran command status on or off
  */
 
-int
-ptt_parallel(int fd, int *ntx, int *iptt)
+int ptt_parallel(int fd, int ntx, int *iptt)
 {
-  if(*ntx) {
+  if(ntx) {
     lp_ptt(fd, 1);
     *iptt=1;
   }  else {

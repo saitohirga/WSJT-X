@@ -1,23 +1,21 @@
-subroutine decoder(ss,c0,nstandalone)
+subroutine decoder(ss,id2)
 
 ! Decoder for JT9.
 
-  parameter (NTMAX=120)
-  parameter (NMAX=NTMAX*12000)        !Total sample intervals per 30 minutes
-  parameter (NDMAX=NTMAX*1500)        !Sample intervals at 1500 Hz rate
-  parameter (NSMAX=1365)             !Max length of saved spectra
+  include 'constants.f90'
   real ss(184,NSMAX)
   character*22 msg
-  character*80 fmt
   character*20 datetime
   real*4 ccfred(NSMAX)
   real*4 red2(NSMAX)
   logical ccfok(NSMAX)
   logical done(NSMAX)
+  logical done65
+  integer*2 id2(NTMAX*12000)
+  real*4 dd(NTMAX*12000)
   integer*1 i1SoftSymbols(207)
-  complex c0(NDMAX)
   common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfb,ntol,  &
-       kin,nzhsym,nsave,nagain,ndepth,nrxlog,nfsample,datetime
+       kin,nzhsym,nsave,nagain,ndepth,ntxmode,nmode,datetime
   common/tracer/limtrace,lu
   save
 
@@ -27,48 +25,40 @@ subroutine decoder(ss,c0,nstandalone)
   ndecodes0=0
   ndecodes1=0
 
-  call timer('decoder ',0)
-
   open(13,file='decoded.txt',status='unknown')
-  ntrMinutes=ntrperiod/60
-  newdat=1
+  open(22,file='kvasd.dat',access='direct',recl=1024,status='unknown')
+
+  npts65=52*12000
+  ntol65=20
+  done65=.false.
+  if(nmode.ge.65 .and. ntxmode.eq.65) then
+     if(newdat.ne.0) dd(1:npts65)=id2(1:npts65)
+     call jt65a(dd,npts65,newdat,nutc,nfa,nfqso,ntol65,nagain,ndecoded)
+     done65=.true.
+  endif
+
+  if(nmode.eq.65) go to 800
+
   nsynced=0
   ndecoded=0
   nsps=0
 
-  if(ntrMinutes.eq.1) then
-     nsps=6912
-     df3=1500.0/2048.0
-     fmt='(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22)'
-  else if(ntrMinutes.eq.2) then
-     nsps=15360
-     df3=1500.0/2048.0
-     fmt='(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22)'
-  else if(ntrMinutes.eq.5) then
-     nsps=40960
-     df3=1500.0/6144.0
-     fmt='(i4.4,i4,i5,f6.1,f8.1,i4,3x,a22)'
- else if(ntrMinutes.eq.10) then
-     nsps=82944
-     df3=1500.0/12288.0
-     fmt='(i4.4,i4,i5,f6.1,f8.2,i4,3x,a22)'
-  else if(ntrMinutes.eq.30) then
-     nsps=252000
-     df3=1500.0/32768.0
-     fmt='(i4.4,i4,i5,f6.1,f8.2,i4,3x,a22)'
-  endif
-  if(nsps.eq.0) stop 'Error: bad TRperiod'    !Better: return an error code###
+  nsps=6912                                   !Params for JT9-1
+  df3=1500.0/2048.0
 
   tstep=0.5*nsps/12000.0                      !Half-symbol step (seconds)
   done=.false.
 
-  ia=max(1,nint((nfa-1000)/df3))
-  ib=min(NSMAX,nint((nfb-1000)/df3))
+  nf0=0
+  ia=max(1,nint((nfa-nf0)/df3))
+  ib=min(NSMAX,nint((nfb-nf0)/df3))
   lag1=-(2.5/tstep + 0.9999)
   lag2=5.0/tstep + 0.9999
-  call timer('sync9   ',0)
-  call sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,red2,ipk)
-  call timer('sync9   ',1)
+  if(newdat.ne.0) then
+     call timer('sync9   ',0)
+     call sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,red2,ipk)
+     call timer('sync9   ',1)
+  endif
 
   nsps8=nsps/8
   df8=1500.0/nsps8
@@ -94,24 +84,22 @@ subroutine decoder(ss,c0,nstandalone)
         ccfok(ia:ib)=.true.
         nfa1=nfqso-ntol
         nfb1=nfqso+ntol
-        ia=max(1,nint((nfa1-1000)/df3))
-        ib=min(NSMAX,nint((nfb1-1000)/df3))
+        ia=max(1,nint((nfa1-nf0)/df3))
+        ib=min(NSMAX,nint((nfb1-nf0)/df3))
         ia1=ia
         ib1=ib
      else
         nfa1=nfa
         nfb1=nfb
-        ia=max(1,nint((nfa1-1000)/df3))
-        ib=min(NSMAX,nint((nfb1-1000)/df3))
+        ia=max(1,nint((nfa1-nf0)/df3))
+        ib=min(NSMAX,nint((nfb1-nf0)/df3))
         do i=ia,ib
            ccfok(i)=ccfred(i).gt.ccflim .and. red2(i).gt.red2lim
         enddo
         ccfok(ia1:ib1)=.false.
      endif
 
-     nRxLog=0
      fgood=0.
-
      do i=ia,ib
         f=(i-1)*df3
         if(done(i) .or. (.not.ccfok(i)) .or. (ccfred(i).lt.ccflim-1.0)) cycle
@@ -122,9 +110,9 @@ subroutine decoder(ss,c0,nstandalone)
            if(nqd.eq.1) nfreqs1=nfreqs1+1
 
            call timer('softsym ',0)
-           fpk=1000.0 + df3*(i-1)
-           call softsym(c0,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,freq,   &
-                drift,schk,i1SoftSymbols)
+           fpk=nf0 + df3*(i-1)
+           call softsym(id2,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,    &
+                freq,drift,schk,i1SoftSymbols)
            call timer('softsym ',1)
 
            if(schk.ge.schklim) then
@@ -140,16 +128,14 @@ subroutine decoder(ss,c0,nstandalone)
               nsnr=nint(snrdb)
               ndrift=nint(drift/df3)
               
-!              write(38,3002) nutc,nqd,nsnr,i,freq,ndrift,ccfred(i),    &
-!                   red2(i),schk,nlim,msg
-!3002          format(i4.4,i2,i4,i5,f7.1,i4,f5.1,f6.1,f5.1,i8,1x,a22)
-
               if(msg.ne.'                      ') then
                  if(nqd.eq.0) ndecodes0=ndecodes0+1
                  if(nqd.eq.1) ndecodes1=ndecodes1+1
                  
-                 write(*,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
-                 write(13,fmt) nutc,nsync,nsnr,xdt,freq,ndrift,msg
+                 write(*,1000) nutc,nsnr,xdt,nint(freq),msg
+1000             format(i4.4,i4,f5.1,i5,1x,'@',1x,a22)
+                 write(13,1002) nutc,nsync,nsnr,xdt,freq,ndrift,msg
+1002             format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT9')
 
                  iaa=max(1,i-1)
                  ibb=min(NSMAX,i+22)
@@ -160,8 +146,6 @@ subroutine decoder(ss,c0,nstandalone)
                  done(iaa:ibb)=.true.              
                  call flush(6)
               endif
-           else
-!              write(38,3002) nutc,nqd,-99,i,freq,ndrift,ccfred(i),red2(i),schk,0
            endif
         endif
      enddo
@@ -169,21 +153,17 @@ subroutine decoder(ss,c0,nstandalone)
      if(nagain.ne.0) exit
   enddo
 
-  write(*,1010) nsynced,ndecoded
+  if(nmode.ge.65 .and. (.not.done65)) then
+     if(newdat.ne.0) dd(1:npts65)=id2(1:npts65)
+     call jt65a(dd,npts65,newdat,nutc,nfa,nfqso,ntol65,nagain,ndecoded)
+  endif
+
+!### JT65 is not yet producing info for nsynced, ndecoded.
+800 write(*,1010) nsynced,ndecoded
 1010 format('<DecodeFinished>',2i4)
   call flush(6)
   close(13)
-!  call flush(14)
-
-  call timer('decoder ',1)
-  if(nstandalone.eq.0) call timer('decoder ',101)
-
-  call system_clock(iclock,iclock_rate,iclock_max)
-!  write(39,3001) nutc,nfreqs1,nfreqs0,ndecodes1,ndecodes0,       &
-!       float(iclock-iclock0)/iclock_rate
-!3001 format(5i8,f10.3)
-!  call flush(38)
-!  call flush(39)
+  close(22)
 
   return
 end subroutine decoder

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>712</width>
+    <width>799</width>
     <height>326</height>
    </rect>
   </property>
@@ -69,25 +69,6 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="label_3">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>25</height>
-          </size>
-         </property>
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>FFT Bins/Pixel</string>
-         </property>
-         <property name="margin">
-          <number>2</number>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QSpinBox" name="freqSpanSpinBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -97,7 +78,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>40</width>
+           <width>110</width>
            <height>0</height>
           </size>
          </property>
@@ -112,6 +93,9 @@
          </property>
          <property name="suffix">
           <string/>
+         </property>
+         <property name="prefix">
+          <string>Bins/Pixel </string>
          </property>
          <property name="minimum">
           <number>1</number>
@@ -144,25 +128,6 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="label_2">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>25</height>
-          </size>
-         </property>
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>N Avg</string>
-         </property>
-         <property name="margin">
-          <number>2</number>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QSpinBox" name="waterfallAvgSpinBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -172,7 +137,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>0</width>
+           <width>80</width>
            <height>0</height>
           </size>
          </property>
@@ -184,6 +149,9 @@
          </property>
          <property name="toolTip">
           <string>Number of FFTs averaged (controls waterfall scrolling rate)</string>
+         </property>
+         <property name="prefix">
+          <string>N Avg </string>
          </property>
          <property name="minimum">
           <number>1</number>
@@ -210,26 +178,13 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="label_4">
-         <property name="maximumSize">
+        <widget class="QSpinBox" name="gainSpinBox">
+         <property name="minimumSize">
           <size>
-           <width>16777215</width>
-           <height>25</height>
+           <width>80</width>
+           <height>0</height>
           </size>
          </property>
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Gain</string>
-         </property>
-         <property name="margin">
-          <number>2</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="gainSpinBox">
          <property name="maximumSize">
           <size>
            <width>38</width>
@@ -238,6 +193,9 @@
          </property>
          <property name="toolTip">
           <string>Scaling (dB) applied to spectra before plotting</string>
+         </property>
+         <property name="prefix">
+          <string>Gain </string>
          </property>
          <property name="minimum">
           <number>-20</number>
@@ -264,26 +222,13 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="label">
-         <property name="maximumSize">
+        <widget class="QSpinBox" name="zeroSpinBox">
+         <property name="minimumSize">
           <size>
-           <width>16777215</width>
-           <height>25</height>
+           <width>80</width>
+           <height>0</height>
           </size>
          </property>
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Zero</string>
-         </property>
-         <property name="margin">
-          <number>2</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="zeroSpinBox">
          <property name="maximumSize">
           <size>
            <width>38</width>
@@ -293,11 +238,42 @@
          <property name="toolTip">
           <string>Constant offset applied to waterfall data</string>
          </property>
+         <property name="suffix">
+          <string/>
+         </property>
+         <property name="prefix">
+          <string>Zero </string>
+         </property>
          <property name="minimum">
           <number>-100</number>
          </property>
          <property name="maximum">
           <number>100</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDoubleSpinBox" name="slopeSpinBox">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="prefix">
+          <string>Slope </string>
+         </property>
+         <property name="decimals">
+          <number>1</number>
+         </property>
+         <property name="minimum">
+          <double>-2.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>2.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
          </property>
         </widget>
        </item>
@@ -318,25 +294,6 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="label_5">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>25</height>
-          </size>
-         </property>
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>f Min</string>
-         </property>
-         <property name="margin">
-          <number>2</number>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QSpinBox" name="fMinSpinBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -344,82 +301,37 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>110</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="toolTip">
-          <string>Minimum frequency for wideband decodes</string>
+          <string>Decode JT65 below this frequency, JT9 above</string>
+         </property>
+         <property name="suffix">
+          <string>  JT9</string>
+         </property>
+         <property name="prefix">
+          <string>JT65  </string>
          </property>
          <property name="minimum">
-          <number>1000</number>
+          <number>0</number>
          </property>
          <property name="maximum">
-          <number>2000</number>
+          <number>5000</number>
          </property>
          <property name="singleStep">
-          <number>50</number>
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>3000</number>
          </property>
         </widget>
        </item>
        <item>
         <spacer name="horizontalSpacer_8">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Minimum</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>8</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_6">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>25</height>
-          </size>
-         </property>
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>f Max</string>
-         </property>
-         <property name="margin">
-          <number>2</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="fMaxSpinBox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string>Maximum frequency for wideband decodes</string>
-         </property>
-         <property name="minimum">
-          <number>1000</number>
-         </property>
-         <property name="maximum">
-          <number>2000</number>
-         </property>
-         <property name="singleStep">
-          <number>50</number>
-         </property>
-         <property name="value">
-          <number>2000</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_5">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -450,11 +362,6 @@
          <item>
           <property name="text">
            <string>Cumulative</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>JT9 Sync</string>
           </property>
          </item>
         </widget>

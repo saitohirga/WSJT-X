@@ -1,9 +1,8 @@
-subroutine softsym(c0,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,freq,drift,   &
-     schk,i1SoftSymbols)
+subroutine softsym(id2,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,        &
+     freq,drift,schk,i1SoftSymbols)
 
 ! Compute the soft symbols
 
-  complex c0(0:npts8-1)
   complex c2(0:4096-1)
   complex c3(0:4096-1)
   complex c5(0:4096-1)
@@ -16,7 +15,7 @@ subroutine softsym(c0,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,freq,drift,   &
   ndown=nsps8/nspsd
 
 ! Mix, low-pass filter, and downsample to 16 samples per symbol
-  call downsam9(c0,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
+  call downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
 
   call peakdt9(c2,nz2,nsps8,nspsd,c3,nz3,xdt)  !Find DT
 
@@ -26,7 +25,7 @@ subroutine softsym(c0,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,freq,drift,   &
   freq=fpk - a(1)
   drift=-2.0*a(2)
 
-  call twkfreq(c3,c5,nz3,fsample,a)   !Correct for deltaF, fDot, fDDot
+  call twkfreq(c3,c5,nz3,fsample,a)   !Correct for delta f, f1, f2 ==> a(1:3)
 
 ! Compute soft symbols (in scrambled order)
   call symspec2(c5,nz3,nsps8,nspsd,fsample,freq,drift,snrdb,schk,      &

@@ -9,11 +9,8 @@ subroutine peakdt9(c2,nz2,nsps8,nspsd,c3,nz3,xdt)
   p=0.
   i0=5*nspsd
   do i=0,nz2-1
-     z=1.e-3*sum(c2(max(i-(nspsd-1),0):i))       !Integrate
-     p(i0+i)=real(z)**2 + aimag(z)**2      !Symbol power at freq=0
-! Option here for coherent processing ?
-!     write(53,3301) i,z,p(i0+i),atan2(aimag(z),real(z))
-!3301 format(i6,4e12.3)
+     z=1.e-3*sum(c2(max(i-(nspsd-1),0):i))
+     p(i0+i)=real(z)**2 + aimag(z)**2      !Integrated symbol power at freq=0
   enddo
 
   call getlags(nsps8,lag0,lag1,lag2)
@@ -35,8 +32,6 @@ subroutine peakdt9(c2,nz2,nsps8,nspsd,c3,nz3,xdt)
      enddo
      ss=(sum1/16.0)/(sum0/69.0) - 1.0
      xdt=(lag-lag0)*dtlag
-!     write(52,3001) lag,xdt,ss
-!3001 format(i5,2f12.3)
      if(ss.gt.smax) then
         smax=ss
         lagpk=lag

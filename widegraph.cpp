@@ -18,7 +18,10 @@ WideGraph::WideGraph(QWidget *parent) :
   connect(ui->widePlot, SIGNAL(freezeDecode1(int)),this,
           SLOT(wideFreezeDecode(int)));
 
-  m_fMin=1000;
+  connect(ui->widePlot, SIGNAL(setFreq1(int,int)),this,
+          SLOT(setFreq2(int,int)));
+
+  m_fMin=3000;
   ui->fMinSpinBox->setValue(m_fMin);
 
   //Restore user's settings
@@ -39,15 +42,13 @@ WideGraph::WideGraph(QWidget *parent) :
   m_waterfallAvg = settings.value("WaterfallAvg",5).toInt();
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
   ui->widePlot->m_bCurrent=settings.value("Current",false).toBool();
-  ui->widePlot->m_bCumulative=settings.value("Cumulative",false).toBool();
-  ui->widePlot->m_bJT9Sync=settings.value("JT9Sync",true).toBool();
+  ui->widePlot->m_bCumulative=settings.value("Cumulative",true).toBool();
   if(ui->widePlot->m_bCurrent) ui->spec2dComboBox->setCurrentIndex(0);
   if(ui->widePlot->m_bCumulative) ui->spec2dComboBox->setCurrentIndex(1);
-  if(ui->widePlot->m_bJT9Sync) ui->spec2dComboBox->setCurrentIndex(2);
   int nbpp=settings.value("BinsPerPixel",2).toInt();
   ui->widePlot->setBinsPerPixel(nbpp);
-  m_qsoFreq=settings.value("QSOfreq",1500).toInt();
-  ui->widePlot->setFQSO(m_qsoFreq,true);
+  m_slope=settings.value("Slope",0.0).toDouble();
+  ui->slopeSpinBox->setValue(m_slope);
   settings.endGroup();
 }
 
@@ -72,18 +73,16 @@ void WideGraph::saveSettings()
   settings.setValue("WaterfallAvg",ui->waterfallAvgSpinBox->value());
   settings.setValue("Current",ui->widePlot->m_bCurrent);
   settings.setValue("Cumulative",ui->widePlot->m_bCumulative);
-  settings.setValue("JT9Sync",ui->widePlot->m_bJT9Sync);
   settings.setValue("BinsPerPixel",ui->widePlot->binsPerPixel());
-  settings.setValue("QSOfreq",ui->widePlot->fQSO());
+  settings.setValue("Slope",m_slope);
   settings.endGroup();
 }
 
-void WideGraph::dataSink2(float s[], float red[], float df3, int ihsym,
+void WideGraph::dataSink2(float s[], float df3, int ihsym,
                           int ndiskdata)
 {
   static float splot[NSMAX];
   static float swide[2048];
-  static float rwide[2048];
   int nbpp = ui->widePlot->binsPerPixel();
   static int n=0;
 
@@ -105,18 +104,14 @@ void WideGraph::dataSink2(float s[], float red[], float df3, int ihsym,
 //    int w=ui->widePlot->plotWidth();
     int i0=-1;                            //###
     int i=i0;
-    int jz=1000.0/df3;
+    int jz=5000.0/(nbpp*df3);
     for (int j=0; j<jz; j++) {
       float sum=0;
-      float rsum=0;
       for (int k=0; k<nbpp; k++) {
         i++;
         sum += splot[i];
-        rsum += red[i];
       }
       swide[j]=sum;
-      rwide[j]=rsum/nbpp;
-//      if(lstrong[1 + i/32]!=0) swide[j]=-smax;   //Tag strong signals
     }
 
 // Time according to this computer
@@ -128,7 +123,7 @@ void WideGraph::dataSink2(float s[], float red[], float df3, int ihsym,
       }
     }
     m_ntr0=ntr;
-    ui->widePlot->draw(swide,rwide,i0);
+    ui->widePlot->draw(swide,i0);
   }
 }
 
@@ -172,16 +167,16 @@ void WideGraph::keyPressEvent(QKeyEvent *e)
   }
 }
 
-void WideGraph::setQSOfreq(int n)
+void WideGraph::setRxFreq(int n)
 {
-  m_qsoFreq=n;
-  ui->widePlot->setFQSO(m_qsoFreq,true);
-  if(m_lockTxFreq) setTxFreq(m_qsoFreq);
+  m_rxFreq=n;
+  ui->widePlot->setRxFreq(m_rxFreq,true);
+  if(m_lockTxFreq) setTxFreq(m_rxFreq);
 }
 
-int WideGraph::QSOfreq()
+int WideGraph::rxFreq()
 {
-  return ui->widePlot->fQSO();
+  return ui->widePlot->rxFreq();
 }
 
 int WideGraph::nSpan()
@@ -204,9 +199,9 @@ void WideGraph::wideFreezeDecode(int n)
   emit freezeDecode2(n);
 }
 
-void WideGraph::setRxRange(int fMin, int fMax)
+void WideGraph::setRxRange(int fMin)
 {
-  ui->widePlot->setRxRange(fMin,fMax);
+  ui->widePlot->setRxRange(fMin);
   ui->widePlot->DrawOverlay();
   ui->widePlot->update();
 }
@@ -218,19 +213,16 @@ int WideGraph::getFmin()
 
 int WideGraph::getFmax()
 {
-  return m_fMax;
+  int n=ui->widePlot->getFmax();
+  if(n>5000) n=5000;
+  return n;
 }
 
-void WideGraph::setfMax(int n)
+void WideGraph::setFmin(int n)
 {
-  m_fMax = n;
-  setRxRange(m_fMin,m_fMax);
-}
-
-void WideGraph::setFcal(int n)
-{
-  m_fCal=n;
-  ui->widePlot->setFcal(n);
+  m_fMin = n;
+  ui->fMinSpinBox->setValue(n);
+  setRxRange(m_fMin);
 }
 
 void WideGraph::setPalette(QString palette)
@@ -252,28 +244,65 @@ void WideGraph::setPeriod(int ntrperiod, int nsps)
 
 void WideGraph::setTxFreq(int n)
 {
+  emit setXIT2(n);
   ui->widePlot->setTxFreq(n);
+}
+
+void WideGraph::setMode(QString mode)
+{
+  m_mode=mode;
+  ui->fMinSpinBox->setEnabled(m_mode=="JT9+JT65");
+  ui->widePlot->setMode(mode);
+  ui->widePlot->DrawOverlay();
+  ui->widePlot->update();
+}
+
+void WideGraph::setModeTx(QString modeTx)
+{
+  m_modeTx=modeTx;
+  ui->widePlot->setModeTx(modeTx);
+  ui->widePlot->DrawOverlay();
+  ui->widePlot->update();
 }
 
 void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)
 {
   ui->widePlot->m_bCurrent=false;
   ui->widePlot->m_bCumulative=false;
-  ui->widePlot->m_bJT9Sync=false;
   if(arg1=="Current") ui->widePlot->m_bCurrent=true;
   if(arg1=="Cumulative") ui->widePlot->m_bCumulative=true;
-  if(arg1=="JT9 Sync") ui->widePlot->m_bJT9Sync=true;
 }
 
 void WideGraph::on_fMinSpinBox_valueChanged(int n)
 {
   m_fMin=n;
-  setRxRange(m_fMin,m_fMax);
+  setRxRange(m_fMin);
 }
 
-void WideGraph::on_fMaxSpinBox_valueChanged(int n)
+void WideGraph::on_slopeSpinBox_valueChanged(double d)
 {
-  m_fMax=n;
-  setRxRange(m_fMin,m_fMax);
+  m_slope=d;
 }
 
+void WideGraph::setSlope(double d)
+{
+  m_slope=d;
+  ui->slopeSpinBox->setValue(d);
+}
+
+void WideGraph::setLockTxFreq(bool b)
+{
+  m_lockTxFreq=b;
+  ui->widePlot->m_lockTxFreq=b;
+}
+double WideGraph::getSlope()
+{
+  return m_slope;
+}
+
+void WideGraph::setFreq2(int rxFreq, int txFreq)
+{
+  m_rxFreq=rxFreq;
+  m_txFreq=txFreq;
+  emit setFreq3(rxFreq,txFreq);
+}

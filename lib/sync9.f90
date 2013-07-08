@@ -1,6 +1,7 @@
 subroutine sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,red2,ipkbest)
 
-  parameter (NSMAX=1365)             !Max length of saved spectra
+  include 'constants.f90'
+!  parameter (NSMAX=1365)             !Max length of saved spectra
   real ss(184,NSMAX)
   real ss1(184)
   real ccfred(NSMAX)

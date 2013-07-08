@@ -16,7 +16,7 @@ subroutine decode9(i1SoftSymbols,limit,nlim,msg)
   logical first
   integer*4 mettab(0:255,0:1)
   data first/.true./
-  data xx0/                                                      &
+  data xx0/                                                      & !Metric table
         1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000,  &
         1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000,  &
         1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000,  &
@@ -53,9 +53,8 @@ subroutine decode9(i1SoftSymbols,limit,nlim,msg)
 
   if(first) then
 ! Get the metric table
-!     bias=0.37                         !To be optimized, in decoder program
      bias=0.5
-     scale=10                           !  ... ditto ...
+     scale=10
      do i=0,255
         mettab(i,0)=nint(scale*(xx0(i)-bias))
         if(i.ge.1) mettab(256-i,1)=mettab(i,0)

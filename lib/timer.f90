@@ -7,7 +7,7 @@ subroutine timer(dname,k)
   character*8 dname,name(50),space,ename
   character*16 sname
   logical on(50)
-  real ut(50),ut0(50),dut(50),tt(2)
+  real ut(50),ut0(50),dut(50)
   integer ncall(50),nlevel(50),nparent(50)
   integer onlevel(0:10)
   common/tracer/ limtrace,lu
@@ -36,7 +36,8 @@ subroutine timer(dname,k)
      if(on(n)) print*,'Error in timer: ',dname,' already on.'
      level=level+1                                !Increment the level
      on(n)=.true.
-     ut0(n)=etime(tt)
+     call system_clock(icount,irate)
+     ut0(n)=float(icount)/irate
      ncall(n)=ncall(n)+1
      if(ncall(n).gt.1.and.nlevel(n).ne.level) then
         nlevel(n)=-1
@@ -49,7 +50,8 @@ subroutine timer(dname,k)
   else if(k.eq.1) then        !Get stop times and accumulate sums. (k=1)
      if(on(n)) then
         on(n)=.false.
-        ut1=etime(tt)
+        call system_clock(icount,irate)
+        ut1=float(icount)/irate
         ut(n)=ut(n)+ut1-ut0(n)
      endif
      level=level-1

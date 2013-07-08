@@ -7,7 +7,7 @@
  * Hamlib C++ interface is a frontend implementing wrapper functions.
  */
 
-/*
+/**
  *
  *  Hamlib C++ bindings - main file
  *  Copyright (c) 2001-2003 by Stephane Fillod
@@ -36,7 +36,7 @@
 #include <hamlib/rig.h>
 #include "rigclass.h"
 #include <QDebug>
-
+#include <QHostAddress>
 
 static int hamlibpp_freq_event(RIG *rig, vfo_t vfo, freq_t freq, rig_ptr_t arg);
 
@@ -78,9 +78,16 @@ int Rig::init(rig_model_t rig_model)
 }
 
 int Rig::open(int n) {
-#ifdef WIN32	// Ham radio Deluxe only on Windows
-  m_hrd=(n==9999);
-  if(m_hrd) {
+  m_hrd=false;
+  m_cmndr=false;
+  if(n<9900) {
+    if(n==-99999) return -1;                      //Silence compiler warning
+    return rig_open(theRig);
+  }
+
+#ifdef WIN32	              // Ham radio Deluxe or Commander (Windows only)
+  if(n==9999) {
+    m_hrd=true;
     bool bConnect=false;
     bConnect = HRDInterfaceConnect(L"localhost",7809);
     if(bConnect) {
@@ -92,18 +99,39 @@ int Rig::open(int n) {
       m_hrd=false;
       return -1;
     }
-  } else
-#endif
-  {
-    if(n==-99999) return -1;                 //Silence compiler warning
-    return rig_open(theRig);
   }
+  if(n==9998) {
+    socket->connectToHost(QHostAddress::LocalHost, 52002);
+    if(!socket->waitForConnected(1000)) {
+      return -1;
+    }
+    QString t;
+//    qint32 nkHz=14076;
+//    t.sprintf("<command:10>CmdSetFreq<parameters:17><xcvrfreq:5>%5d",nkHz);
+    t="<command:10>CmdGetFreq<parameters:0>";
+    QByteArray ba = t.toLocal8Bit();
+    const char* buf=ba.data();
+    socket->write(buf);
+    socket->waitForReadyRead(1000);
+    QByteArray reply=socket->read(128);
+    if(reply.indexOf("<CmdFreq:10>")==0) {
+//      qDebug() << "Freq:" << reply;
+//      qDebug() << "Connected to Commander";
+      m_cmndr=true;
+      return 0;
+    }
+  }
+#endif
+  return -1;
 }
 
 int Rig::close(void) {
 #ifdef WIN32	// Ham Radio Deluxe only on Windows
   if(m_hrd) {
     HRDInterfaceDisconnect();
+    return 0;
+  } else if(m_cmndr) {
+    socket->close();
     return 0;
   } else
 #endif
@@ -132,10 +160,67 @@ int Rig::setFreq(freq_t freq, vfo_t vfo) {
     } else {
       return -1;
     }
+  } else if(m_cmndr) {
+    QString t;
+    qint32 nkHz=int(0.001*freq);
+    t.sprintf("<command:10>CmdSetFreq<parameters:17><xcvrfreq:5>%5d",nkHz);
+    QByteArray ba = t.toLocal8Bit();
+    const char* buf=ba.data();
+    socket->write(buf);
+    socket->waitForBytesWritten(1000);
+    return 0;
   } else
 #endif
-    {
+  {
     return rig_set_freq(theRig, vfo, freq);
+  }
+}
+
+int Rig::setXit(shortfreq_t xit, vfo_t vfo)
+{
+  return rig_set_xit(theRig, vfo, xit);
+}
+
+int Rig::setVFO(vfo_t vfo)
+{
+  return rig_set_vfo(theRig, vfo);
+}
+
+vfo_t Rig::getVFO()
+{
+  vfo_t vfo;
+  rig_get_vfo(theRig, &vfo);
+  return vfo;
+}
+
+int Rig::setSplitFreq(freq_t tx_freq, vfo_t vfo) {
+#ifdef WIN32	// Ham Radio Deluxe only on Windows
+  if(m_hrd) {
+    QString t;
+    int nhz=(int)tx_freq;
+    t=m_context + "Set Frequency-Hz " + QString::number(nhz);
+    const wchar_t* cmnd = (const wchar_t*) t.utf16();
+    const wchar_t* result=HRDInterfaceSendMessage(cmnd);
+    QString t2=QString::fromWCharArray (result,-1);
+    HRDInterfaceFreeString(result);
+    if(t2=="OK") {
+      return 0;
+    } else {
+      return -1;
+    }
+  } else if(m_cmndr) {
+    QString t;
+    qint32 nkHz=int(0.001*tx_freq);
+    t.sprintf("<command:12>CmdSetTxFreq<parameters:17><xcvrfreq:5>%5d",nkHz);
+    QByteArray ba = t.toLocal8Bit();
+    const char* buf=ba.data();
+    socket->write(buf);
+    socket->waitForBytesWritten(1000);
+    return 0;
+  } else
+#endif
+  {
+    return rig_set_split_freq(theRig, vfo, tx_freq);
   }
 }
 
@@ -150,10 +235,29 @@ freq_t Rig::getFreq(vfo_t vfo)
     HRDInterfaceFreeString(freqString);
     freq=t2.toDouble();
     return freq;
+  } else if(m_cmndr) {
+    QString t;
+    t="<command:10>CmdGetFreq<parameters:0>";
+    QByteArray ba = t.toLocal8Bit();
+    const char* buf=ba.data();
+    socket->write(buf);
+    socket->waitForReadyRead(1000);
+    QByteArray reply=socket->read(128);
+    QString t2(reply);
+    if(t2.indexOf("<CmdFreq:")==0) {
+      int i1=t2.indexOf(">");
+      t2=t2.mid(i1+1).replace(",","");
+      freq=1000.0*t2.toDouble();
+      return freq;
+    } else {
+      return -1.0;
+    }
   } else
 #endif
-    {
-    rig_get_freq(theRig, vfo, &freq);
+  {
+    int iret=rig_get_freq(theRig, vfo, &freq);
+// iret should be 0.  Negative values mean rig_get_freq() failed.
+    if(iret<0) freq=-1.0;
     return freq;
   }
 }
@@ -166,18 +270,6 @@ rmode_t Rig::getMode(pbwidth_t& width, vfo_t vfo) {
   rmode_t mode;
   rig_get_mode(theRig, vfo, &mode, &width);
   return mode;
-}
-
-int Rig::setVFO(vfo_t vfo)
-{
-  return rig_set_vfo(theRig, vfo);
-}
-
-vfo_t Rig::getVFO()
-{
-  vfo_t vfo;
-  rig_get_vfo(theRig, &vfo);
-  return vfo;
 }
 
 int Rig::setPTT(ptt_t ptt, vfo_t vfo)
@@ -201,6 +293,16 @@ int Rig::setPTT(ptt_t ptt, vfo_t vfo)
     } else {
       return -1;
     }
+  } else if(m_cmndr) {
+    QString t;
+    if(ptt==0) t="<command:5>CmdRX<parameters:0>";
+    if(ptt>0) t="<command:5>CmdTX<parameters:0>";
+    QByteArray ba = t.toLocal8Bit();
+    const char* buf=ba.data();
+    socket->write(buf);
+    socket->waitForBytesWritten(1000);
+//    qDebug() << ptt << buf;
+    return 0;
   } else
 #endif
     {

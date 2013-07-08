@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>548</width>
+    <width>569</width>
     <height>493</height>
    </rect>
   </property>
@@ -584,6 +584,32 @@
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="cbDTRoff">
+           <property name="text">
+            <string>RTS/DTR OFF</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_14">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
            <property name="sizeHint" stdset="0">
             <size>
              <width>40</width>
@@ -741,6 +767,9 @@
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
            <property name="sizeHint" stdset="0">
             <size>
              <width>40</width>
@@ -750,9 +779,25 @@
           </spacer>
          </item>
          <item>
-          <widget class="QCheckBox" name="cbDTRoff">
+          <widget class="QRadioButton" name="rbData">
+           <property name="toolTip">
+            <string>Use special Tx command for &quot;data&quot;</string>
+           </property>
            <property name="text">
-            <string>RTS/DTR OFF</string>
+            <string>Data</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rbMic">
+           <property name="toolTip">
+            <string>Use normal Tx command</string>
+           </property>
+           <property name="text">
+            <string>Mic</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -899,7 +944,7 @@
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_14">
+          <spacer name="horizontalSpacer_16">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -915,25 +960,9 @@
           </spacer>
          </item>
          <item>
-          <widget class="QRadioButton" name="rbData">
-           <property name="toolTip">
-            <string>Use special Tx command for &quot;data&quot;</string>
-           </property>
+          <widget class="QCheckBox" name="cbSplit">
            <property name="text">
-            <string>Data</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="rbMic">
-           <property name="toolTip">
-            <string>Use normal Tx command</string>
-           </property>
-           <property name="text">
-            <string>Mic</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
+            <string>Split Tx</string>
            </property>
           </widget>
          </item>
@@ -1007,6 +1036,29 @@
            </property>
            <property name="text">
             <string>Test PTT</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_17">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="cbXIT">
+           <property name="text">
+            <string>XIT</string>
            </property>
           </widget>
          </item>
@@ -1313,6 +1365,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="text">
+            <string>5W DPL 73 GL</string>
+           </property>
           </widget>
          </item>
          <item row="2" column="1">
@@ -1359,6 +1414,9 @@
              <width>200</width>
              <height>16777215</height>
             </size>
+           </property>
+           <property name="text">
+            <string>20W DPL 73 GL</string>
            </property>
           </widget>
          </item>
@@ -1554,6 +1612,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="text">
+            <string/>
+           </property>
           </widget>
          </item>
          <item row="3" column="2">
@@ -1576,6 +1637,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="text">
+            <string>TNX 73 GL</string>
+           </property>
           </widget>
          </item>
          <item row="1" column="2">
@@ -1597,6 +1661,9 @@
              <width>200</width>
              <height>16777215</height>
             </size>
+           </property>
+           <property name="text">
+            <string>10W DPL 73 GL</string>
            </property>
           </widget>
          </item>
@@ -2457,11 +2524,8 @@
   <tabstop>catPortComboBox</tabstop>
   <tabstop>dataBitsComboBox</tabstop>
   <tabstop>serialRateComboBox</tabstop>
-  <tabstop>cbDTRoff</tabstop>
   <tabstop>stopBitsComboBox</tabstop>
   <tabstop>handshakeComboBox</tabstop>
-  <tabstop>rbData</tabstop>
-  <tabstop>rbMic</tabstop>
   <tabstop>testCATButton</tabstop>
   <tabstop>testPTTButton</tabstop>
   <tabstop>pollSpinBox</tabstop>
