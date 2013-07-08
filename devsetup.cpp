@@ -381,8 +381,8 @@ void DevSetup::on_cbEnableCAT_toggled(bool b)
 {
   m_catEnabled=b;
   enableWidgets();
-  bool b2=(m_pttMethodIndex==1 or m_pttMethodIndex==2 or m_catEnabled) and
-      !(m_pttMethodIndex==3);
+  bool b2=m_pttMethodIndex==0 and m_catEnabled;
+  b2=b2 or ((m_pttMethodIndex==1 or m_pttMethodIndex==2) and m_pttPort!=0);
   ui.testPTTButton->setEnabled(b2);
 }
 
@@ -425,6 +425,26 @@ void DevSetup::on_cbID73_toggled(bool checked)
 
 void DevSetup::on_testCATButton_clicked()
 {
+  openRig();
+  if(!m_catEnabled) return;
+  QString t;
+  double fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
+  if(fMHz>0.0) {
+    t.sprintf("Rig control appears to be working.\nDial Frequency:  %.6f MHz",
+              fMHz);
+  } else {
+    t.sprintf("Rig control error %d\nFailed to read frequency.",
+              int(1000000.0*fMHz));
+    if(m_poll>0) {
+      m_catEnabled=false;
+      ui.cbEnableCAT->setChecked(false);
+    }
+  }
+  msgBox(t);
+}
+
+void DevSetup::openRig()
+{
   QString t;
   int ret;
 
@@ -440,6 +460,7 @@ void DevSetup::on_testCATButton_clicked()
   if(m_rig<9900) {
     if (!rig->init(m_rig)) {
       msgBox("Rig init failure");
+      m_catEnabled=false;
       return;
     }
     QString sCATport=m_catPort;
@@ -471,32 +492,17 @@ void DevSetup::on_testCATButton_clicked()
     ui.cbEnableCAT->setChecked(false);
     return;
   }
-
-  double fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
-  if(fMHz>0.0) {
-    t.sprintf("Rig control appears to be working.\nDial Frequency:  %.6f MHz",
-              fMHz);
-  } else {
-    t.sprintf("Rig control error %d\nFailed to read frequency.",
-              int(1000000.0*fMHz));
-    if(m_poll>0) {
-      m_catEnabled=false;
-      ui.cbEnableCAT->setChecked(false);
-    }
-  }
-  msgBox(t);
 }
 
 void DevSetup::on_testPTTButton_clicked()
 {
   m_test=1-m_test;
   if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
-//    qDebug() << "devsetup line 492:" << m_pttPort << m_test << &g2_iptt << &g2_COMportOpen;
     ptt(m_pttPort,m_test,&g2_iptt,&g2_COMportOpen);
-//    qDebug() << "devsetup line 494:" << m_pttPort << m_test << &g2_iptt << &g2_COMportOpen;
   }
   if(m_pttMethodIndex==0 and !m_bRigOpen) {
-    on_testCATButton_clicked();
+//    on_testCATButton_clicked();
+    openRig();
   }
   if(m_pttMethodIndex==0 and m_bRigOpen) {
     if(m_test==0) rig->setPTT(RIG_PTT_OFF, RIG_VFO_CURR);
@@ -525,6 +531,7 @@ void DevSetup::on_pollSpinBox_valueChanged(int n)
 void DevSetup::on_pttComboBox_currentIndexChanged(int index)
 {
   m_pttPort=index;
+  enableWidgets();
 }
 
 void DevSetup::on_pttMethodComboBox_currentIndexChanged(int index)
@@ -566,10 +573,10 @@ void DevSetup::enableWidgets()
   ui.pollSpinBox->setEnabled(m_catEnabled);
   bool b1=(m_pttMethodIndex==1 or m_pttMethodIndex==2);
   ui.pttComboBox->setEnabled(b1);
+  b1=b1 and (m_pttPort!=0);
   bool b2 = (m_catEnabled and m_pttMethodIndex==1 and m_rig<9900) or
             (m_catEnabled and m_pttMethodIndex==2 and m_rig<9900);
   bool b3 = (m_catEnabled and m_pttMethodIndex==0 and m_rig>=9900);
-//  ui.testPTTButton->setEnabled(b1 or b2);
   ui.testPTTButton->setEnabled(b1 or b2 or b3);  //Include PTT via HRD or Commander
 }
 
