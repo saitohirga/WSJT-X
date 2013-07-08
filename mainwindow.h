@@ -379,6 +379,9 @@ void azdist_(char* MyGrid, char* HisGrid, double* utch, int* nAz, int* nEl,
              int len1, int len2);
 
 void morse_(char* msg, int* icw, int* ncw, int len);
+
+int ptt_(int nport, int ntx, int* iptt, int* nopen);
+
 }
 
 #endif // MAINWINDOW_H

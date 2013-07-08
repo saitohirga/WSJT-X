@@ -10,4 +10,9 @@ float gran();
 //int ptt(int* nport, int* ntx, int* iptt);
 int ptt(int nport, int ntx, int* iptt, int* nopen);
 
+extern "C" {
+int ptt_(int nport, int ntx, int* iptt, int* nopen);
+}
+
+
 #endif // GETFILE_H

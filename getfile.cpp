@@ -131,7 +131,6 @@ float gran()
 
 int ptt(int nport, int ntx, int* iptt, int* nopen)
 {
-//  qDebug() << "getfile ptt(), line 129:" << nport << ntx << *iptt << *nopen;
 #ifdef WIN32
   static HANDLE hFile;
   char s[10];
@@ -169,34 +168,12 @@ int ptt(int nport, int ntx, int* iptt, int* nopen)
     *nopen=0;
   }
   if((i3+i4+i5+i6+i9+i00)==-999) return 1;    //Silence compiler warning
-//  qDebug() << "getfile ptt(), line 167:" << nport << ntx << *iptt << *nopen;
   return 0;
 #else
-//  qDebug() << "getfile ptt(), line 170:" << nport << ntx << *iptt << *nopen;
-//  ptt_(nport,ntx, iptt, nopen);
-
-//  int control=TIOCM_RTS | TIOCM_DTR;
-  int control = TIOCM_RTS;
-  static int fd;
-
-  if(*nopen==0) {
-    fd=open("/dev/ttyUSB0",O_RDWR | O_NONBLOCK);
-    if(fd<0) {
-      return -1;
-    }
-    *nopen=1;
-  }
-
-  if(ntx) {
-    ioctl(fd, TIOCMBIS, &control);
-    *iptt=1;
-    *nopen=1;
-  } else {
-    ioctl(fd, TIOCMBIC, &control);
-    close(fd);
-    *iptt=0;
-    *nopen=0;
-  }
+    int iptt1,nopen1;
+  ptt_(nport,ntx, &iptt1, &nopen1);
+  *iptt=iptt1;
+  *nopen=nopen1;
   return 0;
 #endif
   if((nport+ntx+(*iptt)==-99999)) *nopen=0;   //Silence compiler warning
