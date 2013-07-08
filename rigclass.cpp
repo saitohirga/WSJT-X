@@ -101,6 +101,7 @@ int Rig::open(int n) {
     }
   }
   if(n==9998) {
+//    qDebug() << "A" << socket->state();
     socket->connectToHost(QHostAddress::LocalHost, 52002);
     if(!socket->waitForConnected(1000)) {
       return -1;
@@ -163,7 +164,7 @@ int Rig::setFreq(freq_t freq, vfo_t vfo) {
   } else if(m_cmndr) {
     QString t;
     qint32 nkHz=int(0.001*freq);
-    t.sprintf("<command:10>CmdSetFreq<parameters:17><xcvrfreq:5>%5d",nkHz);
+    t.sprintf("<command:10>CmdSetFreq<parameters:18><xcvrfreq:6>%6d",nkHz);
     QByteArray ba = t.toLocal8Bit();
     const char* buf=ba.data();
     socket->write(buf);

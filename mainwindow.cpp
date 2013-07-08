@@ -744,8 +744,6 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_bDTRoff=dlg.m_bDTRoff;
     m_pttData=dlg.m_pttData;
     m_poll=dlg.m_poll;
-    m_bSplit=dlg.m_bSplit;
-    m_bXIT=dlg.m_bXIT;
 
 #ifdef WIN32
     if(dlg.m_pskReporter!=m_pskReporter) {
@@ -794,6 +792,15 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   } else {
     ui->readFreq->setStyleSheet("");
   }
+
+  if(dlg.m_bSplit!=m_bSplit or dlg.m_bXIT!=m_bXIT) {
+    m_bSplit=dlg.m_bSplit;
+    m_bXIT=dlg.m_bXIT;
+    if(m_bSplit or m_bXIT) setXIT(m_txFreq);
+    int ret;
+    if(m_bRigOpen and !m_bSplit) ret=rig->setSplitFreq(MHz(m_dialFreq),RIG_VFO_B);
+  }
+
 }
 
 void MainWindow::on_monitorButton_clicked()                  //Monitor
@@ -980,7 +987,7 @@ void MainWindow::statusChanged()
   if(f.open(QFile::WriteOnly | QIODevice::Text)) {
     QTextStream out(&f);
     out << m_dialFreq << ";" << m_mode << ";" << m_hisCall << ";"
-        << ui->rptSpinBox->value() << m_modeTx << endl;
+        << ui->rptSpinBox->value() << ";" << m_modeTx << endl;
     f.close();
   } else {
     msgBox("Cannot open file \"wsjtx_status.txt\".");
@@ -2676,6 +2683,7 @@ void MainWindow::on_bandComboBox_activated(int index)
       m_dontReadFreq=true;
       ret=rig->setFreq(MHz(m_dialFreq));
 //      ret=rig->setSplitFreq(MHz(m_dialFreq),RIG_VFO_B);
+      qDebug() << "A" << m_dialFreq << m_txFreq;
       if(m_bSplit or m_bXIT) setXIT(m_txFreq);
 //        ret=rig->setSplitFreq(MHz(m_dialFreq)+xit,RIG_VFO_B);
 
@@ -2955,6 +2963,7 @@ void MainWindow::on_pbTxMode_clicked()
     ui->pbTxMode->setText("Tx JT9  @");
   }
   g_pWideGraph->setModeTx(m_modeTx);
+  statusChanged();
 }
 
 void MainWindow::setXIT(int n)
