@@ -81,11 +81,11 @@ subroutine decoder(ss,id2)
 
      if(nqd.eq.1) then
         limit=100000
-        ccfok(ia:ib)=.true.
         nfa1=nfqso-ntol
         nfb1=nfqso+ntol
         ia=max(1,nint((nfa1-nf0)/df3))
         ib=min(NSMAX,nint((nfb1-nf0)/df3))
+        ccfok(ia:ib)=.true.
         ia1=ia
         ib1=ib
      else
@@ -102,7 +102,8 @@ subroutine decoder(ss,id2)
      fgood=0.
      do i=ia,ib
         f=(i-1)*df3
-        if(done(i) .or. (.not.ccfok(i)) .or. (ccfred(i).lt.ccflim-1.0)) cycle
+        if(done(i) .or. (.not.ccfok(i)) .or.                               &
+             (nqd.eq.0 .and. (ccfred(i).lt.ccflim-1.0))) cycle
         if(nqd.eq.1 .or.                                                   &
            (ccfred(i).ge.ccflim .and. abs(f-fgood).gt.10.0*df8)) then
 

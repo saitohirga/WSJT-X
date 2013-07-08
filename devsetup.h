@@ -101,6 +101,7 @@ private:
   Rig* rig;
   void msgBox(QString t);
   void enableWidgets();
+  void openRig();
   Ui::DialogSndCard ui;
 };
 

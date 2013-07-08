@@ -513,8 +513,8 @@ void MainWindow::readSettings()
                                  "PaletteBlue",false).toBool());
   m_mode=settings.value("Mode","JT9").toString();
   m_modeTx=settings.value("ModeTx","JT9").toString();
-  if(m_mode=="JT9") ui->pbTxMode->setText("Tx JT9 @");
-  if(m_mode=="JT65") ui->pbTxMode->setText("Tx JT65 #");
+  if(m_modeTx=="JT9") ui->pbTxMode->setText("Tx JT9  @");
+  if(m_modeTx=="JT65") ui->pbTxMode->setText("Tx JT65  #");
   ui->actionNone->setChecked(settings.value("SaveNone",true).toBool());
   ui->actionSave_decoded->setChecked(settings.value(
                                          "SaveDecoded",false).toBool());
@@ -980,8 +980,7 @@ void MainWindow::statusChanged()
   if(f.open(QFile::WriteOnly | QIODevice::Text)) {
     QTextStream out(&f);
     out << m_dialFreq << ";" << m_mode << ";" << m_hisCall << ";"
-        << ui->rptSpinBox->value() << endl;
-//    out << m_dialFreq << ";" << m_mode << ";" << m_hisCall << endl;
+        << ui->rptSpinBox->value() << m_modeTx << endl;
     f.close();
   } else {
     msgBox("Cannot open file \"wsjtx_status.txt\".");
@@ -1629,7 +1628,7 @@ void MainWindow::guiUpdate()
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
       out << QDateTime::currentDateTimeUtc().toString("hhmm")
-          << "  Transmitting " << m_dialFreq << " MHz  " << m_mode
+          << "  Transmitting " << m_dialFreq << " MHz  " << m_modeTx
           << ":  " << t << endl;
       f.close();
       if(m_tx2QSO) displayTxMsg(t);
@@ -1704,7 +1703,7 @@ void MainWindow::guiUpdate()
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
       out << QDateTime::currentDateTimeUtc().toString("hhmm")
-          << "  Transmitting " << m_dialFreq << " MHz  " << m_mode
+          << "  Transmitting " << m_dialFreq << " MHz  " << m_modeTx
           << ":  " << t << endl;
       f.close();
     }
@@ -2004,12 +2003,12 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 
   if(t4.at(4)=="@") {
     m_modeTx="JT9";
-    ui->pbTxMode->setText("Tx JT9 @");
+    ui->pbTxMode->setText("Tx JT9  @");
     g_pWideGraph->setModeTx(m_modeTx);
   }
   if(t4.at(4)=="#") {
     m_modeTx="JT65";
-    ui->pbTxMode->setText("Tx JT65 #");
+    ui->pbTxMode->setText("Tx JT65  #");
     g_pWideGraph->setModeTx(m_modeTx);
   }
   QString firstcall=t4.at(5);
@@ -2107,6 +2106,19 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
 {
   QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
   ui->dxCallEntry->setText(hisCall);
+  if(hisCall=="") {
+    ui->labAz->setText("");
+    ui->labDist->setText("");
+    ui->tx1->setText("");
+    ui->tx2->setText("");
+    ui->tx3->setText("");
+    ui->tx4->setText("");
+    ui->tx5->setText("");
+    ui->tx6->setText("");
+    ui->genMsg->setText("");
+    ui->freeTextMsg->setText("");
+    return;
+  }
   QString hisBase=baseCall(hisCall);
   QString myBase=baseCall(m_myCall);
   QString t0=hisBase + " " + myBase + " ";
@@ -2359,7 +2371,19 @@ void MainWindow::on_dxCallEntry_textChanged(const QString &t) //dxCall changed
 void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
 {
   int n=t.length();
-  if(n!=4 and n!=6) return;
+  if(n!=4 and n!=6) {
+    ui->labAz->setText("");
+    ui->labDist->setText("");
+    ui->tx1->setText("");
+    ui->tx2->setText("");
+    ui->tx3->setText("");
+    ui->tx4->setText("");
+    ui->tx5->setText("");
+    ui->tx6->setText("");
+    ui->genMsg->setText("");
+    ui->freeTextMsg->setText("");
+    return;
+  }
   if(!t[0].isLetter() or !t[1].isLetter()) return;
   if(!t[2].isDigit() or !t[3].isDigit()) return;
   if(n==4) m_hisGrid=t.mid(0,2).toUpper() + t.mid(2,2);
@@ -2652,6 +2676,9 @@ void MainWindow::on_bandComboBox_activated(int index)
       m_dontReadFreq=true;
       ret=rig->setFreq(MHz(m_dialFreq));
 //      ret=rig->setSplitFreq(MHz(m_dialFreq),RIG_VFO_B);
+      if(m_bSplit or m_bXIT) setXIT(m_txFreq);
+//        ret=rig->setSplitFreq(MHz(m_dialFreq)+xit,RIG_VFO_B);
+
       bumpFqso(11);
       bumpFqso(12);
       if(ret!=RIG_OK) {
@@ -2922,10 +2949,10 @@ void MainWindow::on_pbTxMode_clicked()
 {
   if(m_modeTx=="JT9") {
     m_modeTx="JT65";
-    ui->pbTxMode->setText("Tx JT65 #");
+    ui->pbTxMode->setText("Tx JT65  #");
   } else {
     m_modeTx="JT9";
-    ui->pbTxMode->setText("Tx JT9 @");
+    ui->pbTxMode->setText("Tx JT9  @");
   }
   g_pWideGraph->setModeTx(m_modeTx);
 }

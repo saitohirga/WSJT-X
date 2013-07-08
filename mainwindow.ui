@@ -743,7 +743,7 @@ p, li { white-space: pre-wrap; }
             <enum>QTabWidget::Triangular</enum>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tab">
             <attribute name="title">
@@ -1887,7 +1887,7 @@ p, li { white-space: pre-wrap; }
          <bool>true</bool>
         </property>
         <property name="text">
-         <string>Az</string>
+         <string/>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -1918,7 +1918,7 @@ p, li { white-space: pre-wrap; }
          </size>
         </property>
         <property name="text">
-         <string>Dist</string>
+         <string/>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
