@@ -381,9 +381,9 @@ void DevSetup::on_cbEnableCAT_toggled(bool b)
 {
   m_catEnabled=b;
   enableWidgets();
-  bool b2=m_pttMethodIndex==0 and m_catEnabled;
-  b2=b2 or ((m_pttMethodIndex==1 or m_pttMethodIndex==2) and m_pttPort!=0);
-  ui.testPTTButton->setEnabled(b2);
+//  bool b2=m_pttMethodIndex==0 and m_catEnabled;
+//  b2=b2 or ((m_pttMethodIndex==1 or m_pttMethodIndex==2) and m_pttPort!=0);
+//  ui.testPTTButton->setEnabled(b2);
 }
 
 void DevSetup::on_serialRateComboBox_activated(int index)
@@ -576,8 +576,12 @@ void DevSetup::enableWidgets()
   b1=b1 and (m_pttPort!=0);
   bool b2 = (m_catEnabled and m_pttMethodIndex==1 and m_rig<9900) or
             (m_catEnabled and m_pttMethodIndex==2 and m_rig<9900);
-  bool b3 = (m_catEnabled and m_pttMethodIndex==0 and m_rig>=9900);
+  bool b3 = (m_catEnabled and m_pttMethodIndex==0);
   ui.testPTTButton->setEnabled(b1 or b2 or b3);  //Include PTT via HRD or Commander
+
+//  bool b2=m_pttMethodIndex==0 and m_catEnabled;
+//  b2=b2 or ((m_pttMethodIndex==1 or m_pttMethodIndex==2) and m_pttPort!=0);
+//  ui.testPTTButton->setEnabled(b2);
 }
 
 void DevSetup::on_cbSplit_toggled(bool checked)
