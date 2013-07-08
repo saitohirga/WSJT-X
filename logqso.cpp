@@ -141,9 +141,12 @@ void LogQSO::accept()
     m.exec();
   } else {
     QString logEntry=m_dateTime.date().toString("yyyy-MMM-dd,") +
-        m_dateTime.time().toString("hh:mm,") + hisCall + "," +
-        hisGrid + "," + strDialFreq + "," + mode +
-            "," + rptSent + "," + rptRcvd + "," + comments;
+           m_dateTime.time().toString("hh:mm,") + hisCall + "," +
+           hisGrid + "," + strDialFreq + "," + mode +
+               "," + rptSent + "," + rptRcvd;
+       if(m_txPower!="") logEntry += "," + m_txPower;
+       if(comments!="") logEntry += "," + comments;
+       if(name!="") logEntry += "," + name;
     QTextStream out(&f);
     out << logEntry << endl;
     f.close();

@@ -30,19 +30,20 @@ public:
   QSize minimumSizeHint() const;
   QSize sizeHint() const;
   QColor  m_ColorTbl[256];
+
   bool    m_bCurrent;
   bool    m_bCumulative;
-  bool    m_bJT9Sync;
-  int     m_plotZero;
-  int     m_plotGain;
+  bool    m_lockTxFreq;
+
   float   m_fSpan;
+
+  qint32  m_plotZero;
+  qint32  m_plotGain;
   qint32  m_nSpan;
   qint32  m_binsPerPixel;
-  qint32  m_fQSO;
-  qint32  m_fCal;
   qint32  m_w;
 
-  void draw(float sw[], float red[], int i0);		//Update the waterfall
+  void draw(float sw[], int i0);		//Update the waterfall
   void SetRunningState(bool running);
   void setPlotZero(int plotZero);
   int  getPlotZero();
@@ -54,22 +55,25 @@ public:
   void setNSpan(int n);
   void UpdateOverlay();
   void setDataFromDisk(bool b);
-  void setRxRange(int fMin, int fMax);
+  void setRxRange(int fMin);
   void setBinsPerPixel(int n);
   int  binsPerPixel();
-  void setFQSO(int n, bool bf);
-  void setFcal(int n);
+  void setRxFreq(int n, bool bf);
   void DrawOverlay();
-  int  fQSO();
+  int  rxFreq();
   void setPalette(QString palette);
   void setFsample(int n);
   void setNsps(int ntrperiod, int nsps);
   void setTxFreq(int n);
+  void setMode(QString mode);
+  void setModeTx(QString modeTx);
   double fGreen();
   void SetPercent2DScreen(int percent){m_Percent2DScreen=percent;}
+  int getFmax();
 
 signals:
   void freezeDecode1(int n);
+  void setFreq1(int rxFreq, int txFreq);
 
 protected:
   //re-implemented widget event handlers
@@ -92,16 +96,21 @@ private:
   QSize   m_Size;
   QString m_Str;
   QString m_HDivText[483];
+  QString m_mode;
+  QString m_modeTx;
+
   bool    m_Running;
   bool    m_paintEventBusy;
+  bool    m_dataFromDisk;
+
   double  m_fGreen;
   double  m_fftBinWidth;
+
   qint64  m_StartFreq;
+
   qint32  m_dBStepSize;
   qint32  m_FreqUnits;
   qint32  m_hdivs;
-  bool    m_dataFromDisk;
-  char    m_sutc[6];
   qint32  m_line;
   qint32  m_fSample;
   qint32  m_i0;
@@ -113,9 +122,12 @@ private:
   qint32  m_h1;
   qint32  m_h2;
   qint32  m_TRperiod;
+  qint32  m_rxFreq;
   qint32  m_txFreq;
   qint32  m_fMin;
   qint32  m_fMax;
+
+  char    m_sutc[6];
 
 private slots:
   void mousePressEvent(QMouseEvent *event);

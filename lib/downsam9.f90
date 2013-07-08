@@ -1,58 +1,60 @@
-subroutine downsam9(c0,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
+subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
 
-!Downsample to nspsd samples per symbol, info centered at fpk
+!Downsample from id2() into C2() so as to yield nspsd samples per symbol, 
+!mixing from fpk down to zero frequency.
 
-  parameter (NMAX=128*31500)
-  complex c0(0:npts8-1)
-  complex c1(0:NMAX-1)
+  include 'constants.f90'
+  parameter (NMAX1=1024*1920)
+  integer*2 id2(0:8*npts8-1)
+  real*4 x1(0:NMAX1-1)
+  complex c1(0:NMAX1/2)
   complex c2(0:4096-1)
-  real s(1000)
+  real s(5000)
+  equivalence (c1,x1)
   save
 
-  nfft1=128*nsps8                          !Forward FFT length
-  nh1=nfft1/2
-  df1=1500.0/nfft1
+  nfft1=1024*nsps8                          !Forward FFT length
+  df1=12000.0/nfft1
+  npts=8*npts8
 
   if(newdat.eq.1) then
-     fac=1.e-4
-     do i=0,npts8-1,2
-        c1(i)=fac*conjg(c0(i))
-        c1(i+1)=-fac*conjg(c0(i+1))
+     fac=6.963e-6                             !Why this weird constant?
+     do i=0,npts-1
+        x1(i)=fac*id2(i)
      enddo
-     c1(npts8:)=0.                            !Zero the rest of c1
-     call four2a(c1,nfft1,1,-1,1)             !Forward FFT
-     
+     x1(npts:nfft1-1)=0.                      !Zero the rest of x1
+     call four2a(c1,nfft1,1,-1,0)             !Forward FFT, r2c
+
      nadd=1.0/df1
-     j=250/df1
      s=0.
-     do i=1,1000
+     do i=1,5000
+        j=(i-1)/df1
         do n=1,nadd
            j=j+1
            s(i)=s(i)+real(c1(j))**2 + aimag(c1(j))**2
         enddo
-!        write(37,3001) i+1000,s(i),db(s(i)),nadd
-!3001    format(i5,2f12.3,i8)
      enddo
-     call pctile(s,1000,40,avenoise)
   endif
 
-  ndown=nsps8/16                           !Downsample factor
+  ndown=8*nsps8/nspsd                      !Downsample factor
   nfft2=nfft1/ndown                        !Backward FFT length
   nh2=nfft2/2
-   
-  fshift=fpk-1500.0
-  i0=nh1 + fshift/df1
+  nf=nint(fpk)
+  i0=fpk/df1
+
+  nw=100
+  ia=max(1,nf-nw)
+  ib=min(5000,nf+nw)
+  call pctile(s(ia),ib-ia+1,40,avenoise)
+
   fac=sqrt(1.0/avenoise)
   do i=0,nfft2-1
      j=i0+i
      if(i.gt.nh2) j=j-nfft2
      c2(i)=fac*c1(j)
   enddo
-
-  call four2a(c2,nfft2,1,1,1)              !Backward FFT
-
-  nspsd=nsps8/ndown
-  nz2=npts8/ndown
+  call four2a(c2,nfft2,1,1,1)              !FFT back to time domain
+  nz2=8*npts8/ndown
 
   return
 end subroutine downsam9

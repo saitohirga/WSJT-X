@@ -39,10 +39,10 @@ PSK_Reporter::PSK_Reporter(QObject *parent) :
 
 void PSK_Reporter::setLocalStation(QString call, QString gridSquare, QString programInfo)
 {
-    m_rxCall = call;
-    m_rxGrid = gridSquare;
-    m_progId = programInfo;
-    reportTimer->start(5*60*1000); // 5 minutes;
+  m_rxCall = call;
+  m_rxGrid = gridSquare;
+  m_progId = programInfo;
+  reportTimer->start(5*60*1000); // 5 minutes;
 }
 
 void PSK_Reporter::addRemoteStation(QString call, QString grid, QString freq, QString mode, QString snr, QString time )
@@ -99,15 +99,6 @@ void PSK_Reporter::sendReport()
     // Get IP address for pskreporter.info and send report via UDP
     QHostInfo info = QHostInfo::fromName("report.pskreporter.info");
     m_udpSocket->writeDatagram(report,info.addresses().at(0),4739);
-
-    /*
-    qDebug() << header_h;
-    qDebug() << m_rxInfoDescriptor_h;
-    qDebug() << m_txInfoDescriptor_h;
-    qDebug() << rxInfoData_h;
-    qDebug() << txInfoData_h;
-    qDebug() << report.toHex();
-    */
 }
 
 

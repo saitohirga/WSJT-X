@@ -43,6 +43,8 @@ public slots:
   void readFromStdout();
   void readFromStderr();
   void jt9_error();
+  void setXIT(int n);
+  void setFreq4(int rxFreq, int txFreq);
 
 protected:
   virtual void keyPressEvent( QKeyEvent *e );
@@ -72,7 +74,6 @@ private slots:
   void on_actionOpen_next_in_directory_triggered();
   void on_actionDecode_remaining_files_in_directory_triggered();
   void on_actionDelete_all_wav_files_in_SaveDir_triggered();
-  void on_actionF4_sets_Tx6_triggered();
   void on_actionNone_triggered();
   void on_actionSave_all_triggered();
   void on_actionKeyboard_shortcuts_triggered();
@@ -97,13 +98,10 @@ private slots:
   void on_logQSOButton_clicked();
   void on_actionAFMHot_triggered();
   void on_actionBlue_triggered();
-  void on_actionJT9_2_triggered();
   void on_actionJT9_1_triggered();
-  void on_actionJT9_5_triggered();
-  void on_actionJT9_30_triggered();
-  void on_actionJT9_10_triggered();
+  void on_actionJT65_triggered();
+  void on_actionJT9_JT65_triggered();
   void on_TxFreqSpinBox_valueChanged(int arg1);
-  void on_actionSave_synced_triggered();
   void on_actionSave_decoded_triggered();
   void on_actionQuickDecode_triggered();
   void on_actionMediumDecode_triggered();
@@ -147,7 +145,6 @@ private slots:
   void on_rptSpinBox_valueChanged(int n);
   void on_action_73TxDisable_triggered(bool checked);
   void on_actionRunaway_Tx_watchdog_triggered(bool checked);
-  void on_actionTx2QSO_triggered(bool checked);
   void killFile();
   void on_tuneButton_clicked();
   void on_actionAllow_multiple_instances_triggered(bool checked);
@@ -155,10 +152,11 @@ private slots:
   void on_pbT2R_clicked();
   void acceptQSO2(bool accepted);
   void on_bandComboBox_activated(int index);
-
   void on_readFreq_clicked();
-
-  void on_actionLockTxFreq_triggered(bool checked);
+  void on_pbTxMode_clicked();
+  void on_RxFreqSpinBox_valueChanged(int n);
+  void on_cbTxLock_clicked(bool checked);
+  void on_actionTx2QSO_triggered(bool checked);
 
 private:
     Ui::MainWindow *ui;
@@ -168,15 +166,13 @@ private:
     qint64  m_msErase;
     qint64  m_secBandChanged;
 
-    qint32  m_nDevIn;
-    qint32  m_nDevOut;
     qint32  m_idInt;
     qint32  m_waterfallAvg;
     qint32  m_pttMethodIndex;
-    qint32  m_QSOfreq0;
     qint32  m_ntx;
     qint32  m_pttPort;
     qint32  m_timeout;
+    qint32  m_rxFreq;
     qint32  m_txFreq;
     qint32  m_setftx;
     qint32  m_ndepth;
@@ -184,7 +180,7 @@ private:
     qint32  m_RxLog;
     qint32  m_nutc0;
     qint32  m_nrx;
-    qint32  m_hsym0;
+    qint32  m_hsym;
     qint32  m_paInDevice;
     qint32  m_paOutDevice;
     qint32  m_TRperiod;
@@ -205,12 +201,12 @@ private:
     qint32  m_handshakeIndex;
     qint32  m_ncw;
     qint32  m_secID;
-    qint32  m_COMportOpen;
-    qint32  m_iptt;
     qint32  m_band;
     qint32  m_repeatMsg;
     qint32  m_watchdogLimit;
     qint32  m_poll;
+    qint32  m_fMin;
+    qint32  m_fMax;
 
     bool    m_monitoring;
     bool    m_transmitting;
@@ -221,15 +217,12 @@ private:
     bool    m_auto;
     bool    m_restart;
     bool    m_startAnother;
-    bool    m_saveSynced;
     bool    m_saveDecoded;
     bool    m_saveAll;
     bool    m_widebandDecode;
-    bool    m_kb8rq;
     bool    m_call3Modified;
     bool    m_dataAvailable;
     bool    m_killAll;
-    bool    m_bsynced;
     bool    m_bdecoded;
     bool    m_monitorStartOFF;
     bool    m_pskReporter;
@@ -250,7 +243,6 @@ private:
     bool    m_73TxDisable;
     bool    m_sent73;
     bool    m_runaway;
-    bool    m_tx2QSO;
     bool    m_tune;
     bool    m_bRigOpen;
     bool    m_bMultipleOK;
@@ -260,6 +252,10 @@ private:
     bool    m_lockTxFreq;
     bool    m_saveTxPower;
     bool    m_saveComments;
+    bool    m_tx2QSO;
+    bool    m_CATerror;
+    bool    m_bSplit;
+    bool    m_bXIT;
 
     char    m_decoded[80];
 
@@ -308,6 +304,7 @@ private:
     QString m_palette;
     QString m_dateTime;
     QString m_mode;
+    QString m_modeTx;
     QString m_fname;
     QString m_rpt;
     QString m_rptSent;
@@ -366,11 +363,13 @@ extern int ptt(int nport, int ntx, int* iptt, int* nopen);
 
 extern "C" {
 //----------------------------------------------------- C and Fortran routines
-void symspec_(int* k, int* ntrperiod, int* nsps, int* ingain,
-              float* px, float s[], float red[],
-              float* df3, int* nhsym, int* npts8);
+void symspec_(int* k, int* ntrperiod, int* nsps, int* ingain, float* slope,
+              float* px, float s[], float* df3, int* nhsym, int* npts8);
 
 void genjt9_(char* msg, int* ichk, char* msgsent, int itone[],
+             int* itext, int len1, int len2);
+
+void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
              int* itext, int len1, int len2);
 
 bool stdmsg_(const char* msg, int len);

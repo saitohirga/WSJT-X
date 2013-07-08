@@ -13,7 +13,7 @@
 #include "char.h"
 #endif
 
-#define NULL ((void *)0)
+//#define NULL ((void *)0)
 
 void FREE_RS(void *p){
   struct rs *rs = (struct rs *)p;

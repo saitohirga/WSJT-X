@@ -35,9 +35,7 @@ public:
   qint32  m_stopBits;
   qint32  m_stopBitsIndex;
   qint32  m_handshakeIndex;
-  qint32  m_iptt;
   qint32  m_test;
-  qint32  m_COMportOpen;
   qint32  m_poll;
   qint32  m_tmp;
 
@@ -50,6 +48,8 @@ public:
   bool    m_bRigOpen;
   bool    m_bDTRoff;
   bool    m_pttData;
+  bool    m_bSplit;
+  bool    m_bXIT;
 
   QString m_myCall;
   QString m_myGrid;
@@ -92,6 +92,10 @@ private slots:
   void on_pollSpinBox_valueChanged(int n);
   void on_pttComboBox_currentIndexChanged(int index);
   void on_pttMethodComboBox_currentIndexChanged(int index);
+
+  void on_cbSplit_toggled(bool checked);
+
+  void on_cbXIT_toggled(bool checked);
 
 private:
   Rig* rig;

@@ -1,10 +1,13 @@
 #include "devsetup.h"
 #include <QDebug>
+#include <QSettings>
 #include <portaudio.h>
 
 #define MAXDEVICES 100
 
 extern double dFreq[16];
+qint32  g2_iptt;
+qint32  g2_COMportOpen;
 
 //----------------------------------------------------------- DevSetup()
 DevSetup::DevSetup(QWidget *parent) :	QDialog(parent)
@@ -13,10 +16,10 @@ DevSetup::DevSetup(QWidget *parent) :	QDialog(parent)
   m_restartSoundIn=false;
   m_restartSoundOut=false;
   m_firstCall=true;
-  m_iptt=0;
+  g2_iptt=0;
   m_test=0;
   m_bRigOpen=false;
-  m_COMportOpen=0;
+  g2_COMportOpen=0;
 }
 
 DevSetup::~DevSetup()
@@ -25,6 +28,13 @@ DevSetup::~DevSetup()
 
 void DevSetup::initDlg()
 {
+  QString m_appDir = QApplication::applicationDirPath();
+  QString inifile = m_appDir + "/wsjtx.ini";
+  QSettings settings(inifile, QSettings::IniFormat);
+  settings.beginGroup("Common");
+  QString catPortDriver = settings.value("CATdriver","None").toString();
+  settings.endGroup();
+
   int k,id;
   int numDevices=Pa_GetDeviceCount();
 
@@ -40,6 +50,8 @@ void DevSetup::initDlg()
     nchin=pdi->maxInputChannels;
     if(nchin>0) {
       m_inDevList[k]=id;
+      if (id == m_paInDevice)
+        m_nDevIn = k;
       k++;
       sprintf((char*)(pa_device_name),"%s",pdi->name);
       sprintf((char*)(pa_device_hostapi),"%s",
@@ -77,6 +89,8 @@ void DevSetup::initDlg()
     nchout=pdi->maxOutputChannels;
     if(nchout>0) {
       m_outDevList[k]=id;
+      if (id == m_paOutDevice)
+        m_nDevOut = k;
       k++;
       sprintf((char*)(pa_device_name),"%s",pdi->name);
       sprintf((char*)(pa_device_hostapi),"%s",
@@ -115,6 +129,7 @@ void DevSetup::initDlg()
           this, SLOT(p4Error()));
   p4.start("rigctl -l");
   p4.waitForFinished(1000);
+  ui.rigComboBox->addItem("  9998 Commander");
   ui.rigComboBox->addItem("  9999 Ham Radio Deluxe");
 
   QPalette pal(ui.myCallEntry->palette());
@@ -136,8 +151,9 @@ void DevSetup::initDlg()
   ui.comboBoxSndOut->setCurrentIndex(m_nDevOut);
   ui.cbID73->setChecked(m_After73);
   ui.cbPSKReporter->setChecked(m_pskReporter);
-  m_paInDevice=m_inDevList[m_nDevIn];
-  m_paOutDevice=m_outDevList[m_nDevOut];
+  ui.cbSplit->setChecked(m_bSplit);
+  ui.cbXIT->setChecked(m_bXIT);
+  ui.cbXIT->setVisible(false);
 
   enableWidgets();
 
@@ -176,6 +192,7 @@ void DevSetup::initDlg()
   ui.catPortComboBox->addItem("/dev/ttyUSB1");
   ui.catPortComboBox->addItem("/dev/ttyUSB2");
   ui.catPortComboBox->addItem("/dev/ttyUSB3");
+  ui.catPortComboBox->addItem(catPortDriver);
 
   ui.pttComboBox->addItem("/dev/ttyS0");
   ui.pttComboBox->addItem("/dev/ttyS1");
@@ -280,7 +297,7 @@ void DevSetup::accept()
 
   if(m_bRigOpen) {
     rig->close();
-    if(m_rig!=9999) delete rig;
+    if(m_rig<9900) delete rig;
     m_bRigOpen=false;
   }
 
@@ -414,18 +431,22 @@ void DevSetup::on_testCATButton_clicked()
   if(!m_catEnabled) return;
   if(m_bRigOpen) {
     rig->close();
-    if(m_rig!=9999) delete rig;
+    if(m_rig<9900) delete rig;
     m_bRigOpen=false;
   }
 
   rig = new Rig();
 
-  if(m_rig != 9999) {
+  if(m_rig<9900) {
     if (!rig->init(m_rig)) {
       msgBox("Rig init failure");
       return;
     }
-    rig->setConf("rig_pathname", m_catPort.toLatin1().data());
+    QString sCATport=m_catPort;
+#ifdef WIN32
+    sCATport="\\\\.\\" + m_catPort;    //Allow COM ports above 9
+#endif
+    rig->setConf("rig_pathname", sCATport.toLatin1().data());
     char buf[80];
     sprintf(buf,"%d",m_serialRate);
     rig->setConf("serial_speed",buf);
@@ -470,7 +491,9 @@ void DevSetup::on_testPTTButton_clicked()
 {
   m_test=1-m_test;
   if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
-    ptt(m_pttPort,m_test,&m_iptt,&m_COMportOpen);
+//    qDebug() << "devsetup line 492:" << m_pttPort << m_test << &g2_iptt << &g2_COMportOpen;
+    ptt(m_pttPort,m_test,&g2_iptt,&g2_COMportOpen);
+//    qDebug() << "devsetup line 494:" << m_pttPort << m_test << &g2_iptt << &g2_COMportOpen;
   }
   if(m_pttMethodIndex==0 and !m_bRigOpen) {
     on_testCATButton_clicked();
@@ -522,8 +545,10 @@ void DevSetup::enableWidgets()
   ui.testCATButton->setEnabled(m_catEnabled);
   ui.label_4->setEnabled(m_catEnabled);
   ui.label_47->setEnabled(m_catEnabled);
+  ui.cbSplit->setEnabled(m_catEnabled);
+  ui.cbXIT->setEnabled(m_catEnabled);
 
-  bool bSerial=m_catEnabled and (m_rig!=9999);
+  bool bSerial=m_catEnabled and (m_rig<9900);
   ui.catPortComboBox->setEnabled(bSerial);
   ui.serialRateComboBox->setEnabled(bSerial);
   ui.dataBitsComboBox->setEnabled(bSerial);
@@ -541,9 +566,21 @@ void DevSetup::enableWidgets()
   ui.pollSpinBox->setEnabled(m_catEnabled);
   bool b1=(m_pttMethodIndex==1 or m_pttMethodIndex==2);
   ui.pttComboBox->setEnabled(b1);
-  bool b2 = (m_catEnabled and m_pttMethodIndex==1 and m_rig!=9999) or
-            (m_catEnabled and m_pttMethodIndex==2 and m_rig!=9999);
-  bool b3 = (m_catEnabled and m_pttMethodIndex==0 and m_rig==9999);
+  bool b2 = (m_catEnabled and m_pttMethodIndex==1 and m_rig<9900) or
+            (m_catEnabled and m_pttMethodIndex==2 and m_rig<9900);
+  bool b3 = (m_catEnabled and m_pttMethodIndex==0 and m_rig>=9900);
 //  ui.testPTTButton->setEnabled(b1 or b2);
-  ui.testPTTButton->setEnabled(b1 or b2 or b3);  //Include PTT via HRD
+  ui.testPTTButton->setEnabled(b1 or b2 or b3);  //Include PTT via HRD or Commander
+}
+
+void DevSetup::on_cbSplit_toggled(bool checked)
+{
+  m_bSplit=checked;
+  if(m_bSplit and m_bXIT) ui.cbXIT->setChecked(false);
+}
+
+void DevSetup::on_cbXIT_toggled(bool checked)
+{
+  m_bXIT=checked;
+  if(m_bSplit and m_bXIT) ui.cbSplit->setChecked(false);
 }

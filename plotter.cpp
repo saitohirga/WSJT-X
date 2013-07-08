@@ -15,8 +15,8 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   setAttribute(Qt::WA_OpaquePaintEvent, false);
   setAttribute(Qt::WA_NoSystemBackground, true);
 
-  m_StartFreq = 1000;
-  m_nSpan=1000;                    //Units: Hz
+  m_StartFreq = 0;
+  m_nSpan=2;                         //used for FFT bins/pixel
   m_fSpan=(float)m_nSpan;
   m_hdivs = HORZ_DIVS;
   m_FreqUnits = 1;
@@ -27,7 +27,7 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   m_ScalePixmap = QPixmap(0,0);
   m_OverlayPixmap = QPixmap(0,0);
   m_Size = QSize(0,0);
-  m_fQSO = 1020;
+  m_rxFreq = 1020;
   m_line = 0;
   m_fSample = 12000;
   m_nsps=6912;
@@ -83,7 +83,7 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
   m_paintEventBusy=false;
 }
 
-void CPlotter::draw(float swide[], float red[], int i0)             //draw()
+void CPlotter::draw(float swide[], int i0)             //draw()
 {
   int j,y2;
   float y;
@@ -98,18 +98,18 @@ void CPlotter::draw(float swide[], float red[], int i0)             //draw()
   QPainter painter2D(&m_2DPixmap);
 
   painter2D.setPen(Qt::green);
-  if(m_bJT9Sync) painter2D.setPen(Qt::red);
 
   QPoint LineBuf[MAX_SCREENSIZE];
   j=0;
 
-  int iz=XfromFreq(2000.0);
-//  for(int i=0; i<m_w; i++) {
+//  int iz=XfromFreq(2000.0);
+  int iz=XfromFreq(5000.0);
+  m_fMax=FreqfromX(iz);
   for(int i=0; i<iz; i++) {
     if(i>iz) swide[i]=0;
     y=0.0;
     if(swide[i]>0.0) y = 10.0*log10(swide[i]);
-    int y1 = 5.0*gain*y + 10*m_plotZero;
+    int y1 = 5.0*gain*y + 10*(m_plotZero-4);
     if (y1<0) y1=0;
     if (y1>254) y1=254;
     if (swide[i]>1.e29) y1=255;
@@ -125,7 +125,7 @@ void CPlotter::draw(float swide[], float red[], int i0)             //draw()
       }
       y2=gain*6.0*log10(sum/m_binsPerPixel) - 10.0;
     }
-    if(m_bJT9Sync) y2=3.0*gain*red[i] - 15;
+    y2 += m_plotZero;
     if(i==iz-1) painter2D.drawPolyline(LineBuf,j);
     LineBuf[j].setX(i);
     LineBuf[j].setY(m_h-(y2+0.8*m_h));
@@ -163,7 +163,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   if(m_OverlayPixmap.isNull()) return;
   if(m_WaterfallPixmap.isNull()) return;
   int w = m_WaterfallPixmap.width();
-  int x,y,x1,x2,dx;
+  int x,y,x1,x2;
 //  int nHzDiv[11]={0,50,100,200,200,200,500,500,500,500,500};
   float pixperdiv;
 
@@ -180,12 +180,15 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   double df = m_binsPerPixel*m_fftBinWidth;
   pixperdiv = m_freqPerDiv/df;
   y = m_h2 - m_h2/VERT_DIVS;
+  m_hdivs = w*df/m_freqPerDiv + 0.9999;
   for( int i=1; i<m_hdivs; i++)                   //draw vertical grids
   {
     x = (int)( (float)i*pixperdiv );
-    painter.setPen(QPen(Qt::white, 1,Qt::DotLine));
-    painter.drawLine(x, 0, x , y);
-    painter.drawLine(x, m_h2-5, x , m_h2);
+    if(x >= 0 and x<=m_w) {
+      painter.setPen(QPen(Qt::white, 1,Qt::DotLine));
+      painter.drawLine(x, 0, x , y);
+      painter.drawLine(x, m_h2-5, x , m_h2);
+    }
   }
 
   pixperdiv = (float)m_h2 / (float)VERT_DIVS;
@@ -258,40 +261,30 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     }
   }
 
-  x1=XfromFreq(m_fMin);
-  int bw=9.0*12000.0/m_nsps;
-  dx=XfromFreq(m_fMin+bw) - x1;
+  float bw=9.0*12000.0/m_nsps;
+  if(m_modeTx=="JT65") bw=66.0*11025.0/4096.0;
 
   QPen pen0(Qt::green, 3);                 //Mark Rx Freq with green
   painter0.setPen(pen0);
-  x1=XfromFreq(m_fQSO);
-  x2=x1+dx;
+  x1=XfromFreq(m_rxFreq);
+  x2=XfromFreq(m_rxFreq+bw);
   painter0.drawLine(x1,24,x1,30);
   painter0.drawLine(x1,28,x2,28);
   painter0.drawLine(x2,24,x2,30);
 
-  QPen pen2(Qt::blue, 3);                //Mark the decoding range
-  painter0.setPen(pen2);
-  x1=XfromFreq(m_fMin);
-  if(x1<2) x1=2;
-  x2=x1+30;
-//  pen2.setWidth(6);
-  painter0.drawLine(x1,18,x1,28);
-  painter0.drawLine(x1,23,x2,23);
-  painter0.drawLine(x2,23,x2-5,18);
-  painter0.drawLine(x2,23,x2-5,28);
-  x2=XfromFreq(m_fMax);
-  x1=x2-30;
-//  pen2.setWidth(6);
-  painter0.drawLine(x2,18,x2,28);
-  painter0.drawLine(x1,23,x2,23);
-  painter0.drawLine(x1,23,x1+5,18);
-  painter0.drawLine(x1,23,x1+5,28);
+  if(m_mode=="JT9+JT65") {
+    QPen pen2(Qt::blue, 3);                //Mark the JT65 | JT9 divider
+    painter0.setPen(pen2);
+    x1=XfromFreq(m_fMin);
+    if(x1<2) x1=2;
+    x2=x1+30;
+    painter0.drawLine(x1,8,x1,28);
+  }
 
   QPen pen1(Qt::red, 3);                   //Mark Tx freq with red
   painter0.setPen(pen1);
   x1=XfromFreq(m_txFreq);
-  x2=x1+dx;
+  x2=XfromFreq(m_txFreq+bw);
   painter0.drawLine(x1,17,x1,21);
   painter0.drawLine(x1,17,x2,17);
   painter0.drawLine(x2,17,x2,21);
@@ -310,7 +303,7 @@ void CPlotter::MakeFrequencyStrs()                       //MakeFrequencyStrs
 int CPlotter::XfromFreq(float f)                               //XfromFreq()
 {
 //  float w = m_WaterfallPixmap.width();
-  int x = (int) m_w * (f - m_StartFreq)/m_fSpan;
+  int x = int(m_w * (f - m_StartFreq)/m_fSpan + 0.5);
   if(x<0 ) return 0;
   if(x>m_w) return m_w;
   return x;
@@ -318,7 +311,8 @@ int CPlotter::XfromFreq(float f)                               //XfromFreq()
 
 float CPlotter::FreqfromX(int x)                               //FreqfromX()
 {
-  return float(1000.0 + x*m_binsPerPixel*m_fftBinWidth);
+//  return float(1000.0 + x*m_binsPerPixel*m_fftBinWidth);
+  return float(x*m_binsPerPixel*m_fftBinWidth);
 }
 
 void CPlotter::SetRunningState(bool running)              //SetRunningState()
@@ -362,10 +356,9 @@ int CPlotter::plotWidth(){return m_WaterfallPixmap.width();}
 void CPlotter::UpdateOverlay() {DrawOverlay();}
 void CPlotter::setDataFromDisk(bool b) {m_dataFromDisk=b;}
 
-void CPlotter::setRxRange(int fMin, int fMax)
+void CPlotter::setRxRange(int fMin)
 {
   m_fMin=fMin;
-  m_fMax=fMax;
 }
 
 void CPlotter::setBinsPerPixel(int n)                       // set nbpp
@@ -380,43 +373,39 @@ int CPlotter::binsPerPixel()                                // get nbpp
   return m_binsPerPixel;
 }
 
-void CPlotter::setFQSO(int x, bool bf)                       //setFQSO()
+void CPlotter::setRxFreq(int x, bool bf)                       //setRxFreq()
 {
   if(bf) {
-    m_fQSO=x;         // x is freq in Hz
-    m_xClick=XfromFreq(m_fQSO);
+    m_rxFreq=x;         // x is freq in Hz
+    m_xClick=XfromFreq(m_rxFreq);
   } else {
     if(x<0) x=0;      // x is pixel number
     if(x>m_Size.width()) x=m_Size.width();
-    m_fQSO = int(FreqfromX(x)+0.5);
+    m_rxFreq=int(FreqfromX(x)+0.5);
     m_xClick=x;
   }
+  emit setFreq1(m_rxFreq,m_txFreq);
   DrawOverlay();
   update();
 }
 
-void CPlotter::setFcal(int n)                                  //setFcal()
-{
-  m_fCal=n;
-}
-
-int CPlotter::fQSO() {return m_fQSO;}                          //get fQSO
+int CPlotter::rxFreq() {return m_rxFreq;}                //get rxFreq
 
 void CPlotter::mousePressEvent(QMouseEvent *event)       //mousePressEvent
 {
   int x=event->x();
-  setFQSO(x,false);                               // Wideband waterfall
+  setRxFreq(x,false);                               // Wideband waterfall
   bool ctrl = (event->modifiers() & Qt::ControlModifier);
   int n=1;
   if(ctrl) n+=100;
   emit freezeDecode1(n);
-  if(ctrl) setTxFreq(m_fQSO);
+  if(ctrl or m_lockTxFreq) setTxFreq(m_rxFreq);
 }
 
 void CPlotter::mouseDoubleClickEvent(QMouseEvent *event)  //mouse2click
 {
 //  int x=event->x();
-//  setFQSO(x,false);
+//  setRxFreq(x,false);
   bool ctrl = (event->modifiers() & Qt::ControlModifier);
   int n=2;
   if(ctrl) n+=100;
@@ -536,6 +525,22 @@ void CPlotter::setNsps(int ntrperiod, int nsps)                                 
 void CPlotter::setTxFreq(int n)                                 //setTol()
 {
   m_txFreq=n;
+  emit setFreq1(m_rxFreq,m_txFreq);
   DrawOverlay();
   update();
+}
+
+void CPlotter::setMode(QString mode)
+{
+  m_mode=mode;
+}
+
+void CPlotter::setModeTx(QString modeTx)
+{
+  m_modeTx=modeTx;
+}
+
+int CPlotter::getFmax()
+{
+  return m_fMax;
 }

@@ -25,14 +25,17 @@
 #include <hamlib/rig.h>
 #include <iostream>
 #include <QString>
+#include <QTcpSocket>
+
+extern QTcpSocket* socket;
 
 class BACKEND_IMPEXP Rig {
 private:
   RIG* theRig;  // Global ref. to the rig
-#ifdef WIN32	// Ham Radio Deluxe only on Windows
   bool m_hrd;
-#endif
+  bool m_cmndr;
   QString m_context;
+
 
 protected:
 public:
@@ -59,7 +62,8 @@ public:
   rmode_t getMode(pbwidth_t&, vfo_t vfo = RIG_VFO_CURR);
   int setVFO(vfo_t);
   vfo_t getVFO();
-
+  int setXit(shortfreq_t xit, vfo_t vfo);
+  int setSplitFreq(freq_t tx_freq, vfo_t vfo = RIG_VFO_CURR);
   int setPTT (ptt_t ptt, vfo_t vfo = RIG_VFO_CURR);
   ptt_t getPTT (vfo_t vfo = RIG_VFO_CURR);
 

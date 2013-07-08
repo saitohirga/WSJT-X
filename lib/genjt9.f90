@@ -26,7 +26,7 @@ subroutine genjt9(msg0,ichk,msgsent,i4tone,itext)
      endif
   enddo
 
-  do i=1,22                               !Omit leading blanks
+  do i=1,22                               !Strip leading blanks
      if(message(1:1).ne.' ') exit
      message=message(i+1:)
   enddo

@@ -7,7 +7,7 @@ extern "C" {
 }
 
 extern float gran();                  //Noise generator (for tests only)
-extern int itone[85];                 //Tx audio tones for 85 symbols
+extern int itone[126];                //Audio tones for all Tx symbols
 extern int icw[250];                  //Dits for CW ID
 extern int outBufSize;
 extern bool btxok;
@@ -17,10 +17,12 @@ extern double outputLatency;
 typedef struct   //Parameters sent to or received from callback function
 {
   double txsnrdb;
-  int    nsps;
+  double dnsps;
   int    ntrperiod;
   int    ntxfreq;
+  int    xit;
   int    ncall;
+  int    nsym;
   bool   txMute;
   bool   bRestart;
   bool   btune;
@@ -45,6 +47,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   static double fac;
   static double amp;
   static int ic=0,j=0;
+  static int isym0=-999;
   static short int i2;
   int isym,nspd;
 
@@ -58,7 +61,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     udata->bRestart=false;
     srand(mstr);                                //Initialize random seed
   }
-  isym=ic/(4*udata->nsps);                      //Actual fsample=48000
+  isym=ic/(4.0*udata->dnsps);                   //Actual fsample=48000
   if(udata->btune) isym=0;                      //If tuning, send pure tone
   if(udata->txsnrdb < 0.0) {
     snr=pow(10.0,0.05*(udata->txsnrdb-6.0));
@@ -66,14 +69,15 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     if(snr>1.0) fac=3000.0/snr;
   }
 
-  if(isym>=85 and icw[0]>0) {              //Output the CW ID
-    freq=udata->ntxfreq;
+  if(isym>=udata->nsym and icw[0]>0) {              //Output the CW ID
+    freq=udata->ntxfreq - udata->xit;
     dphi=twopi*freq/48000.0;
+
 //    float wpm=20.0;
 //    int nspd=1.2*48000.0/wpm;
 //    nspd=3072;                           //18.75 WPM
     nspd=2048 + 512;                       //22.5 WPM
-    int ic0=85*4*udata->nsps;
+    int ic0=udata->nsym*4*udata->dnsps;
     for(uint i=0 ; i<framesToProcess; i++ )  {
       phi += dphi;
       if(phi>twopi) phi -= twopi;
@@ -99,17 +103,22 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     return paContinue;
   }
 
-  baud=12000.0/udata->nsps;
-  freq=udata->ntxfreq + itone[isym]*baud;
-  dphi=twopi*freq/48000.0;
+  baud=12000.0/udata->dnsps;
   amp=32767.0;
-  int i0=84.983*4.0*udata->nsps;
-  int i1=85*4*udata->nsps;
+  int i0=(udata->nsym-0.017)*4.0*udata->dnsps;
+  int i1=udata->nsym*4.0*udata->dnsps;
   if(udata->btune) {                           //If tuning, no ramp down
-    i0=999*udata->nsps;
+    i0=999*udata->dnsps;
     i1=i0;
   }
   for(uint i=0 ; i<framesToProcess; i++ )  {
+    isym=ic/(4.0*udata->dnsps);                   //Actual fsample=48000
+    if(udata->btune) isym=0;                      //If tuning, send pure tone
+    if(isym!=isym0) {
+      freq=udata->ntxfreq + itone[isym]*baud - udata->xit;
+      dphi=twopi*freq/48000.0;
+      isym0=isym;
+    }
     phi += dphi;
     if(phi>twopi) phi -= twopi;
     if(ic>i0) amp=0.98*amp;
@@ -160,9 +169,15 @@ void SoundOutThread::run()
   }
 
   udata.txsnrdb=99.0;
-  udata.nsps=m_nsps;
+  udata.dnsps=m_nsps;
+  udata.nsym=85;
+  if(m_modeTx=="JT65") {
+    udata.dnsps=4096.0*12000.0/11025.0;
+    udata.nsym=126;
+  }
   udata.ntrperiod=m_TRperiod;
   udata.ntxfreq=m_txFreq;
+  udata.xit=m_xit;
   udata.ncall=0;
   udata.txMute=m_txMute;
   udata.bRestart=true;
@@ -193,7 +208,12 @@ void SoundOutThread::run()
     if (qe) break;
 
     udata.txsnrdb=m_txsnrdb;
-    udata.nsps=m_nsps;
+    udata.dnsps=m_nsps;
+    udata.nsym=85;
+    if(m_modeTx=="JT65") {
+      udata.dnsps=4096.0*12000.0/11025.0;
+      udata.nsym=126;
+    }
     udata.ntrperiod=m_TRperiod;
     udata.ntxfreq=m_txFreq;
     udata.txMute=m_txMute;
@@ -227,6 +247,10 @@ void SoundOutThread::setTxFreq(int n)
   m_txFreq=n;
 }
 
+void SoundOutThread::setXIT(int n)
+{
+  m_xit=n;
+}
 
 void SoundOutThread::setTxSNR(double snr)
 {

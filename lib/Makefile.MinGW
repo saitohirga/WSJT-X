@@ -20,7 +20,7 @@ CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    libjt9.a jt9sim.exe jt9.exe jt9code.exe test9.exe
+all:    libjt9.a jt9sim.exe jt9.exe jt9code.exe jt65.exe
 
 OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	unpackmsg.o igray.o unpackcall.o unpackgrid.o \
@@ -30,10 +30,15 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	symspec.o analytic.o db.o genjt9.o \
 	packbits.o unpackbits.o encode232.o interleave9.o \
 	entail.o fano232.o gran.o sync9.o decode9.o \
-	fil3.o redsync.o decoder.o grid2n.o n2grid.o timer.o \
+	fil3.o decoder.o grid2n.o n2grid.o timer.o \
 	softsym.o getlags.o afc9.o fchisq.o twkfreq.o downsam9.o \
 	peakdt9.o symspec2.o stdmsg.o morse.o azdist.o geodist.o \
-	fillcom.o chkss2.o zplot9.o
+	fillcom.o chkss2.o zplot9.o flat2.o \
+	jt65a.o symspec65.o flat65.o ccf65.o decode65a.o \
+	filbig.o fil6521.o afc65b.o decode65b.o setup65.o \
+	extract.o fchisq65.o demod64a.o chkhist.o interleave63.o ccf2.o \
+	move.o indexx.o graycode65.o twkfreq65.o smo121.o \
+	wrapkarn.o init_rs.o encode_rs.o decode_rs.o gen65.o
 
 libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
@@ -54,15 +59,9 @@ OBJS4 = jt9code.o
 jt9code.exe: $(OBJS4) libjt9.a
 	$(FC) -o jt9code.exe $(OBJS4) libjt9.a
 
-OBJS5 = test9.o 
-test9.exe: $(OBJS5) libjt9.a 
-	$(FC) -o test9.exe $(OBJS5) libjt9.a ../libfftw3f_win.a
-
-OBJS6 = wsjt24d.o wsjt24.o sync24.o decode24.o ps24.o flat1.o \
-	xcor24.o slope.o peakup.o interleave24.o getmet24.o smo.o \
-	deep24.o encode4.o chkmsg.o avemsg4.o extract4.o
-wsjt24d.exe: $(OBJS6) libjt9.a 
-	$(FC) -o wsjt24d.exe $(OBJS6) libjt9.a ../libfftw3f_win.a
+OBJS5 = jt65.o 
+jt65.exe: $(OBJS5) libjt9.a 
+	$(FC) -o jt65.exe $(OBJS5) libjt9.a ../libfftw3f_win.a
 
 INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
 	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
@@ -74,9 +73,6 @@ sync9.o: sync9.f90 jt9sync.f90
 
 spec9.o: spec9.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c spec9.f90
-
-peakdf9.o: peakdf9.f90 jt9sync.f90
-	$(FC) $(FFLAGS) -c peakdf9.f90
 
 peakdt9.o: peakdt9.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c peakdt9.f90
@@ -105,7 +101,17 @@ sec_midn.o: sec_midn.f90
 tstrig.o: tstrig.c
 	$(CC) -c -Wall -I..\..\..\hamlib-1.2.15.3\include tstrig.c
 
+init_rs.o: init_rs.c
+	$(CC) -c -DBIGSYM=1 -o init_rs.o init_rs.c
+
+encode_rs.o: encode_rs.c
+	$(CC) -c -DBIGSYM=1 -o encode_rs.o encode_rs.c
+
+decode_rs.o: decode_rs.c
+	$(CC) -c -DBIGSYM=1 -o decode_rs.o decode_rs.c
+
+
 .PHONY : clean
 
 clean:
-	rm -f *.o libjt9.a wsjtx.exe jt9sim.exe jt9.exe jt9test.exe
+	rm -f *.o libjt9.a wsjtx.exe jt9sim.exe jt9.exe jt65.exe
