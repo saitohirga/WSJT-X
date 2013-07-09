@@ -12,7 +12,7 @@ program jt65
   common/hdr/ariff,lenfile,awave,afmt,lenfmt,nfmt2,nchan2, &
      nsamrate,nbytesec,nbytesam2,nbitsam2,adata,ndata
   common/tracer/limtrace,lu
-  equivalence (ariff,ihdr)
+  equivalence (lenfile,ihdr(2))
 
   nargs=iargc()
   if(nargs.lt.1) then
