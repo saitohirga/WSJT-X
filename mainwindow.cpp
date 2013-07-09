@@ -2976,7 +2976,8 @@ void MainWindow::setXIT(int n)
     }
     if(m_bSplit) ret=rig->setSplitFreq(MHz(m_dialFreq)+xit,RIG_VFO_B);
   }
-  soundOutThread.setXIT(xit);
+  if(m_bSplit) soundOutThread.setXIT(xit);
+  if(!m_bSplit) soundOutThread.setXIT(0);
 }
 
 void MainWindow::setFreq4(int rxFreq, int txFreq)
