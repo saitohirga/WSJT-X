@@ -216,6 +216,7 @@ void SoundOutThread::run()
     }
     udata.ntrperiod=m_TRperiod;
     udata.ntxfreq=m_txFreq;
+    udata.xit=m_xit;
     udata.txMute=m_txMute;
     udata.btune=m_tune;
 
@@ -250,6 +251,7 @@ void SoundOutThread::setTxFreq(int n)
 void SoundOutThread::setXIT(int n)
 {
   m_xit=n;
+
 }
 
 void SoundOutThread::setTxSNR(double snr)
