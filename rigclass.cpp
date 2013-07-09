@@ -101,10 +101,15 @@ int Rig::open(int n) {
     }
   }
   if(n==9998) {
-//    qDebug() << "A" << socket->state();
-    socket->connectToHost(QHostAddress::LocalHost, 52002);
-    if(!socket->waitForConnected(1000)) {
-      return -1;
+    if(socket->state()==QAbstractSocket::ConnectedState) {
+      socket->abort();
+    }
+
+    if(socket->state()==QAbstractSocket::UnconnectedState) {
+      socket->connectToHost(QHostAddress::LocalHost, 52002);
+      if(!socket->waitForConnected(1000)) {
+        return -1;
+      }
     }
     QString t;
 //    qint32 nkHz=14076;
@@ -112,12 +117,10 @@ int Rig::open(int n) {
     t="<command:10>CmdGetFreq<parameters:0>";
     QByteArray ba = t.toLocal8Bit();
     const char* buf=ba.data();
-    socket->write(buf);
-    socket->waitForReadyRead(1000);
+    int n=socket->write(buf);
+    bool bret=socket->waitForReadyRead(1000);
     QByteArray reply=socket->read(128);
-    if(reply.indexOf("<CmdFreq:10>")==0) {
-//      qDebug() << "Freq:" << reply;
-//      qDebug() << "Connected to Commander";
+    if(reply.indexOf("<CmdFreq:")==0) {
       m_cmndr=true;
       return 0;
     }
@@ -212,7 +215,7 @@ int Rig::setSplitFreq(freq_t tx_freq, vfo_t vfo) {
   } else if(m_cmndr) {
     QString t;
     qint32 nkHz=int(0.001*tx_freq);
-    t.sprintf("<command:12>CmdSetTxFreq<parameters:17><xcvrfreq:5>%5d",nkHz);
+    t.sprintf("<command:12>CmdSetTxFreq<parameters:18><xcvrfreq:6>%6d",nkHz);
     QByteArray ba = t.toLocal8Bit();
     const char* buf=ba.data();
     socket->write(buf);

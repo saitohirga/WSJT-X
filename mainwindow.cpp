@@ -2988,7 +2988,9 @@ void MainWindow::setXIT(int n)
         msgBox(rt);
       }
     }
-    if(m_bSplit) ret=rig->setSplitFreq(MHz(m_dialFreq)+xit,RIG_VFO_B);
+    if(m_bSplit) {
+      ret=rig->setSplitFreq(MHz(m_dialFreq)+xit,RIG_VFO_B);
+    }
   }
   if(m_bSplit) soundOutThread.setXIT(xit);
   if(!m_bSplit) soundOutThread.setXIT(0);
