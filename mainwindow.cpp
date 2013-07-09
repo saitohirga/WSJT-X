@@ -1,4 +1,4 @@
-//---------------------------------------------------------------- MainWindow
+//--------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -797,10 +797,15 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_bSplit=dlg.m_bSplit;
     m_bXIT=dlg.m_bXIT;
     if(m_bSplit or m_bXIT) setXIT(m_txFreq);
-    int ret;
-    if(m_bRigOpen and !m_bSplit) ret=rig->setSplitFreq(MHz(m_dialFreq),RIG_VFO_B);
+    if(m_bRigOpen and !m_bSplit) {
+      int ret=rig->setSplitFreq(MHz(m_dialFreq),RIG_VFO_B);
+      if(ret!=RIG_OK) {
+        QString rt;
+        rt.sprintf("Setting VFO_B failed:  %d",ret);
+        msgBox(rt);
+      }
+    }
   }
-
 }
 
 void MainWindow::on_monitorButton_clicked()                  //Monitor
@@ -2973,7 +2978,11 @@ void MainWindow::setXIT(int n)
     if(m_bXIT) {
       ret=rig->setXit((shortfreq_t)xit,RIG_VFO_TX);
 //      ret=rig->setSplitFreq(MHz(m_dialFreq),RIG_VFO_A);
-
+      if(ret!=RIG_OK) {
+        QString rt;
+        rt.sprintf("Setting RIG_VFO_TX failed:  %d",ret);
+        msgBox(rt);
+      }
     }
     if(m_bSplit) ret=rig->setSplitFreq(MHz(m_dialFreq)+xit,RIG_VFO_B);
   }
