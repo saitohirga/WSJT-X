@@ -26,8 +26,8 @@ wchar_t buffer[256];
 bool btxok;                           //True if OK to transmit
 bool btxMute;
 double outputLatency;                 //Latency in seconds
-double dFreq[]={0.136,0.4742,1.838,3.578,5.357,7.078,10.130,14.078,
-           18.104,21.078,24.918,28.078,50.293,70.091,144.489,432.178};
+double dFreq[]={0.13613,0.4742,1.838,3.576,5.357,7.036,10.136,14.076,
+           18.102,21.076,24.917,28.076,50.293,70.091,144.489,432.178};
 
 WideGraph* g_pWideGraph = NULL;
 LogQSO* logDlg = NULL;
@@ -534,7 +534,7 @@ void MainWindow::readSettings()
   ui->actionMonitor_OFF_at_startup->setChecked(m_monitorStartOFF);
   m_pskReporter=settings.value("PSKReporter",false).toBool();
   m_After73=settings.value("After73",false).toBool();
-  m_macro=settings.value("Macros","").toStringList();
+  m_macro=settings.value("Macros","TNX 73 GL").toStringList();
   m_dFreq=settings.value("DefaultFreqs","").toStringList();
   m_toRTTY=settings.value("toRTTY",false).toBool();
   ui->actionConvert_JT9_x_to_RTTY->setChecked(m_toRTTY);
@@ -1292,7 +1292,8 @@ void MainWindow::decode()                                       //decode()
 {
   if(!m_dataAvailable) return;
   ui->DecodeButton->setStyleSheet(m_pbdecoding_style1);
-  if(jt9com_.nagain==0 && (!m_diskData)) {
+//  if(jt9com_.nagain==0 && (!m_diskData)) {
+  if(jt9com_.newdat==0 && (!m_diskData)) {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int imin=ms/60000;
     int ihr=imin/60;

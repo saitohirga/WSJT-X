@@ -151,7 +151,7 @@ void DevSetup::initDlg()
   ui.comboBoxSndOut->setCurrentIndex(m_nDevOut);
   ui.cbID73->setChecked(m_After73);
   ui.cbPSKReporter->setChecked(m_pskReporter);
-  ui.cbSplit->setChecked(m_bSplit);
+  ui.cbSplit->setChecked(m_bSplit and m_catEnabled);
   ui.cbXIT->setChecked(m_bXIT);
   ui.cbXIT->setVisible(false);
 
@@ -381,9 +381,7 @@ void DevSetup::on_cbEnableCAT_toggled(bool b)
 {
   m_catEnabled=b;
   enableWidgets();
-//  bool b2=m_pttMethodIndex==0 and m_catEnabled;
-//  b2=b2 or ((m_pttMethodIndex==1 or m_pttMethodIndex==2) and m_pttPort!=0);
-//  ui.testPTTButton->setEnabled(b2);
+  ui.cbSplit->setChecked(m_bSplit and m_catEnabled);
 }
 
 void DevSetup::on_serialRateComboBox_activated(int index)

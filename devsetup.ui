@@ -1366,7 +1366,7 @@
             </size>
            </property>
            <property name="text">
-            <string>5W DPL 73 GL</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -1416,7 +1416,7 @@
             </size>
            </property>
            <property name="text">
-            <string>20W DPL 73 GL</string>
+            <string>10W DPL 73 GL</string>
            </property>
           </widget>
          </item>
@@ -1638,7 +1638,7 @@
             </size>
            </property>
            <property name="text">
-            <string>TNX 73 GL</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -1663,7 +1663,7 @@
             </size>
            </property>
            <property name="text">
-            <string>10W DPL 73 GL</string>
+            <string>5W DPL 73 GL</string>
            </property>
           </widget>
          </item>
