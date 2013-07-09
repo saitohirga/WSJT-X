@@ -1782,18 +1782,21 @@ void MainWindow::guiUpdate()
     }
 
     if(m_catEnabled and m_poll>0 and (nsec%m_poll)==0) {
+      double fMHz;
       if(m_dontReadFreq) {
         m_dontReadFreq=false;
       } else if(!m_transmitting) {
-        double fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
-        if(fMHz<0.0) {
-          rt.sprintf("Rig control error %d\nFailed to read frequency.",
-                    int(1000000.0*fMHz));
-          msgBox(rt);
-          m_catEnabled=false;
-          ui->readFreq->setStyleSheet("QPushButton{background-color: red; \
-                                 border-width: 0px; border-radius: 5px;}");
+        for(int iter=0; iter<3; iter++) {
+          fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
+          if(fMHz<0.0 and iter>=2) {
+            rt.sprintf("Rig control error %d\nFailed to read frequency.",
+                       int(1000000.0*fMHz));
+            msgBox(rt);
+            m_catEnabled=false;
+            ui->readFreq->setStyleSheet("QPushButton{background-color: red; \
+                                    border-width: 0px; border-radius: 5px;}");
         }
+      }
         int ndiff=1000000.0*(fMHz-m_dialFreq);
         if(ndiff!=0) dialFreqChanged2(fMHz);
       }
