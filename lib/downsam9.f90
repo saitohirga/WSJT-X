@@ -23,7 +23,9 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
         x1(i)=fac*id2(i)
      enddo
      x1(npts:nfft1-1)=0.                      !Zero the rest of x1
+     call timer('fft_forw',0)
      call four2a(c1,nfft1,1,-1,0)             !Forward FFT, r2c
+     call timer('fft_forw',1)
 
      nadd=1.0/df1
      s=0.
@@ -45,7 +47,9 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
   nw=100
   ia=max(1,nf-nw)
   ib=min(5000,nf+nw)
+  call timer('pctile_1',0)
   call pctile(s(ia),ib-ia+1,40,avenoise)
+  call timer('pctile_1',1)
 
   fac=sqrt(1.0/avenoise)
   do i=0,nfft2-1
@@ -53,7 +57,9 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
      if(i.gt.nh2) j=j-nfft2
      c2(i)=fac*c1(j)
   enddo
+  call timer('fft_back',0)
   call four2a(c2,nfft2,1,1,1)              !FFT back to time domain
+  call timer('fft_back',1)
   nz2=8*npts8/ndown
 
   return
