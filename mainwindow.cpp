@@ -1297,8 +1297,7 @@ void MainWindow::decode()                                       //decode()
 {
   if(!m_dataAvailable) return;
   ui->DecodeButton->setStyleSheet(m_pbdecoding_style1);
-//  if(jt9com_.nagain==0 && (!m_diskData)) {
-  if(jt9com_.newdat==0 && (!m_diskData)) {
+  if(jt9com_.newdat==1 && (!m_diskData)) {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int imin=ms/60000;
     int ihr=imin/60;
