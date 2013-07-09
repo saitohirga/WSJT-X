@@ -895,12 +895,15 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
         jt9com_.newdat=0;
         jt9com_.nagain=0;
         decode();
+        break;
       }
     }
     break;
   case Qt::Key_F4:
     ui->dxCallEntry->setText("");
     ui->dxGridEntry->setText("");
+    genStdMsgs("");
+    break;
   case Qt::Key_F6:
     if(e->modifiers() & Qt::ShiftModifier) {
       on_actionDecode_remaining_files_in_directory_triggered();
@@ -2111,6 +2114,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 
 void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
 {
+  QString t;
   QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
   ui->dxCallEntry->setText(hisCall);
   if(hisCall=="") {
@@ -2121,7 +2125,8 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
     ui->tx3->setText("");
     ui->tx4->setText("");
     ui->tx5->setText("");
-    ui->tx6->setText("");
+    t="CQ " + m_myCall + " " + m_myGrid.mid(0,4);
+    msgtype(t, ui->tx6);
     ui->genMsg->setText("");
     ui->freeTextMsg->setText("");
     return;
@@ -2129,7 +2134,7 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
   QString hisBase=baseCall(hisCall);
   QString myBase=baseCall(m_myCall);
   QString t0=hisBase + " " + myBase + " ";
-  QString t=t0 + m_myGrid.mid(0,4);
+  t=t0 + m_myGrid.mid(0,4);
   if(myBase!=m_myCall) t="DE " + m_myCall + " " + m_myGrid.mid(0,4);
   msgtype(t, ui->tx1);
   if(rpt == "") {
