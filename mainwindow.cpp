@@ -208,9 +208,8 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   }
 #endif
   mem_jt9 = shdmem;
-
   readSettings();		             //Restore user's setup params
-  if(m_dFreq.length()<=1) {
+  if(m_dFreq.length()<=1) {      //Use the startup default frequencies
     m_dFreq.clear();
     for(int i=0; i<16; i++) {
       QString t;
@@ -239,6 +238,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
       border-color: black; min-width: 5em; padding: 3px;}";
 
   genStdMsgs(m_rpt);
+  if(m_mode!="JT9" and m_mode!="JT65" and m_mode!="JT9+JT65") m_mode="JT9";
   on_actionWide_Waterfall_triggered();                   //###
   g_pWideGraph->setRxFreq(m_rxFreq);
   g_pWideGraph->setTxFreq(m_txFreq);
@@ -971,13 +971,14 @@ void MainWindow::bumpFqso(int n)                                 //bumpFqso()
 
 void MainWindow::dialFreqChanged2(double f)
 {
-  if(m_band<0 or m_band>15) return;
   m_dialFreq=f;
+  if(m_band<0 or m_band>15 or m_dFreq.length()<=1) return;
   QString t;
   t.sprintf("%.6f",m_dialFreq);
   int n=t.length();
   t=t.mid(0,n-3) + " " + t.mid(n-3,3);
-  if(qAbs(m_dialFreq-dFreq[m_band])<0.01) {
+  double fBand=m_dFreq[m_band].toDouble();
+  if(qAbs(m_dialFreq-fBand)<0.01) {
     ui->labDialFreq->setStyleSheet( \
         "QLabel { background-color : black; color : yellow; }");
   } else {
@@ -2128,8 +2129,11 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
     ui->tx3->setText("");
     ui->tx4->setText("");
     ui->tx5->setText("");
-    t="CQ " + m_myCall + " " + m_myGrid.mid(0,4);
-    msgtype(t, ui->tx6);
+    ui->tx6->setText("");
+    if(m_myCall!="" and m_myGrid!="") {
+      t="CQ " + m_myCall + " " + m_myGrid.mid(0,4);
+      msgtype(t, ui->tx6);
+    }
     ui->genMsg->setText("");
     ui->freeTextMsg->setText("");
     return;
