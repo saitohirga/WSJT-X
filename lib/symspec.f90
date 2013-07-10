@@ -100,7 +100,7 @@ subroutine symspec(k,ntrperiod,nsps,ingain,slope,pxdb,s,df3,ihsym,npts8)
      sx=fac*(real(cx(j))**2 + aimag(cx(j))**2)
      ss(n,i)=sx
      ssum(i)=ssum(i) + sx
-     s(i)=sx
+     s(i)=gain*sx
   enddo
 
 !  s=0.05*s/ref
