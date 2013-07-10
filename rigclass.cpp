@@ -112,13 +112,11 @@ int Rig::open(int n) {
       }
     }
     QString t;
-//    qint32 nkHz=14076;
-//    t.sprintf("<command:10>CmdSetFreq<parameters:17><xcvrfreq:5>%5d",nkHz);
     t="<command:10>CmdGetFreq<parameters:0>";
     QByteArray ba = t.toLocal8Bit();
     const char* buf=ba.data();
-    int n=socket->write(buf);
-    bool bret=socket->waitForReadyRead(1000);
+    socket->write(buf);
+    socket->waitForReadyRead(1000);
     QByteArray reply=socket->read(128);
     if(reply.indexOf("<CmdFreq:")==0) {
       m_cmndr=true;
@@ -150,7 +148,7 @@ int Rig::setConf(const char *name, const char *val)
 }
 
 int Rig::setFreq(freq_t freq, vfo_t vfo) {
-#ifdef WIN32	// Ham Radio Deluxe only on Windows
+#ifdef WIN32	// Ham Radio Deluxe (only on Windows)
   if(m_hrd) {
     QString t;
     int nhz=(int)freq;
@@ -231,7 +229,7 @@ int Rig::setSplitFreq(freq_t tx_freq, vfo_t vfo) {
 freq_t Rig::getFreq(vfo_t vfo)
 {
   freq_t freq;
-#ifdef WIN32	// Ham Radio Deluxe only on Windows
+#ifdef WIN32	// Ham Radio Deluxe (only on Windows)
   if(m_hrd) {
     const wchar_t* cmnd = (const wchar_t*) (m_context+"Get Frequency").utf16();
     const wchar_t* freqString=HRDInterfaceSendMessage(cmnd);
@@ -305,7 +303,6 @@ int Rig::setPTT(ptt_t ptt, vfo_t vfo)
     const char* buf=ba.data();
     socket->write(buf);
     socket->waitForBytesWritten(1000);
-//    qDebug() << ptt << buf;
     return 0;
   } else
 #endif
