@@ -1782,7 +1782,7 @@ void MainWindow::guiUpdate()
       ui->xThermo->setValue(0.0);
     }
 
-    if(m_catEnabled and m_poll>0 and (nsec%m_poll)==0) {
+    if(m_catEnabled and m_poll>0 and (nsec%m_poll)==0 and !m_decoderBusy) {
       double fMHz;
       if(m_dontReadFreq) {
         m_dontReadFreq=false;
@@ -2694,9 +2694,7 @@ void MainWindow::on_bandComboBox_activated(int index)
     if(m_bRigOpen) {
       m_dontReadFreq=true;
       ret=rig->setFreq(MHz(m_dialFreq));
-//      ret=rig->setSplitFreq(MHz(m_dialFreq),RIG_VFO_B);
       if(m_bSplit or m_bXIT) setXIT(m_txFreq);
-//        ret=rig->setSplitFreq(MHz(m_dialFreq)+xit,RIG_VFO_B);
 
       bumpFqso(11);
       bumpFqso(12);
@@ -2988,7 +2986,6 @@ void MainWindow::setXIT(int n)
     if(n>4000) xit=3000;
     if(m_bXIT) {
       ret=rig->setXit((shortfreq_t)xit,RIG_VFO_TX);
-//      ret=rig->setSplitFreq(MHz(m_dialFreq),RIG_VFO_A);
       if(ret!=RIG_OK) {
         QString rt;
         rt.sprintf("Setting RIG_VFO_TX failed:  %d",ret);

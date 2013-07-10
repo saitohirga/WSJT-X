@@ -551,6 +551,10 @@ void DevSetup::enableWidgets()
   ui.label_4->setEnabled(m_catEnabled);
   ui.label_47->setEnabled(m_catEnabled);
   ui.cbSplit->setEnabled(m_catEnabled);
+  if(m_rig==9999) {                    //No Split Tx with HRD
+    ui.cbSplit->setChecked(false);
+    ui.cbSplit->setEnabled(false);
+  }
   ui.cbXIT->setEnabled(m_catEnabled);
 
   bool bSerial=m_catEnabled and (m_rig<9900);
@@ -576,10 +580,6 @@ void DevSetup::enableWidgets()
             (m_catEnabled and m_pttMethodIndex==2 and m_rig<9900);
   bool b3 = (m_catEnabled and m_pttMethodIndex==0);
   ui.testPTTButton->setEnabled(b1 or b2 or b3);  //Include PTT via HRD or Commander
-
-//  bool b2=m_pttMethodIndex==0 and m_catEnabled;
-//  b2=b2 or ((m_pttMethodIndex==1 or m_pttMethodIndex==2) and m_pttPort!=0);
-//  ui.testPTTButton->setEnabled(b2);
 }
 
 void DevSetup::on_cbSplit_toggled(bool checked)
