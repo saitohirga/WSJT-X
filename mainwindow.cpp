@@ -26,8 +26,8 @@ wchar_t buffer[256];
 bool btxok;                           //True if OK to transmit
 bool btxMute;
 double outputLatency;                 //Latency in seconds
-double dFreq[]={0.13613,0.4742,1.838,3.576,5.357,7.036,10.136,14.076,
-           18.102,21.076,24.917,28.076,50.293,70.091,144.489,432.178};
+double dFreq[]={0.13613,0.4742,1.838,3.576,5.357,7.076,10.138,14.076,
+           18.102,21.076,24.917,28.076,50.276,70.091,144.489,432.178};
 
 WideGraph* g_pWideGraph = NULL;
 LogQSO* logDlg = NULL;
@@ -1563,6 +1563,7 @@ void MainWindow::guiUpdate()
   static int nsendingsh=0;
   static int giptt00=-1;
   static int gcomport00=-1;
+  static double onAirFreq0=0.0;
   int ret=0;
   QString rt;
 
@@ -1584,6 +1585,20 @@ void MainWindow::guiUpdate()
     QFile f("txboth");
     if(f.exists() and fmod(tsec,m_TRperiod) < (1.0 + 85.0*m_nsps/12000.0)) {
       bTxTime=true;
+    }
+
+    double onAirFreq=m_dialFreq+1.e-6*m_txFreq;
+    if(onAirFreq>10.139900 and onAirFreq<10.140320) {
+      bTxTime=false;
+      if(onAirFreq!=onAirFreq0) {
+        onAirFreq0=onAirFreq;
+        on_autoButton_clicked();
+        QString t="Please choose another Tx frequency.\nWSJT-X will not ";
+        t+="knowingly transmit\nbetween 10.139 900 and 10.140 320 MHz,\n";
+        t+="the 30 m sub-band for WSPR transmissions.";
+        msgBox0.setText(t);
+        msgBox0.show();
+      }
     }
 
     float fTR=float((nsec%m_TRperiod))/m_TRperiod;
