@@ -446,6 +446,7 @@ void MainWindow::writeSettings()
   settings.setValue("Fmin",m_fMin);
   settings.setValue("TxSplit",m_bSplit);
   settings.setValue("UseXIT",m_bXIT);
+  settings.setValue("Plus2kHz",m_plus2kHz);
   settings.endGroup();
 }
 
@@ -593,6 +594,8 @@ void MainWindow::readSettings()
   m_fMin=settings.value("fMin",2500).toInt();
   m_bSplit=settings.value("TxSplit",false).toBool();
   m_bXIT=settings.value("UseXit",false).toBool();
+  m_plus2kHz=settings.value("Plus2kHz",false).toBool();
+  ui->cbPlus2kHz->setChecked(m_plus2kHz);
   settings.endGroup();
 
   if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
@@ -2699,6 +2702,7 @@ void MainWindow::on_bandComboBox_activated(int index)
   m_band=index;
   QString t=m_dFreq[index];
   m_dialFreq=t.toDouble();
+  if(m_plus2kHz) m_dialFreq+=0.002;
   dialFreqChanged2(m_dialFreq);
   m_repeatMsg=0;
   m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
@@ -3033,4 +3037,10 @@ void MainWindow::on_cbTxLock_clicked(bool checked)
 void MainWindow::on_actionTx2QSO_triggered(bool checked)
 {
   m_tx2QSO=checked;
+}
+
+void MainWindow::on_cbPlus2kHz_toggled(bool checked)
+{
+  m_plus2kHz=checked;
+  on_bandComboBox_activated(m_band);
 }

@@ -156,7 +156,8 @@ private slots:
   void on_pbTxMode_clicked();
   void on_RxFreqSpinBox_valueChanged(int n);
   void on_cbTxLock_clicked(bool checked);
-  void on_actionTx2QSO_triggered(bool checked);
+  void on_actionTx2QSO_triggered(bool checked);  
+  void on_cbPlus2kHz_toggled(bool checked);
 
 private:
     Ui::MainWindow *ui;
@@ -256,6 +257,7 @@ private:
     bool    m_CATerror;
     bool    m_bSplit;
     bool    m_bXIT;
+    bool    m_plus2kHz;
 
     char    m_decoded[80];
 
