@@ -306,3 +306,9 @@ void WideGraph::setFreq2(int rxFreq, int txFreq)
   m_txFreq=txFreq;
   emit setFreq3(rxFreq,txFreq);
 }
+
+void WideGraph::setDialFreq(double d)
+{
+  m_dialFreq=d;
+  ui->widePlot->setDialFreq(d);
+}
