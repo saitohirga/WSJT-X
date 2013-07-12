@@ -70,6 +70,7 @@ public:
   double fGreen();
   void SetPercent2DScreen(int percent){m_Percent2DScreen=percent;}
   int getFmax();
+  void setDialFreq(double d);
 
 signals:
   void freezeDecode1(int n);
@@ -105,6 +106,7 @@ private:
 
   double  m_fGreen;
   double  m_fftBinWidth;
+  double  m_dialFreq;
 
   qint64  m_StartFreq;
 

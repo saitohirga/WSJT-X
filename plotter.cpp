@@ -288,6 +288,18 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   painter0.drawLine(x1,17,x1,21);
   painter0.drawLine(x1,17,x2,17);
   painter0.drawLine(x2,17,x2,21);
+
+  if(m_dialFreq>10.13 and m_dialFreq< 10.15) {
+    float f1=1.0e6*(10.1401 - m_dialFreq);
+    float f2=f1+200.0;
+    x1=XfromFreq(f1);
+    x2=XfromFreq(f2);
+    if(x1<=m_w and x2>=0) {
+      QPen pen1(QColor(255,165,0),3);             //Mark WSPR sub-band orange
+      painter0.setPen(pen1);
+      painter0.drawLine(x1,9,x2,9);
+    }
+  }
 }
 
 void CPlotter::MakeFrequencyStrs()                       //MakeFrequencyStrs
@@ -543,4 +555,11 @@ void CPlotter::setModeTx(QString modeTx)
 int CPlotter::getFmax()
 {
   return m_fMax;
+}
+
+void CPlotter::setDialFreq(double d)
+{
+  m_dialFreq=d;
+  DrawOverlay();
+  update();
 }

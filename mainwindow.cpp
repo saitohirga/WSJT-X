@@ -246,6 +246,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   g_pWideGraph->setFmin(m_fMin);
   g_pWideGraph->setModeTx(m_mode);
   g_pWideGraph->setModeTx(m_modeTx);
+  dialFreqChanged2(m_dialFreq);
 
   connect(g_pWideGraph, SIGNAL(setFreq3(int,int)),this,
           SLOT(setFreq4(int,int)));
@@ -991,6 +992,7 @@ void MainWindow::dialFreqChanged2(double f)
   }
   ui->labDialFreq->setText(t);
   statusChanged();
+  if(g_pWideGraph!=NULL) g_pWideGraph->setDialFreq(m_dialFreq);
 }
 
 void MainWindow::statusChanged()
@@ -1596,9 +1598,9 @@ void MainWindow::guiUpdate()
       if(onAirFreq!=onAirFreq0) {
         onAirFreq0=onAirFreq;
         on_autoButton_clicked();
-        QString t="Please choose another Tx frequency.\nWSJT-X will not ";
-        t+="knowingly transmit\nbetween 10.139 900 and 10.140 320 MHz,\n";
-        t+="the 30 m sub-band for WSPR transmissions.";
+        QString t="Please choose another Tx frequency.\n";
+        t+="WSJT-X will not knowingly transmit\n";
+        t+="in the WSPR sub-band on 30 m.";
         msgBox0.setText(t);
         msgBox0.show();
       }

@@ -48,6 +48,7 @@ signals:
 public slots:
   void wideFreezeDecode(int n);
   void setFreq2(int rxFreq, int txFreq);
+  void setDialFreq(double d);
 
 protected:
   virtual void keyPressEvent( QKeyEvent *e );
@@ -63,6 +64,7 @@ private slots:
 
 private:
   double m_slope;
+  double m_dialFreq;
 
   qint32 m_waterfallAvg;
   qint32 m_fSample;
