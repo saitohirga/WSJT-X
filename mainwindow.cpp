@@ -1595,6 +1595,7 @@ void MainWindow::guiUpdate()
     double onAirFreq=m_dialFreq+1.e-6*m_txFreq;
     if(onAirFreq>10.139900 and onAirFreq<10.140320) {
       bTxTime=false;
+      if(m_tune) on_tuneButton_clicked();
       if(onAirFreq!=onAirFreq0) {
         onAirFreq0=onAirFreq;
         on_autoButton_clicked();
