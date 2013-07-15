@@ -45,7 +45,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
-
   on_EraseButton_clicked();
   QActionGroup* paletteGroup = new QActionGroup(this);
   ui->actionCuteSDR->setActionGroup(paletteGroup);
@@ -2713,8 +2712,10 @@ void MainWindow::on_bandComboBox_activated(int index)
       ret=rig->setFreq(MHz(m_dialFreq));
       if(m_bSplit or m_bXIT) setXIT(m_txFreq);
 
-      bumpFqso(11);
-      bumpFqso(12);
+      if(g_pWideGraph!=NULL) {
+        bumpFqso(11);
+        bumpFqso(12);
+      }
       if(ret!=RIG_OK) {
         rt.sprintf("Set rig frequency failed:  %d",ret);
         msgBox(rt);
