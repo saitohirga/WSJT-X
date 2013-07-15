@@ -908,6 +908,8 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
     ui->dxCallEntry->setText("");
     ui->dxGridEntry->setText("");
     genStdMsgs("");
+    m_ntx=6;
+    ui->txrb6->setChecked(true);
     break;
   case Qt::Key_F6:
     if(e->modifiers() & Qt::ShiftModifier) {
@@ -2415,14 +2417,6 @@ void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
   if(n!=4 and n!=6) {
     ui->labAz->setText("");
     ui->labDist->setText("");
-    ui->tx1->setText("");
-    ui->tx2->setText("");
-    ui->tx3->setText("");
-    ui->tx4->setText("");
-    ui->tx5->setText("");
-    ui->tx6->setText("");
-    ui->genMsg->setText("");
-    ui->freeTextMsg->setText("");
     return;
   }
   if(!t[0].isLetter() or !t[1].isLetter()) return;
