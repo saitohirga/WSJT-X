@@ -197,16 +197,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   ui->labAz->setStyleSheet("border: 0px;");
   ui->labDist->setStyleSheet("border: 0px;");
 
-#ifdef WIN32
-  if(!m_bMultipleOK) {
-    while(true) {
-      int iret=killbyname("jt9.exe");
-      if(iret == 603) break;
-      if(iret != 0) msgBox("KillByName return code: " +
-                           QString::number(iret));
-    }
-  }
-#endif
   mem_jt9 = shdmem;
   readSettings();		             //Restore user's setup params
   if(m_dFreq.length()<=1) {      //Use the startup default frequencies
@@ -217,6 +207,17 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
       m_dFreq.append(t);
     }
   }
+
+#ifdef WIN32
+  if(!m_bMultipleOK) {
+    while(true) {
+      int iret=killbyname("jt9.exe");
+      if(iret == 603) break;
+      if(iret != 0) msgBox("KillByName return code: " +
+                           QString::number(iret));
+    }
+  }
+#endif
 
   QFile lockFile(m_appDir + "/.lock");     //Create .lock so jt9 will wait
   lockFile.open(QIODevice::ReadWrite);
