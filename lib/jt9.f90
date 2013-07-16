@@ -14,7 +14,7 @@ program jt9
 
   nargs=iargc()
   if(nargs.lt.1) then
-     print*,'Usage: jt9 TRperiod ndepth file1 [file2 ...]'
+     print*,'Usage: jt9 TRperiod ndepth rxfreq file1 [file2 ...]'
      print*,'       Reads data from *.wav files.'
      print*,''
      print*,'       jt9 -s'
@@ -29,7 +29,9 @@ program jt9
   read(arg,*) ntrperiod
   call getarg(2,arg)
   read(arg,*) ndepth
-  ifile1=3
+  call getarg(3,arg)
+  read(arg,*) nrxfreq
+  ifile1=4
 
   limtrace=0
   lu=12
@@ -92,7 +94,7 @@ program jt9
      enddo
 
 10   close(10)
-     call fillcom(nutc0,ndepth)
+     call fillcom(nutc0,ndepth,nrxfreq)
      call decoder(ss,id2)
   enddo
 

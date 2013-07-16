@@ -85,7 +85,8 @@ subroutine decoder(ss,id2)
         nfb1=nfqso+ntol
         ia=max(1,nint((nfa1-nf0)/df3))
         ib=min(NSMAX,nint((nfb1-nf0)/df3))
-        ccfok(ia:ib)=.true.
+        ccfok(ia:ib)=(ccfred(ia:ib).gt.(ccflim-2.0)) .and.               &
+                     (red2(ia:ib).gt.(red2lim-1.0))
         ia1=ia
         ib1=ib
      else
@@ -101,9 +102,8 @@ subroutine decoder(ss,id2)
 
      fgood=0.
      do i=ia,ib
+        if(done(i) .or. (.not.ccfok(i))) cycle
         f=(i-1)*df3
-        if(done(i) .or. (.not.ccfok(i)) .or.                               &
-             (nqd.eq.0 .and. (ccfred(i).lt.ccflim-1.0))) cycle
         if(nqd.eq.1 .or.                                                   &
            (ccfred(i).ge.ccflim .and. abs(f-fgood).gt.10.0*df8)) then
 
@@ -112,41 +112,45 @@ subroutine decoder(ss,id2)
 
            call timer('softsym ',0)
            fpk=nf0 + df3*(i-1)
+
            call softsym(id2,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,    &
                 freq,drift,schk,i1SoftSymbols)
            call timer('softsym ',1)
 
-           if(schk.ge.schklim) then
+!           write(71,3001) nqd,i,f,fpk,ccfred(i),red2(i),schk
+!3001       format(2i6,2f8.1,3f6.1)
+!           call flush(71)
 
-              call timer('decode9 ',0)
-              call decode9(i1SoftSymbols,limit,nlim,msg)
-              call timer('decode9 ',1)
+           if(schk.lt.schklim) cycle
 
-              sync=(syncpk+1)/4.0
-              if(sync.lt.0.0 .or. snrdb.lt.dblim-2.0) sync=0.0
-              nsync=sync
-              if(nsync.gt.10) nsync=10
-              nsnr=nint(snrdb)
-              ndrift=nint(drift/df3)
+           call timer('decode9 ',0)
+           call decode9(i1SoftSymbols,limit,nlim,msg)
+           call timer('decode9 ',1)
+
+           sync=(syncpk+1)/4.0
+           if(sync.lt.0.0 .or. snrdb.lt.dblim-2.0) sync=0.0
+           nsync=sync
+           if(nsync.gt.10) nsync=10
+           nsnr=nint(snrdb)
+           ndrift=nint(drift/df3)
               
-              if(msg.ne.'                      ') then
-                 if(nqd.eq.0) ndecodes0=ndecodes0+1
-                 if(nqd.eq.1) ndecodes1=ndecodes1+1
+           if(msg.ne.'                      ') then
+              if(nqd.eq.0) ndecodes0=ndecodes0+1
+              if(nqd.eq.1) ndecodes1=ndecodes1+1
                  
-                 write(*,1000) nutc,nsnr,xdt,nint(freq),msg
-1000             format(i4.4,i4,f5.1,i5,1x,'@',1x,a22)
-                 write(13,1002) nutc,nsync,nsnr,xdt,freq,ndrift,msg
-1002             format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT9')
+              write(*,1000) nutc,nsnr,xdt,nint(freq),msg
+1000          format(i4.4,i4,f5.1,i5,1x,'@',1x,a22)
+              write(13,1002) nutc,nsync,nsnr,xdt,freq,ndrift,msg
+1002          format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT9')
 
-                 iaa=max(1,i-1)
-                 ibb=min(NSMAX,i+22)
-                 fgood=f
-                 nsynced=1
-                 ndecoded=1
-                 ccfok(iaa:ibb)=.false.
-                 done(iaa:ibb)=.true.              
-                 call flush(6)
-              endif
+              iaa=max(1,i-1)
+              ibb=min(NSMAX,i+22)
+              fgood=f
+              nsynced=1
+              ndecoded=1
+              ccfok(iaa:ibb)=.false.
+              done(iaa:ibb)=.true.              
+              call flush(6)
            endif
         endif
      enddo
