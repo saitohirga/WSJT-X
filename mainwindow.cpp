@@ -191,8 +191,14 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_CATerror=false;
   decodeBusy(false);
 
-  ui->xThermo->setMaximumWidth(12);
-  ui->xThermo->setTextVisible(false);
+  //ui->xThermo->setMaximumWidth(12);
+  //ui->xThermo->setTextVisible(false);
+
+  signalMeter = new SignalMeter(ui->meterFrame);
+  signalMeter->resize(50, 160);
+
+  qDebug() << signalMeter->size();
+
   ui->labAz->setStyleSheet("border: 0px;");
   ui->labDist->setStyleSheet("border: 0px;");
 
@@ -639,7 +645,8 @@ void MainWindow::dataSink(int k)
   m_pctZap=nzap*100.0/m_nsps;
   t.sprintf(" Rx noise: %5.1f ",px);
   lab2->setText(t);
-  ui->xThermo->setValue((double)px);                    //Update thermometer
+  //ui->xThermo->setValue((double)px);                    //Update thermometer
+  signalMeter->setValue(px);                            // Update thermometer
   if(m_monitoring || m_diskData) {
     g_pWideGraph->dataSink2(s,df3,ihsym,m_diskData);
   }
@@ -1729,7 +1736,8 @@ void MainWindow::guiUpdate()
       m_msgSent0=t;
     }
 
-    ui->xThermo->setValue(0.0);   //Set Thermo to zero
+    //ui->xThermo->setValue(0.0);   //Set Thermo to zero
+    signalMeter->setValue(0);
     m_monitoring=false;
     soundInThread.setMonitoring(false);
     btxok=true;
@@ -1802,7 +1810,8 @@ void MainWindow::guiUpdate()
             t.time().toString() + " ";
     ui->labUTC->setText(utc);
     if(!m_monitoring and !m_diskData) {
-      ui->xThermo->setValue(0.0);
+      //ui->xThermo->setValue(0.0);
+      signalMeter->setValue(0);
     }
 
     if(m_catEnabled and m_poll>0 and (nsec%m_poll)==0 and !m_decoderBusy) {
@@ -1868,7 +1877,8 @@ void MainWindow::startTx2()
     soundOutThread.setTxSNR(snr);
     soundOutThread.m_modeTx=m_modeTx;
     soundOutThread.start(QThread::HighestPriority);
-    ui->xThermo->setValue(0.0);                         //Set Thermo to zero
+    //ui->xThermo->setValue(0.0);                         //Set Thermo to zero
+    signalMeter->setValue(0);
     m_monitoring=false;
     soundInThread.setMonitoring(false);
     btxok=true;

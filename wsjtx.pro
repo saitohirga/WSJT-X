@@ -36,7 +36,9 @@ QMAKE_EXTRA_COMPILERS += gfortran
 SOURCES += main.cpp mainwindow.cpp plotter.cpp about.cpp \
     soundin.cpp soundout.cpp devsetup.cpp widegraph.cpp \
     getfile.cpp displaytext.cpp getdev.cpp logqso.cpp \
-    psk_reporter.cpp rigclass.cpp
+    psk_reporter.cpp rigclass.cpp \
+    signalmeter.cpp \
+    meterwidget.cpp
 
 win32 {
 SOURCES += killbyname.cpp
@@ -45,7 +47,9 @@ SOURCES += killbyname.cpp
 HEADERS  += mainwindow.h plotter.h soundin.h soundout.h \
             about.h devsetup.h widegraph.h getfile.h \
             commons.h sleep.h displaytext.h logqso.h \
-            psk_reporter.h rigclass.h
+            psk_reporter.h rigclass.h \
+    signalmeter.h \
+    meterwidget.h
 
 # (Is the following really needed???)
 #DEFINES += __cplusplus
