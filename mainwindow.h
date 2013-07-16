@@ -12,6 +12,7 @@
 #include "commons.h"
 #include "psk_reporter.h"
 #include "rigclass.h"
+#include "signalmeter.h"
 
 #ifdef WIN32
 #include "PSKReporter.h"
@@ -330,10 +331,9 @@ private:
 
     SoundInThread soundInThread;             //Instantiate the audio threads
     SoundOutThread soundOutThread;
-
     QSharedMemory *mem_jt9;
-
     PSK_Reporter *psk_Reporter;
+    SignalMeter *signalMeter;
 
 //---------------------------------------------------- private functions
     void readSettings();

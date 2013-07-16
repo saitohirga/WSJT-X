@@ -84,7 +84,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Courier New'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="acceptRichText">
          <bool>false</bool>
@@ -526,7 +526,57 @@ p, li { white-space: pre-wrap; }
     </item>
     <item>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0" colspan="3">
+      <item row="2" column="0" rowspan="5">
+       <widget class="QFrame" name="meterFrame">
+        <property name="minimumSize">
+         <size>
+          <width>50</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QLabel" name="labAz">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="indent">
+         <number>4</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="2">
        <widget class="QComboBox" name="bandComboBox">
         <property name="toolTip">
          <string>Select operating band</string>
@@ -616,7 +666,7 @@ p, li { white-space: pre-wrap; }
         </item>
        </widget>
       </item>
-      <item row="0" column="3">
+      <item row="0" column="2">
        <widget class="QPushButton" name="readFreq">
         <property name="maximumSize">
          <size>
@@ -632,7 +682,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="0" column="4" colspan="2">
+      <item row="0" column="3" colspan="2">
        <widget class="QLabel" name="labDialFreq">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -670,7 +720,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="0" column="7">
+      <item row="0" column="6">
        <widget class="QCheckBox" name="txFirstCheckBox">
         <property name="minimumSize">
          <size>
@@ -692,7 +742,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="0" column="9" rowspan="7">
+      <item row="0" column="8" rowspan="7">
        <widget class="QFrame" name="frame_2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -707,7 +757,7 @@ p, li { white-space: pre-wrap; }
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
+         <enum>QFrame::NoFrame</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Plain</enum>
@@ -743,7 +793,7 @@ p, li { white-space: pre-wrap; }
             <enum>QTabWidget::Triangular</enum>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tab">
             <attribute name="title">
@@ -819,7 +869,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <attribute name="buttonGroup">
-                  <string>buttonGroup</string>
+                  <string notr="true">buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -853,7 +903,7 @@ p, li { white-space: pre-wrap; }
                   <bool>true</bool>
                  </property>
                  <attribute name="buttonGroup">
-                  <string>buttonGroup</string>
+                  <string notr="true">buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -884,7 +934,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <attribute name="buttonGroup">
-                  <string>buttonGroup</string>
+                  <string notr="true">buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -1052,7 +1102,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <attribute name="buttonGroup">
-                  <string>buttonGroup</string>
+                  <string notr="true">buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -1200,7 +1250,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <attribute name="buttonGroup">
-                  <string>buttonGroup</string>
+                  <string notr="true">buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -1231,7 +1281,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <attribute name="buttonGroup">
-                  <string>buttonGroup</string>
+                  <string notr="true">buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -1493,14 +1543,14 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
       </item>
-      <item row="1" column="0" colspan="4">
+      <item row="1" column="0" colspan="3">
        <widget class="QCheckBox" name="cbPlus2kHz">
         <property name="text">
          <string>  +2 kHz</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="4">
+      <item row="1" column="3">
        <widget class="QLabel" name="label_3">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1592,7 +1642,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="1" column="5">
+      <item row="1" column="4">
        <widget class="QLabel" name="label_4">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1690,7 +1740,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="1" column="7">
+      <item row="1" column="6">
        <widget class="QPushButton" name="pbTxMode">
         <property name="enabled">
          <bool>false</bool>
@@ -1701,40 +1751,6 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="2" column="1" rowspan="5">
-       <widget class="QProgressBar" name="xThermo">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>160</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>15</width>
-          <height>160</height>
-         </size>
-        </property>
-        <property name="maximum">
-         <number>60</number>
-        </property>
-        <property name="value">
-         <number>0</number>
-        </property>
-        <property name="textVisible">
-         <bool>false</bool>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2" rowspan="5">
        <widget class="QSlider" name="inGain">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1768,7 +1784,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="2" column="4">
+      <item row="2" column="3">
        <widget class="QLineEdit" name="dxCallEntry">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1799,7 +1815,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="2" column="5">
+      <item row="2" column="4">
        <widget class="QLineEdit" name="dxGridEntry">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1830,7 +1846,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="2" column="7">
+      <item row="2" column="6">
        <widget class="QSpinBox" name="TxFreqSpinBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1871,40 +1887,6 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="3" column="4">
-       <widget class="QLabel" name="labAz">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>23</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>23</height>
-         </size>
-        </property>
-        <property name="autoFillBackground">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="indent">
-         <number>4</number>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="5">
        <widget class="QLabel" name="labDist">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1932,7 +1914,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="3" column="6">
+      <item row="3" column="5">
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -1948,7 +1930,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </spacer>
       </item>
-      <item row="3" column="7">
+      <item row="3" column="6">
        <widget class="QSpinBox" name="RxFreqSpinBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1979,7 +1961,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="3" column="8">
+      <item row="3" column="7">
        <spacer name="horizontalSpacer_3">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -1995,26 +1977,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </spacer>
       </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>dB</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="4">
+      <item row="4" column="3">
        <widget class="QPushButton" name="lookupButton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -2036,7 +1999,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="4" column="5">
+      <item row="4" column="4">
        <widget class="QPushButton" name="addButton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -2058,7 +2021,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="4" column="7">
+      <item row="4" column="6">
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <property name="spacing">
          <number>5</number>
@@ -2112,7 +2075,7 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </item>
-      <item row="5" column="4" rowspan="2" colspan="2">
+      <item row="5" column="3" rowspan="2" colspan="2">
        <widget class="QLabel" name="labUTC">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -2157,14 +2120,14 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="5" column="7">
+      <item row="5" column="6">
        <widget class="QCheckBox" name="cbTxLock">
         <property name="text">
          <string>Lock Tx=Rx</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="7">
+      <item row="6" column="6">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <property name="spacing">
          <number>5</number>
@@ -2228,7 +2191,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>760</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
