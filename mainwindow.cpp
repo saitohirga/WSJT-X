@@ -191,13 +191,10 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   m_CATerror=false;
   decodeBusy(false);
 
-  //ui->xThermo->setMaximumWidth(12);
-  //ui->xThermo->setTextVisible(false);
-
   signalMeter = new SignalMeter(ui->meterFrame);
   signalMeter->resize(50, 160);
 
-  qDebug() << signalMeter->size();
+//  qDebug() << signalMeter->size();
 
   ui->labAz->setStyleSheet("border: 0px;");
   ui->labDist->setStyleSheet("border: 0px;");
@@ -644,8 +641,6 @@ void MainWindow::dataSink(int k)
   QString t;
   m_pctZap=nzap*100.0/m_nsps;
   t.sprintf(" Rx noise: %5.1f ",px);
-  lab2->setText(t);
-  //ui->xThermo->setValue((double)px);                    //Update thermometer
   signalMeter->setValue(px);                            // Update thermometer
   if(m_monitoring || m_diskData) {
     g_pWideGraph->dataSink2(s,df3,ihsym,m_diskData);
@@ -1039,7 +1034,7 @@ void MainWindow::createStatusBar()                           //createStatusBar
 
   lab2 = new QLabel("");
   lab2->setAlignment(Qt::AlignHCenter);
-  lab2->setMinimumSize(QSize(80,18));
+  lab2->setMinimumSize(QSize(150,18));
   lab2->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab2);
 
@@ -1048,12 +1043,6 @@ void MainWindow::createStatusBar()                           //createStatusBar
   lab3->setMinimumSize(QSize(80,18));
   lab3->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab3);
-
-  lab4 = new QLabel("");
-  lab4->setAlignment(Qt::AlignHCenter);
-  lab4->setMinimumSize(QSize(150,18));
-  lab4->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  statusBar()->addWidget(lab4);
 }
 
 void MainWindow::on_actionExit_triggered()                     //Exit()
@@ -1666,7 +1655,7 @@ void MainWindow::guiUpdate()
     msgsent[22]=0;
     QString t=QString::fromLatin1(msgsent);
     if(m_tune) t="TUNE";
-    lab4->setText("Last Tx:  " + t);
+    lab2->setText("Last Tx:  " + t);
     if(m_restart) {
       QFile f("ALL.TXT");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
@@ -1736,7 +1725,6 @@ void MainWindow::guiUpdate()
       m_msgSent0=t;
     }
 
-    //ui->xThermo->setValue(0.0);   //Set Thermo to zero
     signalMeter->setValue(0);
     m_monitoring=false;
     soundInThread.setMonitoring(false);
@@ -1810,7 +1798,6 @@ void MainWindow::guiUpdate()
             t.time().toString() + " ";
     ui->labUTC->setText(utc);
     if(!m_monitoring and !m_diskData) {
-      //ui->xThermo->setValue(0.0);
       signalMeter->setValue(0);
     }
 
@@ -1877,7 +1864,6 @@ void MainWindow::startTx2()
     soundOutThread.setTxSNR(snr);
     soundOutThread.m_modeTx=m_modeTx;
     soundOutThread.start(QThread::HighestPriority);
-    //ui->xThermo->setValue(0.0);                         //Set Thermo to zero
     signalMeter->setValue(0);
     m_monitoring=false;
     soundInThread.setMonitoring(false);
@@ -1996,6 +1982,7 @@ void MainWindow::on_txb6_clicked()                                //txb6
 
 void MainWindow::doubleClickOnCall2(bool shift, bool ctrl)
 {
+
   m_decodedText2=true;
   doubleClickOnCall(shift,ctrl);
   m_decodedText2=false;
