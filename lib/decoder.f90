@@ -73,14 +73,13 @@ subroutine decoder(ss,id2)
         limit=10000
         ccflim=3.5
      endif
-     if(ndepth.ge.3) then
+     if(ndepth.ge.3 .or. nqd.eq.1) then
         limit=100000
         ccflim=2.5
      endif
      ccfok=.false.
 
      if(nqd.eq.1) then
-        limit=100000
         nfa1=nfqso-ntol
         nfb1=nfqso+ntol
         ia=max(1,nint((nfa1-nf0)/df3))

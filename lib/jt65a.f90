@@ -39,26 +39,17 @@ subroutine jt65a(dd,npts,newdat,nutc,nfa,nfqso,ntol,nagain,ndecoded)
      thresh0=1.5
 
      do i=ia,ib                               !Search over freq range
-        if(savg(i).lt.thresh0 .or. done(i)) cycle
         freq=i*df
+        if(savg(i).lt.thresh0 .or. done(i)) cycle
 
         call timer('ccf65   ',0)
         call ccf65(ss(1,i),nhsym,savg(i),sync1,dt,flipk,syncshort,snr2,dt2)
         call timer('ccf65   ',1)
 
-! ########################### Search for Shorthand Messages #################
-!  include 'shorthand1.f90'
-
-! ########################### Search for Normal Messages ###########
+        ftest=abs(freq-freq0)
         thresh1=1.0
-!  Use lower thresh1 at fQSO
         if(nqd.eq.1 .and. ntol.le.100) thresh1=0.
-
-!  Is sync1 above threshold?
-        if(sync1.lt.thresh1) cycle
-
-!  Keep only the best candidate within ftol.
-        if(freq-freq0.lt.ftol) cycle
+        if(sync1.lt.thresh1 .or. ftest.lt.ftol) cycle
 
         nflip=nint(flipk)
         call timer('decod65a',0)
@@ -66,11 +57,8 @@ subroutine jt65a(dd,npts,newdat,nutc,nfa,nfqso,ntol,nagain,ndecoded)
              nbmkv,nhist,decoded)
         call timer('decod65a',1)
 
-!        write(71,3001) ia,ib,i,nfqso,freq0,freq,freq+a(1),decoded
-!3001    format(4i6,3f10.3,2x,a22)
-!        call flush(71)
-
-        if(freq+a(1)-freq0.lt.ftol) cycle
+        ftest=abs(freq+a(1)-freq0)
+        if(ftest.lt.ftol) cycle
 
         if(decoded.ne.'                      ') then
            ndecoded=1
