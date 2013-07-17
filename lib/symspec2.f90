@@ -10,6 +10,7 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,freq,drift,snrdb,schk,    &
   real ss2(0:8,85)
   real ss3(0:7,69)
   include 'jt9sync.f90'
+  data scale/10.0/
 
   aa(1)=-1500.0/nsps8
   aa(2)=0.
@@ -32,12 +33,9 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,freq,drift,snrdb,schk,    &
      enddo
   enddo
 
-!###
-!  write(30) freq,drift,ss2
-!  call flush(30)
   call chkss2(ss2,freq,drift,schk)
   if(schk.lt.2.0) go to 900
-!###
+
   ss=0.
   sig=0.
   do j=1,69
@@ -77,7 +75,7 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,freq,drift,snrdb,schk,    &
         endif
 
         k=k+1
-        i4=nint(10.0*(r1-r0))
+        i4=nint(scale*(r1-r0))
         if(i4.lt.-127) i4=-127
         if(i4.gt.127) i4=127
         i4=i4+128

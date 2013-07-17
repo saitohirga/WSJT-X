@@ -64,7 +64,8 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
   if(nokv) go to 900
 
   maxe=8                             !Max KV errors in 12 most reliable symbols
-  xlambda=10.0
+!  xlambda=12.0
+  xlambda=7.99
   call graycode65(mr2sym,63,-1)
   call interleave63(mr2sym,-1)
   call interleave63(mr2prob,-1)
