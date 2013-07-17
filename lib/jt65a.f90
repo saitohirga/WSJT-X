@@ -20,9 +20,10 @@ subroutine jt65a(dd,npts,newdat,nutc,nfa,nfqso,ntol,nagain,ndecoded)
   endif
 
   df=12000.0/NFFT                     !df = 12000.0/16384 = 0.732 Hz
-  ftol=15.0                           !Frequency tolerance (Hz)
+  ftol=16.0                           !Frequency tolerance (Hz)
   mode65=1                            !Decoding JT65A only, for now.
   done=.false.
+  freq0=-999.
 
   do nqd=1,0,-1
      if(nqd.eq.1) then                !Quick decode, at fQSO
@@ -35,7 +36,6 @@ subroutine jt65a(dd,npts,newdat,nutc,nfa,nfqso,ntol,nagain,ndecoded)
      ia=max(51,nint(fa/df))
      ib=min(NSZ-51,nint(fb/df))
      
-     freq0=-999.
      thresh0=1.5
 
      do i=ia,ib                               !Search over freq range
@@ -66,6 +66,12 @@ subroutine jt65a(dd,npts,newdat,nutc,nfa,nfqso,ntol,nagain,ndecoded)
              nbmkv,nhist,decoded)
         call timer('decod65a',1)
 
+!        write(71,3001) ia,ib,i,nfqso,freq0,freq,freq+a(1),decoded
+!3001    format(4i6,3f10.3,2x,a22)
+!        call flush(71)
+
+        if(freq+a(1)-freq0.lt.ftol) cycle
+
         if(decoded.ne.'                      ') then
            ndecoded=1
            nfreq=nint(freq+a(1))
@@ -79,7 +85,7 @@ subroutine jt65a(dd,npts,newdat,nutc,nfa,nfqso,ntol,nagain,ndecoded)
            write(13,1012) nutc,nint(sync1),nsnr,dt,float(nfreq),ndrift,  &
                 decoded,nbmkv
 1012       format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT65',i4)
-           freq0=freq
+           freq0=freq+a(1)
            i2=min(NSZ,i+15)                !### ??? ###
            done(i:i2)=.true.
         endif

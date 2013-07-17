@@ -1420,7 +1420,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       QString bg="white";
       if(t.indexOf(" CQ ")>0) bg="#66ff66";                          //green
       if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
-      bool bQSO=abs(t.mid(14,4).toInt() - g_pWideGraph->rxFreq()) < 10;
+      bool bQSO=abs(t.mid(14,4).toInt() - g_pWideGraph->rxFreq()) <= 10;
       QString t1=t.replace("\n","").mid(0,t.length()-4);
       QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
           bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
@@ -2004,7 +2004,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   QString t1 = t.mid(0,i2);              //contents up to \n on selected line
   int i1=t1.lastIndexOf("\n") + 1;       //points to first char of line
   QString t2 = t1.mid(i1,i2-i1);         //selected line
-  if(t2.indexOf("Tx:")==7) return;       //Ignore Tx line
+//  if(t2.indexOf("Tx")==6) return;        //Ignore Tx line
   int i4=t.mid(i1).length();
   if(i4>55) i4=55;
   QString t3=t.mid(i1,i4);
@@ -2014,7 +2014,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   if(t4.length() <5) return;             //Skip the rest if no decoded text
 
   int i9=m_QSOmsg.indexOf(t2);
-  if(i9<0) {
+  if(i9<0 and t2.indexOf("Tx")==-1) {
     QString bg="white";
     if(t2.indexOf(" CQ ")>0) bg="#66ff66";                           //green
     if(m_myCall!="" and t2.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
@@ -2032,9 +2032,11 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 
   int nfreq=t4.at(3).toInt();
   if(t4.at(1)=="Tx") nfreq=t4.at(2).toInt();
-  g_pWideGraph->setRxFreq(nfreq);       //Set Rx freq
-  if(t4.at(1)=="Tx") return;
-
+  g_pWideGraph->setRxFreq(nfreq);                      //Set Rx freq
+  if(t4.at(1)=="Tx") {
+    if(ctrl) ui->TxFreqSpinBox->setValue(nfreq);       //Set Tx freq
+    return;
+  }
   if(t4.at(4)=="@") {
     m_modeTx="JT9";
     ui->pbTxMode->setText("Tx JT9  @");
