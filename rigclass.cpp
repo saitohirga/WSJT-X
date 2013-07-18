@@ -164,8 +164,8 @@ int Rig::setFreq(freq_t freq, vfo_t vfo) {
     }
   } else if(m_cmndr) {
     QString t;
-    qint32 nkHz=int(0.001*freq);
-    t.sprintf("<command:10>CmdSetFreq<parameters:18><xcvrfreq:6>%6d",nkHz);
+    double f=0.001*freq;
+    t.sprintf("<command:10>CmdSetFreq<parameters:23><xcvrfreq:10>%10.3f",f);
     QByteArray ba = t.toLocal8Bit();
     const char* buf=ba.data();
     socket->write(buf);
@@ -212,8 +212,8 @@ int Rig::setSplitFreq(freq_t tx_freq, vfo_t vfo) {
     }
   } else if(m_cmndr) {
     QString t;
-    qint32 nkHz=int(0.001*tx_freq);
-    t.sprintf("<command:12>CmdSetTxFreq<parameters:18><xcvrfreq:6>%6d",nkHz);
+    double f=0.001*tx_freq;
+    t.sprintf("<command:12>CmdSetTxFreq<parameters:23><xcvrfreq:10>%10.3f",f);
     QByteArray ba = t.toLocal8Bit();
     const char* buf=ba.data();
     socket->write(buf);
