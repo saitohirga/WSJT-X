@@ -362,7 +362,7 @@
             <string>Send CW ID after a message with 73 or free text</string>
            </property>
            <property name="text">
-            <string>ID after 73</string>
+            <string>CW ID after 73</string>
            </property>
           </widget>
          </item>
@@ -388,7 +388,7 @@
             </size>
            </property>
            <property name="text">
-            <string>ID Interval (min):</string>
+            <string>CW ID Interval (min):</string>
            </property>
           </widget>
          </item>
