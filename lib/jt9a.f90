@@ -1,7 +1,8 @@
-subroutine jt9a
+subroutine jt9a(thekey)
+
+  character(len=*), intent(in):: thekey
 
 ! These routines connect the shared memory region to the decoder.
-
   interface
      function address_jt9()
      integer*1, pointer :: address_jt9
@@ -13,8 +14,13 @@ subroutine jt9a
   integer size_jt9
   integer*1, pointer :: p_jt9
   character*80 cwd
+! Multiple instances:
+  character*80 mykey
   logical fileExists
   common/tracer/limtrace,lu
+
+! Multiple instances:
+  i0 = len(trim(thekey))
 
   call getcwd(cwd)
   open(12,file='timer.out',status='unknown')
@@ -22,6 +28,12 @@ subroutine jt9a
   limtrace=0
 !  limtrace=-1                            !Disable all calls to timer()
   lu=12
+
+! Multiple instances: set the shared memory key before attaching
+  mykey=trim(repeat(thekey,1))
+  i0 = len(mykey)
+  i0=setkey_jt9(trim(mykey))
+
   i1=attach_jt9()
 
 10 inquire(file=trim(cwd)//'/.lock',exist=fileExists)
@@ -41,7 +53,7 @@ subroutine jt9a
   nbytes=size_jt9()
   if(nbytes.le.0) then
      print*,'jt9a: Shared memory mem_jt9 does not exist.' 
-     print*,"Must start 'jt9 -s' from within WSJT-X."
+     print*,"Must start 'jt9 -s <thekey>' from within WSJT-X."
      go to 999
   endif
   p_jt9=>address_jt9()

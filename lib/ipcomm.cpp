@@ -2,6 +2,7 @@
 #include <qsharedmemory.h>
 #include <QSystemSemaphore>
 
+// Multiple instances: KK1D, 17 Jul 2013
 QSharedMemory mem_jt9("mem_jt9");
 QSystemSemaphore sem_jt9("sem_jt9", 1, QSystemSemaphore::Open);
 

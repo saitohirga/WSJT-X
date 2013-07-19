@@ -7,7 +7,10 @@
 #include <portaudio.h>
 #include "mainwindow.h"
 
-QSharedMemory mem_jt9("mem_jt9");
+// Multiple instances:
+QSharedMemory mem_jt9;
+QUuid         my_uuid;
+QString       my_key;
 
 int main(int argc, char *argv[])
 {
@@ -26,6 +29,11 @@ int main(int argc, char *argv[])
   }
 
   // Create and initialize shared memory segment
+  // Multiple instances: generate shared memory keys with UUID
+  my_uuid = QUuid::createUuid();
+  my_key = my_uuid.toString();
+  mem_jt9.setKey(my_key);
+
   if(!mem_jt9.attach()) {
     if (!mem_jt9.create(sizeof(jt9com_))) {
       QMessageBox::critical( 0, "Error", "Unable to create shared memory segment.");
@@ -45,7 +53,8 @@ int main(int argc, char *argv[])
     exit(1);
   }
 
-  MainWindow w(&mem_jt9);
+// Multiple instances:  Call MainWindow() with the UUID key
+  MainWindow w(&mem_jt9, &my_key);
   w.show();
   return a.exec();
 }
