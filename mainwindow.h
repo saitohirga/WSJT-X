@@ -27,8 +27,9 @@ class MainWindow : public QMainWindow
 {
   Q_OBJECT
 
+// Multiple instances: call MainWindow() with *thekey
 public:
-  explicit MainWindow(QSharedMemory *shdmem, QWidget *parent = 0);
+  explicit MainWindow(QSharedMemory *shdmem, QString *thekey, QWidget *parent = 0);
   ~MainWindow();
 
 public slots:
@@ -332,6 +333,8 @@ private:
     SoundInThread soundInThread;             //Instantiate the audio threads
     SoundOutThread soundOutThread;
     QSharedMemory *mem_jt9;
+ // Multiple instances:
+    QString       *mykey_jt9;
     PSK_Reporter *psk_Reporter;
     SignalMeter *signalMeter;
 

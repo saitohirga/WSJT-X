@@ -40,7 +40,8 @@ QString Program_Title_Version="  WSJT-X   v1.1, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 //-------------------------------------------------- MainWindow constructor
-MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
+// Multiple instances: new arg *thekey
+MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow)
 {
@@ -200,6 +201,8 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   ui->labDist->setStyleSheet("border: 0px;");
 
   mem_jt9 = shdmem;
+// Multiple instances:
+  mykey_jt9 = thekey;
   readSettings();		             //Restore user's setup params
   if(m_dFreq.length()<=1) {      //Use the startup default frequencies
     m_dFreq.clear();
@@ -225,7 +228,12 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QWidget *parent) :
   lockFile.open(QIODevice::ReadWrite);
   //QFile quitFile(m_appDir + "/.lock");
   //quitFile.remove();
-  proc_jt9.start(QDir::toNativeSeparators('"' + m_appDir + '"' + "/jt9 -s"));
+
+// Multiple instances: make the Qstring key into command line arg
+// Multiple instances: start "jt9 -s <thekey>"
+  QByteArray  ba = mykey_jt9->toLocal8Bit();
+  const char *bc = ba.data();
+  proc_jt9.start(QDir::toNativeSeparators('"' + m_appDir + '"' + "/jt9 -s " + bc));
 
   m_pbdecoding_style1="QPushButton{background-color: cyan; \
       border-style: outset; border-width: 1px; border-radius: 5px; \

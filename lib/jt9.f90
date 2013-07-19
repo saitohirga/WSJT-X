@@ -17,13 +17,16 @@ program jt9
      print*,'Usage: jt9 TRperiod ndepth rxfreq file1 [file2 ...]'
      print*,'       Reads data from *.wav files.'
      print*,''
-     print*,'       jt9 -s'
-     print*,'       Gets data from shared memory region.'
+     print*,'       jt9 -s <key>'
+     print*,'       Gets data from shared memory region with key==<key>'
      go to 999
   endif
   call getarg(1,arg)
   if(arg(1:2).eq.'-s') then
-     call jt9a
+! Multiple instances:
+     call getarg(2,arg)
+     i0=len(trim(arg))
+     call jt9a(trim(arg))
      go to 999
   endif
   read(arg,*) ntrperiod

@@ -2214,7 +2214,7 @@ p, li { white-space: pre-wrap; }
     </property>
     <widget class="QMenu" name="menuAdvanced">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="title">
       <string>Advanced</string>
