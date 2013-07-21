@@ -322,7 +322,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, QWidget *parent) 
 
 #ifdef UNIX
   psk_Reporter = new PSK_Reporter(this);
-  psk_Reporter->setLocalStation(m_myCall,m_myGrid, "WSJT-X r" + rev.mid(6,4) );
+  psk_Reporter->setLocalStation(m_myCall,m_myGrid, m_pskAntenna, "WSJT-X r" + rev.mid(6,4) );
 #endif
 
   ui->label_9->setStyleSheet("QLabel{background-color: #aabec8}");
@@ -780,7 +780,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
 
 #ifdef UNIX
     if(m_pskReporter) {
-      psk_Reporter->setLocalStation(m_myCall,m_myGrid, "WSJT-X r" + rev.mid(6,4) );
+      psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_pskAntenna, "WSJT-X r" + rev.mid(6,4) );
     }
 #endif
 
@@ -1521,6 +1521,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
 #else
       if(m_pskReporter and b and !m_diskData and okToPost) {
+        psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_pskAntenna, "WSJT-X r" + rev.mid(6,4) );
         QString freq = QString::number(nfreq);
         QString snr= QString::number(nsnr);
         if(gridOK(g2)) {
