@@ -102,7 +102,6 @@ void PSK_Reporter::sendReport()
 
     report_h.replace("000Allll", "000A" + QString("%1").arg(report_h.length()/2,4,16,QChar('0')));
     QByteArray report = QByteArray::fromHex(report_h.toUtf8());
-    qDebug() << report;
 
     // Get IP address for pskreporter.info and send report via UDP
     QHostInfo info = QHostInfo::fromName("report.pskreporter.info");
