@@ -12,10 +12,11 @@ PSK_Reporter::PSK_Reporter(QObject *parent) :
     m_header_h = "000Allllttttttttssssssssiiiiiiii";
 
     // We use 50E2 and 50E3 for link Id
-    m_rxInfoDescriptor_h = "0003002450E200030000"
-                           "8002FFFF0000768F" // 2. Rx Call
-                           "8004FFFF0000768F" // 4. Rx Grid
-                           "8008FFFF0000768F" // 8. Rx Soft
+    m_rxInfoDescriptor_h = "0003002C50E200040000"
+                           "8002FFFF0000768F"     // 2. Rx Call
+                           "8004FFFF0000768F"     // 4. Rx Grid
+                           "8008FFFF0000768F"     // 8. Rx Soft
+                           "8009FFFF0000768F"     // 9. Rx Antenna
                            "0000";
 
     m_txInfoDescriptor_h = "0002003C50E30007"
@@ -35,14 +36,15 @@ PSK_Reporter::PSK_Reporter(QObject *parent) :
 
     reportTimer = new QTimer(this);
     connect(reportTimer, SIGNAL(timeout()), this, SLOT(sendReport()));
+    reportTimer->start(5*60*1000); // 5 minutes;
 }
 
-void PSK_Reporter::setLocalStation(QString call, QString gridSquare, QString programInfo)
+void PSK_Reporter::setLocalStation(QString call, QString gridSquare, QString antenna, QString programInfo)
 {
   m_rxCall = call;
   m_rxGrid = gridSquare;
+  m_rxAnt = antenna;
   m_progId = programInfo;
-  reportTimer->start(5*60*1000); // 5 minutes;
 }
 
 void PSK_Reporter::addRemoteStation(QString call, QString grid, QString freq, QString mode, QString snr, QString time )
@@ -59,8 +61,7 @@ void PSK_Reporter::addRemoteStation(QString call, QString grid, QString freq, QS
 
 void PSK_Reporter::sendReport()
 {
-    if (m_spotQueue.isEmpty())
-        return;
+    QString report_h;
 
     // Header
     QString header_h = m_header_h;
@@ -73,28 +74,35 @@ void PSK_Reporter::sendReport()
     rxInfoData_h += QString("%1").arg(m_rxCall.length(),2,16,QChar('0')) + m_rxCall.toUtf8().toHex();
     rxInfoData_h += QString("%1").arg(m_rxGrid.length(),2,16,QChar('0')) + m_rxGrid.toUtf8().toHex();
     rxInfoData_h += QString("%1").arg(m_progId.length(),2,16,QChar('0')) + m_progId.toUtf8().toHex();
+    rxInfoData_h += QString("%1").arg(m_rxAnt.length(),2,16,QChar('0')) + m_rxAnt.toUtf8().toHex();
     rxInfoData_h += "0000";
     rxInfoData_h.replace("50E2llll", "50E2" + QString("%1").arg(rxInfoData_h.length()/2,4,16,QChar('0')));
 
-    // Sender information        
-    QString txInfoData_h = "50E3llll";
-    while (!m_spotQueue.isEmpty()) {
-        QHash<QString,QString> spot = m_spotQueue.dequeue();
-        txInfoData_h += QString("%1").arg(spot["call"].length(),2,16,QChar('0')) + spot["call"].toUtf8().toHex();
-        txInfoData_h += QString("%1").arg(spot["freq"].toLongLong(),8,16,QChar('0'));
-        txInfoData_h += QString("%1").arg(spot["snr"].toInt(),8,16,QChar('0')).right(2);
-        txInfoData_h += QString("%1").arg(spot["mode"].length(),2,16,QChar('0')) + spot["mode"].toUtf8().toHex();
-        txInfoData_h += QString("%1").arg(spot["grid"].length(),2,16,QChar('0')) + spot["grid"].toUtf8().toHex();
-        txInfoData_h += QString("%1").arg(1,2,16,QChar('0')); // REPORTER_SOURCE_AUTOMATIC
-        txInfoData_h += QString("%1").arg(spot["time"].toInt(),8,16,QChar('0'));
+    // Sender information
+    if (! m_spotQueue.isEmpty()) {
+        QString txInfoData_h = "50E3llll";
+        while (!m_spotQueue.isEmpty()) {
+            QHash<QString,QString> spot = m_spotQueue.dequeue();
+            txInfoData_h += QString("%1").arg(spot["call"].length(),2,16,QChar('0')) + spot["call"].toUtf8().toHex();
+            txInfoData_h += QString("%1").arg(spot["freq"].toLongLong(),8,16,QChar('0'));
+            txInfoData_h += QString("%1").arg(spot["snr"].toInt(),8,16,QChar('0')).right(2);
+            txInfoData_h += QString("%1").arg(spot["mode"].length(),2,16,QChar('0')) + spot["mode"].toUtf8().toHex();
+            txInfoData_h += QString("%1").arg(spot["grid"].length(),2,16,QChar('0')) + spot["grid"].toUtf8().toHex();
+            txInfoData_h += QString("%1").arg(1,2,16,QChar('0')); // REPORTER_SOURCE_AUTOMATIC
+            txInfoData_h += QString("%1").arg(spot["time"].toInt(),8,16,QChar('0'));
+        }
+        txInfoData_h += "0000";
+        txInfoData_h.replace("50E3llll", "50E3" + QString("%1").arg(txInfoData_h.length()/2,4,16,QChar('0')));
+        report_h = header_h + m_rxInfoDescriptor_h + m_txInfoDescriptor_h + rxInfoData_h + txInfoData_h;
+        qDebug() << "Sending Report TX: ";
+    } else {
+        report_h = header_h + m_rxInfoDescriptor_h + rxInfoData_h;
+        qDebug() << "Sending Report RX: ";
     }
-    txInfoData_h += "0000";
-    txInfoData_h.replace("50E3llll", "50E3" + QString("%1").arg(txInfoData_h.length()/2,4,16,QChar('0')));
 
-    // Build report
-    QString report_h = header_h + m_rxInfoDescriptor_h + m_txInfoDescriptor_h + rxInfoData_h + txInfoData_h;
     report_h.replace("000Allll", "000A" + QString("%1").arg(report_h.length()/2,4,16,QChar('0')));
     QByteArray report = QByteArray::fromHex(report_h.toUtf8());
+    qDebug() << report;
 
     // Get IP address for pskreporter.info and send report via UDP
     QHostInfo info = QHostInfo::fromName("report.pskreporter.info");

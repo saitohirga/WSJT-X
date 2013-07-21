@@ -10,7 +10,7 @@ class PSK_Reporter : public QObject
     Q_OBJECT
 public:
     explicit PSK_Reporter(QObject *parent = 0);
-    void setLocalStation(QString call, QString grid, QString programInfo);
+    void setLocalStation(QString call, QString grid, QString antenna, QString programInfo);
     void addRemoteStation(QString call, QString grid, QString freq, QString mode, QString snr, QString time);
     
 signals:
@@ -27,6 +27,7 @@ private:
 
     QString m_rxCall;
     QString m_rxGrid;
+    QString m_rxAnt;
     QString m_progId;
 
     QQueue< QHash<QString,QString> > m_spotQueue;
