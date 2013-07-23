@@ -32,7 +32,7 @@ WideGraph* g_pWideGraph = NULL;
 LogQSO* logDlg = NULL;
 Rig* rig = NULL;
 QTextEdit* pShortcuts;
-QTcpSocket* socket = new QTcpSocket(0);
+QTcpSocket* commanderSocket = new QTcpSocket(0);
 
 QString rev="$Rev$";
 QString Program_Title_Version="  WSJT-X   v1.1, r" + rev.mid(6,4) +
@@ -466,8 +466,8 @@ void MainWindow::writeSettings()
   settings.setValue("Runaway",m_runaway);
   settings.setValue("Tx2QSO",m_tx2QSO);
   settings.setValue("MultipleOK",m_bMultipleOK);
-  settings.setValue("DTRoff",m_bDTRoff);
-  settings.setValue("pttData",m_pttData);
+  settings.setValue("DTR",m_bDTR);
+  settings.setValue("RTS",m_bRTS);  settings.setValue("pttData",m_pttData);
   settings.setValue("LogQSOgeom",m_logQSOgeom);
   settings.setValue("Polling",m_poll);
   settings.setValue("OutBufSize",outBufSize);
@@ -615,8 +615,8 @@ void MainWindow::readSettings()
   ui->actionTx2QSO->setChecked(m_tx2QSO);
   m_bMultipleOK=settings.value("MultipleOK",false).toBool();
   ui->actionAllow_multiple_instances->setChecked(m_bMultipleOK);
-  m_bDTRoff=settings.value("DTRoff",false).toBool();
-  m_pttData=settings.value("pttData",false).toBool();
+  m_bDTR=settings.value("DTR",false).toBool();
+  m_bRTS=settings.value("RTS",false).toBool();  m_pttData=settings.value("pttData",false).toBool();
   m_poll=settings.value("Polling",0).toInt();
   m_logQSOgeom=settings.value("LogQSOgeom",QRect(500,400,424,283)).toRect();
   outBufSize=settings.value("OutBufSize",4096).toInt();
@@ -737,8 +737,8 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_stopBitsIndex=m_stopBitsIndex;
   dlg.m_handshake=m_handshake;
   dlg.m_handshakeIndex=m_handshakeIndex;
-  dlg.m_bDTRoff=m_bDTRoff;
-  dlg.m_pttData=m_pttData;
+  dlg.m_bDTR=m_bDTR;
+  dlg.m_bRTS=m_bRTS;  dlg.m_pttData=m_pttData;
   dlg.m_poll=m_poll;
   dlg.m_bSplit=m_bSplit;
   dlg.m_bXIT=m_bXIT;
@@ -780,7 +780,8 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_stopBitsIndex=dlg.m_stopBitsIndex;
     m_handshake=dlg.m_handshake;
     m_handshakeIndex=dlg.m_handshakeIndex;
-    m_bDTRoff=dlg.m_bDTRoff;
+    m_bDTR=dlg.m_bDTR;
+    m_bRTS=dlg.m_bRTS;
     m_pttData=dlg.m_pttData;
     m_poll=dlg.m_poll;
 
@@ -1841,27 +1842,8 @@ void MainWindow::guiUpdate()
       signalMeter->setValue(0);
     }
 
-    if(m_catEnabled and m_poll>0 and (nsec%m_poll)==0 and !m_decoderBusy) {
-      double fMHz;
-      if(m_dontReadFreq) {
-        m_dontReadFreq=false;
-      } else if(!m_transmitting) {
-        for(int iter=0; iter<3; iter++) {
-          fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
-          if(fMHz<0.0 and iter>=2) {
-            rt.sprintf("Rig control error %d\nFailed to read frequency.",
-                       int(1000000.0*fMHz));
-            msgBox(rt);
-            m_catEnabled=false;
-            ui->readFreq->setStyleSheet("QPushButton{background-color: red; \
-                                    border-width: 0px; border-radius: 5px;}");
-        }
-      }
-        int ndiff=1000000.0*(fMHz-m_dialFreq);
-        if(ndiff!=0) dialFreqChanged2(fMHz);
-      }
-    }
-
+    if(m_catEnabled and m_poll>0 and (nsec%m_poll)==0 and
+       !m_decoderBusy) pollRigFreq();
     m_sec0=nsec;
   }
 
@@ -2952,15 +2934,16 @@ void MainWindow::rigOpen()
     sprintf(buf,"%d",m_stopBits);
     rig->setConf("stop_bits",buf);
     rig->setConf("serial_handshake",m_handshake.toLatin1().data());
-    if(m_bDTRoff) {
-      rig->setConf("rts_state","OFF");
-      rig->setConf("dtr_state","OFF");
+    if(m_handshakeIndex != 2) {
+      rig->setConf("rts_state",m_bRTS ? "ON" : "OFF");
+      rig->setConf("dtr_state",m_bDTR ? "ON" : "OFF");
     }
   }
 
   ret=rig->open(m_rig);
   if(ret==RIG_OK) {
     m_bRigOpen=true;
+    m_bad=0;
     if(m_poll==0) ui->readFreq->setEnabled(true);
     m_CATerror=false;
   } else {
@@ -3083,4 +3066,29 @@ void MainWindow::on_cbPlus2kHz_toggled(bool checked)
 {
   m_plus2kHz=checked;
   on_bandComboBox_activated(m_band);
+}
+
+void MainWindow::pollRigFreq()
+{
+  double fMHz;
+  if(m_dontReadFreq) {
+    m_dontReadFreq=false;
+  } else if(!m_transmitting) {
+    fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
+    if(fMHz<0.0) {
+      m_bad++;
+      if(m_bad>=20) {
+        QString rt;
+        rt.sprintf("Rig control error %d\nFailed to read frequency.",
+                   int(1000000.0*fMHz));
+        msgBox(rt);
+        m_catEnabled=false;
+        ui->readFreq->setStyleSheet("QPushButton{background-color: red; \
+                                    border-width: 0px; border-radius: 5px;}");
+    }
+  } else {
+    int ndiff=1000000.0*(fMHz-m_dialFreq);
+    if(ndiff!=0) dialFreqChanged2(fMHz);
+  }
+}
 }

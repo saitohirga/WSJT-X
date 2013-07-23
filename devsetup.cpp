@@ -489,6 +489,11 @@ void DevSetup::on_handshakeComboBox_activated(int index)
   m_handshake=ui.handshakeComboBox->itemText(index);
 }
 
+void DevSetup::on_handshakeComboBox_currentIndexChanged(int index)
+{
+  ui.RTSCheckBox->setEnabled(index != 2);
+}
+
 void DevSetup::on_dataBitsComboBox_activated(int index)
 {
   m_dataBitsIndex=index;
@@ -567,9 +572,9 @@ void DevSetup::openRig()
     sprintf(buf,"%d",m_stopBits);
     rig->setConf("stop_bits",buf);
     rig->setConf("serial_handshake",m_handshake.toLatin1().data());
-    if(m_bDTRoff) {
-      rig->setConf("rts_state","OFF");
-      rig->setConf("dtr_state","OFF");
+    rig->setConf("dtr_state",m_bDTR ? "ON" : "OFF");
+    if(ui.RTSCheckBox->isEnabled()) {
+      rig->setConf("rts_state",m_bRTS ? "ON" : "OFF");
     }
   }
 
@@ -604,9 +609,14 @@ void DevSetup::on_testPTTButton_clicked()
   }
 }
 
-void DevSetup::on_cbDTRoff_toggled(bool checked)
+void DevSetup::on_DTRCheckBox_toggled(bool checked)
 {
-  m_bDTRoff=checked;
+  m_bDTR=checked;
+}
+
+void DevSetup::on_RTSCheckBox_toggled(bool checked)
+{
+  m_bRTS=checked;
 }
 
 void DevSetup::on_rbData_toggled(bool checked)
@@ -635,7 +645,6 @@ void DevSetup::on_pttMethodComboBox_currentIndexChanged(int index)
 void DevSetup::enableWidgets()
 {
   ui.cbEnableCAT->setChecked(m_catEnabled);
-  ui.cbDTRoff->setChecked(m_bDTRoff);
   ui.rigComboBox->setEnabled(m_catEnabled);
   ui.testCATButton->setEnabled(m_catEnabled);
   ui.label_4->setEnabled(m_catEnabled);
@@ -653,7 +662,10 @@ void DevSetup::enableWidgets()
   ui.dataBitsComboBox->setEnabled(bSerial);
   ui.stopBitsComboBox->setEnabled(bSerial);
   ui.handshakeComboBox->setEnabled(bSerial);
-  ui.cbDTRoff->setEnabled(bSerial);
+  ui.DTRCheckBox->setEnabled(bSerial);
+  ui.DTRCheckBox->setChecked(m_bDTR);
+  ui.RTSCheckBox->setEnabled(bSerial && m_handshakeIndex != 2);
+  ui.RTSCheckBox->setChecked(m_bRTS);
   ui.rbData->setEnabled(bSerial);
   ui.rbMic->setEnabled(bSerial);
   ui.label_21->setEnabled(bSerial);
