@@ -27,7 +27,7 @@
 #include <QString>
 #include <QTcpSocket>
 
-extern QTcpSocket* socket;
+extern QTcpSocket* commanderSocket;
 
 class BACKEND_IMPEXP Rig {
 private:

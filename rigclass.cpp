@@ -38,6 +38,8 @@
 #include <QDebug>
 #include <QHostAddress>
 
+#define NUMTRIES 5
+
 static int hamlibpp_freq_event(RIG *rig, vfo_t vfo, freq_t freq, rig_ptr_t arg);
 
 static int hamlibpp_freq_event(RIG *rig, vfo_t vfo, freq_t freq, rig_ptr_t arg)
@@ -101,13 +103,13 @@ int Rig::open(int n) {
     }
   }
   if(n==9998) {
-    if(socket->state()==QAbstractSocket::ConnectedState) {
-      socket->abort();
+    if(commanderSocket->state()==QAbstractSocket::ConnectedState) {
+      commanderSocket->abort();
     }
 
-    if(socket->state()==QAbstractSocket::UnconnectedState) {
-      socket->connectToHost(QHostAddress::LocalHost, 52002);
-      if(!socket->waitForConnected(1000)) {
+    if(commanderSocket->state()==QAbstractSocket::UnconnectedState) {
+      commanderSocket->connectToHost(QHostAddress::LocalHost, 52002);
+      if(!commanderSocket->waitForConnected(1000)) {
         return -1;
       }
     }
@@ -115,9 +117,9 @@ int Rig::open(int n) {
     t="<command:10>CmdGetFreq<parameters:0>";
     QByteArray ba = t.toLocal8Bit();
     const char* buf=ba.data();
-    socket->write(buf);
-    socket->waitForReadyRead(1000);
-    QByteArray reply=socket->read(128);
+    commanderSocket->write(buf);
+    commanderSocket->waitForReadyRead(1000);
+    QByteArray reply=commanderSocket->read(128);
     if(reply.indexOf("<CmdFreq:")==0) {
       m_cmndr=true;
       return 0;
@@ -133,7 +135,7 @@ int Rig::close(void) {
     HRDInterfaceDisconnect();
     return 0;
   } else if(m_cmndr) {
-    socket->close();
+    commanderSocket->close();
     return 0;
   } else
 #endif
@@ -168,8 +170,8 @@ int Rig::setFreq(freq_t freq, vfo_t vfo) {
     t.sprintf("<command:10>CmdSetFreq<parameters:23><xcvrfreq:10>%10.3f",f);
     QByteArray ba = t.toLocal8Bit();
     const char* buf=ba.data();
-    socket->write(buf);
-    socket->waitForBytesWritten(1000);
+    commanderSocket->write(buf);
+    commanderSocket->waitForBytesWritten(1000);
     return 0;
   } else
 #endif
@@ -216,8 +218,8 @@ int Rig::setSplitFreq(freq_t tx_freq, vfo_t vfo) {
     t.sprintf("<command:12>CmdSetTxFreq<parameters:23><xcvrfreq:10>%10.3f",f);
     QByteArray ba = t.toLocal8Bit();
     const char* buf=ba.data();
-    socket->write(buf);
-    socket->waitForBytesWritten(1000);
+    commanderSocket->write(buf);
+    commanderSocket->waitForBytesWritten(1000);
     return 0;
   } else
 #endif
@@ -242,9 +244,9 @@ freq_t Rig::getFreq(vfo_t vfo)
     t="<command:10>CmdGetFreq<parameters:0>";
     QByteArray ba = t.toLocal8Bit();
     const char* buf=ba.data();
-    socket->write(buf);
-    socket->waitForReadyRead(1000);
-    QByteArray reply=socket->read(128);
+    commanderSocket->write(buf);
+    commanderSocket->waitForReadyRead(1000);
+    QByteArray reply=commanderSocket->read(128);
     QString t2(reply);
     if(t2.indexOf("<CmdFreq:")==0) {
       int i1=t2.indexOf(">");
@@ -257,9 +259,11 @@ freq_t Rig::getFreq(vfo_t vfo)
   } else
 #endif
   {
-    int iret=rig_get_freq(theRig, vfo, &freq);
-// iret should be 0.  Negative values mean rig_get_freq() failed.
-    if(iret<0) freq=-1.0;
+    freq=-1.0;
+    for(int i=0; i<NUMTRIES; i++) {
+      int iret=rig_get_freq(theRig, vfo, &freq);
+      if(iret==RIG_OK) break;
+    }
     return freq;
   }
 }
@@ -301,8 +305,8 @@ int Rig::setPTT(ptt_t ptt, vfo_t vfo)
     if(ptt>0) t="<command:5>CmdTX<parameters:0>";
     QByteArray ba = t.toLocal8Bit();
     const char* buf=ba.data();
-    socket->write(buf);
-    socket->waitForBytesWritten(1000);
+    commanderSocket->write(buf);
+    commanderSocket->waitForBytesWritten(1000);
     return 0;
   } else
 #endif

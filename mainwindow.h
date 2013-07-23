@@ -210,6 +210,7 @@ private:
     qint32  m_poll;
     qint32  m_fMin;
     qint32  m_fMax;
+    qint32  m_bad;
 
     bool    m_monitoring;
     bool    m_transmitting;
@@ -249,7 +250,8 @@ private:
     bool    m_tune;
     bool    m_bRigOpen;
     bool    m_bMultipleOK;
-    bool    m_bDTRoff;
+    bool    m_bDTR;
+    bool    m_bRTS;
     bool    m_pttData;
     bool    m_dontReadFreq;
     bool    m_lockTxFreq;
@@ -355,6 +357,7 @@ private:
     void freeText();
     void displayTxMsg(QString t);
     void rigOpen();
+    void pollRigFreq();
     bool gridOK(QString g);
     QString baseCall(QString t);
 };

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>588</width>
-    <height>557</height>
+    <width>570</width>
+    <height>465</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -594,9 +594,22 @@
           </spacer>
          </item>
          <item>
-          <widget class="QCheckBox" name="cbDTRoff">
+          <widget class="QCheckBox" name="DTRCheckBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
-            <string>RTS/DTR OFF</string>
+            <string>DTR</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="RTSCheckBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>RTS</string>
            </property>
           </widget>
          </item>
@@ -931,7 +944,7 @@
            </item>
            <item>
             <property name="text">
-             <string>XonXoff</string>
+             <string>XONXOFF</string>
             </property>
            </item>
            <item>
@@ -1839,8 +1852,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>527</width>
-            <height>554</height>
+            <width>308</width>
+            <height>505</height>
            </rect>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_14">
@@ -1863,13 +1876,13 @@
                <property name="minimumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
@@ -1885,7 +1898,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -1898,7 +1911,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -1917,7 +1930,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
@@ -1939,13 +1952,13 @@
                <property name="minimumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
@@ -1961,7 +1974,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -1977,7 +1990,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2006,13 +2019,13 @@
                <property name="minimumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
@@ -2034,13 +2047,13 @@
                <property name="minimumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
@@ -2062,13 +2075,13 @@
                <property name="minimumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
@@ -2081,10 +2094,16 @@
              </item>
              <item row="9" column="1">
               <widget class="QLineEdit" name="f9">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>20</height>
+                </size>
+               </property>
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2097,7 +2116,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2110,7 +2129,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2123,7 +2142,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2139,7 +2158,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2155,7 +2174,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2174,13 +2193,13 @@
                <property name="minimumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
@@ -2205,13 +2224,13 @@
                <property name="minimumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
@@ -2230,7 +2249,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2243,7 +2262,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2256,7 +2275,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2275,13 +2294,13 @@
                <property name="minimumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
@@ -2300,7 +2319,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
@@ -2343,7 +2362,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>27</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2356,7 +2375,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2369,7 +2388,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2382,7 +2401,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2395,7 +2414,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2408,7 +2427,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2421,7 +2440,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2434,7 +2453,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">
@@ -2447,7 +2466,7 @@
                <property name="maximumSize">
                 <size>
                  <width>90</width>
-                 <height>16777215</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="alignment">

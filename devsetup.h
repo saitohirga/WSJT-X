@@ -46,7 +46,8 @@ public:
   bool    m_catEnabled;
   bool    m_After73;
   bool    m_bRigOpen;
-  bool    m_bDTRoff;
+  bool    m_bDTR;
+  bool    m_bRTS;
   bool    m_pttData;
   bool    m_bSplit;
   bool    m_bXIT;
@@ -82,13 +83,15 @@ private slots:
   void on_cbEnableCAT_toggled(bool checked);
   void on_serialRateComboBox_activated(int index);
   void on_handshakeComboBox_activated(int index);
+  void on_handshakeComboBox_currentIndexChanged(int index);
   void on_dataBitsComboBox_activated(int index);
   void on_stopBitsComboBox_activated(int index);
   void on_rigComboBox_activated(int index);
   void on_cbID73_toggled(bool checked);
   void on_testCATButton_clicked();
   void on_testPTTButton_clicked();
-  void on_cbDTRoff_toggled(bool checked);
+  void on_DTRCheckBox_toggled(bool checked);
+  void on_RTSCheckBox_toggled(bool checked);
   void on_rbData_toggled(bool checked);
   void on_pollSpinBox_valueChanged(int n);
   void on_pttComboBox_currentIndexChanged(int index);
