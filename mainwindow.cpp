@@ -26,8 +26,7 @@ wchar_t buffer[256];
 bool btxok;                           //True if OK to transmit
 bool btxMute;
 double outputLatency;                 //Latency in seconds
-double dFreq[]={0.13613,0.4742,1.838,3.576,5.357,7.076,10.138,14.076,
-           18.102,21.076,24.917,28.076,50.276,70.091,144.489,432.178};
+
 
 WideGraph* g_pWideGraph = NULL;
 LogQSO* logDlg = NULL;
@@ -46,6 +45,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, QWidget *parent) 
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
+
   on_EraseButton_clicked();
   QActionGroup* paletteGroup = new QActionGroup(this);
   ui->actionCuteSDR->setActionGroup(paletteGroup);
@@ -203,15 +203,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, QWidget *parent) 
   mem_jt9 = shdmem;
 // Multiple instances:
   mykey_jt9 = thekey;
-  readSettings();		             //Restore user's setup params
-  if(m_dFreq.length()<=1) {      //Use the startup default frequencies
-    m_dFreq.clear();
-    for(int i=0; i<16; i++) {
-      QString t;
-      t.sprintf("%f",dFreq[i]);
-      m_dFreq.append(t);
-    }
-  }
 
 #ifdef WIN32
   if(!m_bMultipleOK) {
@@ -223,6 +214,34 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, QWidget *parent) 
     }
   }
 #endif
+
+  //Band Settings
+  readSettings();		         //Restore user's setup params
+  if(m_dFreq.length()<=1) {      //Use the startup default frequencies and band descriptions
+    // default bands and JT65 frequencies
+    const double dFreq[]={0.13613,0.4742,1.838,3.576,5.357,7.076,10.138,14.076,
+                 18.102,21.076,24.917,28.076,50.276,70.091,144.489,432.178};
+    const QStringList dBandDescription = QStringList() << "2200 m" << "630 m" << "160 m"
+                                                 << "80 m" << "60 m" << "40 m"
+                                                 << "30 m" << "20 m" << "17 m"
+                                                 << "15 m" << "12 m" << "10 m"
+                                                 << "6 m" << "4 m" << "2 m"
+                                                 << "other";
+    m_dFreq.clear();
+    m_antDescription.clear();
+    m_bandDescription.clear();
+    for(int i=0; i<16; i++) {
+      QString t;
+      t.sprintf("%f",dFreq[i]);
+      m_dFreq.append(t);
+      m_antDescription.append("");
+      m_bandDescription.append(dBandDescription[i]);
+    }
+  }
+
+  ui->bandComboBox->clear();
+  ui->bandComboBox->addItems(m_bandDescription);
+  ui->bandComboBox->setCurrentIndex(m_band);
 
   QFile lockFile(m_appDir + "/.lock");     //Create .lock so jt9 will wait
   lockFile.open(QIODevice::ReadWrite);
@@ -322,7 +341,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, QWidget *parent) 
 
 #ifdef UNIX
   psk_Reporter = new PSK_Reporter(this);
-  psk_Reporter->setLocalStation(m_myCall,m_myGrid, m_pskAntenna, "WSJT-X r" + rev.mid(6,4) );
+  psk_Reporter->setLocalStation(m_myCall,m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
 #endif
 
   ui->label_9->setStyleSheet("QLabel{background-color: #aabec8}");
@@ -416,7 +435,10 @@ void MainWindow::writeSettings()
   settings.setValue("PSKReporter",m_pskReporter);
   settings.setValue("After73",m_After73);
   settings.setValue("Macros",m_macro);
-  settings.setValue("DefaultFreqs",m_dFreq);
+  //Band Settings
+  settings.setValue("BandFrequencies",m_dFreq);
+  settings.setValue("BandDescriptions",m_bandDescription);
+  settings.setValue("AntennaDescriptions",m_antDescription);
   settings.setValue("toRTTY",m_toRTTY);
   settings.setValue("NoSuffix",m_noSuffix);
   settings.setValue("dBtoComments",m_dBtoComments);
@@ -454,7 +476,6 @@ void MainWindow::writeSettings()
   settings.setValue("SaveComments",m_saveComments);
   settings.setValue("TxPower",m_txPower);
   settings.setValue("LogComments",m_logComments);
-  settings.setValue("PSKantenna",m_pskAntenna);
   settings.setValue("Fmin",m_fMin);
   settings.setValue("TxSplit",m_bSplit);
   settings.setValue("UseXIT",m_bXIT);
@@ -548,7 +569,10 @@ void MainWindow::readSettings()
   m_pskReporter=settings.value("PSKReporter",false).toBool();
   m_After73=settings.value("After73",false).toBool();
   m_macro=settings.value("Macros","TNX 73 GL").toStringList();
-  m_dFreq=settings.value("DefaultFreqs","").toStringList();
+  //Band Settings
+  m_dFreq=settings.value("BandFrequencies","").toStringList();
+  m_bandDescription=settings.value("BandDescriptions","").toStringList();
+  m_antDescription=settings.value("AntennaDescriptions","").toStringList();
   m_toRTTY=settings.value("toRTTY",false).toBool();
   ui->actionConvert_JT9_x_to_RTTY->setChecked(m_toRTTY);
   m_noSuffix=settings.value("NoSuffix",false).toBool();
@@ -602,7 +626,6 @@ void MainWindow::readSettings()
   m_saveComments=settings.value("SaveComments",false).toBool();
   m_txPower=settings.value("TxPower","").toString();
   m_logComments=settings.value("LogComments","").toString();
-  m_pskAntenna=settings.value("PSKantenna","").toString();
   m_fMin=settings.value("fMin",2500).toInt();
   m_bSplit=settings.value("TxSplit",false).toBool();
   m_bXIT=settings.value("UseXit",false).toBool();
@@ -689,7 +712,6 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   DevSetup dlg(this);
   dlg.m_myCall=m_myCall;
   dlg.m_myGrid=m_myGrid;
-  dlg.m_pskAntenna=m_pskAntenna;
   dlg.m_idInt=m_idInt;
   dlg.m_pttMethodIndex=m_pttMethodIndex;
   dlg.m_pttPort=m_pttPort;
@@ -700,6 +722,8 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_After73=m_After73;
   dlg.m_macro=m_macro;
   dlg.m_dFreq=m_dFreq;
+  dlg.m_antDescription=m_antDescription;
+  dlg.m_bandDescription=m_bandDescription;
   dlg.m_catEnabled=m_catEnabled;
   dlg.m_rig=m_rig;
   dlg.m_rigIndex=m_rigIndex;
@@ -733,7 +757,6 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   if(dlg.exec() == QDialog::Accepted) {
     m_myCall=dlg.m_myCall;
     m_myGrid=dlg.m_myGrid;
-    m_pskAntenna=dlg.m_pskAntenna;
     m_idInt=dlg.m_idInt;
     m_pttMethodIndex=dlg.m_pttMethodIndex;
     m_pttPort=dlg.m_pttPort;
@@ -742,6 +765,8 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_paOutDevice=dlg.m_paOutDevice;
     m_macro=dlg.m_macro;
     m_dFreq=dlg.m_dFreq;
+    m_antDescription=dlg.m_antDescription;
+    m_bandDescription=dlg.m_bandDescription;
     m_catEnabled=dlg.m_catEnabled;
     m_rig=dlg.m_rig;
     m_rigIndex=dlg.m_rigIndex;
@@ -758,6 +783,11 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_bDTRoff=dlg.m_bDTRoff;
     m_pttData=dlg.m_pttData;
     m_poll=dlg.m_poll;
+
+	//Band Settings
+    ui->bandComboBox->clear();
+    ui->bandComboBox->addItems(dlg.m_bandDescription);
+    ui->bandComboBox->setCurrentIndex(m_band);
 
 #ifdef WIN32
     if(dlg.m_pskReporter!=m_pskReporter) {
@@ -780,7 +810,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
 
 #ifdef UNIX
     if(m_pskReporter) {
-      psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_pskAntenna, "WSJT-X r" + rev.mid(6,4) );
+      psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
     }
 #endif
 
@@ -1504,7 +1534,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
         QString local="station_callsign#" + m_myCall + "#" +
             "my_gridsquare#" + m_myGrid + "#";
-        if(m_pskAntenna!="") local += "my_antenna#" + m_pskAntenna + "#";
+        if (m_antDescription[m_band]!="") 
+			local += "my_antenna#" + m_antDescription[m_band] + "#";
         local += "programid#WSJT-X#programversion#" + rev.mid(6,4) + "##";
         wchar_t tlocal[256];
         local.toWCharArray(tlocal);
@@ -1521,7 +1552,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
 #else
       if(m_pskReporter and b and !m_diskData and okToPost) {
-        psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_pskAntenna, "WSJT-X r" + rev.mid(6,4) );
+        psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
         QString freq = QString::number(nfreq);
         QString snr= QString::number(nsnr);
         if(gridOK(g2)) {
@@ -1991,7 +2022,6 @@ void MainWindow::on_txb6_clicked()                                //txb6
 
 void MainWindow::doubleClickOnCall2(bool shift, bool ctrl)
 {
-
   m_decodedText2=true;
   doubleClickOnCall(shift,ctrl);
   m_decodedText2=false;
@@ -2736,6 +2766,9 @@ void MainWindow::on_bandComboBox_activated(int index)
   out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
       << "  " << m_dialFreq << " MHz  " << m_mode << endl;
   f2.close();
+#ifdef UNIX
+  psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
+#endif
 }
 
 void MainWindow::on_actionPrompt_to_log_QSO_triggered(bool checked)

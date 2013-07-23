@@ -57,10 +57,11 @@ public:
   QString m_azelDir;
   QString m_catPort;
   QString m_handshake;
-  QString m_pskAntenna;
 
   QStringList m_macro;
-  QStringList m_dFreq;
+  QStringList m_dFreq;           // per band frequency in MHz as a string
+  QStringList m_antDescription;  // per band antenna description
+  QStringList m_bandDescription; // per band description
 
   QProcess p4;
   QMessageBox msgBox0;
@@ -100,6 +101,7 @@ private slots:
 private:
   Rig* rig;
   void msgBox(QString t);
+  void setEnableAntennaDescriptions(bool enable);
   void enableWidgets();
   void openRig();
   Ui::DialogSndCard ui;

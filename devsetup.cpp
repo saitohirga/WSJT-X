@@ -142,7 +142,6 @@ void DevSetup::initDlg()
   ui.myGridEntry->setPalette(pal);
   ui.myCallEntry->setText(m_myCall);
   ui.myGridEntry->setText(m_myGrid);
-  ui.pskReporterAntenna->setText(m_pskAntenna);
 
   ui.idIntSpinBox->setValue(m_idInt);
   ui.pttMethodComboBox->setCurrentIndex(m_pttMethodIndex);
@@ -238,6 +237,41 @@ void DevSetup::initDlg()
   ui.f14->setText(m_dFreq[13]);
   ui.f15->setText(m_dFreq[14]);
   ui.f16->setText(m_dFreq[15]);
+
+  ui.AntDescription1->setText(m_antDescription[0]);
+  ui.AntDescription2->setText(m_antDescription[1]);
+  ui.AntDescription3->setText(m_antDescription[2]);
+  ui.AntDescription4->setText(m_antDescription[3]);
+  ui.AntDescription5->setText(m_antDescription[4]);
+  ui.AntDescription6->setText(m_antDescription[5]);
+  ui.AntDescription7->setText(m_antDescription[6]);
+  ui.AntDescription8->setText(m_antDescription[7]);
+  ui.AntDescription9->setText(m_antDescription[8]);
+  ui.AntDescription10->setText(m_antDescription[9]);
+  ui.AntDescription11->setText(m_antDescription[10]);
+  ui.AntDescription12->setText(m_antDescription[11]);
+  ui.AntDescription13->setText(m_antDescription[12]);
+  ui.AntDescription14->setText(m_antDescription[13]);
+  ui.AntDescription15->setText(m_antDescription[14]);
+  ui.AntDescription16->setText(m_antDescription[15]);
+
+  ui.Band1->setText(m_bandDescription[0]);
+  ui.Band2->setText(m_bandDescription[1]);
+  ui.Band3->setText(m_bandDescription[2]);
+  ui.Band4->setText(m_bandDescription[3]);
+  ui.Band5->setText(m_bandDescription[4]);
+  ui.Band6->setText(m_bandDescription[5]);
+  ui.Band7->setText(m_bandDescription[6]);
+  ui.Band8->setText(m_bandDescription[7]);
+  ui.Band9->setText(m_bandDescription[8]);
+  ui.Band10->setText(m_bandDescription[9]);
+  ui.Band11->setText(m_bandDescription[10]);
+  ui.Band12->setText(m_bandDescription[11]);
+  ui.Band13->setText(m_bandDescription[12]);
+  ui.Band14->setText(m_bandDescription[13]);
+  ui.Band15->setText(m_bandDescription[14]);
+  ui.Band16->setText(m_bandDescription[15]);
+
 }
 
 //------------------------------------------------------- accept()
@@ -255,7 +289,6 @@ void DevSetup::accept()
 
   m_myCall=ui.myCallEntry->text();
   m_myGrid=ui.myGridEntry->text();
-  m_pskAntenna=ui.pskReporterAntenna->text();
   m_idInt=ui.idIntSpinBox->value();
   m_pttMethodIndex=ui.pttMethodComboBox->currentIndex();
   m_pttPort=ui.pttComboBox->currentIndex();
@@ -294,6 +327,43 @@ void DevSetup::accept()
   m_dFreq.append(ui.f14->text());
   m_dFreq.append(ui.f15->text());
   m_dFreq.append(ui.f16->text());
+
+  m_antDescription.clear();
+  m_antDescription.append(ui.AntDescription1->text());
+  m_antDescription.append(ui.AntDescription2->text());
+  m_antDescription.append(ui.AntDescription3->text());
+  m_antDescription.append(ui.AntDescription4->text());
+  m_antDescription.append(ui.AntDescription5->text());
+  m_antDescription.append(ui.AntDescription6->text());
+  m_antDescription.append(ui.AntDescription7->text());
+  m_antDescription.append(ui.AntDescription8->text());
+  m_antDescription.append(ui.AntDescription9->text());
+  m_antDescription.append(ui.AntDescription10->text());
+  m_antDescription.append(ui.AntDescription11->text());
+  m_antDescription.append(ui.AntDescription12->text());
+  m_antDescription.append(ui.AntDescription13->text());
+  m_antDescription.append(ui.AntDescription14->text());
+  m_antDescription.append(ui.AntDescription15->text());
+  m_antDescription.append(ui.AntDescription16->text());
+
+  m_bandDescription.clear();
+  m_bandDescription.append(ui.Band1->text());
+  m_bandDescription.append(ui.Band2->text());
+  m_bandDescription.append(ui.Band3->text());
+  m_bandDescription.append(ui.Band4->text());
+  m_bandDescription.append(ui.Band5->text());
+  m_bandDescription.append(ui.Band6->text());
+  m_bandDescription.append(ui.Band7->text());
+  m_bandDescription.append(ui.Band8->text());
+  m_bandDescription.append(ui.Band9->text());
+  m_bandDescription.append(ui.Band10->text());
+  m_bandDescription.append(ui.Band11->text());
+  m_bandDescription.append(ui.Band12->text());
+  m_bandDescription.append(ui.Band13->text());
+  m_bandDescription.append(ui.Band14->text());
+  m_bandDescription.append(ui.Band15->text());
+  m_bandDescription.append(ui.Band16->text());
+
 
   if(m_bRigOpen) {
     rig->close();
@@ -358,11 +428,34 @@ void DevSetup::on_myGridEntry_editingFinished()
   ui.myGridEntry->setText(t);
 }
 
+void DevSetup::setEnableAntennaDescriptions(bool enable)
+{
+    ui.AntDescription1->setEnabled(enable);
+    ui.AntDescription2->setEnabled(enable);
+    ui.AntDescription3->setEnabled(enable);
+    ui.AntDescription4->setEnabled(enable);
+    ui.AntDescription5->setEnabled(enable);
+    ui.AntDescription6->setEnabled(enable);
+    ui.AntDescription7->setEnabled(enable);
+    ui.AntDescription8->setEnabled(enable);
+    ui.AntDescription9->setEnabled(enable);
+    ui.AntDescription10->setEnabled(enable);
+    ui.AntDescription11->setEnabled(enable);
+    ui.AntDescription12->setEnabled(enable);
+    ui.AntDescription13->setEnabled(enable);
+    ui.AntDescription14->setEnabled(enable);
+    ui.AntDescription15->setEnabled(enable);
+    ui.AntDescription16->setEnabled(enable);
+    if (enable)
+        ui.AntDescriptionColumnLabel->setText("Antenna description");
+    else
+        ui.AntDescriptionColumnLabel->setText("Antenna description (enable PSK Reporter)");
+}
+
 void DevSetup::on_cbPSKReporter_clicked(bool b)
 {
   m_pskReporter=b;
-  ui.label_8->setEnabled(m_pskReporter);
-  ui.pskReporterAntenna->setEnabled(m_pskReporter);
+  setEnableAntennaDescriptions(m_pskReporter);
 }
 
 void DevSetup::on_pttMethodComboBox_activated(int index)
@@ -541,9 +634,6 @@ void DevSetup::on_pttMethodComboBox_currentIndexChanged(int index)
 
 void DevSetup::enableWidgets()
 {
-  ui.label_8->setEnabled(m_pskReporter);
-  ui.pskReporterAntenna->setEnabled(m_pskReporter);
-
   ui.cbEnableCAT->setChecked(m_catEnabled);
   ui.cbDTRoff->setChecked(m_bDTRoff);
   ui.rigComboBox->setEnabled(m_catEnabled);
@@ -580,6 +670,7 @@ void DevSetup::enableWidgets()
             (m_catEnabled and m_pttMethodIndex==2 and m_rig<9900);
   bool b3 = (m_catEnabled and m_pttMethodIndex==0);
   ui.testPTTButton->setEnabled(b1 or b2 or b3);  //Include PTT via HRD or Commander
+  setEnableAntennaDescriptions(m_pskReporter);
 }
 
 void DevSetup::on_cbSplit_toggled(bool checked)

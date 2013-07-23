@@ -45,6 +45,7 @@ void PSK_Reporter::setLocalStation(QString call, QString gridSquare, QString ant
   m_rxGrid = gridSquare;
   m_rxAnt = antenna;
   m_progId = programInfo;
+  //qDebug() << "PSK_Reporter::setLocalStation. Antenna:" << antenna;
 }
 
 void PSK_Reporter::addRemoteStation(QString call, QString grid, QString freq, QString mode, QString snr, QString time )

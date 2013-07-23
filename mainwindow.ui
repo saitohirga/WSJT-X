@@ -526,22 +526,6 @@ p, li { white-space: pre-wrap; }
     </item>
     <item>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="2" column="0" rowspan="5">
-       <widget class="QFrame" name="meterFrame">
-        <property name="minimumSize">
-         <size>
-          <width>50</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="3">
        <widget class="QLabel" name="labAz">
         <property name="sizePolicy">
@@ -576,109 +560,314 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="0" column="0" colspan="2">
-       <widget class="QComboBox" name="bandComboBox">
-        <property name="toolTip">
-         <string>Select operating band</string>
+      <item row="4" column="4">
+       <widget class="QPushButton" name="addButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <property name="currentIndex">
-         <number>7</number>
-        </property>
-        <item>
-         <property name="text">
-          <string>2200 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>630 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>160 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>80 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>60 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>40 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>30 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>20 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>17 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>15 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>12 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>10 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>6 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>4 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>2 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Other</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="readFreq">
         <property name="maximumSize">
          <size>
-          <width>15</width>
-          <height>15</height>
+          <width>74</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="toolTip">
-         <string>If orange, click to read dial frequency once</string>
+         <string>Add callsign and locator to database</string>
+        </property>
+        <property name="text">
+         <string>Add</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="6">
+       <widget class="QCheckBox" name="cbTxLock">
+        <property name="text">
+         <string>Lock Tx=Rx</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="7">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>13</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="3" column="4">
+       <widget class="QLabel" name="labDist">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>23</height>
+         </size>
         </property>
         <property name="text">
          <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="6">
+       <widget class="QSpinBox" name="RxFreqSpinBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>113</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="suffix">
+         <string>  Hz</string>
+        </property>
+        <property name="prefix">
+         <string>Rx  </string>
+        </property>
+        <property name="minimum">
+         <number>200</number>
+        </property>
+        <property name="maximum">
+         <number>5000</number>
+        </property>
+        <property name="value">
+         <number>1500</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QLabel" name="label_4">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="palette">
+         <palette>
+          <active>
+           <colorrole role="Base">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>252</red>
+              <green>252</green>
+              <blue>252</blue>
+             </color>
+            </brush>
+           </colorrole>
+           <colorrole role="Window">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>159</red>
+              <green>175</green>
+              <blue>213</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </active>
+          <inactive>
+           <colorrole role="Base">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>252</red>
+              <green>252</green>
+              <blue>252</blue>
+             </color>
+            </brush>
+           </colorrole>
+           <colorrole role="Window">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>159</red>
+              <green>175</green>
+              <blue>213</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </inactive>
+          <disabled>
+           <colorrole role="Base">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>159</red>
+              <green>175</green>
+              <blue>213</blue>
+             </color>
+            </brush>
+           </colorrole>
+           <colorrole role="Window">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>159</red>
+              <green>175</green>
+              <blue>213</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </disabled>
+         </palette>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>DX Grid</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="indent">
+         <number>2</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLineEdit" name="dxCallEntry">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>70</width>
+          <height>27</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>74</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Callsign of station to be worked</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QPushButton" name="lookupButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>74</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Search for callsign in database</string>
+        </property>
+        <property name="text">
+         <string>&amp;Lookup</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" rowspan="5">
+       <widget class="QFrame" name="meterFrame">
+        <property name="minimumSize">
+         <size>
+          <width>50</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="6">
+       <widget class="QSpinBox" name="TxFreqSpinBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>113</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>105</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Audio Tx frequency</string>
+        </property>
+        <property name="suffix">
+         <string>  Hz</string>
+        </property>
+        <property name="prefix">
+         <string>Tx  </string>
+        </property>
+        <property name="minimum">
+         <number>200</number>
+        </property>
+        <property name="maximum">
+         <number>5000</number>
+        </property>
+        <property name="value">
+         <number>1500</number>
         </property>
        </widget>
       </item>
@@ -720,6 +909,163 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
+      <item row="2" column="4">
+       <widget class="QLineEdit" name="dxGridEntry">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>70</width>
+          <height>27</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>74</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Locator of station to be worked</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLabel" name="label_3">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="palette">
+         <palette>
+          <active>
+           <colorrole role="Base">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>252</red>
+              <green>252</green>
+              <blue>252</blue>
+             </color>
+            </brush>
+           </colorrole>
+           <colorrole role="Window">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>159</red>
+              <green>175</green>
+              <blue>213</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </active>
+          <inactive>
+           <colorrole role="Base">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>252</red>
+              <green>252</green>
+              <blue>252</blue>
+             </color>
+            </brush>
+           </colorrole>
+           <colorrole role="Window">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>159</red>
+              <green>175</green>
+              <blue>213</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </inactive>
+          <disabled>
+           <colorrole role="Base">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>159</red>
+              <green>175</green>
+              <blue>213</blue>
+             </color>
+            </brush>
+           </colorrole>
+           <colorrole role="Window">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>159</red>
+              <green>175</green>
+              <blue>213</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </disabled>
+         </palette>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>DX Call</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="indent">
+         <number>2</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" rowspan="5">
+       <widget class="QSlider" name="inGain">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>160</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>20</width>
+          <height>160</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Digital gain for audio input</string>
+        </property>
+        <property name="minimum">
+         <number>-50</number>
+        </property>
+        <property name="maximum">
+         <number>50</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="6">
        <widget class="QCheckBox" name="txFirstCheckBox">
         <property name="minimumSize">
@@ -739,6 +1085,105 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="text">
          <string>Tx even</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="6">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <property name="spacing">
+         <number>5</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label_8">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Report</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="rptSpinBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>55</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>55</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Signal report (dB0</string>
+          </property>
+          <property name="minimum">
+           <number>-50</number>
+          </property>
+          <property name="maximum">
+           <number>49</number>
+          </property>
+          <property name="value">
+           <number>-15</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="5" column="3" rowspan="2" colspan="2">
+       <widget class="QLabel" name="labUTC">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>130</width>
+          <height>60</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>158</width>
+          <height>60</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>16</pointsize>
+         </font>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="lineWidth">
+         <number>2</number>
+        </property>
+        <property name="midLineWidth">
+         <number>0</number>
+        </property>
+        <property name="text">
+         <string> 01:23:45 </string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -869,7 +1314,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <attribute name="buttonGroup">
-                  <string>buttonGroup</string>
+                  <string notr="true">buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -903,7 +1348,7 @@ p, li { white-space: pre-wrap; }
                   <bool>true</bool>
                  </property>
                  <attribute name="buttonGroup">
-                  <string>buttonGroup</string>
+                  <string notr="true">buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -934,7 +1379,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <attribute name="buttonGroup">
-                  <string>buttonGroup</string>
+                  <string notr="true">buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -1102,7 +1547,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <attribute name="buttonGroup">
-                  <string>buttonGroup</string>
+                  <string notr="true">buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -1250,7 +1695,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <attribute name="buttonGroup">
-                  <string>buttonGroup</string>
+                  <string notr="true">buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -1281,7 +1726,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <attribute name="buttonGroup">
-                  <string>buttonGroup</string>
+                  <string notr="true">buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -1543,484 +1988,6 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
       </item>
-      <item row="1" column="0" colspan="3">
-       <widget class="QCheckBox" name="cbPlus2kHz">
-        <property name="text">
-         <string>  +2 kHz</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QLabel" name="label_3">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>23</height>
-         </size>
-        </property>
-        <property name="palette">
-         <palette>
-          <active>
-           <colorrole role="Base">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>252</red>
-              <green>252</green>
-              <blue>252</blue>
-             </color>
-            </brush>
-           </colorrole>
-           <colorrole role="Window">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>159</red>
-              <green>175</green>
-              <blue>213</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </active>
-          <inactive>
-           <colorrole role="Base">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>252</red>
-              <green>252</green>
-              <blue>252</blue>
-             </color>
-            </brush>
-           </colorrole>
-           <colorrole role="Window">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>159</red>
-              <green>175</green>
-              <blue>213</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </inactive>
-          <disabled>
-           <colorrole role="Base">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>159</red>
-              <green>175</green>
-              <blue>213</blue>
-             </color>
-            </brush>
-           </colorrole>
-           <colorrole role="Window">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>159</red>
-              <green>175</green>
-              <blue>213</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </disabled>
-         </palette>
-        </property>
-        <property name="autoFillBackground">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>DX Call</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="indent">
-         <number>2</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="4">
-       <widget class="QLabel" name="label_4">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>23</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="palette">
-         <palette>
-          <active>
-           <colorrole role="Base">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>252</red>
-              <green>252</green>
-              <blue>252</blue>
-             </color>
-            </brush>
-           </colorrole>
-           <colorrole role="Window">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>159</red>
-              <green>175</green>
-              <blue>213</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </active>
-          <inactive>
-           <colorrole role="Base">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>252</red>
-              <green>252</green>
-              <blue>252</blue>
-             </color>
-            </brush>
-           </colorrole>
-           <colorrole role="Window">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>159</red>
-              <green>175</green>
-              <blue>213</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </inactive>
-          <disabled>
-           <colorrole role="Base">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>159</red>
-              <green>175</green>
-              <blue>213</blue>
-             </color>
-            </brush>
-           </colorrole>
-           <colorrole role="Window">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>159</red>
-              <green>175</green>
-              <blue>213</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </disabled>
-         </palette>
-        </property>
-        <property name="autoFillBackground">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>DX Grid</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="indent">
-         <number>2</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="6">
-       <widget class="QPushButton" name="pbTxMode">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Tx JT9</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1" rowspan="5">
-       <widget class="QSlider" name="inGain">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>160</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>20</width>
-          <height>160</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Digital gain for audio input</string>
-        </property>
-        <property name="minimum">
-         <number>-50</number>
-        </property>
-        <property name="maximum">
-         <number>50</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QLineEdit" name="dxCallEntry">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>70</width>
-          <height>27</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>74</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Callsign of station to be worked</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="4">
-       <widget class="QLineEdit" name="dxGridEntry">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>70</width>
-          <height>27</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>74</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Locator of station to be worked</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="6">
-       <widget class="QSpinBox" name="TxFreqSpinBox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>113</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>105</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Audio Tx frequency</string>
-        </property>
-        <property name="suffix">
-         <string>  Hz</string>
-        </property>
-        <property name="prefix">
-         <string>Tx  </string>
-        </property>
-        <property name="minimum">
-         <number>200</number>
-        </property>
-        <property name="maximum">
-         <number>5000</number>
-        </property>
-        <property name="value">
-         <number>1500</number>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="4">
-       <widget class="QLabel" name="labDist">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>23</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>23</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="5">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Expanding</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>33</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="3" column="6">
-       <widget class="QSpinBox" name="RxFreqSpinBox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>113</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="suffix">
-         <string>  Hz</string>
-        </property>
-        <property name="prefix">
-         <string>Rx  </string>
-        </property>
-        <property name="minimum">
-         <number>200</number>
-        </property>
-        <property name="maximum">
-         <number>5000</number>
-        </property>
-        <property name="value">
-         <number>1500</number>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="7">
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Expanding</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>13</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="4" column="3">
-       <widget class="QPushButton" name="lookupButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>74</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Search for callsign in database</string>
-        </property>
-        <property name="text">
-         <string>&amp;Lookup</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="4">
-       <widget class="QPushButton" name="addButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>74</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Add callsign and locator to database</string>
-        </property>
-        <property name="text">
-         <string>Add</string>
-        </property>
-       </widget>
-      </item>
       <item row="4" column="6">
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <property name="spacing">
@@ -2075,111 +2042,162 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </item>
-      <item row="5" column="3" rowspan="2" colspan="2">
-       <widget class="QLabel" name="labUTC">
+      <item row="1" column="6">
+       <widget class="QPushButton" name="pbTxMode">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Tx JT9</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="5">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>33</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="cbPlus2kHz">
+        <property name="text">
+         <string>+2 kHz</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="readFreq">
+        <property name="maximumSize">
+         <size>
+          <width>15</width>
+          <height>15</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>If orange, click to read dial frequency once</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="3">
+       <widget class="QComboBox" name="bandComboBox">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="minimumSize">
          <size>
-          <width>130</width>
-          <height>60</height>
+          <width>100</width>
+          <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>158</width>
-          <height>60</height>
+          <width>100</width>
+          <height>16777215</height>
          </size>
         </property>
-        <property name="font">
-         <font>
-          <pointsize>16</pointsize>
-         </font>
+        <property name="toolTip">
+         <string>Select operating band</string>
         </property>
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
-        </property>
-        <property name="lineWidth">
-         <number>2</number>
-        </property>
-        <property name="midLineWidth">
-         <number>0</number>
-        </property>
-        <property name="text">
-         <string> 01:23:45 </string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="6">
-       <widget class="QCheckBox" name="cbTxLock">
-        <property name="text">
-         <string>Lock Tx=Rx</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="6">
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <property name="spacing">
-         <number>5</number>
+        <property name="currentIndex">
+         <number>7</number>
         </property>
         <item>
-         <widget class="QLabel" name="label_8">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Report</string>
-          </property>
-         </widget>
+         <property name="text">
+          <string>2200 m</string>
+         </property>
         </item>
         <item>
-         <widget class="QSpinBox" name="rptSpinBox">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>55</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>55</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Signal report (dB0</string>
-          </property>
-          <property name="minimum">
-           <number>-50</number>
-          </property>
-          <property name="maximum">
-           <number>49</number>
-          </property>
-          <property name="value">
-           <number>-15</number>
-          </property>
-         </widget>
+         <property name="text">
+          <string>630 m</string>
+         </property>
         </item>
-       </layout>
+        <item>
+         <property name="text">
+          <string>160 m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>80 m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>60 m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>40 m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>30 m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>20 m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>17 m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>15 m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>12 m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>10 m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>6 m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>4 m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>2 m</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Other</string>
+         </property>
+        </item>
+       </widget>
       </item>
      </layout>
     </item>
@@ -2191,7 +2209,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>760</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -2854,7 +2872,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>stopTxButton</tabstop>
   <tabstop>tuneButton</tabstop>
   <tabstop>bandComboBox</tabstop>
-  <tabstop>readFreq</tabstop>
   <tabstop>inGain</tabstop>
   <tabstop>dxCallEntry</tabstop>
   <tabstop>dxGridEntry</tabstop>
