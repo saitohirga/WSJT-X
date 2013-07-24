@@ -1314,7 +1314,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <attribute name="buttonGroup">
-                  <string notr="true">buttonGroup</string>
+                  <string>buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -1348,7 +1348,7 @@ p, li { white-space: pre-wrap; }
                   <bool>true</bool>
                  </property>
                  <attribute name="buttonGroup">
-                  <string notr="true">buttonGroup</string>
+                  <string>buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -1379,7 +1379,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <attribute name="buttonGroup">
-                  <string notr="true">buttonGroup</string>
+                  <string>buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -1402,13 +1402,6 @@ p, li { white-space: pre-wrap; }
                    <width>150</width>
                    <height>16777215</height>
                   </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <family>Droid Sans</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
                  </property>
                  <property name="text">
                   <string/>
@@ -1547,7 +1540,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <attribute name="buttonGroup">
-                  <string notr="true">buttonGroup</string>
+                  <string>buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -1695,7 +1688,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <attribute name="buttonGroup">
-                  <string notr="true">buttonGroup</string>
+                  <string>buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -1726,7 +1719,7 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <attribute name="buttonGroup">
-                  <string notr="true">buttonGroup</string>
+                  <string>buttonGroup</string>
                  </attribute>
                 </widget>
                </item>
@@ -2209,7 +2202,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>760</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
