@@ -17,14 +17,16 @@ int main(int argc, char *argv[])
   QApplication a(argc, argv);
 
   QFile f("fonts.txt");
+  qint32 fontSize,fontWeight,fontSize2,fontWeight2;   // Defaults 8 50 10 50
+  fontSize2=10;
+  fontWeight2=50;
   if(f.open(QIODevice::ReadOnly)) {
-     QTextStream in(&f);                          //Example:
-     QString fontFamily;                          // helvetica
-     qint32 fontSize,fontWeight;                  // 8,50
-     in >> fontFamily >> fontSize >> fontWeight;
+     QTextStream in(&f);
+     in >> fontSize >> fontWeight >> fontSize2 >> fontWeight2;
      f.close();
-     QFont font;
-     font=QFont(fontFamily,fontSize,fontWeight);
+     QFont font=a.font();
+     if(fontSize!=8) font.setPointSize(fontSize);
+     font.setWeight(fontWeight);                       //Set the GUI fonts
      a.setFont(font);
   }
 
@@ -54,7 +56,7 @@ int main(int argc, char *argv[])
   }
 
 // Multiple instances:  Call MainWindow() with the UUID key
-  MainWindow w(&mem_jt9, &my_key);
+  MainWindow w(&mem_jt9, &my_key, fontSize2, fontWeight2);
   w.show();
   return a.exec();
 }

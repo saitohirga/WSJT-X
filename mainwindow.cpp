@@ -40,7 +40,9 @@ QString Program_Title_Version="  WSJT-X   v1.1, r" + rev.mid(6,4) +
 
 //-------------------------------------------------- MainWindow constructor
 // Multiple instances: new arg *thekey
-MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, QWidget *parent) :
+MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
+                       qint32 fontSize2, qint32 fontWeight2, \
+                       QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow)
 {
@@ -113,6 +115,12 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, QWidget *parent) 
   ui->freeTextMsg->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(ui->freeTextMsg, SIGNAL(customContextMenuRequested(const QPoint&)),
       this, SLOT(showMacros(const QPoint&)));
+
+  QFont font=ui->decodedTextBrowser->font();
+  font.setPointSize(fontSize2);
+  font.setWeight(fontWeight2);
+  ui->decodedTextBrowser->setFont(font);
+  ui->decodedTextBrowser2->setFont(font);
 
   QTimer *guiTimer = new QTimer(this);
   connect(guiTimer, SIGNAL(timeout()), this, SLOT(guiUpdate()));
@@ -320,8 +328,8 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, QWidget *parent) 
   if(ui->actionAFMHot->isChecked()) on_actionAFMHot_triggered();
   if(ui->actionBlue->isChecked()) on_actionBlue_triggered();
 
-  ui->decodedTextLabel->setFont(ui->decodedTextBrowser2->font());
-  ui->decodedTextLabel2->setFont(ui->decodedTextBrowser->font());
+  ui->decodedTextLabel->setFont(ui->decodedTextBrowser->font());
+  ui->decodedTextLabel2->setFont(ui->decodedTextBrowser2->font());
   t="UTC   dB   DT Freq   Message";
   ui->decodedTextLabel->setText(t);
   ui->decodedTextLabel2->setText(t);

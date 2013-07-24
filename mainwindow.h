@@ -29,7 +29,9 @@ class MainWindow : public QMainWindow
 
 // Multiple instances: call MainWindow() with *thekey
 public:
-  explicit MainWindow(QSharedMemory *shdmem, QString *thekey, QWidget *parent = 0);
+  explicit MainWindow(QSharedMemory *shdmem, QString *thekey, \
+                      qint32 fontSize2, qint32 fontWeight2, \
+                      QWidget *parent = 0);
   ~MainWindow();
 
 public slots:
