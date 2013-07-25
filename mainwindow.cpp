@@ -54,6 +54,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   ui->actionLinrad->setActionGroup(paletteGroup);
   ui->actionAFMHot->setActionGroup(paletteGroup);
   ui->actionBlue->setActionGroup(paletteGroup);
+  ui->actionGray1->setActionGroup(paletteGroup);
 
   QActionGroup* modeGroup = new QActionGroup(this);
   ui->actionJT9_1->setActionGroup(modeGroup);
@@ -327,6 +328,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   if(ui->actionCuteSDR->isChecked()) on_actionCuteSDR_triggered();
   if(ui->actionAFMHot->isChecked()) on_actionAFMHot_triggered();
   if(ui->actionBlue->isChecked()) on_actionBlue_triggered();
+  if(ui->actionGray1->isChecked()) on_actionGray1_triggered();
 
   ui->decodedTextLabel->setFont(ui->decodedTextBrowser->font());
   ui->decodedTextLabel2->setFont(ui->decodedTextBrowser2->font());
@@ -429,6 +431,7 @@ void MainWindow::writeSettings()
   settings.setValue("PaletteLinrad",ui->actionLinrad->isChecked());
   settings.setValue("PaletteAFMHot",ui->actionAFMHot->isChecked());
   settings.setValue("PaletteBlue",ui->actionBlue->isChecked());
+  settings.setValue("PaletteGray1",ui->actionGray1->isChecked());
   settings.setValue("Mode",m_mode);
   settings.setValue("ModeTx",m_modeTx);
   settings.setValue("SaveNone",ui->actionNone->isChecked());
@@ -553,6 +556,8 @@ void MainWindow::readSettings()
                                  "PaletteAFMHot",false).toBool());
   ui->actionBlue->setChecked(settings.value(
                                  "PaletteBlue",false).toBool());
+  ui->actionGray1->setChecked(settings.value(
+                                 "PaletteGray1",false).toBool());
   m_mode=settings.value("Mode","JT9").toString();
   m_modeTx=settings.value("ModeTx","JT9").toString();
   if(m_modeTx=="JT9") ui->pbTxMode->setText("Tx JT9  @");
@@ -641,8 +646,9 @@ void MainWindow::readSettings()
   ui->cbPlus2kHz->setChecked(m_plus2kHz);
   settings.endGroup();
 
-  if(!ui->actionLinrad->isChecked() && !ui->actionCuteSDR->isChecked() &&
-    !ui->actionAFMHot->isChecked() && !ui->actionBlue->isChecked()) {
+  if(!ui->actionLinrad->isChecked() and !ui->actionCuteSDR->isChecked()and
+     !ui->actionAFMHot->isChecked() and !ui->actionBlue->isChecked() and
+     !ui->actionGray1->isChecked()) {
     on_actionLinrad_triggered();
     ui->actionLinrad->setChecked(true);
   }
@@ -886,6 +892,11 @@ void MainWindow::on_actionAFMHot_triggered()
 void MainWindow::on_actionBlue_triggered()
 {
   if(g_pWideGraph != NULL) g_pWideGraph->setPalette("Blue");
+}
+
+void MainWindow::on_actionGray1_triggered()
+{
+  if(g_pWideGraph != NULL) g_pWideGraph->setPalette("Gray1");
 }
 
 void MainWindow::on_actionAbout_triggered()                  //Display "About"

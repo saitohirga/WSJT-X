@@ -98,6 +98,7 @@ private:
   QString m_HDivText[483];
   QString m_mode;
   QString m_modeTx;
+  QString m_palette;
 
   bool    m_Running;
   bool    m_paintEventBusy;

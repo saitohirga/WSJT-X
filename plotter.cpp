@@ -101,7 +101,6 @@ void CPlotter::draw(float swide[])             //draw()
   QPoint LineBuf[MAX_SCREENSIZE];
   j=0;
 
-//  int iz=XfromFreq(2000.0);
   int iz=XfromFreq(5000.0);
   m_fMax=FreqfromX(iz);
   for(int i=0; i<iz; i++) {
@@ -135,7 +134,11 @@ void CPlotter::draw(float swide[])             //draw()
   m_line++;
   if(m_line == 13) {
     UTCstr();
-    painter1.setPen(Qt::white);
+    if(m_palette=="Gray1") {
+      painter1.setPen(Qt::red);
+    } else {
+      painter1.setPen(Qt::white);
+    }
     painter1.drawText(5,10,m_sutc);
   }
   update();                              //trigger a new paintEvent
@@ -428,6 +431,7 @@ void CPlotter::setNSpan(int n)                                  //setNSpan()
 
 void CPlotter::setPalette(QString palette)                      //setPalette()
 {
+  m_palette=palette;
   if(palette=="Linrad") {
     float twopi=6.2831853;
     float r,g,b,phi,x;
@@ -511,6 +515,19 @@ void CPlotter::setPalette(QString palette)                      //setPalette()
     }
   }
 
+  if(palette=="Gray1") {
+    FILE* fp=fopen("gray1.dat","r");
+    int n,r,g,b;
+    float xr,xg,xb;
+    for(int i=0; i<256; i++) {
+      int nn=fscanf(fp,"%d%f%f%f",&n,&xr,&xg,&xb);
+      r=255.0*xr + 0.5;
+      g=255.0*xg + 0.5;
+      b=255.0*xb + 0.5;
+      m_ColorTbl[i].setRgb(r,g,b);
+      if(nn==-999999) i++;                  //Silence compiler warning
+    }
+  }
 }
 
 double CPlotter::fGreen()
