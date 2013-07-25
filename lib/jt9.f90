@@ -25,7 +25,6 @@ program jt9
   if(arg(1:2).eq.'-s') then
 ! Multiple instances:
      call getarg(2,arg)
-     i0=len(trim(arg))
      call jt9a(trim(arg))
      go to 999
   endif
