@@ -1,4 +1,9 @@
+# Set paths
+EXE_DIR = ../../wsjtx_install
+INCPATH =  -I'/usr/include/qt4' -I'/usr/include/qt4/QtCore' 
+
 CC = gcc
+CXX = g++
 FC = gfortran
 
 FFLAGS = -O2 -fbounds-check -Wall -Wno-conversion -fno-second-underscore
@@ -44,8 +49,9 @@ libjt9.a: $(OBJS1)
 OBJS2 = jt9.o jt9a.o jt9b.o jt9c.o
 
 jt9: 	$(OBJS2) libjt9.a 
-	g++ -o jt9 $(OBJS2) libjt9.a -lfftw3f -lgfortran -lQtCore
-	cp jt9 ../../wsjtx_install
+	$(CXX) -o jt9 $(OBJS2) libjt9.a -lfftw3f -lgfortran -lQtCore
+	mkdir -p $(EXE_DIR)
+	cp jt9 $(EXE_DIR)
 
 OBJS3 = jt9sim.o 
 jt9sim: $(OBJS3) libjt9.a
@@ -54,16 +60,6 @@ jt9sim: $(OBJS3) libjt9.a
 OBJS4 = jt9code.o 
 jt9code: $(OBJS4) libjt9.a
 	$(FC) -o jt9code $(OBJS4) libjt9.a
-
-#INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
-#	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
-#	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/ActiveQt' \
-#	 -I'release' -I'.' -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/mkspecs/win32-g++'
-
-INCPATH =  -I'/usr/include/qt4' -I'/usr/include/qt4/QtCore' 
-
-#jt9.o:	jt9.f90
-#	$(FC) -O0 -c jt9.f90
 
 sync9.o: sync9.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c sync9.f90
@@ -84,7 +80,7 @@ redsync.o: redsync.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c redsync.f90
 
 ipcomm.o: ipcomm.cpp
-	g++ -c $(INCPATH) ipcomm.cpp
+	$(CXX) -c $(INCPATH) ipcomm.cpp
 
 sec_midn.o: sec_midn.f90
 	$(FC) -c -fno-second-underscore sec_midn.f90

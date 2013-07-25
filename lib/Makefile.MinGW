@@ -2,7 +2,16 @@
 # Windows re-direct:
 #   C> make > junk1 2>&1
 
+# Set paths
+EXE_DIR = ../../wsjtx_install
+INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
+	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
+	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/ActiveQt' \
+	 -I'release' -I'.' -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/mkspecs/win32-g++'
+
+# Compilers
 CC = gcc
+CXX = g++
 FC = g95
 
 FFLAGS = -O2 -fbounds-check -Wall -Wno-precision-loss -fno-second-underscore
@@ -47,9 +56,10 @@ libjt9.a: $(OBJS1)
 OBJS2 = jt9.o jt9a.o jt9b.o jt9c.o ipcomm.o sec_midn.o cutil.o
 LIBS2 = -L'c:/QtSDK/Desktop/Qt/4.7.4/mingw/lib' -lQtCore4
 jt9.exe: $(OBJS2) libjt9.a
-	g++ -o jt9.exe $(OBJS2) $(LIBS2) libjt9.a ../libfftw3f_win.a \
+	$(CXX) -o jt9.exe $(OBJS2) $(LIBS2) libjt9.a ../libfftw3f_win.a \
 	c:/MinGW/lib/libf95.a
-	cp jt9.exe ../../wsjtx_install
+	mkdir -p $(EXE_DIR)
+	cp jt9.exe $(EXE_DIR)
 
 OBJS3 = jt9sim.o 
 jt9sim.exe: $(OBJS3) libjt9.a
@@ -62,11 +72,6 @@ jt9code.exe: $(OBJS4) libjt9.a
 OBJS5 = jt65.o 
 jt65.exe: $(OBJS5) libjt9.a 
 	$(FC) -o jt65.exe $(OBJS5) libjt9.a ../libfftw3f_win.a
-
-INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
-	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
-	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/ActiveQt' \
-	 -I'release' -I'.' -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/mkspecs/win32-g++'
 
 sync9.o: sync9.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c sync9.f90
@@ -90,7 +95,7 @@ unpackmsg.o: unpackmsg.f90
 	$(FC) -c -O0 -fbounds-check -Wall -Wno-precision-loss unpackmsg.f90
 
 ipcomm.o: ipcomm.cpp
-	g++ -c $(INCPATH) ipcomm.cpp
+	$(CXX) -c $(INCPATH) ipcomm.cpp
 
 sec_midn.o: sec_midn.f90
 	$(FC) -c -fno-second-underscore sec_midn.f90
