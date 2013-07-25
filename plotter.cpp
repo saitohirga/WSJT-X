@@ -466,7 +466,7 @@ void CPlotter::setPalette(QString palette)                      //setPalette()
       m_ColorTbl[i].setRgb(int(255.0*r),int(255.0*g),int(255.0*b));
     }
     m_ColorTbl[255].setRgb(255,255,100);
-
+    return;
   }
 
   if(palette=="CuteSDR") {
@@ -485,48 +485,30 @@ void CPlotter::setPalette(QString palette)                      //setPalette()
         m_ColorTbl[i].setRgb( 255, 0, 128*(i-217)/38);
     }
     m_ColorTbl[255].setRgb(255,255,100);
+    return;
   }
 
-  if(palette=="Blue") {
-    FILE* fp=fopen("blue.dat","r");
-    int n,r,g,b;
-    float xr,xg,xb;
-    for(int i=0; i<256; i++) {
-      int nn=fscanf(fp,"%d%f%f%f",&n,&xr,&xg,&xb);
-      r=255.0*xr + 0.5;
-      g=255.0*xg + 0.5;
-      b=255.0*xb + 0.5;
-      m_ColorTbl[i].setRgb(r,g,b);
-      if(nn==-999999) i++;                  //Silence compiler warning
-    }
+  FILE* fp;
+  if(palette=="Blue") fp=fopen("blue.dat","r");
+  if(palette=="AFMHot") fp=fopen("afmhot.dat","r");
+  if(palette=="Gray1") fp=fopen("gray1.dat","r");
+  if(int(fp)==0) {
+    QMessageBox msgBox0;
+    QString t="Error: Cannot find requested palette file.";
+    msgBox0.setText(t);
+    msgBox0.exec();
+    return;
   }
 
-  if(palette=="AFMHot") {
-    FILE* fp=fopen("afmhot.dat","r");
-    int n,r,g,b;
-    float xr,xg,xb;
-    for(int i=0; i<256; i++) {
-      int nn=fscanf(fp,"%d%f%f%f",&n,&xr,&xg,&xb);
-      r=255.0*xr + 0.5;
-      g=255.0*xg + 0.5;
-      b=255.0*xb + 0.5;
-      m_ColorTbl[i].setRgb(r,g,b);
-      if(nn==-999999) i++;                  //Silence compiler warning
-    }
-  }
-
-  if(palette=="Gray1") {
-    FILE* fp=fopen("gray1.dat","r");
-    int n,r,g,b;
-    float xr,xg,xb;
-    for(int i=0; i<256; i++) {
-      int nn=fscanf(fp,"%d%f%f%f",&n,&xr,&xg,&xb);
-      r=255.0*xr + 0.5;
-      g=255.0*xg + 0.5;
-      b=255.0*xb + 0.5;
-      m_ColorTbl[i].setRgb(r,g,b);
-      if(nn==-999999) i++;                  //Silence compiler warning
-    }
+  int n,r,g,b;
+  float xr,xg,xb;
+  for(int i=0; i<256; i++) {
+    int nn=fscanf(fp,"%d%f%f%f",&n,&xr,&xg,&xb);
+    r=255.0*xr + 0.5;
+    g=255.0*xg + 0.5;
+    b=255.0*xb + 0.5;
+    m_ColorTbl[i].setRgb(r,g,b);
+    if(nn==-999999) i++;                  //Silence compiler warning
   }
 }
 
