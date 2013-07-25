@@ -49,6 +49,8 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->widePlot->setBinsPerPixel(nbpp);
   m_slope=settings.value("Slope",0.0).toDouble();
   ui->slopeSpinBox->setValue(m_slope);
+  ui->widePlot->setStartFreq(settings.value("StartFreq",0).toInt());
+  ui->fStartSpinBox->setValue(ui->widePlot->startFreq());
   settings.endGroup();
 }
 
@@ -75,6 +77,7 @@ void WideGraph::saveSettings()
   settings.setValue("Cumulative",ui->widePlot->m_bCumulative);
   settings.setValue("BinsPerPixel",ui->widePlot->binsPerPixel());
   settings.setValue("Slope",m_slope);
+  settings.setValue("StartFreq",ui->widePlot->startFreq());
   settings.endGroup();
 }
 
@@ -100,16 +103,12 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym,
     for (int i=0; i<NSMAX; i++)
         splot[i] /= n;                       //Normalize the average
     n=0;
-
-//    int w=ui->widePlot->plotWidth();
-    int i0=-1;                            //###
-    int i=i0;
+    int i=int(ui->widePlot->startFreq()/df3 + 0.5);
     int jz=5000.0/(nbpp*df3);
     for (int j=0; j<jz; j++) {
       float sum=0;
       for (int k=0; k<nbpp; k++) {
-        i++;
-        sum += splot[i];
+        sum += splot[i++];
       }
       swide[j]=sum;
     }
@@ -123,7 +122,7 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym,
       }
     }
     m_ntr0=ntr;
-    ui->widePlot->draw(swide,i0);
+    ui->widePlot->draw(swide);
   }
 }
 
@@ -311,4 +310,9 @@ void WideGraph::setDialFreq(double d)
 {
   m_dialFreq=d;
   ui->widePlot->setDialFreq(d);
+}
+
+void WideGraph::on_fStartSpinBox_valueChanged(int n)
+{
+  ui->widePlot->setStartFreq(n);
 }
