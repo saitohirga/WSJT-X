@@ -15,7 +15,7 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   setAttribute(Qt::WA_OpaquePaintEvent, false);
   setAttribute(Qt::WA_NoSystemBackground, true);
 
-  m_StartFreq = 0;
+  m_startFreq = 0;
   m_nSpan=2;                         //used for FFT bins/pixel
   m_fSpan=(float)m_nSpan;
   m_hdivs = HORZ_DIVS;
@@ -83,12 +83,11 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
   m_paintEventBusy=false;
 }
 
-void CPlotter::draw(float swide[], int i0)             //draw()
+void CPlotter::draw(float swide[])             //draw()
 {
   int j,y2;
   float y;
 
-  m_i0=i0;
   double gain = pow(10.0,0.05*(m_plotGain+7));
 
 //move current data down one line (must do this before attaching a QPainter object)
@@ -306,16 +305,15 @@ void CPlotter::MakeFrequencyStrs()                       //MakeFrequencyStrs
 {
   float freq;
   for(int i=0; i<=m_hdivs; i++) {
-    freq = m_StartFreq + i*m_freqPerDiv;
+    freq = m_startFreq + i*m_freqPerDiv;
     m_HDivText[i].setNum((int)freq);
-    //      StartFreq += m_freqPerDiv;
   }
 }
 
 int CPlotter::XfromFreq(float f)                               //XfromFreq()
 {
 //  float w = m_WaterfallPixmap.width();
-  int x = int(m_w * (f - m_StartFreq)/m_fSpan + 0.5);
+  int x = int(m_w * (f - m_startFreq)/m_fSpan + 0.5);
   if(x<0 ) return 0;
   if(x>m_w) return m_w;
   return x;
@@ -323,8 +321,7 @@ int CPlotter::XfromFreq(float f)                               //XfromFreq()
 
 float CPlotter::FreqfromX(int x)                               //FreqfromX()
 {
-//  return float(1000.0 + x*m_binsPerPixel*m_fftBinWidth);
-  return float(x*m_binsPerPixel*m_fftBinWidth);
+  return float(m_startFreq + x*m_binsPerPixel*m_fftBinWidth);
 }
 
 void CPlotter::SetRunningState(bool running)              //SetRunningState()
@@ -352,16 +349,16 @@ int CPlotter::getPlotGain()                               //getPlotGain()
   return m_plotGain;
 }
 
-void CPlotter::SetStartFreq(quint64 f)                    //SetStartFreq()
+void CPlotter::setStartFreq(int f)                    //SetStartFreq()
 {
-  m_StartFreq=f;
-//    resizeEvent(NULL);
-  DrawOverlay();
+  m_startFreq=f;
+  resizeEvent(NULL);
+  update();
 }
 
-qint64 CPlotter::startFreq()                              //startFreq()
+int CPlotter::startFreq()                              //startFreq()
 {
-  return m_StartFreq;
+  return m_startFreq;
 }
 
 int CPlotter::plotWidth(){return m_WaterfallPixmap.width();}

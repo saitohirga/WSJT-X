@@ -61,6 +61,7 @@ private slots:
   void on_spec2dComboBox_currentIndexChanged(const QString &arg1);
   void on_fMinSpinBox_valueChanged(int n);
   void on_slopeSpinBox_valueChanged(double d);
+  void on_fStartSpinBox_valueChanged(int n);
 
 private:
   double m_slope;

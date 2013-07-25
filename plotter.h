@@ -43,14 +43,14 @@ public:
   qint32  m_binsPerPixel;
   qint32  m_w;
 
-  void draw(float sw[], int i0);		//Update the waterfall
+  void draw(float sw[]);		//Update the waterfall
   void SetRunningState(bool running);
   void setPlotZero(int plotZero);
   int  getPlotZero();
   void setPlotGain(int plotGain);
   int  getPlotGain();
-  void SetStartFreq(quint64 f);
-  qint64 startFreq();
+  void setStartFreq(int f);
+  int startFreq();
   int  plotWidth();
   void setNSpan(int n);
   void UpdateOverlay();
@@ -87,7 +87,6 @@ private:
   void UTCstr();
   int XfromFreq(float f);
   float FreqfromX(int x);
-  qint64 RoundFreq(qint64 freq, int resolution);
 
   QPixmap m_WaterfallPixmap;
   QPixmap m_2DPixmap;
@@ -108,14 +107,11 @@ private:
   double  m_fftBinWidth;
   double  m_dialFreq;
 
-  qint64  m_StartFreq;
-
   qint32  m_dBStepSize;
   qint32  m_FreqUnits;
   qint32  m_hdivs;
   qint32  m_line;
   qint32  m_fSample;
-  qint32  m_i0;
   qint32  m_xClick;
   qint32  m_freqPerDiv;
   qint32  m_nsps;
@@ -128,6 +124,7 @@ private:
   qint32  m_txFreq;
   qint32  m_fMin;
   qint32  m_fMax;
+  qint32  m_startFreq;
 
   char    m_sutc[6];
 
