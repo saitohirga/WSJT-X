@@ -2260,6 +2260,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionCuteSDR"/>
      <addaction name="actionAFMHot"/>
      <addaction name="actionBlue"/>
+     <addaction name="actionGray1"/>
     </widget>
     <addaction name="actionWide_Waterfall"/>
     <addaction name="separator"/>
@@ -2844,6 +2845,14 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Tx messages to Rx Frequency window</string>
+   </property>
+  </action>
+  <action name="actionGray1">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Gray1</string>
    </property>
   </action>
  </widget>

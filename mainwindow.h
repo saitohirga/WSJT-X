@@ -163,6 +163,8 @@ private slots:
   void on_actionTx2QSO_triggered(bool checked);  
   void on_cbPlus2kHz_toggled(bool checked);
 
+  void on_actionGray1_triggered();
+
 private:
     Ui::MainWindow *ui;
 
