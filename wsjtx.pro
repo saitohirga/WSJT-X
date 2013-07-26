@@ -11,11 +11,10 @@ CONFIG   += thread
 
 TARGET = wsjtx
 DESTDIR = ../wsjtx_install
-#DESTDIR = ../qt5_install
 VERSION = 1.1
 TEMPLATE = app
-DEFINES = QT4
-#DEFINES = QT5
+#DEFINES = QT4
+DEFINES = QT5
 
 win32 {
 DEFINES += WIN32

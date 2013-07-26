@@ -488,11 +488,11 @@ void CPlotter::setPalette(QString palette)                      //setPalette()
     return;
   }
 
-  FILE* fp;
+  FILE* fp=NULL;
   if(palette=="Blue") fp=fopen("blue.dat","r");
   if(palette=="AFMHot") fp=fopen("afmhot.dat","r");
   if(palette=="Gray1") fp=fopen("gray1.dat","r");
-  if(int(fp)==0) {
+  if(fp==NULL) {
     QMessageBox msgBox0;
     QString t="Error: Cannot find requested palette file.";
     msgBox0.setText(t);
