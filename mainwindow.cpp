@@ -2974,18 +2974,21 @@ void MainWindow::rigOpen()
   }
 
   if(m_bRigOpen) {
-    if(m_poll>0) {
-      ui->readFreq->setStyleSheet("QPushButton{background-color: #00ff00; \
-                                  border-width: 0px; border-radius: 5px;}");
-    } else {
-      ui->readFreq->setStyleSheet("QPushButton{background-color: orange; \
-                                border-width: 0px; border-radius: 5px;}");
-    }
+		if(m_poll>0) {
+			ui->readFreq->setStyleSheet("QPushButton{background-color: #00ff00; \
+																	border-width: 0px; border-radius: 5px;}");
+	} else {
+		ui->readFreq->setStyleSheet("QPushButton{background-color: orange; \
+																border-width: 0px; border-radius: 5px;}");
+}
+if(m_bSplit) ui->readFreq->setText("S");
+if(!m_bSplit) ui->readFreq->setText("");
 } else {
 if(m_CATerror) ui->readFreq->setStyleSheet("QPushButton{background-color: red; \
-                                   border-width: 0px; border-radius: 5px;}");
+																					 border-width: 0px; border-radius: 5px;}");
 if(!m_CATerror) ui->readFreq->setStyleSheet("");
-  }
+ui->readFreq->setText("");
+}
 }
 
 void MainWindow::on_actionAllow_multiple_instances_triggered(bool checked)
