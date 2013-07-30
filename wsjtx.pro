@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network multimedia
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG   += thread
 #CONFIG   += console
@@ -16,6 +16,7 @@ VERSION = 1.1
 TEMPLATE = app
 #DEFINES = QT4
 DEFINES = QT5
+#DEFINES += QAUDIO_INPUT
 
 win32 {
 DEFINES += WIN32

@@ -2,6 +2,8 @@
 #include "ui_widegraph.h"
 #include "commons.h"
 
+#define MAX_SCREENSIZE 2048
+
 WideGraph::WideGraph(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::WideGraph)
@@ -10,7 +12,7 @@ WideGraph::WideGraph(QWidget *parent) :
   this->setWindowFlags(Qt::Dialog);
   this->installEventFilter(parent); //Installing the filter
   ui->widePlot->setCursor(Qt::CrossCursor);
-  this->setMaximumWidth(2048);
+	this->setMaximumWidth(MAX_SCREENSIZE);
   this->setMaximumHeight(880);
   ui->widePlot->setMaximumHeight(800);
   ui->widePlot->m_bCurrent=false;
@@ -85,7 +87,7 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym,
                           int ndiskdata)
 {
   static float splot[NSMAX];
-  static float swide[2048];
+	static float swide[MAX_SCREENSIZE];
   int nbpp = ui->widePlot->binsPerPixel();
   static int n=0;
 
@@ -105,6 +107,7 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym,
     n=0;
     int i=int(ui->widePlot->startFreq()/df3 + 0.5);
     int jz=5000.0/(nbpp*df3);
+		if(jz>MAX_SCREENSIZE) jz=MAX_SCREENSIZE;
     for (int j=0; j<jz; j++) {
       float sum=0;
       for (int k=0; k<nbpp; k++) {
