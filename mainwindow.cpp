@@ -86,11 +86,11 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
           SLOT(doubleClickOnCall2(bool,bool)));
 
   setWindowTitle(Program_Title_Version);
-  connect(&soundInThread, SIGNAL(readyForFFT(int)),
+  connect(&m_soundInput, SIGNAL(readyForFFT(int)),
              this, SLOT(dataSink(int)));
-  connect(&soundInThread, SIGNAL(error(QString)), this,
+  connect(&m_soundInput, SIGNAL(error(QString)), this,
           SLOT(showSoundInError(QString)));
-  connect(&soundInThread, SIGNAL(status(QString)), this,
+  connect(&m_soundInput, SIGNAL(status(QString)), this,
           SLOT(showStatusMessage(QString)));
   createStatusBar();
 
@@ -302,13 +302,12 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   watcher2 = new QFutureWatcher<void>;
   connect(watcher2, SIGNAL(finished()),this,SLOT(diskWriteFinished()));
 
-  soundInThread.setInputDevice(m_paInDevice);
-  soundInThread.start(QThread::HighestPriority);
+  m_soundInput.start(m_paInDevice);
   soundOutThread.setOutputDevice(m_paOutDevice);
   soundOutThread.setTxFreq(m_txFreq);
   soundOutThread.setTune(false);
   m_monitoring=!m_monitorStartOFF;           // Start with Monitoring ON/OFF
-  soundInThread.setMonitoring(m_monitoring);
+  m_soundInput.setMonitoring(m_monitoring);
   m_diskData=false;
 
 // Create "m_worked", a dictionary of all calls in wsjtx.log
@@ -373,10 +372,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
 MainWindow::~MainWindow()
 {
   writeSettings();
-  if (soundInThread.isRunning()) {
-    soundInThread.quit();
-    soundInThread.wait(3000);
-  }
   if (soundOutThread.isRunning()) {
     soundOutThread.quitExecution=true;
     soundOutThread.wait(3000);
@@ -712,7 +707,7 @@ void MainWindow::dataSink(int k)
       watcher2->setFuture(*future2);
     }
   }
-  soundInThread.m_dataSinkBusy=false;
+  //  m_soundInput.m_dataSinkBusy=false;
 }
 
 void MainWindow::showSoundInError(const QString& errorMsg)
@@ -832,10 +827,8 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_After73=dlg.m_After73;
 
     if(dlg.m_restartSoundIn) {
-      soundInThread.quit();
-      soundInThread.wait(1000);
-      soundInThread.setInputDevice(m_paInDevice);
-      soundInThread.start(QThread::HighestPriority);
+      m_soundInput.stop();
+      m_soundInput.start(m_paInDevice);
     }
 
     if(dlg.m_restartSoundOut) {
@@ -870,7 +863,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
 void MainWindow::on_monitorButton_clicked()                  //Monitor
 {
   m_monitoring=true;
-  soundInThread.setMonitoring(true);
+  m_soundInput.setMonitoring(true);
   m_diskData=false;
 }
 
@@ -1132,7 +1125,7 @@ void MainWindow::OnExit()
 void MainWindow::on_stopButton_clicked()                       //stopButton
 {
   m_monitoring=false;
-  soundInThread.setMonitoring(m_monitoring);
+  m_soundInput.setMonitoring(m_monitoring);
   m_loopall=false;  
 }
 
@@ -1173,7 +1166,7 @@ void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
 void MainWindow::on_actionOpen_triggered()                     //Open File
 {
   m_monitoring=false;
-  soundInThread.setMonitoring(m_monitoring);
+  m_soundInput.setMonitoring(m_monitoring);
   QString fname;
   fname=QFileDialog::getOpenFileName(this, "Open File", m_path,
                                        "WSJT Files (*.wav)");
@@ -1787,7 +1780,7 @@ void MainWindow::guiUpdate()
 
     signalMeter->setValue(0);
     m_monitoring=false;
-    soundInThread.setMonitoring(false);
+    m_soundInput.setMonitoring(false);
     btxok=true;
     m_transmitting=true;
     ui->pbTxMode->setEnabled(false);
@@ -1907,7 +1900,7 @@ void MainWindow::startTx2()
     soundOutThread.start(QThread::HighestPriority);
     signalMeter->setValue(0);
     m_monitoring=false;
-    soundInThread.setMonitoring(false);
+    m_soundInput.setMonitoring(false);
     btxok=true;
     m_transmitting=true;
     ui->pbTxMode->setEnabled(false);
@@ -1927,7 +1920,7 @@ void MainWindow::stopTx()
   lab1->setText("");
   ptt0Timer->start(200);                       //Sequencer delay
   m_monitoring=true;
-  soundInThread.setMonitoring(true);
+  m_soundInput.setMonitoring(true);
 }
 
 void MainWindow::stopTx2()
@@ -2534,7 +2527,7 @@ void MainWindow::on_actionJT9_1_triggered()
   m_TRperiod=60;
   m_nsps=6912;
   m_hsymStop=173;
-  soundInThread.setPeriod(m_TRperiod,m_nsps);
+  m_soundInput.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   lab3->setStyleSheet("QLabel{background-color: #ff6ec7}");
   lab3->setText(m_mode);
@@ -2553,7 +2546,7 @@ void MainWindow::on_actionJT65_triggered()
   m_TRperiod=60;
   m_nsps=6912;                   //For symspec only
   m_hsymStop=173;
-  soundInThread.setPeriod(m_TRperiod,m_nsps);
+  m_soundInput.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   lab3->setStyleSheet("QLabel{background-color: #ffff00}");
   lab3->setText(m_mode);
@@ -2572,7 +2565,7 @@ void MainWindow::on_actionJT9_JT65_triggered()
   m_TRperiod=60;
   m_nsps=6912;
   m_hsymStop=173;
-  soundInThread.setPeriod(m_TRperiod,m_nsps);
+  m_soundInput.setPeriod(m_TRperiod,m_nsps);
   soundOutThread.setPeriod(m_TRperiod,m_nsps);
   lab3->setStyleSheet("QLabel{background-color: #ffa500}");
   lab3->setText(m_mode);

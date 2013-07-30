@@ -337,7 +337,7 @@ private:
 
     QDateTime m_dateTimeQSO;
 
-    SoundInThread soundInThread;             //Instantiate the audio threads
+    SoundInput m_soundInput;             //Instantiate the audio objects
     SoundOutThread soundOutThread;
     QSharedMemory *mem_jt9;
  // Multiple instances:
