@@ -10,6 +10,7 @@ CONFIG   += thread
 #CONFIG   += console
 
 TARGET = wsjtx
+#DESTDIR = ../qt4_install
 DESTDIR = ../wsjtx_install
 VERSION = 1.1
 TEMPLATE = app

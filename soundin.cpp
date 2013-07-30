@@ -33,30 +33,19 @@ extern struct {
 } jt9com_;
 }
 
-typedef struct
-{
-  int kin;          //Parameters sent to/from the portaudio callback function
-  int ncall;
-  bool bzero;
-  bool monitoring;
-} paUserData;
-
 //--------------------------------------------------------------- a2dCallback
-extern "C" int a2dCallback( const void *inputBuffer, void *outputBuffer,
-                         unsigned long framesToProcess,
-                         const PaStreamCallbackTimeInfo* timeInfo,
-                         PaStreamCallbackFlags statusFlags,
-                         void *userData )
+int a2dCallback( const void *inputBuffer, void * /* outputBuffer */,
+		 unsigned long framesToProcess,
+		 const PaStreamCallbackTimeInfo * /* timeInfo */,
+		 PaStreamCallbackFlags statusFlags,
+		 void *userData )
 
 // This routine called by the PortAudio engine when samples are available.
 // It may be called at interrupt level, so don't do anything
 // that could mess up the system like calling malloc() or free().
 
 {
-  paUserData *udata=(paUserData*)userData;
-  (void) outputBuffer;          //Prevent unused variable warnings.
-  (void) timeInfo;
-  (void) userData;
+  SoundInput::CallbackData * udata = reinterpret_cast<SoundInput::CallbackData *>(userData);
   int nbytes,k;
 
   udata->ncall++;
@@ -79,22 +68,31 @@ extern "C" int a2dCallback( const void *inputBuffer, void *outputBuffer,
   return paContinue;
 }
 
-void SoundInThread::run()                           //SoundInThread::run()
+SoundInput::SoundInput()
+  : m_inStream(0),
+    m_dataSinkBusy(false),
+    m_TRperiod(60),
+    m_nsps(6912),
+    m_monitoring(false),
+    m_intervalTimer(this)
 {
-  quitExecution = false;
+  connect(&m_intervalTimer, &QTimer::timeout, this, &SoundInput::intervalNotify);
+}
+
+void SoundInput::start(qint32 device)
+{
+  stop();
 
 //---------------------------------------------------- Soundcard Setup
   PaError paerr;
   PaStreamParameters inParam;
-  PaStream *inStream;
-  paUserData udata;
 
-  udata.kin=0;                              //Buffer pointer
-  udata.ncall=0;                            //Number of callbacks
-  udata.bzero=false;                        //Flag to request reset of kin
-  udata.monitoring=m_monitoring;
+  m_callbackData.kin=0;                              //Buffer pointer
+  m_callbackData.ncall=0;                            //Number of callbacks
+  m_callbackData.bzero=false;                        //Flag to request reset of kin
+  m_callbackData.monitoring=m_monitoring;
 
-  inParam.device=m_nDevIn;                  //### Input Device Number ###
+  inParam.device=device;		    //### Input Device Number ###
   inParam.channelCount=1;                   //Number of analog channels
   inParam.sampleFormat=paInt16;             //Get i*2 from Portaudio
   inParam.suggestedLatency=0.05;
@@ -106,103 +104,83 @@ void SoundInThread::run()                           //SoundInThread::run()
 //    return;
   }
   qDebug() << "";
-  paerr=Pa_OpenStream(&inStream,            //Input stream
-        &inParam,                           //Input parameters
-        NULL,                               //No output parameters
-        12000.0,                            //Sample rate
-        FRAMES_PER_BUFFER,                  //Frames per buffer
+  paerr=Pa_OpenStream(&m_inStream, //Input stream
+        &inParam,		   //Input parameters
+        NULL,			   //No output parameters
+        12000.0,		   //Sample rate
+        FRAMES_PER_BUFFER,	   //Frames per buffer
 //        paClipOff+paDitherOff,            //No clipping or dithering
-        paClipOff,                          //No clipping
-        a2dCallback,                        //Input callback routine
-        &udata);                            //userdata
-
-  paerr=Pa_StartStream(inStream);
+        paClipOff,		//No clipping
+        a2dCallback,		//Input callback routine
+        &m_callbackData);	//userdata
+  paerr=Pa_StartStream(m_inStream);
   if(paerr<0) {
     emit error("Failed to start audio input stream.");
     return;
   }
+  m_ntr0 = 99;		     // initial value higher than any expected
+  m_nBusy = 0;
+  m_intervalTimer.start(100);
+  m_ms0 = QDateTime::currentMSecsSinceEpoch();
+  m_nsps0 = 0;
+}
 
-  bool qe = quitExecution;
-  static int ntr0=99;
-  int k=0;
-  int nsec;
-  int ntr;
-  int nBusy=0;
-  int nstep0=0;
-  int nsps0=0;
-  qint64 ms0 = QDateTime::currentMSecsSinceEpoch();
-
-//---------------------------------------------- Soundcard input loop
-  while (!qe) {
-    qe = quitExecution;
-    if (qe) break;
-    udata.monitoring=m_monitoring;
-    qint64 ms = QDateTime::currentMSecsSinceEpoch();
-    m_SamFacIn=1.0;
-    if(udata.ncall>100) {
-      m_SamFacIn=udata.ncall*FRAMES_PER_BUFFER*1000.0/(12000.0*(ms-ms0-50));
-    }
-    ms=ms % 86400000;
-    nsec = ms/1000;             // Time according to this computer
-    ntr = nsec % m_TRperiod;
-
-// Reset buffer pointer and symbol number at start of minute
-    if(ntr < ntr0 or !m_monitoring or m_nsps!=nsps0) {
-      nstep0=0;
-      nsps0=m_nsps;
-      udata.bzero=true;
-    }
-    k=udata.kin;
-    if(m_monitoring) {
-      int kstep=m_nsps/2;
-//      m_step=k/kstep;
-      m_step=(k-1)/kstep;
-      if(m_step != nstep0) {
-        if(m_dataSinkBusy) {
-          nBusy++;
-        } else {
-//          m_dataSinkBusy=true;
-//          emit readyForFFT(k);         //Signal to compute new FFTs
-          emit readyForFFT(k-1);         //Signal to compute new FFTs
-        }
-        nstep0=m_step;
-      }
-    }
-    msleep(100);
-    ntr0=ntr;
+void SoundInput::intervalNotify()
+{
+  m_callbackData.monitoring=m_monitoring;
+  qint64 ms = QDateTime::currentMSecsSinceEpoch();
+  m_SamFacIn=1.0;
+  if(m_callbackData.ncall>100) {
+    m_SamFacIn=m_callbackData.ncall*FRAMES_PER_BUFFER*1000.0/(12000.0*(ms-m_ms0-50));
   }
-  Pa_StopStream(inStream);
-  Pa_CloseStream(inStream);
+  ms=ms % 86400000;
+  int nsec = ms/1000;             // Time according to this computer
+  int ntr = nsec % m_TRperiod;
+
+  // Reset buffer pointer and symbol number at start of minute
+  if(ntr < m_ntr0 or !m_monitoring or m_nsps!=m_nsps0) {
+    m_nstep0=0;
+    m_nsps0=m_nsps;
+    m_callbackData.bzero=true;
+  }
+  int k=m_callbackData.kin;
+  if(m_monitoring) {
+    int kstep=m_nsps/2;
+    //      m_step=k/kstep;
+    m_step=(k-1)/kstep;
+    if(m_step != m_nstep0) {
+      if(m_dataSinkBusy) {
+	m_nBusy++;
+      } else {
+	//          m_dataSinkBusy=true;
+	//          emit readyForFFT(k);         //Signal to compute new FFTs
+	emit readyForFFT(k-1);         //Signal to compute new FFTs
+      }
+      m_nstep0=m_step;
+    }
+  }
+  m_ntr0=ntr;
 }
 
-void SoundInThread::setInputDevice(int n)                  //setInputDevice()
+SoundInput::~SoundInput()
 {
-  if (isRunning()) return;
-  this->m_nDevIn=n;
+  if (m_inStream)
+    {
+      Pa_CloseStream(m_inStream), m_inStream = 0;
+    }
 }
 
-void SoundInThread::quit()                                       //quit()
+void SoundInput::stop()
 {
-  quitExecution = true;
+  m_intervalTimer.stop();
+  if (m_inStream)
+    {
+      Pa_StopStream(m_inStream);
+      Pa_CloseStream(m_inStream), m_inStream = 0;
+    }
 }
 
-void SoundInThread::setMonitoring(bool b)                    //setMonitoring()
+void SoundInput::setMonitoring(bool b)
 {
   m_monitoring = b;
-}
-
-void SoundInThread::setPeriod(int ntrperiod, int nsps)
-{
-  m_TRperiod=ntrperiod;
-  m_nsps=nsps;
-}
-
-int SoundInThread::mstep()
-{
-  return m_step;
-}
-
-double SoundInThread::samFacIn()
-{
-  return m_SamFacIn;
 }

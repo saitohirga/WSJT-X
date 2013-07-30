@@ -1,34 +1,32 @@
 #ifndef SOUNDIN_H
 #define SOUNDIN_H
 
+#include <portaudio.h>
+
 #include <QtCore>
+#include <QScopedPointer>
 #include <QDebug>
 
+extern "C" int a2dCallback( const void *, void *, unsigned long, PaStreamCallbackTimeInfo const *, PaStreamCallbackFlags, void *);
 
-// Thread gets audio data from soundcard and signals when a buffer of
+// Gets audio data from soundcard and signals when a buffer of
 // specified size is available.
-class SoundInThread : public QThread
+class SoundInput : public QObject
 {
   Q_OBJECT
-  bool quitExecution;           // if true, thread exits gracefully
-
-protected:
-  virtual void run();
 
 public:
-  bool m_dataSinkBusy;
+  SoundInput();
+  ~SoundInput();
 
-  SoundInThread():
-    quitExecution(false),
-    m_dataSinkBusy(false)
-  {
-  }
-
-  void setInputDevice(qint32 n);
   void setMonitoring(bool b);
-  void setPeriod(int ntrperiod, int nsps);
-  int  mstep();
-  double samFacIn();
+  void setPeriod(int ntrperiod, int nsps) /* this can be called while processing samples */
+  {
+    m_TRperiod=ntrperiod;
+    m_nsps=nsps;
+  }
+  int  mstep() const {return m_step;}
+  double samFacIn() const {return m_SamFacIn;}
 
 signals:
   void readyForFFT(int k);
@@ -36,15 +34,35 @@ signals:
   void status(const QString& message);
 
 public slots:
-  void quit();
+  void start(qint32 device);
+  void intervalNotify();
+  void stop();
 
 private:
+  PaStream * m_inStream;
+  bool m_dataSinkBusy;
   double m_SamFacIn;                    //(Input sample rate)/12000.0
   qint32 m_step;
-  qint32 m_nDevIn;
   qint32 m_TRperiod;
   qint32 m_TRperiod0;
   qint32 m_nsps;
   bool   m_monitoring;
+  qint64 m_ms0;
+  int m_ntr0;
+  int m_nBusy;
+  int m_nstep0;
+  int m_nsps0;
+
+  QTimer m_intervalTimer;
+
+  struct CallbackData
+  {
+    int kin;          //Parameters sent to/from the portaudio callback function
+    int ncall;
+    bool bzero;
+    bool monitoring;
+  } m_callbackData;
+
+  friend int a2dCallback(void const *, void *, unsigned long, PaStreamCallbackTimeInfo const *, PaStreamCallbackFlags, void *);
 };
 #endif // SOUNDIN_H

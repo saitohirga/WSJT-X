@@ -2,6 +2,8 @@
 #include <QDebug>
 #include <QSettings>
 #include <portaudio.h>
+#include <QAudioDeviceInfo>
+#include <QAudioInput>
 
 #define MAXDEVICES 100
 
@@ -34,6 +36,25 @@ void DevSetup::initDlg()
   settings.beginGroup("Common");
   QString catPortDriver = settings.value("CATdriver","None").toString();
   settings.endGroup();
+
+/*
+	QList<QAudioDeviceInfo> InDevices;
+	QList<QAudioDeviceInfo> OutDevices;
+	QAudioDeviceInfo deviceInfo;
+
+	InDevices = deviceInfo.availableDevices(QAudio::AudioInput);
+	OutDevices = deviceInfo.availableDevices(QAudio::AudioOutput);
+
+	foreach (const QAudioDeviceInfo &deviceInfo, InDevices) {
+		ui.comboBoxSndIn->addItem(deviceInfo.deviceName(),
+															qVariantFromValue(deviceInfo));
+	}
+
+	foreach (const QAudioDeviceInfo &deviceInfo, OutDevices) {
+		ui.comboBoxSndOut->addItem(deviceInfo.deviceName(),
+															 qVariantFromValue(deviceInfo));
+	}
+*/
 
   int k,id;
   int numDevices=Pa_GetDeviceCount();
