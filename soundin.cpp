@@ -77,7 +77,7 @@ SoundInput::SoundInput()
     m_monitoring(false),
     m_intervalTimer(this)
 {
-  connect(&m_intervalTimer, &QTimer::timeout, this, &SoundInput::intervalNotify);
+	connect(&m_intervalTimer, SIGNAL(timeout()), this,SLOT(intervalNotify()));
 }
 
 void SoundInput::start(qint32 device)
@@ -246,7 +246,7 @@ SoundInput::SoundInput()
 		m_monitoring(false),
 		m_intervalTimer(this)
 {
-	connect(&m_intervalTimer, &QTimer::timeout, this, &SoundInput::intervalNotify);
+	connect(&m_intervalTimer, SIGNAL(timeout()), this,SLOT(intervalNotify()));
 }
 
 void SoundInput::start(qint32 device)
@@ -319,14 +319,12 @@ void SoundInput::intervalNotify()
 	Q_ASSERT(bytesReady >= 0);
 	Q_ASSERT(bytesReady % 2 == 0);
 	if (bytesReady == 0) {
-//		msleep(50);
 		return;
 	}
 
-	// Get the new samples
 	qint32 bytesRead;
 	qint16 buf0[4096];
-	bytesRead = stream->read((char*)buf0, bytesReady);
+	bytesRead = stream->read((char*)buf0, bytesReady);   // Get the new samples
 	Q_ASSERT(bytesRead <= bytesReady);
 	if (bytesRead < 0) {
 		emit error(tr("audio stream QIODevice::read returned -1."));
@@ -342,14 +340,11 @@ void SoundInput::intervalNotify()
 
 	if(m_monitoring) {
 		int kstep=m_nsps/2;
-		//      m_step=k/kstep;
 		m_step=(k-1)/kstep;
 		if(m_step != m_nstep0) {
 			if(m_dataSinkBusy) {
 	m_nBusy++;
 			} else {
-	//          m_dataSinkBusy=true;
-	//          emit readyForFFT(k);         //Signal to compute new FFTs
 	emit readyForFFT(k-1);         //Signal to compute new FFTs
 			}
 			m_nstep0=m_step;

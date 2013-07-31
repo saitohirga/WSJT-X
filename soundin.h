@@ -109,7 +109,7 @@ public slots:
 
 private:
 	bool m_dataSinkBusy;
-	double m_SamFacIn;                    //(Input sample rate)/12000.0
+	double m_SamFacIn;                     //(Input sample rate)/12000.0
 	qint32 m_step;
 	qint32 m_TRperiod;
 	qint32 m_TRperiod0;
@@ -122,17 +122,17 @@ private:
 	int m_nsps0;
 
 	QTimer m_intervalTimer;
-	QAudioDeviceInfo inputDevice;             // audioinput device name
+	QAudioDeviceInfo inputDevice;          // audioinput device name
 	QAudioInput* audioInput;
 	QIODevice* stream;
 
 	struct CallbackData
 	{
-		int kin;          //Parameters sent to/from the portaudio callback function
+		int kin;
 		int ncall;
 		bool bzero;
 		bool monitoring;
-	} m_callbackData;
+	} m_callbackData;  //Parameters sent to/from the Notify function
 };
 #endif // SOUNDIN_H
 #endif // QAUDIO_INPUT
