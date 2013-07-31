@@ -488,29 +488,28 @@ void CPlotter::setPalette(QString palette)                      //setPalette()
     return;
   }
 
-	QFile f;
-	if(palette=="Blue") f.setFileName("blue.dat");
-	if(palette=="AFMHot") f.setFileName("afmhot.dat");
-	if(palette=="Gray1") f.setFileName("gray1.dat");
-	if(f.open(QIODevice::ReadOnly)) {
-		 QTextStream in(&f);
-		 int n,r,g,b;
-		 float xr,xg,xb;
-		 for(int i=0; i<256; i++) {
-			 in >> n >> xr >> xg >> xb;
-			 r=255.0*xr + 0.5;
-			 g=255.0*xg + 0.5;
-			 b=255.0*xb + 0.5;
-			 m_ColorTbl[i].setRgb(r,g,b);
-		 }
-		 f.close();
-	} else {
+  FILE* fp=NULL;
+  if(palette=="Blue") fp=fopen("blue.dat","r");
+  if(palette=="AFMHot") fp=fopen("afmhot.dat","r");
+  if(palette=="Gray1") fp=fopen("gray1.dat","r");
+  if(fp==NULL) {
     QMessageBox msgBox0;
     QString t="Error: Cannot find requested palette file.";
     msgBox0.setText(t);
     msgBox0.exec();
     return;
-  }   
+  }
+
+  int n,r,g,b;
+  float xr,xg,xb;
+  for(int i=0; i<256; i++) {
+    int nn=fscanf(fp,"%d%f%f%f",&n,&xr,&xg,&xb);
+    r=255.0*xr + 0.5;
+    g=255.0*xg + 0.5;
+    b=255.0*xb + 0.5;
+    m_ColorTbl[i].setRgb(r,g,b);
+    if(nn==-999999) i++;                  //Silence compiler warning
+  }
 }
 
 double CPlotter::fGreen()
