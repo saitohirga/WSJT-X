@@ -1144,7 +1144,7 @@ void MainWindow::msgBox(QString t)                             //msgBox
 void MainWindow::on_actionOnline_Users_Guide_triggered()      //Display manual
 {
   QDesktopServices::openUrl(QUrl(
-  "http://www.physics.princeton.edu/pulsar/K1JT/WSJT-X_Users_Guide_v1.1.pdf",
+  "http://www.physics.princeton.edu/pulsar/K1JT/WSJT-X_Users_Guide_v1.1.1.pdf",
                               QUrl::TolerantMode));
 }
 
