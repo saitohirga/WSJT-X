@@ -182,6 +182,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   m_promptToLog=false;
   m_blankLine=false;
   m_insertBlank=false;
+  m_displayDXCCEntity=false;
   m_clearCallGrid=false;
   m_bMiles=false;
   m_decodedText2=false;
@@ -353,6 +354,8 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   psk_Reporter->setLocalStation(m_myCall,m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
 #endif
 
+  m_logBook.init();
+
   ui->label_9->setStyleSheet("QLabel{background-color: #aabec8}");
   ui->label_10->setStyleSheet("QLabel{background-color: #aabec8}");
   ui->labUTC->setStyleSheet( \
@@ -464,6 +467,7 @@ void MainWindow::writeSettings()
   settings.setValue("BandIndex",m_band);
   settings.setValue("PromptToLog",m_promptToLog);
   settings.setValue("InsertBlank",m_insertBlank);
+  settings.setValue("DXCCEntity",m_displayDXCCEntity);
   settings.setValue("ClearCallGrid",m_clearCallGrid);
   settings.setValue("Miles",m_bMiles);
   settings.setValue("GUItab",ui->tabWidget->currentIndex());
@@ -607,6 +611,8 @@ void MainWindow::readSettings()
   ui->actionPrompt_to_log_QSO->setChecked(m_promptToLog);
   m_insertBlank=settings.value("InsertBlank",false).toBool();
   ui->actionBlank_line_between_decoding_periods->setChecked(m_insertBlank);
+  m_displayDXCCEntity=settings.value("DXCCEntity",false).toBool();
+  ui->actionEnable_DXCC_entity->setChecked(m_displayDXCCEntity);
   m_clearCallGrid=settings.value("ClearCallGrid",false).toBool();
   ui->actionClear_DX_Call_and_Grid_after_logging->setChecked(m_clearCallGrid);
   m_bMiles=settings.value("Miles",false).toBool();
@@ -1473,6 +1479,44 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
       bool bQSO=abs(t.mid(14,4).toInt() - g_pWideGraph->rxFreq()) <= 10;
       QString t1=t.replace("\n","").mid(0,t.length()-4);
+
+      // if enabled add the DXCC entity and B4 status to the end of the preformated text line t1
+      int cqi = t.indexOf(" CQ ");
+      if (m_displayDXCCEntity && (cqi >= 0))
+      {
+          // extract the CQer's call   TODO: does this work with all call formats?  What about 'CQ DX'?
+          int s1 = 4 + t.indexOf(" CQ ");
+          int s2 = t.indexOf(" ",s1);
+          QString call = t.mid(s1,s2-s1);
+          QString countryName;
+          bool callWorkedBefore;
+          bool countryWorkedBefore;
+          m_logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
+
+          t1 = t1.left(36);  // reduce trailing white space  TODO: hardcoded char count
+
+          if (!countryWorkedBefore) // therefore not worked call either
+          {
+              t1 += "!";
+              bg = "#66ff66"; // strong green
+          }
+          else
+              if (!callWorkedBefore) // but have worked the country
+              {
+                  t1 += "~";
+                  bg = "#76cd76"; // mid green
+              }
+              else
+              {
+                  t1 += " ";  // have worked this call before
+                  bg="#9cc79c"; // pale green
+              }
+          if (countryName.length()>10)  //TODO: hardcoded width. Depends on font and window size/layout
+              countryName = countryName.left(1)+"."+countryName.right(8);  //abreviate the first word to the first letter, show remaining right most chars
+          t1 += countryName;
+      }
+
+
       QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
           bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
       bool b65=t1.indexOf("#")==19;
@@ -1489,10 +1533,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
 
       if(jt9com_.nagain==0) {
-        if(t.indexOf(" CQ ")>0) bg="#66ff66";                          //green
         if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
         QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-            bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
+                bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
         cursor = ui->decodedTextBrowser->textCursor();
         cursor.movePosition(QTextCursor::End);
         bf = cursor.blockFormat();
@@ -2506,6 +2549,7 @@ void MainWindow::acceptQSO2(bool accepted)
     m_saveComments=logDlg->m_saveComments;
     m_txPower=logDlg->m_txPower;
     m_logComments=logDlg->m_comments;
+    m_logBook.addAsWorked(m_hisCall);
     if(m_clearCallGrid) {
       m_hisCall="";
       ui->dxCallEntry->setText("");
@@ -2773,6 +2817,13 @@ void MainWindow::on_actionPrompt_to_log_QSO_triggered(bool checked)
 void MainWindow::on_actionBlank_line_between_decoding_periods_triggered(bool checked)
 {
   m_insertBlank=checked;
+}
+
+void MainWindow::on_actionEnable_DXCC_entity_triggered(bool checked)
+{
+  m_displayDXCCEntity=checked;
+  if (checked)
+      m_logBook.init();  // re-read the log and cty.dat files
 }
 
 void MainWindow::on_actionClear_DX_Call_and_Grid_after_logging_triggered(bool checked)

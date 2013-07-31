@@ -13,6 +13,7 @@
 #include "psk_reporter.h"
 #include "rigclass.h"
 #include "signalmeter.h"
+#include "logbook/logbook.h"
 
 #ifdef WIN32
 #include "PSKReporter.h"
@@ -134,6 +135,7 @@ private slots:
   void stopTx2();
   void on_actionPrompt_to_log_QSO_triggered(bool checked);
   void on_actionBlank_line_between_decoding_periods_triggered(bool checked);
+  void on_actionEnable_DXCC_entity_triggered(bool checked);
   void on_actionClear_DX_Call_and_Grid_after_logging_triggered(bool checked);
   void on_actionDisplay_distance_in_miles_triggered(bool checked);
   void on_pbCallCQ_clicked();
@@ -243,6 +245,7 @@ private:
     bool    m_promptToLog;
     bool    m_blankLine;
     bool    m_insertBlank;
+    bool    m_displayDXCCEntity;
     bool    m_clearCallGrid;
     bool    m_bMiles;
     bool    m_decodedText2;
@@ -344,6 +347,8 @@ private:
     QString       *mykey_jt9;
     PSK_Reporter *psk_Reporter;
     SignalMeter *signalMeter;
+    LogBook m_logBook;
+
 
 //---------------------------------------------------- private functions
     void readSettings();
