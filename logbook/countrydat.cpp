@@ -1,0 +1,128 @@
+/*
+#Sov Mil Order of Malta:   15:  28:  EU:   41.90:   -12.43:    -1.0:  1A:
+    #1A;
+#Spratly Islands:          26:  50:  AS:    9.88:  -114.23:    -8.0:  1S:
+    #1S,9M0,BV9S;
+#Monaco:                   14:  27:  EU:   43.73:    -7.40:    -1.0:  3A:
+    #3A;
+#Heard Island:             39:  68:  AF:  -53.08:   -73.50:    -5.0:  VK0H:
+    #=VK0IR;
+#Macquarie Island:         30:  60:  OC:  -54.60:  -158.88:   -10.0:  VK0M:
+    #=VK0KEV;
+#Cocos-Keeling:            29:  54:  OC:  -12.15:   -96.82:    -6.5:  VK9C:
+    #AX9C,AX9Y,VH9C,VH9Y,VI9C,VI9Y,VJ9C,VJ9Y,VK9C,VK9Y,VL9C,VL9Y,VM9C,VM9Y,
+    #VN9C,VN9Y,VZ9C,VZ9Y,=VK9AA;
+*/
+
+
+#include "countrydat.h"
+#include <QFile>
+#include <QTextStream>
+
+
+void CountryDat::init(const QString filename)
+{
+    _filename = filename;
+    _data.clear();
+}
+
+QString CountryDat::_extractName(const QString line)
+{
+    int s1 = line.indexOf(':');
+    QString name = line.mid(0,s1);
+    return name;
+}
+
+void CountryDat::_removeBrackets(QString &line, const QString a, const QString b)
+{
+    int s1 = line.indexOf(a);
+    while (s1 >= 0)
+    {
+      int s2 = line.indexOf(b);
+      line = line.mid(0,s1) + line.mid(s2+1,-1);
+      s1 = line.indexOf(a);
+    }
+}    
+
+QStringList CountryDat::_extractPrefix(QString &line, bool &more)
+{
+    line = line.remove(" \n");
+    line = line.replace("=","");
+    line = line.replace(" ","");
+
+    _removeBrackets(line,"(",")");
+    _removeBrackets(line,"[","]");
+    _removeBrackets(line,"<",">");
+    _removeBrackets(line,"~","~");
+
+    int s1 = line.indexOf(';');
+    more = true;
+    if (s1 >= 0)
+    {
+      line = line.mid(0,s1);
+      more = false;
+    }
+
+    QStringList r = line.split(',');
+
+    return r;
+}
+
+
+void CountryDat::load()
+{
+    _data.clear(); //dictionary was = {}
+    _countryNames.clear(); //used by countriesWorked
+  
+    QFile inputFile(_filename);
+    if (inputFile.open(QIODevice::ReadOnly))
+    {
+       QTextStream in(&inputFile);
+       while ( !in.atEnd() )
+       {
+          QString line1 = in.readLine();
+          if ( !in.atEnd() )
+          {
+            QString line2 = in.readLine();
+              
+            QString name = _extractName(line1);
+            _countryNames << name; 
+            bool more = true;
+			QStringList prefixs;
+			while (more)
+			{
+			  QStringList p = _extractPrefix(line2,more);
+			  prefixs += p;
+			  if (more)
+				line2 = in.readLine();
+             }
+			
+			QString p;	
+			foreach(p,prefixs)
+            {
+                if (p.length() > 0)
+                    _data.insert(p,name);
+			}  
+          }
+       }
+    inputFile.close();
+    }
+}
+
+// return country name else ""
+QString CountryDat::find(QString prefix)
+{
+  	while(prefix.length() >= 1)
+  	{
+	  if (_data.contains(prefix))
+	  {
+	    QString country = _data.value(prefix);
+	    return country;
+	   }
+	   prefix = prefix.left(prefix.length()-1);
+	 }
+	 return "";
+}	   
+
+      
+

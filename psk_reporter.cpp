@@ -95,10 +95,10 @@ void PSK_Reporter::sendReport()
         txInfoData_h += "0000";
         txInfoData_h.replace("50E3llll", "50E3" + QString("%1").arg(txInfoData_h.length()/2,4,16,QChar('0')));
         report_h = header_h + m_rxInfoDescriptor_h + m_txInfoDescriptor_h + rxInfoData_h + txInfoData_h;
-        qDebug() << "Sending Report TX: ";
+        //qDebug() << "Sending Report TX: ";
     } else {
         report_h = header_h + m_rxInfoDescriptor_h + rxInfoData_h;
-        qDebug() << "Sending Report RX: ";
+        //qDebug() << "Sending Report RX: ";
     }
 
     report_h.replace("000Allll", "000A" + QString("%1").arg(report_h.length()/2,4,16,QChar('0')));

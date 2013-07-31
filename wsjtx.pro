@@ -16,7 +16,7 @@ VERSION = 1.1
 TEMPLATE = app
 #DEFINES = QT4
 DEFINES = QT5
-DEFINES += QAUDIO_INPUT
+#DEFINES += QAUDIO_INPUT
 
 win32 {
 DEFINES += WIN32
@@ -41,7 +41,11 @@ SOURCES += main.cpp mainwindow.cpp plotter.cpp about.cpp \
     getfile.cpp displaytext.cpp getdev.cpp logqso.cpp \
     psk_reporter.cpp rigclass.cpp \
     signalmeter.cpp \
-    meterwidget.cpp
+    meterwidget.cpp \
+    logbook/logbook.cpp \
+    logbook/countrydat.cpp \
+    logbook/countriesworked.cpp \
+    logbook/adif.cpp
 
 win32 {
 SOURCES += killbyname.cpp
@@ -52,7 +56,11 @@ HEADERS  += mainwindow.h plotter.h soundin.h soundout.h \
             commons.h sleep.h displaytext.h logqso.h \
             psk_reporter.h rigclass.h \
     signalmeter.h \
-    meterwidget.h
+    meterwidget.h \
+    logbook/logbook.h \
+    logbook/countrydat.h \
+    logbook/countriesworked.h \
+    logbook/adif.h
 
 # (Is the following really needed???)
 #DEFINES += __cplusplus
