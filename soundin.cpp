@@ -3,7 +3,6 @@
 #include <stdexcept>
 
 #define FRAMES_PER_BUFFER 1024
-//#define NSMAX 1365
 #define NSMAX 6827
 #define NTMAX 120
 
@@ -191,7 +190,6 @@ void SoundInput::setMonitoring(bool b)
 #include <stdexcept>
 
 #define FRAMES_PER_BUFFER 1024
-//#define NSMAX 1365
 #define NSMAX 6827
 #define NTMAX 120
 
@@ -216,7 +214,7 @@ extern struct {
 	int nsave;
 	int nagain;
 	int ndepth;
-	int ntxmode;
+  int ntxmode;
 	int nmode;
 	char datetime[20];
 } jt9com_;
@@ -246,7 +244,8 @@ SoundInput::SoundInput()
 		m_monitoring(false),
 		m_intervalTimer(this)
 {
-	connect(&m_intervalTimer, SIGNAL(timeout()), this,SLOT(intervalNotify()));
+//  qDebug() << "A";
+  connect(&m_intervalTimer, SIGNAL(timeout()), this,SLOT(intervalNotify()));
 }
 
 void SoundInput::start(qint32 device)
@@ -266,6 +265,7 @@ void SoundInput::start(qint32 device)
 	m_InDevices = DeviceInfo.availableDevices(QAudio::AudioInput);
 	inputDevice = m_InDevices.at(0);
 	//###
+//  qDebug() << "B" << m_InDevices.length() << inputDevice.deviceName();
 
 	const char* pcmCodec = "audio/pcm";
 	QAudioFormat audioFormat = inputDevice.preferredFormat();
@@ -275,19 +275,22 @@ void SoundInput::start(qint32 device)
 	audioFormat.setSampleType(QAudioFormat::SignedInt);
 	audioFormat.setSampleSize(16);
 
+//  qDebug() << "C" << audioFormat << audioFormat.isValid();
+
 	if (!audioFormat.isValid()) {
 		emit error(tr("Requested audio format is not available."));
 		return;
 	}
 
 	audioInput = new QAudioInput(inputDevice, audioFormat);
-//	audioInput2=audioInput;
-	if (audioInput->error() != QAudio::NoError) {
+//  qDebug() << "D" << audioInput->error() << QAudio::NoError;
+  if (audioInput->error() != QAudio::NoError) {
 		emit error(reportAudioError(audioInput->error()));
 		return;
 	}
 
 	stream = audioInput->start();
+//  qDebug() << "E" << stream->errorString();
 
 	m_ntr0 = 99;		     // initial value higher than any expected
 	m_nBusy = 0;
@@ -305,7 +308,8 @@ void SoundInput::intervalNotify()
 	int ntr = nsec % m_TRperiod;
 	static int k=0;
 
-	// Reset buffer pointer and symbol number at start of minute
+//  qDebug() << "a" << ms << nsec;
+  // Reset buffer pointer and symbol number at start of minute
 	if(ntr < m_ntr0 or !m_monitoring or m_nsps!=m_nsps0) {
 		m_nstep0=0;
 		m_nsps0=m_nsps;
@@ -314,29 +318,25 @@ void SoundInput::intervalNotify()
 	}
 //	int k=m_callbackData.kin;
 
-	// How many new samples have been acquired?
+// How many new samples are available?
 	const qint32 bytesReady = audioInput->bytesReady();
-	Q_ASSERT(bytesReady >= 0);
+//  qDebug() << "b" << bytesReady;
+  Q_ASSERT(bytesReady >= 0);
 	Q_ASSERT(bytesReady % 2 == 0);
 	if (bytesReady == 0) {
 		return;
 	}
 
 	qint32 bytesRead;
-	qint16 buf0[4096];
-	bytesRead = stream->read((char*)buf0, bytesReady);   // Get the new samples
-	Q_ASSERT(bytesRead <= bytesReady);
+  bytesRead = stream->read((char*)&jt9com_.d2[k], bytesReady);   // Get the new samples
+  k += bytesRead/2;
+//  qDebug() << "c" << bytesReady << bytesRead;
+  Q_ASSERT(bytesRead <= bytesReady);
 	if (bytesRead < 0) {
 		emit error(tr("audio stream QIODevice::read returned -1."));
 		return;
 	}
 	Q_ASSERT(bytesRead % 2 == 0);
-
-//		memcpy(jt9com_.d2[k],buf0,bytesRead);
-//		k+=bytesRead/2;
-	for(int i=0; i<bytesRead/2; i++) {
-		jt9com_.d2[k++]=buf0[i];
-	}
 
 	if(m_monitoring) {
 		int kstep=m_nsps/2;
@@ -362,7 +362,13 @@ SoundInput::~SoundInput()
 		}
 */
 }
-
+/*
+//		memcpy(jt9com_.d2[k],buf0,bytesRead);
+//		k+=bytesRead/2;
+  for(int i=0; i<bytesRead/2; i++) {
+    jt9com_.d2[k++]=buf0[i];
+  }
+*/
 void SoundInput::stop()
 {
 	m_intervalTimer.stop();

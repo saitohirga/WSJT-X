@@ -13,7 +13,8 @@ CAboutDlg::CAboutDlg(QWidget *parent, QString Revision) :
   m_Str += "Amateur Radio communication.  <br><br>";
   m_Str += "Copyright 2001-2013 by Joe Taylor, K1JT -- with grateful <br>";
   m_Str += "acknowledgment for contributions from AC6SL, AE4JY, <br>";
-  m_Str += "G4KLA, G4WJS, K3WYC, KA6MAL, KA9Q, PY2SDR, and VK4BDJ.<br>";
+  m_Str += "G4KLA, G4WJS, K3WYC, KA6MAL, KA9Q, PY2SDR, VK3ACF, <br>";
+  m_Str += "and VK4BDJ.<br>";
   ui->labelTxt->setText(m_Str);
 }
 
