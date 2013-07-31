@@ -643,8 +643,8 @@ void MainWindow::readSettings()
   m_fMin=settings.value("fMin",2500).toInt();
   m_bSplit=settings.value("TxSplit",false).toBool();
   m_bXIT=settings.value("UseXit",false).toBool();
-  m_plus2kHz=settings.value("Plus2kHz",false).toBool();
-  ui->cbPlus2kHz->setChecked(m_plus2kHz);
+	m_plus2kHz=settings.value("Plus2kHz",false).toBool();
+	ui->cbPlus2kHz->setChecked(m_plus2kHz);
   settings.endGroup();
 
   if(!ui->actionLinrad->isChecked() and !ui->actionCuteSDR->isChecked()and
@@ -1861,7 +1861,16 @@ void MainWindow::guiUpdate()
   }
 
   if(m_catEnabled and !m_bRigOpen) {
-    rigOpen();
+		rigOpen();
+		if(m_bSplit or m_bXIT) setXIT(m_txFreq);
+		if(m_bRigOpen and !m_bSplit) {
+			int ret=rig->setSplitFreq(MHz(m_dialFreq),RIG_VFO_B);
+			if(ret!=RIG_OK) {
+				QString rt;
+				rt.sprintf("Setting VFO_B failed:  %d",ret);
+				msgBox(rt);
+			}
+		}
   }
 
   if(nsec != m_sec0) {                                     //Once per second
