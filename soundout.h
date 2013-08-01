@@ -1,53 +1,76 @@
 #ifndef SOUNDOUT_H
 #define SOUNDOUT_H
-#include <QtCore>
-#include <QDebug>
 
-// An instance of this thread sends audio data to a specified soundcard.
+#include <portaudio.h>
+
+#include <QObject>
+#include <QString>
+
+extern "C" int d2aCallback(const void *, void *,
+                           unsigned long,
+                           PaStreamCallbackTimeInfo const *,
+                           PaStreamCallbackFlags,
+                           void *);
+
+// An instance of this sends audio data to a specified soundcard.
 // Output can be muted while underway, preserving waveform timing when
 // transmission is resumed.
 
-class SoundOutThread : public QThread
+class SoundOutput : public QObject
 {
-  Q_OBJECT
+  Q_OBJECT;
 
-protected:
-  virtual void run();
-
-public:
-// Constructs (but does not start) a SoundOutThread
-  SoundOutThread()
-    :   quitExecution(false)           // Initialize some private members
-    ,   m_txOK(false)
-    ,   m_txMute(false)
-  {
-  }
+  Q_PROPERTY(bool running READ isRunning);
+  Q_PROPERTY(bool mute READ isMuted WRITE mute);
+  Q_PROPERTY(bool tune READ isTuning WRITE tune);
 
 public:
-  void setOutputDevice(qint32 n);
-  void setPeriod(int ntrperiod, int nsps);
-  void setTxFreq(int n);
-  void setXIT(int n);
-  void setTxSNR(double snr);
-  void setTune(bool b);
-  double samFacOut();
-  bool quitExecution;           //If true, thread exits gracefully
-  QString m_modeTx;
+  SoundOutput();
+  ~SoundOutput();
+
+  bool isRunning() const {return m_active;}
+  bool isMuted() const {return m_callbackData.mute;}
+  bool isTuning() const {return m_callbackData.tune;}
+  double outputLatency() const {return m_outputLatency;}
+
+  // the following can be called while the stream is running
+  void setTxFreq(int n) {m_callbackData.ntxfreq = n;}
+  void setXIT(int n) {m_callbackData.xit = n;}
+  void mute(bool b = true) {m_callbackData.mute = b;}
+  void tune(bool b = true) {m_callbackData.tune = b;}
+
+public slots:
+  void start(qint32 deviceNumber, QString const& mode,int TRPeriod,int nsps,int txFreq,int xit,double txsnrdb = 99.);
+  void stop();
 
 // Private members
 private:
-  double  m_txsnrdb;            //if < 0, add noise to Tx audio
-  double  m_SamFacOut;          //(Output sample rate)/48000.0
+  PaStream * m_stream;
+  PaTime m_outputLatency;
 
-  qint32  m_nDevOut;            //Output device number
-  qint32  m_TRperiod;           //T/R period (s)
-  qint32  m_nsps;               //Samples per symbol (at 12000 Hz)
-  qint32  m_txFreq;
-  qint32  m_xit;
+  struct CallbackData
+  {
+    //Parameters sent to or received from callback function
+    double volatile txsnrdb;
+    double volatile dnsps;	//Samples per symbol (at 12000 Hz)
+    int volatile    ntrperiod;	//T/R period (s)
+    int volatile    ntxfreq;
+    int volatile    xit;
+    int volatile    ncall;
+    int volatile    nsym;
+    bool volatile   mute;
+    bool volatile   bRestart;
+    bool volatile   tune;
+  } m_callbackData;
 
-  bool    m_txOK;               //Enable Tx audio
-  bool    m_txMute;             //Mute temporarily
-  bool    m_tune;
+  qint64  m_ms0;
+  bool m_active;
+
+  friend int d2aCallback(const void *, void *,
+			 unsigned long,
+			 PaStreamCallbackTimeInfo const *,
+			 PaStreamCallbackFlags,
+			 void *);
 };
 
 #endif

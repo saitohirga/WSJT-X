@@ -183,6 +183,7 @@ private:
     qint32  m_timeout;
     qint32  m_rxFreq;
     qint32  m_txFreq;
+    int     m_XIT;
     qint32  m_setftx;
     qint32  m_ndepth;
     qint32  m_sec0;
@@ -219,6 +220,8 @@ private:
     qint32  m_bad;
 
     bool    m_monitoring;
+    bool    m_btxok;		//True if OK to transmit
+    bool    m_btxMute;		//True if transmit should be muted
     bool    m_transmitting;
     bool    m_diskData;
     bool    m_loopall;
@@ -341,7 +344,7 @@ private:
     QDateTime m_dateTimeQSO;
 
     SoundInput m_soundInput;             //Instantiate the audio objects
-    SoundOutThread soundOutThread;
+    SoundOutput m_soundOutput;
     QSharedMemory *mem_jt9;
  // Multiple instances:
     QString       *mykey_jt9;

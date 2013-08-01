@@ -4,9 +4,9 @@
 
 #include <portaudio.h>
 
-#include <QtCore>
-#include <QScopedPointer>
-#include <QDebug>
+#include <QObject>
+#include <QTimer>
+#include <QString>
 
 extern "C" int a2dCallback( const void *, void *, unsigned long, PaStreamCallbackTimeInfo const *, PaStreamCallbackFlags, void *);
 
@@ -20,14 +20,15 @@ public:
   SoundInput();
   ~SoundInput();
 
-  void setMonitoring(bool b);
-  void setPeriod(int ntrperiod, int nsps) /* this can be called while processing samples */
+  int  mstep() const {return m_step;}
+
+  /* these can be called while processing samples */
+  void setMonitoring(bool b) {m_monitoring = b;}
+  void setPeriod(int ntrperiod, int nsps)
   {
     m_TRperiod=ntrperiod;
     m_nsps=nsps;
   }
-  int  mstep() const {return m_step;}
-  double samFacIn() const {return m_SamFacIn;}
 
 signals:
   void readyForFFT(int k);
@@ -36,13 +37,10 @@ signals:
 
 public slots:
   void start(qint32 device);
-  void intervalNotify();
   void stop();
 
 private:
   PaStream * m_inStream;
-  bool m_dataSinkBusy;
-  double m_SamFacIn;                    //(Input sample rate)/12000.0
   qint32 m_step;
   qint32 m_TRperiod;
   qint32 m_TRperiod0;
@@ -50,7 +48,6 @@ private:
   bool   m_monitoring;
   qint64 m_ms0;
   int m_ntr0;
-  int m_nBusy;
   int m_nstep0;
   int m_nsps0;
 
@@ -58,23 +55,26 @@ private:
 
   struct CallbackData
   {
-    int kin;          //Parameters sent to/from the portaudio callback function
-    int ncall;
-    bool bzero;
-    bool monitoring;
+    //Parameters sent to/from the portaudio callback function
+    int volatile kin;
+    bool volatile bzero;
+    bool volatile monitoring;
   } m_callbackData;
+
+private slots:
+  void intervalNotify();
 
   friend int a2dCallback(void const *, void *, unsigned long, PaStreamCallbackTimeInfo const *, PaStreamCallbackFlags, void *);
 };
+
 #endif // SOUNDIN_H
 
 #else  // QAUDIO_INPUT
 #ifndef SOUNDIN_H
 #define SOUNDIN_H
 
-#include <QtCore>
-#include <QScopedPointer>
-#include <QDebug>
+#include <QObject>
+#include <QTimer>
 #include <QAudioDeviceInfo>
 #include <QAudioInput>
 
@@ -88,7 +88,7 @@ public:
 	SoundInput();
 	~SoundInput();
 
-	void setMonitoring(bool b);
+	void setMonitoring(bool b) {m_monitoring = b;}
 	void setPeriod(int ntrperiod, int nsps) /* this can be called while processing samples */
 	{
 		m_TRperiod=ntrperiod;
@@ -104,7 +104,6 @@ signals:
 
 public slots:
 	void start(qint32 device);
-	void intervalNotify();
 	void stop();
 
 private:
@@ -133,6 +132,9 @@ private:
 		bool bzero;
 		bool monitoring;
 	} m_callbackData;  //Parameters sent to/from the Notify function
+
+private slots:
+  void intervalNotify();
 };
 #endif // SOUNDIN_H
 #endif // QAUDIO_INPUT
