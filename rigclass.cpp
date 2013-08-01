@@ -168,6 +168,8 @@ int Rig::setFreq(freq_t freq, vfo_t vfo) {
     QString t;
     double f=0.001*freq;
     t.sprintf("<command:10>CmdSetFreq<parameters:23><xcvrfreq:10>%10.3f",f);
+    QLocale locale;
+    t.replace(".",locale.decimalPoint());
     QByteArray ba = t.toLocal8Bit();
     const char* buf=ba.data();
     commanderSocket->write(buf);
@@ -216,6 +218,8 @@ int Rig::setSplitFreq(freq_t tx_freq, vfo_t vfo) {
     QString t;
     double f=0.001*tx_freq;
     t.sprintf("<command:12>CmdSetTxFreq<parameters:23><xcvrfreq:10>%10.3f",f);
+    QLocale locale;
+    t.replace(".",locale.decimalPoint());
     QByteArray ba = t.toLocal8Bit();
     const char* buf=ba.data();
     commanderSocket->write(buf);

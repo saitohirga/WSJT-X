@@ -203,8 +203,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   signalMeter = new SignalMeter(ui->meterFrame);
   signalMeter->resize(50, 160);
 
-//  qDebug() << signalMeter->size();
-
   ui->labAz->setStyleSheet("border: 0px;");
   ui->labDist->setStyleSheet("border: 0px;");
 
