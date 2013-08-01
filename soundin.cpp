@@ -1,6 +1,8 @@
 #ifndef QAUDIO_INPUT
 #include "soundin.h"
-#include <stdexcept>
+
+#include <QDateTime>
+#include <QDebug>
 
 #define FRAMES_PER_BUFFER 1024
 #define NSMAX 6827
@@ -48,29 +50,28 @@ int a2dCallback( const void *inputBuffer, void * /* outputBuffer */,
   SoundInput::CallbackData * udata = reinterpret_cast<SoundInput::CallbackData *>(userData);
   int nbytes,k;
 
-  udata->ncall++;
   if( (statusFlags&paInputOverflow) != 0) {
     qDebug() << "Input Overflow in a2dCallback";
   }
-  if(udata->bzero) {           //Start of a new Rx sequence
-    udata->kin=0;              //Reset buffer pointer
-    udata->bzero=false;
-  }
+  if(udata->bzero)
+    { //Start of a new Rx sequence
+      udata->kin = 0;		//Reset buffer pointer
+      udata->bzero = false;
+    }
 
-  nbytes=2*framesToProcess;        //Bytes per frame
+  nbytes=2*framesToProcess;	//Bytes per frame
   k=udata->kin;
   if(udata->monitoring) {
     memcpy(&jt9com_.d2[k],inputBuffer,nbytes);      //Copy all samples to d2
   }
-  udata->kin += framesToProcess;
-  jt9com_.kin=udata->kin;
+  udata->kin+=framesToProcess;
+  jt9com_.kin=udata->kin; // we are the only writer to jt9com_ so no MT issue here
 
   return paContinue;
 }
 
 SoundInput::SoundInput()
   : m_inStream(0),
-    m_dataSinkBusy(false),
     m_TRperiod(60),
     m_nsps(6912),
     m_monitoring(false),
@@ -87,10 +88,9 @@ void SoundInput::start(qint32 device)
   PaError paerr;
   PaStreamParameters inParam;
 
-  m_callbackData.kin=0;                              //Buffer pointer
-  m_callbackData.ncall=0;                            //Number of callbacks
-  m_callbackData.bzero=false;                        //Flag to request reset of kin
-  m_callbackData.monitoring=m_monitoring;
+  m_callbackData.kin = 0;	 //Buffer pointer
+  m_callbackData.bzero = false;	 //Flag to request reset of kin
+  m_callbackData.monitoring = m_monitoring;
 
   inParam.device=device;		    //### Input Device Number ###
   inParam.channelCount=1;                   //Number of analog channels
@@ -101,9 +101,7 @@ void SoundInput::start(qint32 device)
   paerr=Pa_IsFormatSupported(&inParam,NULL,12000.0);
   if(paerr<0) {
     emit error("PortAudio says requested soundcard format not supported.");
-//    return;
   }
-  qDebug() << "";
   paerr=Pa_OpenStream(&m_inStream, //Input stream
         &inParam,		   //Input parameters
         NULL,			   //No output parameters
@@ -119,7 +117,6 @@ void SoundInput::start(qint32 device)
     return;
   }
   m_ntr0 = 99;		     // initial value higher than any expected
-  m_nBusy = 0;
   m_intervalTimer.start(100);
   m_ms0 = QDateTime::currentMSecsSinceEpoch();
   m_nsps0 = 0;
@@ -127,35 +124,32 @@ void SoundInput::start(qint32 device)
 
 void SoundInput::intervalNotify()
 {
-  m_callbackData.monitoring=m_monitoring;
+  m_callbackData.monitoring = m_monitoring; // update monitoring
+					    // status
+
   qint64 ms = QDateTime::currentMSecsSinceEpoch();
-  m_SamFacIn=1.0;
-  if(m_callbackData.ncall>100) {
-    m_SamFacIn=m_callbackData.ncall*FRAMES_PER_BUFFER*1000.0/(12000.0*(ms-m_ms0-50));
-  }
   ms=ms % 86400000;
   int nsec = ms/1000;             // Time according to this computer
   int ntr = nsec % m_TRperiod;
+
+  int k=m_callbackData.kin;	// get a copy of kin to mitigate the
+				// potential race condition with the
+				// callback handler when a buffer
+				// reset is requested below
 
   // Reset buffer pointer and symbol number at start of minute
   if(ntr < m_ntr0 or !m_monitoring or m_nsps!=m_nsps0) {
     m_nstep0=0;
     m_nsps0=m_nsps;
-    m_callbackData.bzero=true;
+    m_callbackData.bzero = true; // request callback to reset buffer pointer
   }
-  int k=m_callbackData.kin;
+
   if(m_monitoring) {
     int kstep=m_nsps/2;
     //      m_step=k/kstep;
     m_step=(k-1)/kstep;
     if(m_step != m_nstep0) {
-      if(m_dataSinkBusy) {
-	m_nBusy++;
-      } else {
-	//          m_dataSinkBusy=true;
-	//          emit readyForFFT(k);         //Signal to compute new FFTs
-	emit readyForFFT(k-1);         //Signal to compute new FFTs
-      }
+      emit readyForFFT(k-1);         //Signal to compute new FFTs
       m_nstep0=m_step;
     }
   }
@@ -180,14 +174,11 @@ void SoundInput::stop()
     }
 }
 
-void SoundInput::setMonitoring(bool b)
-{
-  m_monitoring = b;
-}
 #else  // QAUDIO_INPUT
 
 #include "soundin.h"
-#include <stdexcept>
+
+#include <QDateTime>
 
 #define FRAMES_PER_BUFFER 1024
 #define NSMAX 6827
@@ -381,8 +372,4 @@ void SoundInput::stop()
 */
 }
 
-void SoundInput::setMonitoring(bool b)
-{
-	m_monitoring = b;
-}
 #endif // QAUDIO_INPUT

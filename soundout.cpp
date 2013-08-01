@@ -1,42 +1,28 @@
 #include "soundout.h"
 
-//#define FRAMES_PER_BUFFER 1024
+#include <cmath>
+#include <cstring>
 
-extern "C" {
-#include <portaudio.h>
-}
+#include <QDateTime>
+#include <QDebug>
+
+//#define FRAMES_PER_BUFFER 1024
 
 extern float gran();                  //Noise generator (for tests only)
 extern int itone[126];                //Audio tones for all Tx symbols
 extern int icw[250];                  //Dits for CW ID
 extern int outBufSize;
-extern bool btxok;
-extern bool btxMute;
-extern double outputLatency;
 
-typedef struct   //Parameters sent to or received from callback function
-{
-  double txsnrdb;
-  double dnsps;
-  int    ntrperiod;
-  int    ntxfreq;
-  int    xit;
-  int    ncall;
-  int    nsym;
-  bool   txMute;
-  bool   bRestart;
-  bool   btune;
-} paUserData;
 
 //--------------------------------------------------------------- d2aCallback
-extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
+int d2aCallback(const void *inputBuffer, void *outputBuffer,
                            unsigned long framesToProcess,
                            const PaStreamCallbackTimeInfo* timeInfo,
                            PaStreamCallbackFlags statusFlags,
                            void *userData )
 {
-  paUserData *udata=(paUserData*)userData;
-  short *wptr = (short*)outputBuffer;
+  SoundOutput::CallbackData * udata = reinterpret_cast<SoundOutput::CallbackData *>(userData);
+  short * wptr = reinterpret_cast<short *>(outputBuffer);
 
   static double twopi=2.0*3.141592653589793238462;
   static double baud;
@@ -56,15 +42,19 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
  // Time according to this computer
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int mstr = ms % (1000*udata->ntrperiod );
-    if(mstr<1000) return paContinue;
+    if(mstr<1000)
+      {
+	std::memset(wptr, 0, framesToProcess * sizeof(*wptr)); // output silence
+	return paContinue;
+      }
     ic=(mstr-1000)*48;
     udata->bRestart=false;
     srand(mstr);                                //Initialize random seed
   }
   isym=ic/(4.0*udata->dnsps);                   //Actual fsample=48000
-  if(udata->btune) isym=0;                      //If tuning, send pure tone
+  if(udata->tune) isym=0;                      //If tuning, send pure tone
   if(udata->txsnrdb < 0.0) {
-    snr=pow(10.0,0.05*(udata->txsnrdb-6.0));
+    snr=std::pow(10.0,0.05*(udata->txsnrdb-6.0));
     fac=3000.0;
     if(snr>1.0) fac=3000.0/snr;
   }
@@ -81,7 +71,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     for(uint i=0 ; i<framesToProcess; i++ )  {
       phi += dphi;
       if(phi>twopi) phi -= twopi;
-      i2=32767.0*sin(phi);
+      i2=32767.0*std::sin(phi);
       j=(ic-ic0)/nspd + 1;
       if(icw[j]==0) i2=0;
       if(udata->txsnrdb < 0.0) {
@@ -90,7 +80,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
         if(i4<-32767) i4=-32767;
         i2=i4;
       }
-      if(!btxok or btxMute)  i2=0;
+      if(udata->mute)  i2=0;
       *wptr++ = i2;                   //left
 #ifdef UNIX
       *wptr++ = i2;                   //right
@@ -107,13 +97,14 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   amp=32767.0;
   int i0=(udata->nsym-0.017)*4.0*udata->dnsps;
   int i1=udata->nsym*4.0*udata->dnsps;
-  if(udata->btune) {                           //If tuning, no ramp down
+  bool tune = udata->tune;
+  if(tune) {                           //If tuning, no ramp down
     i0=999*udata->dnsps;
     i1=i0;
   }
   for(uint i=0 ; i<framesToProcess; i++ )  {
     isym=ic/(4.0*udata->dnsps);                   //Actual fsample=48000
-    if(udata->btune) isym=0;                      //If tuning, send pure tone
+    if(tune) isym=0;                      //If tuning, send pure tone
     if(isym!=isym0) {
       freq=udata->ntxfreq + itone[isym]*baud - udata->xit;
       dphi=twopi*freq/48000.0;
@@ -123,14 +114,14 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     if(phi>twopi) phi -= twopi;
     if(ic>i0) amp=0.98*amp;
     if(ic>i1) amp=0.0;
-    i2=amp*sin(phi);
+    i2=amp*std::sin(phi);
     if(udata->txsnrdb < 0.0) {
       int i4=fac*(gran() + i2*snr/32768.0);
       if(i4>32767) i4=32767;
       if(i4<-32767) i4=-32767;
       i2=i4;
     }
-    if(!btxok or btxMute)  i2=0;
+    if(udata->mute)  i2=0;
     *wptr++ = i2;                   //left
 #ifdef UNIX
     *wptr++ = i2;                   //right
@@ -144,15 +135,21 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   return paContinue;
 }
 
-void SoundOutThread::run()
+SoundOutput::SoundOutput()
+  : m_stream(0)
+  , m_outputLatency(0.)
+  , m_active(false)
 {
-  PaError paerr;
-  PaStreamParameters outParam;
-  PaStream *outStream;
-  paUserData udata;
-  quitExecution = false;
+}
 
-  outParam.device=m_nDevOut;                 //Output device number
+void SoundOutput::start(qint32 deviceNumber,QString const& mode,int TRPeriod
+			,int nsps,int txFreq,int xit,double txsnrdb)
+{
+  stop();
+
+  PaStreamParameters outParam;
+
+  outParam.device=deviceNumber;              //Output device number
   outParam.channelCount=1;                   //Number of analog channels
 #ifdef UNIX
   outParam.channelCount=2;                   //Number of analog channels
@@ -161,110 +158,60 @@ void SoundOutThread::run()
   outParam.suggestedLatency=0.05;
   outParam.hostApiSpecificStreamInfo=NULL;
 
-  paerr=Pa_IsFormatSupported(NULL,&outParam,48000.0);
+  PaError paerr = Pa_IsFormatSupported(NULL,&outParam,48000.0);
   if(paerr<0) {
     qDebug() << "PortAudio says requested output format not supported.";
-    qDebug() << paerr << m_nDevOut;
+    qDebug() << paerr << deviceNumber;
     return;
   }
 
-  udata.txsnrdb=99.0;
-  udata.dnsps=m_nsps;
-  udata.nsym=85;
-  if(m_modeTx=="JT65") {
-    udata.dnsps=4096.0*12000.0/11025.0;
-    udata.nsym=126;
+  m_callbackData.txsnrdb=txsnrdb;
+  m_callbackData.dnsps=nsps;
+  m_callbackData.nsym=85;
+  if(mode=="JT65") {
+    m_callbackData.dnsps=4096.0*12000.0/11025.0;
+    m_callbackData.nsym=126;
   }
-  udata.ntrperiod=m_TRperiod;
-  udata.ntxfreq=m_txFreq;
-  udata.xit=m_xit;
-  udata.ncall=0;
-  udata.txMute=m_txMute;
-  udata.bRestart=true;
-  udata.btune=m_tune;
+  m_callbackData.ntrperiod=TRPeriod;
+  m_callbackData.ntxfreq=txFreq;
+  m_callbackData.xit=xit;
+  m_callbackData.ncall=0;
+  m_callbackData.bRestart=true;
 
-  paerr=Pa_OpenStream(&outStream,           //Output stream
+  paerr=Pa_OpenStream(&m_stream,            //Output stream
         NULL,                               //No input parameters
         &outParam,                          //Output parameters
         48000.0,                            //Sample rate
         outBufSize,                         //Frames per buffer
         paClipOff,                          //No clipping
         d2aCallback,                        //output callbeck routine
-        &udata);                            //userdata
+        &m_callbackData);                   //userdata
 
-  paerr=Pa_StartStream(outStream);
+  paerr=Pa_StartStream(m_stream);
   if(paerr<0) {
     qDebug() << "Failed to start audio output stream.";
     return;
   }
-  const PaStreamInfo* p=Pa_GetStreamInfo(outStream);
-  outputLatency = p->outputLatency;
-  bool qe = quitExecution;
-  qint64 ms0 = QDateTime::currentMSecsSinceEpoch();
+  const PaStreamInfo* p=Pa_GetStreamInfo(m_stream);
+  m_outputLatency = p->outputLatency;
+  m_ms0 = QDateTime::currentMSecsSinceEpoch();
+  m_active = true;
+}
 
-//---------------------------------------------- Soundcard output loop
-  while (!qe) {
-    qe = quitExecution;
-    if (qe) break;
-
-    udata.txsnrdb=m_txsnrdb;
-    udata.dnsps=m_nsps;
-    udata.nsym=85;
-    if(m_modeTx=="JT65") {
-      udata.dnsps=4096.0*12000.0/11025.0;
-      udata.nsym=126;
+void SoundOutput::stop()
+{
+  if (m_stream)
+    {
+      Pa_StopStream(m_stream);
+      Pa_CloseStream(m_stream), m_stream = 0;
     }
-    udata.ntrperiod=m_TRperiod;
-    udata.ntxfreq=m_txFreq;
-    udata.xit=m_xit;
-    udata.txMute=m_txMute;
-    udata.btune=m_tune;
+  m_active = false;
+}
 
-    m_SamFacOut=1.0;
-    if(udata.ncall>400) {
-      qint64 ms = QDateTime::currentMSecsSinceEpoch();
-      m_SamFacOut=udata.ncall*outBufSize*1000.0/(48000.0*(ms-ms0-50));
+SoundOutput::~SoundOutput()
+{
+  if (m_stream)
+    {
+      Pa_CloseStream(m_stream), m_stream = 0;
     }
-    msleep(100);
-  }
-  Pa_StopStream(outStream);
-  Pa_CloseStream(outStream);
-}
-
-void SoundOutThread::setOutputDevice(int n)      //setOutputDevice()
-{
-  if (isRunning()) return;
-  this->m_nDevOut=n;
-}
-
-void SoundOutThread::setPeriod(int ntrperiod, int nsps)
-{
-  m_TRperiod=ntrperiod;
-  m_nsps=nsps;
-}
-
-void SoundOutThread::setTxFreq(int n)
-{
-  m_txFreq=n;
-}
-
-void SoundOutThread::setXIT(int n)
-{
-  m_xit=n;
-
-}
-
-void SoundOutThread::setTxSNR(double snr)
-{
-  m_txsnrdb=snr;
-}
-
-void SoundOutThread::setTune(bool b)
-{
-  m_tune=b;
-}
-
-double SoundOutThread::samFacOut()
-{
-  return m_SamFacOut;
 }

@@ -23,9 +23,6 @@ qint32  g_COMportOpen;
 qint32  g_iptt;
 static int nc1=1;
 wchar_t buffer[256];
-bool btxok;                           //True if OK to transmit
-bool btxMute;
-double outputLatency;                 //Latency in seconds
 
 
 WideGraph* g_pWideGraph = NULL;
@@ -149,8 +146,9 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   m_auto=false;
   m_waterfallAvg = 1;
   m_txFirst=false;
-  btxMute=false;
-  btxok=false;
+  m_soundOutput.mute(false);
+  m_btxMute=false;
+  m_btxok=false;
   m_restart=false;
   m_transmitting=false;
   m_killAll=false;
@@ -304,9 +302,8 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   connect(watcher2, SIGNAL(finished()),this,SLOT(diskWriteFinished()));
 
   m_soundInput.start(m_paInDevice);
-  soundOutThread.setOutputDevice(m_paOutDevice);
-  soundOutThread.setTxFreq(m_txFreq);
-  soundOutThread.setTune(false);
+  m_soundOutput.setTxFreq(m_txFreq);
+  m_soundOutput.tune(false);
   m_monitoring=!m_monitorStartOFF;           // Start with Monitoring ON/OFF
   m_soundInput.setMonitoring(m_monitoring);
   m_diskData=false;
@@ -375,10 +372,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
 MainWindow::~MainWindow()
 {
   writeSettings();
-  if (soundOutThread.isRunning()) {
-    soundOutThread.quitExecution=true;
-    soundOutThread.wait(3000);
-  }
+  m_soundOutput.stop();
   if(!m_decoderBusy) {
     QFile lockFile(m_appDir + "/.lock");
     lockFile.remove();
@@ -489,6 +483,7 @@ void MainWindow::writeSettings()
   settings.setValue("Fmin",m_fMin);
   settings.setValue("TxSplit",m_bSplit);
   settings.setValue("UseXIT",m_bXIT);
+  settings.setValue("XIT",m_XIT);
   settings.setValue("Plus2kHz",m_plus2kHz);
   settings.endGroup();
 }
@@ -570,7 +565,7 @@ void MainWindow::readSettings()
   ui->RxFreqSpinBox->setValue(m_rxFreq);
   m_txFreq=settings.value("TxFreq",1500).toInt();
   ui->TxFreqSpinBox->setValue(m_txFreq);
-  soundOutThread.setTxFreq(m_txFreq);
+  m_soundOutput.setTxFreq(m_txFreq);
   m_saveDecoded=ui->actionSave_decoded->isChecked();
   m_saveAll=ui->actionSave_all->isChecked();
   m_ndepth=settings.value("NDepth",3).toInt();
@@ -642,7 +637,8 @@ void MainWindow::readSettings()
   m_logComments=settings.value("LogComments","").toString();
   m_fMin=settings.value("fMin",2500).toInt();
   m_bSplit=settings.value("TxSplit",false).toBool();
-  m_bXIT=settings.value("UseXit",false).toBool();
+  m_bXIT=settings.value("UseXIT",false).toBool();
+  m_XIT=settings.value("XIT",0).toInt();
 	m_plus2kHz=settings.value("Plus2kHz",false).toBool();
 	ui->cbPlus2kHz->setChecked(m_plus2kHz);
   settings.endGroup();
@@ -713,7 +709,6 @@ void MainWindow::dataSink(int k)
       watcher2->setFuture(*future2);
     }
   }
-  //  m_soundInput.m_dataSinkBusy=false;
 }
 
 void MainWindow::showSoundInError(const QString& errorMsg)
@@ -833,14 +828,11 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_After73=dlg.m_After73;
 
     if(dlg.m_restartSoundIn) {
-      m_soundInput.stop();
       m_soundInput.start(m_paInDevice);
     }
 
     if(dlg.m_restartSoundOut) {
-      soundOutThread.quitExecution=true;
-      soundOutThread.wait(1000);
-      soundOutThread.setOutputDevice(m_paOutDevice);
+      m_soundOutput.start(m_paOutDevice,m_modeTx,m_TRperiod,m_nsps,m_txFreq,m_bSplit || m_bXIT ? m_XIT : 0);
     }
   }
   m_catEnabled=dlg.m_catEnabled;
@@ -910,7 +902,8 @@ void MainWindow::on_autoButton_clicked()                     //Auto
   if(m_auto) {
     ui->autoButton->setStyleSheet(m_pbAutoOn_style);
   } else {
-    btxok=false;
+    m_btxok=false;
+    m_soundOutput.mute();
     ui->autoButton->setStyleSheet("");
     on_monitorButton_clicked();
     m_repeatMsg=0;
@@ -1702,7 +1695,7 @@ void MainWindow::guiUpdate()
     }
 
     float fTR=float((nsec%m_TRperiod))/m_TRperiod;
-    if(g_iptt==0 and ((bTxTime and !btxMute and fTR<0.4) or m_tune )) {
+    if(g_iptt==0 and ((bTxTime and !m_btxMute and fTR<0.4) or m_tune )) {
       icw[0]=m_ncw;
 
 //Raise PTT
@@ -1725,8 +1718,9 @@ void MainWindow::guiUpdate()
       }
       ptt1Timer->start(200);                       //Sequencer delay
     }
-    if(!bTxTime || btxMute) {
-      btxok=false;
+    if(!bTxTime || m_btxMute) {
+      m_btxok=false;
+      m_soundOutput.mute();
     }
   }
 
@@ -1824,7 +1818,8 @@ void MainWindow::guiUpdate()
     signalMeter->setValue(0);
     m_monitoring=false;
     m_soundInput.setMonitoring(false);
-    btxok=true;
+    m_btxok=true;
+    m_soundOutput.mute(false);
     m_transmitting=true;
     ui->pbTxMode->setEnabled(false);
     if(!m_tune) {
@@ -1839,11 +1834,11 @@ void MainWindow::guiUpdate()
     if(m_tx2QSO and !m_tune) displayTxMsg(t);
   }
 
-  if(!btxok && btxok0 && g_iptt==1) stopTx();
+  if(!m_btxok && btxok0 && g_iptt==1) stopTx();
 
 /*
-// If btxok was just lowered, start a countdown for lowering PTT
-  if(!btxok && btxok0 && g_iptt==1) nc0=-11;  //RxDelay = 1.0 s
+// If m_btxok was just lowered, start a countdown for lowering PTT
+  if(!m_btxok && btxok0 && g_iptt==1) nc0=-11;  //RxDelay = 1.0 s
   if(nc0 <= 0) {
     nc0++;
   }
@@ -1917,7 +1912,7 @@ void MainWindow::guiUpdate()
   }
 
   iptt0=g_iptt;
-  btxok0=btxok;
+  btxok0=m_btxok;
 }               //End of GUIupdate
 
 void MainWindow::displayTxMsg(QString t)
@@ -1943,17 +1938,16 @@ void MainWindow::displayTxMsg(QString t)
 
 void MainWindow::startTx2()
 {
-  if(!soundOutThread.isRunning()) {
+  if(!m_soundOutput.isRunning()) {
     QString t=ui->tx6->text();
     double snr=t.mid(1,5).toDouble();
     if(snr>0.0 or snr < -50.0) snr=99.0;
-    soundOutThread.setTxSNR(snr);
-    soundOutThread.m_modeTx=m_modeTx;
-    soundOutThread.start(QThread::HighestPriority);
+    m_soundOutput.start(m_paOutDevice,m_modeTx,m_TRperiod,m_nsps,m_txFreq,m_bSplit || m_bXIT ? m_XIT : 0,snr);
     signalMeter->setValue(0);
     m_monitoring=false;
     m_soundInput.setMonitoring(false);
-    btxok=true;
+    m_btxok=true;
+    m_soundOutput.mute(false);
     m_transmitting=true;
     ui->pbTxMode->setEnabled(false);
   }
@@ -1961,10 +1955,7 @@ void MainWindow::startTx2()
 
 void MainWindow::stopTx()
 {
-  if (soundOutThread.isRunning()) {
-    soundOutThread.quitExecution=true;
-    soundOutThread.wait(3000);
-  }
+  m_soundOutput.stop();
   m_transmitting=false;
   ui->pbTxMode->setEnabled(true);
   g_iptt=0;
@@ -2482,9 +2473,13 @@ void MainWindow::on_tx6_editingFinished()                       //tx6 edited
 {
   QString t=ui->tx6->text();
   msgtype(t, ui->tx6);
-  double snr=t.mid(1,5).toDouble();
-  if(snr>0.0 or snr < -50.0) snr=99.0;
-  soundOutThread.setTxSNR(snr);
+
+  // G4WJS: disabled setting of snr from msg 6 on live edit, will
+  // still generate noise on next full tx period
+
+  // double snr=t.mid(1,5).toDouble();
+  // if(snr>0.0 or snr < -50.0) snr=99.0;
+  // m_soundOutput.setTxSNR(snr);
 }
 
 void MainWindow::on_dxCallEntry_textChanged(const QString &t) //dxCall changed
@@ -2581,7 +2576,6 @@ void MainWindow::on_actionJT9_1_triggered()
   m_nsps=6912;
   m_hsymStop=173;
   m_soundInput.setPeriod(m_TRperiod,m_nsps);
-  soundOutThread.setPeriod(m_TRperiod,m_nsps);
   lab3->setStyleSheet("QLabel{background-color: #ff6ec7}");
   lab3->setText(m_mode);
   ui->actionJT9_1->setChecked(true);
@@ -2600,7 +2594,6 @@ void MainWindow::on_actionJT65_triggered()
   m_nsps=6912;                   //For symspec only
   m_hsymStop=173;
   m_soundInput.setPeriod(m_TRperiod,m_nsps);
-  soundOutThread.setPeriod(m_TRperiod,m_nsps);
   lab3->setStyleSheet("QLabel{background-color: #ffff00}");
   lab3->setText(m_mode);
   ui->actionJT65->setChecked(true);
@@ -2619,7 +2612,6 @@ void MainWindow::on_actionJT9_JT65_triggered()
   m_nsps=6912;
   m_hsymStop=173;
   m_soundInput.setPeriod(m_TRperiod,m_nsps);
-  soundOutThread.setPeriod(m_TRperiod,m_nsps);
   lab3->setStyleSheet("QLabel{background-color: #ffa500}");
   lab3->setText(m_mode);
   ui->actionJT9_JT65->setChecked(true);
@@ -2634,7 +2626,7 @@ void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
   m_txFreq=n;
   if(g_pWideGraph!=NULL) g_pWideGraph->setTxFreq(n);
   if(m_lockTxFreq) ui->RxFreqSpinBox->setValue(n);
-  soundOutThread.setTxFreq(n);
+  m_soundOutput.setTxFreq(n);
 }
 
 void MainWindow::on_RxFreqSpinBox_valueChanged(int n)
@@ -2964,7 +2956,7 @@ void MainWindow::on_tuneButton_clicked()
   } else {
     m_tune=true;
     m_sent73=false;
-    soundOutThread.setTune(m_tune);
+    m_soundOutput.tune(m_tune);
     m_repeatMsg=0;
     ui->tuneButton->setStyleSheet(m_pbTune_style);
   }
@@ -2974,10 +2966,11 @@ void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
 {
   if(m_tune) {
     m_tune=false;
-    soundOutThread.setTune(m_tune);
+    m_soundOutput.tune(m_tune);
   }
   if(m_auto) on_autoButton_clicked();
-  btxok=false;
+  m_btxok=false;
+  m_soundOutput.mute();
   m_repeatMsg=0;
   ui->tuneButton->setStyleSheet("");
 }
@@ -3094,15 +3087,15 @@ void MainWindow::on_pbTxMode_clicked()
 void MainWindow::setXIT(int n)
 {
   int ret;
-  int xit=0;
+  m_XIT = 0;
   if(m_bRigOpen) {
-    xit=-1000;
-    if(n>1000) xit=0;
-    if(n>2000) xit=1000;
-    if(n>3000) xit=2000;
-    if(n>4000) xit=3000;
+    m_XIT=-1000;
+    if(n>1000) m_XIT=0;
+    if(n>2000) m_XIT=1000;
+    if(n>3000) m_XIT=2000;
+    if(n>4000) m_XIT=3000;
     if(m_bXIT) {
-      ret=rig->setXit((shortfreq_t)xit,RIG_VFO_TX);
+      ret=rig->setXit((shortfreq_t)m_XIT,RIG_VFO_TX);
       if(ret!=RIG_OK) {
         QString rt;
         rt.sprintf("Setting RIG_VFO_TX failed:  %d",ret);
@@ -3110,11 +3103,11 @@ void MainWindow::setXIT(int n)
       }
     }
     if(m_bSplit) {
-      ret=rig->setSplitFreq(MHz(m_dialFreq)+xit,RIG_VFO_B);
+      ret=rig->setSplitFreq(MHz(m_dialFreq)+m_XIT,RIG_VFO_B);
     }
   }
-  if(m_bSplit) soundOutThread.setXIT(xit);
-  if(!m_bSplit) soundOutThread.setXIT(0);
+  if(m_bSplit) m_soundOutput.setXIT(m_XIT);
+  if(!m_bSplit) m_soundOutput.setXIT(0);
 }
 
 void MainWindow::setFreq4(int rxFreq, int txFreq)
