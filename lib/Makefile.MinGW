@@ -4,10 +4,13 @@
 
 # Set paths
 EXE_DIR = ../../wsjtx_install
-INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
-	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
-	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/ActiveQt' \
-	 -I'release' -I'.' -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/mkspecs/win32-g++'
+#INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
+#	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
+#	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/ActiveQt' \
+#	 -I'release' -I'.' -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/mkspecs/win32-g++'
+
+INCPATH = -I'C:/Qt/Qt5.0.2/5.0.2/mingw47_32/include/QtCore' \
+	-I'C:/Qt/Qt5.0.2/5.0.2/mingw47_32/include' \
 
 # Compilers
 CC = gcc
@@ -53,8 +56,9 @@ libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
 	ranlib libjt9.a
 
-OBJS2 = jt9.o jt9a.o jt9b.o jt9c.o ipcomm.o sec_midn.o cutil.o
-LIBS2 = -L'c:/QtSDK/Desktop/Qt/4.7.4/mingw/lib' -lQtCore4
+OBJS2 = jt9.o jt9a.o jt9b.o jt9c.o ipcomm.o sec_midn.o usleep.o
+#LIBS2 = -L'c:/QtSDK/Desktop/Qt/4.7.4/mingw/lib' -lQtCore4
+LIBS2 = -L'C:/Qt/Qt5.0.2/5.0.2/mingw47_32/lib' -lQt5Core
 jt9.exe: $(OBJS2) libjt9.a
 	$(CXX) -o jt9.exe $(OBJS2) $(LIBS2) libjt9.a ../libfftw3f_win.a \
 	c:/MinGW/lib/libf95.a
