@@ -10,12 +10,12 @@ CONFIG   += thread
 #CONFIG   += console
 
 TARGET = wsjtx
-DESTDIR = ../qt4_install
-#DESTDIR = ../wsjtx_install
+#DESTDIR = ../qt4_install
+DESTDIR = ../wsjtx_install
 VERSION = 1.1
 TEMPLATE = app
-DEFINES = QT4
-#DEFINES = QT5
+#DEFINES = QT4
+DEFINES = QT5
 #DEFINES += QAUDIO_INPUT
 
 win32 {

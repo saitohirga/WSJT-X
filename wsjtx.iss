@@ -10,12 +10,14 @@ Source: "c:\Users\joe\wsjt\wsjtx_install\*.exe";                         DestDir
 Source: "c:\Users\joe\wsjt\wsjtx_install\*.dll";                         DestDir: "{app}";
 Source: "c:\Users\joe\wsjt\wsjtx_install\*.dat";                         DestDir: "{app}";
 Source: "c:\Users\joe\wsjt\wsjtx_install\wsjt.ico";                      DestDir: "{app}";
+Source: "c:\Users\joe\wsjt\wsjtx_install\qt.conf";                       DestDir: "{app}";
 Source: "c:\Users\joe\wsjt\wsjtx_install\CALL3.TXT";                     DestDir: "{app}";  Flags: onlyifdoesntexist
 Source: "c:\Users\joe\wsjt\wsjtx\shortcuts.txt";                         DestDir: "{app}"
 Source: "c:\Users\joe\wsjt\wsjtx\mouse_commands.txt";                    DestDir: "{app}"
 Source: "c:\Users\joe\wsjt\wsjtx\WSJT-X_Users_Guide_v1.1.1.pdf";         DestDir: "{app}"
 Source: "c:\Users\joe\wsjt\wsjtx_install\save\Samples\130418_1742.wav";  DestDir: "{app}\save\Samples";
 Source: "c:\Users\joe\wsjt\wsjtx_install\save\Samples\130610_2343.wav";  DestDir: "{app}\save\Samples";
+Source: "c:\Users\joe\wsjt\wsjtx_install\platforms\qwindows.dll";        DestDir: "{app}\platforms";
 
 [Icons]
 Name: "{group}\wsjtx2";        Filename: "{app}\wsjtx.exe";   WorkingDir: {app}; IconFilename: {app}\wsjt.ico
