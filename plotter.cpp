@@ -85,7 +85,7 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
 
 void CPlotter::draw(float swide[])             //draw()
 {
-  int j,y2;
+  int j,j0,y2;
   float y;
 
   double gain = pow(10.0,0.05*(m_plotGain+7));
@@ -100,7 +100,7 @@ void CPlotter::draw(float swide[])             //draw()
 
   QPoint LineBuf[MAX_SCREENSIZE];
   j=0;
-
+  j0=int(m_startFreq/m_fftBinWidth + 0.5);
   int iz=XfromFreq(5000.0);
   m_fMax=FreqfromX(iz);
   for(int i=0; i<iz; i++) {
@@ -117,7 +117,7 @@ void CPlotter::draw(float swide[])             //draw()
     if(m_bCurrent) y2 = 0.4*gain*y - 15;
     if(m_bCumulative) {
       float sum=0.0;
-      int j=m_binsPerPixel*i;
+      int j=j0+m_binsPerPixel*i;
       for(int k=0; k<m_binsPerPixel; k++) {
         sum+=jt9com_.savg[j++];
       }
