@@ -1,13 +1,17 @@
 //--------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
+#include <vector>
+
+#include <QScopedPointer>
+
 #include "devsetup.h"
 #include "plotter.h"
 #include "about.h"
 #include "widegraph.h"
 #include "sleep.h"
 #include "getfile.h"
-#include <portaudio.h>
 #include "logqso.h"
 
 #ifdef QT5
@@ -15,8 +19,14 @@
 #include <QtConcurrent/QtConcurrentRun>
 #endif
 
-int itone[126];                       //Audio tones for all Tx symbols
-int icw[250];                         //Dits for CW ID
+#define NUM_JT65_SYMBOLS 126
+#define NUM_JT9_SYMBOLS 85
+#define NUM_CW_SYMBOLS 250
+#define TX_SAMPLE_RATE 48000
+
+int itone[NUM_JT65_SYMBOLS];	//Audio tones for all Tx symbols
+int icw[NUM_CW_SYMBOLS];	//Dits for CW ID
+
 int outBufSize;
 int rc;
 qint32  g_COMportOpen;
@@ -41,9 +51,15 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
                        qint32 fontSize2, qint32 fontWeight2, \
                        QWidget *parent) :
   QMainWindow(parent),
-  ui(new Ui::MainWindow)
+  ui(new Ui::MainWindow),
+  m_audioInputDevice (QAudioDeviceInfo::defaultInputDevice ()), // start with default
+  m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2 * sizeof (jt9com_.d2[0]), this),
+  m_audioOutputDevice (QAudioDeviceInfo::defaultOutputDevice ()), // start with default
+  m_modulator (TX_SAMPLE_RATE, NTMAX / 2, this)
 {
   ui->setupUi(this);
+
+  m_detector.open ();
 
   on_EraseButton_clicked();
   QActionGroup* paletteGroup = new QActionGroup(this);
@@ -83,12 +99,15 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
           SLOT(doubleClickOnCall2(bool,bool)));
 
   setWindowTitle(Program_Title_Version);
-  connect(&m_soundInput, SIGNAL(readyForFFT(int)),
-             this, SLOT(dataSink(int)));
+  connect(&m_detector, &Detector::bytesWritten, this, &MainWindow::dataSink);
   connect(&m_soundInput, SIGNAL(error(QString)), this,
           SLOT(showSoundInError(QString)));
+  connect(&m_soundOutput, SIGNAL(error(QString)), this,
+          SLOT(showSoundOutError(QString)));
   connect(&m_soundInput, SIGNAL(status(QString)), this,
           SLOT(showStatusMessage(QString)));
+  // connect(&m_soundOutput, SIGNAL(status(QString)), this,
+  //         SLOT(showStatusMessage(QString)));
   createStatusBar();
 
   connect(&proc_jt9, SIGNAL(readyReadStandardOutput()),
@@ -146,7 +165,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   m_auto=false;
   m_waterfallAvg = 1;
   m_txFirst=false;
-  m_soundOutput.mute(false);
+  m_modulator.mute(false);
   m_btxMute=false;
   m_btxok=false;
   m_restart=false;
@@ -299,11 +318,11 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   watcher2 = new QFutureWatcher<void>;
   connect(watcher2, SIGNAL(finished()),this,SLOT(diskWriteFinished()));
 
-  m_soundInput.start(m_paInDevice);
-  m_soundOutput.setTxFreq(m_txFreq);
-  m_soundOutput.tune(false);
+  m_soundInput.start(m_audioInputDevice, RX_SAMPLE_RATE / 10, &m_detector);
+  m_modulator.setFrequency(m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0));
+  m_modulator.tune(false);
   m_monitoring=!m_monitorStartOFF;           // Start with Monitoring ON/OFF
-  m_soundInput.setMonitoring(m_monitoring);
+  m_detector.setMonitoring(m_monitoring);
   m_diskData=false;
 
 // Create "m_worked", a dictionary of all calls in wsjtx.log
@@ -371,10 +390,12 @@ MainWindow::~MainWindow()
 {
   writeSettings();
   m_soundOutput.stop();
+  m_modulator.close();
   if(!m_decoderBusy) {
     QFile lockFile(m_appDir + "/.lock");
     lockFile.remove();
   }
+  m_detector.close ();
   delete ui;
 }
 
@@ -404,19 +425,8 @@ void MainWindow::writeSettings()
   settings.setValue("PTTmethod",m_pttMethodIndex);
   settings.setValue("PTTport",m_pttPort);
   settings.setValue("SaveDir",m_saveDir);
-  char soundName[128];
-  if (Pa_GetDeviceInfo( m_paInDevice)) {  // store name, number may be different next time
-    snprintf( soundName, sizeof( soundName), "%s:%s",
-      Pa_GetHostApiInfo( Pa_GetDeviceInfo( m_paInDevice)->hostApi)->name,
-      Pa_GetDeviceInfo( m_paInDevice)->name);
-    settings.setValue("SoundInName", soundName);
-  }
-  if (Pa_GetDeviceInfo( m_paOutDevice)) {  // store name, number may be different next time
-    snprintf( soundName, sizeof( soundName), "%s:%s",
-      Pa_GetHostApiInfo( Pa_GetDeviceInfo( m_paOutDevice)->hostApi)->name,
-      Pa_GetDeviceInfo( m_paOutDevice)->name);
-    settings.setValue("SoundOutName", soundName);
-  }
+  settings.setValue("SoundInName", m_audioInputDevice.deviceName ());
+  settings.setValue("SoundOutName", m_audioOutputDevice.deviceName ());
   settings.setValue("PaletteCuteSDR",ui->actionCuteSDR->isChecked());
   settings.setValue("PaletteLinrad",ui->actionLinrad->isChecked());
   settings.setValue("PaletteAFMHot",ui->actionAFMHot->isChecked());
@@ -511,33 +521,34 @@ void MainWindow::readSettings()
   m_pttPort=settings.value("PTTport",0).toInt();
   m_saveDir=settings.value("SaveDir",m_appDir + "/save").toString();
 
-  char soundName[128];
-  QString savedName = settings.value( "SoundInName", "default").toString();
-  for (m_paInDevice = Pa_GetDeviceCount() - 1; m_paInDevice >= 0; m_paInDevice--) {
-    snprintf( soundName, sizeof( soundName), "%s:%s",
-      Pa_GetHostApiInfo( Pa_GetDeviceInfo( m_paInDevice)->hostApi)->name,
-      Pa_GetDeviceInfo( m_paInDevice)->name);
-    if ((savedName == soundName) && (Pa_GetDeviceInfo(m_paInDevice)->maxInputChannels > 0))
-      break;
-  }
-  if (m_paInDevice < 0) { // no match for device name?
-    m_paInDevice = Pa_GetDefaultInputDevice();
-    if (m_paInDevice == paNoDevice)  // no default input device?
-      m_paInDevice = 0;
+  {
+    //
+    // retrieve audio input device
+    //
+    QString savedName = settings.value( "SoundInName", "default").toString();
+    QList<QAudioDeviceInfo> audioInputDevices (QAudioDeviceInfo::availableDevices (QAudio::AudioInput)); // available audio input devices
+    for (QList<QAudioDeviceInfo>::const_iterator p = audioInputDevices.begin (); p != audioInputDevices.end (); ++p)
+      {
+	if (p->deviceName () == savedName)
+	  {
+	    m_audioInputDevice = *p;
+	  }
+      }
   }
 
-  savedName = settings.value("SoundOutName", "default").toString();
-  for (m_paOutDevice = Pa_GetDeviceCount() - 1; m_paOutDevice >= 0; m_paOutDevice--) {
-    snprintf( soundName, sizeof( soundName), "%s:%s",
-      Pa_GetHostApiInfo( Pa_GetDeviceInfo( m_paOutDevice)->hostApi)->name,
-      Pa_GetDeviceInfo( m_paOutDevice)->name);
-    if ((savedName == soundName) && (Pa_GetDeviceInfo(m_paOutDevice)->maxOutputChannels > 0))
-      break;
-  }
-  if (m_paOutDevice < 0) { // no match for device name?
-    m_paOutDevice = Pa_GetDefaultOutputDevice();
-    if (m_paOutDevice == paNoDevice)  // no default output device?
-      m_paOutDevice = 0;
+  {
+    //
+    // retrieve audio output device
+    //
+    QString savedName = settings.value("SoundOutName", "default").toString();
+    QList<QAudioDeviceInfo> audioOutputDevices (QAudioDeviceInfo::availableDevices (QAudio::AudioOutput)); // available audio output devices
+    for (QList<QAudioDeviceInfo>::const_iterator p = audioOutputDevices.begin (); p != audioOutputDevices.end (); ++p)
+      {
+	if (p->deviceName () == savedName)
+	  {
+	    m_audioOutputDevice = *p;
+	  }
+      }
   }
 
   ui->actionCuteSDR->setChecked(settings.value(
@@ -563,7 +574,7 @@ void MainWindow::readSettings()
   ui->RxFreqSpinBox->setValue(m_rxFreq);
   m_txFreq=settings.value("TxFreq",1500).toInt();
   ui->TxFreqSpinBox->setValue(m_txFreq);
-  m_soundOutput.setTxFreq(m_txFreq);
+  m_modulator.setFrequency(m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0));
   m_saveDecoded=ui->actionSave_decoded->isChecked();
   m_saveAll=ui->actionSave_all->isChecked();
   m_ndepth=settings.value("NDepth",3).toInt();
@@ -655,7 +666,7 @@ void MainWindow::readSettings()
 }
 
 //-------------------------------------------------------------- dataSink()
-void MainWindow::dataSink(int k)
+void MainWindow::dataSink(qint64 bytes)
 {
   static float s[NSMAX];
   static int ihsym=0;
@@ -676,6 +687,7 @@ void MainWindow::dataSink(int k)
   trmin=m_TRperiod/60;
   slope=0.0;
   if(g_pWideGraph!=NULL) slope=(float)g_pWideGraph->getSlope();
+  int k (bytes / sizeof (jt9com_.d2[0]) - 1);
   symspec_(&k,&trmin,&m_nsps,&m_inGain,&slope,&px,s,&df3,&ihsym,&npts8);
   if(ihsym <=0) return;
   QString t;
@@ -710,7 +722,10 @@ void MainWindow::dataSink(int k)
 }
 
 void MainWindow::showSoundInError(const QString& errorMsg)
- {QMessageBox::critical(this, tr("Error in SoundIn"), errorMsg);}
+ {QMessageBox::critical(this, tr("Error in SoundInput"), errorMsg);}
+
+void MainWindow::showSoundOutError(const QString& errorMsg)
+ {QMessageBox::critical(this, tr("Error in SoundOutput"), errorMsg);}
 
 void MainWindow::showStatusMessage(const QString& statusMsg)
  {statusBar()->showMessage(statusMsg);}
@@ -724,8 +739,8 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_pttMethodIndex=m_pttMethodIndex;
   dlg.m_pttPort=m_pttPort;
   dlg.m_saveDir=m_saveDir;
-  dlg.m_paInDevice=m_paInDevice;
-  dlg.m_paOutDevice=m_paOutDevice;
+  dlg.m_audioInputDevice = m_audioInputDevice;
+  dlg.m_audioOutputDevice = m_audioOutputDevice;
   dlg.m_pskReporter=m_pskReporter;
   dlg.m_After73=m_After73;
   dlg.m_macro=m_macro;
@@ -769,8 +784,8 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_pttMethodIndex=dlg.m_pttMethodIndex;
     m_pttPort=dlg.m_pttPort;
     m_saveDir=dlg.m_saveDir;
-    m_paInDevice=dlg.m_paInDevice;
-    m_paOutDevice=dlg.m_paOutDevice;
+    m_audioInputDevice = dlg.m_audioInputDevice;
+    m_audioOutputDevice = dlg.m_audioOutputDevice;
     m_macro=dlg.m_macro;
     m_dFreq=dlg.m_dFreq;
     m_antDescription=dlg.m_antDescription;
@@ -826,11 +841,11 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_After73=dlg.m_After73;
 
     if(dlg.m_restartSoundIn) {
-      m_soundInput.start(m_paInDevice);
+      m_soundInput.start(m_audioInputDevice, RX_SAMPLE_RATE / 10, &m_detector);
     }
 
     if(dlg.m_restartSoundOut) {
-      m_soundOutput.start(m_paOutDevice,m_modeTx,m_TRperiod,m_nsps,m_txFreq,m_bSplit || m_bXIT ? m_XIT : 0);
+      transmit ();
     }
   }
   m_catEnabled=dlg.m_catEnabled;
@@ -859,7 +874,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
 void MainWindow::on_monitorButton_clicked()                  //Monitor
 {
   m_monitoring=true;
-  m_soundInput.setMonitoring(true);
+  m_detector.setMonitoring(true);
   m_diskData=false;
 }
 
@@ -901,7 +916,7 @@ void MainWindow::on_autoButton_clicked()                     //Auto
     ui->autoButton->setStyleSheet(m_pbAutoOn_style);
   } else {
     m_btxok=false;
-    m_soundOutput.mute();
+    m_modulator.mute();
     ui->autoButton->setStyleSheet("");
     on_monitorButton_clicked();
     m_repeatMsg=0;
@@ -1122,7 +1137,7 @@ void MainWindow::OnExit()
 void MainWindow::on_stopButton_clicked()                       //stopButton
 {
   m_monitoring=false;
-  m_soundInput.setMonitoring(m_monitoring);
+  m_detector.setMonitoring(m_monitoring);
   m_loopall=false;  
 }
 
@@ -1163,7 +1178,7 @@ void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
 void MainWindow::on_actionOpen_triggered()                     //Open File
 {
   m_monitoring=false;
-  m_soundInput.setMonitoring(m_monitoring);
+  m_detector.setMonitoring(m_monitoring);
   QString fname;
   fname=QFileDialog::getOpenFileName(this, "Open File", m_path,
                                        "WSJT Files (*.wav)");
@@ -1223,7 +1238,7 @@ void MainWindow::diskDat()                                   //diskDat()
   for(int n=1; n<=m_hsymStop; n++) {              // Do the half-symbol FFTs
     k=(n+1)*kstep;
     jt9com_.npts8=k/8;
-    dataSink(k);
+    dataSink(k * sizeof (jt9com_.d2[0]));
     if(n%10 == 1 or n == m_hsymStop)
         qApp->processEvents();                   //Keep GUI responsive
   }
@@ -1718,7 +1733,7 @@ void MainWindow::guiUpdate()
     }
     if(!bTxTime || m_btxMute) {
       m_btxok=false;
-      m_soundOutput.mute();
+      m_modulator.mute();
     }
   }
 
@@ -1815,9 +1830,9 @@ void MainWindow::guiUpdate()
 
     signalMeter->setValue(0);
     m_monitoring=false;
-    m_soundInput.setMonitoring(false);
+    m_detector.setMonitoring(false);
     m_btxok=true;
-    m_soundOutput.mute(false);
+    m_modulator.mute(false);
     m_transmitting=true;
     ui->pbTxMode->setEnabled(false);
     if(!m_tune) {
@@ -1940,12 +1955,12 @@ void MainWindow::startTx2()
     QString t=ui->tx6->text();
     double snr=t.mid(1,5).toDouble();
     if(snr>0.0 or snr < -50.0) snr=99.0;
-    m_soundOutput.start(m_paOutDevice,m_modeTx,m_TRperiod,m_nsps,m_txFreq,m_bSplit || m_bXIT ? m_XIT : 0,snr);
+    transmit (snr);
     signalMeter->setValue(0);
     m_monitoring=false;
-    m_soundInput.setMonitoring(false);
+    m_detector.setMonitoring(false);
     m_btxok=true;
-    m_soundOutput.mute(false);
+    m_modulator.mute(false);
     m_transmitting=true;
     ui->pbTxMode->setEnabled(false);
   }
@@ -1954,6 +1969,7 @@ void MainWindow::startTx2()
 void MainWindow::stopTx()
 {
   m_soundOutput.stop();
+  m_modulator.close ();
   m_transmitting=false;
   ui->pbTxMode->setEnabled(true);
   g_iptt=0;
@@ -1961,7 +1977,7 @@ void MainWindow::stopTx()
   lab1->setText("");
   ptt0Timer->start(200);                       //Sequencer delay
   m_monitoring=true;
-  m_soundInput.setMonitoring(true);
+  m_detector.setMonitoring(true);
 }
 
 void MainWindow::stopTx2()
@@ -2573,7 +2589,6 @@ void MainWindow::on_actionJT9_1_triggered()
   m_TRperiod=60;
   m_nsps=6912;
   m_hsymStop=173;
-  m_soundInput.setPeriod(m_TRperiod,m_nsps);
   lab3->setStyleSheet("QLabel{background-color: #ff6ec7}");
   lab3->setText(m_mode);
   ui->actionJT9_1->setChecked(true);
@@ -2591,7 +2606,6 @@ void MainWindow::on_actionJT65_triggered()
   m_TRperiod=60;
   m_nsps=6912;                   //For symspec only
   m_hsymStop=173;
-  m_soundInput.setPeriod(m_TRperiod,m_nsps);
   lab3->setStyleSheet("QLabel{background-color: #ffff00}");
   lab3->setText(m_mode);
   ui->actionJT65->setChecked(true);
@@ -2609,7 +2623,6 @@ void MainWindow::on_actionJT9_JT65_triggered()
   m_TRperiod=60;
   m_nsps=6912;
   m_hsymStop=173;
-  m_soundInput.setPeriod(m_TRperiod,m_nsps);
   lab3->setStyleSheet("QLabel{background-color: #ffa500}");
   lab3->setText(m_mode);
   ui->actionJT9_JT65->setChecked(true);
@@ -2624,7 +2637,7 @@ void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
   m_txFreq=n;
   if(g_pWideGraph!=NULL) g_pWideGraph->setTxFreq(n);
   if(m_lockTxFreq) ui->RxFreqSpinBox->setValue(n);
-  m_soundOutput.setTxFreq(n);
+  m_modulator.setFrequency(m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0));
 }
 
 void MainWindow::on_RxFreqSpinBox_valueChanged(int n)
@@ -2954,7 +2967,7 @@ void MainWindow::on_tuneButton_clicked()
   } else {
     m_tune=true;
     m_sent73=false;
-    m_soundOutput.tune(m_tune);
+    m_modulator.tune();
     m_repeatMsg=0;
     ui->tuneButton->setStyleSheet(m_pbTune_style);
   }
@@ -2964,11 +2977,11 @@ void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
 {
   if(m_tune) {
     m_tune=false;
-    m_soundOutput.tune(m_tune);
+    m_modulator.tune(m_tune);
   }
   if(m_auto) on_autoButton_clicked();
   m_btxok=false;
-  m_soundOutput.mute();
+  m_modulator.mute();
   m_repeatMsg=0;
   ui->tuneButton->setStyleSheet("");
 }
@@ -3024,15 +3037,20 @@ void MainWindow::rigOpen()
 	} else {
 		ui->readFreq->setStyleSheet("QPushButton{background-color: orange; \
 																border-width: 0px; border-radius: 5px;}");
-}
-if(m_bSplit) ui->readFreq->setText("S");
-if(!m_bSplit) ui->readFreq->setText("");
-} else {
-if(m_CATerror) ui->readFreq->setStyleSheet("QPushButton{background-color: red; \
+  }
+
+  QFont font=ui->readFreq->font();
+  font.setPointSize(9);
+  font.setWeight(75);
+  ui->readFreq->setFont(font);
+  if(m_bSplit) ui->readFreq->setText("S");
+  if(!m_bSplit) ui->readFreq->setText("");
+  } else {
+  if(m_CATerror) ui->readFreq->setStyleSheet("QPushButton{background-color: red; \
 																					 border-width: 0px; border-radius: 5px;}");
-if(!m_CATerror) ui->readFreq->setStyleSheet("");
-ui->readFreq->setText("");
-}
+  if(!m_CATerror) ui->readFreq->setStyleSheet("");
+  ui->readFreq->setText("");
+  }
 }
 
 void MainWindow::on_actionAllow_multiple_instances_triggered(bool checked)
@@ -3104,8 +3122,7 @@ void MainWindow::setXIT(int n)
       ret=rig->setSplitFreq(MHz(m_dialFreq)+m_XIT,RIG_VFO_B);
     }
   }
-  if(m_bSplit) m_soundOutput.setXIT(m_XIT);
-  if(!m_bSplit) m_soundOutput.setXIT(0);
+  m_modulator.setFrequency(m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0));
 }
 
 void MainWindow::setFreq4(int rxFreq, int txFreq)
@@ -3151,10 +3168,29 @@ void MainWindow::pollRigFreq()
         m_catEnabled=false;
         ui->readFreq->setStyleSheet("QPushButton{background-color: red; \
                                     border-width: 0px; border-radius: 5px;}");
+      }
+    } else {
+      int ndiff=1000000.0*(fMHz-m_dialFreq);
+      if(ndiff!=0) dialFreqChanged2(fMHz);
     }
-  } else {
-    int ndiff=1000000.0*(fMHz-m_dialFreq);
-    if(ndiff!=0) dialFreqChanged2(fMHz);
   }
 }
+
+void MainWindow::transmit (double snr)
+{
+  QScopedPointer<std::vector<int> > cw (new std::vector<int> (NUM_CW_SYMBOLS));
+  cw->assign (icw, icw + NUM_CW_SYMBOLS); // load data
+  if (m_modeTx == "JT65")
+    {
+      QScopedPointer<std::vector<int> > symbols (new std::vector<int> (NUM_JT65_SYMBOLS));
+      symbols->assign (itone, itone + NUM_JT65_SYMBOLS); // load data
+      m_modulator.open (symbols.take (), cw.take (), 4096.0 * 12000.0 / 11025.0, m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0), snr);
+    }
+  else
+    {
+      QScopedPointer<std::vector<int> > symbols (new std::vector<int> (NUM_JT65_SYMBOLS));
+      symbols->assign (itone, itone + NUM_JT9_SYMBOLS); // load data
+      m_modulator.open (symbols.take (), cw.take (), m_nsps, m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0), snr);
+    }
+  m_soundOutput.start(m_audioOutputDevice, &m_modulator);
 }

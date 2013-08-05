@@ -1,10 +1,13 @@
 #ifndef DEVSETUP_H
 #define DEVSETUP_H
 
+#include "ui_devsetup.h"
+
 #include <QDialog>
 #include <QProcess>
 #include <QMessageBox>
-#include "ui_devsetup.h"
+#include <QAudioDeviceInfo>
+
 #include "rigclass.h"
 
 class DevSetup : public QDialog
@@ -19,12 +22,6 @@ public:
   qint32  m_idInt;
   qint32  m_pttMethodIndex;
   qint32  m_pttPort;
-  qint32  m_nDevIn;
-  qint32  m_nDevOut;
-  qint32  m_inDevList[100];
-  qint32  m_outDevList[100];
-  qint32  m_paInDevice;
-  qint32  m_paOutDevice;
   qint32  m_catPortIndex;
   qint32  m_rig;
   qint32  m_rigIndex;
@@ -39,8 +36,14 @@ public:
   qint32  m_poll;
   qint32  m_tmp;
 
+  typedef QList<QAudioDeviceInfo> AudioDevices;
+  AudioDevices m_audioInputDevices; /* available input devices */
+  AudioDevices m_audioOutputDevices; /* available output devices */
+  QAudioDeviceInfo m_audioInputDevice; /* selected input device */
+  QAudioDeviceInfo m_audioOutputDevice; /* selected output device */
   bool    m_restartSoundIn;
   bool    m_restartSoundOut;
+
   bool    m_pskReporter;
   bool    m_firstCall;
   bool    m_catEnabled;
