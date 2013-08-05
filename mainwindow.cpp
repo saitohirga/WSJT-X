@@ -350,6 +350,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   ui->decodedTextLabel->setText(t);
   ui->decodedTextLabel2->setText(t);
 
+  /*
 #ifdef WIN32
   if(m_pskReporter) {
     rc=ReporterInitialize(NULL,NULL);
@@ -364,9 +365,10 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
 #endif
 
 #ifdef UNIX
+*/
   psk_Reporter = new PSK_Reporter(this);
   psk_Reporter->setLocalStation(m_myCall,m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
-#endif
+//#endif
 
   m_logBook.init();
 
@@ -813,6 +815,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     ui->bandComboBox->addItems(dlg.m_bandDescription);
     ui->bandComboBox->setCurrentIndex(m_band);
 
+/*
 #ifdef WIN32
     if(dlg.m_pskReporter!=m_pskReporter) {
       if(dlg.m_pskReporter) {
@@ -830,13 +833,14 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
       }
     }
 #endif
+*/
     m_pskReporter=dlg.m_pskReporter;
 
-#ifdef UNIX
+//#ifdef UNIX
     if(m_pskReporter) {
       psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
     }
-#endif
+//#endif
 
     m_After73=dlg.m_After73;
 
@@ -1591,6 +1595,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       wchar_t tremote[256];
       remote.toWCharArray(tremote);
 
+/*
 #ifdef WIN32
       if(m_pskReporterInit and b and !m_diskData and okToPost) {
 
@@ -1613,6 +1618,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         }
       }
 #else
+*/
       if(m_pskReporter and b and !m_diskData and okToPost) {
         psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
         QString freq = QString::number(nfreq);
@@ -1622,7 +1628,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
                    QString::number(QDateTime::currentDateTime().toTime_t()));
         }
       }
-#endif
+//#endif
     }
   }
 }
