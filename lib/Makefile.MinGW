@@ -9,8 +9,8 @@ EXE_DIR = ../../wsjtx_install
 #	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/ActiveQt' \
 #	 -I'release' -I'.' -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/mkspecs/win32-g++'
 
-INCPATH = -I'C:/Qt/Qt5.0.2/5.0.2/mingw47_32/include/QtCore' \
-	-I'C:/Qt/Qt5.0.2/5.0.2/mingw47_32/include' \
+INCPATH = -I'C:/Qt/Qt5.1.0/5.1.0/mingw48_32/include/QtCore' \
+	-I'C:/Qt/Qt5.1.0/5.1.0/mingw48_32/include' \
 
 # Compilers
 CC = gcc
@@ -57,11 +57,10 @@ libjt9.a: $(OBJS1)
 	ranlib libjt9.a
 
 OBJS2 = jt9.o jt9a.o jt9b.o jt9c.o ipcomm.o sec_midn.o usleep.o
-#LIBS2 = -L'c:/QtSDK/Desktop/Qt/4.7.4/mingw/lib' -lQtCore4
-LIBS2 = -L'C:/Qt/Qt5.0.2/5.0.2/mingw47_32/lib' -lQt5Core
+LIBS2 = -L'C:/Qt/Qt5.1.0/5.1.0/mingw48_32/lib' -lQt5Core
 jt9.exe: $(OBJS2) libjt9.a
-	$(CXX) -o jt9.exe $(OBJS2) $(LIBS2) libjt9.a ../libfftw3f_win.a \
-	c:/MinGW/lib/libf95.a
+	$(CXX) -o jt9.exe -static $(OBJS2) $(LIBS2) libjt9.a \
+	../libfftw3f_win.a c:/MinGW/lib/libf95.a
 	mkdir -p $(EXE_DIR)
 	cp jt9.exe $(EXE_DIR)
 

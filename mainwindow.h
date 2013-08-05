@@ -7,6 +7,9 @@
 #endif
 #include <QTimer>
 #include <QDateTime>
+#include <QList>
+#include <QAudioDeviceInfo>
+
 #include "soundin.h"
 #include "soundout.h"
 #include "commons.h"
@@ -14,6 +17,8 @@
 #include "rigclass.h"
 #include "signalmeter.h"
 #include "logbook/logbook.h"
+#include "Detector.hpp"
+#include "Modulator.hpp"
 
 #ifdef WIN32
 #include "PSKReporter.h"
@@ -37,8 +42,9 @@ public:
 
 public slots:
   void showSoundInError(const QString& errorMsg);
+  void showSoundOutError(const QString& errorMsg);
   void showStatusMessage(const QString& statusMsg);
-  void dataSink(int k);
+  void dataSink(qint64 bytes);
   void diskDat();
   void diskWriteFinished();
   void freezeDecode(int n);
@@ -191,8 +197,10 @@ private:
     qint32  m_nutc0;
     qint32  m_nrx;
     qint32  m_hsym;
-    qint32  m_paInDevice;
-    qint32  m_paOutDevice;
+    QAudioDeviceInfo m_audioInputDevice;
+    Detector m_detector;
+    QAudioDeviceInfo m_audioOutputDevice;
+    Modulator m_modulator;
     qint32  m_TRperiod;
     qint32  m_nsps;
     qint32  m_hsymStop;
@@ -372,6 +380,7 @@ private:
     void pollRigFreq();
     bool gridOK(QString g);
     QString baseCall(QString t);
+    void transmit (double snr = 99.);
 };
 
 extern void getfile(QString fname, int ntrperiod);

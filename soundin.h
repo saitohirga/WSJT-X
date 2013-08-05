@@ -1,140 +1,47 @@
-#ifndef QAUDIO_INPUT
-#ifndef SOUNDIN_H
-#define SOUNDIN_H
-
-#include <portaudio.h>
+#ifndef SOUNDIN_H__
+#define SOUNDIN_H__
 
 #include <QObject>
-#include <QTimer>
 #include <QString>
+#include <QScopedPointer>
+#include <QAudioInput>
 
-extern "C" int a2dCallback( const void *, void *, unsigned long, PaStreamCallbackTimeInfo const *, PaStreamCallbackFlags, void *);
+class QAudioDeviceInfo;
+class QAudioInput;
+class QIODevice;
 
-// Gets audio data from soundcard and signals when a buffer of
-// specified size is available.
+// Gets audio data from sound sample source and passes it to a sink device
 class SoundInput : public QObject
 {
-  Q_OBJECT
+  Q_OBJECT;
 
-public:
-  SoundInput();
-  ~SoundInput();
+ private:
+  Q_DISABLE_COPY (SoundInput);
 
-  int  mstep() const {return m_step;}
-
-  /* these can be called while processing samples */
-  void setMonitoring(bool b) {m_monitoring = b;}
-  void setPeriod(int ntrperiod, int nsps)
+ public:
+  SoundInput (QObject * parent = 0)
+    : QObject (parent)
   {
-    m_TRperiod=ntrperiod;
-    m_nsps=nsps;
   }
 
-signals:
-  void readyForFFT(int k);
-  void error(const QString& message);
-  void status(const QString& message);
+  ~SoundInput ();
 
-public slots:
-  void start(qint32 device);
+Q_SIGNALS:
+  void error (QString message) const;
+  void status (QString message) const;
+
+public Q_SLOTS:
+  // sink must exist from the start call to any following stop () call
+  bool start(QAudioDeviceInfo const&, int framesPerBuffer, QIODevice * sink);
   void stop();
 
 private:
-  PaStream * m_inStream;
-  qint32 m_step;
-  qint32 m_TRperiod;
-  qint32 m_TRperiod0;
-  qint32 m_nsps;
-  bool   m_monitoring;
-  qint64 m_ms0;
-  int m_ntr0;
-  int m_nstep0;
-  int m_nsps0;
+  bool audioError () const;
 
-  QTimer m_intervalTimer;
+  QScopedPointer<QAudioInput> m_stream;
 
-  struct CallbackData
-  {
-    //Parameters sent to/from the portaudio callback function
-    int volatile kin;
-    bool volatile bzero;
-    bool volatile monitoring;
-  } m_callbackData;
-
-private slots:
-  void intervalNotify();
-
-  friend int a2dCallback(void const *, void *, unsigned long, PaStreamCallbackTimeInfo const *, PaStreamCallbackFlags, void *);
+private Q_SLOTS:
+  void handleStateChanged (QAudio::State) const;
 };
 
-#endif // SOUNDIN_H
-
-#else  // QAUDIO_INPUT
-#ifndef SOUNDIN_H
-#define SOUNDIN_H
-
-#include <QObject>
-#include <QTimer>
-#include <QAudioDeviceInfo>
-#include <QAudioInput>
-
-// Gets audio data from soundcard and signals when a buffer of
-// specified size is available.
-class SoundInput : public QObject
-{
-	Q_OBJECT
-
-public:
-	SoundInput();
-	~SoundInput();
-
-	void setMonitoring(bool b) {m_monitoring = b;}
-	void setPeriod(int ntrperiod, int nsps) /* this can be called while processing samples */
-	{
-		m_TRperiod=ntrperiod;
-		m_nsps=nsps;
-	}
-	int  mstep() const {return m_step;}
-	double samFacIn() const {return m_SamFacIn;}
-
-signals:
-	void readyForFFT(int k);
-	void error(const QString& message);
-	void status(const QString& message);
-
-public slots:
-	void start(qint32 device);
-	void stop();
-
-private:
-	bool m_dataSinkBusy;
-	double m_SamFacIn;                     //(Input sample rate)/12000.0
-	qint32 m_step;
-	qint32 m_TRperiod;
-	qint32 m_TRperiod0;
-	qint32 m_nsps;
-	bool   m_monitoring;
-	qint64 m_ms0;
-	int m_ntr0;
-	int m_nBusy;
-	int m_nstep0;
-	int m_nsps0;
-
-	QTimer m_intervalTimer;
-	QAudioDeviceInfo inputDevice;          // audioinput device name
-	QAudioInput* audioInput;
-	QIODevice* stream;
-
-	struct CallbackData
-	{
-		int kin;
-		int ncall;
-		bool bzero;
-		bool monitoring;
-	} m_callbackData;  //Parameters sent to/from the Notify function
-
-private slots:
-  void intervalNotify();
-};
-#endif // SOUNDIN_H
-#endif // QAUDIO_INPUT
+#endif

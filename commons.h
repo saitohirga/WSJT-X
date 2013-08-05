@@ -3,13 +3,12 @@
 
 #define NSMAX 6827
 #define NTMAX 120
+#define RX_SAMPLE_RATE 12000
 
-extern "C" {
-
-extern struct {
+extern struct FortranCommon {
   float ss[184*NSMAX];              //This is "common/jt9com/..." in fortran
   float savg[NSMAX];
-  short int d2[NTMAX*12000];
+  short int d2[NTMAX*RX_SAMPLE_RATE];
   int nutc;                         //UTC as integer, HHMM
   int ndiskdat;                     //1 ==> data read from *.wav file
   int ntrperiod;                    //TR period (seconds)
@@ -28,7 +27,5 @@ extern struct {
   int nmode;
   char datetime[20];
 } jt9com_;
-
-}
 
 #endif // COMMONS_H

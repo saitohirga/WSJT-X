@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network multimedia
+QT       += network multimedia
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG   += thread
 #CONFIG   += console
@@ -16,7 +16,6 @@ VERSION = 1.1
 TEMPLATE = app
 #DEFINES = QT4
 DEFINES = QT5
-#DEFINES += QAUDIO_INPUT
 
 win32 {
 DEFINES += WIN32
@@ -36,16 +35,31 @@ gfortran.input = F90_SOURCES
 QMAKE_EXTRA_COMPILERS += gfortran
 }
 
-SOURCES += main.cpp mainwindow.cpp plotter.cpp about.cpp \
-    soundin.cpp soundout.cpp devsetup.cpp widegraph.cpp \
-    getfile.cpp displaytext.cpp getdev.cpp logqso.cpp \
-    psk_reporter.cpp rigclass.cpp \
-    signalmeter.cpp \
-    meterwidget.cpp \
-    logbook/logbook.cpp \
-    logbook/countrydat.cpp \
-    logbook/countriesworked.cpp \
-    logbook/adif.cpp
+#
+# Order matters here as the link is in this order so referrers need to be after referred
+#
+SOURCES += \
+	logbook/adif.cpp \
+	logbook/countrydat.cpp \
+	logbook/countriesworked.cpp \
+	logbook/logbook.cpp \
+	rigclass.cpp \
+	psk_reporter.cpp \
+	Modulator.cpp \
+	Detector.cpp \
+	logqso.cpp \
+	displaytext.cpp \
+	getfile.cpp \
+	soundout.cpp \
+	soundin.cpp \
+	meterwidget.cpp \
+	signalmeter.cpp \
+	plotter.cpp \
+	widegraph.cpp \
+	devsetup.cpp \
+	about.cpp \
+	mainwindow.cpp \
+	main.cpp
 
 win32 {
 SOURCES += killbyname.cpp
@@ -54,16 +68,13 @@ SOURCES += killbyname.cpp
 HEADERS  += mainwindow.h plotter.h soundin.h soundout.h \
             about.h devsetup.h widegraph.h getfile.h \
             commons.h sleep.h displaytext.h logqso.h \
-            psk_reporter.h rigclass.h \
+            Detector.hpp Modulator.hpp psk_reporter.h rigclass.h \
     signalmeter.h \
     meterwidget.h \
     logbook/logbook.h \
     logbook/countrydat.h \
     logbook/countriesworked.h \
     logbook/adif.h
-
-# (Is the following really needed???)
-#DEFINES += __cplusplus
 
 FORMS    += mainwindow.ui about.ui devsetup.ui widegraph.ui \
     logqso.ui
@@ -73,7 +84,7 @@ RC_FILE = wsjtx.rc
 unix {
 LIBS += ../wsjtx/lib/libjt9.a
 LIBS += -lhamlib
-LIBS += -lportaudio -lgfortran -lfftw3f
+LIBS += -lgfortran -lfftw3f
 }
 
 win32 {
@@ -84,8 +95,6 @@ LIBS += ../wsjtx/lib/libjt9.a
 LIBS += ../wsjtx/libfftw3f_win.a
 LIBS += ../wsjtx/libpskreporter.a
 LIBS += ../wsjtx/libHRDInterface001.a
-#LIBS += ../QtSupport/palir-02.dll
-LIBS += /users/joe/wsjt/QtSupport/palir-02.dll
 LIBS += libwsock32
 LIBS += C:/MinGW/lib/libf95.a
 

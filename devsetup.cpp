@@ -1,7 +1,6 @@
 #include "devsetup.h"
 #include <QDebug>
 #include <QSettings>
-#include <portaudio.h>
 #include <QAudioDeviceInfo>
 #include <QAudioInput>
 
@@ -12,7 +11,10 @@ qint32  g2_iptt;
 qint32  g2_COMportOpen;
 
 //----------------------------------------------------------- DevSetup()
-DevSetup::DevSetup(QWidget *parent) :	QDialog(parent)
+DevSetup::DevSetup(QWidget *parent)
+  : QDialog(parent)
+  , m_audioInputDevices (QAudioDeviceInfo::availableDevices (QAudio::AudioInput))
+  , m_audioOutputDevices (QAudioDeviceInfo::availableDevices (QAudio::AudioOutput))
 {
   ui.setupUi(this);	                              //setup the dialog form
   m_restartSoundIn=false;
@@ -37,109 +39,43 @@ void DevSetup::initDlg()
   QString catPortDriver = settings.value("CATdriver","None").toString();
   settings.endGroup();
 
-/*
-	QList<QAudioDeviceInfo> InDevices;
-	QList<QAudioDeviceInfo> OutDevices;
-	QAudioDeviceInfo deviceInfo;
-
-	InDevices = deviceInfo.availableDevices(QAudio::AudioInput);
-	OutDevices = deviceInfo.availableDevices(QAudio::AudioOutput);
-
-	foreach (const QAudioDeviceInfo &deviceInfo, InDevices) {
-		ui.comboBoxSndIn->addItem(deviceInfo.deviceName(),
-															qVariantFromValue(deviceInfo));
-	}
-
-	foreach (const QAudioDeviceInfo &deviceInfo, OutDevices) {
-		ui.comboBoxSndOut->addItem(deviceInfo.deviceName(),
-															 qVariantFromValue(deviceInfo));
-	}
-*/
-
-  int k,id;
-  int numDevices=Pa_GetDeviceCount();
-
-  const PaDeviceInfo *pdi;
-  int nchin;
-  int nchout;
-  char pa_device_name[128];
-  char pa_device_hostapi[128];
-
-  k=0;
-  for(id=0; id<numDevices; id++ )  {
-    pdi=Pa_GetDeviceInfo(id);
-    nchin=pdi->maxInputChannels;
-    if(nchin>0) {
-      m_inDevList[k]=id;
-      if (id == m_paInDevice)
-        m_nDevIn = k;
-      k++;
-      sprintf((char*)(pa_device_name),"%s",pdi->name);
-      sprintf((char*)(pa_device_hostapi),"%s",
-              Pa_GetHostApiInfo(pdi->hostApi)->name);
-
-#ifdef WIN32
-      char *p,*p1;
-      char p2[50];
-      p1=(char*)"";
-      p=strstr(pa_device_hostapi,"MME");
-      if(p!=NULL) p1=(char*)"MME";
-      p=strstr(pa_device_hostapi,"Direct");
-      if(p!=NULL) p1=(char*)"DirectX";
-      p=strstr(pa_device_hostapi,"WASAPI");
-      if(p!=NULL) p1=(char*)"WASAPI";
-      p=strstr(pa_device_hostapi,"ASIO");
-      if(p!=NULL) p1=(char*)"ASIO";
-      p=strstr(pa_device_hostapi,"WDM-KS");
-      if(p!=NULL) p1=(char*)"WDM-KS";
-
-      sprintf(p2,"%2d   %d   %-8s  %-39s",id,nchin,p1,pa_device_name);
-      QString t(p2);
-#else
-      QString t;
-      t.sprintf("%2d   %d   %-8s  %-39s",id,nchin,
-                Pa_GetHostApiInfo(pdi->hostApi)->name,pdi->name);
-#endif
-      ui.comboBoxSndIn->addItem(t);
-    }
+  //
+  // loaad combo boxes with setup choices
+  //
+  {
+    int currentIndex = -1;
+    int defaultIndex = 0;
+    for (AudioDevices::const_iterator p = m_audioInputDevices.begin (); p != m_audioInputDevices.end (); ++p)
+      {
+	ui.comboBoxSndIn->addItem (p->deviceName ());
+	if (*p == m_audioInputDevice)
+	  {
+	    currentIndex = p - m_audioInputDevices.begin ();
+	  }
+	else if (*p == QAudioDeviceInfo::defaultInputDevice ())
+	  {
+	    defaultIndex = p - m_audioInputDevices.begin ();
+	  }
+      }
+    ui.comboBoxSndIn->setCurrentIndex (currentIndex != -1 ? currentIndex : defaultIndex);
   }
 
-  k=0;
-  for(id=0; id<numDevices; id++ )  {
-    pdi=Pa_GetDeviceInfo(id);
-    nchout=pdi->maxOutputChannels;
-    if(nchout>0) {
-      m_outDevList[k]=id;
-      if (id == m_paOutDevice)
-        m_nDevOut = k;
-      k++;
-      sprintf((char*)(pa_device_name),"%s",pdi->name);
-      sprintf((char*)(pa_device_hostapi),"%s",
-              Pa_GetHostApiInfo(pdi->hostApi)->name);
-
-#ifdef WIN32
-      char *p,*p1;
-      char p2[50];
-      p1=(char*)"";
-      p=strstr(pa_device_hostapi,"MME");
-      if(p!=NULL) p1=(char*)"MME";
-      p=strstr(pa_device_hostapi,"Direct");
-      if(p!=NULL) p1=(char*)"DirectX";
-      p=strstr(pa_device_hostapi,"WASAPI");
-      if(p!=NULL) p1=(char*)"WASAPI";
-      p=strstr(pa_device_hostapi,"ASIO");
-      if(p!=NULL) p1=(char*)"ASIO";
-      p=strstr(pa_device_hostapi,"WDM-KS");
-      if(p!=NULL) p1=(char*)"WDM-KS";
-      sprintf(p2,"%2d   %d   %-8s  %-39s",id,nchout,p1,pa_device_name);
-      QString t(p2);
-#else
-      QString t;
-      t.sprintf("%2d   %d   %-8s  %-39s",id,nchout,
-                Pa_GetHostApiInfo(pdi->hostApi)->name,pdi->name);
-#endif
-      ui.comboBoxSndOut->addItem(t);
-    }
+  {
+    int currentIndex = -1;
+    int defaultIndex = 0;
+    for (AudioDevices::const_iterator p = m_audioOutputDevices.begin (); p != m_audioOutputDevices.end (); ++p)
+      {
+	ui.comboBoxSndOut->addItem (p->deviceName ());
+	if (*p == m_audioOutputDevice)
+	  {
+	    currentIndex = p - m_audioOutputDevices.begin ();
+	  }
+	else if (*p == QAudioDeviceInfo::defaultOutputDevice ())
+	  {
+	    defaultIndex = p - m_audioOutputDevices.begin ();
+	  }
+      }
+    ui.comboBoxSndOut->setCurrentIndex (currentIndex != -1 ? currentIndex : defaultIndex);
   }
 
   connect(&p4, SIGNAL(readyReadStandardOutput()),
@@ -167,8 +103,6 @@ void DevSetup::initDlg()
   ui.idIntSpinBox->setValue(m_idInt);
   ui.pttMethodComboBox->setCurrentIndex(m_pttMethodIndex);
   ui.saveDirEntry->setText(m_saveDir);
-  ui.comboBoxSndIn->setCurrentIndex(m_nDevIn);
-  ui.comboBoxSndOut->setCurrentIndex(m_nDevOut);
   ui.cbID73->setChecked(m_After73);
   ui.cbPSKReporter->setChecked(m_pskReporter);
   ui.cbSplit->setChecked(m_bSplit and m_catEnabled);
@@ -302,11 +236,17 @@ void DevSetup::accept()
   // Check to see whether SoundInThread must be restarted,
   // and save user parameters.
 
-  if(m_nDevIn!=ui.comboBoxSndIn->currentIndex() or
-     m_paInDevice!=m_inDevList[m_nDevIn]) m_restartSoundIn=true;
+  if (m_audioInputDevice != m_audioInputDevices[ui.comboBoxSndIn->currentIndex ()])
+    {
+      m_audioInputDevice = m_audioInputDevices[ui.comboBoxSndIn->currentIndex ()];
+      m_restartSoundIn = true;
+    }
 
-  if(m_nDevOut!=ui.comboBoxSndOut->currentIndex() or
-     m_paOutDevice!=m_outDevList[m_nDevOut]) m_restartSoundOut=true;
+  if (m_audioOutputDevice != m_audioOutputDevices[ui.comboBoxSndOut->currentIndex ()])
+    {
+      m_audioOutputDevice = m_audioOutputDevices[ui.comboBoxSndOut->currentIndex ()];
+      m_restartSoundOut = true;
+    }
 
   m_myCall=ui.myCallEntry->text();
   m_myGrid=ui.myGridEntry->text();
@@ -314,10 +254,6 @@ void DevSetup::accept()
   m_pttMethodIndex=ui.pttMethodComboBox->currentIndex();
   m_pttPort=ui.pttComboBox->currentIndex();
   m_saveDir=ui.saveDirEntry->text();
-  m_nDevIn=ui.comboBoxSndIn->currentIndex();
-  m_paInDevice=m_inDevList[m_nDevIn];
-  m_nDevOut=ui.comboBoxSndOut->currentIndex();
-  m_paOutDevice=m_outDevList[m_nDevOut];
 
   m_macro.clear();
   m_macro.append(ui.macro1->text());

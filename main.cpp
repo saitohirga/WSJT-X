@@ -4,8 +4,9 @@
 #include <QtGui>
 #endif
 #include <QApplication>
-#include <portaudio.h>
+
 #include "mainwindow.h"
+
 
 // Multiple instances:
 QSharedMemory mem_jt9;
@@ -47,13 +48,6 @@ int main(int argc, char *argv[])
   if(jt9com_.newdat==0) {
   }
   memset(to,0,size);         //Zero all decoding params in shared memory
-
-  //Initialize Portaudio
-  PaError paerr=Pa_Initialize();
-  if(paerr!=paNoError) {
-    QMessageBox::critical( 0, "Error", "Unable to initialize PortAudio.");
-    exit(1);
-  }
 
 // Multiple instances:  Call MainWindow() with the UUID key
   MainWindow w(&mem_jt9, &my_key, fontSize2, fontWeight2);
