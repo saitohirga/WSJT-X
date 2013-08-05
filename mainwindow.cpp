@@ -42,7 +42,7 @@ QTextEdit* pShortcuts;
 QTcpSocket* commanderSocket = new QTcpSocket(0);
 
 QString rev="$Rev$";
-QString Program_Title_Version="  WSJT-X   v1.1.1, r" + rev.mid(6,4) +
+QString Program_Title_Version="  WSJT-X   v1.2, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 //-------------------------------------------------- MainWindow constructor
