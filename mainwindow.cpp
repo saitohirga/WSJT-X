@@ -138,6 +138,11 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   font.setWeight(fontWeight2);
   ui->decodedTextBrowser->setFont(font);
   ui->decodedTextBrowser2->setFont(font);
+  font=ui->readFreq->font();
+  font.setFamily("helvetica");
+  font.setPointSize(9);
+  font.setWeight(75);
+  ui->readFreq->setFont(font);
 
   QTimer *guiTimer = new QTimer(this);
   connect(guiTimer, SIGNAL(timeout()), this, SLOT(guiUpdate()));
@@ -293,6 +298,8 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
       border-color: black; min-width: 5em; padding: 3px;}";
 
   genStdMsgs(m_rpt);
+  m_ntx=6;
+  ui->txrb6->setChecked(true);
   if(m_mode!="JT9" and m_mode!="JT65" and m_mode!="JT9+JT65") m_mode="JT9";
   on_actionWide_Waterfall_triggered();                   //###
   g_pWideGraph->setRxFreq(m_rxFreq);
@@ -350,25 +357,8 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   ui->decodedTextLabel->setText(t);
   ui->decodedTextLabel2->setText(t);
 
-  /*
-#ifdef WIN32
-  if(m_pskReporter) {
-    rc=ReporterInitialize(NULL,NULL);
-    if(rc==0) {
-      m_pskReporterInit=true;
-    } else {
-      m_pskReporterInit=false;
-      rc=ReporterGetInformation(buffer,256);
-      msgBox(QString::fromStdWString(buffer));
-    }
-  }
-#endif
-
-#ifdef UNIX
-*/
   psk_Reporter = new PSK_Reporter(this);
   psk_Reporter->setLocalStation(m_myCall,m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
-//#endif
 
   m_logBook.init();
 
@@ -814,33 +804,11 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     ui->bandComboBox->clear();
     ui->bandComboBox->addItems(dlg.m_bandDescription);
     ui->bandComboBox->setCurrentIndex(m_band);
-
-/*
-#ifdef WIN32
-    if(dlg.m_pskReporter!=m_pskReporter) {
-      if(dlg.m_pskReporter) {
-        int rc=ReporterInitialize(NULL,NULL);
-        if(rc==0) {
-          m_pskReporterInit=true;
-        } else {
-          m_pskReporterInit=false;
-          rc=ReporterGetInformation(buffer,256);
-          msgBox(QString::fromStdWString(buffer));
-        }
-      } else {
-        rc=ReporterUninitialize();
-        m_pskReporterInit=false;
-      }
-    }
-#endif
-*/
     m_pskReporter=dlg.m_pskReporter;
 
-//#ifdef UNIX
     if(m_pskReporter) {
       psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
     }
-//#endif
 
     m_After73=dlg.m_After73;
 
@@ -862,6 +830,8 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
 
   if(dlg.m_bSplit!=m_bSplit or dlg.m_bXIT!=m_bXIT) {
     m_bSplit=dlg.m_bSplit;
+    if(m_bSplit) ui->readFreq->setText("S");
+    if(!m_bSplit) ui->readFreq->setText("");
     m_bXIT=dlg.m_bXIT;
     if(m_bSplit or m_bXIT) setXIT(m_txFreq);
     if(m_bRigOpen and !m_bSplit) {
@@ -1154,7 +1124,7 @@ void MainWindow::msgBox(QString t)                             //msgBox
 void MainWindow::on_actionOnline_Users_Guide_triggered()      //Display manual
 {
   QDesktopServices::openUrl(QUrl(
-  "http://www.physics.princeton.edu/pulsar/K1JT/WSJT-X_Users_Guide_v1.1.1.pdf",
+  "http://www.physics.princeton.edu/pulsar/K1JT/WSJT-X_Users_Guide_v1.2.pdf",
                               QUrl::TolerantMode));
 }
 
@@ -1595,30 +1565,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
       wchar_t tremote[256];
       remote.toWCharArray(tremote);
 
-/*
-#ifdef WIN32
-      if(m_pskReporterInit and b and !m_diskData and okToPost) {
-
-        QString local="station_callsign#" + m_myCall + "#" +
-            "my_gridsquare#" + m_myGrid + "#";
-        if (m_antDescription[m_band]!="") 
-			local += "my_antenna#" + m_antDescription[m_band] + "#";
-        local += "programid#WSJT-X#programversion#" + rev.mid(6,4) + "##";
-        wchar_t tlocal[256];
-        local.toWCharArray(tlocal);
-
-        int flags=REPORTER_SOURCE_AUTOMATIC;
-        rc=ReporterSeenCallsign(tremote,tlocal,flags);
-        if(rc!=0) {
-          ReporterGetInformation(buffer,256);
-        }
-        rc=ReporterTickle();
-        if(rc!=0) {
-          rc=ReporterGetInformation(buffer,256);
-        }
-      }
-#else
-*/
       if(m_pskReporter and b and !m_diskData and okToPost) {
         psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
         QString freq = QString::number(nfreq);
@@ -1628,7 +1574,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
                    QString::number(QDateTime::currentDateTime().toTime_t()));
         }
       }
-//#endif
     }
   }
 }
@@ -2822,9 +2767,7 @@ void MainWindow::on_bandComboBox_activated(int index)
   out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
       << "  " << m_dialFreq << " MHz  " << m_mode << endl;
   f2.close();
-#ifdef UNIX
   psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
-#endif
 }
 
 void MainWindow::on_actionPrompt_to_log_QSO_triggered(bool checked)
@@ -3045,10 +2988,6 @@ void MainWindow::rigOpen()
 																border-width: 0px; border-radius: 5px;}");
   }
 
-  QFont font=ui->readFreq->font();
-  font.setPointSize(9);
-  font.setWeight(75);
-  ui->readFreq->setFont(font);
   if(m_bSplit) ui->readFreq->setText("S");
   if(!m_bSplit) ui->readFreq->setText("");
   } else {
