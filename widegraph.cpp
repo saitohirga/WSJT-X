@@ -54,9 +54,22 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->widePlot->setStartFreq(settings.value("StartFreq",0).toInt());
   ui->fStartSpinBox->setValue(ui->widePlot->startFreq());
   m_waterfallPalette=settings.value("WaterfallPalette","default").toString();
-  ui->labPalette->setText(m_waterfallPalette.mid(0,1).toUpper() +
-                          m_waterfallPalette.mid(1));
   settings.endGroup();
+
+  QDir recoredDir("Palettes");
+  QStringList allFiles = recoredDir.entryList(QDir::NoDotAndDotDot |
+        QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files,
+        QDir::DirsFirst);
+  int index=0;
+  foreach(QString file, allFiles) {
+    QString t=file.mid(0,file.length()-4);
+    ui->paletteComboBox->addItem(t);
+    if(t==m_waterfallPalette) {
+      ui->paletteComboBox->setCurrentIndex(index);
+    }
+    index++;
+  }
+//  ui->paletteComboBox->lineEdit()->setAlignment(Qt::AlignHCenter);
   readPalette("Palettes/" + m_waterfallPalette + ".pal");
 }
 
@@ -320,19 +333,6 @@ void WideGraph::on_fStartSpinBox_valueChanged(int n)
   ui->widePlot->setStartFreq(n);
 }
 
-void WideGraph::on_pbPalette_clicked()
-{
-  QString fileName = QFileDialog::getOpenFileName(this, tr("Select Palette"),
-      "./Palettes", tr("Files (*.pal)"));
-  if(fileName!="") readPalette(fileName);
-  /*
-    QColor color = QColorDialog::getColor(Qt::yellow, this );
-    if(color.isValid()) {
-      qDebug( "ok" );
-    }
-  */
-}
-
 void WideGraph::readPalette(QString fileName)
 {
   QFile f;
@@ -357,16 +357,15 @@ void WideGraph::readPalette(QString fileName)
       int bb=b[j0] + int((k*(b[j1]-b[j0]))/31 + 0.5);
       ui->widePlot->m_ColorTbl[i].setRgb(rr,gg,bb);
     }
-    QFileInfo fileInfo(f);
-    t=fileInfo.fileName();
-    int n=t.length();
-    m_waterfallPalette=t.mid(0,n-4);
-    ui->labPalette->setText(m_waterfallPalette.mid(0,1).toUpper() +
-                            m_waterfallPalette.mid(1));
   } else {
     QMessageBox msgBox0;
     QString t="Error: Cannot find requested palette file " + fileName;
     msgBox0.setText(t);
     msgBox0.exec();
   }
+}
+
+void WideGraph::on_paletteComboBox_activated(const QString &palette)
+{
+  readPalette("Palettes/" + palette + ".pal");
 }

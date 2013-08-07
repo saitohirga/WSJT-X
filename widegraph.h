@@ -62,7 +62,7 @@ private slots:
   void on_fMinSpinBox_valueChanged(int n);
   void on_slopeSpinBox_valueChanged(double d);
   void on_fStartSpinBox_valueChanged(int n);
-  void on_pbPalette_clicked();
+  void on_paletteComboBox_activated(const QString &palette);
 
 private:
   double m_slope;
