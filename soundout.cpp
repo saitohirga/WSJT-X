@@ -3,7 +3,6 @@
 #include <QDateTime>
 #include <QAudioDeviceInfo>
 #include <QAudioOutput>
-
 #include <QDebug>
 
 bool SoundOutput::audioError () const
@@ -69,6 +68,7 @@ bool SoundOutput::start(QAudioDeviceInfo const& device, QIODevice * source)
     }
   connect (m_stream.data(), &QAudioOutput::stateChanged, this, &SoundOutput::handleStateChanged);
 
+  m_stream->setBufferSize(48000);
   m_stream->start (source);
   if (audioError ())		// start the input stream
     {
