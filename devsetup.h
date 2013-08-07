@@ -8,7 +8,11 @@
 #include <QMessageBox>
 #include <QAudioDeviceInfo>
 
+#include <hamlib/rig.h>
+
 #include "rigclass.h"
+
+int rigCallback (rig_caps const *, void *);
 
 class DevSetup : public QDialog
 {
@@ -67,15 +71,11 @@ public:
   QStringList m_antDescription;  // per band antenna description
   QStringList m_bandDescription; // per band description
 
-  QProcess p4;
   QMessageBox msgBox0;
 
 public slots:
   void accept();
   void reject();
-  void p4ReadFromStdout();
-  void p4ReadFromStderr();
-  void p4Error();
 
 private slots:
   void on_myCallEntry_editingFinished();
@@ -105,12 +105,15 @@ private slots:
   void on_cbXIT_toggled(bool checked);
 
 private:
+  void enumerateRigs ();
   Rig* rig;
   void msgBox(QString t);
   void setEnableAntennaDescriptions(bool enable);
   void enableWidgets();
   void openRig();
   Ui::DialogSndCard ui;
+
+  friend int rigCallback (rig_caps const *, void *);
 };
 
 extern int ptt(int nport, int ntx, int* iptt, int* nopen);

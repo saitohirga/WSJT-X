@@ -4,6 +4,7 @@
 #include <QtGui>
 #endif
 #include <QApplication>
+#include <QObject>
 
 #include "mainwindow.h"
 
@@ -52,5 +53,7 @@ int main(int argc, char *argv[])
 // Multiple instances:  Call MainWindow() with the UUID key
   MainWindow w(&mem_jt9, &my_key, fontSize2, fontWeight2);
   w.show();
+
+  QObject::connect (&a, SIGNAL (lastWindowClosed()), &a, SLOT (quit()));
   return a.exec();
 }

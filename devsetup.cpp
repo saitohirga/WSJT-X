@@ -1,8 +1,10 @@
 #include "devsetup.h"
+
 #include <QDebug>
 #include <QSettings>
 #include <QAudioDeviceInfo>
 #include <QAudioInput>
+#include <QMap>
 
 #define MAXDEVICES 100
 
@@ -40,7 +42,7 @@ void DevSetup::initDlg()
   settings.endGroup();
 
   //
-  // loaad combo boxes with setup choices
+  // load combo boxes with setup choices
   //
   {
     int currentIndex = -1;
@@ -78,16 +80,7 @@ void DevSetup::initDlg()
     ui.comboBoxSndOut->setCurrentIndex (currentIndex != -1 ? currentIndex : defaultIndex);
   }
 
-  connect(&p4, SIGNAL(readyReadStandardOutput()),
-                    this, SLOT(p4ReadFromStdout()));
-  connect(&p4, SIGNAL(readyReadStandardError()),
-          this, SLOT(p4ReadFromStderr()));
-  connect(&p4, SIGNAL(error(QProcess::ProcessError)),
-          this, SLOT(p4Error()));
-  p4.start("rigctl -l");
-  p4.waitForFinished(1000);
-  ui.rigComboBox->addItem("  9998 Commander");
-  ui.rigComboBox->addItem("  9999 Ham Radio Deluxe");
+  enumerateRigs ();
 
   QPalette pal(ui.myCallEntry->palette());
   if(m_myCall=="") {
@@ -111,7 +104,6 @@ void DevSetup::initDlg()
 
   enableWidgets();
 
-  ui.rigComboBox->setCurrentIndex(m_rigIndex);
   ui.catPortComboBox->setCurrentIndex(m_catPortIndex);
   ui.serialRateComboBox->setCurrentIndex(m_serialRateIndex);
   ui.dataBitsComboBox->setCurrentIndex(m_dataBitsIndex);
@@ -338,34 +330,6 @@ void DevSetup::reject()
   QDialog::reject();
 }
 
-void DevSetup::p4ReadFromStdout()                        //p4readFromStdout
-{
-  while(p4.canReadLine()) {
-    QString t(p4.readLine());
-    QString t1,t2,t3;
-    if(t.mid(0,6)!=" Rig #") {
-      t1=t.mid(0,6);
-      t2=t.mid(8,22).trimmed();
-      t3=t.mid(31,23).trimmed();
-      t=t1 + "  " + t2 + "  " + t3;
-      ui.rigComboBox->addItem(t);
-    }
-  }
-}
-
-void DevSetup::p4ReadFromStderr()                        //p4readFromStderr
-{
-  QByteArray t=p4.readAllStandardError();
-  if(t.length()>0) {
-    msgBox(t);
-  }
-}
-
-void DevSetup::p4Error()                                     //p4rror
-{
-  msgBox("Error running 'rigctl -l'.");
-}
-
 void DevSetup::msgBox(QString t)                             //msgBox
 {
   msgBox0.setText(t);
@@ -465,9 +429,7 @@ void DevSetup::on_stopBitsComboBox_activated(int index)
 
 void DevSetup::on_rigComboBox_activated(int index)
 {
-  m_rigIndex=index;
-  QString t=ui.rigComboBox->itemText(index);
-  m_rig=t.mid(0,7).toInt();
+  m_rig = ui.rigComboBox->itemData (index).toInt ();
   enableWidgets();
 }
 
@@ -652,4 +614,37 @@ void DevSetup::on_cbXIT_toggled(bool checked)
 {
   m_bXIT=checked;
   if(m_bSplit and m_bXIT) ui.cbSplit->setChecked(false);
+}
+
+typedef QMap<QString, int> RigList;
+
+int rigCallback (rig_caps const * caps, void * cbData)
+{
+  RigList * rigs = reinterpret_cast<RigList *> (cbData);
+
+  QString key (QString::fromLatin1 (caps->mfg_name).trimmed ()
+	       + ' '+ QString::fromLatin1 (caps->model_name).trimmed ()
+	       // + ' '+ QString::fromLatin1 (caps->version).trimmed ()
+	       // + " (" + QString::fromLatin1 (rig_strstatus (caps->status)).trimmed () + ')'
+	       );
+
+  (*rigs)[key] = caps->rig_model;
+
+  return 1;			// keep them coming
+}
+
+void DevSetup::enumerateRigs ()
+{
+  RigList rigs;
+  rig_load_all_backends ();
+  rig_list_foreach (rigCallback, &rigs);
+
+  for (RigList::const_iterator r = rigs.cbegin (); r != rigs.cend (); ++r)
+    {
+      ui.rigComboBox->addItem (r.key (), r.value ());
+    }
+
+  ui.rigComboBox->addItem ("DX Lab Suite Commander", 9998);
+  ui.rigComboBox->addItem ("Ham Radio Deluxe", 9999);
+  ui.rigComboBox->setCurrentIndex (ui.rigComboBox->findData (m_rig));
 }

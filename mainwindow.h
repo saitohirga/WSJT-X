@@ -5,6 +5,7 @@
 #else
 #include <QtGui>
 #endif
+#include <QThread>
 #include <QTimer>
 #include <QDateTime>
 #include <QList>
@@ -23,6 +24,15 @@
 #ifdef WIN32
 #include "PSKReporter.h"
 #endif
+
+#define NUM_JT65_SYMBOLS 126
+#define NUM_JT9_SYMBOLS 85
+#define NUM_CW_SYMBOLS 250
+#define TX_SAMPLE_RATE 48000
+
+extern int itone[NUM_JT65_SYMBOLS]; //Audio tones for all Tx symbols
+extern int icw[NUM_CW_SYMBOLS];	    //Dits for CW ID
+
 
 //--------------------------------------------------------------- MainWindow
 namespace Ui {
@@ -166,6 +176,16 @@ private slots:
   void on_actionTx2QSO_triggered(bool checked);  
   void on_cbPlus2kHz_toggled(bool checked);
 
+ private:
+  Q_SIGNAL void startAudioOutputStream (QAudioDeviceInfo);
+  Q_SIGNAL void stopAudioOutputStream ();
+  Q_SIGNAL void finished ();
+  Q_SIGNAL void muteAudioOutput (bool = true);
+  Q_SIGNAL void transmitFrequency (unsigned);
+  Q_SIGNAL void endTransmitMessage ();
+  Q_SIGNAL void tune (bool = true);
+  Q_SIGNAL void sendMessage (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, bool synchronize = true, double dBSNR = 99.);
+
 private:
     Ui::MainWindow *ui;
 
@@ -190,10 +210,16 @@ private:
     qint32  m_nutc0;
     qint32  m_nrx;
     qint32  m_hsym;
-    QAudioDeviceInfo m_audioInputDevice;
+
     Detector m_detector;
-    QAudioDeviceInfo m_audioOutputDevice;
+    QAudioDeviceInfo m_audioInputDevice;
+    SoundInput m_soundInput;
+
     Modulator m_modulator;
+    QAudioDeviceInfo m_audioOutputDevice;
+    SoundOutput m_soundOutput;
+    QThread m_soundOutputThread;
+
     qint32  m_TRperiod;
     qint32  m_nsps;
     qint32  m_hsymStop;
@@ -299,6 +325,7 @@ private:
 
     QProcess proc_jt9;
 
+    QTimer m_guiTimer;
     QTimer* ptt1Timer;                 //StartTx delay
     QTimer* ptt0Timer;                 //StopTx delay
     QTimer* logQSOTimer;
@@ -344,8 +371,6 @@ private:
 
     QDateTime m_dateTimeQSO;
 
-    SoundInput m_soundInput;             //Instantiate the audio objects
-    SoundOutput m_soundOutput;
     QSharedMemory *mem_jt9;
  // Multiple instances:
     QString       *mykey_jt9;
