@@ -98,6 +98,3 @@ LIBS += libwsock32
 LIBS += C:/MinGW/lib/libf95.a
 
 }
-
-RESOURCES += \
-    wsjtx.qrc
