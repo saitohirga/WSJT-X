@@ -8,8 +8,12 @@
 #ifndef __ADIF_H
 #define __ADIF_H
 
-
+#if defined (QT5)
+#include <QList>
+#include <QString>
+#else
 #include <QtGui>
+#endif
 
 
 class ADIF
