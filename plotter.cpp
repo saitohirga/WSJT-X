@@ -134,11 +134,7 @@ void CPlotter::draw(float swide[])             //draw()
   m_line++;
   if(m_line == 13) {
     UTCstr();
-    if(m_palette=="Gray1") {
-      painter1.setPen(Qt::red);
-    } else {
-      painter1.setPen(Qt::white);
-    }
+    painter1.setPen(Qt::white);
     painter1.drawText(5,10,m_sutc);
   }
   update();                              //trigger a new paintEvent
@@ -427,90 +423,6 @@ void CPlotter::mouseDoubleClickEvent(QMouseEvent *event)  //mouse2click
 void CPlotter::setNSpan(int n)                                  //setNSpan()
 {
   m_nSpan=n;
-}
-
-void CPlotter::setPalette(QString palette)                      //setPalette()
-{
-  m_palette=palette;
-  if(palette=="Linrad") {
-    float twopi=6.2831853;
-    float r,g,b,phi,x;
-    for(int i=0; i<256; i++) {
-      r=0.0;
-      if(i>105 and i<=198) {
-        phi=(twopi/4.0) * (i-105.0)/(198.0-105.0);
-        r=sin(phi);
-      } else if(i>=198) {
-          r=1.0;
-      }
-
-      g=0.0;
-      if(i>35 and i<198) {
-        phi=(twopi/4.0) * (i-35.0)/(122.5-35.0);
-        g=0.625*sin(phi);
-      } else if(i>=198) {
-        x=(i-186.0);
-        g=-0.014 + 0.0144*x -0.00007*x*x +0.000002*x*x*x;
-        if(g>1.0) g=1.0;
-      }
-
-      b=0.0;
-      if(i<=117) {
-        phi=(twopi/2.0) * i/117.0;
-        b=0.4531*sin(phi);
-      } else if(i>186) {
-        x=(i-186.0);
-        b=-0.014 + 0.0144*x -0.00007*x*x +0.000002*x*x*x;
-        if(b>1.0) b=1.0;
-      }
-      m_ColorTbl[i].setRgb(int(255.0*r),int(255.0*g),int(255.0*b));
-    }
-    m_ColorTbl[255].setRgb(255,255,100);
-    return;
-  }
-
-  if(palette=="CuteSDR") {
-      for( int i=0; i<256; i++) {
-      if( (i<43) )
-        m_ColorTbl[i].setRgb( 0,0, 255*(i)/43);
-      if( (i>=43) && (i<87) )
-        m_ColorTbl[i].setRgb( 0, 255*(i-43)/43, 255 );
-      if( (i>=87) && (i<120) )
-        m_ColorTbl[i].setRgb( 0,255, 255-(255*(i-87)/32));
-      if( (i>=120) && (i<154) )
-        m_ColorTbl[i].setRgb( (255*(i-120)/33), 255, 0);
-      if( (i>=154) && (i<217) )
-        m_ColorTbl[i].setRgb( 255, 255 - (255*(i-154)/62), 0);
-      if( (i>=217)  )
-        m_ColorTbl[i].setRgb( 255, 0, 128*(i-217)/38);
-    }
-    m_ColorTbl[255].setRgb(255,255,100);
-    return;
-  }
-
-	QFile f;
-	if(palette=="Blue") f.setFileName("blue.dat");
-	if(palette=="AFMHot") f.setFileName("afmhot.dat");
-	if(palette=="Gray1") f.setFileName("gray1.dat");
-	if(f.open(QIODevice::ReadOnly)) {
-		 QTextStream in(&f);
-		 int n,r,g,b;
-		 float xr,xg,xb;
-		 for(int i=0; i<256; i++) {
-			 in >> n >> xr >> xg >> xb;
-			 r=255.0*xr + 0.5;
-			 g=255.0*xg + 0.5;
-			 b=255.0*xb + 0.5;
-			 m_ColorTbl[i].setRgb(r,g,b);
-		 }
-		 f.close();
-	} else {
-    QMessageBox msgBox0;
-    QString t="Error: Cannot find requested palette file.";
-    msgBox0.setText(t);
-    msgBox0.exec();
-    return;
-  }   
 }
 
 double CPlotter::fGreen()

@@ -25,7 +25,6 @@ public:
   void   saveSettings();
   void   setRxRange(int fMin);
   void   setFmin(int n);
-  void   setPalette(QString palette);
   void   setFsample(int n);
   void   setPeriod(int ntrperiod, int nsps);
   void   setTxFreq(int n);
@@ -35,6 +34,7 @@ public:
   void   setLockTxFreq(bool b);
   double getSlope();
   double fGreen();
+  void   readPalette(QString fileName);
 
   qint32 m_rxFreq;
   qint32 m_txFreq;
@@ -62,6 +62,7 @@ private slots:
   void on_fMinSpinBox_valueChanged(int n);
   void on_slopeSpinBox_valueChanged(double d);
   void on_fStartSpinBox_valueChanged(int n);
+  void on_pbPalette_clicked();
 
 private:
   double m_slope;
@@ -79,6 +80,7 @@ private:
 
   QString m_mode;
   QString m_modeTx;
+  QString m_waterfallPalette;
 
   Ui::WideGraph *ui;
 };

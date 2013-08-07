@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>799</width>
-    <height>326</height>
+    <height>395</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -51,24 +51,21 @@
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item>
-        <spacer name="horizontalSpacer_4">
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
+           <width>40</width>
            <height>20</height>
           </size>
          </property>
         </spacer>
        </item>
-       <item>
+       <item row="0" column="1">
         <widget class="QSpinBox" name="fStartSpinBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -96,23 +93,7 @@
          </property>
         </widget>
        </item>
-       <item>
-        <spacer name="horizontalSpacer_5">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Minimum</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>8</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
+       <item row="0" column="2">
         <widget class="QSpinBox" name="freqSpanSpinBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -155,23 +136,7 @@
          </property>
         </widget>
        </item>
-       <item>
-        <spacer name="horizontalSpacer_6">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Minimum</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>8</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
+       <item row="0" column="3">
         <widget class="QSpinBox" name="waterfallAvgSpinBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -205,23 +170,7 @@
          </property>
         </widget>
        </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Minimum</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>8</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
+       <item row="0" column="4">
         <widget class="QSpinBox" name="gainSpinBox">
          <property name="minimumSize">
           <size>
@@ -249,23 +198,7 @@
          </property>
         </widget>
        </item>
-       <item>
-        <spacer name="horizontalSpacer_7">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Minimum</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>8</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
+       <item row="0" column="5">
         <widget class="QSpinBox" name="zeroSpinBox">
          <property name="minimumSize">
           <size>
@@ -296,7 +229,7 @@
          </property>
         </widget>
        </item>
-       <item>
+       <item row="0" column="6">
         <widget class="QDoubleSpinBox" name="slopeSpinBox">
          <property name="minimumSize">
           <size>
@@ -321,23 +254,20 @@
          </property>
         </widget>
        </item>
-       <item>
-        <spacer name="horizontalSpacer">
+       <item row="0" column="7">
+        <spacer name="horizontalSpacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Minimum</enum>
-         </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>8</width>
+           <width>40</width>
            <height>20</height>
           </size>
          </property>
         </spacer>
        </item>
-       <item>
+       <item row="1" column="2">
         <widget class="QSpinBox" name="fMinSpinBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -374,23 +304,7 @@
          </property>
         </widget>
        </item>
-       <item>
-        <spacer name="horizontalSpacer_8">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Minimum</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>8</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
+       <item row="1" column="3">
         <widget class="QComboBox" name="spec2dComboBox">
          <property name="toolTip">
           <string>Select data for display curve</string>
@@ -410,18 +324,19 @@
          </item>
         </widget>
        </item>
-       <item>
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+       <item row="1" column="4">
+        <widget class="QPushButton" name="pbPalette">
+         <property name="text">
+          <string>Palette</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
+        </widget>
+       </item>
+       <item row="1" column="5">
+        <widget class="QLabel" name="labPalette">
+         <property name="text">
+          <string>Linrad</string>
          </property>
-        </spacer>
+        </widget>
        </item>
       </layout>
      </item>

@@ -53,7 +53,11 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->slopeSpinBox->setValue(m_slope);
   ui->widePlot->setStartFreq(settings.value("StartFreq",0).toInt());
   ui->fStartSpinBox->setValue(ui->widePlot->startFreq());
+  m_waterfallPalette=settings.value("WaterfallPalette","default").toString();
+  ui->labPalette->setText(m_waterfallPalette.mid(0,1).toUpper() +
+                          m_waterfallPalette.mid(1));
   settings.endGroup();
+  readPalette("Palettes/" + m_waterfallPalette + ".pal");
 }
 
 WideGraph::~WideGraph()
@@ -80,6 +84,7 @@ void WideGraph::saveSettings()
   settings.setValue("BinsPerPixel",ui->widePlot->binsPerPixel());
   settings.setValue("Slope",m_slope);
   settings.setValue("StartFreq",ui->widePlot->startFreq());
+  settings.setValue("WaterfallPalette",m_waterfallPalette);
   settings.endGroup();
 }
 
@@ -227,11 +232,6 @@ void WideGraph::setFmin(int n)
   setRxRange(m_fMin);
 }
 
-void WideGraph::setPalette(QString palette)
-{
-  ui->widePlot->setPalette(palette);
-}
-
 double WideGraph::fGreen()
 {
   return ui->widePlot->fGreen();
@@ -318,4 +318,55 @@ void WideGraph::setDialFreq(double d)
 void WideGraph::on_fStartSpinBox_valueChanged(int n)
 {
   ui->widePlot->setStartFreq(n);
+}
+
+void WideGraph::on_pbPalette_clicked()
+{
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Select Palette"),
+      "./Palettes", tr("Files (*.pal)"));
+  if(fileName!="") readPalette(fileName);
+  /*
+    QColor color = QColorDialog::getColor(Qt::yellow, this );
+    if(color.isValid()) {
+      qDebug( "ok" );
+    }
+  */
+}
+
+void WideGraph::readPalette(QString fileName)
+{
+  QFile f;
+  f.setFileName(fileName);
+  if(f.open(QIODevice::ReadOnly)) {
+    QTextStream in(&f);
+    int r[9],g[9],b[9];
+    QString t;
+    for(int i=0; i<9; i++) {
+      t=in.readLine();
+      r[i]=t.mid(0,3).toInt();
+      g[i]=t.mid(4,3).toInt();
+      b[i]=t.mid(8,3).toInt();
+    }
+    f.close();
+    for(int i=0; i<256; i++) {
+      int j0=i/32;
+      int j1=j0+1;
+      int k=i-32*j0;
+      int rr=r[j0] + int((k*(r[j1]-r[j0]))/31 + 0.5);
+      int gg=g[j0] + int((k*(g[j1]-g[j0]))/31 + 0.5);
+      int bb=b[j0] + int((k*(b[j1]-b[j0]))/31 + 0.5);
+      ui->widePlot->m_ColorTbl[i].setRgb(rr,gg,bb);
+    }
+    QFileInfo fileInfo(f);
+    t=fileInfo.fileName();
+    int n=t.length();
+    m_waterfallPalette=t.mid(0,n-4);
+    ui->labPalette->setText(m_waterfallPalette.mid(0,1).toUpper() +
+                            m_waterfallPalette.mid(1));
+  } else {
+    QMessageBox msgBox0;
+    QString t="Error: Cannot find requested palette file " + fileName;
+    msgBox0.setText(t);
+    msgBox0.exec();
+  }
 }

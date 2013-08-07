@@ -61,7 +61,6 @@ public:
   void setRxFreq(int n, bool bf);
   void DrawOverlay();
   int  rxFreq();
-  void setPalette(QString palette);
   void setFsample(int n);
   void setNsps(int ntrperiod, int nsps);
   void setTxFreq(int n);
@@ -98,7 +97,6 @@ private:
   QString m_HDivText[483];
   QString m_mode;
   QString m_modeTx;
-  QString m_palette;
 
   bool    m_Running;
   bool    m_paintEventBusy;

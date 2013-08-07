@@ -74,8 +74,6 @@ private slots:
   void on_actionExit_triggered();
   void on_actionAbout_triggered();
   void OnExit();
-  void on_actionLinrad_triggered();
-  void on_actionCuteSDR_triggered();
   void on_autoButton_clicked();
   void on_stopTxButton_clicked();
   void on_stopButton_clicked();
@@ -107,8 +105,6 @@ private slots:
   void on_dxGridEntry_textChanged(const QString &arg1);
   void on_genStdMsgsPushButton_clicked();
   void on_logQSOButton_clicked();
-  void on_actionAFMHot_triggered();
-  void on_actionBlue_triggered();
   void on_actionJT9_1_triggered();
   void on_actionJT65_triggered();
   void on_actionJT9_JT65_triggered();
@@ -134,7 +130,6 @@ private slots:
   void onPopup9();
   void onPopup10();
   void on_actionConvert_JT9_x_to_RTTY_triggered(bool checked);
-  void on_actionLog_JT9_without_submode_triggered(bool checked);
   void on_actionLog_dB_reports_to_Comments_triggered(bool checked);
   void startTx2();
   void stopTx();
@@ -170,8 +165,6 @@ private slots:
   void on_cbTxLock_clicked(bool checked);
   void on_actionTx2QSO_triggered(bool checked);  
   void on_cbPlus2kHz_toggled(bool checked);
-
-  void on_actionGray1_triggered();
 
 private:
     Ui::MainWindow *ui;
