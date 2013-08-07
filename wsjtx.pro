@@ -14,7 +14,6 @@ TARGET = wsjtx
 DESTDIR = ../wsjtx_install
 VERSION = 1.2
 TEMPLATE = app
-#DEFINES = QT4
 DEFINES = QT5
 
 win32 {
@@ -82,9 +81,9 @@ FORMS    += mainwindow.ui about.ui devsetup.ui widegraph.ui \
 RC_FILE = wsjtx.rc
 
 unix {
-LIBS += ../wsjtx/lib/libjt9.a
+LIBS += -L lib -ljt9
 LIBS += -lhamlib
-LIBS += -lgfortran -lfftw3f
+LIBS += -lfftw3f `$$F90 -print-file-name=libgfortran.so`
 }
 
 win32 {
@@ -99,3 +98,6 @@ LIBS += libwsock32
 LIBS += C:/MinGW/lib/libf95.a
 
 }
+
+RESOURCES += \
+    wsjtx.qrc

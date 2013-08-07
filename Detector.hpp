@@ -1,7 +1,7 @@
 #ifndef DETECTOR_HPP__
 #define DETECTOR_HPP__
 
-#include <inttypes.h>
+#include <stdint.h>
 
 #include <QIODevice>
 
@@ -52,7 +52,7 @@ protected:
   qint64 writeData (char const * data, qint64 maxSize);
 
 private:
-  typedef int16_t frame_t;
+  typedef qint16 frame_t;
 
   void clear ();		// discard buffer contents
   unsigned secondInPeriod () const;

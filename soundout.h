@@ -4,8 +4,9 @@
 #include <QObject>
 #include <QString>
 #include <QAudioOutput>
+#include <QAudioDeviceInfo>
 
-#include "Modulator.hpp"
+class QAudioDeviceInfo;
 
 class QAudioDeviceInfo;
 
@@ -21,32 +22,33 @@ class SoundOutput : public QObject
   Q_DISABLE_COPY (SoundOutput);
 
  public:
-  SoundOutput ()
-    : m_active(false)
-    {
-    }
+  SoundOutput (QIODevice * source);
   ~SoundOutput ();
 
   bool isRunning() const {return m_active;}
 
-public Q_SLOTS:
-  bool start(QAudioDeviceInfo const& device, QIODevice * source);
-  void stop();
+ public Q_SLOTS:
+  void startStream (QAudioDeviceInfo const& device);
+  void suspend ();
+  void resume ();
+  void stopStream ();
 
-Q_SIGNALS:
+ Q_SIGNALS:
   void error (QString message) const;
   void status (QString message) const;
 
 private:
   bool audioError () const;
 
-private Q_SLOTS:
-  void handleStateChanged (QAudio::State) const;
+ private Q_SLOTS:
+  void handleStateChanged (QAudio::State);
 
  private:
   QScopedPointer<QAudioOutput> m_stream;
 
-  bool m_active;
+  QIODevice * m_source;
+  bool volatile m_active;
+  QAudioDeviceInfo m_currentDevice;
 };
 
 #endif

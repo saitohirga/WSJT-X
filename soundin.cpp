@@ -74,7 +74,7 @@ bool SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, QIOD
 
   m_stream->start (sink);
 
-  qDebug () << "audio input buffer size = " << m_stream->bufferSize () << " bytes\n";
+  qDebug () << "audio input buffer size = " << m_stream->bufferSize () << " bytes";
 
   return audioError () ? false : true;
 }
@@ -84,29 +84,29 @@ void SoundInput::handleStateChanged (QAudio::State newState) const
   switch (newState)
     {
     case QAudio::IdleState:
-      qDebug () << "SoundInput idle\n";
+      qDebug () << "SoundInput idle";
       Q_EMIT status (tr ("Idle"));
       break;
 
     case QAudio::ActiveState:
-      qDebug () << "SoundInput active\n";
+      qDebug () << "SoundInput active";
       Q_EMIT status (tr ("Receiving"));
       break;
 
     case QAudio::SuspendedState:
-      qDebug () << "SoundInput suspended\n";
+      qDebug () << "SoundInput suspended";
       Q_EMIT status (tr ("Suspended"));
       break;
 
     case QAudio::StoppedState:
       if (audioError ())
 	{
-	  qDebug () << "SoundInput error\n";
+	  qDebug () << "SoundInput error";
 	  Q_EMIT status (tr ("Error"));
 	}
       else
 	{
-	  qDebug () << "SoundInput stopped\n";
+	  qDebug () << "SoundInput stopped";
 	  Q_EMIT status (tr ("Stopped"));
 	}
       break;

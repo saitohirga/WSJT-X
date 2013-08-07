@@ -1,10 +1,13 @@
 #ifndef MODULATOR_HPP__
 #define MODULATOR_HPP__
 
-#include <vector>
-
 #include <QIODevice>
-#include <QScopedPointer>
+
+#ifdef UNIX
+# define NUM_CHANNELS 2
+#else
+# define NUM_CHANNELS 1
+#endif
 
 //
 // Input device that generates PCM audio frames that encode a message
@@ -27,6 +30,12 @@ private:
 public:
   Modulator (unsigned frameRate, unsigned periodLengthInSeconds, QObject * parent = 0);
 
+  bool open () {return QIODevice::open (QIODevice::ReadOnly | QIODevice::Unbuffered);}
+
+  Q_SLOT void send (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, bool synchronize = true, double dBSNR = 99.);
+
+  Q_SLOT void stop () {Q_EMIT stateChanged ((m_state = Idle));}
+
   bool isTuning () const {return m_tuning;}
   Q_SLOT void tune (bool newState = true) {m_tuning = newState;}
 
@@ -36,12 +45,11 @@ public:
   unsigned frequency () const {return m_frequency;}
   Q_SLOT void setFrequency (unsigned newFrequency) {m_frequency = newFrequency;}
 
-  bool open (std::vector<int> const * symbols, std::vector<int> const * cw, double framesPerSymbol, unsigned frequency, double dBSNR = 99.);
+  enum ModulatorState {Synchronizing, Active, Idle};
+  Q_SIGNAL void stateChanged (ModulatorState);
+  bool isActive () const {return m_state != Idle;}
 
-  bool isSequential () const
-  {
-    return true;
-  }
+  bool isSequential () const {return true;}
 
 protected:
   qint64 readData (char * data, qint64 maxSize);
@@ -51,12 +59,14 @@ protected:
   }
 
 private:
-  typedef short frame_t;
+  typedef struct
+  {
+    qint16 channel[NUM_CHANNELS];
+  } frame_t;
 
   frame_t postProcessFrame (frame_t frame) const;
 
-  QScopedPointer<std::vector<int> const> m_symbols;
-  QScopedPointer<std::vector<int> const> m_cw;
+  unsigned m_symbolsLength;
 
   static double const m_twoPi;
   static unsigned const m_nspd;	// CW ID WPM factor
@@ -64,11 +74,13 @@ private:
   int m_frameRate;
   int m_period;
   double m_nsps;
-  double m_frequency;
+  double volatile m_frequency;
   double m_snr;
-  enum {Idle, Active, Done} m_state;
-  bool m_tuning;
-  bool m_muted;
+  qint64 m_silentFrames;
+  qint64 m_framesSent;
+  ModulatorState volatile m_state;
+  bool volatile m_tuning;
+  bool volatile m_muted;
   bool m_addNoise;
   double m_phi;
   double m_dphi;

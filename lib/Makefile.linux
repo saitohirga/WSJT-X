@@ -1,13 +1,13 @@
 # Set paths
 EXE_DIR = ../../wsjtx_install
-INCPATH =  -I'/usr/include/qt4' -I'/usr/include/qt4/QtCore' 
+INCPATH = -I/usr/include/qt5 -I/usr/include/qt5/QtCore
 
 CC = gcc
 CXX = g++
 FC = gfortran
 
-FFLAGS = -O2 -fbounds-check -Wall -Wno-conversion -fno-second-underscore
-CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
+FFLAGS = -O2 -fbounds-check -Wall -Wno-conversion -fno-second-underscore -fPIE
+CFLAGS = -I. -fbounds-check -mno-stack-arg-probe -fPIE
 
 # Default rules
 %.o: %.c
@@ -49,17 +49,17 @@ libjt9.a: $(OBJS1)
 OBJS2 = jt9.o jt9a.o jt9b.o jt9c.o
 
 jt9: 	$(OBJS2) libjt9.a 
-	$(CXX) -o jt9 $(OBJS2) libjt9.a -lfftw3f -lgfortran -lQtCore
+	$(CXX) -o jt9 $(OBJS2) -L. -ljt9 -lQt5Core -lfftw3f `$(FC) -print-file-name=libgfortran.so`
 	mkdir -p $(EXE_DIR)
 	cp jt9 $(EXE_DIR)
 
 OBJS3 = jt9sim.o 
 jt9sim: $(OBJS3) libjt9.a
-	$(FC) -o jt9sim $(OBJS3) libjt9.a
+	$(FC) -o jt9sim $(OBJS3) -L. -ljt9
 
 OBJS4 = jt9code.o 
 jt9code: $(OBJS4) libjt9.a
-	$(FC) -o jt9code $(OBJS4) libjt9.a
+	$(FC) -o jt9code $(OBJS4) -L. -ljt9
 
 sync9.o: sync9.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c sync9.f90
@@ -80,7 +80,7 @@ redsync.o: redsync.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c redsync.f90
 
 ipcomm.o: ipcomm.cpp
-	$(CXX) -c $(INCPATH) ipcomm.cpp
+	$(CXX) -c $(INCPATH) -fPIE ipcomm.cpp
 
 sec_midn.o: sec_midn.f90
 	$(FC) -c -fno-second-underscore sec_midn.f90
