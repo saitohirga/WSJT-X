@@ -3,9 +3,8 @@
 #include "ui_mainwindow.h"
 
 #include <vector>
-
 #include <QScopedPointer>
-
+#include <QColorDialog>
 #include "devsetup.h"
 #include "plotter.h"
 #include "about.h"
@@ -58,16 +57,8 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2, this)
 {
   ui->setupUi(this);
-
   m_detector.open ();
-
   on_EraseButton_clicked();
-  QActionGroup* paletteGroup = new QActionGroup(this);
-  ui->actionCuteSDR->setActionGroup(paletteGroup);
-  ui->actionLinrad->setActionGroup(paletteGroup);
-  ui->actionAFMHot->setActionGroup(paletteGroup);
-  ui->actionBlue->setActionGroup(paletteGroup);
-  ui->actionGray1->setActionGroup(paletteGroup);
 
   QActionGroup* modeGroup = new QActionGroup(this);
   ui->actionJT9_1->setActionGroup(modeGroup);
@@ -345,12 +336,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   }
   f.close();
 
-  if(ui->actionLinrad->isChecked()) on_actionLinrad_triggered();
-  if(ui->actionCuteSDR->isChecked()) on_actionCuteSDR_triggered();
-  if(ui->actionAFMHot->isChecked()) on_actionAFMHot_triggered();
-  if(ui->actionBlue->isChecked()) on_actionBlue_triggered();
-  if(ui->actionGray1->isChecked()) on_actionGray1_triggered();
-
   ui->decodedTextLabel->setFont(ui->decodedTextBrowser->font());
   ui->decodedTextLabel2->setFont(ui->decodedTextBrowser2->font());
   t="UTC   dB   DT Freq   Message";
@@ -419,11 +404,6 @@ void MainWindow::writeSettings()
   settings.setValue("SaveDir",m_saveDir);
   settings.setValue("SoundInName", m_audioInputDevice.deviceName ());
   settings.setValue("SoundOutName", m_audioOutputDevice.deviceName ());
-  settings.setValue("PaletteCuteSDR",ui->actionCuteSDR->isChecked());
-  settings.setValue("PaletteLinrad",ui->actionLinrad->isChecked());
-  settings.setValue("PaletteAFMHot",ui->actionAFMHot->isChecked());
-  settings.setValue("PaletteBlue",ui->actionBlue->isChecked());
-  settings.setValue("PaletteGray1",ui->actionGray1->isChecked());
   settings.setValue("Mode",m_mode);
   settings.setValue("ModeTx",m_modeTx);
   settings.setValue("SaveNone",ui->actionNone->isChecked());
@@ -535,24 +515,13 @@ void MainWindow::readSettings()
     QString savedName = settings.value("SoundOutName", "default").toString();
     QList<QAudioDeviceInfo> audioOutputDevices (QAudioDeviceInfo::availableDevices (QAudio::AudioOutput)); // available audio output devices
     for (QList<QAudioDeviceInfo>::const_iterator p = audioOutputDevices.begin (); p != audioOutputDevices.end (); ++p)
-      {
-	if (p->deviceName () == savedName)
-	  {
-	    m_audioOutputDevice = *p;
-	  }
+    {
+      if (p->deviceName () == savedName) {
+        m_audioOutputDevice = *p;
       }
+    }
   }
 
-  ui->actionCuteSDR->setChecked(settings.value(
-                                  "PaletteCuteSDR",false).toBool());
-  ui->actionLinrad->setChecked(settings.value(
-                                 "PaletteLinrad",true).toBool());
-  ui->actionAFMHot->setChecked(settings.value(
-                                 "PaletteAFMHot",false).toBool());
-  ui->actionBlue->setChecked(settings.value(
-                                 "PaletteBlue",false).toBool());
-  ui->actionGray1->setChecked(settings.value(
-                                 "PaletteGray1",false).toBool());
   m_mode=settings.value("Mode","JT9").toString();
   m_modeTx=settings.value("ModeTx","JT9").toString();
   if(m_modeTx=="JT9") ui->pbTxMode->setText("Tx JT9  @");
@@ -584,7 +553,6 @@ void MainWindow::readSettings()
   m_toRTTY=settings.value("toRTTY",false).toBool();
   ui->actionConvert_JT9_x_to_RTTY->setChecked(m_toRTTY);
   m_noSuffix=settings.value("NoSuffix",false).toBool();
-  ui->actionLog_JT9_without_submode->setChecked(m_noSuffix);
   m_dBtoComments=settings.value("dBtoComments",false).toBool();
   ui->actionLog_dB_reports_to_Comments->setChecked(m_dBtoComments);
   m_rig=settings.value("Rig",214).toInt();
@@ -644,12 +612,6 @@ void MainWindow::readSettings()
 	ui->cbPlus2kHz->setChecked(m_plus2kHz);
   settings.endGroup();
 
-  if(!ui->actionLinrad->isChecked() and !ui->actionCuteSDR->isChecked()and
-     !ui->actionAFMHot->isChecked() and !ui->actionBlue->isChecked() and
-     !ui->actionGray1->isChecked()) {
-    on_actionLinrad_triggered();
-    ui->actionLinrad->setChecked(true);
-  }
   if(m_ndepth==1) ui->actionQuickDecode->setChecked(true);
   if(m_ndepth==2) ui->actionMediumDecode->setChecked(true);
   if(m_ndepth==3) ui->actionDeepestDecode->setChecked(true);
@@ -850,31 +812,6 @@ void MainWindow::on_monitorButton_clicked()                  //Monitor
   m_monitoring=true;
   m_detector.setMonitoring(true);
   m_diskData=false;
-}
-
-void MainWindow::on_actionLinrad_triggered()                 //Linrad palette
-{
-  if(g_pWideGraph != NULL) g_pWideGraph->setPalette("Linrad");
-}
-
-void MainWindow::on_actionCuteSDR_triggered()                //CuteSDR palette
-{
-  if(g_pWideGraph != NULL) g_pWideGraph->setPalette("CuteSDR");
-}
-
-void MainWindow::on_actionAFMHot_triggered()
-{
-  if(g_pWideGraph != NULL) g_pWideGraph->setPalette("AFMHot");
-}
-
-void MainWindow::on_actionBlue_triggered()
-{
-  if(g_pWideGraph != NULL) g_pWideGraph->setPalette("Blue");
-}
-
-void MainWindow::on_actionGray1_triggered()
-{
-  if(g_pWideGraph != NULL) g_pWideGraph->setPalette("Gray1");
 }
 
 void MainWindow::on_actionAbout_triggered()                  //Display "About"
@@ -2718,11 +2655,6 @@ bool MainWindow::gridOK(QString g)
 void MainWindow::on_actionConvert_JT9_x_to_RTTY_triggered(bool checked)
 {
   m_toRTTY=checked;
-}
-
-void MainWindow::on_actionLog_JT9_without_submode_triggered(bool checked)
-{
-  m_noSuffix=checked;
 }
 
 void MainWindow::on_actionLog_dB_reports_to_Comments_triggered(bool checked)

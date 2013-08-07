@@ -2274,19 +2274,8 @@ p, li { white-space: pre-wrap; }
     <property name="title">
      <string>View</string>
     </property>
-    <widget class="QMenu" name="menuWaterfall_palette">
-     <property name="title">
-      <string>Waterfall palette</string>
-     </property>
-     <addaction name="actionLinrad"/>
-     <addaction name="actionCuteSDR"/>
-     <addaction name="actionAFMHot"/>
-     <addaction name="actionBlue"/>
-     <addaction name="actionGray1"/>
-    </widget>
     <addaction name="actionWide_Waterfall"/>
     <addaction name="separator"/>
-    <addaction name="menuWaterfall_palette"/>
    </widget>
    <widget class="QMenu" name="menuDecode">
     <property name="title">
@@ -2354,24 +2343,6 @@ p, li { white-space: pre-wrap; }
     <string>Ctrl+F1</string>
    </property>
   </action>
-  <action name="actionAstro_Data">
-   <property name="text">
-    <string>Astro Data</string>
-   </property>
-   <property name="shortcut">
-    <string>Shift+F10</string>
-   </property>
-  </action>
-  <action name="actionBand_Map">
-   <property name="text">
-    <string>Band Map</string>
-   </property>
-  </action>
-  <action name="actionMessages">
-   <property name="text">
-    <string>Messages</string>
-   </property>
-  </action>
   <action name="actionWide_Waterfall">
    <property name="text">
     <string>Waterfall</string>
@@ -2401,54 +2372,6 @@ p, li { white-space: pre-wrap; }
   <action name="actionDelete_all_wav_files_in_SaveDir">
    <property name="text">
     <string>Delete all *.wav files in SaveDir</string>
-   </property>
-  </action>
-  <action name="actionErase_Band_Map_and_Messages">
-   <property name="text">
-    <string>Erase Band Map and Messages</string>
-   </property>
-  </action>
-  <action name="actionLinrad">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Linrad</string>
-   </property>
-  </action>
-  <action name="actionCuteSDR">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>CuteSDR</string>
-   </property>
-  </action>
-  <action name="actionFind_Delta_Phi">
-   <property name="text">
-    <string>Find Delta Phi</string>
-   </property>
-  </action>
-  <action name="actionF4_sets_Tx6">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>F4 sets Tx6</string>
-   </property>
-  </action>
-  <action name="actionNo_shorthands_if_Tx1">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>No shorthand decodes if Tx1</string>
    </property>
   </action>
   <action name="actionQuickDecode">
@@ -2481,57 +2404,6 @@ p, li { white-space: pre-wrap; }
     <string>Save all</string>
    </property>
   </action>
-  <action name="action50">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>50</string>
-   </property>
-  </action>
-  <action name="action144">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>144</string>
-   </property>
-  </action>
-  <action name="action222">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>222</string>
-   </property>
-  </action>
-  <action name="action432">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>432</string>
-   </property>
-  </action>
-  <action name="action1296">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>1296</string>
-   </property>
-  </action>
-  <action name="action2304">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>2304</string>
-   </property>
-  </action>
   <action name="actionOnline_Users_Guide">
    <property name="text">
     <string>Online User's Guide</string>
@@ -2556,80 +2428,6 @@ p, li { white-space: pre-wrap; }
     <string>F5</string>
    </property>
   </action>
-  <action name="actionAvailable_suffixes_and_add_on_prefixes">
-   <property name="text">
-    <string>Available suffixes and add-on-prefixes</string>
-   </property>
-  </action>
-  <action name="actionJT65A">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>JT65A</string>
-   </property>
-  </action>
-  <action name="actionJT65B">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>JT65B</string>
-   </property>
-  </action>
-  <action name="actionJT65C">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>JT65C</string>
-   </property>
-  </action>
-  <action name="actionI_Q_Calibration">
-   <property name="text">
-    <string>I/Q Calibration</string>
-   </property>
-   <property name="shortcut">
-    <string>F7</string>
-   </property>
-  </action>
-  <action name="actionAdjust_IQ_Calibration">
-   <property name="text">
-    <string>Adjust I/Q Calibration</string>
-   </property>
-  </action>
-  <action name="actionApply_IQ_Calibration">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Apply I/Q Calibration</string>
-   </property>
-  </action>
-  <action name="actionAFMHot">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>AFMHot</string>
-   </property>
-  </action>
-  <action name="actionBlue">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Blue</string>
-   </property>
-  </action>
-  <action name="actionFUNcube_Dongle">
-   <property name="text">
-    <string>FUNcube Dongle Settings</string>
-   </property>
-  </action>
   <action name="actionJT9_1">
    <property name="checkable">
     <bool>true</bool>
@@ -2639,58 +2437,6 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>JT9</string>
-   </property>
-  </action>
-  <action name="actionJT9_2">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>JT9-2</string>
-   </property>
-  </action>
-  <action name="actionJT9_5">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>JT9-5</string>
-   </property>
-  </action>
-  <action name="actionJT9_10">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>JT9-10</string>
-   </property>
-  </action>
-  <action name="actionJT9_30">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>JT9-30</string>
-   </property>
-  </action>
-  <action name="actionSave_synced">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Save synced</string>
    </property>
   </action>
   <action name="actionSave_decoded">
@@ -2744,14 +2490,6 @@ p, li { white-space: pre-wrap; }
     <string>Erase wsjtx_log.adi</string>
    </property>
   </action>
-  <action name="actionLog_JT9_without_submode">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Log JT9 without submode</string>
-   </property>
-  </action>
   <action name="actionConvert_JT9_x_to_RTTY">
    <property name="checkable">
     <bool>true</bool>
@@ -2790,11 +2528,6 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Clear DX Call and Grid after logging</string>
-   </property>
-  </action>
-  <action name="actionDistance_in_miles">
-   <property name="text">
-    <string>Distance in miles</string>
    </property>
   </action>
   <action name="actionDisplay_distance_in_miles">
