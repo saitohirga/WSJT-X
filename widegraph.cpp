@@ -367,5 +367,6 @@ void WideGraph::readPalette(QString fileName)
 
 void WideGraph::on_paletteComboBox_activated(const QString &palette)
 {
+  m_waterfallPalette=palette;
   readPalette("Palettes/" + palette + ".pal");
 }
