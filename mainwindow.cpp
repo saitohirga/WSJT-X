@@ -1027,15 +1027,16 @@ void MainWindow::createStatusBar()                           //createStatusBar
   lab1->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab1);
 
+
   lab2 = new QLabel("");
   lab2->setAlignment(Qt::AlignHCenter);
-  lab2->setMinimumSize(QSize(150,18));
+  lab2->setMinimumSize(QSize(80,18));
   lab2->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab2);
 
   lab3 = new QLabel("");
   lab3->setAlignment(Qt::AlignHCenter);
-  lab3->setMinimumSize(QSize(80,18));
+  lab3->setMinimumSize(QSize(150,18));
   lab3->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab3);
 }
@@ -1672,7 +1673,7 @@ void MainWindow::guiUpdate()
     msgsent[22]=0;
     QString t=QString::fromLatin1(msgsent);
     if(m_tune) t="TUNE";
-    lab2->setText("Last Tx:  " + t);
+    lab3->setText("Last Tx:  " + t);
     if(m_restart) {
       QFile f("ALL.TXT");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
@@ -2506,8 +2507,8 @@ void MainWindow::on_actionJT9_1_triggered()
   m_TRperiod=60;
   m_nsps=6912;
   m_hsymStop=173;
-  lab3->setStyleSheet("QLabel{background-color: #ff6ec7}");
-  lab3->setText(m_mode);
+  lab2->setStyleSheet("QLabel{background-color: #ff6ec7}");
+  lab2->setText(m_mode);
   ui->actionJT9_1->setChecked(true);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setMode(m_mode);
@@ -2523,8 +2524,8 @@ void MainWindow::on_actionJT65_triggered()
   m_TRperiod=60;
   m_nsps=6912;                   //For symspec only
   m_hsymStop=173;
-  lab3->setStyleSheet("QLabel{background-color: #ffff00}");
-  lab3->setText(m_mode);
+  lab2->setStyleSheet("QLabel{background-color: #ffff00}");
+  lab2->setText(m_mode);
   ui->actionJT65->setChecked(true);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setMode(m_mode);
@@ -2540,8 +2541,8 @@ void MainWindow::on_actionJT9_JT65_triggered()
   m_TRperiod=60;
   m_nsps=6912;
   m_hsymStop=173;
-  lab3->setStyleSheet("QLabel{background-color: #ffa500}");
-  lab3->setText(m_mode);
+  lab2->setStyleSheet("QLabel{background-color: #ffa500}");
+  lab2->setText(m_mode);
   ui->actionJT9_JT65->setChecked(true);
   g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
   g_pWideGraph->setMode(m_mode);
@@ -3011,11 +3012,7 @@ void MainWindow::setXIT(int n)
   int ret;
   m_XIT = 0;
   if(m_bRigOpen) {
-    m_XIT=-1000;
-    if(n>1000) m_XIT=0;
-    if(n>2000) m_XIT=1000;
-    if(n>3000) m_XIT=2000;
-    if(n>4000) m_XIT=3000;
+    m_XIT=(n/500)*500 - 1500;
     if(m_bXIT) {
       ret=rig->setXit((shortfreq_t)m_XIT,RIG_VFO_TX);
       if(ret!=RIG_OK) {

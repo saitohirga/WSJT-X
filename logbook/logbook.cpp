@@ -16,10 +16,11 @@ void LogBook::init()
 
     _setAlreadyWorkedFromLog();
 
-
+/*
     int QSOcount = _log.getCount();
     int count = _worked.getWorkedCount();
     qDebug() << QSOcount << "QSOs and" << count << "countries worked in file" << logFilename;
+*/
 }
 
 
