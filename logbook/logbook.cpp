@@ -1,5 +1,5 @@
 #include "logbook.h"
-
+#include <QDebug>
 
 void LogBook::init()
 {
@@ -58,7 +58,7 @@ void LogBook::match(/*in*/const QString call,
           countryWorkedBefore = false;
         }
     }
-    qDebug() << "Logbook:" << call << ":" << countryName << "Cty B4:" << countryWorkedBefore << "call B4:" << callWorkedBefore;
+    //qDebug() << "Logbook:" << call << ":" << countryName << "Cty B4:" << countryWorkedBefore << "call B4:" << callWorkedBefore;
 }
 
 void LogBook::addAsWorked(const QString call)

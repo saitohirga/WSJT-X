@@ -6,7 +6,10 @@
 #ifndef __COUNTRIESWORKDED_H
 #define __COUNTRIESWORKDED_H
 
-#include <QtGui>
+#include <QList>
+#include <QString>
+#include <QStringList>
+#include <QHash>
 
 
 class CountriesWorked

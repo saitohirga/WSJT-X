@@ -8,7 +8,10 @@
 #ifndef __COUNTRYDAT_H
 #define __COUNTRYDAT_H
 
-#include <QtGui>
+
+#include <QString>
+#include <QStringList>
+#include <QHash>
 
 
 class CountryDat

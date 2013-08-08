@@ -2223,7 +2223,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>760</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -2615,7 +2615,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show DXCC entity and B4 status</string>
+    <string>Show DXCC entity and worked B4 status</string>
    </property>
   </action>
  </widget>

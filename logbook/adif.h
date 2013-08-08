@@ -11,6 +11,7 @@
 #if defined (QT5)
 #include <QList>
 #include <QString>
+#include <QMultiHash>
 #else
 #include <QtGui>
 #endif
@@ -33,7 +34,7 @@ class ADIF
 		  QString call,band,mode,date;
 		};		  
 
-		QList<QSO> _data;
+        QMultiHash<QString, QSO> _data;
 		QString _filename;
 		
         QString _extractField(const QString line, const QString fieldName);
