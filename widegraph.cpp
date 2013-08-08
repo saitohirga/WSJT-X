@@ -53,7 +53,7 @@ WideGraph::WideGraph(QWidget *parent) :
   ui->slopeSpinBox->setValue(m_slope);
   ui->widePlot->setStartFreq(settings.value("StartFreq",0).toInt());
   ui->fStartSpinBox->setValue(ui->widePlot->startFreq());
-  m_waterfallPalette=settings.value("WaterfallPalette","default").toString();
+  m_waterfallPalette=settings.value("WaterfallPalette","Default").toString();
   settings.endGroup();
 
   QDir recoredDir("Palettes");
