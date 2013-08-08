@@ -101,8 +101,6 @@ void SoundOutput::startStream (QAudioDeviceInfo const& device)
   m_stream->setBufferSize (m_stream->format ().bytesForDuration (MS_BUFFERED * 1000));
   m_stream->start (m_source);
   audioError ();
-
-  qDebug () << "audio output buffer size = " << m_stream->bufferSize () << " bytes";
 }
 
 void SoundOutput::suspend ()
@@ -137,25 +135,21 @@ void SoundOutput::handleStateChanged (QAudio::State newState)
   switch (newState)
     {
     case QAudio::IdleState:
-      qDebug () << "SoundOutput: entered Idle state";
       Q_EMIT status (tr ("Idle"));
       m_active = false;
       break;
 
     case QAudio::ActiveState:
-      qDebug () << "SoundOutput: entered Active state";
       m_active = true;
       Q_EMIT status (tr ("Sending"));
       break;
 
     case QAudio::SuspendedState:
-      qDebug () << "SoundOutput: entered Suspended state";
       m_active = true;
       Q_EMIT status (tr ("Suspended"));
       break;
 
     case QAudio::StoppedState:
-      qDebug () << "SoundOutput: entered Stopped state";
       m_active = false;
       if (audioError ())
 	{

@@ -66,8 +66,7 @@ void Modulator::send (unsigned symbolsLength, double framesPerSymbol, unsigned f
       m_silentFrames = m_ic + m_frameRate - (mstr * m_frameRate / 1000);
     }
 
-  qDebug () << "Modulator: starting at " << m_ic / m_frameRate << " sec, sending " << m_silentFrames << " silent frames";
-
+//  qDebug () << "Modulator: starting at " << m_ic / m_frameRate << " sec, sending " << m_silentFrames << " silent frames";
   Q_EMIT stateChanged ((m_state = (synchronize && m_silentFrames) ? Synchronizing : Active));
 }
 
@@ -79,7 +78,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
   frame_t * frames (reinterpret_cast<frame_t *> (data));
   qint64 numFrames (maxSize / sizeof (frame_t));
 
-  qDebug () << "Modulator: " << numFrames << " requested, m_ic = " << m_ic << ", tune mode is " << m_tuning;
+//  qDebug () << "Modulator: " << numFrames << " requested, m_ic = " << m_ic << ", tune mode is " << m_tuning;
 
   switch (m_state)
     {
