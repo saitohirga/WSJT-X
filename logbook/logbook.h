@@ -7,7 +7,7 @@
 #define LOGBOOK_H
 
 
-#include <QtGui>
+#include <QString>
 
 #include "countrydat.h"
 #include "countriesworked.h"

@@ -29,8 +29,12 @@ void CountryDat::init(const QString filename)
 QString CountryDat::_extractName(const QString line)
 {
     int s1 = line.indexOf(':');
-    QString name = line.mid(0,s1);
-    return name;
+    if (s1>=0)
+    {
+        QString name = line.mid(0,s1);
+        return name;
+    }
+    return "";
 }
 
 void CountryDat::_removeBrackets(QString &line, const QString a, const QString b)
@@ -71,7 +75,7 @@ QStringList CountryDat::_extractPrefix(QString &line, bool &more)
 
 void CountryDat::load()
 {
-    _data.clear(); //dictionary was = {}
+    _data.clear();
     _countryNames.clear(); //used by countriesWorked
   
     QFile inputFile(_filename);
@@ -86,23 +90,26 @@ void CountryDat::load()
             QString line2 = in.readLine();
               
             QString name = _extractName(line1);
-            _countryNames << name; 
-            bool more = true;
-			QStringList prefixs;
-			while (more)
-			{
-			  QStringList p = _extractPrefix(line2,more);
-			  prefixs += p;
-			  if (more)
-				line2 = in.readLine();
-             }
-			
-			QString p;	
-			foreach(p,prefixs)
+            if (name.length()>0)
             {
-                if (p.length() > 0)
-                    _data.insert(p,name);
-			}  
+                _countryNames << name;
+                bool more = true;
+                QStringList prefixs;
+                while (more)
+                {
+                    QStringList p = _extractPrefix(line2,more);
+                    prefixs += p;
+                    if (more)
+                        line2 = in.readLine();
+                }
+
+                QString p;
+                foreach(p,prefixs)
+                {
+                    if (p.length() > 0)
+                        _data.insert(p,name);
+                }
+            }
           }
        }
     inputFile.close();
