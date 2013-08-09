@@ -152,6 +152,8 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   font.setWeight(fontWeight2);
   ui->decodedTextBrowser->setFont(font);
   ui->decodedTextBrowser2->setFont(font);
+  m_logBook.setDisplayFont(font);
+
   font=ui->readFreq->font();
   font.setFamily("helvetica");
   font.setPointSize(9);
@@ -1437,7 +1439,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
           bool countryWorkedBefore;
           m_logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
 
-          t1 = t1.left(36);  // reduce trailing white space  TODO: hardcoded char count
+          //TODO this should happen on a resizeEvent
+          int charsAvail = m_logBook.getMaxDisplayedCharacters(ui->decodedTextBrowser->width());
+
+          // the decoder (seems) to always generate 40 chars. For a normal CQ call, the last five are spaces
+          t1 = t1.left(36);  // reduce trailing white space
+          charsAvail -= 36;
 
           if (!countryWorkedBefore) // therefore not worked call either
           {
@@ -1455,14 +1462,16 @@ void MainWindow::readFromStdout()                             //readFromStdout
                   t1 += " ";  // have worked this call before
                   bg="#9cc79c"; // pale green
               }
-          if (countryName.length()>10)  //TODO: hardcoded width. Depends on font and window size/layout
-              countryName = countryName.left(1)+"."+countryName.right(8);  //abreviate the first word to the first letter, show remaining right most chars
+          charsAvail -= 1;
+
+          if (countryName.length()>charsAvail)
+              countryName = countryName.left(1)+"."+countryName.right(charsAvail-2);  //abreviate the first word to the first letter, show remaining right most chars
           t1 += countryName;
       }
 
 
       QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-          bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
+                   bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
       bool b65=t1.indexOf("#")==19;
       if(bQSO) {
         cursor = ui->decodedTextBrowser2->textCursor();
@@ -1479,7 +1488,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if(jt9com_.nagain==0) {
         if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
         QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-                bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
+                     bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
         cursor = ui->decodedTextBrowser->textCursor();
         cursor.movePosition(QTextCursor::End);
         bf = cursor.blockFormat();

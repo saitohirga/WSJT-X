@@ -1,5 +1,7 @@
 #include "logbook.h"
 #include <QDebug>
+#include <QFontMetrics>
+
 
 void LogBook::init()
 {
@@ -69,3 +71,13 @@ void LogBook::addAsWorked(const QString call)
     if (countryName.length() > 0)
         _worked.setAsWorked(countryName);
 }
+
+
+
+
+void LogBook::setDisplayFont(QFont font)
+{
+  QFontMetrics qfm(font);
+  _fontWidth = qfm.averageCharWidth()+1;  // the plus one is emperical
+}
+
