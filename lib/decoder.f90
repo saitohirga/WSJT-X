@@ -164,6 +164,8 @@ subroutine decoder(ss,id2)
 
   if(nmode.ge.65 .and. (.not.done65)) then
      if(newdat.ne.0) dd(1:npts65)=id2(1:npts65)
+     nf1=nfa
+     nf2=nfb
      call jt65a(dd,npts65,newdat,nutc,nf1,nf2,nfqso,ntol65,nagain,ndecoded)
   endif
 
