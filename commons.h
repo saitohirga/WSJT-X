@@ -16,6 +16,7 @@ extern struct FortranCommon {
   int newdat;                       //1 ==> new data, must do long FFT
   int npts8;                        //npts for c0() array
   int nfa;                          //Low decode limit (Hz)
+  int nfSplit;                      //JT65 | JT9 split frequency
   int nfb;                          //High decode limit (Hz)
   int ntol;                         //+/- decoding range around fQSO (Hz)
   int kin;

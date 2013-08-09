@@ -14,8 +14,8 @@ subroutine decoder(ss,id2)
   integer*2 id2(NTMAX*12000)
   real*4 dd(NTMAX*12000)
   integer*1 i1SoftSymbols(207)
-  common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfb,ntol,  &
-       kin,nzhsym,nsave,nagain,ndepth,ntxmode,nmode,datetime
+  common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfsplit,nfb,    &
+       ntol,kin,nzhsym,nsave,nagain,ndepth,ntxmode,nmode,datetime
   common/tracer/limtrace,lu
   save
 
@@ -33,7 +33,10 @@ subroutine decoder(ss,id2)
   done65=.false.
   if(nmode.ge.65 .and. ntxmode.eq.65) then
      if(newdat.ne.0) dd(1:npts65)=id2(1:npts65)
-     call jt65a(dd,npts65,newdat,nutc,nfa,nfqso,ntol65,nagain,ndecoded)
+     nf1=nfa
+     nf2=nfb
+     if(nmode.eq.65+9) nf2=nfsplit
+     call jt65a(dd,npts65,newdat,nutc,nf1,nf2,nfqso,ntol65,nagain,ndecoded)
      done65=.true.
   endif
 
@@ -50,7 +53,9 @@ subroutine decoder(ss,id2)
   done=.false.
 
   nf0=0
-  ia=max(1,nint((nfa-nf0)/df3))
+  nf1=nfa
+  if(nmode.eq.65+9) nf1=nfsplit
+  ia=max(1,nint((nf1-nf0)/df3))
   ib=min(NSMAX,nint((nfb-nf0)/df3))
   lag1=-(2.5/tstep + 0.9999)
   lag2=5.0/tstep + 0.9999
@@ -89,7 +94,7 @@ subroutine decoder(ss,id2)
         ia1=ia
         ib1=ib
      else
-        nfa1=nfa
+        nfa1=nf1
         nfb1=nfb
         ia=max(1,nint((nfa1-nf0)/df3))
         ib=min(NSMAX,nint((nfb1-nf0)/df3))
@@ -159,7 +164,7 @@ subroutine decoder(ss,id2)
 
   if(nmode.ge.65 .and. (.not.done65)) then
      if(newdat.ne.0) dd(1:npts65)=id2(1:npts65)
-     call jt65a(dd,npts65,newdat,nutc,nfa,nfqso,ntol65,nagain,ndecoded)
+     call jt65a(dd,npts65,newdat,nutc,nf1,nf2,nfqso,ntol65,nagain,ndecoded)
   endif
 
 !### JT65 is not yet producing info for nsynced, ndecoded.

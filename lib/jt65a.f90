@@ -1,4 +1,4 @@
-subroutine jt65a(dd,npts,newdat,nutc,nfa,nfqso,ntol,nagain,ndecoded)
+subroutine jt65a(dd,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nagain,ndecoded)
 
 !  Process dd() data to find and decode JT65 signals.
 
@@ -30,8 +30,8 @@ subroutine jt65a(dd,npts,newdat,nutc,nfa,nfqso,ntol,nagain,ndecoded)
         fa=nfqso - ntol
         fb=nfqso + ntol
      else                             !Wideband decode at all freqs
-        fa=200
-        fb=nfa
+        fa=nf1
+        fb=nf2
      endif
      ia=max(51,nint(fa/df))
      ib=min(NSZ-51,nint(fb/df))
