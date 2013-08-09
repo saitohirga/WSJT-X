@@ -390,7 +390,6 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
 //--------------------------------------------------- MainWindow destructor
 MainWindow::~MainWindow()
 {
-  writeSettings();
   if(!m_decoderBusy) {
     QFile lockFile(m_appDir + "/.lock");
     lockFile.remove();
@@ -1057,6 +1056,7 @@ void MainWindow::OnExit()
 {
   m_guiTimer.stop ();
   g_pWideGraph->saveSettings();
+  writeSettings();
   if(m_fname != "") killFile();
   m_killAll=true;
   mem_jt9->detach();
@@ -1320,14 +1320,11 @@ void MainWindow::decode()                                       //decode()
   jt9com_.ndepth=m_ndepth;
   jt9com_.ndiskdat=0;
   if(m_diskData) jt9com_.ndiskdat=1;
-  int nfa=g_pWideGraph->getFmin();
-  int nfb=g_pWideGraph->getFmax();
-  if(m_mode=="JT9") nfa=200;                //decode from 0 to fmax
-  if(m_mode=="JT65") nfa=nfb;               //decode from 0 to fmax
-  jt9com_.nfa=nfa;
-  jt9com_.nfb=nfb;
+  jt9com_.nfa=g_pWideGraph->nStartFreq();
+  jt9com_.nfSplit=g_pWideGraph->getFmin();
+  jt9com_.nfb=g_pWideGraph->getFmax();
   jt9com_.ntol=20;
-  if(jt9com_.nutc < m_nutc0) m_RxLog |= 1;  //Date and Time to all.txt
+  if(jt9com_.nutc < m_nutc0) m_RxLog |= 1;       //Date and Time to all.txt
   m_nutc0=jt9com_.nutc;
   jt9com_.ntxmode=9;
   if(m_modeTx=="JT65") jt9com_.ntxmode=65;

@@ -1,7 +1,7 @@
 subroutine fillcom(nutc0,ndepth0,nrxfreq)
   character*20 datetime
-  common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfb,ntol,  &
-       kin,nzhsym,nsave,nagain,ndepth,ntxmode,nmode,datetime
+  common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfsplit,nfb,   &
+       ntol,kin,nzhsym,nsave,nagain,ndepth,ntxmode,nmode,datetime
   save
 
   nutc=nutc0
@@ -10,7 +10,8 @@ subroutine fillcom(nutc0,ndepth0,nrxfreq)
   nfqso=nrxfreq
   newdat=1
   npts8=74736
-  nfa=2700
+  nfa=200
+  nfsplit=2700
   nfb=4007
   ntol=3
   kin=1024
