@@ -1,18 +1,22 @@
 #ifndef WIDEGRAPH_H
 #define WIDEGRAPH_H
+
 #include <QDialog>
+#include <QScopedPointer>
 
 namespace Ui {
   class WideGraph;
 }
+
+class QSettings;
 
 class WideGraph : public QDialog
 {
   Q_OBJECT
 
 public:
-  explicit WideGraph(QWidget *parent = 0);
-  ~WideGraph();
+  explicit WideGraph(QSettings *, QWidget *parent = 0);
+  ~WideGraph ();
 
   void   dataSink2(float s[], float df3, int ihsym, int ndiskdata);
   void   setRxFreq(int n);
@@ -24,7 +28,6 @@ public:
   float  fSpan();
   void   saveSettings();
   void   setRxRange(int fMin);
-  void   setFmin(int n);
   void   setFsample(int n);
   void   setPeriod(int ntrperiod, int nsps);
   void   setTxFreq(int n);
@@ -35,9 +38,6 @@ public:
   double getSlope();
   double fGreen();
   void   readPalette(QString fileName);
-
-  qint32 m_rxFreq;
-  qint32 m_txFreq;
 
 signals:
   void freezeDecode2(int n);
@@ -52,6 +52,7 @@ public slots:
 
 protected:
   virtual void keyPressEvent( QKeyEvent *e );
+  void closeEvent (QCloseEvent *);
 
 private slots:
   void on_waterfallAvgSpinBox_valueChanged(int arg1);
@@ -65,6 +66,12 @@ private slots:
   void on_paletteComboBox_activated(const QString &palette);
 
 private:
+  QScopedPointer<Ui::WideGraph> ui;
+  QSettings * m_settings;
+
+  qint32 m_rxFreq;
+  qint32 m_txFreq;
+
   double m_slope;
   double m_dialFreq;
 
@@ -81,8 +88,6 @@ private:
   QString m_mode;
   QString m_modeTx;
   QString m_waterfallPalette;
-
-  Ui::WideGraph *ui;
 };
 
 #endif // WIDEGRAPH_H

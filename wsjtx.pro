@@ -67,7 +67,7 @@ SOURCES += killbyname.cpp
 HEADERS  += mainwindow.h plotter.h soundin.h soundout.h \
             about.h devsetup.h widegraph.h getfile.h \
             commons.h sleep.h displaytext.h logqso.h \
-            Detector.hpp Modulator.hpp psk_reporter.h rigclass.h \
+            AudioDevice.hpp Detector.hpp Modulator.hpp psk_reporter.h rigclass.h \
     signalmeter.h \
     meterwidget.h \
     logbook/logbook.h \

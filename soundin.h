@@ -32,7 +32,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
   // sink must exist from the start call to any following stop () call
-  bool start(QAudioDeviceInfo const&, int framesPerBuffer, QIODevice * sink);
+  bool start(QAudioDeviceInfo const&, unsigned channels, int framesPerBuffer, QIODevice * sink);
   void stop();
 
 private:

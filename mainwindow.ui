@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>760</width>
-    <height>552</height>
+    <height>523</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1148,6 +1148,19 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </item>
+      <item row="1" column="6">
+       <widget class="QPushButton" name="pbTxMode">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Toggle Tx mode</string>
+        </property>
+        <property name="text">
+         <string>Tx JT9</string>
+        </property>
+       </widget>
+      </item>
       <item row="5" column="3" rowspan="2" colspan="2">
        <widget class="QLabel" name="labUTC">
         <property name="sizePolicy">
@@ -1190,6 +1203,16 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="cbPlus2kHz">
+        <property name="toolTip">
+         <string>Add 2 kHz to requested dial frequency</string>
+        </property>
+        <property name="text">
+         <string>+2 kHz</string>
         </property>
        </widget>
       </item>
@@ -2062,16 +2085,19 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </item>
-      <item row="1" column="6">
-       <widget class="QPushButton" name="pbTxMode">
-        <property name="enabled">
-         <bool>false</bool>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="readFreq">
+        <property name="maximumSize">
+         <size>
+          <width>15</width>
+          <height>15</height>
+         </size>
         </property>
         <property name="toolTip">
-         <string>Toggle Tx mode</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If orange, click to read dial frequency&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>Tx JT9</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -2090,32 +2116,6 @@ p, li { white-space: pre-wrap; }
          </size>
         </property>
        </spacer>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QCheckBox" name="cbPlus2kHz">
-        <property name="toolTip">
-         <string>Add 2 kHz to requested dial frequency</string>
-        </property>
-        <property name="text">
-         <string>+2 kHz</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="readFreq">
-        <property name="maximumSize">
-         <size>
-          <width>15</width>
-          <height>15</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If orange, click to read dial frequency&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
       </item>
       <item row="0" column="0" colspan="3">
        <widget class="QComboBox" name="bandComboBox">
@@ -2225,6 +2225,35 @@ p, li { white-space: pre-wrap; }
         </item>
        </widget>
       </item>
+      <item row="0" column="9">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Pwr</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="9" rowspan="6">
+       <widget class="QSlider" name="outAttenuation">
+        <property name="value">
+         <number>0</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="invertedAppearance">
+         <bool>true</bool>
+        </property>
+        <property name="invertedControls">
+         <bool>true</bool>
+        </property>
+        <property name="tickPosition">
+         <enum>QSlider::TicksBelow</enum>
+        </property>
+        <property name="tickInterval">
+         <number>0</number>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -2235,7 +2264,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>760</width>
-     <height>20</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

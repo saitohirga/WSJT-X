@@ -3,6 +3,7 @@
 #include <QDateTime>
 #include <QAudioDeviceInfo>
 #include <QAudioOutput>
+#include <qmath.h>
 #include <QDebug>
 
 #if defined (WIN32)
@@ -52,18 +53,15 @@ SoundOutput::SoundOutput (QIODevice * source)
   Q_ASSERT (source);
 }
 
-void SoundOutput::startStream (QAudioDeviceInfo const& device)
+void SoundOutput::startStream (QAudioDeviceInfo const& device, unsigned channels)
 {
-  if (!m_stream || device != m_currentDevice)
+  Q_ASSERT (0 < channels && channels < 3);
+
+  if (!m_stream || device != m_currentDevice || channels != static_cast<unsigned> (m_stream->format ().channelCount ()))
     {
       QAudioFormat format (device.preferredFormat ());
 
-#ifdef UNIX
-      format.setChannelCount (2);
-#else
-      format.setChannelCount (1);
-#endif
-
+      format.setChannelCount (channels);
       format.setCodec ("audio/pcm");
       format.setSampleRate (48000);
       format.setSampleType (QAudioFormat::SignedInt);
@@ -79,6 +77,7 @@ void SoundOutput::startStream (QAudioDeviceInfo const& device)
 
       m_stream.reset (new QAudioOutput (device, format, this));
       audioError ();
+      m_stream->setVolume (m_volume);
 
       connect (m_stream.data(), &QAudioOutput::stateChanged, this, &SoundOutput::handleStateChanged);
 
@@ -86,13 +85,13 @@ void SoundOutput::startStream (QAudioDeviceInfo const& device)
     }
 
   //
-  // This buffer size is critical since we are running in the GUI
-  // thread. If it is too short; high activity levels on the GUI can
-  // starve the audio buffer. On the other hand the Windows
-  // implementation seems to take the length of the buffer in time to
-  // stop the audio stream even if reset() is used.
+  // This buffer size is critical since for proper sound streaming. If
+  // it is too short; high activity levels on the machine can starve
+  // the audio buffer. On the other hand the Windows implementation
+  // seems to take the length of the buffer in time to stop the audio
+  // stream even if reset() is used.
   //
-  // 1 seconds seems a reasonable compromise except for Windows
+  // 2 seconds seems a reasonable compromise except for Windows
   // where things are probably broken.
   //
   // we have to set this before every start on the stream because the
@@ -118,6 +117,31 @@ void SoundOutput::resume ()
     {
       m_stream->resume ();
       audioError ();
+    }
+}
+
+qreal SoundOutput::attenuation () const
+{
+  return -(10. * qLn (m_volume) / qLn (10.));
+}
+
+void SoundOutput::setAttenuation (qreal a)
+{
+  Q_ASSERT (0. <= a && a <= 99.);
+  m_volume = qPow (10., -a / 10.);
+  qDebug () << "SoundOut: attn = " << a << ", vol = " << m_volume;
+  if (m_stream)
+    {
+      m_stream->setVolume (m_volume);
+    }
+}
+
+void SoundOutput::resetAttenuation ()
+{
+  m_volume = 1.;
+  if (m_stream)
+    {
+      m_stream->setVolume (m_volume);
     }
 }
 

@@ -10,6 +10,7 @@
 #include <QDateTime>
 #include <QList>
 #include <QAudioDeviceInfo>
+#include <QScopedPointer>
 
 #include "soundin.h"
 #include "soundout.h"
@@ -39,13 +40,17 @@ namespace Ui {
     class MainWindow;
 }
 
+class QSettings;
+class WideGraph;
+class LogQSO;
+
 class MainWindow : public QMainWindow
 {
   Q_OBJECT
 
 // Multiple instances: call MainWindow() with *thekey
 public:
-  explicit MainWindow(QSharedMemory *shdmem, QString *thekey, \
+  explicit MainWindow(QSettings *, QSharedMemory *shdmem, QString *thekey, \
                       qint32 fontSize2, qint32 fontWeight2, \
                       QWidget *parent = 0);
   ~MainWindow();
@@ -54,7 +59,7 @@ public slots:
   void showSoundInError(const QString& errorMsg);
   void showSoundOutError(const QString& errorMsg);
   void showStatusMessage(const QString& statusMsg);
-  void dataSink(qint64 bytes);
+  void dataSink(qint64 frames);
   void diskDat();
   void diskWriteFinished();
   void freezeDecode(int n);
@@ -175,19 +180,26 @@ private slots:
   void on_cbTxLock_clicked(bool checked);
   void on_actionTx2QSO_triggered(bool checked);  
   void on_cbPlus2kHz_toggled(bool checked);
+  void on_outAttenuation_valueChanged (int);
 
  private:
-  Q_SIGNAL void startAudioOutputStream (QAudioDeviceInfo);
+  Q_SIGNAL void startAudioOutputStream (QAudioDeviceInfo, unsigned channels);
   Q_SIGNAL void stopAudioOutputStream ();
   Q_SIGNAL void finished ();
   Q_SIGNAL void muteAudioOutput (bool = true);
   Q_SIGNAL void transmitFrequency (unsigned);
   Q_SIGNAL void endTransmitMessage ();
   Q_SIGNAL void tune (bool = true);
-  Q_SIGNAL void sendMessage (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, bool synchronize = true, double dBSNR = 99.);
+  Q_SIGNAL void sendMessage (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, AudioDevice::Channel, bool synchronize = true, double dBSNR = 99.);
+  Q_SIGNAL void outAttenuationChanged (qreal);
 
 private:
+  QSettings * m_settings;
     Ui::MainWindow *ui;
+
+    // other windows
+    QScopedPointer<WideGraph> m_wideGraph;
+    QScopedPointer<LogQSO> m_logDlg;
 
     double  m_dialFreq;
 
@@ -213,10 +225,12 @@ private:
 
     Detector m_detector;
     QAudioDeviceInfo m_audioInputDevice;
+    AudioDevice::Channel m_audioInputChannel;
     SoundInput m_soundInput;
 
     Modulator m_modulator;
     QAudioDeviceInfo m_audioOutputDevice;
+    AudioDevice::Channel m_audioOutputChannel;
     SoundOutput m_soundOutput;
     QThread m_soundOutputThread;
 
@@ -242,7 +256,6 @@ private:
     qint32  m_repeatMsg;
     qint32  m_watchdogLimit;
     qint32  m_poll;
-    qint32  m_fMin;
     qint32  m_fMax;
     qint32  m_bad;
 
@@ -292,8 +305,6 @@ private:
     bool    m_pttData;
     bool    m_dontReadFreq;
     bool    m_lockTxFreq;
-    bool    m_saveTxPower;
-    bool    m_saveComments;
     bool    m_tx2QSO;
     bool    m_CATerror;
     bool    m_bSplit;
@@ -303,9 +314,6 @@ private:
     char    m_decoded[80];
 
     float   m_pctZap;
-
-    QRect   m_wideGraphGeom;
-    QRect   m_logQSOgeom;
 
     QLabel* lab1;                            // labels in status bar
     QLabel* lab2;
@@ -361,8 +369,6 @@ private:
     QString m_msgSent0;
     QString m_fileToSave;
     QString m_QSOmsg;
-    QString m_txPower;
-    QString m_logComments;
 
     QStringList m_macro;
     QStringList m_dFreq;           // per band frequency in MHz as a string

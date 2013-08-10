@@ -4,16 +4,40 @@
 #include <QDebug>
 
 
-LogQSO::LogQSO(QWidget *parent) :
+LogQSO::LogQSO(QSettings * settings, QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::LogQSO)
+  ui(new Ui::LogQSO),
+  m_settings (settings)
 {
   ui->setupUi(this);
+
+  loadSettings ();
 }
 
-LogQSO::~LogQSO()
+LogQSO::~LogQSO ()
 {
-  delete ui;
+}
+
+void LogQSO::loadSettings ()
+{
+  m_settings->beginGroup ("LogQSO");
+  restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
+  ui->cbTxPower->setChecked (m_settings->value ("SaveTxPower", false).toBool ());
+  ui->cbComments->setChecked (m_settings->value ("SaveComments", false).toBool ());
+  m_txPower = m_settings->value ("TxPower", "").toString ();
+  m_comments = m_settings->value ("LogComments", "").toString();
+  m_settings->endGroup ();
+}
+
+void LogQSO::storeSettings () const
+{
+  m_settings->beginGroup ("LogQSO");
+  m_settings->setValue ("geometry", saveGeometry ());
+  m_settings->setValue ("SaveTxPower", ui->cbTxPower->isChecked ());
+  m_settings->setValue ("SaveComments", ui->cbComments->isChecked ());
+  m_settings->setValue ("TxPower", m_txPower);
+  m_settings->setValue ("LogComments", m_comments);
+  m_settings->endGroup ();
 }
 
 void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
@@ -25,8 +49,8 @@ void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
   ui->grid->setText(hisGrid);
   ui->txPower->setText("");
   ui->comments->setText("");
-  if(m_saveTxPower) ui->txPower->setText(m_txPower);
-  if(m_saveComments) ui->comments->setText(m_comments);
+  if (ui->cbTxPower->isChecked ()) ui->txPower->setText(m_txPower);
+  if (ui->cbComments->isChecked ()) ui->comments->setText(m_comments);
   if(dBtoComments) {
     QString t=mode;
     if(rptSent!="") t+="  Sent: " + rptSent;
@@ -74,8 +98,8 @@ void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
   if(dialFreq>47000.0 and dialFreq<47200.0) band="6mm";
   if(dialFreq>75500.0 and dialFreq<81000.0) band="4mm";
   ui->band->setText(band);
-  ui->cbTxPower->setChecked(m_saveTxPower);
-  ui->cbComments->setChecked(m_saveComments);
+
+  show ();
 }
 
 void LogQSO::accept()
@@ -163,12 +187,11 @@ void LogQSO::reject()
   QDialog::reject();
 }
 
-void LogQSO::on_cbTxPower_toggled(bool checked)
+// closeEvent is only called from the system menu close widget for a
+// modeless dialog so we use the hideEvent override to store the
+// window settings
+void LogQSO::hideEvent (QHideEvent * e)
 {
-  m_saveTxPower=checked;
-}
-
-void LogQSO::on_cbComments_toggled(bool checked)
-{
-  m_saveComments=checked;
+  storeSettings ();
+  QDialog::hideEvent (e);
 }

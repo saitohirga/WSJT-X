@@ -1,7 +1,7 @@
 #ifndef MODULATOR_HPP__
 #define MODULATOR_HPP__
 
-#include <QIODevice>
+#include "AudioDevice.hpp"
 
 #ifdef UNIX
 # define NUM_CHANNELS 2
@@ -16,7 +16,7 @@
 // Output can be muted while underway, preserving waveform timing when
 // transmission is resumed.
 //
-class Modulator : public QIODevice
+class Modulator : public AudioDevice
 {
   Q_OBJECT;
 
@@ -24,32 +24,17 @@ class Modulator : public QIODevice
   Q_PROPERTY (bool tuning READ isTuning WRITE tune);
   Q_PROPERTY (bool muted READ isMuted WRITE mute);
 
-private:
-  Q_DISABLE_COPY (Modulator);
-
 public:
+  enum ModulatorState {Synchronizing, Active, Idle};
+
   Modulator (unsigned frameRate, unsigned periodLengthInSeconds, QObject * parent = 0);
 
-  bool open () {return QIODevice::open (QIODevice::ReadOnly | QIODevice::Unbuffered);}
-
-  Q_SLOT void send (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, bool synchronize = true, double dBSNR = 99.);
-
-  Q_SLOT void stop () {Q_EMIT stateChanged ((m_state = Idle));}
+  Q_SLOT void open (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, AudioDevice::Channel, bool synchronize = true, double dBSNR = 99.);
 
   bool isTuning () const {return m_tuning;}
-  Q_SLOT void tune (bool newState = true) {m_tuning = newState;}
-
   bool isMuted () const {return m_muted;}
-  Q_SLOT void mute (bool newState = true) {m_muted = newState;}
-
   unsigned frequency () const {return m_frequency;}
-  Q_SLOT void setFrequency (unsigned newFrequency) {m_frequency = newFrequency;}
-
-  enum ModulatorState {Synchronizing, Active, Idle};
-  Q_SIGNAL void stateChanged (ModulatorState);
   bool isActive () const {return m_state != Idle;}
-
-  bool isSequential () const {return true;}
 
 protected:
   qint64 readData (char * data, qint64 maxSize);
@@ -59,12 +44,22 @@ protected:
   }
 
 private:
-  typedef struct
+  /* private because we epect to run in a thread and don't want direct
+     C++ calls made, instead they must be invoked via the Qt
+     signal/slot mechanism which is thread safe */
+  Q_SLOT void close ()
   {
-    qint16 channel[NUM_CHANNELS];
-  } frame_t;
+    Q_EMIT stateChanged ((m_state = Idle));
+    AudioDevice::close ();
+  }
 
-  frame_t postProcessFrame (frame_t frame) const;
+  Q_SLOT void tune (bool newState = true) {m_tuning = newState;}
+  Q_SLOT void mute (bool newState = true) {m_muted = newState;}
+  Q_SLOT void setFrequency (unsigned newFrequency) {m_frequency = newFrequency;}
+  Q_SIGNAL void stateChanged (ModulatorState);
+
+private:
+  qint16 postProcessSample (qint16 sample) const;
 
   unsigned m_symbolsLength;
 
@@ -88,6 +83,7 @@ private:
   unsigned m_ic;
   double m_fac;
   unsigned m_isym0;
+  qint16 m_ramp;
 };
 
 #endif
