@@ -15,7 +15,6 @@
 #include "logqso.h"
 
 #ifdef QT5
-#include <QtConcurrent/QtConcurrentMap>
 #include <QtConcurrent/QtConcurrentRun>
 #endif
 
@@ -30,8 +29,6 @@ static int nc1=1;
 wchar_t buffer[256];
 
 
-WideGraph* g_pWideGraph = NULL;
-LogQSO* logDlg = NULL;
 Rig* rig = NULL;
 QTextEdit* pShortcuts;
 QTcpSocket* commanderSocket = new QTcpSocket(0);
@@ -42,48 +39,72 @@ QString Program_Title_Version="  WSJT-X   v1.2, r" + rev.mid(6,4) +
 
 //-------------------------------------------------- MainWindow constructor
 // Multiple instances: new arg *thekey
-MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
-                       qint32 fontSize2, qint32 fontWeight2, \
+MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *thekey,
+                       qint32 fontSize2, qint32 fontWeight2,
                        QWidget *parent) :
   QMainWindow(parent),
+  m_settings (settings),
   ui(new Ui::MainWindow),
-  m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2 * sizeof (jt9com_.d2[0]), this),
+  m_wideGraph (new WideGraph (settings)),
+  m_logDlg (new LogQSO (settings, this)),
+  m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2, this),
   m_audioInputDevice (QAudioDeviceInfo::defaultInputDevice ()), // start with default
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
   m_audioOutputDevice (QAudioDeviceInfo::defaultOutputDevice ()), // start with default
   m_soundOutput (&m_modulator)
 {
   ui->setupUi(this);
-  m_detector.open ();
-  m_modulator.open ();
 
   connect (this, &MainWindow::finished, this, &MainWindow::close);
 
   // start sound out thread and hook up slots & signals for shutdown management
+
+  // these two objects need to be in the other thread so that invoking
+  // their slots is done in a thread safe way
   m_soundOutput.moveToThread (&m_soundOutputThread);
+  m_modulator.moveToThread (&m_soundOutputThread);
+
   connect (this, &MainWindow::finished, &m_soundOutputThread, &QThread::quit); // quit thread event loop
   connect (&m_soundOutputThread, &QThread::finished, &m_soundOutputThread, &QThread::deleteLater); // disposal
 
   // hook up sound output stream slots & signals
-  connect (this, &MainWindow::startAudioOutputStream, &m_soundOutput, &SoundOutput::startStream);
-  connect (this, &MainWindow::stopAudioOutputStream, &m_soundOutput, &SoundOutput::stopStream);
+  connect (this, SIGNAL (startAudioOutputStream (QAudioDeviceInfo const&, unsigned)), &m_soundOutput, SLOT (startStream (QAudioDeviceInfo const&, unsigned)));
+  connect (this, SIGNAL (stopAudioOutputStream ()), &m_soundOutput, SLOT (stopStream ()));
   connect (&m_soundOutput, &SoundOutput::error, this, &MainWindow::showSoundOutError);
   // connect (&m_soundOutput, &SoundOutput::status, this, &MainWindow::showStatusMessage);
+  connect (this, SIGNAL (outAttenuationChanged (qreal)), &m_soundOutput, SLOT (setAttenuation (qreal)));
 
   // hook up Modulator slots
-  connect (this, &MainWindow::muteAudioOutput, &m_modulator, &Modulator::mute);
-  connect (this, &MainWindow::transmitFrequency, &m_modulator, &Modulator::setFrequency);
-  connect (this, &MainWindow::endTransmitMessage, &m_modulator, &Modulator::stop);
-  connect (this, &MainWindow::tune, &m_modulator, &Modulator::tune);
+  connect (this, SIGNAL (muteAudioOutput (bool)), &m_modulator, SLOT (mute (bool)));
+  connect (this, SIGNAL(transmitFrequency (unsigned)), &m_modulator, SLOT (setFrequency (unsigned)));
+  connect (this, SIGNAL (endTransmitMessage ()), &m_modulator, SLOT (close ()));
+  connect (this, SIGNAL (tune (bool)), &m_modulator, SLOT (tune (bool)));
   connect (
 	   this
-	   , SIGNAL (sendMessage (unsigned, double, unsigned, bool, double))
+	   , SIGNAL (sendMessage (unsigned, double, unsigned, AudioDevice::Channel, bool, double))
 	   , &m_modulator
-	   , SLOT (send (unsigned, double, unsigned, bool, double))
+	   , SLOT (open (unsigned, double, unsigned, AudioDevice::Channel, bool, double))
 	   );
 
   // start the sound output thread
   m_soundOutputThread.start (QThread::HighPriority);
+
+
+  // setup the waterfall
+  connect(m_wideGraph.data (), SIGNAL(freezeDecode2(int)),this,
+	  SLOT(freezeDecode(int)));
+  connect(m_wideGraph.data (), SIGNAL(f11f12(int)),this,
+	  SLOT(bumpFqso(int)));
+  connect(m_wideGraph.data (), SIGNAL(setXIT2(int)),this,
+	  SLOT(setXIT(int)));
+  //    connect(m_wideGraph.data (), SIGNAL(dialFreqChanged(double)),this,
+  //            SLOT(dialFreqChanged2(double)));
+  connect (this, &MainWindow::finished, m_wideGraph.data (), &WideGraph::close);
+
+
+  // setup the log QSO dialog
+  connect (m_logDlg.data (), SIGNAL (acceptQSO (bool)), this, SLOT (acceptQSO2 (bool)));
+
 
   on_EraseButton_clicked();
 
@@ -117,7 +138,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
           SLOT(doubleClickOnCall2(bool,bool)));
 
   setWindowTitle(Program_Title_Version);
-  connect(&m_detector, &Detector::bytesWritten, this, &MainWindow::dataSink);
+  connect(&m_detector, &Detector::framesWritten, this, &MainWindow::dataSink);
   connect(&m_soundInput, SIGNAL(error(QString)), this,
           SLOT(showSoundInError(QString)));
   // connect(&m_soundInput, SIGNAL(status(QString)), this,
@@ -165,6 +186,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
 
   ptt0Timer = new QTimer(this);
   ptt0Timer->setSingleShot(true);
+  connect (ptt0Timer, SIGNAL (timeout ()), &m_modulator, SLOT (close ()));
   connect(ptt0Timer, SIGNAL(timeout()), this, SLOT(stopTx2()));
   ptt1Timer = new QTimer(this);
   ptt1Timer->setSingleShot(true);
@@ -176,6 +198,7 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
 
   tuneButtonTimer= new QTimer(this);
   tuneButtonTimer->setSingleShot(true);
+  connect (tuneButtonTimer, SIGNAL (timeout ()), &m_modulator, SLOT (close ()));
   connect(tuneButtonTimer, SIGNAL(timeout()), this,
           SLOT(on_stopTxButton_clicked()));
 
@@ -318,15 +341,14 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   ui->txrb6->setChecked(true);
   if(m_mode!="JT9" and m_mode!="JT65" and m_mode!="JT9+JT65") m_mode="JT9";
   on_actionWide_Waterfall_triggered();                   //###
-  g_pWideGraph->setRxFreq(m_rxFreq);
-  g_pWideGraph->setTxFreq(m_txFreq);
-  g_pWideGraph->setLockTxFreq(m_lockTxFreq);
-  g_pWideGraph->setFmin(m_fMin);
-  g_pWideGraph->setModeTx(m_mode);
-  g_pWideGraph->setModeTx(m_modeTx);
+  m_wideGraph->setRxFreq(m_rxFreq);
+  m_wideGraph->setTxFreq(m_txFreq);
+  m_wideGraph->setLockTxFreq(m_lockTxFreq);
+  m_wideGraph->setModeTx(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
   dialFreqChanged2(m_dialFreq);
 
-  connect(g_pWideGraph, SIGNAL(setFreq3(int,int)),this,
+  connect(m_wideGraph.data (), SIGNAL(setFreq3(int,int)),this,
           SLOT(setFreq4(int,int)));
 
   if(m_mode=="JT9") on_actionJT9_1_triggered();
@@ -341,7 +363,9 @@ MainWindow::MainWindow(QSharedMemory *shdmem, QString *thekey, \
   watcher2 = new QFutureWatcher<void>;
   connect(watcher2, SIGNAL(finished()),this,SLOT(diskWriteFinished()));
 
-  m_soundInput.start(m_audioInputDevice, RX_SAMPLE_RATE / 10, &m_detector);
+  m_detector.open (m_audioInputChannel);
+  m_soundInput.start(m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, RX_SAMPLE_RATE / 10, &m_detector);
+
   Q_EMIT transmitFrequency (m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0));
   Q_EMIT muteAudioOutput (false);
   m_monitoring=!m_monitorStartOFF;           // Start with Monitoring ON/OFF
@@ -400,125 +424,113 @@ MainWindow::~MainWindow()
 //-------------------------------------------------------- writeSettings()
 void MainWindow::writeSettings()
 {
-  QString inifile = m_appDir + "/wsjtx.ini";
-  QSettings settings(inifile, QSettings::IniFormat);
+  m_settings->beginGroup("MainWindow");
+  m_settings->setValue ("geometry", saveGeometry ());
+  m_settings->setValue ("state", saveState ());
+  m_settings->setValue("MRUdir", m_path);
+  m_settings->setValue("TxFirst",m_txFirst);
+  m_settings->setValue("DXcall",ui->dxCallEntry->text());
+  m_settings->setValue("DXgrid",ui->dxGridEntry->text());
+  m_settings->endGroup();
 
-  settings.beginGroup("MainWindow");
-  settings.setValue("geometry", saveGeometry());
-  settings.setValue("MRUdir", m_path);
-  settings.setValue("TxFirst",m_txFirst);
-  settings.setValue("DXcall",ui->dxCallEntry->text());
-  settings.setValue("DXgrid",ui->dxGridEntry->text());
-  if(g_pWideGraph->isVisible()) {
-    m_wideGraphGeom = g_pWideGraph->geometry();
-    settings.setValue("WideGraphGeom",m_wideGraphGeom);
-    m_fMin=g_pWideGraph->getFmin();
-  }
-  settings.endGroup();
+  m_settings->beginGroup("Common");
+  m_settings->setValue("MyCall",m_myCall);
+  m_settings->setValue("MyGrid",m_myGrid);
+  m_settings->setValue("IDint",m_idInt);
+  m_settings->setValue("PTTmethod",m_pttMethodIndex);
+  m_settings->setValue("PTTport",m_pttPort);
+  m_settings->setValue("SaveDir",m_saveDir);
+  m_settings->setValue("SoundInName", m_audioInputDevice.deviceName ());
+  m_settings->setValue("SoundOutName", m_audioOutputDevice.deviceName ());
 
-  settings.beginGroup("Common");
-  settings.setValue("MyCall",m_myCall);
-  settings.setValue("MyGrid",m_myGrid);
-  settings.setValue("IDint",m_idInt);
-  settings.setValue("PTTmethod",m_pttMethodIndex);
-  settings.setValue("PTTport",m_pttPort);
-  settings.setValue("SaveDir",m_saveDir);
-  settings.setValue("SoundInName", m_audioInputDevice.deviceName ());
-  settings.setValue("SoundOutName", m_audioOutputDevice.deviceName ());
-  settings.setValue("Mode",m_mode);
-  settings.setValue("ModeTx",m_modeTx);
-  settings.setValue("SaveNone",ui->actionNone->isChecked());
-  settings.setValue("SaveDecoded",ui->actionSave_decoded->isChecked());
-  settings.setValue("SaveAll",ui->actionSave_all->isChecked());
-  settings.setValue("NDepth",m_ndepth);
-  settings.setValue("MonitorOFF",m_monitorStartOFF);
-  settings.setValue("DialFreq",m_dialFreq);
-  settings.setValue("RxFreq",m_rxFreq);
-  settings.setValue("TxFreq",m_txFreq);
-  settings.setValue("InGain",m_inGain);
-  settings.setValue("PSKReporter",m_pskReporter);
-  settings.setValue("After73",m_After73);
-  settings.setValue("Macros",m_macro);
+  m_settings->setValue ("AudioInputChannel", AudioDevice::toString (m_audioInputChannel));
+  m_settings->setValue ("AudioOutputChannel", AudioDevice::toString (m_audioOutputChannel));
+  m_settings->setValue("Mode",m_mode);
+  m_settings->setValue("ModeTx",m_modeTx);
+  m_settings->setValue("SaveNone",ui->actionNone->isChecked());
+  m_settings->setValue("SaveDecoded",ui->actionSave_decoded->isChecked());
+  m_settings->setValue("SaveAll",ui->actionSave_all->isChecked());
+  m_settings->setValue("NDepth",m_ndepth);
+  m_settings->setValue("MonitorOFF",m_monitorStartOFF);
+  m_settings->setValue("DialFreq",m_dialFreq);
+  m_settings->setValue("RxFreq",m_rxFreq);
+  m_settings->setValue("TxFreq",m_txFreq);
+  m_settings->setValue("InGain",m_inGain);
+  m_settings->setValue("OutAttenuation", ui->outAttenuation->value ());
+  m_settings->setValue("PSKReporter",m_pskReporter);
+  m_settings->setValue("After73",m_After73);
+  m_settings->setValue("Macros",m_macro);
   //Band Settings
-  settings.setValue("BandFrequencies",m_dFreq);
-  settings.setValue("BandDescriptions",m_bandDescription);
-  settings.setValue("AntennaDescriptions",m_antDescription);
-  settings.setValue("toRTTY",m_toRTTY);
-  settings.setValue("NoSuffix",m_noSuffix);
-  settings.setValue("dBtoComments",m_dBtoComments);
-  settings.setValue("catEnabled",m_catEnabled);
-  settings.setValue("Rig",m_rig);
-  settings.setValue("RigIndex",m_rigIndex);
-  settings.setValue("CATport",m_catPort);
-  settings.setValue("CATportIndex",m_catPortIndex);
-  settings.setValue("SerialRate",m_serialRate);
-  settings.setValue("SerialRateIndex",m_serialRateIndex);
-  settings.setValue("DataBits",m_dataBits);
-  settings.setValue("DataBitsIndex",m_dataBitsIndex);
-  settings.setValue("StopBits",m_stopBits);
-  settings.setValue("StopBitsIndex",m_stopBitsIndex);
-  settings.setValue("Handshake",m_handshake);
-  settings.setValue("HandshakeIndex",m_handshakeIndex);
-  settings.setValue("BandIndex",m_band);
-  settings.setValue("PromptToLog",m_promptToLog);
-  settings.setValue("InsertBlank",m_insertBlank);
-  settings.setValue("DXCCEntity",m_displayDXCCEntity);
-  settings.setValue("ClearCallGrid",m_clearCallGrid);
-  settings.setValue("Miles",m_bMiles);
-  settings.setValue("GUItab",ui->tabWidget->currentIndex());
-  settings.setValue("QuickCall",m_quickCall);
-  settings.setValue("73TxDisable",m_73TxDisable);
-  settings.setValue("Runaway",m_runaway);
-  settings.setValue("Tx2QSO",m_tx2QSO);
-  settings.setValue("MultipleOK",m_bMultipleOK);
-  settings.setValue("DTR",m_bDTR);
-  settings.setValue("RTS",m_bRTS);  settings.setValue("pttData",m_pttData);
-  settings.setValue("LogQSOgeom",m_logQSOgeom);
-  settings.setValue("Polling",m_poll);
-  settings.setValue("OutBufSize",outBufSize);
-  settings.setValue("LockTxFreq",m_lockTxFreq);
-  settings.setValue("SaveTxPower",m_saveTxPower);
-  settings.setValue("SaveComments",m_saveComments);
-  settings.setValue("TxPower",m_txPower);
-  settings.setValue("LogComments",m_logComments);
-  settings.setValue("Fmin",m_fMin);
-  settings.setValue("TxSplit",m_bSplit);
-  settings.setValue("UseXIT",m_bXIT);
-  settings.setValue("XIT",m_XIT);
-  settings.setValue("Plus2kHz",m_plus2kHz);
-  settings.endGroup();
+  m_settings->setValue("BandFrequencies",m_dFreq);
+  m_settings->setValue("BandDescriptions",m_bandDescription);
+  m_settings->setValue("AntennaDescriptions",m_antDescription);
+  m_settings->setValue("toRTTY",m_toRTTY);
+  m_settings->setValue("NoSuffix",m_noSuffix);
+  m_settings->setValue("dBtoComments",m_dBtoComments);
+  m_settings->setValue("catEnabled",m_catEnabled);
+  m_settings->setValue("Rig",m_rig);
+  m_settings->setValue("RigIndex",m_rigIndex);
+  m_settings->setValue("CATport",m_catPort);
+  m_settings->setValue("CATportIndex",m_catPortIndex);
+  m_settings->setValue("SerialRate",m_serialRate);
+  m_settings->setValue("SerialRateIndex",m_serialRateIndex);
+  m_settings->setValue("DataBits",m_dataBits);
+  m_settings->setValue("DataBitsIndex",m_dataBitsIndex);
+  m_settings->setValue("StopBits",m_stopBits);
+  m_settings->setValue("StopBitsIndex",m_stopBitsIndex);
+  m_settings->setValue("Handshake",m_handshake);
+  m_settings->setValue("HandshakeIndex",m_handshakeIndex);
+  m_settings->setValue("BandIndex",m_band);
+  m_settings->setValue("PromptToLog",m_promptToLog);
+  m_settings->setValue("InsertBlank",m_insertBlank);
+  m_settings->setValue("DXCCEntity",m_displayDXCCEntity);
+  m_settings->setValue("ClearCallGrid",m_clearCallGrid);
+  m_settings->setValue("Miles",m_bMiles);
+  m_settings->setValue("GUItab",ui->tabWidget->currentIndex());
+  m_settings->setValue("QuickCall",m_quickCall);
+  m_settings->setValue("73TxDisable",m_73TxDisable);
+  m_settings->setValue("Runaway",m_runaway);
+  m_settings->setValue("Tx2QSO",m_tx2QSO);
+  m_settings->setValue("MultipleOK",m_bMultipleOK);
+  m_settings->setValue("DTR",m_bDTR);
+  m_settings->setValue("RTS",m_bRTS);  m_settings->setValue("pttData",m_pttData);
+  m_settings->setValue("Polling",m_poll);
+  m_settings->setValue("OutBufSize",outBufSize);
+  m_settings->setValue("LockTxFreq",m_lockTxFreq);
+  m_settings->setValue("TxSplit",m_bSplit);
+  m_settings->setValue("UseXIT",m_bXIT);
+  m_settings->setValue("XIT",m_XIT);
+  m_settings->setValue("Plus2kHz",m_plus2kHz);
+  m_settings->endGroup();
 }
 
 //---------------------------------------------------------- readSettings()
 void MainWindow::readSettings()
 {
-  QString inifile = m_appDir + "/wsjtx.ini";
-  QSettings settings(inifile, QSettings::IniFormat);
-  settings.beginGroup("MainWindow");
-  restoreGeometry(settings.value("geometry").toByteArray());
-  ui->dxCallEntry->setText(settings.value("DXcall","").toString());
-  ui->dxGridEntry->setText(settings.value("DXgrid","").toString());
-  m_wideGraphGeom = settings.value("WideGraphGeom", \
-                                   QRect(45,30,726,301)).toRect();
-  m_path = settings.value("MRUdir", m_appDir + "/save").toString();
-  m_txFirst = settings.value("TxFirst",false).toBool();
+  m_settings->beginGroup("MainWindow");
+  restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
+  restoreState (m_settings->value ("state", saveState ()).toByteArray ());
+  ui->dxCallEntry->setText(m_settings->value("DXcall","").toString());
+  ui->dxGridEntry->setText(m_settings->value("DXgrid","").toString());
+  m_path = m_settings->value("MRUdir", m_appDir + "/save").toString();
+  m_txFirst = m_settings->value("TxFirst",false).toBool();
   ui->txFirstCheckBox->setChecked(m_txFirst);
-  settings.endGroup();
+  m_settings->endGroup();
 
-  settings.beginGroup("Common");
-  m_myCall=settings.value("MyCall","").toString();
+  m_settings->beginGroup("Common");
+  m_myCall=m_settings->value("MyCall","").toString();
   morse_(m_myCall.toLatin1().data(),icw,&m_ncw,m_myCall.length());
-  m_myGrid=settings.value("MyGrid","").toString();
-  m_idInt=settings.value("IDint",0).toInt();
-  m_pttMethodIndex=settings.value("PTTmethod",1).toInt();
-  m_pttPort=settings.value("PTTport",0).toInt();
-  m_saveDir=settings.value("SaveDir",m_appDir + "/save").toString();
+  m_myGrid=m_settings->value("MyGrid","").toString();
+  m_idInt=m_settings->value("IDint",0).toInt();
+  m_pttMethodIndex=m_settings->value("PTTmethod",1).toInt();
+  m_pttPort=m_settings->value("PTTport",0).toInt();
+  m_saveDir=m_settings->value("SaveDir",m_appDir + "/save").toString();
 
   {
     //
     // retrieve audio input device
     //
-    QString savedName = settings.value( "SoundInName").toString();
+    QString savedName = m_settings->value( "SoundInName").toString();
     QList<QAudioDeviceInfo> audioInputDevices (QAudioDeviceInfo::availableDevices (QAudio::AudioInput)); // available audio input devices
     for (QList<QAudioDeviceInfo>::const_iterator p = audioInputDevices.begin (); p != audioInputDevices.end (); ++p)
       {
@@ -533,7 +545,7 @@ void MainWindow::readSettings()
     //
     // retrieve audio output device
     //
-    QString savedName = settings.value("SoundOutName").toString();
+    QString savedName = m_settings->value("SoundOutName").toString();
     QList<QAudioDeviceInfo> audioOutputDevices (QAudioDeviceInfo::availableDevices (QAudio::AudioOutput)); // available audio output devices
     for (QList<QAudioDeviceInfo>::const_iterator p = audioOutputDevices.begin (); p != audioOutputDevices.end (); ++p)
     {
@@ -543,95 +555,98 @@ void MainWindow::readSettings()
     }
   }
 
-  m_mode=settings.value("Mode","JT9").toString();
-  m_modeTx=settings.value("ModeTx","JT9").toString();
+  // retrieve audio channel info
+  m_audioInputChannel = AudioDevice::fromString (m_settings->value ("AudioInputChannel", "Mono").toString ());
+  m_audioOutputChannel = AudioDevice::fromString (m_settings->value ("AudioOutputChannel", "Mono").toString ());
+
+  m_mode=m_settings->value("Mode","JT9").toString();
+  m_modeTx=m_settings->value("ModeTx","JT9").toString();
   if(m_modeTx=="JT9") ui->pbTxMode->setText("Tx JT9  @");
   if(m_modeTx=="JT65") ui->pbTxMode->setText("Tx JT65  #");
-  ui->actionNone->setChecked(settings.value("SaveNone",true).toBool());
-  ui->actionSave_decoded->setChecked(settings.value(
+  ui->actionNone->setChecked(m_settings->value("SaveNone",true).toBool());
+  ui->actionSave_decoded->setChecked(m_settings->value(
                                          "SaveDecoded",false).toBool());
-  ui->actionSave_all->setChecked(settings.value("SaveAll",false).toBool());
-  m_dialFreq=settings.value("DialFreq",14.078).toDouble();
-  m_rxFreq=settings.value("RxFreq",1500).toInt();
+  ui->actionSave_all->setChecked(m_settings->value("SaveAll",false).toBool());
+  m_dialFreq=m_settings->value("DialFreq",14.078).toDouble();
+  m_rxFreq=m_settings->value("RxFreq",1500).toInt();
   ui->RxFreqSpinBox->setValue(m_rxFreq);
-  m_txFreq=settings.value("TxFreq",1500).toInt();
+  m_txFreq=m_settings->value("TxFreq",1500).toInt();
   ui->TxFreqSpinBox->setValue(m_txFreq);
   Q_EMIT transmitFrequency (m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0));
   m_saveDecoded=ui->actionSave_decoded->isChecked();
   m_saveAll=ui->actionSave_all->isChecked();
-  m_ndepth=settings.value("NDepth",3).toInt();
-  m_inGain=settings.value("InGain",0).toInt();
+  m_ndepth=m_settings->value("NDepth",3).toInt();
+  m_inGain=m_settings->value("InGain",0).toInt();
   ui->inGain->setValue(m_inGain);
-  m_monitorStartOFF=settings.value("MonitorOFF",false).toBool();
+
+  // setup initial value of tx attenuator
+  ui->outAttenuation->setValue (m_settings->value ("OutAttenuation", 0).toInt ());
+  on_outAttenuation_valueChanged (ui->outAttenuation->value ());
+
+  m_monitorStartOFF=m_settings->value("MonitorOFF",false).toBool();
   ui->actionMonitor_OFF_at_startup->setChecked(m_monitorStartOFF);
-  m_pskReporter=settings.value("PSKReporter",false).toBool();
-  m_After73=settings.value("After73",false).toBool();
-  m_macro=settings.value("Macros","TNX 73 GL").toStringList();
+  m_pskReporter=m_settings->value("PSKReporter",false).toBool();
+  m_After73=m_settings->value("After73",false).toBool();
+  m_macro=m_settings->value("Macros","TNX 73 GL").toStringList();
   //Band Settings
-  m_dFreq=settings.value("BandFrequencies","").toStringList();
-  m_bandDescription=settings.value("BandDescriptions","").toStringList();
-  m_antDescription=settings.value("AntennaDescriptions","").toStringList();
-  m_toRTTY=settings.value("toRTTY",false).toBool();
+  m_dFreq=m_settings->value("BandFrequencies","").toStringList();
+  m_bandDescription=m_settings->value("BandDescriptions","").toStringList();
+  m_antDescription=m_settings->value("AntennaDescriptions","").toStringList();
+  m_toRTTY=m_settings->value("toRTTY",false).toBool();
   ui->actionConvert_JT9_x_to_RTTY->setChecked(m_toRTTY);
-  m_noSuffix=settings.value("NoSuffix",false).toBool();
-  m_dBtoComments=settings.value("dBtoComments",false).toBool();
+  m_noSuffix=m_settings->value("NoSuffix",false).toBool();
+  m_dBtoComments=m_settings->value("dBtoComments",false).toBool();
   ui->actionLog_dB_reports_to_Comments->setChecked(m_dBtoComments);
-  m_rig=settings.value("Rig",214).toInt();
-  m_rigIndex=settings.value("RigIndex",100).toInt();
-  m_catPort=settings.value("CATport","None").toString();
-  m_catPortIndex=settings.value("CATportIndex",0).toInt();
-  m_serialRate=settings.value("SerialRate",4800).toInt();
-  m_serialRateIndex=settings.value("SerialRateIndex",1).toInt();
-  m_dataBits=settings.value("DataBits",8).toInt();
-  m_dataBitsIndex=settings.value("DataBitsIndex",1).toInt();
-  m_stopBits=settings.value("StopBits",2).toInt();
-  m_stopBitsIndex=settings.value("StopBitsIndex",1).toInt();
-  m_handshake=settings.value("Handshake","None").toString();
-  m_handshakeIndex=settings.value("HandshakeIndex",0).toInt();
-  m_band=settings.value("BandIndex",7).toInt();
+  m_rig=m_settings->value("Rig",214).toInt();
+  m_rigIndex=m_settings->value("RigIndex",100).toInt();
+  m_catPort=m_settings->value("CATport","None").toString();
+  m_catPortIndex=m_settings->value("CATportIndex",0).toInt();
+  m_serialRate=m_settings->value("SerialRate",4800).toInt();
+  m_serialRateIndex=m_settings->value("SerialRateIndex",1).toInt();
+  m_dataBits=m_settings->value("DataBits",8).toInt();
+  m_dataBitsIndex=m_settings->value("DataBitsIndex",1).toInt();
+  m_stopBits=m_settings->value("StopBits",2).toInt();
+  m_stopBitsIndex=m_settings->value("StopBitsIndex",1).toInt();
+  m_handshake=m_settings->value("Handshake","None").toString();
+  m_handshakeIndex=m_settings->value("HandshakeIndex",0).toInt();
+  m_band=m_settings->value("BandIndex",7).toInt();
   ui->bandComboBox->setCurrentIndex(m_band);
   dialFreqChanged2(m_dialFreq);
-  m_catEnabled=settings.value("catEnabled",false).toBool();
-  m_promptToLog=settings.value("PromptToLog",false).toBool();
+  m_catEnabled=m_settings->value("catEnabled",false).toBool();
+  m_promptToLog=m_settings->value("PromptToLog",false).toBool();
   ui->actionPrompt_to_log_QSO->setChecked(m_promptToLog);
-  m_insertBlank=settings.value("InsertBlank",false).toBool();
+  m_insertBlank=m_settings->value("InsertBlank",false).toBool();
   ui->actionBlank_line_between_decoding_periods->setChecked(m_insertBlank);
-  m_displayDXCCEntity=settings.value("DXCCEntity",false).toBool();
+  m_displayDXCCEntity=m_settings->value("DXCCEntity",false).toBool();
   ui->actionEnable_DXCC_entity->setChecked(m_displayDXCCEntity);
-  m_clearCallGrid=settings.value("ClearCallGrid",false).toBool();
+  m_clearCallGrid=m_settings->value("ClearCallGrid",false).toBool();
   ui->actionClear_DX_Call_and_Grid_after_logging->setChecked(m_clearCallGrid);
-  m_bMiles=settings.value("Miles",false).toBool();
+  m_bMiles=m_settings->value("Miles",false).toBool();
   ui->actionDisplay_distance_in_miles->setChecked(m_bMiles);
-  int n=settings.value("GUItab",0).toInt();
+  int n=m_settings->value("GUItab",0).toInt();
   ui->tabWidget->setCurrentIndex(n);
-  m_quickCall=settings.value("QuickCall",false).toBool();
+  m_quickCall=m_settings->value("QuickCall",false).toBool();
   ui->actionDouble_click_on_call_sets_Tx_Enable->setChecked(m_quickCall);
-  m_73TxDisable=settings.value("73TxDisable",false).toBool();
+  m_73TxDisable=m_settings->value("73TxDisable",false).toBool();
   ui->action_73TxDisable->setChecked(m_73TxDisable);
-  m_runaway=settings.value("Runaway",false).toBool();
+  m_runaway=m_settings->value("Runaway",false).toBool();
   ui->actionRunaway_Tx_watchdog->setChecked(m_runaway);
-  m_tx2QSO=settings.value("Tx2QSO",false).toBool();
+  m_tx2QSO=m_settings->value("Tx2QSO",false).toBool();
   ui->actionTx2QSO->setChecked(m_tx2QSO);
-  m_bMultipleOK=settings.value("MultipleOK",false).toBool();
+  m_bMultipleOK=m_settings->value("MultipleOK",false).toBool();
   ui->actionAllow_multiple_instances->setChecked(m_bMultipleOK);
-  m_bDTR=settings.value("DTR",false).toBool();
-  m_bRTS=settings.value("RTS",false).toBool();  m_pttData=settings.value("pttData",false).toBool();
-  m_poll=settings.value("Polling",0).toInt();
-  m_logQSOgeom=settings.value("LogQSOgeom",QRect(500,400,424,283)).toRect();
-  outBufSize=settings.value("OutBufSize",4096).toInt();
-  m_lockTxFreq=settings.value("LockTxFreq",false).toBool();
+  m_bDTR=m_settings->value("DTR",false).toBool();
+  m_bRTS=m_settings->value("RTS",false).toBool();  m_pttData=m_settings->value("pttData",false).toBool();
+  m_poll=m_settings->value("Polling",0).toInt();
+  outBufSize=m_settings->value("OutBufSize",4096).toInt();
+  m_lockTxFreq=m_settings->value("LockTxFreq",false).toBool();
   ui->cbTxLock->setChecked(m_lockTxFreq);
-  m_saveTxPower=settings.value("SaveTxPower",false).toBool();
-  m_saveComments=settings.value("SaveComments",false).toBool();
-  m_txPower=settings.value("TxPower","").toString();
-  m_logComments=settings.value("LogComments","").toString();
-  m_fMin=settings.value("fMin",2500).toInt();
-  m_bSplit=settings.value("TxSplit",false).toBool();
-  m_bXIT=settings.value("UseXIT",false).toBool();
-  m_XIT=settings.value("XIT",0).toInt();
-	m_plus2kHz=settings.value("Plus2kHz",false).toBool();
+  m_bSplit=m_settings->value("TxSplit",false).toBool();
+  m_bXIT=m_settings->value("UseXIT",false).toBool();
+  m_XIT=m_settings->value("XIT",0).toInt();
+	m_plus2kHz=m_settings->value("Plus2kHz",false).toBool();
 	ui->cbPlus2kHz->setChecked(m_plus2kHz);
-  settings.endGroup();
+  m_settings->endGroup();
 
   if(m_ndepth==1) ui->actionQuickDecode->setChecked(true);
   if(m_ndepth==2) ui->actionMediumDecode->setChecked(true);
@@ -641,7 +656,7 @@ void MainWindow::readSettings()
 }
 
 //-------------------------------------------------------------- dataSink()
-void MainWindow::dataSink(qint64 bytes)
+void MainWindow::dataSink(qint64 frames)
 {
   static float s[NSMAX];
   static int ihsym=0;
@@ -661,8 +676,8 @@ void MainWindow::dataSink(qint64 bytes)
 // Get power, spectrum, and ihsym
   trmin=m_TRperiod/60;
   slope=0.0;
-  if(g_pWideGraph!=NULL) slope=(float)g_pWideGraph->getSlope();
-  int k (bytes / sizeof (jt9com_.d2[0]) - 1);
+  slope=(float)m_wideGraph->getSlope();
+  int k (frames - 1);
   symspec_(&k,&trmin,&m_nsps,&m_inGain,&slope,&px,s,&df3,&ihsym,&npts8);
   if(ihsym <=0) return;
   QString t;
@@ -670,7 +685,7 @@ void MainWindow::dataSink(qint64 bytes)
   t.sprintf(" Rx noise: %5.1f ",px);
   signalMeter->setValue(px);                            // Update thermometer
   if(m_monitoring || m_diskData) {
-    g_pWideGraph->dataSink2(s,df3,ihsym,m_diskData);
+    m_wideGraph->dataSink2(s,df3,ihsym,m_diskData);
   }
 
   if(ihsym == m_hsymStop) {
@@ -716,6 +731,8 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_saveDir=m_saveDir;
   dlg.m_audioInputDevice = m_audioInputDevice;
   dlg.m_audioOutputDevice = m_audioOutputDevice;
+  dlg.m_audioInputChannel = m_audioInputChannel;
+  dlg.m_audioOutputChannel = m_audioOutputChannel;
   dlg.m_pskReporter=m_pskReporter;
   dlg.m_After73=m_After73;
   dlg.m_macro=m_macro;
@@ -761,6 +778,8 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_saveDir=dlg.m_saveDir;
     m_audioInputDevice = dlg.m_audioInputDevice;
     m_audioOutputDevice = dlg.m_audioOutputDevice;
+    m_audioInputChannel = dlg.m_audioInputChannel;
+    m_audioOutputChannel = dlg.m_audioOutputChannel;
     m_macro=dlg.m_macro;
     m_dFreq=dlg.m_dFreq;
     m_antDescription=dlg.m_antDescription;
@@ -796,7 +815,10 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_After73=dlg.m_After73;
 
     if(dlg.m_restartSoundIn) {
-      m_soundInput.start(m_audioInputDevice, RX_SAMPLE_RATE / 10, &m_detector);
+      m_soundInput.stop ();
+      m_detector.close ();
+      m_detector.open (m_audioInputChannel);
+      m_soundInput.start(m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, RX_SAMPLE_RATE / 10, &m_detector);
     }
 
     if(dlg.m_restartSoundOut) {
@@ -832,7 +854,7 @@ void MainWindow::on_monitorButton_clicked()                  //Monitor
 {
   m_monitoring=true;
   m_detector.setMonitoring(true);
-  m_soundInput.start(m_audioInputDevice, RX_SAMPLE_RATE / 10, &m_detector);
+  //  m_soundInput.start(m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, RX_SAMPLE_RATE / 10, &m_detector);
   m_diskData=false;
 }
 
@@ -963,13 +985,13 @@ void MainWindow::bumpFqso(int n)                                 //bumpFqso()
   int i;
   bool ctrl = (n>=100);
   n=n%100;
-  i=g_pWideGraph->rxFreq();
+  i=m_wideGraph->rxFreq();
   if(n==11) i--;
   if(n==12) i++;
-  g_pWideGraph->setRxFreq(i);
+  m_wideGraph->setRxFreq(i);
   if(ctrl) {
     ui->TxFreqSpinBox->setValue(i);
-    g_pWideGraph->setTxFreq(i);
+    m_wideGraph->setTxFreq(i);
   }
 }
 
@@ -992,7 +1014,7 @@ void MainWindow::dialFreqChanged2(double f)
   }
   ui->labDialFreq->setText(t);
   statusChanged();
-  if(g_pWideGraph!=NULL) g_pWideGraph->setDialFreq(m_dialFreq);
+  m_wideGraph->setDialFreq(m_dialFreq);
 }
 
 void MainWindow::statusChanged()
@@ -1047,16 +1069,16 @@ void MainWindow::on_actionExit_triggered()                     //Exit()
   OnExit();
 }
 
-void MainWindow::closeEvent(QCloseEvent*)
+void MainWindow::closeEvent(QCloseEvent * e)
 {
+  writeSettings ();
   OnExit();
+  QMainWindow::closeEvent (e);
 }
 
 void MainWindow::OnExit()
 {
   m_guiTimer.stop ();
-  g_pWideGraph->saveSettings();
-  writeSettings();
   if(m_fname != "") killFile();
   m_killAll=true;
   mem_jt9->detach();
@@ -1076,7 +1098,6 @@ void MainWindow::on_stopButton_clicked()                       //stopButton
 {
   m_monitoring=false;
   m_detector.setMonitoring(m_monitoring);
-  m_soundInput.stop ();
   m_loopall=false;  
 }
 
@@ -1095,24 +1116,7 @@ void MainWindow::on_actionOnline_Users_Guide_triggered()      //Display manual
 
 void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
 {
-  if(g_pWideGraph==NULL) {
-    g_pWideGraph = new WideGraph(0);
-    g_pWideGraph->setWindowTitle("Wide Graph");
-    g_pWideGraph->setGeometry(m_wideGraphGeom);
-    Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
-        Qt::WindowMinimizeButtonHint;
-    g_pWideGraph->setWindowFlags(flags);
-    connect(g_pWideGraph, SIGNAL(freezeDecode2(int)),this,
-            SLOT(freezeDecode(int)));
-    connect(g_pWideGraph, SIGNAL(f11f12(int)),this,
-            SLOT(bumpFqso(int)));
-    connect(g_pWideGraph, SIGNAL(setXIT2(int)),this,
-            SLOT(setXIT(int)));
-//    connect(g_pWideGraph, SIGNAL(dialFreqChanged(double)),this,
-//            SLOT(dialFreqChanged2(double)));
-    connect (this, &MainWindow::finished, g_pWideGraph, &WideGraph::close);
-  }
-  g_pWideGraph->show();
+  m_wideGraph->show();
 }
 
 void MainWindow::on_actionOpen_triggered()                     //Open File
@@ -1295,10 +1299,10 @@ void MainWindow::on_DecodeButton_clicked()                    //Decode request
 void MainWindow::freezeDecode(int n)                          //freezeDecode()
 {
   bool ctrl = (n>=100);
-  int i=g_pWideGraph->rxFreq();
+  int i=m_wideGraph->rxFreq();
   if(ctrl) {
     ui->TxFreqSpinBox->setValue(i);
-    g_pWideGraph->setTxFreq(i);
+    m_wideGraph->setTxFreq(i);
   }
   if((n%100)==2) on_DecodeButton_clicked();
 }
@@ -1316,13 +1320,13 @@ void MainWindow::decode()                                       //decode()
     jt9com_.nutc=100*ihr + imin;
   }
 
-  jt9com_.nfqso=g_pWideGraph->rxFreq();
+  jt9com_.nfqso=m_wideGraph->rxFreq();
   jt9com_.ndepth=m_ndepth;
   jt9com_.ndiskdat=0;
   if(m_diskData) jt9com_.ndiskdat=1;
-  jt9com_.nfa=g_pWideGraph->nStartFreq();
-  jt9com_.nfSplit=g_pWideGraph->getFmin();
-  jt9com_.nfb=g_pWideGraph->getFmax();
+  jt9com_.nfa=m_wideGraph->nStartFreq();
+  jt9com_.nfSplit=m_wideGraph->getFmin();
+  jt9com_.nfb=m_wideGraph->getFmax();
   jt9com_.ntol=20;
   if(jt9com_.nutc < m_nutc0) m_RxLog |= 1;       //Date and Time to all.txt
   m_nutc0=jt9com_.nutc;
@@ -1420,7 +1424,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       QString bg="white";
       if(t.indexOf(" CQ ")>0) bg="#66ff66";                          //green
       if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
-      bool bQSO=abs(t.mid(14,4).toInt() - g_pWideGraph->rxFreq()) <= 10;
+      bool bQSO=abs(t.mid(14,4).toInt() - m_wideGraph->rxFreq()) <= 10;
       QString t1=t.replace("\n","").mid(0,t.length()-4);
 
       // if enabled add the DXCC entity and B4 status to the end of the preformated text line t1
@@ -1752,7 +1756,6 @@ void MainWindow::guiUpdate()
     signalMeter->setValue(0);
     m_monitoring=false;
     m_detector.setMonitoring(false);
-    m_soundInput.stop ();
     m_btxok=true;
     Q_EMIT muteAudioOutput (false);
     m_transmitting=true;
@@ -1881,7 +1884,6 @@ void MainWindow::startTx2()
     signalMeter->setValue(0);
     m_monitoring=false;
     m_detector.setMonitoring(false);
-    m_soundInput.stop ();
     m_btxok=true;
     Q_EMIT muteAudioOutput (false);
     m_transmitting=true;
@@ -1900,7 +1902,6 @@ void MainWindow::stopTx()
   lab1->setText("");
   ptt0Timer->start(200);                       //Sequencer delay
   m_monitoring=true;
-  m_soundInput.start(m_audioInputDevice, RX_SAMPLE_RATE / 10, &m_detector);
   m_detector.setMonitoring(true);
 }
 
@@ -2046,7 +2047,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 
   int nfreq=t4.at(3).toInt();
   if(t4.at(1)=="Tx") nfreq=t4.at(2).toInt();
-  g_pWideGraph->setRxFreq(nfreq);                      //Set Rx freq
+  m_wideGraph->setRxFreq(nfreq);                      //Set Rx freq
   if(t4.at(1)=="Tx") {
     if(ctrl) ui->TxFreqSpinBox->setValue(nfreq);       //Set Tx freq
     return;
@@ -2054,12 +2055,12 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   if(t4.at(4)=="@") {
     m_modeTx="JT9";
     ui->pbTxMode->setText("Tx JT9  @");
-    g_pWideGraph->setModeTx(m_modeTx);
+    m_wideGraph->setModeTx(m_modeTx);
   }
   if(t4.at(4)=="#") {
     m_modeTx="JT65";
     ui->pbTxMode->setText("Tx JT65  #");
-    g_pWideGraph->setModeTx(m_modeTx);
+    m_wideGraph->setModeTx(m_modeTx);
   }
   QString firstcall=t4.at(5);
   // Don't change Tx freq if a station is calling me, unless m_lockTxFreq
@@ -2470,27 +2471,14 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   if(m_hisCall=="") return;
   m_dateTimeQSO=QDateTime::currentDateTimeUtc();
 
-  logDlg = new LogQSO(0);
-  logDlg->m_saveTxPower=m_saveTxPower;
-  logDlg->m_saveComments=m_saveComments;
-  logDlg->m_txPower=m_txPower;
-  logDlg->m_comments=m_logComments;
-  logDlg->initLogQSO(m_hisCall,m_hisGrid,m_modeTx,m_rptSent,m_rptRcvd,
+  m_logDlg->initLogQSO(m_hisCall,m_hisGrid,m_modeTx,m_rptSent,m_rptRcvd,
                      m_dateTimeQSO,m_dialFreq+m_txFreq/1.0e6,
                      m_myCall,m_myGrid,m_noSuffix,m_toRTTY,m_dBtoComments);
-  connect(logDlg, SIGNAL(acceptQSO(bool)),this,SLOT(acceptQSO2(bool)));
-  if(m_logQSOgeom != QRect(500,400,424,283)) logDlg->setGeometry(m_logQSOgeom);
-  logDlg->show();
 }
 
 void MainWindow::acceptQSO2(bool accepted)
 {
   if(accepted) {
-    m_logQSOgeom=logDlg->geometry();
-    m_saveTxPower=logDlg->m_saveTxPower;
-    m_saveComments=logDlg->m_saveComments;
-    m_txPower=logDlg->m_txPower;
-    m_logComments=logDlg->m_comments;
     m_logBook.addAsWorked(m_hisCall);
     if(m_clearCallGrid) {
       m_hisCall="";
@@ -2516,9 +2504,9 @@ void MainWindow::on_actionJT9_1_triggered()
   lab2->setStyleSheet("QLabel{background-color: #ff6ec7}");
   lab2->setText(m_mode);
   ui->actionJT9_1->setChecked(true);
-  g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
-  g_pWideGraph->setMode(m_mode);
-  g_pWideGraph->setModeTx(m_modeTx);
+  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
   ui->pbTxMode->setEnabled(false);
 }
 
@@ -2533,9 +2521,9 @@ void MainWindow::on_actionJT65_triggered()
   lab2->setStyleSheet("QLabel{background-color: #ffff00}");
   lab2->setText(m_mode);
   ui->actionJT65->setChecked(true);
-  g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
-  g_pWideGraph->setMode(m_mode);
-  g_pWideGraph->setModeTx(m_modeTx);
+  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
   ui->pbTxMode->setEnabled(false);
 }
 
@@ -2550,16 +2538,16 @@ void MainWindow::on_actionJT9_JT65_triggered()
   lab2->setStyleSheet("QLabel{background-color: #ffa500}");
   lab2->setText(m_mode);
   ui->actionJT9_JT65->setChecked(true);
-  g_pWideGraph->setPeriod(m_TRperiod,m_nsps);
-  g_pWideGraph->setMode(m_mode);
-  g_pWideGraph->setModeTx(m_modeTx);
+  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
   ui->pbTxMode->setEnabled(true);
 }
 
 void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
 {
   m_txFreq=n;
-  if(g_pWideGraph!=NULL) g_pWideGraph->setTxFreq(n);
+  m_wideGraph->setTxFreq(n);
   if(m_lockTxFreq) ui->RxFreqSpinBox->setValue(n);
   Q_EMIT transmitFrequency (m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0));
 }
@@ -2567,7 +2555,7 @@ void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
 void MainWindow::on_RxFreqSpinBox_valueChanged(int n)
 {
   m_rxFreq=n;
-  if(g_pWideGraph!=NULL) g_pWideGraph->setRxFreq(n);
+  m_wideGraph->setRxFreq(n);
   if(m_lockTxFreq) ui->TxFreqSpinBox->setValue(n);
 }
 
@@ -2719,10 +2707,9 @@ void MainWindow::on_bandComboBox_activated(int index)
       ret=rig->setFreq(MHz(m_dialFreq));
       if(m_bSplit or m_bXIT) setXIT(m_txFreq);
 
-      if(g_pWideGraph!=NULL) {
-        bumpFqso(11);
-        bumpFqso(12);
-      }
+      bumpFqso(11);
+      bumpFqso(12);
+
       if(ret!=RIG_OK) {
         rt.sprintf("Set rig frequency failed:  %d",ret);
         msgBox(rt);
@@ -2973,13 +2960,13 @@ void MainWindow::on_actionAllow_multiple_instances_triggered(bool checked)
 
 void MainWindow::on_pbR2T_clicked()
 {
-  int n=g_pWideGraph->rxFreq();
+  int n=m_wideGraph->rxFreq();
   ui->TxFreqSpinBox->setValue(n);
 }
 
 void MainWindow::on_pbT2R_clicked()
 {
-  g_pWideGraph->setRxFreq(m_txFreq);
+  m_wideGraph->setRxFreq(m_txFreq);
 }
 
 
@@ -3009,7 +2996,7 @@ void MainWindow::on_pbTxMode_clicked()
     m_modeTx="JT9";
     ui->pbTxMode->setText("Tx JT9  @");
   }
-  g_pWideGraph->setModeTx(m_modeTx);
+  m_wideGraph->setModeTx(m_modeTx);
   statusChanged();
 }
 
@@ -3045,7 +3032,7 @@ void MainWindow::setFreq4(int rxFreq, int txFreq)
 void MainWindow::on_cbTxLock_clicked(bool checked)
 {
   m_lockTxFreq=checked;
-  g_pWideGraph->setLockTxFreq(m_lockTxFreq);
+  m_wideGraph->setLockTxFreq(m_lockTxFreq);
   if(m_lockTxFreq) on_pbR2T_clicked();
 }
 
@@ -3089,11 +3076,18 @@ void MainWindow::transmit (double snr)
 {
   if (m_modeTx == "JT65")
     {
-      Q_EMIT sendMessage (NUM_JT65_SYMBOLS, 4096.0 * 12000.0 / 11025.0, m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0), true, snr);
+      Q_EMIT sendMessage (NUM_JT65_SYMBOLS, 4096.0 * 12000.0 / 11025.0, m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0), m_audioOutputChannel, true, snr);
     }
   else
     {
-      Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps, m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0), true, snr);
+      Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps, m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0), m_audioOutputChannel, true, snr);
     }
-  Q_EMIT startAudioOutputStream (m_audioOutputDevice);
+  Q_EMIT startAudioOutputStream (m_audioOutputDevice, AudioDevice::Mono == m_audioOutputChannel ? 1 : 2);
+}
+
+void MainWindow::on_outAttenuation_valueChanged (int a)
+{
+  qreal dBAttn (a / 10.);      // slider interpreted as hundredths of a dB
+  ui->outAttenuation->setToolTip (tr ("Transmit digital gain ") + (a ? QString::number (-dBAttn, 'f', 1) : "0") + "dB");
+  Q_EMIT outAttenuationChanged (dBAttn);
 }

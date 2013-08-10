@@ -10,6 +10,15 @@
 
 extern float gran();		// Noise generator (for tests only)
 
+// MUST be an integral factor of 2^16
+#define RAMP_INCREMENT 64
+
+#if defined (WSJT_SOFT_KEYING)
+# define SOFT_KEYING true
+#else
+# define SOFT_KEYING false
+#endif
+
 double const Modulator::m_twoPi = 2.0 * 3.141592653589793238462;
 
 //    float wpm=20.0;
@@ -18,7 +27,7 @@ double const Modulator::m_twoPi = 2.0 * 3.141592653589793238462;
 unsigned const Modulator::m_nspd = 2048 + 512; // 22.5 WPM
 
 Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds, QObject * parent)
-  : QIODevice (parent)
+  : AudioDevice (parent)
   , m_frameRate (frameRate)
   , m_period (periodLengthInSeconds)
   , m_framesSent (0)
@@ -30,10 +39,12 @@ Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds, QObjec
   qsrand (QDateTime::currentMSecsSinceEpoch()); // Initialize random seed
 }
 
-void Modulator::send (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, bool synchronize, double dBSNR)
+void Modulator::open (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, Channel channel, bool synchronize, double dBSNR)
 {
   // Time according to this computer which becomes our base time
   qint64 ms0 = QDateTime::currentMSecsSinceEpoch() % 86400000;
+
+  qDebug () << "Modulator: Using soft keying for CW is " << SOFT_KEYING;;
 
   m_symbolsLength = symbolsLength;
 
@@ -67,16 +78,19 @@ void Modulator::send (unsigned symbolsLength, double framesPerSymbol, unsigned f
     }
 
 //  qDebug () << "Modulator: starting at " << m_ic / m_frameRate << " sec, sending " << m_silentFrames << " silent frames";
+
+  AudioDevice::open (QIODevice::ReadOnly, channel);
   Q_EMIT stateChanged ((m_state = (synchronize && m_silentFrames) ? Synchronizing : Active));
 }
 
 qint64 Modulator::readData (char * data, qint64 maxSize)
 {
-  Q_ASSERT (!(maxSize % static_cast<qint64> (sizeof (frame_t)))); // no torn frames
-  Q_ASSERT (!(reinterpret_cast<size_t> (data) % __alignof__ (frame_t))); // data is aligned as frame_t would be
+  Q_ASSERT (!(maxSize % static_cast<qint64> (bytesPerFrame ()))); // no torn frames
+  Q_ASSERT (isOpen ());
 
-  frame_t * frames (reinterpret_cast<frame_t *> (data));
-  qint64 numFrames (maxSize / sizeof (frame_t));
+  qint64 numFrames (maxSize / bytesPerFrame ());
+  qint16 * samples (reinterpret_cast<qint16 *> (data));
+  qint16 * end (samples + numFrames * (bytesPerFrame () / sizeof (qint16)));
 
 //  qDebug () << "Modulator: " << numFrames << " requested, m_ic = " << m_ic << ", tune mode is " << m_tuning;
 
@@ -86,19 +100,16 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
       {
 	if (m_silentFrames)	// send silence up to first second
 	  {
-	    frame_t frame;
-	    for (unsigned c = 0; c < NUM_CHANNELS; ++c)
-	      {
-		frame.channel[c] = 0; // silence
-	      }
-
 	    numFrames = qMin (m_silentFrames, numFrames);
-	    qFill (frames, frames + numFrames, frame);
+	    for ( ; samples != end; samples = load (0, samples)) // silence
+	      {
+	      }
 	    m_silentFrames -= numFrames;
-	    return numFrames * sizeof (frame_t);
+	    return numFrames * bytesPerFrame ();
 	  }
 
 	Q_EMIT stateChanged ((m_state = Active));
+	m_ramp = 0;		// prepare for CW wave shaping
       }
       // fall through
 
@@ -114,7 +125,8 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 	    unsigned const ic0 = m_symbolsLength * 4 * m_nsps;
 	    unsigned j (0);
 	    qint64 framesGenerated (0);
-	    for (unsigned i = 0; i < numFrames; ++i)
+
+	    while (samples != end)
 	      {
 		m_phi += m_dphi;
 		if (m_phi > m_twoPi)
@@ -122,28 +134,31 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 		    m_phi -= m_twoPi;
 		  }
 
-		frame_t frame;
-		for (unsigned c = 0; c < NUM_CHANNELS; ++c)
+		qint16 sample ((SOFT_KEYING ? qAbs (m_ramp - 1) : (m_ramp ? 32767 : 0)) * qSin (m_phi));
+
+		j = (m_ic - ic0 - 1) / m_nspd + 1;
+		bool l0 (icw[j] && icw[j] <= 1); // first element treated specially as it's a count
+		j = (m_ic - ic0) / m_nspd + 1;
+
+		if ((m_ramp != 0 && m_ramp != std::numeric_limits<qint16>::min ()) || !!icw[j] != l0)
 		  {
-		    frame.channel[c] = std::numeric_limits<qint16>::max () * qSin (m_phi);
+		    if (!!icw[j] != l0)
+		      {
+			Q_ASSERT (m_ramp == 0 || m_ramp == std::numeric_limits<qint16>::min ());
+		      }
+		    m_ramp += RAMP_INCREMENT; // ramp
 		  }
 
-		j = (m_ic - ic0) / m_nspd + 1;
 		if (j < NUM_CW_SYMBOLS) // stop condition
 		  {
-		    if (!icw[j])
-		      {
-			for (unsigned c = 0; c < NUM_CHANNELS; ++c)
-			  {
-			    frame.channel[c] = 0;
-			  }
-		      }
+		    // if (!m_ramp && !icw[j])
+		    //   {
+		    // 	sample = 0;
+		    //   }
 
-		    frame = postProcessFrame (frame);
+		    samples = load (postProcessSample (sample), samples);
 
-		    *frames++ = frame;
 		    ++framesGenerated;
-
 		    ++m_ic;
 		  }
 	      }
@@ -154,7 +169,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 	      }
 
 	    m_framesSent += framesGenerated;
-	    return framesGenerated * sizeof (frame_t);
+	    return framesGenerated * bytesPerFrame ();
 	  }
 
 	double const baud (12000.0 / m_nsps);
@@ -186,15 +201,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 		m_amp = 0.0;
 	      }
 
-	    frame_t frame;
-	    for (unsigned c = 0; c < NUM_CHANNELS; ++c)
-	      {
-		frame.channel[c] = m_amp * qSin (m_phi);
-	      }
-
-	    frame = postProcessFrame (frame);
-
-	    *frames++ = frame;
+	    samples = load (postProcessSample (m_amp * qSin (m_phi)), samples);
 
 	    ++m_ic;
 	  }
@@ -206,7 +213,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 		// no CW ID to send
 		Q_EMIT stateChanged ((m_state = Idle));
 		m_framesSent += numFrames;
-		return numFrames * sizeof (frame_t);
+		return numFrames * bytesPerFrame ();
 	      }
 
 	    m_phi = 0.0;
@@ -214,7 +221,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 
 	// done for this chunk - continue on next call
 	m_framesSent += numFrames;
-	return numFrames * sizeof (frame_t);
+	return numFrames * bytesPerFrame ();
       }
       Q_EMIT stateChanged ((m_state = Idle));
       // fall through
@@ -227,35 +234,24 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
   return 0;
 }
 
-Modulator::frame_t Modulator::postProcessFrame (frame_t frame) const
+qint16 Modulator::postProcessSample (qint16 sample) const
 {
   if (m_muted)			// silent frame
     {
-      for (unsigned c = 0; c < NUM_CHANNELS; ++c)
-	{
-	  frame.channel[c] = 0;
-	}
+      sample = 0;
     }
   else if (m_addNoise)
     {
-      qint32 f[NUM_CHANNELS];
-      for (unsigned c = 0; c < NUM_CHANNELS; ++c)
+      qint32 s = m_fac * (gran () + sample * m_snr / 32768.0);
+      if (s > std::numeric_limits<qint16>::max ())
 	{
-	  f[c] = m_fac * (gran () + frame.channel[c] * m_snr / 32768.0);
-	  if (f[c] > std::numeric_limits<qint16>::max ())
-	    {
-	      f[c] = std::numeric_limits<qint16>::max ();
-	    }
-	  if (f[c] < std::numeric_limits<qint16>::min ())
-	    {
-	      f[c] = std::numeric_limits<qint16>::min ();
-	    }
+	  s = std::numeric_limits<qint16>::max ();
 	}
-      
-      for (unsigned c = 0; c < NUM_CHANNELS; ++c)
+      if (s < std::numeric_limits<qint16>::min ())
 	{
-	  frame.channel[c] = f[c];
+	  s = std::numeric_limits<qint16>::min ();
 	}
+      sample = s;
     }
-  return frame;
+  return sample;
 }

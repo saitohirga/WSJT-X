@@ -1,8 +1,6 @@
 #ifndef DEVSETUP_H
 #define DEVSETUP_H
 
-#include "ui_devsetup.h"
-
 #include <QDialog>
 #include <QProcess>
 #include <QMessageBox>
@@ -11,12 +9,23 @@
 #include <hamlib/rig.h>
 
 #include "rigclass.h"
+#include "AudioDevice.hpp"
 
 int rigCallback (rig_caps const *, void *);
 
+namespace Ui {
+    class DevSetup;
+}
+
+class QComboBox;
+
 class DevSetup : public QDialog
 {
-  Q_OBJECT
+  Q_OBJECT;
+
+ private:
+  Ui::DevSetup * ui;
+
 public:
   DevSetup(QWidget *parent=0);
   ~DevSetup();
@@ -47,6 +56,8 @@ public:
   QAudioDeviceInfo m_audioOutputDevice; /* selected output device */
   bool    m_restartSoundIn;
   bool    m_restartSoundOut;
+  AudioDevice::Channel m_audioInputChannel;
+  AudioDevice::Channel m_audioOutputChannel;
 
   bool    m_pskReporter;
   bool    m_firstCall;
@@ -99,19 +110,18 @@ private slots:
   void on_pollSpinBox_valueChanged(int n);
   void on_pttComboBox_currentIndexChanged(int index);
   void on_pttMethodComboBox_currentIndexChanged(int index);
-
   void on_cbSplit_toggled(bool checked);
-
   void on_cbXIT_toggled(bool checked);
 
 private:
+  void loadAudioDevices (AudioDevices const&, QComboBox *);
+  void updateAudioChannels (QComboBox const *, int, QComboBox *, bool);
   void enumerateRigs ();
   Rig* rig;
   void msgBox(QString t);
   void setEnableAntennaDescriptions(bool enable);
   void enableWidgets();
   void openRig();
-  Ui::DialogSndCard ui;
 
   friend int rigCallback (rig_caps const *, void *);
 };

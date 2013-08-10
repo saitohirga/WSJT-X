@@ -17,6 +17,7 @@ class SoundOutput : public QObject
   Q_OBJECT;
 
   Q_PROPERTY(bool running READ isRunning);
+  Q_PROPERTY(unsigned attenuation READ attenuation WRITE setAttenuation RESET resetAttenuation);
 
  private:
   Q_DISABLE_COPY (SoundOutput);
@@ -26,12 +27,18 @@ class SoundOutput : public QObject
   ~SoundOutput ();
 
   bool isRunning() const {return m_active;}
+  qreal attenuation () const;
 
- public Q_SLOTS:
-  void startStream (QAudioDeviceInfo const& device);
+ private Q_SLOTS:
+  /* private because we expect to run in a thread and don't want direct
+     C++ calls made, instead they must be invoked via the Qt
+     signal/slot mechanism which is thread safe */
+  void startStream (QAudioDeviceInfo const& device, unsigned channels);
   void suspend ();
   void resume ();
   void stopStream ();
+  void setAttenuation (qreal);	/* unsigned */
+  void resetAttenuation ();	/* to zero */
 
  Q_SIGNALS:
   void error (QString message) const;
@@ -49,6 +56,7 @@ private:
   QIODevice * m_source;
   bool volatile m_active;
   QAudioDeviceInfo m_currentDevice;
+  qreal m_volume;
 };
 
 #endif

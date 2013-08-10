@@ -5,6 +5,7 @@
 #endif
 #include <QApplication>
 #include <QObject>
+#include <QSettings>
 
 #include "mainwindow.h"
 
@@ -17,6 +18,10 @@ QString       my_key;
 int main(int argc, char *argv[])
 {
   QApplication a(argc, argv);
+
+  qRegisterMetaType<AudioDevice::Channel> ("AudioDevice::Channel");
+
+  QSettings settings(a.applicationDirPath() + "/wsjtx.ini", QSettings::IniFormat);
 
   QFile f("fonts.txt");
   qint32 fontSize,fontWeight,fontSize2,fontWeight2;   // Defaults 8 50 10 50
@@ -51,7 +56,7 @@ int main(int argc, char *argv[])
   memset(to,0,size);         //Zero all decoding params in shared memory
 
 // Multiple instances:  Call MainWindow() with the UUID key
-  MainWindow w(&mem_jt9, &my_key, fontSize2, fontWeight2);
+  MainWindow w(&settings, &mem_jt9, &my_key, fontSize2, fontWeight2);
   w.show();
 
   QObject::connect (&a, SIGNAL (lastWindowClosed()), &a, SLOT (quit()));

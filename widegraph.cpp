@@ -4,16 +4,20 @@
 
 #define MAX_SCREENSIZE 2048
 
-WideGraph::WideGraph(QWidget *parent) :
+WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::WideGraph)
+  ui(new Ui::WideGraph),
+  m_settings (settings)
 {
+  installEventFilter (parent);
+
+  setWindowTitle ("Wide Graph");
+  setWindowFlags (Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint);
+  setMaximumWidth (MAX_SCREENSIZE);
+  setMaximumHeight (880);
+
   ui->setupUi(this);
-  this->setWindowFlags(Qt::Dialog);
-  this->installEventFilter(parent); //Installing the filter
   ui->widePlot->setCursor(Qt::CrossCursor);
-	this->setMaximumWidth(MAX_SCREENSIZE);
-  this->setMaximumHeight(880);
   ui->widePlot->setMaximumHeight(800);
   ui->widePlot->m_bCurrent=false;
 
@@ -23,38 +27,35 @@ WideGraph::WideGraph(QWidget *parent) :
   connect(ui->widePlot, SIGNAL(setFreq1(int,int)),this,
           SLOT(setFreq2(int,int)));
 
-  m_fMin=3000;
-  ui->fMinSpinBox->setValue(m_fMin);
-
   //Restore user's settings
-  QString inifile(QApplication::applicationDirPath());
-  inifile += "/wsjtx.ini";
-  QSettings settings(inifile, QSettings::IniFormat);
-
-  settings.beginGroup("WideGraph");
-  ui->widePlot->setPlotZero(settings.value("PlotZero", 0).toInt());
-  ui->widePlot->setPlotGain(settings.value("PlotGain", 0).toInt());
+  m_settings->beginGroup("WideGraph");
+  restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
+  ui->widePlot->setPlotZero(m_settings->value("PlotZero", 0).toInt());
+  ui->widePlot->setPlotGain(m_settings->value("PlotGain", 0).toInt());
   ui->zeroSpinBox->setValue(ui->widePlot->getPlotZero());
   ui->gainSpinBox->setValue(ui->widePlot->getPlotGain());
-  int n = settings.value("FreqSpan",2).toInt();
-  int w = settings.value("PlotWidth",1000).toInt();
+  int n = m_settings->value("FreqSpan",2).toInt();
+  int w = m_settings->value("PlotWidth",1000).toInt();
   ui->widePlot->m_w=w;
   ui->freqSpanSpinBox->setValue(n);
   ui->widePlot->setNSpan(n);
-  m_waterfallAvg = settings.value("WaterfallAvg",5).toInt();
+  m_waterfallAvg = m_settings->value("WaterfallAvg",5).toInt();
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
-  ui->widePlot->m_bCurrent=settings.value("Current",false).toBool();
-  ui->widePlot->m_bCumulative=settings.value("Cumulative",true).toBool();
+  ui->widePlot->m_bCurrent=m_settings->value("Current",false).toBool();
+  ui->widePlot->m_bCumulative=m_settings->value("Cumulative",true).toBool();
   if(ui->widePlot->m_bCurrent) ui->spec2dComboBox->setCurrentIndex(0);
   if(ui->widePlot->m_bCumulative) ui->spec2dComboBox->setCurrentIndex(1);
-  int nbpp=settings.value("BinsPerPixel",2).toInt();
+  int nbpp=m_settings->value("BinsPerPixel",2).toInt();
   ui->widePlot->setBinsPerPixel(nbpp);
-  m_slope=settings.value("Slope",0.0).toDouble();
+  m_slope=m_settings->value("Slope",0.0).toDouble();
   ui->slopeSpinBox->setValue(m_slope);
-  ui->widePlot->setStartFreq(settings.value("StartFreq",0).toInt());
+  ui->widePlot->setStartFreq(m_settings->value("StartFreq",0).toInt());
   ui->fStartSpinBox->setValue(ui->widePlot->startFreq());
-  m_waterfallPalette=settings.value("WaterfallPalette","Default").toString();
-  settings.endGroup();
+  m_waterfallPalette=m_settings->value("WaterfallPalette","Default").toString();
+  int m_fMin = m_settings->value ("fMin", 2500).toInt ();
+  ui->fMinSpinBox->setValue (m_fMin);
+  setRxRange (m_fMin);
+  m_settings->endGroup();
 
   QDir recoredDir("Palettes");
   QStringList allFiles = recoredDir.entryList(QDir::NoDotAndDotDot |
@@ -73,32 +74,33 @@ WideGraph::WideGraph(QWidget *parent) :
   readPalette("Palettes/" + m_waterfallPalette + ".pal");
 }
 
-WideGraph::~WideGraph()
+WideGraph::~WideGraph ()
 {
-  saveSettings();
-  delete ui;
+}
+
+void WideGraph::closeEvent (QCloseEvent * e)
+{
+  saveSettings ();
+  QDialog::closeEvent (e);
 }
 
 void WideGraph::saveSettings()
 {
-  //Save user's settings
-  QString inifile(QApplication::applicationDirPath());
-  inifile += "/wsjtx.ini";
-  QSettings settings(inifile, QSettings::IniFormat);
-
-  settings.beginGroup("WideGraph");
-  settings.setValue("PlotZero",ui->widePlot->m_plotZero);
-  settings.setValue("PlotGain",ui->widePlot->m_plotGain);
-  settings.setValue("PlotWidth",ui->widePlot->plotWidth());
-  settings.setValue("FreqSpan",ui->freqSpanSpinBox->value());
-  settings.setValue("WaterfallAvg",ui->waterfallAvgSpinBox->value());
-  settings.setValue("Current",ui->widePlot->m_bCurrent);
-  settings.setValue("Cumulative",ui->widePlot->m_bCumulative);
-  settings.setValue("BinsPerPixel",ui->widePlot->binsPerPixel());
-  settings.setValue("Slope",m_slope);
-  settings.setValue("StartFreq",ui->widePlot->startFreq());
-  settings.setValue("WaterfallPalette",m_waterfallPalette);
-  settings.endGroup();
+  m_settings->beginGroup ("WideGraph");
+  m_settings->setValue ("geometry", saveGeometry ());
+  m_settings->setValue ("PlotZero", ui->widePlot->m_plotZero);
+  m_settings->setValue ("PlotGain", ui->widePlot->m_plotGain);
+  m_settings->setValue ("PlotWidth", ui->widePlot->plotWidth ());
+  m_settings->setValue ("FreqSpan", ui->freqSpanSpinBox->value ());
+  m_settings->setValue ("WaterfallAvg", ui->waterfallAvgSpinBox->value ());
+  m_settings->setValue ("Current", ui->widePlot->m_bCurrent);
+  m_settings->setValue ("Cumulative", ui->widePlot->m_bCumulative);
+  m_settings->setValue ("BinsPerPixel", ui->widePlot->binsPerPixel ());
+  m_settings->setValue ("Slope", m_slope);
+  m_settings->setValue ("StartFreq", ui->widePlot->startFreq ());
+  m_settings->setValue ("WaterfallPalette", m_waterfallPalette);
+  m_settings->setValue ("Fmin", m_fMin);
+  m_settings->endGroup ();
 }
 
 void WideGraph::dataSink2(float s[], float df3, int ihsym,
@@ -236,13 +238,6 @@ int WideGraph::getFmax()
   int n=ui->widePlot->getFmax();
   if(n>5000) n=5000;
   return n;
-}
-
-void WideGraph::setFmin(int n)
-{
-  m_fMin = n;
-  ui->fMinSpinBox->setValue(n);
-  setRxRange(m_fMin);
 }
 
 double WideGraph::fGreen()

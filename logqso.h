@@ -7,33 +7,25 @@
 #include <QtGui>
 #endif
 
+#include <QScopedPointer>
+
 namespace Ui {
-class LogQSO;
+  class LogQSO;
 }
+
+class QSettings;
 
 class LogQSO : public QDialog
 {
   Q_OBJECT
 
 public:
-  explicit LogQSO(QWidget *parent = 0);
+  explicit LogQSO(QSettings *, QWidget *parent = 0);
   ~LogQSO();
   void initLogQSO(QString hisCall, QString hisGrid, QString mode,
                   QString rptSent, QString rptRcvd, QDateTime dateTime,
                   double dialFreq, QString myCall, QString myGrid,
                   bool noSuffix, bool toRTTY, bool dBtoComments);
-
-  double m_dialFreq;
-
-  bool m_saveTxPower;
-  bool m_saveComments;
-
-  QString m_myCall;
-  QString m_myGrid;
-  QString m_txPower;
-  QString m_comments;
-
-  QDateTime m_dateTime;
 
 public slots:
   void accept();
@@ -42,12 +34,21 @@ public slots:
 signals:
   void acceptQSO(bool accepted);
 
-private slots:
-  void on_cbTxPower_toggled(bool checked);
-  void on_cbComments_toggled(bool checked);
+protected:
+  void hideEvent (QHideEvent *);
 
 private:
-  Ui::LogQSO *ui;
+  void loadSettings ();
+  void storeSettings () const;
+
+  QScopedPointer<Ui::LogQSO> ui;
+  QSettings * m_settings;
+  QString m_txPower;
+  QString m_comments;
+  double m_dialFreq;
+  QString m_myCall;
+  QString m_myGrid;
+  QDateTime m_dateTime;
 };
 
 #endif // LogQSO_H
