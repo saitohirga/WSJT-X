@@ -114,7 +114,7 @@ private slots:
   void on_cbXIT_toggled(bool checked);
 
 private:
-  void loadAudioDevices (AudioDevices const&, QComboBox *);
+  void loadAudioDevices (AudioDevices const&, QComboBox *, QAudioDeviceInfo const&, QAudioDeviceInfo const&);
   void updateAudioChannels (QComboBox const *, int, QComboBox *, bool);
   void enumerateRigs ();
   Rig* rig;
