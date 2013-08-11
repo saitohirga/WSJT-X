@@ -1070,6 +1070,15 @@ p, li { white-space: pre-wrap; }
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
+        <property name="invertedAppearance">
+         <bool>true</bool>
+        </property>
+        <property name="invertedControls">
+         <bool>true</bool>
+        </property>
+        <property name="tickPosition">
+         <enum>QSlider::TicksBelow</enum>
+        </property>
        </widget>
       </item>
       <item row="0" column="6">
@@ -2234,6 +2243,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="1" column="9" rowspan="6">
        <widget class="QSlider" name="outAttenuation">
+        <property name="toolTip">
+         <string>Adjust Tx audio level</string>
+        </property>
         <property name="value">
          <number>0</number>
         </property>
@@ -2264,7 +2276,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>760</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

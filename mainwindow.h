@@ -22,10 +22,6 @@
 #include "Detector.hpp"
 #include "Modulator.hpp"
 
-#ifdef WIN32
-#include "PSKReporter.h"
-#endif
-
 #define NUM_JT65_SYMBOLS 126
 #define NUM_JT9_SYMBOLS 85
 #define NUM_CW_SYMBOLS 250
