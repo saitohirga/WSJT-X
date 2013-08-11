@@ -49,8 +49,8 @@ void DevSetup::initDlg()
   //
   // load combo boxes with audio setup choices
   //
-  loadAudioDevices (m_audioInputDevices, ui->comboBoxSndIn);
-  loadAudioDevices (m_audioOutputDevices, ui->comboBoxSndOut);
+  loadAudioDevices (m_audioInputDevices, ui->comboBoxSndIn, m_audioInputDevice, QAudioDeviceInfo::defaultInputDevice ());
+  loadAudioDevices (m_audioOutputDevices, ui->comboBoxSndOut, m_audioOutputDevice, QAudioDeviceInfo::defaultOutputDevice ());
 
   {
     using namespace std::tr1;
@@ -621,7 +621,7 @@ void DevSetup::on_cbXIT_toggled(bool checked)
   if(m_bSplit and m_bXIT) ui->cbSplit->setChecked(false);
 }
 
-void DevSetup::loadAudioDevices (AudioDevices const& d, QComboBox * cb)
+void DevSetup::loadAudioDevices (AudioDevices const& d, QComboBox * cb, QAudioDeviceInfo const& device, QAudioDeviceInfo const& defaultDevice)
 {
   using std::copy;
   using std::back_inserter;
@@ -636,11 +636,11 @@ void DevSetup::loadAudioDevices (AudioDevices const& d, QComboBox * cb)
       copy (scc.cbegin (), scc.cend (), back_inserter (channelCounts));
 
       cb->addItem (p->deviceName (), channelCounts);
-      if (*p == m_audioInputDevice)
+      if (*p == device)
 	{
 	  currentIndex = p - d.cbegin ();
 	}
-      else if (*p == QAudioDeviceInfo::defaultInputDevice ())
+      else if (*p == defaultDevice)
 	{
 	  defaultIndex = p - d.cbegin ();
 	}
