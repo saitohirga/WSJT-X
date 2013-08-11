@@ -9,14 +9,13 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   ui(new Ui::WideGraph),
   m_settings (settings)
 {
-  installEventFilter (parent);
+  ui->setupUi(this);
 
   setWindowTitle ("Wide Graph");
   setWindowFlags (Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint);
   setMaximumWidth (MAX_SCREENSIZE);
   setMaximumHeight (880);
 
-  ui->setupUi(this);
   ui->widePlot->setCursor(Qt::CrossCursor);
   ui->widePlot->setMaximumHeight(800);
   ui->widePlot->m_bCurrent=false;

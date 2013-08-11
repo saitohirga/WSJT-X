@@ -822,7 +822,8 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     }
 
     if(dlg.m_restartSoundOut) {
-      transmit ();
+      Q_EMIT stopAudioOutputStream ();
+      Q_EMIT startAudioOutputStream (m_audioOutputDevice, AudioDevice::Mono == m_audioOutputChannel ? 1 : 2);
     }
   }
   m_catEnabled=dlg.m_catEnabled;

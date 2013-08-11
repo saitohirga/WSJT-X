@@ -216,7 +216,8 @@ void DevSetup::accept()
   // Check to see whether SoundInThread must be restarted,
   // and save user parameters.
 
-  m_restartSoundIn = m_restartSoundOut = false;
+  m_restartSoundIn = false;
+  m_restartSoundOut = false;
 
   if (m_audioInputDevice != m_audioInputDevices[ui->comboBoxSndIn->currentIndex ()])
     {
