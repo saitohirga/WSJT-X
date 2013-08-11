@@ -37,43 +37,50 @@ void Detector::clear ()
 
 qint64 Detector::writeData (char const * data, qint64 maxSize)
 {
-  Q_ASSERT (!(maxSize % static_cast<qint64> (bytesPerFrame ()))); // no torn frames
+  if (m_monitoring)
+    {
+      Q_ASSERT (!(maxSize % static_cast<qint64> (bytesPerFrame ()))); // no torn frames
 
-  qint64 framesAcceptable (sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0]) - jt9com_.kin);
-  qint64 framesAccepted (qMin (static_cast<qint64> (maxSize / bytesPerFrame ()), framesAcceptable));
+      qint64 framesAcceptable (sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0]) - jt9com_.kin);
+      qint64 framesAccepted (qMin (static_cast<qint64> (maxSize / bytesPerFrame ()), framesAcceptable));
   
-  if (framesAccepted < static_cast<qint64> (maxSize / bytesPerFrame ()))
-    {
-      qDebug () << "dropped " << maxSize / sizeof (jt9com_.d2[0]) - framesAccepted << " frames of data on the floor!";
-    }
-
-  store (data, framesAccepted, &jt9com_.d2[jt9com_.kin]);
-
-  unsigned lastSignalIndex (jt9com_.kin / m_framesPerSignal);
-  jt9com_.kin += framesAccepted;
-  unsigned currentSignalIndex (jt9com_.kin / m_framesPerSignal);
-
-  if (currentSignalIndex != lastSignalIndex && m_monitoring)
-    {
-      Q_EMIT framesWritten (currentSignalIndex * m_framesPerSignal);
-    }
-
-  if (!secondInPeriod ())
-    {
-      if (!m_starting)
+      if (framesAccepted < static_cast<qint64> (maxSize / bytesPerFrame ()))
 	{
-	  // next samples will be in new period so wrap around to
-	  // start of buffer
-	  //
-	  // we don't bother calling reset () since we expect to fill
-	  // the whole buffer and don't need to waste cycles zeroing
-	  jt9com_.kin = 0;
-	  m_starting = true;
+	  qDebug () << "dropped " << maxSize / sizeof (jt9com_.d2[0]) - framesAccepted << " frames of data on the floor!";
+	}
+
+      store (data, framesAccepted, &jt9com_.d2[jt9com_.kin]);
+
+      unsigned lastSignalIndex (jt9com_.kin / m_framesPerSignal);
+      jt9com_.kin += framesAccepted;
+      unsigned currentSignalIndex (jt9com_.kin / m_framesPerSignal);
+
+      if (currentSignalIndex != lastSignalIndex && m_monitoring)
+	{
+	  Q_EMIT framesWritten (currentSignalIndex * m_framesPerSignal);
+	}
+
+      if (!secondInPeriod ())
+	{
+	  if (!m_starting)
+	    {
+	      // next samples will be in new period so wrap around to
+	      // start of buffer
+	      //
+	      // we don't bother calling reset () since we expect to fill
+	      // the whole buffer and don't need to waste cycles zeroing
+	      jt9com_.kin = 0;
+	      m_starting = true;
+	    }
+	}
+      else if (m_starting)
+	{
+	  m_starting = false;
 	}
     }
-  else if (m_starting)
+  else
     {
-      m_starting = false;
+      jt9com_.kin = 0;
     }
 
   return maxSize;		// we drop any data past the end of
