@@ -24,19 +24,12 @@ public:
                       bool &countryWorkedBefore);
     void addAsWorked(const QString call);
 
-    // TODO these are just to avoid more globals in mainwindow
-    void setDisplayFont(QFont font);
-    int getMaxDisplayedCharacters(int displayWidth) { return displayWidth/_fontWidth; }  // TODO catch /0
-
 private:
    CountryDat _countries;
    CountriesWorked _worked;
    ADIF _log;
 
    void _setAlreadyWorkedFromLog();
-
-   int _fontWidth;
-
 
 };
 

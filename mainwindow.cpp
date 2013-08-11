@@ -137,6 +137,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool,bool)),this,
           SLOT(doubleClickOnCall2(bool,bool)));
 
+
   setWindowTitle(Program_Title_Version);
   connect(&m_detector, &Detector::framesWritten, this, &MainWindow::dataSink);
   connect(&m_soundInput, SIGNAL(error(QString)), this,
@@ -173,7 +174,6 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   font.setWeight(fontWeight2);
   ui->decodedTextBrowser->setFont(font);
   ui->decodedTextBrowser2->setFont(font);
-  m_logBook.setDisplayFont(font);
 
   font=ui->readFreq->font();
   font.setFamily("helvetica");
@@ -1441,34 +1441,35 @@ void MainWindow::readFromStdout()                             //readFromStdout
           bool countryWorkedBefore;
           m_logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
 
-          //TODO this should happen on a resizeEvent
-          int charsAvail = m_logBook.getMaxDisplayedCharacters(ui->decodedTextBrowser->width());
+          int charsAvail = ui->decodedTextBrowser->getMaxDisplayedCharacters();
 
           // the decoder (seems) to always generate 40 chars. For a normal CQ call, the last five are spaces
           t1 = t1.left(36);  // reduce trailing white space
           charsAvail -= 36;
-
-          if (!countryWorkedBefore) // therefore not worked call either
+          if (charsAvail > 4)
           {
-              t1 += "!";
-              bg = "#66ff66"; // strong green
-          }
-          else
-              if (!callWorkedBefore) // but have worked the country
+              if (!countryWorkedBefore) // therefore not worked call either
               {
-                  t1 += "~";
-                  bg = "#76cd76"; // mid green
+                  t1 += "!";
+                  bg = "#66ff66"; // strong green
               }
               else
-              {
-                  t1 += " ";  // have worked this call before
-                  bg="#9cc79c"; // pale green
-              }
-          charsAvail -= 1;
+                  if (!callWorkedBefore) // but have worked the country
+                  {
+                      t1 += "~";
+                      bg = "#76cd76"; // mid green
+                  }
+                  else
+                  {
+                      t1 += " ";  // have worked this call before
+                      bg="#9cc79c"; // pale green
+                  }
+              charsAvail -= 1;
 
-          if (countryName.length()>charsAvail)
-              countryName = countryName.left(1)+"."+countryName.right(charsAvail-2);  //abreviate the first word to the first letter, show remaining right most chars
-          t1 += countryName;
+              if (countryName.length()>charsAvail)
+                  countryName = countryName.left(1)+"."+countryName.right(charsAvail-2);  //abreviate the first word to the first letter, show remaining right most chars
+              t1 += countryName;
+          }
       }
 
 

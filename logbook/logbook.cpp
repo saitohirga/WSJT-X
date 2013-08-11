@@ -74,10 +74,3 @@ void LogBook::addAsWorked(const QString call)
 
 
 
-
-void LogBook::setDisplayFont(QFont font)
-{
-  QFontMetrics qfm(font);
-  _fontWidth = qfm.averageCharWidth()+1;  // the plus one is emperical
-}
-
