@@ -1,0 +1,4 @@
+#include "svnversion.h"
+
+#define WSJTX_VERSION_MAJOR @WSJTX_VERSION_MAJOR@
+#define WSJTX_VERSION_MINOR @WSJTX_VERSION_MINOR@
