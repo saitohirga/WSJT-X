@@ -79,7 +79,6 @@ include_directories (${fftw3f_INCLUDES})
 find_path (hamlib_INCLUDES hamlib/rig.h)
 find_library (hamlib NAMES hamlib hamlib-2)
 find_library (usb NAMES usb0)
-find_file (hamlib-runtime libhamlib-2.dll)
 find_path (hamlib-runtime-path libhamlib-2.dll)
 file (GLOB hamlib-backends ${hamlib-runtime-path}/hamlib*.dll)
 include_directories (${hamlib_INCLUDES})
@@ -133,8 +132,9 @@ endif (WIN32)
 add_dependencies (wsjtx hamlib)
 qt5_use_modules (wsjtx Widgets Multimedia OpenGL)
 
-file (DOWNLOAD http://physics.princeton.edu/pulsar/K1JT/kvasd contrib/kvasd)
-add_custom_target (kvasd DEPENDS contrib/kvasd)
+file (DOWNLOAD http://svn.berlios.de/wsvn/wsjt/trunk/KVASD${CMAKE_EXECUTABLE_SUFFIX} contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
+
+add_custom_target (kvasd DEPENDS contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
 
 install (
   TARGETS wsjtx
@@ -145,13 +145,13 @@ install (
 install (DIRECTORY Palettes DESTINATION bin PATTERN *.pal)
 
 install (
-  PROGRAMS ${CMAKE_BINARY_DIR}/contrib/kvasd
+  PROGRAMS ${CMAKE_BINARY_DIR}/contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
   DESTINATION bin
 )
 
 if (WIN32)
   install (
-    FILES ${hamlib-runtime} ${hamlib-backends} ${fftw3f} ${usb} ${Widgets} ${Multimedia}
+    FILES ${hamlib} ${hamlib-backends} ${fftw3f} ${usb}
     DESTINATION bin COMPONENT Runtime
     )
 endif (WIN32)
