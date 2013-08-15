@@ -321,7 +321,10 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
 // Multiple instances: start "jt9 -s <thekey>"
   QByteArray  ba = mykey_jt9->toLocal8Bit();
   const char *bc = ba.data();
-  proc_jt9.start(QDir::toNativeSeparators('"' + m_appDir + '"' + "/jt9 -s " + bc));
+//  proc_jt9.start(QDir::toNativeSeparators('"' + m_appDir + '"' + "/jt9 -s " + bc));
+  QByteArray lda = m_appDir.toLocal8Bit();
+  const char *ldir = lda.data();
+  proc_jt9.start(QDir::toNativeSeparators('"' + m_appDir + '"' + "/jt9 -s " + bc + " " + ldir));
 
   m_pbdecoding_style1="QPushButton{background-color: cyan; \
       border-style: outset; border-width: 1px; border-radius: 5px; \

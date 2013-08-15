@@ -7,7 +7,7 @@ program jt9
   integer*4 ihdr(11)
   real*4 s(NSMAX)
   integer*2 id2
-  character*80 arg,infile
+  character*80 arg,ldir,infile
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,ntr,       &
        mousefqso,newdat,nfa,nfsplit,nfb,ntol,kin,nzhsym,nsynced,ndecoded
   common/tracer/limtrace,lu
@@ -25,7 +25,8 @@ program jt9
   if(arg(1:2).eq.'-s') then
 ! Multiple instances:
      call getarg(2,arg)
-     call jt9a(trim(arg))
+     call getarg(3,ldir)
+     call jt9a(trim(arg),trim(ldir))
      go to 999
   endif
   read(arg,*) ntrperiod
