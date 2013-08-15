@@ -117,16 +117,17 @@ void CountryDat::load()
 }
 
 // return country name else ""
-QString CountryDat::find(QString prefix)
+QString CountryDat::find(const QString prefix)
 {
-  	while(prefix.length() >= 1)
+    QString pf = prefix.toUpper();
+    while(pf.length() >= 1)
   	{
-	  if (_data.contains(prefix))
+      if (_data.contains(pf))
 	  {
-	    QString country = _data.value(prefix);
+        QString country = _data.value(pf);
 	    return country;
 	   }
-	   prefix = prefix.left(prefix.length()-1);
+       pf = pf.left(pf.length()-1);
 	 }
 	 return "";
 }	   

@@ -23,6 +23,13 @@ void LogBook::init()
     int count = _worked.getWorkedCount();
     qDebug() << QSOcount << "QSOs and" << count << "countries worked in file" << logFilename;
 */
+
+//    QString call = "ok1ct";
+//    QString countryName;
+//    bool callWorkedBefore,countryWorkedBefore;
+//    match(/*in*/call, /*out*/ countryName,callWorkedBefore,countryWorkedBefore);
+//    qDebug() << countryName;
+
 }
 
 
