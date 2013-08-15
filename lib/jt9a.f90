@@ -1,6 +1,7 @@
-subroutine jt9a(thekey)
+subroutine jt9a(thekey,ldir)
 
   character(len=*), intent(in):: thekey
+  character(len=*), intent(in):: ldir
 
 ! These routines connect the shared memory region to the decoder.
   interface
@@ -36,13 +37,13 @@ subroutine jt9a(thekey)
 
   i1=attach_jt9()
 
-10 inquire(file=trim(cwd)//'/.lock',exist=fileExists)
+10 inquire(file=trim(ldir)//'/.lock',exist=fileExists)
   if(fileExists) then
      call sleep_msec(100)
      go to 10
   endif
 
-  inquire(file=trim(cwd)//'/.quit',exist=fileExists)
+  inquire(file=trim(ldir)//'/.quit',exist=fileExists)
   if(fileExists) then
 !     call ftnquit
      i1=detach_jt9()
@@ -61,7 +62,7 @@ subroutine jt9a(thekey)
   call jt9b(p_jt9,nbytes)
   call timer('jt9b    ',1)
 
-100 inquire(file=trim(cwd)//'/.lock',exist=fileExists)
+100 inquire(file=trim(ldir)//'/.lock',exist=fileExists)
   if(fileExists) go to 10
   call sleep_msec(100)
   go to 100
