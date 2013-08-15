@@ -1406,100 +1406,30 @@ void MainWindow::readFromStdout()                             //readFromStdout
       out << t.mid(0,n-2) << endl;
       f.close();
 
-      QTextCursor cursor;
-      QTextBlockFormat bf;
-      if(m_insertBlank and m_blankLine and jt9com_.nagain==0) {
-        QString bg="#d3d3d3";
-        bf.setBackground(QBrush(QColor(bg)));
-        QString tt="----------------------------------------";
-        QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-            bg + "\"><pre>" + tt + "</pre></td></tr></table>";
-        cursor = ui->decodedTextBrowser->textCursor();
-        cursor.movePosition(QTextCursor::End);
-        bf = cursor.blockFormat();
-        bf.setBackground(QBrush(QColor(bg)));
-        cursor.insertHtml(s);
-        m_blankLine=false;
+
+      if(m_insertBlank and m_blankLine and jt9com_.nagain==0)
+      {
+          ui->decodedTextBrowser->insertLineSpacer();
+          m_blankLine=false;
       }
 
-      QString bg="white";
-      if(t.indexOf(" CQ ")>0) bg="#66ff66";                          //green
-      if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
-      bool bQSO=abs(t.mid(14,4).toInt() - m_wideGraph->rxFreq()) <= 10;
       QString t1=t.replace("\n","").mid(0,t.length()-4);
 
-      // if enabled add the DXCC entity and B4 status to the end of the preformated text line t1
-      int cqi = t.indexOf(" CQ ");
-      if (m_displayDXCCEntity && (cqi >= 0))
+      // the left band display
+      ui->decodedTextBrowser->displayDecodedText(t1,m_myCall,m_displayDXCCEntity,m_logBook);
+
+      if (abs(t1.mid(14,4).toInt() - m_wideGraph->rxFreq()) <= 10) // this msg is within 10 hertz of our tuned frequency
       {
-          // extract the CQer's call   TODO: does this work with all call formats?  What about 'CQ DX'?
-          int s1 = 4 + t.indexOf(" CQ ");
-          int s2 = t.indexOf(" ",s1);
-          QString call = t.mid(s1,s2-s1);
-          QString countryName;
-          bool callWorkedBefore;
-          bool countryWorkedBefore;
-          m_logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
+          // the right QSO window
+          ui->decodedTextBrowser2->displayDecodedText(t1,m_myCall,false,m_logBook);
 
-          int charsAvail = ui->decodedTextBrowser->getMaxDisplayedCharacters();
-
-          // the decoder (seems) to always generate 40 chars. For a normal CQ call, the last five are spaces
-          t1 = t1.left(36);  // reduce trailing white space
-          charsAvail -= 36;
-          if (charsAvail > 4)
-          {
-              if (!countryWorkedBefore) // therefore not worked call either
-              {
-                  t1 += "!";
-                  bg = "#66ff66"; // strong green
-              }
-              else
-                  if (!callWorkedBefore) // but have worked the country
-                  {
-                      t1 += "~";
-                      bg = "#76cd76"; // mid green
-                  }
-                  else
-                  {
-                      t1 += " ";  // have worked this call before
-                      bg="#9cc79c"; // pale green
-                  }
-              charsAvail -= 1;
-
-              if (countryName.length()>charsAvail)
-                  countryName = countryName.left(1)+"."+countryName.right(charsAvail-2);  //abreviate the first word to the first letter, show remaining right most chars
-              t1 += countryName;
-          }
+          bool b65=t1.indexOf("#")==19;
+          if(b65 and m_modeTx!="JT65") on_pbTxMode_clicked();
+          if(!b65 and m_modeTx=="JT65") on_pbTxMode_clicked();
+          m_QSOmsg=t1;
       }
 
-
-      QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-                   bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
-      bool b65=t1.indexOf("#")==19;
-      if(bQSO) {
-        cursor = ui->decodedTextBrowser2->textCursor();
-        cursor.movePosition(QTextCursor::End);
-        bf = cursor.blockFormat();
-        bf.setBackground(QBrush(QColor(bg)));
-        cursor.insertHtml(s);
-        ui->decodedTextBrowser2->setTextCursor(cursor);
-        m_QSOmsg=t1;
-        if(b65 and m_modeTx!="JT65") on_pbTxMode_clicked();
-        if(!b65 and m_modeTx=="JT65") on_pbTxMode_clicked();
-      }
-
-      if(jt9com_.nagain==0) {
-        if(m_myCall!="" and t.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
-        QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-                     bg + "\"><pre>" + t1 + "</pre></td></tr></table>";
-        cursor = ui->decodedTextBrowser->textCursor();
-        cursor.movePosition(QTextCursor::End);
-        bf = cursor.blockFormat();
-        bf.setBackground(QBrush(QColor(bg)));
-        cursor.insertHtml(s);
-        ui->decodedTextBrowser->setTextCursor(cursor);
-      }
-
+      // find and extract any report
       QString msg=t.mid(21);
       int i1=msg.indexOf("\r");
       if(i1>0) msg=msg.mid(0,i1-1) + "                      ";
@@ -1522,9 +1452,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
         }
       }
 
+      // extract details and send to PSKreporter
       int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
       bool okToPost=(nsec>50);
       QString msgmode="JT9";
+      bool b65=t1.indexOf("#")==19;
       if(b65) msgmode="JT65";
       i1=msg.indexOf(" ");
       QString c2=msg.mid(i1+1);
@@ -2021,6 +1953,10 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   QString t1 = t.mid(0,i2);              //contents up to \n on selected line
   int i1=t1.lastIndexOf("\n") + 1;       //points to first char of line
   QString t2 = t1.mid(i1,i2-i1);         //selected line
+
+  if (t2.indexOf(" CQ ") > 0)
+      t2 = t2.left(36);  // to remove DXCC entity and worked B4 status. TODO need a better way to do this
+
 //  if(t2.indexOf("Tx")==6) return;        //Ignore Tx line
   int i4=t.mid(i1).length();
   if(i4>55) i4=55;
