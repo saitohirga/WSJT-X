@@ -397,7 +397,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   psk_Reporter = new PSK_Reporter(this);
   psk_Reporter->setLocalStation(m_myCall,m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
 
-  m_logBook.init();
+  on_actionEnable_DXCC_entity_triggered(m_displayDXCCEntity);  // sets text window proportions and (re)inits the logbook
 
   ui->label_9->setStyleSheet("QLabel{background-color: #aabec8}");
   ui->label_10->setStyleSheet("QLabel{background-color: #aabec8}");
@@ -1415,6 +1415,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           ui->decodedTextBrowser->insertLineSpacer();
           m_blankLine=false;
       }
+
 
       QString t1=t.replace("\n","").mid(0,t.length()-4);
 
@@ -2681,6 +2682,17 @@ void MainWindow::on_actionEnable_DXCC_entity_triggered(bool checked)
   m_displayDXCCEntity=checked;
   if (checked)
       m_logBook.init();  // re-read the log and cty.dat files
+
+  if (checked)  // adjust the proportions between the two text displays
+  {
+      ui->gridLayout->setColumnStretch(0,55);
+      ui->gridLayout->setColumnStretch(1,45);
+  }
+  else
+  {
+      ui->gridLayout->setColumnStretch(0,0);
+      ui->gridLayout->setColumnStretch(1,0);
+  }
 }
 
 void MainWindow::on_actionClear_DX_Call_and_Grid_after_logging_triggered(bool checked)
