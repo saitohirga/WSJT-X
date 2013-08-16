@@ -2,8 +2,8 @@ cmake_minimum_required (VERSION 2.8.9)
 
 project (wsjtx C CXX Fortran)
 
-set (wsjtx_VERSION_MAJOR 1)
-set (wsjtx_VERSION_MINOR 2)
+set (WSJTX_VERSION_MAJOR 1)
+set (WSJTX_VERSION_MINOR 2)
 
 if (POLICY CMP0020)
   cmake_policy (SET CMP0020 NEW) # link to Qt winmain on Windows
@@ -124,7 +124,7 @@ add_subdirectory (lib)
 # UI generation
 qt5_wrap_ui (GENUISRCS ${UISRCS})
 
-add_executable (wsjtx ${CXXSRCS} ${GENUISRCS} ${GENQRC})
+add_executable (wsjtx ${CXXSRCS} ${GENUISRCS} wsjtx.rc)
 target_link_libraries (wsjtx jt9impl ${hamlib} ${fftw3f})
 if (WIN32)
   target_link_libraries (wsjtx ${CMAKE_CURRENT_SOURCE_DIR}/libHRDInterface001.a)
@@ -143,15 +143,21 @@ install (
   )
 
 install (DIRECTORY Palettes DESTINATION bin PATTERN *.pal)
+install (DIRECTORY samples DESTINATION bin/save)
 
 install (
   PROGRAMS ${CMAKE_BINARY_DIR}/contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
   DESTINATION bin
 )
 
+install (
+  FILES WSJT-X_Users_Guide_v${WSJTX_VERSION_MAJOR}.${WSJTX_VERSION_MINOR}.docx
+  DESTINATION bin
+  )
+
 if (WIN32)
   install (
-    FILES ${hamlib} ${hamlib-backends} ${fftw3f} ${usb}
+    FILES ${hamlib} ${hamlib-backends} ${fftw3f} ${usb} contrib/HRDInterface001.dll
     DESTINATION bin COMPONENT Runtime
     )
 endif (WIN32)
