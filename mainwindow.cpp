@@ -52,7 +52,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
   m_audioOutputDevice (QAudioDeviceInfo::defaultOutputDevice ()), // start with default
   m_soundOutput (&m_modulator),
-  psk_Reporter (new PSKReporter (this))
+  psk_Reporter (new PSK_Reporter (this))
 {
   ui->setupUi(this);
 
