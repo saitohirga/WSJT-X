@@ -34,7 +34,7 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	fil3.o decoder.o grid2n.o n2grid.o timer.o \
 	softsym.o peakdt9.o getlags.o afc9.o fchisq.o \
 	twkfreq.o downsam9.o symspec2.o ipcomm.o sleep_msec.o \
-	stdmsg.o sec_midn.o cutil.o azdist.o geodist.o morse.o \
+	stdmsg.o sec_midn.o usleep.o azdist.o geodist.o morse.o \
 	fillcom.o chkss2.o zplot9.o flat2.o \
 	jt65a.o symspec65.o flat65.o ccf65.o decode65a.o \
 	filbig.o fil6521.o afc65b.o decode65b.o setup65.o \
