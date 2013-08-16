@@ -168,13 +168,13 @@ add_definitions (-DBIGSYM=1)
 add_library (jt9impl STATIC ${FSRCS} ${CSRCS} ${CXXSRCS})
 qt5_use_modules (jt9impl Core)
 
-add_executable (jt9sim jt9sim.f90)
+add_executable (jt9sim jt9sim.f90 ../wsjtx.rc)
 target_link_libraries (jt9sim jt9impl)
 
-add_executable (jt9code jt9code.f90)
+add_executable (jt9code jt9code.f90 ../wsjtx.rc)
 target_link_libraries (jt9code jt9impl)
 
-add_executable (jt9 jt9.f90 jt9a.f90 jt9b.f90 jt9c.f90)
+add_executable (jt9 jt9.f90 jt9a.f90 jt9b.f90 jt9c.f90 ../wsjtx.rc)
 target_link_libraries (jt9 jt9impl ${fftw3f})
 add_dependencies (jt9 fftw3f)
 qt5_use_modules (jt9 Core)
