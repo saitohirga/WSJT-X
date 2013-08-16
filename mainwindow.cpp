@@ -51,7 +51,8 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   m_audioInputDevice (QAudioDeviceInfo::defaultInputDevice ()), // start with default
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
   m_audioOutputDevice (QAudioDeviceInfo::defaultOutputDevice ()), // start with default
-  m_soundOutput (&m_modulator)
+  m_soundOutput (&m_modulator),
+  psk_Reporter (new PSKReporter (this))
 {
   ui->setupUi(this);
 
@@ -394,7 +395,6 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   ui->decodedTextLabel->setText(t);
   ui->decodedTextLabel2->setText(t);
 
-  psk_Reporter = new PSK_Reporter(this);
   psk_Reporter->setLocalStation(m_myCall,m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
 
   on_actionEnable_DXCC_entity_triggered(m_displayDXCCEntity);  // sets text window proportions and (re)inits the logbook
