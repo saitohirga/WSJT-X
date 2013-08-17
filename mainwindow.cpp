@@ -274,10 +274,14 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
 // Multiple instances:
   mykey_jt9 = thekey;
 
+  //Band Settings
+  readSettings();		         //Restore user's setup params
+
 #ifdef WIN32
   if(!m_bMultipleOK) {
     while(true) {
       int iret=killbyname("jt9.exe");
+      qDebug() << m_bMultipleOK << iret;
       if(iret == 603) break;
       if(iret != 0) msgBox("KillByName return code: " +
                            QString::number(iret));
@@ -285,8 +289,6 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   }
 #endif
 
-  //Band Settings
-  readSettings();		         //Restore user's setup params
   if(m_dFreq.length()<=1) {      //Use the startup default frequencies and band descriptions
     // default bands and JT65 frequencies
     const double dFreq[]={0.13613,0.4742,1.838,3.576,5.357,7.076,10.138,14.076,
