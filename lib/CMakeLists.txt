@@ -146,12 +146,12 @@ set (FSRCS
   )
 
 set (CSRCS
-  cutil.c
   decode_rs.c
   encode_rs.c
   gran.c
   igray.c
   init_rs.c
+  usleep.c
   wrapkarn.c
 )
 
@@ -161,6 +161,8 @@ set (CXXSRCS
 
 
 add_definitions (-DBIGSYM=1)
+set_source_files_properties (sec_midn.f90 PROPERTIES COMPILE_FLAGS -fno-second-underscore)
+
 
 #
 # build our targets
