@@ -121,6 +121,30 @@ set_property (DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS_RELEASE QT_NO_DEBUG_
 add_subdirectory (lib)
 
 
+#
+# fetch kvasd
+#
+if (WIN32)
+  set (kvasd_NAME KVASD.EXE)
+elseif (APPLE)
+  set (kvasd_NAME KVASD_gfortran_Mac${CMAKE_EXECUTABLE_SUFFIX})
+else ()
+  set (kvasd_NAME KVASD_g95${CMAKE_EXECUTABLE_SUFFIX})
+endif ()
+file (
+  DOWNLOAD http://svn.berlios.de/wsvn/wsjt/trunk/${kvasd_NAME} contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
+  STATUS kvasd_STATUS
+  LOG kvasd_LOG
+  SHOW_PROGRESS
+  )
+message (${kvasd_LOG})
+list (GET kvasd_STATUS 0 kvasd_RC)
+if (!kvasd_RC)
+  message (FATAL_ERROR "${kvasd_STATUS}")
+endif (!kvasd_RC)
+add_custom_target (kvasd DEPENDS contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
+
+
 # UI generation
 qt5_wrap_ui (GENUISRCS ${UISRCS})
 
@@ -129,12 +153,9 @@ target_link_libraries (wsjtx jt9impl ${hamlib} ${fftw3f})
 if (WIN32)
   target_link_libraries (wsjtx ${CMAKE_CURRENT_SOURCE_DIR}/libHRDInterface001.a)
 endif (WIN32)
-add_dependencies (wsjtx hamlib)
+add_dependencies (wsjtx hamlib kvasd)
 qt5_use_modules (wsjtx Widgets Multimedia OpenGL)
 
-file (DOWNLOAD http://svn.berlios.de/wsvn/wsjt/trunk/KVASD${CMAKE_EXECUTABLE_SUFFIX} contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
-
-add_custom_target (kvasd DEPENDS contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
 
 install (
   TARGETS wsjtx
