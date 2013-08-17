@@ -325,7 +325,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
 //  proc_jt9.start(QDir::toNativeSeparators('"' + m_appDir + '"' + "/jt9 -s " + bc));
   QByteArray lda = m_appDir.toLocal8Bit();
   const char *ldir = lda.data();
-  proc_jt9.start(QDir::toNativeSeparators('"' + m_appDir + '"' + "/jt9 -s " + bc + " " + ldir));
+  proc_jt9.start(QDir::toNativeSeparators('"' + m_appDir + "\"/jt9 -s " + bc + " \"" + ldir + '"'));
 
   m_pbdecoding_style1="QPushButton{background-color: cyan; \
       border-style: outset; border-width: 1px; border-radius: 5px; \
