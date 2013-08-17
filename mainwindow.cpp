@@ -47,7 +47,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   ui(new Ui::MainWindow),
   m_wideGraph (new WideGraph (settings)),
   m_logDlg (new LogQSO (settings, this)),
-  m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2, this),
+  m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2),
   m_audioInputDevice (QAudioDeviceInfo::defaultInputDevice ()), // start with default
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
   m_audioOutputDevice (QAudioDeviceInfo::defaultOutputDevice ()), // start with default
@@ -58,15 +58,17 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
 
   connect (this, &MainWindow::finished, this, &MainWindow::close);
 
-  // start sound out thread and hook up slots & signals for shutdown management
+  // start audio thread and hook up slots & signals for shutdown management
 
-  // these two objects need to be in the other thread so that invoking
+  // these objects need to be in the audio thread so that invoking
   // their slots is done in a thread safe way
-  m_soundOutput.moveToThread (&m_soundOutputThread);
-  m_modulator.moveToThread (&m_soundOutputThread);
+  m_soundOutput.moveToThread (&m_audioThread);
+  m_modulator.moveToThread (&m_audioThread);
+  m_soundInput.moveToThread (&m_audioThread);
+  m_detector.moveToThread (&m_audioThread);
 
-  connect (this, &MainWindow::finished, &m_soundOutputThread, &QThread::quit); // quit thread event loop
-  connect (&m_soundOutputThread, &QThread::finished, &m_soundOutputThread, &QThread::deleteLater); // disposal
+  connect (this, &MainWindow::finished, &m_audioThread, &QThread::quit); // quit thread event loop
+  connect (&m_audioThread, &QThread::finished, &m_audioThread, &QThread::deleteLater); // disposal
 
   // hook up sound output stream slots & signals
   connect (this, SIGNAL (startAudioOutputStream (QAudioDeviceInfo const&, unsigned)), &m_soundOutput, SLOT (startStream (QAudioDeviceInfo const&, unsigned)));
@@ -80,15 +82,26 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   connect (this, SIGNAL(transmitFrequency (unsigned)), &m_modulator, SLOT (setFrequency (unsigned)));
   connect (this, SIGNAL (endTransmitMessage ()), &m_modulator, SLOT (close ()));
   connect (this, SIGNAL (tune (bool)), &m_modulator, SLOT (tune (bool)));
-  connect (
-	   this
-	   , SIGNAL (sendMessage (unsigned, double, unsigned, AudioDevice::Channel, bool, double))
-	   , &m_modulator
-	   , SLOT (open (unsigned, double, unsigned, AudioDevice::Channel, bool, double))
-	   );
+  connect (this, SIGNAL (sendMessage (unsigned, double, unsigned, AudioDevice::Channel, bool, double))
+	   , &m_modulator, SLOT (open (unsigned, double, unsigned, AudioDevice::Channel, bool, double)));
 
-  // start the sound output thread
-  m_soundOutputThread.start (QThread::HighPriority);
+  // hook up the audio input stream
+  connect (this, SIGNAL (startAudioInputStream (QAudioDeviceInfo const&, unsigned, int, QIODevice *))
+	   , &m_soundInput, SLOT (start (QAudioDeviceInfo const&, unsigned, int, QIODevice *)));
+  connect (this, SIGNAL (stopAudioInputStream ()), &m_soundInput, SLOT (stop ()));
+
+  connect(&m_soundInput, SIGNAL (error (QString)), this, SLOT (showSoundInError (QString)));
+  // connect(&m_soundInput, SIGNAL(status(QString)), this, SLOT(showStatusMessage(QString)));
+
+  // hook up the detector
+  connect (this, SIGNAL (startDetector (AudioDevice::Channel)), &m_detector, SLOT (open (AudioDevice::Channel)));
+  connect (this, SIGNAL (detectorSetMonitoring (bool)), &m_detector, SLOT (setMonitoring (bool)));
+  connect (this, SIGNAL (detectorClose ()), &m_detector, SLOT (close ()));
+
+  connect(&m_detector, SIGNAL (framesWritten (qint64)), this, SLOT (dataSink (qint64)));
+
+  // start the audio thread
+  m_audioThread.start (QThread::HighPriority);
 
 
   // setup the waterfall
@@ -140,11 +153,6 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
 
 
   setWindowTitle(Program_Title_Version);
-  connect(&m_detector, &Detector::framesWritten, this, &MainWindow::dataSink);
-  connect(&m_soundInput, SIGNAL(error(QString)), this,
-          SLOT(showSoundInError(QString)));
-  // connect(&m_soundInput, SIGNAL(status(QString)), this,
-  //         SLOT(showStatusMessage(QString)));
   createStatusBar();
 
   connect(&proc_jt9, SIGNAL(readyReadStandardOutput()),
@@ -369,13 +377,13 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   watcher2 = new QFutureWatcher<void>;
   connect(watcher2, SIGNAL(finished()),this,SLOT(diskWriteFinished()));
 
-  m_detector.open (m_audioInputChannel);
-  m_soundInput.start(m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, RX_SAMPLE_RATE / 10, &m_detector);
+  Q_EMIT startDetector (m_audioInputChannel);
+  Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, RX_SAMPLE_RATE / 10, &m_detector);
 
   Q_EMIT transmitFrequency (m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0));
   Q_EMIT muteAudioOutput (false);
   m_monitoring=!m_monitorStartOFF;           // Start with Monitoring ON/OFF
-  m_detector.setMonitoring(m_monitoring);
+  Q_EMIT detectorSetMonitoring (m_monitoring);
   m_diskData=false;
 
 // Create "m_worked", a dictionary of all calls in wsjtx.log
@@ -820,10 +828,10 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_After73=dlg.m_After73;
 
     if(dlg.m_restartSoundIn) {
-      m_soundInput.stop ();
-      m_detector.close ();
-      m_detector.open (m_audioInputChannel);
-      m_soundInput.start(m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, RX_SAMPLE_RATE / 10, &m_detector);
+      Q_EMIT stopAudioInputStream ();
+      Q_EMIT detectorClose ();
+      Q_EMIT startDetector (m_audioInputChannel);
+      Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, RX_SAMPLE_RATE / 10, &m_detector);
     }
 
     if(dlg.m_restartSoundOut) {
@@ -859,8 +867,8 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
 void MainWindow::on_monitorButton_clicked()                  //Monitor
 {
   m_monitoring=true;
-  m_detector.setMonitoring(true);
-  //  m_soundInput.start(m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, RX_SAMPLE_RATE / 10, &m_detector);
+  Q_EMIT detectorSetMonitoring (true);
+  //  Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, RX_SAMPLE_RATE / 10, &m_detector);
   m_diskData=false;
 }
 
@@ -1097,13 +1105,13 @@ void MainWindow::OnExit()
   quitFile.remove();
 
   Q_EMIT finished ();
-  m_soundOutputThread.wait ();
+  m_audioThread.wait ();
 }
 
 void MainWindow::on_stopButton_clicked()                       //stopButton
 {
   m_monitoring=false;
-  m_detector.setMonitoring(m_monitoring);
+  Q_EMIT detectorSetMonitoring (m_monitoring);
   m_loopall=false;  
 }
 
@@ -1128,7 +1136,7 @@ void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
 void MainWindow::on_actionOpen_triggered()                     //Open File
 {
   m_monitoring=false;
-  m_detector.setMonitoring(m_monitoring);
+  Q_EMIT detectorSetMonitoring (m_monitoring);
   QString fname;
   fname=QFileDialog::getOpenFileName(this, "Open File", m_path,
                                        "WSJT Files (*.wav)");
@@ -1695,7 +1703,7 @@ void MainWindow::guiUpdate()
 
     signalMeter->setValue(0);
     m_monitoring=false;
-    m_detector.setMonitoring(false);
+    Q_EMIT detectorSetMonitoring (false);
     m_btxok=true;
     Q_EMIT muteAudioOutput (false);
     m_transmitting=true;
@@ -1823,7 +1831,7 @@ void MainWindow::startTx2()
     transmit (snr);
     signalMeter->setValue(0);
     m_monitoring=false;
-    m_detector.setMonitoring(false);
+    Q_EMIT detectorSetMonitoring (false);
     m_btxok=true;
     Q_EMIT muteAudioOutput (false);
     m_transmitting=true;
@@ -1842,7 +1850,7 @@ void MainWindow::stopTx()
   lab1->setText("");
   ptt0Timer->start(200);                       //Sequencer delay
   m_monitoring=true;
-  m_detector.setMonitoring(true);
+  Q_EMIT detectorSetMonitoring (true);
 }
 
 void MainWindow::stopTx2()
