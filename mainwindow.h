@@ -181,6 +181,14 @@ private slots:
  private:
   Q_SIGNAL void startAudioOutputStream (QAudioDeviceInfo, unsigned channels);
   Q_SIGNAL void stopAudioOutputStream ();
+
+  Q_SIGNAL void startAudioInputStream (QAudioDeviceInfo const&, unsigned channels, int framesPerBuffer, QIODevice * sink);
+  Q_SIGNAL void stopAudioInputStream ();
+
+  Q_SIGNAL void startDetector (AudioDevice::Channel);
+  Q_SIGNAL void detectorSetMonitoring (bool);
+  Q_SIGNAL void detectorClose ();
+
   Q_SIGNAL void finished ();
   Q_SIGNAL void muteAudioOutput (bool = true);
   Q_SIGNAL void transmitFrequency (unsigned);
@@ -228,7 +236,7 @@ private:
     QAudioDeviceInfo m_audioOutputDevice;
     AudioDevice::Channel m_audioOutputChannel;
     SoundOutput m_soundOutput;
-    QThread m_soundOutputThread;
+    QThread m_audioThread;
 
     qint32  m_TRperiod;
     qint32  m_nsps;

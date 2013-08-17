@@ -22,14 +22,7 @@ public:
   //
   Detector (unsigned frameRate, unsigned periodLengthInSeconds, unsigned framesPerSignal, QObject * parent = 0);
 
-  bool open (Channel channel = Mono) {return AudioDevice::open (QIODevice::WriteOnly, channel);}
-
   bool isMonitoring () const {return m_monitoring;}
-  void setMonitoring (bool newState) {m_monitoring = newState;}
-
-  bool reset ();
-
-  Q_SIGNAL void framesWritten (qint64);
 
 protected:
   qint64 readData (char * /* data */, qint64 /* maxSize */)
@@ -40,13 +33,21 @@ protected:
   qint64 writeData (char const * data, qint64 maxSize);
 
 private:
+  // these are private because we want thread safety, must be called via Qt queued connections
+  Q_SLOT void open (AudioDevice::Channel channel = Mono) {AudioDevice::open (QIODevice::WriteOnly, channel);}
+  Q_SLOT void setMonitoring (bool newState) {m_monitoring = newState;}
+  Q_SLOT bool reset ();
+  Q_SLOT void close () {AudioDevice::close ();}
+
+  Q_SIGNAL void framesWritten (qint64);
+
   void clear ();		// discard buffer contents
   unsigned secondInPeriod () const;
 
   unsigned m_frameRate;
   unsigned m_period;
   unsigned m_framesPerSignal;
-  bool m_monitoring;
+  bool volatile m_monitoring;
   bool m_starting;
 };
 

@@ -26,22 +26,20 @@ class SoundInput : public QObject
 
   ~SoundInput ();
 
-Q_SIGNALS:
-  void error (QString message) const;
-  void status (QString message) const;
+ private:
+  Q_SIGNAL void error (QString message) const;
+  Q_SIGNAL void status (QString message) const;
 
-public Q_SLOTS:
   // sink must exist from the start call to any following stop () call
-  bool start(QAudioDeviceInfo const&, unsigned channels, int framesPerBuffer, QIODevice * sink);
-  void stop();
+  Q_SLOT void start(QAudioDeviceInfo const&, unsigned channels, int framesPerBuffer, QIODevice * sink);
+  Q_SLOT void stop();
 
-private:
+  // used internally
+  Q_SLOT void handleStateChanged (QAudio::State) const;
+
   bool audioError () const;
 
   QScopedPointer<QAudioInput> m_stream;
-
-private Q_SLOTS:
-  void handleStateChanged (QAudio::State) const;
 };
 
 #endif

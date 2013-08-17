@@ -38,7 +38,7 @@ bool SoundInput::audioError () const
   return result;
 }
 
-bool SoundInput::start(QAudioDeviceInfo const& device, unsigned channels, int framesPerBuffer, QIODevice * sink)
+void SoundInput::start(QAudioDeviceInfo const& device, unsigned channels, int framesPerBuffer, QIODevice * sink)
 {
   Q_ASSERT (0 < channels && channels < 3);
   Q_ASSERT (sink);
@@ -55,26 +55,26 @@ bool SoundInput::start(QAudioDeviceInfo const& device, unsigned channels, int fr
   if (!format.isValid ())
     {
       Q_EMIT error (tr ("Requested input audio format is not valid."));
-      return false;
+      return;
     }
 
   // this function lies!
   // if (!device.isFormatSupported (format))
   //   {
   //     Q_EMIT error (tr ("Requested input audio format is not supported on device."));
-  //     return false;
+  //     return;
   //   }
 
   m_stream.reset (new QAudioInput (device, format, this));
   if (audioError ())
     {
-      return false;
+      return;
     }
 
   connect (m_stream.data(), &QAudioInput::stateChanged, this, &SoundInput::handleStateChanged);
   m_stream->setBufferSize (m_stream->format ().bytesForFrames (framesPerBuffer));
   m_stream->start (sink);
-  return audioError () ? false : true;
+  audioError ();
 }
 
 void SoundInput::handleStateChanged (QAudio::State newState) const

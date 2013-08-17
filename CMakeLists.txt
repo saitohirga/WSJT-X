@@ -111,7 +111,7 @@ elseif (CMAKE_HOST_WIN32)
   add_definitions (-DWIN32)
 endif ()
 
-add_definitions (-DWSJT_SOFT_KEYING)
+# add_definitions (-DWSJT_SOFT_KEYING)
 set_property (DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS_RELEASE QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT)
 
 
@@ -124,15 +124,13 @@ add_subdirectory (lib)
 #
 # fetch kvasd
 #
-if (WIN32)
-  set (kvasd_NAME KVASD.EXE)
-elseif (APPLE)
-  set (kvasd_NAME KVASD_gfortran_Mac${CMAKE_EXECUTABLE_SUFFIX})
+if (APPLE)
+  set (kvasd_NAME http://svn.berlios.de/wsvn/wsjt/trunk/KVASD_gfortran_Mac${CMAKE_EXECUTABLE_SUFFIX})
 else ()
-  set (kvasd_NAME KVASD_g95${CMAKE_EXECUTABLE_SUFFIX})
+  set (kvasd_NAME http://www.physics.princeton.edu/pulsar/K1JT/kvasd${CMAKE_EXECUTABLE_SUFFIX})
 endif ()
 file (
-  DOWNLOAD http://svn.berlios.de/wsvn/wsjt/trunk/${kvasd_NAME} contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
+  DOWNLOAD ${kvasd_NAME} contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
   STATUS kvasd_STATUS
   LOG kvasd_LOG
   SHOW_PROGRESS
