@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>760</width>
-    <height>523</height>
+    <width>780</width>
+    <height>491</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,7 +24,7 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>936</width>
+    <width>1280</width>
     <height>1028</height>
    </size>
   </property>
@@ -60,7 +60,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>500</width>
+          <width>600</width>
           <height>1000</height>
          </size>
         </property>
@@ -104,7 +104,7 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="maximumSize">
          <size>
-          <width>500</width>
+          <width>600</width>
           <height>20</height>
          </size>
         </property>
@@ -193,7 +193,7 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="maximumSize">
          <size>
-          <width>500</width>
+          <width>600</width>
           <height>20</height>
          </size>
         </property>
@@ -288,7 +288,7 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="maximumSize">
          <size>
-          <width>500</width>
+          <width>600</width>
           <height>1000</height>
          </size>
         </property>
@@ -2278,8 +2278,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>760</width>
-     <height>21</height>
+     <width>780</width>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

@@ -72,7 +72,7 @@ void LogBook::match(/*in*/const QString call,
 
 void LogBook::addAsWorked(const QString call)
 {
-    qDebug() << "adding " << call << " as worked";
+    //qDebug() << "adding " << call << " as worked";
     _log.add(call);
     QString countryName = _countries.find(call);
     if (countryName.length() > 0)
