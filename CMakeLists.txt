@@ -35,6 +35,7 @@ set (CXXSRCS
   Detector.cpp
   logqso.cpp
   displaytext.cpp
+  decodedtext.cpp
   getfile.cpp
   soundout.cpp
   soundin.cpp

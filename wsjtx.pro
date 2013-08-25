@@ -58,7 +58,8 @@ SOURCES += \
 	devsetup.cpp \
 	about.cpp \
 	mainwindow.cpp \
-	main.cpp
+	main.cpp \
+    decodedtext.cpp
 
 win32 {
 SOURCES += killbyname.cpp
@@ -74,6 +75,7 @@ HEADERS  += mainwindow.h plotter.h soundin.h soundout.h \
     logbook/countrydat.h \
     logbook/countriesworked.h \
     logbook/adif.h
+
 
 FORMS    += mainwindow.ui about.ui devsetup.ui widegraph.ui \
     logqso.ui

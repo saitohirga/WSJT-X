@@ -1,7 +1,7 @@
 #include "displaytext.h"
 #include <QDebug>
 #include <QMouseEvent>
-
+#include <QDateTime>
 
 DisplayText::DisplayText(QWidget *parent) :
     QTextBrowser(parent)
@@ -37,27 +37,33 @@ void DisplayText::resizeEvent(QResizeEvent * event)
 
 void DisplayText::insertLineSpacer()
 {
-    QTextCursor cursor;
-    QTextBlockFormat bf;
-    QString bg="#d3d3d3";
-    bf.setBackground(QBrush(QColor(bg)));
     QString tt="----------------------------------------";
+    QString bg="#d3d3d3";
+    _insertText(tt,bg);
+}
+
+void DisplayText::_insertText(const QString text, const QString bg)
+{
+    QString tt = text.mid(0,_maxDisplayedCharacters); //truncate to max display chars
     QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-            bg + "\"><pre>" + tt + "</pre></td></tr></table>";
-    cursor = this->textCursor();
+                bg + "\"><pre>" + tt + "</pre></td></tr></table>";
+
+    QTextCursor cursor = textCursor();
     cursor.movePosition(QTextCursor::End);
-    bf = cursor.blockFormat();
+    QTextBlockFormat bf = cursor.blockFormat();
     bf.setBackground(QBrush(QColor(bg)));
     cursor.insertHtml(s);
+    this->setTextCursor(cursor);
 }
 
 
-void DisplayText::_appendDXCCWorkedB4(/*mod*/QString& t1, QString& bg, /*uses*/LogBook logBook)
+void DisplayText::_appendDXCCWorkedB4(/*mod*/DecodedText& t1, QString& bg, /*uses*/LogBook logBook)
 {
     // extract the CQer's call   TODO: does this work with all call formats?  What about 'CQ DX'?
     int s1 = 4 + t1.indexOf(" CQ ");
     int s2 = t1.indexOf(" ",s1);
     QString call = t1.mid(s1,s2-s1);
+
     QString countryName;
     bool callWorkedBefore;
     bool countryWorkedBefore;
@@ -94,7 +100,7 @@ void DisplayText::_appendDXCCWorkedB4(/*mod*/QString& t1, QString& bg, /*uses*/L
     }
 }
 
-void DisplayText::displayDecodedText(QString decodedText, QString myCall, bool displayDXCCEntity, LogBook logBook)
+void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall, bool displayDXCCEntity, LogBook logBook)
 {
     QString bg="white";
     bool CQcall = false;
@@ -110,14 +116,19 @@ void DisplayText::displayDecodedText(QString decodedText, QString myCall, bool d
     if (displayDXCCEntity && CQcall)
         _appendDXCCWorkedB4(/*mod*/decodedText,bg,logBook);
 
+    _insertText(decodedText.string(),bg);
+}
 
-    QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-            bg + "\"><pre>" + decodedText + "</pre></td></tr></table>";
 
-    QTextCursor cursor = textCursor();
-    cursor.movePosition(QTextCursor::End);
-    QTextBlockFormat bf = cursor.blockFormat();
-    bf.setBackground(QBrush(QColor(bg)));
-    cursor.insertHtml(s);
-    this->setTextCursor(cursor);
+void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 txFreq)
+{
+    QString bg="yellow";
+    QString t1=" @ ";
+    if(modeTx=="JT65") t1=" # ";
+    QString t2;
+    t2.sprintf("%4d",txFreq);
+    QString t = QDateTime::currentDateTimeUtc().toString("hhmm") + \
+        "  Tx      " + t2 + t1 + text;   // The position of the 'Tx' is searched for in DecodedText and in MainWindow.  Not sure if thats required anymore? VK3ACF
+
+    _insertText(t,bg);
 }

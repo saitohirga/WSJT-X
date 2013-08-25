@@ -14,6 +14,8 @@
 #include "getfile.h"
 #include "logqso.h"
 
+
+
 #ifdef QT5
 #include <QtConcurrent/QtConcurrentRun>
 #endif
@@ -268,7 +270,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   m_dontReadFreq=false;
   m_lockTxFreq=false;
   ui->readFreq->setEnabled(false);
-  m_QSOmsg="";
+  m_QSOText.clear();
   m_CATerror=false;
   decodeBusy(false);
 
@@ -1390,9 +1392,11 @@ void MainWindow::readFromStderr()                             //readFromStderr
 
 void MainWindow::readFromStdout()                             //readFromStdout
 {
-  while(proc_jt9.canReadLine()) {
+  while(proc_jt9.canReadLine())
+  {
     QByteArray t=proc_jt9.readLine();
-    if(t.indexOf("<DecodeFinished>") >= 0) {
+    if(t.indexOf("<DecodeFinished>") >= 0)
+    {
       m_bdecoded = (t.mid(23,1).toInt()==1);
       bool keepFile=m_saveAll or (m_saveDecoded and m_bdecoded);
       if(!keepFile and !m_diskData) killFileTimer->start(45*1000); //Kill in 45 s
@@ -1426,75 +1430,46 @@ void MainWindow::readFromStdout()                             //readFromStdout
           m_blankLine=false;
       }
 
-
-      QString t1=t.replace("\n","").mid(0,t.length()-4);
+      DecodedText decodedtext;
+      decodedtext = t.replace("\n",""); //t.replace("\n","").mid(0,t.length()-4);
 
       // the left band display
-      ui->decodedTextBrowser->displayDecodedText(t1,m_myCall,m_displayDXCCEntity,m_logBook);
+      ui->decodedTextBrowser->displayDecodedText(decodedtext,m_myCall,m_displayDXCCEntity,m_logBook);
 
-      if (abs(t1.mid(14,4).toInt() - m_wideGraph->rxFreq()) <= 10) // this msg is within 10 hertz of our tuned frequency
+      if (abs(decodedtext.frequencyOffset() - m_wideGraph->rxFreq()) <= 10) // this msg is within 10 hertz of our tuned frequency
       {
           // the right QSO window
-          ui->decodedTextBrowser2->displayDecodedText(t1,m_myCall,false,m_logBook);
+          ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_myCall,false,m_logBook);
 
-          bool b65=t1.indexOf("#")==19;
+          bool b65=decodedtext.isJT65();
           if(b65 and m_modeTx!="JT65") on_pbTxMode_clicked();
           if(!b65 and m_modeTx=="JT65") on_pbTxMode_clicked();
-          m_QSOmsg=t1;
+          m_QSOText=decodedtext;
       }
 
-      // find and extract any report
-      QString msg=t.mid(21);
-      int i1=msg.indexOf("\r");
-      if(i1>0) msg=msg.mid(0,i1-1) + "                      ";
-      bool b=stdmsg_(msg.mid(0,22).toLatin1().constData(),22);
-      QStringList w=msg.split(" ",QString::SkipEmptyParts);
-      if(b and w[0]==m_myCall) {
-        QString tt="";
-        if(w.length()>=3) tt=w[2];
-        bool ok;
-        i1=tt.toInt(&ok);
-        if(ok and i1>=-50 and i1<50) {
-          m_rptRcvd=tt;
-        } else {
-          if(tt.mid(0,1)=="R") {
-            i1=tt.mid(1).toInt(&ok);
-            if(ok and i1>=-50 and i1<50) {
-              m_rptRcvd=tt.mid(1);
-            }
-          }
-        }
-      }
+      // find and extract any report for myCall
+      bool stdMsg = decodedtext.report(m_myCall,/*mod*/m_rptRcvd);
 
       // extract details and send to PSKreporter
       int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
       bool okToPost=(nsec>50);
-      QString msgmode="JT9";
-      bool b65=t1.indexOf("#")==19;
-      if(b65) msgmode="JT65";
-      i1=msg.indexOf(" ");
-      QString c2=msg.mid(i1+1);
-      int i2=c2.indexOf(" ");
-      QString g2=c2.mid(i2+1,4);
-      c2=c2.mid(0,i2);
-      QString remote="call," + c2 + ",";
-      if(gridOK(g2)) remote += "gridsquare," + g2 + ",";
-      int nHz=t.mid(14,4).toInt();
-      uint nfreq=1000000.0*m_dialFreq + nHz + 0.5;
-      remote += "freq," + QString::number(nfreq);
-      int nsnr=t.mid(5,3).toInt();
-      remote += ",mode," + msgmode + ",snr," + QString::number(nsnr) + ",,";
-      wchar_t tremote[256];
-      remote.toWCharArray(tremote);
+      if(m_pskReporter and stdMsg and !m_diskData and okToPost)
+      {
+          QString msgmode="JT9";
+          if (decodedtext.isJT65())
+              msgmode="JT65";
 
-      if(m_pskReporter and b and !m_diskData and okToPost) {
-        psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
-        QString freq = QString::number(nfreq);
-        QString snr= QString::number(nsnr);
-        if(gridOK(g2)) {
-          psk_Reporter->addRemoteStation(c2,g2,freq,msgmode,snr,
-                   QString::number(QDateTime::currentDateTime().toTime_t()));
-        }
+          QString deCall;
+          QString grid;
+          decodedtext.deCallAndGrid(/*out*/deCall,grid);
+          int audioFrequency = decodedtext.frequencyOffset();
+          int snr = decodedtext.snr();
+          uint frequency = 1000000.0*m_dialFreq + audioFrequency + 0.5;
+
+          psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
+          if(gridOK(grid))
+              psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,QString::number(snr),
+                                             QString::number(QDateTime::currentDateTime().toTime_t()));
       }
     }
   }
@@ -1513,7 +1488,7 @@ void MainWindow::on_EraseButton_clicked()                          //Erase
 {
   qint64 ms=QDateTime::currentMSecsSinceEpoch();
   ui->decodedTextBrowser2->clear();
-  m_QSOmsg="";
+  m_QSOText.clear();
   if((ms-m_msErase)<500) {
       ui->decodedTextBrowser->clear();
       QFile f(m_appDir + "/decoded.txt");
@@ -1640,7 +1615,8 @@ void MainWindow::guiUpdate()
           << "  Transmitting " << m_dialFreq << " MHz  " << m_modeTx
           << ":  " << t << endl;
       f.close();
-      if(m_tx2QSO) displayTxMsg(t);
+      if(m_tx2QSO)
+          ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,m_txFreq);
     }
 
     QStringList w=t.split(" ",QString::SkipEmptyParts);
@@ -1717,7 +1693,8 @@ void MainWindow::guiUpdate()
           << ":  " << t << endl;
       f.close();
     }
-    if(m_tx2QSO and !m_tune) displayTxMsg(t);
+    if(m_tx2QSO and !m_tune)
+        ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,m_txFreq);
   }
 
   if(!m_btxok && btxok0 && g_iptt==1) stopTx();
@@ -1801,26 +1778,6 @@ void MainWindow::guiUpdate()
   btxok0=m_btxok;
 }               //End of GUIupdate
 
-void MainWindow::displayTxMsg(QString t)
-{
-      QString bg="yellow";
-      QTextBlockFormat bf;
-      QTextCursor cursor;
-      QString t1=" @ ";
-      if(m_modeTx=="JT65") t1=" # ";
-      QString t2;
-      t2.sprintf("%4d",m_txFreq);
-      t=QDateTime::currentDateTimeUtc().toString("hhmm") + \
-          "  Tx      " + t2 + t1 + t;
-      QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-          bg + "\"><pre>" + t + "</pre></td></tr></table>";
-      cursor = ui->decodedTextBrowser2->textCursor();
-      cursor.movePosition(QTextCursor::End);
-      bf = cursor.blockFormat();
-      bf.setBackground(QBrush(QColor(bg)));
-      cursor.insertHtml(s);
-      ui->decodedTextBrowser2->setTextCursor(cursor);
-}
 
 void MainWindow::startTx2()
 {
@@ -1966,12 +1923,13 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 
   QString t1 = t.mid(0,i2);              //contents up to \n on selected line
   int i1=t1.lastIndexOf("\n") + 1;       //points to first char of line
-  QString t2 = t1.mid(i1,i2-i1);         //selected line
+  DecodedText decodedtext;
+  decodedtext = t1.mid(i1,i2-i1);         //selected line
 
-  if (t2.indexOf(" CQ ") > 0)
-      t2 = t2.left(36);  // to remove DXCC entity and worked B4 status. TODO need a better way to do this
+  if (decodedtext.indexOf(" CQ ") > 0)
+      decodedtext = decodedtext.left(36);  // to remove DXCC entity and worked B4 status. TODO need a better way to do this
 
-//  if(t2.indexOf("Tx")==6) return;        //Ignore Tx line
+//  if(decodedtext.indexOf("Tx")==6) return;        //Ignore Tx line
   int i4=t.mid(i1).length();
   if(i4>55) i4=55;
   QString t3=t.mid(i1,i4);
@@ -1980,46 +1938,74 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   QStringList t4=t3.split(" ",QString::SkipEmptyParts);
   if(t4.length() <5) return;             //Skip the rest if no decoded text
 
-  int i9=m_QSOmsg.indexOf(t2);
-  if(i9<0 and t2.indexOf("Tx")==-1) {
-    QString bg="white";
-    if(t2.indexOf(" CQ ")>0) bg="#66ff66";                           //green
-    if(m_myCall!="" and t2.indexOf(" "+m_myCall+" ")>0) bg="#ff6666"; //red
-    QTextBlockFormat bf;
-    QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-        bg + "\"><pre>" + t2 + "</pre></td></tr></table>";
-    cursor = ui->decodedTextBrowser2->textCursor();
-    cursor.movePosition(QTextCursor::End);
-    bf = cursor.blockFormat();
-    bf.setBackground(QBrush(QColor(bg)));
-    cursor.insertHtml(s);
-    ui->decodedTextBrowser2->setTextCursor(cursor);
-    m_QSOmsg=t2;
+  int i9=m_QSOText.indexOf(decodedtext.string());
+  if (i9<0 and !decodedtext.isTX())
+  {
+    ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_myCall,false,m_logBook);
+    m_QSOText=decodedtext;
   }
 
-  int nfreq=t4.at(3).toInt();
-  if(t4.at(1)=="Tx") nfreq=t4.at(2).toInt();
-  m_wideGraph->setRxFreq(nfreq);                      //Set Rx freq
-  if(t4.at(1)=="Tx") {
-    if(ctrl) ui->TxFreqSpinBox->setValue(nfreq);       //Set Tx freq
+  /*
+    int nfreq=t4.at(3).toInt();
+    if(t4.at(1)=="Tx") nfreq=t4.at(2).toInt();
+    m_wideGraph->setRxFreq(nfreq);                      //Set Rx freq
+    if(t4.at(1)=="Tx") {
+      if(ctrl) ui->TxFreqSpinBox->setValue(nfreq);       //Set Tx freq
+      return;
+    }
+  */
+
+  int frequency = decodedtext.frequencyOffset();
+  m_wideGraph->setRxFreq(frequency);                 //Set Rx freq
+  if (decodedtext.isTX())
+  {
+    if (ctrl)
+        ui->TxFreqSpinBox->setValue(frequency);      //Set Tx freq
     return;
   }
-  if(t4.at(4)=="@") {
+
+  /*
+    QString firstcall=t4.at(5);
+    // Don't change Tx freq if a station is calling me, unless m_lockTxFreq
+    // is true or CTRL is held down or
+    if((firstcall!=m_myCall) or m_lockTxFreq or ctrl) {
+      ui->TxFreqSpinBox->setValue(nfreq);
+    }
+  */
+
+  QString firstcall = decodedtext.call();
+  // Don't change Tx freq if a station is calling me, unless m_lockTxFreq
+  // is true or CTRL is held down
+  if ((firstcall!=m_myCall) or m_lockTxFreq or ctrl)
+    ui->TxFreqSpinBox->setValue(frequency);
+
+  /*
+    if(t4.at(4)=="@") {
+      m_modeTx="JT9";
+      ui->pbTxMode->setText("Tx JT9  @");
+      m_wideGraph->setModeTx(m_modeTx);
+    }
+    if(t4.at(4)=="#") {
+      m_modeTx="JT65";
+      ui->pbTxMode->setText("Tx JT65  #");
+      m_wideGraph->setModeTx(m_modeTx);
+    }
+  */
+
+  if (decodedtext.isJT9())
+  {
     m_modeTx="JT9";
     ui->pbTxMode->setText("Tx JT9  @");
     m_wideGraph->setModeTx(m_modeTx);
   }
-  if(t4.at(4)=="#") {
-    m_modeTx="JT65";
-    ui->pbTxMode->setText("Tx JT65  #");
-    m_wideGraph->setModeTx(m_modeTx);
-  }
-  QString firstcall=t4.at(5);
-  // Don't change Tx freq if a station is calling me, unless m_lockTxFreq
-  // is true or CTRL is held down or
-  if((firstcall!=m_myCall) or m_lockTxFreq or ctrl) {
-    ui->TxFreqSpinBox->setValue(nfreq);
-  }
+  else
+      if (decodedtext.isJT65())
+      {
+          m_modeTx="JT65";
+          ui->pbTxMode->setText("Tx JT65  #");
+          m_wideGraph->setModeTx(m_modeTx);
+      }
+/*
   QString hiscall=t4.at(6);
   QString hisgrid="";
   if(t4.length()>=8) hisgrid=t4.at(7);
@@ -2028,10 +2014,32 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   if(gridOK(hisgrid)) ui->dxGridEntry->setText(hisgrid);
   if(ui->dxGridEntry->text()=="") lookup();
   m_hisGrid=ui->dxGridEntry->text();
-  int n = 60*t2.mid(0,2).toInt() + t2.mid(2,2).toInt();
+*/
+
+  QString hiscall;
+  QString hisgrid;
+  decodedtext.deCallAndGrid(/*out*/hiscall,hisgrid);
+  if (hiscall != ui->dxCallEntry->text())
+      ui->dxGridEntry->setText("");
+  ui->dxCallEntry->setText(hiscall);
+  if (gridOK(hisgrid))
+      ui->dxGridEntry->setText(hisgrid);
+  if (ui->dxGridEntry->text()=="")
+      lookup();
+  m_hisGrid = ui->dxGridEntry->text();
+
+/*
+  int n = 60*decodedtext.mid(0,2).toInt() + decodedtext.mid(2,2).toInt();
   int nmod=n%(m_TRperiod/30);
   m_txFirst=(nmod!=0);
   ui->txFirstCheckBox->setChecked(m_txFirst);
+*/
+  int n = decodedtext.timeInSeconds();
+  int nmod=n%(m_TRperiod/30);
+  m_txFirst=(nmod!=0);
+  ui->txFirstCheckBox->setChecked(m_txFirst);
+
+/*
   QString rpt=t4.at(1);
   if(rpt.indexOf("  ")==0) rpt="+" + rpt.mid(2,2);
   if(rpt.indexOf(" -")==0) rpt=rpt.mid(1,2);
@@ -2042,10 +2050,17 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   if(nr>=-9 and nr<=-1) rpt="-0" + rpt.mid(1);
   if(nr>=0 and nr<=9) rpt="+0" + rpt;
   if(nr>=10) rpt="+" + rpt;
+*/
+  QString rpt = decodedtext.report();
   ui->rptSpinBox->setValue(rpt.toInt());
   genStdMsgs(rpt);
-  if(t2.indexOf(m_myCall)>=0) {
-    if(t4.length()>=7 and !gridOK(t4.at(7))) {
+
+  // determine the appropriate response to the received msg
+  if(decodedtext.indexOf(m_myCall)>=0)
+  {
+    if (t4.length()>=7   // enough fields for a normal msg
+        and !gridOK(t4.at(7))) // but no grid on end of msg
+    {
       QString r=t4.at(7);
       if(r.mid(0,3)=="RRR") {
         m_ntx=5;
@@ -2090,7 +2105,9 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
       }
     }
 
-  } else {
+  }
+  else // myCall not in msg
+  {
     m_ntx=1;
     ui->txrb1->setChecked(true);
     if(ui->tabWidget->currentIndex()==1) {

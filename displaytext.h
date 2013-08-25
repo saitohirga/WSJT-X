@@ -3,6 +3,8 @@
 
 #include <QTextBrowser>
 #include "logbook/logbook.h"
+#include "decodedtext.h"
+
 
 class DisplayText : public QTextBrowser
 {
@@ -13,7 +15,8 @@ public:
     void setFont(QFont font);
 
     void insertLineSpacer();
-    void displayDecodedText(QString decodedText, QString myCall, bool displayDXCCEntity, LogBook logBook);
+    void displayDecodedText(DecodedText decodedText, QString myCall, bool displayDXCCEntity, LogBook logBook);
+    void displayTransmittedText(QString text, QString modeTx, qint32 txFreq);
 
 signals:
     void selectCallsign(bool shift, bool ctrl);
@@ -28,7 +31,8 @@ protected:
 private:
     int _fontWidth;
     int _maxDisplayedCharacters;
-    void _appendDXCCWorkedB4(/*mod*/QString& t1, QString &bg, LogBook logBook);
+    void _insertText(const QString text, const QString bg);
+    void _appendDXCCWorkedB4(/*mod*/DecodedText& t1, QString &bg, LogBook logBook);
 
 };
 

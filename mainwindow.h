@@ -21,6 +21,8 @@
 #include "logbook/logbook.h"
 #include "Detector.hpp"
 #include "Modulator.hpp"
+#include "decodedtext.h"
+
 
 #define NUM_JT65_SYMBOLS 126
 #define NUM_JT9_SYMBOLS 85
@@ -372,7 +374,6 @@ private:
     QString m_cmnd;
     QString m_msgSent0;
     QString m_fileToSave;
-    QString m_QSOmsg;
 
     QStringList m_macro;
     QStringList m_dFreq;           // per band frequency in MHz as a string
@@ -387,6 +388,7 @@ private:
     PSK_Reporter *psk_Reporter;
     SignalMeter *signalMeter;
     LogBook m_logBook;
+    DecodedText m_QSOText;
 
 
 //---------------------------------------------------- private functions
@@ -403,7 +405,6 @@ private:
     void statusChanged();
     void dialFreqChanged2(double f);
     void freeText();
-    void displayTxMsg(QString t);
     void rigOpen();
     void pollRigFreq();
     bool gridOK(QString g);
