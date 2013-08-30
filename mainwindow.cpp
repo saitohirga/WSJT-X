@@ -1308,6 +1308,7 @@ void MainWindow::on_DecodeButton_clicked()                    //Decode request
   if(!m_decoderBusy) {
     jt9com_.newdat=0;
     jt9com_.nagain=1;
+    m_blankLine=false; // don't insert the separator again
     decode();
   }
 }
@@ -1423,8 +1424,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       out << t.mid(0,n-2) << endl;
       f.close();
 
-
-      if(m_insertBlank and m_blankLine and jt9com_.nagain==0)
+      if(m_insertBlank and m_blankLine)
       {
           ui->decodedTextBrowser->insertLineSpacer();
           m_blankLine=false;
