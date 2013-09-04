@@ -33,6 +33,7 @@ PSK_Reporter::PSK_Reporter(QObject *parent) :
     m_randomId_h = QString("%1").arg(qrand(),8,16,QChar('0'));
 
     m_udpSocket = new QUdpSocket(this);
+    QHostInfo::lookupHost("report.pskreporter.info", this, SLOT(dnsLookupResult(QHostInfo)));
 
     reportTimer = new QTimer(this);
     connect(reportTimer, SIGNAL(timeout()), this, SLOT(sendReport()));
@@ -45,7 +46,6 @@ void PSK_Reporter::setLocalStation(QString call, QString gridSquare, QString ant
   m_rxGrid = gridSquare;
   m_rxAnt = antenna;
   m_progId = programInfo;
-  //qDebug() << "PSK_Reporter::setLocalStation. Antenna:" << antenna;
 }
 
 void PSK_Reporter::addRemoteStation(QString call, QString grid, QString freq, QString mode, QString snr, QString time )
@@ -104,10 +104,17 @@ void PSK_Reporter::sendReport()
     report_h.replace("000Allll", "000A" + QString("%1").arg(report_h.length()/2,4,16,QChar('0')));
     QByteArray report = QByteArray::fromHex(report_h.toUtf8());
 
-    // Get IP address for pskreporter.info and send report via UDP
-    QHostInfo info = QHostInfo::fromName("report.pskreporter.info");
+    // Send data to PSK Reporter site
+    if (!m_pskReporterAddress.isNull()) {
+        m_udpSocket->writeDatagram(report, m_pskReporterAddress, 4739);
+    }
+}
+
+void PSK_Reporter::dnsLookupResult(QHostInfo info)
+{
     if (!info.addresses().isEmpty()) {
-        m_udpSocket->writeDatagram(report,info.addresses().at(0),4739);
+        m_pskReporterAddress = info.addresses().at(0);
+        qDebug() << "PSK Reporter IP: " << m_pskReporterAddress;
     }
 }
 

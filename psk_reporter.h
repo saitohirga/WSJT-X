@@ -18,6 +18,9 @@ signals:
 public slots:
     void sendReport();
 
+private slots:
+    void dnsLookupResult(QHostInfo info);
+
 private:
     QString m_header_h;
     QString m_rxInfoDescriptor_h;
@@ -29,6 +32,8 @@ private:
     QString m_rxGrid;
     QString m_rxAnt;
     QString m_progId;
+
+    QHostAddress m_pskReporterAddress;
 
     QQueue< QHash<QString,QString> > m_spotQueue;
 
