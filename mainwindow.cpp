@@ -2447,19 +2447,25 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 
 void MainWindow::acceptQSO2(bool accepted)
 {
-  if(accepted) {
-    m_logBook.addAsWorked(m_hisCall);
-    if(m_clearCallGrid) {
-      m_hisCall="";
-      ui->dxCallEntry->setText("");
-      m_hisGrid="";
-      ui->dxGridEntry->setText("");
-      m_rptSent="";
-      m_rptRcvd="";
-      m_qsoStart="";
-      m_qsoStop="";
+    if(accepted)
+    {
+        QString band = ADIF::bandFromFrequency(m_dialFreq+m_txFreq/1.0e6);
+        QString date = m_dateTimeQSO.toString("yyyy-MM-dd");
+        date=date.mid(0,4) + date.mid(5,2) + date.mid(8,2);
+        m_logBook.addAsWorked(m_hisCall,band,m_modeTx,date);
+
+        if (m_clearCallGrid)
+        {
+          m_hisCall="";
+          ui->dxCallEntry->setText("");
+          m_hisGrid="";
+          ui->dxGridEntry->setText("");
+          m_rptSent="";
+          m_rptRcvd="";
+          m_qsoStart="";
+          m_qsoStop="";
+        }
     }
-  }
 }
 
 void MainWindow::on_actionJT9_1_triggered()

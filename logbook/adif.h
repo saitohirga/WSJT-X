@@ -22,12 +22,17 @@ class ADIF
 	public:
         void init(QString filename);
 		void load();
-        void add(const QString call);
+        void add(const QString call, const QString band, const QString mode, const QString date);
         bool match(const QString call, const QString band, const QString mode);
         QList<QString> getCallList();
 		int getCount();
 		
-		
+        // open ADIF file and append the QSO details. Return true on success
+        bool addQSOToFile(const QString hisCall, const QString hisGrid, const QString mode, const QString rptSent, const QString rptRcvd, const QString date, const QString time, const QString band,
+                                const QString comments, const QString name, const QString strDialFreq, const QString m_myCall, const QString m_myGrid, const QString m_txPower);
+
+        static QString bandFromFrequency(double dialFreq);
+
 	private:
 		struct QSO
 		{

@@ -22,7 +22,7 @@ public:
               /*out*/ QString &countryName,
                       bool &callWorkedBefore,
                       bool &countryWorkedBefore);
-    void addAsWorked(const QString call);
+    void addAsWorked(const QString call, const QString band, const QString mode, const QString date);
 
 private:
    CountryDat _countries;
