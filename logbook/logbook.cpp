@@ -70,10 +70,10 @@ void LogBook::match(/*in*/const QString call,
     //qDebug() << "Logbook:" << call << ":" << countryName << "Cty B4:" << countryWorkedBefore << "call B4:" << callWorkedBefore;
 }
 
-void LogBook::addAsWorked(const QString call)
+void LogBook::addAsWorked(const QString call, const QString band, const QString mode, const QString date)
 {
     //qDebug() << "adding " << call << " as worked";
-    _log.add(call);
+    _log.add(call,band,mode,date);
     QString countryName = _countries.find(call);
     if (countryName.length() > 0)
         _worked.setAsWorked(countryName);
