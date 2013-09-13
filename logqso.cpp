@@ -48,6 +48,7 @@ void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
 {
   ui->call->setText(hisCall);
   ui->grid->setText(hisGrid);
+  ui->name->setText("");
   ui->txPower->setText("");
   ui->comments->setText("");
   if (ui->cbTxPower->isChecked ()) ui->txPower->setText(m_txPower);
