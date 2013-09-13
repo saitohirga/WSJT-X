@@ -291,7 +291,6 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   if(!m_bMultipleOK) {
     while(true) {
       int iret=killbyname("jt9.exe");
-      qDebug() << m_bMultipleOK << iret;
       if(iret == 603) break;
       if(iret != 0) msgBox("KillByName return code: " +
                            QString::number(iret));
