@@ -6,6 +6,10 @@
 
 #include "commons.h"
 
+extern "C" {
+void   fil4_(qint16*, qint32*, qint16*, qint32*);
+}
+
 Detector::Detector (unsigned frameRate, unsigned periodLengthInSeconds, unsigned framesPerSignal, QObject * parent)
   : AudioDevice (parent)
   , m_frameRate (frameRate)
@@ -31,8 +35,8 @@ void Detector::clear ()
   // jt9com_.kin = qMin ((msInPeriod * m_frameRate) / 1000, static_cast<unsigned> (sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0])));
   jt9com_.kin = 0;
 
-  // fill buffer with zeros (G4WJS commented out because it might cause decoder hangs)
-  // qFill (jt9com_.d2, jt9com_.d2 + sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0]), 0);
+  // fill buffer with zeros
+  qFill (jt9com_.d2, jt9com_.d2 + sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0]), 0);
 }
 
 qint64 Detector::writeData (char const * data, qint64 maxSize)
@@ -49,10 +53,13 @@ qint64 Detector::writeData (char const * data, qint64 maxSize)
 	  qDebug () << "dropped " << maxSize / sizeof (jt9com_.d2[0]) - framesAccepted << " frames of data on the floor!";
 	}
 
-      store (data, framesAccepted, &jt9com_.d2[jt9com_.kin]);
+      qint32 m_n1,m_n2;
+      m_n1 = framesAccepted;
+      fil4_((qint16 *)data, &m_n1, m_translate, &m_n2);
+      store ((char const *) m_translate, m_n2, &jt9com_.d2[jt9com_.kin]);
 
       unsigned lastSignalIndex (jt9com_.kin / m_framesPerSignal);
-      jt9com_.kin += framesAccepted;
+      jt9com_.kin += m_n2;
       unsigned currentSignalIndex (jt9com_.kin / m_framesPerSignal);
 
       if (currentSignalIndex != lastSignalIndex && m_monitoring)
