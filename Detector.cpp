@@ -35,8 +35,8 @@ void Detector::clear ()
   // jt9com_.kin = qMin ((msInPeriod * m_frameRate) / 1000, static_cast<unsigned> (sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0])));
   jt9com_.kin = 0;
 
-  // fill buffer with zeros
-  qFill (jt9com_.d2, jt9com_.d2 + sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0]), 0);
+  // fill buffer with zeros (G4WJS commented out becuase it might cause decoder hangs)
+  // qFill (jt9com_.d2, jt9com_.d2 + sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0]), 0);
 }
 
 qint64 Detector::writeData (char const * data, qint64 maxSize)
