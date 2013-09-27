@@ -7,9 +7,9 @@
 #include <QDebug>
 
 #if defined (WIN32)
-# define MS_BUFFERED 1000
+# define MS_BUFFERED 1000u
 #else
-# define MS_BUFFERED 2000
+# define MS_BUFFERED 2000u
 #endif
 
 bool SoundOutput::audioError () const
@@ -53,7 +53,7 @@ SoundOutput::SoundOutput (QIODevice * source)
   Q_ASSERT (source);
 }
 
-void SoundOutput::startStream (QAudioDeviceInfo const& device, unsigned channels)
+void SoundOutput::startStream (QAudioDeviceInfo const& device, unsigned channels, unsigned msBuffered)
 {
   Q_ASSERT (0 < channels && channels < 3);
 
@@ -97,7 +97,7 @@ void SoundOutput::startStream (QAudioDeviceInfo const& device, unsigned channels
   // we have to set this before every start on the stream because the
   // Windows implementation seems to forget the buffer size after a
   // stop.
-  m_stream->setBufferSize (m_stream->format ().bytesForDuration (MS_BUFFERED * 1000));
+  m_stream->setBufferSize (m_stream->format ().bytesForDuration ((msBuffered ? msBuffered : MS_BUFFERED) * 1000));
   m_stream->start (m_source);
   audioError ();
 }

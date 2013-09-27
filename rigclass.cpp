@@ -68,13 +68,16 @@ int Rig::init(rig_model_t rig_model)
 
     theRig = rig_init(rig_model);
     if (!theRig)
+      {
         initOk = false;
+      }
     else
+      {
         initOk = true;
-
-    caps = theRig->caps;
-    theRig->callbacks.freq_event = &hamlibpp_freq_event;
-    theRig->state.obj = (rig_ptr_t)this;
+	caps = theRig->caps;
+	theRig->callbacks.freq_event = &hamlibpp_freq_event;
+	theRig->state.obj = (rig_ptr_t)this;
+      }
 
     return initOk;
 }
