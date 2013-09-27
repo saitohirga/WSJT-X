@@ -7,7 +7,7 @@ CXX = g++
 FC = gfortran
 
 FFLAGS = -O2 -fbounds-check -Wall -Wno-conversion -fno-second-underscore -fPIE
-CFLAGS = -I. -fbounds-check -mno-stack-arg-probe -fPIE
+CFLAGS = -I. -fbounds-check -fPIE
 
 # Default rules
 %.o: %.c
