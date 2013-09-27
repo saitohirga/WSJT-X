@@ -1,4 +1,4 @@
-//---------------------------------------------------------------- MainWindow
+//--------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -1936,7 +1936,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   decodedtext = t1.mid(i1,i2-i1);         //selected line
 
   if (decodedtext.indexOf(" CQ ") > 0)
-      decodedtext = decodedtext.left(36);  // to remove DXCC entity and worked B4 status. TODO need a better way to do this
+      decodedtext = decodedtext.left(39);  // to remove DXCC entity and worked B4 status. TODO need a better way to do this
 
 //  if(decodedtext.indexOf("Tx")==6) return;        //Ignore Tx line
   int i4=t.mid(i1).length();
