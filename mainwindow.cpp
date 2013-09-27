@@ -54,7 +54,10 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
   m_audioOutputDevice (QAudioDeviceInfo::defaultOutputDevice ()), // start with default
   m_soundOutput (&m_modulator),
-  psk_Reporter (new PSK_Reporter (this))
+  psk_Reporter (new PSK_Reporter (this)),
+  m_msAudioOutputBuffered (0u),
+  m_framesAudioInputBuffered (RX_SAMPLE_RATE / 10),
+  m_audioThreadPriority (QThread::HighPriority)
 {
   ui->setupUi(this);
 
@@ -73,7 +76,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   connect (&m_audioThread, &QThread::finished, &m_audioThread, &QThread::deleteLater); // disposal
 
   // hook up sound output stream slots & signals
-  connect (this, SIGNAL (startAudioOutputStream (QAudioDeviceInfo const&, unsigned)), &m_soundOutput, SLOT (startStream (QAudioDeviceInfo const&, unsigned)));
+  connect (this, SIGNAL (startAudioOutputStream (QAudioDeviceInfo const&, unsigned, unsigned)), &m_soundOutput, SLOT (startStream (QAudioDeviceInfo const&, unsigned, unsigned)));
   connect (this, SIGNAL (stopAudioOutputStream ()), &m_soundOutput, SLOT (stopStream ()));
   connect (&m_soundOutput, &SoundOutput::error, this, &MainWindow::showSoundOutError);
   // connect (&m_soundOutput, &SoundOutput::status, this, &MainWindow::showStatusMessage);
@@ -101,10 +104,6 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   connect (this, SIGNAL (detectorClose ()), &m_detector, SLOT (close ()));
 
   connect(&m_detector, SIGNAL (framesWritten (qint64)), this, SLOT (dataSink (qint64)));
-
-  // start the audio thread
-  m_audioThread.start (QThread::HighPriority);
-
 
   // setup the waterfall
   connect(m_wideGraph.data (), SIGNAL(freezeDecode2(int)),this,
@@ -287,6 +286,9 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   //Band Settings
   readSettings();		         //Restore user's setup params
 
+  // start the audio thread
+  m_audioThread.start (m_audioThreadPriority);
+
 #ifdef WIN32
   if(!m_bMultipleOK) {
     while(true) {
@@ -379,7 +381,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   connect(watcher2, SIGNAL(finished()),this,SLOT(diskWriteFinished()));
 
   Q_EMIT startDetector (m_audioInputChannel);
-  Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, RX_SAMPLE_RATE / 10, &m_detector);
+  Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, m_framesAudioInputBuffered, &m_detector);
 
   Q_EMIT transmitFrequency (m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0));
   Q_EMIT muteAudioOutput (false);
@@ -662,6 +664,14 @@ void MainWindow::readSettings()
 	ui->cbPlus2kHz->setChecked(m_plus2kHz);
   m_settings->endGroup();
 
+  // use these initialisation settings to tune the audio o/p bufefr
+  // size and audio thread priority
+  m_settings->beginGroup ("Tune");
+  m_msAudioOutputBuffered = m_settings->value ("Audio/OutputBufferMs").toInt ();
+  m_framesAudioInputBuffered = m_settings->value ("Audio/InputBufferFrames", RX_SAMPLE_RATE / 10).toInt ();
+  m_audioThreadPriority = static_cast<QThread::Priority> (m_settings->value ("Audio/ThreadPriority", QThread::HighPriority).toInt () % 8);
+  m_settings->endGroup ();
+
   if(m_ndepth==1) ui->actionQuickDecode->setChecked(true);
   if(m_ndepth==2) ui->actionMediumDecode->setChecked(true);
   if(m_ndepth==3) ui->actionDeepestDecode->setChecked(true);
@@ -832,12 +842,12 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
       Q_EMIT stopAudioInputStream ();
       Q_EMIT detectorClose ();
       Q_EMIT startDetector (m_audioInputChannel);
-      Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, RX_SAMPLE_RATE / 10, &m_detector);
+      Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, m_framesAudioInputBuffered, &m_detector);
     }
 
     if(dlg.m_restartSoundOut) {
       Q_EMIT stopAudioOutputStream ();
-      Q_EMIT startAudioOutputStream (m_audioOutputDevice, AudioDevice::Mono == m_audioOutputChannel ? 1 : 2);
+      Q_EMIT startAudioOutputStream (m_audioOutputDevice, AudioDevice::Mono == m_audioOutputChannel ? 1 : 2, m_msAudioOutputBuffered);
     }
   }
   m_catEnabled=dlg.m_catEnabled;
@@ -869,7 +879,7 @@ void MainWindow::on_monitorButton_clicked()                  //Monitor
 {
   m_monitoring=true;
   Q_EMIT detectorSetMonitoring (true);
-  //  Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, RX_SAMPLE_RATE / 10, &m_detector);
+  //  Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, m_framesAudioInputBuffered, &m_detector);
   m_diskData=false;
 }
 
@@ -3067,7 +3077,7 @@ void MainWindow::transmit (double snr)
     {
       Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps, m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0), m_audioOutputChannel, true, snr);
     }
-  Q_EMIT startAudioOutputStream (m_audioOutputDevice, AudioDevice::Mono == m_audioOutputChannel ? 1 : 2);
+  Q_EMIT startAudioOutputStream (m_audioOutputDevice, AudioDevice::Mono == m_audioOutputChannel ? 1 : 2, m_msAudioOutputBuffered);
 }
 
 void MainWindow::on_outAttenuation_valueChanged (int a)

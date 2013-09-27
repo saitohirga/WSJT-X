@@ -33,7 +33,7 @@ class SoundOutput : public QObject
   /* private because we expect to run in a thread and don't want direct
      C++ calls made, instead they must be invoked via the Qt
      signal/slot mechanism which is thread safe */
-  void startStream (QAudioDeviceInfo const& device, unsigned channels);
+  void startStream (QAudioDeviceInfo const& device, unsigned channels, unsigned msBuffered = 0u);
   void suspend ();
   void resume ();
   void stopStream ();

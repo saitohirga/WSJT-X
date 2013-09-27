@@ -181,7 +181,7 @@ private slots:
   void on_outAttenuation_valueChanged (int);
 
  private:
-  Q_SIGNAL void startAudioOutputStream (QAudioDeviceInfo, unsigned channels);
+  Q_SIGNAL void startAudioOutputStream (QAudioDeviceInfo, unsigned channels, unsigned msBuffered);
   Q_SIGNAL void stopAudioOutputStream ();
 
   Q_SIGNAL void startAudioInputStream (QAudioDeviceInfo const&, unsigned channels, int framesPerBuffer, QIODevice * sink);
@@ -389,6 +389,9 @@ private:
     SignalMeter *signalMeter;
     LogBook m_logBook;
     DecodedText m_QSOText;
+    unsigned m_msAudioOutputBuffered;
+    unsigned m_framesAudioInputBuffered;
+    QThread::Priority m_audioThreadPriority;
 
 
 //---------------------------------------------------- private functions
