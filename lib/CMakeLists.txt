@@ -88,6 +88,7 @@ set (FSRCS
   fchisq.f90
   fchisq65.f90
   fil3.f90
+  fil4.f90
   fil6521.f90
   filbig.f90
   fillcom.f90
