@@ -48,7 +48,7 @@ void SoundInput::start(QAudioDeviceInfo const& device, unsigned channels, int fr
   QAudioFormat format (device.preferredFormat());
   format.setChannelCount (channels);
   format.setCodec ("audio/pcm");
-  format.setSampleRate (12000);
+  format.setSampleRate (48000);
   format.setSampleType (QAudioFormat::SignedInt);
   format.setSampleSize (16);
 

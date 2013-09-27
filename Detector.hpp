@@ -49,6 +49,7 @@ private:
   unsigned m_framesPerSignal;
   bool volatile m_monitoring;
   bool m_starting;
+  qint16 m_translate[20000];
 };
 
 #endif
