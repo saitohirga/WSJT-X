@@ -72,8 +72,13 @@ void DisplayText::_appendDXCCWorkedB4(/*mod*/DecodedText& t1, QString& bg, /*use
     int charsAvail = _maxDisplayedCharacters;
 
     // the decoder (seems) to always generate 40 chars. For a normal CQ call, the last five are spaces
-    t1 = t1.left(36);  // reduce trailing white space  TODO this magic 36 is also referenced in MainWindow::doubleClickOnCall()
-    charsAvail -= 36;
+    // TODO this magic 36 characters is also referenced in MainWindow::doubleClickOnCall()
+    int s3 = t1.indexOf(" ",35);
+    if (s3 < 35)
+        s3 = 35; // we always want at least the characters to position 35
+    s3 += 1; // convert the index into a character count
+    t1 = t1.left(s3);  // reduce trailing white space
+    charsAvail -= s3;
     if (charsAvail > 4)
     {
         if (!countryWorkedBefore) // therefore not worked call either
