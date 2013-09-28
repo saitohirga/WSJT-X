@@ -10,6 +10,11 @@ extern "C" {
 void   fil4_(qint16*, qint32*, qint16*, qint32*);
 }
 
+namespace
+{
+  unsigned const downsampleFactor = 4;
+}
+
 Detector::Detector (unsigned frameRate, unsigned periodLengthInSeconds, unsigned framesPerSignal, QObject * parent)
   : AudioDevice (parent)
   , m_frameRate (frameRate)
@@ -17,6 +22,8 @@ Detector::Detector (unsigned frameRate, unsigned periodLengthInSeconds, unsigned
   , m_framesPerSignal (framesPerSignal)
   , m_monitoring (false)
   , m_starting (false)
+  , m_buffer (new short [framesPerSignal * downsampleFactor])
+  , m_bufferPos (0)
 {
   clear ();
 }
@@ -41,63 +48,64 @@ void Detector::clear ()
 
 qint64 Detector::writeData (char const * data, qint64 maxSize)
 {
-  bool overrun (false);
-  int excess (0);
   if (m_monitoring)
     {
       Q_ASSERT (!(maxSize % static_cast<qint64> (bytesPerFrame ()))); // no torn frames
 
-      qint64 framesAcceptable (sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0]) - jt9com_.kin);
-      qint64 framesAccepted (qMin (static_cast<qint64> (maxSize / bytesPerFrame ()), framesAcceptable));
+      // these are in terms of input frames (not down sampled)
+      size_t framesAcceptable ((sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0]) - jt9com_.kin) * downsampleFactor);
+      size_t framesAccepted (qMin (static_cast<size_t> (maxSize / bytesPerFrame ()), framesAcceptable));
 
-      overrun = framesAccepted < static_cast<qint64> (maxSize / bytesPerFrame ());
-      if (overrun)
+      if (framesAccepted < static_cast<size_t> (maxSize / bytesPerFrame ()))
 	{
-	  qDebug () << "dropped " << maxSize / sizeof (jt9com_.d2[0]) - framesAccepted << " frames of data on the floor!";
+	  qDebug () << "dropped " << maxSize / bytesPerFrame () - framesAccepted << " frames of data on the floor!";
 	}
 
-      Q_ASSERT (2 == bytesPerFrame ()); // only mono until fil4 can do stereo
-      excess = framesAccepted % 4;
-      qint32 m_n1,m_n2;
-      m_n1 = framesAccepted - excess;
-      fil4_((qint16 *)data, &m_n1, m_translate, &m_n2);
-      store ((char const *) m_translate, m_n2, &jt9com_.d2[jt9com_.kin]);
-
-      unsigned lastSignalIndex (jt9com_.kin / m_framesPerSignal);
-      jt9com_.kin += m_n2;
-      unsigned currentSignalIndex (jt9com_.kin / m_framesPerSignal);
-
-      if (currentSignalIndex != lastSignalIndex && m_monitoring)
+      for (unsigned remaining = framesAccepted; remaining; )
 	{
-	  Q_EMIT framesWritten (currentSignalIndex * m_framesPerSignal);
-	}
-
-      if (!secondInPeriod ())
-	{
-	  if (!m_starting)
+	  size_t numFramesProcessed (qMin (m_framesPerSignal * downsampleFactor - m_bufferPos, remaining));
+	  store (&data[(framesAccepted - remaining) * bytesPerFrame ()], numFramesProcessed, &m_buffer[m_bufferPos]);
+	  m_bufferPos += numFramesProcessed;
+	  if (m_bufferPos == m_framesPerSignal * downsampleFactor && m_monitoring)
 	    {
-	      // next samples will be in new period so wrap around to
-	      // start of buffer
-	      //
-	      // we don't bother calling reset () since we expect to fill
-	      // the whole buffer and don't need to waste cycles zeroing
-	      jt9com_.kin = 0;
-	      m_starting = true;
+	      qint32 framesToProcess (m_framesPerSignal * downsampleFactor);
+	      qint32 framesAfterDownSample;
+	      fil4_(&m_buffer[0], &framesToProcess, &jt9com_.d2[jt9com_.kin], &framesAfterDownSample);
+	      m_bufferPos = 0;
+
+	      jt9com_.kin += framesAfterDownSample;
+	      Q_EMIT framesWritten (jt9com_.kin);
 	    }
-	}
-      else if (m_starting)
-	{
-	  m_starting = false;
+
+	  if (!secondInPeriod ())
+	    {
+	      if (!m_starting)
+		{
+		  // next samples will be in new period so wrap around to
+		  // start of buffer
+		  //
+		  // we don't bother calling reset () since we expect to fill
+		  // the whole buffer and don't need to waste cycles zeroing
+		  jt9com_.kin = 0;
+		  m_bufferPos = 0;
+		  m_starting = true;
+		}
+	    }
+	  else if (m_starting)
+	    {
+	      m_starting = false;
+	    }
+	  remaining -= numFramesProcessed;
 	}
     }
   else
     {
       jt9com_.kin = 0;
+      m_bufferPos = 0;
     }
 
-  return maxSize - (overrun ? 0 : excess * bytesPerFrame ());
-		    // we drop any data past the end of the buffer on
-		    // the floor until the next period starts
+  return maxSize;    // we drop any data past the end of the buffer on
+		     // the floor until the next period starts
 }
 
 unsigned Detector::secondInPeriod () const
