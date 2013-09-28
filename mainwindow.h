@@ -66,7 +66,7 @@ public slots:
   void doubleClickOnCall2(bool shift, bool ctrl);
   void readFromStdout();
   void readFromStderr();
-  void jt9_error();
+  void jt9_error(QProcess::ProcessError);
   void setXIT(int n);
   void setFreq4(int rxFreq, int txFreq);
 

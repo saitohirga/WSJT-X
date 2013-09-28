@@ -160,7 +160,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
                     this, SLOT(readFromStdout()));
 
   connect(&proc_jt9, SIGNAL(error(QProcess::ProcessError)),
-          this, SLOT(jt9_error()));
+          this, SLOT(jt9_error(QProcess::ProcessError)));
 
   connect(&proc_jt9, SIGNAL(readyReadStandardError()),
           this, SLOT(readFromStderr()));
@@ -1386,7 +1386,7 @@ void MainWindow::decode()                                       //decode()
   decodeBusy(true);
 }
 
-void MainWindow::jt9_error()                                     //jt9_error
+void MainWindow::jt9_error(QProcess::ProcessError e)                                     //jt9_error
 {
   if(!m_killAll) {
     msgBox("Error starting or running\n" + m_appDir + "/jt9 -s");
