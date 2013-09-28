@@ -3,6 +3,8 @@
 
 #include "AudioDevice.hpp"
 
+#include <QScopedArrayPointer>
+
 //
 // output device that distributes data in predefined chunks via a signal
 //
@@ -20,6 +22,10 @@ public:
   // if the data buffer were not global storage and fixed size then we
   // might want maximum size passed as constructor arguments
   //
+  // we down sample by a factor of 4
+  //
+  // the framesPerSignal argument is the number after down sampling
+  //
   Detector (unsigned frameRate, unsigned periodLengthInSeconds, unsigned framesPerSignal, QObject * parent = 0);
 
   bool isMonitoring () const {return m_monitoring;}
@@ -35,7 +41,7 @@ protected:
 private:
   // these are private because we want thread safety, must be called via Qt queued connections
   Q_SLOT void open (AudioDevice::Channel channel = Mono) {AudioDevice::open (QIODevice::WriteOnly, channel);}
-  Q_SLOT void setMonitoring (bool newState) {m_monitoring = newState;}
+  Q_SLOT void setMonitoring (bool newState) {m_monitoring = newState; m_bufferPos = 0;}
   Q_SLOT bool reset ();
   Q_SLOT void close () {AudioDevice::close ();}
 
@@ -46,10 +52,15 @@ private:
 
   unsigned m_frameRate;
   unsigned m_period;
-  unsigned m_framesPerSignal;
+  qint32 m_framesPerSignal;	// after down sampling
   bool volatile m_monitoring;
   bool m_starting;
-  qint16 m_translate[20000];
+  QScopedArrayPointer<short> m_buffer; // de-interleaved sample buffer
+				       // big enough for all the
+				       // samples for one increment of
+				       // data (a signals worth) at
+				       // the input sample rate
+  unsigned m_bufferPos;
 };
 
 #endif

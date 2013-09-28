@@ -37,7 +37,6 @@ public:
   size_t bytesPerFrame () const {return sizeof (qint16) * (Mono == m_channel ? 1 : 2);}
 
   Channel channel () const {return m_channel;}
-  void channel (Channel newChannel) {m_channel = newChannel;}
 
 protected:
   AudioDevice (QObject * parent = 0)
@@ -45,7 +44,7 @@ protected:
   {
   }
 
-  void store (char const * source, qint64 numFrames, qint16 * dest)
+  void store (char const * source, size_t numFrames, qint16 * dest)
   {
     qint16 const * begin (reinterpret_cast<qint16 const *> (source));
     for ( qint16 const * i = begin; i != begin + numFrames * (bytesPerFrame () / sizeof (qint16)); i += bytesPerFrame () / sizeof (qint16))
