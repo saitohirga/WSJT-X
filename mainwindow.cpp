@@ -1936,7 +1936,15 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   decodedtext = t1.mid(i1,i2-i1);         //selected line
 
   if (decodedtext.indexOf(" CQ ") > 0)
-      decodedtext = decodedtext.left(39);  // to remove DXCC entity and worked B4 status. TODO need a better way to do this
+  {
+      // TODO this magic 36 characters is also referenced in DisplayText::_appendDXCCWorkedB4()
+      int s3 = decodedtext.indexOf(" ",35);
+      if (s3 < 35)
+          s3 = 35; // we always want at least the characters to position 35
+      s3 += 1; // convert the index into a character count
+      decodedtext = decodedtext.left(s3);  // remove DXCC entity and worked B4 status. TODO need a better way to do this
+  }
+
 
 //  if(decodedtext.indexOf("Tx")==6) return;        //Ignore Tx line
   int i4=t.mid(i1).length();
@@ -1954,15 +1962,6 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
     m_QSOText=decodedtext;
   }
 
-  /*
-    int nfreq=t4.at(3).toInt();
-    if(t4.at(1)=="Tx") nfreq=t4.at(2).toInt();
-    m_wideGraph->setRxFreq(nfreq);                      //Set Rx freq
-    if(t4.at(1)=="Tx") {
-      if(ctrl) ui->TxFreqSpinBox->setValue(nfreq);       //Set Tx freq
-      return;
-    }
-  */
 
   int frequency = decodedtext.frequencyOffset();
   m_wideGraph->setRxFreq(frequency);                 //Set Rx freq
@@ -1973,33 +1972,11 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
     return;
   }
 
-  /*
-    QString firstcall=t4.at(5);
-    // Don't change Tx freq if a station is calling me, unless m_lockTxFreq
-    // is true or CTRL is held down or
-    if((firstcall!=m_myCall) or m_lockTxFreq or ctrl) {
-      ui->TxFreqSpinBox->setValue(nfreq);
-    }
-  */
-
   QString firstcall = decodedtext.call();
   // Don't change Tx freq if a station is calling me, unless m_lockTxFreq
   // is true or CTRL is held down
   if ((firstcall!=m_myCall) or m_lockTxFreq or ctrl)
     ui->TxFreqSpinBox->setValue(frequency);
-
-  /*
-    if(t4.at(4)=="@") {
-      m_modeTx="JT9";
-      ui->pbTxMode->setText("Tx JT9  @");
-      m_wideGraph->setModeTx(m_modeTx);
-    }
-    if(t4.at(4)=="#") {
-      m_modeTx="JT65";
-      ui->pbTxMode->setText("Tx JT65  #");
-      m_wideGraph->setModeTx(m_modeTx);
-    }
-  */
 
   if (decodedtext.isJT9())
   {
@@ -2014,16 +1991,6 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
           ui->pbTxMode->setText("Tx JT65  #");
           m_wideGraph->setModeTx(m_modeTx);
       }
-/*
-  QString hiscall=t4.at(6);
-  QString hisgrid="";
-  if(t4.length()>=8) hisgrid=t4.at(7);
-  if(hiscall!=ui->dxCallEntry->text())   ui->dxGridEntry->setText("");
-  ui->dxCallEntry->setText(hiscall);
-  if(gridOK(hisgrid)) ui->dxGridEntry->setText(hisgrid);
-  if(ui->dxGridEntry->text()=="") lookup();
-  m_hisGrid=ui->dxGridEntry->text();
-*/
 
   QString hiscall;
   QString hisgrid;
@@ -2037,29 +2004,11 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
       lookup();
   m_hisGrid = ui->dxGridEntry->text();
 
-/*
-  int n = 60*decodedtext.mid(0,2).toInt() + decodedtext.mid(2,2).toInt();
-  int nmod=n%(m_TRperiod/30);
-  m_txFirst=(nmod!=0);
-  ui->txFirstCheckBox->setChecked(m_txFirst);
-*/
   int n = decodedtext.timeInSeconds();
   int nmod=n%(m_TRperiod/30);
   m_txFirst=(nmod!=0);
   ui->txFirstCheckBox->setChecked(m_txFirst);
 
-/*
-  QString rpt=t4.at(1);
-  if(rpt.indexOf("  ")==0) rpt="+" + rpt.mid(2,2);
-  if(rpt.indexOf(" -")==0) rpt=rpt.mid(1,2);
-  if(rpt.indexOf(" ")==0) rpt="+" + rpt.mid(1,2);
-  int nr=rpt.toInt();
-  if(nr<-50) rpt="-50";
-  if(nr>49) rpt="+49";
-  if(nr>=-9 and nr<=-1) rpt="-0" + rpt.mid(1);
-  if(nr>=0 and nr<=9) rpt="+0" + rpt;
-  if(nr>=10) rpt="+" + rpt;
-*/
   QString rpt = decodedtext.report();
   ui->rptSpinBox->setValue(rpt.toInt());
   genStdMsgs(rpt);
