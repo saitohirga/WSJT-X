@@ -35,26 +35,31 @@ void Detector::clear ()
   // jt9com_.kin = qMin ((msInPeriod * m_frameRate) / 1000, static_cast<unsigned> (sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0])));
   jt9com_.kin = 0;
 
-  // fill buffer with zeros (G4WJS commented out becuase it might cause decoder hangs)
+  // fill buffer with zeros (G4WJS commented out because it might cause decoder hangs)
   // qFill (jt9com_.d2, jt9com_.d2 + sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0]), 0);
 }
 
 qint64 Detector::writeData (char const * data, qint64 maxSize)
 {
+  bool overrun (false);
+  int excess (0);
   if (m_monitoring)
     {
       Q_ASSERT (!(maxSize % static_cast<qint64> (bytesPerFrame ()))); // no torn frames
 
       qint64 framesAcceptable (sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0]) - jt9com_.kin);
       qint64 framesAccepted (qMin (static_cast<qint64> (maxSize / bytesPerFrame ()), framesAcceptable));
-  
-      if (framesAccepted < static_cast<qint64> (maxSize / bytesPerFrame ()))
+
+      overrun = framesAccepted < static_cast<qint64> (maxSize / bytesPerFrame ());
+      if (overrun)
 	{
 	  qDebug () << "dropped " << maxSize / sizeof (jt9com_.d2[0]) - framesAccepted << " frames of data on the floor!";
 	}
 
+      Q_ASSERT (2 == bytesPerFrame ()); // only mono until fil4 can do stereo
+      excess = framesAccepted % 4;
       qint32 m_n1,m_n2;
-      m_n1 = framesAccepted;
+      m_n1 = framesAccepted - excess;
       fil4_((qint16 *)data, &m_n1, m_translate, &m_n2);
       store ((char const *) m_translate, m_n2, &jt9com_.d2[jt9com_.kin]);
 
@@ -90,9 +95,9 @@ qint64 Detector::writeData (char const * data, qint64 maxSize)
       jt9com_.kin = 0;
     }
 
-  return maxSize;		// we drop any data past the end of
-				// the buffer on the floor until the
-				// next period starts
+  return maxSize - (overrun ? 0 : excess * bytesPerFrame ());
+		    // we drop any data past the end of the buffer on
+		    // the floor until the next period starts
 }
 
 unsigned Detector::secondInPeriod () const
