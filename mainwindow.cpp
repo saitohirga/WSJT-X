@@ -326,10 +326,23 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   ui->bandComboBox->addItems(m_bandDescription);
   ui->bandComboBox->setCurrentIndex(m_band);
 
+  {
+    //delete any .quit file that might have been left lying around
+    //since its presence will cause jt9 to exit a soon as we start it
+    //and decodes will hang
+    QString quitFileName (m_appDir + "/.quit");
+    QFile quitFile (quitFileName);
+    while (quitFile.exists ())
+      {
+	if (!quitFile.remove ())
+	  {
+	    msgBox ("Error removing " + quitFileName + " - OK to retry.");
+	  }
+      }
+  }
+
   QFile lockFile(m_appDir + "/.lock");     //Create .lock so jt9 will wait
   lockFile.open(QIODevice::ReadWrite);
-  //QFile quitFile(m_appDir + "/.lock");
-  //quitFile.remove();
 
 // Multiple instances: make the Qstring key into command line arg
 // Multiple instances: start "jt9 -s <thekey>"
