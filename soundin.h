@@ -31,7 +31,7 @@ class SoundInput : public QObject
   Q_SIGNAL void status (QString message) const;
 
   // sink must exist from the start call to any following stop () call
-  Q_SLOT void start(QAudioDeviceInfo const&, unsigned channels, int framesPerBuffer, QIODevice * sink);
+  Q_SLOT void start(QAudioDeviceInfo const&, unsigned channels, int framesPerBuffer, QIODevice * sink, unsigned downSampleFactor);
   Q_SLOT void stop();
 
   // used internally

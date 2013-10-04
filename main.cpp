@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <QObject>
 #include <QSettings>
+#include <QSysInfo>
 
 #include "mainwindow.h"
 
@@ -55,8 +56,20 @@ int main(int argc, char *argv[])
   }
   memset(to,0,size);         //Zero all decoding params in shared memory
 
+  settings.beginGroup ("Tune");
+
+  // deal with Windows Vista input audio rate converter problems
+  unsigned downSampleFactor = settings.value ("Audio/DisableInputResampling",
+#if defined (Q_OS_WIN)
+					      QSysInfo::WV_VISTA == QSysInfo::WindowsVersion ? true : false
+#else
+					      false
+#endif
+					      ).toBool () ? 1u : 4u;
+  settings.endGroup ();
+
 // Multiple instances:  Call MainWindow() with the UUID key
-  MainWindow w(&settings, &mem_jt9, &my_key, fontSize2, fontWeight2);
+  MainWindow w(&settings, &mem_jt9, &my_key, fontSize2, fontWeight2, downSampleFactor);
   w.show();
 
   QObject::connect (&a, SIGNAL (lastWindowClosed()), &a, SLOT (quit()));

@@ -48,8 +48,8 @@ class MainWindow : public QMainWindow
 
 // Multiple instances: call MainWindow() with *thekey
 public:
-  explicit MainWindow(QSettings *, QSharedMemory *shdmem, QString *thekey, \
-                      qint32 fontSize2, qint32 fontWeight2, \
+  explicit MainWindow(QSettings *, QSharedMemory *shdmem, QString *thekey,
+                      qint32 fontSize2, qint32 fontWeight2, unsigned downSampleFactor,
                       QWidget *parent = 0);
   ~MainWindow();
 
@@ -184,7 +184,7 @@ private slots:
   Q_SIGNAL void startAudioOutputStream (QAudioDeviceInfo, unsigned channels, unsigned msBuffered);
   Q_SIGNAL void stopAudioOutputStream ();
 
-  Q_SIGNAL void startAudioInputStream (QAudioDeviceInfo const&, unsigned channels, int framesPerBuffer, QIODevice * sink);
+  Q_SIGNAL void startAudioInputStream (QAudioDeviceInfo const&, unsigned channels, int framesPerBuffer, QIODevice * sink, unsigned downSampleFactor);
   Q_SIGNAL void stopAudioInputStream ();
 
   Q_SIGNAL void startDetector (AudioDevice::Channel);
@@ -391,6 +391,7 @@ private:
     DecodedText m_QSOText;
     unsigned m_msAudioOutputBuffered;
     unsigned m_framesAudioInputBuffered;
+    unsigned m_downSampleFactor;
     QThread::Priority m_audioThreadPriority;
 
 

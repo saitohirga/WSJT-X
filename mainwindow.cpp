@@ -42,14 +42,14 @@ QString Program_Title_Version="  WSJT-X   v1.2.1, r" + rev.mid(6,4) +
 //-------------------------------------------------- MainWindow constructor
 // Multiple instances: new arg *thekey
 MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *thekey,
-                       qint32 fontSize2, qint32 fontWeight2,
+                       qint32 fontSize2, qint32 fontWeight2, unsigned downSampleFactor,
                        QWidget *parent) :
   QMainWindow(parent),
   m_settings (settings),
   ui(new Ui::MainWindow),
   m_wideGraph (new WideGraph (settings)),
   m_logDlg (new LogQSO (settings, this)),
-  m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2),
+  m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2, downSampleFactor),
   m_audioInputDevice (QAudioDeviceInfo::defaultInputDevice ()), // start with default
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
   m_audioOutputDevice (QAudioDeviceInfo::defaultOutputDevice ()), // start with default
@@ -57,6 +57,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   psk_Reporter (new PSK_Reporter (this)),
   m_msAudioOutputBuffered (0u),
   m_framesAudioInputBuffered (RX_SAMPLE_RATE / 10),
+  m_downSampleFactor (downSampleFactor),
   m_audioThreadPriority (QThread::HighPriority)
 {
   ui->setupUi(this);
@@ -91,8 +92,8 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
 	   , &m_modulator, SLOT (open (unsigned, double, unsigned, AudioDevice::Channel, bool, double)));
 
   // hook up the audio input stream
-  connect (this, SIGNAL (startAudioInputStream (QAudioDeviceInfo const&, unsigned, int, QIODevice *))
-	   , &m_soundInput, SLOT (start (QAudioDeviceInfo const&, unsigned, int, QIODevice *)));
+  connect (this, SIGNAL (startAudioInputStream (QAudioDeviceInfo const&, unsigned, int, QIODevice *, unsigned))
+	   , &m_soundInput, SLOT (start (QAudioDeviceInfo const&, unsigned, int, QIODevice *, unsigned)));
   connect (this, SIGNAL (stopAudioInputStream ()), &m_soundInput, SLOT (stop ()));
 
   connect(&m_soundInput, SIGNAL (error (QString)), this, SLOT (showSoundInError (QString)));
@@ -394,7 +395,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   connect(watcher2, SIGNAL(finished()),this,SLOT(diskWriteFinished()));
 
   Q_EMIT startDetector (m_audioInputChannel);
-  Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, m_framesAudioInputBuffered, &m_detector);
+  Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, m_framesAudioInputBuffered, &m_detector, m_downSampleFactor);
 
   Q_EMIT transmitFrequency (m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0));
   Q_EMIT muteAudioOutput (false);
@@ -855,7 +856,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
       Q_EMIT stopAudioInputStream ();
       Q_EMIT detectorClose ();
       Q_EMIT startDetector (m_audioInputChannel);
-      Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, m_framesAudioInputBuffered, &m_detector);
+      Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, m_framesAudioInputBuffered, &m_detector, m_downSampleFactor);
     }
 
     if(dlg.m_restartSoundOut) {
@@ -892,7 +893,7 @@ void MainWindow::on_monitorButton_clicked()                  //Monitor
 {
   m_monitoring=true;
   Q_EMIT detectorSetMonitoring (true);
-  //  Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, m_framesAudioInputBuffered, &m_detector);
+  //  Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, m_framesAudioInputBuffered, &m_detector, m_downSampleFactor);
   m_diskData=false;
 }
 
