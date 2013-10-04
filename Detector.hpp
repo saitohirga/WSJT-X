@@ -26,7 +26,7 @@ public:
   //
   // the framesPerSignal argument is the number after down sampling
   //
-  Detector (unsigned frameRate, unsigned periodLengthInSeconds, unsigned framesPerSignal, QObject * parent = 0);
+  Detector (unsigned frameRate, unsigned periodLengthInSeconds, unsigned framesPerSignal, unsigned downSampleFactor = 4u, QObject * parent = 0);
 
   bool isMonitoring () const {return m_monitoring;}
 
@@ -52,7 +52,8 @@ private:
 
   unsigned m_frameRate;
   unsigned m_period;
-  qint32 m_framesPerSignal;	// after down sampling
+  unsigned m_downSampleFactor;
+  qint32 m_framesPerSignal;	// after any down sampling
   bool volatile m_monitoring;
   bool m_starting;
   QScopedArrayPointer<short> m_buffer; // de-interleaved sample buffer

@@ -10,19 +10,15 @@ extern "C" {
 void   fil4_(qint16*, qint32*, qint16*, qint32*);
 }
 
-namespace
-{
-  unsigned const downsampleFactor = 4;
-}
-
-Detector::Detector (unsigned frameRate, unsigned periodLengthInSeconds, unsigned framesPerSignal, QObject * parent)
+Detector::Detector (unsigned frameRate, unsigned periodLengthInSeconds, unsigned framesPerSignal, unsigned downSampleFactor, QObject * parent)
   : AudioDevice (parent)
   , m_frameRate (frameRate)
   , m_period (periodLengthInSeconds)
+  , m_downSampleFactor (downSampleFactor)
   , m_framesPerSignal (framesPerSignal)
   , m_monitoring (false)
   , m_starting (false)
-  , m_buffer (new short [framesPerSignal * downsampleFactor])
+  , m_buffer ((downSampleFactor > 1) ? new short [framesPerSignal * downSampleFactor] : 0)
   , m_bufferPos (0)
 {
   clear ();
@@ -53,7 +49,7 @@ qint64 Detector::writeData (char const * data, qint64 maxSize)
       Q_ASSERT (!(maxSize % static_cast<qint64> (bytesPerFrame ()))); // no torn frames
 
       // these are in terms of input frames (not down sampled)
-      size_t framesAcceptable ((sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0]) - jt9com_.kin) * downsampleFactor);
+      size_t framesAcceptable ((sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0]) - jt9com_.kin) * m_downSampleFactor);
       size_t framesAccepted (qMin (static_cast<size_t> (maxSize / bytesPerFrame ()), framesAcceptable));
 
       if (framesAccepted < static_cast<size_t> (maxSize / bytesPerFrame ()))
@@ -63,18 +59,33 @@ qint64 Detector::writeData (char const * data, qint64 maxSize)
 
       for (unsigned remaining = framesAccepted; remaining; )
 	{
-	  size_t numFramesProcessed (qMin (m_framesPerSignal * downsampleFactor - m_bufferPos, remaining));
-	  store (&data[(framesAccepted - remaining) * bytesPerFrame ()], numFramesProcessed, &m_buffer[m_bufferPos]);
-	  m_bufferPos += numFramesProcessed;
-	  if (m_bufferPos == m_framesPerSignal * downsampleFactor && m_monitoring)
-	    {
-	      qint32 framesToProcess (m_framesPerSignal * downsampleFactor);
-	      qint32 framesAfterDownSample;
-	      fil4_(&m_buffer[0], &framesToProcess, &jt9com_.d2[jt9com_.kin], &framesAfterDownSample);
-	      m_bufferPos = 0;
+	  size_t numFramesProcessed (qMin (m_framesPerSignal * m_downSampleFactor - m_bufferPos, remaining));
 
-	      jt9com_.kin += framesAfterDownSample;
-	      Q_EMIT framesWritten (jt9com_.kin);
+	  if (m_downSampleFactor > 1)
+	    {
+	      store (&data[(framesAccepted - remaining) * bytesPerFrame ()], numFramesProcessed, &m_buffer[m_bufferPos]);
+	      m_bufferPos += numFramesProcessed;
+	      if (m_bufferPos == m_framesPerSignal * m_downSampleFactor && m_monitoring)
+		{
+		  qint32 framesToProcess (m_framesPerSignal * m_downSampleFactor);
+		  qint32 framesAfterDownSample;
+		  fil4_(&m_buffer[0], &framesToProcess, &jt9com_.d2[jt9com_.kin], &framesAfterDownSample);
+		  jt9com_.kin += framesAfterDownSample;
+		  Q_EMIT framesWritten (jt9com_.kin);
+		  m_bufferPos = 0;
+		}
+
+	    }
+	  else
+	    {
+	      store (&data[(framesAccepted - remaining) * bytesPerFrame ()], numFramesProcessed, &jt9com_.d2[jt9com_.kin]);
+	      m_bufferPos += numFramesProcessed;
+	      jt9com_.kin += numFramesProcessed;
+	      if (m_bufferPos == static_cast<unsigned> (m_framesPerSignal) && m_monitoring)
+		{
+		  Q_EMIT framesWritten (jt9com_.kin);
+		  m_bufferPos = 0;
+		}
 	    }
 
 	  if (!secondInPeriod ())

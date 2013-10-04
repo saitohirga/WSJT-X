@@ -38,7 +38,7 @@ bool SoundInput::audioError () const
   return result;
 }
 
-void SoundInput::start(QAudioDeviceInfo const& device, unsigned channels, int framesPerBuffer, QIODevice * sink)
+void SoundInput::start(QAudioDeviceInfo const& device, unsigned channels, int framesPerBuffer, QIODevice * sink, unsigned downSampleFactor)
 {
   Q_ASSERT (0 < channels && channels < 3);
   Q_ASSERT (sink);
@@ -48,7 +48,7 @@ void SoundInput::start(QAudioDeviceInfo const& device, unsigned channels, int fr
   QAudioFormat format (device.preferredFormat());
   format.setChannelCount (channels);
   format.setCodec ("audio/pcm");
-  format.setSampleRate (48000);
+  format.setSampleRate (12000 * downSampleFactor);
   format.setSampleType (QAudioFormat::SignedInt);
   format.setSampleSize (16);
 
