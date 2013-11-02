@@ -26,6 +26,7 @@ public:
   qint32  m_udpPort;
   qint32  m_astroFont;
   qint32  m_mult570;
+  qint32  m_mult570Tx;
 
   double  m_fAdd;
   double  m_cal570;
@@ -39,6 +40,7 @@ public:
   bool    m_restartSoundOut;
   bool    m_10db;
   bool    m_initIQplus;
+  bool    m_bIQxt;
 
   QString m_myCall;
   QString m_myGrid;
@@ -75,6 +77,9 @@ private slots:
   void on_sbGreen3_valueChanged(int arg1);
   void on_sbBlue3_valueChanged(int arg1);
   void on_pushButton_5_clicked();
+  void on_mult570TxSpinBox_valueChanged(int arg1);
+
+  void on_rbIQXT_toggled(bool checked);
 
 private:
   int r,g,b,r0,g0,b0,r1,g1,b1,r2,g2,b2,r3,g3,b3;

@@ -162,6 +162,7 @@ private:
     qint32  m_adjustIQ;
     qint32  m_applyIQcal;
     qint32  m_mult570;
+    qint32  m_mult570Tx;
     qint32  m_nfast;
     qint32  m_nsum;
     qint32  m_nsave;
@@ -195,6 +196,7 @@ private:
     bool    m_IQswap;
     bool    m_10db;
     bool    m_initIQplus;
+    bool    m_bIQxt;
 
     float   m_gainx;
     float   m_gainy;

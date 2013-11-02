@@ -547,10 +547,11 @@ void CPlotter::mousePressEvent(QMouseEvent *event)       //mousePressEvent
   int h = (m_Size.height()-60)/2;
   int x=event->x();
   int y=event->y();
-  if(y < h+30) {
-    setFQSO(x,false);                               // Wideband waterfall
-  } else {
-    m_DF=int(m_ZoomStartFreq + x*m_fSample/32768.0);  // Zoomed waterfall
+  int button=event->button();
+  if(y < h+30) {                                      // Wideband waterfall
+    if(button==1) setFQSO(x,false);
+  } else {                                            // Zoomed waterfall
+    if(button==1) m_DF=int(m_ZoomStartFreq + x*m_fSample/32768.0);
     DrawOverlay();
     update();
   }

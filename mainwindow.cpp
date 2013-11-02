@@ -240,6 +240,7 @@ MainWindow::MainWindow(QWidget *parent) :
   if(m_fs96000) g_pWideGraph->setFsample(96000);
   if(!m_fs96000) g_pWideGraph->setFsample(95238);
   g_pWideGraph->m_mult570=m_mult570;
+  g_pWideGraph->m_mult570Tx=m_mult570Tx;
   g_pWideGraph->m_cal570=m_cal570;
   if(m_initIQplus) g_pWideGraph->initIQplus();
 
@@ -342,6 +343,7 @@ void MainWindow::writeSettings()
   settings.setValue("paOutDevice",m_paOutDevice);
   settings.setValue("IQswap",m_IQswap);
   settings.setValue("Plus10dB",m_10db);
+  settings.setValue("IQxt",m_bIQxt);
   settings.setValue("InitIQplus",m_initIQplus);
   settings.setValue("UDPport",m_udpPort);
   settings.setValue("PaletteCuteSDR",ui->actionCuteSDR->isChecked());
@@ -361,6 +363,7 @@ void MainWindow::writeSettings()
   settings.setValue("PhaseX",(double)m_phasex);
   settings.setValue("PhaseY",(double)m_phasey);
   settings.setValue("Mult570",m_mult570);
+  settings.setValue("Mult570Tx",m_mult570Tx);
   settings.setValue("Cal570",m_cal570);
   settings.setValue("Colors",m_colors);
   settings.endGroup();
@@ -420,6 +423,7 @@ void MainWindow::readSettings()
   m_IQswap = settings.value("IQswap",false).toBool();
   m_10db = settings.value("Plus10dB",false).toBool();
   m_initIQplus = settings.value("InitIQplus",false).toBool();
+  m_bIQxt = settings.value("IQxt",false).toBool();
   m_udpPort = settings.value("UDPport",50004).toInt();
   soundInThread.setSwapIQ(m_IQswap);
   soundInThread.set10db(m_10db);
@@ -450,6 +454,7 @@ void MainWindow::readSettings()
   m_phasex=settings.value("PhaseX",0.0).toFloat();
   m_phasey=settings.value("PhaseY",0.0).toFloat();
   m_mult570=settings.value("Mult570",2).toInt();
+  m_mult570Tx=settings.value("Mult570Tx",1).toInt();
   m_cal570=settings.value("Cal570",0.0).toDouble();
   m_colors=settings.value("Colors","000066ff0000ffff00969696646464").toString();
   settings.endGroup();
@@ -612,8 +617,10 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_IQswap=m_IQswap;
   dlg.m_10db=m_10db;
   dlg.m_initIQplus=m_initIQplus;
+  dlg.m_bIQxt=m_bIQxt;
   dlg.m_cal570=m_cal570;
   dlg.m_mult570=m_mult570;
+  dlg.m_mult570Tx=m_mult570Tx;
   dlg.m_colors=m_colors;
 
   dlg.initDlg();
@@ -646,12 +653,14 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_IQswap=dlg.m_IQswap;
     m_10db=dlg.m_10db;
     m_initIQplus=dlg.m_initIQplus;
+    m_bIQxt=dlg.m_bIQxt;
     m_colors=dlg.m_colors;
     g_pMessages->setColors(m_colors);
     g_pBandMap->setColors(m_colors);
     m_cal570=dlg.m_cal570;
-    m_mult570=dlg.m_mult570;
+    m_mult570Tx=dlg.m_mult570Tx;
     g_pWideGraph->m_mult570=m_mult570;
+    g_pWideGraph->m_mult570Tx=m_mult570Tx;
     g_pWideGraph->m_cal570=m_cal570;
     soundInThread.setSwapIQ(m_IQswap);
     soundInThread.set10db(m_10db);

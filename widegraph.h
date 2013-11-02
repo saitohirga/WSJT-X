@@ -16,6 +16,7 @@ public:
 
   bool   m_bForceCenterFreq;
   qint32 m_mult570;
+  qint32 m_mult570Tx;
   double m_dForceCenterFreq;
   double m_cal570;
 

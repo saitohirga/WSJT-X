@@ -96,6 +96,9 @@ void DevSetup::initDlg()
   ui.soundCardRadioButton->setChecked(!m_network);
   ui.rb96000->setChecked(m_fs96000);
   ui.rb95238->setChecked(!m_fs96000);
+  ui.rbIQXT->setChecked(m_bIQxt);
+  ui.rbSi570->setChecked(!m_bIQxt);
+  ui.mult570TxSpinBox->setEnabled(m_bIQxt);
   ui.comboBoxSndIn->setEnabled(!m_network);
   ui.comboBoxSndIn->setCurrentIndex(m_nDevIn);
   ui.comboBoxSndOut->setCurrentIndex(m_nDevOut);
@@ -104,6 +107,7 @@ void DevSetup::initDlg()
   ui.cb10db->setChecked(m_10db);
   ui.cbInitIQplus->setChecked(m_initIQplus);
   ui.mult570SpinBox->setValue(m_mult570);
+  ui.mult570TxSpinBox->setValue(m_mult570Tx);
   ui.cal570SpinBox->setValue(m_cal570);
   sscanf(m_colors.toAscii(),"%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x",
          &r,&g,&b,&r0,&g0,&b0,&r1,&g1,&b1,&r2,&g2,&b2,&r3,&g3,&b3);
@@ -162,6 +166,7 @@ void DevSetup::accept()
   m_fAdd=ui.faddEntry->text().toDouble();
   m_network=ui.networkRadioButton->isChecked();
   m_fs96000=ui.rb96000->isChecked();
+  m_bIQxt=ui.rbIQXT->isChecked();
   m_nDevIn=ui.comboBoxSndIn->currentIndex();
   m_paInDevice=m_inDevList[m_nDevIn];
   m_nDevOut=ui.comboBoxSndOut->currentIndex();
@@ -171,6 +176,7 @@ void DevSetup::accept()
   m_10db=ui.cb10db->isChecked();
   m_initIQplus=ui.cbInitIQplus->isChecked();
   m_mult570=ui.mult570SpinBox->value();
+  m_mult570Tx=ui.mult570TxSpinBox->value();
   m_cal570=ui.cal570SpinBox->value();
 
   QDialog::accept();
@@ -324,4 +330,16 @@ void DevSetup::on_pushButton_5_clicked()
   QColor color = QColorDialog::getColor(Qt::green, this);
   if (color.isValid()) {
   }
+}
+
+void DevSetup::on_mult570TxSpinBox_valueChanged(int n)
+{
+  m_mult570Tx=n;
+}
+
+void DevSetup::on_rbIQXT_toggled(bool checked)
+{
+  m_bIQxt=checked;
+  ui.mult570TxSpinBox->setEnabled(m_bIQxt);
+  ui.label_25->setEnabled(m_bIQxt);
 }
