@@ -15,6 +15,7 @@ public:
   ~WideGraph();
 
   bool   m_bForceCenterFreq;
+  bool   m_bLockTxRx;
   qint32 m_mult570;
   qint32 m_mult570Tx;
   double m_dForceCenterFreq;
@@ -62,6 +63,8 @@ private slots:
   void on_fCenterLineEdit_editingFinished();
   void on_pbSetRxHardware_clicked();
   void on_cbSpec2d_toggled(bool checked);
+
+  void on_cbLockTxRx_stateChanged(int arg1);
 
 private:
   qint32 m_waterfallAvg;

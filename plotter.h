@@ -56,7 +56,7 @@ public:
   void setBinsPerPixel(int n);
   int  binsPerPixel();
   void setFQSO(int n, bool bf);
-//  void setTxFreq(int)
+  void setTxFreq(double dfreq);
   void setFcal(int n);
   void setNkhz(int n);
   void DrawOverlay();
@@ -68,6 +68,7 @@ public:
   void setMode65(int n);
   void set2Dspec(bool b);
   double fGreen();
+  void setLockTxRx(bool b);
 
 signals:
   void freezeDecode0(int n);
@@ -99,8 +100,10 @@ private:
   bool    m_paintEventBusy;
   bool    m_2Dspec;
   bool    m_paintAllZoom;
+  bool    m_bLockTxRx;
   double  m_CenterFreq;
   double  m_fGreen;
+  double  m_TXfreq;
   qint64  m_StartFreq;
   qint64  m_ZoomStartFreq;
   qint64  m_FreqOffset;
@@ -119,6 +122,8 @@ private:
   qint32  m_mode65;
   qint32  m_i0;
   qint32  m_xClick;
+  qint32  m_TXkHz;
+  qint32  m_TxDF;
 
 private slots:
   void mousePressEvent(QMouseEvent *event);

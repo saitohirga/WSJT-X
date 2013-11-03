@@ -40,7 +40,10 @@ WideGraph::WideGraph(QWidget *parent) :
   m_bForceCenterFreq=settings.value("ForceCenterFreqBool",false).toBool();
   m_dForceCenterFreq=settings.value("ForceCenterFreqMHz",144.125).toDouble();
   ui->cbFcenter->setChecked(m_bForceCenterFreq);
+  ui->cbLockTxRx->setChecked(m_bLockTxRx);
   ui->fCenterLineEdit->setText(QString::number(m_dForceCenterFreq));
+  m_bLockTxRx=settings.value("LockTxRx",false).toBool();
+  ui->cbLockTxRx->setChecked(m_bLockTxRx);
   settings.endGroup();
 }
 
@@ -67,6 +70,7 @@ void WideGraph::saveSettings()
   settings.setValue("FreqOffset",ui->widePlot->freqOffset());
   settings.setValue("ForceCenterFreqBool",m_bForceCenterFreq);
   settings.setValue("ForceCenterFreqMHz",m_dForceCenterFreq);
+  settings.setValue("LockTxRx",m_bLockTxRx);
   settings.endGroup();
 }
 
@@ -320,4 +324,10 @@ double WideGraph::fGreen()
 void WideGraph::setPeriod(int n)
 {
   m_TRperiod=n;
+}
+
+void WideGraph::on_cbLockTxRx_stateChanged(int n)
+{
+  m_bLockTxRx = (n!=0);
+  ui->widePlot->setLockTxRx(m_bLockTxRx);
 }

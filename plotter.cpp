@@ -32,6 +32,7 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   m_line = 0;
   m_fSample = 96000;
   m_paintAllZoom = false;
+  m_TxDF=0;
 }
 
 CPlotter::~CPlotter() { }                                      // Destructor
@@ -317,6 +318,10 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     painter0.setPen(pen0);
     x = XfromFreq(float(fQSO()));
     painter0.drawLine(x,15,x,30);
+    QPen pen3(Qt::red, 3);                  //Mark Tx freq (kHz) with red tick
+    painter0.setPen(pen3);
+    x = XfromFreq(float(m_TXkHz));
+    painter0.drawLine(x,0,x,15);
   }
 
   // Now make the zoomed scale, using m_ZoomScalePixmap and painter3
@@ -352,7 +357,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
 
   df=m_fSample/32768.0;
   x = (m_DF + m_mode65*66*11025.0/4096.0 - m_ZoomStartFreq)/df;
-  QPen pen2(Qt::red, 3);            //Mark top JT65B tone with red tick
+  QPen pen2(Qt::darkGreen, 3);      //Mark top JT65B tone with dark Green tick
   painter3.setPen(pen2);
   painter3.drawLine(x,15,x,30);
   x = (m_DF - m_ZoomStartFreq)/df;
@@ -367,6 +372,12 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   int x2=(m_DF + m_tol - m_ZoomStartFreq)/df;
   pen1.setWidth(6);
   painter3.drawLine(x1,28,x2,28);
+
+  pen1.setWidth(3);
+  pen1.setColor(Qt::red);                  //Mark Tx DF with red tick
+  painter3.setPen(pen1);
+  x = (m_TxDF - m_ZoomStartFreq)/df;
+  painter3.drawLine(x,0,x,15);
 }
 
 void CPlotter::MakeFrequencyStrs()                       //MakeFrequencyStrs
@@ -549,16 +560,30 @@ void CPlotter::mousePressEvent(QMouseEvent *event)       //mousePressEvent
   int y=event->y();
   int button=event->button();
   if(y < h+30) {                                      // Wideband waterfall
-    if(button==1) setFQSO(x,false);
+    if(button==1) {
+      setFQSO(x,false);
+      if(m_bLockTxRx) m_TXkHz=m_fQSO;
+      qDebug() << "c" << m_bLockTxRx << m_fQSO << m_TXkHz;
+    }
+    if(button==2 and !m_bLockTxRx) {
+      if(x<0) x=0;      // x is pixel number
+      if(x>m_Size.width()) x=m_Size.width();
+      m_TXkHz = int(FreqfromX(x)+0.5);
+      m_TXfreq = floor(datcom_.fcenter) + 0.001*m_TXkHz;
+      setTxFreq(m_TXfreq);
+    }
   } else {                                            // Zoomed waterfall
     if(button==1) m_DF=int(m_ZoomStartFreq + x*m_fSample/32768.0);
-    DrawOverlay();
-    update();
+    if(button==2 and !m_bLockTxRx) m_TxDF=int(m_ZoomStartFreq + x*m_fSample/32768.0);
+    if(m_bLockTxRx) m_TxDF=m_DF;
   }
+  DrawOverlay();
+  update();
 }
 
 void CPlotter::mouseDoubleClickEvent(QMouseEvent *event)  //mouse2click
 {
+  if(event->button()!=1) return;       //Act only on left double-click
   int h = (m_Size.height()-60)/2;
   int x=event->x();
   int y=event->y();
@@ -714,4 +739,21 @@ void CPlotter::set2Dspec(bool b)
 double CPlotter::fGreen()
 {
   return m_fGreen;
+}
+
+void CPlotter::setTxFreq(double dfreq)
+{
+  qDebug() << "SetTxFreq()" << dfreq;
+}
+
+void CPlotter::setLockTxRx(bool b)
+{
+  m_bLockTxRx=b;
+  if(m_bLockTxRx) {
+    m_TXkHz=m_fQSO;
+    m_TXfreq=floor(m_TXfreq) + 0.001*m_TXkHz;
+    m_TxDF=m_DF;
+    DrawOverlay();                         //Redraw scales and ticks
+    update();                              //trigger a new paintEvent}
+  }
 }
