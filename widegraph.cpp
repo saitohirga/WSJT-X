@@ -331,3 +331,34 @@ void WideGraph::on_cbLockTxRx_stateChanged(int n)
   m_bLockTxRx = (n!=0);
   ui->widePlot->setLockTxRx(m_bLockTxRx);
 }
+
+void WideGraph::rx570()
+{
+  double f=m_mult570*(1.0+0.000001*m_cal570)*m_dForceCenterFreq;
+  qDebug() << "Set Rx Freq" << m_dForceCenterFreq << f;
+#ifdef WIN32
+  int iret=set570(f);
+  if(iret != 0) {
+    QMessageBox mb;
+    if(iret==-1) mb.setText("Failed to open Si570.");
+    if(iret==-2) mb.setText("Frequency out of permitted range.");
+    mb.exec();
+  }
+#endif
+}
+
+void WideGraph::tx570()
+{
+  double f=floor(datcom_.fcenter) + ui->widePlot->txFreq();
+  double f1=m_mult570Tx*(1.0+0.000001*m_cal570) * f;
+  qDebug() << "Set Tx Freq" << f << f1;
+#ifdef WIN32
+  int iret=set570(f1);
+  if(iret != 0) {
+    QMessageBox mb;
+    if(iret==-1) mb.setText("Failed to open Si570.");
+    if(iret==-2) mb.setText("Frequency out of permitted range.");
+    mb.exec();
+  }
+#endif
+}

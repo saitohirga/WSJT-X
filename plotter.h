@@ -69,6 +69,7 @@ public:
   void set2Dspec(bool b);
   double fGreen();
   void setLockTxRx(bool b);
+  double txFreq();
 
 signals:
   void freezeDecode0(int n);

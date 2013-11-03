@@ -757,3 +757,8 @@ void CPlotter::setLockTxRx(bool b)
     update();                              //trigger a new paintEvent}
   }
 }
+
+double CPlotter::txFreq()
+{
+  return m_TXfreq + 0.000001*m_TxDF;
+}

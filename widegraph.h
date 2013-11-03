@@ -38,6 +38,8 @@ public:
   void   setMode65(int n);
   void   setPeriod(int n);
   double fGreen();
+  void   rx570();
+  void   tx570();
 
   qint32 m_qsoFreq;
 
