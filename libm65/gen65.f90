@@ -3,7 +3,7 @@ subroutine gen65(message,mode65,nfast,samfac,nsendingsh,msgsent,iwave,nwave)
 ! Encodes a JT65 message into a wavefile.  
 ! Executes in 17 ms on opti-745.
 
-  parameter (NMAX=60*11025)     !Max length of wave file
+  parameter (NMAX=2*60*11025)   !Max length of wave file
   character*22 message          !Message to be generated
   character*22 msgsent          !Message as it will be received
   character*3 cok               !'   ' or 'OOO'
@@ -54,27 +54,31 @@ subroutine gen65(message,mode65,nfast,samfac,nsendingsh,msgsent,iwave,nwave)
   f0=118*11025.d0/1024
   dfgen=mode65*11025.d0/4096.d0
   phi=0.d0
+  dphi=twopi*dt*f0
   i=0
   k=0
   do j=1,nsym
-     f=f0
-     if(nspecial.ne.0 .and. mod(j,2).eq.0) f=f0+10*nspecial*dfgen
-     if(nspecial.eq.0 .and. flip*pr(j).lt.0.0) then
-        k=k+1
-        f=f0+(sent(k)+2)*dfgen
+     if(message(1:5).ne.'@TUNE') then
+        f=f0
+        if(nspecial.ne.0 .and. mod(j,2).eq.0) f=f0+10*nspecial*dfgen
+        if(nspecial.eq.0 .and. flip*pr(j).lt.0.0) then
+           k=k+1
+           f=f0+(sent(k)+2)*dfgen
+        endif
+        dphi=twopi*dt*f
      endif
-     dphi=twopi*dt*f
      do ii=1,nsps
         phi=phi+dphi
         if(phi.gt.twopi) phi=phi-twopi
         xphi=phi
         i=i+1
-        iwave(i)=32767.0*sin(xphi)
+        iwave(2*i-1)=32767.0*cos(xphi)
+        iwave(2*i)=32767.0*sin(xphi)
      enddo
   enddo
 
-  iwave(nsym*nsps+1:)=0
-  nwave=nsym*nsps + 5512
+  iwave(2*nsym*nsps+1:)=0
+  nwave=2*nsym*nsps + 5512
   call unpackmsg(dgen,msgsent)
   if(flip.lt.0.0) then
      do i=22,1,-1

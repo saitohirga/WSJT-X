@@ -13,7 +13,7 @@
 
 #define NFFT 32768
 
-short int iwave[60*11025];            //Wave file for Tx audio
+short int iwave[2*60*11025];          //Wave file for Tx audio
 int nwave;                            //Length of Tx waveform
 bool btxok;                           //True if OK to transmit
 double outputLatency;                 //Latency in seconds

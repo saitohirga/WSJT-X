@@ -8,7 +8,7 @@ extern "C" {
 
 extern float gran();                  //Noise generator (for tests only)
 
-extern short int iwave[60*11025];     //Wave file for Tx audio
+extern short int iwave[2*60*11025];   //Wave file for Tx audio
 extern int nwave;
 extern bool btxok;
 extern double outputLatency;
@@ -28,7 +28,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   paUserData *udata=(paUserData*)userData;
   short *wptr = (short*)outputBuffer;
   unsigned int i;
-  int n;
+  static int n;
   static int ic=0;
   static bool btxok0=false;
   static int nStart=0;
@@ -51,6 +51,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
     } else {
       if(n != nStart) { //Late start in new Tx cycle: compute starting index
         ic=(int)(tstart*11025.0);
+        ic=2*ic;
         nStart=n;
       }
     }
@@ -59,19 +60,18 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
 
   if(btxok) {
     for(i=0 ; i<framesToProcess; i++ )  {
-      short int i2=iwave[ic];
-      if(ic > nwave) i2=0;
+        short int i2a=iwave[ic++];
+        short int i2b=iwave[ic++];
+      if(ic > nwave) {i2a=0; i2b=0;}
 //      i2 = 500.0*(i2/32767.0 + 5.0*gran());      //Add noise (tests only!)
-      if(!btxok) i2=0;
-      *wptr++ = i2;                   //left
-      *wptr++ = i2;                   //right
-      ic++;
+      *wptr++ = i2a;                     //left
+      *wptr++ = i2b;                     //right
     }
   } else {
     for(i=0 ; i<framesToProcess; i++ )  {
       *wptr++ = 0;
       *wptr++ = 0;
-      ic++;
+      ic++; ic++;
     }
   }
   if(ic > nwave) {

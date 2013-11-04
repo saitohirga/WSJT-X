@@ -1,7 +1,7 @@
 [Setup]
 AppName=MAP65
-AppVerName=MAP65 Version 2.4.1 r2587
-AppCopyright=Copyright (C) 2001-2012 by Joe Taylor, K1JT
+AppVerName=MAP65 Version 2.4.1 r3120
+AppCopyright=Copyright (C) 2001-2013 by Joe Taylor, K1JT
 DefaultDirName=c:\MAP65
 DefaultGroupName=MAP65
 
