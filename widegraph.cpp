@@ -335,10 +335,10 @@ void WideGraph::on_cbLockTxRx_stateChanged(int n)
 void WideGraph::rx570()
 {
   double f=m_mult570*(1.0+0.000001*m_cal570)*m_dForceCenterFreq;
-  qDebug() << "Set Rx Freq" << f;
+//  qDebug() << "Set Rx Freq" << f;
 #ifdef WIN32
-//  int iret=set570(f);
-  int iret=0;
+  int iret=set570(f);
+//  int iret=0;
 
   if(iret != 0) {
     QMessageBox mb;
@@ -356,10 +356,10 @@ void WideGraph::tx570()
   double f=ui->widePlot->txFreq();
   double f1=m_mult570Tx*(1.0+0.000001*m_cal570) * f;
   int nHz = 1000000.0*f1 + 0.5;
-  qDebug() << "Set Tx Freq" << f1 << nHz;
+//  qDebug() << "Set Tx Freq" << f1 << nHz;
 #ifdef WIN32
-//  int iret=set570(f1);
-  int iret=0;
+  int iret=set570(f1);
+//  int iret=0;
 
   if(iret != 0) {
     QMessageBox mb;
