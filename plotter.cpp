@@ -29,6 +29,7 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   m_ZoomScalePixmap = QPixmap(0,0);
   m_Size = QSize(0,0);
   m_fQSO = 125;
+  m_TXkHz = m_fQSO;
   m_line = 0;
   m_fSample = 96000;
   m_paintAllZoom = false;
@@ -535,6 +536,8 @@ void CPlotter::setFQSO(int x, bool bf)                       //setFQSO()
     m_fQSO = int(FreqfromX(x)+0.5);
     m_xClick=x;
   }
+  if(m_bLockTxRx) m_TXkHz=m_fQSO;
+  m_TXfreq = floor(datcom_.fcenter) + 0.001*m_TXkHz;
   DrawOverlay();
   update();
 }
@@ -562,15 +565,12 @@ void CPlotter::mousePressEvent(QMouseEvent *event)       //mousePressEvent
   if(y < h+30) {                                      // Wideband waterfall
     if(button==1) {
       setFQSO(x,false);
-      if(m_bLockTxRx) m_TXkHz=m_fQSO;
-      qDebug() << "c" << m_bLockTxRx << m_fQSO << m_TXkHz;
     }
     if(button==2 and !m_bLockTxRx) {
       if(x<0) x=0;      // x is pixel number
       if(x>m_Size.width()) x=m_Size.width();
       m_TXkHz = int(FreqfromX(x)+0.5);
       m_TXfreq = floor(datcom_.fcenter) + 0.001*m_TXkHz;
-      setTxFreq(m_TXfreq);
     }
   } else {                                            // Zoomed waterfall
     if(button==1) m_DF=int(m_ZoomStartFreq + x*m_fSample/32768.0);
@@ -741,11 +741,6 @@ double CPlotter::fGreen()
   return m_fGreen;
 }
 
-void CPlotter::setTxFreq(double dfreq)
-{
-  qDebug() << "SetTxFreq()" << dfreq;
-}
-
 void CPlotter::setLockTxRx(bool b)
 {
   m_bLockTxRx=b;
@@ -760,5 +755,6 @@ void CPlotter::setLockTxRx(bool b)
 
 double CPlotter::txFreq()
 {
+  qDebug() << "Q" << m_TXfreq << m_TxDF;
   return m_TXfreq + 0.000001*m_TxDF;
 }

@@ -213,7 +213,7 @@ void SoundInThread::run()                           //SoundInThread::run()
     udata.b10db=m_10db;
     if(m_monitoring) {
       if(m_bForceCenterFreq) {
-        datcom_.fcenter=m_dForceCenterFreq;\
+        datcom_.fcenter=m_dForceCenterFreq;
       } else {
         datcom_.fcenter=144.125;
       }

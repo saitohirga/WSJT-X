@@ -56,7 +56,6 @@ public:
   void setBinsPerPixel(int n);
   int  binsPerPixel();
   void setFQSO(int n, bool bf);
-  void setTxFreq(double dfreq);
   void setFcal(int n);
   void setNkhz(int n);
   void DrawOverlay();

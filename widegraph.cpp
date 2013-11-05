@@ -335,9 +335,11 @@ void WideGraph::on_cbLockTxRx_stateChanged(int n)
 void WideGraph::rx570()
 {
   double f=m_mult570*(1.0+0.000001*m_cal570)*m_dForceCenterFreq;
-  qDebug() << "Set Rx Freq" << m_dForceCenterFreq << f;
+  qDebug() << "Set Rx Freq" << f;
 #ifdef WIN32
-  int iret=set570(f);
+//  int iret=set570(f);
+  int iret=0;
+
   if(iret != 0) {
     QMessageBox mb;
     if(iret==-1) mb.setText("Failed to open Si570.");
@@ -349,11 +351,16 @@ void WideGraph::rx570()
 
 void WideGraph::tx570()
 {
-  double f=floor(datcom_.fcenter) + ui->widePlot->txFreq();
+  if(m_bForceCenterFreq) datcom_.fcenter=m_dForceCenterFreq;
+
+  double f=ui->widePlot->txFreq();
   double f1=m_mult570Tx*(1.0+0.000001*m_cal570) * f;
-  qDebug() << "Set Tx Freq" << f << f1;
+  int nHz = 1000000.0*f1 + 0.5;
+  qDebug() << "Set Tx Freq" << f1 << nHz;
 #ifdef WIN32
-  int iret=set570(f1);
+//  int iret=set570(f1);
+  int iret=0;
+
   if(iret != 0) {
     QMessageBox mb;
     if(iret==-1) mb.setText("Failed to open Si570.");
