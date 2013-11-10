@@ -1493,6 +1493,8 @@ void MainWindow::guiUpdate()
   lab2->setText("QSO Freq:  " + QString::number(g_pWideGraph->QSOfreq()));
   lab3->setText("QSO DF:  " + QString::number(g_pWideGraph->DF()));
 
+  g_pWideGraph->updateFreqLabel();
+
   if(m_startAnother) {
     m_startAnother=false;
     on_actionOpen_next_in_directory_triggered();

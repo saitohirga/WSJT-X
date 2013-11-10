@@ -753,8 +753,12 @@ void CPlotter::setLockTxRx(bool b)
   }
 }
 
+double CPlotter::rxFreq()
+{
+  return floor(datcom_.fcenter) + 0.001*m_fQSO + 0.000001*m_DF;
+}
+
 double CPlotter::txFreq()
 {
-  qDebug() << "Q" << m_TXfreq << m_TxDF;
   return m_TXfreq + 0.000001*m_TxDF;
 }

@@ -42,6 +42,25 @@
        <property name="lineWidth">
         <number>1</number>
        </property>
+       <widget class="QLabel" name="labFreq">
+        <property name="geometry">
+         <rect>
+          <x>1015</x>
+          <y>230</y>
+          <width>131</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Rx:  144.118.200
+Tx:  144.127.317</string>
+        </property>
+       </widget>
       </widget>
      </item>
      <item>

@@ -14,7 +14,9 @@ WideGraph::WideGraph(QWidget *parent) :
   this->setMaximumWidth(2048);
   this->setMaximumHeight(880);
   ui->widePlot->setMaximumHeight(800);
-
+  m_bIQxt=false;
+  ui->labFreq->setStyleSheet( \
+        "QLabel { background-color : black; color : yellow; }");
   connect(ui->widePlot, SIGNAL(freezeDecode1(int)),this,
           SLOT(wideFreezeDecode(int)));
 
@@ -47,11 +49,21 @@ WideGraph::WideGraph(QWidget *parent) :
   settings.endGroup();
 }
 
-
 WideGraph::~WideGraph()
 {
   saveSettings();
   delete ui;
+}
+
+void WideGraph::resizeEvent(QResizeEvent* )                    //resizeEvent()
+{
+  if(!size().isValid()) return;
+//  m_Size = size();
+  int w = size().width();
+  int h = size().height();
+//  qDebug() << "A" << w << h << ui->labFreq->geometry();
+  ui->labFreq->setGeometry(QRect(w-160,h-100,131,41));
+//  qDebug() << "B" << w << h << ui->labFreq->geometry();
 }
 
 void WideGraph::saveSettings()
@@ -335,11 +347,8 @@ void WideGraph::on_cbLockTxRx_stateChanged(int n)
 void WideGraph::rx570()
 {
   double f=m_mult570*(1.0+0.000001*m_cal570)*m_dForceCenterFreq;
-//  qDebug() << "Set Rx Freq" << f;
 #ifdef WIN32
   int iret=set570(f);
-//  int iret=0;
-
   if(iret != 0) {
     QMessageBox mb;
     if(iret==-1) mb.setText("Failed to open Si570.");
@@ -352,15 +361,12 @@ void WideGraph::rx570()
 void WideGraph::tx570()
 {
   if(m_bForceCenterFreq) datcom_.fcenter=m_dForceCenterFreq;
-
+  m_bIQxt=true;
   double f=ui->widePlot->txFreq();
   double f1=m_mult570Tx*(1.0+0.000001*m_cal570) * f;
   int nHz = 1000000.0*f1 + 0.5;
-//  qDebug() << "Set Tx Freq" << f1 << nHz;
 #ifdef WIN32
   int iret=set570(f1);
-//  int iret=0;
-
   if(iret != 0) {
     QMessageBox mb;
     if(iret==-1) mb.setText("Failed to open Si570.");
@@ -368,4 +374,13 @@ void WideGraph::tx570()
     mb.exec();
   }
 #endif
+}
+
+void WideGraph::updateFreqLabel()
+{
+  double rxFreq=ui->widePlot->rxFreq();
+  double txFreq=ui->widePlot->txFreq();
+  QString t;
+  t.sprintf("Rx:  %10.6f\nTx:  %10.6f",rxFreq,txFreq);
+  ui->labFreq->setText(t);
 }

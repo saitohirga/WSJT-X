@@ -40,6 +40,7 @@ public:
   double fGreen();
   void   rx570();
   void   tx570();
+  void   updateFreqLabel();
 
   qint32 m_qsoFreq;
 
@@ -53,6 +54,7 @@ public slots:
 
 protected:
   virtual void keyPressEvent( QKeyEvent *e );
+  void resizeEvent(QResizeEvent* event);
 
 private slots:
   void on_waterfallAvgSpinBox_valueChanged(int arg1);
@@ -65,10 +67,10 @@ private slots:
   void on_fCenterLineEdit_editingFinished();
   void on_pbSetRxHardware_clicked();
   void on_cbSpec2d_toggled(bool checked);
-
   void on_cbLockTxRx_stateChanged(int arg1);
 
 private:
+  bool   m_bIQxt;
   qint32 m_waterfallAvg;
   qint32 m_fCal;
   qint32 m_fSample;
