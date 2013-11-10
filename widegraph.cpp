@@ -381,6 +381,9 @@ void WideGraph::updateFreqLabel()
   double rxFreq=ui->widePlot->rxFreq();
   double txFreq=ui->widePlot->txFreq();
   QString t;
-  t.sprintf("Rx:  %10.6f\nTx:  %10.6f",rxFreq,txFreq);
-  ui->labFreq->setText(t);
+  t.sprintf("Rx:  %10.6f",rxFreq);
+  QString t1=t.mid(0,12) + "." + t.mid(12,3);
+  t.sprintf("Tx:  %10.6f",txFreq);
+  QString t2=t.mid(0,12) + "." + t.mid(12,3);
+  ui->labFreq->setText(t1 + "\n" + t2);
 }
