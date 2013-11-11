@@ -357,6 +357,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   }
 
   df=m_fSample/32768.0;
+  if(m_bLockTxRx) m_TxDF=m_DF;
   x = (m_DF + m_mode65*66*11025.0/4096.0 - m_ZoomStartFreq)/df;
   QPen pen2(Qt::darkGreen, 3);      //Mark top JT65B tone with dark Green tick
   painter3.setPen(pen2);

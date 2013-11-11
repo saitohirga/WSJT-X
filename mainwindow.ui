@@ -1167,6 +1167,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionAdjust_IQ_Calibration"/>
     <addaction name="actionApply_IQ_Calibration"/>
     <addaction name="actionFind_Delta_Phi"/>
+    <addaction name="actionTx_Tune"/>
     <addaction name="separator"/>
     <addaction name="actionF4_sets_Tx6"/>
     <addaction name="separator"/>
@@ -1540,7 +1541,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionAdjust_IQ_Calibration">
    <property name="text">
-    <string>Adjust I/Q Calibration</string>
+    <string>Adjust Rx I/Q Calibration</string>
    </property>
   </action>
   <action name="actionApply_IQ_Calibration">
@@ -1548,7 +1549,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Apply I/Q Calibration</string>
+    <string>Apply Rx I/Q Calibration</string>
    </property>
   </action>
   <action name="actionAFMHot">
@@ -1594,6 +1595,14 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="shortcut">
     <string>Alt+Shift+E</string>
+   </property>
+  </action>
+  <action name="actionTx_Tune">
+   <property name="text">
+    <string>Tx Tune</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+T</string>
    </property>
   </action>
  </widget>

@@ -118,18 +118,13 @@ private slots:
   void on_NBslider_valueChanged(int value);
   void on_actionAdjust_IQ_Calibration_triggered();
   void on_actionApply_IQ_Calibration_triggered();
-
   void on_actionAFMHot_triggered();
-
   void on_actionBlue_triggered();
-
   void on_actionFUNcube_Dongle_triggered();
-
   void on_actionJT65B2_triggered();
-
   void on_actionJT65C2_triggered();
-
   void on_actionEdit_wsjt_log_triggered();
+  void on_actionTx_Tune_triggered();
 
 private:
     Ui::MainWindow *ui;

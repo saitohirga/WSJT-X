@@ -58,12 +58,9 @@ WideGraph::~WideGraph()
 void WideGraph::resizeEvent(QResizeEvent* )                    //resizeEvent()
 {
   if(!size().isValid()) return;
-//  m_Size = size();
   int w = size().width();
   int h = size().height();
-//  qDebug() << "A" << w << h << ui->labFreq->geometry();
   ui->labFreq->setGeometry(QRect(w-160,h-100,131,41));
-//  qDebug() << "B" << w << h << ui->labFreq->geometry();
 }
 
 void WideGraph::saveSettings()

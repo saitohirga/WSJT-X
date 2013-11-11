@@ -8,6 +8,7 @@
 #include "widegraph.h"
 #include "messages.h"
 #include "bandmap.h"
+#include "txtune.h"
 #include "sleep.h"
 #include <portaudio.h>
 
@@ -17,12 +18,16 @@ short int iwave[2*60*11025];          //Wave file for Tx audio
 int nwave;                            //Length of Tx waveform
 bool btxok;                           //True if OK to transmit
 double outputLatency;                 //Latency in seconds
+double txPower;
+double iqAmp;
+double iqPhase;
 qint16 id[4*60*96000];
 
 Astro*     g_pAstro = NULL;
 WideGraph* g_pWideGraph = NULL;
 Messages*  g_pMessages = NULL;
 BandMap*   g_pBandMap = NULL;
+TxTune*    g_pTxTune = NULL;
 QSharedMemory mem_m65("mem_m65");
 
 QString rev="$Rev$";
@@ -145,6 +150,9 @@ MainWindow::MainWindow(QWidget *parent) :
   m_colors="000066ff0000ffff00969696646464";
   m_nfast=1;
   m_nsave=0;
+  txPower=1.0;
+  iqAmp=1.0;
+  iqPhase=0.0;
 
   ui->xThermo->setFillBrush(Qt::green);
   ui->yThermo->setFillBrush(Qt::magenta);
@@ -2100,4 +2108,19 @@ void MainWindow::on_actionEdit_wsjt_log_triggered()
 {
   QString cmnd=m_editorCommand + " " + m_appDir + "/wsjt.log";
   proc_editor.start(QDir::toNativeSeparators(cmnd));
+}
+
+void MainWindow::on_actionTx_Tune_triggered()
+{
+  if(g_pTxTune==NULL) {
+    g_pTxTune = new TxTune(0);
+    /*
+    g_pTxTune->setWindowTitle("Astronomical Data");
+    Qt::WindowFlags flags = Qt::Dialog | Qt::WindowCloseButtonHint |
+        Qt::WindowMinimizeButtonHint;
+    g_pTxTune->setWindowFlags(flags);
+    g_pTxTune->setGeometry(m_astroGeom);
+    */
+  }
+  g_pTxTune->show();
 }

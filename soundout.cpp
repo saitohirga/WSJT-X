@@ -12,6 +12,9 @@ extern short int iwave[2*60*11025];   //Wave file for Tx audio
 extern int nwave;
 extern bool btxok;
 extern double outputLatency;
+extern double txPower;
+extern double iqAmp;
+extern double iqPhase;
 
 typedef struct   //Parameters sent to or received from callback function
 {
@@ -36,6 +39,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   int nsec;
   int nTRperiod=udata->nTRperiod;
 
+//  qDebug() << txPower << iqAmp << iqPhase;
   // Get System time
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
   tsec = 0.001*ms;
