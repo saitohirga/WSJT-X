@@ -1,4 +1,4 @@
-//------------------------------------------------------------- MainWindow
+//-------------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
@@ -1455,6 +1455,7 @@ void MainWindow::guiUpdate()
     soundInThread.setMonitoring(false);
     btxok=true;
     m_transmitting=true;
+    g_pWideGraph->enableSetRxHardware(false);
 
     QFile f("map65_tx.log");
     f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
@@ -1473,6 +1474,7 @@ void MainWindow::guiUpdate()
     ptt_(&m_pttPort,&itx,&iptt);       // Lower PTT
     if(!m_txMute) soundOutThread.quitExecution=true;
     m_transmitting=false;
+    g_pWideGraph->enableSetRxHardware(true);
     if(m_auto) {
       m_monitoring=true;
       soundInThread.setMonitoring(m_monitoring);

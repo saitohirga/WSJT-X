@@ -387,3 +387,8 @@ void WideGraph::updateFreqLabel()
   QString t2=t.mid(0,12) + "." + t.mid(12,3);
   ui->labFreq->setText(t1 + "\n" + t2);
 }
+
+void WideGraph::enableSetRxHardware(bool b)
+{
+  ui->pbSetRxHardware->setEnabled(b);
+}

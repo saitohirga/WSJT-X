@@ -41,6 +41,7 @@ public:
   void   rx570();
   void   tx570();
   void   updateFreqLabel();
+  void   enableSetRxHardware(bool b);
 
   qint32 m_qsoFreq;
 
