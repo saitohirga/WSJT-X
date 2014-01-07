@@ -78,6 +78,7 @@ void SoundOutput::startStream (QAudioDeviceInfo const& device, unsigned channels
       m_stream.reset (new QAudioOutput (device, format, this));
       audioError ();
       m_stream->setVolume (m_volume);
+      m_stream->setNotifyInterval(100);
 
       connect (m_stream.data(), &QAudioOutput::stateChanged, this, &SoundOutput::handleStateChanged);
 
@@ -129,7 +130,7 @@ void SoundOutput::setAttenuation (qreal a)
 {
   Q_ASSERT (0. <= a && a <= 99.);
   m_volume = qPow (10., -a / 10.);
-  qDebug () << "SoundOut: attn = " << a << ", vol = " << m_volume;
+//  qDebug () << "SoundOut: attn = " << a << ", vol = " << m_volume;
   if (m_stream)
     {
       m_stream->setVolume (m_volume);

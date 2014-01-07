@@ -113,7 +113,7 @@ void PSK_Reporter::dnsLookupResult(QHostInfo info)
 {
     if (!info.addresses().isEmpty()) {
         m_pskReporterAddress = info.addresses().at(0);
-        qDebug() << "PSK Reporter IP: " << m_pskReporterAddress;
+//        qDebug() << "PSK Reporter IP: " << m_pskReporterAddress;
     }
 }
 

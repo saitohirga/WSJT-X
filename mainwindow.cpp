@@ -36,7 +36,7 @@ QTextEdit* pShortcuts;
 QTcpSocket* commanderSocket = new QTcpSocket(0);
 
 QString rev="$Rev$";
-QString Program_Title_Version="  WSJT-X   v1.2.1, r" + rev.mid(6,4) +
+QString Program_Title_Version="  WSJT-X   v1.2.2, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 //-------------------------------------------------- MainWindow constructor
@@ -49,7 +49,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   ui(new Ui::MainWindow),
   m_wideGraph (new WideGraph (settings)),
   m_logDlg (new LogQSO (settings, this)),
-  m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2, downSampleFactor),
+  m_detector (RX_SAMPLE_RATE, NTMAX/2, 6912/2, downSampleFactor),
   m_audioInputDevice (QAudioDeviceInfo::defaultInputDevice ()), // start with default
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
   m_audioOutputDevice (QAudioDeviceInfo::defaultOutputDevice ()), // start with default
@@ -710,6 +710,7 @@ void MainWindow::dataSink(qint64 frames)
   } else {
     jt9com_.ndiskdat=0;
   }
+
 
 // Get power, spectrum, and ihsym
   trmin=m_TRperiod/60;
