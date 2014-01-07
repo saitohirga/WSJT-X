@@ -85,6 +85,7 @@ void Modulator::open (unsigned symbolsLength, double framesPerSymbol, unsigned f
 
 qint64 Modulator::readData (char * data, qint64 maxSize)
 {
+  if(maxSize==0) return 0;
   Q_ASSERT (!(maxSize % static_cast<qint64> (bytesPerFrame ()))); // no torn frames
   Q_ASSERT (isOpen ());
 
