@@ -109,7 +109,7 @@ subroutine symspec(k,ntrperiod,nsps,ingain,slope,pxdb,s,df3,ihsym,npts8)
 
   if(abs(slope+0.1).lt.0.01) then
      call flat3(s,iz,3,1.0,s)
-     call flat3(savg,iz,3,1.0,savg)
+!     call flat3(savg,iz,3,1.0,savg)
   endif
 
 900 npts8=k/8
