@@ -8,8 +8,6 @@
 
 class QAudioDeviceInfo;
 
-class QAudioDeviceInfo;
-
 // An instance of this sends audio data to a specified soundcard.
 
 class SoundOutput : public QObject

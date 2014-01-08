@@ -1,9 +1,9 @@
-subroutine flat3(savg0,iz,nterms,ynoise,savg)
+subroutine flat3(s0,iz,nfa,nfb,nterms,ynoise,s)
 
   implicit real*8 (a-h,o-z)
   parameter (NSMAX=6827)
-  real*4 savg0(iz)
-  real*4 savg(iz)
+  real*4 s0(iz)
+  real*4 s(iz)
   real*4 ynoise,y4
 
   real*8 x(NSMAX)
@@ -17,10 +17,11 @@ subroutine flat3(savg0,iz,nterms,ynoise,savg)
   df=12000.0/16384.0
 
   do i=1,iz
-     y0(i)=db(savg0(i))
+     y0(i)=db(s0(i))
   enddo
-  ia=200.0/df
-  ib=4500.0/df
+  ia=(nfa+200.0)/df
+  ib=5000.0/df
+  if(nfb.gt.0) ib=nfb/df
   j=0
   do i=ia,ib
      j=j+1
@@ -35,14 +36,12 @@ subroutine flat3(savg0,iz,nterms,ynoise,savg)
 
   do iter=1,99
      call polfit(x,y,y,npts,nterms,mode,a,chisqr)
-!     print*,iter,npts,a(1:nterms)
 
-     rewind 21
      do i=1,ib
         f=i*df
-        yfit(i)=0.0
-        do n=1,nterms
-           yfit(i)=yfit(i) + a(n) * f**(n-1)
+        yfit(i)=a(nterms)
+        do n=nterms-1,1,-1
+           yfit(i)=f*yfit(i) + a(n)
         enddo
 !        write(21,1010) f,y0(i),yfit(i),y0(i)-yfit(i)
 !1010    format(4f12.3)
@@ -51,6 +50,7 @@ subroutine flat3(savg0,iz,nterms,ynoise,savg)
      do j=1,npts
         y1=y(j)-yfit(ii(j))
         if(y1.lt.ynoise) then
+!        if(y1.lt.ynoise .and. y1.gt.-ynoise) then
            k=k+1
            x(k)=x(j)
            y(k)=y(j)
@@ -67,8 +67,8 @@ subroutine flat3(savg0,iz,nterms,ynoise,savg)
 !  enddo
 
   do i=1,ib
-     y4=y0(i)-yfit(i)
-     savg(i)=10.0**(0.1*y4)
+     y4=y0(i)-yfit(i) - 20.0
+     s(i)=10.0**(0.1*y4)
   enddo
 
 end subroutine flat3

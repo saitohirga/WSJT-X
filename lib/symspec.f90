@@ -26,7 +26,8 @@ subroutine symspec(k,ntrperiod,nsps,ingain,slope,pxdb,s,df3,ihsym,npts8)
   complex cx(0:MAXFFT3/2)
   integer*2 id2
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,         &
-       ntr,mousefqso,newdat,nfa,nfb,ntol,kin,nzhsym,nsynced,ndecoded
+       ntr,mousefqso,newdat,npts8a,nfa,nfsplit,nfb,ntol,kin,nzhsym,         &
+       nsave,nagain,ndepth,ntxmode,nmode,junk(5)
   data rms/999.0/,k0/99999999/,nfft3z/0/,slope0/0.0/
   equivalence (xc,cx)
   save
@@ -108,7 +109,7 @@ subroutine symspec(k,ntrperiod,nsps,ingain,slope,pxdb,s,df3,ihsym,npts8)
   savg=scale*ssum/ihsym
 
   if(abs(slope+0.1).lt.0.01) then
-     call flat3(s,iz,3,1.0,s)
+     call flat3(s,iz,nfa,nfb,3,1.0,s)
 !     call flat3(savg,iz,3,1.0,savg)
   endif
 

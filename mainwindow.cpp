@@ -14,8 +14,6 @@
 #include "getfile.h"
 #include "logqso.h"
 
-
-
 #ifdef QT5
 #include <QtConcurrent/QtConcurrentRun>
 #endif
@@ -711,12 +709,13 @@ void MainWindow::dataSink(qint64 frames)
     jt9com_.ndiskdat=0;
   }
 
-
 // Get power, spectrum, and ihsym
   trmin=m_TRperiod/60;
   slope=0.0;
   slope=(float)m_wideGraph->getSlope();
   int k (frames - 1);
+  jt9com_.nfa=m_wideGraph->nStartFreq();
+  jt9com_.nfb=m_wideGraph->getFmax();
   symspec_(&k,&trmin,&m_nsps,&m_inGain,&slope,&px,s,&df3,&ihsym,&npts8);
   if(ihsym <=0) return;
   QString t;
