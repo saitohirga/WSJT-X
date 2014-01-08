@@ -7,7 +7,7 @@
 QT       += network multimedia
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG   += thread
-CONFIG   += console
+#CONFIG   += console
 
 TARGET = wsjtx
 #DESTDIR = ../qt4_install

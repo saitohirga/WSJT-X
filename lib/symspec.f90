@@ -40,7 +40,8 @@ subroutine symspec(k,ntrperiod,nsps,ingain,slope,pxdb,s,df3,ihsym,npts8)
      go to 900                                 !Wait for enough samples to start
   endif
 
-  if(nfft3.ne.nfft3z .or. slope.ne.slope0) then    !New nfft3, compute window
+  if(nfft3.ne.nfft3z .or. (slope.ne.slope0 .and. abs(slope+0.1).gt.0.05)) then
+! Compute new window and adjust scale factor
      pi=4.0*atan(1.0)
      do i=1,nfft3
         w3(i)=2.0*(sin(i*pi/nfft3))**2         !Window for nfft3 spectrum
@@ -103,9 +104,13 @@ subroutine symspec(k,ntrperiod,nsps,ingain,slope,pxdb,s,df3,ihsym,npts8)
      s(i)=gain*sx
   enddo
 
-!  s=0.05*s/ref
   s=scale*s
   savg=scale*ssum/ihsym
+
+  if(abs(slope+0.1).lt.0.01) then
+     call flat3(s,iz,3,1.0,s)
+     call flat3(savg,iz,3,1.0,savg)
+  endif
 
 900 npts8=k/8
 
