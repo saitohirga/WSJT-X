@@ -6,7 +6,8 @@ CC = gcc
 CXX = g++
 FC = gfortran
 
-FFLAGS = -O2 -fbounds-check -Wall -Wno-conversion -fno-second-underscore -fPIE
+FFLAGS = -O2 -fbounds-check -Wall -Wno-conversion -fno-second-underscore \
+       -fPIE -DUNIX
 CFLAGS = -I. -fbounds-check -fPIE
 
 # Default rules

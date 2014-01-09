@@ -73,14 +73,13 @@ qint64 Detector::writeData (char const * data, qint64 maxSize)
         if(framesToProcess==13824 and jt9com_.kin>=0 and jt9com_.kin<1440000) {
           fil4_(&m_buffer[0], &framesToProcess, &jt9com_.d2[jt9com_.kin],
               &framesAfterDownSample);
+          jt9com_.kin += framesAfterDownSample;
         } else {
           qDebug() << "framesToProcess = " << framesToProcess;
           qDebug() << "jt9com_.kin     = " << jt9com_.kin;
           qDebug() << "secondInPeriod  = " << secondInPeriod();
         }
-        Q_ASSERT(framesAfterDownSample==3456);
-        jt9com_.kin += framesAfterDownSample;
-        Q_EMIT framesWritten (jt9com_.kin);
+                Q_EMIT framesWritten (jt9com_.kin);
         m_bufferPos = 0;
       }
 
