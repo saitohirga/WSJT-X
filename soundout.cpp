@@ -17,31 +17,30 @@ bool SoundOutput::audioError () const
   bool result (true);
 
   Q_ASSERT_X (m_stream, "SoundOutput", "programming error");
-  if (m_stream)
+  if (m_stream) {
+    switch (m_stream->error ())
     {
-      switch (m_stream->error ())
-	{
-	case QAudio::OpenError:
-	  Q_EMIT error (tr ("An error opening the audio output device has occurred."));
-	  break;
+    case QAudio::OpenError:
+      Q_EMIT error (tr ("An error opening the audio output device has occurred."));
+      break;
 
-	case QAudio::IOError:
-	  Q_EMIT error (tr ("An error occurred during write to the audio output device."));
-	  break;
+    case QAudio::IOError:
+      Q_EMIT error (tr ("An error occurred during write to the audio output device."));
+      break;
 
-	case QAudio::UnderrunError:
-	  Q_EMIT error (tr ("Audio data not being fed to the audio output device fast enough."));
-	  break;
+    case QAudio::UnderrunError:
+      Q_EMIT error (tr ("Audio data not being fed to the audio output device fast enough."));
+      break;
 
-	case QAudio::FatalError:
-	  Q_EMIT error (tr ("Non-recoverable error, audio output device not usable at this time."));
-	  break;
+    case QAudio::FatalError:
+      Q_EMIT error (tr ("Non-recoverable error, audio output device not usable at this time."));
+      break;
 
-	case QAudio::NoError:
-	  result = false;
-	  break;
-	}
+    case QAudio::NoError:
+      result = false;
+      break;
     }
+  }
   return result;
 }
 

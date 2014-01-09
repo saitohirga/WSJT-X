@@ -41,7 +41,7 @@ subroutine symspec(k,ntrperiod,nsps,ingain,slope,pxdb,s,df3,ihsym,npts8)
      go to 900                                 !Wait for enough samples to start
   endif
 
-  if(nfft3.ne.nfft3z .or. (slope.ne.slope0 .and. abs(slope+0.1).gt.0.05)) then
+  if(nfft3.ne.nfft3z .or. slope.ne.slope0) then
 ! Compute new window and adjust scale factor
      pi=4.0*atan(1.0)
      do i=1,nfft3
@@ -49,10 +49,14 @@ subroutine symspec(k,ntrperiod,nsps,ingain,slope,pxdb,s,df3,ihsym,npts8)
      enddo
      nfft3z=nfft3
      nh=NSMAX/2
-     do i=1,NSMAX
-        x=slope*float(i)/nh - 1.0 + 2.6
-        scale(i)=10.0**x
-     enddo
+     if(abs(slope+0.1).gt.0.05) then
+        do i=1,NSMAX
+           x=slope*float(i)/nh - 1.0 + 2.6
+           scale(i)=10.0**x
+        enddo
+     else
+        scale=1.0
+     endif
      slope0=slope
   endif
 
@@ -110,7 +114,8 @@ subroutine symspec(k,ntrperiod,nsps,ingain,slope,pxdb,s,df3,ihsym,npts8)
 
   if(abs(slope+0.1).lt.0.01) then
      call flat3(s,iz,nfa,nfb,3,1.0,s)
-!     call flat3(savg,iz,3,1.0,savg)
+     call flat3(savg,iz,nfa,nfb,3,1.0,savg)
+     savg=7.0*savg
   endif
 
 900 npts8=k/8
