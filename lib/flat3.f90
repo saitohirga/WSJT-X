@@ -67,7 +67,7 @@ subroutine flat3(s0,iz,nfa,nfb,nterms,ynoise,s)
 !  enddo
 
   do i=1,ib
-     y4=y0(i)-yfit(i) - 20.0
+     y4=y0(i)-yfit(i) - 10.0
      s(i)=10.0**(0.1*y4)
   enddo
 
