@@ -11,6 +11,7 @@ extern float gran();                  //Noise generator (for tests only)
 extern short int iwave[2*60*11025];   //Wave file for Tx audio
 extern int nwave;
 extern bool btxok;
+extern bool bTune;
 extern double outputLatency;
 extern double txPower;
 extern double iqAmp;
@@ -39,11 +40,17 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   int nsec;
   int nTRperiod=udata->nTRperiod;
 
-//  qDebug() << txPower << iqAmp << iqPhase;
+
   // Get System time
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
   tsec = 0.001*ms;
   nsec = ms/1000;
+
+  static int nsec0=0;
+  if(nsec!=nsec0) {
+    qDebug() << txPower << iqAmp << iqPhase << bTune;
+    nsec0=nsec;
+  }
 
   if(btxok and !btxok0) {       //Start (or re-start) a transmission
     n=nsec/nTRperiod;

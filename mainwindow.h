@@ -164,8 +164,8 @@ private:
     qint32  m_TRperiod;
 
     double  m_fAdd;
-    double  m_IQamp;
-    double  m_IQphase;
+//    double  m_IQamp;
+//    double  m_IQphase;
     double  m_cal570;
 
     bool    m_monitoring;

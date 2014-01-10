@@ -17,6 +17,7 @@
 short int iwave[2*60*11025];          //Wave file for Tx audio
 int nwave;                            //Length of Tx waveform
 bool btxok;                           //True if OK to transmit
+bool bTune;
 double outputLatency;                 //Latency in seconds
 double txPower;
 double iqAmp;
@@ -150,6 +151,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_colors="000066ff0000ffff00969696646464";
   m_nfast=1;
   m_nsave=0;
+  bTune=false;
   txPower=1.0;
   iqAmp=1.0;
   iqPhase=0.0;
@@ -337,8 +339,8 @@ void MainWindow::writeSettings()
   settings.setValue("Editor",m_editorCommand);
   settings.setValue("DXCCpfx",m_dxccPfx);
   settings.setValue("Timeout",m_timeout);
-  settings.setValue("IQamp",m_IQamp);
-  settings.setValue("IQphase",m_IQphase);
+  settings.setValue("IQamp",iqAmp);
+  settings.setValue("IQphase",iqPhase);
   settings.setValue("ApplyIQcal",m_applyIQcal);
   settings.setValue("dPhi",m_dPhi);
   settings.setValue("Fcal",m_fCal);
@@ -414,8 +416,8 @@ void MainWindow::readSettings()
   m_editorCommand=settings.value("Editor","notepad").toString();
   m_dxccPfx=settings.value("DXCCpfx","").toString();
   m_timeout=settings.value("Timeout",20).toInt();
-  m_IQamp=settings.value("IQamp",1.0000).toDouble();
-  m_IQphase=settings.value("IQphase",0.0).toDouble();
+  iqAmp=settings.value("IQamp",1.0000).toDouble();
+  iqPhase=settings.value("IQphase",0.0).toDouble();
   m_applyIQcal=settings.value("ApplyIQcal",0).toInt();
   ui->actionApply_IQ_Calibration->setChecked(m_applyIQcal!=0);
   m_dPhi=settings.value("dPhi",0).toInt();
@@ -2114,13 +2116,8 @@ void MainWindow::on_actionTx_Tune_triggered()
 {
   if(g_pTxTune==NULL) {
     g_pTxTune = new TxTune(0);
-    /*
-    g_pTxTune->setWindowTitle("Astronomical Data");
-    Qt::WindowFlags flags = Qt::Dialog | Qt::WindowCloseButtonHint |
-        Qt::WindowMinimizeButtonHint;
-    g_pTxTune->setWindowFlags(flags);
-    g_pTxTune->setGeometry(m_astroGeom);
-    */
   }
+  g_pTxTune->set_iqAmp(iqAmp);
+  g_pTxTune->set_iqPhase(iqPhase);
   g_pTxTune->show();
 }
