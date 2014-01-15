@@ -19,9 +19,9 @@ int nwave;                            //Length of Tx waveform
 bool btxok;                           //True if OK to transmit
 bool bTune;
 double outputLatency;                 //Latency in seconds
-double txPower;
-double iqAmp;
-double iqPhase;
+int txPower;
+int iqAmp;
+int iqPhase;
 qint16 id[4*60*96000];
 
 Astro*     g_pAstro = NULL;
@@ -152,9 +152,9 @@ MainWindow::MainWindow(QWidget *parent) :
   m_nfast=1;
   m_nsave=0;
   bTune=false;
-  txPower=1.0;
-  iqAmp=1.0;
-  iqPhase=0.0;
+  txPower=100;
+  iqAmp=0;
+  iqPhase=0;
 
   ui->xThermo->setFillBrush(Qt::green);
   ui->yThermo->setFillBrush(Qt::magenta);
@@ -339,6 +339,7 @@ void MainWindow::writeSettings()
   settings.setValue("Editor",m_editorCommand);
   settings.setValue("DXCCpfx",m_dxccPfx);
   settings.setValue("Timeout",m_timeout);
+  settings.setValue("TxPower",txPower);
   settings.setValue("IQamp",iqAmp);
   settings.setValue("IQphase",iqPhase);
   settings.setValue("ApplyIQcal",m_applyIQcal);
@@ -416,8 +417,9 @@ void MainWindow::readSettings()
   m_editorCommand=settings.value("Editor","notepad").toString();
   m_dxccPfx=settings.value("DXCCpfx","").toString();
   m_timeout=settings.value("Timeout",20).toInt();
-  iqAmp=settings.value("IQamp",1.0000).toDouble();
-  iqPhase=settings.value("IQphase",0.0).toDouble();
+  txPower=settings.value("TxPower",100).toInt();
+  iqAmp=settings.value("IQamp",0).toInt();
+  iqPhase=settings.value("IQphase",0).toInt();
   m_applyIQcal=settings.value("ApplyIQcal",0).toInt();
   ui->actionApply_IQ_Calibration->setChecked(m_applyIQcal!=0);
   m_dPhi=settings.value("dPhi",0).toInt();

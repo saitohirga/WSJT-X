@@ -12,10 +12,11 @@ extern short int iwave[2*60*11025];   //Wave file for Tx audio
 extern int nwave;
 extern bool btxok;
 extern bool bTune;
+extern int iqAmp;
+extern int iqPhase;
+extern int txPower;
 extern double outputLatency;
-extern double txPower;
-extern double iqAmp;
-extern double iqPhase;
+
 
 typedef struct   //Parameters sent to or received from callback function
 {
