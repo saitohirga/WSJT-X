@@ -36,8 +36,10 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   static int n;
   static int ic=0;
   static bool btxok0=false;
+  static bool bTune0=false;
   static int nStart=0;
-  double tsec,tstart;
+  static double phi=0.;
+  double tsec,tstart,dphi;
   int nsec;
   int nTRperiod=udata->nTRperiod;
 
@@ -49,10 +51,19 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   qreal amp=1.0 + 0.0001*iqAmp;
   qreal xAmp=txPower*295.00*qSqrt(2.0 - amp*amp);
   qreal yAmp=txPower*295.00*amp;
-
   static int nsec0=0;
+
+  if(bTune) {
+    ic=0;
+    dphi=6.28318530718*1270.46/11025.0;
+  }
+  if(bTune0 and !bTune) btxok=false;
+  bTune0=bTune;
+
   if(nsec!=nsec0) {
 //    qDebug() << txPower << iqAmp << iqPhase << amp << xAmp << yAmp << dPhase << bTune;
+//    qDebug() << "A" << nsec%60 << bTune << btxok;
+    ic=0;
     nsec0=nsec;
   }
 
@@ -81,9 +92,13 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
 //      i2 = 500.0*(i2/32767.0 + 5.0*gran());      //Add noise (tests only!)
 //    if(bIQxt) {
       if(1) {
-        qreal phi=qAtan2(qreal(i2a),qreal(i2b)) + dPhase;
+        if(bTune) {
+          phi += dphi;
+        } else {
+          phi=qAtan2(qreal(i2a),qreal(i2b));
+        }
         i2a=xAmp*qCos(phi);
-        i2b=yAmp*qSin(phi);
+        i2b=yAmp*qSin(phi + dPhase);
 //        qDebug() << xAmp << yAmp << phi << i2a << i2b;
       }
 //      i2a=0.01*txPower*i2a;

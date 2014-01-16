@@ -1385,6 +1385,7 @@ void MainWindow::guiUpdate()
   static int iptt0=0;
   static int iptt=0;
   static bool btxok0=false;
+  static bool bTune0=false;
   static int nc0=1;
   static int nc1=1;
   static char msgsent[23];
@@ -1402,10 +1403,13 @@ void MainWindow::guiUpdate()
   int nsec=ms/1000;
   double tsec=0.001*ms;
   double t2p=fmod(tsec,120.0/m_nfast);
-  bool bTxTime = t2p >= tx1 && t2p < tx2;
+  bool bTxTime = (t2p >= tx1) and (t2p < tx2);
 
-  if(m_auto) {
-    if(bTxTime and iptt==0 and !m_txMute) {
+  if(bTune0 and !bTune) btxok=false;
+  bTune0=bTune;
+
+  if(m_auto or bTune) {
+    if((bTxTime or bTune) and iptt==0 and !m_txMute) {
       int itx=1;
       int ierr = ptt_(&m_pttPort,&itx,&iptt);       // Raise PTT
       if(ierr != 0) {
@@ -1421,7 +1425,7 @@ void MainWindow::guiUpdate()
         soundOutThread.start(QThread::HighPriority);
       }
     }
-    if(!bTxTime || m_txMute) {
+    if((!bTxTime and !bTune) or m_txMute) {
       btxok=false;
     }
   }
@@ -1485,7 +1489,10 @@ void MainWindow::guiUpdate()
     if(m_bIQxt) g_pWideGraph->rx570();     // Set Si570 back to Rx Freq
     int itx=0;
     ptt_(&m_pttPort,&itx,&iptt);       // Lower PTT
-    if(!m_txMute) soundOutThread.quitExecution=true;
+    if(!m_txMute) {
+//      qDebug() << "C";
+      soundOutThread.quitExecution=true;\
+    }
     m_transmitting=false;
     g_pWideGraph->enableSetRxHardware(true);
     if(m_auto) {
@@ -1517,6 +1524,7 @@ void MainWindow::guiUpdate()
 
   if(nsec != m_sec0) {                                     //Once per second
 //    qDebug() << txPower << iqAmp << iqPhase;
+//    qDebug() << "B" << bTune << bTxTime << btxok;
     soundInThread.setForceCenterFreqMHz(g_pWideGraph->m_dForceCenterFreq);
     soundInThread.setForceCenterFreqBool(g_pWideGraph->m_bForceCenterFreq);
 
