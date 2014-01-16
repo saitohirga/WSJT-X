@@ -19,9 +19,25 @@ TxTune::~TxTune()
     delete ui;
 }
 
+void TxTune::accept()
+{
+  QDialog::accept();
+}
+
+void TxTune::reject()
+{
+  set_iqAmp(m_saveAmp);
+  set_iqPhase(m_savePha);
+  set_txPower(m_saveTxPower);
+  QDialog::reject();
+}
+
 void TxTune::on_pwrSlider_valueChanged(int n)
 {
-  txPower=0.01*n;
+  txPower=n;
+  QString t;
+  t.sprintf("%d \%",n);
+  ui->labPower->setText(t);
 }
 
 void TxTune::on_ampSlider_valueChanged(int n)
@@ -61,6 +77,7 @@ void TxTune::on_finePhaSlider_valueChanged(int n)
 
 void TxTune::set_iqAmp(int n)
 {
+  m_saveAmp=n;
   m_iqAmp1=n/10;
   m_iqAmp2=n%10;
   ui->ampSlider->setValue(m_iqAmp1);
@@ -69,10 +86,17 @@ void TxTune::set_iqAmp(int n)
 
 void TxTune::set_iqPhase(int n)
 {
+  m_savePha=n;
   m_iqPha1=n/10;
   m_iqPha2=n%10;
   ui->phaSlider->setValue(m_iqPha1);
   ui->finePhaSlider->setValue(m_iqPha2);
+}
+
+void TxTune::set_txPower(int n)
+{
+  m_saveTxPower=n;
+  ui->pwrSlider->setValue(n);
 }
 
 void TxTune::on_cbTxImage_toggled(bool b)

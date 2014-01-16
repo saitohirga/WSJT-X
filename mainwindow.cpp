@@ -18,6 +18,7 @@ short int iwave[2*60*11025];          //Wave file for Tx audio
 int nwave;                            //Length of Tx waveform
 bool btxok;                           //True if OK to transmit
 bool bTune;
+bool bIQxt;
 double outputLatency;                 //Latency in seconds
 int txPower;
 int iqAmp;
@@ -1515,6 +1516,7 @@ void MainWindow::guiUpdate()
   }
 
   if(nsec != m_sec0) {                                     //Once per second
+//    qDebug() << txPower << iqAmp << iqPhase;
     soundInThread.setForceCenterFreqMHz(g_pWideGraph->m_dForceCenterFreq);
     soundInThread.setForceCenterFreqBool(g_pWideGraph->m_bForceCenterFreq);
 
@@ -1578,6 +1580,7 @@ void MainWindow::guiUpdate()
   }
   iptt0=iptt;
   btxok0=btxok;
+  bIQxt=m_bIQxt;
 }
 
 void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
@@ -2121,5 +2124,6 @@ void MainWindow::on_actionTx_Tune_triggered()
   }
   g_pTxTune->set_iqAmp(iqAmp);
   g_pTxTune->set_iqPhase(iqPhase);
+  g_pTxTune->set_txPower(txPower);
   g_pTxTune->show();
 }

@@ -12,11 +12,11 @@ extern short int iwave[2*60*11025];   //Wave file for Tx audio
 extern int nwave;
 extern bool btxok;
 extern bool bTune;
+extern bool bIQxt;
 extern int iqAmp;
 extern int iqPhase;
 extern int txPower;
 extern double outputLatency;
-
 
 typedef struct   //Parameters sent to or received from callback function
 {
@@ -41,15 +41,18 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   int nsec;
   int nTRperiod=udata->nTRperiod;
 
-
   // Get System time
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
   tsec = 0.001*ms;
   nsec = ms/1000;
+  qreal dPhase=iqPhase/5729.57795131;
+  qreal amp=1.0 + 0.0001*iqAmp;
+  qreal xAmp=txPower*295.00*qSqrt(2.0 - amp*amp);
+  qreal yAmp=txPower*295.00*amp;
 
   static int nsec0=0;
   if(nsec!=nsec0) {
-    qDebug() << txPower << iqAmp << iqPhase << bTune;
+//    qDebug() << txPower << iqAmp << iqPhase << amp << xAmp << yAmp << dPhase << bTune;
     nsec0=nsec;
   }
 
@@ -76,6 +79,15 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
         short int i2b=iwave[ic++];
       if(ic > nwave) {i2a=0; i2b=0;}
 //      i2 = 500.0*(i2/32767.0 + 5.0*gran());      //Add noise (tests only!)
+//    if(bIQxt) {
+      if(1) {
+        qreal phi=qAtan2(qreal(i2a),qreal(i2b)) + dPhase;
+        i2a=xAmp*qCos(phi);
+        i2b=yAmp*qSin(phi);
+//        qDebug() << xAmp << yAmp << phi << i2a << i2b;
+      }
+//      i2a=0.01*txPower*i2a;
+//      i2b=0.01*txPower*i2b;
       *wptr++ = i2a;                     //left
       *wptr++ = i2b;                     //right
     }
