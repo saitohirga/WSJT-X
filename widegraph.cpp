@@ -26,9 +26,6 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   connect(ui->widePlot, SIGNAL(setFreq1(int,int)),this,
           SLOT(setFreq2(int,int)));
 
-  connect (ui->cbFlatten, SIGNAL(toggled(bool)),this,
-           SLOT(on_cbFlatten_toggled(bool)));
-
   //Restore user's settings
   m_settings->beginGroup("WideGraph");
   restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
@@ -356,7 +353,6 @@ void WideGraph::on_paletteComboBox_activated(const QString &palette)
 void WideGraph::on_cbFlatten_toggled(bool b)
 {
   m_bFlatten=b;
-
 }
 
 bool WideGraph::flatten()
