@@ -47,7 +47,6 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nflatten,pxdb,s,df3,ihsym,npts8)
         w3(i)=2.0*(sin(i*pi/nfft3))**2         !Window for nfft3 spectrum
      enddo
      nfft3z=nfft3
-     nh=NSMAX/2
   endif
 
   if(k.lt.k0) then                             !Start a new data block
@@ -56,18 +55,17 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nflatten,pxdb,s,df3,ihsym,npts8)
      ihsym=0
      if(ndiskdat.eq.0) id2(k+1:)=0   !Needed to prevent "ghosts". Not sure why.
   endif
-  gain=10.0**(0.05*ingain)
+  gain=10.0**(0.1*ingain)
   sq=0.
   do i=k0+1,k
      x1=id2(i)
      sq=sq + x1*x1
   enddo
-  sq=sq * gain**2
+  sq=sq * gain
   rms=sqrt(sq/(k-k0))
   pxdb=0.
   if(rms.gt.0.0) pxdb=20.0*log10(rms)
   if(pxdb.gt.60.0) pxdb=60.0
-
 
   k0=k
   ja=ja+jstep                         !Index of first sample
@@ -96,7 +94,7 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nflatten,pxdb,s,df3,ihsym,npts8)
      sx=fac*(real(cx(j))**2 + aimag(cx(j))**2)
      ss(n,i)=sx
      ssum(i)=ssum(i) + sx
-     s(i)=gain*sx
+     s(i)=1000.0*gain*sx
   enddo
 
   savg=ssum/ihsym
