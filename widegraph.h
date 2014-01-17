@@ -33,11 +33,10 @@ public:
   void   setTxFreq(int n);
   void   setMode(QString mode);
   void   setModeTx(QString modeTx);
-  void   setSlope(double d);
   void   setLockTxFreq(bool b);
-  double getSlope();
   double fGreen();
   void   readPalette(QString fileName);
+  bool   flatten();
 
 signals:
   void freezeDecode2(int n);
@@ -61,9 +60,9 @@ private slots:
   void on_gainSpinBox_valueChanged(int arg1);
   void on_spec2dComboBox_currentIndexChanged(const QString &arg1);
   void on_fMinSpinBox_valueChanged(int n);
-  void on_slopeSpinBox_valueChanged(double d);
   void on_fStartSpinBox_valueChanged(int n);
   void on_paletteComboBox_activated(const QString &palette);
+  void on_cbFlatten_toggled(bool b);
 
 private:
   QScopedPointer<Ui::WideGraph> ui;
@@ -72,7 +71,6 @@ private:
   qint32 m_rxFreq;
   qint32 m_txFreq;
 
-  double m_slope;
   double m_dialFreq;
 
   qint32 m_waterfallAvg;
@@ -84,6 +82,7 @@ private:
   qint32 m_fMax;
 
   bool   m_lockTxFreq;
+  bool   m_bFlatten;
 
   QString m_mode;
   QString m_modeTx;

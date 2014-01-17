@@ -52,18 +52,34 @@
      </item>
      <item>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="6">
-        <widget class="QLabel" name="labPalette">
-         <property name="text">
-          <string>Palette</string>
+       <item row="1" column="6">
+        <widget class="QComboBox" name="spec2dComboBox">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select data for spectral display&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
+         <property name="currentIndex">
+          <number>1</number>
          </property>
+         <item>
+          <property name="text">
+           <string>Current</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Cumulative</string>
+          </property>
+         </item>
         </widget>
        </item>
-       <item row="0" column="3">
-        <widget class="QSpinBox" name="zeroSpinBox">
+       <item row="1" column="2">
+        <widget class="QSpinBox" name="waterfallAvgSpinBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="minimumSize">
           <size>
            <width>80</width>
@@ -77,78 +93,21 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Constant offset applied to spectra&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="suffix">
-          <string/>
+          <string>Number of FFTs averaged (controls waterfall scrolling rate)</string>
          </property>
          <property name="prefix">
-          <string>Zero </string>
+          <string>N Avg </string>
          </property>
          <property name="minimum">
-          <number>-100</number>
-         </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
-        <widget class="QSpinBox" name="gainSpinBox">
-         <property name="minimumSize">
-          <size>
-           <width>80</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>38</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gain (dB) applied to spectra before display&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="prefix">
-          <string>Gain </string>
-         </property>
-         <property name="minimum">
-          <number>-20</number>
+          <number>1</number>
          </property>
          <property name="maximum">
           <number>20</number>
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="7">
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="2">
-        <widget class="QSpinBox" name="fStartSpinBox">
+       <item row="1" column="4">
+        <widget class="QComboBox" name="paletteComboBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -162,19 +121,54 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Frequency (Hz) at left edge of waterfall</string>
+          <string>Select waterfall palette</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="4">
+        <widget class="QLabel" name="labPalette">
+         <property name="text">
+          <string>  Palette</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="fMinSpinBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>110</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Decode JT65 below this frequency, JT9 above</string>
          </property>
          <property name="suffix">
-          <string> Hz</string>
+          <string>  JT9</string>
          </property>
          <property name="prefix">
-          <string>Start </string>
+          <string>JT65  </string>
+         </property>
+         <property name="minimum">
+          <number>0</number>
          </property>
          <property name="maximum">
           <number>5000</number>
          </property>
          <property name="singleStep">
           <number>100</number>
+         </property>
+         <property name="value">
+          <number>3000</number>
          </property>
         </widget>
        </item>
@@ -221,8 +215,8 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QSpinBox" name="fMinSpinBox">
+       <item row="0" column="2">
+        <widget class="QSpinBox" name="fStartSpinBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -231,21 +225,18 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>110</width>
+           <width>80</width>
            <height>0</height>
           </size>
          </property>
          <property name="toolTip">
-          <string>Decode JT65 below this frequency, JT9 above</string>
+          <string>Frequency (Hz) at left edge of waterfall</string>
          </property>
          <property name="suffix">
-          <string>  JT9</string>
+          <string> Hz</string>
          </property>
          <property name="prefix">
-          <string>JT65  </string>
-         </property>
-         <property name="minimum">
-          <number>0</number>
+          <string>Start </string>
          </property>
          <property name="maximum">
           <number>5000</number>
@@ -253,66 +244,36 @@
          <property name="singleStep">
           <number>100</number>
          </property>
-         <property name="value">
-          <number>3000</number>
-         </property>
         </widget>
        </item>
-       <item row="1" column="6">
-        <widget class="QComboBox" name="paletteComboBox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+       <item row="0" column="7">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
-         <property name="minimumSize">
+         <property name="sizeHint" stdset="0">
           <size>
-           <width>80</width>
-           <height>0</height>
+           <width>40</width>
+           <height>20</height>
           </size>
          </property>
-         <property name="toolTip">
-          <string>Select waterfall palette</string>
-         </property>
-        </widget>
+        </spacer>
        </item>
-       <item row="1" column="2">
-        <widget class="QDoubleSpinBox" name="slopeSpinBox">
-         <property name="minimumSize">
+       <item row="0" column="0">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
           <size>
-           <width>80</width>
-           <height>0</height>
+           <width>40</width>
+           <height>20</height>
           </size>
          </property>
-         <property name="toolTip">
-          <string>Correction applied to flatted displayed spectra</string>
-         </property>
-         <property name="prefix">
-          <string>Slope </string>
-         </property>
-         <property name="decimals">
-          <number>1</number>
-         </property>
-         <property name="minimum">
-          <double>-2.000000000000000</double>
-         </property>
-         <property name="maximum">
-          <double>2.000000000000000</double>
-         </property>
-         <property name="singleStep">
-          <double>0.100000000000000</double>
-         </property>
-        </widget>
+        </spacer>
        </item>
-       <item row="0" column="4">
-        <widget class="QSpinBox" name="waterfallAvgSpinBox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+       <item row="1" column="3">
+        <widget class="QSpinBox" name="gainSpinBox">
          <property name="minimumSize">
           <size>
            <width>80</width>
@@ -326,37 +287,55 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Number of FFTs averaged (controls waterfall scrolling rate)</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gain (dB) applied to spectra before display&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="prefix">
-          <string>N Avg </string>
+          <string>Gain </string>
          </property>
          <property name="minimum">
-          <number>1</number>
+          <number>-20</number>
          </property>
          <property name="maximum">
           <number>20</number>
          </property>
         </widget>
        </item>
-       <item row="1" column="4">
-        <widget class="QComboBox" name="spec2dComboBox">
+       <item row="0" column="3">
+        <widget class="QSpinBox" name="zeroSpinBox">
+         <property name="minimumSize">
+          <size>
+           <width>80</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>38</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select data for spectral display&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Constant offset applied to spectra&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
-         <property name="currentIndex">
-          <number>1</number>
+         <property name="suffix">
+          <string/>
          </property>
-         <item>
-          <property name="text">
-           <string>Current</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Cumulative</string>
-          </property>
-         </item>
+         <property name="prefix">
+          <string>Zero </string>
+         </property>
+         <property name="minimum">
+          <number>-100</number>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="6">
+        <widget class="QCheckBox" name="cbFlatten">
+         <property name="text">
+          <string>Flatten</string>
+         </property>
         </widget>
        </item>
       </layout>
