@@ -4,7 +4,7 @@ subroutine flat3(s0,iz,nfa,nfb,nterms,ynoise,s)
   parameter (NSMAX=6827)
   real*4 s0(iz)
   real*4 s(iz)
-  real*4 ynoise,y4
+  real*4 ynoise,y4,db
 
   real*8 x(NSMAX)
   real*8 y(NSMAX)

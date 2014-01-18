@@ -62,6 +62,7 @@ jt9sim: $(OBJS3) libjt9.a
 OBJS4 = jt9code.o 
 jt9code: $(OBJS4) libjt9.a
 	$(FC) -o jt9code $(OBJS4) -L. -ljt9
+	cp jt9code $(EXE_DIR)
 
 sync9.o: sync9.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c sync9.f90

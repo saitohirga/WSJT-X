@@ -60,7 +60,8 @@ subroutine packmsg(msg,dat,text)
   c3='    '
   if(ic.ge.ib+1) c3=msg(ib+1:ic)
   if(c3.eq.'OOO ') c3='    '           !Strip out the OOO flag
-  call getpfx1(c1,k1,junk)
+  call getpfx1(c1,k1,kk)
+  if(kk.ne.0) go to 10                 !Tnx to DL9RDZ for reminding me!
   call packcall(c1,nc1,text1)
   call getpfx1(c2,k2,nv2)
   call packcall(c2,nc2,text2)

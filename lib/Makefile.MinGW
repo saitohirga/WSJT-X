@@ -72,6 +72,7 @@ jt9sim.exe: $(OBJS3) libjt9.a
 OBJS4 = jt9code.o 
 jt9code.exe: $(OBJS4) libjt9.a
 	$(FC) -o jt9code.exe $(OBJS4) libjt9.a
+	cp jt9code.exe $(EXE_DIR)
 
 OBJS5 = jt65.o 
 jt65.exe: $(OBJS5) libjt9.a 
