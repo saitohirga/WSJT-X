@@ -79,6 +79,7 @@ set (FSRCS
   decoder.f90
   deg2grid.f90
   demod64a.f90
+  determ.f90
   downsam9.f90
   encode232.f90
   entail.f90
@@ -93,6 +94,7 @@ set (FSRCS
   filbig.f90
   fillcom.f90
   flat2.f90
+  flat3.f90
   flat65.f90
   four2a.f90
   gen65.f90
@@ -123,6 +125,7 @@ set (FSRCS
   pctile.f90
   peakdt9.f90
   pfxdump.f90
+  polfit.f90
   sec_midn.f90
   setup65.f90
   sleep_msec.f90
