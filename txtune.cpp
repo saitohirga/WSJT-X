@@ -21,11 +21,13 @@ TxTune::~TxTune()
 
 void TxTune::accept()
 {
+  if(bTune) on_pbTune_clicked();
   QDialog::accept();
 }
 
 void TxTune::reject()
 {
+  if(bTune) on_pbTune_clicked();
   set_iqAmp(m_saveAmp);
   set_iqPhase(m_savePha);
   set_txPower(m_saveTxPower);
