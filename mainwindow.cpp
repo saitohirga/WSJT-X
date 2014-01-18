@@ -2638,6 +2638,9 @@ void MainWindow::on_bandComboBox_activated(int index)
   int ret=0;
   QString rt;
 
+  // Upload any queued spots before changing band
+  psk_Reporter->sendReport();
+
   m_band=index;
   QString t=m_dFreq[index];
   m_dialFreq=t.toDouble();
