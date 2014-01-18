@@ -50,7 +50,8 @@ C  ... and if so, does it have a reply frequency?
       c3='    '
       if(ic.ge.ib+1) c3=msg(ib+1:ic)
       if(c3.eq.'OOO ') c3='    '           !Strip out the OOO flag
-      call getpfx1(c1,k1,junk)
+      call getpfx1(c1,k1,nv2)
+      if(nv2.ne.0) go to 10
       call packcall(c1,nc1,text1)
       c2z=c2
       call getpfx1(c2,k2,nv2)
