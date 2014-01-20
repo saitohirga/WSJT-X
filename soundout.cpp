@@ -63,7 +63,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
   if(nsec!=nsec0) {
 //    qDebug() << txPower << iqAmp << iqPhase << amp << xAmp << yAmp << dPhase << bTune;
 //    qDebug() << "A" << nsec%60 << bTune << btxok;
-    ic=0;
+//    ic=0;
     nsec0=nsec;
   }
 

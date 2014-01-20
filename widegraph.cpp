@@ -361,7 +361,6 @@ void WideGraph::tx570()
   m_bIQxt=true;
   double f=ui->widePlot->txFreq();
   double f1=m_mult570Tx*(1.0+0.000001*m_cal570) * f;
-  int nHz = 1000000.0*f1 + 0.5;
 #ifdef WIN32
   int iret=set570(f1);
   if(iret != 0) {

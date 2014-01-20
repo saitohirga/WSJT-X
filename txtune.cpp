@@ -38,7 +38,7 @@ void TxTune::on_pwrSlider_valueChanged(int n)
 {
   txPower=n;
   QString t;
-  t.sprintf("%d \%",n);
+  t.sprintf("%d %%",n);
   ui->labPower->setText(t);
 }
 
