@@ -1,0 +1,1262 @@
+// This is a comment line, anything with // is ignored at process time.
+= WSJT-X User Guide
+:Author: Joe Taylor, K1JT
+:Date: January 21, 2014, Copyright © 2012-2014
+:Revision: 1.2.2
+:badges:
+:icons:
+:numbered:
+
+// If the list of links gets too long, we can add a url-file that is pulled
+// in when and where needed with the following:
+// include::<file-name> for example: include::url-list.txt
+:devsvn: http://developer.berlios.de/projects/wsjt/[Devel-SVN]
+:devmail: mailto:wsjt-devel@lists.berlios.de[WSJT-Devel-List]
+:download: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[ Download Page ]
+:wsjtx: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[ WSJT-X ]
+:homepage: http://physics.princeton.edu/pulsar/K1JT/[ WSJT Home Page ]
+:ntpsetup: http://www.satsignal.eu/ntp/setup.html[Network Time Protocol Setup]
+:dxlcommander: http://www.dxlabsuite.com/commander/[ Commander by DXLab ]
+:hrd: http://www.hrdsoftwarellc.com/[ Ham Radio Deluxe ]
+:image_dir: 
+:launchpadurl: https://launchpad.net/~jnogatch/+archive/wsjtx[ WSJT-X Linux Packages ]
+
+// These [[X?]] numbers are HTML anchors, and can be used to
+// navigate though the document easily: <<[X6],See Introduction]>> will
+// place a hyper-link in your text to take you too the anchored section.
+// All major sections or points of interest should have one.
+[[X6]]
+
+// == is level (2), section 1.0, === would mean section 1.1, === would
+// be section 1.1.1. This method is used throughout the document.
+
+== Introduction
+{wsjtx} is a computer program designed to facilitate basic amateur
+radio communication using very weak signals.  The first four letters
+in the program name stand for “Weak Signal communication by K1JT”, and
+the “-X” suffix indicates that {wsjtx} started as an extended (and
+experimental) branch of program WSJT.
+
+{wsjtx} offers two protocols or “modes,” JT9 and JT65.  Both are
+designed for making reliable, confirmed QSOs under extreme weak-signal
+conditions. They use nearly identical message structure and source
+encoding.  JT65 was designed for EME (“moon-bounce”) on the VHF/UHF
+bands and has also proved very effective for worldwide QRP
+communication at HF.  JT9 is optimized for the LF, MF, and HF bands.
+It is about 2 dB more sensitive than JT65 while using less than 10% of
+the bandwidth.  Both modes use one-minute timed sequences of
+alternating transmission and reception, so a minimal QSO takes four to
+six minutes — two or three transmissions by each station, one sending
+in odd minutes and the other even.  World-wide QSOs are possible with
+power levels of a few watts and compromise antennas.
+
+Starting with version 1.1, {wsjtx} provides dual-mode reception of
+both JT65 and JT9 signals and can display a bandpass as large as 5
+kHz.  If your receiver can provide at least 4 kHz bandwidth in USB
+mode, you can set your dial frequency to one of the standard JT65
+frequencies — for example, 14.076 MHz for 20 meters — and have the
+full JT65 and JT9 sub-bands displayed simultaneously on the waterfall.
+You can make QSOs in both modes using nothing more than mouse clicks.
+
+Plans for future program development call for {wsjtx} and WSJT to merge 
+together: {wsjtx} will gradually acquire the additional modes JT4, FSK441, and 
+ISCAT that are now supported in WSJT.  The entire WSJT-related effort is an 
+open-source project.  If you have programming skills or would like to 
+contribute to the project in other ways, please make your interests known to 
+K1JT and the rest of the development team.  The project’s source-code 
+repository can be found at {devsvn}, and communication among the 
+developers takes place on the email reflector {devmail}.
+
+[[X7]]
+== System Requirements
+.General Specification
+- SSB transceiver and antenna 
+- Computer running Windows XP or later, Linux, Mac OS X or other
+unix-like operating systems. 
+- 1.5 GHz or faster CPU and 100 MB of available memory
+- Monitor with at least 1024 x 780 resolution (more is better)
+- Computer-to-radio interface using a serial port for T/R switching, or CAT 
+control, or VOX.
+- Audio input and output devices supported by your operating system
+- Audio or equivalent USB connections between transceiver and computer  
+- A means for synchronizing your computer clock to UTC to within ±1 s. 
+The built-in Windows facility is usually not adequate.  Meinberg
+NTP is especially recommended: see {ntpsetup} for installation
+instructions.
+
+[[X8]]
+== Installation
+=== Windows
+{wsjtx} can be downloaded from the {homepage}. Click on the {wsjtx} link at the
+left margin and then on the appropriate download link.
+
+- Execute the downloaded file and follow its installation 
+instructions.
+
+- Install {wsjtx} into its own directory (the suggested default is 
+C:\WSJTX) rather than the conventional C:\Program Files\WSJTX.
+
+- By default all files relating to {wsjtx} will be stored in your chosen 
+installation directory and its subdirectories. You can uninstall {wsjtx} simply
+by removing the installation directory and its contents.
+
+[[X9]]
+=== Ubuntu Linux
+
+- Installation packages for Ubuntu 12.04, 12.10, 13.04, 13.10 are
+available at {launchpadurl}
+
+- If you have not before obtained packages from the Personal Package Archive 
+(PPA) at the above link, execute the following instruction at the command 
+prompt:
+
+.[green]_Shell Commands_
+[source,bash]
+-----
+//# To obtain the latest version from this PPA, Open a Shell Ctrl+T and:
+$ sudo add-apt-repository ppa:jnogatch/wsjtx
+
+# Accept the PPA Key, then:
+$ sudo apt-get update && sudo apt-get install wsjtx
+-----
+
+- You should also download kvasd and put it in the same directory as the 
+executable binaries wsjtx and jt9. Normally (after you have run the script 
+/usr/bin/wsjtx at least once) this directory will be $HOME/.wsjtx.
+
+- Installable binary packages for other Debian-based Linux systems and for OS X 
+will be available soon.
+
+=== Source Code
+- {wsjtx} is an open-source program released under the GNU General Public License. 
+
+// Note to developers. The URL http://developer.berlios.de/projects/wsjt/. is
+// to a very old src version of WSJT 5.7 or so. WSJTX is not listed at all.
+// Also, all the Qt4 stuff is now obsolete, and needs to be updated.
+
+- Source code is available from the public repository at {devsvn}.
+- To compile the program you will need to install open source packages for:
+** Subversion
+** Qt 5.x
+** g++
+** g95 or gfortran
+** fftw3
+** hamlib
+
+- For compiling in Windows we recommend the MinGW package. 
+- The full source code for {wsjtx} can be downloaded by using the command:
+
+// Need further Windows Compiling Instructions
+
+.[green]_Windows Shell Command_
+[source,bash]
+-----
+# Open a MSYS-MinGW, Cygwin, etc and:
+svn co svn://svn.berlios.de/wsjt/branches/wsjtx 
+-----
+
+[[X10]]
+== Configuration
+=== Station Tab
+- Start {wsjtx} and Select Configuration from its Setup menu.
+* Call Sign: <Your Call Sign>
+* Grid: <Enter Your Maiden Head Grid Square>
+* PskRepoter: enable sending reports, default is off
+* CW ID: Send your call in CW after 73's is sent, default is off
+* CW Interval: set the interval for sending your CW identification. 
+Default is 0 (never).
+
+- Many users have other software controlling their radios. {wsjtx} does not 
+implement full transceiver control, but it does provide a way to ensure that 
+{wsjtx} can read and set the radio’s dial frequency. If you want this 
+capability:
+* Check the box Enable CAT
+* Select your radio type from a drop-down list
+* Select a port (not the same port selected for PTT control)
+* Set COM-port parameters to match selection
+
+- For now you should leave Split Tx unchecked. If using CAT control,
+most radios will allow you to set PTT method = CAT.  Some radios
+support two types of PTT assertion via CAT control: one takes audio
+input from the Mic connector, the other from a rear-panel Data
+connector.  The simplest CAT configuration sets Polling interval to 0
+(no polling the radio for dial frequency).  {wsjtx} will then be able
+to set the radio’s frequency, but the program will be unaware of
+subsequent changes made using the radio’s panel controls.
+
+.Driver / TTY / USB
+[icon="./images/icons/example.png"]
+NOTE: If you need an additional item in the list of devices for the
+CAT port, edit the configuration file wsjtx.ini and add your
+requirement as CATdriver=yourdriver. + Example: (
+CATdriver=/dev/tty.usbserial ) in the group of entries marked
+[Common].
+
+- With most radios you can set Polling interval to a reasonable small
+number (say 1 – 3 s) and the program will follow any frequency changes
+made at the radio.  Note that you may not be able to simultaneously
+control your radio from {wsjtx} and from another software program.
+Some experimentation may be required, and you may need to refer to the
+documentation for your CAT software and radio.
+
+- It is best to have the radio and any interface equipment turned on
+and connected before starting {wsjtx}, and to exit the program before
+turning your equipment off.
+
+[[X11]]
+image::images/r3563-config-screen-80.png[align="center",alt="Configuration Screen"]
+
+- If you use {dxlcommander} or {hrd} to control your transceiver, you
+can configure {wsjtx} to communicate with the radio through that
+program.  Entries for these programs appear at the end of the
+drop-down list of supported rigs:
+
+* For DXL select: DXLab Suite Commander
+* For HRD select: Ham Radio Deluxe
+
+- Try clicking the Test CAT Control and Test PTT buttons to see that
+you have established the desired control of station functions.  Select
+the devices you will use for Audio input and output, then click OK to
+dismiss the Configuration window.
+
+- {wsjtx} expects your sound card to do its raw sampling at 48000 Hz.  To 
+ensure that this will be so when running under Windows:
+
+* Open the Sound control panel and select in turn the “Recording” and
+“Playback” options.  * Click on Properties, then Advanced, and select
+“16 bit, 48000 Hz (DVD Quality).”
+
+CAUTION: If you are using a sound card that is also the default device
+for Windows sounds, be sure to turn off all such sounds so they are
+not transmitted over the air.
+
+==== TX Macros Tab
+
+- TX Macros are an aid for sending commonly used free-text messages.
+To enable a pull-down selection, add your custom messages to the entry
+fields provided.  Remember that the maximum free-text message length
+is 13 characters.  You access your macros by selecting Tx message #5
+(or the Free MSG Radio Button) on the main window, then right-click to
+select the message to be sent.
+
+==== Band Settings Tab
+
+- Band Settings set the frequency by band and what antenna is being
+used on each.  The data is used on the Main menu as well as things
+like PskRepoter. If this information is incorrect, with respect to
+bands, so will your data being sent out.
+
+=== Main Window
+- To set the proper level of audio drive from {wsjtx} to your radio:
+
+* Click the Tune button on the main screen.{wsjtx} should set the
+radio into transmit mode and generate a steady audio tone at the same
+amplitude that will be used for a generated JT9 signal.
+
+* Listen to the generated audio tone using your radio’s “Monitor”
+facility, or by another method.  The tone should be perfectly smooth,
+with no clicks or glitches.
+
+* Open the computer’s audio mixer controls for output (“playback”)
+devices and adjust the volume slider downward until the RF output from
+your transmitter falls by around 10%.  This will be a good level for
+audio drive.
+
+* Alternatively, you can make the same adjustment using the digital
+slider labeled Pwr at bottom right of the main window.
+
+* Toggle the Tune button once more to stop your test transmission. 
+
+[[X15]]
+== Basic Operating Tutorial
+
+=== Main Window Settings
+
+- Click the Stop button on the main window to halt any data acquisition.  
+- Select JT9 from the Mode menu and Deepest from the Decode menu.
+- Set the audio Tx and Rx frequencies to Tx 1224 Hz and Rx 1224 Hz.
+
+=== Wide Graph Settings
+
+* Bins/Pixel = 4
+* N Avg = 5
+* Gain = 0,
+* Zero = –10
+* Flatten = checked
+* Cumulative for data display.
+* Select Tab 2 (just below the Erase button on the main window) to
+choose the alternative set of controls for generating and selecting
+messages to be transmitted.
+
+=== Example 1
+
+.Navigate and Open Wave File:
+*****
+
+Select File | Open and navigate to ...\save\samples\130418_1742.wav
+under your program installation directory.  When the file opens you
+should see something similar to the to the following:
+
+*****
+
+[[X12]]
+image::images/r3556-main-ui-80.png[align="center",alt="Main UI and Wide Graph"]
+
+==== Decoding Overview
+
+- Notice the [green]*GREEN* and [red]*RED* markers on the waterfall
+frequency scale.  Decoding takes place at the end of a receive
+sequence and is organized in two stages.  The first decodes take place
+at the selected Rx frequency, indicated by the green marker.  Results
+appear in both the left (“Band Activity”) and right (“Rx Frequency”)
+text windows on the main screen. The decoder then finds and decodes
+all signals in the selected mode(s) and the displayed frequency
+range. The red marker indicates your Tx frequency.
+
+.Signal Presence
+
+NOTE: At least eight JT9 signals are present in the example file; all
+but one of them are decodable.  When this file was recorded KF4RWA was
+finishing a QSO with K1JT.  Since the green marker was placed at his
+audio frequency, 1224 Hz, his message “K1JT KF4RWA 73” appears in both
+decoded text windows.  The “Band Activity” window shows this message
+as well as all the other decodes at nearby frequencies.  The CQ lines
+are highlighted in [green]*GREEN*, and lines containing “My Call”, in
+this case K1JT, are highlighted in [red]*RED*.
+
+- For this step and the next, you may want to pretend you are K1JT by
+entering that call temporarily as “My Call” on the <<X11,Configuration
+Screen>>.  Your results should then be identical to those shown in the
+<<X12,figure above>>.
+
+[[X13]]
+==== Decoding Controls
+- To gain some feeling for the controls you will use when making QSOs, try 
+clicking with the mouse on the decoded text lines and on the waterfall spectral 
+display. You should be able to confirm the following behavior:
+
+- Double-click on either of the decoded lines highlighted in green. This action
+should produce the following:
+
+** Copies call-sign and locater of a station calling CQ to the “DX Call” 
+and “DX grid” entry fields.
+
+** Generates suitable messages for a minimal QSO and checks or clears the Tx
+even box so that you will transmit in the proper (odd or even) minutes.
+
+** Rx and Tx frequency markers will be moved to the CQ-ing station’s frequency,
+and the Gen Msg (“generated message”) radio button at bottom right of the main
+window will be selected.
+
+** If you had checked “Double-click on call sets Tx Enable” on the Setup menu,
+Enable Tx would also be activated, and you would start to transmit automatically,
+at the appropriate time.
+
+- Double-click on the decoded line with the message “K1JT N5KDV EM41”, 
+highlighted in [red]*RED*.
+
+- Results will be similar to (a), except the Tx frequency ([red]*RED* marker) is
+not moved.  Such messages are usually in response to your own CQ, or from a 
+tail-ender, and you probably want your Tx frequency to stay where it was.
+
+- By holding down the Ctrl key when double-clicking on the decoded line 
+(or checking Lock Tx=Rx) you can cause both Tx and Rx frequencies to be moved.
+
+- Double-click on the message from KF4RWA in either window. He is 
+sending “73” to K1JT, signifying that the QSO is over.  Most likely you 
+want to send 73 to him, so the message “KF4RWA K1JT 73” is automatically 
+generated and selected for your next transmission.  (Alternatively, you might 
+choose to send a free text message or to call CQ again.)
+
+- Clicking on the waterfall moves the Rx frequency ([green]*GREEN* marker) to the 
+selected frequency.
+
+- Ctrl-click on waterfall moves both Rx and Tx frequencies.
+
+- Double-click on the waterfall moves the Rx frequency and causes a 
+narrow-band decode there at the new QSO frequency. Decoded text appears in the 
+right window only.  Ctrl-double-click moves both Rx and Tx frequencies and 
+decodes at the new frequency. 
+
+- Clicking Erase clears the right window. Double-click on Erase to clear both 
+text windows.
+
+=== Example 2
+
+==== Wide Graph Settings
+- Bins/Pixel = 7
+- Zero = -3
+
+[NOTE]
+If necessary, adjust the width of the Wide Graph Window so that the upper
+frequency limit is 4000 Hz.
+
+==== Main Window
+- Select JT9+JT65 on the Mode menu
+- Toggle the Tx mode button to read Tx JT65, and set the Tx and Rx frequencies
+to 1718 Hz.
+- Double-click on Erase to clear both text windows
+
+==== 130610_2343.wav
+.Navigate and Open Wave File:
+*****
+
+Select File | Open and navigate to ...\save\samples\130610_2343.wav.
+
+*****
+
+* The waterfall and main window should look like the figure below.
+This sample file contains 17 decodable signals — nine in JT65 mode
+(flagged with the character # in the decoded text windows), and eight
+in JT9 mode (flagged with @).  Since the Tx mode was set to Tx JT65,
+signals in that mode were decoded first.  If you had selected Tx JT9,
+JT9 signals would have been decoded first.
+
+.130610_2343.wav Decode
+[[X14]]
+image::images/130610_2343-wav-80.png[align="left",alt="Wide Graph Decode 130610_2343"]
+
+NOTE: Notice the [blue]*BLUE* marker on the waterfall scale, by
+default set at 2500 Hz.  Its position is set by the spinner control
+JT65 nnnn JT9, where nnnn is a frequency in Hz. In JT9+JT65 mode the
+program will decode JT65 signals below this frequency and JT9 signals
+above it.
+
+- Confirm that mouse-click behavior is similar to that described in
+the single-mode instructions at <<X13,Decoding Controls>>. The program
+automatically determines the mode of each JT9 or JT65 signal.
+
+==== Check Decodes
+- Double-click on the waterfall near 815 Hz: a signal originating
+from W7VP will be decoded and appear in the Rx Frequency Box:
+
+.W7VP Decode
+[width="70%",cols="3,^3,^3,^4,^4,30",options="header"]
+|=================================
+|UTC|db|dt|Freq|Mode|Message
+|2343|-7|0.3|815|#|KK4DSD W7VP -16
+|=================================
+
+- Double-click on the waterfall at 3196 Hz and the program will decode a JT9
+message from IZ0MIT:
+
+.IZ0MIT Decode
+[width="70%",cols="3,^3,^3,^4,^4,30",options="header"]
+|=====================================
+|UTC|db|dt|Freq|Mode|Message
+|2343|-7|0.3|3196|@|WB8QPG IZ0MIT -11
+|=====================================
+
+NOTE: Notice that when a signal is decoded in this way the Tx mode
+automatically switches to that of the decoded signal.  The Rx and Tx
+frequency markers on the waterfall scale resize themselves
+accordingly.
+
+- Scroll back in the Band Activity window (if necessary) and
+double-click on the message CQ DL7ACA JO40.  The program will set Tx
+mode to JT65 and Tx and Rx frequencies to that of DL7ACA, 975 Hz.  If
+you had checked *Double-click on call sets Tx Enable* on the Setup menu,
+the program would set up to start a QSO with DL7ACA.
+
+- Double-click on the decoded JT65 message CQ TA4A KM37.  The program
+will set Tx mode to JT9 and the Rx and Tx frequencies to 3567 Hz.
+You’re now configured properly for a JT9 QSO with TA4A.
+
+==== 130418_1742.wav
+.Navigate and Open Wave File:
+*****
+
+Select File | Open and navigate to ...\save\samples\130418_1742.wav.
+
+*****
+
+- You can immediately see that these data were recorded with a much
+narrower Rx bandwidth, roughly 200 to 2600 Hz. If you have no Rx
+filter wider than about 2.7 kHz, you will be using data similar to
+this sample. For best viewing of such data adjust Bins/Pixel and the
+width of the Wide Graph so that only the active part of the spectrum
+shows, say 0 to 2600 Hz.  (Re-open the example file after any change
+of Bins/Pixel or Wide Graph width, to refresh the waterfall.)  The
+signals in this file are all JT9 signals.  To decode them in JT9+JT65
+mode you’ll need to move the JT65 nnnn JT9 delimiter down to 1000 Hz
+or less.
+
+=== Start, Zero, and Gain
+
+- Now is a good time to experiment with the *Start*, *Zero*, and
+*Gain* parameters.  *Start* sets the starting frequency at the left
+side of the waterfall scale.  *Zero* sets the baseline level for
+colors, and *Gain* sets the sensitivity for color changes.  For the
+receiver setup of this file good values are *Zero*=0, *Gain*=0.
+Re-open the wave file after each change, to see the new results.
+
+=== Noise Level
+
+- Don’t forget to re-enter your own call-sign as “My Call”.  Click the
+Monitor button to return to normal receive operation, and be sure that
+your transceiver is set to USB (or USB Data) mode.  Using the receiver
+gain control(s) and/or the Windows mixer controls, set the background
+noise level (lower left of main window) to around 30 dB or mid-scale.
+If necessary you can also use the slider next to the scale — but note
+that the overall dynamic range will be best with this slider not too
+far from its mid-point.
+
+=== Freq Setting
+
+- Taking full advantage of the wide-band, dual-mode capability of
+{wsjtx} requires a receiver bandwidth of at least 4 kHz. For example,
+on a Kenwood TS-2000 I set *Low Cut* to 200 and *High Cut* to 5000
+Hz. Note that most SSB transceivers have a fixed Tx filter that will
+not pass audio frequencies higher than about 2700 Hz.  {wsjtx} takes
+care of this by using Split mode, receiving with VFO A and
+transmitting with VFO B.  The Tx dial frequency (VFO B) is offset in
+500 Hz steps, and the generated audio frequency is adjusted so that it
+always falls in the range 1500 – 2000 Hz. With CAT and Split Tx
+enabled on the configuration screen and your transceiver set to Split
+mode, frequency control will be handled automatically.  (Note:
+operating in Split mode is not yet functional with CAT control through
+{hrd}.
+
+=== Filters
+
+- If your transceiver has only a standard SSB filter you won’t be able
+to use more than about 2.7 kHz bandwidth.  You can still have all of
+the JT9 sub-band and part of the JT65 sub-band available, however.  On
+20m, say, set dial frequency (VFO A) to 14.0774 and the JT9 nnnn JT65
+dividing line at 1600 Hz.  JT9 signals in their conventional sub-band
+will then appear at 1600 – 2600 Hz, while JT65 signals will be below
+1000 Hz.  Of course, you might prefer to concentrate on one mode at a
+time, setting your dial frequency to (say) 14.076 for JT65 and 14.078
+for JT9.  Present conventions have the nominal JT9 dial frequency 2
+kHz higher than the JT65 dial frequency, and the check-box labeled \+2
+kHz, just below the band selector, makes the appropriate settings
+easy.
+
+
+== Making QSOs
+
+- At this point, you should now be ready to make QSOs using either JT9 or JT65.
+
+- By longstanding tradition, a minimal valid QSO requires the exchange
+of callsigns, a signal report or some other information, and
+acknowledgments.  {wsjtx} is designed to facilitate making such
+minimal QSOs using short, formatted messages.  The process works best
+if you use these formats and follow standard operating practices.  The
+recommended basic QSO goes something like this:
+
+=== Standard Exchange
+.Sequence of Events
+[width="70%",cols="3,^3,^3,^4,10",options="header"]
+|=======================================
+|UTC|To|From|Grid/Rpt|Comment
+|0001|CQ|K1ABC|FN42|~ K1ABC calls CQ
+|0002|K1ABC|G0XYZ|IO91|~ G0XYZ answers
+|0003|G0XYZ|K1ABC|–19|~ K1ABC sends report
+|0004|K1ABC|G0XYZ|R–22|~ G0XYZ sends acknowledgment and report
+|0005|G0XYZ|K1ABC|RRR|~ K1ABC sends acknowledgment
+|0006|K1ABC|G0XYZ|73|~ G0XYZ sends 73
+|=======================================
+
+- These standard messages consist of two callsigns (or CQ, QRZ, or DE
+and one callsign) followed by the transmitting station’s grid locator,
+a signal report, or the acknowledgement “RRR” or “73”.
+
+- These structured messages are compressed and encoded in a highly
+efficient and reliable way.  Signal reports are given as
+signal-to-noise ratio (S/N) in dB, using the standard reference noise
+bandwidth 2500 Hz.
+
+- For JT65 reports must lie in the range –30 to –1 dB; JT9 supports
+the extended range –50 to \+49 dB.  
+
+* In the example message #0003, K1ABC is telling G0XYZ that his signal
+is 19 dB below the noise power in bandwidth 2500 Hz.
+
+* In message #4, G0XYZ acknowledges receipt of that report and
+responds with a –22 dB signal report.
+
+- For operators with good hearing, signals start to become audible
+around –15 dB on this scale.
+
+- Signals are visible on the waterfall down to about –26 dB.
+
+NOTE: In ideal circumstances the JT65 decoder begins to fail around
+–24 dB, JT9 around –26 dB.
+
+=== Message Format
+
+- Users often add some friendly chit-chat as a final transmission, in
+place of the formatted ``73'' message.  Free-format messages such as
+``TNX JOE 73 GL'' or `5W VERT 73 GL'' are supported, up to a maximum
+of 13 characters.  It should be obvious, however, that JT9 and JT65
+are not suitable for extensive conversations or rag-chewing.
+
+=== Compound Call-Signs
+- Compound call-signs such as PJ4/K1ABC or G0XYZ/P are handled in a slightly 
+different way.  The following formats are all valid:
+
+.Valid Callsign Formats
+[width="40%",cols="2,2,2",options="header"]
+|=====================
+|Action|Callsign|Grid
+|CQ|pfx/callsign|grid
+|QRZ|pfx/callsign|grid
+|DE|pfx/callsign|grid
+|CQ|callsign/sfx|grid
+|QRZ|callsign/sfx|grid
+|DE|callsign/sfx|grid
+|=====================
+
+- ``pfx'' is a 1-4 character prefix
+- ``callsign'' is a standard callsign
+- ``sfx'' is a 1-3 character suffix
+- ``grid'' is a 4-character Maidenhead locater
+
+- A signal report of the form “±nn” or “R±nn”, or the acknowledgment
+or sign-off messages “RRR” or “73”.  {wsjtx} generates messages in
+these forms automatically, as required.
+
+- A QSO between two stations using compound call-signs might look like this:
+
+.Compound Exch Example
+[width="40%",cols="2,2,2",options="header"]
+|=====================
+|Action|Callsign|Grid
+|CQ|KP4/K1ABC|FK68
+|DE|G0XYZ/P|IO91
+|G0XYZ|K1ABC|–19
+|K1ABC|G0XYZ|R–22
+|G0XYZ|K1ABC|RRR
+|DE|G0XYZ/P|73
+|=====================
+
+=== Pre-QSO Checks
+
+- Before attempting your first QSO with JT9 or JT65, be sure to go
+through the <<X15,Basic Tutorial>> as well as the following checklist:
+
+* Your callsign and grid locator set to correct values
+* PTT and CAT control (if used) properly configured and tested
+* Computer clock properly synchronized with UTC to within ±1 s.
+* Radio set to USB (upper sideband) mode
+
+IMPORTANT: Remember that JT9 and J65 generally do not require high
+power. Under most propagation conditions, [red]*QRP is the rule!*
+
+== Controls & Functions
+
+- This section will go through the various menus, screens, control and
+functions for both the Main UI and Wide Graph. Small variations may
+exist between displayed images and that of the application.
+
+=== Wide Graph Controls
+- The following controls appear at the bottom of the Wide Graph window:
+
+.Wide Graph Controls
+image::images/wide-graph-controls.png[align="left",alt="Wide Graph Controls"]
+
+* *FFT Bins/Pixel* controls the displayed frequency resolution.  Set
+to 1 for the highest possible resolution, or to higher values to
+compress the spectral display. Normal operation with a convenient
+window size works well at 2 to 8 bins per pixel.
+
+* *N Avg* is the number of successive FFTs to be averaged before
+updating the spectral display.  Values around 5 are suitable for
+normal JT9 and JT65 operation.
+
+* *Gain* and *Zero* control the scaling and reference level for
+waterfall colors.  Values around 0 for both parameters are usually
+about right, depending on the input signal level and your own
+preferences.
+
+* *JT65 nnnn JT9* sets the dividing point for wide-band decoding of
+JT65 and JT9 signals in JT9+JT65 mode.  The decoder looks for JT65
+signals below nnnn Hz and JT9 signals above that frequency.
+
+* *Current / Cumulative* controls the graphical display in the bottom
+one-third of the Wide Graph window.  ** Current is the average
+spectrum over the most recent N Avg FFT calculations.  ** Cumulative
+is the average spectrum since the start of the current Rx sequence.
+
+* With the exception of JT65 nnnn JT9, controls on the Wide Graph
+window affect only the graphical displays — they have [red]*no effect*
+on the decoding process.
+
+=== Main Window
+
+- The following buttons appear just under the decoded text windows on
+the main screen:
+
+.Main UI Controls
+image::images/main-ui-controls.png[align="left",alt="Main UI Controls"]
+
+* *Log QSO* pops up a confirmation screen pre-filled with known
+information about a QSO you have nearly completed.  You can edit or
+add to this information before clicking OK to log the QSO.  If you
+select ``Prompt me to log QSO'' on the Setup menu, the program will
+pop up the confirmation screen automatically when you send a ``73'' or
+free-text message.
+
+.Log QSO Window
+image::images/log-qso.png[align="left",alt="Log QSO"]
+
+* *Stop* will stop normal data acquisition in case you want to open
+and explore previously recorded audio files.
+
+* *Monitor* restarts normal receive operation.  This button is
+highlighted in green when the program is receiving.
+
+* *Decode* tells the program to repeat the decoding procedure at the
+Rx frequency (green marker on waterfall), using the most recently
+completed sequence of Rx data.
+
+* *Erase* clears the right (Rx frequency) window. Double-clicking
+Erase clears both text windows.
+
+* *Tune* may be used to switch into Tx mode and generate an
+unmodulated carrier at the specified Tx frequency (red marker on
+waterfall).  This process may be seful for adjusting an antenna tuner,
+for example, toggle the button a second time to terminate the Tune
+process.
+
+* *Enable Tx* puts the program into automatic Rx/Tx sequencing mode
+and highlights the button in red.  A transmission will start at the
+beginning of the selected (odd or even) sequence, or immediately if
+appropriate.
+
+* *Halt Tx* terminates a transmission in progress and disables
+automatic Rx/Tx sequencing.
+
+=== Misc Controls Left
+
+- Controls related to: *date*, *time*, *frequency*, *Rx Audio Level*,
+and the *Station Being Worked* are found at lower left of the main
+window:
+
+.Misc Controls Left
+image::images/misc-main-ui.png[align="left",alt="Mist Menu Items"]
+
+* The drop-down Band selector at upper left lets you select the
+operating band and sets dial frequency to a default value taken from
+the Default Frequencies tab on the Setup | Configuration screen.
+
+* If you are using CAT control, a small colored square appears in
+green if the CAT control is two-way between {wsjtx} and your radio, or
+orange if the control is only from program to radio.  (You can request
+a one-time interrogation of the radio’s dial frequency by clicking on
+the orange square.) The square becomes red if you have requested CAT
+control but communication with the radio has been lost.  If the Dx
+Grid is known, the great-circle azimuth and distance are given.
+
+* The program can keep a database of call-signs and locators for
+future reference.  Click Add to insert the present call and locater in
+the database; click Lookup to retrieve the locator for a previously
+stored call-sign.
+
+=== Misc Controls Center
+
+* At the center of the main window are a number of controls you will
+use when making QSOs:
+
+.Misc Controls Center
+image::images/misc-controls-center.png[align="left",alt="Misc Controls Center"]
+
+* Select *Tx even* to transmit in even-numbered UTC minutes.  Uncheck
+this box to transmit in the odd intervals.  This selection is made
+automatically when you double-click on a decoded text line as
+described in the Basic Operating Tutorial, Sections 5.1 thru 5.8.
+
+* Your audio Tx and Rx frequencies are displayed and can be adjusted
+with spinner controls. These settings are normally handled
+automatically by the double-click procedure.
+
+* The on-the-air frequency of your lowest JT9 or JT65 tone is the sum
+of dial and audio frequencies.  You can force Tx frequency to the
+current Rx frequency by clicking the Tx=Rx button, and vice-versa for
+Rx=Tx; check the box Lock Tx=Rx to make the frequencies always track
+one another.
+
+The *Report* control lets you change a signal report inserted
+automatically. Most reports will fall in the range –26 to \+10 dB.
+When signals are close to or above 0 dB, you and your QSO partner
+should probably reduce power. JT65 and JT9 are supposed to be weak
+signal modes!
+
+=== Message Menus
+* Two configurations of controls are provided for generating and selecting Tx 
+messages:
+
+.Traditional Message Control Panel
+* Traditional controls (carried over from program WSJT) provide six
+fields for message entry.  Pre-formatted messages for the standard
+minimal QSO are generated when you click Generate Std Msgs, or when
+you double-click on an appropriate line of decoded text.
+
+.Traditional Message Menu
+image::images/traditional-msg-box.png[align="left",alt="Traditional Message Menu"]
+
+* Select the next message to be transmitted (at the start of your next
+Tx\ sequence) by clicking on the circle under
+
+* Next to change to a specified Tx message immediately, perhaps after
+a transmission has already started, click on a rectangular button
+(e.g., Tx 3) under the Now label.  Changing Tx messages after a
+transmission has started reduces the probability of a correct decode
+by your QSO partner, but if you do it in the first 10 s of a Tx period
+it will most likely succeed.  Right-clicking on the entry field for
+message #5 pops up a list of free text messages entered on the Setup |
+Configuration | Tx Macros dialog window, for example you can select
+any of these pre-stored messages with the left mouse button.
+
+.New Message Control Panel
+* The second configuration of message-selecting controls looks like this:
+
+.New Message Menu
+image::images/new-msg-box.png[align="left",alt="New Message Menu"]
+
+* With this setup you will normally follow a top-to-bottom sequence of
+transmissions from the left column (if you are calling CQ) or the
+right column (if you are answering a CQ).  Clicking a button puts the
+appropriate message in the Gen Msg box.  If you are already
+transmitting, it changes the Tx message immediately.  The actual
+message being transmitted always appears highlighted in yellow in the
+first box on the status bar, at the bottom left of the main screen.
+You can enter anything (up to 13 characters) in the Free Msg box.
+Right-clicking on this entry field pops up your previously defined
+list of Tx Macros.
+
+
+=== Status Bar
+* A Status Bar at the bottom edge of the main window provides
+information about operating conditions.
+
+.Status Bar
+image::images/status-bar-a.png[align="left",alt="New Message Menu"]
+
+* Reading from left to right, these labels provide information about
+the current operating state (Receiving, Transmitting, Tune, or an
+opened file name), received noise level in dB, operating mode, and
+content of the most recent transmitted message.
+
+=== Menus
+* Program menus offer many options for configuration and operation.
+You should explore them and test the resulting program actions.
+
+==== File menu
+.File Menu
+image::images/file-menu.png[align="left",alt="File Manu"]
+
+==== Setup Menu
+.Setup Menu
+image::images/setup-menu.png[align="left",alt="Setup Menu"]
+
+==== View Menu
+.View Menu
+image::images/view-menu.png[align="left",alt="View Menu"]
+
+==== Mode Menu
+.Mode Manu
+image::images/mode-menu.png[align="left",alt="Mode Menu"]
+
+==== Decode Menu
+.Decode Manu
+image::images/decode-menu.png[align="left",alt="Decode Menu"]
+
+==== Save Menu
+.Status Bar
+image::images/save-menu.png[align="left",alt="Save Menu"]
+
+==== Help Menu
+.Status Bar
+image::images/help-menu.png[align="left",alt="Help Menu"]
+
+
+=== Keyboard Shortcuts
+
+* The following keyboard shortcuts are currently assigned:
+
+TIP: These commands are stored in a file called *shortcuts.txt* which
+is located in the root WSJTX installation directory: example:
+C:\WSJTX\shortcuts.txt
+
+.Keyboard Shortcuts
+[width="60%",cols="2,30",options="header"]
+|=====
+|Key|Action Performed
+|F1|Display online User's Guide in browser
+|Ctrl+F1|About WSJT-X
+|F2|Open the Setup >> Configuration window
+|F3|Display keyboard shortcuts
+|F4|Clear Dx Call and Dx Grid entries
+|Alt+F4|Exit program
+|F5|Display special mouse commands
+|F6|Open next file in directory
+|Shift+F6|Decode all remaining files in directory
+|F11|Move Rx frequency down 1 Hz
+|Ctrl+F11|Move Rx and Tx frequencies down 1 Hz
+|F12|Move Rx frequency up 1 Hz
+|Ctrl+F12|Move Rx and Tx frequencies up 1 Hz
+|Alt+1-6|Set next transmission to this number on Tab 1
+|Alt+D|Decode again at Rx frequency
+|Shift+D|Full decode (both windows)
+|Alt+E|Erase
+|Ctrl+F|Edit the free text message box
+|Alt+G|Generate standard messages
+|Alt+H|Halt Tx
+|Ctrl+L|Lookup callsign in database, generate standard messages
+|Alt M|Monitor
+|Alt+N|Enable Tx
+|Alt+Q|Log QSO
+|Alt+S|Stop monitoring
+|Alt+T|Tune
+|Alt+V|Save the most recently completed `*.wav'' file
+|=====
+
+=== Special Mouse Commands
+* The following special mouse commands are active:
+
+TIP: These commands are stored in a file called *mouse_commands.txt*
+which is located in the root WSJTX installation directory: example:
+C:\WSJTX\mouse_commands.txt
+
+.Special Mouse COmmands
+[width="80%",cols="13,50",options="header"]
+|=====
+|Mouse-Click on|Action Performed
+|Waterfall|- Set Rx frequency +
+- Double-click to set Rx frequency and decode there +
+- Ctrl-click to set Rx and Tx frequencies +
+- Ctrl-double-click to set Rx and Tx frequencies and decode there
+|Decode Test|- Double-click, copy 2nd call-sign to Dx Call and locator to Dx Grid +
+- Change Rx and Tx frequencies to decoded signal's frequency +
+- Generate Standard Messages +
+- If 1st call is own call, Tx freq with Ctrl+Double-Clicking.
+|Erase Button|- Click to erase QSO window +
+- Double-click to erase QSO and Band Activity windows
+|Tx5 Entry|- Right-click to select a macro message
+|=====
+
+== Font Sizes
+
+- User control of font sizes can be effected by using a text editor
+(Windows Notepad or similar) to create a one-line file named fonts.txt
+in the wsjtx directory. A single line of text should contain four
+numbers separated by spaces.  The first two control the font size (in
+points) and weight (on a 0 – 100 scale) of most GUI labels. The last
+two numbers control size and weight of text in the Band Activity and
+Rx Frequency windows.
+
+- The default is ``8 50 10 50''. If you need larger fonts and bold
+text in the decode windows, try ``10 50 12 100'' (without the quotes).
+
+== JT65 & JT9 Differences
+
+- *JT65* is a mature mode described in the literature some years
+ago. Details of the *JT9* protocol are presented in <<X16,Appendix A>>
+of this Guide.
+
+- To users already familiar with *JT65*, the most striking difference
+between the two modes is the much smaller occupied bandwidth of JT9:
+15.6 Hz, compared with 177.6 Hz for *JT65A*. Transmissions in the two
+modes are essentially the same length, and both modes use exactly 72
+bits to carry message information.  At the user level the two modes
+support the same message structures.
+
+- *JT65* signal reports are constrained to the range –1 to –30 dB —
+more than adequate for EME purposes, but not enough dynamic range for
+ideal use at HF and below.
+
+- S/N values displayed by the *JT65* decoder are clamped at –1 dB,
+because that’s all the original protocol can handle; the S/N scale in
+present *JT65* decoders becomes increasingly nonlinear above –10 dB.
+
+- By comparison, *JT9* allows for signal reports in the range –50 to
+\+49 dB.  It manages this by co-opting a small amount of message space
+otherwise used for grid locator's within 1 degree of the south
+pole. The S/N scale of the present *JT9* decoder is reasonably linear,
+although it’s not intended as a precision measurement tool. With clean
+signals in a clean nose background, *JT65* achieves nearly 100%
+probability of correct decoding down to S/N = –22 dB and 50% at –24
+dB.  *JT9* is about 2 dB better, achieving 50% decoding at about –26
+dB.  Both modes produce extremely low false-decode rates.
+
+- Early experience suggests that under most HF propagation conditions
+the two modes have comparable reliability, with perhaps a slight edge
+to *JT9*. The tone spacing of *JT9* is about two-thirds that of
+*JT65*, so in some disturbed ionospheric conditions in the higher
+portion of the HF spectrum, *JT65* may do better. *JT9* is an order of
+magnitude better in spectral efficiency. On a busy HF band, we often
+find the 2-kHz-wide *JT65* sub-band filled wall-to-wall with signals.
+Ten times as many JT9 signals could fit into the same space, without
+overlap.
+
+[[X16]]
+== Appendix A
+.The JT9 Protocol and its Implementation
+
+- *JT9* is a mode designed for making QSOs at HF, MF, and LF.  The
+mode uses essentially the same 72-bit structured messages as *JT65*.
+
+- Error control coding (ECC) uses a strong convolutional code with
+constraint length K=32, rate r=1/2, and a zero tail.  WIth 72-bit
+user messages, this leads to an encoded message length of 
+(72+31) × 2 = 206 bits.
+
+- Modulation is 9-FSK: 8 tone frequencies for data, and one for
+synchronization.  In a given transmission sixteen tone intervals
+(those numbered 1, 2, 5, 10, 16, 23, 33, 35, 51, 52, 55, 60, 66, 73,
+83, and 85 in the sequence) are devoted to synchronization.  Thus, a
+transmission requires a total of (206 / 3) + 16 = 85 (rounded up) tone
+intervals.
+
+- Symbol lengths are chosen so that nsps, the number of samples
+per symbol (at 12000 samples per second) is a number with no prime
+factor greater than 7.  This choice makes for efficient FFTs. Tone
+spacing of the 9-FSK modulation is:
+
+-----  
+df = 1 / tsym = 12000 / nsps, equal to the keying rate
+-----
+
+- Symbol durations are approximately (TRperiod - 8) / 85, where
+TRperiod is the T/R sequence length in seconds.
+
+
+- The total occupied bandwidth is 9 × df. The generated signal has
+continuous phase and constant amplitude, so there are no key
+clicks. For experimental purposes, submodes of *JT9* were defined with
+transmission lengths greater than one minute.
+
+- Parameters of all submodes are summarized in the following table,
+along with approximate decoding thresholds measured by simulation on
+an additive white Gaussian noise (AWGN) channel. Numbers following
+*``JT9-''* in the submode names specify the T/R sequence length in
+minutes.  When not otherwise specified in this Guide, *JT9* implies
+submode *JT9-1*, the only submode implemented in current versions of
+{wsjtx}.
+
+=== JT9 Mode Table
+.JT9-Modes
+[width="80%",cols="<2,^2,^2,^2,^2,^2,^2",options="header",valign="middle"]
+|========
+|Submode|nsps|Symbol Duration (s)|Tone Spacing (Hz)|Signal Bandwidth (Hz)|S/N Threshold* (dB)|QSO Time (min)
+|JT9-1|6912|0.58|1.736|15.6|-27|6
+|JT9-2|15360|1.28|0.781|7.0|-30|12
+|JT9-5|40960|3.41|0.293|2.6|-34|30
+|JT9-10|82944|6.91|0.145|1.3|-37|60
+|JT9-30|252000|21.00|0.048|0.4|-42|180
+|========
+
+NOTE: Noise power measured in 2500 Hz bandwidth.
+
+=== Transmitting
+
+- Immediately before the start of a transmission {wsjtx} encodes a
+user’s message and computes the sequence of tones to be sent.  The
+transmitted audio waveform is computed on-the-fly, with 16-bit integer
+samples at a 48000 Hz rate.  The digital samples are converted to an
+analog waveform in the sound card or equivalent USB interface.
+
+=== Receiving & Decoding
+
+- {wsjtx} acquires 16-bit integer samples from the sound card at a
+12000 Hz rate.  Spectra from overlapping data segments are computed
+for the waterfall display and saved at intervals of half the JT9
+symbol length.
+
+- As shown in screen shots earlier in this Guide, a *JT9* signal
+appears in the Cumulative spectrum as a nearly rectangular shape about
+16 Hz wide.  Although there is no clearly visible “sync tone” like the
+one in *JT65*, by convention the nominal frequency of a *JT9* signal
+is nevertheless taken to be that of the lowest tone at the left edge
+of the spectrum.
+
+- At the end of a reception sequence, about 50 seconds into the UTC
+minute, received data samples are forwarded to the decoder.  For
+operator convenience the decoder goes through its full procedure
+twice:
+
+* first over a narrow range around the selected Rx frequency
+
+* Then in the full displayed frequency range (or in *JT9+JT65* mode, the
+displayed range above the blue *JT65 nnnn JT9* marker).
+
+- Decoding of clean *JT9* signals in a white-noise background starts
+to fail around signal-to-noise ratio –25 dB and reached the 50% level
+at -26 dB
+
+- Each decoding pass can be described as a sequence of discrete blocks.
+
+=== Functional Procedures
+.Algorithms and Source Code
+
+- For those wishing to study the program’s algorithms and source code,
+perhaps with an eye toward future improvements, the blocks are labeled
+here with the names of functional procedures in the code:
+
+.Block Steps
+[width="80%",cols="<2,60",options="header",valign="middle"]
+|========
+|Block/Step|Functional Procedure
+|sync9:|Use sync symbols to find candidate JT9 signals in the specified frequency range. +
+Then, at the frequency of each plausible candidate
+|downsam9:|Mix, filter and down-sample to 16 complex samples/symbol
+|peakdt9:|Using sync symbols, time-align to start of JT9 symbol sequence
+|afc9:|Measure frequency offset and any possible drift
+|twkfreq:|Remove frequency offset and drift
+|symspec2:|Compute 8-bin spectra for 69 information-carrying symbols, using the +
+time- and frequency-aligned data transform to yield 206 single-bit soft symbols
+|interleave9:|Remove single-bit symbol interleaving imposed at the transmitter
+|decode9:|Retrieve a 72-bit user message using the sequential ``Fano'' algorithm +
+for convolutional codes
+|unpackmsg:|Unpack a human-readable message from the 72-bit compressed format
+|========
+
+:shannonfano: http://en.wikipedia.org/wiki/Shannon%E2%80%93Fano_coding[ Fano Algorithm]
+
+- With marginal or unrecognizable signals the sequential {shannonfano}
+can take exponentially long times to completion.
+
+- If the first step in the above sequence finds many seemingly worthy
+candidate signals, and if many of them turn out to be undecodable, the
+decoding loop could take a very long time.
+
+- For this reason the decode9 step is programmed to “time out” and
+report failure if it takes too long.
+
+- The choice Fast | Normal | Deepest on the Decode menu provides a
+three-step control of this timeout limit.
+
+[[X17]]
+== Appendix B
+.Installed and Generated Files
+
+- After installing {wsjtx} as described in <<X8, Installation>>, the
+following files will be present in the installation directory:
+
+// Note to Dev-Team, this list of files needs to be updated.
+
+=== Installed Files
+
+.Files Present After Installation
+[width="60%",cols="2,60",options="header",valign="middle"]
+|========
+|File Name|Description
+|afmhot.dat|Data for AFMHot palette
+|blue.dat|Data for Blue palette
+|CALL3.TXT|Callsign database
+|hamlib-alinco.dll|Hamlib, Alinco libraries
+|hamlib-amsat.dll|Hamlib, Asmat libraries
+|kamlib-dummy.dll|Hamlib, Dummy Kam libraries 
+|hamlib-flexradio.dll|Hamlib, Flex Radio libraries
+|hamlib-icom.dll|Hamkib, Icom libraries
+|hamlib-jrc.dll|Hamlib, JRC libraries
+|hamlib-kachina.dll|Hamlib, Kachina libraries
+|hamlib-kenwood.dll|Hamlib, Kenwood libraries
+|hamlib-kit.dll|Hamlib, Kit libraries
+|hamlib-tapr.dll|Hamlib, Tapr libraries
+|hamlib-tentec.dll|Hamlib, TenTec libraries
+|hamlib-winradio.dll|Hamlib, WinRadio libraries
+|hamlib-yaesu.dll|Hamlib, Yaesu libraries
+|HRDInterface001.dll|Ham Radio Deluxe interface library
+|jt9.exe|Executable for JT9 decoder
+|jt9code.exe|Test program to illustrate JT9 encoding
+|kvasd.dat|Data for Koetter-Vardy decoder
+|kvasd.exe|Executable Koetter-Vardy decoder
+|libfftw3f-3.dll|Optimized FFT library
+|libgcc_s_dw2-1.dll|gcc runtime
+|libhamlib-2.dll|Hamlib, Base library
+|libstdc\+\+-6.dll|Standard C function library
+|libusb0.dll|USB interface functions
+|mingwm10.dll|MinGW library
+|mouse_commands.txt|Special mouse commands
+|palir-02.dll|Linrad functions
+|PSKReporter.dll|Library for PSK reporter
+|QtCore4.dll|QtCore libraries
+|QtGui4.dll|QtGui4 libraries
+|QtNetwork4.dll|QtNetwork4 libraries		
+|save|Directory for saved .wav files
+|shortcuts.txt|Keyboard shortcuts
+|unins000.dat|Uninstall Data File
+|unins000.exe|Executable for uninstalling {wsjtx}
+|wsjt.ico|WSJT icon
+|wsjtx.exe|Executable for {wsjtx}
+|========
+
+
+=== Runtime Files
+
+- You might be curious about additional files that appear in the WSJTX
+installation directory after using the program for a while. These
+include:
+
+.Files Created After Running WSJT-X The First Time
+[width="60%",cols="2,60",options="header",valign="middle"]
+|========
+|File Name|Description
+|ALL.TXT|Log of all received and transmitted messages
+|decoded.txt|Decoded text from the most recent Rx interval
+|timer.out|Diagnostic information for decoder optimization
+|wsjtx.ini|Saved configuration parameters
+|wsjtx_log.adi|ADIF log 
+|wsjtx_status.txt|Information sent to companion program JT-Alert
+|========
+
+== Appendix C
+.Rig Specific Configuration
+
+- Some rigs work with DTR, RTS, Polling, CaT, PTT while others do
+not. The number of possible combinations is virtually endless.
+
+- The intent of this Appendix is to provide configuration information
+for specific rigs model, e.g. Icom 756 Pro-III, Yaesu FT-1000MP,
+Flex-5000, etc. in order to make Installation & Configuration
+easier. This is a work-in-progress. Some rigs may never be covered,
+but we should try to cover many as possible.
+
+- The table below will link brands (Yaesu, Icom, Kenwood, etc) to
+specific models within each brand. If a model is not available, please
+consider drafting a configuration file (a simple text file), using the
+template provided, and submit it to the development team for inclusion
+to future documentation releases.
+
+:yaesu: link:yaesu.html[Yaesu]
+:rigtemplate: link:rigtemplate.html[Template]
+
+
+NOTE: If your manufacturer is not listed, it means we do not have
+configuration files for any of the models for that particular
+manufacturer.  Please consider using the Rig Template and submit to
+the development team at: {devemail}
+
+.Select Manufacturer
+[align="center",valign="middle",halign="center"]
+|========
+|ADAT|AOR|Alinco|Drake|Electro Craft
+|Kenwood|Icom|SoftRock|Ten-Tec|{YAESU}
+|{rigtemplate}||||
+|========
+
+== Acknowledgments
+
+- Many users of WSJT, too numerous to mention here individually, have
+contributed suggestions and advice that have greatly aided the
+development of {wsjtx} and its sister programs.  Since 2005 the
+overall project (including WSJT, MAP65, WSPR, {wsjtx}, and WSPR-X) has
+been “open source”, all code being licensed under the GNU Public
+License (GPL).
+
+- For {wsjtx} in particular, I wish to acknowledge contributions from:
+*AC6SL, AE4JY, DJ0OT, G4KLA, G4WJS, K3WYC, KA6MAL, KA9Q, KK1D, PY2SDR,
+VK3ACF, VK4BDJ, and W4TV*.
+
+- Each has helped to bring the program’s design, code, and
+documentation to its present state. Most of the color palettes for the
+{wsjtx} waterfall were shamelessly copied from the excellent, well
+documented, open-source program fldigi, by W1HKJ and friends.
+
+
+
+
+
+
