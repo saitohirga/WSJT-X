@@ -1,0 +1,57 @@
+= Rig Template
+:Author: Greg Beam, KI7MT
+:Date: September 22, 2013, Copyleft © 2013
+:Revision: 0.1
+:icons:
+:badges:
+
+- This is a simple guide / template for including configuration data to the
+WSJT-X Documentation Try to fill out as much as possible, but do not stress over
+having empty fields. OS Specific & Interface Notes are a Bonus, if you coud
+provide what you have, that would be much appreciated.
+
+- Just copy and paste the following into a text file, saving it as the rig's
+model.txt, then email email it to the dev/doc team for inclusion.
+
+- Alternatively, join the team and submit the update directly.
+
+.Copy & Paste the following:
+----------
+== Manufacture:
+== Model:
+- MyCall:
+- MyGrid:
+- PTT Method:
+- Pskreporter:
+- CW Id After 73:
+- CW Interval:
+- CAT NOTES:
+** Note-1/2/3
+- DTR:
+- RTS:
+- CAT Port Settings:
+- Split:
+- CAT Port:
+- Polling:
+- Audio-In:
+- Audio-In Mono:
+- Audio-Out:
+- Audio-Out:
+
+=== OS Specific Notes
+.Notes Relating To Operating Systems
+- Windows:
+- Linux:
+- Mac OSx: 
+
+=== Interface Notes
+.Notes Relating To Rig-To-Computer Interfaces
+- Navigator
+- SignaLink
+- ShackLan
+- Kam
+- DX-Doubler
+- Array Solutions (6-Pack)
+- Home-Brew
+----------
+

@@ -1,0 +1,98 @@
+// This is a comment line, anything with // is ignored at process time.
+= Yaesu Configuration Guide
+:Author: Greg Beam, KI7MT
+:Date: September 22, 2013, Copyleft © 2013
+:Revision: 0.1
+:icons:
+:badges:
+
+.Available Configurations
+[align="center",valign="middle",halign="center"]
+
+// 5 Models per line please
+|========
+|<<X1,FT-1000>>|<<X2,FT-2000>>|FT-5000|FT-9000
+|========
+
+[[X1]]
+== FT-1000
+.Configuration Covers FT-1000, FT-1000MP, FT-1000D
+- MyCall: <Enter Your Call-Sign>
+- MyGrid: <Enter Grid Locator>
+- PTT Method: ( CAT, DTR, RTS, VOX )
+- Pskreporter (optional): Check to Enable, default is off
+- CW Id After 73 (optional): Check to Enable, Default is off
+- CW Interval: Set if ID after 73 is evanbled
+- CAT NOTES (recommended method):
+** Note-1/2/3
+- DTR: Unchecked
+- RTS: Unchecked
+- CAT Port Settings: 4800, 8, none, 2
+- Split: Unchecked
+- CAT Port: Select which port CAT is located on
+- Polling: 3
+- Audio-In: Select Desirted Input Device
+- Audio-In Mono: Mono, Left, Right
+- Audio-Out: Select Output Device
+- Audio-Out: Select Output Device
+
+=== OS Specific Notes
+.Notes Relating To Operating Systems
+- Windows: XP, Vista, 7,9, etc.
+- Linux / *Nix: Slackaware, Fedora, FreeBSD, Ubuntu/Debian, etc
+- Mac OSx: 
+
+=== Interface Notes
+.Notes Relating To Rig-To-Computer Interfaces
+- Navigator
+- SignaLink
+- ShackLan
+- Kam
+- DX-Doubler
+- Array Solutions (6-Pack)
+- Home-Brew
+
+[[X2]]
+== FT-2000
+.Configuration Covers FT-2000, FT-2000D
+- MyCall: <Enter Your Call-Sign>
+- MyGrid: <Enter Grid Locator>
+- PTT Method: ( CAT, DTR, RTS, VOX )
+- Pskreporter (optional): Check to Enable, default is off
+- CW Id After 73 (optional): Check to Enable, Default is off
+- CW Interval: Set if ID after 73 is evanbled
+- CAT NOTES (recommended method):
+** Note-1/2/3
+- DTR: Unchecked
+- RTS: Unchecked
+- CAT Port Settings: 4800, 8, none, 2
+- Split: Unchecked
+- CAT Port: Select which port CAT is located on
+- Polling: 3
+- Audio-In: Select Desirted Input Device
+- Audio-In Mono: Mono, Left, Right
+- Audio-Out: Select Output Device
+- Audio-Out: Select Output Device
+
+=== OS Specific Notes
+.Notes Relating To Operating Systems
+- Windows: XP, Vista, 7,9, etc.
+- Linux / *Nix: Slackaware, Fedora, FreeBSD, Ubuntu, Debian, etc
+- Mac OSx: 
+
+=== Interface Notes
+.Notes Relating To Rig-To-Computer Interfaces
+- Navigator
+- SignaLink
+- ShackLan
+- Kam
+- DX-Doubler
+- Array Solutions (6-Pack)
+- Home-Brew
+
+
+
+
+
+
+
