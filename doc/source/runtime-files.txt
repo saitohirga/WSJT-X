@@ -1,11 +1,10 @@
 // Status=review
-.After First Run
 
-- You might be curious about additional files that appear in the WSJTX
-installation directory after using the program for a while. These
-include:
+You might be curious about additional files that appear in the WSJTX
+installation directory after using the program. These include the 
+following:
 
-.Files Created After Running WSJT-X The First Time
+.Files created when running WSJT-X
 [width="60%",cols="2,60",options="header",valign="middle"]
 |========
 |File Name|Description

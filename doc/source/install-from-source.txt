@@ -18,8 +18,6 @@ following packages:
 
 The full source code for {wsjtx} can be downloaded with the command:
 
-[source,bash]
------
-$ svn co svn://svn.berlios.de/wsjt/branches/wsjtx 
------
+ $ svn co svn://svn.berlios.de/wsjt/branches/wsjtx 
+
 // Need further compiling Instructions

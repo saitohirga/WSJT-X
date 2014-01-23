@@ -26,7 +26,7 @@
 :osx-108: http://physics.princeton.edu/pulsar/K1JT/wsjtx_3nov13.tar.gz[ OS X 10.6, 10.7, and 10.8 ]
 :osx-109: http://physics.princeton.edu/pulsar/K1JT/wsjtx_10.9_29nov13.tar.gz[OS X 10.9]
 :pskreporter: http://pskreporter.info/pskmap.html[PSK Reporter]
-
+:jt65protocol: http://physics.princeton.edu/pulsar/K1JT/JT65.pdf[QEX article]
 
 // These [[X?]] numbers are HTML anchors, and can be used to
 // navigate though the document easily: <<[X1],See Introduction]>> will
@@ -159,49 +159,29 @@ include::controls-functions-kb-shortcuts.txt[]
 === Mouse Commands
 include::controls-functions-special-mouse-cmds.txt[]
 
-[[X9]]
+[[X8]]
 == JT65 & JT9 Differences
 include::jt65-jt9-differences.txt[]
 
+[[X9]]
+== The JT9 Protocol
+include::jt9-protocol.txt[]
+
 [[XA10]]
 == Appendix A
-include::app-a.txt[]
 
+// Note to Dev-Team, this list of files needs to be updated.
 [[XA11]]
-=== JT9 Mode Table
-include::app-a-jt9-mode-table.txt[]
+=== Installed Files
+include::installed-files.txt[]
 
 [[XA12]]
-=== Transmitting
-include::app-a-transmitting.txt[]
-
-[[XA13]]
-=== Receiving & Decoding
-include::app-a-rcv-decode.txt[]
-
-[[XA14]]
-=== Functional Procedures
-include::app-a-functional-procedures.txt[]
+=== Runtime Files
+include::runtime-files.txt[]
 
 [[XB10]]
 == Appendix B
-.Installed Files
-
-- After installing {wsjtx} as described in <<X3, Installation>>, the
-following files will be present in the installation directory:
-
-// Note to Dev-Team, this list of files needs to be updated.
-[[XB11]]
-=== Installed Files
-include::app-b-installed-files.txt[]
-
-[[XB12]]
-=== Runtime Files
-include::app-b-runtime-files.txt[]
-
-[[XC10]]
-== Appendix C
-include::app-c.txt[]
+include::rig-configuration.txt[]
 
 [[XACK10]]
 == Acknowledgments

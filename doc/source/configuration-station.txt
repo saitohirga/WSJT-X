@@ -5,7 +5,7 @@ the following information:
 - *Call Sign*: <Your Call Sign>
 - *Grid*: <Your Maidenhead Locator>
 - *PTT method*: choose from RTS, DTR, CAT, VOX, or None.
-- *PTT port*: if you will use RTS or DTR, choose a serial port,
+- *PTT port*: if you will use RTS or DTR, choose a serial port.
 - *PSK Reporter*: check to enable sending reception reports to the
 {pskreporter} mapping facility.
 - *CW ID*: Check to send your callsign in CW after sending 73.
