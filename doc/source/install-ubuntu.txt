@@ -1,0 +1,24 @@
+// Status=review
+- Installation packages for Ubuntu 12.04, 12.10, 13.04, 13.10 are
+available at {launchpadurl}
+
+- If you have not before obtained packages from the Personal Package
+Archive (PPA) at the above link, execute the following instruction at
+the command prompt:
+
+[source,bash]
+-----
+$ sudo add-apt-repository ppa:jnogatch/wsjtx
+-----
+Accept the PPA Key, then:
+
+[source,bash]
+-----
+$ sudo apt-get update 
+$ sudo apt-get install wsjtx
+-----
+
+- Download the soft-decision Reed Solomon decoder {kvasd} and put it
+in the same directory as the executable binaries wsjtx and
+jt9. Normally (fter you have run the script /usr/bin/wsjtx at least
+once) this directory will be $HOME/.wsjtx.

@@ -1,0 +1,44 @@
+// Status=review
+//Needs work!
+.The JT9 Protocol and its Implementation
+
+- *JT9* is a mode designed for making QSOs at HF, MF, and LF.  The
+mode uses essentially the same 72-bit structured messages as *JT65*.
+
+- Error control coding (ECC) uses a strong convolutional code with
+constraint length K=32, rate r=1/2, and a zero tail.  WIth 72-bit
+user messages, this leads to an encoded message length of 
+(72+31) × 2 = 206 bits.
+
+- Modulation is 9-FSK: 8 tone frequencies for data, and one for
+synchronization.  In a given transmission sixteen tone intervals
+(those numbered 1, 2, 5, 10, 16, 23, 33, 35, 51, 52, 55, 60, 66, 73,
+83, and 85 in the sequence) are devoted to synchronization.  Thus, a
+transmission requires a total of (206 / 3) + 16 = 85 (rounded up) tone
+intervals.
+
+- Symbol lengths are chosen so that nsps, the number of samples
+per symbol (at 12000 samples per second) is a number with no prime
+factor greater than 7.  This choice makes for efficient FFTs. Tone
+spacing of the 9-FSK modulation is:
+
+-----  
+df = 1 / tsym = 12000 / nsps, equal to the keying rate
+-----
+
+- Symbol durations are approximately (TRperiod - 8) / 85, where
+TRperiod is the T/R sequence length in seconds.
+
+
+- The total occupied bandwidth is 9 × df. The generated signal has
+continuous phase and constant amplitude, so there are no key
+clicks. For experimental purposes, submodes of *JT9* were defined with
+transmission lengths greater than one minute.
+
+- Parameters of all submodes are summarized in the following table,
+along with approximate decoding thresholds measured by simulation on
+an additive white Gaussian noise (AWGN) channel. Numbers following
+*``JT9-''* in the submode names specify the T/R sequence length in
+minutes.  When not otherwise specified in this Guide, *JT9* implies
+submode *JT9-1*, the only submode implemented in current versions of
+{wsjtx}.

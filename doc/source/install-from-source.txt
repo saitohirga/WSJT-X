@@ -1,0 +1,25 @@
+// Status=review
+// Note to developers. The URL http://developer.berlios.de/projects/wsjt/. is
+// to a very old src version of WSJT 5.7 or so. WSJTX is not listed at all.
+// Also, all the Qt4 stuff is now obsolete, and needs to be updated.
+
+{wsjtx} is an open-source program released under the GNU General
+Public License.  Source code is available from the public repository
+at {devsvn}. To compile the program you will need to install the 
+following packages:
+
+- Subversion
+- Qt 5.x
+- g++
+- gfortran or g95
+- fftw3
+- hamlib
+- MinGW (Windows only)
+
+The full source code for {wsjtx} can be downloaded with the command:
+
+[source,bash]
+-----
+$ svn co svn://svn.berlios.de/wsjt/branches/wsjtx 
+-----
+// Need further compiling Instructions

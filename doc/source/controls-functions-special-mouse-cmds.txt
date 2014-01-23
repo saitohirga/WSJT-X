@@ -1,0 +1,22 @@
+// Status=review
+The following special mouse commands are available:
+
+//.Special Mouse Commands
+[width="80%",cols="13,50",options="header",align="center"]
+|=====
+|Mouse-Click on|Action Performed
+|Waterfall|*Click*: set Rx frequency +
+*Double-click*: set Rx frequency and decode there +
+*Ctrl-click*: set Rx and Tx frequencies +
+*Ctrl-double-click*: set Rx and Tx frequencies and decode there
+|Decoded text|*Double-click*: copy second callsign to Dx Call,
+locator to Dx Grid; change Rx and Tx frequencies to decoded 
+signal's frequency; generate standard messages.  If first 
+callsign is your own, change Tx frequency only it Ctrl is
+held down when double-clicking.
+|*Erase* Button|*Click*: erase QSO window +
+*Double-click*: erase QSO and Band Activity windows
+|*Tx5* or +
+*Free Msg* box|*Right-click*: display the Tx macros +
+*Left-click*: select one of the Tx macros
+|=====

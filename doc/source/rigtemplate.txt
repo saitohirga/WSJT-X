@@ -1,3 +1,4 @@
+// Status=review
 = Rig Template
 :Author: Greg Beam, KI7MT
 :Date: September 22, 2013, Copyleft © 2013

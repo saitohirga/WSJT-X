@@ -1,0 +1,14 @@
+// Status=review
+.JT9-Modes
+[width="80%",cols="<2,^2,^2,^2,^2,^2,^2",options="header",valign="middle"]
+|========
+|Submode|nsps|Symbol Duration (s)|Tone Spacing (Hz)|Signal Bandwidth (Hz)|S/N Threshold* (dB)|QSO Time (min)
+|JT9-1|6912|0.58|1.736|15.6|-27|6
+|JT9-2|15360|1.28|0.781|7.0|-30|12
+|JT9-5|40960|3.41|0.293|2.6|-34|30
+|JT9-10|82944|6.91|0.145|1.3|-37|60
+|JT9-30|252000|21.00|0.048|0.4|-42|180
+|========
+
+NOTE: Noise power measured in 2500 Hz bandwidth.
+

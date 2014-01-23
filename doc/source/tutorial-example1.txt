@@ -1,0 +1,89 @@
+// Status=review
+.Open a Wave File:
+
+- Select File | Open and navigate to ...\save\samples\130418_1742.wav
+under your program installation directory.  
+
+When the file opens you should see something similar to the to the
+following screen shot:
+
+[[X12]]
+image::images/r3556-main-ui-80.png[align="center",alt="Main UI and Wide Graph"]
+
+.Decoding Overview
+
+Notice the [green]*GREEN* and [red]*RED* markers on the waterfall
+frequency scale.  Decoding takes place at the end of a receive
+sequence and is organized in two stages.  The first decodes take place
+at the selected Rx frequency, indicated by the green marker.  Results
+appear in both the left (“Band Activity”) and right (“Rx Frequency”)
+text windows on the main screen. The decoder then finds and decodes
+all signals in the selected mode(s) and the displayed frequency
+range. The red marker indicates your Tx frequency.
+
+At least eight JT9 signals are present in the example file; all
+but one of them are decodable.  When this file was recorded KF4RWA was
+finishing a QSO with K1JT.  Since the green marker was placed at his
+audio frequency, 1224 Hz, his message “K1JT KF4RWA 73” appears in both
+decoded text windows.  The “Band Activity” window shows this message
+as well as all the other decodes at nearby frequencies.  The CQ lines
+are highlighted in [green]*GREEN*, and lines containing “My Call”, in
+this case K1JT, are highlighted in [red]*RED*.
+
+TIP: For this step and the next, you may want to pretend you are K1JT by
+entering that call temporarily as “My Call” on the <<X11,Configuration
+Screen>>.  Your results should then be identical to those shown in the
+<<X12,screen shot>> above.
+
+[[X13]]
+.Decoding Controls
+To gain some feeling for the controls you will use when making QSOs, try 
+clicking with the mouse on the decoded text lines and on the waterfall spectral 
+display. You should be able to confirm the following behavior:
+
+- Double-click on either of the decoded lines highlighted in green. This action
+should produce the following:
+
+** Copies call-sign and locater of a station calling CQ to the “DX Call” 
+and “DX grid” entry fields.
+
+** Generates suitable messages for a minimal QSO and checks or clears the Tx
+even box so that you will transmit in the proper (odd or even) minutes.
+
+** Rx and Tx frequency markers will be moved to the CQ-ing station’s frequency,
+and the Gen Msg (“generated message”) radio button at bottom right of the main
+window will be selected.
+
+** If you had checked “Double-click on call sets Tx Enable” on the Setup menu,
+Enable Tx would also be activated, and you would start to transmit automatically,
+at the appropriate time.
+
+- Double-click on the decoded line with the message “K1JT N5KDV EM41”,
+highlighted in [red]*RED*.  Results will be similar to those in the
+previous step, except the Tx frequency ([red]*RED* marker) is not
+moved.  Such messages are usually in response to your own CQ, or from
+a tail-ender, and you probably want your Tx frequency to stay where it
+was.
+
+- By holding down the Ctrl key when double-clicking on the decoded line 
+you can cause both Tx and Rx frequencies to be moved.  This behavior
+can also be forced by checking Lock Tx=Rx. 
+
+- Double-click on the message from KF4RWA in either window. He is 
+sending “73” to K1JT, signifying that the QSO is over.  Most likely you 
+want to send 73 to him, so the message “KF4RWA K1JT 73” is automatically 
+generated and selected for your next transmission.  (Alternatively, you might 
+choose to send a free text message or to call CQ again.)
+
+- Clicking on the waterfall moves the Rx frequency ([green]*GREEN* marker) to the 
+selected frequency.
+
+- Ctrl-click on waterfall moves both Rx and Tx frequencies.
+
+- Double-click on the waterfall moves the Rx frequency and causes a 
+narrow-band decode there at the new QSO frequency. Decoded text appears in the 
+right window only.  Ctrl-double-click moves both Rx and Tx frequencies and 
+decodes at the new frequency. 
+
+- Clicking Erase clears the right window. Double-click on Erase to clear both 
+text windows.

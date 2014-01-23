@@ -1,0 +1,6 @@
+// Status=review
+
+The Band Settings tab allows you to set the default frequency and a
+brief description of your antenna for each amateur band.  The antenna
+information will be included with reception reports, if they have been
+enabled.

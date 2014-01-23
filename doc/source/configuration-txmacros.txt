@@ -1,0 +1,7 @@
+// Status=review
+TX Macros are an aid for sending commonly used free-text messages.
+To enable a pull-down selection, add your custom messages to the entry
+fields provided.  Remember that the maximum free-text message length
+is 13 characters.  You access your macros by selecting Tx message #5
+(or the Free MSG Radio Button) on the main window, then right-click to
+select the message to be sent.

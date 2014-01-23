@@ -1,0 +1,28 @@
+// Status=review
+- {wsjtx} acquires 16-bit integer samples from the sound card at a
+12000 Hz rate.  Spectra from overlapping data segments are computed
+for the waterfall display and saved at intervals of half the JT9
+symbol length.
+
+- As shown in screen shots earlier in this Guide, a *JT9* signal
+appears in the Cumulative spectrum as a nearly rectangular shape about
+16 Hz wide.  Although there is no clearly visible “sync tone” like the
+one in *JT65*, by convention the nominal frequency of a *JT9* signal
+is nevertheless taken to be that of the lowest tone at the left edge
+of the spectrum.
+
+- At the end of a reception sequence, about 50 seconds into the UTC
+minute, received data samples are forwarded to the decoder.  For
+operator convenience the decoder goes through its full procedure
+twice:
+
+* first over a narrow range around the selected Rx frequency
+
+* Then in the full displayed frequency range (or in *JT9+JT65* mode, the
+displayed range above the blue *JT65 nnnn JT9* marker).
+
+- Decoding of clean *JT9* signals in a white-noise background starts
+to fail around signal-to-noise ratio –25 dB and reached the 50% level
+at -26 dB
+
+- Each decoding pass can be described as a sequence of discrete blocks.

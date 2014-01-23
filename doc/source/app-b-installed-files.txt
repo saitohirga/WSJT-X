@@ -1,0 +1,47 @@
+// Status=review
+.Files Present After Installation
+
+[width="60%",cols="2,60",options="header",valign="middle"]
+|========
+|File Name|Description
+|afmhot.dat|Data for AFMHot palette
+|blue.dat|Data for Blue palette
+|CALL3.TXT|Callsign database
+|hamlib-alinco.dll|Hamlib, Alinco libraries
+|hamlib-amsat.dll|Hamlib, Asmat libraries
+|kamlib-dummy.dll|Hamlib, Dummy Kam libraries 
+|hamlib-flexradio.dll|Hamlib, Flex Radio libraries
+|hamlib-icom.dll|Hamkib, Icom libraries
+|hamlib-jrc.dll|Hamlib, JRC libraries
+|hamlib-kachina.dll|Hamlib, Kachina libraries
+|hamlib-kenwood.dll|Hamlib, Kenwood libraries
+|hamlib-kit.dll|Hamlib, Kit libraries
+|hamlib-tapr.dll|Hamlib, Tapr libraries
+|hamlib-tentec.dll|Hamlib, TenTec libraries
+|hamlib-winradio.dll|Hamlib, WinRadio libraries
+|hamlib-yaesu.dll|Hamlib, Yaesu libraries
+|HRDInterface001.dll|Ham Radio Deluxe interface library
+|jt9.exe|Executable for JT9 decoder
+|jt9code.exe|Test program to illustrate JT9 encoding
+|kvasd.dat|Data for Koetter-Vardy decoder
+|kvasd.exe|Executable Koetter-Vardy decoder
+|libfftw3f-3.dll|Optimized FFT library
+|libgcc_s_dw2-1.dll|gcc runtime
+|libhamlib-2.dll|Hamlib, Base library
+|libstdc\+\+-6.dll|Standard C function library
+|libusb0.dll|USB interface functions
+|mingwm10.dll|MinGW library
+|mouse_commands.txt|Special mouse commands
+|palir-02.dll|Linrad functions
+|PSKReporter.dll|Library for PSK reporter
+|QtCore4.dll|QtCore libraries
+|QtGui4.dll|QtGui4 libraries
+|QtNetwork4.dll|QtNetwork4 libraries		
+|save|Directory for saved .wav files
+|shortcuts.txt|Keyboard shortcuts
+|unins000.dat|Uninstall Data File
+|unins000.exe|Executable for uninstalling {wsjtx}
+|wsjt.ico|WSJT icon
+|wsjtx.exe|Executable for {wsjtx}
+|========
+

@@ -1,0 +1,45 @@
+// Status=review
+Two configurations of controls are provided for generating and
+selecting Tx messages.
+
+Traditional controls (carried over from program WSJT) appear on *Tab
+1* and provide six fields for message entry.  Pre-formatted messages
+for the standard minimal QSO are generated when you click *Generate
+Std Msgs* or when you double-click on an appropriate line of decoded
+text.
+
+//.Traditional Message Menu
+image::images/traditional-msg-box.png[align="center",alt="Traditional Message Menu"]
+
+* Select the next message to be transmitted (at the start of your next
+Tx sequence) by clicking on the circle under *Next*.
+
+* To change to a specified Tx message immediately, click on a
+rectangular button (e.g., Tx 3) under the *Now* label.  Changing Tx
+messages after a transmission has started reduces the chance of a
+correct decode, but in the first 10 s of a Tx period it will probably
+succeed.
+
+* Right-clicking on the entry field for message #5 pops up a list of
+free-text messages entered on the *Setup | Configuration | Tx Macros*
+dialog window.  You can select any of these pre-stored messages with
+the left mouse button.
+
+*Tab 2* of the Message Control Panel looks like this:
+
+//.New Message Menu
+image::images/new-msg-box.png[align="center",alt="New Message Menu"]
+
+With this setup you will normally follow a top-to-bottom sequence of
+transmissions from the left column if you are calling CQ, or the right
+column if you are answering a CQ.  Clicking a button puts the
+appropriate message in the *Gen Msg* box.  If you are already
+transmitting, it changes the Tx message immediately.  You can enter
+anything (up to 13 characters) in the *Free Msg* box.  Right-clicking on
+this entry field pops up your previously defined list of *Tx Macros*.
+
+IMPORTANT: WIth either of the message-control tabs, the actual message
+being transmitted always appears highlighted in yellow in the first
+box of the status bar, at bottom left of the main screen.  
+
+
