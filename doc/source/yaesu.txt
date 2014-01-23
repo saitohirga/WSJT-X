@@ -1,3 +1,4 @@
+// Status=review
 // This is a comment line, anything with // is ignored at process time.
 = Yaesu Configuration Guide
 :Author: Greg Beam, KI7MT

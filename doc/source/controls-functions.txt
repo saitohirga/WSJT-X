@@ -1,0 +1,5 @@
+// Status=review
+
+This section describes the various menus, screens, controls, and
+functions for both the Main Window and Wide Graph. Small differences
+may exist between displayed images and that of the application.

@@ -1,0 +1,18 @@
+// Status=review
+.After First Run
+
+- You might be curious about additional files that appear in the WSJTX
+installation directory after using the program for a while. These
+include:
+
+.Files Created After Running WSJT-X The First Time
+[width="60%",cols="2,60",options="header",valign="middle"]
+|========
+|File Name|Description
+|ALL.TXT|Log of all received and transmitted messages
+|decoded.txt|Decoded text from the most recent Rx interval
+|timer.out|Diagnostic information for decoder optimization
+|wsjtx.ini|Saved configuration parameters
+|wsjtx_log.adi|ADIF log 
+|wsjtx_status.txt|Information sent to companion program JT-Alert
+|========

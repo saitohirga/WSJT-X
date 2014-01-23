@@ -1,0 +1,25 @@
+// Status=review
+- Notice the [green]*GREEN* and [red]*RED* markers on the waterfall
+frequency scale.  Decoding takes place at the end of a receive
+sequence and is organized in two stages.  The first decodes take place
+at the selected Rx frequency, indicated by the green marker.  Results
+appear in both the left (“Band Activity”) and right (“Rx Frequency”)
+text windows on the main screen. The decoder then finds and decodes
+all signals in the selected mode(s) and the displayed frequency range.
+The red marker indicates your Tx frequency.
+
+.Signal Presence
+
+NOTE: At least eight JT9 signals are present in the example file; all
+but one of them are decodable.  When this file was recorded KF4RWA was
+finishing a QSO with K1JT.  Since the green marker was placed at his
+audio frequency, 1224 Hz, his message “K1JT KF4RWA 73” appears in both
+decoded text windows.  The “Band Activity” window shows this message
+as well as all the other decodes at nearby frequencies.  The CQ lines
+are highlighted in [green]*GREEN*, and lines containing “My Call”, in
+this case K1JT, are highlighted in [red]*RED*.
+
+- For this step and the next, you may want to pretend you are K1JT by
+entering that call temporarily as “My Call” on the <<X11,Configuration
+Screen>>.  Your results should then be identical to those shown in the
+<<X12,figure above>>.

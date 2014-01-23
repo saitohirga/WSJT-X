@@ -1,0 +1,35 @@
+// Status=review
+- Double-click on the waterfall near 815 Hz: a signal originating
+from W7VP will be decoded and appear in the Rx Frequency Box:
+
+.W7VP Decode
+[width="70%",cols="3,^3,^3,^4,^4,30",options="header"]
+|=================================
+|UTC|db|dt|Freq|Mode|Message
+|2343|-7|0.3|815|#|KK4DSD W7VP -16
+|=================================
+
+- Double-click on the waterfall at 3196 Hz and the program will decode a JT9
+message from IZ0MIT:
+
+.IZ0MIT Decode
+[width="70%",cols="3,^3,^3,^4,^4,30",options="header"]
+|=====================================
+|UTC|db|dt|Freq|Mode|Message
+|2343|-7|0.3|3196|@|WB8QPG IZ0MIT -11
+|=====================================
+
+NOTE: Notice that when a signal is decoded in this way the Tx mode
+automatically switches to that of the decoded signal.  The Rx and Tx
+frequency markers on the waterfall scale resize themselves
+accordingly.
+
+- Scroll back in the Band Activity window (if necessary) and
+double-click on the message CQ DL7ACA JO40.  The program will set Tx
+mode to JT65 and Tx and Rx frequencies to that of DL7ACA, 975 Hz.  If
+you had checked *Double-click on call sets Tx Enable* on the Setup menu,
+the program would set up to start a QSO with DL7ACA.
+
+- Double-click on the decoded JT65 message CQ TA4A KM37.  The program
+will set Tx mode to JT9 and the Rx and Tx frequencies to 3567 Hz.
+You’re now configured properly for a JT9 QSO with TA4A.

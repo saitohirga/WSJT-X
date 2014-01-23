@@ -1,0 +1,10 @@
+// Status=review
+* Bins/Pixel = 4
+* N Avg = 5
+* Gain = 0,
+* Zero = –10
+* Flatten = checked
+* Cumulative for data display.
+* Select Tab 2 (below the Erase button on the main window) to
+choose the alternative set of controls for generating and selecting
+Tx messages.

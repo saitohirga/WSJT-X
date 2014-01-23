@@ -1,0 +1,29 @@
+// Status=review
+.Navigate and Open Wave File:
+
+*****
+
+Select File | Open and navigate to ...\save\samples\130610_2343.wav.
+
+*****
+
+* The waterfall and main window should look like the figure below.
+This sample file contains 17 decodable signals — nine in JT65 mode
+(flagged with the character # in the decoded text windows), and eight
+in JT9 mode (flagged with @).  Since the Tx mode was set to Tx JT65,
+signals in that mode were decoded first.  If you had selected Tx JT9,
+JT9 signals would have been decoded first.
+
+.130610_2343.wav Decode
+[[X544]]
+image::images/130610_2343-wav-80.png[align="left",alt="Wide Graph Decode 130610_2343"]
+
+NOTE: Notice the [blue]*BLUE* marker on the waterfall scale, by
+default set at 2500 Hz.  Its position is set by the spinner control
+JT65 nnnn JT9, where nnnn is a frequency in Hz. In JT9+JT65 mode the
+program will decode JT65 signals below this frequency and JT9 signals
+above it.
+
+- Confirm that mouse-click behavior is similar to that described in
+the single-mode instructions at <<X13,Decoding Controls>>. The program
+automatically determines the mode of each JT9 or JT65 signal.

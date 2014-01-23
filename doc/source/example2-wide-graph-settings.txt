@@ -1,0 +1,8 @@
+// Status=review
+- Bins/Pixel = 7
+- Zero = -3
+
+[NOTE]
+If necessary, adjust the width of the Wide Graph Window so that the upper
+frequency limit is 4000 Hz.
+

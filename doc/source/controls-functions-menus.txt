@@ -1,0 +1,38 @@
+// Status=review
+
+Program menus offer many options for configuration and operation.
+You should explore them and test the resulting program actions.
+
+[[X771]]
+==== File menu
+//.File Menu
+image::images/file-menu.png[align="left",alt="File Menu"]
+[[X772]]
+==== Setup Menu
+//.Setup Menu
+image::images/setup-menu.png[align="left",alt="Setup Menu"]
+
+[[X773]]
+==== View Menu
+//.View Menu
+image::images/view-menu.png[align="left",alt="View Menu"]
+
+[[X774]]
+==== Mode Menu
+//.Mode Menu
+image::images/mode-menu.png[align="left",alt="Mode Menu"]
+
+[[X775]]
+==== Decode Menu
+//.Decode Menu
+image::images/decode-menu.png[align="left",alt="Decode Menu"]
+
+[[X776]]
+==== Save Menu
+//.Save Menu
+image::images/save-menu.png[align="left",alt="Save Menu"]
+
+[[X777]]
+==== Help Menu
+//.Help Menu
+image::images/help-menu.png[align="left",alt="Help Menu"]
