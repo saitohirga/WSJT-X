@@ -6,17 +6,12 @@ available at {launchpadurl}
 Archive (PPA) at the above link, execute the following instruction at
 the command prompt:
 
-[source,bash]
------
-$ sudo add-apt-repository ppa:jnogatch/wsjtx
------
-Accept the PPA Key, then:
+ $ sudo add-apt-repository ppa:jnogatch/wsjtx
 
-[source,bash]
------
-$ sudo apt-get update 
-$ sudo apt-get install wsjtx
------
+- Accept the PPA Key, then:
+
+ $ sudo apt-get update 
+ $ sudo apt-get install wsjtx
 
 - Download the soft-decision Reed Solomon decoder {kvasd} and put it
 in the same directory as the executable binaries wsjtx and

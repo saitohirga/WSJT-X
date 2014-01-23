@@ -1,6 +1,8 @@
 // Status=review
-.Files Present After Installation
+After installing {wsjtx} as described in <<X3, Installation>>, the
+following files will be present in the installation directory:
 
+.Files Present After Installation
 [width="60%",cols="2,60",options="header",valign="middle"]
 |========
 |File Name|Description

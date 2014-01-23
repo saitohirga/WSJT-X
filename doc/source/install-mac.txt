@@ -1,6 +1,6 @@
 // Status=review
 
-- Read installation instructions {osx-instructions}.
+- Read the OS X installation instructions {osx-instructions}.
 - Download the required installation package
 * {osx-108}
 * {osx-109} 
