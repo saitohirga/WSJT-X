@@ -1,23 +1,24 @@
 // Status=review
 
-Controls related to: *date*, *time*, *frequency*, *Rx Audio Level*,
-and the *Station Being Worked* are found at lower left of the main
-window:
+Controls related to band and frequency selection, receiver audio
+level, the station being worked, and date and time are found at lower
+left of the main window:
 
 //.Misc Controls Left
 image::images/misc-main-ui.png[align="center",alt="Mist Menu Items"]
 
-* The drop-down *Band* selector at upper left lets you select the
+* The drop-down band selector at upper left lets you select the
 operating band and sets dial frequency to a default value taken from
 the *Default Frequencies* tab on the *Setup | Configuration* screen.
 
 * If you are using CAT control, a small colored square appears in
-green if the CAT control is two-way between {wsjtx} and your radio, or
-orange if the control is only from program to radio.  You can request
+green if the CAT control is two-way between _WSJT-X_ and your radio, or
+orange if the control is only from program to radio.  (You can request
 a one-time interrogation of the radio’s dial frequency by clicking on
-the orange square. The square becomes red if you have requested CAT
-control but communication with the radio has been lost.  If the 
-*Dx Grid* is known, the great-circle azimuth and distance are given.
+the orange square.) The square becomes red if you have requested CAT
+control but communication with the radio has been lost.  If the
+locator *Dx Grid* is known, the great-circle azimuth and distance are
+displayed.
 
 * The program can keep a database of call-signs and locators for
 future reference.  Click *Add* to insert the present call and locator in

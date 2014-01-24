@@ -3,8 +3,8 @@
 // to a very old src version of WSJT 5.7 or so. WSJTX is not listed at all.
 // Also, all the Qt4 stuff is now obsolete, and needs to be updated.
 
-{wsjtx} is an open-source program released under the GNU General
-Public License.  Source code is available from the public repository
+_WSJT-X_ is an open-source program released under the GNU General
+Public License (GPL).  Source code is available from the public repository
 at {devsvn}. To compile the program you will need to install the 
 following packages:
 
@@ -14,9 +14,10 @@ following packages:
 - gfortran or g95
 - fftw3
 - hamlib
-- MinGW (Windows only)
+- MinGW (for Windows only)
 
-The full source code for {wsjtx} can be downloaded with the command:
+With Subversion installed, the full source code for _WSJT-X_ can be
+downloaded with the command:
 
  $ svn co svn://svn.berlios.de/wsjt/branches/wsjtx 
 

@@ -2,12 +2,13 @@
 - Execute the downloaded file and follow its installation 
 instructions.
 
-- Install {wsjtx} into its own directory rather than the conventional
-C:\Program Files\WSJTX.  The suggested default directory is C:\WSJTX.
+- Install _WSJT-X_ into its own directory rather than the conventional
+location +C:\Program Files\WSJTX+.  The suggested default directory is
++C:\WSJTX+.
 
-- All files relating to {wsjtx} will be stored in your chosen
+- All files relating to _WSJT-X_ will be stored in your chosen
 installation directory and its subdirectories. You can uninstall
-{wsjtx} by removing the installation directory and its contents.
+_WSJT-X_ by removing the installation directory and its contents.
 
 - The built-in Windows facility for time synchronization is usually
 not adequate.  We recommend Meinberg NTP: see {ntpsetup} for

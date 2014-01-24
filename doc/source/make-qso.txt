@@ -2,26 +2,26 @@
 === Standard Exchange
 By longstanding tradition, a minimal valid QSO requires the exchange
 of callsigns, a signal report or some other information, and
-acknowledgments.  {wsjtx} is designed to facilitate making such
+acknowledgments.  _WSJT-X_ is designed to facilitate making such
 minimal QSOs using short, formatted messages.  The process works best
 if you use these formats and follow standard operating practices.  The
 recommended basic QSO goes something like this:
 
-[width="90%",cols="3,^3,^3,^4,10",options="header"]
+[width="90%",cols="3,7,12",options="header"]
 |=======================================
-|UTC|To|From|Grid/Rpt|Comment
-|0001|CQ|K1ABC|FN42|~ K1ABC calls CQ
-|0002|K1ABC|G0XYZ|IO91|~ G0XYZ answers
-|0003|G0XYZ|K1ABC|–19|~ K1ABC sends report
-|0004|K1ABC|G0XYZ|R–22|~ G0XYZ sends acknowledgment and report
-|0005|G0XYZ|K1ABC|RRR|~ K1ABC sends acknowledgment
-|0006|K1ABC|G0XYZ|73|~ G0XYZ sends 73
+|UTC|Transmitted Message|Comment
+|0001|CQ K1ABC FN42|K1ABC calls CQ
+|0002|K1ABC G0XYZ IO91|G0XYZ answers
+|0003|G0XYZ K1ABC –19|K1ABC sends report
+|0004|K1ABC G0XYZ R–22|G0XYZ sends acknowledgment and report
+|0005|G0XYZ K1ABC RRR|K1ABC sends acknowledgment
+|0006|K1ABC G0XYZ 73|G0XYZ sends 73
 |=======================================
 
 *Standard messages* consist of two callsigns (or CQ, QRZ, or DE and
 one callsign) followed by the transmitting station’s grid locator, a
 signal report, acknowledgement R plus a signal report, or the final
-acknowledgements “RRR” or “73”.  Messages are compressed and encoded
+acknowledgements RRR or 73.  Messages are compressed and encoded
 in a highly efficient and reliable way.  
 
 *Signal reports* are specified as signal-to-noise ratio (S/N) in dB,
@@ -32,19 +32,19 @@ that his signal is 19 dB below the noise power in bandwidth 2500 Hz.
 In message #0004, G0XYZ acknowledges receipt of that report and
 responds with a –22 dB signal report.
 
-TIP: For operators with very good hearing, signals become audible
-around S/N = –15 dB and visible on the waterfall to –26 dB. The JT65
-decoder begins to fail around –24 dB, JT9 around –26 dB.
+TIP: Signals become visible on the waterfall around S/N = –26 dB and
+audible around –15 dB. Thresholds for signal decodability are
+approximately –24 dB for JT65, –26 dB for JT9.
 
 *Free Text Messages*: Users often add some friendly chit-chat as a
-final transmission, in place of the formatted ``73'' message.
-Free-format messages such as ``TNX JOE 73 GL'' or `5W VERT 73 GL'' are
-supported, up to a maximum of 13 characters (including spaces).  It
-should be obvious that JT9 and JT65 are not suitable for extensive
-conversations or rag-chewing.
+final transmission, in place of the formatted 73 message.  Free-format
+messages such as TNX JOE 73 GL or 5W VERT 73 GL are supported, up to a
+maximum of 13 characters (including spaces).  It should be obvious
+that JT9 and JT65 are not suitable for extensive conversations or
+rag-chewing.
 
 === Compound Callsigns
-//This section needs work!  Must describe and give examples for both 
+//This section needs work!!  Must describe and give examples for both 
 //JT65v1 and JT65v2 formats.
 Compound call-signs such as PJ4/K1ABC or G0XYZ/P are handled in a slightly 
 different way.  The following formats are all valid:
@@ -68,7 +68,7 @@ different way.  The following formats are all valid:
 - ``grid'' is a 4-character Maidenhead locator
 
 - A signal report of the form “±nn” or “R±nn”, or the acknowledgment
-or sign-off messages “RRR” or “73”.  {wsjtx} generates messages in
+or sign-off messages “RRR” or “73”.  _WSJT-X_ generates messages in
 these forms automatically, as required.
 
 - A QSO between two stations using compound call-signs might look like this:
@@ -100,10 +100,10 @@ through the <<X15,Basic Tutorial>> above and the following checklist:
 
 - Your callsign and grid locator set to correct values
 - PTT and CAT control (if used) properly configured and tested
-- Computer clock properly synchronized with UTC to within ±1 s
+- Computer clock properly synchronized to UTC within ±1 s
 - Radio set to USB (upper sideband) mode
-- Radio's Split mode selected or not, consistent with your choice on
-*Station* tab of *Configuration* window.
+- Radio's Split mode selected or not, consistent with your choice 
+on *Station* tab of the *Setup | Configuration* window.
 
-- Remember that JT9 and J65 generally do not require high power. Under
-most propagation conditions, [red]*QRP is the rule!*
+IMPORTANT: Remember that JT9 and J65 generally do not require high
+power. Under most propagation conditions, [red]*QRP is the rule!*

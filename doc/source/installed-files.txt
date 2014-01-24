@@ -1,5 +1,5 @@
 // Status=review
-After installing {wsjtx} as described in <<X3, Installation>>, the
+After installing _WSJT-X_ as described in <<X3, Installation>>, the
 following files will be present in the installation directory:
 
 .Files Present After Installation
@@ -42,8 +42,8 @@ following files will be present in the installation directory:
 |save|Directory for saved .wav files
 |shortcuts.txt|Keyboard shortcuts
 |unins000.dat|Uninstall Data File
-|unins000.exe|Executable for uninstalling {wsjtx}
+|unins000.exe|Executable for uninstalling _WSJT-X_
 |wsjt.ico|WSJT icon
-|wsjtx.exe|Executable for {wsjtx}
+|wsjtx.exe|Executable for _WSJT-X_
 |========
 
