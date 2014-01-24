@@ -11,8 +11,8 @@
 // If the list of links gets too long, we can add a url-file that is pulled
 // in when and where needed with the following:
 // include::<file-name> for example: include::url-list.txt
-:devsvn: http://developer.berlios.de/projects/wsjt/[Devel-SVN]
-:devmail: mailto:wsjt-devel@lists.berlios.de[WSJT-Devel-List]
+:devsvn: http://developer.berlios.de/projects/wsjt/[wsjt-svn]
+:devmail: mailto:wsjt-devel@lists.berlios.de[wsjt-devel]
 :download: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[ Download Page ]
 :wsjtx: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[ WSJT-X ]
 :homepage: http://physics.princeton.edu/pulsar/K1JT/[ WSJT Home Page ]
@@ -46,8 +46,9 @@ include::system-requirments.txt[]
 [[X3]]
 == Installation
 
-Download {wsjtx} from the {homepage}. Click on the {wsjtx} at the left
-margin and then on the appropriate link(s) for your operating system.
+- Download _WSJT-X_ from the {homepage}. 
+- Click on _WSJT-X_ at the left margin and then on the appropriate
+link(s) for your operating system.
 
 === Windows
 include::install-windows.txt[]
@@ -78,7 +79,7 @@ include::install-from-source.txt[]
 include::configuration-station.txt[]
 
 [[X42]]
-=== TX Macros Tab
+=== Tx Macros Tab
 include::configuration-txmacros.txt[]
 
 [[X43]]
@@ -104,11 +105,11 @@ include::tutorial-main-window.txt[]
 include::tutorial-wide-graph-settings.txt[]
 
 [[X53]]
-=== Ex 1: JT9 Signals
+=== Sample File 1
 include::tutorial-example1.txt[]
 
 [[X54]]
-=== Ex 2: JT65 and JT9 Signals
+=== Sample File 2
 include::tutorial-example2.txt[]
 
 [[X55]]

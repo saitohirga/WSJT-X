@@ -7,4 +7,4 @@
 control, or VOX.
 - Audio input and output devices supported by your operating system
 - Audio or equivalent USB connections between transceiver and computer  
-- A means for synchronizing your computer clock to UTC to within ±1 s.
+- A means for synchronizing your computer clock to UTC within ±1 s.

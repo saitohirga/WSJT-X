@@ -2,18 +2,18 @@
 
 Many users of WSJT, too numerous to mention here individually, have
 contributed suggestions and advice that have greatly aided the
-development of {wsjtx} and its sister programs.  Since 2005 the
-overall project (including WSJT, MAP65, WSPR, {wsjtx}, and WSPR-X) has
+development of _WSJT-X_ and its sister programs.  Since 2005 the
+overall project (including WSJT, MAP65, WSPR, _WSJT-X_, and WSPR-X) has
 been “open source”, with all code licensed under the GNU Public
 License (GPL).
 
-For {wsjtx} in particular, we acknowledge contributions from *AC6SL,
+For _WSJT-X_ in particular, we acknowledge contributions from *AC6SL,
 AE4JY, DJ0OT, G4KLA, G4WJS, K3WYC, KA6MAL, KA9Q, KI7MT, KK1D, PY2SDR,
 VK3ACF, VK4BDJ, and W4TV*.  Each of these amateurs has helped to bring
 the program’s design, code, and documentation to its present
 state. 
 
-Most of the color palettes for the {wsjtx} waterfall were copied from
+Most of the color palettes for the _WSJT-X_ waterfall were copied from
 the excellent, well documented, open-source program _fldigi_, by *W1HKJ*
 and friends.
 

@@ -1,20 +1,19 @@
 // Status=review
-To set the proper level of audio drive from {wsjtx} to your radio:
+To set the proper level of audio drive from _WSJT-X_ to your radio:
 
-* Click the Tune button on the main screen.{wsjtx} should set the
-radio into transmit mode and generate a steady audio tone at the 
-amplitude that will be used for a generated JT9 signal.
+* Click the *Tune* button on the main screen._WSJT-X_ to switch the
+radio into transmit mode and generate a steady audio tone. 
 
 * Listen to the generated audio tone using your radio’s Monitor
 facility. The tone should be perfectly smooth, with no clicks or
 glitches.
 
-* Open the computer’s audio mixer controls for output (“playback”)
-devices and adjust the volume slider downward from 100% until the RF
-output from your transmitter falls by around ten percent.  This will
-be a good level for audio drive.
+* Open the computer’s audio mixer controls for output (“Playback”)
+devices and adjust the volume slider downward from its maximum until
+the RF output from your transmitter falls by around ten percent.  This
+will be a good level for audio drive.
 
 * Alternatively, you can make the same adjustment using the digital
 slider labeled *Pwr* at the right edge of the main window.
 
-* Toggle the Tune button once more to stop your test transmission. 
+* Toggle the *Tune* button once more to stop your test transmission. 

@@ -1,11 +1,13 @@
 // Status=review
-- User control of font sizes can be effected by using a text editor
-(Windows Notepad or similar) to create a one-line file named fonts.txt
-in the wsjtx directory. A single line of text should contain four
-numbers separated by spaces.  The first two control the font size (in
-points) and weight (on a 0 – 100 scale) of most GUI labels. The last
-two numbers control size and weight of text in the Band Activity and
-Rx Frequency windows.
+
+- You can control the program's font sizes by using a text editor
+(e.g., Windows Notepad or similar) to create a one-line file named
++fonts.txt+ in the _WSJT-X_ installation directory. Enter a single
+line of text with four numbers separated by spaces.  The first two
+numbers control the font size (in points) and weight (on a 0 – 100
+scale) of most labels on the user interface. The last two numbers
+control size and weight of text in the *Band Activity* and *Rx
+Frequency* windows.
 
 - The default is ``8 50 10 50''. If you need larger fonts and bold
 text in the decode windows, try ``10 50 12 100'' (without the quotes).

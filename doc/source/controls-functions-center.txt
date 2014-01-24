@@ -3,16 +3,16 @@ At the center of the main window are a number of controls you will
 use when making QSOs:
 
 //.Misc Controls Center
-image::images/misc-controls-center.png[align="left",alt="Misc Controls Center"]
+image::images/misc-controls-center.png[align="center",alt="Misc Controls Center"]
 
 * Select *Tx even* to transmit in even-numbered UTC minutes.  Uncheck
 this box to transmit in the odd intervals.  This selection is made
 automatically when you double-click on a decoded text line as
-described in the Basic Operating Tutorial, Sections 5.1 thru 5.8.
+described in the Basic Operating Tutorial.
 
-* Your audio Tx and Rx frequencies are displayed and can be adjusted
-with spinner controls. These settings are usually handled
-automatically by the double-click procedure.
+* Your audio Tx and Rx frequencies can be adjusted with spinner
+controls. These settings are usually handled automatically by the
+double-click procedure.
 
 * The on-the-air frequency of your lowest JT9 or JT65 tone is the sum
 of dial and audio frequencies.  You can force Tx frequency to the
@@ -22,7 +22,7 @@ always track one another.
 
 * The *Report* control lets you change a signal report that has been
 inserted automatically. Most reports will fall in the range –26 to
-\+10 dB.  Remember that JT65 reports cannot be greater than -1 dB.
++10 dB.  Remember that JT65 reports cannot be greater than -1 dB.
 
 IMPORTANT: When signals are close to or above 0 dB, you and your QSO
 partner should probably reduce power. JT65 and JT9 are supposed to be
