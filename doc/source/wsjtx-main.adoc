@@ -37,11 +37,11 @@
 // be section 1.1.1. This method is used throughout the document.
 [[X1]]
 == Introduction
-include::introduction.txt[]
+include::introduction.adoc[]
 
 [[X2]]
 == System Requirements
-include::system-requirments.txt[]
+include::system-requirments.adoc[]
 
 [[X3]]
 == Installation
@@ -51,16 +51,16 @@ include::system-requirments.txt[]
 link(s) for your operating system.
 
 === Windows
-include::install-windows.txt[]
+include::install-windows.adoc[]
 
 [[X31]]
 === Linux
-include::install-ubuntu.txt[]
+include::install-ubuntu.adoc[]
 
 // The Mac Section need to be written. The file is a placeholder only.
 [[X32]]
 === OS X
-include::install-mac.txt[]
+include::install-mac.adoc[]
 
 // Note to developers. The URL http://developer.berlios.de/projects/wsjt/. is
 // to a very old src version of WSJT 5.7 or so. WSJTX is not listed at all.
@@ -69,104 +69,104 @@ include::install-mac.txt[]
 // Rreviewd.
 [[X33]]
 === Source Code
-include::install-from-source.txt[]
+include::install-from-source.adoc[]
 
 [[X4]]
 == Setup and Configuration
 
 [[X41]]
 === Station Tab
-include::configuration-station.txt[]
+include::configuration-station.adoc[]
 
 [[X42]]
 === Tx Macros Tab
-include::configuration-txmacros.txt[]
+include::configuration-txmacros.adoc[]
 
 [[X43]]
 === Band Settings Tab
-include::configuration-band-settings.txt[]
+include::configuration-band-settings.adoc[]
 
 [[X44]]
 === Main Window
-include::configuration-main-window.txt[]
+include::configuration-main-window.adoc[]
 
 [[X45]]
 === Font Sizes
-include::font-sizes.txt[]
+include::font-sizes.adoc[]
 
 [[X5]]
 == Basic Operating Tutorial
 [[X51]]
 === Main Window Settings
-include::tutorial-main-window.txt[]
+include::tutorial-main-window.adoc[]
 
 [[X52]]
 === Wide Graph Settings
-include::tutorial-wide-graph-settings.txt[]
+include::tutorial-wide-graph-settings.adoc[]
 
 [[X53]]
 === Sample File 1
-include::tutorial-example1.txt[]
+include::tutorial-example1.adoc[]
 
 [[X54]]
 === Sample File 2
-include::tutorial-example2.txt[]
+include::tutorial-example2.adoc[]
 
 [[X55]]
 === Transceiver Setup
-include::transceiver-setup.txt[]
+include::transceiver-setup.adoc[]
 
 [[X6]]
 == Making QSOs
-include::make-qso.txt[]
+include::make-qso.adoc[]
 
 [[X7]]
 == Controls & Functions
-include::controls-functions.txt[]
+include::controls-functions.adoc[]
 
 [[X71]]
 === Wide Graph Controls
-include::controls-functions-wide-graph.txt[]
+include::controls-functions-wide-graph.adoc[]
 
 [[X72]]
 === Main Window
-include::controls-functions-main-window.txt[]
+include::controls-functions-main-window.adoc[]
 
 [[X73]]
 === Misc Controls Left
-include::controls-functions-left.txt[]
+include::controls-functions-left.adoc[]
 
 [[X74]]
 === Misc Controls Center
-include::controls-functions-center.txt[]
+include::controls-functions-center.adoc[]
 
 [[X75]]
 === Tx Messages
-include::controls-functions-messages.txt[]
+include::controls-functions-messages.adoc[]
 
 [[X76]]
 === Status Bar
-include::controls-functions-status-bar.txt[]
+include::controls-functions-status-bar.adoc[]
 
 [[X77]]
 === Menus
-include::controls-functions-menus.txt[]
+include::controls-functions-menus.adoc[]
 
 [[X78]]
 === Keyboard Shortcuts
-include::controls-functions-kb-shortcuts.txt[]
+include::controls-functions-kb-shortcuts.adoc[]
 
 [[X79]]
 === Mouse Commands
-include::controls-functions-special-mouse-cmds.txt[]
+include::controls-functions-special-mouse-cmds.adoc[]
 
 [[X8]]
 == JT65 & JT9 Differences
-include::jt65-jt9-differences.txt[]
+include::jt65-jt9-differences.adoc[]
 
 [[X9]]
 == The JT9 Protocol
-include::jt9-protocol.txt[]
+include::jt9-protocol.adoc[]
 
 [[XA10]]
 == Appendix A
@@ -174,17 +174,19 @@ include::jt9-protocol.txt[]
 // Note to Dev-Team, this list of files needs to be updated.
 [[XA11]]
 === Installed Files
-include::installed-files.txt[]
+include::installed-files.adoc[]
 
 [[XA12]]
 === Runtime Files
-include::runtime-files.txt[]
+include::runtime-files.adoc[]
 
 [[XB10]]
 == Appendix B
-include::rig-configuration.txt[]
+[[XB11]]
+=== Rig Configuration
+include::rig-config-main.adoc[]
 
 [[XACK10]]
 == Acknowledgments
-include::acknowledgements.txt[]
+include::acknowledgements.adoc[]
 

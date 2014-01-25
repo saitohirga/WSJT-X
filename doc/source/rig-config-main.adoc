@@ -1,0 +1,33 @@
+// Status=review
+:adat: link:rig-config-adat.html[ ADAT]
+:alinco: link:rig-config-alinco.html[ Alinco ]
+:aor: link:rig-config-aor.html[ AOR ]
+:drake: link:rig-config-drake.html[ Drake ]
+:electro: link:rig-config-electro.html[ ElectroCraft ]
+:flexrad: link:rig-config-flexrad.html[ Flex Radio ]
+:kenwood: link:rig-config-kenwood.html[ Kenwood ]
+:icom: link:rig-config-icom.html[ Icom ]
+:rig_template: link:rig-config-template.html[Template]
+:softrock: link:rig-config-softrock.html[ Soft Rock ]
+:tentec: link:rig-config-tentec.html[ Ten Tec ]
+:yaesu: link:rig-config-yaesu.html[Yaesu]
+
+Some rigs work with DTR, RTS, Polling, CAT, and PTT while others do
+not. The number of possible combinations is virtually endless.  The
+purpose of this section is to provide configuration information for
+specific rig models, e.g. Icom 756 Pro-III, Kenwood TS-2000, Yaesu
+FT-1000MP, Flex-5000, etc. This is a work-in-progress, and some rigs
+may never be covered.
+
+NOTE: If you have configuration data for a rig that is not listed, or comments
+about a particular rig configuration, please use the {rig_template} and send it
+to {devmail}.
+
+.Select Manufacturer
+[align="center",valign="middle",halign="center"]
+|========
+|{adat}|{aor}|{alinco}|{drake}|{electro}
+|{flexrad}|{kenwood}|{icom}|{softrock}|{tentec}
+|{yaesu}|{rig_template}|||
+|========
+

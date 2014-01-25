@@ -1,0 +1,142 @@
+// Status=DRAFT
+// this is intentionally left as a single file v.s. multiple sections to allow
+// users to brows the Page Source
+= AsciiDoc Quick Reference
+:Author: WSJT-X Documetation Team
+:Date: January 22, 2014, Copyright © CC-BY-SA 3.0 Unported
+:Revision: 0.0.1
+:badges:
+:icons:
+:numbered:
+:image_dir:
+
+// web-links
+:asciidoc_help: http://www.methods.co.nz/asciidoc/userguide.html[ AsciiDoc User Guide ]
+:asciidoc_cheatsheet: http://powerman.name/doc/asciidoc[ AsciiDoc Cheatsheet ]
+:asciidoc_questions: http://www.methods.co.nz/asciidoc/faq.html[ AsciiDoc FAQ ]
+:devsvn: http://developer.berlios.de/projects/wsjt/[Devel-SVN]
+:download: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[ Download Page ]
+:homepage: http://physics.princeton.edu/pulsar/K1JT/[ WSJT Home Page ]
+:ntpsetup: http://www.satsignal.eu/ntp/setup.html[Network Time Protocol Setup]
+:wsjtx: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[ WSJT-X ]
+:page_source: ./source/quick-reference.txt[ Page Source ]
+:cc_by_sa: http://creativecommons.org/licenses/by-sa/3.0/[ Commons Attribution-ShareAlike 3.0 Unported License ]
+
+// mail-to links
+:stuart_rackman: mailto:srackham@gmail.com[ Stuart Rackham ]
+:alex_efros: mailto:powerman@powerman.name[ Alex Efros ]
+:devmail: mailto:wsjt-devel@lists.berlios.de[WSJT-Devel-List]
+
+[[X1]]
+== Introduction
+The purpose of this guide is to provide a quick reference to commonly used
+markup-up items for writing the {wsjtx} User Guide. Additional resources and
+examples can be found at:
+
+* {asciidoc_help} by {stuart_rackman}
+* {asciidoc_questions} by {stuart_rackman}
+* {asciidoc_cheatsheet} by {alex_efros}
+
+[[X2]]
+== Asciidoc Install
+
+For WSJT-X documentation, only (2) dependencies are generally required:
+
+* Python v2.7+
+* Gnu source-highlight
+
+Each OS has its own unique method of solving the dependencies. The following
+sub-sections will assist in the basic installation and setup.
+
+[[X21]]
+=== Windows
+
+Install Instructions:
+
+
+==== Vista, Win7, Win8
+
+Install Instructions:
+
+[[X22]]
+=== Linux
+
+==== Ubuntu, Debian, Mint and relatives
+
+Install Instructions:
+
+==== RedHat, Fedora, CentOS, and relatives
+
+Install Instructions:
+
+==== Slackware
+
+Install Instructions:
+
+==== Linux Other
+
+Install Instructions:
+
+[[X23]]
+=== OS X
+
+Install Instructions:
+
+[[X3]]
+== Code Examples
+.Under Construction
+
+Code examples for frequently used itmes in WSJT-X Documentaion.
+
+[[X31]]
+=== Blocks
+.Under Construction
+
+Content needed.
+
+[[X32]]
+=== Headers
+.Under Construction
+
+Content needed.
+
+[[X33]]
+=== Links
+.Under Construction
+
+Content needed.
+
+[[X34]]
+=== Lists
+.Under Construction
+
+Content needed.
+
+[[X35]]
+=== Notes
+.Under Construction
+
+Content needed.
+
+[[X36]]
+=== Text
+.Under Construction
+
+Content needed.
+
+[[XA1]]
+== Appendix A: Credits
+.Authors, Editors, Commiters
+If you worked on the documentation, add yourself to the list.
+
+* Authors: <call-sign>, <call-sign>
+
+* Editors: <call-sign>, <call-sign>
+
+* Commiters: <call-sign>, <call-sign>
+
+
+== Appendix B: License
+
+This work is licensed under {cc_by_sa}.
+
