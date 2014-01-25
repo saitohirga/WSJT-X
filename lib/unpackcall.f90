@@ -9,7 +9,7 @@ subroutine unpackcall(ncall,word,iv2,psfx)
   iv2=0
   if(n.ge.262177560) go to 20
   word='......'
-  if(n.ge.262177560) go to 999            !Plain text message ...
+!  if(n.ge.262177560) go to 999            !Plain text message ...
   i=mod(n,27)+11
   word(6:6)=c(i:i)
   n=n/27
@@ -37,7 +37,7 @@ subroutine unpackcall(ncall,word,iv2,psfx)
 20 if(n.ge.267796946) go to 999
 
 ! We have a JT65v2 message
-  if((n.ge.262178563) .and. (n.le.264002071)) Then
+  if((n.ge.262178563) .and. (n.le.264002071)) then
 ! CQ with prefix
      iv2=1
      n=n-262178563
@@ -52,9 +52,8 @@ subroutine unpackcall(ncall,word,iv2,psfx)
      n=n/37
      i=n+1
      psfx(1:1)=c(i:i)
-  endif
 
-  if((n.ge.264002072) .and. (n.le.265825580)) Then
+  else if((n.ge.264002072) .and. (n.le.265825580)) then
 ! QRZ with prefix
      iv2=2
      n=n-264002072
@@ -69,9 +68,8 @@ subroutine unpackcall(ncall,word,iv2,psfx)
      n=n/37
      i=n+1
      psfx(1:1)=c(i:i)
-  endif
 
-  if((n.ge.265825581) .and. (n.le.267649089)) Then
+  else if((n.ge.265825581) .and. (n.le.267649089)) then
 ! DE with prefix
      iv2=3
      n=n-265825581
@@ -86,9 +84,8 @@ subroutine unpackcall(ncall,word,iv2,psfx)
      n=n/37
      i=n+1
      psfx(1:1)=c(i:i)
-  endif
 
-  if((n.ge.267649090) .and. (n.le.267698374)) Then
+  else if((n.ge.267649090) .and. (n.le.267698374)) then
 ! CQ with suffix
      iv2=4
      n=n-267649090
@@ -100,9 +97,8 @@ subroutine unpackcall(ncall,word,iv2,psfx)
      n=n/37
      i=n+1
      psfx(1:1)=c(i:i)
-  endif
 
-  if((n.ge.267698375) .and. (n.le.267747659)) Then
+  else if((n.ge.267698375) .and. (n.le.267747659)) then
 ! QRZ with suffix
      iv2=5
      n=n-267698375
@@ -114,9 +110,8 @@ subroutine unpackcall(ncall,word,iv2,psfx)
      n=n/37
      i=n+1
      psfx(1:1)=c(i:i)
-  endif
 
-  if((n.ge.267747660) .and. (n.le.267796944)) Then
+  else if((n.ge.267747660) .and. (n.le.267796944)) then
 ! DE with suffix
      iv2=6
      n=n-267747660
@@ -128,12 +123,15 @@ subroutine unpackcall(ncall,word,iv2,psfx)
      n=n/37
      i=n+1
      psfx(1:1)=c(i:i)
-  endif
 
-  if(n.eq.267796945) Then
+  else if(n.eq.267796945) then
 ! DE with no prefix or suffix
      iv2=7
      psfx = '    '
+  else
+     iv2=8
+     word='            '
+     psfx='    '
   endif
 
 999 if(word(1:3).eq.'3D0') word='3DA0'//word(4:)

@@ -52,6 +52,7 @@ subroutine unpackmsg(dat,msg)
      if(iv2.eq.5) msg='QRZ '//c2(:n2)//'/'//psfx(:n1)//' '//grid
      if(iv2.eq.6) msg='DE '//c2(:n2)//'/'//psfx(:n1)//' '//grid
      if(iv2.eq.7) msg='DE '//c2(:n2)//' '//grid
+     if(iv2.eq.8) msg=' '
      go to 100
   else
      
