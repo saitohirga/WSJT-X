@@ -128,10 +128,6 @@ subroutine unpackcall(ncall,word,iv2,psfx)
 ! DE with no prefix or suffix
      iv2=7
      psfx = '    '
-  else
-     iv2=8
-     word='            '
-     psfx='    '
   endif
 
 999 if(word(1:3).eq.'3D0') word='3DA0'//word(4:)
