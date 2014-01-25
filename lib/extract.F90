@@ -4,7 +4,7 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
   character decoded*22
   integer era(51),dat4(12),indx(64)
   integer mrsym(63),mr2sym(63),mrprob(63),mr2prob(63)
-  logical nokv,ltext
+  logical nokv,ltext,badmsg
   data nokv/.false./,nsec1/0/
   save
 
@@ -81,9 +81,9 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
 #endif
   call timer('kvasd   ',1)
   if(iret.ne.0) then
-     if(.not.nokv) write(*,1000) 
-1000 format('Error in KV decoder, or no KV decoder present.')
-     nokv=.true.
+     if(.not.nokv) write(*,1000) iret
+1000 format('Error in KV decoder, or no KV decoder present.',i12)
+!     nokv=.true.
      go to 900
   endif
 
@@ -93,6 +93,10 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
   ltext=.false.
   if(ncount.ge.0) then
      call unpackmsg(dat4,decoded)     !Unpack the user message
+     if(badmsg(decoded)) then
+        ncount=-1
+        go to 900
+     endif
      if(iand(dat4(10),8).ne.0) ltext=.true.
      nbmkv=2
   endif

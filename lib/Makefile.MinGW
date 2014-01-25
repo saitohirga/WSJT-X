@@ -51,7 +51,7 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o \
 	extract.o fchisq65.o demod64a.o chkhist.o interleave63.o ccf2.o \
 	move.o indexx.o graycode65.o twkfreq65.o smo121.o \
 	wrapkarn.o init_rs.o encode_rs.o decode_rs.o gen65.o fil4.o \
-	flat3.o polfit.o determ.o
+	flat3.o polfit.o determ.o badmsg.o
 
 libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
