@@ -68,6 +68,7 @@ set (FSRCS
   afc9.f90
   analytic.f90
   azdist.f90
+  badmsg.f90
   ccf2.f90
   ccf65.f90
   chkhist.f90
