@@ -14,3 +14,12 @@ _WSJT-X_ by removing the installation directory and its contents.
 not adequate.  We recommend Meinberg NTP: see {ntpsetup} for
 downloading and installation instructions.  
 
+- _WSJT-X_ expects your sound card to do its raw sampling at 48000 Hz.
+To ensure that this will be so when running under recent versions of
+Windows, open the system's sound control panel and select in turn the
+*Recording* and *Playback* options.  Click on *Properties*, then
+*Advanced*, and select ``16 bit, 48000 Hz (DVD Quality).''
+
+CAUTION: If you are using a sound card that is also the default device
+for Windows sounds, be sure to turn off all such sounds so they are
+not transmitted over the air.

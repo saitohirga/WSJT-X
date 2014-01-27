@@ -1,94 +1,24 @@
 // Status=review
 //Needs work!
 
-JT9 is a mode designed for making minimal QSOs at LF, MF, and HF.  It
-uses 72-bit structured messages nearly identical (at the user level)
-to those in JT65.  Error control coding (ECC) uses a strong
-convolutional code with constraint length K=32, rate r=1/2, and a zero
-tail, leading to an encoded message length of (72+31) × 2 = 206
-information-carrying bits.  Modulation is 9-FSK: eight tones are used
-for data, one for synchronization.  Thus, three data bits or one
-synchronization bit are conveyed by each transmitted symbol.  Sixteen
-symbol intervals are devoted to synchronization, so a transmission
-requires a total of 206 / 3 + 16 = 85 (rounded up) channel
-symbols. The sync symbols are those numbered 1, 2, 5, 10, 16, 23, 33,
-35, 51, 52, 55, 60, 66, 73, 83, and 85 in the transmitted sequence.
+JT9 is designed for making minimal QSOs at LF, MF, and HF.  It uses
+72-bit structured messages nearly identical (at the user level) to
+those in JT65.  Error control coding (ECC) uses a strong convolutional
+code with constraint length K=32, rate r=1/2, and a zero tail, leading
+to an encoded message length of (72+31) × 2 = 206 information-carrying
+bits.  Modulation is nine-tone frequency-shift keying, or 9-FSK.
+Eight tones are used for data, one for synchronization.  Eight data
+tones means that three data bits are conveyed by each transmitted
+information symbol.  Sixteen symbol intervals are devoted to
+synchronization, so a transmission therefore requires a total of 206 / 3
++ 16 = 85 (rounded up) channel symbols. The sync symbols are those
+numbered 1, 2, 5, 10, 16, 23, 33, 35, 51, 52, 55, 60, 66, 73, 83, and
+85 in the transmitted sequence.
 
 Each symbol lasts for 6912 sample intervals at 12000 samples per
 second, or about 0.576 s.  Tone spacing of the 9-FSK modulation is
 12000/6912 = 1.736 Hz, the inverse of the symbol duration.  The total
 occupied bandwidth is 9 × 1.736 = 15.6 Hz.  A generated JT9 signal has
-continuous phase and constant amplitude.  There are no key clicks, and
-the transmitter's power amplifier need not be highly linear.
+continuous phase and constant amplitude, and there are no key clicks.
+The transmitter's power amplifier need not be highly linear.
 
-.Transmitting
-
-Immediately before the start of a transmission WSJT-X encodes a
-user’s message and computes the sequence of tones to be sent.  The
-transmitted audio waveform is computed on-the-fly, using 16-bit
-integer samples at a 48000 Hz rate.  The digital samples are converted
-to an analog waveform in the sound card or equivalent D/A interface.
-
-.Receiving and Decoding
-
-WSJT-X acquires 16-bit integer samples from the sound card at a 48000
-Hz rate, and immediately downsamples the stream to 12000 Hz.  Spectra
-from overlapping segments are computed for the waterfall display and
-saved at intervals of 0.188 s, half the JT9 symbol length.  As shown
-in screen shots earlier in this guide, a JT9 signal appears in the
-*Cumulative* spectrum as a nearly rectangular shape about 16 Hz wide.
-Although there is no clearly visible “sync tone” like the one at the
-low-frequency edge of a JT65 signal, by convention the nominal
-frequency of a JT9 signal is taken to be that of the lowest tone, at
-the left edge of the spectrum.
-
-At the end of a reception sequence, about 50 seconds into the UTC
-minute, received data samples are forwarded to the decoder.  For
-operator convenience the decoder goes through its full procedure
-twice: first at the selected Rx frequency, and then in the full
-displayed frequency range (or in JT9+JT65 mode, the displayed range
-above the blue *JT65 nnnn JT9* marker).  Decoding of clean JT9 signals
-in a white-noise background starts to fail below signal-to-noise
-ratio –25 dB and reaches 50% copy at -26 dB.
-
-Each decoding pass can be described as a sequence of discrete blocks.
-The blocks are labeled here with the names of functional procedures in
-the code.
-
- sync9:	    Use sync symbols to find candidate JT9 signals 
-            in the specified frequency range
-
-Then, at the frequency of each plausible candidate:
-
- downsam9:  Mix, filter and downsample to 16 complex 
-            samples/symbol
-
- peakdt9:   Using sync symbols, time-align to start of JT9 symbol 
-            sequence
-
- afc9:	    Measure frequency offset and any possible drift
-
- twkfreq:   Remove frequency offset and drift
-
- symspec2:  Compute 8-bin spectra for 69 information-carrying
-            symbols, using the time- and frequency-aligned data;
-            transform to yield 206 single-bit soft symbols
-
- interleave9: Remove single-bit symbol interleaving imposed at the
-	    transmitter
-
- decode9:   Retrieve a 72-bit user message using the sequential
-            Fano algorithm for convolutional codes
-
-
- unpackmsg: Unpack a human-readable message from the 72-bit 
-            compressed format
-
-With marginal or unrecognizable signals the sequential Fano algorithm
-can take exponentially long times.  If the +sync9+ step in the above
-sequence finds many seemingly worthy candidate signals, and if many of
-them turn out to be undecodable, the decoding loop can take a very
-long time.  For this reason the step labeled +decode9+ is programmed
-to “time out” and report failure if it is taking too long.  The
-choices *Fast | Normal | Deepest* on the Decode menu provide a
-three-step adjustment of this timeout limit.

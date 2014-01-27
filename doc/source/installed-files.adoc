@@ -1,49 +1,47 @@
 // Status=review
-After installing _WSJT-X_ as described in <<X3, Installation>>, the
-following files will be present in the installation directory:
 
-.Files Present After Installation
-[width="60%",cols="2,60",options="header",valign="middle"]
-|========
-|File Name|Description
-|afmhot.dat|Data for AFMHot palette
-|blue.dat|Data for Blue palette
-|CALL3.TXT|Callsign database
-|hamlib-alinco.dll|Hamlib, Alinco libraries
-|hamlib-amsat.dll|Hamlib, Asmat libraries
-|kamlib-dummy.dll|Hamlib, Dummy Kam libraries 
-|hamlib-flexradio.dll|Hamlib, Flex Radio libraries
-|hamlib-icom.dll|Hamkib, Icom libraries
-|hamlib-jrc.dll|Hamlib, JRC libraries
-|hamlib-kachina.dll|Hamlib, Kachina libraries
-|hamlib-kenwood.dll|Hamlib, Kenwood libraries
-|hamlib-kit.dll|Hamlib, Kit libraries
-|hamlib-tapr.dll|Hamlib, Tapr libraries
-|hamlib-tentec.dll|Hamlib, TenTec libraries
-|hamlib-winradio.dll|Hamlib, WinRadio libraries
-|hamlib-yaesu.dll|Hamlib, Yaesu libraries
-|HRDInterface001.dll|Ham Radio Deluxe interface library
-|jt9.exe|Executable for JT9 decoder
-|jt9code.exe|Test program to illustrate JT9 encoding
-|kvasd.dat|Data for Koetter-Vardy decoder
-|kvasd.exe|Executable Koetter-Vardy decoder
-|libfftw3f-3.dll|Optimized FFT library
-|libgcc_s_dw2-1.dll|gcc runtime
-|libhamlib-2.dll|Hamlib, Base library
-|libstdc\+\+-6.dll|Standard C function library
-|libusb0.dll|USB interface functions
-|mingwm10.dll|MinGW library
-|mouse_commands.txt|Special mouse commands
-|palir-02.dll|Linrad functions
-|PSKReporter.dll|Library for PSK reporter
-|QtCore4.dll|QtCore libraries
-|QtGui4.dll|QtGui4 libraries
-|QtNetwork4.dll|QtNetwork4 libraries		
-|save|Directory for saved .wav files
-|shortcuts.txt|Keyboard shortcuts
-|unins000.dat|Uninstall Data File
-|unins000.exe|Executable for uninstalling _WSJT-X_
-|wsjt.ico|WSJT icon
-|wsjtx.exe|Executable for _WSJT-X_
-|========
+After a clean install of _WSJT-X_ the following files should be
+present in the installation directory:
 
+[horizontal]
++CALL3.TXT+:: Callsign database
++HRDInterface001.dll+:: Ham Radio Deluxe interface library
++Palettes+:: directory for waterfall palettes
++Qt5Core.dll+:: Qt5 library
++Qt5Gui.dll+::  Qt5 library
++Qt5Multimedia.dll+:: Qt5 library
++Qt5Network.dll+:: Qt5 library
++Qt5Widgets.dll+:: Qt5 library
++cty.dat+:: DXCC countries list
++hamlib-alinco.dll+:: Hamlib, Alinco library
++hamlib-amsat.dll+:: Hamlib, Amsat library
++hamlib-dummy.dll+:: Hamlib library
++hamlib-flexradio.dll+:: Hamlib Flex radio library
++hamlib-icom.dll+:: Hamlib Icom library
++hamlib-jrc.dll+:: Hamlib JRC library
++hamlib-kachina.dll+:: Hamlib Kachina library
++hamlib-kenwood.dll+:: Hamlib Kenwood library
++hamlib-kit.dll+:: Hamlib Kit library
++hamlib-tapr.dll+:: Hamlib TAPR library
++hamlib-tentec.dll+:: Hamlib TenTec library
++hamlib-winradio.dll+:: Hamlib WinRadio library
++hamlib-yaesu.dll+:: Hamlib Yaesu library
++icudt51.dll+:: ICU library
++icuin51.dll+:: ICU library
++icuuc51.dll+:: ICU library
++jt9.exe+:: Executable for JT9 and JT65 decoder
++kvasd.exe+:: Executable for Koetter-Vardy decoder
++libgcc_s_dw2-1.dll+:: gcc runtime library
++libhamlib-2.dll+:: Hamlib base library
++libstdc++-6.dll+:: Standard C function library
++libwinpthread-1.dll+:: Windows pthreads library
++mouse_commands.txt+:: Special mouse commands
++platforms+:: Directory for platform-specific libraries
++prefixes.txt+:: Add-on prefixes and suffixes (*Type 1*)
++qt.conf+:: Qt configuration file
++save+:: Directory for saved *.wav files
++shortcuts.txt+:: Keyboard shortcuts
++unins000.dat+:: Uninstall data file
++unins000.exe+:: Executable for uninstalling _WSJT-X_
++wsjt.ico+:: _WSJT_ icon
++wsjtx.exe+:: Executable for _WSJT-X_

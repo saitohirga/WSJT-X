@@ -26,7 +26,7 @@
 :osx-108: http://physics.princeton.edu/pulsar/K1JT/wsjtx_3nov13.tar.gz[ OS X 10.6, 10.7, and 10.8 ]
 :osx-109: http://physics.princeton.edu/pulsar/K1JT/wsjtx_10.9_29nov13.tar.gz[OS X 10.9]
 :pskreporter: http://pskreporter.info/pskmap.html[PSK Reporter]
-:jt65protocol: http://physics.princeton.edu/pulsar/K1JT/JT65.pdf[QEX article]
+:jt65protocol: http://physics.princeton.edu/pulsar/K1JT/JT65.pdf[QEX]
 
 // These [[X?]] numbers are HTML anchors, and can be used to
 // navigate though the document easily: <<[X1],See Introduction]>> will
@@ -46,9 +46,8 @@ include::system-requirments.adoc[]
 [[X3]]
 == Installation
 
-- Download _WSJT-X_ from the {homepage}. 
-- Click on _WSJT-X_ at the left margin and then on the appropriate
-link(s) for your operating system.
+- Download _WSJT-X_ from the {homepage}. Click on _WSJT-X_ at the left
+margin and then on the appropriate link(s) for your operating system.
 
 === Windows
 include::install-windows.adoc[]
@@ -122,7 +121,6 @@ include::make-qso.adoc[]
 
 [[X7]]
 == Controls & Functions
-include::controls-functions.adoc[]
 
 [[X71]]
 === Wide Graph Controls
@@ -161,32 +159,40 @@ include::controls-functions-kb-shortcuts.adoc[]
 include::controls-functions-special-mouse-cmds.adoc[]
 
 [[X8]]
+== JT65 Protocol
+include::jt65-protocol.adoc[]
+
+[[X9]]
+== JT9 Protocol
+include::jt9-protocol.adoc[]
+
+[[XA]]
 == JT65 & JT9 Differences
 include::jt65-jt9-differences.adoc[]
 
-[[X9]]
-== The JT9 Protocol
-include::jt9-protocol.adoc[]
+[[XB]]
+== Transmitting and Receiving in _WSJT-X_
+include::tx-rx.adoc[]
 
-[[XA10]]
+[[XAPPA]]
 == Appendix A
 
 // Note to Dev-Team, this list of files needs to be updated.
-[[XA11]]
+[[XAPPA1]]
 === Installed Files
 include::installed-files.adoc[]
 
-[[XA12]]
+[[XAPPA2]]
 === Runtime Files
 include::runtime-files.adoc[]
 
-[[XB10]]
+[[XAPPB]]
 == Appendix B
-[[XB11]]
+[[XAPPB1]]
 === Rig Configuration
 include::rig-config-main.adoc[]
 
-[[XACK10]]
+[[XACK]]
 == Acknowledgments
 include::acknowledgements.adoc[]
 

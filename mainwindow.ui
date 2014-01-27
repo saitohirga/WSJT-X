@@ -2279,7 +2279,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>780</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -2357,6 +2357,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionKeyboard_shortcuts"/>
     <addaction name="actionSpecial_mouse_commands"/>
     <addaction name="actionAbout"/>
+    <addaction name="actionShort_list_of_add_on_prefixes_and_suffixes"/>
    </widget>
    <widget class="QMenu" name="menuMode">
     <property name="title">
@@ -2672,6 +2673,11 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Show DXCC entity and worked B4 status</string>
+   </property>
+  </action>
+  <action name="actionShort_list_of_add_on_prefixes_and_suffixes">
+   <property name="text">
+    <string>Short list of add-on prefixes and suffixes</string>
    </property>
   </action>
  </widget>

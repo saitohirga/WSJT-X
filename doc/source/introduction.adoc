@@ -9,7 +9,7 @@ _WSJT-X_ offers two protocols or “modes,” JT65 and JT9.  Both are
 designed for making reliable, confirmed QSOs under extreme weak-signal
 conditions. They use nearly identical message structure and source
 encoding.  JT65 was designed for EME (“moon-bounce”) on the VHF/UHF
-bands and has also proved very effective for worldwide QRP
+bands, and has also proved very effective for worldwide QRP
 communication at HF.  JT9 is optimized for the LF, MF, and HF bands.
 It is about 2 dB more sensitive than JT65 while using less than 10% of
 the bandwidth.  Both modes use one-minute timed sequences of
@@ -22,12 +22,12 @@ _WSJT-X_ can display a bandpass as large as 5 kHz and transparently
 provides dual-mode reception of both JT65 and JT9 signals.  If your
 receiver can be configured with at least 4 kHz bandwidth in USB mode,
 you can set the dial frequency to one of the standard JT65 frequencies
-— for example, 14.076 MHz for the 20-meter band — and have the full
-JT65 and JT9 sub-bands displayed simultaneously on the waterfall.  You
-can then make QSOs in both modes using nothing more than mouse clicks.
+— for example, 14.076 MHz for the 20-meter band — and display the full
+JT65 and JT9 sub-bands simultaneously on the waterfall.  You can then
+make QSOs in both modes using nothing more than mouse clicks.
 
 Plans for future program development call for _WSJT-X_ and _WSJT_ to
-merge together: _WSJT-X_ will gradually acquire the additional modes
+merge together. _WSJT-X_ will gradually acquire the additional modes
 JT4, FSK441, and ISCAT that are now supported in _WSJT_.  The entire
 WSJT-related effort is an open-source project.  If you have
 programming or documentation skills or would like to contribute to the

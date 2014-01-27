@@ -19,9 +19,9 @@ specific rig models, e.g. Icom 756 Pro-III, Kenwood TS-2000, Yaesu
 FT-1000MP, Flex-5000, etc. This is a work-in-progress, and some rigs
 may never be covered.
 
-NOTE: If you have configuration data for a rig that is not listed, or comments
-about a particular rig configuration, please use the {rig_template} and send it
-to {devmail}.
+TIP: If you have configuration data for a rig that is not listed, or
+comments about a particular rig configuration, please use the
+{rig_template} and send it to {devmail}.
 
 .Select Manufacturer
 [align="center",valign="middle",halign="center"]

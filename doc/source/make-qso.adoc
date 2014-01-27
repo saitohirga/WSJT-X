@@ -20,58 +20,93 @@ recommended basic QSO goes something like this:
 
 *Standard messages* consist of two callsigns (or CQ, QRZ, or DE and
 one callsign) followed by the transmitting station’s grid locator, a
-signal report, acknowledgement R plus a signal report, or the final
-acknowledgements RRR or 73.  Messages are compressed and encoded
-in a highly efficient and reliable way.  
+signal report, R plus a signal report, or the final acknowledgements
+RRR or 73.  These messages are compressed and encoded in a highly
+efficient and reliable way, and may contain up to 18 characters in
+uncompressed form.
 
 *Signal reports* are specified as signal-to-noise ratio (S/N) in dB,
-using a standard reference noise bandwidth 2500 Hz.  JT65 reports must
-lie in the range –30 to –1 dB, while JT9 supports the extended range
-–50 to +49 dB.  Thus, in example message #0003, K1ABC is telling G0XYZ
-that his signal is 19 dB below the noise power in bandwidth 2500 Hz.
-In message #0004, G0XYZ acknowledges receipt of that report and
-responds with a –22 dB signal report.
+using a standard reference noise bandwidth of 2500 Hz.  Thus, in
+example message #0003, K1ABC is telling G0XYZ that his signal is 19 dB
+below the noise power in bandwidth 2500 Hz.  In message #0004, G0XYZ
+acknowledges receipt of that report and responds with a –22 dB signal
+report.  JT65 reports are constrained to lie in the range –30 to –1
+dB, while JT9 supports the extended range –50 to +49 dB.
 
 TIP: Signals become visible on the waterfall around S/N = –26 dB and
-audible around –15 dB. Thresholds for signal decodability are
-approximately –24 dB for JT65, –26 dB for JT9.
+audible (to those with very good hearing) around –15 dB. Thresholds
+for signal decodability are approximately –24 dB for JT65, –26 dB for
+JT9.
 
-*Free Text Messages*: Users often add some friendly chit-chat as a
-final transmission, in place of the formatted 73 message.  Free-format
-messages such as TNX JOE 73 GL or 5W VERT 73 GL are supported, up to a
-maximum of 13 characters (including spaces).  It should be obvious
-that JT9 and JT65 are not suitable for extensive conversations or
-rag-chewing.
+*Free Text Messages*: Users often add some friendly chit-chat at the
+end of a QSO.  Free-format messages such as ``TNX JOE 73'' or ``5W
+VERT 73 GL'' are supported, up to a maximum of 13 characters
+(including spaces).  It should be obvious that the JT9 and JT65
+protocols are not suitable for extensive conversations or rag-chewing.
 
 === Compound Callsigns
-//This section needs work!!  Must describe and give examples for both 
-//JT65v1 and JT65v2 formats.
-Compound call-signs such as PJ4/K1ABC or G0XYZ/P are handled in a slightly 
-different way.  The following formats are all valid:
 
-.Valid Messages with Compound Callsigns
+Compound callsigns such as xx/K1ABC or K1ABC/x are handled in one of
+two possible ways.  
 
-[width="40%",cols="2,2,2",options="header"]
-|=====================
-|Action|Callsign|Grid
-|CQ|pfx/callsign|grid
-|QRZ|pfx/callsign|grid
-|DE|pfx/callsign|grid
-|CQ|callsign/sfx|grid
-|QRZ|callsign/sfx|grid
-|DE|callsign/sfx|grid
-|=====================
+.Type 1 Compound-Callsign Messages
 
-- ``pfx'' is a 1-4 character prefix
-- ``callsign'' is a standard callsign
-- ``sfx'' is a 1-3 character suffix
-- ``grid'' is a 4-character Maidenhead locator
+A list of about 350 of the most common prefixes and suffixes can be
+displayed from the *Help* menu.  A single compound callsign involving
+one item from this list can be used in a message in place of the third
+``word'' (normally a locator, signal report, RRR, or 73).  Thus, the
+following examples are all properly formatted *Type 1* messages:
 
-- A signal report of the form “±nn” or “R±nn”, or the acknowledgment
-or sign-off messages “RRR” or “73”.  _WSJT-X_ generates messages in
-these forms automatically, as required.
+ CQ ZA/K1ABC
+ CQ K1ABC/4
+ ZA/K1ABC G0XYZ
+ G0XYZ K1ABC/4
 
-- A QSO between two stations using compound call-signs might look like this:
+However, the following messages are _not_ valid because a third
+word is not permitted in a *Type 1* compound callsign message:
+
+ ZA/K1ABC G0XYZ -22        #These messages will be sent
+ G0XYZ K1ABC/4 73          #without the third word 
+
+A QSO between two stations using *Type 1* compound-callsign messages
+might look like this:
+
+ CQ ZA/K1ABC
+                     ZA/K1ABC G0XYZ
+ G0XYZ K1ABC –19
+                     K1ABC G0XYZ R–22
+ G0XYZ K1ABC RRR
+                     K1ABC G0XYZ 73
+
+Notice that both operators have sent and received the full compound
+callsign in the first two transmissions; after that, they omit the
+add-on prefix or suffix.
+
+.Type 2 Compound-Callsign Messages
+
+Prefixes and suffixes _not_ found in the short displayable list can be
+handled in a *Type 2* message.  The compound callsign must be the
+second word in a two- or three-word message, and the first word must
+be CQ, DE, or QRZ.  Prefixes can be up 1-4 characters, suffixes 1-3
+characters.  A third word conveying a locator, report, RRR, or 73 is
+optional.  The following are valid *Type 2* messages with compound
+callsigns:
+
+ CQ W4/G0XYZ FM07          #OK because W4 is not in short-list
+ DE W4/G0XYZ -22
+ QRZ K1ABC/VE6 DO33        #OK because VE6 is not in short-list
+
+In each case, the message is treated as *Type 2* because the add-on
+prefix or suffix is not one of those in the displayable liet.  Note
+that a second callsign is never permissible in these messages, but a
+locator, report, RRR, or 73 is allowed.
+
+TIP: Remember that your transmitted message is always displayed in the
+first panel of the *Status Bar*, highlighted in yellow, exactly as another
+station will receive it.
+
+A QSO between two stations using *Type 2* compound-callsign messages
+might look like this:
 
  CQ KP4/K1ABC FK68
                      DE G0XYZ/P IO91
@@ -80,19 +115,6 @@ these forms automatically, as required.
  G0XYZ K1ABC RRR
                      DE G0XYZ/P 73
 
-////
-.Compound Exch Example
-[width="40%",cols="2,2,2",options="header"]
-|=====================
-|Action|Callsign|Grid
-|CQ|KP4/K1ABC|FK68
-|DE|G0XYZ/P|IO91
-|G0XYZ|K1ABC|–19
-|K1ABC|G0XYZ|R–22
-|G0XYZ|K1ABC|RRR
-|DE|G0XYZ/P|73
-|=====================
-////
 === Pre-QSO Checklist
 
 Before attempting your first QSO with JT9 or JT65, be sure to go

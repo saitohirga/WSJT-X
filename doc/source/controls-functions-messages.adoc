@@ -4,8 +4,8 @@ Two arrangements of controls are provided for generating and selecting
 Tx messages.  Traditional controls carried over from program _WSJT_
 appear on *Tab 1* and provide six fields for message entry.
 Pre-formatted messages for the standard minimal QSO are generated when
-you click *Generate Std Msgs* or when you double-click on an
-appropriate line in one of the decoded text windows.
+you click *Generate Std Msgs* or double-click on an appropriate line
+in one of the decoded text windows.
 
 //.Traditional Message Menu
 image::images/traditional-msg-box.png[align="center",alt="Traditional Message Menu"]
@@ -20,7 +20,7 @@ probably succeed if done in the first 10 s of a Tx period.
 
 * Right-clicking on the entry field for message #5 pops up a list of
 free-text messages entered on the *Setup | Configuration | Tx Macros*
-tab.  You can select any of these pre-stored messages by using the
+screen.  You can select any of these pre-stored messages by using the
 left mouse button.
 
 The second arrangement of controls for generating and selecting
