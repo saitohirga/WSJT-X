@@ -6,7 +6,6 @@ information about operating conditions.
 //.Status Bar
 image::images/status-bar-a.png[align="left",alt="New Message Menu"]
 
-Reading from left to right, these labels provide information about the
-current operating state (Receiving, Transmitting, Tune, or an opened
-file name), operating mode, and content of the most recent transmitted
-message.
+Labels on the Status Bar provide information about the current
+operating state (Receiving, Transmitting, Tune, or an open file name),
+operating mode, and content of your most recent transmitted message.

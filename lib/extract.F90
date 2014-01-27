@@ -4,7 +4,7 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
   character decoded*22
   integer era(51),dat4(12),indx(64)
   integer mrsym(63),mr2sym(63),mrprob(63),mr2prob(63)
-  logical nokv,ltext,badmsg
+  logical nokv,ltext
   data nokv/.false./,nsec1/0/
   save
 
@@ -93,7 +93,7 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
   ltext=.false.
   if(ncount.ge.0) then
      call unpackmsg(dat4,decoded)     !Unpack the user message
-     if(badmsg(decoded)) then
+     if(index(decoded,'...... ').gt.0) then
         ncount=-1
         go to 900
      endif

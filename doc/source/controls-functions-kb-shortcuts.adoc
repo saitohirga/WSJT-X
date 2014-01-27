@@ -2,6 +2,63 @@
 The following keyboard shortcuts give quick access to some
 frequently used program functions.
 
+[horizontal]
+F1::
+Display online User's Guide in browser
+Ctrl+F1::
+About WSJT-X
+F2::
+Open the Setup >> Configuration window
+F3::
+Display keyboard shortcuts
+F4::
+Clear Dx Call and Dx Grid entries
+Alt+F4::
+Exit program
+F5::
+Display special mouse commands
+F6::
+Open next file in directory
+Shift+F6::
+Decode all remaining files in directory
+F11::
+Move Rx frequency down 1 Hz
+Ctrl+F11::
+Move Rx and Tx frequencies down 1 Hz
+F12::
+Move Rx frequency up 1 Hz
+Ctrl+F12::
+Move Rx and Tx frequencies up 1 Hz
+Alt+1-6::
+Set next transmission to this number on Tab 1
+Alt+D::
+Decode again at Rx frequency
+Shift+D::
+Full decode (both windows)
+Alt+E::
+Erase
+Ctrl+F::
+Edit the free text message box
+Alt+G::
+Generate standard messages
+Alt+H::
+Halt Tx
+Ctrl+L::
+Lookup callsign in database, generate standard messages
+Alt M::
+Monitor
+Alt+N::
+Enable Tx
+Alt+Q::
+Log QSO
+Alt+S::
+Stop monitoring
+Alt+T::
+Tune
+Alt+V::
+Save the most recently completed `*.wav'' file
+
+////
 //.Keyboard Shortcuts
 [width="70%",cols="2,30",options="header",align="center"]
 |=====
@@ -34,3 +91,4 @@ frequently used program functions.
 |Alt+T|Tune
 |Alt+V|Save the most recently completed `*.wav'' file
 |=====
+////

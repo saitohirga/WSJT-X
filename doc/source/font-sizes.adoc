@@ -9,6 +9,7 @@ scale) of most labels on the user interface. The last two numbers
 control size and weight of text in the *Band Activity* and *Rx
 Frequency* windows.
 
-- The default is ``8 50 10 50''. If you need larger fonts and bold
-text in the decode windows, try ``10 50 12 100'' (without the quotes).
+- The default is ``8 50 10 50''. If you need larger fonts in the user
+interface and bold text in the decode windows, try ``10 50 12 100''
+(without the quotes).
 

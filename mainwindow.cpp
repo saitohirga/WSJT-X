@@ -1,4 +1,4 @@
-//------------------------------------------------------------- MainWindow
+//------------------------------------------------------------ MainWindow
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -31,6 +31,7 @@ wchar_t buffer[256];
 
 Rig* rig = NULL;
 QTextEdit* pShortcuts;
+QTextEdit* pPrefixes;
 QTcpSocket* commanderSocket = new QTcpSocket(0);
 
 QString rev="$Rev$";
@@ -3052,4 +3053,30 @@ void MainWindow::on_outAttenuation_valueChanged (int a)
   qreal dBAttn (a / 10.);      // slider interpreted as hundredths of a dB
   ui->outAttenuation->setToolTip (tr ("Transmit digital gain ") + (a ? QString::number (-dBAttn, 'f', 1) : "0") + "dB");
   Q_EMIT outAttenuationChanged (dBAttn);
+}
+
+void MainWindow::on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered()
+{
+  pPrefixes = new QTextEdit(0);
+  pPrefixes->setReadOnly(true);
+  pPrefixes->setFontPointSize(10);
+  pPrefixes->setWindowTitle("Prefixes");
+  pPrefixes->setGeometry(QRect(45,50,565,450));
+  Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
+      Qt::WindowMinimizeButtonHint;
+  pPrefixes->setWindowFlags(flags);
+  QString prefixes = m_appDir + "/prefixes.txt";
+  QFile f(prefixes);
+  if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    msgBox("Cannot open " + prefixes);
+    return;
+  }
+  QTextStream s(&f);
+  QString t;
+  for(int i=0; i<100; i++) {
+    t=s.readLine();
+    pPrefixes->append(t);
+    if(s.atEnd()) break;
+  }
+  pPrefixes->show();
 }

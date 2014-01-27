@@ -18,12 +18,13 @@ Taking full advantage of the wide-band, dual-mode capability of
 _WSJT-X_ requires a receiver bandwidth of at least 4 kHz.  Many SSB
 transceivers have a fixed-width Tx filter that will not pass audio
 frequencies higher than about 2700 Hz.  _WSJT-X_ takes care of this by
-using Split mode, receiving with *VFO A* and transmitting with *VFO
-B*.  Under CAT control _WSJT-X_ offsets the Tx dial frequency (*VFO
-B*) in 500 Hz steps, adjusting the generated audio frequency so that
-it always falls in the range 1500 – 2000 Hz. With *CAT* and *Split Tx*
-enabled on the configuration screen and your transceiver set to *Tx
-Split* mode, this frequency control will be handled automatically.
+using *Split Tx* mode, receiving with *VFO A* and transmitting with
+*VFO B*.  Under CAT control _WSJT-X_ offsets the Tx dial frequency
+(*VFO B*) in 500 Hz steps, adjusting the generated audio frequency so
+that it always falls in the range 1500 – 2000 Hz. With *CAT* and
+*Split Tx* enabled on the configuration screen and your transceiver
+set to *Split* mode, this frequency control will be handled
+automatically.
 
 If your transceiver has only a standard SSB filter you won’t be able
 to use more than about 2.7 kHz bandwidth.  You can still have all of
@@ -37,3 +38,7 @@ concentrate on one mode at a time, setting your dial frequency to
 the nominal JT9 dial frequency 2 kHz higher than the JT65 dial
 frequency, and the checkbox labeled *+2 kHz*, just below the *Band*
 selector, makes the appropriate settings easy.
+
+IMPORTANT: When finished with this Tutorial, don’t forget to re-enter
+your own call-sign as *My Call*.
+

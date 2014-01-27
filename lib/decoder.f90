@@ -10,7 +10,7 @@ subroutine decoder(ss,id2)
   real*4 red2(NSMAX)
   logical ccfok(NSMAX)
   logical done(NSMAX)
-  logical done65
+  logical done65,baddata
   integer*2 id2(NTMAX*12000)
   real*4 dd(NTMAX*12000)
   integer*1 i1SoftSymbols(207)
@@ -29,6 +29,12 @@ subroutine decoder(ss,id2)
   open(22,file='kvasd.dat',access='direct',recl=1024,status='unknown')
 
   npts65=52*12000
+  if(baddata(id2,npts65)) then
+     nsynced=0
+     ndecoded=0
+     go to 800
+  endif
+
   ntol65=20
   done65=.false.
   if(nmode.ge.65 .and. ntxmode.eq.65) then

@@ -43,27 +43,27 @@ spectral display. You should be able to confirm the following
 behavior:
 
 - Double-click on either of the decoded lines highlighted in
-green. This action should produce the following:
+green. This action produces the following results:
 
 ** Callsign and locator of a station calling CQ are copied to the *DX
 Call* and *DX Grid* entry fields.
 
-** Messages for a minimal QSO are generated.
+** Messages are generated for a minimal QSO.
 
 ** The *Tx even* box is checked or cleared appropriately, so that you
 will transmit in the proper (odd or even) minutes.
 
-** The Rx and Tx frequency markers are moved to the CQ station’s
-frequency.
+** The Rx and Tx frequency markers are moved to the frequency of the
+CQing station.
 
-** The *Gen Msg* (“generated message”) radio button at bottom right 
+** The *Gen Msg* (``generated message'') radio button at bottom right 
 of the main window is selected.
 
 ** If you have checked *Double-click on call sets Tx Enable* on the
 *Setup* menu, *Enable Tx* is activated and a transmission starts
 automatically at the appropriate time.
 
-- Double-click on the decoded line with the message “K1JT N5KDV EM41”,
+- Double-click on the decoded message ``K1JT N5KDV EM41'',
 highlighted in [red]*RED*.  Results will be similar to those in the
 previous step, except the Tx frequency ([red]*RED* marker) is not
 moved.  Such messages are usually in response to your own CQ, or from
@@ -74,11 +74,12 @@ was.
 you can cause both Tx and Rx frequencies to be moved.  This behavior
 can also be forced by checking Lock Tx=Rx. 
 
-- Double-click on the message from KF4RWA in either window. He is 
-sending “73” to K1JT, signifying that the QSO is over.  Most likely you 
-want to send 73 to him, so the message “KF4RWA K1JT 73” is automatically 
-generated and selected for your next transmission.  (Alternatively, you might 
-choose to send a free text message or to call CQ again.)
+- Double-click on the message from KF4RWA in either window. He is
+sending ``73'' to K1JT, signifying that the QSO is over.  Most likely
+you want to send 73 to him, so the message ``KF4RWA K1JT 73'' is
+automatically generated and selected for your next transmission.
+(Alternatively, you might choose to send a free text message or to
+call CQ again.)
 
 - Click on the waterfall to set Rx frequency ([green]*GREEN* marker).
 

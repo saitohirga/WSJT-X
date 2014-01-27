@@ -27,12 +27,13 @@ waterfall colors.  Values around 0 for both parameters are usually
 about right, depending on the input signal level and your own
 preferences.
 
-- *Palette* lets you select from a number of waterfall color palettes.
+- *Palette* lets you select from a wide range of waterfall color
+palettes.
 
-- Check the *Flatten* box to have _WSJT-X_ compensate for uneven
-spectral response across the received passband.
+- Check *Flatten* if you want _WSJT-X_ to compensate for uneven
+response across the received passband.
 
-- You can select *Current* or *Cumulative* for the spectrum displayed
+- Select *Current* or *Cumulative* for the spectrum displayed
 in the bottom one-third of the Wide Graph window.  *Current* is the
 average spectrum over the most recent *N Avg* FFT calculations.
 *Cumulative* is the average spectrum since the start of the current

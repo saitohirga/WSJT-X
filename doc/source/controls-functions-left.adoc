@@ -7,9 +7,11 @@ left of the main window:
 //.Misc Controls Left
 image::images/misc-main-ui.png[align="center",alt="Mist Menu Items"]
 
-* The drop-down band selector at upper left lets you select the
+* The drop-down list of bands at upper left lets you select the
 operating band and sets dial frequency to a default value taken from
 the *Default Frequencies* tab on the *Setup | Configuration* screen.
+If CAT control is active the radio's dial frequency will be set
+accordingly; if not, you must tune the radio manually.
 
 * If you are using CAT control, a small colored square appears in
 green if the CAT control is two-way between _WSJT-X_ and your radio, or

@@ -1,9 +1,9 @@
 // Status=review
-- Start _WSJT-X_ and Select Configuration from its Setup menu.  Enter
+- Start _WSJT-X_ and select *Configuration* from its *Setup* menu.  Enter
 the following information:
 
 * *Call Sign*: <Your Call Sign>
-* *Grid*: <Your Maidenhead Locator>
+* *Grid*: <Your Maidenhead locator>
 * *PTT method*: choose from RTS, DTR, CAT, VOX, or None.
 * *PTT port*: if you will use RTS or DTR, choose a serial port.
 * *PSK Reporter*: check to enable sending reception reports to the
@@ -54,16 +54,7 @@ any interface equipment turned on and connected before starting
 _WSJT-X_, and to exit the program before turning your equipment off.
 
 - Click the *Test CAT Control* and *Test PTT* buttons to see that you
-have established the desired control of station functions.  _ Select
-the devices you will use for Audio input and output.
+have established the desired control of station functions.  
+- Select the devices you will use for Audio input and output.
 - Click OK to dismiss the *Configuration* window.
 
-- _WSJT-X_ expects your sound card to do its raw sampling at 48000 Hz.
-To ensure that this will be so when running under recent versions of
-Windows, open the system's sound control panel and select in turn the
-*Recording* and *Playback* options.  Click on *Properties*, then
-*Advanced*, and select “16 bit, 48000 Hz (DVD Quality).”
-
-CAUTION: If you are using a sound card that is also the default device
-for Windows sounds, be sure to turn off all such sounds so they are
-not transmitted over the air.

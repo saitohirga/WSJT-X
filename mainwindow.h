@@ -180,7 +180,9 @@ private slots:
   void on_cbPlus2kHz_toggled(bool checked);
   void on_outAttenuation_valueChanged (int);
 
- private:
+  void on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered();
+
+private:
   Q_SIGNAL void startAudioOutputStream (QAudioDeviceInfo, unsigned channels, unsigned msBuffered);
   Q_SIGNAL void stopAudioOutputStream ();
 
