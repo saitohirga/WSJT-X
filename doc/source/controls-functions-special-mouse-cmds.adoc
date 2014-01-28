@@ -4,7 +4,7 @@ The following special mouse commands are available:
 //.Special Mouse Commands
 [width="80%",cols="13,50",options="header",align="center"]
 |=====
-|Mouse-Click on|Action Performed
+|Click on|Action Performed
 |Waterfall|*Click*: set Rx frequency +
 *Double-click*: set Rx frequency and decode there +
 *Ctrl-click*: set Rx and Tx frequencies +

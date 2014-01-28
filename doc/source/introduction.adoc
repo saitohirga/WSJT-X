@@ -5,11 +5,11 @@ in the program name stand for “Weak Signal communication by K1JT”, and
 the “-X” suffix indicates that _WSJT-X_ started as an extended (and
 experimental) branch of program _WSJT_.
 
-_WSJT-X_ offers two protocols or “modes,” JT65 and JT9.  Both are
-designed for making reliable, confirmed QSOs under extreme weak-signal
-conditions. They use nearly identical message structure and source
-encoding.  JT65 was designed for EME (“moon-bounce”) on the VHF/UHF
-bands, and has also proved very effective for worldwide QRP
+_WSJT-X_ currently offers two protocols or “modes,” JT65 and JT9.
+Both are designed for making reliable, confirmed QSOs under extreme
+weak-signal conditions. They use nearly identical message structure
+and source encoding.  JT65 was designed for EME (“moon-bounce”) on the
+VHF/UHF bands, and has also proved very effective for worldwide QRP
 communication at HF.  JT9 is optimized for the LF, MF, and HF bands.
 It is about 2 dB more sensitive than JT65 while using less than 10% of
 the bandwidth.  Both modes use one-minute timed sequences of

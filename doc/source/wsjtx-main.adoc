@@ -27,6 +27,8 @@
 :osx-109: http://physics.princeton.edu/pulsar/K1JT/wsjtx_10.9_29nov13.tar.gz[OS X 10.9]
 :pskreporter: http://pskreporter.info/pskmap.html[PSK Reporter]
 :jt65protocol: http://physics.princeton.edu/pulsar/K1JT/JT65.pdf[QEX]
+:jtalert: http://ham-apps.com[JT-ALERT-X]
+:cty_dat: http://www.country-files.com/cty/[here].
 
 // These [[X?]] numbers are HTML anchors, and can be used to
 // navigate though the document easily: <<[X1],See Introduction]>> will
@@ -35,6 +37,8 @@
 
 // == is level (2), section 1.0, === would mean section 1.1, === would
 // be section 1.1.1. This method is used throughout the document.
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 [[X1]]
 == Introduction
 include::introduction.adoc[]

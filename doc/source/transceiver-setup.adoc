@@ -4,18 +4,17 @@
 - Click the *Monitor* button to return to normal receive operation
 (button should be highlighted in [green]*GREEN*).
 
-- Set your transceiver to USB (or USB Data) mode.  
+- Set your transceiver to *USB* (or *USB Data*) mode.
 
 - Use the receiver gain controls and/or Windows mixer controls to set
 the background noise level (scale at lower left of main window) to
-around 30 dB with no signals present.  If necessary you can also use
+around 30 dB when no signals are present.  If necessary you can also use
 the slider next to the scale, but note that the overall dynamic range
 will be best with this slider not too far from its mid-point.
 
 .Bandwidth and Frequency Setting
 
-Taking full advantage of the wide-band, dual-mode capability of
-_WSJT-X_ requires a receiver bandwidth of at least 4 kHz.  Many SSB
+Many SSB
 transceivers have a fixed-width Tx filter that will not pass audio
 frequencies higher than about 2700 Hz.  _WSJT-X_ takes care of this by
 using *Split Tx* mode, receiving with *VFO A* and transmitting with
@@ -39,6 +38,6 @@ the nominal JT9 dial frequency 2 kHz higher than the JT65 dial
 frequency, and the checkbox labeled *+2 kHz*, just below the *Band*
 selector, makes the appropriate settings easy.
 
-IMPORTANT: When finished with this Tutorial, don’t forget to re-enter
-your own call-sign as *My Call*.
+IMPORTANT: When you are finished with this Tutorial, don’t forget to
+re-enter your own call-sign as *My Call*.
 

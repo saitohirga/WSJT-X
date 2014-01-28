@@ -1,10 +1,13 @@
 // Status=review
 - *Bins/Pixel* = 4
+- *JT65 2500 JT9*
+- *Start* = 0
 - *N Avg* = 5
-- *Gain* = 0,
 - *Zero* = –10
+- *Gain* = 0,
+- *Palette* = Digipan
 - *Flatten* = checked
 - Select *Cumulative* for data display.
-- Select *Tab 2* (below the *Erase* button on the main window) to
+- Select *Tab 2* (below the *Decode* button on the main window) to
 choose the alternative set of controls for generating and selecting
 Tx messages.

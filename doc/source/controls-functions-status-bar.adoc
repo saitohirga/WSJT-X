@@ -6,6 +6,7 @@ information about operating conditions.
 //.Status Bar
 image::images/status-bar-a.png[align="left",alt="New Message Menu"]
 
-Labels on the Status Bar provide information about the current
+Labels on the Status Bar display the program's provide current
 operating state (Receiving, Transmitting, Tune, or an open file name),
-operating mode, and content of your most recent transmitted message.
+its operating mode, and the content of your most recent transmitted
+message.
