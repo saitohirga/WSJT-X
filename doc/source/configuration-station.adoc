@@ -19,30 +19,31 @@ frequency. To enable this capability:
 - Check the box *Enable CAT*
 - Select your radio type from a drop-down list
 - Select a *CAT port* (not the same port selected for PTT control)
-- Set the correct port parameters (*Serial rate*, *Handshake*, *Data bits*, 
-*Stop bits*) for your radio
-- If you use {dxlcommander} or {hrd} to control your transceiver, you
-can configure _WSJT-X_ to communicate with the radio through that
-program.  Entries for these programs appear at the end of the
-drop-down list of supported rigs.
-
-[[X11]]
-image::images/r3563-config-screen-80.png[align="center",alt="Configuration Screen"]
-
-For now you should leave *Split Tx* unchecked. If you are using CAT
-control, most radios will allow you to set *PTT method* = CAT.  Some
-radios support two types of PTT assertion via CAT control: one takes
-audio input from the Mic connector, the other from a rear-panel Data
-connector.  The simplest CAT configuration sets *Polling interval* = 0
-(no polling the radio for dial frequency).  _WSJT-X_ will then be able
-to set the radio’s frequency, but the program will be unaware of
-subsequent changes made using the radio’s panel controls.
 
 TIP: If you need an additional item in the list of devices for the
 CAT port, edit the configuration file +wsjtx.ini+ and add your
 requirement as +CATdriver=<yourdriver>+ (for example, 
 +CATdriver=/dev/tty.usbserial+) in the group of entries marked
 +[Common]+.
+
+- Set the port parameters *Serial rate*, *Handshake*, *Data bits*, 
+*Stop bits* as required for your radio
+- If you use {dxlcommander} or {hrd} to control your transceiver, you
+can configure _WSJT-X_ to communicate with the radio through that
+program.  Entries for these programs appear at the end of the
+drop-down list of supported rigs.
+
+[[X11]]
+image::images/r3666-config-screen-80.png[align="center",alt="Configuration Screen"]
+
+Leave *Split Tx* unchecked for now. If you are using CAT control, most
+radios will allow you to set *PTT method* = CAT.  Some radios support
+two types of PTT assertion via CAT control: one takes audio input from
+the Mic connector, the other from a rear-panel Data connector.  The
+simplest CAT configuration sets *Polling interval* = 0 (no polling the
+radio for dial frequency).  _WSJT-X_ can then set the radio’s
+frequency, but the program will be unaware of subsequent changes made
+using the radio’s panel controls.
 
 With most radios you can set *Polling interval* to a small number (say
 1 – 3 s) and the program will follow any frequency changes made at the
@@ -55,6 +56,6 @@ and to exit the program before turning the equipment off.
 
 - Click the *Test CAT Control* and *Test PTT* buttons to see that you
 have established the desired control of station functions.  
-- Select the devices you will use for Audio input and output.
+- Select the devices you will use for *Audio In* and *Audio Out*.
 - Click *OK* to dismiss the *Configuration* window.
 

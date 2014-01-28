@@ -1,9 +1,10 @@
 // Status=review
+
 _WSJT-X_ is a computer program designed to facilitate basic amateur
 radio communication using very weak signals.  The first four letters
-in the program name stand for “Weak Signal communication by K1JT”, and
-the “-X” suffix indicates that _WSJT-X_ started as an extended (and
-experimental) branch of program _WSJT_.
+in the program name stand for ``Weak Signal communication by K1JT'',
+and the “-X” suffix indicates that _WSJT-X_ started as an extended
+(and experimental) branch of program _WSJT_.
 
 _WSJT-X_ currently offers two protocols or “modes,” JT65 and JT9.
 Both are designed for making reliable, confirmed QSOs under extreme
@@ -15,8 +16,9 @@ It is about 2 dB more sensitive than JT65 while using less than 10% of
 the bandwidth.  Both modes use one-minute timed sequences of
 alternating transmission and reception, so a minimal QSO takes four to
 six minutes — two or three transmissions by each station, one sending
-in odd UTC minutes and the other even.  World-wide QSOs are possible
-with power levels of a few watts and compromise antennas.
+in odd UTC minutes and the other even.  On the HF bands, world-wide
+QSOs are possible with power levels of a few watts and compromise
+antennas.
 
 _WSJT-X_ can display a bandpass as large as 5 kHz and transparently
 provides dual-mode reception of both JT65 and JT9 signals.  If your
@@ -29,10 +31,11 @@ make QSOs in both modes using nothing more than mouse clicks.
 Plans for future program development call for _WSJT-X_ and _WSJT_ to
 merge together. _WSJT-X_ will gradually acquire the additional modes
 JT4, FSK441, and ISCAT that are now supported in _WSJT_.  The entire
-WSJT-related effort is an open-source project.  If you have
-programming or documentation skills or would like to contribute to the
-project in other ways, please make your interests known to the
-development team.  The project’s source-code repository can be found
-at {devsvn}, and communication among the developers takes place on the
-email reflector {devmail}.
+WSJT-related effort is an open-source project, released under the GNU
+General Public License (GPL).  If you have programming or
+documentation skills or would like to contribute to the project in
+other ways, please make your interests known to the development team.
+The project’s source-code repository can be found at {devsvn}, and
+most communication among the developers takes place on the email
+reflector {devmail}.
 

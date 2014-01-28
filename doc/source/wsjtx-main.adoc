@@ -30,8 +30,8 @@
 :jtalert: http://ham-apps.com[JT-ALERT-X]
 :cty_dat: http://www.country-files.com/cty/[here].
 
-// These [[X?]] numbers are HTML anchors, and can be used to
-// navigate though the document easily: <<[X1],See Introduction]>> will
+// These [[xxxx]] labels are HTML anchors, and can be used to
+// navigate though the document easily: <<[INTRO],See Introduction]>> will
 // place a hyper-link in your text to take you too the anchored section.
 // All major sections or points of interest should have one.
 
@@ -39,29 +39,29 @@
 // be section 1.1.1. This method is used throughout the document.
 
 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-[[X1]]
+[[INTRO]]
 == Introduction
 include::introduction.adoc[]
 
-[[X2]]
+[[SYSREQ]]
 == System Requirements
 include::system-requirments.adoc[]
 
-[[X3]]
+[[INSTALL]]
 == Installation
 
 - Download _WSJT-X_ from the {homepage}. Click on _WSJT-X_ at the left
 margin and then on the appropriate link(s) for your operating system.
 
+[[INSTALL_WIN]]
 === Windows
 include::install-windows.adoc[]
 
-[[X31]]
+[[INSTALL_UBU]]
 === Linux
 include::install-ubuntu.adoc[]
 
-// The Mac Section need to be written. The file is a placeholder only.
-[[X32]]
+[[INSTALL_OSX]]
 === OS X
 include::install-mac.adoc[]
 
@@ -70,133 +70,147 @@ include::install-mac.adoc[]
 // Also, all the Qt4 stuff is now obsolete, and needs to be updated.
 // Instructions for source builds Win, *Nix & Mac all need to be written / 
 // Rreviewd.
-[[X33]]
+
+[[SRC_CODE]]
 === Source Code
 include::install-from-source.adoc[]
 
-[[X4]]
+[[CONFIG]]
 == Setup and Configuration
 
-[[X41]]
+[[STATION]]
 === Station Tab
 include::configuration-station.adoc[]
 
-[[X42]]
+[[TXMACROS]]
 === Tx Macros Tab
 include::configuration-txmacros.adoc[]
 
-[[X43]]
+[[BAND_SETTINGS]]
 === Band Settings Tab
 include::configuration-band-settings.adoc[]
 
-[[X44]]
+[[CONFIG_MAIN]]
 === Main Window
 include::configuration-main-window.adoc[]
 
-[[X45]]
+[[FONTS]]
 === Font Sizes
 include::font-sizes.adoc[]
 
-[[X5]]
+[[TUTORIAL]]
 == Basic Operating Tutorial
-[[X51]]
+
+[[TUT_MAIN]]
 === Main Window Settings
 include::tutorial-main-window.adoc[]
 
-[[X52]]
+[[TUT_WIDE_GRAPH]]
 === Wide Graph Settings
 include::tutorial-wide-graph-settings.adoc[]
 
-[[X53]]
+[[TUT_EX1]]
 === Sample File 1
 include::tutorial-example1.adoc[]
 
-[[X54]]
+[[TUT_EX2]]
 === Sample File 2
 include::tutorial-example2.adoc[]
 
-[[X55]]
+[[TUT_XCVR]]
 === Transceiver Setup
 include::transceiver-setup.adoc[]
 
-[[X6]]
+[[MAKE_QSOS]]
 == Making QSOs
 include::make-qso.adoc[]
 
-[[X7]]
+[[CONTROLS]]
 == Controls & Functions
 
-[[X71]]
+[[CONTROLS_WIDE]]
 === Wide Graph Controls
 include::controls-functions-wide-graph.adoc[]
 
-[[X72]]
+[[CONTROLS_MAIN]]
 === Main Window
 include::controls-functions-main-window.adoc[]
 
-[[X73]]
+[[CONTROLS_LEFT]]
 === Misc Controls Left
 include::controls-functions-left.adoc[]
 
-[[X74]]
+[[CONTROLS_CENTER]]
 === Misc Controls Center
 include::controls-functions-center.adoc[]
 
-[[X75]]
+[[CONTROLS_MSGS]]
 === Tx Messages
 include::controls-functions-messages.adoc[]
 
-[[X76]]
+[[STATUS_BAR]]
 === Status Bar
 include::controls-functions-status-bar.adoc[]
 
-[[X77]]
+[[MENUS]]
 === Menus
 include::controls-functions-menus.adoc[]
 
-[[X78]]
+[[SHORTCUTS]]
 === Keyboard Shortcuts
 include::controls-functions-kb-shortcuts.adoc[]
 
-[[X79]]
+[[MOUSE_COMMANDS]]
 === Mouse Commands
 include::controls-functions-special-mouse-cmds.adoc[]
 
-[[X8]]
-== JT65 Protocol
+[[COOP_PGMS]]
+== Cooperating Programs
+To be added ...
+
+[[JT65PRO]]
+== The JT65 Protocol
 include::jt65-protocol.adoc[]
 
-[[X9]]
-== JT9 Protocol
+[[JT9PRO]]
+== The JT9 Protocol
 include::jt9-protocol.adoc[]
 
-[[XA]]
+[[JT65_JT9]]
 == JT65 & JT9 Differences
 include::jt65-jt9-differences.adoc[]
 
-[[XB]]
+[[TXRX]]
 == Transmitting and Receiving in _WSJT-X_
 include::tx-rx.adoc[]
 
-[[XAPPA]]
+[[TROUBLE_SHOOTING]]
+== Troubleshooting
+To be added ...
+
+[[FAQ]]
+== Frequently Asked Questions
+To be added ...
+
+[[APPA]]
 == Appendix A
 
 // Note to Dev-Team, this list of files needs to be updated.
-[[XAPPA1]]
+[[APPA1]]
 === Installed Files
 include::installed-files.adoc[]
 
-[[XAPPA2]]
+[[APPA2]]
 === Runtime Files
 include::runtime-files.adoc[]
 
-[[XAPPB]]
+[[APPB]]
 == Appendix B
-[[XAPPB1]]
+[[APPB1]]
 === Rig Configuration
 include::rig-config-main.adoc[]
 
-[[XACK]]
+[[ACK]]
 == Acknowledgments
 include::acknowledgements.adoc[]
 
