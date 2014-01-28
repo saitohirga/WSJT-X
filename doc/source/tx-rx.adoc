@@ -1,0 +1,77 @@
+// Status=review
+.Transmitting
+
+Immediately before the start of a transmission _WSJT-X_ encodes a
+user's message and computes the sequence of tones to be sent.  The
+transmitted audio waveform is then computed on-the-fly, using 16-bit
+integer samples at a 48000 Hz rate.  Digital samples are converted to
+an analog waveform in the sound card or equivalent D/A interface.
+
+.Receiving and Decoding
+
+_WSJT-X_ acquires 16-bit integer samples from the sound card at a 48000
+Hz rate and immediately downsamples the stream to 12000 Hz.  Spectra
+from overlapping segments are computed for the waterfall display and
+saved at intervals of 0.188 s, half the JT9 symbol length.  As shown
+in screen shots earlier in this guide, a JT9 signal appears in the
+*Cumulative* spectrum as a nearly rectangular shape about 16 Hz wide.
+Although there is no clearly visible ``sync tone'' like the one at the
+low-frequency edge of a JT65 signal, by convention the nominal
+frequency of a JT9 signal is taken to be that of the lowest tone, at
+the left edge of the spectrum.
+
+  insert annotated waterfall picture here?
+
+At the end of a reception sequence, about 50 seconds into the UTC
+minute, received data samples are forwarded to the decoder.  For
+operator convenience the decoder goes through its full procedure
+twice: first at the selected Rx frequency, and then in the full
+displayed frequency range (or in JT9+JT65 mode, the displayed range
+above the blue *JT65 nnnn JT9* marker).  Decoding of clean JT9 signals
+in a white-noise background starts to fail below signal-to-noise
+ratio -25 dB and reaches 50% copy at -26 dB.
+
+Each decoding pass can be described as a sequence of discrete blocks.
+In the following list, blocks are labeled with the names of functional
+procedures in the code.
+
+[horizontal]
++sync9+::    Use sync symbols to find candidate JT9 signals 
+            in the specified frequency range
+
+Then, at the frequency of each plausible candidate:
+
+[horizontal]
++downsam9+::  Mix, filter and downsample to 16 complex 
+            samples/symbol
+
++peakdt9+::   Using sync symbols, time-align to start of JT9 symbol 
+            sequence
+
++afc9+::    Measure frequency offset and any possible drift
+
++twkfreq+::   Remove frequency offset and drift
+
++symspec2+::  Compute 8-bin spectra for 69 information-carrying
+            symbols, using the time- and frequency-aligned data;
+            transform to yield 206 single-bit soft symbols
+
++interleave9+:: Remove single-bit symbol interleaving imposed at the
+	    transmitter
+
++decode9+::   Retrieve a 72-bit user message using the sequential
+            Fano algorithm for convolutional codes
+
+
++unpackmsg+:: Unpack a human-readable message from the 72-bit 
+            compressed format
+
+With marginal or unrecognizable signals the sequential decoding
+algorithm can take exponentially long times.  If the +sync9+ step in
+the above sequence finds many seemingly worthy candidate signals, and
+if many of them turn out to be undecodable the decoding loop can take
+an inconveniently long time.  For this reason the step labeled
++decode9+ is programmed to ``time out'' and report failure if it is
+taking too long.  The choices *Fast | Normal | Deepest* on the Decode
+menu provide the user with a three-step adjustment of this timeout
+limit.
