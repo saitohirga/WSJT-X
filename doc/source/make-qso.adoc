@@ -3,7 +3,7 @@
 By longstanding tradition, a minimal valid QSO requires the exchange
 of callsigns, a signal report or some other information, and
 acknowledgments.  _WSJT-X_ is designed to facilitate making such
-minimal QSOs using short, formatted messages.  The process works best
+minimal QSOs using short, structured messages.  The process works best
 if you use these formats and follow standard operating practices.  The
 recommended basic QSO goes something like this:
 
@@ -34,15 +34,15 @@ report.  JT65 reports are constrained to lie in the range –30 to –1
 dB, while JT9 supports the extended range –50 to +49 dB.
 
 TIP: Signals become visible on the waterfall around S/N = –26 dB and
-audible (to those with very good hearing) around –15 dB. Thresholds
+audible (to someone with very good hearing) around –15 dB. Thresholds
 for signal decodability are approximately –24 dB for JT65, –26 dB for
 JT9.
 
 *Free Text Messages*: Users often add some friendly chit-chat at the
-end of a QSO.  Free-format messages such as ``TNX JOE 73'' or ``5W
-VERT 73 GL'' are supported, up to a maximum of 13 characters
+end of a QSO.  Free-format messages such as ``TNX ROBERT 73'' or 
+``5W VERT 73 GL'' are supported, up to a maximum of 13 characters
 (including spaces).  It should be obvious that the JT9 and JT65
-protocols are not suitable for extensive conversations or rag-chewing.
+protocols are not well suited for extensive conversations or rag-chewing.
 
 === Compound Callsigns
 
@@ -53,20 +53,21 @@ two possible ways.
 
 A list of about 350 of the most common prefixes and suffixes can be
 displayed from the *Help* menu.  A single compound callsign involving
-one item from this list can be used in a message in place of the third
-``word'' (normally a locator, signal report, RRR, or 73).  Thus, the
-following examples are all properly formatted *Type 1* messages:
+one item from this list can be used in a message in place of the
+standard third word (normally a locator, signal report, RRR, or 73).
+Thus, the following examples are all acceptable *Type 1* messages
+with compound callsigns:
 
  CQ ZA/K1ABC
  CQ K1ABC/4
  ZA/K1ABC G0XYZ
  G0XYZ K1ABC/4
 
-However, the following messages are _not_ valid because a third
-word is not permitted in a *Type 1* compound callsign message:
+The following messages are _not_ valid because a third word is not
+permitted in a *Type 1* message with compound callsigns:
 
  ZA/K1ABC G0XYZ -22        #These messages will be sent
- G0XYZ K1ABC/4 73          #without the third word 
+ G0XYZ K1ABC/4 73          #without the third "word"
 
 A QSO between two stations using *Type 1* compound-callsign messages
 might look like this:
@@ -78,32 +79,31 @@ might look like this:
  G0XYZ K1ABC RRR
                      K1ABC G0XYZ 73
 
-Notice that both operators have sent and received the full compound
-callsign in the first two transmissions; after that, they omit the
+Notice that both operators sens and receive the full compound
+callsign in the first two transmissions.  After that, they omit the
 add-on prefix or suffix.
 
 .Type 2 Compound-Callsign Messages
 
 Prefixes and suffixes _not_ found in the short displayable list can be
-handled in a *Type 2* message.  The compound callsign must be the
+handled with a *Type 2* message.  The compound callsign must be the
 second word in a two- or three-word message, and the first word must
-be CQ, DE, or QRZ.  Prefixes can be up 1-4 characters, suffixes 1-3
+be CQ, DE, or QRZ.  Prefixes can be 1 to 4 characters, suffixes 1 to 3
 characters.  A third word conveying a locator, report, RRR, or 73 is
-optional.  The following are valid *Type 2* messages with compound
+permitted.  The following are valid *Type 2* messages with compound
 callsigns:
 
- CQ W4/G0XYZ FM07          #OK because W4 is not in short-list
+ CQ W4/G0XYZ FM07
  DE W4/G0XYZ -22
- QRZ K1ABC/VE6 DO33        #OK because VE6 is not in short-list
+ QRZ K1ABC/VE6 DO33
 
 In each case, the message is treated as *Type 2* because the add-on
-prefix or suffix is not one of those in the displayable liet.  Note
-that a second callsign is never permissible in these messages, but a
-locator, report, RRR, or 73 is allowed.
+prefix or suffix is _not_ one of those in the displayable list.  Note
+that a second callsign is never permissible in these messages.
 
-TIP: Remember that your transmitted message is always displayed in the
-first panel of the *Status Bar*, highlighted in yellow, exactly as another
-station will receive it.
+TIP: Remember that during a transmission your transmitted message is
+always displayed in the first label on the *Status Bar*, highlighted
+in yellow -- displayed exactly as another station will receive it.
 
 A QSO between two stations using *Type 2* compound-callsign messages
 might look like this:
@@ -115,15 +115,19 @@ might look like this:
  G0XYZ K1ABC RRR
                      DE G0XYZ/P 73
 
+Each operator sends his own full callsign in the first (and perhaps
+also last) transmission, as may be required by licensing authorities.
+
 === Pre-QSO Checklist
 
 Before attempting your first QSO with JT9 or JT65, be sure to go
-through the <<X15,Basic Tutorial>> above and the following checklist:
+through the <<X15,Basic Tutorial>> above, as well as the following
+checklist:
 
 - Your callsign and grid locator set to correct values
 - PTT and CAT control (if used) properly configured and tested
 - Computer clock properly synchronized to UTC within ±1 s
-- Radio set to USB (upper sideband) mode
+- Radio set to *USB* (upper sideband) mode
 - Radio's Split mode selected or not, consistent with your choice 
 on *Station* tab of the *Setup | Configuration* window.
 

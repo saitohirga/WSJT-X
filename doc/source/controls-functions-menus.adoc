@@ -1,7 +1,8 @@
 // Status=review
 
 Program menus offer many options for configuration and operation.
-You should explore them and test the resulting program actions.
+Nost of the options will be self-explanatory; a few additional details
+are provided below.
 
 [[X771]]
 ==== File menu
@@ -11,6 +12,41 @@ image::images/file-menu.png[align="left",alt="File Menu"]
 ==== Setup Menu
 //.Setup Menu
 image::images/setup-menu.png[align="left",alt="Setup Menu"]
+
+.Show DXCC entity and worked B4 status
+
+When this option is checked _WSJT-X_ appends some useful information
+to all CQ messages displayed in the Band Activity window.  The name of
+the DXCC entity is shown, abbreviated if necessary.  Your ``worked
+before'' status (according to the log file +wsjtx_log.adi+) is flagged
+with a single character and a change of background colour:
+
+[horizontal]
+!::  (bright green) -- New DXCC entity
+~::  (mid green) -- You have already worked this DXCC entity but not 
+this station
+ ::  (dull green) -- You have previously worked the calling station
+
+The program does not distinguish between modes, but it does
+differentiate between bands.  
+
+This option is mainly intended for use
+on non-Windows platforms; Windows users can (and should) use VK3AMA's
+excellent {jtalert} utility.
+
+.Requirements:
+
+_WSJT-X_ expects the file +cty.dat+ to be in your installation
+directory.  It contains the DXCC data, is regularly updated and can be
+downloaded from {cty_dat}.
+
+Your previous history is read from file +wsjtx_log.adi+. This file is
+updated every time you log a QSO from _WSJT-X_ (but note that it can
+also be erased from the file menu). You can append or overwrite this
+file by exporting your QSO history as an ADIF file from another
+logging program.  Turning *Show DXCC entity and worked B4 status* off
+and on again will cause _WSJT-X_ to re-read the log file.  Very large
+log files may cause _WSJT-X_ to slow down while searching for calls.
 
 [[X773]]
 ==== View Menu

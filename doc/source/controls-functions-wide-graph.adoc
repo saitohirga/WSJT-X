@@ -12,7 +12,7 @@ compress the spectral display. Normal operation with a convenient
 window size works well at 2 to 8 bins per pixel.
 
 - *JT65 nnnn JT9* sets the dividing point for wide-band decoding of
-JT65 and JT9 signals in JT9+JT65 mode.  The decoder looks for JT65
+JT65 and JT9 signals in *JT9+JT65* mode.  The decoder looks for JT65
 signals below nnnn Hz and JT9 signals above that frequency.
 
 - *Start nnn Hz* sets the low-frequency starting point of the
@@ -30,13 +30,12 @@ preferences.
 - *Palette* lets you select from a wide range of waterfall color
 palettes.
 
-- Check *Flatten* if you want _WSJT-X_ to compensate for uneven
-response across the received passband.
+- Check *Flatten* if you want _WSJT-X_ to compensate for a sloping or
+uneven response across the received passband.
 
-- Select *Current* or *Cumulative* for the spectrum displayed
-in the bottom one-third of the Wide Graph window.  *Current* is the
-average spectrum over the most recent *N Avg* FFT calculations.
-*Cumulative* is the average spectrum since the start of the current
-minute. 
+- Select *Current* or *Cumulative* for the spectrum displayed in the
+bottom one-third of the Wide Graph window.  *Current* is the average
+spectrum over the most recent *N Avg* FFT calculations.  *Cumulative*
+is the average spectrum since the start of the present UTC minute.
 
 

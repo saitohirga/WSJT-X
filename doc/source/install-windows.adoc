@@ -6,7 +6,7 @@ instructions.
 location +C:\Program Files\WSJTX+.  The suggested default directory is
 +C:\WSJTX+.
 
-- All files relating to _WSJT-X_ will be stored in your chosen
+- All files relating to _WSJT-X_ will be stored in the chosen
 installation directory and its subdirectories. You can uninstall
 _WSJT-X_ by removing the installation directory and its contents.
 

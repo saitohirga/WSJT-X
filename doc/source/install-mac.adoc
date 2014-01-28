@@ -12,3 +12,5 @@ on how to configure your system for _WSJT-X_.
 - Some additional information can be found {osx-instructions}.
 * {osx-108}
 * {osx-109}
+
+// Any necessary instructions about time synchronization or sound setup ??

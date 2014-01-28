@@ -3,6 +3,7 @@ The following keyboard shortcuts give quick access to some
 frequently used program functions.
 
 [horizontal]
+*Key*:: *Action performed*
 F1::
 Display online User's Guide in browser
 Ctrl+F1::

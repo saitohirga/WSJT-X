@@ -1,8 +1,8 @@
 // Status=review
 .Wide Graph Settings:
-- *Bins/Pixel* = 7
-- *Zero* = -3
-- Adjust the width of the Wide Graph window so that its upper
+
+- Set *Bins/Pixel* = 7
+- Adjust the width of the Wide Graph window so that the upper
 frequency limit is approximately 4000 Hz.
 
 .Main Window:
@@ -24,11 +24,7 @@ This sample file contains 17 decodable signals — nine in JT65 mode
 (flagged with the character # in the decoded text windows), and eight
 in JT9 mode (flagged with @).  
 
-... Figure here showing text windows ...
-
-Since the Tx mode was set to *Tx JT65*,
-signals in that mode were decoded first.  If you had selected *Tx JT9*,
-JT9 signals would have been decoded first.
+// ... Figure here showing the text windows ?
 
 TIP: Notice the [blue]*BLUE* marker on the waterfall scale, by default
 set at 2500 Hz.  Its position is set by the spinner control *JT65 nnnn
@@ -36,9 +32,17 @@ JT9*, where nnnn is a frequency in Hz. In *JT9+JT65* mode the program
 will automatically decode JT65 signals below this frequency and JT9
 signals above it.
 
+Since the Tx mode was set to *Tx JT65*, signals in that mode were
+decoded first.  If you had selected *Tx JT9*, JT9 signals would have
+been decoded first.
+
 - Confirm that mouse-click behavior is similar to that described
-<<X13,above>>, in Example 1. The program automatically determines the
-mode of each JT9 or JT65 signal.
+<<X13,earlier>>, in Example 1. The program automatically determines
+the mode of each JT9 or JT65 signal.  Note that when you double-click
+on a signal in the waterfall, this is true even if the signal is on
+the ``wrong'' side of the [blue]*BLUE* *JT65 nnnn JT9* marker.  When
+clicking on a JT65 signal to decode it, click on the sync tone at the
+left edge.
 
 - Double-click on the waterfall near 815 Hz: a JT65 message
 originating from W7VP will be decoded and appear in the *Rx Frequency*
@@ -77,21 +81,25 @@ program is now configured properly for a JT9 QSO with TA4A.
 .Reopen the First Sample File:
 - Select *File | Open* and navigate to +...\save\samples\130418_1742.wav+.
 
-These data were recorded with a much narrower Rx bandwidth, roughly
-200 to 2600 Hz. If you have no Rx filter wider than about 2.7 kHz, you
-will be using data like this. For best viewing, adjust *Bins/Pixel*
-and the width of the Wide Graph so that only the active part of the
-spectrum shows, say 0 to 2600 Hz.  Re-open the example file after any
-change of *Bins/Pixel* or Wide Graph width, to refresh the waterfall.
+Taking full advantage of the wide-band, dual-mode capability of
+_WSJT-X_ requires a receiver bandwidth of at least 4 kHz, but these
+data were recorded with a much narrower Rx bandwidth, roughly 200 to
+2600 Hz. If you have no Rx filter wider than about 2.7 kHz, you will
+be using data like this. For best viewing, adjust *Bins/Pixel* and the
+width of the Wide Graph so that only the active part of the spectrum
+shows, say 0 to 2600 Hz.  Re-open the example file after any change of
+*Bins/Pixel* or Wide Graph width, to refresh the waterfall.
 
-The signals in this file are all JT9 signals.  To decode them in
-JT9+JT65 mode you’ll need to move the JT65 nnnn JT9 delimiter down to
-1000 Hz or less.
+The signals in this file are all JT9 signals.  To decode them
+automatically in JT9+JT65 mode you’ll need to move the *JT65 nnnn JT9*
+delimiter down to 1000 Hz or less.
 
 .Start, Zero, and Gain
-Now is a good time to experiment with the *Start*, *Zero*, and
-*Gain* parameters.  *Start* sets the starting frequency at the left
+
+Now is a good time to experiment with the *Start*, *Zero*, and *Gain*
+parameters.  *Start* determines the frequency displayed at the left
 side of the waterfall scale.  *Zero* sets the baseline level for
 colors, and *Gain* sets the sensitivity for color changes.  For the
-receiver setup of this file good values are *Zero*=0, *Gain*=0.
-Re-open the wave file after each change, to see the new results.
+receiver setup of this file good values are close to *Zero*=0,
+*Gain*=0.  Re-open the wave file after each change, to see the new
+results.
