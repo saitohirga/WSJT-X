@@ -1,9 +1,10 @@
 // Status=review
+
 - *Bins/Pixel* = 4
-- *JT65 2500 JT9*
+- *JT65 .... JT9* = 2500
 - *Start* = 0
 - *N Avg* = 5
-- *Zero* = –10
+- *Zero* = 0
 - *Gain* = 0,
 - *Palette* = Digipan
 - *Flatten* = checked

@@ -11,5 +11,5 @@ Frequency* windows.
 
 - By default the four numbers are ``8 50 10 50''. If you need larger
 fonts in the user interface and bold text in the decode windows, try
-``10 50 12 100'' (without the quotes).
+something like ``10 50 12 100'' (without the quotes).
 
