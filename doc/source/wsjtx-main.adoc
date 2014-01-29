@@ -2,7 +2,7 @@
 // This is a comment line, anything with // is ignored at process time.
 = WSJT-X User Guide
 :Author: Joe Taylor, K1JT
-:Date: January 21, 2014, Copyright © 2012-2014
+:Date: January 29, 2014, Copyright © 2012-2014
 :Revision: 1.2.2
 :badges:
 :icons:
@@ -38,7 +38,6 @@
 // == is level (2), section 1.0, === would mean section 1.1, === would
 // be section 1.1.1. This method is used throughout the document.
 
-<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 [[INTRO]]
 == Introduction
 include::introduction.adoc[]

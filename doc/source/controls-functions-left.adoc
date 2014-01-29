@@ -1,8 +1,8 @@
 // Status=review
 
-Controls related to band and frequency selection, receiver audio
-level, the station being called or worked, and date and time are found
-at lower left of the main window:
+Controls related to frequency selection, received audio level, the
+station being called, and date and time are found at lower left of the
+main window:
 
 //.Misc Controls Left
 image::images/misc-main-ui.png[align="center",alt="Mist Menu Items"]
@@ -22,7 +22,7 @@ control but communication with the radio has been lost.  If the
 locator *Dx Grid* is known, the great-circle azimuth and distance are
 displayed.
 
-* The program can maintain a database of call-signs and locators for
+* The program can maintain a database of callsigns and locators for
 future reference.  Click *Add* to insert the present call and locator
 in the database; click *Lookup* to retrieve the locator for a
 previously stored call.

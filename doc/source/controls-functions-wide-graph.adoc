@@ -6,21 +6,22 @@ displays — they have no effect on the decoding process.
 
 image::images/wide-graph-controls.png[align="center",alt="Wide Graph Controls"]
 
-- *Bins/Pixel* controls the displayed frequency resolution.  Set
-to 1 for the highest possible resolution, or to higher values to
-compress the spectral display. Normal operation with a convenient
+- *Bins/Pixel* controls the displayed frequency resolution.  Set this
+value to 1 for the highest possible resolution, or to higher numbers
+to compress the spectral display. Normal operation with a convenient
 window size works well at 2 to 8 bins per pixel.
 
 - *JT65 nnnn JT9* sets the dividing point for wide-band decoding of
 JT65 and JT9 signals in *JT9+JT65* mode.  The decoder looks for JT65
-signals below nnnn Hz and JT9 signals above that frequency.
+signals below the specified frequency and JT9 signals above it.
 
 - *Start nnn Hz* sets the low-frequency starting point of the
 waterfall frequency scale.
 
 - *N Avg* is the number of successive FFTs to be averaged before
 updating the spectral display.  Values around 5 are suitable for
-normal JT9 and JT65 operation.
+normal JT9 and JT65 operation.  Adjust *N Avg* to make the waterfall
+move faster or slower, as desired.
 
 - *Zero* and *Gain* control the scaling and reference level for
 waterfall colors.  Values around 0 for both parameters are usually

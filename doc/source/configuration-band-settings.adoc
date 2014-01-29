@@ -5,4 +5,5 @@ enter a brief description of your antenna for each amateur band.  The
 antenna information will be included with reception reports to
 {pskreporter}, if enabled.
 
-(Figure to be added here.)
+[[FigBandSettings]]
+image::images/band-settings.png[align="left"]
