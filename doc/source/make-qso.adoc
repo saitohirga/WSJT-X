@@ -22,16 +22,16 @@ recommended basic QSO goes something like this:
 one callsign) followed by the transmitting station’s grid locator, a
 signal report, R plus a signal report, or the final acknowledgements
 RRR or 73.  These messages are compressed and encoded in a highly
-efficient and reliable way, and may contain up to 18 characters in
-uncompressed form.
+efficient and reliable way, and in uncompressed form may contain 
+as many as 18 characters.
 
 *Signal reports* are specified as signal-to-noise ratio (S/N) in dB,
 using a standard reference noise bandwidth of 2500 Hz.  Thus, in
-example message #0003, K1ABC is telling G0XYZ that his signal is 19 dB
-below the noise power in bandwidth 2500 Hz.  In message #0004, G0XYZ
-acknowledges receipt of that report and responds with a –22 dB signal
-report.  JT65 reports are constrained to lie in the range –30 to –1
-dB, while JT9 supports the extended range –50 to +49 dB.
+example message #0003 above, K1ABC is telling G0XYZ that his signal is
+19 dB below the noise power in bandwidth 2500 Hz.  In message #0004,
+G0XYZ acknowledges receipt of that report and responds with a –22 dB
+signal report.  JT65 reports are constrained to lie in the range –30
+to –1 dB, while JT9 supports the extended range –50 to +49 dB.
 
 TIP: Signals become visible on the waterfall around S/N = –26 dB and
 audible (to someone with very good hearing) around –15 dB. Thresholds
@@ -46,25 +46,25 @@ protocols are not well suited for extensive conversations or rag-chewing.
 
 === Compound Callsigns
 
-Compound callsigns such as xx/K1ABC or K1ABC/x are handled in one of
-two possible ways.  
+Compound callsigns such as xx/K1ABC or K1ABC/x are handled in
+one of two possible ways.
 
 .Type 1 Compound-Callsign Messages
 
 A list of about 350 of the most common prefixes and suffixes can be
 displayed from the *Help* menu.  A single compound callsign involving
-one item from this list can be used in a message in place of the
-standard third word (normally a locator, signal report, RRR, or 73).
-Thus, the following examples are all acceptable *Type 1* messages
-with compound callsigns:
+one item from this list can be used in place of the standard third
+message word (normally a locator, signal report, RRR, or 73).  Thus,
+the following examples are all acceptable *Type 1* messages with
+compound callsigns:
 
  CQ ZA/K1ABC
  CQ K1ABC/4
  ZA/K1ABC G0XYZ
  G0XYZ K1ABC/4
 
-The following messages are _not_ valid because a third word is not
-permitted in a *Type 1* message with compound callsigns:
+The following messages are _not_ valid, because a third word is not
+permitted in a *Type 1* message:
 
  ZA/K1ABC G0XYZ -22        #These messages will be sent
  G0XYZ K1ABC/4 73          #without the third "word"
@@ -79,9 +79,9 @@ might look like this:
  G0XYZ K1ABC RRR
                      K1ABC G0XYZ 73
 
-Notice that both operators sens and receive the full compound
+Notice that both operators send and receive the full compound
 callsign in the first two transmissions.  After that, they omit the
-add-on prefix or suffix.
+add-on prefix or suffix and use the standard structured messages.
 
 .Type 2 Compound-Callsign Messages
 
@@ -98,12 +98,13 @@ callsigns:
  QRZ K1ABC/VE6 DO33
 
 In each case, the message is treated as *Type 2* because the add-on
-prefix or suffix is _not_ one of those in the displayable list.  Note
+prefix or suffix is _not_ one of those in the fixed list.  Note
 that a second callsign is never permissible in these messages.
 
 TIP: Remember that during a transmission your transmitted message is
 always displayed in the first label on the *Status Bar*, highlighted
-in yellow -- displayed exactly as another station will receive it.
+in yellow.  It is displayed there exactly as another station would
+receive it.
 
 A QSO between two stations using *Type 2* compound-callsign messages
 might look like this:
@@ -115,8 +116,10 @@ might look like this:
  G0XYZ K1ABC RRR
                      DE G0XYZ/P 73
 
-Each operator sends his own full callsign in the first (and perhaps
-also last) transmission, as may be required by licensing authorities.
+Each operator sends his own compound callsign in the first (and
+perhaps also last) transmission, as may be required by licensing
+authorities.  Subsequent transmissions may use the standard structured
+messages without callsign prefix or suffix.
 
 === Pre-QSO Checklist
 
@@ -132,4 +135,4 @@ checklist:
 on *Station* tab of the *Setup | Configuration* window.
 
 IMPORTANT: Remember that JT9 and J65 generally do not require high
-power. Under most propagation conditions, [red]*QRP is the rule!*
+power. Under most propagation conditions, QRP is the norm.

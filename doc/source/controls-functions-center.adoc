@@ -1,6 +1,7 @@
 // Status=review
-At the center of the main window are a number of controls you will
-use when making QSOs:
+
+At the center of the main window are a number of controls used when
+making QSOs:
 
 //.Misc Controls Center
 image::images/misc-controls-center.png[align="center",alt="Misc Controls Center"]
@@ -10,9 +11,9 @@ this box to transmit in the odd minutes.  This selection is made
 automatically when you double-click on a decoded text line as
 described in the <<X5,Basic Operating Tutorial>>.
 
-* The Tx and Rx audio frequencies can be adjusted with spinner
-controls. These settings are usually set automatically by
-double-clicking on decoded text or a signal in the waterfall.
+* The Tx and Rx audio frequencies are usually set automatically by
+double-clicking on decoded text or a signal in the waterfall.  They 
+can also be adjusted with spinner controls. 
 
 * You can force Tx frequency to the current Rx frequency by clicking
 the *Tx=Rx* button, and vice-versa for *Rx=Tx*.  (Copy across the =

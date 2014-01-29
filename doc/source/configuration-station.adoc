@@ -33,7 +33,7 @@ can configure _WSJT-X_ to communicate with the radio through that
 program.  Entries for these programs appear at the end of the
 drop-down list of supported rigs.
 
-[[X11]]
+[[FIG_CONFIG_STATION]]
 image::images/r3666-config-screen-80.png[align="center",alt="Configuration Screen"]
 
 Leave *Split Tx* unchecked for now. If you are using CAT control, most

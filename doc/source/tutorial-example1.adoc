@@ -7,7 +7,7 @@ directory.  When the file opens you should see something similar to
 the to the following screen shot:
 
 [[X12]]
-image::images/r3556-main-ui-80.png[align="center",alt="Main UI and Wide Graph"]
+image::images/r3666-main-ui-80.png[align="center",alt="Main UI and Wide Graph"]
 
 .Decoding Overview
 
@@ -26,7 +26,7 @@ one of them are decodable.  When this file was recorded KF4RWA was
 finishing a QSO with K1JT.  Since the green marker was placed at his
 audio frequency, 1224 Hz, his message ``K1JT KF4RWA 73'' is decoded
 first and appears in the *Rx Frequency* window. The *Band Activity*
-window shows this message plus all decodes at other frequencies.  The
+window shows this message plus all decodes at other frequencies.  
 Lines containing CQ are highlighted in [green]*GREEN*, and lines
 with *My Call* (in this case K1JT) in [red]*RED*.
 
@@ -82,16 +82,17 @@ automatically generated and selected for your next transmission.
 (Alternatively, you might choose to send a free text message or to
 call CQ again.)
 
-- Click on the waterfall to set Rx frequency ([green]*GREEN* marker).
+- Click somewhere on the waterfall to set Rx frequency ([green]*GREEN*
+marker).
 
-- Ctrl-click on waterfall to set both Rx and Tx frequencies.
+- Ctrl-click on the waterfall to set both Rx and Tx frequencies.
 
-- Double-click on the waterfall to set Rx frequency and start a
-narrow-band decode there. Decoded text will appear in the right window
-only.
+- Double-click on a signal in the waterfall to set Rx frequency and
+start a narrow-band decode there. Decoded text will appear in the
+right window only.
 
-- Ctrl-double-click to set both Rx and Tx frequencies and decode at
-the new frequency.
+- Ctrl-double-click on a signal to set both Rx and Tx frequencies and
+decode at the new frequency.
 
 - Click *Erase* to clear the right window. 
 

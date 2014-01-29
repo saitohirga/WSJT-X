@@ -1,25 +1,24 @@
 // Status=review
 
 Program menus offer many options for configuration and operation.
-Nost of the options will be self-explanatory; a few additional details
+Most of the items are self-explanatory; a few additional details
 are provided below.
 
-[[X771]]
+[[FILE_MENU]]
 ==== File menu
-//.File Menu
 image::images/file-menu.png[align="left",alt="File Menu"]
-[[X772]]
+
+[[SETUP_MENU]]
 ==== Setup Menu
-//.Setup Menu
 image::images/setup-menu.png[align="left",alt="Setup Menu"]
 
 .Show DXCC entity and worked B4 status
 
 When this option is checked _WSJT-X_ appends some useful information
-to all CQ messages displayed in the Band Activity window.  The name of
+to all CQ messages displayed in the *Band Activity* window.  The name of
 the DXCC entity is shown, abbreviated if necessary.  Your ``worked
-before'' status (according to the log file +wsjtx_log.adi+) is flagged
-with a single character and a change of background colour:
+before'' status (according to log file +wsjtx_log.adi+) is flagged
+with a single character and a change of background color, as follows:
 
 [horizontal]
 !::  (bright green) -- New DXCC entity
@@ -32,43 +31,38 @@ differentiate between bands.
 
 This option is mainly intended for use
 on non-Windows platforms; Windows users can (and should) use VK3AMA's
-excellent {jtalert} utility.
+excellent {jtalert} utility instead.
 
 .Requirements:
 
 _WSJT-X_ expects the file +cty.dat+ to be in your installation
-directory.  It contains the DXCC data, is regularly updated and can be
-downloaded from {cty_dat}.
+directory.  It contains DXCC prefix information, and updated copies
+can be downloaded from {cty_dat} when required.
 
-Your previous history is read from file +wsjtx_log.adi+. This file is
-updated every time you log a QSO from _WSJT-X_ (but note that it can
-also be erased from the file menu). You can append or overwrite this
-file by exporting your QSO history as an ADIF file from another
-logging program.  Turning *Show DXCC entity and worked B4 status* off
-and on again will cause _WSJT-X_ to re-read the log file.  Very large
-log files may cause _WSJT-X_ to slow down while searching for calls.
+The log file +wsjtx_log.adi+ is updated whenever you log a QSO from
+_WSJT-X_ (but note that it can also be erased from the file menu). You
+can append or overwrite this file by exporting your QSO history as an
+ADIF file from another logging program.  Turning *Show DXCC entity and
+worked B4 status* off and on again will cause _WSJT-X_ to re-read the
+log file.  Very large log files may cause _WSJT-X_ to slow down when
+searching for calls.
 
-[[X773]]
+[[VIEW_MENY]]
 ==== View Menu
-//.View Menu
 image::images/view-menu.png[align="left",alt="View Menu"]
 
-[[X774]]
+[[MODE_MENU]]
 ==== Mode Menu
-//.Mode Menu
 image::images/mode-menu.png[align="left",alt="Mode Menu"]
 
-[[X775]]
+[[DECODE_MENU]]
 ==== Decode Menu
-//.Decode Menu
 image::images/decode-menu.png[align="left",alt="Decode Menu"]
 
-[[X776]]
+[[SAVE_MENU]]
 ==== Save Menu
-//.Save Menu
 image::images/save-menu.png[align="left",alt="Save Menu"]
 
-[[X777]]
+[[HELP_MENU]]
 ==== Help Menu
-//.Help Menu
 image::images/help-menu.png[align="left",alt="Help Menu"]

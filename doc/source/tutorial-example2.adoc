@@ -20,20 +20,30 @@ The waterfall should look like this:
 [[X14]]
 image::images/130610_2343-wav-80.png[align="left",alt="Wide Graph Decode 130610_2343"]
 
-This sample file contains 17 decodable signals — nine in JT65 mode
-(flagged with the character # in the decoded text windows), and eight
-in JT9 mode (flagged with @).  
-
-// ... Figure here showing the text windows ?
-
-TIP: Notice the [blue]*BLUE* marker on the waterfall scale, by default
-set at 2500 Hz.  Its position is set by the spinner control *JT65 nnnn
+TIP: Notice the [blue]*BLUE* marker on the waterfall scale, here
+set at 2400 Hz.  Its position is set by the spinner control *JT65 nnnn
 JT9*, where nnnn is a frequency in Hz. In *JT9+JT65* mode the program
 will automatically decode JT65 signals below this frequency and JT9
 signals above it.
 
+JT9 signals appear in the *Cumulative* spectrum as nearly
+rectangular shapes about 16 Hz wide.  Although there is no clearly
+visible sync tone like the one at the low-frequency edge of JT65
+signals, by convention the nominal frequency of a JT9 signal is taken
+to be that of its lowest tone, at the left edge of its spectrum.
+
+This sample file contains 17 decodable signals — nine in JT65 mode
+(flagged with the character # in the decoded text windows), and eight
+in JT9 mode (flagged with @).  The *Band Activity* window should
+contain these decodes (you may need to scroll back in the window to
+see them all):
+
+// ... Figure here showing the text windows ?
+[[FigDecodes]]
+image::images/decodes.png[align="center"]
+
 Since the Tx mode was set to *Tx JT65*, signals in that mode were
-decoded first.  If you had selected *Tx JT9*, JT9 signals would have
+decoded next.  If you had selected *Tx JT9*, JT9 signals would have
 been decoded first.
 
 - Confirm that mouse-click behavior is similar to that described
@@ -80,7 +90,7 @@ program is now configured properly for a JT9 QSO with TA4A.
 - Select *File | Open* and navigate to +...\save\samples\130418_1742.wav+.
 
 Taking full advantage of the wide-band, dual-mode capability of
-_WSJT-X_ requires a receiver bandwidth of at least 4 kHz, but these
+_WSJT-X_ requires a receiver bandwidth of at least 4 kHz.  These
 data were recorded with a much narrower Rx bandwidth, roughly 200 to
 2600 Hz. If you have no Rx filter wider than about 2.7 kHz, you will
 be using data like this. For best viewing, adjust *Bins/Pixel* and the
@@ -89,7 +99,7 @@ shows, say 0 to 2600 Hz.  Re-open the example file after any change of
 *Bins/Pixel* or Wide Graph width, to refresh the waterfall.
 
 The signals in this file are all JT9 signals.  To decode them
-automatically in JT9+JT65 mode you’ll need to move the *JT65 nnnn JT9*
+automatically in *JT9+JT65* mode you’ll need to move the *JT65 nnnn JT9*
 delimiter down to 1000 Hz or less.
 
 .Start, Zero, and Gain

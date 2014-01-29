@@ -15,12 +15,12 @@ Tx sequence) by clicking on the circle under *Next*.
 
 * To change to a specified Tx message immediately, click on a
 rectangular button under the *Now* label.  Changing a Tx message in
-this way will slightly reduce the chance of a correct decode, but
-usually succeeds if done in the first 10 s of a transmission.
+mid-stream will slightly reduce the chance of a correct decode, but it
+is usually OK if done in the first 10 s of a transmission.
 
 * Right-clicking on the entry field for message #5 pops up a list of
 free-text messages entered on the *Setup | Configuration | Tx Macros*
-screen.  Select any of these pre-stored messages by using the left
+screen.  Select any of your pre-stored messages by using the left
 mouse button.
 
 The second arrangement of controls for generating and selecting
