@@ -38,7 +38,7 @@ QString rev="$Rev$";
 QString Program_Title_Version="  WSJT-X   v1.3, r" + rev.mid(6,4) +
                               "    by K1JT";
 
-//-------------------------------------------------- MainWindow constructor
+//--------------------------------------------------- MainWindow constructor
 // Multiple instances: new arg *thekey
 MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *thekey,
                        qint32 fontSize2, qint32 fontWeight2, unsigned downSampleFactor,
