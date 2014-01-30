@@ -14,13 +14,13 @@
 :asciidoc_help: http://www.methods.co.nz/asciidoc/userguide.html[ AsciiDoc User Guide ]
 :asciidoc_cheatsheet: http://powerman.name/doc/asciidoc[ AsciiDoc Cheatsheet ]
 :asciidoc_questions: http://www.methods.co.nz/asciidoc/faq.html[ AsciiDoc FAQ ]
+:cc_by_sa: http://creativecommons.org/licenses/by-sa/3.0/[ Commons Attribution-ShareAlike 3.0 Unported License ]
 :devsvn: http://developer.berlios.de/projects/wsjt/[Devel-SVN]
 :download: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[ Download Page ]
 :homepage: http://physics.princeton.edu/pulsar/K1JT/[ WSJT Home Page ]
 :ntpsetup: http://www.satsignal.eu/ntp/setup.html[Network Time Protocol Setup]
 :wsjtx: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[ WSJT-X ]
 :page_source: ./source/quick-reference.txt[ Page Source ]
-:cc_by_sa: http://creativecommons.org/licenses/by-sa/3.0/[ Commons Attribution-ShareAlike 3.0 Unported License ]
 
 // mail-to links
 :stuart_rackman: mailto:srackham@gmail.com[ Stuart Rackham ]
@@ -40,19 +40,34 @@ examples can be found at:
 [[X2]]
 == Asciidoc Install
 
-For WSJT-X documentation, only (2) dependencies are generally required:
+For _WSJT-X_ documentation purposes, only (2) dependencies are generally
+required:
 
-* Python v2.7+
-* Gnu source-highlight
+* Python
+* Source highlight
 
-Each OS has its own unique method of solving the dependencies. The following
-sub-sections will assist in the basic installation and setup.
+For most packages, the normal method of installation is through their
+respective package manager. There are several reasons why we do not
+want this for the _WSJT-X User Guide_:
+
+** Most packaged applications are installed system-wide, which means standard
+pivilaged (non Root / RootSudo) users update their binaries.
+** Often times, distro packages are (1) or more revisions behind.
+** Updating to the latest stable _AscciDoc_ version, using Mercurial, is a simple
+one line command: _hg pull ; hg update ; hg upgrade_, or clone a new binary
+set with _hg clone -r 8.6._ then re-link the new binary.
+** Using $HOME makes working on the _WSJT-X User Guide_ portable, such as,
+installing to a USB Key and allowing you to test build your work on virtually
+any system that has _Python_ {amp}{amp} _Bash Enviroment_ installed.
+
+// Several more items pending addition
+_Further Edited Pending_
+
 
 [[X21]]
 === Windows
 
 Install Instructions:
-
 
 ==== Vista, Win7, Win8
 
@@ -83,36 +98,29 @@ Install Instructions:
 Install Instructions:
 
 [[X3]]
-== Code Examples
+== How To Contribute
 .Under Construction
 
-Code examples for frequently used itmes in WSJT-X Documentaion.
-
-[[X31]]
 === Blocks
 .Under Construction
 
 Content needed.
 
-[[X32]]
 === Headers
 .Under Construction
 
 Content needed.
 
-[[X33]]
 === Links
 .Under Construction
 
 Content needed.
 
-[[X34]]
 === Lists
 .Under Construction
 
 Content needed.
 
-[[X35]]
 === Notes
 .Under Construction
 
