@@ -3,7 +3,7 @@
 :alinco: link:rig-config-alinco.html[ Alinco ]
 :aor: link:rig-config-aor.html[ AOR ]
 :drake: link:rig-config-drake.html[ Drake ]
-:electro: link:rig-config-electro.html[ ElectroCraft ]
+:elecraft: link:rig-config-elecraft.html[ Elecraft ]
 :flexrad: link:rig-config-flexrad.html[ Flex Radio ]
 :kenwood: link:rig-config-kenwood.html[ Kenwood ]
 :icom: link:rig-config-icom.html[ Icom ]
@@ -26,7 +26,7 @@ comments about a particular rig configuration, please use the
 .Select Manufacturer
 [align="center",valign="middle",halign="center"]
 |========
-|{adat}|{aor}|{alinco}|{drake}|{electro}
+|{adat}|{aor}|{alinco}|{drake}|{elecraft}
 |{flexrad}|{kenwood}|{icom}|{softrock}|{tentec}
 |{yaesu}|{rig_template}|||
 |========

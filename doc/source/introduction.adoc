@@ -10,8 +10,8 @@ _WSJT-X_ currently offers two protocols or “modes,” JT65 and JT9.
 Both are designed for making reliable, confirmed QSOs under extreme
 weak-signal conditions. They use nearly identical message structure
 and source encoding.  JT65 was designed for EME (“moon-bounce”) on the
-VHF/UHF bands, and has also proved very effective for worldwide QRP
-communication at HF.  JT9 is optimized for the LF, MF, and HF bands.
+VHF/UHF bands and has proved very effective for worldwide QRP
+communication on the HF bands, too.  JT9 is optimized for the LF, MF, and HF bands.
 It is about 2 dB more sensitive than JT65 while using less than 10% of
 the bandwidth.  Both modes use one-minute timed sequences of
 alternating transmission and reception, so a minimal QSO takes four to
