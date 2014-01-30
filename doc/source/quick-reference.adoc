@@ -3,29 +3,44 @@
 // users to browse the Page Source
 = AsciiDoc Quick Reference
 :Author: WSJT-X Documetation Team
-:Date: January 22, 2014, Copyright © CC-BY-SA 3.0 Unported
+:Date: January 22, 2014, Copyright (C) CC-BY-SA 3.0 Unported
 :Revision: 0.0.1
 :badges:
 :icons:
 :numbered:
 :image_dir:
 
-// web-links
+// WEB links - List is getting pretty long, time to use include::file-name ??
 :asciidoc_help: http://www.methods.co.nz/asciidoc/userguide.html[ AsciiDoc User Guide ]
 :asciidoc_cheatsheet: http://powerman.name/doc/asciidoc[ AsciiDoc Cheatsheet ]
 :asciidoc_questions: http://www.methods.co.nz/asciidoc/faq.html[ AsciiDoc FAQ ]
+:debian: http://www.debian.org/[ Debian ]
 :cc_by_sa: http://creativecommons.org/licenses/by-sa/3.0/[ Commons Attribution-ShareAlike 3.0 Unported License ]
-:devsvn: http://developer.berlios.de/projects/wsjt/[Devel-SVN]
+:devsvn: http://developer.berlios.de/projects/wsjt/[ Devel-SVN ]
+:devsvn: http://developer.berlios.de/projects/wsjt/[wsjt-svn]
 :download: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[ Download Page ]
+:dxlcommander: http://www.dxlabsuite.com/commander/[ Commander ]
 :homepage: http://physics.princeton.edu/pulsar/K1JT/[ WSJT Home Page ]
+:hrd: http://www.hrdsoftwarellc.com/[ Ham Radio Deluxe ]
+:jtalert: http://ham-apps.com[JT-ALERT-X]
+:jt65protocol: http://physics.princeton.edu/pulsar/K1JT/JT65.pdf[QEX]
+:launchpadurl: https://launchpad.net/~jnogatch/+archive/wsjtx[ WSJT-X Linux Packages ]
 :ntpsetup: http://www.satsignal.eu/ntp/setup.html[Network Time Protocol Setup]
+:pskreporter: http://pskreporter.info/pskmap.html[PSK Reporter]
+:osx_instructions: http://physics.princeton.edu/pulsar/K1JT/OSX_Readme[here]
 :wsjtx: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[ WSJT-X ]
-:page_source: ./source/quick-reference.txt[ Page Source ]
 
-// mail-to links
-:stuart_rackman: mailto:srackham@gmail.com[ Stuart Rackham ]
+// DOWNLOAD links
+:cty_dat: http://www.country-files.com/cty/[here].
+:kvasd: http://physics.princeton.edu/pulsar/K1JT/kvasd[kvasd]
+:osx_108: http://physics.princeton.edu/pulsar/K1JT/wsjtx_3nov13.tar.gz[ OS X 10.6, 10.7, and 10.8 ]
+:osx_109: http://physics.princeton.edu/pulsar/K1JT/wsjtx_10.9_29nov13.tar.gz[ OS X 10.9 ]
+
+// MAIL-TO links
 :alex_efros: mailto:powerman@powerman.name[ Alex Efros ]
-:devmail: mailto:wsjt-devel@lists.berlios.de[WSJT-Devel-List]
+:devmail: mailto:wsjt-devel@lists.berlios.de[wsjt-devel]
+:stuart_rackman: mailto:srackham@gmail.com[ Stuart Rackham ]
+
 
 [[X1]]
 == Introduction
@@ -38,99 +53,212 @@ examples can be found at:
 * {asciidoc_cheatsheet} by {alex_efros}
 
 [[X2]]
-== Asciidoc Install
-
-For _WSJT-X_ documentation purposes, only (2) dependencies are generally
-required:
-
-* Python
-* Source highlight
+== Asciidoc Installation
 
 For most packages, the normal method of installation is through their
 respective package manager. There are several reasons why we do not
 want this for the _WSJT-X User Guide_:
 
-** Most packaged applications are installed system-wide, which means standard
+* Most packaged applications are installed system-wide, which means standard
 pivilaged (non Root / RootSudo) users update their binaries.
-** Often times, distro packages are (1) or more revisions behind.
-** Updating to the latest stable _AscciDoc_ version, using Mercurial, is a simple
-one line command: _hg pull ; hg update ; hg upgrade_, or clone a new binary
-set with _hg clone -r 8.6._ then re-link the new binary.
-** Using $HOME makes working on the _WSJT-X User Guide_ portable, such as,
-installing to a USB Key and allowing you to test build your work on virtually
-any system that has _Python_ {amp}{amp} _Bash Enviroment_ installed.
+* Often times, distro packages are (1) or more revisions behind.
+* Updating to the latest stable _AsciiDoc_ version, using Mercurial, is a simple
+one line command or simply clone the latest release.
+* Using $HOME makes working on the _WSJT-X User Guide_ portable, such as,
+installing to a USB Key allows testing of your work on virtually any system
+which has _Python_ {amp}{amp} _Bash Enviroment_ installed.
 
 // Several more items pending addition
-_Further Edited Pending_
-
+*Further Edit's Pending*
 
 [[X21]]
 === Windows
+.WinXP thru Win8
 
-Install Instructions:
-
-==== Vista, Win7, Win8
-
-Install Instructions:
+content
 
 [[X22]]
 === Linux
+.Debian, Ubuntu, Mint {amp} Relatives
+// Rouch Draft, needs verified.
 
-==== Ubuntu, Debian, Mint and relatives
+There are many relatives of Debian {amp} Ubuntu, and most shells are _Bash_. For
+all but the package-manager commands,you shoult be able to _Copy {amp} Paste_
+the commands directly into the terminal.
 
-Install Instructions:
+* It's a good idea to always start from a fresh repository list, and to have the
+instll up to date before adding new packages.
 
-==== RedHat, Fedora, CentOS, and relatives
+[source,bash]
+-----
+sudo apt-get update && sudo apt-get upgrade
+-----
 
-Install Instructions:
+* Install Dependencies
 
-==== Slackware
+[source,bash]
+-----
+# on most distro's, python is already installed
+sudo apt-get install mercurial source-highlight subversion
+-----
 
-Install Instructions:
+* Check Python, hg, Subversion and Source Highlight are installed
 
-==== Linux Other
+[source,bash]
+-----
+python -V
+hg --version |head -n1
+svn --version |head -n1
+source-highlight --version |head -n1
+-----
 
-Install Instructions:
+* Should Return:
+
+[source,bash]
+-----
+# your versions may vary slightly
+Python 2.7.6
+svn, version 1.7.14
+Mercurial Distributed SCM (version 2.8.2)
+GNU Source-highlight 3.1.6
+-----
+
+IMPORTANT: If any package check returns with an error, resolve before
+continuing !!
+
+* Check for Previous AsciiDoc Installation
+
+[source,bash]
+-----
+# ckeck if AsciiDoc is already installed:
+asciidoc --version
+
+# If Bash returns any version, remove it:
+sudo apt-get purge asciidoc
+-----
+
+* Add Directories and source profiles
+
+[source,bash]
+-----
+mkdir -p $HOME/bin $HOME/Projects/documentation/wsjtx
+
+source ~/.bashrc && source ~/.profile
+-----
+
+* Check $HOME/bin is in your $PATH
+
+[source,bash]
+-----
+echo $PATH
+
+#should return something like: /home/$USER/bin:/usr/local/sbin: .. .. ..
+----- 
+
+NOTE:  You may have to log out and back in for the addition to take place.
+If need be, add the following to your shell profile, then source or
+log out / back in:
+
+[source,bash]
+-----
+if [ -d "$HOME/bin" ]
+then
+  PATH="$HOME/bin:$PATH"
+fi
+-----
+
+* Download and Configure _AsciiDoc_ use _Copy {amp} Paste_
+
+[source,bash]
+-----
+# one action per line
+cd ~/bin
+
+hg clone -r 8.6.9 https://asciidoc.googlecode.com/hg/ asciidoc-8.6.9
+
+cd asciidoc-8.6.9 && hg pull && hg update && hg upgrade && cd ..
+
+ln -s ~/bin/asciidoc-8.6.9/asciidoc.py ~/bin/asciidoc
+
+asciidoc --version
+
+# Should return: asciidoc 8.6.9
+-----
+
+* Test build _WSJT-X User Guide_
+
+[source,bash]
+-----
+cd ~/Projects/documentation/wsjtx
+----- 
+
+TIP: There are two commands generally used, _svn export_ and _svn checkout_.
+_svn export_ does _[red]#not#_ pull history ( the .svn folders ), and you cannot
+be updated later. _svn checkout_ does pull history and allows you to use _svn up_
+to bring you local copy to the latest repo level.
+
+[source,bash]
+-----
+svn export svn://svn.berlios.de/wsjt/branches/wsjtx/doc
+
+# and / or
+
+svn checkout svn://svn.berlios.de/wsjt/branches/wsjtx/doc
+
+# then
+
+cd ~/Projects/documentation/wsjtx && ./build-doc.sh toc2
+-----
+
+* Now Open wsjtx-main-toc.html
+
+[source,bash]
+-----
+# for chromium
+chromium-browser wsjtx-main-toc2.html
+
+# for FireFox
+firefox wsjtx-main-toc2.html
+-----
+
 
 [[X23]]
 === OS X
+.10.8 {amp} 10.9
 
-Install Instructions:
+content
 
 [[X3]]
 == How To Contribute
-.Under Construction
+.under contstruction
 
-=== Blocks
-.Under Construction
+content
 
-Content needed.
+=== Dev List Email
+.under contstruction
 
-=== Headers
-.Under Construction
+content
 
-Content needed.
+=== Join {amp} Commit
+.under contstruction
 
-=== Links
-.Under Construction
+content
 
-Content needed.
+=== Submit Patch
+.under contstruction
 
-=== Lists
-.Under Construction
+content
 
-Content needed.
+=== Yahoo Group Post
+.under contstruction
 
-=== Notes
-.Under Construction
-
-Content needed.
+content
 
 [[X36]]
 === Text
 .Under Construction
 
-Content needed.
+content
 
 [[XA1]]
 == Appendix A: Credits

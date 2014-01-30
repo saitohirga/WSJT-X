@@ -7,28 +7,42 @@
 :badges:
 :icons:
 :numbered:
+:image_dir:
 
 // If the list of links gets too long, we can add a url-file that is pulled
 // in when and where needed with the following:
 // include::<file-name> for example: include::url-list.txt
+
+// WEB links - List is getting pretty long, time to use include::file-name ??
+:asciidoc_help: http://www.methods.co.nz/asciidoc/userguide.html[ AsciiDoc User Guide ]
+:asciidoc_cheatsheet: http://powerman.name/doc/asciidoc[ AsciiDoc Cheatsheet ]
+:asciidoc_questions: http://www.methods.co.nz/asciidoc/faq.html[ AsciiDoc FAQ ]
+:debian: http://www.debian.org/[ Debian ]
+:cc_by_sa: http://creativecommons.org/licenses/by-sa/3.0/[ Commons Attribution-ShareAlike 3.0 Unported License ]
 :devsvn: http://developer.berlios.de/projects/wsjt/[wsjt-svn]
-:devmail: mailto:wsjt-devel@lists.berlios.de[wsjt-devel]
 :download: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[ Download Page ]
-:wsjtx: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[ WSJT-X ]
-:homepage: http://physics.princeton.edu/pulsar/K1JT/[ WSJT Home Page ]
-:ntpsetup: http://www.satsignal.eu/ntp/setup.html[Network Time Protocol Setup]
 :dxlcommander: http://www.dxlabsuite.com/commander/[ Commander ]
+:homepage: http://physics.princeton.edu/pulsar/K1JT/[ WSJT Home Page ]
 :hrd: http://www.hrdsoftwarellc.com/[ Ham Radio Deluxe ]
-:image_dir: 
-:launchpadurl: https://launchpad.net/~jnogatch/+archive/wsjtx[ WSJT-X Linux Packages ]
-:kvasd: http://physics.princeton.edu/pulsar/K1JT/kvasd[kvasd]
-:osx-instructions: http://physics.princeton.edu/pulsar/K1JT/OSX_Readme[here]
-:osx-108: http://physics.princeton.edu/pulsar/K1JT/wsjtx_3nov13.tar.gz[ OS X 10.6, 10.7, and 10.8 ]
-:osx-109: http://physics.princeton.edu/pulsar/K1JT/wsjtx_10.9_29nov13.tar.gz[OS X 10.9]
-:pskreporter: http://pskreporter.info/pskmap.html[PSK Reporter]
-:jt65protocol: http://physics.princeton.edu/pulsar/K1JT/JT65.pdf[QEX]
 :jtalert: http://ham-apps.com[JT-ALERT-X]
+:jt65protocol: http://physics.princeton.edu/pulsar/K1JT/JT65.pdf[QEX]
+:launchpadurl: https://launchpad.net/~jnogatch/+archive/wsjtx[ WSJT-X Linux Packages ]
+:ntpsetup: http://www.satsignal.eu/ntp/setup.html[Network Time Protocol Setup]
+:pskreporter: http://pskreporter.info/pskmap.html[PSK Reporter]
+:osx_instructions: http://physics.princeton.edu/pulsar/K1JT/OSX_Readme[here]
+:wsjtx: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[ WSJT-X ]
+
+// DOWNLOAD links
 :cty_dat: http://www.country-files.com/cty/[here].
+:kvasd: http://physics.princeton.edu/pulsar/K1JT/kvasd[kvasd]
+:osx_108: http://physics.princeton.edu/pulsar/K1JT/wsjtx_3nov13.tar.gz[ OS X 10.6, 10.7, and 10.8 ]
+:osx_109: http://physics.princeton.edu/pulsar/K1JT/wsjtx_10.9_29nov13.tar.gz[ OS X 10.9 ]
+
+// MAIL-TO links
+:alex_efros: mailto:powerman@powerman.name[ Alex Efros ]
+:devmail: mailto:wsjt-devel@lists.berlios.de[wsjt-devel]
+:stuart_rackman: mailto:srackham@gmail.com[ Stuart Rackham ]
+
 
 // These [[xxxx]] labels are HTML anchors, and can be used to
 // navigate though the document easily: <<[INTRO],See Introduction]>> will
