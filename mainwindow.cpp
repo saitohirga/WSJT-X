@@ -35,7 +35,7 @@ QTextEdit* pPrefixes;
 QTcpSocket* commanderSocket = new QTcpSocket(0);
 
 QString rev="$Rev$";
-QString Program_Title_Version="  WSJT-X   v1.2.2, r" + rev.mid(6,4) +
+QString Program_Title_Version="  WSJT-X   v1.3, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 //-------------------------------------------------- MainWindow constructor
@@ -1150,7 +1150,6 @@ void MainWindow::msgBox(QString t)                             //msgBox
 void MainWindow::on_actionOnline_Users_Guide_triggered()      //Display manual
 {
   QDesktopServices::openUrl(QUrl(
-//  "http://www.physics.princeton.edu/pulsar/K1JT/WSJT-X_Users_Guide_v1.2.pdf",
     "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main-toc2.html",
                               QUrl::TolerantMode));
 }
@@ -2797,6 +2796,11 @@ void MainWindow::on_freeTextMsg_editingFinished()
 void MainWindow::on_actionDouble_click_on_call_sets_Tx_Enable_triggered(bool checked)
 {
   m_quickCall=checked;
+  if(checked) {
+    lab3->setText("Tx-Enable Armed");
+  } else {
+    lab3->setText("Tx-Enable Disarmed");
+  }
 }
 
 void MainWindow::on_rptSpinBox_valueChanged(int n)
