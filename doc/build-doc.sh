@@ -3,8 +3,8 @@
 # Description     : WSJT-X Documentation build script
 # Author          : KI7MT
 # Email           : ki7mt@yahoo.com
-# Date            : JAN-24-2014
-# Version         : 0.3
+# Date            : JAN-30-2014
+# Version         : 0.4
 # Usage           : ./build-doc.sh [ option ]
 # Notes           : requires asciidoc, source-highlight
 #==============================================================================
@@ -52,7 +52,7 @@ function build_support_pages() { # build all remaining pages
   echo -e ${green}'.. rig-config-main.html'${no_col}
 
   # setup rig file array
-  declare -a subpage=('adat' 'alinco' 'aor' 'drake' 'electro' 'flexrad' 'icom' \
+  declare -a subpage=('adat' 'alinco' 'aor' 'drake' 'elecraft' 'flexrad' 'icom' \
 'kenwood' 'softrock' 'tentec' 'yaesu')
   
   # loop through rig-config pages
@@ -64,7 +64,10 @@ function build_support_pages() { # build all remaining pages
 
   $c_asciidoc -o rig-config-template.html $src_dir/rig-config-template.adoc
   echo -e ${green}'.. rig-config-template.html'${no_col}
+}
 
+function build_quick_ref() { # build quick-reference guide
+  echo -e ${yellow}'Building Quick Reference Guide'${no_col}
   $c_asciidoc -a toc2 -o quick-reference.html $src_dir/quick-reference.adoc
   echo -e ${green}'.. quick-reference.html'${no_col}
 }
@@ -78,19 +81,23 @@ ${no_col}${yellow}" ***\n" ${no_col}
 if [[ $1 = "" ]]
   then
     build_no_toc
+    build_quick_ref
     build_support_pages
+
 
 # top TOC
 elif [[ $1 = "toc1" ]]
   then
     build_toc1
+    build_quick_ref
     build_support_pages
 
 # left TOC
 elif [[ $1 = "toc2" ]]
   then
-  build_toc2
-  build_support_pages
+    build_toc2
+    build_quick_ref
+    build_support_pages
 
 # all toc versions
 elif [[ $1 = "all" ]]
@@ -98,7 +105,13 @@ elif [[ $1 = "all" ]]
     build_no_toc
     build_toc1
     build_toc2
+    build_quick_ref
     build_support_pages
+
+# quick-reference.html only
+elif [[ $1 = "quick-ref" ]]
+  then
+  build_quick_ref
 
 # Usage: if something other than "", toc1, toc2 or all is entered as $1 display usage
 # message and exit.
