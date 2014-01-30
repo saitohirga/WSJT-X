@@ -1,9 +1,9 @@
 // Status=review
 // This is a comment line, anything with // is ignored at process time.
-= WSJT-X User Guide
+= WSJT-X User's Guide
 :Author: Joe Taylor, K1JT
-:Date: January 29, 2014, Copyright © 2012-2014
-:Revision: 1.2.2
+:Date: January 30, 2014, Copyright © 2012-2014
+:Revision: 1.3
 :badges:
 :icons:
 :numbered:
@@ -191,22 +191,24 @@ To be added ...
 == Frequently Asked Questions
 To be added ...
 
-[[APPA]]
-== Appendix A
+[[FILES]]
+== File Names
 
 // Note to Dev-Team, this list of files needs to be updated.
-[[APPA1]]
+[[FILES1]]
 === Installed Files
 include::installed-files.adoc[]
 
-[[APPA2]]
+[[FILES2]]
 === Runtime Files
 include::runtime-files.adoc[]
 
-[[APPB]]
-== Appendix B
-[[APPB1]]
-=== Rig Configuration
+[[UTIL]]
+== Utility Programs
+include::utilities.adoc[]
+
+[[RIG_CONFIG]]
+== Rig Configuration
 include::rig-config-main.adoc[]
 
 [[ACK]]

@@ -24,7 +24,7 @@ base_dir=$(pwd)
 src_dir="$base_dir/source"
 c_asciidoc="asciidoc -b xhtml11 -a max-width=1024px"    
 script_name=$(basename $0)
-doc_version="1.2.2"
+doc_version="1.3"
 
 # build functions
 function build_no_toc() { # no toc

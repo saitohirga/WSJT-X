@@ -2602,6 +2602,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Double-click on call sets Tx Enable</string>
    </property>
+   <property name="shortcut">
+    <string>F7</string>
+   </property>
   </action>
   <action name="action_73TxDisable">
    <property name="checkable">

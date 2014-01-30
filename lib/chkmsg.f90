@@ -23,9 +23,9 @@ subroutine chkmsg(message,cok,nspecial,flip)
      endif
   endif
 
-  if(message(1:2).eq.'RO')  nspecial=2
-  if(message(1:3).eq.'RRR') nspecial=3
-  if(message(1:2).eq.'73')  nspecial=4
+  if(message(1:3).eq.'RO ')  nspecial=2
+  if(message(1:4).eq.'RRR ') nspecial=3
+  if(message(1:3).eq.'73 ')  nspecial=4
 
   return
 end subroutine chkmsg
