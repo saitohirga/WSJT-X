@@ -1,6 +1,6 @@
 // Status=DRAFT
 // this is intentionally left as a single file v.s. multiple sections to allow
-// users to brows the Page Source
+// users to browse the Page Source
 = AsciiDoc Quick Reference
 :Author: WSJT-X Documetation Team
 :Date: January 22, 2014, Copyright © CC-BY-SA 3.0 Unported
