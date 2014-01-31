@@ -419,6 +419,7 @@ private:
     void rigOpen();
     void pollRigFreq();
     bool gridOK(QString g);
+    bool shortList(QString callsign);
     QString baseCall(QString t);
     void transmit (double snr = 99.);
 };
