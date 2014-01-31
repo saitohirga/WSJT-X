@@ -106,18 +106,26 @@ always displayed in the first label on the *Status Bar*, highlighted
 in yellow.  It is displayed there exactly as another station would
 receive it.
 
-A QSO between two stations using *Type 2* compound-callsign messages
-might look like this:
+QSOs involving *Type 2* compound callsigns might look like either
+of the following sequences
 
  CQ KP4/K1ABC FK68
-                     DE G0XYZ/P IO91
+                     K1ABC G0XYZ IO91
  G0XYZ K1ABC –19
                      K1ABC G0XYZ R–22
  G0XYZ K1ABC RRR
-                     DE G0XYZ/P 73
+                     K1ABC G0XYZ 73
+
+
+ CQ K1ABC FN42
+                     DE G0XYZ/W4 FM18
+ G0XYZ K1ABC –19
+                     K1ABC G0XYZ R–22
+ G0XYZ K1ABC RRR
+                     DE G0XYZ/W4 73
 
 Each operator sends his own compound callsign in the first (and
-perhaps also last) transmission, as may be required by licensing
+possibly also last) transmission, as may be required by licensing
 authorities.  Subsequent transmissions may use the standard structured
 messages without callsign prefix or suffix.
 
