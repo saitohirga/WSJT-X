@@ -366,6 +366,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
       border-style: outset; border-width: 1px; border-radius: 5px; \
       border-color: black; min-width: 5em; padding: 3px;}";
 
+  getpfx();                               //Load the prefix/suffix dictionary
   genStdMsgs(m_rpt);
   m_ntx=6;
   ui->txrb6->setChecked(true);
@@ -438,8 +439,6 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
       << "  " << m_dialFreq << " MHz  " << m_mode << endl;
   f2.close();
-
-  getpfx();
 }                                          // End of MainWindow constructor
 
 //--------------------------------------------------- MainWindow destructor
@@ -2121,9 +2120,10 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
   }
   QString hisBase=baseCall(hisCall);
   QString myBase=baseCall(m_myCall);
+
   QString t0=hisBase + " " + myBase + " ";
   t=t0 + m_myGrid.mid(0,4);
-  if(myBase!=m_myCall) t="DE " + m_myCall + " " + m_myGrid.mid(0,4);
+//  if(myBase!=m_myCall) t="DE " + m_myCall + " " + m_myGrid.mid(0,4);  //###
   msgtype(t, ui->tx1);
   if(rpt == "") {
     t=t+" OOO";
@@ -2139,12 +2139,33 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
     t=t0 + "RRR";
     msgtype(t, ui->tx4);
     t=t0 + "73";
-    if(myBase!=m_myCall) t="DE " + m_myCall + " 73";
+//    if(myBase!=m_myCall) t="DE " + m_myCall + " 73";                  //###
     msgtype(t, ui->tx5);
   }
 
   t="CQ " + m_myCall + " " + m_myGrid.mid(0,4);
   msgtype(t, ui->tx6);
+
+  if(m_myCall!=myBase) {
+    if(shortList(m_myCall)) {
+      t="CQ " + m_myCall;
+      msgtype(t, ui->tx6);
+    } else {
+      t="DE " + m_myCall + " " + m_myGrid.mid(0,4);
+      msgtype(t, ui->tx2);
+      t="DE " + m_myCall + " 73";
+      msgtype(t, ui->tx5);
+      t="CQ " + m_myCall + " " + m_myGrid.mid(0,4);
+      msgtype(t, ui->tx6);
+    }
+  } else {
+    if(hisCall!=hisBase) {
+      if(shortList(hisCall)) {
+        t=hisCall + " " + m_myCall;
+        msgtype(t, ui->tx2);
+      }
+    }
+  }
   m_ntx=1;
   ui->txrb1->setChecked(true);
   m_rpt=rpt;
@@ -3136,13 +3157,21 @@ void MainWindow::getpfx()
   m_suffix << "P" << "0" << "1" << "2" << "3" << "4" << "5" << "6" \
          << "7" << "8" << "9" << "A";
 
-  qDebug() << m_suffix.length() << m_prefix.length();
   for(int i=0; i<12; i++) {
     m_sfx.insert(m_suffix[i],true);
   }
   for(int i=0; i<339; i++) {
     m_pfx.insert(m_prefix[i],true);
   }
-  qDebug() << m_sfx.contains("4") << m_sfx.contains("X");
-  qDebug() << m_pfx.contains("ZD8") << m_pfx.contains("ZD6");
+\}
+
+bool MainWindow::shortList(QString callsign)
+{
+  int n=callsign.length();
+  int i1=callsign.indexOf("/");
+  Q_ASSERT(i1>0 and i1<n);
+  QString t1=callsign.mid(0,i1);
+  QString t2=callsign.mid(i1+1,n-i1-1);
+  bool b=(m_pfx.contains(t1) or m_sfx.contains(t2));
+\  return b;
 }
