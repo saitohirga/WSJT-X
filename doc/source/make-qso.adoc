@@ -121,6 +121,11 @@ perhaps also last) transmission, as may be required by licensing
 authorities.  Subsequent transmissions may use the standard structured
 messages without callsign prefix or suffix.
 
+IMPORTANT: It's up to you, the operator, to ensure that messages with
+compound callsigns are composed in the manner described above.
+Double-clicking on a line of decoded text may not always produce the
+desired result.
+
 === Pre-QSO Checklist
 
 Before attempting your first QSO with JT9 or JT65, be sure to go
