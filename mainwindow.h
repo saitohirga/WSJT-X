@@ -179,8 +179,8 @@ private slots:
   void on_actionTx2QSO_triggered(bool checked);  
   void on_cbPlus2kHz_toggled(bool checked);
   void on_outAttenuation_valueChanged (int);
-
   void on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered();
+  void getpfx();
 
 private:
   Q_SIGNAL void startAudioOutputStream (QAudioDeviceInfo, unsigned channels, unsigned msBuffered);
@@ -381,6 +381,11 @@ private:
     QStringList m_dFreq;           // per band frequency in MHz as a string
     QStringList m_antDescription;  // per band antenna description
     QStringList m_bandDescription; // per band description
+    QStringList m_prefix;
+    QStringList m_suffix;
+
+    QHash<QString,bool> m_pfx;
+    QHash<QString,bool> m_sfx;
 
     QDateTime m_dateTimeQSO;
 
