@@ -3163,7 +3163,7 @@ void MainWindow::getpfx()
   for(int i=0; i<339; i++) {
     m_pfx.insert(m_prefix[i],true);
   }
-\}
+}
 
 bool MainWindow::shortList(QString callsign)
 {
@@ -3173,5 +3173,5 @@ bool MainWindow::shortList(QString callsign)
   QString t1=callsign.mid(0,i1);
   QString t2=callsign.mid(i1+1,n-i1-1);
   bool b=(m_pfx.contains(t1) or m_sfx.contains(t2));
-\  return b;
+  return b;
 }
