@@ -155,7 +155,7 @@ echo $PATH
 #should return something like: /home/$USER/bin:/usr/local/sbin: .. .. ..
 ----- 
 
-NOTE:  You may have to log out and back in for the addition to take place.
+TIP:  You may have to log out and back in for the addition to take place.
 If need be, add the following to your shell profile, then source or
 log out / back in:
 

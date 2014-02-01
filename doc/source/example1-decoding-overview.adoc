@@ -10,7 +10,7 @@ The red marker indicates your Tx frequency.
 
 .Signal Presence
 
-NOTE: At least eight JT9 signals are present in the example file; all
+TIP: At least eight JT9 signals are present in the example file; all
 but one of them are decodable.  When this file was recorded KF4RWA was
 finishing a QSO with K1JT.  Since the green marker was placed at his
 audio frequency, 1224 Hz, his message “K1JT KF4RWA 73” appears in both
