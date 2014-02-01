@@ -18,7 +18,7 @@ JT9 signals would have been decoded first.
 [[X544]]
 image::images/130610_2343-wav-80.png[align="left",alt="Wide Graph Decode 130610_2343"]
 
-NOTE: Notice the [blue]*BLUE* marker on the waterfall scale, by
+TIP: Notice the [blue]*BLUE* marker on the waterfall scale, by
 default set at 2500 Hz.  Its position is set by the spinner control
 JT65 nnnn JT9, where nnnn is a frequency in Hz. In JT9+JT65 mode the
 program will decode JT65 signals below this frequency and JT9 signals

@@ -19,7 +19,7 @@ message from IZ0MIT:
 |2343|-7|0.3|3196|@|WB8QPG IZ0MIT -11
 |=====================================
 
-NOTE: Notice that when a signal is decoded in this way the Tx mode
+TIP: Notice that when a signal is decoded in this way the Tx mode
 automatically switches to that of the decoded signal.  The Rx and Tx
 frequency markers on the waterfall scale resize themselves
 accordingly.
