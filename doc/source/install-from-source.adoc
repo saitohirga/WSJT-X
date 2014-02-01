@@ -20,3 +20,5 @@ downloaded with the command:
   svn co svn://svn.berlios.de/wsjt/branches/wsjtx 
 
 // Need further compiling Instructions
+For some basic instructions on building _WSJT-X_ from source code, see the
+section <<COMPILING,Compiling WSJT-X>> near the end of this Guide.
