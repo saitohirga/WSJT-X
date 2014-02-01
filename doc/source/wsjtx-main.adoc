@@ -221,6 +221,10 @@ include::runtime-files.adoc[]
 == Utility Programs
 include::utilities.adoc[]
 
+[[COMPILING]]
+== Compiling WSJT-X
+include::compiling.adoc[]
+
 [[RIG_CONFIG]]
 == Rig Configuration
 include::rig-config-main.adoc[]
