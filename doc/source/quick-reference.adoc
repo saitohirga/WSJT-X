@@ -3,12 +3,11 @@
 // users to browse the Page Source
 = AsciiDoc Quick Reference
 :Author: WSJT-X Documetation Team
-:Date: January 22, 2014, Copyright (C) CC-BY-SA 3.0 Unported
+:Date: January 22, 2014, (C) copyright, CC-BY-SA 3.0 Unported
 :Revision: 0.0.1
 :badges:
 :icons:
 :numbered:
-:image_dir:
 
 // WEB links - List is getting pretty long, time to use include::file-name ??
 :asciidoc_help: http://www.methods.co.nz/asciidoc/userguide.html[ AsciiDoc User Guide ]
@@ -32,133 +31,236 @@
 
 // DOWNLOAD links
 :cty_dat: http://www.country-files.com/cty/[here].
+:cygwin: http://cygwin.com/install.html[here]
 :kvasd: http://physics.princeton.edu/pulsar/K1JT/kvasd[kvasd]
 :osx_108: http://physics.princeton.edu/pulsar/K1JT/wsjtx_3nov13.tar.gz[ OS X 10.6, 10.7, and 10.8 ]
 :osx_109: http://physics.princeton.edu/pulsar/K1JT/wsjtx_10.9_29nov13.tar.gz[ OS X 10.9 ]
 
 // MAIL-TO links
 :alex_efros: mailto:powerman@powerman.name[ Alex Efros ]
-:devmail: mailto:wsjt-devel@lists.berlios.de[wsjt-devel]
+:devmail: mailto:wsjt-devel@lists.berlios.de[ wsjt-devel ]
 :stuart_rackman: mailto:srackham@gmail.com[ Stuart Rackham ]
-
 
 [[X1]]
 == Introduction
-The purpose of this guide is to provide a quick reference to commonly used
-markup-up items for writing the {wsjtx} User Guide. Additional resources and
-examples can be found at:
+The purpose of this guide is to provide a quick reference to commonly used items
+while working with the _WSJT-X Documentation_ project. 
 
+=== AsciiDoc Examples
 * {asciidoc_help} by {stuart_rackman}
 * {asciidoc_questions} by {stuart_rackman}
 * {asciidoc_cheatsheet} by {alex_efros}
 
 [[X2]]
-== Asciidoc Installation
+== AsciiDoc installation
 
 For most packages, the normal method of installation is through their
 respective package manager. There are several reasons why we do not
 want this for the _WSJT-X User Guide_:
 
-* Most packaged applications are installed system-wide, which means standard
-pivilaged (non Root / RootSudo) users update their binaries.
+* Most package applications are installed system-wide, which means standard
+privileged (non Root / RootSudo) users update their binaries.
 * Often times, distro packages are (1) or more revisions behind.
 * Updating to the latest stable _AsciiDoc_ version, using Mercurial, is a simple
-one line command or simply clone the latest release.
+one line command.
 * Using $HOME makes working on the _WSJT-X User Guide_ portable, such as,
 installing to a USB Key allows testing of your work on virtually any system
 which has _Python_ {amp}{amp} _Bash Enviroment_ installed.
-
-// Several more items pending addition
-*Further Edit's Pending*
 
 [[X21]]
 === Windows
 .WinXP thru Win8
 
-content
+The preferred method of installing _AsciiDoc_ on Windows is through _Cygwin_.
 
-[[X22]]
-=== Linux
-.Debian, Ubuntu, Mint {amp} Relatives
-// Rouch Draft, needs verified.
+TIP: You can install _Cygwin_ anywhere you like, hard drive, internal, external
+or to a USB Key. 
 
-There are many relatives of Debian {amp} Ubuntu, and most shells are _Bash_. For
-all but the package-manager commands,you shoult be able to _Copy {amp} Paste_
-the commands directly into the terminal.
+==== Download the _Cygwin_ Installer
+* For a 32-bit system, download http://cygwin.com/setup-x86.exe[Setup-x86.exe]
+* For a 64-bit system, download http://cygwin.com/setup-x86_64.exe[Setup-x86-64.exe]
+* For additional information, see http://cygwin.com/install.html[Cygwin.com]
+* Saving the installer to desktop makes updating quick {amp} easy
 
-* It's a good idea to always start from a fresh repository list, and to have the
-instll up to date before adding new packages.
+==== Running the installer
+* Double click the _Cygwin Installer_
+* Select Install from Internet
+* Root Directory: C:\cygwin
+* Select for All Users
+* Package Download Directory: C:\cygdownloads
+* Select Direct Connection
+* I use ftp://mirrors.kernel.org
 
+==== Cygwin package selection
+
+At the top left corner of the install GUI, you will find a search box. Enter the
+package name, then select it from the areas indicated below. Only the primary
+packages are needed, [red]#not# additional modules.
+
+* Use *Search Box*:
+** *python* => Interpreters => Python language interpreter
+** *mercurical* => Devel => Python based DVCS
+** *subversion* => Devel => A version control system
+** *source-highlight* => Text => Syntax highlighting utilities
+** *openssh* => Net => The OpenSSH server and client programs
+** *nano* => Editors => Enhanced clone of Pico editor
+** *ncurses* => Utils => Utilities for terminal handling
+* Then, next to start installation
+* At create icons and short-cuts, I select desktop only
+
+==== Verify package installation
+
+When _Cygwin_ finishes the installation, you will have a very capable base
+system to work with. From this point onward, all actions are performed in the
+_Cygwin Terminal_. To launch a terminal session, simply double click the
+desktop icon as you would any other Windows application.
+
+==== Package Verification
 [source,bash]
 -----
-sudo apt-get update && sudo apt-get upgrade
------
-
-* Install Dependencies
-
-[source,bash]
------
-# on most distro's, python is already installed
-sudo apt-get install mercurial source-highlight subversion
------
-
-* Check Python, hg, Subversion and Source Highlight are installed
-
-[source,bash]
------
+# one line per action
 python -V
 hg --version |head -n1
 svn --version |head -n1
 source-highlight --version |head -n1
------
 
-* Should Return:
-
-[source,bash]
------
-# your versions may vary slightly
+# Your versions may vary slightly
 Python 2.7.6
 svn, version 1.7.14
 Mercurial Distributed SCM (version 2.8.2)
 GNU Source-highlight 3.1.6
 -----
 
-IMPORTANT: If any package check returns with an error, resolve before
+CAUTION: If any package check returns with an error, resolve before
 continuing !!
 
-* Check for Previous AsciiDoc Installation
+==== Configure _Bash Environment_
+[source,bash]
+-----
+# Edit ./.bash_profile, uncomment if statement:
+nano ./.bash_profile
+
+# Find and Change too: (remove # sign for all 3 lines)
+if [ -d "$HOME/bin" ] ; then
+   PATH="$HOME/bin:$PATH"
+fi
+
+# Ctrl+X to exit, Y to confirm, then Enter to save
+# Create directories, source .bash_profile, check $PATH:
+mkdir -p $HOME/bin $HOME/Projects/documentation/wsjtx
+source ./.bash_profile
+echo $PATH
+
+# You should see /home/$USER/bin at the beginning of the string.
+
+-----
+
+==== Download and Configure _AsciiDoc_
 
 [source,bash]
 -----
-# ckeck if AsciiDoc is already installed:
+# one action per line
+cd ~/bin
+
+# get latest AsciiDoc build
+hg clone -r 8.6.9 https://asciidoc.googlecode.com/hg/ asciidoc-8.6.9
+
+# pull updates and upgrade packages
+cd asciidoc-8.6.9 && hg pull && hg update && hg upgrade && cd ..
+
+# link binaries to $HOME/bin
+ln -s ~/bin/asciidoc-8.6.9/asciidoc.py ~/bin/asciidoc
+
+# check AsciiDoc runs properly
+asciidoc --version
+
+# Should return: asciidoc 8.6.9
+
+-----
+
+==== Test build _WSJT-X User Guide_
+[source,bash]
+-----
+cd ~/Projects/documentation/wsjtx
+
+# then;
+
+cd ~/Projects/documentation/wsjtx && ./build-doc.sh toc2
+-----
+
+==== Open _WSJT-X User Guide_ in a browser
+[source,bash]
+-----
+# for chromium
+cygstart chrope wsjtx-main-toc2.html
+
+# for FireFox
+cygstart firefox wsjtx-main-toc2.html
+-----
+
+[[X22]]
+=== Linux
+.Debian, Ubuntu, Mint {amp} Relatives
+
+There are many relatives of Debian {amp} Ubuntu, and most shells are _Bash_. For
+all but the package-manager commands, you should be able to _Copy {amp} Paste_
+directly into the terminal.
+
+It is a good idea to always start from a fresh repository list, and to have the
+install up to date before adding new packages.
+
+==== Install Dependencies
+[source,bash]
+-----
+# For Debian and relatives, update && Upgrade first
+sudo apt-get update && sudo apt-get upgrade
+
+# Install Dependencies
+sudo apt-get install mercurial source-highlight subversion
+
+# Verify the packages installed properly
+python -V
+hg --version |head -n1
+svn --version |head -n1
+source-highlight --version |head -n1
+
+# Your versions may vary slightly
+Python 2.7.6
+svn, version 1.7.14
+Mercurial Distributed SCM (version 2.8.2)
+GNU Source-highlight 3.1.6
+-----
+
+CAUTION: If any package check returns with an error, resolve before
+continuing !!
+
+==== Check for Previous AsciiDoc Installation
+[source,bash]
+-----
+# check if AsciiDoc is already installed:
 asciidoc --version
 
 # If Bash returns any version, remove it:
 sudo apt-get purge asciidoc
+
 -----
 
-* Add Directories and source profiles
-
+==== Add Directories and source profile
 [source,bash]
 -----
 mkdir -p $HOME/bin $HOME/Projects/documentation/wsjtx
-
 source ~/.bashrc && source ~/.profile
------
-
-* Check $HOME/bin is in your $PATH
-
-[source,bash]
------
 echo $PATH
 
-#should return something like: /home/$USER/bin:/usr/local/sbin: .. .. ..
+# should return something like: /home/$USER/bin:/usr/local/sbin: .. .. ..
+
 ----- 
 
 TIP:  You may have to log out and back in for the addition to take place.
 If need be, add the following to your shell profile, then source or
 log out / back in:
 
+==== Add conditional to ~/.bashrc
 [source,bash]
 -----
 if [ -d "$HOME/bin" ]
@@ -167,51 +269,39 @@ then
 fi
 -----
 
-* Download and Configure _AsciiDoc_ use _Copy {amp} Paste_
-
+==== Download and Configure _AsciiDoc_
 [source,bash]
 -----
 # one action per line
 cd ~/bin
 
+# get latest AsciiDoc build
 hg clone -r 8.6.9 https://asciidoc.googlecode.com/hg/ asciidoc-8.6.9
 
+# pull updates and upgrade packages
 cd asciidoc-8.6.9 && hg pull && hg update && hg upgrade && cd ..
 
+# link binaries to $HOME/bin
 ln -s ~/bin/asciidoc-8.6.9/asciidoc.py ~/bin/asciidoc
 
+# check AsciiDoc runs properly
 asciidoc --version
 
 # Should return: asciidoc 8.6.9
+
 -----
 
-* Test build _WSJT-X User Guide_
-
+==== Test build _WSJT-X User Guide_
 [source,bash]
 -----
 cd ~/Projects/documentation/wsjtx
------ 
 
-TIP: There are two commands generally used, _svn export_ and _svn checkout_.
-_svn export_ does _[red]#not#_ pull history ( the .svn folders ), and you cannot
-be updated later. _svn checkout_ does pull history and allows you to use _svn up_
-to bring you local copy to the latest repo level.
-
-[source,bash]
------
-svn export svn://svn.berlios.de/wsjt/branches/wsjtx/doc
-
-# and / or
-
-svn checkout svn://svn.berlios.de/wsjt/branches/wsjtx/doc
-
-# then
+# then;
 
 cd ~/Projects/documentation/wsjtx && ./build-doc.sh toc2
 -----
 
-* Now Open wsjtx-main-toc.html
-
+==== Open _WSJT-X User Guide_ in a browser
 [source,bash]
 -----
 # for chromium
@@ -221,46 +311,61 @@ chromium-browser wsjtx-main-toc2.html
 firefox wsjtx-main-toc2.html
 -----
 
-
-[[X23]]
 === OS X
 .10.8 {amp} 10.9
 
-content
+content needed
 
-[[X3]]
-== How To Contribute
-.under contstruction
+== Using the Terminal
+.Tips {amp} Tricks to make things easier
 
-content
+Add content
 
-=== Dev List Email
-.under contstruction
+=== Alias - Short cuts
 
-content
+add content
 
-=== Join {amp} Commit
-.under contstruction
+=== Add Some Color
 
-content
+add content
 
-=== Submit Patch
-.under contstruction
+=== Search Documents
 
-content
+add content
 
-=== Yahoo Group Post
-.under contstruction
+=== Recursive Replace
 
-content
+add content
 
-[[X36]]
-=== Text
-.Under Construction
+=== Document Status
 
-content
+add content
 
-[[XA1]]
+== SVN Basics
+.Commonly used svn commands
+
+Add content
+
+=== Devel Accounts
+.Developer and normal users
+
+add content
+
+=== Check-In/Out
+.Commonly used commands
+
+add content
+
+=== Using Patches
+.How to create and apply patches
+
+add content
+
+=== Log Usage
+.How to get the most from svn logs
+
+add content
+
 == Appendix A: Credits
 .Authors, Editors, Commiters
 If you worked on the documentation, add yourself to the list.
