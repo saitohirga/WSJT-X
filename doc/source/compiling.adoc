@@ -1,0 +1,111 @@
+// Status=review
+// Note to developers. The URL http://developer.berlios.de/projects/wsjt/. is
+// to a very old src version of WSJT 5.7 or so. WSJTX is not listed at all.
+// Also, all the Qt4 stuff is now obsolete, and needs to be updated.
+
+This section is under development.  Please send feedback to KI7MT.
+
+=== Linux Makefile Example
+
+// We need a better solutuion, I basically used my buuild scripts to outline
+// The steps here. Auto-tools or a good script much better way to go.
+
+The example below has been tested on Ubuntu 64-bit: 12.04-LTS, 13.10
+and 14.04-Dev. Source code is available from the public repository at
+{devsvn}. To compile the program you will need to install the
+following packages:
+
+.General Pkg Requirments
+[horizontal]
++gcc+:: GNU C Compiler
++g{plus}{plus}+:: GNU C{plus}{plus} Compiler
++gfortran+:: GNU FOrtran or F90
++make+:: GNU Make
++libqt5multimedia5-plugins+:: QT5 Media Plugins
++libfftw3-dev+:: Fast Fourier Transformation
++libpulse-dev+:: Headers and Files for Pulse AUdio
++libhamlib-dev+:: Headers and Files for Hamlib
++qtbase5-dev+:: QT5 Base Dev Files
++qtmultimedia5-dev+:: Qt5 Multimedsia Dev Files
++pulseaudio+:: Pulse Audio Sound Driver
++subversion+:: Version Control Software
+
+.kvasd 32-bit required libraries
+[horizontal]
++libgfortran.so.3+:: from => libgfortran3:i386
++libc.so.6+:: from => libc6-i386
++libm.so.6+:: from => libc6-i386
++libgcc_s.so.1+:: from => lib32gcc1:i386
++libquadmath.so.0+:: from => lib32quadmath0
+
+.Setup and Build
+[source,bash]
+-----
+# In a terminal Ctrl+Alt+T
+# Each line is seperate action - Copy & Paste
+mkdir -p ~/Projects/wsjtx-build && cd ~/Projects/wsjtx-build
+svn co svn://svn.berlios.de/wsjt/branches/wsjtx
+cd ./wsjtx/lib && make -f Makfile.linux
+cd ../ && export QT_SELECT=qt5 && qmake
+j_c=$(grep -c ^processor /proc/cpuinfo) && make -j$j_c
+# now mv wsjtx_intall to the new rev-number
+rev_num=$(svn log -l1 |awk 'FNR==2 {print $1}')
+mv ./wsjtx_install ./wsjtx-$rev_num
+-----
+
+TIP: You should now have (3) files in ./wjstx-$rev_num (jt9, jt9code
+and wsjtx).  By moving the directory, your setup for a clean make
+again if need be.
+
+.Finial Configuraiton
+Before running _WSJT-X_, we need to download kvasd, and link several
+file(s).
+
+[source,bash]
+-----
+# cd to the launch directory
+cd ./wsjtx-$rev_num
+
+wget http://www.physics.princeton.edu/pulsar/K1JT/kvasd
+chmod +x ./kvasd
+
+# Links Files and Folders
+ln -s ../wsjtx/kvasd ./kvasd
+ln -s ../wsjtx/kvasd.dat ./kvasd.dat
+ln -s ../wsjtx/CALL3.TXT ./CALL3.TXT
+ln -s ../wsjtx/cty.dat ./cty.dat
+ln -s ../wsjtx/Palettes ./Palettes
+ln -s ../wsjtx/samples ./samples
+ln -s ../wsjtx/mouse_commands.txt ./mouse_commands.txt
+ln -s ../wsjtx/shortcuts.txt ./shortcuts.txt
+ln -s ../wsjtx/prefixes.txt ./prefixes.txt
+-----
+
+IMPORTANT: You can copy or link the files {amp} folders but make sure
+they are in the same directory as the _WSJT-X_ binary.
+
+.Test kvasd Can Run Properly
+Before you run _WSJT-X_, you should ensure _kvasd_ is available and
+functioning properly. While still in wsjtx-$rev_num ;
+
+[source,bash]
+-----
+# Test to ensure kvasd has all the requred libraries it needs with:
+ldd ./kvasd
+
+# If there were no missing library links, test that kvasd will run
+./kvasd
+
+# If sucessful, K1JT's copyright message should be displayed.
+-----
+
+.Run the New Binary
+[source,bash]
+-----
+./wsjtx
+-----
+
+// Need example using CMakefile
+//=== Linux, CMake Example
+
+// Need further compiling Instructions
