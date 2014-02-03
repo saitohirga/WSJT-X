@@ -10,12 +10,7 @@
 #==============================================================================
 
 # exit on error
-# AsciiDoc "not found warnings" will not force the script to exit
 set -e
-
-# Trap Ctril+C, Ctrl+Z and quit signals
-# TO-DO: Add additional clean-exit function
-trap '' SIGINT SIGQUIT SIGTSTP
 
 #add some color
 red='\033[01;31m'
@@ -31,8 +26,32 @@ c_asciidoc="asciidoc -b xhtml11 -a max-width=1024px"
 script_name=$(basename $0)
 doc_version="1.3"
 
+# declare build array's
+declare -a no_toc_ary=('head_wording' 'build_no_toc')
+declare -a top_toc_ary=('head_wording' 'build_toc1')
+declare -a left_toc_ary=('head_wording' 'build_toc2')
+declare -a all_docs_ary=('head_wording' 'build_no_toc' 'build_toc1' 'build_toc2' \
+'build_quick_ref' 'build_dev_guide')
+declare -a web_package_ary=('package_wording' 'build_toc2')
+
 #######################
-# set-up functions
+# clean-exit
+#######################
+
+function clean_exit() {
+	clear
+	echo -e ${yellow}'Signal caught, cleaning up and exiting.'${no_col}
+	sleep 1
+	[ -d "$base_dir/tmp" ] && rm -r $base_dir/tmp
+	echo -e ${yellow}'. Done'${no_col}
+	exit 0
+}
+
+# Trap Ctrl+C, Ctrl+Z and quit signals
+trap clean_exit SIGINT SIGQUIT SIGTSTP
+
+#######################
+# general functions
 #######################
 
 # build with no table of contents
@@ -66,16 +85,7 @@ function build_support_pages() {
 # setup rig file array
 	declare -a rig_page_ary=('adat' 'alinco' 'aor' 'drake' 'elecraft' 'flexrad' 'icom' \
 'kenwood' 'softrock' 'tentec' 'yaesu')
-  
-# loop through rig-config pages
-	for rig in "${rig_page_ary[@]}"
-	do
-		$c_asciidoc -a toc2 -o rig-config-$rig.html $src_dir/rig-config-$rig.adoc
-		echo -e ${green}".. rig-config-$rig.html"${no_col}
-	done
 
-	$c_asciidoc -o rig-config-template.html $src_dir/rig-config-template.adoc
-	echo -e ${green}'.. rig-config-template.html'${no_col}
 } # end all toc version
 
 # build quick-reference guide
@@ -92,75 +102,188 @@ function build_dev_guide() {
   echo -e ${green}'.. dev-guide.html'${no_col}
 } # end dev-guide
 
+function head_wording() {
+clear
+echo -e ${yellow}"Building WSJT-X Documentation "${cyan}'v'$doc_version"\n" ${no_col}
+}
+
+function quick_ref_wording() {
+clear
+echo -e ${yellow}"Building Quick Reference Documentation\n"${no_col}
+}
+
+function dev_guide_wording() {
+clear
+echo -e ${yellow}"Building Quick Reference Documentation\n"${no_col}
+}
+
+function package_wording() {
+clear
+echo -e ${yellow}"Building Transfer Package\n"${no_col}
+}
+
 # help menu options
 function help_menu() {
 	clear
-    echo -e ${green}"BUILD SCRIPT HELP NMENU\n"${no_col}
+    echo -e ${green}"BUILD SCRIPT HELP MENU\n"${no_col}
     echo 'USAGE: build-doc.sh [ option ]'
 	echo
-	echo 'OPTIONS: toc1 toc2 all dev-guide quick-ref help'
+	echo 'OPTIONS: toc1 toc2 all dev-guide quick-ref help web'
 	echo
     echo -e ${yellow}'WSJT-X User Guide Options:'${no_col}
     echo ' [1] No Table of Contents'
     echo ' [2] Top Table of Contents '
     echo ' [3] Left Table of Contents'
-    echo ' [4] Build All Guide Versions'
+    echo ' [4] All Guide Versions'
 	echo -e ${yellow}"\nSingle Guide Builds"${no_col}
 	echo ' [5] Development Guide'
 	echo ' [6] Quick Reference Guide'
     echo ' [0] Exit'
 	echo
 }
-function custom_wording() {
-clear
-echo -e ${yellow}"WSJT-X Documentation "${cyan}'v'$doc_version"\n" ${no_col}
+
+# WSJT-X User Guide transfer for Joe
+function build_index_html(){
+
+# create re-direct index.html
+cat << EOF > ./index.html
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" 
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+  <head>
+    <title>WSJT-X User Guide</title>
+    <meta name="description" content="Software for Amateur Radio 
+	Weak-Signal Communication" />
+    <meta name="keywords" content="amateur radio weak signal communication K1JT 
+	WSJT FSK441 JT65 JT6M" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta content="Joe Taylor, K1JT" name="author" />
+	<meta http-equiv="refresh" content="0; 
+	url=http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main-toc2.html" />
+  </head>
+EOF
+}
+function build_transfer_package() {
+
+[ -d ./tmp ] && rm -r ./tmp
+
+# check if wsjtx-main-toc2.html exists
+build_file="wsjtx-main-toc2.html"
+old_html=$(ls -1 ./*.html 2>/dev/null | wc -l)
+
+if [[ $old_file != 0 ]]
+then 
+	echo "The docs's directory has previous build files"
+	echo
+	read -p "Would you like a clean User Guide build before packaging? [ Y/N ]: " yn
+	case $yn in
+	[Yy]* )
+		clear
+		echo "Removing old html files, and rebuilding"
+		sleep 1
+		rm ./*.html
+		package_wording
+		build_index_html
+		mkdir -p ./tmp
+		cp -r $base_dir/images/ $base_dir/tmp/			
+		for f in "${web_package_ary[@]}"; do $f; done
+		mv ./*.html $base_dir/tmp
+		echo
+		echo -e ${yellow}"Preparing Archive File"${no_col}
+		sleep 1
+		cd $base_dir/tmp && tar -czf ../wsjtx-doc.tar.gz .
+		cd .. && rm -r $base_dir/tmp/
+		break;;
+	[Nn]* )
+		clear
+		echo "Ok, will package without rebuilding."
+		sleep 1
+		break;;
+	* )
+		clear
+		echo "Please answer with "Y" yes or "N" No.";;
+	esac
+#done
+else
+	# continue packaging
+	package_wording
+	mkdir -p ./tmp
+	cp -r $base_dir/images/ $base_dir/tmp/			
+	build_index_html
+	for f in "${web_package_ary[@]}"; do $f; done
+	cp ./*.html $base_dir/tmp
+	echo
+	echo -e ${yellow}"Preparing Archive File"${no_col}
+	sleep 1
+	cd $base_dir/tmp && tar -czf ../wsjtx-doc.tar.gz .
+	cd .. && rm -r $base_dir/tmp/
+fi
+
+# check that a file was actually created
+web_file="wsjtx-doc.tar.gz"
+if [ -e "$web_file" ]
+then
+	clear
+	echo
+	echo -e ${green}"$PWD/$web_file is ready for transfer"
+	echo
+	exit 0
+else
+	clear
+	echo
+	echo -e ${red}'Whoopsie!!'
+	echo -e "$web_file was not found, check for script errors."${no_col}
+	echo
+	exit 1
+fi
 }
 
 #######################
 # start the main script
 #######################
 
-# declare build array's
-declare -a no_toc_ary=('custom_wording' 'build_no_toc' 'build_support_pages')
-declare -a top_toc_ary=('custom_wording' 'build_toc1' 'build_support_pages')
-declare -a left_toc_ary=('custom_wording' 'build_toc2' 'build_support_pages')
-declare -a all_docs_ary=('custom_wording' 'build_no_toc' 'build_toc1' 'build_toc2' \
-'build_quick_ref' 'build_dev_guide' 'build_support_pages')
-
-# start builds
-clear
-echo -e ${yellow}"WSJT-X Documentation "${cyan}'v'$doc_version"\n"${no_col}
-
-# build options for direct command line entry: ./build-doc.sh [ option ]
-# build without table of contents
+# COMMAND LINE OPTIONS
 if [[ $1 = "" ]]
 	then
-		for f in "${no_toc_ary[@]}"; do $f; done
+	head_wording
+	for f in "${no_toc_ary[@]}"; do $f; done
 
 # build top table of contents
 elif [[ $1 = "toc1" ]]
 	then
+		head_wording
 		for f in "${top_toc_ary[@]}"; do $f; done
 
 # build left table of contents
 elif [[ $1 = "toc2" ]]
 	then
+		head_wording
  		for f in "${left_toc_ary[@]}"; do $f; done
 
 # build all table of content versions
 elif [[ $1 = "all" ]]
 	then
+		head_wording
  		for f in "${all_docs_ary[@]}"; do $f; done
 
 # build quick-reference only
 elif [[ $1 = "quick-ref" ]]
 	then
+	clear
 	build_quick_ref
 
 # build dev-guide only
 elif [[ $1 = "dev-guide" ]]
 	then
+	clear
 	build_dev_guide
+
+# bundle web_package
+elif [[ $1 = "web" ]]
+	then
+		package_wording
+		build_transfer_package
 
 # For HELP and undefined option entries
 # NOTE: The case $SELECTIOIN should mirror the if [ .. ] statements
@@ -197,13 +320,12 @@ else
 				exit 0
 				;;
 			"0")
-				trap - SIGINT SIGQUIT SIGTSTP
 				exit 0
 				;;
 		esac
 	done
 fi
   echo
-  echo -e ${yellow}'All HTML files saved to:'${no_col}${cyan} "$base_dir" ${no_col}
+  echo -e ${yellow}'HTML files saved to:'${no_col}${cyan} "$base_dir" ${no_col}
   echo
-exit 0
+  exit 0
