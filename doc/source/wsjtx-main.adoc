@@ -203,7 +203,7 @@ To be added ...
 
 [[FAQ]]
 == Frequently Asked Questions
-To be added ...
+include::faq.adoc[]
 
 [[FILES]]
 == File Names
