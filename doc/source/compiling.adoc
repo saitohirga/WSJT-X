@@ -3,19 +3,36 @@
 // to a very old src version of WSJT 5.7 or so. WSJTX is not listed at all.
 // Also, all the Qt4 stuff is now obsolete, and needs to be updated.
 
-This section is under development.  Please send feedback to KI7MT.
+This section is under development. Please send feedback to 
+mailto:ki7mt@yahoo.com[KI7MT].
 
-=== Linux Makefile Example
+=== Linux Makefile
 
-// We need a better solutuion, I basically used my buuild scripts to outline
-// The steps here. Auto-tools or a good script much better way to go.
+CAUTION: The WSJT-X developers provide Makefile.linux for source compiling. It
+should be understood, this method of installation is for development testing
+only. There is no guarantee the build will be successful each revision, nor
+provide a stable binary if the build is successful. 
 
-The example below has been tested on Ubuntu 64-bit: 12.04-LTS, 13.10
-and 14.04-Dev. Source code is available from the public repository at
-{devsvn}. To compile the program you will need to install the
-following packages:
+The following process has been tested against Ubuntu 12.04 and 14.04-DEV 64-bit
+desktop installation. Additional Linux/BSD build guidance will be added as
+and when it becomes available.
 
-.General Pkg Requirments
+.Ubuntu 12.04 specific notes
+* Reference: https://launchpad.net/~ubuntu-sdk-team/+archive/ppa[Ubuntu SDK Notice]
+* Ubuntu 12.04 requires an [ PPA ] in order to download and install the required
+Qt5 libraries.
+
+==== For Ubuntu 12.04 Only
+[source,bash]
+-----
+# Add the following PPA, and upgrade your system
+sudo add-apt-repository ppa:ubuntu-sdk-team/ppa
+sudo apt-get update
+sudo apt-get dist-upgrade
+sudo apt-get install ubuntu-sdk
+-----
+
+==== Build dependencies
 [horizontal]
 +gcc+:: GNU C Compiler
 +g{plus}{plus}+:: GNU C{plus}{plus} Compiler
@@ -30,7 +47,15 @@ following packages:
 +pulseaudio+:: Pulse Audio Sound Driver
 +subversion+:: Version Control Software
 
-.kvasd 32-bit required libraries
+.Install dependencies
+[source,bash]
+-----
+sudo apt-get install gcc g++ gfortran make libqt5multimedia5-plugins \
+libfftw3-dev libpulse-dev libhamlib-dev qtbase5-dev qtmultimedia5-dev \
+pulseaudio subversion
+-----
+
+.kvasd 32-bit dependencies
 [horizontal]
 +libgfortran.so.3+:: from => libgfortran3:i386
 +libc.so.6+:: from => libc6-i386
@@ -38,28 +63,35 @@ following packages:
 +libgcc_s.so.1+:: from => lib32gcc1:i386
 +libquadmath.so.0+:: from => lib32quadmath0
 
-.Setup and Build
+.Install kvasd 32-bit dependencies
+[source,bash]
+-----
+sudo apt-get install libgfortran3:i386 libc6-i386
+-----
+
+.Set up and build
 [source,bash]
 -----
 # In a terminal Ctrl+Alt+T
 # Each line is seperate action - Copy & Paste
+
 mkdir -p ~/Projects/wsjtx-build && cd ~/Projects/wsjtx-build
 svn co svn://svn.berlios.de/wsjt/branches/wsjtx
 cd ./wsjtx/lib && make -f Makfile.linux
 cd ../ && export QT_SELECT=qt5 && qmake
 j_c=$(grep -c ^processor /proc/cpuinfo) && make -j$j_c
-# now mv wsjtx_intall to the new rev-number
+
+# mv wsjtx_intall to the new rev-number
 rev_num=$(svn log -l1 |awk 'FNR==2 {print $1}')
 mv ./wsjtx_install ./wsjtx-$rev_num
+
 -----
 
 TIP: You should now have (3) files in ./wjstx-$rev_num (jt9, jt9code
-and wsjtx).  By moving the directory, your setup for a clean make
-again if need be.
+and wsjtx). By moving the directory, your ready for the next build cycle.
 
-.Finial Configuraiton
-Before running _WSJT-X_, we need to download kvasd, and link several
-file(s).
+.Final configuraiton
+Before running _WSJT-X_, download _kvasd_, and link required run files.
 
 [source,bash]
 -----
@@ -69,7 +101,10 @@ cd ./wsjtx-$rev_num
 wget http://www.physics.princeton.edu/pulsar/K1JT/kvasd
 chmod +x ./kvasd
 
-# Links Files and Folders
+# IMPORTANT: You can copy or link the files / folders, but make sure
+# they are in the same directory as the wsjtx binary.
+
+# Link or cp the following files & folders
 ln -s ../wsjtx/kvasd ./kvasd
 ln -s ../wsjtx/kvasd.dat ./kvasd.dat
 ln -s ../wsjtx/CALL3.TXT ./CALL3.TXT
@@ -81,25 +116,22 @@ ln -s ../wsjtx/shortcuts.txt ./shortcuts.txt
 ln -s ../wsjtx/prefixes.txt ./prefixes.txt
 -----
 
-IMPORTANT: You can copy or link the files {amp} folders but make sure
-they are in the same directory as the _WSJT-X_ binary.
-
-.Test kvasd Can Run Properly
-Before you run _WSJT-X_, you should ensure _kvasd_ is available and
-functioning properly. While still in wsjtx-$rev_num ;
+.Test kvasd
+Before you run _WSJT-X_, ensure _kvasd_ has its required libraries.
 
 [source,bash]
 -----
-# Test to ensure kvasd has all the requred libraries it needs with:
+cd wsjtx-$rev_num
 ldd ./kvasd
 
-# If there were no missing library links, test that kvasd will run
+# If there were no missing links, test _kvasd_
 ./kvasd
 
-# If sucessful, K1JT's copyright message should be displayed.
+# If sucessful, the K1JT copyright message will be displayed.
+
 -----
 
-.Run the New Binary
+.Run the new binary
 [source,bash]
 -----
 ./wsjtx

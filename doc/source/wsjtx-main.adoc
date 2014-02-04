@@ -7,7 +7,6 @@
 :badges:
 :icons:
 :numbered:
-:image_dir:
 
 // If the list of links gets too long, we can add a url-file that is pulled
 // in when and where needed with the following:
@@ -81,7 +80,7 @@ include::install-mac.adoc[]
 // Note to developers. The URL http://developer.berlios.de/projects/wsjt/. is
 // to a very old src version of WSJT 5.7 or so. WSJTX is not listed at all.
 // Also, all the Qt4 stuff is now obsolete, and needs to be updated.
-// Instructions for source builds Win, *Nix & Mac all need to be written / 
+// Instructions for source builds Win, \*Nix & Mac all need to be written / 
 // Rreviewd.
 
 [[SRC_CODE]]
