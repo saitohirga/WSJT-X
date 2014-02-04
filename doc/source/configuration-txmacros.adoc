@@ -1,9 +1,0 @@
-// Status=review
-
-*Tx Macros* are an aid for sending commonly used free-text messages.
-To enable a pull-down selection, add your custom messages to the entry
-fields provided.  In JT65 and JT9 the maximum free-text message length
-is 13 characters, including spaces.
-
-[[FigTxMacros]]
-image::images/tx-macros.png[align="left"]

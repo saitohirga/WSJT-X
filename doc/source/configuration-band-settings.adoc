@@ -1,9 +1,0 @@
-// Status=review
-
-The Band Settings tab allows you to define the default frequency and
-enter a brief description of your antenna for each amateur band.  The
-antenna information will be included with reception reports to
-{pskreporter}, if enabled.
-
-[[FigBandSettings]]
-image::images/band-settings.png[align="left"]

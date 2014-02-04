@@ -1,5 +1,0 @@
-// Status=review
-- Select JT9+JT65 on the Mode menu
-- Toggle the Tx mode button to read Tx JT65, and set the Tx and Rx frequencies
-to 1718 Hz.
-- Double-click on Erase to clear both text windows
