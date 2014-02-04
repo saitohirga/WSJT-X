@@ -164,15 +164,15 @@ cat << EOF > ./index.html
   </head>
 EOF
 }
+
 function build_transfer_package() {
 
 [ -d ./tmp ] && rm -r ./tmp
 
 # check if wsjtx-main-toc2.html exists
 build_file="wsjtx-main-toc2.html"
-old_html=$(ls -1 ./*.html 2>/dev/null | wc -l)
 
-if [[ $old_file != 0 ]]
+if [[ $(ls -1 ./*.html 2>/dev/null | wc -l) > 0 ]]
 then 
 	echo "The docs's directory has previous build files"
 	echo
