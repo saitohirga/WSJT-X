@@ -204,7 +204,6 @@ then
 		clear
 		echo "Please answer with "Y" yes or "N" No.";;
 	esac
-#done
 else
 	# continue packaging
 	package_wording
