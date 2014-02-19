@@ -3,19 +3,25 @@
 #   C> make > junk1 2>&1
 
 # Set paths
-EXE_DIR = ../../wsjtx_install
-#INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
-#	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
-#	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/ActiveQt' \
-#	 -I'release' -I'.' -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/mkspecs/win32-g++'
+EXE_DIR = ..\..\wsjtx_install
+QT_DIR = c:/QtSDK/Desktop/Qt/4.7.4/mingw
 
-INCPATH = -I'C:/Qt/Qt5.1.0/5.1.0/mingw48_32/include/QtCore' \
-	-I'C:/Qt/Qt5.1.0/5.1.0/mingw48_32/include' \
+#INCPATH = -I'${QT_DIR}/include/QtCore' \
+#	 -I'${QT_DIR}/include' \
+#	 -I'${QT_DIR}/include/ActiveQt' \
+#	 -I'release' -I'.' -I'${QT_DIR}/mkspecs/win32-g++'
+
+INCPATH = -I'${QT_DIR}/include/QtCore' \
+	-I'${QT_DIR}/include' \
 
 # Compilers
 CC = gcc
 CXX = g++
 FC = g95
+AR = ar
+RANLIB = ranlib
+CP = cp
+MKDIR = mkdir -p
 
 FFLAGS = -O2 -fbounds-check -Wall -Wno-precision-loss -fno-second-underscore
 CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
@@ -54,16 +60,16 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o chkmsg.o \
 	flat3.o polfit.o determ.o baddata.o
 
 libjt9.a: $(OBJS1)
-	ar cr libjt9.a $(OBJS1) 
-	ranlib libjt9.a
+	${AR} cr libjt9.a $(OBJS1) 
+	${RANLIB} libjt9.a
 
 OBJS2 = jt9.o jt9a.o jt9b.o jt9c.o ipcomm.o sec_midn.o usleep.o
-LIBS2 = -L'C:/Qt/Qt5.1.0/5.1.0/mingw48_32/lib' -lQt5Core
+LIBS2 = -L'${QT_DIR}/lib' -lQt5Core
 jt9.exe: $(OBJS2) libjt9.a
 	$(CXX) -o jt9.exe -static $(OBJS2) $(LIBS2) libjt9.a \
-	../libfftw3f_win.a c:/MinGW/lib/libf95.a
-	mkdir -p $(EXE_DIR)
-	cp jt9.exe $(EXE_DIR)
+	../libfftw3f_win.a -lgfortran
+	-$(MKDIR) $(EXE_DIR)
+	${CP} jt9.exe $(EXE_DIR)
 
 OBJS3 = jt9sim.o 
 jt9sim.exe: $(OBJS3) libjt9.a
@@ -72,7 +78,7 @@ jt9sim.exe: $(OBJS3) libjt9.a
 OBJS4 = jt9code.o 
 jt9code.exe: $(OBJS4) libjt9.a
 	$(FC) -o jt9code.exe $(OBJS4) libjt9.a
-	cp jt9code.exe $(EXE_DIR)
+	$(CP) jt9code.exe $(EXE_DIR)
 
 OBJS5 = jt65.o 
 jt65.exe: $(OBJS5) libjt9.a 
@@ -81,7 +87,7 @@ jt65.exe: $(OBJS5) libjt9.a
 OBJS6 = jt65code.o
 jt65code.exe: $(OBJS6) libjt9.a
 	$(FC) -o jt65code.exe $(OBJS6) libjt9.a
-	cp jt65code.exe $(EXE_DIR)
+	$(CP) jt65code.exe $(EXE_DIR)
 
 sync9.o: sync9.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c sync9.f90
