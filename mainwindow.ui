@@ -2153,7 +2153,7 @@ p, li { white-space: pre-wrap; }
          <string>Set Tx frequency to Rx Frequency</string>
         </property>
         <property name="text">
-         <string>Tx=Rx</string>
+         <string>Tx&lt;Rx</string>
         </property>
        </widget>
       </item>
@@ -2175,7 +2175,7 @@ p, li { white-space: pre-wrap; }
          <string>Set Rx frequency to Tx Frequency</string>
         </property>
         <property name="text">
-         <string>Rx=Tx</string>
+         <string>Rx&lt;Tx</string>
         </property>
        </widget>
       </item>
