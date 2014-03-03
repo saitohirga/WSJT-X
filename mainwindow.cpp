@@ -157,8 +157,6 @@ MainWindow::MainWindow(QWidget *parent) :
   iqAmp=0;
   iqPhase=0;
 
-//  ui->xThermo->setFillBrush(Qt::green);
-//  ui->yThermo->setFillBrush(Qt::magenta);
   xSignalMeter = new SignalMeter(ui->xMeterFrame);
   xSignalMeter->resize(50, 160);
   ySignalMeter = new SignalMeter(ui->yMeterFrame);
@@ -534,8 +532,8 @@ void MainWindow::dataSink(int k)
   if(m_xpol) t.sprintf(" Rx noise: %5.1f  %5.1f %5.1f %% ",px,py,m_pctZap);
   if(!m_xpol) t.sprintf(" Rx noise: %5.1f  %5.1f %% ",px,m_pctZap);
   lab4->setText(t);
-//  ui->xThermo->setValue((double)px);   //Update the bargraphs
-//  ui->yThermo->setValue((double)py);
+  xSignalMeter->setValue(px);                   // Update the signal meters
+  ySignalMeter->setValue(py);
   if(m_monitoring || m_diskData) {
     g_pWideGraph->dataSink2(s,nkhz,ihsym,m_diskData,lstrong);
   }
@@ -1470,8 +1468,8 @@ void MainWindow::guiUpdate()
   if(iptt==1 && iptt0==0) nc1=-9;    // TxDelay = 0.8 s
   if(nc1 <= 0) nc1++;
   if(nc1 == 0) {
-//    ui->xThermo->setValue(0.0);   //Set the Thermos to zero
-//    ui->yThermo->setValue(0.0);
+    xSignalMeter->setValue(0);
+    ySignalMeter->setValue(0);
     m_monitoring=false;
     soundInThread.setMonitoring(false);
     btxok=true;
@@ -1583,8 +1581,8 @@ void MainWindow::guiUpdate()
     QString utc = " " + t.time().toString() + " ";
     ui->labUTC->setText(utc);
     if((!m_monitoring and !m_diskData) or (khsym==m_hsym0)) {
-//      ui->xThermo->setValue(0.0);                      // Set Rx levels to 0
-//      ui->yThermo->setValue(0.0);
+      xSignalMeter->setValue(0);
+      ySignalMeter->setValue(0);
       lab4->setText(" Rx noise:    0.0     0.0  0.0% ");
     }
     m_hsym0=khsym;

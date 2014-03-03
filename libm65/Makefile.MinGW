@@ -17,7 +17,7 @@ CFLAGS = -I. -fbounds-check
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    libm65.a m65.exe JT65code.exe mapsim.exe
+all:    libm65.a m65.exe JT65code.exe mapsim.exe libastro.a
 
 OBJS1 = trimlist.o display.o getdphi.o pctile.o ccf65.o \
 	decode1a.o sort.o filbig.o fil6521.o afc65b.o \
@@ -39,7 +39,8 @@ libm65.a: $(OBJS1)
 
 OBJS3 = m65.o m65a.o map65a.o symspec.o decode0.o ftninit.o ftnquit.o \
 	timer.o ipcomm.o sec_midn.o cutil.o 
-LIBS3    = -L'c:/QtSDK/Desktop/Qt/4.7.4/mingw/lib' -lQtCore4
+
+LIBS3 = -L'C:/wsjt-env/Qt5/5.2.1/mingw48_32/lib' -lQt5Core
 
 m65.exe: $(OBJS3) libm65.a
 	g++ -o m65.exe $(OBJS3) $(LIBS3) libm65.a ../libfftw3f_win.a \
@@ -50,14 +51,21 @@ OBJS2 = JT65code.o
 JT65code.exe: $(OBJS2) libm65.a
 	$(FC) -o JT65code.exe $(OBJS2) libm65.a
 
+OBJS7 = astrosub.o astro0.o astro.o tm2.o grid2deg.o sun.o moondop.o \
+	coord.o dot.o moon2.o tmoonsub.o toxyz.o geocentric.o \
+	dcoord.o
+
+libastro.a: $(OBJS7)
+	ar cr libastro.a $(OBJS7)
+	ranlib libastro.a
+
 OBJS6 = mapsim.o cgen65.o noisegen.o gran.o
 mapsim.exe: $(OBJS6) libm65.a
 	$(FC) -o mapsim.exe $(OBJS6) libm65.a
 
-INCPATH = -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/QtCore' \
-	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include' \
-	 -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/include/ActiveQt' \
-	 -I'release' -I'.' -I'c:/QtSDK/Desktop/Qt/4.7.4/mingw/mkspecs/win32-g++'
+INCPATH = -I'C:/wsjt-env/Qt5/5.2.1/mingw48_32/include/QtCore' \
+	-I'C:/wsjt-env/Qt5/5.2.1/mingw48_32/include' 
+
 ipcomm.o: ipcomm.cpp
 	g++ -c $(INCPATH) ipcomm.cpp
 
