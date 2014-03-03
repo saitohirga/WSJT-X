@@ -17,7 +17,13 @@
 #include <string.h>  /* String function definitions */
 #include <unistd.h>  /* UNIX standard function definitions */
 #include <sys/time.h>
-#include <usb.h>
+
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+//#include <usb.h>
+#include "/users/joe/linrad/3.37/usb.h"
 #include <QDebug>
 
 #define USB_SUCCESS	            0

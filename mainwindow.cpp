@@ -10,7 +10,7 @@
 #include "bandmap.h"
 #include "txtune.h"
 #include "sleep.h"
-#include <portaudio.h>
+#include "portaudio.h"
 
 #define NFFT 32768
 
@@ -157,8 +157,8 @@ MainWindow::MainWindow(QWidget *parent) :
   iqAmp=0;
   iqPhase=0;
 
-  ui->xThermo->setFillBrush(Qt::green);
-  ui->yThermo->setFillBrush(Qt::magenta);
+//  ui->xThermo->setFillBrush(Qt::green);
+//  ui->yThermo->setFillBrush(Qt::magenta);
 
 #ifdef WIN32
   while(true) {
@@ -530,8 +530,8 @@ void MainWindow::dataSink(int k)
   if(m_xpol) t.sprintf(" Rx noise: %5.1f  %5.1f %5.1f %% ",px,py,m_pctZap);
   if(!m_xpol) t.sprintf(" Rx noise: %5.1f  %5.1f %% ",px,m_pctZap);
   lab4->setText(t);
-  ui->xThermo->setValue((double)px);   //Update the bargraphs
-  ui->yThermo->setValue((double)py);
+//  ui->xThermo->setValue((double)px);   //Update the bargraphs
+//  ui->yThermo->setValue((double)py);
   if(m_monitoring || m_diskData) {
     g_pWideGraph->dataSink2(s,nkhz,ihsym,m_diskData,lstrong);
   }
@@ -1258,11 +1258,11 @@ void MainWindow::decode()                                       //decode()
   QString hcall=(ui->dxCallEntry->text()+"            ").mid(0,12);
   QString hgrid=(ui->dxGridEntry->text()+"      ").mid(0,6);
 
-  strncpy(datcom_.mycall, mcall.toAscii(), 12);
-  strncpy(datcom_.mygrid, mgrid.toAscii(), 6);
-  strncpy(datcom_.hiscall, hcall.toAscii(), 12);
-  strncpy(datcom_.hisgrid, hgrid.toAscii(), 6);
-  strncpy(datcom_.datetime, m_dateTime.toAscii(), 20);
+  strncpy(datcom_.mycall, mcall.toLatin1(), 12);
+  strncpy(datcom_.mygrid, mgrid.toLatin1(), 6);
+  strncpy(datcom_.hiscall, hcall.toLatin1(), 12);
+  strncpy(datcom_.hisgrid, hgrid.toLatin1(), 6);
+  strncpy(datcom_.datetime, m_dateTime.toLatin1(), 20);
 
   //newdat=1  ==> this is new data, must do the big FFT
   //nagain=1  ==> decode only at fQSO +/- Tol
@@ -1455,7 +1455,7 @@ void MainWindow::guiUpdate()
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
       out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-          << "  Tx message:  " << QString::fromAscii(msgsent) << endl;
+          << "  Tx message:  " << QString::fromLatin1(msgsent) << endl;
       f.close();
     }
 
@@ -1466,8 +1466,8 @@ void MainWindow::guiUpdate()
   if(iptt==1 && iptt0==0) nc1=-9;    // TxDelay = 0.8 s
   if(nc1 <= 0) nc1++;
   if(nc1 == 0) {
-    ui->xThermo->setValue(0.0);   //Set the Thermos to zero
-    ui->yThermo->setValue(0.0);
+//    ui->xThermo->setValue(0.0);   //Set the Thermos to zero
+//    ui->yThermo->setValue(0.0);
     m_monitoring=false;
     soundInThread.setMonitoring(false);
     btxok=true;
@@ -1478,7 +1478,7 @@ void MainWindow::guiUpdate()
     f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
     QTextStream out(&f);
     out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-        << "  Tx message:  " << QString::fromAscii(msgsent) << endl;
+        << "  Tx message:  " << QString::fromLatin1(msgsent) << endl;
     f.close();
   }
 
@@ -1579,8 +1579,8 @@ void MainWindow::guiUpdate()
     QString utc = " " + t.time().toString() + " ";
     ui->labUTC->setText(utc);
     if((!m_monitoring and !m_diskData) or (khsym==m_hsym0)) {
-      ui->xThermo->setValue(0.0);                      // Set Rx levels to 0
-      ui->yThermo->setValue(0.0);
+//      ui->xThermo->setValue(0.0);                      // Set Rx levels to 0
+//      ui->yThermo->setValue(0.0);
       lab4->setText(" Rx noise:    0.0     0.0  0.0% ");
     }
     m_hsym0=khsym;

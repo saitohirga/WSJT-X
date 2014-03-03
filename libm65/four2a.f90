@@ -34,7 +34,8 @@ subroutine four2a(a,nfft,ndim,isign,iform)
      if(nfft.eq.nn(i) .and. isign.eq.ns(i) .and.                     &
           iform.eq.nf(i) .and. nloc.eq.nl(i)) go to 10
   enddo
-  if(nplan.ge.NPMAX) stop 'Too many FFTW plans requested.'
+!  if(nplan.ge.NPMAX) stop 'Too many FFTW plans requested.'
+  if(nplan.ge.NPMAX) call exit(1)
   nplan=nplan+1
   i=nplan
   nn(i)=nfft
@@ -76,7 +77,8 @@ subroutine four2a(a,nfft,ndim,isign,iform)
   else if(isign.eq.1 .and. iform.eq.-1) then
      call sfftw_plan_dft_c2r_1d(plan(i),nfft,a,a,nflags)
   else
-     stop 'Unsupported request in four2a'
+!     stop 'Unsupported request in four2a'
+     call exit(1)
   endif
   i=nplan
   if(nfft.le.NSMALL) then

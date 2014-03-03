@@ -5,12 +5,15 @@
 #-------------------------------------------------
 
 QT       += core gui network
-CONFIG   += qwt thread
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+#CONFIG   += qwt thread
+CONFIG   += thread
 #CONFIG   += console
 
 TARGET = map65
 VERSION = 2.3.0
 TEMPLATE = app
+DEFINES = QT5
 
 win32 {
 DEFINES = WIN32
@@ -47,8 +50,6 @@ HEADERS  += mainwindow.h plotter.h soundin.h soundout.h \
             bandmap.h commons.h sleep.h astro.h displaytext.h \
     txtune.h
 
-DEFINES += __cplusplus
-
 FORMS    += mainwindow.ui about.ui devsetup.ui widegraph.ui \
     messages.ui bandmap.ui astro.ui \
     txtune.ui
@@ -63,16 +64,19 @@ LIBS += -lfftw3f -lportaudio -lgfortran
 }
 
 win32 {
-INCLUDEPATH += c:/qwt-6.0.1/include
+#INCLUDEPATH += c:/qwt-6.1.0/src
 LIBS += ../map65/libm65/libm65.a
 LIBS += ../map65/libfftw3f_win.a
-LIBS += ../QtSupport/palir-02.dll
+LIBS += /users/joe/wsjt/QtSupport/palir-02.dll
 LIBS += libwsock32
 LIBS += C:/MinGW/lib/libf95.a
 CONFIG(release) {
-   LIBS += C:/qwt-6.0.1/lib/qwt.dll
+#   LIBS += C:/qwt-6.1.0/lib/qwt.dll
 } else {
-   LIBS += C:/qwt-6.0.1/lib/qwtd.dll
+#   LIBS += C:/qwt-6.1.0/lib/qwtd.dll
 }
-LIBS += -lusb
+#LIBS += -lusb
+LIBS += /users/joe/linrad/3.37/libusb.a
+LIBS += -lQt5Concurrent
+#LIBS += c:\wsjt-env\Qt5\Tools\mingw48_32\i686-w64-mingw32\lib\libmingwex.a
 }

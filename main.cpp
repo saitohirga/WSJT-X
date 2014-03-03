@@ -1,5 +1,10 @@
+#ifdef QT5
+#include <QtWidgets>
+#else
 #include <QtGui>
-#include <QtGui/QApplication>
+#endif
+#include <QApplication>
+
 #include "mainwindow.h"
 
 int main(int argc, char *argv[])

@@ -1,5 +1,6 @@
 #ifndef WIDEGRAPH_H
 #define WIDEGRAPH_H
+#include <QtWidgets>
 #include <QDialog>
 
 namespace Ui {

@@ -45,8 +45,8 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
 
   if(!astroBusy) {
     astroBusy=true;
-    astrosub_(&nyear, &month, &nday, &uth, &nfreq, mygrid.toAscii(),
-            hisgrid.toAscii(), &azsun, &elsun, &azmoon, &elmoon,
+    astrosub_(&nyear, &month, &nday, &uth, &nfreq, mygrid.toLatin1(),
+            hisgrid.toLatin1(), &azsun, &elsun, &azmoon, &elmoon,
             &azmoondx, &elmoondx, &ntsky, &ndop, &ndop00,&ramoon, &decmoon,
             &dgrd, &poloffset, &xnr, 6, 6);
     astroBusy=false;

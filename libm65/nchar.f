@@ -15,7 +15,7 @@ C  Convert ascii number, letter, or space to 0-36 for callsign packing.
          n=36
       else
          Print*,'Invalid character in callsign ',c,' ',ichar(c)
-         stop
+         call exit(1)
       endif
       nchar=n
 

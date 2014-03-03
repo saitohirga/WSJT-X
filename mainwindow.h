@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 #include <QtGui>
+#include <QtWidgets>
 #include <QLabel>
 #include <QTimer>
 #include <QDateTime>
@@ -10,6 +11,7 @@
 #include "soundout.h"
 #include "commons.h"
 #include "sleep.h"
+#include <QtConcurrent/QtConcurrent>
 
 #define NFFT 32768
 #define NSMAX 5760000

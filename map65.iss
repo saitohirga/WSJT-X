@@ -1,7 +1,7 @@
 [Setup]
 AppName=MAP65
-AppVerName=MAP65 Version 2.5 r3603
-AppCopyright=Copyright (C) 2001-2013 by Joe Taylor, K1JT
+AppVerName=MAP65 Version 2.5 r3653
+AppCopyright=Copyright (C) 2001-2014 by Joe Taylor, K1JT
 DefaultDirName=c:\MAP65
 DefaultGroupName=MAP65
 
@@ -17,7 +17,6 @@ Source: "c:\Users\joe\wsjt\map65_install\wisdom2.bat";       DestDir: "{app}";
 Source: "c:\Users\joe\wsjt\map65_install\afmhot.dat";        DestDir: "{app}";
 Source: "c:\Users\joe\wsjt\map65_install\blue.dat";          DestDir: "{app}";
 Source: "c:\Users\joe\wsjt\map65_install\qthid.exe";         DestDir: "{app}";
-
 Source: "c:\Users\joe\wsjt\QtSupport\*.dll";                 DestDir: "{sys}";  Flags: onlyifdoesntexist
 
 Source: "c:\Users\joe\wsjt\map65_install\save\dummy";        DestDir: "{app}\save";
