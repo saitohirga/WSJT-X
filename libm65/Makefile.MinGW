@@ -1,6 +1,7 @@
 # Makefile for MinGW on Windows
 CC = gcc
 FC = g95
+CXX = c:/wsjt-env/Qt5/Tools/mingw48_32/bin/g++
 
 FFLAGS = -O2 -fbounds-check -Wall -Wno-precision-loss -fno-second-underscore
 CFLAGS = -I. -fbounds-check
@@ -43,7 +44,7 @@ OBJS3 = m65.o m65a.o map65a.o symspec.o decode0.o ftninit.o ftnquit.o \
 LIBS3 = -L'C:/wsjt-env/Qt5/5.2.1/mingw48_32/lib' -lQt5Core
 
 m65.exe: $(OBJS3) libm65.a
-	g++ -o m65.exe $(OBJS3) $(LIBS3) libm65.a ../libfftw3f_win.a \
+	$(CXX) -o m65.exe $(OBJS3) $(LIBS3) libm65.a ../libfftw3f_win.a \
 	c:/MinGW/lib/libf95.a
 	cp m65.exe ../../map65_install
 
@@ -67,7 +68,7 @@ INCPATH = -I'C:/wsjt-env/Qt5/5.2.1/mingw48_32/include/QtCore' \
 	-I'C:/wsjt-env/Qt5/5.2.1/mingw48_32/include' 
 
 ipcomm.o: ipcomm.cpp
-	g++ -c $(INCPATH) ipcomm.cpp
+	$(CXX) -c $(INCPATH) ipcomm.cpp
 
 #m65a.o:	m65a.f90
 #	$(FC) -c -fno-second-underscore -cpp m65a.f90

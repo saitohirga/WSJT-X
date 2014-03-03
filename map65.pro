@@ -6,7 +6,6 @@
 
 QT       += core gui network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-#CONFIG   += qwt thread
 CONFIG   += thread
 #CONFIG   += console
 
@@ -57,24 +56,17 @@ FORMS    += mainwindow.ui about.ui devsetup.ui widegraph.ui \
 RC_FILE = map65.rc
 
 unix {
-INCLUDEPATH += -lqwt
 LIBS += ../map65/libm65/libm65.a
 LIBS += -lfftw3f -lportaudio -lgfortran
 #LIBS +- -lusb
 }
 
 win32 {
-#INCLUDEPATH += c:/qwt-6.1.0/src
 LIBS += ../map65/libm65/libm65.a
 LIBS += ../map65/libfftw3f_win.a
 LIBS += /users/joe/wsjt/QtSupport/palir-02.dll
 LIBS += libwsock32
 LIBS += C:/MinGW/lib/libf95.a
-CONFIG(release) {
-#   LIBS += C:/qwt-6.1.0/lib/qwt.dll
-} else {
-#   LIBS += C:/qwt-6.1.0/lib/qwtd.dll
-}
 #LIBS += -lusb
 LIBS += /users/joe/linrad/3.37/libusb.a
 LIBS += -lQt5Concurrent
