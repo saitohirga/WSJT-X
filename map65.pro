@@ -39,7 +39,7 @@ SOURCES += main.cpp mainwindow.cpp plotter.cpp about.cpp \
     soundin.cpp soundout.cpp devsetup.cpp \
     widegraph.cpp getfile.cpp messages.cpp bandmap.cpp \
     astro.cpp displaytext.cpp getdev.cpp \
-    txtune.cpp
+    txtune.cpp meterwidget.cpp signalmeter.cpp
 
 win32 {
 SOURCES += killbyname.cpp     set570.cpp
@@ -48,7 +48,7 @@ SOURCES += killbyname.cpp     set570.cpp
 HEADERS  += mainwindow.h plotter.h soundin.h soundout.h \
             about.h devsetup.h widegraph.h getfile.h messages.h \
             bandmap.h commons.h sleep.h astro.h displaytext.h \
-    txtune.h
+            txtune.h meterwidget.h signalmeter.h
 
 FORMS    += mainwindow.ui about.ui devsetup.ui widegraph.ui \
     messages.ui bandmap.ui astro.ui \

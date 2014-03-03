@@ -159,6 +159,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 //  ui->xThermo->setFillBrush(Qt::green);
 //  ui->yThermo->setFillBrush(Qt::magenta);
+  xSignalMeter = new SignalMeter(ui->xMeterFrame);
+  xSignalMeter->resize(50, 160);
+  ySignalMeter = new SignalMeter(ui->yMeterFrame);
+  ySignalMeter->resize(50, 160);
 
 #ifdef WIN32
   while(true) {

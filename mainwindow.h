@@ -9,6 +9,7 @@
 #include "getfile.h"
 #include "soundin.h"
 #include "soundout.h"
+#include "signalmeter.h"
 #include "commons.h"
 #include "sleep.h"
 #include <QtConcurrent/QtConcurrent>
@@ -246,6 +247,10 @@ private:
     QString m_editorCommand;
 
     QHash<QString,bool> m_worked;
+
+    SignalMeter *xSignalMeter;
+    SignalMeter *ySignalMeter;
+
 
     SoundInThread soundInThread;             //Instantiate the audio threads
     SoundOutThread soundOutThread;
