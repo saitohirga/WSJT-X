@@ -45,6 +45,7 @@ set (CXXSRCS
   widegraph.cpp
   devsetup.cpp
   about.cpp
+  astro.cpp
   mainwindow.cpp
   main.cpp
   )
@@ -58,6 +59,7 @@ set_property (SOURCE ${CXXSRCS} APPEND PROPERTY COMPILE_FLAGS "-include wsjtx_co
 set (UISRCS
   mainwindow.ui
   about.ui
+  astro.ui
   devsetup.ui
   widegraph.ui
   logqso.ui
