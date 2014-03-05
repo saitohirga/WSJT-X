@@ -67,13 +67,18 @@ set (FSRCS
   afc65b.f90
   afc9.f90
   analytic.f90
+  astro.f90
+  astro0.f90
+  astrosub.f90
   azdist.f90
   baddata.f90
   ccf2.f90
   ccf65.f90
   chkhist.f90
   chkss2.f90
+  coord.f90
   db.f90
+  dcoord.f90
   decode65a.f90
   decode65b.f90
   decode9.f90
@@ -81,6 +86,7 @@ set (FSRCS
   deg2grid.f90
   demod64a.f90
   determ.f90
+  dot.f90
   downsam9.f90
   encode232.f90
   entail.f90
@@ -94,12 +100,14 @@ set (FSRCS
   fil6521.f90
   filbig.f90
   fillcom.f90
+  flat1.f90
   flat2.f90
   flat3.f90
   flat65.f90
   four2a.f90
   gen65.f90
   genjt9.f90
+  geocentric.f90
   geodist.f90
   getlags.f90
   getpfx1.f90
@@ -114,6 +122,8 @@ set (FSRCS
   interleave9.f90
   jt65a.f90
   k2grid.f90
+  moon2.f90
+  moondop.f90
   morse.f90
   move.f90
   n2grid.f90
@@ -130,16 +140,20 @@ set (FSRCS
   sec_midn.f90
   setup65.f90
   sleep_msec.f90
+  smo.f90
   smo121.f90
   softsym.f90
   sort.f90
   ssort.f90
   stdmsg.f90
+  sun.f90
   symspec.f90
   symspec2.f90
   symspec65.f90
   sync9.f90
   timer.f90
+  tm2.f90
+  toxyz.f90
   twkfreq.f90
   twkfreq65.f90
   unpackbits.f90
@@ -156,6 +170,7 @@ set (CSRCS
   gran.c
   igray.c
   init_rs.c
+  tmoonsub.c
   usleep.c
   wrapkarn.c
 )
