@@ -2135,28 +2135,6 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="2" column="7">
-       <widget class="QPushButton" name="pbR2T">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>48</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Set Tx frequency to Rx Frequency</string>
-        </property>
-        <property name="text">
-         <string>Tx&lt;Rx</string>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="7">
        <widget class="QPushButton" name="pbT2R">
         <property name="sizePolicy">
@@ -2176,6 +2154,28 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="text">
          <string>Rx&lt;Tx</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="7">
+       <widget class="QPushButton" name="pbR2T">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>48</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Set Tx frequency to Rx Frequency</string>
+        </property>
+        <property name="text">
+         <string>Tx&lt;Rx</string>
         </property>
        </widget>
       </item>
@@ -2306,6 +2306,7 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionWide_Waterfall"/>
     <addaction name="separator"/>
+    <addaction name="actionAstronomical_data"/>
    </widget>
    <widget class="QMenu" name="menuDecode">
     <property name="title">
@@ -2340,6 +2341,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionJT9_1"/>
     <addaction name="actionJT65"/>
     <addaction name="actionJT9_JT65"/>
+    <addaction name="actionJT9W_1"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSetup"/>
@@ -2650,6 +2652,19 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Show DXCC entity and worked B4 status</string>
+   </property>
+  </action>
+  <action name="actionAstronomical_data">
+   <property name="text">
+    <string>Astronomical data</string>
+   </property>
+  </action>
+  <action name="actionJT9W_1">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>JT9W-1</string>
    </property>
   </action>
   <action name="actionShort_list_of_add_on_prefixes_and_suffixes">

@@ -96,7 +96,11 @@ void CPlotter::draw(float swide[])             //draw()
   m_2DPixmap = m_OverlayPixmap.copy(0,0,m_w,m_h2);
   QPainter painter2D(&m_2DPixmap);
 
-  painter2D.setPen(Qt::green);
+  if(m_bLinearAvg) {
+    painter2D.setPen(Qt::yellow);
+  } else {
+    painter2D.setPen(Qt::green);
+  }
 
   QPoint LineBuf[MAX_SCREENSIZE];
   j=0;
@@ -122,8 +126,18 @@ void CPlotter::draw(float swide[])             //draw()
         sum+=jt9com_.savg[j++];
       }
       y2=gain*6.0*log10(sum/m_binsPerPixel) - 10.0;
+      y2 += m_plotZero;
     }
-    y2 += m_plotZero;
+
+    if(m_bLinearAvg) {
+      float sum=0.0;
+      int j=j0+m_binsPerPixel*i;
+      for(int k=0; k<m_binsPerPixel; k++) {
+        sum+=jt9w_.syellow[j++];
+      }
+      y2=sum/m_binsPerPixel * (0.2*m_h/50.0) - 20.0;
+    }
+
     if(i==iz-1) painter2D.drawPolyline(LineBuf,j);
     LineBuf[j].setX(i);
     LineBuf[j].setY(m_h-(y2+0.8*m_h));

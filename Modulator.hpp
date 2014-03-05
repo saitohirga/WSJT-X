@@ -35,6 +35,7 @@ public:
   bool isMuted () const {return m_muted;}
   unsigned frequency () const {return m_frequency;}
   bool isActive () const {return m_state != Idle;}
+  void setWide9(double d1, double d2) {m_toneSpacing=d1; m_fSpread=d2;}
 
 protected:
   qint64 readData (char * data, qint64 maxSize);
@@ -66,22 +67,28 @@ private:
   static double const m_twoPi;
   static unsigned const m_nspd;	// CW ID WPM factor
 
-  int m_frameRate;
-  int m_period;
-  double m_nsps;
-  double volatile m_frequency;
-  double m_snr;
-  qint64 m_silentFrames;
-  qint64 m_framesSent;
-  ModulatorState volatile m_state;
-  bool volatile m_tuning;
-  bool volatile m_muted;
-  bool m_addNoise;
   double m_phi;
   double m_dphi;
   double m_amp;
-  unsigned m_ic;
+  double m_nsps;
+  double volatile m_frequency;
+  double m_snr;
   double m_fac;
+  double m_toneSpacing;
+  double m_fSpread;
+
+  qint64 m_silentFrames;
+  qint64 m_framesSent;
+
+  int m_frameRate;
+  int m_period;
+  ModulatorState volatile m_state;
+
+  bool volatile m_tuning;
+  bool volatile m_muted;
+  bool m_addNoise;
+
+  unsigned m_ic;
   unsigned m_isym0;
   qint16 m_ramp;
 };

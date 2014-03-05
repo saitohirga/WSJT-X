@@ -37,7 +37,7 @@ subroutine decoder(ss,id2)
 
   ntol65=20
   done65=.false.
-  if(nmode.ge.65 .and. ntxmode.eq.65) then
+  if((nmode.eq.65 .or. nmode.eq.65+9) .and. ntxmode.eq.65) then
      if(newdat.ne.0) dd(1:npts65)=id2(1:npts65)
      nf1=nfa
      nf2=nfb

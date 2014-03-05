@@ -22,11 +22,13 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nflatten,pxdb,s,df3,ihsym,npts8)
   real*4 s(NSMAX)
   real*4 ssum(NSMAX)
   real*4 xc(0:MAXFFT3-1)
+  real*4 tmp(NSMAX)
   complex cx(0:MAXFFT3/2)
   integer*2 id2
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,         &
        ntr,mousefqso,newdat,npts8a,nfa,nfsplit,nfb,ntol,kin,nzhsym,         &
        nsave,nagain,ndepth,ntxmode,nmode,junk(5)
+  common/jt9w/syellow(NSMAX)
   data rms/999.0/,k0/99999999/,nfft3z/0/
   equivalence (xc,cx)
   save
@@ -98,6 +100,20 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nflatten,pxdb,s,df3,ihsym,npts8)
   enddo
 
   savg=ssum/ihsym
+
+  if(mod(n,10).eq.0) then
+     mode4=36
+     nsmo=min(10*mode4,150)
+     nsmo=4*nsmo
+     call flat1(savg,iz,nsmo,syellow)
+     if(mode4.ge.9) call smo(syellow,iz,tmp,mode4)
+     ia=500./df3
+     ib=2700.0/df3
+     smin=minval(syellow(ia:ib))
+     smax=maxval(syellow(1:iz))
+     syellow=(50.0/(smax-smin))*(syellow-smin)
+     where(syellow<0) syellow=0.
+  endif
 
   if(nflatten.ne.0) then
      call flat3(s,iz,nfa,nfb,3,1.0,s)

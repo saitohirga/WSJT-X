@@ -29,4 +29,10 @@ extern struct FortranCommon {
   char datetime[20];
 } jt9com_;
 
+extern "C" {
+extern struct {
+  float syellow[NSMAX];
+} jt9w_;
+}
+
 #endif // COMMONS_H

@@ -37,47 +37,27 @@ QMAKE_EXTRA_COMPILERS += gfortran
 #
 # Order matters here as the link is in this order so referrers need to be after referred
 #
-SOURCES += \
-	logbook/adif.cpp \
-	logbook/countrydat.cpp \
-	logbook/countriesworked.cpp \
-	logbook/logbook.cpp \
-	rigclass.cpp \
-	psk_reporter.cpp \
-	Modulator.cpp \
-	Detector.cpp \
-	logqso.cpp \
-	displaytext.cpp \
-	getfile.cpp \
-	soundout.cpp \
-	soundin.cpp \
-	meterwidget.cpp \
-	signalmeter.cpp \
-	plotter.cpp \
-	widegraph.cpp \
-	devsetup.cpp \
-	about.cpp \
-	mainwindow.cpp \
-	main.cpp \
-    decodedtext.cpp
+SOURCES += logbook/adif.cpp logbook/countrydat.cpp astro.cpp \
+  logbook/countriesworked.cpp logbook/logbook.cpp rigclass.cpp \
+  psk_reporter.cpp Modulator.cpp Detector.cpp logqso.cpp \
+  displaytext.cpp getfile.cpp soundout.cpp soundin.cpp \
+  meterwidget.cpp signalmeter.cpp plotter.cpp widegraph.cpp \
+  devsetup.cpp about.cpp mainwindow.cpp main.cpp decodedtext.cpp
 
 win32 {
 SOURCES += killbyname.cpp
 }
 
-HEADERS  += mainwindow.h plotter.h soundin.h soundout.h \
+HEADERS  += mainwindow.h plotter.h soundin.h soundout.h astro.h \
             about.h devsetup.h widegraph.h getfile.h \
             commons.h sleep.h displaytext.h logqso.h \
-            AudioDevice.hpp Detector.hpp Modulator.hpp psk_reporter.h rigclass.h \
-    signalmeter.h \
-    meterwidget.h \
-    logbook/logbook.h \
-    logbook/countrydat.h \
-    logbook/countriesworked.h \
-    logbook/adif.h
+            AudioDevice.hpp Detector.hpp Modulator.hpp \
+            psk_reporter.h rigclass.h signalmeter.h \
+            meterwidget.h logbook/logbook.h logbook/countrydat.h \
+            logbook/countriesworked.h logbook/adif.h
 
 
-FORMS    += mainwindow.ui about.ui devsetup.ui widegraph.ui \
+FORMS    += mainwindow.ui about.ui devsetup.ui widegraph.ui astro.ui \
     logqso.ui
 
 RC_FILE = wsjtx.rc
@@ -89,10 +69,11 @@ LIBS += -lfftw3f `$$F90 -print-file-name=libgfortran.so`
 }
 
 win32 {
-INCLUDEPATH += ../../hamlib-1.2.15.3/include
-LIBS += ../../hamlib-1.2.15.3/src/.libs/libhamlib.dll.a
-#LIBS += ../../hamlib-1.2.15.3/lib/gcc/libhamlib.dll.a
+INCLUDEPATH += /wsjt-env//hamlib/include
+LIBS += /wsjt-env/hamlib/lib/gcc/libhamlib.dll.a
+#LIBS += ../wsjtx/lib/libjt9.a
 LIBS += ../wsjtx/lib/libjt9.a
+LIBS += ../wsjtx/lib/libastro.a
 LIBS += ../wsjtx/libfftw3f_win.a
 LIBS += ../wsjtx/libpskreporter.a
 LIBS += ../wsjtx/libHRDInterface001.a
