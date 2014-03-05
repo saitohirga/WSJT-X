@@ -33,6 +33,7 @@ public:
 
   bool    m_bCurrent;
   bool    m_bCumulative;
+  bool    m_bLinearAvg;
   bool    m_lockTxFreq;
 
   float   m_fSpan;

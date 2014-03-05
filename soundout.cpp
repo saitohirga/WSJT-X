@@ -52,11 +52,13 @@ SoundOutput::SoundOutput (QIODevice * source)
   Q_ASSERT (source);
 }
 
-void SoundOutput::startStream (QAudioDeviceInfo const& device, unsigned channels, unsigned msBuffered)
+void SoundOutput::startStream (QAudioDeviceInfo const& device, \
+                               unsigned channels, unsigned msBuffered)
 {
   Q_ASSERT (0 < channels && channels < 3);
 
-  if (!m_stream || device != m_currentDevice || channels != static_cast<unsigned> (m_stream->format ().channelCount ()))
+  if (!m_stream || device != m_currentDevice ||
+      channels != static_cast<unsigned> (m_stream->format ().channelCount ()))
     {
       QAudioFormat format (device.preferredFormat ());
 
@@ -79,9 +81,11 @@ void SoundOutput::startStream (QAudioDeviceInfo const& device, unsigned channels
       m_stream->setVolume (m_volume);
       m_stream->setNotifyInterval(100);
 
-      connect (m_stream.data(), &QAudioOutput::stateChanged, this, &SoundOutput::handleStateChanged);
+      connect (m_stream.data(), &QAudioOutput::stateChanged, this, \
+               &SoundOutput::handleStateChanged);
 
       m_currentDevice = device;
+//      qDebug() << "A" << m_volume << m_stream->notifyInterval();
     }
 
   //
@@ -97,7 +101,10 @@ void SoundOutput::startStream (QAudioDeviceInfo const& device, unsigned channels
   // we have to set this before every start on the stream because the
   // Windows implementation seems to forget the buffer size after a
   // stop.
-  m_stream->setBufferSize (m_stream->format ().bytesForDuration ((msBuffered ? msBuffered : MS_BUFFERED) * 1000));
+  m_stream->setBufferSize (m_stream->format().bytesForDuration(
+                             (msBuffered ? msBuffered : MS_BUFFERED) * 1000));
+//  qDebug() << "B" << m_stream->bufferSize() << m_stream->periodSize() << m_stream->notifyInterval();
+
   m_stream->start (m_source);
   audioError ();
 }

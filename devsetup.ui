@@ -1868,7 +1868,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>308</width>
+            <width>510</width>
             <height>449</height>
            </rect>
           </property>
@@ -2521,6 +2521,228 @@
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>JT9W</string>
+      </attribute>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>101</y>
+         <width>202</width>
+         <height>161</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>Band (MHz):</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="cbEMEband">
+          <property name="currentIndex">
+           <number>9</number>
+          </property>
+          <item>
+           <property name="text">
+            <string>50</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>144</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>222</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>432</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>903</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>1296</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>2320</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>3400</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>5760</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>10368</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>24192</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_26">
+          <property name="text">
+           <string>BW Mult:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="cbBWmult">
+          <property name="currentIndex">
+           <number>5</number>
+          </property>
+          <item>
+           <property name="text">
+            <string>1</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>2</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>4</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>8</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>16</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>32</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>64</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>128</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_27">
+          <property name="text">
+           <string>DT min (s):</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QDoubleSpinBox" name="dtMinSpinBox">
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="minimum">
+           <double>-2.500000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>5.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+          <property name="value">
+           <double>-2.500000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_28">
+          <property name="text">
+           <string>DT max (s):</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QDoubleSpinBox" name="dtMaxSpinBox">
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="minimum">
+           <double>-2.500000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>5.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+          <property name="value">
+           <double>5.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_29">
+          <property name="text">
+           <string>Astro Font Size:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QSpinBox" name="astroFontSpinBox">
+          <property name="minimum">
+           <number>14</number>
+          </property>
+          <property name="maximum">
+           <number>18</number>
+          </property>
+          <property name="singleStep">
+           <number>2</number>
+          </property>
+          <property name="value">
+           <number>18</number>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0" colspan="2">
+         <widget class="QCheckBox" name="cbDisplayAstroData">
+          <property name="text">
+           <string>Display Astronomical Data on startup</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </widget>
    </item>

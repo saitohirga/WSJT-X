@@ -2,8 +2,8 @@
 AppName=wsjtx
 AppVerName=wsjtx Version 1.3 r3673
 AppCopyright=Copyright (C) 2001-2014 by Joe Taylor, K1JT
-DefaultDirName=c:\wsjtx
-DefaultGroupName=wsjtx
+DefaultDirName=c:\wsjtx_w
+DefaultGroupName=wsjtx_w
 
 [Files]
 Source: "c:\Users\joe\wsjt\wsjtx_install\wsjtx.exe";                     DestDir: "{app}"
@@ -25,6 +25,6 @@ Source: "c:\Users\joe\wsjt\wsjtx_install\platforms\qwindows.dll";        DestDir
 Source: "c:\Users\joe\wsjt\wsjtx_install\Palettes\*.pal";                DestDir: "{app}\Palettes";
 
 [Icons]
-Name: "{group}\wsjtx1.3";        Filename: "{app}\wsjtx.exe";   WorkingDir: {app}; IconFilename: {app}\wsjt.ico
-Name: "{userdesktop}\wsjtx1.3";  Filename: "{app}\wsjtx.exe";   WorkingDir: {app}; IconFilename: {app}\wsjt.ico
+Name: "{group}\wsjtx_w";        Filename: "{app}\wsjtx.exe";   WorkingDir: {app}; IconFilename: {app}\wsjt.ico
+Name: "{userdesktop}\wsjtx_w";  Filename: "{app}\wsjtx.exe";   WorkingDir: {app}; IconFilename: {app}\wsjt.ico
 

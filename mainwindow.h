@@ -179,8 +179,10 @@ private slots:
   void on_actionTx2QSO_triggered(bool checked);  
   void on_cbPlus2kHz_toggled(bool checked);
   void on_outAttenuation_valueChanged (int);
+  void on_actionAstronomical_data_triggered();
   void on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered();
   void getpfx();
+  void on_actionJT9W_1_triggered();
 
 private:
   Q_SIGNAL void startAudioOutputStream (QAudioDeviceInfo, unsigned channels, unsigned msBuffered);
@@ -210,6 +212,11 @@ private:
     QScopedPointer<LogQSO> m_logDlg;
 
     double  m_dialFreq;
+    double  m_toneSpacing;
+    double  m_fSpread;
+
+    float   m_DTmin;
+    float   m_DTmax;
 
     qint64  m_msErase;
     qint64  m_secBandChanged;
@@ -266,6 +273,9 @@ private:
     qint32  m_poll;
     qint32  m_fMax;
     qint32  m_bad;
+    qint32  m_EMEbandIndex;
+    qint32  m_toneMultIndex;
+    qint32  m_astroFont;
 
     bool    m_monitoring;
     bool    m_btxok;		//True if OK to transmit
@@ -318,6 +328,7 @@ private:
     bool    m_bSplit;
     bool    m_bXIT;
     bool    m_plus2kHz;
+    bool    m_bAstroData;
 
     char    m_decoded[80];
 
@@ -376,6 +387,7 @@ private:
     QString m_cmnd;
     QString m_msgSent0;
     QString m_fileToSave;
+    QString m_azelDir;
 
     QStringList m_macro;
     QStringList m_dFreq;           // per band frequency in MHz as a string
@@ -388,6 +400,7 @@ private:
     QHash<QString,bool> m_sfx;
 
     QDateTime m_dateTimeQSO;
+    QRect   m_astroGeom;
 
     QSharedMemory *mem_jt9;
  // Multiple instances:

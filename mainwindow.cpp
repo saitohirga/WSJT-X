@@ -1,4 +1,5 @@
-//------------------------------------------------------------ MainWindow
+//----------------------------------------------------------- MainWindow
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -9,6 +10,7 @@
 #include "devsetup.h"
 #include "plotter.h"
 #include "about.h"
+#include "astro.h"
 #include "widegraph.h"
 #include "sleep.h"
 #include "getfile.h"
@@ -27,7 +29,7 @@ qint32  g_COMportOpen;
 qint32  g_iptt;
 static int nc1=1;
 wchar_t buffer[256];
-
+Astro*  g_pAstro = NULL;
 
 Rig* rig = NULL;
 QTextEdit* pShortcuts;
@@ -35,7 +37,7 @@ QTextEdit* pPrefixes;
 QTcpSocket* commanderSocket = new QTcpSocket(0);
 
 QString rev="$Rev$";
-QString Program_Title_Version="  WSJT-X   v1.3, r" + rev.mid(6,4) +
+QString Program_Title_Version="  WSJT-X   v1.4, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 //--------------------------------------------------- MainWindow constructor
@@ -48,7 +50,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   ui(new Ui::MainWindow),
   m_wideGraph (new WideGraph (settings)),
   m_logDlg (new LogQSO (settings, this)),
-  m_detector (RX_SAMPLE_RATE, NTMAX/2, 6912/2, downSampleFactor),
+  m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2, downSampleFactor),
   m_audioInputDevice (QAudioDeviceInfo::defaultInputDevice ()), // start with default
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
   m_audioOutputDevice (QAudioDeviceInfo::defaultOutputDevice ()), // start with default
@@ -64,7 +66,6 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   connect (this, &MainWindow::finished, this, &MainWindow::close);
 
   // start audio thread and hook up slots & signals for shutdown management
-
   // these objects need to be in the audio thread so that invoking
   // their slots is done in a thread safe way
   m_soundOutput.moveToThread (&m_audioThread);
@@ -125,6 +126,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
 
   QActionGroup* modeGroup = new QActionGroup(this);
   ui->actionJT9_1->setActionGroup(modeGroup);
+  ui->actionJT9W_1->setActionGroup(modeGroup);
   ui->actionJT65->setActionGroup(modeGroup);
   ui->actionJT9_JT65->setActionGroup(modeGroup);
 
@@ -272,6 +274,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   m_QSOText.clear();
   m_CATerror=false;
   decodeBusy(false);
+  m_toneSpacing=0;
 
   signalMeter = new SignalMeter(ui->meterFrame);
   signalMeter->resize(50, 160);
@@ -370,8 +373,11 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   genStdMsgs(m_rpt);
   m_ntx=6;
   ui->txrb6->setChecked(true);
-  if(m_mode!="JT9" and m_mode!="JT65" and m_mode!="JT9+JT65") m_mode="JT9";
+  if(m_mode!="JT9" and m_mode!="JT9W-1" and m_mode!="JT65" and
+      m_mode!="JT9+JT65") m_mode="JT9";
   on_actionWide_Waterfall_triggered();                   //###
+//  on_actionAstronomical_data_triggered();
+  if(m_bAstroData) on_actionAstronomical_data_triggered();
   m_wideGraph->setRxFreq(m_rxFreq);
   m_wideGraph->setTxFreq(m_txFreq);
   m_wideGraph->setLockTxFreq(m_lockTxFreq);
@@ -383,6 +389,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
           SLOT(setFreq4(int,int)));
 
   if(m_mode=="JT9") on_actionJT9_1_triggered();
+  if(m_mode=="JT9W-1") on_actionJT9W_1_triggered();
   if(m_mode=="JT65") on_actionJT65_triggered();
   if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
 
@@ -461,6 +468,10 @@ void MainWindow::writeSettings()
   m_settings->setValue("TxFirst",m_txFirst);
   m_settings->setValue("DXcall",ui->dxCallEntry->text());
   m_settings->setValue("DXgrid",ui->dxGridEntry->text());
+  if(g_pAstro!=NULL and g_pAstro->isVisible()) {
+    m_astroGeom = g_pAstro->geometry();
+    m_settings->setValue("AstroGeom",m_astroGeom);
+  }
   m_settings->endGroup();
 
   m_settings->beginGroup("Common");
@@ -469,6 +480,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("IDint",m_idInt);
   m_settings->setValue("PTTmethod",m_pttMethodIndex);
   m_settings->setValue("PTTport",m_pttPort);
+  m_settings->setValue("AstroFont",m_astroFont);
   m_settings->setValue("SaveDir",m_saveDir);
   m_settings->setValue("SoundInName", m_audioInputDevice.deviceName ());
   m_settings->setValue("SoundOutName", m_audioOutputDevice.deviceName ());
@@ -489,6 +501,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("OutAttenuation", ui->outAttenuation->value ());
   m_settings->setValue("PSKReporter",m_pskReporter);
   m_settings->setValue("After73",m_After73);
+  m_settings->setValue("DisplayAstro",m_bAstroData);
   m_settings->setValue("Macros",m_macro);
   //Band Settings
   m_settings->setValue("BandFrequencies",m_dFreq);
@@ -531,6 +544,11 @@ void MainWindow::writeSettings()
   m_settings->setValue("UseXIT",m_bXIT);
   m_settings->setValue("XIT",m_XIT);
   m_settings->setValue("Plus2kHz",m_plus2kHz);
+  m_settings->setValue("EMEbandIndex",m_EMEbandIndex);
+  m_settings->setValue("ToneMultIndex",m_toneMultIndex);
+  m_settings->setValue("DTmin",m_DTmin);
+  m_settings->setValue("DTmax",m_DTmax);
+
   m_settings->endGroup();
 }
 
@@ -542,6 +560,7 @@ void MainWindow::readSettings()
   restoreState (m_settings->value ("state", saveState ()).toByteArray ());
   ui->dxCallEntry->setText(m_settings->value("DXcall","").toString());
   ui->dxGridEntry->setText(m_settings->value("DXgrid","").toString());
+  m_astroGeom = m_settings->value("AstroGeom", QRect(71,390,227,403)).toRect();
   m_path = m_settings->value("MRUdir", m_appDir + "/save").toString();
   m_txFirst = m_settings->value("TxFirst",false).toBool();
   ui->txFirstCheckBox->setChecked(m_txFirst);
@@ -554,6 +573,7 @@ void MainWindow::readSettings()
   m_idInt=m_settings->value("IDint",0).toInt();
   m_pttMethodIndex=m_settings->value("PTTmethod",1).toInt();
   m_pttPort=m_settings->value("PTTport",0).toInt();
+  m_astroFont=m_settings->value("AstroFont",18).toInt();
   m_saveDir=m_settings->value("SaveDir",m_appDir + "/save").toString();
 
   {
@@ -591,7 +611,7 @@ void MainWindow::readSettings()
 
   m_mode=m_settings->value("Mode","JT9").toString();
   m_modeTx=m_settings->value("ModeTx","JT9").toString();
-  if(m_modeTx=="JT9") ui->pbTxMode->setText("Tx JT9  @");
+  if(m_modeTx.mid(0,3)=="JT9") ui->pbTxMode->setText("Tx JT9  @");
   if(m_modeTx=="JT65") ui->pbTxMode->setText("Tx JT65  #");
   ui->actionNone->setChecked(m_settings->value("SaveNone",true).toBool());
   ui->actionSave_decoded->setChecked(m_settings->value(
@@ -617,6 +637,7 @@ void MainWindow::readSettings()
   ui->actionMonitor_OFF_at_startup->setChecked(m_monitorStartOFF);
   m_pskReporter=m_settings->value("PSKReporter",false).toBool();
   m_After73=m_settings->value("After73",false).toBool();
+  m_bAstroData=m_settings->value("DisplayAstro",false).toBool();
   m_macro=m_settings->value("Macros","TNX 73 GL").toStringList();
   //Band Settings
   m_dFreq=m_settings->value("BandFrequencies","").toStringList();
@@ -676,6 +697,10 @@ void MainWindow::readSettings()
   m_XIT=m_settings->value("XIT",0).toInt();
 	m_plus2kHz=m_settings->value("Plus2kHz",false).toBool();
 	ui->cbPlus2kHz->setChecked(m_plus2kHz);
+  m_EMEbandIndex=m_settings->value("EMEbandIndex",0).toInt();
+  m_toneMultIndex=m_settings->value("ToneMultIndex",0).toInt();
+  m_DTmin=m_settings->value("DTmin",-2.5).toFloat();
+  m_DTmax=m_settings->value("DTmax",5.0).toFloat();
   m_settings->endGroup();
 
   // use these initialisation settings to tune the audio o/p bufefr
@@ -768,6 +793,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_idInt=m_idInt;
   dlg.m_pttMethodIndex=m_pttMethodIndex;
   dlg.m_pttPort=m_pttPort;
+  dlg.m_astroFont=m_astroFont;
   dlg.m_saveDir=m_saveDir;
   dlg.m_audioInputDevice = m_audioInputDevice;
   dlg.m_audioOutputDevice = m_audioOutputDevice;
@@ -775,6 +801,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_audioOutputChannel = m_audioOutputChannel;
   dlg.m_pskReporter=m_pskReporter;
   dlg.m_After73=m_After73;
+  dlg.m_bAstroData=m_bAstroData;
   dlg.m_macro=m_macro;
   dlg.m_dFreq=m_dFreq;
   dlg.m_antDescription=m_antDescription;
@@ -797,6 +824,10 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_poll=m_poll;
   dlg.m_bSplit=m_bSplit;
   dlg.m_bXIT=m_bXIT;
+  dlg.m_EMEbandIndex=m_EMEbandIndex;
+  dlg.m_toneMultIndex=m_toneMultIndex;
+  dlg.m_DTmin=m_DTmin;
+  dlg.m_DTmax=m_DTmax;
 
   if(m_bRigOpen) {
     rig->close();
@@ -815,6 +846,10 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_idInt=dlg.m_idInt;
     m_pttMethodIndex=dlg.m_pttMethodIndex;
     m_pttPort=dlg.m_pttPort;
+    m_astroFont=dlg.m_astroFont;
+    if(g_pAstro!=NULL and g_pAstro->isVisible()) {
+      g_pAstro->setFontSize(m_astroFont);
+    }
     m_saveDir=dlg.m_saveDir;
     m_audioInputDevice = dlg.m_audioInputDevice;
     m_audioOutputDevice = dlg.m_audioOutputDevice;
@@ -841,18 +876,22 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_bRTS=dlg.m_bRTS;
     m_pttData=dlg.m_pttData;
     m_poll=dlg.m_poll;
+    m_EMEbandIndex=dlg.m_EMEbandIndex;
+    m_toneMultIndex=dlg.m_toneMultIndex;
+    if(m_mode=="JT9W-1") m_toneSpacing=pow(2,m_toneMultIndex)*12000.0/6912.0;
+    m_DTmin=dlg.m_DTmin;
+    m_DTmax=dlg.m_DTmax;
 
 	//Band Settings
     ui->bandComboBox->clear();
     ui->bandComboBox->addItems(dlg.m_bandDescription);
     ui->bandComboBox->setCurrentIndex(m_band);
     m_pskReporter=dlg.m_pskReporter;
-
     if(m_pskReporter) {
       psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
     }
-
     m_After73=dlg.m_After73;
+    m_bAstroData=dlg.m_bAstroData;
 
     if(dlg.m_restartSoundIn) {
       Q_EMIT stopAudioInputStream ();
@@ -1114,6 +1153,7 @@ void MainWindow::closeEvent(QCloseEvent * e)
 {
   writeSettings ();
   OnExit();
+  delete g_pAstro;                        //Is there a better way ?
   QMainWindow::closeEvent (e);
 }
 
@@ -1160,6 +1200,20 @@ void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
   m_wideGraph->show();
 }
 
+void MainWindow::on_actionAstronomical_data_triggered()
+{
+  if(g_pAstro==NULL) {
+    g_pAstro = new Astro(0);
+    g_pAstro->setWindowTitle("Astronomical Data");
+    Qt::WindowFlags flags = Qt::Dialog | Qt::WindowCloseButtonHint |
+        Qt::WindowMinimizeButtonHint;
+    g_pAstro->setWindowFlags(flags);
+    g_pAstro->setGeometry(m_astroGeom);
+  }
+  g_pAstro->setFontSize(m_astroFont);
+  g_pAstro->show();
+}
+
 void MainWindow::on_actionOpen_triggered()                     //Open File
 {
   m_monitoring=false;
@@ -1174,6 +1228,7 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
     if(i>=0) {
       lab1->setStyleSheet("QLabel{background-color: #66ff66}");
       lab1->setText(" " + fname.mid(i,15) + " ");
+//      lab1->setText(" " + fname + " ");
     }
     on_stopButton_clicked();
     m_diskData=true;
@@ -1187,7 +1242,7 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
   int i,len;
   QFileInfo fi(m_path);
   QStringList list;
-  list= fi.dir().entryList().filter(".wav");
+  list= fi.dir().entryList().filter(".wav",Qt::CaseInsensitive);
   for (i = 0; i < list.size()-1; ++i) {
     if(i==list.size()-2) m_loopall=false;
     len=list.at(i).length();
@@ -1375,8 +1430,9 @@ void MainWindow::decode()                                       //decode()
   jt9com_.ntxmode=9;
   if(m_modeTx=="JT65") jt9com_.ntxmode=65;
   jt9com_.nmode=9;
+  if(m_mode=="JT9W-1") jt9com_.nmode=91;
   if(m_mode=="JT65") jt9com_.nmode=65;
-  if(m_mode=="JT9+JT65") jt9com_.nmode=9+65;
+  if(m_mode=="JT9+JT65") jt9com_.nmode=9+65;  // = 74
   jt9com_.ntrperiod=m_TRperiod;
   m_nsave=0;
   if(m_saveDecoded) m_nsave=2;
@@ -1406,6 +1462,7 @@ void MainWindow::jt9_error(QProcess::ProcessError e)                            
 {
   if(!m_killAll) {
     msgBox("Error starting or running\n" + m_appDir + "/jt9 -s");
+    qDebug() << e;                           // silence compiler warning
     exit(1);
   }
 }
@@ -1758,6 +1815,11 @@ void MainWindow::guiUpdate()
 
   if(nsec != m_sec0) {                                     //Once per second
     QDateTime t = QDateTime::currentDateTimeUtc();
+    int fQSO=125;
+    m_azelDir=m_appDir;
+    if(g_pAstro!=NULL) g_pAstro->astroUpdate(t, m_myGrid, m_hisGrid, fQSO,
+                          m_setftx, m_txFreq, m_azelDir);
+
     if(m_transmitting) {
       if(nsendingsh==1) {
         lab1->setStyleSheet("QLabel{background-color: #66ffff}");
@@ -1807,8 +1869,13 @@ void MainWindow::guiUpdate()
 void MainWindow::startTx2()
 {
   if (!m_modulator.isActive ()) {
-    QString t=ui->tx6->text();
-    double snr=t.mid(1,5).toDouble();
+    m_fSpread=0.0;
+    double snr=99.0;
+    QString t=ui->tx5->text();
+    if(t.mid(0,1)=="#") m_fSpread=t.mid(1,5).toDouble();
+    m_modulator.setWide9(m_toneSpacing, m_fSpread);
+    t=ui->tx6->text();
+    if(t.mid(0,1)=="#") snr=t.mid(1,5).toDouble();
     if(snr>0.0 or snr < -50.0) snr=99.0;
     transmit (snr);
     signalMeter->setValue(0);
@@ -2472,9 +2539,28 @@ void MainWindow::on_actionJT9_1_triggered()
   m_TRperiod=60;
   m_nsps=6912;
   m_hsymStop=173;
+  m_toneSpacing=0.0;
   lab2->setStyleSheet("QLabel{background-color: #ff6ec7}");
   lab2->setText(m_mode);
   ui->actionJT9_1->setChecked(true);
+  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
+  ui->pbTxMode->setEnabled(false);
+}
+
+void MainWindow::on_actionJT9W_1_triggered()
+{
+  m_mode="JT9W-1";
+  if(m_modeTx!="JT9") on_pbTxMode_clicked();
+  statusChanged();
+  m_TRperiod=60;
+  m_nsps=6912;
+  m_hsymStop=173;
+  m_toneSpacing=pow(2,m_toneMultIndex)*12000.0/6912.0;
+  lab2->setStyleSheet("QLabel{background-color: #ff6ec7}");
+  lab2->setText(m_mode);
+  ui->actionJT9W_1->setChecked(true);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
@@ -3066,13 +3152,18 @@ void MainWindow::transmit (double snr)
 {
   if (m_modeTx == "JT65")
     {
-      Q_EMIT sendMessage (NUM_JT65_SYMBOLS, 4096.0 * 12000.0 / 11025.0, m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0), m_audioOutputChannel, true, snr);
+      Q_EMIT sendMessage (NUM_JT65_SYMBOLS, 4096.0 * 12000.0 / 11025.0,
+                          m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0),
+                          m_audioOutputChannel, true, snr);
     }
   else
     {
-      Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps, m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0), m_audioOutputChannel, true, snr);
+      Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps,
+                          m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0),
+                          m_audioOutputChannel, true, snr);
     }
-  Q_EMIT startAudioOutputStream (m_audioOutputDevice, AudioDevice::Mono == m_audioOutputChannel ? 1 : 2, m_msAudioOutputBuffered);
+  Q_EMIT startAudioOutputStream (m_audioOutputDevice,
+  AudioDevice::Mono == m_audioOutputChannel ? 1 : 2, m_msAudioOutputBuffered);
 }
 
 void MainWindow::on_outAttenuation_valueChanged (int a)
