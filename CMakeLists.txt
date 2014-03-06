@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.8.9)
 project (wsjtx C CXX Fortran)
 
 set (WSJTX_VERSION_MAJOR 1)
-set (WSJTX_VERSION_MINOR 2)
+set (WSJTX_VERSION_MINOR 3)
 
 if (POLICY CMP0020)
   cmake_policy (SET CMP0020 NEW) # link to Qt winmain on Windows
@@ -73,18 +73,22 @@ set (UISRCS
 # libfftw3 setup
 #
 find_path (fftw3f_INCLUDES fftw3.f)
-find_library (fftw3f NAMES fftw3f fftw3f-3)
+find_library (fftw3f_LIBRARIES NAMES fftw3f fftw3f-3)
 include_directories (${fftw3f_INCLUDES})
 
 #
 # libhamlib setup
 #
 find_path (hamlib_INCLUDES hamlib/rig.h)
-find_library (hamlib NAMES hamlib hamlib-2)
-find_library (usb NAMES usb0)
-find_path (hamlib-runtime-path libhamlib-2.dll)
-file (GLOB hamlib-backends ${hamlib-runtime-path}/hamlib*.dll)
+find_library (hamlib_LIBRARIES NAMES hamlib hamlib-2 PATH_SUFFIXES msvc gcc)
 include_directories (${hamlib_INCLUDES})
+
+if (WIN32)
+   find_library (hamlib_RUNTIME NAMES hamlib hamlib-2 PATH_SUFFIXES bin)
+   get_filename_component (_hamlib_runtime_path "${hamlib_RUNTIME}" PATH)
+   file (GLOB hamlib_BACKENDS ${_hamlib_runtime_path}/hamlib*.dll)
+   find_library (usb_RUNTIME NAMES usb0 PATH_SUFFIXES bin)
+endif (WIN32)
 
 
 #
@@ -150,11 +154,11 @@ add_custom_target (kvasd DEPENDS contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
 qt5_wrap_ui (GENUISRCS ${UISRCS})
 
 add_executable (wsjtx ${CXXSRCS} ${GENUISRCS} wsjtx.rc)
-target_link_libraries (wsjtx jt9impl ${hamlib} ${fftw3f})
+target_link_libraries (wsjtx jt9impl ${hamlib_LIBRARIES} ${fftw3f_LIBRARIES})
 if (WIN32)
   target_link_libraries (wsjtx ${CMAKE_CURRENT_SOURCE_DIR}/libHRDInterface001.a)
 endif (WIN32)
-add_dependencies (wsjtx hamlib kvasd)
+add_dependencies (wsjtx kvasd)
 qt5_use_modules (wsjtx Widgets Multimedia OpenGL)
 
 
@@ -166,20 +170,23 @@ install (
 
 install (DIRECTORY Palettes DESTINATION bin PATTERN *.pal)
 install (DIRECTORY samples DESTINATION bin/save)
+install (FILES
+  shortcuts.txt
+  mouse_commands.txt
+  prefixes.txt
+  cty.dat
+  kvasd.dat
+  DESTINATION bin
+  )
 
 install (
   PROGRAMS ${CMAKE_BINARY_DIR}/contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
   DESTINATION bin
 )
 
-install (
-  FILES WSJT-X_Users_Guide_v${WSJTX_VERSION_MAJOR}.${WSJTX_VERSION_MINOR}.docx
-  DESTINATION bin
-  )
-
 if (WIN32)
   install (
-    FILES ${hamlib} ${hamlib-backends} ${fftw3f} ${usb} contrib/HRDInterface001.dll
+    FILES ${hamlib_RUNTIME} ${hamlib_BACKENDS} ${fftw3f_LIBRARIES} ${usb_RUNTIME} contrib/HRDInterface001.dll
     DESTINATION bin COMPONENT Runtime
     )
 endif (WIN32)
