@@ -21,7 +21,8 @@ subroutine display(nkeep,ftol)
      freqkHz(i)=1000.d0*(f0-144.d0) + 0.001d0*ndf
   enddo
 
-10 nz=i-1
+10 backspace(26)
+  nz=i-1
   utcz=utc(nz)
   nz=nz-1
   if(nz.lt.1) go to 999

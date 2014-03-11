@@ -130,7 +130,7 @@ add_custom_target (kvasd DEPENDS contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
 qt5_wrap_ui (GENUISRCS ${UISRCS})
 
 add_executable (map65 ${CXXSRCS} ${CSRCS} ${GENUISRCS} map65.rc)
-target_link_libraries (map65 m65impl ${fftw3f_LIBRARIES} C:/wsjt-env/src/map65/palir-02.dll C:/wsjt-env/src/map65/libusb.a C:/wsjt-env/src/map65/libwsock32.a  )
+target_link_libraries (map65 m65impl ${fftw3f_LIBRARIES} ${CMAKE_CURRENT_SOURCE_DIR}/palir-02.dll ${CMAKE_CURRENT_SOURCE_DIR}/libusb.a ${CMAKE_CURRENT_SOURCE_DIR}/libwsock32.a)
 
 if (WIN32)
   target_link_libraries (map65)
