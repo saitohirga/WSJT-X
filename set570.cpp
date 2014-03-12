@@ -22,8 +22,8 @@
 #include <windows.h>
 #endif
 
-//#include <usb.h>
-#include "/users/joe/linrad/3.37/usb.h"
+#include <usb.h>
+//#include "/users/joe/linrad/3.37/usb.h"
 #include <QDebug>
 
 #define USB_SUCCESS	            0
