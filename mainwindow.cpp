@@ -327,6 +327,7 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
 
   ui->bandComboBox->clear();
   ui->bandComboBox->addItems(m_bandDescription);
+  ui->bandComboBox->setMaxVisibleItems(16);
   ui->bandComboBox->setCurrentIndex(m_band);
 
   {
