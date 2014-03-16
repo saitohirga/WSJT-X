@@ -22,10 +22,9 @@ endif (NOT CMAKE_BUILD_TYPE)
 #
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-#if (WIN32)
-#  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-keep-inline-dllexport")
-#  set (CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -Wl,-subsystem,windows")
-#endif (WIN32)
+if (WIN32)
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-keep-inline-dllexport")
+endif (WIN32)
 
 
 set (CXXSRCS
@@ -161,6 +160,7 @@ add_executable (wsjtx ${CXXSRCS} ${GENUISRCS} wsjtx.rc)
 target_link_libraries (wsjtx jt9impl ${hamlib_LIBRARIES} ${fftw3f_LIBRARIES})
 if (WIN32)
   target_link_libraries (wsjtx ${CMAKE_CURRENT_SOURCE_DIR}/libHRDInterface001.a)
+  set_target_properties (wsjtx PROPERTIES LINK_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} -mwindows")
 endif (WIN32)
 add_dependencies (wsjtx kvasd)
 qt5_use_modules (wsjtx Widgets Multimedia OpenGL)
