@@ -71,7 +71,9 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
   call interleave63(mr2prob,-1)
 
   nsec1=nsec1+1
+  dat4=0
   write(22,rec=1) nsec1,xlambda,maxe,200,mrsym,mrprob,mr2sym,mr2prob
+  write(22,rec=2) -1,-1,dat4
   call flush(22)
   call timer('kvasd   ',0)
 #ifdef UNIX
