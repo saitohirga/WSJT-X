@@ -134,6 +134,7 @@ target_link_libraries (map65 m65impl ${fftw3f_LIBRARIES} ${CMAKE_CURRENT_SOURCE_
 
 if (WIN32)
   target_link_libraries (map65)
+  set_target_properties (map65 PROPERTIES LINK_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} -mwindows")
 endif (WIN32)
 add_dependencies (map65 kvasd)
 qt5_use_modules (map65 Widgets Multimedia OpenGL)
