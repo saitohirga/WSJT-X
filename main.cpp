@@ -11,6 +11,7 @@
 #include <QtGui>
 #endif
 #include <QApplication>
+#include <QRegularExpression>
 #include <QObject>
 #include <QSettings>
 #include <QLibraryInfo>
@@ -28,9 +29,9 @@ QString       my_key;
 
 int main(int argc, char *argv[])
 {
+  QApplication a(argc, argv);
   try
     {
-      QApplication a(argc, argv);
       setlocale (LC_NUMERIC, "C"); // ensure number forms are in
       // consistent format, do this after
       // instantiating QApplication so
@@ -49,6 +50,11 @@ int main(int argc, char *argv[])
           if ('-' != temp_name[0]
               && !temp_name.isEmpty ())
             {
+              if (temp_name.contains (QRegularExpression {R"([\\/])"}))
+                {
+                  throw std::runtime_error (QObject::tr ("Invalid rig name - \\ & / not allowed").toLocal8Bit ().data ());
+                }
+                
               a.setApplicationName (a.applicationName () + " - " + temp_name);
             }
           multiple = true;
@@ -76,7 +82,7 @@ int main(int argc, char *argv[])
 
       if(!mem_jt9.attach()) {
         if (!mem_jt9.create(sizeof(jt9com_))) {
-          QMessageBox::critical( 0, "Error", "Unable to create shared memory segment.");
+          QMessageBox::critical (nullptr, "Error", "Unable to create shared memory segment.");
           exit(1);
         }
       }
@@ -111,10 +117,12 @@ int main(int argc, char *argv[])
     }
   catch (std::exception const& e)
     {
+      QMessageBox::critical (nullptr, QObject::tr ("Error"), e.what ());
       std::cerr << "Error: " << e.what () << '\n';
     }
   catch (...)
     {
+      QMessageBox::critical (nullptr, QObject::tr ("Unexpected"), QObject::tr ("Error"));
       std::cerr << "Unexpected error\n";
       throw;			// hoping the runtime might tell us more about the exception
     }
