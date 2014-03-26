@@ -1,0 +1,39 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>shortcuts.txt</file>
+    <file>mouse_commands.txt</file>
+    <file>prefixes.txt</file>
+    <file>cty.dat</file>
+    <file>kvasd.dat</file>
+    <file>Palettes/Banana.pal</file>
+    <file>Palettes/Blue1.pal</file>
+    <file>Palettes/Blue2.pal</file>
+    <file>Palettes/Blue3.pal</file>
+    <file>Palettes/Brown.pal</file>
+    <file>Palettes/Cyan1.pal</file>
+    <file>Palettes/Cyan2.pal</file>
+    <file>Palettes/Cyan3.pal</file>
+    <file>Palettes/Default.pal</file>
+    <file>Palettes/Digipan.pal</file>
+    <file>Palettes/Fldigi.pal</file>
+    <file>Palettes/Gray1.pal</file>
+    <file>Palettes/Gray2.pal</file>
+    <file>Palettes/Green1.pal</file>
+    <file>Palettes/Green2.pal</file>
+    <file>Palettes/Jungle.pal</file>
+    <file>Palettes/Linrad.pal</file>
+    <file>Palettes/Negative.pal</file>
+    <file>Palettes/Orange.pal</file>
+    <file>Palettes/Pink.pal</file>
+    <file>Palettes/Rainbow.pal</file>
+    <file>Palettes/Scope.pal</file>
+    <file>Palettes/Sunburst.pal</file>
+    <file>Palettes/VK4BDJ.pal</file>
+    <file>Palettes/YL2KF.pal</file>
+    <file>Palettes/Yellow1.pal</file>
+    <file>Palettes/Yellow2.pal</file>
+    <file>Palettes/ZL2FZ.pal</file>
+    <file>samples/130418_1742.wav</file>
+    <file>samples/130610_2343.wav</file>
+</qresource>
+</RCC>

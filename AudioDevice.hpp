@@ -24,13 +24,7 @@ public:
     return "both" == s ? Both : "right" == s ? Right : "left" == s ? Left : Mono;
   }
 
-  bool open (OpenMode mode, Channel channel)
-  {
-    m_channel = channel;
-
-    // ensure we are unbuffered
-    return QIODevice::open (mode | QIODevice::Unbuffered);
-  }
+  bool open (OpenMode mode, Channel channel);
 
   bool isSequential () const {return true;}
 

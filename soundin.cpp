@@ -5,6 +5,8 @@
 #include <QAudioInput>
 #include <QDebug>
 
+#include "moc_soundin.cpp"
+
 bool SoundInput::audioError () const
 {
   bool result (true);
@@ -65,7 +67,7 @@ void SoundInput::start(QAudioDeviceInfo const& device, unsigned channels, int fr
   //     return;
   //   }
 
-  m_stream.reset (new QAudioInput (device, format, this));
+  m_stream.reset (new QAudioInput {device, format});
   if (audioError ())
     {
       return;

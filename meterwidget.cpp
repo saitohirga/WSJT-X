@@ -3,6 +3,8 @@
 
 #include "meterwidget.h"
 
+#include "moc_meterwidget.cpp"
+
 MeterWidget::MeterWidget(QWidget *parent) :
     QWidget(parent),
     m_signal(0)

@@ -3,44 +3,73 @@ program jt9
 ! Decoder for JT9.  Can run stand-alone, reading data from *.wav files;
 ! or as the back end of wsjt-x, with data placed in a shared memory region.
 
+  use options
+  use prog_args
+
   include 'constants.f90'
   integer*4 ihdr(11)
   real*4 s(NSMAX)
   integer*2 id2
-  character*80 arg,ldir,infile
+  character c
+  character(len=500) optarg, infile
+  integer*4 arglen,stat,offset,remain
+  logical :: shmem = .false., read_files = .false., have_args = .false.
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,ntr,       &
        mousefqso,newdat,nfa,nfsplit,nfb,ntol,kin,nzhsym,nsynced,ndecoded
   common/tracer/limtrace,lu
 
-  nargs=iargc()
-  if(nargs.lt.1) then
-     print*,'Usage: jt9 TRperiod ndepth rxfreq file1 [file2 ...]'
+  do
+     call getopt('s:e:a:r:p:d:f:',(/type(option) ::/),c,optarg,arglen,stat,offset,remain)
+     if (stat .ne. 0) then
+        exit
+     end if
+     have_args = .true.
+     select case (c)
+        case ('s')
+           shmem = .true.
+           shm_key = optarg(:arglen)
+
+        case ('e')
+           exe_dir = optarg(:arglen)
+
+        case ('a')
+           data_dir = optarg(:arglen)
+
+        case ('p')
+           read_files = .true.
+           read (optarg(:arglen), *) ntrperiod
+
+        case ('d')
+           read_files = .true.
+           read (optarg(:arglen), *) ndepth
+
+        case ('f')
+           read_files = .true.
+           read (optarg(:arglen), *) nrxfreq
+     end select
+  end do
+
+  if (.not. have_args .or. (stat .lt. 0 .or. (shmem .and. remain .gt. 0) &
+       .or. (read_files .and. remain .eq. 0) .or. (shmem .and. read_files))) then
+     print*,'Usage: jt9 -p TRperiod -d ndepth -f rxfreq -e exe_dir file1 [file2 ...]'
      print*,'       Reads data from *.wav files.'
      print*,''
-     print*,'       jt9 -s <key>'
+     print*,'       jt9 -s <key> -e exe_dir'
      print*,'       Gets data from shared memory region with key==<key>'
      go to 999
   endif
-  call getarg(1,arg)
-  if(arg(1:2).eq.'-s') then
-! Multiple instances:
-     call getarg(2,arg)
-     call getarg(3,ldir)
-     call jt9a(trim(arg),trim(ldir))
+
+  if (shmem) then
+     call jt9a()
      go to 999
   endif
-  read(arg,*) ntrperiod
-  call getarg(2,arg)
-  read(arg,*) ndepth
-  call getarg(3,arg)
-  read(arg,*) nrxfreq
-  ifile1=4
 
   limtrace=0
   lu=12
 
-  do ifile=ifile1,nargs
-     call getarg(ifile,infile)
+  do iarg = offset + 1, offset + remain
+     call get_command_argument (iarg, optarg, arglen)
+     infile = optarg(:arglen)
      open(10,file=infile,access='stream',status='old',err=998)
      read(10) ihdr
      nutc0=ihdr(1)                           !Silence compiler warning
@@ -71,8 +100,8 @@ program jt9
      k=0
      nhsym0=-999
      npts=(60*ntrperiod-6)*12000
-     if(ifile.eq.ifile1) then
-        open(12,file='timer.out',status='unknown')
+     if(iarg .eq. offset + 1) then
+        open(12,file=trim(data_dir)//'/timer.out',status='unknown')
         call timer('jt9     ',0)
      endif
 

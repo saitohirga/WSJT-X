@@ -11,12 +11,10 @@ class QAudioInput;
 class QIODevice;
 
 // Gets audio data from sound sample source and passes it to a sink device
-class SoundInput : public QObject
+class SoundInput
+  : public QObject
 {
   Q_OBJECT;
-
- private:
-  Q_DISABLE_COPY (SoundInput);
 
  public:
   SoundInput (QObject * parent = 0)
@@ -26,13 +24,13 @@ class SoundInput : public QObject
 
   ~SoundInput ();
 
- private:
-  Q_SIGNAL void error (QString message) const;
-  Q_SIGNAL void status (QString message) const;
-
   // sink must exist from the start call to any following stop () call
   Q_SLOT void start(QAudioDeviceInfo const&, unsigned channels, int framesPerBuffer, QIODevice * sink, unsigned downSampleFactor);
   Q_SLOT void stop();
+
+ private:
+  Q_SIGNAL void error (QString message) const;
+  Q_SIGNAL void status (QString message) const;
 
   // used internally
   Q_SLOT void handleStateChanged (QAudio::State) const;

@@ -15,8 +15,10 @@
 #include "soundin.h"
 #include "soundout.h"
 #include "commons.h"
+#include "Radio.hpp"
+#include "Configuration.hpp"
+#include "Transceiver.hpp"
 #include "psk_reporter.h"
-#include "rigclass.h"
 #include "signalmeter.h"
 #include "logbook/logbook.h"
 #include "Detector.hpp"
@@ -39,18 +41,22 @@ namespace Ui {
 }
 
 class QSettings;
+class QLineEdit;
 class WideGraph;
 class LogQSO;
+class Transceiver;
+class Astro;
 
 class MainWindow : public QMainWindow
 {
-  Q_OBJECT
+  Q_OBJECT;
 
-// Multiple instances: call MainWindow() with *thekey
 public:
-  explicit MainWindow(QSettings *, QSharedMemory *shdmem, QString *thekey,
-                      qint32 fontSize2, qint32 fontWeight2, unsigned downSampleFactor,
-                      QWidget *parent = 0);
+  using Frequency = Radio::Frequency;
+
+  // Multiple instances: call MainWindow() with *thekey
+  explicit MainWindow(bool multiple, QSettings *, QSharedMemory *shdmem, QString const& thekey,
+                      unsigned downSampleFactor, QWidget *parent = 0);
   ~MainWindow();
 
 public slots:
@@ -80,14 +86,12 @@ private slots:
   void on_tx2_editingFinished();
   void on_tx3_editingFinished();
   void on_tx4_editingFinished();
-  void on_tx5_editingFinished();
+  void on_tx5_currentTextChanged (QString const&);
   void on_tx6_editingFinished();
-  void on_actionDeviceSetup_triggered();
-  void on_monitorButton_clicked();
-  void on_actionExit_triggered();
+  void on_actionSettings_triggered();
+  void on_monitorButton_clicked (bool);
   void on_actionAbout_triggered();
-  void OnExit();
-  void on_autoButton_clicked();
+  void on_autoButton_clicked (bool);
   void on_stopTxButton_clicked();
   void on_stopButton_clicked();
   void on_actionOnline_Users_Guide_triggered();
@@ -100,7 +104,7 @@ private slots:
   void on_actionSave_all_triggered();
   void on_actionKeyboard_shortcuts_triggered();
   void on_actionSpecial_mouse_commands_triggered();
-  void on_DecodeButton_clicked();
+  void on_DecodeButton_clicked (bool);
   void decode();
   void decodeBusy(bool b);
   void on_EraseButton_clicked();
@@ -128,30 +132,11 @@ private slots:
   void on_actionDeepestDecode_triggered();
   void on_inGain_valueChanged(int n);
   void bumpFqso(int n);
-  void on_actionMonitor_OFF_at_startup_triggered();
   void on_actionErase_ALL_TXT_triggered();
   void on_actionErase_wsjtx_log_adi_triggered();
-  void showMacros(const QPoint& pos);
-  void onPopup1();
-  void onPopup2();
-  void onPopup3();
-  void onPopup4();
-  void onPopup5();
-  void onPopup6();
-  void onPopup7();
-  void onPopup8();
-  void onPopup9();
-  void onPopup10();
-  void on_actionConvert_JT9_x_to_RTTY_triggered(bool checked);
-  void on_actionLog_dB_reports_to_Comments_triggered(bool checked);
   void startTx2();
   void stopTx();
   void stopTx2();
-  void on_actionPrompt_to_log_QSO_triggered(bool checked);
-  void on_actionBlank_line_between_decoding_periods_triggered(bool checked);
-  void on_actionEnable_DXCC_entity_triggered(bool checked);
-  void on_actionClear_DX_Call_and_Grid_after_logging_triggered(bool checked);
-  void on_actionDisplay_distance_in_miles_triggered(bool checked);
   void on_pbCallCQ_clicked();
   void on_pbAnswerCaller_clicked();
   void on_pbSendRRR_clicked();
@@ -160,72 +145,75 @@ private slots:
   void on_pbSend73_clicked();
   void on_rbGenMsg_toggled(bool checked);
   void on_rbFreeText_toggled(bool checked);
-  void on_freeTextMsg_editingFinished();
-  void on_actionDouble_click_on_call_sets_Tx_Enable_triggered(bool checked);
+  void on_freeTextMsg_currentTextChanged (QString const&);
   void on_rptSpinBox_valueChanged(int n);
-  void on_action_73TxDisable_triggered(bool checked);
-  void on_actionRunaway_Tx_watchdog_triggered(bool checked);
   void killFile();
-  void on_tuneButton_clicked();
-  void on_actionAllow_multiple_instances_triggered(bool checked);
+  void on_tuneButton_clicked (bool);
   void on_pbR2T_clicked();
   void on_pbT2R_clicked();
   void acceptQSO2(bool accepted);
-  void on_bandComboBox_activated(int index);
+  void on_bandComboBox_activated (int index);
   void on_readFreq_clicked();
   void on_pbTxMode_clicked();
   void on_RxFreqSpinBox_valueChanged(int n);
   void on_cbTxLock_clicked(bool checked);
-  void on_actionTx2QSO_triggered(bool checked);  
   void on_cbPlus2kHz_toggled(bool checked);
   void on_outAttenuation_valueChanged (int);
+  void rigOpen ();
+  void handle_transceiver_update (Transceiver::TransceiverState);
+  void handle_transceiver_failure (QString reason);
   void on_actionAstronomical_data_triggered();
   void on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered();
   void getpfx();
   void on_actionJT9W_1_triggered();
 
-private:
-  Q_SIGNAL void startAudioOutputStream (QAudioDeviceInfo, unsigned channels, unsigned msBuffered);
-  Q_SIGNAL void stopAudioOutputStream ();
-
-  Q_SIGNAL void startAudioInputStream (QAudioDeviceInfo const&, unsigned channels, int framesPerBuffer, QIODevice * sink, unsigned downSampleFactor);
-  Q_SIGNAL void stopAudioInputStream ();
-
-  Q_SIGNAL void startDetector (AudioDevice::Channel);
-  Q_SIGNAL void detectorSetMonitoring (bool);
-  Q_SIGNAL void detectorClose ();
-
-  Q_SIGNAL void finished ();
-  Q_SIGNAL void muteAudioOutput (bool = true);
-  Q_SIGNAL void transmitFrequency (unsigned);
-  Q_SIGNAL void endTransmitMessage ();
-  Q_SIGNAL void tune (bool = true);
-  Q_SIGNAL void sendMessage (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, AudioDevice::Channel, bool synchronize = true, double dBSNR = 99.);
-  Q_SIGNAL void outAttenuationChanged (qreal);
+  void band_changed (Frequency);
+  void monitor (bool);
+  void tuning (bool);
+  void auto_tx_mode (bool);
 
 private:
+  void enable_DXCC_entity (bool on);
+
+  Q_SIGNAL void startAudioOutputStream (QAudioDeviceInfo, unsigned channels, unsigned msBuffered) const;
+  Q_SIGNAL void stopAudioOutputStream () const;
+
+  Q_SIGNAL void startAudioInputStream (QAudioDeviceInfo const&, unsigned channels, int framesPerBuffer, QIODevice * sink, unsigned downSampleFactor) const;
+  Q_SIGNAL void stopAudioInputStream () const;
+
+  Q_SIGNAL void startDetector (AudioDevice::Channel) const;
+  Q_SIGNAL void detectorSetMonitoring (bool) const;
+  Q_SIGNAL void detectorClose () const;
+
+  Q_SIGNAL void finished () const;
+  Q_SIGNAL void muteAudioOutput (bool = true) const;
+  Q_SIGNAL void transmitFrequency (unsigned) const;
+  Q_SIGNAL void endTransmitMessage () const;
+  Q_SIGNAL void tune (bool = true) const;
+  Q_SIGNAL void sendMessage (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, AudioDevice::Channel, bool synchronize = true, double dBSNR = 99.) const;
+  Q_SIGNAL void outAttenuationChanged (qreal) const;
+
+private:
+  bool m_multiple;
   QSettings * m_settings;
-    Ui::MainWindow *ui;
 
-    // other windows
-    QScopedPointer<WideGraph> m_wideGraph;
-    QScopedPointer<LogQSO> m_logDlg;
+  QScopedPointer<Ui::MainWindow> ui;
 
-    double  m_dialFreq;
-    double  m_toneSpacing;
-    double  m_fSpread;
+  // other windows
+  Configuration m_config;
+  QMessageBox m_rigErrorMessageBox;
 
-    float   m_DTmin;
-    float   m_DTmax;
+  QScopedPointer<WideGraph> m_wideGraph;
+  QScopedPointer<LogQSO> m_logDlg;
+  QScopedPointer<Astro> m_astroWidget;
+
+  Frequency  m_dialFreq;
 
     qint64  m_msErase;
     qint64  m_secBandChanged;
 
-    qint32  m_idInt;
     qint32  m_waterfallAvg;
-    qint32  m_pttMethodIndex;
     qint32  m_ntx;
-    qint32  m_pttPort;
     qint32  m_timeout;
     qint32  m_rxFreq;
     qint32  m_txFreq;
@@ -239,15 +227,11 @@ private:
     qint32  m_hsym;
 
     Detector m_detector;
-    QAudioDeviceInfo m_audioInputDevice;
-    AudioDevice::Channel m_audioInputChannel;
     SoundInput m_soundInput;
 
     Modulator m_modulator;
-    QAudioDeviceInfo m_audioOutputDevice;
-    AudioDevice::Channel m_audioOutputChannel;
     SoundOutput m_soundOutput;
-    QThread m_audioThread;
+    QThread * m_audioThread;
 
     qint32  m_TRperiod;
     qint32  m_nsps;
@@ -255,32 +239,18 @@ private:
     qint32  m_len1;
     qint32  m_inGain;
     qint32  m_nsave;
-    qint32  m_catPortIndex;
-    qint32  m_rig;
-    qint32  m_rigIndex;
-    qint32  m_serialRate;
-    qint32  m_serialRateIndex;
-    qint32  m_dataBits;
-    qint32  m_dataBitsIndex;
-    qint32  m_stopBits;
-    qint32  m_stopBitsIndex;
-    qint32  m_handshakeIndex;
     qint32  m_ncw;
     qint32  m_secID;
-    qint32  m_band;
+    QString  m_band;
     qint32  m_repeatMsg;
     qint32  m_watchdogLimit;
-    qint32  m_poll;
     qint32  m_fMax;
-    qint32  m_bad;
     qint32  m_EMEbandIndex;
     qint32  m_toneMultIndex;
     qint32  m_astroFont;
 
-    bool    m_monitoring;
     bool    m_btxok;		//True if OK to transmit
     bool    m_btxMute;		//True if transmit should be muted
-    bool    m_transmitting;
     bool    m_diskData;
     bool    m_loopall;
     bool    m_decoderBusy;
@@ -296,13 +266,10 @@ private:
     bool    m_killAll;
     bool    m_bdecoded;
     bool    m_monitorStartOFF;
-    bool    m_pskReporter;
     bool    m_pskReporterInit;
     bool    m_noSuffix;
     bool    m_toRTTY;
     bool    m_dBtoComments;
-    bool    m_catEnabled;
-    bool    m_After73;
     bool    m_promptToLog;
     bool    m_blankLine;
     bool    m_insertBlank;
@@ -315,31 +282,20 @@ private:
     bool    m_73TxDisable;
     bool    m_sent73;
     bool    m_runaway;
-    bool    m_tune;
-    bool    m_bRigOpen;
     bool    m_bMultipleOK;
-    bool    m_bDTR;
-    bool    m_bRTS;
-    bool    m_pttData;
-    bool    m_dontReadFreq;
     bool    m_lockTxFreq;
     bool    m_tx2QSO;
     bool    m_CATerror;
-    bool    m_bSplit;
-    bool    m_bXIT;
     bool    m_plus2kHz;
     bool    m_bAstroData;
 
-    char    m_decoded[80];
-
     float   m_pctZap;
 
-    QLabel* lab1;                            // labels in status bar
-    QLabel* lab2;
-    QLabel* lab3;
-    QLabel* lab4;
-    QLabel* lab5;
-    QLabel* lab6;
+    // labels in status bar
+    QLabel * tx_status_label;
+    QLabel * mode_label;
+    QLabel * last_tx_label;
+    QLabel * auto_tx_label;
 
     QMessageBox msgBox0;
 
@@ -364,13 +320,10 @@ private:
     QString m_pbmonitor_style;
     QString m_pbAutoOn_style;
     QString m_pbTune_style;
-    QString m_myCall;
-    QString m_myGrid;
     QString m_baseCall;
     QString m_hisCall;
     QString m_hisGrid;
     QString m_appDir;
-    QString m_saveDir;
     QString m_dxccPfx;
     QString m_palette;
     QString m_dateTime;
@@ -382,17 +335,10 @@ private:
     QString m_rptRcvd;
     QString m_qsoStart;
     QString m_qsoStop;
-    QString m_catPort;
-    QString m_handshake;
     QString m_cmnd;
     QString m_msgSent0;
     QString m_fileToSave;
-    QString m_azelDir;
 
-    QStringList m_macro;
-    QStringList m_dFreq;           // per band frequency in MHz as a string
-    QStringList m_antDescription;  // per band antenna description
-    QStringList m_bandDescription; // per band description
     QStringList m_prefix;
     QStringList m_suffix;
 
@@ -404,7 +350,7 @@ private:
 
     QSharedMemory *mem_jt9;
  // Multiple instances:
-    QString       *mykey_jt9;
+    QString mykey_jt9;
     PSK_Reporter *psk_Reporter;
     SignalMeter *signalMeter;
     LogBook m_logBook;
@@ -413,10 +359,17 @@ private:
     unsigned m_framesAudioInputBuffered;
     unsigned m_downSampleFactor;
     QThread::Priority m_audioThreadPriority;
-
+    bool m_bandEdited;
+    bool m_splitMode;
+    bool m_monitoring;
+    bool m_transmitting;
+    bool m_tune;
+    Frequency m_lastMonitoredFrequency;
+    double m_toneSpacing;
 
 //---------------------------------------------------- private functions
     void readSettings();
+    void setDecodedTextFont (QFont const&);
     void writeSettings();
     void createStatusBar();
     void updateStatusBar();
@@ -427,14 +380,14 @@ private:
     void msgtype(QString t, QLineEdit* tx);
     void stub();
     void statusChanged();
-    void dialFreqChanged2(double f);
-    void freeText();
-    void rigOpen();
-    void pollRigFreq();
+    void qsy(Frequency f);
     bool gridOK(QString g);
     bool shortList(QString callsign);
     QString baseCall(QString t);
     void transmit (double snr = 99.);
+    void rigFailure (QString const& reason, QString const& detail);
+    void pskSetLocal ();
+    void displayDialFrequency ();
 };
 
 extern void getfile(QString fname, int ntrperiod);

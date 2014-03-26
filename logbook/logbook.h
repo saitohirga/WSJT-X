@@ -14,10 +14,12 @@
 #include "countriesworked.h"
 #include "adif.h"
 
+class QDir;
+
 class LogBook
 {
 public:
-    void init();
+    void init(QDir const& dataPath);
     void match(/*in*/ const QString call,
               /*out*/ QString &countryName,
                       bool &callWorkedBefore,

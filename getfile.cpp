@@ -19,8 +19,10 @@
 void getfile(QString fname, int ntrperiod)
 {
 
-  char name[80];
-  strcpy(name,fname.toLatin1());
+  char name[512];
+  strncpy(name,fname.toLatin1(), sizeof (name) - 1);
+  name[sizeof (name) - 1] = '\0';
+
   FILE* fp=fopen(name,"rb");
 
   int i0=fname.indexOf(".wav");
@@ -60,8 +62,9 @@ void savewav(QString fname, int ntrperiod)
 
   int npts=ntrperiod*12000;
 //  qint16* buf=(qint16*)malloc(2*npts);
-  char name[80];
-  strcpy(name,fname.toLatin1());
+  char name[512];
+  strncpy(name,fname.toLatin1(),sizeof (name) - 1);
+  name[sizeof (name) - 1] = '\0';
   FILE* fp=fopen(name,"wb");
 
   if(fp != NULL) {

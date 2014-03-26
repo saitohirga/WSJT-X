@@ -2,6 +2,8 @@ subroutine decoder(ss,id2)
 
 ! Decoder for JT9.
 
+  use prog_args
+
   include 'constants.f90'
   real ss(184,NSMAX)
   character*22 msg

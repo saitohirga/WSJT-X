@@ -10,15 +10,13 @@ class QAudioDeviceInfo;
 
 // An instance of this sends audio data to a specified soundcard.
 
-class SoundOutput : public QObject
+class SoundOutput
+  : public QObject
 {
   Q_OBJECT;
 
   Q_PROPERTY(bool running READ isRunning);
   Q_PROPERTY(unsigned attenuation READ attenuation WRITE setAttenuation RESET resetAttenuation);
-
- private:
-  Q_DISABLE_COPY (SoundOutput);
 
  public:
   SoundOutput (QIODevice * source);

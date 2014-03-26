@@ -6,6 +6,8 @@
 #include <qmath.h>
 #include <QDebug>
 
+#include "moc_soundout.cpp"
+
 #if defined (WIN32)
 # define MS_BUFFERED 1000u
 #else
@@ -76,7 +78,7 @@ void SoundOutput::startStream (QAudioDeviceInfo const& device, \
 	  Q_EMIT error (tr ("Requested output audio format is not supported on device."));
 	}
 
-      m_stream.reset (new QAudioOutput (device, format, this));
+      m_stream.reset (new QAudioOutput (device, format));
       audioError ();
       m_stream->setVolume (m_volume);
       m_stream->setNotifyInterval(100);

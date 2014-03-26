@@ -4,6 +4,8 @@
 #include <QDebug>
 #include "commons.h"
 
+#include "moc_Detector.cpp"
+
 extern "C" {
 void   fil4_(qint16*, qint32*, qint16*, qint32*);
 }

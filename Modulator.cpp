@@ -5,7 +5,10 @@
 #include <QDebug>
 #include "mainwindow.h"
 
-extern float gran();		   // Noise generator (for tests only)
+#include "moc_Modulator.cpp"
+
+extern float gran();		// Noise generator (for tests only)
+
 #define RAMP_INCREMENT 64  // MUST be an integral factor of 2^16
 
 #if defined (WSJT_SOFT_KEYING)

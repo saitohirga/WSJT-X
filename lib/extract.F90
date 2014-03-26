@@ -1,5 +1,7 @@
 subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
 
+  use prog_args
+
   real s3(64,63)
   character decoded*22
   integer era(51),dat4(12),indx(64)
@@ -76,10 +78,15 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
   write(22,rec=2) -1,-1,dat4
   call flush(22)
   call timer('kvasd   ',0)
-#ifdef UNIX
-  iret=system('./kvasd -q > dev_null')
+
+! TODO G4WJS: Take out '-q' argument once kvasd 1.12 is available for Mac and in the repo
+!      	      where CMake fetches it from.
+#ifdef WIN32
+  iret=system('""'//trim(exe_dir)//'/kvasd" -q >dev_null"')
+!  iret=system('""'//trim(exe_dir)//'/kvasd" kvasd.dat >dev_null"')
 #else
-  iret=system('kvasd -q > dev_null')
+  iret=system('"'//trim(exe_dir)//'/kvasd" -q >/dev/null')
+!  iret=system('"'//trim(exe_dir)//'/kvasd" kvasd.dat >/dev/null')
 #endif
   call timer('kvasd   ',1)
   if(iret.ne.0) then
