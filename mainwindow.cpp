@@ -1,13 +1,18 @@
 //--------------------------------------------------------- MainWindow
 
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
+
+#include <cinttypes>
+#include <cstdlib>
 
 #include <QThread>
-#include <QColorDialog>
+#include <QLineEdit>
+#include <QDebug>
+#ifdef QT5
+#include <QtConcurrent/QtConcurrentRun>
+#endif
 
 #include "soundout.h"
-#include "devsetup.h"
 #include "plotter.h"
 #include "about.h"
 #include "astro.h"
@@ -15,10 +20,14 @@
 #include "sleep.h"
 #include "getfile.h"
 #include "logqso.h"
+#include "Bands.hpp"
+#include "TransceiverFactory.hpp"
+#include "FrequencyList.hpp"
+#include "StationList.hpp"
+#include "LiveFrequencyValidator.hpp"
+#include "FrequencyItemDelegate.hpp"
 
-#ifdef QT5
-#include <QtConcurrent/QtConcurrentRun>
-#endif
+#include "ui_mainwindow.h"
 
 int itone[NUM_JT65_SYMBOLS];	//Audio tones for all Tx symbols
 int icw[NUM_CW_SYMBOLS];	//Dits for CW ID
@@ -29,52 +38,98 @@ qint32  g_COMportOpen;
 qint32  g_iptt;
 static int nc1=1;
 wchar_t buffer[256];
-Astro*  g_pAstro = NULL;
 
-Rig* rig = NULL;
 QTextEdit* pShortcuts;
 QTextEdit* pPrefixes;
-QTcpSocket* commanderSocket = new QTcpSocket(0);
 
+#if defined (CMAKE_BUILD)
+QString rev ("      " WSJTX_STRINGIZE (SVNVERSION));
+QString Program_Title_Version ("WSJT-X   v" WSJTX_STRINGIZE (WSJTX_VERSION_MAJOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_MINOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_PATCH) ", " WSJTX_STRINGIZE (SVNVERSION) "    by K1JT");
+#else
 QString rev="$Rev$";
 QString Program_Title_Version="  WSJT-X   v1.4, r" + rev.mid(6,4) +
-                              "    by K1JT";
+  "    by K1JT";
+#endif
+
+namespace
+{
+  Radio::Frequency constexpr default_frequency {14076000};
+}
+
+
+class BandAndFrequencyItemDelegate final
+  : public QStyledItemDelegate
+{
+public:
+  explicit BandAndFrequencyItemDelegate (Bands const * bands, QObject * parent = nullptr)
+    : QStyledItemDelegate {parent}
+    , bands_ {bands}
+  {
+  }
+
+  QString displayText (QVariant const& v, QLocale const&) const override
+  {
+    return Radio::pretty_frequency_MHz_string (Radio::frequency (v, 6))
+      + QChar::Nbsp
+      + '(' + (bands_->data (bands_->find (Radio::frequency (v, 6)))).toString () + ')';
+  }
+
+private:
+  Bands const * bands_;
+};
 
 //--------------------------------------------------- MainWindow constructor
-// Multiple instances: new arg *thekey
-MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *thekey,
-                       qint32 fontSize2, qint32 fontWeight2, unsigned downSampleFactor,
-                       QWidget *parent) :
+MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdmem, QString const& thekey,
+                       unsigned downSampleFactor, QWidget *parent) :
   QMainWindow(parent),
+  m_multiple {multiple},
   m_settings (settings),
   ui(new Ui::MainWindow),
+  m_config (thekey, settings, this),
   m_wideGraph (new WideGraph (settings)),
-  m_logDlg (new LogQSO (settings, this)),
+  m_logDlg (new LogQSO (settings, &m_config, this)),
+  m_dialFreq {0},
   m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2, downSampleFactor),
-  m_audioInputDevice (QAudioDeviceInfo::defaultInputDevice ()), // start with default
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
-  m_audioOutputDevice (QAudioDeviceInfo::defaultOutputDevice ()), // start with default
   m_soundOutput (&m_modulator),
+  m_audioThread {new QThread},
+  m_appDir {QApplication::applicationDirPath ()},
+  mem_jt9 {shdmem},
+  mykey_jt9 {thekey},
   psk_Reporter (new PSK_Reporter (this)),
   m_msAudioOutputBuffered (0u),
   m_framesAudioInputBuffered (RX_SAMPLE_RATE / 10),
   m_downSampleFactor (downSampleFactor),
-  m_audioThreadPriority (QThread::HighPriority)
+  m_audioThreadPriority (QThread::HighPriority),
+  m_bandEdited {false},
+  m_splitMode {false},
+  m_monitoring {false},
+  m_transmitting {false},
+  m_tune {false},
+  m_lastMonitoredFrequency {default_frequency},
+  m_toneSpacing {0.}
 {
   ui->setupUi(this);
 
-  connect (this, &MainWindow::finished, this, &MainWindow::close);
+  // Closedown.
+  connect (ui->actionExit, &QAction::triggered, this, &QMainWindow::close);
+
+  // parts of the rig error message box that are fixed
+  m_rigErrorMessageBox.setInformativeText (tr ("Do you want to reconfigure the radio interface?"));
+  m_rigErrorMessageBox.setStandardButtons (QMessageBox::Cancel | QMessageBox::Ok | QMessageBox::Retry);
+  m_rigErrorMessageBox.setDefaultButton (QMessageBox::Ok);
+  m_rigErrorMessageBox.setIcon (QMessageBox::Critical);
 
   // start audio thread and hook up slots & signals for shutdown management
   // these objects need to be in the audio thread so that invoking
   // their slots is done in a thread safe way
-  m_soundOutput.moveToThread (&m_audioThread);
-  m_modulator.moveToThread (&m_audioThread);
-  m_soundInput.moveToThread (&m_audioThread);
-  m_detector.moveToThread (&m_audioThread);
+  m_soundOutput.moveToThread (m_audioThread);
+  m_modulator.moveToThread (m_audioThread);
+  m_soundInput.moveToThread (m_audioThread);
+  m_detector.moveToThread (m_audioThread);
 
-  connect (this, &MainWindow::finished, &m_audioThread, &QThread::quit); // quit thread event loop
-  connect (&m_audioThread, &QThread::finished, &m_audioThread, &QThread::deleteLater); // disposal
+  connect (this, &MainWindow::finished, m_audioThread, &QThread::quit); // quit thread event loop
+  connect (m_audioThread, &QThread::finished, m_audioThread, &QThread::deleteLater); // disposal
 
   // hook up sound output stream slots & signals
   connect (this, SIGNAL (startAudioOutputStream (QAudioDeviceInfo const&, unsigned, unsigned)), &m_soundOutput, SLOT (startStream (QAudioDeviceInfo const&, unsigned, unsigned)));
@@ -89,12 +144,15 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   connect (this, SIGNAL (endTransmitMessage ()), &m_modulator, SLOT (close ()));
   connect (this, SIGNAL (tune (bool)), &m_modulator, SLOT (tune (bool)));
   connect (this, SIGNAL (sendMessage (unsigned, double, unsigned, AudioDevice::Channel, bool, double))
-	   , &m_modulator, SLOT (open (unsigned, double, unsigned, AudioDevice::Channel, bool, double)));
+           , &m_modulator, SLOT (open (unsigned, double, unsigned, AudioDevice::Channel, bool, double)));
 
   // hook up the audio input stream
   connect (this, SIGNAL (startAudioInputStream (QAudioDeviceInfo const&, unsigned, int, QIODevice *, unsigned))
-	   , &m_soundInput, SLOT (start (QAudioDeviceInfo const&, unsigned, int, QIODevice *, unsigned)));
+           , &m_soundInput, SLOT (start (QAudioDeviceInfo const&, unsigned, int, QIODevice *, unsigned)));
   connect (this, SIGNAL (stopAudioInputStream ()), &m_soundInput, SLOT (stop ()));
+
+  connect (this, &MainWindow::finished, &m_soundInput, &SoundInput::stop);
+  connect (this, &MainWindow::finished, this, &MainWindow::close);
 
   connect(&m_soundInput, SIGNAL (error (QString)), this, SLOT (showSoundInError (QString)));
   // connect(&m_soundInput, SIGNAL(status(QString)), this, SLOT(showStatusMessage(QString)));
@@ -108,18 +166,19 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
 
   // setup the waterfall
   connect(m_wideGraph.data (), SIGNAL(freezeDecode2(int)),this,
-	  SLOT(freezeDecode(int)));
+          SLOT(freezeDecode(int)));
   connect(m_wideGraph.data (), SIGNAL(f11f12(int)),this,
-	  SLOT(bumpFqso(int)));
+          SLOT(bumpFqso(int)));
   connect(m_wideGraph.data (), SIGNAL(setXIT2(int)),this,
-	  SLOT(setXIT(int)));
+          SLOT(setXIT(int)));
   //    connect(m_wideGraph.data (), SIGNAL(dialFreqChanged(double)),this,
   //            SLOT(dialFreqChanged2(double)));
   connect (this, &MainWindow::finished, m_wideGraph.data (), &WideGraph::close);
 
 
   // setup the log QSO dialog
-  connect (m_logDlg.data (), SIGNAL (acceptQSO (bool)), this, SLOT (acceptQSO2 (bool)));
+  connect (m_logDlg.data (), &LogQSO::acceptQSO, this, &MainWindow::acceptQSO2);
+  connect (this, &MainWindow::finished, m_logDlg.data (), &LogQSO::close);
 
 
   on_EraseButton_clicked();
@@ -154,12 +213,17 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool,bool)),this,
           SLOT(doubleClickOnCall2(bool,bool)));
 
+  // initialise decoded text font and hook up change signal
+  setDecodedTextFont (m_config.decoded_text_font ());
+  connect (&m_config, &Configuration::decoded_text_font_changed, [this] (QFont const& font) {
+      setDecodedTextFont (font);
+    });
 
   setWindowTitle(Program_Title_Version);
   createStatusBar();
 
   connect(&proc_jt9, SIGNAL(readyReadStandardOutput()),
-                    this, SLOT(readFromStdout()));
+          this, SLOT(readFromStdout()));
 
   connect(&proc_jt9, SIGNAL(error(QProcess::ProcessError)),
           this, SLOT(jt9_error(QProcess::ProcessError)));
@@ -167,27 +231,44 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   connect(&proc_jt9, SIGNAL(readyReadStandardError()),
           this, SLOT(readFromStderr()));
 
-  ui->bandComboBox->setEditable(true);
-  ui->bandComboBox->lineEdit()->setReadOnly(true);
-  ui->bandComboBox->lineEdit()->setAlignment(Qt::AlignCenter);
-  for(int i = 0; i < ui->bandComboBox->count(); i++)
-    ui->bandComboBox->setItemData(i, Qt::AlignCenter, Qt::TextAlignmentRole);
+  // Hook up working frequencies.
+  ui->bandComboBox->setModel (m_config.frequencies ());
+  ui->bandComboBox->setModelColumn (1); // MHz
 
-  ui->tx5->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(ui->tx5, SIGNAL(customContextMenuRequested(const QPoint&)),
-      this, SLOT(showMacros(const QPoint&)));
+  // Add delegate to show bands alongside frequencies in combo box
+  // popup list.
+  ui->bandComboBox->view ()->setItemDelegateForColumn (1, new BandAndFrequencyItemDelegate {m_config.bands (), this});
 
-  ui->freeTextMsg->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(ui->freeTextMsg, SIGNAL(customContextMenuRequested(const QPoint&)),
-      this, SLOT(showMacros(const QPoint&)));
+  // combo box drop downs are limited to the drop down selector width,
+  // this almost random increase improves the situation
+  ui->bandComboBox->view ()->setMinimumWidth (ui->bandComboBox->view ()->sizeHintForColumn (1) + 40);
 
-  QFont font=ui->decodedTextBrowser->font();
-  font.setPointSize(fontSize2);
-  font.setWeight(fontWeight2);
-  ui->decodedTextBrowser->setFont(font);
-  ui->decodedTextBrowser2->setFont(font);
+  // Enable live band combo box entry validation and action.
+  auto band_validator = new LiveFrequencyValidator {ui->bandComboBox
+                                                    , m_config.bands ()
+                                                    , m_config.frequencies ()
+                                                    , this};
+  ui->bandComboBox->setValidator (band_validator);
 
-  font=ui->readFreq->font();
+  // Hook up signals.
+  connect (band_validator, &LiveFrequencyValidator::valid, this, &MainWindow::band_changed);
+  connect (ui->bandComboBox->lineEdit (), &QLineEdit::textEdited, [this] (QString const&) {m_bandEdited = true;});
+
+  // hook up configuration signals
+  connect (&m_config, &Configuration::transceiver_update, this, &MainWindow::handle_transceiver_update);
+  connect (&m_config, &Configuration::transceiver_failure, this, &MainWindow::handle_transceiver_failure);
+
+  // Free text macros model to widget hook up.
+  ui->tx5->setModel (m_config.macros ());
+  connect (ui->tx5->lineEdit ()
+           , &QLineEdit::editingFinished
+           , [this] () {on_tx5_currentTextChanged (ui->tx5->lineEdit ()->text ());});
+  ui->freeTextMsg->setModel (m_config.macros ());
+  connect (ui->freeTextMsg->lineEdit ()
+           , &QLineEdit::editingFinished
+           , [this] () {on_freeTextMsg_currentTextChanged (ui->freeTextMsg->lineEdit ()->text ());});
+
+  auto font = ui->readFreq->font();
   font.setFamily("helvetica");
   font.setPointSize(9);
   font.setWeight(75);
@@ -225,14 +306,9 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   m_btxMute=false;
   m_btxok=false;
   m_restart=false;
-  m_transmitting=false;
   m_killAll=false;
   m_widebandDecode=false;
   m_ntx=1;
-  m_myCall="";
-  m_myGrid="FN20qi";
-  m_appDir = QApplication::applicationDirPath();
-  m_saveDir="/users/joe/wsjtx/install/save";
   m_rxFreq=1500;
   m_txFreq=1500;
   m_setftx=0;
@@ -252,29 +328,18 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   g_iptt=0;
   g_COMportOpen=0;
   m_secID=0;
-  m_promptToLog=false;
   m_blankLine=false;
-  m_insertBlank=false;
-  m_displayDXCCEntity=false;
-  m_clearCallGrid=false;
-  m_bMiles=false;
   m_decodedText2=false;
   m_freeText=false;
   m_msErase=0;
   m_sent73=false;
   m_watchdogLimit=5;
-  m_tune=false;
   m_repeatMsg=0;
-  m_bRigOpen=false;
   m_secBandChanged=0;
-  m_bMultipleOK=false;
-  m_dontReadFreq=false;
   m_lockTxFreq=false;
   ui->readFreq->setEnabled(false);
   m_QSOText.clear();
-  m_CATerror=false;
   decodeBusy(false);
-  m_toneSpacing=0;
 
   signalMeter = new SignalMeter(ui->meterFrame);
   signalMeter->resize(50, 160);
@@ -282,108 +347,63 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   ui->labAz->setStyleSheet("border: 0px;");
   ui->labDist->setStyleSheet("border: 0px;");
 
-  mem_jt9 = shdmem;
-// Multiple instances:
-  mykey_jt9 = thekey;
-
   //Band Settings
   readSettings();		         //Restore user's setup params
 
   // start the audio thread
-  m_audioThread.start (m_audioThreadPriority);
+  m_audioThread->start (m_audioThreadPriority);
 
 #ifdef WIN32
-  if(!m_bMultipleOK) {
-    while(true) {
-      int iret=killbyname("jt9.exe");
-      if(iret == 603) break;
-      if(iret != 0) msgBox("KillByName return code: " +
-                           QString::number(iret));
+  if (!m_multiple)
+    {
+      while(true)
+        {
+          int iret=killbyname("jt9.exe");
+          if(iret == 603) break;
+          if(iret != 0) msgBox("KillByName return code: " +
+                               QString::number(iret));
+        }
     }
-  }
 #endif
 
-  if(m_dFreq.length()<=1) {      //Use the startup default frequencies and band descriptions
-    // default bands and JT65 frequencies
-    const double dFreq[]={0.13613,0.4742,1.838,3.576,5.357,7.076,10.138,14.076,
-                 18.102,21.076,24.917,28.076,50.276,70.091,144.489,432.178};
-    const QStringList dBandDescription = QStringList() << "2200 m" << "630 m" << "160 m"
-                                                 << "80 m" << "60 m" << "40 m"
-                                                 << "30 m" << "20 m" << "17 m"
-                                                 << "15 m" << "12 m" << "10 m"
-                                                 << "6 m" << "4 m" << "2 m"
-                                                 << "other";
-    m_dFreq.clear();
-    m_antDescription.clear();
-    m_bandDescription.clear();
-    for(int i=0; i<16; i++) {
-      QString t;
-      t.sprintf("%f",dFreq[i]);
-      m_dFreq.append(t);
-      m_antDescription.append("");
-      m_bandDescription.append(dBandDescription[i]);
-    }
-  }
-
-  ui->bandComboBox->clear();
-  ui->bandComboBox->addItems(m_bandDescription);
-  ui->bandComboBox->setCurrentIndex(m_band);
+  auto_tx_label->setText (m_config.quick_call () ? "Tx-Enable Armed" : "Tx-Enable Disarmed");
 
   {
     //delete any .quit file that might have been left lying around
     //since its presence will cause jt9 to exit a soon as we start it
     //and decodes will hang
-    QString quitFileName (m_appDir + "/.quit");
-    QFile quitFile (quitFileName);
+    QFile quitFile (".quit");
     while (quitFile.exists ())
       {
-	if (!quitFile.remove ())
-	  {
-	    msgBox ("Error removing " + quitFileName + " - OK to retry.");
-	  }
+        if (!quitFile.remove ())
+          {
+            msgBox ("Error removing \"" + quitFile.fileName () + "\" - OK to retry.");
+          }
       }
   }
 
-  QFile lockFile(m_appDir + "/.lock");     //Create .lock so jt9 will wait
+  QFile lockFile(".lock");     //Create .lock so jt9 will wait
   lockFile.open(QIODevice::ReadWrite);
 
-// Multiple instances: make the Qstring key into command line arg
-// Multiple instances: start "jt9 -s <thekey>"
-  QByteArray  ba = mykey_jt9->toLocal8Bit();
-  const char *bc = ba.data();
-//  proc_jt9.start(QDir::toNativeSeparators('"' + m_appDir + '"' + "/jt9 -s " + bc));
-  QByteArray lda = m_appDir.toLocal8Bit();
-  const char *ldir = lda.data();
-  proc_jt9.start(QDir::toNativeSeparators('"' + m_appDir + "\"/jt9 -s " + bc + " \"" + ldir + '"'));
-
-  m_pbdecoding_style1="QPushButton{background-color: cyan; \
-      border-style: outset; border-width: 1px; border-radius: 5px; \
-      border-color: black; min-width: 5em; padding: 3px;}";
-  m_pbmonitor_style="QPushButton{background-color: #00ff00; \
-      border-style: outset; border-width: 1px; border-radius: 5px; \
-      border-color: black; min-width: 5em; padding: 3px;}";
-  m_pbAutoOn_style="QPushButton{background-color: red; \
-      border-style: outset; border-width: 1px; border-radius: 5px; \
-      border-color: black; min-width: 5em; padding: 3px;}";
-  m_pbTune_style="QPushButton{background-color: red; \
-      border-style: outset; border-width: 1px; border-radius: 5px; \
-      border-color: black; min-width: 5em; padding: 3px;}";
+  QStringList jt9_args {
+    "-s", mykey_jt9
+      , "-e", QDir::toNativeSeparators (m_appDir)
+      , "-a", QDir::toNativeSeparators (m_config.data_path ().absolutePath ())
+      };
+  proc_jt9.start(QDir::toNativeSeparators (m_appDir) + QDir::separator () + "jt9", jt9_args, QIODevice::ReadWrite | QIODevice::Unbuffered);
 
   getpfx();                               //Load the prefix/suffix dictionary
   genStdMsgs(m_rpt);
   m_ntx=6;
   ui->txrb6->setChecked(true);
   if(m_mode!="JT9" and m_mode!="JT9W-1" and m_mode!="JT65" and
-      m_mode!="JT9+JT65") m_mode="JT9";
+     m_mode!="JT9+JT65") m_mode="JT9";
   on_actionWide_Waterfall_triggered();                   //###
-//  on_actionAstronomical_data_triggered();
-  if(m_bAstroData) on_actionAstronomical_data_triggered();
   m_wideGraph->setRxFreq(m_rxFreq);
   m_wideGraph->setTxFreq(m_txFreq);
   m_wideGraph->setLockTxFreq(m_lockTxFreq);
   m_wideGraph->setModeTx(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
-  dialFreqChanged2(m_dialFreq);
 
   connect(m_wideGraph.data (), SIGNAL(setFreq3(int,int)),this,
           SLOT(setFreq4(int,int)));
@@ -401,17 +421,14 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   watcher2 = new QFutureWatcher<void>;
   connect(watcher2, SIGNAL(finished()),this,SLOT(diskWriteFinished()));
 
-  Q_EMIT startDetector (m_audioInputChannel);
-  Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, m_framesAudioInputBuffered, &m_detector, m_downSampleFactor);
+  Q_EMIT startDetector (m_config.audio_input_channel ());
+  Q_EMIT startAudioInputStream (m_config.audio_input_device (), AudioDevice::Mono == m_config.audio_input_channel () ? 1 : 2, m_framesAudioInputBuffered, &m_detector, m_downSampleFactor);
 
-  Q_EMIT transmitFrequency (m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0));
+  Q_EMIT transmitFrequency (m_txFreq - m_XIT);
   Q_EMIT muteAudioOutput (false);
-  m_monitoring=!m_monitorStartOFF;           // Start with Monitoring ON/OFF
-  Q_EMIT detectorSetMonitoring (m_monitoring);
-  m_diskData=false;
 
-// Create "m_worked", a dictionary of all calls in wsjtx.log
-  QFile f("wsjtx.log");
+  // Create "m_worked", a dictionary of all calls in wsjtx.log
+  QFile f(m_config.data_path ().absoluteFilePath ("wsjtx.log"));
   f.open(QIODevice::ReadOnly | QIODevice::Text);
   QTextStream in(&f);
   QString line,t,callsign;
@@ -423,39 +440,28 @@ MainWindow::MainWindow(QSettings * settings, QSharedMemory *shdmem, QString *the
   }
   f.close();
 
-  ui->decodedTextLabel->setFont(ui->decodedTextBrowser->font());
-  ui->decodedTextLabel2->setFont(ui->decodedTextBrowser2->font());
   t="UTC   dB   DT Freq   Message";
   ui->decodedTextLabel->setText(t);
   ui->decodedTextLabel2->setText(t);
 
-  psk_Reporter->setLocalStation(m_myCall,m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
-
-  on_actionEnable_DXCC_entity_triggered(m_displayDXCCEntity);  // sets text window proportions and (re)inits the logbook
+  enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
 
   ui->label_9->setStyleSheet("QLabel{background-color: #aabec8}");
   ui->label_10->setStyleSheet("QLabel{background-color: #aabec8}");
   ui->labUTC->setStyleSheet( \
-        "QLabel { background-color : black; color : yellow; }");
+                            "QLabel { background-color : black; color : yellow; }");
   ui->labDialFreq->setStyleSheet( \
-        "QLabel { background-color : black; color : yellow; }");
+                                 "QLabel { background-color : black; color : yellow; }");
 
-  QFile f2("ALL.TXT");
-  f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-  QTextStream out(&f2);
-  out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-      << "  " << m_dialFreq << " MHz  " << m_mode << endl;
-  f2.close();
-}                                          // End of MainWindow constructor
+  m_config.transceiver_online (true);
+  qsy (m_lastMonitoredFrequency);
+  monitor (!m_config.monitor_off_at_startup ());
+}
 
 //--------------------------------------------------- MainWindow destructor
 MainWindow::~MainWindow()
 {
-  if(!m_decoderBusy) {
-    QFile lockFile(m_appDir + "/.lock");
-    lockFile.remove();
-  }
-  delete ui;
+  m_audioThread->wait ();
 }
 
 //-------------------------------------------------------- writeSettings()
@@ -468,86 +474,26 @@ void MainWindow::writeSettings()
   m_settings->setValue("TxFirst",m_txFirst);
   m_settings->setValue("DXcall",ui->dxCallEntry->text());
   m_settings->setValue("DXgrid",ui->dxGridEntry->text());
-  if(g_pAstro!=NULL and g_pAstro->isVisible()) {
-    m_astroGeom = g_pAstro->geometry();
-    m_settings->setValue("AstroGeom",m_astroGeom);
-  }
+  m_settings->setValue ("AstroDisplayed", m_astroWidget && m_astroWidget->isVisible());
   m_settings->endGroup();
 
   m_settings->beginGroup("Common");
-  m_settings->setValue("MyCall",m_myCall);
-  m_settings->setValue("MyGrid",m_myGrid);
-  m_settings->setValue("IDint",m_idInt);
-  m_settings->setValue("PTTmethod",m_pttMethodIndex);
-  m_settings->setValue("PTTport",m_pttPort);
-  m_settings->setValue("AstroFont",m_astroFont);
-  m_settings->setValue("SaveDir",m_saveDir);
-  m_settings->setValue("SoundInName", m_audioInputDevice.deviceName ());
-  m_settings->setValue("SoundOutName", m_audioOutputDevice.deviceName ());
-
-  m_settings->setValue ("AudioInputChannel", AudioDevice::toString (m_audioInputChannel));
-  m_settings->setValue ("AudioOutputChannel", AudioDevice::toString (m_audioOutputChannel));
   m_settings->setValue("Mode",m_mode);
   m_settings->setValue("ModeTx",m_modeTx);
   m_settings->setValue("SaveNone",ui->actionNone->isChecked());
   m_settings->setValue("SaveDecoded",ui->actionSave_decoded->isChecked());
   m_settings->setValue("SaveAll",ui->actionSave_all->isChecked());
   m_settings->setValue("NDepth",m_ndepth);
-  m_settings->setValue("MonitorOFF",m_monitorStartOFF);
-  m_settings->setValue("DialFreq",m_dialFreq);
   m_settings->setValue("RxFreq",m_rxFreq);
   m_settings->setValue("TxFreq",m_txFreq);
+  m_settings->setValue ("DialFreq", QVariant::fromValue(m_lastMonitoredFrequency));
   m_settings->setValue("InGain",m_inGain);
   m_settings->setValue("OutAttenuation", ui->outAttenuation->value ());
-  m_settings->setValue("PSKReporter",m_pskReporter);
-  m_settings->setValue("After73",m_After73);
-  m_settings->setValue("DisplayAstro",m_bAstroData);
-  m_settings->setValue("Macros",m_macro);
-  //Band Settings
-  m_settings->setValue("BandFrequencies",m_dFreq);
-  m_settings->setValue("BandDescriptions",m_bandDescription);
-  m_settings->setValue("AntennaDescriptions",m_antDescription);
-  m_settings->setValue("toRTTY",m_toRTTY);
   m_settings->setValue("NoSuffix",m_noSuffix);
-  m_settings->setValue("dBtoComments",m_dBtoComments);
-  m_settings->setValue("catEnabled",m_catEnabled);
-  m_settings->setValue("Rig",m_rig);
-  m_settings->setValue("RigIndex",m_rigIndex);
-  m_settings->setValue("CATport",m_catPort);
-  m_settings->setValue("CATportIndex",m_catPortIndex);
-  m_settings->setValue("SerialRate",m_serialRate);
-  m_settings->setValue("SerialRateIndex",m_serialRateIndex);
-  m_settings->setValue("DataBits",m_dataBits);
-  m_settings->setValue("DataBitsIndex",m_dataBitsIndex);
-  m_settings->setValue("StopBits",m_stopBits);
-  m_settings->setValue("StopBitsIndex",m_stopBitsIndex);
-  m_settings->setValue("Handshake",m_handshake);
-  m_settings->setValue("HandshakeIndex",m_handshakeIndex);
-  m_settings->setValue("BandIndex",m_band);
-  m_settings->setValue("PromptToLog",m_promptToLog);
-  m_settings->setValue("InsertBlank",m_insertBlank);
-  m_settings->setValue("DXCCEntity",m_displayDXCCEntity);
-  m_settings->setValue("ClearCallGrid",m_clearCallGrid);
-  m_settings->setValue("Miles",m_bMiles);
   m_settings->setValue("GUItab",ui->tabWidget->currentIndex());
-  m_settings->setValue("QuickCall",m_quickCall);
-  m_settings->setValue("73TxDisable",m_73TxDisable);
-  m_settings->setValue("Runaway",m_runaway);
-  m_settings->setValue("Tx2QSO",m_tx2QSO);
-  m_settings->setValue("MultipleOK",m_bMultipleOK);
-  m_settings->setValue("DTR",m_bDTR);
-  m_settings->setValue("RTS",m_bRTS);  m_settings->setValue("pttData",m_pttData);
-  m_settings->setValue("Polling",m_poll);
   m_settings->setValue("OutBufSize",outBufSize);
   m_settings->setValue("LockTxFreq",m_lockTxFreq);
-  m_settings->setValue("TxSplit",m_bSplit);
-  m_settings->setValue("UseXIT",m_bXIT);
-  m_settings->setValue("XIT",m_XIT);
   m_settings->setValue("Plus2kHz",m_plus2kHz);
-  m_settings->setValue("EMEbandIndex",m_EMEbandIndex);
-  m_settings->setValue("ToneMultIndex",m_toneMultIndex);
-  m_settings->setValue("DTmin",m_DTmin);
-  m_settings->setValue("DTmax",m_DTmax);
 
   m_settings->endGroup();
 }
@@ -560,69 +506,34 @@ void MainWindow::readSettings()
   restoreState (m_settings->value ("state", saveState ()).toByteArray ());
   ui->dxCallEntry->setText(m_settings->value("DXcall","").toString());
   ui->dxGridEntry->setText(m_settings->value("DXgrid","").toString());
-  m_astroGeom = m_settings->value("AstroGeom", QRect(71,390,227,403)).toRect();
-  m_path = m_settings->value("MRUdir", m_appDir + "/save").toString();
+  m_path = m_settings->value("MRUdir", m_config.save_directory ().absolutePath ()).toString ();
   m_txFirst = m_settings->value("TxFirst",false).toBool();
   ui->txFirstCheckBox->setChecked(m_txFirst);
+  auto displayAstro = m_settings->value ("AstroDisplayed", false).toBool ();
   m_settings->endGroup();
 
-  m_settings->beginGroup("Common");
-  m_myCall=m_settings->value("MyCall","").toString();
-  morse_(m_myCall.toLatin1().data(),icw,&m_ncw,m_myCall.length());
-  m_myGrid=m_settings->value("MyGrid","").toString();
-  m_idInt=m_settings->value("IDint",0).toInt();
-  m_pttMethodIndex=m_settings->value("PTTmethod",1).toInt();
-  m_pttPort=m_settings->value("PTTport",0).toInt();
-  m_astroFont=m_settings->value("AstroFont",18).toInt();
-  m_saveDir=m_settings->value("SaveDir",m_appDir + "/save").toString();
-
-  {
-    //
-    // retrieve audio input device
-    //
-    QString savedName = m_settings->value( "SoundInName").toString();
-    QList<QAudioDeviceInfo> audioInputDevices (QAudioDeviceInfo::availableDevices (QAudio::AudioInput)); // available audio input devices
-    for (QList<QAudioDeviceInfo>::const_iterator p = audioInputDevices.begin (); p != audioInputDevices.end (); ++p)
-      {
-	if (p->deviceName () == savedName)
-	  {
-	    m_audioInputDevice = *p;
-	  }
-      }
-  }
-
-  {
-    //
-    // retrieve audio output device
-    //
-    QString savedName = m_settings->value("SoundOutName").toString();
-    QList<QAudioDeviceInfo> audioOutputDevices (QAudioDeviceInfo::availableDevices (QAudio::AudioOutput)); // available audio output devices
-    for (QList<QAudioDeviceInfo>::const_iterator p = audioOutputDevices.begin (); p != audioOutputDevices.end (); ++p)
+  // do this outside of settings group because it uses groups internally
+  if (displayAstro)
     {
-      if (p->deviceName () == savedName) {
-        m_audioOutputDevice = *p;
-      }
+      on_actionAstronomical_data_triggered ();
     }
-  }
 
-  // retrieve audio channel info
-  m_audioInputChannel = AudioDevice::fromString (m_settings->value ("AudioInputChannel", "Mono").toString ());
-  m_audioOutputChannel = AudioDevice::fromString (m_settings->value ("AudioOutputChannel", "Mono").toString ());
-
+  m_settings->beginGroup("Common");
+  morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),icw,&m_ncw,m_config.my_callsign ().length());
   m_mode=m_settings->value("Mode","JT9").toString();
   m_modeTx=m_settings->value("ModeTx","JT9").toString();
   if(m_modeTx.mid(0,3)=="JT9") ui->pbTxMode->setText("Tx JT9  @");
   if(m_modeTx=="JT65") ui->pbTxMode->setText("Tx JT65  #");
   ui->actionNone->setChecked(m_settings->value("SaveNone",true).toBool());
   ui->actionSave_decoded->setChecked(m_settings->value(
-                                         "SaveDecoded",false).toBool());
+                                                       "SaveDecoded",false).toBool());
   ui->actionSave_all->setChecked(m_settings->value("SaveAll",false).toBool());
-  m_dialFreq=m_settings->value("DialFreq",14.078).toDouble();
   m_rxFreq=m_settings->value("RxFreq",1500).toInt();
   ui->RxFreqSpinBox->setValue(m_rxFreq);
   m_txFreq=m_settings->value("TxFreq",1500).toInt();
+  m_lastMonitoredFrequency = m_settings->value ("DialFreq", QVariant::fromValue<Frequency> (default_frequency)).value<Frequency> ();
   ui->TxFreqSpinBox->setValue(m_txFreq);
-  Q_EMIT transmitFrequency (m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0));
+  Q_EMIT transmitFrequency (m_txFreq - m_XIT);
   m_saveDecoded=ui->actionSave_decoded->isChecked();
   m_saveAll=ui->actionSave_all->isChecked();
   m_ndepth=m_settings->value("NDepth",3).toInt();
@@ -633,77 +544,19 @@ void MainWindow::readSettings()
   ui->outAttenuation->setValue (m_settings->value ("OutAttenuation", 0).toInt ());
   on_outAttenuation_valueChanged (ui->outAttenuation->value ());
 
-  m_monitorStartOFF=m_settings->value("MonitorOFF",false).toBool();
-  ui->actionMonitor_OFF_at_startup->setChecked(m_monitorStartOFF);
-  m_pskReporter=m_settings->value("PSKReporter",false).toBool();
-  m_After73=m_settings->value("After73",false).toBool();
-  m_bAstroData=m_settings->value("DisplayAstro",false).toBool();
-  m_macro=m_settings->value("Macros","TNX 73 GL").toStringList();
-  //Band Settings
-  m_dFreq=m_settings->value("BandFrequencies","").toStringList();
-  m_bandDescription=m_settings->value("BandDescriptions","").toStringList();
-  m_antDescription=m_settings->value("AntennaDescriptions","").toStringList();
-  m_toRTTY=m_settings->value("toRTTY",false).toBool();
-  ui->actionConvert_JT9_x_to_RTTY->setChecked(m_toRTTY);
   m_noSuffix=m_settings->value("NoSuffix",false).toBool();
-  m_dBtoComments=m_settings->value("dBtoComments",false).toBool();
-  ui->actionLog_dB_reports_to_Comments->setChecked(m_dBtoComments);
-  m_rig=m_settings->value("Rig",214).toInt();
-  m_rigIndex=m_settings->value("RigIndex",100).toInt();
-  m_catPort=m_settings->value("CATport","None").toString();
-  m_catPortIndex=m_settings->value("CATportIndex",0).toInt();
-  m_serialRate=m_settings->value("SerialRate",4800).toInt();
-  m_serialRateIndex=m_settings->value("SerialRateIndex",1).toInt();
-  m_dataBits=m_settings->value("DataBits",8).toInt();
-  m_dataBitsIndex=m_settings->value("DataBitsIndex",1).toInt();
-  m_stopBits=m_settings->value("StopBits",2).toInt();
-  m_stopBitsIndex=m_settings->value("StopBitsIndex",1).toInt();
-  m_handshake=m_settings->value("Handshake","None").toString();
-  m_handshakeIndex=m_settings->value("HandshakeIndex",0).toInt();
-  m_band=m_settings->value("BandIndex",7).toInt();
-  ui->bandComboBox->setCurrentIndex(m_band);
-  dialFreqChanged2(m_dialFreq);
-  m_catEnabled=m_settings->value("catEnabled",false).toBool();
-  m_promptToLog=m_settings->value("PromptToLog",false).toBool();
-  ui->actionPrompt_to_log_QSO->setChecked(m_promptToLog);
-  m_insertBlank=m_settings->value("InsertBlank",false).toBool();
-  ui->actionBlank_line_between_decoding_periods->setChecked(m_insertBlank);
-  m_displayDXCCEntity=m_settings->value("DXCCEntity",false).toBool();
-  ui->actionEnable_DXCC_entity->setChecked(m_displayDXCCEntity);
-  m_clearCallGrid=m_settings->value("ClearCallGrid",false).toBool();
-  ui->actionClear_DX_Call_and_Grid_after_logging->setChecked(m_clearCallGrid);
-  m_bMiles=m_settings->value("Miles",false).toBool();
-  ui->actionDisplay_distance_in_miles->setChecked(m_bMiles);
   int n=m_settings->value("GUItab",0).toInt();
   ui->tabWidget->setCurrentIndex(n);
-  m_quickCall=m_settings->value("QuickCall",false).toBool();
-  ui->actionDouble_click_on_call_sets_Tx_Enable->setChecked(m_quickCall);
-  m_73TxDisable=m_settings->value("73TxDisable",false).toBool();
-  ui->action_73TxDisable->setChecked(m_73TxDisable);
-  m_runaway=m_settings->value("Runaway",false).toBool();
-  ui->actionRunaway_Tx_watchdog->setChecked(m_runaway);
-  m_tx2QSO=m_settings->value("Tx2QSO",false).toBool();
-  ui->actionTx2QSO->setChecked(m_tx2QSO);
-  m_bMultipleOK=m_settings->value("MultipleOK",false).toBool();
-  ui->actionAllow_multiple_instances->setChecked(m_bMultipleOK);
-  m_bDTR=m_settings->value("DTR",false).toBool();
-  m_bRTS=m_settings->value("RTS",false).toBool();  m_pttData=m_settings->value("pttData",false).toBool();
-  m_poll=m_settings->value("Polling",0).toInt();
   outBufSize=m_settings->value("OutBufSize",4096).toInt();
   m_lockTxFreq=m_settings->value("LockTxFreq",false).toBool();
   ui->cbTxLock->setChecked(m_lockTxFreq);
-  m_bSplit=m_settings->value("TxSplit",false).toBool();
-  m_bXIT=m_settings->value("UseXIT",false).toBool();
-  m_XIT=m_settings->value("XIT",0).toInt();
-	m_plus2kHz=m_settings->value("Plus2kHz",false).toBool();
-	ui->cbPlus2kHz->setChecked(m_plus2kHz);
+  m_plus2kHz=m_settings->value("Plus2kHz",false).toBool();
+  ui->cbPlus2kHz->setChecked(m_plus2kHz);
   m_EMEbandIndex=m_settings->value("EMEbandIndex",0).toInt();
   m_toneMultIndex=m_settings->value("ToneMultIndex",0).toInt();
-  m_DTmin=m_settings->value("DTmin",-2.5).toFloat();
-  m_DTmax=m_settings->value("DTmax",5.0).toFloat();
   m_settings->endGroup();
 
-  // use these initialisation settings to tune the audio o/p bufefr
+  // use these initialisation settings to tune the audio o/p buffer
   // size and audio thread priority
   m_settings->beginGroup ("Tune");
   m_msAudioOutputBuffered = m_settings->value ("Audio/OutputBufferMs").toInt ();
@@ -716,6 +569,14 @@ void MainWindow::readSettings()
   if(m_ndepth==3) ui->actionDeepestDecode->setChecked(true);
 
   statusChanged();
+}
+
+void MainWindow::setDecodedTextFont (QFont const& font)
+{
+  ui->decodedTextBrowser->setFont (font);
+  ui->decodedTextBrowser2->setFont (font);
+  ui->decodedTextLabel->setFont (font);
+  ui->decodedTextLabel2->setFont (font);
 }
 
 //-------------------------------------------------------------- dataSink()
@@ -736,7 +597,7 @@ void MainWindow::dataSink(qint64 frames)
     jt9com_.ndiskdat=0;
   }
 
-// Get power, spectrum, and ihsym
+  // Get power, spectrum, and ihsym
   trmin=m_TRperiod/60;
   int k (frames - 1);
   jt9com_.nfa=m_wideGraph->nStartFreq();
@@ -768,8 +629,7 @@ void MainWindow::dataSink(qint64 frames)
       imin=imin - (imin%(m_TRperiod/60));
       QString t2;
       t2.sprintf("%2.2d%2.2d",ihr,imin);
-      m_fname=m_saveDir + "/" + t.date().toString("yyMMdd") + "_" +
-            t2 + ".wav";
+      m_fname=m_config.save_directory ().absoluteFilePath (t.date().toString("yyMMdd") + "_" + t2 + ".wav");
       *future2 = QtConcurrent::run(savewav, m_fname, m_TRperiod);
       watcher2->setFuture(*future2);
     }
@@ -777,165 +637,90 @@ void MainWindow::dataSink(qint64 frames)
 }
 
 void MainWindow::showSoundInError(const QString& errorMsg)
- {QMessageBox::critical(this, tr("Error in SoundInput"), errorMsg);}
+{QMessageBox::critical(this, tr("Error in SoundInput"), errorMsg);}
 
 void MainWindow::showSoundOutError(const QString& errorMsg)
- {QMessageBox::critical(this, tr("Error in SoundOutput"), errorMsg);}
+{QMessageBox::critical(this, tr("Error in SoundOutput"), errorMsg);}
 
 void MainWindow::showStatusMessage(const QString& statusMsg)
- {statusBar()->showMessage(statusMsg);}
+{statusBar()->showMessage(statusMsg);}
 
-void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
+void MainWindow::on_actionSettings_triggered()               //Setup Dialog
 {
-  DevSetup dlg(this);
-  dlg.m_myCall=m_myCall;
-  dlg.m_myGrid=m_myGrid;
-  dlg.m_idInt=m_idInt;
-  dlg.m_pttMethodIndex=m_pttMethodIndex;
-  dlg.m_pttPort=m_pttPort;
-  dlg.m_astroFont=m_astroFont;
-  dlg.m_saveDir=m_saveDir;
-  dlg.m_audioInputDevice = m_audioInputDevice;
-  dlg.m_audioOutputDevice = m_audioOutputDevice;
-  dlg.m_audioInputChannel = m_audioInputChannel;
-  dlg.m_audioOutputChannel = m_audioOutputChannel;
-  dlg.m_pskReporter=m_pskReporter;
-  dlg.m_After73=m_After73;
-  dlg.m_bAstroData=m_bAstroData;
-  dlg.m_macro=m_macro;
-  dlg.m_dFreq=m_dFreq;
-  dlg.m_antDescription=m_antDescription;
-  dlg.m_bandDescription=m_bandDescription;
-  dlg.m_catEnabled=m_catEnabled;
-  dlg.m_rig=m_rig;
-  dlg.m_rigIndex=m_rigIndex;
-  dlg.m_catPort=m_catPort;
-  dlg.m_catPortIndex=m_catPortIndex;
-  dlg.m_serialRate=m_serialRate;
-  dlg.m_serialRateIndex=m_serialRateIndex;
-  dlg.m_dataBits=m_dataBits;
-  dlg.m_dataBitsIndex=m_dataBitsIndex;
-  dlg.m_stopBits=m_stopBits;
-  dlg.m_stopBitsIndex=m_stopBitsIndex;
-  dlg.m_handshake=m_handshake;
-  dlg.m_handshakeIndex=m_handshakeIndex;
-  dlg.m_bDTR=m_bDTR;
-  dlg.m_bRTS=m_bRTS;  dlg.m_pttData=m_pttData;
-  dlg.m_poll=m_poll;
-  dlg.m_bSplit=m_bSplit;
-  dlg.m_bXIT=m_bXIT;
-  dlg.m_EMEbandIndex=m_EMEbandIndex;
-  dlg.m_toneMultIndex=m_toneMultIndex;
-  dlg.m_DTmin=m_DTmin;
-  dlg.m_DTmax=m_DTmax;
+  ui->readFreq->setStyleSheet("");
+  ui->readFreq->setEnabled(false);
 
-  if(m_bRigOpen) {
-    rig->close();
-    ui->readFreq->setStyleSheet("");
-    ui->readFreq->setEnabled(false);
-    if(m_rig<9900) delete rig;
-    m_bRigOpen=false;
-    m_catEnabled=false;
-    m_CATerror=false;
-  }
+  if (QDialog::Accepted == m_config.exec ())
+    {
+      on_dxGridEntry_textChanged (m_hisGrid); // recalculate distances in case of units change
+      enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
 
-  dlg.initDlg();
-  if(dlg.exec() == QDialog::Accepted) {
-    m_myCall=dlg.m_myCall;
-    m_myGrid=dlg.m_myGrid;
-    m_idInt=dlg.m_idInt;
-    m_pttMethodIndex=dlg.m_pttMethodIndex;
-    m_pttPort=dlg.m_pttPort;
-    m_astroFont=dlg.m_astroFont;
-    if(g_pAstro!=NULL and g_pAstro->isVisible()) {
-      g_pAstro->setFontSize(m_astroFont);
-    }
-    m_saveDir=dlg.m_saveDir;
-    m_audioInputDevice = dlg.m_audioInputDevice;
-    m_audioOutputDevice = dlg.m_audioOutputDevice;
-    m_audioInputChannel = dlg.m_audioInputChannel;
-    m_audioOutputChannel = dlg.m_audioOutputChannel;
-    m_macro=dlg.m_macro;
-    m_dFreq=dlg.m_dFreq;
-    m_antDescription=dlg.m_antDescription;
-    m_bandDescription=dlg.m_bandDescription;
-    m_catEnabled=dlg.m_catEnabled;
-    m_rig=dlg.m_rig;
-    m_rigIndex=dlg.m_rigIndex;
-    m_catPort=dlg.m_catPort;
-    m_catPortIndex=dlg.m_catPortIndex;
-    m_serialRate=dlg.m_serialRate;
-    m_serialRateIndex=dlg.m_serialRateIndex;
-    m_dataBits=dlg.m_dataBits;
-    m_dataBitsIndex=dlg.m_dataBitsIndex;
-    m_stopBits=dlg.m_stopBits;
-    m_stopBitsIndex=dlg.m_stopBitsIndex;
-    m_handshake=dlg.m_handshake;
-    m_handshakeIndex=dlg.m_handshakeIndex;
-    m_bDTR=dlg.m_bDTR;
-    m_bRTS=dlg.m_bRTS;
-    m_pttData=dlg.m_pttData;
-    m_poll=dlg.m_poll;
-    m_EMEbandIndex=dlg.m_EMEbandIndex;
-    m_toneMultIndex=dlg.m_toneMultIndex;
-    if(m_mode=="JT9W-1") m_toneSpacing=pow(2,m_toneMultIndex)*12000.0/6912.0;
-    m_DTmin=dlg.m_DTmin;
-    m_DTmax=dlg.m_DTmax;
+      if(m_config.spot_to_psk_reporter ())
+        {
+          pskSetLocal ();
+        }
 
-	//Band Settings
-    ui->bandComboBox->clear();
-    ui->bandComboBox->addItems(dlg.m_bandDescription);
-    ui->bandComboBox->setCurrentIndex(m_band);
-    m_pskReporter=dlg.m_pskReporter;
-    if(m_pskReporter) {
-      psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
-    }
-    m_After73=dlg.m_After73;
-    m_bAstroData=dlg.m_bAstroData;
+      if(m_mode=="JT9W-1") m_toneSpacing=pow(2,m_config.jt9w_bw_mult ())*12000.0/6912.0;
 
-    if(dlg.m_restartSoundIn) {
-      Q_EMIT stopAudioInputStream ();
-      Q_EMIT detectorClose ();
-      Q_EMIT startDetector (m_audioInputChannel);
-      Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, m_framesAudioInputBuffered, &m_detector, m_downSampleFactor);
-    }
-
-    if(dlg.m_restartSoundOut) {
-      Q_EMIT stopAudioOutputStream ();
-      Q_EMIT startAudioOutputStream (m_audioOutputDevice, AudioDevice::Mono == m_audioOutputChannel ? 1 : 2, m_msAudioOutputBuffered);
-    }
-  }
-  m_catEnabled=dlg.m_catEnabled;
-
-  if(m_catEnabled) {
-    rigOpen();
-  } else {
-    ui->readFreq->setStyleSheet("");
-  }
-
-  if(dlg.m_bSplit!=m_bSplit or dlg.m_bXIT!=m_bXIT) {
-    m_bSplit=dlg.m_bSplit;
-    if(m_bSplit) ui->readFreq->setText("S");
-    if(!m_bSplit) ui->readFreq->setText("");
-    m_bXIT=dlg.m_bXIT;
-    if(m_bSplit or m_bXIT) setXIT(m_txFreq);
-    if(m_bRigOpen and !m_bSplit) {
-      int ret=rig->setSplitFreq(MHz(m_dialFreq),RIG_VFO_B);
-      if(ret!=RIG_OK) {
-        QString rt;
-        rt.sprintf("Setting VFO_B failed:  %d",ret);
-        msgBox(rt);
+      if(m_config.restart_audio_input ()) {
+        Q_EMIT stopAudioInputStream ();
+        Q_EMIT detectorClose ();
+        Q_EMIT startDetector (m_config.audio_input_channel ());
+        Q_EMIT startAudioInputStream (m_config.audio_input_device (), AudioDevice::Mono == m_config.audio_input_channel () ? 1 : 2, m_framesAudioInputBuffered, &m_detector, m_downSampleFactor);
       }
+      if(m_config.restart_audio_output ()) {
+        Q_EMIT stopAudioOutputStream ();
+        Q_EMIT startAudioOutputStream (m_config.audio_output_device (), AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2, m_msAudioOutputBuffered);
+      }
+
+      auto_tx_label->setText (m_config.quick_call () ? "Tx-Enable Armed" : "Tx-Enable Disarmed");
+
+      displayDialFrequency ();
     }
-  }
+
+  setXIT (m_txFreq);
+  if (m_config.transceiver_online ())
+    {
+      Q_EMIT m_config.transceiver_frequency (m_dialFreq);
+    }
 }
 
-void MainWindow::on_monitorButton_clicked()                  //Monitor
+void MainWindow::on_monitorButton_clicked (bool checked)
 {
-  m_monitoring=true;
-  Q_EMIT detectorSetMonitoring (true);
-  //  Q_EMIT startAudioInputStream (m_audioInputDevice, AudioDevice::Mono == m_audioInputChannel ? 1 : 2, m_framesAudioInputBuffered, &m_detector, m_downSampleFactor);
-  m_diskData=false;
+  // make sure we have the current rig state
+  //  Q_EMIT m_config.sync_transceiver (true);
+
+  if (!m_transmitting)
+    {
+      m_monitoring = checked;
+
+      if (checked)
+        {
+          m_diskData = false;	// no longer reading WAV files
+
+          if (m_monitoring)
+            {
+              // put rig back where it was when last in control
+              Q_EMIT m_config.transceiver_frequency (m_lastMonitoredFrequency);
+              setXIT (m_txFreq);
+            }
+        }
+
+      Q_EMIT detectorSetMonitoring (checked);
+      //  Q_EMIT startAudioInputStream (m_params.audio_input_device, AudioDevice::Mono == m_params.audio_input_channel ? 1 : 2, m_framesAudioInputBuffered, &m_detector, m_downSampleFactor);
+    }
+  else
+    {
+      ui->monitorButton->setChecked (false); // disallow
+    }
+
+  Q_EMIT m_config.sync_transceiver (true, checked); // gets Configuration in/out of strict split and mode checking
+}
+
+void MainWindow::monitor (bool state)
+{
+  ui->monitorButton->setChecked (state);
+  on_monitorButton_clicked (state);
 }
 
 void MainWindow::on_actionAbout_triggered()                  //Display "About"
@@ -944,120 +729,124 @@ void MainWindow::on_actionAbout_triggered()                  //Display "About"
   dlg.exec();
 }
 
-void MainWindow::on_autoButton_clicked()                     //Auto
+void MainWindow::on_autoButton_clicked (bool checked)
 {
-  m_auto = !m_auto;
-  if(m_auto) {
-    ui->autoButton->setStyleSheet(m_pbAutoOn_style);
-  } else {
-    m_btxok=false;
-    Q_EMIT muteAudioOutput ();
-    ui->autoButton->setStyleSheet("");
-    on_monitorButton_clicked();
-    m_repeatMsg=0;
-  }
+  m_auto = checked;
+  if (!m_auto)
+    {
+      m_btxok = false;
+      Q_EMIT muteAudioOutput ();
+      monitor (true);
+      m_repeatMsg = 0;
+    }
+}
+
+void MainWindow::auto_tx_mode (bool state)
+{
+  ui->autoButton->setChecked (state);
+  on_autoButton_clicked (state);
 }
 
 void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
 {
   int n;
   switch(e->key())
-  {
-  case Qt::Key_1:
-    if(e->modifiers() & Qt::AltModifier) {
-      on_txb1_clicked();
+    {
+    case Qt::Key_1:
+      if(e->modifiers() & Qt::AltModifier) {
+        on_txb1_clicked();
+        break;
+      }
+    case Qt::Key_2:
+      if(e->modifiers() & Qt::AltModifier) {
+        on_txb2_clicked();
+        break;
+      }
+    case Qt::Key_3:
+      if(e->modifiers() & Qt::AltModifier) {
+        on_txb3_clicked();
+        break;
+      }
+    case Qt::Key_4:
+      if(e->modifiers() & Qt::AltModifier) {
+        on_txb4_clicked();
+        break;
+      }
+    case Qt::Key_5:
+      if(e->modifiers() & Qt::AltModifier) {
+        on_txb5_clicked();
+        break;
+      }
+    case Qt::Key_6:
+      if(e->modifiers() & Qt::AltModifier) {
+        on_txb6_clicked();
+        break;
+      }
+    case Qt::Key_D:
+      if(e->modifiers() & Qt::ShiftModifier) {
+        if(!m_decoderBusy) {
+          jt9com_.newdat=0;
+          jt9com_.nagain=0;
+          decode();
+          break;
+        }
+      }
       break;
-    }
-  case Qt::Key_2:
-    if(e->modifiers() & Qt::AltModifier) {
-      on_txb2_clicked();
+    case Qt::Key_F4:
+      ui->dxCallEntry->setText("");
+      ui->dxGridEntry->setText("");
+      genStdMsgs("");
+      m_ntx=6;
+      ui->txrb6->setChecked(true);
       break;
-    }
-  case Qt::Key_3:
-    if(e->modifiers() & Qt::AltModifier) {
-      on_txb3_clicked();
+    case Qt::Key_F6:
+      if(e->modifiers() & Qt::ShiftModifier) {
+        on_actionDecode_remaining_files_in_directory_triggered();
+      }
       break;
-    }
-  case Qt::Key_4:
-    if(e->modifiers() & Qt::AltModifier) {
-      on_txb4_clicked();
+    case Qt::Key_F11:
+      n=11;
+      if(e->modifiers() & Qt::ControlModifier) n+=100;
+      bumpFqso(n);
       break;
-    }
-  case Qt::Key_5:
-    if(e->modifiers() & Qt::AltModifier) {
-      on_txb5_clicked();
+    case Qt::Key_F12:
+      n=12;
+      if(e->modifiers() & Qt::ControlModifier) n+=100;
+      bumpFqso(n);
       break;
-    }
-  case Qt::Key_6:
-    if(e->modifiers() & Qt::AltModifier) {
-      on_txb6_clicked();
-      break;
-    }
-  case Qt::Key_D:
-    if(e->modifiers() & Qt::ShiftModifier) {
-      if(!m_decoderBusy) {
-        jt9com_.newdat=0;
-        jt9com_.nagain=0;
-        decode();
+    case Qt::Key_F:
+      if(e->modifiers() & Qt::ControlModifier) {
+        if(ui->tabWidget->currentIndex()==0) {
+          ui->tx5->clearEditText();
+          ui->tx5->setFocus();
+        } else {
+          ui->freeTextMsg->clearEditText();
+          ui->freeTextMsg->setFocus();
+        }
+        break;
+      }
+    case Qt::Key_G:
+      if(e->modifiers() & Qt::AltModifier) {
+        genStdMsgs(m_rpt);
+        break;
+      }
+    case Qt::Key_H:
+      if(e->modifiers() & Qt::AltModifier) {
+        on_stopTxButton_clicked();
+        break;
+      }
+    case Qt::Key_L:
+      if(e->modifiers() & Qt::ControlModifier) {
+        lookup();
+        genStdMsgs(m_rpt);
+        break;
+      }
+    case Qt::Key_V:
+      if(e->modifiers() & Qt::AltModifier) {
+        m_fileToSave=m_fname;
         break;
       }
     }
-    break;
-  case Qt::Key_F4:
-    ui->dxCallEntry->setText("");
-    ui->dxGridEntry->setText("");
-    genStdMsgs("");
-    m_ntx=6;
-    ui->txrb6->setChecked(true);
-    break;
-  case Qt::Key_F6:
-    if(e->modifiers() & Qt::ShiftModifier) {
-      on_actionDecode_remaining_files_in_directory_triggered();
-    }
-    break;
-  case Qt::Key_F11:
-    n=11;
-    if(e->modifiers() & Qt::ControlModifier) n+=100;
-    bumpFqso(n);
-    break;
-  case Qt::Key_F12:
-    n=12;
-    if(e->modifiers() & Qt::ControlModifier) n+=100;
-    bumpFqso(n);
-    break;
-  case Qt::Key_F:
-    if(e->modifiers() & Qt::ControlModifier) {
-      if(ui->tabWidget->currentIndex()==0) {
-        ui->tx5->clear();
-        ui->tx5->setFocus();
-      } else {
-        ui->freeTextMsg->clear();
-        ui->freeTextMsg->setFocus();
-      }
-      break;
-    }
-  case Qt::Key_G:
-    if(e->modifiers() & Qt::AltModifier) {
-      genStdMsgs(m_rpt);
-      break;
-    }
-  case Qt::Key_H:
-    if(e->modifiers() & Qt::AltModifier) {
-      on_stopTxButton_clicked();
-      break;
-    }
-  case Qt::Key_L:
-    if(e->modifiers() & Qt::ControlModifier) {
-      lookup();
-      genStdMsgs(m_rpt);
-      break;
-    }
-  case Qt::Key_V:
-    if(e->modifiers() & Qt::AltModifier) {
-      m_fileToSave=m_fname;
-      break;
-    }
-  }
 }
 
 void MainWindow::bumpFqso(int n)                                 //bumpFqso()
@@ -1075,26 +864,68 @@ void MainWindow::bumpFqso(int n)                                 //bumpFqso()
   }
 }
 
-void MainWindow::dialFreqChanged2(double f)
+void MainWindow::qsy (Frequency f)
 {
-  m_dialFreq=f;
-  if(m_band<0 or m_band>15 or m_dFreq.length()<=1) return;
-  QString t;
-  t.sprintf("%.6f",m_dialFreq);
-  int n=t.length();
-  t=t.mid(0,n-3) + " " + t.mid(n-3,3);
-  double fBand=m_dFreq[m_band].toDouble();
-  if(qAbs(m_dialFreq-fBand)<0.01) {
-    ui->labDialFreq->setStyleSheet( \
-        "QLabel { background-color : black; color : yellow; }");
-  } else {
-    ui->labDialFreq->setStyleSheet( \
-          "QLabel { background-color : red; color : yellow; }");
-    ui->labDialFreq->setText(t);
-  }
-  ui->labDialFreq->setText(t);
-  statusChanged();
-  m_wideGraph->setDialFreq(m_dialFreq);
+  if (m_monitoring || m_transmitting)
+    {
+      m_lastMonitoredFrequency = f;
+    }
+
+  if (m_dialFreq != f)
+    {
+      m_dialFreq = f;
+      setXIT(m_txFreq);
+
+      m_repeatMsg=0;
+      m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
+
+      bumpFqso(11);
+      bumpFqso(12);
+
+      QFile f2(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
+      f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+      QTextStream out(&f2);
+      out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
+          << "  " << (m_dialFreq / 1.e6) << " MHz  " << m_mode << endl;
+      f2.close();
+      if (m_config.spot_to_psk_reporter ())
+        {
+          pskSetLocal ();
+        }
+
+      displayDialFrequency ();
+      statusChanged();
+      m_wideGraph->setDialFreq(m_dialFreq / 1.e6);
+    }
+}
+
+void MainWindow::displayDialFrequency ()
+{
+  // lookup band
+  auto bands_model = m_config.bands ();
+  ui->bandComboBox->setCurrentText (bands_model->data (bands_model->find (m_dialFreq)).toString ());
+
+  // search working frequencies for one we are within 10kHz of
+  auto frequencies = m_config.frequencies ();
+  bool valid {false};
+  for (int row = 0; row < frequencies->rowCount (); ++row)
+    {
+      auto working_frequency = frequencies->data (frequencies->index (row, 0)).value<Frequency> ();
+      if (std::llabs (working_frequency - m_dialFreq) < 10000)
+        {
+          valid = true;
+        }
+    }
+  if (valid)
+    {
+      ui->labDialFreq->setStyleSheet("QLabel { background-color : black; color : yellow; }");
+    }
+  else
+    {
+      ui->labDialFreq->setStyleSheet("QLabel { background-color : red; color : yellow; }");
+    }
+
+  ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
 }
 
 void MainWindow::statusChanged()
@@ -1102,11 +933,11 @@ void MainWindow::statusChanged()
   QFile f("wsjtx_status.txt");
   if(f.open(QFile::WriteOnly | QIODevice::Text)) {
     QTextStream out(&f);
-    out << m_dialFreq << ";" << m_mode << ";" << m_hisCall << ";"
+    out << (m_dialFreq / 1.e6) << ";" << m_mode << ";" << m_hisCall << ";"
         << ui->rptSpinBox->value() << ";" << m_modeTx << endl;
     f.close();
   } else {
-    msgBox("Cannot open file \"wsjtx_status.txt\".");
+    msgBox("Cannot open file \"" + f.fileName () + "\".");
     return;
   }
 }
@@ -1123,62 +954,62 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)  //eventFilter()
 
 void MainWindow::createStatusBar()                           //createStatusBar
 {
-  lab1 = new QLabel("Receiving");
-  lab1->setAlignment(Qt::AlignHCenter);
-  lab1->setMinimumSize(QSize(80,18));
-  lab1->setStyleSheet("QLabel{background-color: #00ff00}");
-  lab1->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  statusBar()->addWidget(lab1);
+  tx_status_label = new QLabel("Receiving");
+  tx_status_label->setAlignment(Qt::AlignHCenter);
+  tx_status_label->setMinimumSize(QSize(80,18));
+  tx_status_label->setStyleSheet("QLabel{background-color: #00ff00}");
+  tx_status_label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  statusBar()->addWidget(tx_status_label);
 
 
-  lab2 = new QLabel("");
-  lab2->setAlignment(Qt::AlignHCenter);
-  lab2->setMinimumSize(QSize(80,18));
-  lab2->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  statusBar()->addWidget(lab2);
+  mode_label = new QLabel("");
+  mode_label->setAlignment(Qt::AlignHCenter);
+  mode_label->setMinimumSize(QSize(80,18));
+  mode_label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  statusBar()->addWidget(mode_label);
 
-  lab3 = new QLabel("");
-  lab3->setAlignment(Qt::AlignHCenter);
-  lab3->setMinimumSize(QSize(150,18));
-  lab3->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  statusBar()->addWidget(lab3);
-}
+  last_tx_label = new QLabel("");
+  last_tx_label->setAlignment(Qt::AlignHCenter);
+  last_tx_label->setMinimumSize(QSize(150,18));
+  last_tx_label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  statusBar()->addWidget(last_tx_label);
 
-void MainWindow::on_actionExit_triggered()                     //Exit()
-{
-  OnExit();
+  auto_tx_label = new QLabel("");
+  auto_tx_label->setAlignment(Qt::AlignHCenter);
+  auto_tx_label->setMinimumSize(QSize(150,18));
+  auto_tx_label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  statusBar()->addWidget(auto_tx_label);
 }
 
 void MainWindow::closeEvent(QCloseEvent * e)
 {
-  writeSettings ();
-  OnExit();
-  delete g_pAstro;                        //Is there a better way ?
-  QMainWindow::closeEvent (e);
-}
+  m_config.transceiver_offline ();
 
-void MainWindow::OnExit()
-{
+  writeSettings ();
+
   m_guiTimer.stop ();
+
   if(m_fname != "") killFile();
   m_killAll=true;
   mem_jt9->detach();
-  QFile quitFile(m_appDir + "/.quit");
+  QFile quitFile(".quit");
   quitFile.open(QIODevice::ReadWrite);
-  QFile lockFile(m_appDir + "/.lock");
+  QFile lockFile(".lock");
   lockFile.remove();                      // Allow jt9 to terminate
   bool b=proc_jt9.waitForFinished(1000);
   if(!b) proc_jt9.kill();
   quitFile.remove();
 
   Q_EMIT finished ();
-  m_audioThread.wait ();
+
+  QMainWindow::closeEvent (e);
 }
 
 void MainWindow::on_stopButton_clicked()                       //stopButton
 {
-  m_monitoring=false;
-  Q_EMIT detectorSetMonitoring (m_monitoring);
+  // m_monitoring=false;
+  // Q_EMIT detectorSetMonitoring (m_monitoring);
+  monitor (false);
   m_loopall=false;  
 }
 
@@ -1191,8 +1022,8 @@ void MainWindow::msgBox(QString t)                             //msgBox
 void MainWindow::on_actionOnline_Users_Guide_triggered()      //Display manual
 {
   QDesktopServices::openUrl(QUrl(
-    "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main-toc2.html",
-                              QUrl::TolerantMode));
+                                 "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main-toc2.html",
+                                 QUrl::TolerantMode));
 }
 
 void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
@@ -1202,33 +1033,33 @@ void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
 
 void MainWindow::on_actionAstronomical_data_triggered()
 {
-  if(g_pAstro==NULL) {
-    g_pAstro = new Astro(0);
-    g_pAstro->setWindowTitle("Astronomical Data");
-    Qt::WindowFlags flags = Qt::Dialog | Qt::WindowCloseButtonHint |
-        Qt::WindowMinimizeButtonHint;
-    g_pAstro->setWindowFlags(flags);
-    g_pAstro->setGeometry(m_astroGeom);
-  }
-  g_pAstro->setFontSize(m_astroFont);
-  g_pAstro->show();
+  if (!m_astroWidget)
+    {
+      m_astroWidget.reset (new Astro {m_settings, m_config.data_path ()});
+
+      // hook up termination signal
+      connect (this, &MainWindow::finished, m_astroWidget.data (), &Astro::close);
+    }
+  m_astroWidget->show();
 }
 
 void MainWindow::on_actionOpen_triggered()                     //Open File
 {
-  m_monitoring=false;
-  Q_EMIT detectorSetMonitoring (m_monitoring);
+  // m_monitoring=false;
+  // Q_EMIT detectorSetMonitoring (m_monitoring);
+  monitor (false);
+
   QString fname;
   fname=QFileDialog::getOpenFileName(this, "Open File", m_path,
-                                       "WSJT Files (*.wav)");
+                                     "WSJT Files (*.wav)");
   if(fname != "") {
     m_path=fname;
     int i;
     i=fname.indexOf(".wav") - 11;
     if(i>=0) {
-      lab1->setStyleSheet("QLabel{background-color: #66ff66}");
-      lab1->setText(" " + fname.mid(i,15) + " ");
-//      lab1->setText(" " + fname + " ");
+      tx_status_label->setStyleSheet("QLabel{background-color: #66ff66}");
+      tx_status_label->setText(" " + fname.mid(i,15) + " ");
+      //      lab1->setText(" " + fname + " ");
     }
     on_stopButton_clicked();
     m_diskData=true;
@@ -1253,8 +1084,8 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
       int i;
       i=fname.indexOf(".wav") - 11;
       if(i>=0) {
-        lab1->setStyleSheet("QLabel{background-color: #66ff66}");
-        lab1->setText(" " + fname.mid(i,len) + " ");
+        tx_status_label->setStyleSheet("QLabel{background-color: #66ff66}");
+        tx_status_label->setText(" " + fname.mid(i,len) + " ");
       }
       m_diskData=true;
       *future1 = QtConcurrent::run(getfile, fname, m_TRperiod);
@@ -1263,7 +1094,7 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
     }
   }
 }
-                                                   //Open all remaining files
+//Open all remaining files
 void MainWindow::on_actionDecode_remaining_files_in_directory_triggered()
 {
   m_loopall=true;
@@ -1280,7 +1111,7 @@ void MainWindow::diskDat()                                   //diskDat()
     jt9com_.npts8=k/8;
     dataSink(k * sizeof (jt9com_.d2[0]));
     if(n%10 == 1 or n == m_hsymStop)
-        qApp->processEvents();                   //Keep GUI responsive
+      qApp->processEvents();                   //Keep GUI responsive
   }
 }
 
@@ -1294,11 +1125,11 @@ void MainWindow::on_actionDelete_all_wav_files_in_SaveDir_triggered()
   int i;
   QString fname;
   int ret = QMessageBox::warning(this, "Confirm Delete",
-      "Are you sure you want to delete all *.wav files in\n" +
-       QDir::toNativeSeparators(m_saveDir) + " ?",
-       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+                                 "Are you sure you want to delete all *.wav files in\n" +
+                                 QDir::toNativeSeparators(m_config.save_directory ().absolutePath ()) + " ?",
+                                 QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
   if(ret==QMessageBox::Yes) {
-    QDir dir(m_saveDir);
+    QDir dir(m_config.save_directory ());
     QStringList files=dir.entryList(QDir::Files);
     QList<QString>::iterator f;
     for(f=files.begin(); f!=files.end(); ++f) {
@@ -1335,15 +1166,14 @@ void MainWindow::on_actionKeyboard_shortcuts_triggered()
   pShortcuts = new QTextEdit(0);
   pShortcuts->setReadOnly(true);
   pShortcuts->setFontPointSize(10);
-  pShortcuts->setWindowTitle("Keyboard Shortcuts");
+  pShortcuts->setWindowTitle(QApplication::applicationName () + " - " + tr ("Keyboard Shortcuts"));
   pShortcuts->setGeometry(QRect(45,50,430,460));
   Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
-      Qt::WindowMinimizeButtonHint;
+    Qt::WindowMinimizeButtonHint;
   pShortcuts->setWindowFlags(flags);
-  QString shortcuts = m_appDir + "/shortcuts.txt";
-  QFile f(shortcuts);
+  QFile f(":/shortcuts.txt");
   if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    msgBox("Cannot open " + shortcuts);
+    msgBox("Cannot open \"" + f.fileName () + "\".");
     return;
   }
   QTextStream s(&f);
@@ -1362,15 +1192,14 @@ void MainWindow::on_actionSpecial_mouse_commands_triggered()
   pMouseCmnds = new QTextEdit(0);
   pMouseCmnds->setReadOnly(true);
   pMouseCmnds->setFontPointSize(10);
-  pMouseCmnds->setWindowTitle("Special Mouse Commands");
+  pMouseCmnds->setWindowTitle(QApplication::applicationName () + " - " + tr ("Special Mouse Commands"));
   pMouseCmnds->setGeometry(QRect(45,50,440,300));
   Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
-      Qt::WindowMinimizeButtonHint;
+    Qt::WindowMinimizeButtonHint;
   pMouseCmnds->setWindowFlags(flags);
-  QString mouseCmnds = m_appDir + "/mouse_commands.txt";
-  QFile f(mouseCmnds);
+  QFile f(":/mouse_commands.txt");
   if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    msgBox("Cannot open " + mouseCmnds);
+    msgBox("Cannot open \"" + f.fileName () + "\".");
     return;
   }
   QTextStream s(&f);
@@ -1383,7 +1212,7 @@ void MainWindow::on_actionSpecial_mouse_commands_triggered()
   pMouseCmnds->show();
 }
 
-void MainWindow::on_DecodeButton_clicked()                    //Decode request
+void MainWindow::on_DecodeButton_clicked (bool /* checked */)	//Decode request
 {
   if(!m_decoderBusy) {
     jt9com_.newdat=0;
@@ -1401,13 +1230,13 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
     ui->TxFreqSpinBox->setValue(i);
     m_wideGraph->setTxFreq(i);
   }
-  if((n%100)==2) on_DecodeButton_clicked();
+  if((n%100)==2) on_DecodeButton_clicked (true);
 }
 
 void MainWindow::decode()                                       //decode()
 {
   if(!m_dataAvailable) return;
-  ui->DecodeButton->setStyleSheet(m_pbdecoding_style1);
+  ui->DecodeButton->setChecked (true);
   if(jt9com_.newdat==1 && (!m_diskData)) {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int imin=ms/60000;
@@ -1453,12 +1282,12 @@ void MainWindow::decode()                                       //decode()
   }
   memcpy(to, from, qMin(mem_jt9->size(), size));
 
-  QFile lockFile(m_appDir + "/.lock");       // Allow jt9 to start
+  QFile lockFile(".lock"); // Allow jt9 to start
   lockFile.remove();
   decodeBusy(true);
 }
 
-void MainWindow::jt9_error(QProcess::ProcessError e)                                     //jt9_error
+void MainWindow::jt9_error (QProcess::ProcessError e)
 {
   if(!m_killAll) {
     msgBox("Error starting or running\n" + m_appDir + "/jt9 -s");
@@ -1476,85 +1305,88 @@ void MainWindow::readFromStderr()                             //readFromStderr
 void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine())
-  {
-    QByteArray t=proc_jt9.readLine();
-    if(t.indexOf("<DecodeFinished>") >= 0)
     {
-      m_bdecoded = (t.mid(23,1).toInt()==1);
-      bool keepFile=m_saveAll or (m_saveDecoded and m_bdecoded);
-      if(!keepFile and !m_diskData) killFileTimer->start(45*1000); //Kill in 45 s
-      jt9com_.nagain=0;
-      jt9com_.ndiskdat=0;
-      QFile lockFile(m_appDir + "/.lock");
-      lockFile.open(QIODevice::ReadWrite);
-      ui->DecodeButton->setStyleSheet("");
-      decodeBusy(false);
-      m_RxLog=0;
-      m_startAnother=m_loopall;
-      m_blankLine=true;
-      return;
-    } else {
-      QFile f("ALL.TXT");
-      f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-      QTextStream out(&f);
-      if(m_RxLog==1) {
-        out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-            << "  " << m_dialFreq << " MHz  " << m_mode << endl;
-        m_RxLog=0;
-      }
-      int n=t.length();
-      out << t.mid(0,n-2) << endl;
-      f.close();
+      QByteArray t=proc_jt9.readLine();
+      if(t.indexOf("<DecodeFinished>") >= 0)
+        {
+          m_bdecoded = (t.mid(23,1).toInt()==1);
+          bool keepFile=m_saveAll or (m_saveDecoded and m_bdecoded);
+          if(!keepFile and !m_diskData) killFileTimer->start(45*1000); //Kill in 45 s
+          jt9com_.nagain=0;
+          jt9com_.ndiskdat=0;
+          QFile lockFile(".lock");
+          lockFile.open(QIODevice::ReadWrite);
+          ui->DecodeButton->setChecked (false);
+          decodeBusy(false);
+          m_RxLog=0;
+          m_startAnother=m_loopall;
+          m_blankLine=true;
+          return;
+        } else {
+        QFile f(m_config.data_path().absoluteFilePath ("ALL.TXT"));
+        f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+        QTextStream out(&f);
+        if(m_RxLog==1) {
+          out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
+              << "  " << (m_dialFreq / 1.e6) << " MHz  " << m_mode << endl;
+          m_RxLog=0;
+        }
+        int n=t.length();
+        out << t.mid(0,n-2) << endl;
+        f.close();
 
-      if(m_insertBlank and m_blankLine)
-      {
-          ui->decodedTextBrowser->insertLineSpacer();
-          m_blankLine=false;
-      }
+        if(m_config.insert_blank () && m_blankLine)
+          {
+            ui->decodedTextBrowser->insertLineSpacer();
+            m_blankLine=false;
+          }
 
-      DecodedText decodedtext;
-      decodedtext = t.replace("\n",""); //t.replace("\n","").mid(0,t.length()-4);
+        DecodedText decodedtext;
+        decodedtext = t.replace("\n",""); //t.replace("\n","").mid(0,t.length()-4);
 
-      // the left band display
-      ui->decodedTextBrowser->displayDecodedText(decodedtext,m_myCall,m_displayDXCCEntity,m_logBook);
+        // the left band display
+        ui->decodedTextBrowser->displayDecodedText (decodedtext
+                                                    , m_config.my_callsign ()
+                                                    , m_config.DXCC ()
+                                                    , m_logBook);
 
-      if (abs(decodedtext.frequencyOffset() - m_wideGraph->rxFreq()) <= 10) // this msg is within 10 hertz of our tuned frequency
-      {
-          // the right QSO window
-          ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_myCall,false,m_logBook);
+        if (abs(decodedtext.frequencyOffset() - m_wideGraph->rxFreq()) <= 10) // this msg is within 10 hertz of our tuned frequency
+          {
+            // the right QSO window
+            ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_config.my_callsign (),false,m_logBook);
 
-          bool b65=decodedtext.isJT65();
-          if(b65 and m_modeTx!="JT65") on_pbTxMode_clicked();
-          if(!b65 and m_modeTx=="JT65") on_pbTxMode_clicked();
-          m_QSOText=decodedtext;
-      }
+            bool b65=decodedtext.isJT65();
+            if(b65 and m_modeTx!="JT65") on_pbTxMode_clicked();
+            if(!b65 and m_modeTx=="JT65") on_pbTxMode_clicked();
+            m_QSOText=decodedtext;
+          }
 
-      // find and extract any report for myCall
-      bool stdMsg = decodedtext.report(m_myCall,/*mod*/m_rptRcvd);
+        // find and extract any report for myCall
+        bool stdMsg = decodedtext.report(m_config.my_callsign (),/*mod*/m_rptRcvd);
 
-      // extract details and send to PSKreporter
-      int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
-      bool okToPost=(nsec>50);
-      if(m_pskReporter and stdMsg and !m_diskData and okToPost)
-      {
-          QString msgmode="JT9";
-          if (decodedtext.isJT65())
+        // extract details and send to PSKreporter
+        int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
+        bool okToPost=(nsec>50);
+        if(m_config.spot_to_psk_reporter () and stdMsg and !m_diskData and okToPost)
+          {
+            QString msgmode="JT9";
+            if (decodedtext.isJT65())
               msgmode="JT65";
 
-          QString deCall;
-          QString grid;
-          decodedtext.deCallAndGrid(/*out*/deCall,grid);
-          int audioFrequency = decodedtext.frequencyOffset();
-          int snr = decodedtext.snr();
-          uint frequency = 1000000.0*m_dialFreq + audioFrequency + 0.5;
+            QString deCall;
+            QString grid;
+            decodedtext.deCallAndGrid(/*out*/deCall,grid);
+            int audioFrequency = decodedtext.frequencyOffset();
+            int snr = decodedtext.snr();
+            Frequency frequency = m_dialFreq + audioFrequency;
 
-          psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
-          if(gridOK(grid))
+            pskSetLocal ();
+            if(gridOK(grid))
               psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,QString::number(snr),
                                              QString::number(QDateTime::currentDateTime().toTime_t()));
+          }
       }
     }
-  }
 }
 
 void MainWindow::killFile()
@@ -1572,9 +1404,9 @@ void MainWindow::on_EraseButton_clicked()                          //Erase
   ui->decodedTextBrowser2->clear();
   m_QSOText.clear();
   if((ms-m_msErase)<500) {
-      ui->decodedTextBrowser->clear();
-      QFile f(m_appDir + "/decoded.txt");
-      if(f.exists()) f.remove();
+    ui->decodedTextBrowser->clear();
+    QFile f("decoded.txt");
+    if(f.exists()) f.remove();
   }
   m_msErase=ms;
 }
@@ -1599,7 +1431,6 @@ void MainWindow::guiUpdate()
   static int giptt00=-1;
   static int gcomport00=-1;
   static double onAirFreq0=0.0;
-  int ret=0;
   QString rt;
 
   double tx1=0.0;
@@ -1622,43 +1453,36 @@ void MainWindow::guiUpdate()
       bTxTime=true;
     }
 
-    double onAirFreq=m_dialFreq+1.e-6*m_txFreq;
-    if(onAirFreq>10.139900 and onAirFreq<10.140320) {
-      bTxTime=false;
-      if(m_tune) on_tuneButton_clicked();
-      if(onAirFreq!=onAirFreq0) {
-        onAirFreq0=onAirFreq;
-        on_autoButton_clicked();
-        QString t="Please choose another Tx frequency.\n";
-        t+="WSJT-X will not knowingly transmit\n";
-        t+="in the WSPR sub-band on 30 m.";
-        msgBox0.setText(t);
-        msgBox0.show();
+    Frequency onAirFreq = m_dialFreq + m_txFreq;
+    if (onAirFreq > 10139900 && onAirFreq < 10140320)
+      {
+        bTxTime=false;
+        if (m_tune)
+          {
+            tuning (false);
+          }
+	
+        if (m_auto)
+          {
+            auto_tx_mode (false);
+          }
+
+        if(onAirFreq!=onAirFreq0)
+          {
+            onAirFreq0=onAirFreq;
+            QString t="Please choose another Tx frequency.\n";
+            t+="WSJT-X will not knowingly transmit\n";
+            t+="in the WSPR sub-band on 30 m.";
+            msgBox0.setText(t);
+            msgBox0.show();
+          }
       }
-    }
 
     float fTR=float((nsec%m_TRperiod))/m_TRperiod;
     if(g_iptt==0 and ((bTxTime and !m_btxMute and fTR<0.4) or m_tune )) {
       icw[0]=m_ncw;
-
-//Raise PTT
-      if(m_catEnabled and m_bRigOpen and  m_pttMethodIndex==0) {
-        g_iptt=1;
-        if(m_pttData) ret=rig->setPTT(RIG_PTT_ON_DATA, RIG_VFO_CURR);
-        if(!m_pttData) ret=rig->setPTT(RIG_PTT_ON_MIC, RIG_VFO_CURR);
-        if(ret!=RIG_OK) {
-          rt.sprintf("CAT control PTT failed:  %d",ret);
-          msgBox(rt);
-        }
-
-      }
-
-      if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {  //DTR or RTS
-        ptt(m_pttPort,1,&g_iptt,&g_COMportOpen);
-      }
-      if(m_pttMethodIndex==3) {                    //VOX
-        g_iptt=1;
-      }
+      g_iptt = 1;
+      Q_EMIT m_config.transceiver_ptt (true);
       ptt1Timer->start(200);                       //Sequencer delay
     }
     if(!bTxTime || m_btxMute) {
@@ -1667,20 +1491,20 @@ void MainWindow::guiUpdate()
     }
   }
 
-// Calculate Tx tones when needed
+  // Calculate Tx tones when needed
   if((g_iptt==1 && iptt0==0) || m_restart) {
     QByteArray ba;
     if(m_ntx == 1) ba=ui->tx1->text().toLocal8Bit();
     if(m_ntx == 2) ba=ui->tx2->text().toLocal8Bit();
     if(m_ntx == 3) ba=ui->tx3->text().toLocal8Bit();
     if(m_ntx == 4) ba=ui->tx4->text().toLocal8Bit();
-    if(m_ntx == 5) ba=ui->tx5->text().toLocal8Bit();
+    if(m_ntx == 5) ba=ui->tx5->currentText().toLocal8Bit();
     if(m_ntx == 6) ba=ui->tx6->text().toLocal8Bit();
     if(m_ntx == 7) ba=ui->genMsg->text().toLocal8Bit();
-    if(m_ntx == 8) ba=ui->freeTextMsg->text().toLocal8Bit();
+    if(m_ntx == 8) ba=ui->freeTextMsg->currentText().toLocal8Bit();
 
     ba2msg(ba,message);
-//    ba2msg(ba,msgsent);
+    //    ba2msg(ba,msgsent);
     int len1=22;
     int ichk=0,itext=0;
     if(m_modeTx=="JT9") genjt9_(message,&ichk,msgsent,itone,&itext,len1,len1);
@@ -1688,17 +1512,19 @@ void MainWindow::guiUpdate()
     msgsent[22]=0;
     QString t=QString::fromLatin1(msgsent);
     if(m_tune) t="TUNE";
-    lab3->setText("Last Tx:  " + t);
+    last_tx_label->setText("Last Tx:  " + t);
     if(m_restart) {
-      QFile f("ALL.TXT");
+      QFile f(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
       out << QDateTime::currentDateTimeUtc().toString("hhmm")
-          << "  Transmitting " << m_dialFreq << " MHz  " << m_modeTx
+          << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz  " << m_modeTx
           << ":  " << t << endl;
       f.close();
-      if(m_tx2QSO)
+      if (m_config.TX_messages ())
+        {
           ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,m_txFreq);
+        }
     }
 
     QStringList w=t.split(" ",QString::SkipEmptyParts);
@@ -1707,20 +1533,20 @@ void MainWindow::guiUpdate()
     icw[0]=0;
     m_sent73=(t=="73" or itext!=0);
     if(m_sent73)  {
-      if(m_After73)  icw[0]=m_ncw;
-      if(m_promptToLog and !m_tune) logQSOTimer->start(200);
+      if(m_config.id_after_73 ())  icw[0]=m_ncw;
+      if(m_config.prompt_to_log () && !m_tune) logQSOTimer->start(200);
     }
 
-    if(m_idInt>0) {
+    if(m_config.id_interval () >0) {
       int nmin=(m_sec0-m_secID)/60;
-      if(nmin >= m_idInt) {
+      if(nmin >= m_config.id_interval ()) {
         icw[0]=m_ncw;
         m_secID=m_sec0;
       }
     }
 
     QString t2=QDateTime::currentDateTimeUtc().toString("hhmm");
-    if(itext==0 and w.length()>=3 and w[1]==m_myCall) {
+    if(itext==0 and w.length()>=3 and w[1]==m_config.my_callsign ()) {
       int i1;
       bool ok;
       i1=t.toInt(&ok);
@@ -1742,13 +1568,13 @@ void MainWindow::guiUpdate()
   }
 
 
-// If PTT was just raised, start a countdown for raising TxOK:
-// NB: could be better implemented with a timer
+  // If PTT was just raised, start a countdown for raising TxOK:
+  // NB: could be better implemented with a timer
   if(g_iptt == 1 && iptt0 == 0) {
-      nc1=-9;    // TxDelay = 0.8 s
+    nc1=-9;    // TxDelay = 0.8 s
   }
   if(nc1 <= 0) {
-      nc1++;
+    nc1++;
   }
   if(nc1 == 0) {
     QString t=QString::fromLatin1(msgsent);
@@ -1760,99 +1586,85 @@ void MainWindow::guiUpdate()
     }
 
     signalMeter->setValue(0);
-    m_monitoring=false;
-    Q_EMIT detectorSetMonitoring (false);
+
+    // m_monitoring=false;
+    // Q_EMIT detectorSetMonitoring (false);
+    if (m_monitoring)
+      {
+        monitor (false);
+      }
+
     m_btxok=true;
     Q_EMIT muteAudioOutput (false);
     m_transmitting=true;
     ui->pbTxMode->setEnabled(false);
     if(!m_tune) {
-      QFile f("ALL.TXT");
+      QFile f(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
       out << QDateTime::currentDateTimeUtc().toString("hhmm")
-          << "  Transmitting " << m_dialFreq << " MHz  " << m_modeTx
+          << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz  " << m_modeTx
           << ":  " << t << endl;
       f.close();
     }
-    if(m_tx2QSO and !m_tune)
+    if (m_config.TX_messages () && !m_tune)
+      {
         ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,m_txFreq);
+      }
   }
 
   if(!m_btxok && btxok0 && g_iptt==1) stopTx();
 
-/*
-// If m_btxok was just lowered, start a countdown for lowering PTT
+  /*
+  // If m_btxok was just lowered, start a countdown for lowering PTT
   if(!m_btxok && btxok0 && g_iptt==1) nc0=-11;  //RxDelay = 1.0 s
   if(nc0 <= 0) {
-    nc0++;
+  nc0++;
   }
-*/
-
-  if(m_monitoring) {
-    ui->monitorButton->setStyleSheet(m_pbmonitor_style);
-  } else {
-    ui->monitorButton->setStyleSheet("");
-  }
+  */
 
   if(m_startAnother) {
     m_startAnother=false;
     on_actionOpen_next_in_directory_triggered();
   }
 
-  if(m_catEnabled and !m_bRigOpen) {
-		rigOpen();
-		if(m_bSplit or m_bXIT) setXIT(m_txFreq);
-		if(m_bRigOpen and !m_bSplit) {
-			int ret=rig->setSplitFreq(MHz(m_dialFreq),RIG_VFO_B);
-			if(ret!=RIG_OK) {
-				QString rt;
-				rt.sprintf("Setting VFO_B failed:  %d",ret);
-				msgBox(rt);
-			}
-		}
-  }
-
   if(nsec != m_sec0) {                                     //Once per second
     QDateTime t = QDateTime::currentDateTimeUtc();
     int fQSO=125;
-    m_azelDir=m_appDir;
-    if(g_pAstro!=NULL) g_pAstro->astroUpdate(t, m_myGrid, m_hisGrid, fQSO,
-                          m_setftx, m_txFreq, m_azelDir);
+    if(m_astroWidget) m_astroWidget->astroUpdate(t, m_config.my_grid (), m_hisGrid, fQSO,
+                                                 m_setftx, m_txFreq);
 
     if(m_transmitting) {
       if(nsendingsh==1) {
-        lab1->setStyleSheet("QLabel{background-color: #66ffff}");
+        tx_status_label->setStyleSheet("QLabel{background-color: #66ffff}");
       } else if(nsendingsh==-1) {
-        lab1->setStyleSheet("QLabel{background-color: #ffccff}");
+        tx_status_label->setStyleSheet("QLabel{background-color: #ffccff}");
       } else {
-        lab1->setStyleSheet("QLabel{background-color: #ffff33}");
+        tx_status_label->setStyleSheet("QLabel{background-color: #ffff33}");
       }
       if(m_tune) {
-        lab1->setText("Tx: TUNE");
+        tx_status_label->setText("Tx: TUNE");
       } else {
-          char s[37];
-          sprintf(s,"Tx: %s",msgsent);
-          lab1->setText(s);
+        char s[37];
+        sprintf(s,"Tx: %s",msgsent);
+        tx_status_label->setText(s);
       }
     } else if(m_monitoring) {
-      lab1->setStyleSheet("QLabel{background-color: #00ff00}");
-      lab1->setText("Receiving ");
+      tx_status_label->setStyleSheet("QLabel{background-color: #00ff00}");
+      tx_status_label->setText("Receiving ");
     } else if (!m_diskData) {
-      lab1->setStyleSheet("");
-      lab1->setText("");
+      tx_status_label->setStyleSheet("");
+      tx_status_label->setText("");
     }
 
     m_setftx=0;
     QString utc = t.date().toString("yyyy MMM dd") + "\n " +
-            t.time().toString() + " ";
+      t.time().toString() + " ";
     ui->labUTC->setText(utc);
     if(!m_monitoring and !m_diskData) {
       signalMeter->setValue(0);
     }
 
-    if(m_catEnabled and m_poll>0 and (nsec%m_poll)==0 and
-       !m_decoderBusy) pollRigFreq();
     m_sec0=nsec;
   }
 
@@ -1869,18 +1681,19 @@ void MainWindow::guiUpdate()
 void MainWindow::startTx2()
 {
   if (!m_modulator.isActive ()) {
-    m_fSpread=0.0;
+    double fSpread=0.0;
     double snr=99.0;
-    QString t=ui->tx5->text();
-    if(t.mid(0,1)=="#") m_fSpread=t.mid(1,5).toDouble();
-    m_modulator.setWide9(m_toneSpacing, m_fSpread);
+    QString t=ui->tx5->currentText();
+    if(t.mid(0,1)=="#") fSpread=t.mid(1,5).toDouble();
+    m_modulator.setWide9(m_toneSpacing, fSpread);
     t=ui->tx6->text();
     if(t.mid(0,1)=="#") snr=t.mid(1,5).toDouble();
     if(snr>0.0 or snr < -50.0) snr=99.0;
     transmit (snr);
     signalMeter->setValue(0);
-    m_monitoring=false;
-    Q_EMIT detectorSetMonitoring (false);
+
+    monitor (false);
+
     m_btxok=true;
     Q_EMIT muteAudioOutput (false);
     m_transmitting=true;
@@ -1893,39 +1706,34 @@ void MainWindow::stopTx()
   Q_EMIT endTransmitMessage ();
   Q_EMIT stopAudioOutputStream ();
   m_transmitting=false;
-  ui->pbTxMode->setEnabled(true);
+  if ("JT9+JT65" == m_mode) ui->pbTxMode->setEnabled(true);
   g_iptt=0;
-  lab1->setStyleSheet("");
-  lab1->setText("");
+  tx_status_label->setStyleSheet("");
+  tx_status_label->setText("");
   ptt0Timer->start(200);                       //Sequencer delay
-  m_monitoring=true;
-  Q_EMIT detectorSetMonitoring (true);
+
+  monitor (true);
 }
 
 void MainWindow::stopTx2()
 {
-  int ret=0;
   QString rt;
 
-//Lower PTT
-  if(m_catEnabled and m_bRigOpen and  m_pttMethodIndex==0) {
-    ret=rig->setPTT(RIG_PTT_OFF, RIG_VFO_CURR);  //CAT control for PTT=0
-    if(ret!=RIG_OK) {
-      rt.sprintf("CAT control PTT failed:  %d",ret);
-      msgBox(rt);
-    }
-  }
-  if(m_pttMethodIndex==1 or m_pttMethodIndex==2) {
-    ptt(m_pttPort,0,&g_iptt,&g_COMportOpen);
-  }
-  if(m_73TxDisable and m_sent73) on_stopTxButton_clicked();
+  //Lower PTT
+  Q_EMIT m_config.transceiver_ptt (false);
 
-  if(m_runaway and m_repeatMsg>m_watchdogLimit) {
-    on_stopTxButton_clicked();
-    msgBox0.setText("Runaway Tx watchdog");
-    msgBox0.show();
-    m_repeatMsg=0;
-  }
+  if (m_config.disable_TX_on_73 () && m_sent73)
+    {
+      on_stopTxButton_clicked();
+    }
+
+  if (m_config.watchdog () && m_repeatMsg>m_watchdogLimit)
+    {
+      on_stopTxButton_clicked();
+      msgBox0.setText("Runaway Tx watchdog");
+      msgBox0.show();
+      m_repeatMsg=0;
+    }
 }
 
 void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
@@ -2019,17 +1827,17 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   decodedtext = t1.mid(i1,i2-i1);         //selected line
 
   if (decodedtext.indexOf(" CQ ") > 0)
-  {
+    {
       // TODO this magic 36 characters is also referenced in DisplayText::_appendDXCCWorkedB4()
       int s3 = decodedtext.indexOf(" ",35);
       if (s3 < 35)
-          s3 = 35; // we always want at least the characters to position 35
+        s3 = 35; // we always want at least the characters to position 35
       s3 += 1; // convert the index into a character count
       decodedtext = decodedtext.left(s3);  // remove DXCC entity and worked B4 status. TODO need a better way to do this
-  }
+    }
 
 
-//  if(decodedtext.indexOf("Tx")==6) return;        //Ignore Tx line
+  //  if(decodedtext.indexOf("Tx")==6) return;        //Ignore Tx line
   int i4=t.mid(i1).length();
   if(i4>55) i4=55;
   QString t3=t.mid(i1,i4);
@@ -2040,51 +1848,51 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 
   int i9=m_QSOText.indexOf(decodedtext.string());
   if (i9<0 and !decodedtext.isTX())
-  {
-    ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_myCall,false,m_logBook);
-    m_QSOText=decodedtext;
-  }
+    {
+      ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_config.my_callsign (),false,m_logBook);
+      m_QSOText=decodedtext;
+    }
 
 
   int frequency = decodedtext.frequencyOffset();
   m_wideGraph->setRxFreq(frequency);                 //Set Rx freq
   if (decodedtext.isTX())
-  {
-    if (ctrl)
+    {
+      if (ctrl)
         ui->TxFreqSpinBox->setValue(frequency);      //Set Tx freq
-    return;
-  }
+      return;
+    }
 
   QString firstcall = decodedtext.call();
   // Don't change Tx freq if a station is calling me, unless m_lockTxFreq
   // is true or CTRL is held down
-  if ((firstcall!=m_myCall) or m_lockTxFreq or ctrl)
+  if ((firstcall!=m_config.my_callsign ()) or m_lockTxFreq or ctrl)
     ui->TxFreqSpinBox->setValue(frequency);
 
   if (decodedtext.isJT9())
-  {
-    m_modeTx="JT9";
-    ui->pbTxMode->setText("Tx JT9  @");
-    m_wideGraph->setModeTx(m_modeTx);
-  }
+    {
+      m_modeTx="JT9";
+      ui->pbTxMode->setText("Tx JT9  @");
+      m_wideGraph->setModeTx(m_modeTx);
+    }
   else
-      if (decodedtext.isJT65())
+    if (decodedtext.isJT65())
       {
-          m_modeTx="JT65";
-          ui->pbTxMode->setText("Tx JT65  #");
-          m_wideGraph->setModeTx(m_modeTx);
+        m_modeTx="JT65";
+        ui->pbTxMode->setText("Tx JT65  #");
+        m_wideGraph->setModeTx(m_modeTx);
       }
 
   QString hiscall;
   QString hisgrid;
   decodedtext.deCallAndGrid(/*out*/hiscall,hisgrid);
   if (hiscall != ui->dxCallEntry->text())
-      ui->dxGridEntry->setText("");
+    ui->dxGridEntry->setText("");
   ui->dxCallEntry->setText(hiscall);
   if (gridOK(hisgrid))
-      ui->dxGridEntry->setText(hisgrid);
+    ui->dxGridEntry->setText(hisgrid);
   if (ui->dxGridEntry->text()=="")
-      lookup();
+    lookup();
   m_hisGrid = ui->dxGridEntry->text();
 
   int n = decodedtext.timeInSeconds();
@@ -2097,70 +1905,70 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   genStdMsgs(rpt);
 
   // determine the appropriate response to the received msg
-  if(decodedtext.indexOf(m_myCall)>=0)
-  {
-    if (t4.length()>=7   // enough fields for a normal msg
-        and !gridOK(t4.at(7))) // but no grid on end of msg
+  if(decodedtext.indexOf(m_config.my_callsign ())>=0)
     {
-      QString r=t4.at(7);
-      if(r.mid(0,3)=="RRR") {
-        m_ntx=5;
-        ui->txrb5->setChecked(true);
+      if (t4.length()>=7   // enough fields for a normal msg
+          and !gridOK(t4.at(7))) // but no grid on end of msg
+        {
+          QString r=t4.at(7);
+          if(r.mid(0,3)=="RRR") {
+            m_ntx=5;
+            ui->txrb5->setChecked(true);
+            if(ui->tabWidget->currentIndex()==1) {
+              ui->genMsg->setText(ui->tx5->currentText());
+              m_ntx=7;
+              ui->rbGenMsg->setChecked(true);
+            }
+          } else if(r.mid(0,1)=="R") {
+            m_ntx=4;
+            ui->txrb4->setChecked(true);
+            if(ui->tabWidget->currentIndex()==1) {
+              ui->genMsg->setText(ui->tx4->text());
+              m_ntx=7;
+              ui->rbGenMsg->setChecked(true);
+            }
+          } else if(r.toInt()>=-50 and r.toInt()<=49) {
+            m_ntx=3;
+            ui->txrb3->setChecked(true);
+            if(ui->tabWidget->currentIndex()==1) {
+              ui->genMsg->setText(ui->tx3->text());
+              m_ntx=7;
+              ui->rbGenMsg->setChecked(true);
+            }
+          } else if(r.toInt()==73) {
+            m_ntx=5;
+            ui->txrb5->setChecked(true);
+            if(ui->tabWidget->currentIndex()==1) {
+              ui->genMsg->setText(ui->tx5->currentText());
+              m_ntx=7;
+              ui->rbGenMsg->setChecked(true);
+            }
+          }
+        } else {
+        m_ntx=2;
+        ui->txrb2->setChecked(true);
         if(ui->tabWidget->currentIndex()==1) {
-          ui->genMsg->setText(ui->tx5->text());
-          m_ntx=7;
-          ui->rbGenMsg->setChecked(true);
-        }
-      } else if(r.mid(0,1)=="R") {
-        m_ntx=4;
-        ui->txrb4->setChecked(true);
-        if(ui->tabWidget->currentIndex()==1) {
-          ui->genMsg->setText(ui->tx4->text());
-          m_ntx=7;
-          ui->rbGenMsg->setChecked(true);
-        }
-      } else if(r.toInt()>=-50 and r.toInt()<=49) {
-        m_ntx=3;
-        ui->txrb3->setChecked(true);
-        if(ui->tabWidget->currentIndex()==1) {
-          ui->genMsg->setText(ui->tx3->text());
-          m_ntx=7;
-          ui->rbGenMsg->setChecked(true);
-        }
-      } else if(r.toInt()==73) {
-        m_ntx=5;
-        ui->txrb5->setChecked(true);
-        if(ui->tabWidget->currentIndex()==1) {
-          ui->genMsg->setText(ui->tx5->text());
+          ui->genMsg->setText(ui->tx2->text());
           m_ntx=7;
           ui->rbGenMsg->setChecked(true);
         }
       }
-    } else {
-      m_ntx=2;
-      ui->txrb2->setChecked(true);
+
+    }
+  else // myCall not in msg
+    {
+      m_ntx=1;
+      ui->txrb1->setChecked(true);
       if(ui->tabWidget->currentIndex()==1) {
-        ui->genMsg->setText(ui->tx2->text());
+        ui->genMsg->setText(ui->tx1->text());
         m_ntx=7;
         ui->rbGenMsg->setChecked(true);
       }
     }
-
-  }
-  else // myCall not in msg
-  {
-    m_ntx=1;
-    ui->txrb1->setChecked(true);
-    if(ui->tabWidget->currentIndex()==1) {
-      ui->genMsg->setText(ui->tx1->text());
-      m_ntx=7;
-      ui->rbGenMsg->setChecked(true);
+  if(m_config.quick_call ())
+    {
+      auto_tx_mode (true);
     }
-  }
-  if(m_quickCall) {
-    m_auto=true;
-    ui->autoButton->setStyleSheet(m_pbAutoOn_style);
-  }
 }
 
 void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
@@ -2175,29 +1983,29 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
     ui->tx2->setText("");
     ui->tx3->setText("");
     ui->tx4->setText("");
-    ui->tx5->setText("");
+    ui->tx5->setCurrentText("");
     ui->tx6->setText("");
-    if(m_myCall!="" and m_myGrid!="") {
-      t="CQ " + m_myCall + " " + m_myGrid.mid(0,4);
+    if(m_config.my_callsign () !="" and m_config.my_grid () !="") {
+      t="CQ " + m_config.my_callsign () + " " + m_config.my_grid ().mid(0,4);
       msgtype(t, ui->tx6);
     }
     ui->genMsg->setText("");
-    ui->freeTextMsg->setText("");
+    ui->freeTextMsg->setCurrentText("");
     return;
   }
   QString hisBase=baseCall(hisCall);
-  QString myBase=baseCall(m_myCall);
+  QString myBase=baseCall(m_config.my_callsign ());
 
   QString t0=hisBase + " " + myBase + " ";
-  t=t0 + m_myGrid.mid(0,4);
-//  if(myBase!=m_myCall) t="DE " + m_myCall + " " + m_myGrid.mid(0,4);  //###
+  t=t0 + m_config.my_grid ().mid(0,4);
+  //  if(myBase!=m_config.my_callsign ()) t="DE " + m_config.my_callsign () + " " + m_config.my_grid ().mid(0,4);  //###
   msgtype(t, ui->tx1);
   if(rpt == "") {
     t=t+" OOO";
     msgtype(t, ui->tx2);
     msgtype("RO", ui->tx3);
     msgtype("RRR", ui->tx4);
-    msgtype("73", ui->tx5);
+    msgtype("73", ui->tx5->lineEdit ());
   } else {
     t=t0 + rpt;
     msgtype(t, ui->tx2);
@@ -2206,29 +2014,29 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
     t=t0 + "RRR";
     msgtype(t, ui->tx4);
     t=t0 + "73";
-//    if(myBase!=m_myCall) t="DE " + m_myCall + " 73";                  //###
-    msgtype(t, ui->tx5);
+    //    if(myBase!=m_config.my_callsign ()) t="DE " + m_config.my_callsign () + " 73";                  //###
+    msgtype(t, ui->tx5->lineEdit ());
   }
 
-  t="CQ " + m_myCall + " " + m_myGrid.mid(0,4);
+  t="CQ " + m_config.my_callsign () + " " + m_config.my_grid ().mid(0,4);
   msgtype(t, ui->tx6);
 
-  if(m_myCall!=myBase) {
-    if(shortList(m_myCall)) {
-      t="CQ " + m_myCall;
+  if(m_config.my_callsign ()!=myBase) {
+    if(shortList(m_config.my_callsign ())) {
+      t="CQ " + m_config.my_callsign ();
       msgtype(t, ui->tx6);
     } else {
-      t="DE " + m_myCall + " " + m_myGrid.mid(0,4);
+      t="DE " + m_config.my_callsign () + " " + m_config.my_grid ().mid(0,4);
       msgtype(t, ui->tx2);
-      t="DE " + m_myCall + " 73";
-      msgtype(t, ui->tx5);
-      t="CQ " + m_myCall + " " + m_myGrid.mid(0,4);
+      t="DE " + m_config.my_callsign () + " 73";
+      msgtype(t, ui->tx5->lineEdit ());
+      t="CQ " + m_config.my_callsign () + " " + m_config.my_grid ().mid(0,4);
       msgtype(t, ui->tx6);
     }
   } else {
     if(hisCall!=hisBase) {
       if(shortList(hisCall)) {
-        t=hisCall + " " + m_myCall;
+        t=hisCall + " " + m_config.my_callsign ();
         msgtype(t, ui->tx2);
       }
     }
@@ -2251,35 +2059,33 @@ void MainWindow::lookup()                                       //lookup()
 {
   QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
   ui->dxCallEntry->setText(hisCall);
-  QString call3File = m_appDir + "/CALL3.TXT";
-  QFile f(call3File);
-  if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    msgBox("Cannot open " + call3File);
-    return;
-  }
-  char c[132];
-  qint64 n=0;
-  for(int i=0; i<999999; i++) {
-    n=f.readLine(c,sizeof(c));
-    if(n <= 0) {
-      ui->dxGridEntry->setText("");
-      break;
-     }
-    QString t=QString(c);
-    if(t.indexOf(hisCall)==0) {
-      int i1=t.indexOf(",");
-      QString hisgrid=t.mid(i1+1,6);
-      i1=hisgrid.indexOf(",");
-      if(i1>0) {
-        hisgrid=hisgrid.mid(0,4);
-      } else {
-        hisgrid=hisgrid.mid(0,4) + hisgrid.mid(4,2).toLower();
+  QFile f(m_config.data_path ().absoluteFilePath ("CALL3.TXT"));
+  if (f.open (QIODevice::ReadOnly | QIODevice::Text))
+    {
+      char c[132];
+      qint64 n=0;
+      for(int i=0; i<999999; i++) {
+        n=f.readLine(c,sizeof(c));
+        if(n <= 0) {
+          ui->dxGridEntry->setText("");
+          break;
+        }
+        QString t=QString(c);
+        if(t.indexOf(hisCall)==0) {
+          int i1=t.indexOf(",");
+          QString hisgrid=t.mid(i1+1,6);
+          i1=hisgrid.indexOf(",");
+          if(i1>0) {
+            hisgrid=hisgrid.mid(0,4);
+          } else {
+            hisgrid=hisgrid.mid(0,4) + hisgrid.mid(4,2).toLower();
+          }
+          ui->dxGridEntry->setText(hisgrid);
+          break;
+        }
       }
-      ui->dxGridEntry->setText(hisgrid);
-      break;
+      f.close();
     }
-  }
-  f.close();
 }
 
 void MainWindow::on_lookupButton_clicked()                    //Lookup button
@@ -2298,33 +2104,29 @@ void MainWindow::on_addButton_clicked()                       //Add button
   QString hisgrid=ui->dxGridEntry->text().trimmed();
   QString newEntry=hisCall + "," + hisgrid;
 
-//  int ret = QMessageBox::warning(this, "Add",
-//       newEntry + "\n" + "Is this station known to be active on EME?",
-//       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-//  if(ret==QMessageBox::Yes) {
-//    newEntry += ",EME,,";
-//  } else {
-    newEntry += ",,,";
-//  }
-
-  QString call3File = m_appDir + "/CALL3.TXT";
-  QFile f1(call3File);
-  if(!f1.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    msgBox("Cannot open " + call3File);
+  //  int ret = QMessageBox::warning(this, "Add",
+  //       newEntry + "\n" + "Is this station known to be active on EME?",
+  //       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+  //  if(ret==QMessageBox::Yes) {
+  //    newEntry += ",EME,,";
+  //  } else {
+  newEntry += ",,,";
+  //  }
+  
+  QFile f1(m_config.data_path ().absoluteFilePath ("CALL3.TXT"));
+  if(!f1.open(QIODevice::ReadWrite | QIODevice::Text)) {
+    msgBox("Cannot open \"" + f1.fileName () + "\".");
     return;
   }
   if(f1.size()==0) {
-    f1.close();
-    f1.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream out(&f1);
     out << "ZZZZZZ" << endl;
     f1.close();
     f1.open(QIODevice::ReadOnly | QIODevice::Text);
   }
-  QString tmpFile = m_appDir + "/CALL3.TMP";
-  QFile f2(tmpFile);
+  QFile f2(m_config.data_path ().absoluteFilePath ("CALL3.TMP"));
   if(!f2.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    msgBox("Cannot open " + tmpFile);
+    msgBox("Cannot open \"" + f2.fileName () + "\".");
     return;
   }
   QTextStream in(&f1);
@@ -2345,14 +2147,14 @@ void MainWindow::on_addButton_clicked()                       //Add button
         out << newEntry + "\n";
         if(s.mid(0,6)=="ZZZZZZ") {
           out << s + "\n";
-//          exit;                             //Statement has no effect!
+          //          exit;                             //Statement has no effect!
         }
         m_call3Modified=true;
       } else if(hc==hc2) {
         QString t=s + "\n\n is already in CALL3.TXT\n" +
-            "Do you wish to replace it?";
+          "Do you wish to replace it?";
         int ret = QMessageBox::warning(this, "Add",t,
-             QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+                                       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
         if(ret==QMessageBox::Yes) {
           out << newEntry + "\n";
           m_call3Modified=true;
@@ -2368,11 +2170,12 @@ void MainWindow::on_addButton_clicked()                       //Add button
     out << newEntry + "\n";
   }
   if(m_call3Modified) {
-    QFile f0(m_appDir + "/CALL3.OLD");
+    QDir data_path {m_config.data_path ()};
+    QFile f0(data_path.absoluteFilePath ("CALL3.OLD"));
     if(f0.exists()) f0.remove();
-    QFile f1(m_appDir + "/CALL3.TXT");
-    f1.rename(m_appDir + "/CALL3.OLD");
-    f2.rename(m_appDir + "/CALL3.TXT");
+    QFile f1(data_path.absoluteFilePath ("CALL3.TXT"));
+    f1.rename(data_path.absoluteFilePath ("CALL3.OLD"));
+    f2.rename(data_path.absoluteFilePath ("CALL3.TXT"));
     f2.close();
   }
 }
@@ -2434,10 +2237,10 @@ void MainWindow::on_tx4_editingFinished()                       //tx4 edited
   msgtype(t, ui->tx4);
 }
 
-void MainWindow::on_tx5_editingFinished()                       //tx5 edited
+void MainWindow::on_tx5_currentTextChanged (QString const& text) //tx5 edited
 {
-  QString t=ui->tx5->text();
-  msgtype(t, ui->tx5);
+  msgtype(text, ui->tx5->lineEdit ());
+  msgtype(text, ui->freeTextMsg->lineEdit ());
 }
 
 void MainWindow::on_tx6_editingFinished()                       //tx6 edited
@@ -2472,20 +2275,26 @@ void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
   if(!t[2].isDigit() or !t[3].isDigit()) return;
   if(n==4) m_hisGrid=t.mid(0,2).toUpper() + t.mid(2,2);
   if(n==6) m_hisGrid=t.mid(0,2).toUpper() + t.mid(2,2) +
-      t.mid(4,2).toLower();
+             t.mid(4,2).toLower();
   ui->dxGridEntry->setText(m_hisGrid);
   if(gridOK(m_hisGrid)) {
     qint64 nsec = QDateTime::currentMSecsSinceEpoch() % 86400;
     double utch=nsec/3600.0;
     int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
 
-    azdist_(m_myGrid.toLatin1().data(),m_hisGrid.toLatin1().data(),&utch,
-           &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
+    azdist_(const_cast <char *> (m_config.my_grid ().toLatin1().constData()),const_cast<char *> (m_hisGrid.toLatin1().constData()),&utch,
+            &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
     QString t;
     t.sprintf("Az: %d",nAz);
     ui->labAz->setText(t);
-    if(m_bMiles) t.sprintf("%d mi",int(0.621371*nDkm));
-    if(!m_bMiles) t.sprintf("%d km",nDkm);
+    if (m_config.miles ())
+      {
+        t.sprintf ("%d mi", int (0.621371 * nDkm));
+      }
+    else
+      {
+        t.sprintf ("%d km", nDkm);
+      }
     ui->labDist->setText(t);
   } else {
     ui->labAz->setText("");
@@ -2503,21 +2312,31 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   if(m_hisCall=="") return;
   m_dateTimeQSO=QDateTime::currentDateTimeUtc();
 
-  m_logDlg->initLogQSO(m_hisCall,m_hisGrid,m_modeTx,m_rptSent,m_rptRcvd,
-                     m_dateTimeQSO,m_dialFreq+m_txFreq/1.0e6,
-                     m_myCall,m_myGrid,m_noSuffix,m_toRTTY,m_dBtoComments);
+  m_logDlg->initLogQSO (m_hisCall
+                        , m_hisGrid
+                        , m_modeTx
+                        , m_rptSent
+                        , m_rptRcvd
+                        , m_dateTimeQSO
+                        , (m_dialFreq + m_txFreq) / 1.e6
+                        , m_config.my_callsign ()
+                        , m_config.my_grid ()
+                        , m_noSuffix
+                        , m_config.log_as_RTTY ()
+                        , m_config.report_in_comments ()
+                        );
 }
 
 void MainWindow::acceptQSO2(bool accepted)
 {
-    if(accepted)
+  if(accepted)
     {
-        QString band = ADIF::bandFromFrequency(m_dialFreq+m_txFreq/1.0e6);
-        QString date = m_dateTimeQSO.toString("yyyy-MM-dd");
-        date=date.mid(0,4) + date.mid(5,2) + date.mid(8,2);
-        m_logBook.addAsWorked(m_hisCall,band,m_modeTx,date);
+      QString band = ADIF::bandFromFrequency ((m_dialFreq + m_txFreq) / 1.e6);
+      QString date = m_dateTimeQSO.toString("yyyy-MM-dd");
+      date=date.mid(0,4) + date.mid(5,2) + date.mid(8,2);
+      m_logBook.addAsWorked(m_hisCall,band,m_modeTx,date);
 
-        if (m_clearCallGrid)
+      if (m_config.clear_DX ())
         {
           m_hisCall="";
           ui->dxCallEntry->setText("");
@@ -2539,9 +2358,9 @@ void MainWindow::on_actionJT9_1_triggered()
   m_TRperiod=60;
   m_nsps=6912;
   m_hsymStop=173;
+  mode_label->setStyleSheet("QLabel{background-color: #ff6ec7}");
+  mode_label->setText(m_mode);
   m_toneSpacing=0.0;
-  lab2->setStyleSheet("QLabel{background-color: #ff6ec7}");
-  lab2->setText(m_mode);
   ui->actionJT9_1->setChecked(true);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
@@ -2557,9 +2376,9 @@ void MainWindow::on_actionJT9W_1_triggered()
   m_TRperiod=60;
   m_nsps=6912;
   m_hsymStop=173;
-  m_toneSpacing=pow(2,m_toneMultIndex)*12000.0/6912.0;
-  lab2->setStyleSheet("QLabel{background-color: #ff6ec7}");
-  lab2->setText(m_mode);
+  m_toneSpacing=pow(2,m_config.jt9w_bw_mult ())*12000.0/6912.0;
+  mode_label->setStyleSheet("QLabel{background-color: #ff6ec7}");
+  mode_label->setText(m_mode);
   ui->actionJT9W_1->setChecked(true);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
@@ -2575,8 +2394,9 @@ void MainWindow::on_actionJT65_triggered()
   m_TRperiod=60;
   m_nsps=6912;                   //For symspec only
   m_hsymStop=173;
-  lab2->setStyleSheet("QLabel{background-color: #ffff00}");
-  lab2->setText(m_mode);
+  m_toneSpacing=0.0;
+  mode_label->setStyleSheet("QLabel{background-color: #ffff00}");
+  mode_label->setText(m_mode);
   ui->actionJT65->setChecked(true);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
@@ -2587,13 +2407,14 @@ void MainWindow::on_actionJT65_triggered()
 void MainWindow::on_actionJT9_JT65_triggered()
 {
   m_mode="JT9+JT65";
-//  if(m_modeTx!="JT9") on_pbTxMode_clicked();
+  //  if(m_modeTx!="JT9") on_pbTxMode_clicked();
   statusChanged();
   m_TRperiod=60;
   m_nsps=6912;
   m_hsymStop=173;
-  lab2->setStyleSheet("QLabel{background-color: #ffa500}");
-  lab2->setText(m_mode);
+  m_toneSpacing=0.0;
+  mode_label->setStyleSheet("QLabel{background-color: #ffa500}");
+  mode_label->setText(m_mode);
   ui->actionJT9_JT65->setChecked(true);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
@@ -2606,7 +2427,7 @@ void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
   m_txFreq=n;
   m_wideGraph->setTxFreq(n);
   if(m_lockTxFreq) ui->RxFreqSpinBox->setValue(n);
-  Q_EMIT transmitFrequency (m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0));
+  Q_EMIT transmitFrequency (m_txFreq - m_XIT);
 }
 
 void MainWindow::on_RxFreqSpinBox_valueChanged(int n)
@@ -2639,18 +2460,13 @@ void MainWindow::on_inGain_valueChanged(int n)
   m_inGain=n;
 }
 
-void MainWindow::on_actionMonitor_OFF_at_startup_triggered()
-{
-  m_monitorStartOFF=!m_monitorStartOFF;
-}
-
 void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT
 {
   int ret = QMessageBox::warning(this, "Confirm Erase",
-      "Are you sure you want to erase file ALL.TXT ?",
-       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+                                 "Are you sure you want to erase file ALL.TXT ?",
+                                 QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
   if(ret==QMessageBox::Yes) {
-    QFile f("ALL.TXT");
+    QFile f(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
     f.remove();
     m_RxLog=1;
   }
@@ -2659,169 +2475,93 @@ void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT
 void MainWindow::on_actionErase_wsjtx_log_adi_triggered()
 {
   int ret = QMessageBox::warning(this, "Confirm Erase",
-      "Are you sure you want to erase file wsjtx_log.adi ?",
-       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+                                 "Are you sure you want to erase file wsjtx_log.adi ?",
+                                 QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
   if(ret==QMessageBox::Yes) {
-    QFile f("wsjtx_log.adi");
+    QFile f(m_config.data_path ().absoluteFilePath ("wsjtx_log.adi"));
     f.remove();
   }
 }
 
-void MainWindow::showMacros(const QPoint &pos)
-{
-  if(m_macro.length()<10) return;
-  QPoint globalPos = ui->tx5->mapToGlobal(pos);
-  QMenu popupMenu;
-  QAction* popup1 = new QAction(m_macro[0],ui->tx5);
-  QAction* popup2 = new QAction(m_macro[1],ui->tx5);
-  QAction* popup3 = new QAction(m_macro[2],ui->tx5);
-  QAction* popup4 = new QAction(m_macro[3],ui->tx5);
-  QAction* popup5 = new QAction(m_macro[4],ui->tx5);
-  QAction* popup6 = new QAction(m_macro[5],ui->tx5);
-  QAction* popup7 = new QAction(m_macro[6],ui->tx5);
-  QAction* popup8 = new QAction(m_macro[7],ui->tx5);
-  QAction* popup9 = new QAction(m_macro[8],ui->tx5);
-  QAction* popup10 = new QAction(m_macro[9],ui->tx5);
-
-  if(m_macro[0]!="") popupMenu.addAction(popup1);
-  if(m_macro[1]!="") popupMenu.addAction(popup2);
-  if(m_macro[2]!="") popupMenu.addAction(popup3);
-  if(m_macro[3]!="") popupMenu.addAction(popup4);
-  if(m_macro[4]!="") popupMenu.addAction(popup5);
-  if(m_macro[5]!="") popupMenu.addAction(popup6);
-  if(m_macro[6]!="") popupMenu.addAction(popup7);
-  if(m_macro[7]!="") popupMenu.addAction(popup8);
-  if(m_macro[8]!="") popupMenu.addAction(popup9);
-  if(m_macro[9]!="") popupMenu.addAction(popup10);
-
-  connect(popup1,SIGNAL(triggered()), this, SLOT(onPopup1()));
-  connect(popup2,SIGNAL(triggered()), this, SLOT(onPopup2()));
-  connect(popup3,SIGNAL(triggered()), this, SLOT(onPopup3()));
-  connect(popup4,SIGNAL(triggered()), this, SLOT(onPopup4()));
-  connect(popup5,SIGNAL(triggered()), this, SLOT(onPopup5()));
-  connect(popup6,SIGNAL(triggered()), this, SLOT(onPopup6()));
-  connect(popup7,SIGNAL(triggered()), this, SLOT(onPopup7()));
-  connect(popup8,SIGNAL(triggered()), this, SLOT(onPopup8()));
-  connect(popup9,SIGNAL(triggered()), this, SLOT(onPopup9()));
-  connect(popup10,SIGNAL(triggered()), this, SLOT(onPopup10()));
-  popupMenu.exec(globalPos);
-}
-
-void MainWindow::onPopup1() { ui->tx5->setText(m_macro[0]); freeText(); }
-void MainWindow::onPopup2() { ui->tx5->setText(m_macro[1]); freeText(); }
-void MainWindow::onPopup3() { ui->tx5->setText(m_macro[2]); freeText(); }
-void MainWindow::onPopup4() { ui->tx5->setText(m_macro[3]); freeText(); }
-void MainWindow::onPopup5() { ui->tx5->setText(m_macro[4]); freeText(); }
-void MainWindow::onPopup6() { ui->tx5->setText(m_macro[5]); freeText(); }
-void MainWindow::onPopup7() { ui->tx5->setText(m_macro[6]); freeText(); }
-void MainWindow::onPopup8() { ui->tx5->setText(m_macro[7]); freeText(); }
-void MainWindow::onPopup9() { ui->tx5->setText(m_macro[8]); freeText(); }
-void MainWindow::onPopup10() { ui->tx5->setText(m_macro[9]); freeText(); }
-
-void MainWindow::freeText() { ui->freeTextMsg->setText(ui->tx5->text()); }
-
 bool MainWindow::gridOK(QString g)
 {
   bool b=g.mid(0,1).compare("A")>=0 and
-      g.mid(0,1).compare("R")<=0 and
-      g.mid(1,1).compare("A")>=0 and
-      g.mid(1,1).compare("R")<=0 and
-      g.mid(2,1).compare("0")>=0 and
-      g.mid(2,1).compare("9")<=0 and
-      g.mid(3,1).compare("0")>=0 and
-      g.mid(3,1).compare("9")<=0;
+    g.mid(0,1).compare("R")<=0 and
+    g.mid(1,1).compare("A")>=0 and
+    g.mid(1,1).compare("R")<=0 and
+    g.mid(2,1).compare("0")>=0 and
+    g.mid(2,1).compare("9")<=0 and
+    g.mid(3,1).compare("0")>=0 and
+    g.mid(3,1).compare("9")<=0;
   return b;
 }
 
-void MainWindow::on_actionConvert_JT9_x_to_RTTY_triggered(bool checked)
+void MainWindow::on_bandComboBox_activated (int index)
 {
-  m_toRTTY=checked;
-}
+  auto frequencies = m_config.frequencies ();
+  auto frequency = frequencies->data (frequencies->index (index, 0));
 
-void MainWindow::on_actionLog_dB_reports_to_Comments_triggered(bool checked)
-{
-  m_dBtoComments=checked;
-}
-
-void MainWindow::on_bandComboBox_activated(int index)
-{
-  int ret=0;
-  QString rt;
-
-  // Upload any queued spots before changing band
-  psk_Reporter->sendReport();
-
-  m_band=index;
-  QString t=m_dFreq[index];
-  m_dialFreq=t.toDouble();
-  if(m_plus2kHz) m_dialFreq+=0.002;
-  dialFreqChanged2(m_dialFreq);
-  m_repeatMsg=0;
-  m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
-  if(m_catEnabled) {
-    if(!m_bRigOpen) {
-      rigOpen();
+  // Lookup band
+  auto bands = m_config.bands ();
+  auto band_index = bands->find (frequency);
+  if (band_index.isValid ())
+    {
+      ui->bandComboBox->lineEdit ()->setStyleSheet ({});
+      ui->bandComboBox->setCurrentText (band_index.data ().toString ());
     }
-    if(m_bRigOpen) {
-      m_dontReadFreq=true;
-      ret=rig->setFreq(MHz(m_dialFreq));
-      if(m_bSplit or m_bXIT) setXIT(m_txFreq);
-
-      bumpFqso(11);
-      bumpFqso(12);
-
-      if(ret!=RIG_OK) {
-        rt.sprintf("Set rig frequency failed:  %d",ret);
-        msgBox(rt);
-      }
+  else
+    {
+      ui->bandComboBox->lineEdit ()->setStyleSheet ("QLineEdit {color: yellow; background-color : red;}");
+      ui->bandComboBox->setCurrentText (bands->data (QModelIndex {}).toString ());
     }
-  }
-  QFile f2("ALL.TXT");
-  f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-  QTextStream out(&f2);
-  out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-      << "  " << m_dialFreq << " MHz  " << m_mode << endl;
-  f2.close();
-  psk_Reporter->setLocalStation(m_myCall, m_myGrid, m_antDescription[m_band], "WSJT-X r" + rev.mid(6,4) );
+
+  auto f = frequency.value<Frequency> ();
+  if (m_plus2kHz)
+    {
+      f += 2000;
+    }
+
+  m_bandEdited = true;
+  band_changed (f);
 }
 
-void MainWindow::on_actionPrompt_to_log_QSO_triggered(bool checked)
+void MainWindow::band_changed (Frequency f)
 {
-  m_promptToLog=checked;
+  if (m_bandEdited)
+    {
+      m_bandEdited = false;
+
+      // Upload any queued spots before changing band
+      psk_Reporter->sendReport();
+
+      if (!m_transmitting)
+        {
+          monitor (true);
+        }
+
+      Q_EMIT m_config.transceiver_frequency (f);
+      qsy (f);
+    }
 }
 
-void MainWindow::on_actionBlank_line_between_decoding_periods_triggered(bool checked)
+void MainWindow::enable_DXCC_entity (bool on)
 {
-  m_insertBlank=checked;
-}
+  if (on)
+    {
+      // re-read the log and cty.dat files
+      m_logBook.init(m_config.data_path ());
+    }
 
-void MainWindow::on_actionEnable_DXCC_entity_triggered(bool checked)
-{
-  m_displayDXCCEntity=checked;
-  if (checked)
-      m_logBook.init();  // re-read the log and cty.dat files
-
-  if (checked)  // adjust the proportions between the two text displays
-  {
+  if (on)  // adjust the proportions between the two text displays
+    {
       ui->gridLayout->setColumnStretch(0,55);
       ui->gridLayout->setColumnStretch(1,45);
-  }
+    }
   else
-  {
+    {
       ui->gridLayout->setColumnStretch(0,0);
       ui->gridLayout->setColumnStretch(1,0);
-  }
-}
-
-void MainWindow::on_actionClear_DX_Call_and_Grid_after_logging_triggered(bool checked)
-{
-  m_clearCallGrid=checked;
-}
-
-void MainWindow::on_actionDisplay_distance_in_miles_triggered(bool checked)
-{
-  m_bMiles=checked;
-  on_dxGridEntry_textChanged(m_hisGrid);
+    }
 }
 
 void MainWindow::on_pbCallCQ_clicked()
@@ -2872,7 +2612,7 @@ void MainWindow::on_pbSendReport_clicked()
 void MainWindow::on_pbSend73_clicked()
 {
   genStdMsgs(m_rpt);
-  ui->genMsg->setText(ui->tx5->text());
+  ui->genMsg->setText(ui->tx5->currentText());
   m_ntx=7;
   ui->rbGenMsg->setChecked(true);
   if(m_transmitting) m_restart=true;
@@ -2896,29 +2636,19 @@ void MainWindow::on_rbFreeText_toggled(bool checked)
   }
 }
 
-void MainWindow::on_freeTextMsg_editingFinished()
+void MainWindow::on_freeTextMsg_currentTextChanged (QString const& text)
 {
-  QString t=ui->freeTextMsg->text();
-  msgtype(t, ui->freeTextMsg);
-}
-
-void MainWindow::on_actionDouble_click_on_call_sets_Tx_Enable_triggered(bool checked)
-{
-  m_quickCall=checked;
-  if(checked) {
-    lab3->setText("Tx-Enable Armed");
-  } else {
-    lab3->setText("Tx-Enable Disarmed");
-  }
+  msgtype(text, ui->freeTextMsg->lineEdit ());
+  msgtype(text, ui->tx5->lineEdit ());
 }
 
 void MainWindow::on_rptSpinBox_valueChanged(int n)
 {
   m_rpt=QString::number(n);
   int ntx0=m_ntx;
-  QString t=ui->tx5->text();
+  QString t=ui->tx5->currentText();
   genStdMsgs(m_rpt);
-  ui->tx5->setText(t);
+  ui->tx5->setCurrentText(t);
   m_ntx=ntx0;
   if(m_ntx==1) ui->txrb1->setChecked(true);
   if(m_ntx==2) ui->txrb2->setChecked(true);
@@ -2929,109 +2659,57 @@ void MainWindow::on_rptSpinBox_valueChanged(int n)
   statusChanged();
 }
 
-void MainWindow::on_action_73TxDisable_triggered(bool checked)
+void MainWindow::on_tuneButton_clicked (bool checked)
 {
-  m_73TxDisable=checked;
+  if (m_tune)
+    {
+      nc1=1;                                 //disable the countdown timer
+      tuneButtonTimer->start(250);
+    } 
+  else
+    {
+      m_sent73=false;
+      m_repeatMsg=0;
+    }
+  m_tune = checked;
+  Q_EMIT tune (checked);
 }
 
-void MainWindow::on_actionRunaway_Tx_watchdog_triggered(bool checked)
+void MainWindow::tuning (bool state)
 {
-  m_runaway=checked;
-}
-
-void MainWindow::on_tuneButton_clicked()
-{
-  if(m_tune) {
-    nc1=1;                                 //disable the countdown timer
-    tuneButtonTimer->start(250);
-  } else {
-    m_tune=true;
-    m_sent73=false;
-    Q_EMIT tune ();
-    m_repeatMsg=0;
-    ui->tuneButton->setStyleSheet(m_pbTune_style);
-  }
+  ui->tuneButton->setChecked (state);
+  on_tuneButton_clicked (state);
 }
 
 void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
 {
-  if(m_tune) {
-    m_tune=false;
-    Q_EMIT tune (m_tune);
-  }
-  if(m_auto) on_autoButton_clicked();
+  // if(m_tune) {
+  //   m_tune=false;
+  //   Q_EMIT tune (m_tune);
+  // }
+  if (m_tune)
+    {
+      tuning (false);
+    }
+
+  if (m_auto)
+    {
+      auto_tx_mode (false);
+    }
+
   m_btxok=false;
   Q_EMIT muteAudioOutput ();
   m_repeatMsg=0;
-  ui->tuneButton->setStyleSheet("");
 }
 
-void MainWindow::rigOpen()
+void MainWindow::rigOpen ()
 {
-  QString t;
-  int ret;
-  rig = new Rig();
-
-  if(m_rig<9900) {
-    if (!rig->init(m_rig)) {
-      msgBox("Rig init failure");
-      return;
-    }
-    QString sCATport=m_catPort;
-#ifdef WIN32
-    sCATport="\\\\.\\" + m_catPort;    //Allow COM ports above 9
-#endif
-    rig->setConf("rig_pathname", sCATport.toLatin1().data());
-    char buf[80];
-    sprintf(buf,"%d",m_serialRate);
-    rig->setConf("serial_speed",buf);
-    sprintf(buf,"%d",m_dataBits);
-    rig->setConf("data_bits",buf);
-    sprintf(buf,"%d",m_stopBits);
-    rig->setConf("stop_bits",buf);
-    rig->setConf("serial_handshake",m_handshake.toLatin1().data());
-    if(m_handshakeIndex != 2) {
-      rig->setConf("rts_state",m_bRTS ? "ON" : "OFF");
-      rig->setConf("dtr_state",m_bDTR ? "ON" : "OFF");
-    }
-  }
-
-  ret=rig->open(m_rig);
-  if(ret==RIG_OK) {
-    m_bRigOpen=true;
-    m_bad=0;
-    if(m_poll==0) ui->readFreq->setEnabled(true);
-    m_CATerror=false;
-  } else {
-    t="Open rig failed";
-    msgBox(t);
-    m_catEnabled=false;
-    m_bRigOpen=false;
-    m_CATerror=true;
-  }
-
-  if(m_bRigOpen) {
-		if(m_poll>0) {
-			ui->readFreq->setStyleSheet("QPushButton{background-color: #00ff00; \
-																	border-width: 0px; border-radius: 5px;}");
-	} else {
-		ui->readFreq->setStyleSheet("QPushButton{background-color: orange; \
-																border-width: 0px; border-radius: 5px;}");
-  }
-
-  if(m_bSplit) ui->readFreq->setText("S");
-  if(!m_bSplit) ui->readFreq->setText("");
-  } else {
-  if(m_CATerror) ui->readFreq->setStyleSheet("QPushButton{background-color: red; \
-																					 border-width: 0px; border-radius: 5px;}");
-  if(!m_CATerror) ui->readFreq->setStyleSheet("");
-  ui->readFreq->setText("");
-  }
-}
-
-void MainWindow::on_actionAllow_multiple_instances_triggered(bool checked)
-{
-  m_bMultipleOK=checked;
+  ui->readFreq->setStyleSheet ("");
+  ui->readFreq->setText ("");
+  m_config.transceiver_online (true);
+  Q_EMIT m_config.sync_transceiver (true);
+  ui->readFreq->setStyleSheet("QPushButton{background-color: orange;"
+                              "border-width: 0px; border-radius: 5px;}");
 }
 
 void MainWindow::on_pbR2T_clicked()
@@ -3048,19 +2726,12 @@ void MainWindow::on_pbT2R_clicked()
 
 void MainWindow::on_readFreq_clicked()
 {
-  if(m_transmitting) return;
-  m_dontReadFreq=false;
-  double fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
-  if(fMHz<0.0) {
-    QString rt;
-    rt.sprintf("Rig control error %d\nFailed to read frequency.",
-               int(1000000.0*fMHz));
-    msgBox(rt);
-    m_catEnabled=false;
-  }
-  if(fMHz<0.01 or fMHz>1300.0) fMHz=0;
-  int ndiff=1000000.0*(fMHz-m_dialFreq);
-  if(ndiff!=0) dialFreqChanged2(fMHz);
+  if (m_transmitting) return;
+
+  if (m_config.transceiver_online (true))
+    {
+      Q_EMIT m_config.sync_transceiver (true);
+    }
 }
 
 void MainWindow::on_pbTxMode_clicked()
@@ -3078,23 +2749,24 @@ void MainWindow::on_pbTxMode_clicked()
 
 void MainWindow::setXIT(int n)
 {
-  int ret;
   m_XIT = 0;
-  if(m_bRigOpen) {
-    m_XIT=(n/500)*500 - 1500;
-    if(m_bXIT) {
-      ret=rig->setXit((shortfreq_t)m_XIT,RIG_VFO_TX);
-      if(ret!=RIG_OK) {
-        QString rt;
-        rt.sprintf("Setting RIG_VFO_TX failed:  %d",ret);
-        msgBox(rt);
-      }
+  if (m_config.split_mode ())
+    {
+      m_XIT=(n/500)*500 - 1500;
     }
-    if(m_bSplit) {
-      ret=rig->setSplitFreq(MHz(m_dialFreq)+m_XIT,RIG_VFO_B);
+
+  if (m_monitoring || m_transmitting)
+    {
+      if (m_config.transceiver_online ())
+        {
+          if (m_config.split_mode ())
+            {
+              Q_EMIT m_config.transceiver_tx_frequency (m_dialFreq + m_XIT);
+            }
+        }
     }
-  }
-  Q_EMIT transmitFrequency (m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0));
+
+  Q_EMIT transmitFrequency (m_txFreq - m_XIT);
 }
 
 void MainWindow::setFreq4(int rxFreq, int txFreq)
@@ -3112,58 +2784,86 @@ void MainWindow::on_cbTxLock_clicked(bool checked)
   if(m_lockTxFreq) on_pbR2T_clicked();
 }
 
-void MainWindow::on_actionTx2QSO_triggered(bool checked)
-{
-  m_tx2QSO=checked;
-}
-
 void MainWindow::on_cbPlus2kHz_toggled(bool checked)
 {
-  m_plus2kHz=checked;
-  on_bandComboBox_activated(m_band);
+  // Upload any queued spots before changing band
+  psk_Reporter->sendReport();
+
+  m_plus2kHz = checked;
+
+  auto f = m_dialFreq;
+
+  if (m_plus2kHz)
+    {
+      f += 2000;
+    }
+  else
+    {
+      f -= 2000;
+    }
+
+  m_bandEdited = true;
+  band_changed (f);
 }
 
-void MainWindow::pollRigFreq()
+void MainWindow::handle_transceiver_update (Transceiver::TransceiverState s)
 {
-  double fMHz;
-  if(m_dontReadFreq) {
-    m_dontReadFreq=false;
-  } else if(!m_transmitting) {
-    fMHz=rig->getFreq(RIG_VFO_CURR)/1000000.0;
-    if(fMHz<0.0) {
-      m_bad++;
-      if(m_bad>=20) {
-        QString rt;
-        rt.sprintf("Rig control error %d\nFailed to read frequency.",
-                   int(1000000.0*fMHz));
-        msgBox(rt);
-        m_catEnabled=false;
-        ui->readFreq->setStyleSheet("QPushButton{background-color: red; \
-                                    border-width: 0px; border-radius: 5px;}");
-      }
-    } else {
-      int ndiff=1000000.0*(fMHz-m_dialFreq);
-      if(ndiff!=0) dialFreqChanged2(fMHz);
+  if ((s.frequency () - m_dialFreq) || s.split () != m_splitMode)
+    {
+      m_splitMode = s.split ();
+      qsy (s.frequency ());
     }
-  }
+
+  ui->readFreq->setStyleSheet("QPushButton{background-color: #00ff00;"
+                              "border-width: 0px; border-radius: 5px;}");
+  ui->readFreq->setText (s.split () ? "S" : "");
+}
+
+void MainWindow::handle_transceiver_failure (QString reason)
+{
+  ui->readFreq->setStyleSheet("QPushButton{background-color: red;"
+                              "border-width: 0px; border-radius: 5px;}");
+
+  m_btxok=false;
+  Q_EMIT muteAudioOutput ();
+  m_repeatMsg=0;
+
+  rigFailure ("Rig Control Error", reason);
+}
+
+void MainWindow::rigFailure (QString const& reason, QString const& detail)
+{
+  m_rigErrorMessageBox.setText (reason);
+  m_rigErrorMessageBox.setDetailedText (detail);
+
+  // don't call slot functions directly to avoid recursion
+  switch (m_rigErrorMessageBox.exec ())
+    {
+    case QMessageBox::Ok:
+      QTimer::singleShot (0, this, SLOT (on_actionSettings_triggered ()));
+      break;
+
+    case QMessageBox::Retry:
+      QTimer::singleShot (0, this, SLOT (rigOpen ()));
+      break;
+
+    case QMessageBox::Cancel:
+      QTimer::singleShot (0, this, SLOT (close ()));
+      break;
+    }
 }
 
 void MainWindow::transmit (double snr)
 {
   if (m_modeTx == "JT65")
     {
-      Q_EMIT sendMessage (NUM_JT65_SYMBOLS, 4096.0 * 12000.0 / 11025.0,
-                          m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0),
-                          m_audioOutputChannel, true, snr);
+      Q_EMIT sendMessage (NUM_JT65_SYMBOLS, 4096.0 * 12000.0 / 11025.0, m_txFreq - m_XIT, m_config.audio_output_channel (), true, snr);
     }
   else
     {
-      Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps,
-                          m_txFreq - (m_bSplit || m_bXIT ? m_XIT : 0),
-                          m_audioOutputChannel, true, snr);
+      Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps, m_txFreq - m_XIT, m_config.audio_output_channel (), true, snr);
     }
-  Q_EMIT startAudioOutputStream (m_audioOutputDevice,
-  AudioDevice::Mono == m_audioOutputChannel ? 1 : 2, m_msAudioOutputBuffered);
+  Q_EMIT startAudioOutputStream (m_config.audio_output_device (), AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2, m_msAudioOutputBuffered);
 }
 
 void MainWindow::on_outAttenuation_valueChanged (int a)
@@ -3178,15 +2878,14 @@ void MainWindow::on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered()
   pPrefixes = new QTextEdit(0);
   pPrefixes->setReadOnly(true);
   pPrefixes->setFontPointSize(10);
-  pPrefixes->setWindowTitle("Prefixes");
+  pPrefixes->setWindowTitle(QApplication::applicationName () + " - " + tr ("Prefixes"));
   pPrefixes->setGeometry(QRect(45,50,565,450));
   Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
-      Qt::WindowMinimizeButtonHint;
+    Qt::WindowMinimizeButtonHint;
   pPrefixes->setWindowFlags(flags);
-  QString prefixes = m_appDir + "/prefixes.txt";
-  QFile f(prefixes);
+  QFile f(":/prefixes.txt");
   if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    msgBox("Cannot open " + prefixes);
+    msgBox("Cannot open \"" + f.fileName () + "\".");
     return;
   }
   QTextStream s(&f);
@@ -3202,51 +2901,51 @@ void MainWindow::on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered()
 void MainWindow::getpfx()
 {
   m_prefix <<"1A" <<"1S" <<"3A" <<"3B6" <<"3B8" <<"3B9" <<"3C" <<"3C0" \
-        <<"3D2" <<"3D2C" <<"3D2R" <<"3DA" <<"3V" <<"3W" <<"3X" <<"3Y" \
-        <<"3YB" <<"3YP" <<"4J" <<"4L" <<"4S" <<"4U1I" <<"4U1U" <<"4W" \
-        <<"4X" <<"5A" <<"5B" <<"5H" <<"5N" <<"5R" <<"5T" <<"5U" \
-        <<"5V" <<"5W" <<"5X" <<"5Z" <<"6W" <<"6Y" <<"7O" <<"7P" \
-        <<"7Q" <<"7X" <<"8P" <<"8Q" <<"8R" <<"9A" <<"9G" <<"9H" \
-        <<"9J" <<"9K" <<"9L" <<"9M2" <<"9M6" <<"9N" <<"9Q" <<"9U" \
-        <<"9V" <<"9X" <<"9Y" <<"A2" <<"A3" <<"A4" <<"A5" <<"A6" \
-        <<"A7" <<"A9" <<"AP" <<"BS7" <<"BV" <<"BV9" <<"BY" <<"C2" \
-        <<"C3" <<"C5" <<"C6" <<"C9" <<"CE" <<"CE0X" <<"CE0Y" <<"CE0Z" \
-        <<"CE9" <<"CM" <<"CN" <<"CP" <<"CT" <<"CT3" <<"CU" <<"CX" \
-        <<"CY0" <<"CY9" <<"D2" <<"D4" <<"D6" <<"DL" <<"DU" <<"E3" \
-        <<"E4" <<"EA" <<"EA6" <<"EA8" <<"EA9" <<"EI" <<"EK" <<"EL" \
-        <<"EP" <<"ER" <<"ES" <<"ET" <<"EU" <<"EX" <<"EY" <<"EZ" \
-        <<"F" <<"FG" <<"FH" <<"FJ" <<"FK" <<"FKC" <<"FM" <<"FO" \
-        <<"FOA" <<"FOC" <<"FOM" <<"FP" <<"FR" <<"FRG" <<"FRJ" <<"FRT" \
-        <<"FT5W" <<"FT5X" <<"FT5Z" <<"FW" <<"FY" <<"M" <<"MD" <<"MI" \
-        <<"MJ" <<"MM" <<"MU" <<"MW" <<"H4" <<"H40" <<"HA" \
-        <<"HB" <<"HB0" <<"HC" <<"HC8" <<"HH" <<"HI" <<"HK" <<"HK0A" \
-        <<"HK0M" <<"HL" <<"HM" <<"HP" <<"HR" <<"HS" <<"HV" <<"HZ" \
-        <<"I" <<"IS" <<"IS0" <<"J2" <<"J3" <<"J5" <<"J6" \
-        <<"J7" <<"J8" <<"JA" <<"JDM" <<"JDO" <<"JT" <<"JW" \
-        <<"JX" <<"JY" <<"K" <<"KG4" <<"KH0" <<"KH1" <<"KH2" <<"KH3" \
-        <<"KH4" <<"KH5" <<"KH5K" <<"KH6" <<"KH7" <<"KH8" <<"KH9" <<"KL" \
-        <<"KP1" <<"KP2" <<"KP4" <<"KP5" <<"LA" <<"LU" <<"LX" <<"LY" \
-        <<"LZ" <<"OA" <<"OD" <<"OE" <<"OH" <<"OH0" <<"OJ0" <<"OK" \
-        <<"OM" <<"ON" <<"OX" <<"OY" <<"OZ" <<"P2" <<"P4" <<"PA" \
-        <<"PJ2" <<"PJ7" <<"PY" <<"PY0F" <<"PT0S" <<"PY0T" <<"PZ" <<"R1F" \
-        <<"R1M" <<"S0" <<"S2" <<"S5" <<"S7" <<"S9" <<"SM" <<"SP" \
-        <<"ST" <<"SU" <<"SV" <<"SVA" <<"SV5" <<"SV9" <<"T2" <<"T30" \
-        <<"T31" <<"T32" <<"T33" <<"T5" <<"T7" <<"T8" <<"T9" <<"TA" \
-        <<"TF" <<"TG" <<"TI" <<"TI9" <<"TJ" <<"TK" <<"TL" \
-        <<"TN" <<"TR" <<"TT" <<"TU" <<"TY" <<"TZ" <<"UA" <<"UA2" \
-        <<"UA9" <<"UK" <<"UN" <<"UR" <<"V2" <<"V3" <<"V4" <<"V5" \
-        <<"V6" <<"V7" <<"V8" <<"VE" <<"VK" <<"VK0H" <<"VK0M" <<"VK9C" \
-        <<"VK9L" <<"VK9M" <<"VK9N" <<"VK9W" <<"VK9X" <<"VP2E" <<"VP2M" <<"VP2V" \
-        <<"VP5" <<"VP6" <<"VP6D" <<"VP8" <<"VP8G" <<"VP8H" <<"VP8O" <<"VP8S" \
-        <<"VP9" <<"VQ9" <<"VR" <<"VU" <<"VU4" <<"VU7" <<"XE" <<"XF4" \
-        <<"XT" <<"XU" <<"XW" <<"XX9" <<"XZ" <<"YA" <<"YB" <<"YI" \
-        <<"YJ" <<"YK" <<"YL" <<"YN" <<"YO" <<"YS" <<"YU" <<"YV" \
-        <<"YV0" <<"Z2" <<"Z3" <<"ZA" <<"ZB" <<"ZC4" <<"ZD7" <<"ZD8" \
-        <<"ZD9" <<"ZF" <<"ZK1N" <<"ZK1S" <<"ZK2" <<"ZK3" <<"ZL" <<"ZL7" \
-        <<"ZL8" <<"ZL9" <<"ZP" <<"ZS" <<"ZS8" <<"KC4" <<"E5";
+           <<"3D2" <<"3D2C" <<"3D2R" <<"3DA" <<"3V" <<"3W" <<"3X" <<"3Y" \
+           <<"3YB" <<"3YP" <<"4J" <<"4L" <<"4S" <<"4U1I" <<"4U1U" <<"4W" \
+           <<"4X" <<"5A" <<"5B" <<"5H" <<"5N" <<"5R" <<"5T" <<"5U" \
+           <<"5V" <<"5W" <<"5X" <<"5Z" <<"6W" <<"6Y" <<"7O" <<"7P" \
+           <<"7Q" <<"7X" <<"8P" <<"8Q" <<"8R" <<"9A" <<"9G" <<"9H" \
+           <<"9J" <<"9K" <<"9L" <<"9M2" <<"9M6" <<"9N" <<"9Q" <<"9U" \
+           <<"9V" <<"9X" <<"9Y" <<"A2" <<"A3" <<"A4" <<"A5" <<"A6" \
+           <<"A7" <<"A9" <<"AP" <<"BS7" <<"BV" <<"BV9" <<"BY" <<"C2" \
+           <<"C3" <<"C5" <<"C6" <<"C9" <<"CE" <<"CE0X" <<"CE0Y" <<"CE0Z" \
+           <<"CE9" <<"CM" <<"CN" <<"CP" <<"CT" <<"CT3" <<"CU" <<"CX" \
+           <<"CY0" <<"CY9" <<"D2" <<"D4" <<"D6" <<"DL" <<"DU" <<"E3" \
+           <<"E4" <<"EA" <<"EA6" <<"EA8" <<"EA9" <<"EI" <<"EK" <<"EL" \
+           <<"EP" <<"ER" <<"ES" <<"ET" <<"EU" <<"EX" <<"EY" <<"EZ" \
+           <<"F" <<"FG" <<"FH" <<"FJ" <<"FK" <<"FKC" <<"FM" <<"FO" \
+           <<"FOA" <<"FOC" <<"FOM" <<"FP" <<"FR" <<"FRG" <<"FRJ" <<"FRT" \
+           <<"FT5W" <<"FT5X" <<"FT5Z" <<"FW" <<"FY" <<"M" <<"MD" <<"MI" \
+           <<"MJ" <<"MM" <<"MU" <<"MW" <<"H4" <<"H40" <<"HA" \
+           <<"HB" <<"HB0" <<"HC" <<"HC8" <<"HH" <<"HI" <<"HK" <<"HK0A" \
+           <<"HK0M" <<"HL" <<"HM" <<"HP" <<"HR" <<"HS" <<"HV" <<"HZ" \
+           <<"I" <<"IS" <<"IS0" <<"J2" <<"J3" <<"J5" <<"J6" \
+           <<"J7" <<"J8" <<"JA" <<"JDM" <<"JDO" <<"JT" <<"JW" \
+           <<"JX" <<"JY" <<"K" <<"KG4" <<"KH0" <<"KH1" <<"KH2" <<"KH3" \
+           <<"KH4" <<"KH5" <<"KH5K" <<"KH6" <<"KH7" <<"KH8" <<"KH9" <<"KL" \
+           <<"KP1" <<"KP2" <<"KP4" <<"KP5" <<"LA" <<"LU" <<"LX" <<"LY" \
+           <<"LZ" <<"OA" <<"OD" <<"OE" <<"OH" <<"OH0" <<"OJ0" <<"OK" \
+           <<"OM" <<"ON" <<"OX" <<"OY" <<"OZ" <<"P2" <<"P4" <<"PA" \
+           <<"PJ2" <<"PJ7" <<"PY" <<"PY0F" <<"PT0S" <<"PY0T" <<"PZ" <<"R1F" \
+           <<"R1M" <<"S0" <<"S2" <<"S5" <<"S7" <<"S9" <<"SM" <<"SP" \
+           <<"ST" <<"SU" <<"SV" <<"SVA" <<"SV5" <<"SV9" <<"T2" <<"T30" \
+           <<"T31" <<"T32" <<"T33" <<"T5" <<"T7" <<"T8" <<"T9" <<"TA" \
+           <<"TF" <<"TG" <<"TI" <<"TI9" <<"TJ" <<"TK" <<"TL" \
+           <<"TN" <<"TR" <<"TT" <<"TU" <<"TY" <<"TZ" <<"UA" <<"UA2" \
+           <<"UA9" <<"UK" <<"UN" <<"UR" <<"V2" <<"V3" <<"V4" <<"V5" \
+           <<"V6" <<"V7" <<"V8" <<"VE" <<"VK" <<"VK0H" <<"VK0M" <<"VK9C" \
+           <<"VK9L" <<"VK9M" <<"VK9N" <<"VK9W" <<"VK9X" <<"VP2E" <<"VP2M" <<"VP2V" \
+           <<"VP5" <<"VP6" <<"VP6D" <<"VP8" <<"VP8G" <<"VP8H" <<"VP8O" <<"VP8S" \
+           <<"VP9" <<"VQ9" <<"VR" <<"VU" <<"VU4" <<"VU7" <<"XE" <<"XF4" \
+           <<"XT" <<"XU" <<"XW" <<"XX9" <<"XZ" <<"YA" <<"YB" <<"YI" \
+           <<"YJ" <<"YK" <<"YL" <<"YN" <<"YO" <<"YS" <<"YU" <<"YV" \
+           <<"YV0" <<"Z2" <<"Z3" <<"ZA" <<"ZB" <<"ZC4" <<"ZD7" <<"ZD8" \
+           <<"ZD9" <<"ZF" <<"ZK1N" <<"ZK1S" <<"ZK2" <<"ZK3" <<"ZL" <<"ZL7" \
+           <<"ZL8" <<"ZL9" <<"ZP" <<"ZS" <<"ZS8" <<"KC4" <<"E5";
 
   m_suffix << "P" << "0" << "1" << "2" << "3" << "4" << "5" << "6" \
-         << "7" << "8" << "9" << "A";
+           << "7" << "8" << "9" << "A";
 
   for(int i=0; i<12; i++) {
     m_sfx.insert(m_suffix[i],true);
@@ -3265,4 +2964,24 @@ bool MainWindow::shortList(QString callsign)
   QString t2=callsign.mid(i1+1,n-i1-1);
   bool b=(m_pfx.contains(t1) or m_sfx.contains(t2));
   return b;
+}
+
+void MainWindow::pskSetLocal ()
+{
+  // find the station row, if any, that matches the band we are on
+  auto stations = m_config.stations ();
+  auto matches = stations->match (stations->index (0, 0)
+                                  , Qt::DisplayRole
+                                  , ui->bandComboBox->currentText ()
+                                  , 1
+                                  , Qt::MatchExactly);
+  QString antenna_description;
+  if (!matches.isEmpty ())
+    {
+      antenna_description = stations->index (matches.first ().row (), 2).data ().toString ();
+    }
+  psk_Reporter->setLocalStation(
+                                m_config.my_callsign ()
+                                , m_config.my_grid ()
+                                , antenna_description, "WSJT-X r" + rev.mid(6,4));
 }

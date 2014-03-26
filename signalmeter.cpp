@@ -5,6 +5,8 @@
 
 #include "signalmeter.h"
 
+#include "moc_signalmeter.cpp"
+
 SignalMeter::SignalMeter(QWidget *parent) :
     QWidget(parent)
 {

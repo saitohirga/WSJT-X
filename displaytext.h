@@ -12,7 +12,7 @@ class DisplayText : public QTextBrowser
 public:
     explicit DisplayText(QWidget *parent = 0);
 
-    void setFont(QFont font);
+    void setFont(QFont const& font);
 
     void insertLineSpacer();
     void displayDecodedText(DecodedText decodedText, QString myCall, bool displayDXCCEntity, LogBook logBook);

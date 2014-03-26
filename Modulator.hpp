@@ -57,7 +57,7 @@ private:
   Q_SLOT void tune (bool newState = true) {m_tuning = newState;}
   Q_SLOT void mute (bool newState = true) {m_muted = newState;}
   Q_SLOT void setFrequency (unsigned newFrequency) {m_frequency = newFrequency;}
-  Q_SIGNAL void stateChanged (ModulatorState);
+  Q_SIGNAL void stateChanged (ModulatorState) const;
 
 private:
   qint16 postProcessSample (qint16 sample) const;

@@ -3,12 +3,14 @@
 
 #include <QDialog>
 #include <QScopedPointer>
+#include <QDir>
 
 namespace Ui {
   class WideGraph;
 }
 
 class QSettings;
+class Configuration;
 
 class WideGraph : public QDialog
 {
@@ -67,6 +69,7 @@ private slots:
 private:
   QScopedPointer<Ui::WideGraph> ui;
   QSettings * m_settings;
+  QDir m_palettes_path;
 
   qint32 m_rxFreq;
   qint32 m_txFreq;

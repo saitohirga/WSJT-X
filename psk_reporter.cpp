@@ -5,6 +5,8 @@
 
 #include "psk_reporter.h"
 
+#include "moc_psk_reporter.cpp"
+
 PSK_Reporter::PSK_Reporter(QObject *parent) :
     QObject(parent),
     m_sequenceNumber(0)

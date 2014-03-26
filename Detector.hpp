@@ -45,7 +45,7 @@ private:
   Q_SLOT bool reset ();
   Q_SLOT void close () {AudioDevice::close ();}
 
-  Q_SIGNAL void framesWritten (qint64);
+  Q_SIGNAL void framesWritten (qint64) const;
 
   void clear ();		// discard buffer contents
   unsigned secondInPeriod () const;

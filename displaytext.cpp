@@ -3,6 +3,8 @@
 #include <QMouseEvent>
 #include <QDateTime>
 
+#include "moc_displaytext.cpp"
+
 DisplayText::DisplayText(QWidget *parent) :
     QTextBrowser(parent)
 {
@@ -19,7 +21,7 @@ void DisplayText::mouseDoubleClickEvent(QMouseEvent *e)
 }
 
 
-void DisplayText::setFont(QFont font)
+void DisplayText::setFont(QFont const& font)
 {
   QFontMetrics qfm(font);
   _fontWidth = qfm.averageCharWidth()+1;  // the plus one is emperical

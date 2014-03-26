@@ -1,17 +1,25 @@
 #include "widegraph.h"
+
+#include <QApplication>
+#include <QSettings>
+
 #include "ui_widegraph.h"
 #include "commons.h"
+#include "Configuration.hpp"
+
+#include "moc_widegraph.cpp"
 
 #define MAX_SCREENSIZE 2048
 
 WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   QDialog(parent),
   ui(new Ui::WideGraph),
-  m_settings (settings)
+  m_settings (settings),
+  m_palettes_path {":/Palettes"}
 {
   ui->setupUi(this);
 
-  setWindowTitle ("Wide Graph");
+  setWindowTitle (QApplication::applicationName () + " - " + tr ("Wide Graph"));
   setWindowFlags (Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint);
   setMaximumWidth (MAX_SCREENSIZE);
   setMaximumHeight (880);
@@ -58,8 +66,13 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   setRxRange (m_fMin);
   m_settings->endGroup();
 
-  QDir recoredDir("Palettes");
-  QStringList allFiles = recoredDir.entryList(QDir::NoDotAndDotDot |
+  saveSettings ();		// update config with defaults
+
+  //m_palettes_path = configuration->resources_path ();
+  //QString palettes_dir {":/Palettes"};
+  //m_palettes_path.cd (palettes_dir);
+
+  QStringList allFiles = m_palettes_path.entryList(QDir::NoDotAndDotDot |
         QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files,
         QDir::DirsFirst);
   int index=0;
@@ -72,7 +85,7 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
     index++;
   }
 //  ui->paletteComboBox->lineEdit()->setAlignment(Qt::AlignHCenter);
-  readPalette("Palettes/" + m_waterfallPalette + ".pal");
+  readPalette(m_palettes_path.absoluteFilePath (m_waterfallPalette + ".pal"));
 }
 
 WideGraph::~WideGraph ()
@@ -352,7 +365,7 @@ void WideGraph::readPalette(QString fileName)
 void WideGraph::on_paletteComboBox_activated(const QString &palette)
 {
   m_waterfallPalette=palette;
-  readPalette("Palettes/" + palette + ".pal");
+  readPalette(m_palettes_path.absoluteFilePath(palette + ".pal"));
 }
 
 void WideGraph::on_cbFlatten_toggled(bool b)

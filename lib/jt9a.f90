@@ -1,7 +1,6 @@
-subroutine jt9a(thekey,ldir)
+subroutine jt9a()
 
-  character(len=*), intent(in):: thekey
-  character(len=*), intent(in):: ldir
+  use prog_args
 
 ! These routines connect the shared memory region to the decoder.
   interface
@@ -21,29 +20,29 @@ subroutine jt9a(thekey,ldir)
   common/tracer/limtrace,lu
 
 ! Multiple instances:
-  i0 = len(trim(thekey))
+  i0 = len(trim(shm_key))
 
   call getcwd(cwd)
-  open(12,file='timer.out',status='unknown')
+  open(12,file=trim(data_dir)//'/timer.out',status='unknown')
 
   limtrace=0
 !  limtrace=-1                            !Disable all calls to timer()
   lu=12
 
 ! Multiple instances: set the shared memory key before attaching
-  mykey=trim(repeat(thekey,1))
+  mykey=trim(repeat(shm_key,1))
   i0 = len(mykey)
   i0=setkey_jt9(trim(mykey))
 
   i1=attach_jt9()
 
-10 inquire(file=trim(ldir)//'/.lock',exist=fileExists)
+10 inquire(file='.lock',exist=fileExists)
   if(fileExists) then
      call sleep_msec(100)
      go to 10
   endif
 
-  inquire(file=trim(ldir)//'/.quit',exist=fileExists)
+  inquire(file='.quit',exist=fileExists)
   if(fileExists) then
 !     call ftnquit
      i1=detach_jt9()
@@ -62,7 +61,7 @@ subroutine jt9a(thekey,ldir)
   call jt9b(p_jt9,nbytes)
   call timer('jt9b    ',1)
 
-100 inquire(file=trim(ldir)//'/.lock',exist=fileExists)
+100 inquire(file='.lock',exist=fileExists)
   if(fileExists) go to 10
   call sleep_msec(100)
   go to 100

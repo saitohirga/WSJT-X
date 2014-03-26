@@ -1,6 +1,8 @@
 #include "about.h"
 #include "ui_about.h"
 
+#include "moc_about.cpp"
+
 CAboutDlg::CAboutDlg(QWidget *parent, QString Revision) :
   QDialog(parent),
   m_Revision(Revision),

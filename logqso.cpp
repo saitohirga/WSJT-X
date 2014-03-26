@@ -1,14 +1,22 @@
 #include "logqso.h"
-#include "ui_logqso.h"
-#include "logbook/adif.h"
+
 #include <QString>
+#include <QSettings>
+#include <QDir>
 #include <QDebug>
 
+#include "Configuration.hpp"
+#include "logbook/adif.h"
 
-LogQSO::LogQSO(QSettings * settings, QWidget *parent) :
+#include "ui_logqso.h"
+
+#include "moc_logqso.cpp"
+
+LogQSO::LogQSO(QSettings * settings, Configuration const * configuration, QWidget *parent) :
   QDialog(parent),
   ui(new Ui::LogQSO),
-  m_settings (settings)
+  m_settings (settings),
+  m_configuration (configuration)
 {
   ui->setupUi(this);
 
@@ -101,19 +109,20 @@ void LogQSO::accept()
   //Log this QSO to ADIF file "wsjtx_log.adi"
   QString filename = "wsjtx_log.adi";  // TODO allow user to set
   ADIF adifile;
-  adifile.init(filename);
+  auto adifilePath = m_configuration->data_path ().absoluteFilePath (filename);
+  adifile.init(adifilePath);
   if (!adifile.addQSOToFile(hisCall,hisGrid,mode,rptSent,rptRcvd,date,time,band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower))
   {
       QMessageBox m;
-      m.setText("Cannot open file \"wsjtx_log.adi\".");
+      m.setText("Cannot open file \"" + adifilePath + "\".");
       m.exec();
   }
 
 //Log this QSO to file "wsjtx.log"
-  QFile f("wsjtx.log");
+  QFile f(m_configuration->data_path ().absoluteFilePath ("wsjtx.log"));
   if(!f.open(QIODevice::Text | QIODevice::Append)) {
     QMessageBox m;
-    m.setText("Cannot open file \"wsjtx.log\".");
+    m.setText("Cannot open file \"" + f.fileName () + "\".");
     m.exec();
   } else {
     QString logEntry=m_dateTime.date().toString("yyyy-MMM-dd,") +

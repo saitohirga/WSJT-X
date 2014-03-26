@@ -178,6 +178,9 @@ p, li { white-space: pre-wrap; }
         <property name="text">
          <string>UTC           dB            DT           Freq          Dr </string>
         </property>
+        <property name="textFormat">
+         <enum>Qt::PlainText</enum>
+        </property>
         <property name="indent">
          <number>5</number>
         </property>
@@ -266,6 +269,9 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="text">
          <string>UTC           dB            DT           Freq          Dr </string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::PlainText</enum>
         </property>
         <property name="indent">
          <number>5</number>
@@ -431,8 +437,25 @@ p, li { white-space: pre-wrap; }
         <property name="toolTip">
          <string>Start monitoring</string>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton:checked {
+	background-color: #00ff00;
+    border-style: outset;
+	border-width: 1px;
+	border-radius: 5px;
+    border-color: black;
+	min-width: 5em;
+	padding: 3px;
+}</string>
+        </property>
         <property name="text">
          <string>&amp;Monitor</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -463,8 +486,22 @@ p, li { white-space: pre-wrap; }
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Decode most recent Rx period at QSO Frequency&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton:checked {
+	background-color: cyan;
+	border-style: outset;
+	border-width: 1px;
+	border-radius: 5px;
+	border-color: black;
+	min-width: 5em;
+	padding: 3px;
+}</string>
+        </property>
         <property name="text">
          <string>&amp;Decode</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -485,8 +522,22 @@ p, li { white-space: pre-wrap; }
         <property name="toolTip">
          <string>Toggle Tx Enable On/Off</string>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton:checked {
+	background-color: red;
+	border-style: outset;
+	border-width: 1px;
+	border-radius: 5px;
+	border-color: black;
+	min-width: 5em;
+	padding: 3px;
+}</string>
+        </property>
         <property name="text">
          <string>E&amp;nable Tx</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -517,8 +568,22 @@ p, li { white-space: pre-wrap; }
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Transmit a pure tone&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton:checked {
+	background-color: red;
+	border-style: outset;
+	border-width: 1px;
+	border-radius: 5px;
+	border-color: black;
+	min-width: 5em;
+	padding: 3px;
+}</string>
+        </property>
         <property name="text">
          <string>&amp;Tune</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -1442,31 +1507,6 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
-               <item row="5" column="0">
-                <widget class="QLineEdit" name="tx5">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>200</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>150</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>150</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Right-click to select a macro message</string>
-                 </property>
-                </widget>
-               </item>
                <item row="5" column="2">
                 <widget class="QPushButton" name="txb5">
                  <property name="maximumSize">
@@ -1718,6 +1758,34 @@ p, li { white-space: pre-wrap; }
                  </property>
                 </widget>
                </item>
+               <item row="5" column="0">
+                <widget class="QComboBox" name="tx5">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>200</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>150</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>150</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="editable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="insertPolicy">
+                  <enum>QComboBox::NoInsert</enum>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </item>
             </layout>
@@ -1915,18 +1983,18 @@ p, li { white-space: pre-wrap; }
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout">
                  <item>
-                  <widget class="QLineEdit" name="freeTextMsg">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
+                  <widget class="QComboBox" name="freeTextMsg">
                    <property name="minimumSize">
                     <size>
                      <width>150</width>
                      <height>0</height>
                     </size>
+                   </property>
+                   <property name="editable">
+                    <bool>true</bool>
+                   </property>
+                   <property name="insertPolicy">
+                    <enum>QComboBox::NoInsert</enum>
                    </property>
                   </widget>
                  </item>
@@ -2016,91 +2084,14 @@ p, li { white-space: pre-wrap; }
          </size>
         </property>
         <property name="toolTip">
-         <string>Select operating band</string>
+         <string>Select operating band or frequency in MHz</string>
         </property>
-        <property name="currentIndex">
-         <number>7</number>
+        <property name="editable">
+         <bool>true</bool>
         </property>
-        <item>
-         <property name="text">
-          <string>2200 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>630 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>160 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>80 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>60 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>40 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>30 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>20 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>17 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>15 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>12 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>10 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>6 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>4 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>2 m</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Other</string>
-         </property>
-        </item>
+        <property name="insertPolicy">
+         <enum>QComboBox::NoInsert</enum>
+        </property>
        </widget>
       </item>
       <item row="0" column="9">
@@ -2268,37 +2259,9 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionErase_ALL_TXT"/>
     <addaction name="actionErase_wsjtx_log_adi"/>
     <addaction name="separator"/>
+    <addaction name="actionSettings"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
-   </widget>
-   <widget class="QMenu" name="menuSetup">
-    <property name="title">
-     <string>Setup</string>
-    </property>
-    <widget class="QMenu" name="menuAdvanced">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="title">
-      <string>Advanced</string>
-     </property>
-     <addaction name="actionAllow_multiple_instances"/>
-    </widget>
-    <addaction name="actionDeviceSetup"/>
-    <addaction name="separator"/>
-    <addaction name="actionMonitor_OFF_at_startup"/>
-    <addaction name="actionConvert_JT9_x_to_RTTY"/>
-    <addaction name="actionLog_dB_reports_to_Comments"/>
-    <addaction name="actionPrompt_to_log_QSO"/>
-    <addaction name="actionBlank_line_between_decoding_periods"/>
-    <addaction name="actionClear_DX_Call_and_Grid_after_logging"/>
-    <addaction name="actionDisplay_distance_in_miles"/>
-    <addaction name="actionDouble_click_on_call_sets_Tx_Enable"/>
-    <addaction name="action_73TxDisable"/>
-    <addaction name="actionRunaway_Tx_watchdog"/>
-    <addaction name="actionTx2QSO"/>
-    <addaction name="actionEnable_DXCC_entity"/>
-    <addaction name="separator"/>
-    <addaction name="menuAdvanced"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -2344,7 +2307,6 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionJT9W_1"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuSetup"/>
    <addaction name="menuView"/>
    <addaction name="menuMode"/>
    <addaction name="menuDecode"/>
@@ -2355,6 +2317,9 @@ p, li { white-space: pre-wrap; }
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
    </property>
   </action>
   <action name="actionDeviceSetup">
@@ -2384,6 +2349,9 @@ p, li { white-space: pre-wrap; }
   <action name="actionOpen">
    <property name="text">
     <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
   <action name="actionOpen_next_in_directory">
@@ -2672,6 +2640,14 @@ p, li { white-space: pre-wrap; }
     <string>Short list of add-on prefixes and suffixes</string>
    </property>
   </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings ...</string>
+   </property>
+   <property name="shortcut">
+    <string>F2</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -2703,7 +2679,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>tx2</tabstop>
   <tabstop>tx3</tabstop>
   <tabstop>tx4</tabstop>
-  <tabstop>tx5</tabstop>
   <tabstop>tx6</tabstop>
   <tabstop>txrb1</tabstop>
   <tabstop>txrb2</tabstop>
@@ -2723,7 +2698,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>pbAnswerCaller</tabstop>
   <tabstop>rbFreeText</tabstop>
   <tabstop>pbSendRRR</tabstop>
-  <tabstop>freeTextMsg</tabstop>
   <tabstop>pbAnswerCQ</tabstop>
   <tabstop>pbSendReport</tabstop>
   <tabstop>pbSend73</tabstop>
