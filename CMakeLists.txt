@@ -290,6 +290,7 @@ endif (NOT WSJT_QDEBUG_IN_RELEASE)
 
 set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY COMPILE_FLAGS "-include wsjtx_config.h")
 set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY OBJECT_DEPENDS wsjtx_config.h)
+set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY OBJECT_DEPENDS svnversion.h)
 
 if (WIN32)
   # generate the OmniRig COM interface source
@@ -485,6 +486,7 @@ function (QUERY_QMAKE VAR RESULT)
     file (TO_CMAKE_PATH "${output}" output)
     set (${RESULT} ${output} PARENT_SCOPE)
   endif (NOT return_code)
+  message (STATUS "Asking qmake for ${RESULT} and got ${output}")
 endfunction (QUERY_QMAKE)
 
 query_qmake (QT_INSTALL_PLUGINS QT_PLUGINS_DIR)
@@ -637,7 +639,7 @@ add_custom_target (uninstall
 
 # creates svnversion.h using cmake script
 add_custom_target (revisiontag
-  COMMAND ${CMAKE_COMMAND} -D SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/CMake/getsvn.cmake
+  COMMAND ${CMAKE_COMMAND} -D SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -D OUTPUT_DIR=${PROJECT_BINARY_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/CMake/getsvn.cmake
   COMMENT "Generating Subversion revision information"
   VERBATIM
   )
