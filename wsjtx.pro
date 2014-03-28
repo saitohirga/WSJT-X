@@ -26,11 +26,6 @@ QMAKE_EXTRA_COMPILERS += gfortran
 
 win32 {
 DEFINES += WIN32
-#F90 = g95
-#g95.output = ${QMAKE_FILE_BASE}.o
-#g95.commands = $$F90 -c -O2 -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_NAME}
-#g95.input = F90_SOURCES
-#QMAKE_EXTRA_COMPILERS += g95
 QT += axcontainer
 TYPELIBS = $$system(dumpcpp -getfile {4FE359C5-A58F-459D-BE95-CA559FB4F270})
 }
