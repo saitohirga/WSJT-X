@@ -13,25 +13,20 @@ TARGET = map65
 VERSION = 2.3.0
 TEMPLATE = app
 DEFINES = QT5
-
-win32 {
-DEFINES = WIN32
 DESTDIR = ../map65_install
-F90 = g95
-g95.output = ${QMAKE_FILE_BASE}.o
-g95.commands = $$F90 -c -O2 -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_NAME}
-g95.input = F90_SOURCES
-QMAKE_EXTRA_COMPILERS += g95
-}
 
-unix {
-DEFINES = UNIX
-DESTDIR = ../map65_install
 F90 = gfortran
 gfortran.output = ${QMAKE_FILE_BASE}.o
 gfortran.commands = $$F90 -c -O2 -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_NAME}
 gfortran.input = F90_SOURCES
 QMAKE_EXTRA_COMPILERS += gfortran
+
+win32 {
+DEFINES = WIN32
+}
+
+unix {
+DEFINES = UNIX
 }
 
 SOURCES += main.cpp mainwindow.cpp plotter.cpp about.cpp \
@@ -64,11 +59,12 @@ LIBS += -lfftw3f -lportaudio -lgfortran
 win32 {
 LIBS += ../map65/libm65/libm65.a
 LIBS += ../map65/libfftw3f_win.a
-LIBS += /users/joe/wsjt/QtSupport/palir-02.dll
+LIBS += ../map65/palir-02.dll
 LIBS += libwsock32
-LIBS += C:/MinGW/lib/libf95.a
+#LIBS += C:/MinGW/lib/libf95.a
+LIBS += -lgfortran
 #LIBS += -lusb
 LIBS += /users/joe/linrad/3.37/libusb.a
 LIBS += -lQt5Concurrent
-#LIBS += c:\wsjt-env\Qt5\Tools\mingw48_32\i686-w64-mingw32\lib\libmingwex.a
+#LIBS += c:\JTSDK-QT\Qt5\Tools\mingw48_32\i686-w64-mingw32\lib\libmingwex.a
 }
