@@ -43,7 +43,7 @@ QTextEdit* pShortcuts;
 QTextEdit* pPrefixes;
 
 #if defined (CMAKE_BUILD)
-QString rev ("      " WSJTX_STRINGIZE (SVNVERSION));
+QString rev ("     " WSJTX_STRINGIZE (SVNVERSION));
 QString Program_Title_Version ("WSJT-X   v" WSJTX_STRINGIZE (WSJTX_VERSION_MAJOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_MINOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_PATCH) ", " WSJTX_STRINGIZE (SVNVERSION) "    by K1JT");
 #else
 QString rev="$Rev$";
