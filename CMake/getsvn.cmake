@@ -24,7 +24,6 @@ if (Subversion_FOUND AND EXISTS "${SOURCE_DIR}/.svn")
 else (Subversion_FOUND AND EXISTS "${SOURCE_DIR}/.svn")
   # try git-svn
   if (Subversion_FOUND AND EXISTS "${SOURCE_DIR}/.git")
-    # the FindSubversion.cmake module is part of the standard distribution
     include (${SOURCE_DIR}/CMake/Modules/FindGitSubversion.cmake)
     # extract working copy information for SOURCE_DIR into MY_XXX variables
     GitSubversion_WC_INFO (${SOURCE_DIR} MY)
