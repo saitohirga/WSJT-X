@@ -35,8 +35,10 @@ if (Subversion_FOUND AND EXISTS "${SOURCE_DIR}/.git")
     RESULT_VARIABLE __git_svn_status
     OUTPUT_FILE "${OUTPUT_DIR}/svn_status.txt"
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-  message (STATUS "git-svn status: ${__git_svn_status}")
-  if (NOT ${__git_svn_status} EQUAL 0)
+  file (STRINGS "${OUTPUT_DIR}/svn_status.txt" __svn_changes
+    REGEX "^diff-tree"
+    )
+  if ((NOT ${__git_svn_status} EQUAL 0) OR __svn_changes)
     set (MY_WC_REVISION "${MY_WC_REVISION}-dirty")
   endif ()
   # write a file with the SVNVERSION define
