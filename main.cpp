@@ -19,6 +19,8 @@
 #include <QDir>
 #include <QStandardPaths>
 
+#include "svnversion.h"
+
 #include "SettingsGroup.hpp"
 #include "TraceFile.hpp"
 #include "mainwindow.h"
