@@ -8,6 +8,13 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/CMake/Modules)
 
 include (${PROJECT_SOURCE_DIR}/CMake/VersionCompute.cmake)
 
+# creates svnversion.h using cmake script
+add_custom_target (revisiontag
+  COMMAND ${CMAKE_COMMAND} -D SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -D OUTPUT_DIR=${PROJECT_BINARY_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/CMake/getsvn.cmake
+  COMMENT "Generating Subversion revision information"
+  VERBATIM
+  )
+
 
 #
 # Options & features
@@ -290,7 +297,6 @@ endif (NOT WSJT_QDEBUG_IN_RELEASE)
 
 set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY COMPILE_FLAGS "-include wsjtx_config.h")
 set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY OBJECT_DEPENDS wsjtx_config.h)
-set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY OBJECT_DEPENDS svnversion.h)
 
 if (WIN32)
   # generate the OmniRig COM interface source
@@ -637,12 +643,6 @@ add_custom_target (uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
 
-# creates svnversion.h using cmake script
-add_custom_target (revisiontag
-  COMMAND ${CMAKE_COMMAND} -D SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -D OUTPUT_DIR=${PROJECT_BINARY_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/CMake/getsvn.cmake
-  COMMENT "Generating Subversion revision information"
-  VERBATIM
-  )
 # explicitly say that the executable depends on custom target, this is
 # done indirectly so that the revisiontag target gets built exactly
 # once per build
