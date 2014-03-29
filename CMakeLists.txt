@@ -14,6 +14,7 @@ add_custom_target (revisiontag
   COMMENT "Generating Subversion revision information"
   VERBATIM
   )
+include_directories ("${PROJECT_BINARY_DIR}")
 
 
 #
@@ -297,6 +298,7 @@ endif (NOT WSJT_QDEBUG_IN_RELEASE)
 
 set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY COMPILE_FLAGS "-include wsjtx_config.h")
 set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY OBJECT_DEPENDS wsjtx_config.h)
+set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY OBJECT_DEPENDS svnversion.h)
 
 if (WIN32)
   # generate the OmniRig COM interface source
@@ -658,7 +660,6 @@ configure_file (
   "${PROJECT_SOURCE_DIR}/wsjtx_config.h.in"
   "${PROJECT_BINARY_DIR}/wsjtx_config.h"
   )
-include_directories ("${PROJECT_BINARY_DIR}")
 
 
 if (NOT WIN32 AND NOT APPLE)
