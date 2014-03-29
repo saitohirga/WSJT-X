@@ -12,6 +12,8 @@
 #include <QtConcurrent/QtConcurrentRun>
 #endif
 
+#include "svnversion.h"
+
 #include "soundout.h"
 #include "plotter.h"
 #include "about.h"

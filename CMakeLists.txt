@@ -8,14 +8,6 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/CMake/Modules)
 
 include (${PROJECT_SOURCE_DIR}/CMake/VersionCompute.cmake)
 
-# creates svnversion.h using cmake script
-add_custom_target (revisiontag
-  COMMAND ${CMAKE_COMMAND} -D SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -D OUTPUT_DIR=${PROJECT_BINARY_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/CMake/getsvn.cmake
-  COMMENT "Generating Subversion revision information"
-  VERBATIM
-  )
-include_directories ("${PROJECT_BINARY_DIR}")
-
 
 #
 # Options & features
@@ -645,10 +637,17 @@ add_custom_target (uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
 
+# creates svnversion.h using cmake script
+add_custom_target (revisiontag
+  COMMAND ${CMAKE_COMMAND} -D SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -D OUTPUT_DIR=${PROJECT_BINARY_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/CMake/getsvn.cmake
+  COMMENT "Generating Subversion revision information"
+  VERBATIM
+  )
 # explicitly say that the executable depends on custom target, this is
 # done indirectly so that the revisiontag target gets built exactly
 # once per build
 add_dependencies(wsjt revisiontag)
+add_dependencies(wsjt_qt revisiontag)
 add_dependencies(jt9 revisiontag)
 add_dependencies(wsjtx revisiontag)
 
@@ -660,6 +659,7 @@ configure_file (
   "${PROJECT_SOURCE_DIR}/wsjtx_config.h.in"
   "${PROJECT_BINARY_DIR}/wsjtx_config.h"
   )
+include_directories ("${PROJECT_BINARY_DIR}")
 
 
 if (NOT WIN32 AND NOT APPLE)

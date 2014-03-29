@@ -12,6 +12,8 @@
 #include <QDebug>
 #include <QSortFilterProxyModel>
 
+#include "svnversion.h"
+
 #include "Bands.hpp"
 #include "FrequencyList.hpp"
 #include "Configuration.hpp"

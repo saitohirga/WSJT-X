@@ -8,6 +8,8 @@
 #include <QDir>
 #include <QDebug>
 
+#include "svnversion.h"
+
 #include "GetUserId.hpp"
 #include "TraceFile.hpp"
 #include "TestConfiguration.hpp"
