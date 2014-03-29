@@ -59,7 +59,6 @@ if(GIT_FOUND)
         "\\2" ${prefix}_WC_ROOT "${${prefix}_WC_INFO}")
       string(REGEX REPLACE "^(.*\n)?Revision: ([^\n]+).*"
         "\\2" ${prefix}_WC_REVISION "${${prefix}_WC_INFO}")
-      message (STATUS "Revision: ${${prefix}_WC_REVISION}")
       string(REGEX REPLACE "^(.*\n)?Last Changed Author: ([^\n]+).*"
         "\\2" ${prefix}_WC_LAST_CHANGED_AUTHOR "${${prefix}_WC_INFO}")
       string(REGEX REPLACE "^(.*\n)?Last Changed Rev: ([^\n]+).*"
