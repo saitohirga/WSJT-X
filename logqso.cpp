@@ -12,14 +12,14 @@
 
 #include "moc_logqso.cpp"
 
-LogQSO::LogQSO(QSettings * settings, Configuration const * configuration, QWidget *parent) :
+LogQSO::LogQSO(QString const& programTitle, QSettings * settings, Configuration const * configuration, QWidget *parent) :
   QDialog(parent),
   ui(new Ui::LogQSO),
   m_settings (settings),
   m_configuration (configuration)
 {
   ui->setupUi(this);
-
+  setWindowTitle(programTitle + "  Log QSO");
   loadSettings ();
 }
 

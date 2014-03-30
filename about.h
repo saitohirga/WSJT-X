@@ -2,23 +2,22 @@
 #define ABOUTDLG_H
 
 #include <QDialog>
+#include <QScopedPointer>
 
 namespace Ui {
-    class CAboutDlg;
+  class CAboutDlg;
 }
 
 class CAboutDlg : public QDialog
 {
-    Q_OBJECT
+  Q_OBJECT;
 
 public:
-	explicit CAboutDlg(QWidget *parent=0, QString Revision="");
-    ~CAboutDlg();
-
+	explicit CAboutDlg(QWidget *parent = nullptr);
+  ~CAboutDlg ();
+  
 private:
-	QString m_Revision;
-	Ui::CAboutDlg *ui;
-	QString m_Str;
+	QScopedPointer<Ui::CAboutDlg> ui;
 };
 
 #endif // ABOUTDLG_H

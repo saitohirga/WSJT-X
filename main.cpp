@@ -39,6 +39,9 @@ int main(int argc, char *argv[])
       // instantiating QApplication so
       // that GUI has correct l18n
 
+      // Override programs executable basename as application name.
+      a.setApplicationName ("WSJT-X");
+
       bool multiple {false};
 
 #if WSJT_STANDARD_FILE_LOCATIONS

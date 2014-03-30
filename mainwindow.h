@@ -199,6 +199,9 @@ private:
 
   QScopedPointer<Ui::MainWindow> ui;
 
+  QString m_rev;
+  QString m_windowTitle;
+  
   // other windows
   Configuration m_config;
   QMessageBox m_rigErrorMessageBox;
