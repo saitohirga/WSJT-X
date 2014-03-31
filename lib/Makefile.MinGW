@@ -30,7 +30,7 @@ CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
 
 all:    libjt9.a libastro.a jt9.exe jt9code.exe jt65code.exe 
 
-OBJS1 = pctile.o graycode.o sort.o ssort.o chkmsg.o \
+OBJS1 = prog_args.o options.o pctile.o graycode.o sort.o ssort.o chkmsg.o \
 	unpackmsg.o igray.o unpackcall.o unpackgrid.o \
 	grid2k.o unpacktext.o getpfx2.o packmsg.o deg2grid.o \
 	packtext.o getpfx1.o packcall.o k2grid.o packgrid.o \
