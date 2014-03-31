@@ -1,2 +1,0 @@
-/* empty file for qmake compatibility with CMake which generates one
-   of these in the build tree that gets picked up in preference */
