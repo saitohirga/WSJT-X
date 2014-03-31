@@ -58,7 +58,7 @@ namespace
 
     if (colours.size () > points)
       {
-        throw_qstring (tr ("Too many colours in palette."));
+        throw_qstring (QObject::tr ("Too many colours in palette."));
       }
 
     return colours;
@@ -82,7 +82,7 @@ namespace
             if (++count >= points)
               {
                 throw_qstring (QObject::tr ("Error reading waterfall palette file \"%1:%2\" too many colors.")
-                               .arg (file.fileName ().arg (line_counter));
+                               .arg (file.fileName ()).arg (line_counter));
               }
             auto items = line.split (';');
             if (items.size () != 3)
