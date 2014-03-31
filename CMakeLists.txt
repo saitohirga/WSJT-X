@@ -295,7 +295,6 @@ endif (NOT WSJT_QDEBUG_IN_RELEASE)
 
 set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY COMPILE_FLAGS "-include wsjtx_config.h")
 set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY OBJECT_DEPENDS wsjtx_config.h)
-set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY OBJECT_DEPENDS svnversion.h)
 
 if (WIN32)
   # generate the OmniRig COM interface source
@@ -653,8 +652,6 @@ add_custom_target (revisiontag
 # explicitly say that the executable depends on custom target, this is
 # done indirectly so that the revisiontag target gets built exactly
 # once per build
-add_dependencies(wsjt revisiontag)
-add_dependencies(wsjt_qt revisiontag)
 add_dependencies(jt9 revisiontag)
 add_dependencies(wsjtx revisiontag)
 
