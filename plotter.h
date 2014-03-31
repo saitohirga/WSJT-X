@@ -14,6 +14,7 @@
 #endif
 #include <QFrame>
 #include <QImage>
+#include <QVector>
 #include <cstring>
 #include "commons.h"
 
@@ -22,28 +23,14 @@
 
 class CPlotter : public QFrame
 {
-  Q_OBJECT
+  Q_OBJECT;
+
 public:
   explicit CPlotter(QWidget *parent = 0);
   ~CPlotter();
 
   QSize minimumSizeHint() const;
   QSize sizeHint() const;
-  QColor  m_ColorTbl[256];
-
-  bool    m_bCurrent;
-  bool    m_bCumulative;
-  bool    m_bLinearAvg;
-  bool    m_lockTxFreq;
-
-  float   m_fSpan;
-
-  qint32  m_plotZero;
-  qint32  m_plotGain;
-  qint32  m_nSpan;
-  qint32  m_binsPerPixel;
-  qint32  m_w;
-
   void draw(float sw[]);		//Update the waterfall
   void SetRunningState(bool running);
   void setPlotZero(int plotZero);
@@ -54,6 +41,7 @@ public:
   int startFreq();
   int  plotWidth();
   void setNSpan(int n);
+  int nSpan() const {return m_nSpan;}
   void UpdateOverlay();
   void setDataFromDisk(bool b);
   void setRxRange(int fMin);
@@ -72,6 +60,24 @@ public:
   int getFmax();
   void setDialFreq(double d);
 
+  void setCurrent(bool b) {m_bCurrent = b;}
+  bool current() const {return m_bCurrent;}
+
+  void setCumulative(bool b) {m_bCumulative = b;}
+  bool cumulative() const {return m_bCumulative;}
+
+  void setLinearAvg(bool b) {m_bLinearAvg = b;}
+  bool linearAvg() const {return m_bLinearAvg;}
+
+  void setBreadth(qint32 w) {m_w = w;}
+  qint32 breadth() const {return m_w;}
+
+  float fSpan() const {return m_fSpan;}
+
+  void setLockTxFreq(bool b) {m_lockTxFreq = b;}
+
+  void setColours(QVector<QColor> const& cl) {m_ColorTbl = cl;}
+
 signals:
   void freezeDecode1(int n);
   void setFreq1(int rxFreq, int txFreq);
@@ -87,6 +93,21 @@ private:
   void UTCstr();
   int XfromFreq(float f);
   float FreqfromX(int x);
+
+  QVector<QColor> m_ColorTbl;
+
+  bool    m_bCurrent;
+  bool    m_bCumulative;
+  bool    m_bLinearAvg;
+  bool    m_lockTxFreq;
+
+  float   m_fSpan;
+
+  qint32  m_plotZero;
+  qint32  m_plotGain;
+  qint32  m_nSpan;
+  qint32  m_binsPerPixel;
+  qint32  m_w;
 
   QPixmap m_WaterfallPixmap;
   QPixmap m_2DPixmap;
