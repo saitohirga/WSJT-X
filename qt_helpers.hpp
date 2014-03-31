@@ -1,9 +1,13 @@
 #ifndef QT_HELPERS_HPP_
 #define QT_HELPERS_HPP_
 
+#include <stdexcept>
+
 #include <QDataStream>
 #include <QMetaObject>
 #include <QMetaEnum>
+#include <QString>
+#include <QByteArray>
 #include <QDebug>
 
 #define ENUM_QDATASTREAM_OPS_DECL(CLASS, ENUM)				\
@@ -55,5 +59,11 @@
     auto const& mo = CLASS::staticMetaObject;				\
     return QString {mo.enumerator (mo.indexOfEnumerator (#ENUM)).valueToKey (m)}; \
   }
+
+inline
+void throw_qstring (QString const& qs)
+{
+  throw std::runtime_error (qs.toLocal8Bit ().data ());
+}
 
 #endif

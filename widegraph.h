@@ -5,6 +5,8 @@
 #include <QScopedPointer>
 #include <QDir>
 
+#include "WFPalette.hpp"
+
 namespace Ui {
   class WideGraph;
 }
@@ -37,7 +39,6 @@ public:
   void   setModeTx(QString modeTx);
   void   setLockTxFreq(bool b);
   double fGreen();
-  void   readPalette(QString fileName);
   bool   flatten();
 
 signals:
@@ -65,11 +66,15 @@ private slots:
   void on_fStartSpinBox_valueChanged(int n);
   void on_paletteComboBox_activated(const QString &palette);
   void on_cbFlatten_toggled(bool b);
+  void on_adjust_palette_push_button_clicked (bool);
 
 private:
+  void   readPalette();
+
   QScopedPointer<Ui::WideGraph> ui;
   QSettings * m_settings;
   QDir m_palettes_path;
+  WFPalette m_userPalette;
 
   qint32 m_rxFreq;
   qint32 m_txFreq;

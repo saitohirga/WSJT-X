@@ -49,6 +49,7 @@ set (PROJECT_MANUAL "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjt
 #
 set (wsjt_qt_CXXSRCS
   NetworkServerLookup.cpp
+  WFPalette.cpp
   Radio.cpp
   Bands.cpp
   FrequencyList.cpp
@@ -239,6 +240,10 @@ set (wsjt_CSRCS
 set (ConfigTest_UISRCS
   TestConfiguration.ui
   Configuration.ui
+  )
+
+set (wsjt_qt_UISRCS
+  wf_palette_design_dialog.ui
   )
 
 set (wsjtx_UISRCS
@@ -455,12 +460,12 @@ if (NOT hamlib_FOUND)
 endif (NOT hamlib_FOUND)
 include_directories (${hamlib_INCLUDE_DIRS})
 
-if (WIN32)
-  find_library (hamlib_RUNTIME NAMES hamlib hamlib-2 PATH_SUFFIXES bin)
-  get_filename_component (_hamlib_runtime_path "${hamlib_RUNTIME}" PATH)
-  file (GLOB hamlib_BACKENDS ${_hamlib_runtime_path}/hamlib*.dll)
-  find_library (usb_RUNTIME NAMES usb0 PATH_SUFFIXES bin)
-endif (WIN32)
+# if (WIN32)
+#   find_library (hamlib_RUNTIME NAMES hamlib hamlib-2 PATH_SUFFIXES bin)
+#   get_filename_component (_hamlib_runtime_path "${hamlib_RUNTIME}" PATH)
+#   file (GLOB hamlib_BACKENDS ${_hamlib_runtime_path}/hamlib*.dll)
+#   find_library (usb_RUNTIME NAMES usb0 PATH_SUFFIXES bin)
+# endif (WIN32)
 
 
 #
@@ -535,7 +540,9 @@ add_custom_target (kvasd DEPENDS contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
 
 
 # UI generation
-qt5_wrap_ui (GENUISRCS ${ConfigTest_UISRCS} ${wsjtx_UISRCS})
+qt5_wrap_ui (wsjt_qt_GENUISRCS ${wsjt_qt_UISRCS})
+qt5_wrap_ui (ConfigTest_GENUISRCS ${ConfigTest_UISRCS})
+qt5_wrap_ui (wsjtx_GENUISRCS ${wsjtx_UISRCS})
 
 # Resource generation
 qt5_add_resources (wsjtx_RESOURCES_RCC wsjtx.qrc)
@@ -555,7 +562,7 @@ endif (WIN32)
 add_library (wsjt STATIC ${wsjt_CSRCS} ${wsjt_CXXSRCS} ${wsjt_FSRCS})
 
 # build a library of package Qt functionality
-add_library (wsjt_qt STATIC ${wsjt_qt_CXXSRCS} ${GENAXSRCS})
+add_library (wsjt_qt STATIC ${wsjt_qt_CXXSRCS} ${wsjt_qt_GENUISRCS} ${GENAXSRCS})
 qt5_use_modules (wsjt_qt Widgets OpenGL Network)
 if (WIN32)
   qt5_use_modules (wsjt_qt AxContainer AxBase)
@@ -572,12 +579,12 @@ target_link_libraries (jt9 wsjt ${FFTW3F_LIBRARY})
 qt5_use_modules (jt9 Core)
 
 # build configuration dialog and transceiver interface test application
-#add_executable (ConfigTest ${ConfigTest_CXXSRCS} ${ConfigTest_UISRCS} wsjtx.rc)
+#add_executable (ConfigTest ${ConfigTest_CXXSRCS} ${ConfigTest_GENUISRCS} wsjtx.rc)
 #target_link_libraries (ConfigTest wsjt wsjt_qt ${hamlib_LIBRARIES})
 #qt5_use_modules (ConfigTest Widgets OpenGL Network Multimedia)
 
 # build the main application
-add_executable (wsjtx WIN32 MACOSX_BUNDLE ${wsjtx_CXXSRCS} ${wsjtx_UISRCS} wsjtx.rc ${WSJTX_ICON_FILE} ${wsjtx_RESOURCES_RCC})
+add_executable (wsjtx WIN32 MACOSX_BUNDLE ${wsjtx_CXXSRCS} ${wsjtx_GENUISRCS} wsjtx.rc ${WSJTX_ICON_FILE} ${wsjtx_RESOURCES_RCC})
 qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia)
 
 set_target_properties (wsjtx PROPERTIES

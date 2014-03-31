@@ -11,6 +11,11 @@
 
 #define MAX_SCREENSIZE 2048
 
+namespace
+{
+  auto user_defined = QObject::tr ("User Defined");
+}
+
 WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   QDialog(parent),
   ui(new Ui::WideGraph),
@@ -26,7 +31,7 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
 
   ui->widePlot->setCursor(Qt::CrossCursor);
   ui->widePlot->setMaximumHeight(800);
-  ui->widePlot->m_bCurrent=false;
+  ui->widePlot->setCurrent(false);
 
   connect(ui->widePlot, SIGNAL(freezeDecode1(int)),this,
           SLOT(wideFreezeDecode(int)));
@@ -42,35 +47,31 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   ui->zeroSpinBox->setValue(ui->widePlot->getPlotZero());
   ui->gainSpinBox->setValue(ui->widePlot->getPlotGain());
   int n = m_settings->value("FreqSpan",2).toInt();
-  int w = m_settings->value("PlotWidth",1000).toInt();
   m_bFlatten=m_settings->value("Flatten",true).toBool();
   ui->cbFlatten->setChecked(m_bFlatten);
-  ui->widePlot->m_w=w;
+  ui->widePlot->setBreadth(m_settings->value("PlotWidth",1000).toInt());
   ui->freqSpanSpinBox->setValue(n);
   ui->widePlot->setNSpan(n);
   m_waterfallAvg = m_settings->value("WaterfallAvg",5).toInt();
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
-  ui->widePlot->m_bCurrent=m_settings->value("Current",false).toBool();
-  ui->widePlot->m_bCumulative=m_settings->value("Cumulative",true).toBool();
-  ui->widePlot->m_bLinearAvg=m_settings->value("LinearAvg",false).toBool();
-  if(ui->widePlot->m_bCurrent) ui->spec2dComboBox->setCurrentIndex(0);
-  if(ui->widePlot->m_bCumulative) ui->spec2dComboBox->setCurrentIndex(1);
-  if(ui->widePlot->m_bLinearAvg) ui->spec2dComboBox->setCurrentIndex(2);
+  ui->widePlot->setCurrent(m_settings->value("Current",false).toBool());
+  ui->widePlot->setCumulative(m_settings->value("Cumulative",true).toBool());
+  ui->widePlot->setLinearAvg(m_settings->value("LinearAvg",false).toBool());
+  if(ui->widePlot->current()) ui->spec2dComboBox->setCurrentIndex(0);
+  if(ui->widePlot->cumulative()) ui->spec2dComboBox->setCurrentIndex(1);
+  if(ui->widePlot->linearAvg()) ui->spec2dComboBox->setCurrentIndex(2);
   int nbpp=m_settings->value("BinsPerPixel",2).toInt();
   ui->widePlot->setBinsPerPixel(nbpp);
   ui->widePlot->setStartFreq(m_settings->value("StartFreq",0).toInt());
   ui->fStartSpinBox->setValue(ui->widePlot->startFreq());
   m_waterfallPalette=m_settings->value("WaterfallPalette","Default").toString();
+  m_userPalette = WFPalette {m_settings->value("UserPalette").value<WFPalette::Colours> ()};
   int m_fMin = m_settings->value ("fMin", 2500).toInt ();
   ui->fMinSpinBox->setValue (m_fMin);
   setRxRange (m_fMin);
   m_settings->endGroup();
 
   saveSettings ();		// update config with defaults
-
-  //m_palettes_path = configuration->resources_path ();
-  //QString palettes_dir {":/Palettes"};
-  //m_palettes_path.cd (palettes_dir);
 
   QStringList allFiles = m_palettes_path.entryList(QDir::NoDotAndDotDot |
         QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files,
@@ -84,8 +85,14 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
     }
     index++;
   }
-//  ui->paletteComboBox->lineEdit()->setAlignment(Qt::AlignHCenter);
-  readPalette(m_palettes_path.absoluteFilePath (m_waterfallPalette + ".pal"));
+  ui->paletteComboBox->addItem (user_defined);
+  if (user_defined == m_waterfallPalette)
+    {
+      ui->paletteComboBox->setCurrentIndex(index);
+    }
+  readPalette ();
+
+  //  ui->paletteComboBox->lineEdit()->setAlignment(Qt::AlignHCenter);
 }
 
 WideGraph::~WideGraph ()
@@ -102,17 +109,18 @@ void WideGraph::saveSettings()
 {
   m_settings->beginGroup ("WideGraph");
   m_settings->setValue ("geometry", saveGeometry ());
-  m_settings->setValue ("PlotZero", ui->widePlot->m_plotZero);
-  m_settings->setValue ("PlotGain", ui->widePlot->m_plotGain);
+  m_settings->setValue ("PlotZero", ui->widePlot->getPlotZero());
+  m_settings->setValue ("PlotGain", ui->widePlot->getPlotGain());
   m_settings->setValue ("PlotWidth", ui->widePlot->plotWidth ());
   m_settings->setValue ("FreqSpan", ui->freqSpanSpinBox->value ());
   m_settings->setValue ("WaterfallAvg", ui->waterfallAvgSpinBox->value ());
-  m_settings->setValue ("Current", ui->widePlot->m_bCurrent);
-  m_settings->setValue ("Cumulative", ui->widePlot->m_bCumulative);
-  m_settings->setValue ("LinearAvg", ui->widePlot->m_bLinearAvg);
+  m_settings->setValue ("Current", ui->widePlot->current());
+  m_settings->setValue ("Cumulative", ui->widePlot->cumulative());
+  m_settings->setValue ("LinearAvg", ui->widePlot->linearAvg());
   m_settings->setValue ("BinsPerPixel", ui->widePlot->binsPerPixel ());
   m_settings->setValue ("StartFreq", ui->widePlot->startFreq ());
   m_settings->setValue ("WaterfallPalette", m_waterfallPalette);
+  m_settings->setValue ("UserPalette", QVariant::fromValue (m_userPalette.colours ()));
   m_settings->setValue ("Fmin", m_fMin);
   m_settings->setValue("Flatten",m_bFlatten);
   m_settings->endGroup ();
@@ -218,12 +226,12 @@ int WideGraph::rxFreq()
 
 int WideGraph::nSpan()
 {
-  return ui->widePlot->m_nSpan;
+  return ui->widePlot->nSpan();
 }
 
 float WideGraph::fSpan()
 {
-  return ui->widePlot->m_fSpan;
+  return ui->widePlot->fSpan();
 }
 
 int WideGraph::nStartFreq()
@@ -292,12 +300,12 @@ void WideGraph::setModeTx(QString modeTx)
 
 void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)
 {
-  ui->widePlot->m_bCurrent=false;
-  ui->widePlot->m_bCumulative=false;
-  ui->widePlot->m_bLinearAvg=false;
-  if(arg1=="Current") ui->widePlot->m_bCurrent=true;
-  if(arg1=="Cumulative") ui->widePlot->m_bCumulative=true;
-  if(arg1=="Linear Avg") ui->widePlot->m_bLinearAvg=true;
+  ui->widePlot->setCurrent(false);
+  ui->widePlot->setCumulative(false);
+  ui->widePlot->setLinearAvg(false);
+  if(arg1=="Current") ui->widePlot->setCurrent(true);
+  if(arg1=="Cumulative") ui->widePlot->setCumulative(true);
+  if(arg1=="Linear Avg") ui->widePlot->setLinearAvg(true);
 }
 
 void WideGraph::on_fMinSpinBox_valueChanged(int n)
@@ -309,7 +317,7 @@ void WideGraph::on_fMinSpinBox_valueChanged(int n)
 void WideGraph::setLockTxFreq(bool b)
 {
   m_lockTxFreq=b;
-  ui->widePlot->m_lockTxFreq=b;
+  ui->widePlot->setLockTxFreq(b);
 }
 
 void WideGraph::setFreq2(int rxFreq, int txFreq)
@@ -330,47 +338,55 @@ void WideGraph::on_fStartSpinBox_valueChanged(int n)
   ui->widePlot->setStartFreq(n);
 }
 
-void WideGraph::readPalette(QString fileName)
+void WideGraph::readPalette ()
 {
-  QFile f;
-  f.setFileName(fileName);
-  if(f.open(QIODevice::ReadOnly)) {
-    QTextStream in(&f);
-    int r[9],g[9],b[9];
-    QString t;
-    for(int i=0; i<9; i++) {
-      t=in.readLine();
-      r[i]=t.mid(0,3).toInt();
-      g[i]=t.mid(4,3).toInt();
-      b[i]=t.mid(8,3).toInt();
+  try
+    {
+      if (user_defined == m_waterfallPalette)
+        {
+          ui->widePlot->setColours (WFPalette {m_userPalette}.interpolate ());
+        }
+      else
+        {
+          ui->widePlot->setColours (WFPalette {m_palettes_path.absoluteFilePath (m_waterfallPalette + ".pal")}.interpolate());
+        }
     }
-    f.close();
-    for(int i=0; i<256; i++) {
-      int j0=i/32;
-      int j1=j0+1;
-      int k=i-32*j0;
-      int rr=r[j0] + int((k*(r[j1]-r[j0]))/31 + 0.5);
-      int gg=g[j0] + int((k*(g[j1]-g[j0]))/31 + 0.5);
-      int bb=b[j0] + int((k*(b[j1]-b[j0]))/31 + 0.5);
-      ui->widePlot->m_ColorTbl[i].setRgb(rr,gg,bb);
+  catch (std::exception const& e)
+    {
+      QMessageBox msgBox0;
+      msgBox0.setText(e.what());
+      msgBox0.exec();
     }
-  } else {
-    QMessageBox msgBox0;
-    QString t="Error: Cannot find requested palette file " + fileName;
-    msgBox0.setText(t);
-    msgBox0.exec();
-  }
 }
 
-void WideGraph::on_paletteComboBox_activated(const QString &palette)
+void WideGraph::on_paletteComboBox_activated (QString const& palette)
 {
-  m_waterfallPalette=palette;
-  readPalette(m_palettes_path.absoluteFilePath(palette + ".pal"));
+  m_waterfallPalette = palette;
+  readPalette();
 }
 
 void WideGraph::on_cbFlatten_toggled(bool b)
 {
   m_bFlatten=b;
+}
+
+void WideGraph::on_adjust_palette_push_button_clicked (bool)
+{
+  try
+    {
+      if (m_userPalette.design ())
+        {
+          m_waterfallPalette = user_defined;
+          ui->paletteComboBox->setCurrentText (m_waterfallPalette);
+          readPalette ();
+        }
+    }
+  catch (std::exception const& e)
+    {
+      QMessageBox msgBox0;
+      msgBox0.setText(e.what());
+      msgBox0.exec();
+    }
 }
 
 bool WideGraph::flatten()
