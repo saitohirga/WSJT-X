@@ -31,6 +31,9 @@ signals. You can have up to 256 colors.</string>
      <property name="columnCount">
       <number>1</number>
      </property>
+     <attribute name="horizontalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>true</bool>
      </attribute>
