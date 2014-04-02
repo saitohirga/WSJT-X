@@ -109,6 +109,7 @@ FORMS    += mainwindow.ui about.ui Configuration.ui widegraph.ui astro.ui \
     logqso.ui wf_palette_design_dialog.ui
 
 RC_FILE = wsjtx.rc
+RESOURCES = wsjtx.qrc
 
 unix {
 LIBS += -L lib -ljt9
@@ -117,9 +118,9 @@ LIBS += -lfftw3f $$system($$F90 -print-file-name=libgfortran.so)
 }
 
 win32 {
-INCLUDEPATH += ${HAMLIB_DIR}/include
-LIBS += -L${HAMLIB_DIR}/lib -lhamlib
-#LIBS += -L${HAMLIB_DIR}/lib -lhamlib
+INCLUDEPATH += $(HAMLIB_DIR)/include
+LIBS += -L$(HAMLIB_DIR)/lib -lhamlib
+#LIBS += -L$(HAMLIB_DIR)/lib -lhamlib
 LIBS += -L./lib -lastro -ljt9
 LIBS += -L. -lfftw3f_win
 LIBS += -lwsock32
