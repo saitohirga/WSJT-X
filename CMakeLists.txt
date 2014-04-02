@@ -429,7 +429,7 @@ set (CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
 set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${WSJT_LIB_DESTINATION}")
 
-# add teh automaticaly determined parts of the RPATH which point to
+# add the automaticaly determined parts of the RPATH which point to
 # directories outside of the build tree to the install RPATH
 set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
@@ -445,19 +445,24 @@ endif ("${isSystemDir}" STREQUAL "-1")
 # fftw3 single precsion library
 #
 find_package (FFTW3 COMPONENTS single REQUIRED)
-if (NOT FFTW3_FOUND)
-  message (FATAL_ERROR "fftw3 single precsion library not found")
-endif (NOT FFTW3_FOUND)
 include_directories (${FFTW3_INCLUDE_DIRS})
 
 #
 # libhamlib setup
 #
-find_package (hamlib REQUIRED)
-if (NOT hamlib_FOUND)
-  message (FATAL_ERROR "hamlib library not found")
-endif (NOT hamlib_FOUND)
+find_package (hamlib 3 REQUIRED)
 include_directories (${hamlib_INCLUDE_DIRS})
+if (hamlib_STATIC_LIBRARY)
+  # static link hamlib if archive library available
+  set (hamlib_LIBRARY "${hamlib_STATIC_LIBRARY}")
+  set (hamlib_LIBRARIES "${hamlib_STATIC_LIBRARIES}")
+endif ()
+
+message (STATUS "hamlib_INCLUDE_DIRS: ${hamlib_INCLUDE_DIRS}")
+message (STATUS "hamlib_LIBRARY: ${hamlib_LIBRARY}")
+message (STATUS "hamlib_LIBRARIES: ${hamlib_LIBRARIES}")
+message (STATUS "hamlib_STATIC_LIBRARY: ${hamlib_STATIC_LIBRARY}")
+message (STATUS "hamlib_STATIC_LIBRARIES: ${hamlib_STATIC_LIBRARIES}")
 
 # if (WIN32)
 #   find_library (hamlib_RUNTIME NAMES hamlib hamlib-2 PATH_SUFFIXES bin)
@@ -472,8 +477,8 @@ include_directories (${hamlib_INCLUDE_DIRS})
 #
 
 # Widgets finds its own dependencies.
-find_package (Qt5Widgets REQUIRED)
-find_package (Qt5Multimedia REQUIRED)
+find_package (Qt5Widgets 5 REQUIRED)
+find_package (Qt5Multimedia 5 REQUIRED)
 
 if (WIN32)
   add_definitions (-DQT_NEEDS_QTMAIN)
@@ -574,7 +579,7 @@ add_executable (jt9code lib/jt9code.f90 wsjtx.rc)
 target_link_libraries (jt9code wsjt)
 
 add_executable (jt9 lib/jt9.f90 lib/jt9a.f90 lib/jt9b.f90 lib/jt9c.f90 ${jt9_CXXSRCS} wsjtx.rc)
-target_link_libraries (jt9 wsjt ${FFTW3F_LIBRARY})
+target_link_libraries (jt9 wsjt ${FFTW3_LIBRARIES})
 qt5_use_modules (jt9 Core)
 
 # build configuration dialog and transceiver interface test application
@@ -596,7 +601,7 @@ set_target_properties (wsjtx PROPERTIES
   MACOSX_BUNDLE_COPYRIGHT "${WSJTX_COPYRIGHT}"
   )
 
-target_link_libraries (wsjtx wsjt wsjt_qt ${hamlib_LIBRARIES} ${FFTW3F_LIBRARY})
+target_link_libraries (wsjtx wsjt wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 add_dependencies (wsjtx kvasd)
 
 if (WIN32)
@@ -707,7 +712,7 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 
     # if a system Qt is used (e.g. installed in /usr/lib/), it will not be included in the installation
     set (fixup_exe "\${CMAKE_INSTALL_PREFIX}/${WSJT_BIN_DESTINATION}/${CMAKE_PROJECT_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
-    get_filename_component (hamlib_lib_dir ${hamlib_LIBRARIES} PATH)
+    #get_filename_component (hamlib_lib_dir ${hamlib_LIBRARIES} PATH)
 
     if (APPLE)
       # install required Qt plugins
@@ -746,7 +751,7 @@ file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION
 
     if (WIN32)
       # DLL directory
-      set (hamlib_lib_dir ${hamlib_lib_dir}/../bin)
+      #set (hamlib_lib_dir ${hamlib_lib_dir}/../bin)
 
       get_filename_component (fftw_lib_dir ${FFTW3F_LIBRARY} PATH)
       list (APPEND fixup_library_dirs ${fftw_lib_dir})
@@ -786,7 +791,8 @@ file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION
       # set (gp_tool "objdump")	# we want MinGW tool - not MSVC (See GetPrerequisites.cmake)
     endif (WIN32)
 
-    list (APPEND fixup_library_dirs ${hamlib_lib_dir})
+    #list (APPEND fixup_library_dirs ${hamlib_lib_dir})
+    list (APPEND fixup_library_dirs ${hamlib_LIBRARY_DIRS})
 
     install (CODE "
      file (GLOB_RECURSE QTPLUGINS
