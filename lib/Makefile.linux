@@ -1,10 +1,16 @@
 # Set paths
 EXE_DIR = ../../wsjtx_install
-INCPATH = -I/usr/include/qt5 -I/usr/include/qt5/QtCore
+QT_DIR = /usr/include/qt5
+INCPATH = -I${QT_DIR} -I${QT_DIR}/QtCore
 
 CC = gcc
 CXX = g++
 FC = gfortran
+AR = ar cr
+MKDIR = mkdir -p
+CP = cp
+RANLIB = ranlib
+RM = rm -f
 
 FFLAGS = -O2 -fbounds-check -Wall -Wno-conversion -fno-second-underscore \
        -fPIE -DUNIX
@@ -45,15 +51,15 @@ OBJS1 = prog_args.o options.o pctile.o graycode.o sort.o ssort.o chkmsg.o \
 	flat3.o polfit.o determ.o baddata.o
 
 libjt9.a: $(OBJS1)
-	ar cr libjt9.a $(OBJS1) 
-	ranlib libjt9.a
+	$(AR) libjt9.a $(OBJS1) 
+	$(RANLIB) libjt9.a
 
 OBJS2 = jt9.o jt9a.o jt9b.o jt9c.o
 
 jt9: 	$(OBJS2) libjt9.a 
 	$(CXX) -o jt9 $(OBJS2) -L. -ljt9 -lQt5Core -lfftw3f `$(FC) -print-file-name=libgfortran.so`
-	mkdir -p $(EXE_DIR)
-	cp jt9 $(EXE_DIR)
+	$(MKDIR) -p $(EXE_DIR)
+	$(CP) jt9 $(EXE_DIR)
 
 OBJS3 = jt9sim.o 
 jt9sim: $(OBJS3) libjt9.a
@@ -62,12 +68,12 @@ jt9sim: $(OBJS3) libjt9.a
 OBJS4 = jt9code.o 
 jt9code: $(OBJS4) libjt9.a
 	$(FC) -o jt9code $(OBJS4) -L. -ljt9
-	cp jt9code $(EXE_DIR)
+	$(CP) jt9code $(EXE_DIR)
 
 OBJS6 = jt65code.o
 jt65code: $(OBJS6) libjt9.a
 	$(FC) -o jt65code $(OBJS6) libjt9.a
-	cp jt65code $(EXE_DIR)
+	$(CP) jt65code $(EXE_DIR)
 
 sync9.o: sync9.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c sync9.f90
@@ -105,4 +111,4 @@ decode_rs.o: decode_rs.c
 .PHONY : clean
 
 clean:
-	rm -f *.o libjt9.a wsjtx jt9sim jt9 jt9code
+	$(RM) *.o libjt9.a wsjtx jt9sim jt9 jt9code

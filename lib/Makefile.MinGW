@@ -3,15 +3,20 @@
 #   C> make > junk1 2>&1
 
 # Set paths
-EXE_DIR = ../../wsjtx_install
+EXE_DIR = ..\\..\\wsjtx_install
+QT_DIR = C:/wsjt-env/Qt5/5.2.1/mingw48_32
 
-INCPATH = -I'C:/wsjt-env/Qt5/5.2.1/mingw48_32/include/QtCore' \
-	-I'C:/wsjt-env/Qt5/5.2.1/mingw48_32/include/' 
+INCPATH = -I${QT_DIR}/include/QtCore -I${QT_DIR}/include 
 
 # Compilers
 CC = gcc
 CXX = g++
-FC = g95
+FC = gfortran
+AR = ar cr
+RANLIB = ranlib
+MKDIR = mkdir -p
+CP = cp
+RM = rm -f
 
 FFLAGS = -O2 -fbounds-check -Wall -Wno-precision-loss -fno-second-underscore
 CFLAGS = -I. -fbounds-check -mno-stack-arg-probe
@@ -50,16 +55,16 @@ OBJS1 = prog_args.o options.o pctile.o graycode.o sort.o ssort.o chkmsg.o \
 	flat3.o polfit.o determ.o baddata.o
 
 libjt9.a: $(OBJS1)
-	ar cr libjt9.a $(OBJS1) 
-	ranlib libjt9.a
+	$(AR) libjt9.a $(OBJS1) 
+	$(RANLIB) libjt9.a
 
 OBJS2 = jt9.o jt9a.o jt9b.o jt9c.o ipcomm.o sec_midn.o usleep.o
-LIBS2 = -L'C:/wsjt-env/Qt5/5.2.1/mingw48_32/lib' -lQt5Core
+LIBS2 = -L${QT_DIR}/lib -lQt5Core
 jt9.exe: $(OBJS2) libjt9.a
 	$(CXX) -o jt9.exe -static $(OBJS2) $(LIBS2) libjt9.a \
-	../libfftw3f_win.a c:/MinGW/lib/libf95.a
-	mkdir -p $(EXE_DIR)
-	cp jt9.exe $(EXE_DIR)
+	../libfftw3f_win.a $(shell $(FC) -print-file-name=lib$(FC).a)
+	-$(MKDIR) $(EXE_DIR)
+	$(CP) jt9.exe $(EXE_DIR)
 
 OBJS3 = jt9sim.o 
 jt9sim.exe: $(OBJS3) libjt9.a
@@ -68,7 +73,7 @@ jt9sim.exe: $(OBJS3) libjt9.a
 OBJS4 = jt9code.o 
 jt9code.exe: $(OBJS4) libjt9.a
 	$(FC) -o jt9code.exe $(OBJS4) libjt9.a
-	cp jt9code.exe $(EXE_DIR)
+	$(CP) jt9code.exe $(EXE_DIR)
 
 OBJS5 = jt65.o 
 jt65.exe: $(OBJS5) libjt9.a 
@@ -79,13 +84,13 @@ OBJS7 = astrosub.o astro0.o astro.o tm2.o grid2deg.o sun.o moondop.o \
 	dcoord.o
 
 libastro.a: $(OBJS7)
-	ar cr libastro.a $(OBJS7)
-	ranlib libastro.a
+	$(AR) libastro.a $(OBJS7)
+	$(RANLIB) libastro.a
 
 OBJS6 = jt65code.o
 jt65code.exe: $(OBJS6) libjt9.a
 	$(FC) -o jt65code.exe $(OBJS6) libjt9.a
-	cp jt65code.exe $(EXE_DIR)
+	$(CP) jt65code.exe $(EXE_DIR)
 
 sync9.o: sync9.f90 jt9sync.f90
 	$(FC) $(FFLAGS) -c sync9.f90
@@ -133,4 +138,4 @@ decode_rs.o: decode_rs.c
 .PHONY : clean
 
 clean:
-	rm -f *.o libjt9.a wsjtx.exe jt9sim.exe jt9.exe jt65.exe
+	$(RM) *.o libjt9.a wsjtx.exe jt9sim.exe jt9.exe jt65.exe
