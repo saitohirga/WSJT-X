@@ -16,14 +16,7 @@ class SoundOutput
 {
   Q_OBJECT;
   
-  Q_PROPERTY(bool running READ isRunning);
-  Q_PROPERTY(unsigned attenuation READ attenuation WRITE setAttenuation RESET resetAttenuation);
-  
 public:
-  SoundOutput (QIODevice * source);
-  ~SoundOutput ();
-  
-  bool isRunning() const {return m_active;}
   qreal attenuation () const;
   QAudioOutput * stream () {return m_stream.data ();}
 
@@ -46,9 +39,6 @@ private Q_SLOTS:
 
 private:
   QScopedPointer<QAudioOutput> m_stream;
-
-  bool volatile m_active;
-  QAudioDeviceInfo m_currentDevice;
   qreal m_volume;
 };
 
