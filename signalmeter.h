@@ -1,3 +1,4 @@
+// -*- Mode: C++ -*-
 #ifndef SIGNALMETER_H
 #define SIGNALMETER_H
 

@@ -30,6 +30,11 @@ public:
 
   bool isMonitoring () const {return m_monitoring;}
 
+  Q_SLOT void setMonitoring (bool newState) {m_monitoring = newState; m_bufferPos = 0;}
+  Q_SLOT bool reset ();
+
+  Q_SIGNAL void framesWritten (qint64) const;
+
 protected:
   qint64 readData (char * /* data */, qint64 /* maxSize */)
   {
@@ -39,14 +44,6 @@ protected:
   qint64 writeData (char const * data, qint64 maxSize);
 
 private:
-  // these are private because we want thread safety, must be called via Qt queued connections
-  Q_SLOT void open (AudioDevice::Channel channel = Mono) {AudioDevice::open (QIODevice::WriteOnly, channel);}
-  Q_SLOT void setMonitoring (bool newState) {m_monitoring = newState; m_bufferPos = 0;}
-  Q_SLOT bool reset ();
-  Q_SLOT void close () {AudioDevice::close ();}
-
-  Q_SIGNAL void framesWritten (qint64) const;
-
   void clear ();		// discard buffer contents
   unsigned secondInPeriod () const;
 
@@ -57,10 +54,10 @@ private:
   bool volatile m_monitoring;
   bool m_starting;
   QScopedArrayPointer<short> m_buffer; // de-interleaved sample buffer
-				       // big enough for all the
-				       // samples for one increment of
-				       // data (a signals worth) at
-				       // the input sample rate
+  // big enough for all the
+  // samples for one increment of
+  // data (a signals worth) at
+  // the input sample rate
   unsigned m_bufferPos;
 };
 

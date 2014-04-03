@@ -1,3 +1,4 @@
+// -*- Mode: C++ -*-
 #ifndef DISPLAYTEXT_H
 #define DISPLAYTEXT_H
 

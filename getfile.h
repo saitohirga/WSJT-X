@@ -1,3 +1,4 @@
+// -*- Mode: C++ -*-
 #ifndef GETFILE_H
 #define GETFILE_H
 #include <QString>

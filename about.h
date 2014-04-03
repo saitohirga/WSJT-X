@@ -1,3 +1,4 @@
+// -*- Mode: C++ -*-
 #ifndef ABOUTDLG_H
 #define ABOUTDLG_H
 

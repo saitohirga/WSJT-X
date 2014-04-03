@@ -1,3 +1,4 @@
+// -*- Mode: C++ -*-
 #ifndef SLEEP_H
 #define SLEEP_H
 #include <qthread.h>

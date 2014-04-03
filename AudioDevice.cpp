@@ -13,11 +13,11 @@ namespace
   } static_initializer;
 }
 
-bool AudioDevice::open (OpenMode mode, Channel channel)
+bool AudioDevice::initialize (OpenMode mode, Channel channel)
 {
   m_channel = channel;
 
-  // ensure we are unbuffered
+  // open and ensure we are unbuffered if possible
   return QIODevice::open (mode | QIODevice::Unbuffered);
 }
 

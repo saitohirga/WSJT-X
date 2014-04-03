@@ -21,27 +21,27 @@ bool SoundOutput::audioError () const
   Q_ASSERT_X (m_stream, "SoundOutput", "programming error");
   if (m_stream) {
     switch (m_stream->error ())
-    {
-    case QAudio::OpenError:
-      Q_EMIT error (tr ("An error opening the audio output device has occurred."));
-      break;
+      {
+      case QAudio::OpenError:
+        Q_EMIT error (tr ("An error opening the audio output device has occurred."));
+        break;
 
-    case QAudio::IOError:
-      Q_EMIT error (tr ("An error occurred during write to the audio output device."));
-      break;
+      case QAudio::IOError:
+        Q_EMIT error (tr ("An error occurred during write to the audio output device."));
+        break;
 
-    case QAudio::UnderrunError:
-      Q_EMIT error (tr ("Audio data not being fed to the audio output device fast enough."));
-      break;
+      case QAudio::UnderrunError:
+        Q_EMIT error (tr ("Audio data not being fed to the audio output device fast enough."));
+        break;
 
-    case QAudio::FatalError:
-      Q_EMIT error (tr ("Non-recoverable error, audio output device not usable at this time."));
-      break;
+      case QAudio::FatalError:
+        Q_EMIT error (tr ("Non-recoverable error, audio output device not usable at this time."));
+        break;
 
-    case QAudio::NoError:
-      result = false;
-      break;
-    }
+      case QAudio::NoError:
+        result = false;
+        break;
+      }
   }
   return result;
 }
@@ -54,8 +54,7 @@ SoundOutput::SoundOutput (QIODevice * source)
   Q_ASSERT (source);
 }
 
-void SoundOutput::startStream (QAudioDeviceInfo const& device, \
-                               unsigned channels, unsigned msBuffered)
+void SoundOutput::setFormat (QAudioDeviceInfo const& device, unsigned channels, unsigned msBuffered)
 {
   Q_ASSERT (0 < channels && channels < 3);
 
@@ -70,24 +69,23 @@ void SoundOutput::startStream (QAudioDeviceInfo const& device, \
       format.setSampleType (QAudioFormat::SignedInt);
       format.setSampleSize (16);
       if (!format.isValid ())
-	{
-	  Q_EMIT error (tr ("Requested output audio format is not valid."));
-	}
+        {
+          Q_EMIT error (tr ("Requested output audio format is not valid."));
+        }
       if (!device.isFormatSupported (format))
-	{
-	  Q_EMIT error (tr ("Requested output audio format is not supported on device."));
-	}
+        {
+          Q_EMIT error (tr ("Requested output audio format is not supported on device."));
+        }
 
       m_stream.reset (new QAudioOutput (device, format));
       audioError ();
       m_stream->setVolume (m_volume);
       m_stream->setNotifyInterval(100);
 
-      connect (m_stream.data(), &QAudioOutput::stateChanged, this, \
-               &SoundOutput::handleStateChanged);
+      connect (m_stream.data(), &QAudioOutput::stateChanged, this, &SoundOutput::handleStateChanged);
 
       m_currentDevice = device;
-//      qDebug() << "A" << m_volume << m_stream->notifyInterval();
+      //      qDebug() << "A" << m_volume << m_stream->notifyInterval();
     }
 
   //
@@ -103,12 +101,8 @@ void SoundOutput::startStream (QAudioDeviceInfo const& device, \
   // we have to set this before every start on the stream because the
   // Windows implementation seems to forget the buffer size after a
   // stop.
-  m_stream->setBufferSize (m_stream->format().bytesForDuration(
-                             (msBuffered ? msBuffered : MS_BUFFERED) * 1000));
-//  qDebug() << "B" << m_stream->bufferSize() << m_stream->periodSize() << m_stream->notifyInterval();
-
-  m_stream->start (m_source);
-  audioError ();
+  m_stream->setBufferSize (m_stream->format().bytesForDuration((msBuffered ? msBuffered : MS_BUFFERED) * 1000));
+  //  qDebug() << "B" << m_stream->bufferSize() << m_stream->periodSize() << m_stream->notifyInterval();
 }
 
 void SoundOutput::suspend ()
@@ -138,7 +132,7 @@ void SoundOutput::setAttenuation (qreal a)
 {
   Q_ASSERT (0. <= a && a <= 99.);
   m_volume = qPow (10., -a / 10.);
-//  qDebug () << "SoundOut: attn = " << a << ", vol = " << m_volume;
+  //  qDebug () << "SoundOut: attn = " << a << ", vol = " << m_volume;
   if (m_stream)
     {
       m_stream->setVolume (m_volume);
@@ -151,15 +145,6 @@ void SoundOutput::resetAttenuation ()
   if (m_stream)
     {
       m_stream->setVolume (m_volume);
-    }
-}
-
-void SoundOutput::stopStream ()
-{
-  if (m_stream)
-    {
-      m_stream->stop ();
-      audioError ();
     }
 }
 
@@ -185,13 +170,13 @@ void SoundOutput::handleStateChanged (QAudio::State newState)
     case QAudio::StoppedState:
       m_active = false;
       if (audioError ())
-	{
-	  Q_EMIT status (tr ("Error"));
-	}
+        {
+          Q_EMIT status (tr ("Error"));
+        }
       else
-	{
-	  Q_EMIT status (tr ("Stopped"));
-	}
+        {
+          Q_EMIT status (tr ("Stopped"));
+        }
       break;
     }
 }

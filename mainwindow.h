@@ -1,3 +1,4 @@
+// -*- Mode: C++ -*-
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 #ifdef QT5
@@ -13,6 +14,7 @@
 #include <QScopedPointer>
 
 #include "soundin.h"
+#include "AudioDevice.hpp"
 #include "soundout.h"
 #include "commons.h"
 #include "Radio.hpp"
@@ -37,7 +39,7 @@ extern int icw[NUM_CW_SYMBOLS];	    //Dits for CW ID
 
 //--------------------------------------------------------------- MainWindow
 namespace Ui {
-    class MainWindow;
+  class MainWindow;
 }
 
 class QSettings;
@@ -46,6 +48,7 @@ class WideGraph;
 class LogQSO;
 class Transceiver;
 class Astro;
+class QAudioOutput;
 
 class MainWindow : public QMainWindow
 {
@@ -175,11 +178,10 @@ private slots:
 private:
   void enable_DXCC_entity (bool on);
 
-  Q_SIGNAL void startAudioOutputStream (QAudioDeviceInfo, unsigned channels, unsigned msBuffered) const;
+  Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo, unsigned channels, unsigned msBuffered) const;
   Q_SIGNAL void stopAudioOutputStream () const;
 
-  Q_SIGNAL void startAudioInputStream (QAudioDeviceInfo const&, unsigned channels, int framesPerBuffer, QIODevice * sink, unsigned downSampleFactor) const;
-  Q_SIGNAL void stopAudioInputStream () const;
+  Q_SIGNAL void startAudioInputStream (QAudioDeviceInfo const&, int framesPerBuffer, AudioDevice * sink, unsigned downSampleFactor, AudioDevice::Channel) const;
 
   Q_SIGNAL void startDetector (AudioDevice::Channel) const;
   Q_SIGNAL void detectorSetMonitoring (bool) const;
@@ -190,7 +192,7 @@ private:
   Q_SIGNAL void transmitFrequency (unsigned) const;
   Q_SIGNAL void endTransmitMessage () const;
   Q_SIGNAL void tune (bool = true) const;
-  Q_SIGNAL void sendMessage (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, AudioDevice::Channel, bool synchronize = true, double dBSNR = 99.) const;
+  Q_SIGNAL void sendMessage (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, QAudioOutput *, AudioDevice::Channel = AudioDevice::Mono, bool synchronize = true, double dBSNR = 99.) const;
   Q_SIGNAL void outAttenuationChanged (qreal) const;
 
 private:
@@ -212,185 +214,185 @@ private:
 
   Frequency  m_dialFreq;
 
-    qint64  m_msErase;
-    qint64  m_secBandChanged;
+  qint64  m_msErase;
+  qint64  m_secBandChanged;
 
-    qint32  m_waterfallAvg;
-    qint32  m_ntx;
-    qint32  m_timeout;
-    qint32  m_rxFreq;
-    qint32  m_txFreq;
-    int     m_XIT;
-    qint32  m_setftx;
-    qint32  m_ndepth;
-    qint32  m_sec0;
-    qint32  m_RxLog;
-    qint32  m_nutc0;
-    qint32  m_nrx;
-    qint32  m_hsym;
+  qint32  m_waterfallAvg;
+  qint32  m_ntx;
+  qint32  m_timeout;
+  qint32  m_rxFreq;
+  qint32  m_txFreq;
+  int     m_XIT;
+  qint32  m_setftx;
+  qint32  m_ndepth;
+  qint32  m_sec0;
+  qint32  m_RxLog;
+  qint32  m_nutc0;
+  qint32  m_nrx;
+  qint32  m_hsym;
 
-    Detector m_detector;
-    SoundInput m_soundInput;
+  Detector m_detector;
+  SoundInput m_soundInput;
 
-    Modulator m_modulator;
-    SoundOutput m_soundOutput;
-    QThread * m_audioThread;
+  Modulator m_modulator;
+  SoundOutput m_soundOutput;
+  QThread * m_audioThread;
 
-    qint32  m_TRperiod;
-    qint32  m_nsps;
-    qint32  m_hsymStop;
-    qint32  m_len1;
-    qint32  m_inGain;
-    qint32  m_nsave;
-    qint32  m_ncw;
-    qint32  m_secID;
-    QString  m_band;
-    qint32  m_repeatMsg;
-    qint32  m_watchdogLimit;
-    qint32  m_fMax;
-    qint32  m_EMEbandIndex;
-    qint32  m_toneMultIndex;
-    qint32  m_astroFont;
+  qint32  m_TRperiod;
+  qint32  m_nsps;
+  qint32  m_hsymStop;
+  qint32  m_len1;
+  qint32  m_inGain;
+  qint32  m_nsave;
+  qint32  m_ncw;
+  qint32  m_secID;
+  QString  m_band;
+  qint32  m_repeatMsg;
+  qint32  m_watchdogLimit;
+  qint32  m_fMax;
+  qint32  m_EMEbandIndex;
+  qint32  m_toneMultIndex;
+  qint32  m_astroFont;
 
-    bool    m_btxok;		//True if OK to transmit
-    bool    m_btxMute;		//True if transmit should be muted
-    bool    m_diskData;
-    bool    m_loopall;
-    bool    m_decoderBusy;
-    bool    m_txFirst;
-    bool    m_auto;
-    bool    m_restart;
-    bool    m_startAnother;
-    bool    m_saveDecoded;
-    bool    m_saveAll;
-    bool    m_widebandDecode;
-    bool    m_call3Modified;
-    bool    m_dataAvailable;
-    bool    m_killAll;
-    bool    m_bdecoded;
-    bool    m_monitorStartOFF;
-    bool    m_pskReporterInit;
-    bool    m_noSuffix;
-    bool    m_toRTTY;
-    bool    m_dBtoComments;
-    bool    m_promptToLog;
-    bool    m_blankLine;
-    bool    m_insertBlank;
-    bool    m_displayDXCCEntity;
-    bool    m_clearCallGrid;
-    bool    m_bMiles;
-    bool    m_decodedText2;
-    bool    m_freeText;
-    bool    m_quickCall;
-    bool    m_73TxDisable;
-    bool    m_sent73;
-    bool    m_runaway;
-    bool    m_bMultipleOK;
-    bool    m_lockTxFreq;
-    bool    m_tx2QSO;
-    bool    m_CATerror;
-    bool    m_plus2kHz;
-    bool    m_bAstroData;
+  bool    m_btxok;		//True if OK to transmit
+  bool    m_btxMute;		//True if transmit should be muted
+  bool    m_diskData;
+  bool    m_loopall;
+  bool    m_decoderBusy;
+  bool    m_txFirst;
+  bool    m_auto;
+  bool    m_restart;
+  bool    m_startAnother;
+  bool    m_saveDecoded;
+  bool    m_saveAll;
+  bool    m_widebandDecode;
+  bool    m_call3Modified;
+  bool    m_dataAvailable;
+  bool    m_killAll;
+  bool    m_bdecoded;
+  bool    m_monitorStartOFF;
+  bool    m_pskReporterInit;
+  bool    m_noSuffix;
+  bool    m_toRTTY;
+  bool    m_dBtoComments;
+  bool    m_promptToLog;
+  bool    m_blankLine;
+  bool    m_insertBlank;
+  bool    m_displayDXCCEntity;
+  bool    m_clearCallGrid;
+  bool    m_bMiles;
+  bool    m_decodedText2;
+  bool    m_freeText;
+  bool    m_quickCall;
+  bool    m_73TxDisable;
+  bool    m_sent73;
+  bool    m_runaway;
+  bool    m_bMultipleOK;
+  bool    m_lockTxFreq;
+  bool    m_tx2QSO;
+  bool    m_CATerror;
+  bool    m_plus2kHz;
+  bool    m_bAstroData;
 
-    float   m_pctZap;
+  float   m_pctZap;
 
-    // labels in status bar
-    QLabel * tx_status_label;
-    QLabel * mode_label;
-    QLabel * last_tx_label;
-    QLabel * auto_tx_label;
+  // labels in status bar
+  QLabel * tx_status_label;
+  QLabel * mode_label;
+  QLabel * last_tx_label;
+  QLabel * auto_tx_label;
 
-    QMessageBox msgBox0;
+  QMessageBox msgBox0;
 
-    QFuture<void>* future1;
-    QFuture<void>* future2;
-    QFuture<void>* future3;
-    QFutureWatcher<void>* watcher1;
-    QFutureWatcher<void>* watcher2;
-    QFutureWatcher<void>* watcher3;
+  QFuture<void>* future1;
+  QFuture<void>* future2;
+  QFuture<void>* future3;
+  QFutureWatcher<void>* watcher1;
+  QFutureWatcher<void>* watcher2;
+  QFutureWatcher<void>* watcher3;
 
-    QProcess proc_jt9;
+  QProcess proc_jt9;
 
-    QTimer m_guiTimer;
-    QTimer* ptt1Timer;                 //StartTx delay
-    QTimer* ptt0Timer;                 //StopTx delay
-    QTimer* logQSOTimer;
-    QTimer* killFileTimer;
-    QTimer* tuneButtonTimer;
+  QTimer m_guiTimer;
+  QTimer* ptt1Timer;                 //StartTx delay
+  QTimer* ptt0Timer;                 //StopTx delay
+  QTimer* logQSOTimer;
+  QTimer* killFileTimer;
+  QTimer* tuneButtonTimer;
 
-    QString m_path;
-    QString m_pbdecoding_style1;
-    QString m_pbmonitor_style;
-    QString m_pbAutoOn_style;
-    QString m_pbTune_style;
-    QString m_baseCall;
-    QString m_hisCall;
-    QString m_hisGrid;
-    QString m_appDir;
-    QString m_dxccPfx;
-    QString m_palette;
-    QString m_dateTime;
-    QString m_mode;
-    QString m_modeTx;
-    QString m_fname;
-    QString m_rpt;
-    QString m_rptSent;
-    QString m_rptRcvd;
-    QString m_qsoStart;
-    QString m_qsoStop;
-    QString m_cmnd;
-    QString m_msgSent0;
-    QString m_fileToSave;
+  QString m_path;
+  QString m_pbdecoding_style1;
+  QString m_pbmonitor_style;
+  QString m_pbAutoOn_style;
+  QString m_pbTune_style;
+  QString m_baseCall;
+  QString m_hisCall;
+  QString m_hisGrid;
+  QString m_appDir;
+  QString m_dxccPfx;
+  QString m_palette;
+  QString m_dateTime;
+  QString m_mode;
+  QString m_modeTx;
+  QString m_fname;
+  QString m_rpt;
+  QString m_rptSent;
+  QString m_rptRcvd;
+  QString m_qsoStart;
+  QString m_qsoStop;
+  QString m_cmnd;
+  QString m_msgSent0;
+  QString m_fileToSave;
 
-    QStringList m_prefix;
-    QStringList m_suffix;
+  QStringList m_prefix;
+  QStringList m_suffix;
 
-    QHash<QString,bool> m_pfx;
-    QHash<QString,bool> m_sfx;
+  QHash<QString,bool> m_pfx;
+  QHash<QString,bool> m_sfx;
 
-    QDateTime m_dateTimeQSO;
-    QRect   m_astroGeom;
+  QDateTime m_dateTimeQSO;
+  QRect   m_astroGeom;
 
-    QSharedMemory *mem_jt9;
- // Multiple instances:
-    QString mykey_jt9;
-    PSK_Reporter *psk_Reporter;
-    SignalMeter *signalMeter;
-    LogBook m_logBook;
-    DecodedText m_QSOText;
-    unsigned m_msAudioOutputBuffered;
-    unsigned m_framesAudioInputBuffered;
-    unsigned m_downSampleFactor;
-    QThread::Priority m_audioThreadPriority;
-    bool m_bandEdited;
-    bool m_splitMode;
-    bool m_monitoring;
-    bool m_transmitting;
-    bool m_tune;
-    Frequency m_lastMonitoredFrequency;
-    double m_toneSpacing;
+  QSharedMemory *mem_jt9;
+  // Multiple instances:
+  QString mykey_jt9;
+  PSK_Reporter *psk_Reporter;
+  SignalMeter *signalMeter;
+  LogBook m_logBook;
+  DecodedText m_QSOText;
+  unsigned m_msAudioOutputBuffered;
+  unsigned m_framesAudioInputBuffered;
+  unsigned m_downSampleFactor;
+  QThread::Priority m_audioThreadPriority;
+  bool m_bandEdited;
+  bool m_splitMode;
+  bool m_monitoring;
+  bool m_transmitting;
+  bool m_tune;
+  Frequency m_lastMonitoredFrequency;
+  double m_toneSpacing;
 
-//---------------------------------------------------- private functions
-    void readSettings();
-    void setDecodedTextFont (QFont const&);
-    void writeSettings();
-    void createStatusBar();
-    void updateStatusBar();
-    void msgBox(QString t);
-    void genStdMsgs(QString rpt);
-    void lookup();
-    void ba2msg(QByteArray ba, char* message);
-    void msgtype(QString t, QLineEdit* tx);
-    void stub();
-    void statusChanged();
-    void qsy(Frequency f);
-    bool gridOK(QString g);
-    bool shortList(QString callsign);
-    QString baseCall(QString t);
-    void transmit (double snr = 99.);
-    void rigFailure (QString const& reason, QString const& detail);
-    void pskSetLocal ();
-    void displayDialFrequency ();
+  //---------------------------------------------------- private functions
+  void readSettings();
+  void setDecodedTextFont (QFont const&);
+  void writeSettings();
+  void createStatusBar();
+  void updateStatusBar();
+  void msgBox(QString t);
+  void genStdMsgs(QString rpt);
+  void lookup();
+  void ba2msg(QByteArray ba, char* message);
+  void msgtype(QString t, QLineEdit* tx);
+  void stub();
+  void statusChanged();
+  void qsy(Frequency f);
+  bool gridOK(QString g);
+  bool shortList(QString callsign);
+  QString baseCall(QString t);
+  void transmit (double snr = 99.);
+  void rigFailure (QString const& reason, QString const& detail);
+  void pskSetLocal ();
+  void displayDialFrequency ();
 };
 
 extern void getfile(QString fname, int ntrperiod);
@@ -402,25 +404,25 @@ extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
 extern int ptt(int nport, int ntx, int* iptt, int* nopen);
 
 extern "C" {
-//----------------------------------------------------- C and Fortran routines
-void symspec_(int* k, int* ntrperiod, int* nsps, int* ingain, int* nflatten,
-              float* px, float s[], float* df3, int* nhsym, int* npts8);
+  //----------------------------------------------------- C and Fortran routines
+  void symspec_(int* k, int* ntrperiod, int* nsps, int* ingain, int* nflatten,
+                float* px, float s[], float* df3, int* nhsym, int* npts8);
 
-void genjt9_(char* msg, int* ichk, char* msgsent, int itone[],
-             int* itext, int len1, int len2);
+  void genjt9_(char* msg, int* ichk, char* msgsent, int itone[],
+               int* itext, int len1, int len2);
 
-void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
-             int* itext, int len1, int len2);
+  void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
+              int* itext, int len1, int len2);
 
-bool stdmsg_(const char* msg, int len);
+  bool stdmsg_(const char* msg, int len);
 
-void azdist_(char* MyGrid, char* HisGrid, double* utch, int* nAz, int* nEl,
-             int* nDmiles, int* nDkm, int* nHotAz, int* nHotABetter,
-             int len1, int len2);
+  void azdist_(char* MyGrid, char* HisGrid, double* utch, int* nAz, int* nEl,
+               int* nDmiles, int* nDkm, int* nHotAz, int* nHotABetter,
+               int len1, int len2);
 
-void morse_(char* msg, int* icw, int* ncw, int len);
+  void morse_(char* msg, int* icw, int* ncw, int len);
 
-int ptt_(int nport, int ntx, int* iptt, int* nopen);
+  int ptt_(int nport, int ntx, int* iptt, int* nopen);
 
 }
 

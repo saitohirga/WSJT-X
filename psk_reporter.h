@@ -1,3 +1,4 @@
+// -*- Mode: C++ -*-
 #ifndef PSK_REPORTER_H
 #define PSK_REPORTER_H
 

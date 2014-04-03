@@ -36,7 +36,6 @@ int icw[NUM_CW_SYMBOLS];	//Dits for CW ID
 
 int outBufSize;
 int rc;
-qint32  g_COMportOpen;
 qint32  g_iptt;
 static int nc1=1;
 wchar_t buffer[256];
@@ -134,37 +133,30 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   connect (m_audioThread, &QThread::finished, m_audioThread, &QThread::deleteLater); // disposal
 
   // hook up sound output stream slots & signals
-  connect (this, SIGNAL (startAudioOutputStream (QAudioDeviceInfo const&, unsigned, unsigned)), &m_soundOutput, SLOT (startStream (QAudioDeviceInfo const&, unsigned, unsigned)));
-  connect (this, SIGNAL (stopAudioOutputStream ()), &m_soundOutput, SLOT (stopStream ()));
+  connect (this, &MainWindow::initializeAudioOutputStream, &m_soundOutput, &SoundOutput::setFormat);
   connect (&m_soundOutput, &SoundOutput::error, this, &MainWindow::showSoundOutError);
   // connect (&m_soundOutput, &SoundOutput::status, this, &MainWindow::showStatusMessage);
-  connect (this, SIGNAL (outAttenuationChanged (qreal)), &m_soundOutput, SLOT (setAttenuation (qreal)));
+  connect (this, &MainWindow::outAttenuationChanged, &m_soundOutput, &SoundOutput::setAttenuation);
 
   // hook up Modulator slots
-  connect (this, SIGNAL (muteAudioOutput (bool)), &m_modulator, SLOT (mute (bool)));
-  connect (this, SIGNAL(transmitFrequency (unsigned)), &m_modulator, SLOT (setFrequency (unsigned)));
-  connect (this, SIGNAL (endTransmitMessage ()), &m_modulator, SLOT (close ()));
-  connect (this, SIGNAL (tune (bool)), &m_modulator, SLOT (tune (bool)));
-  connect (this, SIGNAL (sendMessage (unsigned, double, unsigned, AudioDevice::Channel, bool, double))
-           , &m_modulator, SLOT (open (unsigned, double, unsigned, AudioDevice::Channel, bool, double)));
+  connect (this, &MainWindow::muteAudioOutput, &m_modulator, &Modulator::mute);
+  connect (this, &MainWindow::transmitFrequency, &m_modulator, &Modulator::setFrequency);
+  connect (this, &MainWindow::endTransmitMessage, &m_modulator, &Modulator::stop);
+  connect (this, &MainWindow::tune, &m_modulator, &Modulator::tune);
+  connect (this, &MainWindow::sendMessage, &m_modulator, &Modulator::start);
 
   // hook up the audio input stream
-  connect (this, SIGNAL (startAudioInputStream (QAudioDeviceInfo const&, unsigned, int, QIODevice *, unsigned))
-           , &m_soundInput, SLOT (start (QAudioDeviceInfo const&, unsigned, int, QIODevice *, unsigned)));
-  connect (this, SIGNAL (stopAudioInputStream ()), &m_soundInput, SLOT (stop ()));
-
+  connect (this, &MainWindow::startAudioInputStream, &m_soundInput, &SoundInput::start);
   connect (this, &MainWindow::finished, &m_soundInput, &SoundInput::stop);
+
   connect (this, &MainWindow::finished, this, &MainWindow::close);
 
-  connect(&m_soundInput, SIGNAL (error (QString)), this, SLOT (showSoundInError (QString)));
-  // connect(&m_soundInput, SIGNAL(status(QString)), this, SLOT(showStatusMessage(QString)));
+  connect(&m_soundInput, &SoundInput::error, this, &MainWindow::showSoundInError);
+  // connect(&m_soundInput, &SoundInput::status, this, &MainWindow::showStatusMessage);
 
   // hook up the detector
-  connect (this, SIGNAL (startDetector (AudioDevice::Channel)), &m_detector, SLOT (open (AudioDevice::Channel)));
-  connect (this, SIGNAL (detectorSetMonitoring (bool)), &m_detector, SLOT (setMonitoring (bool)));
-  connect (this, SIGNAL (detectorClose ()), &m_detector, SLOT (close ()));
-
-  connect(&m_detector, SIGNAL (framesWritten (qint64)), this, SLOT (dataSink (qint64)));
+  connect (this, &MainWindow::detectorSetMonitoring, &m_detector, &Detector::setMonitoring);
+  connect(&m_detector, &Detector::framesWritten, this, &MainWindow::dataSink);
 
   // setup the waterfall
   connect(m_wideGraph.data (), SIGNAL(freezeDecode2(int)),this,
@@ -281,7 +273,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 
   ptt0Timer = new QTimer(this);
   ptt0Timer->setSingleShot(true);
-  connect (ptt0Timer, SIGNAL (timeout ()), &m_modulator, SLOT (close ()));
+  connect (ptt0Timer, &QTimer::timeout, &m_modulator, &Modulator::stop);
   connect(ptt0Timer, SIGNAL(timeout()), this, SLOT(stopTx2()));
   ptt1Timer = new QTimer(this);
   ptt1Timer->setSingleShot(true);
@@ -293,7 +285,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 
   tuneButtonTimer= new QTimer(this);
   tuneButtonTimer->setSingleShot(true);
-  connect (tuneButtonTimer, SIGNAL (timeout ()), &m_modulator, SLOT (close ()));
+  connect (tuneButtonTimer, &QTimer::timeout, &m_modulator, &Modulator::stop);
   connect(tuneButtonTimer, SIGNAL(timeout()), this,
           SLOT(on_stopTxButton_clicked()));
 
@@ -328,7 +320,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_inGain=0;
   m_dataAvailable=false;
   g_iptt=0;
-  g_COMportOpen=0;
   m_secID=0;
   m_blankLine=false;
   m_decodedText2=false;
@@ -423,26 +414,13 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   watcher2 = new QFutureWatcher<void>;
   connect(watcher2, SIGNAL(finished()),this,SLOT(diskWriteFinished()));
 
-  Q_EMIT startDetector (m_config.audio_input_channel ());
-  Q_EMIT startAudioInputStream (m_config.audio_input_device (), AudioDevice::Mono == m_config.audio_input_channel () ? 1 : 2, m_framesAudioInputBuffered, &m_detector, m_downSampleFactor);
+  Q_EMIT startAudioInputStream (m_config.audio_input_device (), m_framesAudioInputBuffered, &m_detector, m_downSampleFactor, m_config.audio_input_channel ());
+  Q_EMIT initializeAudioOutputStream (m_config.audio_output_device (), AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2, m_msAudioOutputBuffered);
 
   Q_EMIT transmitFrequency (m_txFreq - m_XIT);
   Q_EMIT muteAudioOutput (false);
 
-  // Create "m_worked", a dictionary of all calls in wsjtx.log
-  QFile f(m_config.data_path ().absoluteFilePath ("wsjtx.log"));
-  f.open(QIODevice::ReadOnly | QIODevice::Text);
-  QTextStream in(&f);
-  QString line,t,callsign;
-  for(int i=0; i<99999; i++) {
-    line=in.readLine();
-    if(line.length()<=0) break;
-    t=line.mid(18,12);
-    callsign=t.mid(0,t.indexOf(","));
-  }
-  f.close();
-
-  t="UTC   dB   DT Freq   Message";
+  auto t = "UTC   dB   DT Freq   Message";
   ui->decodedTextLabel->setText(t);
   ui->decodedTextLabel2->setText(t);
 
@@ -450,10 +428,8 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 
   ui->label_9->setStyleSheet("QLabel{background-color: #aabec8}");
   ui->label_10->setStyleSheet("QLabel{background-color: #aabec8}");
-  ui->labUTC->setStyleSheet( \
-                            "QLabel { background-color : black; color : yellow; }");
-  ui->labDialFreq->setStyleSheet( \
-                                 "QLabel { background-color : black; color : yellow; }");
+  ui->labUTC->setStyleSheet("QLabel { background-color : black; color : yellow; }");
+  ui->labDialFreq->setStyleSheet("QLabel { background-color : black; color : yellow; }");
 
   m_config.transceiver_online (true);
   qsy (m_lastMonitoredFrequency);
@@ -665,14 +641,10 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       if(m_mode=="JT9W-1") m_toneSpacing=pow(2,m_config.jt9w_bw_mult ())*12000.0/6912.0;
 
       if(m_config.restart_audio_input ()) {
-        Q_EMIT stopAudioInputStream ();
-        Q_EMIT detectorClose ();
-        Q_EMIT startDetector (m_config.audio_input_channel ());
-        Q_EMIT startAudioInputStream (m_config.audio_input_device (), AudioDevice::Mono == m_config.audio_input_channel () ? 1 : 2, m_framesAudioInputBuffered, &m_detector, m_downSampleFactor);
+        Q_EMIT startAudioInputStream (m_config.audio_input_device (), m_framesAudioInputBuffered, &m_detector, m_downSampleFactor, m_config.audio_input_channel ());
       }
       if(m_config.restart_audio_output ()) {
-        Q_EMIT stopAudioOutputStream ();
-        Q_EMIT startAudioOutputStream (m_config.audio_output_device (), AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2, m_msAudioOutputBuffered);
+        Q_EMIT initializeAudioOutputStream (m_config.audio_output_device (), AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2, m_msAudioOutputBuffered);
       }
 
       auto_tx_label->setText (m_config.quick_call () ? "Tx-Enable Armed" : "Tx-Enable Disarmed");
@@ -709,7 +681,6 @@ void MainWindow::on_monitorButton_clicked (bool checked)
         }
 
       Q_EMIT detectorSetMonitoring (checked);
-      //  Q_EMIT startAudioInputStream (m_params.audio_input_device, AudioDevice::Mono == m_params.audio_input_channel ? 1 : 2, m_framesAudioInputBuffered, &m_detector, m_downSampleFactor);
     }
   else
     {
@@ -1431,7 +1402,6 @@ void MainWindow::guiUpdate()
   static char msgsent[29];
   static int nsendingsh=0;
   static int giptt00=-1;
-  static int gcomport00=-1;
   static double onAirFreq0=0.0;
   QString rt;
 
@@ -1670,9 +1640,8 @@ void MainWindow::guiUpdate()
     m_sec0=nsec;
   }
 
-  if(g_iptt!=giptt00 or g_COMportOpen!=gcomport00) {
+  if(g_iptt!=giptt00) {
     giptt00=g_iptt;
-    gcomport00=g_COMportOpen;
   }
 
   iptt0=g_iptt;
@@ -1706,7 +1675,6 @@ void MainWindow::startTx2()
 void MainWindow::stopTx()
 {
   Q_EMIT endTransmitMessage ();
-  Q_EMIT stopAudioOutputStream ();
   m_transmitting=false;
   if ("JT9+JT65" == m_mode) ui->pbTxMode->setEnabled(true);
   g_iptt=0;
@@ -2859,13 +2827,12 @@ void MainWindow::transmit (double snr)
 {
   if (m_modeTx == "JT65")
     {
-      Q_EMIT sendMessage (NUM_JT65_SYMBOLS, 4096.0 * 12000.0 / 11025.0, m_txFreq - m_XIT, m_config.audio_output_channel (), true, snr);
+      Q_EMIT sendMessage (NUM_JT65_SYMBOLS, 4096.0 * 12000.0 / 11025.0, m_txFreq - m_XIT, m_soundOutput.stream (), m_config.audio_output_channel (), true, snr);
     }
   else
     {
-      Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps, m_txFreq - m_XIT, m_config.audio_output_channel (), true, snr);
+      Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps, m_txFreq - m_XIT, m_soundOutput.stream (), m_config.audio_output_channel (), true, snr);
     }
-  Q_EMIT startAudioOutputStream (m_config.audio_output_device (), AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2, m_msAudioOutputBuffered);
 }
 
 void MainWindow::on_outAttenuation_valueChanged (int a)

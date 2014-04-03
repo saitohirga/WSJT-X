@@ -1,3 +1,4 @@
+// -*- Mode: C++ -*-
 #ifndef METERWIDGET_H
 #define METERWIDGET_H
 

@@ -24,27 +24,31 @@ double const Modulator::m_twoPi = 2.0 * 3.141592653589793238462;
 //    m_nspd=3072;                           //18.75 WPM
 unsigned const Modulator::m_nspd = 2048 + 512; // 22.5 WPM
 
-Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds, \
-                      QObject * parent)
-  : AudioDevice (parent)
-  , m_phi (0.0)
-  , m_framesSent (0)
-  , m_frameRate (frameRate)
-  , m_period (periodLengthInSeconds)
-  , m_state (Idle)
-  , m_tuning (false)
-  , m_muted (false)
+Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds, QObject * parent)
+  : AudioDevice {parent}
+  , m_stream {nullptr}
+  , m_phi {0.0}
+  , m_framesSent {0}
+  , m_frameRate {frameRate}
+  , m_period {periodLengthInSeconds}
+  , m_state {Idle}
+  , m_tuning {false}
+  , m_muted {false}
 {
   qsrand (QDateTime::currentMSecsSinceEpoch()); // Initialize random seed
 }
 
-void Modulator::open (unsigned symbolsLength, double framesPerSymbol, \
-         unsigned frequency, Channel channel, bool synchronize, double dBSNR)
+void Modulator::start (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, QAudioOutput * stream, Channel channel, bool synchronize, double dBSNR)
 {
   // Time according to this computer which becomes our base time
   qint64 ms0 = QDateTime::currentMSecsSinceEpoch() % 86400000;
 
-//  qDebug () << "Modulator: Using soft keying for CW is " << SOFT_KEYING;;
+  if (m_state != Idle)
+    {
+      stop ();
+    }
+
+  //  qDebug () << "Modulator: Using soft keying for CW is " << SOFT_KEYING;;
 
   m_symbolsLength = symbolsLength;
   m_framesSent = 0;
@@ -63,7 +67,7 @@ void Modulator::open (unsigned symbolsLength, double framesPerSymbol, \
 
   unsigned mstr = ms0 % (1000 * m_period); // ms in period
   m_ic = (mstr / 1000) * m_frameRate; // we start exactly N seconds
-              // into period where N is the next whole second
+  // into period where N is the next whole second
 
   m_silentFrames = 0;
   // calculate number of silent frames to send
@@ -71,11 +75,38 @@ void Modulator::open (unsigned symbolsLength, double framesPerSymbol, \
     m_silentFrames = m_ic + m_frameRate - (mstr * m_frameRate / 1000);
   }
 
-//  qDebug () << "Modulator: starting at " << m_ic / m_frameRate << " sec, sending " << m_silentFrames << " silent frames";
+  //  qDebug () << "Modulator: starting at " << m_ic / m_frameRate << " sec, sending " << m_silentFrames << " silent frames";
 
-  AudioDevice::open (QIODevice::ReadOnly, channel);
+  initialize (QIODevice::ReadOnly, channel);
   Q_EMIT stateChanged ((m_state = (synchronize && m_silentFrames) ?
-        Synchronizing : Active));
+                        Synchronizing : Active));
+  m_stream = stream;
+  if (m_stream)
+    {
+      m_stream->start (this);
+    }
+}
+
+void Modulator::stop ()
+{
+  if (m_stream)
+    {
+      m_stream->reset ();
+    }
+  close ();
+}
+
+void Modulator::close ()
+{
+  if (m_stream)
+    {
+      m_stream->stop ();
+    }
+  if (m_state != Idle)
+    {
+      Q_EMIT stateChanged ((m_state = Idle));
+    }
+  AudioDevice::close ();
 }
 
 qint64 Modulator::readData (char * data, qint64 maxSize)
@@ -92,141 +123,143 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
   qint16 * samples (reinterpret_cast<qint16 *> (data));
   qint16 * end (samples + numFrames * (bytesPerFrame () / sizeof (qint16)));
 
-//  qDebug () << "Modulator: " << numFrames << " requested, m_ic = " << m_ic << ", tune mode is " << m_tuning;
-//  qDebug() << "C" << maxSize << numFrames << bytesPerFrame();
+  //  qDebug () << "Modulator: " << numFrames << " requested, m_ic = " << m_ic << ", tune mode is " << m_tuning;
+  //  qDebug() << "C" << maxSize << numFrames << bytesPerFrame();
   switch (m_state)
-  {
-  case Synchronizing:
-  {
-    if (m_silentFrames)	{  // send silence up to first second
-      numFrames = qMin (m_silentFrames, numFrames);
-      for ( ; samples != end; samples = load (0, samples)) { // silence
-	      }
-      m_silentFrames -= numFrames;
-      return numFrames * bytesPerFrame ();
-    }
+    {
+    case Synchronizing:
+      {
+        if (m_silentFrames)	{  // send silence up to first second
+          numFrames = qMin (m_silentFrames, numFrames);
+          for ( ; samples != end; samples = load (0, samples)) { // silence
+          }
+          m_silentFrames -= numFrames;
+          return numFrames * bytesPerFrame ();
+        }
 
-    Q_EMIT stateChanged ((m_state = Active));
-    m_ramp = 0;		// prepare for CW wave shaping
-  }
+        Q_EMIT stateChanged ((m_state = Active));
+        m_ramp = 0;		// prepare for CW wave shaping
+      }
       // fall through
 
-  case Active:
-  {
-    unsigned isym (m_tuning ? 0 : m_ic / (4.0 * m_nsps)); // Actual fsample=48000
-    if (isym >= m_symbolsLength && icw[0] > 0) { // start CW condition
-      // Output the CW ID
-      m_dphi = m_twoPi * m_frequency / m_frameRate;
-      unsigned const ic0 = m_symbolsLength * 4 * m_nsps;
-      unsigned j (0);
-      qint64 framesGenerated (0);
+    case Active:
+      {
+        unsigned isym (m_tuning ? 0 : m_ic / (4.0 * m_nsps)); // Actual fsample=48000
+        if (isym >= m_symbolsLength && icw[0] > 0) { // start CW condition
+          // Output the CW ID
+          m_dphi = m_twoPi * m_frequency / m_frameRate;
+          unsigned const ic0 = m_symbolsLength * 4 * m_nsps;
+          unsigned j (0);
+          qint64 framesGenerated (0);
 
-      while (samples != end) {
-        m_phi += m_dphi;
-        if (m_phi > m_twoPi) m_phi -= m_twoPi;
+          while (samples != end) {
+            m_phi += m_dphi;
+            if (m_phi > m_twoPi) m_phi -= m_twoPi;
 
-        qint16 sample ((SOFT_KEYING ? qAbs (m_ramp - 1) :
-                                      (m_ramp ? 32767 : 0)) * qSin (m_phi));
+            qint16 sample ((SOFT_KEYING ? qAbs (m_ramp - 1) :
+                            (m_ramp ? 32767 : 0)) * qSin (m_phi));
 
-        j = (m_ic - ic0 - 1) / m_nspd + 1;
-        bool l0 (icw[j] && icw[j] <= 1); // first element treated specially as it's a count
-        j = (m_ic - ic0) / m_nspd + 1;
+            j = (m_ic - ic0 - 1) / m_nspd + 1;
+            bool l0 (icw[j] && icw[j] <= 1); // first element treated specially as it's a count
+            j = (m_ic - ic0) / m_nspd + 1;
 
-        if ((m_ramp != 0 && m_ramp != std::numeric_limits<qint16>::min ()) ||
-            !!icw[j] != l0) {
-          if (!!icw[j] != l0) {
-            Q_ASSERT (m_ramp == 0 || m_ramp == std::numeric_limits<qint16>::min ());
+            if ((m_ramp != 0 && m_ramp != std::numeric_limits<qint16>::min ()) ||
+                !!icw[j] != l0) {
+              if (!!icw[j] != l0) {
+                Q_ASSERT (m_ramp == 0 || m_ramp == std::numeric_limits<qint16>::min ());
+              }
+              m_ramp += RAMP_INCREMENT; // ramp
+            }
+
+            if (j < NUM_CW_SYMBOLS) { // stop condition
+              // if (!m_ramp && !icw[j])
+              //   {
+              // 	sample = 0;
+              //   }
+
+              samples = load (postProcessSample (sample), samples);
+              ++framesGenerated;
+              ++m_ic;
+            }
           }
-          m_ramp += RAMP_INCREMENT; // ramp
+
+          if (j > static_cast<unsigned> (icw[0]))
+            {
+              close ();
+            }
+
+          m_framesSent += framesGenerated;
+          return framesGenerated * bytesPerFrame ();
         }
 
-        if (j < NUM_CW_SYMBOLS) { // stop condition
-          // if (!m_ramp && !icw[j])
-          //   {
-          // 	sample = 0;
-          //   }
+        double const baud (12000.0 / m_nsps);
+        // fade out parameters (no fade out for tuning)
+        unsigned const i0 = m_tuning ? 999 * m_nsps :
+          (m_symbolsLength - 0.017) * 4.0 * m_nsps;
+        unsigned const i1 = m_tuning ? 999 * m_nsps :
+          m_symbolsLength * 4.0 * m_nsps;
 
-          samples = load (postProcessSample (sample), samples);
-          ++framesGenerated;
+        for (unsigned i = 0; i < numFrames; ++i) {
+          isym = m_tuning ? 0 : m_ic / (4.0 * m_nsps); //Actual fsample=48000
+          if (isym != m_isym0) {
+            if(m_toneSpacing==0.0) {
+              toneFrequency0=m_frequency + itone[isym]*baud;
+            } else {
+              toneFrequency0=m_frequency + itone[isym]*m_toneSpacing;
+            }
+            m_dphi = m_twoPi * toneFrequency0 / m_frameRate;
+            m_isym0 = isym;
+          }
+
+          int j=m_ic/480;
+          if(m_fSpread>0.0 and j!=j0) {
+            float x1=(float)rand()/RAND_MAX;
+            float x2=(float)rand()/RAND_MAX;
+            toneFrequency = toneFrequency0 + 0.5*m_fSpread*(x1+x2-1.0);
+            m_dphi = m_twoPi * toneFrequency / m_frameRate;
+            j0=j;
+          }
+
+          m_phi += m_dphi;
+          if (m_phi > m_twoPi) m_phi -= m_twoPi;
+          if (m_ic > i0) m_amp = 0.98 * m_amp;
+          if (m_ic > i1) m_amp = 0.0;
+
+          samples = load (postProcessSample (m_amp * qSin (m_phi)), samples);
           ++m_ic;
         }
-      }
 
-      if (j > static_cast<unsigned> (icw[0])) {
-        Q_EMIT stateChanged ((m_state = Idle));
-      }
+        if (m_amp == 0.0) { // TODO G4WJS: compare double with zero might not be wise
+          if (icw[0] == 0) {
+            // no CW ID to send
+            Q_EMIT stateChanged ((m_state = Idle));
+            m_framesSent += numFrames;
+            return numFrames * bytesPerFrame ();
+          }
 
-      m_framesSent += framesGenerated;
-      return framesGenerated * bytesPerFrame ();
-    }
-
-    double const baud (12000.0 / m_nsps);
-	// fade out parameters (no fade out for tuning)
-    unsigned const i0 = m_tuning ? 999 * m_nsps :
-                                   (m_symbolsLength - 0.017) * 4.0 * m_nsps;
-    unsigned const i1 = m_tuning ? 999 * m_nsps :
-                                   m_symbolsLength * 4.0 * m_nsps;
-
-    for (unsigned i = 0; i < numFrames; ++i) {
-      isym = m_tuning ? 0 : m_ic / (4.0 * m_nsps); //Actual fsample=48000
-      if (isym != m_isym0) {
-        if(m_toneSpacing==0.0) {
-          toneFrequency0=m_frequency + itone[isym]*baud;
-        } else {
-          toneFrequency0=m_frequency + itone[isym]*m_toneSpacing;
+          m_phi = 0.0;
         }
-        m_dphi = m_twoPi * toneFrequency0 / m_frameRate;
-        m_isym0 = isym;
-      }
 
-      int j=m_ic/480;
-      if(m_fSpread>0.0 and j!=j0) {
-        float x1=(float)rand()/RAND_MAX;
-        float x2=(float)rand()/RAND_MAX;
-        toneFrequency = toneFrequency0 + 0.5*m_fSpread*(x1+x2-1.0);
-        m_dphi = m_twoPi * toneFrequency / m_frameRate;
-        j0=j;
-      }
-
-      m_phi += m_dphi;
-      if (m_phi > m_twoPi) m_phi -= m_twoPi;
-      if (m_ic > i0) m_amp = 0.98 * m_amp;
-      if (m_ic > i1) m_amp = 0.0;
-
-      samples = load (postProcessSample (m_amp * qSin (m_phi)), samples);
-	    ++m_ic;
-	  }
-
-    if (m_amp == 0.0) { // TODO G4WJS: compare double with zero might not be wise
-	    if (icw[0] == 0) {
-        // no CW ID to send
-        Q_EMIT stateChanged ((m_state = Idle));
+        // done for this chunk - continue on next call
         m_framesSent += numFrames;
         return numFrames * bytesPerFrame ();
       }
+      // fall through
 
-      m_phi = 0.0;
+    case Idle:
+      break;
     }
 
-	// done for this chunk - continue on next call
-    m_framesSent += numFrames;
-    return numFrames * bytesPerFrame ();
-  }
-    Q_EMIT stateChanged ((m_state = Idle));
-    // fall through
-
-  case Idle:
-    break;
-  }
-
   Q_ASSERT (Idle == m_state);
+  close ();
+
   return 0;
 }
 
 qint16 Modulator::postProcessSample (qint16 sample) const
 {
   if (m_muted) {  // silent frame
-      sample = 0;
+    sample = 0;
   } else if (m_addNoise) {  // Test frame, we'll add noise
     qint32 s = m_fac * (gran () + sample * m_snr / 32768.0);
     if (s > std::numeric_limits<qint16>::max ()) {

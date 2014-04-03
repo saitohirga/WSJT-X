@@ -1,3 +1,4 @@
+// -*- Mode: C++ -*-
 #ifndef LogQSO_H
 #define LogQSO_H
 

@@ -1,3 +1,4 @@
+// -*- Mode: C++ -*-
 ///////////////////////////////////////////////////////////////////////////
 // Some code in this file and accompanying files is based on work by
 // Moe Wheatley, AE4Y, released under the "Simplified BSD License".
