@@ -1959,7 +1959,6 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
       msgtype(t, ui->tx6);
     }
     ui->genMsg->setText("");
-    ui->freeTextMsg->setCurrentText("");
     return;
   }
   QString hisBase=baseCall(hisCall);
@@ -2209,7 +2208,6 @@ void MainWindow::on_tx4_editingFinished()                       //tx4 edited
 void MainWindow::on_tx5_currentTextChanged (QString const& text) //tx5 edited
 {
   msgtype(text, ui->tx5->lineEdit ());
-  msgtype(text, ui->freeTextMsg->lineEdit ());
 }
 
 void MainWindow::on_tx6_editingFinished()                       //tx6 edited
@@ -2608,7 +2606,6 @@ void MainWindow::on_rbFreeText_toggled(bool checked)
 void MainWindow::on_freeTextMsg_currentTextChanged (QString const& text)
 {
   msgtype(text, ui->freeTextMsg->lineEdit ());
-  msgtype(text, ui->tx5->lineEdit ());
 }
 
 void MainWindow::on_rptSpinBox_valueChanged(int n)

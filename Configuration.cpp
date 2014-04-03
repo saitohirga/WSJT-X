@@ -1396,12 +1396,24 @@ void Configuration::impl::accept ()
   TX_messages_ = ui_->TX_messages_check_box->isChecked ();
   data_mode_ = static_cast<DataMode> (ui_->TX_mode_button_group->checkedId ());
   save_directory_ = ui_->save_path_display_label->text ();
-  macros_.setStringList (next_macros_.stringList ());
-  frequencies_ = next_frequencies_.frequencies ();
-  frequencies_.sort (0);
-  stations_ = next_stations_.stations ();
-  stations_.sort (0);
 
+  if (macros_.stringList () != next_macros_.stringList ())
+    {
+      macros_.setStringList (next_macros_.stringList ());
+    }
+
+  if (frequencies_.frequencies () != next_frequencies_.frequencies ())
+    {
+      frequencies_ = next_frequencies_.frequencies ();
+      frequencies_.sort (0);
+    }
+
+  if (stations_.stations () != next_stations_.stations ())
+    {
+      stations_ = next_stations_.stations ();
+      stations_.sort (0);
+    }
+ 
   write_settings ();		// make visible to all
 
   QDialog::accept();
