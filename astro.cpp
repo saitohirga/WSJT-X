@@ -90,7 +90,6 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
                         int fQSO, int nsetftx, int ntxFreq)
 {
   static int ntxFreq0=-99;
-  static bool astroBusy=false;
   double azsun,elsun,azmoon,elmoon,azmoondx,elmoondx;
   double ramoon,decmoon,dgrd,poloffset,xnr,techo;
   int ntsky,ndop,ndop00;
@@ -108,15 +107,10 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
   int nfreq=10368;
   if(nfreq<10 or nfreq > 50000) nfreq=144;
 
-  if(!astroBusy) {
-    astroBusy=true;
-
-    astrosub_(&nyear, &month, &nday, &uth, &nfreq, mygrid.toLatin1(),
-              hisgrid.toLatin1(), &azsun, &elsun, &azmoon, &elmoon,
-              &azmoondx, &elmoondx, &ntsky, &ndop, &ndop00,&ramoon, &decmoon,
-              &dgrd, &poloffset, &xnr, &techo, 6, 6);
-    astroBusy=false;
-  }
+  astrosub_(&nyear, &month, &nday, &uth, &nfreq, mygrid.toLatin1(),
+            hisgrid.toLatin1(), &azsun, &elsun, &azmoon, &elmoon,
+            &azmoondx, &elmoondx, &ntsky, &ndop, &ndop00,&ramoon, &decmoon,
+            &dgrd, &poloffset, &xnr, &techo, 6, 6);
 
   QString message;
   {

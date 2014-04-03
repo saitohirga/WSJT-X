@@ -92,7 +92,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_dialFreq {0},
   m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2, downSampleFactor),
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
-  m_soundOutput (&m_modulator),
   m_audioThread {new QThread},
   m_appDir {QApplication::applicationDirPath ()},
   mem_jt9 {shdmem},

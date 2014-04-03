@@ -46,46 +46,34 @@ bool SoundOutput::audioError () const
   return result;
 }
 
-SoundOutput::SoundOutput (QIODevice * source)
-  : m_active (false)
-  , m_currentDevice (QAudioDeviceInfo::defaultOutputDevice ())
-{
-  Q_ASSERT (source);
-}
-
 void SoundOutput::setFormat (QAudioDeviceInfo const& device, unsigned channels, unsigned msBuffered)
 {
   Q_ASSERT (0 < channels && channels < 3);
 
-  if (!m_stream || device != m_currentDevice ||
-      channels != static_cast<unsigned> (m_stream->format ().channelCount ()))
+  QAudioFormat format (device.preferredFormat ());
+
+  format.setChannelCount (channels);
+  format.setCodec ("audio/pcm");
+  format.setSampleRate (48000);
+  format.setSampleType (QAudioFormat::SignedInt);
+  format.setSampleSize (16);
+  if (!format.isValid ())
     {
-      QAudioFormat format (device.preferredFormat ());
-
-      format.setChannelCount (channels);
-      format.setCodec ("audio/pcm");
-      format.setSampleRate (48000);
-      format.setSampleType (QAudioFormat::SignedInt);
-      format.setSampleSize (16);
-      if (!format.isValid ())
-        {
-          Q_EMIT error (tr ("Requested output audio format is not valid."));
-        }
-      if (!device.isFormatSupported (format))
-        {
-          Q_EMIT error (tr ("Requested output audio format is not supported on device."));
-        }
-
-      m_stream.reset (new QAudioOutput (device, format));
-      audioError ();
-      m_stream->setVolume (m_volume);
-      m_stream->setNotifyInterval(100);
-
-      connect (m_stream.data(), &QAudioOutput::stateChanged, this, &SoundOutput::handleStateChanged);
-
-      m_currentDevice = device;
-      //      qDebug() << "A" << m_volume << m_stream->notifyInterval();
+      Q_EMIT error (tr ("Requested output audio format is not valid."));
     }
+  if (!device.isFormatSupported (format))
+    {
+      Q_EMIT error (tr ("Requested output audio format is not supported on device."));
+    }
+
+  m_stream.reset (new QAudioOutput (device, format));
+  audioError ();
+  m_stream->setVolume (m_volume);
+  m_stream->setNotifyInterval(100);
+
+  connect (m_stream.data(), &QAudioOutput::stateChanged, this, &SoundOutput::handleStateChanged);
+
+  //      qDebug() << "A" << m_volume << m_stream->notifyInterval();
 
   //
   // This buffer size is critical since for proper sound streaming. If
@@ -153,21 +141,17 @@ void SoundOutput::handleStateChanged (QAudio::State newState)
     {
     case QAudio::IdleState:
       Q_EMIT status (tr ("Idle"));
-      m_active = false;
       break;
 
     case QAudio::ActiveState:
-      m_active = true;
       Q_EMIT status (tr ("Sending"));
       break;
 
     case QAudio::SuspendedState:
-      m_active = true;
       Q_EMIT status (tr ("Suspended"));
       break;
 
     case QAudio::StoppedState:
-      m_active = false;
       if (audioError ())
         {
           Q_EMIT status (tr ("Error"));
@@ -177,13 +161,5 @@ void SoundOutput::handleStateChanged (QAudio::State newState)
           Q_EMIT status (tr ("Stopped"));
         }
       break;
-    }
-}
-
-SoundOutput::~SoundOutput ()
-{
-  if (m_stream)
-    {
-      m_stream->stop ();
     }
 }
