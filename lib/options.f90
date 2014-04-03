@@ -104,7 +104,7 @@ contains
     integer, save :: pos = 1, cnt = 0
     character(len=500), save :: arg
 
-    integer :: chrpos, length, st, id
+    integer :: chrpos, length, st, id = 0
     character :: chr
     logical :: long
 
