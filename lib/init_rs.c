@@ -38,7 +38,7 @@ void *INIT_RS(int symsize,int gfpoly,int fcr,int prim,
   int i, j, sr,root,iprim;
 
   /* Check parameter ranges */
-  if(symsize < 0 || symsize > 8*sizeof(DTYPE))
+  if(symsize < 0 || symsize > (int)(8*sizeof(DTYPE)))
     return NULL; /* Need version with ints rather than chars */
 
   if(fcr < 0 || fcr >= (1<<symsize))

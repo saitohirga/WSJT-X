@@ -47,8 +47,7 @@ bool SoundOutput::audioError () const
 }
 
 SoundOutput::SoundOutput (QIODevice * source)
-  : m_source (source)
-  , m_active (false)
+  : m_active (false)
   , m_currentDevice (QAudioDeviceInfo::defaultOutputDevice ())
 {
   Q_ASSERT (source);

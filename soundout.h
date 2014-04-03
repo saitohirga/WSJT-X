@@ -47,7 +47,6 @@ private Q_SLOTS:
 private:
   QScopedPointer<QAudioOutput> m_stream;
 
-  QIODevice * m_source;
   bool volatile m_active;
   QAudioDeviceInfo m_currentDevice;
   qreal m_volume;

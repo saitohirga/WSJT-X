@@ -24,6 +24,7 @@ Detector::Detector (unsigned frameRate, unsigned periodLengthInSeconds,
               new short [framesPerSignal * downSampleFactor] : 0)
   , m_bufferPos (0)
 {
+  (void)m_frameRate;            // quell compiler warning
   clear ();
 }
 
