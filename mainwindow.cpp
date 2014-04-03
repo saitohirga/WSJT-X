@@ -339,7 +339,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   ui->labAz->setStyleSheet("border: 0px;");
   ui->labDist->setStyleSheet("border: 0px;");
 
-  //Band Settings
   readSettings();		         //Restore user's setup params
 
   // start the audio thread
@@ -452,6 +451,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("DXcall",ui->dxCallEntry->text());
   m_settings->setValue("DXgrid",ui->dxGridEntry->text());
   m_settings->setValue ("AstroDisplayed", m_astroWidget && m_astroWidget->isVisible());
+  m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
   m_settings->endGroup();
 
   m_settings->beginGroup("Common");
@@ -487,6 +487,12 @@ void MainWindow::readSettings()
   m_txFirst = m_settings->value("TxFirst",false).toBool();
   ui->txFirstCheckBox->setChecked(m_txFirst);
   auto displayAstro = m_settings->value ("AstroDisplayed", false).toBool ();
+
+  if (m_settings->contains ("FreeText"))
+  {
+    ui->freeTextMsg->setCurrentText (m_settings->value ("FreeText").toString ());
+  }
+
   m_settings->endGroup();
 
   // do this outside of settings group because it uses groups internally
