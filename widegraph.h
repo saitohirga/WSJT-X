@@ -1,3 +1,4 @@
+// -*- Mode: C++ -*-
 #ifndef WIDEGRAPH_H
 #define WIDEGRAPH_H
 

@@ -24,7 +24,7 @@ public:
     return "both" == s ? Both : "right" == s ? Right : "left" == s ? Left : Mono;
   }
 
-  bool open (OpenMode mode, Channel channel);
+  bool initialize (OpenMode mode, Channel channel);
 
   bool isSequential () const {return true;}
 

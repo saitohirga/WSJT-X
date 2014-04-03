@@ -1,3 +1,4 @@
+// -*- Mode: C++ -*-
 /*
  * Class to handle the formatted string as returned from the fortran decoder
  *

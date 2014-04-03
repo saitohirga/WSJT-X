@@ -3,11 +3,7 @@
 
 #include "AudioDevice.hpp"
 
-#ifdef UNIX
-# define NUM_CHANNELS 2
-#else
-# define NUM_CHANNELS 1
-#endif
+class QAudioOutput;
 
 //
 // Input device that generates PCM audio frames that encode a message
@@ -16,26 +12,30 @@
 // Output can be muted while underway, preserving waveform timing when
 // transmission is resumed.
 //
-class Modulator : public AudioDevice
+class Modulator
+  : public AudioDevice
 {
   Q_OBJECT;
-
-  Q_PROPERTY (unsigned frequency READ frequency WRITE setFrequency);
-  Q_PROPERTY (bool tuning READ isTuning WRITE tune);
-  Q_PROPERTY (bool muted READ isMuted WRITE mute);
 
 public:
   enum ModulatorState {Synchronizing, Active, Idle};
 
-  Modulator (unsigned frameRate, unsigned periodLengthInSeconds, QObject * parent = 0);
+  Modulator (unsigned frameRate, unsigned periodLengthInSeconds, QObject * parent = nullptr);
 
-  Q_SLOT void open (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, AudioDevice::Channel, bool synchronize = true, double dBSNR = 99.);
+  void close () override;
 
   bool isTuning () const {return m_tuning;}
   bool isMuted () const {return m_muted;}
   unsigned frequency () const {return m_frequency;}
   bool isActive () const {return m_state != Idle;}
   void setWide9(double d1, double d2) {m_toneSpacing=d1; m_fSpread=d2;}
+
+  Q_SLOT void start (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, QAudioOutput *, Channel = Mono, bool synchronize = true, double dBSNR = 99.);
+  Q_SLOT void stop ();
+  Q_SLOT void tune (bool newState = true) {m_tuning = newState;}
+  Q_SLOT void mute (bool newState = true) {m_muted = newState;}
+  Q_SLOT void setFrequency (unsigned newFrequency) {m_frequency = newFrequency;}
+  Q_SIGNAL void stateChanged (ModulatorState) const;
 
 protected:
   qint64 readData (char * data, qint64 maxSize);
@@ -45,22 +45,9 @@ protected:
   }
 
 private:
-  /* private because we epect to run in a thread and don't want direct
-     C++ calls made, instead they must be invoked via the Qt
-     signal/slot mechanism which is thread safe */
-  Q_SLOT void close ()
-  {
-    Q_EMIT stateChanged ((m_state = Idle));
-    AudioDevice::close ();
-  }
-
-  Q_SLOT void tune (bool newState = true) {m_tuning = newState;}
-  Q_SLOT void mute (bool newState = true) {m_muted = newState;}
-  Q_SLOT void setFrequency (unsigned newFrequency) {m_frequency = newFrequency;}
-  Q_SIGNAL void stateChanged (ModulatorState) const;
-
-private:
   qint16 postProcessSample (qint16 sample) const;
+
+  QAudioOutput * m_stream;
 
   unsigned m_symbolsLength;
 
@@ -80,8 +67,8 @@ private:
   qint64 m_silentFrames;
   qint64 m_framesSent;
 
-  int m_frameRate;
-  int m_period;
+  unsigned m_frameRate;
+  unsigned m_period;
   ModulatorState volatile m_state;
 
   bool volatile m_tuning;
