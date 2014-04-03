@@ -22,9 +22,6 @@ private:
 
     QLabel *m_label;
 
-    int m_signal;
-    int m_sigPeak;
-
 protected:
     void paintEvent( QPaintEvent * );
     void resizeEvent(QResizeEvent *s);
