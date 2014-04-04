@@ -33,7 +33,7 @@ public:
   explicit HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped, QString const& server, bool use_for_ptt, int poll_interval);
   ~HRDTransceiver ();
 
-private:
+protected:
   void do_start () override;
   void do_stop () override;
   void do_frequency (Frequency) override;
@@ -43,6 +43,7 @@ private:
 
   void poll () override;
 
+private:
   void init_radio ();
   QString send_command (QString const&, bool no_debug = false, bool prepend_context = true, bool recurse = false);
   void send_simple_command (QString const&, bool no_debug = false);
