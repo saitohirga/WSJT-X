@@ -28,7 +28,7 @@ public:
   explicit DXLabSuiteCommanderTransceiver (std::unique_ptr<TransceiverBase> wrapped, QString const& address, bool use_for_ptt, int poll_interval);
   ~DXLabSuiteCommanderTransceiver ();
 
-private:
+protected:
   void do_start () override;
   void do_stop () override;
   void do_frequency (Frequency) override;
@@ -38,8 +38,9 @@ private:
 
   void poll () override;
 
-  void send_command (QByteArray const&, bool no_debug = false);
-  QByteArray read_reply (bool no_debug = false);
+private:
+  void simple_command (QByteArray const&, bool no_debug = false);
+  QByteArray command_with_reply (QByteArray const&, bool no_debug = false);
 
   std::unique_ptr<TransceiverBase> wrapped_;
   bool use_for_ptt_;

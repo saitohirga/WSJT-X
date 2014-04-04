@@ -1740,10 +1740,6 @@ bool Configuration::impl::open_rig ()
 
 void Configuration::impl::transceiver_frequency (Frequency f)
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "Configuration::transceiver_frequency:" << f;
-#endif
-
   if (set_mode () || cached_rig_state_.frequency () != f)
     {
       cached_rig_state_.frequency (f);
