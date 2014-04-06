@@ -35,6 +35,10 @@ void TransceiverBase::start () noexcept
     {
       if (m_->state_.online ())
         {
+          // ensure PTT isn't left set
+          do_ptt (false);
+          do_post_ptt (false);
+
           do_stop ();
           do_post_stop ();
           m_->state_.online (false);
@@ -62,6 +66,13 @@ void TransceiverBase::stop () noexcept
   QString message;
   try
     {
+      if (m_->state_.online ())
+        {
+          // ensure PTT isn't left set
+          do_ptt (false);
+          do_post_ptt (false);
+        }
+
       do_stop ();
       do_post_stop ();
       m_->state_.online (false);
