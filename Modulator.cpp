@@ -12,9 +12,9 @@ extern float gran();		// Noise generator (for tests only)
 #define RAMP_INCREMENT 64  // MUST be an integral factor of 2^16
 
 #if defined (WSJT_SOFT_KEYING)
-# define SOFT_KEYING true
+# define SOFT_KEYING WSJT_SOFT_KEYING
 #else
-# define SOFT_KEYING false
+# define SOFT_KEYING 0
 #endif
 
 double const Modulator::m_twoPi = 2.0 * 3.141592653589793238462;
@@ -27,6 +27,7 @@ unsigned const Modulator::m_nspd = 2048 + 512; // 22.5 WPM
 Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds, QObject * parent)
   : AudioDevice {parent}
   , m_stream {nullptr}
+  , m_quickClose {false}
   , m_phi {0.0}
   , m_framesSent {0}
   , m_frameRate {frameRate}
@@ -34,21 +35,27 @@ Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds, QObjec
   , m_state {Idle}
   , m_tuning {false}
   , m_muted {false}
+  , m_cwLevel {false}
 {
-  qsrand (QDateTime::currentMSecsSinceEpoch()); // Initialize random seed
+  qsrand (QDateTime::currentMSecsSinceEpoch()); // Initialize random
+                                                // seed
 }
 
-void Modulator::start (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, QAudioOutput * stream, Channel channel, bool synchronize, double dBSNR)
+void Modulator::start (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, SoundOutput * stream, Channel channel, bool synchronize, double dBSNR)
 {
+  Q_ASSERT (stream);
+
   // Time according to this computer which becomes our base time
   qint64 ms0 = QDateTime::currentMSecsSinceEpoch() % 86400000;
+
+  // qDebug () << "Modulator: Using soft keying for CW is " << SOFT_KEYING;;
 
   if (m_state != Idle)
     {
       stop ();
     }
 
-  //  qDebug () << "Modulator: Using soft keying for CW is " << SOFT_KEYING;;
+  m_quickClose = false;
 
   m_symbolsLength = symbolsLength;
   m_framesSent = 0;
@@ -83,16 +90,22 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol, unsigned 
   m_stream = stream;
   if (m_stream)
     {
-      m_stream->start (this);
+      m_stream->restart (this);
     }
 }
 
-void Modulator::stop ()
+void Modulator::tune (bool newState)
 {
-  if (m_stream)
+  m_tuning = newState;
+  if (!m_tuning)
     {
-      m_stream->reset ();
+      stop (true);
     }
+}
+
+void Modulator::stop (bool quick)
+{
+  m_quickClose = quick;
   close ();
 }
 
@@ -100,7 +113,14 @@ void Modulator::close ()
 {
   if (m_stream)
     {
-      m_stream->stop ();
+      if (m_quickClose)
+        {
+          m_stream->reset ();
+        }
+      else
+        {
+          m_stream->stop ();
+        }
     }
   if (m_state != Idle)
     {
@@ -138,6 +158,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
         }
 
         Q_EMIT stateChanged ((m_state = Active));
+        m_cwLevel = false;
         m_ramp = 0;		// prepare for CW wave shaping
       }
       // fall through
@@ -153,39 +174,41 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
           qint64 framesGenerated (0);
 
           while (samples != end) {
+            j = (m_ic - ic0) / m_nspd + 1; // symbol of this sample
+            bool level {static_cast<bool> (icw[j])};
+
             m_phi += m_dphi;
             if (m_phi > m_twoPi) m_phi -= m_twoPi;
 
             qint16 sample ((SOFT_KEYING ? qAbs (m_ramp - 1) :
                             (m_ramp ? 32767 : 0)) * qSin (m_phi));
 
-            j = (m_ic - ic0 - 1) / m_nspd + 1;
-            bool l0 (icw[j] && icw[j] <= 1); // first element treated specially as it's a count
-            j = (m_ic - ic0) / m_nspd + 1;
-
-            if ((m_ramp != 0 && m_ramp != std::numeric_limits<qint16>::min ()) ||
-                !!icw[j] != l0) {
-              if (!!icw[j] != l0) {
-                Q_ASSERT (m_ramp == 0 || m_ramp == std::numeric_limits<qint16>::min ());
+            if (j < NUM_CW_SYMBOLS) // stop condition
+              {
+                samples = load (postProcessSample (sample), samples);
+                ++framesGenerated;
+                ++m_ic;
               }
-              m_ramp += RAMP_INCREMENT; // ramp
-            }
 
-            if (j < NUM_CW_SYMBOLS) { // stop condition
-              // if (!m_ramp && !icw[j])
-              //   {
-              // 	sample = 0;
-              //   }
+            // adjust ramp
+            if ((m_ramp != 0 && m_ramp != std::numeric_limits<qint16>::min ()) || level != m_cwLevel)
+              {
+                // either ramp has terminated at max/min or direction
+                // has changed
+                m_ramp += RAMP_INCREMENT; // ramp
+              }
 
-              samples = load (postProcessSample (sample), samples);
-              ++framesGenerated;
-              ++m_ic;
-            }
+            // if (m_cwLevel != level)
+            //   {
+            //     qDebug () << "@m_ic:" << m_ic << "icw[" << j << "] =" << icw[j] << "@" << framesGenerated << "in numFrames:" << numFrames;
+            //   }
+
+            m_cwLevel = level;
           }
 
           if (j > static_cast<unsigned> (icw[0]))
             {
-              close ();
+              Q_EMIT stateChanged ((m_state = Idle));
             }
 
           m_framesSent += framesGenerated;
@@ -202,6 +225,8 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
         for (unsigned i = 0; i < numFrames; ++i) {
           isym = m_tuning ? 0 : m_ic / (4.0 * m_nsps); //Actual fsample=48000
           if (isym != m_isym0) {
+            // qDebug () << "@m_ic:" << m_ic << "itone[" << isym << "] =" << itone[isym] << "@" << i << "in numFrames:" << numFrames;
+
             if(m_toneSpacing==0.0) {
               toneFrequency0=m_frequency + itone[isym]*baud;
             } else {
@@ -251,7 +276,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
     }
 
   Q_ASSERT (Idle == m_state);
-  close ();
+  //close ();
 
   return 0;
 }

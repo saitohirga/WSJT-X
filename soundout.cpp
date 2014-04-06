@@ -50,6 +50,8 @@ void SoundOutput::setFormat (QAudioDeviceInfo const& device, unsigned channels, 
 {
   Q_ASSERT (0 < channels && channels < 3);
 
+  m_msBuffered = msBuffered;
+
   QAudioFormat format (device.preferredFormat ());
 
   format.setChannelCount (channels);
@@ -74,6 +76,11 @@ void SoundOutput::setFormat (QAudioDeviceInfo const& device, unsigned channels, 
   connect (m_stream.data(), &QAudioOutput::stateChanged, this, &SoundOutput::handleStateChanged);
 
   //      qDebug() << "A" << m_volume << m_stream->notifyInterval();
+}
+
+void SoundOutput::restart (QIODevice * source)
+{
+  Q_ASSERT (m_stream);
 
   //
   // This buffer size is critical since for proper sound streaming. If
@@ -88,8 +95,11 @@ void SoundOutput::setFormat (QAudioDeviceInfo const& device, unsigned channels, 
   // we have to set this before every start on the stream because the
   // Windows implementation seems to forget the buffer size after a
   // stop.
-  m_stream->setBufferSize (m_stream->format().bytesForDuration((msBuffered ? msBuffered : MS_BUFFERED) * 1000));
-  //  qDebug() << "B" << m_stream->bufferSize() << m_stream->periodSize() << m_stream->notifyInterval();
+  m_stream->setBufferSize (m_stream->format().bytesForDuration((m_msBuffered ? m_msBuffered : MS_BUFFERED) * 1000));
+  //  qDebug() << "B" << m_stream->bufferSize() <<
+  //  m_stream->periodSize() << m_stream->notifyInterval();
+
+  m_stream->start (source);
 }
 
 void SoundOutput::suspend ()
@@ -110,6 +120,24 @@ void SoundOutput::resume ()
     }
 }
 
+void SoundOutput::reset ()
+{
+  if (m_stream)
+    {
+      m_stream->reset ();
+      audioError ();
+    }
+}
+
+void SoundOutput::stop ()
+{
+  if (m_stream)
+    {
+      m_stream->stop ();
+      audioError ();
+    }
+}
+
 qreal SoundOutput::attenuation () const
 {
   return -(10. * qLn (m_volume) / qLn (10.));
@@ -117,7 +145,7 @@ qreal SoundOutput::attenuation () const
 
 void SoundOutput::setAttenuation (qreal a)
 {
-  Q_ASSERT (0. <= a && a <= 99.);
+  Q_ASSERT (0. <= a && a <= 999.);
   m_volume = qPow (10., -a / 10.);
   //  qDebug () << "SoundOut: attn = " << a << ", vol = " << m_volume;
   if (m_stream)
@@ -137,6 +165,8 @@ void SoundOutput::resetAttenuation ()
 
 void SoundOutput::handleStateChanged (QAudio::State newState)
 {
+  // qDebug () << "SoundOutput::handleStateChanged: newState:" << newState;
+
   switch (newState)
     {
     case QAudio::IdleState:

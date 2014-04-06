@@ -31,8 +31,8 @@
 
 #include "ui_mainwindow.h"
 
-int itone[NUM_JT65_SYMBOLS];	//Audio tones for all Tx symbols
-int icw[NUM_CW_SYMBOLS];	//Dits for CW ID
+int volatile itone[NUM_JT65_SYMBOLS];	//Audio tones for all Tx symbols
+int volatile icw[NUM_CW_SYMBOLS];	//Dits for CW ID
 
 int outBufSize;
 int rc;
@@ -267,30 +267,27 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   font.setWeight(75);
   ui->readFreq->setFont(font);
 
-  connect(&m_guiTimer, SIGNAL(timeout()), this, SLOT(guiUpdate()));
+  connect(&m_guiTimer, &QTimer::timeout, this, &MainWindow::guiUpdate);
   m_guiTimer.start(100);                            //Don't change the 100 ms!
 
   ptt0Timer = new QTimer(this);
   ptt0Timer->setSingleShot(true);
-  connect (ptt0Timer, &QTimer::timeout, &m_modulator, &Modulator::stop);
-  connect(ptt0Timer, SIGNAL(timeout()), this, SLOT(stopTx2()));
+  connect(ptt0Timer, &QTimer::timeout, this, &MainWindow::stopTx2);
   ptt1Timer = new QTimer(this);
   ptt1Timer->setSingleShot(true);
-  connect(ptt1Timer, SIGNAL(timeout()), this, SLOT(startTx2()));
+  connect(ptt1Timer, &QTimer::timeout, this, &MainWindow::startTx2);
 
   logQSOTimer = new QTimer(this);
   logQSOTimer->setSingleShot(true);
-  connect(logQSOTimer, SIGNAL(timeout()), this, SLOT(on_logQSOButton_clicked()));
+  connect(logQSOTimer, &QTimer::timeout, this, &MainWindow::on_logQSOButton_clicked);
 
   tuneButtonTimer= new QTimer(this);
   tuneButtonTimer->setSingleShot(true);
-  connect (tuneButtonTimer, &QTimer::timeout, &m_modulator, &Modulator::stop);
-  connect(tuneButtonTimer, SIGNAL(timeout()), this,
-          SLOT(on_stopTxButton_clicked()));
+  connect(tuneButtonTimer, &QTimer::timeout, this, &MainWindow::on_stopTxButton_clicked);
 
   killFileTimer = new QTimer(this);
   killFileTimer->setSingleShot(true);
-  connect(killFileTimer, SIGNAL(timeout()), this, SLOT(killFile()));
+  connect(killFileTimer, &QTimer::timeout, this, &MainWindow::killFile);
 
   m_auto=false;
   m_waterfallAvg = 1;
@@ -502,7 +499,10 @@ void MainWindow::readSettings()
     }
 
   m_settings->beginGroup("Common");
-  morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),icw,&m_ncw,m_config.my_callsign ().length());
+  morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData())
+         , const_cast<int *> (icw)
+         , &m_ncw
+         , m_config.my_callsign ().length());
   m_mode=m_settings->value("Mode","JT9").toString();
   m_modeTx=m_settings->value("ModeTx","JT9").toString();
   if(m_modeTx.mid(0,3)=="JT9") ui->pbTxMode->setText("Tx JT9  @");
@@ -1484,8 +1484,20 @@ void MainWindow::guiUpdate()
     //    ba2msg(ba,msgsent);
     int len1=22;
     int ichk=0,itext=0;
-    if(m_modeTx=="JT9") genjt9_(message,&ichk,msgsent,itone,&itext,len1,len1);
-    if(m_modeTx=="JT65") gen65_(message,&ichk,msgsent,itone,&itext,len1,len1);
+    if(m_modeTx=="JT9") genjt9_(message
+                                , &ichk
+                                , msgsent
+                                , const_cast<int *> (itone)
+                                , &itext
+                                , len1
+                                , len1);
+    if(m_modeTx=="JT65") gen65_(message
+                                , &ichk
+                                , msgsent
+                                , const_cast<int *> (itone)
+                                , &itext
+                                , len1
+                                , len1);
     msgsent[22]=0;
     QString t=QString::fromLatin1(msgsent);
     if(m_tune) t="TUNE";
@@ -2164,7 +2176,13 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
   int ichk=1,itext=0;
-  genjt9_(message,&ichk,msgsent,itone,&itext,len1,len1);
+  genjt9_(message
+          , &ichk
+          , msgsent
+          , const_cast<int *> (itone)
+          , &itext
+          , len1
+          , len1);
   msgsent[22]=0;
   bool text=false;
   if(itext!=0) text=true;
@@ -2829,11 +2847,11 @@ void MainWindow::transmit (double snr)
 {
   if (m_modeTx == "JT65")
     {
-      Q_EMIT sendMessage (NUM_JT65_SYMBOLS, 4096.0 * 12000.0 / 11025.0, m_txFreq - m_XIT, m_soundOutput.stream (), m_config.audio_output_channel (), true, snr);
+      Q_EMIT sendMessage (NUM_JT65_SYMBOLS, 4096.0 * 12000.0 / 11025.0, m_txFreq - m_XIT, &m_soundOutput, m_config.audio_output_channel (), true, snr);
     }
   else
     {
-      Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps, m_txFreq - m_XIT, m_soundOutput.stream (), m_config.audio_output_channel (), true, snr);
+      Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps, m_txFreq - m_XIT, &m_soundOutput, m_config.audio_output_channel (), true, snr);
     }
 }
 
