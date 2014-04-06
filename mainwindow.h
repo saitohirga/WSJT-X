@@ -33,8 +33,8 @@
 #define NUM_CW_SYMBOLS 250
 #define TX_SAMPLE_RATE 48000
 
-extern int itone[NUM_JT65_SYMBOLS]; //Audio tones for all Tx symbols
-extern int icw[NUM_CW_SYMBOLS];	    //Dits for CW ID
+extern int volatile itone[NUM_JT65_SYMBOLS]; //Audio tones for all Tx symbols
+extern int volatile icw[NUM_CW_SYMBOLS];	    //Dits for CW ID
 
 
 //--------------------------------------------------------------- MainWindow
@@ -48,7 +48,6 @@ class WideGraph;
 class LogQSO;
 class Transceiver;
 class Astro;
-class QAudioOutput;
 
 class MainWindow : public QMainWindow
 {
@@ -190,9 +189,9 @@ private:
   Q_SIGNAL void finished () const;
   Q_SIGNAL void muteAudioOutput (bool = true) const;
   Q_SIGNAL void transmitFrequency (unsigned) const;
-  Q_SIGNAL void endTransmitMessage () const;
+  Q_SIGNAL void endTransmitMessage (bool quick = false) const;
   Q_SIGNAL void tune (bool = true) const;
-  Q_SIGNAL void sendMessage (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, QAudioOutput *, AudioDevice::Channel = AudioDevice::Mono, bool synchronize = true, double dBSNR = 99.) const;
+  Q_SIGNAL void sendMessage (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, SoundOutput *, AudioDevice::Channel = AudioDevice::Mono, bool synchronize = true, double dBSNR = 99.) const;
   Q_SIGNAL void outAttenuationChanged (qreal) const;
 
 private:

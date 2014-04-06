@@ -1891,11 +1891,6 @@ void Configuration::impl::handle_transceiver_update (TransceiverState state)
           Q_EMIT tx_frequency (TransceiverFactory::split_mode_none != split_mode_selected ? state.tx_frequency () : 0, true);
         }
       setup_split_ = false;
-
-      // if (TransceiverFactory::split_mode_emulate == split_mode_selected)
-      //   {
-      //     state.split (true); // complete the illusion
-      //   }
     }
   else
     {

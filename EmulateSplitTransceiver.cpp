@@ -89,8 +89,7 @@ void EmulateSplitTransceiver::handle_update (TransceiverState state)
     }
   else
     {
-      // Always emit rigs split state so clients can detect abuse.
-      state.split (true);
+      state.split (true);       // override rig state
   
 #if WSJT_TRACE_CAT
       qDebug () << "EmulateSplitTransceiver::handle_update: signalling:" << state;

@@ -1,9 +1,11 @@
 #ifndef MODULATOR_HPP__
 #define MODULATOR_HPP__
 
+#include <QAudio>
+
 #include "AudioDevice.hpp"
 
-class QAudioOutput;
+class SoundOutput;
 
 //
 // Input device that generates PCM audio frames that encode a message
@@ -30,9 +32,9 @@ public:
   bool isActive () const {return m_state != Idle;}
   void setWide9(double d1, double d2) {m_toneSpacing=d1; m_fSpread=d2;}
 
-  Q_SLOT void start (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, QAudioOutput *, Channel = Mono, bool synchronize = true, double dBSNR = 99.);
-  Q_SLOT void stop ();
-  Q_SLOT void tune (bool newState = true) {m_tuning = newState;}
+  Q_SLOT void start (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, SoundOutput *, Channel = Mono, bool synchronize = true, double dBSNR = 99.);
+  Q_SLOT void stop (bool quick = false);
+  Q_SLOT void tune (bool newState = true);
   Q_SLOT void mute (bool newState = true) {m_muted = newState;}
   Q_SLOT void setFrequency (unsigned newFrequency) {m_frequency = newFrequency;}
   Q_SIGNAL void stateChanged (ModulatorState) const;
@@ -47,7 +49,8 @@ protected:
 private:
   qint16 postProcessSample (qint16 sample) const;
 
-  QAudioOutput * m_stream;
+  SoundOutput * m_stream;
+  bool m_quickClose;
 
   unsigned m_symbolsLength;
 
@@ -75,6 +78,7 @@ private:
   bool volatile m_muted;
   bool m_addNoise;
 
+  bool m_cwLevel;
   unsigned m_ic;
   unsigned m_isym0;
   qint16 m_ramp;

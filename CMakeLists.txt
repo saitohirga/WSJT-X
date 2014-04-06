@@ -24,6 +24,7 @@ option (WSJT_TRACE_CAT "Debugging option that turns on CAT diagnostics.")
 option (WSJT_TRACE_CAT_POLLS "Debugging option that turns on CAT diagnostics during polling.")
 option (WSJT_HAMLIB_TRACE "Debugging option that turns on full Hamlib internal diagnostics.")
 option (WSJT_STANDARD_FILE_LOCATIONS "All non-installation files located in \"Standard\" platfom specific locations." ON)
+option (WSJT_SOFT_KEYING "Apply a ramp to CW keying envelope to reduce transients.")
 
 
 #
