@@ -174,13 +174,9 @@ HamlibTransceiver::HamlibTransceiver (int model_number
 
   // rig_->state.obj = this;
 
-  if (/*!is_dummy_ &&*/ !cat_port.isEmpty () /*&& cat_port != "None"*/)
+  if (!cat_port.isEmpty ())
     {
-// #if defined (WIN32)
-//       set_conf ("rig_pathname", ("\\\\.\\" + cat_port).toLatin1 ().data ());
-// #else
       set_conf ("rig_pathname", cat_port.toLatin1 ().data ());
-// #endif
     }
 
   set_conf ("serial_speed", QByteArray::number (cat_baud).data ());
