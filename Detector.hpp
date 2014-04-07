@@ -15,8 +15,6 @@ class Detector : public AudioDevice
 {
   Q_OBJECT;
 
-  Q_PROPERTY (bool monitoring READ isMonitoring WRITE setMonitoring);
-
 public:
   //
   // if the data buffer were not global storage and fixed size then we
@@ -28,12 +26,9 @@ public:
   //
   Detector (unsigned frameRate, unsigned periodLengthInSeconds, unsigned framesPerSignal, unsigned downSampleFactor = 4u, QObject * parent = 0);
 
-  bool isMonitoring () const {return m_monitoring;}
-
-  Q_SLOT void setMonitoring (bool newState) {m_monitoring = newState; m_bufferPos = 0;}
-  Q_SLOT bool reset ();
-
   Q_SIGNAL void framesWritten (qint64) const;
+
+  bool reset () override;
 
 protected:
   qint64 readData (char * /* data */, qint64 /* maxSize */)
@@ -51,7 +46,6 @@ private:
   unsigned m_period;
   unsigned m_downSampleFactor;
   qint32 m_framesPerSignal;	// after any down sampling
-  bool volatile m_monitoring;
   bool m_starting;
   QScopedArrayPointer<short> m_buffer; // de-interleaved sample buffer
   // big enough for all the

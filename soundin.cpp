@@ -88,8 +88,33 @@ void SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, Audi
     }
 }
 
+void SoundInput::suspend ()
+{
+  if (m_stream)
+    {
+      m_stream->suspend ();
+      audioError ();
+    }
+}
+
+void SoundInput::resume ()
+{
+  if (m_sink)
+    {
+      m_sink->reset ();
+    }
+
+  if (m_stream)
+    {
+      m_stream->resume ();
+      audioError ();
+    }
+}
+
 void SoundInput::handleStateChanged (QAudio::State newState) const
 {
+  // qDebug () << "SoundInput::handleStateChanged: newState:" << newState;
+
   switch (newState)
     {
     case QAudio::IdleState:
