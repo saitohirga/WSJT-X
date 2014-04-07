@@ -169,6 +169,18 @@ namespace
       ui_.colour_table_widget->setItem (row, 0, item.release ());
     }
 
+    void insert_new_item (int row, QColor const& default_colour)
+    {
+      // use the prior row colour as default if available
+      auto new_colour = QColorDialog::getColor (row > 0 ? colours_[row - 1] : default_colour, this);
+      if (new_colour.isValid ())
+        {
+          ui_.colour_table_widget->insertRow (row);
+          colours_.insert (row, new_colour);
+          insert_item (row);
+        }
+    }
+
     void context_menu (QPoint const& p)
     {
       context_menu_.clear ();
@@ -188,21 +200,15 @@ namespace
                {
                  auto item = ui_.colour_table_widget->itemAt (menu_pos_);
                  int row = item ? item->row () : colours_.size ();
+                 insert_new_item (row, QColor {0, 0, 0});
+               });
 
-                 auto default_colour = QColor {0, 0, 0};
-                 if (row > 0)
-                   {
-                     // use the prior row colour
-                     default_colour = colours_[row - 1];
-                   }
-
-                 auto new_colour = QColorDialog::getColor (default_colour, this);
-                 if (new_colour.isValid ())
-                   {
-                     ui_.colour_table_widget->insertRow (row);
-                     colours_.insert (row, new_colour);
-                     insert_item (row);
-                   }
+      auto insert_after_action = context_menu_.addAction (tr ("Insert &after ..."));
+      connect (insert_after_action, &QAction::triggered, [this] ()
+               {
+                 auto item = ui_.colour_table_widget->itemAt (menu_pos_);
+                 int row = item ? item->row () + 1 : colours_.size ();
+                 insert_new_item( row, QColor {255, 255, 255});
                });
 
       menu_pos_ = p;            // save for context menu action handlers
