@@ -146,6 +146,8 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 
   // hook up the audio input stream
   connect (this, &MainWindow::startAudioInputStream, &m_soundInput, &SoundInput::start);
+  connect (this, &MainWindow::suspendAudioInputStream, &m_soundInput, &SoundInput::suspend);
+  connect (this, &MainWindow::resumeAudioInputStream, &m_soundInput, &SoundInput::resume);
   connect (this, &MainWindow::finished, &m_soundInput, &SoundInput::stop);
 
   connect (this, &MainWindow::finished, this, &MainWindow::close);
@@ -154,7 +156,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   // connect(&m_soundInput, &SoundInput::status, this, &MainWindow::showStatusMessage);
 
   // hook up the detector
-  connect (this, &MainWindow::detectorSetMonitoring, &m_detector, &Detector::setMonitoring);
   connect(&m_detector, &Detector::framesWritten, this, &MainWindow::dataSink);
 
   // setup the waterfall
@@ -672,20 +673,19 @@ void MainWindow::on_monitorButton_clicked (bool checked)
   if (!m_transmitting)
     {
       m_monitoring = checked;
-
-      if (checked)
+      if (m_monitoring)
         {
           m_diskData = false;	// no longer reading WAV files
 
-          if (m_monitoring)
-            {
-              // put rig back where it was when last in control
-              Q_EMIT m_config.transceiver_frequency (m_lastMonitoredFrequency);
-              setXIT (m_txFreq);
-            }
+          // put rig back where it was when last in control
+          Q_EMIT m_config.transceiver_frequency (m_lastMonitoredFrequency);
+          setXIT (m_txFreq);
+          Q_EMIT resumeAudioInputStream ();
         }
-
-      Q_EMIT detectorSetMonitoring (checked);
+      else
+        {
+          Q_EMIT suspendAudioInputStream ();
+        }
     }
   else
     {
@@ -985,8 +985,6 @@ void MainWindow::closeEvent(QCloseEvent * e)
 
 void MainWindow::on_stopButton_clicked()                       //stopButton
 {
-  // m_monitoring=false;
-  // Q_EMIT detectorSetMonitoring (m_monitoring);
   monitor (false);
   m_loopall=false;  
 }
@@ -1023,8 +1021,6 @@ void MainWindow::on_actionAstronomical_data_triggered()
 
 void MainWindow::on_actionOpen_triggered()                     //Open File
 {
-  // m_monitoring=false;
-  // Q_EMIT detectorSetMonitoring (m_monitoring);
   monitor (false);
 
   QString fname;
@@ -1576,8 +1572,6 @@ void MainWindow::guiUpdate()
 
     signalMeter->setValue(0);
 
-    // m_monitoring=false;
-    // Q_EMIT detectorSetMonitoring (false);
     if (m_monitoring)
       {
         monitor (false);

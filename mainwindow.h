@@ -181,9 +181,10 @@ private:
   Q_SIGNAL void stopAudioOutputStream () const;
 
   Q_SIGNAL void startAudioInputStream (QAudioDeviceInfo const&, int framesPerBuffer, AudioDevice * sink, unsigned downSampleFactor, AudioDevice::Channel) const;
+  Q_SIGNAL void suspendAudioInputStream () const;
+  Q_SIGNAL void resumeAudioInputStream () const;
 
   Q_SIGNAL void startDetector (AudioDevice::Channel) const;
-  Q_SIGNAL void detectorSetMonitoring (bool) const;
   Q_SIGNAL void detectorClose () const;
 
   Q_SIGNAL void finished () const;

@@ -26,7 +26,7 @@ public:
 
   bool initialize (OpenMode mode, Channel channel);
 
-  bool isSequential () const {return true;}
+  bool isSequential () const override {return true;}
 
   size_t bytesPerFrame () const {return sizeof (qint16) * (Mono == m_channel ? 1 : 2);}
 

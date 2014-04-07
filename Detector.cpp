@@ -18,7 +18,6 @@ Detector::Detector (unsigned frameRate, unsigned periodLengthInSeconds,
   , m_period (periodLengthInSeconds)
   , m_downSampleFactor (downSampleFactor)
   , m_framesPerSignal (framesPerSignal)
-  , m_monitoring (false)
   , m_starting (false)
   , m_buffer ((downSampleFactor > 1) ?
               new short [framesPerSignal * downSampleFactor] : 0)
@@ -31,7 +30,9 @@ Detector::Detector (unsigned frameRate, unsigned periodLengthInSeconds,
 bool Detector::reset ()
 {
   clear ();
-  return QIODevice::reset ();
+  // don't call base call reset because it calls seek(0) which causes
+  // a warning
+  return isOpen ();
 }
 
 void Detector::clear ()
@@ -41,6 +42,7 @@ void Detector::clear ()
   // unsigned msInPeriod ((now % 86400000LL) % (m_period * 1000));
   // jt9com_.kin = qMin ((msInPeriod * m_frameRate) / 1000, static_cast<unsigned> (sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0])));
   jt9com_.kin = 0;
+  m_bufferPos = 0;
 
   // fill buffer with zeros (G4WJS commented out because it might cause decoder hangs)
   // qFill (jt9com_.d2, jt9com_.d2 + sizeof (jt9com_.d2) / sizeof (jt9com_.d2[0]), 0);
@@ -48,7 +50,6 @@ void Detector::clear ()
 
 qint64 Detector::writeData (char const * data, qint64 maxSize)
 {
-  if (m_monitoring) {
     // no torn frames
     Q_ASSERT (!(maxSize % static_cast<qint64> (bytesPerFrame ())));
     // these are in terms of input frames (not down sampled)
@@ -70,7 +71,7 @@ qint64 Detector::writeData (char const * data, qint64 maxSize)
         store (&data[(framesAccepted - remaining) * bytesPerFrame ()],
                numFramesProcessed, &m_buffer[m_bufferPos]);
         m_bufferPos += numFramesProcessed;
-        if(m_bufferPos==m_framesPerSignal*m_downSampleFactor && m_monitoring) {
+        if(m_bufferPos==m_framesPerSignal*m_downSampleFactor) {
           qint32 framesToProcess (m_framesPerSignal * m_downSampleFactor);
           qint32 framesAfterDownSample;
           if(framesToProcess==13824 and jt9com_.kin>=0 and jt9com_.kin<1440000) {
@@ -91,8 +92,7 @@ qint64 Detector::writeData (char const * data, qint64 maxSize)
                numFramesProcessed, &jt9com_.d2[jt9com_.kin]);
         m_bufferPos += numFramesProcessed;
         jt9com_.kin += numFramesProcessed;
-        if (m_bufferPos == static_cast<unsigned> (m_framesPerSignal) &&
-            m_monitoring) {
+        if (m_bufferPos == static_cast<unsigned> (m_framesPerSignal)) {
           Q_EMIT framesWritten (jt9com_.kin);
           m_bufferPos = 0;
         }
@@ -114,10 +114,10 @@ qint64 Detector::writeData (char const * data, qint64 maxSize)
       }
       remaining -= numFramesProcessed;
     }
-  } else {
-    jt9com_.kin = 0;
-    m_bufferPos = 0;
-  }
+  // } else {
+  //   jt9com_.kin = 0;
+  //   m_bufferPos = 0;
+  // }
 
   return maxSize;    // we drop any data past the end of the buffer on
   // the floor until the next period starts
