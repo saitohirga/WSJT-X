@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <memory>
+#include <algorithm>
 
 #include <QMetaType>
 #include <QObject>
@@ -22,6 +23,7 @@
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
+#include <QDebug>
 
 #include "qt_helpers.hpp"
 
@@ -290,11 +292,11 @@ QVector<QColor> WFPalette::interpolate () const
           --prior;
         }
 
-      int increment {i - interval * prior};
-      int r {colours[prior].red () + int((increment * (colours[next].red () - colours[prior].red ()))/interval)};
-      int g {colours[prior].green () + int((increment * (colours[next].green () - colours[prior].green ()))/interval)};
-      int b {colours[prior].blue () + int((increment * (colours[next].blue () - colours[prior].blue ()))/interval)};
-      result.append (QColor {r, g, b});
+      auto increment = i - interval * prior;
+      qreal r {std::max (0., colours[prior].redF () + (increment * (colours[next].redF () - colours[prior].redF ()))/interval)};
+      qreal g {std::max (0., colours[prior].greenF () + (increment * (colours[next].greenF () - colours[prior].greenF ()))/interval)};
+      qreal b {std::max (0., colours[prior].blueF () + (increment * (colours[next].blueF () - colours[prior].blueF ()))/interval)};
+      result.append (QColor::fromRgbF (r, g, b));
     }
 
   return result;
