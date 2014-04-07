@@ -420,7 +420,11 @@ bool Configuration::quick_call () const {return m_->quick_call_;}
 bool Configuration::disable_TX_on_73 () const {return m_->disable_TX_on_73_;}
 bool Configuration::watchdog () const {return m_->watchdog_;}
 bool Configuration::TX_messages () const {return m_->TX_messages_;}
-bool Configuration::split_mode () const {return m_->rig_params_.split_mode_ != TransceiverFactory::split_mode_none;}
+bool Configuration::split_mode () const
+{
+  bool have_rig = m_->transceiver_factory_.CAT_port_type (m_->rig_params_.rig_name_) != TransceiverFactory::Capabilities::none;
+  return have_rig && m_->rig_params_.split_mode_ != TransceiverFactory::split_mode_none;
+}
 Bands * Configuration::bands () {return &m_->bands_;}
 StationList * Configuration::stations () {return &m_->stations_;}
 FrequencyList * Configuration::frequencies () {return &m_->frequencies_;}
