@@ -35,7 +35,7 @@ if (CPACK_GENERATOR MATCHES "NSIS")
     "@PROJECT_HOMEPAGE@" "WSJT-X Web Site"
     )
   # Use the icon from wsjtx for add-remove programs
-  set (CPACK_NSIS_INSTALLED_ICON_NAME "@PROJECT_BINARY_DIR@\\wsjtx.exe")
+  set (CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\wsjtx.exe")
 
   set (CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_DESCRIPTION_SUMMARY}")
   set (CPACK_NSIS_HELP_LINK "@PROJECT_MANUAL@")
