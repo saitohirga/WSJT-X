@@ -192,7 +192,7 @@ private:
   Q_SIGNAL void transmitFrequency (unsigned) const;
   Q_SIGNAL void endTransmitMessage (bool quick = false) const;
   Q_SIGNAL void tune (bool = true) const;
-  Q_SIGNAL void sendMessage (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, SoundOutput *, AudioDevice::Channel = AudioDevice::Mono, bool synchronize = true, double dBSNR = 99.) const;
+  Q_SIGNAL void sendMessage (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, double toneSpacing, SoundOutput *, AudioDevice::Channel = AudioDevice::Mono, bool synchronize = true, double dBSNR = 99.) const;
   Q_SIGNAL void outAttenuationChanged (qreal) const;
 
 private:

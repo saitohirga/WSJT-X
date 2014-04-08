@@ -30,9 +30,9 @@ public:
   bool isMuted () const {return m_muted;}
   unsigned frequency () const {return m_frequency;}
   bool isActive () const {return m_state != Idle;}
-  void setWide9(double d1, double d2) {m_toneSpacing=d1; m_fSpread=d2;}
+  void setSpread(double s) {m_fSpread=s;}
 
-  Q_SLOT void start (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, SoundOutput *, Channel = Mono, bool synchronize = true, double dBSNR = 99.);
+  Q_SLOT void start (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, double toneSpacing, SoundOutput *, Channel = Mono, bool synchronize = true, double dBSNR = 99.);
   Q_SLOT void stop (bool quick = false);
   Q_SLOT void tune (bool newState = true);
   Q_SLOT void mute (bool newState = true) {m_muted = newState;}
