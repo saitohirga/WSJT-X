@@ -29,7 +29,6 @@ Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds, QObjec
   , m_stream {nullptr}
   , m_quickClose {false}
   , m_phi {0.0}
-  , m_framesSent {0}
   , m_frameRate {frameRate}
   , m_period {periodLengthInSeconds}
   , m_state {Idle}
@@ -58,7 +57,6 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol, unsigned 
   m_quickClose = false;
 
   m_symbolsLength = symbolsLength;
-  m_framesSent = 0;
   m_isym0 = std::numeric_limits<unsigned>::max (); // Arbitrary big number
   m_addNoise = dBSNR < 0.;
   m_nsps = framesPerSymbol;
@@ -136,12 +134,13 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
   double toneFrequency;
 
   if(maxSize==0) return 0;
-  Q_ASSERT (!(maxSize % static_cast<qint64> (bytesPerFrame ()))); // no torn frames
+  Q_ASSERT (!(maxSize % qint64 (bytesPerFrame ()))); // no torn frames
   Q_ASSERT (isOpen ());
 
   qint64 numFrames (maxSize / bytesPerFrame ());
   qint16 * samples (reinterpret_cast<qint16 *> (data));
   qint16 * end (samples + numFrames * (bytesPerFrame () / sizeof (qint16)));
+  qint64 framesGenerated (0);
 
   //  qDebug () << "Modulator: " << numFrames << " requested, m_ic = " << m_ic << ", tune mode is " << m_tuning;
   //  qDebug() << "C" << maxSize << numFrames << bytesPerFrame();
@@ -150,11 +149,11 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
     case Synchronizing:
       {
         if (m_silentFrames)	{  // send silence up to first second
-          numFrames = qMin (m_silentFrames, numFrames);
+          framesGenerated = qMin (m_silentFrames, numFrames);
           for ( ; samples != end; samples = load (0, samples)) { // silence
           }
-          m_silentFrames -= numFrames;
-          return numFrames * bytesPerFrame ();
+          m_silentFrames -= framesGenerated;
+          return framesGenerated * bytesPerFrame ();
         }
 
         Q_EMIT stateChanged ((m_state = Active));
@@ -171,11 +170,10 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
           m_dphi = m_twoPi * m_frequency / m_frameRate;
           unsigned const ic0 = m_symbolsLength * 4 * m_nsps;
           unsigned j (0);
-          qint64 framesGenerated (0);
 
           while (samples != end) {
             j = (m_ic - ic0) / m_nspd + 1; // symbol of this sample
-            bool level {static_cast<bool> (icw[j])};
+            bool level {bool (icw[j])};
 
             m_phi += m_dphi;
             if (m_phi > m_twoPi) m_phi -= m_twoPi;
@@ -183,11 +181,16 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
             qint16 sample ((SOFT_KEYING ? qAbs (m_ramp - 1) :
                             (m_ramp ? 32767 : 0)) * qSin (m_phi));
 
-            if (j < NUM_CW_SYMBOLS) // stop condition
+            if (int (j) <= icw[0] && j < NUM_CW_SYMBOLS) // stop condition
               {
                 samples = load (postProcessSample (sample), samples);
                 ++framesGenerated;
                 ++m_ic;
+              }
+            else
+              {
+                Q_EMIT stateChanged ((m_state = Idle));
+                return framesGenerated * bytesPerFrame ();
               }
 
             // adjust ramp
@@ -206,12 +209,6 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
             m_cwLevel = level;
           }
 
-          if (j > static_cast<unsigned> (icw[0]))
-            {
-              Q_EMIT stateChanged ((m_state = Idle));
-            }
-
-          m_framesSent += framesGenerated;
           return framesGenerated * bytesPerFrame ();
         }
 
@@ -222,7 +219,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
         unsigned const i1 = m_tuning ? 999 * m_nsps :
           m_symbolsLength * 4.0 * m_nsps;
 
-        for (unsigned i = 0; i < numFrames; ++i) {
+        for (unsigned i = 0; i < numFrames && m_ic <= i1; ++i) {
           isym = m_tuning ? 0 : m_ic / (4.0 * m_nsps); //Actual fsample=48000
           if (isym != m_isym0) {
             // qDebug () << "@m_ic:" << m_ic << "itone[" << isym << "] =" << itone[isym] << "@" << i << "in numFrames:" << numFrames;
@@ -251,6 +248,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
           if (m_ic > i1) m_amp = 0.0;
 
           samples = load (postProcessSample (m_amp * qSin (m_phi)), samples);
+          ++framesGenerated;
           ++m_ic;
         }
 
@@ -258,16 +256,14 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
           if (icw[0] == 0) {
             // no CW ID to send
             Q_EMIT stateChanged ((m_state = Idle));
-            m_framesSent += numFrames;
-            return numFrames * bytesPerFrame ();
+            return framesGenerated * bytesPerFrame ();
           }
 
           m_phi = 0.0;
         }
 
         // done for this chunk - continue on next call
-        m_framesSent += numFrames;
-        return numFrames * bytesPerFrame ();
+        return framesGenerated * bytesPerFrame ();
       }
       // fall through
 
@@ -276,8 +272,6 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
     }
 
   Q_ASSERT (Idle == m_state);
-  //close ();
-
   return 0;
 }
 
