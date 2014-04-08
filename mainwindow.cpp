@@ -1667,7 +1667,7 @@ void MainWindow::startTx2()
     double snr=99.0;
     QString t=ui->tx5->currentText();
     if(t.mid(0,1)=="#") fSpread=t.mid(1,5).toDouble();
-    m_modulator.setWide9(m_toneSpacing, fSpread);
+    m_modulator.setSpread(fSpread);
     t=ui->tx6->text();
     if(t.mid(0,1)=="#") snr=t.mid(1,5).toDouble();
     if(snr>0.0 or snr < -50.0) snr=99.0;
@@ -2841,11 +2841,11 @@ void MainWindow::transmit (double snr)
 {
   if (m_modeTx == "JT65")
     {
-      Q_EMIT sendMessage (NUM_JT65_SYMBOLS, 4096.0 * 12000.0 / 11025.0, m_txFreq - m_XIT, &m_soundOutput, m_config.audio_output_channel (), true, snr);
+      Q_EMIT sendMessage (NUM_JT65_SYMBOLS, 4096.0 * 12000.0 / 11025.0, m_txFreq - m_XIT, m_toneSpacing, &m_soundOutput, m_config.audio_output_channel (), true, snr);
     }
   else
     {
-      Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps, m_txFreq - m_XIT, &m_soundOutput, m_config.audio_output_channel (), true, snr);
+      Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps, m_txFreq - m_XIT, m_toneSpacing, &m_soundOutput, m_config.audio_output_channel (), true, snr);
     }
 }
 

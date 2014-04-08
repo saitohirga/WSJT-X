@@ -29,6 +29,8 @@ Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds, QObjec
   , m_stream {nullptr}
   , m_quickClose {false}
   , m_phi {0.0}
+  , m_toneSpacing {0.0}
+  , m_fSpread {0.0}
   , m_frameRate {frameRate}
   , m_period {periodLengthInSeconds}
   , m_state {Idle}
@@ -40,7 +42,7 @@ Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds, QObjec
                                                 // seed
 }
 
-void Modulator::start (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, SoundOutput * stream, Channel channel, bool synchronize, double dBSNR)
+void Modulator::start (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, double toneSpacing, SoundOutput * stream, Channel channel, bool synchronize, double dBSNR)
 {
   Q_ASSERT (stream);
 
@@ -62,6 +64,7 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol, unsigned 
   m_nsps = framesPerSymbol;
   m_frequency = frequency;
   m_amp = std::numeric_limits<qint16>::max ();
+  m_toneSpacing = toneSpacing;
 
   // noise generator parameters
   if (m_addNoise) {
