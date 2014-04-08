@@ -135,15 +135,21 @@ namespace
       auto export_button = ui_.button_box->addButton ("&Export...", QDialogButtonBox::ActionRole);
       connect (export_button, &QPushButton::clicked, this, &Designer::export_palette);
 
+      // hookup the context menu handler
+      connect (ui_.colour_table_widget, &QWidget::customContextMenuRequested, this, &Designer::context_menu);
+
+      load_table ();
+    }
+
+    void load_table ()
+    {
       // load the table items
+      ui_.colour_table_widget->clear ();
       ui_.colour_table_widget->setRowCount (colours_.size ());
       for (int i {0}; i < colours_.size (); ++i)
         {
           insert_item (i);
         }
-
-      // hookup the context menu handler
-      connect (ui_.colour_table_widget, &QWidget::customContextMenuRequested, this, &Designer::context_menu);
     }
 
     Colours colours () const
@@ -224,6 +230,7 @@ namespace
       if (!file_name.isEmpty ())
         {
           colours_ = load_palette (file_name);
+          load_table ();
         }
     }
 
@@ -279,24 +286,32 @@ QVector<QColor> WFPalette::interpolate () const
   QVector<QColor> result;
   result.reserve (points);
 
-  // do a linear gradient between each supplied colour point
-  int interval = points / (colours.size () - 1);
+  // do a linear-ish gradient between each supplied colour point
+  auto interval = qreal (points) / (colours.size () - 1);
+
   for (int i {0}; i < points; ++i)
     {
-      int prior {i / interval};
+      int prior = i / interval;
 
-      int next {prior + 1};
+      if (prior >= (colours.size () - 1))
+        {
+          --prior;
+        }
+      auto next = prior + 1;
       if (next >= colours.size ())
         {
           --next;
-          --prior;
         }
 
-      auto increment = i - interval * prior;
-      qreal r {std::max (0., colours[prior].redF () + (increment * (colours[next].redF () - colours[prior].redF ()))/interval)};
-      qreal g {std::max (0., colours[prior].greenF () + (increment * (colours[next].greenF () - colours[prior].greenF ()))/interval)};
-      qreal b {std::max (0., colours[prior].blueF () + (increment * (colours[next].blueF () - colours[prior].blueF ()))/interval)};
+      // qDebug () << "WFPalette::interpolate: prior:" << prior << "total:" << colours.size ();
+
+      auto increment = i - qreal (interval) * prior;
+      qreal r {colours[prior].redF () + (increment * (colours[next].redF () - colours[prior].redF ()))/interval};
+      qreal g {colours[prior].greenF () + (increment * (colours[next].greenF () - colours[prior].greenF ()))/interval};
+      qreal b {colours[prior].blueF () + (increment * (colours[next].blueF () - colours[prior].blueF ()))/interval};
       result.append (QColor::fromRgbF (r, g, b));
+
+      // qDebug () << "Palette colour[" << (result.size () - 1) << "] =" << result[result.size () - 1] << "from: r:" << r << "g:" << g << "b:" << b;
     }
 
   return result;
