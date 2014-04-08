@@ -68,7 +68,6 @@ private:
   double m_fSpread;
 
   qint64 m_silentFrames;
-  qint64 m_framesSent;
 
   unsigned m_frameRate;
   unsigned m_period;
