@@ -35,7 +35,6 @@ Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds, QObjec
   , m_period {periodLengthInSeconds}
   , m_state {Idle}
   , m_tuning {false}
-  , m_muted {false}
   , m_cwLevel {false}
 {
   qsrand (QDateTime::currentMSecsSinceEpoch()); // Initialize random
@@ -280,9 +279,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 
 qint16 Modulator::postProcessSample (qint16 sample) const
 {
-  if (m_muted) {  // silent frame
-    sample = 0;
-  } else if (m_addNoise) {  // Test frame, we'll add noise
+  if (m_addNoise) {  // Test frame, we'll add noise
     qint32 s = m_fac * (gran () + sample * m_snr / 32768.0);
     if (s > std::numeric_limits<qint16>::max ()) {
       s = std::numeric_limits<qint16>::max ();
