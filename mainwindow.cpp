@@ -138,7 +138,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   connect (this, &MainWindow::outAttenuationChanged, &m_soundOutput, &SoundOutput::setAttenuation);
 
   // hook up Modulator slots
-  connect (this, &MainWindow::muteAudioOutput, &m_modulator, &Modulator::mute);
   connect (this, &MainWindow::transmitFrequency, &m_modulator, &Modulator::setFrequency);
   connect (this, &MainWindow::endTransmitMessage, &m_modulator, &Modulator::stop);
   connect (this, &MainWindow::tune, &m_modulator, &Modulator::tune);
@@ -293,7 +292,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_auto=false;
   m_waterfallAvg = 1;
   m_txFirst=false;
-  Q_EMIT muteAudioOutput (false);
   m_btxMute=false;
   m_btxok=false;
   m_restart=false;
@@ -414,7 +412,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   Q_EMIT initializeAudioOutputStream (m_config.audio_output_device (), AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2, m_msAudioOutputBuffered);
 
   Q_EMIT transmitFrequency (m_txFreq - m_XIT);
-  Q_EMIT muteAudioOutput (false);
 
   auto t = "UTC   dB   DT Freq   Message";
   ui->decodedTextLabel->setText(t);
@@ -670,6 +667,9 @@ void MainWindow::on_monitorButton_clicked (bool checked)
   // make sure we have the current rig state
   //  Q_EMIT m_config.sync_transceiver (true);
 
+  qDebug () <<  "MainWindow::on_monitorButton_clicked: checked:" << checked;
+  qDebug () <<  "MainWindow::on_monitorButton_clicked: m_monitoring:" << m_monitoring << "m_transmitting:" << m_transmitting;
+
   if (!m_transmitting)
     {
       m_monitoring = checked;
@@ -713,7 +713,6 @@ void MainWindow::on_autoButton_clicked (bool checked)
   if (!m_auto)
     {
       m_btxok = false;
-      Q_EMIT muteAudioOutput ();
       monitor (true);
       m_repeatMsg = 0;
     }
@@ -1460,7 +1459,6 @@ void MainWindow::guiUpdate()
     }
     if(!bTxTime || m_btxMute) {
       m_btxok=false;
-      Q_EMIT muteAudioOutput ();
     }
   }
 
@@ -1578,7 +1576,6 @@ void MainWindow::guiUpdate()
       }
 
     m_btxok=true;
-    Q_EMIT muteAudioOutput (false);
     m_transmitting=true;
     ui->pbTxMode->setEnabled(false);
     if(!m_tune) {
@@ -1677,7 +1674,6 @@ void MainWindow::startTx2()
     monitor (false);
 
     m_btxok=true;
-    Q_EMIT muteAudioOutput (false);
     m_transmitting=true;
     ui->pbTxMode->setEnabled(false);
   }
@@ -2682,7 +2678,6 @@ void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
     }
 
   m_btxok=false;
-  Q_EMIT muteAudioOutput ();
   m_repeatMsg=0;
 }
 
@@ -2809,7 +2804,6 @@ void MainWindow::handle_transceiver_failure (QString reason)
                               "border-width: 0px; border-radius: 5px;}");
 
   m_btxok=false;
-  Q_EMIT muteAudioOutput ();
   m_repeatMsg=0;
 
   rigFailure ("Rig Control Error", reason);

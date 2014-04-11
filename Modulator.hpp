@@ -27,7 +27,6 @@ public:
   void close () override;
 
   bool isTuning () const {return m_tuning;}
-  bool isMuted () const {return m_muted;}
   unsigned frequency () const {return m_frequency;}
   bool isActive () const {return m_state != Idle;}
   void setSpread(double s) {m_fSpread=s;}
@@ -35,7 +34,6 @@ public:
   Q_SLOT void start (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, double toneSpacing, SoundOutput *, Channel = Mono, bool synchronize = true, double dBSNR = 99.);
   Q_SLOT void stop (bool quick = false);
   Q_SLOT void tune (bool newState = true);
-  Q_SLOT void mute (bool newState = true) {m_muted = newState;}
   Q_SLOT void setFrequency (unsigned newFrequency) {m_frequency = newFrequency;}
   Q_SIGNAL void stateChanged (ModulatorState) const;
 
@@ -74,7 +72,6 @@ private:
   ModulatorState volatile m_state;
 
   bool volatile m_tuning;
-  bool volatile m_muted;
   bool m_addNoise;
 
   bool m_cwLevel;

@@ -188,7 +188,6 @@ private:
   Q_SIGNAL void detectorClose () const;
 
   Q_SIGNAL void finished () const;
-  Q_SIGNAL void muteAudioOutput (bool = true) const;
   Q_SIGNAL void transmitFrequency (unsigned) const;
   Q_SIGNAL void endTransmitMessage (bool quick = false) const;
   Q_SIGNAL void tune (bool = true) const;
