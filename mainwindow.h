@@ -171,7 +171,7 @@ private slots:
 
   void band_changed (Frequency);
   void monitor (bool);
-  void tuning (bool);
+  void stop_tuning ();
   void auto_tx_mode (bool);
 
 private:
@@ -248,13 +248,9 @@ private:
   QString  m_band;
   qint32  m_repeatMsg;
   qint32  m_watchdogLimit;
-  qint32  m_fMax;
-  qint32  m_EMEbandIndex;
-  qint32  m_toneMultIndex;
   qint32  m_astroFont;
 
   bool    m_btxok;		//True if OK to transmit
-  bool    m_btxMute;		//True if transmit should be muted
   bool    m_diskData;
   bool    m_loopall;
   bool    m_decoderBusy;
