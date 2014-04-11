@@ -37,7 +37,6 @@ int volatile icw[NUM_CW_SYMBOLS];	//Dits for CW ID
 int outBufSize;
 int rc;
 qint32  g_iptt;
-static int nc1=1;
 wchar_t buffer[256];
 
 QTextEdit* pShortcuts;
@@ -93,6 +92,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2, downSampleFactor),
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
   m_audioThread {new QThread},
+  m_diskData {false},
   m_appDir {QApplication::applicationDirPath ()},
   mem_jt9 {shdmem},
   mykey_jt9 {thekey},
@@ -292,7 +292,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_auto=false;
   m_waterfallAvg = 1;
   m_txFirst=false;
-  m_btxMute=false;
   m_btxok=false;
   m_restart=false;
   m_killAll=false;
@@ -533,8 +532,6 @@ void MainWindow::readSettings()
   ui->cbTxLock->setChecked(m_lockTxFreq);
   m_plus2kHz=m_settings->value("Plus2kHz",false).toBool();
   ui->cbPlus2kHz->setChecked(m_plus2kHz);
-  m_EMEbandIndex=m_settings->value("EMEbandIndex",0).toInt();
-  m_toneMultIndex=m_settings->value("ToneMultIndex",0).toInt();
   m_settings->endGroup();
 
   // use these initialisation settings to tune the audio o/p buffer
@@ -664,41 +661,47 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
 
 void MainWindow::on_monitorButton_clicked (bool checked)
 {
-  // make sure we have the current rig state
-  //  Q_EMIT m_config.sync_transceiver (true);
-
-  qDebug () <<  "MainWindow::on_monitorButton_clicked: checked:" << checked;
-  qDebug () <<  "MainWindow::on_monitorButton_clicked: m_monitoring:" << m_monitoring << "m_transmitting:" << m_transmitting;
-
   if (!m_transmitting)
     {
+      auto prior = m_monitoring;
       m_monitoring = checked;
-      if (m_monitoring)
+      if (!prior)
         {
           m_diskData = false;	// no longer reading WAV files
 
           // put rig back where it was when last in control
           Q_EMIT m_config.transceiver_frequency (m_lastMonitoredFrequency);
           setXIT (m_txFreq);
-          Q_EMIT resumeAudioInputStream ();
         }
-      else
-        {
-          Q_EMIT suspendAudioInputStream ();
-        }
+
+      Q_EMIT m_config.sync_transceiver (true, checked); // gets
+                                                        // Configuration
+                                                        // in/out of
+                                                        // strict
+                                                        // split and
+                                                        // mode
+                                                        // checking
+
+      monitor (checked);
     }
   else
     {
       ui->monitorButton->setChecked (false); // disallow
     }
-
-  Q_EMIT m_config.sync_transceiver (true, checked); // gets Configuration in/out of strict split and mode checking
 }
 
 void MainWindow::monitor (bool state)
 {
   ui->monitorButton->setChecked (state);
-  on_monitorButton_clicked (state);
+  m_monitoring = state;
+  if (state)
+    {
+      Q_EMIT resumeAudioInputStream ();
+    }
+  else
+    {
+      Q_EMIT suspendAudioInputStream ();
+    }
 }
 
 void MainWindow::on_actionAbout_triggered()                  //Display "About"
@@ -1401,7 +1404,6 @@ void MainWindow::guiUpdate()
   static char message[29];
   static char msgsent[29];
   static int nsendingsh=0;
-  static int giptt00=-1;
   static double onAirFreq0=0.0;
   QString rt;
 
@@ -1431,7 +1433,7 @@ void MainWindow::guiUpdate()
         bTxTime=false;
         if (m_tune)
           {
-            tuning (false);
+            stop_tuning ();
           }
 	
         if (m_auto)
@@ -1451,13 +1453,13 @@ void MainWindow::guiUpdate()
       }
 
     float fTR=float((nsec%m_TRperiod))/m_TRperiod;
-    if(g_iptt==0 and ((bTxTime and !m_btxMute and fTR<0.4) or m_tune )) {
+    if(g_iptt==0 and ((bTxTime and fTR<0.4) or m_tune )) {
       icw[0]=m_ncw;
       g_iptt = 1;
       Q_EMIT m_config.transceiver_ptt (true);
       ptt1Timer->start(200);                       //Sequencer delay
     }
-    if(!bTxTime || m_btxMute) {
+    if(!bTxTime) {
       m_btxok=false;
     }
   }
@@ -1550,48 +1552,40 @@ void MainWindow::guiUpdate()
     m_restart=false;
   }
 
-
-  // If PTT was just raised, start a countdown for raising TxOK:
-  // NB: could be better implemented with a timer
-  if(g_iptt == 1 && iptt0 == 0) {
-    nc1=-9;    // TxDelay = 0.8 s
-  }
-  if(nc1 <= 0) {
-    nc1++;
-  }
-  if(nc1 == 0) {
-    QString t=QString::fromLatin1(msgsent);
-    if(t==m_msgSent0) {
-      m_repeatMsg++;
-    } else {
-      m_repeatMsg=0;
-      m_msgSent0=t;
-    }
-
-    signalMeter->setValue(0);
-
-    if (m_monitoring)
-      {
-        monitor (false);
+  if (g_iptt == 1 && iptt0 == 0)
+    {
+      QString t=QString::fromLatin1(msgsent);
+      if(t==m_msgSent0) {
+        m_repeatMsg++;
+      } else {
+        m_repeatMsg=0;
+        m_msgSent0=t;
       }
 
-    m_btxok=true;
-    m_transmitting=true;
-    ui->pbTxMode->setEnabled(false);
-    if(!m_tune) {
-      QFile f(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
-      f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-      QTextStream out(&f);
-      out << QDateTime::currentDateTimeUtc().toString("hhmm")
-          << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz  " << m_modeTx
-          << ":  " << t << endl;
-      f.close();
-    }
-    if (m_config.TX_messages () && !m_tune)
-      {
-        ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,m_txFreq);
+      signalMeter->setValue(0);
+
+      if (m_monitoring)
+        {
+          monitor (false);
+        }
+
+      m_btxok=true;
+      m_transmitting=true;
+      ui->pbTxMode->setEnabled(false);
+      if(!m_tune) {
+        QFile f(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
+        f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+        QTextStream out(&f);
+        out << QDateTime::currentDateTimeUtc().toString("hhmm")
+            << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz  " << m_modeTx
+            << ":  " << t << endl;
+        f.close();
       }
-  }
+      if (m_config.TX_messages () && !m_tune)
+        {
+          ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,m_txFreq);
+        }
+    }
 
   if(!m_btxok && btxok0 && g_iptt==1) stopTx();
 
@@ -1648,10 +1642,6 @@ void MainWindow::guiUpdate()
     m_sec0=nsec;
   }
 
-  if(g_iptt!=giptt00) {
-    giptt00=g_iptt;
-  }
-
   iptt0=g_iptt;
   btxok0=m_btxok;
 }               //End of GUIupdate
@@ -1671,10 +1661,10 @@ void MainWindow::startTx2()
     transmit (snr);
     signalMeter->setValue(0);
 
-    monitor (false);
+    //monitor (false);
 
-    m_btxok=true;
-    m_transmitting=true;
+    //m_btxok=true;
+    //m_transmitting=true;
     ui->pbTxMode->setEnabled(false);
   }
 }
@@ -1683,6 +1673,7 @@ void MainWindow::stopTx()
 {
   Q_EMIT endTransmitMessage ();
   m_transmitting=false;
+  m_btxok = false;
   if ("JT9+JT65" == m_mode) ui->pbTxMode->setEnabled(true);
   g_iptt=0;
   tx_status_label->setStyleSheet("");
@@ -2643,7 +2634,6 @@ void MainWindow::on_tuneButton_clicked (bool checked)
 {
   if (m_tune)
     {
-      nc1=1;                                 //disable the countdown timer
       tuneButtonTimer->start(250);
     } 
   else
@@ -2655,21 +2645,17 @@ void MainWindow::on_tuneButton_clicked (bool checked)
   Q_EMIT tune (checked);
 }
 
-void MainWindow::tuning (bool state)
+void MainWindow::stop_tuning ()
 {
-  ui->tuneButton->setChecked (state);
-  on_tuneButton_clicked (state);
+  ui->tuneButton->setChecked (false);
+  on_tuneButton_clicked (false);
 }
 
 void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
 {
-  // if(m_tune) {
-  //   m_tune=false;
-  //   Q_EMIT tune (m_tune);
-  // }
   if (m_tune)
     {
-      tuning (false);
+      stop_tuning ();
     }
 
   if (m_auto)
@@ -2677,6 +2663,7 @@ void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
       auto_tx_mode (false);
     }
 
+  m_transmitting = false;
   m_btxok=false;
   m_repeatMsg=0;
 }
