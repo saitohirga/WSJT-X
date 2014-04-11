@@ -14,7 +14,7 @@ extern float gran();		// Noise generator (for tests only)
 #if defined (WSJT_SOFT_KEYING)
 # define SOFT_KEYING WSJT_SOFT_KEYING
 #else
-# define SOFT_KEYING 0
+# define SOFT_KEYING 1
 #endif
 
 double const Modulator::m_twoPi = 2.0 * 3.141592653589793238462;
