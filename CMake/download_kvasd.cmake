@@ -5,13 +5,11 @@ set (kvasd_NAME https://svn.code.sf.net/p/wsjt/wsjt/trunk/kvasd-binary/${SYSTEM_
 message (STATUS "file: ${kvasd_NAME}")
 if (APPLE)
   set (__kvasd_md5sum 198dbdde1e4b04f9940f63731097ee35)
-endif (APPLE)
-if (WIN32)
+elseif (WIN32)
   set (__kvasd_md5sum 7b16809e51126a01bd02aed44427510c)
-endif (WIN32)
-if (UNIX)
+elseif (UNIX)
   set (__kvasd_md5sum 77d5eef0215783fa74478ab411ac32ca)
-endif (UNIX)
+endif ()
 file (
   DOWNLOAD ${kvasd_NAME} contrib/kvasd${EXECUTABLE_SUFFIX}
   TIMEOUT 10
