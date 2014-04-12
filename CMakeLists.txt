@@ -526,22 +526,15 @@ endif ()
 
 
 #
-# fetch kvasd
+# fetch and validate kvasd
 #
-set (kvasd_NAME https://svn.code.sf.net/p/wsjt/wsjt/trunk/kvasd-binary/${CMAKE_SYSTEM_NAME}/kvasd${CMAKE_EXECUTABLE_SUFFIX})
-file (
-  DOWNLOAD ${kvasd_NAME} contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
-  TIMEOUT 10
-  STATUS kvasd_STATUS
-  LOG kvasd_LOG
-  SHOW_PROGRESS
+add_custom_command (
+  OUTPUT contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
+  COMMAND ${CMAKE_COMMAND} -D SYSTEM_NAME=${CMAKE_SYSTEM_NAME} -D EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} -P ${CMAKE_SOURCE_DIR}/CMake/download_kvasd.cmake
+  DEPENDS CMake/download_kvasd.cmake
+  COMMENT "Downloading kvasd for ${CMAKE_SYSTEM_NAME}"
+  VERBATIM
   )
-message (${kvasd_LOG})
-list (GET kvasd_STATUS 0 kvasd_RC)
-if (kvasd_RC)
-  message (WARNING "${kvasd_STATUS}")
-endif (kvasd_RC)
-add_custom_target (kvasd DEPENDS contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
 
 
 # UI generation
@@ -589,7 +582,7 @@ qt5_use_modules (jt9 Core)
 #qt5_use_modules (ConfigTest Widgets OpenGL Network Multimedia)
 
 # build the main application
-add_executable (wsjtx WIN32 MACOSX_BUNDLE ${wsjtx_CXXSRCS} ${wsjtx_GENUISRCS} wsjtx.rc ${WSJTX_ICON_FILE} ${wsjtx_RESOURCES_RCC})
+add_executable (wsjtx WIN32 MACOSX_BUNDLE ${wsjtx_CXXSRCS} ${wsjtx_GENUISRCS} wsjtx.rc ${WSJTX_ICON_FILE} ${wsjtx_RESOURCES_RCC} contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
 qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia)
 
 set_target_properties (wsjtx PROPERTIES
@@ -603,7 +596,6 @@ set_target_properties (wsjtx PROPERTIES
   )
 
 target_link_libraries (wsjtx wsjt wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
-add_dependencies (wsjtx kvasd)
 
 if (WIN32)
   set_target_properties (
