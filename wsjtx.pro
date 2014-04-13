@@ -45,6 +45,7 @@ SOURCES += \
         astro.cpp \
         Radio.cpp \
         NetworkServerLookup.cpp \
+        revision_utils.cpp \
         Transceiver.cpp \
         TransceiverBase.cpp \
         TransceiverFactory.cpp \
@@ -82,7 +83,7 @@ SOURCES += \
 
 HEADERS  += qt_helpers.hpp \
 	    pimpl_h.hpp pimpl_impl.hpp \
-            Radio.hpp NetworkServerLookup.hpp \
+            Radio.hpp NetworkServerLookup.hpp revision_utils.hpp \
 	    mainwindow.h plotter.h soundin.h soundout.h astro.h \
             about.h WFPalette.hpp widegraph.h getfile.h \
             commons.h sleep.h displaytext.h logqso.h \
