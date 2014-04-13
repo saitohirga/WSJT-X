@@ -7,13 +7,11 @@
 
 #include <QThread>
 #include <QLineEdit>
+#include <QRegularExpression>
 #include <QDebug>
-#ifdef QT5
 #include <QtConcurrent/QtConcurrentRun>
-#endif
 
-#include "svnversion.h"
-
+#include "revision_utils.hpp"
 #include "soundout.h"
 #include "plotter.h"
 #include "about.h"
@@ -76,18 +74,9 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_multiple {multiple},
   m_settings (settings),
   ui(new Ui::MainWindow),
-
-#if defined (CMAKE_BUILD)
-  m_rev {"     " WSJTX_STRINGIZE (SVNVERSION)},
-  m_windowTitle {QApplication::applicationName () + "   v" WSJTX_STRINGIZE (WSJTX_VERSION_MAJOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_MINOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_PATCH) "   by K1JT"},
-#else
-  m_rev {"$Rev$"},
-  m_windowTitle {"WSJT-X   v1.4, r" + m_rev.mid(6,4) + "   by K1JT"},
-#endif
-
   m_config (thekey, settings, this),
   m_wideGraph (new WideGraph (settings)),
-  m_logDlg (new LogQSO (m_windowTitle, settings, &m_config, this)),
+  m_logDlg (new LogQSO (program_title (), settings, &m_config, this)),
   m_dialFreq {0},
   m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2, downSampleFactor),
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
@@ -212,7 +201,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
       setDecodedTextFont (font);
     });
 
-  setWindowTitle(m_windowTitle);
+  setWindowTitle (program_title ());
   createStatusBar();
 
   connect(&proc_jt9, SIGNAL(readyReadStandardOutput()),
@@ -706,8 +695,7 @@ void MainWindow::monitor (bool state)
 
 void MainWindow::on_actionAbout_triggered()                  //Display "About"
 {
-  CAboutDlg dlg(this);
-  dlg.exec();
+  CAboutDlg {program_title (revision ("$Rev$")), this}.exec ();
 }
 
 void MainWindow::on_autoButton_clicked (bool checked)
@@ -2947,5 +2935,5 @@ void MainWindow::pskSetLocal ()
   psk_Reporter->setLocalStation(
                                 m_config.my_callsign ()
                                 , m_config.my_grid ()
-                                , antenna_description, "WSJT-X r" + m_rev.mid(6,4));
+                                , antenna_description, "WSJT-X " + revision ("$Rev$"));
 }

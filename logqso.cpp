@@ -19,7 +19,7 @@ LogQSO::LogQSO(QString const& programTitle, QSettings * settings, Configuration 
   m_configuration (configuration)
 {
   ui->setupUi(this);
-  setWindowTitle(programTitle + "  Log QSO");
+  setWindowTitle(programTitle + " - Log QSO");
   loadSettings ();
 }
 

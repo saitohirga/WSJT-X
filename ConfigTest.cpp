@@ -8,8 +8,7 @@
 #include <QDir>
 #include <QDebug>
 
-#include "svnversion.h"
-
+#include "revision_utils.hpp"
 #include "GetUserId.hpp"
 #include "TraceFile.hpp"
 #include "TestConfiguration.hpp"
@@ -34,7 +33,7 @@ int main (int argc, char *argv[])
       TraceFile trace_file {QDir {QApplication::applicationDirPath () + "/logs"}.absoluteFilePath (id + "_config_test.log")};
 
       // announce to log file
-      qDebug () << "Configuration Test v" WSJTX_STRINGIZE (CONFIG_TEST_VERSION_MAJOR) "." WSJTX_STRINGIZE (CONFIG_TEST_VERSION_MINOR) "." WSJTX_STRINGIZE (CONFIG_TEST_VERSION_PATCH) ", " WSJTX_STRINGIZE (SVNVERSION) " - Program startup";
+      qDebug () << program_title (revision ()) + " - Program startup";
 
       // open user specific settings
       QSettings settings {QDir {QApplication::applicationDirPath () + "/settings"}.absoluteFilePath (id + "_config_test.ini"), QSettings::IniFormat};

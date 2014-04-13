@@ -20,7 +20,7 @@ if (Subversion_FOUND AND EXISTS "${SOURCE_DIR}/.svn")
   endif (__svn_changes)
   message (STATUS "${SOURCE_DIR} contains a .svn and is revision ${MY_WC_REVISION}")
   # write a file with the SVNVERSION define
-  file (WRITE "${OUTPUT_DIR}/svnversion.h.txt" "#define SVNVERSION r${MY_WC_REVISION}\n")
+  file (WRITE "${OUTPUT_DIR}/svnversion.h.txt" "#define SVNVERSION ${MY_WC_REVISION}\n")
 else (Subversion_FOUND AND EXISTS "${SOURCE_DIR}/.svn")
   # try git-svn
   if (Subversion_FOUND AND EXISTS "${SOURCE_DIR}/.git")
