@@ -1,7 +1,5 @@
 #include "about.h"
 
-#include "svnversion.h"
-
 #include "ui_about.h"
 
 #include "moc_about.cpp"

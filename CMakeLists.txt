@@ -648,11 +648,10 @@ add_custom_target (revisiontag
   COMMENT "Generating Subversion revision information"
   VERBATIM
   )
-# explicitly say that the executable depends on custom target, this is
+# explicitly say that the wsjt_qt depends on custom target, this is
 # done indirectly so that the revisiontag target gets built exactly
 # once per build
-add_dependencies(jt9 revisiontag)
-add_dependencies(wsjtx revisiontag)
+add_dependencies(wsjt_qt revisiontag)
 
 
 #
