@@ -124,6 +124,6 @@ LIBS += -L$(HAMLIB_DIR)/lib -lhamlib
 #LIBS += -L$(HAMLIB_DIR)/lib -lhamlib
 LIBS += -L./lib -lastro -ljt9
 LIBS += -L. -lfftw3f_win
-LIBS += -lwsock32
+LIBS += -lws2_32
 LIBS += $$system($$F90 -print-file-name=libgfortran.a)
 }
