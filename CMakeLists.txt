@@ -50,6 +50,7 @@ set (PROJECT_MANUAL "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjt
 #
 set (wsjt_qt_CXXSRCS
   NetworkServerLookup.cpp
+  revision_utils.cpp
   WFPalette.cpp
   Radio.cpp
   Bands.cpp

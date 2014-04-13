@@ -12,8 +12,7 @@
 #include <QDebug>
 #include <QSortFilterProxyModel>
 
-#include "svnversion.h"
-
+#include "revision_utils.hpp"
 #include "Bands.hpp"
 #include "FrequencyList.hpp"
 #include "Configuration.hpp"
@@ -129,7 +128,7 @@ TestConfiguration::impl::impl (QString const& instance_key, QSettings * settings
 {
   ui_->setupUi (this);
 
-  setWindowTitle (QApplication::applicationName () + " - " + title);
+  setWindowTitle (program_title (revision ()));
 
   // mode "Unknown" is display only
   ui_->mode_combo_box->setItemData (ui_->mode_combo_box->findText ("Unknown"), combo_box_item_disabled, Qt::UserRole - 1);

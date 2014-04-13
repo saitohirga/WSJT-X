@@ -19,7 +19,7 @@
 #include <QDir>
 #include <QStandardPaths>
 
-#include "svnversion.h"
+#include "revision_utils.hpp"
 
 #include "SettingsGroup.hpp"
 #include "TraceFile.hpp"
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
       // TraceFile trace_file {QDir {QApplication::applicationDirPath ()}.absoluteFilePath ("wsjtx_trace.log")};
 
       // // announce to log file
-      // qDebug () << "WSJT-X v" WSJTX_STRINGIZE (WSJTX_VERSION_MAJOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_MINOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_PATCH) ", " WSJTX_STRINGIZE (SVNVERSION) " - Program startup";
+      // qDebug () << program_title (revision ()) + " - Program startup";
 
       // Create and initialize shared memory segment
       // Multiple instances: use rig_name as shared memory key
