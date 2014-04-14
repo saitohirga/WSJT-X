@@ -195,6 +195,7 @@ private:
   Q_SIGNAL void outAttenuationChanged (qreal) const;
 
 private:
+  QString m_revision;
   bool m_multiple;
   QSettings * m_settings;
 

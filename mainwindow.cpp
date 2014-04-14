@@ -71,6 +71,7 @@ private:
 MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdmem, QString const& thekey,
                        unsigned downSampleFactor, QWidget *parent) :
   QMainWindow(parent),
+  m_revision {revision ("$Rev$")},
   m_multiple {multiple},
   m_settings (settings),
   ui(new Ui::MainWindow),
@@ -695,7 +696,7 @@ void MainWindow::monitor (bool state)
 
 void MainWindow::on_actionAbout_triggered()                  //Display "About"
 {
-  CAboutDlg {program_title (revision ("$Rev$")), this}.exec ();
+  CAboutDlg {program_title (m_revision), this}.exec ();
 }
 
 void MainWindow::on_autoButton_clicked (bool checked)
@@ -2935,5 +2936,5 @@ void MainWindow::pskSetLocal ()
   psk_Reporter->setLocalStation(
                                 m_config.my_callsign ()
                                 , m_config.my_grid ()
-                                , antenna_description, "WSJT-X " + revision ("$Rev$"));
+                                , antenna_description, "WSJT-X " + m_revision);
 }
