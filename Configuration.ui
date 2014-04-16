@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>508</width>
-    <height>471</height>
+    <width>586</width>
+    <height>550</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1390,6 +1390,11 @@ both here.</string>
          <property name="contextMenuPolicy">
           <enum>Qt::ActionsContextMenu</enum>
          </property>
+         <property name="toolTip">
+          <string>Drag and drop items to rearrange order
+Right click for item specific actions
+Click, SHIFT+Click and, CRTL+Click to select items</string>
+         </property>
          <property name="styleSheet">
           <string notr="true">QListView {
     show-decoration-selected: 1; /* make the selection span the entire width of the view */
@@ -1418,8 +1423,17 @@ QListView::item:hover {
                                 stop: 0 #FAFBFE, stop: 1 #DCDEF1);
 }</string>
          </property>
+         <property name="dragDropMode">
+          <enum>QAbstractItemView::InternalMove</enum>
+         </property>
+         <property name="defaultDropAction">
+          <enum>Qt::MoveAction</enum>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
          <property name="selectionMode">
-          <enum>QAbstractItemView::SingleSelection</enum>
+          <enum>QAbstractItemView::ExtendedSelection</enum>
          </property>
          <property name="uniformItemSizes">
           <bool>true</bool>
@@ -1801,12 +1815,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
+  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
  </buttongroups>
 </ui>

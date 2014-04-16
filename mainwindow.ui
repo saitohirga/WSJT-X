@@ -591,6 +591,46 @@ p, li { white-space: pre-wrap; }
     </item>
     <item>
      <layout class="QGridLayout" name="gridLayout_3">
+      <item row="2" column="6">
+       <widget class="QSpinBox" name="TxFreqSpinBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>113</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>105</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Audio Tx frequency</string>
+        </property>
+        <property name="suffix">
+         <string>  Hz</string>
+        </property>
+        <property name="prefix">
+         <string>Tx  </string>
+        </property>
+        <property name="minimum">
+         <number>200</number>
+        </property>
+        <property name="maximum">
+         <number>5000</number>
+        </property>
+        <property name="value">
+         <number>1500</number>
+        </property>
+       </widget>
+      </item>
       <item row="3" column="3">
        <widget class="QLabel" name="labAz">
         <property name="sizePolicy">
@@ -876,46 +916,6 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="2" column="6">
-       <widget class="QSpinBox" name="TxFreqSpinBox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>113</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>105</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Audio Tx frequency</string>
-        </property>
-        <property name="suffix">
-         <string>  Hz</string>
-        </property>
-        <property name="prefix">
-         <string>Tx  </string>
-        </property>
-        <property name="minimum">
-         <number>200</number>
-        </property>
-        <property name="maximum">
-         <number>5000</number>
-        </property>
-        <property name="value">
-         <number>1500</number>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="3" colspan="2">
        <widget class="QLabel" name="labDialFreq">
         <property name="sizePolicy">
@@ -982,6 +982,28 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="6">
+       <widget class="QCheckBox" name="txFirstCheckBox">
+        <property name="minimumSize">
+         <size>
+          <width>105</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>105</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Check to Tx in even minutes, uncheck for odd minutes</string>
+        </property>
+        <property name="text">
+         <string>Tx even</string>
         </property>
        </widget>
       </item>
@@ -1077,74 +1099,6 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="2" column="1" rowspan="5">
-       <widget class="QSlider" name="inGain">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>160</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>20</width>
-          <height>160</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Digital gain for audio input</string>
-        </property>
-        <property name="minimum">
-         <number>-50</number>
-        </property>
-        <property name="maximum">
-         <number>50</number>
-        </property>
-        <property name="value">
-         <number>20</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="invertedAppearance">
-         <bool>false</bool>
-        </property>
-        <property name="invertedControls">
-         <bool>false</bool>
-        </property>
-        <property name="tickPosition">
-         <enum>QSlider::TicksBelow</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="6">
-       <widget class="QCheckBox" name="txFirstCheckBox">
-        <property name="minimumSize">
-         <size>
-          <width>105</width>
-          <height>23</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>105</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Check to Tx in even minutes, uncheck for odd minutes</string>
-        </property>
-        <property name="text">
-         <string>Tx even</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="6">
        <widget class="QPushButton" name="pbTxMode">
         <property name="enabled">
@@ -1155,6 +1109,16 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="text">
          <string>Tx JT9</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="cbPlus2kHz">
+        <property name="toolTip">
+         <string>Add 2 kHz to requested dial frequency</string>
+        </property>
+        <property name="text">
+         <string>+2 kHz</string>
         </property>
        </widget>
       </item>
@@ -1203,13 +1167,19 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QCheckBox" name="cbPlus2kHz">
+      <item row="1" column="2">
+       <widget class="QPushButton" name="readFreq">
+        <property name="maximumSize">
+         <size>
+          <width>15</width>
+          <height>15</height>
+         </size>
+        </property>
         <property name="toolTip">
-         <string>Add 2 kHz to requested dial frequency</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If orange, click to read dial frequency&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>+2 kHz</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -1273,7 +1243,7 @@ p, li { white-space: pre-wrap; }
             <enum>QTabWidget::Triangular</enum>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tab">
             <attribute name="title">
@@ -1778,11 +1748,17 @@ p, li { white-space: pre-wrap; }
                    <height>16777215</height>
                   </size>
                  </property>
+                 <property name="toolTip">
+                  <string>Enter a free text message (maximum 13 characters)
+or select a predefined macro from the dropdown list.
+Press ENTER to add the current text to the predefined
+list. The list can be maintained in Settings (F2).</string>
+                 </property>
                  <property name="editable">
                   <bool>true</bool>
                  </property>
                  <property name="insertPolicy">
-                  <enum>QComboBox::NoInsert</enum>
+                  <enum>QComboBox::InsertAtBottom</enum>
                  </property>
                 </widget>
                </item>
@@ -1990,11 +1966,17 @@ p, li { white-space: pre-wrap; }
                      <height>0</height>
                     </size>
                    </property>
+                   <property name="toolTip">
+                    <string>Enter a free text message (maximum 13 characters)
+or select a predefined macro from the dropdown list.
+Press ENTER to add the current text to the predefined
+list. The list can be maintained in Settings (F2).</string>
+                   </property>
                    <property name="editable">
                     <bool>true</bool>
                    </property>
                    <property name="insertPolicy">
-                    <enum>QComboBox::NoInsert</enum>
+                    <enum>QComboBox::InsertAtBottom</enum>
                    </property>
                   </widget>
                  </item>
@@ -2031,19 +2013,10 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="readFreq">
-        <property name="maximumSize">
-         <size>
-          <width>15</width>
-          <height>15</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If orange, click to read dial frequency&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
+      <item row="0" column="9">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string/>
+         <string>Pwr</string>
         </property>
        </widget>
       </item>
@@ -2062,6 +2035,34 @@ p, li { white-space: pre-wrap; }
          </size>
         </property>
        </spacer>
+      </item>
+      <item row="1" column="9" rowspan="6">
+       <widget class="QSlider" name="outAttenuation">
+        <property name="toolTip">
+         <string>Adjust Tx audio level</string>
+        </property>
+        <property name="maximum">
+         <number>300</number>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="invertedAppearance">
+         <bool>true</bool>
+        </property>
+        <property name="invertedControls">
+         <bool>true</bool>
+        </property>
+        <property name="tickPosition">
+         <enum>QSlider::TicksBelow</enum>
+        </property>
+        <property name="tickInterval">
+         <number>10</number>
+        </property>
+       </widget>
       </item>
       <item row="0" column="0" colspan="3">
        <widget class="QComboBox" name="bandComboBox">
@@ -2091,41 +2092,6 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="insertPolicy">
          <enum>QComboBox::NoInsert</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="9">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Pwr</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="9" rowspan="6">
-       <widget class="QSlider" name="outAttenuation">
-        <property name="toolTip">
-         <string>Adjust Tx audio level</string>
-        </property>
-        <property name="maximum">
-         <number>300</number>
-        </property>
-        <property name="value">
-         <number>0</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="invertedAppearance">
-         <bool>true</bool>
-        </property>
-        <property name="invertedControls">
-         <bool>true</bool>
-        </property>
-        <property name="tickPosition">
-         <enum>QSlider::TicksBelow</enum>
-        </property>
-        <property name="tickInterval">
-         <number>10</number>
         </property>
        </widget>
       </item>
@@ -2237,6 +2203,52 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </item>
+      <item row="2" column="1" rowspan="5">
+       <widget class="QSlider" name="inGain">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>160</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>20</width>
+          <height>160</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Digital gain for audio input</string>
+        </property>
+        <property name="minimum">
+         <number>-50</number>
+        </property>
+        <property name="maximum">
+         <number>50</number>
+        </property>
+        <property name="value">
+         <number>20</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="invertedAppearance">
+         <bool>false</bool>
+        </property>
+        <property name="invertedControls">
+         <bool>false</bool>
+        </property>
+        <property name="tickPosition">
+         <enum>QSlider::TicksBelow</enum>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -2247,7 +2259,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>780</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
