@@ -200,7 +200,7 @@ void PollingTransceiver::impl::handle_timeout ()
     }
   catch (...)
     {
-      message = "Unexpected rig error";
+      message = tr ("Unexpected rig error");
     }
   if (!message.isEmpty ())
     {

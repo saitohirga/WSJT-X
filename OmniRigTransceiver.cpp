@@ -52,7 +52,7 @@ auto OmniRigTransceiver::map_mode (OmniRig::RigParamX param) -> MODE
   qDebug () << "OmniRig map_mode unrecognized mode";
 #endif
 
-  throw error {"OmniRig: unrecognized mode"};
+  throw error {tr ("OmniRig: unrecognized mode")};
 }
 
 OmniRig::RigParamX OmniRigTransceiver::map_mode (MODE mode)
@@ -130,7 +130,7 @@ void OmniRigTransceiver::do_start ()
       qDebug () << "OmniRigTransceiver::do_start: failed to start COM server";
 #endif
 
-      throw error {"Failed to start OmniRig COM server"};
+      throw error {tr ("Failed to start OmniRig COM server")};
     }
 
   // COM/OLE exceptions get signalled
@@ -172,7 +172,7 @@ void OmniRigTransceiver::do_start ()
 
       // if (!port_->Lock ()) // try to take exclusive use of the OmniRig serial port for PTT
       // 	{
-      // 	  throw error {("Failed to get exclusive use of " + ptt_type + " from OmniRig").toLocal8Bit ()};
+      // 	  throw error {tr ("Failed to get exclusive use of %1" from OmniRig").arg (ptt_type)};
       // 	}
 
       // start off so we don't accidentally key the radio
@@ -289,7 +289,7 @@ void OmniRigTransceiver::handle_COM_exception (int code, QString source, QString
   qDebug () << "OmniRigTransceiver::handle_COM_exception:" << QString::number (code) + " at " + source + ": " + desc + " (" + help + ')';
 #endif
 
-  throw error {("OmniRig COM/OLE error: " + QString::number (code) + " at " + source + ": " + desc + " (" + help + ')').toLocal8Bit ()};
+  throw error {tr ("OmniRig COM/OLE error: %1 at %2: %3 (%4)").arg (QString::number (code).arg (source). arg (desc). arg (help)};
 }
 
 void OmniRigTransceiver::handle_visible_change ()
@@ -659,7 +659,7 @@ void OmniRigTransceiver::do_frequency (Frequency f)
     }
   else
     {
-      throw error {"OmniRig: don't know how to set rig frequency"};
+      throw error {tr ("OmniRig: don't know how to set rig frequency")};
     }
 }
 

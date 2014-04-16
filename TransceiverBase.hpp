@@ -3,11 +3,11 @@
 
 #include <stdexcept>
 
+#include <QString>
+
 #include "Transceiver.hpp"
 
 #include "pimpl_h.hpp"
-
-class QString;
 
 //
 // Base Transceiver Implementation
@@ -84,7 +84,8 @@ protected:
   struct error
     : public std::runtime_error
   {
-    error (char const * msg) : std::runtime_error (msg) {}
+    error (char const * const msg) : std::runtime_error (msg) {}
+    error (QString const& msg) : std::runtime_error (msg.toStdString ()) {}
   };
 
   // Template methods that sub classes implement to do what they need to do.

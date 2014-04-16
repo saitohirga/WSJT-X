@@ -32,6 +32,8 @@
 class PollingTransceiver
   : public TransceiverBase
 {
+  Q_OBJECT;                     // for translation context
+
 protected:
   explicit PollingTransceiver (int poll_interval); // in milliseconds
 

@@ -115,7 +115,7 @@ void HRDTransceiver::do_start ()
       qDebug () << "HRDTransceiver::start failed to connect:" <<  hrd_->errorString ();
 #endif
 
-      throw error {"Failed to connect to Ham Radio Deluxe\n" + hrd_->errorString ().toLocal8Bit ()};
+      throw error {tr ("Failed to connect to Ham Radio Deluxe\n") + hrd_->errorString ()};
     }
 
   init_radio ();
@@ -167,7 +167,7 @@ void HRDTransceiver::init_radio ()
           qDebug () << "HRDTransceiver::init_radio failed to connect:" <<  hrd_->errorString ();
 #endif
 
-          throw error {"Failed to connect to Ham Radio Deluxe\n" + hrd_->errorString ().toLocal8Bit ()};
+          throw error {tr ("Failed to connect to Ham Radio Deluxe\n") + hrd_->errorString ()};
         }
 
       send_command ("get context", false, false);
@@ -185,7 +185,7 @@ void HRDTransceiver::init_radio ()
       qDebug () << "HRDTransceiver::init_radio no rig found";
 #endif
 
-      throw error {"Ham Radio Deluxe: no rig found"};
+      throw error {tr ("Ham Radio Deluxe: no rig found")};
     }
 
   Q_FOREACH (auto const& radio, radios)
@@ -208,7 +208,7 @@ void HRDTransceiver::init_radio ()
       qDebug () << "HRDTransceiver::init_radio no rig found";
 #endif
 
-      throw error {"Ham Radio Deluxe: no rig found"};
+      throw error {tr ("Ham Radio Deluxe: no rig found")};
     }
 
   vfo_count_ = send_command ("get vfo-count").toUInt ();
@@ -346,7 +346,7 @@ int HRDTransceiver::lookup_mode (MODE mode, ModeMap const& map) const
   auto it = std::find_if (map.begin (), map.end (), [mode] (ModeMap::value_type const& item) {return std::get<0> (item) == mode;});
   if (map.end () == it)
     {
-      throw error {"Ham Radio Deluxe: rig doesn't support mode"};
+      throw error {tr ("Ham Radio Deluxe: rig doesn't support mode")};
     }
   return std::get<1> (*it);
 }
@@ -356,7 +356,7 @@ auto HRDTransceiver::lookup_mode (int mode, ModeMap const& map) const -> MODE
   auto it = std::find_if (map.begin (), map.end (), [mode] (ModeMap::value_type const& item) {return std::get<1> (item) == mode;});
   if (map.end () == it)
     {
-      throw error {"Ham Radio Deluxe: sent an unrecognised mode"};
+      throw error {tr ("Ham Radio Deluxe: sent an unrecognised mode")};
     }
   return std::get<0> (*it);
 }
@@ -374,7 +374,7 @@ int HRDTransceiver::get_dropdown (int dd, bool no_debug)
       qDebug () << "HRDTransceiver::get_dropdown bad response";
 #endif
 
-      throw error {"Ham Radio Deluxe didn't respond as expected"};
+      throw error {tr ("Ham Radio Deluxe didn't respond as expected")};
     }
 
   Q_ASSERT (reply.left (colon_index).trimmed () == dd_name);
@@ -394,7 +394,7 @@ void HRDTransceiver::set_dropdown (int dd, int value)
       qDebug () << "HRDTransceiver::set_dropdown item" << value << "not found in" << dd_name;
 #endif
 
-      throw error {("Ham Radio Deluxe: item not found in " + dd_name + " dropdown list").toLocal8Bit ()};
+      throw error {tr ("Ham Radio Deluxe: item not found in %1 dropdown list").arg (dd_name)};
     }
 }
 
@@ -427,7 +427,7 @@ void HRDTransceiver::set_button (int button_index, bool checked)
       qDebug () << "HRDTransceiver::set_button invalid button";
 #endif
 
-      throw error {"Ham Radio Deluxe: button not available"};
+      throw error {tr ("Ham Radio Deluxe: button not available")};
     }
 }
 
@@ -559,7 +559,7 @@ bool HRDTransceiver::is_button_checked (int button_index, bool no_debug)
       qDebug () << "HRDTransceiver::is_button_checked bad response";
 #endif
 
-      throw error {"Ham Radio Deluxe didn't respond as expected"};
+      throw error {tr ("Ham Radio Deluxe didn't respond as expected")};
     }
   return "1" == reply;
 }
@@ -638,7 +638,7 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
       qDebug () << "HRDTransceiver::send_command connection failed:" << hrd_->errorString ();
 #endif
 
-      throw error {"Ham Radio Deluxe connection failed\n" + hrd_->errorString ().toLocal8Bit ()};
+      throw error {tr ("Ham Radio Deluxe connection failed\n") + hrd_->errorString ()};
     }
 
   if (!recurse && prepend_context)
@@ -654,7 +654,7 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
           qDebug () << "HRDTransceiver::send_command rig disappeared or changed";
 #endif
 
-          throw error {"Ham Radio Deluxe: rig has disappeared or changed"};
+          throw error {tr ("Ham Radio Deluxe: rig has disappeared or changed")};
         }
 
       if (0u == current_radio_ || std::get<0> (*radio_iter) != current_radio_)
@@ -696,7 +696,7 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
       qDebug () << "HRDTransceiver::send_command failed" << hrd_->errorString ();
 #endif
 
-      throw error {"Ham Radio Deluxe send command failed\n" + hrd_->errorString ().toLocal8Bit ()};
+      throw error {tr ("Ham Radio Deluxe send command failed\n") + hrd_->errorString ()};
     }
 
   if (!hrd_->waitForReadyRead (socket_wait_time))
@@ -705,7 +705,7 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
       qDebug () << "HRDTransceiver::send_command failed to reply" << hrd_->errorString ();
 #endif
 
-      throw error {"Ham Radio Deluxe failed to reply to command\n" + hrd_->errorString ().toLocal8Bit ()};
+      throw error {tr ("Ham Radio Deluxe failed to reply to command\n") + hrd_->errorString ()};
     }
   QByteArray buffer (hrd_->readAll ());
   if (!no_debug)
@@ -729,7 +729,7 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
           qDebug () << "HRDTransceiver::send_command invalid reply";
 #endif
 
-          throw error {"Ham Radio Deluxe sent an invalid reply to our command"};
+          throw error {tr ("Ham Radio Deluxe sent an invalid reply to our command")};
         }
 
       result = QString {reply->payload_}; // this is not a memory leak (honest!)
@@ -753,6 +753,6 @@ void HRDTransceiver::send_simple_command (QString const& command, bool no_debug)
       qDebug () << "HRDTransceiver::send_simple_command unexpected response";
 #endif
 
-      throw error {"Ham Radio Deluxe didn't respond as expected"};
+      throw error {tr ("Ham Radio Deluxe didn't respond as expected")};
     }
 }

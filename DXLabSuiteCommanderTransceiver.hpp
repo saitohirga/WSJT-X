@@ -21,6 +21,8 @@ class QTcpSocket;
 class DXLabSuiteCommanderTransceiver final
   : public PollingTransceiver
 {
+  Q_OBJECT;                     // for translation context
+
 public:
   static void register_transceivers (TransceiverFactory::Transceivers *, int id);
 

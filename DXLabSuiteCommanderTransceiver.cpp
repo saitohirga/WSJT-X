@@ -72,7 +72,7 @@ void DXLabSuiteCommanderTransceiver::do_start ()
       qDebug () << "DXLabSuiteCommanderTransceiver::start failed to connect" << commander_->errorString ();
 #endif
 
-      throw error {"Failed to connect to DX Lab Suite Commander\n" + commander_->errorString ().toLocal8Bit ()};
+      throw error {tr ("Failed to connect to DX Lab Suite Commander\n") + commander_->errorString ()};
     }
       
   poll ();
@@ -202,7 +202,7 @@ void DXLabSuiteCommanderTransceiver::poll ()
       qDebug () << "DXLabSuiteCommanderTransceiver::poll: get frequency unexpected response";
 #endif
 
-      throw error {"DX Lab Suite Commander didn't respond correctly polling frequency"};
+      throw error {tr ("DX Lab Suite Commander didn't respond correctly polling frequency")};
     }
 
   reply = command_with_reply ("<command:13>CmdSendTXFreq<parameters:0>", quiet);
@@ -221,7 +221,7 @@ void DXLabSuiteCommanderTransceiver::poll ()
       qDebug () << "DXLabSuiteCommanderTransceiver::poll: get tx frequency unexpected response";
 #endif
 
-      throw error {"DX Lab Suite Commander didn't respond correctly polling TX frequency"};
+      throw error {tr ("DX Lab Suite Commander didn't respond correctly polling TX frequency")};
     }
 
   reply = command_with_reply ("<command:12>CmdSendSplit<parameters:0>", quiet);
@@ -242,7 +242,7 @@ void DXLabSuiteCommanderTransceiver::poll ()
           qDebug () << "DXLabSuiteCommanderTransceiver::poll: unexpected split state" << split;
 #endif
 
-          throw error {"DX Lab Suite Commander sent an unrecognised split state: " + split};
+          throw error {tr ("DX Lab Suite Commander sent an unrecognised split state: ") + split};
         }
     }
   else
@@ -251,7 +251,7 @@ void DXLabSuiteCommanderTransceiver::poll ()
       qDebug () << "DXLabSuiteCommanderTransceiver::poll: get split mode unexpected response";
 #endif
 
-      throw error {"DX Lab Suite Commander didn't respond correctly polling split status"};
+      throw error {tr ("DX Lab Suite Commander didn't respond correctly polling split status")};
     }
 
   reply = command_with_reply ("<command:11>CmdSendMode<parameters:0>", quiet);
@@ -305,7 +305,7 @@ void DXLabSuiteCommanderTransceiver::poll ()
           qDebug () << "DXLabSuiteCommanderTransceiver::poll: unexpected mode name" << mode;
 #endif
 
-          throw error {"DX Lab Suite Commander sent an unrecognised mode: " + mode};
+          throw error {tr ("DX Lab Suite Commander sent an unrecognised mode: ") + mode};
         }
       update_mode (m);
     }
@@ -315,7 +315,7 @@ void DXLabSuiteCommanderTransceiver::poll ()
       qDebug () << "DXLabSuiteCommanderTransceiver::poll: unexpected response";
 #endif
 
-      throw error {"DX Lab Suite Commander didn't respond correctly polling mode"};
+      throw error {tr ("DX Lab Suite Commander didn't respond correctly polling mode")};
     }
 }
 
@@ -336,7 +336,7 @@ void DXLabSuiteCommanderTransceiver::simple_command (QByteArray const& cmd, bool
       qDebug () << "DXLabSuiteCommanderTransceiver::simple_command failed:" << commander_->errorString ();
 #endif
 
-      throw error {"DX Lab Suite Commander send command failed\n" + commander_->errorString ().toLocal8Bit ()};
+      throw error {tr ("DX Lab Suite Commander send command failed\n") + commander_->errorString ()};
     }
 
   commander_->write (cmd);
@@ -346,7 +346,7 @@ void DXLabSuiteCommanderTransceiver::simple_command (QByteArray const& cmd, bool
       qDebug () << "DXLabSuiteCommanderTransceiver::simple_command failed:" << commander_->errorString ();
 #endif
 
-      throw error {"DX Lab Suite Commander send command failed\n" + commander_->errorString ().toLocal8Bit ()};
+      throw error {tr ("DX Lab Suite Commander send command failed\n") + commander_->errorString ()};
     }
 }
 
@@ -360,7 +360,7 @@ QByteArray DXLabSuiteCommanderTransceiver::command_with_reply (QByteArray const&
       qDebug () << "DXLabSuiteCommanderTransceiver::command_with_reply failed:" << commander_->errorString ();
 #endif
 
-      throw error {"DX Lab Suite Commander read reply failed\n" + commander_->errorString ().toLocal8Bit ()};
+      throw error {tr ("DX Lab Suite Commander read reply failed\n") + commander_->errorString ()};
     }
 
   commander_->write (cmd);
@@ -370,7 +370,7 @@ QByteArray DXLabSuiteCommanderTransceiver::command_with_reply (QByteArray const&
       qDebug () << "DXLabSuiteCommanderTransceiver::simple_command failed:" << commander_->errorString ();
 #endif
 
-      throw error {"DX Lab Suite Commander send command failed\n" + commander_->errorString ().toLocal8Bit ()};
+      throw error {tr ("DX Lab Suite Commander send command failed\n") + commander_->errorString ()};
     }
 
   if (!commander_->waitForReadyRead (socket_wait_time))
@@ -379,7 +379,7 @@ QByteArray DXLabSuiteCommanderTransceiver::command_with_reply (QByteArray const&
       qDebug () << "DXLabSuiteCommanderTransceiver::command_with_reply failed:" << commander_->errorString ();
 #endif
 
-      throw error {"DX Lab Suite Commander read reply failed\n" + commander_->errorString ().toLocal8Bit ()};
+      throw error {tr ("DX Lab Suite Commander read reply failed\n") + commander_->errorString ()};
     }
 
   auto result = commander_->readAll ();
