@@ -148,6 +148,23 @@ private:
   QLineEdit description_;
 };
 
+class RearrangableMacrosModel
+  : public QStringListModel
+{
+public:
+  Qt::ItemFlags flags (QModelIndex const& index) const override
+  {
+    auto flags = QStringListModel::flags (index);
+    if (index.isValid ())
+      {
+        // disallow drop onto existing items
+        flags &= ~Qt::ItemIsDropEnabled;
+      }
+    return flags;
+  }
+};
+
+
 // Fields that are transceiver related.
 //
 // These are aggregated in a structure to enable a non-equivalence to
@@ -268,6 +285,7 @@ private:
 
   Q_SLOT void on_add_macro_line_edit_editingFinished ();
   Q_SLOT void delete_macro ();
+  void delete_selected_macros (QModelIndexList);
 
   Q_SLOT void on_save_path_select_push_button_clicked (bool);
 
@@ -318,7 +336,7 @@ private:
   float jt9w_max_dt_;
 
   QStringListModel macros_;
-  QStringListModel next_macros_;
+  RearrangableMacrosModel next_macros_;
   QAction * macro_delete_action_;
   
   Bands bands_;
@@ -1222,6 +1240,9 @@ bool Configuration::impl::validate ()
 
 int Configuration::impl::exec ()
 {
+  // macros can be modified in the main window
+  next_macros_.setStringList (macros_.stringList ());
+
   ptt_state_ = false;
   have_rig_ = rig_active_;	// record that we started with a rig open
 
@@ -1596,17 +1617,44 @@ void Configuration::impl::on_add_macro_line_edit_editingFinished ()
 
 void Configuration::impl::on_delete_macro_push_button_clicked (bool /* checked */)
 {
-  auto index = ui_->macros_list_view->selectionModel ()->currentIndex ();
-  if (index.isValid ())
+  auto selection_model = ui_->macros_list_view->selectionModel ();
+  if (selection_model->hasSelection ())
     {
-      next_macros_.removeRow (index.row ());
+      // delete all selected items
+      delete_selected_macros (selection_model->selectedRows ());
     }
 }
 
 void Configuration::impl::delete_macro ()
 {
-  auto index = ui_->macros_list_view->currentIndex ();
-  if (index.isValid ())
+  auto selection_model = ui_->macros_list_view->selectionModel ();
+  if (!selection_model->hasSelection ())
+    {
+      // delete item under cursor if any
+      auto index = selection_model->currentIndex ();
+      if (index.isValid ())
+        {
+          next_macros_.removeRow (index.row ());
+        }
+    }
+  else
+    {
+      // delete the whole selection
+      delete_selected_macros (selection_model->selectedRows ());
+    }
+}
+
+void Configuration::impl::delete_selected_macros (QModelIndexList selected_rows)
+{
+  // sort in reverse row order so that we can delete without changing
+  // indices underneath us
+  qSort (selected_rows.begin (), selected_rows.end (), [] (QModelIndex const& lhs, QModelIndex const& rhs)
+         {
+           return rhs.row () < lhs.row (); // reverse row ordering
+         });
+
+  // now delete them
+  Q_FOREACH (auto index, selected_rows)
     {
       next_macros_.removeRow (index.row ());
     }
