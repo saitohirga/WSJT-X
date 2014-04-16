@@ -13,6 +13,7 @@ if (Subversion_FOUND AND EXISTS "${SOURCE_DIR}/.svn")
     REGEX "^[^?].*$"
     )
   if (__svn_changes)
+    message (WARNING "Source tree based on revision ${MY_WC_REVISION} appears to have local changes")
     set (MY_WC_REVISION "${MY_WC_REVISION}-dirty")
     foreach (__svn_change ${__svn_changes})
       message (STATUS "${__svn_change}")
@@ -32,11 +33,13 @@ else (Subversion_FOUND AND EXISTS "${SOURCE_DIR}/.svn")
     execute_process (COMMAND ${GIT_EXECUTABLE} --git-dir=${SOURCE_DIR}/.git --work-tree=${SOURCE_DIR} svn dcommit --dry-run
       RESULT_VARIABLE __git_svn_status
       OUTPUT_FILE "${OUTPUT_DIR}/svn_status.txt"
+      ERROR_QUIET
       OUTPUT_STRIP_TRAILING_WHITESPACE)
     file (STRINGS "${OUTPUT_DIR}/svn_status.txt" __svn_changes
       REGEX "^diff-tree"
       )
     if ((NOT ${__git_svn_status} EQUAL 0) OR __svn_changes)
+      message (WARNING "Source tree based on revision ${MY_WC_REVISION} appears to have local changes")
       set (MY_WC_REVISION "${MY_WC_REVISION}-dirty")
     endif ()
     # write a file with the SVNVERSION define
