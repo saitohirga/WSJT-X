@@ -289,7 +289,7 @@ void OmniRigTransceiver::handle_COM_exception (int code, QString source, QString
   qDebug () << "OmniRigTransceiver::handle_COM_exception:" << QString::number (code) + " at " + source + ": " + desc + " (" + help + ')';
 #endif
 
-  throw error {tr ("OmniRig COM/OLE error: %1 at %2: %3 (%4)").arg (QString::number (code).arg (source). arg (desc). arg (help)};
+  throw error {tr ("OmniRig COM/OLE error: %1 at %2: %3 (%4)").arg (QString::number (code)).arg (source). arg (desc). arg (help)};
 }
 
 void OmniRigTransceiver::handle_visible_change ()
