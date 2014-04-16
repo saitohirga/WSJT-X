@@ -74,11 +74,13 @@ int main(int argc, char *argv[])
         }
       QSettings settings(config_path.absoluteFilePath (a.applicationName () + ".ini"), QSettings::IniFormat);
 
+#if WSJT_QDEBUG_TO_FILE
       // // open a trace file
-      // TraceFile trace_file {QDir {QApplication::applicationDirPath ()}.absoluteFilePath ("wsjtx_trace.log")};
+      TraceFile trace_file {QDir {QApplication::applicationDirPath ()}.absoluteFilePath ("wsjtx_trace.log")};
 
-      // // announce to log file
-      // qDebug () << program_title (revision ()) + " - Program startup";
+      // announce to trace file
+      qDebug () << program_title (revision ()) + " - Program startup";
+#endif
 
       // Create and initialize shared memory segment
       // Multiple instances: use rig_name as shared memory key
