@@ -14,12 +14,13 @@ program jt9
   character(len=500) optarg, infile
   integer*4 arglen,stat,offset,remain
   logical :: shmem = .false., read_files = .false., have_args = .false.
+  type (option) :: long_options (0)
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,ntr,       &
        mousefqso,newdat,nfa,nfsplit,nfb,ntol,kin,nzhsym,nsynced,ndecoded
   common/tracer/limtrace,lu
 
   do
-     call getopt('s:e:a:r:p:d:f:',(/type(option) ::/),c,optarg,arglen,stat,offset,remain)
+     call getopt('s:e:a:r:p:d:f:',long_options,c,optarg,arglen,stat,offset,remain)
      if (stat .ne. 0) then
         exit
      end if
