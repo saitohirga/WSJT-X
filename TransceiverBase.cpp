@@ -6,6 +6,11 @@
 
 #include "pimpl_impl.hpp"
 
+namespace
+{
+  auto const unexpected = TransceiverBase::tr ("Unexpected rig error");
+}
+
 class TransceiverBase::impl final
 {
 public:
@@ -53,7 +58,7 @@ void TransceiverBase::start () noexcept
     }
   catch (...)
     {
-      message = "Unexpected rig error";
+      message = unexpected;
     }
   if (!message.isEmpty ())
     {
@@ -83,7 +88,7 @@ void TransceiverBase::stop () noexcept
     }
   catch (...)
     {
-      message = "Unexpected rig error";
+      message = unexpected;
     }
   if (!message.isEmpty ())
     {
@@ -112,7 +117,7 @@ void TransceiverBase::frequency (Frequency f) noexcept
     }
   catch (...)
     {
-      message = "Unexpected rig error";
+      message = unexpected;
     }
   if (!message.isEmpty ())
     {
@@ -137,7 +142,7 @@ void TransceiverBase::tx_frequency (Frequency tx, bool rationalise_mode) noexcep
     }
   catch (...)
     {
-      message = "Unexpected rig error";
+      message = unexpected;
     }
   if (!message.isEmpty ())
     {
@@ -162,7 +167,7 @@ void TransceiverBase::mode (MODE m, bool rationalise) noexcept
     }
   catch (...)
     {
-      message = "Unexpected rig error";
+      message = unexpected;
     }
   if (!message.isEmpty ())
     {
@@ -187,7 +192,7 @@ void TransceiverBase::ptt (bool on) noexcept
     }
   catch (...)
     {
-      message = "Unexpected rig error";
+      message = unexpected;
     }
   if (!message.isEmpty ())
     {
@@ -211,7 +216,7 @@ void TransceiverBase::sync (bool force_signal) noexcept
     }
   catch (...)
     {
-      message = "Unexpected rig error";
+      message = unexpected;
     }
   if (!message.isEmpty ())
     {
@@ -269,7 +274,7 @@ void TransceiverBase::offline (QString const& reason)
     }
   catch (...)
     {
-      message = "Unexpected rig error";
+      message = unexpected;
     }
   Q_EMIT failure (reason + '\n' + message);
 }

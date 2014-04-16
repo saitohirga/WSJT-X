@@ -21,6 +21,8 @@ extern "C"
 class HamlibTransceiver final
   : public PollingTransceiver
 {
+  Q_OBJECT;                     // for translation context
+
  public:
   static void register_transceivers (TransceiverFactory::Transceivers *);
 
@@ -48,7 +50,7 @@ class HamlibTransceiver final
 
   void poll () override;
 
-  void error_check (int ret_code) const;
+  void error_check (int ret_code, QString const& doing) const;
   void set_conf (char const * item, char const * value);
   QByteArray get_conf (char const * item);
   Transceiver::MODE map_mode (rmode_t) const;
