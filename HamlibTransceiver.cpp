@@ -6,6 +6,8 @@
 #include <QString>
 #include <QDebug>
 
+#include "moc_HamlibTransceiver.cpp"
+
 namespace
 {
   // Unfortunately bandwidth is conflated  with mode, this is probably
