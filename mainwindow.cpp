@@ -28,6 +28,7 @@
 #include "FrequencyItemDelegate.hpp"
 
 #include "ui_mainwindow.h"
+#include "moc_mainwindow.cpp"
 
 int volatile itone[NUM_JT65_SYMBOLS];	//Audio tones for all Tx symbols
 int volatile icw[NUM_CW_SYMBOLS];	//Dits for CW ID

@@ -5,6 +5,8 @@
 
 #include "NetworkServerLookup.hpp"
 
+#include "moc_DXLabSuiteCommanderTransceiver.cpp"
+
 namespace
 {
   char const * const commander_transceiver_name {"DX Lab Suite Commander"};

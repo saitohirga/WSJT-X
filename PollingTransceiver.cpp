@@ -8,6 +8,8 @@
 
 #include "pimpl_impl.hpp"
 
+#include "moc_PollingTransceiver.cpp"
+
 namespace
 {
   unsigned const polls_to_stabilize {3};
