@@ -8,7 +8,7 @@ if (APPLE)
 elseif (WIN32)
   set (__kvasd_md5sum 7b16809e51126a01bd02aed44427510c)
 elseif (UNIX)
-  set (__kvasd_md5sum 77d5eef0215783fa74478ab411ac32ca)
+  set (__kvasd_md5sum 28a6f8ba2efc3df02af2a781bd3ab654)
 endif ()
 file (
   DOWNLOAD ${kvasd_NAME} contrib/kvasd${EXECUTABLE_SUFFIX}
