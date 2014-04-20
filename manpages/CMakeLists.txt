@@ -40,7 +40,7 @@ if (A2X_EXECUTABLE AND GZIP_EXECUTABLE AND SED_EXECUTABLE)
       COMMAND ${CMAKE_COMMAND} ARGS -E make_directory "${d}"
       COMMAND ${A2X_EXECUTABLE} ARGS ${A2X_OPTS} -D "${d}" "${f}"
       COMMAND ${GZIP_EXECUTABLE} ARGS -f9 "${o}"
-      COMMAND ${SED_EXECUTABLE} ARGS -e "'s@.so @&man${section}/@'" -i "''" "${d}/*.${section}"
+      COMMAND ${SED_EXECUTABLE} ARGS -e "'s@.so @&man${section}/@'" -i.orig "${d}/*.${section}"
       COMMAND ${GZIP_EXECUTABLE} ARGS -f9 "${d}/*.${section}"
       DEPENDS "${f}"
       COMMENT "Generating ${o}.gz"
@@ -51,6 +51,7 @@ if (A2X_EXECUTABLE AND GZIP_EXECUTABLE AND SED_EXECUTABLE)
   install (
     DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/man
     DESTINATION ${WSJT_MANPAGE_DESTINATION}
+    PATTERN "*.orig" EXCLUDE
     )
 endif (A2X_EXECUTABLE AND GZIP_EXECUTABLE AND SED_EXECUTABLE)
 
