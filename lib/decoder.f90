@@ -27,7 +27,12 @@ subroutine decoder(ss,id2)
   ndecodes0=0
   ndecodes1=0
 
-  open(13,file='decoded.txt',status='unknown')
+  if (nagain .eq. 0) then
+     open(13,file='decoded.txt',status='unknown')
+  else
+     open(13,file='decoded.txt',status='unknown',position='append')
+  end if
+
   open(22,file='kvasd.dat',access='direct',recl=1024,status='unknown')
 
   npts65=52*12000
@@ -145,11 +150,11 @@ subroutine decoder(ss,id2)
            if(nsync.gt.10) nsync=10
            nsnr=nint(snrdb)
            ndrift=nint(drift/df3)
-              
+
            if(msg.ne.'                      ') then
               if(nqd.eq.0) ndecodes0=ndecodes0+1
               if(nqd.eq.1) ndecodes1=ndecodes1+1
-                 
+
               write(*,1000) nutc,nsnr,xdt,nint(freq),msg
 1000          format(i4.4,i4,f5.1,i5,1x,'@',1x,a22)
               write(13,1002) nutc,nsync,nsnr,xdt,freq,ndrift,msg
@@ -161,7 +166,7 @@ subroutine decoder(ss,id2)
               nsynced=1
               ndecoded=1
               ccfok(iaa:ibb)=.false.
-              done(iaa:ibb)=.true.              
+              done(iaa:ibb)=.true.
               call flush(6)
            endif
         endif
