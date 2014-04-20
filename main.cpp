@@ -18,6 +18,9 @@
 #include <QSysInfo>
 #include <QDir>
 #include <QStandardPaths>
+#include <QCommandLineParser>
+#include <QCommandLineOption>
+#include <QStringList>
 
 #include "revision_utils.hpp"
 
@@ -35,29 +38,50 @@ int main(int argc, char *argv[])
   try
     {
       setlocale (LC_NUMERIC, "C"); // ensure number forms are in
-      // consistent format, do this after
-      // instantiating QApplication so
-      // that GUI has correct l18n
-
+                                   // consistent format, do this after
+                                   // instantiating QApplication so
+                                   // that GUI has correct l18n
+	      
       // Override programs executable basename as application name.
       a.setApplicationName ("WSJT-X");
+      a.setApplicationVersion (WSJTX_STRINGIZE (WSJTX_VERSION_MAJOR)
+                               "." WSJTX_STRINGIZE (WSJTX_VERSION_MINOR)
+                               "." WSJTX_STRINGIZE (WSJTX_VERSION_PATCH) " " + revision ());
+
+      QCommandLineParser parser;
+      parser.setApplicationDescription ("\nJT65A & JT9 Weak Signal Communications Program.");
+      parser.addHelpOption ();
+      parser.addVersionOption ();
+
+#if WSJT_STANDARD_FILE_LOCATIONS
+      // support for multiple instances running from a single installation
+      QCommandLineOption rig_option (QStringList {} << "r" << "rig-name"
+                                     , a.translate ("main", "Where <rig-name> is for multi-instance support.")
+                                     , a.translate ("main", "rig-name"));
+      parser.addOption (rig_option);
+#endif
+
+      QCommandLineOption test_option (QStringList {} << "test-mode"
+                                      , a.translate ("main", "Writable files in test location.  Use with caution, for testing only."));
+      parser.addOption (test_option);
+
+      parser.process (a);
+
+      QStandardPaths::setTestModeEnabled (parser.isSet (test_option));
 
       bool multiple {false};
 
 #if WSJT_STANDARD_FILE_LOCATIONS
       // support for multiple instances running from a single installation
-      auto args = a.arguments ();
-      auto rig_arg_index = args.lastIndexOf (QRegularExpression {R"((-r)|(--r(i?(g?))))"});
-      if (rig_arg_index > 0	// not interested if somehow the exe is called -r or --rig
-          && rig_arg_index + 1 < args.size ())
+      if (parser.isSet (rig_option))
         {
-          auto temp_name = args.at (rig_arg_index + 1);
-          if ('-' != temp_name[0]
-              && !temp_name.isEmpty ())
+          auto temp_name = parser.value (rig_option);
+          if (!temp_name.isEmpty ())
             {
               if (temp_name.contains (QRegularExpression {R"([\\/])"}))
                 {
-                  throw std::runtime_error (QObject::tr ("Invalid rig name - \\ & / not allowed").toLocal8Bit ().data ());
+                  std::cerr << QObject::tr ("Invalid rig name - \\ & / not allowed").toLocal8Bit ().data () << std::endl;
+                  parser.showHelp (-1);
                 }
                 
               a.setApplicationName (a.applicationName () + " - " + temp_name);
