@@ -4,16 +4,14 @@ set (ASCIIDOC_MANS
 
 find_program (A2X_EXECUTABLE NAMES a2x a2x.py)
 if (NOT A2X_EXECUTABLE)
-  message (SEND_ERROR "Failed to find a2x.")
+  if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message (SEND_ERROR "Failed to find a2x which is required for release builds on *nix platforms.")
+  else (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message (WARNING "Failed to find a2x skipping manpage generation.")
+  endif (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif ()
 find_program (GZIP_EXECUTABLE NAMES gzip)
-if (NOT GZIP_EXECUTABLE)
-  message (SEND_ERROR "Failed to find gzip.")
-endif ()
 find_program (SED_EXECUTABLE NAMES sed)
-if (NOT SED_EXECUTABLE)
-  message (SEND_ERROR "Failed to find sed.")
-endif ()
 
 set (XSLTPROC_OPTS 
   "-param man.endnotes.list.enabled 0 -param man.endnotes.are.numbered 0"
@@ -26,7 +24,7 @@ set (A2X_OPTS
   )
 
 set (MANPAGES)
-if (A2X_EXECUTABLE AND GZIP_EXECUTABLE)
+if (A2X_EXECUTABLE AND GZIP_EXECUTABLE AND SED_EXECUTABLE)
   file (MAKE_DIRECTORY man)
   foreach (f IN LISTS ASCIIDOC_MANS)
     get_filename_component (d "${f}" PATH)
@@ -41,9 +39,9 @@ if (A2X_EXECUTABLE AND GZIP_EXECUTABLE)
     add_custom_command (OUTPUT "${o}.gz"
       COMMAND ${CMAKE_COMMAND} ARGS -E make_directory "${d}"
       COMMAND ${A2X_EXECUTABLE} ARGS ${A2X_OPTS} -D "${d}" "${f}"
-      COMMAND ${GZIP_EXECUTABLE} ARGS -r --force --best "${o}"
-      COMMAND ${SED_EXECUTABLE} ARGS --in-place "s@.so @.so man${section}/@" "${d}/*.${section}"
-      COMMAND ${GZIP_EXECUTABLE} ARGS -r --force --best "${d}/*.${section}"
+      COMMAND ${GZIP_EXECUTABLE} ARGS -f9 "${o}"
+      COMMAND ${SED_EXECUTABLE} ARGS -e "'s@.so @&man${section}/@'" -i "''" "${d}/*.${section}"
+      COMMAND ${GZIP_EXECUTABLE} ARGS -f9 "${d}/*.${section}"
       DEPENDS "${f}"
       COMMENT "Generating ${o}.gz"
       )
@@ -54,6 +52,6 @@ if (A2X_EXECUTABLE AND GZIP_EXECUTABLE)
     DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/man
     DESTINATION ${WSJT_MANPAGE_DESTINATION}
     )
-endif (A2X_EXECUTABLE AND GZIP_EXECUTABLE)
+endif (A2X_EXECUTABLE AND GZIP_EXECUTABLE AND SED_EXECUTABLE)
 
 add_custom_target (manpages DEPENDS ${MANPAGES})
