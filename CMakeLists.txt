@@ -2,7 +2,38 @@ cmake_minimum_required (VERSION 2.8.9 FATAL_ERROR)
 
 project (wsjtx C CXX Fortran)
 
-set (WSJTX_COPYRIGHT "Copyright (C) 2001-2014 by Joe Taylor, K1JT")
+#
+# project information
+#
+set (PROJECT_VENDOR "Joe Taylor, K1JT")
+set (PROJECT_CONTACT "Joe Taylor <k1jt@arrl.net>")
+set (PROJECT_COPYRIGHT "Copyright (C) 2001-2014 by Joe Taylor, K1JT")
+set (PROJECT_HOMEPAGE "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx.html")
+set (PROJECT_MANUAL "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main-toc2.html")
+set (PROJECT_SUMMARY_DESCRIPTION "WSJT-X - JT9 and JT65 Modes for LF, MF and HF Amateur Radio.")
+set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
+ WSJT-X implements JT9, a new mode designed especially for the LF, MF,
+ and  HF bands,  as well  as the  popular mode  JT65.  Both  modes were
+ designed for making reliable, confirmed QSOs under extreme weak-signal
+ conditions.  They  use nearly  identical message structure  and source
+ encoding.   JT65 was designed  for EME  (“moonbounce”) on  the VHF/UHF
+ bands  and   has  also  proved   very  effective  for   worldwide  QRP
+ communication at  HF; in contrast, JT9  is optimized for  HF and lower
+ frequencies.  JT9 is about 2  dB more sensitive than JT65A while using
+ less than  10% of  the bandwidth.  World-wide  QSOs are  possible with
+ power levels of a few watts and compromise antennas.  A 2 kHz slice of
+ spectrum is  essentially full when  occupied by ten JT65  signals.  As
+ many as 100 JT9 signals can fit into the same space, without overlap.
+ .
+ WSJT-X offers a “bi-lingual“ operating  mode in which you can transmit
+ and   receive  JT65   and   JT9  signals,   switching  between   modes
+ automatically as  needed.  Displayed  bandwidth can be  as large  as 5
+ kHz.  If  your receiver  has as upper-sideband  filter at least  4 kHz
+ wide, you can have all the  typical JT65 and JT9 activity on screen at
+ once, available for making QSOs with  a click of the mouse.  Even with
+ standard SSB-width IF filters, switching between JT65 and JT9 modes is
+ quick  and convenient.   Be  sure  to read  the  online WSJT-X  User's
+ Guide.")
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/CMake/Modules)
 
@@ -34,16 +65,10 @@ option (WSJT_SOFT_KEYING "Apply a ramp to CW keying envelope to reduce transient
 set (WSJT_BIN_DESTINATION bin)
 set (WSJT_LIB_DESTINATION lib)
 set (WSJT_SHARE_DESTINATION share/wsjtx)
-set (WSJT_DOC_DESTINATION share/wsjtx/doc)
+set (WSJT_DOC_DESTINATION share/doc/wsjtx)
+set (WSJT_MANPAGE_DESTINATION share)
 set (WSJT_PLUGIN_DESTINATION lib/plugins)
 set (WSJT_QT_CONF_DESTINATION bin)
-
-
-#
-# project information
-#
-set (PROJECT_HOMEPAGE "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx.html")
-set (PROJECT_MANUAL "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main-toc2.html")
 
 
 #
@@ -349,13 +374,9 @@ if (APPLE)
   set (WSJT_PLUGIN_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/PlugIns)
   set (WSJT_QT_CONF_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
   set (WSJT_SHARE_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
+  set (WSJT_DOC_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
   set (WSJT_BIN_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/MacOS)
 endif (APPLE)
-
-#set (QT_NEED_RPATH FALSE)
-#if (NOT "${QT_LIBRARY_DIR}" STREQUAL "/lib" AND NOT "${QT_LIBRARY_DIR}" STREQUAL "/usr/lib" AND NOT "${QT_LIBRARY_DIR}" STREQUAL "/lib64" AND NOT "${QT_LIBRARY_DIR}" STREQUAL "/usr/lib64")
-#  set (QT_NEED_RPATH TRUE)
-#endif ()
 
 
 #
@@ -430,7 +451,7 @@ set (CMAKE_SKIP_BUILD_RPATH FALSE)
 # later on in the install phase
 set (CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${WSJT_LIB_DESTINATION}")
+# set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${WSJT_LIB_DESTINATION}")
 
 # add the automaticaly determined parts of the RPATH which point to
 # directories outside of the build tree to the install RPATH
@@ -438,10 +459,15 @@ set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # the RPATH to be used when installing, but only if it's not a system
 # directory
-list (FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/${WSJT_LIB_DESTINATION}" isSystemDir)
-if ("${isSystemDir}" STREQUAL "-1")
-  set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${WSJT_LIB_DESTINATION}")
-endif ("${isSystemDir}" STREQUAL "-1")
+# list (FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/${WSJT_LIB_DESTINATION}" isSystemDir)
+# if ("${isSystemDir}" STREQUAL "-1")
+#   set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${WSJT_LIB_DESTINATION}")
+# endif ("${isSystemDir}" STREQUAL "-1")
+
+set (QT_NEED_RPATH FALSE)
+if (NOT "${QT_LIBRARY_DIR}" STREQUAL "/lib" AND NOT "${QT_LIBRARY_DIR}" STREQUAL "/usr/lib" AND NOT "${QT_LIBRARY_DIR}" STREQUAL "/lib64" AND NOT "${QT_LIBRARY_DIR}" STREQUAL "/usr/lib64")
+  set (QT_NEED_RPATH TRUE)
+endif ()
 
 
 #
@@ -449,6 +475,7 @@ endif ("${isSystemDir}" STREQUAL "-1")
 #
 find_package (FFTW3 COMPONENTS single REQUIRED)
 include_directories (${FFTW3_INCLUDE_DIRS})
+
 
 #
 # libhamlib setup
@@ -584,8 +611,21 @@ qt5_use_modules (jt9 Core)
 #qt5_use_modules (ConfigTest Widgets OpenGL Network Multimedia)
 
 # build the main application
-add_executable (wsjtx WIN32 MACOSX_BUNDLE ${wsjtx_CXXSRCS} ${wsjtx_GENUISRCS} wsjtx.rc ${WSJTX_ICON_FILE} ${wsjtx_RESOURCES_RCC} contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
+add_executable (wsjtx WIN32 MACOSX_BUNDLE
+  ${wsjtx_CXXSRCS}
+  ${wsjtx_GENUISRCS}
+  wsjtx.rc
+  ${WSJTX_ICON_FILE}
+  ${wsjtx_RESOURCES_RCC}
+  contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
+  )
 qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia)
+
+if (UNIX)
+  add_subdirectory (manpages)
+  add_subdirectory (debian)
+  add_dependencies (wsjtx manpages debian)
+endif (UNIX)
 
 set_target_properties (wsjtx PROPERTIES
   MACOSX_BUNDLE_INFO_STRING "${WSJTX_DESCRIPTION_SUMMARY}"
@@ -594,7 +634,7 @@ set_target_properties (wsjtx PROPERTIES
   MACOSX_BUNDLE_SHORT_VERSION_STRING "v${wsjtx_VERSION}"
   MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${wsjtx_VERSION}"
   MACOSX_BUNDLE_BUNDLE_NAME "WSJT-X"
-  MACOSX_BUNDLE_COPYRIGHT "${WSJTX_COPYRIGHT}"
+  MACOSX_BUNDLE_COPYRIGHT "${PROJECT_COPYRIGHT}"
   )
 
 target_link_libraries (wsjtx wsjt wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
@@ -615,20 +655,20 @@ install (TARGETS wsjtx
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION}
   LIBRARY DESTINATION ${WSJT_LIB_DESTINATION}
   BUNDLE DESTINATION .
-  # COMPONENT Runtime
+  COMPONENT Runtime
   )
 
 install (TARGETS jt9
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION}
   LIBRARY DESTINATION ${WSJT_LIB_DESTINATION}
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION}
-  #  COMPONENT Runtime
+  COMPONENT Runtime
   )
 
 install (PROGRAMS
   ${CMAKE_BINARY_DIR}/contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
   DESTINATION ${WSJT_BIN_DESTINATION}
-  #  COMPONENT Runtime
+  COMPONENT Runtime
   )
 
 
