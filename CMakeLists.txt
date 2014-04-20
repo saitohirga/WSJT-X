@@ -375,6 +375,7 @@ if (APPLE)
   set (WSJT_QT_CONF_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
   set (WSJT_SHARE_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
   set (WSJT_DOC_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
+  set (WSJT_MANPAGE_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
   set (WSJT_BIN_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/MacOS)
 endif (APPLE)
 
@@ -623,7 +624,9 @@ qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia)
 
 if (UNIX)
   add_subdirectory (manpages)
-  add_subdirectory (debian)
+  if (NOT APPLE)
+    add_subdirectory (debian)
+  endif (NOT APPLE)
   add_dependencies (wsjtx manpages debian)
 endif (UNIX)
 
