@@ -660,20 +660,20 @@ install (TARGETS wsjtx
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION}
   LIBRARY DESTINATION ${WSJT_LIB_DESTINATION}
   BUNDLE DESTINATION .
-  COMPONENT Runtime
+  #COMPONENT Runtime
   )
 
 install (TARGETS jt9
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION}
   LIBRARY DESTINATION ${WSJT_LIB_DESTINATION}
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION}
-  COMPONENT Runtime
+  #COMPONENT Runtime
   )
 
 install (PROGRAMS
   ${CMAKE_BINARY_DIR}/contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
   DESTINATION ${WSJT_BIN_DESTINATION}
-  COMPONENT Runtime
+  #COMPONENT Runtime
   )
 
 
@@ -713,8 +713,16 @@ include_directories ("${PROJECT_BINARY_DIR}")
 if (NOT WIN32 AND NOT APPLE)
   # install a desktop file so wsjtx appears in the application start
   # menu with an icon
-  install (FILES wsjtx.desktop DESTINATION share/applications)
-  install (FILES icons/Unix/wsjtx_icon.png DESTINATION share/pixmaps)
+  install (
+    FILES wsjtx.desktop
+    DESTINATION share/applications
+    #COMPONENT Runtime
+    )
+  install (
+    FILES icons/Unix/wsjtx_icon.png
+    DESTINATION share/pixmaps
+    #COMPONENT Runtime
+    )
 endif (NOT WIN32 AND NOT APPLE)
 
 
@@ -746,7 +754,8 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
   file (WRITE \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION}/qt.conf\"
 \"[Paths]
 \")
-" #COMPONENT Runtime
+"
+      #COMPONENT Runtime
       )
 
     # if a system Qt is used (e.g. installed in /usr/lib/), it will not be included in the installation
@@ -761,7 +770,7 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 	${QT_PLUGINS_DIR}/audio
 	DESTINATION ${WSJT_PLUGIN_DESTINATION}
 	CONFIGURATIONS Release MinSizeRel
-	#      COMPONENT Runtime
+	#COMPONENT Runtime
 	FILES_MATCHING PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}"
 	PATTERN "*minimal*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
 	PATTERN "*offscreen*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
@@ -773,7 +782,7 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
       # 	${QT_PLUGINS_DIR}/audio
       # 	DESTINATION ${WSJT_PLUGIN_DESTINATION}
       # 	CONFIGURATIONS Debug
-      # 	#      COMPONENT Runtime
+      # 	#COMPONENT Runtime
       # 	FILES_MATCHING PATTERN "*_debug${CMAKE_SHARED_LIBRARY_SUFFIX}"
       # 	PATTERN "*minimal*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
       # 	PATTERN "*offscreen*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
@@ -784,7 +793,8 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION}/qt.conf\"
 \"Plugins = Plugins
 \")
-" #COMPONENT Runtime
+"
+	#COMPONENT Runtime
 	)
     endif (APPLE)
 
@@ -801,7 +811,7 @@ file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION
 	${QT_PLUGINS_DIR}/platforms
 	DESTINATION ${WSJT_PLUGIN_DESTINATION}
 	CONFIGURATIONS Release MinSizeRel
-	#      COMPONENT Runtime
+	#COMPONENT Runtime
 	FILES_MATCHING PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}"
 	PATTERN "*minimal*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
 	PATTERN "*offscreen*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
@@ -812,7 +822,7 @@ file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION
       # 	${QT_PLUGINS_DIR}/platforms
       # 	DESTINATION ${WSJT_PLUGIN_DESTINATION}
       # 	CONFIGURATIONS Debug
-      # 	#      COMPONENT Runtime
+      # 	#COMPONENT Runtime
       # 	FILES_MATCHING PATTERN "*d${CMAKE_SHARED_LIBRARY_SUFFIX}"
       # 	PATTERN "*minimal*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
       # 	PATTERN "*offscreen*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
@@ -824,7 +834,8 @@ file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION
 file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION}/qt.conf\"
 \"Plugins = ${_plugins_path}
 \")
-" #COMPONENT Runtime
+"
+	#COMPONENT Runtime
 	)
 
       # set (gp_tool "objdump")	# we want MinGW tool - not MSVC (See GetPrerequisites.cmake)
