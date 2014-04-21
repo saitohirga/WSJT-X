@@ -655,7 +655,8 @@ void MainWindow::on_monitorButton_clicked (bool checked)
   if (!m_transmitting)
     {
       auto prior = m_monitoring;
-      m_monitoring = checked;
+      monitor (checked);
+
       if (!prior)
         {
           m_diskData = false;	// no longer reading WAV files
@@ -673,7 +674,6 @@ void MainWindow::on_monitorButton_clicked (bool checked)
                                                         // mode
                                                         // checking
 
-      monitor (checked);
     }
   else
     {
@@ -684,15 +684,18 @@ void MainWindow::on_monitorButton_clicked (bool checked)
 void MainWindow::monitor (bool state)
 {
   ui->monitorButton->setChecked (state);
-  m_monitoring = state;
   if (state)
     {
-      Q_EMIT resumeAudioInputStream ();
+      if (!m_monitoring)
+        {
+          Q_EMIT resumeAudioInputStream ();
+        }
     }
   else
     {
       Q_EMIT suspendAudioInputStream ();
     }
+  m_monitoring = state;
 }
 
 void MainWindow::on_actionAbout_triggered()                  //Display "About"
