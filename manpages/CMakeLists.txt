@@ -5,7 +5,16 @@ set (ASCIIDOC_MANS
 find_program (A2X_EXECUTABLE NAMES a2x a2x.py)
 if (NOT A2X_EXECUTABLE)
   if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-    message (SEND_ERROR "Failed to find a2x which is required for release builds on *nix platforms.")
+    message (SEND_ERROR "
+Failed to find a2x which is an optional requirement for non-debug
+builds on *nix platforms.
+
+You can choose to skip manpage generation and this error by setting
+the CMake option WSJT_SKIP_MANPAGES to ON. This option is designed for
+those that are building for their own use, packages should not opt to
+skip manpage generation since package building requires the
+manpages.")
+
   else (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     message (WARNING "Failed to find a2x skipping manpage generation.")
   endif (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")

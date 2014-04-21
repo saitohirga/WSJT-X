@@ -19,7 +19,7 @@ configure_file (
   @ONLY)
 
 add_custom_target (debian
-  COMMAND ${GZIP_EXECUTABLE} -9 --force changelog
+  COMMAND ${GZIP_EXECUTABLE} -cf9 changelog > changelog.gz
   DEPENDS changelog.in
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   COMMENT "Compressing Debian changelog"
