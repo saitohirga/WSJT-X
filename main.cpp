@@ -18,9 +18,12 @@
 #include <QSysInfo>
 #include <QDir>
 #include <QStandardPaths>
+#include <QStringList>
+
+#if QT_VERSION >= 0x050200
 #include <QCommandLineParser>
 #include <QCommandLineOption>
-#include <QStringList>
+#endif
 
 #include "revision_utils.hpp"
 
@@ -48,6 +51,9 @@ int main(int argc, char *argv[])
                                "." WSJTX_STRINGIZE (WSJTX_VERSION_MINOR)
                                "." WSJTX_STRINGIZE (WSJTX_VERSION_PATCH) " " + revision ());
 
+      bool multiple {false};
+
+#if QT_VERSION >= 0x050200
       QCommandLineParser parser;
       parser.setApplicationDescription ("\nJT65A & JT9 Weak Signal Communications Program.");
       parser.addHelpOption ();
@@ -69,8 +75,6 @@ int main(int argc, char *argv[])
 
       QStandardPaths::setTestModeEnabled (parser.isSet (test_option));
 
-      bool multiple {false};
-
 #if WSJT_STANDARD_FILE_LOCATIONS
       // support for multiple instances running from a single installation
       if (parser.isSet (rig_option))
@@ -88,6 +92,7 @@ int main(int argc, char *argv[])
             }
           multiple = true;
         }
+#endif
 #endif
 
       auto config_directory = QStandardPaths::writableLocation (QStandardPaths::ConfigLocation);
