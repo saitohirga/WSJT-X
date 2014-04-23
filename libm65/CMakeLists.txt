@@ -136,13 +136,13 @@ set (FSRCS
   )
 
 set (CSRCS
-  cutil.c
   decode_rs.c
   encode_rs.c
   gran.c
   igray.c
   init_rs.c
   tmoonsub.c
+  usleep.c
   wrapkarn.c
 )
 
