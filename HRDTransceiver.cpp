@@ -303,9 +303,22 @@ int HRDTransceiver::find_dropdown (QRegExp const& re) const
   return dropdown_names_.indexOf (re);
 }
 
-int HRDTransceiver::find_dropdown_selection (int dropdown, QRegExp const& re) const
+std::vector<int> HRDTransceiver::find_dropdown_selection (int dropdown, QRegExp const& re) const
 {
-  return dropdowns_.value (dropdown_names_.value (dropdown)).lastIndexOf (re); // backwards because more specialised modes tend to be later in list
+  std::vector<int> indices;
+  auto list = dropdowns_.value (dropdown_names_.value (dropdown));
+  int index {0};
+  while (-1 != (index = list.lastIndexOf (re, index - 1)))
+    {
+      // search backwards because more specialized modes tend to be later in
+      // list
+      indices.push_back (index);
+      if (!index)
+        {
+          break;
+        }
+    }
+  return indices;
 }
 
 int HRDTransceiver::lookup_dropdown_selection (int dropdown, QString const& selection) const
@@ -335,8 +348,8 @@ void HRDTransceiver::map_modes (int dropdown, ModeMap *map)
 
   std::for_each (map->begin (), map->end (), [this, dropdown] (ModeMap::value_type const& item)
                  {
-                   auto rhs = std::get<1> (item);
-                   qDebug () << '\t' << std::get<0> (item) << "<->" << (rhs >= 0 ? dropdowns_[dropdown_names_[dropdown]][rhs] : "None");
+                   auto const& rhs = std::get<1> (item);
+                   qDebug () << '\t' << std::get<0> (item) << "<->" << (rhs.size () ? dropdowns_[dropdown_names_[dropdown]][rhs.front ()] : "None");
                  });
 #endif
 }
@@ -348,12 +361,16 @@ int HRDTransceiver::lookup_mode (MODE mode, ModeMap const& map) const
     {
       throw error {tr ("Ham Radio Deluxe: rig doesn't support mode")};
     }
-  return std::get<1> (*it);
+  return std::get<1> (*it).front ();
 }
 
 auto HRDTransceiver::lookup_mode (int mode, ModeMap const& map) const -> MODE
 {
-  auto it = std::find_if (map.begin (), map.end (), [mode] (ModeMap::value_type const& item) {return std::get<1> (item) == mode;});
+  auto it = std::find_if (map.begin (), map.end (), [mode] (ModeMap::value_type const& item)
+                          {
+                            auto const& indices = std::get<1> (item);
+                            return indices.cend () != std::find (indices.cbegin (), indices.cend (), mode);
+                          });
   if (map.end () == it)
     {
       throw error {tr ("Ham Radio Deluxe: sent an unrecognised mode")};
@@ -503,7 +520,7 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
     }
   else if (split_mode_dropdown_ >= 0)
     {
-      set_dropdown (split_mode_dropdown_, split ? split_mode_dropdown_selection_on_ : split_mode_dropdown_selection_off_);
+      set_dropdown (split_mode_dropdown_, split ? split_mode_dropdown_selection_on_.front () : split_mode_dropdown_selection_off_.front ());
     }
   else if (vfo_A_button_ >= 0 && vfo_B_button_ >= 0 && tx_A_button_ >= 0 && tx_B_button_ >= 0)
     {
@@ -586,7 +603,7 @@ void HRDTransceiver::poll ()
         {
           try
             {
-              update_split (get_dropdown (split_mode_dropdown_, quiet) == split_mode_dropdown_selection_on_);
+              update_split (get_dropdown (split_mode_dropdown_, quiet) == split_mode_dropdown_selection_on_.front ());
             }
           catch (error const&)
             {

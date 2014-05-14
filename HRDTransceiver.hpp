@@ -50,14 +50,14 @@ private:
   void sync_impl ();
   int find_button (QRegExp const&) const;
   int find_dropdown (QRegExp const&) const;
-  int find_dropdown_selection (int dropdown, QRegExp const&) const;
+  std::vector<int> find_dropdown_selection (int dropdown, QRegExp const&) const;
   int lookup_dropdown_selection (int dropdown, QString const&) const;
   int get_dropdown (int, bool no_debug = false);
   void set_dropdown (int, int);
   void set_button (int button_index, bool checked = true);
   bool is_button_checked (int button_index, bool no_debug = false);
 
-  using ModeMap = std::vector<std::tuple<MODE, int> >;
+  using ModeMap = std::vector<std::tuple<MODE, std::vector<int> > >;
   void map_modes (int dropdown, ModeMap *);
   int lookup_mode (MODE, ModeMap const&) const;
   MODE lookup_mode (int, ModeMap const&) const;
@@ -84,8 +84,8 @@ private:
   int split_mode_button_;
   int split_mode_dropdown_;
   bool split_mode_dropdown_write_only_;
-  int split_mode_dropdown_selection_on_;
-  int split_mode_dropdown_selection_off_;
+  std::vector<int> split_mode_dropdown_selection_on_;
+  std::vector<int> split_mode_dropdown_selection_off_;
   int split_off_button_;
   int tx_A_button_;
   int tx_B_button_;
