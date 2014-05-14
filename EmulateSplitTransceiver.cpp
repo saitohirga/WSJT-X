@@ -52,14 +52,23 @@ void EmulateSplitTransceiver::ptt (bool on) noexcept
 #endif
 
   // Save TX state for future frequency change requests.
-  tx_ = on;
+  if ((tx_ = on))
+    {
+      // Switch to other frequency if we have one i.e. client wants
+      // split operation).
+      wrapped_->frequency (frequency_[frequency_[1] ? 1 : 0]);
 
-  // Switch to other frequency if we have one i.e. client wants split
-  // operation).
-  wrapped_->frequency (frequency_[(on && frequency_[1]) ? 1 : 0]);
+      // Change TX state.
+      wrapped_->ptt (true);
+    }
+  else
+    {
+      // Change TX state.
+      wrapped_->ptt (false);
 
-  // Change TX state.
-  wrapped_->ptt (on);
+      // Switch to RX frequency.
+      wrapped_->frequency (frequency_[0]);
+    }
 }
 
 void EmulateSplitTransceiver::handle_update (TransceiverState state)
