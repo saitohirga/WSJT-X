@@ -21,7 +21,8 @@ void HRDTransceiver::register_transceivers (TransceiverFactory::Transceivers * r
 
 struct HRDMessage
 {
-  // placement style new overload for outgoing messages that does the construction too
+  // Placement style new overload for outgoing messages that does the
+  // construction too.
   static void * operator new (size_t size, QString const& payload)
   {
     size += sizeof (QChar) * (payload.size () + 1); // space for terminator too
@@ -35,25 +36,26 @@ struct HRDMessage
     return storage;
   }
 
-  // placement style new overload for incoming messages that does the construction too
+  // Placement style new overload for incoming messages that does the
+  // construction too.
   //
-  // no memory allocation here
+  // No memory allocation here.
   static void * operator new (size_t /* size */, QByteArray const& message)
   {
-    // nasty const_cast here to avoid copying the message buffer
+    // Nasty const_cast here to avoid copying the message buffer.
     return const_cast<HRDMessage *> (reinterpret_cast<HRDMessage const *> (message.data ()));
   }
 
   void operator delete (void * p, size_t)
   {
-    delete [] reinterpret_cast<char *> (p); // mirror allocation in operator new above
+    delete [] reinterpret_cast<char *> (p); // Mirror allocation in operator new above.
   }
 
   qint32 size_;
   qint32 magic_1_;
   qint32 magic_2_;
-  qint32 checksum_;	       // apparently not used
-  QChar payload_[0];	       // UTF-16 (which is wchar_t on Windows)
+  qint32 checksum_;            // Apparently not used.
+  QChar payload_[0];           // UTF-16 (which is wchar_t on Windows)
 
   static qint32 const magic_1_value_;
   static qint32 const magic_2_value_;
@@ -118,30 +120,6 @@ void HRDTransceiver::do_start ()
       throw error {tr ("Failed to connect to Ham Radio Deluxe\n") + hrd_->errorString ()};
     }
 
-  init_radio ();
-}
-
-void HRDTransceiver::do_stop ()
-{
-  if (hrd_)
-    {
-      hrd_->close ();
-    }
-
-  if (wrapped_)
-    {
-      wrapped_->stop ();
-    }
-
-#if WSJT_TRACE_CAT
-  qDebug () << "HRDTransceiver::stop: state:" << state () << "reversed =" << reversed_;
-#endif
-}
-
-void HRDTransceiver::init_radio ()
-{
-  Q_ASSERT (hrd_);
-
   if (none == protocol_)
     {
       try
@@ -160,11 +138,11 @@ void HRDTransceiver::init_radio ()
       hrd_->close ();
 
       protocol_ = v4;		// try again with older protocol
-      hrd_->connectToHost (QHostAddress::LocalHost, 7809);
+      hrd_->connectToHost (std::get<0> (server_details), std::get<1> (server_details));
       if (!hrd_->waitForConnected (socket_wait_time))
         {
 #if WSJT_TRACE_CAT
-          qDebug () << "HRDTransceiver::init_radio failed to connect:" <<  hrd_->errorString ();
+          qDebug () << "HRDTransceiver::do_start failed to connect:" <<  hrd_->errorString ();
 #endif
 
           throw error {tr ("Failed to connect to Ham Radio Deluxe\n") + hrd_->errorString ()};
@@ -182,7 +160,7 @@ void HRDTransceiver::init_radio ()
   if (radios.isEmpty ())
     {
 #if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::init_radio no rig found";
+      qDebug () << "HRDTransceiver::do_start no rig found";
 #endif
 
       throw error {tr ("Ham Radio Deluxe: no rig found")};
@@ -205,7 +183,7 @@ void HRDTransceiver::init_radio ()
   if (send_command ("get radio", false, false, true).isEmpty ())
     {
 #if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::init_radio no rig found";
+      qDebug () << "HRDTransceiver::do_start no rig found";
 #endif
 
       throw error {tr ("Ham Radio Deluxe: no rig found")};
@@ -263,6 +241,23 @@ void HRDTransceiver::init_radio ()
   ptt_button_ = find_button (QRegExp ("^(TX)$"));
 
   sync_impl ();
+}
+
+void HRDTransceiver::do_stop ()
+{
+  if (hrd_)
+    {
+      hrd_->close ();
+    }
+
+  if (wrapped_)
+    {
+      wrapped_->stop ();
+    }
+
+#if WSJT_TRACE_CAT
+  qDebug () << "HRDTransceiver::stop: state:" << state () << "reversed =" << reversed_;
+#endif
 }
 
 void HRDTransceiver::sync_impl ()
