@@ -10,12 +10,11 @@ CONFIG   += thread
 #CONFIG   += console
 
 TARGET = wsjtx
-#DESTDIR = ../qt4_install
 DESTDIR = ../wsjtx_install
-VERSION = 1.2
+VERSION = 1.4
 TEMPLATE = app
 DEFINES = QT5
-HAMLIB_DIR = ../../hamlib-1.2.15.3
+HAMLIB_DIR = ../../hamlib3/mingw32
 QMAKE_CXXFLAGS += -std=c++11
 
 F90 = gfortran
@@ -119,9 +118,8 @@ LIBS += -lfftw3f $$system($$F90 -print-file-name=libgfortran.so)
 }
 
 win32 {
-INCLUDEPATH += $(HAMLIB_DIR)/include
-LIBS += -L$(HAMLIB_DIR)/lib -lhamlib
-#LIBS += -L$(HAMLIB_DIR)/lib -lhamlib
+INCLUDEPATH += $${HAMLIB_DIR}/include
+LIBS += -L${HAMLIB_DIR}/lib -lhamlib
 LIBS += -L./lib -lastro -ljt9
 LIBS += -L. -lfftw3f_win
 LIBS += -lws2_32
