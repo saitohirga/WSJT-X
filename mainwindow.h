@@ -208,6 +208,9 @@ private:
   QScopedPointer<WideGraph> m_wideGraph;
   QScopedPointer<LogQSO> m_logDlg;
   QScopedPointer<Astro> m_astroWidget;
+  QScopedPointer<QTextEdit> m_shortcuts;
+  QScopedPointer<QTextEdit> m_prefixes;
+  QScopedPointer<QTextEdit> m_mouseCmnds;
 
   Frequency  m_dialFreq;
 

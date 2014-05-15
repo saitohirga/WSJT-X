@@ -38,14 +38,11 @@ int rc;
 qint32  g_iptt;
 wchar_t buffer[256];
 
-QTextEdit* pShortcuts;
-QTextEdit* pPrefixes;
 
 namespace
 {
   Radio::Frequency constexpr default_frequency {14076000};
 }
-
 
 class BandAndFrequencyItemDelegate final
   : public QStyledItemDelegate
@@ -957,10 +954,11 @@ void MainWindow::createStatusBar()                           //createStatusBar
 void MainWindow::closeEvent(QCloseEvent * e)
 {
   m_config.transceiver_offline ();
-
   writeSettings ();
-
   m_guiTimer.stop ();
+  m_prefixes.reset ();
+  m_shortcuts.reset ();
+  m_mouseCmnds.reset ();
 
   if(m_fname != "") killFile();
   m_killAll=true;
@@ -1011,7 +1009,7 @@ void MainWindow::on_actionAstronomical_data_triggered()
       // hook up termination signal
       connect (this, &MainWindow::finished, m_astroWidget.data (), &Astro::close);
     }
-  m_astroWidget->show();
+  m_astroWidget->showNormal();
 }
 
 void MainWindow::on_actionOpen_triggered()                     //Open File
@@ -1132,53 +1130,58 @@ void MainWindow::on_actionSave_all_triggered()                //Save All
 
 void MainWindow::on_actionKeyboard_shortcuts_triggered()
 {
-  pShortcuts = new QTextEdit(0);
-  pShortcuts->setReadOnly(true);
-  pShortcuts->setFontPointSize(10);
-  pShortcuts->setWindowTitle(QApplication::applicationName () + " - " + tr ("Keyboard Shortcuts"));
-  pShortcuts->setGeometry(QRect(45,50,430,460));
-  Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
-    Qt::WindowMinimizeButtonHint;
-  pShortcuts->setWindowFlags(flags);
-  QFile f(":/shortcuts.txt");
-  if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    msgBox("Cannot open \"" + f.fileName () + "\".");
-    return;
-  }
-  QTextStream s(&f);
-  QString t;
-  for(int i=0; i<100; i++) {
-    t=s.readLine();
-    pShortcuts->append(t);
-    if(s.atEnd()) break;
-  }
-  pShortcuts->show();
+  if (!m_shortcuts)
+    {
+      QFile f(":/shortcuts.txt");
+      if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        msgBox("Cannot open \"" + f.fileName () + "\".");
+        return;
+      }
+      m_shortcuts.reset (new QTextEdit);
+      m_shortcuts->setReadOnly(true);
+      m_shortcuts->setFontPointSize(10);
+      m_shortcuts->setWindowTitle(QApplication::applicationName () + " - " + tr ("Keyboard Shortcuts"));
+      m_shortcuts->setGeometry(QRect(45,50,430,460));
+      Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
+        Qt::WindowMinimizeButtonHint;
+      m_shortcuts->setWindowFlags(flags);
+      QTextStream s(&f);
+      QString t;
+      for(int i=0; i<100; i++) {
+        t=s.readLine();
+        m_shortcuts->append(t);
+        if(s.atEnd()) break;
+      }
+    }
+  m_shortcuts->showNormal();
 }
 
 void MainWindow::on_actionSpecial_mouse_commands_triggered()
 {
-  QTextEdit* pMouseCmnds;
-  pMouseCmnds = new QTextEdit(0);
-  pMouseCmnds->setReadOnly(true);
-  pMouseCmnds->setFontPointSize(10);
-  pMouseCmnds->setWindowTitle(QApplication::applicationName () + " - " + tr ("Special Mouse Commands"));
-  pMouseCmnds->setGeometry(QRect(45,50,440,300));
-  Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
-    Qt::WindowMinimizeButtonHint;
-  pMouseCmnds->setWindowFlags(flags);
-  QFile f(":/mouse_commands.txt");
-  if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    msgBox("Cannot open \"" + f.fileName () + "\".");
-    return;
-  }
-  QTextStream s(&f);
-  QString t;
-  for(int i=0; i<100; i++) {
-    t=s.readLine();
-    pMouseCmnds->append(t);
-    if(s.atEnd()) break;
-  }
-  pMouseCmnds->show();
+  if (!m_mouseCmnds)
+    {
+      QFile f(":/mouse_commands.txt");
+      if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        msgBox("Cannot open \"" + f.fileName () + "\".");
+        return;
+      }
+      m_mouseCmnds.reset (new QTextEdit);
+      m_mouseCmnds->setReadOnly(true);
+      m_mouseCmnds->setFontPointSize(10);
+      m_mouseCmnds->setWindowTitle(QApplication::applicationName () + " - " + tr ("Special Mouse Commands"));
+      m_mouseCmnds->setGeometry(QRect(45,50,440,300));
+      Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
+        Qt::WindowMinimizeButtonHint;
+      m_mouseCmnds->setWindowFlags(flags);
+      QTextStream s(&f);
+      QString t;
+      for(int i=0; i<100; i++) {
+        t=s.readLine();
+        m_mouseCmnds->append(t);
+        if(s.atEnd()) break;
+      }
+    }
+  m_mouseCmnds->showNormal();
 }
 
 void MainWindow::on_DecodeButton_clicked (bool /* checked */)	//Decode request
@@ -2832,27 +2835,30 @@ void MainWindow::on_outAttenuation_valueChanged (int a)
 
 void MainWindow::on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered()
 {
-  pPrefixes = new QTextEdit(0);
-  pPrefixes->setReadOnly(true);
-  pPrefixes->setFontPointSize(10);
-  pPrefixes->setWindowTitle(QApplication::applicationName () + " - " + tr ("Prefixes"));
-  pPrefixes->setGeometry(QRect(45,50,565,450));
-  Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
-    Qt::WindowMinimizeButtonHint;
-  pPrefixes->setWindowFlags(flags);
-  QFile f(":/prefixes.txt");
-  if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    msgBox("Cannot open \"" + f.fileName () + "\".");
-    return;
-  }
-  QTextStream s(&f);
-  QString t;
-  for(int i=0; i<100; i++) {
-    t=s.readLine();
-    pPrefixes->append(t);
-    if(s.atEnd()) break;
-  }
-  pPrefixes->show();
+  if (!m_prefixes)
+    {
+      QFile f(":/prefixes.txt");
+      if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        msgBox("Cannot open \"" + f.fileName () + "\".");
+        return;
+      }
+      m_prefixes.reset (new QTextEdit);
+      m_prefixes->setReadOnly(true);
+      m_prefixes->setFontPointSize(10);
+      m_prefixes->setWindowTitle(QApplication::applicationName () + " - " + tr ("Prefixes"));
+      m_prefixes->setGeometry(QRect(45,50,565,450));
+      Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
+        Qt::WindowMinimizeButtonHint;
+      m_prefixes->setWindowFlags(flags);
+      QTextStream s(&f);
+      QString t;
+      for(int i=0; i<100; i++) {
+        t=s.readLine();
+        m_prefixes->append(t);
+        if(s.atEnd()) break;
+      }
+    }
+  m_prefixes->showNormal();
 }
 
 void MainWindow::getpfx()
