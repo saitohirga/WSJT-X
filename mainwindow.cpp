@@ -2174,12 +2174,14 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   }
   tx->setPalette(p);
   int len=t.length();
+  auto pos  = tx->cursorPosition ();
   if(text) {
     len=qMin(len,13);
     tx->setText(t.mid(0,len).toUpper());
   } else {
     tx->setText(t);
   }
+  tx->setCursorPosition (pos);
 }
 
 void MainWindow::on_tx1_editingFinished()                       //tx1 edited
