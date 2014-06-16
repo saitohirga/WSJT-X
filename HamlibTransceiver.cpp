@@ -533,7 +533,17 @@ void HamlibTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
       qDebug () << "HamlibTransceiver::do_tx_frequency rig_set_split_vfo";
 #endif
 
-      error_check (rig_set_split_vfo (rig_.data (), RIG_VFO_CURR, tx ? RIG_SPLIT_ON : RIG_SPLIT_OFF, tx_vfo), tr ("seting split mode"));
+      auto rc = rig_set_split_vfo (rig_.data (), RIG_VFO_CURR, tx ? RIG_SPLIT_ON : RIG_SPLIT_OFF, tx_vfo);
+      if (tx || -RIG_ENAVAIL != rc)
+        {
+          // On rigs that can't have split controlled only throw an
+          // exception when an error other than command not accepted
+          // is returned when trying to leave split mode. This allows
+          // fake split mode and non-split mode to work without error
+          // on such rigs without having to know anything about the
+          // specific rig.
+          error_check (rc, tr ("setting/unsetting split mode"));
+        }
     }
 
   update_split (tx);
