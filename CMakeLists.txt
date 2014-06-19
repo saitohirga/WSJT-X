@@ -40,6 +40,17 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/CMake/Modules)
 include (${PROJECT_SOURCE_DIR}/CMake/VersionCompute.cmake)
 
 
+# make sure that the default configuration is a RELEASE
+if (NOT CMAKE_BUILD_TYPE)
+  set (CMAKE_BUILD_TYPE RELEASE CACHE STRING
+    "Choose the type of build, options are: None Debug Release."
+    FORCE)
+endif (NOT CMAKE_BUILD_TYPE)
+if (CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")
+  set (is_debug_build 1)
+endif ()
+
+
 #
 # Options & features
 #
@@ -47,6 +58,8 @@ include (${PROJECT_SOURCE_DIR}/CMake/VersionCompute.cmake)
 #	wsjtx_config.h.in which makes them available to the C/C++
 #	pre-processor.
 #
+include (CMakeDependentOption)
+
 option (UPDATE_TRANSLATIONS "Update source translation translations/*.ts
 files (WARNING: make clean will delete the source .ts files! Danger!)")
 option (WSJT_SHARED_RUNTIME "Debugging option that allows running from a shared Cloud directory.")
@@ -58,6 +71,10 @@ option (WSJT_HAMLIB_TRACE "Debugging option that turns on full Hamlib internal d
 option (WSJT_STANDARD_FILE_LOCATIONS "All non-installation files located in \"Standard\" platfom specific locations." ON)
 option (WSJT_SOFT_KEYING "Apply a ramp to CW keying envelope to reduce transients." ON)
 option (WSJT_SKIP_MANPAGES "Skip *nix manpage generation")
+
+CMAKE_DEPENDENT_OPTION (WSJT_ENABLE_EXPERIMENTAL_FEATURES "Enable features not fully ready for public releases." ON
+  "is_debug_build" OFF)
+
 
 #
 # install locations
@@ -346,13 +363,6 @@ endif (WIN32)
 if (POLICY CMP0020)
   cmake_policy (SET CMP0020 NEW) # link to Qt winmain on Windows
 endif (POLICY CMP0020)
-
-# make sure that the default is a RELEASE
-if (NOT CMAKE_BUILD_TYPE)
-  set (CMAKE_BUILD_TYPE RELEASE CACHE STRING
-    "Choose the type of build, options are: None Debug Release."
-    FORCE)
-endif (NOT CMAKE_BUILD_TYPE)
 
 
 #
@@ -729,7 +739,7 @@ endif (NOT WIN32 AND NOT APPLE)
 #
 # bundle fixup only done in Release or MinSizeRel configurations
 #
-if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (NOT is_debug_build)
 
   # get_target_property (QtCore_location Qt5::Core LOCATION)
   # get_filename_component (QtCore_location ${QtCore_location} PATH)
@@ -857,7 +867,7 @@ file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION
       )
   endif (APPLE OR WIN32)
 
-endif (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+endif (NOT is_debug_build)
 
 
 #

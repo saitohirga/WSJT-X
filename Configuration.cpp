@@ -793,6 +793,10 @@ Configuration::impl::impl (Configuration * self, QString const& instance_key, QS
   initialise_models ();
 
   transceiver_thread_.start ();
+
+#if !WSJT_ENABLE_EXPERIMENTAL_FEATURES
+  ui_->jt9w_group_box->setEnabled (false);
+#endif
 }
 
 Configuration::impl::~impl ()

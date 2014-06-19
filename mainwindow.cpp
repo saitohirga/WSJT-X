@@ -414,6 +414,10 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_config.transceiver_online (true);
   qsy (m_lastMonitoredFrequency);
   monitor (!m_config.monitor_off_at_startup ());
+
+#if !WSJT_ENABLE_EXPERIMENTAL_FEATURES
+  ui->actionJT9W_1->setEnabled (false);
+#endif
 }
 
 //--------------------------------------------------- MainWindow destructor
