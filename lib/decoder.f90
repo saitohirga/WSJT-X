@@ -45,10 +45,11 @@ subroutine decoder(ss,id2)
   ntol65=20
   done65=.false.
   if((nmode.eq.65 .or. nmode.eq.65+9) .and. ntxmode.eq.65) then
+! We're decoding JT65, and should do this mode first
      if(newdat.ne.0) dd(1:npts65)=id2(1:npts65)
      nf1=nfa
      nf2=nfb
-     if(nmode.eq.65+9) nf2=nfsplit
+!     if(nmode.eq.65+9) nf2=nfsplit
      call jt65a(dd,npts65,newdat,nutc,nf1,nf2,nfqso,ntol65,nagain,ndecoded)
      done65=.true.
   endif
