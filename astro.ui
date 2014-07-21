@@ -80,7 +80,7 @@
      <item>
       <widget class="QPushButton" name="font_push_button">
        <property name="text">
-        <string>Font ...</string>
+        <string>Font</string>
        </property>
       </widget>
      </item>
