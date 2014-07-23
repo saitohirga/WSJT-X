@@ -211,7 +211,7 @@
        <item>
         <widget class="QGroupBox" name="behaviour_group_box">
          <property name="title">
-          <string>Behaviour</string>
+          <string>Behavior</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
           <item row="0" column="0">
@@ -902,7 +902,7 @@ this setting allows you to select which audio input will be used
          <item>
           <widget class="QLabel" name="CAT_poll_interval_label">
            <property name="text">
-            <string>Poll Interval:</string>
+            <string>Poll Interval (s):</string>
            </property>
            <property name="buddy">
             <cstring>CAT_poll_interval_spin_box</cstring>
@@ -1821,12 +1821,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="PTT_method_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="split_mode_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
  </buttongroups>
 </ui>

@@ -750,7 +750,7 @@ Configuration::impl::impl (Configuration * self, QString const& instance_key, QS
   ui_->frequencies_table_view->insertAction (nullptr, frequency_delete_action_);
   connect (frequency_delete_action_, &QAction::triggered, this, &Configuration::impl::delete_frequencies);
 
-  frequency_insert_action_ = new QAction {tr ("&Insert ..."), ui_->frequencies_table_view};
+  frequency_insert_action_ = new QAction {tr ("&Insert"), ui_->frequencies_table_view};
   ui_->frequencies_table_view->insertAction (nullptr, frequency_insert_action_);
   connect (frequency_insert_action_, &QAction::triggered, this, &Configuration::impl::insert_frequency);
 
@@ -770,7 +770,7 @@ Configuration::impl::impl (Configuration * self, QString const& instance_key, QS
   ui_->stations_table_view->insertAction (nullptr, station_delete_action_);
   connect (station_delete_action_, &QAction::triggered, this, &Configuration::impl::delete_stations);
 
-  station_insert_action_ = new QAction {tr ("&Insert ..."), ui_->stations_table_view};
+  station_insert_action_ = new QAction {tr ("&Insert"), ui_->stations_table_view};
   ui_->stations_table_view->insertAction (nullptr, station_insert_action_);
   connect (station_insert_action_, &QAction::triggered, this, &Configuration::impl::insert_station);
 
@@ -1147,10 +1147,9 @@ void Configuration::impl::set_rig_invariants ()
 
           ui_->CAT_control_group_box->setEnabled (true);
           ui_->CAT_port_label->setText (tr ("Network Server:"));
-          ui_->CAT_port_combo_box->setToolTip (tr ("Optional hostname and port of network service\n"
-                                                   "You can usually leave this blank\n"
-                                                   "for a sensible default on this machine\n"
-                                                   "formats:\n"
+          ui_->CAT_port_combo_box->setToolTip (tr ("Optional hostname and port of network service.\n"
+                                                   "Leave blank for a sensible default on this machine.\n"
+                                                   "Formats:\n"
                                                    "\thostname:port\n"
                                                    "\tIPv4-address:port\n"
                                                    "\t[IPv6-address]:port"));

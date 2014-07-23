@@ -2681,7 +2681,7 @@ list. The list can be maintained in Settings (F2).</string>
   </action>
   <action name="actionSettings">
    <property name="text">
-    <string>Settings ...</string>
+    <string>Configuration</string>
    </property>
    <property name="shortcut">
     <string>F2</string>
