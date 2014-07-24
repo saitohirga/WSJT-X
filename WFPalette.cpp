@@ -129,10 +129,10 @@ namespace
       ui_.setupUi (this);
 
       // context menu actions
-      auto import_button = ui_.button_box->addButton ("&Import", QDialogButtonBox::ActionRole);
+      auto import_button = ui_.button_box->addButton ("&Import...", QDialogButtonBox::ActionRole);
       connect (import_button, &QPushButton::clicked, this, &Designer::import_palette);
 
-      auto export_button = ui_.button_box->addButton ("&Export", QDialogButtonBox::ActionRole);
+      auto export_button = ui_.button_box->addButton ("&Export...", QDialogButtonBox::ActionRole);
       connect (export_button, &QPushButton::clicked, this, &Designer::export_palette);
 
       // hookup the context menu handler
@@ -203,7 +203,7 @@ namespace
                    });
         }
 
-      auto insert_action = context_menu_.addAction (tr ("&Insert"));
+      auto insert_action = context_menu_.addAction (tr ("&Insert ..."));
       connect (insert_action, &QAction::triggered, [this] ()
                {
                  auto item = ui_.colour_table_widget->itemAt (menu_pos_);
@@ -211,7 +211,7 @@ namespace
                  insert_new_item (row, QColor {0, 0, 0});
                });
 
-      auto insert_after_action = context_menu_.addAction (tr ("Insert &after"));
+      auto insert_after_action = context_menu_.addAction (tr ("Insert &after ..."));
       connect (insert_after_action, &QAction::triggered, [this] ()
                {
                  auto item = ui_.colour_table_widget->itemAt (menu_pos_);
