@@ -26,7 +26,7 @@
       <string>Select tab to change configuration parameters.</string>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="general_tab">
       <attribute name="title">
@@ -136,7 +136,7 @@
                <string>Set the font characteristics for the application.</string>
               </property>
               <property name="text">
-               <string>Font ...</string>
+               <string>Font...</string>
               </property>
              </widget>
             </item>
@@ -146,7 +146,7 @@
                <string>Set the font characteristics for the Band Activity and Rx Frequency areas.</string>
               </property>
               <property name="text">
-               <string>Decoded text font ...</string>
+               <string>Decoded Text Font...</string>
               </property>
              </widget>
             </item>
