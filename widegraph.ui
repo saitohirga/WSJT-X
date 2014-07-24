@@ -363,7 +363,7 @@
          <item>
           <widget class="QPushButton" name="adjust_palette_push_button">
            <property name="text">
-            <string>Adjust ...</string>
+            <string>Adjust...</string>
            </property>
           </widget>
          </item>
