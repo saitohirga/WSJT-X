@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Configuration</string>
+   <string>Settings</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -902,7 +902,7 @@ this setting allows you to select which audio input will be used
          <item>
           <widget class="QLabel" name="CAT_poll_interval_label">
            <property name="text">
-            <string>Poll Interval (s):</string>
+            <string>Poll Interval:</string>
            </property>
            <property name="buddy">
             <cstring>CAT_poll_interval_spin_box</cstring>
@@ -911,6 +911,9 @@ this setting allows you to select which audio input will be used
          </item>
          <item>
           <widget class="QSpinBox" name="CAT_poll_interval_spin_box">
+           <property name="suffix">
+            <string> s</string>
+           </property>
            <property name="minimum">
             <number>1</number>
            </property>
