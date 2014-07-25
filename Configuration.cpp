@@ -1088,7 +1088,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Tx2QSO", TX_messages_);
   settings_->setValue ("DTR", rig_params_.CAT_DTR_always_on_);
   settings_->setValue ("RTS", rig_params_.CAT_RTS_always_on_);
-  settings_->setValue ("TXAudioSource", TransceiverFactory::TX_audio_source_rear == rig_params_.TX_audio_source_);
+  settings_->setValue ("TXAudioSource", QVariant::fromValue (rig_params_.TX_audio_source_));
   settings_->setValue ("Polling", rig_params_.CAT_poll_interval_);
   settings_->setValue ("SplitMode", QVariant::fromValue (rig_params_.split_mode_));
 }
