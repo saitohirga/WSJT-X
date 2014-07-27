@@ -208,7 +208,8 @@ HamlibTransceiver::HamlibTransceiver (int model_number
       break;
 
     case TransceiverFactory::PTT_method_CAT:
-      set_conf ("ptt_type", "RIG");
+      // Use the default PTT_TYPE for the rig (defined in the Hamlib
+      // rig back-end capabilities).
       break;
 
     case TransceiverFactory::PTT_method_DTR:
