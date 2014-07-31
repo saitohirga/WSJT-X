@@ -1,10 +1,11 @@
-subroutine jt65a(dd,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nagain,ndecoded)
+subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nagain,ndecoded)
 
 !  Process dd() data to find and decode JT65 signals.
 
   parameter (NSZ=3413)
   parameter (NZMAX=60*12000)
   parameter (NFFT=8192)
+  real dd0(NZMAX)
   real dd(NZMAX)
   real*4 ss(322,NSZ)
   real*4 savg(NSZ)
@@ -12,6 +13,12 @@ subroutine jt65a(dd,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nagain,ndecoded)
   real a(5)
   character decoded*22
   save
+
+  dd=0.
+  tskip=2.0
+  nskip=12000*tskip
+  dd(1+nskip:npts+nskip)=dd0(1:npts)
+  npts=npts+nskip
 
   if(newdat.ne.0) then
      call timer('symsp65 ',0)
@@ -68,6 +75,7 @@ subroutine jt65a(dd,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nagain,ndecoded)
            nsnr=nint(s2db)
            if(nsnr.lt.-30) nsnr=-30
            if(nsnr.gt.-1) nsnr=-1
+           dt=dt-tskip
            write(*,1010) nutc,nsnr,dt,nfreq,decoded
 1010       format(i4.4,i4,f5.1,i5,1x,'#',1x,a22)
            write(13,1012) nutc,nint(sync1),nsnr,dt,float(nfreq),ndrift,  &
