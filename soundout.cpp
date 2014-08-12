@@ -103,8 +103,8 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
       }
 //      i2a=0.01*txPower*i2a;
 //      i2b=0.01*txPower*i2b;
-      *wptr++ = i2a;                     //left
-      *wptr++ = i2b;                     //right
+      *wptr++ = i2b;                     //left
+      *wptr++ = i2a;                     //right
     }
   } else {
     for(i=0 ; i<framesToProcess; i++ )  {
