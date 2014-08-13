@@ -95,7 +95,7 @@ extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
         if(bTune) {
           phi += dphi;
         } else {
-          phi=qAtan2(qreal(i2a),qreal(i2b));
+          phi=qAtan2(qreal(i2b),qreal(i2a));
         }
         i2a=xAmp*qCos(phi);
         i2b=yAmp*qSin(phi + dPhase);

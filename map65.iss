@@ -1,25 +1,27 @@
 [Setup]
 AppName=MAP65
-AppVerName=MAP65 Version 2.5 r3653
+AppVerName=MAP65 Version 2.5 r4231
 AppCopyright=Copyright (C) 2001-2014 by Joe Taylor, K1JT
 DefaultDirName=c:\MAP65
 DefaultGroupName=MAP65
 
 [Files]
-Source: "c:\Users\joe\wsjt\map65_install\m65.exe";           DestDir: "{app}"
-Source: "c:\Users\joe\wsjt\map65_install\map65.exe";         DestDir: "{app}"
-Source: "c:\Users\joe\wsjt\map65_install\wsjt.ico";          DestDir: "{app}"
-Source: "c:\Users\joe\wsjt\map65_install\kvasd.exe";         DestDir: "{app}"
-Source: "c:\Users\joe\wsjt\map65_install\CALL3.TXT";         DestDir: "{app}"; Flags: onlyifdoesntexist
-Source: "c:\Users\joe\wsjt\map65_install\fftwf-wisdom.exe";  DestDir: "{app}"; Flags: onlyifdoesntexist
-Source: "c:\Users\joe\wsjt\map65_install\wisdom1.bat";       DestDir: "{app}";
-Source: "c:\Users\joe\wsjt\map65_install\wisdom2.bat";       DestDir: "{app}";
-Source: "c:\Users\joe\wsjt\map65_install\afmhot.dat";        DestDir: "{app}";
-Source: "c:\Users\joe\wsjt\map65_install\blue.dat";          DestDir: "{app}";
-Source: "c:\Users\joe\wsjt\map65_install\qthid.exe";         DestDir: "{app}";
-Source: "c:\Users\joe\wsjt\QtSupport\*.dll";                 DestDir: "{sys}";  Flags: onlyifdoesntexist
+Source: "C:\JTSDK-QT\src\map65_install\m65.exe";           DestDir: "{app}"
+Source: "C:\JTSDK-QT\src\map65_install\map65.exe";         DestDir: "{app}"
+Source: "C:\JTSDK-QT\src\map65_install\wsjt.ico";          DestDir: "{app}"
+Source: "C:\JTSDK-QT\src\map65_install\kvasd.exe";         DestDir: "{app}"
+Source: "C:\JTSDK-QT\src\map65_install\CALL3.TXT";         DestDir: "{app}"; Flags: onlyifdoesntexist
+Source: "C:\JTSDK-QT\src\map65_install\fftwf-wisdom.exe";  DestDir: "{app}"; Flags: onlyifdoesntexist
+Source: "C:\JTSDK-QT\src\map65_install\wisdom1.bat";       DestDir: "{app}";
+Source: "C:\JTSDK-QT\src\map65_install\wisdom2.bat";       DestDir: "{app}";
+Source: "C:\JTSDK-QT\src\map65_install\afmhot.dat";        DestDir: "{app}";
+Source: "C:\JTSDK-QT\src\map65_install\blue.dat";          DestDir: "{app}";
+Source: "C:\JTSDK-QT\src\map65_install\qthid.exe";         DestDir: "{app}";
+Source: "C:\JTSDK-QT\src\map65_install\*.dll";             DestDir: "{app}";  Flags: onlyifdoesntexist
+Source: "C:\JTSDK-QT\src\map65_install\platforms\qwindows.dll"; DestDir: "{app}\platforms";
 
-Source: "c:\Users\joe\wsjt\map65_install\save\dummy";        DestDir: "{app}\save";
+
+Source: "C:\JTSDK-QT\src\map65_install\save\dummy";        DestDir: "{app}\save";
 
 [Icons]
 Name: "{group}\MAP65";        Filename: "{app}\map65.exe";   WorkingDir: {app}; IconFilename: {app}\wsjt.ico
