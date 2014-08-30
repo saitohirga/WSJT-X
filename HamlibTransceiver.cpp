@@ -709,13 +709,18 @@ void HamlibTransceiver::poll ()
       if (RIG_PTT_NONE != rig_->state.pttport.type.ptt && rig_->caps->get_ptt)
         {
           ptt_t p;
-          error_check (rig_get_ptt (rig_.data (), RIG_VFO_CURR, &p), tr ("getting PTT state"));
+          auto rc = rig_get_ptt (rig_.data (), RIG_VFO_CURR, &p);
+          if (RIG_ENAVAIL != rc) // may fail if Net rig ctl and target
+                                 // doesn't support command
+            {
+              error_check (rc, tr ("getting PTT state"));
 
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
-          qDebug () << "HamlibTransceiver::state rig_get_ptt =" << p;
+              qDebug () << "HamlibTransceiver::state rig_get_ptt =" << p;
 #endif
 
-          update_PTT (!(RIG_PTT_OFF == p));
+              update_PTT (!(RIG_PTT_OFF == p));
+            }
         }
 
 #if !WSJT_TRACE_CAT_POLLS
