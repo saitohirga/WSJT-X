@@ -230,8 +230,10 @@ void HRDTransceiver::do_start ()
 
   Q_ASSERT (split_mode_button_ >= 0 || split_mode_dropdown_ >= 0 || (tx_A_button_ >= 0 && tx_B_button_ >= 0));
 
-  mode_A_dropdown_ = find_dropdown (QRegExp ("^(Main Mode|Mode)$"));
-  map_modes (mode_A_dropdown_, &mode_A_map_);
+  if ((mode_A_dropdown_ = find_dropdown (QRegExp ("^(Main Mode|Mode)$"))) >= 0)
+    {
+      map_modes (mode_A_dropdown_, &mode_A_map_);
+    }
 
   if ((mode_B_dropdown_ = find_dropdown (QRegExp ("^(Sub Mode)$"))) >= 0)
     {
@@ -262,7 +264,7 @@ void HRDTransceiver::do_stop ()
 
 void HRDTransceiver::sync_impl ()
 {
-  if (vfo_count_ == 1)
+  if (vfo_count_ == 1 && ((vfo_B_button_ >= 0 && vfo_A_button_ >= 0) || vfo_toggle_button_ >= 0))
     {
       // put the rig into a known state
       auto f = send_command ("get frequency").toUInt ();
@@ -361,6 +363,11 @@ int HRDTransceiver::lookup_mode (MODE mode, ModeMap const& map) const
 
 auto HRDTransceiver::lookup_mode (int mode, ModeMap const& map) const -> MODE
 {
+  if (mode < 0)
+    {
+      return UNK;               // no mode dropdown
+    }
+
   auto it = std::find_if (map.begin (), map.end (), [mode] (ModeMap::value_type const& item)
                           {
                             auto const& indices = std::get<1> (item);
@@ -375,6 +382,11 @@ auto HRDTransceiver::lookup_mode (int mode, ModeMap const& map) const -> MODE
 
 int HRDTransceiver::get_dropdown (int dd, bool no_debug)
 {
+  if (dd < 0)
+    {
+      return -1;                // no dropdown to interrogate
+    }
+
   auto dd_name = dropdown_names_.value (dd);
   auto reply = send_command ("get dropdown-text {" + dd_name + "}", no_debug);
   auto colon_index = reply.indexOf (':');
@@ -418,7 +430,13 @@ void HRDTransceiver::do_ptt (bool on)
 
   if (use_for_ptt_)
     {
-      set_button (ptt_button_, on);
+      if (ptt_button_ >= 0)
+        {
+          set_button (ptt_button_, on);
+        }
+      // else
+          // allow for pathological HRD rig interfaces that don't do
+          // PTT by simply not even trying
     }
   else
     {
@@ -461,7 +479,7 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
 
   bool split {tx != 0};
 
-  if (vfo_count_ > 1)
+  if (vfo_count_ > 1 && vfo_B_button_ >= 0)
     {
       reversed_ = is_button_checked (vfo_B_button_);
     }
@@ -483,19 +501,19 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
               auto frequencies = send_command ("get frequencies").trimmed ().split ('-', QString::SkipEmptyParts);
               send_simple_command ("set frequencies-hz " + QString::number (frequencies[0].toUInt ()) + ' ' + fo_string);
             }
-          else
+          else if ((vfo_B_button_ >= 0 && vfo_A_button_ >= 0) || vfo_toggle_button_)
             {
               // we rationalise the modes and VFOs here as well as the frequencies
               set_button (vfo_B_button_ >= 0 ? vfo_B_button_ : vfo_toggle_button_);
               send_simple_command ("set frequency-hz " + fo_string);
-              if (rationalise_mode)
+              if (rationalise_mode && (mode_B_dropdown_ >= 0 || mode_A_dropdown_ >= 0))
                 {
                   set_dropdown (mode_B_dropdown_ >= 0 ? mode_B_dropdown_ : mode_A_dropdown_, lookup_mode (state ().mode (), mode_B_dropdown_ >= 0 ? mode_B_map_ : mode_A_map_));
                 }
               set_button (vfo_A_button_ >= 0 ? vfo_A_button_ : vfo_toggle_button_);
             }
         }
-      if (rationalise_mode)
+      if (rationalise_mode && (mode_B_dropdown_ >= 0 || mode_A_dropdown_ >= 0))
         {
           set_dropdown (mode_B_dropdown_ >= 0 ? mode_B_dropdown_ : mode_A_dropdown_, lookup_mode (state ().mode (), mode_B_dropdown_ >= 0 ? mode_B_map_ : mode_A_map_));
         }
@@ -543,7 +561,10 @@ void HRDTransceiver::do_mode (MODE mode, bool rationalise)
   qDebug () << "HRDTransceiver::do_mode:" << mode;
 #endif
 
-  set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
+  if (mode_A_dropdown_ >= 0)
+    {
+      set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
+    }
 
   if (rationalise && state ().split ()) // rationalise mode if split
     {
@@ -551,7 +572,7 @@ void HRDTransceiver::do_mode (MODE mode, bool rationalise)
         {
           set_dropdown (mode_B_dropdown_, lookup_mode (mode, mode_B_map_));
         }
-      else if (vfo_count_ < 2)
+      else if (vfo_count_ < 2 && ((vfo_B_button_ >= 0 && vfo_A_button_ >= 0) || vfo_toggle_button_ >= 0) && (mode_B_dropdown_ || mode_A_dropdown_ >= 0))
         {
           set_button (vfo_B_button_ >= 0 ? vfo_B_button_ : vfo_toggle_button_);
           set_dropdown (mode_B_dropdown_ >= 0 ? mode_B_dropdown_ : mode_A_dropdown_, lookup_mode (mode, mode_B_dropdown_ >= 0 ? mode_B_map_ : mode_A_map_));
@@ -628,7 +649,10 @@ void HRDTransceiver::poll ()
       update_rx_frequency (send_command ("get frequency", quiet).toUInt ());
     }
 
-  update_mode (lookup_mode (get_dropdown (mode_A_dropdown_, quiet), mode_A_map_));
+  if (mode_A_dropdown_ >= 0)
+    {
+      update_mode (lookup_mode (get_dropdown (mode_A_dropdown_, quiet), mode_A_map_));
+    }
 }
 
 QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool prepend_context, bool recurse)
