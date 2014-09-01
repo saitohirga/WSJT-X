@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
                                            ).toBool () ? 1u : 4u;
       }
 
-      MainWindow w(multiple, &settings, &mem_jt9, my_key, downSampleFactor);
+      MainWindow w(multiple, &settings, &mem_jt9, my_key, downSampleFactor, parser.isSet (test_option));
       w.show();
 
       QObject::connect (&a, SIGNAL (lastWindowClosed()), &a, SLOT (quit()));

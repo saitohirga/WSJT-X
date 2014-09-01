@@ -61,7 +61,7 @@ public:
 
   enum DataMode {data_mode_none, data_mode_USB, data_mode_data};
 
-  explicit Configuration (QString const& instance_key, QSettings * settings, QWidget * parent = nullptr);
+  explicit Configuration (QString const& instance_key, QSettings * settings, bool test_mode, QWidget * parent = nullptr);
   ~Configuration ();
 
   int exec ();
