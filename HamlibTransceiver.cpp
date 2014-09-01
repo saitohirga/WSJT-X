@@ -535,7 +535,7 @@ void HamlibTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
 #endif
 
       auto rc = rig_set_split_vfo (rig_.data (), RIG_VFO_CURR, tx ? RIG_SPLIT_ON : RIG_SPLIT_OFF, tx_vfo);
-      if (tx || -RIG_ENAVAIL != rc)
+      if (tx || (-RIG_ENAVAIL != rc && -RIG_ENIMPL != rc))
         {
           // On rigs that can't have split controlled only throw an
           // exception when an error other than command not accepted
@@ -672,7 +672,7 @@ void HamlibTransceiver::poll ()
 
       vfo_t v {RIG_VFO_NONE};		// so we can tell if it doesn't get updated :(
       auto rc = rig_get_split_vfo (rig_.data (), RIG_VFO_CURR, &s, &v);
-      if (RIG_OK == rc && RIG_SPLIT_ON == s)
+      if (-RIG_OK == rc && RIG_SPLIT_ON == s)
         {
 
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
@@ -685,7 +685,7 @@ void HamlibTransceiver::poll ()
           // 	  reversed_ = true;	// not sure if this helps us here
           // 	}
         }
-      else if (RIG_OK == rc)	// not split
+      else if (-RIG_OK == rc)	// not split
         {
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
           qDebug ().nospace () << "HamlibTransceiver::state rig_get_split_vfo split = " << s << " VFO = 0x" << hex << v;
@@ -693,7 +693,7 @@ void HamlibTransceiver::poll ()
 
           update_split (false);
         }
-      else if (-RIG_ENAVAIL == rc) // Some rigs (Icom) don't have a way of reporting SPLIT mode
+      else if (-RIG_ENAVAIL == rc || -RIG_ENIMPL == rc) // Some rigs (Icom) don't have a way of reporting SPLIT mode
         {
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
           qDebug ().nospace () << "HamlibTransceiver::state rig_get_split_vfo can't do on this rig";
@@ -710,8 +710,9 @@ void HamlibTransceiver::poll ()
         {
           ptt_t p;
           auto rc = rig_get_ptt (rig_.data (), RIG_VFO_CURR, &p);
-          if (RIG_ENAVAIL != rc) // may fail if Net rig ctl and target
-                                 // doesn't support command
+          if (-RIG_ENAVAIL != rc && -RIG_ENIMPL != rc) // may fail if
+                                // Net rig ctl and target doesn't
+                                // support command
             {
               error_check (rc, tr ("getting PTT state"));
 
