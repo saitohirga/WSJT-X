@@ -58,7 +58,7 @@ public:
 
   // Multiple instances: call MainWindow() with *thekey
   explicit MainWindow(bool multiple, QSettings *, QSharedMemory *shdmem, QString const& thekey,
-                      unsigned downSampleFactor, QWidget *parent = 0);
+                      unsigned downSampleFactor, bool test_mode, QWidget *parent = 0);
   ~MainWindow();
 
 public slots:

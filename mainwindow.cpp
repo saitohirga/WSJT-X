@@ -67,13 +67,13 @@ private:
 
 //--------------------------------------------------- MainWindow constructor
 MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdmem, QString const& thekey,
-                       unsigned downSampleFactor, QWidget *parent) :
+                       unsigned downSampleFactor, bool test_mode, QWidget *parent) :
   QMainWindow(parent),
   m_revision {revision ("$Rev$")},
   m_multiple {multiple},
   m_settings (settings),
   ui(new Ui::MainWindow),
-  m_config (thekey, settings, this),
+  m_config (thekey, settings, test_mode, this),
   m_wideGraph (new WideGraph (settings)),
   m_logDlg (new LogQSO (program_title (), settings, &m_config, this)),
   m_dialFreq {0},

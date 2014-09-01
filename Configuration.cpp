@@ -207,7 +207,7 @@ class Configuration::impl final
 public:
   using FrequencyDelta = Radio::FrequencyDelta;
 
-  explicit impl (Configuration * self, QString const& instance_key, QSettings * settings, QWidget * parent);
+  explicit impl (Configuration * self, QString const& instance_key, QSettings * settings, bool test_mode, QWidget * parent);
   ~impl ();
 
   bool have_rig (bool open_if_closed = true);
@@ -398,8 +398,8 @@ private:
 
 
 // delegate to implementation class
-Configuration::Configuration (QString const& instance_key, QSettings * settings, QWidget * parent)
-  : m_ {this, instance_key, settings, parent}
+Configuration::Configuration (QString const& instance_key, QSettings * settings, bool test_mode, QWidget * parent)
+  : m_ {this, instance_key, settings, test_mode, parent}
 {
 }
 
@@ -517,7 +517,7 @@ void Configuration::sync_transceiver (bool force_signal, bool enforce_mode_and_s
 }
 
 
-Configuration::impl::impl (Configuration * self, QString const& instance_key, QSettings * settings, QWidget * parent)
+Configuration::impl::impl (Configuration * self, QString const& instance_key, QSettings * settings, bool test_mode, QWidget * parent)
   : QDialog {parent}
   , self_ {self}
   , ui_ {new Ui::configuration_dialog}
@@ -576,6 +576,10 @@ Configuration::impl::impl (Configuration * self, QString const& instance_key, QS
       }
 
     QString unique_directory {instance_key};
+    if (test_mode)
+      {
+        unique_directory += " - test_mode";
+      }
     if (!temp_path_.mkpath (unique_directory) || !temp_path_.cd (unique_directory))
       {
         QMessageBox::critical (this, "WSJT-X", tr ("Create temporary directory error: ") + temp_path_.absolutePath ());
