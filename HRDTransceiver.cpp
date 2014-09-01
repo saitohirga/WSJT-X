@@ -701,48 +701,75 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
 
   auto context = '[' + QString::number (current_radio_) + "] ";
 
-  int bytes_to_send;
-  int bytes_sent;
-  if (v4 == protocol_)
+  unsigned retries {5};
+  bool replied {false};
+  while (!replied && --retries)
     {
-      auto message = ((prepend_context ? context + cmd : cmd) + "\r").toLocal8Bit ();
-      bytes_to_send = message.size ();
-      bytes_sent = hrd_->write (message.data (), bytes_to_send);
+      int bytes_to_send;
+      int bytes_sent;
+      if (v4 == protocol_)
+        {
+          auto message = ((prepend_context ? context + cmd : cmd) + "\r").toLocal8Bit ();
+          bytes_to_send = message.size ();
+          bytes_sent = hrd_->write (message.data (), bytes_to_send);
 
-      if (!no_debug)
+          if (!no_debug)
+            {
+#if WSJT_TRACE_CAT
+              qDebug () << "HRDTransceiver::send_command:" << message;
+#endif
+            }
+        }
+      else
+        {
+          auto string = prepend_context ? context + cmd : cmd;
+          QScopedPointer<HRDMessage> message (new (string) HRDMessage);
+          bytes_to_send = message->size_;
+          bytes_sent = hrd_->write (reinterpret_cast<char *> (message.data ()), bytes_to_send);
+        }
+
+      if (bytes_sent < bytes_to_send
+          || !hrd_->waitForBytesWritten (socket_wait_time)
+          || QTcpSocket::ConnectedState != hrd_->state ())
         {
 #if WSJT_TRACE_CAT
-          qDebug () << "HRDTransceiver::send_command:" << message;
+          qDebug () << "HRDTransceiver::send_command \"" << cmd << "\" failed" << hrd_->errorString ();
 #endif
+
+          throw error {
+            tr ("Ham Radio Deluxe send command \"%1\" failed %2\n")
+              .arg (cmd)
+              .arg (hrd_->errorString ())
+              };
+        }
+
+      replied = hrd_->waitForReadyRead (socket_wait_time);
+      if (!replied && hrd_->error () != hrd_->SocketTimeoutError)
+        {
+#if WSJT_TRACE_CAT
+          qDebug () << "HRDTransceiver::send_command \"" << cmd << "\" failed to reply" << hrd_->errorString ();
+#endif
+
+          throw error {
+            tr ("Ham Radio Deluxe failed to reply to command \"%1\" %2\n")
+              .arg (cmd)
+              .arg (hrd_->errorString ())
+              };
         }
     }
-  else
-    {
-      auto string = prepend_context ? context + cmd : cmd;
-      QScopedPointer<HRDMessage> message (new (string) HRDMessage);
-      bytes_to_send = message->size_;
-      bytes_sent = hrd_->write (reinterpret_cast<char *> (message.data ()), bytes_to_send);
-    }
 
-  if (bytes_sent < bytes_to_send 
-      || !hrd_->waitForBytesWritten (socket_wait_time)
-      || QTcpSocket::ConnectedState != hrd_->state ())
+  if (!replied)
     {
 #if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::send_command failed" << hrd_->errorString ();
+      qDebug () << "HRDTransceiver::send_command \"" << cmd << "\" retries exhausted";
 #endif
 
-      throw error {tr ("Ham Radio Deluxe send command failed\n") + hrd_->errorString ()};
+      throw error {
+        tr ("Ham Radio Deluxe retries exhausted sending command \"%1\"")
+          .arg (cmd)
+          };
     }
 
-  if (!hrd_->waitForReadyRead (socket_wait_time))
-    {
-#if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::send_command failed to reply" << hrd_->errorString ();
-#endif
-
-      throw error {tr ("Ham Radio Deluxe failed to reply to command\n") + hrd_->errorString ()};
-    }
   QByteArray buffer (hrd_->readAll ());
   if (!no_debug)
     {
@@ -762,10 +789,13 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
       if (reply->magic_1_value_ != reply->magic_1_ && reply->magic_2_value_ != reply->magic_2_)
         {
 #if WSJT_TRACE_CAT
-          qDebug () << "HRDTransceiver::send_command invalid reply";
+          qDebug () << "HRDTransceiver::send_command \"" << cmd << "\" invalid reply";
 #endif
 
-          throw error {tr ("Ham Radio Deluxe sent an invalid reply to our command")};
+          throw error {
+            tr ("Ham Radio Deluxe sent an invalid reply to our command \"%1\"")
+              .arg (cmd)
+              };
         }
 
       result = QString {reply->payload_}; // this is not a memory leak (honest!)
@@ -786,9 +816,12 @@ void HRDTransceiver::send_simple_command (QString const& command, bool no_debug)
   if ("OK" != send_command (command, no_debug))
     {
 #if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::send_simple_command unexpected response";
+      qDebug () << "HRDTransceiver::send_simple_command \"" << command << "\" unexpected response";
 #endif
 
-      throw error {tr ("Ham Radio Deluxe didn't respond as expected")};
+      throw error {
+        tr ("Ham Radio Deluxe didn't respond to command \"%1\" as expected")
+          .arg (command)
+          };
     }
 }
