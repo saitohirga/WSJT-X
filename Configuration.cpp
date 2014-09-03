@@ -858,7 +858,6 @@ void Configuration::impl::initialise_models ()
   ui_->rig_combo_box->setCurrentText (rig_params_.rig_name_);
   ui_->TX_mode_button_group->button (data_mode_)->setChecked (true);
   ui_->split_mode_button_group->button (rig_params_.split_mode_)->setChecked (true);
-  ui_->CAT_port_combo_box->setCurrentText (rig_params_.CAT_serial_port_);
   ui_->CAT_serial_baud_combo_box->setCurrentText (QString::number (rig_params_.CAT_baudrate_));
   ui_->CAT_data_bits_button_group->button (rig_params_.CAT_data_bits_)->setChecked (true);
   ui_->CAT_stop_bits_button_group->button (rig_params_.CAT_stop_bits_)->setChecked (true);
