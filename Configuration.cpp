@@ -1124,16 +1124,10 @@ void Configuration::impl::set_rig_invariants ()
         {
         case TransceiverFactory::Capabilities::serial:
           fill_port_combo_box (ui_->CAT_port_combo_box);
-          if (ui_->CAT_port_combo_box->currentText ().isEmpty ())
+          ui_->CAT_port_combo_box->setCurrentText (rig_params_.CAT_serial_port_);
+          if (ui_->CAT_port_combo_box->currentText ().isEmpty () && ui_->CAT_port_combo_box->count ())
             {
-              if (ui_->CAT_port_combo_box->count ())
-                {
-                  ui_->CAT_port_combo_box->setCurrentText (ui_->CAT_port_combo_box->itemText (0));
-                }
-            }
-          else
-            {
-              ui_->CAT_port_combo_box->setCurrentText (rig_params_.CAT_serial_port_);
+              ui_->CAT_port_combo_box->setCurrentText (ui_->CAT_port_combo_box->itemText (0));
             }
   
           ui_->CAT_control_group_box->setEnabled (true);
@@ -1142,11 +1136,7 @@ void Configuration::impl::set_rig_invariants ()
           break;
 
         case TransceiverFactory::Capabilities::network:
-          ui_->CAT_port_combo_box->clear ();
-          if (!rig_params_.CAT_network_port_.isEmpty ())
-            {
-              ui_->CAT_port_combo_box->setCurrentText (rig_params_.CAT_network_port_);
-            }
+          ui_->CAT_port_combo_box->setCurrentText (rig_params_.CAT_network_port_);
 
           ui_->CAT_control_group_box->setEnabled (true);
           ui_->CAT_port_label->setText (tr ("Network Server:"));
@@ -1279,13 +1269,17 @@ void Configuration::impl::accept ()
     {
     case TransceiverFactory::Capabilities::serial:
       temp_rig_params.CAT_serial_port_ = ui_->CAT_port_combo_box->currentText ();
+      temp_rig_params.CAT_network_port_ = rig_params_.CAT_network_port_;
       break;
 
     case TransceiverFactory::Capabilities::network:
       temp_rig_params.CAT_network_port_ = ui_->CAT_port_combo_box->currentText ();
+      temp_rig_params.CAT_serial_port_ = rig_params_.CAT_serial_port_;
       break;
 
     default:
+      temp_rig_params.CAT_serial_port_ = rig_params_.CAT_serial_port_;
+      temp_rig_params.CAT_network_port_ = rig_params_.CAT_network_port_;
       break;
     }
 
