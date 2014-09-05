@@ -994,9 +994,7 @@ void MainWindow::msgBox(QString t)                             //msgBox
 
 void MainWindow::on_actionOnline_Users_Guide_triggered()      //Display manual
 {
-  QDesktopServices::openUrl(QUrl(
-                                 "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main.html",
-                                 QUrl::TolerantMode));
+  QDesktopServices::openUrl (QUrl (PROJECT_MANUAL, QUrl::TolerantMode));
 }
 
 void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
