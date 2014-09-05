@@ -180,6 +180,7 @@ set (wsjt_FSRCS
   lib/ccf2.f90
   lib/ccf65.f90
   lib/chkhist.f90
+  lib/chkmsg.f90
   lib/chkss2.f90
   lib/coord.f90
   lib/db.f90
@@ -609,6 +610,9 @@ endif (WIN32)
 add_executable (jt9sim lib/jt9sim.f90 wsjtx.rc)
 target_link_libraries (jt9sim wsjt)
 
+add_executable (jt65code lib/jt65code.f90 wsjtx.rc)
+target_link_libraries (jt65code wsjt)
+
 add_executable (jt9code lib/jt9code.f90 wsjtx.rc)
 target_link_libraries (jt9code wsjt)
 
@@ -673,7 +677,7 @@ install (TARGETS wsjtx
   #COMPONENT Runtime
   )
 
-install (TARGETS jt9
+install (TARGETS jt9 jt65code jt9code
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION}
   LIBRARY DESTINATION ${WSJT_LIB_DESTINATION}
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION}
