@@ -11,6 +11,7 @@ jt65code, jt9code - Weak signal communications encoding support utility.
 == SYNOPSIS
 
 *jt65code* MESSAGE
+
 *jt9code* MESSAGE
 
 == DESCRIPTION
@@ -27,6 +28,7 @@ sync tone. The total number of symbols in a transmitted message is
 enclosed in quotes. In Windows the command and program output might
 look like this:
 
+.....
 $ jt9code "G0XYZ K1ABC FN42"
 Message:   G0XYZ K1ABC FN42
 Channel symbols:
@@ -34,6 +36,7 @@ Channel symbols:
  8 7 0 6 0 1 8 3 3 7 8 1 1 2 4 5 8 1 5 2 0 0 8 6 0 5 8 5 1 0
  5 8 7 7 2 0 4 6 6 6 7 6 0 1 8 8 5 7 2 5 1 5 0 4 0
 Decoded message: G0XYZ K1ABC FN42
+.....
 
 For the corresponding program jt65code only the information-carrying
 channel symbols are shown, and the symbol values range from 0 to
@@ -45,6 +48,7 @@ A typical execution of jt65code is shown below. The program displays
 the packed message of 72 bits, shown here as 12 six-bit symbol values,
 followed by the channel symbols:
 
+.....
 $ jt65code "G0XYZ K1ABC FN42"
 Message:   G0XYZ K1ABC FN42
 Packed message, 6-bit symbols:  61 36 45 30  3 55  3  2 14  5 33 40
@@ -53,12 +57,14 @@ Information-carrying channel symbols:
    41 58 35  8 35  3 24  1 21 41 43  0 25 54  9 41 54  7 25 21  9
    62 59  7 43 31 21 57 13 59 41 17 49 19 54 21 39 33 42 18  2 60
 Decoded message: G0XYZ K1ABC FN42
+.....
 
 For an illustration of the power of the strong error-control coding in
 JT9 and JT65, try looking at the channel symbols after changing a
 single character in the message. For example, change the grid locater
 from FN42 to FN43 in the JT65 message:
 
+.....
 $ jt65code "G0XYZ K1ABC FN43"
 Message:   G0XYZ K1ABC FN43
 Packed message, 6-bit symbols:  61 36 45 30  3 55  3  2 14  5 33 41
@@ -67,6 +73,7 @@ Information-carrying channel symbols:
    51 32 56 39 35  3 50 48 30  8  5 40 18 54  9 24 30 26 61 23 11
     3 59  7  7 39  1 25 24  4 50 17 49 52 19 34  7  4 34 61  2 61
 Decoded message: G0XYZ K1ABC FN43
+.....
 
 You will discover that every possible JT65 message differs from every
 other possible JT65 message in at least 52 of the 63
