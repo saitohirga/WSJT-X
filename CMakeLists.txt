@@ -9,7 +9,7 @@ set (PROJECT_VENDOR "Joe Taylor, K1JT")
 set (PROJECT_CONTACT "Joe Taylor <k1jt@arrl.net>")
 set (PROJECT_COPYRIGHT "Copyright (C) 2001-2014 by Joe Taylor, K1JT")
 set (PROJECT_HOMEPAGE "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx.html")
-set (PROJECT_MANUAL "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main-toc2.html")
+set (PROJECT_MANUAL "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main.html")
 set (PROJECT_SUMMARY_DESCRIPTION "WSJT-X - JT9 and JT65 Modes for LF, MF and HF Amateur Radio.")
 set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
  WSJT-X implements JT9, a new mode designed especially for the LF, MF,
