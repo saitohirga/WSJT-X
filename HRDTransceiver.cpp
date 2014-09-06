@@ -501,7 +501,7 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
               auto frequencies = send_command ("get frequencies").trimmed ().split ('-', QString::SkipEmptyParts);
               send_simple_command ("set frequencies-hz " + QString::number (frequencies[0].toUInt ()) + ' ' + fo_string);
             }
-          else if ((vfo_B_button_ >= 0 && vfo_A_button_ >= 0) || vfo_toggle_button_)
+          else if ((vfo_B_button_ >= 0 && vfo_A_button_ >= 0) || vfo_toggle_button_ >= 0)
             {
               // we rationalise the modes and VFOs here as well as the frequencies
               set_button (vfo_B_button_ >= 0 ? vfo_B_button_ : vfo_toggle_button_);
@@ -572,7 +572,7 @@ void HRDTransceiver::do_mode (MODE mode, bool rationalise)
         {
           set_dropdown (mode_B_dropdown_, lookup_mode (mode, mode_B_map_));
         }
-      else if (vfo_count_ < 2 && ((vfo_B_button_ >= 0 && vfo_A_button_ >= 0) || vfo_toggle_button_ >= 0) && (mode_B_dropdown_ || mode_A_dropdown_ >= 0))
+      else if (vfo_count_ < 2 && ((vfo_B_button_ >= 0 && vfo_A_button_ >= 0) || vfo_toggle_button_ >= 0) && (mode_B_dropdown_ >= 0 || mode_A_dropdown_ >= 0))
         {
           set_button (vfo_B_button_ >= 0 ? vfo_B_button_ : vfo_toggle_button_);
           set_dropdown (mode_B_dropdown_ >= 0 ? mode_B_dropdown_ : mode_A_dropdown_, lookup_mode (mode, mode_B_dropdown_ >= 0 ? mode_B_map_ : mode_A_map_));
