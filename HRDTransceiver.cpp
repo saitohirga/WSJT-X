@@ -701,48 +701,50 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
 
   auto context = '[' + QString::number (current_radio_) + "] ";
 
+  int bytes_to_send;
+  int bytes_sent;
+  if (v4 == protocol_)
+    {
+      auto message = ((prepend_context ? context + cmd : cmd) + "\r").toLocal8Bit ();
+      bytes_to_send = message.size ();
+      bytes_sent = hrd_->write (message.data (), bytes_to_send);
+
+      if (!no_debug)
+        {
+#if WSJT_TRACE_CAT
+          qDebug () << "HRDTransceiver::send_command:" << message;
+#endif
+        }
+    }
+  else
+    {
+      auto string = prepend_context ? context + cmd : cmd;
+      QScopedPointer<HRDMessage> message (new (string) HRDMessage);
+      bytes_to_send = message->size_;
+      bytes_sent = hrd_->write (reinterpret_cast<char *> (message.data ()), bytes_to_send);
+    }
+
+  if (bytes_sent < bytes_to_send
+      || !hrd_->waitForBytesWritten (socket_wait_time)
+      || QTcpSocket::ConnectedState != hrd_->state ())
+    {
+#if WSJT_TRACE_CAT
+      qDebug () << "HRDTransceiver::send_command \"" << cmd << "\" failed" << hrd_->errorString ();
+#endif
+
+      throw error {
+        tr ("Ham Radio Deluxe send command \"%1\" failed %2\n")
+          .arg (cmd)
+          .arg (hrd_->errorString ())
+          };
+    }
+
+  // waitForReadReady appears to be unreliable on Windows timing out
+  // when data is waiting so retry a few times
   unsigned retries {5};
   bool replied {false};
   while (!replied && --retries)
     {
-      int bytes_to_send;
-      int bytes_sent;
-      if (v4 == protocol_)
-        {
-          auto message = ((prepend_context ? context + cmd : cmd) + "\r").toLocal8Bit ();
-          bytes_to_send = message.size ();
-          bytes_sent = hrd_->write (message.data (), bytes_to_send);
-
-          if (!no_debug)
-            {
-#if WSJT_TRACE_CAT
-              qDebug () << "HRDTransceiver::send_command:" << message;
-#endif
-            }
-        }
-      else
-        {
-          auto string = prepend_context ? context + cmd : cmd;
-          QScopedPointer<HRDMessage> message (new (string) HRDMessage);
-          bytes_to_send = message->size_;
-          bytes_sent = hrd_->write (reinterpret_cast<char *> (message.data ()), bytes_to_send);
-        }
-
-      if (bytes_sent < bytes_to_send
-          || !hrd_->waitForBytesWritten (socket_wait_time)
-          || QTcpSocket::ConnectedState != hrd_->state ())
-        {
-#if WSJT_TRACE_CAT
-          qDebug () << "HRDTransceiver::send_command \"" << cmd << "\" failed" << hrd_->errorString ();
-#endif
-
-          throw error {
-            tr ("Ham Radio Deluxe send command \"%1\" failed %2\n")
-              .arg (cmd)
-              .arg (hrd_->errorString ())
-              };
-        }
-
       replied = hrd_->waitForReadyRead (socket_wait_time);
       if (!replied && hrd_->error () != hrd_->SocketTimeoutError)
         {
