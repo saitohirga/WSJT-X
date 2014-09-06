@@ -116,9 +116,9 @@ private:
   ModeMap mode_A_map_;          // The map of modes available for VFO
                                 // A.
 
-  int mode_B_dropdown_;         // The map of modes available for VFO
-                                // B. May be -1 if independent VFO
-                                // mode setting not available.
+  int mode_B_dropdown_;         // The drop down index for VFO B mode
+                                // setting. May be -1 if independent
+                                // VFO mode setting not available.
 
   ModeMap mode_B_map_;          // The map of modes for VFO B.
 
@@ -126,8 +126,10 @@ private:
                                 // operation. May be -1 if no button
                                 // is available.
 
-  int split_mode_dropdown_;     // The drop down list that allows
-                                // split mode to be turned on and off.
+  int split_mode_dropdown_;     // The drop down index that allows
+                                // split mode to be turned on and
+                                // off. May be -1 if no such drop down
+                                // exists.
 
   bool split_mode_dropdown_write_only_; // Some rigs cannot report
                                         // split status.
