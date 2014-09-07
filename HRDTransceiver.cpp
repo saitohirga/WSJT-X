@@ -318,13 +318,6 @@ std::vector<int> HRDTransceiver::find_dropdown_selection (int dropdown, QRegExp 
   return indices;
 }
 
-int HRDTransceiver::lookup_dropdown_selection (int dropdown, QString const& selection) const
-{
-  int index {dropdowns_.value (dropdown_names_.value (dropdown)).indexOf (selection)};
-  Q_ASSERT (-1 != index);
-  return index;
-}
-
 void HRDTransceiver::map_modes (int dropdown, ModeMap *map)
 {
   // order matters here (both in the map and in the regexps)
@@ -393,16 +386,11 @@ int HRDTransceiver::get_dropdown (int dd, bool no_debug)
 
   if (colon_index < 0)
     {
-
-#if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::get_dropdown bad response";
-#endif
-
-      throw error {tr ("Ham Radio Deluxe didn't respond as expected")};
+      return -1;
     }
 
   Q_ASSERT (reply.left (colon_index).trimmed () == dd_name);
-  return lookup_dropdown_selection (dd, reply.mid (colon_index + 1).trimmed ());
+  return dropdowns_.value (dropdown_names_.value (dd)).indexOf (reply.mid (colon_index + 1).trimmed ());
 }
 
 void HRDTransceiver::set_dropdown (int dd, int value)
@@ -617,11 +605,12 @@ void HRDTransceiver::poll ()
     {
       if (!split_mode_dropdown_write_only_)
         {
-          try
+          auto selection = get_dropdown (split_mode_dropdown_, quiet);
+          if (selection >= 0)
             {
-              update_split (get_dropdown (split_mode_dropdown_, quiet) == split_mode_dropdown_selection_on_.front ());
+              update_split (selection == split_mode_dropdown_selection_on_.front ());
             }
-          catch (error const&)
+          else
             {
               // leave split alone as we can't query it - it should be
               // correct so long as rig or HRD haven't been changed
@@ -668,15 +657,6 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
       QThread::msleep (50);
     }
 
-  if (QTcpSocket::ConnectedState != hrd_->state ())
-    {
-#if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::send_command connection failed:" << hrd_->errorString ();
-#endif
-
-      throw error {tr ("Ham Radio Deluxe connection failed\n") + hrd_->errorString ()};
-    }
-
   if (!recurse && prepend_context)
     {
       auto radio_name = send_command ("get radio", no_debug, current_radio_, true);
@@ -701,13 +681,42 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
 
   auto context = '[' + QString::number (current_radio_) + "] ";
 
+  if (QTcpSocket::ConnectedState != hrd_->state ())
+    {
+#if WSJT_TRACE_CAT
+      qDebug () << "HRDTransceiver::send_command \"" << cmd << "\" failed" << hrd_->errorString ();
+#endif
+
+      throw error {
+        tr ("Ham Radio Deluxe send command \"%1\" failed %2\n")
+          .arg (cmd)
+          .arg (hrd_->errorString ())
+          };
+    }
+
   int bytes_to_send;
-  int bytes_sent;
+  int total_bytes_sent {0};
   if (v4 == protocol_)
     {
       auto message = ((prepend_context ? context + cmd : cmd) + "\r").toLocal8Bit ();
       bytes_to_send = message.size ();
-      bytes_sent = hrd_->write (message.data (), bytes_to_send);
+      while (total_bytes_sent < bytes_to_send)
+        {
+          auto bytes_sent = hrd_->write (message.constData () + total_bytes_sent, bytes_to_send - total_bytes_sent);
+          if (bytes_sent < 0 || !hrd_->waitForBytesWritten (socket_wait_time))
+            {
+#if WSJT_TRACE_CAT
+              qDebug () << "HRDTransceiver::send_command failed to write command \"" << cmd << "\" to HRD";
+#endif
+
+              throw error {
+                tr ("Ham Radio Deluxe: failed to write command \"%1\"")
+                  .arg (cmd)
+                  };
+            }
+
+          total_bytes_sent += bytes_sent;
+        }
 
       if (!no_debug)
         {
@@ -721,22 +730,23 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
       auto string = prepend_context ? context + cmd : cmd;
       QScopedPointer<HRDMessage> message (new (string) HRDMessage);
       bytes_to_send = message->size_;
-      bytes_sent = hrd_->write (reinterpret_cast<char *> (message.data ()), bytes_to_send);
-    }
-
-  if (bytes_sent < bytes_to_send
-      || !hrd_->waitForBytesWritten (socket_wait_time)
-      || QTcpSocket::ConnectedState != hrd_->state ())
-    {
+      while (total_bytes_sent < bytes_to_send)
+        {
+          auto bytes_sent = hrd_->write (reinterpret_cast<char *> (message.data ()) + total_bytes_sent, bytes_to_send - total_bytes_sent);
+          if (bytes_sent < 0 || !hrd_->waitForBytesWritten (socket_wait_time))
+            {
 #if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::send_command \"" << cmd << "\" failed" << hrd_->errorString ();
+              qDebug () << "HRDTransceiver::send_command failed to write command \"" << cmd << "\" to HRD";
 #endif
 
-      throw error {
-        tr ("Ham Radio Deluxe send command \"%1\" failed %2\n")
-          .arg (cmd)
-          .arg (hrd_->errorString ())
-          };
+              throw error {
+                tr ("Ham Radio Deluxe: failed to write command \"%1\"")
+                  .arg (cmd)
+                  };
+            }
+
+          total_bytes_sent += bytes_sent;
+        }
     }
 
   // waitForReadReady appears to be unreliable on Windows timing out
