@@ -52,7 +52,6 @@ private:
   int find_button (QRegExp const&) const;
   int find_dropdown (QRegExp const&) const;
   std::vector<int> find_dropdown_selection (int dropdown, QRegExp const&) const;
-  int lookup_dropdown_selection (int dropdown, QString const&) const;
   int get_dropdown (int, bool no_debug = false);
   void set_dropdown (int, int);
   void set_button (int button_index, bool checked = true);
