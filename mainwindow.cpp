@@ -1420,7 +1420,8 @@ void MainWindow::guiUpdate()
   bool bTxTime = ((t2p >= tx1) and (t2p < tx2)) or m_tune;
 
   if(m_auto or m_tune) {
-    QFile f("txboth");
+
+    QFile f("/tmp/txboth");
     if(f.exists() and fmod(tsec,m_TRperiod) < (1.0 + 85.0*m_nsps/12000.0)) {
       bTxTime=true;
     }
