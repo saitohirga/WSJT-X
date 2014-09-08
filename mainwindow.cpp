@@ -2640,6 +2640,7 @@ void MainWindow::on_tuneButton_clicked (bool checked)
     {
       m_sent73=false;
       m_repeatMsg=0;
+      on_monitorButton_clicked (true);
     }
   m_tune = checked;
   Q_EMIT tune (checked);
