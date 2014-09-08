@@ -1836,7 +1836,7 @@ bool Configuration::impl::set_mode ()
 
 void Configuration::impl::transceiver_tx_frequency (Frequency f)
 {
-  if (set_mode () || cached_rig_state_.tx_frequency () != f)
+  if (set_mode () || cached_rig_state_.tx_frequency () != f || cached_rig_state_.split () != !!f)
     {
       cached_rig_state_.tx_frequency (f);
       cached_rig_state_.split (f);
