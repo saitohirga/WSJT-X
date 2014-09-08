@@ -296,16 +296,20 @@ void HamlibTransceiver::init_rig ()
           // VFO is selected or if SPLIT is selected so we have to simply
           // assume it is as when we started by setting at open time right
           // here. We also gather/set other initial state.
-          error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &f1), tr ("getting current frequency"));
-
 #if WSJT_TRACE_CAT
-          qDebug () << "HamlibTransceiver::init_rig rig_get_freq =" << f1;
+          qDebug () << "HamlibTransceiver::init_rig rig_get_freq";
+#endif
+          error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &f1), tr ("getting current frequency"));
+#if WSJT_TRACE_CAT
+          qDebug () << "HamlibTransceiver::init_rig rig_get_freq current frequency =" << f1;
 #endif
 
-          error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w), tr ("getting current mode"));
-
 #if WSJT_TRACE_CAT
-          qDebug () << "HamlibTransceiver::init_rig rig_get_mode =" << m << "bw =" << w;
+          qDebug () << "HamlibTransceiver::init_rig rig_get_mode current mode";
+#endif
+          error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w), tr ("getting current mode"));
+#if WSJT_TRACE_CAT
+          qDebug () << "HamlibTransceiver::init_rig rig_get_mode current mode =" << m << "bw =" << w;
 #endif
 
           if (!rig_->caps->set_vfo)
@@ -316,7 +320,6 @@ void HamlibTransceiver::init_rig ()
 #if WSJT_TRACE_CAT
                   qDebug () << "HamlibTransceiver::init_rig rig_vfo_op TOGGLE";
 #endif
-
                   error_check (rig_vfo_op (rig_.data (), RIG_VFO_CURR, RIG_OP_TOGGLE), tr ("exchanging VFOs"));
                 }
               else
@@ -326,43 +329,42 @@ void HamlibTransceiver::init_rig ()
             }
           else
             {
-
 #if WSJT_TRACE_CAT
-              qDebug () << "HamlibTransceiver::init_rig rig_set_vfo";
+              qDebug () << "HamlibTransceiver::init_rig rig_set_vfo to other VFO";
 #endif
-
               error_check (rig_set_vfo (rig_.data (), rig_->state.vfo_list & RIG_VFO_B ? RIG_VFO_B : RIG_VFO_SUB), tr ("setting current VFO"));
             }
 
-          error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &f2), tr ("getting other VFO frequency"));
-
 #if WSJT_TRACE_CAT
-          qDebug () << "HamlibTransceiver::init_rig rig_get_freq =" << f2;
+          qDebug () << "HamlibTransceiver::init_rig rig_get_freq other frequency";
+#endif
+          error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &f2), tr ("getting other VFO frequency"));
+#if WSJT_TRACE_CAT
+          qDebug () << "HamlibTransceiver::init_rig rig_get_freq other frequency =" << f2;
 #endif
 
-          error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &mb, &wb), tr ("getting other VFFO mode"));
-
 #if WSJT_TRACE_CAT
-          qDebug () << "HamlibTransceiver::init_rig rig_get_mode =" << mb << "bw =" << wb;
+          qDebug () << "HamlibTransceiver::init_rig rig_get_mode other VFO";
+#endif
+          error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &mb, &wb), tr ("getting other VFO mode"));
+#if WSJT_TRACE_CAT
+          qDebug () << "HamlibTransceiver::init_rig rig_get_mode other mode =" << mb << "bw =" << wb;
 #endif
 
           update_other_frequency (f2);
 
           if (!rig_->caps->set_vfo)
             {
-
 #if WSJT_TRACE_CAT
               qDebug () << "HamlibTransceiver::init_rig rig_vfo_op TOGGLE";
 #endif
-
               error_check (rig_vfo_op (rig_.data (), RIG_VFO_CURR, RIG_OP_TOGGLE), tr ("exchanging VFOs"));
             }
           else
             {
 #if WSJT_TRACE_CAT
-              qDebug () << "HamlibTransceiver::init_rig rig_set_vfo";
+              qDebug () << "HamlibTransceiver::init_rig rig_set_vfo A/MAIN";
 #endif
-
               error_check (rig_set_vfo (rig_.data (), rig_->state.vfo_list & RIG_VFO_A ? RIG_VFO_A : RIG_VFO_MAIN), tr ("setting current VFO"));
             }
 
@@ -372,45 +374,52 @@ void HamlibTransceiver::init_rig ()
             }
           else
             {
-              error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &f1), tr ("getting frequency"));
-
 #if WSJT_TRACE_CAT
-              qDebug () << "HamlibTransceiver::init_rig rig_get_freq =" << f1;
+              qDebug () << "HamlibTransceiver::init_rig rig_get_freq";
+#endif
+              error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &f1), tr ("getting frequency"));
+#if WSJT_TRACE_CAT
+              qDebug () << "HamlibTransceiver::init_rig rig_get_freq frequency =" << f1;
 #endif
 
-              error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w), tr ("getting mode"));
-
 #if WSJT_TRACE_CAT
-              qDebug () << "HamlibTransceiver::init_rig rig_get_mode =" << m << "bw =" << w;
+              qDebug () << "HamlibTransceiver::init_rig rig_get_mode";
+#endif
+              error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w), tr ("getting mode"));
+#if WSJT_TRACE_CAT
+              qDebug () << "HamlibTransceiver::init_rig rig_get_mode mode =" << m << "bw =" << w;
 #endif
 
               update_rx_frequency (f1);
             }
 
 #if WSJT_TRACE_CAT
-          qDebug () << "HamlibTransceiver::init_rig rig_set_split_vfo";
+          // qDebug () << "HamlibTransceiver::init_rig rig_set_split_vfo split off";
 #endif
-
           // error_check (rig_set_split_vfo (rig_.data (), RIG_VFO_CURR, RIG_SPLIT_OFF, RIG_VFO_CURR), tr ("setting split off"));
           // update_split (false);
         }
       else
         {
           vfo_t v;
-          error_check (rig_get_vfo (rig_.data (), &v), tr ("getting current VFO")); // has side effect of establishing current VFO inside hamlib
-
 #if WSJT_TRACE_CAT
-          qDebug ().nospace () << "HamlibTransceiver::init_rig rig_get_vfo = 0x" << hex << v;
+          qDebug ().nospace () << "HamlibTransceiver::init_rig rig_get_vfo current VFO";
+#endif
+          error_check (rig_get_vfo (rig_.data (), &v), tr ("getting current VFO")); // has side effect of establishing current VFO inside hamlib
+#if WSJT_TRACE_CAT
+          qDebug ().nospace () << "HamlibTransceiver::init_rig rig_get_vfo current VFO = 0x" << hex << v;
 #endif
 
           reversed_ = RIG_VFO_B == v;
 
           if (!(rig_->caps->targetable_vfo & (RIG_TARGETABLE_MODE | RIG_TARGETABLE_PURE)))
             {
-              error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w), tr ("getting current mode"));
-
 #if WSJT_TRACE_CAT
-              qDebug () << "HamlibTransceiver::init_rig rig_get_mode =" << m << "bw =" << w;
+              qDebug () << "HamlibTransceiver::init_rig rig_get_mode current mode";
+#endif
+              error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w), tr ("getting current mode"));
+#if WSJT_TRACE_CAT
+              qDebug () << "HamlibTransceiver::init_rig rig_get_mode current mode =" << m << "bw =" << w;
 #endif
             }
         }
@@ -429,10 +438,12 @@ auto HamlibTransceiver::get_vfos () const -> std::tuple<vfo_t, vfo_t>
   if (rig_->caps->get_vfo)
     {
       vfo_t v;
-      error_check (rig_get_vfo (rig_.data (), &v), tr ("getting current VFO")); // has side effect of establishing current VFO inside hamlib
-
 #if WSJT_TRACE_CAT
-      qDebug ().nospace () << "HamlibTransceiver::get_vfos rig_get_vfo = 0x" << hex << v;
+      qDebug ().nospace () << "HamlibTransceiver::get_vfos rig_get_vfo";
+#endif
+      error_check (rig_get_vfo (rig_.data (), &v), tr ("getting current VFO")); // has side effect of establishing current VFO inside hamlib
+#if WSJT_TRACE_CAT
+      qDebug ().nospace () << "HamlibTransceiver::get_vfos rig_get_vfo VFO = 0x" << hex << v;
 #endif
 
       reversed_ = RIG_VFO_B == v;
@@ -444,9 +455,8 @@ auto HamlibTransceiver::get_vfos () const -> std::tuple<vfo_t, vfo_t>
       // support this way around
 
 #if WSJT_TRACE_CAT
-      qDebug () << "HamlibTransceiver::get_vfos rig_set_vfo";
+      qDebug () << "HamlibTransceiver::get_vfos rig_set_vfo VFO = A/MAIN";
 #endif
-
       error_check (rig_set_vfo (rig_.data (), rig_->state.vfo_list & RIG_VFO_A ? RIG_VFO_A : RIG_VFO_MAIN), tr ("setting current VFO"));
     }
   // else only toggle available but both VFOs should be substitutable 
@@ -458,7 +468,6 @@ auto HamlibTransceiver::get_vfos () const -> std::tuple<vfo_t, vfo_t>
 #if WSJT_TRACE_CAT
       qDebug () << "HamlibTransceiver::get_vfos reversing VFOs";
 #endif
-
       std::swap (rx_vfo, tx_vfo);
     }
 
@@ -510,17 +519,19 @@ void HamlibTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
               pbwidth_t current_width;
 
 #if WSJT_TRACE_CAT
-              qDebug () << "HamlibTransceiver::mode rig_get_split_mode";
+              qDebug () << "HamlibTransceiver::do_tx_frequency rig_get_split_mode";
 #endif
-              auto new_mode = map_mode (state ().mode ());
               error_check (rig_get_split_mode (rig_.data (), RIG_VFO_CURR, &current_mode, &current_width), tr ("getting mode of split TX VFO"));
+#if WSJT_TRACE_CAT
+              qDebug () << "HamlibTransceiver::do_tx_frequency rig_get_split_mode mode =" << current_mode << "bw =" << current_width;
+#endif
 
+              auto new_mode = map_mode (state ().mode ());
               if (new_mode != current_mode)
                 {
 #if WSJT_TRACE_CAT
-                  qDebug () << "HamlibTransceiver::do_tx_frequency rig_set_split_mode";
+                  qDebug () << "HamlibTransceiver::do_tx_frequency rig_set_split_mode mode =" << new_mode;
 #endif
-
                   error_check (rig_set_split_mode (rig_.data (), RIG_VFO_CURR, new_mode, rig_passband_wide (rig_.data (), new_mode)), tr ("setting split TX VFO mode"));
                 }
             }
@@ -530,11 +541,11 @@ void HamlibTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
       // of split when you switch RX VFO (to set split mode above for
       // example)
 
+      auto split = tx ? RIG_SPLIT_ON : RIG_SPLIT_OFF;
 #if WSJT_TRACE_CAT
-      qDebug () << "HamlibTransceiver::do_tx_frequency rig_set_split_vfo";
+      qDebug () << "HamlibTransceiver::do_tx_frequency rig_set_split_vfo split =" << split;
 #endif
-
-      auto rc = rig_set_split_vfo (rig_.data (), RIG_VFO_CURR, tx ? RIG_SPLIT_ON : RIG_SPLIT_OFF, tx_vfo);
+      auto rc = rig_set_split_vfo (rig_.data (), RIG_VFO_CURR, split, tx_vfo);
       if (tx || (-RIG_ENAVAIL != rc && -RIG_ENIMPL != rc))
         {
           // On rigs that can't have split controlled only throw an
@@ -567,15 +578,18 @@ void HamlibTransceiver::do_mode (MODE mode, bool rationalise)
       pbwidth_t current_width;
 
 #if WSJT_TRACE_CAT
-      qDebug () << "HamlibTransceiver::mode rig_get_mode";
+      qDebug () << "HamlibTransceiver::do_mode rig_get_mode";
 #endif
       error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &current_mode, &current_width), tr ("getting current VFO mode"));
+#if WSJT_TRACE_CAT
+      qDebug () << "HamlibTransceiver::do_mode rig_get_mode mode =" << current_mode << "bw =" << current_width;
+#endif
 
       auto new_mode = map_mode (mode);
       if (new_mode != current_mode)
         {
 #if WSJT_TRACE_CAT
-          qDebug () << "HamlibTransceiver::mode rig_set_mode";
+          qDebug () << "HamlibTransceiver::do_mode rig_set_mode mode =" << new_mode;
 #endif
           error_check (rig_set_mode (rig_.data (), RIG_VFO_CURR, new_mode, rig_passband_wide (rig_.data (), new_mode)), tr ("setting current VFO mode"));
         }
@@ -583,14 +597,17 @@ void HamlibTransceiver::do_mode (MODE mode, bool rationalise)
       if (state ().split () && rationalise)
         {
 #if WSJT_TRACE_CAT
-          qDebug () << "HamlibTransceiver::mode rig_get_split_mode";
+          qDebug () << "HamlibTransceiver::do_mode rig_get_split_mode";
 #endif
           error_check (rig_get_split_mode (rig_.data (), RIG_VFO_CURR, &current_mode, &current_width), tr ("getting split TX VFO mode"));
+#if WSJT_TRACE_CAT
+          qDebug () << "HamlibTransceiver::do_mode rig_get_split_mode mode =" << current_mode << "bw =" << current_width;
+#endif
 
           if (new_mode != current_mode)
             {
 #if WSJT_TRACE_CAT
-              qDebug () << "HamlibTransceiver::mode rig_set_split_mode";
+              qDebug () << "HamlibTransceiver::do_mode rig_set_split_mode mode =" << new_mode;
 #endif
               hamlib_tx_vfo_fixup fixup (rig_.data (), tx_vfo);
               error_check (rig_set_split_mode (rig_.data (), RIG_VFO_CURR, new_mode, rig_passband_wide (rig_.data (), new_mode)), tr ("setting split TX VFO mode"));
@@ -628,20 +645,24 @@ void HamlibTransceiver::poll ()
 
       if (rig_->caps->get_vfo)
         {
+#if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
+          qDebug ().nospace () << "HamlibTransceiver::poll rig_get_vfo";
+#endif
           vfo_t v;
           error_check (rig_get_vfo (rig_.data (), &v), tr ("getting current VFO")); // has side effect of establishing current VFO inside hamlib
-
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
-          qDebug ().nospace () << "HamlibTransceiver::state rig_get_vfo = 0x" << hex << v;
+          qDebug ().nospace () << "HamlibTransceiver::poll rig_get_vfo VFO = 0x" << hex << v;
 #endif
 
           reversed_ = RIG_VFO_B == v;
         }
 
-      error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &f), tr ("getting current VFO frequency"));
-
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
-      qDebug () << "HamlibTransceiver::state rig_get_freq =" << f;
+      qDebug () << "HamlibTransceiver::poll rig_get_freq";
+#endif
+      error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &f), tr ("getting current VFO frequency"));
+#if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
+      qDebug () << "HamlibTransceiver::poll rig_get_freq frequency =" << f;
 #endif
 
       update_rx_frequency (f);
@@ -649,34 +670,40 @@ void HamlibTransceiver::poll ()
       if (rig_->caps->targetable_vfo & (RIG_TARGETABLE_FREQ | RIG_TARGETABLE_PURE))
         {
           // we can only probe current VFO unless rig supports reading the other one directly
+#if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
+          qDebug () << "HamlibTransceiver::poll rig_get_freq other VFO";
+#endif
           error_check (rig_get_freq (rig_.data ()
                                      , reversed_
                                      ? (rig_->state.vfo_list & RIG_VFO_A ? RIG_VFO_A : RIG_VFO_MAIN)
                                      : (rig_->state.vfo_list & RIG_VFO_B ? RIG_VFO_B : RIG_VFO_SUB)
                                      , &f), tr ("getting current VFO frequency"));
-
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
-          qDebug () << "HamlibTransceiver::state rig_get_freq other =" << f;
+          qDebug () << "HamlibTransceiver::poll rig_get_freq other VFO =" << f;
 #endif
 
           update_other_frequency (f);
         }
 
-      error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w), tr ("getting current VFO mode"));
-
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
-      qDebug () << "HamlibTransceiver::state rig_get_mode =" << m << "bw =" << w;
+      qDebug () << "HamlibTransceiver::poll rig_get_mode";
+#endif
+      error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w), tr ("getting current VFO mode"));
+#if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
+      qDebug () << "HamlibTransceiver::poll rig_get_mode mode =" << m << "bw =" << w;
 #endif
 
       update_mode (map_mode (m));
 
+#if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
+      qDebug ().nospace () << "HamlibTransceiver::poll rig_get_split_vfo";
+#endif
       vfo_t v {RIG_VFO_NONE};		// so we can tell if it doesn't get updated :(
       auto rc = rig_get_split_vfo (rig_.data (), RIG_VFO_CURR, &s, &v);
       if (-RIG_OK == rc && RIG_SPLIT_ON == s)
         {
-
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
-          qDebug ().nospace () << "HamlibTransceiver::state rig_get_split_vfo split = " << s << " VFO = 0x" << hex << v;
+          qDebug ().nospace () << "HamlibTransceiver::poll rig_get_split_vfo split = " << s << " VFO = 0x" << hex << v;
 #endif
 
           update_split (true);
@@ -688,7 +715,7 @@ void HamlibTransceiver::poll ()
       else if (-RIG_OK == rc)	// not split
         {
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
-          qDebug ().nospace () << "HamlibTransceiver::state rig_get_split_vfo split = " << s << " VFO = 0x" << hex << v;
+          qDebug ().nospace () << "HamlibTransceiver::poll rig_get_split_vfo split = " << s << " VFO = 0x" << hex << v;
 #endif
 
           update_split (false);
@@ -696,7 +723,7 @@ void HamlibTransceiver::poll ()
       else if (-RIG_ENAVAIL == rc || -RIG_ENIMPL == rc) // Some rigs (Icom) don't have a way of reporting SPLIT mode
         {
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
-          qDebug ().nospace () << "HamlibTransceiver::state rig_get_split_vfo can't do on this rig";
+          qDebug ().nospace () << "HamlibTransceiver::poll rig_get_split_vfo can't do on this rig";
 #endif
 
           // just report how we see it based on prior commands
@@ -708,6 +735,9 @@ void HamlibTransceiver::poll ()
 
       if (RIG_PTT_NONE != rig_->state.pttport.type.ptt && rig_->caps->get_ptt)
         {
+#if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
+          qDebug () << "HamlibTransceiver::poll rig_get_ptt";
+#endif
           ptt_t p;
           auto rc = rig_get_ptt (rig_.data (), RIG_VFO_CURR, &p);
           if (-RIG_ENAVAIL != rc && -RIG_ENIMPL != rc) // may fail if
@@ -715,9 +745,8 @@ void HamlibTransceiver::poll ()
                                 // support command
             {
               error_check (rc, tr ("getting PTT state"));
-
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
-              qDebug () << "HamlibTransceiver::state rig_get_ptt =" << p;
+              qDebug () << "HamlibTransceiver::poll rig_get_ptt PTT =" << p;
 #endif
 
               update_PTT (!(RIG_PTT_OFF == p));
@@ -747,9 +776,8 @@ void HamlibTransceiver::do_ptt (bool on)
       if (RIG_PTT_NONE != rig_->state.pttport.type.ptt)
         {
 #if WSJT_TRACE_CAT
-          qDebug () << "HamlibTransceiver::ptt rig_set_ptt";
+          qDebug () << "HamlibTransceiver::do_ptt rig_set_ptt PTT = true";
 #endif
-
           error_check (rig_set_ptt (rig_.data (), RIG_VFO_CURR, back_ptt_port_ ? RIG_PTT_ON_DATA : RIG_PTT_ON), tr ("setting PTT on"));
         }
     }
@@ -758,9 +786,8 @@ void HamlibTransceiver::do_ptt (bool on)
       if (RIG_PTT_NONE != rig_->state.pttport.type.ptt)
         {
 #if WSJT_TRACE_CAT
-          qDebug () << "HamlibTransceiver::ptt rig_set_ptt";
+          qDebug () << "HamlibTransceiver::do_ptt rig_set_ptt PTT = false";
 #endif
-
           error_check (rig_set_ptt (rig_.data (), RIG_VFO_CURR, RIG_PTT_OFF), tr ("setting PTT off"));
         }
     }
