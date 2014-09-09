@@ -14,5 +14,4 @@ Decoded text:	 Double-click to copy second callsign to Dx Call,
 Erase button:	 Click to erase QSO window
       	 Double-click to erase QSO and Band Activity windows
 
-Tx5 Entry:	 Right-click to select a macro message
 
