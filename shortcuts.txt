@@ -2,7 +2,7 @@ F1	Online User's Guide
 Ctrl+F1	About WSJT-X
 F2	Open configuration window
 F3	Display keyboard shortcuts
-F4	Clear Dx Call and Dx Grid entries
+F4	Clear DX Call, DX Grid, Tx messages 1-5
 Alt+F4	Exit program
 F5	Display special mouse commands
 F6	Open next file in directory
