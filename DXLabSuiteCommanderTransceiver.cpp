@@ -10,7 +10,6 @@
 namespace
 {
   char const * const commander_transceiver_name {"DX Lab Suite Commander"};
-  int socket_wait_time {5000};
 
   QString map_mode (Transceiver::MODE mode)
   {
@@ -68,7 +67,7 @@ void DXLabSuiteCommanderTransceiver::do_start ()
     }
 
   commander_->connectToHost (std::get<0> (server_details), std::get<1> (server_details));
-  if (!commander_->waitForConnected (socket_wait_time))
+  if (!commander_->waitForConnected ())
     {
 #if WSJT_TRACE_CAT
       qDebug () << "DXLabSuiteCommanderTransceiver::start failed to connect" << commander_->errorString ();
@@ -332,17 +331,7 @@ void DXLabSuiteCommanderTransceiver::simple_command (QByteArray const& cmd, bool
 #endif
     }
 
-  if (QTcpSocket::ConnectedState != commander_->state ())
-    {
-#if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver::simple_command failed:" << commander_->errorString ();
-#endif
-
-      throw error {tr ("DX Lab Suite Commander send command failed\n") + commander_->errorString ()};
-    }
-
-  commander_->write (cmd);
-  if (!commander_->waitForBytesWritten (socket_wait_time))
+  if (!write_to_port (cmd))
     {
 #if WSJT_TRACE_CAT
       qDebug () << "DXLabSuiteCommanderTransceiver::simple_command failed:" << commander_->errorString ();
@@ -356,21 +345,14 @@ QByteArray DXLabSuiteCommanderTransceiver::command_with_reply (QByteArray const&
 {
   Q_ASSERT (commander_);
 
-  if (QTcpSocket::ConnectedState != commander_->state ())
+  if (!no_debug)
     {
 #if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver::command_with_reply \"" << cmd << "\" connection failed:" << commander_->errorString ();
+      qDebug () << "DXLabSuiteCommanderTransceiver:command_with_reply(" << cmd << ')';
 #endif
-
-      throw error {
-        tr ("DX Lab Suite Commander failed to send command \"%1\" connection failed: %2\n")
-          .arg (cmd.constData ())
-          .arg (commander_->errorString ())
-          };
     }
 
-  commander_->write (cmd);
-  if (!commander_->waitForBytesWritten (socket_wait_time) || QTcpSocket::ConnectedState != commander_->state ())
+  if (!write_to_port (cmd))
     {
 #if WSJT_TRACE_CAT
       qDebug () << "DXLabSuiteCommanderTransceiver::command_with_reply failed to send command:" << commander_->errorString ();
@@ -389,7 +371,7 @@ QByteArray DXLabSuiteCommanderTransceiver::command_with_reply (QByteArray const&
   bool replied {false};
   while (!replied && --retries)
     {
-      replied = commander_->waitForReadyRead (socket_wait_time);
+      replied = commander_->waitForReadyRead ();
       if (!replied && commander_->error () != commander_->SocketTimeoutError)
         {
 #if WSJT_TRACE_CAT
@@ -426,4 +408,23 @@ QByteArray DXLabSuiteCommanderTransceiver::command_with_reply (QByteArray const&
     }
 
   return result;
+}
+
+bool DXLabSuiteCommanderTransceiver::write_to_port (QByteArray const& data)
+{
+  auto to_send = data.constData ();
+  auto length = data.size ();
+
+  qint64 total_bytes_sent {0};
+  while (total_bytes_sent < length)
+    {
+      auto bytes_sent = commander_->write (to_send + total_bytes_sent, length - total_bytes_sent);
+      if (bytes_sent < 0 || !commander_->waitForBytesWritten ())
+        {
+          return false;
+        }
+
+      total_bytes_sent += bytes_sent;
+    }
+  return true;
 }

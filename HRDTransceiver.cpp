@@ -11,7 +11,6 @@
 namespace
 {
   char const * const HRD_transceiver_name = "Ham Radio Deluxe";
-  int socket_wait_time {5000};
 }
 
 void HRDTransceiver::register_transceivers (TransceiverFactory::Transceivers * registry, int id)
@@ -111,7 +110,7 @@ void HRDTransceiver::do_start ()
     }
 
   hrd_->connectToHost (std::get<0> (server_details), std::get<1> (server_details));
-  if (!hrd_->waitForConnected (socket_wait_time))
+  if (!hrd_->waitForConnected ())
     {
 #if WSJT_TRACE_CAT
       qDebug () << "HRDTransceiver::start failed to connect:" <<  hrd_->errorString ();
@@ -139,7 +138,7 @@ void HRDTransceiver::do_start ()
 
       protocol_ = v4;		// try again with older protocol
       hrd_->connectToHost (std::get<0> (server_details), std::get<1> (server_details));
-      if (!hrd_->waitForConnected (socket_wait_time))
+      if (!hrd_->waitForConnected ())
         {
 #if WSJT_TRACE_CAT
           qDebug () << "HRDTransceiver::do_start failed to connect:" <<  hrd_->errorString ();
@@ -694,68 +693,53 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
           };
     }
 
-  int bytes_to_send;
-  int total_bytes_sent {0};
+
+  if (!no_debug)
+    {
+#if WSJT_TRACE_CAT
+      qDebug () << "HRDTransceiver::send_command:" << cmd;
+#endif
+    }
+
   if (v4 == protocol_)
     {
       auto message = ((prepend_context ? context + cmd : cmd) + "\r").toLocal8Bit ();
-      bytes_to_send = message.size ();
-      while (total_bytes_sent < bytes_to_send)
-        {
-          auto bytes_sent = hrd_->write (message.constData () + total_bytes_sent, bytes_to_send - total_bytes_sent);
-          if (bytes_sent < 0 || !hrd_->waitForBytesWritten (socket_wait_time))
-            {
-#if WSJT_TRACE_CAT
-              qDebug () << "HRDTransceiver::send_command failed to write command \"" << cmd << "\" to HRD";
-#endif
-
-              throw error {
-                tr ("Ham Radio Deluxe: failed to write command \"%1\"")
-                  .arg (cmd)
-                  };
-            }
-
-          total_bytes_sent += bytes_sent;
-        }
-
-      if (!no_debug)
+      if (!write_to_port (message.constData (), message.size ()))
         {
 #if WSJT_TRACE_CAT
-          qDebug () << "HRDTransceiver::send_command:" << message;
+          qDebug () << "HRDTransceiver::send_command failed to write command \"" << cmd << "\" to HRD";
 #endif
+
+          throw error {
+            tr ("Ham Radio Deluxe: failed to write command \"%1\"")
+              .arg (cmd)
+              };
         }
     }
   else
     {
       auto string = prepend_context ? context + cmd : cmd;
       QScopedPointer<HRDMessage> message (new (string) HRDMessage);
-      bytes_to_send = message->size_;
-      while (total_bytes_sent < bytes_to_send)
+      if (!write_to_port (reinterpret_cast<char const *> (message.data ()), message->size_))
         {
-          auto bytes_sent = hrd_->write (reinterpret_cast<char *> (message.data ()) + total_bytes_sent, bytes_to_send - total_bytes_sent);
-          if (bytes_sent < 0 || !hrd_->waitForBytesWritten (socket_wait_time))
-            {
 #if WSJT_TRACE_CAT
-              qDebug () << "HRDTransceiver::send_command failed to write command \"" << cmd << "\" to HRD";
+          qDebug () << "HRDTransceiver::send_command failed to write command \"" << cmd << "\" to HRD";
 #endif
 
-              throw error {
-                tr ("Ham Radio Deluxe: failed to write command \"%1\"")
-                  .arg (cmd)
-                  };
-            }
-
-          total_bytes_sent += bytes_sent;
+          throw error {
+            tr ("Ham Radio Deluxe: failed to write command \"%1\"")
+              .arg (cmd)
+              };
         }
     }
 
-  // waitForReadReady appears to be unreliable on Windows timing out
-  // when data is waiting so retry a few times
-  unsigned retries {5};
+  // waitForReadReady appears to be occasionally unreliable on Windows
+  // timing out when data is waiting so retry a few times
+  unsigned retries {3};
   bool replied {false};
-  while (!replied && --retries)
+  while (!replied && retries--)
     {
-      replied = hrd_->waitForReadyRead (socket_wait_time);
+      replied = hrd_->waitForReadyRead ();
       if (!replied && hrd_->error () != hrd_->SocketTimeoutError)
         {
 #if WSJT_TRACE_CAT
@@ -821,6 +805,22 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
     }
 
   return result;
+}
+
+bool HRDTransceiver::write_to_port (char const * data, qint64 length)
+{
+  qint64 total_bytes_sent {0};
+  while (total_bytes_sent < length)
+    {
+      auto bytes_sent = hrd_->write (data + total_bytes_sent, length - total_bytes_sent);
+      if (bytes_sent < 0 || !hrd_->waitForBytesWritten ())
+        {
+          return false;
+        }
+
+      total_bytes_sent += bytes_sent;
+    }
+  return true;
 }
 
 void HRDTransceiver::send_simple_command (QString const& command, bool no_debug)
