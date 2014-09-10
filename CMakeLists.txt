@@ -499,6 +499,7 @@ if (hamlib_STATIC_LIBRARY)
   set (hamlib_LIBRARY "${hamlib_STATIC_LIBRARY}")
   set (hamlib_LIBRARIES "${hamlib_STATIC_LIBRARIES}")
 endif ()
+find_program (RIGCTLD_EXE rigctld)
 
 message (STATUS "hamlib_INCLUDE_DIRS: ${hamlib_INCLUDE_DIRS}")
 message (STATUS "hamlib_LIBRARY: ${hamlib_LIBRARY}")
@@ -685,7 +686,7 @@ install (TARGETS jt9 jt65code jt9code
   )
 
 install (PROGRAMS
-  ${CMAKE_BINARY_DIR}/contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
+  ${CMAKE_BINARY_DIR}/contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX} ${RIGCTLD_EXE}
   DESTINATION ${WSJT_BIN_DESTINATION}
   #COMPONENT Runtime
   )
