@@ -359,29 +359,61 @@ QByteArray DXLabSuiteCommanderTransceiver::command_with_reply (QByteArray const&
   if (QTcpSocket::ConnectedState != commander_->state ())
     {
 #if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver::command_with_reply failed:" << commander_->errorString ();
+      qDebug () << "DXLabSuiteCommanderTransceiver::command_with_reply \"" << cmd << "\" connection failed:" << commander_->errorString ();
 #endif
 
-      throw error {tr ("DX Lab Suite Commander read reply failed\n") + commander_->errorString ()};
+      throw error {
+        tr ("DX Lab Suite Commander failed to send command \"%1\" connection failed: %2\n")
+          .arg (cmd.constData ())
+          .arg (commander_->errorString ())
+          };
     }
 
   commander_->write (cmd);
   if (!commander_->waitForBytesWritten (socket_wait_time) || QTcpSocket::ConnectedState != commander_->state ())
     {
 #if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver::simple_command failed:" << commander_->errorString ();
+      qDebug () << "DXLabSuiteCommanderTransceiver::command_with_reply failed to send command:" << commander_->errorString ();
 #endif
 
-      throw error {tr ("DX Lab Suite Commander send command failed\n") + commander_->errorString ()};
+      throw error {
+        tr ("DX Lab Suite Commander failed to send command \"%1\": %2\n")
+          .arg (cmd.constData ())
+          .arg (commander_->errorString ())
+          };
     }
 
-  if (!commander_->waitForReadyRead (socket_wait_time))
+  // waitForReadReady appears to be unreliable on Windows timing out
+  // when data is waiting so retry a few times
+  unsigned retries {5};
+  bool replied {false};
+  while (!replied && --retries)
     {
+      replied = commander_->waitForReadyRead (socket_wait_time);
+      if (!replied && commander_->error () != commander_->SocketTimeoutError)
+        {
 #if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver::command_with_reply failed:" << commander_->errorString ();
+          qDebug () << "DXLabSuiteCommanderTransceiver::command_with_reply \"" << cmd << "\" failed to read reply:" << commander_->errorString ();
 #endif
 
-      throw error {tr ("DX Lab Suite Commander read reply failed\n") + commander_->errorString ()};
+          throw error {
+            tr ("DX Lab Suite Commander send command \"%1\" read reply failed: %2\n")
+              .arg (cmd.constData ())
+              .arg (commander_->errorString ())
+              };
+        }
+    }
+
+  if (!replied)
+    {
+#if WSJT_TRACE_CAT
+      qDebug () << "DXLabSuiteCommanderTransceiver::command_with_reply \"" << cmd << "\" retries exhausted";
+#endif
+
+      throw error {
+        tr ("DX Lab Suite Commander retries exhausted sending command \"%1\"")
+          .arg (cmd.constData ())
+          };
     }
 
   auto result = commander_->readAll ();
