@@ -48,6 +48,7 @@ protected:
 private:
   QString send_command (QString const&, bool no_debug = false, bool prepend_context = true, bool recurse = false);
   void send_simple_command (QString const&, bool no_debug = false);
+  bool write_to_port (char const *, qint64 length);
   void sync_impl ();
   int find_button (QRegExp const&) const;
   int find_dropdown (QRegExp const&) const;

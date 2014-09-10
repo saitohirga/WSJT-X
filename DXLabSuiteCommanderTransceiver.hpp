@@ -3,12 +3,11 @@
 
 #include <memory>
 
-#include <QByteArray>
-
 #include "TransceiverFactory.hpp"
 #include "PollingTransceiver.hpp"
 
 class QTcpSocket;
+class QByteArray;
 
 //
 // DX Lab Suite Commander Interface
@@ -43,6 +42,7 @@ protected:
 private:
   void simple_command (QByteArray const&, bool no_debug = false);
   QByteArray command_with_reply (QByteArray const&, bool no_debug = false);
+  bool write_to_port (QByteArray const&);
 
   std::unique_ptr<TransceiverBase> wrapped_;
   bool use_for_ptt_;
