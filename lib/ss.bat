@@ -1,1 +1,1 @@
-svn status | grep -v '?'
+svn status | grep -v "?"
