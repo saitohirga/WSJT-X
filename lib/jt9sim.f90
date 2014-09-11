@@ -19,8 +19,8 @@ program jt9sim
 
   nargs=iargc()
   if(nargs.ne.6) then
-     print*,'Usage: jt9sim "message" fspan nsigs minutes SNR nfiles'
-     print*,'Example:  "CQ K1ABC FN42" 200  20      2    -28    1'
+     print*,'Usage:   jt9sim "message"     fspan nsigs minutes SNR nfiles'
+     print*,'Example: jt9sim "CQ K1ABC FN42" 200  20      2    -28    1'
      print*,' '
      print*,'Enter message = "" to use entries in msgs.txt.'
      print*,'Enter SNR = 0 to generate a range of SNRs.'
@@ -54,7 +54,9 @@ program jt9sim
   if(minutes.eq.30) nsps=252000
   if(nsps.eq.0) stop 'Bad value for minutes.'
 
-  f0=1400.d0                         !Center frequency (Hz)
+!  f0=1400.d0                         !Center frequency (Hz)
+  f0=3000.d0                         !Center frequency (Hz)
+
 !  f0=1500.0
 !  if(minutes.eq.5)  f0=1100.
 !  if(minutes.eq.10) f0=1050.
@@ -65,7 +67,7 @@ program jt9sim
 
   if(msg0(1:3).eq.'sin') read(msg0(4:),*) sinfreq
   
-  open(12,file='msgs.txt',status='old')
+  if(message.eq."") open(12,file='msgs.txt',status='old')
 
   write(*,1000)
 1000 format('File  N    freq      S/N  Message'/    &
@@ -88,7 +90,7 @@ program jt9sim
      endif
 
      if(msg0.ne.'                      ') then
-        call genjt9(message,msgsent,i4tone) !Encode message into tone #s
+        call genjt9(message,0,msgsent,i4tone,itext) !Encode message into tone #s
      endif
 
      rewind 12
@@ -154,8 +156,8 @@ program jt9sim
            i4=-10
            if(i1Bits(i).eq.1) i4=10
            i4=i4+128
-           if(i4.le.127) i1SoftSymbols(k)=i4
-           if(i4.ge.128) i1SoftSymbols(k)=i4-256
+           if(i4.le.127) i1SoftSymbols(i)=i4
+           if(i4.ge.128) i1SoftSymbols(i)=i4-256
         enddo
         limit=1000
         call decode9(i1SoftSymbols,limit,nlim,msg)
