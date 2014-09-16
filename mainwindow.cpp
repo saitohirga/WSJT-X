@@ -308,7 +308,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_freeText=false;
   m_msErase=0;
   m_sent73=false;
-  m_watchdogLimit=5;
+  m_watchdogLimit=7;
   m_repeatMsg=0;
   m_secBandChanged=0;
   m_lockTxFreq=false;
@@ -1446,8 +1446,7 @@ void MainWindow::guiUpdate()
             QString t="Please choose another Tx frequency.\n";
             t+="WSJT-X will not knowingly transmit\n";
             t+="in the WSPR sub-band on 30 m.";
-            msgBox0.setText(t);
-            msgBox0.show();
+            msgBox(t);
           }
       }
 
@@ -1678,7 +1677,6 @@ void MainWindow::stopTx()
   tx_status_label->setStyleSheet("");
   tx_status_label->setText("");
   ptt0Timer->start(200);                       //Sequencer delay
-
   monitor (true);
 }
 
@@ -1694,11 +1692,10 @@ void MainWindow::stopTx2()
       on_stopTxButton_clicked();
     }
 
-  if (m_config.watchdog () && m_repeatMsg>m_watchdogLimit)
+  if (m_config.watchdog () && m_repeatMsg>=m_watchdogLimit-1)
     {
       on_stopTxButton_clicked();
-      msgBox0.setText("Runaway Tx watchdog");
-      msgBox0.show();
+      msgBox("Runaway Tx watchdog");
       m_repeatMsg=0;
     }
 }
