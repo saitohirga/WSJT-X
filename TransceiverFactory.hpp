@@ -12,6 +12,7 @@
 
 class QString;
 class QThread;
+class QDir;
 
 //
 // Transceiver Factory
@@ -36,11 +37,11 @@ public:
     enum PortType {none, serial, network};
 
     explicit Capabilities (int model_number = 0
-			   , PortType port_type = none
-			   , bool has_CAT_PTT = false
-			   , bool has_CAT_PTT_mic_data = false
-			   , bool has_CAT_indirect_serial_PTT = false
-			   , bool asynchronous = false)
+                           , PortType port_type = none
+                           , bool has_CAT_PTT = false
+                           , bool has_CAT_PTT_mic_data = false
+                           , bool has_CAT_indirect_serial_PTT = false
+                           , bool asynchronous = false)
       : model_number_ {model_number}
       , port_type_ {port_type}
       , has_CAT_PTT_ {has_CAT_PTT}
@@ -99,23 +100,24 @@ public:
   // type
   //
   std::unique_ptr<Transceiver> create (QString const& name // from supported_transceivers () key
-				       , QString const& cat_port // serial port device name or empty
-				       , int cat_baud
-				       , DataBits cat_data_bits
-				       , StopBits cat_stop_bits
-				       , Handshake cat_handshake
-				       , bool cat_dtr_always_on	// to power interface
-				       , bool cat_rts_always_on	// to power inteface
-				       , PTTMethod ptt_type // "CAT" | "DTR" | "RTS" | "VOX"
-				       , TXAudioSource ptt_use_data_ptt	// some rigs allow audio routing to Mic/Data connector
-				       , SplitMode split_mode // how to support split TX mode
-				       , QString const& ptt_port // serial port device name or special value "CAT"
-				       , int poll_interval // in milliseconds for interfaces that require polling for parameter changes
-				       , QThread * target_thread = nullptr
-				       );
-
+                                       , QString const& cat_port // serial port device name or empty
+                                       , int cat_baud
+                                       , DataBits cat_data_bits
+                                       , StopBits cat_stop_bits
+                                       , Handshake cat_handshake
+                                       , bool cat_dtr_always_on	// to power interface
+                                       , bool cat_rts_always_on	// to power inteface
+                                       , PTTMethod ptt_type // "CAT" | "DTR" | "RTS" | "VOX"
+                                       , TXAudioSource ptt_use_data_ptt	// some rigs allow audio routing to Mic/Data connector
+                                       , SplitMode split_mode // how to support split TX mode
+                                       , QString const& ptt_port // serial port device name or special value "CAT"
+                                       , int poll_interval // in milliseconds for interfaces that require polling for parameter changes
+                                       , QDir const& data_path
+                                       , QThread * target_thread = nullptr
+                                       );
+  
 private:
-    Transceivers transceivers_;
+  Transceivers transceivers_;
 };
 
 //
