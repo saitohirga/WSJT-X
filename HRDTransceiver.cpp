@@ -63,11 +63,16 @@ struct HRDMessage
 qint32 const HRDMessage::magic_1_value_ (0x1234ABCD);
 qint32 const HRDMessage::magic_2_value_ (0xABCD1234);
 
-HRDTransceiver::HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped, QString const& server, bool use_for_ptt, int poll_interval)
+HRDTransceiver::HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped
+                                , QString const& server
+                                , bool use_for_ptt
+                                , int poll_interval
+                                , QDir const& data_path)
   : PollingTransceiver {poll_interval}
   , wrapped_ {std::move (wrapped)}
   , use_for_ptt_ {use_for_ptt}
   , server_ {server}
+  , data_path_ {data_path}
   , hrd_ {0}
   , protocol_ {none}
   , current_radio_ {0}
@@ -150,10 +155,24 @@ void HRDTransceiver::do_start ()
       send_command ("get context", false, false);
     }
 
+  QString HRD_info_path {data_path_.absoluteFilePath ("HRD Interface Information.txt")};
+  QFile HRD_info_file {HRD_info_path};
+  if (!HRD_info_file.open (QFile::WriteOnly | QFile::Text | QFile::Truncate))
+    {
+      throw error {tr ("Failed to open file \"%1\".").arg (HRD_info_path)};
+    }
+  QTextStream HRD_info {&HRD_info_file};
+
+  auto id = send_command ("get id", false, false);
+  auto version = send_command ("get version", false, false);
+
 #if WSJT_TRACE_CAT
-  qDebug () << send_command ("get id", false, false);
-  qDebug () << send_command ("get version", false, false);
+  qDebug () << "Id:" << id;
+  qDebug () << "Version:" << version;
 #endif
+
+  HRD_info << "Id: " << id << "\n";
+  HRD_info << "Version: " << version << "\n";
 
   auto radios = send_command ("get radios", false, false).trimmed ().split (',', QString::SkipEmptyParts);
   if (radios.isEmpty ())
@@ -165,8 +184,10 @@ void HRDTransceiver::do_start ()
       throw error {tr ("Ham Radio Deluxe: no rig found")};
     }
 
+  HRD_info << "Radios:\n";
   Q_FOREACH (auto const& radio, radios)
     {
+      HRD_info << "\t" << radio << "\n";
       auto entries = radio.trimmed ().split (':', QString::SkipEmptyParts);
       radios_.push_back (std::forward_as_tuple (entries[0].toUInt (), entries[1]));
     }
@@ -179,7 +200,9 @@ void HRDTransceiver::do_start ()
     }
 #endif
 
-  if (send_command ("get radio", false, false, true).isEmpty ())
+  auto current_radio_name = send_command ("get radio", false, false, true);
+  HRD_info << "Current radio: " << current_radio_name << "\n";
+  if (current_radio_name.isEmpty ())
     {
 #if WSJT_TRACE_CAT
       qDebug () << "HRDTransceiver::do_start no rig found";
@@ -189,23 +212,37 @@ void HRDTransceiver::do_start ()
     }
 
   vfo_count_ = send_command ("get vfo-count").toUInt ();
-
+  HRD_info << "VFO count: " << vfo_count_ << "\n";
 #if WSJT_TRACE_CAT
   qDebug () << "vfo count:" << vfo_count_;
 #endif
 
   buttons_ = send_command ("get buttons").trimmed ().split (',', QString::SkipEmptyParts).replaceInStrings (" ", "~");
-
 #if WSJT_TRACE_CAT
   qDebug () << "HRD Buttons: " << buttons_;
 #endif
+  HRD_info << "Buttons: {" << buttons_.join (", ") << "}\n";
 
   dropdown_names_ = send_command ("get dropdowns").trimmed ().split (',', QString::SkipEmptyParts);
-  Q_FOREACH (auto d, dropdown_names_)
+  HRD_info << "Dropdowns:\n";
+  Q_FOREACH (auto const& dd, dropdown_names_)
     {
-      dropdowns_[d] = send_command ("get dropdown-list {" + d + "}").trimmed ().split (',', QString::SkipEmptyParts);
+      auto selections = send_command ("get dropdown-list {" + dd + "}").trimmed ().split (',', QString::SkipEmptyParts);
+      HRD_info << "\t" << dd << ": {" << selections.join (", ") << "}\n";
+      dropdowns_[dd] = selections;
     }
+#if WSJT_TRACE_CAT
+  qDebug () << "HRD Dropdowns: " << dropdowns_;
+#endif
 
+  sliders_ = send_command ("get sliders").trimmed ().split (',', QString::SkipEmptyParts).replaceInStrings (" ", "~");
+  HRD_info << "Sliders:\n";
+  HRD_info << "Sliders: {" << sliders_.join (", ") << "}\n";
+  Q_FOREACH (auto const& s, sliders_)
+    {
+      auto range = send_command ("get slider-range " + current_radio_name + " " + s).trimmed ().split (',', QString::SkipEmptyParts);
+      HRD_info << "\t" << s << ": {" << range.join (", ") << "}\n";
+    }
 #if WSJT_TRACE_CAT
   qDebug () << "HRD Dropdowns: " << dropdowns_;
 #endif

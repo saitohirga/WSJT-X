@@ -8,6 +8,7 @@
 #include <QScopedPointer>
 #include <QString>
 #include <QStringList>
+#include <QDir>
 
 #include "TransceiverFactory.hpp"
 #include "PollingTransceiver.hpp"
@@ -30,7 +31,11 @@ public:
   static void register_transceivers (TransceiverFactory::Transceivers *, int id);
 
   // takes ownership of wrapped Transceiver
-  explicit HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped, QString const& server, bool use_for_ptt, int poll_interval);
+  explicit HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped
+                           , QString const& server
+                           , bool use_for_ptt
+                           , int poll_interval
+                           , QDir const& data_path);
   ~HRDTransceiver ();
 
 protected:
@@ -77,6 +82,8 @@ private:
   QString server_;              // The TCP/IP addrress and port for
                                 // the HRD server.
 
+  QDir data_path_;              // Directory to write files to
+
   QTcpSocket * hrd_;            // The TCP/IP client that links to the
                                 // HRD server.
 
@@ -99,6 +106,8 @@ private:
   QMap<QString, QStringList> dropdowns_; // Dictionary of available
                                          // drop down selections
                                          // available.
+
+  QStringList sliders_;         // The sliders available.
 
   int vfo_A_button_;            // The button we use to select VFO
                                 // A. May be -1 if none available.

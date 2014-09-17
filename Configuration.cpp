@@ -1746,7 +1746,9 @@ bool Configuration::impl::open_rig ()
                                               , static_cast<TransceiverFactory::SplitMode> (ui_->split_mode_button_group->checkedId ())
                                               , ui_->PTT_port_combo_box->currentText ()
                                               , ui_->CAT_poll_interval_spin_box->value () * 1000
-                                              , &transceiver_thread_);
+                                              , data_path_
+                                              , &transceiver_thread_
+                                              );
 
       // hook up Configuration transceiver control signals to Transceiver slots
       //
