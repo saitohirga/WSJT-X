@@ -1,5 +1,7 @@
 #include "revision_utils.hpp"
 
+#include <cstring>
+
 #include <QCoreApplication>
 #include <QRegularExpression>
 
@@ -73,8 +75,14 @@ QString revision (QString const& svn_rev_string)
 QString program_title (QString const& revision)
 {
 #if defined (CMAKE_BUILD)
-  return QCoreApplication::applicationName () + "   v" WSJTX_STRINGIZE (WSJTX_VERSION_MAJOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_MINOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_PATCH) " " + revision + "  by K1JT";
+  QString id {QCoreApplication::applicationName () + "   v" WSJTX_STRINGIZE (WSJTX_VERSION_MAJOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_MINOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_PATCH)};
+
+# if defined (WSJTX_RC)
+  id += "-rc" WSJTX_STRINGIZE (WSJTX_RC);
+# endif
+
 #else
-  return "WSJT-X   v1.4 " + revision + "  by K1JT";
+  QString id {"WSJT-X   v1.4";
 #endif
+  return id + " " + revision + "  by K1JT";
 }
