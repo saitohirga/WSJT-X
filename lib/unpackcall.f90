@@ -6,6 +6,7 @@ subroutine unpackcall(ncall,word,iv2,psfx)
   data c/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ '/
 
   word='......' 
+  psfx='    '
   n=ncall
   iv2=0
   if(n.ge.262177560) go to 20
