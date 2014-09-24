@@ -40,13 +40,14 @@ void TransceiverBase::start () noexcept
     {
       if (m_->state_.online ())
         {
+          m_->state_.online (false);
+
           // ensure PTT isn't left set
           do_ptt (false);
           do_post_ptt (false);
 
           do_stop ();
           do_post_stop ();
-          m_->state_.online (false);
         }
       do_start ();
       do_post_start ();
@@ -73,6 +74,8 @@ void TransceiverBase::stop () noexcept
     {
       if (m_->state_.online ())
         {
+          m_->state_.online (false);
+
           // ensure PTT isn't left set
           do_ptt (false);
           do_post_ptt (false);
@@ -80,7 +83,6 @@ void TransceiverBase::stop () noexcept
 
       do_stop ();
       do_post_stop ();
-      m_->state_.online (false);
     }
   catch (std::exception const& e)
     {
@@ -265,8 +267,13 @@ void TransceiverBase::offline (QString const& reason)
       if (m_->state_.online ())
         {
           m_->state_.online (false);
-          do_stop ();
+
+          // ensure PTT isn't left set
+          do_ptt (false);
+          do_post_ptt (false);
         }
+      do_stop ();
+      do_post_stop ();
     }
   catch (std::exception const& e)
     {
