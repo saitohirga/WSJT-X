@@ -77,11 +77,6 @@ private:
   QDir m_palettes_path;
   WFPalette m_userPalette;
 
-  qint32 m_rxFreq;
-  qint32 m_txFreq;
-
-  double m_dialFreq;
-
   qint32 m_waterfallAvg;
   qint32 m_fSample;
   qint32 m_TRperiod;

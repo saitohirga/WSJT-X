@@ -214,9 +214,8 @@ void WideGraph::keyPressEvent(QKeyEvent *e)
 
 void WideGraph::setRxFreq(int n)
 {
-  m_rxFreq=n;
-  ui->widePlot->setRxFreq(m_rxFreq,true);
-  if(m_lockTxFreq) setTxFreq(m_rxFreq);
+  ui->widePlot->setRxFreq(n);
+  if(m_lockTxFreq) setTxFreq(n);
 }
 
 int WideGraph::rxFreq()
@@ -322,14 +321,11 @@ void WideGraph::setLockTxFreq(bool b)
 
 void WideGraph::setFreq2(int rxFreq, int txFreq)
 {
-  m_rxFreq=rxFreq;
-  m_txFreq=txFreq;
   emit setFreq3(rxFreq,txFreq);
 }
 
 void WideGraph::setDialFreq(double d)
 {
-  m_dialFreq=d;
   ui->widePlot->setDialFreq(d);
 }
 

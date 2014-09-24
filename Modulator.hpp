@@ -60,6 +60,7 @@ private:
   double m_amp;
   double m_nsps;
   double volatile m_frequency;
+  double m_frequency0;
   double m_snr;
   double m_fac;
   double m_toneSpacing;

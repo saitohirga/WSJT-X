@@ -48,7 +48,7 @@ public:
   void setRxRange(int fMin);
   void setBinsPerPixel(int n);
   int  binsPerPixel();
-  void setRxFreq(int n, bool bf);
+  void setRxFreq(int n);
   void DrawOverlay();
   int  rxFreq();
   void setFsample(int n);
