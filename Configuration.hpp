@@ -85,6 +85,7 @@ public:
   QFont decoded_text_font () const;
   qint32 id_interval () const;
   bool id_after_73 () const;
+  bool tx_QSY_allowed () const;
   bool spot_to_psk_reporter () const;
   bool monitor_off_at_startup () const;
   bool log_as_RTTY () const;

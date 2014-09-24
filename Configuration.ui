@@ -214,6 +214,27 @@
           <string>Behavior</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="disable_TX_on_73_check_box">
+            <property name="toolTip">
+             <string>Turns off automatic transmissions after sending a 73 or any other free
+text message.</string>
+            </property>
+            <property name="text">
+             <string>Di&amp;sable Tx after sending 73</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="watchdog_check_box">
+            <property name="toolTip">
+             <string>Stop transmitting automatically after five periods.</string>
+            </property>
+            <property name="text">
+             <string>Runaway Tx &amp;watchdog</string>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="0">
            <widget class="QCheckBox" name="monitor_off_check_box">
             <property name="toolTip">
@@ -237,28 +258,17 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="disable_TX_on_73_check_box">
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="tx_QSY_check_box">
             <property name="toolTip">
-             <string>Turns off automatic transmissions after sending a 73 or any other free
-text message.</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Some rigs are not able to process CAT commands while transmitting. This means that if you are operating in split mode you may have to uncheck this option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Di&amp;sable Tx after sending 73</string>
+             <string>Allow Tx Frequency Changes While Transmitting</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QCheckBox" name="watchdog_check_box">
-            <property name="toolTip">
-             <string>Stop transmitting automatically after five periods.</string>
-            </property>
-            <property name="text">
-             <string>Runaway Tx &amp;watchdog</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
+          <item row="4" column="0" colspan="2">
            <layout class="QHBoxLayout" name="horizontalLayout_9">
             <item>
              <widget class="QCheckBox" name="CW_id_after_73_check_box">
@@ -1825,11 +1835,11 @@ soundcard changes</string>
  </connections>
  <buttongroups>
   <buttongroup name="CAT_stop_bits_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="split_mode_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
  </buttongroups>
 </ui>

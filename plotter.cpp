@@ -399,18 +399,9 @@ int CPlotter::binsPerPixel()                                // get nbpp
   return m_binsPerPixel;
 }
 
-void CPlotter::setRxFreq(int x, bool bf)                       //setRxFreq()
+void CPlotter::setRxFreq (int x)
 {
-  if(bf) {
-    m_rxFreq=x;         // x is freq in Hz
-    m_xClick=XfromFreq(m_rxFreq);
-  } else {
-    if(x<0) x=0;      // x is pixel number
-    if(x>m_Size.width()) x=m_Size.width();
-    m_rxFreq=int(FreqfromX(x)+0.5);
-    m_xClick=x;
-  }
-  emit setFreq1(m_rxFreq,m_txFreq);
+  m_rxFreq = x;         // x is freq in Hz
   DrawOverlay();
   update();
 }
@@ -420,18 +411,22 @@ int CPlotter::rxFreq() {return m_rxFreq;}                //get rxFreq
 void CPlotter::mousePressEvent(QMouseEvent *event)       //mousePressEvent
 {
   int x=event->x();
-  setRxFreq(x,false);                               // Wideband waterfall
+  if(x<0) x=0;
+  if(x>m_Size.width()) x=m_Size.width();
   bool ctrl = (event->modifiers() & Qt::ControlModifier);
+  int freq = int(FreqfromX(x)+0.5);
+  int tx_freq = m_txFreq;
+  if (ctrl or m_lockTxFreq) tx_freq = freq;
+
+  emit setFreq1 (freq, tx_freq);
+
   int n=1;
   if(ctrl) n+=100;
   emit freezeDecode1(n);
-  if(ctrl or m_lockTxFreq) setTxFreq(m_rxFreq);
 }
 
 void CPlotter::mouseDoubleClickEvent(QMouseEvent *event)  //mouse2click
 {
-//  int x=event->x();
-//  setRxFreq(x,false);
   bool ctrl = (event->modifiers() & Qt::ControlModifier);
   int n=2;
   if(ctrl) n+=100;
@@ -464,7 +459,6 @@ void CPlotter::setNsps(int ntrperiod, int nsps)                                 
 void CPlotter::setTxFreq(int n)                                 //setTol()
 {
   m_txFreq=n;
-  emit setFreq1(m_rxFreq,m_txFreq);
   DrawOverlay();
   update();
 }

@@ -58,7 +58,9 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol, unsigned 
   m_quickClose = false;
 
   m_symbolsLength = symbolsLength;
-  m_isym0 = std::numeric_limits<unsigned>::max (); // Arbitrary big number
+  m_isym0 = std::numeric_limits<unsigned>::max (); // Arbitrary big
+                                                   // number
+  m_frequency0 = 0.;
   m_addNoise = dBSNR < 0.;
   m_nsps = framesPerSymbol;
   m_frequency = frequency;
@@ -223,7 +225,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 
         for (unsigned i = 0; i < numFrames && m_ic <= i1; ++i) {
           isym = m_tuning ? 0 : m_ic / (4.0 * m_nsps); //Actual fsample=48000
-          if (isym != m_isym0) {
+          if (isym != m_isym0 || m_frequency != m_frequency0) {
             // qDebug () << "@m_ic:" << m_ic << "itone[" << isym << "] =" << itone[isym] << "@" << i << "in numFrames:" << numFrames;
 
             if(m_toneSpacing==0.0) {
@@ -233,6 +235,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
             }
             m_dphi = m_twoPi * toneFrequency0 / m_frameRate;
             m_isym0 = isym;
+            m_frequency0 = m_frequency;
           }
 
           int j=m_ic/480;

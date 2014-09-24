@@ -285,8 +285,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_killAll=false;
   m_widebandDecode=false;
   m_ntx=1;
-  m_rxFreq=1500;
-  m_txFreq=1500;
   m_setftx=0;
   m_loopall=false;
   m_startAnother=false;
@@ -373,8 +371,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   if(m_mode!="JT9" and m_mode!="JT9W-1" and m_mode!="JT65" and
      m_mode!="JT9+JT65") m_mode="JT9";
   on_actionWide_Waterfall_triggered();                   //###
-  m_wideGraph->setRxFreq(m_rxFreq);
-  m_wideGraph->setTxFreq(m_txFreq);
   m_wideGraph->setLockTxFreq(m_lockTxFreq);
   m_wideGraph->setModeTx(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
@@ -398,7 +394,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   Q_EMIT startAudioInputStream (m_config.audio_input_device (), m_framesAudioInputBuffered, &m_detector, m_downSampleFactor, m_config.audio_input_channel ());
   Q_EMIT initializeAudioOutputStream (m_config.audio_output_device (), AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2, m_msAudioOutputBuffered);
 
-  Q_EMIT transmitFrequency (m_txFreq - m_XIT);
+  Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value () - m_XIT);
 
   auto t = "UTC   dB   DT Freq   Message";
   ui->decodedTextLabel->setText(t);
@@ -447,8 +443,8 @@ void MainWindow::writeSettings()
   m_settings->setValue("SaveDecoded",ui->actionSave_decoded->isChecked());
   m_settings->setValue("SaveAll",ui->actionSave_all->isChecked());
   m_settings->setValue("NDepth",m_ndepth);
-  m_settings->setValue("RxFreq",m_rxFreq);
-  m_settings->setValue("TxFreq",m_txFreq);
+  m_settings->setValue("RxFreq",ui->RxFreqSpinBox->value ());
+  m_settings->setValue("TxFreq",ui->TxFreqSpinBox->value ());
   m_settings->setValue ("DialFreq", QVariant::fromValue(m_lastMonitoredFrequency));
   m_settings->setValue("InGain",m_inGain);
   m_settings->setValue("OutAttenuation", ui->outAttenuation->value ());
@@ -500,12 +496,10 @@ void MainWindow::readSettings()
   ui->actionSave_decoded->setChecked(m_settings->value(
                                                        "SaveDecoded",false).toBool());
   ui->actionSave_all->setChecked(m_settings->value("SaveAll",false).toBool());
-  m_rxFreq=m_settings->value("RxFreq",1500).toInt();
-  ui->RxFreqSpinBox->setValue(m_rxFreq);
-  m_txFreq=m_settings->value("TxFreq",1500).toInt();
+  ui->RxFreqSpinBox->setValue(m_settings->value("RxFreq",1500).toInt());
   m_lastMonitoredFrequency = m_settings->value ("DialFreq", QVariant::fromValue<Frequency> (default_frequency)).value<Frequency> ();
-  ui->TxFreqSpinBox->setValue(m_txFreq);
-  Q_EMIT transmitFrequency (m_txFreq - m_XIT);
+  ui->TxFreqSpinBox->setValue(m_settings->value("TxFreq",1500).toInt());
+  Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value () - m_XIT);
   m_saveDecoded=ui->actionSave_decoded->isChecked();
   m_saveAll=ui->actionSave_all->isChecked();
   m_ndepth=m_settings->value("NDepth",3).toInt();
@@ -644,7 +638,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       displayDialFrequency ();
     }
 
-  setXIT (m_txFreq);
+  setXIT (ui->TxFreqSpinBox->value ());
   if (m_config.transceiver_online ())
     {
       Q_EMIT m_config.transceiver_frequency (m_dialFreq);
@@ -664,7 +658,7 @@ void MainWindow::on_monitorButton_clicked (bool checked)
 
           // put rig back where it was when last in control
           Q_EMIT m_config.transceiver_frequency (m_lastMonitoredFrequency);
-          setXIT (m_txFreq);
+          setXIT (ui->TxFreqSpinBox->value ());
         }
 
       Q_EMIT m_config.sync_transceiver (true, checked); // gets
@@ -828,14 +822,17 @@ void MainWindow::bumpFqso(int n)                                 //bumpFqso()
   int i;
   bool ctrl = (n>=100);
   n=n%100;
-  i=m_wideGraph->rxFreq();
+  i=ui->RxFreqSpinBox->value ();
   if(n==11) i--;
   if(n==12) i++;
-  m_wideGraph->setRxFreq(i);
-  if(ctrl) {
-    ui->TxFreqSpinBox->setValue(i);
-    m_wideGraph->setTxFreq(i);
-  }
+  if (ui->RxFreqSpinBox->isEnabled ())
+    {
+      ui->RxFreqSpinBox->setValue (i);
+    }
+  if(ctrl && ui->TxFreqSpinBox->isEnabled ())
+    {
+      ui->TxFreqSpinBox->setValue (i);
+    }
 }
 
 void MainWindow::qsy (Frequency f)
@@ -848,13 +845,10 @@ void MainWindow::qsy (Frequency f)
   if (m_dialFreq != f)
     {
       m_dialFreq = f;
-      setXIT(m_txFreq);
+      setXIT(ui->TxFreqSpinBox->value ());
 
       m_repeatMsg=0;
       m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
-
-      bumpFqso(11);
-      bumpFqso(12);
 
       QFile f2(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
       f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
@@ -1198,12 +1192,6 @@ void MainWindow::on_DecodeButton_clicked (bool /* checked */)	//Decode request
 
 void MainWindow::freezeDecode(int n)                          //freezeDecode()
 {
-  bool ctrl = (n>=100);
-  int i=m_wideGraph->rxFreq();
-  if(ctrl) {
-    ui->TxFreqSpinBox->setValue(i);
-    m_wideGraph->setTxFreq(i);
-  }
   if((n%100)==2) on_DecodeButton_clicked (true);
 }
 
@@ -1426,7 +1414,7 @@ void MainWindow::guiUpdate()
       bTxTime=true;
     }
 
-    Frequency onAirFreq = m_dialFreq + m_txFreq;
+    Frequency onAirFreq = m_dialFreq + ui->TxFreqSpinBox->value ();
     if (onAirFreq > 10139900 && onAirFreq < 10140320)
       {
         bTxTime=false;
@@ -1506,7 +1494,7 @@ void MainWindow::guiUpdate()
       f.close();
       if (m_config.TX_messages ())
         {
-          ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,m_txFreq);
+          ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,ui->TxFreqSpinBox->value ());
         }
     }
 
@@ -1553,36 +1541,48 @@ void MainWindow::guiUpdate()
   if (g_iptt == 1 && iptt0 == 0)
     {
       QString t=QString::fromLatin1(msgsent);
-      if(t==m_msgSent0) {
-        m_repeatMsg++;
-      } else {
-        m_repeatMsg=0;
-        m_msgSent0=t;
-      }
-
-      signalMeter->setValue(0);
-
-      if (m_monitoring)
+      if(t==m_msgSent0)
         {
-          monitor (false);
+          m_repeatMsg++;
+        }
+      else
+        {
+          m_repeatMsg=0;
+          m_msgSent0=t;
+          if(!m_tune)
+            {
+              QFile f(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
+              f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+              QTextStream out(&f);
+              out << QDateTime::currentDateTimeUtc().toString("hhmm")
+                  << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz  " << m_modeTx
+                  << ":  " << t << endl;
+              f.close();
+            }
+          if (m_config.TX_messages () && !m_tune)
+            {
+              ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,ui->TxFreqSpinBox->value ());
+            }
         }
 
-      m_btxok=true;
-      m_transmitting=true;
-      ui->pbTxMode->setEnabled(false);
-      if(!m_tune) {
-        QFile f(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
-        f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-        QTextStream out(&f);
-        out << QDateTime::currentDateTimeUtc().toString("hhmm")
-            << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz  " << m_modeTx
-            << ":  " << t << endl;
-        f.close();
-      }
+      if(!m_tune)
+        {
+          QFile f(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
+          f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+          QTextStream out(&f);
+          out << QDateTime::currentDateTimeUtc().toString("hhmm")
+              << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz  " << m_modeTx
+              << ":  " << t << endl;
+          f.close();
+        }
+
       if (m_config.TX_messages () && !m_tune)
         {
-          ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,m_txFreq);
+          ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,ui->TxFreqSpinBox->value ());
         }
+
+      m_transmitting = true;
+      transmitDisplay (true);
     }
 
   if(!m_btxok && btxok0 && g_iptt==1) stopTx();
@@ -1604,7 +1604,7 @@ void MainWindow::guiUpdate()
     QDateTime t = QDateTime::currentDateTimeUtc();
     int fQSO=125;
     if(m_astroWidget) m_astroWidget->astroUpdate(t, m_config.my_grid (), m_hisGrid, fQSO,
-                                                 m_setftx, m_txFreq);
+                                                 m_setftx, ui->TxFreqSpinBox->value ());
 
     if(m_transmitting) {
       if(nsendingsh==1) {
@@ -1658,21 +1658,14 @@ void MainWindow::startTx2()
     if(snr>0.0 or snr < -50.0) snr=99.0;
     transmit (snr);
     signalMeter->setValue(0);
-
-    //monitor (false);
-
-    //m_btxok=true;
-    //m_transmitting=true;
-    ui->pbTxMode->setEnabled(false);
   }
 }
 
 void MainWindow::stopTx()
 {
   Q_EMIT endTransmitMessage ();
-  m_transmitting=false;
   m_btxok = false;
-  if ("JT9+JT65" == m_mode) ui->pbTxMode->setEnabled(true);
+  m_transmitting = false;
   g_iptt=0;
   tx_status_label->setStyleSheet("");
   tx_status_label->setText("");
@@ -1819,18 +1812,23 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 
 
   int frequency = decodedtext.frequencyOffset();
-  m_wideGraph->setRxFreq(frequency);                 //Set Rx freq
+  if (ui->RxFreqSpinBox->isEnabled ())
+    {
+      ui->RxFreqSpinBox->setValue (frequency); //Set Rx freq
+    }
   if (decodedtext.isTX())
     {
-      if (ctrl)
-        ui->TxFreqSpinBox->setValue(frequency);      //Set Tx freq
+      if (ctrl && ui->TxFreqSpinBox->isEnabled ())
+        {
+          ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
+        }
       return;
     }
 
   QString firstcall = decodedtext.call();
   // Don't change Tx freq if a station is calling me, unless m_lockTxFreq
   // is true or CTRL is held down
-  if ((firstcall!=m_config.my_callsign ()) or m_lockTxFreq or ctrl)
+  if (((firstcall!=m_config.my_callsign ()) or m_lockTxFreq or ctrl) and ui->TxFreqSpinBox->isEnabled ())
     ui->TxFreqSpinBox->setValue(frequency);
 
   if (decodedtext.isJT9())
@@ -1929,6 +1927,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
         ui->rbGenMsg->setChecked(true);
       }
     }
+  if(m_transmitting) m_restart=true;
   if(m_config.quick_call ())
     {
       auto_tx_mode (true);
@@ -2288,7 +2287,7 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
                         , m_rptSent
                         , m_rptRcvd
                         , m_dateTimeQSO
-                        , (m_dialFreq + m_txFreq) / 1.e6
+                        , (m_dialFreq + ui->TxFreqSpinBox->value ()) / 1.e6
                         , m_config.my_callsign ()
                         , m_config.my_grid ()
                         , m_noSuffix
@@ -2301,7 +2300,7 @@ void MainWindow::acceptQSO2(bool accepted)
 {
   if(accepted)
     {
-      QString band = ADIF::bandFromFrequency ((m_dialFreq + m_txFreq) / 1.e6);
+      QString band = ADIF::bandFromFrequency ((m_dialFreq + ui->TxFreqSpinBox->value ()) / 1.e6);
       QString date = m_dateTimeQSO.toString("yyyy-MM-dd");
       date=date.mid(0,4) + date.mid(5,2) + date.mid(8,2);
       m_logBook.addAsWorked(m_hisCall,band,m_modeTx,date);
@@ -2394,17 +2393,19 @@ void MainWindow::on_actionJT9_JT65_triggered()
 
 void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
 {
-  m_txFreq=n;
   m_wideGraph->setTxFreq(n);
   if(m_lockTxFreq) ui->RxFreqSpinBox->setValue(n);
-  Q_EMIT transmitFrequency (m_txFreq - m_XIT);
+  Q_EMIT transmitFrequency (n - m_XIT);
 }
 
 void MainWindow::on_RxFreqSpinBox_valueChanged(int n)
 {
-  m_rxFreq=n;
   m_wideGraph->setRxFreq(n);
-  if(m_lockTxFreq) ui->TxFreqSpinBox->setValue(n);
+
+  if (m_lockTxFreq && ui->TxFreqSpinBox->isEnabled ())
+    {
+      ui->TxFreqSpinBox->setValue (n);
+    }
 }
 
 void MainWindow::on_actionQuickDecode_triggered()
@@ -2662,7 +2663,6 @@ void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
       auto_tx_mode (false);
     }
 
-  m_transmitting = false;
   m_btxok=false;
   m_repeatMsg=0;
 }
@@ -2679,13 +2679,18 @@ void MainWindow::rigOpen ()
 
 void MainWindow::on_pbR2T_clicked()
 {
-  int n=m_wideGraph->rxFreq();
-  ui->TxFreqSpinBox->setValue(n);
+  if (ui->TxFreqSpinBox->isEnabled ())
+    {
+      ui->TxFreqSpinBox->setValue(ui->RxFreqSpinBox->value ());
+    }
 }
 
 void MainWindow::on_pbT2R_clicked()
 {
-  m_wideGraph->setRxFreq(m_txFreq);
+  if (ui->RxFreqSpinBox->isEnabled ())
+    {
+      ui->RxFreqSpinBox->setValue (ui->TxFreqSpinBox->value ());
+    }
 }
 
 
@@ -2731,15 +2736,20 @@ void MainWindow::setXIT(int n)
         }
     }
 
-  Q_EMIT transmitFrequency (m_txFreq - m_XIT);
+  Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value () - m_XIT);
 }
 
 void MainWindow::setFreq4(int rxFreq, int txFreq)
 {
-  m_rxFreq=rxFreq;
-  m_txFreq=txFreq;
-  ui->RxFreqSpinBox->setValue(m_rxFreq);
-  ui->TxFreqSpinBox->setValue(m_txFreq);
+  if (ui->RxFreqSpinBox->isEnabled ())
+    {
+      ui->RxFreqSpinBox->setValue(rxFreq);
+    }
+
+  if (ui->TxFreqSpinBox->isEnabled ())
+    {
+      ui->TxFreqSpinBox->setValue(txFreq);
+    }
 }
 
 void MainWindow::on_cbTxLock_clicked(bool checked)
@@ -2773,6 +2783,14 @@ void MainWindow::on_cbPlus2kHz_toggled(bool checked)
 
 void MainWindow::handle_transceiver_update (Transceiver::TransceiverState s)
 {
+  static bool prior_ptt {false};
+
+  if (!s.ptt () && prior_ptt)
+    {
+      transmitDisplay (false);
+    }
+  prior_ptt = s.ptt ();
+
   if ((s.frequency () - m_dialFreq) || s.split () != m_splitMode)
     {
       m_splitMode = s.split ();
@@ -2821,11 +2839,11 @@ void MainWindow::transmit (double snr)
 {
   if (m_modeTx == "JT65")
     {
-      Q_EMIT sendMessage (NUM_JT65_SYMBOLS, 4096.0 * 12000.0 / 11025.0, m_txFreq - m_XIT, m_toneSpacing, &m_soundOutput, m_config.audio_output_channel (), true, snr);
+      Q_EMIT sendMessage (NUM_JT65_SYMBOLS, 4096.0 * 12000.0 / 11025.0, ui->TxFreqSpinBox->value () - m_XIT, m_toneSpacing, &m_soundOutput, m_config.audio_output_channel (), true, snr);
     }
   else
     {
-      Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps, m_txFreq - m_XIT, m_toneSpacing, &m_soundOutput, m_config.audio_output_channel (), true, snr);
+      Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps, ui->TxFreqSpinBox->value () - m_XIT, m_toneSpacing, &m_soundOutput, m_config.audio_output_channel (), true, snr);
     }
 }
 
@@ -2950,4 +2968,46 @@ void MainWindow::pskSetLocal ()
                                 m_config.my_callsign ()
                                 , m_config.my_grid ()
                                 , antenna_description, "WSJT-X " + m_revision);
+}
+
+void MainWindow::transmitDisplay (bool transmitting)
+{
+  if (transmitting)
+    {
+      signalMeter->setValue(0);
+
+      if (m_monitoring)
+        {
+          monitor (false);
+        }
+
+      m_btxok=true;
+    }
+
+  auto QSY_allowed = !transmitting || m_config.tx_QSY_allowed ();
+  if (ui->cbTxLock->isChecked ())
+    {
+      ui->RxFreqSpinBox->setEnabled (QSY_allowed);
+      ui->pbT2R->setEnabled (QSY_allowed);
+    }
+  ui->TxFreqSpinBox->setEnabled (QSY_allowed);
+  ui->pbR2T->setEnabled (QSY_allowed);
+  ui->cbTxLock->setEnabled (QSY_allowed);
+  ui->cbPlus2kHz->setEnabled (QSY_allowed);
+
+  // the following are always disallowed in transmit
+  ui->menuMode->setEnabled (!transmitting);
+  ui->bandComboBox->setEnabled (!transmitting);
+  if (!transmitting)
+    {
+      if ("JT9+JT65" == m_mode)
+        {
+          // allow mode switch in Rx when in dual mode
+          ui->pbTxMode->setEnabled (true);
+        }
+    }
+  else
+    {
+      ui->pbTxMode->setEnabled (false);
+    }
 }

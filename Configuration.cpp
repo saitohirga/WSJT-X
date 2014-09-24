@@ -369,6 +369,7 @@ private:
   QString my_grid_;
   qint32 id_interval_;
   bool id_after_73_;
+  bool tx_QSY_allowed_;
   bool spot_to_psk_reporter_;
   bool monitor_off_at_startup_;
   bool log_as_RTTY_;
@@ -425,6 +426,7 @@ QString Configuration::my_grid () const {return m_->my_grid_;}
 QFont Configuration::decoded_text_font () const {return m_->decoded_text_font_;}
 qint32 Configuration::id_interval () const {return m_->id_interval_;}
 bool Configuration::id_after_73 () const {return m_->id_after_73_;}
+bool Configuration::tx_QSY_allowed () const {return m_->tx_QSY_allowed_ || !split_mode ();}
 bool Configuration::spot_to_psk_reporter () const {return m_->spot_to_psk_reporter_;}
 bool Configuration::monitor_off_at_startup () const {return m_->monitor_off_at_startup_;}
 bool Configuration::log_as_RTTY () const {return m_->log_as_RTTY_;}
@@ -839,6 +841,7 @@ void Configuration::impl::initialise_models ()
   ui_->PTT_method_button_group->button (rig_params_.PTT_method_)->setChecked (true);
   ui_->save_path_display_label->setText (save_directory_.absolutePath ());
   ui_->CW_id_after_73_check_box->setChecked (id_after_73_);
+  ui_->tx_QSY_check_box->setChecked (tx_QSY_allowed_);
   ui_->psk_reporter_check_box->setChecked (spot_to_psk_reporter_);
   ui_->monitor_off_check_box->setChecked (monitor_off_at_startup_);
   ui_->log_as_RTTY_check_box->setChecked (log_as_RTTY_);
@@ -987,6 +990,7 @@ void Configuration::impl::read_settings ()
   monitor_off_at_startup_ = settings_->value ("MonitorOFF", false).toBool ();
   spot_to_psk_reporter_ = settings_->value ("PSKReporter", false).toBool ();
   id_after_73_ = settings_->value ("After73", false).toBool ();
+  tx_QSY_allowed_ = settings_->value ("TxQSYAllowed", false).toBool ();
 
   macros_.setStringList (settings_->value ("Macros", QStringList {"TNX 73 GL"}).toStringList ());
 
@@ -1067,6 +1071,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("MonitorOFF", monitor_off_at_startup_);
   settings_->setValue ("PSKReporter", spot_to_psk_reporter_);
   settings_->setValue ("After73", id_after_73_);
+  settings_->setValue ("TxQSYAllowed", tx_QSY_allowed_);
   settings_->setValue ("Macros", macros_.stringList ());
   settings_->setValue ("frequencies", QVariant::fromValue (frequencies_.frequencies ()));
   settings_->setValue ("stations", QVariant::fromValue (stations_.stations ()));
@@ -1404,6 +1409,7 @@ void Configuration::impl::accept ()
   spot_to_psk_reporter_ = ui_->psk_reporter_check_box->isChecked ();
   id_interval_ = ui_->CW_id_interval_spin_box->value ();
   id_after_73_ = ui_->CW_id_after_73_check_box->isChecked ();
+  tx_QSY_allowed_ = ui_->tx_QSY_check_box->isChecked ();
   monitor_off_at_startup_ = ui_->monitor_off_check_box->isChecked ();
   jt9w_bw_mult_ = ui_->jt9w_bandwidth_mult_combo_box->currentText ().toUInt ();
   jt9w_min_dt_ = static_cast<float> (ui_->jt9w_min_dt_double_spin_box->value ());

@@ -220,8 +220,6 @@ private:
   qint32  m_waterfallAvg;
   qint32  m_ntx;
   qint32  m_timeout;
-  qint32  m_rxFreq;
-  qint32  m_txFreq;
   int     m_XIT;
   qint32  m_setftx;
   qint32  m_ndepth;
@@ -389,6 +387,7 @@ private:
   void rigFailure (QString const& reason, QString const& detail);
   void pskSetLocal ();
   void displayDialFrequency ();
+  void transmitDisplay (bool);
 };
 
 extern void getfile(QString fname, int ntrperiod);
