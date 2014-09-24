@@ -837,33 +837,35 @@ void MainWindow::bumpFqso(int n)                                 //bumpFqso()
 
 void MainWindow::qsy (Frequency f)
 {
-  if (m_monitoring || m_transmitting)
+  if (!m_transmitting)
     {
-      m_lastMonitoredFrequency = f;
-    }
-
-  if (m_dialFreq != f)
-    {
-      m_dialFreq = f;
-      setXIT(ui->TxFreqSpinBox->value ());
-
-      m_repeatMsg=0;
-      m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
-
-      QFile f2(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
-      f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-      QTextStream out(&f2);
-      out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-          << "  " << (m_dialFreq / 1.e6) << " MHz  " << m_mode << endl;
-      f2.close();
-      if (m_config.spot_to_psk_reporter ())
+      if (m_monitoring)
         {
-          pskSetLocal ();
+          m_lastMonitoredFrequency = f;
         }
 
-      displayDialFrequency ();
-      statusChanged();
-      m_wideGraph->setDialFreq(m_dialFreq / 1.e6);
+      if (m_dialFreq != f)
+        {
+          m_dialFreq = f;
+
+          m_repeatMsg=0;
+          m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
+
+          QFile f2(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
+          f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+          QTextStream out(&f2);
+          out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
+              << "  " << (m_dialFreq / 1.e6) << " MHz  " << m_mode << endl;
+          f2.close();
+          if (m_config.spot_to_psk_reporter ())
+            {
+              pskSetLocal ();
+            }
+
+          displayDialFrequency ();
+          statusChanged();
+          m_wideGraph->setDialFreq(m_dialFreq / 1.e6);
+        }
     }
 }
 
@@ -2512,6 +2514,7 @@ void MainWindow::band_changed (Frequency f)
 
       Q_EMIT m_config.transceiver_frequency (f);
       qsy (f);
+      setXIT (ui->TxFreqSpinBox->value ());
     }
 }
 
