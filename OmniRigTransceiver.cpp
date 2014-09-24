@@ -631,7 +631,9 @@ void OmniRigTransceiver::do_ptt (bool on)
       if (state ().ptt () != on)
         {
           update_PTT (on);
-          update_complete ();
+
+          // no need for this as currently update_PTT() does it for us
+          // update_complete ();
         }
     }
 }

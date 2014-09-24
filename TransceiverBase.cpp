@@ -248,7 +248,14 @@ void TransceiverBase::update_mode (MODE m)
 
 void TransceiverBase::update_PTT (bool state)
 {
+  auto prior = m_->state_.ptt ();
   m_->state_.ptt (state);
+  if (state != prior)
+    {
+      // always signal PTT changes because some MainWindow logic
+      // depends on it
+      update_complete ();
+    }
 }
 
 void TransceiverBase::update_complete ()
