@@ -426,7 +426,7 @@ QString Configuration::my_grid () const {return m_->my_grid_;}
 QFont Configuration::decoded_text_font () const {return m_->decoded_text_font_;}
 qint32 Configuration::id_interval () const {return m_->id_interval_;}
 bool Configuration::id_after_73 () const {return m_->id_after_73_;}
-bool Configuration::tx_QSY_allowed () const {return m_->tx_QSY_allowed_ || !split_mode ();}
+bool Configuration::tx_QSY_allowed () const {return m_->tx_QSY_allowed_;}
 bool Configuration::spot_to_psk_reporter () const {return m_->spot_to_psk_reporter_;}
 bool Configuration::monitor_off_at_startup () const {return m_->monitor_off_at_startup_;}
 bool Configuration::log_as_RTTY () const {return m_->log_as_RTTY_;}

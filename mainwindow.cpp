@@ -2987,7 +2987,7 @@ void MainWindow::transmitDisplay (bool transmitting)
       m_btxok=true;
     }
 
-  auto QSY_allowed = !transmitting || m_config.tx_QSY_allowed ();
+  auto QSY_allowed = !transmitting || m_config.tx_QSY_allowed () || !m_config.split_mode ();
   if (ui->cbTxLock->isChecked ())
     {
       ui->RxFreqSpinBox->setEnabled (QSY_allowed);
@@ -2996,7 +2996,9 @@ void MainWindow::transmitDisplay (bool transmitting)
   ui->TxFreqSpinBox->setEnabled (QSY_allowed);
   ui->pbR2T->setEnabled (QSY_allowed);
   ui->cbTxLock->setEnabled (QSY_allowed);
-  ui->cbPlus2kHz->setEnabled (QSY_allowed);
+
+  // only allow +2kHz when not transmitting or if TX QSYs are allowed
+  ui->cbPlus2kHz->setEnabled (!transmitting || m_config.tx_QSY_allowed ());
 
   // the following are always disallowed in transmit
   ui->menuMode->setEnabled (!transmitting);
