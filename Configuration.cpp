@@ -1847,6 +1847,7 @@ void Configuration::impl::transceiver_tx_frequency (Frequency f)
       if (f)
         {
           transceiver_offset_ = stations_.offset (f);
+          f += transceiver_offset_;
         }
 
       // Rationalise TX VFO mode if we ask for split and are
