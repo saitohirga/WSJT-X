@@ -672,15 +672,6 @@ set_target_properties (wsjtx PROPERTIES
 
 target_link_libraries (wsjtx wsjt wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 
-if (WIN32)
-  set_target_properties (
-    wsjtx
-    # ConfigTest
-    PROPERTIES LINK_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} -mwindows"
-    )
-endif (WIN32)
-
-
 #
 # installation
 #
