@@ -2330,11 +2330,14 @@ list. The list can be maintained in Settings (F2).</string>
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionOnline_Users_Guide"/>
+    <addaction name="actionOnline_User_Guide"/>
+    <addaction name="actionLocal_User_Guide"/>
+    <addaction name="separator"/>
     <addaction name="actionKeyboard_shortcuts"/>
     <addaction name="actionSpecial_mouse_commands"/>
-    <addaction name="actionAbout"/>
     <addaction name="actionShort_list_of_add_on_prefixes_and_suffixes"/>
+    <addaction name="separator"/>
+    <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuMode">
     <property name="title">
@@ -2444,9 +2447,9 @@ list. The list can be maintained in Settings (F2).</string>
     <string>Save all</string>
    </property>
   </action>
-  <action name="actionOnline_Users_Guide">
+  <action name="actionOnline_User_Guide">
    <property name="text">
-    <string>Online User's Guide</string>
+    <string>Online User Guide</string>
    </property>
    <property name="shortcut">
     <string>F1</string>
@@ -2685,6 +2688,11 @@ list. The list can be maintained in Settings (F2).</string>
    </property>
    <property name="shortcut">
     <string>F2</string>
+   </property>
+  </action>
+  <action name="actionLocal_User_Guide">
+   <property name="text">
+    <string>Local User Guide</string>
    </property>
   </action>
  </widget>

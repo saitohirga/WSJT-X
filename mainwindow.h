@@ -96,7 +96,8 @@ private slots:
   void on_autoButton_clicked (bool);
   void on_stopTxButton_clicked();
   void on_stopButton_clicked();
-  void on_actionOnline_Users_Guide_triggered();
+  void on_actionOnline_User_Guide_triggered();
+  void on_actionLocal_User_Guide_triggered();
   void on_actionWide_Waterfall_triggered();
   void on_actionOpen_triggered();
   void on_actionOpen_next_in_directory_triggered();

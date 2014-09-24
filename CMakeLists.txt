@@ -9,7 +9,8 @@ set (PROJECT_VENDOR "Joe Taylor, K1JT")
 set (PROJECT_CONTACT "Joe Taylor <k1jt@arrl.net>")
 set (PROJECT_COPYRIGHT "Copyright (C) 2001-2014 by Joe Taylor, K1JT")
 set (PROJECT_HOMEPAGE "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx.html")
-set (PROJECT_MANUAL "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main.html")
+set (PROJECT_MANUAL wsjtx-main.html)
+set (PROJECT_MANUAL_DIRECTORY_URL http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc)
 set (PROJECT_SUMMARY_DESCRIPTION "WSJT-X - JT9 and JT65 Modes for LF, MF and HF Amateur Radio.")
 set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
  WSJT-X implements JT9, a new mode designed especially for the LF, MF,
@@ -81,11 +82,23 @@ CMAKE_DEPENDENT_OPTION (WSJT_ENABLE_EXPERIMENTAL_FEATURES "Enable features not f
 #
 set (WSJT_BIN_DESTINATION bin)
 set (WSJT_LIB_DESTINATION lib)
-set (WSJT_SHARE_DESTINATION share/wsjtx)
-set (WSJT_DOC_DESTINATION share/doc/wsjtx)
-set (WSJT_MANPAGE_DESTINATION share)
+set (WSJT_SHARE_DESTINATION share)
+set (WSJT_DOC_DESTINATION doc/WSJT-X)
 set (WSJT_PLUGIN_DESTINATION lib/plugins)
 set (WSJT_QT_CONF_DESTINATION bin)
+
+if (WIN32)
+  set (WSJT_SHARE_DESTINATION bin)
+  set (WSJT_DOC_DESTINATION doc)
+  set (WSJT_PLUGIN_DESTINATION plugins)
+endif (WIN32)
+
+if (APPLE)
+  set (WSJT_BIN_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/MacOS)
+  set (WSJT_SHARE_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
+  set (WSJT_PLUGIN_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/PlugIns)
+  set (WSJT_QT_CONF_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
+endif (APPLE)
 
 
 #
@@ -379,15 +392,6 @@ if (APPLE)
   if (NOT "${ENDCH}" STREQUAL "/")
     set (CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/")
   endif ()
-  # install inside bundle
-  # set (CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}wsjtx.app")
-
-  set (WSJT_PLUGIN_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/PlugIns)
-  set (WSJT_QT_CONF_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
-  set (WSJT_SHARE_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
-  set (WSJT_DOC_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
-  set (WSJT_MANPAGE_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
-  set (WSJT_BIN_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/MacOS)
 endif (APPLE)
 
 
@@ -467,6 +471,17 @@ FortranCInterface_HEADER (FC.h MACRO_NAMESPACE "FC_" SYMBOL_NAMESPACE "FC_"
 #
 # sort out pre-requisites
 #
+
+#
+# fetch latest HTML manual
+#
+add_custom_command (
+  OUTPUT contrib/${PROJECT_MANUAL}
+  COMMAND ${CMAKE_COMMAND} -D URL=${PROJECT_MANUAL_DIRECTORY_URL} -D NAME=${PROJECT_MANUAL} -P ${CMAKE_SOURCE_DIR}/CMake/download_html_manual.cmake
+  DEPENDS CMake/download_html_manual.cmake
+  COMMENT "Downloading WSJT-X HTML manual"
+  VERBATIM
+  )
 
 #
 # Setup RPATH so that built executable targets will run in both the
@@ -652,6 +667,7 @@ add_executable (wsjtx WIN32 MACOSX_BUNDLE
   ${WSJTX_ICON_FILE}
   ${wsjtx_RESOURCES_RCC}
   contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
+  contrib/${PROJECT_MANUAL}
   )
 qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia)
 
@@ -705,6 +721,12 @@ install (PROGRAMS
   DESTINATION ${WSJT_BIN_DESTINATION}
   #COMPONENT Runtime
   RENAME rigctld-wsjtx${CMAKE_EXECUTABLE_SUFFIX}
+  )
+
+install (FILES
+  ${CMAKE_BINARY_DIR}/contrib/${PROJECT_MANUAL}
+  DESTINATION ${WSJT_SHARE_DESTINATION}/${WSJT_DOC_DESTINATION}
+  #COMPONENT Runtime
   )
 
 
@@ -791,6 +813,7 @@ if (NOT is_debug_build)
 
     # if a system Qt is used (e.g. installed in /usr/lib/), it will not be included in the installation
     set (fixup_exe "\${CMAKE_INSTALL_PREFIX}/${WSJT_BIN_DESTINATION}/${CMAKE_PROJECT_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
+
     #get_filename_component (hamlib_lib_dir ${hamlib_LIBRARIES} PATH)
 
     if (APPLE)
@@ -881,8 +904,10 @@ file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION
      include (BundleUtilities)
      set (BU_CHMOD_BUNDLE_ITEMS ON)
      set (gp_tool ${gp_tool})
-     message (STATUS \"fixup_exe: ${fixup_exe}\")
-     fixup_bundle (\"${fixup_exe}\" \"\${QTPLUGINS}\" \"${fixup_library_dirs}\")
+     # canonicalize path in install context
+     get_filename_component (the_exe ${fixup_exe} REALPATH)
+     message (STATUS \"fixup_exe: \${the_exe}\")
+     fixup_bundle (\"\${the_exe}\" \"\${QTPLUGINS}\" \"${fixup_library_dirs}\")
    "
       #COMPONENT Runtime
       )

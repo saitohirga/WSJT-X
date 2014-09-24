@@ -988,9 +988,23 @@ void MainWindow::msgBox(QString t)                             //msgBox
   msgBox0.exec();
 }
 
-void MainWindow::on_actionOnline_Users_Guide_triggered()      //Display manual
+void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
 {
-  QDesktopServices::openUrl (QUrl (PROJECT_MANUAL, QUrl::TolerantMode));
+  QDesktopServices::openUrl (QUrl (PROJECT_MANUAL_DIRECTORY_URL PROJECT_MANUAL));
+}
+
+//Display local copy of manual
+void MainWindow::on_actionLocal_User_Guide_triggered()
+{
+#if !defined (Q_OS_WIN) || QT_VERSION >= 0x050300
+  QDir path {QStandardPaths::locate (QStandardPaths::DataLocation, WSJT_DOC_DESTINATION, QStandardPaths::LocateDirectory)};
+#else
+  QDir path {QCoreApplication::applicationDirPath ()};
+  path.cd (WSJT_DOC_DESTINATION);
+#endif
+
+  auto file = path.absoluteFilePath (PROJECT_MANUAL);
+  QDesktopServices::openUrl (QUrl {"file:///" + file});
 }
 
 void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
