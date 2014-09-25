@@ -990,7 +990,7 @@ void MainWindow::msgBox(QString t)                             //msgBox
 
 void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
 {
-  QDesktopServices::openUrl (QUrl (PROJECT_MANUAL_DIRECTORY_URL PROJECT_MANUAL));
+  QDesktopServices::openUrl (QUrl (PROJECT_MANUAL_DIRECTORY_URL "/" PROJECT_MANUAL));
 }
 
 //Display local copy of manual
