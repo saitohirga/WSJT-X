@@ -605,6 +605,10 @@ Configuration::impl::impl (Configuration * self, QString const& instance_key, QS
   if (path.isEmpty ())
     {
       doc_path_.cdUp ();
+#if defined (Q_OS_MAC)
+      doc_path_.cdUp ();
+      doc_path_.cdUp ();
+#endif
       doc_path_.cd (WSJT_SHARE_DESTINATION);
       doc_path_.cd (WSJT_DOC_DESTINATION);
     }
@@ -613,7 +617,7 @@ Configuration::impl::impl (Configuration * self, QString const& instance_key, QS
       doc_path_.cd (path);
     }
 #else
-  doc_path.cd (WSJT_DOC_DESTINATION);
+  doc_path_.cd (WSJT_DOC_DESTINATION);
 #endif
 
 #if WSJT_STANDARD_FILE_LOCATIONS
