@@ -208,7 +208,7 @@ void WideGraph::keyPressEvent(QKeyEvent *e)
     emit f11f12(n);
     break;
   default:
-    e->ignore();
+    QDialog::keyPressEvent (e);
   }
 }
 

@@ -19,7 +19,7 @@ Ctrl+F	Edit the free text message box
 Alt+G	Generate standard messages
 Alt+H	Halt Tx
 Ctrl+L	Lookup callsign in database, generate standard messages
-Alt M	Monitor
+Alt+M	Monitor
 Alt+N	Enable Tx
 Alt+Q	Log QSO
 Alt+S	Stop monitoring
