@@ -1,6 +1,7 @@
 set (ASCIIDOC_MANS
   man1/wsjtx.1.txt
   man1/jt65code.1.txt
+  man1/rigctld-wsjtx.1.txt
   )
 
 find_program (A2X_EXECUTABLE NAMES a2x a2x.py)
@@ -48,7 +49,6 @@ if (A2X_EXECUTABLE AND GZIP_EXECUTABLE AND SED_EXECUTABLE)
     add_custom_command (OUTPUT "${o}.gz"
       COMMAND ${CMAKE_COMMAND} ARGS -E make_directory "${d}"
       COMMAND ${A2X_EXECUTABLE} ARGS ${A2X_OPTS} -D "${d}" "${f}"
-      COMMAND ${GZIP_EXECUTABLE} ARGS -f9 "${o}"
       COMMAND ${SED_EXECUTABLE} ARGS -e "'s@.so @&man${section}/@'" -i.orig "${d}/*.${section}"
       COMMAND ${GZIP_EXECUTABLE} ARGS -f9 "${d}/*.${section}"
       DEPENDS "${f}"
