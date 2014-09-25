@@ -717,46 +717,54 @@ void MainWindow::auto_tx_mode (bool state)
 
 void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
 {
+  qDebug () << "key: " << e->key () << " modifiers: " << e->modifiers ();
   int n;
   switch(e->key())
     {
     case Qt::Key_1:
       if(e->modifiers() & Qt::AltModifier) {
         on_txb1_clicked();
-        break;
+        e->ignore ();
+        return;
       }
+      break;
     case Qt::Key_2:
       if(e->modifiers() & Qt::AltModifier) {
         on_txb2_clicked();
-        break;
+        return;
       }
+      break;
     case Qt::Key_3:
       if(e->modifiers() & Qt::AltModifier) {
         on_txb3_clicked();
-        break;
+        return;
       }
+      break;
     case Qt::Key_4:
       if(e->modifiers() & Qt::AltModifier) {
         on_txb4_clicked();
-        break;
+        return;
       }
+      break;
     case Qt::Key_5:
       if(e->modifiers() & Qt::AltModifier) {
         on_txb5_clicked();
-        break;
+        return;
       }
+      break;
     case Qt::Key_6:
       if(e->modifiers() & Qt::AltModifier) {
         on_txb6_clicked();
-        break;
+        return;
       }
+      break;
     case Qt::Key_D:
       if(e->modifiers() & Qt::ShiftModifier) {
         if(!m_decoderBusy) {
           jt9com_.newdat=0;
           jt9com_.nagain=0;
           decode();
-          break;
+          return;
         }
       }
       break;
@@ -766,22 +774,23 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
       genStdMsgs("");
       m_ntx=6;
       ui->txrb6->setChecked(true);
-      break;
+      return;
     case Qt::Key_F6:
       if(e->modifiers() & Qt::ShiftModifier) {
         on_actionDecode_remaining_files_in_directory_triggered();
+        return;
       }
       break;
     case Qt::Key_F11:
       n=11;
       if(e->modifiers() & Qt::ControlModifier) n+=100;
       bumpFqso(n);
-      break;
+      return;
     case Qt::Key_F12:
       n=12;
       if(e->modifiers() & Qt::ControlModifier) n+=100;
       bumpFqso(n);
-      break;
+      return;
     case Qt::Key_F:
       if(e->modifiers() & Qt::ControlModifier) {
         if(ui->tabWidget->currentIndex()==0) {
@@ -791,30 +800,37 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
           ui->freeTextMsg->clearEditText();
           ui->freeTextMsg->setFocus();
         }
-        break;
+        return;
       }
+      break;
     case Qt::Key_G:
       if(e->modifiers() & Qt::AltModifier) {
         genStdMsgs(m_rpt);
-        break;
+        return;
       }
+      break;
     case Qt::Key_H:
       if(e->modifiers() & Qt::AltModifier) {
         on_stopTxButton_clicked();
-        break;
+        return;
       }
+      break;
     case Qt::Key_L:
       if(e->modifiers() & Qt::ControlModifier) {
         lookup();
         genStdMsgs(m_rpt);
-        break;
+        return;
       }
+      break;
     case Qt::Key_V:
       if(e->modifiers() & Qt::AltModifier) {
         m_fileToSave=m_fname;
-        break;
+        return;
       }
+      break;
     }
+
+  QMainWindow::keyPressEvent (e);
 }
 
 void MainWindow::bumpFqso(int n)                                 //bumpFqso()
