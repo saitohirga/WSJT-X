@@ -728,7 +728,6 @@ void MainWindow::auto_tx_mode (bool state)
 
 void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
 {
-  qDebug () << "key: " << e->key () << " modifiers: " << e->modifiers ();
   int n;
   switch(e->key())
     {
