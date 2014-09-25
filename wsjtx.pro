@@ -10,7 +10,7 @@ CONFIG   += thread
 #CONFIG   += console
 
 TARGET = wsjtx
-VERSION = 1.4
+VERSION = "Not for Release"
 TEMPLATE = app
 DEFINES = QT5
 QMAKE_CXXFLAGS += -std=c++11

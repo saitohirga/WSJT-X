@@ -82,7 +82,7 @@ QString program_title (QString const& revision)
 # endif
 
 #else
-  QString id {"WSJT-X   v1.4";
+  QString id {"WSJT-X Not for Release"};
 #endif
   return id + " " + revision + "  by K1JT";
 }
