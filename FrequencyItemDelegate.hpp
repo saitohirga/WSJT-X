@@ -3,9 +3,6 @@
 
 #include <QStyledItemDelegate>
 
-class QStyleOptionItemView;
-class QWidget;
-class QModelIndex;
 class Bands;
 
 //

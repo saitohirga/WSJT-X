@@ -7,7 +7,8 @@
 
 #include <QThread>
 #include <QLineEdit>
-#include <QRegularExpression>
+#include <QRegExpValidator>
+#include <QRegExp>
 #include <QDebug>
 #include <QtConcurrent/QtConcurrentRun>
 
@@ -42,6 +43,7 @@ wchar_t buffer[256];
 namespace
 {
   Radio::Frequency constexpr default_frequency {14076000};
+  QRegExp message_alphabet {"[- A-Za-z0-9+./?]*"};
 }
 
 class BandAndFrequencyItemDelegate final
@@ -238,6 +240,15 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   // hook up configuration signals
   connect (&m_config, &Configuration::transceiver_update, this, &MainWindow::handle_transceiver_update);
   connect (&m_config, &Configuration::transceiver_failure, this, &MainWindow::handle_transceiver_failure);
+
+  // set up message text validators
+  ui->tx1->setValidator (new QRegExpValidator {message_alphabet, this});
+  ui->tx2->setValidator (new QRegExpValidator {message_alphabet, this});
+  ui->tx3->setValidator (new QRegExpValidator {message_alphabet, this});
+  ui->tx4->setValidator (new QRegExpValidator {message_alphabet, this});
+  ui->tx5->setValidator (new QRegExpValidator {message_alphabet, this});
+  ui->tx6->setValidator (new QRegExpValidator {message_alphabet, this});
+  ui->freeTextMsg->setValidator (new QRegExpValidator {message_alphabet, this});
 
   // Free text macros model to widget hook up.
   ui->tx5->setModel (m_config.macros ());

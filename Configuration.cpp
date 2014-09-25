@@ -60,6 +60,8 @@ namespace
   // disabled
   int const combo_box_item_enabled (32 | 1);
   int const combo_box_item_disabled (0);
+
+  QRegExp message_alphabet {"[- A-Za-z0-9+./?]*"};
 }
 
 
@@ -161,6 +163,32 @@ public:
         flags &= ~Qt::ItemIsDropEnabled;
       }
     return flags;
+  }
+};
+
+
+// Class MessageItemDelegate
+//
+//	Item delegate for message entry such as free text message macros.
+//
+class MessageItemDelegate final
+  : public QStyledItemDelegate
+{
+public:
+  explicit MessageItemDelegate (QObject * parent = nullptr)
+    : QStyledItemDelegate {parent}
+  {
+  }
+
+  QWidget * createEditor (QWidget * parent
+                          , QStyleOptionViewItem const& /* option*/
+                          , QModelIndex const& /* index */
+                          ) const override
+  {
+    auto editor = new QLineEdit {parent};
+    editor->setFrame (false);
+    editor->setValidator (new QRegExpValidator {message_alphabet, editor});
+    return editor;
   }
 };
 
@@ -682,7 +710,7 @@ Configuration::impl::impl (Configuration * self, QString const& instance_key, QS
   //
   ui_->callsign_line_edit->setValidator (new QRegExpValidator {QRegExp {"[A-Za-z0-9/]+"}, this});
   ui_->grid_line_edit->setValidator (new QRegExpValidator {QRegExp {"[A-Ra-r]{2,2}[0-9]{2,2}[A-Xa-x]{0,2}"}, this});
-  ui_->add_macro_line_edit->setValidator (new QRegExpValidator {QRegExp {"[ A-Za-z0-9/?]+"}, this});
+  ui_->add_macro_line_edit->setValidator (new QRegExpValidator {message_alphabet, this});
 
   //
   // assign ids to radio buttons
@@ -736,6 +764,7 @@ Configuration::impl::impl (Configuration * self, QString const& instance_key, QS
   // setup macros list view
   //
   ui_->macros_list_view->setModel (&next_macros_);
+  ui_->macros_list_view->setItemDelegate (new MessageItemDelegate {this});
 
   macro_delete_action_ = new QAction {tr ("&Delete"), ui_->macros_list_view};
   ui_->macros_list_view->insertAction (nullptr, macro_delete_action_);
