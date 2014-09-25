@@ -1016,14 +1016,18 @@ void MainWindow::msgBox(QString t)                             //msgBox
 
 void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
 {
+#if defined (CMAKE_BUILD)
   QDesktopServices::openUrl (QUrl (PROJECT_MANUAL_DIRECTORY_URL "/" PROJECT_MANUAL));
+#endif
 }
 
 //Display local copy of manual
 void MainWindow::on_actionLocal_User_Guide_triggered()
 {
+#if defined (CMAKE_BUILD)
   auto file = m_config.doc_path ().absoluteFilePath (PROJECT_MANUAL);
   QDesktopServices::openUrl (QUrl {"file:///" + file});
+#endif
 }
 
 void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls

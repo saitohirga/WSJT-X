@@ -597,6 +597,12 @@ Configuration::impl::impl (Configuration * self, QString const& instance_key, QS
 
   ui_->setupUi (this);
 
+
+#if !defined (CMAKE_BUILD)
+#define WSJT_SHARE_DESTINATION "."
+#define WSJT_DOC_DESTINATION "."
+#endif
+
   // we must find this before changing the CWD since that breaks
   // QCoreApplication::applicationDirPath() which is used internally
   // by QStandardPaths :(

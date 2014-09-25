@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
                                "." WSJTX_STRINGIZE (WSJTX_VERSION_MINOR)
                                "." WSJTX_STRINGIZE (WSJTX_VERSION_PATCH) " " + revision ());
 #else
-      a.setApplicationVersion ("1.4.0");
+      a.setApplicationVersion ("Not for Release");
 #endif
 
       bool multiple {false};
