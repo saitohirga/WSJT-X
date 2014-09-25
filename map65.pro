@@ -10,7 +10,7 @@ CONFIG   += thread
 #CONFIG   += console
 
 TARGET = map65
-VERSION = 2.3.0
+VERSION = 2.5.0
 TEMPLATE = app
 DEFINES = QT5
 DESTDIR = ../map65_install
