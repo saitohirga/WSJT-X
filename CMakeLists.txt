@@ -317,13 +317,17 @@ set (wsjtx_UISRCS
   Configuration.ui
   )
 
-set (all_C_and_CXXSRCS
-  ${wsjt_CSRCS}
+set (all_CXXSRCS
   ${wsjt_CXXSRCS}
   ${wsjt_qt_CXXSRCS}
   ${jt9_CXXSRCS}
   ${ConfigTest_CXXSRCS}
   ${wsjtx_CXXSRCS}
+  )
+
+set (all_C_and_CXXSRCS
+  ${wsjt_CSRCS}
+  ${all_CXXSRCS}
   )
 
 if (APPLE)
@@ -355,7 +359,7 @@ if (NOT WSJT_QDEBUG_IN_RELEASE)
   set_directory_properties (PROPERTIES COMPILE_DEFINITIONS_MINSIZEREL "QT_NO_DEBUG_OUTPUT;QT_NO_WARNING_OUTPUT")
 endif (NOT WSJT_QDEBUG_IN_RELEASE)
 
-set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY COMPILE_FLAGS "-include wsjtx_config.h")
+set_property (SOURCE ${all_C_and_CXXSRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -include wsjtx_config.h")
 set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY OBJECT_DEPENDS wsjtx_config.h)
 
 if (WIN32)
