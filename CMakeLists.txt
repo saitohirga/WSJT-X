@@ -421,6 +421,8 @@ if (WIN32)
 endif (WIN32)
 if (APPLE)
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+  set (CMAKE_OSX_DEPLOYMENT_TARGET 10.7) # Earliest version we can support with C++11 & libc++
+  set (CMAKE_OSX_SYSROOT /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk)
 else (APPLE)
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
