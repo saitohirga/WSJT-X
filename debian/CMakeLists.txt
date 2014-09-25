@@ -13,14 +13,15 @@ math (EXPR __index "${__month_index} - 1")
 list (GET __months "${__index}" __month)
 string (REPLACE "[${__month_index}]" "${__month}" ts ${ts})
 
+set (deb_changelog changelog.Debian)
 configure_file (
-  "${CMAKE_CURRENT_SOURCE_DIR}/changelog.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/changelog"
+  "${CMAKE_CURRENT_SOURCE_DIR}/${deb_changelog}.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/${deb_changelog}"
   @ONLY)
 
 add_custom_target (debian
-  COMMAND ${GZIP_EXECUTABLE} -cf9 changelog > changelog.gz
-  DEPENDS changelog.in
+  COMMAND ${GZIP_EXECUTABLE} -cf9 ${deb_changelog} > ${deb_changelog}.gz
+  DEPENDS ${deb_changelog}.in
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   COMMENT "Compressing Debian changelog"
   )
@@ -31,8 +32,8 @@ configure_file (
   @ONLY)
 
 install (FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/changelog.gz
+  ${CMAKE_CURRENT_BINARY_DIR}/${deb_changelog}.gz
   ${CMAKE_CURRENT_BINARY_DIR}/copyright
-  DESTINATION ${WSJT_DOC_DESTINATION}
+  DESTINATION ${WSJT_SHARE_DESTINATION}/${WSJT_DOC_DESTINATION}
   #COMPONENT Debian
   )

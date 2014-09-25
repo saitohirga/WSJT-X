@@ -1022,14 +1022,7 @@ void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
 //Display local copy of manual
 void MainWindow::on_actionLocal_User_Guide_triggered()
 {
-#if !defined (Q_OS_WIN) || QT_VERSION >= 0x050300
-  QDir path {QStandardPaths::locate (QStandardPaths::DataLocation, WSJT_DOC_DESTINATION, QStandardPaths::LocateDirectory)};
-#else
-  QDir path {QCoreApplication::applicationDirPath ()};
-  path.cd (WSJT_DOC_DESTINATION);
-#endif
-
-  auto file = path.absoluteFilePath (PROJECT_MANUAL);
+  auto file = m_config.doc_path ().absoluteFilePath (PROJECT_MANUAL);
   QDesktopServices::openUrl (QUrl {"file:///" + file});
 }
 

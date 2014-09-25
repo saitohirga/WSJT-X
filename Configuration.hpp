@@ -67,6 +67,7 @@ public:
   int exec ();
 
   QDir data_path () const;
+  QDir doc_path () const;
 
   QAudioDeviceInfo const& audio_input_device () const;
   AudioDevice::Channel audio_input_channel () const;

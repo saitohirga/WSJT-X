@@ -343,6 +343,7 @@ private:
 
   QSettings * settings_;
 
+  QDir doc_path_;
   QDir temp_path_;
   QDir data_path_;
   QDir default_save_directory_;
@@ -436,6 +437,7 @@ Configuration::~Configuration ()
 {
 }
 
+QDir Configuration::doc_path () const {return m_->doc_path_;}
 QDir Configuration::data_path () const {return m_->data_path_;}
 
 int Configuration::exec () {return m_->exec ();}
@@ -552,6 +554,7 @@ Configuration::impl::impl (Configuration * self, QString const& instance_key, QS
   , self_ {self}
   , ui_ {new Ui::configuration_dialog}
   , settings_ {settings}
+  , doc_path_ {QApplication::applicationDirPath ()}
   , temp_path_ {QApplication::applicationDirPath ()}
   , data_path_ {QApplication::applicationDirPath ()}
   , font_ {QApplication::font ()}
@@ -593,6 +596,25 @@ Configuration::impl::impl (Configuration * self, QString const& instance_key, QS
   (void)instance_key;		// quell compiler warning
 
   ui_->setupUi (this);
+
+  // we must find this before changing the CWD since that breaks
+  // QCoreApplication::applicationDirPath() which is used internally
+  // by QStandardPaths :(
+#if !defined (Q_OS_WIN) || QT_VERSION >= 0x050300
+  auto path = QStandardPaths::locate (QStandardPaths::DataLocation, WSJT_DOC_DESTINATION, QStandardPaths::LocateDirectory);
+  if (path.isEmpty ())
+    {
+      doc_path_.cdUp ();
+      doc_path_.cd (WSJT_SHARE_DESTINATION);
+      doc_path_.cd (WSJT_DOC_DESTINATION);
+    }
+  else
+    {
+      doc_path_.cd (path);
+    }
+#else
+  doc_path.cd (WSJT_DOC_DESTINATION);
+#endif
 
 #if WSJT_STANDARD_FILE_LOCATIONS
   // the following needs to be done on all platforms but changes need
