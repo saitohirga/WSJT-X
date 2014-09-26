@@ -945,7 +945,6 @@ else ()
   # Derive the correct filename for a Debian package because the DEB
   # generator doesn't do this correctly at present.
   #
-  string (TOLOWER "${CPACK_PACKAGE_NAME}" CPACK_PACKAGE_NAME_LOWERCASE)
   find_program (DPKG_PROGRAM dpkg DOC "dpkg program of Debian-based systems")
   if (DPKG_PROGRAM)
     execute_process (
@@ -953,15 +952,13 @@ else ()
       OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
       OUTPUT_STRIP_TRAILING_WHITESPACE
       )
-    set (DEBIAN_PACKAGE_FILE_NAME
-      "${CPACK_PACKAGE_NAME_LOWERCASE}_${wsjtx_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")   
-
   else (DPKG_PROGRAM)
-    set (DEBIAN_PACKAGE_FILE_NAME
-      "${CPACK_PACKAGE_NAME_LOWERCASE}_${wsjtx_VERSION}_${CMAKE_SYSTEM_NAME}")
+    set (CPACK_DEBIAN_PACKAGE_ARCHITECTURE noarch)
   endif (DPKG_PROGRAM)
 
   set (CPACK_DEBIAN_PACKAGE_PACKAGE_SHLIBDEPS ON)
+
+  set (CPACK_RPM_PACKAGE_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
 
   set (CPACK_GENERATOR "DEB" "RPM" "TGZ")
 endif ()
