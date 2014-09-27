@@ -49,7 +49,12 @@ if (A2X_EXECUTABLE AND GZIP_EXECUTABLE AND SED_EXECUTABLE)
     add_custom_command (OUTPUT "${o}.gz"
       COMMAND ${CMAKE_COMMAND} ARGS -E make_directory "${d}"
       COMMAND ${A2X_EXECUTABLE} ARGS ${A2X_OPTS} -D "${d}" "${f}"
-      COMMAND ${SED_EXECUTABLE} ARGS -e "'s@.so @&man${section}/@'" -i.orig "${d}/*.${section}"
+#
+# the  following edit  command was  an attempt  to comply  with Debian
+# packaging rules for manpages but hopelessly failed because it breaks
+# manpage usage on RPM installs
+#
+#      COMMAND ${SED_EXECUTABLE} ARGS -e "'s@.so @&man${section}/@'" -i.orig "${d}/*.${section}"
       COMMAND ${GZIP_EXECUTABLE} ARGS -f9 "${d}/*.${section}"
       DEPENDS "${f}"
       COMMENT "Generating ${o}.gz"
