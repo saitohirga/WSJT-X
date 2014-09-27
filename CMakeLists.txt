@@ -738,6 +738,18 @@ install (FILES
   #COMPONENT Runtime
   )
 
+#
+# Mac installer files
+#
+if (APPLE)
+    install (FILES
+        Darwin/ReadMe.txt
+        Darwin/sysctl.conf
+        DESTINATION .
+        #COMPONENT Runtime
+    )
+endif (APPLE)
+
 
 #
 # uninstall support
@@ -939,7 +951,7 @@ endif (WSJTX_RC)
 if (WIN32)
   set (CPACK_GENERATOR "NSIS")
 elseif (APPLE)
-  set (CPACK_GENERATOR "DragNDrop" "PackageMaker")
+  set (CPACK_GENERATOR "DragNDrop")
 else ()
   #
   # Derive the correct filename for a Debian package because the DEB
