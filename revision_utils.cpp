@@ -76,11 +76,6 @@ QString program_title (QString const& revision)
 {
 #if defined (CMAKE_BUILD)
   QString id {QCoreApplication::applicationName () + "   v" WSJTX_STRINGIZE (WSJTX_VERSION_MAJOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_MINOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_PATCH)};
-
-# if defined (WSJTX_RC)
-  id += "-rc" WSJTX_STRINGIZE (WSJTX_RC);
-# endif
-
 #else
   QString id {"WSJT-X Not for Release"};
 #endif
