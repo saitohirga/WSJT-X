@@ -1,0 +1,37 @@
+wsjtx -1.4.0-rc1
+================
+Release candidate abandonded due to packaging issues on Linux.
+
+wsjtx-1.4.0-rc2
+===============
+
+Mac installer - g4wjs, Bob n7rjn - Cannot expand archive in RO DMG.
+
+    Move tarball to Desktop or somewhere else before expanding.
+
+Hamlib TS-2000 - k1jt - WSJT-X "Mode" != "None" glitches when Tx QRG changes
+
+       Trying to read "other" VFO mode requires FRn command to "other"
+       VFO which is source of glitch when split.
+
+Hamlib FT-847 - Eddy G6UQI - fails to start
+
+Commander TS-2000 - Jim wb6dkh - SPLIT disappearing
+Commander TS-2000 - David wd4kpd - possibly the same issue
+
+	  VOX keying might be the factor.
+	  Sent logs to Dave aa6yq for comment.
+
+Commander TS-2000 - Jim wb6dkh - SPLIT disappearing
+
+	  Fake split leaving wrong QRG current.
+
+Flex 6000 (TS-2000 emulation) - George kf2t - fails to read QRG
+Flex 6700 - Ed k0kc - No CAT no PTT
+
+     Flex doesn't have FB; command.
+     Sent kf2t test version that doesn't query TX QRG if not in split.
+
+Windows (Finestra WM) - Josh kk1d - Application not staying inside virtual desktop
+
+
