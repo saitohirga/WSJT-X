@@ -290,7 +290,7 @@ void HamlibTransceiver::init_rig ()
       rmode_t mb;
       pbwidth_t w {rig_passband_wide (rig_.data (), m)};
       pbwidth_t wb;
-      if (!rig_->caps->get_vfo)
+      if (!rig_->caps->get_vfo && (rig_->caps->set_vfo || rig_has_vfo_op (rig_.data (), RIG_OP_TOGGLE)))
         {
           // Icom have deficient CAT protocol with no way of reading which
           // VFO is selected or if SPLIT is selected so we have to simply
@@ -314,18 +314,10 @@ void HamlibTransceiver::init_rig ()
 
           if (!rig_->caps->set_vfo)
             {
-              if (rig_has_vfo_op (rig_.data (), RIG_OP_TOGGLE))
-                {
-
 #if WSJT_TRACE_CAT
-                  qDebug () << "HamlibTransceiver::init_rig rig_vfo_op TOGGLE";
+              qDebug () << "HamlibTransceiver::init_rig rig_vfo_op TOGGLE";
 #endif
-                  error_check (rig_vfo_op (rig_.data (), RIG_VFO_CURR, RIG_OP_TOGGLE), tr ("exchanging VFOs"));
-                }
-              else
-                {
-                  throw error {tr ("Hamlib: unable to initialise rig")};
-                }
+              error_check (rig_vfo_op (rig_.data (), RIG_VFO_CURR, RIG_OP_TOGGLE), tr ("exchanging VFOs"));
             }
           else
             {
@@ -401,14 +393,18 @@ void HamlibTransceiver::init_rig ()
         }
       else
         {
-          vfo_t v;
+          vfo_t v {RIG_VFO_A};  // assume RX always on VFO A/MAIN
+
+          if (rig_->caps->get_vfo)
+            {
 #if WSJT_TRACE_CAT
-          qDebug ().nospace () << "HamlibTransceiver::init_rig rig_get_vfo current VFO";
+              qDebug ().nospace () << "HamlibTransceiver::init_rig rig_get_vfo current VFO";
 #endif
-          error_check (rig_get_vfo (rig_.data (), &v), tr ("getting current VFO")); // has side effect of establishing current VFO inside hamlib
+              error_check (rig_get_vfo (rig_.data (), &v), tr ("getting current VFO")); // has side effect of establishing current VFO inside hamlib
 #if WSJT_TRACE_CAT
-          qDebug ().nospace () << "HamlibTransceiver::init_rig rig_get_vfo current VFO = 0x" << hex << v;
+              qDebug ().nospace () << "HamlibTransceiver::init_rig rig_get_vfo current VFO = 0x" << hex << v;
 #endif
+            }
 
           reversed_ = RIG_VFO_B == v;
 
