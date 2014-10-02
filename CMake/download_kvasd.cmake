@@ -12,7 +12,7 @@ elseif (UNIX)
 endif ()
 file (
   DOWNLOAD ${kvasd_NAME} contrib/kvasd${EXECUTABLE_SUFFIX}
-  TIMEOUT 10
+  TIMEOUT 120
   STATUS kvasd_STATUS
   LOG kvasd_LOG
   SHOW_PROGRESS
