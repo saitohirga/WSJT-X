@@ -206,23 +206,26 @@ void DXLabSuiteCommanderTransceiver::poll ()
       throw error {tr ("DX Lab Suite Commander didn't respond correctly polling frequency")};
     }
 
-  reply = command_with_reply ("<command:13>CmdSendTXFreq<parameters:0>", quiet);
-  if (0 == reply.indexOf ("<CmdTXFreq:"))
+  if (state ().split ())
     {
-      // remove thousands separator and DP - relies of n.nnn kHz format so we ca do uint conversion
-      auto text = reply.mid (reply.indexOf ('>') + 1).replace (",", "").replace (".", "");
-      if ("000" != text)
+      reply = command_with_reply ("<command:13>CmdSendTXFreq<parameters:0>", quiet);
+      if (0 == reply.indexOf ("<CmdTXFreq:"))
         {
-          update_other_frequency (text.toUInt ());
+          // remove thousands separator and DP - relies of n.nnn kHz format so we ca do uint conversion
+          auto text = reply.mid (reply.indexOf ('>') + 1).replace (",", "").replace (".", "");
+          if ("000" != text)
+            {
+              update_other_frequency (text.toUInt ());
+            }
         }
-    }
-  else
-    {
+      else
+        {
 #if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver::poll: get tx frequency unexpected response";
+          qDebug () << "DXLabSuiteCommanderTransceiver::poll: get tx frequency unexpected response";
 #endif
 
-      throw error {tr ("DX Lab Suite Commander didn't respond correctly polling TX frequency")};
+          throw error {tr ("DX Lab Suite Commander didn't respond correctly polling TX frequency")};
+        }
     }
 
   reply = command_with_reply ("<command:12>CmdSendSplit<parameters:0>", quiet);
