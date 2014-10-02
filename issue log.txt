@@ -30,6 +30,11 @@ Commander TS-2000 - David wd4kpd - possibly the same issue
 	  Further investigation now points to the auto-atu which swaps
 	  VFO and mode while tuning, this may be confusing Commander.
 
+	  Dave  aa6yq  confirms  that WinWarbler  will  interact  with
+	  Commander  and cause  this issue  when the  TS-2000 auto-ATU
+	  switches to CW during the tuning sequence. Passed info on to
+	  wb6dkh & wd4kpd.
+
 Commander TS-2000 - Jim wb6dkh - Fake split
 
 	  Leaving wrong QRG (Tx) current.
@@ -52,6 +57,18 @@ Flex 6700 - Ed k0kc - No CAT no PTT
      * Split operation  is not possible,  this should not be  an issue
        given that wide band Tx is available on these radios.
 
+     Initial reports from kf2t indicate a successful fix.
+
 Windows (Finestra WM) - Josh kk1d - Application not staying inside virtual desktop
 
+Hamlib TS-570D - Peter Pauly ????? - Protocol error while getting TX frequency
+
+       Split not required so r4434 may have resolved this anyway.
+
+       Sent trace version of RC2 - awaiting log.
+
+Hamlib FT-450 - Rudy ve3bdr - Protocol error while getting mode of split VFO
+
+       May be  fixed by  r4434. I  have asked Rudy  to try  again with
+       "Mode" set to "None".
 
