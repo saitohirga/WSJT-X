@@ -1,6 +1,6 @@
 wsjtx -1.4.0-rc1
 ================
-Release candidate abandonded due to packaging issues on Linux.
+Release candidate abandoned due to packaging issues on Linux.
 
 wsjtx-1.4.0-rc2
 ===============
@@ -14,7 +14,12 @@ Hamlib TS-2000 - k1jt - WSJT-X "Mode" != "None" glitches when Tx QRG changes
        Trying to read "other" VFO mode requires FRn command to "other"
        VFO which is source of glitch when split.
 
+       Current best workaround is to  set "Mode" to "None" in Settings
+       which stops WSJT-X trying to manipulate rig mode.
+
 Hamlib FT-847 - Eddy G6UQI - fails to start
+
+       Send version with CAT trace - waiting log file.
 
 Commander TS-2000 - Jim wb6dkh - SPLIT disappearing
 Commander TS-2000 - David wd4kpd - possibly the same issue
@@ -24,7 +29,8 @@ Commander TS-2000 - David wd4kpd - possibly the same issue
 
 Commander TS-2000 - Jim wb6dkh - Fake split
 
-	  leaving wrong QRG (Tx) current.
+	  Leaving wrong QRG (Tx) current.
+	  Need trace for this issue.
 
 Flex 6000 (TS-2000 emulation) - George kf2t - fails to read QRG
 Flex 6700 - Ed k0kc - No CAT no PTT
