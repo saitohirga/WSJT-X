@@ -28,6 +28,8 @@ Hamlib FT-847 - Mark w7mem - fails to start
 
        Sent g6uqi a test version of RC3 with a fix for this.
 
+       g6uqi reposts that this hot fix has resolved the issue.
+
 Commander TS-2000 - Jim wb6dkh - SPLIT disappearing
 Commander TS-2000 - David wd4kpd - possibly the same issue
 
@@ -63,7 +65,7 @@ Flex 6700 - Ed k0kc - No CAT no PTT
 
      Sent RC3 preview with a hotfix (r4434) to kf2t & k0kc.
 
-     Caveats with  PowerSDR & FlexRadio  SDRs:-
+     Caveats with  SmartSDR & FlexRadio  SDRs:-
 
      * Data mode cannot be set from WSJT-X, USB should be OK otherwise
        use "None" and set mode manually.
