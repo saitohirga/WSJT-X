@@ -18,8 +18,13 @@ Hamlib TS-2000 - k1jt - WSJT-X "Mode" != "None" glitches when Tx QRG changes
        which stops WSJT-X trying to manipulate rig mode.
 
 Hamlib FT-847 - Eddy G6UQI - fails to start
+Hamlib FT-847 - Mark w7mem - fails to start
 
        Sent version with CAT trace - waiting log file.
+
+       HamlibTranceiver::init_rig() not coping with  no get VFO and no
+       toggle VFO CAT command available, changed to just assume A/MAIN
+       is always the Rx VFO on such rigs.
 
 Commander TS-2000 - Jim wb6dkh - SPLIT disappearing
 Commander TS-2000 - David wd4kpd - possibly the same issue
@@ -35,7 +40,8 @@ Commander TS-2000 - David wd4kpd - possibly the same issue
 	  switches to CW during the tuning sequence. Passed info on to
 	  wb6dkh & wd4kpd.
 
-	  Not fixed for wd4kpd as he doesn't use WW.
+	  Not fixed for wd4kpd as he  doesn't use WW. Sent tracing RC2
+	  - awaiting log and match Commander ErrorLog.txt.
 
 Commander TS-2000 - Jim wb6dkh - Fake split
 
