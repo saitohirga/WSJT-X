@@ -4,7 +4,7 @@
 message (STATUS "file: ${URL}/${NAME}")
 file (
   DOWNLOAD ${URL}/${NAME} contrib/${NAME}
-  TIMEOUT 10
+  TIMEOUT 120
   STATUS manual_STATUS
   LOG manual_LOG
   SHOW_PROGRESS
