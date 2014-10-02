@@ -119,6 +119,12 @@ Hamlib IC-746 - Doc kb3mow - Wrong Tx QRG used after dbl-click on decode
 
        Asked for more details of exact Rx/Tx dial QRGs.
 
+       Explanation appears  to show Tx QRG  out by 500Hz. I  can't see
+       any obvious  way this can  happen. kb3mow has reported  that he
+       can no longer reproduce this issue.
+
+       On Hold.
+
 Hamlib ANAN-100D (PowerSDR mRX PS v3.2.19) - Ton pa0tbr - split mode not working
 
        Not urgent as split mode not required due to wide band Tx available.
@@ -132,4 +138,8 @@ OmniRig TS-590S - Randy k5rhd - OmniRig server going offline
 	always able to start OmniRig client cleanly issue.
 
 	Sent a tracing version of RC2 - awaiting log.
+
+Hamlib R8500 - Chris (UK SWL) airguzzler@btinternet.com - Hamlib IO error
+
+       Probably port mis-configuration. Awaiting update.
 
