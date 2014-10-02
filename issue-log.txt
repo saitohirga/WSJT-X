@@ -1,5 +1,5 @@
-wsjtx -1.4.0-rc1
-================
+wsjtx-1.4.0-rc1
+===============
 Release candidate abandoned due to packaging issues on Linux.
 
 wsjtx-1.4.0-rc2
@@ -17,6 +17,8 @@ Hamlib TS-2000 - k1jt - WSJT-X "Mode" != "None" glitches when Tx QRG changes
        Current best workaround is to  set "Mode" to "None" in Settings
        which stops WSJT-X trying to manipulate rig mode.
 
+       Won't fix - Closed.
+
 Hamlib FT-847 - Eddy g6uqi - fails to start
 Hamlib FT-847 - Mark w7mem - fails to start
 
@@ -28,7 +30,9 @@ Hamlib FT-847 - Mark w7mem - fails to start
 
        Sent g6uqi a test version of RC3 with a fix for this.
 
-       g6uqi reposts that this hot fix has resolved the issue.
+       g6uqi reposts that this hot fix (r4449) has resolved the issue.
+
+       Fixed wsjtx/wsjtx-1.4 (r4449) - Closed.
 
 Commander TS-2000 - Jim wb6dkh - SPLIT disappearing
 Commander TS-2000 - David wd4kpd - possibly the same issue
@@ -80,7 +84,7 @@ Hamlib FlexRadio (DTTSP UDP & IPC interfaces) - - Need to diagnose and check if 
        Hamlib has a FlexRadio back end that talks UDP on 19001 or /dev/shm/SDRcommands .
 
 Windows (Finestra WM) - Josh kk1d - Application not staying inside virtual desktop
-1
+
 Hamlib TS-570D - Peter Pauly ????? - Protocol error while getting TX frequency
 Hamlib? TS-570 - ??? n4au - Polling causing errors
 
