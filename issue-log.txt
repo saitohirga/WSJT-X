@@ -114,3 +114,9 @@ Hamlib IC-746 - Doc kb3mow - Wrong Tx QRG used after dbl-click on decode
 
        Asked for more details of exact Rx/Tx dial QRGs.
 
+Hamlib ANAN-100D (PowerSDR mRX PS v3.2.19) - Ton pa0tbr - split mode not working
+
+       Not urgent as split mode not required due to wide band Tx available.
+
+       Sent hot  fix version  of v1.4 with  mods for  SmartSDR TS-2000
+       emulation.
