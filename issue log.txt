@@ -88,3 +88,6 @@ Hamlib FT-450 - Rudy ve3bdr - Protocol error while getting mode of split VFO
 
        Not fixed. Sent trace version of RC2, awaiting log.
 
+LXDE desktop Ubuntu - Craig wb3gck - No application menu bar
+
+     Suggested installing or un-installing appmenu-qt5 package.
