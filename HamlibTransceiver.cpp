@@ -667,9 +667,14 @@ void HamlibTransceiver::poll ()
 
       update_rx_frequency (f);
 
-      if (rig_->caps->targetable_vfo & (RIG_TARGETABLE_FREQ | RIG_TARGETABLE_PURE))
+      if (state ().split () && (rig_->caps->targetable_vfo & (RIG_TARGETABLE_FREQ | RIG_TARGETABLE_PURE)))
         {
-          // we can only probe current VFO unless rig supports reading the other one directly
+          // only read "other" VFO if in split, this allows rigs like
+          // FlexRadio to work in Kenwood TS-2000 mode despite them
+          // not having a FB; command
+
+          // we can only probe current VFO unless rig supports reading
+          // the other one directly because we can't glitch the Rx
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
           qDebug () << "HamlibTransceiver::poll rig_get_freq other VFO";
 #endif
