@@ -22,9 +22,9 @@ Commander TS-2000 - David wd4kpd - possibly the same issue
 	  VOX keying might be the factor.
 	  Sent logs to Dave aa6yq for comment.
 
-Commander TS-2000 - Jim wb6dkh - SPLIT disappearing
+Commander TS-2000 - Jim wb6dkh - Fake split
 
-	  Fake split leaving wrong QRG current.
+	  leaving wrong QRG (Tx) current.
 
 Flex 6000 (TS-2000 emulation) - George kf2t - fails to read QRG
 Flex 6700 - Ed k0kc - No CAT no PTT
