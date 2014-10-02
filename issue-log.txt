@@ -125,3 +125,11 @@ Hamlib ANAN-100D (PowerSDR mRX PS v3.2.19) - Ton pa0tbr - split mode not working
 
        Sent hot  fix version  of v1.4 with  mods for  SmartSDR TS-2000
        emulation.
+
+OmniRig TS-590S - Randy k5rhd - OmniRig server going offline
+
+	Issues with  clearing the error.  Probably the "Test  CAT" not
+	always able to start OmniRig client cleanly issue.
+
+	Sent a tracing version of RC2 - awaiting log.
+
