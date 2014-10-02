@@ -99,3 +99,6 @@ Hamlib IC-7100 - Erik on4pb - CAT PTT method not available on IC-7100
 
        Sent hot fix version of RC3 to on4pb for testing.
 
+Hamlib IC-746 - Doc kb3mow - Wrong Tx QRG used after dbl-click on decode
+
+       Asked for more details of exact Rx/Tx dial QRGs.
