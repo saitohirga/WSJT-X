@@ -91,3 +91,11 @@ Hamlib FT-450 - Rudy ve3bdr - Protocol error while getting mode of split VFO
 LXDE desktop Ubuntu - Craig wb3gck - No application menu bar
 
      Suggested installing or un-installing appmenu-qt5 package.
+
+Hamlib IC-7100 - Erik on4pb - CAT PTT method not available on IC-7100
+
+       This  has been  identified as  a HamlibTranceiver  registration
+       defect. PTT type categories incorrectly registered.
+
+       Sent hot fix version of RC3 to on4pb for testing.
+
