@@ -27,7 +27,8 @@ Commander TS-2000 - David wd4kpd - possibly the same issue
 	  VOX keying might be the factor.
 	  Sent logs to Dave aa6yq for comment.
 
-	  Suspicion of RFI in CAT interface, TBC.
+	  Further investigation now points to the auto-atu which swaps
+	  VFO and mode while tuning, this may be confusing Commander.
 
 Commander TS-2000 - Jim wb6dkh - Fake split
 
