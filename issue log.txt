@@ -19,13 +19,15 @@ Hamlib TS-2000 - k1jt - WSJT-X "Mode" != "None" glitches when Tx QRG changes
 
 Hamlib FT-847 - Eddy G6UQI - fails to start
 
-       Send version with CAT trace - waiting log file.
+       Sent version with CAT trace - waiting log file.
 
 Commander TS-2000 - Jim wb6dkh - SPLIT disappearing
 Commander TS-2000 - David wd4kpd - possibly the same issue
 
 	  VOX keying might be the factor.
 	  Sent logs to Dave aa6yq for comment.
+
+	  Suspicion of RFI in CAT interface, TBC.
 
 Commander TS-2000 - Jim wb6dkh - Fake split
 
@@ -36,7 +38,18 @@ Flex 6000 (TS-2000 emulation) - George kf2t - fails to read QRG
 Flex 6700 - Ed k0kc - No CAT no PTT
 
      Flex doesn't have FB; command.
+
      Sent kf2t test version that doesn't query TX QRG if not in split.
+
+     Sent RC3 preview with a hotfix (r4434) to kf2t & k0kc.
+
+     Caveats with  PowerSDR & FlexRadio  SDRs:-
+
+     * Data mode cannot be set from WSJT-X, USB should be OK otherwise
+       use "None" and set mode manually.
+
+     * Split operation  is not possible,  this should not be  an issue
+       given that wide band Tx is available on these radios.
 
 Windows (Finestra WM) - Josh kk1d - Application not staying inside virtual desktop
 
