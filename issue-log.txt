@@ -55,6 +55,18 @@ Commander TS-2000 - David wd4kpd - possibly the same issue
 	  reported by  Commander when setting Tx  frequency. Forwarded
 	  to aa6yq for analysis.
 
+	  Dave aa6yq reports that setting Tx frequency clears split on
+	  this rig (I guess many others too that use Kenwood style CAT
+	  commands). He  suggests setting Tx frequency  before setting
+	  split. This  is slightly  problematic because  setting split
+	  has side effect  of setting mode on Tx VFO  and on Yaesu and
+	  Elecraft changing  from CW to  another mode applies  a small
+	  frequency offset :( We may have to accept this as it will be
+	  rare and there is no explicit way of setting the mode of the
+	  Tx VFO in  the Commander interface. The  other workaround of
+	  doing everything  twice (TxFreq, Split, TxFreq,  Split) will
+	  glitch the Rx or Tx twice as much.
+
 Commander TS-2000 - Jim wb6dkh - Fake split
 
 	  Leaving wrong QRG (Tx) current.
