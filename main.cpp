@@ -20,6 +20,7 @@
 #include <QStandardPaths>
 #include <QStringList>
 #include <QMessageBox>
+#include <QLockFile>
 
 #if QT_VERSION >= 0x050200
 #include <QCommandLineParser>
@@ -32,12 +33,12 @@
 #include "TraceFile.hpp"
 #include "mainwindow.h"
 
-// Multiple instances:
-QSharedMemory mem_jt9;
-QString       my_key;
 
 int main(int argc, char *argv[])
 {
+  // Multiple instances:
+  QSharedMemory mem_jt9;
+
   QApplication a(argc, argv);
   try
     {
@@ -111,8 +112,41 @@ int main(int argc, char *argv[])
                 }
                 
               a.setApplicationName (a.applicationName () + " - " + temp_name);
+
+              if (parser.isSet (test_option))
+                {
+                  a.setApplicationName (a.applicationName () + " - test");
+                }
             }
           multiple = true;
+        }
+
+      // disallow multiple instances with same instance key
+      QLockFile instance_lock {QDir {QStandardPaths::writableLocation (QStandardPaths::TempLocation)}.absoluteFilePath (a.applicationName () + ".lock")};
+      instance_lock.setStaleLockTime (0);
+      auto ok = false;
+      while (!(ok = instance_lock.tryLock ()))
+        {
+          if (QLockFile::LockFailedError == instance_lock.error ())
+            {
+              auto button = QMessageBox::question (nullptr
+                                                   , QApplication::applicationName ()
+                                                   , QObject::tr ("Another instance may be running, try to remove stale lock file?")
+                                                   , QMessageBox::Yes | QMessageBox::Retry | QMessageBox::No
+                                                   , QMessageBox::Yes);
+              switch (button)
+                {
+                case QMessageBox::Yes:
+                  instance_lock.removeStaleLockFile ();
+                  break;
+
+                case QMessageBox::Retry:
+                  break;
+
+                default:
+                  throw std::runtime_error {"Multiple instances must have unique rig names"};
+                }
+            }
         }
 #endif
 #endif
@@ -124,7 +158,6 @@ int main(int argc, char *argv[])
           throw std::runtime_error {"Cannot find a usable configuration path \"" + config_path.path ().toStdString () + '"'};
         }
       QSettings settings(config_path.absoluteFilePath (a.applicationName () + ".ini"), QSettings::IniFormat);
-
 #if WSJT_QDEBUG_TO_FILE
       // // open a trace file
       TraceFile trace_file {QDir {QApplication::applicationDirPath ()}.absoluteFilePath ("wsjtx_trace.log")};
@@ -135,8 +168,7 @@ int main(int argc, char *argv[])
 
       // Create and initialize shared memory segment
       // Multiple instances: use rig_name as shared memory key
-      my_key = a.applicationName ();
-      mem_jt9.setKey(my_key);
+      mem_jt9.setKey(a.applicationName ());
 
       if(!mem_jt9.attach()) {
         if (!mem_jt9.create(sizeof(jt9com_))) {
@@ -167,7 +199,7 @@ int main(int argc, char *argv[])
                                            ).toBool () ? 1u : 4u;
       }
 
-      MainWindow w(multiple, &settings, &mem_jt9, my_key, downSampleFactor, parser.isSet (test_option));
+      MainWindow w(multiple, &settings, &mem_jt9, downSampleFactor);
       w.show();
 
       QObject::connect (&a, SIGNAL (lastWindowClosed()), &a, SLOT (quit()));

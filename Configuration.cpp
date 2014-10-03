@@ -235,7 +235,7 @@ class Configuration::impl final
 public:
   using FrequencyDelta = Radio::FrequencyDelta;
 
-  explicit impl (Configuration * self, QString const& instance_key, QSettings * settings, bool test_mode, QWidget * parent);
+  explicit impl (Configuration * self, QSettings * settings, QWidget * parent);
   ~impl ();
 
   bool have_rig (bool open_if_closed = true);
@@ -428,8 +428,8 @@ private:
 
 
 // delegate to implementation class
-Configuration::Configuration (QString const& instance_key, QSettings * settings, bool test_mode, QWidget * parent)
-  : m_ {this, instance_key, settings, test_mode, parent}
+Configuration::Configuration (QSettings * settings, QWidget * parent)
+  : m_ {this, settings, parent}
 {
 }
 
@@ -549,7 +549,7 @@ void Configuration::sync_transceiver (bool force_signal, bool enforce_mode_and_s
 }
 
 
-Configuration::impl::impl (Configuration * self, QString const& instance_key, QSettings * settings, bool test_mode, QWidget * parent)
+Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget * parent)
   : QDialog {parent}
   , self_ {self}
   , ui_ {new Ui::configuration_dialog}
@@ -593,8 +593,6 @@ Configuration::impl::impl (Configuration * self, QString const& instance_key, QS
   , default_audio_input_device_selected_ {false}
   , default_audio_output_device_selected_ {false}
 {
-  (void)instance_key;		// quell compiler warning
-
   ui_->setupUi (this);
 
 
@@ -637,11 +635,7 @@ Configuration::impl::impl (Configuration * self, QString const& instance_key, QS
         temp_path_.setPath (temp_location);
       }
 
-    QString unique_directory {instance_key};
-    if (test_mode)
-      {
-        unique_directory += " - test_mode";
-      }
+    QString unique_directory {QApplication::applicationName ()};
     if (!temp_path_.mkpath (unique_directory) || !temp_path_.cd (unique_directory))
       {
         QMessageBox::critical (this, "WSJT-X", tr ("Create temporary directory error: ") + temp_path_.absolutePath ());

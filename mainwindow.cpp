@@ -68,14 +68,14 @@ private:
 };
 
 //--------------------------------------------------- MainWindow constructor
-MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdmem, QString const& thekey,
-                       unsigned downSampleFactor, bool test_mode, QWidget *parent) :
+MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdmem,
+                       unsigned downSampleFactor, QWidget *parent) :
   QMainWindow(parent),
   m_revision {revision ("$Rev$")},
   m_multiple {multiple},
   m_settings (settings),
   ui(new Ui::MainWindow),
-  m_config (thekey, settings, test_mode, this),
+  m_config (settings, this),
   m_wideGraph (new WideGraph (settings)),
   m_logDlg (new LogQSO (program_title (), settings, &m_config, this)),
   m_dialFreq {0},
@@ -85,7 +85,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_diskData {false},
   m_appDir {QApplication::applicationDirPath ()},
   mem_jt9 {shdmem},
-  mykey_jt9 {thekey},
   psk_Reporter (new PSK_Reporter (this)),
   m_msAudioOutputBuffered (0u),
   m_framesAudioInputBuffered (RX_SAMPLE_RATE / 10),
@@ -369,7 +368,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   lockFile.open(QIODevice::ReadWrite);
 
   QStringList jt9_args {
-    "-s", mykey_jt9
+    "-s", QApplication::applicationName ()
       , "-e", QDir::toNativeSeparators (m_appDir)
       , "-a", QDir::toNativeSeparators (m_config.data_path ().absolutePath ())
       };
