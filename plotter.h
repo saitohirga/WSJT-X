@@ -128,6 +128,7 @@ private:
   double  m_fGreen;
   double  m_fftBinWidth;
   double  m_dialFreq;
+  double  m_xOffset;
 
   qint32  m_dBStepSize;
   qint32  m_FreqUnits;
