@@ -196,6 +196,8 @@ Waterfall - Jean f8rz - Requesting different labelling
 
 	  Proposed for v1.5.
 
+	  Implemented by Joe in r4464.  (Others please test!)
+
 Decoding - Jean f8rz - Abandoned Tx should not disable decoding for a period
 
 	 This is an outstanding issue in at least v1.3 also.
@@ -207,6 +209,10 @@ Decoding - Jean f8rz - Abandoned Tx should not disable decoding for a period
 	 complicated  when  decoding   overlaps  next  period.  Double
 	 buffering may  be an  option. Question:  is the  audio buffer
 	 needed after the last symspec call?
+
+	 K1JT: I agree that this has been a desirable change.  Perhaps 
+	 can zero only a small part of the buffer -- samples taken 
+	 while Tx was on?
 
 Decoded text - Albert kc8kjf - Report or grid last character truncated
 
@@ -222,6 +228,11 @@ Decoded text - Albert kc8kjf - Report or grid last character truncated
 
 	Proposed for v1.5.
 
+	K1JT: on the system I tested, it was OK after making the main
+	window a bit wider.  It has something to do with having 
+	selected "Show DXCC entity and worked before status" when the
+	main window was not (then) large enough?
+
 HRD FTDX3000 - Jean-Michel f6eao/p - Not working
 
     This as  yet untested  rig with  WSJT-X +  HRD clearly  needs some
@@ -231,10 +242,10 @@ HRD FTDX3000 - Jean-Michel f6eao/p - Not working
 
 Multi-instance support - Bill g4wjs - Lock mechanism needed to avoid duplicates
 
-	       There is no check that multiple instances are being run
-	       with the same rig-name.  Some mechanism to control this
-	       is desirable.  A simple  mechanism that isn't  prone to
-	       false positives  (i.e. not relying on  lock files being
-	       deleted on exit) needs to be developed.
+	There is no check that multiple instances are being run with
+	the same rig-name.  Some mechanism to control this is
+	desirable.  A simple mechanism that isn't prone to false
+	positives (i.e. not relying on lock files being deleted on
+	exit) needs to be developed.
 
-	       Implemented in v1.5. - Closed.
+	Implemented in v1.5. - Closed.
