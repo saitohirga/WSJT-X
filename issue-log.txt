@@ -122,6 +122,10 @@ LXDE desktop Ubuntu - Craig wb3gck - No application menu bar
 
      Suggested installing or un-installing appmenu-qt5 package.
 
+     Un-installing appmeny-qt5 resolved this issue.
+
+     Closed.
+
 Hamlib IC-7100 - Erik on4pb - CAT PTT method not available on IC-7100
 
        This  has been  identified as  a HamlibTranceiver  registration
@@ -182,3 +186,55 @@ Log files - Wayne m0way - Would like links on desktop to log files
     A similar feature on Linux/Mac should be possible.
 
     Proposed for v1.5.
+
+Waterfall - Jean f8rz - Requesting different labelling
+
+	  Would like frequency ticks to be at absolute multiples of
+	  500Hz even when start frequency is not such a multiple. E.g.
+	  for start 200Hz ticks (and labels) at 200, 500, 1000, 1500,
+	  ...
+
+	  Proposed for v1.5.
+
+Decoding - Jean f8rz - Abandoned Tx should not disable decoding for a period
+
+	 This is an outstanding issue in at least v1.3 also.
+
+	 Needs changes to Detector class  to allow audio buffers to be
+	 not cleared by transmitting.  Complications arise in that any
+	 data from prior receive periods  must be cleared. Might be as
+	 simple as clearing the audio buffer after decoding but may be
+	 complicated  when  decoding   overlaps  next  period.  Double
+	 buffering may  be an  option. Question:  is the  audio buffer
+	 needed after the last symspec call?
+
+Decoded text - Albert kc8kjf - Report or grid last character truncated
+
+	This occurs with larger fonts sizes on long decoded text lines
+	e.g.  two   6  character   callsigns  and   a  R+   report  or
+	locator. There is a defect  somewhere in the DisplayText class
+	with font metric calculations. I'm not sure why we even try to
+	truncate  the message  text given  that  it is  rendered in  a
+	<pre/> element and therefore doesn't wrap.
+
+	This  can  be  resolved  by  choosing a  small  font  size  or
+	increasing the main window width a little.
+
+	Proposed for v1.5.
+
+HRD FTDX3000 - Jean-Michel f6eao/p - Not working
+
+    This as  yet untested  rig with  WSJT-X +  HRD clearly  needs some
+    adjustment to the initialization in the HRDTransceiver class.
+
+    Requested the "HRD Interface Information.txt" file for analysis.
+
+Multi-instance support - Bill g4wjs - Lock mechanism needed to avoid duplicates
+
+	       There is no check that multiple instances are being run
+	       with the same rig-name.  Some mechanism to control this
+	       is desirable.  A simple  mechanism that isn't  prone to
+	       false positives  (i.e. not relying on  lock files being
+	       deleted on exit) needs to be developed.
+
+	       Implemented in v1.5. - Closed.
