@@ -57,8 +57,8 @@ public:
   using Frequency = Radio::Frequency;
 
   // Multiple instances: call MainWindow() with *thekey
-  explicit MainWindow(bool multiple, QSettings *, QSharedMemory *shdmem, QString const& thekey,
-                      unsigned downSampleFactor, bool test_mode, QWidget *parent = 0);
+  explicit MainWindow(bool multiple, QSettings *, QSharedMemory *shdmem,
+                      unsigned downSampleFactor, QWidget *parent = 0);
   ~MainWindow();
 
 public slots:
@@ -349,8 +349,6 @@ private:
   QRect   m_astroGeom;
 
   QSharedMemory *mem_jt9;
-  // Multiple instances:
-  QString mykey_jt9;
   PSK_Reporter *psk_Reporter;
   SignalMeter *signalMeter;
   LogBook m_logBook;
