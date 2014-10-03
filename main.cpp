@@ -19,6 +19,7 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QStringList>
+#include <QMessageBox>
 
 #if QT_VERSION >= 0x050200
 #include <QCommandLineParser>
@@ -60,8 +61,8 @@ int main(int argc, char *argv[])
 #if QT_VERSION >= 0x050200
       QCommandLineParser parser;
       parser.setApplicationDescription ("\nJT65A & JT9 Weak Signal Communications Program.");
-      parser.addHelpOption ();
-      parser.addVersionOption ();
+      auto help_option = parser.addHelpOption ();
+      auto version_option = parser.addVersionOption ();
 
 #if WSJT_STANDARD_FILE_LOCATIONS
       // support for multiple instances running from a single installation
@@ -75,7 +76,24 @@ int main(int argc, char *argv[])
                                       , a.translate ("main", "Writable files in test location.  Use with caution, for testing only."));
       parser.addOption (test_option);
 
-      parser.process (a);
+      if (!parser.parse (a.arguments ()))
+        {
+          QMessageBox::critical (nullptr, a.applicationName (), parser.errorText ());
+          return -1;
+        }
+      else
+        {
+          if (parser.isSet (help_option))
+            {
+              QMessageBox::information (nullptr, a.applicationName (), parser.helpText ());
+              return 0;
+            }
+          else if (parser.isSet (version_option))
+            {
+              QMessageBox::information (nullptr, a.applicationName (), a.applicationVersion ());
+              return 0;
+            }
+        }
 
       QStandardPaths::setTestModeEnabled (parser.isSet (test_option));
 
@@ -157,12 +175,12 @@ int main(int argc, char *argv[])
     }
   catch (std::exception const& e)
     {
-      QMessageBox::critical (nullptr, QObject::tr ("Error"), e.what ());
+      QMessageBox::critical (nullptr, a.applicationName (), e.what ());
       std::cerr << "Error: " << e.what () << '\n';
     }
   catch (...)
     {
-      QMessageBox::critical (nullptr, QObject::tr ("Unexpected"), QObject::tr ("Error"));
+      QMessageBox::critical (nullptr, a.applicationName (), QObject::tr ("Unexpected error"));
       std::cerr << "Unexpected error\n";
       throw;			// hoping the runtime might tell us more about the exception
     }
