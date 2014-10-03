@@ -238,11 +238,12 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   m_hdivs = w*df/m_freqPerDiv + 0.9999;
   m_ScalePixmap.fill(Qt::white);
   painter0.drawRect(0, 0, w, 30);
+  MakeFrequencyStrs();
 
 //draw tick marks on upper scale
   pixperdiv = m_freqPerDiv/df;
-  for( int i=1; i<m_hdivs; i++) {     //major ticks
-    x = (int)( (float)i*pixperdiv );
+  for( int i=0; i<m_hdivs; i++) {     //major ticks
+    x = (int)((m_xOffset+i)*pixperdiv );
     painter0.drawLine(x,18,x,30);
   }
   int minor=5;
@@ -253,28 +254,10 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   }
 
   //draw frequency values
-  MakeFrequencyStrs();
   for( int i=0; i<=m_hdivs; i++) {
-    if(0==i) {
-      //left justify the leftmost text
-      x = (int)( (float)i*pixperdiv);
-      rect0.setRect(x,0, (int)pixperdiv, 20);
-      painter0.drawText(rect0, Qt::AlignLeft|Qt::AlignVCenter,
-                       m_HDivText[i]);
-    }
-    else if(m_hdivs == i) {
-      //right justify the rightmost text
-      x = (int)( (float)i*pixperdiv - pixperdiv);
-      rect0.setRect(x,0, (int)pixperdiv, 20);
-      painter0.drawText(rect0, Qt::AlignRight|Qt::AlignVCenter,
-                       m_HDivText[i]);
-    } else {
-      //center justify the rest of the text
-      x = (int)( (float)i*pixperdiv - pixperdiv/2);
-      rect0.setRect(x,0, (int)pixperdiv, 20);
-      painter0.drawText(rect0, Qt::AlignHCenter|Qt::AlignVCenter,
-                       m_HDivText[i]);
-    }
+    x = (int)((m_xOffset+i)*pixperdiv - pixperdiv/2);
+    rect0.setRect(x,0, (int)pixperdiv, 20);
+    painter0.drawText(rect0, Qt::AlignHCenter|Qt::AlignVCenter,m_HDivText[i]);
   }
 
   float bw=9.0*12000.0/m_nsps;
@@ -320,10 +303,12 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
 
 void CPlotter::MakeFrequencyStrs()                       //MakeFrequencyStrs
 {
-  float freq;
+  int f=(m_startFreq+m_freqPerDiv-1)/m_freqPerDiv;
+  f*=m_freqPerDiv;
+  m_xOffset=float(f-m_startFreq)/m_freqPerDiv;
   for(int i=0; i<=m_hdivs; i++) {
-    freq = m_startFreq + i*m_freqPerDiv;
-    m_HDivText[i].setNum((int)freq);
+    m_HDivText[i].setNum(f);
+    f+=m_freqPerDiv;
   }
 }
 
