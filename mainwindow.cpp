@@ -9,6 +9,9 @@
 #include <QLineEdit>
 #include <QRegExpValidator>
 #include <QRegExp>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QDir>
 #include <QDebug>
 #include <QtConcurrent/QtConcurrentRun>
 
@@ -2494,6 +2497,11 @@ void MainWindow::on_actionErase_wsjtx_log_adi_triggered()
     QFile f(m_config.data_path ().absoluteFilePath ("wsjtx_log.adi"));
     f.remove();
   }
+}
+
+void MainWindow::on_actionOpen_log_directory_triggered ()
+{
+  QDesktopServices::openUrl (QUrl::fromLocalFile (m_config.data_path ().absolutePath ()));
 }
 
 bool MainWindow::gridOK(QString g)
