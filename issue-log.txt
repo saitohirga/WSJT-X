@@ -9,6 +9,8 @@ Mac installer - g4wjs, Bob n7rjn - Cannot expand archive in RO DMG.
 
     Move tarball to Desktop or somewhere else before expanding.
 
+    Fixed in CMake generated Drag & Drop installer. Closed.
+
 Hamlib TS-2000 - k1jt - WSJT-X "Mode" != "None" glitches when Tx QRG changes
 
        Trying to read "other" VFO mode requires FRn command to "other"
@@ -98,6 +100,8 @@ Flex 6700 - Ed k0kc - No CAT no PTT
 
      Initial reports from kf2t indicate a successful fix.
 
+     Reported as working as expected by kf2t.
+
 Hamlib FlexRadio (DTTSP UDP & IPC interfaces) - - Need to diagnose and check if these work
 
        Hamlib has a FlexRadio back end that talks UDP on 19001 or /dev/shm/SDRcommands .
@@ -155,7 +159,8 @@ Hamlib ANAN-100D (PowerSDR mRX PS v3.2.19) - Ton pa0tbr - split mode not working
        Sent hot  fix version  of v1.4 with  mods for  SmartSDR TS-2000
        emulation.
 
-OmniRig TS-590S - Randy k5rhd - OmniRig server going offline
+OmniRig TS-590S - Randy k5rhd - OmniRig server going offline error
+OmniRig Omni VII - Bert w0rsb - OmniRig server going offline error
 
 	Issues with  clearing the error.  Probably the "Test  CAT" not
 	always able to start OmniRig client cleanly issue.
@@ -175,6 +180,10 @@ Commander KX3 - Neil kb3tvu - occasionally stuck in TX after normal TX period
 
 	  Advised to  build a  CAT trace executable  and send  log for
 	  analysis - awaiting log.
+
+	  Log  is  normal  with  PTT on/off  commands  being  sent  to
+	  Commander at  the correct  times. Asked kb3tvu  to reproduce
+	  again with Commander tracing on also - awaiting logs.
 
 Log files - Wayne m0way - Would like links on desktop to log files
 
@@ -249,3 +258,68 @@ Multi-instance support - Bill g4wjs - Lock mechanism needed to avoid duplicates
 	exit) needs to be developed.
 
 	Implemented in v1.5. - Closed.
+
+Hamlib Omni VII - Bert w0rsb - Reports incomplete support
+
+Worked B4 - Dan k4shq - Incorrect country name occasionally
+
+       Also happened in v1.3.
+
+       Asked for example.
+
+CAT retries - George kf2t - Requests that 1 or 2 retries be made automatically
+
+    Requirement  comes  from  using  a FlexRadio  6700  which  briefly
+    interrupts the CAT connection when changing rig profiles. Suggests
+    a couple of automatic retries would be helpful.
+
+Hamlib K3 - Bob n7rjn - Comms timeout error every 10-15 mins
+
+       Sent CAT trace version - awaiting log.
+
+       Log  shows  incomplete  responses  to  CAT  commands  from  the
+       K3. Stop bits was set to 2,  K3 is 1 stop bit. Suggested trying
+       with 1 stop bit and if that  fails a lower baud rate - awaiting
+       log.
+
+Commander - Mike k2oi - Not connecting hostname lookup error
+
+	  This  may be  due  to the  "Network  Server" setting  having
+	  spaces in  it which causes  the hostname lookup  to override
+	  the default hostname.
+
+	  Changed to trim network query name (r4468).
+
+Commander K3 - Joe w4tv - K3 not going to split
+
+	  This appears to  be because the K3 will not  switch to split
+	  unless the  mode of VFO B  ahs been preset to  match that of
+	  VFO A.
+
+	  Joe has also offered to help with testing WSJT-X CAT issues.
+
+	  Dave aa6yq is copied on discussions with Joe.
+
+Commander IC7200 - John wa2hip - Occasionally not setting up split correctly
+
+	  I'm  not sure  exactly what  is not  set correctly  and have
+	  asked ws2hip to clarify.
+
+Hamlib IC7200 - John wa2hip - Occasional incorrect rig setting
+
+       Asked for clarification and sent a CAT trace version with
+       instructions to reproduce one issue for analysis - awaiting
+       log.
+
+Log directory - several - Difficulty locating log files
+
+    A new  menu item to  open the log  directory in a  suitable system
+    application would seem to satisfy these issues.
+
+    Due  to the  number of  queries/requests around  locating the  log
+    files, this has  been added to the wsjtx-1.4. It  is a new feature
+    rather  than a  bug fix  but  since the  implementation is  fairly
+    trivial and easily tested it shouldn't cause regressions.
+
+    Closed.
+
