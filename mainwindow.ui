@@ -2294,6 +2294,7 @@ list. The list can be maintained in Settings (F2).</string>
     <addaction name="actionDelete_all_wav_files_in_SaveDir"/>
     <addaction name="actionErase_ALL_TXT"/>
     <addaction name="actionErase_wsjtx_log_adi"/>
+    <addaction name="actionOpen_log_directory"/>
     <addaction name="separator"/>
     <addaction name="actionSettings"/>
     <addaction name="separator"/>
@@ -2690,6 +2691,11 @@ list. The list can be maintained in Settings (F2).</string>
   <action name="actionLocal_User_Guide">
    <property name="text">
     <string>Local User Guide</string>
+   </property>
+  </action>
+  <action name="actionOpen_log_directory">
+   <property name="text">
+    <string>Open log directory</string>
    </property>
   </action>
  </widget>
