@@ -2866,23 +2866,34 @@ void MainWindow::handle_transceiver_failure (QString reason)
 
 void MainWindow::rigFailure (QString const& reason, QString const& detail)
 {
-  m_rigErrorMessageBox.setText (reason);
-  m_rigErrorMessageBox.setDetailedText (detail);
-
-  // don't call slot functions directly to avoid recursion
-  switch (m_rigErrorMessageBox.exec ())
+  static bool first_error {true};
+  if (first_error)
     {
-    case QMessageBox::Ok:
-      QTimer::singleShot (0, this, SLOT (on_actionSettings_triggered ()));
-      break;
-
-    case QMessageBox::Retry:
+      // one automatic retry
       QTimer::singleShot (0, this, SLOT (rigOpen ()));
-      break;
+      first_error = false;
+    }
+  else
+    {
+      m_rigErrorMessageBox.setText (reason);
+      m_rigErrorMessageBox.setDetailedText (detail);
 
-    case QMessageBox::Cancel:
-      QTimer::singleShot (0, this, SLOT (close ()));
-      break;
+      // don't call slot functions directly to avoid recursion
+      switch (m_rigErrorMessageBox.exec ())
+        {
+        case QMessageBox::Ok:
+          QTimer::singleShot (0, this, SLOT (on_actionSettings_triggered ()));
+          break;
+
+        case QMessageBox::Retry:
+          QTimer::singleShot (0, this, SLOT (rigOpen ()));
+          break;
+
+        case QMessageBox::Cancel:
+          QTimer::singleShot (0, this, SLOT (close ()));
+          break;
+        }
+      first_error = true;       // reset
     }
 }
 
