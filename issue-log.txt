@@ -126,7 +126,7 @@ LXDE desktop Ubuntu - Craig wb3gck - No application menu bar
 
      Suggested installing or un-installing appmenu-qt5 package.
 
-     Un-installing appmeny-qt5 resolved this issue.
+     Un-installing appmenu-qt5 resolved this issue.
 
      Closed.
 
@@ -153,6 +153,7 @@ Hamlib IC-746 - Doc kb3mow - Wrong Tx QRG used after dbl-click on decode
        On Hold.
 
 Hamlib ANAN-100D (PowerSDR mRX PS v3.2.19) - Ton pa0tbr - split mode not working
+Hamlib ANAN-100D (Openhpsdr mRX) - Bob wd6dod - CAT control not working
 
        Not urgent as split mode not required due to wide band Tx available.
 
@@ -282,6 +283,36 @@ Hamlib K3 - Bob n7rjn - Comms timeout error every 10-15 mins
        with 1 stop bit and if that  fails a lower baud rate - awaiting
        log.
 
+       Log with  1 stop bit is  much better but still  losing CAT data
+       around 50s. May  be CPU load related issue but  is happening in
+       both Tx and Rx periods which is hard to explain.
+
+       n7rjn  is  using Mac  OS  X  10.9  Mavericks and  the  Timewave
+       Navigator he uses for interfacing  has a custom FTDI USB-serial
+       driver on Mac. This only has instructions for 10.7 & 10.8 so it
+       may not be compliant with 10.9. Informed n7rjn.
+
+       Awaiting results of tests at lower CAT serial baud rate.
+
+       This is looking like an issue  with the Elecraft P3 not passing
+       thru  all  CAT traffic  correctly.  n7rjn  has tested  for  1hr
+       without  P3 in  line without  error. Awaiting  results with  P3
+       upgraded to latest firmware.
+
+       n7rjn updates  Elecraft P3 firmware  from 1.26 to 1.29  and the
+       issue appears to  be greatly improved but  successive "IF;" CAT
+       commands sometime  still cause the  second to only  respond ";"
+       and retries return nothing. So it seems the P3 (or possibly the
+       K3) still have an issue with CAT.
+
+       n7rjn testing again without P3.
+
+       Tests passed which seems to confirm that the latest P3 firmware
+       still has  a CAT pass through  issue. Bob will log  a case with
+       Elecraft.
+
+       Closed.
+
 Commander - Mike k2oi - Not connecting hostname lookup error
 
 	  This  may be  due  to the  "Network  Server" setting  having
@@ -305,6 +336,25 @@ Commander IC7200 - John wa2hip - Occasionally not setting up split correctly
 	  I'm  not sure  exactly what  is not  set correctly  and have
 	  asked ws2hip to clarify.
 
+	  From wa2hip:
+	  ****************
+	  Here is a general example. This is with running CAT via Commander
+
+	  VFO-A 14076
+	  VFO-B 14076.5
+
+	  Enable TX
+	  Rig goes into TX switching to VFO-B
+	  VFO-B immediately switches to 14076 while in TX (no I do not have the "change when in TX" box checked)
+
+	  Now I am TX on incorrect freq so I HALT TX
+
+	  This happens a fair share of the time.
+
+	  IT DOES NOT happen with Direct Control (NO Commander)
+	  ****************
+
+
 Hamlib IC7200 - John wa2hip - Occasional incorrect rig setting
 
        Asked for clarification and sent a CAT trace version with
@@ -321,5 +371,28 @@ Log directory - several - Difficulty locating log files
     rather  than a  bug fix  but  since the  implementation is  fairly
     trivial and easily tested it shouldn't cause regressions.
 
-    Closed.
+    Completed r4470 - Closed.
 
+Worked B4 - Peter oz1pif - Request option to use wsjtx.log as source
+
+       He  deletes  the ADIF  log  after  importing into  his  logging
+       application  so the  ADIF log  is  not suitable  for worked  B4
+       checking. OTOH the wsjtx.log is  left untouched as a backup and
+       would make a better database of worked calls.
+
+       g4wjs: IMHO the  worked B4 would benefit from  using a database
+       for record  storage rather than  using a raw ADIF  format file.
+       Whether this  effort is  justified along with  the installation
+       complexities of  using a portable database  application is hard
+       to judge.  Given that JTAlert-X  is so competent at  doing this
+       job and more on Windows; maybe Laurie vk3ama might be persuaded
+       to  port his  application  to  Linux and  Mac  with bridges  to
+       logging suites available on those platforms.
+
+Settings dialog - Bob wd6dod - Widgets on Radio tab missing
+
+	 looks like the default and  minimum sizes for this window are
+	 too  small and  on  some systems  the  layout doesn't  render
+	 everything until the window is made larger.
+
+	 Fixed in r4481. Closed.
