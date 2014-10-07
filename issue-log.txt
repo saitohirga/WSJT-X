@@ -154,6 +154,7 @@ Hamlib IC-746 - Doc kb3mow - Wrong Tx QRG used after dbl-click on decode
 
 Hamlib ANAN-100D (PowerSDR mRX PS v3.2.19) - Ton pa0tbr - split mode not working
 Hamlib ANAN-100D (Openhpsdr mRX) - Bob wd6dod - CAT control not working
+Hamlib hermes (PowerSDR mRX) - Serge r6yy - Cat & PTT not working
 
        Not urgent as split mode not required due to wide band Tx available.
 
@@ -396,3 +397,23 @@ Settings dialog - Bob wd6dod - Widgets on Radio tab missing
 	 everything until the window is made larger.
 
 	 Fixed in r4481. Closed.
+
+Hamlib IC-7800 - Dave g3red - Fails to initialize
+
+       Sent tracing version of RC2 - awaiting log.
+
+Virus detected - Bob kf5tpq - Vipre scanner detects trojan
+
+      This is  a false positive,  but for releases we  should validate
+      with a few of the on  line anti-virus validators and publish the
+      results and signatures alongside the releases.
+
+      Asked kf5tpq  if he  went ahead and  installed and  offered more
+      help if he is still unsure.
+
+      Todo release process.
+
+HRD FlexRadio-3000 (PowerSDR) - Johan ON3VNA - Illegal mode in init
+
+    Asked for HRD info file - awaiting.
+
