@@ -2621,6 +2621,10 @@ void MainWindow::on_pbAnswerCQ_clicked()
 {
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx1->text());
+  QString t=ui->tx2->text();
+  int i0=t.indexOf("/");
+  int i1=t.indexOf(" ");
+  if(i0>0 and i0<i1) ui->genMsg->setText(t);
   m_ntx=7;
   ui->rbGenMsg->setChecked(true);
   if(m_transmitting) m_restart=true;
