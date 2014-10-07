@@ -2598,7 +2598,11 @@ void MainWindow::on_pbCallCQ_clicked()
 void MainWindow::on_pbAnswerCaller_clicked()
 {
   genStdMsgs(m_rpt);
-  ui->genMsg->setText(ui->tx2->text());
+  QString t=ui->tx3->text();
+  int i0=t.indexOf(" R-");
+  if(i0<0) i0=t.indexOf(" R+");
+  t=t.mid(0,i0+1)+t.mid(i0+2,3);
+  ui->genMsg->setText(t);
   m_ntx=7;
   ui->rbGenMsg->setChecked(true);
   if(m_transmitting) m_restart=true;
