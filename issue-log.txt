@@ -116,6 +116,7 @@ Windows (Finestra WM) - Josh kk1d - Application not staying inside virtual deskt
 
 Hamlib TS-570D - Peter Pauly w0vll - Protocol error while getting TX frequency
 Hamlib? TS-570 - ??? n4au - Polling causing errors
+Hamlib TS-570D - Swa on5swa - Various rig control errors
 
     g4wjs: Split not required so r4434 may have resolved this anyway.
 
@@ -451,3 +452,19 @@ HRD FlexRadio-3000 (PowerSDR) - Johan ON3VNA - Illegal mode in init
 Log file - Albert kc8kjf - Callsign recorded as RRR
 
     g4wjs: Asked for ALL.txt to see which exchange caused this.
+
+Hamlib TS-990S - Charlie g4est - No direct support
+
+    g4wjs: Needs new hamlib backend.
+
+    g4wjs:  Mark  g0mgx  reports  that selecting  TS-2000  works  well
+            including split mode.
+
+Hamlib FTdx1200 - Marc w4mps - No direct support
+
+    g4wjs: Needs new hamlib backend.
+
+Hamlib FTdx3000 - - No direct support
+
+    g4wjs: Needs new hamlib backend.
+
