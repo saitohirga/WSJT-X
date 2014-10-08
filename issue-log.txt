@@ -113,7 +113,12 @@ Hamlib? TS-570 - ??? n4au - Polling causing errors
 
        Split not required so r4434 may have resolved this anyway.
 
-       Sent trace version of RC2 to Peter - awaiting log.
+       Sent trace version of RC2 to Peter.
+
+       Log  shows  many  corrupt  and  truncated  CAT  responses.  The
+       TS-570(D) is known to have fragile CAT handling. I need to look
+       at  hamlib to  investigate remedies  at the  character exchange
+       level.
 
 Hamlib FT-450 - Rudy ve3bdr - Protocol error while getting mode of split VFO
 
@@ -156,10 +161,15 @@ Hamlib ANAN-100D (PowerSDR mRX PS v3.2.19) - Ton pa0tbr - split mode not working
 Hamlib ANAN-100D (Openhpsdr mRX) - Bob wd6dod - CAT control not working
 Hamlib hermes (PowerSDR mRX) - Serge r6yy - Cat & PTT not working
 
-       Not urgent as split mode not required due to wide band Tx available.
+       Not  urgent as  split mode  not required  due to  wide band  Tx
+       available.
 
        Sent hot  fix version  of v1.4 with  mods for  SmartSDR TS-2000
        emulation.
+
+       pa0tbr & r6yy report successful operation with patched version.
+
+       Fixed (mostly) r4434.
 
 OmniRig TS-590S - Randy k5rhd - OmniRig server going offline error
 OmniRig Omni VII - Bert w0rsb - OmniRig server going offline error
@@ -313,6 +323,10 @@ Hamlib K3 - Bob n7rjn - Comms timeout error every 10-15 mins
        Elecraft.
 
        Closed.
+
+       P.S. differently  from first thougth,  the P3  can be set  to a
+       lower baud rate  than the K3 <->P3 fixed 38.4k  baud. This will
+       probably eliminate the issue. n7rjn is testing  at 19.2k baud.
 
 Commander - Mike k2oi - Not connecting hostname lookup error
 
