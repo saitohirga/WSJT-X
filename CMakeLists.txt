@@ -972,22 +972,30 @@ if (WIN32)
 elseif (APPLE)
   set (CPACK_GENERATOR "DragNDrop")
 else ()
-  #
-  # Derive the correct filename for a Debian package because the DEB
-  # generator doesn't do this correctly at present.
-  #
-  find_program (DPKG_PROGRAM dpkg DOC "dpkg program of Debian-based systems")
-  if (DPKG_PROGRAM)
-    execute_process (
-      COMMAND ${DPKG_PROGRAM} --print-architecture
-      OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      )
-  else (DPKG_PROGRAM)
-    set (CPACK_DEBIAN_PACKAGE_ARCHITECTURE noarch)
-  endif (DPKG_PROGRAM)
+  find_program (DPKG_BUILDER dpkg-buildpackage DOC "Debian package builder")
+  if (DPKG_BUILDER)
+    #
+    # Derive the correct filename for a Debian package because the DEB
+    # generator doesn't do this correctly at present.
+    #
+    find_program (DPKG_PROGRAM dpkg DOC "dpkg program of Debian-based systems")
+    if (DPKG_PROGRAM)
+      execute_process (
+	COMMAND ${DPKG_PROGRAM} --print-architecture
+	OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+    else (DPKG_PROGRAM)
+      set (CPACK_DEBIAN_PACKAGE_ARCHITECTURE noarch)
+    endif (DPKG_PROGRAM)
 
-  set (CPACK_GENERATOR "DEB" "RPM")
+    list (APPEND CPACK_GENERATOR "DEB")
+  endif (DPKG_BUILDER)
+
+  find_program (RPMBUILDER rpmbuild DOC "RPM package builder")
+  if (RPMBUILDER)
+    list (APPEND CPACK_GENERATOR "RPM")
+  endif (RPBUILDER)
 endif ()
 
 set (CPACK_DEBIAN_PACKAGE_DESCRIPTION "${PROJECT_DESCRIPTION}")
