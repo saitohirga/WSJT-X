@@ -35,20 +35,22 @@ set (A2X_OPTS
 
 set (MANPAGES)
 if (A2X_EXECUTABLE AND GZIP_EXECUTABLE AND SED_EXECUTABLE)
-  file (MAKE_DIRECTORY man)
   foreach (f IN LISTS ASCIIDOC_MANS)
     get_filename_component (d "${f}" PATH)
     string (SUBSTRING "${d}" 3 -1 section)
     if (NOT section MATCHES "[1-9]")
       message (SEND_ERROR "Invalid man section ${section} in ${f}")
     endif (NOT section MATCHES "[1-9]")
-    get_filename_component (filename "${f}" NAME_WE)
+    get_filename_component (filename "${f}" NAME)
+    get_filename_component (filename_we "${f}" NAME_WE)
     set (f "${CMAKE_CURRENT_SOURCE_DIR}/${f}")
     set (d "man/${d}")
-    set (o "${d}/${filename}.${section}")
-    add_custom_command (OUTPUT "${o}.gz"
+    set (o "${d}/${filename_we}.${section}.gz")
+    add_custom_command (OUTPUT "${o}"
       COMMAND ${CMAKE_COMMAND} ARGS -E make_directory "${d}"
-      COMMAND ${A2X_EXECUTABLE} ARGS ${A2X_OPTS} -D "${d}" "${f}"
+      COMMAND ${CMAKE_COMMAND} ARGS -E copy "${f}" "${d}"
+      COMMAND ${A2X_EXECUTABLE} ARGS ${A2X_OPTS} "${d}/${filename}"
+      COMMAND ${CMAKE_COMMAND} ARGS -E remove "${d}/${filename}"
 #
 # the  following edit  command was  an attempt  to comply  with Debian
 # packaging rules for manpages but hopelessly failed because it breaks
@@ -56,10 +58,14 @@ if (A2X_EXECUTABLE AND GZIP_EXECUTABLE AND SED_EXECUTABLE)
 #
 #      COMMAND ${SED_EXECUTABLE} ARGS -e "'s@.so @&man${section}/@'" -i.orig "${d}/*.${section}"
       COMMAND ${GZIP_EXECUTABLE} ARGS -f9 "${d}/*.${section}"
-      DEPENDS "${f}"
-      COMMENT "Generating ${o}.gz"
+      DEPENDS "${f}" "${previous_output}"
+      COMMENT "Generating ${o}"
       )
-    list (APPEND MANPAGES "${o}.gz")
+    list (APPEND MANPAGES "${o}")
+
+    # use this as a dependency in the next iteration to serialize so
+    # that gzips don't overlap in parallel builds
+    set (previous_output "${o}")
   endforeach ()
 
   install (
