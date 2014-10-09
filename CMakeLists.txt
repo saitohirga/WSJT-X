@@ -71,10 +71,16 @@ option (WSJT_TRACE_CAT_POLLS "Debugging option that turns on CAT diagnostics dur
 option (WSJT_HAMLIB_TRACE "Debugging option that turns on full Hamlib internal diagnostics.")
 option (WSJT_STANDARD_FILE_LOCATIONS "All non-installation files located in \"Standard\" platfom specific locations." ON)
 option (WSJT_SOFT_KEYING "Apply a ramp to CW keying envelope to reduce transients." ON)
-option (WSJT_SKIP_MANPAGES "Skip *nix manpage generation")
+option (WSJT_SKIP_MANPAGES "Skip *nix manpage generation.")
 
 CMAKE_DEPENDENT_OPTION (WSJT_ENABLE_EXPERIMENTAL_FEATURES "Enable features not fully ready for public releases." ON
   "is_debug_build" OFF)
+
+#
+# decide if we are bundling kvasd (non-FOSS)
+#
+CMAKE_DEPENDENT_OPTION (WSJT_INCLUDE_KVASD "Include kvasd in the package." OFF
+  "NOT is_debug_build;NOT WIN32;NOT APPLE" ON)
 
 
 #
@@ -609,16 +615,19 @@ elseif (CMAKE_HOST_WIN32)
 endif ()
 
 
-#
-# fetch and validate kvasd
-#
-add_custom_command (
-  OUTPUT contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
-  COMMAND ${CMAKE_COMMAND} -D SYSTEM_NAME=${CMAKE_SYSTEM_NAME} -D EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} -P ${CMAKE_SOURCE_DIR}/CMake/download_kvasd.cmake
-  DEPENDS CMake/download_kvasd.cmake
-  COMMENT "Downloading kvasd for ${CMAKE_SYSTEM_NAME}"
-  VERBATIM
-  )
+if (WSJT_INCLUDE_KVASD)
+  #
+  # fetch and validate kvasd
+  #
+  set (KVASD contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
+  add_custom_command (
+    OUTPUT ${KVASD}
+    COMMAND ${CMAKE_COMMAND} -D SYSTEM_NAME=${CMAKE_SYSTEM_NAME} -D EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} -P ${CMAKE_SOURCE_DIR}/CMake/download_kvasd.cmake
+    DEPENDS CMake/download_kvasd.cmake
+    COMMENT "Downloading kvasd for ${CMAKE_SYSTEM_NAME}"
+    VERBATIM
+    )
+endif (WSJT_INCLUDE_KVASD)
 
 
 # UI generation
@@ -675,7 +684,7 @@ add_executable (wsjtx WIN32 MACOSX_BUNDLE
   wsjtx.rc
   ${WSJTX_ICON_FILE}
   ${wsjtx_RESOURCES_RCC}
-  contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
+  ${KVASD}
   contrib/${PROJECT_MANUAL}
   )
 qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia)
@@ -719,11 +728,13 @@ install (TARGETS jt9 jt65code jt9code
   #COMPONENT Runtime
   )
 
-install (PROGRAMS
-  ${CMAKE_BINARY_DIR}/contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
-  DESTINATION ${WSJT_BIN_DESTINATION}
-  #COMPONENT Runtime
+if (WSJT_INCLUDE_KVASD)
+  install (PROGRAMS
+    ${CMAKE_BINARY_DIR}/${KVASD}
+    DESTINATION ${WSJT_BIN_DESTINATION}
+    #COMPONENT Runtime
   )
+endif (WSJT_INCLUDE_KVASD)
 
 install (PROGRAMS
   ${RIGCTLD_EXE}
