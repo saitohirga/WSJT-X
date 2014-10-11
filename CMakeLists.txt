@@ -14,26 +14,27 @@ set (PROJECT_MANUAL_DIRECTORY_URL http://www.physics.princeton.edu/pulsar/K1JT/w
 set (PROJECT_SUMMARY_DESCRIPTION "WSJT-X - JT9 and JT65 Modes for LF, MF and HF Amateur Radio.")
 set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
  WSJT-X implements JT9, a new mode designed especially for the LF, MF,
- and  HF bands,  as well  as the  popular mode  JT65.  Both  modes were
- designed for making reliable, confirmed QSOs under extreme weak-signal
- conditions.  They  use nearly  identical message structure  and source
- encoding.   JT65 was designed  for EME  (“moonbounce”) on  the VHF/UHF
- bands  and   has  also  proved   very  effective  for   worldwide  QRP
- communication at  HF; in contrast, JT9  is optimized for  HF and lower
- frequencies.  JT9 is about 2  dB more sensitive than JT65A while using
- less than  10% of  the bandwidth.  World-wide  QSOs are  possible with
- power levels of a few watts and compromise antennas.  A 2 kHz slice of
- spectrum is  essentially full when  occupied by ten JT65  signals.  As
- many as 100 JT9 signals can fit into the same space, without overlap.
+ and HF bands, as well as the popular mode JT65. Both modes were
+ designed for making reliable, confirmed QSOs under extreme
+ weak-signal conditions. They use nearly identical message structure
+ and source encoding. JT65 was designed for EME (“moonbounce”) on the
+ VHF/UHF bands and has also proved very effective for worldwide QRP
+ communication at HF; in contrast, JT9 is optimized for HF and lower
+ frequencies. JT9 is about 2 dB more sensitive than JT65A while using
+ less than 10% of the bandwidth. World-wide QSOs are possible with
+ power levels of a few watts and compromise antennas. A 2 kHz slice
+ of spectrum is essentially full when occupied by ten JT65 signals.
+ As many as 100 JT9 signals can fit into the same space, without
+ overlap.
  .
- WSJT-X offers a “bi-lingual“ operating  mode in which you can transmit
- and   receive  JT65   and   JT9  signals,   switching  between   modes
- automatically as  needed.  Displayed  bandwidth can be  as large  as 5
- kHz.  If  your receiver  has as upper-sideband  filter at least  4 kHz
- wide, you can have all the  typical JT65 and JT9 activity on screen at
- once, available for making QSOs with  a click of the mouse.  Even with
- standard SSB-width IF filters, switching between JT65 and JT9 modes is
- quick  and convenient.   Be  sure  to read  the  online WSJT-X  User's
+ WSJT-X offers a “bi-lingual“ operating mode in which you can transmit
+ and receive JT65 and JT9 signals, switching between modes
+ automatically as needed. Displayed bandwidth can be as large as 5
+ kHz. If your receiver has as upper-sideband filter at least 4 kHz
+ wide, you can have all the typical JT65 and JT9 activity on screen at
+ once, available for making QSOs with a click of the mouse. Even with
+ standard SSB-width IF filters, switching between JT65 and JT9 modes
+ is quick and convenient. Be sure to read the online WSJT-X User's
  Guide.")
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/CMake/Modules)
