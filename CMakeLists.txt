@@ -995,7 +995,7 @@ else ()
   find_program (RPMBUILDER rpmbuild DOC "RPM package builder")
   if (RPMBUILDER)
     list (APPEND CPACK_GENERATOR "RPM")
-  endif (RPBUILDER)
+  endif (RPMBUILDER)
 endif ()
 
 set (CPACK_DEBIAN_PACKAGE_DESCRIPTION "${PROJECT_DESCRIPTION}")
