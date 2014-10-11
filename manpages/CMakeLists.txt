@@ -52,11 +52,12 @@ if (A2X_EXECUTABLE AND GZIP_EXECUTABLE AND SED_EXECUTABLE)
       COMMAND ${A2X_EXECUTABLE} ARGS ${A2X_OPTS} "${d}/${filename}"
       COMMAND ${CMAKE_COMMAND} ARGS -E remove "${d}/${filename}"
 #
-# the  following edit  command was  an attempt  to comply  with Debian
-# packaging rules for manpages but hopelessly failed because it breaks
-# manpage usage on RPM installs
+# the following edit command is used to make the alias manpages
+# compatible with Debian packaging rules when a2x generates alias
+# pages baseed in the section directory instead of the man parent
+# directory
 #
-#      COMMAND ${SED_EXECUTABLE} ARGS -e "'s@.so @&man${section}/@'" -i.orig "${d}/*.${section}"
+      COMMAND ${SED_EXECUTABLE} ARGS -e '/^.so [^\\/]*$$/s@.so @&man${section}\\/@' -i.orig "${d}/*.${section}"
       COMMAND ${GZIP_EXECUTABLE} ARGS -f9 "${d}/*.${section}"
       DEPENDS "${f}" "${previous_output}"
       COMMENT "Generating ${o}"
