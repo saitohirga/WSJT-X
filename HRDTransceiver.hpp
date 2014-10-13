@@ -104,10 +104,12 @@ private:
                                 // available.
 
   QMap<QString, QStringList> dropdowns_; // Dictionary of available
-                                         // drop down selections
-                                         // available.
+                                         // drop down selections.
 
-  QStringList sliders_;         // The sliders available.
+  QStringList slider_names_;    // The name of available sliders.
+
+  QMap<QString, QStringList> sliders_; // Dictionary of available
+                                // slider ranges.
 
   int vfo_A_button_;            // The button we use to select VFO
                                 // A. May be -1 if none available.
