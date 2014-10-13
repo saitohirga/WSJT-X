@@ -224,28 +224,34 @@ void HRDTransceiver::do_start ()
   HRD_info << "Buttons: {" << buttons_.join (", ") << "}\n";
 
   dropdown_names_ = send_command ("get dropdowns").trimmed ().split (',', QString::SkipEmptyParts);
+#if WSJT_TRACE_CAT
+  qDebug () << "Dropdowns:\n";
+#endif
   HRD_info << "Dropdowns:\n";
   Q_FOREACH (auto const& dd, dropdown_names_)
     {
       auto selections = send_command ("get dropdown-list {" + dd + "}").trimmed ().split (',', QString::SkipEmptyParts);
+#if WSJT_TRACE_CAT
+      qDebug () << "\t" << dd << ": {" << selections.join (", ") << "}\n";
+#endif
       HRD_info << "\t" << dd << ": {" << selections.join (", ") << "}\n";
       dropdowns_[dd] = selections;
     }
-#if WSJT_TRACE_CAT
-  qDebug () << "HRD Dropdowns: " << dropdowns_;
-#endif
 
-  sliders_ = send_command ("get sliders").trimmed ().split (',', QString::SkipEmptyParts).replaceInStrings (" ", "~");
+  slider_names_ = send_command ("get sliders").trimmed ().split (',', QString::SkipEmptyParts).replaceInStrings (" ", "~");
+#if WSJT_TRACE_CAT
+  qDebug () << "Sliders:\n";
+#endif
   HRD_info << "Sliders:\n";
-  HRD_info << "Sliders: {" << sliders_.join (", ") << "}\n";
-  Q_FOREACH (auto const& s, sliders_)
+  Q_FOREACH (auto const& s, slider_names_)
     {
       auto range = send_command ("get slider-range " + current_radio_name + " " + s).trimmed ().split (',', QString::SkipEmptyParts);
-      HRD_info << "\t" << s << ": {" << range.join (", ") << "}\n";
-    }
 #if WSJT_TRACE_CAT
-  qDebug () << "HRD Dropdowns: " << dropdowns_;
+      qDebug () << "\t" << s << ": {" << range.join (", ") << "}\n";
 #endif
+      HRD_info << "\t" << s << ": {" << range.join (", ") << "}\n";
+      sliders_[s] = range;
+    }
 
   vfo_A_button_ = find_button (QRegExp ("^(VFO~A|Main)$"));
   vfo_B_button_ = find_button (QRegExp ("^(VFO~B|Sub)$"));
