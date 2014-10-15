@@ -81,8 +81,13 @@ Commander TS-2000 - David wd4kpd - possibly the same issue
     	   awaiting feedback.
 
 Commander TS-2000 - Jim wb6dkh - Fake split
+Hamlib IC-735 - Dieter dk6ov - Fake split not returning to correct QRG
 
     g4wjs: Leaving wrong QRG (Tx) current.  Need trace for this issue.
+
+    g4wjs: dk6ov reports  QRG not returning to Rx when  leaving Tx for
+    	   both "Tune"  and normal Tx  periods. Also "Band"  combo box
+    	   not being enabled after "Tune".
 
 Flex 6000 (TS-2000 emulation) - George kf2t - fails to read QRG
 Flex 6700 - Ed k0kc - No CAT no PTT
@@ -132,7 +137,18 @@ Hamlib FT-450 - Rudy ve3bdr - Protocol error while getting mode of split VFO
     g4wjs: May be fixed by r4434.  I have asked Rudy to try again with
     	   Mode" set to "None".
 
-    g4wjs: Not fixed. Sent trace version of RC2, awaiting log.
+    g4wjs: Not fixed. Sent trace version of RC2.
+
+    g4wjs: Log shows  hamlib is not handling error  responses from the
+           rig correctly.  I have enhanced hamlib to handle "rig busy"
+           responses  by retrying  the command  a few  times. Built  a
+           patched  version and  sent  tracing variant  to ve3bdr  for
+           testing.
+
+    g4wjs: Hamlib  backend for  this rig  (shared by  FT-9000, FT-950,
+           FT-5000  and, FT-2000)  needs  enhancement,  it is  missing
+           proper     split     mode,    frequency     and,     enable
+           functions. Implementing.
 
 LXDE desktop Ubuntu - Craig wb3gck - No application menu bar
 
@@ -179,9 +195,8 @@ Hamlib hermes (PowerSDR mRX) - Serge r6yy - Cat & PTT not working
 
     g4wjs: Fixed (mostly) r4434.
 
-    	   OmniRig  TS-590S  -  Randy  k5rhd -  OmniRig  server  going
-offline error  OmniRig Omni VII  - Bert  w0rsb - OmniRig  server going
-offline error
+OmniRig  TS-590S  -  Randy  k5rhd -  OmniRig  server  going offline error
+OmniRig Omni VII  - Bert  w0rsb - OmniRig  server going offline error
 
     g4wjs: Issues  with clearing the  error.  Probably the  "Test CAT"
     	   not always able to start OmniRig client cleanly issue.
@@ -204,6 +219,11 @@ Commander KX3 - Neil kb3tvu - occasionally stuck in TX after normal TX period
     g4wjs:  Log is  normal  with  PTT on/off  commands  being sent  to
     	   Commander at  the correct times. Asked  kb3tvu to reproduce
     	   again with Commander tracing on also - awaiting logs.
+
+    g4wjs: kb3tvu  reports that this  issue in no  longer reproducible
+           after a shack rearrangement.
+
+    g4wjs: Closed.
 
 Log files - Wayne m0way - Would like links on desktop to log files
 
@@ -445,13 +465,31 @@ Virus detected - Bob kf5tpq - Vipre scanner detects trojan
 
     g4wjs: Todo release process.
 
-HRD FlexRadio-3000 (PowerSDR) - Johan ON3VNA - Illegal mode in init
+HRD FlexRadio-3000 (PowerSDR) - Johan on3vna - Illegal mode in init
 
-    g4wjs: Asked for HRD info file - awaiting.
+    g4wjs: Asked for HRD info file.
+
+    g4wjs: Using PowerSDR  HRD rig interface. Has  removed buttons and
+           sliders from HRD  UI to improve performance,  need to check
+           if that limits TCP/IP server controls available.
+
+    g4wjs: Removing  controls from HRD  UI also removes them  from the
+           TCP/IP server. This is a PITA  since any user can break the
+           interface by  customizing their HRD  UI and that  is common
+           because removing  sliders and buttons  improves performance
+           :(
+
+    g4wjs:   Asked   on3vna  if   he   can   provide  "HRD   Interface
+           Information.txt" for an un-customized HRD. He states he has
+           another  machine which  he  will  try and  do  that from  -
+           awaiting data.
 
 Log file - Albert kc8kjf - Callsign recorded as RRR
 
     g4wjs: Asked for ALL.txt to see which exchange caused this.
+
+    iw3rab:  Reports  this  is  due  to "MYCALL  RRR  73"  style  free
+    	     messages.
 
 Hamlib TS-990S - Charlie g4est - No direct support
 
@@ -467,4 +505,63 @@ Hamlib FTdx1200 - Marc w4mps - No direct support
 Hamlib FTdx3000 - - No direct support
 
     g4wjs: Needs new hamlib backend.
+
+OmniRig TS-2000 - Yanis sv2bbo - Initialization timeout
+
+    g4wjs: Is using VPSE as  serial splitter to cooperate with Kenwood
+    	   ARCP rig control program, have  explained this is a invalid
+    	   configuration and will not be supported.
+
+    g4wjs: Also  using OmniRig as that  is used with UR5EQF_Log  3 for
+    	   rig interface. Have explained that  there is a known defect
+    	   that causes  "Test CAT" to  fail.  Suggested he  just click
+    	   "OK" to exit  Settings. Also sent trace  version - awaiting
+    	   log.
+
+Hamlib IC-817 - David wa1oui - Occasional hamlib errors
+
+   g4wjs:  Using   OX  X   10.9  with  Timewave   Navigator.   Getting
+          intermittent  "Hamlib error:  Command  rejected  by the  rig
+          while setting current VFO".  Sent tracing version.
+
+    g4wjs: Log shows rig doesn't respond to a CAT command at second 35
+           a normal transmit period. Suggest investigating RFI issues.
+
+    g4wjs: Suggested changes to Settings:-  no flow control, no forced
+           DTR or RTS,  1 stop-bit and, use cu device  rather than tty
+           device. After changes all seems to be working OK.
+
+    g4wjs: Closed - user error.
+
+ - Bjarne oz6dr - Operation below 200Hz
+
+    g4wjs: This should probably be allowed when split mode is enabled. 
+
+Hamlib FT-857D - Andrew zl3cc - Not setting Tx QRG for 1.5 - 2kHz segment
+
+    g4wjs: Sent trace version.
+
+    g4wjs: Log  shows that when starting  from MTUNE rather than  on a
+           VFO is not handled correctly.  zl3cc reports that the issue
+           doesn't arise when starting with a VFO rather than a memory
+           on the rig.
+
+    g4wjs: This is only an issue if the user swaps VFO to check the Tx
+           QRG.  Application works as designed if VFOs are not swapped
+           manually during a  session. This is a quirk of  the rig and
+           there is no obvious workaround other than not changing VFOs
+           manually.
+
+    g4wjs: Closed - won't/can't fix.
+
+Halib TT Orion - Peter oz1pif - Split mismatch error
+
+    g4wjs: Asked for CAT trace log.
+
+    g4wjs: Issue  is hamlib defect  not detecting split  correctly nor
+           setting split correctly either. Submitted patch to hamlib.
+
+Hamlib IC-7410 - Mike k6msm - "Hamlib error: Command rejected by the rig while setting current VFO"
+
+    g4wjs: Sent tracing version - awaiting log.
 
