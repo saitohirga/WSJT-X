@@ -184,7 +184,7 @@ void DXLabSuiteCommanderTransceiver::poll ()
   bool quiet {true};
 #endif
 
-  auto reply = command_with_reply ("<command:11>CmdSendFreq<parameters:0>", quiet);
+  auto reply = command_with_reply ("<command:10>CmdGetFreq<parameters:0>", quiet);
   if (0 == reply.indexOf ("<CmdFreq:"))
     {
       // remove thousands separator and DP - relies of n.nnn kHz
@@ -208,7 +208,7 @@ void DXLabSuiteCommanderTransceiver::poll ()
 
   if (state ().split ())
     {
-      reply = command_with_reply ("<command:13>CmdSendTXFreq<parameters:0>", quiet);
+      reply = command_with_reply ("<command:12>CmdGetTXFreq<parameters:0>", quiet);
       if (0 == reply.indexOf ("<CmdTXFreq:"))
         {
           // remove thousands separator and DP - relies of n.nnn kHz format so we ca do uint conversion
