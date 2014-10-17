@@ -288,7 +288,7 @@ void HRDTransceiver::do_start ()
 
   Q_ASSERT (split_mode_button_ >= 0 || split_mode_dropdown_ >= 0 || (tx_A_button_ >= 0 && tx_B_button_ >= 0));
 
-  if ((mode_A_dropdown_ = find_dropdown (QRegExp ("^(Main Mode|Mode)$"))) >= 0)
+  if ((mode_A_dropdown_ = find_dropdown (QRegExp ("^(Main Mode|Mode|Mode A)$"))) >= 0)
     {
       map_modes (mode_A_dropdown_, &mode_A_map_);
     }
@@ -297,7 +297,7 @@ void HRDTransceiver::do_start ()
       Q_ASSERT (mode_A_dropdown_ <= 0);
     }
 
-  if ((mode_B_dropdown_ = find_dropdown (QRegExp ("^(Sub Mode)$"))) >= 0)
+  if ((mode_B_dropdown_ = find_dropdown (QRegExp ("^(Sub Mode|Mode B)$"))) >= 0)
     {
       map_modes (mode_B_dropdown_, &mode_B_map_);
     }
