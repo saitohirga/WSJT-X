@@ -54,7 +54,6 @@ private:
   QString send_command (QString const&, bool no_debug = false, bool prepend_context = true, bool recurse = false);
   void send_simple_command (QString const&, bool no_debug = false);
   bool write_to_port (char const *, qint64 length);
-  void sync_impl ();
   int find_button (QRegExp const&) const;
   int find_dropdown (QRegExp const&) const;
   std::vector<int> find_dropdown_selection (int dropdown, QRegExp const&) const;
@@ -92,7 +91,7 @@ private:
 
   using RadioMap = std::vector<std::tuple<unsigned, QString> >;
 
-  RadioMap radios_;             // Dictionary of available radios. 
+  RadioMap radios_;             // Dictionary of available radios.
 
   unsigned current_radio_;      // The current addressed radio.
 
@@ -161,6 +160,18 @@ private:
   int tx_A_button_;             // The button to transmit on VFO A.
 
   int tx_B_button_;             // The button to transmit on VFO B.
+
+  int rx_A_button_;             // The button to receive on VFO A
+                                // A. May be -1 if none available.
+
+  int rx_B_button_;             // The button to receive on VFO B
+                                // May be -1 if none available.
+
+  int receiver_dropdown_;       // Select receiver
+
+  std::vector<int> rx_A_selection_;
+
+  std::vector<int> rx_B_selection_;
 
   int ptt_button_;              // The button to toggle PTT.
 

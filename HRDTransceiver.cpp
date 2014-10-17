@@ -90,6 +90,9 @@ HRDTransceiver::HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped
   , split_off_button_ {-1}
   , tx_A_button_ {-1}
   , tx_B_button_ {-1}
+  , rx_A_button_ {-1}
+  , rx_B_button_ {-1}
+  , receiver_dropdown_ {-1}
   , ptt_button_ {-1}
   , reversed_ {false}
 {
@@ -253,11 +256,19 @@ void HRDTransceiver::do_start ()
       sliders_[s] = range;
     }
 
+  // set RX VFO
+  rx_A_button_ = find_button (QRegExp ("^(RX~A)$"));
+  rx_B_button_ = find_button (QRegExp ("^(RX~B)$"));
+
+  // select VFO (sometime set as well)
   vfo_A_button_ = find_button (QRegExp ("^(VFO~A|Main)$"));
   vfo_B_button_ = find_button (QRegExp ("^(VFO~B|Sub)$"));
+
   vfo_toggle_button_ = find_button (QRegExp ("^(A~/~B)$"));
+
+  // check we have a way of addressing both VFOs
   Q_ASSERT (vfo_toggle_button_ >= 0 || (vfo_A_button_ >= 0 && vfo_B_button_ >=0));
- 
+
   split_mode_button_ = find_button (QRegExp ("^(Spl~On|Spl_On|Split)$"));
   split_off_button_ = find_button (QRegExp ("^(Spl~Off|Spl_Off)$"));
 
@@ -266,15 +277,24 @@ void HRDTransceiver::do_start ()
       split_mode_dropdown_selection_on_ = find_dropdown_selection (split_mode_dropdown_, QRegExp ("^(On)$"));
       split_mode_dropdown_selection_off_ = find_dropdown_selection (split_mode_dropdown_, QRegExp ("^(Off)$"));
     }
+  else if ((receiver_dropdown_ = find_dropdown (QRegExp ("^Receiver$"))) >= 0)
+    {
+      rx_A_selection_ = find_dropdown_selection (receiver_dropdown_, QRegExp ("^(RX / Off)$"));
+      rx_B_selection_ = find_dropdown_selection (receiver_dropdown_, QRegExp ("^(Mute / RX)$"));
+    }
 
-  tx_A_button_ = find_button (QRegExp ("^(TX~main|TX~-~A)$"));
-  tx_B_button_ = find_button (QRegExp ("^(TX~sub|TX~-~B)$"));
+  tx_A_button_ = find_button (QRegExp ("^(TX~main|TX~-~A|TX~A)$"));
+  tx_B_button_ = find_button (QRegExp ("^(TX~sub|TX~-~B|TX~B)$"));
 
   Q_ASSERT (split_mode_button_ >= 0 || split_mode_dropdown_ >= 0 || (tx_A_button_ >= 0 && tx_B_button_ >= 0));
 
   if ((mode_A_dropdown_ = find_dropdown (QRegExp ("^(Main Mode|Mode)$"))) >= 0)
     {
       map_modes (mode_A_dropdown_, &mode_A_map_);
+    }
+  else
+    {
+      Q_ASSERT (mode_A_dropdown_ <= 0);
     }
 
   if ((mode_B_dropdown_ = find_dropdown (QRegExp ("^(Sub Mode)$"))) >= 0)
@@ -284,31 +304,10 @@ void HRDTransceiver::do_start ()
 
   ptt_button_ = find_button (QRegExp ("^(TX)$"));
 
-  sync_impl ();
-}
-
-void HRDTransceiver::do_stop ()
-{
-  if (hrd_)
-    {
-      hrd_->close ();
-    }
-
-  if (wrapped_)
-    {
-      wrapped_->stop ();
-    }
-
-#if WSJT_TRACE_CAT
-  qDebug () << "HRDTransceiver::stop: state:" << state () << "reversed =" << reversed_;
-#endif
-}
-
-void HRDTransceiver::sync_impl ()
-{
   if (vfo_count_ == 1 && ((vfo_B_button_ >= 0 && vfo_A_button_ >= 0) || vfo_toggle_button_ >= 0))
     {
-      // put the rig into a known state
+      // put the rig into a known state for tricky cases like Icoms
+
       auto f = send_command ("get frequency").toUInt ();
       auto m = lookup_mode (get_dropdown (mode_A_dropdown_), mode_A_map_);
       set_button (vfo_B_button_ >= 0 ? vfo_B_button_ : vfo_toggle_button_);
@@ -328,8 +327,23 @@ void HRDTransceiver::sync_impl ()
           update_mode (lookup_mode (get_dropdown (mode_A_dropdown_), mode_A_map_));
         }
     }
+}
 
-  poll ();
+void HRDTransceiver::do_stop ()
+{
+  if (hrd_)
+    {
+      hrd_->close ();
+    }
+
+  if (wrapped_)
+    {
+      wrapped_->stop ();
+    }
+
+#if WSJT_TRACE_CAT
+  qDebug () << "HRDTransceiver::stop: state:" << state () << "reversed =" << reversed_;
+#endif
 }
 
 int HRDTransceiver::find_button (QRegExp const& re) const
@@ -367,12 +381,12 @@ void HRDTransceiver::map_modes (int dropdown, ModeMap *map)
   map->push_back (std::forward_as_tuple (CW_R, find_dropdown_selection (dropdown, QRegExp ("^(CW-R|CW)$"))));
   map->push_back (std::forward_as_tuple (LSB, find_dropdown_selection (dropdown, QRegExp ("^(LSB)$"))));
   map->push_back (std::forward_as_tuple (USB, find_dropdown_selection (dropdown, QRegExp ("^(USB)$"))));
-  map->push_back (std::forward_as_tuple (DIG_U, find_dropdown_selection (dropdown, QRegExp ("^(DIG|PKT-U|USB)$"))));
-  map->push_back (std::forward_as_tuple (DIG_L, find_dropdown_selection (dropdown, QRegExp ("^(DIG|PKT-L|LSB)$"))));
-  map->push_back (std::forward_as_tuple (FSK, find_dropdown_selection (dropdown, QRegExp ("^(DIG|FSK|RTTY)$"))));
-  map->push_back (std::forward_as_tuple (FSK_R, find_dropdown_selection (dropdown, QRegExp ("^(DIG|FSK-R|RTTY-R|RTTY)$"))));
+  map->push_back (std::forward_as_tuple (DIG_U, find_dropdown_selection (dropdown, QRegExp ("^(DIG|DATA-U|PKT-U|USB)$"))));
+  map->push_back (std::forward_as_tuple (DIG_L, find_dropdown_selection (dropdown, QRegExp ("^(DIG|DATA-L|PKT-L|LSB)$"))));
+  map->push_back (std::forward_as_tuple (FSK, find_dropdown_selection (dropdown, QRegExp ("^(DIG|FSK|RTTY|RTTY-LSB)$"))));
+  map->push_back (std::forward_as_tuple (FSK_R, find_dropdown_selection (dropdown, QRegExp ("^(DIG|FSK-R|RTTY-R|RTTY|RTTY-USB)$"))));
   map->push_back (std::forward_as_tuple (AM, find_dropdown_selection (dropdown, QRegExp ("^(AM)$"))));
-  map->push_back (std::forward_as_tuple (FM, find_dropdown_selection (dropdown, QRegExp ("^(FM|FM\\(N\\)|WFM)$"))));
+  map->push_back (std::forward_as_tuple (FM, find_dropdown_selection (dropdown, QRegExp ("^(FM|FM\\(N\\)|FM-N|WFM)$"))));
   map->push_back (std::forward_as_tuple (DIG_FM, find_dropdown_selection (dropdown, QRegExp ("^(PKT-FM|PKT|FM)$"))));
 
 #if WSJT_TRACE_CAT
@@ -440,7 +454,7 @@ void HRDTransceiver::set_dropdown (int dd, int value)
   auto dd_name = dropdown_names_.value (dd);
   if (value >= 0)
     {
-      send_simple_command ("set dropdown " + dd_name.replace (' ', '~') + ' ' + dropdowns_.value (dd_name).value (value) + ' ' + QString::number (value));
+      send_simple_command ("set dropdown " + dd_name.replace (' ', '~') + ' ' + dropdowns_.value (dd_name).value (value).replace (' ', '~') + ' ' + QString::number (value));
     }
   else
     {
@@ -465,8 +479,8 @@ void HRDTransceiver::do_ptt (bool on)
           set_button (ptt_button_, on);
         }
       // else
-          // allow for pathological HRD rig interfaces that don't do
-          // PTT by simply not even trying
+      // allow for pathological HRD rig interfaces that don't do
+      // PTT by simply not even trying
     }
   else
     {
@@ -497,25 +511,85 @@ void HRDTransceiver::do_frequency (Frequency f)
   qDebug () << "HRDTransceiver::do_frequency:" << f << "reversed:" << reversed_;
 #endif
 
-  send_simple_command ("set frequency-hz " + QString::number (f));
+  auto fo_string = QString::number (f);
+  if (vfo_count_ > 1 && reversed_)
+    {
+      auto frequencies = send_command ("get frequencies").trimmed ().split ('-', QString::SkipEmptyParts);
+      send_simple_command ("set frequencies-hz " + QString::number (frequencies[0].toUInt ()) + ' ' + fo_string);
+    }
+  else
+    {
+      send_simple_command ("set frequency-hz " + QString::number (f));
+    }
   update_rx_frequency (f);
 }
 
 void HRDTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
 {
 #if WSJT_TRACE_CAT
-  qDebug () << "HRDTransceiver::do_tx_frequency:" << tx << "reversed:" << reversed_;
+  qDebug () << "HRDTransceiver::do_tx_frequency:" << tx << "rationalize mode:" << rationalise_mode << "reversed:" << reversed_;
 #endif
 
-  bool split {tx != 0};
-
-  if (vfo_count_ > 1 && vfo_B_button_ >= 0)
+  // re-check if reversed VFOs
+  bool rx_A {true};
+  bool rx_B {false};
+  if (receiver_dropdown_ >= 0)
     {
-      reversed_ = is_button_checked (vfo_B_button_);
+      auto selection = get_dropdown (receiver_dropdown_);
+      rx_A = selection == rx_A_selection_.front ();
+      if (!rx_A)
+        {
+          rx_B = selection == rx_B_selection_.front ();
+        }
     }
+  else if (vfo_B_button_ >= 0 || rx_B_button_ >= 0)
+    {
+      rx_A = is_button_checked (rx_A_button_ >= 0 ? rx_A_button_ : vfo_A_button_);
+      if (!rx_A)
+        {
+          rx_B = is_button_checked (rx_B_button_ >= 0 ? rx_B_button_ : vfo_B_button_);
+        }
+    }
+  reversed_ = rx_B;
 
+  bool split {tx != 0};
   if (split)
     {
+      if (rationalise_mode)
+        {
+          if (!reversed_ && mode_B_dropdown_ >= 0)
+            {
+              set_dropdown (mode_B_dropdown_, lookup_mode (state ().mode (), mode_B_map_));
+            }
+          else if (reversed_ && mode_B_dropdown_ >= 0)
+            {
+              set_dropdown (mode_A_dropdown_, lookup_mode (state ().mode (), mode_A_map_));
+            }
+          else
+            {
+              Q_ASSERT (mode_A_dropdown_ >= 0 && ((vfo_A_button_ >=0 && vfo_B_button_ >=0) || vfo_toggle_button_ >= 0));
+
+              if (rx_B_button_ >= 0)
+                {
+                  set_button (reversed_ ? rx_A_button_ : rx_B_button_);
+                  set_dropdown (mode_A_dropdown_, lookup_mode (state ().mode (), mode_A_map_));
+                  set_button (reversed_ ? rx_B_button_ : rx_A_button_);
+                }
+              else if (receiver_dropdown_ >= 0)
+                {
+                  set_dropdown (receiver_dropdown_, (reversed_ ? rx_A_selection_ : rx_B_selection_).front ());
+                  set_dropdown (mode_A_dropdown_, lookup_mode (state ().mode (), mode_A_map_));
+                  set_dropdown (receiver_dropdown_, (reversed_ ? rx_B_selection_ : rx_A_selection_).front ());
+                }
+              else
+                {
+                  set_button (vfo_A_button_ >= 0 ? (reversed_ ? vfo_A_button_ : vfo_B_button_) : vfo_toggle_button_);
+                  set_dropdown (mode_A_dropdown_, lookup_mode (state ().mode (), mode_A_map_));
+                  set_button (vfo_A_button_ >= 0 ? (reversed_ ? vfo_B_button_ : vfo_A_button_) : vfo_toggle_button_);
+                }
+            }
+        }
+
       auto fo_string = QString::number (tx);
       if (reversed_)
         {
@@ -533,19 +607,18 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
             }
           else if ((vfo_B_button_ >= 0 && vfo_A_button_ >= 0) || vfo_toggle_button_ >= 0)
             {
-              // we rationalise the modes and VFOs here as well as the frequencies
+              // we rationalise the modes here as well as the frequencies
               set_button (vfo_B_button_ >= 0 ? vfo_B_button_ : vfo_toggle_button_);
               send_simple_command ("set frequency-hz " + fo_string);
-              if (rationalise_mode && (mode_B_dropdown_ >= 0 || mode_A_dropdown_ >= 0))
+              if (rationalise_mode && mode_B_dropdown_ < 0)
                 {
-                  set_dropdown (mode_B_dropdown_ >= 0 ? mode_B_dropdown_ : mode_A_dropdown_, lookup_mode (state ().mode (), mode_B_dropdown_ >= 0 ? mode_B_map_ : mode_A_map_));
+                  // do this here rather than later so we only
+                  // toggle/switch VFOs once
+                  set_dropdown (mode_A_dropdown_, lookup_mode (state ().mode (), mode_A_map_));
+                  rationalise_mode = false;
                 }
               set_button (vfo_A_button_ >= 0 ? vfo_A_button_ : vfo_toggle_button_);
             }
-        }
-      if (rationalise_mode && (mode_B_dropdown_ >= 0 || mode_A_dropdown_ >= 0))
-        {
-          set_dropdown (mode_B_dropdown_ >= 0 ? mode_B_dropdown_ : mode_A_dropdown_, lookup_mode (state ().mode (), mode_B_dropdown_ >= 0 ? mode_B_map_ : mode_A_map_));
         }
     }
   update_other_frequency (tx);
@@ -571,6 +644,18 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
         {
           if (reversed_ != is_button_checked (tx_A_button_))
             {
+              if (rx_A_button_ >= 0 && rx_B_button_ >= 0)
+                {
+                  set_button (reversed_ ? rx_B_button_ : rx_A_button_);
+                }
+              else if (receiver_dropdown_ >= 0)
+                {
+                  set_dropdown (receiver_dropdown_, (reversed_ ? rx_B_selection_ : rx_A_selection_).front ());
+                }
+              else
+                {
+                  set_button (reversed_ ? vfo_B_button_ : vfo_A_button_);
+                }
               set_button (reversed_ ? tx_A_button_ : tx_B_button_);
             }
         }
@@ -578,6 +663,18 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
         {
           if (reversed_ != is_button_checked (tx_B_button_))
             {
+              if (rx_A_button_ >= 0 && rx_B_button_ >= 0)
+                {
+                  set_button (reversed_ ? rx_B_button_ : rx_A_button_);
+                }
+              else if (receiver_dropdown_ >= 0)
+                {
+                  set_dropdown (receiver_dropdown_, (reversed_ ? rx_B_selection_ : rx_A_selection_).front ());
+                }
+              else
+                {
+                  set_button (reversed_ ? vfo_B_button_ : vfo_A_button_);
+                }
               set_button (reversed_ ? tx_B_button_ : tx_A_button_);
             }
         }
@@ -591,22 +688,84 @@ void HRDTransceiver::do_mode (MODE mode, bool rationalise)
   qDebug () << "HRDTransceiver::do_mode:" << mode;
 #endif
 
-  if (mode_A_dropdown_ >= 0)
+  if (reversed_ && mode_B_dropdown_ >= 0)
+    {
+      set_dropdown (mode_B_dropdown_, lookup_mode (mode, mode_B_map_));
+    }
+  else
     {
       set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
     }
 
   if (rationalise && state ().split ()) // rationalise mode if split
     {
-      if (mode_B_dropdown_ >= 0)
+      if (reversed_)
         {
-          set_dropdown (mode_B_dropdown_, lookup_mode (mode, mode_B_map_));
+          if (mode_B_dropdown_ >= 0)
+            {
+              set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
+            }
+          else
+            {
+              Q_ASSERT ((vfo_B_button_ >= 0 && vfo_A_button_ >= 0) || vfo_toggle_button_ >= 0);
+
+              if (rx_B_button_ >= 0)
+                {
+                  set_button (rx_A_button_);
+                  set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
+                  set_button (rx_B_button_);
+                }
+              else if (receiver_dropdown_ >= 0)
+                {
+                  set_dropdown (receiver_dropdown_, rx_A_selection_.front ());
+                  set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
+                  set_dropdown (receiver_dropdown_, rx_B_selection_.front ());
+                }
+              else
+                {
+                  set_button (vfo_A_button_ >= 0 ? vfo_A_button_ : vfo_toggle_button_);
+                  set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
+                  set_button (vfo_B_button_ >= 0 ? vfo_B_button_ : vfo_toggle_button_);
+                }
+              if ( tx_A_button_ >= 0)
+                {
+                  set_button (tx_A_button_);
+                }
+            }
         }
-      else if (vfo_count_ < 2 && ((vfo_B_button_ >= 0 && vfo_A_button_ >= 0) || vfo_toggle_button_ >= 0) && (mode_B_dropdown_ >= 0 || mode_A_dropdown_ >= 0))
+      else
         {
-          set_button (vfo_B_button_ >= 0 ? vfo_B_button_ : vfo_toggle_button_);
-          set_dropdown (mode_B_dropdown_ >= 0 ? mode_B_dropdown_ : mode_A_dropdown_, lookup_mode (mode, mode_B_dropdown_ >= 0 ? mode_B_map_ : mode_A_map_));
-          set_button (vfo_A_button_ >= 0 ? vfo_A_button_ : vfo_toggle_button_);
+          if (mode_B_dropdown_ >= 0)
+            {
+              set_dropdown (mode_B_dropdown_, lookup_mode (mode, mode_B_map_));
+            }
+          else
+            {
+              Q_ASSERT ((vfo_B_button_ >= 0 && vfo_A_button_ >= 0) || vfo_toggle_button_ >= 0);
+
+              if (rx_B_button_ >= 0)
+                {
+                  set_button (rx_B_button_);
+                  set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
+                  set_button (rx_A_button_);
+                }
+              else if (receiver_dropdown_ >= 0)
+                {
+                  set_dropdown (receiver_dropdown_, rx_B_selection_.front ());
+                  set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
+                  set_dropdown (receiver_dropdown_, rx_A_selection_.front ());
+                }
+              else
+                {
+                  set_button (vfo_B_button_ >= 0 ? vfo_B_button_ : vfo_toggle_button_);
+                  set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
+                  set_button (vfo_A_button_ >= 0 ? vfo_A_button_ : vfo_toggle_button_);
+                }
+              if ( tx_B_button_ >= 0)
+                {
+                  set_button (tx_B_button_);
+                }
+            }
         }
     }
 
@@ -615,6 +774,11 @@ void HRDTransceiver::do_mode (MODE mode, bool rationalise)
 
 bool HRDTransceiver::is_button_checked (int button_index, bool no_debug)
 {
+  if (button_index < 0)
+    {
+      return false;
+    }
+
   auto reply = send_command ("get button-select " + buttons_.value (button_index), no_debug);
   if ("1" != reply && "0" != reply)
     {
@@ -631,6 +795,28 @@ void HRDTransceiver::poll ()
 {
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
   bool quiet {false};
+
+  qDebug () << "+++++++ poll dump +++++++";
+  qDebug () << "reversed:" << reversed_;
+  is_button_checked (vfo_A_button_);
+  is_button_checked (vfo_B_button_);
+  is_button_checked (vfo_toggle_button_);
+  is_button_checked (split_mode_button_);
+  is_button_checked (split_off_button_);
+  is_button_checked (rx_A_button_);
+  is_button_checked (rx_B_button_);
+  get_dropdown (receiver_dropdown_);
+  is_button_checked (tx_A_button_);
+  is_button_checked (tx_B_button_);
+  is_button_checked (ptt_button_);
+  get_dropdown (mode_A_dropdown_);
+  get_dropdown (mode_B_dropdown_);
+  if (!split_mode_dropdown_write_only_)
+    {
+      get_dropdown (split_mode_dropdown_);
+    }
+  qDebug () << "------- poll dump -------";
+
 #else
   bool quiet {true};
 #endif
@@ -662,11 +848,34 @@ void HRDTransceiver::poll ()
     }
   else if (vfo_A_button_ >= 0 && vfo_B_button_ >= 0 && tx_A_button_ >= 0 && tx_B_button_ >= 0)
     {
-      auto vfo_A = is_button_checked (vfo_A_button_, quiet);
+      bool rx_A {true};         // no Rx taken as not reversed
+      bool rx_B {false};
+
       auto tx_A = is_button_checked (tx_A_button_, quiet);
 
-      update_split (vfo_A != tx_A);
-      reversed_ = !vfo_A;
+      // some rigs have dual Rx, we take VFO A/MAIN receiving as
+      // normal and only say reversed when only VFO B/SUB is active
+      // i.e. VFO A/MAIN muted VFO B/SUB active
+      if (receiver_dropdown_ >= 0)
+        {
+          auto selection = get_dropdown (receiver_dropdown_);
+          rx_A = selection == rx_A_selection_.front ();
+          if (!rx_A)
+            {
+              rx_B = selection == rx_B_selection_.front ();
+            }
+        }
+      else if (vfo_B_button_ >= 0 || rx_B_button_ >= 0)
+        {
+          rx_A = is_button_checked (rx_A_button_ >= 0 ? rx_A_button_ : vfo_A_button_, quiet);
+          if (!rx_A)
+            {
+              rx_B = is_button_checked (rx_B_button_ >= 0 ? rx_B_button_ : vfo_B_button_, quiet);
+            }
+        }
+
+      update_split (rx_B == tx_A);
+      reversed_ = rx_B;
     }
 
   if (vfo_count_ > 1)
@@ -680,10 +889,7 @@ void HRDTransceiver::poll ()
       update_rx_frequency (send_command ("get frequency", quiet).toUInt ());
     }
 
-  if (mode_A_dropdown_ >= 0)
-    {
-      update_mode (lookup_mode (get_dropdown (mode_A_dropdown_, quiet), mode_A_map_));
-    }
+  update_mode (lookup_mode (get_dropdown (mode_A_dropdown_, quiet), mode_A_map_));
 }
 
 QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool prepend_context, bool recurse)
@@ -701,7 +907,7 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
 
   if (!recurse && prepend_context)
     {
-      auto radio_name = send_command ("get radio", no_debug, current_radio_, true);
+      auto radio_name = send_command ("get radio", true, current_radio_, true);
       auto radio_iter = std::find_if (radios_.begin (), radios_.end (), [this, &radio_name] (RadioMap::value_type const& radio)
                                       {
                                         return std::get<1> (radio) == radio_name;
@@ -734,14 +940,6 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
           .arg (cmd)
           .arg (hrd_->errorString ())
           };
-    }
-
-
-  if (!no_debug)
-    {
-#if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::send_command:" << cmd;
-#endif
     }
 
   if (v4 == protocol_)
@@ -810,12 +1008,6 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
     }
 
   QByteArray buffer (hrd_->readAll ());
-  if (!no_debug)
-    {
-#if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::send_command: reply byte count:" << buffer.size ();
-#endif
-    }
 
   if (v4 == protocol_)
     {
