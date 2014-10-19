@@ -491,10 +491,9 @@ FortranCInterface_HEADER (FC.h MACRO_NAMESPACE "FC_" SYMBOL_NAMESPACE "FC_"
 #
 # fetch latest HTML manual
 #
-add_custom_command (
-  OUTPUT contrib/${PROJECT_MANUAL}
-  COMMAND ${CMAKE_COMMAND} -D URL=${PROJECT_MANUAL_DIRECTORY_URL} -D NAME=${PROJECT_MANUAL} -P ${CMAKE_SOURCE_DIR}/CMake/download_html_manual.cmake
-  DEPENDS CMake/download_html_manual.cmake
+add_custom_target (user_manual ALL
+  # OUTPUT contrib/${PROJECT_MANUAL}
+  ${CMAKE_COMMAND} -D URL=${PROJECT_MANUAL_DIRECTORY_URL} -D NAME=${PROJECT_MANUAL} -P ${CMAKE_SOURCE_DIR}/CMake/download_html_manual.cmake
   COMMENT "Downloading WSJT-X HTML manual"
   VERBATIM
   )
@@ -621,10 +620,8 @@ if (WSJT_INCLUDE_KVASD)
   # fetch and validate kvasd
   #
   set (KVASD contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
-  add_custom_command (
-    OUTPUT ${KVASD}
-    COMMAND ${CMAKE_COMMAND} -D SYSTEM_NAME=${CMAKE_SYSTEM_NAME} -D EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} -P ${CMAKE_SOURCE_DIR}/CMake/download_kvasd.cmake
-    DEPENDS CMake/download_kvasd.cmake
+  add_custom_target (kvasd ALL
+    ${CMAKE_COMMAND} -D SYSTEM_NAME=${CMAKE_SYSTEM_NAME} -D EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} -P ${CMAKE_SOURCE_DIR}/CMake/download_kvasd.cmake
     COMMENT "Downloading kvasd for ${CMAKE_SYSTEM_NAME}"
     VERBATIM
     )
@@ -685,8 +682,6 @@ add_executable (wsjtx WIN32 MACOSX_BUNDLE
   wsjtx.rc
   ${WSJTX_ICON_FILE}
   ${wsjtx_RESOURCES_RCC}
-  ${KVASD}
-  contrib/${PROJECT_MANUAL}
   )
 qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia)
 
