@@ -8,7 +8,7 @@ subroutine getpfx1(callsign,k,nv2)
   include 'pfx.f90'
 
   callsign0=callsign
-  nv2=0
+  nv2=1
   iz=index(callsign,' ') - 1
   if(iz.lt.0) iz=12
   islash=index(callsign(1:iz),'/')
@@ -22,11 +22,13 @@ subroutine getpfx1(callsign,k,nv2)
      do i=1,NZ
         if(pfx(i)(1:4).eq.c) then
            k=i
+           nv2=2
            go to 10
         endif
      enddo
      if(addpfx.eq.c) then
         k=449
+        nv2=2
         go to 10
      endif
 
@@ -37,6 +39,7 @@ subroutine getpfx1(callsign,k,nv2)
      do i=1,NZ2
         if(sfx(i).eq.c(1:1)) then
            k=400+i
+           nv2=3
            go to 10
         endif
      enddo
@@ -75,7 +78,7 @@ subroutine getpfx1(callsign,k,nv2)
            k=37*k + nchar(tpfx(2:2))
            k=37*k + nchar(tpfx(3:3))
            k=37*k + nchar(tpfx(4:4))
-           nv2=1
+           nv2=4
            i=index(callsign0,'/')
            callsign=callsign0(:i-1)
            callsign=callsign0(i+1:)
@@ -85,7 +88,7 @@ subroutine getpfx1(callsign,k,nv2)
            k=nchar(tsfx(1:1))
            k=37*k + nchar(tsfx(2:2))
            k=37*k + nchar(tsfx(3:3))
-           nv2=2
+           nv2=5
            i=index(callsign0,'/')
            callsign=callsign0(:i-1)
         endif

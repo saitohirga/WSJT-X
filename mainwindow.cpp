@@ -1508,19 +1508,19 @@ void MainWindow::guiUpdate()
     ba2msg(ba,message);
     //    ba2msg(ba,msgsent);
     int len1=22;
-    int ichk=0,itext=0;
+    int ichk=0,itype=0;
     if(m_modeTx=="JT9") genjt9_(message
                                 , &ichk
                                 , msgsent
                                 , const_cast<int *> (itone)
-                                , &itext
+                                , &itype
                                 , len1
                                 , len1);
     if(m_modeTx=="JT65") gen65_(message
                                 , &ichk
                                 , msgsent
                                 , const_cast<int *> (itone)
-                                , &itext
+                                , &itype
                                 , len1
                                 , len1);
     msgsent[22]=0;
@@ -1545,7 +1545,7 @@ void MainWindow::guiUpdate()
     t="";
     if(w.length()==3) t=w[2];
     icw[0]=0;
-    m_sent73=(t=="73" or itext!=0);
+    m_sent73=(t=="73" or itype==6);
     if(m_sent73)  {
       if(m_config.id_after_73 ())  icw[0]=m_ncw;
       if(m_config.prompt_to_log () && !m_tune) logQSOTimer->start(200);
@@ -1560,7 +1560,7 @@ void MainWindow::guiUpdate()
     }
 
     QString t2=QDateTime::currentDateTimeUtc().toString("hhmm");
-    if(itext==0 and w.length()>=3 and w[1]==m_config.my_callsign ()) {
+    if(itype<6 and w.length()>=3 and w[1]==m_config.my_callsign ()) {
       int i1;
       bool ok;
       i1=t.toInt(&ok);
@@ -1577,7 +1577,7 @@ void MainWindow::guiUpdate()
         }
       }
     }
-    if(itext==1 or (w.length()==3 and w[2]=="73")) m_qsoStop=t2;
+    if(itype==6 or (w.length()==3 and w[2]=="73")) m_qsoStop=t2;
     m_restart=false;
   }
 
@@ -2027,9 +2027,10 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
 
   t="CQ " + m_config.my_callsign () + " " + m_config.my_grid ().mid(0,4);
   msgtype(t, ui->tx6);
-
   if(m_config.my_callsign ()!=myBase) {
     if(shortList(m_config.my_callsign ())) {
+      t=hisCall + " " + m_config.my_callsign ();
+      msgtype(t, ui->tx1);
       t="CQ " + m_config.my_callsign ();
       msgtype(t, ui->tx6);
     } else {
@@ -2044,7 +2045,10 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
     if(hisCall!=hisBase) {
       if(shortList(hisCall)) {
         t=hisCall + " " + m_config.my_callsign ();
-        msgtype(t, ui->tx2);
+        msgtype(t, ui->tx1);
+      } else {
+        t=hisCall + " 73";
+        msgtype(t, ui->tx5->lineEdit());
       }
     }
   }
@@ -2196,17 +2200,17 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   t=t.toUpper();
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
-  int ichk=1,itext=0;
+  int ichk=1,itype=0;
   genjt9_(message
           , &ichk
           , msgsent
           , const_cast<int *> (itone)
-          , &itext
+          , &itype
           , len1
           , len1);
   msgsent[22]=0;
   bool text=false;
-  if(itext!=0) text=true;
+  if(itype==6) text=true;
   QString t1;
   t1.fromLatin1(msgsent);
   if(text) t1=t1.mid(0,13);

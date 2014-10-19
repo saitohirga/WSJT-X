@@ -1,4 +1,16 @@
-subroutine packmsg(msg,dat,text)
+subroutine packmsg(msg,dat,itype)
+
+! Packs a JT4/JT9/JT65 message into twelve 6-bit symbols
+
+! itype Message Type
+!--------------------
+!   1   Standardd message
+!   2   Type 1 prefix
+!   3   Type 1 suffix
+!   4   Type 2 prefix
+!   5   Type 2 suffix
+!   6   Free text
+!  -1   Does not decode correctly
 
   parameter (NBASE=37*36*10*27*27*27)
   parameter (NBASE2=262178562)
@@ -7,24 +19,12 @@ subroutine packmsg(msg,dat,text)
   character*12 c1,c2
   character*4 c3
   character*6 grid6
-  logical text1,text2,text3,text
+  logical text1,text2,text3
 
-  text=.false.
-! Convert all letters to upper case
-  iz=22
-  do i=1,22
-     if(msg(i:i).ge.'a' .and. msg(i:i).le.'z')                       &
-          msg(i:i)= char(ichar(msg(i:i))+ichar('A')-ichar('a'))
-     if(msg(i:i).ne.' ') iz=i
-  enddo
-  do iter=1,5                           !Collapse multiple blanks into one
-     ib2=index(msg(1:iz),'  ')
-     if(ib2.lt.1) go to 5
-     msg=msg(1:ib2)//msg(ib2+2:)
-     iz=iz-1
-  enddo
+  itype=1
+  call fmtmsg(msg,iz)
 
-5 if(msg(1:6).eq.'CQ DX ') msg(3:3)='9'
+  if(msg(1:6).eq.'CQ DX ') msg(3:3)='9'
 
 ! See if it's a CQ message
   if(msg(1:3).eq.'CQ ') then
@@ -60,12 +60,14 @@ subroutine packmsg(msg,dat,text)
   c3='    '
   if(ic.ge.ib+1) c3=msg(ib+1:ic)
   if(c3.eq.'OOO ') c3='    '           !Strip out the OOO flag
-  call getpfx1(c1,k1,kk)
-  if(kk.ne.0) go to 10                 !Tnx to DL9RDZ for reminding me!
+  call getpfx1(c1,k1,nv2a)
+  if(nv2a.ge.4) go to 10
   call packcall(c1,nc1,text1)
-  call getpfx1(c2,k2,nv2)
+  if(text1) go to 10
+  call getpfx1(c2,k2,nv2b)
   call packcall(c2,nc2,text2)
-  if(nv2.eq.0) then
+  if(text2) go to 10
+  if(nv2a.eq.2 .or. nv2a.eq.3 .or. nv2b.eq.2 .or. nv2b.eq.3) then
      if(k1.lt.0 .or. k2.lt.0 .or. k1*k2.ne.0) go to 10
      if(k2.gt.0) k2=k2+450
      k=max(k1,k2)
@@ -75,29 +77,31 @@ subroutine packmsg(msg,dat,text)
      endif
   endif
   call packgrid(c3,ng,text3)
-  if(nv2.eq.0 .and. (.not.text1) .and. (.not.text2) .and.           &
+
+  if(nv2a.lt.4 .and. nv2b.lt.4 .and. (.not.text1) .and. (.not.text2) .and.  &
        (.not.text3)) go to 20
-  if(nv2.gt.0) then
-     if(nv2.eq.1) then
-        if(c1(1:3).eq.'CQ ')  nc1=262178563 + k2
-        if(c1(1:4).eq.'QRZ ') nc1=264002072 + k2 
-        if(c1(1:3).eq.'DE ')  nc1=265825581 + k2
-     endif
-     if(nv2.eq.2) then
-        if(c1(1:3).eq.'CQ ')  nc1=267649090 + k2
-        if(c1(1:4).eq.'QRZ ') nc1=267698375 + k2
-        if(c1(1:3).eq.'DE ')  nc1=267747660 + k2
-     endif
-     go to 20
+
+  nc1=0
+  if(nv2b.eq.4) then
+     if(c1(1:3).eq.'CQ ')  nc1=262178563 + k2
+     if(c1(1:4).eq.'QRZ ') nc1=264002072 + k2 
+     if(c1(1:3).eq.'DE ')  nc1=265825581 + k2
+  else if(nv2b.eq.5) then
+     if(c1(1:3).eq.'CQ ')  nc1=267649090 + k2
+     if(c1(1:4).eq.'QRZ ') nc1=267698375 + k2
+     if(c1(1:3).eq.'DE ')  nc1=267747660 + k2
   endif
+  if(nc1.ne.0) go to 20
 
 ! The message will be treated as plain text.
-10 text=.true.
+10 itype=6
   call packtext(msg,nc1,nc2,ng)
   ng=ng+32768
 
 ! Encode data into 6-bit words
-20 dat(1)=iand(ishft(nc1,-22),63)               !6 bits
+20 continue
+  if(itype.ne.6) itype=max(nv2a,nv2b)
+  dat(1)=iand(ishft(nc1,-22),63)                !6 bits
   dat(2)=iand(ishft(nc1,-16),63)                !6 bits
   dat(3)=iand(ishft(nc1,-10),63)                !6 bits
   dat(4)=iand(ishft(nc1, -4),63)                !6 bits
@@ -112,3 +116,4 @@ subroutine packmsg(msg,dat,text)
 
   return
 end subroutine packmsg
+
