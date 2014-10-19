@@ -10,6 +10,7 @@ program jt9code
   nargs=iargc()
   if(nargs.ne.1) then
      print*,'Usage: jt9code "message"'
+     print*,'       jt9code -t'
      go to 999
   endif
 
