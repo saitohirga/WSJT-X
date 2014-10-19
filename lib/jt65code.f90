@@ -48,7 +48,7 @@ program JT65code
   call fmtmsg(decoded,iz)
 
 10 write(*,1010)
-1010 format("Message                 Decoded                 Err"/   &
+1010 format("Message                 Decoded                 Err?"/   &
             "-----------------------------------------------------------------")
   bad=" "
   if(decoded.ne.msg0) bad="*"

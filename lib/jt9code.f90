@@ -28,7 +28,7 @@ program jt9code
   if(itype.eq.6) msgtype="Free text"
 
   write(*,1010)
-1010 format("Message                 Decoded                 Err"/   &
+1010 format("Message                 Decoded                 Err?"/   &
             "-----------------------------------------------------------------")
   bad=" "
   if(decoded.ne.msg0) bad="*"
