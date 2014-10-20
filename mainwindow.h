@@ -216,13 +216,19 @@ private:
 
   Frequency  m_dialFreq;
 
+  Detector m_detector;
+  SoundInput m_soundInput;
+  Modulator m_modulator;
+  SoundOutput m_soundOutput;
+  QThread * m_audioThread;
+
   qint64  m_msErase;
   qint64  m_secBandChanged;
 
   qint32  m_waterfallAvg;
   qint32  m_ntx;
   qint32  m_timeout;
-  int     m_XIT;
+  qint32  m_XIT;
   qint32  m_setftx;
   qint32  m_ndepth;
   qint32  m_sec0;
@@ -230,14 +236,6 @@ private:
   qint32  m_nutc0;
   qint32  m_nrx;
   qint32  m_hsym;
-
-  Detector m_detector;
-  SoundInput m_soundInput;
-
-  Modulator m_modulator;
-  SoundOutput m_soundOutput;
-  QThread * m_audioThread;
-
   qint32  m_TRperiod;
   qint32  m_nsps;
   qint32  m_hsymStop;
@@ -246,7 +244,6 @@ private:
   qint32  m_nsave;
   qint32  m_ncw;
   qint32  m_secID;
-  QString  m_band;
   qint32  m_repeatMsg;
   qint32  m_watchdogLimit;
   qint32  m_astroFont;
@@ -339,6 +336,7 @@ private:
   QString m_cmnd;
   QString m_msgSent0;
   QString m_fileToSave;
+  QString  m_band;
 
   QStringList m_prefix;
   QStringList m_suffix;

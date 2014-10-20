@@ -1,4 +1,4 @@
-subroutine gen65(msg0,ichk,msgsent,itone,itext)
+subroutine gen65(msg0,ichk,msgsent,itone,itype)
 
 ! Encodes a JT65 message to yieild itone(1:126)
 ! Temporarily, does not implement EME shorthands
@@ -10,7 +10,6 @@ subroutine gen65(msg0,ichk,msgsent,itone,itext)
 !  character*3 cok               !'   ' or 'OOO'
   integer dgen(13)
   integer sent(63)
-  logical text
   integer nprc(126)
   data nprc/1,0,0,1,1,0,0,0,1,1,1,1,1,1,0,1,0,1,0,0,  &
             0,1,0,1,1,0,0,1,0,0,0,1,1,1,0,0,1,1,1,1,  &
@@ -37,9 +36,7 @@ subroutine gen65(msg0,ichk,msgsent,itone,itext)
   nspecial=0
 !  call chkmsg(message,cok,nspecial,flip)
   if(nspecial.eq.0) then
-     call packmsg(message,dgen,text)     !Pack message into 72 bits
-     itext=0
-     if(text) itext=1
+     call packmsg(message,dgen,itype)    !Pack message into 72 bits
      call unpackmsg(dgen,msgsent)        !Unpack to get message sent
      if(ichk.ne.0) go to 999             !Return if checking only
 
