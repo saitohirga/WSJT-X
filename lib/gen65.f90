@@ -10,7 +10,6 @@ subroutine gen65(msg0,ichk,msgsent,itone,itype)
 !  character*3 cok               !'   ' or 'OOO'
   integer dgen(13)
   integer sent(63)
-  logical text
   integer nprc(126)
   data nprc/1,0,0,1,1,0,0,0,1,1,1,1,1,1,0,1,0,1,0,0,  &
             0,1,0,1,1,0,0,1,0,0,0,1,1,1,0,0,1,1,1,1,  &
