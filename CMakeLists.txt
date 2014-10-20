@@ -5,15 +5,16 @@ project (wsjtx C CXX Fortran)
 #
 # project information
 #
+set (PROJECT_NAME "WSJT-X")
 set (PROJECT_VENDOR "Joe Taylor, K1JT")
 set (PROJECT_CONTACT "Joe Taylor <k1jt@arrl.net>")
 set (PROJECT_COPYRIGHT "Copyright (C) 2001-2014 by Joe Taylor, K1JT")
 set (PROJECT_HOMEPAGE "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx.html")
 set (PROJECT_MANUAL wsjtx-main.html)
 set (PROJECT_MANUAL_DIRECTORY_URL http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc)
-set (PROJECT_SUMMARY_DESCRIPTION "WSJT-X - JT9 and JT65 Modes for LF, MF and HF Amateur Radio.")
+set (PROJECT_SUMMARY_DESCRIPTION "${PROJECT_NAME} - JT9 and JT65 Modes for LF, MF and HF Amateur Radio.")
 set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
- WSJT-X implements JT9, a new mode designed especially for the LF, MF,
+ ${PROJECT_NAME} implements JT9, a new mode designed especially for the LF, MF,
  and HF bands, as well as the popular mode JT65. Both modes were
  designed for making reliable, confirmed QSOs under extreme
  weak-signal conditions. They use nearly identical message structure
@@ -27,14 +28,14 @@ set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
  As many as 100 JT9 signals can fit into the same space, without
  overlap.
  .
- WSJT-X offers a “bi-lingual“ operating mode in which you can transmit
+ ${PROJECT_NAME} offers a “bi-lingual“ operating mode in which you can transmit
  and receive JT65 and JT9 signals, switching between modes
  automatically as needed. Displayed bandwidth can be as large as 5
  kHz. If your receiver has as upper-sideband filter at least 4 kHz
  wide, you can have all the typical JT65 and JT9 activity on screen at
  once, available for making QSOs with a click of the mouse. Even with
  standard SSB-width IF filters, switching between JT65 and JT9 modes
- is quick and convenient. Be sure to read the online WSJT-X User's
+ is quick and convenient. Be sure to read the online ${PROJECT_NAME} User's
  Guide.")
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/CMake/Modules)
@@ -494,7 +495,7 @@ FortranCInterface_HEADER (FC.h MACRO_NAMESPACE "FC_" SYMBOL_NAMESPACE "FC_"
 add_custom_target (user_manual ALL
   # OUTPUT contrib/${PROJECT_MANUAL}
   ${CMAKE_COMMAND} -D URL=${PROJECT_MANUAL_DIRECTORY_URL} -D NAME=${PROJECT_MANUAL} -P ${CMAKE_SOURCE_DIR}/CMake/download_html_manual.cmake
-  COMMENT "Downloading WSJT-X HTML manual"
+  COMMENT "Downloading ${PROJECT_NAME} HTML manual"
   VERBATIM
   )
 
@@ -701,7 +702,7 @@ set_target_properties (wsjtx PROPERTIES
   MACOSX_BUNDLE_BUNDLE_VERSION ${wsjtx_VERSION}
   MACOSX_BUNDLE_SHORT_VERSION_STRING "v${wsjtx_VERSION}"
   MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${wsjtx_VERSION}"
-  MACOSX_BUNDLE_BUNDLE_NAME "WSJT-X"
+  MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}"
   MACOSX_BUNDLE_COPYRIGHT "${PROJECT_COPYRIGHT}"
   )
 
