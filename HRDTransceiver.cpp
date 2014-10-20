@@ -266,9 +266,6 @@ void HRDTransceiver::do_start ()
 
   vfo_toggle_button_ = find_button (QRegExp ("^(A~/~B)$"));
 
-  // check we have a way of addressing both VFOs
-  Q_ASSERT (vfo_toggle_button_ >= 0 || (vfo_A_button_ >= 0 && vfo_B_button_ >=0));
-
   split_mode_button_ = find_button (QRegExp ("^(Spl~On|Spl_On|Split)$"));
   split_off_button_ = find_button (QRegExp ("^(Spl~Off|Spl_Off)$"));
 
@@ -285,8 +282,6 @@ void HRDTransceiver::do_start ()
 
   tx_A_button_ = find_button (QRegExp ("^(TX~main|TX~-~A|TX~A)$"));
   tx_B_button_ = find_button (QRegExp ("^(TX~sub|TX~-~B|TX~B)$"));
-
-  Q_ASSERT (split_mode_button_ >= 0 || split_mode_dropdown_ >= 0 || (tx_A_button_ >= 0 && tx_B_button_ >= 0));
 
   if ((mode_A_dropdown_ = find_dropdown (QRegExp ("^(Main Mode|Mode|Mode A)$"))) >= 0)
     {
@@ -377,15 +372,15 @@ std::vector<int> HRDTransceiver::find_dropdown_selection (int dropdown, QRegExp 
 void HRDTransceiver::map_modes (int dropdown, ModeMap *map)
 {
   // order matters here (both in the map and in the regexps)
-  map->push_back (std::forward_as_tuple (CW, find_dropdown_selection (dropdown, QRegExp ("^(CW|CW\\(N\\))$"))));
-  map->push_back (std::forward_as_tuple (CW_R, find_dropdown_selection (dropdown, QRegExp ("^(CW-R|CW)$"))));
+  map->push_back (std::forward_as_tuple (CW, find_dropdown_selection (dropdown, QRegExp ("^(CW|CW\\(N\\))|CWL$"))));
+  map->push_back (std::forward_as_tuple (CW_R, find_dropdown_selection (dropdown, QRegExp ("^(CW-R|CW|CWU)$"))));
   map->push_back (std::forward_as_tuple (LSB, find_dropdown_selection (dropdown, QRegExp ("^(LSB)$"))));
   map->push_back (std::forward_as_tuple (USB, find_dropdown_selection (dropdown, QRegExp ("^(USB)$"))));
-  map->push_back (std::forward_as_tuple (DIG_U, find_dropdown_selection (dropdown, QRegExp ("^(DIG|DATA-U|PKT-U|USER-U|USB)$"))));
-  map->push_back (std::forward_as_tuple (DIG_L, find_dropdown_selection (dropdown, QRegExp ("^(DIG|DATA-L|PKT-L|USER-L|LSB)$"))));
+  map->push_back (std::forward_as_tuple (DIG_U, find_dropdown_selection (dropdown, QRegExp ("^(DIG|DIGU|DATA-U|PKT-U|USER-U|USB)$"))));
+  map->push_back (std::forward_as_tuple (DIG_L, find_dropdown_selection (dropdown, QRegExp ("^(DIG|DIGL|DATA-L|PKT-L|USER-L|LSB)$"))));
   map->push_back (std::forward_as_tuple (FSK, find_dropdown_selection (dropdown, QRegExp ("^(DIG|FSK|RTTY|RTTY-LSB)$"))));
   map->push_back (std::forward_as_tuple (FSK_R, find_dropdown_selection (dropdown, QRegExp ("^(DIG|FSK-R|RTTY-R|RTTY|RTTY-USB)$"))));
-  map->push_back (std::forward_as_tuple (AM, find_dropdown_selection (dropdown, QRegExp ("^(AM)$"))));
+  map->push_back (std::forward_as_tuple (AM, find_dropdown_selection (dropdown, QRegExp ("^(AM|DSB|SAM|DRM)$"))));
   map->push_back (std::forward_as_tuple (FM, find_dropdown_selection (dropdown, QRegExp ("^(FM|FM\\(N\\)|FM-N|WFM)$"))));
   map->push_back (std::forward_as_tuple (DIG_FM, find_dropdown_selection (dropdown, QRegExp ("^(PKT-FM|PKT|FM)$"))));
 
