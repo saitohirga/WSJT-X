@@ -823,10 +823,10 @@ if (NOT is_debug_build)
       "${wsjtx_BINARY_DIR}/postflight.sh")
     set (CMAKE_POSTUPGRADE_SCRIPT
       "${wsjtx_BINARY_DIR}/postupgrade.sh")
-    configure_file ("${wsjtx_SOURCE_DIR}/postflight.sh.in"
-      "${wsjtx_BINARY_DIR}/postflight.sh")
-    configure_file ("${wsjtx_SOURCE_DIR}/postupgrade.sh.in"
-      "${wsjtx_BINARY_DIR}/postupgrade.sh")
+    configure_file ("${wsjtx_SOURCE_DIR}/Darwin/postflight.sh.in"
+      "${CMAKE_POSTFLIGHT_SCRIPT}")
+    configure_file ("${wsjtx_SOURCE_DIR}/Darwin/postupgrade.sh.in"
+      "${CMAKE_POSTUPGRADE_SCRIPT}")
   endif ()
 
   if (APPLE OR WIN32)
