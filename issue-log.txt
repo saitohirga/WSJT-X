@@ -77,8 +77,10 @@ Commander TS-2000 - David wd4kpd - possibly the same issue
     	   the Icom IC-756 and after  to satisfy rigs like the Kenwood
     	   TS-2000.
 
-    g4wjs:  Sent out  a test  version to  wb6dkh, wd4kpd  and aa6yq  -
-    	   awaiting feedback.
+    g4wjs: Sent out a test version to wb6dkh, wd4kpd and aa6yq.
+
+    g4wjs: Testing reports are positive. Will release changes when the
+           required Commander v11.0.0 is publicly released.
 
 Commander TS-2000 - Jim wb6dkh - Fake split
 Hamlib IC-735 - Dieter dk6ov - Fake split not returning to correct QRG
@@ -111,6 +113,8 @@ Flex 6700 - Ed k0kc - No CAT no PTT
     g4wjs: Initial reports from kf2t indicate a successful fix.
 
     g4wjs: Reported as working as expected by kf2t.
+
+    g4wjs: Fixed r4434 - Closed.
 
 Hamlib FlexRadio (DTTSP UDP & IPC interfaces) - - Need to diagnose and check if these work
 
@@ -145,6 +149,9 @@ Hamlib FT-450 - Rudy ve3bdr - Protocol error while getting mode of split VFO
            patched  version and  sent  tracing variant  to ve3bdr  for
            testing.
 
+    g4wjs: Sent upstream patch to hamlib  team for turning off AI mode
+           and retry mechanism for rig busy responses.
+
     g4wjs: Hamlib  backend for  this rig  (shared by  FT-9000, FT-950,
            FT-5000  and, FT-2000)  needs  enhancement,  it is  missing
            proper     split     mode,    frequency     and,     enable
@@ -169,6 +176,17 @@ Hamlib IC-7100 - Erik on4pb - CAT PTT method not available on IC-7100
     	   failing. This appears  to be a hamlib defect  with ptt type
     	   being RIG_PTT_SERIAL_CAT instead of RIG_PTT_RIG.  Asked for
     	   clarification on hamlib-devel ML.
+
+    g4wjs: Sent upstream  patch to hamlib team to  resolve issues with
+           PTT type registration. Patch accepted and applied.
+
+    g4wjs: Sent version built with revised hamlib for testing.
+
+    g4wjs:   on4pb  reports   this   version   works  correctly   with
+           hamlib/ic-7100,       HRDv5/IC-7100,       OmniRig/IC-7100,
+           hamlib/TX-850S and, hamlib/HPSDR(TS-2000).
+
+    g4wjs: Fixed in hamlib - Closed.
 
 Hamlib IC-746 - Doc kb3mow - Wrong Tx QRG used after dbl-click on decode
 
@@ -202,6 +220,18 @@ OmniRig Omni VII  - Bert  w0rsb - OmniRig  server going offline error
     	   not always able to start OmniRig client cleanly issue.
 
     g4wjs: Sent a tracing version of RC2 - awaiting log.
+
+OmniRig TS-2000 - Yanis sv2bbo - Initialization timeout
+
+    g4wjs: Is using VPSE as  serial splitter to cooperate with Kenwood
+    	   ARCP rig control program, have  explained this is a invalid
+    	   configuration and will not be supported.
+
+    g4wjs: Also  using OmniRig as that  is used with UR5EQF_Log  3 for
+    	   rig interface. Have explained that  there is a known defect
+    	   that causes  "Test CAT" to  fail.  Suggested he  just click
+    	   "OK" to exit  Settings. Also sent trace  version - awaiting
+    	   log.
 
 Hamlib R8500 - Chris (UK SWL) airguzzler@btinternet.com - Hamlib IO error
 
@@ -283,7 +313,7 @@ Decoded text - Albert kc8kjf - Report or grid last character truncated
 	selected "Show DXCC entity and worked before status" when the
 	main window was not (then) large enough?
 
-HRD FTDX3000 - Jean-Michel f6eao/p - Not working
+HRD FTdx3000 - Jean-Michel f6eao/p - Not working
 
     g4wjs: This  as yet untested rig  with WSJT-X + HRD  clearly needs
     	   some adjustment to the initialization in the HRDTransceiver
@@ -291,6 +321,15 @@ HRD FTDX3000 - Jean-Michel f6eao/p - Not working
 
     g4wjs:  Requested the  "HRD  Interface  Information.txt" file  for
     	   analysis.
+
+    g4wjs:  Added required  regular expressions  for the  FTdx3000 and
+           reworked HRD interface to make more reliable and robust.
+
+    g4wjs: One outstanding  issue, the mode of the  "other" VFO cannot
+           be reliably set  via HRD so FTdx3000 users  must set "Mode"
+           to "None" in WSJT-X.
+
+    g4wjs: Fixed r4523 - Closed.
 
 Multi-instance support - Bill g4wjs - Lock mechanism needed to avoid duplicates
 
@@ -506,18 +545,6 @@ Hamlib FTdx3000 - - No direct support
 
     g4wjs: Needs new hamlib backend.
 
-OmniRig TS-2000 - Yanis sv2bbo - Initialization timeout
-
-    g4wjs: Is using VPSE as  serial splitter to cooperate with Kenwood
-    	   ARCP rig control program, have  explained this is a invalid
-    	   configuration and will not be supported.
-
-    g4wjs: Also  using OmniRig as that  is used with UR5EQF_Log  3 for
-    	   rig interface. Have explained that  there is a known defect
-    	   that causes  "Test CAT" to  fail.  Suggested he  just click
-    	   "OK" to exit  Settings. Also sent trace  version - awaiting
-    	   log.
-
 Hamlib IC-817 - David wa1oui - Occasional hamlib errors
 
    g4wjs:  Using   OX  X   10.9  with  Timewave   Navigator.   Getting
@@ -561,7 +588,82 @@ Halib TT Orion - Peter oz1pif - Split mismatch error
     g4wjs: Issue  is hamlib defect  not detecting split  correctly nor
            setting split correctly either. Submitted patch to hamlib.
 
+    g4wjs: Fixed, hamlib patch accepted and applied - Closed.
+
 Hamlib IC-7410 - Mike k6msm - "Hamlib error: Command rejected by the rig while setting current VFO"
 
     g4wjs: Sent tracing version - awaiting log.
 
+    g4wjs: Hamlib back end for IC-7410 is broken. Fixed first detected
+           defect and sent new version of WSJT-X along with test plan.
+
+    g4wjs: Finalized  hamlib changes  and submitted patch  upstream to
+           hamlib team. Sent patched version to k6msm for testing.
+
+    g4wjs: Fixed, patch to hamlib accepted and applied - Closed.
+
+Commander - Phil f4bkt - Invalid frequencies above VLF in French locale
+
+    g4wjs: Commander is reporting  frequencies via TCP/IP with invalid
+           UTF-8   characters    when   the   character    should   be
+           multi-byte. E.g. the non-break space U+00A0 that is used as
+           a number group separator in the French locale.
+
+    g4wjs: Reported  issue to  Dave AA6YQ  but he  has been  unable to
+           persuade Commander to send valid UTF-8 strings. Reverted to
+           using      the      undocumented      Commander      server
+           commands"CmdGetFreq" and "CmdGetTxFreq" which always return
+           numbers with '.' as a DP and ',' as a group separator.
+
+    g4wjs: Dave AA6YQ  will continue to look for a  proper solution so
+           this fix should be temporary.
+
+    g4wjs: Hotfix  r4518 built and  sent to  f4bkt and Phil  kb9ro who
+    	   reported similar issues.
+
+HRD TT Omni VII - Mike w9mdb - Mode setting not working
+
+    g4wjs: Trace shows HRD buttons for mode not recognized
+
+    g4wjs: Fixed r4526 - Closed.
+
+HRD FT-450D - Bill nzzal - Invalid mode error
+
+    g4wjs: Requested "HRD Interface Information.txt".
+
+    g4wjs:  Added  support for  FT-450(D)  modes  via HRD.  Sent  test
+           version to n7zal. Confirmed as working by n7zal.
+
+    g4wjs: Fixed r4529 - Closed.
+
+Hamlib IC-7410 - Mike m6msm - Changing filter on rig causes error
+
+    g4wjs: This is due to "CI-V  Transceive" mode being on on the rig.
+           Hamlib  cannot  cope  with   unsolicited  CI-V  bus  status
+           reports. Suggested  m6msm turns off "CI-V  Transceive" mode
+           in the rig menu.
+
+HRD FTdx3000 - Jean-Michel f6eao/p - Band change sets wrong aerial and power
+
+    g4wjs: This may be a generic  Yaesu issue. Yaesu radios recall the
+           last selected aerial (and power  setting on some rigs) when
+           switching  bands  with the  band  buttons  or band  up/down
+           selector. Just  sending a QSY  frequency via a  CAT command
+           does  not do  the  same  thing, it  just  changes the  dial
+           frequency. We may  have to use any  available band selector
+           CAT  command  before  setting frequency  to  get  preferred
+           behaviour  on  these type  of  radios.  This would  require
+           hamlib changes as well.
+
+DDUtil Flex Radio 5000A - Chris n1cl - Unrcognized command error
+
+    g4wjs: Apparently this setup is  some sort on HRD emulation. Asked
+           for "HRD  Interface Information.txt".
+
+    g4wjs: Added  modes to interpreter  for this emulator.   Sent test
+           version to n1cl.
+
+    g4wjs: n1cl reports all working correctly. No split mode available
+           on the HRD emulator.
+
+    g4wjs: Fixed r4541 - Closed.
