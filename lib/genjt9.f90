@@ -14,7 +14,6 @@ subroutine genjt9(msg0,ichk,msgsent,i4tone,itype)
   integer*4 i4DataSymbols(69)             !Data symbols (values 0-7)
   integer*4 i4GrayCodedSymbols(69)        !Gray-coded symbols (values 0-7)
   integer*4 i4tone(85)                    !Tone #s, data and sync (values 0-8)
-  logical text
   include 'jt9sync.f90'
   save
 
