@@ -24,6 +24,10 @@ isEmpty (HAMLIB_DIR) {
 HAMLIB_DIR = ../../hamlib3/mingw32
 }
 
+isEmpty (FFTW3_DIR) {
+HAMLIB_DIR = .
+}
+
 F90 = gfortran
 gfortran.output = ${QMAKE_FILE_BASE}.o
 gfortran.commands = $$F90 -c -O2 -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_NAME}
@@ -128,7 +132,7 @@ win32 {
 INCLUDEPATH += $${HAMLIB_DIR}/include
 LIBS += -L$${HAMLIB_DIR}/lib -lhamlib
 LIBS += -L./lib -lastro -ljt9
-LIBS += -L. -lfftw3f_win
+LIBS += -L$${FFTW3_DIR} -lfftw3f-3
 LIBS += -lws2_32
 LIBS += $$system($$F90 -print-file-name=libgfortran.a)
 }

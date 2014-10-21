@@ -1,10 +1,22 @@
 # Makefile for MinGW on Windows
+#
+# Needed libraries are located using the following variables:
+#
+#   QT_DIR - point this at the root of your Qt installation
+#   FFTW3_DIR - point this at the fftw v3 installation directory
+#
+# e.g.
+#   make -f Makefile.MinGW \
+#    QT_DIR=c:/Qt/5.2.1/mingw48_32 \
+#    FFTW3_DIR = c:/fftw-3.3.3-dll32-2
+#
 # Windows re-direct:
 #   C> make > junk1 2>&1
 
 # Set paths
 EXE_DIR = ..\\..\\wsjtx_install
 QT_DIR = C:/wsjt-env/Qt5/5.2.1/mingw48_32
+FFTW3_DIR = ..
 
 INCPATH = -I${QT_DIR}/include/QtCore -I${QT_DIR}/include 
 
@@ -37,7 +49,7 @@ all:    libjt9.a libastro.a jt9.exe jt9code.exe jt65code.exe
 
 OBJS1 = prog_args.o options.o pctile.o graycode.o sort.o ssort.o chkmsg.o \
 	unpackmsg.o igray.o unpackcall.o unpackgrid.o \
-	grid2k.o unpacktext.o getpfx2.o packmsg.o deg2grid.o \
+	fmtmsg.o grid2k.o unpacktext.o getpfx2.o packmsg.o deg2grid.o \
 	packtext.o getpfx1.o packcall.o k2grid.o packgrid.o \
 	nchar.o four2a.o grid2deg.o pfxdump.o f77_wisdom.o \
 	symspec.o analytic.o db.o genjt9.o flat1.o smo.o \
@@ -61,8 +73,8 @@ libjt9.a: $(OBJS1)
 OBJS2 = jt9.o jt9a.o jt9b.o jt9c.o ipcomm.o sec_midn.o usleep.o
 LIBS2 = -L${QT_DIR}/lib -lQt5Core
 jt9.exe: $(OBJS2) libjt9.a
-	$(CXX) -o jt9.exe -static $(OBJS2) $(LIBS2) libjt9.a \
-	../libfftw3f_win.a $(shell $(FC) -print-file-name=lib$(FC).a)
+	$(CXX) -o jt9.exe $(OBJS2) $(LIBS2) libjt9.a \
+	-L$(FFTW3_DIR) -lfftw3f-3 $(shell $(FC) -print-file-name=lib$(FC).a)
 	-$(MKDIR) $(EXE_DIR)
 	$(CP) jt9.exe $(EXE_DIR)
 
@@ -77,7 +89,7 @@ jt9code.exe: $(OBJS4) libjt9.a
 
 OBJS5 = jt65.o 
 jt65.exe: $(OBJS5) libjt9.a 
-	$(FC) -o jt65.exe $(OBJS5) libjt9.a ../libfftw3f_win.a
+	$(FC) -o jt65.exe $(OBJS5) libjt9.a -L$(FFTW3_DIR) -lfftw3f-3
 
 OBJS7 = astrosub.o astro0.o astro.o tm2.o grid2deg.o sun.o moondop.o \
 	coord.o dot.o moon2.o tmoonsub.o toxyz.o geocentric.o \
