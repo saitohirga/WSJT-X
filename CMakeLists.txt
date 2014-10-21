@@ -67,7 +67,6 @@ option (UPDATE_TRANSLATIONS "Update source translation translations/*.ts
 files (WARNING: make clean will delete the source .ts files! Danger!)")
 option (WSJT_SHARED_RUNTIME "Debugging option that allows running from a shared Cloud directory.")
 option (WSJT_QDEBUG_TO_FILE "Redirect Qt debuging messages to a trace file.")
-option (WSJT_QDEBUG_IN_RELEASE "Leave Qt debugging statements in Release configuration.")
 option (WSJT_TRACE_CAT "Debugging option that turns on CAT diagnostics.")
 option (WSJT_TRACE_CAT_POLLS "Debugging option that turns on CAT diagnostics during polling.")
 option (WSJT_HAMLIB_TRACE "Debugging option that turns on full Hamlib internal diagnostics.")
@@ -75,8 +74,17 @@ option (WSJT_STANDARD_FILE_LOCATIONS "All non-installation files located in \"St
 option (WSJT_SOFT_KEYING "Apply a ramp to CW keying envelope to reduce transients." ON)
 option (WSJT_SKIP_MANPAGES "Skip *nix manpage generation.")
 
+CMAKE_DEPENDENT_OPTION (WSJT_QDEBUG_IN_RELEASE "Leave Qt debugging statements in Release configuration." OFF
+  "NOT is_debug_build" OFF)
 CMAKE_DEPENDENT_OPTION (WSJT_ENABLE_EXPERIMENTAL_FEATURES "Enable features not fully ready for public releases." ON
   "is_debug_build" OFF)
+CMAKE_DEPENDENT_OPTION (WSJT_CREATE_WINMAIN
+  "The wsjtx target is normally built as GUI executable with a WinMain entry point on Windows,
+if you want a console application instead then set this option to OFF.
+
+If you just want to see the debug output from the application then the easiest way is to
+attach a debugger which will then receive the console output inside its console." ON
+  "is_debug_build;WIN32" ON)
 
 #
 # decide if we are bundling kvasd (non-FOSS)
@@ -678,7 +686,7 @@ qt5_use_modules (jt9 Core)
 #qt5_use_modules (ConfigTest Widgets OpenGL Network Multimedia)
 
 # build the main application
-add_executable (wsjtx WIN32 MACOSX_BUNDLE
+add_executable (wsjtx MACOSX_BUNDLE
   ${wsjtx_CXXSRCS}
   ${wsjtx_GENUISRCS}
   wsjtx.rc
@@ -696,6 +704,10 @@ if (UNIX)
   endif (NOT APPLE)
   add_dependencies (wsjtx manpages debian)
 endif (UNIX)
+
+if (WSJT_CREATE_WINMAIN)
+  set_target_properties (wsjtx PROPERTIES WIN32_EXECUTABLE ON)
+endif (WSJT_CREATE_WINMAIN)
 
 set_target_properties (wsjtx PROPERTIES
   MACOSX_BUNDLE_INFO_STRING "${WSJTX_DESCRIPTION_SUMMARY}"
