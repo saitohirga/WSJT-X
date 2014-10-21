@@ -31,7 +31,7 @@ CFLAGS = -I. -fbounds-check -fPIE
 all:    libjt9.a jt9sim jt9 jt9code jt65code
 
 OBJS1 = astrosub.o astro0.o astro.o tm2.o sun.o moondop.o coord.o tmoonsub.o \
-        geocentric.o moon2.o toxyz.o dot.o dcoord.o \
+        fmtmsg.o geocentric.o moon2.o toxyz.o dot.o dcoord.o \
         prog_args.o options.o pctile.o graycode.o sort.o ssort.o chkmsg.o \
 	unpackmsg.o igray.o unpackcall.o unpackgrid.o \
 	grid2k.o unpacktext.o getpfx2.o packmsg.o deg2grid.o \
