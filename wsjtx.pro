@@ -25,7 +25,7 @@ HAMLIB_DIR = ../../hamlib3/mingw32
 }
 
 isEmpty (FFTW3_DIR) {
-HAMLIB_DIR = .
+FFTW3_DIR = .
 }
 
 F90 = gfortran
