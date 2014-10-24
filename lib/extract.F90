@@ -1,6 +1,17 @@
 subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
 
-  use prog_args
+! Input:
+!   s3       64-point spectra for each of 63 data symbols
+!   nadd     number of spectra summed into s3
+
+! Output:
+!   ncount   number of symbols requiring correction
+!   nhist    maximum number of identical symbol values
+!   decoded  decoded message (if ncount >=0)
+!   ltext    true if decoded message is free text
+!   nbmkv    0=no decode; 1=BM decode; 2=KV decode
+
+  use prog_args                       !shm_key, exe_dir, data_dir
 
   real s3(64,63)
   character decoded*22
@@ -12,17 +23,19 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
 
   nbmkv=0
   nfail=0
-1 continue
-  call demod64a(s3,nadd,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
+
+! Get most reliable and second-most-reliable symbol values, and their 
+! probabilities
+1 call demod64a(s3,nadd,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
   if(ntest.lt.50 .or. nlow.gt.20) then
-     ncount=-999                         !Flag bad data
+     ncount=-999                      !Flag and reject bad data
      go to 900
   endif
-  call chkhist(mrsym,nhist,ipk)
+  call chkhist(mrsym,nhist,ipk)       !Test for birdies and QRM
 
   if(nhist.ge.20) then
      nfail=nfail+1
-     call pctile(s3,4032,50,base)     ! ### or, use ave from demod64a
+     call pctile(s3,4032,50,base)
      do j=1,63
         s3(ipk,j)=base
      enddo
@@ -110,7 +123,5 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
      nbmkv=2
   endif
 
-900 continue
-
-  return
+900 return
 end subroutine extract
