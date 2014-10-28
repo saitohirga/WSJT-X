@@ -1,6 +1,18 @@
-cmake_minimum_required (VERSION 2.8.9 FATAL_ERROR)
+cmake_minimum_required (VERSION 2.8.10 FATAL_ERROR)
 
 project (wsjtx C CXX Fortran)
+
+#
+# CMake policies
+#
+if (POLICY CMP0020)
+  cmake_policy (SET CMP0020 NEW) # link to Qt winmain on Windows
+endif (POLICY CMP0020)
+
+if (POLICY CMP0043)
+  cmake_policy (SET CMP0043 NEW) # ignore COMPILE_DEFINITIONS_<CONFIG>
+endif (POLICY CMP0043)
+
 
 #
 # project information
@@ -364,8 +376,9 @@ endif (APPLE)
 set_source_files_properties (${WSJTX_ICON_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
 if (NOT WSJT_QDEBUG_IN_RELEASE)
-  set_directory_properties (PROPERTIES COMPILE_DEFINITIONS_RELEASE "QT_NO_DEBUG_OUTPUT;QT_NO_WARNING_OUTPUT")
-  set_directory_properties (PROPERTIES COMPILE_DEFINITIONS_MINSIZEREL "QT_NO_DEBUG_OUTPUT;QT_NO_WARNING_OUTPUT")
+  set_property (DIRECTORY APPEND PROPERTY
+    COMPILE_DEFINITIONS $<$<NOT:$<CONFIG:Debug>>:QT_NO_DEBUG_OUTPUT;QT_NO_WARNING_OUTPUT>
+    )
 endif (NOT WSJT_QDEBUG_IN_RELEASE)
 
 set_property (SOURCE ${all_C_and_CXXSRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -include wsjtx_config.h")
@@ -389,10 +402,6 @@ if (WIN32)
   string (REPLACE "\"" "" AXSERVER ${AXSERVER})
   file (TO_CMAKE_PATH ${AXSERVER} AXSERVERSRCS)
 endif (WIN32)
-
-if (POLICY CMP0020)
-  cmake_policy (SET CMP0020 NEW) # link to Qt winmain on Windows
-endif (POLICY CMP0020)
 
 
 #
@@ -448,22 +457,31 @@ get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 
 if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   # gfortran
-  set (CMAKE_Fortran_FLAGS_RELEASE "-funroll-all-loops -fno-f2c -O3 ${General_FFLAGS}")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "-fno-f2c -O0 -g ${General_FFLAGS}")
+
+  # CMake compiler test is supposed to do this but doesn't yet
+  if (CMAKE_OSX_DEPLOYMENT_TARGET)
+    set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+  endif (CMAKE_OSX_DEPLOYMENT_TARGET)
+  if (CMAKE_OSX_SYSROOT)
+    set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -isysroot ${CMAKE_OSX_SYSROOT}")
+  endif (CMAKE_OSX_SYSROOT)
+
+  set (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -funroll-all-loops -fno-f2c ${General_FFLAGS}")
+  set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} -fno-f2c ${General_FFLAGS}")
 elseif (Fortran_COMPILER_NAME MATCHES "ifort.*")
   # ifort (untested)
-  set (CMAKE_Fortran_FLAGS_RELEASE "-f77rtl -O3 ${General_FFLAGS}")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "-f77rtl -O0 -g ${General_FFLAGS}")
+  set (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -f77rtl ${General_FFLAGS}")
+  set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} -f77rtl ${General_FFLAGS}")
 elseif (Fortran_COMPILER_NAME MATCHES "g77")
   # g77
-  set (CMAKE_Fortran_FLAGS_RELEASE "-funroll-all-loops -fno-f2c -O3 -m32 ${General_FFLAGS}")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "-fno-f2c -O0 -g -m32 ${General_FFLAGS}")
+  set (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -funroll-all-loops -fno-f2c -m32 ${General_FFLAGS}")
+  set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} -fno-f2c -m32 ${General_FFLAGS}")
 else (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   message ("CMAKE_Fortran_COMPILER full path: " ${CMAKE_Fortran_COMPILER})
   message ("Fortran compiler: " ${Fortran_COMPILER_NAME})
   message ("No optimized Fortran compiler flags are known, we just try -O2...")
-  set (CMAKE_Fortran_FLAGS_RELEASE "-O2 ${General_FFLAGS}")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "-O0 -g ${General_FFLAGS}")
+  set (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -O2 ${General_FFLAGS}")
+  set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} ${General_FFLAGS}")
 endif (Fortran_COMPILER_NAME MATCHES "gfortran.*")
 
 
