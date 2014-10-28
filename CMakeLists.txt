@@ -711,8 +711,9 @@ if (UNIX)
   endif (NOT WSJT_SKIP_MANPAGES)
   if (NOT APPLE)
     add_subdirectory (debian)
+    add_dependencies (wsjtx debian)
   endif (NOT APPLE)
-  add_dependencies (wsjtx manpages debian)
+  add_dependencies (wsjtx manpages)
 endif (UNIX)
 
 set_target_properties (wsjtx PROPERTIES
