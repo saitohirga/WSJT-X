@@ -708,12 +708,12 @@ qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia)
 if (UNIX)
   if (NOT WSJT_SKIP_MANPAGES)
     add_subdirectory (manpages)
+    add_dependencies (wsjtx manpages)
   endif (NOT WSJT_SKIP_MANPAGES)
   if (NOT APPLE)
     add_subdirectory (debian)
     add_dependencies (wsjtx debian)
   endif (NOT APPLE)
-  add_dependencies (wsjtx manpages)
 endif (UNIX)
 
 set_target_properties (wsjtx PROPERTIES
