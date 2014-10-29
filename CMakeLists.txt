@@ -511,9 +511,10 @@ FortranCInterface_HEADER (FC.h MACRO_NAMESPACE "FC_" SYMBOL_NAMESPACE "FC_"
 #
 # fetch latest HTML manual
 #
+set (WSJT_MANUAL_DIRECTORY "${PROJECT_MANUAL_DIRECTORY_URL}"
+  CACHE STRING "Can be overridden to a local URI")
 add_custom_target (user_manual ALL
-  # OUTPUT contrib/${PROJECT_MANUAL}
-  ${CMAKE_COMMAND} -D URL=${PROJECT_MANUAL_DIRECTORY_URL} -D NAME=${PROJECT_MANUAL} -P ${CMAKE_SOURCE_DIR}/CMake/download_html_manual.cmake
+  ${CMAKE_COMMAND} -D URL=${WSJT_MANUAL_DIRECTORY} -D NAME=${PROJECT_MANUAL} -P ${CMAKE_SOURCE_DIR}/CMake/download_html_manual.cmake
   COMMENT "Downloading ${PROJECT_NAME} HTML manual"
   VERBATIM
   )
