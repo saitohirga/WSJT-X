@@ -2846,13 +2846,8 @@ void MainWindow::on_cbPlus2kHz_toggled(bool checked)
 
 void MainWindow::handle_transceiver_update (Transceiver::TransceiverState s)
 {
-  static bool prior_ptt {false};
 
-  if (!s.ptt () && prior_ptt)
-    {
-      transmitDisplay (false);
-    }
-  prior_ptt = s.ptt ();
+  transmitDisplay (false);
 
   if ((s.frequency () - m_dialFreq) || s.split () != m_splitMode)
     {
@@ -3046,44 +3041,48 @@ void MainWindow::pskSetLocal ()
 
 void MainWindow::transmitDisplay (bool transmitting)
 {
-  if (transmitting)
-    {
-      signalMeter->setValue(0);
 
-      if (m_monitoring)
+  if (transmitting == m_transmitting)
+    {
+      if (transmitting)
         {
-          monitor (false);
+          signalMeter->setValue(0);
+
+          if (m_monitoring)
+            {
+              monitor (false);
+            }
+
+          m_btxok=true;
         }
 
-      m_btxok=true;
-    }
-
-  auto QSY_allowed = !transmitting || m_config.tx_QSY_allowed () || !m_config.split_mode ();
-  if (ui->cbTxLock->isChecked ())
-    {
-      ui->RxFreqSpinBox->setEnabled (QSY_allowed);
-      ui->pbT2R->setEnabled (QSY_allowed);
-    }
-  ui->TxFreqSpinBox->setEnabled (QSY_allowed);
-  ui->pbR2T->setEnabled (QSY_allowed);
-  ui->cbTxLock->setEnabled (QSY_allowed);
-
-  // only allow +2kHz when not transmitting or if TX QSYs are allowed
-  ui->cbPlus2kHz->setEnabled (!transmitting || m_config.tx_QSY_allowed ());
-
-  // the following are always disallowed in transmit
-  ui->menuMode->setEnabled (!transmitting);
-  ui->bandComboBox->setEnabled (!transmitting);
-  if (!transmitting)
-    {
-      if ("JT9+JT65" == m_mode)
+      auto QSY_allowed = !transmitting || m_config.tx_QSY_allowed () || !m_config.split_mode ();
+      if (ui->cbTxLock->isChecked ())
         {
-          // allow mode switch in Rx when in dual mode
-          ui->pbTxMode->setEnabled (true);
+          ui->RxFreqSpinBox->setEnabled (QSY_allowed);
+          ui->pbT2R->setEnabled (QSY_allowed);
         }
-    }
-  else
-    {
-      ui->pbTxMode->setEnabled (false);
+      ui->TxFreqSpinBox->setEnabled (QSY_allowed);
+      ui->pbR2T->setEnabled (QSY_allowed);
+      ui->cbTxLock->setEnabled (QSY_allowed);
+
+      // only allow +2kHz when not transmitting or if TX QSYs are allowed
+      ui->cbPlus2kHz->setEnabled (!transmitting || m_config.tx_QSY_allowed ());
+
+      // the following are always disallowed in transmit
+      ui->menuMode->setEnabled (!transmitting);
+      ui->bandComboBox->setEnabled (!transmitting);
+      if (!transmitting)
+        {
+          if ("JT9+JT65" == m_mode)
+            {
+              // allow mode switch in Rx when in dual mode
+              ui->pbTxMode->setEnabled (true);
+            }
+        }
+      else
+        {
+          ui->pbTxMode->setEnabled (false);
+        }
     }
 }

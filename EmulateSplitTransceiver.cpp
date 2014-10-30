@@ -3,6 +3,7 @@
 EmulateSplitTransceiver::EmulateSplitTransceiver (std::unique_ptr<Transceiver> wrapped)
   : wrapped_ {std::move (wrapped)}
   , frequency_ {0, 0}
+  , pre_tx_frequency_ {0}
   , tx_ {false}
 {
   // Connect update signal of wrapped Transceiver object instance to ours.
@@ -52,8 +53,11 @@ void EmulateSplitTransceiver::ptt (bool on) noexcept
 #endif
 
   // Save TX state for future frequency change requests.
-  if ((tx_ = on))
+  if (on)
     {
+      // save the Rx frequency
+      pre_tx_frequency_ = frequency_[0];
+
       // Switch to other frequency if we have one i.e. client wants
       // split operation).
       wrapped_->frequency (frequency_[frequency_[1] ? 1 : 0]);
@@ -67,8 +71,10 @@ void EmulateSplitTransceiver::ptt (bool on) noexcept
       wrapped_->ptt (false);
 
       // Switch to RX frequency.
-      wrapped_->frequency (frequency_[0]);
+      wrapped_->frequency (pre_tx_frequency_);
+      pre_tx_frequency_ = 0;
     }
+  tx_ = on;
 }
 
 void EmulateSplitTransceiver::handle_update (TransceiverState state)
@@ -79,9 +85,9 @@ void EmulateSplitTransceiver::handle_update (TransceiverState state)
 
   // Change to reflect emulated state, we don't want to report the
   // shifted frequency when transmitting.
-  if (tx_)
+  if (pre_tx_frequency_)
     {
-      state.frequency (frequency_[0]);
+      state.frequency (pre_tx_frequency_);
     }
   else
     {
