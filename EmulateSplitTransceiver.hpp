@@ -46,6 +46,7 @@ private:
 
   std::unique_ptr<Transceiver> wrapped_;
   Frequency frequency_[2];  // [0] <- RX, [1] <- other
+  Frequency pre_tx_frequency_;  // return to this on switching to Rx
   bool tx_;
 };
 
