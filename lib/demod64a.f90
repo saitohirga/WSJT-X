@@ -1,4 +1,4 @@
-subroutine demod64a(s3,nadd,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
+subroutine demod64a(s3,nadd,afac1,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
 
 ! Demodulate the 64-bin spectra for each of 63 symbols in a frame.
 
@@ -10,23 +10,16 @@ subroutine demod64a(s3,nadd,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
 !    mr2prob  probability that mr2sym was the transmitted value
 
   implicit real*8 (a-h,o-z)
-  real*4 s3(64,63)
+  real*4 s3(64,63),afac1
   real*8 fs(64)
   integer mrsym(63),mrprob(63),mr2sym(63),mr2prob(63)
-!  common/mrscom/ mrs(63),mrs2(63)
 
   if(nadd.eq.-999) return
-  afac=1.1 * float(nadd)**0.64
+  afac=afac1 * float(nadd)**0.64
   scale=255.999
 
 ! Compute average spectral value
-  sum=0.
-  do j=1,63
-     do i=1,64
-        sum=sum+s3(i,j)
-     enddo
-  enddo
-  ave=sum/(64.*63.)
+  ave=sum(s3)/(64.*63.)
   i1=1                                      !Silence warning
   i2=1
 
@@ -57,17 +50,13 @@ subroutine demod64a(s3,nadd,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
      mr2sym(j)=i2-1
      mrprob(j)=scale*p1
      mr2prob(j)=scale*p2
-!     mrs(j)=i1
-!     mrs2(j)=i2
   enddo
 
-  sum=0.
   nlow=0
   do j=1,63
-     sum=sum+mrprob(j)
      if(mrprob(j).le.5) nlow=nlow+1
   enddo
-  ntest=sum/63
+  ntest=sum(mrprob)/63.0
 
   return
 end subroutine demod64a
