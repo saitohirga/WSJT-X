@@ -38,7 +38,9 @@ subroutine timer(dname,k)
      on(n)=.true.
 !     call system_clock(icount,irate)
 !     ut0(n)=float(icount)/irate
-     call cpu_time(ut0(n))
+!     call cpu_time(ut0(n))
+     ut0(n)=secnds(0.0)
+
      ncall(n)=ncall(n)+1
      if(ncall(n).gt.1.and.nlevel(n).ne.level) then
         nlevel(n)=-1
@@ -53,7 +55,9 @@ subroutine timer(dname,k)
         on(n)=.false.
 !        call system_clock(icount,irate)
 !        ut1=float(icount)/irate
-        call cpu_time(ut1)
+!        call cpu_time(ut1)
+        ut1=secnds(0.0)
+
         ut(n)=ut(n)+ut1-ut0(n)
      endif
      level=level-1
