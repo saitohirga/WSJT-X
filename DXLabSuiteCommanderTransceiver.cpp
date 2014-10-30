@@ -111,7 +111,7 @@ void DXLabSuiteCommanderTransceiver::do_ptt (bool on)
 
   update_PTT (on);
 
-  do_frequency (state ().frequency ()); // gets Commander synchronized
+  // do_frequency (state ().frequency ()); // gets Commander synchronized
 }
 
 void DXLabSuiteCommanderTransceiver::do_frequency (Frequency f)
