@@ -91,6 +91,8 @@ Hamlib IC-735 - Dieter dk6ov - Fake split not returning to correct QRG
     	   both "Tune"  and normal Tx  periods. Also "Band"  combo box
     	   not being enabled after "Tune".
 
+    g4wjs: Fixed in r4572 - awaiting test results from dk6ov.
+
 Flex 6000 (TS-2000 emulation) - George kf2t - fails to read QRG
 Flex 6700 - Ed k0kc - No CAT no PTT
 
@@ -412,8 +414,8 @@ Commander - Mike k2oi - Not connecting hostname lookup error
 Commander K3 - Joe w4tv - K3 not going to split
 
     g4wjs: This appears to be because  the K3 will not switch to split
-    	   unless the mode  of VFO B ahs been preset  to match that of
-    	   VFO A.
+           unless the mode  of VFO B has been preset  to match that of
+           VFO A.
 
     g4wjs:  Joe has  also  offered  to help  with  testing WSJT-X  CAT
     	   issues.
@@ -636,12 +638,14 @@ HRD FT-450D - Bill nzzal - Invalid mode error
 
     g4wjs: Fixed r4529 - Closed.
 
-Hamlib IC-7410 - Mike m6msm - Changing filter on rig causes error
+Hamlib IC-7410 - Mike k6msm - Changing filter on rig causes error
 
     g4wjs: This is due to "CI-V  Transceive" mode being on on the rig.
            Hamlib  cannot  cope  with   unsolicited  CI-V  bus  status
-           reports. Suggested  m6msm turns off "CI-V  Transceive" mode
+           reports. Suggested  k6msm turns off "CI-V  Transceive" mode
            in the rig menu.
+
+    g4wjs: Closed - User setup issue.
 
 HRD FTdx3000 - Jean-Michel f6eao/p - Band change sets wrong aerial and power
 
@@ -667,3 +671,42 @@ DDUtil Flex Radio 5000A - Chris n1cl - Unrcognized command error
            on the HRD emulator.
 
     g4wjs: Fixed r4541 - Closed.
+
+Hamlib K3 - Harry hl1/wx8c - Protocol error reading spilt VFO mode when changing bands
+
+    g4wjs: Sent  tracing version.   Log shows hamlib  defect.  Patched
+           hamlib and sent test version.
+
+    g4wjs: Fixed in hamlib - Closed.
+
+Hamlib IC-9100 - Russell kf5rep -PTT doesn't work
+
+    g4wjs: Sent tracing version.
+
+    g4wjs: CAT  PTT was not  enabled in  hamlib for this  rig. Patched
+           hamlib to enable CAT PTT,  data modes and, get split status
+           which are also supported on the IC-9100. Sent test version.
+
+    g4wjs: kf5rep  reports fix working  and log shows no  issues, sent
+           non-trace version.
+
+    g4wjs: Fixed in ha,lib - Closed.
+
+Hamlib IC-7700 - André ve2ahs - "Hamlib error: Command rejected by the rig while setting current VFO"
+
+    g4wjs:  This is  a  hamlib  issue. Patched  hamlib  and sent  test
+           version.
+
+    g4wjs: ve2ahs reports as working.
+
+    g4wjs: Patch sent upstream to hamlib team.
+
+    g4wjs: Fixed in hamlib - Closed.
+
+Hamlib IC-7200 - John wa2hip - Data mode not working
+
+    g4wjs: No support in hamlib,  amended hamlib and sent test version
+           - awaiting log.
+
+ - Bill g4wjs - Replying to "G4WJS NU8R" generates incorrect message
+
