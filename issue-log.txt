@@ -91,7 +91,7 @@ Hamlib IC-735 - Dieter dk6ov - Fake split not returning to correct QRG
     	   both "Tune"  and normal Tx  periods. Also "Band"  combo box
     	   not being enabled after "Tune".
 
-    g4wjs: Fixed in r4572 - awaiting test results from dk6ov.
+    g4wjs: Fixed in r4572 - confirmed as working by dk6ov - Closed.
 
 Flex 6000 (TS-2000 emulation) - George kf2t - fails to read QRG
 Flex 6700 - Ed k0kc - No CAT no PTT
