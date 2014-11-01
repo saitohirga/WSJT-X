@@ -384,6 +384,7 @@ private:
 
   RigParams rig_params_;
   RigParams saved_rig_params_;
+  bool rig_is_dummy_;
   bool rig_active_;
   bool have_rig_;
   bool rig_changed_;
@@ -472,8 +473,7 @@ bool Configuration::watchdog () const {return m_->watchdog_;}
 bool Configuration::TX_messages () const {return m_->TX_messages_;}
 bool Configuration::split_mode () const
 {
-  bool have_rig = m_->transceiver_factory_.CAT_port_type (m_->rig_params_.rig_name_) != TransceiverFactory::Capabilities::none;
-  return have_rig && m_->rig_params_.split_mode_ != TransceiverFactory::split_mode_none;
+  return !m_->rig_is_dummy_ && m_->rig_params_.split_mode_ != TransceiverFactory::split_mode_none;
 }
 Bands * Configuration::bands () {return &m_->bands_;}
 StationList * Configuration::stations () {return &m_->stations_;}
@@ -1059,6 +1059,7 @@ void Configuration::impl::read_settings ()
   log_as_RTTY_ = settings_->value ("toRTTY", false).toBool ();
   report_in_comments_ = settings_->value("dBtoComments", false).toBool ();
   rig_params_.rig_name_ = settings_->value ("Rig", TransceiverFactory::basic_transceiver_name_).toString ();
+  rig_is_dummy_ = TransceiverFactory::basic_transceiver_name_ == rig_params_.rig_name_;
   rig_params_.CAT_network_port_ = settings_->value ("CATNetworkPort").toString ();
   rig_params_.CAT_serial_port_ = settings_->value ("CATSerialPort").toString ();
   rig_params_.CAT_baudrate_ = settings_->value ("CATSerialRate", 4800).toInt ();
@@ -1171,7 +1172,7 @@ void Configuration::impl::set_rig_invariants ()
   ui_->CAT_poll_interval_label->setEnabled (!asynchronous_CAT);
   ui_->CAT_poll_interval_spin_box->setEnabled (!asynchronous_CAT);
 
-  static TransceiverFactory::Capabilities::PortType last_port_type = TransceiverFactory::Capabilities::none;
+  static auto last_port_type = TransceiverFactory::Capabilities::none;
   auto port_type = transceiver_factory_.CAT_port_type (rig);
 
   bool is_serial_CAT (TransceiverFactory::Capabilities::serial == port_type);
@@ -1383,7 +1384,8 @@ void Configuration::impl::accept ()
     }
 
   rig_params_ = temp_rig_params; // now we can go live with the rig
-  // related configuration parameters
+                                 // related configuration parameters
+  rig_is_dummy_ = TransceiverFactory::basic_transceiver_name_ == rig_params_.rig_name_;
 
   // Check to see whether SoundInThread must be restarted,
   // and save user parameters.

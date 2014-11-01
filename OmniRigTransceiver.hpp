@@ -42,7 +42,7 @@ public:
   void do_sync (bool force_signal) override;
 
 private:
-  Q_SLOT void startup_check ();
+  Q_SLOT void online_check ();
   Q_SLOT void handle_COM_exception (int,  QString, QString, QString);
   Q_SLOT void handle_visible_change ();
   Q_SLOT void handle_rig_type_change (int rig_number);

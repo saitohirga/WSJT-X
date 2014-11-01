@@ -105,7 +105,7 @@ OmniRigTransceiver::OmniRigTransceiver (std::unique_ptr<TransceiverBase> wrapped
   , writable_params_ {0}
   , send_update_signal_ {false}
   , reversed_ {false}
-  , starting_ {false}
+  , starting_ {true}
 {
 }
 
@@ -199,8 +199,7 @@ void OmniRigTransceiver::do_start ()
     ;
 #endif
 
-  starting_ = true;
-  QTimer::singleShot (5000, this, SLOT (startup_check ()));
+  QTimer::singleShot (5000, this, SLOT (online_check ()));
 }
 
 void OmniRigTransceiver::do_stop ()
@@ -224,14 +223,14 @@ void OmniRigTransceiver::do_stop ()
 #endif
 }
 
-void OmniRigTransceiver::startup_check ()
+void OmniRigTransceiver::online_check ()
 {
   if (starting_)
     {
       if (--startup_poll_countdown_)
         {
           init_rig ();
-          QTimer::singleShot (5000, this, SLOT (startup_check ()));
+          QTimer::singleShot (5000, this, SLOT (online_check ()));
         }
       else
         {
@@ -241,36 +240,30 @@ void OmniRigTransceiver::startup_check ()
           offline ("OmniRig initialisation timeout");
         }
     }
+  else if (OmniRig::ST_ONLINE != rig_->Status ())
+    {
+      offline ("OmniRig rig went offline for more than 5 seconds");
+    }
 }
 
 void OmniRigTransceiver::init_rig ()
 {
-  if (writable_params_ & OmniRig::PM_VFOA)
+  if (state ().split ())
     {
 #if WSJT_TRACE_CAT
-      qDebug () << "OmniRigTransceiver::init_rig: set VFO A";
+      qDebug () << "OmniRigTransceiver::init_rig: set split";
 #endif
 
-      rig_->SetVfo (OmniRig::PM_VFOA);
-      if (writable_params_ & OmniRig::PM_SPLITOFF)
-        {
-#if WSJT_TRACE_CAT
-          qDebug () << "OmniRigTransceiver::init_rig: set SPLIT off";
-#endif
-
-          rig_->SetSplit (OmniRig::PM_SPLITOFF);
-        }
+      rig_->SetSplitMode (state ().frequency (), state ().tx_frequency ());
     }
-  else if (writable_params_ & OmniRig::PM_VFOAA)
+  else
     {
 #if WSJT_TRACE_CAT
-      qDebug () << "OmniRigTransceiver::init_rig: set VFO A and SPLIT off";
+      qDebug () << "OmniRigTransceiver::init_rig: set simplex";
 #endif
 
-      rig_->SetVfo (OmniRig::PM_VFOAA);
+      rig_->SetSimplexMode (state ().frequency ());
     }
-
-  reversed_ = false;
 }
 
 void OmniRigTransceiver::do_sync (bool force_signal)
@@ -281,6 +274,7 @@ void OmniRigTransceiver::do_sync (bool force_signal)
   // leads to a whole mess of trouble since its internal state is
   // garbage until it has done its first rig poll.
   send_update_signal_ = force_signal;
+  update_complete ();
 }
 
 void OmniRigTransceiver::handle_COM_exception (int code, QString source, QString desc, QString help)
@@ -326,14 +320,14 @@ void OmniRigTransceiver::handle_status_change (int rig_number)
     {
 #if WSJT_TRACE_CAT
       qDebug ()
-        << QString ("OmniRig status change: new status for rig %1 =").arg (rig_number).toLocal8Bit () << rig_->StatusStr ().toLocal8Bit ();
+        << QString ("OmniRig status change: new status for rig %1 = ").arg (rig_number).toLocal8Bit () << rig_->StatusStr ().toLocal8Bit ();
 #endif
 
       if (OmniRig::ST_ONLINE != rig_->Status ())
         {
-          offline ("OmniRig rig went offline");
+          QTimer::singleShot (5000, this, SLOT (online_check ()));
         }
-      else
+      else if (starting_)
         {
           starting_ = false;
 
