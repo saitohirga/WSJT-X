@@ -12,7 +12,7 @@ CAboutDlg::CAboutDlg(QWidget *parent, QString Revision) :
   m_Str += "MAP65 implements a wideband polarization-matching receiver <br>";
   m_Str += "for the JT65 protocol, with a matching transmitting facility. <br>";
   m_Str += "It is primarily intended for amateur radio EME communication. <br><br>";
-  m_Str += "Copyright 2001-2012 by Joe Taylor, K1JT.   Additional <br>";
+  m_Str += "Copyright 2001-2014 by Joe Taylor, K1JT.   Additional <br>";
   m_Str += "acknowledgments are contained in the source code. <br>";
   ui->labelTxt->setText(m_Str);
 }
