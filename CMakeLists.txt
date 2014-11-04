@@ -446,9 +446,31 @@ if (WIN32)
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-keep-inline-dllexport")
 endif (WIN32)
 if (APPLE)
+  #
+  # The following variables define the portability and compatability attributes of the Mac OS X build
+  # they are choosen with care and should not be changed without good cause. Note that they preclude
+  # doing a default build on OS X 10.7 since there is no 10.9 SDK available for Mac OS X 10.7. This doesn't
+  # preclude builds on newer versions of OS X being installed on Mac OS X 10.7, in fact it is exacty these
+  # options that ensure offcial build run on 10.7 and newer versions of Mac OS X. At some point it may
+  # be that some new version cannot be supported as well as 10.7, at that point the deployment target below
+  # must be moved on to 10.8 and we can no longer support Mac OS X 10.7.
+  #
+  # Among other things these options are chosen to match the portability and compatability options of the
+  # Qt framework dylibs which can be checked as follows:
+  #
+  # otool -l <binary> | grep -A3 LC_VERSION_MIN_MACOSX
+  #
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-  set (CMAKE_OSX_DEPLOYMENT_TARGET 10.7) # Earliest version we can support with C++11 & libc++
-  set (CMAKE_OSX_SYSROOT /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk)
+  set (CMAKE_OSX_DEPLOYMENT_TARGET 10.7
+    CACHE STRING "Earliest version of OS X supported
+
+Earliest version we can support with C++11 & libc++ is 10.7.
+Do not override this if you intend to build an official deployable installer.")
+  set (CMAKE_OSX_SYSROOT /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk
+    CACHE STRING "Mac OS X SDK to build with
+
+Change this to the newest SDK available that you can install on your system (10.9 preferred).
+Do not override this if you intend to build an official deployable installer.")
 else (APPLE)
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
