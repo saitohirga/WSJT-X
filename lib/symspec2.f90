@@ -34,7 +34,10 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,freq,drift,snrdb,schk,    &
   enddo
 
   call chkss2(ss2,freq,drift,schk)
-  if(schk.lt.2.0) go to 900
+  if(schk.lt.2.0) then
+     i1SoftSymbolsScrambled=0
+     go to 900
+  endif
 
   ss=0.
   sig=0.
