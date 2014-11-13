@@ -21,7 +21,6 @@ subroutine decoder(ss,id2)
   common/tracer/limtrace,lu
   save
 
-  call system_clock(iclock0,iclock_rate,iclock_max)           !###
   nfreqs0=0
   nfreqs1=0
   ndecodes0=0
@@ -84,13 +83,13 @@ subroutine decoder(ss,id2)
   dblim=db(864.0/nsps8) - 26.2
 
   do nqd=1,0,-1
-     limit=1000
-     ccflim=4.0
+     limit=5000
+     ccflim=3.0
      red2lim=1.6
      schklim=2.2
      if(ndepth.eq.2) then
         limit=10000
-        ccflim=3.5
+        ccflim=2.7
      endif
      if(ndepth.ge.3 .or. nqd.eq.1) then
         limit=100000
@@ -135,17 +134,15 @@ subroutine decoder(ss,id2)
                 freq,drift,schk,i1SoftSymbols)
            call timer('softsym ',1)
 
-!           write(71,3001) nqd,i,f,fpk,ccfred(i),red2(i),schk
-!3001       format(2i6,2f8.1,3f6.1)
-!           call flush(71)
-
-           if(schk.lt.schklim) cycle
+           sync=(syncpk+1)/4.0
+           if(maxval(i1SoftSymbols).eq.0) cycle
+           if(nqd.eq.1 .and. ((sync.lt.0.5) .or. (schk.lt.2.0))) cycle
+           if(nqd.ne.1 .and. ((sync.lt.1.0) .or. (schk.lt.schklim))) cycle
 
            call timer('decode9 ',0)
            call decode9(i1SoftSymbols,limit,nlim,msg)
            call timer('decode9 ',1)
 
-           sync=(syncpk+1)/4.0
            if(sync.lt.0.0 .or. snrdb.lt.dblim-2.0) sync=0.0
            nsync=sync
            if(nsync.gt.10) nsync=10
@@ -183,7 +180,7 @@ subroutine decoder(ss,id2)
      call jt65a(dd,npts65,newdat,nutc,nf1,nf2,nfqso,ntol65,nagain,ndecoded)
   endif
 
-!### JT65 is not yet producing info for nsynced, ndecoded.
+! JT65 is not yet producing info for nsynced, ndecoded.
 800 write(*,1010) nsynced,ndecoded
 1010 format('<DecodeFinished>',2i4)
   call flush(6)

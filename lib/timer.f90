@@ -36,8 +36,11 @@ subroutine timer(dname,k)
      if(on(n)) print*,'Error in timer: ',dname,' already on.'
      level=level+1                                !Increment the level
      on(n)=.true.
-     call system_clock(icount,irate)
-     ut0(n)=float(icount)/irate
+!     call system_clock(icount,irate)
+!     ut0(n)=float(icount)/irate
+!     call cpu_time(ut0(n))
+     ut0(n)=secnds(0.0)
+
      ncall(n)=ncall(n)+1
      if(ncall(n).gt.1.and.nlevel(n).ne.level) then
         nlevel(n)=-1
@@ -50,8 +53,11 @@ subroutine timer(dname,k)
   else if(k.eq.1) then        !Get stop times and accumulate sums. (k=1)
      if(on(n)) then
         on(n)=.false.
-        call system_clock(icount,irate)
-        ut1=float(icount)/irate
+!        call system_clock(icount,irate)
+!        ut1=float(icount)/irate
+!        call cpu_time(ut1)
+        ut1=secnds(0.0)
+
         ut(n)=ut(n)+ut1-ut0(n)
      endif
      level=level-1
@@ -84,6 +90,7 @@ subroutine timer(dname,k)
      do j=i,nmax
         if(nparent(j).eq.i) dut(i)=dut(i)-ut(j)
      enddo
+     if(dut(i).lt.0.0) dut(i)=0.0
      utf=ut(i)/total
      dutf=dut(i)/total
      sum=sum+dut(i)
@@ -94,7 +101,7 @@ subroutine timer(dname,k)
      if(i.ge.2) ename=name(nparent(i))
      write(lu,1060) float(i),sname,ut(i),utf,dut(i),dutf,           &
           ncall(i),nlevel(i),ename
-1060 format(f4.0,a16,2(f10.2,f6.2),i7,i5,2x,a8)
+1060 format(f4.0,a16,2(f10.3,f6.2),i7,i5,2x,a8)
   enddo
 
   write(lu,1070) sum,sumf
