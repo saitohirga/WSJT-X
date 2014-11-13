@@ -1485,7 +1485,10 @@ void MainWindow::guiUpdate()
   }
 
 // If btxok was just lowered, start a countdown for lowering PTT
-  if(!btxok && btxok0 && iptt==1) nc0=-11;  //RxDelay = 1.0 s
+  if(!btxok && btxok0 && iptt==1) {
+    nc0=-11;  //RxDelay = 1.0 s
+    btxok0=false;
+  }
   if(nc0 <= 0) nc0++;
   if(nc0 == 0) {
     if(m_bIQxt) g_pWideGraph->rx570();     // Set Si570 back to Rx Freq
@@ -1589,7 +1592,6 @@ void MainWindow::guiUpdate()
     m_sec0=nsec;
   }
   iptt0=iptt;
-  btxok0=btxok;
   bIQxt=m_bIQxt;
 }
 

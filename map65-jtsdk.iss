@@ -1,6 +1,6 @@
 [Setup]
 AppName=MAP65
-AppVerName=MAP65 Version 2.5 r4579
+AppVerName=MAP65 Version 2.5 r4583
 AppCopyright=Copyright (C) 2001-2014 by Joe Taylor, K1JT
 DefaultDirName=C:\WSJT\MAP65
 DefaultGroupName=WSJT\MAP65
