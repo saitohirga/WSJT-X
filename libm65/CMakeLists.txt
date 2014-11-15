@@ -157,6 +157,7 @@ set (CXXSRCS
 
 add_definitions (-DBIGSYM=1)
 set_source_files_properties (sec_midn.f90 PROPERTIES COMPILE_FLAGS -fno-second-underscore)
+set_source_files_properties (deep65.f90 PROPERTIES COMPILE_FLAGS -O0)
 
 
 #
