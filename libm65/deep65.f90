@@ -131,15 +131,8 @@ subroutine deep65(s3,mode65,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
   enddo
 
   do i=1,ntot
-     if(pp(i).gt.p2 .and. pp(i).ne.p1) p2=pp(i)
+     if(pp(i).gt.p2 .and. i.ne.ip1) p2=pp(i)
   enddo
-
-! ### DO NOT REMOVE ### 
-  rewind 77
-  write(77,*) p1,p2
-! ### Works OK without it (in both Windows and Linux) if compiled 
-! ### without optimization.  However, in Windows this is a colossal 
-! ### pain because of the way F2PY wants to run the compile step.
 
   if(mode65.eq.1) bias=max(1.12*p2,0.335)
   if(mode65.eq.2) bias=max(1.08*p2,0.405)
