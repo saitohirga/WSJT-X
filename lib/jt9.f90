@@ -103,7 +103,19 @@ program jt9
      npts=(60*ntrperiod-6)*12000
      if(iarg .eq. offset + 1) then
         open(12,file=trim(data_dir)//'/timer.out',status='unknown')
-        call timer('jt9     ',0)
+
+! Import FFTW wisdom, if available:
+        open(28,file=trim(data_dir)//'/fftwf_wisdom.dat',status='old',err=30)
+        read(28,1000,err=30,end=30) firstline
+1000    format(a30)
+        rewind 28
+        call import_wisdom_from_file(isuccess,28)
+        close(28)
+        if(isuccess.ne.0) write(12,1010) firstline
+1010    format('Imported FFTW wisdom: ',a30)
+        call flush(12)
+
+30      call timer('jt9     ',0)
      endif
 
      id2=0                               !??? Why is this necessary ???
