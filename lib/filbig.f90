@@ -90,7 +90,7 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
   nh=nfft2/2
   do i=1,nh                                !Copy data into c4a and apply
      j=i0+i-1                              !the filter function
-     if(j.ge.1 .and. j.le.nfft1) then
+     if(j.ge.1 .and. j.le.nfft1/2+1) then
         c4a(i)=rfilt(i)*ca(j)
      else
         c4a(i)=0.
@@ -98,8 +98,12 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
   enddo
   do i=nh+1,nfft2
      j=i0+i-1-nfft2
-     if(j.lt.1) j=j+nfft1                  !nfft1 was nfft2
-     c4a(i)=rfilt(i)*ca(j)
+!     if(j.lt.1) j=j+nfft1                  !nfft1 was nfft2
+     if(j.ge.1) then
+        c4a(i)=rfilt(i)*ca(j)
+     else
+        c4a(i)=rfilt(i)*conjg(ca(2-j))
+     endif
   enddo
 
   nadd=nfft2/NZ2
