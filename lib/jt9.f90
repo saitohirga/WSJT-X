@@ -18,9 +18,11 @@ program jt9
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,ntr,       &
        mousefqso,newdat,nfa,nfsplit,nfb,ntol,kin,nzhsym,nsynced,ndecoded
   common/tracer/limtrace,lu
+  common/patience/npatience
+  data npatience/1/
 
   do
-     call getopt('s:e:a:r:p:d:f:',long_options,c,optarg,arglen,stat,offset,remain)
+     call getopt('s:e:a:r:p:d:f:w:',long_options,c,optarg,arglen,stat,offset,remain)
      if (stat .ne. 0) then
         exit
      end if
@@ -47,18 +49,40 @@ program jt9
         case ('f')
            read_files = .true.
            read (optarg(:arglen), *) nrxfreq
+
+        case ('w')
+           read (optarg(:arglen), *) npatience
      end select
   end do
 
-  if (.not. have_args .or. (stat .lt. 0 .or. (shmem .and. remain .gt. 0) &
-       .or. (read_files .and. remain .eq. 0) .or. (shmem .and. read_files))) then
-     print*,'Usage: jt9 -p TRperiod -d ndepth -f rxfreq -e exe_dir file1 [file2 ...]'
+  if (.not. have_args .or. (stat .lt. 0 .or. (shmem .and. remain .gt. 0)   &
+       .or. (read_files .and. remain .eq. 0) .or.                          &
+       (shmem .and. read_files))) then
+     print*,'Usage: jt9 -p TRperiod [-d ndepth] [-f rxfreq] {-w patience] -e exe_dir file1 [file2 ...]'
      print*,'       Reads data from *.wav files.'
      print*,''
-     print*,'       jt9 -s <key> -e exe_dir'
+     print*,'       jt9 -s <key> [-w patience] -e exe_dir'
      print*,'       Gets data from shared memory region with key==<key>'
      go to 999
   endif
+
+! Import FFTW wisdom, if available:
+  open(14,file=trim(data_dir)//'/jt9_wisdom_status.txt',status='unknown',err=30)
+  open(28,file=trim(data_dir)//'/jt9_wisdom.dat',status='old',err=30)
+  read(28,1000,err=30,end=30) firstline
+1000 format(a30)
+  rewind 28
+  isuccess=0
+  call import_wisdom_from_file(isuccess,28)
+  close(28)
+30 if(isuccess.ne.0) then
+     write(14,1010) firstline
+1010 format('Imported FFTW wisdom (jt9): ',a30)
+  else
+     write(14,1011) 
+1011 format('No imported FFTW wisdom (jt9):')
+  endif
+  call flush(14)
 
   if (shmem) then
      call jt9a()
@@ -103,19 +127,7 @@ program jt9
      npts=(60*ntrperiod-6)*12000
      if(iarg .eq. offset + 1) then
         open(12,file=trim(data_dir)//'/timer.out',status='unknown')
-
-! Import FFTW wisdom, if available:
-        open(28,file=trim(data_dir)//'/fftwf_wisdom.dat',status='old',err=30)
-        read(28,1000,err=30,end=30) firstline
-1000    format(a30)
-        rewind 28
-        call import_wisdom_from_file(isuccess,28)
-        close(28)
-        if(isuccess.ne.0) write(12,1010) firstline
-1010    format('Imported FFTW wisdom: ',a30)
-        call flush(12)
-
-30      call timer('jt9     ',0)
+        call timer('jt9     ',0)
      endif
 
      id2=0                               !??? Why is this necessary ???
@@ -150,4 +162,17 @@ program jt9
 998 print*,'Cannot open file:'
   print*,infile
 
-999 end program jt9
+999 continue
+! Export FFTW wisdom
+  open(28,file=trim(data_dir)//'/jt9_wisdom.dat',status='unknown',err=9999)
+  call export_wisdom_to_file(28)
+  close(28)
+  write(14,1999) 
+1999 format('Exported FFTW wisdom (jt9): ')
+  call flush(14)
+9999 continue
+
+ call four2a(a,-1,1,1,1)                  !Save wisdom and free memory 
+ call filbig(a,-1,1,0.0,0,0,0,0,0)        !used for FFT plans
+
+end program jt9

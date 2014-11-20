@@ -25,18 +25,7 @@ subroutine jt9a()
   call getcwd(cwd)
   open(12,file=trim(data_dir)//'/timer.out',status='unknown')
 
-  ! Import FFTW wisdom, if available:
-  open(28,file=trim(exe_dir)//'/fftwf_wisdom.dat',status='old',err=30)
-  read(28,1000,err=30,end=30) firstline
-1000 format(a30)
-  rewind 28
-  call import_wisdom_from_file(isuccess,28)
-  close(28)
-  if(isuccess.ne.0) write(12,1010) firstline
-1010 format('Imported FFTW wisdom: ',a30)
-  call flush(12)
-
-30 limtrace=0
+  limtrace=0
 !  limtrace=-1                            !Disable all calls to timer()
   lu=12
 
@@ -55,7 +44,6 @@ subroutine jt9a()
 
   inquire(file='.quit',exist=fileExists)
   if(fileExists) then
-!     call ftnquit
      i1=detach_jt9()
      go to 999
   endif

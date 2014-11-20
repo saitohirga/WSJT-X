@@ -19,10 +19,11 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
   logical first
   include 'fftw3.f90'
   equivalence (rfilt,cfilt),(rca,ca)
-  data first/.true./,npatience/1/
+  data first/.true./
   data halfpulse/114.97547150,36.57879257,-20.93789101,              &
        5.89886379,1.59355187,-2.49138308,0.60910773,-0.04248129/
   common/refspec/dfref,ref(NSZ)
+  common/patience/npatience
   save
 
   if(npts.lt.0) go to 900                    !Clean up at end of program
