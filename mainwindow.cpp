@@ -362,7 +362,8 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
       {
         if (!quitFile.remove ())
           {
-            msgBox ("Error removing \"" + quitFile.fileName () + "\" - OK to retry.");
+            msgBox ("Error removing \"" + quitFile.fileName () +
+                    "\" - OK to retry.");
           }
       }
   }
@@ -372,10 +373,12 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 
   QStringList jt9_args {
     "-s", QApplication::applicationName ()
+      , "-w", "1"
       , "-e", QDir::toNativeSeparators (m_appDir)
       , "-a", QDir::toNativeSeparators (m_config.data_path ().absolutePath ())
       };
-  proc_jt9.start(QDir::toNativeSeparators (m_appDir) + QDir::separator () + "jt9", jt9_args, QIODevice::ReadWrite | QIODevice::Unbuffered);
+  proc_jt9.start(QDir::toNativeSeparators (m_appDir) + QDir::separator () +
+          "jt9", jt9_args, QIODevice::ReadWrite | QIODevice::Unbuffered);
 
   getpfx();                               //Load the prefix/suffix dictionary
   genStdMsgs(m_rpt);
