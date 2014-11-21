@@ -380,6 +380,10 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   proc_jt9.start(QDir::toNativeSeparators (m_appDir) + QDir::separator () +
           "jt9", jt9_args, QIODevice::ReadWrite | QIODevice::Unbuffered);
 
+  QString fname(QDir::toNativeSeparators(m_config.data_path ().absoluteFilePath ("wsjtx_wisdom.dat")));
+  QByteArray cfname=fname.toLocal8Bit();
+  int success = fftwf_import_wisdom_from_filename(cfname);
+
   getpfx();                               //Load the prefix/suffix dictionary
   genStdMsgs(m_rpt);
   m_ntx=6;
@@ -435,6 +439,9 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 //--------------------------------------------------- MainWindow destructor
 MainWindow::~MainWindow()
 {
+  QString fname(QDir::toNativeSeparators(m_config.data_path ().absoluteFilePath ("wsjtx_wisdom.dat")));
+  QByteArray cfname=fname.toLocal8Bit();
+  fftwf_export_wisdom_to_filename(cfname);
   m_audioThread->wait ();
 }
 

@@ -242,7 +242,6 @@ set (wsjt_FSRCS
   lib/entail.f90
   lib/extract.F90
   lib/geocentric.f90
-  lib/f77_wisdom.f90
   lib/fano232.f90
   lib/fchisq.f90
   lib/fchisq65.f90
