@@ -382,7 +382,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 
   QString fname(QDir::toNativeSeparators(m_config.data_path ().absoluteFilePath ("wsjtx_wisdom.dat")));
   QByteArray cfname=fname.toLocal8Bit();
-  int success = fftwf_import_wisdom_from_filename(cfname);
+  fftwf_import_wisdom_from_filename(cfname);
 
   getpfx();                               //Load the prefix/suffix dictionary
   genStdMsgs(m_rpt);
