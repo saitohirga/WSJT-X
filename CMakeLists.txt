@@ -325,6 +325,7 @@ set (wsjt_CSRCS
   lib/init_rs.c
   lib/tmoonsub.c
   lib/usleep.c
+  lib/wisdom.c
   lib/wrapkarn.c
   )
 
