@@ -74,7 +74,9 @@ program jt9
 1000 format(a40)
   rewind 28
   isuccess=0
-  call import_wisdom_from_file(isuccess,28)
+  wisfile=trim(data_dir)//'/jt9_wisdom.dat'
+  n=len_trim(wisfile)
+  call import_wisdom(wisfile(1:n)//char(0),isuccess)
   close(28)
 30 if(isuccess.ne.0) then
      write(14,1010) firstline

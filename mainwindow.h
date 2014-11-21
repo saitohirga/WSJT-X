@@ -417,6 +417,9 @@ extern "C" {
 
   int ptt_(int nport, int ntx, int* iptt, int* nopen);
 
+  int fftwf_import_wisdom_from_filename(const char *);
+  int fftwf_export_wisdom_to_filename(const char *);
+
 }
 
 #endif // MAINWINDOW_H
