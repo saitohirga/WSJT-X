@@ -12,6 +12,7 @@ program jt9
   integer*2 id2
   character c
   character(len=500) optarg, infile
+  character wisfile*80,firstline*40
   integer*4 arglen,stat,offset,remain
   logical :: shmem = .false., read_files = .false., have_args = .false.
   type (option) :: long_options (0)
@@ -70,14 +71,14 @@ program jt9
   open(14,file=trim(data_dir)//'/jt9_wisdom_status.txt',status='unknown',err=30)
   open(28,file=trim(data_dir)//'/jt9_wisdom.dat',status='old',err=30)
   read(28,1000,err=30,end=30) firstline
-1000 format(a30)
+1000 format(a40)
   rewind 28
   isuccess=0
   call import_wisdom_from_file(isuccess,28)
   close(28)
 30 if(isuccess.ne.0) then
      write(14,1010) firstline
-1010 format('Imported FFTW wisdom (jt9): ',a30)
+1010 format('Imported FFTW wisdom (jt9): ',a40)
   else
      write(14,1011) 
 1011 format('No imported FFTW wisdom (jt9):')
@@ -164,13 +165,12 @@ program jt9
 
 999 continue
 ! Export FFTW wisdom
-  open(28,file=trim(data_dir)//'/jt9_wisdom.dat',status='unknown',err=9999)
-  call export_wisdom_to_file(28)
-  close(28)
+  wisfile=trim(data_dir)//'/jt9_wisdom.dat'
+  n=len_trim(wisfile)
+  call export_wisdom(wisfile(1:n)//char(0))
   write(14,1999) 
 1999 format('Exported FFTW wisdom (jt9): ')
   call flush(14)
-9999 continue
 
  call four2a(a,-1,1,1,1)                  !Save wisdom and free memory 
  call filbig(a,-1,1,0.0,0,0,0,0,0)        !used for FFT plans
