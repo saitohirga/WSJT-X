@@ -49,10 +49,10 @@ with caution**.
 
 Most of the following files are in a directory path containing the
 directory name *WSJT-X[ - RIGNAME]* which indicates the value of the
-command line option *--rig=RIGNAME* to indicate multiple instances of
+command line option *--rig-name=RIGNAME* to indicate multiple instances of
 *wsjtx* running concurrently. All writable files listed below are
 therefore unique to each concurrent instance of *wsjtx*. If the
-*--rig* command line option is not supplied or the *RIGNAME* argument
+*--rig-name* command line option is not supplied or the *RIGNAME* argument
 is not supplied then the directory paths below will have the directory
 *WSJT-X*.
 
