@@ -15,9 +15,11 @@ set (CPACK_STRIP_FILES TRUE)
 #
 # components
 #
-#set (CPACK_COMPONENTS_ALL Unspecified Runtime)
-#set (CPACK_COMPONENT_APPLICATIONS_DISPLAY_NAME "@PROJECT_NAME@ Application")
-#set (CPACK_COMPONENT_APPLICATIONS_DESCRIPTION "@WSJTX_DESCRIPTION_SUMMARY@")
+#set (CPACK_COMPONENTS_ALL runtime kvasd)
+#set (CPACK_COMPONENT_RUNTIME_DISPLAY_NAME "@PROJECT_NAME@ Application")
+#set (CPACK_COMPONENT_RUNTIME_DESCRIPTION "@WSJTX_DESCRIPTION_SUMMARY@")
+#set (CPACK_COMPONENT_KVASD_DISPLAY_NAME "KVASD Reed Solomon Decoder")
+#set (CPACK_COMPONENT_KVASD_DESCRIPTION "Optional decoder component")
 
 if (CPACK_GENERATOR MATCHES "NSIS")
   set (CPACK_STRIP_FILES FALSE)	# breaks Qt packaging on Windows
@@ -44,6 +46,191 @@ if (CPACK_GENERATOR MATCHES "NSIS")
   set (CPACK_NSIS_CONTACT "${CPACK_PACKAGE_CONTACT}")
   set (CPACK_NSIS_MUI_FINISHPAGE_RUN "wsjtx.exe")
   set (CPACK_NSIS_MODIFY_PATH ON)
+
+  set (CPACK_NSIS_EXTRA_DEFINES "
+    ;
+    ; enable local plugins
+    ;
+    !ifdef NSIS_WIN32_MAKENSIS
+      !define NSISCONF_3 ';' ; NSIS 2 tries to parse some preprocessor instructions inside \"!if 0\" blocks!
+      !addincludedir '@CMAKE_CURRENT_SOURCE_DIR@\\contrib\\NSIS\\Include'
+      !if \${NSIS_PACKEDVERSION} > 0x02ffffff ; NSIS 3+:
+        !define /redef NSISCONF_3 ''
+    \${NSISCONF_3}  !addplugindir /x86-ansi '@CMAKE_CURRENT_SOURCE_DIR@\\contrib\\NSIS\\Plugins-i386-ansi'
+    \${NSISCONF_3}  !addplugindir /x86-unicode '@CMAKE_CURRENT_SOURCE_DIR@\\contrib\\NSIS\\Plugins-i386-unicode'
+      !else ; NSIS 2:
+        !addplugindir '@CMAKE_CURRENT_SOURCE_DIR@\\contrib\\NSIS\\Plugins-i386-ansi'
+      !endif ;~ NSIS_PACKEDVERSION
+      !undef NSISCONF_3
+    !endif ;~ NSIS_WIN32_MAKENSIS
+
+    ; global variables
+    Var KVASD_EXECUTABLE
+    Var CB_INSTALL_KVASD
+    Var INSTALL_KVASD
+    Var RichEditLicense
+    Var CheckBoxAgree
+    Var KVASD_LICENSE
+
+    ; page callbacks
+    Function KVASD_page_create
+      Push $R0
+
+      \${If} $INSTALL_KVASD = \${BST_CHECKED}
+          \${AndIfNot} \${FileExists} $KVASD_LICENSE
+        GetTempFileName $KVASD_LICENSE
+retry_eula:
+        NSISdl::download /TIMEOUT=30000 @PROJECT_KVASD_URL@/kvasd_eula.txt $KVASD_LICENSE
+        Pop $R0
+        \${If} $R0 != success
+          MessageBox MB_RETRYCANCEL|MB_ICONQUESTION 'Download: @PROJECT_KVASD_URL@/kvasd_eula.txt$\\nFailed: $R0' IDRETRY retry_eula
+          StrCpy $INSTALL_KVASD \${BST_UNCHECKED}
+          Delete $KVASD_LICENSE
+        \${EndIf}
+      \${EndIf}
+
+      \${If} $INSTALL_KVASD = \${BST_CHECKED}
+          \${AndIf} \${FileExists} $KVASD_LICENSE
+        !insertmacro MUI_HEADER_TEXT `$(MUI_TEXT_LICENSE_TITLE)` `Please agree the terms of this license before installing KVASD`
+
+        ; disable install button until agreed
+        GetDlgItem $R0 $HWNDPARENT 1
+        EnableWindow $R0 0
+
+        nsDialogs::Create 1018
+        Pop $R0
+;        \${If} $R0 == error
+;          Abort
+;        \${EndIf}
+
+        nsDialogs::CreateControl RichEdit20A \${WS_VISIBLE}|\${WS_CHILD}|\${WS_TABSTOP}|\${WS_VSCROLL}|\${ES_MULTILINE}|\${ES_READONLY} \${__NSD_Text_EXSTYLE} 0 0 100% -24u ''
+        Pop $RichEditLicense
+
+        nsRichEdit::Load $RichEditLicense $KVASD_LICENSE
+
+        \${NSD_CreateCheckBox} 0 -20u 160u 12u `$(^AcceptBtn)`
+        Pop $CheckBoxAgree
+        \${NSD_OnClick} $CheckBoxAgree KVASD_Page_CheckBoxAgree_Click
+        nsDialogs::Show
+      \${Else}
+        Abort ; skip page
+      \${EndIf}
+
+      Pop $R0
+    FunctionEnd
+
+    Function KVASD_page_leave
+    FunctionEnd
+
+    ; field callbacks
+    Function KVASD_Page_CheckBoxAgree_Click
+      Pop $0
+
+      \${NSD_GetState} $CheckBoxAgree $R0
+      \${If} $R0 = \${BST_CHECKED}
+        GetDlgItem $R0 $HWNDPARENT 1
+        EnableWindow $R0 1
+      \${Else}
+        GetDlgItem $R0 $HWNDPARENT 1
+        EnableWindow $R0 0
+      \${EndIf}
+    FunctionEnd"
+    )
+
+  set (CPACK_NSIS_EXTRA_INIT_COMMANDS "
+    ; initial value of $INSATLL_KVASD chack box
+    IntOp $INSTALL_KVASD 0 + \${BST_CHECKED}"
+    )
+
+  set (CPACK_NSIS_EXTRA_PAGES "
+    ; custom page for KVASD license display and acceptance
+    Page custom KVASD_page_create KVASD_page_leave"
+    )
+
+  set (CPACK_NSIS_EXTRA_INSTALL_OPTIONS "
+    ; add a chackbox for installing KVASD
+    \${NSD_CreateCheckBox} 0u 110u 100% 10u 'Install the optional KVASD decoder'
+    Pop $CB_INSTALL_KVASD
+    \${NSD_SetState} $CB_INSTALL_KVASD $INSTALL_KVASD"
+    )
+
+  set (CPACK_NSIS_EXTRA_INSTALL_OPTIONS_READ "
+    \${NSD_GetState} $CB_INSTALL_KVASD $INSTALL_KVASD"
+    )
+
+  set (CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
+    \${If} $INSTALL_KVASD = \${BST_CHECKED}
+      ;
+      ; fetch KVASD license
+      ;
+      StrCpy $5 @PROJECT_KVASD_URL@/@SYSTEM_NAME@/kvasd@CMAKE_EXECUTABLE_SUFFIX@
+      GetTempFileName $1
+retry:
+      NSISdl::download /TIMEOUT=30000 $5.md5 $1
+      Pop $R0
+      \${If} $R0 != success
+        MessageBox MB_RETRYCANCEL|MB_ICONQUESTION 'Download: $5.md5$\\nFailed: $R0' IDRETRY retry
+        Abort
+      \${EndIf}
+      ClearErrors
+      FileOpen $2 $1 r
+      \${If} \${Errors}
+        MessageBox MB_RETRYCANCEL|MB_ICONQUESTION 'Failed to read MD5 hash file: $5.md5' IDRETRY retry
+        Abort
+      \${EndIf}
+
+      ; extract MD5 hash
+      FileRead $2 $3 32
+      FileClose $2
+
+      ;
+      ; fetch kvasd executable
+      ;
+      GetTempFileName $KVASD_EXECUTABLE  
+      NSISdl::download /TIMEOUT=30000 $5 $KVASD_EXECUTABLE
+      Pop $R0
+      \${If} $R0 != success
+        MessageBox MB_RETRYCANCEL|MB_ICONQUESTION 'Download: $5$\\nFailed: $R0' IDRETRY retry
+        Abort
+      \${EndIf}
+
+      ; calculate MD5 hash
+      Crypto::HashFile 'MD5' $KVASD_EXECUTABLE
+      Pop $0
+
+      \${If} $3 != $0
+        MessageBox MB_RETRYCANCEL|MB_ICONQUESTION 'MD5 hash check failed on: $5$\\nExpected: [$4]$\\n  Actual: [$0]' IDRETRY retry
+        Abort
+      \${EndIf}
+
+skip_kvasd:
+      Delete $1 ; MD5 hash file
+    \${EndIf}
+
+    ; save $INSTALL_KVASD to registry for use in teh un-installer
+    WriteRegDWORD SHCTX 'Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\${CPACK_PACKAGE_INSTALL_REGISTRY_KEY}' \\
+      'InstallKvasd' $INSTALL_KVASD"
+    )
+
+  set (CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+    ; install the kvasd executable
+    \${If} $INSTALL_KVASD = \${BST_CHECKED}
+        \${AndIf} \${FileExists} $KVASD_EXECUTABLE
+      DetailPrint 'Installing: $INSTDIR\\@WSJT_BIN_DESTINATION@\\kvasd@CMAKE_EXECUTABLE_SUFFIX@'
+      Rename $KVASD_EXECUTABLE '$INSTDIR\\@WSJT_BIN_DESTINATION@\\kvasd@CMAKE_EXECUTABLE_SUFFIX@'
+    \${EndIf}"
+    )
+
+  set (CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
+    ; fetch $INSTALL_KVASD from registry
+    ReadRegDWORD $INSTALL_KVASD SHCTX \\
+      'Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\${CPACK_PACKAGE_INSTALL_REGISTRY_KEY}' 'InstallKvasd'
+
+    ; conditionally un-install the kvasd executable
+    \${If} $INSTALL_KVASD = \${BST_CHECKED}
+      Delete '$INSTDIR\\@WSJT_BIN_DESTINATION@\\kvasd@CMAKE_EXECUTABLE_SUFFIX@'
+    \${EndIf}"
+    )
 endif ()
 
 if ("${CPACK_GENERATOR}" STREQUAL "PackageMaker")
