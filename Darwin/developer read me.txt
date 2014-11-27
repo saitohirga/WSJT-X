@@ -1,7 +1,28 @@
+KVASD-installer
+===============
+This is a small AppleScriptObjbC Xcode project that is an application bundle GUI tool
+to install the KVASD tool into a WSJT-X application bundle. It fetches the KVASD EULA
+from the SourceForge web svn server and presents it to the user, the user may store
+license or print it. They must agree the license terms before the KVASD tool is also
+downloaded from the SourceForge web svn server. The user then can select the target
+WSJT-X application bundle for installation either via a file chooser dialog or simply
+by dragging the target WSJT-X application bundle onto the KVASD-installer window.
+Once selected the "Install" button starts the installation process. The installation
+copies the kvasd binary into the WSJT-X bundle and adjusts the dylib paths in it to
+point to the libgcc dylibs that are shipped inside the WSJT_X bundle.
+
+KVASD-installer is not built as part of the WSJT-X project build, instead it must be
+built within Xcode and deployed into the source tree at the location 'contrib/Darwin'
+as a bare application bundle which is then checked into source control. The WSJT-X 
+CMake build, when building a DragNDrop installer package for WSJT-X inserts the 
+KVASD-installer application bundle into the root of the package DMG ready to be used
+after installing the main WSJT-X application bundle.
+
+
 Changing the content of the DragNDrop DMG root folder.
 ======================================================
 
-The files and links in this folder are populated by the WSJT-X CMake build script. There are install commands which are only run on Apple hosts, this is important becuase they will get installed at the install root on other platforms, which would be very bad on Linux for example since that is /usr normally!
+The files and links in this folder are populated by the WSJT-X CMake build script. There are install commands which are only run on Apple hosts, this is important because they will get installed at the install root on other platforms, which would be very bad on Linux for example since that is /usr normally!
 
 The symlink to /Applications, the background image (derived from "~/src/wsjtx/artwork/DragNDrop Background.svg") and, the custom .DS_Store file ("~/src/wsjtx_DMG.DS_Store") are all handled specifically by the CPack DragNDrop packager so you don't need to install those.
 
@@ -16,7 +37,9 @@ To modify this file, first you need to make a DragNDrop package then mount the D
 
 The installer DMG is read only and shrunk to exactly the size of the contents, also the .DS_Store file is read only and the background image PNG file is hidden. You need to undo all of these things before changing the .DS_Store file. Don't forget to redo these things before checking in a new version of the custom .DS_Store file.
 
-# convert the DMG to a R/W copy
+The following recipe shows how to amend the content and layout of the DMG root folder:
+
+# convert the DMG to a R/W copy (substitute the DMG you have built)
 hdiutil convert wsjtx-1.4.0-rc1-Darwin.dmg -format UDRW -o rw.dmg
 
 # expand the R/W copy to make room for changes
@@ -40,10 +63,15 @@ chflags nohidden /Volumes/wsjtx-1.4.0-rc1-Darwin/background.png
 # make the .DS_Store file writeable
 chmod 644 /Volumes/wsjtx-1.4.0-rc1-Darwin/.DS_Store
 
-# now you can change Finder view options, rearrange icons etc. Remember that you are only changing the folder options, not the folder content as that is controlled by the install steps in the project CMakeLists.txt
-# if you are adding or removing a file to the DMG root folder, you need to have changed the install steps before doing this procedure so the content changes are reflected in the installer DMG you start with
+# now you can change Finder view options, rearrange icons etc. Remember that you are
+# only changing the folder options, not the folder content as that is controlled by
+# the install steps in the project CMakeLists.txt if you are adding or removing a file
+# to the DMG root folder, you need to have changed the install steps before doing this
+# procedure so the content changes are reflected in the installer DMG you start with.
 
-# when you are happy with the layout etc.
+# when you are happy with the layout etc. close the Finder window to ensure all
+# changes are saved.
+
 # set the background PNG as a hidden file
 chflags hidden /Volumes/wsjtx-1.4.0-rc1-Darwin/background.png
 
