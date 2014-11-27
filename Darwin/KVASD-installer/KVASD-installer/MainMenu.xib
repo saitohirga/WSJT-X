@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="12F45" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
+            <connections>
+                <outlet property="delegate" destination="494" id="495"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application">
+            <connections>
+                <outlet property="delegate" destination="494" id="B9w-iE-h6m"/>
+            </connections>
+        </customObject>
+        <menu title="AMainMenu" systemMenu="main" id="29" userLabel="MainMenu">
+            <items>
+                <menuItem title="KVASD-installer" id="56">
+                    <menu key="submenu" title="KVASD-installer" systemMenu="apple" id="57">
+                        <items>
+                            <menuItem title="About KVASD-installer" id="58">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="doAbout:" target="494" id="u46-Dy-iCH"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="236">
+                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                            </menuItem>
+                            <menuItem title="Preferences…" keyEquivalent="," id="129" userLabel="121"/>
+                            <menuItem isSeparatorItem="YES" id="143">
+                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                            </menuItem>
+                            <menuItem title="Services" id="131">
+                                <menu key="submenu" title="Services" systemMenu="services" id="130"/>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="144">
+                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                            </menuItem>
+                            <menuItem title="Hide KVASD-installer" keyEquivalent="h" id="134">
+                                <connections>
+                                    <action selector="hide:" target="-1" id="367"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Hide Others" keyEquivalent="h" id="145">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                <connections>
+                                    <action selector="hideOtherApplications:" target="-1" id="368"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Show All" id="150">
+                                <connections>
+                                    <action selector="unhideAllApplications:" target="-1" id="370"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="149">
+                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                            </menuItem>
+                            <menuItem title="Quit KVASD-installer" keyEquivalent="q" id="136" userLabel="1111">
+                                <connections>
+                                    <action selector="performClose:" target="371" id="cEn-Uc-6XC"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
+                <menuItem title="Window" id="19">
+                    <menu key="submenu" title="Window" systemMenu="window" id="24">
+                        <items>
+                            <menuItem title="Minimize" keyEquivalent="m" id="23">
+                                <connections>
+                                    <action selector="performMiniaturize:" target="-1" id="37"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Zoom" id="239">
+                                <connections>
+                                    <action selector="performZoom:" target="-1" id="240"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="92">
+                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                            </menuItem>
+                            <menuItem title="Bring All to Front" id="5">
+                                <connections>
+                                    <action selector="arrangeInFront:" target="-1" id="39"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
+                <menuItem title="Help" id="490">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Help" systemMenu="help" id="491">
+                        <items>
+                            <menuItem title="KVASD-installer Help" keyEquivalent="?" id="492">
+                                <connections>
+                                    <action selector="showHelp:" target="-1" id="493"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
+            </items>
+        </menu>
+        <window title="KVASD-installer" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="371">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="80" y="390" width="496" height="492"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1058"/>
+            <value key="minSize" type="size" width="524" height="564"/>
+            <view key="contentView" id="372">
+                <rect key="frame" x="0.0" y="0.0" width="496" height="492"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <button toolTip="Invoke a file chooser dialog to pick a WSJT-X application bundle to install KVASD into." verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="zDT-OA-GKH">
+                        <rect key="frame" x="20" y="63" width="113" height="25"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="squareTextured" title="Choose target ..." bezelStyle="texturedSquare" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="wka-Od-w4K">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="doChooseTarget:" target="494" id="T3v-Fi-ceL"/>
+                        </connections>
+                    </button>
+                    <button toolTip="Click to process all the selected WSJT-X application bundles you have selected." verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="WgE-a2-qYH">
+                        <rect key="frame" x="430" y="63" width="46" height="25"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="squareTextured" title="Install" bezelStyle="texturedSquare" imagePosition="overlaps" alignment="center" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Wul-Wc-vif">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="doInstall:" target="494" id="tMW-3E-gQh"/>
+                        </connections>
+                    </button>
+                    <progressIndicator maxValue="100" displayedWhenStopped="NO" indeterminate="YES" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="C3t-a8-lOf">
+                        <rect key="frame" x="20" y="157" width="456" height="20"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </progressIndicator>
+                    <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FDk-OM-v7f">
+                        <rect key="frame" x="20" y="184" width="456" height="288"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <string key="toolTip">Please read the agreement and tick the "Agree" checkbox below if you accept the terms and wish to continue with the installation.</string>
+                        <clipView key="contentView" id="98d-J5-d83">
+                            <rect key="frame" x="1" y="1" width="439" height="286"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="7ov-Rl-J8r">
+                                    <rect key="frame" x="0.0" y="0.0" width="439" height="286"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <size key="minSize" width="439" height="286"/>
+                                    <size key="maxSize" width="648" height="10000000"/>
+                                    <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                    <size key="minSize" width="439" height="286"/>
+                                    <size key="maxSize" width="648" height="10000000"/>
+                                </textView>
+                            </subviews>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        </clipView>
+                        <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="U59-MZ-pYE">
+                            <rect key="frame" x="-100" y="-100" width="87" height="18"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                        <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="yPp-8r-Jdr">
+                            <rect key="frame" x="440" y="1" width="15" height="286"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                    </scrollView>
+                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="Ykk-0Z-lxG">
+                        <rect key="frame" x="17" y="20" width="462" height="37"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="37" id="hQV-aJ-MXM"/>
+                        </constraints>
+                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Use &quot;Choose target ...&quot; to pick WSJT-X application bundles to install KVASD into or simply drop them onto this window" id="3OK-wt-WuN">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <box autoresizesSubviews="NO" title="License" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="wa1-Gy-wEE">
+                        <rect key="frame" x="17" y="91" width="462" height="59"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <view key="contentView">
+                            <rect key="frame" x="1" y="1" width="460" height="43"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <button verticalHuggingPriority="750" tag="-1" translatesAutoresizingMaskIntoConstraints="NO" id="zHE-FK-uha">
+                                    <rect key="frame" x="12" y="5" width="102" height="32"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="90" id="93n-sN-xbH"/>
+                                    </constraints>
+                                    <buttonCell key="cell" type="push" title="Save ..." bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="qaP-zQ-Ead">
+                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                        <font key="font" metaFont="system"/>
+                                        <connections>
+                                            <action selector="doSave:" target="494" id="KPT-pj-YyW"/>
+                                        </connections>
+                                    </buttonCell>
+                                </button>
+                                <button verticalHuggingPriority="750" misplaced="YES" tag="-1" translatesAutoresizingMaskIntoConstraints="NO" id="ylZ-OO-wid">
+                                    <rect key="frame" x="179" y="5" width="102" height="32"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <buttonCell key="cell" type="push" title="Print ..." bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2cB-RL-2Da">
+                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                        <font key="font" metaFont="system"/>
+                                    </buttonCell>
+                                    <connections>
+                                        <action selector="doPrint:" target="494" id="879-hA-tbm"/>
+                                    </connections>
+                                </button>
+                                <button misplaced="YES" tag="-1" translatesAutoresizingMaskIntoConstraints="NO" id="art-4p-gjI">
+                                    <rect key="frame" x="347" y="-1" width="102" height="47"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <buttonCell key="cell" type="check" title="Agree" bezelStyle="regularSquare" imagePosition="left" enabled="NO" inset="2" id="NP4-SZ-zup">
+                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                        <font key="font" metaFont="system"/>
+                                        <connections>
+                                            <action selector="doAgree:" target="494" id="AEf-cK-aSu"/>
+                                        </connections>
+                                    </buttonCell>
+                                </button>
+                            </subviews>
+                        </view>
+                        <constraints>
+                            <constraint firstItem="art-4p-gjI" firstAttribute="top" secondItem="wa1-Gy-wEE" secondAttribute="top" constant="14" id="0zn-cU-8Qd"/>
+                            <constraint firstItem="ylZ-OO-wid" firstAttribute="centerY" secondItem="art-4p-gjI" secondAttribute="centerY" id="P4Z-tf-K7i"/>
+                            <constraint firstAttribute="trailing" secondItem="art-4p-gjI" secondAttribute="trailing" constant="11" id="PaV-Cy-yPe"/>
+                            <constraint firstItem="zHE-FK-uha" firstAttribute="top" secondItem="wa1-Gy-wEE" secondAttribute="top" constant="25" id="Vbl-9p-bwR"/>
+                            <constraint firstItem="zHE-FK-uha" firstAttribute="leading" secondItem="wa1-Gy-wEE" secondAttribute="leading" constant="16" id="gSc-ts-7Qh"/>
+                            <constraint firstItem="ylZ-OO-wid" firstAttribute="centerX" secondItem="wa1-Gy-wEE" secondAttribute="centerX" id="hzs-Tk-cqg"/>
+                            <constraint firstItem="ylZ-OO-wid" firstAttribute="baseline" secondItem="zHE-FK-uha" secondAttribute="baseline" id="jka-sT-Thn"/>
+                            <constraint firstAttribute="bottom" secondItem="art-4p-gjI" secondAttribute="bottom" constant="-2" id="oKe-JP-bfb"/>
+                        </constraints>
+                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </box>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="C3t-a8-lOf" firstAttribute="trailing" secondItem="FDk-OM-v7f" secondAttribute="trailing" id="4DP-Kp-1q2"/>
+                    <constraint firstItem="zDT-OA-GKH" firstAttribute="top" secondItem="wa1-Gy-wEE" secondAttribute="bottom" constant="8" symbolic="YES" id="ML8-yC-89i"/>
+                    <constraint firstItem="FDk-OM-v7f" firstAttribute="leading" secondItem="372" secondAttribute="leading" constant="20" symbolic="YES" id="NMg-Ck-obh"/>
+                    <constraint firstItem="zDT-OA-GKH" firstAttribute="leading" secondItem="wa1-Gy-wEE" secondAttribute="leading" id="T51-Uf-1WE"/>
+                    <constraint firstItem="wa1-Gy-wEE" firstAttribute="leading" secondItem="C3t-a8-lOf" secondAttribute="leading" id="TGy-7g-zAJ"/>
+                    <constraint firstItem="Ykk-0Z-lxG" firstAttribute="leading" secondItem="zDT-OA-GKH" secondAttribute="leading" id="bbq-7t-f68"/>
+                    <constraint firstItem="C3t-a8-lOf" firstAttribute="trailing" secondItem="wa1-Gy-wEE" secondAttribute="trailing" id="d1F-PM-eaa"/>
+                    <constraint firstItem="FDk-OM-v7f" firstAttribute="top" secondItem="372" secondAttribute="top" constant="20" symbolic="YES" id="kJJ-dt-NRz"/>
+                    <constraint firstItem="C3t-a8-lOf" firstAttribute="leading" secondItem="FDk-OM-v7f" secondAttribute="leading" id="kgo-AY-mzZ"/>
+                    <constraint firstItem="Ykk-0Z-lxG" firstAttribute="top" secondItem="zDT-OA-GKH" secondAttribute="bottom" constant="8" symbolic="YES" id="lnw-0d-qNt"/>
+                    <constraint firstItem="zDT-OA-GKH" firstAttribute="baseline" secondItem="WgE-a2-qYH" secondAttribute="baseline" id="ohE-qi-Dfp"/>
+                    <constraint firstItem="Ykk-0Z-lxG" firstAttribute="trailing" secondItem="WgE-a2-qYH" secondAttribute="trailing" id="p2f-9z-tE5"/>
+                    <constraint firstItem="C3t-a8-lOf" firstAttribute="top" secondItem="FDk-OM-v7f" secondAttribute="bottom" constant="8" symbolic="YES" id="qZp-QK-6Gr"/>
+                    <constraint firstAttribute="trailing" secondItem="FDk-OM-v7f" secondAttribute="trailing" constant="20" symbolic="YES" id="rjX-vJ-uNw"/>
+                    <constraint firstItem="wa1-Gy-wEE" firstAttribute="top" secondItem="C3t-a8-lOf" secondAttribute="bottom" constant="8" symbolic="YES" id="rjt-GZ-jeN"/>
+                    <constraint firstAttribute="bottom" secondItem="Ykk-0Z-lxG" secondAttribute="bottom" constant="20" symbolic="YES" id="vBM-jI-CPn"/>
+                    <constraint firstItem="wa1-Gy-wEE" firstAttribute="trailing" secondItem="WgE-a2-qYH" secondAttribute="trailing" id="wYS-jM-6G3"/>
+                </constraints>
+            </view>
+            <connections>
+                <outlet property="delegate" destination="494" id="E9E-qr-Qke"/>
+            </connections>
+        </window>
+        <customObject id="494" customClass="WSJTAppDelegate">
+            <connections>
+                <outlet property="agreeCheckBox" destination="NP4-SZ-zup" id="BvB-Ac-MFu"/>
+                <outlet property="chooseTargetButton" destination="zDT-OA-GKH" id="q8b-d7-xok"/>
+                <outlet property="eulaTextView" destination="7ov-Rl-J8r" id="986-TU-OO8"/>
+                <outlet property="installButton" destination="WgE-a2-qYH" id="0yv-Eu-yHW"/>
+                <outlet property="licenceBox" destination="wa1-Gy-wEE" id="eR5-0y-iYi"/>
+                <outlet property="mainWindow" destination="371" id="JZA-eM-kJw"/>
+                <outlet property="printButton" destination="ylZ-OO-wid" id="Nf6-fU-NSK"/>
+                <outlet property="progressBar" destination="C3t-a8-lOf" id="ioI-hZ-ytR"/>
+                <outlet property="saveButton" destination="zHE-FK-uha" id="FMI-0f-Pat"/>
+            </connections>
+        </customObject>
+        <customObject id="420" customClass="NSFontManager"/>
+    </objects>
+</document>

@@ -94,7 +94,7 @@ CMAKE_DEPENDENT_OPTION (WSJT_ENABLE_EXPERIMENTAL_FEATURES "Enable features not f
 # decide if we are bundling kvasd (non-FOSS)
 #
 CMAKE_DEPENDENT_OPTION (WSJT_INCLUDE_KVASD "Include kvasd in the package." OFF
-  "NOT is_debug_build;NOT WIN32;NOT APPLE" ON)
+  "NOT is_debug_build;NOT WIN32" ON)
 
 
 #
@@ -747,6 +747,7 @@ set_target_properties (wsjtx PROPERTIES
   MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${wsjtx_VERSION}"
   MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}"
   MACOSX_BUNDLE_COPYRIGHT "${PROJECT_COPYRIGHT}"
+  MACOSX_BUNDLE_GUI_IDENTIFIER "org.k1jt.wsjtx"
   )
 
 target_link_libraries (wsjtx wsjt wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
@@ -774,6 +775,14 @@ if (WSJT_INCLUDE_KVASD)
     DESTINATION ${WSJT_BIN_DESTINATION}
     #COMPONENT Runtime
   )
+else (WSJT_INCLUDE_KVASD)
+  if (APPLE)
+    install (DIRECTORY contrib/Darwin/KVASD-installer.app
+      DESTINATION .
+      USE_SOURCE_PERMISSIONS
+      #COMPONENT Runtime
+      )
+  endif (APPLE)
 endif (WSJT_INCLUDE_KVASD)
 
 install (PROGRAMS
