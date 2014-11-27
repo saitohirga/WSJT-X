@@ -49,8 +49,9 @@ set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
  standard SSB-width IF filters, switching between JT65 and JT9 modes
  is quick and convenient. Be sure to read the online ${PROJECT_NAME} User's
  Guide.")
+set (PROJECT_KVASD_URL https://svn.code.sf.net/p/wsjt/wsjt/trunk/kvasd-binary)
 
-set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/CMake/Modules)
+set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake/Modules ${CMAKE_MODULE_PATH})
 
 include (${PROJECT_SOURCE_DIR}/CMake/VersionCompute.cmake)
 
@@ -94,7 +95,7 @@ CMAKE_DEPENDENT_OPTION (WSJT_ENABLE_EXPERIMENTAL_FEATURES "Enable features not f
 # decide if we are bundling kvasd (non-FOSS)
 #
 CMAKE_DEPENDENT_OPTION (WSJT_INCLUDE_KVASD "Include kvasd in the package." OFF
-  "NOT is_debug_build;NOT WIN32" ON)
+  "NOT is_debug_build" ON)
 
 
 #
@@ -658,19 +659,6 @@ elseif (CMAKE_HOST_WIN32)
 endif ()
 
 
-if (WSJT_INCLUDE_KVASD)
-  #
-  # fetch and validate kvasd
-  #
-  set (KVASD contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
-  add_custom_target (kvasd ALL
-    ${CMAKE_COMMAND} -D SYSTEM_NAME=${CMAKE_SYSTEM_NAME} -D EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} -P ${CMAKE_SOURCE_DIR}/CMake/download_kvasd.cmake
-    COMMENT "Downloading kvasd for ${CMAKE_SYSTEM_NAME}"
-    VERBATIM
-    )
-endif (WSJT_INCLUDE_KVASD)
-
-
 # UI generation
 qt5_wrap_ui (wsjt_qt_GENUISRCS ${wsjt_qt_UISRCS})
 qt5_wrap_ui (ConfigTest_GENUISRCS ${ConfigTest_UISRCS})
@@ -728,6 +716,24 @@ add_executable (wsjtx WIN32 MACOSX_BUNDLE
   )
 qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia)
 
+set (SYSTEM_NAME ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR})
+if (WIN32)
+  set (SYSTEM_NAME "${SYSTEM_NAME}i386")
+endif (WIN32)
+if (WSJT_INCLUDE_KVASD)
+  #
+  # fetch and validate kvasd
+  #
+  set (KVASD_BINARY contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
+
+  add_custom_target (kvasd ALL
+    ${CMAKE_COMMAND} -D SYSTEM_NAME=${SYSTEM_NAME} -D EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} -D URL=${PROJECT_KVASD_URL} -P ${CMAKE_SOURCE_DIR}/CMake/download_kvasd.cmake
+    COMMENT "Downloading kvasd for ${SYSTEM_NAME}"
+    VERBATIM
+    )
+endif (WSJT_INCLUDE_KVASD)
+
+
 if (UNIX)
   if (NOT WSJT_SKIP_MANPAGES)
     add_subdirectory (manpages)
@@ -756,24 +762,19 @@ target_link_libraries (wsjtx wsjt wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES}
 # installation
 #
 install (TARGETS wsjtx
-  RUNTIME DESTINATION ${WSJT_BIN_DESTINATION}
-  LIBRARY DESTINATION ${WSJT_LIB_DESTINATION}
-  BUNDLE DESTINATION .
-  #COMPONENT Runtime
+  RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
+  BUNDLE DESTINATION . COMPONENT runtime
   )
 
 install (TARGETS jt9 jt65code jt9code
-  RUNTIME DESTINATION ${WSJT_BIN_DESTINATION}
-  LIBRARY DESTINATION ${WSJT_LIB_DESTINATION}
-  BUNDLE DESTINATION ${WSJT_BIN_DESTINATION}
-  #COMPONENT Runtime
+  RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
+  BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
 
 if (WSJT_INCLUDE_KVASD)
   install (PROGRAMS
-    ${CMAKE_BINARY_DIR}/${KVASD}
-    DESTINATION ${WSJT_BIN_DESTINATION}
-    #COMPONENT Runtime
+    ${CMAKE_BINARY_DIR}/${KVASD_BINARY}
+    DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
 else (WSJT_INCLUDE_KVASD)
   if (APPLE)
@@ -788,14 +789,14 @@ endif (WSJT_INCLUDE_KVASD)
 install (PROGRAMS
   ${RIGCTLD_EXE}
   DESTINATION ${WSJT_BIN_DESTINATION}
-  #COMPONENT Runtime
+  #COMPONENT runtime
   RENAME rigctld-wsjtx${CMAKE_EXECUTABLE_SUFFIX}
   )
 
 install (FILES
   ${CMAKE_BINARY_DIR}/contrib/${PROJECT_MANUAL}
   DESTINATION ${WSJT_SHARE_DESTINATION}/${WSJT_DOC_DESTINATION}
-  #COMPONENT Runtime
+  #COMPONENT runtime
   )
 
 #
@@ -806,7 +807,7 @@ if (APPLE)
         Darwin/ReadMe.txt
         Darwin/sysctl.conf
         DESTINATION .
-        #COMPONENT Runtime
+        #COMPONENT runtime
     )
 endif (APPLE)
 
@@ -850,12 +851,12 @@ if (NOT WIN32 AND NOT APPLE)
   install (
     FILES wsjtx.desktop
     DESTINATION share/applications
-    #COMPONENT Runtime
+    #COMPONENT runtime
     )
   install (
     FILES icons/Unix/wsjtx_icon.png
     DESTINATION share/pixmaps
-    #COMPONENT Runtime
+    #COMPONENT runtime
     )
 endif (NOT WIN32 AND NOT APPLE)
 
@@ -889,7 +890,7 @@ if (NOT is_debug_build)
 \"[Paths]
 \")
 "
-      #COMPONENT Runtime
+      #COMPONENT runtime
       )
 
     # if a system Qt is used (e.g. installed in /usr/lib/), it will not be included in the installation
@@ -906,7 +907,7 @@ if (NOT is_debug_build)
 	${QT_PLUGINS_DIR}/accessible
 	DESTINATION ${WSJT_PLUGIN_DESTINATION}
 	CONFIGURATIONS Release MinSizeRel
-	#COMPONENT Runtime
+	#COMPONENT runtime
 	FILES_MATCHING PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}"
 	PATTERN "*minimal*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
 	PATTERN "*offscreen*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
@@ -920,7 +921,7 @@ if (NOT is_debug_build)
       #         ${QT_PLUGINS_DIR}/accessible
       # 	DESTINATION ${WSJT_PLUGIN_DESTINATION}
       # 	CONFIGURATIONS Debug
-      # 	#COMPONENT Runtime
+      # 	#COMPONENT runtime
       # 	FILES_MATCHING PATTERN "*_debug${CMAKE_SHARED_LIBRARY_SUFFIX}"
       # 	PATTERN "*minimal*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
       # 	PATTERN "*offscreen*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
@@ -933,7 +934,7 @@ file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION
 \"Plugins = Plugins
 \")
 "
-	#COMPONENT Runtime
+	#COMPONENT runtime
 	)
     endif (APPLE)
 
@@ -951,7 +952,7 @@ file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION
 	${QT_PLUGINS_DIR}/accessible
 	DESTINATION ${WSJT_PLUGIN_DESTINATION}
 	CONFIGURATIONS Release MinSizeRel
-	#COMPONENT Runtime
+	#COMPONENT runtime
 	FILES_MATCHING PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}"
 	PATTERN "*minimal*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
 	PATTERN "*offscreen*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
@@ -964,7 +965,7 @@ file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION
       # 	${QT_PLUGINS_DIR}/accessible
       # 	DESTINATION ${WSJT_PLUGIN_DESTINATION}
       # 	CONFIGURATIONS Debug
-      # 	#COMPONENT Runtime
+      # 	#COMPONENT runtime
       # 	FILES_MATCHING PATTERN "*d${CMAKE_SHARED_LIBRARY_SUFFIX}"
       # 	PATTERN "*minimal*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
       # 	PATTERN "*offscreen*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
@@ -978,7 +979,7 @@ file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION
 \"Plugins = ${_plugins_path}
 \")
 "
-	#COMPONENT Runtime
+	#COMPONENT runtime
 	)
 
       # set (gp_tool "objdump")	# we want MinGW tool - not MSVC (See GetPrerequisites.cmake)
@@ -998,7 +999,7 @@ file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION
      message (STATUS \"fixup_exe: \${the_exe}\")
      fixup_bundle (\"\${the_exe}\" \"\${QTPLUGINS}\" \"${fixup_library_dirs}\")
    "
-      #COMPONENT Runtime
+      #COMPONENT runtime
       )
   endif (APPLE OR WIN32)
 
@@ -1008,6 +1009,7 @@ endif (NOT is_debug_build)
 #
 # packaging
 #
+set (CPACK_MONOLITHIC_INSTALL 1)
 set (CPACK_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
 set (CPACK_PACKAGE_VERSION_MAJOR ${WSJTX_VERSION_MAJOR})
 set (CPACK_PACKAGE_VERSION_MINOR ${WSJTX_VERSION_MINOR})

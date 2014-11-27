@@ -1,0 +1,9 @@
+NSIS Addons
+===========
+
+This directory contains archives of NSIS plugins and includes that are
+used in making the WSJT-X Windows  installer. The plugin DLLs are also
+extracted and deployed in sub-directories  where they are added to the
+project  NSIS plugin  path in  the project  CMakeCPackOptions.cmake.in
+template which is in turn used in generating the NSIS installer script
+from the CMake/Modules/NSIS.template.in template file.
