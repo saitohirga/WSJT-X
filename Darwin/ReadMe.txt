@@ -14,34 +14,43 @@ There are some system matters you must deal with first.  Open a Terminal window
 by going to Applications->Utilities and clicking on Terminal.
 
 Along with this ReadMe file there is a file:   sysctl.conf.   Drag this file to your Desktop.
-Then type in the Terminal window:
-
-   cd $HOME/Desktop
 
 WSJT-X makes use of a block of memory which is shared between different parts of
 the code.  The normal allocation of shared memory on a Mac is insufficient and this 
-has to be increased.   You can look at the new allocation by typing:
-
-   cat  sysctl.conf
-
-This shows the following:
-
-kern.sysv.shmmax=33554432
-kern.sysv.shmmin=1
-kern.sysv.shmmni=128
-kern.sysv.shmseg=32
-kern.sysv.shmall=8192
-
-You can check the current allocation on your Mac by typing:
+has to be increased.   You can check the current allocation on your Mac by typing:
 
   sysctl -a | grep sysv.shm
 
 If your shmmax is already at least 33554432 (32 MB) then you can close the Terminal window
 and skip the next steps and go to (NEXT).
 
-Now move this file into place for the system to use by typing:
+You now have to increase the shared memory allocation.  To view this file use TextEdit
+to open sysctl.conf.  
 
-  sudo mv sysctl.conf /etc/
+This will show: 
+
+kern.hostname=yourcomputername.local
+kern.sysv.shmmax=33554432
+kern.sysv.shmmin=1
+kern.sysv.shmmni=128
+kern.sysv.shmseg=32
+kern.sysv.shmall=8192
+
+You must now replace    yourcomputername.local  with the exact name of your computer.   To find
+this use the Terminal window and type:
+
+   sysctl -a | grep hostname
+
+and will find your computer name.  Now use TextEdit to replace   yourcomputername.local  in this
+file with the output from this command, including the .local at the end.   Save the file.
+  
+Now move this file into place for the system to use by typing: (Note this assumes that
+you really did drag this file to your Desktop as required earlier.)
+
+  cd $HOME/Desktop
+  sudo cp sysctl.conf /etc/
+  sudo chmod 664 /etc/sysctl.conf
+  sudo chown  root:wheel  /etc/sysctl.conf
 
 and then reboot your Mac.  This is necessary to install the changes.  After the
 reboot you should re-open the Terminal window as before and you can check that the
@@ -49,7 +58,10 @@ change has been made by typing:
 
   sysctl -a | grep sysv.shm
 
-You are finished with system changes.  You should make certain that NO error messages
+If shmmax is not shown as 33554432 then contact me since WSJT-X will fail to load with
+an error message: "Unable to create shared memory segment".
+
+You are now finished with system changes.  You should make certain that NO error messages
 have been produced during these steps.   You can now close the Terminal window.  It will
 not be necessary to repeat this procedure again, even when you download an updated
 version of WSJT-X.
@@ -66,22 +78,24 @@ WSJT-X Menu and fill in various station details on the General panel.   I recomm
 4 boxes under the Display heading and the first 4 boxes under the Behaviour heading.
 
 Next visit the Audio panel and select the Audio Codec you use to communicate between WSJT-X
-and your rig.   There are so many audio interfaces available that it is not possible to give
-detailed advice on selection.  If you have difficulties contact me.   Note the location of the
-Save Directory.  Decoded wave forms are located here.
+and your rig.   There are so many audio interfaces available that it is not 
+possible to give detailed advice on selection.  If you have difficulties contact me.   Note 
+the location of the Save Directory.  Decoded wave forms are located here.
 
 Look at the Reporting panel.  If you check the "Prompt me" box, a logging panel will appear
 at the end of the QSO.  Two log files are provided in  Library/Application Support/WSJT-X.
 These are a simple wsjtx.log file and wsjtx_log.adi which is formatted for use with logging
-databases.
+databases.  If you are using Yosemite, the Library folder is hidden.  Use Go on the Finder 
+menu but hold down the alt key.   Library will then appear in the list of folders.
 
 Finally, visit the Radio panel.  WSJT-X is most effective when operated with CAT control.  You 
 will need to install the relevant Mac driver for your rig.   This must be located in the system
 driver directory  /dev.  I use a Prolific USB-Serial Adapter to a Kenwood TS870s and the relevant
 driver is  /dev/tty.PL2303-00002226.   You should install your driver and then re-launch WSJT-X.
 Return to the the Radio panel in Preferences and insert the full name of your driver in the
-Serial Port panel.   Such as:  /dev/tty.PL2303-00002226 or what ever driver you have.  The /dev/
+Serial Port panel.   Such as:  /dev/tty.PL2303-00002226 or whatever driver you have.  The /dev/
 prefix is mandatory.  Set the relevant communication parameters as required by your transceiver.
+and click   Test CAT.  
 
 WSJT-X needs the Mac clock to be accurate.  Visit System Preferences > Date & Time and make sure that
 date and time are set automatically.   The drop-down menu will normally offer you several time
