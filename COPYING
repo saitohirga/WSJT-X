@@ -149,5 +149,3 @@ Later license versions may give you additional or different permissions. However
 END OF TERMS AND CONDITIONS
 
 ---------------------------
-
-The soft-decision Reed-Solomon decoder used in WSJT and MAP65 is based on an algorithm developed by R. Koetter and A. Vardy and protected under United States Patent number 6,634,007.  It uses code licensed from CodeVector Technologies, LLC.
