@@ -2137,26 +2137,23 @@ void MainWindow::on_addButton_clicked()                       //Add button
     msgBox("Cannot open \"" + f2.fileName () + "\".");
     return;
   }
-  QTextStream in(&f1);
-  QTextStream out(&f2);
+  QTextStream in(&f1);          //Read from CALL3.TXT
+  QTextStream out(&f2);         //Copy into CALL3.TMP
   QString hc=hisCall;
   QString hc1="";
-  QString hc2="AAAAAA";
+  QString hc2="000000";
   QString s;
   do {
     s=in.readLine();
     hc1=hc2;
     if(s.mid(0,2)=="//") {
-      out << s + "\n";
+      out << s + "\n";          //Copy all comment lines
     } else {
       int i1=s.indexOf(",");
       hc2=s.mid(0,i1);
       if(hc>hc1 && hc<hc2) {
         out << newEntry + "\n";
-        if(s.mid(0,6)=="ZZZZZZ") {
-          out << s + "\n";
-          //          exit;                             //Statement has no effect!
-        }
+        out << s + "\n";
         m_call3Modified=true;
       } else if(hc==hc2) {
         QString t=s + "\n\n is already in CALL3.TXT\n" +
@@ -2174,9 +2171,7 @@ void MainWindow::on_addButton_clicked()                       //Add button
   } while(!s.isNull());
 
   f1.close();
-  if(hc>hc1 && !m_call3Modified) {
-    out << newEntry + "\n";
-  }
+  if(hc>hc1 && !m_call3Modified) out << newEntry + "\n";
   if(m_call3Modified) {
     QDir data_path {m_config.data_path ()};
     QFile f0(data_path.absoluteFilePath ("CALL3.OLD"));
