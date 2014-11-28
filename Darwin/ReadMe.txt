@@ -23,33 +23,11 @@ has to be increased.   You can check the current allocation on your Mac by typin
 
 If your shmmax is already at least 33554432 (32 MB) then you can close the Terminal
 window and skip the next steps and go to (NEXT).
-
-You now have to increase the shared memory allocation.  To view this file use TextEdit
-to open sysctl.conf.  
-
-This will show: 
-
-kern.hostname=yourcomputername.local
-kern.sysv.shmmax=33554432
-kern.sysv.shmmin=1
-kern.sysv.shmmni=128
-kern.sysv.shmseg=32
-kern.sysv.shmall=8192
-
-You must now replace    yourcomputername.local  with the exact name of your computer.
-To find this use the Terminal window and type:
-
-   sysctl -a | grep hostname
-
-and will find your computer name.  Now use TextEdit to replace yourcomputername.local
-in this file with the output from this command, including the .local at the end. Save
-the file.
   
 Now move this file into place for the system to use by typing: (Note this assumes that
 you really did drag this file to your Desktop as required earlier.)
 
-  cd $HOME/Desktop
-  sudo cp sysctl.conf /etc/
+  sudo cp $HOME/Desktop/sysctl.conf /etc/
   sudo chmod 664 /etc/sysctl.conf
   sudo chown  root:wheel  /etc/sysctl.conf
 
