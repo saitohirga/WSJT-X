@@ -28,6 +28,8 @@ For MS  Windows see the section  "Building from Source on  MS Windows"
 below. For  Apple Mac see the  section "Building from Source  on Apple
 Mac".
 
+Qt v5, preferably v5.1 or later is required to build WSJT-X.
+
 Qt  v5 multimedia  support is  necessary  as well  as the  core Qt  v5
 components, normally installing the  Qt multimedia development package
 is sufficient to pull in all the required Qt components and dependants
