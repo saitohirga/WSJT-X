@@ -55,7 +55,6 @@ class HamlibTransceiver final
   QByteArray get_conf (char const * item);
   Transceiver::MODE map_mode (rmode_t) const;
   rmode_t map_mode (Transceiver::MODE mode) const;
-  void init_rig ();
   std::tuple<vfo_t, vfo_t> get_vfos () const;
 
   struct RIGDeleter {static void cleanup (RIG *);};
@@ -65,6 +64,8 @@ class HamlibTransceiver final
   bool is_dummy_;
 
   bool mutable reversed_;
+
+  bool split_query_works_;
 };
 
 #endif
