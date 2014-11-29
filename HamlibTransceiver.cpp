@@ -168,6 +168,7 @@ HamlibTransceiver::HamlibTransceiver (int model_number
   , back_ptt_port_ {TransceiverFactory::TX_audio_source_rear == back_ptt_port}
   , is_dummy_ {RIG_MODEL_DUMMY == model_number}
   , reversed_ {false}
+  , split_query_works_ {true}
 {
   if (!rig_)
     {
@@ -265,23 +266,6 @@ void HamlibTransceiver::do_start ()
 
   error_check (rig_open (rig_.data ()), tr ("opening connection to rig"));
 
-  init_rig ();
-}
-
-void HamlibTransceiver::do_stop ()
-{
-  if (rig_)
-    {
-      rig_close (rig_.data ());
-    }
-
-#if WSJT_TRACE_CAT
-  qDebug () << "HamlibTransceiver::do_stop: state:" << state () << "reversed =" << reversed_;
-#endif
-}
-
-void HamlibTransceiver::init_rig ()
-{
   if (!is_dummy_)
     {
       freq_t f1;
@@ -426,6 +410,18 @@ void HamlibTransceiver::init_rig ()
 
 #if WSJT_TRACE_CAT
   qDebug () << "HamlibTransceiver::init_rig exit" << state () << "reversed =" << reversed_;
+#endif
+}
+
+void HamlibTransceiver::do_stop ()
+{
+  if (rig_)
+    {
+      rig_close (rig_.data ());
+    }
+
+#if WSJT_TRACE_CAT
+  qDebug () << "HamlibTransceiver::do_stop: state:" << state () << "reversed =" << reversed_;
 #endif
 }
 
@@ -696,42 +692,46 @@ void HamlibTransceiver::poll ()
 
       update_mode (map_mode (m));
 
-#if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
-      qDebug ().nospace () << "HamlibTransceiver::poll rig_get_split_vfo";
-#endif
-      vfo_t v {RIG_VFO_NONE};		// so we can tell if it doesn't get updated :(
-      auto rc = rig_get_split_vfo (rig_.data (), RIG_VFO_CURR, &s, &v);
-      if (-RIG_OK == rc && RIG_SPLIT_ON == s)
+      if (rig_->caps->get_split_vfo && split_query_works_)
         {
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
-          qDebug ().nospace () << "HamlibTransceiver::poll rig_get_split_vfo split = " << s << " VFO = 0x" << hex << v;
+          qDebug ().nospace () << "HamlibTransceiver::poll rig_get_split_vfo";
 #endif
-
-          update_split (true);
-          // if (RIG_VFO_A == v)
-          // 	{
-          // 	  reversed_ = true;	// not sure if this helps us here
-          // 	}
-        }
-      else if (-RIG_OK == rc)	// not split
-        {
+          vfo_t v {RIG_VFO_NONE};		// so we can tell if it doesn't get updated :(
+          auto rc = rig_get_split_vfo (rig_.data (), RIG_VFO_CURR, &s, &v);
+          if (-RIG_OK == rc && RIG_SPLIT_ON == s)
+            {
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
-          qDebug ().nospace () << "HamlibTransceiver::poll rig_get_split_vfo split = " << s << " VFO = 0x" << hex << v;
+              qDebug ().nospace () << "HamlibTransceiver::poll rig_get_split_vfo split = " << s << " VFO = 0x" << hex << v;
 #endif
 
-          update_split (false);
-        }
-      else if (-RIG_ENAVAIL == rc || -RIG_ENIMPL == rc) // Some rigs (Icom) don't have a way of reporting SPLIT mode
-        {
+              update_split (true);
+              // if (RIG_VFO_A == v)
+              // 	{
+              // 	  reversed_ = true;	// not sure if this helps us here
+              // 	}
+            }
+          else if (-RIG_OK == rc)	// not split
+            {
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
-          qDebug ().nospace () << "HamlibTransceiver::poll rig_get_split_vfo can't do on this rig";
+              qDebug ().nospace () << "HamlibTransceiver::poll rig_get_split_vfo split = " << s << " VFO = 0x" << hex << v;
 #endif
 
-          // just report how we see it based on prior commands
-        }
-      else
-        {
-          error_check (rc, tr ("getting split TX VFO"));
+              update_split (false);
+            }
+          else if (-RIG_ENAVAIL == rc || -RIG_ENIMPL == rc) // Some rigs (Icom) don't have a way of reporting SPLIT mode
+            {
+#if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
+              qDebug ().nospace () << "HamlibTransceiver::poll rig_get_split_vfo can't do on this rig";
+#endif
+
+              // just report how we see it based on prior commands
+              split_query_works_ = false;
+            }
+          else
+            {
+              error_check (rc, tr ("getting split TX VFO"));
+            }
         }
 
       if (RIG_PTT_NONE != rig_->state.pttport.type.ptt && rig_->caps->get_ptt)
