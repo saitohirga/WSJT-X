@@ -794,8 +794,17 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
       ui->dxCallEntry->setText("");
       ui->dxGridEntry->setText("");
       genStdMsgs("");
-      m_ntx=6;
-      ui->txrb6->setChecked(true);
+      if (1 == ui->tabWidget->currentIndex())
+        {
+          ui->genMsg->setText(ui->tx6->text());
+          m_ntx=7;
+          ui->rbGenMsg->setChecked(true);
+        }
+      else
+        {
+          m_ntx=6;
+          ui->txrb6->setChecked(true);
+        }
       return;
     case Qt::Key_F6:
       if(e->modifiers() & Qt::ShiftModifier) {
