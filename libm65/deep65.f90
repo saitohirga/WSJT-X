@@ -4,7 +4,7 @@ subroutine deep65(s3,mode65,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
   real s3(64,63)
   character callsign*12,grid*4,message*22,hisgrid*6,c*1,ceme*3
   character*12 mycall,hiscall
-  character*22 decoded
+  character*22 decoded,bestmsg
   character*22 testmsg(2*MAXCALLS + 2 + MAXRPT)
   character*15 callgrid(MAXCALLS)
   character*180 line
@@ -108,7 +108,6 @@ subroutine deep65(s3,mode65,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
   enddo
 
   p1=-1.e30
-  p2=-1.e30
   do k=1,ntot
      pp(k)=0.
      if(k.ge.2 .and. k.le.64 .and. flip.lt.0.0) cycle
@@ -126,19 +125,26 @@ subroutine deep65(s3,mode65,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
         if(p.gt.p1) then
            p1=p
            ip1=k
+           bestmsg=testmsg(k)
         endif
      endif
   enddo
 
+  p2=-1.e30
   do i=1,ntot
-     if(pp(i).gt.p2 .and. i.ne.ip1) p2=pp(i)
+     if(pp(i).gt.p2 .and. testmsg(i).ne.bestmsg) p2=pp(i)
   enddo
 
   if(mode65.eq.1) bias=max(1.12*p2,0.335)
   if(mode65.eq.2) bias=max(1.08*p2,0.405)
   if(mode65.ge.4) bias=max(1.04*p2,0.505)
 
-  if(p2.eq.p1 .and. p1.ne.-1.e30) stop 'Error in deep65'
+  if(p2.eq.p1 .and. p1.ne.-1.e30) then
+     open(77,file='error.log',status='unknown',access='append')
+     write(77,*) p1,p2,ip1,bestmsg
+     close(77)
+  endif
+
   qual=100.0*(p1-bias)
 
   decoded='                      '
