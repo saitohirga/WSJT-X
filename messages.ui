@@ -54,7 +54,14 @@
         </spacer>
        </item>
        <item>
-        <widget class="QCheckBox" name="checkBox">
+        <widget class="QCheckBox" name="cbCQstar">
+         <property name="text">
+          <string>CQ* Only</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="cbCQ">
          <property name="text">
           <string>CQ Only</string>
          </property>

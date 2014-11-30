@@ -1107,7 +1107,7 @@ void MainWindow::on_actionDelete_all_tf2_files_in_SaveDir_triggered()
 void MainWindow::on_actionErase_Band_Map_and_Messages_triggered()
 {
   g_pBandMap->setText("");
-  g_pMessages->setText("");
+  g_pMessages->setText("","");
   m_map65RxLog |= 4;
 }
 
@@ -1323,7 +1323,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
     }
     if(t.indexOf("<DecodeFinished>") >= 0) {
       if(m_widebandDecode) {
-        g_pMessages->setText(m_messagesText);
+        g_pMessages->setText(m_messagesText,m_bandmapText);
         g_pBandMap->setText(m_bandmapText);
         m_widebandDecode=false;
       }

@@ -11,6 +11,7 @@ Messages::Messages(QWidget *parent) :
           "QTextBrowser { background-color : #000066; color : red; }");
   ui->messagesTextBrowser->clear();
   m_cqOnly=false;
+  m_cqStarOnly=false;
   connect(ui->messagesTextBrowser,SIGNAL(selectCallsign(bool)),this,
           SLOT(selectCallsign2(bool)));
 }
@@ -20,10 +21,11 @@ Messages::~Messages()
   delete ui;
 }
 
-void Messages::setText(QString t)
+void Messages::setText(QString t, QString t2)
 {
   QString cfreq,cfreq0;
   m_t=t;
+  m_t2=t2;
 
   QString s="QTextBrowser{background-color: "+m_colorBackground+"}";
   ui->messagesTextBrowser->setStyleSheet(s);
@@ -32,7 +34,15 @@ void Messages::setText(QString t)
   QStringList lines = t.split( "\n", QString::SkipEmptyParts );
   foreach( QString line, lines ) {
     QString t1=line.mid(0,50);
-    if(m_cqOnly and t1.indexOf(" CQ ") < 0) continue;
+    int ncq=t1.indexOf(" CQ ");
+    if((m_cqOnly or m_cqStarOnly) and  ncq< 0) continue;
+    if(m_cqStarOnly) {
+      QString caller=t1.mid(ncq+4,-1);
+      int nz=caller.indexOf(" ");
+      caller=caller.mid(0,nz);
+      int i=t2.indexOf(caller);
+      if(t2.mid(i-1,1)==" ") continue;
+    }
     int n=line.mid(50,2).toInt();
     if(n==0) ui->messagesTextBrowser->setTextColor(m_color0);
     if(n==1) ui->messagesTextBrowser->setTextColor(m_color1);
@@ -64,12 +74,6 @@ void Messages::selectCallsign2(bool ctrl)
   }
 }
 
-void Messages::on_checkBox_stateChanged(int n)
-{
-  m_cqOnly = (n!=0);
-  setText(m_t);
-}
-
 void Messages::setColors(QString t)
 {
   m_colorBackground = "#"+t.mid(0,6);
@@ -77,5 +81,17 @@ void Messages::setColors(QString t)
   m_color1 = "#"+t.mid(12,6);
   m_color2 = "#"+t.mid(18,6);
   m_color3 = "#"+t.mid(24,6);
-  setText(m_t);
+  setText(m_t,m_t2);
+}
+
+void Messages::on_cbCQ_toggled(bool checked)
+{
+  m_cqOnly = checked;
+  setText(m_t,m_t2);
+}
+
+void Messages::on_cbCQstar_toggled(bool checked)
+{
+  m_cqStarOnly = checked;
+  setText(m_t,m_t2);
 }
