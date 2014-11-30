@@ -1668,7 +1668,9 @@ void MainWindow::selectCall2(bool ctrl)                         //selectCall2
   int i1=t.indexOf(" ",i);
   QString hiscall=t.mid(i0+1,i1-i0-1);
   if(hiscall!="") {
-    if(hiscall.length() < 13) doubleClickOnCall(hiscall, ctrl);
+    int n=hiscall.length();
+    if( n>2 and n<13 and hiscall.toDouble()==0.0 and \
+        hiscall.mid(2,-1).toInt()==0) doubleClickOnCall(hiscall, ctrl);
   }
 }
                                                           //doubleClickOnCall
