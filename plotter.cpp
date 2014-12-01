@@ -372,7 +372,8 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   }
   int x1=(m_DF - m_tol - m_ZoomStartFreq)/df;
   int x2=(m_DF + m_tol - m_ZoomStartFreq)/df;
-  pen1.setWidth(6);
+  pen1.setWidth(4);
+  painter3.setPen(pen1);
   painter3.drawLine(x1,28,x2,28);
 
   pen1.setWidth(3);
