@@ -195,24 +195,25 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
 
     pixperdiv = m_freqPerDiv/df;
     y = m_h2 - m_h2/VERT_DIVS;
-    m_hdivs = w*df/m_freqPerDiv + 0.9999;
-    for( int i=1; i<m_hdivs; i++)                   //draw vertical grids
-      {
-	x = (int)( (float)i*pixperdiv );
-	if(x >= 0 and x<=m_w) {
-	  painter.setPen(QPen(Qt::white, 1,Qt::DotLine));
-	  painter.drawLine(x, 0, x , y);
-	  painter.drawLine(x, m_h2-5, x , m_h2);
-	}
+    m_hdivs = w*df/m_freqPerDiv + 1.9999;
+    float xx0=float(m_startFreq)/float(m_freqPerDiv);
+    xx0=xx0-int(xx0);
+    int x0=xx0*pixperdiv+0.5;
+    for( int i=1; i<m_hdivs; i++) {                  //draw vertical grids
+      x = (int)((float)i*pixperdiv ) - x0;
+      if(x >= 0 and x<=m_w) {
+        painter.setPen(QPen(Qt::white, 1,Qt::DotLine));
+        painter.drawLine(x, 0, x , y);
+        painter.drawLine(x, m_h2-5, x , m_h2);
       }
+    }
 
     pixperdiv = (float)m_h2 / (float)VERT_DIVS;
     painter.setPen(QPen(Qt::white, 1,Qt::DotLine));
-    for( int i=1; i<VERT_DIVS; i++)                 //draw horizontal grids
-      {
-	y = (int)( (float)i*pixperdiv );
-	painter.drawLine(0, y, w, y);
-      }
+    for( int i=1; i<VERT_DIVS; i++) {                //draw horizontal grids
+      y = (int)( (float)i*pixperdiv );
+      painter.drawLine(0, y, w, y);
+    }
   }
 
   QRect rect0;
