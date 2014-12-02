@@ -37,7 +37,7 @@ Name: "{group}\{#MyAppName}\Documentation\{cm:ProgramOnTheWeb,{#MyAppName}}"; Fi
 Name: "{group}\{#MyAppName}\Resources\{cm:ProgramOnTheWeb,WSJT Group}"; Filename: "{#WsjtGroupURL}"
 Name: "{group}\{#MyAppName}\Tools\Wisdom-1"; Filename: "{app}\wisdom1.bat"; WorkingDir: {app}; IconFileName: "{app}\wsjt.ico"
 Name: "{group}\{#MyAppName}\Tools\Wisdom-2"; Filename: "{app}\wisdom2.bat"; WorkingDir: {app}; IconFileName: "{app}\wsjt.ico"
-Name: "{group}\{#MyAppName}\Uninstall\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"; Comment: "Uninstall WSPR";
+Name: "{group}\{#MyAppName}\Uninstall\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"; Comment: "Uninstall MAP65";
 Name: "{group}\{#MyAppName}\{#MyAppName}"; Filename: "{app}\map65.exe"; WorkingDir: {app}; IconFileName: "{app}\wsjt.ico"
 Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\map65.exe";    WorkingDir: {app}; IconFileName: "{app}\wsjt.ico"
 
