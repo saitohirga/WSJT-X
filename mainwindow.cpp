@@ -1579,7 +1579,7 @@ void MainWindow::guiUpdate()
     g_pAstro->astroUpdate(t, m_myGrid, m_hisGrid, fQSO, m_setftx,
                           m_txFreq, m_azelDir);
     m_setftx=0;
-    QString utc = " " + t.time().toString() + " ";
+    QString utc = t.date().toString(" yyyy MMM dd \n") + t.time().toString();
     ui->labUTC->setText(utc);
     if((!m_monitoring and !m_diskData) or (khsym==m_hsym0)) {
       xSignalMeter->setValue(0);
@@ -1819,10 +1819,18 @@ void MainWindow::on_addButton_clicked()                       //Add button
   }
   QString call3File = m_appDir + "/CALL3.TXT";
   QFile f1(call3File);
-  if(!f1.open(QIODevice::ReadOnly | QIODevice::Text)) {
+  if(!f1.open(QIODevice::ReadWrite | QIODevice::Text)) {
     msgBox("Cannot open " + call3File);
     return;
   }
+
+  if(f1.size()==0) {
+    QTextStream out(&f1);
+    out << "ZZZZZZ" << endl;
+    f1.close();
+    f1.open(QIODevice::ReadOnly | QIODevice::Text);
+  }
+
   QString tmpFile = m_appDir + "/CALL3.TMP";
   QFile f2(tmpFile);
   if(!f2.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -1833,7 +1841,7 @@ void MainWindow::on_addButton_clicked()                       //Add button
   QTextStream out(&f2);
   QString hc=hiscall;
   QString hc1="";
-  QString hc2="";
+  QString hc2="000000";
   QString s;
   do {
     s=in.readLine();
@@ -1845,6 +1853,7 @@ void MainWindow::on_addButton_clicked()                       //Add button
       hc2=s.mid(0,i1);
       if(hc>hc1 && hc<hc2) {
         out << newEntry + "\n";
+        out << s + "\n";
         m_call3Modified=true;
       } else if(hc==hc2) {
         QString t=s + "\n\n is already in CALL3.TXT\n" +
@@ -1856,14 +1865,13 @@ void MainWindow::on_addButton_clicked()                       //Add button
           m_call3Modified=true;
         }
       } else {
-        out << s + "\n";
+        if(s!="") out << s + "\n";
       }
     }
   } while(!s.isNull());
 
   f1.close();
-  if(hc>hc1 && !m_call3Modified)
-    out << newEntry + "\n";
+  if(hc>hc1 && !m_call3Modified) out << newEntry + "\n";
   if(m_call3Modified) {
     QFile f0(m_appDir + "/CALL3.OLD");
     if(f0.exists()) f0.remove();
