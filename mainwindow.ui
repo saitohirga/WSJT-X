@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>616</width>
+    <width>625</width>
     <height>477</height>
    </rect>
   </property>
@@ -15,6 +15,12 @@
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>625</width>
+    <height>0</height>
+   </size>
   </property>
   <property name="maximumSize">
    <size>
@@ -256,7 +262,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="minimumSize">
              <size>
-              <width>0</width>
+              <width>164</width>
               <height>40</height>
              </size>
             </property>
@@ -410,15 +416,21 @@ p, li { white-space: pre-wrap; }
           </item>
           <item>
            <widget class="QLabel" name="labUTC">
+            <property name="minimumSize">
+             <size>
+              <width>140</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="maximumSize">
              <size>
               <width>165</width>
-              <height>70</height>
+              <height>60</height>
              </size>
             </property>
             <property name="font">
              <font>
-              <pointsize>18</pointsize>
+              <pointsize>16</pointsize>
              </font>
             </property>
             <property name="frameShape">
@@ -441,11 +453,11 @@ p, li { white-space: pre-wrap; }
            <enum>Qt::Horizontal</enum>
           </property>
           <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
+           <enum>QSizePolicy::Minimum</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>30</width>
+            <width>20</width>
             <height>20</height>
            </size>
           </property>
@@ -1064,7 +1076,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>616</width>
+     <width>625</width>
      <height>21</height>
     </rect>
    </property>
