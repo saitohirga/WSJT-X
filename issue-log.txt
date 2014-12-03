@@ -221,7 +221,11 @@ OmniRig Omni VII  - Bert  w0rsb - OmniRig  server going offline error
     g4wjs: Issues  with clearing the  error.  Probably the  "Test CAT"
     	   not always able to start OmniRig client cleanly issue.
 
-    g4wjs: Sent a tracing version of RC2 - awaiting log.
+    g4wjs: Sent a tracing version of RC2.
+
+    g4wjs:   Fixed  issues   with   OmniRig   reporting  rig   offline
+           intermittently and  lack of  split mode working.  Sent test
+           version.
 
 OmniRig TS-2000 - Yanis sv2bbo - Initialization timeout
 
@@ -234,6 +238,10 @@ OmniRig TS-2000 - Yanis sv2bbo - Initialization timeout
     	   that causes  "Test CAT" to  fail.  Suggested he  just click
     	   "OK" to exit  Settings. Also sent trace  version - awaiting
     	   log.
+
+    g4wjs:   Fixed  issues   with   OmniRig   reporting  rig   offline
+           intermittently and  lack of  split mode working.  Sent test
+           version.
 
 Hamlib R8500 - Chris (UK SWL) airguzzler@btinternet.com - Hamlib IO error
 
@@ -690,7 +698,7 @@ Hamlib IC-9100 - Russell kf5rep -PTT doesn't work
     g4wjs: kf5rep  reports fix working  and log shows no  issues, sent
            non-trace version.
 
-    g4wjs: Fixed in ha,lib - Closed.
+    g4wjs: Fixed in hamlib - Closed.
 
 Hamlib IC-7700 - André ve2ahs - "Hamlib error: Command rejected by the rig while setting current VFO"
 
@@ -705,8 +713,63 @@ Hamlib IC-7700 - André ve2ahs - "Hamlib error: Command rejected by the rig while
 
 Hamlib IC-7200 - John wa2hip - Data mode not working
 
-    g4wjs: No support in hamlib,  amended hamlib and sent test version
-           - awaiting log.
+    g4wjs: No support in hamlib, amended hamlib and sent test version.
+
+    g4wjs: Patch sent upstream to the hamlib team.
+
+    g4wjs: Fixed in hamlib - Closed.
 
  - Bill g4wjs - Replying to "G4WJS NU8R" generates incorrect message
 
+Hamlib IC-7200 - John wa2hip - Mode not being set immediately
+
+    g4wjs: When WSJT-X is in charge  of the rig mode it doesn't always
+           set  it immediately  on start  up or  on exiting  Settings.
+           Also the behaviour seems different with USB vs. DATA.
+
+Hamlib - Chris n0jcf - DTR and RTS being asserted on open
+
+    g4wjs: The serial control line used for PTT should not be asserted
+     	   on rig open.   This is not happening when  the control line
+     	   being used is on the CAT serial port.
+
+    g4wjs: Hamlib defect fixed and patch accepted upstream.
+
+    g4wjs: Closed.
+
+KVASD - Jeff m1bcm - WSJT-X reporting KV decoder errors
+
+    g4wjs: As reported by m1bcm:
+
+	Problem signature:
+	  Problem Event Name:    APPCRASH
+	  Application Name:    kvasd.exe
+	  Application Version:    0.0.0.0
+	  Application Timestamp:    4f203152
+	  Fault Module Name:    ntdll.dll
+	  Fault Module Version:    6.3.9600.17278
+	  Fault Module Timestamp:    53eeb4a3
+	  Exception Code:    c0000005
+	  Exception Offset:    0003e5c9
+	  OS Version:    6.3.9600.2.0.0.768.101
+	  Locale ID:    2057
+	  Additional Information 1:    8192
+	  Additional Information 2:    81925e0a1b4bb5b5bcf88813ce0dd9bb
+	  Additional Information 3:    f5e9
+	  Additional Information 4:&nb sp;   f5e9e351fa57943f5ed0606c29443768
+
+	    which is an access violation.
+
+    g4wjs: Suggested  trying KVASD  v1.12.  No  further reports  of KV
+    	   decoder failures.
+
+Hamlib - Bill g4wjs - No option to force RTS/DTR low
+
+    g4wjs: Some users have both RTS  and DTR utilized for rig control,
+           a common  arrangement is to have  PTT on RTS and  CW or FSK
+           keying on  DTR for  example. On  *nix machines  these lines
+           will   go    high   on    port   open    unless   otherwise
+           specified. Therefore we need an option to force either line
+           low  to  mirror  the  current option  to  force  the  lines
+           high. The current do nothing  and leave serial line control
+           to the driver is also required.
