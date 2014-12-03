@@ -27,12 +27,12 @@ subroutine decoder(ss,id2)
   ndecodes1=0
 
   if (nagain .eq. 0) then
-     open(13,file='decoded.txt',status='unknown')
+     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown')
   else
-     open(13,file='decoded.txt',status='unknown',position='append')
+     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',position='append')
   end if
 
-  open(22,file='kvasd.dat',access='direct',recl=1024,status='unknown')
+  open(22,file=trim(temp_dir)//'/kvasd.dat',access='direct',recl=1024,status='unknown')
 
   npts65=52*12000
   if(baddata(id2,npts65)) then

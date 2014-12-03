@@ -19,7 +19,7 @@ class QDir;
 class LogBook
 {
 public:
-    void init(QDir const& dataPath);
+    void init();
     void match(/*in*/ const QString call,
               /*out*/ QString &countryName,
                       bool &callWorkedBefore,

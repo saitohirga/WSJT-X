@@ -12,6 +12,7 @@
 #include <QList>
 #include <QAudioDeviceInfo>
 #include <QScopedPointer>
+#include <QDir>
 
 #include "soundin.h"
 #include "AudioDevice.hpp"
@@ -197,6 +198,7 @@ private:
   Q_SIGNAL void outAttenuationChanged (qreal) const;
 
 private:
+  QDir m_dataDir;
   QString m_revision;
   bool m_multiple;
   QSettings * m_settings;

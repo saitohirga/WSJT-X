@@ -5,6 +5,8 @@
 #include <QRegExp>
 #include <QTcpSocket>
 #include <QThread>
+#include <QStandardPaths>
+#include <QDir>
 
 #include "NetworkServerLookup.hpp"
 
@@ -66,13 +68,11 @@ qint32 const HRDMessage::magic_2_value_ (0xABCD1234);
 HRDTransceiver::HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped
                                 , QString const& server
                                 , bool use_for_ptt
-                                , int poll_interval
-                                , QDir const& data_path)
+                                , int poll_interval)
   : PollingTransceiver {poll_interval}
   , wrapped_ {std::move (wrapped)}
   , use_for_ptt_ {use_for_ptt}
   , server_ {server}
-  , data_path_ {data_path}
   , hrd_ {0}
   , protocol_ {none}
   , current_radio_ {0}
@@ -158,11 +158,10 @@ void HRDTransceiver::do_start ()
       send_command ("get context", false, false);
     }
 
-  QString HRD_info_path {data_path_.absoluteFilePath ("HRD Interface Information.txt")};
-  QFile HRD_info_file {HRD_info_path};
+  QFile HRD_info_file {QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("HRD Interface Information.txt")};
   if (!HRD_info_file.open (QFile::WriteOnly | QFile::Text | QFile::Truncate))
     {
-      throw error {tr ("Failed to open file \"%1\".").arg (HRD_info_path)};
+      throw error {tr ("Failed to open file \"%1\".").arg (HRD_info_file.fileName ())};
     }
   QTextStream HRD_info {&HRD_info_file};
 

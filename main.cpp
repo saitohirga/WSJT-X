@@ -5,11 +5,6 @@
 
 #include <locale.h>
 
-#ifdef QT5
-#include <QtWidgets>
-#else
-#include <QtGui>
-#endif
 #include <QApplication>
 #include <QRegularExpression>
 #include <QObject>
@@ -65,13 +60,11 @@ int main(int argc, char *argv[])
       auto help_option = parser.addHelpOption ();
       auto version_option = parser.addVersionOption ();
 
-#if WSJT_STANDARD_FILE_LOCATIONS
       // support for multiple instances running from a single installation
       QCommandLineOption rig_option (QStringList {} << "r" << "rig-name"
                                      , a.translate ("main", "Where <rig-name> is for multi-instance support.")
                                      , a.translate ("main", "rig-name"));
       parser.addOption (rig_option);
-#endif
 
       QCommandLineOption test_option (QStringList {} << "test-mode"
                                       , a.translate ("main", "Writable files in test location.  Use with caution, for testing only."));
@@ -98,7 +91,6 @@ int main(int argc, char *argv[])
 
       QStandardPaths::setTestModeEnabled (parser.isSet (test_option));
 
-#if WSJT_STANDARD_FILE_LOCATIONS
       // support for multiple instances running from a single installation
       if (parser.isSet (rig_option))
         {
@@ -148,7 +140,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-#endif
 #endif
 
       auto config_directory = QStandardPaths::writableLocation (QStandardPaths::ConfigLocation);

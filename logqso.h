@@ -15,14 +15,13 @@ namespace Ui {
 }
 
 class QSettings;
-class Configuration;
 
 class LogQSO : public QDialog
 {
   Q_OBJECT
 
 public:
-  explicit LogQSO(QString const& programTitle, QSettings *, Configuration const *, QWidget *parent = 0);
+  explicit LogQSO(QString const& programTitle, QSettings *, QWidget *parent = 0);
   ~LogQSO();
   void initLogQSO(QString hisCall, QString hisGrid, QString mode,
                   QString rptSent, QString rptRcvd, QDateTime dateTime,
@@ -45,7 +44,6 @@ private:
 
   QScopedPointer<Ui::LogQSO> ui;
   QSettings * m_settings;
-  Configuration const * m_configuration;
   QString m_txPower;
   QString m_comments;
   double m_dialFreq;

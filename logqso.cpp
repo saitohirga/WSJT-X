@@ -2,21 +2,20 @@
 
 #include <QString>
 #include <QSettings>
+#include <QStandardPaths>
 #include <QDir>
 #include <QDebug>
 
-#include "Configuration.hpp"
 #include "logbook/adif.h"
 
 #include "ui_logqso.h"
 
 #include "moc_logqso.cpp"
 
-LogQSO::LogQSO(QString const& programTitle, QSettings * settings, Configuration const * configuration, QWidget *parent) :
-  QDialog(parent),
-  ui(new Ui::LogQSO),
-  m_settings (settings),
-  m_configuration (configuration)
+LogQSO::LogQSO(QString const& programTitle, QSettings * settings, QWidget *parent)
+  : QDialog(parent)
+  , ui(new Ui::LogQSO)
+  , m_settings (settings)
 {
   ui->setupUi(this);
   setWindowTitle(programTitle + " - Log QSO");
@@ -109,7 +108,7 @@ void LogQSO::accept()
   //Log this QSO to ADIF file "wsjtx_log.adi"
   QString filename = "wsjtx_log.adi";  // TODO allow user to set
   ADIF adifile;
-  auto adifilePath = m_configuration->data_path ().absoluteFilePath (filename);
+  auto adifilePath = QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("wsjtx_log.adi");
   adifile.init(adifilePath);
   if (!adifile.addQSOToFile(hisCall,hisGrid,mode,rptSent,rptRcvd,date,time,band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower))
   {
@@ -119,7 +118,7 @@ void LogQSO::accept()
   }
 
 //Log this QSO to file "wsjtx.log"
-  QFile f(m_configuration->data_path ().absoluteFilePath ("wsjtx.log"));
+  static QFile f {QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("wsjtx.log")};
   if(!f.open(QIODevice::Text | QIODevice::Append)) {
     QMessageBox m;
     m.setText("Cannot open file \"" + f.fileName () + "\".");
@@ -138,13 +137,13 @@ void LogQSO::accept()
   }
 
 //Clean up and finish logging
-  emit(acceptQSO(true));
+  Q_EMIT acceptQSO(true);
   QDialog::accept();
 }
 
 void LogQSO::reject()
 {
-  emit(acceptQSO(false));
+  Q_EMIT acceptQSO(false);
   QDialog::reject();
 }
 
