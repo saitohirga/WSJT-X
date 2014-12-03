@@ -8,7 +8,7 @@ subroutine jt9a()
      integer*1, pointer :: address_jt9
      end function address_jt9
   end interface
-  
+
   integer*1 attach_jt9
 !  integer*1 lock_jt9,unlock_jt9
   integer size_jt9
@@ -36,22 +36,22 @@ subroutine jt9a()
 
   i1=attach_jt9()
 
-10 inquire(file='.lock',exist=fileExists)
+10 inquire(file=trim(temp_dir)//'/.lock',exist=fileExists)
   if(fileExists) then
      call sleep_msec(100)
      go to 10
   endif
 
-  inquire(file='.quit',exist=fileExists)
+  inquire(file=trim(temp_dir)//'/.quit',exist=fileExists)
   if(fileExists) then
      i1=detach_jt9()
      go to 999
   endif
   if(i1.eq.999999) stop                  !Silence compiler warning
-  
+
   nbytes=size_jt9()
   if(nbytes.le.0) then
-     print*,'jt9a: Shared memory mem_jt9 does not exist.' 
+     print*,'jt9a: Shared memory mem_jt9 does not exist.'
      print*,"Must start 'jt9 -s <thekey>' from within WSJT-X."
      go to 999
   endif
@@ -60,7 +60,7 @@ subroutine jt9a()
   call jt9b(p_jt9,nbytes)
   call timer('jt9b    ',1)
 
-100 inquire(file='.lock',exist=fileExists)
+100 inquire(file=trim(temp_dir)//'/.lock',exist=fileExists)
   if(fileExists) go to 10
   call sleep_msec(100)
   go to 100

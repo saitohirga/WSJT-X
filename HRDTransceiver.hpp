@@ -8,7 +8,6 @@
 #include <QScopedPointer>
 #include <QString>
 #include <QStringList>
-#include <QDir>
 
 #include "TransceiverFactory.hpp"
 #include "PollingTransceiver.hpp"
@@ -34,8 +33,7 @@ public:
   explicit HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped
                            , QString const& server
                            , bool use_for_ptt
-                           , int poll_interval
-                           , QDir const& data_path);
+                           , int poll_interval);
   ~HRDTransceiver ();
 
 protected:
@@ -80,8 +78,6 @@ private:
 
   QString server_;              // The TCP/IP addrress and port for
                                 // the HRD server.
-
-  QDir data_path_;              // Directory to write files to
 
   QTcpSocket * hrd_;            // The TCP/IP client that links to the
                                 // HRD server.

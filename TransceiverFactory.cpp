@@ -107,7 +107,6 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
                                                          , SplitMode split_mode
                                                          , QString const& ptt_port
                                                          , int poll_interval
-                                                         , QDir const& data_path
                                                          , QThread * target_thread
                                                          )
 {
@@ -170,7 +169,7 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
           }
 
         // wrap the basic Transceiver object instance with a decorator object that talks to ham Radio Deluxe
-        result.reset (new HRDTransceiver {std::move (basic_transceiver), cat_port, PTT_method_CAT == ptt_type, poll_interval, data_path});
+        result.reset (new HRDTransceiver {std::move (basic_transceiver), cat_port, PTT_method_CAT == ptt_type, poll_interval});
         if (target_thread)
           {
             result.get ()->moveToThread (target_thread);

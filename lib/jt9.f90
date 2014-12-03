@@ -23,7 +23,7 @@ program jt9
   data npatience/1/
 
   do
-     call getopt('s:e:a:r:p:d:f:w:',long_options,c,optarg,arglen,stat,offset,remain)
+     call getopt('s:e:a:r:p:d:f:w:t:',long_options,c,optarg,arglen,stat,offset,remain)
      if (stat .ne. 0) then
         exit
      end if
@@ -38,6 +38,9 @@ program jt9
 
         case ('a')
            data_dir = optarg(:arglen)
+
+        case ('t')
+           temp_dir = optarg(:arglen)
 
         case ('p')
            read_files = .true.
@@ -62,7 +65,7 @@ program jt9
      print*,'Usage: jt9 -p TRperiod [-d ndepth] [-f rxfreq] {-w patience] -e exe_dir file1 [file2 ...]'
      print*,'       Reads data from *.wav files.'
      print*,''
-     print*,'       jt9 -s <key> [-w patience] -e exe_dir'
+     print*,'       jt9 -s <key> [-w patience] -e exe_dir -a data_dir -t temp_dir'
      print*,'       Gets data from shared memory region with key==<key>'
      go to 999
   endif

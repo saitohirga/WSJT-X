@@ -112,7 +112,6 @@ public:
                                        , SplitMode split_mode // how to support split TX mode
                                        , QString const& ptt_port // serial port device name or special value "CAT"
                                        , int poll_interval // in milliseconds for interfaces that require polling for parameter changes
-                                       , QDir const& data_path
                                        , QThread * target_thread = nullptr
                                        );
   

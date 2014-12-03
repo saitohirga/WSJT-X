@@ -20,7 +20,7 @@ private:
   Q_DISABLE_COPY (Astro);
 
 public:
-  explicit Astro(QSettings * settings, QDir const& dataPath, QWidget * parent = nullptr);
+  explicit Astro(QSettings * settings, QWidget * parent = nullptr);
   ~Astro ();
 
   void astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
@@ -37,7 +37,6 @@ private:
 
   QSettings * settings_;
   QScopedPointer<Ui::Astro> ui_;
-  QDir data_path_;
 };
 
 extern "C" {

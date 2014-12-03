@@ -11,6 +11,7 @@
 #include <QRegExp>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QStandardPaths>
 #include <QDir>
 #include <QDebug>
 #include <QtConcurrent/QtConcurrentRun>
@@ -74,13 +75,14 @@ private:
 MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdmem,
                        unsigned downSampleFactor, QWidget *parent) :
   QMainWindow(parent),
+  m_dataDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)},
   m_revision {revision ("$Rev$")},
   m_multiple {multiple},
   m_settings (settings),
   ui(new Ui::MainWindow),
   m_config (settings, this),
   m_wideGraph (new WideGraph (settings)),
-  m_logDlg (new LogQSO (program_title (), settings, &m_config, this)),
+  m_logDlg (new LogQSO (program_title (), settings, this)),
   m_dialFreq {0},
   m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2, downSampleFactor),
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
@@ -357,7 +359,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
     //delete any .quit file that might have been left lying around
     //since its presence will cause jt9 to exit a soon as we start it
     //and decodes will hang
-    QFile quitFile (".quit");
+    QFile quitFile {m_config.temp_dir ().absoluteFilePath (".quit")};
     while (quitFile.exists ())
       {
         if (!quitFile.remove ())
@@ -368,19 +370,20 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
       }
   }
 
-  QFile lockFile(".lock");     //Create .lock so jt9 will wait
-  lockFile.open(QIODevice::ReadWrite);
+  //Create .lock so jt9 will wait
+  QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.open(QIODevice::ReadWrite);
 
   QStringList jt9_args {
     "-s", QApplication::applicationName ()
       , "-w", "1"
       , "-e", QDir::toNativeSeparators (m_appDir)
-      , "-a", QDir::toNativeSeparators (m_config.data_path ().absolutePath ())
+      , "-a", QDir::toNativeSeparators (m_dataDir.absolutePath ())
+      , "-t", QDir::toNativeSeparators (m_config.temp_dir ().absolutePath ())
       };
   proc_jt9.start(QDir::toNativeSeparators (m_appDir) + QDir::separator () +
           "jt9", jt9_args, QIODevice::ReadWrite | QIODevice::Unbuffered);
 
-  QString fname(QDir::toNativeSeparators(m_config.data_path ().absoluteFilePath ("wsjtx_wisdom.dat")));
+  QString fname {QDir::toNativeSeparators(m_dataDir.absoluteFilePath ("wsjtx_wisdom.dat"))};
   QByteArray cfname=fname.toLocal8Bit();
   fftwf_import_wisdom_from_filename(cfname);
 
@@ -439,7 +442,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 //--------------------------------------------------- MainWindow destructor
 MainWindow::~MainWindow()
 {
-  QString fname(QDir::toNativeSeparators(m_config.data_path ().absoluteFilePath ("wsjtx_wisdom.dat")));
+  QString fname {QDir::toNativeSeparators(m_dataDir.absoluteFilePath ("wsjtx_wisdom.dat"))};
   QByteArray cfname=fname.toLocal8Bit();
   fftwf_export_wisdom_to_filename(cfname);
   m_audioThread->wait ();
@@ -898,7 +901,7 @@ void MainWindow::qsy (Frequency f)
           m_repeatMsg=0;
           m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
 
-          QFile f2(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
+          QFile f2 {m_dataDir.absoluteFilePath ("ALL.TXT")};
           f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
           QTextStream out(&f2);
           out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
@@ -947,7 +950,7 @@ void MainWindow::displayDialFrequency ()
 
 void MainWindow::statusChanged()
 {
-  QFile f("wsjtx_status.txt");
+  QFile f {m_config.temp_dir ().absoluteFilePath ("wsjtx_status.txt")};
   if(f.open(QFile::WriteOnly | QIODevice::Text)) {
     QTextStream out(&f);
     out << (m_dialFreq / 1.e6) << ";" << m_mode << ";" << m_hisCall << ";"
@@ -1010,10 +1013,9 @@ void MainWindow::closeEvent(QCloseEvent * e)
   if(m_fname != "") killFile();
   m_killAll=true;
   mem_jt9->detach();
-  QFile quitFile(".quit");
+  QFile quitFile {m_config.temp_dir ().absoluteFilePath (".quit")};
   quitFile.open(QIODevice::ReadWrite);
-  QFile lockFile(".lock");
-  lockFile.remove();                      // Allow jt9 to terminate
+  QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.remove(); // Allow jt9 to terminate
   bool b=proc_jt9.waitForFinished(1000);
   if(!b) proc_jt9.kill();
   quitFile.remove();
@@ -1046,7 +1048,7 @@ void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
 void MainWindow::on_actionLocal_User_Guide_triggered()
 {
 #if defined (CMAKE_BUILD)
-  auto file = m_config.doc_path ().absoluteFilePath (PROJECT_MANUAL);
+  auto file = m_config.doc_dir ().absoluteFilePath (PROJECT_MANUAL);
   QDesktopServices::openUrl (QUrl {"file:///" + file});
 #endif
 }
@@ -1060,7 +1062,7 @@ void MainWindow::on_actionAstronomical_data_triggered()
 {
   if (!m_astroWidget)
     {
-      m_astroWidget.reset (new Astro {m_settings, m_config.data_path ()});
+      m_astroWidget.reset (new Astro {m_settings});
 
       // hook up termination signal
       connect (this, &MainWindow::finished, m_astroWidget.data (), &Astro::close);
@@ -1306,8 +1308,7 @@ void MainWindow::decode()                                       //decode()
   }
   memcpy(to, from, qMin(mem_jt9->size(), size));
 
-  QFile lockFile(".lock"); // Allow jt9 to start
-  lockFile.remove();
+  QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.remove (); // Allow jt9 to start
   decodeBusy(true);
 }
 
@@ -1338,8 +1339,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(!keepFile and !m_diskData) killFileTimer->start(45*1000); //Kill in 45 s
           jt9com_.nagain=0;
           jt9com_.ndiskdat=0;
-          QFile lockFile(".lock");
-          lockFile.open(QIODevice::ReadWrite);
+          QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.open(QIODevice::ReadWrite);
           ui->DecodeButton->setChecked (false);
           decodeBusy(false);
           m_RxLog=0;
@@ -1347,7 +1347,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           m_blankLine=true;
           return;
         } else {
-        QFile f(m_config.data_path().absoluteFilePath ("ALL.TXT"));
+        QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
         f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
         QTextStream out(&f);
         if(m_RxLog==1) {
@@ -1547,7 +1547,7 @@ void MainWindow::guiUpdate()
     if(m_tune) t="TUNE";
     last_tx_label->setText("Last Tx:  " + t);
     if(m_restart) {
-      QFile f(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
+      QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
       out << QDateTime::currentDateTimeUtc().toString("hhmm")
@@ -1615,7 +1615,7 @@ void MainWindow::guiUpdate()
 
       if(!m_tune)
         {
-          QFile f(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
+          QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
           f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
           QTextStream out(&f);
           out << QDateTime::currentDateTimeUtc().toString("hhmm")
@@ -2089,7 +2089,7 @@ void MainWindow::lookup()                                       //lookup()
 {
   QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
   ui->dxCallEntry->setText(hisCall);
-  QFile f(m_config.data_path ().absoluteFilePath ("CALL3.TXT"));
+  QFile f {m_dataDir.absoluteFilePath ("CALL3.TXT")};
   if (f.open (QIODevice::ReadOnly | QIODevice::Text))
     {
       char c[132];
@@ -2143,7 +2143,7 @@ void MainWindow::on_addButton_clicked()                       //Add button
   newEntry += ",,,";
   //  }
   
-  QFile f1(m_config.data_path ().absoluteFilePath ("CALL3.TXT"));
+  QFile f1 {m_dataDir.absoluteFilePath ("CALL3.TXT")};
   if(!f1.open(QIODevice::ReadWrite | QIODevice::Text)) {
     msgBox("Cannot open \"" + f1.fileName () + "\".");
     return;
@@ -2154,7 +2154,7 @@ void MainWindow::on_addButton_clicked()                       //Add button
     f1.close();
     f1.open(QIODevice::ReadOnly | QIODevice::Text);
   }
-  QFile f2(m_config.data_path ().absoluteFilePath ("CALL3.TMP"));
+  QFile f2 {m_dataDir.absoluteFilePath ("CALL3.TMP")};
   if(!f2.open(QIODevice::WriteOnly | QIODevice::Text)) {
     msgBox("Cannot open \"" + f2.fileName () + "\".");
     return;
@@ -2195,12 +2195,11 @@ void MainWindow::on_addButton_clicked()                       //Add button
   f1.close();
   if(hc>hc1 && !m_call3Modified) out << newEntry + "\n";
   if(m_call3Modified) {
-    QDir data_path {m_config.data_path ()};
-    QFile f0(data_path.absoluteFilePath ("CALL3.OLD"));
+    QFile f0 {m_dataDir.absoluteFilePath ("CALL3.OLD")};
     if(f0.exists()) f0.remove();
-    QFile f1(data_path.absoluteFilePath ("CALL3.TXT"));
-    f1.rename(data_path.absoluteFilePath ("CALL3.OLD"));
-    f2.rename(data_path.absoluteFilePath ("CALL3.TXT"));
+    QFile f1 {m_dataDir.absoluteFilePath ("CALL3.TXT")};
+    f1.rename(m_dataDir.absoluteFilePath ("CALL3.OLD"));
+    f2.rename(m_dataDir.absoluteFilePath ("CALL3.TXT"));
     f2.close();
   }
 }
@@ -2500,7 +2499,7 @@ void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT
                                  "Are you sure you want to erase file ALL.TXT ?",
                                  QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
   if(ret==QMessageBox::Yes) {
-    QFile f(m_config.data_path ().absoluteFilePath ("ALL.TXT"));
+    QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
     f.remove();
     m_RxLog=1;
   }
@@ -2512,14 +2511,14 @@ void MainWindow::on_actionErase_wsjtx_log_adi_triggered()
                                  "Are you sure you want to erase file wsjtx_log.adi ?",
                                  QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
   if(ret==QMessageBox::Yes) {
-    QFile f(m_config.data_path ().absoluteFilePath ("wsjtx_log.adi"));
+    QFile f {m_dataDir.absoluteFilePath ("wsjtx_log.adi")};
     f.remove();
   }
 }
 
 void MainWindow::on_actionOpen_log_directory_triggered ()
 {
-  QDesktopServices::openUrl (QUrl::fromLocalFile (m_config.data_path ().absolutePath ()));
+  QDesktopServices::openUrl (QUrl::fromLocalFile (m_dataDir.absolutePath ()));
 }
 
 bool MainWindow::gridOK(QString g)
@@ -2589,7 +2588,7 @@ void MainWindow::enable_DXCC_entity (bool on)
   if (on)
     {
       // re-read the log and cty.dat files
-      m_logBook.init(m_config.data_path ());
+      m_logBook.init();
     }
 
   if (on)  // adjust the proportions between the two text displays

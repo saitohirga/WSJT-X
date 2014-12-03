@@ -1,6 +1,7 @@
 #include "logbook.h"
 #include <QDebug>
 #include <QFontMetrics>
+#include <QStandardPaths>
 #include <QDir>
 
 namespace
@@ -9,8 +10,9 @@ namespace
   auto countryFileName = "cty.dat";
 }
 
-void LogBook::init(QDir const& dataPath)
+void LogBook::init()
 {
+  QDir dataPath {QStandardPaths::writableLocation (QStandardPaths::DataLocation)};
   QString countryDataFilename;
   if (dataPath.exists (countryFileName))
     {

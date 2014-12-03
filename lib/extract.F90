@@ -34,7 +34,7 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
   call pctile(s3,4032,npct,base)
   s3=s3/base
 
-! Get most reliable and second-most-reliable symbol values, and their 
+! Get most reliable and second-most-reliable symbol values, and their
 ! probabilities
 1 call demod64a(s3,nadd,afac1,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
   if(ntest.lt.100) then
@@ -85,14 +85,10 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
   call flush(22)
   call timer('kvasd   ',0)
 
-! TODO G4WJS: Take out '-q' argument once kvasd 1.12 is available for 
-! Mac and in the repo where CMake fetches it from.
 #ifdef WIN32
-  iret=system('""'//trim(exe_dir)//'/kvasd" -q >dev_null"')
-!  iret=system('""'//trim(exe_dir)//'/kvasd" kvasd.dat >dev_null"')
+  iret=system('""'//trim(exe_dir)//'/kvasd" "'//trim(temp_dir)//'/kvasd.dat" >"'//trim(temp_dir)//'/dev_null""')
 #else
-  iret=system('"'//trim(exe_dir)//'/kvasd" -q >/dev/null')
-!  iret=system('"'//trim(exe_dir)//'/kvasd" kvasd.dat >/dev/null')
+  iret=system('"'//trim(exe_dir)//'/kvasd" "'//trim(temp_dir)//'/kvasd.dat" >/dev/null')
 #endif
 
   call timer('kvasd   ',1)

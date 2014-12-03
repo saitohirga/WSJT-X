@@ -10,6 +10,8 @@
 #include <QDateTime>
 #include <QFont>
 #include <QFontDialog>
+#include <QStandardPaths>
+#include <QDir>
 
 #include "commons.h"
 
@@ -17,11 +19,10 @@
 
 #include "moc_astro.cpp"
 
-Astro::Astro(QSettings * settings, QDir const& dataPath, QWidget * parent) :
-  QWidget {parent},
-  settings_ {settings},
-  ui_ {new Ui::Astro},
-  data_path_ {dataPath}
+Astro::Astro(QSettings * settings, QWidget * parent)
+  : QWidget {parent}
+  , settings_ {settings}
+  , ui_ {new Ui::Astro}
 {
   ui_->setupUi(this);
 
@@ -140,11 +141,11 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
   }
   ui_->text_label->setText(message);
 
-  QString fname {"azel.dat"};
-  QFile f(data_path_.absoluteFilePath (fname));
-  if(!f.open(QIODevice::WriteOnly | QIODevice::Text)) {
+  static QFile f {QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("azel.dat")};
+  if (!f.open (QIODevice::WriteOnly | QIODevice::Text))
+    {
     QMessageBox mb;
-    mb.setText("Cannot open \"" + f.fileName () + "\".");
+    mb.setText ("Cannot open \"" + f.fileName () + "\".");
     mb.exec();
     return;
   }
@@ -154,34 +155,52 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
   {
     QTextStream out {&f};
     out << fixed
-        << qSetFieldWidth (2)
         << qSetRealNumberPrecision (1)
         << qSetPadChar ('0')
         << right
-        << nhr << ':' << nmin << ':' << isec
-        << qSetFieldWidth (5)
-        << ',' << azmoon << ',' << elmoon << ",Moon\n"
-        << qSetFieldWidth (2)
-        << nhr << ':' << nmin << ':' << isec
-        << qSetFieldWidth (5)
-        << ',' << azsun << ',' << elsun << ",Sun\n"
-        << qSetFieldWidth (2)
-        << nhr << ':' << nmin << ':' << isec
-        << qSetFieldWidth (5)
-        << ',' << 0. << ',' << 0. << ",Sun\n"
+        << qSetFieldWidth (2) << nhr
+        << qSetFieldWidth (0) << ':'
+        << qSetFieldWidth (2) << nmin
+        << qSetFieldWidth (0) << ':'
+        << qSetFieldWidth (2) << isec
+        << qSetFieldWidth (0) << ','
+        << qSetFieldWidth (5) << azmoon
+        << qSetFieldWidth (0) << ','
+        << qSetFieldWidth (5) << elmoon
+        << qSetFieldWidth (0) << ",Moon\n"
+        << qSetFieldWidth (2) << nhr
+        << qSetFieldWidth (0) << ':'
+        << qSetFieldWidth (2) << nmin
+        << qSetFieldWidth (0) << ':'
+        << qSetFieldWidth (2) << isec
+        << qSetFieldWidth (0) << ','
+        << qSetFieldWidth (5) << azsun
+        << qSetFieldWidth (0) << ','
+        << qSetFieldWidth (5) << elsun
+        << qSetFieldWidth (0) << ",Sun\n"
+        << qSetFieldWidth (2) << nhr
+        << qSetFieldWidth (0) << ':'
+        << qSetFieldWidth (2) << nmin
+        << qSetFieldWidth (0) << ':'
+        << qSetFieldWidth (2) << isec
+        << qSetFieldWidth (0) << ','
+        << qSetFieldWidth (5) << 0.
+        << qSetFieldWidth (0) << ','
+        << qSetFieldWidth (5) << 0.
+        << qSetFieldWidth (0) << ",Sun\n"
         << qSetPadChar (' ')
-        << qSetFieldWidth (4)
-        << nfreq << ','
-        << qSetFieldWidth (6)
-        << ndop << ",Doppler\n"
-        << qSetFieldWidth (3)
-        << fQSO << ','
-        << qSetFieldWidth (1)
-        << nsetftx << ",fQSO\n"
-        << qSetFieldWidth (3)
-        << ntxFreq << ','
-        << qSetFieldWidth (1)
-        << ndiff << ",fQSO2";
+        << qSetFieldWidth (4) << nfreq
+        << qSetFieldWidth (0) << ','
+        << qSetFieldWidth (6) << ndop
+        << qSetFieldWidth (0) << ",Doppler\n"
+        << qSetFieldWidth (3) << fQSO
+        << qSetFieldWidth (0) << ','
+        << qSetFieldWidth (1) << nsetftx
+        << qSetFieldWidth (0) << ",fQSO\n"
+        << qSetFieldWidth (3) << ntxFreq
+        << qSetFieldWidth (0) << ','
+        << qSetFieldWidth (1) << ndiff
+        << qSetFieldWidth (0) << ",fQSO2";
   }
   f.close();
 }

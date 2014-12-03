@@ -343,9 +343,8 @@ private:
 
   QSettings * settings_;
 
-  QDir doc_path_;
-  QDir temp_path_;
-  QDir data_path_;
+  QDir doc_dir_;
+  QDir temp_dir_;
   QDir default_save_directory_;
   QDir save_directory_;
 
@@ -438,8 +437,8 @@ Configuration::~Configuration ()
 {
 }
 
-QDir Configuration::doc_path () const {return m_->doc_path_;}
-QDir Configuration::data_path () const {return m_->data_path_;}
+QDir Configuration::doc_dir () const {return m_->doc_dir_;}
+QDir Configuration::temp_dir () const {return m_->temp_dir_;}
 
 int Configuration::exec () {return m_->exec ();}
 
@@ -554,9 +553,6 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   , self_ {self}
   , ui_ {new Ui::configuration_dialog}
   , settings_ {settings}
-  , doc_path_ {QApplication::applicationDirPath ()}
-  , temp_path_ {QApplication::applicationDirPath ()}
-  , data_path_ {QApplication::applicationDirPath ()}
   , font_ {QApplication::font ()}
   , font_changed_ {false}
   , decoded_text_font_changed_ {false}
@@ -601,64 +597,51 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
 #define WSJT_DOC_DESTINATION "."
 #endif
 
-  // we must find this before changing the CWD since that breaks
-  // QCoreApplication::applicationDirPath() which is used internally
-  // by QStandardPaths :(
 #if !defined (Q_OS_WIN) || QT_VERSION >= 0x050300
   auto path = QStandardPaths::locate (QStandardPaths::DataLocation, WSJT_DOC_DESTINATION, QStandardPaths::LocateDirectory);
   if (path.isEmpty ())
     {
-      doc_path_.cdUp ();
+      doc_dir_.cdUp ();
 #if defined (Q_OS_MAC)
-      doc_path_.cdUp ();
-      doc_path_.cdUp ();
+      doc_dir_.cdUp ();
+      doc_dir_.cdUp ();
 #endif
-      doc_path_.cd (WSJT_SHARE_DESTINATION);
-      doc_path_.cd (WSJT_DOC_DESTINATION);
+      doc_dir_.cd (WSJT_SHARE_DESTINATION);
+      doc_dir_.cd (WSJT_DOC_DESTINATION);
     }
   else
     {
-      doc_path_.cd (path);
+      doc_dir_.cd (path);
     }
 #else
-  doc_path_.cd (WSJT_DOC_DESTINATION);
+  doc_dir_.cd (WSJT_DOC_DESTINATION);
 #endif
 
-#if WSJT_STANDARD_FILE_LOCATIONS
-  // the following needs to be done on all platforms but changes need
-  // coordination with JTAlert developers
   {
     // Create a temporary directory in a suitable location
     QString temp_location {QStandardPaths::writableLocation (QStandardPaths::TempLocation)};
     if (!temp_location.isEmpty ())
       {
-        temp_path_.setPath (temp_location);
+        temp_dir_.setPath (temp_location);
       }
 
     QString unique_directory {QApplication::applicationName ()};
-    if (!temp_path_.mkpath (unique_directory) || !temp_path_.cd (unique_directory))
+    if (!temp_dir_.mkpath (unique_directory) || !temp_dir_.cd (unique_directory))
       {
-        QMessageBox::critical (this, "WSJT-X", tr ("Create temporary directory error: ") + temp_path_.absolutePath ());
+        QMessageBox::critical (this, "WSJT-X", tr ("Create temporary directory error: ") + temp_dir_.absolutePath ());
         throw std::runtime_error {"Failed to create usable temporary directory"};
       }
   }
 
-  // kvasd writes files to $cwd so by changing to the temp directory
-  // we can keep these files out of the startup directory
-  QDir::setCurrent (temp_path_.absolutePath ());
-  
-  // we run kvasd with a $cwd of our temp directory so we need to copy
-  // in a fresh kvasd.dat for it
-  //
-  // this requirement changes with kvasd v 1.12 since it has a
-  // parameter to set the data file path
+  // copy the kvasd.dat file used for inter-process communication with
+  // kvasd from the resources file system to the temporary directory
   QString kvasd_data_file {"kvasd.dat"};
-  if (!temp_path_.exists (kvasd_data_file))
+  if (!temp_dir_.exists (kvasd_data_file))
     {
-      auto dest_file = temp_path_.absoluteFilePath (kvasd_data_file);
+      auto dest_file = temp_dir_.absoluteFilePath (kvasd_data_file);
       if (!QFile::copy (":/" + kvasd_data_file, dest_file))
         {
-          QMessageBox::critical (this, "WSJT-X", tr ("Cannot copy: :/") + kvasd_data_file + tr (" to: ") + temp_path_.absolutePath ());
+          QMessageBox::critical (this, "WSJT-X", tr ("Cannot copy: :/") + kvasd_data_file + tr (" to: ") + temp_dir_.absolutePath ());
           throw std::runtime_error {"Failed to copy kvasd.dat to temporary directory"};
         }
       else
@@ -670,30 +653,16 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
 
   {
     // Find a suitable data file location
-    QString data_location {QStandardPaths::writableLocation (QStandardPaths::DataLocation)};
-    if (!data_location.isEmpty ())
+    QDir data_dir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)};
+    if (!data_dir.mkpath ("."))
       {
-        data_path_.setPath (data_location);
-      }
-
-    if (!data_path_.mkpath ("."))
-      {
-        QMessageBox::critical (this, "WSJT-X", tr ("Create data directory error: ") + data_path_.absolutePath ());
+        QMessageBox::critical (this, "WSJT-X", tr ("Create data directory error: ") + data_dir.absolutePath ());
         throw std::runtime_error {"Failed to create data directory"};
       }
-  }
-  // qDebug () << "Data store path:" << data_path_.absolutePath ();
-  // auto paths = QStandardPaths::standardLocations (QStandardPaths::DataLocation);
-  // Q_FOREACH (auto const& path, paths)
-  //   {
-  //     qDebug () << "path:" << path;
-  //   }
-#endif
 
-  {
     // Make sure the default save directory exists
     QString save_dir {"save"};
-    default_save_directory_ = data_path_;
+    default_save_directory_ = data_dir;
     if (!default_save_directory_.mkpath (save_dir) || !default_save_directory_.cd (save_dir))
       {
         QMessageBox::critical (this, "WSJT-X", tr ("Create Directory", "Cannot create directory \"") + default_save_directory_.absoluteFilePath (save_dir) + "\".");
@@ -869,10 +838,7 @@ Configuration::impl::~impl ()
   transceiver_thread_.quit ();
   transceiver_thread_.wait ();
 
-  QDir::setCurrent (QApplication::applicationDirPath ());
-#if WSJT_STANDARD_FILE_LOCATIONS
-  temp_path_.removeRecursively (); // clean up temp files
-#endif
+  temp_dir_.removeRecursively (); // clean up temp files
 }
 
 void Configuration::impl::initialise_models ()
@@ -1809,7 +1775,6 @@ bool Configuration::impl::open_rig ()
                                               , static_cast<TransceiverFactory::SplitMode> (ui_->split_mode_button_group->checkedId ())
                                               , ui_->PTT_port_combo_box->currentText ()
                                               , ui_->CAT_poll_interval_spin_box->value () * 1000
-                                              , data_path_
                                               , &transceiver_thread_
                                               );
 
