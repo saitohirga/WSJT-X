@@ -106,6 +106,16 @@ CMAKE_DEPENDENT_OPTION (WSJT_INCLUDE_KVASD "Include kvasd in the package." OFF
   "NOT is_debug_build" ON)
 
 
+set (PROJECT_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")
+if (NOT PROJECT_ARCHITECTURE)
+  # This is supposed to happen already on Windows
+  set (PROJECT_ARCHITECTURE "$ENV{PROCESSOR_ARCHITECTURE}")
+endif (NOT PROJECT_ARCHITECTURE)
+message (STATUS "******************************************************")
+message (STATUS "Building for for: ${CMAKE_SYSTEM_NAME}-${PROJECT_ARCHITECTURE}")
+message (STATUS "******************************************************")
+
+
 #
 # install locations
 #
