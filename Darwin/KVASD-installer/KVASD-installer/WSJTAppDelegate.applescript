@@ -192,29 +192,33 @@ script WSJTAppDelegate
 	end applicationShouldTerminate_
     
     --
-    -- NSDraggingDestination (NSWindow Delgate) Protocol
+    -- NSDraggingDestination (NSWindow Delgate) Protocol (Not working on 10.7)
     --
     
     -- Accept Generic drag&drop sources
-    on draggingEntered_(sender)
-        return current application's NSDragOperationGeneric
-    end draggingEntered_
+--    on draggingEntered_(sender)
+--        return current application's NSDragOperationGeneric
+--    end draggingEntered_
     
     -- Process a drop on our window
-    on performDragOperation_(sender)
-        set pb to sender's draggingPasteboard()
-        if pb's types() as list contains current application's NSURLPboardType then
-            set options to {NSPasteboardURLReadingContentsConformToTypesKey:{"com.apple.application-bundle"}}
-            repeat with u in pb's readObjectsForClasses_options_({current application's |NSURL|},options)
-                copy u's |path| to end of bundlesToProcess
-            end repeat
-            if bundlesToProcess ≠ {} and licenceAgreed then
-                installButton's setEnabled_(true)
-            end if
-            return true
-        end if
-        return false
-    end performDragOperation_
+--    on performDragOperation_(sender)
+--        try
+--            set pb to sender's draggingPasteboard()
+--            if pb's types() as list contains current application's NSURLPboardType then
+--                set options to {NSPasteboardURLReadingContentsConformToTypesKey:{"com.apple.application-bundle"}}
+--                repeat with u in pb's readObjectsForClasses_options_({current application's |NSURL|},options)
+--                    copy u's |path| to end of bundlesToProcess
+--                end repeat
+--                if bundlesToProcess ≠ {} and licenceAgreed then
+--                    installButton's setEnabled_(true)
+--                end if
+--                return true
+--            end if
+--        on error errorString
+--            abort(errorString)
+--        end try
+--        return false
+--    end performDragOperation_
     
     --
     -- UI handlers
@@ -286,20 +290,28 @@ script WSJTAppDelegate
 
     -- Install button handler
     on doInstall_(sender)
-        process()
-        set bundlesToProcess to {}
-        installButton's setEnabled_(false)
+        try
+            process()
+            set bundlesToProcess to {}
+            installButton's setEnabled_(false)
+        on error errorString
+            abort(errorString)
+        end try
     end doInstall_
 
     -- handler called on eulaTextView scroll or view changes
     -- enables agree/install button once the bottom is reached
     on viewChanged_(aNotification)
-        set dr to eulaTextView's |bounds| as record
-        set vdr to eulaTextView's visibleRect as record
-        if height of |size| of dr - (y of origin of vdr + height of |size| of vdr) is less than or equal to 0 ¬
-                and not licenceAgreed then
-            agreeCheckBox's setEnabled_(true)
-        end if
+        try
+            set dr to eulaTextView's |bounds| as record
+            set vdr to eulaTextView's visibleRect as record
+            if height of |size| of dr - (y of origin of vdr + height of |size| of vdr) is less than or equal to 0 ¬
+                    and not licenceAgreed then
+                agreeCheckBox's setEnabled_(true)
+            end if
+        on error errorString
+            abort(errorString)
+        end try
     end viewChanged
 
     -- Abort handler
