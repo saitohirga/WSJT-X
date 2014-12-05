@@ -57,10 +57,9 @@ The install DMG includes an installer tool KVASD-installer that allows you to in
 KVASD into your WSJT-X application.  When you run KVASD-installer you must have a 
 functioning Internet connection since it downloads KVASD during the installation.
 
-Run KVASD-installer and review the license terms then either drag the newly installed 
-WSJT-X application onto it or use the "Choose target …" button to select the WSJT-X 
-application you have just installed then; click "Install" to inject KVASD into the
-WSJT-X application.
+Run KVASD-installer and review the license terms then use the "Choose target …" button
+to select the WSJT-X application you have just installed then; click "Install" to inject
+KVASD into the WSJT-X application.
 
 You need to configure your sound card.   Visit Applications > Utilities > Audio MIDI 
 Setup and select your sound card and then set Format to be "48000Hz 2ch-16bit" for 
