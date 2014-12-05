@@ -50,7 +50,7 @@ end script
 -- kvasd looks after fetching kvasd files from the web source
 script kvasd
     property serverPath : "https://svn.code.sf.net/p/wsjt/wsjt/trunk/kvasd-binary/"
-    property destination : "/tmp/"
+    property destination : system attribute "TMPDIR"
     property targetName : "kvasd"
     
     on fetchEULA()
@@ -82,6 +82,13 @@ script kvasd
         tell application "Finder" to ¬
         print (destination & targetName & "_eula.txt") as POSIX file
     end printLicense
+    
+    on cleanUp()
+        tell application "Finder"
+            delete (destination & targetName & "_eula.txt") as POSIX file
+            delete (destination & targetName) as POSIX file
+        end tell
+    end cleanUp
 end script
 
 script WSJTAppDelegate
@@ -126,11 +133,11 @@ script WSJTAppDelegate
                 if button returned of result = "Ok" then
                     try
                         set target to installRoot & "/Contents/MacOS/" & kvasd's targetName
-                        log do shell script "mv " & kvasd's destination & kvasd's targetName & space & target
+                        do shell script "cp " & kvasd's destination & kvasd's targetName & space & target
                         repeat with theLine in paragraphs of (do shell script "otool -L " & target)
                             if theLine contains ".dylib" and not theLine contains "libSystem" then
                                 set theDylib to 2nd item of split(theLine,{tab,space})
-                                log do shell script "install_name_tool -change " & theDylib & " @executable_path/" & last item of split(theDylib,{"/"}) & space & target
+                                do shell script "install_name_tool -change " & theDylib & " @executable_path/" & last item of split(theDylib,{"/"}) & space & target
                             end if
                         end repeat
                         log do shell script "chmod +x " & target
@@ -186,10 +193,10 @@ script WSJTAppDelegate
         return true
     end applicationShouldTerminateAfterLastWindowClosed_
 	
-	on applicationShouldTerminate_(sender)
+	on applicationWillTerminate_(sender)
         defaultNotificationCentre's removeObserver_(me)
-		return current application's NSTerminateNow
-	end applicationShouldTerminate_
+        kvasd's cleanUp()
+	end applicationWillTerminate_
     
     --
     -- NSDraggingDestination (NSWindow Delgate) Protocol (Not working on 10.7)
