@@ -29,9 +29,9 @@ script curl
     on download(|url|, fileName, destination)
         set |file| to destination & fileName
         try
-            do shell script "curl --fail --retry 5 --silent --output " & |file| & " " & |url| & fileName
-        on error
-            error "An error occurred downloading:" & return & return & |url| & fileName
+            do shell script "curl --fail --retry 5 --silent --show-error --output " & |file| & " " & |url| & fileName
+        on error errorString
+            error "An error occurred downloading:" & return & |url| & fileName & return & return & errorString
         end try
         return |file| as POSIX file
     end download
@@ -40,9 +40,9 @@ script curl
         set md5Ext to ".md5"
         try
             return do shell script "curl --fail --retry 5 --silent " & |url| & fileName & md5Ext ¬
-            & " | awk '{match($0,\"[[:xdigit:]]{32}\"); print substr($0,RSTART,RLENGTH)}'"
-        on error
-            error "An error occurred downloading" & return & return & fileName & md5Ext
+                & " | awk '{match($0,\"[[:xdigit:]]{32}\"); print substr($0,RSTART,RLENGTH)}'"
+        on error errorString
+            error "An error occurred downloading" & return & return & fileName & md5Ext & return & return & errorString
         end try
     end downloadMD5
 end script
@@ -50,7 +50,7 @@ end script
 -- kvasd looks after fetching kvasd files from the web source
 script kvasd
     property serverPath : "https://svn.code.sf.net/p/wsjt/wsjt/trunk/kvasd-binary/"
-    property destination : system attribute "TMPDIR"
+    property destination : (system attribute "TMPDIR") & "/"
     property targetName : "kvasd"
     
     on fetchEULA()
@@ -64,9 +64,9 @@ script kvasd
         set md5Calc to do shell script "md5 " & (POSIX path of |file|) & " | cut -d' ' -f4"
         if md5Calc ≠ md5Sum then
             error "KVASD download corrupt MD5 hash check" & return & return ¬
-            & " expected [" & md5Sum & "]" & return ¬
-            & "   actual [" & md5Calc & "]" ¬
-            number 500
+                    & " expected [" & md5Sum & "]" & return ¬
+                    & "   actual [" & md5Calc & "]" ¬
+                number 500
         end if
     end fetchBinary
     
@@ -85,8 +85,12 @@ script kvasd
     
     on cleanUp()
         tell application "Finder"
-            delete (destination & targetName & "_eula.txt") as POSIX file
-            delete (destination & targetName) as POSIX file
+            if exists (destination & targetName & "_eula.txt") as POSIX file then
+                delete (destination & targetName & "_eula.txt") as POSIX file
+            end if
+            if exists (destination & targetName) as POSIX file then
+                delete (destination & targetName) as POSIX file
+            end if
         end tell
     end cleanUp
 end script
@@ -155,19 +159,12 @@ script WSJTAppDelegate
         end repeat
     end process
 
-    -- execute around handler to display a progress bar during an action
-    on progressAction(action)
-        progressBar's startAnimation_(me)
-        tell action to run
-        progressBar's stopAnimation_(me)
-     end progressAction
-    
     --
     -- NSApplicationDelegate Protocol
     --
     on applicationWillFinishLaunching_(aNotification)
         try
-            mainWindow's registerForDraggedTypes_({"public.file-url"})
+--            mainWindow's registerForDraggedTypes_({"public.file-url"})
             
             set defaultNotificationCentre to current application's NSNotificationCenter's defaultCenter()
             eulaTextView's setEditable_(false)
@@ -175,7 +172,7 @@ script WSJTAppDelegate
             script downloadEula
                 eulaTextView's setString_(read kvasd's fetchEULA())
             end script
-            my progressAction(downloadEula)
+            my doWithRetry(downloadEula)
             saveButton's setEnabled_(true)
             printButton's setEnabled_(true)
         
@@ -264,7 +261,7 @@ script WSJTAppDelegate
                 script downloadKvasd
                     kvasd's fetchBinary()
                 end script
-                my progressAction(downloadKvasd)
+                my doWithRetry(downloadKvasd)
             on error errorString
                 abort(errorString)
             end try
@@ -320,6 +317,35 @@ script WSJTAppDelegate
             abort(errorString)
         end try
     end viewChanged
+
+    -- Do something with retries
+    on doWithRetry(action)
+        set done to false
+        repeat until done
+            try
+                my progressAction(action)
+                set done to true
+            on error errorString
+                set userCanceled to false
+                try
+                    set dialogResult to display alert errorString as warning ¬
+                        buttons {"Cancel", "Retry"} default button "Retry" cancel button "Cancel"
+                on error number -128
+                    set userCanceled to true
+                end try
+                if userCanceled then
+                    error "User canceled operation"
+                end if
+            end try
+        end repeat
+    end doWithRetry
+
+    -- execute around handler to display a progress bar during an action
+    on progressAction(action)
+        progressBar's startAnimation_(me)
+        tell action to run
+        progressBar's stopAnimation_(me)
+    end progressAction
 
     -- Abort handler
     on abort(errorString)
