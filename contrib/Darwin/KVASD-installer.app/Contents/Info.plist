@@ -52,7 +52,7 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>
-	<string></string>
+	<string>10.7</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Created by Bill Somerville (G4WJS) on 12/11/2014.
 
