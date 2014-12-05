@@ -50,17 +50,20 @@ end script
 -- kvasd looks after fetching kvasd files from the web source
 script kvasd
     property serverPath : "https://svn.code.sf.net/p/wsjt/wsjt/trunk/kvasd-binary/"
-    property destination : (system attribute "TMPDIR") & "/"
     property targetName : "kvasd"
     
+    on destination()
+        return system attribute "TMPDIR"
+    end destination
+    
     on fetchEULA()
-        return curl's download(serverPath,targetName  & "_eula.txt",destination)
+        return curl's download(serverPath,targetName  & "_eula.txt",my destination())
     end fetchEULA
     
     on fetchBinary()
         set |url| to serverPath & do shell script "echo `uname -s`-`uname -m`" & "/"
         set md5Sum to curl's downloadMD5(|url|,targetName)
-        set |file| to curl's download(|url|,targetName,destination)
+        set |file| to curl's download(|url|,targetName,my destination())
         set md5Calc to do shell script "md5 " & (POSIX path of |file|) & " | cut -d' ' -f4"
         if md5Calc ≠ md5Sum then
             error "KVASD download corrupt MD5 hash check" & return & return ¬
@@ -75,21 +78,21 @@ script kvasd
             with prompt "Specify folder to save license to" ¬
             default location (path to documents folder)
         tell application "Finder" to ¬
-            duplicate (destination & targetName & "_eula.txt") as POSIX file to dest
+            duplicate (my destination() & targetName & "_eula.txt") as POSIX file to dest
     end saveLicense
     
     on printLicense()
         tell application "Finder" to ¬
-        print (destination & targetName & "_eula.txt") as POSIX file
+            print (my destination() & targetName & "_eula.txt") as POSIX file
     end printLicense
     
     on cleanUp()
         tell application "Finder"
-            if exists (destination & targetName & "_eula.txt") as POSIX file then
-                delete (destination & targetName & "_eula.txt") as POSIX file
+            if exists (my destination() & targetName & "_eula.txt") as POSIX file then
+                delete (my destination() & targetName & "_eula.txt") as POSIX file
             end if
-            if exists (destination & targetName) as POSIX file then
-                delete (destination & targetName) as POSIX file
+            if exists (my destination() & targetName) as POSIX file then
+                delete (my destination() & targetName) as POSIX file
             end if
         end tell
     end cleanUp
@@ -97,8 +100,6 @@ end script
 
 script WSJTAppDelegate
 	property parent : class "NSObject"
-    
-    property licenceAgreed : false
     
     property mainWindow : missing value
     property eulaTextView : missing value
@@ -112,6 +113,7 @@ script WSJTAppDelegate
     property bundlesToProcess : {}
     
     global defaultNotificationCentre
+    global licenceAgreed
     
     on split(theText,theDelimiters)
         set oldDelimiters to AppleScript's text item delimiters
@@ -137,7 +139,7 @@ script WSJTAppDelegate
                 if button returned of result = "Ok" then
                     try
                         set target to installRoot & "/Contents/MacOS/" & kvasd's targetName
-                        do shell script "cp " & kvasd's destination & kvasd's targetName & space & target
+                        do shell script "cp " & kvasd's destination() & kvasd's targetName & space & target
                         repeat with theLine in paragraphs of (do shell script "otool -L " & target)
                             if theLine contains ".dylib" and not theLine contains "libSystem" then
                                 set theDylib to 2nd item of split(theLine,{tab,space})
@@ -167,6 +169,7 @@ script WSJTAppDelegate
 --            mainWindow's registerForDraggedTypes_({"public.file-url"})
             
             set defaultNotificationCentre to current application's NSNotificationCenter's defaultCenter()
+            set licenceAgreed to false
             eulaTextView's setEditable_(false)
             
             script downloadEula
