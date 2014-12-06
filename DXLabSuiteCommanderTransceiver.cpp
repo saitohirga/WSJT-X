@@ -2,6 +2,7 @@
 
 #include <QTcpSocket>
 #include <QRegularExpression>
+#include <QLocale>
 
 #include "NetworkServerLookup.hpp"
 
@@ -110,19 +111,27 @@ void DXLabSuiteCommanderTransceiver::do_ptt (bool on)
     }
 
   update_PTT (on);
-
-  // do_frequency (state ().frequency ()); // gets Commander synchronized
 }
 
-void DXLabSuiteCommanderTransceiver::do_frequency (Frequency f)
+void DXLabSuiteCommanderTransceiver::do_frequency (Frequency f, MODE m)
 {
 #if WSJT_TRACE_CAT
   qDebug () << "DXLabSuiteCommanderTransceiver::do_frequency:" << f << state ();
 #endif
 
-  // number is localised
-  // avoid floating point translation errors by adding a small number (0.1Hz)
-  simple_command ("<command:10>CmdSetFreq<parameters:23><xcvrfreq:10>" + QString ("%L1").arg (f / 1e3 + 1e-4, 10, 'f', 3).toLocal8Bit ());
+  auto f_string = frequency_to_string (f);
+  if (UNK != m)
+    {
+      auto m_string = map_mode (m);
+      auto params =  ("<xcvrfreq:%1>" + f_string + "<xcvrmode:%2>" + m_string + "<preservesplitanddual:1>Y").arg (f_string.size ()).arg (m_string.size ());
+      simple_command (("<command:14>CmdSetFreqMode<parameters:%1>" + params).arg (params.size ()));
+      update_mode (m);
+    }
+  else
+    {
+      auto params =  ("<xcvrfreq:%1>" + f_string).arg (f_string.size ());
+      simple_command (("<command:10>CmdSetFreq<parameters:%1>" + params).arg (params.size ()));
+    }
   update_rx_frequency (f);
 }
 
@@ -134,46 +143,30 @@ void DXLabSuiteCommanderTransceiver::do_tx_frequency (Frequency tx, bool /* rati
 
   if (tx)
     {
-      simple_command ("<command:8>CmdSplit<parameters:7><1:2>on");
-      update_split (true);
-
-      // number is localised
-      // avoid floating point translation errors by adding a small number (0.1Hz)
-
-      // set TX frequency after going split because going split
-      // rationalises TX VFO mode and that can change the frequency on
-      // Yaesu rigs if CW is involved
-      simple_command ("<command:12>CmdSetTxFreq<parameters:23><xcvrfreq:10>" + QString ("%L1").arg (tx / 1e3 + 1e-4, 10, 'f', 3).toLocal8Bit ());
+      auto f_string = frequency_to_string (tx);
+      auto params = ("<xcvrfreq:%1>" + f_string + "<SuppressDual:1>Y").arg (f_string.size ());
+      simple_command (("<command:11>CmdQSXSplit<parameters:%1>" + params).arg (params.size ()));
     }
   else
     {
       simple_command ("<command:8>CmdSplit<parameters:8><1:3>off");
     }
+  update_split (tx);
   update_other_frequency (tx);
-
-  do_frequency (state ().frequency ()); // gets Commander synchronized
 }
 
-void DXLabSuiteCommanderTransceiver::do_mode (MODE mode, bool /* rationalise */)
+void DXLabSuiteCommanderTransceiver::do_mode (MODE m, bool /* rationalise */)
 {
 #if WSJT_TRACE_CAT
-  qDebug () << "DXLabSuiteCommanderTransceiver::do_mode:" << mode << state ();
+  qDebug () << "DXLabSuiteCommanderTransceiver::do_mode:" << m << state ();
 #endif
 
-  auto mapped = map_mode (mode);
-  simple_command ((QString ("<command:10>CmdSetMode<parameters:%1><1:%2>").arg (5 + mapped.size ()).arg (mapped.size ()) + mapped).toLocal8Bit ());
+  auto m_string = map_mode (m);
+  auto params =  ("<1:%1>" + m_string).arg (m_string.size ());
 
-  if (state ().split ())
-    {
-      // this toggle ensures that the TX VFO mode is the same as the RX VFO
-      simple_command ("<command:8>CmdSplit<parameters:8><1:3>off");
-      simple_command ("<command:8>CmdSplit<parameters:7><1:2>on");
-    }
+  simple_command (("<command:10>CmdSetMode<parameters:%1>" + params).arg (params.size ()));
 
-  do_frequency (state ().frequency ()); // gets Commander synchronized
-
-  // setting TX frequency rationalises the mode on Icoms so get current and set
-  poll ();
+  update_mode (m);
 }
 
 void DXLabSuiteCommanderTransceiver::poll ()
@@ -187,14 +180,14 @@ void DXLabSuiteCommanderTransceiver::poll ()
   auto reply = command_with_reply ("<command:10>CmdGetFreq<parameters:0>", quiet);
   if (0 == reply.indexOf ("<CmdFreq:"))
     {
-      // remove thousands separator and DP - relies of n.nnn kHz
-      // format so we can do uint conversion
-      reply = reply.mid (reply.indexOf ('>') + 1).replace (",", "").replace (".", "");
-
-      if (!state ().ptt ()) // Commander is not reliable on frequency
-        										// polls while transmitting
+      auto f = string_to_frequency (reply.mid (reply.indexOf ('>') + 1));
+      if (f)
         {
-          update_rx_frequency (reply.toUInt ());
+          if (!state ().ptt ()) // Commander is not reliable on frequency
+                                // polls while transmitting
+            {
+              update_rx_frequency (f);
+            }
         }
     }
   else
@@ -211,11 +204,14 @@ void DXLabSuiteCommanderTransceiver::poll ()
       reply = command_with_reply ("<command:12>CmdGetTXFreq<parameters:0>", quiet);
       if (0 == reply.indexOf ("<CmdTXFreq:"))
         {
-          // remove thousands separator and DP - relies of n.nnn kHz format so we ca do uint conversion
-          auto text = reply.mid (reply.indexOf ('>') + 1).replace (",", "").replace (".", "");
-          if ("000" != text)
+          auto f = string_to_frequency (reply.mid (reply.indexOf ('>') + 1));
+          if (f)
             {
-              update_other_frequency (text.toUInt ());
+              if (!state ().ptt ()) // Commander is not reliable on frequency
+                                // polls while transmitting
+                {
+                  update_other_frequency (f);
+                }
             }
         }
       else
@@ -323,7 +319,7 @@ void DXLabSuiteCommanderTransceiver::poll ()
     }
 }
 
-void DXLabSuiteCommanderTransceiver::simple_command (QByteArray const& cmd, bool no_debug)
+void DXLabSuiteCommanderTransceiver::simple_command (QString const& cmd, bool no_debug)
 {
   Q_ASSERT (commander_);
 
@@ -344,16 +340,9 @@ void DXLabSuiteCommanderTransceiver::simple_command (QByteArray const& cmd, bool
     }
 }
 
-QByteArray DXLabSuiteCommanderTransceiver::command_with_reply (QByteArray const& cmd, bool no_debug)
+QString DXLabSuiteCommanderTransceiver::command_with_reply (QString const& cmd, bool no_debug)
 {
   Q_ASSERT (commander_);
-
-  if (!no_debug)
-    {
-#if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver:command_with_reply(" << cmd << ')';
-#endif
-    }
 
   if (!write_to_port (cmd))
     {
@@ -363,7 +352,7 @@ QByteArray DXLabSuiteCommanderTransceiver::command_with_reply (QByteArray const&
 
       throw error {
         tr ("DX Lab Suite Commander failed to send command \"%1\": %2\n")
-          .arg (cmd.constData ())
+          .arg (cmd)
           .arg (commander_->errorString ())
           };
     }
@@ -383,7 +372,7 @@ QByteArray DXLabSuiteCommanderTransceiver::command_with_reply (QByteArray const&
 
           throw error {
             tr ("DX Lab Suite Commander send command \"%1\" read reply failed: %2\n")
-              .arg (cmd.constData ())
+              .arg (cmd)
               .arg (commander_->errorString ())
               };
         }
@@ -397,11 +386,16 @@ QByteArray DXLabSuiteCommanderTransceiver::command_with_reply (QByteArray const&
 
       throw error {
         tr ("DX Lab Suite Commander retries exhausted sending command \"%1\"")
-          .arg (cmd.constData ())
+          .arg (cmd)
           };
     }
 
   auto result = commander_->readAll ();
+  // qDebug () << "result: " << result;
+  // for (int i = 0; i < result.size (); ++i)
+  //   {
+  //     qDebug () << i << ":" << hex << int (result[i]);
+  //   }
 
   if (!no_debug)
     {
@@ -410,11 +404,12 @@ QByteArray DXLabSuiteCommanderTransceiver::command_with_reply (QByteArray const&
 #endif
     }
 
-  return result;
+  return result;                // converting raw UTF-8 bytes to QString
 }
 
-bool DXLabSuiteCommanderTransceiver::write_to_port (QByteArray const& data)
+bool DXLabSuiteCommanderTransceiver::write_to_port (QString const& s)
 {
+  auto data = s.toLocal8Bit ();
   auto to_send = data.constData ();
   auto length = data.size ();
 
@@ -430,4 +425,32 @@ bool DXLabSuiteCommanderTransceiver::write_to_port (QByteArray const& data)
       total_bytes_sent += bytes_sent;
     }
   return true;
+}
+
+QString DXLabSuiteCommanderTransceiver::frequency_to_string (Frequency f) const
+{
+  // number is localized and in kHz, avoid floating point translation
+  // errors by adding a small number (0.1Hz)
+  return QString {"%L1"}.arg (f / 1e3 + 1e-4, 10, 'f', 3);
+}
+
+auto DXLabSuiteCommanderTransceiver::string_to_frequency (QString s) const -> Frequency
+{
+  // temporary hack because Commander is returning invalid UTF-8 bytes
+  s.replace (QChar {QChar::ReplacementCharacter}, locale_.groupSeparator ());
+
+  // remove DP - relies on n.nnn kHz format so we can do ulonglong
+  // conversion to Hz
+  bool ok;
+
+  //  auto f = locale_.toDouble (s, &ok); // use when CmdSendFreq and
+                                      // CmdSendTxFreq reinstated
+
+  auto f = QLocale::c ().toDouble (s, &ok); // temporary fix
+
+  if (!ok)
+    {
+      throw error {tr ("DX Lab Suite Commander sent an unrecognized frequency")};
+    }
+  return (f + 1e-4) * 1e3;
 }

@@ -632,11 +632,16 @@ void OmniRigTransceiver::do_ptt (bool on)
     }
 }
 
-void OmniRigTransceiver::do_frequency (Frequency f)
+void OmniRigTransceiver::do_frequency (Frequency f, MODE m)
 {
 #if WSJT_TRACE_CAT
   qDebug () << "OmniRigTransceiver::do_frequency:" << f << state ();
 #endif
+
+  if (UNK != m)
+    {
+      do_mode (m, false);
+    }
 
   if (OmniRig::PM_FREQ & writable_params_)
     {

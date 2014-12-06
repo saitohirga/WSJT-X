@@ -126,7 +126,7 @@ public:
   Q_SIGNAL void finished () const;
 
   // Set frequency in Hertz.
-  Q_SLOT virtual void frequency (Frequency) noexcept = 0;
+  Q_SLOT virtual void frequency (Frequency, MODE = UNK) noexcept = 0;
 
   // Setting a non-zero TX frequency means split operation, the value
   // zero means simplex operation.
