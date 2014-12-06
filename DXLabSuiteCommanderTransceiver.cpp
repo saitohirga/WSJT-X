@@ -135,7 +135,6 @@ void DXLabSuiteCommanderTransceiver::do_tx_frequency (Frequency tx, bool /* rati
   if (tx)
     {
       simple_command ("<command:8>CmdSplit<parameters:7><1:2>on");
-      update_split (true);
 
       // number is localised
       // avoid floating point translation errors by adding a small number (0.1Hz)
@@ -144,6 +143,11 @@ void DXLabSuiteCommanderTransceiver::do_tx_frequency (Frequency tx, bool /* rati
       // rationalises TX VFO mode and that can change the frequency on
       // Yaesu rigs if CW is involved
       simple_command ("<command:12>CmdSetTxFreq<parameters:23><xcvrfreq:10>" + QString ("%L1").arg (tx / 1e3 + 1e-4, 10, 'f', 3).toLocal8Bit ());
+
+      // set split again because on some rigs CmdSetTxFreq clears
+      // split mode
+      simple_command ("<command:8>CmdSplit<parameters:7><1:2>on");
+      update_split (true);
     }
   else
     {
@@ -347,13 +351,6 @@ void DXLabSuiteCommanderTransceiver::simple_command (QByteArray const& cmd, bool
 QByteArray DXLabSuiteCommanderTransceiver::command_with_reply (QByteArray const& cmd, bool no_debug)
 {
   Q_ASSERT (commander_);
-
-  if (!no_debug)
-    {
-#if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver:command_with_reply(" << cmd << ')';
-#endif
-    }
 
   if (!write_to_port (cmd))
     {
