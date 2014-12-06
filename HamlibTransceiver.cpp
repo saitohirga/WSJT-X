@@ -470,11 +470,16 @@ auto HamlibTransceiver::get_vfos () const -> std::tuple<vfo_t, vfo_t>
   return std::make_tuple (rx_vfo, tx_vfo);
 }
 
-void HamlibTransceiver::do_frequency (Frequency f)
+void HamlibTransceiver::do_frequency (Frequency f, MODE m)
 {
 #if WSJT_TRACE_CAT
-  qDebug () << "HamlibTransceiver::do_frequency:" << f << "reversed:" << reversed_;
+  qDebug () << "HamlibTransceiver::do_frequency:" << f << "mode:" << m << "reversed:" << reversed_;
 #endif
+
+  if (UNK != m)
+    {
+      do_mode (m, false);
+    }
 
   if (!is_dummy_)
     {

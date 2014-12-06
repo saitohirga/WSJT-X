@@ -422,8 +422,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   ui->labDialFreq->setStyleSheet("QLabel { background-color : black; color : yellow; }");
 
   m_config.transceiver_online (true);
-  qsy (m_lastMonitoredFrequency);
-  monitor (!m_config.monitor_off_at_startup ());
+  on_monitorButton_clicked (!m_config.monitor_off_at_startup ());
 
 #if !WSJT_ENABLE_EXPERIMENTAL_FEATURES
   ui->actionJT9W_1->setEnabled (false);
@@ -666,12 +665,13 @@ void MainWindow::on_monitorButton_clicked (bool checked)
       auto prior = m_monitoring;
       monitor (checked);
 
-      if (!prior)
+      if (checked && !prior)
         {
           m_diskData = false;	// no longer reading WAV files
 
           // put rig back where it was when last in control
           Q_EMIT m_config.transceiver_frequency (m_lastMonitoredFrequency);
+          qsy (m_lastMonitoredFrequency);
           setXIT (ui->TxFreqSpinBox->value ());
         }
 
@@ -2857,10 +2857,7 @@ void MainWindow::handle_transceiver_failure (QString reason)
 {
   ui->readFreq->setStyleSheet("QPushButton{background-color: red;"
                               "border-width: 0px; border-radius: 5px;}");
-
-  m_btxok=false;
-  m_repeatMsg=0;
-
+  on_stopTxButton_clicked ();
   rigFailure ("Rig Control Error", reason);
 }
 

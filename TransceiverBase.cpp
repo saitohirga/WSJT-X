@@ -102,15 +102,15 @@ void TransceiverBase::stop () noexcept
     }
 }
 
-void TransceiverBase::frequency (Frequency f) noexcept
+void TransceiverBase::frequency (Frequency f, MODE m) noexcept
 {
   QString message;
   try
     {
       if (m_->state_.online ())
         {
-          do_frequency (f);
-          do_post_frequency (f);
+          do_frequency (f, m);
+          do_post_frequency (f, m);
         }
     }
   catch (std::exception const& e)
@@ -135,7 +135,7 @@ void TransceiverBase::tx_frequency (Frequency tx, bool rationalise_mode) noexcep
       if (m_->state_.online ())
         {
           do_tx_frequency (tx, rationalise_mode);
-          do_post_tx_frequency (tx);
+          do_post_tx_frequency (tx, rationalise_mode);
         }
     }
   catch (std::exception const& e)
@@ -160,7 +160,7 @@ void TransceiverBase::mode (MODE m, bool rationalise) noexcept
       if (m_->state_.online ())
         {
           do_mode (m, rationalise);
-          do_post_mode (m);
+          do_post_mode (m, rationalise);
         }
     }
   catch (std::exception const& e)

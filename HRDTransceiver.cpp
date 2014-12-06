@@ -500,11 +500,16 @@ void HRDTransceiver::set_button (int button_index, bool checked)
     }
 }
 
-void HRDTransceiver::do_frequency (Frequency f)
+void HRDTransceiver::do_frequency (Frequency f, MODE m)
 {
 #if WSJT_TRACE_CAT
   qDebug () << "HRDTransceiver::do_frequency:" << f << "reversed:" << reversed_;
 #endif
+
+  if (UNK != m)
+    {
+      do_mode (m, false);
+    }
 
   auto fo_string = QString::number (f);
   if (vfo_count_ > 1 && reversed_)
