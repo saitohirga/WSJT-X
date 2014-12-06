@@ -591,6 +591,7 @@ if (hamlib_STATIC_LIBRARY)
   set (hamlib_LIBRARY "${hamlib_STATIC_LIBRARY}")
   set (hamlib_LIBRARIES "${hamlib_STATIC_LIBRARIES}")
 endif ()
+find_program (RIGCTL_EXE rigctl)
 find_program (RIGCTLD_EXE rigctld)
 
 message (STATUS "hamlib_INCLUDE_DIRS: ${hamlib_INCLUDE_DIRS}")
@@ -785,6 +786,13 @@ else (WSJT_INCLUDE_KVASD)
       )
   endif (APPLE)
 endif (WSJT_INCLUDE_KVASD)
+
+install (PROGRAMS
+  ${RIGCTL_EXE}
+  DESTINATION ${WSJT_BIN_DESTINATION}
+  #COMPONENT runtime
+  RENAME rigctl-wsjtx${CMAKE_EXECUTABLE_SUFFIX}
+  )
 
 install (PROGRAMS
   ${RIGCTLD_EXE}
