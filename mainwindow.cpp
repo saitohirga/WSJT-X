@@ -1491,6 +1491,7 @@ void MainWindow::guiUpdate()
     if(g_iptt==0 and ((bTxTime and fTR<0.4) or m_tune )) {
       icw[0]=m_ncw;
       g_iptt = 1;
+      setXIT (ui->TxFreqSpinBox->value ()); // ensure correct offset
       Q_EMIT m_config.transceiver_ptt (true);
       ptt1Timer->start(200);                       //Sequencer delay
     }
