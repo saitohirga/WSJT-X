@@ -32,7 +32,7 @@ public:
   explicit EmulateSplitTransceiver (std::unique_ptr<Transceiver> wrapped);
 
   void start () noexcept override;
-  void frequency (Frequency) noexcept override;
+  void frequency (Frequency, MODE) noexcept override;
   void tx_frequency (Frequency, bool rationalise_mode) noexcept override;
   void ptt (bool on) noexcept override;
 

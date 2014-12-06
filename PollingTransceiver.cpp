@@ -106,17 +106,18 @@ void PollingTransceiver::do_post_stop ()
   m_->stop_timer ();
 }
 
-void PollingTransceiver::do_post_frequency (Frequency f)
+void PollingTransceiver::do_post_frequency (Frequency f, MODE m)
 {
-  if (m_->next_state_.frequency () != f)
+  if (m_->next_state_.frequency () != f || m_->next_state_.mode () != m)
     {
       // update expected state with new frequency and set poll count
       m_->next_state_.frequency (f);
+      m_->next_state_.mode (m);
       m_->retries_ = polls_to_stabilize;
     }
 }
 
-void PollingTransceiver::do_post_tx_frequency (Frequency f)
+void PollingTransceiver::do_post_tx_frequency (Frequency f, bool /* rationalize */)
 {
   if (m_->next_state_.tx_frequency () != f)
     {
@@ -128,7 +129,7 @@ void PollingTransceiver::do_post_tx_frequency (Frequency f)
     }
 }
 
-void PollingTransceiver::do_post_mode (MODE m)
+void PollingTransceiver::do_post_mode (MODE m, bool /*rationalize_mode*/)
 {
   if (m_->next_state_.mode () != m)
     {

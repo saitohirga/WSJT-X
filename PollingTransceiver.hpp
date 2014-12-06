@@ -41,7 +41,7 @@ public:
   ~PollingTransceiver ();
 
 protected:
-  void do_sync (bool /* force_signal */) override final;
+  void do_sync (bool force_signal) override final;
 
   // Sub-classes implement this and fetch what they can from the rig
   // in a non-intrusive manner.
@@ -49,9 +49,9 @@ protected:
 
   void do_post_start () override final;
   void do_post_stop () override final;
-  void do_post_frequency (Frequency) override final;
-  void do_post_tx_frequency (Frequency) override final;
-  void do_post_mode (MODE) override final;
+  void do_post_frequency (Frequency, MODE = UNK) override final;
+  void do_post_tx_frequency (Frequency, bool rationalize = true) override final;
+  void do_post_mode (MODE, bool rationalize = true) override final;
   bool do_pre_update () override final;
 
 private:

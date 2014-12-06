@@ -71,7 +71,7 @@ public:
   //
   void start () noexcept override final;
   void stop () noexcept override final;
-  void frequency (Frequency rx) noexcept override final;
+  void frequency (Frequency rx, MODE = UNK) noexcept override final;
   void tx_frequency (Frequency tx, bool rationalise_mode) noexcept override final;
   void mode (MODE, bool rationalise) noexcept override final;
   void ptt (bool) noexcept override final;
@@ -97,17 +97,17 @@ protected:
   virtual void do_stop () = 0;
   virtual void do_post_stop () {}
 
-  virtual void do_frequency (Frequency rx) = 0;
-  virtual void do_post_frequency (Frequency) {}
+  virtual void do_frequency (Frequency rx, MODE = UNK) = 0;
+  virtual void do_post_frequency (Frequency, MODE = UNK) {}
 
   virtual void do_tx_frequency (Frequency tx = 0, bool rationalise_mode = true) = 0;
-  virtual void do_post_tx_frequency (Frequency) {}
+  virtual void do_post_tx_frequency (Frequency, bool /* rationalise_mode */ = true) {}
 
   virtual void do_mode (MODE, bool rationalise = true) = 0;
-  virtual void do_post_mode (MODE) {}
+  virtual void do_post_mode (MODE, bool /* rationalise */ = true) {}
 
   virtual void do_ptt (bool = true) = 0;
-  virtual void do_post_ptt (bool) {}
+  virtual void do_post_ptt (bool = true) {}
 
   virtual void do_sync (bool force_signal = false) = 0;
 
