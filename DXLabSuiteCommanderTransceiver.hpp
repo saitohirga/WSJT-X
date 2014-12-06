@@ -8,6 +8,7 @@
 
 class QTcpSocket;
 class QByteArray;
+class QString;
 
 //
 // DX Lab Suite Commander Interface
@@ -32,7 +33,7 @@ public:
 protected:
   void do_start () override;
   void do_stop () override;
-  void do_frequency (Frequency) override;
+  void do_frequency (Frequency, MODE = UNK) override;
   void do_tx_frequency (Frequency, bool rationalise_mode) override;
   void do_mode (MODE, bool rationalise) override;
   void do_ptt (bool on) override;
@@ -40,14 +41,17 @@ protected:
   void poll () override;
 
 private:
-  void simple_command (QByteArray const&, bool no_debug = false);
-  QByteArray command_with_reply (QByteArray const&, bool no_debug = false);
-  bool write_to_port (QByteArray const&);
+  void simple_command (QString const&, bool no_debug = false);
+  QString command_with_reply (QString const&, bool no_debug = false);
+  bool write_to_port (QString const&);
+  QString frequency_to_string (Frequency) const;
+  Frequency string_to_frequency (QString) const;
 
   std::unique_ptr<TransceiverBase> wrapped_;
   bool use_for_ptt_;
   QString server_;
   QTcpSocket * commander_;
+  QLocale locale_;
 };
 
 #endif

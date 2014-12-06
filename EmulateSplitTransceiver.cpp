@@ -20,17 +20,17 @@ void EmulateSplitTransceiver::start () noexcept
   wrapped_->tx_frequency (0, false);
 }
 
-void EmulateSplitTransceiver::frequency (Frequency rx) noexcept
+void EmulateSplitTransceiver::frequency (Frequency rx, MODE m) noexcept
 {
 #if WSJT_TRACE_CAT
-  qDebug () << "EmulateSplitTransceiver::frequency:" << rx;
+  qDebug () << "EmulateSplitTransceiver::frequency:" << rx << "mode:" << m;
 #endif
 
   // Save frequency parameters.
   frequency_[0] = rx;
 
   // Set active frequency.
-  wrapped_->frequency (rx);
+  wrapped_->frequency (rx, m);
 }
 
 void EmulateSplitTransceiver::tx_frequency (Frequency tx, bool /* rationalise_mode */) noexcept

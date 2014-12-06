@@ -262,7 +262,7 @@ private:
 
   void initialise_models ();
   bool open_rig ();
-  bool set_mode ();
+  //bool set_mode ();
   void close_rig ();
   void enumerate_rigs ();
   void set_rig_invariants ();
@@ -328,7 +328,7 @@ private:
 
   // typenames used as arguments must match registered type names :(
   Q_SIGNAL void stop_transceiver () const;
-  Q_SIGNAL void frequency (Frequency rx) const;
+  Q_SIGNAL void frequency (Frequency rx, Transceiver::MODE) const;
   Q_SIGNAL void tx_frequency (Frequency tx, bool rationalize_mode) const;
   Q_SIGNAL void mode (Transceiver::MODE, bool rationalize) const;
   Q_SIGNAL void ptt (bool) const;
@@ -389,7 +389,20 @@ private:
   bool rig_changed_;
   TransceiverState cached_rig_state_;
   bool ptt_state_;
+
+  // the following members are required to get the rig into split the
+  // first time monitor or tune or Tx occur
   bool setup_split_;
+  Frequency required_tx_frequency_; // this is needed because DX Lab
+                                    // Suite Commander in particular
+                                    // insists on reporting out of
+                                    // date state after successful
+                                    // commands to change the rig
+                                    // state :( Zero is valid and it
+                                    // means that we don't know the Tx
+                                    // frequency rather than implying
+                                    // no split.
+
   bool enforce_mode_and_split_;
   FrequencyDelta transceiver_offset_;
 
@@ -515,6 +528,7 @@ void Configuration::transceiver_tx_frequency (Frequency f)
 #endif
 
   m_->setup_split_ = true;
+  m_->required_tx_frequency_ = f;
   m_->transceiver_tx_frequency (f);
 }
 
@@ -544,6 +558,7 @@ void Configuration::sync_transceiver (bool force_signal, bool enforce_mode_and_s
 
   m_->enforce_mode_and_split_ = enforce_mode_and_split;
   m_->setup_split_ = enforce_mode_and_split;
+  m_->required_tx_frequency_ = 0;
   m_->sync_transceiver (force_signal);
 }
 
@@ -584,6 +599,7 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   , rig_changed_ {false}
   , ptt_state_ {false}
   , setup_split_ {false}
+  , required_tx_frequency_ {0}
   , enforce_mode_and_split_ {false}
   , transceiver_offset_ {0}
   , default_audio_input_device_selected_ {false}
@@ -1570,6 +1586,7 @@ void Configuration::impl::on_CAT_poll_interval_spin_box_valueChanged (int /* val
 void Configuration::impl::on_split_mode_button_group_buttonClicked (int /* id */)
 {
   setup_split_ = true;
+  required_tx_frequency_ = 0;
 }
 
 void Configuration::impl::on_test_CAT_push_button_clicked ()
@@ -1822,51 +1839,61 @@ bool Configuration::impl::open_rig ()
 
 void Configuration::impl::transceiver_frequency (Frequency f)
 {
-  if (set_mode () || cached_rig_state_.frequency () != f)
+  Transceiver::MODE mode {Transceiver::UNK};
+  switch (static_cast<DataMode> (ui_->TX_mode_button_group->checkedId ()))
+    {
+    case data_mode_USB: mode = Transceiver::USB; break;
+    case data_mode_data: mode = Transceiver::DIG_U; break;
+    case data_mode_none: break;
+    }
+
+  if (cached_rig_state_.frequency () != f
+      || (mode != Transceiver::UNK && mode != cached_rig_state_.mode ()))
     {
       cached_rig_state_.frequency (f);
+      cached_rig_state_.mode (mode);
 
       // lookup offset
       transceiver_offset_ = stations_.offset (f);
-      Q_EMIT frequency (f + transceiver_offset_);
+      Q_EMIT frequency (f + transceiver_offset_, mode);
     }
 }
 
-bool Configuration::impl::set_mode ()
-{
-  // Some rigs change frequency when switching between some modes so
-  // we need to check if we change mode and not elide the frequency
-  // setting in the same as the cached frequency.
-  bool mode_changed {false};
+// bool Configuration::impl::set_mode ()
+// {
+//   // Some rigs change frequency when switching between some modes so
+//   // we need to check if we change mode and not elide the frequency
+//   // setting in the same as the cached frequency.
+//   bool mode_changed {false};
 
-  auto data_mode = static_cast<DataMode> (ui_->TX_mode_button_group->checkedId ());
+//   auto data_mode = static_cast<DataMode> (ui_->TX_mode_button_group->checkedId ());
 
-  // Set mode if we are responsible for it.
-  if (data_mode_USB == data_mode && cached_rig_state_.mode () != Transceiver::USB)
-    {
-      if (Transceiver::USB != cached_rig_state_.mode ())
-        {
-          cached_rig_state_.mode (Transceiver::USB);
-          Q_EMIT mode (Transceiver::USB, cached_rig_state_.split () && data_mode_none != data_mode_);
-          mode_changed = true;
-        }
-    }
-  if (data_mode_data == data_mode && cached_rig_state_.mode () != Transceiver::DIG_U)
-    {
-      if (Transceiver::DIG_U != cached_rig_state_.mode ())
-        {
-          cached_rig_state_.mode (Transceiver::DIG_U);
-          Q_EMIT mode (Transceiver::DIG_U, cached_rig_state_.split () && data_mode_none != data_mode_);
-          mode_changed = true;
-        }
-    }
+//   // Set mode if we are responsible for it.
+//   if (data_mode_USB == data_mode && cached_rig_state_.mode () != Transceiver::USB)
+//     {
+//       if (Transceiver::USB != cached_rig_state_.mode ())
+//         {
+//           cached_rig_state_.mode (Transceiver::USB);
+//           Q_EMIT mode (Transceiver::USB, cached_rig_state_.split () && data_mode_none != data_mode_);
+//           mode_changed = true;
+//         }
+//     }
+//   if (data_mode_data == data_mode && cached_rig_state_.mode () != Transceiver::DIG_U)
+//     {
+//       if (Transceiver::DIG_U != cached_rig_state_.mode ())
+//         {
+//           cached_rig_state_.mode (Transceiver::DIG_U);
+//           Q_EMIT mode (Transceiver::DIG_U, cached_rig_state_.split () && data_mode_none != data_mode_);
+//           mode_changed = true;
+//         }
+//     }
 
-  return mode_changed;
-}
+//   return mode_changed;
+// }
 
 void Configuration::impl::transceiver_tx_frequency (Frequency f)
 {
-  if (set_mode () || cached_rig_state_.tx_frequency () != f || cached_rig_state_.split () != !!f)
+  if (/* set_mode () || */ cached_rig_state_.tx_frequency () != f || cached_rig_state_.split () != !!f)
     {
       cached_rig_state_.tx_frequency (f);
       cached_rig_state_.split (f);
@@ -1897,7 +1924,7 @@ void Configuration::impl::transceiver_mode (MODE m)
 
 void Configuration::impl::transceiver_ptt (bool on)
 {
-  set_mode ();
+  // set_mode ();
 
   cached_rig_state_.ptt (on);
 
@@ -1931,7 +1958,7 @@ void Configuration::impl::handle_transceiver_update (TransceiverState state)
                                                  || TransceiverFactory::PTT_method_DTR == ptt_method
                                                  || TransceiverFactory::PTT_method_RTS == ptt_method);
 
-          set_mode ();
+          // set_mode ();
 
           // Follow the setup choice.
           split_mode_selected = static_cast<TransceiverFactory::SplitMode> (ui_->split_mode_button_group->checkedId ());
@@ -1958,22 +1985,24 @@ void Configuration::impl::handle_transceiver_update (TransceiverState state)
                       // ui_->split_mode_button_group->button (split_mode)->setChecked (true);
                       // split_mode_selected = split_mode;
                       setup_split_ = true;
+                      required_tx_frequency_ = 0;
 
                       // Q_EMIT self_->transceiver_failure (tr ("Rig split mode setting not consistent with WSJT-X settings. Changing WSJT-X settings for you."));
                       Q_EMIT self_->transceiver_failure (tr ("Rig split mode setting not consistent with WSJT-X settings."));
                     }
                 }
 
-              set_mode ();
+              // set_mode ();
             }
         }
 
       // One time rig setup split
       if (setup_split_ && cached_rig_state_.split () != state.split ())
         {
-          Q_EMIT tx_frequency (TransceiverFactory::split_mode_none != split_mode_selected ? state.tx_frequency () : 0, true);
+          Q_EMIT tx_frequency (TransceiverFactory::split_mode_none != split_mode_selected ? (required_tx_frequency_ ? required_tx_frequency_ : state.tx_frequency ()) : 0, true);
         }
       setup_split_ = false;
+      required_tx_frequency_ = 0;
     }
   else
     {
