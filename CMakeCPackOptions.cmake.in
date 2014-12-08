@@ -194,7 +194,7 @@ retry:
       \${EndIf}
 
       ; calculate MD5 hash
-      Crypto::HashFile 'MD5' $KVASD_EXECUTABLE
+      md5dll::GetMD5File $KVASD_EXECUTABLE
       Pop $0
 
       \${If} $3 != $0
