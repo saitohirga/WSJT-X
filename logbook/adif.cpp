@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDebug>
+#include <QtNetwork>
 
 /*
 <CALL:4>W1XT<BAND:3>20m<FREQ:6>14.076<GRIDSQUARE:4>DM33<MODE:4>JT65<RST_RCVD:3>-21<RST_SENT:3>-14<QSO_DATE:8>20110422<TIME_ON:4>0417<TIME_OFF:4>0424<TX_PWR:1>4<COMMENT:34>1st JT65A QSO.   Him: mag loop 20W<STATION_CALLSIGN:6>VK3ACF<MY_GRIDSQUARE:6>qf22lb<eor>
@@ -137,6 +138,29 @@ int ADIF::getCount()
 bool ADIF::addQSOToFile(const QString hisCall, const QString hisGrid, const QString mode, const QString rptSent, const QString rptRcvd, const QString date, const QString time, const QString band,
                         const QString comments, const QString name, const QString strDialFreq, const QString m_myCall, const QString m_myGrid, const QString m_txPower)
 {
+    // open connection to Xlog and try to log QSO
+    QTcpSocket *xlogSocket = new QTcpSocket();
+    xlogSocket->connectToHost("localhost", 7311);
+    if(xlogSocket->waitForConnected(100))
+    {
+        QDate d = QDate::fromString(date, "yyyyMMdd");
+        QString t = "program:WSJT-X\1version:1\1";
+        // remove decimal point after month name
+        t += "date:" + d.toString("dd ") + d.toString("MMM").mid(0,3) + d.toString(" yyyy") + "\1";
+        t += "time:" + time + "\1";
+        t += "call:" + hisCall + "\1";
+        t += "locator:" + hisGrid + "\1";
+        t += "mhz:" + strDialFreq + "\1";
+        t += "mode:" + mode + "\1";
+        t += "tx:" + rptSent + "\1";
+        t += "rx:" + rptRcvd + "\1";
+        if ( name != "" ) t += "name:" + name + "\1"; 
+        if ( comments != "" ) t += "notes: " + comments + "\1";
+        if ( m_txPower != "" ) t += "power: " + m_txPower + "\1";
+        xlogSocket->write(t.toLocal8Bit());
+        xlogSocket->waitForBytesWritten(100);
+        xlogSocket->close();
+    }
     QFile f2(_filename);
     if (!f2.open(QIODevice::Text | QIODevice::Append))
         return false;
