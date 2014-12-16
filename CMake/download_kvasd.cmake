@@ -17,7 +17,7 @@ if (rc)
   message (FATAL_ERROR "${log}")
 endif (rc)
 file (READ contrib/kvasd${EXECUTABLE_SUFFIX}.md5 md5sum)
-string (REGEX MATCH "[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]" md5sum ${md5sum})
+string (REGEX MATCH "[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]" md5sum "${md5sum}")
 
 file (
   DOWNLOAD ${kvasd_NAME} contrib/kvasd${EXECUTABLE_SUFFIX}
@@ -25,7 +25,7 @@ file (
   STATUS status
   LOG log
   SHOW_PROGRESS
-  EXPECTED_MD5 ${md5sum}
+  EXPECTED_MD5 "${md5sum}"
   )
 list (GET status 0 rc)
 if (rc)
