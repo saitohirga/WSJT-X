@@ -49,7 +49,7 @@ set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
  standard SSB-width IF filters, switching between JT65 and JT9 modes
  is quick and convenient. Be sure to read the online ${PROJECT_NAME} User's
  Guide.")
-set (PROJECT_KVASD_URL https://svn.code.sf.net/p/wsjt/wsjt/trunk/kvasd-binary)
+set (PROJECT_KVASD_URL http://svn.code.sf.net/p/wsjt/wsjt/trunk/kvasd-binary)
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake/Modules ${CMAKE_MODULE_PATH})
 
