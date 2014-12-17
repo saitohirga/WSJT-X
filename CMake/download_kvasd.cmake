@@ -20,7 +20,9 @@ endif (rc)
 file (READ "${kvasd_target}.md5" md5sum)
 string (REGEX MATCH "[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]" md5sum "${md5sum}")
 
-file (MD5 "${kvasd_target}" current_md5sum)
+if (EXISTS "${kvasd_target}")
+  file (MD5 "${kvasd_target}" current_md5sum)
+endif (EXISTS "${kvasd_target}")
 if (NOT "${md5sum}" STREQUAL "${current_md5sum}")
   message (STATUS "downloading file: ${kvasd_NAME}")
   file (
