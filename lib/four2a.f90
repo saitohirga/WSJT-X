@@ -19,7 +19,7 @@ subroutine four2a(a,nfft,ndim,isign,iform)
 ! This version of four2a makes calls to the FFTW library to do the 
 ! actual computations.
 
-  parameter (NPMAX=100)                  !Max numberf of stored plans
+  parameter (NPMAX=2100)                 !Max numberf of stored plans
   parameter (NSMALL=16384)               !Max size of "small" FFTs
   complex a(nfft)                        !Array to be transformed
   complex aa(NSMALL)                     !Local copy of "small" a()

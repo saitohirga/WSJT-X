@@ -113,3 +113,8 @@ Test data for all transforms is gaussian random noise of zero mean and
 standard deviation 1.  Tabulated values of "rms" are the
 root-mean-square differences between the original data and the
 back-transfmred data.
+
+File nfft.dat contains all numbers between 2^3 and 2^23 that have
+no factor greater than 7, followed by their factors.  These numbers 
+are good choices for FFT lengths.
+
