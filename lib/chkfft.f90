@@ -71,7 +71,7 @@ program chkfft
   if(list .or. (nfft.gt.0)) then
      n1=1
      n2=1
-     if(nfft.eq.0) n2=999999
+     if(nfft.eq.-1) n2=999999
      write(*,1020) 
 1020 format('    NFFT     Time        rms      MHz   MFlops  iters',    &
           '  tplan'/61('-'))
