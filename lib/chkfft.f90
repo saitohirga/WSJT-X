@@ -16,16 +16,18 @@ program chkfft
   nargs=iargc()
   if(nargs.ne.5) then
      print*,'Usage: chkfft <nfft | infile> nr nw nc np'
-     print*,'         nr: 0/1 for read wisdom'
-     print*,'         nw: 0/1 for write wisdom'
-     print*,'         nc: 0/1 for real/complex'
-     print*,'         np: patience, 0-4'
-     print*,'         negative nfft: powers of 2 up to 2^(-nfft)'
+     print*,'       nfft:   length of FFT'
+     print*,'       nfft=0: do lengths 2^n, n=2^4 to 2^23'
+     print*,'       infile: name of file with nfft values, one per line'
+     print*,'       nr:     0/1 to not read (or read) wisdom'
+     print*,'       nw:     0/1 to not write (or write) wisdom'
+     print*,'       nc:     0/1 for real or complex data'
+     print*,'       np:     0-4 patience for finding best algorithm'
      go to 999
   endif
 
   list=.false.
-  nfft=0
+  nfft=-1
   call getarg(1,infile)
   open(10,file=infile,status='old',err=1)
   list=.true.                          !A valid file name was provided
@@ -46,12 +48,15 @@ program chkfft
 1002 format(/'nfft: ',i10,'   nr:',i2,'   nw',i2,'   nc:',i2,'   np:',i2/)
 
   open(12,file='chkfft.out',status='unknown')
-  open(13,file='fftw_wisdom.dat',status='unknown')
+  open(13,file='fftwf_wisdom.dat',status='unknown')
 
   if(nr.ne.0) then
      call import_wisdom_from_file(isuccess,13)
-     if(isuccess.ne.0) write(*,1010) 
-1010 format('Imported FFTW wisdom')
+     if(isuccess.eq.0) then
+        write(*,1010) 
+1010    format('Failed to import FFTW wisdom.')
+        go to 999
+     endif
   endif
 
   idum=-1                               !Set random seed
@@ -72,9 +77,9 @@ program chkfft
           '  tplan'/61('-'))
   else
      n1=4
-     n2=min(-nfft,23)
+     n2=23
      write(*,1030) 
-1030 format('  n   N=2^n    Time        rms      MHz   MFlops  iters',  &
+1030 format(' n   N=2^n     Time        rms      MHz   MFlops  iters',  &
           '  tplan'/63('-'))
   endif
 
@@ -118,7 +123,7 @@ program chkfft
      if(tplan.lt.0) tplan=0.
      a(1:nfft)=a(1:nfft)/nfft
 
-! Compute RMS error
+! Compute RMS difference between original array and back-transformed array.
      sq=0.
      if(ncomplex.eq.1) then
         do i=1,nfft
@@ -133,7 +138,7 @@ program chkfft
 
      freq=1.e-6*nfft/time
      mflops=5.0/(1.e6*time/(nfft*log(float(nfft))/log(2.0)))
-     if(n2.eq.999999) then
+     if(n2.eq.1 .or. n2.eq.999999) then
         write(*,1050) nfft,time,rms,freq,mflops,iter,tplan
         write(12,1050) nfft,time,rms,freq,mflops,iter,tplan
 1050    format(i8,f11.7,f12.8,f7.2,f8.1,i8,f6.1)
@@ -149,8 +154,8 @@ program chkfft
   if(nw.eq.1) then
      rewind 13
      call export_wisdom_to_file(13)
-     write(*,1070) 
-1070 format('Exported FFTW wisdom')
+!     write(*,1070) 
+!1070 format(/'Exported FFTW wisdom')
   endif
 
 999 call four2a(0,-1,0,0,0)
