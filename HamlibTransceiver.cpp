@@ -406,6 +406,8 @@ void HamlibTransceiver::do_start ()
       update_mode (map_mode (m));
     }
 
+  tickle_hamlib_ = true;
+
   poll ();
 
 #if WSJT_TRACE_CAT
@@ -476,6 +478,13 @@ void HamlibTransceiver::do_frequency (Frequency f, MODE m)
   qDebug () << "HamlibTransceiver::do_frequency:" << f << "mode:" << m << "reversed:" << reversed_;
 #endif
 
+  if (!is_dummy_)
+    {
+      // for the 1st time as a band change may cause a recalled mode
+      // to be set
+      error_check (rig_set_freq (rig_.data (), RIG_VFO_CURR, f), tr ("setting frequency"));
+    }
+
   if (UNK != m)
     {
       do_mode (m, false);
@@ -483,6 +492,8 @@ void HamlibTransceiver::do_frequency (Frequency f, MODE m)
 
   if (!is_dummy_)
     {
+      // for the 2nd time because a mode change may have caused a
+      // frequency change
       error_check (rig_set_freq (rig_.data (), RIG_VFO_CURR, f), tr ("setting frequency"));
     }
 
@@ -509,19 +520,31 @@ void HamlibTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
           // ensures that the internal Hamlib state is correct
           // otherwise rig_set_split_freq() will target the wrong VFO
           // on some rigs
-#if WSJT_TRACE_CAT
-          qDebug () << "HamlibTransceiver::do_tx_frequency rig_set_split_vfo split =" << split;
-#endif
-          auto rc = rig_set_split_vfo (rig_.data (), RIG_VFO_CURR, split, tx_vfo);
-          if (tx || (-RIG_ENAVAIL != rc && -RIG_ENIMPL != rc))
+
+          if (tickle_hamlib_)
             {
-              // On rigs that can't have split controlled only throw an
-              // exception when an error other than command not accepted
-              // is returned when trying to leave split mode. This allows
-              // fake split mode and non-split mode to work without error
-              // on such rigs without having to know anything about the
-              // specific rig.
-              error_check (rc, tr ("setting/unsetting split mode"));
+              // This potentially causes issues with the Elecraft K3
+              // which will block setting split mode when it deems
+              // cross mode split operation not possible. There's not
+              // much we can do since the Hamlib Library needs this
+              // call at least once to establish the Tx VFO. Best we
+              // can do is only do this once per session.
+#if WSJT_TRACE_CAT
+              qDebug () << "HamlibTransceiver::do_tx_frequency rig_set_split_vfo split =" << split;
+#endif
+              auto rc = rig_set_split_vfo (rig_.data (), RIG_VFO_CURR, split, tx_vfo);
+              if (tx || (-RIG_ENAVAIL != rc && -RIG_ENIMPL != rc))
+                {
+                  // On rigs that can't have split controlled only throw an
+                  // exception when an error other than command not accepted
+                  // is returned when trying to leave split mode. This allows
+                  // fake split mode and non-split mode to work without error
+                  // on such rigs without having to know anything about the
+                  // specific rig.
+                  error_check (rc, tr ("setting/unsetting split mode"));
+                }
+
+              tickle_hamlib_ = false;
             }
 
 #if WSJT_TRACE_CAT
@@ -529,6 +552,9 @@ void HamlibTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
 #endif
 
           hamlib_tx_vfo_fixup fixup (rig_.data (), tx_vfo);
+
+          // do this before setting the mode because changing band may
+          // recall the last mode used on the target band
           error_check (rig_set_split_freq (rig_.data (), RIG_VFO_CURR, tx), tr ("setting split TX frequency"));
 
           if (rationalise_mode)
@@ -551,14 +577,17 @@ void HamlibTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
                   qDebug () << "HamlibTransceiver::do_tx_frequency rig_set_split_mode mode = " << rig_strrmode (new_mode);
 #endif
                   error_check (rig_set_split_mode (rig_.data (), RIG_VFO_CURR, new_mode, rig_passband_wide (rig_.data (), new_mode)), tr ("setting split TX VFO mode"));
+
+                  // do this again as setting the mode may change the frequency
+                  error_check (rig_set_split_freq (rig_.data (), RIG_VFO_CURR, tx), tr ("setting split TX frequency"));
                 }
             }
         }
 
-      // enable split last since some rigs (Kenwood for one) come out
+      // Enable split last since some rigs (Kenwood for one) come out
       // of split when you switch RX VFO (to set split mode above for
-      // example)
-
+      // example). Also the Elecraft K3 will refuse to go to split
+      // with certain VFO A/B mode combinations.
 #if WSJT_TRACE_CAT
       qDebug () << "HamlibTransceiver::do_tx_frequency rig_set_split_vfo split =" << split;
 #endif
