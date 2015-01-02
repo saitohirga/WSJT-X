@@ -66,6 +66,9 @@ class HamlibTransceiver final
   bool mutable reversed_;
 
   bool split_query_works_;
+  bool tickle_hamlib_;          // Hamlib requires a
+                                // rig_set_split_vfo() call to
+                                // establish the Tx VFO
 };
 
 #endif
