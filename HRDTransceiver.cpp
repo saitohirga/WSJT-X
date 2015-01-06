@@ -161,7 +161,7 @@ void HRDTransceiver::do_start ()
   QFile HRD_info_file {QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("HRD Interface Information.txt")};
   if (!HRD_info_file.open (QFile::WriteOnly | QFile::Text | QFile::Truncate))
     {
-      throw error {tr ("Failed to open file \"%1\".").arg (HRD_info_file.fileName ())};
+      throw error {tr ("Failed to open file \"%1\": %2.").arg (HRD_info_file.fileName ()).arg (HRD_info_file.errorString ())};
     }
   QTextStream HRD_info {&HRD_info_file};
 

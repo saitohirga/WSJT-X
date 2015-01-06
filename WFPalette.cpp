@@ -109,7 +109,7 @@ namespace
       }
     else
       {
-        throw_qstring (QObject::tr ("Error opening waterfall palette file \"%1\".").arg (file.fileName ()));
+        throw_qstring (QObject::tr ("Error opening waterfall palette file \"%1\": %2.").arg (file.fileName ()).arg (file.errorString ()));
       }
 
     return colours;
@@ -255,7 +255,7 @@ namespace
             }
           else
             {
-              throw_qstring (QObject::tr ("Error writing waterfall palette file \"%1\".").arg (file.fileName ()));
+              throw_qstring (QObject::tr ("Error writing waterfall palette file \"%1\": %2.").arg (file.fileName ()).arg (file.errorString ()));
             }
         }
     }

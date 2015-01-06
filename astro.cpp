@@ -145,7 +145,7 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
   if (!f.open (QIODevice::WriteOnly | QIODevice::Text))
     {
     QMessageBox mb;
-    mb.setText ("Cannot open \"" + f.fileName () + "\".");
+    mb.setText ("Cannot open \"" + f.fileName () + "\" for writing:" + f.errorString ());
     mb.exec();
     return;
   }

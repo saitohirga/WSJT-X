@@ -121,7 +121,7 @@ void LogQSO::accept()
   static QFile f {QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("wsjtx.log")};
   if(!f.open(QIODevice::Text | QIODevice::Append)) {
     QMessageBox m;
-    m.setText("Cannot open file \"" + f.fileName () + "\".");
+    m.setText("Cannot open file \"" + f.fileName () + "\" for append:" + f.errorString ());
     m.exec();
   } else {
     QString logEntry=m_dateTime.date().toString("yyyy-MMM-dd,") +
