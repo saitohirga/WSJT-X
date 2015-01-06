@@ -902,11 +902,17 @@ void MainWindow::qsy (Frequency f)
           m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
 
           QFile f2 {m_dataDir.absoluteFilePath ("ALL.TXT")};
-          f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-          QTextStream out(&f2);
-          out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-              << "  " << (m_dialFreq / 1.e6) << " MHz  " << m_mode << endl;
-          f2.close();
+          if (f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append))
+            {
+              QTextStream out(&f2);
+              out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
+                  << "  " << (m_dialFreq / 1.e6) << " MHz  " << m_mode << endl;
+              f2.close();
+            }
+          else
+            {
+              msgBox("Cannot open \"" + f2.fileName () + "\" for append:" + f2.errorString ());
+            }
           if (m_config.spot_to_psk_reporter ())
             {
               pskSetLocal ();
@@ -957,8 +963,7 @@ void MainWindow::statusChanged()
         << ui->rptSpinBox->value() << ";" << m_modeTx << endl;
     f.close();
   } else {
-    msgBox("Cannot open file \"" + f.fileName () + "\".");
-    return;
+    msgBox("Cannot open \"" + f.fileName () + "\" for writing:" + f.errorString ());
   }
 }
 
@@ -1194,7 +1199,7 @@ void MainWindow::on_actionKeyboard_shortcuts_triggered()
     {
       QFile f(":/shortcuts.txt");
       if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        msgBox("Cannot open \"" + f.fileName () + "\".");
+        msgBox("Cannot open \"" + f.fileName () + "\" for reading:"+f.errorString ());
         return;
       }
       m_shortcuts.reset (new QTextEdit);
@@ -1222,7 +1227,7 @@ void MainWindow::on_actionSpecial_mouse_commands_triggered()
     {
       QFile f(":/mouse_commands.txt");
       if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        msgBox("Cannot open \"" + f.fileName () + "\".");
+        msgBox("Cannot open \"" + f.fileName () + "\" for reading:" + f.errorString ());
         return;
       }
       m_mouseCmnds.reset (new QTextEdit);
@@ -1348,16 +1353,22 @@ void MainWindow::readFromStdout()                             //readFromStdout
           return;
         } else {
         QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
-        f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-        QTextStream out(&f);
-        if(m_RxLog==1) {
-          out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-              << "  " << (m_dialFreq / 1.e6) << " MHz  " << m_mode << endl;
-          m_RxLog=0;
-        }
-        int n=t.length();
-        out << t.mid(0,n-2) << endl;
-        f.close();
+        if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append))
+          {
+            QTextStream out(&f);
+            if(m_RxLog==1) {
+              out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
+                  << "  " << (m_dialFreq / 1.e6) << " MHz  " << m_mode << endl;
+              m_RxLog=0;
+            }
+            int n=t.length();
+            out << t.mid(0,n-2) << endl;
+            f.close();
+          }
+        else
+          {
+            msgBox("Cannot open \"" + f.fileName () + "\" for append:" + f.errorString ());
+          }
 
         if(m_config.insert_blank () && m_blankLine)
           {
@@ -1549,12 +1560,18 @@ void MainWindow::guiUpdate()
     last_tx_label->setText("Last Tx:  " + t);
     if(m_restart) {
       QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
-      f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-      QTextStream out(&f);
-      out << QDateTime::currentDateTimeUtc().toString("hhmm")
-          << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz  " << m_modeTx
-          << ":  " << t << endl;
-      f.close();
+      if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append))
+        {
+          QTextStream out(&f);
+          out << QDateTime::currentDateTimeUtc().toString("hhmm")
+              << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz  " << m_modeTx
+              << ":  " << t << endl;
+          f.close();
+        }
+      else
+        {
+          msgBox("Cannot open \"" + f.fileName () + "\" for append:" + f.errorString ());
+        }
       if (m_config.TX_messages ())
         {
           ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,ui->TxFreqSpinBox->value ());
@@ -1617,12 +1634,18 @@ void MainWindow::guiUpdate()
       if(!m_tune)
         {
           QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
-          f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-          QTextStream out(&f);
-          out << QDateTime::currentDateTimeUtc().toString("hhmm")
-              << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz  " << m_modeTx
-              << ":  " << t << endl;
-          f.close();
+          if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append))
+            {
+              QTextStream out(&f);
+              out << QDateTime::currentDateTimeUtc().toString("hhmm")
+                  << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz  " << m_modeTx
+                  << ":  " << t << endl;
+              f.close();
+            }
+          else
+            {
+              msgBox("Cannot open \"" + f.fileName () + "\" for append:" + f.errorString ());
+            }
         }
 
       if (m_config.TX_messages () && !m_tune)
@@ -2146,7 +2169,7 @@ void MainWindow::on_addButton_clicked()                       //Add button
   
   QFile f1 {m_dataDir.absoluteFilePath ("CALL3.TXT")};
   if(!f1.open(QIODevice::ReadWrite | QIODevice::Text)) {
-    msgBox("Cannot open \"" + f1.fileName () + "\".");
+    msgBox("Cannot open \"" + f1.fileName () + "\" for read/write:" + f1.errorString ());
     return;
   }
   if(f1.size()==0) {
@@ -2157,7 +2180,7 @@ void MainWindow::on_addButton_clicked()                       //Add button
   }
   QFile f2 {m_dataDir.absoluteFilePath ("CALL3.TMP")};
   if(!f2.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    msgBox("Cannot open \"" + f2.fileName () + "\".");
+    msgBox("Cannot open \"" + f2.fileName () + "\" for writing:" + f2.errorString ());
     return;
   }
   QTextStream in(&f1);          //Read from CALL3.TXT
@@ -2940,7 +2963,7 @@ void MainWindow::on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered()
     {
       QFile f(":/prefixes.txt");
       if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        msgBox("Cannot open \"" + f.fileName () + "\".");
+        msgBox("Cannot open \"" + f.fileName () + "\" for reading:" + f.errorString ());
         return;
       }
       m_prefixes.reset (new QTextEdit);
