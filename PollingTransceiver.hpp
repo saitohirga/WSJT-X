@@ -52,6 +52,7 @@ protected:
   void do_post_frequency (Frequency, MODE = UNK) override final;
   void do_post_tx_frequency (Frequency, bool rationalize = true) override final;
   void do_post_mode (MODE, bool rationalize = true) override final;
+  void do_post_ptt (bool = true) override final;
   bool do_pre_update () override final;
 
 private:

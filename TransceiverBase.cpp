@@ -12,20 +12,38 @@ namespace
 }
 
 class TransceiverBase::impl final
+  : public QObject
 {
+  Q_OBJECT;
+
 public:
-  impl ()
+  impl (TransceiverBase * parent)
+    : parent_ {parent}
   {
+    connect (this, &TransceiverBase::impl::updated, this, &TransceiverBase::impl::update_complete, Qt::QueuedConnection);
   }
 
   impl (impl const&) = delete;
   impl& operator = (impl const&) = delete;
 
+  Q_SIGNAL void updated ();
+  Q_SLOT void update_complete ()
+  {
+    if (parent_->do_pre_update ())
+      {
+        Q_EMIT parent_->update (state_);
+      }
+  }
+
+  TransceiverBase * parent_;
   TransceiverState state_;
 };
 
 
+#include "TransceiverBase.moc"
+
 TransceiverBase::TransceiverBase ()
+  : m_ {this}
 {
 }
 
@@ -260,10 +278,9 @@ void TransceiverBase::update_PTT (bool state)
 
 void TransceiverBase::update_complete ()
 {
-  if (do_pre_update ())
-    {
-      Q_EMIT update (m_->state_);
-    }
+  // Use a signal to ensure that the calling function completes before
+  // the Transceiver::update signal is triggered.
+  Q_EMIT m_->updated ();
 }
 
 void TransceiverBase::offline (QString const& reason)

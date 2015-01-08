@@ -100,7 +100,7 @@ void EmulateSplitTransceiver::handle_update (TransceiverState state)
 
   if (state.split ())
     {
-      Q_EMIT failure (tr ("Emulated split mode requires rig to in simplex mode"));
+      Q_EMIT failure (tr ("Emulated split mode requires rig to be in simplex mode"));
     }
   else
     {

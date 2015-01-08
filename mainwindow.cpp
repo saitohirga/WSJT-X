@@ -2840,8 +2840,7 @@ void MainWindow::on_cbPlus2kHz_toggled(bool checked)
 
 void MainWindow::handle_transceiver_update (Transceiver::TransceiverState s)
 {
-
-  transmitDisplay (false);
+  transmitDisplay (s.ptt ());
 
   if ((s.frequency () - m_dialFreq) || s.split () != m_splitMode)
     {
