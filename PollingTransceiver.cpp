@@ -21,9 +21,6 @@ class PollingTransceiver::impl final
 {
   Q_OBJECT;
 
-private:
-  Q_DISABLE_COPY (impl);
-
 public:
   impl (PollingTransceiver * self, int poll_interval)
     : QObject {self}
@@ -35,6 +32,9 @@ public:
   }
 
 private:
+  impl (impl const&) = delete;
+  impl& operator = (impl const&) = delete;
+
   void start_timer ()
   {
     if (interval_)
@@ -108,11 +108,17 @@ void PollingTransceiver::do_post_stop ()
 
 void PollingTransceiver::do_post_frequency (Frequency f, MODE m)
 {
-  if (m_->next_state_.frequency () != f || m_->next_state_.mode () != m)
+  // take care not to set the expected next mode to unknown since some
+  // callers use mode == unknown to signify that they do not know the
+  // mode and don't care
+  if (m_->next_state_.frequency () != f || (m != UNK && m_->next_state_.mode () != m))
     {
       // update expected state with new frequency and set poll count
       m_->next_state_.frequency (f);
-      m_->next_state_.mode (m);
+      if (m != UNK)
+        {
+          m_->next_state_.mode (m);
+        }
       m_->retries_ = polls_to_stabilize;
     }
 }
@@ -131,10 +137,21 @@ void PollingTransceiver::do_post_tx_frequency (Frequency f, bool /* rationalize 
 
 void PollingTransceiver::do_post_mode (MODE m, bool /*rationalize_mode*/)
 {
-  if (m_->next_state_.mode () != m)
+  // we don't ever expect mode to goto to unknown
+  if (m != UNK && m_->next_state_.mode () != m)
     {
       // update expected state with new mode and set poll count
       m_->next_state_.mode (m);
+      m_->retries_ = polls_to_stabilize;
+    }
+}
+
+void PollingTransceiver::do_post_ptt (bool p)
+{
+  if (m_->next_state_.ptt () != p)
+    {
+      // update expected state with new PTT and set poll count
+      m_->next_state_.ptt (p);
       m_->retries_ = polls_to_stabilize;
     }
 }
