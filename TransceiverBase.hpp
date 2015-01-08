@@ -120,7 +120,7 @@ protected:
   void update_mode (MODE);
   void update_PTT (bool = true);
 
-  // Calling this triggers the Transceiver::update(State) signal.
+  // Calling this eventually triggers the Transceiver::update(State) signal.
   void update_complete ();
 
   // sub class may asynchronously take the rig offline by calling this
