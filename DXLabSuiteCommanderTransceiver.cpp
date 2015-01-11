@@ -291,11 +291,11 @@ void DXLabSuiteCommanderTransceiver::poll ()
         {
           m = FSK_R;
         }
-      else if ("PKT" == mode || "DATA-L" == mode || "Data-L" == mode)
+      else if ("PKT" == mode || "DATA-L" == mode || "Data-L" == mode || "DIGL" == mode)
         {
           m = DIG_L;
         }
-      else if ("PKT-R" == mode || "DATA-U" == mode || "Data-U" == mode)
+      else if ("PKT-R" == mode || "DATA-U" == mode || "Data-U" == mode || "DIGU" == mode)
         {
           m = DIG_U;
         }
@@ -305,7 +305,7 @@ void DXLabSuiteCommanderTransceiver::poll ()
           qDebug () << "DXLabSuiteCommanderTransceiver::poll: unexpected mode name" << mode;
 #endif
 
-          throw error {tr ("DX Lab Suite Commander sent an unrecognised mode: ") + mode};
+          throw error {tr ("DX Lab Suite Commander sent an unrecognised mode: \"") + mode + '"'};
         }
       update_mode (m);
     }
