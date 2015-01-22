@@ -2861,24 +2861,28 @@ void MainWindow::on_cbTxLock_clicked(bool checked)
 
 void MainWindow::on_cbPlus2kHz_toggled(bool checked)
 {
-  // Upload any queued spots before changing band
-  psk_Reporter->sendReport();
-
   m_plus2kHz = checked;
 
-  auto f = m_dialFreq;
-
-  if (m_plus2kHz)
+  if (m_config.transceiver_online (false)) // only update state if not
+                                           // starting up
     {
-      f += 2000;
-    }
-  else
-    {
-      f -= 2000;
-    }
+      // Upload any queued spots before changing band
+      psk_Reporter->sendReport();
 
-  m_bandEdited = true;
-  band_changed (f);
+      auto f = m_dialFreq;
+
+      if (m_plus2kHz)
+        {
+          f += 2000;
+        }
+      else
+        {
+          f -= 2000;
+        }
+
+      m_bandEdited = true;
+      band_changed (f);
+    }
 }
 
 void MainWindow::handle_transceiver_update (Transceiver::TransceiverState s)
