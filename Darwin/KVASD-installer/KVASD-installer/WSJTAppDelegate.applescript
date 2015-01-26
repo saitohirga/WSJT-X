@@ -140,13 +140,7 @@ script WSJTAppDelegate
                     try
                         set target to installRoot & "/Contents/MacOS/" & kvasd's targetName
                         do shell script "cp " & kvasd's destination() & kvasd's targetName & space & target
-                        repeat with theLine in paragraphs of (do shell script "otool -L " & target)
-                            if theLine contains ".dylib" and not theLine contains "libSystem" then
-                                set theDylib to 2nd item of split(theLine,{tab,space})
-                                do shell script "install_name_tool -change " & theDylib & " @executable_path/" & last item of split(theDylib,{"/"}) & space & target
-                            end if
-                        end repeat
-                        log do shell script "chmod +x " & target
+                        do shell script "chmod +x " & target
                         display alert "KVASD installed into application bundle:" & return & return & installRoot ¬
                             buttons {"Ok"} default button "Ok" ¬
                             giving up after 5
