@@ -42,8 +42,6 @@ program timefft
   enddo
   iters=100
 
-  print*,nflags
-
   write(*,1000) 
 1000 format('Problem  Threads Plan    Time    Gflops     RMS'/    &
             '--------------------------------------------------')
