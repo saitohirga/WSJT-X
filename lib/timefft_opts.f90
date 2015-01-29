@@ -13,9 +13,11 @@ subroutine timefft_opts(npatience,nthreads,linplace,lcomplex,nfft,    &
      print*,'       maxthreads - suggest number of CPUs minus 1'
      print*,'       o,i        - out-of-place or in-place (default=in-place)'
      print*,'       r,c        - real or complex (default=complex)'
+     print*,' '
      print*,'Examples:'
-     print*,'       timefft 2 1 32768     (1 thread in-place, complex)'
-     print*,'       timefft 2 3 or32768   (3 threads, out-of-place, real)'
+     print*,'       timefft 1 1 32768     (1 thread, in-place, complex)'
+     print*,'       timefft 2 3 or32768   (more patient, 3 threads,'
+     print*,'                              out-of-place, real)'
      stop
   endif
 
