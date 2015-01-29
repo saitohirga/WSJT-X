@@ -10,7 +10,7 @@ subroutine timefft_opts(npatience,nthreads,linplace,lcomplex,nfft,    &
   if(nargs.lt.3) then
      print*,'Usage: timefft npatience maxthreads [[o|i][r|c]]nfft'
      print*,'       npatience  - 0 to 4'
-     print*,'       maxthreads - suggest number of CPUs minus 1'
+     print*,'       maxthreads - suggest #CPUs or #CPUs-1'
      print*,'       o,i        - out-of-place or in-place (default=in-place)'
      print*,'       r,c        - real or complex (default=complex)'
      print*,' '
