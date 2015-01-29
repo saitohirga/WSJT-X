@@ -11,7 +11,7 @@ program timefft
   type(C_PTR) :: pa,pb,pc
   integer(C_INT) iret
   integer*8 count0,count1,clkfreq
-  character infile*12,arg*8,problem*9
+  character problem*9
   logical linplace,lcomplex
 
 ! Get command-line parameters
@@ -70,7 +70,7 @@ program timefft
         endif
      endif
      call system_clock(count1,clkfreq)
-     tplan=0.5*(count1-count0)/float(clkfreq)    !Plan time for one transform
+     tplan=0.5*float(count1-count0)/float(clkfreq)    !Plan time for one transform
 
      total=0.
      do iter=1,iters                             !Do many iterations
@@ -95,7 +95,7 @@ program timefft
            endif
         endif
         call system_clock(count1,clkfreq)
-        total=total + (count1-count0)/float(clkfreq) 
+        total=total + float(count1-count0)/float(clkfreq) 
         if(total.ge.1.0) go to 40                !Cut iterations short if t>1 s
      enddo
      iter=iters
