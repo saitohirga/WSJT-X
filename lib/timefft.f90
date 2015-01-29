@@ -43,8 +43,8 @@ program timefft
   iters=100
 
   write(*,1000) 
-1000 format('Problem  Threads Plan    Time    Gflops     RMS'/    &
-            '--------------------------------------------------')
+1000 format(/'Problem  Threads Plan    Time    Gflops     RMS   iters'/    &
+             '--------------------------------------------------------')
 
 ! Try nthreads = 1,maxthreads
   do nthreads=1,maxthreads
@@ -118,8 +118,8 @@ program timefft
      rms=sqrt(sq/nfft)
 
 ! Display results
-     write(*,1050) problem,nthreads,tplan,time,gflops,rms
-1050 format(a9,i4,f8.3,f10.6,f7.2,f11.7)
+     write(*,1050) problem,nthreads,tplan,time,gflops,rms,iter
+1050 format(a9,i4,f8.3,f10.6,f7.2,f11.7,i5)
   enddo
 
 ! Export accumulated FFTW wisdom
@@ -128,8 +128,10 @@ program timefft
 ! Clean up
   call fftwf_destroy_plan(plan1)
   call fftwf_destroy_plan(plan2)
+  call fftwf_free(pa)
+  call fftwf_free(pb)
   call fftwf_free(pc)
-  call fftwf_cleanup()
   call fftwf_cleanup_threads()
+  call fftwf_cleanup()
 
 end program timefft
