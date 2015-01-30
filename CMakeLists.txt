@@ -255,6 +255,7 @@ set (wsjt_FSRCS
   lib/fano232.f90
   lib/fchisq.f90
   lib/fchisq65.f90
+  lib/fftw3mod.f90
   lib/fil3.f90
   lib/fil4.f90
   lib/fil6521.f90

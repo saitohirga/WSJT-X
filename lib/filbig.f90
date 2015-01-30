@@ -3,6 +3,9 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
 ! Filter and downsample the real data in array dd(npts), sampled at 12000 Hz.
 ! Output is complex, sampled at 1378.125 Hz.
 
+  use, intrinsic :: iso_c_binding
+  use FFTW3
+
   parameter (NSZ=3413)
   parameter (NFFT1=672000,NFFT2=77175)
   parameter (NZ2=1000)
@@ -15,15 +18,17 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
   real halfpulse(8)                 !Impulse response of filter (one sided)
   complex cfilt(NFFT2)                       !Filter (complex; imag = 0)
   real rfilt(NFFT2)                          !Filter (real)
-  integer*8 plan1,plan2,plan3
+!  integer*8 plan1,plan2,plan3
+  type(C_PTR) :: plan1,plan2,plan3           !Pointers to FFTW plans
+
   logical first
-  include 'fftw3.f90'
+!  include 'fftw3.f90'
   equivalence (rfilt,cfilt),(rca,ca)
   data first/.true./
   data halfpulse/114.97547150,36.57879257,-20.93789101,              &
        5.89886379,1.59355187,-2.49138308,0.60910773,-0.04248129/
   common/refspec/dfref,ref(NSZ)
-  common/patience/npatience
+  common/patience/npatience,nthreads
   save
 
   if(npts.lt.0) go to 900                    !Clean up at end of program
@@ -35,11 +40,9 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
      if(npatience.eq.3) nflags=FFTW_PATIENT
      if(npatience.eq.4) nflags=FFTW_EXHAUSTIVE
 ! Plan the FFTs just once
-     call timer('FFTplans ',0)
-     call sfftw_plan_dft_r2c_1d(plan1,nfft1,rca,rca,nflags)
-     call sfftw_plan_dft_1d(plan2,nfft2,c4a,c4a,FFTW_FORWARD,nflags)
-     call sfftw_plan_dft_1d(plan3,nfft2,cfilt,cfilt,FFTW_BACKWARD,nflags)
-     call timer('FFTplans ',1)
+     plan1=fftwf_plan_dft_r2c_1d(nfft1,rca,ca,nflags)
+     plan2=fftwf_plan_dft_1d(nfft2,c4a,c4a,-1,nflags)
+     plan3=fftwf_plan_dft_1d(nfft2,cfilt,cfilt,+1,nflags)
 
 ! Convert impulse response to filter function
      do i=1,nfft2
@@ -51,11 +54,9 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
         cfilt(i)=fac*halfpulse(i)
         cfilt(nfft2+2-i)=fac*halfpulse(i)
      enddo
-     call timer('FFTfilt ',0)
      call sfftw_execute(plan3)
-     call timer('FFTfilt ',1)
 
-     base=cfilt(nfft2/2+1)
+     base=real(cfilt(nfft2/2+1))
      do i=1,nfft2
         rfilt(i)=real(cfilt(i))-base
      enddo
@@ -68,25 +69,27 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
 ! If we just have a new f0, continue with the existing data in ca.
 
   if(newdat.ne.0) then
+     call timer('FFTbig  ',0)
      nz=min(npts,nfft1)
      rca(1:nz)=dd(1:nz)
      rca(nz+1:)=0.
-     call timer('FFTbig  ',0)
      call sfftw_execute(plan1)
      call timer('FFTbig  ',1)
 
-     do i=1,NFFT1/2                             !Flatten the spectrum
-        j=nint(i*df/dfref)
-        if(j.lt.1) j=1
-        if(j.gt.NSZ) j=NSZ
+     call timer('flatten ',0)
+     ib=0
+     do j=1,NSZ
+        ia=ib+1
+        ib=nint(j*dfref/df)
         fac=sqrt(min(30.0,1.0/ref(j)))
-        ca(i)=conjg(fac * ca(i))
+        ca(ia:ib)=fac*conjg(ca(ia:ib))
      enddo
+     call timer('flatten ',1)
   endif
 
 ! NB: f0 is the frequency at which we want our filter centered.
 !     i0 is the bin number in ca closest to f0.
-
+  call timer('loops   ',0)
   i0=nint(f0/df) + 1
   nh=nfft2/2
   do i=1,nh                                !Copy data into c4a and apply
@@ -117,6 +120,7 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
      enddo
   enddo
   call pctile(s,NZ2,30,sq0)
+  call timer('loops   ',1)
 
 ! Do the short reverse transform, to go back to time domain.
   call timer('FFTsmall',0)

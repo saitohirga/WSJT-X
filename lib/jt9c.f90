@@ -8,7 +8,7 @@ subroutine jt9c(ss,savg,id2,nparams0)
   character*20 datetime
   common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfsplit,nfb,   &
        ntol,kin,nzhsym,nsave,nagain,ndepth,ntxmode,nmode,datetime
-  common/patience/npatience
+  common/patience/npatience,nthreads
   equivalence (nparams,nutc)
 
   nutc=id2(1)+int(savg(1))             !Silence compiler warning

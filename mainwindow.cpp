@@ -375,7 +375,8 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 
   QStringList jt9_args {
     "-s", QApplication::applicationName ()
-      , "-w", "1"
+        , "-w", "1"                                     //FFTW patience
+        , "-m", "1"                                     //FFTW threads
       , "-e", QDir::toNativeSeparators (m_appDir)
       , "-a", QDir::toNativeSeparators (m_dataDir.absolutePath ())
       , "-t", QDir::toNativeSeparators (m_config.temp_dir ().absolutePath ())
