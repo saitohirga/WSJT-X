@@ -12,10 +12,12 @@ program timefft
   integer(C_INT) iret
   integer*8 count0,count1,clkfreq
   character problem*9
-  logical linplace,lcomplex
+  logical linplace,lcomplex,lthreading
 
 ! Get command-line parameters
   call timefft_opts(npatience,maxthreads,linplace,lcomplex,nfft,problem,nflags)
+  lthreading=maxthreads.ge.1
+  maxthreads=max(1,maxthreads)
 
 ! Allocate data arrays
   pa=fftwf_alloc_complex(int(nfft,C_SIZE_T))
@@ -30,7 +32,7 @@ program timefft
   call c_f_pointer(pc,c,[nfft])
 
 ! Initialize FFTW threading
-  iret=fftwf_init_threads()
+  if(lthreading) iret=fftwf_init_threads()
 
 ! Import FFTW wisdom, if available
   iret=fftwf_import_wisdom_from_filename(C_CHAR_'wis.dat' // C_NULL_CHAR)
@@ -51,7 +53,7 @@ program timefft
      a(1:nfft)=b(1:nfft)                             !Copy test data into a()
      call system_clock(count0,clkfreq)
 ! Make the plans
-     call fftwf_plan_with_nthreads(nthreads)
+     if(lthreading) call fftwf_plan_with_nthreads(nthreads)
      if(lcomplex) then
         if(linplace) then
            plan1=fftwf_plan_dft_1d(nfft,a,a,-1,nflags)
@@ -96,7 +98,7 @@ program timefft
         endif
         call system_clock(count1,clkfreq)
         total=total + float(count1-count0)/float(clkfreq) 
-        if(total.ge.1.0) go to 40                !Cut iterations short if t>1 s
+        if(total>=1.0 .and. iter>=10) go to 40     !Cut iterations short ?
      enddo
      iter=iters
 
