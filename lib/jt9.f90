@@ -5,25 +5,29 @@ program jt9
 
   use options
   use prog_args
+  use, intrinsic :: iso_c_binding
+  use FFTW3
 
   include 'constants.f90'
+  integer(C_INT) iret
   integer*4 ihdr(11)
   real*4 s(NSMAX)
   integer*2 id2
   character c
   character(len=500) optarg, infile
-  character wisfile*80,firstline*40
+  character wisfile*80
   integer*4 arglen,stat,offset,remain
   logical :: shmem = .false., read_files = .false., have_args = .false.
   type (option) :: long_options (0)
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,ntr,       &
        mousefqso,newdat,nfa,nfsplit,nfb,ntol,kin,nzhsym,nsynced,ndecoded
   common/tracer/limtrace,lu
-  common/patience/npatience
-  data npatience/1/
+  common/patience/npatience,nthreads
+  data npatience/1/,nthreads/1/
 
   do
-     call getopt('s:e:a:r:p:d:f:w:t:',long_options,c,optarg,arglen,stat,offset,remain)
+     call getopt('s:e:a:r:m:p:d:f:w:t:',long_options,c,optarg,arglen,stat,     &
+          offset,remain)
      if (stat .ne. 0) then
         exit
      end if
@@ -42,6 +46,9 @@ program jt9
         case ('t')
            temp_dir = optarg(:arglen)
 
+        case ('m')
+           read (optarg(:arglen), *) nthreads
+
         case ('p')
            read_files = .true.
            read (optarg(:arglen), *) ntrperiod
@@ -56,39 +63,26 @@ program jt9
 
         case ('w')
            read (optarg(:arglen), *) npatience
+
      end select
   end do
 
   if (.not. have_args .or. (stat .lt. 0 .or. (shmem .and. remain .gt. 0)   &
        .or. (read_files .and. remain .eq. 0) .or.                          &
        (shmem .and. read_files))) then
-     print*,'Usage: jt9 -p TRperiod [-d ndepth] [-f rxfreq] {-w patience] -e exe_dir file1 [file2 ...]'
+     print*,'Usage: jt9 -p TRperiod [-d ndepth] [-f rxfreq] {-w patience] [-e exe_dir] [-m nthreads]  file1 [file2 ...]'
      print*,'       Reads data from *.wav files.'
      print*,''
-     print*,'       jt9 -s <key> [-w patience] -e exe_dir -a data_dir -t temp_dir'
+     print*,'       jt9 -s <key> [-w patience] [-m nthreads] -e exe_dir -a data_dir -t temp_dir'
      print*,'       Gets data from shared memory region with key==<key>'
      go to 999
   endif
 
-! Import FFTW wisdom, if available:
-  open(14,file=trim(data_dir)//'/jt9_wisdom_status.txt',status='unknown',err=30)
-  open(28,file=trim(data_dir)//'/jt9_wisdom.dat',status='old',err=30)
-  read(28,1000,err=30,end=30) firstline
-1000 format(a40)
-  rewind 28
-  isuccess=0
-  wisfile=trim(data_dir)//'/jt9_wisdom.dat'
-  n=len_trim(wisfile)
-  call import_wisdom(wisfile(1:n)//char(0),isuccess)
-  close(28)
-30 if(isuccess.ne.0) then
-     write(14,1010) firstline
-1010 format('Imported FFTW wisdom (jt9): ',a40)
-  else
-     write(14,1011) 
-1011 format('No imported FFTW wisdom (jt9):')
-  endif
-  call flush(14)
+  iret=fftwf_init_threads()                   !Initialize FFTW threading 
+  call fftwf_plan_with_nthreads(nthreads)
+! Import FFTW wisdom, if available
+  wisfile=trim(data_dir)//'/jt9_wisdom.dat'// C_NULL_CHAR
+  iret=fftwf_import_wisdom_from_filename(wisfile)
 
   if (shmem) then
      call jt9a()
@@ -169,13 +163,7 @@ program jt9
   print*,infile
 
 999 continue
-! Export FFTW wisdom
-  wisfile=trim(data_dir)//'/jt9_wisdom.dat'
-  n=len_trim(wisfile)
-  call export_wisdom(wisfile(1:n)//char(0))
-  write(14,1999) 
-1999 format('Exported FFTW wisdom (jt9): ')
-  call flush(14)
+  iret=fftwf_export_wisdom_to_filename(wisfile)
 
  call four2a(a,-1,1,1,1)                  !Save wisdom and free memory 
  call filbig(a,-1,1,0.0,0,0,0,0,0)        !used for FFT plans

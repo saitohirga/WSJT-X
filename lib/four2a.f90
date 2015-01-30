@@ -27,7 +27,7 @@ subroutine four2a(a,nfft,ndim,isign,iform)
   integer*8 nl(NPMAX),nloc               !More params of plans
   integer*8 plan(NPMAX)                  !Pointers to stored plans
   data nplan/0/                          !Number of stored plans
-  common/patience/npatience              !Patience for forming FFTW plans
+  common/patience/npatience,nthreads     !Patience and threads for FFTW plans
   include 'fftw3.f90'                    !FFTW definitions
   save plan,nplan,nn,ns,nf,nl
 
