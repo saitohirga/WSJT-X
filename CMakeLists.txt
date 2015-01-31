@@ -595,7 +595,7 @@ endif ()
 #
 # fftw3 single precsion library
 #
-find_package (FFTW3 COMPONENTS single REQUIRED)
+find_package (FFTW3 COMPONENTS single threads REQUIRED)
 include_directories (${FFTW3_INCLUDE_DIRS})
 
 
