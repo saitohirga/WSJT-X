@@ -241,8 +241,9 @@ set (wsjt_FSRCS
   lib/dcoord.f90
   lib/decode65a.f90
   lib/decode65b.f90
-  lib/decode9.f90
+  lib/jt9fano.f90
   lib/decoder.f90
+  lib/decjt9.f90
   lib/deg2grid.f90
   lib/demod64a.f90
   lib/determ.f90

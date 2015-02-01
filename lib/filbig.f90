@@ -20,7 +20,6 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
   real rfilt(NFFT2)                          !Filter (real)
 !  integer*8 plan1,plan2,plan3
   type(C_PTR) :: plan1,plan2,plan3           !Pointers to FFTW plans
-
   logical first
 !  include 'fftw3.f90'
   equivalence (rfilt,cfilt),(rca,ca)
@@ -29,7 +28,7 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
        5.89886379,1.59355187,-2.49138308,0.60910773,-0.04248129/
   common/refspec/dfref,ref(NSZ)
   common/patience/npatience,nthreads
-  save
+  save first,plan1,plan2,plan3
 
   if(npts.lt.0) go to 900                    !Clean up at end of program
 
@@ -54,7 +53,7 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
         cfilt(i)=fac*halfpulse(i)
         cfilt(nfft2+2-i)=fac*halfpulse(i)
      enddo
-     call sfftw_execute(plan3)
+     call fftwf_execute_dft(plan3,cfilt,cfilt)
 
      base=real(cfilt(nfft2/2+1))
      do i=1,nfft2
@@ -73,7 +72,7 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
      nz=min(npts,nfft1)
      rca(1:nz)=dd(1:nz)
      rca(nz+1:)=0.
-     call sfftw_execute(plan1)
+     call fftwf_execute_dft_r2c(plan1,rca,ca)
      call timer('FFTbig  ',1)
 
      call timer('flatten ',0)
@@ -124,14 +123,14 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
 
 ! Do the short reverse transform, to go back to time domain.
   call timer('FFTsmall',0)
-  call sfftw_execute(plan2)
+  call fftwf_execute_dft(plan2,c4a,c4a)
   call timer('FFTsmall',1)
   n4=min(npts/8,nfft2)
   return
 
-900 call sfftw_destroy_plan(plan1)
-  call sfftw_destroy_plan(plan2)
-  call sfftw_destroy_plan(plan3)
+900 call fftwf_destroy_plan(plan1)
+  call fftwf_destroy_plan(plan2)
+  call fftwf_destroy_plan(plan3)
   
   return
 end subroutine filbig

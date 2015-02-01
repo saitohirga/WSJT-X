@@ -13,7 +13,7 @@ CC  = c:/JTSDK/Qt5/Tools/mingw48_32/bin/gcc
 FC = c:/JTSDK/Qt5/Tools/mingw48_32/bin/gfortran
 CXX = c:/JTSDK/Qt5/Tools/mingw48_32/bin/g++
 
-FFLAGS = -O2 -fbounds-check -Wall -fno-second-underscore -DWIN32
+FFLAGS = -O2 -Wall -fno-second-underscore -DWIN32
 CFLAGS = -I. -fbounds-check -mno-stack-arg-probe -DWIN32
 
 # Default rules
@@ -37,7 +37,7 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o chkmsg.o \
 	nchar.o four2a.o grid2deg.o pfxdump.o wisdom.o \
 	symspec.o analytic.o db.o genjt9.o flat1.o smo.o \
 	packbits.o unpackbits.o encode232.o interleave9.o \
-	entail.o fano232.o gran.o sync9.o decode9.o \
+	entail.o fano232.o gran.o sync9.o jt9fano.o \
 	fil3.o decoder.o grid2n.o n2grid.o timer.o \
 	softsym.o getlags.o afc9.o fchisq.o twkfreq.o downsam9.o \
 	peakdt9.o symspec2.o stdmsg.o morse.o azdist.o geodist.o \
@@ -47,14 +47,14 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o chkmsg.o \
 	extract.o fchisq65.o demod64a.o chkhist.o interleave63.o ccf2.o \
 	move.o indexx.o graycode65.o twkfreq65.o smo121.o \
 	wrapkarn.o init_rs.o encode_rs.o decode_rs.o gen65.o fil4.o \
-	flat3.o polfit.o determ.o baddata.o prog_args.f90 \
-	options.o prog_args.o 
+	flat3.o polfit.o determ.o baddata.o prog_args.o \
+	options.o fmtmsg.o decjt9.o
 
 libjt9.a: $(OBJS1)
 	ar cr libjt9.a $(OBJS1) 
 	ranlib libjt9.a
 
-OBJS2 = jt9.o jt9a.o jt9b.o jt9c.o ipcomm.o sec_midn.o usleep.o
+OBJS2 = jt9.o jt9a.o jt9b.o jt9c.o ipcomm.o sec_midn.o usleep.o 
 LIBS2 = -L'C:/JTSDK/Qt5/5.2.1/mingw48_32/lib' -lQt5Core
 jt9.exe: $(OBJS2) libjt9.a
 	$(CXX) -o jt9.exe -static $(OBJS2) $(LIBS2) libjt9.a \

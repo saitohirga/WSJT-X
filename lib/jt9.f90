@@ -164,8 +164,9 @@ program jt9
 
 999 continue
   iret=fftwf_export_wisdom_to_filename(wisfile)
-
- call four2a(a,-1,1,1,1)                  !Save wisdom and free memory 
- call filbig(a,-1,1,0.0,0,0,0,0,0)        !used for FFT plans
+  call four2a(a,-1,1,1,1)                  !Save wisdom and free memory 
+  call filbig(a,-1,1,0.0,0,0,0,0,0)        !used for FFT plans
+  call fftwf_cleanup_threads()
+  call fftwf_cleanup()
 
 end program jt9
