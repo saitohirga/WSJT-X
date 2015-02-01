@@ -1,4 +1,4 @@
-subroutine decode9(i1SoftSymbols,limit,nlim,msg)
+subroutine jt9fano(i1SoftSymbols,limit,nlim,msg)
 
 ! Decoder for JT9
 ! Input:   i1SoftSymbols(207) - Single-bit soft symbols
@@ -82,4 +82,4 @@ subroutine decode9(i1SoftSymbols,limit,nlim,msg)
   endif
 
   return
-end subroutine decode9
+end subroutine jt9fano

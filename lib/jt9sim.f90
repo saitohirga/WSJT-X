@@ -160,7 +160,7 @@ program jt9sim
            if(i4.ge.128) i1SoftSymbols(i)=i4-256
         enddo
         limit=1000
-        call decode9(i1SoftSymbols,limit,nlim,msg)
+        call jt9fano(i1SoftSymbols,limit,nlim,msg)
         if(msg.ne.msg0) print*,'Decode error: ',msg0,' ',msg
      endif
   enddo
