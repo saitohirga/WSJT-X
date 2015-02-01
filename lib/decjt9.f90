@@ -83,7 +83,6 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
 
            call timer('softsym ',0)
            fpk=nf0 + df3*(i-1)
-
            call softsym(id2,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,    &
                 freq,drift,schk,i1SoftSymbols)
            call timer('softsym ',1)

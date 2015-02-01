@@ -19,9 +19,7 @@ subroutine softsym(id2,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,        &
   call downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
   call timer('downsam9',1)
 
-  call timer('peakdt9 ',0)
   call peakdt9(c2,nz2,nsps8,nspsd,c3,nz3,xdt)  !Find DT
-  call timer('peakdt9 ',1)
 
   fsample=1500.0/ndown
   a=0.
@@ -42,9 +40,7 @@ subroutine softsym(id2,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,        &
   call timer('symspec2',1)
 
 ! Remove interleaving
-  call timer('interlv9',0)
   call interleave9(i1SoftSymbolsScrambled,-1,i1SoftSymbols)
-  call timer('interlv9',1)
 
   return
 end subroutine softsym

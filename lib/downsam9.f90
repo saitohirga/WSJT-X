@@ -73,9 +73,7 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
   nw=100
   ia=max(1,nf-nw)
   ib=min(5000,nf+nw)
-  call timer('pctile_1',0)
   call pctile(s(ia),ib-ia+1,40,avenoise)
-  call timer('pctile_1',1)
 
   fac=sqrt(1.0/avenoise)
   do i=0,nfft2-1
@@ -83,9 +81,7 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
      if(i.gt.nh2) j=j-nfft2
      c2(i)=fac*c1(j)
   enddo
-  call timer('FFTsmal9',0)
   call four2a(c2,nfft2,1,1,1)              !FFT back to time domain
-  call timer('FFTsmal9',1)
   nz2=8*npts8/ndown
 
   return
