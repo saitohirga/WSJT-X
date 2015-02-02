@@ -241,6 +241,7 @@ set (wsjt_FSRCS
   lib/dcoord.f90
   lib/decode65a.f90
   lib/decode65b.f90
+  lib/fftw3mod.f90
   lib/jt9fano.f90
   lib/decoder.f90
   lib/decjt9.f90
@@ -256,7 +257,6 @@ set (wsjt_FSRCS
   lib/fano232.f90
   lib/fchisq.f90
   lib/fchisq65.f90
-  lib/fftw3mod.f90
   lib/fil3.f90
   lib/fil4.f90
   lib/fil6521.f90
@@ -492,7 +492,7 @@ endif (APPLE)
 #
 # Fortran setup
 #
-set (General_FFLAGS "-fbounds-check -Wall -Wno-conversion -fno-second-underscore")
+set (General_FFLAGS "-Wall -Wno-conversion -fno-second-underscore")
 
 # FFLAGS depend on the compiler
 get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
@@ -509,7 +509,7 @@ if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   endif (CMAKE_OSX_SYSROOT)
 
   set (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -funroll-all-loops -fno-f2c ${General_FFLAGS}")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} -fno-f2c ${General_FFLAGS}")
+  set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} -fbounds-check -fno-f2c ${General_FFLAGS}")
 elseif (Fortran_COMPILER_NAME MATCHES "ifort.*")
   # ifort (untested)
   set (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -f77rtl ${General_FFLAGS}")
@@ -517,13 +517,13 @@ elseif (Fortran_COMPILER_NAME MATCHES "ifort.*")
 elseif (Fortran_COMPILER_NAME MATCHES "g77")
   # g77
   set (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -funroll-all-loops -fno-f2c -m32 ${General_FFLAGS}")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} -fno-f2c -m32 ${General_FFLAGS}")
+  set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} -fbounds-check -fno-f2c -m32 ${General_FFLAGS}")
 else (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   message ("CMAKE_Fortran_COMPILER full path: " ${CMAKE_Fortran_COMPILER})
   message ("Fortran compiler: " ${Fortran_COMPILER_NAME})
   message ("No optimized Fortran compiler flags are known, we just try -O2...")
   set (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -O2 ${General_FFLAGS}")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} ${General_FFLAGS}")
+  set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} -fbounds-check ${General_FFLAGS}")
 endif (Fortran_COMPILER_NAME MATCHES "gfortran.*")
 
 
@@ -591,6 +591,12 @@ set (QT_NEED_RPATH FALSE)
 if (NOT "${QT_LIBRARY_DIR}" STREQUAL "/lib" AND NOT "${QT_LIBRARY_DIR}" STREQUAL "/usr/lib" AND NOT "${QT_LIBRARY_DIR}" STREQUAL "/lib64" AND NOT "${QT_LIBRARY_DIR}" STREQUAL "/usr/lib64")
   set (QT_NEED_RPATH TRUE)
 endif ()
+
+
+#
+# OpenMP
+#
+find_package (OpenMP)
 
 
 #
@@ -698,8 +704,17 @@ endif (WIN32)
 # targets
 #
 
-# build a library of package functionality
+# build a library of package functionality (without and optionally with OpenMP support)
 add_library (wsjt STATIC ${wsjt_CSRCS} ${wsjt_CXXSRCS} ${wsjt_FSRCS})
+if (${OPENMP_FOUND})
+  add_library (wsjt_omp STATIC ${wsjt_CSRCS} ${wsjt_CXXSRCS} ${wsjt_FSRCS})
+  file (MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp)
+  set_target_properties (wsjt_omp
+    PROPERTIES
+    COMPILE_FLAGS ${OpenMP_C_FLAGS}
+    Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
+    )
+endif (${OPENMP_FOUND})
 
 # build a library of package Qt functionality
 add_library (wsjt_qt STATIC ${wsjt_qt_CXXSRCS} ${wsjt_qt_GENUISRCS} ${GENAXSRCS})
@@ -720,6 +735,18 @@ target_link_libraries (jt9code wsjt)
 add_executable (jt9 lib/jt9.f90 lib/jt9a.f90 lib/jt9b.f90 lib/jt9c.f90 ${jt9_CXXSRCS} wsjtx.rc)
 target_link_libraries (jt9 wsjt ${FFTW3_LIBRARIES})
 qt5_use_modules (jt9 Core)
+
+if (${OPENMP_FOUND})
+  add_executable (jt9_omp lib/jt9.f90 lib/jt9a.f90 lib/jt9b.f90 lib/jt9c.f90 ${jt9_CXXSRCS} wsjtx.rc)
+  set_target_properties (jt9_omp
+    PROPERTIES
+    COMPILE_FLAGS ${OpenMP_C_FLAGS}
+    Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
+    LINK_FLAGS "${OpenMP_C_FLAGS} -Wl,--stack,8388608"
+    )
+  target_link_libraries (jt9_omp wsjt_omp ${FFTW3_LIBRARIES})
+  qt5_use_modules (jt9_omp Core)
+endif (${OPENMP_FOUND})
 
 # build configuration dialog and transceiver interface test application
 #add_executable (ConfigTest ${ConfigTest_CXXSRCS} ${ConfigTest_GENUISRCS} wsjtx.rc)
@@ -790,7 +817,7 @@ install (TARGETS wsjtx
   BUNDLE DESTINATION . COMPONENT runtime
   )
 
-install (TARGETS jt9 jt65code jt9code
+install (TARGETS jt9 jt65code jt9code jt9_omp
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
