@@ -4,25 +4,40 @@ subroutine timer(dname,k)
 ! k=1 (tstop). Accumulates sums of these times in array ut (user time).
 ! Also traces all calls (for debugging purposes) if limtrace.gt.0
 
-  character*8 dname,name(50),space,ename
+  !$ interface
+  !$  integer function omp_get_thread_num()
+  !$  end function
+  !$ end interface
+
+  character*8 dname
+  !$ character thread
+  character*11 tname,ename
   character*16 sname
-  logical on(50)
-  real ut(50),ut0(50),dut(50)
-  integer ncall(50),nlevel(50),nparent(50)
-  integer onlevel(0:10)
+  character*11, save :: space
+  integer, save :: level, nmax
+  character*11, save :: name(50)
+  logical, save :: on(50)
+  real, save :: ut(50),ut0(50),dut(50)
+  integer, save :: ncall(50),nlevel(50),nparent(50)
+  integer, save :: onlevel(0:10)
   common/tracer/ limtrace,lu
   data eps/0.000001/,ntrace/0/
   data level/0/,nmax/0/,space/'        '/
   data limtrace/0/,lu/-1/
-  save
+  !$omp threadprivate(level,space,onlevel)
 
+  tname=dname
+  !$ write(thread,'(i1)') omp_get_thread_num()
+  !$ tname=trim(dname)//'('//thread//')' ! decorate name with thread number
+
+  !$omp critical(timer)
   if(limtrace.lt.0) go to 999
   if(lu.lt.1) lu=6
   if(k.gt.1) go to 40                        !Check for "all done" (k>1)
   onlevel(0)=0
 
   do n=1,nmax                                !Check for existing name
-     if(name(n).eq.dname) go to 20
+     if(name(n).eq.tname) go to 20
   enddo
 
   nmax=nmax+1                                !This is a new one
@@ -30,10 +45,10 @@ subroutine timer(dname,k)
   ncall(n)=0
   on(n)=.false.
   ut(n)=eps
-  name(n)=dname
+  name(n)=tname
 
 20 if(k.eq.0) then                                !Get start times (k=0)
-     if(on(n)) print*,'Error in timer: ',dname,' already on.'
+     if(on(n)) print*,'Error in timer: ',tname,' already on.'
      level=level+1                                !Increment the level
      on(n)=.true.
 !     call system_clock(icount,irate)
@@ -64,8 +79,8 @@ subroutine timer(dname,k)
   endif
 
   ntrace=ntrace+1
-  if(ntrace.lt.limtrace) write(lu,1020) ntrace,dname,k,level,nparent(n)
-1020 format(i8,': ',a8,3i5)
+  if(ntrace.lt.limtrace) write(lu,1020) ntrace,tname,k,level,nparent(n)
+1020 format(i8,': ',a11,3i5)
   go to 998
 
 ! Write out the timer statistics
@@ -96,12 +111,12 @@ subroutine timer(dname,k)
      sum=sum+dut(i)
      sumf=sumf+dutf
      kk=nlevel(i)
-     sname=space(1:kk)//name(i)//space(1:8-kk)
+     sname=space(1:kk)//name(i)//space(1:11-kk)
      ename=space
-     if(i.ge.2) ename=name(nparent(i))
+     if(nparent(i).ge.1) ename=name(nparent(i))
      write(lu,1060) float(i),sname,ut(i),utf,dut(i),dutf,           &
           ncall(i),nlevel(i),ename
-1060 format(f4.0,a16,2(f10.3,f6.2),i7,i5,2x,a8)
+1060 format(f4.0,a16,2(f10.3,f6.2),i7,i5,2x,a11)
   enddo
 
   write(lu,1070) sum,sumf
@@ -115,5 +130,8 @@ subroutine timer(dname,k)
 
 998 flush(lu)
 
-999 return
+999 continue
+
+  !$omp end critical(timer)
+  return
 end subroutine timer
