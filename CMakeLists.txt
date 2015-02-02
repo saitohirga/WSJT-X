@@ -711,7 +711,7 @@ if (${OPENMP_FOUND})
   file (MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp)
   set_target_properties (wsjt_omp
     PROPERTIES
-    COMPILE_FLAGS ${OpenMP_C_FLAGS}
+    COMPILE_FLAGS "${OpenMP_C_FLAGS}"
     Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
     )
 endif (${OPENMP_FOUND})
@@ -743,7 +743,7 @@ if (${OPENMP_FOUND})
   endif (WIN32)
   set_target_properties (jt9_omp
     PROPERTIES
-    COMPILE_FLAGS ${OpenMP_C_FLAGS}
+    COMPILE_FLAGS "${OpenMP_C_FLAGS}"
     Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
     LINK_FLAGS "${OpenMP_C_FLAGS} ${_extra_omp_link_flags}"
     )
@@ -820,10 +820,17 @@ install (TARGETS wsjtx
   BUNDLE DESTINATION . COMPONENT runtime
   )
 
-install (TARGETS jt9 jt65code jt9code jt9_omp
+install (TARGETS jt9 jt65code jt9code
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
+
+if (${OPENMP_FOUND})
+  install (TARGETS jt9_omp
+    RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
+    BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
+    )
+endif (${OPENMP_FOUND})
 
 if (WSJT_INCLUDE_KVASD)
   install (PROGRAMS
