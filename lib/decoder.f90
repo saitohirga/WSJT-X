@@ -50,17 +50,16 @@ subroutine decoder(ss,id2)
   if(nmode.eq.65) go to 800
 
 !  print*,'A'
-!!$OMP PARALLEL PRIVATE(id)
-!!$OMP SECTIONS
+!$OMP PARALLEL SECTIONS PRIVATE(id)
 
-!!$OMP SECTION
+!$OMP SECTION
 !  print*,'B'
   call timer('decjt9  ',0)
   call decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,nzhsym,  &
        nagain,ndepth,nmode)
   call timer('decjt9  ',1)
 
-!!$OMP SECTION
+!$OMP SECTION
   if(nmode.ge.65 .and. (.not.done65)) then
      if(newdat.ne.0) dd(1:npts65)=id2(1:npts65)
      nf1=nfa
@@ -71,8 +70,7 @@ subroutine decoder(ss,id2)
      call timer('jt65a   ',1)
   endif
 
-!!$OMP END SECTIONS NOWAIT
-!!$OMP END PARALLEL 
+!$OMP END PARALLEL SECTIONS
 !  print*,'D'
 
 ! JT65 is not yet producing info for nsynced, ndecoded.
