@@ -46,8 +46,12 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
         ccflim=2.7
      endif
      if(ndepth.ge.3 .or. nqd.eq.1) then
-        limit=50000
+        limit=30000
         ccflim=2.5
+     endif
+     if(nagain.ne.0) then
+        limit=100000
+        ccflim=2.4
      endif
      ccfok=.false.
 

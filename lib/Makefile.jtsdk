@@ -13,8 +13,8 @@ CC  = c:/JTSDK/Qt5/Tools/mingw48_32/bin/gcc
 FC = c:/JTSDK/Qt5/Tools/mingw48_32/bin/gfortran
 CXX = c:/JTSDK/Qt5/Tools/mingw48_32/bin/g++
 
-FFLAGS = -O2 -Wall -fno-second-underscore -DWIN32
-CFLAGS = -I. -fbounds-check -mno-stack-arg-probe -DWIN32
+FFLAGS = -O3 -Wall -Wno-conversion -fno-second-underscore -DWIN32
+CFLAGS = -I. -mno-stack-arg-probe -DWIN32
 
 # Default rules
 %.o: %.c

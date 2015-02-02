@@ -3,9 +3,9 @@ subroutine softsym(id2,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,        &
 
 ! Compute the soft symbols
 
-  complex c2(0:4096-1)
-  complex c3(0:4096-1)
-  complex c5(0:4096-1)
+  complex c2(0:1440-1)
+  complex c3(0:1440-1)
+  complex c5(0:1440-1)
   real a(3)
   integer*1 i1SoftSymbolsScrambled(207)
   integer*1 i1SoftSymbols(207)

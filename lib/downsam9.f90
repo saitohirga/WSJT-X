@@ -1,7 +1,7 @@
 subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
 
-!Downsample from id2() into C2() so as to yield nspsd samples per symbol, 
-!mixing from fpk down to zero frequency.
+!Downsample from id2() into c2() so as to yield nspsd samples per symbol, 
+!mixing from fpk down to zero frequency.  The downsample factor is 432.
 
   use, intrinsic :: iso_c_binding
   use FFTW3
@@ -9,23 +9,23 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
   include 'constants.f90'
 !  parameter (NMAX1=1024*1920)
   parameter (NMAX1=884736)
-  type(C_PTR) :: plan                       !Pointers plan for big FFT
+  type(C_PTR) :: plan                        !Pointers plan for big FFT
   integer*2 id2(0:8*npts8-1)
   real*4 x1(0:NMAX1-1)
   complex c1(0:NMAX1/2)
-  complex c2(0:4096-1)
+  complex c2(0:1440-1)
   real s(5000)
   logical first
   common/patience/npatience,nthreads
   data first/.true./
   save plan,first
 
-  nfft1=1024*nsps8                          !Forward FFT length
+  nfft1=604800                               !Forward FFT length
   df1=12000.0/nfft1
   npts=8*npts8
 
   if(newdat.eq.1) then
-     fac=6.963e-6                             !Why this weird constant?
+     fac=6.963e-6                            !Why this weird constant?
      do i=0,npts-1
         x1(i)=fac*id2(i)
      enddo
