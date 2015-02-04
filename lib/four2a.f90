@@ -26,6 +26,7 @@ subroutine four2a(a,nfft,ndim,isign,iform)
   integer nn(NPMAX),ns(NPMAX),nf(NPMAX)  !Params of stored plans 
   integer*8 nl(NPMAX),nloc               !More params of plans
   integer*8 plan(NPMAX)                  !Pointers to stored plans
+  logical found_plan
   data nplan/0/                          !Number of stored plans
   common/patience/npatience,nthreads     !Patience and threads for FFTW plans
   include 'fftw3.f90'                    !FFTW definitions
@@ -34,60 +35,81 @@ subroutine four2a(a,nfft,ndim,isign,iform)
   if(nfft.lt.0) go to 999
 
   nloc=loc(a)
+
+  found_plan = .false.
+  !$omp critical(four2a_setup)
   do i=1,nplan
      if(nfft.eq.nn(i) .and. isign.eq.ns(i) .and.                     &
-          iform.eq.nf(i) .and. nloc.eq.nl(i)) go to 10
+          iform.eq.nf(i) .and. nloc.eq.nl(i)) then
+        found_plan = .true.
+        exit
+     end if
   enddo
-  if(nplan.ge.NPMAX) stop 'Too many FFTW plans requested.'
-  nplan=nplan+1
-  i=nplan
-  nn(i)=nfft
-  ns(i)=isign
-  nf(i)=iform
-  nl(i)=nloc
+
+  if(i.ge.NPMAX) stop 'Too many FFTW plans requested.'
+
+  if (.not. found_plan) then
+     nplan=nplan+1
+     i=nplan
+
+     nn(i)=nfft
+     ns(i)=isign
+     nf(i)=iform
+     nl(i)=nloc
 
 ! Planning: FFTW_ESTIMATE, FFTW_ESTIMATE_PATIENT, FFTW_MEASURE, 
 !            FFTW_PATIENT,  FFTW_EXHAUSTIVE
-  nflags=FFTW_ESTIMATE
-  if(npatience.eq.1) nflags=FFTW_ESTIMATE_PATIENT
-  if(npatience.eq.2) nflags=FFTW_MEASURE
-  if(npatience.eq.3) nflags=FFTW_PATIENT
-  if(npatience.eq.4) nflags=FFTW_EXHAUSTIVE
+     nflags=FFTW_ESTIMATE
+     if(npatience.eq.1) nflags=FFTW_ESTIMATE_PATIENT
+     if(npatience.eq.2) nflags=FFTW_MEASURE
+     if(npatience.eq.3) nflags=FFTW_PATIENT
+     if(npatience.eq.4) nflags=FFTW_EXHAUSTIVE
 
-  if(nfft.le.NSMALL) then
-     jz=nfft
-     if(iform.eq.0) jz=nfft/2
-     aa(1:jz)=a(1:jz)
-  endif
+     if(nfft.le.NSMALL) then
+        jz=nfft
+        if(iform.eq.0) jz=nfft/2
+        aa(1:jz)=a(1:jz)
+     endif
 
-  if(isign.eq.-1 .and. iform.eq.1) then
-     call sfftw_plan_dft_1d(plan(i),nfft,a,a,FFTW_FORWARD,nflags)
-  else if(isign.eq.1 .and. iform.eq.1) then
-     call sfftw_plan_dft_1d(plan(i),nfft,a,a,FFTW_BACKWARD,nflags)
-  else if(isign.eq.-1 .and. iform.eq.0) then
-     call sfftw_plan_dft_r2c_1d(plan(i),nfft,a,a,nflags)
-  else if(isign.eq.1 .and. iform.eq.-1) then
-     call sfftw_plan_dft_c2r_1d(plan(i),nfft,a,a,nflags)
-  else
-     stop 'Unsupported request in four2a'
-  endif
+     !$omp critical(fftw) ! serialize non thread-safe FFTW3 calls
+     if(isign.eq.-1 .and. iform.eq.1) then
+        call sfftw_plan_dft_1d(plan(i),nfft,a,a,FFTW_FORWARD,nflags)
+     else if(isign.eq.1 .and. iform.eq.1) then
+        call sfftw_plan_dft_1d(plan(i),nfft,a,a,FFTW_BACKWARD,nflags)
+     else if(isign.eq.-1 .and. iform.eq.0) then
+        call sfftw_plan_dft_r2c_1d(plan(i),nfft,a,a,nflags)
+     else if(isign.eq.1 .and. iform.eq.-1) then
+        call sfftw_plan_dft_c2r_1d(plan(i),nfft,a,a,nflags)
+     else
+        stop 'Unsupported request in four2a'
+     endif
+     !$omp end critical(fftw)
 
-  i=nplan
-  if(nfft.le.NSMALL) then
-     jz=nfft
-     if(iform.eq.0) jz=nfft/2
-     a(1:jz)=aa(1:jz)
-  endif
+     if(nfft.le.NSMALL) then
+        jz=nfft
+        if(iform.eq.0) jz=nfft/2
+        a(1:jz)=aa(1:jz)
+     endif
+  end if
+  !$omp end critical(four2a_setup)
 
-10 continue
   call sfftw_execute(plan(i))
   return
 
-999 do i=1,nplan
+999 continue
+
+  !$omp critical(four2a)
+  do i=1,nplan
 ! The test is only to silence a compiler warning:
-     if(ndim.ne.-999) call sfftw_destroy_plan(plan(i))
+     if(ndim.ne.-999) then
+        !$omp critical(fftw) ! serialize non thread-safe FFTW3 calls
+        call sfftw_destroy_plan(plan(i))
+        !$omp end critical(fftw)
+     end if
   enddo
+
   nplan=0
+  !$omp end critical(four2a)
 
   return
 end subroutine four2a
