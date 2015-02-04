@@ -41,7 +41,9 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
 
 ! Plan the FFTs just once
      !$omp critical(fftw) ! serialize non thread-safe FFTW3 calls
+     call fftwf_plan_with_nthreads(nthreads)
      plan1=fftwf_plan_dft_r2c_1d(nfft1,rca,ca,nflags)
+     call fftwf_plan_with_nthreads(1)
      plan2=fftwf_plan_dft_1d(nfft2,c4a,c4a,-1,nflags)
      plan3=fftwf_plan_dft_1d(nfft2,cfilt,cfilt,+1,nflags)
      !$omp end critical(fftw)

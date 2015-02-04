@@ -79,7 +79,7 @@ program jt9
   endif
 
   iret=fftwf_init_threads()                   !Initialize FFTW threading 
-  call fftwf_plan_with_nthreads(nthreads)
+  call fftwf_plan_with_nthreads(1)            !Default to 1 thread but use nthreads for the big ones
 ! Import FFTW wisdom, if available
   wisfile=trim(data_dir)//'/jt9_wisdom.dat'// C_NULL_CHAR
   iret=fftwf_import_wisdom_from_filename(wisfile)
