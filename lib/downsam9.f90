@@ -7,8 +7,7 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
   use FFTW3
 
   include 'constants.f90'
-!  parameter (NMAX1=1024*1920)
-  parameter (NMAX1=884736)
+  parameter (NMAX1=604800)
   type(C_PTR) :: plan                        !Pointers plan for big FFT
   integer*2 id2(0:8*npts8-1)
   real*4 x1(0:NMAX1-1)
@@ -20,7 +19,7 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
   data first/.true./
   save plan,first
 
-  nfft1=604800                               !Forward FFT length
+  nfft1=NMAX1                                !Forward FFT length
   df1=12000.0/nfft1
   npts=8*npts8
 
