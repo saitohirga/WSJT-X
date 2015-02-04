@@ -41,7 +41,9 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
 ! Plan the FFTs just once
 
      !$omp critical(fftw) ! serialize non thread-safe FFTW3 calls
+     call fftwf_plan_with_nthreads(nthreads)
      plan=fftwf_plan_dft_r2c_1d(nfft1,x1,c1,nflags)
+     call fftwf_plan_with_nthreads(1)
      !$omp end critical(fftw)
 
      first=.false.
