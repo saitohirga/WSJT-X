@@ -91,7 +91,7 @@ program jt9
 
   limtrace=0
   lu=12
-  nflatten=1
+  nflatten=0
 
   do iarg = offset + 1, offset + remain
      call get_command_argument (iarg, optarg, arglen)
