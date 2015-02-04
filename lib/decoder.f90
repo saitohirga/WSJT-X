@@ -2,10 +2,16 @@ subroutine decoder(ss,id2)
 
   use prog_args
 
+  !$ interface
+  !$  subroutine omp_set_dynamic (flag)
+  !$   logical flag
+  !$  end subroutine omp_set_dynamic
+  !$ end interface
+
   include 'constants.f90'
   real ss(184,NSMAX)
   character*20 datetime
-  logical done65,baddata
+  logical baddata
   integer*2 id2(NTMAX*12000)
   real*4 dd(NTMAX*12000)
   common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfsplit,nfb,    &
@@ -35,36 +41,42 @@ subroutine decoder(ss,id2)
   endif
 
   ntol65=20
-  done65=.false.
-  if((nmode.eq.65 .or. nmode.eq.65+9) .and. ntxmode.eq.65) then
-! We're decoding JT65, and should do this mode first
+
+  !$ call omp_set_dynamic(.true.)
+  !$omp parallel sections num_threads(2)
+
+  !$omp section
+  if(nmode.eq.65 .or. (nmode.gt.65+9 .and. ntxmode.eq.65)) then
+! We're decoding JT65 or should do this mode first
      if(newdat.ne.0) dd(1:npts65)=id2(1:npts65)
      nf1=nfa
      nf2=nfb
      call timer('jt65a   ',0)
      call jt65a(dd,npts65,newdat,nutc,nf1,nf2,nfqso,ntol65,nagain,ndecoded)
      call timer('jt65a   ',1)
-     done65=.true.
+  else
+! We're decoding JT9 or should do this mode first
+     call timer('decjt9  ',0)
+     call decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,nzhsym,  &
+          nagain,ndepth,nmode)
+     call timer('decjt9  ',1)
   endif
 
-  if(nmode.eq.65) go to 800
-
-  !$omp parallel sections
-
   !$omp section
-  call timer('decjt9  ',0)
-  call decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,nzhsym,  &
-       nagain,ndepth,nmode)
-  call timer('decjt9  ',1)
-
-  !$omp section
-  if(nmode.ge.65 .and. (.not.done65)) then
-     if(newdat.ne.0) dd(1:npts65)=id2(1:npts65)
-     nf1=nfa
-     nf2=nfb
-     call timer('jt65a   ',0)
-     call jt65a(dd,npts65,newdat,nutc,nf1,nf2,nfqso,ntol65,nagain,ndecoded)
-     call timer('jt65a   ',1)
+  if(nmode.gt.65) then          ! do the other mode in dual mode
+     if (ntxmode.eq.9) then
+        if(newdat.ne.0) dd(1:npts65)=id2(1:npts65)
+        nf1=nfa
+        nf2=nfb
+        call timer('jt65a   ',0)
+        call jt65a(dd,npts65,newdat,nutc,nf1,nf2,nfqso,ntol65,nagain,ndecoded)
+        call timer('jt65a   ',1)
+     else
+        call timer('decjt9  ',0)
+        call decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,nzhsym,  &
+             nagain,ndepth,nmode)
+        call timer('decjt9  ',1)
+     end if
   endif
 
   !$omp end parallel sections
