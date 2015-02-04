@@ -76,10 +76,15 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nagain,ndecoded)
            if(nsnr.lt.-30) nsnr=-30
            if(nsnr.gt.-1) nsnr=-1
            dt=dt-tskip
+
+           !$omp critical(decode_results) ! serialize writes - see also decjt9.f90
            write(*,1010) nutc,nsnr,dt,nfreq,decoded
-1010       format(i4.4,i4,f5.1,i5,1x,'#',1x,a22)
            write(13,1012) nutc,nint(sync1),nsnr,dt,float(nfreq),ndrift,  &
                 decoded,nbmkv
+           call flush(6)
+           !$omp end critical(decode_results)
+
+1010       format(i4.4,i4,f5.1,i5,1x,'#',1x,a22)
 1012       format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT65',i4)
            freq0=freq+a(1)
            i2=min(NSZ,i+15)                !### ??? ###

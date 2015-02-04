@@ -38,10 +38,13 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
      if(npatience.eq.2) nflags=FFTW_MEASURE
      if(npatience.eq.3) nflags=FFTW_PATIENT
      if(npatience.eq.4) nflags=FFTW_EXHAUSTIVE
+
 ! Plan the FFTs just once
+     !$omp critical(fftw) ! serialize non thread-safe FFTW3 calls
      plan1=fftwf_plan_dft_r2c_1d(nfft1,rca,ca,nflags)
      plan2=fftwf_plan_dft_1d(nfft2,c4a,c4a,-1,nflags)
      plan3=fftwf_plan_dft_1d(nfft2,cfilt,cfilt,+1,nflags)
+     !$omp end critical(fftw)
 
 ! Convert impulse response to filter function
      do i=1,nfft2
@@ -128,9 +131,13 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
   n4=min(npts/8,nfft2)
   return
 
-900 call fftwf_destroy_plan(plan1)
+900 continue
+
+  !$omp critical(fftw) ! serialize non thread-safe FFTW3 calls
+  call fftwf_destroy_plan(plan1)
   call fftwf_destroy_plan(plan2)
   call fftwf_destroy_plan(plan3)
+  !$omp end critical(fftw)
   
   return
 end subroutine filbig

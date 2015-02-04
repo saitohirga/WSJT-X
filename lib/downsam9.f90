@@ -39,7 +39,11 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
      if(npatience.eq.3) nflags=FFTW_PATIENT
      if(npatience.eq.4) nflags=FFTW_EXHAUSTIVE
 ! Plan the FFTs just once
+
+     !$omp critical(fftw) ! serialize non thread-safe FFTW3 calls
      plan=fftwf_plan_dft_r2c_1d(nfft1,x1,c1,nflags)
+     !$omp end critical(fftw)
+
      first=.false.
   endif
 
