@@ -91,6 +91,7 @@ program jt9
 
   limtrace=0
   lu=12
+  nflatten=1
 
   do iarg = offset + 1, offset + remain
      call get_command_argument (iarg, optarg, arglen)
@@ -143,7 +144,7 @@ program jt9
 ! Emit signal readyForFFT
            ingain=0
            call timer('symspec ',0)
-           call symspec(k,ntrperiod,nsps,ingain,slope,pxdb,s,df3,ihsym,npts8)
+           call symspec(k,ntrperiod,nsps,ingain,nflatten,pxdb,s,df3,ihsym,npts8)
            call timer('symspec ',1)
            nhsym0=nhsym
            if(ihsym.ge.173) go to 10
