@@ -9,16 +9,17 @@ subroutine timer(dname,k)
   !$  end function
   !$ end interface
 
+  parameter (MAXCALL=100)
   character*8 dname
   !$ character thread
   character*11 tname,ename
   character*16 sname
   character*11, save :: space
   integer, save :: level, nmax
-  character*11, save :: name(50)
-  logical, save :: on(50)
-  real, save :: ut(50),ut0(50),dut(50)
-  integer, save :: ncall(50),nlevel(50),nparent(50)
+  character*11, save :: name(MAXCALL)
+  logical, save :: on(MAXCALL)
+  real, save :: ut(MAXCALL),ut0(MAXCALL),dut(MAXCALL)
+  integer, save :: ncall(MAXCALL),nlevel(MAXCALL),nparent(MAXCALL)
   integer, save :: onlevel(0:10)
   common/tracer/ limtrace,lu
   data eps/0.000001/,ntrace/0/
