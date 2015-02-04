@@ -28,7 +28,7 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
        5.89886379,1.59355187,-2.49138308,0.60910773,-0.04248129/
   common/refspec/dfref,ref(NSZ)
   common/patience/npatience,nthreads
-  save first,plan1,plan2,plan3
+  save first,plan1,plan2,plan3,rfilt,df
 
   if(npts.lt.0) go to 900                    !Clean up at end of program
 
