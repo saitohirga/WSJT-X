@@ -27,8 +27,8 @@ subroutine timer(dname,k)
   data limtrace/0/,lu/-1/
   !$omp threadprivate(level,space,onlevel)
 
-  ! currently this module is broken if called from multiple threads
-  !$ return ! diable if usinh OpenMP
+!  ! currently this module is broken if called from multiple threads
+!  !$ return ! diable if usinh OpenMP
 
   tname=dname
   !$ write(thread,'(i1)') omp_get_thread_num()
