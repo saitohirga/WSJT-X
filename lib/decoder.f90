@@ -46,7 +46,7 @@ subroutine decoder(ss,id2)
   !$omp parallel sections num_threads(2)
 
   !$omp section
-  if(nmode.eq.65 .or. (nmode.gt.65+9 .and. ntxmode.eq.65)) then
+  if(nmode.eq.65 .or. (nmode.gt.65 .and. ntxmode.eq.65)) then
 ! We're decoding JT65 or should do this mode first
      if(newdat.ne.0) dd(1:npts65)=id2(1:npts65)
      nf1=nfa
