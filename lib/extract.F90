@@ -1,11 +1,9 @@
-subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
-!subroutine extract(s3,nadd,nbirdie,afac1,xlambda,ncount,nhist,decoded,   &
-!     ltext,nbmkv,ntest)
-
+subroutine extract(s3,nadd,nqd,ncount,nhist,decoded,ltext,nbmkv)
 
 ! Input:
 !   s3       64-point spectra for each of 63 data symbols
 !   nadd     number of spectra summed into s3
+!   nqd      0/1 to indicate decode attempt at QSO frequency
 
 ! Output:
 !   ncount   number of symbols requiring correction
@@ -27,7 +25,8 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)
   nbirdie=7
   npct=40
   afac1=10.1
-  xlambda=8.0
+  xlambda=7.999
+  if(nqd.eq.1) xlambda=11.999               !Increase depth at QSO frequency
   nbmkv=0
   nfail=0
   decoded='                      '

@@ -1,4 +1,4 @@
-subroutine decode65b(s2,nflip,mode65,nbmkv,nhist,decoded)
+subroutine decode65b(s2,nflip,mode65,nqd,nbmkv,nhist,decoded)
 
   real s2(66,126)
   real s3(64,63)
@@ -22,7 +22,7 @@ subroutine decode65b(s2,nflip,mode65,nbmkv,nhist,decoded)
   enddo
 
   nadd=mode65
-  call extract(s3,nadd,ncount,nhist,decoded,ltext,nbmkv)   !Extract the message
+  call extract(s3,nadd,nqd,ncount,nhist,decoded,ltext,nbmkv)   !Extract message
 ! Suppress "birdie messages" and other garbage decodes:
   if(decoded(1:7).eq.'000AAA ') ncount=-1
   if(decoded(1:7).eq.'0L6MWK ') ncount=-1

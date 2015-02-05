@@ -60,7 +60,7 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nagain,ndecoded)
 
         nflip=nint(flipk)
         call timer('decod65a',0)
-        call decode65a(dd,npts,newdat,freq,nflip,mode65,sync2,a,dt,   &
+        call decode65a(dd,npts,newdat,nqd,freq,nflip,mode65,sync2,a,dt,   &
              nbmkv,nhist,decoded)
         call timer('decod65a',1)
 
