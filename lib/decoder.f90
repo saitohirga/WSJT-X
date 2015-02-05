@@ -1,12 +1,7 @@
 subroutine decoder(ss,id2)
 
   use prog_args
-
-  !$ interface
-  !$  subroutine omp_set_dynamic (flag)
-  !$   logical flag
-  !$  end subroutine omp_set_dynamic
-  !$ end interface
+  !$ use omp_lib
 
   include 'constants.f90'
   real ss(184,NSMAX)
@@ -17,6 +12,9 @@ subroutine decoder(ss,id2)
   common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfsplit,nfb,    &
        ntol,kin,nzhsym,nsave,nagain,ndepth,ntxmode,nmode,datetime
   common/tracer/limtrace,lu
+  integer onlevel(0:10)
+  common/tracer_priv/level,onlevel
+  !$omp threadprivate(/tracer_priv/)
   save
 
   nfreqs0=0
@@ -43,7 +41,7 @@ subroutine decoder(ss,id2)
   ntol65=20
 
   !$ call omp_set_dynamic(.true.)
-  !$omp parallel sections num_threads(2)
+  !$omp parallel sections num_threads(2) copyin(/tracer_priv/)
 
   !$omp section
   if(nmode.eq.65 .or. (nmode.gt.65 .and. ntxmode.eq.65)) then
