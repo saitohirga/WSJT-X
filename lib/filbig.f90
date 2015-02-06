@@ -18,17 +18,15 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
   real halfpulse(8)                 !Impulse response of filter (one sided)
   complex cfilt(NFFT2)                       !Filter (complex; imag = 0)
   real rfilt(NFFT2)                          !Filter (real)
-!  integer*8 plan1,plan2,plan3
   type(C_PTR) :: plan1,plan2,plan3           !Pointers to FFTW plans
   logical first
-!  include 'fftw3.f90'
   equivalence (rfilt,cfilt),(rca,ca)
   data first/.true./
   data halfpulse/114.97547150,36.57879257,-20.93789101,              &
        5.89886379,1.59355187,-2.49138308,0.60910773,-0.04248129/
   common/refspec/dfref,ref(NSZ)
   common/patience/npatience,nthreads
-  save first,plan1,plan2,plan3,rfilt,df
+  save first,plan1,plan2,plan3,rfilt,cfilt,df,ca
 
   if(npts.lt.0) go to 900                    !Clean up at end of program
 
