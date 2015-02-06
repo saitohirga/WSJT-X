@@ -17,7 +17,7 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
   logical first
   common/patience/npatience,nthreads
   data first/.true./
-  save plan,first
+  save plan,first,c1,s
 
   nfft1=NMAX1                                !Forward FFT length
   df1=12000.0/nfft1
