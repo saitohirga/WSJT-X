@@ -41,7 +41,7 @@ subroutine decoder(ss,id2)
   ntol65=20
 
   !$ call omp_set_dynamic(.true.)
-  !$omp parallel sections num_threads(2) copyin(/tracer_priv/)
+  !$omp parallel sections num_threads(2) copyin(/tracer_priv/) shared(ndecoded)
 
   !$omp section
   if(nmode.eq.65 .or. (nmode.gt.65 .and. ntxmode.eq.65)) then
