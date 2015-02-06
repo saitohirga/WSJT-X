@@ -10,6 +10,7 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
   logical done(NSMAX)
   integer*2 id2(NTMAX*12000)
   integer*1 i1SoftSymbols(207)
+  save ccfred,red2
 
   nsynced=0
   ndecoded=0
