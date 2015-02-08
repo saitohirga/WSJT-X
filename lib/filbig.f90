@@ -87,6 +87,7 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
         ca(ia:ib)=fac*conjg(ca(ia:ib))
      enddo
      call timer('flatten ',1)
+     newdat=0
   endif
 
 ! NB: f0 is the frequency at which we want our filter centered.

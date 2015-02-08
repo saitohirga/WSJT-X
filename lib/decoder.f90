@@ -39,6 +39,8 @@ subroutine decoder(ss,id2)
   endif
 
   ntol65=20
+  newdat65=newdat
+  newdat9=newdat
 
   !$ call omp_set_dynamic(.true.)
   !$omp parallel sections num_threads(2) copyin(/tracer_priv/) shared(ndecoded)
@@ -46,16 +48,16 @@ subroutine decoder(ss,id2)
   !$omp section
   if(nmode.eq.65 .or. (nmode.gt.65 .and. ntxmode.eq.65)) then
 ! We're decoding JT65 or should do this mode first
-     if(newdat.ne.0) dd(1:npts65)=id2(1:npts65)
+     if(newdat65.ne.0) dd(1:npts65)=id2(1:npts65)
      nf1=nfa
      nf2=nfb
      call timer('jt65a   ',0)
-     call jt65a(dd,npts65,newdat,nutc,nf1,nf2,nfqso,ntol65,nagain,ndecoded)
+     call jt65a(dd,npts65,newdat65,nutc,nf1,nf2,nfqso,ntol65,nagain,ndecoded)
      call timer('jt65a   ',1)
   else
 ! We're decoding JT9 or should do this mode first
      call timer('decjt9  ',0)
-     call decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,nzhsym,  &
+     call decjt9(ss,id2,nutc,nfqso,newdat9,npts8,nfa,nfsplit,nfb,ntol,nzhsym,  &
           nagain,ndepth,nmode)
      call timer('decjt9  ',1)
   endif
@@ -63,16 +65,16 @@ subroutine decoder(ss,id2)
   !$omp section
   if(nmode.gt.65) then          ! do the other mode in dual mode
      if (ntxmode.eq.9) then
-        if(newdat.ne.0) dd(1:npts65)=id2(1:npts65)
+        if(newdat65.ne.0) dd(1:npts65)=id2(1:npts65)
         nf1=nfa
         nf2=nfb
         call timer('jt65a   ',0)
-        call jt65a(dd,npts65,newdat,nutc,nf1,nf2,nfqso,ntol65,nagain,ndecoded)
+        call jt65a(dd,npts65,newdat65,nutc,nf1,nf2,nfqso,ntol65,nagain,ndecoded)
         call timer('jt65a   ',1)
      else
         call timer('decjt9  ',0)
-        call decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,nzhsym,  &
-             nagain,ndepth,nmode)
+        call decjt9(ss,id2,nutc,nfqso,newdat9,npts8,nfa,nfsplit,nfb,ntol,   &
+             nzhsym,nagain,ndepth,nmode)
         call timer('decjt9  ',1)
      end if
   endif
