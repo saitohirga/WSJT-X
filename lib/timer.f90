@@ -122,6 +122,9 @@ subroutine timer(dname,k)
   !$          !same call chain so roll up data
   !$          ncall(j)=ncall(j)+ncall(i)
   !$          ut(j)=ut(j)+ut(i)
+  !$          do n=1,nmax
+  !$            if (nparent(n).eq.i) nparent(n)=j
+  !$          end do
   !$          name(i)=space
   !$          exit
   !$       end if
