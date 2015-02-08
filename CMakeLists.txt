@@ -743,9 +743,6 @@ qt5_use_modules (jt9 Core)
 
 if (${OPENMP_FOUND})
   add_executable (jt9_omp lib/jt9.f90 lib/jt9a.f90 lib/jt9b.f90 lib/jt9c.f90 ${jt9_CXXSRCS} wsjtx.rc)
-  if (WIN32)
-    set (_extra_omp_link_flags "-Wl,--stack,8388608")
-  endif (WIN32)
   set_target_properties (jt9_omp
     PROPERTIES
     COMPILE_FLAGS "${OpenMP_C_FLAGS}"
