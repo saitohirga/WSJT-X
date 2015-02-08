@@ -45,8 +45,7 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
   endif
 
   if(newdat.eq.1) then
-     fac=6.963e-6                             !Why this weird constant?
-     x1(0:npts-1)=fac*id2(0:npts-1)
+     x1(0:npts-1)=id2(0:npts-1)
      x1(npts:nfft1-1)=0.                      !Zero the rest of x1
      call timer('FFTbig9 ',0)
      call fftwf_execute_dft_r2c(plan,x1,c1)
@@ -61,6 +60,7 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
            s(i)=s(i)+real(c1(j))**2 + aimag(c1(j))**2
         enddo
      enddo
+     newdat=0
   endif
 
   ndown=8*nsps8/nspsd                      !Downsample factor
