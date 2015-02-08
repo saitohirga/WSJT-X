@@ -7,6 +7,7 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
   use FFTW3
 
   include 'constants.f90'
+  integer*4 NMAX1
   parameter (NMAX1=604800)
   type(C_PTR) :: plan                        !Pointers plan for big FFT
   integer*2 id2(0:8*npts8-1)
