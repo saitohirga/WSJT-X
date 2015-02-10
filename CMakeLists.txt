@@ -710,16 +710,24 @@ endif (WIN32)
 #
 
 # build a library of package functionality (without and optionally with OpenMP support)
-add_library (wsjt STATIC ${wsjt_CSRCS} ${wsjt_CXXSRCS} ${wsjt_FSRCS})
-if (${OPENMP_FOUND})
-  add_library (wsjt_omp STATIC ${wsjt_CSRCS} ${wsjt_CXXSRCS} ${wsjt_FSRCS})
-  file (MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp)
-  set_target_properties (wsjt_omp
+add_library (wsjt_cxx STATIC ${wsjt_CSRCS} ${wsjt_CXXSRCS})
+add_library (wsjt_fort STATIC ${wsjt_FSRCS})
+if (${OPENMP_FOUND} OR APPLE)
+  add_library (wsjt_fort_omp STATIC ${wsjt_FSRCS})
+  set_target_properties (wsjt_fort_omp
     PROPERTIES
     COMPILE_FLAGS "${OpenMP_C_FLAGS}"
     Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
     )
-endif (${OPENMP_FOUND})
+  file (MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp)
+  if (APPLE)
+    # nasty hack to use OpenMP only on Fortran files - assumes gfortran being used
+    set_target_properties (wsjt_fort_omp
+      PROPERTIES
+      COMPILE_FLAGS "-fopenmp"
+      )
+  endif (APPLE)
+endif (${OPENMP_FOUND} OR APPLE)
 
 # build a library of package Qt functionality
 add_library (wsjt_qt STATIC ${wsjt_qt_CXXSRCS} ${wsjt_qt_GENUISRCS} ${GENAXSRCS})
@@ -729,29 +737,39 @@ if (WIN32)
 endif (WIN32)
 
 add_executable (jt9sim lib/jt9sim.f90 wsjtx.rc)
-target_link_libraries (jt9sim wsjt)
+target_link_libraries (jt9sim wsjt_fort wsjt_cxx)
 
 add_executable (jt65code lib/jt65code.f90 wsjtx.rc)
-target_link_libraries (jt65code wsjt)
+target_link_libraries (jt65code wsjt_fort wsjt_cxx)
 
 add_executable (jt9code lib/jt9code.f90 wsjtx.rc)
-target_link_libraries (jt9code wsjt)
+target_link_libraries (jt9code wsjt_fort wsjt_cxx)
 
 add_executable (jt9 lib/jt9.f90 lib/jt9a.f90 lib/jt9b.f90 lib/jt9c.f90 ${jt9_CXXSRCS} wsjtx.rc)
-target_link_libraries (jt9 wsjt ${FFTW3_LIBRARIES})
+target_link_libraries (jt9 wsjt_fort wsjt_cxx ${FFTW3_LIBRARIES})
 qt5_use_modules (jt9 Core)
 
-if (${OPENMP_FOUND})
+if (${OPENMP_FOUND} OR APPLE)
   add_executable (jt9_omp lib/jt9.f90 lib/jt9a.f90 lib/jt9b.f90 lib/jt9c.f90 ${jt9_CXXSRCS} wsjtx.rc)
+  if (APPLE)
+    set_target_properties (jt9_omp
+      PROPERTIES
+      COMPILE_FLAGS "-fopenmp"
+      LINK_LIBRARIES "gomp;gcc_s.1"
+      )
+  else (APPLE)
+    set_target_properties (jt9_omp
+      PROPERTIES
+      COMPILE_FLAGS "${OpenMP_C_FLAGS}"
+      )
+  endif (APPLE)
   set_target_properties (jt9_omp
     PROPERTIES
-    COMPILE_FLAGS "${OpenMP_C_FLAGS}"
     Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
-    LINK_FLAGS "${OpenMP_C_FLAGS} ${_extra_omp_link_flags}"
     )
-  target_link_libraries (jt9_omp wsjt_omp ${FFTW3_LIBRARIES})
+  target_link_libraries (jt9_omp wsjt_fort_omp wsjt_cxx ${FFTW3_LIBRARIES})
   qt5_use_modules (jt9_omp Core)
-endif (${OPENMP_FOUND})
+endif (${OPENMP_FOUND} OR APPLE)
 
 # build configuration dialog and transceiver interface test application
 #add_executable (ConfigTest ${ConfigTest_CXXSRCS} ${ConfigTest_GENUISRCS} wsjtx.rc)
@@ -812,7 +830,7 @@ set_target_properties (wsjtx PROPERTIES
   MACOSX_BUNDLE_GUI_IDENTIFIER "org.k1jt.wsjtx"
   )
 
-target_link_libraries (wsjtx wsjt wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
+target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 
 #
 # installation
@@ -827,12 +845,12 @@ install (TARGETS jt9 jt65code jt9code
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
 
-if (${OPENMP_FOUND})
+if (${OPENMP_FOUND} OR APPLE)
   install (TARGETS jt9_omp
     RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
     BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
     )
-endif (${OPENMP_FOUND})
+endif (${OPENMP_FOUND} OR APPLE)
 
 if (WSJT_INCLUDE_KVASD)
   install (PROGRAMS
