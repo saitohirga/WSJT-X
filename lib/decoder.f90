@@ -43,7 +43,7 @@ subroutine decoder(ss,id2)
   newdat9=newdat
 
   !$ call omp_set_dynamic(.true.)
-  !$omp parallel sections num_threads(2) copyin(/tracer_priv/) shared(ndecoded)
+  !$omp parallel sections num_threads(2) copyin(/tracer_priv/) shared(ndecoded) if(.true.) !iif() needed on Mac
 
   !$omp section
   if(nmode.eq.65 .or. (nmode.gt.65 .and. ntxmode.eq.65)) then

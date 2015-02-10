@@ -115,6 +115,7 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
               write(*,1000) nutc,nsnr,xdt,nint(freq),msg
               write(13,1002) nutc,nsync,nsnr,xdt,freq,ndrift,msg
               call flush(6)
+              call flush(13)
               !$omp end critical(decode_results)
 
 1000          format(i4.4,i4,f5.1,i5,1x,'@',1x,a22)

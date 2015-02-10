@@ -87,6 +87,7 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nagain,ndecoded)
                 decoded,nbmkv
 1012       format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT65',i4)
            call flush(6)
+           call flush(13)
            !$omp end critical(decode_results)
 
            freq0=freq+a(1)
