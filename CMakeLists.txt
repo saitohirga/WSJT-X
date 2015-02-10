@@ -755,18 +755,17 @@ if (${OPENMP_FOUND} OR APPLE)
     set_target_properties (jt9_omp
       PROPERTIES
       COMPILE_FLAGS "-fopenmp"
+      Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
       LINK_LIBRARIES "gomp;gcc_s.1"
       )
   else (APPLE)
     set_target_properties (jt9_omp
       PROPERTIES
       COMPILE_FLAGS "${OpenMP_C_FLAGS}"
+      LINK_FLAGS "${OpenMP_C_FLAGS}"
+      Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
       )
   endif (APPLE)
-  set_target_properties (jt9_omp
-    PROPERTIES
-    Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
-    )
   target_link_libraries (jt9_omp wsjt_fort_omp wsjt_cxx ${FFTW3_LIBRARIES})
   qt5_use_modules (jt9_omp Core)
 endif (${OPENMP_FOUND} OR APPLE)
