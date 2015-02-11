@@ -102,13 +102,13 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>80</width>
+           <width>91</width>
            <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>38</width>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
          </property>
@@ -209,7 +209,7 @@
           <string/>
          </property>
          <property name="prefix">
-          <string>Bins/Pixel </string>
+          <string>Bins/Pixel  </string>
          </property>
          <property name="minimum">
           <number>1</number>
@@ -235,7 +235,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>80</width>
+           <width>91</width>
            <height>0</height>
           </size>
          </property>
@@ -300,7 +300,7 @@
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gain (dB) applied to spectra before display&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="prefix">
-          <string>Gain </string>
+          <string>Gain  </string>
          </property>
          <property name="minimum">
           <number>-20</number>
@@ -338,7 +338,7 @@
           <string/>
          </property>
          <property name="prefix">
-          <string>Zero </string>
+          <string>Zero  </string>
          </property>
          <property name="minimum">
           <number>-100</number>
