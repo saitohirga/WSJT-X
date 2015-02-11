@@ -36,7 +36,9 @@ class QStringListModel;
 //  functions are blocking.
 //
 //  All user  settings required by  the wsjtx GUI are  exposed through
-//  query methods.
+//  query methods.  Settings only become  visible once they  have been
+//  accepted by the user which is  done by clicking the "OK" button on
+//  the settings dialog.
 //
 //  The QSettings instance  passed to the constructor is  used to read
 //  and write user settings.
