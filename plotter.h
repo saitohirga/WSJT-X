@@ -60,24 +60,18 @@ public:
   void SetPercent2DScreen(int percent){m_Percent2DScreen=percent;}
   int getFmax();
   void setDialFreq(double d);
-
   void setCurrent(bool b) {m_bCurrent = b;}
   bool current() const {return m_bCurrent;}
-
   void setCumulative(bool b) {m_bCumulative = b;}
   bool cumulative() const {return m_bCumulative;}
-
   void setLinearAvg(bool b) {m_bLinearAvg = b;}
   bool linearAvg() const {return m_bLinearAvg;}
-
   void setBreadth(qint32 w) {m_w = w;}
   qint32 breadth() const {return m_w;}
-
   float fSpan() const {return m_fSpan;}
-
   void setLockTxFreq(bool b) {m_lockTxFreq = b;}
-
   void setColours(QVector<QColor> const& cl) {m_ColorTbl = cl;}
+  void setFlatten(bool b);
 
 signals:
   void freezeDecode1(int n);
@@ -109,6 +103,7 @@ private:
   qint32  m_nSpan;
   qint32  m_binsPerPixel;
   qint32  m_w;
+  qint32  m_Flatten;
 
   QPixmap m_WaterfallPixmap;
   QPixmap m_2DPixmap;
@@ -155,5 +150,9 @@ private slots:
   void mousePressEvent(QMouseEvent *event);
   void mouseDoubleClickEvent(QMouseEvent *event);
 };
+
+extern "C" {
+  void flat4_(float swide[], int* iz, int* nflatten);
+}
 
 #endif // PLOTTER_H

@@ -49,6 +49,7 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   int n = m_settings->value("FreqSpan",2).toInt();
   m_bFlatten=m_settings->value("Flatten",true).toBool();
   ui->cbFlatten->setChecked(m_bFlatten);
+  ui->widePlot->setFlatten(m_bFlatten);
   ui->widePlot->setBreadth(m_settings->value("PlotWidth",1000).toInt());
   ui->freqSpanSpinBox->setValue(n);
   ui->widePlot->setNSpan(n);
@@ -364,6 +365,7 @@ void WideGraph::on_paletteComboBox_activated (QString const& palette)
 void WideGraph::on_cbFlatten_toggled(bool b)
 {
   m_bFlatten=b;
+  ui->widePlot->setFlatten(m_bFlatten);
 }
 
 void WideGraph::on_adjust_palette_push_button_clicked (bool)
