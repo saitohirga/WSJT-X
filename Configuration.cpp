@@ -1,5 +1,128 @@
 #include "Configuration.hpp"
 
+//
+// Read me!
+//
+// This file defines a configuration dialog with the user. The general
+// strategy is to expose agreed  configuration parameters via a custom
+// interface (See  Configuration.hpp). The state exposed  through this
+// public   interface  reflects   stored  or   derived  data   in  the
+// Configuration::impl object.   The Configuration::impl  structure is
+// an implementation of the PIMPL (a.k.a.  Cheshire Cat or compilation
+// firewall) implementation hiding idiom that allows internal state to
+// be completely removed from the public interface.
+//
+// There  is a  secondary level  of parameter  storage which  reflects
+// current settings UI  state, these parameters are not  copied to the
+// state   store  that   the  public   interface  exposes   until  the
+// Configuration:impl::accept() operation is  successful. The accept()
+// operation is  tied to the settings  OK button. The normal  and most
+// convenient place to store this intermediate settings UI state is in
+// the data models of the UI  controls, if that is not convenient then
+// separate member variables  must be used to store that  state. It is
+// important for the user experience that no publicly visible settings
+// are changed  while the  settings UI are  changed i.e.  all settings
+// changes   must    be   deferred   until   the    "OK"   button   is
+// clicked. Conversely, all changes must  be discarded if the settings
+// UI "Cancel" button is clicked.
+//
+// There is  a complication related  to the radio interface  since the
+// this module offers  the facility to test the  radio interface. This
+// test means  that the  public visibility to  the radio  being tested
+// must be  changed.  To  maintain the  illusion of  deferring changes
+// until they  are accepted, the  original radio related  settings are
+// stored upon showing  the UI and restored if the  UI is dismissed by
+// canceling.
+//
+// It  should be  noted that  the  settings UI  lives as  long as  the
+// application client that uses it does. It is simply shown and hidden
+// as it  is needed rather than  creating it on demand.  This strategy
+// saves a  lot of  expensive UI  drawing at the  expense of  a little
+// storage and  gives a  convenient place  to deliver  settings values
+// from.
+//
+// Here is an overview of the high level flow of this module:
+//
+// 1)  On  construction the  initial  environment  is initialized  and
+// initial   values  for   settings  are   read  from   the  QSettings
+// database. At  this point  default values for  any new  settings are
+// established by  providing a  default value  to the  QSettings value
+// queries. This should be the only place where a hard coded value for
+// a   settings  item   is   defined.   Any   remaining  one-time   UI
+// initialization is also done. At the end of the constructor a method
+// initialise_models()  is called  to  load the  UI  with the  current
+// settings values.
+//
+// 2) When the settings UI is displayed by a client calling the exec()
+// operation, only temporary state need be stored as the UI state will
+// already mirror the publicly visible settings state.
+//
+// 3) As  the user makes  changes to  the settings UI  only validation
+// need be  carried out since the  UI control data models  are used as
+// the temporary store of unconfirmed settings.  As some settings will
+// depend  on each  other a  validate() operation  is available,  this
+// operations implements a check of any complex multi-field values.
+//
+// 4) If the  user discards the settings changes by  dismissing the UI
+// with the  "Cancel" button;  the reject()  operation is  called. The
+// reject() operation calls initialise_models()  which will revert all
+// the  UI visible  state  to  the values  as  at  the initial  exec()
+// operation.  No   changes  are  moved   into  the  data   fields  in
+// Configuration::impl that  reflect the  settings state  published by
+// the public interface (Configuration.hpp).
+//
+// 5) If  the user accepts the  settings changes by dismissing  the UI
+// with the "OK" button; the  accept() operation is called which calls
+// the validate() operation  again and, if it passes,  the fields that
+// are used  to deliver  the settings  state are  updated from  the UI
+// control models  or other temporary  state variables. At the  end of
+// the accept()  operation, just  before hiding  the UI  and returning
+// control to the caller; the new  settings values are stored into the
+// settings database by a call to the write_settings() operation, thus
+// ensuring that  settings changes are  saved even if  the application
+// crashes or is subsequently killed.
+//
+// 6)  On  destruction,  which   only  happens  when  the  application
+// terminates,  the settings  are saved  to the  settings database  by
+// calling the  write_settings() operation. This is  largely redundant
+// but is still done to save the default values of any new settings on
+// an initial run.
+//
+// To add a new setting:
+//
+// 1) Update the UI with the new widget to view and change the value.
+//
+// 2)  Add  a member  to  Configuration::impl  to store  the  accepted
+// setting state. If the setting state is dynamic; add a new signal to
+// broadcast the setting value.
+//
+// 3) Add a  query method to the  public interface (Configuration.hpp)
+// to access the  new setting value. If the settings  is dynamic; this
+// step  is optional  since  value  changes will  be  broadcast via  a
+// signal.
+//
+// 4) Add a forwarding operation to implement the new query (3) above.
+//
+// 5)  Add a  settings read  call to  read_settings() with  a sensible
+// default value. If  the setting value is dynamic, add  a signal emit
+// call to broadcast the setting value change.
+//
+// 6) Add  code to  initialise_models() to  load the  widget control's
+// data model with the current setting value.
+//
+// 7)  Add  any  required  inter-field validation  to  the  validate()
+// operation.
+//
+// 8) Add code to the accept()  operation to extract the setting value
+// from  the  widget   control  data  model  and  load   it  into  the
+// Configuration::impl  member  that  reflects  the  publicly  visible
+// setting state. If  the setting value is dynamic; add  a signal emit
+// call to broadcast any changed state of the setting.
+//
+// 9)  Add a  settings write  call to  save the  setting value  to the
+// settings database.
+//
+
 #include <stdexcept>
 #include <iterator>
 #include <algorithm>
