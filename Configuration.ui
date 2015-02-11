@@ -1697,7 +1697,7 @@ Right click for insert and delete options.</string>
         <rect>
          <x>44</x>
          <y>60</y>
-         <width>218</width>
+         <width>228</width>
          <height>141</height>
         </rect>
        </property>
@@ -1706,7 +1706,7 @@ Right click for insert and delete options.</string>
          <widget class="QPushButton" name="pbCQmsg">
           <property name="minimumSize">
            <size>
-            <width>130</width>
+            <width>140</width>
             <height>0</height>
            </size>
           </property>
@@ -1738,7 +1738,7 @@ Right click for insert and delete options.</string>
          <widget class="QPushButton" name="pbMyCall">
           <property name="minimumSize">
            <size>
-            <width>130</width>
+            <width>140</width>
             <height>0</height>
            </size>
           </property>
@@ -1770,7 +1770,7 @@ Right click for insert and delete options.</string>
          <widget class="QPushButton" name="pbTxMsg">
           <property name="minimumSize">
            <size>
-            <width>130</width>
+            <width>140</width>
             <height>0</height>
            </size>
           </property>
@@ -1802,7 +1802,7 @@ Right click for insert and delete options.</string>
          <widget class="QPushButton" name="pbNewDXCC">
           <property name="minimumSize">
            <size>
-            <width>130</width>
+            <width>140</width>
             <height>0</height>
            </size>
           </property>
@@ -1834,7 +1834,7 @@ Right click for insert and delete options.</string>
          <widget class="QPushButton" name="pbNewCall">
           <property name="minimumSize">
            <size>
-            <width>130</width>
+            <width>140</width>
             <height>0</height>
            </size>
           </property>
