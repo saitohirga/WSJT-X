@@ -32,7 +32,7 @@
       <string>Select tab to change configuration parameters.</string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>6</number>
      </property>
      <widget class="QWidget" name="general_tab">
       <attribute name="title">
@@ -1697,7 +1697,7 @@ Right click for insert and delete options.</string>
         <rect>
          <x>44</x>
          <y>60</y>
-         <width>198</width>
+         <width>218</width>
          <height>141</height>
         </rect>
        </property>
@@ -1706,7 +1706,7 @@ Right click for insert and delete options.</string>
          <widget class="QPushButton" name="pbCQmsg">
           <property name="minimumSize">
            <size>
-            <width>110</width>
+            <width>130</width>
             <height>0</height>
            </size>
           </property>
@@ -1738,7 +1738,7 @@ Right click for insert and delete options.</string>
          <widget class="QPushButton" name="pbMyCall">
           <property name="minimumSize">
            <size>
-            <width>110</width>
+            <width>130</width>
             <height>0</height>
            </size>
           </property>
@@ -1770,7 +1770,7 @@ Right click for insert and delete options.</string>
          <widget class="QPushButton" name="pbTxMsg">
           <property name="minimumSize">
            <size>
-            <width>110</width>
+            <width>130</width>
             <height>0</height>
            </size>
           </property>
@@ -1802,7 +1802,7 @@ Right click for insert and delete options.</string>
          <widget class="QPushButton" name="pbNewDXCC">
           <property name="minimumSize">
            <size>
-            <width>110</width>
+            <width>130</width>
             <height>0</height>
            </size>
           </property>
@@ -1834,7 +1834,7 @@ Right click for insert and delete options.</string>
          <widget class="QPushButton" name="pbNewCall">
           <property name="minimumSize">
            <size>
-            <width>110</width>
+            <width>130</width>
             <height>0</height>
            </size>
           </property>
@@ -2017,12 +2017,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
+  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
  </buttongroups>
 </ui>
