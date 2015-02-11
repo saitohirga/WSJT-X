@@ -291,7 +291,7 @@ set (wsjt_FSRCS
   lib/fillcom.f90
   lib/flat1.f90
   lib/flat2.f90
-  lib/flat3.f90
+  lib/flat4.f90
   lib/flat65.f90
   lib/four2a.f90
   lib/fmtmsg.f90
@@ -335,7 +335,6 @@ set (wsjt_FSRCS
   lib/smo121.f90
   lib/softsym.f90
   lib/sort.f90
-  lib/ssort.f90
   lib/stdmsg.f90
   lib/sun.f90
   lib/symspec.f90

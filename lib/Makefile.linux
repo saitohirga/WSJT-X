@@ -31,7 +31,7 @@ all:    libjt9.a jt9sim jt9 jt9code jt65code
 
 OBJS1 = astrosub.o astro0.o astro.o tm2.o sun.o moondop.o coord.o tmoonsub.o \
         fmtmsg.o geocentric.o moon2.o toxyz.o dot.o dcoord.o \
-        prog_args.o options.o pctile.o graycode.o sort.o ssort.o chkmsg.o \
+        prog_args.o options.o pctile.o graycode.o sort.o chkmsg.o \
 	unpackmsg.o igray.o unpackcall.o unpackgrid.o \
 	grid2k.o unpacktext.o getpfx2.o packmsg.o deg2grid.o \
 	packtext.o getpfx1.o packcall.o k2grid.o packgrid.o \
@@ -49,7 +49,7 @@ OBJS1 = astrosub.o astro0.o astro.o tm2.o sun.o moondop.o coord.o tmoonsub.o \
 	extract.o fchisq65.o demod64a.o chkhist.o interleave63.o ccf2.o \
 	move.o indexx.o graycode65.o twkfreq65.o smo.o smo121.o \
 	wrapkarn.o init_rs.o encode_rs.o decode_rs.o gen65.o fil4.o \
-	flat3.o polfit.o determ.o baddata.o
+	flat4.o polfit.o determ.o baddata.o
 
 libjt9.a: $(OBJS1)
 	$(AR) libjt9.a $(OBJS1) 

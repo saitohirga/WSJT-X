@@ -90,7 +90,7 @@ void CPlotter::draw(float swide[])             //draw()
   int j,j0,y2;
   float y;
 
-  double gain = pow(10.0,0.05*(m_plotGain+7));
+  double gain = pow(10.0,0.05*m_plotGain);
 
 //move current data down one line (must do this before attaching a QPainter object)
   m_WaterfallPixmap.scroll(0,1,0,0,m_w,m_h1);
@@ -108,27 +108,32 @@ void CPlotter::draw(float swide[])             //draw()
   j=0;
   j0=int(m_startFreq/m_fftBinWidth + 0.5);
   int iz=XfromFreq(5000.0);
+  int jz=iz*m_binsPerPixel;
   m_fMax=FreqfromX(iz);
+
+  flat4_(swide,&iz,&m_Flatten);
+  flat4_(&jt9com_.savg[j0],&jz,&m_Flatten);
+
   for(int i=0; i<iz; i++) {
-    if(i>iz) swide[i]=0;
-    y=0.0;
-    if(swide[i]>0.0) y = 10.0*log10(swide[i]);
-    int y1 = 5.0*gain*y + 10*(m_plotZero-4);
+    y=swide[i];
+    int y1 = 10.0*gain*y + 10*m_plotZero +40;
     if (y1<0) y1=0;
     if (y1>254) y1=254;
     if (swide[i]>1.e29) y1=255;
     painter1.setPen(m_ColorTbl[y1]);
     painter1.drawPoint(i,0);
+
     y2=0;
-    if(m_bCurrent) y2 = 0.4*gain*y - 15;
+    if(m_bCurrent) y2 = gain*y - 15;
+
     if(m_bCumulative) {
       float sum=0.0;
       int j=j0+m_binsPerPixel*i;
       for(int k=0; k<m_binsPerPixel; k++) {
         sum+=jt9com_.savg[j++];
       }
-      y2=gain*6.0*log10(sum/m_binsPerPixel) - 10.0;
-      y2 += m_plotZero;
+      y2=1.3*gain*sum/m_binsPerPixel + m_plotZero - 15;
+      if(m_Flatten==0) y2 += 40;
     }
 
     if(m_bLinearAvg) {
@@ -137,7 +142,7 @@ void CPlotter::draw(float swide[])             //draw()
       for(int k=0; k<m_binsPerPixel; k++) {
         sum+=jt9w_.syellow[j++];
       }
-      y2=sum/m_binsPerPixel * (0.2*m_h/50.0) - 20.0;
+      y2=gain*sum/m_binsPerPixel * (m_h/50.0) - 20.0;
     }
 
     if(i==iz-1) painter2D.drawPolyline(LineBuf,j);
@@ -469,4 +474,10 @@ void CPlotter::setDialFreq(double d)
   m_dialFreq=d;
   DrawOverlay();
   update();
+}
+
+void CPlotter::setFlatten(bool b)
+{
+  m_Flatten=0;
+  if(b) m_Flatten=1;
 }

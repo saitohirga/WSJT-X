@@ -1384,12 +1384,23 @@ void MainWindow::readFromStdout()                             //readFromStdout
         ui->decodedTextBrowser->displayDecodedText (decodedtext
                                                     , m_config.my_callsign ()
                                                     , m_config.DXCC ()
-                                                    , m_logBook);
+                                                    , m_logBook
+                                                    , m_config.color_CQ()
+                                                    , m_config.color_MyCall()
+                                                    , m_config.color_DXCC()
+                                                    , m_config.color_NewCall());
 
         if (abs(decodedtext.frequencyOffset() - m_wideGraph->rxFreq()) <= 10) // this msg is within 10 hertz of our tuned frequency
           {
             // the right QSO window
-            ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_config.my_callsign (),false,m_logBook);
+            ui->decodedTextBrowser2->displayDecodedText(decodedtext
+                                                        , m_config.my_callsign ()
+                                                        , false
+                                                        , m_logBook
+                                                        , m_config.color_CQ()
+                                                        , m_config.color_MyCall()
+                                                        , m_config.color_DXCC()
+                                                        , m_config.color_NewCall());
 
             bool b65=decodedtext.isJT65();
             if(b65 and m_modeTx!="JT65") on_pbTxMode_clicked();
@@ -1575,7 +1586,8 @@ void MainWindow::guiUpdate()
         }
       if (m_config.TX_messages ())
         {
-          ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,ui->TxFreqSpinBox->value ());
+          ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,
+                                ui->TxFreqSpinBox->value(),m_config.color_TxMsg());
         }
     }
 
@@ -1651,7 +1663,8 @@ void MainWindow::guiUpdate()
 
       if (m_config.TX_messages () && !m_tune)
         {
-          ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,ui->TxFreqSpinBox->value ());
+          ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,
+                             ui->TxFreqSpinBox->value(),m_config.color_TxMsg());
         }
 
       m_transmitting = true;
@@ -1917,7 +1930,14 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   int i9=m_QSOText.indexOf(decodedtext.string());
   if (i9<0 and !decodedtext.isTX())
     {
-      ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_config.my_callsign (),false,m_logBook);
+      ui->decodedTextBrowser2->displayDecodedText(decodedtext
+                                                  , m_config.my_callsign ()
+                                                  , false
+                                                  , m_logBook
+                                                  , m_config.color_CQ()
+                                                  , m_config.color_MyCall()
+                                                  , m_config.color_DXCC()
+                                                  , m_config.color_NewCall());
       m_QSOText=decodedtext;
     }
 

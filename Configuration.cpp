@@ -26,6 +26,7 @@
 #include <QStandardPaths>
 #include <QFont>
 #include <QFontDialog>
+#include <QColorDialog>
 #include <QDebug>
 
 #include "ui_Configuration.h"
@@ -251,6 +252,7 @@ public:
   Q_SLOT void reject () override;
   Q_SLOT void done (int) override;
 
+
 private:
   typedef QList<QAudioDeviceInfo> AudioDevices;
 
@@ -272,59 +274,41 @@ private:
 
   Q_SLOT void on_font_push_button_clicked ();
   Q_SLOT void on_decoded_text_font_push_button_clicked ();
-
   Q_SLOT void on_PTT_port_combo_box_activated (int);
-
   Q_SLOT void on_CAT_port_combo_box_activated (int);
-
   Q_SLOT void on_CAT_serial_baud_combo_box_currentIndexChanged (int);
-
   Q_SLOT void on_CAT_data_bits_button_group_buttonClicked (int);
-
   Q_SLOT void on_CAT_stop_bits_button_group_buttonClicked (int);
-
   Q_SLOT void on_CAT_handshake_button_group_buttonClicked (int);
-
   Q_SLOT void on_CAT_poll_interval_spin_box_valueChanged (int);
-
   Q_SLOT void on_split_mode_button_group_buttonClicked (int);
-
   Q_SLOT void on_test_CAT_push_button_clicked ();
-
   Q_SLOT void on_test_PTT_push_button_clicked ();
-
   Q_SLOT void on_CAT_DTR_check_box_toggled (bool);
-
   Q_SLOT void on_CAT_RTS_check_box_toggled (bool);
-
   Q_SLOT void on_rig_combo_box_currentIndexChanged (int);
-
   Q_SLOT void on_sound_input_combo_box_currentTextChanged (QString const&);
   Q_SLOT void on_sound_output_combo_box_currentTextChanged (QString const&);
-
   Q_SLOT void on_add_macro_push_button_clicked (bool = false);
   Q_SLOT void on_delete_macro_push_button_clicked (bool = false);
-
   Q_SLOT void on_PTT_method_button_group_buttonClicked (int);
-
   Q_SLOT void on_callsign_line_edit_editingFinished ();
-
   Q_SLOT void on_grid_line_edit_editingFinished ();
-
   Q_SLOT void on_add_macro_line_edit_editingFinished ();
   Q_SLOT void delete_macro ();
   void delete_selected_macros (QModelIndexList);
-
   Q_SLOT void on_save_path_select_push_button_clicked (bool);
-
   Q_SLOT void delete_frequencies ();
   Q_SLOT void insert_frequency ();
-
   Q_SLOT void delete_stations ();
   Q_SLOT void insert_station ();
-
   Q_SLOT void handle_transceiver_update (TransceiverState);
   Q_SLOT void handle_transceiver_failure (QString reason);
+  Q_SLOT void on_pbCQmsg_clicked();
+  Q_SLOT void on_pbMyCall_clicked();
+  Q_SLOT void on_pbTxMsg_clicked();
+  Q_SLOT void on_pbNewDXCC_clicked();
+  Q_SLOT void on_pbNewCall_clicked();
 
   // typenames used as arguments must match registered type names :(
   Q_SIGNAL void stop_transceiver () const;
@@ -409,6 +393,11 @@ private:
   // configuration fields that we publish
   QString my_callsign_;
   QString my_grid_;
+  QColor color_CQ_;
+  QColor color_MyCall_;
+  QColor color_TxMsg_;
+  QColor color_DXCC_;
+  QColor color_NewCall_;
   qint32 id_interval_;
   bool id_after_73_;
   bool tx_QSY_allowed_;
@@ -466,6 +455,11 @@ float Configuration::jt9w_min_dt () const {return m_->jt9w_min_dt_;}
 float Configuration::jt9w_max_dt () const {return m_->jt9w_max_dt_;}
 QString Configuration::my_callsign () const {return m_->my_callsign_;}
 QString Configuration::my_grid () const {return m_->my_grid_;}
+QColor Configuration::color_CQ () const {return m_->color_CQ_;}
+QColor Configuration::color_MyCall () const {return m_->color_MyCall_;}
+QColor Configuration::color_TxMsg () const {return m_->color_TxMsg_;}
+QColor Configuration::color_DXCC () const {return m_->color_DXCC_;}
+QColor Configuration::color_NewCall () const {return m_->color_NewCall_;}
 QFont Configuration::decoded_text_font () const {return m_->decoded_text_font_;}
 qint32 Configuration::id_interval () const {return m_->id_interval_;}
 bool Configuration::id_after_73 () const {return m_->id_after_73_;}
@@ -872,6 +866,11 @@ void Configuration::impl::initialise_models ()
   ui_->grid_line_edit->setPalette (pal);
   ui_->callsign_line_edit->setText (my_callsign_);
   ui_->grid_line_edit->setText (my_grid_);
+  ui_->labCQ->setStyleSheet(QString("background: %1").arg(color_CQ_.name()));
+  ui_->labMyCall->setStyleSheet(QString("background: %1").arg(color_MyCall_.name()));
+  ui_->labTx->setStyleSheet(QString("background: %1").arg(color_TxMsg_.name()));
+  ui_->labDXCC->setStyleSheet(QString("background: %1").arg(color_DXCC_.name()));
+  ui_->labNewCall->setStyleSheet(QString("background: %1").arg(color_NewCall_.name()));
   font_changed_ = false;
   decoded_text_font_changed_ = false;
   ui_->CW_id_interval_spin_box->setValue (id_interval_);
@@ -945,6 +944,11 @@ void Configuration::impl::read_settings ()
 
   my_callsign_ = settings_->value ("MyCall", "").toString ();
   my_grid_ = settings_->value ("MyGrid", "").toString ();
+  color_CQ_ = settings_->value("colorCQ","#66ff66").toString();
+  color_MyCall_ = settings_->value("colorMyCall","#ff6666").toString();
+  color_TxMsg_ = settings_->value("colorTxMsg","#ffff00").toString();
+  color_DXCC_ = settings_->value("colorDXCC","#ff00ff").toString();
+  color_NewCall_ = settings_->value("colorNewCall","#ffaaff").toString();
 
   if (next_font_.fromString (settings_->value ("Font", QGuiApplication::font ().toString ()).toString ())
       && next_font_ != QGuiApplication::font ())
@@ -1073,12 +1077,14 @@ void Configuration::impl::write_settings ()
 
   settings_->setValue ("MyCall", my_callsign_);
   settings_->setValue ("MyGrid", my_grid_);
-
+  settings_->setValue("colorCQ",color_CQ_);
+  settings_->setValue("colorMyCall",color_MyCall_);
+  settings_->setValue("colorTxMsg",color_TxMsg_);
+  settings_->setValue("colorDXCC",color_DXCC_);
+  settings_->setValue("colorNewCall",color_NewCall_);
   settings_->setValue ("Font", font_.toString ());
   settings_->setValue ("DecodedTextFont", decoded_text_font_.toString ());
-
   settings_->setValue ("IDint", id_interval_);
-
   settings_->setValue ("PTTMethod", QVariant::fromValue (rig_params_.PTT_method_));
   settings_->setValue ("PTTport", rig_params_.PTT_port_);
   settings_->setValue ("SaveDir", save_directory_.absolutePath ());
@@ -1530,6 +1536,39 @@ void Configuration::impl::on_font_push_button_clicked ()
 {
   next_font_ = QFontDialog::getFont (&font_changed_, this);
 }
+
+void Configuration::impl::on_pbCQmsg_clicked()
+{
+  color_CQ_ = QColorDialog::getColor("#6666ff");
+  ui_->labCQ->setStyleSheet(QString("background: %1").arg(color_CQ_.name()));
+}
+
+void Configuration::impl::on_pbMyCall_clicked()
+{
+  color_MyCall_ = QColorDialog::getColor("#ff6666");
+  ui_->labMyCall->setStyleSheet(QString("background: %1").arg(color_MyCall_.name()));
+}
+
+void Configuration::impl::on_pbTxMsg_clicked()
+{
+  color_TxMsg_ = QColorDialog::getColor("#ffff00");
+  ui_->labTx->setStyleSheet(QString("background: %1").arg(color_TxMsg_.name()));
+}
+
+void Configuration::impl::on_pbNewDXCC_clicked()
+{
+  color_DXCC_ = QColorDialog::getColor("#ff00ff");
+  ui_->labDXCC->setStyleSheet(QString("background: %1").arg(color_DXCC_.name()));
+}
+
+void Configuration::impl::on_pbNewCall_clicked()
+{
+  color_NewCall_ = QColorDialog::getColor("#ffaaff");
+  ui_->labNewCall->setStyleSheet(QString("background: %1").arg(color_NewCall_.name()));
+}
+
+
+
 
 void Configuration::impl::on_decoded_text_font_push_button_clicked ()
 {

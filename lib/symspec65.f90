@@ -10,22 +10,35 @@ subroutine symspec65(dd,npts,ss,nhsym,savg)
   real*4 ss(MAXHSYM,NSZ)
   real*4 savg(NSZ)
   real*4 x(NFFT)
+  real*4 w(NFFT)
   complex c(0:NFFT/2)
+  logical first
   common/refspec/dfref,ref(NSZ)
   equivalence (x,c)
-  save /refspec/
+  data first/.true./
+  save /refspec/,first,w
 
   hstep=2048.d0*12000.d0/11025.d0              !half-symbol = 2229.116 samples
   nsps=nint(2*hstep)
   df=12000.0/NFFT
-  nhsym=npts/hstep - 1.0
+  nhsym=(npts-NFFT)/hstep
   savg=0.
   fac1=1.e-3
 
+  if(first) then
+! Compute the FFT window
+     pi=4.0*atan(1.0)
+     width=0.25*nsps
+     do i=1,NFFT
+        z=(i-NFFT/2)/width
+        w(i)=exp(-z*z)
+      enddo
+     first=.false.
+  endif
+
   do j=1,nhsym
      i0=(j-1)*hstep
-     x(1:nsps)=fac1*dd(i0+1:i0+nsps)
-     x(nsps+1:)=0.
+     x=fac1*w*dd(i0+1:i0+NFFT)
      call four2a(c,NFFT,1,-1,0)                !r2c forward FFT
      do i=1,NSZ
         s=real(c(i))**2 + aimag(c(i))**2

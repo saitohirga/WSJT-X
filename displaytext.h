@@ -16,8 +16,11 @@ public:
     void setFont(QFont const& font);
 
     void insertLineSpacer();
-    void displayDecodedText(DecodedText decodedText, QString myCall, bool displayDXCCEntity, LogBook logBook);
-    void displayTransmittedText(QString text, QString modeTx, qint32 txFreq);
+    void displayDecodedText(DecodedText decodedText, QString myCall, bool displayDXCCEntity,
+                            LogBook logBook, QColor color_CQ, QColor color_MyCall,
+                            QColor color_DXCC, QColor color_NewCall);
+    void displayTransmittedText(QString text, QString modeTx, qint32 txFreq,
+                                QColor color_TxMsg);
 
 signals:
     void selectCallsign(bool shift, bool ctrl);
@@ -33,7 +36,8 @@ private:
     int _fontWidth;
     int _maxDisplayedCharacters;
     void _insertText(const QString text, const QString bg);
-    void _appendDXCCWorkedB4(/*mod*/DecodedText& t1, QString &bg, LogBook logBook);
+    void _appendDXCCWorkedB4(/*mod*/DecodedText& t1, QString &bg, LogBook logBook,
+                 QColor color_CQ, QColor color_DXCC, QColor color_NewCall);
 
 };
 

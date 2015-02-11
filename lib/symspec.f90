@@ -45,8 +45,10 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nflatten,pxdb,s,df3,ihsym,npts8)
   if(nfft3.ne.nfft3z) then
 ! Compute new window
      pi=4.0*atan(1.0)
+     width=0.25*nsps
      do i=1,nfft3
-        w3(i)=2.0*(sin(i*pi/nfft3))**2         !Window for nfft3 spectrum
+        z=(i-nfft3/2)/width
+        w3(i)=exp(-z*z)
      enddo
      nfft3z=nfft3
   endif
@@ -113,12 +115,6 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nflatten,pxdb,s,df3,ihsym,npts8)
      smax=maxval(syellow(1:iz))
      syellow=(50.0/(smax-smin))*(syellow-smin)
      where(syellow<0) syellow=0.
-  endif
-
-  if(nflatten.ne.0) then
-     call flat3(s,iz,nfa,nfb,3,1.0,s)
-     call flat3(savg,iz,nfa,nfb,3,1.0,savg)
-     savg=7.0*savg
   endif
 
 900 npts8=k/8

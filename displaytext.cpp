@@ -59,7 +59,10 @@ void DisplayText::_insertText(const QString text, const QString bg)
 }
 
 
-void DisplayText::_appendDXCCWorkedB4(/*mod*/DecodedText& t1, QString& bg, /*uses*/LogBook logBook)
+void DisplayText::_appendDXCCWorkedB4(DecodedText& t1, QString& bg,
+                                      LogBook logBook, QColor color_CQ,
+                                      QColor color_DXCC,
+                                      QColor color_NewCall)
 {
     // extract the CQer's call   TODO: does this work with all call formats?  What about 'CQ DX'?
     int s1 = 4 + t1.indexOf(" CQ ");
@@ -86,18 +89,18 @@ void DisplayText::_appendDXCCWorkedB4(/*mod*/DecodedText& t1, QString& bg, /*use
         if (!countryWorkedBefore) // therefore not worked call either
         {
             t1 += "!";
-            bg = "#66ff66"; // strong green
+            bg=color_DXCC.name();
         }
         else
             if (!callWorkedBefore) // but have worked the country
             {
                 t1 += "~";
-                bg = "#76cd76"; // mid green
+                bg=color_NewCall.name();
             }
             else
             {
                 t1 += " ";  // have worked this call before
-                bg="#9cc79c"; // pale green
+                bg=color_CQ.name();
             }
         charsAvail -= 1;
 
@@ -107,29 +110,34 @@ void DisplayText::_appendDXCCWorkedB4(/*mod*/DecodedText& t1, QString& bg, /*use
     }
 }
 
-void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall, bool displayDXCCEntity, LogBook logBook)
+void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall,
+                                     bool displayDXCCEntity, LogBook logBook,
+                                     QColor color_CQ, QColor color_MyCall,
+                                     QColor color_DXCC, QColor color_NewCall)
 {
     QString bg="white";
     bool CQcall = false;
     if (decodedText.indexOf(" CQ ") > 0)
     {
         CQcall = true;
-        bg="#66ff66";  //green
+        bg=color_CQ.name();
     }
     if (myCall != "" and decodedText.indexOf(" " + myCall + " ") > 0)
-        bg="#ff6666"; //red
+      bg=color_MyCall.name();
 
     // if enabled add the DXCC entity and B4 status to the end of the preformated text line t1
     if (displayDXCCEntity && CQcall)
-        _appendDXCCWorkedB4(/*mod*/decodedText,bg,logBook);
+        _appendDXCCWorkedB4(/*mod*/decodedText,bg,logBook,color_CQ,
+                            color_DXCC,color_NewCall);
 
     _insertText(decodedText.string(),bg);
 }
 
 
-void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 txFreq)
+void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 txFreq,
+                                         QColor color_TxMsg)
 {
-    QString bg="yellow";
+    QString bg=color_TxMsg.name();
     QString t1=" @ ";
     if(modeTx=="JT65") t1=" # ";
     QString t2;

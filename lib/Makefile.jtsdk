@@ -30,7 +30,7 @@ CFLAGS = -I. -DWIN32
 
 all:    libjt9.a libastro.a jt9.exe jt9code.exe jt65code.exe jt9sim.exe
 
-OBJS1 = pctile.o graycode.o sort.o ssort.o chkmsg.o \
+OBJS1 = pctile.o graycode.o sort.o chkmsg.o \
 	unpackmsg.o igray.o unpackcall.o unpackgrid.o \
 	grid2k.o unpacktext.o getpfx2.o packmsg.o deg2grid.o \
 	packtext.o getpfx1.o packcall.o k2grid.o packgrid.o \
@@ -47,7 +47,7 @@ OBJS1 = pctile.o graycode.o sort.o ssort.o chkmsg.o \
 	extract.o fchisq65.o demod64a.o chkhist.o interleave63.o ccf2.o \
 	move.o indexx.o graycode65.o twkfreq65.o smo121.o \
 	wrapkarn.o init_rs.o encode_rs.o decode_rs.o gen65.o fil4.o \
-	flat3.o polfit.o determ.o baddata.o prog_args.o \
+	flat4.o polfit.o determ.o baddata.o prog_args.o \
 	options.o fmtmsg.o decjt9.o
 
 libjt9.a: $(OBJS1)

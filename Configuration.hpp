@@ -110,6 +110,11 @@ public:
   unsigned jt9w_bw_mult () const;
   float jt9w_min_dt () const;
   float jt9w_max_dt () const;
+  QColor color_CQ () const;
+  QColor color_MyCall () const;
+  QColor color_TxMsg () const;
+  QColor color_DXCC () const;
+  QColor color_NewCall () const;
 
   // This method queries if a CAT and PTT connection is operational,
   //
