@@ -22,7 +22,9 @@ subroutine timer(dname,k)
   real ut(MAXCALL),ut0(MAXCALL)
   !$ integer ntid(MAXCALL)
   integer nmax,ncall(MAXCALL),nlevel(MAXCALL),nparent(MAXCALL)
-  common/data/nmax,name,on,ut,ut0,dut,ntid,ncall,nlevel,nparent,total,sum,sumf,space
+  common/data/nmax,name,on,ut,ut0,dut, &
+       !$ ntid, &
+       ncall,nlevel,nparent,total,sum,sumf,space
 
   data eps/0.000001/,ntrace/0/
   data level/0/,nmax/0/,space/'        '/
@@ -142,8 +144,7 @@ subroutine timer(dname,k)
   total=ut(1)
   sum=0.
   sumf=0.
-  i=1
-  call print_root(i)
+  call print_root(1)
   write(lu,1070) sum,sumf
 1070 format(58('-')/32x,f10.3,f6.2)
   nmax=0
@@ -171,13 +172,15 @@ recursive subroutine print_root(i)
   real ut(MAXCALL),ut0(MAXCALL)
   !$ integer ntid(MAXCALL)
   integer nmax,ncall(MAXCALL),nlevel(MAXCALL),nparent(MAXCALL)
-  common/data/nmax,name,on,ut,ut0,dut,ntid,ncall,nlevel,nparent,total,sum,sumf,space
+  common/data/nmax,name,on,ut,ut0,dut, &
+       !$ ntid, &
+       ncall,nlevel,nparent,total,sum,sumf,space
 
   if (i.le.nmax) then
      if (name(i).ne.space) then
         dut=ut(i)
         do j=i,nmax
-           if(nparent(j).eq.i) dut=dut-ut(j)
+           if (name(j).ne.space.and.nparent(j).eq.i) dut=dut-ut(j)
         enddo
         if(dut.lt.0.0) dut=0.0
         utf=ut(i)/total
