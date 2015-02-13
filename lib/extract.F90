@@ -115,8 +115,6 @@ subroutine extract(s3,nadd,nqd,ncount,nhist,decoded,ltext,nbmkv)
   endif
 
 900 continue
-  if(nbmkv.eq.1) numbm=numbm+1
-  if(nbmkv.eq.2) numkv=numkv+1
 
   return
 end subroutine extract

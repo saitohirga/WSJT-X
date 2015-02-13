@@ -222,7 +222,7 @@ program jt9
   write(12,1100) numbm,numkv,num65
 1100 format(/'JT65: ',i6,' BM and',i7,' KV in',i7,' attempts')
   write(12,1110) numfano,num9
-1110 format('JT9:  ',i6,' Fano in',12x,i7,' attempts')
+1110 format( 'JT9:  ',i6,' Fano             in',i7,' attempts')
 
 ! Save wisdom and free memory
   iret=fftwf_export_wisdom_to_filename(wisfile)
