@@ -12,6 +12,7 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nagain,ndecoded)
   logical done(NSZ)
   real a(5)
   character decoded*22
+  common/decstats/num65,numbm,numkv,num9,numfano
   save
 
   dd=0.
@@ -76,6 +77,8 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nagain,ndecoded)
            if(nsnr.lt.-30) nsnr=-30
            if(nsnr.gt.-1) nsnr=-1
            dt=dt-tskip
+           if(nbmkv.eq.1) numbm=numbm+1
+           if(nbmkv.eq.2) numkv=numkv+1 
 
 ! Serialize writes - see also decjt9.f90
 
