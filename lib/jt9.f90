@@ -39,6 +39,7 @@ program jt9
        mousefqso,newdat,nfa,nfsplit,nfb,ntol,kin,nzhsym,nsynced,ndecoded
   common/tracer/limtrace,lu
   common/patience/npatience,nthreads
+  common/decstats/num65,numbm,numkv,num9,numfano
   data npatience/1/,nthreads/1/
 
   do
@@ -131,6 +132,12 @@ program jt9
   wisfile=trim(data_dir)//'/jt9_wisdom.dat'// C_NULL_CHAR
   iret=fftwf_import_wisdom_from_filename(wisfile)
 
+  num65=0
+  numbm=0
+  numkv=0
+  num9=0
+  numfano=0
+
   if (shmem) then
      call jt9a()
      go to 999
@@ -211,7 +218,13 @@ program jt9
   print*,infile
 
 999 continue
-  !Save wisdom and free memory
+! Output decoder statistics
+  write(12,1100) numbm,numkv,num65
+1100 format(/'JT65: ',i6,' BM and',i7,' KV in',i7,' attempts')
+  write(12,1110) numfano,num9
+1110 format('JT9:  ',i6,' Fano in',12x,i7,' attempts')
+
+! Save wisdom and free memory
   iret=fftwf_export_wisdom_to_filename(wisfile)
   call four2a(a,-1,1,1,1)
   call filbig(a,-1,1,0.0,0,0,0,0,0)        !used for FFT plans

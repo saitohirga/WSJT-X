@@ -19,6 +19,7 @@ subroutine extract(s3,nadd,nqd,ncount,nhist,decoded,ltext,nbmkv)
   integer dat4(12)
   integer mrsym(63),mr2sym(63),mrprob(63),mr2prob(63)
   logical nokv,ltext
+  common/decstats/num65,numbm,numkv,num9,numfano
   data nokv/.false./,nsec1/0/
   save
 
@@ -57,6 +58,7 @@ subroutine extract(s3,nadd,nqd,ncount,nhist,decoded,ltext,nbmkv)
   call graycode65(mrsym,63,-1)        !Remove gray code and interleaving
   call interleave63(mrsym,-1)         !from most reliable symbols
   call interleave63(mrprob,-1)
+  num65=num65+1
 
 ! Decode using Berlekamp-Massey algorithm
   call timer('rs_decod',0)
@@ -112,5 +114,9 @@ subroutine extract(s3,nadd,nqd,ncount,nhist,decoded,ltext,nbmkv)
      nbmkv=2
   endif
 
-900 return
+900 continue
+  if(nbmkv.eq.1) numbm=numbm+1
+  if(nbmkv.eq.2) numkv=numkv+1
+
+  return
 end subroutine extract

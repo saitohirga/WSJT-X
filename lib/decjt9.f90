@@ -10,6 +10,7 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
   logical done(NSMAX)
   integer*2 id2(NTMAX*12000)
   integer*1 i1SoftSymbols(207)
+  common/decstats/num65,numbm,numkv,num9,numfano
   save ccfred,red2
 
   nsynced=0
@@ -106,8 +107,10 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
            if(nsync.gt.10) nsync=10
            nsnr=nint(snrdb)
            ndrift=nint(drift/df3)
+           num9=num9+1
 
            if(msg.ne.'                      ') then
+              numfano=numfano+1
               if(nqd.eq.0) ndecodes0=ndecodes0+1
               if(nqd.eq.1) ndecodes1=ndecodes1+1
 

@@ -105,8 +105,8 @@ subroutine timer(dname,k)
 ! Write out the timer statistics
 
 40 write(lu,1040)
-1040 format(/' name                 time  frac     dtime',       &
-             ' dfrac  calls'/56('-'))
+1040 format(/' Name                 Time  Frac     dTime',       &
+             ' dFrac    Calls'/58('-'))
 
   !$ !walk backwards through the database rolling up thread data by call chain
   !$ do i=nmax,1,-1
@@ -145,7 +145,7 @@ subroutine timer(dname,k)
   i=1
   call print_root(i)
   write(lu,1070) sum,sumf
-1070 format(/32x,f10.3,f6.2)
+1070 format(58('-')/32x,f10.3,f6.2)
   nmax=0
   eps=0.000001
   ntrace=0
@@ -187,11 +187,11 @@ recursive subroutine print_root(i)
         kk=nlevel(i)
         sname=space(1:kk)//name(i)//space(1:8-kk)
         write(lu,2000) sname,ut(i),utf,dut,dutf,ncall(i)
+2000    format(a16,2(f10.3,f6.2),i9)
         do j=i,nmax
            if(nparent(j).eq.i) call print_root(j)
         enddo
      end if
   end if
-2000    format(a16,2(f10.3,f6.2),i7,i5)
   return
 end subroutine print_root

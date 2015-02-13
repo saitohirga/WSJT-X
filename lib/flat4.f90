@@ -28,7 +28,7 @@ subroutine flat4(s,npts,nflatten)
      call pctile(s(ia),ib-ia+1,npct,base) !Find lowest npct of points in segment
      do i=ia,ib
         if(s(i).le.base) then
-           k=k+1                      !Save thesde "lower envelope" points
+           k=k+1                      !Save these "lower envelope" points
            x(k)=i-i0
            y(k)=s(i)
         endif
