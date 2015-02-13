@@ -167,6 +167,8 @@ easy to use and does everything we need.
 You  will need  Xcode, MacPorts,  CMake  and, Qt.   The Xcode  install
 instructions are included in the MacPorts documentation.
 
+MacPorts
+--------
 Install MacPorts from instructions here:
 
     http://www.macports.org/install.php
@@ -195,14 +197,14 @@ These are install by typing:
 Once complete you should have all the tools required to build WSJT-X.
 
 Uninstalling MacPorts
-
+---------------------
 If at some point  you wish to remove the ports  from your machine. The
 instructions are here:
 
     https://guide.macports.org/#installing.macports.uninstalling .
 
 Hamlib
-
+------
 First fetch hamlib from the repository, in this case my fork of Hamlib
 3 until the official repository has all the fixes we need:
 
@@ -233,14 +235,41 @@ To build:
 
 The above commands will build hamlib and install it into ~/hamlib-prefix
 
-Qt
 
-The easiest  way to obtain Qt  is to use the  latest qt-project.org on
-line   installer  DMG   for   Mac   OS  X   which   should  be   here:
-http://www.qt.io/download . You need the "Community" edition.
+Qt
+--
+The   binary    Qt   distributions    from   http://www.qt.io/download
+unfortunately  are built  to use  the libstdc++  C++ support  library,
+WSJT-X uses  a less  geriatric C++  dialet which  uses the  libc++ C++
+support  library.  This   means  that  you  need  to   build  Qt  from
+sources. This is not difficult but does take some time.
+
+Download       the      Qt       source       tar      ball       from
+http://www.qt.io/download-open-source/,  the link  is  about half  way
+down the page, you want the full  sources tar ball shown as a 'tar.gz'
+link.
+
+Unpack the sources and cd into the top level directory then type:
+
+$ ./configure -prefix ~/local/qt-macx-clang -opensource \
+    -confirm-license -platform macx-clang -silent -nomake tests \
+    -nomake examples -sdk macosx10.10 -skip qtwebkit \
+    -skip qtwebkit-examples -skip qtquick1 -skip qtconnectivity \
+    -skip qtlocation -skip qtsensors -skip qtscript -skip qtserialport \
+    -skip qtwebsockets -skip qtwebengine -skip qtwebchannel \
+    -skip qtwayland -skip qtquickcontrols -skip qtdeclarative \
+    -skip qtxmlpatterns -skip qtenginio
+$ make -j4
+$ make install
+
+If you are building on 10.8 or  don't have the 10.10 Mac SDK (Xcode 6)
+available, you can substitute '-sdk macosx10.9' above.
+
+The build above will take a few hours to complete.
+
 
 CMake
-
+-----
 Although CMake  is available via MacPorts  I prefer to use  the binary
 installer  from cake.org  as  the MacPorts  port  doesn't include  the
 graphical CMake tool cmake-gui which I find quite useful.
@@ -259,7 +288,7 @@ from the menu and then click the "Install Command Line Links".
 
 
 WSJT-X
-
+------
 First fetch the source from the repository:
 
     mkdir -p ~/wsjtx-prefix/build
@@ -280,7 +309,7 @@ configure:
     cd ~/wsjtx-prefix/build
     FC=gfortran-mp-4.9 \
     cmake \
-        -D CMAKE_PREFIX_PATH="~/Qt/5.3/clang_64;~/hamlib-prefix;/opt/local" \
+        -D CMAKE_PREFIX_PATH="~/local/qt-macx-clang;~/hamlib-prefix;/opt/local" \
         -D CMAKE_INSTALL_PREFIX=~/wsjtx-prefix \
         ~/wsjtx-prefix/src
 
