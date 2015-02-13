@@ -11,7 +11,7 @@ DisplayText::DisplayText(QWidget *parent) :
     QTextEdit(parent)
 {
     setReadOnly (true);
-    setCursorWidth (0);
+    viewport ()->setCursor (Qt::ArrowCursor);
 }
 
 void DisplayText::mouseDoubleClickEvent(QMouseEvent *e)
