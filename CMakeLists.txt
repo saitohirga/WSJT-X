@@ -750,7 +750,6 @@ add_executable (jt9code lib/jt9code.f90 wsjtx.rc)
 target_link_libraries (jt9code wsjt_fort wsjt_cxx)
 
 add_executable (jt9 lib/jt9.f90 lib/jt9a.f90 lib/jt9b.f90 lib/jt9c.f90 ${jt9_CXXSRCS} wsjtx.rc)
-qt5_use_modules (jt9 Core)
 if (${OPENMP_FOUND} OR APPLE)
   if (APPLE)
     # On  Mac  we don't  have  working  OpenMP  support in  the  C/C++
@@ -774,6 +773,7 @@ if (${OPENMP_FOUND} OR APPLE)
 else (${OPENMP_FOUND} OR APPLE)
   target_link_libraries (jt9 wsjt_fort wsjt_cxx ${FFTW3_LIBRARIES})
 endif (${OPENMP_FOUND} OR APPLE)
+qt5_use_modules (jt9 Core)
 
 # build configuration dialog and transceiver interface test application
 #add_executable (ConfigTest ${ConfigTest_CXXSRCS} ${ConfigTest_GENUISRCS} wsjtx.rc)
@@ -788,6 +788,23 @@ add_executable (wsjtx MACOSX_BUNDLE
   ${WSJTX_ICON_FILE}
   ${wsjtx_RESOURCES_RCC}
   )
+
+if (WSJT_CREATE_WINMAIN)
+  set_target_properties (wsjtx PROPERTIES WIN32_EXECUTABLE ON)
+endif (WSJT_CREATE_WINMAIN)
+
+set_target_properties (wsjtx PROPERTIES
+  MACOSX_BUNDLE_INFO_STRING "${WSJTX_DESCRIPTION_SUMMARY}"
+  MACOSX_BUNDLE_ICON_FILE "${WSJTX_ICON_FILE}"
+  MACOSX_BUNDLE_BUNDLE_VERSION ${wsjtx_VERSION}
+  MACOSX_BUNDLE_SHORT_VERSION_STRING "v${wsjtx_VERSION}"
+  MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${wsjtx_VERSION}"
+  MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}"
+  MACOSX_BUNDLE_COPYRIGHT "${PROJECT_COPYRIGHT}"
+  MACOSX_BUNDLE_GUI_IDENTIFIER "org.k1jt.wsjtx"
+  )
+
+target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia)
 
 set (SYSTEM_NAME ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR})
@@ -818,23 +835,6 @@ if (UNIX)
     add_dependencies (wsjtx debian)
   endif (NOT APPLE)
 endif (UNIX)
-
-if (WSJT_CREATE_WINMAIN)
-  set_target_properties (wsjtx PROPERTIES WIN32_EXECUTABLE ON)
-endif (WSJT_CREATE_WINMAIN)
-
-set_target_properties (wsjtx PROPERTIES
-  MACOSX_BUNDLE_INFO_STRING "${WSJTX_DESCRIPTION_SUMMARY}"
-  MACOSX_BUNDLE_ICON_FILE "${WSJTX_ICON_FILE}"
-  MACOSX_BUNDLE_BUNDLE_VERSION ${wsjtx_VERSION}
-  MACOSX_BUNDLE_SHORT_VERSION_STRING "v${wsjtx_VERSION}"
-  MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${wsjtx_VERSION}"
-  MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}"
-  MACOSX_BUNDLE_COPYRIGHT "${PROJECT_COPYRIGHT}"
-  MACOSX_BUNDLE_GUI_IDENTIFIER "org.k1jt.wsjtx"
-  )
-
-target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 
 #
 # installation
