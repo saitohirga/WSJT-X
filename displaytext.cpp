@@ -3,13 +3,15 @@
 #include <QMouseEvent>
 #include <QDateTime>
 
+#include "qt_helpers.hpp"
+
 #include "moc_displaytext.cpp"
 
 DisplayText::DisplayText(QWidget *parent) :
-    QTextBrowser(parent)
+    QTextEdit(parent)
 {
-    _fontWidth = 8; // typical
-    _maxDisplayedCharacters = 48; // a nominal safe(?) value
+    setReadOnly (true);
+    setCursorWidth (0);
 }
 
 void DisplayText::mouseDoubleClickEvent(QMouseEvent *e)
@@ -17,25 +19,8 @@ void DisplayText::mouseDoubleClickEvent(QMouseEvent *e)
   bool ctrl = (e->modifiers() & Qt::ControlModifier);
   bool shift = (e->modifiers() & Qt::ShiftModifier);
   emit(selectCallsign(shift,ctrl));
-  QTextBrowser::mouseDoubleClickEvent(e);
+  QTextEdit::mouseDoubleClickEvent(e);
 }
-
-
-void DisplayText::setFont(QFont const& font)
-{
-  QFontMetrics qfm(font);
-  _fontWidth = qfm.averageCharWidth()+1;  // the plus one is emperical
-  QTextBrowser::setFont(font);
-}
-
-void DisplayText::resizeEvent(QResizeEvent * event)
-{
-    if (_fontWidth > 0 && _fontWidth < 999)
-        _maxDisplayedCharacters = width()/_fontWidth;
-    QTextBrowser::resizeEvent(event);
-}
-
-
 
 void DisplayText::insertLineSpacer()
 {
@@ -46,16 +31,11 @@ void DisplayText::insertLineSpacer()
 
 void DisplayText::_insertText(const QString text, const QString bg)
 {
-    QString tt = text.mid(0,_maxDisplayedCharacters); //truncate to max display chars
     QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-                bg + "\"><pre>" + tt + "</pre></td></tr></table>";
-
-    QTextCursor cursor = textCursor();
-    cursor.movePosition(QTextCursor::End);
-    QTextBlockFormat bf = cursor.blockFormat();
-    bf.setBackground(QBrush(QColor(bg)));
-    cursor.insertHtml(s);
-    this->setTextCursor(cursor);
+      bg + "\"><pre>" + text.trimmed () + "</pre></td></tr></table>";
+    moveCursor (QTextCursor::End);
+    append (s);
+    moveCursor (QTextCursor::End);
 }
 
 
@@ -74,7 +54,7 @@ void DisplayText::_appendDXCCWorkedB4(DecodedText& t1, QString& bg,
     bool countryWorkedBefore;
     logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
 
-    int charsAvail = _maxDisplayedCharacters;
+    int charsAvail = 48;
 
     // the decoder (seems) to always generate 40 chars. For a normal CQ call, the last five are spaces
     // TODO this magic 36 characters is also referenced in MainWindow::doubleClickOnCall()
