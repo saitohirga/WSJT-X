@@ -45,6 +45,7 @@ namespace Ui {
 
 class QSettings;
 class QLineEdit;
+class QFont;
 class WideGraph;
 class LogQSO;
 class Transceiver;

@@ -173,6 +173,7 @@ endif (APPLE)
 # Project sources
 #
 set (wsjt_qt_CXXSRCS
+  qt_helpers.cpp
   NetworkServerLookup.cpp
   revision_utils.cpp
   WFPalette.cpp

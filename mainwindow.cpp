@@ -428,8 +428,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 
   ui->label_9->setStyleSheet("QLabel{background-color: #aabec8}");
   ui->label_10->setStyleSheet("QLabel{background-color: #aabec8}");
-  ui->labUTC->setStyleSheet("QLabel { background-color : black; color : yellow; }");
-  ui->labDialFreq->setStyleSheet("QLabel { background-color : black; color : yellow; }");
 
   m_config.transceiver_online (true);
   on_monitorButton_clicked (!m_config.monitor_off_at_startup ());
@@ -563,10 +561,11 @@ void MainWindow::readSettings()
 
 void MainWindow::setDecodedTextFont (QFont const& font)
 {
-  ui->decodedTextBrowser->setFont (font);
-  ui->decodedTextBrowser2->setFont (font);
-  ui->decodedTextLabel->setFont (font);
-  ui->decodedTextLabel2->setFont (font);
+  auto style_sheet = font_as_stylesheet (font);
+  ui->decodedTextBrowser->setStyleSheet (ui->decodedTextBrowser->styleSheet () + style_sheet);
+  ui->decodedTextBrowser2->setStyleSheet (ui->decodedTextBrowser2->styleSheet () + style_sheet);
+  ui->decodedTextLabel->setStyleSheet (ui->decodedTextLabel->styleSheet () + style_sheet);
+  ui->decodedTextLabel2->setStyleSheet (ui->decodedTextLabel2->styleSheet () + style_sheet);
 }
 
 //-------------------------------------------------------------- dataSink()
@@ -943,14 +942,11 @@ void MainWindow::displayDialFrequency ()
           valid = true;
         }
     }
-  if (valid)
-    {
-      ui->labDialFreq->setStyleSheet("QLabel { background-color : black; color : yellow; }");
-    }
-  else
-    {
-      ui->labDialFreq->setStyleSheet("QLabel { background-color : red; color : yellow; }");
-    }
+  ui->labDialFreq->setProperty ("oob", !valid);
+  // the following sequence is necessary to update the style
+  ui->labDialFreq->style ()->unpolish (ui->labDialFreq);
+  ui->labDialFreq->style ()->polish (ui->labDialFreq);
+  ui->labDialFreq->update ();
 
   ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
 }

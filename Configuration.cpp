@@ -108,18 +108,22 @@
 // call to broadcast the setting value change.
 //
 // 6) Add  code to  initialise_models() to  load the  widget control's
-// data model with the current setting value.
+// data model with the current value.
 //
-// 7)  Add  any  required  inter-field validation  to  the  validate()
+// 7) If there is no convenient data model field, add a data member to
+// store the proposed new value. Ensure  this member has a valid value
+// on exit from read_settings().
+//
+// 8)  Add  any  required  inter-field validation  to  the  validate()
 // operation.
 //
-// 8) Add code to the accept()  operation to extract the setting value
+// 9) Add code to the accept()  operation to extract the setting value
 // from  the  widget   control  data  model  and  load   it  into  the
 // Configuration::impl  member  that  reflects  the  publicly  visible
 // setting state. If  the setting value is dynamic; add  a signal emit
 // call to broadcast any changed state of the setting.
 //
-// 9)  Add a  settings write  call to  save the  setting value  to the
+// 10) Add  a settings  write call  to save the  setting value  to the
 // settings database.
 //
 
@@ -152,8 +156,7 @@
 #include <QColorDialog>
 #include <QDebug>
 
-#include "ui_Configuration.h"
-
+#include "qt_helpers.hpp"
 #include "SettingsGroup.hpp"
 #include "FrequencyLineEdit.hpp"
 #include "FrequencyItemDelegate.hpp"
@@ -166,6 +169,7 @@
 
 #include "pimpl_impl.hpp"
 
+#include "ui_Configuration.h"
 #include "moc_Configuration.cpp"
 
 namespace
@@ -385,6 +389,8 @@ private:
   bool load_audio_devices (QAudio::Mode, QComboBox *, QAudioDeviceInfo *);
   void update_audio_channels (QComboBox const *, int, QComboBox *, bool);
 
+  void set_application_font (QFont const&);
+
   void initialise_models ();
   bool open_rig ();
   //bool set_mode ();
@@ -456,11 +462,9 @@ private:
   QDir save_directory_;
 
   QFont font_;
-  bool font_changed_;
   QFont next_font_;
 
   QFont decoded_text_font_;
-  bool decoded_text_font_changed_;
   QFont next_decoded_text_font_;
 
   bool restart_sound_input_device_;
@@ -517,10 +521,15 @@ private:
   QString my_callsign_;
   QString my_grid_;
   QColor color_CQ_;
+  QColor next_color_CQ_;
   QColor color_MyCall_;
+  QColor next_color_MyCall_;
   QColor color_TxMsg_;
+  QColor next_color_TxMsg_;
   QColor color_DXCC_;
+  QColor next_color_DXCC_;
   QColor color_NewCall_;
+  QColor next_color_NewCall_;
   qint32 id_interval_;
   bool id_after_73_;
   bool tx_QSY_allowed_;
@@ -685,9 +694,6 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   , self_ {self}
   , ui_ {new Ui::configuration_dialog}
   , settings_ {settings}
-  , font_ {QApplication::font ()}
-  , font_changed_ {false}
-  , decoded_text_font_changed_ {false}
   , frequencies_ {
     {
       136130,
@@ -994,8 +1000,6 @@ void Configuration::impl::initialise_models ()
   ui_->labTx->setStyleSheet(QString("background: %1").arg(color_TxMsg_.name()));
   ui_->labDXCC->setStyleSheet(QString("background: %1").arg(color_DXCC_.name()));
   ui_->labNewCall->setStyleSheet(QString("background: %1").arg(color_NewCall_.name()));
-  font_changed_ = false;
-  decoded_text_font_changed_ = false;
   ui_->CW_id_interval_spin_box->setValue (id_interval_);
   ui_->PTT_method_button_group->button (rig_params_.PTT_method_)->setChecked (true);
   ui_->save_path_display_label->setText (save_directory_.absolutePath ());
@@ -1067,24 +1071,32 @@ void Configuration::impl::read_settings ()
 
   my_callsign_ = settings_->value ("MyCall", "").toString ();
   my_grid_ = settings_->value ("MyGrid", "").toString ();
-  color_CQ_ = settings_->value("colorCQ","#66ff66").toString();
-  color_MyCall_ = settings_->value("colorMyCall","#ff6666").toString();
-  color_TxMsg_ = settings_->value("colorTxMsg","#ffff00").toString();
-  color_DXCC_ = settings_->value("colorDXCC","#ff00ff").toString();
-  color_NewCall_ = settings_->value("colorNewCall","#ffaaff").toString();
+  next_color_CQ_ = color_CQ_ = settings_->value("colorCQ","#66ff66").toString();
+  next_color_MyCall_ = color_MyCall_ = settings_->value("colorMyCall","#ff6666").toString();
+  next_color_TxMsg_ = color_TxMsg_ = settings_->value("colorTxMsg","#ffff00").toString();
+  next_color_DXCC_ = color_DXCC_ = settings_->value("colorDXCC","#ff00ff").toString();
+  next_color_NewCall_ = color_NewCall_ = settings_->value("colorNewCall","#ffaaff").toString();
 
   if (next_font_.fromString (settings_->value ("Font", QGuiApplication::font ().toString ()).toString ())
-      && next_font_ != QGuiApplication::font ())
+      && next_font_ != font_)
     {
       font_ = next_font_;
-      QApplication::setFont (font_);
+      set_application_font (font_);
+    }
+  else
+    {
+      next_font_ = font_;
     }
 
   if (next_decoded_text_font_.fromString (settings_->value ("DecodedTextFont", "Courier, 10").toString ())
-      && decoded_text_font_ != next_decoded_text_font_)
+      && next_decoded_text_font_ != decoded_text_font_)
     {
       decoded_text_font_ = next_decoded_text_font_;
       Q_EMIT self_->decoded_text_font_changed (decoded_text_font_);
+    }
+  else
+    {
+      next_decoded_text_font_ = decoded_text_font_;
     }
 
   id_interval_ = settings_->value ("IDint", 0).toInt ();
@@ -1480,19 +1492,23 @@ void Configuration::impl::accept ()
   // parameters so extract values from models and make them live
   //
 
-  if (font_changed_)
+  if (next_font_ != font_)
     {
-      font_changed_ = false;
       font_ = next_font_;
-      QApplication::setFont (font_);
+      set_application_font (font_);
     }
 
-  if (decoded_text_font_changed_)
+  if (next_decoded_text_font_ != decoded_text_font_)
     {
-      decoded_text_font_changed_ = false;
       decoded_text_font_ = next_decoded_text_font_;
       Q_EMIT self_->decoded_text_font_changed (decoded_text_font_);
     }
+
+  color_CQ_ = next_color_CQ_;
+  color_MyCall_ = next_color_MyCall_;
+  color_TxMsg_ = next_color_TxMsg_;
+  color_DXCC_ = next_color_DXCC_;
+  color_NewCall_ = next_color_NewCall_;
 
   rig_params_ = temp_rig_params; // now we can go live with the rig
                                  // related configuration parameters
@@ -1657,47 +1673,62 @@ void Configuration::impl::message_box (QString const& reason, QString const& det
 
 void Configuration::impl::on_font_push_button_clicked ()
 {
-  next_font_ = QFontDialog::getFont (&font_changed_, this);
+  next_font_ = QFontDialog::getFont (0, next_font_, this);
 }
 
 void Configuration::impl::on_pbCQmsg_clicked()
 {
-  color_CQ_ = QColorDialog::getColor("#6666ff");
-  ui_->labCQ->setStyleSheet(QString("background: %1").arg(color_CQ_.name()));
+  auto new_color = QColorDialog::getColor(next_color_CQ_, this, "CQ Messages Color");
+  if (new_color.isValid ())
+    {
+      next_color_CQ_ = new_color;
+      ui_->labCQ->setStyleSheet(QString("background: %1").arg(next_color_CQ_.name()));
+    }
 }
 
 void Configuration::impl::on_pbMyCall_clicked()
 {
-  color_MyCall_ = QColorDialog::getColor("#ff6666");
-  ui_->labMyCall->setStyleSheet(QString("background: %1").arg(color_MyCall_.name()));
+  auto new_color = QColorDialog::getColor(next_color_MyCall_, this, "My Call Messages Color");
+  if (new_color.isValid ())
+    {
+      next_color_MyCall_ = new_color;
+      ui_->labMyCall->setStyleSheet(QString("background: %1").arg(next_color_MyCall_.name()));
+    }
 }
 
 void Configuration::impl::on_pbTxMsg_clicked()
 {
-  color_TxMsg_ = QColorDialog::getColor("#ffff00");
-  ui_->labTx->setStyleSheet(QString("background: %1").arg(color_TxMsg_.name()));
+  auto new_color = QColorDialog::getColor(next_color_TxMsg_, this, "Tx Messages Color");
+  if (new_color.isValid ())
+    {
+      next_color_TxMsg_ = new_color;
+      ui_->labTx->setStyleSheet(QString("background: %1").arg(next_color_TxMsg_.name()));
+    }
 }
 
 void Configuration::impl::on_pbNewDXCC_clicked()
 {
-  color_DXCC_ = QColorDialog::getColor("#ff00ff");
-  ui_->labDXCC->setStyleSheet(QString("background: %1").arg(color_DXCC_.name()));
+  auto new_color = QColorDialog::getColor(next_color_DXCC_, this, "New DXCC Messages Color");
+  if (new_color.isValid ())
+    {
+      next_color_DXCC_ = new_color;
+      ui_->labDXCC->setStyleSheet(QString("background: %1").arg(next_color_DXCC_.name()));
+    }
 }
 
 void Configuration::impl::on_pbNewCall_clicked()
 {
-  color_NewCall_ = QColorDialog::getColor("#ffaaff");
-  ui_->labNewCall->setStyleSheet(QString("background: %1").arg(color_NewCall_.name()));
+  auto new_color = QColorDialog::getColor(next_color_NewCall_, this, "New Call Messages Color");
+  if (new_color.isValid ())
+    {
+      next_color_NewCall_ = new_color;
+      ui_->labNewCall->setStyleSheet(QString("background: %1").arg(next_color_NewCall_.name()));
+    }
 }
-
-
-
 
 void Configuration::impl::on_decoded_text_font_push_button_clicked ()
 {
-  next_decoded_text_font_ = QFontDialog::getFont (&decoded_text_font_changed_
-                                                  , decoded_text_font_
-                                                  , this
+  next_decoded_text_font_ = QFontDialog::getFont (0, decoded_text_font_ , this
                                                   , tr ("WSJT-X Decoded Text Font Chooser")
 #if QT_VERSION >= 0x050201
                                                   , QFontDialog::MonospacedFonts
@@ -2311,6 +2342,11 @@ void Configuration::impl::update_audio_channels (QComboBox const * source_combo_
           combo_box->setItemData (AudioDevice::Mono, combo_box_item_enabled, Qt::UserRole - 1);
         }
     }
+}
+
+void Configuration::impl::set_application_font (QFont const& font)
+{
+  qApp->setStyleSheet (qApp->styleSheet () + font_as_stylesheet (font));
 }
 
 // load all the supported rig names into the selection combo box
