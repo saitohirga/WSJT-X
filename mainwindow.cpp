@@ -374,9 +374,19 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.open(QIODevice::ReadWrite);
 
   QStringList jt9_args {
-    "-s", QApplication::applicationName ()
-        , "-w", "1"                                     //FFTW patience
-        , "-m", "1"                                     //FFTW threads
+    "-s", QApplication::applicationName () // shared memory key,
+                                           // includes rig-name
+
+      , "-w", "2"               //FFTW patience
+
+      // The number  of threads for  FFTW specified here is  chosen as
+      // three because  that gives  the best  throughput of  the large
+      // FFTs used  in jt9.  The count  is the minimum of  (the number
+      // available CPU threads less one) and three.  This ensures that
+      // there is always at least one free CPU thread to run the other
+      // mode decoder in parallel.
+      , "-m", QString::number (qMin (qMax (QThread::idealThreadCount () - 1, 1), 3)) //FFTW threads
+
       , "-e", QDir::toNativeSeparators (m_appDir)
       , "-a", QDir::toNativeSeparators (m_dataDir.absolutePath ())
       , "-t", QDir::toNativeSeparators (m_config.temp_dir ().absolutePath ())
