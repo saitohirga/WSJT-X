@@ -15,6 +15,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QtConcurrent/QtConcurrentRun>
+#include <QProgressDialog>
 
 #include "revision_utils.hpp"
 #include "soundout.h"
@@ -101,9 +102,17 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_transmitting {false},
   m_tune {false},
   m_lastMonitoredFrequency {default_frequency},
-  m_toneSpacing {0.}
+  m_toneSpacing {0.},
+  m_firstDecode {0},
+  m_optimizingProgress {"Optimizing decoder FFTs for your CPU.\n"
+      "Please be patient,\n"
+      "this may take a few minutes", QString {}, 0, 1, this}
 {
   ui->setupUi(this);
+
+  m_optimizingProgress.setWindowModality (Qt::WindowModal);
+  m_optimizingProgress.setAutoReset (false);
+  m_optimizingProgress.setMinimumDuration (15000); // only show after 15s delay
 
   // Closedown.
   connect (ui->actionExit, &QAction::triggered, this, &QMainWindow::close);
@@ -1466,6 +1475,31 @@ void MainWindow::on_EraseButton_clicked()                          //Erase
 
 void MainWindow::decodeBusy(bool b)                             //decodeBusy()
 {
+  bool showProgress = false;
+  if (b && m_firstDecode < 65 && ("JT65" == m_mode || "JT9+JT65" == m_mode))
+    {
+      m_firstDecode += 65;
+      if ("JT9+JT65" == m_mode) m_firstDecode = 65 + 9;
+      showProgress = true;
+    }
+  if (b && m_firstDecode != 9 && m_firstDecode != 65 + 9 && ("JT9" == m_mode || "JT9W-1" == m_mode))
+    {
+      m_firstDecode += 9;
+      showProgress = true;
+    }
+  if (showProgress)
+    {
+      // this sequence is needed to create an indeterminate progress
+      // bar
+      m_optimizingProgress.setRange (0, 1);
+      m_optimizingProgress.setValue (0);
+      m_optimizingProgress.setRange (0, 0);
+    }
+  if (!b)
+    {
+      m_optimizingProgress.reset ();
+    }
+
   m_decoderBusy=b;
   ui->DecodeButton->setEnabled(!b);
   ui->actionOpen->setEnabled(!b);

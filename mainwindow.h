@@ -13,6 +13,7 @@
 #include <QAudioDeviceInfo>
 #include <QScopedPointer>
 #include <QDir>
+#include <QProgressDialog>
 
 #include "soundin.h"
 #include "AudioDevice.hpp"
@@ -366,6 +367,8 @@ private:
   bool m_tune;
   Frequency m_lastMonitoredFrequency;
   double m_toneSpacing;
+  int m_firstDecode;
+  QProgressDialog m_optimizingProgress;
 
   //---------------------------------------------------- private functions
   void readSettings();
