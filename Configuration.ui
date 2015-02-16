@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>539</width>
-    <height>503</height>
+    <width>600</width>
+    <height>615</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>539</width>
-    <height>503</height>
+    <width>600</width>
+    <height>615</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -363,6 +363,9 @@ quiet period when decoding is done.</string>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
            <layout class="QFormLayout" name="formLayout">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::ExpandingFieldsGrow</enum>
+            </property>
             <item row="0" column="0">
              <widget class="QLabel" name="CAT_port_label">
               <property name="text">
@@ -405,6 +408,9 @@ quiet period when decoding is done.</string>
             <layout class="QVBoxLayout" name="verticalLayout">
              <item>
               <layout class="QFormLayout" name="formLayout_5">
+               <property name="fieldGrowthPolicy">
+                <enum>QFormLayout::ExpandingFieldsGrow</enum>
+               </property>
                <item row="0" column="0">
                 <widget class="QLabel" name="CAT_baud_label">
                  <property name="text">
@@ -731,6 +737,9 @@ when hardware flow control is used.</string>
           </item>
           <item row="2" column="0" rowspan="2" colspan="2">
            <layout class="QFormLayout" name="formLayout_4">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::ExpandingFieldsGrow</enum>
+            </property>
             <item row="0" column="0">
              <widget class="QLabel" name="PTT_port_label">
               <property name="text">
@@ -1228,6 +1237,9 @@ both here.</string>
          <layout class="QGridLayout" name="gridLayout_9">
           <item row="0" column="0">
            <layout class="QFormLayout" name="formLayout_2">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::ExpandingFieldsGrow</enum>
+            </property>
             <item row="0" column="1">
              <widget class="QComboBox" name="jt9w_bandwidth_mult_combo_box">
               <item>
@@ -1287,7 +1299,7 @@ both here.</string>
           <item row="0" column="2">
            <layout class="QFormLayout" name="formLayout_3">
             <property name="fieldGrowthPolicy">
-             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+             <enum>QFormLayout::ExpandingFieldsGrow</enum>
             </property>
             <item row="1" column="0">
              <widget class="QLabel" name="label_4">
@@ -1709,8 +1721,8 @@ Right click for insert and delete options.</string>
         <rect>
          <x>44</x>
          <y>60</y>
-         <width>228</width>
-         <height>141</height>
+         <width>229</width>
+         <height>168</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_13">
@@ -2030,11 +2042,11 @@ soundcard changes</string>
  </connections>
  <buttongroups>
   <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="split_mode_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
  </buttongroups>
 </ui>
