@@ -84,8 +84,25 @@ void DisplayText::_appendDXCCWorkedB4(DecodedText& t1, QString& bg,
             }
         charsAvail -= 1;
 
-        if (countryName.length()>charsAvail)
-            countryName = countryName.left(1)+"."+countryName.right(charsAvail-2);  //abreviate the first word to the first letter, show remaining right most chars
+        // do some obvious abbreviations
+        countryName.replace ("Islands", "Is.");
+        countryName.replace ("Island", "Is.");
+        countryName.replace ("North ", "N. ");
+        countryName.replace ("Northern ", "N. ");
+        countryName.replace ("South ", "S. ");
+        countryName.replace ("East ", "E. ");
+        countryName.replace ("Eastern ", "E. ");
+        countryName.replace ("West ", "W. ");
+        countryName.replace ("Western ", "W. ");
+        countryName.replace ("Central ", "C. ");
+        countryName.replace (" and ", " & ");
+        countryName.replace ("Republic", "Rep.");
+        countryName.replace ("United States", "U.S.A.");
+        countryName.replace ("Fed. Rep. of ", "");
+        countryName.replace ("French ", "Fr.");
+        countryName.replace ("Asiatic", "AS");
+        countryName.replace ("European", "EU");
+        countryName.replace ("African", "AF");
         t1 += countryName;
     }
 }
