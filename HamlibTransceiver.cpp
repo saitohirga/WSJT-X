@@ -772,18 +772,17 @@ void HamlibTransceiver::poll ()
 
               update_split (false);
             }
-          else if (-RIG_ENAVAIL == rc || -RIG_ENIMPL == rc) // Some rigs (Icom) don't have a way of reporting SPLIT mode
+          else
             {
+              // Some rigs (Icom) don't have a way of reporting SPLIT
+              // mode
+
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
               qDebug () << "HamlibTransceiver::poll rig_get_split_vfo can't do on this rig";
 #endif
 
               // just report how we see it based on prior commands
               split_query_works_ = false;
-            }
-          else
-            {
-              error_check (rc, tr ("getting split TX VFO"));
             }
         }
 
