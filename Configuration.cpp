@@ -2381,7 +2381,9 @@ void Configuration::impl::fill_port_combo_box (QComboBox * cb)
     {
       if (!p.isBusy ())
         {
-          cb->addItem (p.portName ());
+          // remove possibly confusing Windows device path (OK because
+          // it gets added back by Hamlib)
+          cb->addItem (p.systemLocation ().remove (QRegularExpression {R"(^\\\\\.\\)"}));
         }
     }
   cb->addItem("USB");
