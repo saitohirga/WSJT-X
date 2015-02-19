@@ -154,6 +154,7 @@
 #include <QFont>
 #include <QFontDialog>
 #include <QColorDialog>
+#include <QSerialPortInfo>
 #include <QDebug>
 
 #include "qt_helpers.hpp"
@@ -2375,38 +2376,15 @@ void Configuration::impl::enumerate_rigs ()
 void Configuration::impl::fill_port_combo_box (QComboBox * cb)
 {
   auto current_text = cb->currentText ();
-
   cb->clear ();
-
-#ifdef WIN32
-
-  for (int i {1}; i < 100; ++i)
+  Q_FOREACH (auto const& p, QSerialPortInfo::availablePorts ())
     {
-      auto item = "COM" + QString::number (i);
-      cb->addItem (item);
+      if (!p.isBusy ())
+        {
+          cb->addItem (p.portName ());
+        }
     }
   cb->addItem("USB");
-
-#else
-
-  QStringList ports = {
-    "/dev/ttyS0"
-    , "/dev/ttyS1"
-    , "/dev/ttyS2"
-    , "/dev/ttyS3"
-    , "/dev/ttyS4"
-    , "/dev/ttyS5"
-    , "/dev/ttyS6"
-    , "/dev/ttyS7"
-    , "/dev/ttyUSB0"
-    , "/dev/ttyUSB1"
-    , "/dev/ttyUSB2"
-    , "/dev/ttyUSB3"
-  };
-  cb->addItems (ports);
-
-#endif
-
   cb->setEditText (current_text);
 }
 

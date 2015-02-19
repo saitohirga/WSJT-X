@@ -805,7 +805,7 @@ set_target_properties (wsjtx PROPERTIES
   )
 
 target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
-qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia)
+qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia SerialPort)
 
 set (SYSTEM_NAME ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR})
 if (WIN32)
