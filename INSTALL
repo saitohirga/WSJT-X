@@ -30,10 +30,11 @@ Mac".
 
 Qt v5, preferably v5.1 or later is required to build WSJT-X.
 
-Qt  v5 multimedia  support is  necessary  as well  as the  core Qt  v5
-components, normally installing the  Qt multimedia development package
-is sufficient to pull in all the required Qt components and dependants
-as  a single  transaction. On  some systems  the Qt  multimedia plugin
+Qt v5 multimedia  support and serial port is necessary  as well as the
+core  Qt   v5  components,  normally  installing   the  Qt  multimedia
+development  package   and  Qt  serialport  development   package  are
+sufficient to pull in all the required Qt components and dependants as
+a  single  transaction.  On  some systems  the  Qt  multimedia  plugin
 component is  separate in the  distribution repository an it  may also
 need installing.
 
@@ -255,7 +256,7 @@ $ ./configure -prefix ~/local/qt-macx-clang -opensource \
     -confirm-license -platform macx-clang -silent -nomake tests \
     -nomake examples -sdk macosx10.10 -skip qtwebkit \
     -skip qtwebkit-examples -skip qtquick1 -skip qtconnectivity \
-    -skip qtlocation -skip qtsensors -skip qtscript -skip qtserialport \
+    -skip qtlocation -skip qtsensors -skip qtscript \
     -skip qtwebsockets -skip qtwebengine -skip qtwebchannel \
     -skip qtwayland -skip qtquickcontrols -skip qtdeclarative \
     -skip qtxmlpatterns -skip qtenginio
