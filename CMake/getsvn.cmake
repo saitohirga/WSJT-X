@@ -45,7 +45,7 @@ else (Subversion_FOUND AND EXISTS "${SOURCE_DIR}/.svn")
     # write a file with the SVNVERSION define
     file (WRITE "${OUTPUT_DIR}/svnversion.h.txt" "#define SVNVERSION r${MY_WC_LAST_CHANGED_REV}\n")
   else (Subversion_FOUND AND EXISTS "${SOURCE_DIR}/.svn")
-    file (WRITE "${OUTPUT_DIR}/svnversion.h.txt" "#define SVNVERSION local\n")
+    file (WRITE "${OUTPUT_DIR}/svnversion.h.txt" "#define SVNVERSION\n")
   endif (Subversion_FOUND AND EXISTS "${SOURCE_DIR}/.git")
 endif (Subversion_FOUND AND EXISTS "${SOURCE_DIR}/.svn")
 
