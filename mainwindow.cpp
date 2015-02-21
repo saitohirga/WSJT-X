@@ -1467,7 +1467,7 @@ void MainWindow::on_EraseButton_clicked()                          //Erase
   m_QSOText.clear();
   if((ms-m_msErase)<500) {
     ui->decodedTextBrowser->clear();
-    QFile f("decoded.txt");
+    QFile f(m_config.temp_dir ().absoluteFilePath ("decoded.txt"));
     if(f.exists()) f.remove();
   }
   m_msErase=ms;
@@ -1534,7 +1534,7 @@ void MainWindow::guiUpdate()
 
   if(m_auto or m_tune) {
 
-    QFile f("/tmp/txboth");
+    QFile f(m_config.temp_dir ().absoluteFilePath ("txboth"));
     if(f.exists() and fmod(tsec,m_TRperiod) < (1.0 + 85.0*m_nsps/12000.0)) {
       bTxTime=true;
     }
