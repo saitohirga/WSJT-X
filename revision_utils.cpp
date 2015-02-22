@@ -40,12 +40,7 @@ QString revision (QString const& svn_rev_string)
     }
   else if (!revision_from_svn.isEmpty ())
     {
-      // fall back to revision in ths file, this is potentially
-      // wrong because svn only updates the id when this file is
-      // touched
-      //
-      // this case gets us a revision when someone builds from a
-      // source snapshot or copy
+      // fall back to revision passed in if any
       result = revision_from_svn;
     }
   else
@@ -61,23 +56,33 @@ QString revision (QString const& svn_rev_string)
 #else
   if (!revision_from_svn.isEmpty ())
     {
-      // not CMake build so all we have is svn revision in this file
+      // not CMake build so all we have is revision passed
       result = revision_from_svn;
     }
 #endif
-  if (result.isEmpty ())
-    {
-      result = "local";       // last resort fall back
-    }
   return result.trimmed ();
+}
+
+QString version ()
+{
+#if defined (CMAKE_BUILD)
+  QString v {WSJTX_STRINGIZE (WSJTX_VERSION_MAJOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_MINOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_PATCH)};
+# if defined (WSJTX_RC)
+  v += "-rc" WSJTX_STRINGIZE (WSJTX_RC);
+# endif
+#else
+  QString v {"Not for Release"};
+#endif
+  return v;
 }
 
 QString program_title (QString const& revision)
 {
+  QString id {QCoreApplication::applicationName ()};
 #if defined (CMAKE_BUILD)
-  QString id {QCoreApplication::applicationName () + "   v" WSJTX_STRINGIZE (WSJTX_VERSION_MAJOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_MINOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_PATCH)};
+  id += "   v" + version ();
 #else
-  QString id {"WSJT-X Not for Release"};
+  id += "   Not for Release";
 #endif
   return id + " " + revision + "  by K1JT";
 }
