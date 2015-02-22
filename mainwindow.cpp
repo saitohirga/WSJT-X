@@ -77,7 +77,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
                        unsigned downSampleFactor, QWidget *parent) :
   QMainWindow(parent),
   m_dataDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)},
-  m_revision {revision ("$Rev$")},
+  m_revision {revision ()},
   m_multiple {multiple},
   m_settings (settings),
   ui(new Ui::MainWindow),
@@ -3134,7 +3134,7 @@ void MainWindow::pskSetLocal ()
   psk_Reporter->setLocalStation(
                                 m_config.my_callsign ()
                                 , m_config.my_grid ()
-                                , antenna_description, "WSJT-X " + m_revision);
+                                , antenna_description, program_title (m_revision));
 }
 
 void MainWindow::transmitDisplay (bool transmitting)

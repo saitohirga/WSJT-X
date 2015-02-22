@@ -44,13 +44,7 @@ int main(int argc, char *argv[])
 	      
       // Override programs executable basename as application name.
       a.setApplicationName ("WSJT-X");
-#if CMAKE_BUILD
-      a.setApplicationVersion (WSJTX_STRINGIZE (WSJTX_VERSION_MAJOR)
-                               "." WSJTX_STRINGIZE (WSJTX_VERSION_MINOR)
-                               "." WSJTX_STRINGIZE (WSJTX_VERSION_PATCH) " " + revision ());
-#else
-      a.setApplicationVersion ("Not for Release");
-#endif
+      a.setApplicationVersion (version ());
 
       bool multiple {false};
 
