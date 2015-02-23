@@ -740,7 +740,7 @@ void MainWindow::monitor (bool state)
 
 void MainWindow::on_actionAbout_triggered()                  //Display "About"
 {
-  CAboutDlg {program_title (m_revision), this}.exec ();
+  CAboutDlg {this}.exec ();
 }
 
 void MainWindow::on_autoButton_clicked (bool checked)
@@ -3134,7 +3134,7 @@ void MainWindow::pskSetLocal ()
   psk_Reporter->setLocalStation(
                                 m_config.my_callsign ()
                                 , m_config.my_grid ()
-                                , antenna_description, program_title (m_revision));
+                                , antenna_description, QString {"WSJT-X v" + version() + " " + m_revision}.simplified ());
 }
 
 void MainWindow::transmitDisplay (bool transmitting)
