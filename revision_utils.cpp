@@ -78,11 +78,6 @@ QString version ()
 
 QString program_title (QString const& revision)
 {
-  QString id {QCoreApplication::applicationName ()};
-#if defined (CMAKE_BUILD)
-  id += "   v" + version ();
-#else
-  id += "   Not for Release";
-#endif
+  QString id {QCoreApplication::applicationName () + "   v" + QCoreApplication::applicationVersion ()};
   return id + " " + revision + "  by K1JT";
 }
