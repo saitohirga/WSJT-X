@@ -14,7 +14,7 @@ class CAboutDlg : public QDialog
   Q_OBJECT;
 
 public:
-	explicit CAboutDlg(QString const& program_title, QWidget *parent = nullptr);
+	explicit CAboutDlg(QWidget *parent = nullptr);
   ~CAboutDlg ();
   
 private:
