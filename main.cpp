@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 
 #if WSJT_STANDARD_FILE_LOCATIONS
       // support for multiple instances running from a single installation
-      if (parser.isSet (rig_option))
+      if (parser.isSet (rig_option) || parser.isSet (test_option))
         {
           auto temp_name = parser.value (rig_option);
           if (!temp_name.isEmpty ())
@@ -88,6 +88,12 @@ int main(int argc, char *argv[])
                 
               a.setApplicationName (a.applicationName () + " - " + temp_name);
             }
+
+          if (parser.isSet (test_option))
+            {
+              a.setApplicationName (a.applicationName () + " - test");
+            }
+
           multiple = true;
         }
 #endif
