@@ -17,6 +17,10 @@ subroutine decoder(ss,id2)
   !$omp threadprivate(/tracer_priv/)
   save
 
+  rms=sqrt(dot_product(float(id2(300000:310000)),                            &
+                       float(id2(300000:310000)))/10000.0)
+  if(rms.lt.2.0) go to 800 
+
   nfreqs0=0
   nfreqs1=0
   ndecodes0=0
