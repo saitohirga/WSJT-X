@@ -6,9 +6,9 @@ subroutine afc9(c3,npts,fsample,a,syncpk)
   a(1)=0.                                   !f0
   a(2)=0.                                   !f1
   a(3)=0.                                   !f2
-  deltaa(1)=0.2
-  deltaa(2)=0.01
-  deltaa(3)=0.01
+  deltaa(1)=0.4
+  deltaa(2)=0.1
+  deltaa(3)=0.1
   nterms=3
 
 ! Start the iteration
@@ -42,17 +42,17 @@ subroutine afc9(c3,npts,fsample,a,syncpk)
         delta=delta*(1./(1.+(chisq1-chisq2)/(chisq3-chisq2))+0.5)
         a(j)=a(j)-delta
         deltaa(j)=deltaa(j)*fn/3.
-!        write(*,4000) iter,j,a,deltaa,-chisq2
-!4000    format(i1,i2,6f10.4,f9.3)
+!        write(*,4000) iter,j,a,-chisq2
+!4000    format(i1,i2,3f10.4,f11.3)
      enddo
      chisqr=fchisq(c3,npts,fsample,a)
-     if(chisqr/chisqr0.gt.0.9999) exit
+     if(chisqr/chisqr0.gt.0.99) exit
      chisqr0=chisqr
   enddo
 
   syncpk=-chisqr
-!  write(*,4001) a,deltaa,-chisq2
-!4001 format(3x,6f10.4,f9.3)
+!  write(*,4001) a,-chisq2
+!4001 format(3x,3f10.4,f11.3)
 
   return
 end subroutine afc9

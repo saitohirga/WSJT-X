@@ -34,7 +34,7 @@ real function fchisq(c3,npts,fsample,a)
         sum0=sum0+pp
      endif
   enddo
-  sync=(sum1/16.0)/(sum0/69.0) - 1.0
+  sync=sum1/10000.0
   fchisq=-sync
 
   return
