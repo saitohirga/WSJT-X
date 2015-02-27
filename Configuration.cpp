@@ -2379,7 +2379,7 @@ void Configuration::impl::fill_port_combo_box (QComboBox * cb)
   cb->clear ();
   Q_FOREACH (auto const& p, QSerialPortInfo::availablePorts ())
     {
-      if (!p.isBusy ())
+      if (!p.portName ().contains ( "NULL" )) // virtual serial port pairs
         {
           // remove possibly confusing Windows device path (OK because
           // it gets added back by Hamlib)
