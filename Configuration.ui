@@ -226,17 +226,6 @@
           <string>Behavior</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="disable_TX_on_73_check_box">
-            <property name="toolTip">
-             <string>Turns off automatic transmissions after sending a 73 or any other free
-text message.</string>
-            </property>
-            <property name="text">
-             <string>Di&amp;sable Tx after sending 73</string>
-            </property>
-           </widget>
-          </item>
           <item row="3" column="0">
            <widget class="QCheckBox" name="watchdog_check_box">
             <property name="toolTip">
@@ -247,16 +236,14 @@ text message.</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="monitor_off_check_box">
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="disable_TX_on_73_check_box">
             <property name="toolTip">
-             <string>Don't start decoding until the monitor button is clicked.</string>
+             <string>Turns off automatic transmissions after sending a 73 or any other free
+text message.</string>
             </property>
             <property name="text">
-             <string>Mon&amp;itor off at startup</string>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
+             <string>Di&amp;sable Tx after sending 73</string>
             </property>
            </widget>
           </item>
@@ -270,13 +257,16 @@ text message.</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QCheckBox" name="tx_QSY_check_box">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="monitor_off_check_box">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Some rigs are not able to process CAT commands while transmitting. This means that if you are operating in split mode you may have to uncheck this option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>Don't start decoding until the monitor button is clicked.</string>
             </property>
             <property name="text">
-             <string>Allow Tx frequency changes while transmitting</string>
+             <string>Mon&amp;itor off at startup</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -338,6 +328,26 @@ quiet period when decoding is done.</string>
              </widget>
             </item>
            </layout>
+          </item>
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="tx_QSY_check_box">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Some rigs are not able to process CAT commands while transmitting. This means that if you are operating in split mode you may have to uncheck this option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Allow Tx frequency changes while transmitting</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="monitor_last_used_check_box">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this if you wish to automatically return to the last monitored frequency when monitor is enabled, leave it unchecked if you wish to have the current rig frequency maintained.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Monitor returns to last used frequency</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -1950,7 +1960,9 @@ soundcard changes</string>
   <tabstop>font_push_button</tabstop>
   <tabstop>decoded_text_font_push_button</tabstop>
   <tabstop>monitor_off_check_box</tabstop>
+  <tabstop>monitor_last_used_check_box</tabstop>
   <tabstop>quick_call_check_box</tabstop>
+  <tabstop>tx_QSY_check_box</tabstop>
   <tabstop>disable_TX_on_73_check_box</tabstop>
   <tabstop>watchdog_check_box</tabstop>
   <tabstop>CW_id_after_73_check_box</tabstop>
@@ -2002,7 +2014,11 @@ soundcard changes</string>
   <tabstop>psk_reporter_check_box</tabstop>
   <tabstop>frequencies_table_view</tabstop>
   <tabstop>stations_table_view</tabstop>
-  <tabstop>configuration_dialog_button_box</tabstop>
+  <tabstop>pbCQmsg</tabstop>
+  <tabstop>pbMyCall</tabstop>
+  <tabstop>pbTxMsg</tabstop>
+  <tabstop>pbNewDXCC</tabstop>
+  <tabstop>pbNewCall</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -2072,12 +2088,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
  </buttongroups>
 </ui>

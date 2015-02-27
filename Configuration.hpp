@@ -91,6 +91,7 @@ public:
   bool tx_QSY_allowed () const;
   bool spot_to_psk_reporter () const;
   bool monitor_off_at_startup () const;
+  bool monitor_last_used () const;
   bool log_as_RTTY () const;
   bool report_in_comments () const;
   bool prompt_to_log () const;

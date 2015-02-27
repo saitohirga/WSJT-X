@@ -536,6 +536,7 @@ private:
   bool tx_QSY_allowed_;
   bool spot_to_psk_reporter_;
   bool monitor_off_at_startup_;
+  bool monitor_last_used_;
   bool log_as_RTTY_;
   bool report_in_comments_;
   bool prompt_to_log_;
@@ -599,6 +600,7 @@ bool Configuration::id_after_73 () const {return m_->id_after_73_;}
 bool Configuration::tx_QSY_allowed () const {return m_->tx_QSY_allowed_;}
 bool Configuration::spot_to_psk_reporter () const {return m_->spot_to_psk_reporter_;}
 bool Configuration::monitor_off_at_startup () const {return m_->monitor_off_at_startup_;}
+bool Configuration::monitor_last_used () const {return m_->monitor_last_used_;}
 bool Configuration::log_as_RTTY () const {return m_->log_as_RTTY_;}
 bool Configuration::report_in_comments () const {return m_->report_in_comments_;}
 bool Configuration::prompt_to_log () const {return m_->prompt_to_log_;}
@@ -1008,6 +1010,7 @@ void Configuration::impl::initialise_models ()
   ui_->tx_QSY_check_box->setChecked (tx_QSY_allowed_);
   ui_->psk_reporter_check_box->setChecked (spot_to_psk_reporter_);
   ui_->monitor_off_check_box->setChecked (monitor_off_at_startup_);
+  ui_->monitor_last_used_check_box->setChecked (monitor_last_used_);
   ui_->log_as_RTTY_check_box->setChecked (log_as_RTTY_);
   ui_->report_in_comments_check_box->setChecked (report_in_comments_);
   ui_->prompt_to_log_check_box->setChecked (prompt_to_log_);
@@ -1165,6 +1168,7 @@ void Configuration::impl::read_settings ()
   jt9w_max_dt_ = settings_->value ("DTmax", 5.).toFloat ();
 
   monitor_off_at_startup_ = settings_->value ("MonitorOFF", false).toBool ();
+  monitor_last_used_ = settings_->value ("MonitorLastUsed", false).toBool ();
   spot_to_psk_reporter_ = settings_->value ("PSKReporter", false).toBool ();
   id_after_73_ = settings_->value ("After73", false).toBool ();
   tx_QSY_allowed_ = settings_->value ("TxQSYAllowed", false).toBool ();
@@ -1249,6 +1253,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("DTmin", jt9w_min_dt_);
   settings_->setValue ("DTmax", jt9w_max_dt_);
   settings_->setValue ("MonitorOFF", monitor_off_at_startup_);
+  settings_->setValue ("MonitorLastUsed", monitor_last_used_);
   settings_->setValue ("PSKReporter", spot_to_psk_reporter_);
   settings_->setValue ("After73", id_after_73_);
   settings_->setValue ("TxQSYAllowed", tx_QSY_allowed_);
@@ -1596,6 +1601,7 @@ void Configuration::impl::accept ()
   id_after_73_ = ui_->CW_id_after_73_check_box->isChecked ();
   tx_QSY_allowed_ = ui_->tx_QSY_check_box->isChecked ();
   monitor_off_at_startup_ = ui_->monitor_off_check_box->isChecked ();
+  monitor_last_used_ = ui_->monitor_last_used_check_box->isChecked ();
   jt9w_bw_mult_ = ui_->jt9w_bandwidth_mult_combo_box->currentText ().toUInt ();
   jt9w_min_dt_ = static_cast<float> (ui_->jt9w_min_dt_double_spin_box->value ());
   jt9w_max_dt_ = static_cast<float> (ui_->jt9w_max_dt_double_spin_box->value ());

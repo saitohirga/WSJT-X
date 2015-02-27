@@ -700,10 +700,18 @@ void MainWindow::on_monitorButton_clicked (bool checked)
         {
           m_diskData = false;	// no longer reading WAV files
 
-          // put rig back where it was when last in control
-          Q_EMIT m_config.transceiver_frequency (m_lastMonitoredFrequency);
-          qsy (m_lastMonitoredFrequency);
-          setXIT (ui->TxFreqSpinBox->value ());
+          Frequency operating_frequency {m_dialFreq};
+          if (m_config.monitor_last_used ())
+            {
+              // put rig back where it was when last in control
+              operating_frequency = m_lastMonitoredFrequency;
+              Q_EMIT m_config.transceiver_frequency (operating_frequency);
+            }
+          qsy (operating_frequency);
+          if (m_config.monitor_last_used ())
+            {
+              setXIT (ui->TxFreqSpinBox->value ());
+            }
         }
 
       Q_EMIT m_config.sync_transceiver (true, checked); // gets
