@@ -1271,7 +1271,10 @@ QLabel[oob=&quot;true&quot;] {
                   <enum>Qt::LeftToRight</enum>
                  </property>
                  <property name="text">
-                  <string>Tx 1</string>
+                  <string>Tx &amp;1</string>
+                 </property>
+                 <property name="shortcut">
+                  <string>Alt+1</string>
                  </property>
                 </widget>
                </item>
@@ -1300,6 +1303,9 @@ QLabel[oob=&quot;true&quot;] {
                  </property>
                  <property name="text">
                   <string/>
+                 </property>
+                 <property name="shortcut">
+                  <string>Ctrl+4</string>
                  </property>
                  <attribute name="buttonGroup">
                   <string notr="true">buttonGroup</string>
@@ -1331,6 +1337,9 @@ QLabel[oob=&quot;true&quot;] {
                  </property>
                  <property name="text">
                   <string/>
+                 </property>
+                 <property name="shortcut">
+                  <string>Ctrl+1</string>
                  </property>
                  <property name="checked">
                   <bool>false</bool>
@@ -1365,6 +1374,9 @@ QLabel[oob=&quot;true&quot;] {
                  </property>
                  <property name="text">
                   <string/>
+                 </property>
+                 <property name="shortcut">
+                  <string>Ctrl+3</string>
                  </property>
                  <attribute name="buttonGroup">
                   <string notr="true">buttonGroup</string>
@@ -1408,7 +1420,10 @@ QLabel[oob=&quot;true&quot;] {
                   <string>Switch to this Tx message NOW</string>
                  </property>
                  <property name="text">
-                  <string>Tx 3</string>
+                  <string>Tx &amp;3</string>
+                 </property>
+                 <property name="shortcut">
+                  <string>Alt+3</string>
                  </property>
                 </widget>
                </item>
@@ -1424,7 +1439,10 @@ QLabel[oob=&quot;true&quot;] {
                   <string>Switch to this Tx message NOW</string>
                  </property>
                  <property name="text">
-                  <string>Tx 4</string>
+                  <string>Tx &amp;4</string>
+                 </property>
+                 <property name="shortcut">
+                  <string>Alt+4</string>
                  </property>
                 </widget>
                </item>
@@ -1472,7 +1490,10 @@ QLabel[oob=&quot;true&quot;] {
                   <string>Switch to this Tx message NOW</string>
                  </property>
                  <property name="text">
-                  <string>Tx 5</string>
+                  <string>Tx &amp;5</string>
+                 </property>
+                 <property name="shortcut">
+                  <string>Alt+5</string>
                  </property>
                 </widget>
                </item>
@@ -1501,6 +1522,9 @@ QLabel[oob=&quot;true&quot;] {
                  </property>
                  <property name="text">
                   <string/>
+                 </property>
+                 <property name="shortcut">
+                  <string>Ctrl+2</string>
                  </property>
                  <attribute name="buttonGroup">
                   <string notr="true">buttonGroup</string>
@@ -1604,7 +1628,10 @@ QLabel[oob=&quot;true&quot;] {
                   <string>Switch to this Tx message NOW</string>
                  </property>
                  <property name="text">
-                  <string>Tx 6</string>
+                  <string>Tx &amp;6</string>
+                 </property>
+                 <property name="shortcut">
+                  <string>Alt+6</string>
                  </property>
                 </widget>
                </item>
@@ -1620,7 +1647,10 @@ QLabel[oob=&quot;true&quot;] {
                   <string>Switch to this Tx message NOW</string>
                  </property>
                  <property name="text">
-                  <string>Tx 2</string>
+                  <string>Tx &amp;2</string>
+                 </property>
+                 <property name="shortcut">
+                  <string>Alt+2</string>
                  </property>
                 </widget>
                </item>
@@ -1649,6 +1679,9 @@ QLabel[oob=&quot;true&quot;] {
                  </property>
                  <property name="text">
                   <string/>
+                 </property>
+                 <property name="shortcut">
+                  <string>Ctrl+6</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -1683,6 +1716,9 @@ QLabel[oob=&quot;true&quot;] {
                  </property>
                  <property name="text">
                   <string/>
+                 </property>
+                 <property name="shortcut">
+                  <string>Ctrl+5</string>
                  </property>
                  <attribute name="buttonGroup">
                   <string notr="true">buttonGroup</string>

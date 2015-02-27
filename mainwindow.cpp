@@ -765,43 +765,6 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
   int n;
   switch(e->key())
     {
-    case Qt::Key_1:
-      if(e->modifiers() & Qt::AltModifier) {
-        on_txb1_clicked();
-        e->ignore ();
-        return;
-      }
-      break;
-    case Qt::Key_2:
-      if(e->modifiers() & Qt::AltModifier) {
-        on_txb2_clicked();
-        return;
-      }
-      break;
-    case Qt::Key_3:
-      if(e->modifiers() & Qt::AltModifier) {
-        on_txb3_clicked();
-        return;
-      }
-      break;
-    case Qt::Key_4:
-      if(e->modifiers() & Qt::AltModifier) {
-        on_txb4_clicked();
-        return;
-      }
-      break;
-    case Qt::Key_5:
-      if(e->modifiers() & Qt::AltModifier) {
-        on_txb5_clicked();
-        return;
-      }
-      break;
-    case Qt::Key_6:
-      if(e->modifiers() & Qt::AltModifier) {
-        on_txb6_clicked();
-        return;
-      }
-      break;
     case Qt::Key_D:
       if(e->modifiers() & Qt::ShiftModifier) {
         if(!m_decoderBusy) {
@@ -1846,42 +1809,42 @@ void MainWindow::on_txb1_clicked()                                //txb1
 {
   m_ntx=1;
   ui->txrb1->setChecked(true);
-  m_restart=true;
+  if (m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_txb2_clicked()                                //txb2
 {
   m_ntx=2;
   ui->txrb2->setChecked(true);
-  m_restart=true;
+  if (m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_txb3_clicked()                                //txb3
 {
   m_ntx=3;
   ui->txrb3->setChecked(true);
-  m_restart=true;
+  if (m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_txb4_clicked()                                //txb4
 {
   m_ntx=4;
   ui->txrb4->setChecked(true);
-  m_restart=true;
+  if (m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_txb5_clicked()                                //txb5
 {
   m_ntx=5;
   ui->txrb5->setChecked(true);
-  m_restart=true;
+  if (m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_txb6_clicked()                                //txb6
 {
   m_ntx=6;
   ui->txrb6->setChecked(true);
-  m_restart=true;
+  if (m_transmitting) m_restart=true;
 }
 
 void MainWindow::doubleClickOnCall2(bool shift, bool ctrl)
