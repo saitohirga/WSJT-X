@@ -11,7 +11,8 @@ F11	Move Rx frequency down 1 Hz
 Ctrl+F11     	Move Rx and Tx frequencies down 1 Hz
 F12	Move Rx frequency up 1 Hz
 Ctrl+F12     	Move Rx and Tx frequencies up 1 Hz
-Alt+1-6	Set next transmission to this number on Tab 1
+Alt+1-6	Set now transmission to this number on Tab 1
+Ctl+1-6	Set next transmission to this number on Tab 1
 Alt+D	Decode again at QSO frequency
 Shift+D	Full decode (both windows)
 Alt+E	Erase
