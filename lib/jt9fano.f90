@@ -69,7 +69,7 @@ subroutine jt9fano(i1SoftSymbols,limit,nlim,msg)
        ncycles,metric,ierr)
 
   nlim=ncycles/(nbits+31)
-  if(ncycles.lt.(nbits*limit)) then
+  if(ncycles.lt.((nbits+31)*limit)) then
      nbytes=(nbits+7)/8
      do i=1,nbytes
         n=i1DecodedBytes(i)

@@ -94,9 +94,10 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
            call timer('softsym ',1)
 
            sync=(syncpk+1)/4.0
-           if(maxval(i1SoftSymbols).eq.0) cycle
-           if(nqd.eq.1 .and. ((sync.lt.0.5) .or. (schk.lt.2.0))) cycle
-           if(nqd.ne.1 .and. ((sync.lt.1.0) .or. (schk.lt.schklim))) cycle
+!           if(maxval(i1SoftSymbols).eq.0) cycle
+!           if(nqd.eq.1 .and. ((sync.lt.0.5) .or. (schk.lt.1.0))) cycle
+!           if(nqd.ne.1 .and. ((sync.lt.1.0) .or. (schk.lt.1.5))) cycle
+           if(nqd.ne.1 .and. ((sync.lt.1.0) .or. (schk.lt.1.8))) cycle
 
            call timer('jt9fano ',0)
            call jt9fano(i1SoftSymbols,limit,nlim,msg)
