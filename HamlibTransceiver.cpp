@@ -497,6 +497,13 @@ void HamlibTransceiver::do_frequency (Frequency f, MODE m)
       error_check (rig_set_freq (rig_.data (), RIG_VFO_CURR, f), tr ("setting frequency"));
     }
 
+  if (UNK != m)
+    {
+      // for the second time because some rigs change mode according
+      // to frequency such as the TS-2000 auto mode setting
+      do_mode (m, false);
+    }
+
   update_rx_frequency (f);
 }
 
