@@ -50,10 +50,12 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
      if(ndepth.ge.3 .or. nqd.eq.1) then
         limit=30000
         ccflim=2.5
+        schklim=2.0
      endif
      if(nagain.ne.0) then
         limit=100000
         ccflim=2.4
+        schklim=1.8
      endif
      ccfok=.false.
 
@@ -95,9 +97,9 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
 
            sync=(syncpk+1)/4.0
 !           if(maxval(i1SoftSymbols).eq.0) cycle
-!           if(nqd.eq.1 .and. ((sync.lt.0.5) .or. (schk.lt.1.0))) cycle
-!           if(nqd.ne.1 .and. ((sync.lt.1.0) .or. (schk.lt.1.5))) cycle
-           if(nqd.ne.1 .and. ((sync.lt.1.0) .or. (schk.lt.1.8))) cycle
+           if(nqd.eq.1 .and. ((sync.lt.0.5) .or. (schk.lt.1.0))) cycle
+           if(nqd.ne.1 .and. ((sync.lt.1.0) .or. (schk.lt.1.5))) cycle
+!           if(nqd.ne.1 .and. ((sync.lt.1.0) .or. (schk.lt.1.8))) cycle
 
            call timer('jt9fano ',0)
            call jt9fano(i1SoftSymbols,limit,nlim,msg)
