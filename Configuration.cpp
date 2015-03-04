@@ -52,6 +52,8 @@ namespace
     {
       qRegisterMetaType<Configuration::DataMode> ("Configuration::DataMode");
       qRegisterMetaTypeStreamOperators<Configuration::DataMode> ("Configuration::DataMode");
+      qRegisterMetaType<Configuration::Type2MsgGen> ("Configuration::Type2MsgGen");
+      qRegisterMetaTypeStreamOperators<Configuration::Type2MsgGen> ("Configuration::Type2MsgGen");
     }
   } static_initializer;
 
@@ -364,6 +366,8 @@ private:
   float jt9w_min_dt_;
   float jt9w_max_dt_;
 
+  Type2MsgGen type_2_msg_gen_;
+
   QStringListModel macros_;
   RearrangableMacrosModel next_macros_;
   QAction * macro_delete_action_;
@@ -465,6 +469,7 @@ bool Configuration::restart_audio_output () const {return m_->restart_sound_outp
 unsigned Configuration::jt9w_bw_mult () const {return m_->jt9w_bw_mult_;}
 float Configuration::jt9w_min_dt () const {return m_->jt9w_min_dt_;}
 float Configuration::jt9w_max_dt () const {return m_->jt9w_max_dt_;}
+auto Configuration::type_2_msg_gen () const -> Type2MsgGen {return m_->type_2_msg_gen_;}
 QString Configuration::my_callsign () const {return m_->my_callsign_;}
 QString Configuration::my_grid () const {return m_->my_grid_;}
 QFont Configuration::decoded_text_font () const {return m_->decoded_text_font_;}
@@ -929,6 +934,7 @@ void Configuration::impl::initialise_models ()
   ui_->jt9w_bandwidth_mult_combo_box->setCurrentText (QString::number (jt9w_bw_mult_));
   ui_->jt9w_min_dt_double_spin_box->setValue (jt9w_min_dt_);
   ui_->jt9w_max_dt_double_spin_box->setValue (jt9w_max_dt_);
+  ui_->type_2_msg_gen_combo_box->setCurrentIndex (type_2_msg_gen_);
   ui_->rig_combo_box->setCurrentText (rig_params_.rig_name_);
   ui_->TX_mode_button_group->button (data_mode_)->setChecked (true);
   ui_->split_mode_button_group->button (rig_params_.split_mode_)->setChecked (true);
@@ -1058,6 +1064,8 @@ void Configuration::impl::read_settings ()
   jt9w_min_dt_ = settings_->value ("DTmin", -2.5).toFloat ();
   jt9w_max_dt_ = settings_->value ("DTmax", 5.).toFloat ();
 
+  type_2_msg_gen_ = settings_->value ("Type2MsgGen", QVariant::fromValue (Configuration::type_2_msg_3_full)).value<Configuration::Type2MsgGen> ();
+
   monitor_off_at_startup_ = settings_->value ("MonitorOFF", false).toBool ();
   spot_to_psk_reporter_ = settings_->value ("PSKReporter", false).toBool ();
   id_after_73_ = settings_->value ("After73", false).toBool ();
@@ -1140,6 +1148,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("ToneMult", jt9w_bw_mult_);
   settings_->setValue ("DTmin", jt9w_min_dt_);
   settings_->setValue ("DTmax", jt9w_max_dt_);
+  settings_->setValue ("Type2MsgGen", QVariant::fromValue (type_2_msg_gen_));
   settings_->setValue ("MonitorOFF", monitor_off_at_startup_);
   settings_->setValue ("PSKReporter", spot_to_psk_reporter_);
   settings_->setValue ("After73", id_after_73_);
@@ -1487,6 +1496,7 @@ void Configuration::impl::accept ()
   jt9w_bw_mult_ = ui_->jt9w_bandwidth_mult_combo_box->currentText ().toUInt ();
   jt9w_min_dt_ = static_cast<float> (ui_->jt9w_min_dt_double_spin_box->value ());
   jt9w_max_dt_ = static_cast<float> (ui_->jt9w_max_dt_double_spin_box->value ());
+  type_2_msg_gen_ = static_cast<Type2MsgGen> (ui_->type_2_msg_gen_combo_box->currentIndex ());
   log_as_RTTY_ = ui_->log_as_RTTY_check_box->isChecked ();
   report_in_comments_ = ui_->report_in_comments_check_box->isChecked ();
   prompt_to_log_ = ui_->prompt_to_log_check_box->isChecked ();
@@ -2271,8 +2281,11 @@ bool operator != (RigParams const& lhs, RigParams const& rhs)
 
 #if !defined (QT_NO_DEBUG_STREAM)
 ENUM_QDEBUG_OPS_IMPL (Configuration, DataMode);
+ENUM_QDEBUG_OPS_IMPL (Configuration, Type2MsgGen);
 #endif
 
 ENUM_QDATASTREAM_OPS_IMPL (Configuration, DataMode);
+ENUM_QDATASTREAM_OPS_IMPL (Configuration, Type2MsgGen);
 
 ENUM_CONVERSION_OPS_IMPL (Configuration, DataMode);
+ENUM_CONVERSION_OPS_IMPL (Configuration, Type2MsgGen);

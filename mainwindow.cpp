@@ -627,8 +627,18 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
   ui->readFreq->setStyleSheet("");
   ui->readFreq->setEnabled(false);
 
+  auto callsign = m_config.my_callsign ();
+
   if (QDialog::Accepted == m_config.exec ())
     {
+      if (m_config.my_callsign () != callsign)
+        {
+          morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData())
+                 , const_cast<int *> (icw)
+                 , &m_ncw
+                 , m_config.my_callsign ().length());
+        }
+
       on_dxGridEntry_textChanged (m_hisGrid); // recalculate distances in case of units change
       enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
 
@@ -784,6 +794,12 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
     case Qt::Key_F4:
       ui->dxCallEntry->setText("");
       ui->dxGridEntry->setText("");
+      m_hisCall="";
+      m_hisGrid="";
+      m_rptSent="";
+      m_rptRcvd="";
+      m_qsoStart="";
+      m_qsoStop="";
       genStdMsgs("");
       if (1 == ui->tabWidget->currentIndex())
         {
@@ -1355,16 +1371,18 @@ void MainWindow::readFromStdout()                             //readFromStdout
         DecodedText decodedtext;
         decodedtext = t.replace("\n",""); //t.replace("\n","").mid(0,t.length()-4);
 
+        auto my_base_call = baseCall (m_config.my_callsign ());
+
         // the left band display
         ui->decodedTextBrowser->displayDecodedText (decodedtext
-                                                    , m_config.my_callsign ()
+                                                    , my_base_call
                                                     , m_config.DXCC ()
                                                     , m_logBook);
 
         if (abs(decodedtext.frequencyOffset() - m_wideGraph->rxFreq()) <= 10) // this msg is within 10 hertz of our tuned frequency
           {
             // the right QSO window
-            ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_config.my_callsign (),false,m_logBook);
+            ui->decodedTextBrowser2->displayDecodedText(decodedtext,my_base_call,false,m_logBook);
 
             bool b65=decodedtext.isJT65();
             if(b65 and m_modeTx!="JT65") on_pbTxMode_clicked();
@@ -1373,7 +1391,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
 
         // find and extract any report for myCall
-        bool stdMsg = decodedtext.report(m_config.my_callsign (),/*mod*/m_rptRcvd);
+        bool stdMsg = decodedtext.report(my_base_call
+                                         , baseCall (ui->dxCallEntry-> text ().toUpper ().trimmed ())
+                                         , /*mod*/m_rptRcvd);
 
         // extract details and send to PSKreporter
         int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
@@ -1839,6 +1859,16 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   QStringList t4=t3.split(" ",QString::SkipEmptyParts);
   if(t4.length() <5) return;             //Skip the rest if no decoded text
 
+  QString hiscall;
+  QString hisgrid;
+  decodedtext.deCallAndGrid(/*out*/hiscall,hisgrid);
+  // basic valid call sign check i.e. contains at least one digit and
+  // one letter next to each other
+  if (!hiscall.contains (QRegularExpression {R"(\d[[:upper:]]|[[:upper:]]\d)"}))
+    {
+      return;
+    }
+
   // only allow automatic mode changes when not transmitting
   if (!m_transmitting)
     {
@@ -1877,10 +1907,12 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
         }
     }
 
+  auto my_base_call = baseCall (m_config.my_callsign ());
+
   int i9=m_QSOText.indexOf(decodedtext.string());
   if (i9<0 and !decodedtext.isTX())
     {
-      ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_config.my_callsign (),false,m_logBook);
+      ui->decodedTextBrowser2->displayDecodedText(decodedtext,my_base_call,false,m_logBook);
       m_QSOText=decodedtext;
     }
 
@@ -1897,12 +1929,13 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
       return;
     }
 
-  QString hiscall;
-  QString hisgrid;
-  decodedtext.deCallAndGrid(/*out*/hiscall,hisgrid);
-  if (hiscall != ui->dxCallEntry->text())
-    ui->dxGridEntry->setText("");
-  ui->dxCallEntry->setText(hiscall);
+  auto base_call = baseCall (hiscall);
+  if (base_call != baseCall (ui->dxCallEntry-> text ().toUpper ().trimmed ()) || base_call != hiscall)
+    {
+      // his base call different or his call more qualified
+      // i.e. compound version of same base call
+      ui->dxCallEntry->setText(hiscall);
+    }
   if (gridOK(hisgrid))
     ui->dxGridEntry->setText(hisgrid);
   if (ui->dxGridEntry->text()=="")
@@ -1919,7 +1952,10 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   genStdMsgs(rpt);
 
   // determine the appropriate response to the received msg
-  if(decodedtext.indexOf(m_config.my_callsign ())>=0)
+  auto dtext = " " + decodedtext.string () + " ";
+  if(dtext.contains (" " + my_base_call + " ")
+     || dtext.contains ("/" + my_base_call + " ")
+     || dtext.contains (" " + my_base_call + "/"))
     {
       if (t4.length()>=7   // enough fields for a normal msg
           and !gridOK(t4.at(7))) // but no grid on end of msg
@@ -1989,6 +2025,15 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
 {
   QString t;
+  if(m_config.my_callsign () !="" and m_config.my_grid () !="")
+    {
+      t="CQ " + m_config.my_callsign () + " " + m_config.my_grid ().mid(0,4);
+      msgtype(t, ui->tx6);
+    }
+  else
+    {
+      ui->tx6->setText("");
+    }
   QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
   ui->dxCallEntry->setText(hisCall);
   if(hisCall=="") {
@@ -1999,11 +2044,6 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
     ui->tx3->setText("");
     ui->tx4->setText("");
     ui->tx5->setCurrentText("");
-    ui->tx6->setText("");
-    if(m_config.my_callsign () !="" and m_config.my_grid () !="") {
-      t="CQ " + m_config.my_callsign () + " " + m_config.my_grid ().mid(0,4);
-      msgtype(t, ui->tx6);
-    }
     ui->genMsg->setText("");
     return;
   }
@@ -2012,7 +2052,6 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
 
   QString t0=hisBase + " " + myBase + " ";
   t=t0 + m_config.my_grid ().mid(0,4);
-  //  if(myBase!=m_config.my_callsign ()) t="DE " + m_config.my_callsign () + " " + m_config.my_grid ().mid(0,4);  //###
   msgtype(t, ui->tx1);
   if(rpt == "") {
     t=t+" OOO";
@@ -2028,12 +2067,9 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
     t=t0 + "RRR";
     msgtype(t, ui->tx4);
     t=t0 + "73";
-    //    if(myBase!=m_config.my_callsign ()) t="DE " + m_config.my_callsign () + " 73";                  //###
     msgtype(t, ui->tx5->lineEdit ());
   }
 
-  t="CQ " + m_config.my_callsign () + " " + m_config.my_grid ().mid(0,4);
-  msgtype(t, ui->tx6);
   if(m_config.my_callsign ()!=myBase) {
     if(shortList(m_config.my_callsign ())) {
       t=hisCall + " " + m_config.my_callsign ();
@@ -2041,22 +2077,40 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
       t="CQ " + m_config.my_callsign ();
       msgtype(t, ui->tx6);
     } else {
-      t="DE " + m_config.my_callsign () + " " + m_config.my_grid ().mid(0,4);
-      msgtype(t, ui->tx2);
+      switch (m_config.type_2_msg_gen ())
+        {
+        case Configuration::type_2_msg_1_full:
+          t="DE " + m_config.my_callsign () + " " + m_config.my_grid ().mid(0,4);
+          msgtype(t, ui->tx1);
+          t=t0 + "R" + rpt;
+          msgtype(t, ui->tx3);
+          break;
+
+        case Configuration::type_2_msg_3_full:
+          t = t0 + m_config.my_grid ().mid(0,4);
+          msgtype(t, ui->tx1);
+          t="DE " + m_config.my_callsign () + " R" + rpt;
+          msgtype(t, ui->tx3);
+          break;
+
+        case Configuration::type_2_msg_5_only:
+          t = t0 + m_config.my_grid ().mid(0,4);
+          msgtype(t, ui->tx1);
+          t=t0 + "R" + rpt;
+          msgtype(t, ui->tx3);
+          break;
+        }
       t="DE " + m_config.my_callsign () + " 73";
       msgtype(t, ui->tx5->lineEdit ());
-      t="CQ " + m_config.my_callsign () + " " + m_config.my_grid ().mid(0,4);
-      msgtype(t, ui->tx6);
     }
   } else {
     if(hisCall!=hisBase) {
       if(shortList(hisCall)) {
-        t=hisCall + " " + m_config.my_callsign ();
+        t=hisBase + " " + m_config.my_callsign () + " " + m_config.my_grid ().mid (0,4);
         msgtype(t, ui->tx1);
-      } else {
-        t=hisCall + " 73";
-        msgtype(t, ui->tx5->lineEdit());
       }
+      t=hisCall + " 73";
+      msgtype(t, ui->tx5->lineEdit());
     }
   }
   m_ntx=1;

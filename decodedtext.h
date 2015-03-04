@@ -67,7 +67,7 @@ public:
     int snr();
 
     // find and extract any report. Returns true if this is a standard message
-    bool report(const QString myCall, /*mod*/QString& report);
+  bool report(QString const& myBaseCall, QString const& dxBaseCall, /*mod*/QString& report);
 
     // get the first text word, usually the call
     QString call();
