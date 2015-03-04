@@ -1,6 +1,7 @@
 set (ASCIIDOC_MANS
   man1/wsjtx.1.txt
   man1/jt65code.1.txt
+  man1/rigctl-wsjtx.1.txt
   man1/rigctld-wsjtx.1.txt
   )
 
