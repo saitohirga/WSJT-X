@@ -198,12 +198,6 @@ set (wsjt_qt_CXXSRCS
   DXLabSuiteCommanderTransceiver.cpp
   )
 
-set (ConfigTest_CXXSRCS
-  Configuration.cpp
-  TestConfiguration.cpp
-  ConfigTest.cpp
-  )
-
 set (jt9_CXXSRCS
   lib/ipcomm.cpp
   )
@@ -234,11 +228,6 @@ set (wsjtx_CXXSRCS
   )
 
 if (WIN32)
-  set (ConfigTest_CXXSRCS
-    ${ConfigTest_CXXSRCS}
-    OmniRigTransceiver.cpp
-    )
-
   set (wsjt_CXXSRCS
     ${wsjt_CXXSRCS}
     killbyname.cpp
@@ -367,11 +356,6 @@ set (wsjt_CSRCS
   lib/wrapkarn.c
   )
 
-set (ConfigTest_UISRCS
-  TestConfiguration.ui
-  Configuration.ui
-  )
-
 set (wsjt_qt_UISRCS
   wf_palette_design_dialog.ui
   )
@@ -389,7 +373,6 @@ set (all_CXXSRCS
   ${wsjt_CXXSRCS}
   ${wsjt_qt_CXXSRCS}
   ${jt9_CXXSRCS}
-  ${ConfigTest_CXXSRCS}
   ${wsjtx_CXXSRCS}
   )
 
@@ -692,7 +675,6 @@ endif ()
 
 # UI generation
 qt5_wrap_ui (wsjt_qt_GENUISRCS ${wsjt_qt_UISRCS})
-qt5_wrap_ui (ConfigTest_GENUISRCS ${ConfigTest_UISRCS})
 qt5_wrap_ui (wsjtx_GENUISRCS ${wsjtx_UISRCS})
 
 # Resource generation
@@ -774,11 +756,6 @@ else (${OPENMP_FOUND} OR APPLE)
   target_link_libraries (jt9 wsjt_fort wsjt_cxx ${FFTW3_LIBRARIES})
 endif (${OPENMP_FOUND} OR APPLE)
 qt5_use_modules (jt9 Core)
-
-# build configuration dialog and transceiver interface test application
-#add_executable (ConfigTest ${ConfigTest_CXXSRCS} ${ConfigTest_GENUISRCS} wsjtx.rc)
-#target_link_libraries (ConfigTest wsjt wsjt_qt ${hamlib_LIBRARIES})
-#qt5_use_modules (ConfigTest Widgets OpenGL Network Multimedia)
 
 # build the main application
 add_executable (wsjtx MACOSX_BUNDLE
