@@ -4,13 +4,14 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
   include 'constants.f90'
   real ss(184,NSMAX)
   character*22 msg
+  character*500 infile
   real*4 ccfred(NSMAX)
   real*4 red2(NSMAX)
   logical ccfok(NSMAX)
   logical done(NSMAX)
   integer*2 id2(NTMAX*12000)
   integer*1 i1SoftSymbols(207)
-  common/decstats/num65,numbm,numkv,num9,numfano
+  common/decstats/num65,numbm,numkv,num9,numfano,infile
   save ccfred,red2
 
   nsynced=0
@@ -92,14 +93,12 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
            call timer('softsym ',0)
            fpk=nf0 + df3*(i-1)
            call softsym(id2,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,    &
-                freq,drift,schk,i1SoftSymbols)
+                freq,drift,a3,schk,i1SoftSymbols)
            call timer('softsym ',1)
 
            sync=(syncpk+1)/4.0
-!           if(maxval(i1SoftSymbols).eq.0) cycle
            if(nqd.eq.1 .and. ((sync.lt.0.5) .or. (schk.lt.1.0))) cycle
            if(nqd.ne.1 .and. ((sync.lt.1.0) .or. (schk.lt.1.5))) cycle
-!           if(nqd.ne.1 .and. ((sync.lt.1.0) .or. (schk.lt.1.8))) cycle
 
            call timer('jt9fano ',0)
            call jt9fano(i1SoftSymbols,limit,nlim,msg)
@@ -117,14 +116,18 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
               if(nqd.eq.0) ndecodes0=ndecodes0+1
               if(nqd.eq.1) ndecodes1=ndecodes1+1
 
-              !$omp critical(decode_results) ! serialize writes - see also jt65a.f90
+!$omp critical(decode_results) ! serialize writes - see also jt65a.f90
               write(*,1000) nutc,nsnr,xdt,nint(freq),msg
 1000          format(i4.4,i4,f5.1,i5,1x,'@',1x,a22)
+!              i1=index(infile,'.wav')
+!              write(*,1000) infile(i1-11:i1-1),nsnr,xdt,nint(freq),msg,   &
+!                   schk,drift,a3,nlim
+!1000          format(a11,i4,f5.1,i5,1x,'@',1x,a22,3f6.1,i6)
               write(13,1002) nutc,nsync,nsnr,xdt,freq,ndrift,msg
 1002          format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT9')
               call flush(6)
               call flush(13)
-              !$omp end critical(decode_results)
+!$omp end critical(decode_results)
 
               iaa=max(1,i-1)
               ibb=min(NSMAX,i+22)

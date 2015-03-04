@@ -1,25 +1,32 @@
-subroutine afc9(c3,npts,fsample,a,syncpk)
+subroutine afc9(c3a,npts,fsample,a,syncpk)
 
-  complex c3(0:npts-1)
+  complex c3a(0:npts-1)
+  complex c3(0:1360-1)
   real a(3),deltaa(3)
 
   a(1)=0.                                   !f0
   a(2)=0.                                   !f1
   a(3)=0.                                   !f2
-  deltaa(1)=0.4
-  deltaa(2)=0.1
-  deltaa(3)=0.1
+  deltaa(1)=1.736
+  deltaa(2)=1.736
+  deltaa(3)=1.0
   nterms=3
 
 ! Start the iteration
   chisqr=0.
   chisqr0=1.e6
-  do iter=1,4                               !One iteration is enough?
+  c3=c3a
+  a3=a(3)
+  do iter=1,4
      do j=1,nterms
+        if(a(3).ne.a3) c3=cshift(c3a,nint(a(3)))
+        a3=a(3)
         chisq1=fchisq(c3,npts,fsample,a)
         fn=0.
         delta=deltaa(j)
 10      a(j)=a(j)+delta
+        if(a(3).ne.a3) c3=cshift(c3a,nint(a(3)))
+        a3=a(3)
         chisq2=fchisq(c3,npts,fsample,a)
         if(chisq2.eq.chisq1) go to 10
         if(chisq2.gt.chisq1) then
@@ -31,6 +38,8 @@ subroutine afc9(c3,npts,fsample,a,syncpk)
         endif
 20      fn=fn+1.0
         a(j)=a(j)+delta
+        if(a(3).ne.a3) c3=cshift(c3a,nint(a(3)))
+        a3=a(3)
         chisq3=fchisq(c3,npts,fsample,a)
         if(chisq3.lt.chisq2) then
            chisq1=chisq2
@@ -41,16 +50,19 @@ subroutine afc9(c3,npts,fsample,a,syncpk)
 ! Find minimum of parabola defined by last three points
         delta=delta*(1./(1.+(chisq1-chisq2)/(chisq3-chisq2))+0.5)
         a(j)=a(j)-delta
-        deltaa(j)=deltaa(j)*fn/3.
+        if(j.lt.3) deltaa(j)=deltaa(j)*fn/3.
 !        write(*,4000) iter,j,a,-chisq2
 !4000    format(i1,i2,3f10.4,f11.3)
      enddo
+     if(a(3).ne.a3) c3=cshift(c3a,nint(a(3)))
+     a3=a(3)
      chisqr=fchisq(c3,npts,fsample,a)
      if(chisqr/chisqr0.gt.0.99) exit
      chisqr0=chisqr
   enddo
 
   syncpk=-chisqr
+  c3a=c3
 !  write(*,4001) a,-chisq2
 !4001 format(3x,3f10.4,f11.3)
 

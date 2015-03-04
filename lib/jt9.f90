@@ -39,7 +39,7 @@ program jt9
        mousefqso,newdat,nfa,nfsplit,nfb,ntol,kin,nzhsym,nsynced,ndecoded
   common/tracer/limtrace,lu
   common/patience/npatience,nthreads
-  common/decstats/num65,numbm,numkv,num9,numfano
+  common/decstats/num65,numbm,numkv,num9,numfano,infile
   data npatience/1/,nthreads/1/
 
   do

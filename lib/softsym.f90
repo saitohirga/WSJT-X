@@ -1,5 +1,5 @@
 subroutine softsym(id2,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,        &
-     freq,drift,schk,i1SoftSymbols)
+     freq,drift,a3,schk,i1SoftSymbols)
 
 ! Compute the soft symbols
 
@@ -28,6 +28,8 @@ subroutine softsym(id2,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,        &
   call timer('afc9    ',1)
   freq=fpk - a(1)
   drift=-2.0*a(2)
+  a3=a(3)
+  a(3)=0.
 
   call timer('twkfreq ',0)
   call twkfreq(c3,c5,nz3,fsample,a)   !Correct for delta f, f1, f2 ==> a(1:3)

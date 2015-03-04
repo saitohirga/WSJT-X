@@ -9,7 +9,7 @@ subroutine fano232(symbol,nbits,mettab,ndelta,maxcycles,dat,     &
   parameter (MAXBYTES=(MAXBITS+7)/8)
   integer*1 symbol(0:2*MAXBITS-1)  !Soft symbols (as unsigned i*1)
   integer*1 dat(MAXBYTES)          !Decoded user data, 8 bits per byte
-  integer mettab(0:255,0:1)        !Metric table
+  integer mettab(-128:127,0:1)        !Metric table
 
 ! These were the "node" structure in Karn's C code:
   integer nstate(0:MAXBITS-1)      !Encoder state of next node
@@ -31,8 +31,6 @@ subroutine fano232(symbol,nbits,mettab,ndelta,maxcycles,dat,     &
      j=2*np
      i4a=symbol(j)
      i4b=symbol(j+1)
-     if (i4a.lt.0) i4a=i4a+256
-     if (i4b.lt.0) i4b=i4b+256
      metrics(0,np) = mettab(i4a,0) + mettab(i4b,0)
      metrics(1,np) = mettab(i4a,0) + mettab(i4b,1)
      metrics(2,np) = mettab(i4a,1) + mettab(i4b,0)
