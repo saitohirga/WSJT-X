@@ -77,9 +77,10 @@ subroutine symspec2(c5,nz3,nsps8,nspsd,fsample,freq,drift,snrdb,schk,    &
         i4=nint(scale*(r1-r0))
         if(i4.lt.-127) i4=-127
         if(i4.gt.127) i4=127
-        i4=i4+128
-        if(i4.le.127) i1SoftSymbolsScrambled(k)=i4
-        if(i4.ge.128) i1SoftSymbolsScrambled(k)=i4-256
+!        i4=i4+128
+!        if(i4.le.127) i1SoftSymbolsScrambled(k)=i4
+!        if(i4.ge.128) i1SoftSymbolsScrambled(k)=i4-256
+        i1SoftSymbolsScrambled(k)=i4
      enddo
   enddo
 

@@ -14,7 +14,7 @@ subroutine jt9fano(i1SoftSymbols,limit,nlim,msg)
   real*4 xx0(0:255)
 
   logical first
-  integer*4 mettab(0:255,0:1)
+  integer*4 mettab(-128:127,0:1)
   data first/.true./
   data xx0/                                                      & !Metric table
         1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000,  &
@@ -54,17 +54,21 @@ subroutine jt9fano(i1SoftSymbols,limit,nlim,msg)
   if(first) then
 ! Get the metric table
      bias=0.5
-     scale=10
+     scale=50
+     ndelta=nint(3.4*scale)
+     ib=160                          !Break point
+     slope=2                         !Slope beyond break
      do i=0,255
-        mettab(i,0)=nint(scale*(xx0(i)-bias))
-        if(i.ge.1) mettab(256-i,1)=mettab(i,0)
+        mettab(i-128,0)=nint(scale*(xx0(i)-bias))
+        if(i.gt.ib) mettab(i-128,0)=mettab(ib-128,0) - slope*(i-ib)
+        if(i.ge.1) mettab(128-i,1)=mettab(i-128,0)
      enddo
+     mettab(-128,1)=mettab(-127,1)
      first=.false.
   endif
 
   msg='                      '
   nbits=72
-  ndelta=17
   call fano232(i1SoftSymbols,nbits+31,mettab,ndelta,limit,i1DecodedBytes,   &
        ncycles,metric,ierr)
 

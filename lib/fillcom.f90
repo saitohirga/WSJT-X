@@ -31,6 +31,7 @@ subroutine fillcom(nutc0,ndepth0,nrxfreq,mode,tx9,flow,fsplit,fhigh)
     nmode=mode
   end if
   datetime="2013-Apr-16 15:13"
-  
+  if(mode.eq.9 .and. nfsplit.ne.2700) nfa=nfsplit
+
   return
 end subroutine fillcom
