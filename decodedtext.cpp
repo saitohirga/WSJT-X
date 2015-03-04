@@ -50,7 +50,7 @@ int DecodedText::snr()
 */
 
 // find and extract any report. Returns true if this is a standard message
-bool DecodedText::report(const QString myCall, /*mod*/QString& report)
+bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /*mod*/QString& report)
 {
     QString msg=_string.mid(column_qsoText);
     int i1=msg.indexOf("\r");
@@ -59,10 +59,16 @@ bool DecodedText::report(const QString myCall, /*mod*/QString& report)
     bool b = stdmsg_(msg.mid(0,22).toLatin1().constData(),22);  // stdmsg is a fortran routine that packs the text, unpacks it and compares the result
 
     QStringList w=msg.split(" ",QString::SkipEmptyParts);
-    if(b and w[0]==myCall)
+    if(b && (w[0] == myBaseCall
+             || w[0].endsWith ("/" + myBaseCall)
+             || w[0].startsWith (myBaseCall + "/")
+             || (w.size () > 1 && !dxBaseCall.isEmpty ()
+                 && (w[1] == dxBaseCall
+                     || w[1].endsWith ("/" + dxBaseCall)
+                     || w[1].startsWith (dxBaseCall + "/")))))
     {
         QString tt="";
-        if(w.length()>=3) tt=w[2];
+        if(w.size() > 2) tt=w[2];
         bool ok;
         i1=tt.toInt(&ok);
         if (ok and i1>=-50 and i1<50)
