@@ -53,8 +53,18 @@
          <property name="title">
           <string>Station Details</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_10">
-          <item>
+         <layout class="QGridLayout" name="gridLayout_13">
+          <item row="0" column="3">
+           <widget class="QLabel" name="grid_label">
+            <property name="text">
+             <string>M&amp;y Grid:</string>
+            </property>
+            <property name="buddy">
+             <cstring>grid_line_edit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
            <widget class="QLabel" name="callsign_label">
             <property name="text">
              <string>My C&amp;all:</string>
@@ -64,14 +74,21 @@
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="4">
+           <widget class="QLineEdit" name="grid_line_edit">
+            <property name="toolTip">
+             <string>Maidenhead locator (only the first four characters are required).</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
            <widget class="QLineEdit" name="callsign_line_edit">
             <property name="toolTip">
              <string>Station callsign.</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="2">
            <spacer name="horizontalSpacer_4">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -84,20 +101,44 @@
             </property>
            </spacer>
           </item>
-          <item>
-           <widget class="QLabel" name="grid_label">
-            <property name="text">
-             <string>M&amp;y Grid:</string>
+          <item row="1" column="4">
+           <widget class="QComboBox" name="type_2_msg_gen_combo_box">
+            <property name="enabled">
+             <bool>true</bool>
             </property>
-            <property name="buddy">
-             <cstring>grid_line_edit</cstring>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Type 2 compound callsigns are those with prefixes or suffixes not included in the allowed shortlist (See Help-&amp;gt;Add-on prefixes and suffixes).&lt;/p&gt;&lt;p&gt;This option determines which generated messages should contain your full type 2 compound call sign rather than your base callsign. It only applies if you have a type 2 compound callsign.&lt;/p&gt;&lt;p&gt;This option controls the way the messages that are used to answer CQ calls are generated. Generated messages 6 (CQ) and 5 (73) will always contain your full callsign. The JT65 and JT9 protocols allow for some standard messages with your full call at the expense of another piece of information such as the DX call or your locator.&lt;/p&gt;&lt;p&gt;Choosing message 1 omits the DX callsign which may be an issue when replying to CQ calls. Choosing message 3 also omits the DX callsign and many versions of this and other software will not extract the report. Choosing neither means that your full callsign only goes in your message 5 (73) so your QSO partner my log the wrong callsign.&lt;/p&gt;&lt;p&gt;None of these options are perfect, message 3 is best but be aware your QSO partner may not log the report you send them.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
+            <property name="currentIndex">
+             <number>1</number>
+            </property>
+            <item>
+             <property name="text">
+              <string>Full call in Tx1</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Full call in Tx3</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Full call in Tx5 only</string>
+             </property>
+            </item>
            </widget>
           </item>
-          <item>
-           <widget class="QLineEdit" name="grid_line_edit">
-            <property name="toolTip">
-             <string>Maidenhead locator (only the first four characters are required).</string>
+          <item row="1" column="0" colspan="4">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Message generation for type 2 compound callsign holders:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy">
+             <cstring>type_2_msg_gen_combo_box</cstring>
             </property>
            </widget>
           </item>
@@ -1953,6 +1994,7 @@ soundcard changes</string>
   <tabstop>configuration_tabs</tabstop>
   <tabstop>callsign_line_edit</tabstop>
   <tabstop>grid_line_edit</tabstop>
+  <tabstop>type_2_msg_gen_combo_box</tabstop>
   <tabstop>insert_blank_check_box</tabstop>
   <tabstop>miles_check_box</tabstop>
   <tabstop>TX_messages_check_box</tabstop>
@@ -1961,6 +2003,7 @@ soundcard changes</string>
   <tabstop>decoded_text_font_push_button</tabstop>
   <tabstop>monitor_off_check_box</tabstop>
   <tabstop>monitor_last_used_check_box</tabstop>
+  <tabstop>tx_QSY_check_box</tabstop>
   <tabstop>quick_call_check_box</tabstop>
   <tabstop>tx_QSY_check_box</tabstop>
   <tabstop>disable_TX_on_73_check_box</tabstop>
@@ -2088,12 +2131,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
  </buttongroups>
 </ui>

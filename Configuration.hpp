@@ -54,7 +54,7 @@ class Configuration final
   : public QObject
 {
   Q_OBJECT;
-  Q_ENUMS (DataMode);
+  Q_ENUMS (DataMode Type2MsgGen);
 
 public:
   using MODE = Transceiver::MODE;
@@ -62,6 +62,7 @@ public:
   using Frequency = Radio::Frequency;
 
   enum DataMode {data_mode_none, data_mode_USB, data_mode_data};
+  enum Type2MsgGen {type_2_msg_1_full, type_2_msg_3_full, type_2_msg_5_only};
 
   explicit Configuration (QSettings * settings, QWidget * parent = nullptr);
   ~Configuration ();
@@ -113,6 +114,7 @@ public:
   unsigned jt9w_bw_mult () const;
   float jt9w_min_dt () const;
   float jt9w_max_dt () const;
+  Type2MsgGen type_2_msg_gen () const;
   QColor color_CQ () const;
   QColor color_MyCall () const;
   QColor color_TxMsg () const;
@@ -186,13 +188,17 @@ private:
 };
 
 Q_DECLARE_METATYPE (Configuration::DataMode);
+Q_DECLARE_METATYPE (Configuration::Type2MsgGen);
 
 #if !defined (QT_NO_DEBUG_STREAM)
 ENUM_QDEBUG_OPS_DECL (Configuration, DataMode);
+ENUM_QDEBUG_OPS_DECL (Configuration, Type2MsgGen);
 #endif
 
 ENUM_QDATASTREAM_OPS_DECL (Configuration, DataMode);
+ENUM_QDATASTREAM_OPS_DECL (Configuration, Type2MsgGen);
 
 ENUM_CONVERSION_OPS_DECL (Configuration, DataMode);
+ENUM_CONVERSION_OPS_DECL (Configuration, Type2MsgGen);
 
 #endif
