@@ -53,7 +53,7 @@
          <property name="title">
           <string>Station Details</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_13">
+         <layout class="QGridLayout" name="gridLayout_14">
           <item row="0" column="3">
            <widget class="QLabel" name="grid_label">
             <property name="text">
