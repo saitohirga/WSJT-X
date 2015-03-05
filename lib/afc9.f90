@@ -19,14 +19,12 @@ subroutine afc9(c3a,npts,fsample,a,syncpk)
   a3=a(3)
   do iter=1,4
      do j=1,nterms
-        if(a(3).ne.a3) c3=cshift(c3a,nint(a(3)))
-        a3=a(3)
+        if(a(3).ne.a3) call shft(c3a,a(3),a3,c3)
         chisq1=fchisq(c3,npts,fsample,a)
         fn=0.
         delta=deltaa(j)
 10      a(j)=a(j)+delta
-        if(a(3).ne.a3) c3=cshift(c3a,nint(a(3)))
-        a3=a(3)
+        if(a(3).ne.a3) call shft(c3a,a(3),a3,c3)
         chisq2=fchisq(c3,npts,fsample,a)
         if(chisq2.eq.chisq1) go to 10
         if(chisq2.gt.chisq1) then
@@ -38,8 +36,7 @@ subroutine afc9(c3a,npts,fsample,a,syncpk)
         endif
 20      fn=fn+1.0
         a(j)=a(j)+delta
-        if(a(3).ne.a3) c3=cshift(c3a,nint(a(3)))
-        a3=a(3)
+        if(a(3).ne.a3) call shft(c3a,a(3),a3,c3)
         chisq3=fchisq(c3,npts,fsample,a)
         if(chisq3.lt.chisq2) then
            chisq1=chisq2
@@ -54,8 +51,7 @@ subroutine afc9(c3a,npts,fsample,a,syncpk)
 !        write(*,4000) iter,j,a,-chisq2
 !4000    format(i1,i2,3f10.4,f11.3)
      enddo
-     if(a(3).ne.a3) c3=cshift(c3a,nint(a(3)))
-     a3=a(3)
+     if(a(3).ne.a3) call shft(c3a,a(3),a3,c3)
      chisqr=fchisq(c3,npts,fsample,a)
      if(chisqr/chisqr0.gt.0.99) exit
      chisqr0=chisqr
@@ -68,3 +64,16 @@ subroutine afc9(c3a,npts,fsample,a,syncpk)
 
   return
 end subroutine afc9
+
+subroutine shft(c3a,a3a,a3,c3)
+  complex c3a(0:1359)
+  complex  c3(0:1359)
+
+  a3=a3a
+  n=nint(a3)
+  c3=cshift(c3a,n)
+  if(n.gt.0) c3(1360-n:)=0.0
+  if(n.lt.0) c3(:n-1)=0.0
+
+  return
+end subroutine shft
