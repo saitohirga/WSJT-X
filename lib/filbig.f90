@@ -78,7 +78,6 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
      call fftwf_execute_dft_r2c(plan1,rca,ca)
      call timer('FFTbig  ',1)
 
-     call timer('flatten ',0)
      ib=0
      do j=1,NSZ
         ia=ib+1
@@ -86,7 +85,6 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
         fac=sqrt(min(30.0,1.0/ref(j)))
         ca(ia:ib)=fac*conjg(ca(ia:ib))
      enddo
-     call timer('flatten ',1)
      newdat=0
   endif
 
