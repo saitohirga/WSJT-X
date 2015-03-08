@@ -463,6 +463,7 @@ MainWindow::~MainWindow()
   QByteArray cfname=fname.toLocal8Bit();
   fftwf_export_wisdom_to_filename(cfname);
   m_audioThread->wait ();
+  delete ui, ui = 0;
 }
 
 //-------------------------------------------------------- writeSettings()
