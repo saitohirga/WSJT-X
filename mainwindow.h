@@ -170,6 +170,7 @@ private:
 //    double  m_IQamp;
 //    double  m_IQphase;
     double  m_cal570;
+    double  m_TxOffset;
 
     bool    m_monitoring;
     bool    m_transmitting;

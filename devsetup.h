@@ -30,6 +30,7 @@ public:
 
   double  m_fAdd;
   double  m_cal570;
+  double  m_TxOffset;
 
   bool    m_xpolx;
   bool    m_network;
@@ -78,8 +79,8 @@ private slots:
   void on_sbBlue3_valueChanged(int arg1);
   void on_pushButton_5_clicked();
   void on_mult570TxSpinBox_valueChanged(int arg1);
-
-  void on_rbIQXT_toggled(bool checked);
+  void on_rbIQXT_toggled(bool checked);  
+  void on_sbTxOffset_valueChanged(double f);
 
 private:
   int r,g,b,r0,g0,b0,r1,g1,b1,r2,g2,b2,r3,g3,b3;

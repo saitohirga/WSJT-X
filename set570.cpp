@@ -88,6 +88,11 @@ void sweepm_freq(void);
 
 int set570(double freq_MHz)
 {
+//###
+//  qDebug() << "A" << freq_MHz;
+//  if(freq_MHz != 999.0) return 0;
+//###
+
   char * my_usbSerialID = NULL;
 
 // MAIN MENU DIALOG

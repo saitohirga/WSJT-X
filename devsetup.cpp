@@ -109,6 +109,7 @@ void DevSetup::initDlg()
   ui.mult570SpinBox->setValue(m_mult570);
   ui.mult570TxSpinBox->setValue(m_mult570Tx);
   ui.cal570SpinBox->setValue(m_cal570);
+  ui.sbTxOffset->setValue(m_TxOffset);
   sscanf(m_colors.toLatin1(),"%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x",
          &r,&g,&b,&r0,&g0,&b0,&r1,&g1,&b1,&r2,&g2,&b2,&r3,&g3,&b3);
   updateColorLabels();
@@ -178,6 +179,7 @@ void DevSetup::accept()
   m_mult570=ui.mult570SpinBox->value();
   m_mult570Tx=ui.mult570TxSpinBox->value();
   m_cal570=ui.cal570SpinBox->value();
+  m_TxOffset=ui.sbTxOffset->value();
 
   QDialog::accept();
 }
@@ -342,4 +344,11 @@ void DevSetup::on_rbIQXT_toggled(bool checked)
   m_bIQxt=checked;
   ui.mult570TxSpinBox->setEnabled(m_bIQxt);
   ui.label_25->setEnabled(m_bIQxt);
+  ui.sbTxOffset->setEnabled(m_bIQxt);
+  ui.label_26->setEnabled(m_bIQxt);
+}
+
+void DevSetup::on_sbTxOffset_valueChanged(double f)
+{
+  m_TxOffset=f;
 }

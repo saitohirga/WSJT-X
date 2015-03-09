@@ -255,6 +255,7 @@ MainWindow::MainWindow(QWidget *parent) :
   g_pWideGraph->m_mult570=m_mult570;
   g_pWideGraph->m_mult570Tx=m_mult570Tx;
   g_pWideGraph->m_cal570=m_cal570;
+  g_pWideGraph->m_TxOffset=m_TxOffset;
   if(m_initIQplus) g_pWideGraph->initIQplus();
 
 // Create "m_worked", a dictionary of all calls in wsjt.log
@@ -379,6 +380,7 @@ void MainWindow::writeSettings()
   settings.setValue("Mult570",m_mult570);
   settings.setValue("Mult570Tx",m_mult570Tx);
   settings.setValue("Cal570",m_cal570);
+  settings.setValue("TxOffset",m_TxOffset);
   settings.setValue("Colors",m_colors);
   settings.endGroup();
 }
@@ -471,6 +473,7 @@ void MainWindow::readSettings()
   m_mult570=settings.value("Mult570",2).toInt();
   m_mult570Tx=settings.value("Mult570Tx",1).toInt();
   m_cal570=settings.value("Cal570",0.0).toDouble();
+  m_TxOffset=settings.value("TxOffset",130.9).toDouble();
   m_colors=settings.value("Colors","000066ff0000ffff00969696646464").toString();
   settings.endGroup();
 
@@ -634,6 +637,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_initIQplus=m_initIQplus;
   dlg.m_bIQxt=m_bIQxt;
   dlg.m_cal570=m_cal570;
+  dlg.m_TxOffset=m_TxOffset;
   dlg.m_mult570=m_mult570;
   dlg.m_mult570Tx=m_mult570Tx;
   dlg.m_colors=m_colors;
@@ -673,6 +677,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     g_pMessages->setColors(m_colors);
     g_pBandMap->setColors(m_colors);
     m_cal570=dlg.m_cal570;
+    m_TxOffset=dlg.m_TxOffset;
     m_mult570Tx=dlg.m_mult570Tx;
     g_pWideGraph->m_mult570=m_mult570;
     g_pWideGraph->m_mult570Tx=m_mult570Tx;
@@ -1388,6 +1393,7 @@ void MainWindow::guiUpdate()
   static int iptt=0;
   static bool btxok0=false;
   static bool bTune0=false;
+  static bool bMonitoring0=false;
   static int nc0=1;
   static int nc1=1;
   static char msgsent[23];
@@ -1407,7 +1413,12 @@ void MainWindow::guiUpdate()
   double t2p=fmod(tsec,120.0/m_nfast);
   bool bTxTime = (t2p >= tx1) and (t2p < tx2);
 
-  if(bTune0 and !bTune) btxok=false;
+  if(bTune0 and !bTune) {
+    btxok=false;
+    m_monitoring=bMonitoring0;
+    soundInThread.setMonitoring(m_monitoring);
+  }
+  if(bTune and !bTune0) bMonitoring0=m_monitoring;
   bTune0=bTune;
 
   if(m_auto or bTune) {

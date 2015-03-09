@@ -360,7 +360,9 @@ void WideGraph::tx570()
   if(m_bForceCenterFreq) datcom_.fcenter=m_dForceCenterFreq;
   m_bIQxt=true;
   double f=ui->widePlot->txFreq();
-  double f1=m_mult570Tx*(1.0+0.000001*m_cal570) * f;
+//  double f1=m_mult570Tx*(1.0+0.000001*m_cal570) * f;
+  double f1=m_mult570Tx*(1.0+0.000001*m_cal570) * (f - m_TxOffset);
+
 #ifdef WIN32
   int iret=set570(f1);
   if(iret != 0) {

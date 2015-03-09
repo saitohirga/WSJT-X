@@ -21,6 +21,7 @@ public:
   qint32 m_mult570Tx;
   double m_dForceCenterFreq;
   double m_cal570;
+  double m_TxOffset;
 
   void   dataSink2(float s[], int nkhz, int ihsym, int ndiskdata,
                    uchar lstrong[]);
