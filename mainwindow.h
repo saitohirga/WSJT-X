@@ -386,7 +386,6 @@ private:
   void qsy(Frequency f);
   bool gridOK(QString g);
   bool shortList(QString callsign);
-  QString baseCall(QString t);
   void transmit (double snr = 99.);
   void rigFailure (QString const& reason, QString const& detail);
   void pskSetLocal ();

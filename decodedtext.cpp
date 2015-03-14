@@ -2,15 +2,29 @@
 #include <QDebug>
 #include "decodedtext.h"
 
-
-
 QString DecodedText::CQersCall()
 {
-    // extract the CQer's call   TODO: does this work with all call formats?  What about 'CQ DX'?
-    int s1 = 4 + _string.indexOf(" CQ ");
-    int s2 = _string.indexOf(" ",s1);
-    QString call = _string.mid(s1,s2-s1);
-    return call;
+    // extract the CQer's call   TODO: does this work with all call formats?
+  int s1;
+  int position;
+  if ((position = _string.indexOf (" CQ DX ")) >= 0)
+    {
+      s1 = 7 + position;
+    }
+  else if ((position = _string.indexOf (" CQ ")) >= 0)
+    {
+      s1 = 4 + position;
+    }
+  else if ((position = _string.indexOf (" DE ")) >= 0)
+    {
+      s1 = 4 + position;
+    }
+  else if ((position = _string.indexOf (" QRZ ")) >= 0)
+    {
+      s1 = 5 + position;
+    }
+  auto s2 = _string.indexOf (" ", s1);
+  return _string.mid (s1, s2 - s1);
 }
 
 
@@ -95,21 +109,22 @@ bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /
 // get the first text word, usually the call
 QString DecodedText::call()
 {
-    QString call = _string.mid(column_qsoText);
-    int i = call.indexOf(" ");
-    call = call.mid(0,i);
-    return call;
+  auto call = _string;
+  call = call.replace (" CQ DX ", " CQ_DX ").mid (column_qsoText);
+  int i = call.indexOf(" ");
+  return call.mid(0,i);
 }
 
 // get the second word, most likely the de call and the third word, most likely grid
 void DecodedText::deCallAndGrid(/*out*/QString& call, QString& grid)
 {
-    QString msg=_string.mid(column_qsoText);
-    int i1 = msg.indexOf(" ");
-    call = msg.mid(i1+1);
-    int i2 = call.indexOf(" ");
-    grid = call.mid(i2+1,4);
-    call = call.mid(0,i2);
+  auto msg = _string;
+  msg = msg.replace (" CQ DX ", " CQ_DX ").mid (column_qsoText);
+  int i1 = msg.indexOf(" ");
+  call = msg.mid(i1+1);
+  int i2 = call.indexOf(" ");
+  grid = call.mid(i2+1,4);
+  call = call.mid(0,i2);
 }
 
 int DecodedText::timeInSeconds()

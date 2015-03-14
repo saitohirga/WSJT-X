@@ -44,10 +44,7 @@ void DisplayText::_appendDXCCWorkedB4(DecodedText& t1, QString& bg,
                                       QColor color_DXCC,
                                       QColor color_NewCall)
 {
-    // extract the CQer's call   TODO: does this work with all call formats?  What about 'CQ DX'?
-    int s1 = 4 + t1.indexOf(" CQ ");
-    int s2 = t1.indexOf(" ",s1);
-    QString call = t1.mid(s1,s2-s1);
+    QString call = t1.CQersCall ();
 
     QString countryName;
     bool callWorkedBefore;
@@ -114,7 +111,7 @@ void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall,
 {
     QString bg="white";
     bool CQcall = false;
-    if (decodedText.indexOf(" CQ ") > 0)
+    if (decodedText.string ().contains (" CQ ") > 0 || decodedText.string ().contains (" CQ DX "))
     {
         CQcall = true;
         bg=color_CQ.name();
