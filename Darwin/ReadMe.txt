@@ -57,7 +57,7 @@ The install DMG includes an installer tool KVASD-installer that allows you to in
 KVASD into your WSJT-X application.  When you run KVASD-installer you must have a 
 functioning Internet connection since it downloads KVASD during the installation.
 
-Run KVASD-installer and review the license terms then use the "Choose target …" button
+Run KVASD-installer and review the license terms then use the "Choose target ..." button
 to select the WSJT-X application you have just installed then; click "Install" to inject
 KVASD into the WSJT-X application.
 
@@ -75,23 +75,23 @@ WSJT-X and your rig.   There are so many audio interfaces available that it is n
 possible to give detailed advice on selection.  If you have difficulties contact me.   
 Note the location of the Save Directory.  Decoded wave forms are located here.
 
-Look at the Reporting panel.  If you check the "Prompt me" box, a logging panel will 
-appear at the end of the QSO.  Two log files are provided in  
-Library/Application Support/WSJT-X.   These are a simple wsjtx.log file and 
-wsjtx_log.adi which is formatted for use with logging databases.  If you are using Yosemite, the Library folder is hidden.  Use Go on the Finder menu but hold down
-the alt key.  Library will then appear in the list of folders.  The "File" menu bar
-items include a button "Open log directory" to open the log directory in Finder
-for you, ready for processing by any logging application you use.
+Look at the Reporting panel.  If you check the "Prompt me" box, a logging panel will appear 
+at the end of the QSO.  Two log files are provided in Library/Application Support/WSJT-X.
+These are a simple wsjtx.log file and wsjtx_log.adi which is formatted for use with 
+logging databases.    The "File" menu bar items include a button "Open log directory" 
+to open the log directory in Finder for you, ready for processing by any logging 
+application you use.
 
 Finally, visit the Radio panel.  WSJT-X is most effective when operated with CAT 
 control.  You will need to install the relevant Mac driver for your rig.   This must 
-be located in the system driver directory  /dev.  I use a Prolific USB-Serial Adapter 
-to a Kenwood TS870s and the relevant driver is  /dev/tty.PL2303-00002226.   You 
-should install your driver and then re-launch WSJT-X. Return to the the Radio panel 
-in Preferences and insert the full name of your driver in the Serial Port panel.   
-Such as:  /dev/tty.PL2303-00002226 or whatever driver you have.  The /dev/ prefix 
-is mandatory.  Set the relevant communication parameters as required by your 
-transceiver.
+be located in the device driver directory  /dev. You should install your driver 
+and then re-launch WSJT-X. Return to the the Radio panel in Preferences and in 
+the "Serial port" panel select your driver from the list that is presented.   If 
+for some reason your driver is not shown, then insert the full name 
+of your driver in the Serial Port panel.   Such as:  /dev/tty.PL2303-00002226 or 
+whatever driver you have.  The /dev/ prefix is mandatory.  Set the relevant 
+communication parameters as required by your transceiver and click "Test CAT" to
+check.
 
 WSJT-X needs the Mac clock to be accurate.  Visit System Preferences > Date & Time 
 and make sure that date and time are set automatically.  The drop-down menu will 
