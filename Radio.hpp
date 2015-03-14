@@ -38,6 +38,13 @@ namespace Radio
   QString pretty_frequency_MHz_string (Frequency, QLocale const& = QLocale ());
   QString pretty_frequency_MHz_string (double, int scale, QLocale const& = QLocale ());
   QString pretty_frequency_MHz_string (FrequencyDelta, QLocale const& = QLocale ());
+
+  //
+  // Callsigns
+  //
+  bool is_callsign (QString const&);
+  bool is_compound_callsign (QString const&);
+  QString base_callsign (QString);
 }
 
 Q_DECLARE_METATYPE (Radio::Frequency);
