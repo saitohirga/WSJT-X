@@ -2212,6 +2212,10 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
 void MainWindow::lookup()                                       //lookup()
 {
   QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
+  if (hisCall.isEmpty ())
+    {
+      return;
+    }
   ui->dxCallEntry->setText(hisCall);
   QFile f {m_dataDir.absoluteFilePath ("CALL3.TXT")};
   if (f.open (QIODevice::ReadOnly | QIODevice::Text))
