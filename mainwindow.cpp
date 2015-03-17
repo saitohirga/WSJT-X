@@ -4,6 +4,7 @@
 
 #include <cinttypes>
 #include <cstdlib>
+#include <limits>
 
 #include <QThread>
 #include <QLineEdit>
@@ -92,7 +93,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_config (settings, this),
   m_wideGraph (new WideGraph (settings)),
   m_logDlg (new LogQSO (program_title (), settings, this)),
-  m_dialFreq {0},
+  m_dialFreq {std::numeric_limits<Radio::Frequency>::max ()},
   m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2, downSampleFactor),
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
   m_audioThread {new QThread},
