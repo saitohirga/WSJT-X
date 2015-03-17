@@ -282,7 +282,11 @@ private:
   bool    m_freeText;
   bool    m_quickCall;
   bool    m_73TxDisable;
-  bool    m_sent73;
+  bool    m_sentFirst73;
+  int     m_currentMessageType;
+  QString m_currentMessage;
+  int     m_lastMessageType;
+  QString m_lastMessageSent;
   bool    m_runaway;
   bool    m_bMultipleOK;
   bool    m_lockTxFreq;

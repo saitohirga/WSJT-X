@@ -50,6 +50,13 @@ namespace
 {
   Radio::Frequency constexpr default_frequency {14076000};
   QRegExp message_alphabet {"[- A-Za-z0-9+./?]*"};
+
+  bool message_is_73 (int type, QStringList const& msg_parts)
+  {
+    return type >= 0
+      && ((type < 6 && msg_parts.contains ("73"))
+          || (type == 6 && !msg_parts.filter ("73").isEmpty ()));
+  }
 }
 
 class BandAndFrequencyItemDelegate final
@@ -90,6 +97,9 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
   m_audioThread {new QThread},
   m_diskData {false},
+  m_sentFirst73 {false},
+  m_currentMessageType {-1},
+  m_lastMessageType {-1},
   m_appDir {QApplication::applicationDirPath ()},
   mem_jt9 {shdmem},
   psk_Reporter (new PSK_Reporter (this)),
@@ -330,7 +340,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_decodedText2=false;
   m_freeText=false;
   m_msErase=0;
-  m_sent73=false;
   m_watchdogLimit=7;
   m_repeatMsg=0;
   m_secBandChanged=0;
@@ -1580,25 +1589,36 @@ void MainWindow::guiUpdate()
     ba2msg(ba,message);
     //    ba2msg(ba,msgsent);
     int len1=22;
-    int ichk=0,itype=0;
+    int ichk=0;
+    if (m_lastMessageSent != m_currentMessage
+        || m_lastMessageType != m_currentMessageType)
+      {
+        m_lastMessageSent = m_currentMessage;
+        m_lastMessageType = m_currentMessageType;
+      }
+    m_currentMessageType = 0;
     if(m_modeTx=="JT9") genjt9_(message
                                 , &ichk
                                 , msgsent
                                 , const_cast<int *> (itone)
-                                , &itype
+                                , &m_currentMessageType
                                 , len1
                                 , len1);
     if(m_modeTx=="JT65") gen65_(message
                                 , &ichk
                                 , msgsent
                                 , const_cast<int *> (itone)
-                                , &itype
+                                , &m_currentMessageType
                                 , len1
                                 , len1);
     msgsent[22]=0;
-    QString t=QString::fromLatin1(msgsent);
-    if(m_tune) t="TUNE";
-    last_tx_label->setText("Last Tx:  " + t);
+    m_currentMessage = QString::fromLatin1(msgsent);
+    if (m_tune)
+      {
+        m_currentMessage = "TUNE";
+        m_currentMessageType = -1;
+      }
+    last_tx_label->setText("Last Tx:  " + m_currentMessage);
     if(m_restart) {
       QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append))
@@ -1606,7 +1626,7 @@ void MainWindow::guiUpdate()
           QTextStream out(&f);
           out << QDateTime::currentDateTimeUtc().toString("hhmm")
               << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz  " << m_modeTx
-              << ":  " << t << endl;
+              << ":  " << m_currentMessage << endl;
           f.close();
         }
       else
@@ -1615,17 +1635,18 @@ void MainWindow::guiUpdate()
         }
       if (m_config.TX_messages ())
         {
-          ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,
+          ui->decodedTextBrowser2->displayTransmittedText(m_currentMessage,m_modeTx,
                                 ui->TxFreqSpinBox->value(),m_config.color_TxMsg());
         }
     }
 
     auto t2 = QDateTime::currentDateTimeUtc ().toString ("hhmm");
     icw[0] = 0;
-    auto msg_parts = t.split (" ", QString::SkipEmptyParts);
-    m_sent73 = (itype < 6 && msg_parts.contains ("73"))
-      || (itype == 6 && t.contains ("73"));
-    if (m_sent73)
+    auto msg_parts = m_currentMessage.split (' ', QString::SkipEmptyParts);
+    auto is_73 = message_is_73 (m_currentMessageType, msg_parts);
+    m_sentFirst73 = is_73
+      && !message_is_73 (m_lastMessageType, m_lastMessageSent.split (' ', QString::SkipEmptyParts));
+    if (m_sentFirst73)
       {
         m_qsoStop=t2;
         if(m_config.id_after_73 ())
@@ -1636,10 +1657,10 @@ void MainWindow::guiUpdate()
           {
             logQSOTimer->start (0);
           }
-        if (m_config.disable_TX_on_73 ())
-          {
-            auto_tx_mode (false);
-          }
+      }
+    if (is_73 && m_config.disable_TX_on_73 ())
+      {
+        auto_tx_mode (false);
       }
 
     if(m_config.id_interval () >0) {
@@ -1650,7 +1671,7 @@ void MainWindow::guiUpdate()
       }
     }
 
-    if (itype < 6 && msg_parts.length() >= 3
+    if (m_currentMessageType < 6 && msg_parts.length() >= 3
        && (msg_parts[1] == m_config.my_callsign () || msg_parts[1] == m_baseCall))
       {
         int i1;
@@ -1673,15 +1694,14 @@ void MainWindow::guiUpdate()
                   }
               }
           }
-        qDebug () << "Report sent:" << m_rptSent;
       }
     m_restart=false;
   }
   else
     {
-      if (!m_auto && m_sent73)
+      if (!m_auto && m_sentFirst73)
         {
-          m_sent73 = false;
+          m_sentFirst73 = false;
           if (1 == ui->tabWidget->currentIndex())
             {
               ui->genMsg->setText(ui->tx6->text());
@@ -1717,7 +1737,7 @@ void MainWindow::guiUpdate()
               QTextStream out(&f);
               out << QDateTime::currentDateTimeUtc().toString("hhmm")
                   << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz  " << m_modeTx
-                  << ":  " << t << endl;
+                  << ":  " << m_currentMessage << endl;
               f.close();
             }
           else
@@ -2841,7 +2861,7 @@ void MainWindow::on_tuneButton_clicked (bool checked)
     } 
   else
     {
-      m_sent73=false;
+      m_sentFirst73=false;
       m_repeatMsg=0;
       on_monitorButton_clicked (true);
     }
