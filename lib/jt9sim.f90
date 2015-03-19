@@ -54,8 +54,8 @@ program jt9sim
   if(minutes.eq.30) nsps=252000
   if(nsps.eq.0) stop 'Bad value for minutes.'
 
-!  f0=1400.d0                         !Center frequency (Hz)
-  f0=3000.d0                         !Center frequency (Hz)
+  f0=1400.d0                         !Center frequency (Hz)
+!  f0=3000.d0                         !Center frequency (Hz)
 
 !  f0=1500.0
 !  if(minutes.eq.5)  f0=1100.
@@ -90,7 +90,7 @@ program jt9sim
      endif
 
      if(msg0.ne.'                      ') then
-        call genjt9(message,0,msgsent,i4tone,itext) !Encode message into tone #s
+        call genjt9(message,0,msgsent,i4tone,itype) !Encode message into tone #s
      endif
 
      rewind 12
@@ -99,7 +99,7 @@ program jt9sim
         if(msg0.eq.'                      ') then
            read(12,1004) message                !Use pre-generated message texts
 1004       format(a22)
-           call genjt9(message,msgsent,i4tone)
+           call genjt9(message,0,msgsent,i4tone,itype)
         endif
 
         f=f0
@@ -155,9 +155,7 @@ program jt9sim
         do i=1,206
            i4=-10
            if(i1Bits(i).eq.1) i4=10
-           i4=i4+128
-           if(i4.le.127) i1SoftSymbols(i)=i4
-           if(i4.ge.128) i1SoftSymbols(i)=i4-256
+           i1SoftSymbols(i)=i4
         enddo
         limit=1000
         call jt9fano(i1SoftSymbols,limit,nlim,msg)
