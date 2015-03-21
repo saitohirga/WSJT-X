@@ -2,10 +2,12 @@ program jt9sim
 
 ! Generate simulated data for testing of WSJT-X
 
+  use wavhdr
   parameter (NTMAX=120)
   parameter (NMAX=NTMAX*12000)
-  integer ihdr(11)
-  integer*2 iwave                  !Generated waveform (no noise)
+  type(hdr) h
+  integer*2 iwave(NMAX)                  !Generated waveform (no noise)
+  real*4 dat(NMAX)
   real*8 f0,f,dt,twopi,phi,dphi,baud,fspan,fsample,freq
   character msg*22,msg0*22,message*22,msgsent*22,arg*8,fname*11
 
@@ -15,7 +17,6 @@ program jt9sim
   integer*1 i1Bits(207)            !Encoded information-carrying bits
   integer*1 i1SoftSymbols(207)
   include 'jt9sync.f90'
-  common/acom/dat(NMAX),iwave(NMAX)
 
   nargs=iargc()
   if(nargs.ne.6) then
@@ -24,10 +25,12 @@ program jt9sim
      print*,' '
      print*,'Enter message = "" to use entries in msgs.txt.'
      print*,'Enter SNR = 0 to generate a range of SNRs.'
+     print*,'Enter SNR = 99 to generate a noiseless signal at frequency fspan'
      go to 999
   endif
 
-  call getarg(1,msg0)
+  call getarg(1,msg0)  
+  call fmtmsg(msg0,iz)
   message=msg0                       !Transmitted message
   call getarg(2,arg)
   read(arg,*) fspan                  !Total freq range (Hz)
@@ -38,7 +41,7 @@ program jt9sim
   call getarg(5,arg)
   read(arg,*) snrdb                  !S/N in dB (2500 hz reference BW)
   call getarg(6,arg)
-  read(arg,*) nfiles                 !Number of files
+  read(arg,*) nfiles                 !Number of files     
 
   rmsdb=25.
   rms=10.0**(0.05*rmsdb)
@@ -55,14 +58,16 @@ program jt9sim
   if(nsps.eq.0) stop 'Bad value for minutes.'
 
   f0=1400.d0                         !Center frequency (Hz)
+  if(snrdb.gt.90.0) f0=fspan
 !  f0=3000.d0                         !Center frequency (Hz)
 
 !  f0=1500.0
 !  if(minutes.eq.5)  f0=1100.
 !  if(minutes.eq.10) f0=1050.
 !  if(minutes.eq.30) f0=1025.
-  
-  ihdr=0                             !Temporary ###
+
+
+  h=default_header(12000,npts)  
   k=0                                !Silence compiler warning
 
   if(msg0(1:3).eq.'sin') read(msg0(4:),*) sinfreq
@@ -107,6 +112,7 @@ program jt9sim
         snrdbx=snrdb 
 !        snrdbx=snrdb + (ifile-1)*4.0
         sig=10.0**(0.05*snrdbx)
+        if(snrdb.gt.90.0) sig=1.0
         write(*,1020) ifile,isig,f,snrdbx,msgsent
 1020    format(i3,i4,f10.3,f7.1,2x,a22)
 
@@ -134,11 +140,11 @@ program jt9sim
         enddo
      enddo
 
-     do i=1,npts
-        iwave(i)=nint(rms*dat(i))
-     enddo
+     fac=32767.0/nsigs
+     if(snrdb.ge.90.0) iwave(1:npts)=nint(fac*dat(1:npts))
+     if(snrdb.lt.90.0) iwave(1:npts)=nint(rms*dat(1:npts))
 
-     write(10) ihdr,iwave(1:npts)
+     write(10) h,iwave(1:npts)
      close(10)
 
 ! We're done!  Now decode the data symbols from i4tone, as a test.
