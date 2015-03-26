@@ -540,7 +540,7 @@ quiet period when decoding is done.</string>
              <item>
               <widget class="QGroupBox" name="CAT_data_bits_group_box">
                <property name="toolTip">
-                <string>Number of data bits used to communicate with your radios CAT interface (nealy always 8).</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of data bits used to communicate with your radio's CAT interface (usually eight).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="title">
                 <string>Data Bits</string>
@@ -575,8 +575,7 @@ quiet period when decoding is done.</string>
              <item>
               <widget class="QGroupBox" name="CAT_stop_bits_group_box">
                <property name="toolTip">
-                <string>Number of stop bits used when communicating with your radios CAT interface
-(consult you radio manual for details).</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of stop bits used when communicating with your radio's CAT interface&lt;/p&gt;&lt;p&gt;(consult you radio's manual for details).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="title">
                 <string>Stop Bits</string>
@@ -611,7 +610,7 @@ quiet period when decoding is done.</string>
              <item>
               <widget class="QGroupBox" name="CAT_handshake_group_box">
                <property name="toolTip">
-                <string>Flow control protocol used between this computer and your radios CAT interface (usually &quot;None&quot; but some require &quot;Hardware&quot;).</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Flow control protocol used between this computer and your radio's CAT interface (usually &amp;quot;None&amp;quot; but some require &amp;quot;Hardware&amp;quot;).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="title">
                 <string>Handshake</string>
@@ -739,8 +738,7 @@ selected above.</string>
           <item row="0" column="0">
            <widget class="QRadioButton" name="PTT_VOX_radio_button">
             <property name="toolTip">
-             <string>No PTT activation, instead the radios automatic VOX is used to key the transmitter.
-Use this if you have no radio interface hardware.</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;No PTT activation, instead the radio's automatic VOX is used to key the transmitter.&lt;/p&gt;&lt;p&gt;Use this if you have no radio interface hardware.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>VO&amp;X</string>
@@ -753,11 +751,7 @@ Use this if you have no radio interface hardware.</string>
           <item row="0" column="1">
            <widget class="QRadioButton" name="PTT_DTR_radio_button">
             <property name="toolTip">
-             <string>Use the RS-232 DTR control line to toggle your radios PTT,
-requires hardware to inteface the line.
-Some commercial interface units also use this method.
-The DTR control line of the CAT serial port may be used for this or
-a DTR control line on a different serial port may be used.</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the RS-232 DTR control line to toggle your radio's PTT,&lt;/p&gt;&lt;p&gt;requires hardware to inteface the line.&lt;/p&gt;&lt;p&gt;Some commercial interface units also use this method.&lt;/p&gt;&lt;p&gt;The DTR control line of the CAT serial port may be used for this or&lt;/p&gt;&lt;p&gt;a DTR control line on a different serial port may be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>&amp;DTR</string>
@@ -788,13 +782,7 @@ other hardware interface for PTT.</string>
           <item row="1" column="1">
            <widget class="QRadioButton" name="PTT_RTS_radio_button">
             <property name="toolTip">
-             <string>Use the RS-232 RTS control line to toggle your radios PTT,
-requires hardware to inteface the line.
-Some commercial interface units also use this method.
-The RTS control line of the CAT serial port may be used for this or
-a RTS control line on a different serial port may be used.
-Note that this options is not available on the CAT serial port
-when hardware flow control is used.</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the RS-232 RTS control line to toggle your radio's PTT,&lt;/p&gt;&lt;p&gt;requires hardware to inteface the line.&lt;/p&gt;&lt;p&gt;Some commercial interface units also use this method.&lt;/p&gt;&lt;p&gt;The RTS control line of the CAT serial port may be used for this or&lt;/p&gt;&lt;p&gt;a RTS control line on a different serial port may be used.&lt;/p&gt;&lt;p&gt;Note that this options is not available on the CAT serial port&lt;/p&gt;&lt;p&gt;when hardware flow control is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>R&amp;TS</string>
@@ -828,13 +816,7 @@ when hardware flow control is used.</string>
                </sizepolicy>
               </property>
               <property name="toolTip">
-               <string>Select the RS-232 serial port utilised for PTT control,
-this option is available when DTR or RTS is selected above
-as a transmit method.
-This port can be the same one as the one used for CAT control.
-For some interface types the special value CAT may be choosen,
-this is used for non-serial CAT interfaces that can control
-serial port control lines remotely (OmniRig for example).</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the RS-232 serial port utilised for PTT control,&lt;/p&gt;&lt;p&gt;this option is available when DTR or RTS is selected above&lt;/p&gt;&lt;p&gt;as a transmit method.&lt;/p&gt;&lt;p&gt;This port can be the same one as the one used for CAT control.&lt;/p&gt;&lt;p&gt;For some interface types the special value CAT may be chosen,&lt;/p&gt;&lt;p&gt;this is used for non-serial CAT interfaces that can control&lt;/p&gt;&lt;p&gt;serial port control lines remotely (OmniRig for example).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="editable">
                <bool>true</bool>
@@ -867,9 +849,7 @@ serial port control lines remotely (OmniRig for example).</string>
           <item row="0" column="1">
            <widget class="QRadioButton" name="mode_USB_radio_button">
             <property name="toolTip">
-             <string>USB is the usually the correct modulation mode,
-unless the radio has a special data or packet mode setting
-for AFSK operation.</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;USB is usually the correct modulation mode,&lt;/p&gt;&lt;p&gt;unless the radio has a special data or packet mode setting&lt;/p&gt;&lt;p&gt;for AFSK operation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>US&amp;B</string>
@@ -2131,12 +2111,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
  </buttongroups>
 </ui>
