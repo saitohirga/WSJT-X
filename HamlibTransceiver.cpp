@@ -266,7 +266,8 @@ void HamlibTransceiver::do_start ()
 
   error_check (rig_open (rig_.data ()), tr ("opening connection to rig"));
 
-  if (!is_dummy_)
+  if (!is_dummy_ && rig_->caps->set_split_vfo) // if split is possible
+                                              // do some extra setup
     {
       freq_t f1;
       freq_t f2;
@@ -442,7 +443,7 @@ auto HamlibTransceiver::get_vfos () const -> std::tuple<vfo_t, vfo_t>
 
       reversed_ = RIG_VFO_B == v;
     }
-  else if (rig_->caps->set_vfo)
+  else if (rig_->caps->set_vfo && rig_->caps->set_split_vfo)
     {
       // use VFO A/MAIN for main frequency and B/SUB for Tx
       // frequency if split since these type of radios can only
