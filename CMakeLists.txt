@@ -383,18 +383,49 @@ set (all_C_and_CXXSRCS
   ${all_CXXSRCS}
   )
 
+set (TOP_LEVEL_RESOURCES
+  shortcuts.txt
+  mouse_commands.txt
+  prefixes.txt
+  cty.dat
+  kvasd.dat
+  )
+
+set (PALETTE_FILES
+  Palettes/Banana.pal
+  Palettes/Blue1.pal
+  Palettes/Blue2.pal
+  Palettes/Blue3.pal
+  Palettes/Brown.pal
+  Palettes/Cyan1.pal
+  Palettes/Cyan2.pal
+  Palettes/Cyan3.pal
+  Palettes/Default.pal
+  Palettes/Digipan.pal
+  Palettes/Fldigi.pal
+  Palettes/Gray1.pal
+  Palettes/Gray2.pal
+  Palettes/Green1.pal
+  Palettes/Green2.pal
+  Palettes/Jungle.pal
+  Palettes/Linrad.pal
+  Palettes/Negative.pal
+  Palettes/Orange.pal
+  Palettes/Pink.pal
+  Palettes/Rainbow.pal
+  Palettes/Scope.pal
+  Palettes/Sunburst.pal
+  Palettes/VK4BDJ.pal
+  Palettes/YL2KF.pal
+  Palettes/Yellow1.pal
+  Palettes/Yellow2.pal
+  Palettes/ZL1FZ.pal
+)
+
 set (SAMPLE_FILES
   samples/130418_1742.wav
   samples/130610_2343.wav
   )
-
-if (WSJT_EMBED_SAMPLES)
-  foreach (SAMPLE ${SAMPLE_FILES})
-    set (SAMPLE_PATHS "${SAMPLE_PATHS}\n    <file alias=\"samples/${SAMPLE}\">${CMAKE_SOURCE_DIR}/${SAMPLE}</file>")
-  endforeach (SAMPLE ${SAMPLE_FILES})
-endif (WSJT_EMBED_SAMPLES)
-
-configure_file (wsjtx.qrc.in wsjtx.qrc @ONLY)
 
 if (APPLE)
   set (WSJTX_ICON_FILE ${CMAKE_PROJECT_NAME}.icns)
@@ -686,6 +717,26 @@ if (CMAKE_HOST_UNIX)
 elseif (CMAKE_HOST_WIN32)
   add_definitions (-DWIN32)
 endif ()
+
+
+# embedded resources
+function (add_resources resources path)
+  foreach (resource_file_ ${ARGN})
+    get_filename_component (name_ ${resource_file_} NAME)
+    file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/${resource_file_} source_)
+    file (TO_NATIVE_PATH ${path}/${name_} dest_)
+    set (resources_ "${resources_}\n    <file alias=\"${dest_}\">${source_}</file>")
+    set (${resources} ${${resources}}${resources_} PARENT_SCOPE)
+  endforeach (resource_file_ ${ARGN})
+endfunction (add_resources resources path)
+
+add_resources (wsjtx_RESOURCES "" ${TOP_LEVEL_RESOURCES})
+add_resources (wsjtx_RESOURCES /Palettes ${PALETTE_FILES})
+if (WSJT_EMBED_SAMPLES)
+  add_resources (wsjtx_RESOURCES /samples ${SAMPLE_FILES})
+endif (WSJT_EMBED_SAMPLES)
+
+configure_file (wsjtx.qrc.in wsjtx.qrc @ONLY)
 
 
 # UI generation
