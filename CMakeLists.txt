@@ -112,6 +112,7 @@ option (WSJT_TRACE_CAT_POLLS "Debugging option that turns on CAT diagnostics dur
 option (WSJT_HAMLIB_TRACE "Debugging option that turns on full Hamlib internal diagnostics.")
 option (WSJT_SOFT_KEYING "Apply a ramp to CW keying envelope to reduce transients." ON)
 option (WSJT_SKIP_MANPAGES "Skip *nix manpage generation.")
+option (WSJT_EMBED_SAMPLES "Embed sample files into WSJT-X resources." ON)
 
 CMAKE_DEPENDENT_OPTION (WSJT_QDEBUG_IN_RELEASE "Leave Qt debugging statements in Release configuration." OFF
   "NOT is_debug_build" OFF)
@@ -381,6 +382,19 @@ set (all_C_and_CXXSRCS
   ${wsjt_CSRCS}
   ${all_CXXSRCS}
   )
+
+set (SAMPLE_FILES
+  samples/130418_1742.wav
+  samples/130610_2343.wav
+  )
+
+if (WSJT_EMBED_SAMPLES)
+  foreach (SAMPLE ${SAMPLE_FILES})
+    set (SAMPLE_PATHS "${SAMPLE_PATHS}\n    <file alias=\"samples/${SAMPLE}\">${CMAKE_SOURCE_DIR}/${SAMPLE}</file>")
+  endforeach (SAMPLE ${SAMPLE_FILES})
+endif (WSJT_EMBED_SAMPLES)
+
+configure_file (wsjtx.qrc.in wsjtx.qrc @ONLY)
 
 if (APPLE)
   set (WSJTX_ICON_FILE ${CMAKE_PROJECT_NAME}.icns)
@@ -679,7 +693,7 @@ qt5_wrap_ui (wsjt_qt_GENUISRCS ${wsjt_qt_UISRCS})
 qt5_wrap_ui (wsjtx_GENUISRCS ${wsjtx_UISRCS})
 
 # Resource generation
-qt5_add_resources (wsjtx_RESOURCES_RCC wsjtx.qrc)
+qt5_add_resources (wsjtx_RESOURCES_RCC ${CMAKE_BINARY_DIR}/wsjtx.qrc)
 
 # AX COM servers
 if (WIN32)

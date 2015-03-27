@@ -1,0 +1,38 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file alias="shortcuts.txt">@CMAKE_SOURCE_DIR@/shortcuts.txt</file>
+    <file alias="mouse_commands.txt">@CMAKE_SOURCE_DIR@/mouse_commands.txt</file>
+    <file alias="prefixes.txt">@CMAKE_SOURCE_DIR@/prefixes.txt</file>
+    <file alias="cty.dat">@CMAKE_SOURCE_DIR@/cty.dat</file>
+    <file alias="kvasd.dat">@CMAKE_SOURCE_DIR@/kvasd.dat</file>
+    <file alias="Palettes/Banana.pal">@CMAKE_SOURCE_DIR@/Palettes/Banana.pal</file>
+    <file alias="Palettes/Blue1.pal">@CMAKE_SOURCE_DIR@/Palettes/Blue1.pal</file>
+    <file alias="Palettes/Blue2.pal">@CMAKE_SOURCE_DIR@/Palettes/Blue2.pal</file>
+    <file alias="Palettes/Blue3.pal">@CMAKE_SOURCE_DIR@/Palettes/Blue3.pal</file>
+    <file alias="Palettes/Brown.pal">@CMAKE_SOURCE_DIR@/Palettes/Brown.pal</file>
+    <file alias="Palettes/Cyan1.pal">@CMAKE_SOURCE_DIR@/Palettes/Cyan1.pal</file>
+    <file alias="Palettes/Cyan2.pal">@CMAKE_SOURCE_DIR@/Palettes/Cyan2.pal</file>
+    <file alias="Palettes/Cyan3.pal">@CMAKE_SOURCE_DIR@/Palettes/Cyan3.pal</file>
+    <file alias="Palettes/Default.pal">@CMAKE_SOURCE_DIR@/Palettes/Default.pal</file>
+    <file alias="Palettes/Digipan.pal">@CMAKE_SOURCE_DIR@/Palettes/Digipan.pal</file>
+    <file alias="Palettes/Fldigi.pal">@CMAKE_SOURCE_DIR@/Palettes/Fldigi.pal</file>
+    <file alias="Palettes/Gray1.pal">@CMAKE_SOURCE_DIR@/Palettes/Gray1.pal</file>
+    <file alias="Palettes/Gray2.pal">@CMAKE_SOURCE_DIR@/Palettes/Gray2.pal</file>
+    <file alias="Palettes/Green1.pal">@CMAKE_SOURCE_DIR@/Palettes/Green1.pal</file>
+    <file alias="Palettes/Green2.pal">@CMAKE_SOURCE_DIR@/Palettes/Green2.pal</file>
+    <file alias="Palettes/Jungle.pal">@CMAKE_SOURCE_DIR@/Palettes/Jungle.pal</file>
+    <file alias="Palettes/Linrad.pal">@CMAKE_SOURCE_DIR@/Palettes/Linrad.pal</file>
+    <file alias="Palettes/Negative.pal">@CMAKE_SOURCE_DIR@/Palettes/Negative.pal</file>
+    <file alias="Palettes/Orange.pal">@CMAKE_SOURCE_DIR@/Palettes/Orange.pal</file>
+    <file alias="Palettes/Pink.pal">@CMAKE_SOURCE_DIR@/Palettes/Pink.pal</file>
+    <file alias="Palettes/Rainbow.pal">@CMAKE_SOURCE_DIR@/Palettes/Rainbow.pal</file>
+    <file alias="Palettes/Scope.pal">@CMAKE_SOURCE_DIR@/Palettes/Scope.pal</file>
+    <file alias="Palettes/Sunburst.pal">@CMAKE_SOURCE_DIR@/Palettes/Sunburst.pal</file>
+    <file alias="Palettes/VK4BDJ.pal">@CMAKE_SOURCE_DIR@/Palettes/VK4BDJ.pal</file>
+    <file alias="Palettes/YL2KF.pal">@CMAKE_SOURCE_DIR@/Palettes/YL2KF.pal</file>
+    <file alias="Palettes/Yellow1.pal">@CMAKE_SOURCE_DIR@/Palettes/Yellow1.pal</file>
+    <file alias="Palettes/Yellow2.pal">@CMAKE_SOURCE_DIR@/Palettes/Yellow2.pal</file>
+    <file alias="Palettes/ZL1FZ.pal">@CMAKE_SOURCE_DIR@/Palettes/ZL1FZ.pal</file>
+    @SAMPLE_PATHS@
+</qresource>
+</RCC>
