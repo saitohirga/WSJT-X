@@ -388,7 +388,6 @@ set (TOP_LEVEL_RESOURCES
   mouse_commands.txt
   prefixes.txt
   cty.dat
-  kvasd.dat
   )
 
 set (PALETTE_FILES

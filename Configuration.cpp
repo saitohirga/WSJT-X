@@ -780,24 +780,6 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
       }
   }
 
-  // copy the kvasd.dat file used for inter-process communication with
-  // kvasd from the resources file system to the temporary directory
-  QString kvasd_data_file {"kvasd.dat"};
-  if (!temp_dir_.exists (kvasd_data_file))
-    {
-      auto dest_file = temp_dir_.absoluteFilePath (kvasd_data_file);
-      if (!QFile::copy (":/" + kvasd_data_file, dest_file))
-        {
-          QMessageBox::critical (this, "WSJT-X", tr ("Cannot copy: :/") + kvasd_data_file + tr (" to: ") + temp_dir_.absolutePath ());
-          throw std::runtime_error {"Failed to copy kvasd.dat to temporary directory"};
-        }
-      else
-        {
-          QFile {dest_file}.setPermissions (QFile::ReadOwner | QFile::WriteOwner);
-        }
-    }
-
-
   {
     // Find a suitable data file location
     QDir data_dir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)};
