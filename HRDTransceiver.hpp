@@ -15,6 +15,7 @@
 
 class QRegExp;
 class QTcpSocket;
+class QByteArray;
 
 //
 // Ham Radio Deluxe Transceiver Interface
@@ -52,6 +53,7 @@ protected:
 
 private:
   QString send_command (QString const&, bool no_debug = false, bool prepend_context = true, bool recurse = false);
+  QByteArray read_reply (QString const& command);
   void send_simple_command (QString const&, bool no_debug = false);
   bool write_to_port (char const *, qint64 length);
   int find_button (QRegExp const&) const;
