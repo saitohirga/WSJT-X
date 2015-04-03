@@ -273,7 +273,7 @@ void HamlibTransceiver::do_start ()
       freq_t f2;
       rmode_t m {RIG_MODE_USB};
       rmode_t mb;
-      pbwidth_t w {rig_passband_wide (rig_.data (), m)};
+      pbwidth_t w {RIG_PASSBAND_NORMAL};
       pbwidth_t wb;
       if (!rig_->caps->get_vfo && (rig_->caps->set_vfo || rig_has_vfo_op (rig_.data (), RIG_OP_TOGGLE)))
         {
@@ -584,7 +584,7 @@ void HamlibTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
 #if WSJT_TRACE_CAT
                   qDebug () << "HamlibTransceiver::do_tx_frequency rig_set_split_mode mode = " << rig_strrmode (new_mode);
 #endif
-                  error_check (rig_set_split_mode (rig_.data (), RIG_VFO_CURR, new_mode, rig_passband_wide (rig_.data (), new_mode)), tr ("setting split TX VFO mode"));
+                  error_check (rig_set_split_mode (rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NORMAL), tr ("setting split TX VFO mode"));
 
                   // do this again as setting the mode may change the frequency
                   error_check (rig_set_split_freq (rig_.data (), RIG_VFO_CURR, tx), tr ("setting split TX frequency"));
@@ -644,7 +644,7 @@ void HamlibTransceiver::do_mode (MODE mode, bool rationalise)
 #if WSJT_TRACE_CAT
           qDebug () << "HamlibTransceiver::do_mode rig_set_mode mode = " << rig_strrmode (new_mode);
 #endif
-          error_check (rig_set_mode (rig_.data (), RIG_VFO_CURR, new_mode, rig_passband_wide (rig_.data (), new_mode)), tr ("setting current VFO mode"));
+          error_check (rig_set_mode (rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NORMAL), tr ("setting current VFO mode"));
         }
       
       if (state ().split () && rationalise)
@@ -663,7 +663,7 @@ void HamlibTransceiver::do_mode (MODE mode, bool rationalise)
               qDebug () << "HamlibTransceiver::do_mode rig_set_split_mode mode = " << rig_strrmode (new_mode);
 #endif
               hamlib_tx_vfo_fixup fixup (rig_.data (), tx_vfo);
-              error_check (rig_set_split_mode (rig_.data (), RIG_VFO_CURR, new_mode, rig_passband_wide (rig_.data (), new_mode)), tr ("setting split TX VFO mode"));
+              error_check (rig_set_split_mode (rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NORMAL), tr ("setting split TX VFO mode"));
             }
         }
     }
