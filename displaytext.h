@@ -13,6 +13,7 @@ class DisplayText : public QTextEdit
 public:
     explicit DisplayText(QWidget *parent = 0);
 
+    void setContentFont (QFont const&);
     void insertLineSpacer();
     void displayDecodedText(DecodedText decodedText, QString myCall, bool displayDXCCEntity,
                             LogBook logBook, QColor color_CQ, QColor color_MyCall,
