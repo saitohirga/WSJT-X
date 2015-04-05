@@ -2,6 +2,9 @@
 #include <QDebug>
 #include <QMouseEvent>
 #include <QDateTime>
+#include <QTextCharFormat>
+#include <QFont>
+#include <QTextCursor>
 
 #include "qt_helpers.hpp"
 
@@ -12,6 +15,20 @@ DisplayText::DisplayText(QWidget *parent) :
 {
     setReadOnly (true);
     viewport ()->setCursor (Qt::ArrowCursor);
+}
+
+void DisplayText::setContentFont(QFont const& font)
+{
+  document ()->setDefaultFont (font);
+  QTextCharFormat format;
+  format.setFont (font);
+  selectAll ();
+  auto cursor = textCursor ();
+  cursor.mergeCharFormat (format);
+  cursor.clearSelection ();
+  cursor.movePosition (QTextCursor::End);
+  setTextCursor (cursor);
+  ensureCursorVisible ();
 }
 
 void DisplayText::mouseDoubleClickEvent(QMouseEvent *e)
@@ -36,6 +53,7 @@ void DisplayText::_insertText(const QString text, const QString bg)
     moveCursor (QTextCursor::End);
     append (s);
     moveCursor (QTextCursor::End);
+    ensureCursorVisible ();
 }
 
 
