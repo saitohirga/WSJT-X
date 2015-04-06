@@ -65,7 +65,7 @@ public:
 
   // Load and store contents.
   StationList& operator = (Stations);
-  Stations stations ();
+  Stations stations () const;
 
   //
   // Model API
@@ -83,6 +83,10 @@ private:
   pimpl<impl> m_;
 };
 
+#if !defined (QT_NO_DEBUG_STREAM)
+QDebug operator << (QDebug debug, StationList::Station const&);
+#endif
+
 // Station equivalence
 inline
 bool operator == (StationList::Station const& lhs, StationList::Station const& rhs)
@@ -94,9 +98,5 @@ bool operator == (StationList::Station const& lhs, StationList::Station const& r
 
 Q_DECLARE_METATYPE (StationList::Station);
 Q_DECLARE_METATYPE (StationList::Stations);
-
-#if !defined (QT_NO_DEBUG_STREAM)
-QDebug operator << (QDebug debug, StationList::Station const&);
-#endif
 
 #endif

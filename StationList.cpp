@@ -119,7 +119,6 @@ StationList::StationList (Bands const * bands, Stations stations, QObject * pare
   : QSortFilterProxyModel {parent}
   , m_ {bands, stations, parent}
 {
-  // setDynamicSortFilter (true);
   setSourceModel (&*m_);
   setSortRole (SortRole);
 }
@@ -134,9 +133,8 @@ StationList& StationList::operator = (Stations stations)
   return *this;
 }
 
-auto StationList::stations () -> Stations
+auto StationList::stations () const -> Stations
 {
-  submit ();
   return m_->stations ();
 }
 
@@ -432,6 +430,7 @@ bool StationList::impl::setData (QModelIndex const& model_index, QVariant const&
 
         case 2:
           stations_[row].antenna_description_ = value.toString ();
+          qDebug () << "stations edited:" << stations_;
           Q_EMIT dataChanged (model_index, model_index, roles);
           changed = true;
           break;

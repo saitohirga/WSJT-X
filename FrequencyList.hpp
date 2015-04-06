@@ -41,7 +41,7 @@ public:
 
   // Load and store contents
   FrequencyList& operator = (Frequencies);
-  Frequencies frequencies ();
+  Frequencies frequencies () const;
 
   // Model API
   QModelIndex add (Frequency);
