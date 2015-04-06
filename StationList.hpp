@@ -44,7 +44,7 @@ class StationList final
 public:
   using Frequency = Radio::Frequency;
   using FrequencyDelta = Radio::FrequencyDelta;
-  
+
   //
   // Struct Station
   //
@@ -56,7 +56,7 @@ public:
     FrequencyDelta offset_;
     QString antenna_description_;
   };
-  
+
   using Stations = QList<Station>;
 
   explicit StationList (Bands const * bands, QObject * parent = nullptr);
@@ -65,7 +65,7 @@ public:
 
   // Load and store contents.
   StationList& operator = (Stations);
-  Stations stations () const;
+  Stations stations ();
 
   //
   // Model API
@@ -77,20 +77,26 @@ public:
 
   // Custom sort role.
   static int constexpr SortRole = Qt::UserRole;
-  
+
 private:
   class impl;
   pimpl<impl> m_;
 };
 
-// Station equivalence is based on band name alone.
+// Station equivalence
 inline
 bool operator == (StationList::Station const& lhs, StationList::Station const& rhs)
 {
-  return lhs.band_name_ == rhs.band_name_;
+  return lhs.band_name_ == rhs.band_name_
+    && lhs.offset_ == rhs.offset_
+    && lhs.antenna_description_ == rhs.antenna_description_;
 }
 
 Q_DECLARE_METATYPE (StationList::Station);
 Q_DECLARE_METATYPE (StationList::Stations);
+
+#if !defined (QT_NO_DEBUG_STREAM)
+QDebug operator << (QDebug debug, StationList::Station const&);
+#endif
 
 #endif
