@@ -1490,6 +1490,13 @@ void Configuration::impl::accept ()
     {
       return;			// not accepting
     }
+
+  QDialog::accept();            // do this before accessing custom
+                                // models so that any changes in
+                                // delegates in views get flushed to
+                                // the underlying models before we
+                                // access them
+
   sync_transceiver (true);	// force an update
 
   //
@@ -1637,8 +1644,6 @@ void Configuration::impl::accept ()
     }
  
   write_settings ();		// make visible to all
-
-  QDialog::accept();
 }
 
 void Configuration::impl::reject ()

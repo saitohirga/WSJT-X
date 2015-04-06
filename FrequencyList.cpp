@@ -58,7 +58,6 @@ FrequencyList::FrequencyList (Frequencies frequencies, QObject * parent)
   : QSortFilterProxyModel {parent}
   , m_ {frequencies, parent}
 {
-  // setDynamicSortFilter (true);
   setSourceModel (&*m_);
   setSortRole (SortRole);
 }
@@ -73,9 +72,8 @@ FrequencyList& FrequencyList::operator = (Frequencies frequencies)
   return *this;
 }
 
-auto FrequencyList::frequencies () -> Frequencies
+auto FrequencyList::frequencies () const -> Frequencies
 {
-  submit ();
   return m_->frequencies ();
 }
 
