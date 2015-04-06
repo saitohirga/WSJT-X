@@ -19,6 +19,7 @@ class ForeignKeyDelegate final
 public:
   explicit ForeignKeyDelegate (QAbstractItemModel const * referencing_model
                                , QAbstractItemModel * referenced_model
+                               , int referencing_key_column = 0
                                , int referenced_key_column = 0
                                , QObject * parent = nullptr
                                , int referencing_key_role = Qt::EditRole

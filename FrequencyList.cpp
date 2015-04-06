@@ -73,8 +73,9 @@ FrequencyList& FrequencyList::operator = (Frequencies frequencies)
   return *this;
 }
 
-auto FrequencyList::frequencies () const -> Frequencies
+auto FrequencyList::frequencies () -> Frequencies
 {
+  submit ();
   return m_->frequencies ();
 }
 
@@ -213,7 +214,7 @@ QVariant FrequencyList::impl::data (QModelIndex const& index, int role) const
             case Qt::AccessibleTextRole:
               item = frequency;
               break;
-	      
+
             case Qt::ToolTipRole:
             case Qt::AccessibleDescriptionRole:
               item = tr ("Frequency");
@@ -237,7 +238,7 @@ QVariant FrequencyList::impl::data (QModelIndex const& index, int role) const
             case SortRole:	// use the underlying Frequency value
               item = frequency;
               break;
-	      
+
             case Qt::ToolTipRole:
             case Qt::AccessibleDescriptionRole:
               item = tr ("Frequency MHz");

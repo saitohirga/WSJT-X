@@ -184,6 +184,7 @@ set (wsjt_qt_CXXSRCS
   StationList.cpp
   FrequencyLineEdit.cpp
   FrequencyItemDelegate.cpp
+  CandidateKeyFilter.cpp
   ForeignKeyDelegate.cpp
   LiveFrequencyValidator.cpp
   GetUserId.cpp

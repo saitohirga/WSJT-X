@@ -134,8 +134,9 @@ StationList& StationList::operator = (Stations stations)
   return *this;
 }
 
-auto StationList::stations () const -> Stations
+auto StationList::stations () -> Stations
 {
+  submit ();
   return m_->stations ();
 }
 
@@ -307,7 +308,7 @@ QVariant StationList::impl::data (QModelIndex const& index, int role) const
             case Qt::AccessibleTextRole:
               item = stations_.at (row).band_name_;
               break;
-	      
+
             case Qt::ToolTipRole:
             case Qt::AccessibleDescriptionRole:
               item = tr ("Band name");

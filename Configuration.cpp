@@ -155,12 +155,14 @@
 #include <QFontDialog>
 #include <QColorDialog>
 #include <QSerialPortInfo>
+#include <QScopedPointer>
 #include <QDebug>
 
 #include "qt_helpers.hpp"
 #include "SettingsGroup.hpp"
 #include "FrequencyLineEdit.hpp"
 #include "FrequencyItemDelegate.hpp"
+#include "CandidateKeyFilter.hpp"
 #include "ForeignKeyDelegate.hpp"
 #include "TransceiverFactory.hpp"
 #include "Transceiver.hpp"
@@ -240,13 +242,13 @@ class StationDialog final
   : public QDialog
 {
 public:
-  explicit StationDialog (Bands * bands, QWidget * parent = nullptr)
+  explicit StationDialog (StationList const * stations, Bands * bands, QWidget * parent = nullptr)
     : QDialog {parent}
-    , bands_ {bands}
+    , filtered_bands_ {new CandidateKeyFilter {stations, bands}}
   {
     setWindowTitle (QApplication::applicationName () + " - " + tr ("Add Station"));
 
-    band_.setModel (bands_);
+    band_.setModel (filtered_bands_.data ());
       
     auto form_layout = new QFormLayout ();
     form_layout->addRow (tr ("&Band:"), &band_);
@@ -273,8 +275,14 @@ public:
     return {band_.currentText (), delta_.frequency_delta (), description_.text ()};
   }
 
+  int exec () override
+  {
+    filtered_bands_->set_active_key ();
+    return QDialog::exec ();
+  }
+
 private:
-  Bands * bands_;
+  QScopedPointer<CandidateKeyFilter> filtered_bands_;
 
   QComboBox band_;
   FrequencyDeltaLineEdit delta_;
@@ -724,7 +732,7 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   , stations_ {&bands_}
   , next_stations_ {&bands_}
   , frequency_dialog_ {new FrequencyDialog {this}}
-  , station_dialog_ {new StationDialog {&bands_, this}}
+  , station_dialog_ {new StationDialog {&next_stations_, &bands_, this}}
   , rig_active_ {false}
   , have_rig_ {false}
   , rig_changed_ {false}
@@ -922,7 +930,7 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   ui_->stations_table_view->setModel (&next_stations_);
   ui_->stations_table_view->sortByColumn (0, Qt::AscendingOrder);
   ui_->stations_table_view->setColumnWidth (1, 150);
-  ui_->stations_table_view->setItemDelegateForColumn (0, new ForeignKeyDelegate {&next_stations_, &bands_, 0, this});
+  ui_->stations_table_view->setItemDelegateForColumn (0, new ForeignKeyDelegate {&next_stations_, &bands_, 0, 0, this});
   ui_->stations_table_view->setItemDelegateForColumn (1, new FrequencyDeltaItemDelegate {this});
 
   station_delete_action_ = new QAction {tr ("&Delete"), ui_->stations_table_view};
