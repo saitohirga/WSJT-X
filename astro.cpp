@@ -12,8 +12,10 @@
 #include <QFontDialog>
 #include <QStandardPaths>
 #include <QDir>
+#include <QDebug>
 
 #include "commons.h"
+#include "qt_helpers.hpp"
 
 #include "ui_astro.h"
 
@@ -27,8 +29,8 @@ Astro::Astro(QSettings * settings, QWidget * parent)
   ui_->setupUi(this);
 
   setWindowFlags (Qt::Dialog | Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint);
-
   setWindowTitle(QApplication::applicationName () + " - " + tr ("Astronomical Data"));
+  setStyleSheet ("QWidget {background: cyan;}");
 
   read_settings ();
 
@@ -56,7 +58,7 @@ void Astro::read_settings ()
   QFont font;
   if (font.fromString (settings_->value ("font", ui_->text_label->font ().toString ()).toString ()))
     {
-      ui_->text_label->setFont (font);
+      ui_->text_label->setStyleSheet ("QLabel {" + font_as_stylesheet (font) + '}');
       adjustSize ();
     }
   settings_->endGroup ();
@@ -73,18 +75,22 @@ void Astro::write_settings ()
 void Astro::on_font_push_button_clicked (bool /* checked */)
 {
   bool changed;
-  ui_->text_label->setFont (QFontDialog::getFont (&changed
-                                                  , ui_->text_label->font ()
-                                                  , this
-                                                  , tr ("WSJT-X Astro Text Font Chooser")
+  auto ss = styleSheet ();
+  setStyleSheet ("");
+  auto font = QFontDialog::getFont (&changed
+                                    , ui_->text_label->font ()
+                                    , this
+                                    , tr ("WSJT-X Astro Text Font Chooser")
 #if QT_VERSION >= 0x050201
-                                                  , QFontDialog::MonospacedFonts
+                                    , QFontDialog::MonospacedFonts
 #endif
-                                                  ));
+                                    );
   if (changed)
     {
+      ui_->text_label->setStyleSheet ("QLabel {" + font_as_stylesheet (font) + '}');
       adjustSize ();
     }
+  setStyleSheet (ss);
 }
 
 void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
