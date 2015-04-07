@@ -54,7 +54,7 @@ void DisplayText::_insertText(const QString text, const QString bg)
     auto cursor = textCursor ();
     cursor.movePosition (QTextCursor::End);
     auto pos = cursor.position ();
-    insertHtml (s);
+    cursor.insertHtml (s);
     cursor.setPosition (pos, QTextCursor::MoveAnchor);
     cursor.movePosition (QTextCursor::End, QTextCursor::KeepAnchor);
     cursor.mergeCharFormat (m_charFormat);
