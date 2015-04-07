@@ -35,6 +35,7 @@ private:
     void _appendDXCCWorkedB4(/*mod*/DecodedText& t1, QString &bg, LogBook logBook,
                  QColor color_CQ, QColor color_DXCC, QColor color_NewCall);
 
+  QTextCharFormat m_charFormat;
 };
 
 #endif // DISPLAYTEXT_H

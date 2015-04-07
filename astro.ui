@@ -17,9 +17,7 @@
    </sizepolicy>
   </property>
   <property name="styleSheet">
-   <string notr="true">QWidget {
-	background: cyan;
-}</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="leftMargin">
@@ -42,11 +40,10 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <family>Courier</family>
-       <pointsize>18</pointsize>
-      </font>
+     <property name="styleSheet">
+      <string notr="true">QLabel {
+font: 18pt &quot;Courier&quot;;
+}</string>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Sunken</enum>

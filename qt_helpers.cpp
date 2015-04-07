@@ -14,11 +14,11 @@ QString font_as_stylesheet (QFont const& font)
     case QFont::Bold: font_weight = "bold"; break;
     case QFont::Black: font_weight = "black"; break;
     }
-  return QString {"* {\n"
+  return QString {
       " font-family: %1;\n"
       " font-size: %2pt;\n"
       " font-style: %3;\n"
-      " font-weight: %4;}\n"}
+      " font-weight: %4;\n"}
   .arg (font.family ())
      .arg (font.pointSize ())
      .arg (font.styleName ())

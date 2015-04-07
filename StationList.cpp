@@ -430,7 +430,6 @@ bool StationList::impl::setData (QModelIndex const& model_index, QVariant const&
 
         case 2:
           stations_[row].antenna_description_ = value.toString ();
-          qDebug () << "stations edited:" << stations_;
           Q_EMIT dataChanged (model_index, model_index, roles);
           changed = true;
           break;

@@ -1,5 +1,5 @@
 #include "displaytext.h"
-#include <QDebug>
+
 #include <QMouseEvent>
 #include <QDateTime>
 #include <QTextCharFormat>
@@ -15,16 +15,17 @@ DisplayText::DisplayText(QWidget *parent) :
 {
     setReadOnly (true);
     viewport ()->setCursor (Qt::ArrowCursor);
+    setWordWrapMode (QTextOption::NoWrap);
+    setStyleSheet ("");
 }
 
 void DisplayText::setContentFont(QFont const& font)
 {
-  document ()->setDefaultFont (font);
-  QTextCharFormat format;
-  format.setFont (font);
+  setFont (font);
+  m_charFormat.setFont (font);
   selectAll ();
   auto cursor = textCursor ();
-  cursor.mergeCharFormat (format);
+  cursor.mergeCharFormat (m_charFormat);
   cursor.clearSelection ();
   cursor.movePosition (QTextCursor::End);
   setTextCursor (cursor);
@@ -49,10 +50,16 @@ void DisplayText::insertLineSpacer()
 void DisplayText::_insertText(const QString text, const QString bg)
 {
     QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-      bg + "\"><pre>" + text.trimmed () + "</pre></td></tr></table>";
-    moveCursor (QTextCursor::End);
-    append (s);
-    moveCursor (QTextCursor::End);
+      bg + "\">" + text.trimmed ().replace (' ', "&nbsp;") + "</td></tr></table>";
+    auto cursor = textCursor ();
+    cursor.movePosition (QTextCursor::End);
+    auto pos = cursor.position ();
+    insertHtml (s);
+    cursor.setPosition (pos, QTextCursor::MoveAnchor);
+    cursor.movePosition (QTextCursor::End, QTextCursor::KeepAnchor);
+    cursor.mergeCharFormat (m_charFormat);
+    cursor.clearSelection ();
+    setTextCursor (cursor);
     ensureCursorVisible ();
 }
 
