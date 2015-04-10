@@ -28,6 +28,11 @@ void DisplayText::setContentFont(QFont const& font)
   cursor.mergeCharFormat (m_charFormat);
   cursor.clearSelection ();
   cursor.movePosition (QTextCursor::End);
+
+  // position so viewport scrolled to left
+  cursor.movePosition (QTextCursor::Up);
+  cursor.movePosition (QTextCursor::StartOfLine);
+
   setTextCursor (cursor);
   ensureCursorVisible ();
 }
@@ -40,11 +45,9 @@ void DisplayText::mouseDoubleClickEvent(QMouseEvent *e)
   QTextEdit::mouseDoubleClickEvent(e);
 }
 
-void DisplayText::insertLineSpacer()
+void DisplayText::insertLineSpacer(QString const& line)
 {
-    QString tt="----------------------------------------";
-    QString bg="#d3d3d3";
-    _insertText(tt,bg);
+  _insertText (line, "#d3d3d3");
 }
 
 void DisplayText::_insertText(const QString text, const QString bg)
@@ -59,6 +62,11 @@ void DisplayText::_insertText(const QString text, const QString bg)
     cursor.movePosition (QTextCursor::End, QTextCursor::KeepAnchor);
     cursor.mergeCharFormat (m_charFormat);
     cursor.clearSelection ();
+
+    // position so viewport scrolled to left
+    cursor.movePosition (QTextCursor::Up);
+    cursor.movePosition (QTextCursor::StartOfLine);
+
     setTextCursor (cursor);
     ensureCursorVisible ();
 }

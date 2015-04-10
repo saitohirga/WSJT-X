@@ -1384,10 +1384,16 @@ void MainWindow::readFromStdout()                             //readFromStdout
             msgBox("Cannot open \"" + f.fileName () + "\" for append:" + f.errorString ());
           }
 
-        if(m_config.insert_blank () && m_blankLine)
+        if (m_config.insert_blank () && m_blankLine)
           {
-            ui->decodedTextBrowser->insertLineSpacer();
-            m_blankLine=false;
+            QString band;
+            if (QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged > 50)
+              {
+                auto const& bands_model = m_config.bands ();
+                band = ' ' + bands_model->data (bands_model->find (m_dialFreq + ui->TxFreqSpinBox->value ())).toString ();
+              }
+            ui->decodedTextBrowser->insertLineSpacer (band.rightJustified  (40, '-'));
+            m_blankLine = false;
           }
 
         DecodedText decodedtext;
@@ -2513,7 +2519,8 @@ void MainWindow::acceptQSO2(bool accepted)
 {
   if(accepted)
     {
-      QString band = ADIF::bandFromFrequency ((m_dialFreq + ui->TxFreqSpinBox->value ()) / 1.e6);
+      auto const& bands_model = m_config.bands ();
+      auto band = bands_model->data (bands_model->find (m_dialFreq + ui->TxFreqSpinBox->value ())).toString ();
       QString date = m_dateTimeQSO.toString("yyyy-MM-dd");
       date=date.mid(0,4) + date.mid(5,2) + date.mid(8,2);
       m_logBook.addAsWorked(m_hisCall,band,m_modeTx,date);
