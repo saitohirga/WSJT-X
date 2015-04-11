@@ -3,7 +3,6 @@
 #include "mainwindow.h"
 
 #include <cinttypes>
-#include <cstdlib>
 #include <limits>
 
 #include <QThread>
@@ -953,8 +952,12 @@ void MainWindow::displayDialFrequency ()
   bool valid {false};
   for (int row = 0; row < frequencies->rowCount (); ++row)
     {
+      // we need to do specific checks for above and below here to
+      // ensure that we can use unsigned Radio::Frequency since we
+      // potentially use the full 64-bit unsigned range.
       auto working_frequency = frequencies->data (frequencies->index (row, 0)).value<Frequency> ();
-      if (std::llabs (working_frequency - m_dialFreq) < 10000)
+      auto offset = m_dialFreq > working_frequency ? m_dialFreq - working_frequency : working_frequency - m_dialFreq;
+      if (offset < 10000u)
         {
           valid = true;
         }
