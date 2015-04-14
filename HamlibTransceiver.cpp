@@ -157,8 +157,8 @@ HamlibTransceiver::HamlibTransceiver (int model_number
                                       , TransceiverFactory::DataBits cat_data_bits
                                       , TransceiverFactory::StopBits cat_stop_bits
                                       , TransceiverFactory::Handshake cat_handshake
-                                      , bool cat_dtr_always_on
-                                      , bool cat_rts_always_on
+                                      , TransceiverFactory::LineControl cat_dtr_control
+                                      , TransceiverFactory::LineControl cat_rts_control
                                       , TransceiverFactory::PTTMethod ptt_type
                                       , TransceiverFactory::TXAudioSource back_ptt_port
                                       , QString const& ptt_port
@@ -193,13 +193,14 @@ HamlibTransceiver::HamlibTransceiver (int model_number
     case TransceiverFactory::handshake_hardware: set_conf ("serial_handshake", "Hardware"); break;
     }
 
-  if (cat_dtr_always_on)
+  if (TransceiverFactory::no_control != cat_dtr_control)
     {
-      set_conf ("dtr_state", "ON");
+      set_conf ("dtr_state", TransceiverFactory::force_high == cat_dtr_control ? "ON" : "OFF");
     }
-  if (TransceiverFactory::handshake_hardware != cat_handshake && cat_rts_always_on)
+  if (TransceiverFactory::handshake_hardware != cat_handshake
+      && TransceiverFactory::no_control != cat_rts_control)
     {
-      set_conf ("rts_state", "ON");
+      set_conf ("rts_state", TransceiverFactory::force_high == cat_rts_control ? "ON" : "OFF");
     }
 
   switch (ptt_type)

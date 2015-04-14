@@ -100,8 +100,8 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
                                                          , DataBits cat_data_bits
                                                          , StopBits cat_stop_bits
                                                          , Handshake cat_handshake
-                                                         , bool cat_dtr_always_on
-                                                         , bool cat_rts_always_on
+                                                         , LineControl cat_dtr_control
+                                                         , LineControl cat_rts_control
                                                          , PTTMethod ptt_type
                                                          , TXAudioSource ptt_use_data_ptt
                                                          , SplitMode split_mode
@@ -124,8 +124,8 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
               , cat_data_bits
               , cat_stop_bits
               , cat_handshake
-              , cat_dtr_always_on
-              , cat_rts_always_on
+              , force_low
+              , force_low
               , ptt_type
               , ptt_use_data_ptt
               , "CAT" == ptt_port ? "" : ptt_port
@@ -156,8 +156,8 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
               , cat_data_bits
               , cat_stop_bits
               , cat_handshake
-              , cat_dtr_always_on
-              , cat_rts_always_on
+              , cat_dtr_control
+              , cat_rts_control
               , ptt_type
               , ptt_use_data_ptt
               , "CAT" == ptt_port ? "" : ptt_port
@@ -189,8 +189,8 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
               , cat_data_bits
               , cat_stop_bits
               , cat_handshake
-              , cat_dtr_always_on
-              , cat_rts_always_on
+              , cat_dtr_control
+              , cat_rts_control
               , ptt_type
               , ptt_use_data_ptt
               , "CAT" == ptt_port ? "" : ptt_port
@@ -221,8 +221,8 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
               , cat_data_bits
               , cat_stop_bits
               , cat_handshake
-              , cat_dtr_always_on
-              , cat_rts_always_on
+              , cat_dtr_control
+              , cat_rts_control
               , ptt_type
               , ptt_use_data_ptt
               , "CAT" == ptt_port ? "" : ptt_port
@@ -251,8 +251,8 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
             , cat_data_bits
             , cat_stop_bits
             , cat_handshake
-            , cat_dtr_always_on
-            , cat_rts_always_on
+            , cat_dtr_control
+            , cat_rts_control
             , ptt_type
             , ptt_use_data_ptt
             , "CAT" == ptt_port ? cat_port : ptt_port
@@ -282,6 +282,7 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
 ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, DataBits);
 ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, StopBits);
 ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, Handshake);
+ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, LineControl);
 ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, PTTMethod);
 ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, TXAudioSource);
 ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, SplitMode);
@@ -290,6 +291,7 @@ ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, SplitMode);
 ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, DataBits);
 ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, StopBits);
 ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, Handshake);
+ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, LineControl);
 ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, PTTMethod);
 ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, TXAudioSource);
 ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, SplitMode);
@@ -297,6 +299,7 @@ ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, SplitMode);
 ENUM_CONVERSION_OPS_IMPL (TransceiverFactory, DataBits);
 ENUM_CONVERSION_OPS_IMPL (TransceiverFactory, StopBits);
 ENUM_CONVERSION_OPS_IMPL (TransceiverFactory, Handshake);
+ENUM_CONVERSION_OPS_IMPL (TransceiverFactory, LineControl);
 ENUM_CONVERSION_OPS_IMPL (TransceiverFactory, PTTMethod);
 ENUM_CONVERSION_OPS_IMPL (TransceiverFactory, TXAudioSource);
 ENUM_CONVERSION_OPS_IMPL (TransceiverFactory, SplitMode);
