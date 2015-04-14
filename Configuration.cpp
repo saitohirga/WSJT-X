@@ -347,8 +347,9 @@ struct RigParams
   TransceiverFactory::DataBits CAT_data_bits_;
   TransceiverFactory::StopBits CAT_stop_bits_;
   TransceiverFactory::Handshake CAT_handshake_;
-  bool CAT_DTR_always_on_;
-  bool CAT_RTS_always_on_;
+  bool CAT_force_control_lines_;
+  bool CAT_DTR_high_;
+  bool CAT_RTS_high_;
   qint32 CAT_poll_interval_;
   TransceiverFactory::PTTMethod PTT_method_;
   QString PTT_port_;
@@ -424,6 +425,7 @@ private:
   Q_SLOT void on_split_mode_button_group_buttonClicked (int);
   Q_SLOT void on_test_CAT_push_button_clicked ();
   Q_SLOT void on_test_PTT_push_button_clicked ();
+  Q_SLOT void on_CAT_control_lines_group_box_toggled (bool);
   Q_SLOT void on_CAT_DTR_check_box_toggled (bool);
   Q_SLOT void on_CAT_RTS_check_box_toggled (bool);
   Q_SLOT void on_rig_combo_box_currentIndexChanged (int);
@@ -1028,8 +1030,9 @@ void Configuration::impl::initialise_models ()
   ui_->CAT_data_bits_button_group->button (rig_params_.CAT_data_bits_)->setChecked (true);
   ui_->CAT_stop_bits_button_group->button (rig_params_.CAT_stop_bits_)->setChecked (true);
   ui_->CAT_handshake_button_group->button (rig_params_.CAT_handshake_)->setChecked (true);
-  ui_->CAT_DTR_check_box->setChecked (rig_params_.CAT_DTR_always_on_);
-  ui_->CAT_RTS_check_box->setChecked (rig_params_.CAT_RTS_always_on_);
+  ui_->CAT_control_lines_group_box->setChecked (rig_params_.CAT_force_control_lines_);
+  ui_->CAT_DTR_check_box->setChecked (rig_params_.CAT_DTR_high_);
+  ui_->CAT_RTS_check_box->setChecked (rig_params_.CAT_RTS_high_);
   ui_->TX_audio_source_button_group->button (rig_params_.TX_audio_source_)->setChecked (true);
   ui_->CAT_poll_interval_spin_box->setValue (rig_params_.CAT_poll_interval_);
 
@@ -1190,8 +1193,9 @@ void Configuration::impl::read_settings ()
   rig_params_.CAT_data_bits_ = settings_->value ("CATDataBits", QVariant::fromValue (TransceiverFactory::eight_data_bits)).value<TransceiverFactory::DataBits> ();
   rig_params_.CAT_stop_bits_ = settings_->value ("CATStopBits", QVariant::fromValue (TransceiverFactory::two_stop_bits)).value<TransceiverFactory::StopBits> ();
   rig_params_.CAT_handshake_ = settings_->value ("CATHandshake", QVariant::fromValue (TransceiverFactory::handshake_none)).value<TransceiverFactory::Handshake> ();
-  rig_params_.CAT_DTR_always_on_ = settings_->value ("DTR", false).toBool ();
-  rig_params_.CAT_RTS_always_on_ = settings_->value ("RTS", false).toBool ();
+  rig_params_.CAT_force_control_lines_ = settings_->value ("CATForceControlLines", false).toBool ();
+  rig_params_.CAT_DTR_high_ = settings_->value ("DTR", false).toBool ();
+  rig_params_.CAT_RTS_high_ = settings_->value ("RTS", false).toBool ();
   rig_params_.PTT_method_ = settings_->value ("PTTMethod", QVariant::fromValue (TransceiverFactory::PTT_method_VOX)).value<TransceiverFactory::PTTMethod> ();
   rig_params_.TX_audio_source_ = settings_->value ("TXAudioSource", QVariant::fromValue (TransceiverFactory::TX_audio_source_front)).value<TransceiverFactory::TXAudioSource> ();
   rig_params_.PTT_port_ = settings_->value ("PTTport").toString ();
@@ -1278,8 +1282,9 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("73TxDisable", disable_TX_on_73_);
   settings_->setValue ("Runaway", watchdog_);
   settings_->setValue ("Tx2QSO", TX_messages_);
-  settings_->setValue ("DTR", rig_params_.CAT_DTR_always_on_);
-  settings_->setValue ("RTS", rig_params_.CAT_RTS_always_on_);
+  settings_->setValue ("CATForceControlLines", rig_params_.CAT_force_control_lines_);
+  settings_->setValue ("DTR", rig_params_.CAT_DTR_high_);
+  settings_->setValue ("RTS", rig_params_.CAT_RTS_high_);
   settings_->setValue ("TXAudioSource", QVariant::fromValue (rig_params_.TX_audio_source_));
   settings_->setValue ("Polling", rig_params_.CAT_poll_interval_);
   settings_->setValue ("SplitMode", QVariant::fromValue (rig_params_.split_mode_));
@@ -1294,6 +1299,8 @@ void Configuration::impl::set_rig_invariants ()
   auto CAT_PTT_enabled = transceiver_factory_.has_CAT_PTT (rig);
   auto CAT_indirect_serial_PTT = transceiver_factory_.has_CAT_indirect_serial_PTT (rig);
   auto asynchronous_CAT = transceiver_factory_.has_asynchronous_CAT (rig);
+  auto is_hw_handshake = ui_->CAT_handshake_group_box->isEnabled ()
+    && TransceiverFactory::handshake_hardware == static_cast<TransceiverFactory::Handshake> (ui_->CAT_handshake_button_group->checkedId ());
 
   ui_->test_CAT_push_button->setStyleSheet ({});
 
@@ -1305,51 +1312,54 @@ void Configuration::impl::set_rig_invariants ()
 
   bool is_serial_CAT (TransceiverFactory::Capabilities::serial == port_type);
 
-  if (port_type != last_port_type)
+  if (TransceiverFactory::basic_transceiver_name_ == rig)
     {
-      last_port_type = port_type;
-
-      switch (port_type)
+      ui_->CAT_control_group_box->setEnabled (false);
+    }
+  else
+    {
+      ui_->CAT_control_group_box->setEnabled (true);
+      if (port_type != last_port_type)
         {
-        case TransceiverFactory::Capabilities::serial:
-          fill_port_combo_box (ui_->CAT_port_combo_box);
-          ui_->CAT_port_combo_box->setCurrentText (rig_params_.CAT_serial_port_);
-          if (ui_->CAT_port_combo_box->currentText ().isEmpty () && ui_->CAT_port_combo_box->count ())
+          last_port_type = port_type;
+          switch (port_type)
             {
-              ui_->CAT_port_combo_box->setCurrentText (ui_->CAT_port_combo_box->itemText (0));
+            case TransceiverFactory::Capabilities::serial:
+              fill_port_combo_box (ui_->CAT_port_combo_box);
+              ui_->CAT_port_combo_box->setCurrentText (rig_params_.CAT_serial_port_);
+              if (ui_->CAT_port_combo_box->currentText ().isEmpty () && ui_->CAT_port_combo_box->count ())
+                {
+                  ui_->CAT_port_combo_box->setCurrentText (ui_->CAT_port_combo_box->itemText (0));
+                }
+              ui_->CAT_port_label->setText (tr ("Serial Port:"));
+              ui_->CAT_port_combo_box->setToolTip (tr ("Serial port used for CAT control"));
+              ui_->CAT_port_combo_box->setEnabled (true);
+              break;
+
+            case TransceiverFactory::Capabilities::network:
+              ui_->CAT_port_combo_box->setCurrentText (rig_params_.CAT_network_port_);
+              ui_->CAT_port_label->setText (tr ("Network Server:"));
+              ui_->CAT_port_combo_box->setToolTip (tr ("Optional hostname and port of network service.\n"
+                                                       "Leave blank for a sensible default on this machine.\n"
+                                                       "Formats:\n"
+                                                       "\thostname:port\n"
+                                                       "\tIPv4-address:port\n"
+                                                       "\t[IPv6-address]:port"));
+              ui_->CAT_port_combo_box->clear ();
+              ui_->CAT_port_combo_box->setEnabled (true);
+              break;
+
+            default:
+              ui_->CAT_port_combo_box->clear ();
+              ui_->CAT_port_combo_box->setEnabled (false);
+              break;
             }
-  
-          ui_->CAT_control_group_box->setEnabled (true);
-          ui_->CAT_port_label->setText (tr ("Serial Port:"));
-          ui_->CAT_port_combo_box->setToolTip (tr ("Serial port used for CAT control"));
-          break;
-
-        case TransceiverFactory::Capabilities::network:
-          ui_->CAT_port_combo_box->setCurrentText (rig_params_.CAT_network_port_);
-
-          ui_->CAT_control_group_box->setEnabled (true);
-          ui_->CAT_port_label->setText (tr ("Network Server:"));
-          ui_->CAT_port_combo_box->setToolTip (tr ("Optional hostname and port of network service.\n"
-                                                   "Leave blank for a sensible default on this machine.\n"
-                                                   "Formats:\n"
-                                                   "\thostname:port\n"
-                                                   "\tIPv4-address:port\n"
-                                                   "\t[IPv6-address]:port"));
-          break;
-
-        default:
-          ui_->CAT_port_combo_box->clear ();
-          ui_->CAT_control_group_box->setEnabled (false);
-          break;
         }
+      ui_->CAT_serial_port_parameters_group_box->setEnabled (is_serial_CAT);
+      ui_->CAT_control_lines_group_box->setEnabled (is_serial_CAT && !is_hw_handshake);
     }
 
   auto const& cat_port = ui_->CAT_port_combo_box->currentText ();
-
-  ui_->CAT_serial_port_parameters_group_box->setEnabled (is_serial_CAT);
-
-  auto is_hw_handshake = TransceiverFactory::handshake_hardware == static_cast<TransceiverFactory::Handshake> (ui_->CAT_handshake_button_group->checkedId ());
-  ui_->CAT_RTS_check_box->setEnabled (is_serial_CAT && !is_hw_handshake);
 
   ui_->TX_audio_source_group_box->setEnabled (transceiver_factory_.has_CAT_PTT_mic_data (rig) && TransceiverFactory::PTT_method_CAT == ptt_method);
 
@@ -1372,13 +1382,15 @@ void Configuration::impl::set_rig_invariants ()
                                         , CAT_indirect_serial_PTT ? combo_box_item_enabled : combo_box_item_disabled
                                         , Qt::UserRole - 1);
 
-  ui_->PTT_DTR_radio_button->setEnabled (!(ui_->CAT_DTR_check_box->isChecked ()
-                                           && ((is_serial_CAT && ptt_port == cat_port)
-                                               || ("CAT" == ptt_port && !CAT_indirect_serial_PTT))));
+  auto control_lines_available = !ui_->CAT_control_lines_group_box->isEnabled ()
+    || !ui_->CAT_control_lines_group_box->isChecked ();
+  ui_->PTT_DTR_radio_button->setEnabled (!(((is_serial_CAT && ptt_port == cat_port)
+                                          && !control_lines_available)
+                                           || ("CAT" == ptt_port && !CAT_indirect_serial_PTT)));
 
-  ui_->PTT_RTS_radio_button->setEnabled (!((ui_->CAT_RTS_check_box->isChecked () || is_hw_handshake)
-                                           && ((ptt_port == cat_port && is_serial_CAT)
-                                               || ("CAT" == ptt_port && !CAT_indirect_serial_PTT))));
+  ui_->PTT_RTS_radio_button->setEnabled (!(((is_serial_CAT && ptt_port == cat_port)
+                                            && (!control_lines_available || is_hw_handshake))
+                                           || ("CAT" == ptt_port && !CAT_indirect_serial_PTT)));
 }
 
 bool Configuration::impl::validate ()
@@ -1476,8 +1488,9 @@ void Configuration::impl::accept ()
   temp_rig_params.CAT_data_bits_ = static_cast<TransceiverFactory::DataBits> (ui_->CAT_data_bits_button_group->checkedId ());
   temp_rig_params.CAT_stop_bits_ = static_cast<TransceiverFactory::StopBits> (ui_->CAT_stop_bits_button_group->checkedId ());
   temp_rig_params.CAT_handshake_ = static_cast<TransceiverFactory::Handshake> (ui_->CAT_handshake_button_group->checkedId ());
-  temp_rig_params.CAT_DTR_always_on_ = ui_->CAT_DTR_check_box->isChecked ();
-  temp_rig_params.CAT_RTS_always_on_ = ui_->CAT_RTS_check_box->isChecked ();
+  temp_rig_params.CAT_force_control_lines_ = ui_->CAT_control_lines_group_box->isChecked ();
+  temp_rig_params.CAT_DTR_high_ = ui_->CAT_DTR_check_box->isChecked ();
+  temp_rig_params.CAT_RTS_high_ = ui_->CAT_RTS_check_box->isChecked ();
   temp_rig_params.CAT_poll_interval_ = ui_->CAT_poll_interval_spin_box->value ();
   temp_rig_params.PTT_method_ = static_cast<TransceiverFactory::PTTMethod> (ui_->PTT_method_button_group->checkedId ());
   temp_rig_params.PTT_port_ = ui_->PTT_port_combo_box->currentText ();
@@ -1825,6 +1838,11 @@ void Configuration::impl::on_test_PTT_push_button_clicked ()
                                             : "");
 }
 
+void Configuration::impl::on_CAT_control_lines_group_box_toggled (bool /* checked */)
+{
+  set_rig_invariants ();
+}
+
 void Configuration::impl::on_CAT_DTR_check_box_toggled (bool /* checked */)
 {
   set_rig_invariants ();
@@ -1984,14 +2002,21 @@ bool Configuration::impl::open_rig ()
       close_rig ();
 
       // create a new Transceiver object
+      TransceiverFactory::LineControl DTR {TransceiverFactory::no_control};
+      TransceiverFactory::LineControl RTS {TransceiverFactory::no_control};
+      if (ui_->CAT_control_lines_group_box->isChecked ())
+        {
+          DTR = ui_->CAT_DTR_check_box->isEnabled () && ui_->CAT_DTR_check_box->isChecked () ? TransceiverFactory::force_high : TransceiverFactory::force_low;
+          RTS = ui_->CAT_RTS_check_box->isEnabled () && ui_->CAT_RTS_check_box->isChecked () ? TransceiverFactory::force_high : TransceiverFactory::force_low;
+        }
       auto rig = transceiver_factory_.create (ui_->rig_combo_box->currentText ()
                                               , ui_->CAT_port_combo_box->currentText ()
                                               , ui_->CAT_serial_baud_combo_box->currentText ().toInt ()
                                               , static_cast<TransceiverFactory::DataBits> (ui_->CAT_data_bits_button_group->checkedId ())
                                               , static_cast<TransceiverFactory::StopBits> (ui_->CAT_stop_bits_button_group->checkedId ())
                                               , static_cast<TransceiverFactory::Handshake> (ui_->CAT_handshake_button_group->checkedId ())
-                                              , ui_->CAT_DTR_check_box->isChecked ()
-                                              , ui_->CAT_RTS_check_box->isChecked ()
+                                              , DTR
+                                              , RTS
                                               , static_cast<TransceiverFactory::PTTMethod> (ui_->PTT_method_button_group->checkedId ())
                                               , static_cast<TransceiverFactory::TXAudioSource> (ui_->TX_audio_source_button_group->checkedId ())
                                               , static_cast<TransceiverFactory::SplitMode> (ui_->split_mode_button_group->checkedId ())
@@ -2412,8 +2437,9 @@ bool operator != (RigParams const& lhs, RigParams const& rhs)
     || lhs.CAT_data_bits_ != rhs.CAT_data_bits_
     || lhs.CAT_stop_bits_ != rhs.CAT_stop_bits_
     || lhs.CAT_handshake_ != rhs.CAT_handshake_
-    || lhs.CAT_DTR_always_on_ != rhs.CAT_DTR_always_on_
-    || lhs.CAT_RTS_always_on_ != rhs.CAT_RTS_always_on_
+    || lhs.CAT_force_control_lines_ != rhs.CAT_force_control_lines_
+    || lhs.CAT_DTR_high_ != rhs.CAT_DTR_high_
+    || lhs.CAT_RTS_high_ != rhs.CAT_RTS_high_
     || lhs.CAT_poll_interval_ != rhs.CAT_poll_interval_
     || lhs.PTT_method_ != rhs.PTT_method_
     || lhs.PTT_port_ != rhs.PTT_port_

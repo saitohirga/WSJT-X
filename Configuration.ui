@@ -673,14 +673,17 @@ a few, particularly some Kenwood rigs, require it).</string>
                <property name="title">
                 <string>Force Control Lines</string>
                </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
                <layout class="QHBoxLayout" name="horizontalLayout_8">
                 <item>
                  <widget class="QCheckBox" name="CAT_DTR_check_box">
                   <property name="toolTip">
-                   <string>Force the DTR control line high on the CAT serial port.
-This is required for a few CAT interfaces that are powered
-from the DTR control line.
-Normally you should leave this unchecked.</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Force the DTR control linelow or high on the CAT serial port.&lt;/p&gt;&lt;p&gt;This is required for a few CAT interfaces that are powered&lt;/p&gt;&lt;p&gt;from the DTR control line.&lt;/p&gt;&lt;p&gt;Normally you should leave this unchecked.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="text">
                    <string>DTR</string>
@@ -690,12 +693,7 @@ Normally you should leave this unchecked.</string>
                 <item>
                  <widget class="QCheckBox" name="CAT_RTS_check_box">
                   <property name="toolTip">
-                   <string>Force the RTS control line high on the CAT serial port.
-This is required for a few CAT interfaces that are powered
-from the RTS control line.
-Normally you should leave this unchecked.
-This option is only available if Hardware handshaking is not
-selected above.</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Force the RTS control line low or high on the CAT serial port.&lt;/p&gt;&lt;p&gt;This is required for a few CAT interfaces that are powered&lt;/p&gt;&lt;p&gt;from the RTS control line.&lt;/p&gt;&lt;p&gt;Normally you should leave this unchecked.&lt;/p&gt;&lt;p&gt;This option is only available if Hardware handshaking is not&lt;/p&gt;&lt;p&gt;selected above.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="text">
                    <string>RTS</string>
@@ -2116,12 +2114,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
+  <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
  </buttongroups>
 </ui>

@@ -21,7 +21,7 @@ class TransceiverFactory
   : public QObject
 {
   Q_OBJECT;
-  Q_ENUMS (DataBits StopBits Handshake PTTMethod TXAudioSource SplitMode);
+  Q_ENUMS (DataBits StopBits Handshake LineControl PTTMethod TXAudioSource SplitMode);
 
 private:
   Q_DISABLE_COPY (TransceiverFactory);
@@ -70,6 +70,7 @@ public:
   enum DataBits {seven_data_bits = 7, eight_data_bits};
   enum StopBits {one_stop_bit = 1, two_stop_bits};
   enum Handshake {handshake_none, handshake_XonXoff, handshake_hardware};
+  enum LineControl {no_control, force_low, force_high};
   enum PTTMethod {PTT_method_VOX, PTT_method_CAT, PTT_method_DTR, PTT_method_RTS};
   enum TXAudioSource {TX_audio_source_front, TX_audio_source_rear};
   enum SplitMode {split_mode_none, split_mode_rig, split_mode_emulate};
@@ -93,8 +94,8 @@ public:
   // make a new Transceiver instance
   //
   // cat_port, cat_baud, cat_data_bits, cat_stop_bits, cat_handshake,
-  // cat_dtr_alway_on, cat_rts_always_on are only relevant to
-  // interfaces that are served by hamlib
+  // cat_dtr_control, cat_rts_control are only relevant to interfaces
+  // that are served by Hamlib
   //
   // PTT port and to some extent ptt_type are independent of interface
   // type
@@ -105,8 +106,8 @@ public:
                                        , DataBits cat_data_bits
                                        , StopBits cat_stop_bits
                                        , Handshake cat_handshake
-                                       , bool cat_dtr_always_on	// to power interface
-                                       , bool cat_rts_always_on	// to power inteface
+                                       , LineControl cat_dtr_control	// to power interface
+                                       , LineControl cat_rts_control	// to power inteface
                                        , PTTMethod ptt_type // "CAT" | "DTR" | "RTS" | "VOX"
                                        , TXAudioSource ptt_use_data_ptt	// some rigs allow audio routing to Mic/Data connector
                                        , SplitMode split_mode // how to support split TX mode
@@ -134,6 +135,7 @@ Q_DECLARE_METATYPE (TransceiverFactory::SplitMode);
 ENUM_QDEBUG_OPS_DECL (TransceiverFactory, DataBits);
 ENUM_QDEBUG_OPS_DECL (TransceiverFactory, StopBits);
 ENUM_QDEBUG_OPS_DECL (TransceiverFactory, Handshake);
+ENUM_QDEBUG_OPS_DECL (TransceiverFactory, LineControl);
 ENUM_QDEBUG_OPS_DECL (TransceiverFactory, PTTMethod);
 ENUM_QDEBUG_OPS_DECL (TransceiverFactory, TXAudioSource);
 ENUM_QDEBUG_OPS_DECL (TransceiverFactory, SplitMode);
@@ -142,6 +144,7 @@ ENUM_QDEBUG_OPS_DECL (TransceiverFactory, SplitMode);
 ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, DataBits);
 ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, StopBits);
 ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, Handshake);
+ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, LineControl);
 ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, PTTMethod);
 ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, TXAudioSource);
 ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, SplitMode);
@@ -149,6 +152,7 @@ ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, SplitMode);
 ENUM_CONVERSION_OPS_DECL (TransceiverFactory, DataBits);
 ENUM_CONVERSION_OPS_DECL (TransceiverFactory, StopBits);
 ENUM_CONVERSION_OPS_DECL (TransceiverFactory, Handshake);
+ENUM_CONVERSION_OPS_DECL (TransceiverFactory, LineControl);
 ENUM_CONVERSION_OPS_DECL (TransceiverFactory, PTTMethod);
 ENUM_CONVERSION_OPS_DECL (TransceiverFactory, TXAudioSource);
 ENUM_CONVERSION_OPS_DECL (TransceiverFactory, SplitMode);

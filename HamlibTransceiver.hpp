@@ -32,8 +32,8 @@ class HamlibTransceiver final
                               , TransceiverFactory::DataBits cat_data_bits
                               , TransceiverFactory::StopBits cat_stop_bits
                               , TransceiverFactory::Handshake cat_handshake
-                              , bool cat_dtr_always_on
-                              , bool cat_rts_always_on
+                              , TransceiverFactory::LineControl cat_dtr_control
+                              , TransceiverFactory::LineControl cat_rts_control
                               , TransceiverFactory::PTTMethod ptt_type
                               , TransceiverFactory::TXAudioSource back_ptt_port
                               , QString const& ptt_port
