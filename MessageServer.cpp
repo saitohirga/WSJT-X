@@ -1,9 +1,8 @@
 #include "MessageServer.hpp"
 
-#include <unordered_map>
-
 #include <QUdpSocket>
 #include <QTimer>
+#include <QHash>
 
 #include "NetworkMessage.hpp"
 #include "qt_helpers.hpp"
@@ -50,8 +49,7 @@ public:
     port_type sender_port_;
     QDateTime last_activity_;
   };
-  using client_hash = std::unordered_map<QString, Client>; // maps id to Client
-  client_hash clients_;
+  QHash<QString, Client> clients_; // maps id to Client
   QTimer * clock_;
 };
 
@@ -109,7 +107,7 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
 
   auto id = in.id ();
   bool new_client {false};
-  if (std::end (clients_) == clients_.find (id))
+  if (!clients_.contains (id))
     {
       new_client = true;
     }
@@ -196,7 +194,7 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
       if (check_status (in))
         {
           Q_EMIT self_->client_closed (id);
-          clients_.erase (id);
+          clients_.remove (id);
         }
       break;
 
@@ -209,17 +207,13 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
 void MessageServer::impl::tick ()
 {
   auto now = QDateTime::currentDateTime ();
-  for (auto iter = std::begin (clients_); iter != std::end (clients_);)
+  for (auto iter = std::begin (clients_); iter != std::end (clients_); ++iter)
     {
-      if (now > (*iter).second.last_activity_.addSecs (NetworkMessage::pulse))
+      if (now > (*iter).last_activity_.addSecs (NetworkMessage::pulse))
         {
-          Q_EMIT self_->clear_decodes ((*iter).first);
-          Q_EMIT self_->client_closed ((*iter).first);
-          iter = clients_.erase (iter);
-        }
-      else
-        {
-          ++iter;
+          Q_EMIT self_->clear_decodes (iter.key ());
+          Q_EMIT self_->client_closed (iter.key ());
+          clients_.erase (iter); // safe while iterating as doesn't rehash
         }
     }
 }
@@ -288,7 +282,7 @@ void MessageServer::reply (QString const& id, QTime time, qint32 snr, float delt
       out << time << snr << delta_time << delta_frequency << mode.toUtf8 () << message_text.toUtf8 ();
       if (m_->check_status (out))
         {
-          m_->writeDatagram (message, (*iter).second.sender_address_, (*iter).second.sender_port_);
+          m_->writeDatagram (message, iter.value ().sender_address_, (*iter).sender_port_);
         }
     }
 }
@@ -302,7 +296,7 @@ void MessageServer::replay (QString const& id)
       NetworkMessage::Builder out {&message, NetworkMessage::Replay, id};
       if (m_->check_status (out))
         {
-          m_->writeDatagram (message, (*iter).second.sender_address_, (*iter).second.sender_port_);
+          m_->writeDatagram (message, iter.value ().sender_address_, (*iter).sender_port_);
         }
     }
 }
