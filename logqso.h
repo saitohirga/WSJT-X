@@ -10,6 +10,8 @@
 
 #include <QScopedPointer>
 
+#include "Radio.hpp"
+
 namespace Ui {
   class LogQSO;
 }
@@ -25,15 +27,18 @@ public:
   ~LogQSO();
   void initLogQSO(QString hisCall, QString hisGrid, QString mode,
                   QString rptSent, QString rptRcvd, QDateTime dateTime,
-                  double dialFreq, QString myCall, QString myGrid,
+                  Radio::Frequency dialFreq, QString myCall, QString myGrid,
                   bool noSuffix, bool toRTTY, bool dBtoComments);
 
 public slots:
   void accept();
-  void reject();
 
 signals:
-  void acceptQSO(bool accepted);
+  void acceptQSO (QDateTime const&, QString const& call, QString const& grid
+                  , Radio::Frequency dial_freq, QString const& mode
+                  , QString const& rpt_sent, QString const& rpt_received
+                  , QString const& tx_power, QString const& comments
+                  , QString const& name);
 
 protected:
   void hideEvent (QHideEvent *);
@@ -46,7 +51,7 @@ private:
   QSettings * m_settings;
   QString m_txPower;
   QString m_comments;
-  double m_dialFreq;
+  Radio::Frequency m_dialFreq;
   QString m_myCall;
   QString m_myGrid;
   QDateTime m_dateTime;

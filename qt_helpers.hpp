@@ -2,13 +2,17 @@
 #define QT_HELPERS_HPP_
 
 #include <stdexcept>
+#include <functional>
 
 #include <QDataStream>
 #include <QMetaObject>
+#include <QMetaType>
 #include <QMetaEnum>
 #include <QString>
 #include <QByteArray>
 #include <QDebug>
+#include <QHostAddress>
+#include <QHash>
 
 #define ENUM_QDATASTREAM_OPS_DECL(CLASS, ENUM)				\
   QDataStream& operator << (QDataStream&, CLASS::ENUM);			\
@@ -60,6 +64,24 @@
     return QString {mo.enumerator (mo.indexOfEnumerator (#ENUM)).valueToKey (m)}; \
   }
 
+namespace std
+{
+	/*
+   * std::hash specialization for QString so it can be used
+   * as a key in std::unordered_map
+   */
+	template<class Key> struct hash;
+	template<> struct hash<QString>
+  {
+    typedef QString Key;
+    typedef uint result_type;
+    inline uint operator () (const QString &s) const
+    {
+      return qHash (s);
+    }
+	};
+}
+
 inline
 void throw_qstring (QString const& qs)
 {
@@ -67,5 +89,8 @@ void throw_qstring (QString const& qs)
 }
 
 QString font_as_stylesheet (QFont const&);
+
+// Register some useful Qt types with QMetaType
+Q_DECLARE_METATYPE (QHostAddress);
 
 #endif

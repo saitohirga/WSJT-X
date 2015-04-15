@@ -198,6 +198,8 @@ set (wsjt_qt_CXXSRCS
   HamlibTransceiver.cpp
   HRDTransceiver.cpp
   DXLabSuiteCommanderTransceiver.cpp
+  NetworkMessage.cpp
+  MessageClient.cpp
   )
 
 set (jt9_CXXSRCS
@@ -372,11 +374,17 @@ set (wsjtx_UISRCS
   Configuration.ui
   )
 
+set (message_aggregator_CXXSRCS
+  MessageServer.cpp
+  MessageAggregator.cpp
+  )
+
 set (all_CXXSRCS
   ${wsjt_CXXSRCS}
   ${wsjt_qt_CXXSRCS}
   ${jt9_CXXSRCS}
   ${wsjtx_CXXSRCS}
+  ${message_aggregator_CXXSRCS}
   )
 
 set (all_C_and_CXXSRCS
@@ -850,6 +858,17 @@ set_target_properties (wsjtx PROPERTIES
 target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia SerialPort)
 
+add_executable (message_aggregator
+  ${message_aggregator_CXXSRCS}
+  wsjtx.rc
+  )
+target_link_libraries (message_aggregator wsjt_qt)
+qt5_use_modules (message_aggregator Widgets OpenGL Network)
+
+if (WSJT_CREATE_WINMAIN)
+  set_target_properties (message_aggregator PROPERTIES WIN32_EXECUTABLE ON)
+endif (WSJT_CREATE_WINMAIN)
+
 set (SYSTEM_NAME ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR})
 if (WIN32)
   set (SYSTEM_NAME "${SYSTEM_NAME}i386")
@@ -887,7 +906,7 @@ install (TARGETS wsjtx
   BUNDLE DESTINATION . COMPONENT runtime
   )
 
-install (TARGETS jt9 jt65code jt9code
+install (TARGETS jt9 jt65code jt9code message_aggregator
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )

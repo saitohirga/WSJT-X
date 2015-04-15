@@ -267,16 +267,6 @@
           <string>Behavior</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
-          <item row="3" column="0">
-           <widget class="QCheckBox" name="watchdog_check_box">
-            <property name="toolTip">
-             <string>Stop transmitting automatically after five periods.</string>
-            </property>
-            <property name="text">
-             <string>Runaway Tx &amp;watchdog</string>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="0">
            <widget class="QCheckBox" name="disable_TX_on_73_check_box">
             <property name="toolTip">
@@ -285,6 +275,16 @@ text message.</string>
             </property>
             <property name="text">
              <string>Di&amp;sable Tx after sending 73</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="watchdog_check_box">
+            <property name="toolTip">
+             <string>Stop transmitting automatically after five periods.</string>
+            </property>
+            <property name="text">
+             <string>Runaway Tx &amp;watchdog</string>
             </property>
            </widget>
           </item>
@@ -311,7 +311,7 @@ text message.</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
+          <item row="5" column="0" colspan="2">
            <layout class="QHBoxLayout" name="horizontalLayout_9">
             <item>
              <widget class="QCheckBox" name="CW_id_after_73_check_box">
@@ -370,16 +370,6 @@ quiet period when decoding is done.</string>
             </item>
            </layout>
           </item>
-          <item row="1" column="1">
-           <widget class="QCheckBox" name="tx_QSY_check_box">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Some rigs are not able to process CAT commands while transmitting. This means that if you are operating in split mode you may have to uncheck this option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string>Allow Tx frequency changes while transmitting</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="1">
            <widget class="QCheckBox" name="monitor_last_used_check_box">
             <property name="toolTip">
@@ -387,6 +377,16 @@ quiet period when decoding is done.</string>
             </property>
             <property name="text">
              <string>Monitor returns to last used frequency</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="tx_QSY_check_box">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Some rigs are not able to process CAT commands while transmitting. This means that if you are operating in split mode you may have to uncheck this option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Allow Tx frequency changes while transmitting</string>
             </property>
            </widget>
           </item>
@@ -1627,10 +1627,10 @@ and DX Grid fields when a 73 or free text message is sent.</string>
        <item>
         <widget class="QGroupBox" name="network_group_box">
          <property name="title">
-          <string>Network</string>
+          <string>Network Services</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_7">
-          <item>
+         <layout class="QGridLayout" name="gridLayout_17">
+          <item row="0" column="0">
            <widget class="QCheckBox" name="psk_reporter_check_box">
             <property name="toolTip">
              <string>The program can send your station details and all
@@ -1642,6 +1642,105 @@ for assessing propagation and system performance.</string>
              <string>Enable &amp;PSK Reporter Spotting</string>
             </property>
            </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
+          <string>UDP Server</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_16">
+          <item row="0" column="0">
+           <layout class="QFormLayout" name="formLayout_6">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+            </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="udp_server_label">
+              <property name="text">
+               <string>UDP Server:</string>
+              </property>
+              <property name="buddy">
+               <cstring>udp_server_line_edit</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="udp_server_line_edit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optional hostname of network service to receive decodes.&lt;/p&gt;&lt;p&gt;Formats:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;hostname&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;IPv4 address&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;IPv6 address&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;IPv4 multicast group address&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;IPv6 multicast group address&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Clearing this field will disable the broadcasting of UDP status updates.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="inputMethodHints">
+               <set>Qt::ImhDigitsOnly</set>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>UDP Server port number:</string>
+              </property>
+              <property name="buddy">
+               <cstring>udp_server_port_spin_box</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QSpinBox" name="udp_server_port_spin_box">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the service port number of the UDP server that WSJT-X should send updates to. If this is zero no updates will be broadcast.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="minimum">
+               <number>0</number>
+              </property>
+              <property name="maximum">
+               <number>65534</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1">
+           <layout class="QVBoxLayout" name="verticalLayout_11">
+            <item>
+             <widget class="QCheckBox" name="accept_udp_requests_check_box">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;With this enabled WSJT-X will accept certain requests back from a UDP server that receives decode messages.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Accept UDP requests</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="udpWindowToFront">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indicate acceptance of an incoming UDP request. The effect of this option varies depending on the operating system and window manager, its intent is to notify the acceptance of an incoming UDP request even if this application is minimized or hidden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Notify on accepted UDP request</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="udpWindowRestore">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Restore the window from minimized if an UDP request is accepted.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Accepted UDP request restores window</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -1986,7 +2085,6 @@ soundcard changes</string>
   <tabstop>decoded_text_font_push_button</tabstop>
   <tabstop>monitor_off_check_box</tabstop>
   <tabstop>monitor_last_used_check_box</tabstop>
-  <tabstop>tx_QSY_check_box</tabstop>
   <tabstop>quick_call_check_box</tabstop>
   <tabstop>tx_QSY_check_box</tabstop>
   <tabstop>disable_TX_on_73_check_box</tabstop>
@@ -2038,6 +2136,11 @@ soundcard changes</string>
   <tabstop>report_in_comments_check_box</tabstop>
   <tabstop>clear_DX_check_box</tabstop>
   <tabstop>psk_reporter_check_box</tabstop>
+  <tabstop>udp_server_line_edit</tabstop>
+  <tabstop>udp_server_port_spin_box</tabstop>
+  <tabstop>accept_udp_requests_check_box</tabstop>
+  <tabstop>udpWindowToFront</tabstop>
+  <tabstop>udpWindowRestore</tabstop>
   <tabstop>frequencies_table_view</tabstop>
   <tabstop>stations_table_view</tabstop>
   <tabstop>pbCQmsg</tabstop>
@@ -2055,8 +2158,8 @@ soundcard changes</string>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>236</x>
-     <y>540</y>
+     <x>245</x>
+     <y>605</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -2071,28 +2174,12 @@ soundcard changes</string>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>304</x>
-     <y>540</y>
+     <x>313</x>
+     <y>605</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>add_macro_line_edit</sender>
-   <signal>returnPressed()</signal>
-   <receiver>add_macro_push_button</receiver>
-   <slot>setFocus()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>188</x>
-     <y>62</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>406</x>
-     <y>62</y>
     </hint>
    </hints>
   </connection>
@@ -2103,11 +2190,27 @@ soundcard changes</string>
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>406</x>
+     <x>576</x>
      <y>62</y>
     </hint>
     <hint type="destinationlabel">
-     <x>188</x>
+     <x>199</x>
+     <y>60</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>add_macro_line_edit</sender>
+   <signal>returnPressed()</signal>
+   <receiver>add_macro_push_button</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>199</x>
+     <y>60</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>576</x>
      <y>62</y>
     </hint>
    </hints>

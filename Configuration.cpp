@@ -131,6 +131,7 @@
 #include <iterator>
 #include <algorithm>
 #include <functional>
+#include <limits>
 
 #include <QApplication>
 #include <QMetaType>
@@ -148,6 +149,7 @@
 #include <QStringListModel>
 #include <QLineEdit>
 #include <QRegExpValidator>
+#include <QIntValidator>
 #include <QThread>
 #include <QTimer>
 #include <QStandardPaths>
@@ -169,6 +171,7 @@
 #include "Bands.hpp"
 #include "FrequencyList.hpp"
 #include "StationList.hpp"
+#include "NetworkServerLookup.hpp"
 
 #include "pimpl_impl.hpp"
 
@@ -374,6 +377,7 @@ class Configuration::impl final
 
 public:
   using FrequencyDelta = Radio::FrequencyDelta;
+  using port_type = Configuration::port_type;
 
   explicit impl (Configuration * self, QSettings * settings, QWidget * parent);
   ~impl ();
@@ -562,6 +566,11 @@ private:
   bool disable_TX_on_73_;
   bool watchdog_;
   bool TX_messages_;
+  QString udp_server_name_;
+  port_type udp_server_port_;
+  bool accept_udp_requests_;
+  bool udpWindowToFront_;
+  bool udpWindowRestore_;
   DataMode data_mode_;
 
   QAudioDeviceInfo audio_input_device_;
@@ -631,6 +640,11 @@ bool Configuration::split_mode () const
 {
   return !m_->rig_is_dummy_ && m_->rig_params_.split_mode_ != TransceiverFactory::split_mode_none;
 }
+QString Configuration::udp_server_name () const {return m_->udp_server_name_;}
+auto Configuration::udp_server_port () const -> port_type {return m_->udp_server_port_;}
+bool Configuration::accept_udp_requests () const {return m_->accept_udp_requests_;}
+bool Configuration::udpWindowToFront () const {return m_->udpWindowToFront_;}
+bool Configuration::udpWindowRestore () const {return m_->udpWindowRestore_;}
 Bands * Configuration::bands () {return &m_->bands_;}
 StationList * Configuration::stations () {return &m_->stations_;}
 FrequencyList * Configuration::frequencies () {return &m_->frequencies_;}
@@ -846,6 +860,9 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   ui_->grid_line_edit->setValidator (new QRegExpValidator {QRegExp {"[A-Ra-r]{2,2}[0-9]{2,2}[A-Xa-x]{0,2}"}, this});
   ui_->add_macro_line_edit->setValidator (new QRegExpValidator {message_alphabet, this});
 
+  ui_->udp_server_port_spin_box->setMinimum (1);
+  ui_->udp_server_port_spin_box->setMaximum (std::numeric_limits<port_type>::max ());
+
   //
   // assign ids to radio buttons
   //
@@ -1035,6 +1052,11 @@ void Configuration::impl::initialise_models ()
   ui_->CAT_RTS_check_box->setChecked (rig_params_.CAT_RTS_high_);
   ui_->TX_audio_source_button_group->button (rig_params_.TX_audio_source_)->setChecked (true);
   ui_->CAT_poll_interval_spin_box->setValue (rig_params_.CAT_poll_interval_);
+  ui_->udp_server_line_edit->setText (udp_server_name_);
+  ui_->udp_server_port_spin_box->setValue (udp_server_port_);
+  ui_->accept_udp_requests_check_box->setChecked (accept_udp_requests_);
+  ui_->udpWindowToFront->setChecked(udpWindowToFront_);
+  ui_->udpWindowRestore->setChecked(udpWindowRestore_);
 
   if (rig_params_.PTT_port_.isEmpty ())
     {
@@ -1211,6 +1233,11 @@ void Configuration::impl::read_settings ()
   TX_messages_ = settings_->value ("Tx2QSO", false).toBool ();
   rig_params_.CAT_poll_interval_ = settings_->value ("Polling", 0).toInt ();
   rig_params_.split_mode_ = settings_->value ("SplitMode", QVariant::fromValue (TransceiverFactory::split_mode_none)).value<TransceiverFactory::SplitMode> ();
+  udp_server_name_ = settings_->value ("UDPServer", "localhost").toString ();
+  udp_server_port_ = settings_->value ("UDPServerPort", 2237).toUInt ();
+  accept_udp_requests_ = settings_->value ("AcceptUDPRequests", false).toBool ();
+  udpWindowToFront_ = settings_->value ("udpWindowToFront",false).toBool ();
+  udpWindowRestore_ = settings_->value ("udpWindowRestore",false).toBool ();
 }
 
 void Configuration::impl::write_settings ()
@@ -1288,6 +1315,11 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("TXAudioSource", QVariant::fromValue (rig_params_.TX_audio_source_));
   settings_->setValue ("Polling", rig_params_.CAT_poll_interval_);
   settings_->setValue ("SplitMode", QVariant::fromValue (rig_params_.split_mode_));
+  settings_->setValue ("UDPServer", udp_server_name_);
+  settings_->setValue ("UDPServerPort", udp_server_port_);
+  settings_->setValue ("AcceptUDPRequests", accept_udp_requests_);
+  settings_->setValue ("udpWindowToFront", udpWindowToFront_);
+  settings_->setValue ("udpWindowRestore", udpWindowRestore_);
 }
 
 void Configuration::impl::set_rig_invariants ()
@@ -1638,6 +1670,24 @@ void Configuration::impl::accept ()
   TX_messages_ = ui_->TX_messages_check_box->isChecked ();
   data_mode_ = static_cast<DataMode> (ui_->TX_mode_button_group->checkedId ());
   save_directory_ = ui_->save_path_display_label->text ();
+
+  auto new_server = ui_->udp_server_line_edit->text ();
+  if (new_server != udp_server_name_)
+    {
+      udp_server_name_ = new_server;
+      Q_EMIT self_->udp_server_changed (new_server);
+    }
+
+  auto new_port = ui_->udp_server_port_spin_box->value ();
+  if (new_port != udp_server_port_)
+    {
+      udp_server_port_ = new_port;
+      Q_EMIT self_->udp_server_port_changed (new_port);
+    }
+  
+  accept_udp_requests_ = ui_->accept_udp_requests_check_box->isChecked ();
+  udpWindowToFront_ = ui_->udpWindowToFront->isChecked ();
+  udpWindowRestore_ = ui_->udpWindowRestore->isChecked ();
 
   if (macros_.stringList () != next_macros_.stringList ())
     {
@@ -2425,7 +2475,6 @@ void Configuration::impl::fill_port_combo_box (QComboBox * cb)
   cb->addItem("USB");
   cb->setEditText (current_text);
 }
-
 
 inline
 bool operator != (RigParams const& lhs, RigParams const& rhs)
