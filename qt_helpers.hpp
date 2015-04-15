@@ -64,24 +64,6 @@
     return QString {mo.enumerator (mo.indexOfEnumerator (#ENUM)).valueToKey (m)}; \
   }
 
-namespace std
-{
-	/*
-   * std::hash specialization for QString so it can be used
-   * as a key in std::unordered_map
-   */
-	template<class Key> struct hash;
-	template<> struct hash<QString>
-  {
-    typedef QString Key;
-    typedef uint result_type;
-    inline uint operator () (const QString &s) const
-    {
-      return qHash (s);
-    }
-	};
-}
-
 inline
 void throw_qstring (QString const& qs)
 {

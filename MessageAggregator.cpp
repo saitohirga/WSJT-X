@@ -33,7 +33,6 @@
 
 #include <iostream>
 #include <exception>
-#include <unordered_map>
 
 #include <QtWidgets>
 #include <QStandardItemModel>
@@ -42,6 +41,7 @@
 #include <QFont>
 #include <QDateTime>
 #include <QTime>
+#include <QHash>
 
 #include "MessageServer.hpp"
 #include "NetworkMessage.hpp"
@@ -416,9 +416,9 @@ private:
     auto iter = dock_widgets_.find (id);
     if (iter != std::end (dock_widgets_))
       {
-        (*iter).second->close ();
+        (*iter)->close ();
+        dock_widgets_.erase (iter);
       }
-    dock_widgets_.erase (iter);
   }
 
   QStandardItemModel * log_;
@@ -429,8 +429,7 @@ private:
   QTableView * log_table_view_;
 
   // maps client id to widgets
-  using client_map = std::unordered_map<QString, ClientWidget *>;
-  client_map dock_widgets_;
+  QHash<QString, ClientWidget *> dock_widgets_;
 };
 
 #include "MessageAggregator.moc"
