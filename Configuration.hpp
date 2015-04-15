@@ -19,6 +19,7 @@ class Bands;
 class FrequencyList;
 class StationList;
 class QStringListModel;
+class QHostAddress;
 
 //
 // Class Configuration
@@ -60,6 +61,7 @@ public:
   using MODE = Transceiver::MODE;
   using TransceiverState = Transceiver::TransceiverState;
   using Frequency = Radio::Frequency;
+  using port_type = quint16;
 
   enum DataMode {data_mode_none, data_mode_USB, data_mode_data};
   enum Type2MsgGen {type_2_msg_1_full, type_2_msg_3_full, type_2_msg_5_only};
@@ -105,6 +107,12 @@ public:
   bool watchdog () const;
   bool TX_messages () const;
   bool split_mode () const;
+  bool post_decodes () const;
+  QString udp_server_name () const;
+  port_type udp_server_port () const;
+  bool accept_udp_requests () const;
+  bool udpWindowToFront () const;
+  bool udpWindowRestore () const;
   Bands * bands ();
   FrequencyList * frequencies ();
   StationList * stations ();
@@ -165,6 +173,12 @@ public:
   // for the decoded text.
   //
   Q_SIGNAL void decoded_text_font_changed (QFont);
+
+  //
+  // This signal is emitted when the UDP server changes
+  //
+  Q_SIGNAL void udp_server_changed (QString const& udp_server);
+  Q_SIGNAL void udp_server_port_changed (port_type server_port);
 
 
   //

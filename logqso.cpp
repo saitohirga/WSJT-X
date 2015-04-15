@@ -50,7 +50,7 @@ void LogQSO::storeSettings () const
 
 void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
                         QString rptSent, QString rptRcvd, QDateTime dateTime,
-                        double dialFreq, QString myCall, QString myGrid,
+                        Radio::Frequency dialFreq, QString myCall, QString myGrid,
                         bool noSuffix, bool toRTTY, bool dBtoComments)
 {
   ui->call->setText(hisCall);
@@ -79,7 +79,7 @@ void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
   m_dialFreq=dialFreq;
   m_myCall=myCall;
   m_myGrid=myGrid;
-  QString band= ADIF::bandFromFrequency(dialFreq);
+  QString band= ADIF::bandFromFrequency(dialFreq / 1.e6);
   ui->band->setText(band);
 
   show ();
@@ -103,7 +103,7 @@ void LogQSO::accept()
   m_txPower=ui->txPower->text();
   comments=ui->comments->text();
   m_comments=comments;
-  QString strDialFreq(QString::number(m_dialFreq,'f',6));
+  QString strDialFreq(QString::number(m_dialFreq / 1.e6,'f',6));
 
   //Log this QSO to ADIF file "wsjtx_log.adi"
   QString filename = "wsjtx_log.adi";  // TODO allow user to set
@@ -125,26 +125,18 @@ void LogQSO::accept()
     m.exec();
   } else {
     QString logEntry=m_dateTime.date().toString("yyyy-MMM-dd,") +
-           m_dateTime.time().toString("hh:mm,") + hisCall + "," +
-           hisGrid + "," + strDialFreq + "," + mode +
-               "," + rptSent + "," + rptRcvd;
-       if(m_txPower!="") logEntry += "," + m_txPower;
-       if(comments!="") logEntry += "," + comments;
-       if(name!="") logEntry += "," + name;
+      m_dateTime.time().toString("hh:mm,") + hisCall + "," +
+      hisGrid + "," + strDialFreq + "," + mode +
+      "," + rptSent + "," + rptRcvd + "," + m_txPower +
+      "," + comments; + "," + name;
     QTextStream out(&f);
     out << logEntry << endl;
     f.close();
   }
 
 //Clean up and finish logging
-  Q_EMIT acceptQSO(true);
+  Q_EMIT acceptQSO (m_dateTime, hisCall, hisGrid, m_dialFreq, mode, rptSent, rptRcvd, m_txPower, comments, name);
   QDialog::accept();
-}
-
-void LogQSO::reject()
-{
-  Q_EMIT acceptQSO(false);
-  QDialog::reject();
 }
 
 // closeEvent is only called from the system menu close widget for a

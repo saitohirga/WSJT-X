@@ -14,6 +14,8 @@
 #include <QScopedPointer>
 #include <QDir>
 #include <QProgressDialog>
+#include <QAbstractSocket>
+#include <QHostAddress>
 
 #include "soundin.h"
 #include "AudioDevice.hpp"
@@ -47,10 +49,13 @@ namespace Ui {
 class QSettings;
 class QLineEdit;
 class QFont;
+class QHostInfo;
 class WideGraph;
 class LogQSO;
 class Transceiver;
 class Astro;
+class MessageClient;
+class QTime;
 
 class MainWindow : public QMainWindow
 {
@@ -158,7 +163,11 @@ private slots:
   void on_tuneButton_clicked (bool);
   void on_pbR2T_clicked();
   void on_pbT2R_clicked();
-  void acceptQSO2(bool accepted);
+  void acceptQSO2(QDateTime const&, QString const& call, QString const& grid
+                  , Frequency dial_freq, QString const& mode
+                  , QString const& rpt_sent, QString const& rpt_received
+                  , QString const& tx_power, QString const& comments
+                  , QString const& name);
   void on_bandComboBox_activated (int index);
   void on_readFreq_clicked();
   void on_pbTxMode_clicked();
@@ -178,6 +187,7 @@ private slots:
   void monitor (bool);
   void stop_tuning ();
   void auto_tx_mode (bool);
+  void networkError (QString const&);
 
 private:
   void enable_DXCC_entity (bool on);
@@ -356,7 +366,6 @@ private:
   QRect   m_astroGeom;
 
   QSharedMemory *mem_jt9;
-  PSK_Reporter *psk_Reporter;
   SignalMeter *signalMeter;
   LogBook m_logBook;
   DecodedText m_QSOText;
@@ -373,6 +382,9 @@ private:
   double m_toneSpacing;
   int m_firstDecode;
   QProgressDialog m_optimizingProgress;
+  QTimer m_heartbeat;
+  MessageClient * m_messageClient;
+  PSK_Reporter *psk_Reporter;
 
   //---------------------------------------------------- private functions
   void readSettings();
@@ -395,6 +407,10 @@ private:
   void pskSetLocal ();
   void displayDialFrequency ();
   void transmitDisplay (bool);
+  void processMessage(QString const& messages, qint32 position, bool ctrl);
+  void replyToCQ (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text);
+  void replayDecodes ();
+  void postDecode (bool is_new, QString const& message);
 };
 
 extern void getfile(QString fname, int ntrperiod);

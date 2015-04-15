@@ -2,15 +2,21 @@
 #ifndef PSK_REPORTER_H
 #define PSK_REPORTER_H
 
-#include <QtCore>
-#include <QUdpSocket>
-#include <QHostInfo>
+#include <QObject>
+#include <QString>
+#include <QHostAddress>
+#include <QQueue>
+#include <QHash>
+
+class MessageClient;
+class QTimer;
+class QHostInfo;
 
 class PSK_Reporter : public QObject
 {
     Q_OBJECT
 public:
-    explicit PSK_Reporter(QObject *parent = 0);
+  explicit PSK_Reporter(MessageClient *, QObject *parent = nullptr);
     void setLocalStation(QString call, QString grid, QString antenna, QString programInfo);
     void addRemoteStation(QString call, QString grid, QString freq, QString mode, QString snr, QString time);
     
@@ -38,7 +44,7 @@ private:
 
     QQueue< QHash<QString,QString> > m_spotQueue;
 
-    QUdpSocket *m_udpSocket;
+    MessageClient * m_messageClient;
 
     QTimer *reportTimer;
 

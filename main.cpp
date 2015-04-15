@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
           auto temp_name = parser.value (rig_option);
           if (!temp_name.isEmpty ())
             {
-              if (temp_name.contains (QRegularExpression {R"([\\/])"}))
+              if (temp_name.contains (QRegularExpression {R"([\\/,])"}))
                 {
                   std::cerr << QObject::tr ("Invalid rig name - \\ & / not allowed").toLocal8Bit ().data () << std::endl;
                   parser.showHelp (-1);

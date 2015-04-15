@@ -5,11 +5,18 @@
 
 #include "psk_reporter.h"
 
+#include <QHostInfo>
+#include <QTimer>
+
+#include "MessageClient.hpp"
+
 #include "moc_psk_reporter.cpp"
 
-PSK_Reporter::PSK_Reporter(QObject *parent) :
-    QObject(parent),
-    m_sequenceNumber(0)
+PSK_Reporter::PSK_Reporter(MessageClient * message_client, QObject *parent) :
+    QObject {parent},
+    m_messageClient {message_client},
+    reportTimer {new QTimer {this}},
+    m_sequenceNumber {0}
 {
     m_header_h = "000Allllttttttttssssssssiiiiiiii";
 
@@ -34,10 +41,8 @@ PSK_Reporter::PSK_Reporter(QObject *parent) :
     qsrand(QDateTime::currentDateTime().toTime_t());
     m_randomId_h = QString("%1").arg(qrand(),8,16,QChar('0'));
 
-    m_udpSocket = new QUdpSocket(this);
     QHostInfo::lookupHost("report.pskreporter.info", this, SLOT(dnsLookupResult(QHostInfo)));
 
-    reportTimer = new QTimer(this);
     connect(reportTimer, SIGNAL(timeout()), this, SLOT(sendReport()));
     reportTimer->start(5*60*1000); // 5 minutes;
 }
@@ -107,7 +112,7 @@ void PSK_Reporter::sendReport()
 
     // Send data to PSK Reporter site
     if (!m_pskReporterAddress.isNull()) {
-        m_udpSocket->writeDatagram(report, m_pskReporterAddress, 4739);
+        m_messageClient->send_raw_datagram (report, m_pskReporterAddress, 4739);
     }
 }
 
