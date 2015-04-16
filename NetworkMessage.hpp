@@ -6,7 +6,9 @@
  * ======================
  *
  * All messages are written or  read using the QDataStream derivatives
- * defined below.
+ * defined below, note that we are using the default for floating
+ * point precision which means all are double precision i.e. 64-bit
+ * IEEE format.
  *
  *  Message is big endian format
  *
@@ -22,7 +24,20 @@
  *
  *        http://doc.qt.io/qt-5/datastreamformat.html
  *
- *      for the serialization details for each type.
+ *      for the serialization details for each type, at the time of
+ *      writing the above document is for Qt_5_0 format which is buggy
+ *      so we use Qt_5_2 format, differences are:
+ *
+ *      QDateTime:
+ *           QDate      qint64    Julian day number
+ *           QTime      quint32   Milli-seconds since midnight
+ *           timespec   quint8    0=local, 1=UTC, 2=Offset from UTC
+ *                                                 (seconds)
+ *                                3=time zone
+ *           offset     qint32    only present if timespec=2
+ *           timezone   several-fields only present if timespec=3
+ *
+ *      we will avoid using QDateTime fields with time zones for simplicity.
  *
  * Type utf8  is a  utf-8 byte  string formatted  as a  QByteArray for
  * serialization purposes  (currently a quint32 size  followed by size
@@ -49,7 +64,7 @@
  *                         New                    bool
  *                         Time                   QTime
  *                         snr                    qint32
- *                         Delta time (S)         float
+ *                         Delta time (S)         float (serialized as double)
  *                         Delta frequency (Hz)   quint32
  *                         Mode                   utf8
  *                         Message                utf8
@@ -124,7 +139,7 @@ namespace NetworkMessage
 
     // increment this if a newer Qt schema is required and add decode
     // logic to InputMessageStream below
-    static quint32 constexpr schema_number {1};
+    static quint32 constexpr schema_number {2};
 
     explicit Builder (QIODevice *, Type, QString const& id);
     explicit Builder (QByteArray *, Type, QString const& id);

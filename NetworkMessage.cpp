@@ -25,7 +25,7 @@ namespace NetworkMessage
   {
     *this << magic;
     *this << schema_number;
-    setVersion (QDataStream::Qt_5_0); // Qt schema version
+    setVersion (QDataStream::Qt_5_2); // Qt schema version
     *this << static_cast<quint32> (type) << id.toUtf8 ();
   }
 
@@ -48,6 +48,10 @@ namespace NetworkMessage
       if (schema_ <= 1)
         {
           parent->setVersion (QDataStream::Qt_5_0);
+        }
+      else if (schema_ <= 2)
+        {
+          parent->setVersion (QDataStream::Qt_5_2);
         }
       quint32 type;
       *parent >> type >> id_;
