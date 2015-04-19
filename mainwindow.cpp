@@ -3352,6 +3352,7 @@ void MainWindow::replayDecodes ()
           postDecode (false, message.left (eom_pos + 1));
         }
     }
+  statusChanged ();
 }
 
 void MainWindow::postDecode (bool is_new, QString const& message)
