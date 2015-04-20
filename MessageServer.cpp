@@ -1,5 +1,7 @@
 #include "MessageServer.hpp"
 
+#include <stdexcept>
+
 #include <QUdpSocket>
 #include <QTimer>
 #include <QHash>
@@ -100,107 +102,118 @@ void MessageServer::impl::pending_datagrams ()
 
 void MessageServer::impl::parse_message (QHostAddress const& sender, port_type sender_port, QByteArray const& msg)
 {
-  // 
-  // message format is described in NetworkMessage.hpp
-  // 
-  NetworkMessage::Reader in {msg};
-
-  auto id = in.id ();
-  bool new_client {false};
-  if (!clients_.contains (id))
+  try
     {
-      new_client = true;
-    }
-  clients_[id] = {sender, sender_port, QDateTime::currentDateTime ()};
-  if (new_client)
-    {
-      Q_EMIT self_->client_opened (id);
-    }
-  
-  // 
-  // message format is described in NetworkMessage.hpp
-  // 
-  switch (in.type ())
-    {
-    case NetworkMessage::Heartbeat:
-      //nothing to do here as time out handling deals with lifetime
-      break;
+      //
+      // message format is described in NetworkMessage.hpp
+      //
+      NetworkMessage::Reader in {msg};
 
-    case NetworkMessage::Clear:
-      Q_EMIT self_->clear_decodes (id);
-      break;
-
-    case NetworkMessage::Status:
-      {
-        // unpack message
-        Frequency f;
-        QByteArray mode;
-        QByteArray dx_call;
-        QByteArray report;
-        QByteArray tx_mode;
-        in >> f >> mode >> dx_call >> report >> tx_mode;
-        if (check_status (in))
-          {
-            Q_EMIT self_->status_update (id, f, QString::fromUtf8 (mode), QString::fromUtf8 (dx_call)
-                                         , QString::fromUtf8 (report), QString::fromUtf8 (tx_mode));
-          }
-      }
-      break;
-
-    case NetworkMessage::Decode:
-      {
-        // unpack message
-        bool is_new;
-        QTime time;
-        qint32 snr;
-        float delta_time;
-        quint32 delta_frequency;
-        QByteArray mode;
-        QByteArray message;
-        in >> is_new >> time >> snr >> delta_time >> delta_frequency >> mode >> message;
-        if (check_status (in))
-          {
-            Q_EMIT self_->decode (is_new, id, time, snr, delta_time, delta_frequency
-                                  , QString::fromUtf8 (mode), QString::fromUtf8 (message));
-          }
-      }
-      break;
-
-    case NetworkMessage::QSOLogged:
-      {
-        QDateTime time;
-        QByteArray dx_call;
-        QByteArray dx_grid;
-        Frequency dial_frequency;
-        QByteArray mode;
-        QByteArray report_sent;
-        QByteArray report_received;
-        QByteArray tx_power;
-        QByteArray comments;
-        QByteArray name;
-        in >> time >> dx_call >> dx_grid >> dial_frequency >> mode >> report_sent >> report_received
-           >> tx_power >> comments >> name;
-        if (check_status (in))
-          {
-            Q_EMIT self_->qso_logged (id, time, QString::fromUtf8 (dx_call), QString::fromUtf8 (dx_grid)
-                                      , dial_frequency, QString::fromUtf8 (mode), QString::fromUtf8 (report_sent)
-                                      , QString::fromUtf8 (report_received), QString::fromUtf8 (tx_power)
-                                      , QString::fromUtf8 (comments), QString::fromUtf8 (name));
-          }
-      }
-      break;
-
-    case NetworkMessage::Close:
-      if (check_status (in))
+      auto id = in.id ();
+      bool new_client {false};
+      if (!clients_.contains (id))
         {
-          Q_EMIT self_->client_closed (id);
-          clients_.remove (id);
+          new_client = true;
         }
-      break;
+      clients_[id] = {sender, sender_port, QDateTime::currentDateTime ()};
+      if (new_client)
+        {
+          Q_EMIT self_->client_opened (id);
+        }
+  
+      //
+      // message format is described in NetworkMessage.hpp
+      //
+      switch (in.type ())
+        {
+        case NetworkMessage::Heartbeat:
+          //nothing to do here as time out handling deals with lifetime
+          break;
 
-    default:
-      // Ignore
-      break;
+        case NetworkMessage::Clear:
+          Q_EMIT self_->clear_decodes (id);
+          break;
+
+        case NetworkMessage::Status:
+          {
+            // unpack message
+            Frequency f;
+            QByteArray mode;
+            QByteArray dx_call;
+            QByteArray report;
+            QByteArray tx_mode;
+            in >> f >> mode >> dx_call >> report >> tx_mode;
+            if (check_status (in))
+              {
+                Q_EMIT self_->status_update (id, f, QString::fromUtf8 (mode), QString::fromUtf8 (dx_call)
+                                             , QString::fromUtf8 (report), QString::fromUtf8 (tx_mode));
+              }
+          }
+          break;
+
+        case NetworkMessage::Decode:
+          {
+            // unpack message
+            bool is_new;
+            QTime time;
+            qint32 snr;
+            float delta_time;
+            quint32 delta_frequency;
+            QByteArray mode;
+            QByteArray message;
+            in >> is_new >> time >> snr >> delta_time >> delta_frequency >> mode >> message;
+            if (check_status (in))
+              {
+                Q_EMIT self_->decode (is_new, id, time, snr, delta_time, delta_frequency
+                                      , QString::fromUtf8 (mode), QString::fromUtf8 (message));
+              }
+          }
+          break;
+
+        case NetworkMessage::QSOLogged:
+          {
+            QDateTime time;
+            QByteArray dx_call;
+            QByteArray dx_grid;
+            Frequency dial_frequency;
+            QByteArray mode;
+            QByteArray report_sent;
+            QByteArray report_received;
+            QByteArray tx_power;
+            QByteArray comments;
+            QByteArray name;
+            in >> time >> dx_call >> dx_grid >> dial_frequency >> mode >> report_sent >> report_received
+               >> tx_power >> comments >> name;
+            if (check_status (in))
+              {
+                Q_EMIT self_->qso_logged (id, time, QString::fromUtf8 (dx_call), QString::fromUtf8 (dx_grid)
+                                          , dial_frequency, QString::fromUtf8 (mode), QString::fromUtf8 (report_sent)
+                                          , QString::fromUtf8 (report_received), QString::fromUtf8 (tx_power)
+                                          , QString::fromUtf8 (comments), QString::fromUtf8 (name));
+              }
+          }
+          break;
+
+        case NetworkMessage::Close:
+          if (check_status (in))
+            {
+              Q_EMIT self_->client_closed (id);
+              clients_.remove (id);
+            }
+          break;
+
+        default:
+          // Ignore
+          break;
+        }
+    }
+  catch (std::exception const& e)
+    {
+      Q_EMIT self_->error (QString {"MessageServer exception: %1"}.arg (e.what ()));
+    }
+  catch (...)
+    {
+      Q_EMIT self_->error ("Unexpected exception in MessageServer");
     }
 }
 
