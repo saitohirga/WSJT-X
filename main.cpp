@@ -143,7 +143,14 @@ int main(int argc, char *argv[])
         {
           throw std::runtime_error {"Cannot find a usable configuration path \"" + config_path.path ().toStdString () + '"'};
         }
-      QSettings settings(config_path.absoluteFilePath (a.applicationName () + ".ini"), QSettings::IniFormat);
+
+      auto settings_file = config_path.absoluteFilePath (a.applicationName () + ".ini");
+      QSettings settings(settings_file, QSettings::IniFormat);
+      if (!settings.isWritable ())
+        {
+          throw std::runtime_error {QString {"Cannot access \"%1\" for writing"}.arg (settings_file).toStdString ()};
+        }
+
 #if WSJT_QDEBUG_TO_FILE
       // // open a trace file
       TraceFile trace_file {QDir {QStandardPaths::writableLocation (QStandardPaths::TempLocation)}.absoluteFilePath (a.applicationName () + "_trace.log")};
