@@ -69,6 +69,7 @@ class HamlibTransceiver final
   bool tickle_hamlib_;          // Hamlib requires a
                                 // rig_set_split_vfo() call to
                                 // establish the Tx VFO
+  bool get_vfo_works_;          // Net rigctl promises what it can't deliver
 };
 
 #endif
