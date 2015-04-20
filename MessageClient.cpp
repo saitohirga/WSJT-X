@@ -1,5 +1,7 @@
 #include "MessageClient.hpp"
 
+#include <stdexcept>
+
 #include <QUdpSocket>
 #include <QHostInfo>
 #include <QTimer>
@@ -82,47 +84,58 @@ void MessageClient::impl::pending_datagrams ()
 
 void MessageClient::impl::parse_message (QByteArray const& msg)
 {
-  // 
-  // message format is described in NetworkMessage.hpp
-  // 
-  NetworkMessage::Reader in {msg};
-
-  if (id_ == in.id ())          // for us
+  try
     {
       // 
       // message format is described in NetworkMessage.hpp
       // 
-      switch (in.type ())
+      NetworkMessage::Reader in {msg};
+
+      if (id_ == in.id ())          // for us
         {
-        case NetworkMessage::Reply:
-          {
-            // unpack message
-            QTime time;
-            qint32 snr;
-            float delta_time;
-            quint32 delta_frequency;
-            QByteArray mode;
-            QByteArray message;
-            in >> time >> snr >> delta_time >> delta_frequency >> mode >> message;
-            if (check_status (in))
-              {
-                Q_EMIT self_->reply (time, snr, delta_time, delta_frequency
-                                     , QString::fromUtf8 (mode), QString::fromUtf8 (message));
-              }
-          }
-          break;
-
-        case NetworkMessage::Replay:
-          if (check_status (in))
+          //
+          // message format is described in NetworkMessage.hpp
+          //
+          switch (in.type ())
             {
-              Q_EMIT self_->replay ();
-            }
-          break;
+            case NetworkMessage::Reply:
+              {
+                // unpack message
+                QTime time;
+                qint32 snr;
+                float delta_time;
+                quint32 delta_frequency;
+                QByteArray mode;
+                QByteArray message;
+                in >> time >> snr >> delta_time >> delta_frequency >> mode >> message;
+                if (check_status (in))
+                  {
+                    Q_EMIT self_->reply (time, snr, delta_time, delta_frequency
+                                         , QString::fromUtf8 (mode), QString::fromUtf8 (message));
+                  }
+              }
+              break;
 
-        default:
-          // Ignore
-          break;
+            case NetworkMessage::Replay:
+              if (check_status (in))
+                {
+                  Q_EMIT self_->replay ();
+                }
+              break;
+
+            default:
+              // Ignore
+              break;
+            }
         }
+    }
+  catch (std::exception const& e)
+    {
+      Q_EMIT self_->error (QString {"MessageClient exception: %1"}.arg (e.what ()));
+    }
+  catch (...)
+    {
+      Q_EMIT self_->error ("Unexpected exception in MessageClient");
     }
 }
 
