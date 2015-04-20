@@ -119,12 +119,15 @@ CMAKE_DEPENDENT_OPTION (WSJT_QDEBUG_IN_RELEASE "Leave Qt debugging statements in
 CMAKE_DEPENDENT_OPTION (WSJT_ENABLE_EXPERIMENTAL_FEATURES "Enable features not fully ready for public releases." ON
   "is_debug_build" OFF)
 CMAKE_DEPENDENT_OPTION (WSJT_CREATE_WINMAIN
-  "The wsjtx target is normally built as GUI executable with a WinMain entry point on Windows,
-if you want a console application instead then set this option to OFF.
+  "The wsjtx target is normally built as GUI executable with a WinMain
+entry point on Windows, if you want a console application instead then
+set this option to OFF.
 
-If you just want to see the debug output from the application then the easiest way is to
-attach a debugger which will then receive the console output inside its console." ON
-  "is_debug_build;WIN32" ON)
+If you just want to see the debug output from the application then the
+easiest  way is  to  attach a  debugger which  will  then receive  the
+console output inside its console. This  option is  off by default for
+Debug  configuration builds  anyway." ON
+  "NOT is_debug_build;WIN32" OFF)
 
 #
 # decide if we are bundling kvasd (non-FOSS)
