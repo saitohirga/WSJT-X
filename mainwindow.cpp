@@ -407,8 +407,11 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   QStringList jt9_args {
     "-s", QApplication::applicationName () // shared memory key,
                                            // includes rig-name
-
-      , "-w", "2"               //FFTW patience
+#ifdef NDEBUG
+      , "-w", "2"               //FFTW patience - release
+#else
+      , "-w", "1"               //FFTW patience - debug builds for speed
+#endif
 
       // The number  of threads for  FFTW specified here is  chosen as
       // three because  that gives  the best  throughput of  the large
