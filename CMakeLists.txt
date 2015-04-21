@@ -506,6 +506,13 @@ endif (APPLE)
 
 
 #
+# find some useful tools
+#
+find_program(CTAGS ctags)
+find_program(ETAGS etags)
+
+
+#
 # C & C++ setup
 #
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
@@ -726,6 +733,17 @@ if (CMAKE_HOST_UNIX)
 elseif (CMAKE_HOST_WIN32)
   add_definitions (-DWIN32)
 endif ()
+
+#
+# source navigation
+#
+set (sources
+  ${CMAKE_SOURCE_DIR}/*
+  ${CMAKE_SOURCE_DIR}/logbook/*
+  ${CMAKE_SOURCE_DIR}/lib/*
+  )
+add_custom_target (ctags COMMAND ${CTAGS} -o ${CMAKE_SOURCE_DIR}/tags -R ${sources})
+add_custom_target (etags COMMAND ${ETAGS} -o ${CMAKE_SOURCE_DIR}/TAGS -R ${sources})
 
 
 # embedded resources
