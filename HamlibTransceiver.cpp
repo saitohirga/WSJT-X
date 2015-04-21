@@ -131,11 +131,15 @@ void HamlibTransceiver::register_transceivers (TransceiverFactory::Transceivers 
   rig_set_debug_callback (debug_callback, nullptr);
 
 #if WSJT_HAMLIB_TRACE
+#if WSJT_HAMLIB_VERBOSE_TRACE
   rig_set_debug (RIG_DEBUG_TRACE);
+#else
+  rig_set_debug (RIG_DEBUG_VERBOSE);
+#endif
 #elif defined (NDEBUG)
   rig_set_debug (RIG_DEBUG_ERR);
 #else
-  rig_set_debug (RIG_DEBUG_VERBOSE);
+  rig_set_debug (RIG_DEBUG_WARN);
 #endif
 
   rig_load_all_backends ();
@@ -703,7 +707,7 @@ void HamlibTransceiver::poll ()
 #if defined (NDEBUG)
       rig_set_debug (RIG_DEBUG_ERR);
 #else
-      rig_set_debug (RIG_DEBUG_VERBOSE);
+      rig_set_debug (RIG_DEBUG_WARN);
 #endif
 #endif
 
@@ -832,11 +836,15 @@ void HamlibTransceiver::poll ()
 
 #if !WSJT_TRACE_CAT_POLLS
 #if WSJT_HAMLIB_TRACE
-      rig_set_debug (RIG_DEBUG_TRACE);
-#elif defined (NDEBUG)
-      rig_set_debug (RIG_DEBUG_ERR);
+#if WSJT_HAMLIB_VERBOSE_TRACE
+  rig_set_debug (RIG_DEBUG_TRACE);
 #else
-      rig_set_debug (RIG_DEBUG_VERBOSE);
+  rig_set_debug (RIG_DEBUG_VERBOSE);
+#endif
+#elif defined (NDEBUG)
+  rig_set_debug (RIG_DEBUG_ERR);
+#else
+  rig_set_debug (RIG_DEBUG_WARN);
 #endif
 #endif
     }
