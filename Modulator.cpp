@@ -37,8 +37,8 @@ Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds, QObjec
   , m_tuning {false}
   , m_cwLevel {false}
 {
-  qsrand (QDateTime::currentMSecsSinceEpoch()); // Initialize random
-                                                // seed
+  qsrand (QDateTime::currentMSecsSinceEpoch()); // Initialize random seed
+  m_itone0=0;
 }
 
 void Modulator::start (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, double toneSpacing, SoundOutput * stream, Channel channel, bool synchronize, double dBSNR)
@@ -58,8 +58,7 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol, unsigned 
   m_quickClose = false;
 
   m_symbolsLength = symbolsLength;
-  m_isym0 = std::numeric_limits<unsigned>::max (); // Arbitrary big
-                                                   // number
+  m_isym0 = std::numeric_limits<unsigned>::max (); // big number
   m_frequency0 = 0.;
   m_addNoise = dBSNR < 0.;
   m_nsps = framesPerSymbol;
@@ -84,25 +83,20 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol, unsigned 
     m_silentFrames = m_ic + m_frameRate - (mstr * m_frameRate / 1000);
   }
 
-  //  qDebug () << "Modulator: starting at " << m_ic / m_frameRate << " sec, sending " << m_silentFrames << " silent frames";
+  //  qDebug () << "Modulator: starting at " << m_ic / m_frameRate
+  //      << " sec, sending " << m_silentFrames << " silent frames";
 
   initialize (QIODevice::ReadOnly, channel);
   Q_EMIT stateChanged ((m_state = (synchronize && m_silentFrames) ?
                         Synchronizing : Active));
   m_stream = stream;
-  if (m_stream)
-    {
-      m_stream->restart (this);
-    }
+  if (m_stream) m_stream->restart (this);
 }
 
 void Modulator::tune (bool newState)
 {
   m_tuning = newState;
-  if (!m_tuning)
-    {
-      stop (true);
-    }
+  if (!m_tuning) stop (true);
 }
 
 void Modulator::stop (bool quick)
@@ -218,24 +212,23 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 
         double const baud (12000.0 / m_nsps);
         // fade out parameters (no fade out for tuning)
-        unsigned const i0 = m_tuning ? 999 * m_nsps :
-          (m_symbolsLength - 0.017) * 4.0 * m_nsps;
-        unsigned const i1 = m_tuning ? 999 * m_nsps :
-          m_symbolsLength * 4.0 * m_nsps;
+        unsigned const i0 = m_tuning ? 9999 * m_nsps : (m_symbolsLength - 0.017) * 4.0 * m_nsps;
+        unsigned const i1 = m_tuning ? 9999 * m_nsps :  m_symbolsLength * 4.0 * m_nsps;
 
         for (unsigned i = 0; i < numFrames && m_ic <= i1; ++i) {
           isym = m_tuning ? 0 : m_ic / (4.0 * m_nsps); //Actual fsample=48000
           if (isym != m_isym0 || m_frequency != m_frequency0) {
-            // qDebug () << "@m_ic:" << m_ic << "itone[" << isym << "] =" << itone[isym] << "@" << i << "in numFrames:" << numFrames;
-
-            if(m_toneSpacing==0.0) {
-              toneFrequency0=m_frequency + itone[isym]*baud;
+            if(itone[0]>=100) {
+              toneFrequency0=itone[0];
             } else {
-              toneFrequency0=m_frequency + itone[isym]*m_toneSpacing;
+              if(m_toneSpacing==0.0) {
+                toneFrequency0=m_frequency + itone[isym]*baud;
+              } else {
+                toneFrequency0=m_frequency + itone[isym]*m_toneSpacing;
+              }
             }
             m_dphi = m_twoPi * toneFrequency0 / m_frameRate;
             m_isym0 = isym;
-            m_frequency0 = m_frequency;
           }
 
           int j=m_ic/480;
@@ -263,9 +256,14 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
             Q_EMIT stateChanged ((m_state = Idle));
             return framesGenerated * bytesPerFrame ();
           }
-
           m_phi = 0.0;
         }
+/*
+        if(m_frequency != m_frequency0 or itone[0] != m_itone0) qDebug() << "Modulator B:" << itone[0] << m_frequency
+                                                 << m_dphi*m_frameRate/m_twoPi ;
+        m_itone0=itone[0];
+*/
+        m_frequency0 = m_frequency;
 
         // done for this chunk - continue on next call
         return framesGenerated * bytesPerFrame ();

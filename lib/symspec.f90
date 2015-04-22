@@ -1,4 +1,4 @@
-subroutine symspec(k,ntrperiod,nsps,ingain,nflatten,pxdb,s,df3,ihsym,npts8)
+subroutine symspec(k,ntrperiod,nsps,ingain,pxdb,s,df3,ihsym,npts8)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -25,9 +25,13 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nflatten,pxdb,s,df3,ihsym,npts8)
   real*4 tmp(NSMAX)
   complex cx(0:MAXFFT3/2)
   integer*2 id2
-  common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,         &
+
+  character datetime*20,mycall*12,mygrid*6,hiscall*12,hisgrid*6
+  common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,          &
        ntr,mousefqso,newdat,npts8a,nfa,nfsplit,nfb,ntol,kin,nzhsym,         &
-       nsave,nagain,ndepth,ntxmode,nmode,junk(5)
+       nsubmode,nagain,ndepth,ntxmode,nmode,minw,nclearave,emedelay,        &
+       dttol,nlist,listutc(10),datetime,mycall,mygrid,hiscall,hisgrid
+
   common/jt9w/syellow(NSMAX)
   data rms/999.0/,k0/99999999/,nfft3z/0/
   equivalence (xc,cx)
@@ -78,9 +82,8 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nflatten,pxdb,s,df3,ihsym,npts8)
   do i=0,nfft3-1                      !Copy data into cx
      j=ja+i-(nfft3-1)
      xc(i)=0.
-     if(j.ge.1) xc(i)=fac0*id2(j)
+     if(j.ge.1 .and.j.le.NMAX) xc(i)=fac0*id2(j)
   enddo
-
   if(ihsym.lt.184) ihsym=ihsym+1
 
   xc(0:nfft3-1)=w3(1:nfft3)*xc(0:nfft3-1)    !Apply window w3

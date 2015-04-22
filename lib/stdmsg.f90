@@ -1,5 +1,6 @@
 logical*1 function stdmsg(msg0)
 
+  use packjt
   character*22 msg0,msg
   integer dat(12)
 

@@ -87,9 +87,6 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
         if(nqd.eq.1 .or.                                                   &
            (ccfred(i).ge.ccflim .and. abs(f-fgood).gt.10.0*df8)) then
 
-           if(nqd.eq.0) nfreqs0=nfreqs0+1
-           if(nqd.eq.1) nfreqs1=nfreqs1+1
-
            call timer('softsym ',0)
            fpk=nf0 + df3*(i-1)
            call softsym(id2,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,    &
@@ -113,8 +110,6 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
 
            if(msg.ne.'                      ') then
               numfano=numfano+1
-              if(nqd.eq.0) ndecodes0=ndecodes0+1
-              if(nqd.eq.1) ndecodes1=ndecodes1+1
 
 !$omp critical(decode_results) ! serialize writes - see also jt65a.f90
               write(*,1000) nutc,nsnr,xdt,nint(freq),msg

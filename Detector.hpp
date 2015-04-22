@@ -22,9 +22,9 @@ public:
   //
   // we down sample by a factor of 4
   //
-  // the framesPerSignal argument is the number after down sampling
+  // the samplesPerFFT argument is the number after down sampling
   //
-  Detector (unsigned frameRate, unsigned periodLengthInSeconds, unsigned framesPerSignal, unsigned downSampleFactor = 4u, QObject * parent = 0);
+  Detector (unsigned frameRate, unsigned periodLengthInSeconds, unsigned samplesPerFFT, unsigned downSampleFactor = 4u, QObject * parent = 0);
 
   Q_SIGNAL void framesWritten (qint64) const;
 
@@ -45,8 +45,8 @@ private:
   unsigned m_frameRate;
   unsigned m_period;
   unsigned m_downSampleFactor;
-  qint32 m_framesPerSignal;	// after any down sampling
-  bool m_starting;
+  qint32 m_samplesPerFFT;	// after any down sampling
+  qint32 m_ns;
   QScopedArrayPointer<short> m_buffer; // de-interleaved sample buffer
   // big enough for all the
   // samples for one increment of

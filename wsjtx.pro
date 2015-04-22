@@ -17,7 +17,7 @@ QMAKE_CXXFLAGS += -std=c++11
 DEFINES += PROJECT_MANUAL="'\"http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main.html\"'"
 
 isEmpty (DESTDIR) {
-DESTDIR = ../wsjtx_install
+DESTDIR = ../wsjtx_exp_install
 }
 
 isEmpty (HAMLIB_DIR) {
@@ -89,13 +89,14 @@ SOURCES += \
 	about.cpp \
 	mainwindow.cpp \
 	main.cpp \
-        decodedtext.cpp
+        decodedtext.cpp \
+    messageaveraging.cpp
 
 HEADERS  += qt_helpers.hpp \
 	    pimpl_h.hpp pimpl_impl.hpp \
             Radio.hpp NetworkServerLookup.hpp revision_utils.hpp \
 	    mainwindow.h plotter.h soundin.h soundout.h astro.h \
-            about.h WFPalette.hpp widegraph.h getfile.h \
+            about.h WFPalette.hpp widegraph.h getfile.h decodedtext.h \
             commons.h sleep.h displaytext.h logqso.h \
             Bands.hpp FrequencyList.hpp StationList.hpp ForeignKeyDelegate.hpp FrequencyItemDelegate.hpp LiveFrequencyValidator.hpp \
             FrequencyLineEdit.hpp AudioDevice.hpp Detector.hpp Modulator.hpp psk_reporter.h \
@@ -107,7 +108,8 @@ HEADERS  += qt_helpers.hpp \
     logbook/logbook.h \
     logbook/countrydat.h \
     logbook/countriesworked.h \
-    logbook/adif.h
+    logbook/adif.h \
+    messageaveraging.h
 
 INCLUDEPATH += qmake_only
 
@@ -117,7 +119,8 @@ HEADERS += OmniRigTransceiver.hpp
 }
 
 FORMS    += mainwindow.ui about.ui Configuration.ui widegraph.ui astro.ui \
-    logqso.ui wf_palette_design_dialog.ui
+    logqso.ui wf_palette_design_dialog.ui \
+    messageaveraging.ui
 
 RC_FILE = wsjtx.rc
 RESOURCES = wsjtx.qrc
@@ -130,6 +133,10 @@ LIBS += -lfftw3f $$system($$F90 -print-file-name=libgfortran.so)
 
 win32 {
 INCLUDEPATH += $${HAMLIB_DIR}/include
+INCLUDEPATH += C:\JTSDK\wsjtx_exp\build\Release
+INCLUDEPATH += C:\JTSDK\hamlib3\include
+INCLUDEPATH += C:\JTSDK\qt5\5.2.1\mingw48_32\include\QtSerialPort
+
 LIBS += -L$${HAMLIB_DIR}/lib -lhamlib
 LIBS += -L./lib -lastro -ljt9
 LIBS += -L$${FFTW3_DIR} -lfftw3f-3

@@ -1,4 +1,4 @@
-subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
+subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2)
 
 !Downsample from id2() into c2() so as to yield nspsd samples per symbol, 
 !mixing from fpk down to zero frequency.  The downsample factor is 432.
@@ -8,21 +8,22 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
 
   include 'constants.f90'
   integer(C_SIZE_T) NMAX1
-  parameter (NMAX1=604800)
+  parameter (NMAX1=653184)
+  parameter (NFFT1=653184,NFFT2=1512)
   type(C_PTR) :: plan                        !Pointers plan for big FFT
   integer*2 id2(0:8*npts8-1)
   real*4, pointer :: x1(:)
-  complex c1(0:NMAX1/2)
-  complex c2(0:1440-1)
+  complex c1(0:NFFT1/2)
+  complex c2(0:NFFT2-1)
   real s(5000)
   logical first
   common/patience/npatience,nthreads
   data first/.true./
   save plan,first,c1,s,x1
 
-  nfft1=NMAX1                                !Forward FFT length
-  df1=12000.0/nfft1
+  df1=12000.0/NFFT1
   npts=8*npts8
+  if(npts.gt.NFFT1) npts=NFFT1  !### Fix! ###
 
   if(first) then
      nflags=FFTW_ESTIMATE
@@ -37,7 +38,7 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
      call c_f_pointer(plan,x1,[NMAX1])
      x1(0:NMAX1-1) => x1        !remap bounds
      call fftwf_plan_with_nthreads(nthreads)
-     plan=fftwf_plan_dft_r2c_1d(nfft1,x1,c1,nflags)
+     plan=fftwf_plan_dft_r2c_1d(NFFT1,x1,c1,nflags)
      call fftwf_plan_with_nthreads(1)
      !$omp end critical(fftw)
 
@@ -46,7 +47,7 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
 
   if(newdat.eq.1) then
      x1(0:npts-1)=id2(0:npts-1)
-     x1(npts:nfft1-1)=0.                      !Zero the rest of x1
+     x1(npts:NFFT1-1)=0.                      !Zero the rest of x1
      call timer('FFTbig9 ',0)
      call fftwf_execute_dft_r2c(plan,x1,c1)
      call timer('FFTbig9 ',1)
@@ -63,9 +64,8 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
      newdat=0
   endif
 
-  ndown=8*nsps8/nspsd                      !Downsample factor
-  nfft2=nfft1/ndown                        !Backward FFT length
-  nh2=nfft2/2
+  ndown=8*nsps8/nspsd                      !Downsample factor = 432
+  nh2=NFFT2/2
   nf=nint(fpk)
   i0=int(fpk/df1)
 
@@ -75,13 +75,12 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
   call pctile(s(ia),ib-ia+1,40,avenoise)
 
   fac=sqrt(1.0/avenoise)
-  do i=0,nfft2-1
+  do i=0,NFFT2-1
      j=i0+i
-     if(i.gt.nh2) j=j-nfft2
+     if(i.gt.nh2) j=j-NFFT2
      c2(i)=fac*c1(j)
   enddo
-  call four2a(c2,nfft2,1,1,1)              !FFT back to time domain
-  nz2=8*npts8/ndown
+  call four2a(c2,NFFT2,1,1,1)              !FFT back to time domain
 
   return
 end subroutine downsam9

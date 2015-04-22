@@ -1,4 +1,5 @@
-subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nagain,ndecoded)
+subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
+     nagain,ndecoded)
 
 !  Process dd() data to find and decode JT65 signals.
 
@@ -29,7 +30,7 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nagain,ndecoded)
 
   df=12000.0/NFFT                     !df = 12000.0/16384 = 0.732 Hz
   ftol=16.0                           !Frequency tolerance (Hz)
-  mode65=1                            !Decoding JT65A only, for now.
+  mode65=2**nsubmode
   done=.false.
   freq0=-999.
 

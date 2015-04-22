@@ -6,13 +6,14 @@ subroutine extract(s3,nadd,nqd,ncount,nhist,decoded,ltext,nbmkv)
 !   nqd      0/1 to indicate decode attempt at QSO frequency
 
 ! Output:
-!   ncount   number of symbols requiring correction
+!   ncount   number of symbols requiring correction (-1 for no KV decode)
 !   nhist    maximum number of identical symbol values
 !   decoded  decoded message (if ncount >=0)
 !   ltext    true if decoded message is free text
 !   nbmkv    0=no decode; 1=BM decode; 2=KV decode
 
   use prog_args                       !shm_key, exe_dir, data_dir
+  use packjt
 
   real s3(64,63)
   character decoded*22
@@ -55,8 +56,8 @@ subroutine extract(s3,nadd,nqd,ncount,nhist,decoded,ltext,nbmkv)
      go to 1
   endif
 
-  call graycode65(mrsym,63,-1)        !Remove gray code and interleaving
-  call interleave63(mrsym,-1)         !from most reliable symbols
+  call graycode65(mrsym,63,-1)        !Remove gray code 
+  call interleave63(mrsym,-1)         !Remove interleaving
   call interleave63(mrprob,-1)
   num65=num65+1
 

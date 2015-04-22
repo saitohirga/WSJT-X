@@ -2,7 +2,7 @@
 #define COMMONS_H
 
 #define NSMAX 6827
-#define NTMAX 120
+#define NTMAX 60
 #define RX_SAMPLE_RATE 12000
 
 extern struct FortranCommon {
@@ -21,12 +21,22 @@ extern struct FortranCommon {
   int ntol;                         //+/- decoding range around fQSO (Hz)
   int kin;
   int nzhsym;
-  int nsave;
+  int nsubmode;
   int nagain;
   int ndepth;
   int ntxmode;
   int nmode;
+  int minw;
+  int nclearave;
+  float emedelay;
+  float dttol;
+  int nlist;
+  int listutc[10];
   char datetime[20];
+  char mycall[12];
+  char mygrid[6];
+  char hiscall[12];
+  char hisgrid[6];
 } jt9com_;
 
 extern "C" {

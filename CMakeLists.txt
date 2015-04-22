@@ -227,6 +227,7 @@ set (wsjtx_CXXSRCS
   widegraph.cpp
   about.cpp
   astro.cpp
+  messageaveraging.cpp
   mainwindow.cpp
   Configuration.cpp
   main.cpp
@@ -251,6 +252,7 @@ set (wsjt_FSRCS
   lib/astro.f90
   lib/astrosub.f90
   lib/astro0.f90
+  lib/avg4.f90
   lib/azdist.f90
   lib/baddata.f90
   lib/ccf2.f90
@@ -265,17 +267,22 @@ set (wsjt_FSRCS
   lib/decode65b.f90
   lib/fftw3mod.f90
   lib/jt9fano.f90
+  lib/decode4.f90
   lib/decoder.f90
   lib/decjt9.f90
+  lib/deep4.f90
   lib/deg2grid.f90
   lib/demod64a.f90
   lib/determ.f90
   lib/dot.f90
   lib/downsam9.f90
   lib/encode232.f90
+  lib/encode4.f90
   lib/entail.f90
   lib/extract.F90
+  lib/extract4.f90
   lib/geocentric.f90
+  lib/getmet4.f90
   lib/fano232.f90
   lib/fchisq.f90
   lib/fchisq65.f90
@@ -285,47 +292,45 @@ set (wsjt_FSRCS
   lib/filbig.f90
   lib/fillcom.f90
   lib/flat1.f90
+  lib/flat1a.f90
   lib/flat2.f90
   lib/flat4.f90
   lib/flat65.f90
   lib/four2a.f90
   lib/fmtmsg.f90
+  lib/gen4.f90
   lib/gen65.f90
-  lib/genjt9.f90
+  lib/gen9.f90
   lib/geodist.f90
   lib/getlags.f90
-  lib/getpfx1.f90
-  lib/getpfx2.f90
   lib/graycode.f90
   lib/graycode65.f90
   lib/grid2deg.f90
-  lib/grid2k.f90
-  lib/grid2n.f90
+  lib/image.f90
   lib/indexx.f90
+  lib/interleave4.f90
   lib/interleave63.f90
   lib/interleave9.f90
+  lib/jt4.f90
+  lib/jt4a.f90
   lib/jt65a.f90
-  lib/k2grid.f90
+  lib/lpf1.f90
   lib/moon2.f90
   lib/moondop.f90
   lib/morse.f90
   lib/move.f90
-  lib/n2grid.f90
-  lib/nchar.f90
   lib/options.f90
-  lib/packbits.f90
-  lib/packcall.f90
-  lib/packgrid.f90
-  lib/packmsg.f90
-  lib/packtext.f90
+  lib/packjt.f90
   lib/pctile.f90
   lib/peakdt9.f90
-  lib/pfxdump.f90
-  lib/polfit.f90
+  lib/peakup.f90
+  lib/polyfit.f90
   lib/prog_args.f90
+  lib/ps4.f90
   lib/sec_midn.f90
   lib/setup65.f90
   lib/sleep_msec.f90
+  lib/slope.f90
   lib/smo.f90
   lib/smo121.f90
   lib/softsym.f90
@@ -335,17 +340,19 @@ set (wsjt_FSRCS
   lib/symspec.f90
   lib/symspec2.f90
   lib/symspec65.f90
+  lib/sync4.f90
   lib/sync9.f90
   lib/timer.f90
   lib/tm2.f90
   lib/toxyz.f90
   lib/twkfreq.f90
   lib/twkfreq65.f90
-  lib/unpackbits.f90
-  lib/unpackcall.f90
-  lib/unpackgrid.f90
-  lib/unpackmsg.f90
-  lib/unpacktext.f90
+  lib/wav11.f90
+  lib/wav12.f90
+  lib/wavhdr.f90
+  lib/wsjt4.f90
+  lib/xcor4.f90
+  lib/zplt.f90
   lib/wavhdr.f90
   lib/zplot9.f90
   )
@@ -370,6 +377,7 @@ set (wsjtx_UISRCS
   mainwindow.ui
   about.ui
   astro.ui
+  messageaveraging.ui
   widegraph.ui
   logqso.ui
   Configuration.ui
@@ -542,7 +550,7 @@ endif (APPLE)
 #
 # Fortran setup
 #
-set (General_FFLAGS "-Wall -Wno-conversion -fno-second-underscore")
+set (General_FFLAGS "-Wall -Wno-conversion -fbounds-check -fno-second-underscore")
 
 # FFLAGS depend on the compiler
 get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
@@ -647,7 +655,6 @@ endif ()
 # OpenMP
 #
 find_package (OpenMP)
-
 
 #
 # fftw3 single precsion library
@@ -824,6 +831,9 @@ target_link_libraries (jt65code wsjt_fort wsjt_cxx)
 add_executable (jt9code lib/jt9code.f90 wsjtx.rc)
 target_link_libraries (jt9code wsjt_fort wsjt_cxx)
 
+add_executable (jt4code lib/jt4code.f90 wsjtx.rc)
+target_link_libraries (jt4code wsjt_fort wsjt_cxx)
+
 add_executable (jt9 lib/jt9.f90 lib/jt9a.f90 lib/jt9b.f90 lib/jt9c.f90 ${jt9_CXXSRCS} wsjtx.rc)
 if (${OPENMP_FOUND} OR APPLE)
   if (APPLE)
@@ -925,7 +935,7 @@ install (TARGETS wsjtx
   BUNDLE DESTINATION . COMPONENT runtime
   )
 
-install (TARGETS jt9 jt65code jt9code message_aggregator
+install (TARGETS jt9 jt65code jt9code jt4code message_aggregator
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )

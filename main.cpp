@@ -45,7 +45,6 @@ int main(int argc, char *argv[])
       // Override programs executable basename as application name.
       a.setApplicationName ("WSJT-X");
       a.setApplicationVersion (version ());
-
       bool multiple {false};
 
 #if QT_VERSION >= 0x050200

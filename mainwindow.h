@@ -31,15 +31,14 @@
 #include "Modulator.hpp"
 #include "decodedtext.h"
 
-
+#define NUM_JT4_SYMBOLS 206
 #define NUM_JT65_SYMBOLS 126
 #define NUM_JT9_SYMBOLS 85
 #define NUM_CW_SYMBOLS 250
 #define TX_SAMPLE_RATE 48000
 
-extern int volatile itone[NUM_JT65_SYMBOLS]; //Audio tones for all Tx symbols
+extern int volatile itone[NUM_JT4_SYMBOLS];   //Audio tones for all Tx symbols
 extern int volatile icw[NUM_CW_SYMBOLS];	    //Dits for CW ID
-
 
 //--------------------------------------------------------------- MainWindow
 namespace Ui {
@@ -54,6 +53,7 @@ class WideGraph;
 class LogQSO;
 class Transceiver;
 class Astro;
+class MessageAveraging;
 class MessageClient;
 class QTime;
 
@@ -85,6 +85,8 @@ public slots:
   void jt9_error(QProcess::ProcessError);
   void setXIT(int n);
   void setFreq4(int rxFreq, int txFreq);
+  void clrAvg();
+  void msgAvgDecode2();
 
 protected:
   virtual void keyPressEvent( QKeyEvent *e );
@@ -137,6 +139,7 @@ private slots:
   void on_actionJT9_1_triggered();
   void on_actionJT65_triggered();
   void on_actionJT9_JT65_triggered();
+  void on_actionJT4_triggered();
   void on_TxFreqSpinBox_valueChanged(int arg1);
   void on_actionSave_decoded_triggered();
   void on_actionQuickDecode_triggered();
@@ -182,32 +185,48 @@ private slots:
   void on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered();
   void getpfx();
   void on_actionJT9W_1_triggered();
-
   void band_changed (Frequency);
   void monitor (bool);
   void stop_tuning ();
   void auto_tx_mode (bool);
+  void on_actionMessage_averaging_triggered();
+  void on_sbTol_valueChanged(int i);
+  void on_actionInclude_averaging_triggered();
+  void on_actionInclude_correlation_triggered();
+  void on_sbDT_valueChanged(double x);
+  void VHF_controls_visible(bool b);
+  void VHF_features_enabled(bool b);
+  void on_cbEME_toggled(bool b);
+  void on_sbMinW_valueChanged(int n);
+  void on_sbSubmode_valueChanged(int n);
+  void on_cbShMsgs_toggled(bool b);
+  void on_cbTx6_toggled(bool b);
   void networkError (QString const&);
+  void on_ClrAvgButton_clicked();
 
 private:
   void enable_DXCC_entity (bool on);
 
-  Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo, unsigned channels, unsigned msBuffered) const;
+  Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
+      unsigned channels, unsigned msBuffered) const;
   Q_SIGNAL void stopAudioOutputStream () const;
-
-  Q_SIGNAL void startAudioInputStream (QAudioDeviceInfo const&, int framesPerBuffer, AudioDevice * sink, unsigned downSampleFactor, AudioDevice::Channel) const;
+  Q_SIGNAL void startAudioInputStream (QAudioDeviceInfo const&,
+      int framesPerBuffer, AudioDevice * sink,
+      unsigned downSampleFactor, AudioDevice::Channel) const;
   Q_SIGNAL void suspendAudioInputStream () const;
   Q_SIGNAL void resumeAudioInputStream () const;
-
   Q_SIGNAL void startDetector (AudioDevice::Channel) const;
   Q_SIGNAL void detectorClose () const;
-
   Q_SIGNAL void finished () const;
   Q_SIGNAL void transmitFrequency (unsigned) const;
   Q_SIGNAL void endTransmitMessage (bool quick = false) const;
   Q_SIGNAL void tune (bool = true) const;
-  Q_SIGNAL void sendMessage (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, double toneSpacing, SoundOutput *, AudioDevice::Channel = AudioDevice::Mono, bool synchronize = true, double dBSNR = 99.) const;
+  Q_SIGNAL void sendMessage (unsigned symbolsLength, double framesPerSymbol,
+      unsigned frequency, double toneSpacing,
+      SoundOutput *, AudioDevice::Channel = AudioDevice::Mono,
+      bool synchronize = true, double dBSNR = 99.) const;
   Q_SIGNAL void outAttenuationChanged (qreal) const;
+  Q_SIGNAL void toggleShorthand () const;
 
 private:
   QDir m_dataDir;
@@ -227,6 +246,7 @@ private:
   QScopedPointer<QTextEdit> m_shortcuts;
   QScopedPointer<QTextEdit> m_prefixes;
   QScopedPointer<QTextEdit> m_mouseCmnds;
+  QScopedPointer<MessageAveraging> m_msgAvgWidget;
 
   Frequency  m_dialFreq;
 
@@ -238,6 +258,11 @@ private:
 
   qint64  m_msErase;
   qint64  m_secBandChanged;
+  qint64  m_freqMoon;
+  qint64  m_freqNominal;
+  qint64  m_dialFreqTx;
+
+  float   m_DTtol;
 
   qint32  m_waterfallAvg;
   qint32  m_ntx;
@@ -255,12 +280,17 @@ private:
   qint32  m_hsymStop;
   qint32  m_len1;
   qint32  m_inGain;
-  qint32  m_nsave;
   qint32  m_ncw;
   qint32  m_secID;
   qint32  m_repeatMsg;
   qint32  m_watchdogLimit;
   qint32  m_astroFont;
+  qint32  m_nSubMode;
+  qint32  m_MinW;
+  qint32  m_tol;
+  qint32  m_nclearave;
+  qint32  m_DopplerMethod;
+  qint32  m_DopplerMethod0;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -304,6 +334,10 @@ private:
   bool    m_CATerror;
   bool    m_plus2kHz;
   bool    m_bAstroData;
+  bool    m_bEME;
+  bool    m_bShMsgs;
+  bool    m_bDopplerTracking;
+  bool    m_bDopplerTracking0;
 
   float   m_pctZap;
 
@@ -354,7 +388,7 @@ private:
   QString m_cmnd;
   QString m_msgSent0;
   QString m_fileToSave;
-  QString  m_band;
+  QString m_band;
 
   QStringList m_prefix;
   QStringList m_suffix;
@@ -363,7 +397,6 @@ private:
   QHash<QString,bool> m_sfx;
 
   QDateTime m_dateTimeQSO;
-  QRect   m_astroGeom;
 
   QSharedMemory *mem_jt9;
   SignalMeter *signalMeter;
@@ -423,10 +456,13 @@ extern int ptt(int nport, int ntx, int* iptt, int* nopen);
 
 extern "C" {
   //----------------------------------------------------- C and Fortran routines
-  void symspec_(int* k, int* ntrperiod, int* nsps, int* ingain, int* nflatten,
+  void symspec_(int* k, int* ntrperiod, int* nsps, int* ingain,
                 float* px, float s[], float* df3, int* nhsym, int* npts8);
 
-  void genjt9_(char* msg, int* ichk, char* msgsent, int itone[],
+  void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
+               int* itext, int len1, int len2);
+
+  void gen9_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, int len1, int len2);
 
   void gen65_(char* msg, int* ichk, char* msgsent, int itone[],

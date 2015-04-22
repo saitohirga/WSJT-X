@@ -31,6 +31,7 @@ public:
      // We rely on these columns being the same in the fortran code (lib/decode.f90) that formats the decoded text
      enum Columns { column_time    = 0,
                     column_snr     = 5,
+                    column_dt      = 9,
                     column_freq    = 14,
                     column_mode    = 19,
                     column_qsoText = 21 };
@@ -65,6 +66,7 @@ public:
     bool isTX();
     int frequencyOffset();  // hertz offset from the tuned dial or rx frequency, aka audio frequency
     int snr();
+    float dt();
 
     // find and extract any report. Returns true if this is a standard message
   bool report(QString const& myBaseCall, QString const& dxBaseCall, /*mod*/QString& report);

@@ -1,4 +1,4 @@
-subroutine astro(nyear,month,nday,uth,nfreq,Mygrid,                    &
+subroutine astro(nyear,month,nday,uth,freq8,Mygrid,                    &
           NStation,MoonDX,AzSun,ElSun,AzMoon0,ElMoon0,                 &
           ntsky,doppler00,doppler,dbMoon,RAMoon,DecMoon,HA,Dgrd,sd,    &
           poloffset,xnr,day,lon,lat,LST,techo)
@@ -7,6 +7,7 @@ subroutine astro(nyear,month,nday,uth,nfreq,Mygrid,                    &
 ! NB: may want to smooth the Tsky map to 10 degrees or so.
 
   character*6 MyGrid,HisGrid
+  real*8 freq8
   real LST
   real lat,lon
   integer*2 nt144(180)
@@ -41,9 +42,9 @@ subroutine astro(nyear,month,nday,uth,nfreq,Mygrid,                    &
   call sun(nyear,month,nday,uth,lon,lat,RASun,DecSun,LST,      &
        AzSun,ElSun,mjd,day)
 
-  freq=nfreq*1.e6
-  if(nfreq.eq.2) freq=1.8e6
-  if(nfreq.eq.4) freq=3.5e6
+!  freq=nfreq*1.e6
+!  if(nfreq.eq.2) freq=1.8e6
+!  if(nfreq.eq.4) freq=3.5e6
 
   call MoonDop(nyear,month,nday,uth,lon,lat,RAMoon,DecMoon,    &
        LST,HA,AzMoon,ElMoon,vr,dist)
@@ -55,14 +56,14 @@ subroutine astro(nyear,month,nday,uth,nfreq,Mygrid,                    &
   if(NStation.eq.1) poloffset1=rad*atan2(yy,xx)
   if(NStation.eq.2) poloffset2=rad*atan2(yy,xx)
 
-  techo=2.0 * dist/2.99792458e5                 !Echo delay time
-  doppler=-freq*vr/2.99792458e5                 !One-way Doppler
+  techo=2.0 * dist/2.99792458e5                  !Echo delay time
+  doppler=-freq8*vr/2.99792458e5                 !One-way Doppler
 
   call coord(0.,0.,-1.570796,1.161639,RAMoon/rad,DecMoon/rad,el,eb)
   longecl_half=nint(rad*el/2.0)
   if(longecl_half.lt.1 .or. longecl_half.gt.180) longecl_half=180
   t144=nt144(longecl_half)
-  tsky=(t144-2.7)*(144.0/nfreq)**2.6 + 2.7      !Tsky for obs freq
+  tsky=(t144-2.7)*(144.0/freq8)**2.6 + 2.7      !Tsky for obs freq
 
   xdop(NStation)=doppler
   if(NStation.eq.2) then
@@ -88,7 +89,7 @@ subroutine astro(nyear,month,nday,uth,nfreq,Mygrid,                    &
   endif
 
   tr=80.0                              !Good preamp
-  tskymin=13.0*(408.0/nfreq)**2.6      !Cold sky temperature
+  tskymin=13.0*(408.0/freq8)**2.6      !Cold sky temperature
   tsysmin=tskymin+tr
   tsys=tsky+tr
   dgrd=-10.0*log10(tsys/tsysmin) + dbMoon

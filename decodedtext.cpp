@@ -54,6 +54,11 @@ int DecodedText::snr()
     return _string.mid(column_snr,3).toInt();
 }
 
+float DecodedText::dt()
+{
+  return _string.mid(column_dt,5).toFloat();
+}
+
 /*
 2343 -11  0.8 1259 # YV6BFE F6GUU R-08
 2343 -19  0.3  718 # VE6WQ SQ2NIJ -14
@@ -67,6 +72,7 @@ int DecodedText::snr()
 bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /*mod*/QString& report)
 {
     QString msg=_string.mid(column_qsoText);
+    if(msg.trimmed().length() < 1) return false;
     int i1=msg.indexOf("\r");
     if (i1>0)
         msg=msg.mid(0,i1-1) + "                      ";

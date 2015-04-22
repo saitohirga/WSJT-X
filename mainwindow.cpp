@@ -1,7 +1,6 @@
 //-------------------------------------------------------- MainWindow
 
 #include "mainwindow.h"
-
 #include <cinttypes>
 #include <limits>
 
@@ -23,6 +22,7 @@
 #include "plotter.h"
 #include "about.h"
 #include "astro.h"
+#include "messageaveraging.h"
 #include "widegraph.h"
 #include "sleep.h"
 #include "getfile.h"
@@ -39,8 +39,8 @@
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
 
-int volatile itone[NUM_JT65_SYMBOLS];	//Audio tones for all Tx symbols
-int volatile icw[NUM_CW_SYMBOLS];	//Dits for CW ID
+int volatile itone[NUM_JT4_SYMBOLS];	//Audio tones for all Tx symbols
+int volatile icw[NUM_CW_SYMBOLS];	    //Dits for CW ID
 
 int outBufSize;
 int rc;
@@ -51,7 +51,7 @@ wchar_t buffer[256];
 namespace
 {
   Radio::Frequency constexpr default_frequency {14076000};
-  QRegExp message_alphabet {"[- A-Za-z0-9+./?]*"};
+  QRegExp message_alphabet {"[- @A-Za-z0-9+./?#]*"};
 
   bool message_is_73 (int type, QStringList const& msg_parts)
   {
@@ -95,8 +95,8 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_wideGraph (new WideGraph (settings)),
   m_logDlg (new LogQSO (program_title (), settings, this)),
   m_dialFreq {std::numeric_limits<Radio::Frequency>::max ()},
-  m_detector (RX_SAMPLE_RATE, NTMAX / 2, 6912 / 2, downSampleFactor),
-  m_modulator (TX_SAMPLE_RATE, NTMAX / 2),
+  m_detector (RX_SAMPLE_RATE, NTMAX, 6912 / 2, downSampleFactor),
+  m_modulator (TX_SAMPLE_RATE, NTMAX),
   m_audioThread {new QThread},
   m_diskData {false},
   m_sentFirst73 {false},
@@ -181,10 +181,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
           SLOT(bumpFqso(int)));
   connect(m_wideGraph.data (), SIGNAL(setXIT2(int)),this,
           SLOT(setXIT(int)));
-  //    connect(m_wideGraph.data (), SIGNAL(dialFreqChanged(double)),this,
-  //            SLOT(dialFreqChanged2(double)));
   connect (this, &MainWindow::finished, m_wideGraph.data (), &WideGraph::close);
-
 
   // setup the log QSO dialog
   connect (m_logDlg.data (), &LogQSO::acceptQSO, this, &MainWindow::acceptQSO2);
@@ -203,7 +200,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   ui->actionJT9W_1->setActionGroup(modeGroup);
   ui->actionJT65->setActionGroup(modeGroup);
   ui->actionJT9_JT65->setActionGroup(modeGroup);
-
+  ui->actionJT4->setActionGroup(modeGroup);
 
   QActionGroup* saveGroup = new QActionGroup(this);
   ui->actionNone->setActionGroup(saveGroup);
@@ -214,6 +211,8 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   ui->actionQuickDecode->setActionGroup(DepthGroup);
   ui->actionMediumDecode->setActionGroup(DepthGroup);
   ui->actionDeepestDecode->setActionGroup(DepthGroup);
+  ui->actionInclude_averaging->setActionGroup(DepthGroup);
+  ui->actionInclude_correlation->setActionGroup(DepthGroup);
 
   QButtonGroup* txMsgButtonGroup = new QButtonGroup;
   txMsgButtonGroup->addButton(ui->txrb1,1);
@@ -330,7 +329,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_killAll=false;
   m_widebandDecode=false;
   m_ntx=1;
-  m_setftx=0;
   m_loopall=false;
   m_startAnother=false;
   m_saveDecoded=false;
@@ -350,6 +348,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_decodedText2=false;
   m_freeText=false;
   m_msErase=0;
+  m_sentFirst73=false;
   m_watchdogLimit=7;
   m_repeatMsg=0;
   m_secBandChanged=0;
@@ -359,6 +358,13 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   ui->readFreq->setEnabled(false);
   m_QSOText.clear();
   decodeBusy(false);
+  m_MinW=0;
+  m_nSubMode=0;
+  m_tol=500;
+  m_DTtol=0.2;
+  m_wideGraph->setTol(m_tol);
+  m_bShMsgs=false;
+  m_bDopplerTracking0=false;
 
   signalMeter = new SignalMeter(ui->meterFrame);
   signalMeter->resize(50, 160);
@@ -367,7 +373,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   ui->labDist->setStyleSheet("border: 0px;");
 
   readSettings();		         //Restore user's setup params
-
   // start the audio thread
   m_audioThread->start (m_audioThreadPriority);
 
@@ -412,7 +417,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 #else
       , "-w", "1"               //FFTW patience - debug builds for speed
 #endif
-
       // The number  of threads for  FFTW specified here is  chosen as
       // three because  that gives  the best  throughput of  the large
       // FFTs used  in jt9.  The count  is the minimum of  (the number
@@ -437,19 +441,21 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_ntx=6;
   ui->txrb6->setChecked(true);
   if(m_mode!="JT9" and m_mode!="JT9W-1" and m_mode!="JT65" and
-     m_mode!="JT9+JT65") m_mode="JT9";
+     m_mode!="JT9+JT65" and m_mode!="JT4") m_mode="JT9";
   on_actionWide_Waterfall_triggered();                   //###
-  m_wideGraph->setLockTxFreq(m_lockTxFreq);
-  m_wideGraph->setModeTx(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
 
   connect(m_wideGraph.data (), SIGNAL(setFreq3(int,int)),this,
           SLOT(setFreq4(int,int)));
 
+  if(m_mode=="JT4") on_actionJT4_triggered();
   if(m_mode=="JT9") on_actionJT9_1_triggered();
   if(m_mode=="JT9W-1") on_actionJT9W_1_triggered();
   if(m_mode=="JT65") on_actionJT65_triggered();
   if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
+
+  m_wideGraph->setLockTxFreq(m_lockTxFreq);
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
 
   future1 = new QFuture<void>;
   watcher1 = new QFutureWatcher<void>;
@@ -476,6 +482,21 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_config.transceiver_online (true);
   on_monitorButton_clicked (!m_config.monitor_off_at_startup ());
 
+  ui->labTol->setStyleSheet( \
+        "QLabel { background-color : white; color : black; }");
+  ui->labTol->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  ui->labMinW->setStyleSheet( \
+        "QLabel { background-color : white; color : black; }");
+  ui->labMinW->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  ui->labSubmode->setStyleSheet( \
+        "QLabel { background-color : white; color : black; }");
+  ui->labSubmode->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+
+  bool b=m_config.enable_VHF_features() and (m_mode=="JT4" or m_mode=="JT65");
+  VHF_controls_visible(b);
+
+  m_hsymStop=173;
+  if(m_config.decode_at_52s()) m_hsymStop=181;
 #if !WSJT_ENABLE_EXPERIMENTAL_FEATURES
   ui->actionJT9W_1->setEnabled (false);
 #endif
@@ -502,6 +523,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("DXcall",ui->dxCallEntry->text());
   m_settings->setValue("DXgrid",ui->dxGridEntry->text());
   m_settings->setValue ("AstroDisplayed", m_astroWidget && m_astroWidget->isVisible());
+  m_settings->setValue ("MsgAvgDisplayed", m_msgAvgWidget && m_msgAvgWidget->isVisible());
   m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
   m_settings->endGroup();
 
@@ -512,8 +534,13 @@ void MainWindow::writeSettings()
   m_settings->setValue("SaveDecoded",ui->actionSave_decoded->isChecked());
   m_settings->setValue("SaveAll",ui->actionSave_all->isChecked());
   m_settings->setValue("NDepth",m_ndepth);
-  m_settings->setValue("RxFreq",ui->RxFreqSpinBox->value ());
-  m_settings->setValue("TxFreq",ui->TxFreqSpinBox->value ());
+  m_settings->setValue("RxFreq",ui->RxFreqSpinBox->value());
+  m_settings->setValue("TxFreq",ui->TxFreqSpinBox->value());
+  m_settings->setValue("minW",ui->sbMinW->value());
+  m_settings->setValue("SubMode",ui->sbSubmode->value());
+  m_settings->setValue("DTtol",m_DTtol);
+  m_settings->setValue("Ftol",ui->sbTol->value());
+  m_settings->setValue("EME",m_bEME);
   m_settings->setValue ("DialFreq", QVariant::fromValue(m_lastMonitoredFrequency));
   m_settings->setValue("InGain",m_inGain);
   m_settings->setValue("OutAttenuation", ui->outAttenuation->value ());
@@ -538,20 +565,14 @@ void MainWindow::readSettings()
   m_txFirst = m_settings->value("TxFirst",false).toBool();
   ui->txFirstCheckBox->setChecked(m_txFirst);
   auto displayAstro = m_settings->value ("AstroDisplayed", false).toBool ();
-
-  if (m_settings->contains ("FreeText"))
-  {
-    ui->freeTextMsg->setCurrentText (m_settings->value ("FreeText").toString ());
-  }
-
+  auto displayMsgAvg = m_settings->value ("MsgAvgDisplayed", false).toBool ();
+  if (m_settings->contains ("FreeText")) ui->freeTextMsg->setCurrentText (
+        m_settings->value ("FreeText").toString ());
   m_settings->endGroup();
 
   // do this outside of settings group because it uses groups internally
-  if (displayAstro)
-    {
-      on_actionAstronomical_data_triggered ();
-    }
-
+  if (displayAstro) on_actionAstronomical_data_triggered ();
+  if (displayMsgAvg) on_actionMessage_averaging_triggered();
   m_settings->beginGroup("Common");
   morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData())
          , const_cast<int *> (icw)
@@ -567,6 +588,16 @@ void MainWindow::readSettings()
   ui->actionSave_all->setChecked(m_settings->value("SaveAll",false).toBool());
   ui->RxFreqSpinBox->setValue(0); // ensure a change is signaled
   ui->RxFreqSpinBox->setValue(m_settings->value("RxFreq",1500).toInt());
+  m_nSubMode=m_settings->value("SubMode",0).toInt();
+  ui->sbSubmode->setValue(m_nSubMode);
+  ui->sbMinW->setMaximum(m_nSubMode);
+  m_DTtol=m_settings->value("DTtol",0.2).toFloat();
+  ui->sbDT->setValue(m_DTtol);
+  ui->sbTol->setValue(m_settings->value("Ftol",4).toInt());
+  m_bEME=m_settings->value("EME",false).toBool();
+  ui->cbEME->setChecked(m_bEME);
+  m_MinW=m_settings->value("minW",0).toInt();
+  ui->sbMinW->setValue(m_MinW);
   m_lastMonitoredFrequency = m_settings->value ("DialFreq", QVariant::fromValue<Frequency> (default_frequency)).value<Frequency> ();
   ui->TxFreqSpinBox->setValue(0); // ensure a change is signaled
   ui->TxFreqSpinBox->setValue(m_settings->value("TxFreq",1500).toInt());
@@ -602,6 +633,8 @@ void MainWindow::readSettings()
   if(m_ndepth==1) ui->actionQuickDecode->setChecked(true);
   if(m_ndepth==2) ui->actionMediumDecode->setChecked(true);
   if(m_ndepth==3) ui->actionDeepestDecode->setChecked(true);
+  if(m_ndepth==4) ui->actionInclude_averaging->setChecked(true);
+  if(m_ndepth==5) ui->actionInclude_correlation->setChecked(true);
 
   statusChanged();
 }
@@ -623,7 +656,6 @@ void MainWindow::dataSink(qint64 frames)
   static int nzap=0;
   static int trmin;
   static int npts8;
-  static int nflatten=0;
   static float px=0.0;
   static float df3;
 
@@ -635,12 +667,11 @@ void MainWindow::dataSink(qint64 frames)
 
   // Get power, spectrum, and ihsym
   trmin=m_TRperiod/60;
-  int k (frames - 1);
+//  int k (frames - 1);
+  int k (frames);
   jt9com_.nfa=m_wideGraph->nStartFreq();
-  jt9com_.nfb=m_wideGraph->getFmax();
-  nflatten=0;
-  if(m_wideGraph->flatten()) nflatten=1;
-  symspec_(&k,&trmin,&m_nsps,&m_inGain,&nflatten,&px,s,&df3,&ihsym,&npts8);
+  jt9com_.nfb=m_wideGraph->Fmax();
+  symspec_(&k,&trmin,&m_nsps,&m_inGain,&px,s,&df3,&ihsym,&npts8);
   if(ihsym <=0) return;
   QString t;
   m_pctZap=nzap*100.0/m_nsps;
@@ -655,6 +686,8 @@ void MainWindow::dataSink(qint64 frames)
     jt9com_.npts8=(ihsym*m_nsps)/16;
     jt9com_.newdat=1;
     jt9com_.nagain=0;
+    if(!m_config.decode_at_52s()) m_hsymStop=173;
+    if(m_config.decode_at_52s()) m_hsymStop=181;
     jt9com_.nzhsym=m_hsymStop;
     QDateTime t = QDateTime::currentDateTimeUtc();
     m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
@@ -665,7 +698,8 @@ void MainWindow::dataSink(qint64 frames)
       imin=imin - (imin%(m_TRperiod/60));
       QString t2;
       t2.sprintf("%2.2d%2.2d",ihr,imin);
-      m_fname=m_config.save_directory ().absoluteFilePath (t.date().toString("yyMMdd") + "_" + t2 + ".wav");
+      m_fname=m_config.save_directory ().absoluteFilePath (t.date().toString("yyMMdd") +
+                                                           "_" + t2 + ".wav");
       *future2 = QtConcurrent::run(savewav, m_fname, m_TRperiod);
       watcher2->setFuture(*future2);
     }
@@ -718,8 +752,9 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       }
 
       auto_tx_label->setText (m_config.quick_call () ? "Tx-Enable Armed" : "Tx-Enable Disarmed");
-
       displayDialFrequency ();
+      bool b=m_config.enable_VHF_features() and (m_mode=="JT4" or m_mode=="JT65");
+      VHF_controls_visible(b);
     }
 
   setXIT (ui->TxFreqSpinBox->value ());
@@ -964,24 +999,24 @@ void MainWindow::displayDialFrequency ()
   // search working frequencies for one we are within 10kHz of
   auto frequencies = m_config.frequencies ();
   bool valid {false};
-  for (int row = 0; row < frequencies->rowCount (); ++row)
-    {
+
+  for (int row = 0; row < frequencies->rowCount (); ++row) {
       // we need to do specific checks for above and below here to
       // ensure that we can use unsigned Radio::Frequency since we
       // potentially use the full 64-bit unsigned range.
       auto working_frequency = frequencies->data (frequencies->index (row, 0)).value<Frequency> ();
       auto offset = m_dialFreq > working_frequency ? m_dialFreq - working_frequency : working_frequency - m_dialFreq;
-      if (offset < 10000u)
-        {
-          valid = true;
-        }
+      if ((offset < 10000u) or (m_config.enable_VHF_features() and offset < 1000000u)) {
+        m_freqNominal=working_frequency;
+        valid = true;
+      }
     }
+
   ui->labDialFreq->setProperty ("oob", !valid);
   // the following sequence is necessary to update the style
   ui->labDialFreq->style ()->unpolish (ui->labDialFreq);
   ui->labDialFreq->style ()->polish (ui->labDialFreq);
   ui->labDialFreq->update ();
-
   ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
 }
 
@@ -1108,6 +1143,18 @@ void MainWindow::on_actionAstronomical_data_triggered()
   m_astroWidget->showNormal();
 }
 
+void MainWindow::on_actionMessage_averaging_triggered()
+{
+  if (!m_msgAvgWidget)
+    {
+      m_msgAvgWidget.reset (new MessageAveraging {m_settings});
+
+      // Connect signals from Message Averaging window
+      connect (this, &MainWindow::finished, m_msgAvgWidget.data (), &MessageAveraging::close);
+    }
+  m_msgAvgWidget->showNormal();
+}
+
 void MainWindow::on_actionOpen_triggered()                     //Open File
 {
   monitor (false);
@@ -1117,13 +1164,10 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
                                      "WSJT Files (*.wav)");
   if(fname != "") {
     m_path=fname;
-    int i;
-    i=fname.indexOf(".wav") - 11;
-    if(i>=0) {
-      tx_status_label->setStyleSheet("QLabel{background-color: #66ff66}");
-      tx_status_label->setText(" " + fname.mid(i,15) + " ");
-      //      lab1->setText(" " + fname + " ");
-    }
+    int i1=fname.lastIndexOf("/");
+    QString baseName=fname.mid(i1+1);
+    tx_status_label->setStyleSheet("QLabel{background-color: #99ffff}");
+    tx_status_label->setText(" " + baseName + " ");
     on_stopButton_clicked();
     m_diskData=true;
     *future1 = QtConcurrent::run(getfile, fname, m_TRperiod);
@@ -1146,12 +1190,10 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
       int n=m_path.length();
       QString fname=m_path.replace(n-len,len,list.at(i+1));
       m_path=fname;
-      int i;
-      i=fname.indexOf(".wav") - 11;
-      if(i>=0) {
-        tx_status_label->setStyleSheet("QLabel{background-color: #66ff66}");
-        tx_status_label->setText(" " + fname.mid(i,len) + " ");
-      }
+      int i1=fname.lastIndexOf("/");
+      QString baseName=fname.mid(i1+1);
+      tx_status_label->setStyleSheet("QLabel{background-color: #99ffff}");
+      tx_status_label->setText(" " + baseName + " ");
       m_diskData=true;
       *future1 = QtConcurrent::run(getfile, fname, m_TRperiod);
       watcher1->setFuture(*future1);
@@ -1174,9 +1216,9 @@ void MainWindow::diskDat()                                   //diskDat()
   for(int n=1; n<=m_hsymStop; n++) {              // Do the half-symbol FFTs
     k=(n+1)*kstep;
     jt9com_.npts8=k/8;
-    dataSink(k * sizeof (jt9com_.d2[0]));
-    if(n%10 == 1 or n == m_hsymStop)
-      qApp->processEvents();                   //Keep GUI responsive
+//    dataSink(k * sizeof (jt9com_.d2[0]));
+    dataSink(k);
+    if(n%10 == 1 or n == m_hsymStop) qApp->processEvents();   //Keep GUI responsive
   }
 }
 
@@ -1297,6 +1339,21 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
   if((n%100)==2) on_DecodeButton_clicked (true);
 }
 
+void MainWindow::clrAvg()
+{
+  m_nclearave=1;
+}
+
+void MainWindow::on_ClrAvgButton_clicked()
+{
+  m_nclearave=1;
+}
+
+void MainWindow::msgAvgDecode2()
+{
+  on_DecodeButton_clicked (true);
+}
+
 void MainWindow::decode()                                       //decode()
 {
   if(!m_dataAvailable) return;
@@ -1315,9 +1372,11 @@ void MainWindow::decode()                                       //decode()
   jt9com_.ndiskdat=0;
   if(m_diskData) jt9com_.ndiskdat=1;
   jt9com_.nfa=m_wideGraph->nStartFreq();
-  jt9com_.nfSplit=m_wideGraph->getFmin();
-  jt9com_.nfb=m_wideGraph->getFmax();
-  jt9com_.ntol=20;
+  jt9com_.nfSplit=m_wideGraph->Fmin();
+  jt9com_.nfb=m_wideGraph->Fmax();
+  if(m_mode=="JT9" or m_mode=="JT9+JT65" or
+     (m_mode=="JT65" and !m_config.enable_VHF_features())) m_tol=20;
+  jt9com_.ntol=m_tol;
   if(jt9com_.nutc < m_nutc0) m_RxLog = 1;       //Date and Time to all.txt
   m_nutc0=jt9com_.nutc;
   jt9com_.ntxmode=9;
@@ -1326,11 +1385,25 @@ void MainWindow::decode()                                       //decode()
   if(m_mode=="JT9W-1") jt9com_.nmode=91;
   if(m_mode=="JT65") jt9com_.nmode=65;
   if(m_mode=="JT9+JT65") jt9com_.nmode=9+65;  // = 74
+  if(m_mode=="JT4") {
+    jt9com_.nmode=4;
+    jt9com_.ntxmode=4;
+  }
   jt9com_.ntrperiod=m_TRperiod;
-  m_nsave=0;
-  if(m_saveDecoded) m_nsave=2;
-  jt9com_.nsave=m_nsave;
+  jt9com_.nsubmode=m_nSubMode;
+  jt9com_.minw=m_MinW;
+  jt9com_.nclearave=m_nclearave;
+  jt9com_.dttol=m_DTtol;
+  jt9com_.emedelay=0.0;
+  if(m_bEME) jt9com_.emedelay=2.5;
+
   strncpy(jt9com_.datetime, m_dateTime.toLatin1(), 20);
+  strncpy(jt9com_.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
+  strncpy(jt9com_.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
+  QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
+  QString hisGrid=ui->dxGridEntry->text().toUpper().trimmed();
+  strncpy(jt9com_.hiscall,(hisCall+"            ").toLatin1(),12);
+  strncpy(jt9com_.hisgrid,(hisGrid+"      ").toLatin1(),6);
 
   //newdat=1  ==> this is new data, must do the big FFT
   //nagain=1  ==> decode only at fQSO +/- Tol
@@ -1345,7 +1418,6 @@ void MainWindow::decode()                                       //decode()
     size -= noffset;
   }
   memcpy(to, from, qMin(mem_jt9->size(), size));
-
   QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.remove (); // Allow jt9 to start
   decodeBusy(true);
 }
@@ -1367,43 +1439,39 @@ void MainWindow::readFromStderr()                             //readFromStderr
 
 void MainWindow::readFromStdout()                             //readFromStdout
 {
-  QString band = m_config.bands ()->data (m_config.bands ()->find (m_dialFreq)).toString();
-
-  while(proc_jt9.canReadLine())
-    {
-      QByteArray t=proc_jt9.readLine();
-      if(t.indexOf("<DecodeFinished>") >= 0)
-        {
-          m_bdecoded = (t.mid(23,1).toInt()==1);
-          bool keepFile=m_saveAll or (m_saveDecoded and m_bdecoded);
-          if(!keepFile and !m_diskData) killFileTimer->start(45*1000); //Kill in 45 s
-          jt9com_.nagain=0;
-          jt9com_.ndiskdat=0;
-          QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.open(QIODevice::ReadWrite);
-          ui->DecodeButton->setChecked (false);
-          decodeBusy(false);
+  while(proc_jt9.canReadLine()) {
+    QByteArray t=proc_jt9.readLine();
+    bool baveJT4msg=(t.length()>48);
+    if(m_mode=="JT4") t=t.mid(0,39) + t.mid(42,t.length()-42);
+    if(t.indexOf("<DecodeFinished>") >= 0) {
+      m_bdecoded = (t.mid(23,1).toInt()==1);
+      bool keepFile=m_saveAll or (m_saveDecoded and m_bdecoded);
+      if(!keepFile and !m_diskData) killFileTimer->start(45*1000); //Kill in 45 s
+      jt9com_.nagain=0;
+      jt9com_.ndiskdat=0;
+      m_nclearave=0;
+      QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.open(QIODevice::ReadWrite);
+      ui->DecodeButton->setChecked (false);
+      decodeBusy(false);
+      m_RxLog=0;
+      m_startAnother=m_loopall;
+      m_blankLine=true;
+      return;
+    } else {
+      QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
+      if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
+        QTextStream out(&f);
+        if(m_RxLog==1) {
+          out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
+              << "  " << (m_dialFreq / 1.e6) << " MHz  " << m_mode << endl;
           m_RxLog=0;
-          m_startAnother=m_loopall;
-          m_blankLine=true;
-          return;
-        } else {
-        QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
-        if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append))
-          {
-            QTextStream out(&f);
-            if(m_RxLog==1) {
-              out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-                  << "  " << (m_dialFreq / 1.e6) << " MHz  " << m_mode << endl;
-              m_RxLog=0;
-            }
-            int n=t.length();
-            out << t.mid(0,n-2) << endl;
-            f.close();
-          }
-        else
-          {
-            msgBox("Cannot open \"" + f.fileName () + "\" for append:" + f.errorString ());
-          }
+        }
+        int n=t.length();
+        out << t.mid(0,n-2) << endl;
+        f.close();
+      } else {
+        msgBox("Cannot open \"" + f.fileName () + "\" for append:" + f.errorString ());
+      }
 
         if (m_config.insert_blank () && m_blankLine)
           {
@@ -1417,10 +1485,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
             m_blankLine = false;
           }
 
-        DecodedText decodedtext;
-        decodedtext = t.replace("\n",""); //t.replace("\n","").mid(0,t.length()-4);
+      DecodedText decodedtext;
+      decodedtext = t.replace("\n",""); //t.replace("\n","").mid(0,t.length()-4);
 
-        // the left band display
+        //Left (Band activity) window
+      if(!baveJT4msg) {
         ui->decodedTextBrowser->displayDecodedText (decodedtext
                                                     , m_baseCall
                                                     , m_config.DXCC ()
@@ -1429,24 +1498,26 @@ void MainWindow::readFromStdout()                             //readFromStdout
                                                     , m_config.color_MyCall()
                                                     , m_config.color_DXCC()
                                                     , m_config.color_NewCall());
+      }
 
-        if (abs(decodedtext.frequencyOffset() - m_wideGraph->rxFreq()) <= 10) // this msg is within 10 hertz of our tuned frequency
-          {
-            // the right QSO window
-            ui->decodedTextBrowser2->displayDecodedText(decodedtext
-                                                        , m_baseCall
-                                                        , false
-                                                        , m_logBook
-                                                        , m_config.color_CQ()
-                                                        , m_config.color_MyCall()
-                                                        , m_config.color_DXCC()
-                                                        , m_config.color_NewCall());
+        //Right (Rx Frequency) window
+      if (((abs(decodedtext.frequencyOffset() - m_wideGraph->rxFreq()) <= 10) and
+           m_mode!="JT4") or baveJT4msg) {
+          // This msg is within 10 hertz of our tuned frequency, or a JT4 avg
+        ui->decodedTextBrowser2->displayDecodedText(decodedtext
+                                                    , m_baseCall
+                                                    , false
+                                                    , m_logBook
+                                                    , m_config.color_CQ()
+                                                    , m_config.color_MyCall()
+                                                    , m_config.color_DXCC()
+                                                    , m_config.color_NewCall());
 
-            bool b65=decodedtext.isJT65();
-            if(b65 and m_modeTx!="JT65") on_pbTxMode_clicked();
-            if(!b65 and m_modeTx=="JT65") on_pbTxMode_clicked();
-            m_QSOText=decodedtext;
-          }
+        bool b65=decodedtext.isJT65();
+        if(b65 and m_modeTx!="JT65") on_pbTxMode_clicked();
+        if(!b65 and m_modeTx=="JT65") on_pbTxMode_clicked();
+        m_QSOText=decodedtext;
+      }
 
         postDecode (true, decodedtext.string ());
 
@@ -1455,29 +1526,38 @@ void MainWindow::readFromStdout()                             //readFromStdout
                                          , Radio::base_callsign (ui->dxCallEntry-> text ().toUpper ().trimmed ())
                                          , /*mod*/m_rptRcvd);
 
-        // extract details and send to PSKreporter
-        int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
-        bool okToPost=(nsec>50);
-        if(m_config.spot_to_psk_reporter () and stdMsg and !m_diskData and okToPost)
-          {
-            QString msgmode="JT9";
-            if (decodedtext.isJT65())
-              msgmode="JT65";
+      // extract details and send to PSKreporter
+      int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
+      bool okToPost=(nsec>50);
+      if(m_config.spot_to_psk_reporter () and stdMsg and !m_diskData and okToPost) {
+        QString msgmode="JT9";
+        if (decodedtext.isJT65())
+          msgmode="JT65";
 
-            QString deCall;
-            QString grid;
-            decodedtext.deCallAndGrid(/*out*/deCall,grid);
-            int audioFrequency = decodedtext.frequencyOffset();
-            int snr = decodedtext.snr();
-            Frequency frequency = m_dialFreq + audioFrequency;
+        QString deCall;
+        QString grid;
+        decodedtext.deCallAndGrid(/*out*/deCall,grid);
+        int audioFrequency = decodedtext.frequencyOffset();
+        int snr = decodedtext.snr();
+        Frequency frequency = m_dialFreq + audioFrequency;
 
-            pskSetLocal ();
-            if(gridOK(grid))
-              psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,QString::number(snr),
-                                             QString::number(QDateTime::currentDateTime().toTime_t()));
+        pskSetLocal ();
+        if(gridOK(grid))
+          psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,QString::number(snr),
+                                         QString::number(QDateTime::currentDateTime().toTime_t()));
+      }
+      if((m_mode=="JT4" or m_mode=="JT65") and m_msgAvgWidget!=NULL) {
+        if(m_msgAvgWidget->isVisible()) {
+          QFile f(m_config.temp_dir ().absoluteFilePath ("avemsg.txt"));
+          if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream s(&f);
+            QString t=s.readAll();
+            m_msgAvgWidget->displayAvg(t);
           }
+        }
       }
     }
+  }
 }
 
 void MainWindow::killFile()
@@ -1562,36 +1642,26 @@ void MainWindow::guiUpdate()
   double t2p=fmod(tsec,2*m_TRperiod);
   bool bTxTime = ((t2p >= tx1) and (t2p < tx2)) or m_tune;
 
-  if(m_transmitting || m_auto || m_tune) {
-
-    QFile f(m_config.temp_dir ().absoluteFilePath ("txboth"));
+  if(m_transmitting or m_auto or m_tune) {
+    QFile f(m_appDir + "/txboth");
     if(f.exists() and fmod(tsec,m_TRperiod) < (1.0 + 85.0*m_nsps/12000.0)) {
       bTxTime=true;
     }
 
     Frequency onAirFreq = m_dialFreq + ui->TxFreqSpinBox->value ();
-    if (onAirFreq > 10139900 && onAirFreq < 10140320)
-      {
-        bTxTime=false;
-        if (m_tune)
-          {
-            stop_tuning ();
-          }
-	
-        if (m_auto)
-          {
-            auto_tx_mode (false);
-          }
+    if (onAirFreq > 10139900 && onAirFreq < 10140320) {
+      bTxTime=false;
+      if (m_tune) stop_tuning ();
+      if (m_auto) auto_tx_mode (false);
 
-        if(onAirFreq!=onAirFreq0)
-          {
-            onAirFreq0=onAirFreq;
-            QString t="Please choose another Tx frequency.\n";
-            t+="WSJT-X will not knowingly transmit\n";
-            t+="in the WSPR sub-band on 30 m.";
-            msgBox(t);
-          }
+      if(onAirFreq!=onAirFreq0) {
+        onAirFreq0=onAirFreq;
+        QString t="Please choose another Tx frequency.\n";
+        t+="WSJT-X will not knowingly transmit\n";
+        t+="in the WSPR sub-band on 30 m.";
+        msgBox(t);
       }
+    }
 
     float fTR=float((nsec%m_TRperiod))/m_TRperiod;
     if(g_iptt==0 and ((bTxTime and fTR<0.4) or m_tune )) {
@@ -1601,10 +1671,7 @@ void MainWindow::guiUpdate()
       Q_EMIT m_config.transceiver_ptt (true);
       ptt1Timer->start(200);                       //Sequencer delay
     }
-
-    if(!bTxTime) {
-      m_btxok=false;
-    }
+    if(!bTxTime and !m_tune) m_btxok=false;
   }
 
   // Calculate Tx tones when needed
@@ -1630,20 +1697,31 @@ void MainWindow::guiUpdate()
         m_lastMessageType = m_currentMessageType;
       }
     m_currentMessageType = 0;
-    if(m_modeTx=="JT9") genjt9_(message
+    if(m_tune) {
+      itone[0]=0;
+    } else {
+      if(m_modeTx=="JT4") gen4_(message
                                 , &ichk
                                 , msgsent
                                 , const_cast<int *> (itone)
                                 , &m_currentMessageType
                                 , len1
                                 , len1);
-    if(m_modeTx=="JT65") gen65_(message
-                                , &ichk
-                                , msgsent
-                                , const_cast<int *> (itone)
-                                , &m_currentMessageType
-                                , len1
-                                , len1);
+      if(m_modeTx=="JT9") gen9_(message
+                                  , &ichk
+                                  , msgsent
+                                  , const_cast<int *> (itone)
+                                  , &m_currentMessageType
+                                  , len1
+                                  , len1);
+      if(m_modeTx=="JT65") gen65_(message
+                                  , &ichk
+                                  , msgsent
+                                  , const_cast<int *> (itone)
+                                  , &m_currentMessageType
+                                  , len1
+                                  , len1);
+    }
     msgsent[22]=0;
     m_currentMessage = QString::fromLatin1(msgsent);
     if (m_tune)
@@ -1791,26 +1869,72 @@ void MainWindow::guiUpdate()
 
   if(!m_btxok && btxok0 && g_iptt==1) stopTx();
 
-  /*
-  // If m_btxok was just lowered, start a countdown for lowering PTT
-  if(!m_btxok && btxok0 && g_iptt==1) nc0=-11;  //RxDelay = 1.0 s
-  if(nc0 <= 0) {
-  nc0++;
-  }
-  */
-
   if(m_startAnother) {
     m_startAnother=false;
     on_actionOpen_next_in_directory_triggered();
   }
 
-  if(nsec != m_sec0) {                                     //Once per second
+  Frequency f;
+  if(m_astroWidget) {
+    m_bDopplerTracking = m_astroWidget->m_bDopplerTracking;
+    m_DopplerMethod = m_astroWidget->m_DopplerMethod;
+    if((m_bDopplerTracking0 and !m_bDopplerTracking) or
+       (m_DopplerMethod==0 and m_DopplerMethod0>0)) {
+//Doppler tracking has just been turned off.  Reset dial frequency to "nominal + kHz"
+      if(m_transmitting) {
+        m_dialFreqTx=m_freqNominal + 1000*m_astroWidget->m_kHz;
+        ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreqTx));
+        Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
+      } else {
+        f=m_freqNominal + 1000*m_astroWidget->m_kHz;
+        Q_EMIT m_config.transceiver_frequency(f);
+      }
+    }
+    m_bDopplerTracking0 = m_bDopplerTracking;
+    m_DopplerMethod0 = m_DopplerMethod;
+  }
+
+  if(nsec != m_sec0) {                                                //Once per second
     QDateTime t = QDateTime::currentDateTimeUtc();
-    int fQSO=125;
-    if(m_astroWidget) m_astroWidget->astroUpdate(t, m_config.my_grid (), m_hisGrid, fQSO,
-                                                 m_setftx, ui->TxFreqSpinBox->value ());
+    if(m_astroWidget) {
+      m_freqMoon=m_dialFreq + 1000*m_astroWidget->m_kHz;
+      int ndop,ndop00;
+      m_astroWidget->astroUpdate(t, m_config.my_grid (), m_hisGrid,m_freqMoon, &ndop, &ndop00);
+      if(m_freqNominal>144000000) {
+//Apply Doppler corrections only for 144 MHz and above
+        if(m_astroWidget->m_bDopplerTracking and (m_DopplerMethod==1)) {
+// All Doppler correction will be done here; DX station stays at nominal dial frequency.
+          int ndopr=m_astroWidget->m_stepHz*qRound(double(ndop)/double(m_astroWidget->m_stepHz));
+          if(m_transmitting) {
+            m_dialFreqTx=m_freqNominal + 1000*m_astroWidget->m_kHz - ndopr;
+            ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreqTx));
+            Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
+          } else {
+            f=m_freqNominal + 1000*m_astroWidget->m_kHz + ndopr;
+            Q_EMIT m_config.transceiver_frequency(f);
+          }
+        }
+
+        if(m_astroWidget->m_bDopplerTracking and (m_DopplerMethod==2)) {
+// Doppler correction to constant frequency on the Moon
+          int ndopr=m_astroWidget->m_stepHz*qRound(double(ndop00/2.0)/double(m_astroWidget->m_stepHz));
+          if(m_transmitting) {
+            m_dialFreqTx=m_freqNominal + 1000*m_astroWidget->m_kHz - ndopr;
+            ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreqTx));
+            Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
+          } else {
+            f=m_freqNominal + 1000*m_astroWidget->m_kHz + ndopr;
+            Q_EMIT m_config.transceiver_frequency(f);
+          }
+        }
+      }
+    }
 
     if(m_transmitting) {
+      char s[37];
+      sprintf(s,"Tx: %s",msgsent);
+      nsendingsh=0;
+      if(s[4]==64) nsendingsh=1;
       if(nsendingsh==1) {
         tx_status_label->setStyleSheet("QLabel{background-color: #66ffff}");
       } else if(nsendingsh==-1) {
@@ -1821,8 +1945,6 @@ void MainWindow::guiUpdate()
       if(m_tune) {
         tx_status_label->setText("Tx: TUNE");
       } else {
-        char s[37];
-        sprintf(s,"Tx: %s",msgsent);
         tx_status_label->setText(s);
       }
     } else if(m_monitoring) {
@@ -1833,7 +1955,6 @@ void MainWindow::guiUpdate()
       tx_status_label->setText("");
     }
 
-    m_setftx=0;
     QString utc = t.date().toString("yyyy MMM dd") + "\n " +
       t.time().toString() + " ";
     ui->labUTC->setText(utc);
@@ -1880,7 +2001,6 @@ void MainWindow::stopTx()
 void MainWindow::stopTx2()
 {
   QString rt;
-
   //Lower PTT
   Q_EMIT m_config.transceiver_ptt (false);
 
@@ -1967,8 +2087,16 @@ void MainWindow::doubleClickOnCall2(bool shift, bool ctrl)
 void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 {
   QTextCursor cursor;
-  if(!m_decodedText2) cursor=ui->decodedTextBrowser2->textCursor();
-  if(m_decodedText2) cursor=ui->decodedTextBrowser->textCursor();
+  QString t;                         //Full contents
+  if(shift) t="";                    //Silence compiler warning
+  if(m_decodedText2) {
+    cursor=ui->decodedTextBrowser->textCursor();
+    t= ui->decodedTextBrowser->toPlainText();
+  } else {
+    cursor=ui->decodedTextBrowser2->textCursor();
+    t= ui->decodedTextBrowser2->toPlainText();
+  }
+//  if(t.indexOf("\n")==0) t=t.mid(1,-1);
   cursor.select(QTextCursor::LineUnderCursor);
   int position {cursor.position()};
   if(shift && position==-9999) return;        //Silence compiler warning
@@ -1977,7 +2105,6 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   if(!m_decodedText2) messages= ui->decodedTextBrowser2->toPlainText();
   //Full contents
   if(m_decodedText2) messages= ui->decodedTextBrowser->toPlainText();
-
   processMessage(messages, position, ctrl);
 }
 
@@ -1997,7 +2124,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       decodedtext = decodedtext.string ().left (eom_pos + 1);  // remove DXCC entity and worked B4 status. TODO need a better way to do this
     }
 
-
+  /*
   //  if(decodedtext.indexOf("Tx")==6) return;        //Ignore Tx line
   // int i4=t.mid(i1).length();
   // if(i4>55) i4=55;
@@ -2005,6 +2132,11 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   auto t3 = decodedtext.string ();
   auto t4 = t3.replace (" CQ DX ", " CQ_DX ").split (" ", QString::SkipEmptyParts);
   if(t4.size () <5) return;             //Skip the rest if no decoded text
+*/
+  auto t3 = decodedtext.string ();
+  auto t4 = t3.replace (" CQ DX ", " CQ_DX ").split (" ", QString::SkipEmptyParts);
+  if(t4.size () <5) return;             //Skip the rest if no decoded text
+
 
   QString hiscall;
   QString hisgrid;
@@ -2014,24 +2146,20 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       return;
     }
 
-  // only allow automatic mode changes when not transmitting
-  if (!m_transmitting)
-    {
+  // only allow automatic mode changes between JT9 and JT65, and when not transmitting
+  if (!m_transmitting and m_mode != "JT4") {
       if (decodedtext.isJT9())
         {
           m_modeTx="JT9";
           ui->pbTxMode->setText("Tx JT9  @");
           m_wideGraph->setModeTx(m_modeTx);
-        }
-      else if (decodedtext.isJT65())
-        {
+        } else if (decodedtext.isJT65()) {
           m_modeTx="JT65";
           ui->pbTxMode->setText("Tx JT65  #");
           m_wideGraph->setModeTx(m_modeTx);
         }
-    }
-  else if ((decodedtext.isJT9 () && m_modeTx != "JT9") || (decodedtext.isJT65 () && m_modeTx != "JT65"))
-    {
+    } else if ((decodedtext.isJT9 () && m_modeTx != "JT9") ||
+               (decodedtext.isJT65 () && m_modeTx != "JT65")) {
       // if we are not allowing mode change then don't process decode
       return;
     }
@@ -2179,6 +2307,7 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
   if(m_config.my_callsign () !="" and m_config.my_grid () !="")
     {
       t="CQ " + m_config.my_callsign () + " " + m_config.my_grid ().mid(0,4);
+      if(m_mode=="JT4") t="@1000  (TUNE)";
       msgtype(t, ui->tx6);
     }
   else
@@ -2215,8 +2344,10 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
     t=t0 + "R" + rpt;
     msgtype(t, ui->tx3);
     t=t0 + "RRR";
+    if(m_mode=="JT4" and m_bShMsgs) t="@1500  (RRR)";
     msgtype(t, ui->tx4);
     t=t0 + "73";
+    if(m_mode=="JT4" and m_bShMsgs) t="@1750  (73)";
     msgtype(t, ui->tx5->lineEdit ());
   }
 
@@ -2396,18 +2527,10 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   char message[23];
   char msgsent[23];
   int len1=22;
-
-  t=t.toUpper();
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
   int ichk=1,itype=0;
-  genjt9_(message
-          , &ichk
-          , msgsent
-          , const_cast<int *> (itone)
-          , &itype
-          , len1
-          , len1);
+  gen9_(message,&ichk,msgsent,const_cast<int *>(itone),&itype,len1,len1);
   msgsent[22]=0;
   bool text=false;
   if(itype==6) text=true;
@@ -2551,7 +2674,8 @@ void MainWindow::acceptQSO2(QDateTime const& QSO_date, QString const& call, QStr
                             , QString const& tx_power, QString const& comments
                             , QString const& name)
 {
-  QString band = ADIF::bandFromFrequency ((m_dialFreq + ui->TxFreqSpinBox->value ()) / 1.e6);
+  auto const& bands_model = m_config.bands ();
+  auto band = bands_model->data (bands_model->find (m_dialFreq + ui->TxFreqSpinBox->value ())).toString ();
   QString date = m_dateTimeQSO.toString("yyyyMMdd");
   m_logBook.addAsWorked(m_hisCall,band,m_modeTx,date);
 
@@ -2578,14 +2702,20 @@ void MainWindow::on_actionJT9_1_triggered()
   m_TRperiod=60;
   m_nsps=6912;
   m_hsymStop=173;
+  if(m_config.decode_at_52s()) m_hsymStop=181;
   mode_label->setStyleSheet("QLabel{background-color: #ff6ec7}");
   mode_label->setText(m_mode);
   m_toneSpacing=0.0;
+  ui->ClrAvgButton->setVisible(false);
   ui->actionJT9_1->setChecked(true);
+  VHF_features_enabled(false);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   ui->pbTxMode->setEnabled(false);
+  VHF_controls_visible(false);
+  ui->label_6->setText("Band Activity");
+  ui->label_7->setText("Rx Frequency");
 }
 
 void MainWindow::on_actionJT9W_1_triggered()
@@ -2596,50 +2726,119 @@ void MainWindow::on_actionJT9W_1_triggered()
   m_TRperiod=60;
   m_nsps=6912;
   m_hsymStop=173;
+  if(m_config.decode_at_52s()) m_hsymStop=181;
   m_toneSpacing=pow(2,m_config.jt9w_bw_mult ())*12000.0/6912.0;
   mode_label->setStyleSheet("QLabel{background-color: #ff6ec7}");
   mode_label->setText(m_mode);
+  ui->ClrAvgButton->setVisible(false);
   ui->actionJT9W_1->setChecked(true);
+  VHF_features_enabled(false);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   ui->pbTxMode->setEnabled(false);
+  VHF_controls_visible(false);
+  ui->label_6->setText("Band Activity");
+  ui->label_7->setText("Rx Frequency");
 }
 
 void MainWindow::on_actionJT65_triggered()
 {
+  if(m_mode=="JT4") {
+// If coming from JT4 mode, pretend we're coming from JT9 and click the pbTxMode button
+    m_modeTx="JT9";
+    on_pbTxMode_clicked();
+  }
   m_mode="JT65";
   if(m_modeTx!="JT65") on_pbTxMode_clicked();
   statusChanged();
   m_TRperiod=60;
   m_nsps=6912;                   //For symspec only
   m_hsymStop=173;
+  if(m_config.decode_at_52s()) m_hsymStop=181;
   m_toneSpacing=0.0;
   mode_label->setStyleSheet("QLabel{background-color: #ffff00}");
-  mode_label->setText(m_mode);
+  QString t1=(QString)QChar(short(m_nSubMode+65));
+  mode_label->setText(m_mode + " " + t1);
+  ui->ClrAvgButton->setVisible(false);
   ui->actionJT65->setChecked(true);
+  VHF_features_enabled(true);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   ui->pbTxMode->setEnabled(false);
+  bool bVHF=m_config.enable_VHF_features();
+  VHF_controls_visible(bVHF);
+  ui->sbSubmode->setMaximum(2);
+  if(bVHF) {
+    ui->sbSubmode->setValue(m_nSubMode);
+  } else {
+    ui->sbSubmode->setValue(0);
+    ui->sbMinW->setValue(0);
+  }
+  if(m_MinW > m_nSubMode) ui->sbMinW->setValue(m_nSubMode);
+  ui->label_6->setText("Band Activity");
+  ui->label_7->setText("Rx Frequency");
 }
 
 void MainWindow::on_actionJT9_JT65_triggered()
 {
   m_mode="JT9+JT65";
-  //  if(m_modeTx!="JT9") on_pbTxMode_clicked();
+  if(m_modeTx != "JT65") m_modeTx="JT9";
+  m_nSubMode=0;                    //Dual-mode always means JT9 and JT65A
   statusChanged();
   m_TRperiod=60;
   m_nsps=6912;
   m_hsymStop=173;
+  if(m_config.decode_at_52s()) m_hsymStop=181;
   m_toneSpacing=0.0;
   mode_label->setStyleSheet("QLabel{background-color: #ffa500}");
   mode_label->setText(m_mode);
+  ui->ClrAvgButton->setVisible(false);
   ui->actionJT9_JT65->setChecked(true);
+  VHF_features_enabled(false);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   ui->pbTxMode->setEnabled(true);
+  VHF_controls_visible(false);
+  ui->label_6->setText("Band Activity");
+  ui->label_7->setText("Rx Frequency");
+}
+
+void MainWindow::on_actionJT4_triggered()
+{
+  m_mode="JT4";
+  m_modeTx="JT4";
+  statusChanged();
+  m_TRperiod=60;
+  m_nsps=6912;                   //For symspec only
+  m_hsymStop=181;
+//  if(m_config.decode_at_52s()) m_hsymStop=181;
+  m_toneSpacing=0.0;
+  mode_label->setStyleSheet("QLabel{background-color: #ffff00}");
+  QString t1=(QString)QChar(short(m_nSubMode+65));
+  mode_label->setText(m_mode + " " + t1);
+  ui->actionJT4->setChecked(true);
+  VHF_features_enabled(true);
+  ui->ClrAvgButton->setVisible(true);
+  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
+  ui->pbTxMode->setEnabled(false);
+  bool bVHF=m_config.enable_VHF_features();
+  VHF_controls_visible(bVHF);
+  ui->sbSubmode->setMaximum(6);
+  ui->label_6->setText("Single-Period Decodes");
+  ui->label_7->setText("Average Decodes");
+
+  if(bVHF) {
+    ui->sbSubmode->setValue(m_nSubMode);
+  } else {
+    ui->sbSubmode->setValue(0);
+    ui->sbMinW->setValue(0);
+  }
+  if(m_MinW > m_nSubMode) ui->sbMinW->setValue(m_nSubMode);
 }
 
 void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
@@ -2677,6 +2876,18 @@ void MainWindow::on_actionDeepestDecode_triggered()
   ui->actionDeepestDecode->setChecked(true);
 }
 
+void MainWindow::on_actionInclude_averaging_triggered()
+{
+  m_ndepth=4;
+  ui->actionInclude_averaging->setChecked(true);
+}
+
+void MainWindow::on_actionInclude_correlation_triggered()
+{
+  m_ndepth=5;
+  ui->actionInclude_correlation->setChecked(true);
+}
+
 void MainWindow::on_inGain_valueChanged(int n)
 {
   m_inGain=n;
@@ -2712,14 +2923,17 @@ void MainWindow::on_actionOpen_log_directory_triggered ()
 
 bool MainWindow::gridOK(QString g)
 {
-  bool b=g.mid(0,1).compare("A")>=0 and
-    g.mid(0,1).compare("R")<=0 and
-    g.mid(1,1).compare("A")>=0 and
-    g.mid(1,1).compare("R")<=0 and
-    g.mid(2,1).compare("0")>=0 and
-    g.mid(2,1).compare("9")<=0 and
-    g.mid(3,1).compare("0")>=0 and
-    g.mid(3,1).compare("9")<=0;
+  bool b=false;
+  if(g.length()>=4) {
+    b=g.mid(0,1).compare("A")>=0 and
+        g.mid(0,1).compare("R")<=0 and
+        g.mid(1,1).compare("A")>=0 and
+        g.mid(1,1).compare("R")<=0 and
+        g.mid(2,1).compare("0")>=0 and
+        g.mid(2,1).compare("9")<=0 and
+        g.mid(3,1).compare("0")>=0 and
+        g.mid(3,1).compare("9")<=0;
+  }
   return b;
 }
 
@@ -2904,6 +3118,7 @@ void MainWindow::on_tuneButton_clicked (bool checked)
     {
       m_sentFirst73=false;
       m_repeatMsg=0;
+      itone[0]=0;
       on_monitorButton_clicked (true);
     }
   m_tune = checked;
@@ -2918,16 +3133,8 @@ void MainWindow::stop_tuning ()
 
 void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
 {
-  if (m_tune)
-    {
-      stop_tuning ();
-    }
-
-  if (m_auto)
-    {
-      auto_tx_mode (false);
-    }
-
+  if (m_tune) stop_tuning ();
+  if (m_auto) auto_tx_mode (false);
   m_btxok=false;
   m_repeatMsg=0;
 }
@@ -3053,7 +3260,6 @@ void MainWindow::on_cbPlus2kHz_toggled(bool checked)
 void MainWindow::handle_transceiver_update (Transceiver::TransceiverState s)
 {
   transmitDisplay (s.ptt ());
-
   if ((s.frequency () - m_dialFreq) || s.split () != m_splitMode)
     {
       m_splitMode = s.split ();
@@ -3108,14 +3314,32 @@ void MainWindow::rigFailure (QString const& reason, QString const& detail)
 
 void MainWindow::transmit (double snr)
 {
-  if (m_modeTx == "JT65")
-    {
-      Q_EMIT sendMessage (NUM_JT65_SYMBOLS, 4096.0 * 12000.0 / 11025.0, ui->TxFreqSpinBox->value () - m_XIT, m_toneSpacing, &m_soundOutput, m_config.audio_output_channel (), true, snr);
-    }
-  else
-    {
-      Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps, ui->TxFreqSpinBox->value () - m_XIT, m_toneSpacing, &m_soundOutput, m_config.audio_output_channel (), true, snr);
-    }
+  double toneSpacing=0.0;
+  if (m_modeTx == "JT65") {
+    if(m_nSubMode==0) toneSpacing=11025.0/4096.0;
+    if(m_nSubMode==1) toneSpacing=2*11025.0/4096.0;
+    if(m_nSubMode==2) toneSpacing=4*11025.0/4096.0;
+    Q_EMIT sendMessage (NUM_JT65_SYMBOLS,
+           4096.0*12000.0/11025.0, ui->TxFreqSpinBox->value () - m_XIT,
+           m_toneSpacing, &m_soundOutput, m_config.audio_output_channel (),
+           true, snr);
+  }
+  if (m_modeTx == "JT9") Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps,
+           ui->TxFreqSpinBox->value () - m_XIT, m_toneSpacing,
+           &m_soundOutput, m_config.audio_output_channel (), true, snr);
+  if (m_modeTx == "JT4") {
+    if(m_nSubMode==0) toneSpacing=4.375;
+    if(m_nSubMode==1) toneSpacing=2*4.375;
+    if(m_nSubMode==2) toneSpacing=4*4.375;
+    if(m_nSubMode==3) toneSpacing=9*4.375;
+    if(m_nSubMode==4) toneSpacing=18*4.375;
+    if(m_nSubMode==5) toneSpacing=36*4.375;
+    if(m_nSubMode==6) toneSpacing=72*4.375;
+    Q_EMIT sendMessage (NUM_JT4_SYMBOLS,
+           2520.0*12000.0/11025.0, ui->TxFreqSpinBox->value () - m_XIT,
+           toneSpacing, &m_soundOutput, m_config.audio_output_channel (),
+           true, snr);
+  }
 }
 
 void MainWindow::on_outAttenuation_valueChanged (int a)
@@ -3244,49 +3468,130 @@ void MainWindow::pskSetLocal ()
 void MainWindow::transmitDisplay (bool transmitting)
 {
 
-  if (transmitting == m_transmitting)
-    {
-      if (transmitting)
-        {
-          signalMeter->setValue(0);
+  if (transmitting == m_transmitting) {
+    if (transmitting) {
+      signalMeter->setValue(0);
+      if (m_monitoring) monitor (false);
+      m_btxok=true;
+    }
 
-          if (m_monitoring)
-            {
-              monitor (false);
-            }
-
-          m_btxok=true;
-        }
-
-      auto QSY_allowed = !transmitting || m_config.tx_QSY_allowed () || !m_config.split_mode ();
-      if (ui->cbTxLock->isChecked ())
-        {
-          ui->RxFreqSpinBox->setEnabled (QSY_allowed);
-          ui->pbT2R->setEnabled (QSY_allowed);
-        }
-      ui->TxFreqSpinBox->setEnabled (QSY_allowed);
-      ui->pbR2T->setEnabled (QSY_allowed);
-      ui->cbTxLock->setEnabled (QSY_allowed);
+    auto QSY_allowed = !transmitting || m_config.tx_QSY_allowed () || !m_config.split_mode ();
+    if (ui->cbTxLock->isChecked ()) {
+      ui->RxFreqSpinBox->setEnabled (QSY_allowed);
+      ui->pbT2R->setEnabled (QSY_allowed);
+    }
+    ui->TxFreqSpinBox->setEnabled (QSY_allowed);
+    ui->pbR2T->setEnabled (QSY_allowed);
+    ui->cbTxLock->setEnabled (QSY_allowed);
 
       // only allow +2kHz when not transmitting or if TX QSYs are allowed
-      ui->cbPlus2kHz->setEnabled (!transmitting || m_config.tx_QSY_allowed ());
+    ui->cbPlus2kHz->setEnabled (!transmitting || m_config.tx_QSY_allowed ());
 
       // the following are always disallowed in transmit
-      ui->menuMode->setEnabled (!transmitting);
-      ui->bandComboBox->setEnabled (!transmitting);
-      if (!transmitting)
-        {
-          if ("JT9+JT65" == m_mode)
-            {
+    ui->menuMode->setEnabled (!transmitting);
+    ui->bandComboBox->setEnabled (!transmitting);
+      if (!transmitting) {
+        if ("JT9+JT65" == m_mode) {
               // allow mode switch in Rx when in dual mode
-              ui->pbTxMode->setEnabled (true);
-            }
+          ui->pbTxMode->setEnabled (true);
         }
-      else
-        {
-          ui->pbTxMode->setEnabled (false);
-        }
-    }
+      } else {
+        ui->pbTxMode->setEnabled (false);
+      }
+  }
+}
+
+void MainWindow::on_sbTol_valueChanged(int i)
+{
+  static int ntol[] = {10,20,50,100,200,500,1000,2000};
+  m_tol=ntol[i];
+  m_wideGraph->setTol(m_tol);
+  QString t="F Tol " + QString::number(ntol[i]);
+  ui->labTol->setText(t);
+}
+
+void MainWindow::on_sbDT_valueChanged(double x)
+{
+  m_DTtol=x;
+}
+
+void::MainWindow::VHF_controls_visible(bool b)
+{
+  ui->sbSubmode->setVisible(b);
+  ui->sbMinW->setVisible(b);
+  ui->cbShMsgs->setVisible(b);
+  ui->cbTx6->setVisible(b);
+  ui->labMinW->setVisible(b);
+  ui->labSubmode->setVisible(b);
+  ui->cbEME->setVisible(b);
+  ui->sbDT->setVisible(b);
+  ui->labTol->setVisible(b);
+  ui->sbTol->setVisible(b);
+}
+
+void::MainWindow::VHF_features_enabled(bool b)
+{
+  if(!b and (ui->actionInclude_averaging->isChecked() or
+             ui->actionInclude_correlation->isChecked())) {
+    on_actionDeepestDecode_triggered();
+  }
+  ui->actionInclude_averaging->setEnabled(b);
+  ui->actionInclude_correlation->setEnabled(b);
+  ui->actionMessage_averaging->setEnabled(b);
+  if(!b and m_msgAvgWidget!=NULL) {
+    if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->close();
+  }
+}
+
+void MainWindow::on_cbEME_toggled(bool b)
+{
+  m_bEME=b;
+}
+
+void MainWindow::on_sbMinW_valueChanged(int n)
+{
+  m_MinW=qMin(n,m_nSubMode);
+  ui->sbMinW->setValue(m_MinW);
+  QString t="MinW  " + (QString)QChar(short(n+65));
+  ui->labMinW->setText(t);
+}
+
+void MainWindow::on_sbSubmode_valueChanged(int n)
+{
+  m_nSubMode=n;
+  m_wideGraph->setSubMode(m_nSubMode);
+  ui->sbMinW->setMaximum(m_nSubMode);
+  QString t1=(QString)QChar(short(m_nSubMode+65));
+  QString t="Submode  " + t1;
+  ui->labSubmode->setText(t);
+  mode_label->setText(m_mode + " " + t1);
+}
+
+void MainWindow::on_cbShMsgs_toggled(bool b)
+{
+  ui->cbTx6->setEnabled(b);
+  m_bShMsgs=b;
+  int itone0=itone[0];
+  int ntx=m_ntx;
+  genStdMsgs(m_rpt);
+  itone[0]=itone0;
+  if(ntx==1) ui->txrb1->setChecked(true);
+  if(ntx==2) ui->txrb2->setChecked(true);
+  if(ntx==3) ui->txrb3->setChecked(true);
+  if(ntx==4) ui->txrb4->setChecked(true);
+  if(ntx==5) ui->txrb5->setChecked(true);
+  if(ntx==6) ui->txrb6->setChecked(true);
+}
+
+void MainWindow::on_cbTx6_toggled(bool b)
+{
+  QString t;
+  if(b) {
+    t="@1250  (SEND MSGS)";
+  } else {
+    t="@1000  (TUNE)";
+  }
+  ui->tx6->setText(t);
 }
 
 // Takes a decoded CQ line and sets it up for reply
