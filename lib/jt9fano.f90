@@ -4,6 +4,7 @@ subroutine jt9fano(i1SoftSymbols,limit,nlim,msg)
 ! Input:   i1SoftSymbols(207) - Single-bit soft symbols
 ! Output:  msg                - decoded message (blank if erasure)
 
+  use packjt
   character*22 msg
   integer*4 i4DecodedBytes(9)
   integer*4 i4Decoded6BitWords(12)

@@ -1,14 +1,15 @@
-subroutine peakdt9(c2,nz2,nsps8,nspsd,c3,nz3,xdt)
+subroutine peakdt9(c2,nsps8,nspsd,c3,xdt)
 
-  complex c2(0:4096-1)
-  complex c3(0:4096-1)
+  parameter (NZ2=1512,NZ3=1360)
+  complex c2(0:NZ2-1)
+  complex c3(0:NZ3-1)
   complex z
   real p(0:3300)
   include 'jt9sync.f90'
 
   p=0.
-  i0=5*nspsd
-  do i=0,nz2-1
+  i0=5*nspsd 
+  do i=0,NZ2-1
      z=1.e-3*sum(c2(max(i-(nspsd-1),0):i))
      p(i0+i)=real(z)**2 + aimag(z)**2      !Integrated symbol power at freq=0
   enddo
@@ -40,10 +41,9 @@ subroutine peakdt9(c2,nz2,nsps8,nspsd,c3,nz3,xdt)
 
   xdt=(lagpk-lag0)*dtlag
 
-  nz3=nspsd*85
-  do i=0,nz3-1
+  do i=0,NZ3-1
      j=i+lagpk-i0-nspsd+1
-     if(j.ge.0 .and. j.le.nz2) then
+     if(j.ge.0 .and. j.lt.NZ2) then
         c3(i)=c2(j)
      else
         c3(i)=0.

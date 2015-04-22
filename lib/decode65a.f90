@@ -37,8 +37,6 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,sync2,a,dt,    &
   a(5)=dt00
   i0=nint((a(5)+0.5)*fsample) - 2 + nadd
   if(i0.lt.1) then
-!     write(23,*) 'i0 too small in decode1a:',i0,f0,a(5),fsample,nadd
-!     flush(23)
      i0=1
   endif
   nz=n6+1-i0

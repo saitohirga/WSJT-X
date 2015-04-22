@@ -1,4 +1,4 @@
-subroutine astro0(nyear,month,nday,uth8,nfreq,mygrid,hisgrid,              &
+subroutine astro0(nyear,month,nday,uth8,freq8,mygrid,hisgrid,              &
      AzSun8,ElSun8,AzMoon8,ElMoon8,AzMoonB8,ElMoonB8,ntsky,ndop,ndop00,    &
      dbMoon8,RAMoon8,DecMoon8,HA8,Dgrd8,sd8,poloffset8,xnr8,dfdt,dfdt0,    &
      width1,width2,w501,w502,xlst8,techo8)
@@ -8,18 +8,18 @@ subroutine astro0(nyear,month,nday,uth8,nfreq,mygrid,hisgrid,              &
   real*8 AzSun8,ElSun8,AzMoon8,ElMoon8,AzMoonB8,ElMoonB8
   real*8 dbMoon8,RAMoon8,DecMoon8,HA8,Dgrd8,xnr8,dfdt,dfdt0,dt
   real*8 sd8,poloffset8,day8,width1,width2,w501,w502,xlst8
-  real*8 uth8,techo8
+  real*8 uth8,techo8,freq8
   data uth8z/0.d0/
   save
 
   uth=uth8
-  call astro(nyear,month,nday,uth,nfreq,hisgrid,2,1,                 &
+  call astro(nyear,month,nday,uth,freq8,hisgrid,2,1,                 &
        AzSun,ElSun,AzMoon,ElMoon,ntsky,doppler00,doppler,            &
        dbMoon,RAMoon,DecMoon,HA,Dgrd,sd,poloffset,xnr,               &
        day,xlon2,xlat2,xlst,techo)
   AzMoonB8=AzMoon
   ElMoonB8=ElMoon
-  call astro(nyear,month,nday,uth,nfreq,mygrid,1,1,                  &
+  call astro(nyear,month,nday,uth,freq8,mygrid,1,1,                  &
        AzSun,ElSun,AzMoon,ElMoon,ntsky,doppler00,doppler,            &
        dbMoon,RAMoon,DecMoon,HA,Dgrd,sd,poloffset,xnr,               &
        day,xlon1,xlat1,xlst,techo)

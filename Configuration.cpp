@@ -566,6 +566,8 @@ private:
   bool disable_TX_on_73_;
   bool watchdog_;
   bool TX_messages_;
+  bool enable_VHF_features_;
+  bool decode_at_52s_;
   QString udp_server_name_;
   port_type udp_server_port_;
   bool accept_udp_requests_;
@@ -636,6 +638,8 @@ bool Configuration::quick_call () const {return m_->quick_call_;}
 bool Configuration::disable_TX_on_73 () const {return m_->disable_TX_on_73_;}
 bool Configuration::watchdog () const {return m_->watchdog_;}
 bool Configuration::TX_messages () const {return m_->TX_messages_;}
+bool Configuration::enable_VHF_features () const {return m_->enable_VHF_features_;}
+bool Configuration::decode_at_52s () const {return m_->decode_at_52s_;}
 bool Configuration::split_mode () const
 {
   return !m_->rig_is_dummy_ && m_->rig_params_.split_mode_ != TransceiverFactory::split_mode_none;
@@ -675,7 +679,6 @@ void Configuration::transceiver_frequency (Frequency f)
 #if WSJT_TRACE_CAT
   qDebug () << "Configuration::transceiver_frequency:" << f << m_->cached_rig_state_;
 #endif
-
   m_->transceiver_frequency (f);
 }
 
@@ -727,23 +730,10 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   , ui_ {new Ui::configuration_dialog}
   , settings_ {settings}
   , frequencies_ {
-    {
-      136130,
-        474200,
-        1838000,
-        3576000,
-        5357000,
-        7076000,
-        10138000,
-        14076000,
-        18102000,
-        21076000,
-        24917000,
-        28076000,
-        50276000,
-        70091000,
-        144489000,
-        }
+    { 136130, 474200, 1838000, 3576000, 5357000, 7076000, 10138000, 14076000, 18102000,
+      21076000, 24917000, 28076000, 50276000, 70091000, 144000000, 144489000, 222000000,
+      432000000, 902000000, 1296000000, 2301000000, 2304000000, 2320000000, 3400000000,
+      3456000000, 5760000000,10368000000, 24048000000 }
     }
   , stations_ {&bands_}
   , next_stations_ {&bands_}
@@ -1036,6 +1026,8 @@ void Configuration::impl::initialise_models ()
   ui_->disable_TX_on_73_check_box->setChecked (disable_TX_on_73_);
   ui_->watchdog_check_box->setChecked (watchdog_);
   ui_->TX_messages_check_box->setChecked (TX_messages_);
+  ui_->enable_VHF_features_check_box->setChecked(enable_VHF_features_);
+  ui_->decode_at_52s_check_box->setChecked(decode_at_52s_);
   ui_->jt9w_bandwidth_mult_combo_box->setCurrentText (QString::number (jt9w_bw_mult_));
   ui_->jt9w_min_dt_double_spin_box->setValue (jt9w_min_dt_);
   ui_->jt9w_max_dt_double_spin_box->setValue (jt9w_max_dt_);
@@ -1231,6 +1223,8 @@ void Configuration::impl::read_settings ()
   disable_TX_on_73_ = settings_->value ("73TxDisable", false).toBool ();
   watchdog_ = settings_->value ("Runaway", false).toBool ();
   TX_messages_ = settings_->value ("Tx2QSO", false).toBool ();
+  enable_VHF_features_ = settings_->value("VHFUHF",false).toBool ();
+  decode_at_52s_ = settings_->value("Decode52",false).toBool ();
   rig_params_.CAT_poll_interval_ = settings_->value ("Polling", 0).toInt ();
   rig_params_.split_mode_ = settings_->value ("SplitMode", QVariant::fromValue (TransceiverFactory::split_mode_none)).value<TransceiverFactory::SplitMode> ();
   udp_server_name_ = settings_->value ("UDPServer", "localhost").toString ();
@@ -1315,6 +1309,8 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("TXAudioSource", QVariant::fromValue (rig_params_.TX_audio_source_));
   settings_->setValue ("Polling", rig_params_.CAT_poll_interval_);
   settings_->setValue ("SplitMode", QVariant::fromValue (rig_params_.split_mode_));
+  settings_->setValue ("VHFUHF", enable_VHF_features_);
+  settings_->setValue ("Decode52", decode_at_52s_);
   settings_->setValue ("UDPServer", udp_server_name_);
   settings_->setValue ("UDPServerPort", udp_server_port_);
   settings_->setValue ("AcceptUDPRequests", accept_udp_requests_);
@@ -1670,6 +1666,8 @@ void Configuration::impl::accept ()
   TX_messages_ = ui_->TX_messages_check_box->isChecked ();
   data_mode_ = static_cast<DataMode> (ui_->TX_mode_button_group->checkedId ());
   save_directory_ = ui_->save_path_display_label->text ();
+  enable_VHF_features_ = ui_->enable_VHF_features_check_box->isChecked ();
+  decode_at_52s_ = ui_->decode_at_52s_check_box->isChecked ();
 
   auto new_server = ui_->udp_server_line_edit->text ();
   if (new_server != udp_server_name_)

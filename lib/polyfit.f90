@@ -1,4 +1,4 @@
-subroutine polfit(x,y,sigmay,npts,nterms,mode,a,chisqr)
+subroutine polyfit(x,y,sigmay,npts,nterms,mode,a,chisqr)
   implicit real*8 (a-h,o-z)
   real*8 x(npts), y(npts), sigmay(npts), a(nterms)
   real*8 sumx(19), sumy(10), array(10,10)
@@ -69,4 +69,4 @@ subroutine polfit(x,y,sigmay,npts,nterms,mode,a,chisqr)
   end if
   
   return
-end subroutine polfit
+end subroutine polyfit

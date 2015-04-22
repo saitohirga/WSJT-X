@@ -1,4 +1,4 @@
-subroutine flat4(s,npts,nflatten)
+subroutine flat4(s,npts0,nflatten)
 
 ! Flatten a spectrum for optimum display
 ! Input:  s(npts)    Linear scale in power
@@ -12,6 +12,7 @@ subroutine flat4(s,npts,nflatten)
   real*8 x(1000),y(1000),a(5)
   data nseg/10/,npct/10/
 
+  npts=min(6827,npts0)
   if(s(1).gt.1.e29) go to 900         !Boundary between Rx intervals: do nothing
   do i=1,npts
      s(i)=10.0*log10(s(i))            !Convert to dB scale
@@ -38,7 +39,7 @@ subroutine flat4(s,npts,nflatten)
   a=0.
   nterms=3
   
-  call polfit(x,y,y,kz,nterms,0,a,chisqr)  !Fit a low-order polynomial
+  call polyfit(x,y,y,kz,nterms,0,a,chisqr)  !Fit a low-order polynomial
 
   do i=1,npts
      t=i-i0

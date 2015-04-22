@@ -2,6 +2,7 @@
 #define CONFIGURATION_HPP_
 
 #include <QObject>
+#include <QFont>
 
 #include "Radio.hpp"
 #include "AudioDevice.hpp"
@@ -14,7 +15,6 @@ class QWidget;
 class QAudioDeviceInfo;
 class QString;
 class QDir;
-class QFont;
 class Bands;
 class FrequencyList;
 class StationList;
@@ -107,6 +107,8 @@ public:
   bool watchdog () const;
   bool TX_messages () const;
   bool split_mode () const;
+  bool enable_VHF_features () const;
+  bool decode_at_52s () const;
   bool post_decodes () const;
   QString udp_server_name () const;
   port_type udp_server_port () const;

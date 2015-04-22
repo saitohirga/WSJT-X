@@ -3,9 +3,10 @@ subroutine softsym(id2,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,        &
 
 ! Compute the soft symbols
 
-  complex c2(0:1440-1)
-  complex c3(0:1440-1)
-  complex c5(0:1440-1)
+  parameter (NZ2=1512,NZ3=1360)
+  complex c2(0:NZ2-1)
+  complex c3(0:NZ3-1)
+  complex c5(0:NZ3-1)
   real a(3)
   integer*1 i1SoftSymbolsScrambled(207)
   integer*1 i1SoftSymbols(207)
@@ -16,10 +17,10 @@ subroutine softsym(id2,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,        &
 
 ! Mix, low-pass filter, and downsample to 16 samples per symbol
   call timer('downsam9',0)
-  call downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2,nz2)
+  call downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2)
   call timer('downsam9',1)
 
-  call peakdt9(c2,nz2,nsps8,nspsd,c3,nz3,xdt)  !Find DT
+  call peakdt9(c2,nsps8,nspsd,c3,xdt)  !Find DT
 
   fsample=1500.0/ndown
   a=0.

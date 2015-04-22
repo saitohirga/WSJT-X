@@ -24,6 +24,7 @@ subroutine jt9a()
 
   call getcwd(cwd)
   open(12,file=trim(data_dir)//'/timer.out',status='unknown')
+!  open(23,file=trim(data_dir)//'/CALL3.TXT',status='unknown')
 
   limtrace=0
 !  limtrace=-1                            !Disable all calls to timer()

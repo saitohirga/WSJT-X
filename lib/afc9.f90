@@ -1,7 +1,8 @@
 subroutine afc9(c3a,npts,fsample,a,syncpk)
 
-  complex c3a(0:npts-1)
-  complex c3(0:1360-1)
+  parameter (NZ2=1512)
+  complex c3a(0:NZ2-1)
+  complex c3(0:NZ2-1)
   real a(3),deltaa(3)
 
   a(1)=0.                                   !f0

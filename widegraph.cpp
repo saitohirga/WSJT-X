@@ -1,15 +1,12 @@
 #include "widegraph.h"
-
 #include <QApplication>
 #include <QSettings>
-
 #include "ui_widegraph.h"
 #include "commons.h"
 #include "Configuration.hpp"
-
 #include "moc_widegraph.cpp"
 
-#define MAX_SCREENSIZE 2048
+static float swide[MAX_SCREENSIZE];
 
 namespace
 {
@@ -44,15 +41,18 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
   ui->widePlot->setPlotZero(m_settings->value("PlotZero", 0).toInt());
   ui->widePlot->setPlotGain(m_settings->value("PlotGain", 0).toInt());
-  ui->zeroSpinBox->setValue(ui->widePlot->getPlotZero());
-  ui->gainSpinBox->setValue(ui->widePlot->getPlotGain());
-  int n = m_settings->value("FreqSpan",2).toInt();
+  ui->widePlot->setPlot2dGain(m_settings->value("Plot2dGain", 0).toInt());
+  ui->widePlot->setPlot2dZero(m_settings->value("Plot2dZero", 0).toInt());
+  ui->zeroSlider->setValue(ui->widePlot->plotZero());
+  ui->gainSlider->setValue(ui->widePlot->plotGain());
+  ui->gain2dSlider->setValue(ui->widePlot->plot2dGain());
+  ui->zero2dSlider->setValue(ui->widePlot->plot2dZero());
+  int n = m_settings->value("BinsPerPixel",2).toInt();
   m_bFlatten=m_settings->value("Flatten",true).toBool();
   ui->cbFlatten->setChecked(m_bFlatten);
   ui->widePlot->setFlatten(m_bFlatten);
   ui->widePlot->setBreadth(m_settings->value("PlotWidth",1000).toInt());
-  ui->freqSpanSpinBox->setValue(n);
-  ui->widePlot->setNSpan(n);
+  ui->bppSpinBox->setValue(n);
   m_waterfallAvg = m_settings->value("WaterfallAvg",5).toInt();
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
   ui->widePlot->setCurrent(m_settings->value("Current",false).toBool());
@@ -68,7 +68,7 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   m_waterfallPalette=m_settings->value("WaterfallPalette","Default").toString();
   m_userPalette = WFPalette {m_settings->value("UserPalette").value<WFPalette::Colours> ()};
   int m_fMin = m_settings->value ("fMin", 2500).toInt ();
-  ui->fMinSpinBox->setValue (m_fMin);
+  ui->fSplitSpinBox->setValue (m_fMin);
   setRxRange (m_fMin);
   m_settings->endGroup();
 
@@ -81,16 +81,11 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   foreach(QString file, allFiles) {
     QString t=file.mid(0,file.length()-4);
     ui->paletteComboBox->addItem(t);
-    if(t==m_waterfallPalette) {
-      ui->paletteComboBox->setCurrentIndex(index);
-    }
+    if(t==m_waterfallPalette) ui->paletteComboBox->setCurrentIndex(index);
     index++;
   }
   ui->paletteComboBox->addItem (user_defined);
-  if (user_defined == m_waterfallPalette)
-    {
-      ui->paletteComboBox->setCurrentIndex(index);
-    }
+  if (user_defined == m_waterfallPalette) ui->paletteComboBox->setCurrentIndex(index);
   readPalette ();
 
   //  ui->paletteComboBox->lineEdit()->setAlignment(Qt::AlignHCenter);
@@ -106,14 +101,16 @@ void WideGraph::closeEvent (QCloseEvent * e)
   QDialog::closeEvent (e);
 }
 
-void WideGraph::saveSettings()
+void WideGraph::saveSettings()                                           //saveSettings
 {
   m_settings->beginGroup ("WideGraph");
   m_settings->setValue ("geometry", saveGeometry ());
-  m_settings->setValue ("PlotZero", ui->widePlot->getPlotZero());
-  m_settings->setValue ("PlotGain", ui->widePlot->getPlotGain());
+  m_settings->setValue ("PlotZero", ui->widePlot->plotZero());
+  m_settings->setValue ("PlotGain", ui->widePlot->plotGain());
+  m_settings->setValue ("Plot2dGain", ui->widePlot->plot2dGain());
+  m_settings->setValue ("Plot2dZero", ui->widePlot->plot2dZero());
   m_settings->setValue ("PlotWidth", ui->widePlot->plotWidth ());
-  m_settings->setValue ("FreqSpan", ui->freqSpanSpinBox->value ());
+  m_settings->setValue ("BinsPerPixel", ui->bppSpinBox->value ());
   m_settings->setValue ("WaterfallAvg", ui->waterfallAvgSpinBox->value ());
   m_settings->setValue ("Current", ui->widePlot->current());
   m_settings->setValue ("Cumulative", ui->widePlot->cumulative());
@@ -127,11 +124,9 @@ void WideGraph::saveSettings()
   m_settings->endGroup ();
 }
 
-void WideGraph::dataSink2(float s[], float df3, int ihsym,
-                          int ndiskdata)
+void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dataSink2
 {
   static float splot[NSMAX];
-	static float swide[MAX_SCREENSIZE];
   int nbpp = ui->widePlot->binsPerPixel();
   static int n=0;
 
@@ -169,31 +164,21 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym,
       }
     }
     m_ntr0=ntr;
-    ui->widePlot->draw(swide);
+    ui->widePlot->draw(swide,true);
   }
 }
 
-void WideGraph::on_freqSpanSpinBox_valueChanged(int n)
+void WideGraph::on_bppSpinBox_valueChanged(int n)                            //bpp
 {
   ui->widePlot->setBinsPerPixel(n);
 }
 
-void WideGraph::on_waterfallAvgSpinBox_valueChanged(int n)
+void WideGraph::on_waterfallAvgSpinBox_valueChanged(int n)                  //Navg
 {
   m_waterfallAvg = n;
 }
 
-void WideGraph::on_zeroSpinBox_valueChanged(int value)
-{
-  ui->widePlot->setPlotZero(value);
-}
-
-void WideGraph::on_gainSpinBox_valueChanged(int value)
-{
-  ui->widePlot->setPlotGain(value);
-}
-
-void WideGraph::keyPressEvent(QKeyEvent *e)
+void WideGraph::keyPressEvent(QKeyEvent *e)                                 //F11, F12
 {  
   switch(e->key())
   {
@@ -213,84 +198,77 @@ void WideGraph::keyPressEvent(QKeyEvent *e)
   }
 }
 
-void WideGraph::setRxFreq(int n)
+void WideGraph::setRxFreq(int n)                                           //setRxFreq
 {
   ui->widePlot->setRxFreq(n);
+  ui->widePlot->draw(swide,false);
   if(m_lockTxFreq) setTxFreq(n);
 }
 
-int WideGraph::rxFreq()
+int WideGraph::rxFreq()                                                   //rxFreq
 {
   return ui->widePlot->rxFreq();
 }
 
-int WideGraph::nSpan()
-{
-  return ui->widePlot->nSpan();
-}
-
-float WideGraph::fSpan()
-{
-  return ui->widePlot->fSpan();
-}
-
-int WideGraph::nStartFreq()
+int WideGraph::nStartFreq()                                             //nStartFreq
 {
   return ui->widePlot->startFreq();
 }
 
-void WideGraph::wideFreezeDecode(int n)
+void WideGraph::wideFreezeDecode(int n)                              //wideFreezeDecode
 {
   emit freezeDecode2(n);
 }
 
-void WideGraph::setRxRange(int fMin)
+void WideGraph::setRxRange(int fMin)                                //setRxRange
 {
   ui->widePlot->setRxRange(fMin);
   ui->widePlot->DrawOverlay();
   ui->widePlot->update();
 }
 
-int WideGraph::getFmin()
+int WideGraph::Fmin()                                              //Fmin
 {
   return m_fMin;
 }
 
-int WideGraph::getFmax()
+int WideGraph::Fmax()                                              //Fmax
 {
-  int n=ui->widePlot->getFmax();
+  int n=ui->widePlot->Fmax();
   if(n>5000) n=5000;
   return n;
 }
 
-double WideGraph::fGreen()
-{
-  return ui->widePlot->fGreen();
-}
-
-void WideGraph::setPeriod(int ntrperiod, int nsps)
+void WideGraph::setPeriod(int ntrperiod, int nsps)                  //SetPeriod
 {
   m_TRperiod=ntrperiod;
   m_nsps=nsps;
   ui->widePlot->setNsps(ntrperiod, nsps);
 }
 
-void WideGraph::setTxFreq(int n)
+void WideGraph::setTxFreq(int n)                                   //setTxFreq
 {
   emit setXIT2(n);
   ui->widePlot->setTxFreq(n);
 }
 
-void WideGraph::setMode(QString mode)
+void WideGraph::setMode(QString mode)                              //setMode
 {
   m_mode=mode;
-  ui->fMinSpinBox->setEnabled(m_mode=="JT9+JT65");
+  ui->fSplitSpinBox->setEnabled(m_mode=="JT9+JT65");
   ui->widePlot->setMode(mode);
   ui->widePlot->DrawOverlay();
   ui->widePlot->update();
 }
 
-void WideGraph::setModeTx(QString modeTx)
+void WideGraph::setSubMode(int n)                                  //setSubMode
+{
+  m_nSubMode=n;
+  ui->widePlot->setSubMode(n);
+  ui->widePlot->DrawOverlay();
+  ui->widePlot->update();
+}
+void WideGraph::setModeTx(QString modeTx)                          //setModeTx
 {
   m_modeTx=modeTx;
   ui->widePlot->setModeTx(modeTx);
@@ -298,6 +276,7 @@ void WideGraph::setModeTx(QString modeTx)
   ui->widePlot->update();
 }
 
+                                                        //Current-Cumulative-Yellow
 void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)
 {
   ui->widePlot->setCurrent(false);
@@ -308,34 +287,34 @@ void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)
   if(arg1=="Linear Avg") ui->widePlot->setLinearAvg(true);
 }
 
-void WideGraph::on_fMinSpinBox_valueChanged(int n)
+void WideGraph::on_fSplitSpinBox_valueChanged(int n)              //fSplit
 {
   m_fMin=n;
   setRxRange(m_fMin);
 }
 
-void WideGraph::setLockTxFreq(bool b)
+void WideGraph::setLockTxFreq(bool b)                             //LockTxFreq
 {
   m_lockTxFreq=b;
   ui->widePlot->setLockTxFreq(b);
 }
 
-void WideGraph::setFreq2(int rxFreq, int txFreq)
+void WideGraph::setFreq2(int rxFreq, int txFreq)                  //setFreq2
 {
   emit setFreq3(rxFreq,txFreq);
 }
 
-void WideGraph::setDialFreq(double d)
+void WideGraph::setDialFreq(double d)                             //setDialFreq
 {
   ui->widePlot->setDialFreq(d);
 }
 
-void WideGraph::on_fStartSpinBox_valueChanged(int n)
+void WideGraph::on_fStartSpinBox_valueChanged(int n)             //fStart
 {
   ui->widePlot->setStartFreq(n);
 }
 
-void WideGraph::readPalette ()
+void WideGraph::readPalette ()                                   //readPalette
 {
   try
     {
@@ -356,19 +335,19 @@ void WideGraph::readPalette ()
     }
 }
 
-void WideGraph::on_paletteComboBox_activated (QString const& palette)
+void WideGraph::on_paletteComboBox_activated (QString const& palette)    //palette selector
 {
   m_waterfallPalette = palette;
   readPalette();
 }
 
-void WideGraph::on_cbFlatten_toggled(bool b)
+void WideGraph::on_cbFlatten_toggled(bool b)                          //Flatten On/Off
 {
   m_bFlatten=b;
   ui->widePlot->setFlatten(m_bFlatten);
 }
 
-void WideGraph::on_adjust_palette_push_button_clicked (bool)
+void WideGraph::on_adjust_palette_push_button_clicked (bool)   //Adjust Palette
 {
   try
     {
@@ -387,7 +366,35 @@ void WideGraph::on_adjust_palette_push_button_clicked (bool)
     }
 }
 
-bool WideGraph::flatten()
+bool WideGraph::flatten()                                              //Flatten
 {
   return m_bFlatten;
+}
+
+void WideGraph::on_gainSlider_valueChanged(int value)                 //Gain
+{
+  ui->widePlot->setPlotGain(value);
+}
+
+void WideGraph::on_zeroSlider_valueChanged(int value)                 //Zero
+{
+  ui->widePlot->setPlotZero(value);
+}
+
+void WideGraph::on_gain2dSlider_valueChanged(int value)               //Gain2
+{
+  ui->widePlot->setPlot2dGain(value);
+//  ui->widePlot->draw(swide);
+}
+
+void WideGraph::on_zero2dSlider_valueChanged(int value)               //Zero2
+{
+  ui->widePlot->setPlot2dZero(value);
+}
+
+void WideGraph::setTol(int n)                                         //setTol
+{
+  ui->widePlot->setTol(n);
+  ui->widePlot->DrawOverlay();
+  ui->widePlot->update();
 }

@@ -4,9 +4,10 @@ program JT65code
 ! Reed Solomon encoding, and other necessary details of the JT65
 ! protocol.
 
-  character*22 testmsg(26)
+  use packjt
   character*22 msg,msg0,msg1,decoded,cok*3,bad*1,msgtype*10
   integer dgen(12),sent(63),recd(12),era(51)
+  include 'testmsg.f90'
 
   nargs=iargc()
   if(nargs.ne.1) then
@@ -18,38 +19,17 @@ program JT65code
   call getarg(1,msg)                     !Get message from command line
   nmsg=1
   if(msg(1:2).eq."-t") then
-     testmsg(1)="KA1ABC WB9XYZ EN34"
-     testmsg(2)="KA1ABC WB9XYZ EN34 OOO"
-     testmsg(3)="KA1ABC WB9XYZ RO"
-     testmsg(4)="KA1ABC WB9XYZ -21"
-     testmsg(5)="KA1ABC WB9XYZ R-19"
-     testmsg(6)="KA1ABC WB9XYZ RRR"
-     testmsg(7)="KA1ABC WB9XYZ 73"
-     testmsg(8)="KA1ABC WB9XYZ"
-     testmsg(9)="KA1ABC WB9XYZ OOO"
-     testmsg(10)="KA1ABC WB9XYZ RO"
-     testmsg(11)="ZL/KA1ABC WB9XYZ"
-     testmsg(12)="KA1ABC ZL/WB9XYZ"
-     testmsg(13)="KA1ABC/4 WB9XYZ"
-     testmsg(14)="KA1ABC WB9XYZ/4"
-     testmsg(15)="CQ ZL4/KA1ABC"
-     testmsg(16)="DE ZL4/KA1ABC"
-     testmsg(17)="QRZ ZL4/KA1ABC"
-     testmsg(18)="CQ WB9XYZ/VE4"
-     testmsg(19)="HELLO WORLD"
-     testmsg(20)="ZL4/KA1ABC 73"
-     testmsg(21)="RO"
-     testmsg(22)="RRR"
-     testmsg(23)="73"
-     testmsg(24)="KA1ABC XL/WB9XYZ"
-     testmsg(25)="KA1ABC WB9XYZ/W4"
-     testmsg(26)="123456789ABCDEFGH"
-     nmsg=26
+     testmsg(NTEST+1)="KA1ABC WB9XYZ EN34 OOO"
+     testmsg(NTEST+2)="KA1ABC WB9XYZ OOO"
+     testmsg(NTEST+3)="RO"
+     testmsg(NTEST+4)="RRR"
+     testmsg(NTEST+5)="73"
+     nmsg=NTEST+5
   endif
 
   write(*,1010)
-1010 format("Message                 Decoded                 Err?"/   &
-            "-----------------------------------------------------------------")
+1010 format("     Message                 Decoded                Err? Type"/   &
+            74("-"))
 
   do imsg=1,nmsg
      if(nmsg.gt.1) msg=testmsg(imsg)
@@ -89,8 +69,8 @@ program JT65code
 
 10     bad=" "
      if(decoded.ne.msg0) bad="*"
-     write(*,1020) msg0,decoded,bad,itype,msgtype
-1020 format(a22,2x,a22,3x,a1,i3,": ",a10)
+     write(*,1020) imsg,msg0,decoded,bad,itype,msgtype
+1020 format(i2,'.',2x,a22,2x,a22,3x,a1,i3,": ",a13)
   enddo
 
   if(nmsg.eq.1 .and. nspecial.eq.0) then

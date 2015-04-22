@@ -3,6 +3,7 @@ program jt9sim
 ! Generate simulated data for testing of WSJT-X
 
   use wavhdr
+  use packjt
   parameter (NTMAX=120)
   parameter (NMAX=NTMAX*12000)
   type(hdr) h
@@ -58,7 +59,6 @@ program jt9sim
   if(nsps.eq.0) stop 'Bad value for minutes.'
 
   f0=1400.d0                         !Center frequency (Hz)
-  if(snrdb.gt.90.0) f0=fspan
 !  f0=3000.d0                         !Center frequency (Hz)
 
 !  f0=1500.0
@@ -95,7 +95,7 @@ program jt9sim
      endif
 
      if(msg0.ne.'                      ') then
-        call genjt9(message,0,msgsent,i4tone,itype) !Encode message into tone #s
+        call gen9(message,0,msgsent,i4tone,itype) !Encode message into tone #s
      endif
 
      rewind 12
@@ -104,7 +104,7 @@ program jt9sim
         if(msg0.eq.'                      ') then
            read(12,1004) message                !Use pre-generated message texts
 1004       format(a22)
-           call genjt9(message,0,msgsent,i4tone,itype)
+           call gen9(message,0,msgsent,i4tone,itype)
         endif
 
         f=f0

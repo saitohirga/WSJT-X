@@ -67,6 +67,8 @@ private:
   double m_fSpread;
 
   qint64 m_silentFrames;
+  qint32 m_itone0;
+  qint16 m_ramp;
 
   unsigned m_frameRate;
   unsigned m_period;
@@ -78,7 +80,6 @@ private:
   bool m_cwLevel;
   unsigned m_ic;
   unsigned m_isym0;
-  qint16 m_ramp;
 };
 
 #endif

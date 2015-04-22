@@ -32,17 +32,19 @@ public:
 
   QSize minimumSizeHint() const;
   QSize sizeHint() const;
-  void draw(float sw[]);		//Update the waterfall
+  void draw(float swide[], bool bScroll);		//Update the waterfall
   void SetRunningState(bool running);
   void setPlotZero(int plotZero);
-  int  getPlotZero();
+  int  plotZero();
   void setPlotGain(int plotGain);
-  int  getPlotGain();
+  int  plotGain();
+  int  plot2dGain();
+  void setPlot2dGain(int n);
+  int  plot2dZero();
+  void setPlot2dZero(int plot2dZero);
   void setStartFreq(int f);
   int startFreq();
   int  plotWidth();
-  void setNSpan(int n);
-  int nSpan() const {return m_nSpan;}
   void UpdateOverlay();
   void setDataFromDisk(bool b);
   void setRxRange(int fMin);
@@ -55,10 +57,10 @@ public:
   void setNsps(int ntrperiod, int nsps);
   void setTxFreq(int n);
   void setMode(QString mode);
+  void setSubMode(int n);
   void setModeTx(QString modeTx);
-  double fGreen();
   void SetPercent2DScreen(int percent){m_Percent2DScreen=percent;}
-  int getFmax();
+  int  Fmax();
   void setDialFreq(double d);
   void setCurrent(bool b) {m_bCurrent = b;}
   bool current() const {return m_bCurrent;}
@@ -72,6 +74,7 @@ public:
   void setLockTxFreq(bool b) {m_lockTxFreq = b;}
   void setColours(QVector<QColor> const& cl) {m_ColorTbl = cl;}
   void setFlatten(bool b);
+  void setTol(int n);
 
 signals:
   void freezeDecode1(int n);
@@ -100,10 +103,12 @@ private:
 
   qint32  m_plotZero;
   qint32  m_plotGain;
-  qint32  m_nSpan;
+  qint32  m_plot2dGain;
+  qint32  m_plot2dZero;
   qint32  m_binsPerPixel;
   qint32  m_w;
   qint32  m_Flatten;
+  qint32  m_nSubMode;
 
   QPixmap m_WaterfallPixmap;
   QPixmap m_2DPixmap;
@@ -120,7 +125,6 @@ private:
   bool    m_paintEventBusy;
   bool    m_dataFromDisk;
 
-  double  m_fGreen;
   double  m_fftBinWidth;
   double  m_dialFreq;
   double  m_xOffset;
@@ -143,6 +147,8 @@ private:
   qint32  m_fMin;
   qint32  m_fMax;
   qint32  m_startFreq;
+  qint32  m_tol;
+  qint32  m_y2[2048];
 
   char    m_sutc[6];
 

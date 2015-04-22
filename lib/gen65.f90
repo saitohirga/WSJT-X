@@ -3,6 +3,7 @@ subroutine gen65(msg0,ichk,msgsent,itone,itype)
 ! Encodes a JT65 message to yieild itone(1:126)
 ! Temporarily, does not implement EME shorthands
 
+  use packjt
   character*22 msg0
   character*22 message          !Message to be generated
   character*22 msgsent          !Message as it will be received
@@ -20,43 +21,50 @@ subroutine gen65(msg0,ichk,msgsent,itone,itype)
             1,1,1,1,1,1/
   save
 
-  message=msg0
-  do i=1,22
-     if(ichar(message(i:i)).eq.0) then
-        message(i:)='                      '
-        exit
-     endif
-  enddo
-
-  do i=1,22                               !Strip leading blanks
-     if(message(1:1).ne.' ') exit
-     message=message(i+1:)
-  enddo
-
-  nspecial=0
-!  call chkmsg(message,cok,nspecial,flip)
-  if(nspecial.eq.0) then
-     call packmsg(message,dgen,itype)    !Pack message into 72 bits
-     call unpackmsg(dgen,msgsent)        !Unpack to get message sent
-     if(ichk.ne.0) go to 999             !Return if checking only
-
-     call rs_encode(dgen,sent)           !Apply Reed-Solomon code
-     call interleave63(sent,1)           !Apply interleaving
-     call graycode65(sent,63,1)          !Apply Gray code
-     nsym=126                            !Symbols per transmission
+  if(msg0(1:1).eq.'@') then
+     read(msg0(2:5),*,end=1,err=1) nfreq
+     go to 2
+1    nfreq=1000
+2    itone(1)=nfreq
   else
-     nsym=32
-  endif
+     message=msg0
+     do i=1,22
+        if(ichar(message(i:i)).eq.0) then
+           message(i:)='                      '
+           exit
+        endif
+     enddo
 
-  k=0
-  do j=1,nsym
-     if(nprc(j).eq.0) then
-        k=k+1
-        itone(j)=sent(k)+2
+     do i=1,22                               !Strip leading blanks
+        if(message(1:1).ne.' ') exit
+        message=message(i+1:)
+     enddo
+
+     nspecial=0
+!  call chkmsg(message,cok,nspecial,flip)
+     if(nspecial.eq.0) then
+        call packmsg(message,dgen,itype)    !Pack message into 72 bits
+        call unpackmsg(dgen,msgsent)        !Unpack to get message sent
+        if(ichk.ne.0) go to 999             !Return if checking only
+
+        call rs_encode(dgen,sent)           !Apply Reed-Solomon code
+        call interleave63(sent,1)           !Apply interleaving
+        call graycode65(sent,63,1)          !Apply Gray code
+        nsym=126                            !Symbols per transmission
      else
-        itone(j)=0
+        nsym=32
      endif
-  enddo
+
+     k=0
+     do j=1,nsym
+        if(nprc(j).eq.0) then
+           k=k+1
+           itone(j)=sent(k)+2
+        else
+           itone(j)=0
+        endif
+     enddo
+  endif
 
 999 return
 end subroutine gen65

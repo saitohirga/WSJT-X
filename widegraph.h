@@ -1,12 +1,12 @@
 // -*- Mode: C++ -*-
 #ifndef WIDEGRAPH_H
 #define WIDEGRAPH_H
-
 #include <QDialog>
 #include <QScopedPointer>
 #include <QDir>
-
 #include "WFPalette.hpp"
+
+#define MAX_SCREENSIZE 2048
 
 namespace Ui {
   class WideGraph;
@@ -26,21 +26,20 @@ public:
   void   dataSink2(float s[], float df3, int ihsym, int ndiskdata);
   void   setRxFreq(int n);
   int    rxFreq();
-  int    nSpan();
   int    nStartFreq();
-  int    getFmin();
-  int    getFmax();
-  float  fSpan();
+  int    Fmin();
+  int    Fmax();
   void   saveSettings();
   void   setRxRange(int fMin);
   void   setFsample(int n);
   void   setPeriod(int ntrperiod, int nsps);
   void   setTxFreq(int n);
   void   setMode(QString mode);
+  void   setSubMode(int n);
   void   setModeTx(QString modeTx);
   void   setLockTxFreq(bool b);
-  double fGreen();
   bool   flatten();
+  void   setTol(int n);
 
 signals:
   void freezeDecode2(int n);
@@ -59,20 +58,24 @@ protected:
 
 private slots:
   void on_waterfallAvgSpinBox_valueChanged(int arg1);
-  void on_freqSpanSpinBox_valueChanged(int arg1);
-  void on_zeroSpinBox_valueChanged(int arg1);
-  void on_gainSpinBox_valueChanged(int arg1);
+  void on_bppSpinBox_valueChanged(int arg1);
   void on_spec2dComboBox_currentIndexChanged(const QString &arg1);
-  void on_fMinSpinBox_valueChanged(int n);
+  void on_fSplitSpinBox_valueChanged(int n);
   void on_fStartSpinBox_valueChanged(int n);
   void on_paletteComboBox_activated(const QString &palette);
   void on_cbFlatten_toggled(bool b);
   void on_adjust_palette_push_button_clicked (bool);
+  void on_gainSlider_valueChanged(int value);
+  void on_zeroSlider_valueChanged(int value);
+  void on_gain2dSlider_valueChanged(int value);
+  void on_zero2dSlider_valueChanged(int value);
 
 private:
   void   readPalette();
 
-  QScopedPointer<Ui::WideGraph> ui;
+//  QScopedPointer<Ui::WideGraph> ui;
+  Ui::WideGraph *ui;
+
   QSettings * m_settings;
   QDir m_palettes_path;
   WFPalette m_userPalette;
@@ -84,6 +87,7 @@ private:
   qint32 m_ntr0;
   qint32 m_fMin;
   qint32 m_fMax;
+  qint32 m_nSubMode;
 
   bool   m_lockTxFreq;
   bool   m_bFlatten;

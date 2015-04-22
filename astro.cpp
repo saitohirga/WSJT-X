@@ -8,8 +8,6 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QDateTime>
-#include <QFont>
-#include <QFontDialog>
 #include <QStandardPaths>
 #include <QDir>
 #include <QDebug>
@@ -27,22 +25,16 @@ Astro::Astro(QSettings * settings, QWidget * parent)
   , ui_ {new Ui::Astro}
 {
   ui_->setupUi(this);
-
   setWindowFlags (Qt::Dialog | Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint);
   setWindowTitle(QApplication::applicationName () + " - " + tr ("Astronomical Data"));
-  setStyleSheet ("QWidget {background: cyan;}");
-
+  setStyleSheet ("QWidget {background: white;}");
   read_settings ();
-
   ui_->text_label->clear();
 }
 
 Astro::~Astro ()
 {
-  if (isVisible ())
-    {
-      write_settings ();
-    }
+  if (isVisible ()) write_settings ();
 }
 
 void Astro::closeEvent (QCloseEvent * e)
@@ -54,52 +46,47 @@ void Astro::closeEvent (QCloseEvent * e)
 void Astro::read_settings ()
 {
   settings_->beginGroup ("Astro");
+  restoreGeometry (settings_->value ("geometry", saveGeometry ()).toByteArray ());
+  m_bDopplerTracking=settings_->value("DopplerTracking",false).toBool();
+  ui_->cbDopplerTracking->setChecked(m_bDopplerTracking);
+  m_DopplerMethod=settings_->value("DopplerMethod",0).toInt();
+  if(m_DopplerMethod==0) ui_->rbNoDoppler->setChecked(true);
+  if(m_DopplerMethod==1) ui_->rbFullTrack->setChecked(true);
+  if(m_DopplerMethod==2) ui_->rbConstFreqOnMoon->setChecked(true);
+  m_stepHz=settings_->value("StepHz",1).toInt();
+  if(m_stepHz==1) ui_->rb1Hz->setChecked(true);
+  if(m_stepHz==10) ui_->rb10Hz->setChecked(true);
+  if(m_stepHz==100) ui_->rb100Hz->setChecked(true);
+  m_kHz=settings_->value("kHzAdd",100).toInt();
+  ui_->kHzSpinBox->setValue(m_kHz);
+  m_bRxAudioTrack=settings_->value("RxAudioTrack",false).toBool();
+  ui_->cbRxTrack->setChecked(m_bRxAudioTrack);
+  m_bTxAudioTrack=settings_->value("TxAudioTrack",false).toBool();
+  ui_->cbTxTrack->setChecked(m_bTxAudioTrack);
   move (settings_->value ("window/pos", pos ()).toPoint ());
-  QFont font;
-  if (font.fromString (settings_->value ("font", ui_->text_label->font ().toString ()).toString ()))
-    {
-      ui_->text_label->setStyleSheet ("QLabel {" + font_as_stylesheet (font) + '}');
-      adjustSize ();
-    }
   settings_->endGroup ();
 }
 
 void Astro::write_settings ()
 {
   settings_->beginGroup ("Astro");
+  settings_->setValue ("geometry", saveGeometry ());
+  settings_->setValue ("DopplerTracking",m_bDopplerTracking);
+  settings_->setValue ("DopplerMethod",m_DopplerMethod);
+  settings_->setValue ("StepHz",m_stepHz);
+  settings_->setValue ("kHzAdd",m_kHz);
+  settings_->setValue ("RxAudioTrack",m_bRxAudioTrack);
+  settings_->setValue ("TxAudioTrack",m_bTxAudioTrack);
   settings_->setValue ("window/pos", pos ());
-  settings_->setValue ("font", ui_->text_label->font ().toString ());
   settings_->endGroup ();
 }
 
-void Astro::on_font_push_button_clicked (bool /* checked */)
+void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid, qint64 freqMoon,
+                        qint32* ndop, qint32* ndop00)
 {
-  bool changed;
-  auto ss = styleSheet ();
-  setStyleSheet ("");
-  auto font = QFontDialog::getFont (&changed
-                                    , ui_->text_label->font ()
-                                    , this
-                                    , tr ("WSJT-X Astro Text Font Chooser")
-#if QT_VERSION >= 0x050201
-                                    , QFontDialog::MonospacedFonts
-#endif
-                                    );
-  if (changed)
-    {
-      ui_->text_label->setStyleSheet ("QLabel {" + font_as_stylesheet (font) + '}');
-      adjustSize ();
-    }
-  setStyleSheet (ss);
-}
-
-void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
-                        int fQSO, int nsetftx, int ntxFreq)
-{
-  static int ntxFreq0=-99;
   double azsun,elsun,azmoon,elmoon,azmoondx,elmoondx;
   double ramoon,decmoon,dgrd,poloffset,xnr,techo;
-  int ntsky,ndop,ndop00;
+  int ntsky;
   QString date = t.date().toString("yyyy MMM dd").trimmed ();
   QString utc = t.time().toString().trimmed ();
   int nyear=t.date().year();
@@ -110,13 +97,13 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
   double sec=t.time().second() + 0.001*t.time().msec();
   int isec=sec;
   double uth=nhr + nmin/60.0 + sec/3600.0;
-  //  int nfreq=(int)datcom_.fcenter;
-  int nfreq=10368;
-  if(nfreq<10 or nfreq > 50000) nfreq=144;
+  if(freqMoon < 1) freqMoon=144000000;
+  int nfreq=freqMoon/1000000;
+  double freq8=(double)freqMoon;
 
-  astrosub_(&nyear, &month, &nday, &uth, &nfreq, mygrid.toLatin1(),
+  astrosub_(&nyear, &month, &nday, &uth, &freq8, mygrid.toLatin1(),
             hisgrid.toLatin1(), &azsun, &elsun, &azmoon, &elmoon,
-            &azmoondx, &elmoondx, &ntsky, &ndop, &ndop00,&ramoon, &decmoon,
+            &azmoondx, &elmoondx, &ntsky, ndop, ndop00, &ramoon, &decmoon,
             &dgrd, &poloffset, &xnr, &techo, 6, 6);
 
   QString message;
@@ -130,13 +117,13 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
       << qSetRealNumberPrecision (1)
       << "Az:    " << azmoon << "\n"
       "El:    " << elmoon << "\n"
-      "MyDop: " << ndop00 << "\n"
+      "MyDop: " << *ndop00 << "\n"
       << qSetRealNumberPrecision (2)
       << "Delay: " << techo << "\n"
       << qSetRealNumberPrecision (1)
       << "DxAz:  " << azmoondx << "\n"
       "DxEl:  " << elmoondx << "\n"
-      "DxDop: " << ndop << "\n"
+      "DxDop: " << *ndop << "\n"
       "Dec:   " << decmoon << "\n"
       "SunAz: " << azsun << "\n"
       "SunEl: " << elsun << "\n"
@@ -147,17 +134,14 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
   }
   ui_->text_label->setText(message);
 
-  static QFile f {QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("azel.dat")};
-  if (!f.open (QIODevice::WriteOnly | QIODevice::Text))
-    {
+  static QFile f {QDir {QStandardPaths::writableLocation (
+            QStandardPaths::DataLocation)}.absoluteFilePath ("azel.dat")};
+  if (!f.open (QIODevice::WriteOnly | QIODevice::Text)) {
     QMessageBox mb;
     mb.setText ("Cannot open \"" + f.fileName () + "\" for writing:" + f.errorString ());
     mb.exec();
     return;
   }
-  int ndiff=0;
-  if(ntxFreq != ntxFreq0) ndiff=1;
-  ntxFreq0=ntxFreq;
   {
     QTextStream out {&f};
     out << fixed
@@ -198,15 +182,66 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
         << qSetFieldWidth (4) << nfreq
         << qSetFieldWidth (0) << ','
         << qSetFieldWidth (6) << ndop
-        << qSetFieldWidth (0) << ",Doppler\n"
-        << qSetFieldWidth (3) << fQSO
-        << qSetFieldWidth (0) << ','
-        << qSetFieldWidth (1) << nsetftx
-        << qSetFieldWidth (0) << ",fQSO\n"
-        << qSetFieldWidth (3) << ntxFreq
-        << qSetFieldWidth (0) << ','
-        << qSetFieldWidth (1) << ndiff
-        << qSetFieldWidth (0) << ",fQSO2";
+        << qSetFieldWidth (0) << ",Doppler";
   }
   f.close();
+}
+
+void Astro::on_cbDopplerTracking_toggled(bool b)
+{
+  QRect g=this->geometry();
+  if(b) {
+    g.setWidth(460);
+  } else {
+    g.setWidth(200);
+  }
+  this->setGeometry(g);
+  m_bDopplerTracking=b;
+}
+
+void Astro::on_rbFullTrack_clicked()
+{
+  m_DopplerMethod=1;
+}
+
+void Astro::on_rbConstFreqOnMoon_clicked()
+{
+  m_DopplerMethod=2;
+}
+
+void Astro::on_rbNoDoppler_clicked()
+{
+  m_DopplerMethod=0;
+}
+
+void Astro::on_rb1Hz_clicked()
+{
+  m_stepHz=1;
+}
+
+void Astro::on_rb10Hz_clicked()
+{
+  m_stepHz=10;
+
+}
+
+void Astro::on_rb100Hz_clicked()
+{
+  m_stepHz=100;
+
+}
+
+void Astro::on_cbRxTrack_toggled(bool b)
+{
+  m_bRxAudioTrack=b;
+}
+
+void Astro::on_cbTxTrack_toggled(bool b)
+{
+  m_bTxAudioTrack=b;
+}
+
+void Astro::on_kHzSpinBox_valueChanged(int n)
+{
+  m_kHz=n;
 }
