@@ -50,7 +50,7 @@
 // queries. This should be the only place where a hard coded value for
 // a   settings  item   is   defined.   Any   remaining  one-time   UI
 // initialization is also done. At the end of the constructor a method
-// initialise_models()  is called  to  load the  UI  with the  current
+// initialize_models()  is called  to  load the  UI  with the  current
 // settings values.
 //
 // 2) When the settings UI is displayed by a client calling the exec()
@@ -65,7 +65,7 @@
 //
 // 4) If the  user discards the settings changes by  dismissing the UI
 // with the  "Cancel" button;  the reject()  operation is  called. The
-// reject() operation calls initialise_models()  which will revert all
+// reject() operation calls initialize_models()  which will revert all
 // the  UI visible  state  to  the values  as  at  the initial  exec()
 // operation.  No   changes  are  moved   into  the  data   fields  in
 // Configuration::impl that  reflect the  settings state  published by
@@ -107,7 +107,7 @@
 // default value. If  the setting value is dynamic, add  a signal emit
 // call to broadcast the setting value change.
 //
-// 6) Add  code to  initialise_models() to  load the  widget control's
+// 6) Add  code to  initialize_models() to  load the  widget control's
 // data model with the current value.
 //
 // 7) If there is no convenient data model field, add a data member to
@@ -135,6 +135,7 @@
 
 #include <QApplication>
 #include <QMetaType>
+#include <QList>
 #include <QSettings>
 #include <QAudioDeviceInfo>
 #include <QAudioInput>
@@ -335,40 +336,6 @@ public:
 };
 
 
-// Fields that are transceiver related.
-//
-// These are aggregated in a structure to enable a non-equivalence to
-// be provided.
-//
-// don't forget to update the != operator if any fields are added
-// otherwise rig parameter changes will not trigger reconfiguration
-struct RigParams
-{
-  QString CAT_serial_port_;
-  QString CAT_network_port_;
-  qint32 CAT_baudrate_;
-  TransceiverFactory::DataBits CAT_data_bits_;
-  TransceiverFactory::StopBits CAT_stop_bits_;
-  TransceiverFactory::Handshake CAT_handshake_;
-  bool CAT_force_control_lines_;
-  bool CAT_DTR_high_;
-  bool CAT_RTS_high_;
-  qint32 CAT_poll_interval_;
-  TransceiverFactory::PTTMethod PTT_method_;
-  QString PTT_port_;
-  TransceiverFactory::TXAudioSource TX_audio_source_;
-  TransceiverFactory::SplitMode split_mode_;
-  QString rig_name_;
-};
-bool operator != (RigParams const&, RigParams const&);
-
-inline
-bool operator == (RigParams const& lhs, RigParams const& rhs)
-{
-  return !(lhs != rhs);
-}
-
-
 // Internal implementation of the Configuration class.
 class Configuration::impl final
   : public QDialog
@@ -407,10 +374,11 @@ private:
 
   void set_application_font (QFont const&);
 
-  void initialise_models ();
+  void initialize_models ();
   bool open_rig ();
   //bool set_mode ();
   void close_rig ();
+  TransceiverFactory::ParameterPack gather_rig_data ();
   void enumerate_rigs ();
   void set_rig_invariants ();
   bool validate ();
@@ -428,7 +396,7 @@ private:
   Q_SLOT void on_CAT_poll_interval_spin_box_valueChanged (int);
   Q_SLOT void on_split_mode_button_group_buttonClicked (int);
   Q_SLOT void on_test_CAT_push_button_clicked ();
-  Q_SLOT void on_test_PTT_push_button_clicked ();
+  Q_SLOT void on_test_PTT_push_button_clicked (bool checked);
   Q_SLOT void on_CAT_control_lines_group_box_toggled (bool);
   Q_SLOT void on_CAT_DTR_check_box_toggled (bool);
   Q_SLOT void on_CAT_RTS_check_box_toggled (bool);
@@ -457,6 +425,7 @@ private:
   Q_SLOT void on_pbNewCall_clicked();
 
   // typenames used as arguments must match registered type names :(
+  Q_SIGNAL void start_transceiver () const;
   Q_SIGNAL void stop_transceiver () const;
   Q_SIGNAL void frequency (Frequency rx, Transceiver::MODE) const;
   Q_SIGNAL void tx_frequency (Frequency tx, bool rationalize_mode) const;
@@ -468,6 +437,7 @@ private:
 
   QThread transceiver_thread_;
   TransceiverFactory transceiver_factory_;
+  QList<QMetaObject::Connection> rig_connections_;
 
   Ui::configuration_dialog * ui_;
 
@@ -511,14 +481,13 @@ private:
   QAction * station_insert_action_;
   StationDialog * station_dialog_;
 
-  RigParams rig_params_;
-  RigParams saved_rig_params_;
+  TransceiverFactory::ParameterPack rig_params_;
+  TransceiverFactory::ParameterPack saved_rig_params_;
   bool rig_is_dummy_;
   bool rig_active_;
   bool have_rig_;
   bool rig_changed_;
   TransceiverState cached_rig_state_;
-  bool ptt_state_;
 
   // the following members are required to get the rig into split the
   // first time monitor or tune or Tx occur
@@ -624,7 +593,7 @@ bool Configuration::id_after_73 () const {return m_->id_after_73_;}
 bool Configuration::tx_QSY_allowed () const {return m_->tx_QSY_allowed_;}
 bool Configuration::spot_to_psk_reporter () const {return m_->spot_to_psk_reporter_;}
 bool Configuration::monitor_off_at_startup () const {return m_->monitor_off_at_startup_;}
-bool Configuration::monitor_last_used () const {return m_->monitor_last_used_;}
+bool Configuration::monitor_last_used () const {return m_->rig_is_dummy_ || m_->monitor_last_used_;}
 bool Configuration::log_as_RTTY () const {return m_->log_as_RTTY_;}
 bool Configuration::report_in_comments () const {return m_->report_in_comments_;}
 bool Configuration::prompt_to_log () const {return m_->prompt_to_log_;}
@@ -638,7 +607,7 @@ bool Configuration::watchdog () const {return m_->watchdog_;}
 bool Configuration::TX_messages () const {return m_->TX_messages_;}
 bool Configuration::split_mode () const
 {
-  return !m_->rig_is_dummy_ && m_->rig_params_.split_mode_ != TransceiverFactory::split_mode_none;
+  return !m_->rig_is_dummy_ && m_->rig_params_.split_mode != TransceiverFactory::split_mode_none;
 }
 QString Configuration::udp_server_name () const {return m_->udp_server_name_;}
 auto Configuration::udp_server_port () const -> port_type {return m_->udp_server_port_;}
@@ -650,7 +619,7 @@ StationList * Configuration::stations () {return &m_->stations_;}
 FrequencyList * Configuration::frequencies () {return &m_->frequencies_;}
 QStringListModel * Configuration::macros () {return &m_->macros_;}
 QDir Configuration::save_directory () const {return m_->save_directory_;}
-QString Configuration::rig_name () const {return m_->rig_params_.rig_name_;}
+QString Configuration::rig_name () const {return m_->rig_params_.rig_name;}
 
 bool Configuration::transceiver_online (bool open_if_closed)
 {
@@ -752,7 +721,7 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   , rig_active_ {false}
   , have_rig_ {false}
   , rig_changed_ {false}
-  , ptt_state_ {false}
+    //  , ptt_state_ {false}
   , setup_split_ {false}
   , required_tx_frequency_ {0}
   , enforce_mode_and_split_ {false}
@@ -976,7 +945,7 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   restart_sound_output_device_ = false;
 
   enumerate_rigs ();
-  initialise_models ();
+  initialize_models ();
 
   transceiver_thread_.start ();
 
@@ -997,7 +966,7 @@ Configuration::impl::~impl ()
   temp_dir_.removeRecursively (); // clean up temp files
 }
 
-void Configuration::impl::initialise_models ()
+void Configuration::impl::initialize_models ()
 {
   auto pal = ui_->callsign_line_edit->palette ();
   if (my_callsign_.isEmpty ())
@@ -1018,7 +987,7 @@ void Configuration::impl::initialise_models ()
   ui_->labDXCC->setStyleSheet(QString("background: %1").arg(color_DXCC_.name()));
   ui_->labNewCall->setStyleSheet(QString("background: %1").arg(color_NewCall_.name()));
   ui_->CW_id_interval_spin_box->setValue (id_interval_);
-  ui_->PTT_method_button_group->button (rig_params_.PTT_method_)->setChecked (true);
+  ui_->PTT_method_button_group->button (rig_params_.ptt_type)->setChecked (true);
   ui_->save_path_display_label->setText (save_directory_.absolutePath ());
   ui_->CW_id_after_73_check_box->setChecked (id_after_73_);
   ui_->tx_QSY_check_box->setChecked (tx_QSY_allowed_);
@@ -1040,25 +1009,25 @@ void Configuration::impl::initialise_models ()
   ui_->jt9w_min_dt_double_spin_box->setValue (jt9w_min_dt_);
   ui_->jt9w_max_dt_double_spin_box->setValue (jt9w_max_dt_);
   ui_->type_2_msg_gen_combo_box->setCurrentIndex (type_2_msg_gen_);
-  ui_->rig_combo_box->setCurrentText (rig_params_.rig_name_);
+  ui_->rig_combo_box->setCurrentText (rig_params_.rig_name);
   ui_->TX_mode_button_group->button (data_mode_)->setChecked (true);
-  ui_->split_mode_button_group->button (rig_params_.split_mode_)->setChecked (true);
-  ui_->CAT_serial_baud_combo_box->setCurrentText (QString::number (rig_params_.CAT_baudrate_));
-  ui_->CAT_data_bits_button_group->button (rig_params_.CAT_data_bits_)->setChecked (true);
-  ui_->CAT_stop_bits_button_group->button (rig_params_.CAT_stop_bits_)->setChecked (true);
-  ui_->CAT_handshake_button_group->button (rig_params_.CAT_handshake_)->setChecked (true);
-  ui_->CAT_control_lines_group_box->setChecked (rig_params_.CAT_force_control_lines_);
-  ui_->CAT_DTR_check_box->setChecked (rig_params_.CAT_DTR_high_);
-  ui_->CAT_RTS_check_box->setChecked (rig_params_.CAT_RTS_high_);
-  ui_->TX_audio_source_button_group->button (rig_params_.TX_audio_source_)->setChecked (true);
-  ui_->CAT_poll_interval_spin_box->setValue (rig_params_.CAT_poll_interval_);
+  ui_->split_mode_button_group->button (rig_params_.split_mode)->setChecked (true);
+  ui_->CAT_serial_baud_combo_box->setCurrentText (QString::number (rig_params_.baud));
+  ui_->CAT_data_bits_button_group->button (rig_params_.data_bits)->setChecked (true);
+  ui_->CAT_stop_bits_button_group->button (rig_params_.stop_bits)->setChecked (true);
+  ui_->CAT_handshake_button_group->button (rig_params_.handshake)->setChecked (true);
+  ui_->CAT_control_lines_group_box->setChecked (rig_params_.force_line_control);
+  ui_->CAT_DTR_check_box->setChecked (rig_params_.dtr_high);
+  ui_->CAT_RTS_check_box->setChecked (rig_params_.rts_high);
+  ui_->TX_audio_source_button_group->button (rig_params_.audio_source)->setChecked (true);
+  ui_->CAT_poll_interval_spin_box->setValue (rig_params_.poll_interval);
   ui_->udp_server_line_edit->setText (udp_server_name_);
   ui_->udp_server_port_spin_box->setValue (udp_server_port_);
   ui_->accept_udp_requests_check_box->setChecked (accept_udp_requests_);
   ui_->udpWindowToFront->setChecked(udpWindowToFront_);
   ui_->udpWindowRestore->setChecked(udpWindowRestore_);
 
-  if (rig_params_.PTT_port_.isEmpty ())
+  if (rig_params_.ptt_port.isEmpty ())
     {
       if (ui_->PTT_port_combo_box->count ())
         {
@@ -1067,7 +1036,7 @@ void Configuration::impl::initialise_models ()
     }
   else
     {
-      ui_->PTT_port_combo_box->setCurrentText (rig_params_.PTT_port_);
+      ui_->PTT_port_combo_box->setCurrentText (rig_params_.ptt_port);
     }
 
   next_macros_.setStringList (macros_.stringList ());
@@ -1207,20 +1176,20 @@ void Configuration::impl::read_settings ()
 
   log_as_RTTY_ = settings_->value ("toRTTY", false).toBool ();
   report_in_comments_ = settings_->value("dBtoComments", false).toBool ();
-  rig_params_.rig_name_ = settings_->value ("Rig", TransceiverFactory::basic_transceiver_name_).toString ();
-  rig_is_dummy_ = TransceiverFactory::basic_transceiver_name_ == rig_params_.rig_name_;
-  rig_params_.CAT_network_port_ = settings_->value ("CATNetworkPort").toString ();
-  rig_params_.CAT_serial_port_ = settings_->value ("CATSerialPort").toString ();
-  rig_params_.CAT_baudrate_ = settings_->value ("CATSerialRate", 4800).toInt ();
-  rig_params_.CAT_data_bits_ = settings_->value ("CATDataBits", QVariant::fromValue (TransceiverFactory::eight_data_bits)).value<TransceiverFactory::DataBits> ();
-  rig_params_.CAT_stop_bits_ = settings_->value ("CATStopBits", QVariant::fromValue (TransceiverFactory::two_stop_bits)).value<TransceiverFactory::StopBits> ();
-  rig_params_.CAT_handshake_ = settings_->value ("CATHandshake", QVariant::fromValue (TransceiverFactory::handshake_none)).value<TransceiverFactory::Handshake> ();
-  rig_params_.CAT_force_control_lines_ = settings_->value ("CATForceControlLines", false).toBool ();
-  rig_params_.CAT_DTR_high_ = settings_->value ("DTR", false).toBool ();
-  rig_params_.CAT_RTS_high_ = settings_->value ("RTS", false).toBool ();
-  rig_params_.PTT_method_ = settings_->value ("PTTMethod", QVariant::fromValue (TransceiverFactory::PTT_method_VOX)).value<TransceiverFactory::PTTMethod> ();
-  rig_params_.TX_audio_source_ = settings_->value ("TXAudioSource", QVariant::fromValue (TransceiverFactory::TX_audio_source_front)).value<TransceiverFactory::TXAudioSource> ();
-  rig_params_.PTT_port_ = settings_->value ("PTTport").toString ();
+  rig_params_.rig_name = settings_->value ("Rig", TransceiverFactory::basic_transceiver_name_).toString ();
+  rig_is_dummy_ = TransceiverFactory::basic_transceiver_name_ == rig_params_.rig_name;
+  rig_params_.network_port = settings_->value ("CATNetworkPort").toString ();
+  rig_params_.serial_port = settings_->value ("CATSerialPort").toString ();
+  rig_params_.baud = settings_->value ("CATSerialRate", 4800).toInt ();
+  rig_params_.data_bits = settings_->value ("CATDataBits", QVariant::fromValue (TransceiverFactory::eight_data_bits)).value<TransceiverFactory::DataBits> ();
+  rig_params_.stop_bits = settings_->value ("CATStopBits", QVariant::fromValue (TransceiverFactory::two_stop_bits)).value<TransceiverFactory::StopBits> ();
+  rig_params_.handshake = settings_->value ("CATHandshake", QVariant::fromValue (TransceiverFactory::handshake_none)).value<TransceiverFactory::Handshake> ();
+  rig_params_.force_line_control = settings_->value ("CATForceControlLines", false).toBool ();
+  rig_params_.dtr_high = settings_->value ("DTR", false).toBool ();
+  rig_params_.rts_high = settings_->value ("RTS", false).toBool ();
+  rig_params_.ptt_type = settings_->value ("PTTMethod", QVariant::fromValue (TransceiverFactory::PTT_method_VOX)).value<TransceiverFactory::PTTMethod> ();
+  rig_params_.audio_source = settings_->value ("TXAudioSource", QVariant::fromValue (TransceiverFactory::TX_audio_source_front)).value<TransceiverFactory::TXAudioSource> ();
+  rig_params_.ptt_port = settings_->value ("PTTport").toString ();
   data_mode_ = settings_->value ("DataMode", QVariant::fromValue (data_mode_none)).value<Configuration::DataMode> ();
   prompt_to_log_ = settings_->value ("PromptToLog", false).toBool ();
   insert_blank_ = settings_->value ("InsertBlank", false).toBool ();
@@ -1231,8 +1200,8 @@ void Configuration::impl::read_settings ()
   disable_TX_on_73_ = settings_->value ("73TxDisable", false).toBool ();
   watchdog_ = settings_->value ("Runaway", false).toBool ();
   TX_messages_ = settings_->value ("Tx2QSO", false).toBool ();
-  rig_params_.CAT_poll_interval_ = settings_->value ("Polling", 0).toInt ();
-  rig_params_.split_mode_ = settings_->value ("SplitMode", QVariant::fromValue (TransceiverFactory::split_mode_none)).value<TransceiverFactory::SplitMode> ();
+  rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
+  rig_params_.split_mode = settings_->value ("SplitMode", QVariant::fromValue (TransceiverFactory::split_mode_none)).value<TransceiverFactory::SplitMode> ();
   udp_server_name_ = settings_->value ("UDPServer", "localhost").toString ();
   udp_server_port_ = settings_->value ("UDPServerPort", 2237).toUInt ();
   accept_udp_requests_ = settings_->value ("AcceptUDPRequests", false).toBool ();
@@ -1254,8 +1223,8 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Font", font_.toString ());
   settings_->setValue ("DecodedTextFont", decoded_text_font_.toString ());
   settings_->setValue ("IDint", id_interval_);
-  settings_->setValue ("PTTMethod", QVariant::fromValue (rig_params_.PTT_method_));
-  settings_->setValue ("PTTport", rig_params_.PTT_port_);
+  settings_->setValue ("PTTMethod", QVariant::fromValue (rig_params_.ptt_type));
+  settings_->setValue ("PTTport", rig_params_.ptt_port);
   settings_->setValue ("SaveDir", save_directory_.absolutePath ());
 
   if (default_audio_input_device_selected_)
@@ -1292,13 +1261,13 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("stations", QVariant::fromValue (stations_.stations ()));
   settings_->setValue ("toRTTY", log_as_RTTY_);
   settings_->setValue ("dBtoComments", report_in_comments_);
-  settings_->setValue ("Rig", rig_params_.rig_name_);
-  settings_->setValue ("CATNetworkPort", rig_params_.CAT_network_port_);
-  settings_->setValue ("CATSerialPort", rig_params_.CAT_serial_port_);
-  settings_->setValue ("CATSerialRate", rig_params_.CAT_baudrate_);
-  settings_->setValue ("CATDataBits", QVariant::fromValue (rig_params_.CAT_data_bits_));
-  settings_->setValue ("CATStopBits", QVariant::fromValue (rig_params_.CAT_stop_bits_));
-  settings_->setValue ("CATHandshake", QVariant::fromValue (rig_params_.CAT_handshake_));
+  settings_->setValue ("Rig", rig_params_.rig_name);
+  settings_->setValue ("CATNetworkPort", rig_params_.network_port);
+  settings_->setValue ("CATSerialPort", rig_params_.serial_port);
+  settings_->setValue ("CATSerialRate", rig_params_.baud);
+  settings_->setValue ("CATDataBits", QVariant::fromValue (rig_params_.data_bits));
+  settings_->setValue ("CATStopBits", QVariant::fromValue (rig_params_.stop_bits));
+  settings_->setValue ("CATHandshake", QVariant::fromValue (rig_params_.handshake));
   settings_->setValue ("DataMode", QVariant::fromValue (data_mode_));
   settings_->setValue ("PromptToLog", prompt_to_log_);
   settings_->setValue ("InsertBlank", insert_blank_);
@@ -1309,12 +1278,12 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("73TxDisable", disable_TX_on_73_);
   settings_->setValue ("Runaway", watchdog_);
   settings_->setValue ("Tx2QSO", TX_messages_);
-  settings_->setValue ("CATForceControlLines", rig_params_.CAT_force_control_lines_);
-  settings_->setValue ("DTR", rig_params_.CAT_DTR_high_);
-  settings_->setValue ("RTS", rig_params_.CAT_RTS_high_);
-  settings_->setValue ("TXAudioSource", QVariant::fromValue (rig_params_.TX_audio_source_));
-  settings_->setValue ("Polling", rig_params_.CAT_poll_interval_);
-  settings_->setValue ("SplitMode", QVariant::fromValue (rig_params_.split_mode_));
+  settings_->setValue ("CATForceControlLines", rig_params_.force_line_control);
+  settings_->setValue ("DTR", rig_params_.dtr_high);
+  settings_->setValue ("RTS", rig_params_.rts_high);
+  settings_->setValue ("TXAudioSource", QVariant::fromValue (rig_params_.audio_source));
+  settings_->setValue ("Polling", rig_params_.poll_interval);
+  settings_->setValue ("SplitMode", QVariant::fromValue (rig_params_.split_mode));
   settings_->setValue ("UDPServer", udp_server_name_);
   settings_->setValue ("UDPServerPort", udp_server_port_);
   settings_->setValue ("AcceptUDPRequests", accept_udp_requests_);
@@ -1346,11 +1315,26 @@ void Configuration::impl::set_rig_invariants ()
 
   if (TransceiverFactory::basic_transceiver_name_ == rig)
     {
+      // makes no sense with rig as "None"
+      ui_->monitor_last_used_check_box->setEnabled (false);
+
       ui_->CAT_control_group_box->setEnabled (false);
+      ui_->test_CAT_push_button->setEnabled (false);
+      ui_->test_PTT_push_button->setEnabled (TransceiverFactory::PTT_method_DTR == ptt_method
+                                             || TransceiverFactory::PTT_method_RTS == ptt_method);
+      ui_->TX_audio_source_group_box->setEnabled (false);
+      ui_->mode_group_box->setEnabled (false);
+      ui_->split_operation_group_box->setEnabled (false);
     }
   else
     {
+      ui_->monitor_last_used_check_box->setEnabled (true);
       ui_->CAT_control_group_box->setEnabled (true);
+      ui_->test_CAT_push_button->setEnabled (true);
+      ui_->test_PTT_push_button->setEnabled (false);
+      ui_->TX_audio_source_group_box->setEnabled (transceiver_factory_.has_CAT_PTT_mic_data (rig) && TransceiverFactory::PTT_method_CAT == ptt_method);
+      ui_->mode_group_box->setEnabled (true);
+      ui_->split_operation_group_box->setEnabled (true);
       if (port_type != last_port_type)
         {
           last_port_type = port_type;
@@ -1358,7 +1342,7 @@ void Configuration::impl::set_rig_invariants ()
             {
             case TransceiverFactory::Capabilities::serial:
               fill_port_combo_box (ui_->CAT_port_combo_box);
-              ui_->CAT_port_combo_box->setCurrentText (rig_params_.CAT_serial_port_);
+              ui_->CAT_port_combo_box->setCurrentText (rig_params_.serial_port);
               if (ui_->CAT_port_combo_box->currentText ().isEmpty () && ui_->CAT_port_combo_box->count ())
                 {
                   ui_->CAT_port_combo_box->setCurrentText (ui_->CAT_port_combo_box->itemText (0));
@@ -1369,7 +1353,8 @@ void Configuration::impl::set_rig_invariants ()
               break;
 
             case TransceiverFactory::Capabilities::network:
-              ui_->CAT_port_combo_box->setCurrentText (rig_params_.CAT_network_port_);
+              ui_->CAT_port_combo_box->clear ();
+              ui_->CAT_port_combo_box->setCurrentText (rig_params_.network_port);
               ui_->CAT_port_label->setText (tr ("Network Server:"));
               ui_->CAT_port_combo_box->setToolTip (tr ("Optional hostname and port of network service.\n"
                                                        "Leave blank for a sensible default on this machine.\n"
@@ -1377,7 +1362,6 @@ void Configuration::impl::set_rig_invariants ()
                                                        "\thostname:port\n"
                                                        "\tIPv4-address:port\n"
                                                        "\t[IPv6-address]:port"));
-              ui_->CAT_port_combo_box->clear ();
               ui_->CAT_port_combo_box->setEnabled (true);
               break;
 
@@ -1393,16 +1377,6 @@ void Configuration::impl::set_rig_invariants ()
 
   auto const& cat_port = ui_->CAT_port_combo_box->currentText ();
 
-  ui_->TX_audio_source_group_box->setEnabled (transceiver_factory_.has_CAT_PTT_mic_data (rig) && TransceiverFactory::PTT_method_CAT == ptt_method);
-
-  // if (ui_->test_PTT_push_button->isEnabled ()) // don't enable if disabled - "Test CAT" must succeed first
-  //   {
-  //     ui_->test_PTT_push_button->setEnabled ((TransceiverFactory::PTT_method_CAT == ptt_method && CAT_PTT_enabled)
-  //  					     || TransceiverFactory::PTT_method_DTR == ptt_method
-  //  					     || TransceiverFactory::PTT_method_RTS == ptt_method);
-  //   }
-  ui_->test_PTT_push_button->setEnabled (false);
-  
   // only enable CAT option if transceiver has CAT PTT
   ui_->PTT_CAT_radio_button->setEnabled (CAT_PTT_enabled);
   
@@ -1447,13 +1421,6 @@ bool Configuration::impl::validate ()
       return false;
     }
 
-  // auto CAT_port = ui_->CAT_port_combo_box->currentText ();
-  // if (ui_->CAT_port_combo_box->isEnabled () && CAT_port.isEmpty ())
-  //   {
-  //     message_box (tr ("Invalid CAT port"));
-  //     return false;
-  //   }
-
   auto ptt_method = static_cast<TransceiverFactory::PTTMethod> (ui_->PTT_method_button_group->checkedId ());
   auto ptt_port = ui_->PTT_port_combo_box->currentText ();
   if ((TransceiverFactory::PTT_method_DTR == ptt_method || TransceiverFactory::PTT_method_RTS == ptt_method)
@@ -1472,15 +1439,47 @@ int Configuration::impl::exec ()
   // macros can be modified in the main window
   next_macros_.setStringList (macros_.stringList ());
 
-  ptt_state_ = false;
   have_rig_ = rig_active_;	// record that we started with a rig open
-
   saved_rig_params_ = rig_params_; // used to detect changes that
-  // require the Transceiver to be
-  // re-opened
+                                   // require the Transceiver to be
+                                   // re-opened
   rig_changed_ = false;
 
+  initialize_models ();
   return QDialog::exec();
+}
+
+TransceiverFactory::ParameterPack Configuration::impl::gather_rig_data ()
+{
+  TransceiverFactory::ParameterPack result;
+  result.rig_name = ui_->rig_combo_box->currentText ();
+
+  switch (transceiver_factory_.CAT_port_type (result.rig_name))
+    {
+    case TransceiverFactory::Capabilities::network:
+      result.network_port = ui_->CAT_port_combo_box->currentText ();
+      result.serial_port = rig_params_.serial_port;
+      break;
+
+    default:
+      result.serial_port = ui_->CAT_port_combo_box->currentText ();
+      result.network_port = rig_params_.network_port;
+      break;
+    }
+
+  result.baud = ui_->CAT_serial_baud_combo_box->currentText ().toInt ();
+  result.data_bits = static_cast<TransceiverFactory::DataBits> (ui_->CAT_data_bits_button_group->checkedId ());
+  result.stop_bits = static_cast<TransceiverFactory::StopBits> (ui_->CAT_stop_bits_button_group->checkedId ());
+  result.handshake = static_cast<TransceiverFactory::Handshake> (ui_->CAT_handshake_button_group->checkedId ());
+  result.force_line_control = ui_->CAT_control_lines_group_box->isChecked ();
+  result.dtr_high = ui_->CAT_DTR_check_box->isChecked ();
+  result.rts_high = ui_->CAT_RTS_check_box->isChecked ();
+  result.poll_interval = ui_->CAT_poll_interval_spin_box->value ();
+  result.ptt_type = static_cast<TransceiverFactory::PTTMethod> (ui_->PTT_method_button_group->checkedId ());
+  result.ptt_port = ui_->PTT_port_combo_box->currentText ();
+  result.audio_source = static_cast<TransceiverFactory::TXAudioSource> (ui_->TX_audio_source_button_group->checkedId ());
+  result.split_mode = static_cast<TransceiverFactory::SplitMode> (ui_->split_mode_button_group->checkedId ());
+  return result;
 }
 
 void Configuration::impl::accept ()
@@ -1495,39 +1494,7 @@ void Configuration::impl::accept ()
   // extract all rig related configuration parameters into temporary
   // structure for checking if the rig needs re-opening without
   // actually updating our live state
-  RigParams temp_rig_params;
-  temp_rig_params.rig_name_ = ui_->rig_combo_box->currentText ();
-
-  switch (transceiver_factory_.CAT_port_type (temp_rig_params.rig_name_))
-    {
-    case TransceiverFactory::Capabilities::serial:
-      temp_rig_params.CAT_serial_port_ = ui_->CAT_port_combo_box->currentText ();
-      temp_rig_params.CAT_network_port_ = rig_params_.CAT_network_port_;
-      break;
-
-    case TransceiverFactory::Capabilities::network:
-      temp_rig_params.CAT_network_port_ = ui_->CAT_port_combo_box->currentText ();
-      temp_rig_params.CAT_serial_port_ = rig_params_.CAT_serial_port_;
-      break;
-
-    default:
-      temp_rig_params.CAT_serial_port_ = rig_params_.CAT_serial_port_;
-      temp_rig_params.CAT_network_port_ = rig_params_.CAT_network_port_;
-      break;
-    }
-
-  temp_rig_params.CAT_baudrate_ = ui_->CAT_serial_baud_combo_box->currentText ().toInt ();
-  temp_rig_params.CAT_data_bits_ = static_cast<TransceiverFactory::DataBits> (ui_->CAT_data_bits_button_group->checkedId ());
-  temp_rig_params.CAT_stop_bits_ = static_cast<TransceiverFactory::StopBits> (ui_->CAT_stop_bits_button_group->checkedId ());
-  temp_rig_params.CAT_handshake_ = static_cast<TransceiverFactory::Handshake> (ui_->CAT_handshake_button_group->checkedId ());
-  temp_rig_params.CAT_force_control_lines_ = ui_->CAT_control_lines_group_box->isChecked ();
-  temp_rig_params.CAT_DTR_high_ = ui_->CAT_DTR_check_box->isChecked ();
-  temp_rig_params.CAT_RTS_high_ = ui_->CAT_RTS_check_box->isChecked ();
-  temp_rig_params.CAT_poll_interval_ = ui_->CAT_poll_interval_spin_box->value ();
-  temp_rig_params.PTT_method_ = static_cast<TransceiverFactory::PTTMethod> (ui_->PTT_method_button_group->checkedId ());
-  temp_rig_params.PTT_port_ = ui_->PTT_port_combo_box->currentText ();
-  temp_rig_params.TX_audio_source_ = static_cast<TransceiverFactory::TXAudioSource> (ui_->TX_audio_source_button_group->checkedId ());
-  temp_rig_params.split_mode_ = static_cast<TransceiverFactory::SplitMode> (ui_->split_mode_button_group->checkedId ());
+  auto temp_rig_params = gather_rig_data ();
 
   // open_rig() uses values from models so we use it to validate the
   // Transceiver settings before agreeing to accept the configuration
@@ -1569,7 +1536,7 @@ void Configuration::impl::accept ()
 
   rig_params_ = temp_rig_params; // now we can go live with the rig
                                  // related configuration parameters
-  rig_is_dummy_ = TransceiverFactory::basic_transceiver_name_ == rig_params_.rig_name_;
+  rig_is_dummy_ = TransceiverFactory::basic_transceiver_name_ == rig_params_.rig_name;
 
   // Check to see whether SoundInThread must be restarted,
   // and save user parameters.
@@ -1711,7 +1678,7 @@ void Configuration::impl::accept ()
 
 void Configuration::impl::reject ()
 {
-  initialise_models ();		// reverts to settings as at exec ()
+  initialize_models ();		// reverts to settings as at exec ()
 
   // check if the Transceiver instance changed, in which case we need
   // to re open any prior Transceiver type
@@ -1873,19 +1840,19 @@ void Configuration::impl::on_test_CAT_push_button_clicked ()
   set_rig_invariants ();
 }
 
-void Configuration::impl::on_test_PTT_push_button_clicked ()
+void Configuration::impl::on_test_PTT_push_button_clicked (bool checked)
 {
+  ui_->test_PTT_push_button->setChecked (!checked); // let status
+                                                    // update check us
   if (!validate ())
     {
       return;
     }
 
-  Q_EMIT self_->transceiver_ptt ((ptt_state_ = !ptt_state_));
-
-  ui_->test_PTT_push_button->setStyleSheet (ptt_state_ ? "QPushButton{background-color: red;"
-                                            "border-style: outset; border-width: 1px; border-radius: 5px;"
-                                            "border-color: black; min-width: 5em; padding: 3px;}"
-                                            : "");
+  if (open_rig ())
+    {
+      Q_EMIT self_->transceiver_ptt (checked);
+    }
 }
 
 void Configuration::impl::on_CAT_control_lines_group_box_toggled (bool /* checked */)
@@ -2036,7 +2003,7 @@ void Configuration::impl::on_save_path_select_push_button_clicked (bool /* check
 
 bool Configuration::impl::have_rig (bool open_if_closed)
 {
-  if (open_if_closed && !rig_active_ && !open_rig ())
+  if (open_if_closed && !open_rig ())
     {
       QMessageBox::critical (this, "WSJT-X", tr ("Failed to open connection to rig"));
     }
@@ -2047,84 +2014,76 @@ bool Configuration::impl::open_rig ()
 {
   auto result = false;
 
-  try
+  auto const rig_data = gather_rig_data ();
+  if (!rig_active_ || rig_data != saved_rig_params_)
     {
-      close_rig ();
-
-      // create a new Transceiver object
-      TransceiverFactory::LineControl DTR {TransceiverFactory::no_control};
-      TransceiverFactory::LineControl RTS {TransceiverFactory::no_control};
-      if (ui_->CAT_control_lines_group_box->isChecked ())
+      try
         {
-          DTR = ui_->CAT_DTR_check_box->isEnabled () && ui_->CAT_DTR_check_box->isChecked () ? TransceiverFactory::force_high : TransceiverFactory::force_low;
-          RTS = ui_->CAT_RTS_check_box->isEnabled () && ui_->CAT_RTS_check_box->isChecked () ? TransceiverFactory::force_high : TransceiverFactory::force_low;
+          close_rig ();
+
+          // create a new Transceiver object
+          auto rig = transceiver_factory_.create (rig_data, &transceiver_thread_);
+
+          // hook up Configuration transceiver control signals to Transceiver slots
+          //
+          // these connections cross the thread boundary
+          rig_connections_ << connect (this, &Configuration::impl::frequency, rig.get (), &Transceiver::frequency);
+          rig_connections_ << connect (this, &Configuration::impl::tx_frequency, rig.get (), &Transceiver::tx_frequency);
+          rig_connections_ << connect (this, &Configuration::impl::mode, rig.get (), &Transceiver::mode);
+          rig_connections_ << connect (this, &Configuration::impl::ptt, rig.get (), &Transceiver::ptt);
+          rig_connections_ << connect (this, &Configuration::impl::sync, rig.get (), &Transceiver::sync);
+
+          // hook up Transceiver signals to Configuration signals
+          //
+          // these connections cross the thread boundary
+          connect (rig.get (), &Transceiver::update, this, &Configuration::impl::handle_transceiver_update);
+          connect (rig.get (), &Transceiver::failure, this, &Configuration::impl::handle_transceiver_failure);
+
+          // setup thread safe startup and close down semantics
+          rig_connections_ << connect (this, &Configuration::impl::start_transceiver, rig.get (), &Transceiver::start);
+          connect (this, &Configuration::impl::stop_transceiver, rig.get (), &Transceiver::stop);
+
+          auto p = rig.release ();	// take ownership
+          // schedule eventual destruction
+          //
+          // must be queued connection to avoid premature self-immolation
+          // since finished signal is going to be emitted from the object
+          // that will get destroyed in its own stop slot i.e. a same
+          // thread signal to slot connection which by default will be
+          // reduced to a method function call.
+          connect (p, &Transceiver::finished, p, &Transceiver::deleteLater, Qt::QueuedConnection);
+
+          ui_->test_CAT_push_button->setStyleSheet ({});
+          rig_active_ = true;
+          Q_EMIT start_transceiver (); // start rig on its thread
+          result = true;
         }
-      auto rig = transceiver_factory_.create (ui_->rig_combo_box->currentText ()
-                                              , ui_->CAT_port_combo_box->currentText ()
-                                              , ui_->CAT_serial_baud_combo_box->currentText ().toInt ()
-                                              , static_cast<TransceiverFactory::DataBits> (ui_->CAT_data_bits_button_group->checkedId ())
-                                              , static_cast<TransceiverFactory::StopBits> (ui_->CAT_stop_bits_button_group->checkedId ())
-                                              , static_cast<TransceiverFactory::Handshake> (ui_->CAT_handshake_button_group->checkedId ())
-                                              , DTR
-                                              , RTS
-                                              , static_cast<TransceiverFactory::PTTMethod> (ui_->PTT_method_button_group->checkedId ())
-                                              , static_cast<TransceiverFactory::TXAudioSource> (ui_->TX_audio_source_button_group->checkedId ())
-                                              , static_cast<TransceiverFactory::SplitMode> (ui_->split_mode_button_group->checkedId ())
-                                              , ui_->PTT_port_combo_box->currentText ()
-                                              , ui_->CAT_poll_interval_spin_box->value () * 1000
-                                              , &transceiver_thread_
-                                              );
+      catch (std::exception const& e)
+        {
+          handle_transceiver_failure (e.what ());
+        }
 
-      // hook up Configuration transceiver control signals to Transceiver slots
-      //
-      // these connections cross the thread boundary
-      connect (this, &Configuration::impl::frequency, rig.get (), &Transceiver::frequency);
-      connect (this, &Configuration::impl::tx_frequency, rig.get (), &Transceiver::tx_frequency);
-      connect (this, &Configuration::impl::mode, rig.get (), &Transceiver::mode);
-      connect (this, &Configuration::impl::ptt, rig.get (), &Transceiver::ptt);
-      connect (this, &Configuration::impl::sync, rig.get (), &Transceiver::sync);
-
-      // hook up Transceiver signals to Configuration signals
-      //
-      // these connections cross the thread boundary
-      connect (rig.get (), &Transceiver::update, this, &Configuration::impl::handle_transceiver_update);
-      connect (rig.get (), &Transceiver::failure, this, &Configuration::impl::handle_transceiver_failure);
-
-      // setup thread safe startup and close down semantics
-      connect (this, &Configuration::impl::stop_transceiver, rig.get (), &Transceiver::stop);
-
-      auto p = rig.release ();	// take ownership
-      // schedule eventual destruction
-      //
-      // must be queued connection to avoid premature self-immolation
-      // since finished signal is going to be emitted from the object
-      // that will get destroyed in its own stop slot i.e. a same
-      // thread signal to slot connection which by default will be
-      // reduced to a method function call.
-      connect (p, &Transceiver::finished, p, &Transceiver::deleteLater, Qt::QueuedConnection);
-
-      ui_->test_CAT_push_button->setStyleSheet ({});
-      rig_active_ = true;
-      QTimer::singleShot (0, p, SLOT (start ())); // start rig on its thread
+      saved_rig_params_ = rig_data;
+      rig_changed_ = true;
+    }
+  else
+    {
       result = true;
     }
-  catch (std::exception const& e)
-    {
-      handle_transceiver_failure (e.what ());
-    }
-
-  rig_changed_ = true;
   return result;
 }
 
 void Configuration::impl::transceiver_frequency (Frequency f)
 {
   Transceiver::MODE mode {Transceiver::UNK};
-  switch (static_cast<DataMode> (ui_->TX_mode_button_group->checkedId ()))
+  if (ui_->mode_group_box->isEnabled ())
     {
-    case data_mode_USB: mode = Transceiver::USB; break;
-    case data_mode_data: mode = Transceiver::DIG_U; break;
-    case data_mode_none: break;
+      switch (static_cast<DataMode> (ui_->TX_mode_button_group->checkedId ()))
+        {
+        case data_mode_USB: mode = Transceiver::USB; break;
+        case data_mode_data: mode = Transceiver::DIG_U; break;
+        case data_mode_none: break;
+        }
     }
 
   if (cached_rig_state_.frequency () != f
@@ -2138,38 +2097,6 @@ void Configuration::impl::transceiver_frequency (Frequency f)
       Q_EMIT frequency (f + transceiver_offset_, mode);
     }
 }
-
-// bool Configuration::impl::set_mode ()
-// {
-//   // Some rigs change frequency when switching between some modes so
-//   // we need to check if we change mode and not elide the frequency
-//   // setting in the same as the cached frequency.
-//   bool mode_changed {false};
-
-//   auto data_mode = static_cast<DataMode> (ui_->TX_mode_button_group->checkedId ());
-
-//   // Set mode if we are responsible for it.
-//   if (data_mode_USB == data_mode && cached_rig_state_.mode () != Transceiver::USB)
-//     {
-//       if (Transceiver::USB != cached_rig_state_.mode ())
-//         {
-//           cached_rig_state_.mode (Transceiver::USB);
-//           Q_EMIT mode (Transceiver::USB, cached_rig_state_.split () && data_mode_none != data_mode_);
-//           mode_changed = true;
-//         }
-//     }
-//   if (data_mode_data == data_mode && cached_rig_state_.mode () != Transceiver::DIG_U)
-//     {
-//       if (Transceiver::DIG_U != cached_rig_state_.mode ())
-//         {
-//           cached_rig_state_.mode (Transceiver::DIG_U);
-//           Q_EMIT mode (Transceiver::DIG_U, cached_rig_state_.split () && data_mode_none != data_mode_);
-//           mode_changed = true;
-//         }
-//     }
-
-//   return mode_changed;
-// }
 
 void Configuration::impl::transceiver_tx_frequency (Frequency f)
 {
@@ -2187,7 +2114,9 @@ void Configuration::impl::transceiver_tx_frequency (Frequency f)
 
       // Rationalise TX VFO mode if we ask for split and are
       // responsible for mode.
-      Q_EMIT tx_frequency (f, cached_rig_state_.split () && data_mode_none != data_mode_);
+      Q_EMIT tx_frequency (f, cached_rig_state_.split ()
+                           && ui_->mode_group_box->isEnabled ()
+                           && data_mode_none != data_mode_);
     }
 }
 
@@ -2198,14 +2127,14 @@ void Configuration::impl::transceiver_mode (MODE m)
       cached_rig_state_.mode (m);
 
       // Rationalise mode if we are responsible for it and in split mode.
-      Q_EMIT mode (m, cached_rig_state_.split () && data_mode_none != data_mode_);
+      Q_EMIT mode (m, cached_rig_state_.split ()
+                   && ui_->mode_group_box->isEnabled ()
+                   && data_mode_none != data_mode_);
     }
 }
 
 void Configuration::impl::transceiver_ptt (bool on)
 {
-  // set_mode ();
-
   cached_rig_state_.ptt (on);
 
   // pass this on regardless of cache
@@ -2226,6 +2155,8 @@ void Configuration::impl::handle_transceiver_update (TransceiverState state)
 
   if (state.online ())
     {
+      ui_->test_PTT_push_button->setChecked (state.ptt ());
+
       TransceiverFactory::SplitMode split_mode_selected;
       if (isVisible ())
         {
@@ -2238,7 +2169,6 @@ void Configuration::impl::handle_transceiver_update (TransceiverState state)
                                                  || TransceiverFactory::PTT_method_DTR == ptt_method
                                                  || TransceiverFactory::PTT_method_RTS == ptt_method);
 
-          // set_mode ();
 
           // Follow the setup choice.
           split_mode_selected = static_cast<TransceiverFactory::SplitMode> (ui_->split_mode_button_group->checkedId ());
@@ -2246,11 +2176,12 @@ void Configuration::impl::handle_transceiver_update (TransceiverState state)
       else
         {
           // Follow the rig unless configuration has been changed.
-          split_mode_selected = static_cast<TransceiverFactory::SplitMode> (rig_params_.split_mode_);
+          split_mode_selected = static_cast<TransceiverFactory::SplitMode> (rig_params_.split_mode);
 
           if (enforce_mode_and_split_)
             {
-              if ((TransceiverFactory::split_mode_none != split_mode_selected) != state.split ())
+              if (TransceiverFactory::basic_transceiver_name_ != ui_->rig_combo_box->currentText ()
+                  && ((TransceiverFactory::split_mode_none != split_mode_selected) != state.split ()))
                 {
                   if (!setup_split_)
                     {
@@ -2261,7 +2192,7 @@ void Configuration::impl::handle_transceiver_update (TransceiverState state)
                       // (e.g.Icom) this is going to confuse operators, but
                       // what can we do if they change the rig?
                       // auto split_mode = state.split () ? TransceiverFactory::split_mode_rig : TransceiverFactory::split_mode_none;
-                      // rig_params_.split_mode_ = split_mode;
+                      // rig_params_.split_mode = split_mode;
                       // ui_->split_mode_button_group->button (split_mode)->setChecked (true);
                       // split_mode_selected = split_mode;
                       setup_split_ = true;
@@ -2271,8 +2202,6 @@ void Configuration::impl::handle_transceiver_update (TransceiverState state)
                       Q_EMIT self_->transceiver_failure (tr ("Rig split mode setting not consistent with WSJT-X settings."));
                     }
                 }
-
-              // set_mode ();
             }
         }
 
@@ -2309,6 +2238,7 @@ void Configuration::impl::handle_transceiver_failure (QString reason)
 #endif
 
   close_rig ();
+  ui_->test_PTT_push_button->setChecked (false);
 
   if (isVisible ())
     {
@@ -2323,15 +2253,18 @@ void Configuration::impl::handle_transceiver_failure (QString reason)
 
 void Configuration::impl::close_rig ()
 {
-  ui_->test_PTT_push_button->setStyleSheet ({});
   ui_->test_PTT_push_button->setEnabled (false);
-  ptt_state_ = false;
 
   // revert to no rig configured
   if (rig_active_)
     {
       ui_->test_CAT_push_button->setStyleSheet ("QPushButton {background-color: red;}");
       Q_EMIT stop_transceiver ();
+      Q_FOREACH (auto const& connection, rig_connections_)
+        {
+          disconnect (connection);
+        }
+      rig_connections_.clear ();
       rig_active_ = false;
     }
 }
@@ -2456,7 +2389,7 @@ void Configuration::impl::enumerate_rigs ()
         }
     }
 
-  ui_->rig_combo_box->setCurrentText (rig_params_.rig_name_);
+  ui_->rig_combo_box->setCurrentText (rig_params_.rig_name);
 }
 
 void Configuration::impl::fill_port_combo_box (QComboBox * cb)
@@ -2474,27 +2407,6 @@ void Configuration::impl::fill_port_combo_box (QComboBox * cb)
     }
   cb->addItem("USB");
   cb->setEditText (current_text);
-}
-
-inline
-bool operator != (RigParams const& lhs, RigParams const& rhs)
-{
-  return
-    lhs.CAT_serial_port_ != rhs.CAT_serial_port_
-    || lhs.CAT_network_port_ != rhs.CAT_network_port_
-    || lhs.CAT_baudrate_ != rhs.CAT_baudrate_
-    || lhs.CAT_data_bits_ != rhs.CAT_data_bits_
-    || lhs.CAT_stop_bits_ != rhs.CAT_stop_bits_
-    || lhs.CAT_handshake_ != rhs.CAT_handshake_
-    || lhs.CAT_force_control_lines_ != rhs.CAT_force_control_lines_
-    || lhs.CAT_DTR_high_ != rhs.CAT_DTR_high_
-    || lhs.CAT_RTS_high_ != rhs.CAT_RTS_high_
-    || lhs.CAT_poll_interval_ != rhs.CAT_poll_interval_
-    || lhs.PTT_method_ != rhs.PTT_method_
-    || lhs.PTT_port_ != rhs.PTT_port_
-    || lhs.TX_audio_source_ != rhs.TX_audio_source_
-    || lhs.split_mode_ != rhs.split_mode_
-    || lhs.rig_name_ != rhs.rig_name_;
 }
 
 

@@ -2,8 +2,9 @@
 
 #include <QTimer>
 #include <QDebug>
-
 #include <objbase.h>
+
+#include "qt_helpers.hpP"
 
 #include "moc_OmniRigTransceiver.cpp"
 
@@ -47,12 +48,9 @@ auto OmniRigTransceiver::map_mode (OmniRig::RigParamX param) -> MODE
     {
       return FM;
     }
-
-#if WSJT_TRACE_CAT
-  qDebug () << "OmniRig map_mode unrecognized mode";
-#endif
-
-  throw error {tr ("OmniRig: unrecognized mode")};
+  TRACE_CAT ("unrecognized mode");
+  throw_qstring (tr ("OmniRig: unrecognized mode"));
+  return UNK;
 }
 
 OmniRig::RigParamX OmniRigTransceiver::map_mode (MODE mode)
@@ -115,10 +113,7 @@ OmniRigTransceiver::~OmniRigTransceiver ()
 
 void OmniRigTransceiver::do_start ()
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "OmniRigTransceiver::do_start";
-#endif
-
+  TRACE_CAT ("starting");
   wrapped_->start ();
 
   CoInitializeEx (nullptr, 0 /*COINIT_APARTMENTTHREADED*/); // required because Qt only does this for GUI thread
@@ -126,11 +121,8 @@ void OmniRigTransceiver::do_start ()
   omni_rig_.reset (new OmniRig::OmniRigX {this});
   if (omni_rig_->isNull ())
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "OmniRigTransceiver::do_start: failed to start COM server";
-#endif
-
-      throw error {tr ("Failed to start OmniRig COM server")};
+      TRACE_CAT ("failed to start COM server");
+      throw_qstring (tr ("Failed to start OmniRig COM server"));
     }
 
   // COM/OLE exceptions get signalled
@@ -145,12 +137,8 @@ void OmniRigTransceiver::do_start ()
            , SIGNAL (CustomReply (int, QVariant const&, QVariant const&))
            , this, SLOT (handle_custom_reply (int, QVariant const&, QVariant const&)));
 
-#if WSJT_TRACE_CAT
-  qDebug ()
-    << "OmniRig s/w version:" << QString::number (omni_rig_->SoftwareVersion ()).toLocal8Bit ()
-    << "i/f version:" << QString::number (omni_rig_->InterfaceVersion ()).toLocal8Bit ()
-    ;
-#endif
+  TRACE_CAT ("OmniRig s/w version:" << QString::number (omni_rig_->SoftwareVersion ()).toLocal8Bit ()
+             << "i/f version:" << QString::number (omni_rig_->InterfaceVersion ()).toLocal8Bit ());
 
   // fetch the interface of the RigX CoClass and instantiate a proxy object
   switch (rig_number_)
@@ -172,7 +160,7 @@ void OmniRigTransceiver::do_start ()
 
       // if (!port_->Lock ()) // try to take exclusive use of the OmniRig serial port for PTT
       // 	{
-      // 	  throw error {tr ("Failed to get exclusive use of %1" from OmniRig").arg (ptt_type)};
+      // 	  throw_qstring (tr ("Failed to get exclusive use of %1" from OmniRig").arg (ptt_type));
       // 	}
 
       // start off so we don't accidentally key the radio
@@ -189,17 +177,19 @@ void OmniRigTransceiver::do_start ()
   readable_params_ = rig_->ReadableParams ();
   writable_params_ = rig_->WriteableParams ();
 
-#if WSJT_TRACE_CAT
-  qDebug ()
-    << QString ("OmniRig initial rig type: %1 readable params = 0x%2 writable params = 0x%3 for rig %4")
+  TRACE_CAT (QString {"OmniRig initial rig type: %1 readable params = 0x%2 writable params = 0x%3 for rig %4"}
     .arg (rig_->RigType ())
     .arg (readable_params_, 8, 16, QChar ('0'))
     .arg (writable_params_, 8, 16, QChar ('0'))
-    .arg (rig_number_).toLocal8Bit ()
-    ;
-#endif
+    .arg (rig_number_).toLocal8Bit ());
 
-  QTimer::singleShot (5000, this, SLOT (online_check ()));
+  rig_->GetRxFrequency ();
+  if (OmniRig::ST_ONLINE != rig_->Status ())
+    {
+      throw_qstring ("OmniRig exception: " + rig_->StatusStr ());
+    }
+
+  init_rig ();
 }
 
 void OmniRigTransceiver::do_stop ()
@@ -209,18 +199,11 @@ void OmniRigTransceiver::do_stop ()
       // port_->Unlock ();		// release serial port
       port_->clear ();
     }
-
   rig_->clear ();
-
   omni_rig_->clear ();
-
   CoUninitialize ();
-
   wrapped_->stop ();
-
-#if WSJT_TRACE_CAT
-  qDebug () << "OmniRigTransceiver::do_stop";
-#endif
+  TRACE_CAT ("stopped");
 }
 
 void OmniRigTransceiver::online_check ()
@@ -248,20 +231,15 @@ void OmniRigTransceiver::online_check ()
 
 void OmniRigTransceiver::init_rig ()
 {
+  update_rx_frequency (rig_->GetRxFrequency ());
   if (state ().split ())
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "OmniRigTransceiver::init_rig: set split";
-#endif
-
+      TRACE_CAT ("set split");
       rig_->SetSplitMode (state ().frequency (), state ().tx_frequency ());
     }
   else
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "OmniRigTransceiver::init_rig: set simplex";
-#endif
-
+      TRACE_CAT ("set simplex");
       rig_->SetSimplexMode (state ().frequency ());
     }
 }
@@ -279,18 +257,13 @@ void OmniRigTransceiver::do_sync (bool force_signal)
 
 void OmniRigTransceiver::handle_COM_exception (int code, QString source, QString desc, QString help)
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "OmniRigTransceiver::handle_COM_exception:" << QString::number (code) + " at " + source + ": " + desc + " (" + help + ')';
-#endif
-
-  throw error {tr ("OmniRig COM/OLE error: %1 at %2: %3 (%4)").arg (QString::number (code)).arg (source). arg (desc). arg (help)};
+  TRACE_CAT (QString::number (code) + " at " + source + ": " + desc + " (" + help + ')');
+  throw_qstring (tr ("OmniRig COM/OLE error: %1 at %2: %3 (%4)").arg (QString::number (code)).arg (source). arg (desc). arg (help));
 }
 
 void OmniRigTransceiver::handle_visible_change ()
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "OmniRig visibility change: visibility =" << omni_rig_->DialogVisible ();
-#endif
+  TRACE_CAT ("visibility change: visibility =" << omni_rig_->DialogVisible ());
 }
 
 void OmniRigTransceiver::handle_rig_type_change (int rig_number)
@@ -299,17 +272,11 @@ void OmniRigTransceiver::handle_rig_type_change (int rig_number)
     {
       readable_params_ = rig_->ReadableParams ();
       writable_params_ = rig_->WriteableParams ();
-
-#if WSJT_TRACE_CAT
-      qDebug ()
-        << QString ("OmniRig rig type change to: %1 readable params = 0x%2 writable params = 0x%3 for rig %4")
+      TRACE_CAT (QString {"OmniRig rig type change to: %1 readable params = 0x%2 writable params = 0x%3 for rig %4"}
         .arg (rig_->RigType ())
         .arg (readable_params_, 8, 16, QChar ('0'))
         .arg (writable_params_, 8, 16, QChar ('0'))
-        .arg (rig_number).toLocal8Bit ()
-        ;
-#endif
-
+        .arg (rig_number).toLocal8Bit ());
       offline ("OmniRig rig changed");
     }
 }
@@ -318,11 +285,7 @@ void OmniRigTransceiver::handle_status_change (int rig_number)
 {
   if (rig_number_ == rig_number)
     {
-#if WSJT_TRACE_CAT
-      qDebug ()
-        << QString ("OmniRig status change: new status for rig %1 = ").arg (rig_number).toLocal8Bit () << rig_->StatusStr ().toLocal8Bit ();
-#endif
-
+      TRACE_CAT (QString {"OmniRig status change: new status for rig %1 = "}.arg (rig_number).toLocal8Bit () << rig_->StatusStr ().toLocal8Bit ());
       if (OmniRig::ST_ONLINE != rig_->Status ())
         {
           QTimer::singleShot (5000, this, SLOT (online_check ()));
@@ -347,24 +310,16 @@ void OmniRigTransceiver::handle_params_change (int rig_number, int params)
 {
   if (rig_number_ == rig_number)
     {
-#if WSJT_TRACE_CAT
-      qDebug ()
-        << QString ("OmniRig params change: params = 0x%1 for rig %2")
+      TRACE_CAT (QString {"OmniRig params change: params = 0x%1 for rig %2"}
         .arg (params, 8, 16, QChar ('0'))
         .arg (rig_number).toLocal8Bit ()
-        << "state before:" << state ()
-        ;
-#endif
-
+        << "state before:" << state ());
       starting_ = false;
-
       TransceiverState old_state {state ()};
       auto need_frequency = false;
-
       // state_.online = true;	// sometimes we don't get an initial
       // 				// OmniRig::ST_ONLINE status change
       // 				// event
-
       if (params & OmniRig::PM_VFOAA)
         {
           update_split (false);
@@ -430,7 +385,6 @@ void OmniRigTransceiver::handle_params_change (int rig_number, int params)
               update_other_frequency (rig_->FreqB ());
             }
         }
-
       if (need_frequency)
         {
           if (readable_params_ & OmniRig::PM_FREQA)
@@ -461,7 +415,6 @@ void OmniRigTransceiver::handle_params_change (int rig_number, int params)
         {
           update_rx_frequency (rig_->Freq ());
         }
-
       if (params & OmniRig::PM_PITCH)
         {
         }
@@ -551,12 +504,7 @@ void OmniRigTransceiver::handle_params_change (int rig_number, int params)
           update_complete ();
           send_update_signal_ = false;
         }
-
-#if WSJT_TRACE_CAT
-      qDebug ()
-        << "OmniRig params change: state after:" << state ()
-        ;
-#endif
+      TRACE_CAT ("OmniRig params change: state after:" << state ());
     }
 }
 
@@ -567,30 +515,19 @@ void OmniRigTransceiver::handle_custom_reply (int rig_number, QVariant const& co
 
   if (rig_number_ == rig_number)
     {
-#if WSJT_TRACE_CAT
-      qDebug ()
-        << "OmniRig custom command" << command.toString ().toLocal8Bit ()
-        << "with reply" << reply.toString ().toLocal8Bit ()
-        << QString ("for rig %1").arg (rig_number).toLocal8Bit ()
-        ;
-
-      qDebug () << "OmniRig rig number:" << rig_number_ << ':' << state ();
-#endif
+      TRACE_CAT ("OmniRig custom command" << command.toString ().toLocal8Bit ()
+                 << "with reply" << reply.toString ().toLocal8Bit ()
+                 << QString ("for rig %1").arg (rig_number).toLocal8Bit ());
+      TRACE_CAT ("OmniRig rig number:" << rig_number_ << ':' << state ());
     }
 }
 
 void OmniRigTransceiver::do_ptt (bool on)
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "OmniRigTransceiver::do_ptt:" << on << state ();
-#endif
-
+  TRACE_CAT (on << state ());
   if (use_for_ptt_ && TransceiverFactory::PTT_method_CAT == ptt_type_)
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "OmniRigTransceiver::do_ptt: set PTT";
-#endif
-
+      TRACE_CAT ("set PTT");
       rig_->SetTx (on ? OmniRig::PM_TX : OmniRig::PM_RX);
     }
   else
@@ -599,33 +536,23 @@ void OmniRigTransceiver::do_ptt (bool on)
         {
           if (TransceiverFactory::PTT_method_RTS == ptt_type_)
             {
-#if WSJT_TRACE_CAT
-              qDebug () << "OmniRigTransceiver::do_ptt: set RTS";
-#endif
+              TRACE_CAT ("set RTS");
               port_->SetRts (on);
             }
           else			// "DTR"
             {
-#if WSJT_TRACE_CAT
-              qDebug () << "OmniRigTransceiver::do_ptt: set DTR";
-#endif
-
+              TRACE_CAT  ("set DTR");
               port_->SetDtr (on);
             }
         }
       else
         {
-#if WSJT_TRACE_CAT
-          qDebug () << "OmniRigTransceiver::do_ptt: set PTT using basic transceiver";
-#endif
-
+          TRACE_CAT ("set PTT using basic transceiver");
           wrapped_->ptt (on);
         }
-
       if (state ().ptt () != on)
         {
           update_PTT (on);
-
           // no need for this as currently update_PTT() does it for us
           // update_complete ();
         }
@@ -634,15 +561,11 @@ void OmniRigTransceiver::do_ptt (bool on)
 
 void OmniRigTransceiver::do_frequency (Frequency f, MODE m)
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "OmniRigTransceiver::do_frequency:" << f << state ();
-#endif
-
+  TRACE_CAT (f << state ());
   if (UNK != m)
     {
       do_mode (m, false);
     }
-
   if (OmniRig::PM_FREQ & writable_params_)
     {
       rig_->SetFreq (f);
@@ -660,40 +583,28 @@ void OmniRigTransceiver::do_frequency (Frequency f, MODE m)
     }
   else
     {
-      throw error {tr ("OmniRig: don't know how to set rig frequency")};
+      throw_qstring (tr ("OmniRig: don't know how to set rig frequency"));
     }
 }
 
 void OmniRigTransceiver::do_tx_frequency (Frequency tx, bool /* rationalise_mode */)
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "OmniRigTransceiver::do_tx_frequency:" << tx << state ();
-#endif
-
+  TRACE_CAT (tx << state ());
   bool split {tx != 0};
-
   if (split)
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "OmniRigTransceiver::do_tx_frequency: set SPLIT mode on";
-#endif
-
+      TRACE_CAT ("set SPLIT mode on");
       rig_->SetSplitMode (state ().frequency (), tx);
       update_other_frequency (tx);
       update_split (true);
     }
   else
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "OmniRigTransceiver::do_tx_frequency: set SPLIT mode off";
-#endif
-
+      TRACE_CAT ("set SPLIT mode off");
       rig_->SetSimplexMode (state ().frequency ());
       update_split (false);
     }
-
   bool notify {false};
-
   if (readable_params_ & OmniRig::PM_FREQ || !(readable_params_ & (OmniRig::PM_FREQA | OmniRig::PM_FREQB)))
     {
       update_other_frequency (tx); // async updates won't return this
@@ -702,18 +613,13 @@ void OmniRigTransceiver::do_tx_frequency (Frequency tx, bool /* rationalise_mode
       // "back" VFO on rig
       notify = true;
     }
-
   if (!((OmniRig::PM_VFOAB | OmniRig::PM_VFOBA | OmniRig::PM_SPLITON) & readable_params_))
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "OmniRigTransceiver::do_tx_frequency: setting SPLIT manually";
-#endif
-
+      TRACE_CAT ("setting SPLIT manually");
       update_split (split);	// we can't read it so just set and
       // hope op doesn't change it
       notify = true;
     }
-
   if (notify)
     {
       update_complete ();
@@ -722,14 +628,9 @@ void OmniRigTransceiver::do_tx_frequency (Frequency tx, bool /* rationalise_mode
 
 void OmniRigTransceiver::do_mode (MODE mode, bool /* rationalise */)
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "OmniRigTransceiver::do_mode:" << mode << state ();
-#endif
-
+  TRACE_CAT (mode << state ());
   // TODO: G4WJS OmniRig doesn't seem to have any capability of tracking/setting VFO B mode
-
   auto mapped = map_mode (mode);
-
   if (mapped & writable_params_)
     {
       rig_->SetMode (mapped);

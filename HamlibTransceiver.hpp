@@ -26,18 +26,8 @@ class HamlibTransceiver final
  public:
   static void register_transceivers (TransceiverFactory::Transceivers *);
 
-  explicit HamlibTransceiver (int model_number
-                              , QString const& cat_port
-                              , int cat_baud
-                              , TransceiverFactory::DataBits cat_data_bits
-                              , TransceiverFactory::StopBits cat_stop_bits
-                              , TransceiverFactory::Handshake cat_handshake
-                              , TransceiverFactory::LineControl cat_dtr_control
-                              , TransceiverFactory::LineControl cat_rts_control
-                              , TransceiverFactory::PTTMethod ptt_type
-                              , TransceiverFactory::TXAudioSource back_ptt_port
-                              , QString const& ptt_port
-                              , int poll_interval = 0);
+  explicit HamlibTransceiver (int model_number, TransceiverFactory::ParameterPack const&);
+  explicit HamlibTransceiver (TransceiverFactory::PTTMethod ptt_type, QString const& ptt_port);
   ~HamlibTransceiver ();
 
  private:
@@ -62,6 +52,11 @@ class HamlibTransceiver final
 
   bool back_ptt_port_;
   bool is_dummy_;
+
+  // these are saved on destruction so we can start new instances
+  // where the last one left off
+  static freq_t dummy_frequency_;
+  static rmode_t dummy_mode_;
 
   bool mutable reversed_;
 

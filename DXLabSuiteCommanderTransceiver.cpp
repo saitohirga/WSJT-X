@@ -54,10 +54,7 @@ DXLabSuiteCommanderTransceiver::~DXLabSuiteCommanderTransceiver ()
 
 void DXLabSuiteCommanderTransceiver::do_start ()
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "DXLabSuiteCommanderTransceiver::start";
-#endif
-
+  TRACE_CAT ("starting");
   wrapped_->start ();
 
   auto server_details = network_server_lookup (server_, 52002u, QHostAddress::LocalHost, QAbstractSocket::IPv4Protocol);
@@ -70,10 +67,7 @@ void DXLabSuiteCommanderTransceiver::do_start ()
   commander_->connectToHost (std::get<0> (server_details), std::get<1> (server_details));
   if (!commander_->waitForConnected ())
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver::start failed to connect" << commander_->errorString ();
-#endif
-
+      TRACE_CAT ("failed to connect" << commander_->errorString ());
       throw error {tr ("Failed to connect to DX Lab Suite Commander\n") + commander_->errorString ()};
     }
       
@@ -89,18 +83,12 @@ void DXLabSuiteCommanderTransceiver::do_stop ()
     }
 
   wrapped_->stop ();
-
-#if WSJT_TRACE_CAT
-  qDebug () << "DXLabSuiteCommanderTransceiver::stop";
-#endif
+  TRACE_CAT ("stopped");
 }
 
 void DXLabSuiteCommanderTransceiver::do_ptt (bool on)
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "DXLabSuiteCommanderTransceiver::do_ptt:" << on << state ();
-#endif
-
+  TRACE_CAT (on << state ());
   if (use_for_ptt_)
     {
       simple_command (on  ? "<command:5>CmdTX<parameters:0>" : "<command:5>CmdRX<parameters:0>");
@@ -109,16 +97,12 @@ void DXLabSuiteCommanderTransceiver::do_ptt (bool on)
     {
       wrapped_->ptt (on);
     }
-
   update_PTT (on);
 }
 
 void DXLabSuiteCommanderTransceiver::do_frequency (Frequency f, MODE m)
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "DXLabSuiteCommanderTransceiver::do_frequency:" << f << state ();
-#endif
-
+  TRACE_CAT (f << state ());
   auto f_string = frequency_to_string (f);
   if (UNK != m)
     {
@@ -137,10 +121,7 @@ void DXLabSuiteCommanderTransceiver::do_frequency (Frequency f, MODE m)
 
 void DXLabSuiteCommanderTransceiver::do_tx_frequency (Frequency tx, bool /* rationalise_mode */)
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "DXLabSuiteCommanderTransceiver::do_tx_frequency:" << tx << state ();
-#endif
-
+  TRACE_CAT (tx << state ());
   if (tx)
     {
       auto f_string = frequency_to_string (tx);
@@ -157,15 +138,10 @@ void DXLabSuiteCommanderTransceiver::do_tx_frequency (Frequency tx, bool /* rati
 
 void DXLabSuiteCommanderTransceiver::do_mode (MODE m, bool /* rationalise */)
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "DXLabSuiteCommanderTransceiver::do_mode:" << m << state ();
-#endif
-
+  TRACE_CAT (m << state ());
   auto m_string = map_mode (m);
   auto params =  ("<1:%1>" + m_string).arg (m_string.size ());
-
   simple_command (("<command:10>CmdSetMode<parameters:%1>" + params).arg (params.size ()));
-
   update_mode (m);
 }
 
@@ -192,10 +168,7 @@ void DXLabSuiteCommanderTransceiver::poll ()
     }
   else
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver::poll: get frequency unexpected response";
-#endif
-
+      TRACE_CAT_POLL ("get frequency unexpected response");
       throw error {tr ("DX Lab Suite Commander didn't respond correctly polling frequency")};
     }
 
@@ -216,10 +189,7 @@ void DXLabSuiteCommanderTransceiver::poll ()
         }
       else
         {
-#if WSJT_TRACE_CAT
-          qDebug () << "DXLabSuiteCommanderTransceiver::poll: get tx frequency unexpected response";
-#endif
-
+          TRACE_CAT_POLL ("get tx frequency unexpected response");
           throw error {tr ("DX Lab Suite Commander didn't respond correctly polling TX frequency")};
         }
     }
@@ -238,19 +208,13 @@ void DXLabSuiteCommanderTransceiver::poll ()
         }
       else
         {
-#if WSJT_TRACE_CAT
-          qDebug () << "DXLabSuiteCommanderTransceiver::poll: unexpected split state" << split;
-#endif
-
+          TRACE_CAT_POLL ("unexpected split state" << split);
           throw error {tr ("DX Lab Suite Commander sent an unrecognised split state: ") + split};
         }
     }
   else
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver::poll: get split mode unexpected response";
-#endif
-
+      TRACE_CAT_POLL ("get split mode unexpected response");
       throw error {tr ("DX Lab Suite Commander didn't respond correctly polling split status")};
     }
 
@@ -301,20 +265,14 @@ void DXLabSuiteCommanderTransceiver::poll ()
         }
       else
         {
-#if WSJT_TRACE_CAT
-          qDebug () << "DXLabSuiteCommanderTransceiver::poll: unexpected mode name" << mode;
-#endif
-
+          TRACE_CAT_POLL ("unexpected mode name" << mode);
           throw error {tr ("DX Lab Suite Commander sent an unrecognised mode: \"") + mode + '"'};
         }
       update_mode (m);
     }
   else
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver::poll: unexpected response";
-#endif
-
+      TRACE_CAT_POLL ("unexpected response");
       throw error {tr ("DX Lab Suite Commander didn't respond correctly polling mode")};
     }
 }
@@ -325,17 +283,12 @@ void DXLabSuiteCommanderTransceiver::simple_command (QString const& cmd, bool no
 
   if (!no_debug)
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver:simple_command(" << cmd << ')';
-#endif
+      TRACE_CAT (cmd);
     }
 
   if (!write_to_port (cmd))
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver::simple_command failed:" << commander_->errorString ();
-#endif
-
+      TRACE_CAT ("failed:" << commander_->errorString ());
       throw error {tr ("DX Lab Suite Commander send command failed\n") + commander_->errorString ()};
     }
 }
@@ -346,10 +299,7 @@ QString DXLabSuiteCommanderTransceiver::command_with_reply (QString const& cmd, 
 
   if (!write_to_port (cmd))
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver::command_with_reply failed to send command:" << commander_->errorString ();
-#endif
-
+      TRACE_CAT ("failed to send command:" << commander_->errorString ());
       throw error {
         tr ("DX Lab Suite Commander failed to send command \"%1\": %2\n")
           .arg (cmd)
@@ -366,10 +316,7 @@ QString DXLabSuiteCommanderTransceiver::command_with_reply (QString const& cmd, 
       replied = commander_->waitForReadyRead ();
       if (!replied && commander_->error () != commander_->SocketTimeoutError)
         {
-#if WSJT_TRACE_CAT
-          qDebug () << "DXLabSuiteCommanderTransceiver::command_with_reply \"" << cmd << "\" failed to read reply:" << commander_->errorString ();
-#endif
-
+          TRACE_CAT (cmd << "failed to read reply:" << commander_->errorString ());
           throw error {
             tr ("DX Lab Suite Commander send command \"%1\" read reply failed: %2\n")
               .arg (cmd)
@@ -380,10 +327,7 @@ QString DXLabSuiteCommanderTransceiver::command_with_reply (QString const& cmd, 
 
   if (!replied)
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver::command_with_reply \"" << cmd << "\" retries exhausted";
-#endif
-
+      TRACE_CAT (cmd << "retries exhausted");
       throw error {
         tr ("DX Lab Suite Commander retries exhausted sending command \"%1\"")
           .arg (cmd)
@@ -399,9 +343,7 @@ QString DXLabSuiteCommanderTransceiver::command_with_reply (QString const& cmd, 
 
   if (!no_debug)
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "DXLabSuiteCommanderTransceiver:command_with_reply(" << cmd << ") ->" << result;
-#endif
+      TRACE_CAT (cmd << "->" << result);
     }
 
   return result;                // converting raw UTF-8 bytes to QString

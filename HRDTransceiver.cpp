@@ -104,26 +104,18 @@ HRDTransceiver::~HRDTransceiver ()
 
 void HRDTransceiver::do_start ()
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "HRDTransceiver::start";
-#endif
-
+  TRACE_CAT ("starting");
   wrapped_->start ();
 
   auto server_details = network_server_lookup (server_, 7809u);
-
   if (!hrd_)
     {
       hrd_ = new QTcpSocket {this}; // QObject takes ownership
     }
-
   hrd_->connectToHost (std::get<0> (server_details), std::get<1> (server_details));
   if (!hrd_->waitForConnected ())
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::start failed to connect:" <<  hrd_->errorString ();
-#endif
-
+      TRACE_CAT ("failed to connect:" <<  hrd_->errorString ());
       throw error {tr ("Failed to connect to Ham Radio Deluxe\n") + hrd_->errorString ()};
     }
 
@@ -148,10 +140,7 @@ void HRDTransceiver::do_start ()
       hrd_->connectToHost (std::get<0> (server_details), std::get<1> (server_details));
       if (!hrd_->waitForConnected ())
         {
-#if WSJT_TRACE_CAT
-          qDebug () << "HRDTransceiver::do_start failed to connect:" <<  hrd_->errorString ();
-#endif
-
+          TRACE_CAT ("failed to connect:" <<  hrd_->errorString ());
           throw error {tr ("Failed to connect to Ham Radio Deluxe\n") + hrd_->errorString ()};
         }
 
@@ -168,21 +157,14 @@ void HRDTransceiver::do_start ()
   auto id = send_command ("get id", false, false);
   auto version = send_command ("get version", false, false);
 
-#if WSJT_TRACE_CAT
-  qDebug () << "Id:" << id;
-  qDebug () << "Version:" << version;
-#endif
-
+  TRACE_CAT ("Id:" << id << "Version:" << version);
   HRD_info << "Id: " << id << "\n";
   HRD_info << "Version: " << version << "\n";
 
   auto radios = send_command ("get radios", false, false).trimmed ().split (',', QString::SkipEmptyParts);
   if (radios.isEmpty ())
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::do_start no rig found";
-#endif
-
+      TRACE_CAT ("no rig found");
       throw error {tr ("Ham Radio Deluxe: no rig found")};
     }
 
@@ -195,10 +177,10 @@ void HRDTransceiver::do_start ()
     }
 
 #if WSJT_TRACE_CAT
-  qDebug () << "radios:";
+  TRACE_CAT ("radios:-");
   Q_FOREACH (auto const& radio, radios_)
     {
-      qDebug () << "\t[" << std::get<0> (radio) << "] " << std::get<1> (radio);
+      TRACE_CAT ("\t[" << std::get<0> (radio) << "] " << std::get<1> (radio));
     }
 #endif
 
@@ -206,51 +188,36 @@ void HRDTransceiver::do_start ()
   HRD_info << "Current radio: " << current_radio_name << "\n";
   if (current_radio_name.isEmpty ())
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::do_start no rig found";
-#endif
-
+      TRACE_CAT ("no rig found");
       throw error {tr ("Ham Radio Deluxe: no rig found")};
     }
 
   vfo_count_ = send_command ("get vfo-count").toUInt ();
   HRD_info << "VFO count: " << vfo_count_ << "\n";
-#if WSJT_TRACE_CAT
-  qDebug () << "vfo count:" << vfo_count_;
-#endif
+  TRACE_CAT ("vfo count:" << vfo_count_);
 
   buttons_ = send_command ("get buttons").trimmed ().split (',', QString::SkipEmptyParts).replaceInStrings (" ", "~");
-#if WSJT_TRACE_CAT
-  qDebug () << "HRD Buttons: " << buttons_;
-#endif
+  TRACE_CAT ("HRD Buttons: " << buttons_);
   HRD_info << "Buttons: {" << buttons_.join (", ") << "}\n";
 
   dropdown_names_ = send_command ("get dropdowns").trimmed ().split (',', QString::SkipEmptyParts);
-#if WSJT_TRACE_CAT
-  qDebug () << "Dropdowns:\n";
-#endif
+  TRACE_CAT ("Dropdowns:");
   HRD_info << "Dropdowns:\n";
   Q_FOREACH (auto const& dd, dropdown_names_)
     {
       auto selections = send_command ("get dropdown-list {" + dd + "}").trimmed ().split (',', QString::SkipEmptyParts);
-#if WSJT_TRACE_CAT
-      qDebug () << "\t" << dd << ": {" << selections.join (", ") << "}\n";
-#endif
+      TRACE_CAT ("\t" << dd << ": {" << selections.join (", ") << "}");
       HRD_info << "\t" << dd << ": {" << selections.join (", ") << "}\n";
       dropdowns_[dd] = selections;
     }
 
   slider_names_ = send_command ("get sliders").trimmed ().split (',', QString::SkipEmptyParts).replaceInStrings (" ", "~");
-#if WSJT_TRACE_CAT
-  qDebug () << "Sliders:\n";
-#endif
+  TRACE_CAT ("Sliders:-");
   HRD_info << "Sliders:\n";
   Q_FOREACH (auto const& s, slider_names_)
     {
       auto range = send_command ("get slider-range " + current_radio_name + " " + s).trimmed ().split (',', QString::SkipEmptyParts);
-#if WSJT_TRACE_CAT
-      qDebug () << "\t" << s << ": {" << range.join (", ") << "}\n";
-#endif
+      TRACE_CAT ("\t" << s << ": {" << range.join (", ") << "}");
       HRD_info << "\t" << s << ": {" << range.join (", ") << "}\n";
       sliders_[s] = range;
     }
@@ -334,10 +301,7 @@ void HRDTransceiver::do_stop ()
     {
       wrapped_->stop ();
     }
-
-#if WSJT_TRACE_CAT
-  qDebug () << "HRDTransceiver::stop: state:" << state () << "reversed =" << reversed_;
-#endif
+  TRACE_CAT ("stopped" << state () << "reversed" << reversed_);
 }
 
 int HRDTransceiver::find_button (QRegExp const& re) const
@@ -384,12 +348,11 @@ void HRDTransceiver::map_modes (int dropdown, ModeMap *map)
   map->push_back (std::forward_as_tuple (DIG_FM, find_dropdown_selection (dropdown, QRegExp ("^(PKT-FM|PKT|FM)$"))));
 
 #if WSJT_TRACE_CAT
-  qDebug () << "HRDTransceiver::map_modes: for dropdown" << dropdown_names_[dropdown];
-
+  TRACE_CAT ("for dropdown" << dropdown_names_[dropdown]);
   std::for_each (map->begin (), map->end (), [this, dropdown] (ModeMap::value_type const& item)
                  {
                    auto const& rhs = std::get<1> (item);
-                   qDebug () << '\t' << std::get<0> (item) << "<->" << (rhs.size () ? dropdowns_[dropdown_names_[dropdown]][rhs.front ()] : "None");
+                   TRACE_CAT ('\t' << std::get<0> (item) << "<->" << (rhs.size () ? dropdowns_[dropdown_names_[dropdown]][rhs.front ()] : "None"));
                  });
 #endif
 }
@@ -452,20 +415,14 @@ void HRDTransceiver::set_dropdown (int dd, int value)
     }
   else
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::set_dropdown item" << value << "not found in" << dd_name;
-#endif
-
+      TRACE_CAT ("item" << value << "not found in" << dd_name);
       throw error {tr ("Ham Radio Deluxe: item not found in %1 dropdown list").arg (dd_name)};
     }
 }
 
 void HRDTransceiver::do_ptt (bool on)
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "HRDTransceiver::do_ptt:" << on;
-#endif
-
+  TRACE_CAT (on);
   if (use_for_ptt_)
     {
       if (ptt_button_ >= 0)
@@ -491,25 +448,18 @@ void HRDTransceiver::set_button (int button_index, bool checked)
     }
   else
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::set_button invalid button";
-#endif
-
+      TRACE_CAT ("invalid button");
       throw error {tr ("Ham Radio Deluxe: button not available")};
     }
 }
 
 void HRDTransceiver::do_frequency (Frequency f, MODE m)
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "HRDTransceiver::do_frequency:" << f << "reversed:" << reversed_;
-#endif
-
+  TRACE_CAT (f << "reversed" << reversed_);
   if (UNK != m)
     {
       do_mode (m, false);
     }
-
   auto fo_string = QString::number (f);
   if (vfo_count_ > 1 && reversed_)
     {
@@ -525,9 +475,7 @@ void HRDTransceiver::do_frequency (Frequency f, MODE m)
 
 void HRDTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "HRDTransceiver::do_tx_frequency:" << tx << "rationalize mode:" << rationalise_mode << "reversed:" << reversed_;
-#endif
+  TRACE_CAT (tx << "rationalize mode:" << rationalise_mode << "reversed" << reversed_);
 
   // re-check if reversed VFOs
   bool rx_A {true};
@@ -683,10 +631,7 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
 
 void HRDTransceiver::do_mode (MODE mode, bool rationalise)
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "HRDTransceiver::do_mode:" << mode;
-#endif
-
+  TRACE_CAT (mode);
   if (reversed_ && mode_B_dropdown_ >= 0)
     {
       set_dropdown (mode_B_dropdown_, lookup_mode (mode, mode_B_map_));
@@ -695,7 +640,6 @@ void HRDTransceiver::do_mode (MODE mode, bool rationalise)
     {
       set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
     }
-
   if (rationalise && state ().split ()) // rationalise mode if split
     {
       if (reversed_)
@@ -767,7 +711,6 @@ void HRDTransceiver::do_mode (MODE mode, bool rationalise)
             }
         }
     }
-
   update_mode (mode);
 }
 
@@ -781,10 +724,7 @@ bool HRDTransceiver::is_button_checked (int button_index, bool no_debug)
   auto reply = send_command ("get button-select " + buttons_.value (button_index), no_debug);
   if ("1" != reply && "0" != reply)
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::is_button_checked bad response";
-#endif
-
+      TRACE_CAT ("bad response");
       throw error {tr ("Ham Radio Deluxe didn't respond as expected")};
     }
   return "1" == reply;
@@ -794,7 +734,6 @@ void HRDTransceiver::poll ()
 {
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
   bool quiet {false};
-
   qDebug () << "+++++++ poll dump +++++++";
   qDebug () << "reversed:" << reversed_;
   is_button_checked (vfo_A_button_);
@@ -815,7 +754,6 @@ void HRDTransceiver::poll ()
       get_dropdown (split_mode_dropdown_);
     }
   qDebug () << "------- poll dump -------";
-
 #else
   bool quiet {true};
 #endif
@@ -913,10 +851,7 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
                                       });
       if (radio_iter == radios_.end ())
         {
-#if WSJT_TRACE_CAT
-          qDebug () << "HRDTransceiver::send_command rig disappeared or changed";
-#endif
-
+          TRACE_CAT ("rig disappeared or changed");
           throw error {tr ("Ham Radio Deluxe: rig has disappeared or changed")};
         }
 
@@ -930,10 +865,7 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
 
   if (QTcpSocket::ConnectedState != hrd_->state ())
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::send_command" << cmd << "failed" << hrd_->errorString ();
-#endif
-
+      TRACE_CAT (cmd << "failed" << hrd_->errorString ());
       throw error {
         tr ("Ham Radio Deluxe send command \"%1\" failed %2\n")
           .arg (cmd)
@@ -946,10 +878,7 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
       auto message = ((prepend_context ? context + cmd : cmd) + "\r").toLocal8Bit ();
       if (!write_to_port (message.constData (), message.size ()))
         {
-#if WSJT_TRACE_CAT
-          qDebug () << "HRDTransceiver::send_command failed to write command" << cmd << "to HRD";
-#endif
-
+          TRACE_CAT ("failed to write command" << cmd << "to HRD");
           throw error {
             tr ("Ham Radio Deluxe: failed to write command \"%1\"")
               .arg (cmd)
@@ -962,19 +891,14 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
       QScopedPointer<HRDMessage> message {new (string) HRDMessage};
       if (!write_to_port (reinterpret_cast<char const *> (message.data ()), message->size_))
         {
-#if WSJT_TRACE_CAT
-          qDebug () << "HRDTransceiver::send_command failed to write command" << cmd << "to HRD";
-#endif
-
+          TRACE_CAT ("failed to write command" << cmd << "to HRD");
           throw error {
             tr ("Ham Radio Deluxe: failed to write command \"%1\"")
               .arg (cmd)
               };
         }
     }
-
   auto buffer = read_reply (cmd);
-
   if (v4 == protocol_)
     {
       result = QString {buffer}.trimmed ();
@@ -982,13 +906,9 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
   else
     {
       HRDMessage const * reply {new (buffer) HRDMessage};
-
       if (reply->magic_1_value_ != reply->magic_1_ && reply->magic_2_value_ != reply->magic_2_)
         {
-#if WSJT_TRACE_CAT
-          qDebug () << "HRDTransceiver::send_command" << cmd << "invalid reply";
-#endif
-
+          TRACE_CAT (cmd << "invalid reply");
           throw error {
             tr ("Ham Radio Deluxe sent an invalid reply to our command \"%1\"")
               .arg (cmd)
@@ -998,24 +918,20 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
       // keep reading until expected size arrives
       while (buffer.size () - offsetof (HRDMessage, size_) < reply->size_)
         {
-#if WSJT_TRACE_CAT
-          qDebug () << "HRDTransceiver::send_command" << cmd << "reading more reply data";
-#endif
-
+          if (!no_debug)
+            {
+              TRACE_CAT (cmd << "reading more reply data");
+            }
           buffer += read_reply (cmd);
           reply = new (buffer) HRDMessage;
         }
 
       result = QString {reply->payload_}; // this is not a memory leak (honest!)
     }
-
   if (!no_debug)
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::send_command(" << cmd << "): ->" << result;
-#endif
+      TRACE_CAT (cmd << " ->" << result);
     }
-
   return result;
 }
 
@@ -1046,10 +962,7 @@ QByteArray HRDTransceiver::read_reply (QString const& cmd)
       replied = hrd_->waitForReadyRead ();
       if (!replied && hrd_->error () != hrd_->SocketTimeoutError)
         {
-#if WSJT_TRACE_CAT
-          qDebug () << "HRDTransceiver::send_command" << cmd << "failed to reply" << hrd_->errorString ();
-#endif
-
+          TRACE_CAT (cmd << "failed to reply" << hrd_->errorString ());
           throw error {
             tr ("Ham Radio Deluxe failed to reply to command \"%1\" %2\n")
               .arg (cmd)
@@ -1057,19 +970,14 @@ QByteArray HRDTransceiver::read_reply (QString const& cmd)
               };
         }
     }
-
   if (!replied)
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::send_command" << cmd << "retries exhausted";
-#endif
-
+      TRACE_CAT (cmd << "retries exhausted");
       throw error {
         tr ("Ham Radio Deluxe retries exhausted sending command \"%1\"")
           .arg (cmd)
           };
     }
-
   return hrd_->readAll ();
 }
 
@@ -1077,10 +985,7 @@ void HRDTransceiver::send_simple_command (QString const& command, bool no_debug)
 {
   if ("OK" != send_command (command, no_debug))
     {
-#if WSJT_TRACE_CAT
-      qDebug () << "HRDTransceiver::send_simple_command" << command << "unexpected response";
-#endif
-
+      TRACE_CAT (command << "unexpected response");
       throw error {
         tr ("Ham Radio Deluxe didn't respond to command \"%1\" as expected")
           .arg (command)

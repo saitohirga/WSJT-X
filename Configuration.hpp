@@ -201,6 +201,7 @@ private:
   pimpl<impl> m_;
 };
 
+
 Q_DECLARE_METATYPE (Configuration::DataMode);
 Q_DECLARE_METATYPE (Configuration::Type2MsgGen);
 

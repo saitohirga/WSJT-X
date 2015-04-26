@@ -3,52 +3,13 @@
 #include <exception>
 
 #include <QString>
-
-#include "pimpl_impl.hpp"
+#include <QTimer>
+#include <QThread>
+#include <QDebug>
 
 namespace
 {
   auto const unexpected = TransceiverBase::tr ("Unexpected rig error");
-}
-
-class TransceiverBase::impl final
-  : public QObject
-{
-  Q_OBJECT;
-
-public:
-  impl (TransceiverBase * parent)
-    : parent_ {parent}
-  {
-    connect (this, &TransceiverBase::impl::updated, this, &TransceiverBase::impl::update_complete, Qt::QueuedConnection);
-  }
-
-  impl (impl const&) = delete;
-  impl& operator = (impl const&) = delete;
-
-  Q_SIGNAL void updated ();
-  Q_SLOT void update_complete ()
-  {
-    if (parent_->do_pre_update ())
-      {
-        Q_EMIT parent_->update (state_);
-      }
-  }
-
-  TransceiverBase * parent_;
-  TransceiverState state_;
-};
-
-
-#include "TransceiverBase.moc"
-
-TransceiverBase::TransceiverBase ()
-  : m_ {this}
-{
-}
-
-TransceiverBase::~TransceiverBase ()
-{
 }
 
 void TransceiverBase::start () noexcept
@@ -56,20 +17,24 @@ void TransceiverBase::start () noexcept
   QString message;
   try
     {
-      if (m_->state_.online ())
+      if (state_.online ())
         {
-          m_->state_.online (false);
-
-          // ensure PTT isn't left set
-          do_ptt (false);
-          do_post_ptt (false);
-
+          try
+            {
+              // try and ensure PTT isn't left set
+              do_ptt (false);
+              do_post_ptt (false);
+            }
+          catch (...)
+            {
+              // don't care about exceptions
+            }
           do_stop ();
           do_post_stop ();
         }
       do_start ();
       do_post_start ();
-      m_->state_.online (true);
+      state_.online (true);
     }
   catch (std::exception const& e)
     {
@@ -90,17 +55,22 @@ void TransceiverBase::stop () noexcept
   QString message;
   try
     {
-      if (m_->state_.online ())
+      if (state_.online ())
         {
-          m_->state_.online (false);
-
-          // ensure PTT isn't left set
-          do_ptt (false);
-          do_post_ptt (false);
+          try
+            {
+              // try and ensure PTT isn't left set
+              do_ptt (false);
+              do_post_ptt (false);
+            }
+          catch (...)
+            {
+              // don't care about exceptions
+            }
         }
-
       do_stop ();
       do_post_stop ();
+      state_.online (false);
     }
   catch (std::exception const& e)
     {
@@ -125,7 +95,7 @@ void TransceiverBase::frequency (Frequency f, MODE m) noexcept
   QString message;
   try
     {
-      if (m_->state_.online ())
+      if (state_.online ())
         {
           do_frequency (f, m);
           do_post_frequency (f, m);
@@ -150,7 +120,7 @@ void TransceiverBase::tx_frequency (Frequency tx, bool rationalise_mode) noexcep
   QString message;
   try
     {
-      if (m_->state_.online ())
+      if (state_.online ())
         {
           do_tx_frequency (tx, rationalise_mode);
           do_post_tx_frequency (tx, rationalise_mode);
@@ -175,7 +145,7 @@ void TransceiverBase::mode (MODE m, bool rationalise) noexcept
   QString message;
   try
     {
-      if (m_->state_.online ())
+      if (state_.online ())
         {
           do_mode (m, rationalise);
           do_post_mode (m, rationalise);
@@ -200,7 +170,7 @@ void TransceiverBase::ptt (bool on) noexcept
   QString message;
   try
     {
-      if (m_->state_.online ())
+      if (state_.online ())
         {
           do_ptt (on);
           do_post_ptt (on);
@@ -225,7 +195,7 @@ void TransceiverBase::sync (bool force_signal) noexcept
   QString message;
   try
     {
-      if (m_->state_.online ())
+      if (state_.online ())
         {
           do_sync (force_signal);
         }
@@ -246,28 +216,28 @@ void TransceiverBase::sync (bool force_signal) noexcept
 
 void TransceiverBase::update_rx_frequency (Frequency rx)
 {
-  m_->state_.frequency (rx);
+  state_.frequency (rx);
 }
 
 void TransceiverBase::update_other_frequency (Frequency tx)
 {
-  m_->state_.tx_frequency (tx);
+  state_.tx_frequency (tx);
 }
 
 void TransceiverBase::update_split (bool state)
 {
-  m_->state_.split (state);
+  state_.split (state);
 }
 
 void TransceiverBase::update_mode (MODE m)
 {
-  m_->state_.mode (m);
+  state_.mode (m);
 }
 
 void TransceiverBase::update_PTT (bool state)
 {
-  auto prior = m_->state_.ptt ();
-  m_->state_.ptt (state);
+  auto prior = state_.ptt ();
+  state_.ptt (state);
   if (state != prior)
     {
       // always signal PTT changes because some MainWindow logic
@@ -276,11 +246,19 @@ void TransceiverBase::update_PTT (bool state)
     }
 }
 
+void TransceiverBase::updated ()
+  {
+    if (do_pre_update ())
+      {
+        Q_EMIT update (state_);
+      }
+  }
+
 void TransceiverBase::update_complete ()
 {
-  // Use a signal to ensure that the calling function completes before
+  // Use a timer to ensure that the calling function completes before
   // the Transceiver::update signal is triggered.
-  Q_EMIT m_->updated ();
+  QTimer::singleShot (0, this, SLOT (updated ()));
 }
 
 void TransceiverBase::offline (QString const& reason)
@@ -288,16 +266,22 @@ void TransceiverBase::offline (QString const& reason)
   QString message;
   try
     {
-      if (m_->state_.online ())
+      if (state_.online ())
         {
-          m_->state_.online (false);
-
-          // ensure PTT isn't left set
-          do_ptt (false);
-          do_post_ptt (false);
+          try
+            {
+              // try and ensure PTT isn't left set
+              do_ptt (false);
+              do_post_ptt (false);
+            }
+          catch (...)
+            {
+              // don't care about exceptions
+            }
         }
       do_stop ();
       do_post_stop ();
+      state_.online (false);
     }
   catch (std::exception const& e)
     {
@@ -308,9 +292,4 @@ void TransceiverBase::offline (QString const& reason)
       message = unexpected;
     }
   Q_EMIT failure (reason + '\n' + message);
-}
-
-auto TransceiverBase::state () const -> TransceiverState const&
-{
-  return m_->state_;
 }
