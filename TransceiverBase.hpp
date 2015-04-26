@@ -98,8 +98,8 @@ protected:
   virtual void do_frequency (Frequency rx, MODE = UNK) = 0;
   virtual void do_post_frequency (Frequency, MODE = UNK) {}
 
-  virtual void do_tx_frequency (Frequency tx = 0, bool rationalise_mode = true) = 0;
-  virtual void do_post_tx_frequency (Frequency, bool /* rationalise_mode */ = true) {}
+  virtual void do_tx_frequency (Frequency tx = 0u, bool rationalise_mode = false) = 0;
+  virtual void do_post_tx_frequency (Frequency = 0u, bool /* rationalise_mode */ = false) {}
 
   virtual void do_mode (MODE, bool rationalise = true) = 0;
   virtual void do_post_mode (MODE, bool /* rationalise */ = true) {}
