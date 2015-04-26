@@ -33,7 +33,7 @@ public:
 protected:
   void do_start () override;
   void do_stop () override;
-  void do_frequency (Frequency, MODE = UNK) override;
+  void do_frequency (Frequency, MODE) override;
   void do_tx_frequency (Frequency, bool rationalise_mode) override;
   void do_mode (MODE, bool rationalise) override;
   void do_ptt (bool on) override;
