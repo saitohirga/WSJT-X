@@ -13,6 +13,10 @@
 namespace
 {
   char const * const HRD_transceiver_name = "Ham Radio Deluxe";
+
+  // some commands require a settling time, particularly "RX A" and
+  // "RX B" on the Yaesu FTdx3000.
+  int constexpr yaesu_delay {250};
 }
 
 void HRDTransceiver::register_transceivers (TransceiverFactory::Transceivers * registry, int id)
@@ -445,6 +449,10 @@ void HRDTransceiver::set_button (int button_index, bool checked)
   if (button_index >= 0)
     {
       send_simple_command ("set button-select " + buttons_.value (button_index) + (checked ? " 1" : " 0"));
+      if (button_index == rx_A_button_ || button_index == rx_B_button_)
+        {
+          QThread::msleep (yaesu_delay);
+        }
     }
   else
     {
@@ -840,7 +848,7 @@ QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool pr
       // required on some radios because commands don't get executed
       // correctly otherwise (ICOM for example)
       QThread::msleep (50);
-    }
+   }
 
   if (!recurse && prepend_context)
     {
