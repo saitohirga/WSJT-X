@@ -94,50 +94,22 @@ bool TransceiverFactory::has_asynchronous_CAT (QString const& name) const
   return supported_transceivers ()[name].asynchronous_;
 }
 
-std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
-                                                         , QString const& cat_port
-                                                         , int cat_baud
-                                                         , DataBits cat_data_bits
-                                                         , StopBits cat_stop_bits
-                                                         , Handshake cat_handshake
-                                                         , LineControl cat_dtr_control
-                                                         , LineControl cat_rts_control
-                                                         , PTTMethod ptt_type
-                                                         , TXAudioSource ptt_use_data_ptt
-                                                         , SplitMode split_mode
-                                                         , QString const& ptt_port
-                                                         , int poll_interval
-                                                         , QThread * target_thread
-                                                         )
+std::unique_ptr<Transceiver> TransceiverFactory::create (ParameterPack const& params, QThread * target_thread)
 {
   std::unique_ptr<Transceiver> result;
-  switch (supported_transceivers ()[name].model_number_)
+  switch (supported_transceivers ()[params.rig_name].model_number_)
     {
     case CommanderId:
       {
         // we start with a dummy HamlibTransceiver object instance that can support direct PTT
-        std::unique_ptr<TransceiverBase> basic_transceiver {
-          new HamlibTransceiver {
-            supported_transceivers ()[basic_transceiver_name_].model_number_
-              , cat_port
-              , cat_baud
-              , cat_data_bits
-              , cat_stop_bits
-              , cat_handshake
-              , force_low
-              , force_low
-              , ptt_type
-              , ptt_use_data_ptt
-              , "CAT" == ptt_port ? "" : ptt_port
-              }
-        };
+        std::unique_ptr<TransceiverBase> basic_transceiver {new HamlibTransceiver {params.ptt_type, params.ptt_port}};
         if (target_thread)
           {
             basic_transceiver.get ()->moveToThread (target_thread);
           }
 
         // wrap the basic Transceiver object instance with a decorator object that talks to DX Lab Suite Commander
-        result.reset (new DXLabSuiteCommanderTransceiver {std::move (basic_transceiver), cat_port, PTT_method_CAT == ptt_type, poll_interval});
+        result.reset (new DXLabSuiteCommanderTransceiver {std::move (basic_transceiver), params.network_port, PTT_method_CAT == params.ptt_type, params.poll_interval});
         if (target_thread)
           {
             result.get ()->moveToThread (target_thread);
@@ -148,28 +120,14 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
     case HRDId:
       {
         // we start with a dummy HamlibTransceiver object instance that can support direct PTT
-        std::unique_ptr<TransceiverBase> basic_transceiver {
-          new HamlibTransceiver {
-            supported_transceivers ()[basic_transceiver_name_].model_number_
-              , cat_port
-              , cat_baud
-              , cat_data_bits
-              , cat_stop_bits
-              , cat_handshake
-              , cat_dtr_control
-              , cat_rts_control
-              , ptt_type
-              , ptt_use_data_ptt
-              , "CAT" == ptt_port ? "" : ptt_port
-              }
-        };
+        std::unique_ptr<TransceiverBase> basic_transceiver {new HamlibTransceiver {params.ptt_type, params.ptt_port}};
         if (target_thread)
           {
             basic_transceiver.get ()->moveToThread (target_thread);
           }
 
         // wrap the basic Transceiver object instance with a decorator object that talks to ham Radio Deluxe
-        result.reset (new HRDTransceiver {std::move (basic_transceiver), cat_port, PTT_method_CAT == ptt_type, poll_interval});
+        result.reset (new HRDTransceiver {std::move (basic_transceiver), params.network_port, PTT_method_CAT == params.ptt_type, params.poll_interval});
         if (target_thread)
           {
             result.get ()->moveToThread (target_thread);
@@ -181,28 +139,14 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
     case OmniRigOneId:
       {
         // we start with a dummy HamlibTransceiver object instance that can support direct PTT
-        std::unique_ptr<TransceiverBase> basic_transceiver {
-          new HamlibTransceiver {
-            supported_transceivers ()[basic_transceiver_name_].model_number_
-              , cat_port
-              , cat_baud
-              , cat_data_bits
-              , cat_stop_bits
-              , cat_handshake
-              , cat_dtr_control
-              , cat_rts_control
-              , ptt_type
-              , ptt_use_data_ptt
-              , "CAT" == ptt_port ? "" : ptt_port
-              }
-        };
+        std::unique_ptr<TransceiverBase> basic_transceiver {new HamlibTransceiver {params.ptt_type, params.ptt_port}};
         if (target_thread)
           {
             basic_transceiver.get ()->moveToThread (target_thread);
           }
 
         // wrap the basic Transceiver object instance with a decorator object that talks to OmniRig rig one
-        result.reset (new OmniRigTransceiver {std::move (basic_transceiver), OmniRigTransceiver::One, ptt_type, ptt_port});
+        result.reset (new OmniRigTransceiver {std::move (basic_transceiver), OmniRigTransceiver::One, params.ptt_type, params.ptt_port});
         if (target_thread)
           {
             result.get ()->moveToThread (target_thread);
@@ -213,28 +157,14 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
     case OmniRigTwoId:
       {
         // we start with a dummy HamlibTransceiver object instance that can support direct PTT
-        std::unique_ptr<TransceiverBase> basic_transceiver {
-          new HamlibTransceiver {
-            supported_transceivers ()[basic_transceiver_name_].model_number_
-              , cat_port
-              , cat_baud
-              , cat_data_bits
-              , cat_stop_bits
-              , cat_handshake
-              , cat_dtr_control
-              , cat_rts_control
-              , ptt_type
-              , ptt_use_data_ptt
-              , "CAT" == ptt_port ? "" : ptt_port
-              }
-        };
+        std::unique_ptr<TransceiverBase> basic_transceiver {new HamlibTransceiver {params.ptt_type, params.ptt_port}};
         if (target_thread)
           {
             basic_transceiver.get ()->moveToThread (target_thread);
           }
 
         // wrap the basic Transceiver object instance with a decorator object that talks to OmniRig rig two
-        result.reset (new OmniRigTransceiver {std::move (basic_transceiver), OmniRigTransceiver::Two, ptt_type, ptt_port});
+        result.reset (new OmniRigTransceiver {std::move (basic_transceiver), OmniRigTransceiver::Two, params.ptt_type, params.ptt_port});
         if (target_thread)
           {
             result.get ()->moveToThread (target_thread);
@@ -244,20 +174,7 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
 #endif
 
     default:
-      result.reset (new HamlibTransceiver {
-          supported_transceivers ()[name].model_number_
-            , cat_port
-            , cat_baud
-            , cat_data_bits
-            , cat_stop_bits
-            , cat_handshake
-            , cat_dtr_control
-            , cat_rts_control
-            , ptt_type
-            , ptt_use_data_ptt
-            , "CAT" == ptt_port ? cat_port : ptt_port
-            , poll_interval
-            });
+      result.reset (new HamlibTransceiver {supported_transceivers ()[params.rig_name].model_number_, params});
       if (target_thread)
         {
           result.get ()->moveToThread (target_thread);
@@ -265,7 +182,7 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
       break;
     }
 
-  if (split_mode_emulate == split_mode)
+  if (split_mode_emulate == params.split_mode)
     {
       // wrap the Transceiver object instance with a decorator that emulates split mode
       result.reset (new EmulateSplitTransceiver {std::move (result)});
@@ -282,7 +199,6 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (QString const& name
 ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, DataBits);
 ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, StopBits);
 ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, Handshake);
-ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, LineControl);
 ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, PTTMethod);
 ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, TXAudioSource);
 ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, SplitMode);
@@ -291,7 +207,6 @@ ENUM_QDEBUG_OPS_IMPL (TransceiverFactory, SplitMode);
 ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, DataBits);
 ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, StopBits);
 ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, Handshake);
-ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, LineControl);
 ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, PTTMethod);
 ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, TXAudioSource);
 ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, SplitMode);
@@ -299,7 +214,6 @@ ENUM_QDATASTREAM_OPS_IMPL (TransceiverFactory, SplitMode);
 ENUM_CONVERSION_OPS_IMPL (TransceiverFactory, DataBits);
 ENUM_CONVERSION_OPS_IMPL (TransceiverFactory, StopBits);
 ENUM_CONVERSION_OPS_IMPL (TransceiverFactory, Handshake);
-ENUM_CONVERSION_OPS_IMPL (TransceiverFactory, LineControl);
 ENUM_CONVERSION_OPS_IMPL (TransceiverFactory, PTTMethod);
 ENUM_CONVERSION_OPS_IMPL (TransceiverFactory, TXAudioSource);
 ENUM_CONVERSION_OPS_IMPL (TransceiverFactory, SplitMode);

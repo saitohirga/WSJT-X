@@ -2131,7 +2131,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   // QString t3=t.mid(i1,i4);
   auto t3 = decodedtext.string ();
   auto t4 = t3.replace (" CQ DX ", " CQ_DX ").split (" ", QString::SkipEmptyParts);
-  if(t4.size () <5) return;             //Skip the rest if no decoded text
+  if(t4.size () < 6) return;             //Skip the rest if no decoded text
 */
   auto t3 = decodedtext.string ();
   auto t4 = t3.replace (" CQ DX ", " CQ_DX ").split (" ", QString::SkipEmptyParts);
@@ -2141,8 +2141,14 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   QString hiscall;
   QString hisgrid;
   decodedtext.deCallAndGrid(/*out*/hiscall,hisgrid);
-  if (!Radio::is_callsign (hiscall))
+  if (!Radio::is_callsign (hiscall) // not interested if not from QSO partner
+      && !(t4.size () == 7          // unless it is of the form
+           && (t4.at (5) == m_baseCall // "<our-call> 73"
+               || t4.at (5).startsWith (m_baseCall + '/')
+               || t4.at (5).endsWith ('/' + m_baseCall))
+           && t4.at (6) == "73"))
     {
+      qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid;
       return;
     }
 
@@ -2207,6 +2213,9 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       return;
     }
 
+  // prior DX call (possible QSO partner)
+  auto qso_partner_base_call = Radio::base_callsign (ui->dxCallEntry-> text ().toUpper ().trimmed ());
+
   auto base_call = Radio::base_callsign (hiscall);
   if (base_call != Radio::base_callsign (ui->dxCallEntry-> text ().toUpper ().trimmed ()) || base_call != hiscall)
     {
@@ -2234,13 +2243,13 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   if(dtext.contains (" " + m_baseCall + " ")
      || dtext.contains ("/" + m_baseCall + " ")
      || dtext.contains (" " + m_baseCall + "/")
-     || firstcall == "DE")
+     || (firstcall == "DE" && ((t4.size () > 7 && t4.at(7) != "73") || t4.size () <= 7)))
     {
       if (t4.size () > 7   // enough fields for a normal msg
           and !gridOK (t4.at (7))) // but no grid on end of msg
         {
           QString r=t4.at (7);
-          if(r.mid(0,3)=="RRR") {
+          if(r.mid(0,3)=="RRR" || (r.toInt()==73)) {
             m_ntx=5;
             ui->txrb5->setChecked(true);
             if(ui->tabWidget->currentIndex()==1) {
@@ -2264,16 +2273,19 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
               m_ntx=7;
               ui->rbGenMsg->setChecked(true);
             }
-          } else if(r.toInt()==73) {
-            m_ntx=5;
-            ui->txrb5->setChecked(true);
-            if(ui->tabWidget->currentIndex()==1) {
-              ui->genMsg->setText(ui->tx5->currentText());
-              m_ntx=7;
-              ui->rbGenMsg->setChecked(true);
-            }
           }
-        } else {
+        }
+      else if (t4.size () == 7 && t4.at (6) == "73") {
+        // 73 back to compound call holder
+        m_ntx=5;
+        ui->txrb5->setChecked(true);
+        if(ui->tabWidget->currentIndex()==1) {
+          ui->genMsg->setText(ui->tx5->currentText());
+          m_ntx=7;
+          ui->rbGenMsg->setChecked(true);
+        }
+      }
+      else {
         m_ntx=2;
         ui->txrb2->setChecked(true);
         if(ui->tabWidget->currentIndex()==1) {
@@ -2282,8 +2294,29 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
           ui->rbGenMsg->setChecked(true);
         }
       }
-
     }
+  else if (firstcall == "DE" && t4.size () == 8 && t4.at (7) == "73") {
+    if (base_call == qso_partner_base_call) {
+      // 73 back to compound call holder
+      m_ntx=5;
+      ui->txrb5->setChecked(true);
+      if(ui->tabWidget->currentIndex()==1) {
+        ui->genMsg->setText(ui->tx5->currentText());
+        m_ntx=7;
+        ui->rbGenMsg->setChecked(true);
+      }
+    }
+    else {
+      // treat like a CQ/QRZ
+      m_ntx=1;
+      ui->txrb1->setChecked(true);
+      if(ui->tabWidget->currentIndex()==1) {
+        ui->genMsg->setText(ui->tx1->text());
+        m_ntx=7;
+        ui->rbGenMsg->setChecked(true);
+      }
+    }
+  }
   else // myCall not in msg
     {
       m_ntx=1;

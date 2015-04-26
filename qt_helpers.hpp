@@ -67,7 +67,7 @@
 inline
 void throw_qstring (QString const& qs)
 {
-  throw std::runtime_error (qs.toLocal8Bit ().data ());
+  throw std::runtime_error {qs.toLocal8Bit ().constData ()};
 }
 
 QString font_as_stylesheet (QFont const&);

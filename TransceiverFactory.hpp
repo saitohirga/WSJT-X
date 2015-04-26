@@ -21,10 +21,7 @@ class TransceiverFactory
   : public QObject
 {
   Q_OBJECT;
-  Q_ENUMS (DataBits StopBits Handshake LineControl PTTMethod TXAudioSource SplitMode);
-
-private:
-  Q_DISABLE_COPY (TransceiverFactory);
+  Q_ENUMS (DataBits StopBits Handshake PTTMethod TXAudioSource SplitMode);
 
 public:
   //
@@ -70,7 +67,6 @@ public:
   enum DataBits {seven_data_bits = 7, eight_data_bits};
   enum StopBits {one_stop_bit = 1, two_stop_bits};
   enum Handshake {handshake_none, handshake_XonXoff, handshake_hardware};
-  enum LineControl {no_control, force_low, force_high};
   enum PTTMethod {PTT_method_VOX, PTT_method_CAT, PTT_method_DTR, PTT_method_RTS};
   enum TXAudioSource {TX_audio_source_front, TX_audio_source_rear};
   enum SplitMode {split_mode_none, split_mode_rig, split_mode_emulate};
@@ -91,6 +87,47 @@ public:
   bool has_CAT_indirect_serial_PTT (QString const& name) const; // Can PTT via CAT port use DTR or RTS (OmniRig for example)
   bool has_asynchronous_CAT (QString const& name) const; // CAT asynchronous rather than polled
 
+  struct ParameterPack
+  {
+    QString rig_name;           // from supported_transceivers () key
+    QString serial_port;        // serial port device name or empty
+    QString network_port;       // hostname:port or empty
+    int baud;
+    DataBits data_bits;
+    StopBits stop_bits;
+    Handshake handshake;
+    bool force_line_control;
+    bool dtr_high;                  // to power interface
+    bool rts_high;                  // to power interface
+    PTTMethod ptt_type;             // "CAT" | "DTR" | "RTS" | "VOX"
+    TXAudioSource audio_source;     // some rigs allow audio routing
+                                    // to Mic/Data connector
+    SplitMode split_mode;           // how to support split TX mode
+    QString ptt_port;         // serial port device name or special
+                              // value "CAT"
+    int poll_interval;        // in seconds for interfaces that
+                              // require polling for state changes
+
+    bool operator == (ParameterPack const& rhs) const
+    {
+      return rhs.rig_name == rig_name
+        && rhs.serial_port == serial_port
+        && rhs.network_port == network_port
+        && rhs.baud == baud
+        && rhs.data_bits == data_bits
+        && rhs.stop_bits == stop_bits
+        && rhs.handshake == handshake
+        && rhs.force_line_control == force_line_control
+        && rhs.dtr_high == dtr_high
+        && rhs.rts_high == rts_high
+        && rhs.ptt_type == ptt_type
+        && rhs.audio_source == audio_source
+        && rhs.split_mode == split_mode
+        && rhs.ptt_port == ptt_port
+        && rhs.poll_interval == poll_interval;
+    }
+  };
+
   // make a new Transceiver instance
   //
   // cat_port, cat_baud, cat_data_bits, cat_stop_bits, cat_handshake,
@@ -100,25 +137,17 @@ public:
   // PTT port and to some extent ptt_type are independent of interface
   // type
   //
-  std::unique_ptr<Transceiver> create (QString const& name // from supported_transceivers () key
-                                       , QString const& cat_port // serial port device name or empty
-                                       , int cat_baud
-                                       , DataBits cat_data_bits
-                                       , StopBits cat_stop_bits
-                                       , Handshake cat_handshake
-                                       , LineControl cat_dtr_control	// to power interface
-                                       , LineControl cat_rts_control	// to power inteface
-                                       , PTTMethod ptt_type // "CAT" | "DTR" | "RTS" | "VOX"
-                                       , TXAudioSource ptt_use_data_ptt	// some rigs allow audio routing to Mic/Data connector
-                                       , SplitMode split_mode // how to support split TX mode
-                                       , QString const& ptt_port // serial port device name or special value "CAT"
-                                       , int poll_interval // in milliseconds for interfaces that require polling for parameter changes
-                                       , QThread * target_thread = nullptr
-                                       );
+  std::unique_ptr<Transceiver> create (ParameterPack const&, QThread * target_thread = nullptr);
   
 private:
   Transceivers transceivers_;
 };
+
+inline
+bool operator != (TransceiverFactory::ParameterPack const& lhs, TransceiverFactory::ParameterPack const& rhs)
+{
+  return !(lhs == rhs);
+}
 
 //
 // boilerplate routines to make enum types useable and debuggable in
@@ -135,7 +164,6 @@ Q_DECLARE_METATYPE (TransceiverFactory::SplitMode);
 ENUM_QDEBUG_OPS_DECL (TransceiverFactory, DataBits);
 ENUM_QDEBUG_OPS_DECL (TransceiverFactory, StopBits);
 ENUM_QDEBUG_OPS_DECL (TransceiverFactory, Handshake);
-ENUM_QDEBUG_OPS_DECL (TransceiverFactory, LineControl);
 ENUM_QDEBUG_OPS_DECL (TransceiverFactory, PTTMethod);
 ENUM_QDEBUG_OPS_DECL (TransceiverFactory, TXAudioSource);
 ENUM_QDEBUG_OPS_DECL (TransceiverFactory, SplitMode);
@@ -144,7 +172,6 @@ ENUM_QDEBUG_OPS_DECL (TransceiverFactory, SplitMode);
 ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, DataBits);
 ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, StopBits);
 ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, Handshake);
-ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, LineControl);
 ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, PTTMethod);
 ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, TXAudioSource);
 ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, SplitMode);
@@ -152,7 +179,6 @@ ENUM_QDATASTREAM_OPS_DECL (TransceiverFactory, SplitMode);
 ENUM_CONVERSION_OPS_DECL (TransceiverFactory, DataBits);
 ENUM_CONVERSION_OPS_DECL (TransceiverFactory, StopBits);
 ENUM_CONVERSION_OPS_DECL (TransceiverFactory, Handshake);
-ENUM_CONVERSION_OPS_DECL (TransceiverFactory, LineControl);
 ENUM_CONVERSION_OPS_DECL (TransceiverFactory, PTTMethod);
 ENUM_CONVERSION_OPS_DECL (TransceiverFactory, TXAudioSource);
 ENUM_CONVERSION_OPS_DECL (TransceiverFactory, SplitMode);
