@@ -7,8 +7,6 @@
 
 #include "Transceiver.hpp"
 
-#include "pimpl_h.hpp"
-
 //
 // Base Transceiver Implementation
 //
@@ -60,12 +58,12 @@
 class TransceiverBase
   : public Transceiver
 {
+  Q_OBJECT;
+
 protected:
-  TransceiverBase ();
+  TransceiverBase () = default;
 
 public:
-  ~TransceiverBase ();
-
   //
   // Implement the Transceiver abstract interface.
   //
@@ -127,11 +125,25 @@ protected:
   void offline (QString const& reason);
 
   // and query state with this one
-  TransceiverState const& state () const;
+  TransceiverState const& state () const {return state_;}
 
 private:
-  class impl;
-  pimpl<impl> m_;
+  Q_SLOT void updated ();
+
+  TransceiverState state_;
 };
+
+// some trace macros
+#if WSJT_TRACE_CAT
+#define TRACE_CAT(MSG) qDebug () << __PRETTY_FUNCTION__ << MSG
+#else
+#define TRACE_CAT(MSG)
+#endif
+
+#if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
+#define TRACE_CAT_POLL(MSG) qDebug () << __PRETTY_FUNCTION__ << MSG
+#else
+#define TRACE_CAT_POLL(MSG)
+#endif
 
 #endif

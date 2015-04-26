@@ -122,9 +122,6 @@ public:
   Q_SLOT virtual void start () noexcept = 0;
   Q_SLOT virtual void stop () noexcept = 0;
 
-  // Ready to be destroyed.
-  Q_SIGNAL void finished () const;
-
   // Set frequency in Hertz.
   Q_SLOT virtual void frequency (Frequency, MODE = UNK) noexcept = 0;
 
@@ -148,6 +145,9 @@ public:
   // asynchronous status updates
   Q_SIGNAL void update (Transceiver::TransceiverState) const;
   Q_SIGNAL void failure (QString reason) const;
+
+  // Ready to be destroyed.
+  Q_SIGNAL void finished () const;
 };
 
 Q_DECLARE_METATYPE (Transceiver::TransceiverState);

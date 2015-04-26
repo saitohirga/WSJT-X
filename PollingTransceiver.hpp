@@ -5,7 +5,7 @@
 
 #include "TransceiverBase.hpp"
 
-#include "pimpl_h.hpp"
+class QTimer;
 
 //
 // Polling Transceiver
@@ -17,7 +17,7 @@
 //
 //  Implements the TransceiverBase post  action interface and provides
 //  the abstract  poll() operation  for sub-classes to  implement. The
-//  pol operation is invoked every poll_interval milliseconds.
+//  poll operation is invoked every poll_interval seconds.
 //
 // Responsibilities
 //
@@ -35,10 +35,7 @@ class PollingTransceiver
   Q_OBJECT;                     // for translation context
 
 protected:
-  explicit PollingTransceiver (int poll_interval); // in milliseconds
-
-public:
-  ~PollingTransceiver ();
+  explicit PollingTransceiver (int poll_interval); // in seconds
 
 protected:
   void do_sync (bool force_signal) override final;
@@ -56,8 +53,23 @@ protected:
   bool do_pre_update () override final;
 
 private:
-  class impl;
-  pimpl<impl> m_;
+  void start_timer ();
+  void stop_timer ();
+
+  Q_SLOT void handle_timeout ();
+
+  int interval_;    // polling interval in milliseconds
+  QTimer * poll_timer_;
+
+  // keep a record of the last state signalled so we can elide
+  // duplicate updates
+  Transceiver::TransceiverState last_signalled_state_;
+
+  // keep a record of expected state so we can compare with actual
+  // updates to determine when state changes have bubbled through
+  Transceiver::TransceiverState next_state_;
+
+  unsigned retries_;            // number of incorrect polls left
 };
 
 #endif
