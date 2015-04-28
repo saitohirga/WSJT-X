@@ -1,0 +1,26 @@
+// Status=review
+Select the *Audio* tab to configure your sound system.
+
+image::images/settings-audio.png[align="center",alt="WSJT-X Audio Configuration Screen"]
+
+- _Soundcard_: Select the audio devices to be used for *Input* and
+*Output*.  Usually the *Mono* settings will suffice, but in special
+cases you can choose *Left*, *Right*, or *Both* stereo channels.
+
+IMPORTANT: If you are select the audio output device that is also your
+computer's default audio device, be sure to turn off all system sounds
+to prevent transmitting them over the air.
+
+- _Save Directory_: _WSJT-X_ can save its received audio sequences as
++.wav+ files.  A default directory for these files is provided; you
+can select another location if desired.
+
+- _JT9W Settings_: JT9W is an experimental mode designed for EME on
+the microwave bands.  Values of *Bandwidth Multiplier* greater than 1
+increase the tone spacing.  You can also select nonstandard values of
+*DT min* and *DT max* to define the range of DT searched by the
+decoder.  Most users will not want to change these settings from their
+default values of -1, 2.5, and 5.0, respectively.
+
+IMPORTANT: JT9W mode is presently enabled only in special test versions
+of _WSJT-X_.

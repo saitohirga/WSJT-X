@@ -113,6 +113,7 @@ option (WSJT_HAMLIB_TRACE "Debugging option that turns on minimal Hamlib interna
 option (WSJT_SOFT_KEYING "Apply a ramp to CW keying envelope to reduce transients." ON)
 option (WSJT_SKIP_MANPAGES "Skip *nix manpage generation.")
 option (WSJT_EMBED_SAMPLES "Embed sample files into WSJT-X resources." ON)
+option (WSJT_GENERATE_DOCS "Generate documentation files." OFF)
 
 CMAKE_DEPENDENT_OPTION (WSJT_HAMLIB_VERBOSE_TRACE "Debugging option that turns on full Hamlib internal diagnostics." OFF WSJT_HAMLIB_TRACE OFF)
 CMAKE_DEPENDENT_OPTION (WSJT_QDEBUG_IN_RELEASE "Leave Qt debugging statements in Release configuration." OFF
@@ -518,7 +519,9 @@ endif (APPLE)
 #
 find_program(CTAGS ctags)
 find_program(ETAGS etags)
-
+if (WSJT_GENERATE_DOCS)
+  add_subdirectory (doc)
+endif (WSJT_GENERATE_DOCS)
 
 #
 # C & C++ setup
@@ -611,13 +614,13 @@ FortranCInterface_HEADER (FC.h MACRO_NAMESPACE "FC_" SYMBOL_NAMESPACE "FC_"
 #
 # fetch latest HTML manual
 #
-set (WSJT_MANUAL_DIRECTORY "${PROJECT_MANUAL_DIRECTORY_URL}"
-  CACHE STRING "Can be overridden to a local URI")
-add_custom_target (user_manual ALL
-  ${CMAKE_COMMAND} -D URL=${WSJT_MANUAL_DIRECTORY} -D NAME=${PROJECT_MANUAL} -P ${CMAKE_SOURCE_DIR}/CMake/download_html_manual.cmake
-  COMMENT "Downloading ${PROJECT_NAME} HTML manual"
-  VERBATIM
-  )
+#set (WSJT_MANUAL_DIRECTORY "${PROJECT_MANUAL_DIRECTORY_URL}"
+#  CACHE STRING "Can be overridden to a local URI")
+#add_custom_target (user_manual ALL
+#  ${CMAKE_COMMAND} -D URL=${WSJT_MANUAL_DIRECTORY} -D NAME=${PROJECT_MANUAL} -P ${CMAKE_SOURCE_DIR}/CMake/download_html_manual.cmake
+#  COMMENT "Downloading ${PROJECT_NAME} HTML manual"
+#  VERBATIM
+#  )
 
 #
 # Setup RPATH so that built executable targets will run in both the
@@ -970,7 +973,6 @@ install (PROGRAMS
   )
 
 install (FILES
-  ${CMAKE_BINARY_DIR}/contrib/${PROJECT_MANUAL}
   README
   COPYING
   AUTHORS
