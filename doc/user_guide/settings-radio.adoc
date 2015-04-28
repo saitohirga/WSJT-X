@@ -1,0 +1,90 @@
+// Status=review
+
+_WSJT-X_ offers CAT (Computer Aided Transceiver) control of the
+relevant features of most modern transceivers.  To configure the
+program for your radio, select the *Radio* tab.
+
+//image::images/RadioTab.png[align="center",alt="Radio Tab"]
+image::images/r4148-cat-ui.png[align="center",alt="Radio Tab"]
+
+////
+IMPORTANT: Unless you have selected *Monitor off at startup* under the
+above tab, _WSJT-X_ expects to seize exclusive rig control upon
+startup. You can prevent this by either selecting that option or by
+selecting the *Monitor* button on the main window and toggle it. Once
+done, _WSJT-X_ relinquishes exclusive rig control (but not the control
+port or client connection itself). Since it is extremely convenient to
+have all your required station programs running, which can include
+radio control software, it is imperative that the operator understand
+that any change in a separate radio control program can induce
+unwanted effects in _WSJT-X_. If you would like to switch to another
+operating mode while leaving _WSJT-X_ on in the background, simply
+toggle the *Monitor* button so that _WSJT-X_ is no longer active.
+////
+
+- Select your radio type from the drop-down list labeled *Rig*, or
+*None* if you do not wish to use CAT control.
+
+- Alternatively, if you have configured your station for control by
+*DX Lab Suite Commander*, *Ham Radio Deluxe*, *Hamlib NET rigctl*, or
+*OmniRig*, you may select one of those program names.  In those cases
+the entry field immediately under _CAT Control_ will be relabeled as
+*Network Server*.  Leave this field blank to access the default
+instance of your control program, running on the same computer. If the
+control program runs on a different machine and/or port, specify it
+here.  Hover the mouse pointer over the entry field to see the
+required formatting details.
+
+- Select *OmniRig Rig 1* or *OmniRig Rig 2* to connect to an _OmniRig_
+server running on the same computer.  Note that _OmniRig_ is available
+only under Windows.
+
+- Set *Poll Interval* to the desired interval for _WSJT-X_ to query
+your radio.  For most radios a small number (say, 1 – 3 s) is
+suitable.
+
+- _CAT Control_: To have _WSJT-X_ control the radio directly rather
+than though another program, make the following settings:
+
+* Select the *Serial Port* used to communicate with your radio. 
+
+* _Serial Port Parameters_: Set values for *Baud Rate*, *Data Bits*,
+*Stop Bits*, and *Handshake* method.  Consult your radio's user guide
+for the proper parameter values.
+
+* _Force Control Lines_: A few station setups require the serial
+port's *RTS* and/or *DTR* control lines to be forced high.  Check
+these boxes only if you are sure they are needed.
+
+- _PTT Method_: select *VOX*, *CAT*, *DTR*, or *RTS* as the desired
+method for T/R switching.  If your choice is *DTR* or *RTS*, select
+the desired serial port.
+
+- _Transmit Audio Source_: some radios permit you to choose the
+connector that will accept Tx audio.  If this choice is enabled,
+select *Rear/Data* or *Front/Mic*.
+
+- _Mode_: _WSJT-X_ uses upper sideband mode for both transmitting and
+receiving.  Select *USB*, or choose *Data/Pkt* if your radio offers
+such an option and uses it to enable the rear-panel audio line input.
+Some radios also offer wider and/or flatter passbands when set to
+*Data/Pkt* mode.  Select *None* if you do not want _WSJT-X_ to change
+the radio's Mode setting.
+
+- _Split Operation_: Significant advantages result from using *Split*
+mode (separate VFOs for Rx and Tx) if your radio supports it.  If it
+does not, _WSJT-X_ can simulate such behavior.  Either method will
+result in a cleaner transmitted signal, by keeping the Tx audio always
+in the range 1500 to 2000 Hz so that audio harmonics cannot pass
+through the Tx sideband filter.  Select *Rig* to use the radio's Split
+mode, or *Fake It* to have _WSJT-X_ adjust the VFO frequency as
+needed, just before T/R switching occurs.  Choose *None* if you do not
+wish to use split operation.
+
+When all required settings have been made, click *Test CAT* to test
+communication between _WSJT-X_ and your radio.  The button should turn
+green to indicate that proper communication has been established.
+Failure of the CAT-control test turns the button red and displays an
+error message.  After a succesful CAT test, toggle the *Test PTT*
+button to confirm that your selected method of T/R control is working
+properly.

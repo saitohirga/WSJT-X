@@ -1,0 +1,60 @@
+// Status=review
+// because the page is not a main page include, we need to add
+// ref-links again, as they are not global.
+:icons:
+:badges:
+:devmail: mailto:wsjt-devel@lists.berlios.de[wsjt-devel]
+= Rig Template
+
+This is a simple guide for providing rig configuration data for the WSJT-X
+User Guide. Try to fill out as much as possible, but do not worry if you cannot
+fill in all the fields. OS Specific & Interface Notes are a bonus.
+
+* Copy and paste the template into a text file.
+* Save as the rig's model.txt: rig-confg-ic756p3.txt
+* Email the file to {devmail} for inclusion.
+* Alternatively, join the team and submit the updates directly.
+
+.Copy & Paste the following:
+----------
+Manufacturer:
+Model:
+.Configuration Covers:
+
+* MyCall:
+* MyGrid:
+* PTT Method:
+* Pskreporter:
+* CW Id After 73:
+* CW Interval:
+* CAT NOTES:
+* DTR:
+* RTS:
+* CAT Port:
+* CAT Port Settings:
+* Split:
+* Polling:
+* Audio-In:
+* Audio-In Mono:
+* Audio-Out:
+* Audio-Out:
+
+=== OS Specific Notes
+.Notes Relating To Operating System
+
+* Windows: XP, Vista, Win7, Win8, etc.
+* Linux: Slackaware, Fedora, FreeBSD, Ubuntu, Debian, etc
+* Mac OSx: 
+
+=== Interface Notes
+.Notes Relating To Rig Interface
+
+* Navigator
+* SignaLink
+* ShackLan
+* Kam
+* DX-Doubler
+* Array Solutions
+* Home-Brew
+----------
+

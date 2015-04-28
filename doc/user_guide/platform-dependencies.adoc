@@ -1,0 +1,83 @@
+// Status=review
+
+A few _WSJT-X_ features behave differently in Windows, Linux, or OS X,
+or may not be relevant to all operating platforms.
+
+.File locations
+* *Windows*
+Settings::
+ +%APPDATA%\..\Local\WSJT-X\WSJT-X.ini+
+Log files::
+ +%APPDATA%\..\Local\WSJT-X\+
+Default save::
+ +%APPDATA%\..\Local\WSJT-X\save\+
+
+* *Windows, when using "--rig-name=xxx"*
+Settings::
+ +%APPDATA%\..\Local\WSJT-X - xxx+
+Log files::
+  +%APPDATA%\..\Local\WSJT-X - xxx\WSJT-X - xxx.ini+
+
+* *Linux*
+Settings::
+ +~/.config/WSJT-X.ini+
+Log files:: 
+ +~/.local/share/WSJT-X/+
+Default save::
+ +~/.local/share/WSJT-X/save/+
+
+* *Linux, when using "--rig-name=xxx"*
+Log files::
+ +~/.local/share/WSJT-X - xxx/+
+Default save::
+ +~/.config/WSJT-x - xxx.ini+
+
+* *Macintosh*
+Settings::
+ +~/Library/Preferences/WSJT-X.ini+
+Log files::
+ +~/Library/Application Support/WSJT-X/+
+Default save:: 
+ +~/Library/Application Support/WSJT-X/save/+
+
+* *Macintosh, when using "--rig-name=xxx"*
+Log files::
+ +~/Library/Application Support/WSJT-X - xxx/+
+Default save::
+ +~/Library/Preferences/WSJT-X - xxx.ini+
+
+.Show DXCC entity and worked before status
+
+This program option (selected on the *Settings | General* tab) is
+intended mostly for use on non-Windows platforms.  Windows users
+should use VK3AMA's excellent {jtalert} utility instead.
+
+When this option is checked _WSJT-X_ appends some useful information
+to all CQ messages displayed in the _Band Activity_ window.  The name
+of the DXCC entity is shown, abbreviated if necessary.  Your ``worked
+before'' status (according to log file +wsjtx_log.adi+) is flagged
+with a single character and a change of background color, as follows:
+
+[horizontal]
+!::  (bright green) -- New DXCC entity
+~::  (mid green) -- You have already worked this DXCC entity but not 
+this station
+ ::  (dull green) -- You have previously worked the calling station
+
+The program does not distinguish between modes, but it does
+differentiate between bands.  
+
+_WSJT-X_ includes a built-in +cty.dat+ file containing DXCC prefix 
+information.  Updated files can be downloaded from {cty_dat} when 
+required.  If an updated +cty.dat+ is present in the logs folder 
+and readable, it will be used in preference to the built-in one.
+
+
+The log file +wsjtx_log.adi+ is updated whenever you log a QSO from
+_WSJT-X_ (but note that it can also be erased from the file menu). You
+can append or overwrite this file by exporting your QSO history as an
+ADIF file from another logging program.  Turning *Show DXCC entity and
+worked B4 status* off and on again will cause _WSJT-X_ to re-read the
+log file.  Very large log files may cause _WSJT-X_ to slow down when
+searching for calls.
+
