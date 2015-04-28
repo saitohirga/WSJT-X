@@ -105,10 +105,9 @@ function (html_document)
   cmake_parse_arguments (args "" "SOURCE;HTML" "ASCIIDOC_OPTIONS;DEPENDS" ${ARGN})
   get_filename_component (_output_name_we ${args_SOURCE} NAME_WE)
   get_filename_component (_path ${args_SOURCE} PATH)
-  set (_xml_file ${CMAKE_CURRENT_BINARY_DIR}/${_output_name_we}.xml)
   set (_doc_file ${CMAKE_CURRENT_BINARY_DIR}/${_output_name_we}.html)
   add_custom_command (
-    OUTPUT ${_doc_file} ${_xml_file}
+    OUTPUT ${_doc_file}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${path}
     COMMAND ${ASCIIDOC} ARGS ${args_ASCIIDOC_OPTIONS} -o ${CMAKE_CURRENT_BINARY_DIR}/${_output_name_we}.html ${args_SOURCE}
     DEPENDS ${args_DEPENDS}
