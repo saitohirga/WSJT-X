@@ -41,6 +41,9 @@ if (POLICY CMP0043)
 endif (POLICY CMP0043)
 
 
+include (${PROJECT_SOURCE_DIR}/CMake/VersionCompute.cmake)
+message (STATUS "Building ${CMAKE_PROJECT_NAME}-${wsjtx_VERSION}")
+
 #
 # project information
 #
@@ -49,7 +52,7 @@ set (PROJECT_VENDOR "Joe Taylor, K1JT")
 set (PROJECT_CONTACT "Joe Taylor <k1jt@arrl.net>")
 set (PROJECT_COPYRIGHT "Copyright (C) 2001-2014 by Joe Taylor, K1JT")
 set (PROJECT_HOMEPAGE "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx.html")
-set (PROJECT_MANUAL wsjtx-main.html)
+set (PROJECT_MANUAL wsjtx-main-${wsjtx_VERSION}.html)
 set (PROJECT_MANUAL_DIRECTORY_URL http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc)
 set (PROJECT_SUMMARY_DESCRIPTION "${PROJECT_NAME} - JT9 and JT65 Modes for LF, MF and HF Amateur Radio.")
 set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
@@ -79,9 +82,6 @@ set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
 set (PROJECT_KVASD_URL http://svn.code.sf.net/p/wsjt/wsjt/trunk/kvasd-binary)
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake/Modules ${CMAKE_MODULE_PATH})
-
-include (${PROJECT_SOURCE_DIR}/CMake/VersionCompute.cmake)
-message (STATUS "Building ${CMAKE_PROJECT_NAME}-${wsjtx_VERSION}")
 
 # make sure that the default configuration is a RELEASE
 if (NOT CMAKE_BUILD_TYPE)
