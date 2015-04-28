@@ -29,9 +29,12 @@ Start _WSJT-X_ from a command-prompt window, passing each instance a
 unique identifier as in the following two-instance example.  This
 procedure will isolate the *Settings* file and the writable file
 location for each instance of _WSJT-X_.
++
+=====
+wsjtx --rig-name=TS2000
 
- wsjtx --rig-name=TS2000
- wsjtx --rig-name=FT847
+wsjtx --rig-name=FT847
+=====
 
 When setting up rig control through _OmniRig_, something goes wrong when I click *Test CAT*.  What can I do about it?::
 
@@ -52,4 +55,6 @@ window at the top of the primary display screen.  You can restore menu
 bars to their traditional locations by typing the following in a
 command-prompt window:
 
- sudo apt-get remove appmenu-qt5 
+=====
+sudo apt-get remove appmenu-qt5 
+=====

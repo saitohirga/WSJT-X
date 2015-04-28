@@ -2,7 +2,7 @@
 // This is a comment line, anything with // is ignored at process time.
 = WSJT-X User Guide
 //:Date: October 1, 2014
-:Revision: 1.4
+:Revision: {VERSION}
 // For web-pages, adding :badges: is ok, but is a security issue for
 // package building .deb, .rpm, etc as it exposes the IP address and the images
 // are non-free, so can't be included as part of the Debian package.
