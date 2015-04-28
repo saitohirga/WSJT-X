@@ -1,3 +1,9 @@
+set (common_SRCS
+  common/communication.adoc
+  common/license.adoc
+  common/links.adoc
+  )
+
 set (UG_SRCS
   user_guide/acknowledgements.adoc
   user_guide/install-from-source.adoc
@@ -109,18 +115,19 @@ function (html_document)
   add_custom_command (
     OUTPUT ${_doc_file}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${path}
-    COMMAND ${ASCIIDOC} ARGS ${args_ASCIIDOC_OPTIONS} -o ${CMAKE_CURRENT_BINARY_DIR}/${_output_name_we}.html ${args_SOURCE}
+    COMMAND ${ASCIIDOC} ARGS ${args_ASCIIDOC_OPTIONS} --out-file=${CMAKE_CURRENT_BINARY_DIR}/${_output_name_we}.html ${args_SOURCE}
     DEPENDS ${args_DEPENDS}
     COMMENT "Generating ${_doc_file}"
     )
   set (${args_HTML} ${_doc_file} PARENT_SCOPE)
 endfunction (html_document)
 
+configure_file (wsjtx.conf.in wsjtx.conf)
 html_document(
   HTML user_guide
   SOURCE user_guide/wsjtx-main.adoc
-  ASCIIDOC_OPTIONS -a data-uri -a toc2 -a max-width=1024px -b xhtml11
-  DEPENDS ${UG_SRCS} ${UG_IMGS}
+  ASCIIDOC_OPTIONS -a data-uri -a toc2 -a max-width=1024px --conf-file=${CMAKE_CURRENT_BINARY_DIR}/wsjtx.conf --backend=xhtml11
+  DEPENDS ${common_SRCS} ${UG_SRCS} ${UG_IMGS}
   )
 add_custom_target (docs ALL DEPENDS ${user_guide})
 
