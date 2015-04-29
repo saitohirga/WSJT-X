@@ -1,3 +1,7 @@
+set (CONF_FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/wsjtx.conf
+  )
+
 set (common_SRCS
   common/communication.adoc
   common/license.adoc
@@ -131,12 +135,19 @@ function (html_document)
   set (${args_HTML} ${_doc_file} PARENT_SCOPE)
 endfunction (html_document)
 
-configure_file (wsjtx.conf.in wsjtx.conf)
+configure_file (wsjtx.conf.in wsjtx.conf.out)
+# copy the file to the final location only if the generated output
+# changes reduces needless rebuilds
+execute_process (
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different wsjtx.conf.out wsjtx.conf
+  )
+
 html_document(
   HTML user_guide
   SOURCE user_guide/wsjtx-main.adoc
   ASCIIDOC_OPTIONS -a data-uri -a toc2 -a max-width=1024px --conf-file=${CMAKE_CURRENT_BINARY_DIR}/wsjtx.conf --backend=xhtml11
-  DEPENDS ${common_SRCS} ${UG_SRCS} ${UG_IMGS}
+  DEPENDS ${CONF_FILES} ${common_SRCS} ${UG_SRCS} ${UG_IMGS}
   )
 add_custom_target (docs ALL DEPENDS ${user_guide})
 
