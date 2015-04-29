@@ -94,6 +94,15 @@ set (UG_IMGS
   user_guide/images/special-mouse-commands.png
 )
 
+find_package (PythonInterp 2.4 REQUIRED)
+if (PYTHON_VERSION_STRING VERSION_GREATER 2.9.9)
+  message (FATAL_ERROR "The asciidoc package requires a Python version less than 3
+
+Use CMAKE_PREFIX_PATH to point to an earlier version or install one,
+you can also skip building the documentation by switching the option
+WSJT_GENERATE_DOCS to OFF.")
+endif (PYTHON_VERSION_STRING VERSION_GREATER 2.9.9)
+
 find_program (ASCIIDOC NAMES asciidoc asciidoc.py)
 if (NOT ASCIIDOC)
   message (FATAL_ERROR "Asciidoc is required to build the documentation")
@@ -115,7 +124,7 @@ function (html_document)
   add_custom_command (
     OUTPUT ${_doc_file}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${path}
-    COMMAND ${ASCIIDOC} ARGS ${args_ASCIIDOC_OPTIONS} --out-file=${CMAKE_CURRENT_BINARY_DIR}/${_output_name_we}.html ${args_SOURCE}
+    COMMAND ${PYTHON_EXECUTABLE} ARGS ${ASCIIDOC} ${args_ASCIIDOC_OPTIONS} --out-file=${CMAKE_CURRENT_BINARY_DIR}/${_output_name_we}.html ${args_SOURCE}
     DEPENDS ${args_DEPENDS}
     COMMENT "Generating ${_doc_file}"
     )
