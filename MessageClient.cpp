@@ -123,6 +123,22 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
                 }
               break;
 
+            case NetworkMessage::HaltTx:
+              if (check_status (in))
+                {
+                  Q_EMIT self_->halt_tx ();
+                }
+              break;
+
+            case NetworkMessage::FreeText:
+              if (check_status (in))
+                {
+                  QByteArray message;
+                  in >> message;
+                  Q_EMIT self_->free_text (QString::fromUtf8 (message));
+                }
+              break;
+
             default:
               // Ignore
               break;
@@ -235,13 +251,14 @@ void MessageClient::send_raw_datagram (QByteArray const& message, QHostAddress c
 }
 
 void MessageClient::status_update (Frequency f, QString const& mode, QString const& dx_call
-                                   , QString const& report, QString const& tx_mode)
+                                   , QString const& report, QString const& tx_mode, bool transmitting)
 {
    if (m_->server_port_ && !m_->server_.isNull ())
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Status, m_->id_};
-      out << f << mode.toUtf8 () << dx_call.toUtf8 () << report.toUtf8 () << tx_mode.toUtf8 ();
+      out << f << mode.toUtf8 () << dx_call.toUtf8 () << report.toUtf8 () << tx_mode.toUtf8 ()
+          << transmitting;
       if (m_->check_status (out))
         {
           m_->writeDatagram (message, m_->server_, m_->server_port_);
