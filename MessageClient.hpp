@@ -46,7 +46,7 @@ public:
 
   // outgoing messages
   Q_SLOT void status_update (Frequency, QString const& mode, QString const& dx_call, QString const& report
-                             , QString const& tx_mode, bool transmitting);
+                             , QString const& tx_mode, bool tx_enabled, bool transmitting);
   Q_SLOT void decode (bool is_new, QTime time, qint32 snr, float delta_time, quint32 delta_frequency
                       , QString const& mode, QString const& message);
   Q_SLOT void clear_decodes ();
@@ -69,9 +69,9 @@ public:
   // all decodes
   Q_SIGNAL void replay ();
 
-  // this signal is emitted if the server has requested transmission
-  // to halt immediately
-  Q_SIGNAL void halt_tx ();
+  // this signal is emitted if the server has requested immediate (or
+  // auto Tx if auto_only is true) transmission to halt
+  Q_SIGNAL void halt_tx (bool auto_only);
 
   // this signal is emitted if the server has requested a new free
   // message text
