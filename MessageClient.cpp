@@ -126,7 +126,9 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
             case NetworkMessage::HaltTx:
               if (check_status (in))
                 {
-                  Q_EMIT self_->halt_tx ();
+                  bool auto_only;
+                  in >> auto_only;
+                  Q_EMIT self_->halt_tx (auto_only);
                 }
               break;
 
@@ -251,14 +253,15 @@ void MessageClient::send_raw_datagram (QByteArray const& message, QHostAddress c
 }
 
 void MessageClient::status_update (Frequency f, QString const& mode, QString const& dx_call
-                                   , QString const& report, QString const& tx_mode, bool transmitting)
+                                   , QString const& report, QString const& tx_mode
+                                   , bool tx_enabled, bool transmitting)
 {
    if (m_->server_port_ && !m_->server_.isNull ())
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Status, m_->id_};
       out << f << mode.toUtf8 () << dx_call.toUtf8 () << report.toUtf8 () << tx_mode.toUtf8 ()
-          << transmitting;
+          << tx_enabled << transmitting;
       if (m_->check_status (out))
         {
           m_->writeDatagram (message, m_->server_, m_->server_port_);

@@ -142,13 +142,14 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
             QByteArray dx_call;
             QByteArray report;
             QByteArray tx_mode;
+            bool tx_enabled;
             bool transmitting;
-            in >> f >> mode >> dx_call >> report >> tx_mode >> transmitting;
+            in >> f >> mode >> dx_call >> report >> tx_mode >> tx_enabled >> transmitting;
             if (check_status (in))
               {
                 Q_EMIT self_->status_update (id, f, QString::fromUtf8 (mode), QString::fromUtf8 (dx_call)
                                              , QString::fromUtf8 (report), QString::fromUtf8 (tx_mode)
-                                             , transmitting);
+                                             , tx_enabled, transmitting);
               }
           }
           break;
@@ -316,13 +317,14 @@ void MessageServer::replay (QString const& id)
     }
 }
 
-void MessageServer::halt_tx (QString const& id)
+void MessageServer::halt_tx (QString const& id, bool auto_only)
 {
   auto iter = m_->clients_.find (id);
   if (iter != std::end (m_->clients_))
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::HaltTx, id};
+      out << auto_only;
       if (m_->check_status (out))
         {
           m_->writeDatagram (message, iter.value ().sender_address_, (*iter).sender_port_);

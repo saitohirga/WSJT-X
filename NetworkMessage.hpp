@@ -64,6 +64,7 @@
  *                         DX call                utf8
  *                         Report                 utf8
  *                         Tx Mode                utf8
+ *                         Tx Enabled             bool
  *                         Transmitting           bool
  *
  * Decode        Out       2                      quint32
@@ -83,7 +84,7 @@
  *                         Id (target unique key) utf8
  *                         Time                   QTime
  *                         snr                    qint32
- *                         Delta time (S)         float
+ *                         Delta time (S)         float (serialized as double)
  *                         Delta frequency (Hz)   quint32
  *                         Mode                   utf8
  *                         Message                utf8
@@ -109,6 +110,7 @@
  *
  * Halt Tx       In        8
  *                         Id (unique key)        utf8
+ *                         Auto Tx Only           bool
  *
  * Free Text     In        9
  *                         Id (unique key)        utf8
