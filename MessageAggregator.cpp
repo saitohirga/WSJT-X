@@ -35,6 +35,7 @@
 #include <exception>
 
 #include <QtWidgets>
+#include <QFile>
 #include <QStandardItemModel>
 #include <QStandardItem>
 #include <QSortFilterProxyModel>
@@ -50,6 +51,8 @@
 
 using port_type = MessageServer::port_type;
 using Frequency = MessageServer::Frequency;
+
+QRegExp message_alphabet {"[- A-Za-z0-9+./?]*"};
 
 //
 // Decodes Model - simple data model for all decodes
@@ -191,6 +194,8 @@ public:
     : QDockWidget {id, parent}
     , id_ {id}
     , decodes_table_view_ {new QTableView}
+    , message_line_edit_ {new QLineEdit}
+    , halt_tx_button_ {new QPushButton {tr ("&Halt Tx")}}
     , mode_label_ {new QLabel}
     , dx_call_label_ {new QLabel}
     , frequency_label_ {new QLabel}
@@ -206,6 +211,21 @@ public:
     decodes_table_view_->verticalHeader ()->hide ();
     decodes_table_view_->hideColumn (0);
     content_layout->addWidget (decodes_table_view_);
+
+    // set up controls
+    auto control_layout = new QHBoxLayout;
+    auto form_layout = new QFormLayout;
+    form_layout->addRow (tr ("Free text:"), message_line_edit_);
+    message_line_edit_->setValidator (new QRegExpValidator {message_alphabet, this});
+    connect (message_line_edit_, &QLineEdit::editingFinished, [this] () {
+        Q_EMIT do_free_text (id_, message_line_edit_->text ());
+      });
+    control_layout->addLayout (form_layout);
+    control_layout->addWidget (halt_tx_button_);
+    connect (halt_tx_button_, &QAbstractButton::clicked, [this] (bool /* checked */) {
+        Q_EMIT do_halt_tx (id_);
+      });
+    content_layout->addLayout (control_layout);
 
     // set up status area
     auto status_bar = new QStatusBar;
@@ -232,7 +252,7 @@ public:
   }
 
   Q_SLOT void update_status (QString const& id, Frequency f, QString const& mode, QString const& dx_call
-                             , QString const& report, QString const& tx_mode)
+                             , QString const& report, QString const& tx_mode, bool transmitting)
   {
     if (id == id_)
       {
@@ -240,6 +260,8 @@ public:
         dx_call_label_->setText ("DX CALL: " + dx_call);
         frequency_label_->setText ("QRG: " + Radio::pretty_frequency_MHz_string (f));
         report_label_->setText ("SNR: " + report);
+        update_dynamic_property (frequency_label_, "transmitting", transmitting);
+        halt_tx_button_->setEnabled (transmitting);
       }
   }
 
@@ -256,6 +278,8 @@ public:
   }
 
   Q_SIGNAL void do_reply (QModelIndex const&);
+  Q_SIGNAL void do_halt_tx (QString const& id);
+  Q_SIGNAL void do_free_text (QString const& id, QString const& text);
 
 private:
   class DecodesFilterModel final
@@ -280,6 +304,9 @@ private:
 
   QString id_;
   QTableView * decodes_table_view_;
+  QLineEdit * message_line_edit_;
+  QAbstractButton * set_free_text_button_;
+  QAbstractButton * halt_tx_button_;
   QLabel * mode_label_;
   QLabel * dx_call_label_;
   QLabel * frequency_label_;
@@ -406,6 +433,8 @@ private:
     connect (server_, &MessageServer::status_update, dock, &ClientWidget::update_status);
     connect (server_, &MessageServer::decode, dock, &ClientWidget::decode_added);
     connect (dock, &ClientWidget::do_reply, decodes_model_, &DecodesModel::do_reply);
+    connect (dock, &ClientWidget::do_halt_tx, server_, &MessageServer::halt_tx);
+    connect (dock, &ClientWidget::do_free_text, server_, &MessageServer::free_text);
     connect (view_action, &QAction::toggled, dock, &ClientWidget::setVisible);
     dock_widgets_[id] = dock;
     server_->replay (id);
@@ -443,6 +472,15 @@ int main (int argc, char * argv[])
 
       app.setApplicationName ("WSJT-X Reference UDP Message Aggregator Server");
       app.setApplicationVersion ("1.0");
+
+      {
+        QFile file {":/qss/default.qss"};
+        if (!file.open (QFile::ReadOnly))
+          {
+            throw_qstring ("failed to open \"" + file.fileName () + "\": " + file.errorString ());
+          }
+        app.setStyleSheet (file.readAll());
+      }
 
       MainWindow window;
       return app.exec ();
