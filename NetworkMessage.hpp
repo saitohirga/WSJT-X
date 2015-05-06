@@ -43,6 +43,12 @@
  * serialization purposes  (currently a quint32 size  followed by size
  * bytes, no terminator is present or counted).
  *
+ * The QDataStream format document linked above is not complete for
+ * the QByteArray serialization format, it is similar to the QString
+ * serialization format in that it differentiates between empty
+ * strings and null strings. Empty strings have a length of zero
+ * whereas null strings have a length field of 0xffffffff.
+ *
  * Schema Version 1:
  * -----------------
  *
@@ -58,6 +64,7 @@
  *                         DX call                utf8
  *                         Report                 utf8
  *                         Tx Mode                utf8
+ *                         Transmitting           bool
  *
  * Decode        Out       2                      quint32
  *                         Id (unique key)        utf8
@@ -99,6 +106,13 @@
  *
  * Replay        In        7                      quint32
  *                         Id (unique key)        utf8
+ *
+ * Halt Tx       In        8
+ *                         Id (unique key)        utf8
+ *
+ * Free Text     In        9
+ *                         Id (unique key)        utf8
+ *                         Text                   utf8
  */
 
 #include <QDataStream>
@@ -122,6 +136,8 @@ namespace NetworkMessage
       QSOLogged,
       Close,
       Replay,
+      HaltTx,
+      FreeText,
       maximum_message_type_     // ONLY add new message types
                                 // immediately before here
     };

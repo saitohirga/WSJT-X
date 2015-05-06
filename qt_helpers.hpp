@@ -9,10 +9,10 @@
 #include <QMetaType>
 #include <QMetaEnum>
 #include <QString>
-#include <QByteArray>
 #include <QDebug>
 #include <QHostAddress>
-#include <QHash>
+
+class QVariant;
 
 #define ENUM_QDATASTREAM_OPS_DECL(CLASS, ENUM)				\
   QDataStream& operator << (QDataStream&, CLASS::ENUM);			\
@@ -71,6 +71,10 @@ void throw_qstring (QString const& qs)
 }
 
 QString font_as_stylesheet (QFont const&);
+
+// do what is necessary to change a dynamic property and trigger any
+// conditional style sheet updates
+void update_dynamic_property (QWidget *, char const * property, QVariant const& value);
 
 // Register some useful Qt types with QMetaType
 Q_DECLARE_METATYPE (QHostAddress);
