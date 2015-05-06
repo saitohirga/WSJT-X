@@ -393,6 +393,10 @@ set (all_C_and_CXXSRCS
   ${all_CXXSRCS}
   )
 
+set (message_aggregator_STYLESHEETS
+  qss/default.qss
+  )
+
 set (TOP_LEVEL_RESOURCES
   shortcuts.txt
   mouse_commands.txt
@@ -877,9 +881,13 @@ set_target_properties (wsjtx PROPERTIES
 target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia SerialPort)
 
+add_resources (message_aggregator_RESOURCES /qss ${message_aggregator_STYLESHEETS})
+configure_file (message_aggregator.qrc.in message_aggregator.qrc @ONLY)
+qt5_add_resources (message_aggregator_RESOURCES_RCC ${CMAKE_BINARY_DIR}/message_aggregator.qrc)
 add_executable (message_aggregator
   ${message_aggregator_CXXSRCS}
   wsjtx.rc
+  ${message_aggregator_RESOURCES_RCC}
   )
 target_link_libraries (message_aggregator wsjt_qt)
 qt5_use_modules (message_aggregator Widgets OpenGL Network)
