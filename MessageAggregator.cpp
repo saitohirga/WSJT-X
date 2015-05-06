@@ -195,6 +195,7 @@ public:
     , id_ {id}
     , decodes_table_view_ {new QTableView}
     , message_line_edit_ {new QLineEdit}
+    , auto_off_button_ {new QPushButton {tr ("&Auto Off")}}
     , halt_tx_button_ {new QPushButton {tr ("&Halt Tx")}}
     , mode_label_ {new QLabel}
     , dx_call_label_ {new QLabel}
@@ -221,9 +222,13 @@ public:
         Q_EMIT do_free_text (id_, message_line_edit_->text ());
       });
     control_layout->addLayout (form_layout);
+    control_layout->addWidget (auto_off_button_);
     control_layout->addWidget (halt_tx_button_);
+    connect (auto_off_button_, &QAbstractButton::clicked, [this] (bool /* checked */) {
+        Q_EMIT do_halt_tx (id_, true);
+      });
     connect (halt_tx_button_, &QAbstractButton::clicked, [this] (bool /* checked */) {
-        Q_EMIT do_halt_tx (id_);
+        Q_EMIT do_halt_tx (id_, false);
       });
     content_layout->addLayout (control_layout);
 
@@ -252,7 +257,7 @@ public:
   }
 
   Q_SLOT void update_status (QString const& id, Frequency f, QString const& mode, QString const& dx_call
-                             , QString const& report, QString const& tx_mode, bool transmitting)
+                             , QString const& report, QString const& tx_mode, bool tx_enabled, bool transmitting)
   {
     if (id == id_)
       {
@@ -261,6 +266,7 @@ public:
         frequency_label_->setText ("QRG: " + Radio::pretty_frequency_MHz_string (f));
         report_label_->setText ("SNR: " + report);
         update_dynamic_property (frequency_label_, "transmitting", transmitting);
+        auto_off_button_->setEnabled (tx_enabled);
         halt_tx_button_->setEnabled (transmitting);
       }
   }
@@ -278,7 +284,7 @@ public:
   }
 
   Q_SIGNAL void do_reply (QModelIndex const&);
-  Q_SIGNAL void do_halt_tx (QString const& id);
+  Q_SIGNAL void do_halt_tx (QString const& id, bool auto_only);
   Q_SIGNAL void do_free_text (QString const& id, QString const& text);
 
 private:
@@ -306,6 +312,7 @@ private:
   QTableView * decodes_table_view_;
   QLineEdit * message_line_edit_;
   QAbstractButton * set_free_text_button_;
+  QAbstractButton * auto_off_button_;
   QAbstractButton * halt_tx_button_;
   QLabel * mode_label_;
   QLabel * dx_call_label_;
