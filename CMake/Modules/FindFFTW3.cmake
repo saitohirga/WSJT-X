@@ -91,3 +91,7 @@ list(APPEND _check_list FFTW3_INCLUDE_DIR)
 # all listed variables are TRUE
 include (FindPackageHandleStandardArgs)
 find_package_handle_standard_args (FFTW3 DEFAULT_MSG ${_check_list})
+
+if (FFTW3_FOUND)
+  set (FFTW3_INCLUDE_DIRS ${FFTW3_INCLUDE_DIR})
+endif (FFTW3_FOUND)
