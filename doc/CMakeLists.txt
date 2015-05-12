@@ -1,7 +1,3 @@
-set (CONF_FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/wsjtx.conf
-  )
-
 set (common_SRCS
   common/communication.adoc
   common/license.adoc
@@ -146,8 +142,8 @@ execute_process (
 html_document(
   HTML user_guide
   SOURCE user_guide/wsjtx-main.adoc
-  ASCIIDOC_OPTIONS -a data-uri -a toc2 -a max-width=1024px --conf-file=${CMAKE_CURRENT_BINARY_DIR}/wsjtx.conf --backend=xhtml11
-  DEPENDS ${CONF_FILES} ${common_SRCS} ${UG_SRCS} ${UG_IMGS}
+  ASCIIDOC_OPTIONS -a data-uri -a toc2 -a max-width=1024px --conf-file=${CMAKE_CURRENT_BINARY_DIR}/wsjtx.conf --backend=xhtml11 --theme wsjt
+  DEPENDS ${common_SRCS} ${UG_SRCS} ${UG_IMGS} wsjtx.conf.in theme/wsjt/wsjt.css
   )
 add_custom_target (docs ALL DEPENDS ${user_guide})
 
