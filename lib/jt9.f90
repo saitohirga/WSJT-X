@@ -27,7 +27,7 @@ program jt9
     option ('executable-path', .true., 'e',                                   &
         'Location of subordinate executables (KVASD) default="."', '<path>'), &
     option ('data-path', .true., 'a',                                         &
-        'Location of writeable data files, detfault="."', '<path>'),          &
+        'Location of writeable data files, default="."', '<path>'),          &
     option ('temp-path', .true., 't', 'Temporary files path, default="."',    &
         '<path>'), &
     option ('lowest', .true., 'L',                                            &
