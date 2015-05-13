@@ -674,7 +674,7 @@ include_directories (${FFTW3_INCLUDE_DIRS})
 # libhamlib setup
 #
 find_package (hamlib 3 REQUIRED)
-include_directories (${hamlib_INCLUDE_DIRS})
+include_directories (BEFORE ${hamlib_INCLUDE_DIRS})
 if (hamlib_STATIC_LIBRARY)
   # static link hamlib if archive library available
   set (hamlib_LIBRARY "${hamlib_STATIC_LIBRARY}")
