@@ -311,7 +311,6 @@ private:
   QString id_;
   QTableView * decodes_table_view_;
   QLineEdit * message_line_edit_;
-  QAbstractButton * set_free_text_button_;
   QAbstractButton * auto_off_button_;
   QAbstractButton * halt_tx_button_;
   QLabel * mode_label_;
