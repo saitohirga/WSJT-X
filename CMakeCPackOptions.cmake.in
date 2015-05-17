@@ -212,11 +212,18 @@ skip_kvasd:
     )
 
   set (CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-    ; install the kvasd executable
+    ; install the kvasd executable and ensure it can be executed
     \${If} $INSTALL_KVASD = \${BST_CHECKED}
         \${AndIf} \${FileExists} $KVASD_EXECUTABLE
       DetailPrint 'Installing: $INSTDIR\\@WSJT_BIN_DESTINATION@\\kvasd@CMAKE_EXECUTABLE_SUFFIX@'
       Rename $KVASD_EXECUTABLE '$INSTDIR\\@WSJT_BIN_DESTINATION@\\kvasd@CMAKE_EXECUTABLE_SUFFIX@'
+      AccessControl::ClearOnFile '$INSTDIR\\@WSJT_BIN_DESTINATION@\\kvasd@CMAKE_EXECUTABLE_SUFFIX@' '(BU)' 'GenericRead + GenericExecute'
+      Pop $R0
+      \${If} $R0 != ok
+        Pop $R0
+        MessageBox MB_OK 'Failed to set KVASD file permissions.\\n$R0'
+        Abort
+      \${EndIf}
     \${EndIf}"
     )
 
