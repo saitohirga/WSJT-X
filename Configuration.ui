@@ -1870,10 +1870,10 @@ for assessing propagation and system performance.</string>
                 <number>2</number>
                </property>
                <property name="minimum">
-                <double>-9999.989999999999782</double>
+                <double>-99999.990000000005239</double>
                </property>
                <property name="maximum">
-                <double>9999.989999999999782</double>
+                <double>99999.990000000005239</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
@@ -1902,10 +1902,10 @@ for assessing propagation and system performance.</string>
                 <number>4</number>
                </property>
                <property name="minimum">
-                <double>-9.999900000000000</double>
+                <double>-999.999900000000025</double>
                </property>
                <property name="maximum">
-                <double>9.999900000000000</double>
+                <double>999.999900000000025</double>
                </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
