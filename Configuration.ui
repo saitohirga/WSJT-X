@@ -1807,8 +1807,8 @@ for assessing propagation and system performance.</string>
          <property name="title">
           <string>Working Frequencies</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
+         <layout class="QGridLayout" name="gridLayout_15">
+          <item row="0" column="0" rowspan="2">
            <widget class="QTableView" name="frequencies_table_view">
             <property name="contextMenuPolicy">
              <enum>Qt::ActionsContextMenu</enum>
@@ -1836,7 +1836,89 @@ for assessing propagation and system performance.</string>
             </attribute>
            </widget>
           </item>
-          <item>
+          <item row="0" column="2">
+           <widget class="QGroupBox" name="groupBox_3">
+            <property name="toolTip">
+             <string>See WSPR documentattion Appendix C for details of how to determine these factors for your radio.</string>
+            </property>
+            <property name="title">
+             <string>Frequency Calibration</string>
+            </property>
+            <layout class="QFormLayout" name="formLayout_7">
+             <property name="fieldGrowthPolicy">
+              <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+             </property>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_7">
+               <property name="text">
+                <string>Intercept:</string>
+               </property>
+               <property name="buddy">
+                <cstring>calibration_intercept_spin_box</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QDoubleSpinBox" name="calibration_intercept_spin_box">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="suffix">
+                <string> Hz</string>
+               </property>
+               <property name="decimals">
+                <number>2</number>
+               </property>
+               <property name="minimum">
+                <double>-9999.989999999999782</double>
+               </property>
+               <property name="maximum">
+                <double>9999.989999999999782</double>
+               </property>
+               <property name="singleStep">
+                <double>0.100000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_8">
+               <property name="text">
+                <string>Slope:</string>
+               </property>
+               <property name="buddy">
+                <cstring>calibration_slope_ppm_spin_box</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QDoubleSpinBox" name="calibration_slope_ppm_spin_box">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="suffix">
+                <string> ppm</string>
+               </property>
+               <property name="decimals">
+                <number>4</number>
+               </property>
+               <property name="minimum">
+                <double>-9.999900000000000</double>
+               </property>
+               <property name="maximum">
+                <double>9.999900000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.100000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="0" column="3">
            <spacer name="horizontalSpacer_6">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -1845,6 +1927,19 @@ for assessing propagation and system performance.</string>
              <size>
               <width>40</width>
               <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="2">
+           <spacer name="verticalSpacer_6">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
              </size>
             </property>
            </spacer>
@@ -2122,7 +2217,9 @@ soundcard changes</string>
   <tabstop>quick_call_check_box</tabstop>
   <tabstop>tx_QSY_check_box</tabstop>
   <tabstop>disable_TX_on_73_check_box</tabstop>
+  <tabstop>enable_VHF_features_check_box</tabstop>
   <tabstop>watchdog_check_box</tabstop>
+  <tabstop>decode_at_52s_check_box</tabstop>
   <tabstop>CW_id_after_73_check_box</tabstop>
   <tabstop>CW_id_interval_spin_box</tabstop>
   <tabstop>rig_combo_box</tabstop>
@@ -2136,11 +2233,12 @@ soundcard changes</string>
   <tabstop>CAT_handshake_none_radio_button</tabstop>
   <tabstop>CAT_handshake_xon_radio_button</tabstop>
   <tabstop>CAT_handshake_hardware_radio_button</tabstop>
+  <tabstop>CAT_control_lines_group_box</tabstop>
   <tabstop>CAT_DTR_check_box</tabstop>
   <tabstop>CAT_RTS_check_box</tabstop>
   <tabstop>PTT_VOX_radio_button</tabstop>
-  <tabstop>PTT_DTR_radio_button</tabstop>
   <tabstop>PTT_CAT_radio_button</tabstop>
+  <tabstop>PTT_DTR_radio_button</tabstop>
   <tabstop>PTT_RTS_radio_button</tabstop>
   <tabstop>PTT_port_combo_box</tabstop>
   <tabstop>TX_source_data_radio_button</tabstop>
@@ -2176,6 +2274,8 @@ soundcard changes</string>
   <tabstop>udpWindowToFront</tabstop>
   <tabstop>udpWindowRestore</tabstop>
   <tabstop>frequencies_table_view</tabstop>
+  <tabstop>calibration_intercept_spin_box</tabstop>
+  <tabstop>calibration_slope_ppm_spin_box</tabstop>
   <tabstop>stations_table_view</tabstop>
   <tabstop>pbCQmsg</tabstop>
   <tabstop>pbMyCall</tabstop>
@@ -2251,12 +2351,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="PTT_method_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="split_mode_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
  </buttongroups>
 </ui>
