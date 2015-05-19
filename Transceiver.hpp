@@ -72,6 +72,7 @@ public:
   //
   // Aggregation of all of the rig and PTT state accessible via this
   // interface.
+  //
   class TransceiverState
   {
   public:

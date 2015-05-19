@@ -132,6 +132,7 @@
 #include <algorithm>
 #include <functional>
 #include <limits>
+#include <cmath>
 
 #include <QApplication>
 #include <QMetaType>
@@ -384,6 +385,8 @@ private:
   bool validate ();
   void message_box (QString const& reason, QString const& detail = QString ());
   void fill_port_combo_box (QComboBox *);
+  Frequency apply_calibration (Frequency) const;
+  Frequency remove_calibration (Frequency) const;
 
   Q_SLOT void on_font_push_button_clicked ();
   Q_SLOT void on_decoded_text_font_push_button_clicked ();
@@ -488,6 +491,8 @@ private:
   bool have_rig_;
   bool rig_changed_;
   TransceiverState cached_rig_state_;
+  double frequency_calibration_intercept_;
+  double frequency_calibration_slope_ppm_;
 
   // the following members are required to get the rig into split the
   // first time monitor or tune or Tx occur
@@ -503,7 +508,6 @@ private:
                                     // no split.
 
   bool enforce_mode_and_split_;
-  FrequencyDelta transceiver_offset_;
 
   // configuration fields that we publish
   QString my_callsign_;
@@ -716,7 +720,6 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   , setup_split_ {false}
   , required_tx_frequency_ {0}
   , enforce_mode_and_split_ {false}
-  , transceiver_offset_ {0}
   , default_audio_input_device_selected_ {false}
   , default_audio_output_device_selected_ {false}
 {
@@ -1019,6 +1022,8 @@ void Configuration::impl::initialize_models ()
   ui_->accept_udp_requests_check_box->setChecked (accept_udp_requests_);
   ui_->udpWindowToFront->setChecked(udpWindowToFront_);
   ui_->udpWindowRestore->setChecked(udpWindowRestore_);
+  ui_->calibration_intercept_spin_box->setValue (frequency_calibration_intercept_);
+  ui_->calibration_slope_ppm_spin_box->setValue (frequency_calibration_slope_ppm_);
 
   if (rig_params_.ptt_port.isEmpty ())
     {
@@ -1202,6 +1207,8 @@ void Configuration::impl::read_settings ()
   accept_udp_requests_ = settings_->value ("AcceptUDPRequests", false).toBool ();
   udpWindowToFront_ = settings_->value ("udpWindowToFront",false).toBool ();
   udpWindowRestore_ = settings_->value ("udpWindowRestore",false).toBool ();
+  frequency_calibration_intercept_ = settings_->value ("CalibrationIntercept", 0.).toDouble ();
+  frequency_calibration_slope_ppm_ = settings_->value ("CalibrationSlopePPM", 0.).toDouble ();
 }
 
 void Configuration::impl::write_settings ()
@@ -1286,6 +1293,8 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("AcceptUDPRequests", accept_udp_requests_);
   settings_->setValue ("udpWindowToFront", udpWindowToFront_);
   settings_->setValue ("udpWindowRestore", udpWindowRestore_);
+  settings_->setValue ("CalibrationIntercept", frequency_calibration_intercept_);
+  settings_->setValue ("CalibrationSlopePPM", frequency_calibration_slope_ppm_);
 }
 
 void Configuration::impl::set_rig_invariants ()
@@ -1636,6 +1645,8 @@ void Configuration::impl::accept ()
   save_directory_ = ui_->save_path_display_label->text ();
   enable_VHF_features_ = ui_->enable_VHF_features_check_box->isChecked ();
   decode_at_52s_ = ui_->decode_at_52s_check_box->isChecked ();
+  frequency_calibration_intercept_ = ui_->calibration_intercept_spin_box->value ();
+  frequency_calibration_slope_ppm_ = ui_->calibration_slope_ppm_spin_box->value ();
 
   auto new_server = ui_->udp_server_line_edit->text ();
   if (new_server != udp_server_name_)
@@ -2091,9 +2102,8 @@ void Configuration::impl::transceiver_frequency (Frequency f)
       cached_rig_state_.frequency (f);
       cached_rig_state_.mode (mode);
 
-      // lookup offset
-      transceiver_offset_ = stations_.offset (f);
-      Q_EMIT frequency (f + transceiver_offset_, mode);
+      // apply any offset & calibration
+      Q_EMIT frequency (apply_calibration (f + stations_.offset (f)), mode);
     }
 }
 
@@ -2101,15 +2111,16 @@ void Configuration::impl::transceiver_tx_frequency (Frequency f)
 {
   if (/* set_mode () || */ cached_rig_state_.tx_frequency () != f || cached_rig_state_.split () != !!f)
     {
-      cached_rig_state_.tx_frequency (f);
       cached_rig_state_.split (f);
+      cached_rig_state_.tx_frequency (f);
 
-      // lookup offset if we are in split mode
-      if (f)
+      // lookup offset and apply calibration if we are in split mode
+      if (cached_rig_state_.split ())
         {
-          transceiver_offset_ = stations_.offset (f);
-          f += transceiver_offset_;
+          // apply and offset and calibration
+          f = apply_calibration (f + stations_.offset (f));
         }
+
 
       // Rationalise TX VFO mode if we ask for split and are
       // responsible for mode.
@@ -2217,14 +2228,16 @@ void Configuration::impl::handle_transceiver_update (TransceiverState state)
       close_rig ();
     }
 
-  cached_rig_state_ = state;
+  // take off calibration & offset
+  state.frequency (remove_calibration (state.frequency ()) - stations_.offset (state.frequency ()));
 
-  // take off offset
-  cached_rig_state_.frequency (cached_rig_state_.frequency () - transceiver_offset_);
-  if (cached_rig_state_.tx_frequency ())
+  if (state.tx_frequency ())
     {
-      cached_rig_state_.tx_frequency (cached_rig_state_.tx_frequency () - transceiver_offset_);
+      // take off calibration & offset
+      state.tx_frequency (remove_calibration (state.tx_frequency ()) - stations_.offset (state.tx_frequency ()));
     }
+
+  cached_rig_state_ = state;
 
   // pass on to clients
   Q_EMIT self_->transceiver_update (cached_rig_state_);
@@ -2408,6 +2421,17 @@ void Configuration::impl::fill_port_combo_box (QComboBox * cb)
   cb->setEditText (current_text);
 }
 
+auto Configuration::impl::apply_calibration (Frequency f) const -> Frequency
+{
+  return std::llround (frequency_calibration_intercept_
+                       + (1. + frequency_calibration_slope_ppm_ / 1.e6) * f);
+}
+
+auto Configuration::impl::remove_calibration (Frequency f) const -> Frequency
+{
+  return std::llround ((f - frequency_calibration_intercept_)
+                       / (1. + frequency_calibration_slope_ppm_ / 1.e6));
+}
 
 #if !defined (QT_NO_DEBUG_STREAM)
 ENUM_QDEBUG_OPS_IMPL (Configuration, DataMode);
