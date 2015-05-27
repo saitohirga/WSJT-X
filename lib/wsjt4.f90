@@ -1,4 +1,4 @@
-subroutine wsjt4(dat,npts,nutc,NClearAve,ntol,emedelay,dttol,    &
+subroutine wsjt4(dat,npts,nutc,NClearAve,minsync,ntol,emedelay,dttol,    &
      mode4,minw,mycall,hiscall,hisgrid,nfqso,NAgain,ndepth,neme)
 
 ! Orchestrates the process of decoding JT4 messages, using data that 
@@ -30,8 +30,7 @@ subroutine wsjt4(dat,npts,nutc,NClearAve,ntol,emedelay,dttol,    &
   endif
 
   zz=0.
-!  syncmin=1.0
-  syncmin=7.0
+  syncmin=5.0 + minsync
   naggressive=0
   if(ndepth.ge.2) naggressive=1
   nq1=3
@@ -102,7 +101,7 @@ subroutine wsjt4(dat,npts,nutc,NClearAve,ntol,emedelay,dttol,    &
 ! Fano succeeded: display the message and return                      FANO OK
         write(*,1010) nutc,nsnr,dtx,nfreq,csync,decoded,' *',                 &
              char(ichar('A')+ich-1)
-1010    format(i4.4,i4,f5.2,i5,a1,1x,a22,a2,1x,a1,i3)
+1010    format(i4.4,i4,f5.2,i5,1x,a1,1x,a22,a2,1x,a1,i3)
         nsave=0
         go to 990
 
@@ -174,6 +173,5 @@ subroutine wsjt4(dat,npts,nutc,NClearAve,ntol,emedelay,dttol,    &
           deepave,cqual,char(ichar('A')+ich-1),ndeepave
   endif
 
-990 return
+990  return
 end subroutine wsjt4
-

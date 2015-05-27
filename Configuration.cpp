@@ -615,7 +615,8 @@ bool Configuration::enable_VHF_features () const {return m_->enable_VHF_features
 bool Configuration::decode_at_52s () const {return m_->decode_at_52s_;}
 bool Configuration::split_mode () const
 {
-  return !m_->rig_is_dummy_ && m_->rig_params_.split_mode != TransceiverFactory::split_mode_none;
+  return !m_->rig_is_dummy_ and
+      (m_->rig_params_.split_mode != TransceiverFactory::split_mode_none);
 }
 QString Configuration::udp_server_name () const {return m_->udp_server_name_;}
 auto Configuration::udp_server_port () const -> port_type {return m_->udp_server_port_;}
@@ -704,9 +705,11 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   , settings_ {settings}
   , doc_dir_ {QApplication::applicationDirPath ()}
   , frequencies_ {
-    { 136130, 474200, 1838000, 3576000, 5357000, 7076000, 10138000, 14076000, 18102000,
-      21076000, 24917000, 28076000, 50276000, 70091000, 144000000, 144489000, 222000000,
-      432000000, 902000000, 1296000000, 2301000000, 2304000000, 2320000000, 3400000000,
+    { 136000, 136130, 474200, 1836600, 1838000, 3576000, 3592600, 5287200, 5357000,
+      7038600, 7076000, 10138000, 10138700, 14076000, 14095600, 18102000, 18104600,
+      21076000, 21094600, 24917000, 24924600, 28076000, 28124600, 50276000, 50293000,
+      70091000, 144000000, 144489000, 222000000, 432000000, 432300000,
+      902000000, 1296000000, 1296500000, 2301000000, 2304000000, 2320000000, 3400000000,
       3456000000, 5760000000,10368000000, 24048000000 }
     }
   , stations_ {&bands_}

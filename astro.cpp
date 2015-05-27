@@ -29,6 +29,7 @@ Astro::Astro(QSettings * settings, QWidget * parent)
   setWindowTitle(QApplication::applicationName () + " - " + tr ("Astronomical Data"));
   setStyleSheet ("QWidget {background: white;}");
   read_settings ();
+  m_Hz=0;
   ui_->text_label->clear();
 }
 
@@ -60,9 +61,8 @@ void Astro::read_settings ()
   m_kHz=settings_->value("kHzAdd",100).toInt();
   ui_->kHzSpinBox->setValue(m_kHz);
   m_bRxAudioTrack=settings_->value("RxAudioTrack",false).toBool();
-  ui_->cbRxTrack->setChecked(m_bRxAudioTrack);
   m_bTxAudioTrack=settings_->value("TxAudioTrack",false).toBool();
-  ui_->cbTxTrack->setChecked(m_bTxAudioTrack);
+  ui_->cbTxAudioTrack->setChecked(m_bTxAudioTrack);
   move (settings_->value ("window/pos", pos ()).toPoint ());
   settings_->endGroup ();
 }
@@ -82,10 +82,10 @@ void Astro::write_settings ()
 }
 
 void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid, qint64 freqMoon,
-                        qint32* ndop, qint32* ndop00)
+                        qint32* ndop, qint32* ndop00, bool bTx)
 {
   double azsun,elsun,azmoon,elmoon,azmoondx,elmoondx;
-  double ramoon,decmoon,dgrd,poloffset,xnr,techo;
+  double ramoon,decmoon,dgrd,poloffset,xnr,techo,width1,width2;
   int ntsky;
   QString date = t.date().toString("yyyy MMM dd").trimmed ();
   QString utc = t.time().toString().trimmed ();
@@ -95,16 +95,19 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid, qint64 fre
   int nhr=t.time().hour();
   int nmin=t.time().minute();
   double sec=t.time().second() + 0.001*t.time().msec();
-  int isec=sec;
   double uth=nhr + nmin/60.0 + sec/3600.0;
   if(freqMoon < 1) freqMoon=144000000;
   int nfreq=freqMoon/1000000;
   double freq8=(double)freqMoon;
 
+  QDir dataDir = QStandardPaths::writableLocation (QStandardPaths::DataLocation);
+  QString fname = QDir::toNativeSeparators(dataDir.absoluteFilePath ("azel.dat"));
+
   astrosub_(&nyear, &month, &nday, &uth, &freq8, mygrid.toLatin1(),
             hisgrid.toLatin1(), &azsun, &elsun, &azmoon, &elmoon,
             &azmoondx, &elmoondx, &ntsky, ndop, ndop00, &ramoon, &decmoon,
-            &dgrd, &poloffset, &xnr, &techo, 6, 6);
+            &dgrd, &poloffset, &xnr, &techo, &width1, &width2, &bTx,
+            fname.toLatin1(), 6, 6, fname.length());
 
   QString message;
   {
@@ -117,13 +120,15 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid, qint64 fre
       << qSetRealNumberPrecision (1)
       << "Az:    " << azmoon << "\n"
       "El:    " << elmoon << "\n"
-      "MyDop: " << *ndop00 << "\n"
+      "Dop:   " << *ndop00 << "\n"
+      "Width: " << int(width1) << "\n"
       << qSetRealNumberPrecision (2)
       << "Delay: " << techo << "\n"
       << qSetRealNumberPrecision (1)
       << "DxAz:  " << azmoondx << "\n"
       "DxEl:  " << elmoondx << "\n"
       "DxDop: " << *ndop << "\n"
+      "DxWid: " << int(width2) << "\n"
       "Dec:   " << decmoon << "\n"
       "SunAz: " << azsun << "\n"
       "SunEl: " << elsun << "\n"
@@ -134,6 +139,7 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid, qint64 fre
   }
   ui_->text_label->setText(message);
 
+  /*
   static QFile f {QDir {QStandardPaths::writableLocation (
             QStandardPaths::DataLocation)}.absoluteFilePath ("azel.dat")};
   if (!f.open (QIODevice::WriteOnly | QIODevice::Text)) {
@@ -185,13 +191,14 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid, qint64 fre
         << qSetFieldWidth (0) << ",Doppler";
   }
   f.close();
+  */
 }
 
 void Astro::on_cbDopplerTracking_toggled(bool b)
 {
   QRect g=this->geometry();
   if(b) {
-    g.setWidth(460);
+    g.setWidth(430);
   } else {
     g.setWidth(200);
   }
@@ -228,15 +235,9 @@ void Astro::on_rb10Hz_clicked()
 void Astro::on_rb100Hz_clicked()
 {
   m_stepHz=100;
-
 }
 
-void Astro::on_cbRxTrack_toggled(bool b)
-{
-  m_bRxAudioTrack=b;
-}
-
-void Astro::on_cbTxTrack_toggled(bool b)
+void Astro::on_cbTxAudioTrack_toggled(bool b)
 {
   m_bTxAudioTrack=b;
 }
@@ -244,4 +245,9 @@ void Astro::on_cbTxTrack_toggled(bool b)
 void Astro::on_kHzSpinBox_valueChanged(int n)
 {
   m_kHz=n;
+}
+
+void Astro::on_HzSpinBox_valueChanged(int n)
+{
+  m_Hz=n;
 }

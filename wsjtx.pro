@@ -83,14 +83,15 @@ SOURCES += \
 	soundin.cpp \
 	meterwidget.cpp \
 	signalmeter.cpp \
-        WFPalette.cpp \
+  WFPalette.cpp \
 	plotter.cpp \
 	widegraph.cpp \
 	about.cpp \
 	mainwindow.cpp \
 	main.cpp \
-        decodedtext.cpp \
-    messageaveraging.cpp
+  decodedtext.cpp \
+  wsprnet.cpp \
+  messageaveraging.cpp
 
 HEADERS  += qt_helpers.hpp \
 	    pimpl_h.hpp pimpl_impl.hpp \
@@ -102,7 +103,7 @@ HEADERS  += qt_helpers.hpp \
             FrequencyLineEdit.hpp AudioDevice.hpp Detector.hpp Modulator.hpp psk_reporter.h \
             Transceiver.hpp TransceiverBase.hpp TransceiverFactory.hpp PollingTransceiver.hpp \
             EmulateSplitTransceiver.hpp DXLabSuiteCommanderTransceiver.hpp HamlibTransceiver.hpp \
-            Configuration.hpp \
+            Configuration.hpp wsprnet.h \
     signalmeter.h \
     meterwidget.h \
     logbook/logbook.h \

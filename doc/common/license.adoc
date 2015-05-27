@@ -13,4 +13,4 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this documentation. If not, see {gnu_gpl}.
 
-Copyright (C) 2001-2014 Joseph H Taylor, Jr, {joe_taylor}.
+Copyright (C) 2001-2015 Joseph H Taylor, Jr, {joe_taylor}.

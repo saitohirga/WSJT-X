@@ -2,7 +2,7 @@
 #define COMMONS_H
 
 #define NSMAX 6827
-#define NTMAX 60
+#define NTMAX 120
 #define RX_SAMPLE_RATE 12000
 
 extern struct FortranCommon {
@@ -28,6 +28,7 @@ extern struct FortranCommon {
   int nmode;
   int minw;
   int nclearave;
+  int minSync;
   float emedelay;
   float dttol;
   int nlist;

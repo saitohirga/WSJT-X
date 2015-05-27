@@ -32,6 +32,8 @@ public:
 
   QSize minimumSizeHint() const;
   QSize sizeHint() const;
+  bool    m_bScaleOK;
+
   void draw(float swide[], bool bScroll);		//Update the waterfall
   void SetRunningState(bool running);
   void setPlotZero(int plotZero);
@@ -50,6 +52,7 @@ public:
   void setRxRange(int fMin);
   void setBinsPerPixel(int n);
   int  binsPerPixel();
+  void setWaterfallAvg(int n);
   void setRxFreq(int n);
   void DrawOverlay();
   int  rxFreq();
@@ -75,6 +78,7 @@ public:
   void setColours(QVector<QColor> const& cl) {m_ColorTbl = cl;}
   void setFlatten(bool b);
   void setTol(int n);
+  void setRxBand(QString band);
 
 signals:
   void freezeDecode1(int n);
@@ -88,7 +92,6 @@ protected:
 private:
 
   void MakeFrequencyStrs();
-  void UTCstr();
   int XfromFreq(float f);
   float FreqfromX(int x);
 
@@ -106,6 +109,7 @@ private:
   qint32  m_plot2dGain;
   qint32  m_plot2dZero;
   qint32  m_binsPerPixel;
+  qint32  m_waterfallAvg;
   qint32  m_w;
   qint32  m_Flatten;
   qint32  m_nSubMode;
@@ -120,6 +124,7 @@ private:
   QString m_HDivText[483];
   QString m_mode;
   QString m_modeTx;
+  QString m_rxBand;
 
   bool    m_Running;
   bool    m_paintEventBusy;

@@ -232,6 +232,7 @@ set (wsjtx_CXXSRCS
   mainwindow.cpp
   Configuration.cpp
   main.cpp
+  wsprnet.cpp
   )
 
 if (WIN32)
@@ -288,6 +289,7 @@ set (wsjt_FSRCS
   lib/fchisq.f90
   lib/fchisq65.f90
   lib/fil3.f90
+  lib/fil3c.f90
   lib/fil4.f90
   lib/fil6521.f90
   lib/filbig.f90
@@ -302,20 +304,26 @@ set (wsjt_FSRCS
   lib/gen4.f90
   lib/gen65.f90
   lib/gen9.f90
+  lib/genwspr.f90
   lib/geodist.f90
   lib/getlags.f90
   lib/graycode.f90
   lib/graycode65.f90
+  lib/grayline.f90
   lib/grid2deg.f90
+  lib/hash.f90
+  lib/hopping.f90
   lib/image.f90
   lib/indexx.f90
   lib/interleave4.f90
   lib/interleave63.f90
   lib/interleave9.f90
+  lib/inter_wspr.f90
   lib/jt4.f90
   lib/jt4a.f90
   lib/jt65a.f90
   lib/lpf1.f90
+  lib/mixlpf.f90
   lib/moon2.f90
   lib/moondop.f90
   lib/morse.f90
@@ -328,6 +336,7 @@ set (wsjt_FSRCS
   lib/polyfit.f90
   lib/prog_args.f90
   lib/ps4.f90
+  lib/savec2.f90
   lib/sec_midn.f90
   lib/setup65.f90
   lib/sleep_msec.f90
@@ -344,6 +353,7 @@ set (wsjt_FSRCS
   lib/sync4.f90
   lib/sync9.f90
   lib/timer.f90
+  lib/timf2.f90
   lib/tm2.f90
   lib/toxyz.f90
   lib/twkfreq.f90
@@ -355,6 +365,8 @@ set (wsjt_FSRCS
   lib/xcor4.f90
   lib/zplt.f90
   lib/wavhdr.f90
+  lib/wqencode.f90
+  lib/wspr_downsample.f90
   lib/zplot9.f90
   )
 
@@ -364,6 +376,7 @@ set (wsjt_CSRCS
   lib/gran.c
   lib/igray.c
   lib/init_rs.c
+  lib/wsprd/nhash.c
   lib/tmoonsub.c
   lib/usleep.c
   lib/wisdom.c
@@ -657,7 +670,6 @@ if (NOT "${QT_LIBRARY_DIR}" STREQUAL "/lib" AND NOT "${QT_LIBRARY_DIR}" STREQUAL
   set (QT_NEED_RPATH TRUE)
 endif ()
 
-
 #
 # OpenMP
 #
@@ -666,9 +678,8 @@ find_package (OpenMP)
 #
 # fftw3 single precsion library
 #
-find_package (FFTW3 COMPONENTS single threads REQUIRED)
+find_package (FFTW3 COMPONENTS double single threads REQUIRED)
 include_directories (${FFTW3_INCLUDE_DIRS})
-
 
 #
 # libhamlib setup
@@ -838,6 +849,9 @@ target_link_libraries (jt65code wsjt_fort wsjt_cxx)
 add_executable (jt9code lib/jt9code.f90 wsjtx.rc)
 target_link_libraries (jt9code wsjt_fort wsjt_cxx)
 
+add_executable (wsprd lib/wsprd/wsprd.c lib/wsprd/wsprd_utils.c lib/wsprd/fano.c lib/wsprd/tab.c lib/wsprd/nhash.c)
+target_link_libraries (wsprd ${FFTW3_LIBRARIES})
+
 add_executable (jt4code lib/jt4code.f90 wsjtx.rc)
 target_link_libraries (jt4code wsjt_fort wsjt_cxx)
 
@@ -946,7 +960,7 @@ install (TARGETS wsjtx
   BUNDLE DESTINATION . COMPONENT runtime
   )
 
-install (TARGETS jt9 jt65code jt9code jt4code message_aggregator
+install (TARGETS jt9 jt65code jt9code jt4code wsprd message_aggregator 
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )

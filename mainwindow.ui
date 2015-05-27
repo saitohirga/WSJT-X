@@ -11,14 +11,14 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
-    <width>825</width>
+    <width>0</width>
     <height>460</height>
    </size>
   </property>
@@ -38,6 +38,9 @@
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
       <item>
        <layout class="QGridLayout" name="gridLayout">
         <property name="horizontalSpacing">
@@ -556,58 +559,7 @@
        <layout class="QGridLayout" name="gridLayout_5">
         <item row="0" column="5" rowspan="6">
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="7" column="2">
-           <layout class="QHBoxLayout" name="horizontalLayout_6">
-            <item>
-             <widget class="QLabel" name="labTol">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>60</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Tolerance for offset from selected Rx frequency.</string>
-              </property>
-              <property name="text">
-               <string>  F tol 500</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="sbTol">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>18</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="maximum">
-               <number>7</number>
-              </property>
-              <property name="value">
-               <number>5</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="5" column="1">
+          <item row="6" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_5">
             <item>
              <spacer name="horizontalSpacer">
@@ -656,7 +608,7 @@
             </item>
            </layout>
           </item>
-          <item row="2" column="2">
+          <item row="3" column="2">
            <widget class="QPushButton" name="pbT2R">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -678,7 +630,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="4" column="1">
            <widget class="QCheckBox" name="cbTxLock">
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tx frequency tracks Rx frequency&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -688,7 +640,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
+          <item row="4" column="2">
            <layout class="QHBoxLayout" name="horizontalLayout_4">
             <property name="spacing">
              <number>5</number>
@@ -742,23 +694,7 @@
             </item>
            </layout>
           </item>
-          <item row="4" column="1">
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>18</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="6" column="2">
+          <item row="7" column="2">
            <widget class="QDoubleSpinBox" name="sbDT">
             <property name="toolTip">
              <string>Tolerance for expected time offset.</string>
@@ -783,140 +719,7 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_8">
-            <item>
-             <widget class="QLabel" name="labMinW">
-              <property name="toolTip">
-               <string>Set minimum width expected for Doppler-spread tones</string>
-              </property>
-              <property name="text">
-               <string>MinW  A</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="sbMinW">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>18</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="minimum">
-               <number>0</number>
-              </property>
-              <property name="maximum">
-               <number>6</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="5" column="2">
-           <widget class="QCheckBox" name="cbEME">
-            <property name="maximumSize">
-             <size>
-              <width>40</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Check to add 2.5 s to expected propagation delay.</string>
-            </property>
-            <property name="text">
-             <string>EME</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="pbR2T">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>48</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Set Tx frequency to Rx Frequency</string>
-            </property>
-            <property name="text">
-             <string>Tx&lt;Rx</string>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="1">
-           <widget class="QSpinBox" name="RxFreqSpinBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Audio Rx frequency</string>
-            </property>
-            <property name="suffix">
-             <string>  Hz</string>
-            </property>
-            <property name="prefix">
-             <string>Rx  </string>
-            </property>
-            <property name="minimum">
-             <number>200</number>
-            </property>
-            <property name="maximum">
-             <number>5000</number>
-            </property>
-            <property name="value">
-             <number>1500</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QCheckBox" name="txFirstCheckBox">
-            <property name="minimumSize">
-             <size>
-              <width>60</width>
-              <height>23</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>105</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Check to Tx in even minutes, uncheck for odd minutes</string>
-            </property>
-            <property name="text">
-             <string>Tx even</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
            <widget class="QSpinBox" name="TxFreqSpinBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -939,6 +742,9 @@
             <property name="toolTip">
              <string>Audio Tx frequency</string>
             </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
             <property name="suffix">
              <string>  Hz</string>
             </property>
@@ -956,7 +762,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="1" column="1">
            <widget class="QPushButton" name="pbTxMode">
             <property name="enabled">
              <bool>false</bool>
@@ -969,7 +775,7 @@
             </property>
            </widget>
           </item>
-          <item row="7" column="1">
+          <item row="8" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_9">
             <item>
              <widget class="QLabel" name="labSubmode">
@@ -1008,7 +814,7 @@
             </item>
            </layout>
           </item>
-          <item row="2" column="0">
+          <item row="3" column="0">
            <spacer name="horizontalSpacer_3">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -1020,6 +826,235 @@
              <size>
               <width>40</width>
               <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="5" column="2">
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="5" column="1">
+           <widget class="QSpinBox" name="syncSpinBox">
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="prefix">
+             <string>Sync   </string>
+            </property>
+            <property name="maximum">
+             <number>10</number>
+            </property>
+            <property name="value">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <item>
+             <widget class="QLabel" name="labMinW">
+              <property name="toolTip">
+               <string>Set minimum width expected for Doppler-spread tones</string>
+              </property>
+              <property name="text">
+               <string>MinW  A</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="sbMinW">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>18</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="minimum">
+               <number>0</number>
+              </property>
+              <property name="maximum">
+               <number>6</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="6" column="2">
+           <widget class="QCheckBox" name="cbEME">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Check to add 2.5 s to expected propagation delay.</string>
+            </property>
+            <property name="text">
+             <string>EME</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QPushButton" name="pbR2T">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>48</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Set Tx frequency to Rx Frequency</string>
+            </property>
+            <property name="text">
+             <string>Tx&lt;Rx</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QSpinBox" name="RxFreqSpinBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Audio Rx frequency</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="suffix">
+             <string>  Hz</string>
+            </property>
+            <property name="prefix">
+             <string>Rx  </string>
+            </property>
+            <property name="minimum">
+             <number>200</number>
+            </property>
+            <property name="maximum">
+             <number>5000</number>
+            </property>
+            <property name="value">
+             <number>1500</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QCheckBox" name="txFirstCheckBox">
+            <property name="minimumSize">
+             <size>
+              <width>60</width>
+              <height>23</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>105</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Check to Tx in even minutes, uncheck for odd minutes</string>
+            </property>
+            <property name="text">
+             <string>Tx even</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QLabel" name="labTol">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>60</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Tolerance for offset from selected Rx frequency.</string>
+              </property>
+              <property name="text">
+               <string>  F tol 500</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="sbTol">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>18</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="maximum">
+               <number>7</number>
+              </property>
+              <property name="value">
+               <number>5</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1">
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
              </size>
             </property>
            </spacer>
@@ -1381,7 +1416,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidget">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -1392,6 +1427,12 @@
                <height>200</height>
               </size>
              </property>
+             <property name="baseSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="tabPosition">
               <enum>QTabWidget::West</enum>
              </property>
@@ -1399,7 +1440,7 @@
               <enum>QTabWidget::Triangular</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="tab">
               <attribute name="title">
@@ -2197,6 +2238,361 @@ list. The list can be maintained in Settings (F2).</string>
                </item>
               </layout>
              </widget>
+             <widget class="QWidget" name="tab_3">
+              <attribute name="title">
+               <string>3</string>
+              </attribute>
+              <widget class="QWidget" name="layoutWidget">
+               <property name="geometry">
+                <rect>
+                 <x>30</x>
+                 <y>22</y>
+                 <width>200</width>
+                 <height>171</height>
+                </rect>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_6">
+                <item row="0" column="0" colspan="3">
+                 <widget class="QLabel" name="label_11">
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>WSPR Mode</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QSpinBox" name="WSPRfreqSpinBox">
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                  <property name="suffix">
+                   <string>  Hz</string>
+                  </property>
+                  <property name="prefix">
+                   <string>Tx  </string>
+                  </property>
+                  <property name="minimum">
+                   <number>1400</number>
+                  </property>
+                  <property name="maximum">
+                   <number>1600</number>
+                  </property>
+                  <property name="value">
+                   <number>1500</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QCheckBox" name="cbUploadWSPR_Spots">
+                  <property name="text">
+                   <string>Upload spots</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QSpinBox" name="sbTxPercent">
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                  <property name="suffix">
+                   <string>  %</string>
+                  </property>
+                  <property name="prefix">
+                   <string>Tx Pct </string>
+                  </property>
+                  <property name="maximum">
+                   <number>100</number>
+                  </property>
+                  <property name="value">
+                   <number>20</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <spacer name="horizontalSpacer_4">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>5</width>
+                    <height>17</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="2" column="2">
+                 <widget class="QCheckBox" name="cbBandHop">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="text">
+                   <string>Band hopping</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QPushButton" name="pbTxNext">
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton:checked {
+	background-color: red;
+	border-style: outset;
+	border-width: 1px;
+	border-radius: 5px;
+	border-color: black;
+	min-width: 5em;
+	padding: 3px;
+}</string>
+                  </property>
+                  <property name="text">
+                   <string>Tx Next</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2">
+                 <widget class="QComboBox" name="TxPowerComboBox"/>
+                </item>
+               </layout>
+              </widget>
+             </widget>
+             <widget class="QWidget" name="tab_4">
+              <attribute name="title">
+               <string>4</string>
+              </attribute>
+              <widget class="QPushButton" name="pushButton">
+               <property name="geometry">
+                <rect>
+                 <x>100</x>
+                 <y>190</y>
+                 <width>75</width>
+                 <height>23</height>
+                </rect>
+               </property>
+               <property name="text">
+                <string>Test</string>
+               </property>
+              </widget>
+              <widget class="QWidget" name="layoutWidget1">
+               <property name="geometry">
+                <rect>
+                 <x>30</x>
+                 <y>30</y>
+                 <width>211</width>
+                 <height>152</height>
+                </rect>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_7">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_12">
+                  <property name="minimumSize">
+                   <size>
+                    <width>55</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Sunrise:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLineEdit" name="sunriseBands">
+                  <property name="maximumSize">
+                   <size>
+                    <width>160</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>160 80 40 30 20</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_13">
+                  <property name="minimumSize">
+                   <size>
+                    <width>55</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Day:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QLineEdit" name="dayBands">
+                  <property name="maximumSize">
+                   <size>
+                    <width>160</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>30 20 17 15 12 10</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_14">
+                  <property name="minimumSize">
+                   <size>
+                    <width>55</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Sunset:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QLineEdit" name="sunsetBands">
+                  <property name="maximumSize">
+                   <size>
+                    <width>160</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>160 80 40 30 20</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_15">
+                  <property name="minimumSize">
+                   <size>
+                    <width>55</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Night:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QLineEdit" name="nightBands">
+                  <property name="maximumSize">
+                   <size>
+                    <width>160</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>160 80 40 30 20</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QLabel" name="label_16">
+                  <property name="minimumSize">
+                   <size>
+                    <width>55</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Tune:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QLineEdit" name="tuneBands">
+                  <property name="maximumSize">
+                   <size>
+                    <width>160</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>80 40 30 20 17 15 12 10</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QLabel" name="label_17">
+                  <property name="minimumSize">
+                   <size>
+                    <width>55</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Gray time:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="1">
+                 <widget class="QLineEdit" name="graylineDuration">
+                  <property name="maximumSize">
+                   <size>
+                    <width>160</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>60</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </widget>
             </widget>
            </item>
           </layout>
@@ -2508,6 +2904,22 @@ QLabel[oob=&quot;true&quot;] {
           </property>
          </spacer>
         </item>
+        <item row="6" column="3">
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>1</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
        </layout>
       </item>
      </layout>
@@ -2588,6 +3000,8 @@ QLabel[oob=&quot;true&quot;] {
     <addaction name="actionJT9_JT65"/>
     <addaction name="actionJT9W_1"/>
     <addaction name="actionJT4"/>
+    <addaction name="actionWSPR_2"/>
+    <addaction name="actionWSPR_15"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -2973,6 +3387,25 @@ QLabel[oob=&quot;true&quot;] {
     <string>Include correlation</string>
    </property>
   </action>
+  <action name="actionWSPR_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>WSPR-2</string>
+   </property>
+  </action>
+  <action name="actionWSPR_15">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>WSPR-15</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -2998,7 +3431,6 @@ QLabel[oob=&quot;true&quot;] {
   <tabstop>txFirstCheckBox</tabstop>
   <tabstop>TxFreqSpinBox</tabstop>
   <tabstop>rptSpinBox</tabstop>
-  <tabstop>tabWidget</tabstop>
   <tabstop>genStdMsgsPushButton</tabstop>
   <tabstop>tx1</tabstop>
   <tabstop>tx2</tabstop>

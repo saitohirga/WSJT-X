@@ -11,7 +11,8 @@ subroutine decoder(ss,id2,nfsample)
   character datetime*20,mycall*12,mygrid*6,hiscall*12,hisgrid*6
   common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfsplit,nfb,    &
        ntol,kin,nzhsym,nsubmode,nagain,ndepth,ntxmode,nmode,minw,nclearave,  &
-       emedelay,dttol,nlist,listutc(10),datetime,mycall,mygrid,hiscall,hisgrid
+       minsync,emedelay,dttol,nlist,listutc(10),datetime,mycall,mygrid,      &
+       hiscall,hisgrid
 
   common/tracer/limtrace,lu
   integer onlevel(0:10)
@@ -41,9 +42,9 @@ subroutine decoder(ss,id2,nfsample)
         if(nfsample.eq.12000) call wav11(id2,jz,dd)
         if(nfsample.eq.11025) dd(1:jz)=id2(1:jz)
      endif
-     call jt4a(dd,jz,nutc,nfqso,newdat,nfa,nfb,ntol,emedelay,dttol,     &
-          nagain,ndepth,nclearave,minw,nsubmode,mycall,mygrid,hiscall,  &
-          hisgrid,nlist,listutc)
+     call jt4a(dd,jz,nutc,nfqso,ntol,emedelay,dttol,nagain,ndepth,       &
+          nclearave,minsync,minw,nsubmode,mycall,hiscall,hisgrid,        &
+          nlist,listutc)
      go to 800
   endif
 

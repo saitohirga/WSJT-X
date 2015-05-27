@@ -12,14 +12,10 @@ subroutine flat1(savg,iz,nsmo,syellow)
      call pctile(savg(i-nsmo/2),nsmo,50,x(i))
      x(i-nh:i+nh-1)=x(i)
   enddo
-  do i=1,ia-1
-     x(i)=x(ia)
-  enddo
-  do i=ib+1,iz
-     x(i)=x(ib)
-  enddo
+  x(1:ia-1)=x(ia)
+  x(ib+1:iz)=x(ib)
 
-  x0=0.001*maxval(x(1:iz))
+  x0=0.001*maxval(x(iz/10:(9*iz)/10))
   syellow(1:iz)=savg(1:iz)/(x(1:iz)+x0)
 
   return

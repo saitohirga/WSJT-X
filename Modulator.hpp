@@ -30,6 +30,7 @@ public:
   unsigned frequency () const {return m_frequency;}
   bool isActive () const {return m_state != Idle;}
   void setSpread(double s) {m_fSpread=s;}
+  void setPeriod(unsigned p) {m_period=p;}
 
   Q_SLOT void start (unsigned symbolsLength, double framesPerSymbol, unsigned frequency, double toneSpacing, SoundOutput *, Channel = Mono, bool synchronize = true, double dBSNR = 99.);
   Q_SLOT void stop (bool quick = false);
