@@ -105,7 +105,10 @@ endif (PYTHON_VERSION_STRING VERSION_GREATER 2.9.9)
 
 find_program (ASCIIDOC_EXECUTABLE NAMES asciidoc asciidoc.py)
 if (NOT ASCIIDOC_EXECUTABLE)
-  message (FATAL_ERROR "Asciidoc is required to build the documentation")
+  message (FATAL_ERROR "Asciidoc is required to build the documentation
+
+Building the documenation may optionally be tured off by setting the CMake
+option WSJT_GENERATE_DOCS to OFF.")
 endif (NOT ASCIIDOC_EXECUTABLE)
 
 include (CMakeParseArguments)
