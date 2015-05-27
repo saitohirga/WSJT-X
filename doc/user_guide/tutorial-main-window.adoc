@@ -1,6 +1,0 @@
-// Status=review
-
-- Click the *Stop* button on the main window to halt any data acquisition.  
-- Select *JT9* from the *Mode* menu and *Deepest* from the *Decode* menu.
-- Set the audio frequencies to *Tx 1224 Hz* and *Rx 1224 Hz*.
-
