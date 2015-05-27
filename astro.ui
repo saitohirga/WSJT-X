@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>460</width>
-    <height>420</height>
+    <width>400</width>
+    <height>440</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>200</width>
-    <height>420</height>
+    <height>440</height>
    </size>
   </property>
   <property name="styleSheet">
@@ -31,7 +31,7 @@
      <x>0</x>
      <y>0</y>
      <width>201</width>
-     <height>361</height>
+     <height>400</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -48,7 +48,7 @@
    </property>
    <property name="font">
     <font>
-     <family>Courier New</family>
+     <family>Courier</family>
      <pointsize>14</pointsize>
      <weight>75</weight>
      <italic>false</italic>
@@ -71,222 +71,11 @@
     <number>6</number>
    </property>
   </widget>
-  <widget class="QFrame" name="frame">
-   <property name="geometry">
-    <rect>
-     <x>219</x>
-     <y>19</y>
-     <width>221</width>
-     <height>361</height>
-    </rect>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
-   <widget class="QGroupBox" name="groupBox">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>20</y>
-      <width>185</width>
-      <height>96</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>185</width>
-      <height>0</height>
-     </size>
-    </property>
-    <property name="title">
-     <string>Doppler tracking</string>
-    </property>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QRadioButton" name="rbFullTrack">
-       <property name="text">
-        <string>Full Doppler to DX Grid</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QRadioButton" name="rbConstFreqOnMoon">
-       <property name="text">
-        <string>Constant frequency on Moon</string>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QRadioButton" name="rbNoDoppler">
-       <property name="text">
-        <string>None</string>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_2">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>130</y>
-      <width>185</width>
-      <height>96</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>185</width>
-      <height>0</height>
-     </size>
-    </property>
-    <property name="title">
-     <string>Transceiver step size</string>
-    </property>
-    <widget class="QRadioButton" name="rb1Hz">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>23</y>
-       <width>61</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>1 Hz</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="rb10Hz">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>46</y>
-       <width>71</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>10 Hz</string>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="rb100Hz">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>69</y>
-       <width>71</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>100 Hz</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_3">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>230</y>
-      <width>185</width>
-      <height>73</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>185</width>
-      <height>0</height>
-     </size>
-    </property>
-    <property name="title">
-     <string>Audio frequency tracking</string>
-    </property>
-    <widget class="QCheckBox" name="cbRxTrack">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>23</y>
-       <width>36</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Rx</string>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="cbTxTrack">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>46</y>
-       <width>35</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Tx</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_4">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>310</y>
-      <width>185</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>185</width>
-      <height>0</height>
-     </size>
-    </property>
-    <property name="title">
-     <string>kHz above nominal band edge</string>
-    </property>
-    <widget class="QSpinBox" name="kHzSpinBox">
-     <property name="geometry">
-      <rect>
-       <x>50</x>
-       <y>20</y>
-       <width>51</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="maximum">
-      <number>999</number>
-     </property>
-     <property name="value">
-      <number>100</number>
-     </property>
-    </widget>
-   </widget>
-  </widget>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>1</x>
-     <y>386</y>
+     <y>410</y>
      <width>195</width>
      <height>22</height>
     </rect>
@@ -321,6 +110,259 @@
        <size>
         <width>40</width>
         <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>12</y>
+     <width>198</width>
+     <height>411</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QGroupBox" name="groupBox_4">
+      <property name="minimumSize">
+       <size>
+        <width>196</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>60</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>Frequency above nominal band edge</string>
+      </property>
+      <widget class="QSpinBox" name="kHzSpinBox">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>20</y>
+         <width>75</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="suffix">
+        <string>  kHz</string>
+       </property>
+       <property name="maximum">
+        <number>999</number>
+       </property>
+       <property name="value">
+        <number>200</number>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="HzSpinBox">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>20</y>
+         <width>75</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="suffix">
+        <string>   Hz</string>
+       </property>
+       <property name="minimum">
+        <number>-2000</number>
+       </property>
+       <property name="maximum">
+        <number>2000</number>
+       </property>
+       <property name="singleStep">
+        <number>100</number>
+       </property>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="minimumSize">
+       <size>
+        <width>196</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>100</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>Doppler tracking</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QRadioButton" name="rbFullTrack">
+         <property name="text">
+          <string>Full Doppler to DX Grid</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QRadioButton" name="rbConstFreqOnMoon">
+         <property name="text">
+          <string>Constant frequency on Moon</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QRadioButton" name="rbNoDoppler">
+         <property name="text">
+          <string>None</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="minimumSize">
+       <size>
+        <width>196</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>90</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>Transceiver step size</string>
+      </property>
+      <widget class="QRadioButton" name="rb1Hz">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>23</y>
+         <width>61</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>1 Hz</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="rb10Hz">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>46</y>
+         <width>71</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>10 Hz</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="rb100Hz">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>69</y>
+         <width>71</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>100 Hz</string>
+       </property>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBox_3">
+      <property name="minimumSize">
+       <size>
+        <width>196</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>60</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>Tx audio tracking</string>
+      </property>
+      <widget class="QCheckBox" name="cbTxAudioTrack">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>20</y>
+         <width>105</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Enable</string>
+       </property>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Fixed</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>44</height>
        </size>
       </property>
      </spacer>

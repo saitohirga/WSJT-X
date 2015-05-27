@@ -52,8 +52,9 @@ program jt9
   character datetime*20,mycall*12,mygrid*6,hiscall*12,hisgrid*6
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,          &
        ntr,mousefqso,newdat,npts8a,nfa,nfsplit,nfb,ntol,kin,nzhsym,         &
-       nsubmode,nagain,ndepth,ntxmode,nmode,minw,nclearave,emedelay,        &
-       dttol,nlist,listutc(10),datetime,mycall,mygrid,hiscall,hisgrid
+       nsubmode,nagain,ndepth,ntxmode,nmode,minw,nclearave,minsync,         &
+       emedelay,dttol,nlist,listutc(10),datetime,mycall,mygrid,             &
+       hiscall,hisgrid
 
   common/tracer/limtrace,lu
   common/patience/npatience,nthreads
@@ -219,7 +220,8 @@ program jt9
 ! Compute rough symbol spectra for the JT9 decoder
               ingain=0
               call timer('symspec ',0)
-              call symspec(k,ntrperiod,nsps,ingain,pxdb,s,df3,   &
+              nminw=1
+              call symspec(k,ntrperiod,nsps,ingain,nminw,pxdb,s,df3,   &
                    ihsym,npts8)
               call timer('symspec ',1)
            endif
@@ -227,8 +229,7 @@ program jt9
            if(nhsym.ge.181) exit
         endif
      enddo
-
-10   close(10)
+     close(10)
      call fillcom(nutc0,ndepth,nrxfreq,mode,tx9,flow,fsplit,fhigh)
      call decoder(ss,id2,nfsample)
   enddo

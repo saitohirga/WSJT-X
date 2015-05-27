@@ -27,7 +27,7 @@ public:
   Detector (unsigned frameRate, unsigned periodLengthInSeconds, unsigned samplesPerFFT, unsigned downSampleFactor = 4u, QObject * parent = 0);
 
   Q_SIGNAL void framesWritten (qint64) const;
-
+  void setPeriod(unsigned p) {m_period=p;}
   bool reset () override;
 
 protected:

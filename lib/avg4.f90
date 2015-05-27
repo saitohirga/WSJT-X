@@ -69,7 +69,7 @@ subroutine avg4(nutc,snrsync,dtxx,flip,nfreq,mode4,ntol,ndepth,neme,       &
   do i=1,nsave
      csync='*'
      if(flipsave(i).lt.0.0) csync='#'
-     write(14,1000) cused(i),iutc(i),syncsave(i),dtsave(i),nfsave(i),csync
+     write(14,1000) cused(i),iutc(i),syncsave(i)-5.0,dtsave(i),nfsave(i),csync
 1000 format(a1,i5.4,f6.1,f6.2,i6,1x,a1)
   enddo
 

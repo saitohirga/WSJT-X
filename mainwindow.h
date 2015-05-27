@@ -30,10 +30,12 @@
 #include "Detector.hpp"
 #include "Modulator.hpp"
 #include "decodedtext.h"
+#include "wsprnet.h"
 
 #define NUM_JT4_SYMBOLS 206
 #define NUM_JT65_SYMBOLS 126
 #define NUM_JT9_SYMBOLS 85
+#define NUM_WSPR_SYMBOLS 162
 #define NUM_CW_SYMBOLS 250
 #define TX_SAMPLE_RATE 48000
 
@@ -83,6 +85,9 @@ public slots:
   void readFromStdout();
   void readFromStderr();
   void jt9_error(QProcess::ProcessError);
+  void p1ReadFromStdout();
+  void p1ReadFromStderr();
+  void p1Error(QProcess::ProcessError);
   void setXIT(int n);
   void setFreq4(int rxFreq, int txFreq);
   void clrAvg();
@@ -188,6 +193,7 @@ private slots:
   void band_changed (Frequency);
   void monitor (bool);
   void stop_tuning ();
+  void stopTuneATU();
   void auto_tx_mode (bool);
   void on_actionMessage_averaging_triggered();
   void on_sbTol_valueChanged(int i);
@@ -203,6 +209,28 @@ private slots:
   void on_cbTx6_toggled(bool b);
   void networkError (QString const&);
   void on_ClrAvgButton_clicked();
+  void on_actionWSPR_2_triggered();
+  void on_actionWSPR_15_triggered();
+  void on_syncSpinBox_valueChanged(int n);
+  void on_TxPowerComboBox_currentIndexChanged(const QString &arg1);
+  void on_sbTxPercent_valueChanged(int n);
+  void on_cbUploadWSPR_Spots_toggled(bool b);
+  void WSPR_config(bool b);
+  void uploadSpots();
+  void uploadResponse(QString response);
+  void p3ReadFromStdout();
+  void p3ReadFromStderr();
+  void p3Error(QProcess::ProcessError e);
+  void on_WSPRfreqSpinBox_valueChanged(int n);
+  void on_pbTxNext_clicked(bool b);
+  void on_cbBandHop_toggled(bool b);
+  void on_sunriseBands_editingFinished();
+  void on_pushButton_clicked();
+  void on_dayBands_editingFinished();
+  void on_sunsetBands_editingFinished();
+  void on_nightBands_editingFinished();
+  void on_tuneBands_editingFinished();
+  void on_graylineDuration_editingFinished();
 
 private:
   void enable_DXCC_entity (bool on);
@@ -249,6 +277,7 @@ private:
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
 
   Frequency  m_dialFreq;
+  Frequency  m_dialFreqRxWSPR;
 
   Detector m_detector;
   SoundInput m_soundInput;
@@ -263,6 +292,7 @@ private:
   qint64  m_dialFreqTx;
 
   float   m_DTtol;
+  float   m_rxavg;
 
   qint32  m_waterfallAvg;
   qint32  m_ntx;
@@ -274,6 +304,8 @@ private:
   qint32  m_RxLog;
   qint32  m_nutc0;
   qint32  m_nrx;
+  qint32  m_ntr;
+  qint32  m_tx;
   qint32  m_hsym;
   qint32  m_TRperiod;
   qint32  m_nsps;
@@ -291,6 +323,12 @@ private:
   qint32  m_nclearave;
   qint32  m_DopplerMethod;
   qint32  m_DopplerMethod0;
+  qint32  m_minSync;
+  qint32  m_dBm;
+  qint32  m_pctx;
+  qint32  m_nseq;
+  qint32  m_grayDuration;
+  qint32  m_band00;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -338,6 +376,15 @@ private:
   bool    m_bShMsgs;
   bool    m_bDopplerTracking;
   bool    m_bDopplerTracking0;
+  bool    m_uploadSpots;
+  bool    m_uploading;
+  bool    m_txNext;
+  bool    m_grid6;
+  bool    m_bandHopping;
+  bool    m_hopTest;
+  bool    m_tuneup;
+  bool    m_bTxTime;
+  bool    m_rxDone;
 
   float   m_pctZap;
 
@@ -346,6 +393,8 @@ private:
   QLabel * mode_label;
   QLabel * last_tx_label;
   QLabel * auto_tx_label;
+
+  QProgressBar* progressBar;
 
   QMessageBox msgBox0;
 
@@ -357,6 +406,10 @@ private:
   QFutureWatcher<void>* watcher3;
 
   QProcess proc_jt9;
+  QProcess p1;
+  QProcess p3;
+
+  WSPRNet *wsprNet;
 
   QTimer m_guiTimer;
   QTimer* ptt1Timer;                 //StartTx delay
@@ -364,6 +417,8 @@ private:
   QTimer* logQSOTimer;
   QTimer* killFileTimer;
   QTimer* tuneButtonTimer;
+  QTimer* uploadTimer;
+  QTimer* tuneATU_Timer;
 
   QString m_path;
   QString m_pbdecoding_style1;
@@ -389,9 +444,17 @@ private:
   QString m_msgSent0;
   QString m_fileToSave;
   QString m_band;
+  QString m_c2name;
 
   QStringList m_prefix;
   QStringList m_suffix;
+  QStringList m_sunriseBands;
+  QStringList m_dayBands;
+  QStringList m_sunsetBands;
+  QStringList m_nightBands;
+  QStringList m_tuneBands;
+
+  QMap<QString,double> m_fWSPR;
 
   QHash<QString,bool> m_pfx;
   QHash<QString,bool> m_sfx;
@@ -444,6 +507,7 @@ private:
   void replyToCQ (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text);
   void replayDecodes ();
   void postDecode (bool is_new, QString const& message);
+  void bandHopping();
 };
 
 extern void getfile(QString fname, int ntrperiod);
@@ -456,7 +520,7 @@ extern int ptt(int nport, int ntx, int* iptt, int* nopen);
 
 extern "C" {
   //----------------------------------------------------- C and Fortran routines
-  void symspec_(int* k, int* ntrperiod, int* nsps, int* ingain,
+  void symspec_(int* k, int* ntrperiod, int* nsps, int* ingain, int* minw,
                 float* px, float s[], float* df3, int* nhsym, int* npts8);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
@@ -467,6 +531,8 @@ extern "C" {
 
   void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
               int* itext, int len1, int len2);
+
+  void genwspr_(char* msg, char* msgsent, int itone[], int len1, int len2);
 
   bool stdmsg_(const char* msg, int len);
 
@@ -481,6 +547,12 @@ extern "C" {
   int fftwf_import_wisdom_from_filename(const char *);
   int fftwf_export_wisdom_to_filename(const char *);
 
+  void wspr_downsample_(short int d2[], int* k);
+  void savec2_(char* fname, int* m_TRseconds, double* m_dialFreq, int len1);
+
+  void hopping_(int* nyear, int* month, int* nday, float* uth, char* MyGrid,
+                int* nduration, int* npctx, int* isun, int* iband,
+                int* ntxnext, int len);
 }
 
 #endif // MAINWINDOW_H

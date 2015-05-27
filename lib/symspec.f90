@@ -1,4 +1,4 @@
-subroutine symspec(k,ntrperiod,nsps,ingain,pxdb,s,df3,ihsym,npts8)
+subroutine symspec(k,ntrperiod,nsps,ingain,nminw,pxdb,s,df3,ihsym,npts8)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -11,7 +11,7 @@ subroutine symspec(k,ntrperiod,nsps,ingain,pxdb,s,df3,ihsym,npts8)
 ! Output:
 !  pxdb      power (0-60 dB)
 !  s()       current spectrum for waterfall display
-!  ihsym     index number of this half-symbol (1-184)
+!  ihsym     index number of this half-symbol (1-184) for 60 s modes
 
 ! jt9com
 !  ss()      JT9 symbol spectra at half-symbol steps
@@ -25,15 +25,18 @@ subroutine symspec(k,ntrperiod,nsps,ingain,pxdb,s,df3,ihsym,npts8)
   real*4 tmp(NSMAX)
   complex cx(0:MAXFFT3/2)
   integer*2 id2
+  integer nch(7)
 
   character datetime*20,mycall*12,mygrid*6,hiscall*12,hisgrid*6
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,          &
        ntr,mousefqso,newdat,npts8a,nfa,nfsplit,nfb,ntol,kin,nzhsym,         &
-       nsubmode,nagain,ndepth,ntxmode,nmode,minw,nclearave,emedelay,        &
-       dttol,nlist,listutc(10),datetime,mycall,mygrid,hiscall,hisgrid
+       nsubmode,nagain,ndepth,ntxmode,nmode,minw,nclearave,minsync,         &
+       emedelay,dttol,nlist,listutc(10),datetime,mycall,mygrid,             &
+       hiscall,hisgrid
 
   common/jt9w/syellow(NSMAX)
   data rms/999.0/,k0/99999999/,nfft3z/0/
+  data nch/1,2,4,9,18,36,72/
   equivalence (xc,cx)
   save
 
@@ -84,34 +87,33 @@ subroutine symspec(k,ntrperiod,nsps,ingain,pxdb,s,df3,ihsym,npts8)
      xc(i)=0.
      if(j.ge.1 .and.j.le.NMAX) xc(i)=fac0*id2(j)
   enddo
-  if(ihsym.lt.184) ihsym=ihsym+1
+  ihsym=ihsym+1
 
   xc(0:nfft3-1)=w3(1:nfft3)*xc(0:nfft3-1)    !Apply window w3
   call four2a(xc,nfft3,1,-1,0)               !Real-to-complex FFT
 
-  n=min(184,ihsym)
   df3=12000.0/nfft3                   !JT9-1: 0.732 Hz = 0.42 * tone spacing
-!  i0=nint(1000.0/df3)
-  i0=0
   iz=min(NSMAX,nint(5000.0/df3))
   fac=(1.0/nfft3)**2
   do i=1,iz
-     j=i0+i-1
+     j=i-1
      if(j.lt.0) j=j+nfft3
      sx=fac*(real(cx(j))**2 + aimag(cx(j))**2)
-     ss(n,i)=sx
+     if(ihsym.le.184) ss(ihsym,i)=sx
      ssum(i)=ssum(i) + sx
      s(i)=1000.0*gain*sx
   enddo
 
   savg=ssum/ihsym
 
-  if(mod(n,10).eq.0) then
-     mode4=36
+  if(mod(ihsym,10).eq.0) then
+     mode4=nch(nminw+1)
      nsmo=min(10*mode4,150)
      nsmo=4*nsmo
      call flat1(savg,iz,nsmo,syellow)
-     if(mode4.ge.9) call smo(syellow,iz,tmp,mode4)
+     if(mode4.ge.2) call smo(syellow,iz,tmp,mode4)
+     if(mode4.ge.2) call smo(syellow,iz,tmp,mode4)
+     syellow(1:250)=0.
      ia=500./df3
      ib=2700.0/df3
      smin=minval(syellow(ia:ib))

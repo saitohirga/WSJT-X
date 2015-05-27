@@ -53,8 +53,11 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   ui->widePlot->setFlatten(m_bFlatten);
   ui->widePlot->setBreadth(m_settings->value("PlotWidth",1000).toInt());
   ui->bppSpinBox->setValue(n);
+  m_nsmo=m_settings->value("SmoothYellow",1).toInt();
+  ui->smoSpinBox->setValue(m_nsmo);
   m_waterfallAvg = m_settings->value("WaterfallAvg",5).toInt();
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
+  ui->widePlot->setWaterfallAvg(m_waterfallAvg);
   ui->widePlot->setCurrent(m_settings->value("Current",false).toBool());
   ui->widePlot->setCumulative(m_settings->value("Cumulative",true).toBool());
   ui->widePlot->setLinearAvg(m_settings->value("LinearAvg",false).toBool());
@@ -111,6 +114,7 @@ void WideGraph::saveSettings()                                           //saveS
   m_settings->setValue ("Plot2dZero", ui->widePlot->plot2dZero());
   m_settings->setValue ("PlotWidth", ui->widePlot->plotWidth ());
   m_settings->setValue ("BinsPerPixel", ui->bppSpinBox->value ());
+  m_settings->setValue ("SmoothYellow", ui->smoSpinBox->value ());
   m_settings->setValue ("WaterfallAvg", ui->waterfallAvgSpinBox->value ());
   m_settings->setValue ("Current", ui->widePlot->current());
   m_settings->setValue ("Cumulative", ui->widePlot->cumulative());
@@ -176,6 +180,7 @@ void WideGraph::on_bppSpinBox_valueChanged(int n)                            //b
 void WideGraph::on_waterfallAvgSpinBox_valueChanged(int n)                  //Navg
 {
   m_waterfallAvg = n;
+  ui->widePlot->setWaterfallAvg(n);
 }
 
 void WideGraph::keyPressEvent(QKeyEvent *e)                                 //F11, F12
@@ -282,9 +287,15 @@ void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)
   ui->widePlot->setCurrent(false);
   ui->widePlot->setCumulative(false);
   ui->widePlot->setLinearAvg(false);
+  ui->smoSpinBox->setEnabled(false);
+  ui->labSmooth->setEnabled(false);
   if(arg1=="Current") ui->widePlot->setCurrent(true);
   if(arg1=="Cumulative") ui->widePlot->setCumulative(true);
-  if(arg1=="Linear Avg") ui->widePlot->setLinearAvg(true);
+  if(arg1=="Linear Avg") {
+    ui->widePlot->setLinearAvg(true);
+    ui->smoSpinBox->setEnabled(true);
+    ui->labSmooth->setEnabled(true);
+  }
 }
 
 void WideGraph::on_fSplitSpinBox_valueChanged(int n)              //fSplit
@@ -308,6 +319,12 @@ void WideGraph::setDialFreq(double d)                             //setDialFreq
 {
   ui->widePlot->setDialFreq(d);
 }
+
+void WideGraph::setRxBand(QString band)
+{
+  ui->widePlot->setRxBand(band);
+}
+
 
 void WideGraph::on_fStartSpinBox_valueChanged(int n)             //fStart
 {
@@ -384,12 +401,13 @@ void WideGraph::on_zeroSlider_valueChanged(int value)                 //Zero
 void WideGraph::on_gain2dSlider_valueChanged(int value)               //Gain2
 {
   ui->widePlot->setPlot2dGain(value);
-//  ui->widePlot->draw(swide);
+  if(ui->widePlot->m_bScaleOK) ui->widePlot->draw(swide,false);
 }
 
 void WideGraph::on_zero2dSlider_valueChanged(int value)               //Zero2
 {
   ui->widePlot->setPlot2dZero(value);
+//  ui->widePlot->draw(swide,false);
 }
 
 void WideGraph::setTol(int n)                                         //setTol
@@ -397,4 +415,14 @@ void WideGraph::setTol(int n)                                         //setTol
   ui->widePlot->setTol(n);
   ui->widePlot->DrawOverlay();
   ui->widePlot->update();
+}
+
+void WideGraph::on_smoSpinBox_valueChanged(int n)
+{
+  m_nsmo=n;
+}
+
+int WideGraph::smoothYellow()
+{
+  return m_nsmo;
 }

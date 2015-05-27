@@ -23,7 +23,7 @@ public:
   explicit Astro(QSettings * settings, QWidget * parent = nullptr);
   ~Astro ();
   void astroUpdate(QDateTime t, QString mygrid, QString hisgrid, qint64 freqMoon,
-                   qint32* ndop, qint32 *ndop00);
+                   qint32* ndop, qint32 *ndop00, bool bTx);
 
   bool m_bDopplerTracking;
   bool m_bRxAudioTrack;
@@ -31,6 +31,7 @@ public:
 
   qint32 m_DopplerMethod;
   qint32 m_kHz;
+  qint32 m_Hz;
   qint32 m_stepHz;
 
 protected:
@@ -44,9 +45,9 @@ private slots:
   void on_rb1Hz_clicked();
   void on_rb10Hz_clicked();
   void on_rb100Hz_clicked();
-  void on_cbRxTrack_toggled(bool b);
-  void on_cbTxTrack_toggled(bool b);
+  void on_cbTxAudioTrack_toggled(bool b);
   void on_kHzSpinBox_valueChanged(int n);
+  void on_HzSpinBox_valueChanged(int n);
 
 private:
   void read_settings ();
@@ -63,7 +64,8 @@ extern "C" {
                  double* elsun, double* azmoon, double* elmoon, double* azmoondx,
                  double* elmoondx, int* ntsky, int* ndop, int* ndop00,
                  double* ramoon, double* decmoon, double* dgrd, double* poloffset,
-                 double* xnr, double* techo, int len1, int len2);
+                 double* xnr, double* techo, double* width1, double* width2,
+                 bool* bTx, const char* fname, int len1, int len2, int len3);
 }
 
 #endif // ASTRO_H

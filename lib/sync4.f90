@@ -9,7 +9,6 @@ subroutine sync4(dat,jz,mode4,minw)
   real dat(jz)
   real psavg(NHMAX)                !Average spectrum of whole record
   real s2(NHMAX,NSMAX)             !2d spectrum, stepped by half-symbols
-  real ccfblue(65)                 !CCF with pseudorandom sequence
   real tmp(1260)
   save
 

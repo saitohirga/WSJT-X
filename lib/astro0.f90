@@ -31,7 +31,7 @@ subroutine astro0(nyear,month,nday,uth8,freq8,mygrid,hisgrid,              &
   call tm2(day8,xlat2,xlon2,xl2,b2)
   call tm2(day8+1.d0/1440.0,xlat1,xlon1,xl1a,b1a)
   call tm2(day8+1.d0/1440.0,xlat2,xlon2,xl2a,b2a)
-  fghz=0.001*nfreq
+  fghz=1.d-9*freq8
   dldt1=DEGS*(xl1a-xl1)
   dbdt1=DEGS*(b1a-b1)
   dldt2=DEGS*(xl2a-xl2)
