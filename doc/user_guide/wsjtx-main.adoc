@@ -1,6 +1,6 @@
 // This is a comment line, anything with // is ignored at process time.
 = WSJT-X User Guide
-:Revision: 1.5
+:Revision: {VERSION}
 // For web-pages, adding :badges: is ok, but is a security issue for
 // package building .deb, .rpm, etc as it exposes the IP address and the images
 // are non-free, so can't be included as part of the Debian package.
@@ -12,7 +12,7 @@
 :prog: WSJT-X
 
 // use global link file
-include::../../global/links.adoc[]
+include::../common/links.adoc[]
 
 // These [[xxxx]] labels are HTML anchors, and can be used to
 // navigate though the document easily: <<INTRO,See Introduction>> will
@@ -201,5 +201,5 @@ include::acknowledgements.adoc[]
 
 [[LICENSE]]
 == License
-include::../../global/license.adoc[]
+include::../common/license.adoc[]
 
