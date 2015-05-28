@@ -96,6 +96,7 @@ set (UG_IMGS
   user_guide/images/r4148-freq-ui.png
   user_guide/images/special-mouse-commands.png
   user_guide/images/psk-reporter.png
+  user_guide/images/jtalert.png
 )
 
 find_package (PythonInterp 2.4 REQUIRED)

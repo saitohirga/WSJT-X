@@ -23,4 +23,4 @@ many operating aids including
 
 - convenient direct access to various web services such as callsign lookup. 
 
-//image::images/jtalert.png[align="left",alt="JTAlert-X image"]
+image::images/jtalert.png[align="left",alt="JTAlert-X image"]
