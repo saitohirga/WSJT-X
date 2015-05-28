@@ -155,8 +155,8 @@ private slots:
   void on_pbAnswerCQ_clicked();
   void on_pbSendReport_clicked();
   void on_pbSend73_clicked();
-  void on_rbGenMsg_toggled(bool checked);
-  void on_rbFreeText_toggled(bool checked);
+  void on_rbGenMsg_clicked(bool checked);
+  void on_rbFreeText_clicked(bool checked);
   void on_freeTextMsg_currentTextChanged (QString const&);
   void on_rptSpinBox_valueChanged(int n);
   void killFile();
