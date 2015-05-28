@@ -96,7 +96,7 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
   double fac = sqrt(m_binsPerPixel*m_waterfallAvg/15.0);
   double gain = fac*pow(10.0,0.02*m_plotGain);
   double gain2d = pow(10.0,0.02*(m_plot2dGain));
-  qDebug() << m_binsPerPixel << m_waterfallAvg << m_plotGain << gain;
+//  qDebug() << m_binsPerPixel << m_waterfallAvg << m_plotGain << gain;
 
 //move current data down one line (must do this before attaching a QPainter object)
   if(bScroll) m_WaterfallPixmap.scroll(0,1,0,0,m_w,m_h1);
