@@ -9,13 +9,13 @@
 - Uninstall:  +sudo dpkg -P wsjtx+
 ** You may also need to execute the following commands in a terminal:
 
-* For Ubuntu 15.04 and similar systems:
-+
-=====
-sudo apt-get install libqt5multimedia5-plugins libqt5serialport5
+ sudo apt-get install libqt5multimedia5-plugins libqt5serialport5 
+ sudo apt-get install libfftw3-single3
 
-sudo apt-get install libfftw3-single3 libqt5opengl5 
-=====
+* For Ubuntu 15.04 and similar systems:
+
+ sudo apt-get install libqt5multimedia5-plugins libqt5serialport5
+ sudo apt-get install libfftw3-single3 libqt5opengl5 
 
 * For Fedora, Red Hat, and other rpm-based systems:
 ** 32-bit: {fedora32}
@@ -25,13 +25,15 @@ sudo apt-get install libfftw3-single3 libqt5opengl5
 - To install: +sudo rpm -i wsjtx-{VERSION}-x86_64.rpm+
 - Uninstall: +sudo rpm -e wsjtx+
 ** You may also need to execute the following commands in a terminal:
-+
-=====
-sudo yum install fftw-libs-single qt5-qtmultimedia qt5-qtserialport 
-=====
 
-* Linux users must install a companion program called *kvasd*.  
-Instructions for a simple, quick menu-driven installation may be 
-found {kvasd-installer}.
+ sudo yum install fftw-libs-single qt5-qtmultimedia qt5-qtserialport 
 
-// Add instructions about ntpd and sound setup ?
+* All Linux users should install a companion program called +kvasd+,
+the Koetter-Vardy algebraic soft-decision Reed Solomon decoder.  
+Execute the following commands from a terminal:
+
+ sudo add-apt-repository ppa:ki7mt/kvasd-installer
+ sudo apt-get update
+ sudo apt-get install kvasd-installer
+ kvasd-installer
+

@@ -130,11 +130,11 @@ include::controls-functions-wide-graph.adoc[]
 include::controls-functions-main-window.adoc[]
 
 [[CONTROLS_LEFT]]
-=== Misc Controls Left
+=== Controls Left
 include::controls-functions-left.adoc[]
 
 [[CONTROLS_CENTER]]
-=== Misc Controls Center
+=== Controls Center
 include::controls-functions-center.adoc[]
 
 [[CONTROLS_MSGS]]

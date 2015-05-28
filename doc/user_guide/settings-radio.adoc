@@ -36,13 +36,14 @@ than though another program, make the following settings:
 *Stop Bits*, and *Handshake* method.  Consult your radio's user guide
 for the proper parameter values.
 
-* _Force Control Lines_: A few station setups require the serial
-port's *RTS* and/or *DTR* control lines to be forced high.  Check
-these boxes only if you are sure they are needed.
+* _Force Control Lines_: A few station setups require the CAT serial
+port’s *RTS* and/or *DTR* control lines to be forced high or
+low. Check these boxes only if you are sure they are needed.
 
 - _PTT Method_: select *VOX*, *CAT*, *DTR*, or *RTS* as the desired
 method for T/R switching.  If your choice is *DTR* or *RTS*, select
-the desired serial port.
+the desired serial port (which may be the same one as used for
+CAT control).
 
 - _Transmit Audio Source_: some radios permit you to choose the
 connector that will accept Tx audio.  If this choice is enabled,

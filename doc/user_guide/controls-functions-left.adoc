@@ -25,9 +25,10 @@ square contains the character S if the rig is detected to be in
 *Split* mode.  The square becomes red if you have requested CAT
 control but communication with the radio has been lost.
 
-IMPORTANT: Many Icom rigs cannot be queried for split status, so you
-should not change the split status using rig controls when using
-_WSJT-X_.
+IMPORTANT: Many Icom rigs cannot be queried for split status, current
+VFO or split transmit frequency.  Consequently you should not change
+the current VFO, split status or frequency using controls on the radio
+when using _WSJT-X_.
 
 * If *DX Grid* contains a valid Maidenhead locator, the corresponding
 great-circle azimuth and distance from your location are displayed.
