@@ -3429,7 +3429,7 @@ void MainWindow::on_pbSend73_clicked()
   if(m_transmitting) m_restart=true;
 }
 
-void MainWindow::on_rbGenMsg_toggled(bool checked)
+void MainWindow::on_rbGenMsg_clicked(bool checked)
 {
   m_freeText=!checked;
   if(!m_freeText) {
@@ -3438,7 +3438,7 @@ void MainWindow::on_rbGenMsg_toggled(bool checked)
   }
 }
 
-void MainWindow::on_rbFreeText_toggled(bool checked)
+void MainWindow::on_rbFreeText_clicked(bool checked)
 {
   m_freeText=checked;
   if(m_freeText) {
