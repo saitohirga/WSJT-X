@@ -1918,7 +1918,7 @@ void MainWindow::guiUpdate()
       m_btxok=false;
     }
     if(m_bandHopping and m_ntr==1) {
-//      qDebug() << "Call bandHopping after Rx" << m_nseq << m_ntr << m_nrx << m_rxDone;
+      qDebug() << "Call bandHopping after Rx" << m_nseq << m_ntr << m_nrx << m_rxDone;
       bandHopping();
       m_ntr=0;                                //This WSPR Rx sequence is complete
     }
@@ -2143,6 +2143,7 @@ void MainWindow::guiUpdate()
   }
 
   if(nsec != m_sec0) {                                                //Once per second
+    qDebug() << "A" << nsec << m_pctx << m_rxavg << m_nrx;
     int ipct=0;
     if(m_monitoring or m_transmitting) ipct=int(100*m_nseq/txDuration);
     progressBar->setValue(ipct);
@@ -2282,7 +2283,7 @@ void MainWindow::stopTx2()
     m_repeatMsg=0;
   }
   if(m_mode.mid(0,4)=="WSPR" and m_ntr==-1 and m_bandHopping and !m_tuneup) {
-//    qDebug () << "Call bandHopping after Tx" << m_tuneup;
+    qDebug () << "Call bandHopping after Tx" << m_tuneup;
     bandHopping();
     m_ntr=0;
   }
