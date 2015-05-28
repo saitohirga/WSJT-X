@@ -52,8 +52,9 @@ public:
   // auto_only just disables auto Tx, otherwise halt is immediate
   Q_SLOT void halt_tx (QString const& id, bool auto_only);
 
-  // ask the client with identification 'id' to set the free text message
-  Q_SLOT void free_text (QString const& id, QString const& text);
+  // ask the client with identification 'id' to set the free text
+  // message and optionally send it ASAP
+  Q_SLOT void free_text (QString const& id, QString const& text, bool send);
 
   // the following signals are emitted when a client broadcasts the
   // matching message

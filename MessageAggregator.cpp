@@ -218,8 +218,11 @@ public:
     auto form_layout = new QFormLayout;
     form_layout->addRow (tr ("Free text:"), message_line_edit_);
     message_line_edit_->setValidator (new QRegExpValidator {message_alphabet, this});
+    connect (message_line_edit_, &QLineEdit::textEdited, [this] (QString const& text) {
+        Q_EMIT do_free_text (id_, text, false);
+      });
     connect (message_line_edit_, &QLineEdit::editingFinished, [this] () {
-        Q_EMIT do_free_text (id_, message_line_edit_->text ());
+        Q_EMIT do_free_text (id_, message_line_edit_->text (), true);
       });
     control_layout->addLayout (form_layout);
     control_layout->addWidget (auto_off_button_);
@@ -285,7 +288,7 @@ public:
 
   Q_SIGNAL void do_reply (QModelIndex const&);
   Q_SIGNAL void do_halt_tx (QString const& id, bool auto_only);
-  Q_SIGNAL void do_free_text (QString const& id, QString const& text);
+  Q_SIGNAL void do_free_text (QString const& id, QString const& text, bool);
 
 private:
   class DecodesFilterModel final
