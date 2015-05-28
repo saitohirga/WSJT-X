@@ -356,14 +356,14 @@ void MessageServer::halt_tx (QString const& id, bool auto_only)
     }
 }
 
-void MessageServer::free_text (QString const& id, QString const& text)
+void MessageServer::free_text (QString const& id, QString const& text, bool send)
 {
   auto iter = m_->clients_.find (id);
   if (iter != std::end (m_->clients_))
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::FreeText, id};
-      out << text.toUtf8 ();
+      out << text.toUtf8 () << send;
       if (impl::OK == m_->check_status (out))
         {
           m_->writeDatagram (message, iter.value ().sender_address_, (*iter).sender_port_);
