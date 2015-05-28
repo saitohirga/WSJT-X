@@ -1,7 +1,7 @@
 ////
 Link file to hold all links
-File Location: ./doc/global/links.adoc
-Usage example: include::../../global/links.adoc[]
+File Location: ./doc/common/links.adoc
+Usage example: include::../common/links.adoc[]
 Syntax: [link-id] [link] [displayed test]
 
 Example:
@@ -40,8 +40,8 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :asciidoctor_style: http://asciidoctor.org/docs/asciidoc-writers-guide/#delimited-blocks[AsciiDoctor Styles Guide]
 :asciidoctor_syntax: http://asciidoctor.org/docs/asciidoc-writers-guide/#delimited-blocks[AsciiDoctor Syntax Guide]
 :cc_by_sa: http://creativecommons.org/licenses/by-sa/3.0/[Commons Attribution-ShareAlike 3.0 Unported License]
-:debian32: http://physics.princeton.edu/pulsar/K1JT/wsjtx-1.5.0_i386.deb[wsjtx-1.5.0_i386.deb]
-:debian64: http://physics.princeton.edu/pulsar/K1JT/wsjtx-1.5.0_amd64.deb[wsjtx-1.5.0_amd64.deb]
+:debian32: http://physics.princeton.edu/pulsar/K1JT/wsjtx_{VERSION}_i386.deb[wsjtx_{VERSION}_i386.deb]
+:debian64: http://physics.princeton.edu/pulsar/K1JT/wsjtx_{VERSION}_amd64.deb[wsjtx_{VERSION}_amd64.deb]
 :debian: http://www.debian.org/[Debian]
 :dev_guide: http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjt-dev-guide.html[Dev-Guide]
 :devsvn1: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/[Devel-SVN]
@@ -51,8 +51,8 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :dxatlas: http://www.dxatlas.com/[Afreet Software, Inc.]
 :dxlcommander: http://www.dxlabsuite.com/commander/[Commander]
 :dxlsuite: http://www.dxlabsuite.com/[DX Lab Suite]
-:fedora32: http://physics.princeton.edu/pulsar/K1JT/wsjtx-1.5.0_i686.rpm[wsjtx-1.5.0_i686.rpm]
-:fedora64: http://physics.princeton.edu/pulsar/K1JT/wsjtx-1.5.0_x86_64.rpm[wsjtx-1.5.0_x86_64.rpm]
+:fedora32: http://physics.princeton.edu/pulsar/K1JT/wsjtx-{VERSION}-i686.rpm[wsjtx-{VERSION}-i686.rpm]
+:fedora64: http://physics.princeton.edu/pulsar/K1JT/wsjtx-{VERSION}-x86_64.rpm[wsjtx-{VERSION}-x86_64.rpm]
 :fmt_arrl: http://www.arrl.org/frequency-measuring-test[ARRL FMT Info]
 :fmt_group: https://groups.yahoo.com/neo/groups/FMT-nuts/info[FMT Group]
 :fmt_k5cm: http://www.k5cm.com/[FMT Event Info]
@@ -91,11 +91,10 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :kvasd: http://physics.princeton.edu/pulsar/K1JT/kvasd[kvasd]
 :nh6z: http://www.nh6z.net/Amatuer_Radio_Station_NH6Z/Other_Peoples_Software.html[here]
 :omnirig: http://www.dxatlas.com/OmniRig/Files/OmniRig.zip[Download]
-:osx_107: http://physics.princeton.edu/pulsar/K1JT/wsjtx-1.5.0-Darwin.dmg[wsjtx-1.5.0-Darwin.dmg]
+:osx: http://physics.princeton.edu/pulsar/K1JT/wsjtx-{VERSION}-Darwin.dmg[wsjtx-{VERSION}-Darwin.dmg]
 :svn: http://subversion.apache.org/packages.html#windows[Subversion]
-:win32: http://physics.princeton.edu/pulsar/K1JT/wsjtx-1.5.0-win32.exe[wsjtx-1.5.0-win32.exe]
+:win32: http://physics.princeton.edu/pulsar/K1JT/wsjtx-{VERSION}-win32.exe[wsjtx-{VERSION}-win32.exe]
 :wsjt_svn: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/[here]
-:wsjtx_rc2_tag: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/tags/wsjtx-1.5.0/[Tag: WSJT-X v1.4 RC2]
 :wspr_code: http://physics.princeton.edu/pulsar/K1JT/WSPRcode.exe[WSPRcode.exe]
 :wspr_svn: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/branches/wspr/[here]
 

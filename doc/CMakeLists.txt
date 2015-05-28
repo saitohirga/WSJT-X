@@ -56,13 +56,16 @@ set (UG_SRCS
   user_guide/font-sizes.adoc
   user_guide/rig-config-aor.adoc
   user_guide/settings-general.adoc
+  user_guide/cooperating-programs.adoc
+  user_guide/logging.adoc
+  user_guide/settings-colors.adoc
   )
 
 set (UG_IMGS
   user_guide/images/130610_2343-wav-80.png
   user_guide/images/freemsg.png
   user_guide/images/misc-main-ui.png
-  user_guide/images/r4148-rpt-ui.png
+  user_guide/images/colors.png
   user_guide/images/status-bar-a.png
   user_guide/images/MacAppMenu.png
   user_guide/images/help-menu.png
@@ -80,18 +83,19 @@ set (UG_IMGS
   user_guide/images/settings-audio.png
   user_guide/images/view-menu.png
   user_guide/images/decode-menu.png
-  user_guide/images/main-ui-1.4.png
+  user_guide/images/main-ui-1.5.png
   user_guide/images/r3666-main-ui-80.png
   user_guide/images/settings-ui.png
   user_guide/images/wide-graph-controls.png
   user_guide/images/decodes.png
   user_guide/images/main-ui-controls.png
-  user_guide/images/r4148-cat-ui.png
+  user_guide/images/reporting.png
   user_guide/images/setup-menu.png
   user_guide/images/file-menu.png
   user_guide/images/misc-controls-center.png
   user_guide/images/r4148-freq-ui.png
   user_guide/images/special-mouse-commands.png
+  user_guide/images/psk-reporter.png
 )
 
 find_package (PythonInterp 2.4 REQUIRED)
