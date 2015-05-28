@@ -205,14 +205,18 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
       }
     });
   connect (m_messageClient, &MessageClient::error, this, &MainWindow::networkError);
-  connect (m_messageClient, &MessageClient::free_text, [this] (QString const& text) {
+  connect (m_messageClient, &MessageClient::free_text, [this] (QString const& text, bool send) {
       if (m_config.accept_udp_requests ()) {
         if (0 == ui->tabWidget->currentIndex ()) {
           ui->tx5->setCurrentText (text);
-          ui->txrb5->click ();
-        } else {
+          if (send) {
+            ui->txb5->click ();
+          }
+        } else if (1 == ui->tabWidget->currentIndex ()) {
           ui->freeTextMsg->setCurrentText (text);
-          ui->rbFreeText->click ();
+          if (send) {
+            ui->rbFreeText->click ();
+          }
         }
       }
     });
@@ -2911,7 +2915,7 @@ void MainWindow::on_pbSend73_clicked()
   if(m_transmitting) m_restart=true;
 }
 
-void MainWindow::on_rbGenMsg_toggled(bool checked)
+void MainWindow::on_rbGenMsg_clicked(bool checked)
 {
   m_freeText=!checked;
   if(!m_freeText) {
@@ -2920,7 +2924,7 @@ void MainWindow::on_rbGenMsg_toggled(bool checked)
   }
 }
 
-void MainWindow::on_rbFreeText_toggled(bool checked)
+void MainWindow::on_rbFreeText_clicked(bool checked)
 {
   m_freeText=checked;
   if(m_freeText) {

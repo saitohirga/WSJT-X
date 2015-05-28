@@ -75,7 +75,7 @@ public:
 
   // this signal is emitted if the server has requested a new free
   // message text
-  Q_SIGNAL void free_text (QString const&);
+  Q_SIGNAL void free_text (QString const&, bool send);
 
   // this signal is emitted when network errors occur or if a host
   // lookup fails

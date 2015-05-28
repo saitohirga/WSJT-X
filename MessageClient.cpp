@@ -137,12 +137,15 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
               break;
 
             case NetworkMessage::FreeText:
-              if (check_status (in) != Fail)
-                {
-                  QByteArray message;
-                  in >> message;
-                  Q_EMIT self_->free_text (QString::fromUtf8 (message));
-                }
+              {
+                QByteArray message;
+                bool send {true};
+                in >> message >> send;
+                if (check_status (in) != Fail)
+                  {
+                    Q_EMIT self_->free_text (QString::fromUtf8 (message), send);
+                  }
+              }
               break;
 
             default:

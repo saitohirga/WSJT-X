@@ -196,16 +196,17 @@
  * Free Text     In        9
  *                         Id (unique key)        utf8
  *                         Text                   utf8
+ *                         Send                   bool
  *
  *			This message  allows the server  to set the current  free text
  *			message content. Sending this  message is equivalent to typing
  *			a new  message (old contents  are discarded) in to  the WSJT-X
  *			free text message field or  "Tx5" field (both are updated) and
- *			then clicking the  "Next" radio button for the  "Tx5" field if
- *			tab one is current or clicking  the "Free msg" radio button if
- *			tab two is current. It is  the responsibility of the sender to
- *			limit  the length  of the  message text  and to  legal message
- *			characters.
+ *			if the Send  flag is set then clicking the  "Now" radio button
+ *			for the  "Tx5" field  if tab  one is  current or  clicking the
+ *			"Free msg"  radio button  if tab  two is  current.  It  is the
+ *			responsibility  of  the sender  to  limit  the length  of  the
+ *			message text and to limit it to legal message characters.
  */
 
 #include <QDataStream>
