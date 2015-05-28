@@ -12,12 +12,17 @@ class CandidateKeyFilter final
   : public QSortFilterProxyModel
 {
 public:
-  explicit CandidateKeyFilter (QAbstractItemModel const * referencing_model
-                               , QAbstractItemModel * referenced_model
-                               , int referencing_key_column = 0
-                               , int referenced_key_column = 0
-                               , int referencing_key_role = Qt::EditRole
+  explicit CandidateKeyFilter (QAbstractItemModel * referenced_model
+                               , int referenced_key_column
+                               , QObject * parent = nullptr
                                , int referenced_key_role = Qt::EditRole);
+  explicit CandidateKeyFilter (QAbstractItemModel * referenced_model
+                               , QAbstractItemModel const * referencing_model
+                               , int referenced_key_column
+                               , int referencing_key_column
+                               , QObject * parent = nullptr
+                               , int referenced_key_role = Qt::EditRole
+                               , int referencing_key_role = Qt::EditRole);
   ~CandidateKeyFilter ();
 
   // this key is not to be filtered, usually because we want to allow

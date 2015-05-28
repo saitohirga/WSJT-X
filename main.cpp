@@ -23,7 +23,7 @@
 #endif
 
 #include "revision_utils.hpp"
-
+#include "MetaDataRegistry.hpp"
 #include "SettingsGroup.hpp"
 #include "TraceFile.hpp"
 #include "mainwindow.h"
@@ -31,6 +31,8 @@
 
 int main(int argc, char *argv[])
 {
+  register_types ();            // make the Qt magic happen
+
   // Multiple instances:
   QSharedMemory mem_jt9;
 

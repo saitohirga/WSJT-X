@@ -3,8 +3,6 @@
 
 #include <QStyledItemDelegate>
 
-class Bands;
-
 //
 // Class FrequencyItemDelegate
 //
@@ -16,17 +14,12 @@ class FrequencyItemDelegate final
   : public QStyledItemDelegate
 {
 public:
-  explicit FrequencyItemDelegate (Bands const * bands, QObject * parent = nullptr)
+  explicit FrequencyItemDelegate (QObject * parent = nullptr)
     : QStyledItemDelegate {parent}
-    , bands_ {bands}
   {
   }
 
-  QString displayText (QVariant const& value, QLocale const&) const override;
   QWidget * createEditor (QWidget * parent, QStyleOptionViewItem const&, QModelIndex const&) const override;
-
-private:
-  Bands const * bands_;
 };
 
 
@@ -46,7 +39,6 @@ public:
   {
   }
 
-  QString displayText (QVariant const& value, QLocale const&) const override;
   QWidget * createEditor (QWidget * parent, QStyleOptionViewItem const&, QModelIndex const&) const override;
 };
 

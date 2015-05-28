@@ -17,13 +17,20 @@ class ForeignKeyDelegate final
   : public QStyledItemDelegate
 {
 public:
-  explicit ForeignKeyDelegate (QAbstractItemModel const * referencing_model
-                               , QAbstractItemModel * referenced_model
-                               , int referencing_key_column = 0
-                               , int referenced_key_column = 0
+  // many to many relationship
+  explicit ForeignKeyDelegate (QAbstractItemModel * referenced_model
+                               , int referenced_key_column
                                , QObject * parent = nullptr
-                               , int referencing_key_role = Qt::EditRole
                                , int referenced_key_role = Qt::EditRole);
+
+  // one to many (referenced to referencing) relationship
+  explicit ForeignKeyDelegate (QAbstractItemModel * referenced_model
+                               , QAbstractItemModel const * referencing_model
+                               , int referenced_key_column
+                               , int referencing_key_column
+                               , QObject * parent = nullptr
+                               , int referenced_key_role = Qt::EditRole
+                               , int referencing_key_role = Qt::EditRole);
   ~ForeignKeyDelegate ();
 
   QWidget * createEditor (QWidget * parent, QStyleOptionViewItem const&, QModelIndex const&) const override;

@@ -177,11 +177,13 @@ endif (APPLE)
 #
 set (wsjt_qt_CXXSRCS
   qt_helpers.cpp
+  MetaDataRegistry.cpp
   NetworkServerLookup.cpp
   revision_utils.cpp
   WFPalette.cpp
   Radio.cpp
   Bands.cpp
+  Modes.cpp
   FrequencyList.cpp
   StationList.cpp
   FrequencyLineEdit.cpp

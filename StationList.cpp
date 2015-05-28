@@ -19,20 +19,6 @@
 
 #include "Bands.hpp"
 
-namespace
-{
-  struct init
-  {
-    init ()
-    {
-      qRegisterMetaType<StationList::Station> ("Station");
-      qRegisterMetaTypeStreamOperators<StationList::Station> ("Station");
-      qRegisterMetaType<StationList::Stations> ("Stations");
-      qRegisterMetaTypeStreamOperators<StationList::Stations> ("Stations");
-    }
-  } static_initializer;
-}
-
 #if !defined (QT_NO_DEBUG_STREAM)
 QDebug operator << (QDebug debug, StationList::Station const& station)
 {
@@ -70,12 +56,10 @@ public:
   {
   }
 
-  Stations const& stations () const {return stations_;}
-  void assign (Stations);
+  Stations station_list (Stations);
   QModelIndex add (Station);
   FrequencyDelta offset (Frequency) const;
 
-protected:
   // Implement the QAbstractTableModel interface.
   int rowCount (QModelIndex const& parent = QModelIndex {}) const override;
   int columnCount (QModelIndex const& parent = QModelIndex {}) const override;
@@ -90,7 +74,6 @@ protected:
   QMimeData * mimeData (QModelIndexList const&) const override;
   bool dropMimeData (QMimeData const *, Qt::DropAction, int row, int column, QModelIndex const& parent) override;
 
-private:
   // Helper method for band validation.
   QModelIndex first_matching_band (QString const& band_name) const
   {
@@ -127,15 +110,14 @@ StationList::~StationList ()
 {
 }
 
-StationList& StationList::operator = (Stations stations)
+auto StationList::station_list (Stations stations) -> Stations
 {
-  m_->assign (stations);
-  return *this;
+  return m_->station_list (stations);
 }
 
-auto StationList::stations () const -> Stations
+auto StationList::station_list () const -> Stations const&
 {
-  return m_->stations ();
+  return m_->stations_;
 }
 
 QModelIndex StationList::add (Station s)
@@ -145,13 +127,11 @@ QModelIndex StationList::add (Station s)
 
 bool StationList::remove (Station s)
 {
-  auto row = m_->stations ().indexOf (s);
-
+  auto row = m_->stations_.indexOf (s);
   if (0 > row)
     {
       return false;
     }
-
   return removeRow (row);
 }
 
@@ -194,11 +174,12 @@ auto StationList::offset (Frequency f) const -> FrequencyDelta
 }
 
 
-void StationList::impl::assign (Stations stations)
+auto StationList::impl::station_list (Stations stations) -> Stations
 {
   beginResetModel ();
   std::swap (stations_, stations);
   endResetModel ();
+  return stations;
 }
 
 QModelIndex StationList::impl::add (Station s)
@@ -221,22 +202,19 @@ QModelIndex StationList::impl::add (Station s)
 auto StationList::impl::offset (Frequency f) const -> FrequencyDelta
 {
   // Lookup band for frequency
-  auto band_index = bands_->find (f);
-  if (band_index.isValid ())
+  auto const& band = bands_->find (f);
+  if (band != bands_->out_of_band ())
     {
-      auto band_name = band_index.data ().toString ();
-
       // Lookup station for band
-      for (int i = 0; i < stations ().size (); ++i)
+      for (int i = 0; i < stations_.size (); ++i)
         {
-          if (stations_[i].band_name_ == band_name)
+          if (stations_[i].band_name_ == band->name_)
             {
               return stations_[i].offset_;
             }
         }
     }
-
-  return 0;			// no offset
+  return 0;                     // no offset
 }
 
 int StationList::impl::rowCount (QModelIndex const& parent) const
@@ -260,7 +238,7 @@ Qt::ItemFlags StationList::impl::flags (QModelIndex const& index) const
       && row < stations_.size ()
       && column < num_columns)
     {
-      if (2 == column)
+      if (description_column == column)
         {
           result |= Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
         }
@@ -289,7 +267,7 @@ QVariant StationList::impl::data (QModelIndex const& index, int role) const
     {
       switch (column)
         {
-        case 0:			// band name
+        case band_column:
           switch (role)
             {
             case SortRole:
@@ -318,19 +296,19 @@ QVariant StationList::impl::data (QModelIndex const& index, int role) const
             }
           break;
 
-        case 1:			// frequency offset
+        case offset_column:
           {
             auto frequency_offset = stations_.at (row).offset_;
             switch (role)
               {
+              case SortRole:
+              case Qt::EditRole:
               case Qt::AccessibleTextRole:
                 item = frequency_offset;
                 break;
 
-              case SortRole:
               case Qt::DisplayRole:
-              case Qt::EditRole:
-                item = frequency_offset;
+                item = Radio::pretty_frequency_MHz_string (frequency_offset) + " MHz";
                 break;
 
               case Qt::ToolTipRole:
@@ -345,7 +323,7 @@ QVariant StationList::impl::data (QModelIndex const& index, int role) const
           }
           break;
 
-        case 2:			// antenna description
+        case description_column:
           switch (role)
             {
             case SortRole:
@@ -379,9 +357,9 @@ QVariant StationList::impl::headerData (int section, Qt::Orientation orientation
     {
       switch (section)
         {
-        case 0: header = tr ("Band"); break;
-        case 1: header = tr ("Offset"); break;
-        case 2: header = tr ("Antenna Description"); break;
+        case band_column: header = tr ("Band"); break;
+        case offset_column: header = tr ("Offset"); break;
+        case description_column: header = tr ("Antenna Description"); break;
         }
     }
   else
@@ -407,7 +385,7 @@ bool StationList::impl::setData (QModelIndex const& model_index, QVariant const&
 
       switch (model_index.column ())
         {
-        case 0:
+        case band_column:
           {
             // Check if band name is valid.
             auto band_index = first_matching_band (value.toString ());
@@ -420,7 +398,7 @@ bool StationList::impl::setData (QModelIndex const& model_index, QVariant const&
           }
           break;
 
-        case 1:
+        case offset_column:
           {
             stations_[row].offset_ = value.value<FrequencyDelta> ();
             Q_EMIT dataChanged (model_index, model_index, roles);
@@ -428,7 +406,7 @@ bool StationList::impl::setData (QModelIndex const& model_index, QVariant const&
           }
           break;
 
-        case 2:
+        case description_column:
           stations_[row].antenna_description_ = value.toString ();
           Q_EMIT dataChanged (model_index, model_index, roles);
           changed = true;
@@ -508,9 +486,8 @@ bool StationList::impl::dropMimeData (QMimeData const * data, Qt::DropAction act
     {
       return true;
     }
-
   if (parent.isValid ()
-      && 2 == parent.column ()
+      && description_column == parent.column ()
       && data->hasFormat (mime_type))
     {
       QByteArray encoded_data {data->data (mime_type)};
@@ -534,17 +511,16 @@ bool StationList::impl::dropMimeData (QMimeData const * data, Qt::DropAction act
           QString frequency_string;
           stream >> frequency_string;
           auto frequency = Radio::frequency (frequency_string, 0);
-          auto band_index = bands_->find (frequency);
+          auto const& band = bands_->find (frequency);
           if (stations_.cend () == std::find_if (stations_.cbegin ()
                                                  , stations_.cend ()
-                                                 , [&band_index] (Station const& s) {return s.band_name_ == band_index.data ().toString ();}))
+                                                 , [&band] (Station const& s) {return s.band_name_ == band->name_;}))
             {
-              add (Station {band_index.data ().toString (), 0, QString {}});
+              // not found so add it
+              add (Station {band->name_, 0, QString {}});
             }
         }
-
       return true;
     }
-
   return false;
 }

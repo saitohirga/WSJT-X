@@ -22,6 +22,7 @@
 #include "soundout.h"
 #include "commons.h"
 #include "Radio.hpp"
+#include "Modes.hpp"
 #include "Configuration.hpp"
 #include "Transceiver.hpp"
 #include "psk_reporter.h"
@@ -65,6 +66,7 @@ class MainWindow : public QMainWindow
 
 public:
   using Frequency = Radio::Frequency;
+  using Mode = Modes::Mode;
 
   // Multiple instances: call MainWindow() with *thekey
   explicit MainWindow(bool multiple, QSettings *, QSharedMemory *shdmem,
@@ -176,12 +178,12 @@ private slots:
                   , QString const& rpt_sent, QString const& rpt_received
                   , QString const& tx_power, QString const& comments
                   , QString const& name);
+  void on_bandComboBox_currentIndexChanged (int index);
   void on_bandComboBox_activated (int index);
   void on_readFreq_clicked();
   void on_pbTxMode_clicked();
   void on_RxFreqSpinBox_valueChanged(int n);
   void on_cbTxLock_clicked(bool checked);
-  void on_cbPlus2kHz_toggled(bool checked);
   void on_outAttenuation_valueChanged (int);
   void rigOpen ();
   void handle_transceiver_update (Transceiver::TransceiverState);
@@ -233,8 +235,6 @@ private slots:
   void on_graylineDuration_editingFinished();
 
 private:
-  void enable_DXCC_entity (bool on);
-
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
       unsigned channels, unsigned msBuffered) const;
   Q_SIGNAL void stopAudioOutputStream () const;
@@ -370,7 +370,6 @@ private:
   bool    m_lockTxFreq;
   bool    m_tx2QSO;
   bool    m_CATerror;
-  bool    m_plus2kHz;
   bool    m_bAstroData;
   bool    m_bEME;
   bool    m_bShMsgs;
@@ -507,6 +506,8 @@ private:
   void replyToCQ (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text);
   void replayDecodes ();
   void postDecode (bool is_new, QString const& message);
+  void enable_DXCC_entity (bool on);
+  void switch_mode (Mode);
   void bandHopping();
 };
 

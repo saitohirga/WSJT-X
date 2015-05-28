@@ -1,18 +1,5 @@
 #include "AudioDevice.hpp"
 
-#include <QMetaType>
-
-namespace
-{
-  struct init
-  {
-    init ()
-    {
-      qRegisterMetaType<AudioDevice::Channel> ("AudioDevice::Channel");
-    }
-  } static_initializer;
-}
-
 bool AudioDevice::initialize (OpenMode mode, Channel channel)
 {
   m_channel = channel;

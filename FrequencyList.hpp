@@ -3,9 +3,13 @@
 
 #include "pimpl_h.hpp"
 
+#include <QList>
 #include <QSortFilterProxyModel>
 
 #include "Radio.hpp"
+#include "Modes.hpp"
+
+class Bands;
 
 //
 // Class FrequencyList
@@ -31,22 +35,44 @@
 class FrequencyList final
   : public QSortFilterProxyModel
 {
+  Q_OBJECT;
+
 public:
   using Frequency = Radio::Frequency;
-  using Frequencies = Radio::Frequencies;
+  using Mode = Modes::Mode;
 
-  explicit FrequencyList (QObject * parent = nullptr);
-  explicit FrequencyList (Frequencies, QObject * parent = nullptr);
+  struct Item
+  {
+    Frequency frequency_;
+    Mode mode_;
+  };
+  using FrequencyItems = QList<Item>;
+
+  enum Column {mode_column, frequency_column, frequency_mhz_column};
+
+  explicit FrequencyList (Bands const *, QObject * parent = nullptr);
   ~FrequencyList ();
 
   // Load and store contents
-  FrequencyList& operator = (Frequencies);
-  Frequencies frequencies () const;
+  FrequencyItems frequency_list (FrequencyItems);
+  FrequencyItems const& frequency_list () const;
+
+  // Find nearest best working frequency given a frequency and mode
+  QModelIndex best_working_frequency (Frequency, Mode) const;
+
+  // Set filter
+  void filter (Mode);
+
+  // Reset
+  Q_SLOT void reset_to_defaults ();
 
   // Model API
-  QModelIndex add (Frequency);
-  bool remove (Frequency);
+  QModelIndex add (Item);
+  bool remove (Item);
   bool removeDisjointRows (QModelIndexList);
+
+  // Proxy API
+  bool filterAcceptsRow (int source_row, QModelIndex const& parent) const override;
 
   // Custom roles.
   static int constexpr SortRole = Qt::UserRole;
@@ -55,5 +81,23 @@ private:
   class impl;
   pimpl<impl> m_;
 };
+
+inline
+bool operator == (FrequencyList::Item const& lhs, FrequencyList::Item const& rhs)
+{
+  return
+    lhs.frequency_ == rhs.frequency_
+    && lhs.mode_ == rhs.mode_;
+}
+
+QDataStream& operator << (QDataStream&, FrequencyList::Item const&);
+QDataStream& operator >> (QDataStream&, FrequencyList::Item&);
+
+#if !defined (QT_NO_DEBUG_STREAM)
+QDebug operator << (QDebug, FrequencyList::Item const&);
+#endif
+
+Q_DECLARE_METATYPE (FrequencyList::Item);
+Q_DECLARE_METATYPE (FrequencyList::FrequencyItems);
 
 #endif
