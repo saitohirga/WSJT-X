@@ -695,6 +695,7 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   , self_ {self}
   , ui_ {new Ui::configuration_dialog}
   , settings_ {settings}
+  , doc_dir_ {QApplication::applicationDirPath ()}
   , frequencies_ {
     {
       136130,
