@@ -113,7 +113,7 @@ option (WSJT_HAMLIB_TRACE "Debugging option that turns on minimal Hamlib interna
 option (WSJT_SOFT_KEYING "Apply a ramp to CW keying envelope to reduce transients." ON)
 option (WSJT_SKIP_MANPAGES "Skip *nix manpage generation.")
 option (WSJT_EMBED_SAMPLES "Embed sample files into WSJT-X resources." ON)
-option (WSJT_GENERATE_DOCS "Generate documentation files." OFF)
+option (WSJT_GENERATE_DOCS "Generate documentation files." ON)
 
 CMAKE_DEPENDENT_OPTION (WSJT_HAMLIB_VERBOSE_TRACE "Debugging option that turns on full Hamlib internal diagnostics." OFF WSJT_HAMLIB_TRACE OFF)
 CMAKE_DEPENDENT_OPTION (WSJT_QDEBUG_IN_RELEASE "Leave Qt debugging statements in Release configuration." OFF
