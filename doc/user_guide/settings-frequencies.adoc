@@ -1,0 +1,39 @@
+// Status=review
+
+[[FIG_BAND_SETTINGS]]
+image::images/r4148-freq-ui.png[align="center",alt="Frequency Screen"]
+
+_Working Frequencies_: By default the *Frequency* table lists the
+currently recommended dial frequencies for JT65. JT9 frequencies
+generally start 2 kHz higher.  You can modify the frequency table as
+desired.
+
+- To change an existing entry, click to select it, type a desired
+frequency in MHz, and hit *Enter* on the keyboard. The program will
+format your frequency value appropriately and add a band designator.
+
+- To add a new entry, right-click anywhere on the frequency table and
+select *Insert*.  Enter a frequency in MHz in the popup box, then
+click *OK*.  The table may include more than one frequency for a given
+band.
+
+- To delete an entry, right-click it and select *Delete*.
+
+_Station Information_: You can save *Band*, *Offset* and *Antenna
+Description* information for your station.  The antenna information
+will be included in reception reports sent to {pskreporter}.  By
+default the frequency *Offset* for each band is zero.  Nonzero offsets
+may be added if (for example) a transverter is in use.
+
+- For a simple setup approach you might want to delete any unwanted
+bands -- for example, bands where you have no equipment.  Then click
+on a *Frequency* entry and type *Ctrl+A* to ``select all,'' and
+drag-and-drop the entries onto the _Station Information_ table.  You
+can then add any transverter offsets and antenna details.
+
+- To avoid typing the same information multiple times, you can
+drag-and-drop entries between the lines of the _Station Information_
+table.
+
+- When all settings have been configured to your liking, click *OK* to
+dismiss the *Settings* window.
