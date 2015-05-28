@@ -10,3 +10,7 @@ up/down arrows.
 
 - Select *Tab 2* (below the *Decode* button) to choose the alternative
 set of controls for generating and selecting Tx messages.
+
+IMPORTANT: Sliders and spin-box controls respond to arrow key presses
+and Page Up/Down key presses, with the Page keys moving the controls
+in larger steps.

@@ -5,7 +5,7 @@
 - *Start* = 200
 - *N Avg* = 5
 - *Zero* = 0
-- *Gain* = 0,
+- *Gain* = 0
 - *Palette* = Digipan
 - *Flatten* = checked
 - Select *Cumulative* for data display.

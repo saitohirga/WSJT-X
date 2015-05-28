@@ -9,7 +9,7 @@ image::images/misc-controls-center.png[align="center",alt="Misc Controls Center"
 * Check *Tx even* to transmit in even-numbered UTC minutes.  Uncheck
 this box to transmit in the odd minutes.  This selection is made
 automatically when you double-click on a decoded text line, as
-described in the <<X5,Basic Operating Tutorial>>.
+described in the <<TUTORIAL,Basic Operating Tutorial>>.
 
 * The Tx and Rx audio frequencies are usually set automatically by
 double-clicking on decoded text or a signal in the waterfall.  They 
