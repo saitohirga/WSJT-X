@@ -1,6 +1,35 @@
+////
+Questions:
+ Should be short one liners ending with ?::
+ If your question is too long for one line, consider multiple questions or rephrase
+
+Answers:
+ Can be bullet or paragraphs. Bullets make for easier reading.
+
+Bullet Usage:
+ *  = a circle bullet single intent
+ ** = circle bullet double indent
+ .  = should be avoided as the questions are numbered
+ .. = bullet a, b, c, and so on, double indent
+
+Alternatives: Use a * Bullet, followed by .. for example, then have
+a multi-section answer using the * as the section header
+ 
+ * Section Header 1
+ .. Possible Answer a
+ .. Possible Answer b
+ * Section Header 2
+ .. Possible Answer a
+ .. Possible Answer b
+ 
+Link Usage:
+ Use the common/links.adoc for href links to maintain consistency. Try to avoid
+ apostrophes ` or ' as it breaks AsciiDoc syntax without special escaping 
+ and they do not translate into other languages well.
+
+////
 [qanda]
-My displayed spectrum is flatter when I do not check the *Flatten* 
-box.  What's wrong?::
+My displayed spectrum is flatter when I do not check the *Flatten* box. What's wrong?::
 
 _WSJT-X_ does not expect a steep filter edge within the displayed
 passband. Use a wider IF filter or reduce the displayed passband by
