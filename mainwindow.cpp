@@ -204,20 +204,20 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
     });
   connect (m_messageClient, &MessageClient::error, this, &MainWindow::networkError);
   connect (m_messageClient, &MessageClient::free_text, [this] (QString const& text, bool send) {
-      if (m_config.accept_udp_requests ()) {
-        if (0 == ui->tabWidget->currentIndex ()) {
-          ui->tx5->setCurrentText (text);
-          if (send) {
-            ui->txb5->click ();
-          }
-        } else if (1 == ui->tabWidget->currentIndex ()) {
-          ui->freeTextMsg->setCurrentText (text);
-          if (send) {
-            ui->rbFreeText->click ();
-          }
+    if (m_config.accept_udp_requests ()) {
+      if (0 == ui->tabWidget->currentIndex ()) {
+        ui->tx5->setCurrentText (text);
+        if (send) {
+          ui->txb5->click ();
+        }
+      } else if (1 == ui->tabWidget->currentIndex ()) {
+        ui->freeTextMsg->setCurrentText (text);
+        if (send) {
+          ui->rbFreeText->click ();
         }
       }
-    });
+    }
+  });
 
   on_EraseButton_clicked ();
 
@@ -1847,11 +1847,17 @@ void MainWindow::guiUpdate()
   m_nseq = nsec % m_TRperiod;
 
   if(m_mode.mid(0,4)=="WSPR") {
-    if(m_nseq==0 and m_ntr==0) {
-      m_tuneup=false;
-      if(m_pctx==0) m_nrx=1;                                //Always receive if pctx=0
-      if((m_auto and (m_pctx>0) and (m_txNext or ((m_nrx<=0) and
-                       (m_ntr!=-1)))) or ((m_auto and (m_pctx==100)))) {
+    if(m_nseq==0 and m_ntr==0) {                   //Decide whether to Tx or Rx
+      m_tuneup=false;                              //This is not an ATU tuneup
+      if(m_pctx==0) m_nrx=1;                       //Don't transmit if m_pctx=0
+      bool btx = m_auto and (m_nrx<=0);            //To Tx, we need m_auto and Rx sequsnce finished
+      if(m_ntr == -1) btx=false;                   //Normally, no two consecutive transmissions
+      if(m_auto and m_txNext) btx=true;            //TxNext button overrides
+      if(m_auto and m_pctx==100) btx=true;         //Always transmit
+
+//      qDebug() << "B" << m_pctx << m_auto << m_nrx << m_ntr << m_txNext;
+
+      if(btx) {
 // This will be a WSPR Tx sequence. Compute # of Rx's that should follow.
         float x=(float)rand()/RAND_MAX;
         if(m_pctx<50) {
@@ -1921,9 +1927,11 @@ void MainWindow::guiUpdate()
       m_bTxTime=false;                        //Time to stop a WSPR transmission
       m_btxok=false;
     }
-    if(m_bandHopping and m_ntr==1) {
-      qDebug() << "Call bandHopping after Rx" << m_nseq << m_ntr << m_nrx << m_rxDone;
-      bandHopping();
+    if(m_ntr==1) {
+      if(m_bandHopping) {
+//        qDebug() << "Call bandHopping after Rx" << m_nseq << m_ntr << m_nrx << m_rxDone;
+        bandHopping();
+      }
       m_ntr=0;                                //This WSPR Rx sequence is complete
     }
   }
@@ -2147,7 +2155,7 @@ void MainWindow::guiUpdate()
   }
 
   if(nsec != m_sec0) {                                                //Once per second
-    qDebug() << "A" << nsec << m_pctx << m_rxavg << m_nrx;
+//    qDebug() << "A" << nsec << m_pctx << m_rxavg << m_ntr << m_nrx;
     int ipct=0;
     if(m_monitoring or m_transmitting) ipct=int(100*m_nseq/txDuration);
     progressBar->setValue(ipct);
@@ -2286,9 +2294,11 @@ void MainWindow::stopTx2()
     msgBox("Runaway Tx watchdog");
     m_repeatMsg=0;
   }
-  if(m_mode.mid(0,4)=="WSPR" and m_ntr==-1 and m_bandHopping and !m_tuneup) {
-    qDebug () << "Call bandHopping after Tx" << m_tuneup;
-    bandHopping();
+  if(m_mode.mid(0,4)=="WSPR" and m_ntr==-1 and !m_tuneup) {
+    if(m_bandHopping) {
+      qDebug () << "Call bandHopping after Tx" << m_tuneup;
+      bandHopping();
+    }
     m_ntr=0;
   }
 }
@@ -2491,8 +2501,9 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       // i.e. compound version of same base call
       ui->dxCallEntry->setText(hiscall);
     }
-  if (gridOK(hisgrid))
-    ui->dxGridEntry->setText(hisgrid);
+  if (gridOK(hisgrid)) {
+    if(ui->dxGridEntry->text().mid(0,4) != hisgrid) ui->dxGridEntry->setText(hisgrid);
+  }
   if (ui->dxGridEntry->text()=="")
     lookup();
   m_hisGrid = ui->dxGridEntry->text();
@@ -4241,8 +4252,8 @@ void MainWindow::on_sbTxPercent_valueChanged(int n)
     ui->pbTxNext->setEnabled(true);
   } else {
     m_txNext=false;
-    ui->pbTxNext->setEnabled(false);
     ui->pbTxNext->setChecked(false);
+    ui->pbTxNext->setEnabled(false);
   }
 }
 
