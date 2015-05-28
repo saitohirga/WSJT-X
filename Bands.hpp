@@ -30,12 +30,22 @@ class Bands final
   : public QAbstractTableModel
 {
 public:
+  using Frequency = Radio::Frequency;
+
+  struct ADIFBand
+  {
+    char const * const name_;
+    Radio::Frequency lower_bound_;
+    Radio::Frequency upper_bound_;
+  };
+
   explicit Bands (QObject * parent = nullptr);
 
   //
   // Model API
   //
-  QModelIndex find (QVariant const&) const; // find band Frequency is in
+  ADIFBand const * find (Frequency) const; // find band Frequency is in
+  ADIFBand const * out_of_band () const;
 
   // Custom role for sorting.
   static int constexpr SortRole = Qt::UserRole;

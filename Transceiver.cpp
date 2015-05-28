@@ -2,18 +2,6 @@
 
 #include "moc_Transceiver.cpp"
 
-namespace
-{
-  struct init
-  {
-    init ()
-    {
-      qRegisterMetaType<Transceiver::TransceiverState> ("Transceiver::TransceiverState");
-      qRegisterMetaType<Transceiver::MODE> ("Transceiver::MODE");
-    }
-  } static_initialization;
-}
-
 #if !defined (QT_NO_DEBUG_STREAM)
 
 ENUM_QDEBUG_OPS_IMPL (Transceiver, MODE);

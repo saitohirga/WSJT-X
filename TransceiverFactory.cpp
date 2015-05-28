@@ -21,25 +21,6 @@ char const * const TransceiverFactory::basic_transceiver_name_ = "None";
 
 namespace
 {
-  struct init
-  {
-    init ()
-    {
-      qRegisterMetaType<TransceiverFactory::DataBits> ("TransceiverFactory::DataBits");
-      qRegisterMetaTypeStreamOperators<TransceiverFactory::DataBits> ("TransceiverFactory::DataBits");
-      qRegisterMetaType<TransceiverFactory::StopBits> ("TransceiverFactory::StopBits");
-      qRegisterMetaTypeStreamOperators<TransceiverFactory::StopBits> ("TransceiverFactory::StopBits");
-      qRegisterMetaType<TransceiverFactory::Handshake> ("TransceiverFactory::Handshake");
-      qRegisterMetaTypeStreamOperators<TransceiverFactory::Handshake> ("TransceiverFactory::Handshake");
-      qRegisterMetaType<TransceiverFactory::PTTMethod> ("TransceiverFactory::PTTMethod");
-      qRegisterMetaTypeStreamOperators<TransceiverFactory::PTTMethod> ("TransceiverFactory::PTTMethod");
-      qRegisterMetaType<TransceiverFactory::TXAudioSource> ("TransceiverFactory::TXAudioSource");
-      qRegisterMetaTypeStreamOperators<TransceiverFactory::TXAudioSource> ("TransceiverFactory::TXAudioSource");
-      qRegisterMetaType<TransceiverFactory::SplitMode> ("TransceiverFactory::SplitMode");
-      qRegisterMetaTypeStreamOperators<TransceiverFactory::SplitMode> ("TransceiverFactory::SplitMode");
-    }
-  } static_initializer;
-
   enum				// supported non-hamlib radio interfaces
     {
       NonHamlibBaseId = 9899

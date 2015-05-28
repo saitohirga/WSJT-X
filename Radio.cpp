@@ -2,7 +2,6 @@
 
 #include <cmath>
 
-#include <QMetaType>
 #include <QString>
 #include <QChar>
 #include <QDebug>
@@ -14,19 +13,6 @@ namespace Radio
 {
   namespace
   {
-    struct init
-    {
-      init ()
-      {
-        qRegisterMetaType<Frequency> ("Frequency");
-
-        qRegisterMetaType<Frequencies> ("Frequencies");
-        qRegisterMetaTypeStreamOperators<Frequencies> ("Frequencies");
-
-        qRegisterMetaType<FrequencyDelta> ("FrequencyDelta");
-      }
-    } static_initaializer;
-
     double constexpr MHz_factor {1.e6};
     int constexpr frequency_precsion {6};
 

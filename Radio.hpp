@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QLocale>
-#include <QList>
 
 class QVariant;
 class QString;
@@ -18,7 +17,6 @@ namespace Radio
   // Frequency types
   //
   using Frequency = quint64;
-  using Frequencies = QList<Frequency>;
   using FrequencyDelta = qint64;
 
   //
@@ -48,7 +46,6 @@ namespace Radio
 }
 
 Q_DECLARE_METATYPE (Radio::Frequency);
-Q_DECLARE_METATYPE (Radio::Frequencies);
 Q_DECLARE_METATYPE (Radio::FrequencyDelta);
 
 #endif

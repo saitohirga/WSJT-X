@@ -33,14 +33,6 @@ namespace
 {
   int constexpr points {256};
 
-  struct init
-  {
-    init ()
-    {
-      qRegisterMetaTypeStreamOperators<WFPalette::Colours> ("Colours");
-    }
-  } static_initaializer;
-
   using Colours = WFPalette::Colours;
 
   // ensure that palette colours are useable for interpolation

@@ -61,27 +61,6 @@ namespace
   }
 }
 
-class BandAndFrequencyItemDelegate final
-  : public QStyledItemDelegate
-{
-public:
-  explicit BandAndFrequencyItemDelegate (Bands const * bands, QObject * parent = nullptr)
-    : QStyledItemDelegate {parent}
-    , bands_ {bands}
-  {
-  }
-
-  QString displayText (QVariant const& v, QLocale const&) const override
-  {
-    return Radio::pretty_frequency_MHz_string (Radio::frequency (v, 6))
-      + QChar::Nbsp
-      + '(' + (bands_->data (bands_->find (Radio::frequency (v, 6)))).toString () + ')';
-  }
-
-private:
-  Bands const * bands_;
-};
-
 //--------------------------------------------------- MainWindow constructor
 MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdmem,
                        unsigned downSampleFactor, QWidget *parent) :
@@ -278,15 +257,11 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 
   // Hook up working frequencies.
   ui->bandComboBox->setModel (m_config.frequencies ());
-  ui->bandComboBox->setModelColumn (1); // MHz
+  ui->bandComboBox->setModelColumn (FrequencyList::frequency_mhz_column);
 
-  // Add delegate to show bands alongside frequencies in combo box
-  // popup list.
-  ui->bandComboBox->view ()->setItemDelegateForColumn (1, new BandAndFrequencyItemDelegate {m_config.bands (), this});
-
-  // combo box drop downs are limited to the drop down selector width,
-  // this almost random increase improves the situation
-  ui->bandComboBox->view ()->setMinimumWidth (ui->bandComboBox->view ()->sizeHintForColumn (1) + 40);
+  // combo box drop down width defaults to the line edit + decorator width,
+  // here we change that to the column width size hint of the model column
+  ui->bandComboBox->view ()->setMinimumWidth (ui->bandComboBox->view ()->sizeHintForColumn (FrequencyList::frequency_mhz_column));
 
   // Enable live band combo box entry validation and action.
   auto band_validator = new LiveFrequencyValidator {ui->bandComboBox
@@ -646,7 +621,6 @@ void MainWindow::writeSettings()
   m_settings->setValue("GUItab",ui->tabWidget->currentIndex());
   m_settings->setValue("OutBufSize",outBufSize);
   m_settings->setValue("LockTxFreq",m_lockTxFreq);
-  m_settings->setValue("Plus2kHz",m_plus2kHz);
   m_settings->setValue("PctTx",m_pctx);
   m_settings->setValue("dBm",m_dBm);
   m_settings->setValue("UploadSpots",m_uploadSpots);
@@ -736,8 +710,6 @@ void MainWindow::readSettings()
   outBufSize=m_settings->value("OutBufSize",4096).toInt();
   m_lockTxFreq=m_settings->value("LockTxFreq",false).toBool();
   ui->cbTxLock->setChecked(m_lockTxFreq);
-  m_plus2kHz=m_settings->value("Plus2kHz",false).toBool();
-  ui->cbPlus2kHz->setChecked(m_plus2kHz);
   ui->sunriseBands->setText(m_settings->value("SunriseBands","").toString());
   on_sunriseBands_editingFinished();
   ui->dayBands->setText(m_settings->value("DayBands","").toString());
@@ -1176,29 +1148,33 @@ void MainWindow::qsy (Frequency f)
 void MainWindow::displayDialFrequency ()
 {
   // lookup band
-  auto bands_model = m_config.bands ();
-  QString t {bands_model->data(bands_model->find(m_dialFreq)).toString()};
-  ui->bandComboBox->setCurrentText (t);
-  m_wideGraph->setRxBand(t);
+  auto const& band_name = m_config.bands ()->find (m_dialFreq)->name_;
+  ui->bandComboBox->setCurrentText (band_name);
+  m_wideGraph->setRxBand (band_name);
 
-  // search working frequencies for one we are within 10kHz of
-  auto frequencies = m_config.frequencies ();
+  // search working frequencies for one we are within 10kHz of (1 Mhz
+  // of on VHF and up)
   bool valid {false};
-  quint64 min_offset=99999999;
-
-  for (int row = 0; row < frequencies->rowCount (); ++row) {
+  quint64 min_offset {99999999};
+  auto const& frequencies = m_config.frequencies ();
+  for (int row = 0; row < frequencies->rowCount (); ++row)
+    {
+      auto const& source_row = frequencies->mapToSource (frequencies->index (row, 0)).row ();
+      auto const& item = frequencies->frequency_list ()[source_row];
       // we need to do specific checks for above and below here to
       // ensure that we can use unsigned Radio::Frequency since we
       // potentially use the full 64-bit unsigned range.
-      auto working_frequency = frequencies->data (frequencies->index (row, 0)).value<Frequency> ();
-      auto offset = m_dialFreq > working_frequency ? m_dialFreq - working_frequency : working_frequency - m_dialFreq;
-      if(offset<min_offset) {
-         m_freqNominal=working_frequency;
-         min_offset=offset;
+      auto const& working_frequency = item.frequency_;
+      auto const& offset = m_dialFreq > working_frequency ? m_dialFreq - working_frequency : working_frequency - m_dialFreq;
+      if (offset < min_offset) {
+         m_freqNominal = working_frequency;
+         min_offset = offset;
       }
   }
-  if ((min_offset < 10000u) or (m_config.enable_VHF_features() and
-                                min_offset < 1000000u)) valid = true;
+  if (min_offset < 10000u or (m_config.enable_VHF_features() and
+                              min_offset < 1000000u)) {
+    valid = true;
+  }
 
   ui->labDialFreq->setProperty ("oob", !valid);
   // the following sequence is necessary to update the style
@@ -1672,15 +1648,16 @@ void MainWindow::readFromStdout()                             //readFromStdout
         msgBox("Cannot open \"" + f.fileName () + "\" for append:" + f.errorString ());
       }
 
-      if (m_config.insert_blank () && m_blankLine) {
-        QString band;
-        if (QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged > 50) {
-          auto const& bands_model = m_config.bands ();
-          band = ' ' + bands_model->data (bands_model->find (m_dialFreq + ui->TxFreqSpinBox->value ())).toString ();
-        }
-        ui->decodedTextBrowser->insertLineSpacer (band.rightJustified  (40, '-'));
-        m_blankLine = false;
-      }
+        if (m_config.insert_blank () && m_blankLine)
+          {
+            QString band;
+            if (QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged > 50)
+              {
+                band = ' ' + QString {m_config.bands ()->find (m_dialFreq)->name_};
+              }
+            ui->decodedTextBrowser->insertLineSpacer (band.rightJustified  (40, '-'));
+            m_blankLine = false;
+          }
 
       DecodedText decodedtext;
       decodedtext = t.replace("\n",""); //t.replace("\n","").mid(0,t.length()-4);
@@ -2251,9 +2228,8 @@ void MainWindow::startTx2()
     transmit (snr);
     signalMeter->setValue(0);
     if(m_mode.mid(0,4)=="WSPR" and !m_tune) {
-      auto const& bands_model = m_config.bands ();
       t = " Transmiting " + m_mode + " ----------------------- " +
-          bands_model->data(bands_model->find(m_dialFreq)).toString ();
+        m_config.bands ()->find (m_dialFreq)->name_;
       ui->decodedTextBrowser->append(t.rightJustified (71, '-'));
 
       QFile f {m_dataDir.absoluteFilePath ("ALL_WSPR.TXT")};
@@ -2986,10 +2962,8 @@ void MainWindow::acceptQSO2(QDateTime const& QSO_date, QString const& call, QStr
                             , QString const& tx_power, QString const& comments
                             , QString const& name)
 {
-  auto const& bands_model = m_config.bands ();
-  auto band = bands_model->data (bands_model->find (m_dialFreq + ui->TxFreqSpinBox->value ())).toString ();
   QString date = m_dateTimeQSO.toString("yyyyMMdd");
-  m_logBook.addAsWorked(m_hisCall,band,m_modeTx,date);
+  m_logBook.addAsWorked (m_hisCall, m_config.bands ()->find (m_dialFreq)->name_, m_modeTx, date);
 
   m_messageClient->qso_logged (QSO_date, call, grid, dial_freq, mode, rpt_sent, rpt_received, tx_power, comments, name);
 
@@ -3009,6 +2983,7 @@ void MainWindow::acceptQSO2(QDateTime const& QSO_date, QString const& call, QStr
 void MainWindow::on_actionJT9_1_triggered()
 {
   m_mode="JT9";
+  switch_mode (Modes::JT9);
   if(m_modeTx!="JT9") on_pbTxMode_clicked();
   statusChanged();
   m_TRperiod=60;
@@ -3036,6 +3011,7 @@ void MainWindow::on_actionJT9_1_triggered()
 void MainWindow::on_actionJT9W_1_triggered()
 {
   m_mode="JT9W-1";
+  switch_mode (Modes::JT9W_1);
   if(m_modeTx!="JT9") on_pbTxMode_clicked();
   statusChanged();
   m_TRperiod=60;
@@ -3068,6 +3044,7 @@ void MainWindow::on_actionJT65_triggered()
     on_pbTxMode_clicked();
   }
   m_mode="JT65";
+  switch_mode (Modes::JT65);
   if(m_modeTx!="JT65") on_pbTxMode_clicked();
   statusChanged();
   m_TRperiod=60;
@@ -3105,6 +3082,7 @@ void MainWindow::on_actionJT65_triggered()
 void MainWindow::on_actionJT9_JT65_triggered()
 {
   m_mode="JT9+JT65";
+  switch_mode (Modes::JT65);
   if(m_modeTx != "JT65") m_modeTx="JT9";
   m_nSubMode=0;                    //Dual-mode always means JT9 and JT65A
   statusChanged();
@@ -3133,6 +3111,7 @@ void MainWindow::on_actionJT9_JT65_triggered()
 void MainWindow::on_actionJT4_triggered()
 {
   m_mode="JT4";
+  switch_mode (Modes::JT4);
   m_modeTx="JT4";
   statusChanged();
   m_TRperiod=60;
@@ -3171,6 +3150,7 @@ void MainWindow::on_actionJT4_triggered()
 void MainWindow::on_actionWSPR_2_triggered()
 {
   m_mode="WSPR-2";
+  switch_mode (Modes::WSPR);
   m_modeTx="WSPR-2";                                    //### not needed ?? ###
   statusChanged();
   m_TRperiod=120;
@@ -3194,8 +3174,20 @@ void MainWindow::on_actionWSPR_2_triggered()
 void MainWindow::on_actionWSPR_15_triggered()
 {
   msgBox("WSPR-15 is not yet available");
+  switch_mode (Modes::WSPR);
 }
 
+void MainWindow::switch_mode (Mode mode)
+{
+  auto f = m_dialFreq;
+  m_config.frequencies ()->filter (mode);
+  auto const& index = m_config.frequencies ()->best_working_frequency (f, mode);
+  if (index.isValid ())
+    {
+      ui->bandComboBox->setCurrentIndex (index.row ());
+      on_bandComboBox_activated (index.row ());
+    }
+}
 
 void MainWindow::WSPR_config(bool b)
 {
@@ -3328,26 +3320,44 @@ bool MainWindow::gridOK(QString g)
   return b;
 }
 
+void MainWindow::on_bandComboBox_currentIndexChanged (int index)
+{
+  auto const& frequencies = m_config.frequencies ();
+  auto const& source_index = frequencies->mapToSource (frequencies->index (index, FrequencyList::frequency_column));
+  Frequency frequency {m_dialFreq};
+  if (source_index.isValid ())
+    {
+      frequency = frequencies->frequency_list ()[source_index.row ()].frequency_;
+    }
+
+  // Lookup band
+  auto const& band  = m_config.bands ()->find (frequency);
+  auto const& out_of_band  = m_config.bands ()->out_of_band ();
+  if (out_of_band != band)
+    {
+      ui->bandComboBox->lineEdit ()->setStyleSheet ({});
+      ui->bandComboBox->setCurrentText (band->name_);
+    }
+  else
+    {
+      ui->bandComboBox->lineEdit ()->setStyleSheet ("QLineEdit {color: yellow; background-color : red;}");
+      ui->bandComboBox->setCurrentText (out_of_band->name_);
+    }
+  displayDialFrequency ();
+}
+
 void MainWindow::on_bandComboBox_activated (int index)
 {
-  auto frequencies = m_config.frequencies ();
-  auto frequency = frequencies->data (frequencies->index (index, 0));
-  // Lookup band
-  auto bands = m_config.bands ();
-  auto band_index = bands->find (frequency);
-  if (band_index.isValid ()) {
-    ui->bandComboBox->lineEdit ()->setStyleSheet ({});
-    ui->bandComboBox->setCurrentText (band_index.data ().toString ());
-  } else {
-    ui->bandComboBox->lineEdit ()->setStyleSheet ("QLineEdit {color: yellow; background-color : red;}");
-    ui->bandComboBox->setCurrentText (bands->data (QModelIndex {}).toString ());
-  }
-  auto f = frequency.value<Frequency> ();
-  if (m_plus2kHz) f += 2000;
+  auto const& frequencies = m_config.frequencies ();
+  auto const& source_index = frequencies->mapToSource (frequencies->index (index, FrequencyList::frequency_column));
+  Frequency frequency {m_dialFreq};
+  if (source_index.isValid ())
+    {
+      frequency = frequencies->frequency_list ()[source_index.row ()].frequency_;
+    }
   m_bandEdited = true;
-  band_changed (f);
-  m_wideGraph->setRxBand(band_index.data().toString());
-//  qDebug() << "bandComboBox_activated" << index << 0.000001*f;
+  band_changed (frequency);
+  m_wideGraph->setRxBand (m_config.bands ()->find (frequency)->name_);
 }
 
 void MainWindow::band_changed (Frequency f)
@@ -3607,23 +3617,6 @@ void MainWindow::on_cbTxLock_clicked(bool checked)
   if(m_lockTxFreq) on_pbR2T_clicked();
 }
 
-void MainWindow::on_cbPlus2kHz_toggled(bool checked)
-{
-  m_plus2kHz = checked;
-
-  if (m_config.transceiver_online (false)) { // update state only if not starting up
-      psk_Reporter->sendReport();    // Upload any queued spots before changing band
-      auto f = m_dialFreq;
-      if (m_plus2kHz) {
-        f += 2000;
-      } else {
-        f -= 2000;
-      }
-      m_bandEdited = true;
-      band_changed (f);
-  }
-}
-
 void MainWindow::handle_transceiver_update (Transceiver::TransceiverState s)
 {
   transmitDisplay (s.ptt ());
@@ -3867,9 +3860,6 @@ void MainWindow::transmitDisplay (bool transmitting)
       ui->pbR2T->setEnabled (QSY_allowed);
       ui->cbTxLock->setEnabled (QSY_allowed);
     }
-
-      // Allow +2kHz only when not transmitting or if TX QSYs are allowed
-    ui->cbPlus2kHz->setEnabled (!transmitting || m_config.tx_QSY_allowed ());
 
       // the following are always disallowed in transmit
     ui->menuMode->setEnabled (!transmitting);
@@ -4173,9 +4163,8 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
 
       if (m_config.insert_blank () && m_blankLine) {
         QString band;
-        auto const& bands_model = m_config.bands ();
         Frequency f=1000000.0*rxFields.at(3).toDouble()+0.5;
-        band = ' ' + bands_model->data (bands_model->find (f)).toString ();
+        band = ' ' + m_config.bands ()->find (f)->name_;
         ui->decodedTextBrowser->append(band.rightJustified (71, '-'));
         m_blankLine = false;
       }
@@ -4355,10 +4344,9 @@ void MainWindow::bandHopping()
 
   m_band00=iband;
   auto frequencies = m_config.frequencies ();
-  for (int i=0; i<99; i++) {
-    auto frequency=frequencies->data (frequencies->index (i, 0));
+  for (int row = 0; row < frequencies->rowCount (); ++row) {
+    auto frequency=frequencies->data (frequencies->index (row, FrequencyList::frequency_column));
     auto f = frequency.value<Frequency>();
-    if(f==0) break;
     if(f==f0) {
       on_bandComboBox_activated(i);                        //Set new band
 //      qDebug() << nhr << nmin << int(sec) << "Band selected" << i << 0.000001*f0 << 0.000001*f;
