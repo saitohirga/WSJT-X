@@ -222,7 +222,7 @@ public:
         Q_EMIT do_free_text (id_, text, false);
       });
     connect (message_line_edit_, &QLineEdit::editingFinished, [this] () {
-        Q_EMIT do_free_text (id_, message_line_edit_->text (), true);
+        Q_EMIT do_free_text (id_, message_line_edit_->text (), !message_line_edit_->text ().isEmpty ());
       });
     control_layout->addLayout (form_layout);
     control_layout->addWidget (auto_off_button_);
