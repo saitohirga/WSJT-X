@@ -720,7 +720,7 @@ void MainWindow::readSettings()
   on_nightBands_editingFinished();
   ui->tuneBands->setText(m_settings->value("TuneBands","").toString());
   on_tuneBands_editingFinished();
-  ui->graylineDuration->setText(m_settings->value("GraylineDuration","").toString());
+  ui->graylineDuration->setText(m_settings->value("GrayLineDuration","").toString());
   on_graylineDuration_editingFinished();
   m_settings->endGroup();
 
@@ -3705,7 +3705,7 @@ void MainWindow::transmit (double snr)
   if (m_mode=="WSPR-2") {                                      //### Similar code needed for WSPR-15 ###
 
     Q_EMIT sendMessage (NUM_WSPR_SYMBOLS, 8192.0,
-                        ui->TxFreqSpinBox->value()-2, m_toneSpacing,
+                        ui->TxFreqSpinBox->value() - 1.5 * 12000 / 8192, m_toneSpacing,
                         &m_soundOutput, m_config.audio_output_channel(),
                         true, snr);
   }
