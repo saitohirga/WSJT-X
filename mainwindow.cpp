@@ -4344,9 +4344,16 @@ void MainWindow::bandHopping()
 
   m_band00=iband;
   auto frequencies = m_config.frequencies ();
+  // iterate the filtered by mode FrequencyList model
   for (int row = 0; row < frequencies->rowCount (); ++row) {
-    auto frequency=frequencies->data (frequencies->index (row, FrequencyList::frequency_column));
-    auto f = frequency.value<Frequency>();
+    // lookup the underlying source model index from the filtered
+    // model index
+    auto const& source_index = frequencies->mapToSource (frequencies->index (row, FrequencyList::frequency_column));
+    // and use it to directly access the list of frequencies that the
+    // FrequencyList model wraps (we could also use the model data()
+    // member using the EditRole of the frequency_column but this way
+    // avoids going via a QVariant item)
+    auto const& f = frequencies->frequency_list ()[source_index.row ()].frequency_;
     if(f==f0) {
       on_bandComboBox_activated(i);                        //Set new band
 //      qDebug() << nhr << nmin << int(sec) << "Band selected" << i << 0.000001*f0 << 0.000001*f;
