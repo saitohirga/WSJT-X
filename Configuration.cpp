@@ -695,6 +695,7 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   , self_ {self}
   , ui_ {new Ui::configuration_dialog}
   , settings_ {settings}
+  , doc_dir_ {QApplication::applicationDirPath ()}
   , frequencies_ {
     {
       136130,
@@ -1202,7 +1203,7 @@ void Configuration::impl::read_settings ()
   TX_messages_ = settings_->value ("Tx2QSO", false).toBool ();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
   rig_params_.split_mode = settings_->value ("SplitMode", QVariant::fromValue (TransceiverFactory::split_mode_none)).value<TransceiverFactory::SplitMode> ();
-  udp_server_name_ = settings_->value ("UDPServer", "localhost").toString ();
+  udp_server_name_ = settings_->value ("UDPServer", "127.0.0.1").toString ();
   udp_server_port_ = settings_->value ("UDPServerPort", 2237).toUInt ();
   accept_udp_requests_ = settings_->value ("AcceptUDPRequests", false).toBool ();
   udpWindowToFront_ = settings_->value ("udpWindowToFront",false).toBool ();

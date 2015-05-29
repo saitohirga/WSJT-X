@@ -190,11 +190,36 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   connect (m_logDlg.data (), &LogQSO::acceptQSO, this, &MainWindow::acceptQSO2);
   connect (this, &MainWindow::finished, m_logDlg.data (), &LogQSO::close);
 
-
   // Network message handlers
   connect (m_messageClient, &MessageClient::reply, this, &MainWindow::replyToCQ);
   connect (m_messageClient, &MessageClient::replay, this, &MainWindow::replayDecodes);
+  connect (m_messageClient, &MessageClient::halt_tx, [this] (bool auto_only) {
+      if (m_config.accept_udp_requests ()) {
+        if (auto_only) {
+          if (ui->autoButton->isChecked ()) {
+            ui->autoButton->click ();
+          }
+        } else {
+          ui->stopTxButton->click();
+        }
+      }
+    });
   connect (m_messageClient, &MessageClient::error, this, &MainWindow::networkError);
+  connect (m_messageClient, &MessageClient::free_text, [this] (QString const& text, bool send) {
+      if (m_config.accept_udp_requests ()) {
+        if (0 == ui->tabWidget->currentIndex ()) {
+          ui->tx5->setCurrentText (text);
+          if (send) {
+            ui->txb5->click ();
+          }
+        } else if (1 == ui->tabWidget->currentIndex ()) {
+          ui->freeTextMsg->setCurrentText (text);
+          if (send) {
+            ui->rbFreeText->click ();
+          }
+        }
+      }
+    });
 
   on_EraseButton_clicked ();
 
@@ -794,6 +819,7 @@ void MainWindow::on_actionAbout_triggered()                  //Display "About"
 void MainWindow::on_autoButton_clicked (bool checked)
 {
   m_auto = checked;
+  m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall, QString::number (ui->rptSpinBox->value ()), m_modeTx, ui->autoButton->isChecked (), m_transmitting);
 }
 
 void MainWindow::auto_tx_mode (bool state)
@@ -987,7 +1013,7 @@ void MainWindow::displayDialFrequency ()
 
 void MainWindow::statusChanged()
 {
-  m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall, QString::number (ui->rptSpinBox->value ()), m_modeTx);
+  m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall, QString::number (ui->rptSpinBox->value ()), m_modeTx, ui->autoButton->isChecked (), m_transmitting);
 
   QFile f {m_config.temp_dir ().absoluteFilePath ("wsjtx_status.txt")};
   if(f.open(QFile::WriteOnly | QIODevice::Text)) {
@@ -1787,6 +1813,7 @@ void MainWindow::guiUpdate()
 
       m_transmitting = true;
       transmitDisplay (true);
+      m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall, QString::number (ui->rptSpinBox->value ()), m_modeTx, ui->autoButton->isChecked (), m_transmitting);
     }
 
   if(!m_btxok && btxok0 && g_iptt==1) stopTx();
@@ -1875,6 +1902,7 @@ void MainWindow::stopTx()
   tx_status_label->setText("");
   ptt0Timer->start(200);                       //Sequencer delay
   monitor (true);
+  m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall, QString::number (ui->rptSpinBox->value ()), m_modeTx, ui->autoButton->isChecked (), m_transmitting);
 }
 
 void MainWindow::stopTx2()
@@ -2887,7 +2915,7 @@ void MainWindow::on_pbSend73_clicked()
   if(m_transmitting) m_restart=true;
 }
 
-void MainWindow::on_rbGenMsg_toggled(bool checked)
+void MainWindow::on_rbGenMsg_clicked(bool checked)
 {
   m_freeText=!checked;
   if(!m_freeText) {
@@ -2896,7 +2924,7 @@ void MainWindow::on_rbGenMsg_toggled(bool checked)
   }
 }
 
-void MainWindow::on_rbFreeText_toggled(bool checked)
+void MainWindow::on_rbFreeText_clicked(bool checked)
 {
   m_freeText=checked;
   if(m_freeText) {

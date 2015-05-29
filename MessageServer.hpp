@@ -48,11 +48,19 @@ public:
   // ask the client with identification 'id' to replay all decodes
   Q_SLOT void replay (QString const& id);
 
+  // ask the client with identification 'id' to halt transmitting
+  // auto_only just disables auto Tx, otherwise halt is immediate
+  Q_SLOT void halt_tx (QString const& id, bool auto_only);
+
+  // ask the client with identification 'id' to set the free text
+  // message and optionally send it ASAP
+  Q_SLOT void free_text (QString const& id, QString const& text, bool send);
+
   // the following signals are emitted when a client broadcasts the
   // matching message
   Q_SIGNAL void client_opened (QString const& id);
   Q_SIGNAL void status_update (QString const& id, Frequency, QString const& mode, QString const& dx_call
-                               , QString const& report, QString const& tx_mode);
+                               , QString const& report, QString const& tx_mode, bool tx_enabled, bool transmitting);
   Q_SIGNAL void client_closed (QString const& id);
   Q_SIGNAL void decode (bool is_new, QString const& id, QTime time, qint32 snr, float delta_time
                         , quint32 delta_frequency, QString const& mode, QString const& message);

@@ -1,0 +1,205 @@
+// This is a comment line, anything with // is ignored at process time.
+= WSJT-X User Guide
+:Revision: {VERSION}
+// For web-pages, adding :badges: is ok, but is a security issue for
+// package building .deb, .rpm, etc as it exposes the IP address and the images
+// are non-free, so can't be included as part of the Debian package.
+// :badges:
+:icons:
+:numbered:
+:keywords: amateur radio weak signal communication K1JT WSJT JT65 JT9
+:description: Software for Amateur Radio Weak-Signal Communication
+:prog: WSJT-X
+
+// use global link file
+include::../common/links.adoc[]
+
+// These [[xxxx]] labels are HTML anchors, and can be used to
+// navigate though the document easily: <<INTRO,See Introduction>> will
+// place a hyper-link in your text to take you too the anchored section.
+// All major sections or points of interest should have one.
+
+// == is level (2), section 1.0, === would mean section 1.1, === would
+// be section 1.1.1. This method is used throughout the document.
+
+[[INTRO]]
+== Introduction
+include::introduction.adoc[]
+
+[[SYSREQ]]
+== System Requirements
+include::system-requirements.adoc[]
+
+[[INSTALL]]
+== Installation
+
+Installation packages for Windows, Linux, and OS X are found on the
+the {homepage}. Click on the _WSJT-X_ link at the left margin, and
+then select the appropriate package for your operating system.
+
+[[INSTALL_WIN]]
+=== Windows
+include::install-windows.adoc[]
+
+[[INSTALL_LINUX]]
+=== Linux
+include::install-linux.adoc[]
+
+[[INSTALL_OSX]]
+=== Macintosh OS X
+include::install-mac.adoc[]
+
+////
+[[SRC_CODE]]
+=== Source Code
+include::install-from-source.adoc[]
+////
+
+[[CONFIG]] 
+== Settings
+
+Select *Settings* from the *File* menu or by typing *F2* (on
+Macintosh, *Command* or *Cmd*).  The following sections describe setup
+optiions available on each of seven tabs selectable near the top of the
+window.
+
+[[GENERAL]]
+=== General
+include::settings-general.adoc[]
+
+[[RADIO]]
+=== Radio
+include::settings-radio.adoc[]
+
+[[AUDIO]]
+=== Audio
+include::settings-audio.adoc[]
+
+[[TXMACROS]]
+=== Tx Macros
+include::settings-txmacros.adoc[]
+
+[[REPORTING]]
+=== Reporting
+include::settings-reporting.adoc[]
+
+[[BAND_SETTINGS]]
+=== Frequencies
+include::settings-frequencies.adoc[]
+
+[[COLORS]]
+=== Colors
+include::settings-colors.adoc[]
+
+[[TRANSCEIVER]]
+== Transceiver Setup
+include::transceiver-setup.adoc[]
+
+[[TUTORIAL]]
+== Basic Operating Tutorial
+
+[[TUT_MAIN]]
+=== Main Window Settings
+include::tutorial-main-window.adoc[]
+
+[[TUT_WIDE_GRAPH]]
+=== Wide Graph Settings
+include::tutorial-wide-graph-settings.adoc[]
+
+[[TUT_EX1]]
+=== Sample File 1
+include::tutorial-example1.adoc[]
+
+[[TUT_EX2]]
+=== Sample File 2
+include::tutorial-example2.adoc[]
+
+[[MAKE_QSOS]]
+== Making QSOs
+include::make-qso.adoc[]
+
+[[COMMAND_REF]]
+== Command Reference
+
+[[CONTROLS_WIDE]]
+=== Wide Graph
+include::controls-functions-wide-graph.adoc[]
+
+[[CONTROLS_MAIN]]
+=== Main Window
+include::controls-functions-main-window.adoc[]
+
+[[CONTROLS_LEFT]]
+=== Controls Left
+include::controls-functions-left.adoc[]
+
+[[CONTROLS_CENTER]]
+=== Controls Center
+include::controls-functions-center.adoc[]
+
+[[CONTROLS_MSGS]]
+=== Tx Messages
+include::controls-functions-messages.adoc[]
+
+[[STATUS_BAR]]
+=== Status Bar
+include::controls-functions-status-bar.adoc[]
+
+[[MENUS]]
+=== Menus
+include::controls-functions-menus.adoc[]
+
+[[LOGGING]]
+== Logging
+include::logging.adoc[]
+
+[[COOP_PGMS]]
+== Cooperating Programs
+include::cooperating-programs.adoc[]
+
+[[PLATFORM]]
+== Platform Dependencies
+include::platform-dependencies.adoc[]
+
+
+[[FAQ]]
+== Frequently Asked Questions
+include::faq.adoc[]
+
+[[PROTOCOLS]]
+== Protocol Specifications
+
+[[JT65PRO]]
+=== JT65
+include::jt65-protocol.adoc[]
+
+[[JT9PRO]]
+=== JT9
+include::jt9-protocol.adoc[]
+
+[[JT65_JT9]]
+=== JT65 & JT9 Differences
+include::jt65-jt9-differences.adoc[]
+
+[[TXRX]]
+== Implementation Details
+include::tx-rx.adoc[]
+
+////
+[[TROUBLE_SHOOTING]]
+== Troubleshooting
+To be added (?) ...
+////
+
+[[UTIL]]
+== Utility Programs
+include::utilities.adoc[]
+
+[[ACK]]
+== Acknowledgements
+include::acknowledgements.adoc[]
+
+[[LICENSE]]
+== License
+include::../common/license.adoc[]
+

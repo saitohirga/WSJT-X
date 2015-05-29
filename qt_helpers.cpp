@@ -2,6 +2,9 @@
 
 #include <QString>
 #include <QFont>
+#include <QWidget>
+#include <QStyle>
+#include <QVariant>
 
 QString font_as_stylesheet (QFont const& font)
 {
@@ -23,4 +26,12 @@ QString font_as_stylesheet (QFont const& font)
      .arg (font.pointSize ())
      .arg (font.styleName ())
      .arg (font_weight);
+}
+
+void update_dynamic_property (QWidget * widget, char const * property, QVariant const& value)
+{
+  widget->setProperty (property, value);
+  widget->style ()->unpolish (widget);
+  widget->style ()->polish (widget);
+  widget->update ();
 }

@@ -41,6 +41,9 @@ if (POLICY CMP0043)
 endif (POLICY CMP0043)
 
 
+include (${PROJECT_SOURCE_DIR}/CMake/VersionCompute.cmake)
+message (STATUS "Building ${CMAKE_PROJECT_NAME}-${wsjtx_VERSION}")
+
 #
 # project information
 #
@@ -49,7 +52,7 @@ set (PROJECT_VENDOR "Joe Taylor, K1JT")
 set (PROJECT_CONTACT "Joe Taylor <k1jt@arrl.net>")
 set (PROJECT_COPYRIGHT "Copyright (C) 2001-2014 by Joe Taylor, K1JT")
 set (PROJECT_HOMEPAGE "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx.html")
-set (PROJECT_MANUAL wsjtx-main.html)
+set (PROJECT_MANUAL wsjtx-main-${wsjtx_VERSION}.html)
 set (PROJECT_MANUAL_DIRECTORY_URL http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc)
 set (PROJECT_SUMMARY_DESCRIPTION "${PROJECT_NAME} - JT9 and JT65 Modes for LF, MF and HF Amateur Radio.")
 set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
@@ -79,9 +82,6 @@ set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
 set (PROJECT_KVASD_URL http://svn.code.sf.net/p/wsjt/wsjt/trunk/kvasd-binary)
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake/Modules ${CMAKE_MODULE_PATH})
-
-include (${PROJECT_SOURCE_DIR}/CMake/VersionCompute.cmake)
-message (STATUS "Building ${CMAKE_PROJECT_NAME}-${wsjtx_VERSION}")
 
 # make sure that the default configuration is a RELEASE
 if (NOT CMAKE_BUILD_TYPE)
@@ -113,6 +113,7 @@ option (WSJT_HAMLIB_TRACE "Debugging option that turns on minimal Hamlib interna
 option (WSJT_SOFT_KEYING "Apply a ramp to CW keying envelope to reduce transients." ON)
 option (WSJT_SKIP_MANPAGES "Skip *nix manpage generation.")
 option (WSJT_EMBED_SAMPLES "Embed sample files into WSJT-X resources." ON)
+option (WSJT_GENERATE_DOCS "Generate documentation files." ON)
 
 CMAKE_DEPENDENT_OPTION (WSJT_HAMLIB_VERBOSE_TRACE "Debugging option that turns on full Hamlib internal diagnostics." OFF WSJT_HAMLIB_TRACE OFF)
 CMAKE_DEPENDENT_OPTION (WSJT_QDEBUG_IN_RELEASE "Leave Qt debugging statements in Release configuration." OFF
@@ -393,6 +394,10 @@ set (all_C_and_CXXSRCS
   ${all_CXXSRCS}
   )
 
+set (message_aggregator_STYLESHEETS
+  qss/default.qss
+  )
+
 set (TOP_LEVEL_RESOURCES
   shortcuts.txt
   mouse_commands.txt
@@ -510,7 +515,9 @@ endif (APPLE)
 #
 find_program(CTAGS ctags)
 find_program(ETAGS etags)
-
+if (WSJT_GENERATE_DOCS)
+  add_subdirectory (doc)
+endif (WSJT_GENERATE_DOCS)
 
 #
 # C & C++ setup
@@ -603,13 +610,13 @@ FortranCInterface_HEADER (FC.h MACRO_NAMESPACE "FC_" SYMBOL_NAMESPACE "FC_"
 #
 # fetch latest HTML manual
 #
-set (WSJT_MANUAL_DIRECTORY "${PROJECT_MANUAL_DIRECTORY_URL}"
-  CACHE STRING "Can be overridden to a local URI")
-add_custom_target (user_manual ALL
-  ${CMAKE_COMMAND} -D URL=${WSJT_MANUAL_DIRECTORY} -D NAME=${PROJECT_MANUAL} -P ${CMAKE_SOURCE_DIR}/CMake/download_html_manual.cmake
-  COMMENT "Downloading ${PROJECT_NAME} HTML manual"
-  VERBATIM
-  )
+#set (WSJT_MANUAL_DIRECTORY "${PROJECT_MANUAL_DIRECTORY_URL}"
+#  CACHE STRING "Can be overridden to a local URI")
+#add_custom_target (user_manual ALL
+#  ${CMAKE_COMMAND} -D URL=${WSJT_MANUAL_DIRECTORY} -D NAME=${PROJECT_MANUAL} -P ${CMAKE_SOURCE_DIR}/CMake/download_html_manual.cmake
+#  COMMENT "Downloading ${PROJECT_NAME} HTML manual"
+#  VERBATIM
+#  )
 
 #
 # Setup RPATH so that built executable targets will run in both the
@@ -877,9 +884,13 @@ set_target_properties (wsjtx PROPERTIES
 target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia SerialPort)
 
+add_resources (message_aggregator_RESOURCES /qss ${message_aggregator_STYLESHEETS})
+configure_file (message_aggregator.qrc.in message_aggregator.qrc @ONLY)
+qt5_add_resources (message_aggregator_RESOURCES_RCC ${CMAKE_BINARY_DIR}/message_aggregator.qrc)
 add_executable (message_aggregator
   ${message_aggregator_CXXSRCS}
   wsjtx.rc
+  ${message_aggregator_RESOURCES_RCC}
   )
 target_link_libraries (message_aggregator wsjt_qt)
 qt5_use_modules (message_aggregator Widgets OpenGL Network)
@@ -960,7 +971,6 @@ install (PROGRAMS
   )
 
 install (FILES
-  ${CMAKE_BINARY_DIR}/contrib/${PROJECT_MANUAL}
   README
   COPYING
   AUTHORS

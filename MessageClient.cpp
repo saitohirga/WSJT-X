@@ -38,11 +38,13 @@ public:
     closedown ();
   }
 
+  enum StreamStatus {Fail, Short, OK};
+
   void parse_message (QByteArray const& msg);
   void pending_datagrams ();
   void heartbeat ();
   void closedown ();
-  bool check_status (QDataStream const&) const;
+  StreamStatus check_status (QDataStream const&) const;
 
   Q_SLOT void host_info_results (QHostInfo);
 
@@ -91,7 +93,7 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
       // 
       NetworkMessage::Reader in {msg};
 
-      if (id_ == in.id ())          // for us
+      if (OK == check_status (in) && id_ == in.id ()) // OK and for us
         {
           //
           // message format is described in NetworkMessage.hpp
@@ -108,7 +110,7 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
                 QByteArray mode;
                 QByteArray message;
                 in >> time >> snr >> delta_time >> delta_frequency >> mode >> message;
-                if (check_status (in))
+                if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->reply (time, snr, delta_time, delta_frequency
                                          , QString::fromUtf8 (mode), QString::fromUtf8 (message));
@@ -117,10 +119,33 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
               break;
 
             case NetworkMessage::Replay:
-              if (check_status (in))
+              if (check_status (in) != Fail)
                 {
                   Q_EMIT self_->replay ();
                 }
+              break;
+
+            case NetworkMessage::HaltTx:
+              {
+                bool auto_only {false};
+                in >> auto_only;
+                if (check_status (in) != Fail)
+                  {
+                    Q_EMIT self_->halt_tx (auto_only);
+                  }
+              }
+              break;
+
+            case NetworkMessage::FreeText:
+              {
+                QByteArray message;
+                bool send {true};
+                in >> message >> send;
+                if (check_status (in) != Fail)
+                  {
+                    Q_EMIT self_->free_text (QString::fromUtf8 (message), send);
+                  }
+              }
               break;
 
             default:
@@ -145,7 +170,7 @@ void MessageClient::impl::heartbeat ()
     {
       QByteArray message;
       NetworkMessage::Builder hb {&message, NetworkMessage::Heartbeat, id_};
-      if (check_status (hb))
+      if (OK == check_status (hb))
         {
           writeDatagram (message, server_, server_port_);
         }
@@ -158,20 +183,22 @@ void MessageClient::impl::closedown ()
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Close, id_};
-      if (check_status (out))
+      if (OK == check_status (out))
         {
           writeDatagram (message, server_, server_port_);
         }
     }
 }
 
-bool MessageClient::impl::check_status (QDataStream const& stream) const
+auto MessageClient::impl::check_status (QDataStream const& stream) const -> StreamStatus
 {
   auto stat = stream.status ();
+  StreamStatus result {Fail};
   switch (stat)
     {
     case QDataStream::ReadPastEnd:
-      Q_EMIT self_->error ("Message serialization error: read failed");
+      qDebug () << __PRETTY_FUNCTION__ << " warning: short UDP message received.";
+      result = Short;
       break;
 
     case QDataStream::ReadCorruptData:
@@ -183,9 +210,10 @@ bool MessageClient::impl::check_status (QDataStream const& stream) const
       break;
 
     default:
+      result = OK;
       break;
     }
-  return QDataStream::Ok == stat;
+  return result;
 }
 
 MessageClient::MessageClient (QString const& id, QString const& server, port_type server_port, QObject * self)
@@ -235,16 +263,22 @@ void MessageClient::send_raw_datagram (QByteArray const& message, QHostAddress c
 }
 
 void MessageClient::status_update (Frequency f, QString const& mode, QString const& dx_call
-                                   , QString const& report, QString const& tx_mode)
+                                   , QString const& report, QString const& tx_mode
+                                   , bool tx_enabled, bool transmitting)
 {
    if (m_->server_port_ && !m_->server_.isNull ())
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Status, m_->id_};
-      out << f << mode.toUtf8 () << dx_call.toUtf8 () << report.toUtf8 () << tx_mode.toUtf8 ();
-      if (m_->check_status (out))
+      out << f << mode.toUtf8 () << dx_call.toUtf8 () << report.toUtf8 () << tx_mode.toUtf8 ()
+          << tx_enabled << transmitting;
+      if (impl::OK == m_->check_status (out))
         {
           m_->writeDatagram (message, m_->server_, m_->server_port_);
+        }
+      else
+        {
+          Q_EMIT error ("Error creating UDP message");
         }
     }
 }
@@ -257,9 +291,13 @@ void MessageClient::decode (bool is_new, QTime time, qint32 snr, float delta_tim
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Decode, m_->id_};
       out << is_new << time << snr << delta_time << delta_frequency << mode.toUtf8 () << message_text.toUtf8 ();
-      if (m_->check_status (out))
+      if (impl::OK == m_->check_status (out))
         {
           m_->writeDatagram (message, m_->server_, m_->server_port_);
+        }
+      else
+        {
+          Q_EMIT error ("Error creating UDP message");
         }
     }
 }
@@ -270,9 +308,13 @@ void MessageClient::clear_decodes ()
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Clear, m_->id_};
-      if (m_->check_status (out))
+      if (impl::OK == m_->check_status (out))
         {
           m_->writeDatagram (message, m_->server_, m_->server_port_);
+        }
+      else
+        {
+          Q_EMIT error ("Error creating UDP message");
         }
     }
 }
@@ -288,9 +330,13 @@ void MessageClient::qso_logged (QDateTime time, QString const& dx_call, QString 
       NetworkMessage::Builder out {&message, NetworkMessage::QSOLogged, m_->id_};
       out << time << dx_call.toUtf8 () << dx_grid.toUtf8 () << dial_frequency << mode.toUtf8 ()
           << report_sent.toUtf8 () << report_received.toUtf8 () << tx_power.toUtf8 () << comments.toUtf8 () << name.toUtf8 ();
-      if (m_->check_status (out))
+      if (impl::OK == m_->check_status (out))
         {
           m_->writeDatagram (message, m_->server_, m_->server_port_);
+        }
+      else
+        {
+          Q_EMIT error ("Error creating UDP message");
         }
     }
 }

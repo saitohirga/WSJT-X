@@ -1,0 +1,103 @@
+// Status=needsupdate
+// This is a comment line, anything with // is ignored at process time.
+// because the page is not a main page include, we need to add
+// ref-links again, as they are not global.
+:icons:
+:badges:
+:rig_template: link:rig-config-template.html[Template]
+:devmail: mailto:wsjt-devel@lists.berlios.de[wsjt-devel]
+
+= AOR Configuration Guide
+Available Configurations
+
+If you have configuration data for a rig that is not listed, or comments about a
+particular rig configuration, please use the {rig_template} and send it to
+{devmail}. 
+
+[align="center",valign="middle",halign="center"]
+// 5 Models per line please
+|========
+|<<X1,AOR1>>|<<X2,AOR2>>|AOR3|AOR4|AOR5
+|========
+
+[[X1]]
+== AOR-1
+.Configuration Covers:
+
+* MyCall:
+* MyGrid:
+* PTT Method:
+* Pskreporter:
+* CW Id After 73:
+* CW Interval:
+* CAT NOTES:
+* DTR:
+* RTS:
+* CAT Port:
+* CAT Port Settings:
+* Split:
+* Polling:
+* Audio-In:
+* Audio-In Mono:
+* Audio-Out:
+* Audio-Out:
+
+=== OS Specific Notes
+.Notes Relating To Operating System
+
+* Windows: XP, Vista, Win7, Win8, etc.
+* Linux: Slackaware, Fedora, FreeBSD, Ubuntu, Debian, etc
+* Mac OSx: 
+
+=== Interface Notes
+.Notes Relating To Rig Interface
+
+* Navigator
+* SignaLink
+* ShackLan
+* Kam
+* DX-Doubler
+* Array Solutions
+* Home-Brew
+
+[[X2]]
+== AOR-2
+.Configuration Covers:
+
+* MyCall:
+* MyGrid:
+* PTT Method:
+* Pskreporter:
+* CW Id After 73:
+* CW Interval:
+* CAT NOTES:
+- Note-1/2/3
+* DTR:
+* RTS:
+* CAT Port:
+* CAT Port Settings:
+* Split:
+* Polling:
+* Audio
+-In:
+* Audio-In Mono:
+* Audio-Out:
+* Audio-Out:
+
+=== OS Specific Notes
+.Notes Relating To Operating System
+
+* Windows: XP, Vista, Win7, Win8, etc.
+* Linux: Slackaware, Fedora, FreeBSD, Ubuntu, Debian, etc
+* Mac OSx: 
+
+=== Interface Notes
+.Notes Relating To Rig Interface
+
+* Navigator
+* SignaLink
+* ShackLan
+* Kam
+* DX-Doubler
+* Array Solutions
+* Home-Brew
