@@ -842,6 +842,9 @@ if (WIN32)
   qt5_use_modules (wsjt_qt AxContainer AxBase)
 endif (WIN32)
 
+add_executable (jt4sim lib/jt4sim.f90 wsjtx.rc)
+target_link_libraries (jt4sim wsjt_fort wsjt_cxx)
+
 add_executable (jt9sim lib/jt9sim.f90 wsjtx.rc)
 target_link_libraries (jt9sim wsjt_fort wsjt_cxx)
 
@@ -962,7 +965,7 @@ install (TARGETS wsjtx
   BUNDLE DESTINATION . COMPONENT runtime
   )
 
-install (TARGETS jt9 jt65code jt9code jt4code wsprd message_aggregator 
+install (TARGETS jt9 jt65code jt9code jt4code jt4sim wsprd message_aggregator 
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
