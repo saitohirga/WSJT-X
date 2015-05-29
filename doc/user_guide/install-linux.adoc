@@ -1,39 +1,79 @@
 // Status=review
 
-* For Debian, Ubuntu, and other Debian-based systems:
-** 32-bit: {debian32}
+Debian, Ubuntu, and other Debian-based systems:
+
+* 32-bit: {debian32}
 - To install: +sudo dpkg -i wsjtx_{VERSION}_i386.deb+
 - Uninstall:  +sudo dpkg -P wsjtx+
-** 64-bit: {debian64}
+* 64-bit: {debian64}
 - To install: +sudo dpkg -i wsjtx_{VERSION}_amd64.deb+
 - Uninstall:  +sudo dpkg -P wsjtx+
-** You may also need to execute the following commands in a terminal:
+
+You may also need to execute the following commands in a terminal:
 
  sudo apt-get install libqt5multimedia5-plugins libqt5serialport5 
  sudo apt-get install libfftw3-single3
 
-* For Ubuntu 15.04 and similar systems:
+For Ubuntu 15.04 and similar systems, the above and also
 
- sudo apt-get install libqt5multimedia5-plugins libqt5serialport5
- sudo apt-get install libfftw3-single3 libqt5opengl5 
+ sudo apt-get install libqt5opengl5 
 
-* For Fedora, Red Hat, and other rpm-based systems:
-** 32-bit: {fedora32}
+Fedora, Red Hat, and other rpm-based systems:
+
+* 32-bit: {fedora32}
 - To install: +sudo rpm -i wsjtx-{VERSION}-i686.rpm+
 - Uninstall: +sudo rpm -e wsjtx+
-** 64-bit: {fedora64}
+* 64-bit: {fedora64}
 - To install: +sudo rpm -i wsjtx-{VERSION}-x86_64.rpm+
 - Uninstall: +sudo rpm -e wsjtx+
-** You may also need to execute the following commands in a terminal:
+
+You may also need to execute the following commands in a terminal:
 
  sudo yum install fftw-libs-single qt5-qtmultimedia qt5-qtserialport 
 
-* All Linux users should install a companion program called +kvasd+,
-the Koetter-Vardy algebraic soft-decision Reed Solomon decoder.  
-Execute the following commands from a terminal:
+.KVASD Installation
+
+All Linux users must install a companion program called +kvasd+, an
+implementation of the the Koetter-Vardy algebraic soft-decision
+decoder for the Reed Solomon (63,12) code.  Users of Ubuntu and other
+Debian-based sysyems can install +kvasd+ by executing the following
+commands in a terminal:
 
  sudo add-apt-repository ppa:ki7mt/kvasd-installer
  sudo apt-get update
  sudo apt-get install kvasd-installer
  kvasd-installer
+
+The final screen of the installer should include the line
+
+ KVASD version 1.12 -- Decode test *** PASSED ***
+
+which should also be displayed if the command
+
+ kvasd -v
+
+is executed after installation is complete.
+
+You can install +kvasd+ on most Linux systems (including ARM-based
+systems) by downloading, unpacking, and executing the simple tools
+packaged in the +kvasd-installer+ script.  Your system will need the 
+following standard tools already installed: 
+
+ autoconf awk bash dialog libgfortran svn
+
+Download the {kvasd_installer} tarfile to a conveniant directory, then
+execute the following commands in a terminal there:
+
+ tar xzf kvasd-installer-1.12.14.tar.gz
+ cd kvasd-installer-1.12.14
+ ./autogen.sh
+ sudo make install
+ kvasd-installer
+
+As described above, the final screen of the installer should include
+the line
+
+ KVASD version 1.12 -- Decode test *** PASSED ***
+
+
 

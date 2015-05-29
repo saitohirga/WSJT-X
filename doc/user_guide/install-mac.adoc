@@ -1,16 +1,25 @@
 // These instructions are up-to-date for WSJT-X v1.4
 
-* OS X 10.7 and later: {osx} 
+*OS X 10.7* and later: Download the file {osx} to your desktop,
+double-click on it and consult its +ReadMe+ file for important
+installation notes.  
 
-* After downloading it to your desktop, double-click on the dmg file
-and consult its +ReadMe+ file for important installation notes.
-
-* If you have already installed a previous version, you can retain it by
+If you have already installed a previous version, you can retain it by
 changing its name in the *Applications* folder (say, from _WSJT-X_ to
 _WSJT-X_previous_).  You can then proceed to the installation phase.
 
-* Remember to use the Mac's *Audio MIDI Setup* utility to configure
-your sound card for 48000 Hz, two-channel, 16-bit format.
+In a command-line terminal, execute the command
+
+ kvasd-installer
+
+and follow its instructions.  The final screen should include the line
+
+ KVASD version 1.12 -- Decode test *** PASSED ***
+
+Take note also of the following:
+
+* Use the Mac's *Audio MIDI Setup* utility to configure your sound
+card for 48000 Hz, two-channel, 16-bit format.
 
 * Use *System Preferences* to select an external time source to keep
 your system clock synchronized to UTC.
