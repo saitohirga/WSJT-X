@@ -28,12 +28,74 @@
 
  sudo yum install fftw-libs-single qt5-qtmultimedia qt5-qtserialport 
 
-* All Linux users should install a companion program called +kvasd+,
-the Koetter-Vardy algebraic soft-decision Reed Solomon decoder.  
-Execute the following commands from a terminal:
+.KVASD Installation
+All Linux users should install a companion program called +kvasd+,
+the Koetter-Vardy algebraic soft-decision Reed Solomon decoder. To
+facilitate the installation, several packages are available which
+are distribution dependent.
 
- sudo add-apt-repository ppa:ki7mt/kvasd-installer
- sudo apt-get update
- sudo apt-get install kvasd-installer
- kvasd-installer
+The following distributions can install the +kvasd+ Decoder using the PPA
+method:
+
+[horizontal]
+*Ubuntu*:: 14.04, 14.10, 15.04
+*Mint*:: 17.1 (Uses Ubuntu 14.04 repositories)
+
+.KVASD Installer via PPA
+Any Ubuntu based distribution that uses the Ubuntu repository versions listed
+above should be able to install via the PPA method. Installing via the PPA
+will resolve all required dependencies, no additional package installations
+should be required.
+
+* Open a terminal, Ctrl{plus}Alt{plus}T
+* sudo add-apt-repository ppa:ki7mt/kvasd-installer
+* Accept the PGP Key 
+* sudo apt-get update
+* sudo apt-get install kvasd-installer
+* Proceed to <<RUN_KVASD_INSTALLER, Run KVASD Installer>>
+
+.KVASD Installer via Source Code
+In addition to most of the later Ubuntu releases, reports of successful installation
+and operation of the +kvasd+ binary have been reported on various mailing lists:
+
+[horizontal]
+*Debian*:: 7.x (Wheezy), 8.0 (Jessie)
+*Fedora*:: 20 (Heisenbug), 21 (Twenty One)
+*Raspbian*:: ARMv7 - Wheezy base, dist-upgrade to Jessie
+
+While each distribution varies, the following list serves as the minimum package
+guide for both the +KVASD Installer+ package itself, and proper use of the
++kvasd+ binary.
+
+* Bash
+* Awk
+* Autoconf
+* Subversion
+* Dialog
+* libgfortran
+
+At the time of this writing, the KVASD Installer version is 1.12.14. Ensure
+the packages list above are installed, then perform the following steps.
+
+* Download the tarball: {kvasd_installer}
+* Remove any previous installation of KVASD Installer
+* mkdir -p ~/Projects
+* Copy kvasd-installer-1.12.14.tar.gz to ~/Projects
+* cd ~/Projects
+* tar -xf kvasd-installer-1.12.14.tar.gz
+* cd ./kvasd-installer-1.12.14
+* ./autogen.sh
+* sudo make install
+* Proceed to <<RUN_KVASD_INSTALLER, Run KVASD Installer>>
+
+[[RUN_KVASD_INSTALLER]]
+.Run KVASD Installer
+Installing the decoder is straight forward, simply run the installer, and
+select your desired option.
+
+* In a terminal, type..: kvasd-installer
+* From the main menu, select Option 1, Install decoder
+* Follow the prompts, accepting the EULA ( End User License Agreement )
+* If successful, the KVASD version, passed message and LDD info will be displayed
+* Exit KVASD Installer
 
