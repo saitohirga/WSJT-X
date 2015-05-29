@@ -8,15 +8,10 @@ If you have already installed a previous version, you can retain it by
 changing its name in the *Applications* folder (say, from _WSJT-X_ to
 _WSJT-X_previous_).  You can then proceed to the installation phase.
 
-In a command-line terminal, execute the command
-
- kvasd-installer
-
-and follow its instructions.  The final screen should include the line
-
- KVASD version 1.12 -- Decode test *** PASSED ***
-
 Take note also of the following:
+
+* Double-click on *KVASD-Installer* to insert the KVASD decoder into
+_WSJT-X_.
 
 * Use the Mac's *Audio MIDI Setup* utility to configure your sound
 card for 48000 Hz, two-channel, 16-bit format.
