@@ -4355,7 +4355,7 @@ void MainWindow::bandHopping()
     // avoids going via a QVariant item)
     auto const& f = frequencies->frequency_list ()[source_index.row ()].frequency_;
     if(f==f0) {
-      on_bandComboBox_activated(i);                        //Set new band
+      on_bandComboBox_activated(row); //Set new band
 //      qDebug() << nhr << nmin << int(sec) << "Band selected" << i << 0.000001*f0 << 0.000001*f;
       break;
     }
