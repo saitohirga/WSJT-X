@@ -4311,7 +4311,7 @@ void MainWindow::bandHopping()
   if(isun==2) s=m_sunsetBands;
   if(isun==3) s=m_nightBands;
 
-  Frequency f0;
+  Frequency f0=0;
   iband=-1;
   for(i=0; i<s.length(); i++) {              //See if designated band is active
     if(s.at(i)==bandName[iband0]) {
@@ -4339,15 +4339,13 @@ void MainWindow::bandHopping()
 
   QThread::msleep(1500);
 
-//  qDebug() << nhr << nmin << int(sec) << "isun:" << isun << s << iband0 << m_band00 << iband << bname << f0/1000000.0;
-//  qDebug() << nhr << nmin << int(sec) << "Switching to:"<< bname << f0/1000000.0;
+//  qDebug() << nhr << nmin << int(sec) << bname << f0 << 0.000001*f0;
 
   m_band00=iband;
   auto frequencies = m_config.frequencies ();
-  // iterate the filtered by mode FrequencyList model
+  // Iterate the filtered-by-mode FrequencyList model
   for (int row = 0; row < frequencies->rowCount (); ++row) {
-    // lookup the underlying source model index from the filtered
-    // model index
+    // Lookup the underlying source model index from the filtered model index
     auto const& source_index = frequencies->mapToSource (frequencies->index (row, FrequencyList::frequency_column));
     // and use it to directly access the list of frequencies that the
     // FrequencyList model wraps (we could also use the model data()

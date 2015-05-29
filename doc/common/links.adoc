@@ -97,7 +97,7 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :wsjt_svn: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/[here]
 :wspr_code: http://physics.princeton.edu/pulsar/K1JT/WSPRcode.exe[WSPRcode.exe]
 :wspr_svn: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/branches/wspr/[here]
-:kvasd_installer: http://sourceforge.net/projects/wsjt/files/kvasd-installer/kvasd-installer-1.12.14/kvasd-installer-1.12.14.tar.gz/download[Link KVASD-Installer]
+:kvasd_installer: http://sourceforge.net/projects/wsjt/files/kvasd-installer/kvasd-installer-1.12.14/kvasd-installer-1.12.14.tar.gz/download[kvasd-installer]
 
 // MAIL-TO links
 :alex_efros: mailto:powerman@powerman.name[Alex Efros]
