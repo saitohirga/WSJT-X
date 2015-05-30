@@ -60,6 +60,55 @@ subroutine hopping(nyear,month,nday,uth,mygrid,nduration,npctx,isun,   &
      enddo
 
 ! We now have 1 to 3 Tx periods per band in the 2-hour interval.
+! Now go through and limit the number of successive Tx's to two.
+     icnt=0
+     isum=0
+     nkilled=0
+     do i=1,6
+       do j=1,10
+         if( tx(j,i).eq.1 ) then
+           icnt=icnt+1
+           if( icnt.gt.2 ) then
+             tx(j,i)=0  
+             nkilled=nkilled+1
+             icnt=0
+           endif
+         endif
+         isum=isum+tx(j,i)
+       enddo
+     enddo
+     actual_pct=isum/60.0 
+     write(*,*) "Actual pct = ",actual_pct," nkilled = ",nkilled
+! Not try to put back the slots that were zero'd without causing new runs
+     nz=0
+     do i=1,6
+       do j=1,10
+         if( tx(j,i).eq.0 ) then
+           nz=nz+1
+           if( (nz.eq.3) .and. (nkilled.gt.0) ) then
+             if(j.ge.2) then
+               tx(j-1,i) = 1
+               nkilled=nkilled-1
+             elseif(i.gt.1) then
+               tx(10,i-1) = 1
+               nkilled=nkilled-1
+             endif
+             nz=0
+           endif
+         endif
+       enddo
+     enddo 
+
+     isum=0
+     do i=1,6
+       do j=1,10
+         if( tx(j,i) .eq. 1 ) then
+           isum=isum+1
+         endif
+       enddo
+     enddo
+     actual_pct=isum/60.0
+     write(*,*) "Actual pct = ",actual_pct," nkilled = ",nkilled
   endif
 
   iband=mod(nsec/120,10) + 1
@@ -72,10 +121,10 @@ subroutine hopping(nyear,month,nday,uth,mygrid,nduration,npctx,isun,   &
   endif
   iband=iband-1
 
-!  write(*,3000) iband,iseq,nrx,ntxnext
-!3000 format('Fortran iband, iseq,nrx,ntxnext:',4i5)
-!     write(*,3001) int(tx)
-!3001 format(10i2)
+  write(*,3000) iband,iseq,nrx,ntxnext
+3000 format('Fortran iband, iseq,nrx,ntxnext:',4i5)
+     write(*,3001) int(tx)
+3001 format(10i2)
 
   return
 end subroutine hopping
