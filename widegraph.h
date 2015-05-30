@@ -42,6 +42,7 @@ public:
   void   setTol(int n);
   int    smoothYellow();
   void   setRxBand(QString band);
+  void   setWSPRtransmitted();
 
 signals:
   void freezeDecode2(int n);
@@ -95,6 +96,7 @@ private:
 
   bool   m_lockTxFreq;
   bool   m_bFlatten;
+  bool   m_bHaveTransmitted;    //Set true at end of a WSPR transmission
 
   QString m_mode;
   QString m_modeTx;

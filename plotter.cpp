@@ -6,8 +6,6 @@
 
 #define MAX_SCREENSIZE 2048
 
-//float swide0[2048];
-
 CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   QFrame(parent)
 {
@@ -128,15 +126,15 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
   }
 
   float ymin=1.e30;
+  if(swide[0]>1.e29 and swide[0]< 1.5e30) painter1.setPen(Qt::green);
+  if(swide[0]>1.4e30) painter1.setPen(Qt::yellow);
   for(int i=0; i<iz; i++) {
-    //    swide0[i]=swide[i];
     y=swide[i];
     if(y<ymin) ymin=y;
     int y1 = 10.0*gain*y + 10*m_plotZero +40;
     if (y1<0) y1=0;
     if (y1>254) y1=254;
-    if (swide[i]>1.e29) y1=255;
-    painter1.setPen(m_ColorTbl[y1]);
+    if (swide[i]<1.e29) painter1.setPen(m_ColorTbl[y1]);
     painter1.drawPoint(i,0);
   }
 
