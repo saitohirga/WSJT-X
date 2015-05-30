@@ -2229,7 +2229,7 @@ void MainWindow::startTx2()
     signalMeter->setValue(0);
     if(m_mode.mid(0,4)=="WSPR" and !m_tune) {
       t = " Transmiting " + m_mode + " ----------------------- " +
-        m_config.bands ()->find (m_dialFreq)->name_;
+        QString {m_config.bands ()->find (m_dialFreq)->name_};
       ui->decodedTextBrowser->append(t.rightJustified (71, '-'));
 
       QFile f {m_dataDir.absoluteFilePath ("ALL_WSPR.TXT")};
@@ -4164,7 +4164,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
       if (m_config.insert_blank () && m_blankLine) {
         QString band;
         Frequency f=1000000.0*rxFields.at(3).toDouble()+0.5;
-        band = ' ' + m_config.bands ()->find (f)->name_;
+        band = ' ' + QString {m_config.bands ()->find (f)->name_};
         ui->decodedTextBrowser->append(band.rightJustified (71, '-'));
         m_blankLine = false;
       }
