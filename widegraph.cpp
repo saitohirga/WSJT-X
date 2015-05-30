@@ -90,8 +90,7 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   ui->paletteComboBox->addItem (user_defined);
   if (user_defined == m_waterfallPalette) ui->paletteComboBox->setCurrentIndex(index);
   readPalette ();
-
-  //  ui->paletteComboBox->lineEdit()->setAlignment(Qt::AlignHCenter);
+  m_bHaveTransmitted=false;
 }
 
 WideGraph::~WideGraph ()
@@ -163,9 +162,12 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dat
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int ntr = (ms/1000) % m_TRperiod;
     if((ndiskdata && ihsym <= m_waterfallAvg) || (!ndiskdata && ntr<m_ntr0)) {
+      float flagValue=1.0e30;
+      if(m_bHaveTransmitted) flagValue=2.0e30;
       for (int i=0; i<2048; i++) {
-        swide[i] = 1.e30;
+        swide[i] = flagValue;
       }
+      m_bHaveTransmitted=false;
     }
     m_ntr0=ntr;
     ui->widePlot->draw(swide,true);
@@ -425,4 +427,9 @@ void WideGraph::on_smoSpinBox_valueChanged(int n)
 int WideGraph::smoothYellow()
 {
   return m_nsmo;
+}
+
+void WideGraph::setWSPRtransmitted()
+{
+  m_bHaveTransmitted=true;
 }

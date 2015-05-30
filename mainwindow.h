@@ -384,6 +384,7 @@ private:
   bool    m_tuneup;
   bool    m_bTxTime;
   bool    m_rxDone;
+  bool    m_bHaveTransmitted;    //Can be used to prohibit consecutive WSPR transmittions
 
   float   m_pctZap;
 

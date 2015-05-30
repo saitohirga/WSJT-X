@@ -393,6 +393,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_bTxTime=false;
   m_band00=-1;
   m_rxDone=false;
+  m_bHaveTransmitted=false;
 
   m_fWSPR["160"]=1.8366;                //WSPR frequencies
   m_fWSPR["80"]=3.5926;
@@ -1828,11 +1829,9 @@ void MainWindow::guiUpdate()
       m_tuneup=false;                              //This is not an ATU tuneup
       if(m_pctx==0) m_nrx=1;                       //Don't transmit if m_pctx=0
       bool btx = m_auto and (m_nrx<=0);            //To Tx, we need m_auto and Rx sequsnce finished
-      if(m_ntr == -1) btx=false;                   //Normally, no two consecutive transmissions
+      if(m_bHaveTransmitted) btx=false;            //Normally, no two consecutive transmissions
       if(m_auto and m_txNext) btx=true;            //TxNext button overrides
       if(m_auto and m_pctx==100) btx=true;         //Always transmit
-
-//      qDebug() << "B" << m_pctx << m_auto << m_nrx << m_ntr << m_txNext;
 
       if(btx) {
 // This will be a WSPR Tx sequence. Compute # of Rx's that should follow.
@@ -1844,13 +1843,15 @@ void MainWindow::guiUpdate()
           if(x<m_rxavg) m_nrx=1;
         }
         m_ntr=-1;                          //This says we will have transmitted
+        m_bHaveTransmitted=true;
         m_txNext=false;
         ui->pbTxNext->setChecked(false);
-        m_bTxTime=true;                      //Start a WSPR Tx sequence
+        m_bTxTime=true;                    //Start a WSPR Tx sequence
       } else {
 // This will be a WSPR Rx sequence.
         m_ntr=1;                           //This says we will have received
-        m_bTxTime=false;                     //Start a WSPR Rx sequence
+        m_bHaveTransmitted=false;
+        m_bTxTime=false;                   //Start a WSPR Rx sequence
       }
     }
 
@@ -2271,8 +2272,9 @@ void MainWindow::stopTx2()
     m_repeatMsg=0;
   }
   if(m_mode.mid(0,4)=="WSPR" and m_ntr==-1 and !m_tuneup) {
+    m_wideGraph->setWSPRtransmitted();
     if(m_bandHopping) {
-      qDebug () << "Call bandHopping after Tx" << m_tuneup;
+//      qDebug () << "Call bandHopping after Tx" << m_tuneup;
       bandHopping();
     }
     m_ntr=0;
@@ -4337,9 +4339,7 @@ void MainWindow::bandHopping()
     }
   }
 
-  QThread::msleep(1500);
-
-//  qDebug() << nhr << nmin << int(sec) << bname << f0 << 0.000001*f0;
+  QThread::msleep(500);                //### ??? Is this OK to do ??? ###
 
   m_band00=iband;
   auto frequencies = m_config.frequencies ();
