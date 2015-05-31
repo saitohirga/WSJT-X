@@ -4303,9 +4303,8 @@ void MainWindow::bandHopping()
     }
 
     QString new_band;
-    int index;
-    if ((index = s.indexOf (hopping_bands[iband0])) >= 0) { //See if designated band is active
-      new_band = hopping_bands[index];
+    if (s.contains (hopping_bands[iband0])) { //See if designated band is active
+      new_band = hopping_bands[iband0];
     }
     else {
       // If designated band is not active, choose one that is active
