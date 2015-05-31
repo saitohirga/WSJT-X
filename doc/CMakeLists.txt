@@ -85,7 +85,7 @@ set (UG_IMGS
   user_guide/images/decode-menu.png
   user_guide/images/main-ui-1.5.png
   user_guide/images/r3666-main-ui-80.png
-  user_guide/images/settings-ui.png
+  user_guide/images/settings-general.png
   user_guide/images/wide-graph-controls.png
   user_guide/images/decodes.png
   user_guide/images/main-ui-controls.png
@@ -93,7 +93,7 @@ set (UG_IMGS
   user_guide/images/setup-menu.png
   user_guide/images/file-menu.png
   user_guide/images/misc-controls-center.png
-  user_guide/images/r4148-freq-ui.png
+  user_guide/images/settings-frequencies.png
   user_guide/images/special-mouse-commands.png
   user_guide/images/psk-reporter.png
   user_guide/images/jtalert.png
