@@ -33,7 +33,6 @@
 #include "FrequencyList.hpp"
 #include "StationList.hpp"
 #include "LiveFrequencyValidator.hpp"
-#include "FrequencyItemDelegate.hpp"
 #include "MessageClient.hpp"
 
 #include "ui_mainwindow.h"
@@ -1148,7 +1147,7 @@ void MainWindow::qsy (Frequency f)
 void MainWindow::displayDialFrequency ()
 {
   // lookup band
-  auto const& band_name = m_config.bands ()->find (m_dialFreq)->name_;
+  auto const& band_name = m_config.bands ()->find (m_dialFreq);
   ui->bandComboBox->setCurrentText (band_name);
   m_wideGraph->setRxBand (band_name);
 
@@ -1156,11 +1155,8 @@ void MainWindow::displayDialFrequency ()
   // of on VHF and up)
   bool valid {false};
   quint64 min_offset {99999999};
-  auto const& frequencies = m_config.frequencies ();
-  for (int row = 0; row < frequencies->rowCount (); ++row)
+  for (auto const& item : *m_config.frequencies ())
     {
-      auto const& source_row = frequencies->mapToSource (frequencies->index (row, 0)).row ();
-      auto const& item = frequencies->frequency_list ()[source_row];
       // we need to do specific checks for above and below here to
       // ensure that we can use unsigned Radio::Frequency since we
       // potentially use the full 64-bit unsigned range.
@@ -1653,7 +1649,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
             QString band;
             if (QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged > 50)
               {
-                band = ' ' + QString {m_config.bands ()->find (m_dialFreq)->name_};
+                band = ' ' + m_config.bands ()->find (m_dialFreq);
               }
             ui->decodedTextBrowser->insertLineSpacer (band.rightJustified  (40, '-'));
             m_blankLine = false;
@@ -2228,8 +2224,16 @@ void MainWindow::startTx2()
     transmit (snr);
     signalMeter->setValue(0);
     if(m_mode.mid(0,4)=="WSPR" and !m_tune) {
+<<<<<<< variant A
       t = " Transmitting " + m_mode + " ----------------------- " +
         QString {m_config.bands ()->find (m_dialFreq)->name_};
+>>>>>>> variant B
+      t = " Transmiting " + m_mode + " ----------------------- " +
+        m_config.bands ()->find (m_dialFreq);
+####### Ancestor
+      t = " Transmiting " + m_mode + " ----------------------- " +
+        QString {m_config.bands ()->find (m_dialFreq)->name_};
+======= end
       ui->decodedTextBrowser->append(t.rightJustified (71, '-'));
 
       QFile f {m_dataDir.absoluteFilePath ("ALL_WSPR.TXT")};
@@ -2963,7 +2967,7 @@ void MainWindow::acceptQSO2(QDateTime const& QSO_date, QString const& call, QStr
                             , QString const& name)
 {
   QString date = m_dateTimeQSO.toString("yyyyMMdd");
-  m_logBook.addAsWorked (m_hisCall, m_config.bands ()->find (m_dialFreq)->name_, m_modeTx, date);
+  m_logBook.addAsWorked (m_hisCall, m_config.bands ()->find (m_dialFreq), m_modeTx, date);
 
   m_messageClient->qso_logged (QSO_date, call, grid, dial_freq, mode, rpt_sent, rpt_received, tx_power, comments, name);
 
@@ -3181,11 +3185,11 @@ void MainWindow::switch_mode (Mode mode)
 {
   auto f = m_dialFreq;
   m_config.frequencies ()->filter (mode);
-  auto const& index = m_config.frequencies ()->best_working_frequency (f, mode);
-  if (index.isValid ())
+  auto const& row = m_config.frequencies ()->best_working_frequency (f);
+  if (row >= 0)
     {
-      ui->bandComboBox->setCurrentIndex (index.row ());
-      on_bandComboBox_activated (index.row ());
+      ui->bandComboBox->setCurrentIndex (row);
+      on_bandComboBox_activated (row);
     }
 }
 
@@ -3332,16 +3336,15 @@ void MainWindow::on_bandComboBox_currentIndexChanged (int index)
 
   // Lookup band
   auto const& band  = m_config.bands ()->find (frequency);
-  auto const& out_of_band  = m_config.bands ()->out_of_band ();
-  if (out_of_band != band)
+  if (!band.isEmpty ())
     {
       ui->bandComboBox->lineEdit ()->setStyleSheet ({});
-      ui->bandComboBox->setCurrentText (band->name_);
+      ui->bandComboBox->setCurrentText (band);
     }
   else
     {
       ui->bandComboBox->lineEdit ()->setStyleSheet ("QLineEdit {color: yellow; background-color : red;}");
-      ui->bandComboBox->setCurrentText (out_of_band->name_);
+      ui->bandComboBox->setCurrentText (m_config.bands ()->oob ());
     }
   displayDialFrequency ();
 }
@@ -3357,7 +3360,7 @@ void MainWindow::on_bandComboBox_activated (int index)
     }
   m_bandEdited = true;
   band_changed (frequency);
-  m_wideGraph->setRxBand (m_config.bands ()->find (frequency)->name_);
+  m_wideGraph->setRxBand (m_config.bands ()->find (frequency));
 }
 
 void MainWindow::band_changed (Frequency f)
@@ -4164,7 +4167,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
       if (m_config.insert_blank () && m_blankLine) {
         QString band;
         Frequency f=1000000.0*rxFields.at(3).toDouble()+0.5;
-        band = ' ' + QString {m_config.bands ()->find (f)->name_};
+        band = ' ' + m_config.bands ()->find (f);
         ui->decodedTextBrowser->append(band.rightJustified (71, '-'));
         m_blankLine = false;
       }

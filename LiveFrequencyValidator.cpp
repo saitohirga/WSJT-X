@@ -42,17 +42,16 @@ auto LiveFrequencyValidator::validate (QString& input, int& pos) const -> State
 void LiveFrequencyValidator::fixup (QString& input) const
 {
   QRegExpValidator::fixup (input);
-  auto const& out_of_band = bands_->out_of_band ();
-  if (!QString {out_of_band->name_}.startsWith (input))
+  if (!bands_->oob ().startsWith (input))
     {
       if (input.contains ('m', Qt::CaseInsensitive))
         {
           input = input.toLower ();
 
           QVector<QVariant> frequencies;
-          Q_FOREACH (auto const& item, frequencies_->frequency_list ())
+          for (auto const& item : frequencies_->frequency_list ())
             {
-              if (bands_->find (item.frequency_)->name_ == input)
+              if (bands_->find (item.frequency_) == input)
                 {
                   frequencies << item.frequency_;
                 }
@@ -70,11 +69,11 @@ void LiveFrequencyValidator::fixup (QString& input) const
         {
           // frequency input
           auto f = Radio::frequency (input, 6);
-          input = bands_->find (f)->name_;
+          input = bands_->find (f);
           Q_EMIT valid (f);
         }
 
-      if (bands_->out_of_band ()->name_ == input)
+      if (bands_->oob () == input)
         {
           combo_box_->lineEdit ()->setStyleSheet ("QLineEdit {color: yellow; background-color : red;}");
         }

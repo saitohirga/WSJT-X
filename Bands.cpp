@@ -7,11 +7,14 @@
 
 namespace
 {
-  // Local structure to hold a single ADIF band definition.
-
   // Table of ADIF band definitions as defined in the ADIF
   // specification.
-  Bands::ADIFBand constexpr ADIF_bands[] = {
+  struct ADIFBand
+  {
+    char const * const name_;
+    Radio::Frequency lower_bound_;
+    Radio::Frequency upper_bound_;
+  } constexpr ADIF_bands[] = {
     {"2190m",	136000u,  		137000u},
     {"630m",  472000u,  		479000u},
     {"560m",  501000u,  		504000u},
@@ -44,7 +47,7 @@ namespace
     {"1mm",   241000000000u,250000000000u},
   };
 
-  Bands::ADIFBand constexpr oob = {"OOB", 0, std::numeric_limits<Bands::Frequency>::max ()};
+  QString const oob_name {QObject::tr ("OOB")};
 
   int constexpr table_rows ()
   {
@@ -57,22 +60,23 @@ Bands::Bands (QObject * parent)
 {
 }
 
-auto Bands::find (Frequency f) const -> ADIFBand const *
+QString Bands::find (Frequency f) const
 {
+  QString result;
   auto const& end_iter = ADIF_bands + table_rows ();
   auto const& row_iter = std::find_if (ADIF_bands, end_iter, [f] (ADIFBand const& band) {
       return band.lower_bound_ <= f && f <= band.upper_bound_;
     });
   if (row_iter != end_iter)
     {
-      return row_iter;
+      result = row_iter->name_;
     }
-  return &oob;
+  return result;
 }
 
-auto Bands::out_of_band () const -> ADIFBand const *
+QString const& Bands::oob ()
 {
-  return &oob;
+  return oob_name;
 }
 
 int Bands::rowCount (QModelIndex const& parent) const
@@ -99,7 +103,7 @@ QVariant Bands::data (QModelIndex const& index, int role) const
       // Hijack root for OOB string.
       if (Qt::DisplayRole == role)
         {
-          item = oob.name_;
+          item = oob_name;
         }
     }
   else

@@ -50,15 +50,44 @@ public:
 
   enum Column {mode_column, frequency_column, frequency_mhz_column};
 
+  // an iterator that meets the requirements of the C++ for range statement
+  class const_iterator
+  {
+  public:
+    const_iterator (FrequencyList const * parent, int row)
+      : parent_ {parent}
+      , row_ {row}
+    {
+    }
+
+    Item const& operator * ();
+    bool operator != (const_iterator const&) const;
+    const_iterator& operator ++ ();
+
+  private:
+    FrequencyList const * parent_;
+    int row_;
+  };
+
   explicit FrequencyList (Bands const *, QObject * parent = nullptr);
   ~FrequencyList ();
 
-  // Load and store contents
+  // Load and store underlying items
   FrequencyItems frequency_list (FrequencyItems);
   FrequencyItems const& frequency_list () const;
 
-  // Find nearest best working frequency given a frequency and mode
-  QModelIndex best_working_frequency (Frequency, Mode) const;
+  // Iterators for the sorted and filtered items
+  //
+  // Note that these iterators are on the final sorted and filtered
+  // rows, if you need to access the underlying unfiltered and
+  // unsorted frequencies then use the frequency_list() member to
+  // access the underlying list of rows
+  const_iterator begin () const;
+  const_iterator end () const;
+
+  // Find the row of the nearest best working frequency given a
+  // frequency and mode
+  int best_working_frequency (Frequency) const;
 
   // Set filter
   void filter (Mode);

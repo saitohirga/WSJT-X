@@ -15,9 +15,9 @@
 // Responsibilities
 //
 //  Provides  a  well  known  band  name mapped  to  lower  and  upper
-//  frequency  limits.  Also  provides   a  convenience  operation  to
-//  determine the band details for  any given frequency, the result of
-//  which may be  invalid if the given frequency doesn't  lie within a
+//  frequency  limits.   Also  provides  a  convenience  operation  to
+//  determine the  band name  for any given  frequency, the  result of
+//  which may  be null  if the  given frequency  doesn't lie  within a
 //  recognised band.
 //
 // Collaborations
@@ -32,20 +32,13 @@ class Bands final
 public:
   using Frequency = Radio::Frequency;
 
-  struct ADIFBand
-  {
-    char const * const name_;
-    Radio::Frequency lower_bound_;
-    Radio::Frequency upper_bound_;
-  };
-
   explicit Bands (QObject * parent = nullptr);
 
   //
   // Model API
   //
-  ADIFBand const * find (Frequency) const; // find band Frequency is in
-  ADIFBand const * out_of_band () const;
+  QString find (Frequency) const; // find band Frequency is in
+  static QString const& oob ();
 
   // Custom role for sorting.
   static int constexpr SortRole = Qt::UserRole;
