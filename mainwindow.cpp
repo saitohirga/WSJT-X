@@ -52,6 +52,9 @@ namespace
   Radio::Frequency constexpr default_frequency {14076000};
   QRegExp message_alphabet {"[- @A-Za-z0-9+./?#]*"};
 
+  // These 10 bands are the hopping candidates and are globally coordinated
+  QStringList const hopping_bands = {"160m","80m","60m","40m","30m","20m","17m","15m","12m","10m"};
+
   bool message_is_73 (int type, QStringList const& msg_parts)
   {
     return type >= 0
@@ -390,19 +393,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_uploading=false;
   m_hopTest=false;
   m_bTxTime=false;
-  m_band00=-1;
   m_rxDone=false;
-
-  m_fWSPR["160"]=1.8366;                //WSPR frequencies
-  m_fWSPR["80"]=3.5926;
-  m_fWSPR["60"]=5.2872;
-  m_fWSPR["40"]=7.0386;
-  m_fWSPR["30"]=10.1387;
-  m_fWSPR["20"]=14.0956;
-  m_fWSPR["17"]=18.1046;
-  m_fWSPR["15"]=21.0946;
-  m_fWSPR["12"]=24.9246;
-  m_fWSPR["10"]=28.1246;
 
   signalMeter = new SignalMeter(ui->meterFrame);
   signalMeter->resize(50, 160);
@@ -2224,16 +2215,8 @@ void MainWindow::startTx2()
     transmit (snr);
     signalMeter->setValue(0);
     if(m_mode.mid(0,4)=="WSPR" and !m_tune) {
-<<<<<<< variant A
-      t = " Transmitting " + m_mode + " ----------------------- " +
-        QString {m_config.bands ()->find (m_dialFreq)->name_};
->>>>>>> variant B
       t = " Transmiting " + m_mode + " ----------------------- " +
         m_config.bands ()->find (m_dialFreq);
-####### Ancestor
-      t = " Transmiting " + m_mode + " ----------------------- " +
-        QString {m_config.bands ()->find (m_dialFreq)->name_};
-======= end
       ui->decodedTextBrowser->append(t.rightJustified (71, '-'));
 
       QFile f {m_dataDir.absoluteFilePath ("ALL_WSPR.TXT")};
@@ -3821,14 +3804,15 @@ void MainWindow::pskSetLocal ()
 {
   // find the station row, if any, that matches the band we are on
   auto stations = m_config.stations ();
-  auto matches = stations->match (stations->index (0, 0)
+  auto matches = stations->match (stations->index (0, StationList::band_column)
                                   , Qt::DisplayRole
                                   , ui->bandComboBox->currentText ()
                                   , 1
                                   , Qt::MatchExactly);
   QString antenna_description;
   if (!matches.isEmpty ()) {
-    antenna_description = stations->index (matches.first ().row (), 2).data ().toString ();
+    antenna_description = stations->index (matches.first ().row ()
+                                           , StationList::description_column).data ().toString ();
   }
   psk_Reporter->setLocalStation(m_config.my_callsign (), m_config.my_grid (),
         antenna_description, QString {"WSJT-X v" + version() + " " +
@@ -4274,7 +4258,6 @@ void MainWindow::on_cbBandHop_toggled(bool b)
 
 void MainWindow::bandHopping()
 {
-  QString bandName[]={"160","80","60","40","30","20","17","15","12","10"};
   QDateTime t = QDateTime::currentDateTimeUtc();
   QString date = t.date().toString("yyyy MMM dd").trimmed();
   QString utc = t.time().toString().trimmed();
@@ -4286,9 +4269,8 @@ void MainWindow::bandHopping()
   float sec=t.time().second() + 0.001*t.time().msec();
   float uth=nhr + nmin/60.0 + sec/3600.0;
   int isun;
-  int iband0,iband;
+  int iband0;
   int ntxnext;
-  int i,j;
 
   static int icall=0;
   if(m_hopTest) uth+= 2.0*icall/60.0;
@@ -4296,7 +4278,7 @@ void MainWindow::bandHopping()
 
 // Find grayline status, isun: 0=Sunrise, 1=Day, 2=Sunset, 3=Night
   hopping_(&nyear, &month, &nday, &uth,
-           const_cast <char *> (m_config.my_grid ().toLatin1().constData()),
+           m_config.my_grid ().toLatin1().constData(),
            &m_grayDuration, &m_pctx, &isun, &iband0, &ntxnext, 6);
 
 
@@ -4306,97 +4288,72 @@ void MainWindow::bandHopping()
     m_nrx=1;
   }
 
-if( m_bandHopping ) {
-  QString bname;
-  QStringList s;
-  if(isun==0) s=m_sunriseBands;
-  if(isun==1) s=m_dayBands;
-  if(isun==2) s=m_sunsetBands;
-  if(isun==3) s=m_nightBands;
+  if( m_bandHopping ) {
+    QStringList s;
+    if(isun==0) s=m_sunriseBands;
+    if(isun==1) s=m_dayBands;
+    if(isun==2) s=m_sunsetBands;
+    if(isun==3) s=m_nightBands;
 
-  Frequency f0=0;
-  iband=-1;
-  for(i=0; i<s.length(); i++) {              //See if designated band is active
-    if(s.at(i)==bandName[iband0]) {
-      f0=(Frequency)1000000*m_fWSPR[bandName[iband0]]+0.5;
-      bname=s.at(i);
-      iband=iband0;
+    QString new_band;
+    if (s.contains (hopping_bands[iband0])) { //See if designated band is active
+      new_band = hopping_bands[iband0];
     }
-  }
-
-//If designated band is not active, choose one that is active
-  if(iband==-1) {
-    for(i=0; i<s.length(); i++) {
-      j=qrand() % s.length();
-      bname=s.at(j);
-      f0=(Frequency)1000000*m_fWSPR[bname]+0.5;
-      if(s.at(j)!=bandName[m_band00]) break;
-    }
-    for(i=0; i<10; i++) {
-      if(bname==bandName[i]) {
-        iband=i;
-        break;
+    else {
+      // If designated band is not active, choose one that is active
+      // and in the hopping list
+      for (auto i = 0; i < s.size (); ++i) { // arbitrary number of iterations
+        auto const& bname = s[qrand() % s.size ()]; // pick a random band
+        if (bname != m_band00 && hopping_bands.contains (bname)) {
+          new_band = bname;
+          break;
+        }
       }
     }
-  }
+    qDebug () << "bandHopping: m_band00:" << m_band00 << "new candidate band:" << new_band;
 
-  QThread::msleep(1500);
+    QThread::msleep(1500);
 
-//  qDebug() << nhr << nmin << int(sec) << bname << f0 << 0.000001*f0;
+    //  qDebug() << nhr << nmin << int(sec) << m_band00 << f0 << 0.000001*f0;
 
-  m_band00=iband;
-  auto frequencies = m_config.frequencies ();
-  // Iterate the filtered-by-mode FrequencyList model
-  for (int row = 0; row < frequencies->rowCount (); ++row) {
-    // Lookup the underlying source model index from the filtered model index
-    auto const& source_index = frequencies->mapToSource (frequencies->index (row, FrequencyList::frequency_column));
-    // and use it to directly access the list of frequencies that the
-    // FrequencyList model wraps (we could also use the model data()
-    // member using the EditRole of the frequency_column but this way
-    // avoids going via a QVariant item)
-    auto const& f = frequencies->frequency_list ()[source_index.row ()].frequency_;
-    if(f==f0) {
-      on_bandComboBox_activated(row); //Set new band
-//      qDebug() << nhr << nmin << int(sec) << "Band selected" << i << 0.000001*f0 << 0.000001*f;
-      break;
+    auto const& row = m_config.frequencies ()->best_working_frequency (new_band);
+    if (row >= 0) {             // band is configured
+      m_band00 = new_band;
+      ui->bandComboBox->setCurrentIndex (row);
+      on_bandComboBox_activated (row);
+
+      m_cmnd="";
+      QFile f1 {m_appDir + "/user_hardware.bat"};
+      if(f1.exists()) {
+        m_cmnd=QDir::toNativeSeparators (m_appDir + "/user_hardware.bat ") + m_band00;
+      }
+      QFile f2 {m_appDir + "/user_hardware.cmd"};
+      if(f2.exists()) {
+        m_cmnd=QDir::toNativeSeparators (m_appDir + "/user_hardware.cmd ") + m_band00;
+      }
+      QFile f3 {m_appDir + "/user_hardware.exe"};
+      if(f3.exists()) {
+        m_cmnd=QDir::toNativeSeparators (m_appDir + "/user_hardware.exe ") + m_band00;
+      }
+      QFile f4 {m_appDir + "/user_hardware"};
+      if(f4.exists()) {
+        m_cmnd=QDir::toNativeSeparators (m_appDir + "/user_hardware ") + m_band00;
+      }
+      if(m_cmnd!="") p3.start(m_cmnd);     // Execute user's hardware controller
+
+      // Produce a short tuneup signal
+      m_tuneup = false;
+      if (m_tuneBands.contains (m_band00)) {
+          m_tuneup = true;
+          on_tuneButton_clicked (true);
+          tuneATU_Timer->start (2500);
+      }
     }
-  }
 
-  m_cmnd="";
-  QFile f1 {m_appDir + "/user_hardware.bat"};
-  if(f1.exists()) {
-    m_cmnd=QDir::toNativeSeparators (m_appDir + "/user_hardware.bat ") + bname;
+    // Display grayline status
+    QString dailySequence[4]={"Sunrise grayline","Day","Sunset grayline","Night"};
+    auto_tx_label->setText(dailySequence[isun]);
   }
-  QFile f2 {m_appDir + "/user_hardware.cmd"};
-  if(f2.exists()) {
-    m_cmnd=QDir::toNativeSeparators (m_appDir + "/user_hardware.cmd ") + bname;
-  }
-  QFile f3 {m_appDir + "/user_hardware.exe"};
-  if(f3.exists()) {
-    m_cmnd=QDir::toNativeSeparators (m_appDir + "/user_hardware.exe ") + bname;
-  }
-  QFile f4 {m_appDir + "/user_hardware"};
-  if(f4.exists()) {
-    m_cmnd=QDir::toNativeSeparators (m_appDir + "/user_hardware ") + bname;
-  }
-  if(m_cmnd!="") p3.start(m_cmnd);     // Execute user's hardware controller
-
-// Displat grayline status
-  QString dailySequence[4]={"Sunrise grayline","Day","Sunset grayline","Night"};
-  auto_tx_label->setText(dailySequence[isun]);
-
-// Produce a short tuneup signal
-  s=m_tuneBands;
-  m_tuneup=false;
-  for(int i=0; i<s.length(); i++) {
-    if(s.at(i)==bname) m_tuneup=true;
-  }
-  if(m_tuneup) {
-    on_tuneButton_clicked(true);
-    tuneATU_Timer->start(2500);
-  }
-} //endif m_bandHopping
-
 }
 
 void MainWindow::on_pushButton_clicked()

@@ -14,18 +14,21 @@ class Bands;
 //
 // Class FrequencyList
 //
-//  Encapsulates a collection of frequencies.  The implementation is a
-//  table  containing the  list of  Frequency type  elements which  is
-//  editable  and  a  second  column  which  is  an  immutable  double
-//  representation  of  the  corresponding Frequency  item  scaled  to
-//  mega-Hertz.
+//  Encapsulates a  collection of  frequencies with  associated modes.
+//  The implementation is a table containing the list of Frequency and
+//  mode tuples which  are editable. A third column is  modeled in the
+//  model  which   is  an  immutable  double   representation  of  the
+//  corresponding Frequency item scaled to mega-Hertz.
 //
-//  The list is ordered.
+//  The list is ordered.  A filter on mode is available  and is set by
+//  the filter(Mode)  method. The  Mode value  Modes::NULL_MODE passes
+//  all rows in the filter.
 //
 // Responsibilities
 //
-//  Stores internally a list  of unique frequencies.  Provides methods
-//  to add and delete list elements.
+//  Stores  internally  a  list   of  unique  frequency  mode  tuples.
+//  Provides methods to add and delete list elements. Provides range
+//  iterators for a filtered view of the underlying table.
 //
 // Collaborations
 //
@@ -47,6 +50,7 @@ public:
     Mode mode_;
   };
   using FrequencyItems = QList<Item>;
+  using BandSet = QSet<QString>;
 
   enum Column {mode_column, frequency_column, frequency_mhz_column};
 
@@ -81,16 +85,26 @@ public:
   // Note that these iterators are on the final sorted and filtered
   // rows, if you need to access the underlying unfiltered and
   // unsorted frequencies then use the frequency_list() member to
-  // access the underlying list of rows
+  // access the underlying list of rows.
   const_iterator begin () const;
   const_iterator end () const;
 
+  // Bands of the frequencies
+  BandSet all_bands () const;
+  BandSet filtered_bands () const;
+
   // Find the row of the nearest best working frequency given a
-  // frequency and mode
+  // frequency. Returns -1 if no suitable working frequency is found
+  // in the list.
   int best_working_frequency (Frequency) const;
 
+  // Find the row  of the nearest best working frequency  given a band
+  // name. Returns -1 if no suitable working frequency is found in the
+  // list.
+  int best_working_frequency (QString const& band) const;
+
   // Set filter
-  void filter (Mode);
+  Q_SLOT void filter (Mode);
 
   // Reset
   Q_SLOT void reset_to_defaults ();

@@ -195,3 +195,29 @@ QVariant Bands::headerData (int section, Qt::Orientation orientation, int role) 
 
   return result;
 }
+
+QString Bands::const_iterator::operator * ()
+{
+  return ADIF_bands[row_].name_;
+}
+
+bool Bands::const_iterator::operator != (const_iterator const& rhs) const
+{
+  return row_ != rhs.row_;
+}
+
+auto Bands::const_iterator::operator ++ () -> const_iterator&
+{
+  ++row_;
+  return *this;
+}
+
+auto Bands::begin () const -> Bands::const_iterator
+{
+  return const_iterator (0);
+}
+
+auto Bands::end () const -> Bands::const_iterator
+{
+  return const_iterator (table_rows ());
+}
