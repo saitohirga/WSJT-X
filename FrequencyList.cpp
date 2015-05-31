@@ -167,10 +167,11 @@ auto FrequencyList::frequency_list () const -> FrequencyItems const&
   return m_->frequency_list_;
 }
 
-QModelIndex FrequencyList::best_working_frequency (Frequency f, Mode mode) const
+int FrequencyList::best_working_frequency (Frequency f) const
 {
+  int result {-1};
   auto const& target_band = m_->bands_->find (f);
-  if (target_band != m_->bands_->out_of_band ())
+  if (!target_band.isEmpty ())
     {
       // find a frequency in the same band that is allowed for the
       // target mode
@@ -178,16 +179,13 @@ QModelIndex FrequencyList::best_working_frequency (Frequency f, Mode mode) const
         {
           auto const& source_row = mapToSource (index (row, 0)).row ();
           auto const& band = m_->bands_->find (m_->frequency_list_[source_row].frequency_);
-          if (band->name_ == target_band->name_)
+          if (band == target_band)
             {
-              if (m_->frequency_list_[source_row].mode_ == mode)
-                {
-                  return index (row, 0);
-                }
+              return row;
             }
         }
     }
-  return QModelIndex {};
+  return result;
 }
 
 void FrequencyList::reset_to_defaults ()
@@ -360,7 +358,8 @@ QVariant FrequencyList::impl::data (QModelIndex const& index, int role) const
             case Qt::DisplayRole:
               {
                 auto const& band = bands_->find (frequency_item.frequency_);
-                item = Radio::pretty_frequency_MHz_string (frequency_item.frequency_) + " MHz (" + band->name_ + ')';
+                item = Radio::pretty_frequency_MHz_string (frequency_item.frequency_)
+                  + " MHz (" + (band.isEmpty () ? "OOB" : band) + ')';
               }
               break;
 
@@ -386,7 +385,8 @@ QVariant FrequencyList::impl::data (QModelIndex const& index, int role) const
             case Qt::DisplayRole:
               {
                 auto const& band = bands_->find (frequency_item.frequency_);
-                item = Radio::pretty_frequency_MHz_string (frequency_item.frequency_) + " MHz (" + band->name_ + ')';
+                item = Radio::pretty_frequency_MHz_string (frequency_item.frequency_)
+                  + " MHz (" + (band.isEmpty () ? "OOB" : band) + ')';
               }
               break;
 
@@ -526,4 +526,30 @@ QMimeData * FrequencyList::impl::mimeData (QModelIndexList const& items) const
 
   mime_data->setData (mime_type, encoded_data);
   return mime_data;
+}
+
+auto FrequencyList::const_iterator::operator * () -> Item const&
+{
+  return parent_->frequency_list ().at(parent_->mapToSource (parent_->index (row_, 0)).row ());
+}
+
+bool FrequencyList::const_iterator::operator != (const_iterator const& rhs) const
+{
+  return parent_ != rhs.parent_ || row_ != rhs.row_;
+}
+
+auto FrequencyList::const_iterator::operator ++ () -> const_iterator&
+{
+  ++row_;
+  return *this;
+}
+
+auto FrequencyList::begin () const -> FrequencyList::const_iterator
+{
+  return const_iterator (this, 0);
+}
+
+auto FrequencyList::end () const -> FrequencyList::const_iterator
+{
+  return const_iterator (this, rowCount ());
 }

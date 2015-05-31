@@ -15,16 +15,19 @@
 
 #include "FrequencyLineEdit.hpp"
 
+QItemEditorFactory * item_editor_factory ()
+{
+  static QItemEditorFactory * our_item_editor_factory = new QItemEditorFactory;
+  return our_item_editor_factory;
+}
+
 void register_types ()
 {
-  // Default custom item view delegates
-  auto factory = new QItemEditorFactory;
-
   // Radio namespace
   auto frequency_type_id = qRegisterMetaType<Radio::Frequency> ("Frequency");
-  factory->registerEditor (frequency_type_id, new QStandardItemEditorCreator<FrequencyLineEdit> ());
+  item_editor_factory ()->registerEditor (frequency_type_id, new QStandardItemEditorCreator<FrequencyLineEdit> ());
   auto frequency_delta_type_id = qRegisterMetaType<Radio::FrequencyDelta> ("FrequencyDelta");
-  factory->registerEditor (frequency_delta_type_id, new QStandardItemEditorCreator<FrequencyDeltaLineEdit> ());
+  item_editor_factory ()->registerEditor (frequency_delta_type_id, new QStandardItemEditorCreator<FrequencyDeltaLineEdit> ());
 
   // Frequency list model
   qRegisterMetaType<FrequencyList::Item> ("Item");
@@ -67,6 +70,4 @@ void register_types ()
 
   // Waterfall palette
   qRegisterMetaTypeStreamOperators<WFPalette::Colours> ("Colours");
-
-  QItemEditorFactory::setDefaultFactory (factory);
 }

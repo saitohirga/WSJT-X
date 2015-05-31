@@ -163,9 +163,9 @@
 #include <QDebug>
 
 #include "qt_helpers.hpp"
+#include "MetaDataRegistry.hpp"
 #include "SettingsGroup.hpp"
 #include "FrequencyLineEdit.hpp"
-#include "FrequencyItemDelegate.hpp"
 #include "CandidateKeyFilter.hpp"
 #include "ForeignKeyDelegate.hpp"
 #include "TransceiverFactory.hpp"
@@ -884,9 +884,15 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
 
   ui_->frequencies_table_view->setModel (&next_frequencies_);
   ui_->frequencies_table_view->sortByColumn (FrequencyList::frequency_column, Qt::AscendingOrder);
-  ui_->frequencies_table_view->setItemDelegateForColumn (FrequencyList::mode_column, new ForeignKeyDelegate {&modes_, 0, this});
   ui_->frequencies_table_view->setColumnHidden (FrequencyList::frequency_mhz_column, true);
 
+  // delegates
+  auto frequencies_item_delegate = new QStyledItemDelegate {this};
+  frequencies_item_delegate->setItemEditorFactory (item_editor_factory ());
+  ui_->frequencies_table_view->setItemDelegate (frequencies_item_delegate);
+  ui_->frequencies_table_view->setItemDelegateForColumn (FrequencyList::mode_column, new ForeignKeyDelegate {&modes_, 0, this});
+
+  // actions
   frequency_delete_action_ = new QAction {tr ("&Delete"), ui_->frequencies_table_view};
   ui_->frequencies_table_view->insertAction (nullptr, frequency_delete_action_);
   connect (frequency_delete_action_, &QAction::triggered, this, &Configuration::impl::delete_frequencies);
@@ -903,8 +909,14 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
 
   ui_->stations_table_view->setModel (&next_stations_);
   ui_->stations_table_view->sortByColumn (StationList::band_column, Qt::AscendingOrder);
+
+  // delegates
+  auto stations_item_delegate = new QStyledItemDelegate {this};
+  stations_item_delegate->setItemEditorFactory (item_editor_factory ());
+  ui_->stations_table_view->setItemDelegate (stations_item_delegate);
   ui_->stations_table_view->setItemDelegateForColumn (StationList::band_column, new ForeignKeyDelegate {&bands_, &next_stations_, 0, StationList::band_column, this});
 
+  // actions
   station_delete_action_ = new QAction {tr ("&Delete"), ui_->stations_table_view};
   ui_->stations_table_view->insertAction (nullptr, station_delete_action_);
   connect (station_delete_action_, &QAction::triggered, this, &Configuration::impl::delete_stations);

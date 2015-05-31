@@ -35,8 +35,7 @@ class Bands;
 //  Implements the  QAbstractTableModel interface for a  grid of bands
 //  with offset frequencies and antenna descriptions.
 //
-//  Uses the QAbstractItemModel interface of the bands model to lookup
-//  band information.
+//  Uses the Bands model to lookup band information.
 //
 class StationList final
   : public QSortFilterProxyModel

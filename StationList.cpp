@@ -203,12 +203,12 @@ auto StationList::impl::offset (Frequency f) const -> FrequencyDelta
 {
   // Lookup band for frequency
   auto const& band = bands_->find (f);
-  if (band != bands_->out_of_band ())
+  if (!band.isEmpty ())
     {
       // Lookup station for band
       for (int i = 0; i < stations_.size (); ++i)
         {
-          if (stations_[i].band_name_ == band->name_)
+          if (stations_[i].band_name_ == band)
             {
               return stations_[i].offset_;
             }
@@ -514,10 +514,10 @@ bool StationList::impl::dropMimeData (QMimeData const * data, Qt::DropAction act
           auto const& band = bands_->find (frequency);
           if (stations_.cend () == std::find_if (stations_.cbegin ()
                                                  , stations_.cend ()
-                                                 , [&band] (Station const& s) {return s.band_name_ == band->name_;}))
+                                                 , [&band] (Station const& s) {return s.band_name_ == band;}))
             {
               // not found so add it
-              add (Station {band->name_, 0, QString {}});
+              add (Station {band, 0, QString {}});
             }
         }
       return true;
