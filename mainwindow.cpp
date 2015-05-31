@@ -4347,6 +4347,11 @@ void MainWindow::bandHopping()
       if(f4.exists()) {
         m_cmnd=QDir::toNativeSeparators (m_appDir + "/user_hardware ") + m_band00;
       }
+
+      int n=m_cmnd.length();
+      if(m_cmnd.mid(n-1,1)=="m") {
+        m_cmnd=m_cmnd.mid(0,n-1);      //### Temporary? ### Strip trailimg "m"
+      }
       if(m_cmnd!="") p3.start(m_cmnd);     // Execute user's hardware controller
 
       // Produce a short tuneup signal
