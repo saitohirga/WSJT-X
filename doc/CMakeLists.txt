@@ -33,6 +33,7 @@ set (UG_SRCS
   user_guide/jt65-protocol.adoc
   user_guide/rig-config-softrock.adoc
   user_guide/tutorial-example2.adoc
+  user_guide/tutorial-vhf.adoc
   user_guide/controls-functions-messages.adoc
   user_guide/jt9-protocol.adoc
   user_guide/rig-config-template.adoc
