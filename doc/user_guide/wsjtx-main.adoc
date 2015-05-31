@@ -98,6 +98,10 @@ include::transceiver-setup.adoc[]
 [[TUTORIAL]]
 == Basic Operating Tutorial
 
+Sections <<TUT_MAIN,6.1>> through <<TUT_EX2,6.4>> are keyed to the
+needs of operation on the HF bands.  Section <<TUT_VHF,6.5>> has
+additional details of special relevance to VHF-and-up operation.
+
 [[TUT_MAIN]]
 === Main Window Settings
 include::tutorial-main-window.adoc[]
@@ -113,6 +117,10 @@ include::tutorial-example1.adoc[]
 [[TUT_EX2]]
 === Sample File 2
 include::tutorial-example2.adoc[]
+
+[[TUT_VHF]]
+=== VHF and Up
+include::tutorial-vhf.adoc[]
 
 [[MAKE_QSOS]]
 == Making QSOs
