@@ -4295,9 +4295,17 @@ void MainWindow::bandHopping()
     if(isun==2) s=m_sunsetBands;
     if(isun==3) s=m_nightBands;
 
+    // allow numeric only band names
+    for (auto& item : s) {
+      if (!item.endsWith ('m')) {
+        item += 'm';
+      }
+    }
+
     QString new_band;
-    if (s.contains (hopping_bands[iband0])) { //See if designated band is active
-      new_band = hopping_bands[iband0];
+    int index;
+    if ((index = s.indexOf (hopping_bands[iband0])) >= 0) { //See if designated band is active
+      new_band = hopping_bands[index];
     }
     else {
       // If designated band is not active, choose one that is active
@@ -4343,7 +4351,14 @@ void MainWindow::bandHopping()
 
       // Produce a short tuneup signal
       m_tuneup = false;
-      if (m_tuneBands.contains (m_band00)) {
+      auto tu_bands = m_tuneBands;
+    // allow numeric only band names
+      for (auto& item : tu_bands) {
+        if (!item.endsWith ('m')) {
+          item += 'm';
+        }
+      }
+      if (tu_bands.contains (m_band00)) {
           m_tuneup = true;
           on_tuneButton_clicked (true);
           tuneATU_Timer->start (2500);
