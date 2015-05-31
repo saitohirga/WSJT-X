@@ -173,8 +173,26 @@ int FrequencyList::best_working_frequency (Frequency f) const
   auto const& target_band = m_->bands_->find (f);
   if (!target_band.isEmpty ())
     {
-      // find a frequency in the same band that is allowed for the
-      // target mode
+      // find a frequency in the same band that is allowed
+      for (int row = 0; row < rowCount (); ++row)
+        {
+          auto const& source_row = mapToSource (index (row, 0)).row ();
+          auto const& band = m_->bands_->find (m_->frequency_list_[source_row].frequency_);
+          if (band == target_band)
+            {
+              return row;
+            }
+        }
+    }
+  return result;
+}
+
+int FrequencyList::best_working_frequency (QString const& target_band) const
+{
+  int result {-1};
+  if (!target_band.isEmpty ())
+    {
+      // find a frequency in the same band that is allowed
       for (int row = 0; row < rowCount (); ++row)
         {
           auto const& source_row = mapToSource (index (row, 0)).row ();
@@ -552,4 +570,24 @@ auto FrequencyList::begin () const -> FrequencyList::const_iterator
 auto FrequencyList::end () const -> FrequencyList::const_iterator
 {
   return const_iterator (this, rowCount ());
+}
+
+auto FrequencyList::all_bands () const -> BandSet
+{
+  BandSet result;
+  for (auto const& item : m_->frequency_list_)
+    {
+      result << m_->bands_->find (item.frequency_);
+    }
+  return result;
+}
+
+auto FrequencyList::filtered_bands () const -> BandSet
+{
+  BandSet result;
+  for (auto const& item : *this)
+    {
+      result << m_->bands_->find (item.frequency_);
+    }
+  return result;
 }

@@ -32,6 +32,23 @@ class Bands final
 public:
   using Frequency = Radio::Frequency;
 
+  // an iterator that meets the requirements of the C++ for range statement
+  class const_iterator
+  {
+  public:
+    const_iterator (int row)
+      : row_ {row}
+    {
+    }
+
+    QString operator * ();
+    bool operator != (const_iterator const&) const;
+    const_iterator& operator ++ ();
+
+  private:
+    int row_;
+  };
+
   explicit Bands (QObject * parent = nullptr);
 
   //
@@ -39,6 +56,10 @@ public:
   //
   QString find (Frequency) const; // find band Frequency is in
   static QString const& oob ();
+
+  // Iterators
+  const_iterator begin () const;
+  const_iterator end () const;
 
   // Custom role for sorting.
   static int constexpr SortRole = Qt::UserRole;

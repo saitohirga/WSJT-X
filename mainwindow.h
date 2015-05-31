@@ -328,7 +328,7 @@ private:
   qint32  m_pctx;
   qint32  m_nseq;
   qint32  m_grayDuration;
-  qint32  m_band00;
+  QString m_band00;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -454,8 +454,6 @@ private:
   QStringList m_nightBands;
   QStringList m_tuneBands;
 
-  QMap<QString,double> m_fWSPR;
-
   QHash<QString,bool> m_pfx;
   QHash<QString,bool> m_sfx;
 
@@ -552,7 +550,7 @@ extern "C" {
   void wspr_downsample_(short int d2[], int* k);
   void savec2_(char* fname, int* m_TRseconds, double* m_dialFreq, int len1);
 
-  void hopping_(int* nyear, int* month, int* nday, float* uth, char* MyGrid,
+  void hopping_(int* nyear, int* month, int* nday, float* uth, char const * MyGrid,
                 int* nduration, int* npctx, int* isun, int* iband,
                 int* ntxnext, int len);
 }
