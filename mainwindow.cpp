@@ -211,6 +211,8 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
           ui->tx5->setCurrentText (text);
           if (send) {
             ui->txb5->click ();
+          } else {
+            ui->txrb5->click ();
           }
         } else if (1 == ui->tabWidget->currentIndex ()) {
           ui->freeTextMsg->setCurrentText (text);
