@@ -73,6 +73,7 @@ public:
 
   QDir temp_dir () const;
   QDir doc_dir () const;
+  QDir data_dir () const;
 
   QAudioDeviceInfo const& audio_input_device () const;
   AudioDevice::Channel audio_input_channel () const;

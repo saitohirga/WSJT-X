@@ -442,6 +442,7 @@ private:
   QSettings * settings_;
 
   QDir doc_dir_;
+  QDir data_dir_;
   QDir temp_dir_;
   QDir default_save_directory_;
   QDir save_directory_;
@@ -569,6 +570,7 @@ Configuration::~Configuration ()
 }
 
 QDir Configuration::doc_dir () const {return m_->doc_dir_;}
+QDir Configuration::data_dir () const {return m_->data_dir_;}
 QDir Configuration::temp_dir () const {return m_->temp_dir_;}
 
 int Configuration::exec () {return m_->exec ();}
@@ -700,6 +702,7 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   , ui_ {new Ui::configuration_dialog}
   , settings_ {settings}
   , doc_dir_ {QApplication::applicationDirPath ()}
+  , data_dir_ {QApplication::applicationDirPath ()}
   , frequencies_ {&bands_}
   , next_frequencies_ {&bands_}
   , stations_ {&bands_}
@@ -719,15 +722,15 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
 {
   ui_->setupUi (this);
 
-
 #if !defined (CMAKE_BUILD)
 #define WSJT_SHARE_DESTINATION "."
 #define WSJT_DOC_DESTINATION "."
+#define WSJT_DATA_DESTINATION "."
 #endif
 
 #if !defined (Q_OS_WIN) || QT_VERSION >= 0x050300
-  auto path = QStandardPaths::locate (QStandardPaths::DataLocation, WSJT_DOC_DESTINATION, QStandardPaths::LocateDirectory);
-  if (path.isEmpty ())
+  auto doc_path = QStandardPaths::locate (QStandardPaths::DataLocation, WSJT_DOC_DESTINATION, QStandardPaths::LocateDirectory);
+  if (doc_path.isEmpty ())
     {
       doc_dir_.cdUp ();
 #if defined (Q_OS_MAC)
@@ -739,10 +742,27 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
     }
   else
     {
-      doc_dir_.cd (path);
+      doc_dir_.cd (doc_path);
+    }
+
+  auto data_path = QStandardPaths::locate (QStandardPaths::DataLocation, WSJT_DATA_DESTINATION, QStandardPaths::LocateDirectory);
+  if (data_path.isEmpty ())
+    {
+      data_dir_.cdUp ();
+#if defined (Q_OS_MAC)
+      data_dir_.cdUp ();
+      data_dir_.cdUp ();
+#endif
+      data_dir_.cd (WSJT_SHARE_DESTINATION);
+      data_dir_.cd (WSJT_DATA_DESTINATION);
+    }
+  else
+    {
+      data_dir_.cd (data_path);
     }
 #else
   doc_dir_.cd (WSJT_DOC_DESTINATION);
+  data_dir_.cd (WSJT_DATA_DESTINATION);
 #endif
 
   {
