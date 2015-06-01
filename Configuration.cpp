@@ -471,6 +471,7 @@ private:
   FrequencyList next_frequencies_;
   StationList stations_;
   StationList next_stations_;
+  FrequencyDelta current_offset_;
 
   QAction * frequency_delete_action_;
   QAction * frequency_insert_action_;
@@ -703,6 +704,7 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   , next_frequencies_ {&bands_}
   , stations_ {&bands_}
   , next_stations_ {&bands_}
+  , current_offset_ {0}
   , frequency_dialog_ {new FrequencyDialog {&modes_, this}}
   , station_dialog_ {new StationDialog {&next_stations_, &bands_, this}}
   , rig_active_ {false}
@@ -2122,7 +2124,12 @@ void Configuration::impl::transceiver_frequency (Frequency f)
       cached_rig_state_.mode (mode);
 
       // apply any offset & calibration
-      Q_EMIT frequency (apply_calibration (f + stations_.offset (f)), mode);
+      // we store the offset here for use in feedback from the rig, we
+      // cannot absolutely determine if the offset should apply but by
+      // simply picking an offset when the Rx frequency is set and
+      // sticking to it we get sane behaviour
+      current_offset_ = stations_.offset (f);
+      Q_EMIT frequency (apply_calibration (f + current_offset_), mode);
     }
 }
 
@@ -2137,7 +2144,12 @@ void Configuration::impl::transceiver_tx_frequency (Frequency f)
       if (cached_rig_state_.split ())
         {
           // apply and offset and calibration
-          f = apply_calibration (f + stations_.offset (f));
+          // we store the offset here for use in feedback from the
+          // rig, we cannot absolutely determine if the offset should
+          // apply but by simply picking an offset when the Rx
+          // frequency is set and sticking to it we get sane behaviour
+          current_offset_ = stations_.offset (f);
+          f = apply_calibration (f + current_offset_);
         }
 
 
@@ -2248,12 +2260,12 @@ void Configuration::impl::handle_transceiver_update (TransceiverState state)
     }
 
   // take off calibration & offset
-  state.frequency (remove_calibration (state.frequency ()) - stations_.offset (state.frequency ()));
+  state.frequency (remove_calibration (state.frequency ()) - current_offset_);
 
   if (state.tx_frequency ())
     {
       // take off calibration & offset
-      state.tx_frequency (remove_calibration (state.tx_frequency ()) - stations_.offset (state.tx_frequency ()));
+      state.tx_frequency (remove_calibration (state.tx_frequency ()) - current_offset_);
     }
 
   cached_rig_state_ = state;
