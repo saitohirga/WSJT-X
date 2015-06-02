@@ -2,7 +2,7 @@
 
 - *Bins/Pixel* = 4
 - *JT65 .... JT9* = 2500
-- *Start* = 200
+- *Start* = 200 Hz
 - *N Avg* = 5
 - *Zero* = 0
 - *Gain* = 0

@@ -111,12 +111,16 @@ include::tutorial-main-window.adoc[]
 include::tutorial-wide-graph-settings.adoc[]
 
 [[TUT_EX1]]
-=== Sample File 1
+=== JT9 Mode
 include::tutorial-example1.adoc[]
 
 [[TUT_EX2]]
-=== Sample File 2
+=== JT9+JT65 Mode
 include::tutorial-example2.adoc[]
+
+[[TUT_WSPR]]
+=== WSPR Mode
+include::tutorial-wspr.adoc[]
 
 [[TUT_VHF]]
 === VHF and Up
