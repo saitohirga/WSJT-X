@@ -42,11 +42,7 @@ subroutine astro(nyear,month,nday,uth,freq8,Mygrid,                    &
   call sun(nyear,month,nday,uth,lon,lat,RASun,DecSun,LST,      &
        AzSun,ElSun,mjd,day)
 
-!  freq=nfreq*1.e6
-!  if(nfreq.eq.2) freq=1.8e6
-!  if(nfreq.eq.4) freq=3.5e6
-
-  call MoonDop(nyear,month,nday,uth,lon,lat,RAMoon,DecMoon,    &
+  call MoonDopJPL(nyear,month,nday,uth,lon,lat,RAMoon,DecMoon,    &
        LST,HA,AzMoon,ElMoon,vr,dist)
 
 ! Compute spatial polarization offset

@@ -6,12 +6,16 @@ subroutine astrosub(nyear,month,nday,uth8,freq8,mygrid,hisgrid,          &
   implicit real*8 (a-h,o-z)
   character*6 mygrid,hisgrid,c1*1
   character*6 AzElFileName*(*),jpleph*(*)
+  character*80 jpleph_file_name
   logical*1 bTx
+  common/jplcom/jpleph_file_name
+
+  jpleph_file_name=jpleph
 
   call astro0(nyear,month,nday,uth8,freq8,mygrid,hisgrid,                &
      AzSun8,ElSun8,AzMoon8,ElMoon8,AzMoonB8,ElMoonB8,ntsky,ndop,ndop00,  &
      dbMoon8,RAMoon8,DecMoon8,HA8,Dgrd8,sd8,poloffset8,xnr8,dfdt,dfdt0,  &
-     width1,width2,w501,w502,xlst8,techo8)
+     width1,width2,xlst8,techo8)
 
   imin=60*uth8
   isec=3600*uth8
