@@ -97,13 +97,11 @@ OmniRigTransceiver::OmniRigTransceiver (std::unique_ptr<TransceiverBase> wrapped
   : wrapped_ {std::move (wrapped)}
   , use_for_ptt_ {TransceiverFactory::PTT_method_CAT == ptt_type || ("CAT" == ptt_port && (TransceiverFactory::PTT_method_RTS == ptt_type || TransceiverFactory::PTT_method_DTR == ptt_type))}
   , ptt_type_ {ptt_type}
-  , startup_poll_countdown_ {2}
   , rig_number_ {n}
   , readable_params_ {0}
   , writable_params_ {0}
   , send_update_signal_ {false}
   , reversed_ {false}
-  , starting_ {true}
 {
 }
 
@@ -183,11 +181,7 @@ void OmniRigTransceiver::do_start ()
     .arg (writable_params_, 8, 16, QChar ('0'))
     .arg (rig_number_).toLocal8Bit ());
 
-  rig_->GetRxFrequency ();
-  if (OmniRig::ST_ONLINE != rig_->Status ())
-    {
-      throw_qstring ("OmniRig exception: " + rig_->StatusStr ());
-    }
+  TRACE_CAT ("OmniRig status:" << rig_->StatusStr ());
 
   init_rig ();
 }
@@ -208,39 +202,35 @@ void OmniRigTransceiver::do_stop ()
 
 void OmniRigTransceiver::online_check ()
 {
-  if (starting_)
-    {
-      if (--startup_poll_countdown_)
-        {
-          init_rig ();
-          QTimer::singleShot (5000, this, SLOT (online_check ()));
-        }
-      else
-        {
-          startup_poll_countdown_ = 2;
-
-          // signal that we haven't seen anything from OmniRig
-          offline ("OmniRig initialisation timeout");
-        }
-    }
-  else if (OmniRig::ST_ONLINE != rig_->Status ())
+  if (OmniRig::ST_ONLINE != rig_->Status ())
     {
       offline ("OmniRig rig went offline for more than 5 seconds");
+    }
+  else
+    {
+      init_rig ();
     }
 }
 
 void OmniRigTransceiver::init_rig ()
 {
-  update_rx_frequency (rig_->GetRxFrequency ());
-  if (state ().split ())
+  if (OmniRig::ST_ONLINE != rig_->Status ())
     {
-      TRACE_CAT ("set split");
-      rig_->SetSplitMode (state ().frequency (), state ().tx_frequency ());
+      QTimer::singleShot (5000, this, SLOT (online_check ()));
     }
   else
     {
-      TRACE_CAT ("set simplex");
-      rig_->SetSimplexMode (state ().frequency ());
+      update_rx_frequency (rig_->GetRxFrequency ());
+      if (state ().split ())
+        {
+          TRACE_CAT ("set split");
+          rig_->SetSplitMode (state ().frequency (), state ().tx_frequency ());
+        }
+      else
+        {
+          TRACE_CAT ("set simplex");
+          rig_->SetSimplexMode (state ().frequency ());
+        }
     }
 }
 
@@ -290,19 +280,6 @@ void OmniRigTransceiver::handle_status_change (int rig_number)
         {
           QTimer::singleShot (5000, this, SLOT (online_check ()));
         }
-      else if (starting_)
-        {
-          starting_ = false;
-
-          TransceiverState old_state {state ()};
-          init_rig ();
-
-          if (old_state != state () || send_update_signal_)
-            {
-              update_complete ();
-              send_update_signal_ = false;
-            }
-        }
     }
 }
 
@@ -314,7 +291,7 @@ void OmniRigTransceiver::handle_params_change (int rig_number, int params)
         .arg (params, 8, 16, QChar ('0'))
         .arg (rig_number).toLocal8Bit ()
         << "state before:" << state ());
-      starting_ = false;
+      //      starting_ = false;
       TransceiverState old_state {state ()};
       auto need_frequency = false;
       // state_.online = true;	// sometimes we don't get an initial

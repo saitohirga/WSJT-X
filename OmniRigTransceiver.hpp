@@ -58,7 +58,6 @@ private:
   std::unique_ptr<TransceiverBase> wrapped_;
   bool use_for_ptt_;
   TransceiverFactory::PTTMethod ptt_type_;
-  unsigned startup_poll_countdown_;
   QScopedPointer<OmniRig::OmniRigX> omni_rig_;
   RigNumber rig_number_;
   QScopedPointer<OmniRig::RigX> rig_;
@@ -67,7 +66,6 @@ private:
   int writable_params_;
   bool send_update_signal_;
   bool reversed_;   // some rigs can reverse VFOs
-  bool starting_;
 };
 
 #endif
