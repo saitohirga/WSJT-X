@@ -2220,7 +2220,7 @@ void MainWindow::startTx2()
     transmit (snr);
     signalMeter->setValue(0);
     if(m_mode.mid(0,4)=="WSPR" and !m_tune) {
-      t = " Transmiting " + m_mode + " ----------------------- " +
+      t = " Transmitting " + m_mode + " ----------------------- " +
         m_config.bands ()->find (m_dialFreq);
       ui->decodedTextBrowser->append(t.rightJustified (71, '-'));
 
