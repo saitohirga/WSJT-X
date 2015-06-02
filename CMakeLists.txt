@@ -268,11 +268,8 @@ set (wsjt_FSRCS
   lib/chkss2.f90
   lib/coord.f90
   lib/db.f90
-  lib/dcoord.f90
   lib/decode65a.f90
   lib/decode65b.f90
-  lib/fftw3mod.f90
-  lib/jt9fano.f90
   lib/decode4.f90
   lib/decoder.f90
   lib/decjt9.f90
@@ -280,18 +277,17 @@ set (wsjt_FSRCS
   lib/deg2grid.f90
   lib/demod64a.f90
   lib/determ.f90
-  lib/dot.f90
   lib/downsam9.f90
   lib/encode232.f90
   lib/encode4.f90
   lib/entail.f90
+  lib/ephem.f90
   lib/extract.F90
   lib/extract4.f90
-  lib/geocentric.f90
-  lib/getmet4.f90
   lib/fano232.f90
   lib/fchisq.f90
   lib/fchisq65.f90
+  lib/fftw3mod.f90
   lib/fil3.f90
   lib/fil3c.f90
   lib/fil4.f90
@@ -311,6 +307,7 @@ set (wsjt_FSRCS
   lib/genwspr.f90
   lib/geodist.f90
   lib/getlags.f90
+  lib/getmet4.f90
   lib/graycode.f90
   lib/graycode65.f90
   lib/grayline.f90
@@ -323,13 +320,15 @@ set (wsjt_FSRCS
   lib/interleave63.f90
   lib/interleave9.f90
   lib/inter_wspr.f90
+  lib/jplsubs.f
   lib/jt4.f90
   lib/jt4a.f90
   lib/jt65a.f90
+  lib/jt9fano.f90
+  lib/libration.f90
   lib/lpf1.f90
   lib/mixlpf.f90
-  lib/moon2.f90
-  lib/moondop.f90
+  lib/moondopjpl.f90
   lib/morse.f90
   lib/move.f90
   lib/options.f90
@@ -343,6 +342,7 @@ set (wsjt_FSRCS
   lib/savec2.f90
   lib/sec_midn.f90
   lib/setup65.f90
+  lib/slasubs.f
   lib/sleep_msec.f90
   lib/slope.f90
   lib/smo.f90
@@ -358,8 +358,6 @@ set (wsjt_FSRCS
   lib/sync9.f90
   lib/timer.f90
   lib/timf2.f90
-  lib/tm2.f90
-  lib/toxyz.f90
   lib/twkfreq.f90
   lib/twkfreq65.f90
   lib/wav11.f90
@@ -999,6 +997,12 @@ install (FILES
   INSTALL
   BUGS
   DESTINATION ${WSJT_SHARE_DESTINATION}/${WSJT_DOC_DESTINATION}
+  #COMPONENT runtime
+  )
+
+install (FILES
+  contrib/Ephemeris/JPLEPH
+  DESTINATION ${WSJT_SHARE_DESTINATION}/${WSJT_DATA_DESTINATION}
   #COMPONENT runtime
   )
 
