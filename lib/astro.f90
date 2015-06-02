@@ -43,7 +43,7 @@ subroutine astro(nyear,month,nday,uth,freq8,Mygrid,                    &
        AzSun,ElSun,mjd,day)
 
   call MoonDopJPL(nyear,month,nday,uth,lon,lat,RAMoon,DecMoon,    &
-       LST,HA,AzMoon,ElMoon,vr,dist)
+       LST,HA,AzMoon,ElMoon,vr,techo)
 
 ! Compute spatial polarization offset
   xx=sin(lat/rad)*cos(ElMoon/rad) - cos(lat/rad)*              &
@@ -52,7 +52,6 @@ subroutine astro(nyear,month,nday,uth,freq8,Mygrid,                    &
   if(NStation.eq.1) poloffset1=rad*atan2(yy,xx)
   if(NStation.eq.2) poloffset2=rad*atan2(yy,xx)
 
-  techo=2.0 * dist/2.99792458e5                  !Echo delay time
   doppler=-freq8*vr/2.99792458e5                 !One-way Doppler
 
   call coord(0.,0.,-1.570796,1.161639,RAMoon/rad,DecMoon/rad,el,eb)

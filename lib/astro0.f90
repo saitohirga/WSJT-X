@@ -33,6 +33,7 @@ subroutine astro0(nyear,month,nday,uth8,freq8,mygrid,hisgrid,              &
   xl1a=xl(2)
   b1=b(1)
   b1a=b(2)
+  techo8=techo
 
   fghz=1.d-9*freq8
   dldt1=DEGS*(xl1a-xl1)
