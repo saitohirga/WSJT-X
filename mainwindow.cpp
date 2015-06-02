@@ -396,6 +396,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_hopTest=false;
   m_bTxTime=false;
   m_rxDone=false;
+  m_bHaveTransmitted=false;
 
   signalMeter = new SignalMeter(ui->meterFrame);
   signalMeter->resize(50, 160);
@@ -1817,7 +1818,7 @@ void MainWindow::guiUpdate()
       m_tuneup=false;                              //This is not an ATU tuneup
       if(m_pctx==0) m_nrx=1;                       //Don't transmit if m_pctx=0
       bool btx = m_auto and (m_nrx<=0);            //To Tx, we need m_auto and Rx sequsnce finished
-//      if(m_ntr == -1) btx=false;                   //Normally, no two consecutive transmissions
+//      if(m_bHaveTransmitted) btx=false;            //Normally, no two consecutive transmissions
       if(m_auto and m_txNext) btx=true;            //TxNext button overrides
       if(m_auto and m_pctx==100) btx=true;         //Always transmit
 
@@ -1833,12 +1834,14 @@ void MainWindow::guiUpdate()
 //          if(x<m_rxavg) m_nrx=1;
 //        }
         m_ntr=-1;                          //This says we will have transmitted
+        m_bHaveTransmitted=true;
         m_txNext=false;
         ui->pbTxNext->setChecked(false);
         m_bTxTime=true;                      //Start a WSPR Tx sequence
       } else {
 // This will be a WSPR Rx sequence.
         m_ntr=1;                           //This says we will have received
+        m_bHaveTransmitted=true;
         m_bTxTime=false;                     //Start a WSPR Rx sequence
       }
     }
@@ -1851,8 +1854,8 @@ void MainWindow::guiUpdate()
   if(m_transmitting or m_auto or m_tune) {
 
 // Check for "txboth" (testing purposes only)
-    QFile f(m_appDir + "/txboth");
-    if(f.exists() and fmod(tsec,m_TRperiod) < (1.0 + 85.0*m_nsps/12000.0)) {
+    QFile ftxboth(m_appDir + "/txboth");
+    if(ftxboth.exists() and fmod(tsec,m_TRperiod) < (1.0 + 85.0*m_nsps/12000.0)) {
       m_bTxTime=true;
     }
 
@@ -1869,6 +1872,26 @@ void MainWindow::guiUpdate()
         t+="mode in the WSPR sub-band on 30 m.";
         msgBox(t);
       }
+    }
+
+    Frequency f;
+    if(m_astroWidget) {
+      m_bDopplerTracking = m_astroWidget->m_bDopplerTracking;
+      m_DopplerMethod = m_astroWidget->m_DopplerMethod;
+      if((m_bDopplerTracking0 and !m_bDopplerTracking) or
+         (m_DopplerMethod==0 and m_DopplerMethod0>0)) {
+  //Doppler tracking has just been turned off.  Reset dial frequency to "nominal + kHz"
+        if(m_transmitting) {
+          m_dialFreqTx=m_freqNominal + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz;
+          ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreqTx));
+          Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
+        } else {
+          f=m_freqNominal + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz;
+          Q_EMIT m_config.transceiver_frequency(f);
+        }
+      }
+      m_bDopplerTracking0 = m_bDopplerTracking;
+      m_DopplerMethod0 = m_DopplerMethod;
     }
 
     float fTR=float((nsec%m_TRperiod))/m_TRperiod;
@@ -2100,26 +2123,6 @@ void MainWindow::guiUpdate()
     on_actionOpen_next_in_directory_triggered();
   }
 
-  Frequency f;
-  if(m_astroWidget) {
-    m_bDopplerTracking = m_astroWidget->m_bDopplerTracking;
-    m_DopplerMethod = m_astroWidget->m_DopplerMethod;
-    if((m_bDopplerTracking0 and !m_bDopplerTracking) or
-       (m_DopplerMethod==0 and m_DopplerMethod0>0)) {
-//Doppler tracking has just been turned off.  Reset dial frequency to "nominal + kHz"
-      if(m_transmitting) {
-        m_dialFreqTx=m_freqNominal + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz;
-        ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreqTx));
-        Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
-      } else {
-        f=m_freqNominal + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz;
-        Q_EMIT m_config.transceiver_frequency(f);
-      }
-    }
-    m_bDopplerTracking0 = m_bDopplerTracking;
-    m_DopplerMethod0 = m_DopplerMethod;
-  }
-
   if(nsec != m_sec0) {                                                //Once per second
 //    qDebug() << "A" << nsec << m_pctx << m_rxavg << m_ntr << m_nrx;
     int ipct=0;
@@ -2260,6 +2263,7 @@ void MainWindow::stopTx2()
     m_repeatMsg=0;
   }
   if(m_mode.mid(0,4)=="WSPR" and m_ntr==-1 and !m_tuneup) {
+    m_wideGraph->setWSPRtransmitted();
 //    if(m_bandHopping) {
 //      qDebug () << "Call bandHopping after Tx" << m_tuneup;
       bandHopping();
@@ -4321,7 +4325,7 @@ void MainWindow::bandHopping()
     }
     qDebug () << "bandHopping: m_band00:" << m_band00 << "new candidate band:" << new_band;
 
-    QThread::msleep(1500);
+    QThread::msleep(500);                    //Is this OK to do?
 
     //  qDebug() << nhr << nmin << int(sec) << m_band00 << f0 << 0.000001*f0;
 
