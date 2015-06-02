@@ -1822,7 +1822,7 @@ void MainWindow::guiUpdate()
       if(m_auto and m_txNext) btx=true;            //TxNext button overrides
       if(m_auto and m_pctx==100) btx=true;         //Always transmit
 
-      qDebug() << "B" << m_pctx << m_auto << m_nrx << m_ntr << m_txNext;
+//      qDebug() << "B" << m_pctx << m_auto << m_nrx << m_ntr << m_txNext;
 
       if(btx) {
 // This will be a WSPR Tx sequence. Compute # of Rx's that should follow.
@@ -1841,7 +1841,7 @@ void MainWindow::guiUpdate()
       } else {
 // This will be a WSPR Rx sequence.
         m_ntr=1;                           //This says we will have received
-        m_bHaveTransmitted=true;
+        m_bHaveTransmitted=false;
         m_bTxTime=false;                     //Start a WSPR Rx sequence
       }
     }
@@ -1852,10 +1852,9 @@ void MainWindow::guiUpdate()
   if(m_tune) m_bTxTime=true;                 //"Tune" takes precedence
 
   if(m_transmitting or m_auto or m_tune) {
-
 // Check for "txboth" (testing purposes only)
-    QFile ftxboth(m_appDir + "/txboth");
-    if(ftxboth.exists() and fmod(tsec,m_TRperiod) < (1.0 + 85.0*m_nsps/12000.0)) {
+    QFile f(m_appDir + "/txboth");
+    if(f.exists() and fmod(tsec,m_TRperiod) < (1.0 + 85.0*m_nsps/12000.0)) {
       m_bTxTime=true;
     }
 
@@ -1872,26 +1871,6 @@ void MainWindow::guiUpdate()
         t+="mode in the WSPR sub-band on 30 m.";
         msgBox(t);
       }
-    }
-
-    Frequency f;
-    if(m_astroWidget) {
-      m_bDopplerTracking = m_astroWidget->m_bDopplerTracking;
-      m_DopplerMethod = m_astroWidget->m_DopplerMethod;
-      if((m_bDopplerTracking0 and !m_bDopplerTracking) or
-         (m_DopplerMethod==0 and m_DopplerMethod0>0)) {
-  //Doppler tracking has just been turned off.  Reset dial frequency to "nominal + kHz"
-        if(m_transmitting) {
-          m_dialFreqTx=m_freqNominal + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz;
-          ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreqTx));
-          Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
-        } else {
-          f=m_freqNominal + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz;
-          Q_EMIT m_config.transceiver_frequency(f);
-        }
-      }
-      m_bDopplerTracking0 = m_bDopplerTracking;
-      m_DopplerMethod0 = m_DopplerMethod;
     }
 
     float fTR=float((nsec%m_TRperiod))/m_TRperiod;
@@ -2121,6 +2100,26 @@ void MainWindow::guiUpdate()
   if(m_startAnother) {
     m_startAnother=false;
     on_actionOpen_next_in_directory_triggered();
+  }
+
+  Frequency f;
+  if(m_astroWidget) {
+    m_bDopplerTracking = m_astroWidget->m_bDopplerTracking;
+    m_DopplerMethod = m_astroWidget->m_DopplerMethod;
+    if((m_bDopplerTracking0 and !m_bDopplerTracking) or
+       (m_DopplerMethod==0 and m_DopplerMethod0>0)) {
+//Doppler tracking has just been turned off.  Reset dial frequency to "nominal + kHz"
+      if(m_transmitting) {
+        m_dialFreqTx=m_freqNominal + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz;
+        ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreqTx));
+        Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
+      } else {
+        f=m_freqNominal + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz;
+        Q_EMIT m_config.transceiver_frequency(f);
+      }
+    }
+    m_bDopplerTracking0 = m_bDopplerTracking;
+    m_DopplerMethod0 = m_DopplerMethod;
   }
 
   if(nsec != m_sec0) {                                                //Once per second
@@ -4325,7 +4324,7 @@ void MainWindow::bandHopping()
     }
     qDebug () << "bandHopping: m_band00:" << m_band00 << "new candidate band:" << new_band;
 
-    QThread::msleep(500);                    //Is this OK to do?
+    QThread::msleep(500);                      //### Is this OK to do ??? ###
 
     //  qDebug() << nhr << nmin << int(sec) << m_band00 << f0 << 0.000001*f0;
 
