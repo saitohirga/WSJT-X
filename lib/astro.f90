@@ -44,6 +44,7 @@ subroutine astro(nyear,month,nday,uth,freq8,Mygrid,                    &
 
   call MoonDopJPL(nyear,month,nday,uth,lon,lat,RAMoon,DecMoon,    &
        LST,HA,AzMoon,ElMoon,vr,techo)
+  dist=2.99792458d5*techo/2.d0
 
 ! Compute spatial polarization offset
   xx=sin(lat/rad)*cos(ElMoon/rad) - cos(lat/rad)*              &
