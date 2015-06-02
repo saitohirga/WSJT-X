@@ -2132,7 +2132,8 @@ void MainWindow::guiUpdate()
       m_freqMoon=m_dialFreq + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz;
       int ndop,ndop00;
       m_astroWidget->astroUpdate(t, m_config.my_grid (), m_hisGrid,m_freqMoon,
-                                 &ndop, &ndop00, m_transmitting);
+                                 &ndop, &ndop00, m_transmitting,
+                                 m_config.data_dir().absoluteFilePath("JPLEPH"));
 
 //Apply Doppler corrections only for 50 MHz and above
       if(m_freqNominal>=50000000) {
@@ -4382,11 +4383,14 @@ void MainWindow::bandHopping()
 
 void MainWindow::on_pushButton_clicked()
 {
+  qDebug() << "A" << m_config.data_dir();
+  qDebug() << "B" << m_config.data_dir().absolutePath();
+  qDebug() << "C" << m_config.data_dir().absoluteFilePath("JPLEPH");
+/*
   m_hopTest=true;
-//  for(int i=0; i<720; i++) {
   bandHopping();
-//  }
   m_hopTest=false;
+*/
 }
 
 void MainWindow::on_sunriseBands_editingFinished()

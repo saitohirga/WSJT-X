@@ -82,7 +82,7 @@ void Astro::write_settings ()
 }
 
 void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid, qint64 freqMoon,
-                        qint32* ndop, qint32* ndop00, bool bTx)
+                        qint32* ndop, qint32* ndop00, bool bTx, QString jpleph)
 {
   double azsun,elsun,azmoon,elmoon,azmoondx,elmoondx;
   double ramoon,decmoon,dgrd,poloffset,xnr,techo,width1,width2;
@@ -100,14 +100,15 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid, qint64 fre
   int nfreq=freqMoon/1000000;
   double freq8=(double)freqMoon;
 
-  QDir dataDir = QStandardPaths::writableLocation (QStandardPaths::DataLocation);
-  QString fname = QDir::toNativeSeparators(dataDir.absoluteFilePath ("azel.dat"));
+  QDir writable = QStandardPaths::writableLocation (QStandardPaths::DataLocation);
+  QString AzElFileName = QDir::toNativeSeparators(writable.absoluteFilePath ("azel.dat"));
 
   astrosub_(&nyear, &month, &nday, &uth, &freq8, mygrid.toLatin1(),
             hisgrid.toLatin1(), &azsun, &elsun, &azmoon, &elmoon,
             &azmoondx, &elmoondx, &ntsky, ndop, ndop00, &ramoon, &decmoon,
             &dgrd, &poloffset, &xnr, &techo, &width1, &width2, &bTx,
-            fname.toLatin1(), 6, 6, fname.length());
+            AzElFileName.toLatin1(), jpleph.toLatin1(), 6, 6,
+            AzElFileName.length(), jpleph.length());
 
   QString message;
   {

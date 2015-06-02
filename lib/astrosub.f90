@@ -1,9 +1,11 @@
 subroutine astrosub(nyear,month,nday,uth8,freq8,mygrid,hisgrid,          &
      AzSun8,ElSun8,AzMoon8,ElMoon8,AzMoonB8,ElMoonB8,ntsky,ndop,ndop00,  &
-     RAMoon8,DecMoon8,Dgrd8,poloffset8,xnr8,techo8,width1,width2,bTx,fname)
+     RAMoon8,DecMoon8,Dgrd8,poloffset8,xnr8,techo8,width1,width2,bTx,    &
+     AzElFileName,jpleph)
 
   implicit real*8 (a-h,o-z)
-  character*6 mygrid,hisgrid,fname*(*),c1*1
+  character*6 mygrid,hisgrid,c1*1
+  character*6 AzElFileName*(*),jpleph*(*)
   logical*1 bTx
 
   call astro0(nyear,month,nday,uth8,freq8,mygrid,hisgrid,                &
@@ -16,7 +18,7 @@ subroutine astrosub(nyear,month,nday,uth8,freq8,mygrid,hisgrid,          &
   ih=uth8
   im=mod(imin,60)
   is=mod(isec,60)
-  open(15,file=fname,status='unknown',err=900)
+  open(15,file=AzElFileName,status='unknown',err=900)
   c1='R'
   nRx=1
   if(bTx) then

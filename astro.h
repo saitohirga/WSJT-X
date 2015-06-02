@@ -23,7 +23,7 @@ public:
   explicit Astro(QSettings * settings, QWidget * parent = nullptr);
   ~Astro ();
   void astroUpdate(QDateTime t, QString mygrid, QString hisgrid, qint64 freqMoon,
-                   qint32* ndop, qint32 *ndop00, bool bTx);
+                   qint32* ndop, qint32 *ndop00, bool bTx, QString jpleph);
 
   bool m_bDopplerTracking;
   bool m_bRxAudioTrack;
@@ -65,7 +65,8 @@ extern "C" {
                  double* elmoondx, int* ntsky, int* ndop, int* ndop00,
                  double* ramoon, double* decmoon, double* dgrd, double* poloffset,
                  double* xnr, double* techo, double* width1, double* width2,
-                 bool* bTx, const char* fname, int len1, int len2, int len3);
+                 bool* bTx, const char* AzElFileName, const char* jpleph,
+                 int len1, int len2, int len3, int len4);
 }
 
 #endif // ASTRO_H
