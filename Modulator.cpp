@@ -180,8 +180,16 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
             m_phi += m_dphi;
             if (m_phi > m_twoPi) m_phi -= m_twoPi;
 
-            qint16 sample ((SOFT_KEYING ? qAbs (m_ramp - 1) :
-                            (m_ramp ? 32767 : 0)) * qSin (m_phi));
+            qint16 sample=0;
+            float amp=32767.0;
+            if(m_ramp!=0) {
+              float x=qSin(float(m_phi));
+              if(SOFT_KEYING) {
+                amp=qAbs(qint32(m_ramp));
+                if(amp>32767.0) amp=32767.0;
+              }
+              sample=round(amp*x);
+            }
 
             if (int (j) <= icw[0] && j < NUM_CW_SYMBOLS) // stop condition
               {
@@ -198,16 +206,9 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
             // adjust ramp
             if ((m_ramp != 0 && m_ramp != std::numeric_limits<qint16>::min ()) || level != m_cwLevel)
               {
-                // either ramp has terminated at max/min or direction
-                // has changed
+                // either ramp has terminated at max/min or direction has changed
                 m_ramp += RAMP_INCREMENT; // ramp
               }
-
-            // if (m_cwLevel != level)
-            //   {
-            //     qDebug () << "@m_ic:" << m_ic << "icw[" << j << "] =" << icw[j] << "@" << framesGenerated << "in numFrames:" << numFrames;
-            //   }
-
             m_cwLevel = level;
           }
 
