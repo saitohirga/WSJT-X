@@ -3031,8 +3031,9 @@ void MainWindow::on_actionJT9W_1_triggered()
 
 void MainWindow::on_actionJT65_triggered()
 {
-  if(m_mode=="JT4") {
-// If coming from JT4 mode, pretend we're coming from JT9 and click the pbTxMode button
+  if(m_mode=="JT4" or m_mode.mid(0,4)=="WSPR") {
+// If coming from JT4 or WSPR mode, pretend temporarily that we're coming
+// from JT9 and click the pbTxMode button
     m_modeTx="JT9";
     on_pbTxMode_clicked();
   }
