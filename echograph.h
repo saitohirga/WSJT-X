@@ -6,6 +6,8 @@ namespace Ui {
   class EchoGraph;
 }
 
+class QSettings;
+
 class EchoGraph : public QDialog
 {
   Q_OBJECT
@@ -14,7 +16,7 @@ protected:
   void closeEvent (QCloseEvent *) override;
 
 public:
-  explicit EchoGraph(QWidget *parent = 0);
+  explicit EchoGraph(QSettings *, QWidget *parent = 0);
   ~EchoGraph();
 
   void   plotSpec();
@@ -27,6 +29,7 @@ private slots:
   void on_zeroSlider_valueChanged(int value);
 
 private:
+  QSettings * m_settings;
 
   Ui::EchoGraph *ui;
 };
