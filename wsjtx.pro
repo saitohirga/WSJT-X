@@ -64,7 +64,7 @@ SOURCES += \
   getfile.cpp soundout.cpp soundin.cpp meterwidget.cpp signalmeter.cpp \
   WFPalette.cpp plotter.cpp widegraph.cpp about.cpp mainwindow.cpp \
   main.cpp decodedtext.cpp wsprnet.cpp messageaveraging.cpp \
-  echoplot.cpp echograph.cpp Modes.cpp WSPRBandHopping.cpp
+  echoplot.cpp echograph.cpp Modes.cpp WSPRBandHopping.cpp WsprTxScheduler.cpp
 
 HEADERS  += qt_helpers.hpp \
   pimpl_h.hpp pimpl_impl.hpp \
@@ -81,7 +81,7 @@ HEADERS  += qt_helpers.hpp \
   logbook/countrydat.h \
   logbook/countriesworked.h \
   logbook/adif.h \
-  messageaveraging.h echoplot.h echograph.h Modes.hpp WSPRBandHopping.hpp
+  messageaveraging.h echoplot.h echograph.h Modes.hpp WSPRBandHopping.hpp WsprTxScheduler.h
 
 INCLUDEPATH += qmake_only
 

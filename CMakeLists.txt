@@ -240,6 +240,7 @@ set (wsjtx_CXXSRCS
   main.cpp
   wsprnet.cpp
   WSPRBandHopping.cpp
+  WsprTxScheduler.cpp
   )
 
 if (WIN32)
