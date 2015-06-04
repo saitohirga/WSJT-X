@@ -20,11 +20,6 @@ EchoGraph::EchoGraph(QSettings * settings, QWidget *parent) :
   ui->echoPlot->setMaximumHeight(800);
 
 //Restore user's settings
-/*
-  QString inifile(QApplication::applicationDirPath());
-  inifile += "/emecho.ini";
-  QSettings settings(inifile, QSettings::IniFormat);
-*/
   m_settings->beginGroup("EchoGraph");
   restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
   ui->echoPlot->setPlotZero(m_settings->value("PlotZero", 0).toInt());
@@ -52,11 +47,6 @@ void EchoGraph::closeEvent (QCloseEvent * e)
 void EchoGraph::saveSettings()
 {
 //Save user's settings
-/*
-  QString inifile(QApplication::applicationDirPath());
-  inifile += "/emecho.ini";
-  QSettings settings(inifile, QSettings::IniFormat);
-*/
   m_settings->beginGroup("EchoGraph");
   m_settings->setValue ("geometry", saveGeometry ());
   m_settings->setValue("PlotZero",ui->echoPlot->m_plotZero);

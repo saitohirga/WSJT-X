@@ -119,24 +119,24 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid, qint64 fre
       << fixed
       << qSetFieldWidth (6)
       << qSetRealNumberPrecision (1)
-      << "Az:    " << azmoon << "\n"
-      "El:    " << elmoon << "\n"
-      "Dop:   " << *ndop00 << "\n"
-      "Width: " << int(width1) << "\n"
+      << "Az:     " << azmoon << "\n"
+      "El:     " << elmoon << "\n"
+      "SelfDop:" << *ndop00 << "\n"
+      "Width:  " << int(width1) << "\n"
       << qSetRealNumberPrecision (2)
-      << "Delay: " << techo << "\n"
+      << "Delay:  " << techo << "\n"
       << qSetRealNumberPrecision (1)
-      << "DxAz:  " << azmoondx << "\n"
-      "DxEl:  " << elmoondx << "\n"
-      "DxDop: " << *ndop << "\n"
-      "DxWid: " << int(width2) << "\n"
-      "Dec:   " << decmoon << "\n"
-      "SunAz: " << azsun << "\n"
-      "SunEl: " << elsun << "\n"
-      "Freq:  " << nfreq << "\n"
-      "Tsky:  " << ntsky << "\n"
-      "MNR:   " << xnr << "\n"
-      "Dgrd:  " << dgrd;
+      << "DxAz:   " << azmoondx << "\n"
+      "DxEl:   " << elmoondx << "\n"
+      "DxDop:  " << *ndop << "\n"
+      "DxWid:  " << int(width2) << "\n"
+      "Dec:    " << decmoon << "\n"
+      "SunAz:  " << azsun << "\n"
+      "SunEl:  " << elsun << "\n"
+      "Freq:   " << nfreq << "\n"
+      "Tsky:   " << ntsky << "\n"
+      "MNR:    " << xnr << "\n"
+      "Dgrd:   " << dgrd;
   }
   ui_->text_label->setText(message);
 
