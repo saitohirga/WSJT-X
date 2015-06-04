@@ -235,12 +235,12 @@ set (wsjtx_CXXSRCS
   about.cpp
   astro.cpp
   messageaveraging.cpp
+  WsprTxScheduler.cpp
   mainwindow.cpp
   Configuration.cpp
   main.cpp
   wsprnet.cpp
   WSPRBandHopping.cpp
-  WsprTxScheduler.cpp
   )
 
 if (WIN32)

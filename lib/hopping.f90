@@ -147,14 +147,14 @@ subroutine hopping(nyear,month,nday,uth,mygrid,nduration,npctx,isun,   &
        enddo
        call txtrim(tx,ntxlimit,ntot)
        if( abs(ntot-n_needed) .le. 1 ) then
-         write(*,*) "Success! Iteration converged"
+!         write(*,*) "Success! Iteration converged"
          exit
        endif
 !     write(*,*) "Iteration: ",k,ntot,n_needed
 ! iteration loop
      enddo 
      actual_pct=ntot/60.0 
-     write(*,*) "Actual percentage: ",actual_pct
+!     write(*,*) "Actual percentage: ",actual_pct
   endif
 
   iband=mod(nsec/120,10) + 1
@@ -167,10 +167,10 @@ subroutine hopping(nyear,month,nday,uth,mygrid,nduration,npctx,isun,   &
   endif
   iband=iband-1
 
-  write(*,3000) iband+1,iseq,nrx,ntxnext
-3000 format('Fortran iband, iseq,nrx,ntxnext:',4i5)
-     write(*,3001) int(tx)
-3001 format(10i2)
+!  write(*,3000) iband+1,iseq,nrx,ntxnext
+!3000 format('Fortran iband, iseq,nrx,ntxnext:',4i5)
+!     write(*,3001) int(tx)
+!3001 format(10i2)
 
   return
 end subroutine hopping
