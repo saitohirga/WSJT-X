@@ -117,9 +117,13 @@ public:
   bool udpWindowToFront () const;
   bool udpWindowRestore () const;
   Bands * bands ();
+  Bands const * bands () const;
   FrequencyList * frequencies ();
+  FrequencyList const * frequencies () const;
   StationList * stations ();
+  StationList const * stations () const;
   QStringListModel * macros ();
+  QStringListModel const * macros () const;
   QDir save_directory () const;
   QString rig_name () const;
   unsigned jt9w_bw_mult () const;
