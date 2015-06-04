@@ -1225,7 +1225,7 @@ void Configuration::impl::read_settings ()
   quick_call_ = settings_->value ("QuickCall", false).toBool ();
   disable_TX_on_73_ = settings_->value ("73TxDisable", false).toBool ();
   watchdog_ = settings_->value ("Runaway", false).toBool ();
-  TX_messages_ = settings_->value ("Tx2QSO", false).toBool ();
+  TX_messages_ = settings_->value ("Tx2QSO", true).toBool ();
   enable_VHF_features_ = settings_->value("VHFUHF",false).toBool ();
   decode_at_52s_ = settings_->value("Decode52",false).toBool ();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
