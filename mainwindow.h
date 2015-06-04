@@ -16,6 +16,7 @@
 #include <QProgressDialog>
 #include <QAbstractSocket>
 #include <QHostAddress>
+#include <QPointer>
 
 #include "soundin.h"
 #include "AudioDevice.hpp"
@@ -24,6 +25,7 @@
 #include "Radio.hpp"
 #include "Modes.hpp"
 #include "Configuration.hpp"
+#include "WSPRBandHopping.hpp"
 #include "Transceiver.hpp"
 #include "psk_reporter.h"
 #include "signalmeter.h"
@@ -59,6 +61,7 @@ class Astro;
 class MessageAveraging;
 class MessageClient;
 class QTime;
+class WSPRBandHopping;
 
 class MainWindow : public QMainWindow
 {
@@ -225,14 +228,7 @@ private slots:
   void p3Error(QProcess::ProcessError e);
   void on_WSPRfreqSpinBox_valueChanged(int n);
   void on_pbTxNext_clicked(bool b);
-  void on_cbBandHop_toggled(bool b);
-  void on_sunriseBands_editingFinished();
-  void on_pushButton_clicked();
-  void on_dayBands_editingFinished();
-  void on_sunsetBands_editingFinished();
-  void on_nightBands_editingFinished();
-  void on_tuneBands_editingFinished();
-  void on_graylineDuration_editingFinished();
+  void on_tabWidget_currentChanged (int);
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
@@ -266,6 +262,7 @@ private:
 
   // other windows
   Configuration m_config;
+  WSPRBandHopping m_WSPR_band_hopping;
   QMessageBox m_rigErrorMessageBox;
 
   QScopedPointer<WideGraph> m_wideGraph;
@@ -327,8 +324,6 @@ private:
   qint32  m_dBm;
   qint32  m_pctx;
   qint32  m_nseq;
-  qint32  m_grayDuration;
-  QString m_band00;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -379,12 +374,11 @@ private:
   bool    m_uploading;
   bool    m_txNext;
   bool    m_grid6;
-  bool    m_bandHopping;
-  bool    m_hopTest;
   bool    m_tuneup;
   bool    m_bTxTime;
   bool    m_rxDone;
-  bool    m_bHaveTransmitted;    //Can be used to prohibit consecutive WSPR transmittions
+  bool    m_bHaveTransmitted;    //Can be used to prohibit consecutive WSPR transmissions
+  int     m_nonWSPRTab;
 
   float   m_pctZap;
 
@@ -549,10 +543,6 @@ extern "C" {
 
   void wspr_downsample_(short int d2[], int* k);
   void savec2_(char* fname, int* m_TRseconds, double* m_dialFreq, int len1);
-
-  void hopping_(int* nyear, int* month, int* nday, float* uth, char const * MyGrid,
-                int* nduration, int* npctx, int* isun, int* iband,
-                int* ntxnext, int len);
 }
 
 #endif // MAINWINDOW_H

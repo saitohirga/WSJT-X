@@ -52,9 +52,6 @@ namespace
   Radio::Frequency constexpr default_frequency {14076000};
   QRegExp message_alphabet {"[- @A-Za-z0-9+./?#]*"};
 
-  // These 10 bands are the hopping candidates and are globally coordinated
-  QStringList const hopping_bands = {"160m","80m","60m","40m","30m","20m","17m","15m","12m","10m"};
-
   bool message_is_73 (int type, QStringList const& msg_parts)
   {
     return type >= 0
@@ -70,19 +67,22 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_dataDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)},
   m_revision {revision ()},
   m_multiple {multiple},
-  m_settings (settings),
+  m_settings {settings},
   ui(new Ui::MainWindow),
-  m_config (settings, this),
+  m_config {settings, this},
+  m_WSPR_band_hopping {settings, &m_config, this},
   m_wideGraph (new WideGraph (settings)),
   m_logDlg (new LogQSO (program_title (), settings, this)),
   m_dialFreq {std::numeric_limits<Radio::Frequency>::max ()},
   m_detector (RX_SAMPLE_RATE, NTMAX, 6912 / 2, downSampleFactor),
   m_modulator (TX_SAMPLE_RATE, NTMAX),
   m_audioThread {new QThread},
+  m_pctx {0},
   m_diskData {false},
   m_sentFirst73 {false},
   m_currentMessageType {-1},
   m_lastMessageType {-1},
+  m_nonWSPRTab {-1},
   m_appDir {QApplication::applicationDirPath ()},
   mem_jt9 {shdmem},
   m_msAudioOutputBuffered (0u),
@@ -201,6 +201,12 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
       }
     }
   });
+
+  // Hook up WSPR band hopping
+  connect (ui->band_hopping_schedule_push_button, &QPushButton::clicked
+           , &m_WSPR_band_hopping, &WSPRBandHopping::show_dialog);
+  connect (ui->sbTxPercent, static_cast<void (QSpinBox::*) (int)> (&QSpinBox::valueChanged)
+           , &m_WSPR_band_hopping, &WSPRBandHopping::set_tx_percent);
 
   on_EraseButton_clicked ();
 
@@ -393,7 +399,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_bShMsgs=false;
   m_bDopplerTracking0=false;
   m_uploading=false;
-  m_hopTest=false;
   m_bTxTime=false;
   m_rxDone=false;
   m_bHaveTransmitted=false;
@@ -617,13 +622,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("PctTx",m_pctx);
   m_settings->setValue("dBm",m_dBm);
   m_settings->setValue("UploadSpots",m_uploadSpots);
-  m_settings->setValue("BandHopping",m_bandHopping);
-  m_settings->setValue("SunriseBands",ui->sunriseBands->text());
-  m_settings->setValue("DayBands",ui->dayBands->text());
-  m_settings->setValue("SunsetBands",ui->sunsetBands->text());
-  m_settings->setValue("NightBands",ui->nightBands->text());
-  m_settings->setValue("TuneBands",ui->tuneBands->text());
-  m_settings->setValue("GrayLineDuration",ui->graylineDuration->text());
+  m_settings->setValue ("BandHopping", ui->band_hopping_group_box->isChecked ());
   m_settings->endGroup();
 }
 
@@ -691,8 +690,7 @@ void MainWindow::readSettings()
   m_uploadSpots=m_settings->value("UploadSpots",false).toBool();
   ui->cbUploadWSPR_Spots->setChecked(m_uploadSpots);
   if(!m_uploadSpots) ui->cbUploadWSPR_Spots->setStyleSheet("QCheckBox{background-color: yellow}");
-  m_bandHopping=m_settings->value("BandHopping",false).toBool();
-  ui->cbBandHop->setChecked(m_bandHopping);
+  ui->band_hopping_group_box->setChecked (m_settings->value ("BandHopping", false).toBool());
   // setup initial value of tx attenuator
   ui->outAttenuation->setValue (m_settings->value ("OutAttenuation", 0).toInt ());
   on_outAttenuation_valueChanged (ui->outAttenuation->value ());
@@ -703,18 +701,6 @@ void MainWindow::readSettings()
   outBufSize=m_settings->value("OutBufSize",4096).toInt();
   m_lockTxFreq=m_settings->value("LockTxFreq",false).toBool();
   ui->cbTxLock->setChecked(m_lockTxFreq);
-  ui->sunriseBands->setText(m_settings->value("SunriseBands","").toString());
-  on_sunriseBands_editingFinished();
-  ui->dayBands->setText(m_settings->value("DayBands","").toString());
-  on_dayBands_editingFinished();
-  ui->sunsetBands->setText(m_settings->value("SunsetBands","").toString());
-  on_sunsetBands_editingFinished();
-  ui->nightBands->setText(m_settings->value("NightBands","").toString());
-  on_nightBands_editingFinished();
-  ui->tuneBands->setText(m_settings->value("TuneBands","").toString());
-  on_tuneBands_editingFinished();
-  ui->graylineDuration->setText(m_settings->value("GrayLineDuration","").toString());
-  on_graylineDuration_editingFinished();
   m_settings->endGroup();
 
   // use these initialisation settings to tune the audio o/p buffer
@@ -1896,7 +1882,7 @@ void MainWindow::guiUpdate()
       m_btxok=false;
     }
     if(m_ntr==1) {
-//      if(m_bandHopping) {
+//      if(ui->band_hopping_group_box->isChecked ()) {
 //        qDebug() << "Call bandHopping after Rx" << m_nseq << m_ntr << m_nrx << m_rxDone;
         bandHopping();
 //      }
@@ -2264,7 +2250,7 @@ void MainWindow::stopTx2()
   }
   if(m_mode.mid(0,4)=="WSPR" and m_ntr==-1 and !m_tuneup) {
     m_wideGraph->setWSPRtransmitted();
-//    if(m_bandHopping) {
+//    if(ui->band_hopping_group_box->isChecked ()) {
 //      qDebug () << "Call bandHopping after Tx" << m_tuneup;
       bandHopping();
 //    }
@@ -3212,9 +3198,12 @@ void MainWindow::WSPR_config(bool b)
     ui->decodedTextLabel->setText(
           "UTC    dB   DT     Freq     Drift  Call          Grid    dBm   Dist");
     auto_tx_label->setText("");
+    ui->tabWidget->setCurrentIndex (2);
+    Q_EMIT m_config.transceiver_tx_frequency (0); // turn off split
   } else {
     ui->decodedTextLabel->setText("UTC   dB   DT Freq   Message");
     auto_tx_label->setText (m_config.quick_call () ? "Tx-Enable Armed" : "Tx-Enable Disarmed");
+    ui->tabWidget->setCurrentIndex (m_nonWSPRTab >= 0 ? m_nonWSPRTab : 1);
   }
 }
 
@@ -3572,18 +3561,21 @@ void MainWindow::on_pbTxMode_clicked()
 void MainWindow::setXIT(int n)
 {
   m_XIT = 0;
-  if (m_config.split_mode () and (m_mode != "JT4"))    //Don't use XIT in JT4 mode
+  if (m_mode != "WSPR-2" && m_mode != "WSPR-15") // Don't use split in WSPR
     {
-      m_XIT=(n/500)*500 - 1500;
-    }
-
-  if (m_monitoring or m_transmitting)
-    {
-      if (m_config.transceiver_online ())
+      if (m_config.split_mode () && m_mode != "JT4") // Don't use XIT in JT4
         {
-          if (m_config.split_mode ())
+          m_XIT=(n/500)*500 - 1500;
+        }
+
+      if (m_monitoring || m_transmitting)
+        {
+          if (m_config.transceiver_online ())
             {
-              Q_EMIT m_config.transceiver_tx_frequency (m_dialFreq + m_XIT);
+              if (m_config.split_mode ())
+                {
+                  Q_EMIT m_config.transceiver_tx_frequency (m_dialFreq + m_XIT);
+                }
             }
         }
     }
@@ -4258,118 +4250,39 @@ void MainWindow::on_pbTxNext_clicked(bool b)
   m_txNext=b;
 }
 
-void MainWindow::on_cbBandHop_toggled(bool b)
-{
-  m_bandHopping=b;
-}
-
 void MainWindow::bandHopping()
 {
-  QDateTime t = QDateTime::currentDateTimeUtc();
-  QString date = t.date().toString("yyyy MMM dd").trimmed();
-  QString utc = t.time().toString().trimmed();
-  int nyear=t.date().year();
-  int month=t.date().month();
-  int nday=t.date().day();
-  int nhr=t.time().hour();
-  int nmin=t.time().minute();
-  float sec=t.time().second() + 0.001*t.time().msec();
-  float uth=nhr + nmin/60.0 + sec/3600.0;
-  int isun;
-  int iband0;
-  int ntxnext;
+  auto hop_data = m_WSPR_band_hopping.next_hop ();
 
-  static int icall=0;
-  if(m_hopTest) uth+= 2.0*icall/60.0;
-  icall++;
-
-// Find grayline status, isun: 0=Sunrise, 1=Day, 2=Sunset, 3=Night
-  hopping_(&nyear, &month, &nday, &uth,
-           m_config.my_grid ().toLatin1().constData(),
-           &m_grayDuration, &m_pctx, &isun, &iband0, &ntxnext, 6);
-
-
-  if(m_auto and ntxnext==1) {
-    m_nrx=0;
+  if (m_auto &&hop_data.tx_next_) {
+    m_nrx = 0;
   } else {
-    m_nrx=1;
+    m_nrx = 1;
   }
 
-  if( m_bandHopping ) {
-    QStringList s;
-    if(isun==0) s=m_sunriseBands;
-    if(isun==1) s=m_dayBands;
-    if(isun==2) s=m_sunsetBands;
-    if(isun==3) s=m_nightBands;
+  if (ui->band_hopping_group_box->isChecked ()) {
+    QThread::msleep(500);       //### Is this OK to do ??? ###
 
-    // allow numeric only band names
-    for (auto& item : s) {
-      if (!item.endsWith ('m')) {
-        item += 'm';
-      }
-    }
+    if (hop_data.frequencies_index_ >= 0) { // new band
+      ui->bandComboBox->setCurrentIndex (hop_data.frequencies_index_);
+      on_bandComboBox_activated (hop_data.frequencies_index_);
 
-    QString new_band;
-    if (s.contains (hopping_bands[iband0])) { //See if designated band is active
-      new_band = hopping_bands[iband0];
-    }
-    else {
-      // If designated band is not active, choose one that is active
-      // and in the hopping list
-      for (auto i = 0; i < s.size (); ++i) { // arbitrary number of iterations
-        auto const& bname = s[qrand() % s.size ()]; // pick a random band
-        if (bname != m_band00 && hopping_bands.contains (bname)) {
-          new_band = bname;
-          break;
+      auto const& band_name = m_config.bands ()->find (m_dialFreq).remove ('m');
+      m_cmnd.clear ();
+      QStringList prefixes {".bat", ".cmd", ".exe", ""};
+      for (auto const& prefix : prefixes)
+        {
+          auto const& path = m_appDir + "/user_hardware" + prefix;
+          QFile f {path};
+          if (f.exists ()) {
+            m_cmnd = QDir::toNativeSeparators (f.fileName ()) + ' ' + band_name;
+          }
         }
-      }
-    }
-    qDebug () << "bandHopping: m_band00:" << m_band00 << "new candidate band:" << new_band;
-
-    QThread::msleep(500);                      //### Is this OK to do ??? ###
-
-    //  qDebug() << nhr << nmin << int(sec) << m_band00 << f0 << 0.000001*f0;
-
-    auto const& row = m_config.frequencies ()->best_working_frequency (new_band);
-    if (row >= 0) {             // band is configured
-      m_band00 = new_band;
-      ui->bandComboBox->setCurrentIndex (row);
-      on_bandComboBox_activated (row);
-
-      m_cmnd="";
-      QFile f1 {m_appDir + "/user_hardware.bat"};
-      if(f1.exists()) {
-        m_cmnd=QDir::toNativeSeparators (m_appDir + "/user_hardware.bat ") + m_band00;
-      }
-      QFile f2 {m_appDir + "/user_hardware.cmd"};
-      if(f2.exists()) {
-        m_cmnd=QDir::toNativeSeparators (m_appDir + "/user_hardware.cmd ") + m_band00;
-      }
-      QFile f3 {m_appDir + "/user_hardware.exe"};
-      if(f3.exists()) {
-        m_cmnd=QDir::toNativeSeparators (m_appDir + "/user_hardware.exe ") + m_band00;
-      }
-      QFile f4 {m_appDir + "/user_hardware"};
-      if(f4.exists()) {
-        m_cmnd=QDir::toNativeSeparators (m_appDir + "/user_hardware ") + m_band00;
-      }
-
-      int n=m_cmnd.length();
-      if(m_cmnd.mid(n-1,1)=="m") {
-        m_cmnd=m_cmnd.mid(0,n-1);      //### Temporary? ### Strip trailimg "m"
-      }
       if(m_cmnd!="") p3.start(m_cmnd);     // Execute user's hardware controller
 
       // Produce a short tuneup signal
       m_tuneup = false;
-      auto tu_bands = m_tuneBands;
-    // allow numeric only band names
-      for (auto& item : tu_bands) {
-        if (!item.endsWith ('m')) {
-          item += 'm';
-        }
-      }
-      if (tu_bands.contains (m_band00)) {
+      if (hop_data.tune_required_) {
           m_tuneup = true;
           on_tuneButton_clicked (true);
           tuneATU_Timer->start (2500);
@@ -4377,49 +4290,13 @@ void MainWindow::bandHopping()
     }
 
     // Display grayline status
-    QString dailySequence[4]={"Sunrise grayline","Day","Sunset grayline","Night"};
-    auto_tx_label->setText(dailySequence[isun]);
+    auto_tx_label->setText (hop_data.period_name_);
   }
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_tabWidget_currentChanged (int new_value)
 {
-  qDebug() << "A" << m_config.data_dir();
-  qDebug() << "B" << m_config.data_dir().absolutePath();
-  qDebug() << "C" << m_config.data_dir().absoluteFilePath("JPLEPH");
-/*
-  m_hopTest=true;
-  bandHopping();
-  m_hopTest=false;
-*/
-}
-
-void MainWindow::on_sunriseBands_editingFinished()
-{
-  m_sunriseBands=ui->sunriseBands->text().split(" ", QString::SkipEmptyParts);
-}
-
-void MainWindow::on_dayBands_editingFinished()
-{
-  m_dayBands=ui->dayBands->text().split(" ", QString::SkipEmptyParts);
-}
-
-void MainWindow::on_sunsetBands_editingFinished()
-{
-  m_sunsetBands=ui->sunsetBands->text().split(" ", QString::SkipEmptyParts);
-}
-
-void MainWindow::on_nightBands_editingFinished()
-{
-  m_nightBands=ui->nightBands->text().split(" ", QString::SkipEmptyParts);
-}
-
-void MainWindow::on_tuneBands_editingFinished()
-{
-  m_tuneBands=ui->tuneBands->text().split(" ", QString::SkipEmptyParts);
-}
-
-void MainWindow::on_graylineDuration_editingFinished()
-{
-  m_grayDuration=ui->graylineDuration->text().toInt();
+  if (2 != new_value) {         // WSPR
+    m_nonWSPRTab = new_value;
+  }
 }

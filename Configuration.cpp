@@ -623,9 +623,13 @@ bool Configuration::accept_udp_requests () const {return m_->accept_udp_requests
 bool Configuration::udpWindowToFront () const {return m_->udpWindowToFront_;}
 bool Configuration::udpWindowRestore () const {return m_->udpWindowRestore_;}
 Bands * Configuration::bands () {return &m_->bands_;}
+Bands const * Configuration::bands () const {return &m_->bands_;}
 StationList * Configuration::stations () {return &m_->stations_;}
+StationList const * Configuration::stations () const {return &m_->stations_;}
 FrequencyList * Configuration::frequencies () {return &m_->frequencies_;}
+FrequencyList const * Configuration::frequencies () const {return &m_->frequencies_;}
 QStringListModel * Configuration::macros () {return &m_->macros_;}
+QStringListModel const * Configuration::macros () const {return &m_->macros_;}
 QDir Configuration::save_directory () const {return m_->save_directory_;}
 QString Configuration::rig_name () const {return m_->rig_params_.rig_name;}
 
@@ -2155,7 +2159,7 @@ void Configuration::impl::transceiver_frequency (Frequency f)
 
 void Configuration::impl::transceiver_tx_frequency (Frequency f)
 {
-  if (/* set_mode () || */ cached_rig_state_.tx_frequency () != f || cached_rig_state_.split () != !!f)
+  if (/* set_mode () || */ cached_rig_state_.tx_frequency () != f || !cached_rig_state_.compare_split (!!f))
     {
       cached_rig_state_.split (f);
       cached_rig_state_.tx_frequency (f);
@@ -2259,8 +2263,14 @@ void Configuration::impl::handle_transceiver_update (TransceiverState state)
                       setup_split_ = true;
                       required_tx_frequency_ = 0;
 
-                      // Q_EMIT self_->transceiver_failure (tr ("Rig split mode setting not consistent with WSJT-X settings. Changing WSJT-X settings for you."));
-                      Q_EMIT self_->transceiver_failure (tr ("Rig split mode setting not consistent with WSJT-X settings."));
+                      // Q_EMIT self_->transceiver_failure (tr ("Rig
+                      // split mode setting not consistent with WSJT-X
+                      // settings. Changing WSJT-X settings for
+                      // you."));
+                      if (cached_rig_state_.split () != state.split ())
+                        {
+                          Q_EMIT self_->transceiver_failure (tr ("Rig split mode setting not consistent with WSJT-X settings."));
+                        }
                     }
                 }
             }
@@ -2269,7 +2279,9 @@ void Configuration::impl::handle_transceiver_update (TransceiverState state)
       // One time rig setup split
       if (setup_split_ && cached_rig_state_.split () != state.split ())
         {
-          Q_EMIT tx_frequency (TransceiverFactory::split_mode_none != split_mode_selected ? (required_tx_frequency_ ? required_tx_frequency_ : state.tx_frequency ()) : 0, true);
+          Q_EMIT tx_frequency (TransceiverFactory::split_mode_none != split_mode_selected && cached_rig_state_.split ()
+                               ? (required_tx_frequency_ ? required_tx_frequency_ : state.tx_frequency ())
+                               : 0, true);
         }
       setup_split_ = false;
       required_tx_frequency_ = 0;

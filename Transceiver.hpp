@@ -89,6 +89,7 @@ public:
     Frequency frequency () const {return frequency_[0];}
     Frequency tx_frequency () const {return frequency_[1];}
     bool split () const {return on == split_;}
+    bool compare_split (bool with) const {return split_ == (with ? on : off);}
     MODE mode () const {return mode_;}
     bool ptt () const {return ptt_;}
 

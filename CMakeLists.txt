@@ -237,6 +237,7 @@ set (wsjtx_CXXSRCS
   Configuration.cpp
   main.cpp
   wsprnet.cpp
+  WSPRBandHopping.cpp
   )
 
 if (WIN32)
@@ -623,7 +624,9 @@ endif (NOT APPLE)
 include (FortranCInterface)
 FortranCInterface_VERIFY (CXX QUIET)
 FortranCInterface_HEADER (FC.h MACRO_NAMESPACE "FC_" SYMBOL_NAMESPACE "FC_"
-  SYMBOLS )
+  SYMBOLS
+  hopping
+  )
 
 
 #
