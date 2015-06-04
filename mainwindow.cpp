@@ -4253,6 +4253,10 @@ void MainWindow::on_pbTxNext_clicked(bool b)
 void MainWindow::bandHopping()
 {
   auto hop_data = m_WSPR_band_hopping.next_hop ();
+  qDebug () << "hop data: period:" << hop_data.period_name_
+            << "frequencies index:" << hop_data.frequencies_index_
+            << "tune:" << hop_data.tune_required_
+            << "tx:" << hop_data.tx_next_;
 
   if (m_auto &&hop_data.tx_next_) {
     m_nrx = 0;

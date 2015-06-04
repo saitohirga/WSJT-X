@@ -28,7 +28,7 @@ namespace
   // These 10 bands are the hopping candidates and are globally coordinated
   char const * const hopping_bands[] = {"160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10m"};
   size_t constexpr num_bands {sizeof (hopping_bands) / sizeof (hopping_bands[0])};
-  char const * const periods[] = {"Sunrise grayline", "Day", "Sunset grayline", "Night", "Tune"};
+  char const * const periods[] = {"Sunrise grayline", "Day", "Sunset grayline", "Night", "Tune", "Rx only"};
   size_t constexpr num_periods {sizeof (periods) / sizeof (periods[0])};
   char const * const title = "WSPR Band Hopping";
 }
@@ -162,7 +162,14 @@ public:
     , configuration_ {configuration}
     , tx_percent_ {0}
     , parent_widget_ {parent_widget}
-    , bands_ {QBitArray {num_bands}, QBitArray {num_bands}, QBitArray {num_bands}, QBitArray {num_bands}, QBitArray {num_bands}}
+    , bands_ {
+      QBitArray {num_bands},
+      QBitArray {num_bands},
+      QBitArray {num_bands},
+      QBitArray {num_bands},
+      QBitArray {num_bands},
+      QBitArray {num_bands},
+    }
   {
   }
 
@@ -258,6 +265,11 @@ auto WSPRBandHopping::next_hop () -> Hop
            , &m_->gray_line_duration_, &m_->tx_percent_, &period_index, &band_index
            , &tx_next, my_grid.size ());
 
+  if (100 == m_->tx_percent_)
+    {
+      tx_next = 1;
+    }
+
   int frequencies_index {-1};
   auto const& frequencies = m_->configuration_->frequencies ();
   auto const& filtered_bands = frequencies->filtered_bands ();
@@ -294,8 +306,18 @@ auto WSPRBandHopping::next_hop () -> Hop
             }
         }
     }
-  return {periods[period_index]
-      , frequencies_index
-      , frequencies_index >= 0 && m_->bands_[4].testBit (band_index)
-      , frequencies_index >= 0 && !!tx_next};
+  return {
+    periods[period_index]
+
+    , frequencies_index
+
+    , frequencies_index >= 0  // new band
+      && !tx_next               // not going to Tx anyway
+      && m_->bands_[4].testBit (band_index) // tune up required
+      && !m_->bands_[5].testBit (band_index) // not an Rx only band
+
+    , frequencies_index >= 0  // new band
+      && tx_next                // Tx scheduled
+      && !m_->bands_[5].testBit (band_index) // not an Rx only band
+   };
 }
