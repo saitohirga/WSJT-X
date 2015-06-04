@@ -230,6 +230,8 @@ set (wsjtx_CXXSRCS
   signalmeter.cpp
   plotter.cpp
   widegraph.cpp
+  echograph.cpp
+  echoplot.cpp
   about.cpp
   astro.cpp
   messageaveraging.cpp
@@ -394,6 +396,7 @@ set (wsjtx_UISRCS
   mainwindow.ui
   about.ui
   astro.ui
+  echograph.ui
   messageaveraging.ui
   widegraph.ui
   logqso.ui

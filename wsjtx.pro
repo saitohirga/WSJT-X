@@ -91,7 +91,8 @@ SOURCES += \
 	main.cpp \
   decodedtext.cpp \
   wsprnet.cpp \
-  messageaveraging.cpp
+  messageaveraging.cpp \
+  echoplot.cpp echograph.cpp Modes.cpp
 
 HEADERS  += qt_helpers.hpp \
 	    pimpl_h.hpp pimpl_impl.hpp \
@@ -110,7 +111,8 @@ HEADERS  += qt_helpers.hpp \
     logbook/countrydat.h \
     logbook/countriesworked.h \
     logbook/adif.h \
-    messageaveraging.h
+    messageaveraging.h \
+    echoplot.h echograph.h Modes.hpp
 
 INCLUDEPATH += qmake_only
 
@@ -121,7 +123,7 @@ HEADERS += OmniRigTransceiver.hpp
 
 FORMS    += mainwindow.ui about.ui Configuration.ui widegraph.ui astro.ui \
     logqso.ui wf_palette_design_dialog.ui \
-    messageaveraging.ui
+    messageaveraging.ui echograph.ui
 
 RC_FILE = wsjtx.rc
 RESOURCES = wsjtx.qrc

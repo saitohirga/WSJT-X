@@ -54,6 +54,7 @@ class QSettings;
 class QLineEdit;
 class QFont;
 class QHostInfo;
+class EchoGraph;
 class WideGraph;
 class LogQSO;
 class Transceiver;
@@ -230,6 +231,10 @@ private slots:
   void on_pbTxNext_clicked(bool b);
   void on_tabWidget_currentChanged (int);
 
+  void on_actionEcho_Graph_triggered();
+
+  void on_actionEcho_triggered();
+
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
       unsigned channels, unsigned msBuffered) const;
@@ -266,6 +271,7 @@ private:
   QMessageBox m_rigErrorMessageBox;
 
   QScopedPointer<WideGraph> m_wideGraph;
+  QScopedPointer<EchoGraph> m_echoGraph;
   QScopedPointer<LogQSO> m_logDlg;
   QScopedPointer<Astro> m_astroWidget;
   QScopedPointer<QTextEdit> m_shortcuts;
