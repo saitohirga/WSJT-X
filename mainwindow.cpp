@@ -1172,7 +1172,8 @@ void MainWindow::statusChanged()
 {
   m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
                                   QString::number (ui->rptSpinBox->value ()),
-                                  m_modeTx, ui->autoButton->isChecked (), m_transmitting);
+                                  m_modeTx, ui->autoButton->isChecked (),
+                                  m_transmitting);
 
   QFile f {m_config.temp_dir ().absoluteFilePath ("wsjtx_status.txt")};
   if(f.open(QFile::WriteOnly | QIODevice::Text)) {
@@ -1759,7 +1760,8 @@ void MainWindow::decodeBusy(bool b)                             //decodeBusy()
       if ("JT9+JT65" == m_mode) m_firstDecode = 65 + 9;
       showProgress = true;
     }
-  if (b && m_firstDecode != 9 && m_firstDecode != 65 + 9 && ("JT9" == m_mode || "JT9W-1" == m_mode))
+  if (b && m_firstDecode != 9 && m_firstDecode != 65 + 9 &&
+      ("JT9" == m_mode || "JT9W-1" == m_mode))
     {
       m_firstDecode += 9;
       showProgress = true;
@@ -2080,7 +2082,8 @@ void MainWindow::guiUpdate()
               << ":  " << m_currentMessage << endl;
           f.close();
         } else {
-          msgBox("Cannot open \"" + f.fileName () + "\" for append:" + f.errorString ());
+          msgBox("Cannot open \"" + f.fileName () + "\" for append:" +
+                 f.errorString ());
         }
       }
 
@@ -2091,7 +2094,10 @@ void MainWindow::guiUpdate()
 
       m_transmitting = true;
       transmitDisplay (true);
-      m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall, QString::number (ui->rptSpinBox->value ()), m_modeTx, ui->autoButton->isChecked (), m_transmitting);
+      m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
+                                      QString::number (ui->rptSpinBox->value ()),
+                                      m_modeTx, ui->autoButton->isChecked (),
+                                      m_transmitting);
     }
 
   if(!m_btxok && btxok0 && g_iptt==1) stopTx();
@@ -2251,7 +2257,8 @@ void MainWindow::stopTx()
   monitor (true);
   m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
                                   QString::number (ui->rptSpinBox->value ()),
-                                  m_modeTx, ui->autoButton->isChecked (), m_transmitting);
+                                  m_modeTx, ui->autoButton->isChecked (),
+                                  m_transmitting);
 }
 
 void MainWindow::stopTx2()
@@ -2935,19 +2942,10 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   if(m_hisCall=="") return;
   m_dateTimeQSO=QDateTime::currentDateTimeUtc();
 
-  m_logDlg->initLogQSO (m_hisCall
-                        , m_hisGrid
-                        , m_modeTx
-                        , m_rptSent
-                        , m_rptRcvd
-                        , m_dateTimeQSO
-                        , m_dialFreq + ui->TxFreqSpinBox->value ()
-                        , m_config.my_callsign ()
-                        , m_config.my_grid ()
-                        , m_noSuffix
-                        , m_config.log_as_RTTY ()
-                        , m_config.report_in_comments ()
-                        );
+  m_logDlg->initLogQSO (m_hisCall, m_hisGrid, m_modeTx, m_rptSent, m_rptRcvd,
+                        m_dateTimeQSO, m_dialFreq + ui->TxFreqSpinBox->value(),
+                        m_config.my_callsign(), m_config.my_grid(), m_noSuffix,
+                        m_config.log_as_RTTY(), m_config.report_in_comments());
 }
 
 void MainWindow::acceptQSO2(QDateTime const& QSO_date, QString const& call, QString const& grid
@@ -3181,6 +3179,8 @@ void MainWindow::on_actionEcho_triggered()
   if(!m_echoGraph->isVisible()) m_echoGraph->show();
   mode_label->setStyleSheet("QLabel{background-color: #7cfc00}");
   mode_label->setText(m_mode);
+  VHF_controls_visible(false);
+  WSPR_config(true);
 }
 
 void MainWindow::switch_mode (Mode mode)
