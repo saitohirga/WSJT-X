@@ -1798,10 +1798,7 @@ void MainWindow::guiUpdate()
   static double onAirFreq0=0.0;
   QString rt;
 
-  if(m_mode=="Echo") {
-    echoUpdate();
-    return;
-  }
+  if(m_mode=="Echo") echoUpdate();
 
   double txDuration=1.0 + 85.0*m_nsps/12000.0;              // JT9
   if(m_modeTx=="JT65") txDuration=1.0 + 126*4096/11025.0;   // JT65
@@ -1819,6 +1816,8 @@ void MainWindow::guiUpdate()
   double tsec=0.001*ms;
   double t2p=fmod(tsec,2*m_TRperiod);
   m_nseq = nsec % m_TRperiod;
+
+  if(m_mode=="Echo") goto ApplyDoppler;
 
   if(m_mode.mid(0,4)=="WSPR") {
     if(m_nseq==0 and m_ntr==0) {                   //Decide whether to Tx or Rx
@@ -2113,6 +2112,7 @@ void MainWindow::guiUpdate()
     on_actionOpen_next_in_directory_triggered();
   }
 
+ApplyDoppler:
   Frequency f;
   if(m_astroWidget) {
     m_bDopplerTracking = m_astroWidget->m_bDopplerTracking;
@@ -4344,7 +4344,7 @@ void MainWindow::echoUpdate()
 
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
   double tsec=0.001*ms;
-  int nsec=tsec;
+//  int nsec=tsec;
   m_s6=fmod(tsec,6.0);
 
 // When m_s6 has wrapped back to zero, start a new cycle.
@@ -4361,7 +4361,7 @@ void MainWindow::echoUpdate()
     int nsec=t.time().second();
     r4com_.nutc=10000*nhr+100*nmin+nsec;
 */
-
+    qDebug() << "Assert PTT";
     Q_EMIT m_config.transceiver_ptt (true);       //Assert the PTT
 //Wait 0.2 s, then send a 2.304 s Tx pulse
 //    ptt1Timer->start(200);                       //Sequencer delay
@@ -4372,9 +4372,11 @@ void MainWindow::echoUpdate()
 
   if(m_bTransmittedEcho and m_s6 > 5.4) {
     m_bTransmittedEcho=false;
+    qDebug() << "Compute Echo Spectrum";
 //    dataSinkEcho();
   }
 
+/*
 //  float px=20.0*log10(datcom_.rms);
 //  signalMeter->setValue(px);                   // Update signalmeter
 
@@ -4394,5 +4396,7 @@ void MainWindow::echoUpdate()
     m_sec0=nsec;
     qDebug() << "A" << nsec << m_s6;
   }
+*/
+
   s6z=m_s6;
 } //End of echoUpdate()
