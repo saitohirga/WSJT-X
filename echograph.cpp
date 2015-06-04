@@ -8,8 +8,8 @@
 
 EchoGraph::EchoGraph(QSettings * settings, QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::EchoGraph),
-  m_settings (settings)
+  m_settings (settings),
+  ui(new Ui::EchoGraph)
 {
   ui->setupUi(this);
   this->setWindowFlags(Qt::Dialog);
