@@ -4302,8 +4302,6 @@ void MainWindow::bandHopping()
     if (hop_data.frequencies_index_ >= 0) { // new band
       ui->bandComboBox->setCurrentIndex (hop_data.frequencies_index_);
       on_bandComboBox_activated (hop_data.frequencies_index_);
-
-      auto const& band_name = m_config.bands ()->find (m_dialFreq).remove ('m');
       m_cmnd.clear ();
       QStringList prefixes {".bat", ".cmd", ".exe", ""};
       for (auto const& prefix : prefixes)
@@ -4311,7 +4309,8 @@ void MainWindow::bandHopping()
           auto const& path = m_appDir + "/user_hardware" + prefix;
           QFile f {path};
           if (f.exists ()) {
-            m_cmnd = QDir::toNativeSeparators (f.fileName ()) + ' ' + band_name;
+            m_cmnd = QDir::toNativeSeparators (f.fileName ()) + ' ' +
+                m_config.bands ()->find (m_dialFreq).remove ('m');
           }
         }
       if(m_cmnd!="") p3.start(m_cmnd);     // Execute user's hardware controller
