@@ -20,6 +20,8 @@
 #include "revision_utils.hpp"
 #include "soundout.h"
 #include "plotter.h"
+#include "echoplot.h"
+#include "echograph.h"
 #include "about.h"
 #include "astro.h"
 #include "messageaveraging.h"
@@ -72,6 +74,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_config {settings, this},
   m_WSPR_band_hopping {settings, &m_config, this},
   m_wideGraph (new WideGraph (settings)),
+  m_echoGraph (new EchoGraph),
   m_logDlg (new LogQSO (program_title (), settings, this)),
   m_dialFreq {std::numeric_limits<Radio::Frequency>::max ()},
   m_detector (RX_SAMPLE_RATE, NTMAX, 6912 / 2, downSampleFactor),
@@ -218,6 +221,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   ui->actionJT4->setActionGroup(modeGroup);
   ui->actionWSPR_2->setActionGroup(modeGroup);
   ui->actionWSPR_15->setActionGroup(modeGroup);
+  ui->actionEcho->setActionGroup(modeGroup);
 
   QActionGroup* saveGroup = new QActionGroup(this);
   ui->actionNone->setActionGroup(saveGroup);
@@ -1274,6 +1278,11 @@ void MainWindow::on_actionLocal_User_Guide_triggered()
 void MainWindow::on_actionWide_Waterfall_triggered()      //Display Waterfalls
 {
   m_wideGraph->show();
+}
+
+void MainWindow::on_actionEcho_Graph_triggered()
+{
+  m_echoGraph->show();
 }
 
 void MainWindow::on_actionAstronomical_data_triggered()
@@ -3159,6 +3168,13 @@ void MainWindow::on_actionWSPR_15_triggered()
   switch_mode (Modes::WSPR);
 }
 
+void MainWindow::on_actionEcho_triggered()
+{
+  m_mode="Echo";
+  switch_mode(Modes::Echo);
+  if(!m_echoGraph->isVisible()) m_echoGraph->show();
+}
+
 void MainWindow::switch_mode (Mode mode)
 {
   auto f = m_dialFreq;
@@ -4306,3 +4322,4 @@ void MainWindow::on_tabWidget_currentChanged (int new_value)
     m_nonWSPRTab = new_value;
   }
 }
+

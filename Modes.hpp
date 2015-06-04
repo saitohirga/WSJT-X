@@ -20,6 +20,7 @@ public:
     JT9W_1,
     JT4,
     WSPR,
+    Echo,
   };
 
   explicit Modes (QObject * parent = nullptr);

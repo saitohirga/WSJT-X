@@ -910,7 +910,7 @@
              <string>Check to add 2.5 s to expected propagation delay.</string>
             </property>
             <property name="text">
-             <string>EME</string>
+             <string>EME delay</string>
             </property>
            </widget>
           </item>
@@ -2736,6 +2736,7 @@ QLabel[oob=&quot;true&quot;] {
     <addaction name="actionWide_Waterfall"/>
     <addaction name="actionAstronomical_data"/>
     <addaction name="actionMessage_averaging"/>
+    <addaction name="actionEcho_Graph"/>
    </widget>
    <widget class="QMenu" name="menuDecode">
     <property name="title">
@@ -2779,6 +2780,7 @@ QLabel[oob=&quot;true&quot;] {
     <addaction name="actionJT4"/>
     <addaction name="actionWSPR_2"/>
     <addaction name="actionWSPR_15"/>
+    <addaction name="actionEcho"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -3181,6 +3183,25 @@ QLabel[oob=&quot;true&quot;] {
    </property>
    <property name="text">
     <string>WSPR-15</string>
+   </property>
+  </action>
+  <action name="actionEcho_Graph">
+   <property name="text">
+    <string>Echo Graph</string>
+   </property>
+   <property name="shortcut">
+    <string>F8</string>
+   </property>
+  </action>
+  <action name="actionEcho">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Echo</string>
+   </property>
+   <property name="toolTip">
+    <string>EME Echo mode</string>
    </property>
   </action>
  </widget>

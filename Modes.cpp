@@ -13,6 +13,7 @@ namespace
       "JT9W-1",
       "JT4",
       "WSPR",
+      "Echo",
     };
 }
 
