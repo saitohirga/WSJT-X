@@ -10,6 +10,9 @@ class EchoGraph : public QDialog
 {
   Q_OBJECT
 
+protected:
+  void closeEvent (QCloseEvent *) override;
+
 public:
   explicit EchoGraph(QWidget *parent = 0);
   ~EchoGraph();

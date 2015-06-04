@@ -39,6 +39,12 @@ EchoGraph::~EchoGraph()
   delete ui;
 }
 
+void EchoGraph::closeEvent (QCloseEvent * e)
+{
+  saveSettings ();
+  QDialog::closeEvent (e);
+}
+
 void EchoGraph::saveSettings()
 {
 //Save user's settings

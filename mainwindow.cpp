@@ -168,6 +168,8 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
           SLOT(setXIT(int)));
   connect (this, &MainWindow::finished, m_wideGraph.data (), &WideGraph::close);
 
+  connect (this, &MainWindow::finished, m_echoGraph.data (), &EchoGraph::close);
+
   // setup the log QSO dialog
   connect (m_logDlg.data (), &LogQSO::acceptQSO, this, &MainWindow::acceptQSO2);
   connect (this, &MainWindow::finished, m_logDlg.data (), &LogQSO::close);
@@ -495,8 +497,9 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   genStdMsgs(m_rpt);
   m_ntx=6;
   ui->txrb6->setChecked(true);
-  if(m_mode!="JT9" and m_mode!="JT9W-1" and m_mode!="JT65" and m_mode!="JT9+JT65" and
-     m_mode!="JT4" and m_mode!="WSPR-2" and m_mode!="WSPR-15") m_mode="JT9";
+  if(m_mode!="JT9" and m_mode!="JT9W-1" and m_mode!="JT65" and m_mode!="JT9+JT65"
+     and m_mode!="JT4" and m_mode!="WSPR-2" and m_mode!="WSPR-15" and
+     m_mode!="Echo") m_mode="JT9";
   on_actionWide_Waterfall_triggered();                   //###
 
   connect(m_wideGraph.data (), SIGNAL(setFreq3(int,int)),this,
@@ -509,6 +512,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
   if(m_mode=="WSPR-2") on_actionWSPR_2_triggered();
   if(m_mode=="WSPR-15") on_actionWSPR_15_triggered();
+  if(m_mode=="Echo") on_actionEcho_triggered();
 
   m_wideGraph->setLockTxFreq(m_lockTxFreq);
   m_wideGraph->setMode(m_mode);
@@ -3172,7 +3176,11 @@ void MainWindow::on_actionEcho_triggered()
 {
   m_mode="Echo";
   switch_mode(Modes::Echo);
+  m_modeTx="Echo";
+  statusChanged();
   if(!m_echoGraph->isVisible()) m_echoGraph->show();
+  mode_label->setStyleSheet("QLabel{background-color: #7cfc00}");
+  mode_label->setText(m_mode);
 }
 
 void MainWindow::switch_mode (Mode mode)
