@@ -1,13 +1,15 @@
 //#include "commons.h"
+#include <QSettings>
 #include "echoplot.h"
 #include "echograph.h"
 #include "ui_echograph.h"
 
 #define NSMAX2 1366
 
-EchoGraph::EchoGraph(QWidget *parent) :
+EchoGraph::EchoGraph(QSettings * settings, QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::EchoGraph)
+  ui(new Ui::EchoGraph),
+  m_settings (settings)
 {
   ui->setupUi(this);
   this->setWindowFlags(Qt::Dialog);
@@ -18,19 +20,21 @@ EchoGraph::EchoGraph(QWidget *parent) :
   ui->echoPlot->setMaximumHeight(800);
 
 //Restore user's settings
+/*
   QString inifile(QApplication::applicationDirPath());
   inifile += "/emecho.ini";
   QSettings settings(inifile, QSettings::IniFormat);
-
-  settings.beginGroup("EchoGraph");
-  ui->echoPlot->setPlotZero(settings.value("PlotZero", 0).toInt());
-  ui->echoPlot->setPlotGain(settings.value("PlotGain", 0).toInt());
+*/
+  m_settings->beginGroup("EchoGraph");
+  restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
+  ui->echoPlot->setPlotZero(m_settings->value("PlotZero", 0).toInt());
+  ui->echoPlot->setPlotGain(m_settings->value("PlotGain", 0).toInt());
   ui->zeroSlider->setValue(ui->echoPlot->getPlotZero());
   ui->gainSlider->setValue(ui->echoPlot->getPlotGain());
-  ui->smoothSpinBox->setValue(settings.value("Smooth",0).toInt());
-  ui->echoPlot->m_blue=settings.value("BlueCurve",false).toBool();
+  ui->smoothSpinBox->setValue(m_settings->value("Smooth",0).toInt());
+  ui->echoPlot->m_blue=m_settings->value("BlueCurve",false).toBool();
   ui->cbBlue->setChecked(ui->echoPlot->m_blue);
-  settings.endGroup();
+  m_settings->endGroup();
 }
 
 EchoGraph::~EchoGraph()
@@ -48,16 +52,18 @@ void EchoGraph::closeEvent (QCloseEvent * e)
 void EchoGraph::saveSettings()
 {
 //Save user's settings
+/*
   QString inifile(QApplication::applicationDirPath());
   inifile += "/emecho.ini";
   QSettings settings(inifile, QSettings::IniFormat);
-
-  settings.beginGroup("EchoGraph");
-  settings.setValue("PlotZero",ui->echoPlot->m_plotZero);
-  settings.setValue("PlotGain",ui->echoPlot->m_plotGain);
-  settings.setValue("Smooth",ui->echoPlot->m_smooth);
-  settings.setValue("BlueCurve",ui->echoPlot->m_blue);
-  settings.endGroup();
+*/
+  m_settings->beginGroup("EchoGraph");
+  m_settings->setValue ("geometry", saveGeometry ());
+  m_settings->setValue("PlotZero",ui->echoPlot->m_plotZero);
+  m_settings->setValue("PlotGain",ui->echoPlot->m_plotGain);
+  m_settings->setValue("Smooth",ui->echoPlot->m_smooth);
+  m_settings->setValue("BlueCurve",ui->echoPlot->m_blue);
+  m_settings->endGroup();
 }
 
 void EchoGraph::plotSpec()
