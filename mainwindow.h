@@ -294,6 +294,8 @@ private:
   qint64  m_freqNominal;
   qint64  m_dialFreqTx;
 
+  double  m_s6;
+
   float   m_DTtol;
   float   m_rxavg;
 
@@ -385,6 +387,7 @@ private:
   bool    m_rxDone;
   bool    m_bHaveTransmitted;    //Can be used to prohibit consecutive WSPR transmissions
   int     m_nonWSPRTab;
+  bool    m_bTransmittedEcho;
 
   float   m_pctZap;
 
@@ -508,6 +511,7 @@ private:
   void enable_DXCC_entity (bool on);
   void switch_mode (Mode);
   void bandHopping();
+  void echoUpdate();
 };
 
 extern void getfile(QString fname, int ntrperiod);
