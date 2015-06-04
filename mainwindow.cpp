@@ -408,6 +408,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_bTxTime=false;
   m_rxDone=false;
   m_bHaveTransmitted=false;
+  m_bTransmittedEcho=false;
 
   signalMeter = new SignalMeter(ui->meterFrame);
   signalMeter->resize(50, 160);
@@ -1796,6 +1797,11 @@ void MainWindow::guiUpdate()
   static int nsendingsh=0;
   static double onAirFreq0=0.0;
   QString rt;
+
+  if(m_mode=="Echo") {
+    echoUpdate();
+    return;
+  }
 
   double txDuration=1.0 + 85.0*m_nsps/12000.0;              // JT9
   if(m_modeTx=="JT65") txDuration=1.0 + 126*4096/11025.0;   // JT65
@@ -4331,3 +4337,62 @@ void MainWindow::on_tabWidget_currentChanged (int new_value)
   }
 }
 
+void MainWindow::echoUpdate()
+{
+// ### Some of this stuff is temporary ###
+  static double s6z=-99.0;
+
+  qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
+  double tsec=0.001*ms;
+  int nsec=tsec;
+  m_s6=fmod(tsec,6.0);
+
+// When m_s6 has wrapped back to zero, start a new cycle.
+  if(m_auto and m_s6<s6z) {
+    QDateTime t = QDateTime::currentDateTimeUtc();
+
+/*
+    if(m_fname=="") {
+      m_fname=m_saveDir + "/" + t.date().toString("yyMMdd") + "_" +
+          t.time().toString("hhmmss") + ".eco";
+    }
+    int nhr=t.time().hour();
+    int nmin=t.time().minute();
+    int nsec=t.time().second();
+    r4com_.nutc=10000*nhr+100*nmin+nsec;
+*/
+
+    Q_EMIT m_config.transceiver_ptt (true);       //Assert the PTT
+//Wait 0.2 s, then send a 2.304 s Tx pulse
+//    ptt1Timer->start(200);                       //Sequencer delay
+    tx_status_label->setStyleSheet("QLabel{background-color: #ff0000}");
+    tx_status_label->setText("Tx Echo");
+    signalMeter->setValue(0);
+  }
+
+  if(m_bTransmittedEcho and m_s6 > 5.4) {
+    m_bTransmittedEcho=false;
+//    dataSinkEcho();
+  }
+
+//  float px=20.0*log10(datcom_.rms);
+//  signalMeter->setValue(px);                   // Update signalmeter
+
+  if(nsec != m_sec0) {
+    QDateTime t = QDateTime::currentDateTimeUtc();
+    QString utc = t.date().toString("yyyy MMM dd") + " \n " +
+        t.time().toString();
+    ui->labUTC->setText(utc);
+
+    if(m_astroWidget) {
+      m_freqMoon=m_dialFreq + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz;
+      int ndop,ndop00;
+      m_astroWidget->astroUpdate(t, m_config.my_grid (),
+          m_hisGrid,m_freqMoon, &ndop, &ndop00, m_transmitting,
+          m_config.data_dir().absoluteFilePath("JPLEPH"));
+    }
+    m_sec0=nsec;
+    qDebug() << "A" << nsec << m_s6;
+  }
+  s6z=m_s6;
+} //End of echoUpdate()
