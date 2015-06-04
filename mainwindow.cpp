@@ -2206,9 +2206,11 @@ void MainWindow::startTx2()
     transmit (snr);
     signalMeter->setValue(0);
     if(m_mode.mid(0,4)=="WSPR" and !m_tune) {
-      t = " Transmitting " + m_mode + " ----------------------- " +
-        m_config.bands ()->find (m_dialFreq);
-      ui->decodedTextBrowser->append(t.rightJustified (71, '-'));
+      if (m_config.TX_messages ()) {
+        t = " Transmitting " + m_mode + " ----------------------- " +
+          m_config.bands ()->find (m_dialFreq);
+        ui->decodedTextBrowser->append(t.rightJustified (71, '-'));
+      }
 
       QFile f {m_dataDir.absoluteFilePath ("ALL_WSPR.TXT")};
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
