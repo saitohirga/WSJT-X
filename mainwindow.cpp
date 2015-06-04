@@ -4290,7 +4290,11 @@ void MainWindow::bandHopping()
             << "tune:" << hop_data.tune_required_
             << "tx:" << hop_data.tx_next_;
 
-  if (m_auto &&hop_data.tx_next_) {
+  int blah = next_tx_state(m_pctx);
+  printf("next tx state %d\n",blah);
+
+//  if (m_auto &&hop_data.tx_next_) {
+  if ( m_auto && next_tx_state(m_pctx) ) {
     m_nrx = 0;
   } else {
     m_nrx = 1;

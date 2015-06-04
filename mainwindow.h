@@ -521,6 +521,7 @@ extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
                    int minChan[], int maxChan[],
                    int minSpeed[], int maxSpeed[]);
 extern int ptt(int nport, int ntx, int* iptt, int* nopen);
+extern int next_tx_state(int pctx);
 
 extern "C" {
   //----------------------------------------------------- C and Fortran routines

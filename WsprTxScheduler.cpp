@@ -1,15 +1,5 @@
 #include "WsprTxScheduler.h"
-/*#include <cstdio>
-#include <cstdlib>
-#include <ctime>
-#include <cstring>
-#include <iostream>
 
-using namespace std;
-
-char tx[6][10];
-int pctx, tx_table_2hr_slot;
-*/
 int tx_band_sum(char bsum[10])
 {
     int i,j;
@@ -95,7 +85,7 @@ void tx_print()
     printf("\n");
 }
 
-int create_tx_schedule()
+int create_tx_schedule(int pctx)
 {
     char bsum[10];
     int i, j, k, sum, ntxlim, ntxbandmin, needed;
@@ -159,7 +149,7 @@ int create_tx_schedule()
     return 0;
 }
 
-int next_tx_state()
+int next_tx_state(int pctx)
 {
   time_t now=time(0)+30;
   tm *ltm = localtime(&now);
@@ -171,7 +161,7 @@ int next_tx_state()
   int tx_2min_slot = (minute%20)/2;
 
   if( tx_2hr_slot != tx_table_2hr_slot ) {
-    create_tx_schedule();
+    create_tx_schedule(pctx);
     tx_table_2hr_slot = tx_2hr_slot;
   }
   
@@ -180,6 +170,8 @@ int next_tx_state()
   cout << "tx_20min_slot " << tx_20min_slot << endl;
   cout << "tx_2min_slot " << tx_2min_slot << endl;
   cout << "tx_table_2hr_slot " << tx_table_2hr_slot << endl;
+  cout << "Requested % " << pctx << " Actual % " << 100*tx_sum()/60 << endl;
+  tx_print();
   return tx[tx_20min_slot][tx_2min_slot];
 }
 /*
@@ -192,7 +184,7 @@ int main(int argc, char *argv[])
         pctx = 25;
     }
     tx_table_2hr_slot = 0;
-    cout << "Next TX state: " << next_tx_state() << endl;
+    cout << "Next TX state: " << next_tx_state(m_pctx) << endl;
     cout << "Requested % " << pctx << " Actual % " << 100*tx_sum()/60 << endl;
     tx_print();
 }
