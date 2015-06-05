@@ -1,25 +1,26 @@
 :doctype: manpage
 :man source: AsciiDoc
-:man version: {revnumber}
+:man version: {VERSION}
 :man manual: WSJT-X Manual
 = wsjtx(1)
 
 == NAME
 
-wsjtx, jt9 - Weak signal communications program.
+wsjtx, jt9, wsprd - Weak signal communications program.
 
 == SYNOPSIS
 
-*wsjtx* [OPTIONS]
+*wsjtx* ['OPTIONS']
 
 == DESCRIPTION
 
-*wsjtx* is a weak signal communications program supporting two operating
-modes: JT65 and JT9 (*wsjtx* version 1 supported JT9 only).
+*wsjtx* is a weak signal communications program supporting several operating
+modes: JT65, JT9, JT4 and WSPR (*wsjtx* version 1 supported JT9 only).
 
 WSJT-X home page:: http://www.physics.princeton.edu/pulsar/K1JT/wsjtx.html
 
-WSJT-X User's Guide:: http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main-toc2.html
+WSJT-X User's Guide::
+http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main-{VERSION}.html
 
 An alternative JT65 decoder executable *kvasd* for i386 Ubuntu is
 available at http://www.physics.princeton.edu/pulsar/K1JT/kvasd .
@@ -105,7 +106,7 @@ Joe Taylor, K1JT.
 
 == COPYING
 
-*wsjtx* is Copyright (C) 2001 - 2014 by Joseph H. Taylor, Jr., K1JT,
+*wsjtx* is Copyright (C) 2001 - 2015 by Joseph H. Taylor, Jr., K1JT,
 with contributions from additional authors.  WSJT-X is Open Source
 software, licensed under the GNU General Public License (GPLv3).
 

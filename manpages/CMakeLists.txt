@@ -32,6 +32,7 @@ set (A2X_OPTS
   --xsltproc-opts=${XSLTPROC_OPTS}
   --doctype=manpage
   --no-xmllint
+  -a VERSION=${wsjtx_VERSION}
   )
 
 set (MANPAGES)

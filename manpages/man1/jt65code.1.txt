@@ -1,6 +1,6 @@
 :doctype: manpage
 :man source: AsciiDoc
-:man version: {revnumber}
+:man version: {VERSION}
 :man manual: WSJT-X Manual
 = jt65code(1)
 
@@ -10,11 +10,22 @@ jt65code, jt9code, jt4code - Weak signal communications encoding support utility
 
 == SYNOPSIS
 
-*jt65code* MESSAGE
+*jt65code* "'MESSAGE'"
 
-*jt9code* MESSAGE
+*jt65code* ['OPTIONS']
 
-*jt4code* MESSAGE
+*jt9code* "'MESSAGE'"
+
+*jt9code* ['OPTIONS']
+
+*jt4code* "'MESSAGE'"
+
+*jt4code* ['OPTIONS']
+
+== OPTIONS
+*-t*::
+ Prints a selection of messages alongside their corresponding
+ decoded form and types.
 
 == DESCRIPTION
 
@@ -83,14 +94,8 @@ information-carrying channel symbols.
 
 WSJT-X home page:: http://www.physics.princeton.edu/pulsar/K1JT/wsjtx.html
 
-WSJT-X User's Guide:: http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main.html
-
-== OPTIONS
-*-t::
- Prints a selection of different messages with their corresponding
- decodes ad types.
-
-== FILES
+WSJT-X User's Guide::
+http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main-{VERSION}.html
 
 == AUTHOR
 
