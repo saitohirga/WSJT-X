@@ -22,6 +22,7 @@ extern "C"
                    , int * ntxnext, int my_grid_len);
 #endif
 };
+extern int next_tx_state(int pctx);
 
 namespace
 {
@@ -264,6 +265,9 @@ auto WSPRBandHopping::next_hop () -> Hop
   FC_hopping (&year, &month, &day, &uth, my_grid.toLatin1 ().constData ()
            , &m_->gray_line_duration_, &m_->tx_percent_, &period_index, &band_index
            , &tx_next, my_grid.size ());
+
+  // consult scheduler to determine if next period should be a tx interval
+  tx_next = next_tx_state(m_->tx_percent_);
 
   if (100 == m_->tx_percent_)
     {
