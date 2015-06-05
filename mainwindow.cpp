@@ -1090,10 +1090,13 @@ void MainWindow::bumpFqso(int n)                                 //bumpFqso()
     {
       ui->RxFreqSpinBox->setValue (i);
     }
-  if(ctrl && ui->TxFreqSpinBox->isEnabled ())
-    {
+  if(ctrl and m_mode.mid(0,4)=="WSPR") {
+    ui->WSPRfreqSpinBox->setValue(i);
+  } else {
+    if(ctrl && ui->TxFreqSpinBox->isEnabled ()) {
       ui->TxFreqSpinBox->setValue (i);
     }
+  }
 }
 
 void MainWindow::qsy (Frequency f)
@@ -3621,10 +3624,13 @@ void MainWindow::setFreq4(int rxFreq, int txFreq)
       ui->RxFreqSpinBox->setValue(rxFreq);
     }
 
-  if (ui->TxFreqSpinBox->isEnabled ())
-    {
+  if(m_mode.mid(0,4)=="WSPR") {
+    ui->WSPRfreqSpinBox->setValue(txFreq);
+  } else {
+    if (ui->TxFreqSpinBox->isEnabled ()) {
       ui->TxFreqSpinBox->setValue(txFreq);
     }
+  }
 }
 
 void MainWindow::on_cbTxLock_clicked(bool checked)
