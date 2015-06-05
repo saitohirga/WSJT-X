@@ -160,9 +160,10 @@ int next_tx_state(int pctx)
   int tx_20min_slot = (hour-tx_2hr_slot*2)*3 + minute/20;
   int tx_2min_slot = (minute%20)/2;
 
-  if( tx_2hr_slot != tx_table_2hr_slot ) {
+  if( (tx_2hr_slot != tx_table_2hr_slot) || (tx_table_pctx != pctx) ) {
     create_tx_schedule(pctx);
     tx_table_2hr_slot = tx_2hr_slot;
+    tx_table_pctx = pctx;
   }
   
   cout << "Hour " << hour << " Minute " << minute << endl;
