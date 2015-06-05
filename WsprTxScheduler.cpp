@@ -176,6 +176,15 @@ int next_tx_state(int pctx)
     tx_table_pctx = pctx;
   }
   
-  tx_print();
+//  tx_print();
   return tx[tx_20min_slot][tx_2min_slot];
 }
+
+int next_hopping_band()
+{
+  time_t now=time(0)+30;
+  tm *ltm = localtime(&now);
+  int minute = ltm->tm_min;
+  int tx_2min_slot = (minute%20)/2;
+  return tx_2min_slot;
+} 

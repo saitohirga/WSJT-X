@@ -19,8 +19,8 @@ extern "C"
 #else
 #include "FC.h"
   void FC_hopping (int const * year, int const * month, int const * nday, float const * uth, char const * my_grid
-                   , int const * nduration, int const * npctx, int * isun, int * iband
-                   , int * ntxnext, int my_grid_len);
+                   , int const * nduration, int * isun
+                   , int my_grid_len);
 #endif
 };
 
@@ -263,11 +263,12 @@ auto WSPRBandHopping::next_hop () -> Hop
 
   // look up band for this period
   FC_hopping (&year, &month, &day, &uth, my_grid.toLatin1 ().constData ()
-           , &m_->gray_line_duration_, &m_->tx_percent_, &period_index, &band_index
-           , &tx_next, my_grid.size ());
+           , &m_->gray_line_duration_, &period_index
+           , my_grid.size ());
 
   // consult scheduler to determine if next period should be a tx interval
   tx_next = next_tx_state(m_->tx_percent_);
+  band_index = next_hopping_band();
 
   if (100 == m_->tx_percent_)
     {
