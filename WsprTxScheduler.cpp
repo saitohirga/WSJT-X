@@ -1,4 +1,14 @@
-#include "WsprTxScheduler.h"
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <cstring>
+#include <iostream>
+
+namespace
+{
+  char tx[6][10];
+  int tx_table_2hr_slot=-1, tx_table_pctx=0;
+};
 
 int tx_band_sum(char bsum[10])
 {
@@ -166,27 +176,6 @@ int next_tx_state(int pctx)
     tx_table_pctx = pctx;
   }
   
-  cout << "Hour " << hour << " Minute " << minute << endl;
-  cout << "tx_2hr_slot " << tx_2hr_slot << endl;
-  cout << "tx_20min_slot " << tx_20min_slot << endl;
-  cout << "tx_2min_slot " << tx_2min_slot << endl;
-  cout << "tx_table_2hr_slot " << tx_table_2hr_slot << endl;
-  cout << "Requested % " << pctx << " Actual % " << 100*tx_sum()/60 << endl;
   tx_print();
   return tx[tx_20min_slot][tx_2min_slot];
 }
-/*
-int main(int argc, char *argv[])
-{
-    
-    if( argc == 2 ) {
-        pctx = atoi(argv[1]);
-    } else {
-        pctx = 25;
-    }
-    tx_table_2hr_slot = 0;
-    cout << "Next TX state: " << next_tx_state(m_pctx) << endl;
-    cout << "Requested % " << pctx << " Actual % " << 100*tx_sum()/60 << endl;
-    tx_print();
-}
-*/

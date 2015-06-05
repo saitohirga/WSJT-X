@@ -8,6 +8,7 @@
 #include "SettingsGroup.hpp"
 #include "Configuration.hpp"
 #include "FrequencyList.hpp"
+#include "WsprTxScheduler.h"
 #include "pimpl_impl.hpp"
 #include "moc_WSPRBandHopping.cpp"
 
@@ -22,7 +23,6 @@ extern "C"
                    , int * ntxnext, int my_grid_len);
 #endif
 };
-extern int next_tx_state(int pctx);
 
 namespace
 {
