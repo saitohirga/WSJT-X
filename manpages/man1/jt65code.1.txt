@@ -6,7 +6,7 @@
 
 == NAME
 
-jt65code, jt9code - Weak signal communications encoding support utility.
+jt65code, jt9code, jt4code - Weak signal communications encoding support utility.
 
 == SYNOPSIS
 
@@ -14,13 +14,15 @@ jt65code, jt9code - Weak signal communications encoding support utility.
 
 *jt9code* MESSAGE
 
+*jt4code* MESSAGE
+
 == DESCRIPTION
 
-*jt65code* and *jt9code* are utility programs that let you explore the
-conversion of user-level messages into channel symbols or “tone
-numbers.” These programs can be useful to someone designing a beacon
-generator for JT9 or JT65, or for studying behavior of the
-error-control codes.
+*jt65code*, *jt9code* and *jt4code* are utility programs that let you
+explore the conversion of user-level messages into channel symbols or
+“tone numbers.”  These programs can be useful to someone designing a
+beacon generator for JT9 or JT65, or for studying behavior of the
+error-control codes for each of the protocols.
 
 Channel-symbol values for JT9 run from 0 to 8, with 0 representing the
 sync tone. The total number of symbols in a transmitted message is
@@ -60,8 +62,8 @@ Decoded message: G0XYZ K1ABC FN42
 .....
 
 For an illustration of the power of the strong error-control coding in
-JT9 and JT65, try looking at the channel symbols after changing a
-single character in the message. For example, change the grid locater
+JT9, JT65 and JT4, try looking at the channel symbols after changing a
+single character in the message.  For example, change the grid locater
 from FN42 to FN43 in the JT65 message:
 
 .....
@@ -84,6 +86,9 @@ WSJT-X home page:: http://www.physics.princeton.edu/pulsar/K1JT/wsjtx.html
 WSJT-X User's Guide:: http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjtx-main.html
 
 == OPTIONS
+*-t::
+ Prints a selection of different messages with their corresponding
+ decodes ad types.
 
 == FILES
 
@@ -93,10 +98,10 @@ Joe Taylor, K1JT.
 
 == COPYING
 
-*jt65code* and *jt9code* are Copyright (C) 2001 - 2014 by Joseph
-H. Taylor, Jr., K1JT, with contributions from additional authors.
-WSJT-X is Open Source software, licensed under the GNU General Public
-License (GPLv3).
+*jt65code*, *jt9code* and *jt4code* are Copyright (C) 2001 - 2015 by
+Joseph H. Taylor, Jr., K1JT, with contributions from additional
+authors.  WSJT-X is Open Source software, licensed under the GNU
+General Public License (GPLv3).
 
 These programs are distributed in the hope that they will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
