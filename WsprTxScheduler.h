@@ -7,7 +7,7 @@
 using namespace std;
 
 char tx[6][10];
-int tx_table_2hr_slot=-1;
+int tx_table_2hr_slot=-1, tx_table_pctx=0;
 
 int tx_band_sum(char bsum[10]);
 int tx_add_to_band(int band);
