@@ -52,8 +52,6 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   // Time according to this computer which becomes our base time
   qint64 ms0 = QDateTime::currentMSecsSinceEpoch() % 86400000;
 
-  // qDebug () << "Modulator: Using soft keying for CW is " << SOFT_KEYING;;
-
   if (m_state != Idle)
     {
       stop ();
@@ -86,9 +84,6 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   if (synchronize && !m_tuning)	{
     m_silentFrames = m_ic + m_frameRate - (mstr * m_frameRate / 1000);
   }
-
-  //  qDebug () << "Modulator: starting at " << m_ic / m_frameRate
-  //      << " sec, sending " << m_silentFrames << " silent frames";
 
   initialize (QIODevice::ReadOnly, channel);
   Q_EMIT stateChanged ((m_state = (synchronize && m_silentFrames) ?
@@ -144,8 +139,6 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
   qint16 * end (samples + numFrames * (bytesPerFrame () / sizeof (qint16)));
   qint64 framesGenerated (0);
 
-  //  qDebug () << "Modulator: " << numFrames << " requested, m_ic = " << m_ic << ", tune mode is " << m_tuning;
-  //  qDebug() << "C" << maxSize << numFrames << bytesPerFrame();
   switch (m_state)
     {
     case Synchronizing:
@@ -234,6 +227,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
             }
             m_dphi = m_twoPi * toneFrequency0 / m_frameRate;
             m_isym0 = isym;
+            m_frequency0 = m_frequency;         //???
           }
 
           int j=m_ic/480;
@@ -263,14 +257,8 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
           }
           m_phi = 0.0;
         }
-/*
-        if(m_frequency != m_frequency0 or itone[0] != m_itone0) qDebug() << "Modulator B:" << itone[0] << m_frequency
-                                                 << m_dphi*m_frameRate/m_twoPi ;
-        m_itone0=itone[0];
-*/
-        m_frequency0 = m_frequency;
-//        qDebug() << "a" << m_frequency << m_nsps << m_toneSpacing << toneFrequency0 << baud << isym;
 
+        m_frequency0 = m_frequency;
         // done for this chunk - continue on next call
         return framesGenerated * bytesPerFrame ();
       }

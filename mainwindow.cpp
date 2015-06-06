@@ -569,7 +569,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
     m_hsymStop=173;
     if(m_config.decode_at_52s()) m_hsymStop=181;
   }
-  m_modulator.setPeriod(60);
+  m_modulator.setPeriod(m_TRperiod);
   m_dialFreqRxWSPR=0;
   wsprNet = new WSPRNet(this);
   connect( wsprNet, SIGNAL(uploadStatus(QString)), this, SLOT(uploadResponse(QString)));
@@ -943,6 +943,7 @@ void MainWindow::monitor (bool state)
 {
   ui->monitorButton->setChecked (state);
   if (state) {
+//    qDebug() << "monitor" << fmod(0.001*QDateTime::currentMSecsSinceEpoch(),6.0);
     if (!m_monitoring) Q_EMIT resumeAudioInputStream ();
   } else {
     Q_EMIT suspendAudioInputStream ();
@@ -958,8 +959,6 @@ void MainWindow::on_actionAbout_triggered()                  //Display "About"
 void MainWindow::on_autoButton_clicked (bool checked)
 {
   m_auto = checked;
-  qDebug() << "autoButton_clicked" << m_auto << m_tuneup;
-
   m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
                                   QString::number (ui->rptSpinBox->value ()),
                                   m_modeTx, ui->autoButton->isChecked (),
@@ -978,7 +977,6 @@ void MainWindow::on_autoButton_clicked (bool checked)
 
 void MainWindow::auto_tx_mode (bool state)
 {
-//  qDebug() << "auto_tx_mode" << state << m_tuneup;
   ui->autoButton->setChecked (state);
   on_autoButton_clicked (state);
 }
@@ -1801,8 +1799,6 @@ void MainWindow::guiUpdate()
   static double onAirFreq0=0.0;
   QString rt;
 
-  if(m_mode=="Echo") echoUpdate();
-
   double txDuration=1.0 + 85.0*m_nsps/12000.0;              // JT9
   if(m_modeTx=="JT65") txDuration=1.0 + 126*4096/11025.0;   // JT65
   if(m_mode=="WSPR-2") txDuration=2.0 + 162*8192/12000.0;   // WSPR
@@ -1814,34 +1810,29 @@ void MainWindow::guiUpdate()
     tx1 += m_TRperiod;
     tx2 += m_TRperiod;
   }
+
+  if(m_mode=="Echo") {
+    txDuration=2.5;
+    tx1=0.0;
+    tx2=txDuration;
+  }
+
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
   int nsec=ms/1000;
   double tsec=0.001*ms;
   double t2p=fmod(tsec,2*m_TRperiod);
+  m_s6=fmod(tsec,6.0);
   m_nseq = nsec % m_TRperiod;
-
-  if(m_mode=="Echo") goto ApplyDoppler;
 
   if(m_mode.mid(0,4)=="WSPR") {
     if(m_nseq==0 and m_ntr==0) {                   //Decide whether to Tx or Rx
       m_tuneup=false;                              //This is not an ATU tuneup
       if(m_pctx==0) m_nrx=1;                       //Don't transmit if m_pctx=0
       bool btx = m_auto and (m_nrx<=0);            //To Tx, we need m_auto and Rx sequsnce finished
-//      if(m_bHaveTransmitted) btx=false;            //Normally, no two consecutive transmissions
       if(m_auto and m_txNext) btx=true;            //TxNext button overrides
       if(m_auto and m_pctx==100) btx=true;         //Always transmit
 
-//      qDebug() << "B" << m_pctx << m_auto << m_nrx << m_ntr << m_txNext;
-
       if(btx) {
-// This will be a WSPR Tx sequence. Compute # of Rx's that should follow.
-//        float x=(float)rand()/RAND_MAX;
-//        if(m_pctx<50) {
-//          m_nrx=int(m_rxavg + 3.0*(x-0.5) + 0.5);
-//        } else {
-//          m_nrx=0;
-//          if(x<m_rxavg) m_nrx=1;
-//        }
         m_ntr=-1;                          //This says we will have transmitted
         m_bHaveTransmitted=true;
         m_txNext=false;
@@ -1856,20 +1847,21 @@ void MainWindow::guiUpdate()
     }
 
   } else {
-    m_bTxTime = (t2p >= tx1) and (t2p < tx2);  // For all modes other than WSPR
+ // For all modes other than WSPR
+    m_bTxTime = (t2p >= tx1) and (t2p < tx2);
   }
   if(m_tune) m_bTxTime=true;                 //"Tune" takes precedence
 
   if(m_transmitting or m_auto or m_tune) {
 // Check for "txboth" (testing purposes only)
     QFile f(m_appDir + "/txboth");
-    if(f.exists() and fmod(tsec,m_TRperiod) < (1.0 + 85.0*m_nsps/12000.0)) {
-      m_bTxTime=true;
-    }
+    if(f.exists() and
+       fmod(tsec,m_TRperiod)<(1.0 + 85.0*m_nsps/12000.0)) m_bTxTime=true;
 
 // Don't transmit another mode in the 30 m WSPR sub-band
     Frequency onAirFreq = m_dialFreq + ui->TxFreqSpinBox->value();
-    if ((onAirFreq > 10139900 and onAirFreq < 10140320) and m_mode.mid(0,4)!="WSPR") {
+    if ((onAirFreq > 10139900 and onAirFreq < 10140320) and
+        m_mode.mid(0,4)!="WSPR") {
       m_bTxTime=false;
       if (m_tune) stop_tuning ();
       if (m_auto) auto_tx_mode (false);
@@ -1905,16 +1897,14 @@ void MainWindow::guiUpdate()
       m_btxok=false;
     }
     if(m_ntr==1) {
-//      if(ui->band_hopping_group_box->isChecked ()) {
-//        qDebug() << "Call bandHopping after Rx" << m_nseq << m_ntr << m_nrx << m_rxDone;
-        bandHopping();
-//      }
+      bandHopping();
       m_ntr=0;                                //This WSPR Rx sequence is complete
     }
   }
 
   // Calculate Tx tones when needed
   if((g_iptt==1 && iptt0==0) || m_restart) {
+//----------------------------------------------------------------------
     QByteArray ba;
 
     if(m_mode.mid(0,4)=="WSPR") {
@@ -2030,47 +2020,45 @@ void MainWindow::guiUpdate()
     }
 
     if (m_currentMessageType < 6 && msg_parts.length() >= 3
-       && (msg_parts[1] == m_config.my_callsign () || msg_parts[1] == m_baseCall))
+        && (msg_parts[1] == m_config.my_callsign () ||
+            msg_parts[1] == m_baseCall))
+    {
+      int i1;
+      bool ok;
+      i1 = msg_parts[2].toInt(&ok);
+      if(ok and i1>=-50 and i1<50)
       {
-        int i1;
-        bool ok;
-        i1 = msg_parts[2].toInt(&ok);
-        if(ok and i1>=-50 and i1<50)
+        m_rptSent = msg_parts[2];
+        m_qsoStart = t2;
+      } else {
+        if (msg_parts[2].mid (0, 1) == "R")
+        {
+          i1 = msg_parts[2].mid (1).toInt (&ok);
+          if (ok and i1 >= -50 and i1 < 50)
           {
-            m_rptSent = msg_parts[2];
+            m_rptSent = msg_parts[2].mid (1);
             m_qsoStart = t2;
           }
-        else
-          {
-            if (msg_parts[2].mid (0, 1) == "R")
-              {
-                i1 = msg_parts[2].mid (1).toInt (&ok);
-                if (ok and i1 >= -50 and i1 < 50)
-                  {
-                    m_rptSent = msg_parts[2].mid (1);
-                    m_qsoStart = t2;
-                  }
-              }
-          }
-      }
-    m_restart=false;
-  } else {
-      if (!m_auto && m_sentFirst73)
-        {
-          m_sentFirst73 = false;
-          if (1 == ui->tabWidget->currentIndex())
-            {
-              ui->genMsg->setText(ui->tx6->text());
-              m_ntx=7;
-              ui->rbGenMsg->setChecked(true);
-            }
-          else
-            {
-              m_ntx=6;
-              ui->txrb6->setChecked(true);
-            }
         }
+      }
     }
+    m_restart=false;
+//----------------------------------------------------------------------
+  } else {
+    if (!m_auto && m_sentFirst73)
+    {
+      m_sentFirst73 = false;
+      if (1 == ui->tabWidget->currentIndex())
+      {
+        ui->genMsg->setText(ui->tx6->text());
+        m_ntx=7;
+        ui->rbGenMsg->setChecked(true);
+      } else {
+        m_ntx=6;
+        ui->txrb6->setChecked(true);
+      }
+    }
+  }
 
   if (g_iptt == 1 && iptt0 == 0)
     {
@@ -2115,7 +2103,6 @@ void MainWindow::guiUpdate()
     on_actionOpen_next_in_directory_triggered();
   }
 
-ApplyDoppler:
   Frequency f;
   if(m_astroWidget) {
     m_bDopplerTracking = m_astroWidget->m_bDopplerTracking;
@@ -2136,11 +2123,14 @@ ApplyDoppler:
     m_DopplerMethod0 = m_DopplerMethod;
   }
 
+  if(m_auto and m_mode=="Echo") progressBar->setValue(int(100*m_s6/6.0));
+
   if(nsec != m_sec0) {                                                //Once per second
-//    qDebug() << "A" << nsec << m_pctx << m_rxavg << m_ntr << m_nrx;
-    int ipct=0;
-    if(m_monitoring or m_transmitting) ipct=int(100*m_nseq/txDuration);
-    progressBar->setValue(ipct);
+    if(m_mode!="Echo") {
+      int ipct=0;
+      if(m_monitoring or m_transmitting) ipct=int(100*m_nseq/txDuration);
+      progressBar->setValue(ipct);
+    }
     QDateTime t = QDateTime::currentDateTimeUtc();
     if(m_astroWidget) {
       m_freqMoon=m_dialFreq + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz;
@@ -2192,7 +2182,11 @@ ApplyDoppler:
       if(m_tune) {
         tx_status_label->setText("Tx: TUNE");
       } else {
-        tx_status_label->setText(s);
+        if(m_mode=="Echo") {
+          tx_status_label->setText("Tx: ECHO");
+        } else {
+          tx_status_label->setText(s);
+        }
       }
     } else if(m_monitoring) {
       tx_status_label->setStyleSheet("QLabel{background-color: #00ff00}");
@@ -2233,6 +2227,8 @@ void MainWindow::startTx2()
     if(snr>0.0 or snr < -50.0) snr=99.0;
     transmit (snr);
     signalMeter->setValue(0);
+    if(m_mode=="Echo" and !m_tune) m_bTransmittedEcho=true;
+
     if(m_mode.mid(0,4)=="WSPR" and !m_tune) {
       if (m_config.TX_messages ()) {
         t = " Transmitting " + m_mode + " ----------------------- " +
@@ -2262,6 +2258,7 @@ void MainWindow::stopTx()
   g_iptt=0;
   tx_status_label->setStyleSheet("");
   tx_status_label->setText("");
+//  qDebug() << "StopTx" << fmod(0.001*QDateTime::currentMSecsSinceEpoch(),6.0);
   ptt0Timer->start(200);                       //Sequencer delay
   monitor (true);
   m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
@@ -2272,8 +2269,9 @@ void MainWindow::stopTx()
 
 void MainWindow::stopTx2()
 {
+//  qDebug() << "StopTx2" << fmod(0.001*QDateTime::currentMSecsSinceEpoch(),6.0);
   Q_EMIT m_config.transceiver_ptt (false);      //Lower PTT
-  if (m_mode.mid(0,4)!="WSPR" and m_config.watchdog() and
+  if (m_mode.mid(0,4)!="WSPR" and m_mode!="Echo" and m_config.watchdog() and
       m_repeatMsg>=m_watchdogLimit-1) {
     on_stopTxButton_clicked();
     msgBox("Runaway Tx watchdog");
@@ -2281,10 +2279,7 @@ void MainWindow::stopTx2()
   }
   if(m_mode.mid(0,4)=="WSPR" and m_ntr==-1 and !m_tuneup) {
     m_wideGraph->setWSPRtransmitted();
-//    if(ui->band_hopping_group_box->isChecked ()) {
-//      qDebug () << "Call bandHopping after Tx" << m_tuneup;
-      bandHopping();
-//    }
+    bandHopping();
     m_ntr=0;
   }
 }
@@ -3182,6 +3177,13 @@ void MainWindow::on_actionWSPR_15_triggered()
 void MainWindow::on_actionEcho_triggered()
 {
   m_mode="Echo";
+  ui->actionEcho->setChecked(true);
+  m_TRperiod=3;
+  m_modulator.setPeriod(m_TRperiod);
+  m_detector.setPeriod(m_TRperiod);
+  m_nsps=6912;                   //For symspec only
+  m_hsymStop=9;
+  m_toneSpacing=1.0;
   switch_mode(Modes::Echo);
   m_modeTx="Echo";
   statusChanged();
@@ -3732,6 +3734,12 @@ void MainWindow::transmit (double snr)
                         &m_soundOutput, m_config.audio_output_channel(),
                         true, snr);
   }
+  if(m_mode=="Echo") {
+//    qDebug() << "Start Echo Tx" << fmod(0.001*QDateTime::currentMSecsSinceEpoch(),6.0);
+//    Q_EMIT tune(true);
+    Q_EMIT sendMessage (27, 1024.0, 1500.0, 0.0, &m_soundOutput,
+                        m_config.audio_output_channel(),false, snr);
+  }
 }
 
 void MainWindow::on_outAttenuation_valueChanged (int a)
@@ -4223,7 +4231,6 @@ void MainWindow::uploadResponse(QString response)
   } else if (response == "Upload Failed") {
     m_uploading=false;
   }
-//  qDebug() << "uploadResponse" << response;
 }
 
 
@@ -4296,7 +4303,8 @@ void MainWindow::bandHopping()
             << "tune:" << hop_data.tune_required_
             << "tx:" << hop_data.tx_next_;
 
-  if (m_auto &&hop_data.tx_next_) {
+//  if (m_auto &&hop_data.tx_next_) {
+  if ( m_auto && next_tx_state(m_pctx) ) {
     m_nrx = 0;
   } else {
     m_nrx = 1;
@@ -4341,67 +4349,3 @@ void MainWindow::on_tabWidget_currentChanged (int new_value)
     m_nonWSPRTab = new_value;
   }
 }
-
-void MainWindow::echoUpdate()
-{
-// ### Some of this stuff is temporary ###
-  static double s6z=-99.0;
-
-  qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-  double tsec=0.001*ms;
-//  int nsec=tsec;
-  m_s6=fmod(tsec,6.0);
-
-// When m_s6 has wrapped back to zero, start a new cycle.
-  if(m_auto and m_s6<s6z) {
-    QDateTime t = QDateTime::currentDateTimeUtc();
-
-/*
-    if(m_fname=="") {
-      m_fname=m_saveDir + "/" + t.date().toString("yyMMdd") + "_" +
-          t.time().toString("hhmmss") + ".eco";
-    }
-    int nhr=t.time().hour();
-    int nmin=t.time().minute();
-    int nsec=t.time().second();
-    r4com_.nutc=10000*nhr+100*nmin+nsec;
-*/
-    qDebug() << "Assert PTT";
-    Q_EMIT m_config.transceiver_ptt (true);       //Assert the PTT
-//Wait 0.2 s, then send a 2.304 s Tx pulse
-//    ptt1Timer->start(200);                       //Sequencer delay
-    tx_status_label->setStyleSheet("QLabel{background-color: #ff0000}");
-    tx_status_label->setText("Tx Echo");
-    signalMeter->setValue(0);
-  }
-
-  if(m_bTransmittedEcho and m_s6 > 5.4) {
-    m_bTransmittedEcho=false;
-    qDebug() << "Compute Echo Spectrum";
-//    dataSinkEcho();
-  }
-
-/*
-//  float px=20.0*log10(datcom_.rms);
-//  signalMeter->setValue(px);                   // Update signalmeter
-
-  if(nsec != m_sec0) {
-    QDateTime t = QDateTime::currentDateTimeUtc();
-    QString utc = t.date().toString("yyyy MMM dd") + " \n " +
-        t.time().toString();
-    ui->labUTC->setText(utc);
-
-    if(m_astroWidget) {
-      m_freqMoon=m_dialFreq + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz;
-      int ndop,ndop00;
-      m_astroWidget->astroUpdate(t, m_config.my_grid (),
-          m_hisGrid,m_freqMoon, &ndop, &ndop00, m_transmitting,
-          m_config.data_dir().absoluteFilePath("JPLEPH"));
-    }
-    m_sec0=nsec;
-    qDebug() << "A" << nsec << m_s6;
-  }
-*/
-
-  s6z=m_s6;
-} //End of echoUpdate()
