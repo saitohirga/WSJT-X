@@ -4297,19 +4297,16 @@ void MainWindow::on_pbTxNext_clicked(bool b)
 
 void MainWindow::bandHopping()
 {
-  auto hop_data = m_WSPR_band_hopping.next_hop ();
-  qDebug () << "hop data: period:" << hop_data.period_name_
-            << "frequencies index:" << hop_data.frequencies_index_
-            << "tune:" << hop_data.tune_required_
-            << "tx:" << hop_data.tx_next_;
-
-  if (m_auto &&hop_data.tx_next_) {
-    m_nrx = 0;
-  } else {
-    m_nrx = 1;
-  }
-
+  bool transmit {false};
   if (ui->band_hopping_group_box->isChecked ()) {
+    auto hop_data = m_WSPR_band_hopping.next_hop ();
+    qDebug () << "hop data: period:" << hop_data.period_name_
+              << "frequencies index:" << hop_data.frequencies_index_
+              << "tune:" << hop_data.tune_required_
+              << "tx:" << hop_data.tx_next_;
+
+    transmit = hop_data.tx_next_;
+
     //    QThread::msleep(500);       //### Is this OK to do ??? ###
 
     if (hop_data.frequencies_index_ >= 0) { // new band
@@ -4323,7 +4320,7 @@ void MainWindow::bandHopping()
           QFile f {path};
           if (f.exists ()) {
             m_cmnd = QDir::toNativeSeparators (f.fileName ()) + ' ' +
-                m_config.bands ()->find (m_dialFreq).remove ('m');
+              m_config.bands ()->find (m_dialFreq).remove ('m');
           }
         }
       if(m_cmnd!="") p3.start(m_cmnd);     // Execute user's hardware controller
@@ -4331,14 +4328,23 @@ void MainWindow::bandHopping()
       // Produce a short tuneup signal
       m_tuneup = false;
       if (hop_data.tune_required_) {
-          m_tuneup = true;
-          on_tuneButton_clicked (true);
-          tuneATU_Timer->start (2500);
+        m_tuneup = true;
+        on_tuneButton_clicked (true);
+        tuneATU_Timer->start (2500);
       }
     }
 
     // Display grayline status
     auto_tx_label->setText (hop_data.period_name_);
+  }
+  else {
+    transmit = m_WSPR_band_hopping.next_is_tx ();
+  }
+
+  if (m_auto && transmit) {
+    m_nrx = 0;
+  } else {
+    m_nrx = 1;
   }
 }
 
