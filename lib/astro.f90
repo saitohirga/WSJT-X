@@ -44,6 +44,8 @@ subroutine astro(nyear,month,nday,uth,freq8,Mygrid,                    &
 
   call MoonDopJPL(nyear,month,nday,uth,lon,lat,RAMoon,DecMoon,    &
        LST,HA,AzMoon,ElMoon,vr,techo)
+  RAMoon=rad*RAMoon
+  DecMoon=rad*DecMoon
   dist=2.99792458d5*techo/2.d0
 
 ! Compute spatial polarization offset
@@ -59,7 +61,7 @@ subroutine astro(nyear,month,nday,uth,freq8,Mygrid,                    &
   longecl_half=nint(rad*el/2.0)
   if(longecl_half.lt.1 .or. longecl_half.gt.180) longecl_half=180
   t144=nt144(longecl_half)
-  tsky=(t144-2.7)*(144.0/freq8)**2.6 + 2.7      !Tsky for obs freq
+  tsky=(t144-2.7)*(144.0d6/freq8)**2.6 + 2.7      !Tsky for obs freq
 
   xdop(NStation)=doppler
   if(NStation.eq.2) then
