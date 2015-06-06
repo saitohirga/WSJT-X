@@ -510,7 +510,7 @@ private:
   void postDecode (bool is_new, QString const& message);
   void enable_DXCC_entity (bool on);
   void switch_mode (Mode);
-  void bandHopping();
+  void WSPR_scheduling ();
 };
 
 extern void getfile(QString fname, int ntrperiod);
