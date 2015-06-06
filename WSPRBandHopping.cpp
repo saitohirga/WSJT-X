@@ -319,15 +319,7 @@ auto WSPRBandHopping::next_hop () -> Hop
 
   band_index = next_hopping_band();
 
-  if (100 == m_->tx_percent_)
-    {
-      tx_next = 1;
-    }
-  else
-    {
-      // consult scheduler to determine if next period should be a tx interval
-      tx_next = next_tx_state(m_->tx_percent_);
-    }
+  tx_next = next_is_tx ();
 
   int frequencies_index {-1};
   auto const& frequencies = m_->configuration_->frequencies ();
@@ -406,4 +398,17 @@ auto WSPRBandHopping::next_hop () -> Hop
       && tx_next                // Tx scheduled
       && !m_->bands_[5].testBit (band_index) // not an Rx only band
    };
+}
+
+bool WSPRBandHopping::next_is_tx ()
+{
+  if (100 == m_->tx_percent_)
+    {
+      return true;
+    }
+  else
+    {
+      // consult scheduler to determine if next period should be a tx interval
+      return next_tx_state(m_->tx_percent_);
+    }
 }

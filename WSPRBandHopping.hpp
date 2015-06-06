@@ -71,6 +71,8 @@ public:
   };
   // return the next band parameters
   Hop next_hop ();
+  // determine if the next period should be a transmit period
+  bool next_is_tx ();
 
 private:
   class impl;
