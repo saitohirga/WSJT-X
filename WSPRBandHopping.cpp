@@ -17,10 +17,10 @@
 extern "C"
 {
 #ifndef CMAKE_BUILD
-#define FC_hopping hopping_
+#define FC_grayline grayline_
 #else
 #include "FC.h"
-  void FC_hopping (int const * year, int const * month, int const * nday, float const * uth, char const * my_grid
+  void FC_grayline (int const * year, int const * month, int const * nday, float const * uth, char const * my_grid
                    , int const * nduration, int * isun
                    , int my_grid_len);
 #endif
@@ -312,10 +312,10 @@ auto WSPRBandHopping::next_hop () -> Hop
   my_grid = (my_grid + "      ").left (6); // hopping doesn't like
                                            // short grids
 
-  // look up band for this period
-  FC_hopping (&year, &month, &day, &uth, my_grid.toLatin1 ().constData ()
-           , &m_->gray_line_duration_, &period_index
-           , my_grid.size ());
+  // look up the period for this time
+  FC_grayline (&year, &month, &day, &uth, my_grid.toLatin1 ().constData ()
+               , &m_->gray_line_duration_, &period_index
+               , my_grid.size ());
 
   band_index = next_hopping_band();
 
