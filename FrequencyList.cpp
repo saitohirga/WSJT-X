@@ -583,22 +583,25 @@ auto FrequencyList::end () const -> FrequencyList::const_iterator
   return const_iterator (this, rowCount ());
 }
 
-auto FrequencyList::all_bands () const -> BandSet
-{
-  BandSet result;
-  for (auto const& item : m_->frequency_list_)
-    {
-      result << m_->bands_->find (item.frequency_);
-    }
-  return result;
-}
-
 auto FrequencyList::filtered_bands () const -> BandSet
 {
   BandSet result;
   for (auto const& item : *this)
     {
       result << m_->bands_->find (item.frequency_);
+    }
+  return result;
+}
+
+auto FrequencyList::all_bands (Mode mode) const -> BandSet
+{
+  BandSet result;
+  for (auto const& item : m_->frequency_list_)
+    {
+      if (mode == Modes::NULL_MODE || item.mode_ == mode)
+        {
+          result << m_->bands_->find (item.frequency_);
+        }
     }
   return result;
 }

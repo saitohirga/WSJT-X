@@ -55,6 +55,7 @@ public:
   // Model API
   //
   QString find (Frequency) const; // find band Frequency is in
+  int find (QString const&) const; // find row of band (-1 if not valid)
   static QString const& oob ();
 
   // Iterators

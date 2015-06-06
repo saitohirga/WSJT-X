@@ -90,7 +90,7 @@ public:
   const_iterator end () const;
 
   // Bands of the frequencies
-  BandSet all_bands () const;
+  BandSet all_bands (Mode = Modes::NULL_MODE) const;
   BandSet filtered_bands () const;
 
   // Find the row of the nearest best working frequency given a

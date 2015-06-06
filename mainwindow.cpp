@@ -4311,7 +4311,7 @@ void MainWindow::bandHopping()
   }
 
   if (ui->band_hopping_group_box->isChecked ()) {
-    QThread::msleep(500);       //### Is this OK to do ??? ###
+    //    QThread::msleep(500);       //### Is this OK to do ??? ###
 
     if (hop_data.frequencies_index_ >= 0) { // new band
       ui->bandComboBox->setCurrentIndex (hop_data.frequencies_index_);
