@@ -511,7 +511,6 @@ private:
   void enable_DXCC_entity (bool on);
   void switch_mode (Mode);
   void bandHopping();
-  void echoUpdate();
 };
 
 extern void getfile(QString fname, int ntrperiod);
