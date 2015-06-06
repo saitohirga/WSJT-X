@@ -317,7 +317,6 @@ set (wsjt_FSRCS
   lib/grayline.f90
   lib/grid2deg.f90
   lib/hash.f90
-  lib/hopping.f90
   lib/image.f90
   lib/indexx.f90
   lib/interleave4.f90
@@ -629,7 +628,7 @@ include (FortranCInterface)
 FortranCInterface_VERIFY (CXX QUIET)
 FortranCInterface_HEADER (FC.h MACRO_NAMESPACE "FC_" SYMBOL_NAMESPACE "FC_"
   SYMBOLS
-  hopping
+  grayline
   )
 
 
