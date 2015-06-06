@@ -74,6 +74,19 @@ QString Bands::find (Frequency f) const
   return result;
 }
 
+int Bands::find (QString const& band) const
+{
+  int result {-1};
+  for (auto i = 0u; i < table_rows (); ++i)
+    {
+      if (band == ADIF_bands[i].name_)
+        {
+          result = i;
+        }
+    }
+  return result;
+}
+
 QString const& Bands::oob ()
 {
   return oob_name;

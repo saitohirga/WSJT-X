@@ -93,6 +93,7 @@ void tx_print()
         }
     }
     printf("\n");
+    fflush(stdout);
 }
 
 int create_tx_schedule(int pctx)
