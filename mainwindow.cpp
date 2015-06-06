@@ -1897,7 +1897,7 @@ void MainWindow::guiUpdate()
       m_btxok=false;
     }
     if(m_ntr==1) {
-      bandHopping();
+      WSPR_scheduling ();
       m_ntr=0;                                //This WSPR Rx sequence is complete
     }
   }
@@ -2279,7 +2279,7 @@ void MainWindow::stopTx2()
   }
   if(m_mode.mid(0,4)=="WSPR" and m_ntr==-1 and !m_tuneup) {
     m_wideGraph->setWSPRtransmitted();
-    bandHopping();
+    WSPR_scheduling ();
     m_ntr=0;
   }
 }
@@ -4295,7 +4295,7 @@ void MainWindow::on_pbTxNext_clicked(bool b)
   m_txNext=b;
 }
 
-void MainWindow::bandHopping()
+void MainWindow::WSPR_scheduling ()
 {
   bool transmit {false};
   if (ui->band_hopping_group_box->isChecked ()) {
