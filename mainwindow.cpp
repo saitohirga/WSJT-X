@@ -408,6 +408,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_bTxTime=false;
   m_rxDone=false;
   m_bHaveTransmitted=false;
+  m_bEchoTxOK=false;
   m_bTransmittedEcho=false;
 
   signalMeter = new SignalMeter(ui->meterFrame);
@@ -963,6 +964,7 @@ void MainWindow::on_autoButton_clicked (bool checked)
                                   QString::number (ui->rptSpinBox->value ()),
                                   m_modeTx, ui->autoButton->isChecked (),
                                   m_transmitting);
+  m_bEchoTxOK=false;
   if(m_mode.mid(0,4)=="WSPR")  {
     QPalette* palette = new QPalette();
     if(m_auto or m_pctx==0) {
@@ -1811,18 +1813,19 @@ void MainWindow::guiUpdate()
     tx2 += m_TRperiod;
   }
 
-  if(m_mode=="Echo") {
-    txDuration=2.5;
-    tx1=0.0;
-    tx2=txDuration;
-  }
-
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
   int nsec=ms/1000;
   double tsec=0.001*ms;
   double t2p=fmod(tsec,2*m_TRperiod);
   m_s6=fmod(tsec,6.0);
   m_nseq = nsec % m_TRperiod;
+
+  if(m_mode=="Echo") {
+    txDuration=2.5;
+    tx1=0.0;
+    tx2=txDuration;
+    if(m_auto and m_s6>4.0) m_bEchoTxOK=true;
+  }
 
   if(m_mode.mid(0,4)=="WSPR") {
     if(m_nseq==0 and m_ntr==0) {                   //Decide whether to Tx or Rx
@@ -1849,6 +1852,7 @@ void MainWindow::guiUpdate()
   } else {
  // For all modes other than WSPR
     m_bTxTime = (t2p >= tx1) and (t2p < tx2);
+    if(m_mode=="Echo") m_bTxTime = m_bTxTime and m_bEchoTxOK;
   }
   if(m_tune) m_bTxTime=true;                 //"Tune" takes precedence
 
@@ -2123,7 +2127,8 @@ void MainWindow::guiUpdate()
     m_DopplerMethod0 = m_DopplerMethod;
   }
 
-  if(m_auto and m_mode=="Echo") progressBar->setValue(int(100*m_s6/6.0));
+  if(m_auto and m_mode=="Echo" and m_bEchoTxOK) progressBar->setValue(
+        int(100*m_s6/6.0));
 
   if(nsec != m_sec0) {                                                //Once per second
     if(m_mode!="Echo") {

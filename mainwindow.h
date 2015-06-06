@@ -387,6 +387,7 @@ private:
   bool    m_rxDone;
   bool    m_bHaveTransmitted;    //Can be used to prohibit consecutive WSPR transmissions
   int     m_nonWSPRTab;
+  bool    m_bEchoTxOK;
   bool    m_bTransmittedEcho;
 
   float   m_pctZap;
