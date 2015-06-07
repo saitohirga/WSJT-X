@@ -1055,7 +1055,7 @@ configure_file (
   "${PROJECT_SOURCE_DIR}/wsjtx_config.h.in"
   "${PROJECT_BINARY_DIR}/wsjtx_config.h"
   )
-include_directories ("${PROJECT_BINARY_DIR}")
+include_directories (BEFORE "${PROJECT_BINARY_DIR}")
 
 
 if (NOT WIN32 AND NOT APPLE)
