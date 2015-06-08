@@ -83,7 +83,6 @@ HelpTextWindow::HelpTextWindow (QString const& title, QString const& file_name, 
     }
   setText (QTextStream {&source}.readAll ());
   setWindowTitle(QApplication::applicationName () + " - " + title);
-  setTextFormat (Qt::PlainText);
   setMargin (10);
   setBackgroundRole (QPalette::Base);
   setAutoFillBackground (true);
