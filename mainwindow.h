@@ -275,7 +275,7 @@ private:
   QScopedPointer<LogQSO> m_logDlg;
   QScopedPointer<Astro> m_astroWidget;
   QScopedPointer<QTextEdit> m_shortcuts;
-  QScopedPointer<QTextEdit> m_prefixes;
+  QScopedPointer<QLabel> m_prefixes;
   QScopedPointer<QTextEdit> m_mouseCmnds;
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
 
