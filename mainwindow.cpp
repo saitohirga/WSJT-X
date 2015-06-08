@@ -63,6 +63,33 @@ namespace
   }
 }
 
+class HelpTextWindow
+  : public QLabel
+{
+public:
+  HelpTextWindow (QString const& title, QString const& file_name, QFont const& = QFont {}, QWidget * parent = nullptr);
+};
+
+HelpTextWindow::HelpTextWindow (QString const& title, QString const& file_name, QFont const& font, QWidget * parent)
+  : QLabel {parent, Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint}
+{
+  QFile source {file_name};
+  if (!source.open (QIODevice::ReadOnly | QIODevice::Text))
+    {
+      QMessageBox::warning (this, QApplication::applicationName ()
+                            , "Cannot open \"" + source.fileName ()
+                            + "\" for reading:" + source.errorString ());
+      return;
+    }
+  setText (QTextStream {&source}.readAll ());
+  setWindowTitle(QApplication::applicationName () + " - " + title);
+  setTextFormat (Qt::PlainText);
+  setMargin (10);
+  setBackgroundRole (QPalette::Base);
+  setAutoFillBackground (true);
+  setStyleSheet (font_as_stylesheet (font));
+}
+
 //--------------------------------------------------- MainWindow constructor
 MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdmem,
                        unsigned downSampleFactor, QWidget *parent) :
@@ -1445,56 +1472,24 @@ void MainWindow::on_actionKeyboard_shortcuts_triggered()
 {
   if (!m_shortcuts)
     {
-      QFile f(":/shortcuts.txt");
-      if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        msgBox("Cannot open \"" + f.fileName () + "\" for reading:"+f.errorString ());
-        return;
-      }
-      m_shortcuts.reset (new QTextEdit);
-      m_shortcuts->setReadOnly(true);
-      m_shortcuts->setFontPointSize(10);
-      m_shortcuts->setWindowTitle(QApplication::applicationName () + " - " + tr ("Keyboard Shortcuts"));
-      m_shortcuts->setGeometry(QRect(45,50,430,460));
-      Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
-        Qt::WindowMinimizeButtonHint;
-      m_shortcuts->setWindowFlags(flags);
-      QTextStream s(&f);
-      QString t;
-      for(int i=0; i<100; i++) {
-        t=s.readLine();
-        m_shortcuts->append(t);
-        if(s.atEnd()) break;
-      }
+      QFont font;
+      font.setPointSize (10);
+      m_shortcuts.reset (new HelpTextWindow {tr ("Keyboard Shortcuts")
+            , ":/shortcuts.txt", font});
     }
-  m_shortcuts->showNormal();
+  m_shortcuts->showNormal ();
 }
 
 void MainWindow::on_actionSpecial_mouse_commands_triggered()
 {
   if (!m_mouseCmnds)
     {
-      QFile f(":/mouse_commands.txt");
-      if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        msgBox("Cannot open \"" + f.fileName () + "\" for reading:" + f.errorString ());
-        return;
-      }
-      m_mouseCmnds.reset (new QTextEdit);
-      m_mouseCmnds->setReadOnly(true);
-      m_mouseCmnds->setFontPointSize(10);
-      m_mouseCmnds->setWindowTitle(QApplication::applicationName () + " - " + tr ("Special Mouse Commands"));
-      m_mouseCmnds->setGeometry(QRect(45,50,440,300));
-      Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
-        Qt::WindowMinimizeButtonHint;
-      m_mouseCmnds->setWindowFlags(flags);
-      QTextStream s(&f);
-      QString t;
-      for(int i=0; i<100; i++) {
-        t=s.readLine();
-        m_mouseCmnds->append(t);
-        if(s.atEnd()) break;
-      }
+      QFont font;
+      font.setPointSize (10);
+      m_mouseCmnds.reset (new HelpTextWindow {tr ("Special Mouse Commands")
+            , ":/mouse_commands.txt", font});
     }
-  m_mouseCmnds->showNormal();
+  m_mouseCmnds->showNormal ();
 }
 
 void MainWindow::on_DecodeButton_clicked (bool /* checked */)	//Decode request
@@ -3770,30 +3765,7 @@ void MainWindow::on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered()
 {
   if (!m_prefixes)
     {
-      QFile f(":/prefixes.txt");
-      if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        msgBox("Cannot open \"" + f.fileName () + "\" for reading:" + f.errorString ());
-        return;
-      }
-      m_prefixes.reset (new QLabel {
-          QTextStream {&f}.readAll ()
-          , nullptr
-          , Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint
-        });
-      m_prefixes->setWindowTitle(QApplication::applicationName () +
-                                 " - " + tr ("Prefixes"));
-      m_prefixes->setTextFormat (Qt::PlainText);
-      m_prefixes->setMargin (10);
-      m_prefixes->setBackgroundRole (QPalette::Base);
-      m_prefixes->setAutoFillBackground (true);
-
-      // Formatting in columns thanks to Sandro, IW3RAB:
-      QFont font;
-      font.setFamily("Courier");
-      font.setStyleHint(QFont::Monospace);
-      font.setFixedPitch(true);
-      font.setPointSize(10); //as for decoded text
-      m_prefixes->setStyleSheet (font_as_stylesheet (font));
+      m_prefixes.reset (new HelpTextWindow {tr ("Prefixes"), ":/prefixes.txt", {"Courier", 10}});
     }
   m_prefixes->showNormal();
 }
