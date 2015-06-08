@@ -566,6 +566,8 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
     m_hsymStop=396;
   } else if(m_mode=="WSPR-15") {
     m_hsymStop=3090;
+  } else if(m_mode=="Echo") {
+    m_hsymStop=10;
   } else {
     m_hsymStop=173;
     if(m_config.decode_at_52s()) m_hsymStop=181;
@@ -778,6 +780,8 @@ void MainWindow::dataSink(qint64 frames)
     m_hsymStop=396;
   } else if(m_mode=="WSPR-15") {
     m_hsymStop=3090;
+  } else if(m_mode=="Echo") {
+    m_hsymStop=10;
   } else {
     m_hsymStop=173;
     if(m_config.decode_at_52s()) m_hsymStop=181;
@@ -788,6 +792,11 @@ void MainWindow::dataSink(qint64 frames)
   }
 
   if(ihsym == m_hsymStop) {
+    if(m_mode=="Echo") {
+      qDebug() << "call plotSpec()" << m_s6;
+      if(m_echoGraph->isVisible()) m_echoGraph->plotSpec();
+      return;
+    }
     if( m_dialFreqRxWSPR==0) m_dialFreqRxWSPR=m_dialFreq;
     m_dataAvailable=true;
     jt9com_.npts8=(ihsym*m_nsps)/16;
@@ -1681,9 +1690,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
                                                     , m_config.color_DXCC()
                                                     , m_config.color_NewCall());
 
-        bool b65=decodedtext.isJT65();
-        if(b65 and m_modeTx!="JT65") on_pbTxMode_clicked();
-        if(!b65 and m_modeTx=="JT65") on_pbTxMode_clicked();
+        if(m_mode!="JT4") {
+          bool b65=decodedtext.isJT65();
+          if(b65 and m_modeTx!="JT65") on_pbTxMode_clicked();
+          if(!b65 and m_modeTx=="JT65") on_pbTxMode_clicked();
+        }
         m_QSOText=decodedtext;
       }
 
@@ -3187,7 +3198,7 @@ void MainWindow::on_actionEcho_triggered()
   m_modulator.setPeriod(m_TRperiod);
   m_detector.setPeriod(m_TRperiod);
   m_nsps=6912;                   //For symspec only
-  m_hsymStop=9;
+  m_hsymStop=10;
   m_toneSpacing=1.0;
   switch_mode(Modes::Echo);
   m_modeTx="Echo";
