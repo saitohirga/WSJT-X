@@ -18,6 +18,7 @@
 #include <QHostInfo>
 
 #include "revision_utils.hpp"
+#include "qt_helpers.hpp"
 #include "soundout.h"
 #include "plotter.h"
 #include "echoplot.h"
@@ -3774,31 +3775,25 @@ void MainWindow::on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered()
         msgBox("Cannot open \"" + f.fileName () + "\" for reading:" + f.errorString ());
         return;
       }
-      m_prefixes.reset (new QTextEdit);
-      m_prefixes->setReadOnly(true);
+      m_prefixes.reset (new QLabel {
+          QTextStream {&f}.readAll ()
+          , nullptr
+          , Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint
+        });
+      m_prefixes->setWindowTitle(QApplication::applicationName () +
+                                 " - " + tr ("Prefixes"));
+      m_prefixes->setTextFormat (Qt::PlainText);
+      m_prefixes->setMargin (10);
+      m_prefixes->setBackgroundRole (QPalette::Base);
+      m_prefixes->setAutoFillBackground (true);
 
       // Formatting in columns thanks to Sandro, IW3RAB:
-      m_prefixes->setWordWrapMode (QTextOption::NoWrap);
       QFont font;
       font.setFamily("Courier");
       font.setStyleHint(QFont::Monospace);
       font.setFixedPitch(true);
       font.setPointSize(10); //as for decoded text
-      m_prefixes->setFont(font);
-      m_prefixes->setWindowTitle(QApplication::applicationName () +
-                                 " - " + tr ("Prefixes"));
-      m_prefixes->setGeometry(QRect(45,50,750,450));
-
-      Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
-        Qt::WindowMinimizeButtonHint;
-      m_prefixes->setWindowFlags(flags);
-      QTextStream s(&f);
-      QString t;
-      for(int i=0; i<100; i++) {
-        t=s.readLine();
-        m_prefixes->append(t);
-        if(s.atEnd()) break;
-      }
+      m_prefixes->setStyleSheet (font_as_stylesheet (font));
     }
   m_prefixes->showNormal();
 }
