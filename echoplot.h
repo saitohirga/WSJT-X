@@ -31,9 +31,10 @@ public:
   qint32  m_plotZero;
   qint32  m_plotGain;
   qint32  m_smooth;
+  qint32  m_binsPerPixel;
   bool    m_blue;
 
-  void draw();		              //Update the waterfall
+  void draw();		                                    //Update the Echo plot
   void SetRunningState(bool running);
   void setPlotZero(int plotZero);
   int  getPlotZero();

@@ -437,6 +437,10 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_bHaveTransmitted=false;
   m_bEchoTxOK=false;
   m_bTransmittedEcho=false;
+  m_nDop=0;
+  m_nDop00=0;
+  m_nDopr=0;
+  m_nclearave=1;
 
   signalMeter = new SignalMeter(ui->meterFrame);
   signalMeter->resize(50, 160);
@@ -820,8 +824,20 @@ void MainWindow::dataSink(qint64 frames)
 
   if(ihsym == m_hsymStop) {
     if(m_mode=="Echo") {
-      qDebug() << "call plotSpec()" << m_s6;
+      float snr=0;
+      int nfrit=0;
+      int nqual=0;
+      float f1=1500.0;
+      float rms=0.0;
+      float sigdb=0.0;
+      float dfreq=0.0;
+      float width=0.0;
+      echocom_.nclearave=m_nclearave;
+      avecho_(&jt9com_.d2[0],&m_nDop00,&nfrit,&nqual,&f1,&rms,&sigdb,
+          &snr,&dfreq,&width);
+      qDebug() << "A" << echocom_.nclearave << echocom_.nsum << rms << sigdb;
       if(m_echoGraph->isVisible()) m_echoGraph->plotSpec();
+      m_nclearave=0;
       return;
     }
     if( m_dialFreqRxWSPR==0) m_dialFreqRxWSPR=m_dialFreq;
@@ -2145,9 +2161,8 @@ void MainWindow::guiUpdate()
     QDateTime t = QDateTime::currentDateTimeUtc();
     if(m_astroWidget) {
       m_freqMoon=m_dialFreq + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz;
-      int ndop,ndop00;
       m_astroWidget->astroUpdate(t, m_config.my_grid (), m_hisGrid,m_freqMoon,
-                                 &ndop, &ndop00, m_transmitting,
+                                 &m_nDop, &m_nDop00, m_transmitting,
                                  m_config.data_dir().absoluteFilePath("JPLEPH"));
 
 //Apply Doppler corrections only for 50 MHz and above
@@ -2155,23 +2170,28 @@ void MainWindow::guiUpdate()
 
         if(m_astroWidget->m_bDopplerTracking) {
 
-          int ndopr=0;                                         // No Doppler Correction
           if(m_DopplerMethod==1) {
-            // All Doppler correction done here; DX station stays at nominal dial frequency.
-            ndopr=m_astroWidget->m_stepHz*qRound(double(ndop)/double(m_astroWidget->m_stepHz));
+// All Doppler correction done here; DX station stays at nominal dial frequency.
+            m_nDopr=m_astroWidget->m_stepHz*qRound(double(m_nDop)/double(
+                                                   m_astroWidget->m_stepHz));
           }
           if(m_DopplerMethod==2) {
             // Doppler correction to constant frequency on Moon
-            ndopr=m_astroWidget->m_stepHz*qRound(double(ndop00/2.0)/double(m_astroWidget->m_stepHz));
+            m_nDopr=m_astroWidget->m_stepHz*qRound(double(m_nDop00/2.0)/double(
+                                                   m_astroWidget->m_stepHz));
           }
 
           if(m_transmitting) {
-            m_dialFreqTx=m_freqNominal + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz - ndopr;
-            ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreqTx));
+            m_dialFreqTx=m_freqNominal + 1000*m_astroWidget->m_kHz +
+                m_astroWidget->m_Hz - m_nDopr;
+            ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (
+                                        m_dialFreqTx));
             Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
           } else {
-            m_dialFreq=m_freqNominal + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz + ndopr;
-            ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
+            m_dialFreq=m_freqNominal + 1000*m_astroWidget->m_kHz +
+                m_astroWidget->m_Hz + m_nDopr;
+            ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (
+                                        m_dialFreq));
             Q_EMIT m_config.transceiver_frequency(m_dialFreq);
           }
         }
@@ -2216,7 +2236,6 @@ void MainWindow::guiUpdate()
     if(!m_monitoring and !m_diskData) {
       signalMeter->setValue(0);
     }
-
     m_sec0=nsec;
   }
 

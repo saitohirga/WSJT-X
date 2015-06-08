@@ -333,6 +333,9 @@ private:
   qint32  m_dBm;
   qint32  m_pctx;
   qint32  m_nseq;
+  qint32  m_nDop;         //Doppler shift of EME DX station
+  qint32  m_nDop00;       //EME self-Doppler
+  qint32  m_nDopr;        //Applied Doppler, rounded to nearest 1, 10 or 100 Hz
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -555,6 +558,10 @@ extern "C" {
 
   void wspr_downsample_(short int d2[], int* k);
   void savec2_(char* fname, int* m_TRseconds, double* m_dialFreq, int len1);
+
+  void avecho_( short id2[], int* dop, int* nfrit, int* nqual, float* f1,
+                float* rms, float* sigdb, float* snr, float* dfreq,
+                float* width);
 }
 
 #endif // MAINWINDOW_H

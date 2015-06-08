@@ -90,6 +90,25 @@
         </spacer>
        </item>
        <item>
+        <widget class="QSpinBox" name="binsPerPixelSpinBox">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="prefix">
+          <string>Bins/Pixel  </string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>10</number>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
           <string>Gain</string>
@@ -162,14 +181,16 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Smooth</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QSpinBox" name="smoothSpinBox">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="prefix">
+          <string>Smooth  </string>
+         </property>
          <property name="maximum">
           <number>20</number>
          </property>
