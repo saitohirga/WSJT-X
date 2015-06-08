@@ -3765,9 +3765,19 @@ void MainWindow::on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered()
       }
       m_prefixes.reset (new QTextEdit);
       m_prefixes->setReadOnly(true);
-      m_prefixes->setFontPointSize(10);
-      m_prefixes->setWindowTitle(QApplication::applicationName () + " - " + tr ("Prefixes"));
-      m_prefixes->setGeometry(QRect(45,50,565,450));
+
+      // Formatting in columns thanks to Sandro, IW3RAB:
+      m_prefixes->setWordWrapMode (QTextOption::NoWrap);
+      QFont font;
+      font.setFamily("Courier");
+      font.setStyleHint(QFont::Monospace);
+      font.setFixedPitch(true);
+      font.setPointSize(10); //as for decoded text
+      m_prefixes->setFont(font);
+      m_prefixes->setWindowTitle(QApplication::applicationName () +
+                                 " - " + tr ("Prefixes"));
+      m_prefixes->setGeometry(QRect(45,50,750,450));
+
       Qt::WindowFlags flags = Qt::WindowCloseButtonHint |
         Qt::WindowMinimizeButtonHint;
       m_prefixes->setWindowFlags(flags);
