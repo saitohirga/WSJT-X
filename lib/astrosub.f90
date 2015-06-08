@@ -6,7 +6,7 @@ subroutine astrosub(nyear,month,nday,uth8,freq8,mygrid,hisgrid,          &
   implicit real*8 (a-h,o-z)
   character*6 mygrid,hisgrid,c1*1
   character*6 AzElFileName*(*),jpleph*(*)
-  character*80 jpleph_file_name
+  character*256 jpleph_file_name
   logical*1 bTx
   common/jplcom/jpleph_file_name
 
