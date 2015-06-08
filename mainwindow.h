@@ -63,6 +63,7 @@ class MessageAveraging;
 class MessageClient;
 class QTime;
 class WSPRBandHopping;
+class HelpTextWindow;
 
 class MainWindow : public QMainWindow
 {
@@ -274,9 +275,9 @@ private:
   QScopedPointer<EchoGraph> m_echoGraph;
   QScopedPointer<LogQSO> m_logDlg;
   QScopedPointer<Astro> m_astroWidget;
-  QScopedPointer<QTextEdit> m_shortcuts;
-  QScopedPointer<QLabel> m_prefixes;
-  QScopedPointer<QTextEdit> m_mouseCmnds;
+  QScopedPointer<HelpTextWindow> m_shortcuts;
+  QScopedPointer<HelpTextWindow> m_prefixes;
+  QScopedPointer<HelpTextWindow> m_mouseCmnds;
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
 
   Frequency  m_dialFreq;
