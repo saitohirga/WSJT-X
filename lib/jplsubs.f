@@ -19,7 +19,7 @@ C  *****************************************************************
 
 C  NAMFIL IS THE EXTERNAL NAME OF THE BINARY EPHEMERIS FILE
 
-      CHARACTER*80  NAMFIL
+      CHARACTER*256  NAMFIL
 
 c      NAMFIL='JPLEPH'
 
@@ -76,7 +76,7 @@ C  THE SUBROUTINE ALSO SETS THE VALUES OF  NRECL, NRFILE, AND NAMFIL.
       INTEGER NMAX
       PARAMETER (NMAX = 1000)
       CHARACTER*6 TTL(14,3),CNAM(NMAX)
-      CHARACTER*80 NAMFIL,jpleph_file_name
+      CHARACTER*256 NAMFIL,jpleph_file_name
       DIMENSION SS(3)
       INTEGER IPT(3,13)
       common/jplcom/jpleph_file_name
@@ -152,7 +152,7 @@ C
 C  THE SUBROUTINE SETS THE VALUES OF  NRECL, KSIZE, NRFILE, AND NAMFIL.
 
       SAVE
-      CHARACTER*80 NAMFIL,jpleph_file_name
+      CHARACTER*256 NAMFIL,jpleph_file_name
       common/jplcom/jpleph_file_name
 
 C  *****************************************************************
@@ -272,7 +272,6 @@ C
       INTEGER LIST(12),IPT(39),DENUM
       COMMON/EPHHDR/CVAL,SS,AU,EMRAT,DENUM,NCON,IPT
       COMMON/STCOMX/KM,BARY,PVSUN
-      common/jplcom/jpleph_file_name
 
 C     INITIALIZE ET2 FOR 'STATE' AND SET UP COMPONENT COUNT
 C
@@ -695,7 +694,7 @@ C
       DATA FIRST/.TRUE./
 
       CHARACTER*6 TTL(14,3),CNAM(NMAX)
-      CHARACTER*80 NAMFIL
+      CHARACTER*256 NAMFIL
 
       LOGICAL KM,BARY
 

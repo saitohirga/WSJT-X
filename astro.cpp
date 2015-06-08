@@ -103,11 +103,11 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid, qint64 fre
   QDir writable = QStandardPaths::writableLocation (QStandardPaths::DataLocation);
   QString AzElFileName = QDir::toNativeSeparators(writable.absoluteFilePath ("azel.dat"));
 
-  astrosub_(&nyear, &month, &nday, &uth, &freq8, mygrid.toLatin1(),
-            hisgrid.toLatin1(), &azsun, &elsun, &azmoon, &elmoon,
+  astrosub_(&nyear, &month, &nday, &uth, &freq8, mygrid.toLatin1().constData(),
+            hisgrid.toLatin1().constData(), &azsun, &elsun, &azmoon, &elmoon,
             &azmoondx, &elmoondx, &ntsky, ndop, ndop00, &ramoon, &decmoon,
             &dgrd, &poloffset, &xnr, &techo, &width1, &width2, &bTx,
-            AzElFileName.toLatin1(), jpleph.toLatin1(), 6, 6,
+            AzElFileName.toLatin1().constData(), jpleph.toLatin1().constData(), 6, 6,
             AzElFileName.length(), jpleph.length());
 
   QString message;
