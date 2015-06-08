@@ -1,5 +1,5 @@
 #include "echoplot.h"
-//#include "commons.h"
+#include "commons.h"
 #include <math.h>
 #include <QDebug>
 #include "moc_echoplot.cpp"
@@ -18,7 +18,7 @@ EPlotter::EPlotter(QWidget *parent) :                  //EPlotter Constructor
   setAttribute(Qt::WA_NoSystemBackground, true);
 
   m_StartFreq = -200;
-  m_fftBinWidth=48000.0/131072.0;
+  m_fftBinWidth=12000.0/32768.0;
   m_fSpan=1000.0;
   m_hdivs = HORZ_DIVS;
   m_Running = false;
@@ -81,7 +81,7 @@ void EPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
   m_paintEventBusy=false;
 }
 
-void EPlotter::draw()                                       //draw()
+void EPlotter::draw()                           //draw()
 {
   int i,j,y;
   float blue[2000],red[2000];
@@ -91,16 +91,16 @@ void EPlotter::draw()                                       //draw()
   QPainter painter2D(&m_2DPixmap);
   QRect tmp(0,0,m_w,m_h2);
   painter2D.fillRect(tmp,Qt::black);
-/*
-  if(datcom_.nclearave==0) {
+
+  if(echocom_.nclearave==0) {
     QPoint LineBuf[MAX_SCREENSIZE];
     QPen penBlue(QColor(0,255,255),1);
     QPen penRed(Qt::red,1);
     j=0;
     int i0=1000 + int(m_StartFreq/m_fftBinWidth);
     for(i=0; i<2000; i++) {
-      blue[i]=datcom_.blue[i];
-      red[i]=datcom_.red[i];
+      blue[i]=echocom_.blue[i];
+      red[i]=echocom_.red[i];
     }
     if(m_smooth>0) {
       for(i=0; i<m_smooth; i++) {
@@ -132,7 +132,7 @@ void EPlotter::draw()                                       //draw()
     }
     painter2D.drawPolyline(LineBuf,j);
   }
-  */
+
   update();                              //trigger a new paintEvent
 }
 

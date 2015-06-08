@@ -1,4 +1,4 @@
-//#include "commons.h"
+#include "commons.h"
 #include <QSettings>
 #include "echoplot.h"
 #include "echograph.h"
@@ -27,6 +27,7 @@ EchoGraph::EchoGraph(QSettings * settings, QWidget *parent) :
   ui->zeroSlider->setValue(ui->echoPlot->getPlotZero());
   ui->gainSlider->setValue(ui->echoPlot->getPlotGain());
   ui->smoothSpinBox->setValue(m_settings->value("Smooth",0).toInt());
+  ui->binsPerPixelSpinBox->setValue(m_settings->value("EchoBPP",0).toInt());
   ui->echoPlot->m_blue=m_settings->value("BlueCurve",false).toBool();
   ui->cbBlue->setChecked(ui->echoPlot->m_blue);
   m_settings->endGroup();
@@ -52,6 +53,7 @@ void EchoGraph::saveSettings()
   m_settings->setValue("PlotZero",ui->echoPlot->m_plotZero);
   m_settings->setValue("PlotGain",ui->echoPlot->m_plotGain);
   m_settings->setValue("Smooth",ui->echoPlot->m_smooth);
+  m_settings->setValue("EchoBPP",ui->echoPlot->m_binsPerPixel);
   m_settings->setValue("BlueCurve",ui->echoPlot->m_blue);
   m_settings->endGroup();
 }
@@ -82,5 +84,12 @@ void EchoGraph::on_gainSlider_valueChanged(int value)
 void EchoGraph::on_zeroSlider_valueChanged(int value)
 {
   ui->echoPlot->setPlotZero(value);
+  ui->echoPlot->draw();
+}
+
+void EchoGraph::on_binsPerPixelSpinBox_valueChanged(int n)
+{
+  ui->echoPlot->m_binsPerPixel=n;
+  ui->echoPlot->DrawOverlay();
   ui->echoPlot->draw();
 }
