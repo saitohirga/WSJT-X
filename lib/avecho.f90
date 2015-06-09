@@ -18,7 +18,6 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,rms0,sigdb,snr,dfreq,width)
   save dop0,sa,sb
 
   dop=ndop
-  doppler=dop
   sq=0.
   do i=1,TXLENGTH
      x(i)=id2(i)
@@ -27,9 +26,8 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,rms0,sigdb,snr,dfreq,width)
   rms0=sqrt(sq/TXLENGTH)
 
   if(nclearave.ne.0) nsum=0
-  nclearave=0
   if(nsum.eq.0) then
-     dop0=doppler                         !Remember the initial Doppler
+     dop0=dop                             !Remember the initial Doppler
      sa=0.                                !Clear the average arrays
      sb=0.
   endif
@@ -44,7 +42,7 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,rms0,sigdb,snr,dfreq,width)
 
   fnominal=1500.0           !Nominal audio frequency w/o doppler or dither
   ia=nint((fnominal+dop0-nfrit)/df)
-  ib=nint((f1+doppler-nfrit)/df)
+  ib=nint((f1+dop-nfrit)/df)
   if(ia.lt.600 .or. ib.lt.600) go to 900
   if(ia.gt.7590 .or. ib.gt.7590) go to 900
 
@@ -112,8 +110,8 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,rms0,sigdb,snr,dfreq,width)
   enddo
 
 900 continue
-  write(*,3001) ia,ib,nclearave,nsum,width,snr,nqual
-3001 format('avecho:',4i6,2f7.1,i5)
+  write(*,3001) ia*df,ib*df,dop,r0,r1,nfrit,nclearave,nsum
+3001 format(5f10.1,3i6)
 
   return
 end subroutine avecho

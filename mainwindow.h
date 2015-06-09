@@ -335,7 +335,7 @@ private:
   qint32  m_nseq;
   qint32  m_nDop;         //Doppler shift of EME DX station
   qint32  m_nDop00;       //EME self-Doppler
-  qint32  m_nDopr;        //Applied Doppler, rounded to nearest 1, 10 or 100 Hz
+  qint32  m_nDopr;        //Applied Doppler (rounded to nearest 1, 10 or 100 Hz)
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
