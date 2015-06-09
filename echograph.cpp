@@ -27,8 +27,12 @@ EchoGraph::EchoGraph(QSettings * settings, QWidget *parent) :
   ui->echoPlot->setPlotGain(m_settings->value("PlotGain", 0).toInt());
   ui->zeroSlider->setValue(ui->echoPlot->getPlotZero());
   ui->gainSlider->setValue(ui->echoPlot->getPlotGain());
-  ui->smoothSpinBox->setValue(m_settings->value("Smooth",0).toInt());
-  ui->binsPerPixelSpinBox->setValue(m_settings->value("EchoBPP",0).toInt());
+  int n=m_settings->value("Smooth",0).toInt();
+  ui->echoPlot->m_smooth=n;
+  ui->smoothSpinBox->setValue(n);
+  n=m_settings->value("EchoBPP",0).toInt();
+  ui->echoPlot->m_binsPerPixel=n;
+  ui->binsPerPixelSpinBox->setValue(n);
   ui->echoPlot->m_blue=m_settings->value("BlueCurve",false).toBool();
   ui->cbBlue->setChecked(ui->echoPlot->m_blue);
   m_settings->endGroup();
