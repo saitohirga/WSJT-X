@@ -331,23 +331,23 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   }
 
 
-  if(m_mode != "JT4") {
-    QPen pen0(Qt::green, 3);                 //Mark Rx Freq with green
-    painter0.setPen(pen0);
-    if(m_mode=="WSPR-2") {                   //### WSPR-15 code needed here, too ###
-      x1=XfromFreq(1400);
-      x2=XfromFreq(1600);
-      painter0.drawLine(x1,29,x2,29);
-    } else {
-      x1=XfromFreq(m_rxFreq);
-      x2=XfromFreq(m_rxFreq+bw);
-      painter0.drawLine(x1,24,x1,30);
-      painter0.drawLine(x1,28,x2,28);
-      painter0.drawLine(x2,24,x2,30);
-    }
+  QPen pen0(Qt::green, 3);                 //Mark Rx Freq with green
+  painter0.setPen(pen0);
+  if(m_mode=="WSPR-2") {                   //### WSPR-15 code needed here, too ###
+    x1=XfromFreq(1400);
+    x2=XfromFreq(1600);
+    painter0.drawLine(x1,29,x2,29);
+  }
+  if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65") {
+    x1=XfromFreq(m_rxFreq);
+    x2=XfromFreq(m_rxFreq+bw);
+    painter0.drawLine(x1,24,x1,30);
+    painter0.drawLine(x1,28,x2,28);
+    painter0.drawLine(x2,24,x2,30);
   }
 
-  if(m_mode != "JT4") {
+  if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65" or
+     m_mode.mid(0,4)=="WSPR") {
     QPen pen1(Qt::red, 3);                   //Mark Tx freq with red
     painter0.setPen(pen1);
     x1=XfromFreq(m_txFreq);

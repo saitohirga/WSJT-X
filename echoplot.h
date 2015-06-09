@@ -75,7 +75,6 @@ private:
   qint32  m_hdivs;
   qint32  m_line;
   qint32  m_freqPerDiv;
-  qint32  m_Percent2DScreen;
   qint32  m_h;
   qint32  m_h1;
   qint32  m_h2;

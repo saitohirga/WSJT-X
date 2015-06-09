@@ -3230,6 +3230,10 @@ void MainWindow::on_actionEcho_triggered()
   m_toneSpacing=1.0;
   switch_mode(Modes::Echo);
   m_modeTx="Echo";
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
+  ui->TxFreqSpinBox->setValue(1500);
+  ui->TxFreqSpinBox->setEnabled (false);
   statusChanged();
   if(!m_echoGraph->isVisible()) m_echoGraph->show();
   mode_label->setStyleSheet("QLabel{background-color: #7cfc00}");

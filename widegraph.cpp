@@ -266,6 +266,7 @@ void WideGraph::setMode(QString mode)                              //setMode
   ui->widePlot->setMode(mode);
   ui->widePlot->DrawOverlay();
   ui->widePlot->update();
+  qDebug() << "WideGraph::setMode" << m_mode;
 }
 
 void WideGraph::setSubMode(int n)                                  //setSubMode
