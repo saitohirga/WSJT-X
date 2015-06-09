@@ -4,8 +4,8 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,rms0,sigdb,snr,dfreq,width)
   parameter (TXLENGTH=27648)           !27*1024
   parameter (NFFT=32768,NH=NFFT/2)
   integer*2 id2(34560)                 !Buffer for Rx data
-  real sa(2000)      !Avg spectrum relative to initial Doppler echo freq
-  real sb(2000)      !Avg spectrum with Dither and changing Doppler removed
+  real sa(4096)      !Avg spectrum relative to initial Doppler echo freq
+  real sb(4096)      !Avg spectrum with Dither and changing Doppler removed
   integer nsum       !Number of integrations
   real dop0          !Doppler shift for initial integration (Hz)
   real doppler       !Doppler shift for current integration (Hz)
@@ -14,7 +14,7 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,rms0,sigdb,snr,dfreq,width)
   integer ipkv(1)
   complex c(0:NH)
   equivalence (x,c),(ipk,ipkv)
-  common/echocom/nclearave,nsum,blue(2000),red(2000)
+  common/echocom/nclearave,nsum,blue(4096),red(4096)
   save dop0,sa,sb
 
   dop=ndop
@@ -48,9 +48,9 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,rms0,sigdb,snr,dfreq,width)
 
   nsum=nsum+1
 
-  do i=1,2000
-     sa(i)=sa(i) + s(ia+i-1000)    !Center at initial doppler freq
-     sb(i)=sb(i) + s(ib+i-1000)    !Center at expected echo freq
+  do i=1,4096
+     sa(i)=sa(i) + s(ia+i-2048)    !Center at initial doppler freq
+     sb(i)=sb(i) + s(ib+i-2048)    !Center at expected echo freq
   enddo
 
   call pctile(sb,200,50,r0)
@@ -58,7 +58,7 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,rms0,sigdb,snr,dfreq,width)
 
   sum=0.
   sq=0.
-  do i=1,2000
+  do i=1,4096
      y=r0 + (r1-r0)*(i-100.0)/1800.0
      blue(i)=sa(i)/y
      red(i)=sb(i)/y
@@ -105,13 +105,9 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,rms0,sigdb,snr,dfreq,width)
   nsmo=max(0.0,0.25*bins)
 
   do i=1,nsmo
-     call smo121(red,2000)
-     call smo121(blue,2000)
+     call smo121(red,4096)
+     call smo121(blue,4096)
   enddo
 
-900 continue
-  write(*,3001) ia*df,ib*df,dop,r0,r1,nfrit,nclearave,nsum
-3001 format(5f10.1,3i6)
-
-  return
+900  return
 end subroutine avecho

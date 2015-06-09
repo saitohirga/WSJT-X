@@ -80,7 +80,7 @@ void EPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
 void EPlotter::draw()                           //draw()
 {
   int i,j,y;
-  float blue[2000],red[2000];
+  float blue[4096],red[4096];
   float gain = pow(10.0,(m_plotGain/20.0));
 
   if(m_2DPixmap.size().width()==0) return;
@@ -88,40 +88,35 @@ void EPlotter::draw()                           //draw()
   QRect tmp(0,0,m_w,m_h2);
   painter2D.fillRect(tmp,Qt::black);
 
-  if(echocom_.nclearave==0) {
-    QPoint LineBuf[MAX_SCREENSIZE];
-    QPen penBlue(QColor(0,255,255),1);
-    QPen penRed(Qt::red,1);
-    j=0;
-    int i0=1000 + int(m_StartFreq/(m_fftBinWidth*m_binsPerPixel));
-    for(i=0; i<2000; i++) {
-      blue[i]=echocom_.blue[i];
-      red[i]=echocom_.red[i];
-    }
-    if(m_smooth>0) {
-      for(i=0; i<m_smooth; i++) {
-        int n2000=2000;
-        smo121_(blue,&n2000);
-        smo121_(red,&n2000);
-      }
-    }
+  QPoint LineBuf[MAX_SCREENSIZE];
+  QPen penBlue(QColor(0,255,255),1);
+  QPen penRed(Qt::red,1);
 
-    if(m_blue) {
-      painter2D.setPen(penBlue);
-      j=0;
-      for(i=0; i<m_w; i++) {
-        y = 0.9*m_h2 - gain*(m_h/10.0)*(blue[i0+i]-1.0) - 0.01*m_h2*m_plotZero;
-        LineBuf[j].setX(i);
-        LineBuf[j].setY(y);
-        j++;
-      }
-      painter2D.drawPolyline(LineBuf,j);
+  j=0;
+  for(i=0; i<4096/m_binsPerPixel; i++) {
+    blue[i]=0.0;
+    red[i]=0.0;
+    for(int k=0; k<m_binsPerPixel; k++) {
+      blue[i]+=echocom_.blue[j];
+      red[i]+=echocom_.red[j];
+      j++;
     }
+  }
+  if(m_smooth>0) {
+    for(i=0; i<m_smooth; i++) {
+      int n4096=4096;
+      smo121_(blue,&n4096);
+      smo121_(red,&n4096);
+    }
+  }
 
-    painter2D.setPen(penRed);
+// check i0 value! ...
+  int i0=2048/m_binsPerPixel + int(m_StartFreq/(m_fftBinWidth*m_binsPerPixel));
+  if(m_blue) {
+    painter2D.setPen(penBlue);
     j=0;
-    for(int i=0; i<m_w; i++) {
-      y = 0.9*m_h2 - gain*(m_h/10.0)*(red[i0+i]-1.0) - 0.01*m_h2*m_plotZero;
+    for(i=0; i<m_w; i++) {
+      y = 0.9*m_h2 - gain*(m_h/10.0)*(blue[i0+i]-1.0) - 0.01*m_h2*m_plotZero;
       LineBuf[j].setX(i);
       LineBuf[j].setY(y);
       j++;
@@ -129,6 +124,15 @@ void EPlotter::draw()                           //draw()
     painter2D.drawPolyline(LineBuf,j);
   }
 
+  painter2D.setPen(penRed);
+  j=0;
+  for(int i=0; i<m_w; i++) {
+    y = 0.9*m_h2 - gain*(m_h/10.0)*(red[i0+i]-1.0) - 0.01*m_h2*m_plotZero;
+    LineBuf[j].setX(i);
+    LineBuf[j].setY(y);
+    j++;
+  }
+  painter2D.drawPolyline(LineBuf,j);
   update();                              //trigger a new paintEvent
 }
 
@@ -157,8 +161,6 @@ void EPlotter::DrawOverlay()                                 //DrawOverlay()
 
 //  m_StartFreq=50 * int((-0.5*m_fSpan)/50.0 - 0.5);
   m_StartFreq=m_freqPerDiv * int((-0.5*m_fSpan)/m_freqPerDiv - 0.5);
-
-  qDebug() << m_fSpan << m_freqPerDiv << m_StartFreq;
 
   float pixPerHdiv = m_freqPerDiv/(m_fftBinWidth*m_binsPerPixel);
   float pixPerVdiv = float(m_h2)/float(VERT_DIVS);

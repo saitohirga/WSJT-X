@@ -47,8 +47,8 @@ extern struct {
 extern struct {
   int   nclearave;
   int   nsum;
-  float blue[2000];
-  float red[2000];
+  float blue[4096];
+  float red[4096];
 } echocom_;
 
 }
