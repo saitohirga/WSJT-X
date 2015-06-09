@@ -125,6 +125,7 @@ public:
   QStringListModel * macros ();
   QStringListModel const * macros () const;
   QDir save_directory () const;
+  QDir azel_directory () const;
   QString rig_name () const;
   unsigned jt9w_bw_mult () const;
   float jt9w_min_dt () const;

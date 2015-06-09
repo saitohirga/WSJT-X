@@ -100,8 +100,7 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid, qint64 fre
   int nfreq=freqMoon/1000000;
   double freq8=(double)freqMoon;
 
-  QDir writable = QStandardPaths::writableLocation (QStandardPaths::DataLocation);
-  QString AzElFileName = QDir::toNativeSeparators(writable.absoluteFilePath ("azel.dat"));
+  QString AzElFileName = QDir::toNativeSeparators(m_azelDir.absoluteFilePath ("azel.dat"));
 
   astrosub_(&nyear, &month, &nday, &uth, &freq8, mygrid.toLatin1().constData(),
             hisgrid.toLatin1().constData(), &azsun, &elsun, &azmoon, &elmoon,

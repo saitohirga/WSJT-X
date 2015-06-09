@@ -34,6 +34,8 @@ public:
   qint32 m_Hz;
   qint32 m_stepHz;
 
+  QDir   m_azelDir;
+
 protected:
   void closeEvent (QCloseEvent *) override;
 
