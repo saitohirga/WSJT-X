@@ -7,6 +7,8 @@
 #include <QThread>
 #include <QDebug>
 
+#include "moc_TransceiverBase.cpp"
+
 namespace
 {
   auto const unexpected = TransceiverBase::tr ("Unexpected rig error");

@@ -6,6 +6,8 @@
 #include <QString>
 #include <QTimer>
 
+#include "moc_PollingTransceiver.cpp"
+
 namespace
 {
   unsigned const polls_to_stabilize {3};

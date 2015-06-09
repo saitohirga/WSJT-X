@@ -4,21 +4,34 @@
 
 #include "wsprnet.h"
 
-WSPRNet::WSPRNet(QObject *parent) :
-    QObject(parent)
-{
-  wsprNetUrl = "http://wsprnet.org/post?";
-  //wsprNetUrl = "http://127.0.0.1/post.php?";
-  networkManager = new QNetworkAccessManager(this);
-  connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(networkReply(QNetworkReply*)));
+#include <QTimer>
+#include <QFile>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QUrl>
 
-  uploadTimer = new QTimer(this);
+#include "moc_wsprnet.cpp"
+
+namespace
+{
+  char const * const wsprNetUrl = "http://wsprnet.org/post?";
+  // char const * const wsprNetUrl = "http://127.0.0.1/post?";
+};
+
+WSPRNet::WSPRNet(QObject *parent)
+  : QObject{parent}
+  , networkManager {new QNetworkAccessManager {this}}
+  , uploadTimer {new QTimer {this}}
+  , m_urlQueueSize {0}
+{
+  connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(networkReply(QNetworkReply*)));
   connect( uploadTimer, SIGNAL(timeout()), this, SLOT(work()));
 }
 
-void WSPRNet::upload(QString call, QString grid, QString rfreq, QString tfreq,
-                     QString mode, QString tpct, QString dbm, QString version,
-                     QString fileName)
+void WSPRNet::upload(QString const& call, QString const& grid, QString const& rfreq, QString const& tfreq,
+                     QString const& mode, QString const& tpct, QString const& dbm, QString const& version,
+                     QString const& fileName)
 {
     m_call = call;
     m_grid = grid;
@@ -58,23 +71,36 @@ void WSPRNet::upload(QString call, QString grid, QString rfreq, QString tfreq,
 
 void WSPRNet::networkReply(QNetworkReply *reply)
 {
+  if (QNetworkReply::NoError != reply->error ()) {
+    Q_EMIT uploadStatus (QString {"Error: %1"}.arg (reply->error ()));
+    // not clearing queue or halting queuing as it may be a transient
+    // one off request error
+  }
+  else {
     QString serverResponse = reply->readAll();
     if( m_uploadType == 2) {
-        if (!serverResponse.contains(QRegExp("spot\\(s\\) added"))) {
-            emit uploadStatus("Upload Failed");
-            urlQueue.clear();
-            uploadTimer->stop();
-        }
+      if (!serverResponse.contains(QRegExp("spot\\(s\\) added"))) {
+        emit uploadStatus("Upload Failed");
+        urlQueue.clear();
+        uploadTimer->stop();
+      }
     }
 
     if (urlQueue.isEmpty()) {
-        emit uploadStatus("done");
-        QFile::remove(m_file);
-        uploadTimer->stop();
+      emit uploadStatus("done");
+      QFile::remove(m_file);
+      uploadTimer->stop();
     }
+  }
+
+  m_outstandingRequests.removeOne (reply);
+  qDebug () << QString {"WSPRnet.org %1 outstanding requests"}.arg (m_outstandingRequests.size ());
+
+  // delete request object instance on return to the event loop otherwise it is leaked
+  reply->deleteLater ();
 }
 
-bool WSPRNet::decodeLine(QString line, QHash<QString,QString> &query)
+bool WSPRNet::decodeLine(QString const& line, QHash<QString,QString> &query)
 {
     // 130223 2256 7    -21 -0.3  14.097090  DU1MGA PK04 37          0    40    0
     // Date   Time Sync dBm  DT   Freq       Msg
@@ -152,7 +178,7 @@ QString WSPRNet::urlEncodeNoSpot()
     return queryString;;
 }
 
-QString WSPRNet::urlEncodeSpot(QHash<QString,QString> query)
+QString WSPRNet::urlEncodeSpot(QHash<QString,QString> const& query)
 {
     QString queryString;
     queryString += "function=" + query["function"] + "&";
@@ -179,14 +205,16 @@ void WSPRNet::work()
     if (!urlQueue.isEmpty()) {
         QUrl url(urlQueue.dequeue());
         QNetworkRequest request(url);
-        networkManager->get(request);
-        QString status = "Uploading Spot " + QString::number(m_urlQueueSize - urlQueue.size()) +
-            "/"+ QString::number(m_urlQueueSize);
-        emit uploadStatus(status);
+        m_outstandingRequests << networkManager->get(request);
+        emit uploadStatus(QString {"Uploading Spot %1/%2"}.arg (m_urlQueueSize - urlQueue.size()).arg (m_urlQueueSize));
     } else {
         uploadTimer->stop();
     }
 }
 
-
-
+void WSPRNet::abortOutstandingRequests () {
+  urlQueue.clear ();
+  for (auto& request : m_outstandingRequests) {
+    request->abort ();
+  }
+}

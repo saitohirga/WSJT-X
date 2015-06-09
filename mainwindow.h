@@ -33,7 +33,6 @@
 #include "Detector.hpp"
 #include "Modulator.hpp"
 #include "decodedtext.h"
-#include "wsprnet.h"
 
 #define NUM_JT4_SYMBOLS 206
 #define NUM_JT65_SYMBOLS 126
@@ -64,6 +63,7 @@ class MessageClient;
 class QTime;
 class WSPRBandHopping;
 class HelpTextWindow;
+class WSPRNet;
 
 class MainWindow : public QMainWindow
 {

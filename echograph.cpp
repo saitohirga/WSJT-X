@@ -1,8 +1,9 @@
+#include "echograph.h"
 #include "commons.h"
 #include <QSettings>
 #include "echoplot.h"
-#include "echograph.h"
 #include "ui_echograph.h"
+#include "moc_echograph.cpp"
 
 #define NSMAX2 1366
 

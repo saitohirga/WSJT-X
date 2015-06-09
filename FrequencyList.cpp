@@ -15,6 +15,8 @@
 #include "Bands.hpp"
 #include "pimpl_impl.hpp"
 
+#include "moc_FrequencyList.cpp"
+
 namespace
 {
   FrequencyList::FrequencyItems const default_frequency_list =
