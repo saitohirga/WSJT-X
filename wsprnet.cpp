@@ -4,6 +4,8 @@
 
 #include "wsprnet.h"
 
+#include <cmath>
+
 #include <QTimer>
 #include <QFile>
 #include <QNetworkAccessManager>
