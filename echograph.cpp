@@ -36,6 +36,8 @@ EchoGraph::EchoGraph(QSettings * settings, QWidget *parent) :
   ui->echoPlot->m_blue=m_settings->value("BlueCurve",false).toBool();
   ui->cbBlue->setChecked(ui->echoPlot->m_blue);
   m_settings->endGroup();
+
+  ui->cbBlue->setVisible(false);                   //Not using "blue" (for now, at least)
 }
 
 EchoGraph::~EchoGraph()
@@ -66,6 +68,7 @@ void EchoGraph::saveSettings()
 void EchoGraph::plotSpec()
 {
   ui->echoPlot->draw();
+  ui->nsum_label->setText("N: " + QString::number(echocom_.nsum));
 }
 
 void EchoGraph::on_smoothSpinBox_valueChanged(int n)

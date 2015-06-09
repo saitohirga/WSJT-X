@@ -560,7 +560,7 @@ extern "C" {
   void savec2_(char* fname, int* m_TRseconds, double* m_dialFreq, int len1);
 
   void avecho_( short id2[], int* dop, int* nfrit, int* nqual, float* f1,
-                float* rms, float* sigdb, float* snr, float* dfreq,
+                float* level, float* sigdb, float* snr, float* dfreq,
                 float* width);
 }
 
