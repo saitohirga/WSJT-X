@@ -409,6 +409,7 @@ private:
   Q_SLOT void delete_macro ();
   void delete_selected_macros (QModelIndexList);
   Q_SLOT void on_save_path_select_push_button_clicked (bool);
+  Q_SLOT void on_azel_path_select_push_button_clicked (bool);
   Q_SLOT void delete_frequencies ();
   Q_SLOT void on_reset_frequencies_push_button_clicked (bool);
   Q_SLOT void insert_frequency ();
@@ -446,6 +447,8 @@ private:
   QDir temp_dir_;
   QDir default_save_directory_;
   QDir save_directory_;
+  QDir default_azel_directory_;
+  QDir azel_directory_;
 
   QFont font_;
   QFont next_font_;
@@ -631,6 +634,7 @@ FrequencyList const * Configuration::frequencies () const {return &m_->frequenci
 QStringListModel * Configuration::macros () {return &m_->macros_;}
 QStringListModel const * Configuration::macros () const {return &m_->macros_;}
 QDir Configuration::save_directory () const {return m_->save_directory_;}
+QDir Configuration::azel_directory () const {return m_->azel_directory_;}
 QString Configuration::rig_name () const {return m_->rig_params_.rig_name;}
 
 bool Configuration::transceiver_online (bool open_if_closed)
@@ -797,9 +801,11 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
     // Make sure the default save directory exists
     QString save_dir {"save"};
     default_save_directory_ = data_dir;
+    default_azel_directory_ = data_dir;
     if (!default_save_directory_.mkpath (save_dir) || !default_save_directory_.cd (save_dir))
       {
-        QMessageBox::critical (this, "WSJT-X", tr ("Create Directory", "Cannot create directory \"") + default_save_directory_.absoluteFilePath (save_dir) + "\".");
+        QMessageBox::critical (this, "WSJT-X", tr ("Create Directory", "Cannot create directory \"") +
+                               default_save_directory_.absoluteFilePath (save_dir) + "\".");
         throw std::runtime_error {"Failed to create save directory"};
       }
 
@@ -809,7 +815,8 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
     QString samples_dir {"samples"};
     if (!default_save_directory_.mkpath (samples_dir))
       {
-        QMessageBox::critical (this, "WSJT-X", tr ("Create Directory", "Cannot create directory \"") + default_save_directory_.absoluteFilePath (samples_dir) + "\".");
+        QMessageBox::critical (this, "WSJT-X", tr ("Create Directory", "Cannot create directory \"") +
+                               default_save_directory_.absoluteFilePath (samples_dir) + "\".");
         throw std::runtime_error {"Failed to create save directory"};
       }
 
@@ -1011,6 +1018,7 @@ void Configuration::impl::initialize_models ()
   ui_->CW_id_interval_spin_box->setValue (id_interval_);
   ui_->PTT_method_button_group->button (rig_params_.ptt_type)->setChecked (true);
   ui_->save_path_display_label->setText (save_directory_.absolutePath ());
+  ui_->azel_path_display_label->setText (azel_directory_.absolutePath ());
   ui_->CW_id_after_73_check_box->setChecked (id_after_73_);
   ui_->tx_QSY_check_box->setChecked (tx_QSY_allowed_);
   ui_->psk_reporter_check_box->setChecked (spot_to_psk_reporter_);
@@ -1122,6 +1130,7 @@ void Configuration::impl::read_settings ()
   id_interval_ = settings_->value ("IDint", 0).toInt ();
 
   save_directory_ = settings_->value ("SaveDir", default_save_directory_.absolutePath ()).toString ();
+  azel_directory_ = settings_->value ("AzElDir", default_azel_directory_.absolutePath ()).toString ();
 
   {
     //
@@ -1256,6 +1265,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("PTTMethod", QVariant::fromValue (rig_params_.ptt_type));
   settings_->setValue ("PTTport", rig_params_.ptt_port);
   settings_->setValue ("SaveDir", save_directory_.absolutePath ());
+  settings_->setValue ("AzElDir", azel_directory_.absolutePath ());
 
   if (default_audio_input_device_selected_)
     {
@@ -1671,6 +1681,7 @@ void Configuration::impl::accept ()
   TX_messages_ = ui_->TX_messages_check_box->isChecked ();
   data_mode_ = static_cast<DataMode> (ui_->TX_mode_button_group->checkedId ());
   save_directory_ = ui_->save_path_display_label->text ();
+  azel_directory_ = ui_->azel_path_display_label->text ();
   enable_VHF_features_ = ui_->enable_VHF_features_check_box->isChecked ();
   decode_at_52s_ = ui_->decode_at_52s_check_box->isChecked ();
   frequency_calibration_intercept_ = ui_->calibration_intercept_spin_box->value ();
@@ -2054,6 +2065,18 @@ void Configuration::impl::on_save_path_select_push_button_clicked (bool /* check
           ui_->save_path_display_label->setText (fd.selectedFiles ().at (0));
         }
     }
+}
+
+void Configuration::impl::on_azel_path_select_push_button_clicked (bool /* checked */)
+{
+  QFileDialog fd {this, tr ("AzEl Directory"), ui_->azel_path_display_label->text ()};
+  fd.setFileMode (QFileDialog::Directory);
+  fd.setOption (QFileDialog::ShowDirsOnly);
+  if (fd.exec ()) {
+    if (fd.selectedFiles ().size ()) {
+      ui_->azel_path_display_label->setText(fd.selectedFiles().at(0));
+    }
+  }
 }
 
 bool Configuration::impl::have_rig (bool open_if_closed)

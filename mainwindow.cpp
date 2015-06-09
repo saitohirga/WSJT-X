@@ -958,6 +958,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     {
       Q_EMIT m_config.transceiver_frequency (m_dialFreq);
     }
+  if(m_astroWidget) m_astroWidget->m_azelDir=m_config.azel_directory();
 }
 
 void MainWindow::on_monitorButton_clicked (bool checked)
@@ -1358,6 +1359,7 @@ void MainWindow::on_actionAstronomical_data_triggered()
       connect (this, &MainWindow::finished, m_astroWidget.data (), &Astro::close);
     }
   m_astroWidget->showNormal();
+  m_astroWidget->m_azelDir=m_config.azel_directory();
 }
 
 void MainWindow::on_actionMessage_averaging_triggered()
