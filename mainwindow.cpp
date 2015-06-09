@@ -833,9 +833,10 @@ void MainWindow::dataSink(qint64 frames)
       float dfreq=0.0;
       float width=0.0;
       echocom_.nclearave=m_nclearave;
-      avecho_(&jt9com_.d2[0],&m_nDop00,&nfrit,&nqual,&f1,&rms,&sigdb,
+      int nDop=0;
+      avecho_(&jt9com_.d2[0],&nDop,&nfrit,&nqual,&f1,&rms,&sigdb,
           &snr,&dfreq,&width);
-      qDebug() << "A" << echocom_.nclearave << echocom_.nsum << rms << sigdb;
+      qDebug() << "A" << m_nDopr << nDop;
       if(m_echoGraph->isVisible()) m_echoGraph->plotSpec();
       m_nclearave=0;
       return;
@@ -2142,6 +2143,8 @@ void MainWindow::guiUpdate()
         Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
       } else {
         f=m_freqNominal + 1000*m_astroWidget->m_kHz + m_astroWidget->m_Hz;
+//        m_dialFreq=f;
+//        ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
         Q_EMIT m_config.transceiver_frequency(f);
       }
     }
@@ -2170,10 +2173,16 @@ void MainWindow::guiUpdate()
 
         if(m_astroWidget->m_bDopplerTracking) {
 
+          m_nDopr=0;
           if(m_DopplerMethod==1) {
 // All Doppler correction done here; DX station stays at nominal dial frequency.
-            m_nDopr=m_astroWidget->m_stepHz*qRound(double(m_nDop)/double(
+            if(m_mode=="Echo") {
+              m_nDopr=m_astroWidget->m_stepHz*qRound(double(m_nDop00)/double(
                                                    m_astroWidget->m_stepHz));
+            } else {
+              m_nDopr=m_astroWidget->m_stepHz*qRound(double(m_nDop)/double(
+                                                   m_astroWidget->m_stepHz));
+            }
           }
           if(m_DopplerMethod==2) {
             // Doppler correction to constant frequency on Moon
@@ -2188,9 +2197,14 @@ void MainWindow::guiUpdate()
                                         m_dialFreqTx));
             Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
           } else {
-            m_dialFreq=m_freqNominal + 1000*m_astroWidget->m_kHz +
-                m_astroWidget->m_Hz + m_nDopr;
-            ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (
+            if(m_mode=="Echo" and m_DopplerMethod==1) {
+              m_dialFreq=m_freqNominal + 1000*m_astroWidget->m_kHz +
+                  m_astroWidget->m_Hz;
+            } else {
+              m_dialFreq=m_freqNominal + 1000*m_astroWidget->m_kHz +
+                  m_astroWidget->m_Hz + m_nDopr;
+            }
+              ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (
                                         m_dialFreq));
             Q_EMIT m_config.transceiver_frequency(m_dialFreq);
           }
