@@ -47,10 +47,10 @@ void DisplayText::mouseDoubleClickEvent(QMouseEvent *e)
 
 void DisplayText::insertLineSpacer(QString const& line)
 {
-  _insertText (line, "#d3d3d3");
+  appendText (line, "#d3d3d3");
 }
 
-void DisplayText::_insertText(const QString text, const QString bg)
+void DisplayText::appendText(QString const& text, QString const& bg)
 {
     QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
       bg + "\">" + text.trimmed ().replace (' ', "&nbsp;") + "</td></tr></table>";
@@ -161,7 +161,7 @@ void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall,
         _appendDXCCWorkedB4(/*mod*/decodedText,bg,logBook,color_CQ,
                             color_DXCC,color_NewCall);
 
-    _insertText(decodedText.string(),bg);
+    appendText(decodedText.string(),bg);
 }
 
 
@@ -176,5 +176,5 @@ void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 tx
     QString t = QDateTime::currentDateTimeUtc().toString("hhmm") + \
         "  Tx      " + t2 + t1 + text;   // The position of the 'Tx' is searched for in DecodedText and in MainWindow.  Not sure if thats required anymore? VK3ACF
 
-    _insertText(t,bg);
+    appendText(t,bg);
 }

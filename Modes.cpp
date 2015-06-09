@@ -3,6 +3,8 @@
 #include <QString>
 #include <QVariant>
 
+#include "moc_Modes.cpp"
+
 namespace
 {
   char const * const mode_names[] =

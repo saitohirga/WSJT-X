@@ -1,7 +1,8 @@
-#include <QSettings>
 #include "messageaveraging.h"
+#include <QSettings>
 #include "ui_messageaveraging.h"
 #include "commons.h"
+#include "moc_messageaveraging.cpp"
 
 MessageAveraging::MessageAveraging(QSettings * settings, QWidget *parent) :
   QWidget(parent),

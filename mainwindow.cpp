@@ -37,6 +37,7 @@
 #include "StationList.hpp"
 #include "LiveFrequencyValidator.hpp"
 #include "MessageClient.hpp"
+#include "wsprnet.h"
 
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
@@ -112,6 +113,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_sentFirst73 {false},
   m_currentMessageType {-1},
   m_lastMessageType {-1},
+  m_uploading {false},
   m_nonWSPRTab {-1},
   m_appDir {QApplication::applicationDirPath ()},
   mem_jt9 {shdmem},
@@ -390,7 +392,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_nrx=1;
   m_tx=0;
   m_txNext=false;
-  m_uploading=false;
   m_grid6=false;
   m_nseq=0;
   m_ntr=0;
@@ -431,7 +432,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_wideGraph->setTol(m_tol);
   m_bShMsgs=false;
   m_bDopplerTracking0=false;
-  m_uploading=false;
   m_bTxTime=false;
   m_rxDone=false;
   m_bHaveTransmitted=false;
@@ -2277,7 +2277,7 @@ void MainWindow::startTx2()
       if (m_config.TX_messages ()) {
         t = " Transmitting " + m_mode + " ----------------------- " +
           m_config.bands ()->find (m_dialFreq);
-        ui->decodedTextBrowser->append(t.rightJustified (71, '-'));
+        ui->decodedTextBrowser->appendText(t.rightJustified (71, '-'));
       }
 
       QFile f {m_dataDir.absoluteFilePath ("ALL_WSPR.TXT")};
@@ -4222,12 +4222,12 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
         QString band;
         Frequency f=1000000.0*rxFields.at(3).toDouble()+0.5;
         band = ' ' + m_config.bands ()->find (f);
-        ui->decodedTextBrowser->append(band.rightJustified (71, '-'));
+        ui->decodedTextBrowser->appendText(band.rightJustified (71, '-'));
         m_blankLine = false;
       }
 
-//      ui->decodedTextBrowser->append(t);
-      ui->decodedTextBrowser->append(rxLine);
+//      ui->decodedTextBrowser->appendText(t);
+      ui->decodedTextBrowser->appendText(rxLine);
     }
   }
 }
@@ -4237,7 +4237,8 @@ void MainWindow::uploadSpots()
   if(m_diskData) return;
   if(m_uploading) {
     qDebug() << "Previous upload has not completed, spots were lost";
-    return;
+    wsprNet->abortOutstandingRequests ();
+    m_uploading = false;
   }
   QString rfreq = QString("%1").arg(0.000001*(m_dialFreqRxWSPR + 1500), 0, 'f', 6);
   QString tfreq = QString("%1").arg(0.000001*(m_dialFreqRxWSPR +
@@ -4255,6 +4256,8 @@ void MainWindow::uploadResponse(QString response)
     m_uploading=false;
   } else if (response == "Upload Failed") {
     m_uploading=false;
+  } else {
+    qDebug () << "WSPRnet.org status:" << response;
   }
 }
 
