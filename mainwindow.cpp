@@ -108,6 +108,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_detector (RX_SAMPLE_RATE, NTMAX, 6912 / 2, downSampleFactor),
   m_modulator (TX_SAMPLE_RATE, NTMAX),
   m_audioThread {new QThread},
+  m_XIT {0},
   m_pctx {0},
   m_diskData {false},
   m_sentFirst73 {false},

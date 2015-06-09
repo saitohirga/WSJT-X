@@ -348,10 +348,12 @@ auto WSPRBandHopping::next_hop () -> Hop
       //     target_bands.removeOne (band);
       //   }
 
-      // remove bands that are not enabled for hopping
       for (auto i = 0; i < m_->bands_[period_index].size (); ++i)
         {
-          if (!m_->bands_[period_index].testBit (i))
+          // remove bands that are not enabled for hopping in this phase
+          if (!m_->bands_[period_index].testBit (i)
+              // remove Rx only bands if we are wanting to transmit
+              || (tx_next && m_->bands_[5].testBit (i)))
             {
               target_bands.removeOne (bands->data (bands->index (i, 0)).toString ());
             }
