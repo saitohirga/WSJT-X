@@ -829,15 +829,19 @@ void MainWindow::dataSink(qint64 frames)
       int nfrit=0;
       int nqual=0;
       float f1=1500.0;
-      float rms=0.0;
+      float xlevel=0.0;
       float sigdb=0.0;
       float dfreq=0.0;
       float width=0.0;
       echocom_.nclearave=m_nclearave;
       int nDop=0;
-      avecho_(&jt9com_.d2[0],&nDop,&nfrit,&nqual,&f1,&rms,&sigdb,
+      avecho_(&jt9com_.d2[0],&nDop,&nfrit,&nqual,&f1,&xlevel,&sigdb,
           &snr,&dfreq,&width);
-      qDebug() << "A" << m_nDopr << nDop;
+      QString t;
+      t.sprintf("%3d %7.1f %7.1f %7.1f %7.1f %3d",echocom_.nsum,xlevel,sigdb,
+                dfreq,width,nqual);
+      t=QDateTime::currentDateTimeUtc().toString("hh:mm:ss  ") + t;
+      ui->decodedTextBrowser->appendText(t);
       if(m_echoGraph->isVisible()) m_echoGraph->plotSpec();
       m_nclearave=0;
       return;
@@ -3243,6 +3247,9 @@ void MainWindow::on_actionEcho_triggered()
   mode_label->setText(m_mode);
   VHF_controls_visible(false);
   WSPR_config(true);
+  ui->decodedTextLabel->setText("   UTC      N   Level    Sig      DF    Width   Q");
+  auto_tx_label->setText("");
+  ui->tabWidget->setCurrentIndex(0);
 }
 
 void MainWindow::switch_mode (Mode mode)

@@ -1,4 +1,4 @@
-subroutine avecho(id2,ndop,nfrit,nqual,f1,rms0,sigdb,snr,dfreq,width)
+subroutine avecho(id2,ndop,nfrit,nqual,f1,xlevel,sigdb,snr,dfreq,width)
 
   integer TXLENGTH
   parameter (TXLENGTH=27648)           !27*1024
@@ -8,7 +8,7 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,rms0,sigdb,snr,dfreq,width)
   real sb(4096)      !Avg spectrum with Dither and changing Doppler removed
   integer nsum       !Number of integrations
   real dop0          !Doppler shift for initial integration (Hz)
-  real doppler       !Doppler shift for current integration (Hz)
+  real dop           !Doppler shift for current integration (Hz)
   real s(8192)
   real x(NFFT)
   integer ipkv(1)
@@ -23,7 +23,7 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,rms0,sigdb,snr,dfreq,width)
      x(i)=id2(i)
      sq=sq + x(i)*x(i)
   enddo
-  rms0=sqrt(sq/TXLENGTH)
+  xlevel=10.0*log10(sq/TXLENGTH)
 
   if(nclearave.ne.0) nsum=0
   if(nsum.eq.0) then
@@ -62,7 +62,7 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,rms0,sigdb,snr,dfreq,width)
      y=r0 + (r1-r0)*(i-100.0)/1800.0
      blue(i)=sa(i)/y
      red(i)=sb(i)/y
-     if(i.le.500 .or. i.ge.1501) then
+     if(i.le.500 .or. i.ge.3597) then
         sum=sum+red(i)
         sq=sq + (red(i)-1.0)**2
      endif
@@ -73,7 +73,7 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,rms0,sigdb,snr,dfreq,width)
   redmax=maxval(red)
   ipkv=maxloc(red)
   fac=10.0/max(redmax,10.0)
-  dfreq=(ipk-1000)*df
+  dfreq=(ipk-2048)*df
   snr=(redmax-ave)/rms
 
   sigdb=-99.0
