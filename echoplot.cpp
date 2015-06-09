@@ -30,7 +30,6 @@ EPlotter::EPlotter(QWidget *parent) :                  //EPlotter Constructor
   m_TxFreq = 1500;
   m_line = 0;
   m_dBStepSize=10;
-  m_Percent2DScreen = 89;	//percent of screen used for 2D display
 }
 
 EPlotter::~EPlotter() { }                                      // Destructor
@@ -52,8 +51,10 @@ void EPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
     m_Size = size();
     m_w = m_Size.width();
     m_h = m_Size.height();
-    m_h1 = (100-m_Percent2DScreen)*(m_Size.height())/100;
-    m_h2 = (m_Percent2DScreen)*(m_Size.height())/100;
+    m_h1=30;
+    m_h2=m_h-m_h1;
+
+    qDebug() << m_h << m_h1 << m_h2;
 
     m_2DPixmap = QPixmap(m_Size.width(), m_h2);
     m_2DPixmap.fill(Qt::black);
@@ -288,5 +289,7 @@ int EPlotter::getSmooth()                                    //getSmooth()
 {
   return m_smooth;
 }
+
 int EPlotter::plotWidth(){return m_2DPixmap.width();}
+
 void EPlotter::UpdateOverlay() {DrawOverlay();}
