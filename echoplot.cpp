@@ -53,19 +53,14 @@ void EPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
     m_h = m_Size.height();
     m_h1=30;
     m_h2=m_h-m_h1;
-
-    qDebug() << m_h << m_h1 << m_h2;
-
     m_2DPixmap = QPixmap(m_Size.width(), m_h2);
     m_2DPixmap.fill(Qt::black);
     m_OverlayPixmap = QPixmap(m_Size.width(), m_h2);
     m_OverlayPixmap.fill(Qt::black);
-
     m_2DPixmap.fill(Qt::black);
     m_ScalePixmap = QPixmap(m_w,30);
     m_ScalePixmap.fill(Qt::white);
-
-    m_fSpan=m_w*m_fftBinWidth;
+    m_fSpan=m_w*m_fftBinWidth*m_binsPerPixel;
     m_StartFreq=50 * int((-0.5*m_fSpan)/50.0 - 0.5);
   }
   DrawOverlay();
@@ -98,7 +93,7 @@ void EPlotter::draw()                           //draw()
     QPen penBlue(QColor(0,255,255),1);
     QPen penRed(Qt::red,1);
     j=0;
-    int i0=1000 + int(m_StartFreq/m_fftBinWidth);
+    int i0=1000 + int(m_StartFreq/(m_fftBinWidth*m_binsPerPixel));
     for(i=0; i<2000; i++) {
       blue[i]=echocom_.blue[i];
       red[i]=echocom_.red[i];
@@ -115,7 +110,7 @@ void EPlotter::draw()                           //draw()
       painter2D.setPen(penBlue);
       j=0;
       for(i=0; i<m_w; i++) {
-        y = 0.9*m_h2 - gain*(m_h/10.0)*(blue[i0+i]-1.0) - m_plotZero;
+        y = 0.9*m_h2 - gain*(m_h/10.0)*(blue[i0+i]-1.0) - 0.01*m_h2*m_plotZero;
         LineBuf[j].setX(i);
         LineBuf[j].setY(y);
         j++;
@@ -126,7 +121,7 @@ void EPlotter::draw()                           //draw()
     painter2D.setPen(penRed);
     j=0;
     for(int i=0; i<m_w; i++) {
-      y = 0.9*m_h2 - gain*(m_h/10.0)*(red[i0+i]-1.0) - m_plotZero;
+      y = 0.9*m_h2 - gain*(m_h/10.0)*(red[i0+i]-1.0) - 0.01*m_h2*m_plotZero;
       LineBuf[j].setX(i);
       LineBuf[j].setY(y);
       j++;
@@ -153,13 +148,22 @@ void EPlotter::DrawOverlay()                                 //DrawOverlay()
   painter.drawRect(0, 0, m_w, m_h2);
   painter.setBrush(Qt::SolidPattern);
 
-  m_fSpan = m_w*m_fftBinWidth;
+  m_fSpan = m_w*m_fftBinWidth*m_binsPerPixel;
   m_freqPerDiv=20;
   if(m_fSpan>250) m_freqPerDiv=50;
-  float pixPerHdiv = m_freqPerDiv/m_fftBinWidth;
+  if(m_fSpan>500) m_freqPerDiv=100;
+  if(m_fSpan>1000) m_freqPerDiv=200;
+  if(m_fSpan>2000) m_freqPerDiv=500;
+
+//  m_StartFreq=50 * int((-0.5*m_fSpan)/50.0 - 0.5);
+  m_StartFreq=m_freqPerDiv * int((-0.5*m_fSpan)/m_freqPerDiv - 0.5);
+
+  qDebug() << m_fSpan << m_freqPerDiv << m_StartFreq;
+
+  float pixPerHdiv = m_freqPerDiv/(m_fftBinWidth*m_binsPerPixel);
   float pixPerVdiv = float(m_h2)/float(VERT_DIVS);
 
-  m_hdivs = m_w*m_fftBinWidth/m_freqPerDiv + 0.9999;
+  m_hdivs = m_w*m_fftBinWidth*m_binsPerPixel/m_freqPerDiv + 0.9999;
 
   painter.setPen(QPen(Qt::white, 1,Qt::DotLine));
   for( int i=1; i<m_hdivs; i++)                   //draw vertical grids
@@ -252,7 +256,7 @@ int EPlotter::XfromFreq(float f)                               //XfromFreq()
 
 float EPlotter::FreqfromX(int x)                               //FreqfromX()
 {
-  return float(m_StartFreq + x*m_fftBinWidth);
+  return float(m_StartFreq + x*m_fftBinWidth*m_binsPerPixel);
 }
 
 void EPlotter::SetRunningState(bool running)              //SetRunningState()
