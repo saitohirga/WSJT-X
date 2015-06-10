@@ -4,6 +4,7 @@
 #ifdef Win32
 #include "win_stdint.h"	/* defines uint32_t etc */
 #else
+#include <stddef.h>
 #include <stdint.h>	/* defines uint32_t etc */
 #endif
 
