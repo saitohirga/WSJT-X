@@ -3245,6 +3245,7 @@ void MainWindow::on_actionEcho_triggered()
   if(!m_echoGraph->isVisible()) m_echoGraph->show();
   mode_label->setStyleSheet("QLabel{background-color: #7cfc00}");
   mode_label->setText(m_mode);
+  on_actionAstronomical_data_triggered ();
   VHF_controls_visible(false);
   WSPR_config(true);
   ui->decodedTextLabel->setText("   UTC      N   Level    Sig      DF    Width   Q");
