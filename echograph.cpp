@@ -30,7 +30,7 @@ EchoGraph::EchoGraph(QSettings * settings, QWidget *parent) :
   int n=m_settings->value("Smooth",0).toInt();
   ui->echoPlot->m_smooth=n;
   ui->smoothSpinBox->setValue(n);
-  n=m_settings->value("EchoBPP",0).toInt();
+  n=m_settings->value("EchoBPP",1).toInt();
   ui->echoPlot->m_binsPerPixel=n;
   ui->binsPerPixelSpinBox->setValue(n);
   ui->echoPlot->m_blue=m_settings->value("BlueCurve",false).toBool();
