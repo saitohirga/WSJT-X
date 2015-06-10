@@ -4200,7 +4200,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
                   .arg(rxFields.at(2), 5)
                   .arg(rxFields.at(3), 11)
                   .arg(rxFields.at(4), 4)
-                  .arg(rxFields.at(5), -12)
+                  .arg(rxFields.at(5).leftJustified (12).replace ('<', "&lt;").replace ('>', "&gt;"))
                   .arg(rxFields.at(6), -6)
                   .arg(rxFields.at(7), 3);
           grid = rxFields.at(6);
@@ -4211,7 +4211,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
                   .arg(rxFields.at(2), 5)
                   .arg(rxFields.at(3), 11)
                   .arg(rxFields.at(4), 4)
-                  .arg(rxFields.at(5), -12)
+                  .arg(rxFields.at(5).leftJustified (12).replace ('<', "&lt;").replace ('>', "&gt;"))
                   .arg("", -6)
                   .arg(rxFields.at(6), 3);
       } else {
