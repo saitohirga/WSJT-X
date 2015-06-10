@@ -27,6 +27,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "wsprd_utils.h"
+#include "nhash.h"
 
 #ifndef int32_t
 #define int32_t int
@@ -261,7 +262,7 @@ int unpk_(signed char *message, char hashtab[32768][13], char *call_loc_pow, cha
             strncat(call_loc_pow," ",1);
             strncat(call_loc_pow,cdbm,2);
             strncat(call_loc_pow,"\0",1);
-            ihash=nhash_(callsign,strlen(callsign),(uint32_t)146);
+            ihash=nhash(callsign,strlen(callsign),(uint32_t)146);
             strcpy(*hashtab+ihash*13,callsign);
         } else {
             nadd=nu;
@@ -278,7 +279,7 @@ int unpk_(signed char *message, char hashtab[32768][13], char *call_loc_pow, cha
             strncat(call_loc_pow,"\0",1);
             int nu=ndbm%10;
             if( nu == 0 || nu == 3 || nu == 7 || nu == 10 ) { //make sure power is OK
-                ihash=nhash_(callsign,strlen(callsign),(uint32_t)146);
+                ihash=nhash(callsign,strlen(callsign),(uint32_t)146);
                 strcpy(*hashtab+ihash*13,callsign);
             } else noprint=1;
         }
@@ -294,7 +295,7 @@ int unpk_(signed char *message, char hashtab[32768][13], char *call_loc_pow, cha
                // not testing 4'th and 5'th chars because of this case: <PA0SKT/2> JO33 40
                // grid is only 4 chars even though this is a hashed callsign...
                //         isalpha(grid6[4]) && isalpha(grid6[5]) ) ) {
-               ihash=nhash_(callsign,strlen(callsign),(uint32_t)146);
+               ihash=nhash(callsign,strlen(callsign),(uint32_t)146);
                strcpy(*hashtab+ihash*13,callsign);
            } else noprint=1;
         
