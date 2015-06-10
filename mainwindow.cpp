@@ -1980,7 +1980,7 @@ void MainWindow::guiUpdate()
         m_lastMessageType = m_currentMessageType;
       }
     m_currentMessageType = 0;
-    if(m_tune) {
+    if(m_tune or m_mode=="Echo") {
       itone[0]=0;
     } else {
       if(m_modeTx=="JT4") gen4_(message, &ichk , msgsent, const_cast<int *> (itone),
