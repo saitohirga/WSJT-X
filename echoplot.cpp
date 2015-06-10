@@ -19,6 +19,7 @@ EPlotter::EPlotter(QWidget *parent) :                  //EPlotter Constructor
 
   m_StartFreq = -200;
   m_fftBinWidth=12000.0/32768.0;
+  m_binsPerPixel=1;
   m_fSpan=1000.0;
   m_hdivs = HORZ_DIVS;
   m_Running = false;
