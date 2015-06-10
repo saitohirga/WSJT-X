@@ -1771,7 +1771,7 @@ void MainWindow::on_EraseButton_clicked()                          //Erase
 {
   qint64 ms=QDateTime::currentMSecsSinceEpoch();
   ui->decodedTextBrowser2->clear();
-  if(m_mode.mid(0,4)=="WSPR") {
+  if(m_mode.mid(0,4)=="WSPR" or m_mode=="Echo") {
     ui->decodedTextBrowser->clear();
   } else {
     m_QSOText.clear();
