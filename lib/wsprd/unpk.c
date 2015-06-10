@@ -6,9 +6,8 @@
 #include <stdint.h>
 #include <time.h>
 
+#include "nhash.h"
 #include "wsprd_utils.h"
-
-unsigned int nhash_( const void *key, size_t length, uint32_t initval);
 
 void unpk_(signed char message[], int *nhashtab, char call_loc_pow[])
 {
@@ -74,7 +73,7 @@ void unpk_(signed char message[], int *nhashtab, char call_loc_pow[])
       strncat(call_loc_pow," ",1);
       strncat(call_loc_pow,cdbm,2);
       strncat(call_loc_pow,"\0",1);
-      ihash=nhash_(callsign,strlen(callsign),(uint32_t)146);
+      ihash=nhash(callsign,strlen(callsign),(uint32_t)146);
       strcpy(*hashtab+ihash*13,callsign);
     } else {
       nadd=nu;
@@ -89,7 +88,7 @@ void unpk_(signed char message[], int *nhashtab, char call_loc_pow[])
       strncat(call_loc_pow," ",1);
       strncat(call_loc_pow,cdbm,2);
       strncat(call_loc_pow,"\0",1);
-      ihash=nhash_(callsign,strlen(callsign),(uint32_t)146);
+      ihash=nhash(callsign,strlen(callsign),(uint32_t)146);
       strcpy(*hashtab+ihash*13,callsign);
       noprint=0;
     }

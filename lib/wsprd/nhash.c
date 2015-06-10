@@ -70,13 +70,10 @@ on 1 byte), but shoehorning those bytes into integers efficiently is messy.
 
 #define SELF_TEST 1
 
+#include "nhash.h"
+
 #include <stdio.h>      /* defines printf for tests */
 #include <time.h>       /* defines time_t for timings in the test */
-#ifdef Win32
-#include "win_stdint.h"	/* defines uint32_t etc */
-#else
-#include <stdint.h>	/* defines uint32_t etc */
-#endif
 //#include <sys/param.h>  /* attempt to define endianness */
 //#ifdef linux
 //# include <endian.h>    /* attempt to define endianness */
@@ -205,7 +202,7 @@ acceptable.  Do NOT use for cryptographic purposes.
 -------------------------------------------------------------------------------
 */
 
-uint32_t nhash_( const void *key, size_t length, uint32_t initval)
+uint32_t nhash( const void *key, size_t length, uint32_t initval)
 {
   uint32_t a,b,c;                                          /* internal state */
   union { const void *ptr; size_t i; } u;     /* needed for Mac Powerbook G4 */
@@ -373,4 +370,12 @@ uint32_t nhash_( const void *key, size_t length, uint32_t initval)
   c=(32767&c);
 
   return c;
+}
+
+/*
+ * Fortran argument compatible wrapper
+ */
+uint32_t nhash_( const void * key, size_t const * length, uint32_t const * initval)
+{
+  return nhash (key, *length, *initval);
 }
