@@ -327,15 +327,10 @@ private:
   qint32  m_MinW;
   qint32  m_tol;
   qint32  m_nclearave;
-  qint32  m_DopplerMethod;
-  qint32  m_DopplerMethod0;
   qint32  m_minSync;
   qint32  m_dBm;
   qint32  m_pctx;
   qint32  m_nseq;
-  qint32  m_nDop;         //Doppler shift of EME DX station
-  qint32  m_nDop00;       //EME self-Doppler
-  qint32  m_nDopr;        //Applied Doppler (rounded to nearest 1, 10 or 100 Hz)
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -380,8 +375,6 @@ private:
   bool    m_bAstroData;
   bool    m_bEME;
   bool    m_bShMsgs;
-  bool    m_bDopplerTracking;
-  bool    m_bDopplerTracking0;
   bool    m_uploadSpots;
   bool    m_uploading;
   bool    m_txNext;
