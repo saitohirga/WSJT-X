@@ -998,7 +998,6 @@ void MainWindow::monitor (bool state)
 {
   ui->monitorButton->setChecked (state);
   if (state) {
-//    qDebug() << "monitor" << fmod(0.001*QDateTime::currentMSecsSinceEpoch(),6.0);
     if (!m_monitoring) Q_EMIT resumeAudioInputStream ();
   } else {
     Q_EMIT suspendAudioInputStream ();
@@ -1887,7 +1886,7 @@ void MainWindow::guiUpdate()
     if ((onAirFreq > 10139900 and onAirFreq < 10140320) and
         m_mode.mid(0,4)!="WSPR") {
       m_bTxTime=false;
-      if (m_tune) stop_tuning ();
+//      if (m_tune) stop_tuning ();
       if (m_auto) auto_tx_mode (false);
       if(onAirFreq!=onAirFreq0) {
         onAirFreq0=onAirFreq;
@@ -2130,7 +2129,7 @@ void MainWindow::guiUpdate()
   if(m_auto and m_mode=="Echo" and m_bEchoTxOK) progressBar->setValue(
         int(100*m_s6/6.0));
 
-  if(nsec != m_sec0) {                                                //Once per second
+  if(nsec != m_sec0) {                           //Once per second
     if(m_mode!="Echo") {
       int ipct=0;
       if(m_monitoring or m_transmitting) ipct=int(100*m_nseq/txDuration);
@@ -2241,7 +2240,6 @@ void MainWindow::stopTx()
   g_iptt=0;
   tx_status_label->setStyleSheet("");
   tx_status_label->setText("");
-//  qDebug() << "StopTx" << fmod(0.001*QDateTime::currentMSecsSinceEpoch(),6.0);
   ptt0Timer->start(200);                       //Sequencer delay
   monitor (true);
   m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
@@ -2252,7 +2250,6 @@ void MainWindow::stopTx()
 
 void MainWindow::stopTx2()
 {
-//  qDebug() << "StopTx2" << fmod(0.001*QDateTime::currentMSecsSinceEpoch(),6.0);
   Q_EMIT m_config.transceiver_ptt (false);      //Lower PTT
   if (m_mode.mid(0,4)!="WSPR" and m_mode!="Echo" and m_config.watchdog() and
       m_repeatMsg>=m_watchdogLimit-1) {
@@ -3513,15 +3510,16 @@ void MainWindow::on_tuneButton_clicked (bool checked)
     m_repeatMsg=0;
     itone[0]=0;
     on_monitorButton_clicked (true);
+    m_tune=true;
   }
-  m_tune = checked;
   Q_EMIT tune (checked);
 }
 
 void MainWindow::stop_tuning ()
 {
   ui->tuneButton->setChecked (false);
-  on_tuneButton_clicked (false);
+  m_bTxTime=false;
+  m_tune=false;
 }
 
 void MainWindow::stopTuneATU()
@@ -3726,8 +3724,6 @@ void MainWindow::transmit (double snr)
                         true, snr);
   }
   if(m_mode=="Echo") {
-//    qDebug() << "Start Echo Tx" << fmod(0.001*QDateTime::currentMSecsSinceEpoch(),6.0);
-//    Q_EMIT tune(true);
     Q_EMIT sendMessage (27, 1024.0, 1500.0, 0.0, &m_soundOutput,
                         m_config.audio_output_channel(),false, snr);
   }
