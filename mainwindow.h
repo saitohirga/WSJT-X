@@ -381,7 +381,7 @@ private:
   bool    m_tuneup;
   bool    m_bTxTime;
   bool    m_rxDone;
-  bool    m_bHaveTransmitted;    //Can be used to prohibit consecutive WSPR transmissions
+  bool    m_bSimplex; // not using split even if it is available
   int     m_nonWSPRTab;
   bool    m_bEchoTxOK;
   bool    m_bTransmittedEcho;

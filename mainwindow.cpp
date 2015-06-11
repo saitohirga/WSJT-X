@@ -115,6 +115,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_currentMessageType {-1},
   m_lastMessageType {-1},
   m_uploading {false},
+  m_bSimplex {false},
   m_nonWSPRTab {-1},
   m_appDir {QApplication::applicationDirPath ()},
   mem_jt9 {shdmem},
@@ -434,7 +435,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_bShMsgs=false;
   m_bTxTime=false;
   m_rxDone=false;
-  m_bHaveTransmitted=false;
   m_bEchoTxOK=false;
   m_bTransmittedEcho=false;
   m_nclearave=1;
@@ -1870,14 +1870,12 @@ void MainWindow::guiUpdate()
 
       if(btx) {
         m_ntr=-1;                          //This says we will have transmitted
-        m_bHaveTransmitted=true;
         m_txNext=false;
         ui->pbTxNext->setChecked(false);
         m_bTxTime=true;                      //Start a WSPR Tx sequence
       } else {
 // This will be a WSPR Rx sequence.
         m_ntr=1;                           //This says we will have received
-        m_bHaveTransmitted=false;
         m_bTxTime=false;                     //Start a WSPR Rx sequence
       }
     }
@@ -2153,14 +2151,16 @@ void MainWindow::guiUpdate()
     if (m_astroWidget) {
       auto astro_correction = m_astroWidget->astroUpdate(t, m_config.my_grid (), m_hisGrid
                                                          , m_dialFreq, "Echo" == m_mode, m_transmitting);
-      if(m_transmitting) {
-        m_dialFreqTx = m_freqNominal + astro_correction;
-        ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreqTx));
-        Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
-      } else {
-        m_dialFreq = m_freqNominal + astro_correction;
-        ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
-        Q_EMIT m_config.transceiver_frequency(m_dialFreq);
+      if (!m_bSimplex) {        // only adjust frequency if allowed by mode
+        if(m_transmitting) {
+          m_dialFreqTx = m_freqNominal + astro_correction;
+          ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreqTx));
+          Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
+        } else {
+          m_dialFreq = m_freqNominal + astro_correction;
+          ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
+          Q_EMIT m_config.transceiver_frequency(m_dialFreq);
+        }
       }
     }
 
@@ -3240,10 +3240,12 @@ void MainWindow::WSPR_config(bool b)
     auto_tx_label->setText("");
     ui->tabWidget->setCurrentIndex (2);
     Q_EMIT m_config.transceiver_tx_frequency (0); // turn off split
+    m_bSimplex = true;
   } else {
     ui->decodedTextLabel->setText("UTC   dB   DT Freq   Message");
     auto_tx_label->setText (m_config.quick_call () ? "Tx-Enable Armed" : "Tx-Enable Disarmed");
     ui->tabWidget->setCurrentIndex (m_nonWSPRTab >= 0 ? m_nonWSPRTab : 1);
+    m_bSimplex = false;
   }
 }
 
@@ -3602,7 +3604,7 @@ void MainWindow::on_pbTxMode_clicked()
 void MainWindow::setXIT(int n)
 {
   m_XIT = 0;
-  if (m_mode != "WSPR-2" && m_mode != "WSPR-15") // Don't use split in WSPR
+  if (!m_bSimplex) // Don't use split in WSPR
     {
       if (m_config.split_mode () && m_mode != "JT4") // Don't use XIT in JT4
         {
