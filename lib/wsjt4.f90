@@ -30,7 +30,7 @@ subroutine wsjt4(dat,npts,nutc,NClearAve,minsync,ntol,emedelay,dttol,    &
   endif
 
   zz=0.
-  syncmin=5.0 + minsync
+  syncmin=3.0 + minsync
   naggressive=0
   if(ndepth.ge.2) naggressive=1
   nq1=3
@@ -45,6 +45,8 @@ subroutine wsjt4(dat,npts,nutc,NClearAve,minsync,ntol,emedelay,dttol,    &
      rsymbol=0.
      dtsave=0.
      syncsave=0.
+     nfanoave=0
+     ndeepave=0
   endif
 
 ! Attempt to synchronize: look for sync pattern, get DF and DT.
@@ -115,6 +117,7 @@ subroutine wsjt4(dat,npts,nutc,NClearAve,minsync,ntol,emedelay,dttol,    &
         endif
      endif
 
+     if(idt.ne.0) cycle
 ! Single-sequence Fano decode failed, so try for an average Fano decode:
      qave=0.
 ! If this is a new minute or a new frequency, call avg4
