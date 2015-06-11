@@ -1536,14 +1536,10 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
   if((n%100)==2) on_DecodeButton_clicked (true);
 }
 
-void MainWindow::clrAvg()
-{
-  m_nclearave=1;
-}
-
 void MainWindow::on_ClrAvgButton_clicked()
 {
   m_nclearave=1;
+  if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->displayAvg("");
 }
 
 void MainWindow::msgAvgDecode2()

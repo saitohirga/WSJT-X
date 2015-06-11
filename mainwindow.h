@@ -97,7 +97,6 @@ public slots:
   void p1Error(QProcess::ProcessError);
   void setXIT(int n);
   void setFreq4(int rxFreq, int txFreq);
-  void clrAvg();
   void msgAvgDecode2();
 
 protected:
