@@ -3,9 +3,10 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,xlevel,sigdb,snr,dfreq,width)
   integer TXLENGTH
   parameter (TXLENGTH=27648)           !27*1024
   parameter (NFFT=32768,NH=NFFT/2)
+  parameter (NZ=4096)
   integer*2 id2(34560)                 !Buffer for Rx data
-  real sa(4096)      !Avg spectrum relative to initial Doppler echo freq
-  real sb(4096)      !Avg spectrum with Dither and changing Doppler removed
+  real sa(NZ)      !Avg spectrum relative to initial Doppler echo freq
+  real sb(NZ)      !Avg spectrum with Dither and changing Doppler removed
   integer nsum       !Number of integrations
   real dop0          !Doppler shift for initial integration (Hz)
   real dop           !Doppler shift for current integration (Hz)
@@ -14,7 +15,7 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,xlevel,sigdb,snr,dfreq,width)
   integer ipkv(1)
   complex c(0:NH)
   equivalence (x,c),(ipk,ipkv)
-  common/echocom/nclearave,nsum,blue(4096),red(4096)
+  common/echocom/nclearave,nsum,blue(NZ),red(NZ)
   save dop0,sa,sb
 
   dop=ndop
@@ -48,7 +49,7 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,xlevel,sigdb,snr,dfreq,width)
 
   nsum=nsum+1
 
-  do i=1,4096
+  do i=1,NZ
      sa(i)=sa(i) + s(ia+i-2048)    !Center at initial doppler freq
      sb(i)=sb(i) + s(ib+i-2048)    !Center at expected echo freq
   enddo
@@ -58,7 +59,7 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,xlevel,sigdb,snr,dfreq,width)
 
   sum=0.
   sq=0.
-  do i=1,4096
+  do i=1,NZ
      y=r0 + (r1-r0)*(i-100.0)/1800.0
      blue(i)=sa(i)/y
      red(i)=sb(i)/y
@@ -93,11 +94,11 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,xlevel,sigdb,snr,dfreq,width)
 
   sum=0.
   do i=ipk,ipk+300
-     if(red(i).lt.1.0) exit
+     if(i.gt.NZ .or. red(i).lt.1.0) exit
      sum=sum+(red(i)-1.0)
   enddo
   do i=ipk-1,ipk-300,-1
-     if(red(i).lt.1.0) exit
+     if(i.lt.1 .or. red(i).lt.1.0) exit
      sum=sum+(red(i)-1.0)
   enddo
   bins=sum/(red(ipk)-1.0)
@@ -105,8 +106,8 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,xlevel,sigdb,snr,dfreq,width)
   nsmo=max(0.0,0.25*bins)
 
   do i=1,nsmo
-     call smo121(red,4096)
-     call smo121(blue,4096)
+     call smo121(red,NZ)
+     call smo121(blue,NZ)
   enddo
 
 900  return
