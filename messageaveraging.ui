@@ -31,7 +31,7 @@
         </font>
        </property>
        <property name="text">
-        <string>     UTC  Sync   DT   Freq</string>
+        <string>   UTC   Sync   DT   Freq</string>
        </property>
       </widget>
      </item>
