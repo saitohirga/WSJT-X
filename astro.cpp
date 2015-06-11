@@ -54,7 +54,6 @@ void Astro::closeEvent (QCloseEvent * e)
 void Astro::read_settings ()
 {
   SettingsGroup g (settings_, "Astro");
-  restoreGeometry (settings_->value ("geometry", saveGeometry ()).toByteArray ());
   ui_->cbDopplerTracking->setChecked (settings_->value ("DopplerTracking",false).toBool ());
   ui_->doppler_widget->setVisible (ui_->cbDopplerTracking->isChecked ());
   m_DopplerMethod=settings_->value("DopplerMethod",0).toInt();
@@ -76,7 +75,6 @@ void Astro::read_settings ()
 void Astro::write_settings ()
 {
   SettingsGroup g (settings_, "Astro");
-  settings_->setValue ("geometry", saveGeometry ());
   settings_->setValue ("DopplerTracking", ui_->cbDopplerTracking->isChecked ());
   settings_->setValue ("DopplerMethod",m_DopplerMethod);
   settings_->setValue ("StepHz",m_stepHz);
