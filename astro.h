@@ -3,10 +3,10 @@
 #define ASTRO_H
 
 #include <QWidget>
-#include <QDir>
+#include "Radio.hpp"
 
 class QSettings;
-
+class Configuration;
 namespace Ui {
   class Astro;
 }
@@ -16,31 +16,19 @@ class Astro final
 {
   Q_OBJECT;
 
-private:
-  Q_DISABLE_COPY (Astro);
+  using Frequency = Radio::Frequency;
+  using FrequencyDelta = Radio::FrequencyDelta;
 
 public:
-  explicit Astro(QSettings * settings, QWidget * parent = nullptr);
+  explicit Astro(QSettings * settings, Configuration const *, QWidget * parent = nullptr);
   ~Astro ();
-  void astroUpdate(QDateTime t, QString mygrid, QString hisgrid, qint64 freqMoon,
-                   qint32* ndop, qint32 *ndop00, bool bTx, QString jpleph);
-
-  bool m_bDopplerTracking;
-  bool m_bRxAudioTrack;
-  bool m_bTxAudioTrack;
-
-  qint32 m_DopplerMethod;
-  qint32 m_kHz;
-  qint32 m_Hz;
-  qint32 m_stepHz;
-
-  QDir   m_azelDir;
+  FrequencyDelta astroUpdate(QDateTime const& t, QString const& mygrid, QString const& hisgrid, Frequency frequency,
+                             bool dx_is_self, bool bTx);
 
 protected:
   void closeEvent (QCloseEvent *) override;
 
 private slots:
-  void on_cbDopplerTracking_toggled(bool b);
   void on_rbConstFreqOnMoon_clicked();
   void on_rbFullTrack_clicked();
   void on_rbNoDoppler_clicked();
@@ -56,8 +44,15 @@ private:
   void write_settings ();
 
   QSettings * settings_;
-//  QScopedPointer<Ui::Astro> ui_;
-  Ui::Astro *ui_;
+  Configuration const * configuration_;
+  Ui::Astro * ui_;
+  bool m_bRxAudioTrack;
+  bool m_bTxAudioTrack;
+
+  qint32 m_DopplerMethod;
+  qint32 m_kHz;
+  qint32 m_Hz;
+  qint32 m_stepHz;
 };
 
 extern "C" {
