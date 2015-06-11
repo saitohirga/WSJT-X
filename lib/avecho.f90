@@ -94,11 +94,13 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,xlevel,sigdb,snr,dfreq,width)
 
   sum=0.
   do i=ipk,ipk+300
-     if(i.gt.NZ .or. red(i).lt.1.0) exit
+     if(i.gt.NZ) exit
+     if(red(i).lt.1.0) exit
      sum=sum+(red(i)-1.0)
   enddo
   do i=ipk-1,ipk-300,-1
-     if(i.lt.1 .or. red(i).lt.1.0) exit
+     if(i.lt.1) exit
+     if(red(i).lt.1.0) exit
      sum=sum+(red(i)-1.0)
   enddo
   bins=sum/(red(ipk)-1.0)
