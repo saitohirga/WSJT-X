@@ -127,7 +127,6 @@ subroutine avg4(nutc,snrsync,dtxx,flip,nfreq,mode4,ntol,ndepth,neme,       &
            deepbest=deepave
            kbest=k
            ndeepave=nsum
-!           print*,'b',qbest,k,deepbest
         endif
         if(nch(k).ge.mode4) exit
      enddo
