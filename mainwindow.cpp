@@ -1364,6 +1364,8 @@ void MainWindow::on_actionAstronomical_data_triggered()
       connect (this, &MainWindow::finished, m_astroWidget.data (), &Astro::close);
     }
   m_astroWidget->showNormal();
+  m_astroWidget->raise ();
+  m_astroWidget->activateWindow ();
 }
 
 void MainWindow::on_actionMessage_averaging_triggered()
@@ -1376,6 +1378,8 @@ void MainWindow::on_actionMessage_averaging_triggered()
       connect (this, &MainWindow::finished, m_msgAvgWidget.data (), &MessageAveraging::close);
     }
   m_msgAvgWidget->showNormal();
+  m_msgAvgWidget->raise ();
+  m_msgAvgWidget->activateWindow ();
 }
 
 void MainWindow::on_actionOpen_triggered()                     //Open File
@@ -1501,6 +1505,7 @@ void MainWindow::on_actionKeyboard_shortcuts_triggered()
             , ":/shortcuts.txt", font});
     }
   m_shortcuts->showNormal ();
+  m_shortcuts->raise ();
 }
 
 void MainWindow::on_actionSpecial_mouse_commands_triggered()
@@ -1513,6 +1518,7 @@ void MainWindow::on_actionSpecial_mouse_commands_triggered()
             , ":/mouse_commands.txt", font});
     }
   m_mouseCmnds->showNormal ();
+  m_mouseCmnds->raise ();
 }
 
 void MainWindow::on_DecodeButton_clicked (bool /* checked */)	//Decode request
@@ -3756,6 +3762,7 @@ void MainWindow::on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered()
       m_prefixes.reset (new HelpTextWindow {tr ("Prefixes"), ":/prefixes.txt", {"Courier", 10}});
     }
   m_prefixes->showNormal();
+  m_prefixes->raise ();
 }
 
 void MainWindow::getpfx()

@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>Astro</class>
  <widget class="QWidget" name="Astro">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>334</width>
+    <height>413</height>
+   </rect>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="sizeConstraint">
     <enum>QLayout::SetFixedSize</enum>
