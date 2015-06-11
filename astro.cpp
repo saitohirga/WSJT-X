@@ -120,8 +120,7 @@ auto Astro::astroUpdate(QDateTime const& t, QString const& mygrid, QString const
   QString message;
   {
     QTextStream out {&message};
-    out
-      << " " << date << "\n"
+    out << " " << date << "\n"
       "UTC: " << utc << "\n"
       << fixed
       << qSetFieldWidth (6)
@@ -140,66 +139,14 @@ auto Astro::astroUpdate(QDateTime const& t, QString const& mygrid, QString const
       "Dec:    " << decmoon << "\n"
       "SunAz:  " << azsun << "\n"
       "SunEl:  " << elsun << "\n"
-      "Freq:   " << nfreq << "\n"
-      "Tsky:   " << ntsky << "\n"
-      "MNR:    " << xnr << "\n"
-      "Dgrd:   " << dgrd;
+      "Freq:   " << nfreq << "\n";
+    if(nfreq>=50) {                     //Suppress data not relevant below VHF
+      out << "Tsky:   " << ntsky << "\n"
+        "MNR:    " << xnr << "\n"
+        "Dgrd:   " << dgrd;
+    }
   }
   ui_->text_label->setText(message);
-
-  /*
-  static QFile f {QDir {QStandardPaths::writableLocation (
-            QStandardPaths::DataLocation)}.absoluteFilePath ("azel.dat")};
-  if (!f.open (QIODevice::WriteOnly | QIODevice::Text)) {
-    QMessageBox mb;
-    mb.setText ("Cannot open \"" + f.fileName () + "\" for writing:" + f.errorString ());
-    mb.exec();
-    return;
-  }
-  {
-    QTextStream out {&f};
-    out << fixed
-        << qSetRealNumberPrecision (1)
-        << qSetPadChar ('0')
-        << right
-        << qSetFieldWidth (2) << nhr
-        << qSetFieldWidth (0) << ':'
-        << qSetFieldWidth (2) << nmin
-        << qSetFieldWidth (0) << ':'
-        << qSetFieldWidth (2) << isec
-        << qSetFieldWidth (0) << ','
-        << qSetFieldWidth (5) << azmoon
-        << qSetFieldWidth (0) << ','
-        << qSetFieldWidth (5) << elmoon
-        << qSetFieldWidth (0) << ",Moon\n"
-        << qSetFieldWidth (2) << nhr
-        << qSetFieldWidth (0) << ':'
-        << qSetFieldWidth (2) << nmin
-        << qSetFieldWidth (0) << ':'
-        << qSetFieldWidth (2) << isec
-        << qSetFieldWidth (0) << ','
-        << qSetFieldWidth (5) << azsun
-        << qSetFieldWidth (0) << ','
-        << qSetFieldWidth (5) << elsun
-        << qSetFieldWidth (0) << ",Sun\n"
-        << qSetFieldWidth (2) << nhr
-        << qSetFieldWidth (0) << ':'
-        << qSetFieldWidth (2) << nmin
-        << qSetFieldWidth (0) << ':'
-        << qSetFieldWidth (2) << isec
-        << qSetFieldWidth (0) << ','
-        << qSetFieldWidth (5) << 0.
-        << qSetFieldWidth (0) << ','
-        << qSetFieldWidth (5) << 0.
-        << qSetFieldWidth (0) << ",Sun\n"
-        << qSetPadChar (' ')
-        << qSetFieldWidth (4) << nfreq
-        << qSetFieldWidth (0) << ','
-        << qSetFieldWidth (6) << ndop
-        << qSetFieldWidth (0) << ",Doppler";
-  }
-  f.close();
-  */
 
   FrequencyDelta astro_correction {0};
   //Apply Doppler corrections only for 50 MHz and above

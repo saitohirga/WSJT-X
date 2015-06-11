@@ -87,7 +87,7 @@ subroutine astro(nyear,month,nday,uth,freq8,Mygrid,                    &
   endif
 
   tr=80.0                              !Good preamp
-  tskymin=13.0*(408.0/freq8)**2.6      !Cold sky temperature
+  tskymin=13.0*(408.0d6/freq8)**2.6      !Cold sky temperature
   tsysmin=tskymin+tr
   tsys=tsky+tr
   dgrd=-10.0*log10(tsys/tsysmin) + dbMoon
