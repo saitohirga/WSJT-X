@@ -386,6 +386,7 @@ private:
   int     m_nonWSPRTab;
   bool    m_bEchoTxOK;
   bool    m_bTransmittedEcho;
+  bool    m_bEchoTxed;
 
   float   m_pctZap;
 

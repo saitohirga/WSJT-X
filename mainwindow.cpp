@@ -438,6 +438,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_bEchoTxOK=false;
   m_bTransmittedEcho=false;
   m_nclearave=1;
+  m_bEchoTxed=false;
 
   signalMeter = new SignalMeter(ui->meterFrame);
   signalMeter->resize(50, 160);
@@ -840,6 +841,8 @@ void MainWindow::dataSink(qint64 frames)
       ui->decodedTextBrowser->appendText(t);
       if(m_echoGraph->isVisible()) m_echoGraph->plotSpec();
       m_nclearave=0;
+//Don't restart Monitor after an Echo transmission
+      if(m_bEchoTxed and !m_auto) monitor(false);
       return;
     }
     if( m_dialFreqRxWSPR==0) m_dialFreqRxWSPR=m_dialFreq;
@@ -965,7 +968,7 @@ void MainWindow::on_monitorButton_clicked (bool checked)
   if (!m_transmitting)
     {
       auto prior = m_monitoring;
-      monitor (checked);
+      monitor (checked and (m_mode!="Echo"));
 
       if (checked && !prior)
         {
@@ -1018,6 +1021,10 @@ void MainWindow::on_autoButton_clicked (bool checked)
                                   m_modeTx, ui->autoButton->isChecked (),
                                   m_transmitting);
   m_bEchoTxOK=false;
+  if(m_auto and (m_mode=="Echo")) {
+    m_nclearave=1;
+    echocom_.nsum=0;
+  }
   if(m_mode.mid(0,4)=="WSPR")  {
     QPalette* palette = new QPalette();
     if(m_auto or m_pctx==0) {
@@ -1844,6 +1851,7 @@ void MainWindow::guiUpdate()
     tx1=0.0;
     tx2=txDuration;
     if(m_auto and m_s6>4.0) m_bEchoTxOK=true;
+    if(m_transmitting) m_bEchoTxed=true;
   }
 
   if(m_mode.mid(0,4)=="WSPR") {
@@ -3156,6 +3164,7 @@ void MainWindow::on_actionWSPR_15_triggered()
 
 void MainWindow::on_actionEcho_triggered()
 {
+  on_actionJT4_triggered();
   m_mode="Echo";
   ui->actionEcho->setChecked(true);
   m_TRperiod=3;
