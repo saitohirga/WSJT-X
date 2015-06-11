@@ -568,6 +568,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 
   m_config.transceiver_online (true);
   on_monitorButton_clicked (!m_config.monitor_off_at_startup ());
+  if(m_mode=="Echo") monitor(false); //Don't auto-start Monitor in Echo mode.
 
   ui->labTol->setStyleSheet( \
         "QLabel { background-color : white; color : black; }");
@@ -842,7 +843,10 @@ void MainWindow::dataSink(qint64 frames)
       if(m_echoGraph->isVisible()) m_echoGraph->plotSpec();
       m_nclearave=0;
 //Don't restart Monitor after an Echo transmission
-      if(m_bEchoTxed and !m_auto) monitor(false);
+      if(m_bEchoTxed and !m_auto) {
+        monitor(false);
+        m_bEchoTxed=false;
+      }
       return;
     }
     if( m_dialFreqRxWSPR==0) m_dialFreqRxWSPR=m_dialFreq;
@@ -968,7 +972,7 @@ void MainWindow::on_monitorButton_clicked (bool checked)
   if (!m_transmitting)
     {
       auto prior = m_monitoring;
-      monitor (checked and (m_mode!="Echo"));
+      monitor (checked);
 
       if (checked && !prior)
         {
