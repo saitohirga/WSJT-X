@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>configuration_dialog</class>
  <widget class="QDialog" name="configuration_dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>508</width>
+    <height>471</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>Settings</string>
   </property>
