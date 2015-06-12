@@ -904,7 +904,6 @@ void MainWindow::dataSink(qint64 frames)
       int i1=cmnd.indexOf("/wsprd ");
       cmnd=t3.mid(0,i1+7) + t3.mid(i1+7);
       ui->DecodeButton->setChecked (true);
-      qDebug() << cmnd;
       p1.start(QDir::toNativeSeparators(cmnd));
     }
     m_rxDone=true;
