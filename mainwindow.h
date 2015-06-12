@@ -331,6 +331,7 @@ private:
   qint32  m_dBm;
   qint32  m_pctx;
   qint32  m_nseq;
+  qint32  m_nWSPRdecodes;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -511,6 +512,7 @@ private:
   void switch_mode (Mode);
   void WSPR_scheduling ();
   void astroCalculations (QDateTime const&, bool adjust);
+  void WSPR_history(int ndecodes);
 };
 
 extern void getfile(QString fname, int ntrperiod);
