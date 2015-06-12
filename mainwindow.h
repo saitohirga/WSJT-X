@@ -511,7 +511,7 @@ private:
   void switch_mode (Mode);
   void WSPR_scheduling ();
   void astroCalculations (QDateTime const&, bool adjust);
-  void WSPR_history(int ndecodes);
+  void WSPR_history(Frequency dialFreq, int ndecodes);
 };
 
 extern void getfile(QString fname, int ntrperiod);

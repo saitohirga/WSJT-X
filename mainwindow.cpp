@@ -1931,7 +1931,7 @@ void MainWindow::guiUpdate()
       m_rxDone=false;
     }
     if(m_transmitting) {
-      WSPR_history(-1);
+      WSPR_history(m_dialFreq,-1);
       m_bTxTime=false;                        //Time to stop a WSPR transmission
       m_btxok=false;
     }
@@ -4097,7 +4097,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
   while(p1.canReadLine()) {
     QString t(p1.readLine());
     if(t.indexOf("<DecodeFinished>") >= 0) {
-      if(!m_diskData) WSPR_history(m_nWSPRdecodes);
+      if(!m_diskData) WSPR_history(m_dialFreqRxWSPR, m_nWSPRdecodes);
       m_nWSPRdecodes=0;
       ui->DecodeButton->setChecked (false);
       if(m_uploadSpots) {
@@ -4186,7 +4186,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
   }
 }
 
-void MainWindow::WSPR_history(int ndecodes)
+void MainWindow::WSPR_history(Frequency dialFreq, int ndecodes)
 {
   QDateTime t=QDateTime::currentDateTimeUtc().addSecs(-60);
   QString t1=t.toString("yyMMdd");
@@ -4194,7 +4194,7 @@ void MainWindow::WSPR_history(int ndecodes)
   int n=t2.toInt()/2;
   t2.sprintf("%04d",2*n);
   QString t3;
-  t3.sprintf("%13.6f",0.000001*m_dialFreq);
+  t3.sprintf("%13.6f",0.000001*dialFreq);
   if(ndecodes<0) {
     t1=t1 + " " + t2 + t3 + "  T";
   } else {
