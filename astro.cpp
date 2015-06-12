@@ -21,7 +21,7 @@
 #include "moc_astro.cpp"
 
 Astro::Astro(QSettings * settings, Configuration const * configuration, QWidget * parent)
-  : QWidget {parent, Qt::Dialog | Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint}
+  : QWidget {parent, Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint | Qt::MSWindowsFixedSizeDialogHint}
   , settings_ {settings}
   , configuration_ {configuration}
   , ui_ {new Ui::Astro}
