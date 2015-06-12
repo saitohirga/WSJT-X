@@ -368,7 +368,6 @@ private:
   QString m_currentMessage;
   int     m_lastMessageType;
   QString m_lastMessageSent;
-  bool    m_runaway;
   bool    m_bMultipleOK;
   bool    m_lockTxFreq;
   bool    m_tx2QSO;

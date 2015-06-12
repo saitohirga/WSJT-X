@@ -115,6 +115,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_currentMessageType {-1},
   m_lastMessageType {-1},
   m_uploading {false},
+  m_tuneup {false},
   m_bSimplex {false},
   m_nonWSPRTab {-1},
   m_appDir {QApplication::applicationDirPath ()},
@@ -126,7 +127,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_bandEdited {false},
   m_splitMode {false},
   m_monitoring {false},
-
   m_transmitting {false},
   m_tune {false},
   m_lastMonitoredFrequency {default_frequency},
