@@ -20,5 +20,8 @@ and friends.
 We use development tools and libraries from many sources.  We
 particularly wish to acknowledge importance of the GNU Compiler
 Collection from the Free Software Foundation, the "clang" compiler
-from LLVM at the University of Illinois, the Qt Project from Digia
-PLC, and the FFTW package by Matteo Frigo and Steven G. Johnson.
+from LLVM at the University of Illinois, and the Qt Project from Digia
+PLC.  Other important resources include the FFTW library by Matteo
+Frigo and Steven G. Johnson; SLALIB, the Positional Astronomy Library
+by P. T.  Wallace; and a high-precision planetary emperis and
+associated software from NASA's Jet Propulsion Laboratory.

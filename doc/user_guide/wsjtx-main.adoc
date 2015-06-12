@@ -207,6 +207,10 @@ To be added (?) ...
 == Utility Programs
 include::utilities.adoc[]
 
+[[SUPPORT]]
+== Support
+include::support.adoc[]
+
 [[ACK]]
 == Acknowledgements
 include::acknowledgements.adoc[]

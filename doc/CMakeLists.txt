@@ -60,6 +60,7 @@ set (UG_SRCS
   user_guide/cooperating-programs.adoc
   user_guide/logging.adoc
   user_guide/settings-colors.adoc
+  user_guide/support.adoc
   )
 
 set (UG_IMGS
