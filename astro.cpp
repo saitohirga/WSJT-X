@@ -36,6 +36,7 @@ Astro::Astro(QSettings * settings, Configuration const * configuration, QWidget 
   setWindowTitle (QApplication::applicationName () + " - " + tr ("Astronomical Data"));
   setStyleSheet ("QWidget {background: white;}");
   connect (ui_->cbDopplerTracking, &QAbstractButton::toggled, ui_->doppler_widget, &QWidget::setVisible);
+  connect (ui_->cbDopplerTracking, &QAbstractButton::toggled, this, &Astro::doppler_tracking_toggled);
   read_settings ();
   ui_->text_label->clear ();
 }
@@ -180,17 +181,17 @@ auto Astro::astroUpdate(QDateTime const& t, QString const& mygrid, QString const
 
 void Astro::on_rbFullTrack_clicked()
 {
-  m_DopplerMethod=1;
+  m_DopplerMethod = 1;
 }
 
 void Astro::on_rbConstFreqOnMoon_clicked()
 {
-  m_DopplerMethod=2;
+  m_DopplerMethod = 2;
 }
 
 void Astro::on_rbNoDoppler_clicked()
 {
-  m_DopplerMethod=0;
+  m_DopplerMethod = 0;
 }
 
 void Astro::on_rb1Hz_clicked()
@@ -221,4 +222,9 @@ void Astro::on_kHzSpinBox_valueChanged(int n)
 void Astro::on_HzSpinBox_valueChanged(int n)
 {
   m_Hz=n;
+}
+
+bool Astro::doppler_tracking () const
+{
+  return ui_->cbDopplerTracking->isChecked ();
 }

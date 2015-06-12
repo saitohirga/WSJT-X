@@ -234,6 +234,7 @@ private slots:
   void on_actionEcho_Graph_triggered();
 
   void on_actionEcho_triggered();
+  void DopplerTracking_toggled (bool);
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
@@ -509,6 +510,7 @@ private:
   void enable_DXCC_entity (bool on);
   void switch_mode (Mode);
   void WSPR_scheduling ();
+  void astroCalculations (QDateTime const&, bool adjust);
 };
 
 extern void getfile(QString fname, int ntrperiod);

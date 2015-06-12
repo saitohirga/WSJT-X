@@ -24,6 +24,8 @@ public:
   ~Astro ();
   FrequencyDelta astroUpdate(QDateTime const& t, QString const& mygrid, QString const& hisgrid, Frequency frequency,
                              bool dx_is_self, bool bTx);
+  bool doppler_tracking () const;
+  Q_SIGNAL void doppler_tracking_toggled (bool);
 
 protected:
   void closeEvent (QCloseEvent *) override;
