@@ -68,7 +68,7 @@ private:
 
 Dialog::Dialog (QSettings * settings, Configuration const * configuration, BandList const * WSPR_bands
                 , QBitArray * bands, int * gray_line_duration, QWidget * parent)
-  : QDialog {parent, Qt::WindowTitleHint | Qt::WindowCloseButtonHint}
+  : QDialog {parent, Qt::Window | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint}
   , settings_ {settings}
   , configuration_ {configuration}
   , WSPR_bands_ {WSPR_bands}

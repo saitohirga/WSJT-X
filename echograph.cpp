@@ -8,16 +8,15 @@
 #define NSMAX2 1366
 
 EchoGraph::EchoGraph(QSettings * settings, QWidget *parent) :
-  QDialog(parent),
+  QDialog {parent, Qt::Window | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint},
   m_settings (settings),
   ui(new Ui::EchoGraph)
 {
   ui->setupUi(this);
-  this->setWindowFlags(Qt::Dialog);
-  this->installEventFilter(parent);                   //Installing the filter
+  installEventFilter(parent);                   //Installing the filter
   ui->echoPlot->setCursor(Qt::CrossCursor);
-  this->setMaximumWidth(2048);
-  this->setMaximumHeight(880);
+  setMaximumWidth(2048);
+  setMaximumHeight(880);
   ui->echoPlot->setMaximumHeight(800);
 
 //Restore user's settings
