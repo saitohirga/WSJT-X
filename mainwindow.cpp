@@ -2151,7 +2151,8 @@ void MainWindow::guiUpdate()
     if (m_astroWidget) {
       auto astro_correction = m_astroWidget->astroUpdate(t, m_config.my_grid (), m_hisGrid
                                                          , m_dialFreq, "Echo" == m_mode, m_transmitting);
-      if (!m_bSimplex) {        // only adjust frequency if allowed by mode
+      if (!m_bSimplex      // only adjust frequency if allowed by mode
+          && m_dialFreq >= 50000000) { // and above 50MHz
         if(m_transmitting) {
           m_dialFreqTx = m_freqNominal + astro_correction;
           ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreqTx));
