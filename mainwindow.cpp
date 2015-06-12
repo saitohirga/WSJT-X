@@ -2144,7 +2144,6 @@ void MainWindow::guiUpdate()
         int(100*m_s6/6.0));
 
   if(nsec != m_sec0) {                           //Once per second
-    qDebug() << m_bSimplex;
     if(m_mode!="Echo") {
       int ipct=0;
       if(m_monitoring or m_transmitting) ipct=int(100*m_nseq/txDuration);
