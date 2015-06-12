@@ -1362,6 +1362,8 @@ void MainWindow::on_actionAstronomical_data_triggered()
 
       // hook up termination signal
       connect (this, &MainWindow::finished, m_astroWidget.data (), &Astro::close);
+      connect (m_astroWidget.data (), &Astro::doppler_tracking_toggled
+               , this, &MainWindow::DopplerTracking_toggled);
     }
   m_astroWidget->showNormal();
   m_astroWidget->raise ();
@@ -2147,23 +2149,9 @@ void MainWindow::guiUpdate()
       if(m_monitoring or m_transmitting) ipct=int(100*m_nseq/txDuration);
       progressBar->setValue(ipct);
     }
+
     QDateTime t = QDateTime::currentDateTimeUtc();
-    if (m_astroWidget) {
-      auto astro_correction = m_astroWidget->astroUpdate(t, m_config.my_grid (), m_hisGrid
-                                                         , m_dialFreq, "Echo" == m_mode, m_transmitting);
-      if (!m_bSimplex      // only adjust frequency if allowed by mode
-          && m_dialFreq >= 50000000) { // and above 50MHz
-        if(m_transmitting) {
-          m_dialFreqTx = m_freqNominal + astro_correction;
-          ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreqTx));
-          Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
-        } else {
-          m_dialFreq = m_freqNominal + astro_correction;
-          ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
-          Q_EMIT m_config.transceiver_frequency(m_dialFreq);
-        }
-      }
-    }
+    astroCalculations (t, m_astroWidget && m_astroWidget->doppler_tracking ());
 
     if(m_transmitting) {
       char s[37];
@@ -4342,5 +4330,33 @@ void MainWindow::on_tabWidget_currentChanged (int new_value)
 {
   if (2 != new_value) {         // WSPR
     m_nonWSPRTab = new_value;
+  }
+}
+
+void MainWindow::DopplerTracking_toggled (bool enabled)
+{
+  if (!enabled) {
+    // do one astro update and last adjustment
+    astroCalculations (QDateTime::currentDateTimeUtc(), true);
+  }
+}
+
+void MainWindow::astroCalculations (QDateTime const& time, bool adjust) {
+  if (m_astroWidget) {
+    auto astro_correction = m_astroWidget->astroUpdate(time, m_config.my_grid (), m_hisGrid
+                                                       , m_dialFreq, "Echo" == m_mode, m_transmitting);
+    if (adjust && !m_bSimplex        // only adjust frequency if
+                                     // requested and allowed by mode
+        && m_dialFreq >= 50000000) { // and above 50MHz
+      if(m_transmitting) {
+        m_dialFreqTx = m_freqNominal + astro_correction;
+        ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreqTx));
+        Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
+      } else {
+        m_dialFreq = m_freqNominal + astro_correction;
+        ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
+        Q_EMIT m_config.transceiver_frequency(m_dialFreq);
+      }
+    }
   }
 }
