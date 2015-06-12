@@ -147,34 +147,31 @@ auto Astro::astroUpdate(QDateTime const& t, QString const& mygrid, QString const
   ui_->text_label->setText(message);
 
   FrequencyDelta astro_correction {0};
-  //Apply Doppler corrections only for 50 MHz and above
-  if (freq_moon >= 50000000) {
-    if (ui_->cbDopplerTracking->isChecked ()) {
-      switch (m_DopplerMethod)
-        {
-        case 1:
-          // All Doppler correction done here; DX station stays at nominal dial frequency.
-          if(dx_is_self) {
-            astro_correction = m_stepHz*qRound(double(ndop00)/m_stepHz);
-          } else {
-            astro_correction = m_stepHz*qRound(double(ndop)/m_stepHz);
-          }
-          break;
-
-        case 2:
-          // Doppler correction to constant frequency on Moon
-          astro_correction = m_stepHz*qRound(double(ndop00/2.0)/m_stepHz);
-          break;
-        }
-
-      if (bTx) {
-        astro_correction = 1000 * m_kHz + m_Hz - astro_correction;
-      } else {
-        if(dx_is_self && m_DopplerMethod==1) {
-          astro_correction = 1000*m_kHz + m_Hz;
+  if (ui_->cbDopplerTracking->isChecked ()) {
+    switch (m_DopplerMethod)
+      {
+      case 1:
+        // All Doppler correction done here; DX station stays at nominal dial frequency.
+        if(dx_is_self) {
+          astro_correction = m_stepHz*qRound(double(ndop00)/m_stepHz);
         } else {
-          astro_correction += 1000*m_kHz + m_Hz;
+          astro_correction = m_stepHz*qRound(double(ndop)/m_stepHz);
         }
+        break;
+
+      case 2:
+        // Doppler correction to constant frequency on Moon
+        astro_correction = m_stepHz*qRound(double(ndop00/2.0)/m_stepHz);
+        break;
+      }
+
+    if (bTx) {
+      astro_correction = 1000 * m_kHz + m_Hz - astro_correction;
+    } else {
+      if(dx_is_self && m_DopplerMethod==1) {
+        astro_correction = 1000*m_kHz + m_Hz;
+      } else {
+        astro_correction += 1000*m_kHz + m_Hz;
       }
     }
   }
