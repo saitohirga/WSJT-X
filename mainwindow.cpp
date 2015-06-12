@@ -439,6 +439,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_bTransmittedEcho=false;
   m_nclearave=1;
   m_bEchoTxed=false;
+  m_nWSPRdecodes=0;
 
   signalMeter = new SignalMeter(ui->meterFrame);
   signalMeter->resize(50, 160);
@@ -903,6 +904,7 @@ void MainWindow::dataSink(qint64 frames)
       int i1=cmnd.indexOf("/wsprd ");
       cmnd=t3.mid(0,i1+7) + t3.mid(i1+7);
       ui->DecodeButton->setChecked (true);
+      qDebug() << cmnd;
       p1.start(QDir::toNativeSeparators(cmnd));
     }
     m_rxDone=true;
@@ -1930,6 +1932,7 @@ void MainWindow::guiUpdate()
       m_rxDone=false;
     }
     if(m_transmitting) {
+      WSPR_history(-1);
       m_bTxTime=false;                        //Time to stop a WSPR transmission
       m_btxok=false;
     }
@@ -2152,7 +2155,6 @@ void MainWindow::guiUpdate()
 
     QDateTime t = QDateTime::currentDateTimeUtc();
     astroCalculations (t, m_astroWidget && m_astroWidget->doppler_tracking ());
-
     if(m_transmitting) {
       char s[37];
       sprintf(s,"Tx: %s",msgsent);
@@ -4096,6 +4098,8 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
   while(p1.canReadLine()) {
     QString t(p1.readLine());
     if(t.indexOf("<DecodeFinished>") >= 0) {
+      if(!m_diskData) WSPR_history(m_nWSPRdecodes);
+      m_nWSPRdecodes=0;
       ui->DecodeButton->setChecked (false);
       if(m_uploadSpots) {
         float x=rand()/((double)RAND_MAX + 1.0);
@@ -4177,10 +4181,38 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
       }
 
 //      ui->decodedTextBrowser->appendText(t);
+      m_nWSPRdecodes += 1;
       ui->decodedTextBrowser->appendText(rxLine);
     }
   }
 }
+
+void MainWindow::WSPR_history(int ndecodes)
+{
+  QDateTime t=QDateTime::currentDateTimeUtc().addSecs(-60);
+  QString t1=t.toString("yyMMdd");
+  QString t2=t.toString("hhmm");
+  int n=t2.toInt()/2;
+  t2.sprintf("%04d",2*n);
+  QString t3;
+  t3.sprintf("%13.6f",0.000001*m_dialFreq);
+  if(ndecodes<0) {
+    t1=t1 + " " + t2 + t3 + "  T";
+  } else {
+    QString t4;
+    t4.sprintf("%4d",ndecodes);
+    t1=t1 + " " + t2 + t3 + "  R" + t4;
+  }
+  QFile f {m_dataDir.absoluteFilePath ("WSPR_history.txt")};
+  if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
+    QTextStream out(&f);
+    out << t1 << endl;
+    f.close();
+  } else {
+    msgBox("Cannot open \"" + f.fileName () + "\" for append:" + f.errorString ());
+  }
+}
+
 
 void MainWindow::uploadSpots()
 {
