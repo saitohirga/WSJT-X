@@ -2144,6 +2144,7 @@ void MainWindow::guiUpdate()
         int(100*m_s6/6.0));
 
   if(nsec != m_sec0) {                           //Once per second
+    qDebug() << m_bSimplex;
     if(m_mode!="Echo") {
       int ipct=0;
       if(m_monitoring or m_transmitting) ipct=int(100*m_nseq/txDuration);
@@ -3180,7 +3181,7 @@ void MainWindow::on_actionEcho_triggered()
   mode_label->setText(m_mode);
   on_actionAstronomical_data_triggered ();
   VHF_controls_visible(false);
-  WSPR_config(true);
+  WSPR_config(true);                       //Make some irrelevant controls invisible
   ui->decodedTextLabel->setText("   UTC      N   Level    Sig      DF    Width   Q");
   auto_tx_label->setText("");
   ui->tabWidget->setCurrentIndex(0);
@@ -3223,7 +3224,7 @@ void MainWindow::WSPR_config(bool b)
   ui->lookupButton->setVisible(!b);
   ui->addButton->setVisible(!b);
   ui->DecodeButton->setEnabled(!b);
-  if(b) {
+  if(b and (m_mode!="Echo")) {
     ui->decodedTextLabel->setText(
           "UTC    dB   DT     Freq     Drift  Call          Grid    dBm   Dist");
     auto_tx_label->setText("");
