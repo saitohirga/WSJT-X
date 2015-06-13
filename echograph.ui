@@ -118,10 +118,10 @@
        <item>
         <widget class="QSlider" name="gainSlider">
          <property name="minimum">
-          <number>-20</number>
+          <number>-30</number>
          </property>
          <property name="maximum">
-          <number>20</number>
+          <number>30</number>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -154,7 +154,7 @@
        <item>
         <widget class="QSlider" name="zeroSlider">
          <property name="minimum">
-          <number>-50</number>
+          <number>-150</number>
          </property>
          <property name="maximum">
           <number>150</number>

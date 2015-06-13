@@ -2147,7 +2147,8 @@ void MainWindow::guiUpdate()
   if(m_auto and m_mode=="Echo" and m_bEchoTxOK) progressBar->setValue(
         int(100*m_s6/6.0));
 
-  if(nsec != m_sec0) {                           //Once per second
+//Once per second:
+  if(nsec != m_sec0) {
     if(m_mode!="Echo") {
       int ipct=0;
       if(m_monitoring or m_transmitting) ipct=int(100*m_nseq/txDuration);
@@ -2221,7 +2222,8 @@ void MainWindow::startTx2()
       if (m_config.TX_messages ()) {
         t = " Transmitting " + m_mode + " ----------------------- " +
           m_config.bands ()->find (m_dialFreq);
-        ui->decodedTextBrowser->appendText(t.rightJustified (71, '-'));
+        t=WSPR_hhmm(0) + ' ' + t.rightJustified (66, '-');
+        ui->decodedTextBrowser->appendText(t);
       }
 
       QFile f {m_dataDir.absoluteFilePath ("ALL_WSPR.TXT")};
@@ -4099,7 +4101,15 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
   while(p1.canReadLine()) {
     QString t(p1.readLine());
     if(t.indexOf("<DecodeFinished>") >= 0) {
-      if(!m_diskData) WSPR_history(m_dialFreqRxWSPR, m_nWSPRdecodes);
+      if(!m_diskData) {
+        WSPR_history(m_dialFreqRxWSPR, m_nWSPRdecodes);
+        if(m_nWSPRdecodes==0) {
+          t = " Receiving " + m_mode + " ----------------------- " +
+              m_config.bands ()->find (m_dialFreqRxWSPR);
+          t=WSPR_hhmm(-60) + ' ' + t.rightJustified (66, '-');
+          ui->decodedTextBrowser->appendText(t);
+        }
+      }
       m_nWSPRdecodes=0;
       ui->DecodeButton->setChecked (false);
       if(m_uploadSpots) {
@@ -4188,13 +4198,20 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
   }
 }
 
+QString MainWindow::WSPR_hhmm(int n)
+{
+  QDateTime t=QDateTime::currentDateTimeUtc().addSecs(n);
+  int m=t.toString("hhmm").toInt()/2;
+  QString t1;
+  t1.sprintf("%04d",2*m);
+  return t1;
+}
+
 void MainWindow::WSPR_history(Frequency dialFreq, int ndecodes)
 {
   QDateTime t=QDateTime::currentDateTimeUtc().addSecs(-60);
   QString t1=t.toString("yyMMdd");
-  QString t2=t.toString("hhmm");
-  int n=t2.toInt()/2;
-  t2.sprintf("%04d",2*n);
+  QString t2=WSPR_hhmm(-60);
   QString t3;
   t3.sprintf("%13.6f",0.000001*dialFreq);
   if(ndecodes<0) {

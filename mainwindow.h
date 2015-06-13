@@ -512,6 +512,7 @@ private:
   void WSPR_scheduling ();
   void astroCalculations (QDateTime const&, bool adjust);
   void WSPR_history(Frequency dialFreq, int ndecodes);
+  QString WSPR_hhmm(int n);
 };
 
 extern void getfile(QString fname, int ntrperiod);
