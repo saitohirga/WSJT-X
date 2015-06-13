@@ -1542,7 +1542,9 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
 void MainWindow::on_ClrAvgButton_clicked()
 {
   m_nclearave=1;
-  if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->displayAvg("");
+  if(m_msgAvgWidget != NULL) {
+    if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->displayAvg("");
+  }
 }
 
 void MainWindow::msgAvgDecode2()
