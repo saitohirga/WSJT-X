@@ -52,12 +52,18 @@ long unsigned int pack_call(char *callsign) {
     }
     if( isdigit(*(callsign+2)) ) {
         for (i=0; i<6; i++) {
-            call6[i]=*(callsign+i);
+            if( callsign[i] == 0 ) {
+                call6[i]=32;
+            } else {
+                call6[i]=*(callsign+i);
+            }
         }
     } else if( isdigit(*(callsign+1)) ) {
-        for (i=0; i<5; i++) {
-            if( callsign[i] != 0 ) {
-                call6[i+1]=*(callsign+i);
+        for (i=0; i<6; i++) {
+            if( i==0 || callsign[i-1]==0 ) {
+                call6[i]=32;
+            } else {
+                call6[i]=*(callsign+i-1);
             }
         }
     }
@@ -158,7 +164,7 @@ void interleave(unsigned char *sym)
     }
 }
 
-int get_wspr_channel_symbols(char* message, unsigned char* symbols) {
+int get_wspr_channel_symbols(char* rawmessage, unsigned char* symbols) {
     int m=0, n=0, ntype=0;
     int i, j, ihash;
     unsigned char pr3[162]=
@@ -173,7 +179,14 @@ int get_wspr_channel_symbols(char* message, unsigned char* symbols) {
         0,0};
     int nu[10]={0,-1,1,0,-1,2,1,0,-1,1};
     char *callsign, *grid, *powstr;
-    char grid4[5];
+    char grid4[5], message[23];
+    
+    memset(message,0,sizeof(char)*23);
+    i=0;
+    while ( rawmessage[i] != 0 && i<23 ) {
+        message[i]=rawmessage[i];
+        i++;
+    }
     
     int i1=strcspn(message," ");
     int i2=strcspn(message,"/");
@@ -192,7 +205,6 @@ int get_wspr_channel_symbols(char* message, unsigned char* symbols) {
         grid = strtok(NULL,s);
         powstr = strtok(NULL,s);
         int power = atoi(powstr);
-        
         n = pack_call(callsign);
         
         for (i=0; i<4; i++) {
