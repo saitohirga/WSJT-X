@@ -1,3 +1,6 @@
+#ifndef WSPRD_UTILS_H
+#define WSPRD_UTILS_H
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -5,6 +8,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <time.h>
+#include "nhash.h"
 
 void unpack50( signed char *dat, int32_t *n1, int32_t *n2 );
 
@@ -20,3 +24,5 @@ void deinterleave(unsigned char *sym);
 int floatcomp(const void* elem1, const void* elem2);
 
 int unpk_( signed char *message, char hashtab[32768][13], char *call_loc_pow, char *callsign);
+
+#endif

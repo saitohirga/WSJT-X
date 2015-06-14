@@ -853,6 +853,9 @@ target_link_libraries (jt9code wsjt_fort wsjt_cxx)
 add_executable (wsprd lib/wsprd/wsprd.c lib/wsprd/wsprd_utils.c lib/wsprd/fano.c lib/wsprd/tab.c lib/wsprd/nhash.c)
 target_link_libraries (wsprd ${FFTW3_LIBRARIES})
 
+add_executable (wsprsim lib/wsprd/wsprsim.c lib/wsprd/wsprsim_utils.c lib/wsprd/wsprd_utils.c lib/wsprd/fano.c lib/wsprd/tab.c lib/wsprd/nhash.c)
+target_link_libraries (wsprsim )
+
 add_executable (jt4code lib/jt4code.f90 wsjtx.rc)
 target_link_libraries (jt4code wsjt_fort wsjt_cxx)
 
@@ -961,7 +964,7 @@ install (TARGETS wsjtx
   BUNDLE DESTINATION . COMPONENT runtime
   )
 
-install (TARGETS jt9 jt65code jt9code jt4code jt4sim wsprd message_aggregator 
+install (TARGETS jt9 jt65code jt9code jt4code jt4sim wsprd wsprsim message_aggregator 
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
