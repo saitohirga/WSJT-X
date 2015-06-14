@@ -27,7 +27,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "wsprd_utils.h"
-#include "nhash.h"
 
 #ifndef int32_t
 #define int32_t int

@@ -37,6 +37,7 @@
 #include <fftw3.h>
 
 #include "fano.h"
+#include "nhash.h"
 #include "wsprd_utils.h"
 
 #define max(x,y) ((x) > (y) ? (x) : (y))

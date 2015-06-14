@@ -1,9 +1,9 @@
-#CC = gcc
-CC = clang
+CC = gcc
+#CC = clang
 FC = gfortran
 
 FFLAGS = -O2 -Wall -Wno-conversion
-CFLAGS= -I/usr/include -Wall -Wno-missing-braces -O2
+CFLAGS= -g -I/usr/include -Wall -Wno-missing-braces -O2
 LDFLAGS = -L/usr/lib
 LIBS = -lfftw3 -lm
 
@@ -19,21 +19,16 @@ LIBS = -lfftw3 -lm
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    wsprd WSPRcode test_wspr
+all:    wsprd wsprsim 
 
-DEPS = fano.h
-OBJS1 = wsprd.o wsprd_utils.o fano.o tab.o nhash.o
+DEPS =  wsprsim_utils.h wsprd_utils.h fano.h
+OBJS1 = wsprd.o wsprd_utils.o tab.o fano.o nhash.o
 wsprd: $(OBJS1)
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
 
-OBJS2 = test_wspr.o unpk.o wsprd_utils.o nhash.o
-test_wspr: $(OBJS2) libwspr.a
-	$(FC) -o test_wspr $(FFLAGS) $(OBJS2) libwspr.a
-
-
-OBJS3 = WSPRcode.o
-WSPRcode: $(OBJS3) libwspr.a
-	$(FC) -o WSPRcode $(FFLAGS) $(OBJS3) libwspr.a
+OBJS4 = wsprsim.o wsprsim_utils.o wsprd_utils.o tab.o fano.o nhash.o 
+wsprsim: $(OBJS4) 
+	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
 
 clean:
-	rm *.o wsprd 
+	rm *.o wsprd wsprsim
