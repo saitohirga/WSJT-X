@@ -297,7 +297,7 @@ int get_wspr_channel_symbols(char* rawmessage, unsigned char* symbols) {
     signed char check_data[11];
     memcpy(check_data,data,sizeof(char)*11);
     unpk_(check_data,hashtab,check_call_loc_pow,check_callsign);
-    printf("Will decode as: %s\n",check_call_loc_pow);
+//    printf("Will decode as: %s\n",check_call_loc_pow);
     
     unsigned int nbytes=11; // The message with tail is packed into 11 bytes.
     unsigned int nencoded=162;
