@@ -334,13 +334,12 @@ void subtract_signal(double *id, double *qd, long np,
     int i, j, k;
     double pi=4.*atan(1.0),twopidt, fp;
     
-    double i0[162],q0[162];
+    double i0,q0;
     double c0[256],s0[256];
     double dphi, cdphi, sdphi;
     
     twopidt=2*pi*dt;
     
-    printf("subtract_signal f0: %f shift0: %d drift0: %f\n",f0,shift0,drift0);
     for (i=0; i<162; i++) {
         fp = f0 + ((float)drift0/2.0)*((float)i-81.0)/81.0;
         
@@ -355,17 +354,36 @@ void subtract_signal(double *id, double *qd, long np,
                 s0[j]=c0[j-1]*sdphi + s0[j-1]*cdphi;
             }
         
-        i0[i]=0.0; q0[i]=0.0;
+        i0=0.0; q0=0.0;
         
         for (j=0; j<256; j++) {
             k=shift0+i*256+j;
             if( (k>0) & (k<np) ) {
-                i0[i]=i0[i] + id[k]*c0[j] + qd[k]*s0[j];
-                q0[i]=q0[i] - id[k]*s0[j] + qd[k]*c0[j];
+                i0=i0 + id[k]*c0[j] + qd[k]*s0[j];
+                q0=q0 - id[k]*s0[j] + qd[k]*c0[j];
             }
         }
 
-// subtract the signal here.
+        // subtract the signal here.
+
+        i0=i0/256.0;
+        q0=q0/256.0;
+        double p0=i0*i0+q0*q0;
+        double is=0, qs=0;
+        
+        for (j=0; j<256; j++) {
+            k=shift0+i*256+j;
+            if( (k>0) & (k<np) ) {
+                id[k]=id[k]- (i0*c0[j] - q0*s0[j]);
+                qd[k]=qd[k]- (q0*c0[j] + i0*s0[j]);
+                is=is+id[k];
+                qs=qs+qd[k];
+            }
+        }
+        is=is/256.0;
+        qs=qs/256.0;
+        double p1=is*is+qs*qs;
+//        printf("symbol %d i0: %f q0: %f is: %f qs: %f\n",i,i0,q0,is,qs);
         
     }
     
@@ -1015,7 +1033,7 @@ int main(int argc, char *argv[])
     }
     
     char c2filename[15];
-    double carrierfreq=10.1387;
+    double carrierfreq=dialfreq;
     int wsprtype=2;
     strcpy(c2filename,"000000_0001.c2");
     printf("Writing %s\n",c2filename);
