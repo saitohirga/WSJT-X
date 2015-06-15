@@ -4328,10 +4328,10 @@ void MainWindow::WSPR_scheduling ()
   bool transmit {false};
   if (ui->band_hopping_group_box->isChecked ()) {
     auto hop_data = m_WSPR_band_hopping.next_hop ();
-    qDebug () << "hop data: period:" << hop_data.period_name_
-              << "frequencies index:" << hop_data.frequencies_index_
-              << "tune:" << hop_data.tune_required_
-              << "tx:" << hop_data.tx_next_;
+    // qDebug () << "hop data: period:" << hop_data.period_name_
+    // << "frequencies index:" << hop_data.frequencies_index_
+    // << "tune:" << hop_data.tune_required_
+    // << "tx:" << hop_data.tx_next_;
 
     transmit = hop_data.tx_next_;
 
