@@ -93,6 +93,7 @@ void EPlotter::draw()                           //draw()
   QPen penBlue(QColor(0,255,255),1);
   QPen penRed(Qt::red,1);
 
+  if(m_binsPerPixel==0) m_binsPerPixel=1;
   j=0;
   for(i=0; i<4096/m_binsPerPixel; i++) {
     blue[i]=0.0;
