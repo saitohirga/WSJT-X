@@ -977,8 +977,6 @@ void MainWindow::on_monitorButton_clicked (bool checked)
 
       if (checked && !prior)
         {
-          m_diskData = false;	// no longer reading WAV files
-
           Frequency operating_frequency {m_dialFreq};
           if (m_config.monitor_last_used ())
             {
@@ -1006,6 +1004,7 @@ void MainWindow::monitor (bool state)
 {
   ui->monitorButton->setChecked (state);
   if (state) {
+    m_diskData = false;	// no longer reading WAV files
     if (!m_monitoring) Q_EMIT resumeAudioInputStream ();
   } else {
     Q_EMIT suspendAudioInputStream ();
@@ -1724,12 +1723,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
         m_QSOText=decodedtext;
       }
 
-        postDecode (true, decodedtext.string ());
+      postDecode (true, decodedtext.string ());
 
-        // find and extract any report for myCall
-        bool stdMsg = decodedtext.report(m_baseCall
-                                         , Radio::base_callsign (ui->dxCallEntry-> text ().toUpper ().trimmed ())
-                                         , /*mod*/m_rptRcvd);
+      // find and extract any report for myCall
+      bool stdMsg = decodedtext.report(m_baseCall
+                                       , Radio::base_callsign (ui->dxCallEntry-> text ().toUpper ().trimmed ())
+                                       , /*mod*/m_rptRcvd);
 
       // extract details and send to PSKreporter
       int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
