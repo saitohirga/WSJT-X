@@ -22,8 +22,9 @@ class QWidget;
 //
 //    http://physics.princeton.edu/pulsar/K1JT/doc/wspr/wspr-main.html
 //
-//  Along with selecting bands a flag indicating that a short tune up
-//  signal is required for specified bands.
+//  Along with selecting bands a flag  indicating that a short tune up
+//  signal is  required for specified  bands before they are  used for
+//  receive.
 //
 //  Provides a Qt property that holds  the Tx percentage which is used
 //  to generate a semi-randomized schedule of period to transmit. This
@@ -75,6 +76,7 @@ public:
   bool next_is_tx ();
 
 private:
+  // implementation hidden from public interface
   class impl;
   pimpl<impl> m_;
 };

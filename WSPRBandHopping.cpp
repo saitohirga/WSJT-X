@@ -4,6 +4,7 @@
 #include <QSettings>
 #include <QBitArray>
 #include <QList>
+#include <QSet>
 #include <QtWidgets>
 
 #include "SettingsGroup.hpp"
@@ -221,6 +222,8 @@ public:
   Configuration const * configuration_;
   int tx_percent_;
   BandList WSPR_bands_;
+  BandList rx_permutation_;
+  BandList tx_permutation_;
   QWidget * parent_widget_;
 
   // 5 x 10 bit flags representing each hopping band in each period
@@ -324,7 +327,7 @@ auto WSPRBandHopping::next_hop () -> Hop
   int frequencies_index {-1};
   auto const& frequencies = m_->configuration_->frequencies ();
   auto const& bands = m_->configuration_->bands ();
-  auto const& band_name = bands->data (bands->index (band_index + 3, 0)).toString ();
+  auto band_name = bands->data (bands->index (band_index + 3, 0)).toString ();
   if (m_->bands_[period_index].testBit (band_index + 3) // +3 for
                                                         // coordinated bands
       && m_->WSPR_bands_.contains (band_name))
@@ -334,56 +337,86 @@ auto WSPRBandHopping::next_hop () -> Hop
       frequencies_index = frequencies->best_working_frequency (band_name);
     }
 
-  // if we do not have a configured working frequency we next check
-  // for a random selection from the other enabled bands in the
-  // bands matrix
+  // if we do not have a configured working frequency on the selected
+  // coordinated hopping band we next pick from a random permutation
+  // of the other enabled bands in the hopping bands matrix
   if (frequencies_index < 0)
     {
-      Dialog::BandList target_bands {m_->WSPR_bands_};
-      // // remove all coordinated bands here since they are
-      // // scheduled above and including them in the random choice will
-      // // give them a biased weighting
-      // for (auto const& band : coordinated_bands)
-      //   {
-      //     target_bands.removeOne (band);
-      //   }
-
+      // build sets of available rx and tx bands
+      auto target_rx_bands = m_->WSPR_bands_.toSet ();
+      auto target_tx_bands = target_rx_bands;
       for (auto i = 0; i < m_->bands_[period_index].size (); ++i)
         {
+          auto const& band = bands->data (bands->index (i, 0)).toString ();
           // remove bands that are not enabled for hopping in this phase
-          if (!m_->bands_[period_index].testBit (i)
-              // remove Rx only bands if we are wanting to transmit
-              || (tx_next && m_->bands_[5].testBit (i)))
+          if (!m_->bands_[period_index].testBit (i))
             {
-              target_bands.removeOne (bands->data (bands->index (i, 0)).toString ());
+              target_rx_bands.remove (band);
+              target_tx_bands.remove (band);
+            }
+          // remove rx only bands from transmit list and vice versa
+          if (m_->bands_[5].testBit (i))
+            {
+              target_tx_bands.remove (band);
+            }
+          else
+            {
+              target_rx_bands.remove (band);
             }
         }
-
-      auto num_bands = target_bands.size ();
-      if (num_bands)            // we have some extra bands available
+      // if we have some bands to permute
+      if (target_rx_bands.size () + target_tx_bands.size ())
         {
-          int target_index = static_cast<int> (qrand () % num_bands); // random choice
-          // here we have a random choice that is enabled in the
-          // hopping matrix
-          frequencies_index = frequencies->best_working_frequency (target_bands[target_index]);
-          if (frequencies_index >= 0)
+          if (!(m_->rx_permutation_.size () + m_->tx_permutation_.size ()) // all used up
+              // or rx list contains a band no longer scheduled
+              || !target_rx_bands.contains (m_->rx_permutation_.toSet ())
+              // or tx list contains a band no longer scheduled for tx
+              || !target_tx_bands.contains (m_->tx_permutation_.toSet ()))
+            {
+              // build new random permutations
+              m_->rx_permutation_ = target_rx_bands.toList ();
+              std::random_shuffle (std::begin (m_->rx_permutation_), std::end (m_->rx_permutation_));
+              m_->tx_permutation_ = target_tx_bands.toList ();
+              std::random_shuffle (std::begin (m_->tx_permutation_), std::end (m_->tx_permutation_));
+              // qDebug () << "New random Rx permutation:" << m_->rx_permutation_
+              //           << "random Tx permutation:" << m_->tx_permutation_;
+            }
+          if ((tx_next && m_->tx_permutation_.size ()) || !m_->rx_permutation_.size ())
+            {
+              Q_ASSERT (m_->tx_permutation_.size ());
+              // use one from the current random tx permutation
+              band_name = m_->tx_permutation_.takeFirst ();
+            }
+          else
+            {
+              Q_ASSERT (m_->rx_permutation_.size ());
+              // use one from the current random rx permutation
+              band_name = m_->rx_permutation_.takeFirst ();
+            }
+          // find the first WSPR working frequency for the chosen band
+          frequencies_index = frequencies->best_working_frequency (band_name);
+          if (frequencies_index >= 0) // should be a redundant check,
+                                      // but to be safe
             {
               // we can use the random choice
-              qDebug () << "random:" << frequencies->data (frequencies->index (frequencies_index, FrequencyList::frequency_column)).toString ();
-              band_index = bands->find (target_bands[target_index]);
-              if (band_index < 0)
+              // qDebug () << "random:" << frequencies->data (frequencies->index (frequencies_index, FrequencyList::frequency_column)).toString ();
+              band_index = bands->find (band_name);
+              if (band_index < 0) // this shouldn't happen
                 {
-                  // this shouldn't happen
                   Q_ASSERT (band_index >= 0);
                   frequencies_index = -1;
                 }
             }
         }
-    }
+     }
   else
     {
       band_index += 3;
-      qDebug () << "scheduled:" << frequencies->data (frequencies->index (frequencies_index, FrequencyList::frequency_column)).toString ();
+      // qDebug () << "scheduled:" << frequencies->data (frequencies->index (frequencies_index, FrequencyList::frequency_column)).toString ();
+      // remove from random permutations to stop the coordinated bands
+      // getting too high a weighting - not perfect but surely helps
+      m_->rx_permutation_.removeOne (band_name);
+      m_->tx_permutation_.removeOne (band_name);
     }
 
   return {
@@ -391,13 +424,13 @@ auto WSPRBandHopping::next_hop () -> Hop
 
     , frequencies_index
 
-    , frequencies_index >= 0  // new band
-      && !tx_next               // not going to Tx anyway
-      && m_->bands_[4].testBit (band_index) // tune up required
+    , frequencies_index >= 0                 // new band
+      && !tx_next                            // not going to Tx anyway
+      && m_->bands_[4].testBit (band_index)  // tune up required
       && !m_->bands_[5].testBit (band_index) // not an Rx only band
 
-    , frequencies_index >= 0  // new band
-      && tx_next                // Tx scheduled
+    , frequencies_index >= 0                 // new band
+      && tx_next                             // Tx scheduled
       && !m_->bands_[5].testBit (band_index) // not an Rx only band
    };
 }
