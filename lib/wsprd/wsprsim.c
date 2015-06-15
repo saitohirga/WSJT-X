@@ -124,22 +124,27 @@ int main(int argc, char *argv[])
 {
     extern char *optarg;
     extern int optind;
-    int i, c, printchannel=0;
+    int i, c, printchannel=0, writec2=0;
     float snr=50.0;
     char *message, *c2filename;
+    c2filename=malloc(sizeof(char)*15);
+
     // message length is 22 characters
     message=malloc(sizeof(char)*23);
-    c2filename=malloc(sizeof(char)*15);
-    memset(c2filename,0,sizeof(char)*15);
     
+    strcpy(c2filename,"000000_0001.c2");
+    printf("%s\n",c2filename);
     while ( (c = getopt(argc, argv, "cdo:s:")) !=-1 ) {
         switch (c) {
             case 'c':
                 printchannel=1;
+                break;
             case 'd':
                 printdata=1;
+                break;
             case 'o':
                 c2filename = optarg;
+                writec2=1;
                 break;
             case 's':
                 snr = (float)atoi(optarg);
@@ -187,14 +192,10 @@ int main(int argc, char *argv[])
     f0=0.0;
     t0=1.0;
     add_signal_vector(f0, t0, snr, channel_symbols, isig, qsig);
-    
-    if( strlen(c2filename) >0 ) {
+    if( writec2) {
         // write a .c2 file
         double carrierfreq=10.1387;
         int wsprtype=2;
-        if( strlen(c2filename) != 14 ) {
-            strcpy(c2filename,"000000_0001.c2");
-        }
         printf("Writing %s\n",c2filename);
         writec2file(c2filename, wsprtype, carrierfreq, isig, qsig);
     }

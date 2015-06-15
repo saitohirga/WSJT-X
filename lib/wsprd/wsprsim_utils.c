@@ -236,7 +236,6 @@ int get_wspr_channel_symbols(char* rawmessage, unsigned char* symbols) {
         }
         grid6[5]=grid[0];
         n=pack_call(grid6);
-        printf("Callsign %s hash %d\n",callsign,ihash);
     } else if ( i2 < mlen ) {  // just looks for a right slash
         // Type 2: PJ4/K1ABC 37
         callsign=strtok(message," ");
@@ -251,7 +250,7 @@ int get_wspr_channel_symbols(char* rawmessage, unsigned char* symbols) {
         m=128*ng+ntype+64;
         n=n1;
     } else {
-        printf("Error: bad message format\n");
+//        printf("Error: bad message format\n");
         return 0;
     }
     
