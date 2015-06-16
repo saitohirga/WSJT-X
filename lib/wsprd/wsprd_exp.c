@@ -359,6 +359,7 @@ void subtract_signal(double *id, double *qd, long np,
         for (j=0; j<256; j++) {
             k=shift0+i*256+j;
             if( (k>0) & (k<np) ) {
+                nsum++;
                 i0=i0 + id[k]*c0[j] + qd[k]*s0[j];
                 q0=q0 - id[k]*s0[j] + qd[k]*c0[j];
             }
@@ -368,7 +369,6 @@ void subtract_signal(double *id, double *qd, long np,
         
         i0=i0/256.0; //will be wrong for partial symbols at the edges...
         q0=q0/256.0;
-        
         for (j=0; j<256; j++) {
             k=shift0+i*256+j;
             if( (k>0) & (k<np) ) {
@@ -751,7 +751,8 @@ int main(int argc, char *argv[])
             }
         }
         npk=i;
-        
+
+/*
         // bubble sort on snr, bringing freq along for the ride
         int pass;
         float tmp;
@@ -767,7 +768,7 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        
+*/        
         t0=clock();
         /* Make coarse estimates of shift (DT), freq, and drift
          
@@ -850,7 +851,6 @@ int main(int argc, char *argv[])
          */
         
         for (j=0; j<npk; j++) {
-            
             memset(symbols,0,sizeof(char)*nbits*2);
             memset(callsign,0,sizeof(char)*13);
             memset(call_loc_pow,0,sizeof(char)*23);
@@ -911,6 +911,7 @@ int main(int argc, char *argv[])
                 if((sync1 > minsync2) && (rms > minrms)) {
                     deinterleave(symbols);
                     t0 = clock();
+
                     not_decoded = fano(&metric,&cycles,&maxnp,decdata,symbols,nbits,
                                        mettab,delta,maxcycles);
                     tfano += (double)(clock()-t0)/CLOCKS_PER_SEC;
@@ -942,11 +943,11 @@ int main(int argc, char *argv[])
                 // sanity checks on grid and power, and return
                 // call_loc_pow string and also callsign (for de-duping).
                 noprint=unpk_(message,hashtab,call_loc_pow,callsign);
-                
-                if( subtraction ) {
+
+                if( subtraction && !noprint ) {
 
                     unsigned char channel_symbols[162];
-    
+                    
                     if( get_wspr_channel_symbols(call_loc_pow, channel_symbols) ) {
                         subtract_signal(idat, qdat, npoints, f1, shift1, drift1, channel_symbols);
                     } else {
@@ -962,9 +963,10 @@ int main(int argc, char *argv[])
                        (fabs(f1-allfreqs[i]) <3.0)) dupe=1;
                 }
                 if( (verbose || !dupe) && !noprint) {
-                    uniques++;
                     strcpy(allcalls[uniques],callsign);
                     allfreqs[uniques]=f1;
+                    uniques++;
+
                     // Add an extra space at the end of each line so that wspr-x doesn't
                     // truncate the power (TNX to DL8FCL!)
                     

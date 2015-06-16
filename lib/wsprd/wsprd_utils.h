@@ -16,7 +16,7 @@ void unpackcall( int32_t ncall, char *call );
 
 void unpackgrid( int32_t ngrid, char *grid);
 
-void unpackpfx( int32_t nprefix, char *call);
+int unpackpfx( int32_t nprefix, char *call);
 
 void deinterleave(unsigned char *sym);
 
