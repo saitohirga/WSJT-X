@@ -359,7 +359,6 @@ void subtract_signal(double *id, double *qd, long np,
         for (j=0; j<256; j++) {
             k=shift0+i*256+j;
             if( (k>0) & (k<np) ) {
-                nsum++;
                 i0=i0 + id[k]*c0[j] + qd[k]*s0[j];
                 q0=q0 - id[k]*s0[j] + qd[k]*c0[j];
             }
