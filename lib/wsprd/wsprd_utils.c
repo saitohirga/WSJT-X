@@ -142,14 +142,13 @@ void unpackgrid( int32_t ngrid, char *grid)
     }
 }
 
-void unpackpfx( int32_t nprefix, char *call)
+int unpackpfx( int32_t nprefix, char *call)
 {
     char nc, pfx[4]="", tmpcall[7]="";
     int i;
     int32_t n;
     
     strcpy(tmpcall,call);
-    
     if( nprefix < 60000 ) {
         // add a prefix of 1 to 3 characters
         n=nprefix;
@@ -193,7 +192,11 @@ void unpackpfx( int32_t nprefix, char *call)
             strncat(call,"/",1);
             strncat(call,pfx,2);
         }
-    }  
+        else {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 void deinterleave(unsigned char *sym)
@@ -248,7 +251,7 @@ int unpk_(signed char *message, char hashtab[32768][13], char *call_loc_pow, cha
      
      * Type 3: hash, 6 digit grid, power - ntype is negative.
      */
-    
+
     if( (ntype >= 0) && (ntype <= 62) ) {
         int nu=ntype%10;
         if( nu == 0 || nu == 3 || nu == 7 ) {
@@ -268,7 +271,7 @@ int unpk_(signed char *message, char hashtab[32768][13], char *call_loc_pow, cha
             if( nu > 3 ) nadd=nu-3;
             if( nu > 7 ) nadd=nu-7;
             n3=n2/128+32768*(nadd-1);
-            unpackpfx(n3,callsign);
+            if( !unpackpfx(n3,callsign) ) return 1;
             ndbm=ntype-nadd;
             memset(call_loc_pow,0,sizeof(char)*23);
             sprintf(cdbm,"%2d",ndbm);
