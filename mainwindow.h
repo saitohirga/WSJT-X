@@ -490,6 +490,7 @@ private:
   void updateStatusBar();
   void msgBox(QString t);
   void genStdMsgs(QString rpt);
+  void clearDX ();
   void lookup();
   void ba2msg(QByteArray ba, char* message);
   void msgtype(QString t, QLineEdit* tx);
