@@ -12,9 +12,9 @@
 
 void unpack50( signed char *dat, int32_t *n1, int32_t *n2 );
 
-void unpackcall( int32_t ncall, char *call );
+int unpackcall( int32_t ncall, char *call );
 
-void unpackgrid( int32_t ngrid, char *grid);
+int unpackgrid( int32_t ngrid, char *grid);
 
 int unpackpfx( int32_t nprefix, char *call);
 

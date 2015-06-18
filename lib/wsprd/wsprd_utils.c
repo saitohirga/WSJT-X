@@ -66,7 +66,7 @@ void unpack50( signed char *dat, int32_t *n1, int32_t *n2 )
     *n2=*n2+((i4>>6)&3);
 }
 
-void unpackcall( int32_t ncall, char *call )
+int unpackcall( int32_t ncall, char *call )
 {
     char c[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E',
         'F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T',
@@ -108,10 +108,13 @@ void unpackcall( int32_t ncall, char *call )
                 call[i]='\0';
             }
         }
+    } else {
+        return 0;
     }
+    return 1;
 }
 
-void unpackgrid( int32_t ngrid, char *grid)
+int unpackgrid( int32_t ngrid, char *grid)
 {
     char c[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E',
         'F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T',
@@ -139,7 +142,9 @@ void unpackgrid( int32_t ngrid, char *grid)
         grid[3]=c[n2];
     } else {
         strcpy(grid,"XXXX");
+        return 0;
     }
+    return 1;
 }
 
 int unpackpfx( int32_t nprefix, char *call)
@@ -233,8 +238,8 @@ int unpk_(signed char *message, char hashtab[32768][13], char *call_loc_pow, cha
     char grid[5],grid6[7],cdbm[3];
     
     unpack50(message,&n1,&n2);
-    unpackcall(n1,callsign);
-    unpackgrid(n2, grid);
+    if( !unpackcall(n1,callsign) ) return 1;
+    if( !unpackgrid(n2, grid) ) return 1;
     int ntype = (n2&127) - 64;
     callsign[12]=0;
     grid[4]=0;
