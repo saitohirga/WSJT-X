@@ -84,7 +84,6 @@ void pack_prefix(char *callsign, int32_t *n, int32_t *m, int32_t *nadd ) {
     char *call6;
     call6=malloc(sizeof(char)*6);
     memset(call6,32,sizeof(char)*6);
-    
     int i1=strcspn(callsign,"/");
     
     if( callsign[i1+2] == 0 ) { 
@@ -200,10 +199,9 @@ int get_wspr_channel_symbols(char* rawmessage, unsigned char* symbols) {
     if( (i1>3) & (i1<7) & (i2==mlen) & (i3==mlen) ) {
         // Type 1 message: K9AN EN50 33
         //                 xxnxxxx xxnn nn
-        const char s[2]=" ";
-        callsign = strtok(message,s);
-        grid = strtok(NULL,s);
-        powstr = strtok(NULL,s);
+        callsign = strtok(message," ");
+        grid = strtok(NULL," ");
+        powstr = strtok(NULL," ");
         int power = atoi(powstr);
         n = pack_call(callsign);
         
@@ -239,6 +237,7 @@ int get_wspr_channel_symbols(char* rawmessage, unsigned char* symbols) {
     } else if ( i2 < mlen ) {  // just looks for a right slash
         // Type 2: PJ4/K1ABC 37
         callsign=strtok(message," ");
+        if( strlen(callsign) < i2 ) return 0; //guards against pathological case
         powstr=strtok(NULL," ");
         int power = atoi(powstr);
         if( power < 0 ) power=0;
@@ -250,7 +249,6 @@ int get_wspr_channel_symbols(char* rawmessage, unsigned char* symbols) {
         m=128*ng+ntype+64;
         n=n1;
     } else {
-//        printf("Error: bad message format\n");
         return 0;
     }
     
