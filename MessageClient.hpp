@@ -2,14 +2,15 @@
 #define MESSAGE_CLIENT_HPP__
 
 #include <QObject>
-#include <QHostAddress>
 #include <QTime>
 #include <QDateTime>
 #include <QString>
-#include <QByteArray>
 
 #include "Radio.hpp"
 #include "pimpl_h.hpp"
+
+class QByteArray;
+class QHostAddress;
 
 //
 // MessageClient - Manage messages sent and replies received from a

@@ -5,6 +5,9 @@
 #include <QUdpSocket>
 #include <QHostInfo>
 #include <QTimer>
+#include <QQueue>
+#include <QByteArray>
+#include <QHostAddress>
 
 #include "NetworkMessage.hpp"
 
@@ -45,14 +48,19 @@ public:
   void heartbeat ();
   void closedown ();
   StreamStatus check_status (QDataStream const&) const;
+  void send_message (QByteArray const&);
 
   Q_SLOT void host_info_results (QHostInfo);
 
   MessageClient * self_;
   QString id_;
-  QHostAddress server_;
+  QString server_string_;
   port_type server_port_;
+  QHostAddress server_;
   QTimer * heartbeat_timer_;
+
+  // hold messages sent before host lookup completes asynchronously
+  QQueue<QByteArray> pending_messages_;
 };
 
 #include "MessageClient.moc"
@@ -62,10 +70,17 @@ void MessageClient::impl::host_info_results (QHostInfo host_info)
   if (QHostInfo::NoError != host_info.error ())
     {
       Q_EMIT self_->error ("UDP server lookup failed:\n" + host_info.errorString ());
+      pending_messages_.clear (); // discard
     }
   else if (host_info.addresses ().size ())
     {
       server_ = host_info.addresses ()[0];
+
+      // clear any backlog
+      while (pending_messages_.size ())
+        {
+          send_message (pending_messages_.dequeue ());
+        }
     }
 }
 
@@ -190,6 +205,21 @@ void MessageClient::impl::closedown ()
     }
 }
 
+void MessageClient::impl::send_message (QByteArray const& message)
+{
+  if (server_port_)
+    {
+      if (!server_.isNull ())
+        {
+          writeDatagram (message, server_, server_port_);
+        }
+      else
+        {
+          pending_messages_.enqueue (message);
+        }
+    }
+}
+
 auto MessageClient::impl::check_status (QDataStream const& stream) const -> StreamStatus
 {
   auto stat = stream.status ();
@@ -241,6 +271,7 @@ auto MessageClient::server_port () const -> port_type
 void MessageClient::set_server (QString const& server)
 {
   m_->server_.clear ();
+  m_->server_string_ = server;
   if (!server.isEmpty ())
     {
       // queue a host address lookup
@@ -266,7 +297,7 @@ void MessageClient::status_update (Frequency f, QString const& mode, QString con
                                    , QString const& report, QString const& tx_mode
                                    , bool tx_enabled, bool transmitting)
 {
-   if (m_->server_port_ && !m_->server_.isNull ())
+  if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Status, m_->id_};
@@ -274,7 +305,7 @@ void MessageClient::status_update (Frequency f, QString const& mode, QString con
           << tx_enabled << transmitting;
       if (impl::OK == m_->check_status (out))
         {
-          m_->writeDatagram (message, m_->server_, m_->server_port_);
+          m_->send_message (message);
         }
       else
         {
@@ -286,14 +317,14 @@ void MessageClient::status_update (Frequency f, QString const& mode, QString con
 void MessageClient::decode (bool is_new, QTime time, qint32 snr, float delta_time, quint32 delta_frequency
                             , QString const& mode, QString const& message_text)
 {
-   if (m_->server_port_ && !m_->server_.isNull ())
+   if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Decode, m_->id_};
       out << is_new << time << snr << delta_time << delta_frequency << mode.toUtf8 () << message_text.toUtf8 ();
       if (impl::OK == m_->check_status (out))
         {
-          m_->writeDatagram (message, m_->server_, m_->server_port_);
+          m_->send_message (message);
         }
       else
         {
@@ -304,13 +335,13 @@ void MessageClient::decode (bool is_new, QTime time, qint32 snr, float delta_tim
 
 void MessageClient::clear_decodes ()
 {
-   if (m_->server_port_ && !m_->server_.isNull ())
+   if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Clear, m_->id_};
       if (impl::OK == m_->check_status (out))
         {
-          m_->writeDatagram (message, m_->server_, m_->server_port_);
+          m_->send_message (message);
         }
       else
         {
@@ -324,7 +355,7 @@ void MessageClient::qso_logged (QDateTime time, QString const& dx_call, QString 
                                 , QString const& report_received, QString const& tx_power
                                 , QString const& comments, QString const& name)
 {
-   if (m_->server_port_ && !m_->server_.isNull ())
+   if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::QSOLogged, m_->id_};
@@ -332,7 +363,7 @@ void MessageClient::qso_logged (QDateTime time, QString const& dx_call, QString 
           << report_sent.toUtf8 () << report_received.toUtf8 () << tx_power.toUtf8 () << comments.toUtf8 () << name.toUtf8 ();
       if (impl::OK == m_->check_status (out))
         {
-          m_->writeDatagram (message, m_->server_, m_->server_port_);
+          m_->send_message (message);
         }
       else
         {
