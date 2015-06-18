@@ -1063,26 +1063,7 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
       }
       break;
     case Qt::Key_F4:
-      ui->dxCallEntry->setText("");
-      ui->dxGridEntry->setText("");
-      m_hisCall="";
-      m_hisGrid="";
-      m_rptSent="";
-      m_rptRcvd="";
-      m_qsoStart="";
-      m_qsoStop="";
-      genStdMsgs("");
-      if (1 == ui->tabWidget->currentIndex())
-        {
-          ui->genMsg->setText(ui->tx6->text());
-          m_ntx=7;
-          ui->rbGenMsg->setChecked(true);
-        }
-      else
-        {
-          m_ntx=6;
-          ui->txrb6->setChecked(true);
-        }
+      clearDX ();
       return;
     case Qt::Key_F6:
       if(e->modifiers() & Qt::ShiftModifier) {
@@ -2679,6 +2660,30 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
   m_rpt=rpt;
 }
 
+void MainWindow::clearDX ()
+{
+  ui->dxCallEntry->setText("");
+  ui->dxGridEntry->setText("");
+  m_hisCall="";
+  m_hisGrid="";
+  m_rptSent="";
+  m_rptRcvd="";
+  m_qsoStart="";
+  m_qsoStop="";
+  genStdMsgs("");
+  if (1 == ui->tabWidget->currentIndex())
+    {
+      ui->genMsg->setText(ui->tx6->text());
+      m_ntx=7;
+      ui->rbGenMsg->setChecked(true);
+    }
+  else
+    {
+      m_ntx=6;
+      ui->txrb6->setChecked(true);
+    }
+}
+
 void MainWindow::lookup()                                       //lookup()
 {
   QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
@@ -2952,14 +2957,7 @@ void MainWindow::acceptQSO2(QDateTime const& QSO_date, QString const& call, QStr
 
   if (m_config.clear_DX ())
     {
-      m_hisCall="";
-      ui->dxCallEntry->setText("");
-      m_hisGrid="";
-      ui->dxGridEntry->setText("");
-      m_rptSent="";
-      m_rptRcvd="";
-      m_qsoStart="";
-      m_qsoStop="";
+      clearDX ();
     }
 }
 
