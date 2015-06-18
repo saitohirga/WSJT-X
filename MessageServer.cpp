@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include <QUdpSocket>
+#include <QString>
 #include <QTimer>
 #include <QHash>
 

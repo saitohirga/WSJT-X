@@ -4,13 +4,13 @@
 #include <QObject>
 #include <QTime>
 #include <QDateTime>
-#include <QString>
-#include <QByteArray>
 #include <QHostAddress>
 
 #include "Radio.hpp"
 
 #include "pimpl_h.hpp"
+
+class QString;
 
 //
 // MessageServer - a reference implementation of a message server
