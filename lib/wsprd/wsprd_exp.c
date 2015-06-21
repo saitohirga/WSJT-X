@@ -389,7 +389,7 @@ void subtract_signal2(double *id, double *qd, long np,
                      float f0, int shift0, float drift0, unsigned char* channel_symbols)
 {
     double dt=1.0/375.0, df=375.0/256.0;
-    int i, j, k, ii;
+    int i, j, k, ii, nfilt=256; //nfilt must be even number.
     double pi=4.*atan(1.0),twopidt;
     
     double refi[45000],refq[45000];
@@ -429,31 +429,31 @@ void subtract_signal2(double *id, double *qd, long np,
 
     // s(t) * conjugate(r(t))
     // place signal 1 impulse response width in so that we don't have to deal
-    // with partial convolutions at the beginning.
+    // with partial convolutions at the beginning when applying LPF.
     for (i=0; i<41472; i++) {
         k=shift0+i;
         if( (k>0) & (k<np) ) {
-            ci[i+500] = id[k]*refi[i] + qd[k]*refq[i];
-            cq[i+500] = qd[k]*refi[i] - id[k]*refq[i];
+            ci[i+nfilt] = id[k]*refi[i] + qd[k]*refq[i];
+            cq[i+nfilt] = qd[k]*refi[i] - id[k]*refq[i];
         }
     }
 
     //quick and dirty filter - may want to do better
-    double w[500], norm=0;
-    for (i=0; i<500; i++) {
-        w[i]=sin(pi*i/499.0);
+    double w[nfilt], norm=0;
+    for (i=0; i<nfilt; i++) {
+        w[i]=sin(pi*(float)i/(float)(nfilt-1));
         norm=norm+w[i];
     }
-    for (i=0; i<500; i++) {
+    for (i=0; i<nfilt; i++) {
         w[i]=w[i]/norm;
     }
     
     // LPF
-    for (i=500; i<45000-375; i++) {
+    for (i=nfilt/2; i<45000-nfilt/2; i++) {
         cfi[i]=0.0; cfq[i]=0.0;
-        for (j=0; j<500; j++) {
-            cfi[i]=cfi[i]+w[j]*ci[i-250+j];
-            cfq[i]=cfq[i]+w[j]*cq[i-250+j];
+        for (j=0; j<nfilt; j++) {
+            cfi[i]=cfi[i]+w[j]*ci[i-nfilt/2+j];
+            cfq[i]=cfq[i]+w[j]*cq[i-nfilt/2+j];
         }
     }
     
@@ -462,8 +462,8 @@ void subtract_signal2(double *id, double *qd, long np,
     for (i=0; i<41472; i++) {
         k=shift0+i;
         if( (k>0) & (k<np) ) {
-            id[k]=id[k] - (cfi[i+500]*refi[i]-cfq[i+500]*refq[i]);
-            qd[k]=qd[k] - (cfi[i+500]*refq[i]+cfq[i+500]*refi[i]);
+            id[k]=id[k] - (cfi[i+nfilt]*refi[i]-cfq[i+nfilt]*refq[i]);
+            qd[k]=qd[k] - (cfi[i+nfilt]*refq[i]+cfq[i+nfilt]*refi[i]);
         }
     }
     return;
@@ -748,9 +748,10 @@ int main(int argc, char *argv[])
 
         if( ipass == 1 && uniques == 0 ) break;
         if( ipass == 1 ) {  //otherwise we bog down on the second pass
-            minsync1=0.18;
-            minsync2=0.2;
-            maxcycles=5000;
+//            minsync1=0.18;
+//            minsync2=0.2;
+//            maxcycles=5000;
+            quickmode = 1;
             printf("-------------- 2 ----------------\n");
         }
         
