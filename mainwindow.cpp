@@ -871,7 +871,7 @@ void MainWindow::dataSink(qint64 frames)
       *future2 = QtConcurrent::run(savewav, m_fname, m_TRperiod);
       watcher2->setFuture(*future2);
 
-      if(m_mode.mid(0,4)=="WSPR") {
+      if( m_mode.mid(0,4)=="WSPR" && (m_saveAll || (m_saveDecoded && m_bdecoded)) ) {
         m_c2name=m_config.save_directory ().absoluteFilePath (t.date().toString("yyMMdd") +
                                                               "_" + t2 + ".c2");
         int len1=m_c2name.length();
