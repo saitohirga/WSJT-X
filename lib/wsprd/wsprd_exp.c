@@ -389,8 +389,8 @@ void subtract_signal2(double *id, double *qd, long np,
                      float f0, int shift0, float drift0, unsigned char* channel_symbols)
 {
     double dt=1.0/375.0, df=375.0/256.0;
-    int i, j, k, ii, nfilt=256; //nfilt must be even number.
-    double pi=4.*atan(1.0),twopidt;
+    double pi=4.*atan(1.0), twopidt, phi=0, dphi, cs;
+    int i, j, k, ii, nsym=162, nspersym=256,  nfilt=256; //nfilt must be even number.
     
     double refi[45000],refq[45000];
     double ci[45000],cq[45000],cfi[45000],cfq[45000];
@@ -401,26 +401,30 @@ void subtract_signal2(double *id, double *qd, long np,
     memset(cfi,0,sizeof(double)*45000);
     memset(cfq,0,sizeof(double)*45000);
 
-    double phi=0, dphi;
-    //    double dphi, cdphi, sdphi;
-    
     twopidt=2.0*pi*dt;
     
-    // measured signal is:                s(t)=a(t)*exp( j*theta(t) )
-    // reference is:                      r(t) = exp( j*phi(t) )
-    // complex amplitude is estimated as: c(t)=LPF[s(t)*conjugate(r(t))]
-    //    so c(t) has phase angle theta-phi
-    // multiply r(t) by c(t) and subtract from s(t), i.e. s'(t)=s(t)-c(t)r(t)
+/******************************************************************************
+ Measured signal:                    s(t)=a(t)*exp( j*theta(t) )
+ Reference is:                       r(t) = exp( j*phi(t) )
+ Complex amplitude is estimated as:  c(t)=LPF[s(t)*conjugate(r(t))]
+    so c(t) has phase angle theta-phi
+ Multiply r(t) by c(t) and subtract from s(t), i.e. s'(t)=s(t)-c(t)r(t)
+*******************************************************************************/
 
     // create reference wspr signal vector, centered on f0.
-    for (i=0; i<162; i++) {
+    //
+    for (i=0; i<nsym; i++) {
+
+        cs=(double)channel_symbols[i];
+
         dphi=twopidt*
         (
-         f0 + ((float)drift0/2.0)*((float)i-81.0)/81.0
-            + ((double)channel_symbols[i]-1.5)*df
+         f0 + ((float)drift0/2.0)*((float)i-(float)nsym/2.0)/((float)nsym/2.0)
+            + (cs-1.5)*df
          );
-        for ( j=0; j<256; j++ ) {
-            ii=256*i+j;
+
+        for ( j=0; j<nspersym; j++ ) {
+            ii=nspersym*i+j;
             refi[ii]=refi[ii]+cos(phi); //cannot precompute sin/cos because dphi is changing
             refq[ii]=refq[ii]+sin(phi);
             phi=phi+dphi;
@@ -428,9 +432,11 @@ void subtract_signal2(double *id, double *qd, long np,
     }
 
     // s(t) * conjugate(r(t))
-    // place signal 1 impulse response width in so that we don't have to deal
-    // with partial convolutions at the beginning when applying LPF.
-    for (i=0; i<41472; i++) {
+    // beginning of first symbol in reference signal is at i=0
+    // beginning of first symbol in received data is at shift0.
+    // filter transient lasts nfilt samples
+    // leave nfilt zeros as a pad at the beginning of the unfiltered reference signal
+    for (i=0; i<nsym*nspersym; i++) {
         k=shift0+i;
         if( (k>0) & (k<np) ) {
             ci[i+nfilt] = id[k]*refi[i] + qd[k]*refq[i];
@@ -456,14 +462,17 @@ void subtract_signal2(double *id, double *qd, long np,
             cfq[i]=cfq[i]+w[j]*cq[i-nfilt/2+j];
         }
     }
-    
-    // subtract c(t)*ref(i) here
+  
+    // subtract c(t)*r(t) here
     // (ci+j*cq)(refi+j*refq)=(ci*refi-cq*refq)+j(ci*refq)+cq*refi)
+    // beginning of first symbol in reference signal is at i=nfilt
+    // beginning of first symbol in received data is at shift0.
     for (i=0; i<41472; i++) {
         k=shift0+i;
+        j=i+nfilt;
         if( (k>0) & (k<np) ) {
-            id[k]=id[k] - (cfi[i+nfilt]*refi[i]-cfq[i+nfilt]*refq[i]);
-            qd[k]=qd[k] - (cfi[i+nfilt]*refq[i]+cfq[i+nfilt]*refi[i]);
+            id[k]=id[k] - (cfi[j]*refi[i]-cfq[j]*refq[i]);
+            qd[k]=qd[k] - (cfi[j]*refq[i]+cfq[j]*refi[i]);
         }
     }
     return;
