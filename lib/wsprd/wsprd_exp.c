@@ -519,16 +519,11 @@ void usage(void)
     printf("       -c write .c2 file at the end of the first pass\n");
     printf("       -e x (x is transceiver dial frequency error in Hz)\n");
     printf("       -f x (x is transceiver dial frequency in MHz)\n");
-    // blanking is not yet implemented. The options are accepted for compatibility
-    // with development version of wsprd.
-    //    printf("       -t n (n is blanking duration in milliseconds)\n");
-    //    printf("       -b n (n is pct of time that is blanked)\n");
     printf("       -H do not use (or update) the hash table\n");
     printf("       -m decode wspr-15 .wav file\n");
     printf("       -q quick mode - doesn't dig deep for weak signals\n");
-    printf("       -s signal subtraction mode\n");
-    printf("       -t signal subtraction followed by a second pass\n");
-    printf("       -v verbose mode\n");
+    printf("       -s single pass mode, no subtraction (same as original wsprd)\n");
+    printf("       -v verbose mode (shows dupes)\n");
     printf("       -w wideband mode - decode signals within +/- 150 Hz of center\n");
     printf("       -z x (x is fano metric table bias, default is 0.42)\n");
 }
@@ -548,8 +543,8 @@ int main(int argc, char *argv[])
     char timer_fname[200],hash_fname[200];
     char uttime[5],date[7];
     int c,delta,maxpts=65536,verbose=0,quickmode=0;
-    int writenoise=0,usehashtable=1,wspr_type=2, subtraction=0, ipass;
-    int writec2=0, npasses=1;
+    int writenoise=0,usehashtable=1,wspr_type=2, ipass;
+    int writec2=0, npasses=2, subtraction=1;
     int shift1, lagmin, lagmax, lagstep, worth_a_try, not_decoded;
     unsigned int nbits=81;
     unsigned int npoints, metric, maxcycles, cycles, maxnp;
@@ -626,11 +621,8 @@ int main(int argc, char *argv[])
                 quickmode = 1;
                 break;
             case 's':
-                subtraction = 1; //subtraction only, no second pass
-                break;
-            case 't':
-                subtraction = 1; //subtraction and a second pass (t for two)
-                npasses = 2; //npasses defaults to 1
+                subtraction = 0; //single pass mode (same as original wsprd)
+                npasses = 1;
                 break;
             case 'v':
                 verbose = 1;
@@ -757,11 +749,10 @@ int main(int argc, char *argv[])
 
         if( ipass == 1 && uniques == 0 ) break;
         if( ipass == 1 ) {  //otherwise we bog down on the second pass
-//            minsync1=0.18;
-//            minsync2=0.2;
-//            maxcycles=5000;
             quickmode = 1;
-            printf("-------------- 2 ----------------\n");
+            if( verbose == 1 ) {
+                printf("-------------------- 2 --------------------\n");
+            }
         }
         
         memset(ps,0.0, sizeof(float)*512*nffts);
