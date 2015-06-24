@@ -391,6 +391,7 @@ void subtract_signal2(double *id, double *qd, long np,
     double dt=1.0/375.0, df=375.0/256.0;
     double pi=4.*atan(1.0), twopidt, phi=0, dphi, cs;
     int i, j, k, ii, nsym=162, nspersym=256,  nfilt=256; //nfilt must be even number.
+    int nsig=nsym*nspersym;
     
     double refi[45000],refq[45000];
     double ci[45000],cq[45000],cfi[45000],cfq[45000];
@@ -445,13 +446,17 @@ void subtract_signal2(double *id, double *qd, long np,
     }
 
     //quick and dirty filter - may want to do better
-    double w[nfilt], norm=0;
+    double w[nfilt], norm=0, partialsum[nfilt];
+    memset(partialsum,0,sizeof(double)*nfilt);
     for (i=0; i<nfilt; i++) {
         w[i]=sin(pi*(float)i/(float)(nfilt-1));
         norm=norm+w[i];
     }
     for (i=0; i<nfilt; i++) {
         w[i]=w[i]/norm;
+    }
+    for (i=1; i<nfilt; i++) {
+        partialsum[i]=partialsum[i-1]+w[i];
     }
     
     // LPF
@@ -467,12 +472,19 @@ void subtract_signal2(double *id, double *qd, long np,
     // (ci+j*cq)(refi+j*refq)=(ci*refi-cq*refq)+j(ci*refq)+cq*refi)
     // beginning of first symbol in reference signal is at i=nfilt
     // beginning of first symbol in received data is at shift0.
-    for (i=0; i<41472; i++) {
+    for (i=0; i<nsig; i++) {
+        if( i<nfilt/2 ) {        // take care of the end effect (LPF step response) here
+            norm=partialsum[nfilt/2+i];
+        } else if( i>(nsig-1-nfilt/2) ) {
+            norm=partialsum[nfilt/2+nsig-1-i];
+        } else {
+            norm=1.0;
+        }  
         k=shift0+i;
         j=i+nfilt;
         if( (k>0) & (k<np) ) {
-            id[k]=id[k] - (cfi[j]*refi[i]-cfq[j]*refq[i]);
-            qd[k]=qd[k] - (cfi[j]*refq[i]+cfq[j]*refi[i]);
+            id[k]=id[k] - (cfi[j]*refi[i]-cfq[j]*refq[i])/norm;
+            qd[k]=qd[k] - (cfi[j]*refq[i]+cfq[j]*refi[i])/norm;
         }
     }
     return;
