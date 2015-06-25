@@ -16,6 +16,7 @@
 #include <QtConcurrent/QtConcurrentRun>
 #include <QProgressDialog>
 #include <QHostInfo>
+#include <QVector>
 
 #include "revision_utils.hpp"
 #include "qt_helpers.hpp"
@@ -38,6 +39,8 @@
 #include "LiveFrequencyValidator.hpp"
 #include "MessageClient.hpp"
 #include "wsprnet.h"
+#include "signalmeter.h"
+#include "HelpTextWindow.hpp"
 
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
@@ -62,32 +65,6 @@ namespace
       && ((type < 6 && msg_parts.contains ("73"))
           || (type == 6 && !msg_parts.filter ("73").isEmpty ()));
   }
-}
-
-class HelpTextWindow
-  : public QLabel
-{
-public:
-  HelpTextWindow (QString const& title, QString const& file_name, QFont const& = QFont {}, QWidget * parent = nullptr);
-};
-
-HelpTextWindow::HelpTextWindow (QString const& title, QString const& file_name, QFont const& font, QWidget * parent)
-  : QLabel {parent, Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint}
-{
-  QFile source {file_name};
-  if (!source.open (QIODevice::ReadOnly | QIODevice::Text))
-    {
-      QMessageBox::warning (this, QApplication::applicationName ()
-                            , "Cannot open \"" + source.fileName ()
-                            + "\" for reading:" + source.errorString ());
-      return;
-    }
-  setText (QTextStream {&source}.readAll ());
-  setWindowTitle(QApplication::applicationName () + " - " + title);
-  setMargin (10);
-  setBackgroundRole (QPalette::Base);
-  setAutoFillBackground (true);
-  setStyleSheet (font_as_stylesheet (font));
 }
 
 //--------------------------------------------------- MainWindow constructor
@@ -346,12 +323,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
            , &QLineEdit::editingFinished
            , [this] () {on_freeTextMsg_currentTextChanged (ui->freeTextMsg->lineEdit ()->text ());});
 
-  auto font = ui->readFreq->font();
-  font.setFamily("helvetica");
-  font.setPointSize(9);
-  font.setWeight(75);
-  ui->readFreq->setFont(font);
-
   connect(&m_guiTimer, &QTimer::timeout, this, &MainWindow::guiUpdate);
   m_guiTimer.start(100);   //### Don't change the 100 ms! ###
 
@@ -424,14 +395,12 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_lockTxFreq=false;
   m_baseCall = Radio::base_callsign (m_config.my_callsign ());
 
-  ui->readFreq->setEnabled(false);
   m_QSOText.clear();
   decodeBusy(false);
   m_MinW=0;
   m_nSubMode=0;
-  m_tol=500;
   m_DTtol=0.5;
-  m_wideGraph->setTol(m_tol);
+  m_wideGraph->setTol(500);
   m_bShMsgs=false;
   m_bTxTime=false;
   m_rxDone=false;
@@ -440,9 +409,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_nclearave=1;
   m_bEchoTxed=false;
   m_nWSPRdecodes=0;
-
-  signalMeter = new SignalMeter(ui->meterFrame);
-  signalMeter->resize(50, 160);
 
   for(int i=0; i<28; i++)  {                      //Initialize dBm values
     float dbm=(10.0*i)/3.0 - 30.0;
@@ -571,16 +537,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   on_monitorButton_clicked (!m_config.monitor_off_at_startup ());
   if(m_mode=="Echo") monitor(false); //Don't auto-start Monitor in Echo mode.
 
-  ui->labTol->setStyleSheet( \
-        "QLabel { background-color : white; color : black; }");
-  ui->labTol->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  ui->labMinW->setStyleSheet( \
-        "QLabel { background-color : white; color : black; }");
-  ui->labMinW->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  ui->labSubmode->setStyleSheet( \
-        "QLabel { background-color : white; color : black; }");
-  ui->labSubmode->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-
   bool b=m_config.enable_VHF_features() and (m_mode=="JT4" or m_mode=="JT65");
   VHF_controls_visible(b);
 
@@ -652,7 +608,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("minW",ui->sbMinW->value());
   m_settings->setValue("SubMode",ui->sbSubmode->value());
   m_settings->setValue("DTtol",m_DTtol);
-  m_settings->setValue("Ftol",ui->sbTol->value());
+  m_settings->setValue("FTol",ui->FTol_combo_box->currentText());
   m_settings->setValue("MinSync",m_minSync);
   m_settings->setValue("EME",m_bEME);
   m_settings->setValue ("DialFreq", QVariant::fromValue(m_lastMonitoredFrequency));
@@ -706,7 +662,7 @@ void MainWindow::readSettings()
   ui->sbMinW->setMaximum(m_nSubMode);
   m_DTtol=m_settings->value("DTtol",0.5).toFloat();
   ui->sbDT->setValue(m_DTtol);
-  ui->sbTol->setValue(m_settings->value("Ftol",4).toInt());
+  ui->FTol_combo_box->setCurrentText(m_settings->value("FTol","500").toString ());
   ui->syncSpinBox->setValue(m_settings->value("MinSync",0).toInt());
   m_bEME=m_settings->value("EME",false).toBool();
   ui->cbEME->setChecked(m_bEME);
@@ -770,6 +726,7 @@ void MainWindow::setDecodedTextFont (QFont const& font)
   auto style_sheet = "QLabel {" + font_as_stylesheet (font) + '}';
   ui->decodedTextLabel->setStyleSheet (ui->decodedTextLabel->styleSheet () + style_sheet);
   ui->decodedTextLabel2->setStyleSheet (ui->decodedTextLabel2->styleSheet () + style_sheet);
+  updateGeometry ();
 }
 
 //-------------------------------------------------------------- dataSink()
@@ -802,7 +759,7 @@ void MainWindow::dataSink(qint64 frames)
   QString t;
   m_pctZap=nzap*100.0/m_nsps;
   t.sprintf(" Rx noise: %5.1f ",px);
-  signalMeter->setValue(px);                            // Update thermometer
+  ui->signal_meter_widget->setValue(px); // Update thermometer
   if(m_monitoring || m_diskData) {
     m_wideGraph->dataSink2(s,df3,ihsym,m_diskData);
   }
@@ -921,9 +878,6 @@ void MainWindow::showStatusMessage(const QString& statusMsg)
 
 void MainWindow::on_actionSettings_triggered()               //Setup Dialog
 {
-  ui->readFreq->setStyleSheet("");
-  ui->readFreq->setEnabled(false);
-
   // things that might change that we need know about
   auto callsign = m_config.my_callsign ();
 
@@ -1554,8 +1508,8 @@ void MainWindow::decode()                                       //decode()
   jt9com_.nfSplit=m_wideGraph->Fmin();
   jt9com_.nfb=m_wideGraph->Fmax();
   if(m_mode=="JT9" or m_mode=="JT9+JT65" or
-     (m_mode=="JT65" and !m_config.enable_VHF_features())) m_tol=20;
-  jt9com_.ntol=m_tol;
+     (m_mode=="JT65" and !m_config.enable_VHF_features())) ui->FTol_combo_box->setCurrentText ("20");
+  jt9com_.ntol=ui->FTol_combo_box->currentText ().toInt ();
   if(jt9com_.nutc < m_nutc0) m_RxLog = 1;       //Date and Time to all.txt
   m_nutc0=jt9com_.nutc;
   jt9com_.ntxmode=9;
@@ -2173,7 +2127,7 @@ void MainWindow::guiUpdate()
       t.time().toString() + " ";
     ui->labUTC->setText(utc);
     if(!m_monitoring and !m_diskData) {
-      signalMeter->setValue(0);
+      ui->signal_meter_widget->setValue(0);
     }
     m_sec0=nsec;
   }
@@ -2195,7 +2149,7 @@ void MainWindow::startTx2()
     if(t.mid(0,1)=="#") snr=t.mid(1,5).toDouble();
     if(snr>0.0 or snr < -50.0) snr=99.0;
     transmit (snr);
-    signalMeter->setValue(0);
+    ui->signal_meter_widget->setValue(0);
     if(m_mode=="Echo" and !m_tune) m_bTransmittedEcho=true;
 
     if(m_mode.mid(0,4)=="WSPR" and !m_tune) {
@@ -3149,7 +3103,6 @@ void MainWindow::on_actionWSPR_2_triggered()
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
-  VHF_controls_visible(false);
   WSPR_config(true);
 }
 
@@ -3204,26 +3157,13 @@ void MainWindow::WSPR_config(bool b)
 {
   ui->decodedTextBrowser2->setVisible(!b);
   ui->decodedTextLabel2->setVisible(!b);
+  ui->controls_stack_widget->setCurrentIndex (b && m_mode != "Echo" ? 1 : 0);
+  ui->QSO_controls_widget->setVisible (!b);
+  ui->DX_controls_widget->setVisible (!b);
+  ui->WSPR_controls_widget->setVisible (b);
   ui->label_6->setVisible(!b);
   ui->label_7->setVisible(!b);
-  ui->pbTxMode->setVisible(!b);
-  ui->TxFreqSpinBox->setVisible(!b);
-  ui->RxFreqSpinBox->setVisible(!b);
-  ui->cbTxLock->setVisible(!b);
-  ui->txFirstCheckBox->setVisible(!b);
-  ui->pbR2T->setVisible(!b);
-  ui->pbT2R->setVisible(!b);
-  ui->rptSpinBox->setVisible(!b);
-  ui->label_8->setVisible(!b);
-  ui->labAz->setVisible(!b);
-  ui->labDist->setVisible(!b);
   ui->logQSOButton->setVisible(!b);
-  ui->label_3->setVisible(!b);
-  ui->label_4->setVisible(!b);
-  ui->dxCallEntry->setVisible(!b);
-  ui->dxGridEntry->setVisible(!b);
-  ui->lookupButton->setVisible(!b);
-  ui->addButton->setVisible(!b);
   ui->DecodeButton->setEnabled(!b);
   if(b and (m_mode!="Echo")) {
     ui->decodedTextLabel->setText(
@@ -3238,6 +3178,7 @@ void MainWindow::WSPR_config(bool b)
     ui->tabWidget->setCurrentIndex (m_nonWSPRTab >= 0 ? m_nonWSPRTab : 1);
     m_bSimplex = false;
   }
+  updateGeometry ();
 }
 
 void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
@@ -3547,12 +3488,11 @@ void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
 
 void MainWindow::rigOpen ()
 {
-  ui->readFreq->setStyleSheet ("");
+  update_dynamic_property (ui->readFreq, "state", "warning");
   ui->readFreq->setText ("");
+  ui->readFreq->setEnabled (true);
   m_config.transceiver_online (true);
   Q_EMIT m_config.sync_transceiver (true);
-  ui->readFreq->setStyleSheet("QPushButton{background-color: orange;"
-                              "border-width: 0px; border-radius: 5px;}");
 }
 
 void MainWindow::on_pbR2T_clicked()
@@ -3648,15 +3588,15 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState s)
       qsy (s.frequency ());
     }
 
-  ui->readFreq->setStyleSheet("QPushButton{background-color: #00ff00;"
-                              "border-width: 0px; border-radius: 5px;}");
+  update_dynamic_property (ui->readFreq, "state", "ok");
+  ui->readFreq->setEnabled (false);
   ui->readFreq->setText (s.split () ? "S" : "");
 }
 
 void MainWindow::handle_transceiver_failure (QString reason)
 {
-  ui->readFreq->setStyleSheet("QPushButton{background-color: red;"
-                              "border-width: 0px; border-radius: 5px;}");
+  update_dynamic_property (ui->readFreq, "state", "error");
+  ui->readFreq->setEnabled (true);
   on_stopTxButton_clicked ();
   rigFailure ("Rig Control Error", reason);
 }
@@ -3846,7 +3786,7 @@ void MainWindow::transmitDisplay (bool transmitting)
 
   if (transmitting == m_transmitting) {
     if (transmitting) {
-      signalMeter->setValue(0);
+      ui->signal_meter_widget->setValue(0);
       if (m_monitoring) monitor (false);
       m_btxok=true;
     }
@@ -3884,13 +3824,9 @@ void MainWindow::transmitDisplay (bool transmitting)
   }
 }
 
-void MainWindow::on_sbTol_valueChanged(int i)
+void MainWindow::on_FTol_combo_box_currentIndexChanged (QString const& text)
 {
-  static int ntol[] = {10,20,50,100,200,500,1000,2000};
-  m_tol=ntol[i];
-  m_wideGraph->setTol(m_tol);
-  QString t="F Tol " + QString::number(ntol[i]);
-  ui->labTol->setText(t);
+  m_wideGraph->setTol (text.toInt ());
 }
 
 void MainWindow::on_sbDT_valueChanged(double x)
@@ -3900,17 +3836,7 @@ void MainWindow::on_sbDT_valueChanged(double x)
 
 void::MainWindow::VHF_controls_visible(bool b)
 {
-  ui->sbSubmode->setVisible(b);
-  ui->sbMinW->setVisible(b);
-  ui->cbShMsgs->setVisible(b);
-  ui->cbTx6->setVisible(b);
-  ui->labMinW->setVisible(b);
-  ui->labSubmode->setVisible(b);
-  ui->cbEME->setVisible(b);
-  ui->sbDT->setVisible(b);
-  ui->labTol->setVisible(b);
-  ui->sbTol->setVisible(b);
-  ui->syncSpinBox->setVisible(b);
+  ui->VHFControls_widget->setVisible (b);
 }
 
 void::MainWindow::VHF_features_enabled(bool b)
@@ -3936,8 +3862,6 @@ void MainWindow::on_sbMinW_valueChanged(int n)
 {
   m_MinW=qMin(n,m_nSubMode);
   ui->sbMinW->setValue(m_MinW);
-  QString t="MinW  " + (QString)QChar(short(n+65));
-  ui->labMinW->setText(t);
 }
 
 void MainWindow::on_sbSubmode_valueChanged(int n)
@@ -3946,8 +3870,6 @@ void MainWindow::on_sbSubmode_valueChanged(int n)
   m_wideGraph->setSubMode(m_nSubMode);
   ui->sbMinW->setMaximum(m_nSubMode);
   QString t1=(QString)QChar(short(m_nSubMode+65));
-  QString t="Submode  " + t1;
-  ui->labSubmode->setText(t);
   mode_label->setText(m_mode + " " + t1);
 }
 
