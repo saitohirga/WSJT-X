@@ -206,6 +206,8 @@ set (wsjt_qt_CXXSRCS
   DXLabSuiteCommanderTransceiver.cpp
   NetworkMessage.cpp
   MessageClient.cpp
+  LettersSpinBox.cpp
+  HelpTextWindow.cpp
   )
 
 set (jt9_CXXSRCS

@@ -2465,6 +2465,10 @@ void Configuration::impl::update_audio_channels (QComboBox const * source_combo_
 void Configuration::impl::set_application_font (QFont const& font)
 {
   qApp->setStyleSheet (qApp->styleSheet () + "* {" + font_as_stylesheet (font) + '}');
+  for (auto& widget : qApp->topLevelWidgets ())
+    {
+      widget->updateGeometry ();
+    }
 }
 
 // load all the supported rig names into the selection combo box

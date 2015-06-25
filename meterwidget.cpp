@@ -3,15 +3,20 @@
 
 #include "meterwidget.h"
 
+#include <QPainter>
+#include <QPolygon>
+
 #include "moc_meterwidget.cpp"
 
-MeterWidget::MeterWidget(QWidget *parent) :
-    QWidget(parent),
-    m_signal(0)
+MeterWidget::MeterWidget(QWidget * parent)
+  : QWidget {parent}
+  , m_top_padding {0}
+  , m_bottom_padding {0}
+  , m_signal {0}
 {
-    for ( int i = 0; i < 10; i++ ) {
-        signalQueue.enqueue(0);
-    }
+  for ( int i = 0; i < 10; i++ ) {
+    signalQueue.enqueue(0);
+  }
 }
 
 void MeterWidget::setValue(int value)
@@ -31,23 +36,34 @@ void MeterWidget::setValue(int value)
     update();
 }
 
-void MeterWidget::paintEvent( QPaintEvent * )
+QSize MeterWidget::sizeHint () const
 {
-    int pos;
-    QPainter p;
+  return {10, 100};
+}
 
-    p.begin(this);
+void MeterWidget::paintEvent (QPaintEvent * event)
+{
+  QWidget::paintEvent (event);
 
-    // Sanitize
-    m_signal = m_signal < 0 ? 0 : m_signal;
-    m_signal = m_signal > 60 ? 60 : m_signal;
+  // Sanitize
+  m_signal = m_signal < 0 ? 0 : m_signal;
+  m_signal = m_signal > 60 ? 60 : m_signal;
 
-    pos = m_signal * 2;
-    QRect r(0, height() - pos, width(), pos );
-    p.fillRect(r, QColor( 255, 150, 0 ));
+  QPainter p {this};
+  p.setPen (Qt::NoPen);
 
-    // Draw peak hold indicator
-    p.setPen(Qt::black);
-    pos = m_sigPeak * 2;
-    p.drawLine(0, height() - pos, 10, height() - pos);
+  auto const& target = contentsRect ();
+  QRect r {QPoint {target.left (), static_cast<int> (target.top () + target.height () - m_signal / 60. * target.height ())}
+    , QPoint {target.right (), target.bottom ()}};
+  p.setBrush (QColor {255, 150, 0});
+  p.drawRect (r);
+
+  if (m_sigPeak)
+    {
+      // Draw peak hold indicator
+      auto peak = static_cast<int> (target.top () + target.height () - m_sigPeak / 60. * target.height ());
+      p.setBrush (Qt::black);
+      p.translate (target.left (), peak);
+      p.drawPolygon (QPolygon {{{0, -4}, {0, 4}, {target.width (), 0}}});
+    }
 }

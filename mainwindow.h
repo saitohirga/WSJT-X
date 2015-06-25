@@ -28,7 +28,6 @@
 #include "WSPRBandHopping.hpp"
 #include "Transceiver.hpp"
 #include "psk_reporter.h"
-#include "signalmeter.h"
 #include "logbook/logbook.h"
 #include "Detector.hpp"
 #include "Modulator.hpp"
@@ -202,7 +201,7 @@ private slots:
   void stopTuneATU();
   void auto_tx_mode (bool);
   void on_actionMessage_averaging_triggered();
-  void on_sbTol_valueChanged(int i);
+  void on_FTol_combo_box_currentIndexChanged(QString const&);
   void on_actionInclude_averaging_triggered();
   void on_actionInclude_correlation_triggered();
   void on_sbDT_valueChanged(double x);
@@ -325,7 +324,6 @@ private:
   qint32  m_astroFont;
   qint32  m_nSubMode;
   qint32  m_MinW;
-  qint32  m_tol;
   qint32  m_nclearave;
   qint32  m_minSync;
   qint32  m_dBm;
@@ -462,7 +460,6 @@ private:
   QDateTime m_dateTimeQSO;
 
   QSharedMemory *mem_jt9;
-  SignalMeter *signalMeter;
   LogBook m_logBook;
   DecodedText m_QSOText;
   unsigned m_msAudioOutputBuffered;
