@@ -60,14 +60,15 @@ subroutine wspr_downsample(id2,k)
   fac=2.0/NFFT1
   nblks=(k-k1)/kstep1
   gain=1.0
+  nb=0
   do nblk=1,nblks
      do i=1,NFFT1
         x0(i)=gain*id2(k1+i)
      enddo
-     call timf2(x0,k,NFFT1,nwindow,nb,peaklimit,x1,   &
-          slimit,lstrong,px,nzap)
+!     call timf2(x0,k,NFFT1,nwindow,nb,peaklimit,x1,   &
+!          slimit,lstrong,px,nzap)
 ! Mix at nbfo Hz, lowpass at +/-750 Hz, and downsample to 1500 Hz complex.
-     call mixlpf(x1,nbfo,c0(k8+1))
+     call mixlpf(x0,nbfo,c0(k8+1))
      k1=k1+kstep1
      k8=k8+kstep1/8
   enddo
