@@ -327,9 +327,9 @@ void sync_and_demodulate(double *id, double *qd, long np,
     return;
 }
 /***************************************************************************
-symbol-by-symbol signal subtraction
-****************************************************************************/
- void subtract_signal(double *id, double *qd, long np,
+ symbol-by-symbol signal subtraction
+ ****************************************************************************/
+void subtract_signal(double *id, double *qd, long np,
                      float f0, int shift0, float drift0, unsigned char* channel_symbols)
 {
     float dt=1.0/375.0, df=375.0/256.0;
@@ -371,7 +371,7 @@ symbol-by-symbol signal subtraction
         
         i0=i0/256.0; //will be wrong for partial symbols at the edges...
         q0=q0/256.0;
-
+        
         for (j=0; j<256; j++) {
             k=shift0+i*256+j;
             if( (k>0) & (k<np) ) {
@@ -384,9 +384,9 @@ symbol-by-symbol signal subtraction
 }
 /******************************************************************************
  Fully coherent signal subtraction
-*******************************************************************************/
+ *******************************************************************************/
 void subtract_signal2(double *id, double *qd, long np,
-                     float f0, int shift0, float drift0, unsigned char* channel_symbols)
+                      float f0, int shift0, float drift0, unsigned char* channel_symbols)
 {
     double dt=1.0/375.0, df=375.0/256.0;
     double pi=4.*atan(1.0), twopidt, phi=0, dphi, cs;
@@ -401,29 +401,29 @@ void subtract_signal2(double *id, double *qd, long np,
     memset(cq,0,sizeof(double)*45000);
     memset(cfi,0,sizeof(double)*45000);
     memset(cfq,0,sizeof(double)*45000);
-
+    
     twopidt=2.0*pi*dt;
     
-/******************************************************************************
- Measured signal:                    s(t)=a(t)*exp( j*theta(t) )
- Reference is:                       r(t) = exp( j*phi(t) )
- Complex amplitude is estimated as:  c(t)=LPF[s(t)*conjugate(r(t))]
-    so c(t) has phase angle theta-phi
- Multiply r(t) by c(t) and subtract from s(t), i.e. s'(t)=s(t)-c(t)r(t)
-*******************************************************************************/
-
+    /******************************************************************************
+     Measured signal:                    s(t)=a(t)*exp( j*theta(t) )
+     Reference is:                       r(t) = exp( j*phi(t) )
+     Complex amplitude is estimated as:  c(t)=LPF[s(t)*conjugate(r(t))]
+     so c(t) has phase angle theta-phi
+     Multiply r(t) by c(t) and subtract from s(t), i.e. s'(t)=s(t)-c(t)r(t)
+     *******************************************************************************/
+    
     // create reference wspr signal vector, centered on f0.
     //
     for (i=0; i<nsym; i++) {
-
+        
         cs=(double)channel_symbols[i];
-
+        
         dphi=twopidt*
         (
          f0 + ((float)drift0/2.0)*((float)i-(float)nsym/2.0)/((float)nsym/2.0)
-            + (cs-1.5)*df
+         + (cs-1.5)*df
          );
-
+        
         for ( j=0; j<nspersym; j++ ) {
             ii=nspersym*i+j;
             refi[ii]=refi[ii]+cos(phi); //cannot precompute sin/cos because dphi is changing
@@ -431,7 +431,7 @@ void subtract_signal2(double *id, double *qd, long np,
             phi=phi+dphi;
         }
     }
-
+    
     // s(t) * conjugate(r(t))
     // beginning of first symbol in reference signal is at i=0
     // beginning of first symbol in received data is at shift0.
@@ -444,7 +444,7 @@ void subtract_signal2(double *id, double *qd, long np,
             cq[i+nfilt] = qd[k]*refi[i] - id[k]*refq[i];
         }
     }
-
+    
     //quick and dirty filter - may want to do better
     double w[nfilt], norm=0, partialsum[nfilt];
     memset(partialsum,0,sizeof(double)*nfilt);
@@ -467,7 +467,7 @@ void subtract_signal2(double *id, double *qd, long np,
             cfq[i]=cfq[i]+w[j]*cq[i-nfilt/2+j];
         }
     }
-  
+    
     // subtract c(t)*r(t) here
     // (ci+j*cq)(refi+j*refq)=(ci*refi-cq*refq)+j(ci*refq)+cq*refi)
     // beginning of first symbol in reference signal is at i=nfilt
@@ -479,7 +479,7 @@ void subtract_signal2(double *id, double *qd, long np,
             norm=partialsum[nfilt/2+nsig-1-i];
         } else {
             norm=1.0;
-        }  
+        }
         k=shift0+i;
         j=i+nfilt;
         if( (k>0) & (k<np) ) {
@@ -573,6 +573,11 @@ int main(int argc, char *argv[])
     clock_t t0,t00;
     double tfano=0.0,treadwav=0.0,tcandidates=0.0,tsync0=0.0;
     double tsync1=0.0,tsync2=0.0,ttotal=0.0;
+    
+    struct result { char date[7]; char time[5]; float sync; float snr;
+                    float dt; double freq; char message[23]; float drift;
+                    unsigned int cycles; int jitter; };
+    struct result decodes[50];
     
     char hashtab[32768][13];
     memset(hashtab,0,sizeof(char)*32768*13);
@@ -758,7 +763,7 @@ int main(int argc, char *argv[])
     
     //*************** main loop starts here *****************
     for (ipass=0; ipass<npasses; ipass++) {
-
+        
         if( ipass == 1 && uniques == 0 ) break;
         if( ipass == 1 ) {  //otherwise we bog down on the second pass
             quickmode = 1;
@@ -878,7 +883,7 @@ int main(int argc, char *argv[])
                 }
             }
         }
-
+        
         t0=clock();
         /* Make coarse estimates of shift (DT), freq, and drift
          
@@ -1017,7 +1022,7 @@ int main(int argc, char *argv[])
                     sq += y*y;
                 }
                 rms=sqrt(sq/162.0);
-
+                
                 if((sync1 > minsync2) && (rms > minrms)) {
                     deinterleave(symbols);
                     t0 = clock();
@@ -1053,11 +1058,11 @@ int main(int argc, char *argv[])
                 // sanity checks on grid and power, and return
                 // call_loc_pow string and also callsign (for de-duping).
                 noprint=unpk_(message,hashtab,call_loc_pow,callsign);
-
+                
                 if( subtraction && (ipass == 0) && !noprint ) {
                     
                     unsigned char channel_symbols[162];
-
+                    
                     if( get_wspr_channel_symbols(call_loc_pow, channel_symbols) ) {
                         subtract_signal2(idat, qdat, npoints, f1, shift1, drift1, channel_symbols);
                     } else {
@@ -1087,20 +1092,17 @@ int main(int argc, char *argv[])
                         freq_print=dialfreq+(1500+f1)/1e6;
                         dt_print=shift1*dt-2.0;
                     }
-                    printf("%4s %3.0f %4.1f %10.6f %2d  %-s \n",
-                           uttime, snr0[j],dt_print,freq_print,
-                           (int)drift1, call_loc_pow);
                     
-                    fprintf(fall_wspr,
-                            "%6s %4s %3.0f %3.0f %4.1f %10.7f  %-22s %2d %5u %4d\n",
-                            date,uttime,sync1*10,snr0[j],
-                            dt_print, freq_print,
-                            call_loc_pow, (int)drift1, cycles/81, ii);
-                    
-                    fprintf(fwsprd,"%6s %4s %3d %3.0f %4.1f %10.6f  %-22s %2d %5u %4d\n",
-                            date,uttime,(int)(sync1*10),snr0[j],
-                            dt_print, freq_print,
-                            call_loc_pow, (int)drift1, cycles/81, ii);
+                    strcpy(decodes[uniques-1].date,date);
+                    strcpy(decodes[uniques-1].time,uttime);
+                    decodes[uniques-1].sync=sync1;
+                    decodes[uniques-1].snr=snr0[j];
+                    decodes[uniques-1].dt=dt_print;
+                    decodes[uniques-1].freq=freq_print;
+                    strcpy(decodes[uniques-1].message,call_loc_pow);
+                    decodes[uniques-1].drift=drift1;
+                    decodes[uniques-1].cycles=cycles;
+                    decodes[uniques-1].jitter=ii;
                     
                     /* For timing tests
                      
@@ -1122,6 +1124,37 @@ int main(int argc, char *argv[])
             printf("Writing %s\n",c2filename);
             writec2file(c2filename, wsprtype, carrierfreq, idat, qdat);
         }
+    }
+    
+    // sort the result in order of increasing frequency
+    struct result temp;
+    for (j = 1; j <= uniques - 1; j++) {
+        for (k = 0; k < uniques - j ; k++) {
+            if (decodes[k].freq > decodes[k+1].freq) {
+                temp = decodes[k];
+                decodes[k]=decodes[k+1];;
+                decodes[k+1] = temp;
+            }
+        }
+    }
+    
+    for (i=0; i<uniques; i++) {
+        printf("%4s %3.0f %4.1f %10.6f %2d  %-s \n",
+               decodes[i].time, decodes[i].snr,decodes[i].dt, decodes[i].freq,
+               (int)decodes[i].dt, decodes[i].message);
+        fprintf(fall_wspr,
+                "%6s %4s %3d %3.0f %4.1f %10.7f  %-22s %2d %5u %4d\n",
+                decodes[i].date, decodes[i].time, (int)(10*decodes[i].sync),
+                decodes[i].snr, decodes[i].dt, decodes[i].freq,
+                decodes[i].message, (int)decodes[i].drift, decodes[i].cycles/81,
+                decodes[i].jitter);
+        fprintf(fwsprd,
+                "%6s %4s %3d %3.0f %4.1f %10.6f  %-22s %2d %5u %4d\n",
+                decodes[i].date, decodes[i].time, (int)(10*decodes[i].sync),
+                decodes[i].snr, decodes[i].dt, decodes[i].freq,
+                decodes[i].message, (int)decodes[i].drift, decodes[i].cycles/81,
+                decodes[i].jitter);
+        
     }
     printf("<DecodeFinished>\n");
     
