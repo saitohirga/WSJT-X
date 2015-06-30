@@ -39,6 +39,7 @@
 #include "fano.h"
 #include "nhash.h"
 #include "wsprd_utils.h"
+#include "wsprsim_utils.h"
 
 #define max(x,y) ((x) > (y) ? (x) : (y))
 // Possible PATIENCE options: FFTW_ESTIMATE, FFTW_ESTIMATE_PATIENT,
@@ -58,6 +59,8 @@ unsigned char pr3[162]=
     0,0};
 
 unsigned long nr;
+
+int printdata=0;
 
 //***************************************************************************
 unsigned long readc2file(char *ptr_to_infile, double *idat, double *qdat,
@@ -191,9 +194,9 @@ void sync_and_demodulate(double *id, double *qd, long np,
     float dt=1.0/375.0, df=375.0/256.0, fbest=0.0;
     int i, j, k;
     double pi=4.*atan(1.0),twopidt;
-    float f0=0.0,fp,fplast=-10000.0,ss;
+    float f0=0.0,fp,ss;
     int lag;
-    
+    static float fplast=-10000.0;
     double i0[162],q0[162],i1[162],q1[162],i2[162],q2[162],i3[162],q3[162];
     double p0,p1,p2,p3,cmet,totp,syncmax,fac;
     double c0[256],s0[256],c1[256],s1[256],c2[256],s2[256],c3[256],s3[256];
@@ -217,7 +220,7 @@ void sync_and_demodulate(double *id, double *qd, long np,
             for (i=0; i<162; i++) {
                 fp = f0 + ((float)*drift1/2.0)*((float)i-81.0)/81.0;
                 if( i==0 || (fp != fplast) ) {  // only calculate sin/cos if necessary
-                    dphi0=2*pi*(fp-1.5*df)*dt;
+                    dphi0=twopidt*(fp-1.5*df);
                     cdphi0=cos(dphi0);
                     sdphi0=sin(dphi0);
                     
@@ -323,6 +326,199 @@ void sync_and_demodulate(double *id, double *qd, long np,
     }
     return;
 }
+/***************************************************************************
+ symbol-by-symbol signal subtraction
+ ****************************************************************************/
+void subtract_signal(double *id, double *qd, long np,
+                     float f0, int shift0, float drift0, unsigned char* channel_symbols)
+{
+    float dt=1.0/375.0, df=375.0/256.0;
+    int i, j, k;
+    double pi=4.*atan(1.0),twopidt, fp;
+    
+    double i0,q0;
+    double c0[256],s0[256];
+    double dphi, cdphi, sdphi;
+    
+    twopidt=2*pi*dt;
+    
+    for (i=0; i<162; i++) {
+        fp = f0 + ((float)drift0/2.0)*((float)i-81.0)/81.0;
+        
+        dphi=twopidt*(fp+((float)channel_symbols[i]-1.5)*df);
+        cdphi=cos(dphi);
+        sdphi=sin(dphi);
+        
+        c0[0]=1; s0[0]=0;
+        
+        for (j=1; j<256; j++) {
+            c0[j]=c0[j-1]*cdphi - s0[j-1]*sdphi;
+            s0[j]=c0[j-1]*sdphi + s0[j-1]*cdphi;
+        }
+        
+        i0=0.0; q0=0.0;
+        
+        for (j=0; j<256; j++) {
+            k=shift0+i*256+j;
+            if( (k>0) & (k<np) ) {
+                i0=i0 + id[k]*c0[j] + qd[k]*s0[j];
+                q0=q0 - id[k]*s0[j] + qd[k]*c0[j];
+            }
+        }
+        
+        
+        // subtract the signal here.
+        
+        i0=i0/256.0; //will be wrong for partial symbols at the edges...
+        q0=q0/256.0;
+        
+        for (j=0; j<256; j++) {
+            k=shift0+i*256+j;
+            if( (k>0) & (k<np) ) {
+                id[k]=id[k]- (i0*c0[j] - q0*s0[j]);
+                qd[k]=qd[k]- (q0*c0[j] + i0*s0[j]);
+            }
+        }
+    }
+    return;
+}
+/******************************************************************************
+ Fully coherent signal subtraction
+ *******************************************************************************/
+void subtract_signal2(double *id, double *qd, long np,
+                      float f0, int shift0, float drift0, unsigned char* channel_symbols)
+{
+    double dt=1.0/375.0, df=375.0/256.0;
+    double pi=4.*atan(1.0), twopidt, phi=0, dphi, cs;
+    int i, j, k, ii, nsym=162, nspersym=256,  nfilt=256; //nfilt must be even number.
+    int nsig=nsym*nspersym;
+    
+    double refi[45000],refq[45000];
+    double ci[45000],cq[45000],cfi[45000],cfq[45000];
+    memset(refi,0,sizeof(double)*45000);
+    memset(refq,0,sizeof(double)*45000);
+    memset(ci,0,sizeof(double)*45000);
+    memset(cq,0,sizeof(double)*45000);
+    memset(cfi,0,sizeof(double)*45000);
+    memset(cfq,0,sizeof(double)*45000);
+    
+    twopidt=2.0*pi*dt;
+    
+    /******************************************************************************
+     Measured signal:                    s(t)=a(t)*exp( j*theta(t) )
+     Reference is:                       r(t) = exp( j*phi(t) )
+     Complex amplitude is estimated as:  c(t)=LPF[s(t)*conjugate(r(t))]
+     so c(t) has phase angle theta-phi
+     Multiply r(t) by c(t) and subtract from s(t), i.e. s'(t)=s(t)-c(t)r(t)
+     *******************************************************************************/
+    
+    // create reference wspr signal vector, centered on f0.
+    //
+    for (i=0; i<nsym; i++) {
+        
+        cs=(double)channel_symbols[i];
+        
+        dphi=twopidt*
+        (
+         f0 + ((float)drift0/2.0)*((float)i-(float)nsym/2.0)/((float)nsym/2.0)
+         + (cs-1.5)*df
+         );
+        
+        for ( j=0; j<nspersym; j++ ) {
+            ii=nspersym*i+j;
+            refi[ii]=refi[ii]+cos(phi); //cannot precompute sin/cos because dphi is changing
+            refq[ii]=refq[ii]+sin(phi);
+            phi=phi+dphi;
+        }
+    }
+    
+    // s(t) * conjugate(r(t))
+    // beginning of first symbol in reference signal is at i=0
+    // beginning of first symbol in received data is at shift0.
+    // filter transient lasts nfilt samples
+    // leave nfilt zeros as a pad at the beginning of the unfiltered reference signal
+    for (i=0; i<nsym*nspersym; i++) {
+        k=shift0+i;
+        if( (k>0) & (k<np) ) {
+            ci[i+nfilt] = id[k]*refi[i] + qd[k]*refq[i];
+            cq[i+nfilt] = qd[k]*refi[i] - id[k]*refq[i];
+        }
+    }
+    
+    //quick and dirty filter - may want to do better
+    double w[nfilt], norm=0, partialsum[nfilt];
+    memset(partialsum,0,sizeof(double)*nfilt);
+    for (i=0; i<nfilt; i++) {
+        w[i]=sin(pi*(float)i/(float)(nfilt-1));
+        norm=norm+w[i];
+    }
+    for (i=0; i<nfilt; i++) {
+        w[i]=w[i]/norm;
+    }
+    for (i=1; i<nfilt; i++) {
+        partialsum[i]=partialsum[i-1]+w[i];
+    }
+    
+    // LPF
+    for (i=nfilt/2; i<45000-nfilt/2; i++) {
+        cfi[i]=0.0; cfq[i]=0.0;
+        for (j=0; j<nfilt; j++) {
+            cfi[i]=cfi[i]+w[j]*ci[i-nfilt/2+j];
+            cfq[i]=cfq[i]+w[j]*cq[i-nfilt/2+j];
+        }
+    }
+    
+    // subtract c(t)*r(t) here
+    // (ci+j*cq)(refi+j*refq)=(ci*refi-cq*refq)+j(ci*refq)+cq*refi)
+    // beginning of first symbol in reference signal is at i=nfilt
+    // beginning of first symbol in received data is at shift0.
+    for (i=0; i<nsig; i++) {
+        if( i<nfilt/2 ) {        // take care of the end effect (LPF step response) here
+            norm=partialsum[nfilt/2+i];
+        } else if( i>(nsig-1-nfilt/2) ) {
+            norm=partialsum[nfilt/2+nsig-1-i];
+        } else {
+            norm=1.0;
+        }
+        k=shift0+i;
+        j=i+nfilt;
+        if( (k>0) & (k<np) ) {
+            id[k]=id[k] - (cfi[j]*refi[i]-cfq[j]*refq[i])/norm;
+            qd[k]=qd[k] - (cfi[j]*refq[i]+cfq[j]*refi[i])/norm;
+        }
+    }
+    return;
+}
+
+unsigned long writec2file(char *c2filename, int trmin, double freq
+                          , double *idat, double *qdat)
+{
+    int i;
+    float buffer[2*45000];
+    memset(buffer,0,sizeof(float)*2*45000);
+    FILE *fp;
+    
+    fp = fopen(c2filename,"wb");
+    if( fp == NULL ) {
+        fprintf(stderr, "Could not open c2 file '%s'\n", c2filename);
+        return 0;
+    }
+    unsigned long nwrite = fwrite(c2filename,sizeof(char),14,fp);
+    nwrite = fwrite(&trmin, sizeof(int), 1, fp);
+    nwrite = fwrite(&freq, sizeof(double), 1, fp);
+    
+    for(i=0; i<45000; i++) {
+        buffer[2*i]=idat[i];
+        buffer[2*i+1]=-qdat[i];
+    }
+    
+    nwrite = fwrite(buffer, sizeof(float), 2*45000, fp);
+    if( nwrite == 2*45000 ) {
+        return nwrite;
+    } else {
+        return 0;
+    }
+}
 
 //***************************************************************************
 void usage(void)
@@ -332,18 +528,14 @@ void usage(void)
     printf("\n");
     printf("Options:\n");
     printf("       -a <path> path to writeable data files, default=\".\"\n");
+    printf("       -c write .c2 file at the end of the first pass\n");
     printf("       -e x (x is transceiver dial frequency error in Hz)\n");
     printf("       -f x (x is transceiver dial frequency in MHz)\n");
-    // blanking is not yet implemented. The options are accepted for compatibility
-    // with development version of wsprd.
-    //    printf("       -t n (n is blanking duration in milliseconds)\n");
-    //    printf("       -b n (n is pct of time that is blanked)\n");
     printf("       -H do not use (or update) the hash table\n");
     printf("       -m decode wspr-15 .wav file\n");
-    printf("       -n write noise estimates to file noise.dat\n");
     printf("       -q quick mode - doesn't dig deep for weak signals\n");
-    printf("       -s slow mode - much slower, yields a few more decodes\n");
-    printf("       -v verbose mode\n");
+    printf("       -s single pass mode, no subtraction (same as original wsprd)\n");
+    printf("       -v verbose mode (shows dupes)\n");
     printf("       -w wideband mode - decode signals within +/- 150 Hz of center\n");
     printf("       -z x (x is fano metric table bias, default is 0.42)\n");
 }
@@ -356,15 +548,17 @@ int main(int argc, char *argv[])
     int i,j,k;
     unsigned char *symbols, *decdata;
     signed char message[]={-9,13,-35,123,57,-39,64,0,0,0,0};
-    char *callsign,*grid,*grid6, *call_loc_pow, *cdbm;
+    char *callsign, *call_loc_pow;
     char *ptr_to_infile,*ptr_to_infile_suffix;
     char *data_dir=NULL;
     char wisdom_fname[200],all_fname[200],spots_fname[200];
     char timer_fname[200],hash_fname[200];
     char uttime[5],date[7];
-    int c,delta,maxpts=65536,verbose=0,quickmode=0,writenoise=0,usehashtable=1,wspr_type=2;
+    int c,delta,maxpts=65536,verbose=0,quickmode=0;
+    int writenoise=0,usehashtable=1,wspr_type=2, ipass;
+    int writec2=0, npasses=2, subtraction=1;
     int shift1, lagmin, lagmax, lagstep, worth_a_try, not_decoded;
-    unsigned int nbits;
+    unsigned int nbits=81;
     unsigned int npoints, metric, maxcycles, cycles, maxnp;
     float df=375.0/256.0/2;
     float freq0[200],snr0[200],drift0[200],sync0[200];
@@ -373,11 +567,31 @@ int main(int argc, char *argv[])
     double dialfreq_cmdline=0.0, dialfreq, freq_print;
     float dialfreq_error=0.0;
     float fmin=-110, fmax=110;
-    float f1, fstep, sync1, drift1, tblank=0, fblank=0;
+    float f1, fstep, sync1, drift1;
+    float psavg[512];
     double *idat, *qdat;
     clock_t t0,t00;
     double tfano=0.0,treadwav=0.0,tcandidates=0.0,tsync0=0.0;
     double tsync1=0.0,tsync2=0.0,ttotal=0.0;
+    
+    struct result { char date[7]; char time[5]; float sync; float snr;
+                    float dt; double freq; char message[23]; float drift;
+                    unsigned int cycles; int jitter; };
+    struct result decodes[50];
+    
+    char hashtab[32768][13];
+    memset(hashtab,0,sizeof(char)*32768*13);
+    int nh;
+    symbols=malloc(sizeof(char)*nbits*2);
+    decdata=malloc((nbits+7)/8);
+    callsign=malloc(sizeof(char)*13);
+    call_loc_pow=malloc(sizeof(char)*23);
+    float allfreqs[100];
+    char allcalls[100][13];
+    memset(allfreqs,0,sizeof(float)*100);
+    memset(allcalls,0,sizeof(char)*100*13);
+    
+    int uniques=0, noprint=0;
     
     // Parameters used for performance-tuning:
     maxcycles=10000;                         //Fano timeout limit
@@ -399,13 +613,13 @@ int main(int argc, char *argv[])
     idat=malloc(sizeof(double)*maxpts);
     qdat=malloc(sizeof(double)*maxpts);
     
-    while ( (c = getopt(argc, argv, "a:b:e:f:Hmnqst:wvz:")) !=-1 ) {
+    while ( (c = getopt(argc, argv, "a:ce:f:Hmqstwvz:")) !=-1 ) {
         switch (c) {
             case 'a':
                 data_dir = optarg;
                 break;
-            case 'b':
-                fblank = strtof(optarg,NULL);
+            case 'c':
+                writec2=1;
                 break;
             case 'e':
                 dialfreq_error = strtof(optarg,NULL);   // units of Hz
@@ -420,18 +634,12 @@ int main(int argc, char *argv[])
             case 'm':
                 wspr_type = 15;
                 break;
-            case 'n':
-                writenoise = 1;
-                break;
             case 'q':
                 quickmode = 1;
                 break;
             case 's':
-                maxcycles=20000;
-                iifac=1;
-                break;
-            case 't':
-                tblank = strtof(optarg,NULL);
+                subtraction = 0; //single pass mode (same as original wsprd)
+                npasses = 1;
                 break;
             case 'v':
                 verbose = 1;
@@ -540,192 +748,6 @@ int main(int argc, char *argv[])
         w[i]=sin(0.006147931*i);
     }
     
-    memset(ps,0.0, sizeof(float)*512*nffts);
-    for (i=0; i<nffts; i++) {
-        for(j=0; j<512; j++ ) {
-            k=i*128+j;
-            fftin[j][0]=idat[k] * w[j];
-            fftin[j][1]=qdat[k] * w[j];
-        }
-        fftw_execute(PLAN3);
-        for (j=0; j<512; j++ ) {
-            k=j+256;
-            if( k>511 )
-                k=k-512;
-            ps[j][i]=fftout[k][0]*fftout[k][0]+fftout[k][1]*fftout[k][1];
-        }
-    }
-    
-    fftw_free(fftin);
-    fftw_free(fftout);
-    
-    // Compute average spectrum
-    float psavg[512];
-    memset(psavg,0.0, sizeof(float)*512);
-    for (i=0; i<nffts; i++) {
-        for (j=0; j<512; j++) {
-            psavg[j]=psavg[j]+ps[j][i];
-        }
-    }
-    
-    // Smooth with 7-point window and limit spectrum to +/-150 Hz
-    int window[7]={1,1,1,1,1,1,1};
-    float smspec[411];
-    for (i=0; i<411; i++) {
-        smspec[i]=0.0;
-        for(j=-3; j<=3; j++) {
-            k=256-205+i+j;
-            smspec[i]=smspec[i]+window[j+3]*psavg[k];
-        }
-    }
-    
-    // Sort spectrum values, then pick off noise level as a percentile
-    float tmpsort[411];
-    for (j=0; j<411; j++) {
-        tmpsort[j]=smspec[j];
-    }
-    qsort(tmpsort, 411, sizeof(float), floatcomp);
-    
-    // Noise level of spectrum is estimated as 123/411= 30'th percentile
-    float noise_level = tmpsort[122];
-    
-    /* Renormalize spectrum so that (large) peaks represent an estimate of snr.
-     * We know from experience that threshold snr is near -7dB in wspr bandwidth,
-     * corresponding to -7-26.3=-33.3dB in 2500 Hz bandwidth.
-     * The corresponding threshold is -42.3 dB in 2500 Hz bandwidth for WSPR-15. */
-    
-    float min_snr, snr_scaling_factor;
-    min_snr = pow(10.0,-7.0/10.0); //this is min snr in wspr bw
-    if( wspr_type == 2 ) {
-        snr_scaling_factor=26.3;
-    } else {
-        snr_scaling_factor=35.3;
-    }
-    for (j=0; j<411; j++) {
-        smspec[j]=smspec[j]/noise_level - 1.0;
-        if( smspec[j] < min_snr) smspec[j]=0.1;
-        continue;
-    }
-    
-    // Find all local maxima in smoothed spectrum.
-    for (i=0; i<200; i++) {
-        freq0[i]=0.0;
-        snr0[i]=0.0;
-        drift0[i]=0.0;
-        shift0[i]=0;
-        sync0[i]=0.0;
-    }
-    
-    int npk=0;
-    for(j=1; j<410; j++) {
-        if((smspec[j]>smspec[j-1]) && (smspec[j]>smspec[j+1]) && (npk<200)) {
-            freq0[npk]=(j-205)*df;
-            snr0[npk]=10*log10(smspec[j])-snr_scaling_factor;
-            npk++;
-        }
-    }
-    
-    // Compute corrected fmin, fmax, accounting for dial frequency error
-    fmin += dialfreq_error;    // dialfreq_error is in units of Hz
-    fmax += dialfreq_error;
-    
-    // Don't waste time on signals outside of the range [fmin,fmax].
-    i=0;
-    for( j=0; j<npk; j++) {
-        if( freq0[j] >= fmin && freq0[j] <= fmax ) {
-            freq0[i]=freq0[j];
-            snr0[i]=snr0[j];
-            i++;
-        }
-    }
-    npk=i;
-    
-    t0=clock();
-    /* Make coarse estimates of shift (DT), freq, and drift
-     
-     * Look for time offsets up to +/- 8 symbols (about +/- 5.4 s) relative
-     to nominal start time, which is 2 seconds into the file
-     
-     * Calculates shift relative to the beginning of the file
-     
-     * Negative shifts mean that signal started before start of file
-     
-     * The program prints DT = shift-2 s
-     
-     * Shifts that cause sync vector to fall off of either end of the data
-     vector are accommodated by "partial decoding", such that missing
-     symbols produce a soft-decision symbol value of 128
-     
-     * The frequency drift model is linear, deviation of +/- drift/2 over the
-     span of 162 symbols, with deviation equal to 0 at the center of the
-     signal vector.
-     */
-    
-    int idrift,ifr,if0,ifd,k0;
-    int kindex;
-    float smax,ss,pow,p0,p1,p2,p3;
-    for(j=0; j<npk; j++) {                              //For each candidate...
-        smax=-1e30;
-        if0=freq0[j]/df+256;
-        for (ifr=if0-1; ifr<=if0+1; ifr++) {                      //Freq search
-            for( k0=-10; k0<22; k0++) {                             //Time search
-                for (idrift=-maxdrift; idrift<=maxdrift; idrift++) {  //Drift search
-                    ss=0.0;
-                    pow=0.0;
-                    for (k=0; k<162; k++) {                             //Sum over symbols
-                        ifd=ifr+((float)k-81.0)/81.0*( (float)idrift )/(2.0*df);
-                        kindex=k0+2*k;
-                        if( kindex < nffts ) {
-                            p0=ps[ifd-3][kindex];
-                            p1=ps[ifd-1][kindex];
-                            p2=ps[ifd+1][kindex];
-                            p3=ps[ifd+3][kindex];
-                            
-                            p0=sqrt(p0);
-                            p1=sqrt(p1);
-                            p2=sqrt(p2);
-                            p3=sqrt(p3);
-                            
-                            ss=ss+(2*pr3[k]-1)*((p1+p3)-(p0+p2));
-                            pow=pow+p0+p1+p2+p3;
-                            sync1=ss/pow;
-                        }
-                    }
-                    if( sync1 > smax ) {                  //Save coarse parameters
-                        smax=sync1;
-                        shift0[j]=128*(k0+1);
-                        drift0[j]=idrift;
-                        freq0[j]=(ifr-256)*df;
-                        sync0[j]=sync1;
-                    }
-                }
-            }
-        }
-    }
-    tcandidates += (double)(clock()-t0)/CLOCKS_PER_SEC;
-    
-    nbits=81;
-    symbols=malloc(sizeof(char)*nbits*2);
-    memset(symbols,0,sizeof(char)*nbits*2);
-    decdata=malloc((nbits+7)/8);
-    grid=malloc(sizeof(char)*5);
-    grid6=malloc(sizeof(char)*7);
-    callsign=malloc(sizeof(char)*13);
-    call_loc_pow=malloc(sizeof(char)*23);
-    cdbm=malloc(sizeof(char)*3);
-    float allfreqs[npk];
-    memset(allfreqs,0,sizeof(float)*npk);
-    char allcalls[npk][13];
-    memset(allcalls,0,sizeof(char)*npk*13);
-    memset(grid,0,sizeof(char)*5);
-    memset(grid6,0,sizeof(char)*7);
-    memset(callsign,0,sizeof(char)*13);
-    memset(call_loc_pow,0,sizeof(char)*23);
-    memset(cdbm,0,sizeof(char)*3);
-    char hashtab[32768][13];
-    memset(hashtab,0,sizeof(char)*32768*13);
-    int nh;
-    
     if( usehashtable ) {
         char line[80], hcall[12];
         if( (fhash=fopen(hash_fname,"r+")) ) {
@@ -739,157 +761,402 @@ int main(int argc, char *argv[])
         fclose(fhash);
     }
     
-    int uniques=0, noprint=0;
-    /*
-     Refine the estimates of freq, shift using sync as a metric.
-     Sync is calculated such that it is a float taking values in the range
-     [0.0,1.0].
-     
-     Function sync_and_demodulate has three modes of operation
-     mode is the last argument:
-     
-     0 = no frequency or drift search. find best time lag.
-     1 = no time lag or drift search. find best frequency.
-     2 = no frequency or time lag search. Calculate soft-decision
-     symbols using passed frequency and shift.
-     
-     NB: best possibility for OpenMP may be here: several worker threads
-     could each work on one candidate at a time.
-     */
-    
-    for (j=0; j<npk; j++) {
-        f1=freq0[j];
-        drift1=drift0[j];
-        shift1=shift0[j];
-        sync1=sync0[j];
+    //*************** main loop starts here *****************
+    for (ipass=0; ipass<npasses; ipass++) {
         
-        // Fine search for best sync lag (mode 0)
-        fstep=0.0;
-        lagmin=shift1-144;
-        lagmax=shift1+144;
-        lagstep=8;
-        if(quickmode) lagstep=16;
-        t0 = clock();
-        sync_and_demodulate(idat, qdat, npoints, symbols, &f1, fstep, &shift1,
-                            lagmin, lagmax, lagstep, &drift1, symfac, &sync1, 0);
-        tsync0 += (double)(clock()-t0)/CLOCKS_PER_SEC;
+        if( ipass == 1 && uniques == 0 ) break;
+        if( ipass == 1 ) {  //otherwise we bog down on the second pass
+            quickmode = 1;
+        }
         
-        // Fine search for frequency peak (mode 1)
-        fstep=0.1;
-        t0 = clock();
-        sync_and_demodulate(idat, qdat, npoints, symbols, &f1, fstep, &shift1,
-                            lagmin, lagmax, lagstep, &drift1, symfac, &sync1, 1);
-        tsync1 += (double)(clock()-t0)/CLOCKS_PER_SEC;
+        memset(ps,0.0, sizeof(float)*512*nffts);
+        for (i=0; i<nffts; i++) {
+            for(j=0; j<512; j++ ) {
+                k=i*128+j;
+                fftin[j][0]=idat[k] * w[j];
+                fftin[j][1]=qdat[k] * w[j];
+            }
+            fftw_execute(PLAN3);
+            for (j=0; j<512; j++ ) {
+                k=j+256;
+                if( k>511 )
+                    k=k-512;
+                ps[j][i]=fftout[k][0]*fftout[k][0]+fftout[k][1]*fftout[k][1];
+            }
+        }
         
-        if( sync1 > minsync1 ) {
-            worth_a_try = 1;
+        // Compute average spectrum
+        memset(psavg,0.0, sizeof(float)*512);
+        for (i=0; i<nffts; i++) {
+            for (j=0; j<512; j++) {
+                psavg[j]=psavg[j]+ps[j][i];
+            }
+        }
+        
+        // Smooth with 7-point window and limit spectrum to +/-150 Hz
+        int window[7]={1,1,1,1,1,1,1};
+        float smspec[411];
+        for (i=0; i<411; i++) {
+            smspec[i]=0.0;
+            for(j=-3; j<=3; j++) {
+                k=256-205+i+j;
+                smspec[i]=smspec[i]+window[j+3]*psavg[k];
+            }
+        }
+        
+        // Sort spectrum values, then pick off noise level as a percentile
+        float tmpsort[411];
+        for (j=0; j<411; j++) {
+            tmpsort[j]=smspec[j];
+        }
+        qsort(tmpsort, 411, sizeof(float), floatcomp);
+        
+        // Noise level of spectrum is estimated as 123/411= 30'th percentile
+        float noise_level = tmpsort[122];
+        
+        /* Renormalize spectrum so that (large) peaks represent an estimate of snr.
+         * We know from experience that threshold snr is near -7dB in wspr bandwidth,
+         * corresponding to -7-26.3=-33.3dB in 2500 Hz bandwidth.
+         * The corresponding threshold is -42.3 dB in 2500 Hz bandwidth for WSPR-15. */
+        
+        float min_snr, snr_scaling_factor;
+        min_snr = pow(10.0,-7.0/10.0); //this is min snr in wspr bw
+        if( wspr_type == 2 ) {
+            snr_scaling_factor=26.3;
         } else {
-            worth_a_try = 0;
+            snr_scaling_factor=35.3;
+        }
+        for (j=0; j<411; j++) {
+            smspec[j]=smspec[j]/noise_level - 1.0;
+            if( smspec[j] < min_snr) smspec[j]=0.1;
+            continue;
         }
         
-        int idt=0, ii=0, jiggered_shift;
-        double y,sq,rms;
-        not_decoded=1;
+        // Find all local maxima in smoothed spectrum.
+        for (i=0; i<200; i++) {
+            freq0[i]=0.0;
+            snr0[i]=0.0;
+            drift0[i]=0.0;
+            shift0[i]=0;
+            sync0[i]=0.0;
+        }
         
-        while ( worth_a_try && not_decoded && idt<=(128/iifac)) {
-            ii=(idt+1)/2;
-            if( idt%2 == 1 ) ii=-ii;
-            ii=iifac*ii;
-            jiggered_shift=shift1+ii;
+        int npk=0;
+        for(j=1; j<410; j++) {
+            if((smspec[j]>smspec[j-1]) && (smspec[j]>smspec[j+1]) && (npk<200)) {
+                freq0[npk]=(j-205)*df;
+                snr0[npk]=10*log10(smspec[j])-snr_scaling_factor;
+                npk++;
+            }
+        }
+        
+        // Compute corrected fmin, fmax, accounting for dial frequency error
+        fmin += dialfreq_error;    // dialfreq_error is in units of Hz
+        fmax += dialfreq_error;
+        
+        // Don't waste time on signals outside of the range [fmin,fmax].
+        i=0;
+        for( j=0; j<npk; j++) {
+            if( freq0[j] >= fmin && freq0[j] <= fmax ) {
+                freq0[i]=freq0[j];
+                snr0[i]=snr0[j];
+                i++;
+            }
+        }
+        npk=i;
+        
+        // bubble sort on snr, bringing freq along for the ride
+        int pass;
+        float tmp;
+        for (pass = 1; pass <= npk - 1; pass++) {
+            for (k = 0; k < npk - pass ; k++) {
+                if (snr0[k] < snr0[k+1]) {
+                    tmp = snr0[k];
+                    snr0[k] = snr0[k+1];
+                    snr0[k+1] = tmp;
+                    tmp = freq0[k];
+                    freq0[k] = freq0[k+1];
+                    freq0[k+1] = tmp;
+                }
+            }
+        }
+        
+        t0=clock();
+        /* Make coarse estimates of shift (DT), freq, and drift
+         
+         * Look for time offsets up to +/- 8 symbols (about +/- 5.4 s) relative
+         to nominal start time, which is 2 seconds into the file
+         
+         * Calculates shift relative to the beginning of the file
+         
+         * Negative shifts mean that signal started before start of file
+         
+         * The program prints DT = shift-2 s
+         
+         * Shifts that cause sync vector to fall off of either end of the data
+         vector are accommodated by "partial decoding", such that missing
+         symbols produce a soft-decision symbol value of 128
+         
+         * The frequency drift model is linear, deviation of +/- drift/2 over the
+         span of 162 symbols, with deviation equal to 0 at the center of the
+         signal vector.
+         */
+        
+        int idrift,ifr,if0,ifd,k0;
+        int kindex;
+        float smax,ss,pow,p0,p1,p2,p3;
+        for(j=0; j<npk; j++) {                              //For each candidate...
+            smax=-1e30;
+            if0=freq0[j]/df+256;
+            for (ifr=if0-1; ifr<=if0+1; ifr++) {                      //Freq search
+                for( k0=-10; k0<22; k0++) {                             //Time search
+                    for (idrift=-maxdrift; idrift<=maxdrift; idrift++) {  //Drift search
+                        ss=0.0;
+                        pow=0.0;
+                        for (k=0; k<162; k++) {                             //Sum over symbols
+                            ifd=ifr+((float)k-81.0)/81.0*( (float)idrift )/(2.0*df);
+                            kindex=k0+2*k;
+                            if( kindex < nffts ) {
+                                p0=ps[ifd-3][kindex];
+                                p1=ps[ifd-1][kindex];
+                                p2=ps[ifd+1][kindex];
+                                p3=ps[ifd+3][kindex];
+                                
+                                p0=sqrt(p0);
+                                p1=sqrt(p1);
+                                p2=sqrt(p2);
+                                p3=sqrt(p3);
+                                
+                                ss=ss+(2*pr3[k]-1)*((p1+p3)-(p0+p2));
+                                pow=pow+p0+p1+p2+p3;
+                                sync1=ss/pow;
+                            }
+                        }
+                        if( sync1 > smax ) {                  //Save coarse parameters
+                            smax=sync1;
+                            shift0[j]=128*(k0+1);
+                            drift0[j]=idrift;
+                            freq0[j]=(ifr-256)*df;
+                            sync0[j]=sync1;
+                        }
+                    }
+                }
+            }
+        }
+        tcandidates += (double)(clock()-t0)/CLOCKS_PER_SEC;
+        
+        /*
+         Refine the estimates of freq, shift using sync as a metric.
+         Sync is calculated such that it is a float taking values in the range
+         [0.0,1.0].
+         
+         Function sync_and_demodulate has three modes of operation
+         mode is the last argument:
+         
+         0 = no frequency or drift search. find best time lag.
+         1 = no time lag or drift search. find best frequency.
+         2 = no frequency or time lag search. Calculate soft-decision
+         symbols using passed frequency and shift.
+         
+         NB: best possibility for OpenMP may be here: several worker threads
+         could each work on one candidate at a time.
+         */
+        
+        for (j=0; j<npk; j++) {
+            memset(symbols,0,sizeof(char)*nbits*2);
+            memset(callsign,0,sizeof(char)*13);
+            memset(call_loc_pow,0,sizeof(char)*23);
             
-            // Use mode 2 to get soft-decision symbols
+            f1=freq0[j];
+            drift1=drift0[j];
+            shift1=shift0[j];
+            sync1=sync0[j];
+            
+            // Fine search for best sync lag (mode 0)
+            fstep=0.0;
+            lagmin=shift1-144;
+            lagmax=shift1+144;
+            lagstep=8;
+            if(quickmode) lagstep=16;
             t0 = clock();
-            sync_and_demodulate(idat, qdat, npoints, symbols, &f1, fstep,
-                                &jiggered_shift, lagmin, lagmax, lagstep, &drift1, symfac,
-                                &sync1, 2);
-            tsync2 += (double)(clock()-t0)/CLOCKS_PER_SEC;
+            sync_and_demodulate(idat, qdat, npoints, symbols, &f1, fstep, &shift1,
+                                lagmin, lagmax, lagstep, &drift1, symfac, &sync1, 0);
+            tsync0 += (double)(clock()-t0)/CLOCKS_PER_SEC;
             
-            sq=0.0;
-            for(i=0; i<162; i++) {
-                y=(double)symbols[i] - 128.0;
-                sq += y*y;
+            // Fine search for frequency peak (mode 1)
+            fstep=0.1;
+            t0 = clock();
+            sync_and_demodulate(idat, qdat, npoints, symbols, &f1, fstep, &shift1,
+                                lagmin, lagmax, lagstep, &drift1, symfac, &sync1, 1);
+            tsync1 += (double)(clock()-t0)/CLOCKS_PER_SEC;
+            
+            if( sync1 > minsync1 ) {
+                worth_a_try = 1;
+            } else {
+                worth_a_try = 0;
             }
-            rms=sqrt(sq/162.0);
             
-            if((sync1 > minsync2) && (rms > minrms)) {
-                deinterleave(symbols);
-                t0 = clock();
-                not_decoded = fano(&metric,&cycles,&maxnp,decdata,symbols,nbits,
-                                   mettab,delta,maxcycles);
-                tfano += (double)(clock()-t0)/CLOCKS_PER_SEC;
+            int idt=0, ii=0, jiggered_shift;
+            double y,sq,rms;
+            not_decoded=1;
+            
+            while ( worth_a_try && not_decoded && idt<=(128/iifac)) {
+                ii=(idt+1)/2;
+                if( idt%2 == 1 ) ii=-ii;
+                ii=iifac*ii;
+                jiggered_shift=shift1+ii;
                 
-                /* ### Used for timing tests:
-                 if(not_decoded) fprintf(fdiag,
-                 "%6s %4s %4.1f %3.0f %4.1f %10.7f  %-18s %2d %5u %4d %6.1f %2d\n",
-                 date,uttime,sync1*10,snr0[j], shift1*dt-2.0, dialfreq+(1500+f1)/1e6,
-                 "@                 ", (int)drift1, cycles/81, ii, rms, maxnp);
-                 */
+                // Use mode 2 to get soft-decision symbols
+                t0 = clock();
+                sync_and_demodulate(idat, qdat, npoints, symbols, &f1, fstep,
+                                    &jiggered_shift, lagmin, lagmax, lagstep, &drift1, symfac,
+                                    &sync1, 2);
+                tsync2 += (double)(clock()-t0)/CLOCKS_PER_SEC;
+                
+                sq=0.0;
+                for(i=0; i<162; i++) {
+                    y=(double)symbols[i] - 128.0;
+                    sq += y*y;
+                }
+                rms=sqrt(sq/162.0);
+                
+                if((sync1 > minsync2) && (rms > minrms)) {
+                    deinterleave(symbols);
+                    t0 = clock();
+                    
+                    not_decoded = fano(&metric,&cycles,&maxnp,decdata,symbols,nbits,
+                                       mettab,delta,maxcycles);
+                    tfano += (double)(clock()-t0)/CLOCKS_PER_SEC;
+                    
+                    /* ### Used for timing tests:
+                     if(not_decoded) fprintf(fdiag,
+                     "%6s %4s %4.1f %3.0f %4.1f %10.7f  %-18s %2d %5u %4d %6.1f %2d\n",
+                     date,uttime,sync1*10,snr0[j], shift1*dt-2.0, dialfreq+(1500+f1)/1e6,
+                     "@                 ", (int)drift1, cycles/81, ii, rms, maxnp);
+                     */
+                }
+                idt++;
+                if( quickmode ) break;
             }
-            idt++;
-            if( quickmode ) break;
+            
+            if( worth_a_try && !not_decoded ) {
+                
+                for(i=0; i<11; i++) {
+                    
+                    if( decdata[i]>127 ) {
+                        message[i]=decdata[i]-256;
+                    } else {
+                        message[i]=decdata[i];
+                    }
+                    
+                }
+                
+                // Unpack the decoded message, update the hashtable, apply
+                // sanity checks on grid and power, and return
+                // call_loc_pow string and also callsign (for de-duping).
+                noprint=unpk_(message,hashtab,call_loc_pow,callsign);
+                
+                if( subtraction && (ipass == 0) && !noprint ) {
+                    
+                    unsigned char channel_symbols[162];
+                    
+                    if( get_wspr_channel_symbols(call_loc_pow, channel_symbols) ) {
+                        subtract_signal2(idat, qdat, npoints, f1, shift1, drift1, channel_symbols);
+                    } else {
+                        break;
+                    }
+                    
+                }
+                
+                // Remove dupes (same callsign and freq within 3 Hz)
+                int dupe=0;
+                for (i=0; i<uniques; i++) {
+                    if(!strcmp(callsign,allcalls[i]) &&
+                       (fabs(f1-allfreqs[i]) <3.0)) dupe=1;
+                }
+                if( (verbose || !dupe) && !noprint) {
+                    strcpy(allcalls[uniques],callsign);
+                    allfreqs[uniques]=f1;
+                    uniques++;
+                    
+                    // Add an extra space at the end of each line so that wspr-x doesn't
+                    // truncate the power (TNX to DL8FCL!)
+                    
+                    if( wspr_type == 15 ) {
+                        freq_print=dialfreq+(1500+112.5+f1/8.0)/1e6;
+                        dt_print=shift1*8*dt-2.0;
+                    } else {
+                        freq_print=dialfreq+(1500+f1)/1e6;
+                        dt_print=shift1*dt-2.0;
+                    }
+                    
+                    strcpy(decodes[uniques-1].date,date);
+                    strcpy(decodes[uniques-1].time,uttime);
+                    decodes[uniques-1].sync=sync1;
+                    decodes[uniques-1].snr=snr0[j];
+                    decodes[uniques-1].dt=dt_print;
+                    decodes[uniques-1].freq=freq_print;
+                    strcpy(decodes[uniques-1].message,call_loc_pow);
+                    decodes[uniques-1].drift=drift1;
+                    decodes[uniques-1].cycles=cycles;
+                    decodes[uniques-1].jitter=ii;
+                    
+                    /* For timing tests
+                     
+                     fprintf(fdiag,
+                     "%6s %4s %4.1f %3.0f %4.1f %10.7f  %-18s %2d %5u %4d %6.1f\n",
+                     date,uttime,sync1*10,snr0[j],
+                     shift1*dt-2.0, dialfreq+(1500+f1)/1e6,
+                     call_loc_pow, (int)drift1, cycles/81, ii, rms);
+                     */
+                }
+            }
         }
         
-        if( worth_a_try && !not_decoded ) {
-            for(i=0; i<11; i++) {
-                if( decdata[i]>127 ) {
-                    message[i]=decdata[i]-256;
-                } else {
-                    message[i]=decdata[i];
-                }
-            }
-            
-            // Unpack the decoded message, update the hashtable, apply
-            // sanity checks on grid and power, and return
-            // call_loc_pow string and also callsign (for de-duping).
-            noprint=unpk_(message,hashtab,call_loc_pow,callsign);
-            
-            // Remove dupes (same callsign and freq within 1 Hz)
-            int dupe=0;
-            for (i=0; i<npk; i++) {
-                if(!strcmp(callsign,allcalls[i]) && 
-                   (fabs(f1-allfreqs[i]) <1.0)) dupe=1;
-            }
-            if( (verbose || !dupe) && !noprint) {
-                uniques++;
-                strcpy(allcalls[uniques],callsign);
-                allfreqs[uniques]=f1;
-                // Add an extra space at the end of each line so that wspr-x doesn't 
-                // truncate the power (TNX to DL8FCL!)
-                
-                if( wspr_type == 15 ) {
-                    freq_print=dialfreq+(1500+112.5+f1/8.0)/1e6;
-                    dt_print=shift1*8*dt-2.0;
-                } else {
-                    freq_print=dialfreq+(1500+f1)/1e6;
-                    dt_print=shift1*dt-2.0;
-                }
-                printf("%4s %3.0f %4.1f %10.6f %2d  %-s \n",
-                       uttime, snr0[j],dt_print,freq_print,
-                       (int)drift1, call_loc_pow);
-                
-                fprintf(fall_wspr,
-                        "%6s %4s %3.0f %3.0f %4.1f %10.7f  %-22s %2d %5u %4d\n",
-                        date,uttime,sync1*10,snr0[j],
-                        dt_print, freq_print,
-                        call_loc_pow, (int)drift1, cycles/81, ii);
-                
-                fprintf(fwsprd,"%6s %4s %3d %3.0f %4.1f %10.6f  %-22s %2d %5u %4d\n",
-                        date,uttime,(int)(sync1*10),snr0[j],
-                        dt_print, freq_print,
-                        call_loc_pow, (int)drift1, cycles/81, ii);
-                
-                /* For timing tests
-                 
-                 fprintf(fdiag,
-                 "%6s %4s %4.1f %3.0f %4.1f %10.7f  %-18s %2d %5u %4d %6.1f\n",
-                 date,uttime,sync1*10,snr0[j],
-                 shift1*dt-2.0, dialfreq+(1500+f1)/1e6,
-                 call_loc_pow, (int)drift1, cycles/81, ii, rms);
-                 */
+        if( ipass == 0 && writec2 ) {
+            char c2filename[15];
+            double carrierfreq=dialfreq;
+            int wsprtype=2;
+            strcpy(c2filename,"000000_0001.c2");
+            printf("Writing %s\n",c2filename);
+            writec2file(c2filename, wsprtype, carrierfreq, idat, qdat);
+        }
+    }
+    
+    // sort the result in order of increasing frequency
+    struct result temp;
+    for (j = 1; j <= uniques - 1; j++) {
+        for (k = 0; k < uniques - j ; k++) {
+            if (decodes[k].freq > decodes[k+1].freq) {
+                temp = decodes[k];
+                decodes[k]=decodes[k+1];;
+                decodes[k+1] = temp;
             }
         }
     }
+    
+    for (i=0; i<uniques; i++) {
+        printf("%4s %3.0f %4.1f %10.6f %2d  %-s \n",
+               decodes[i].time, decodes[i].snr,decodes[i].dt, decodes[i].freq,
+               (int)decodes[i].dt, decodes[i].message);
+        fprintf(fall_wspr,
+                "%6s %4s %3d %3.0f %4.1f %10.7f  %-22s %2d %5u %4d\n",
+                decodes[i].date, decodes[i].time, (int)(10*decodes[i].sync),
+                decodes[i].snr, decodes[i].dt, decodes[i].freq,
+                decodes[i].message, (int)decodes[i].drift, decodes[i].cycles/81,
+                decodes[i].jitter);
+        fprintf(fwsprd,
+                "%6s %4s %3d %3.0f %4.1f %10.6f  %-22s %2d %5u %4d\n",
+                decodes[i].date, decodes[i].time, (int)(10*decodes[i].sync),
+                decodes[i].snr, decodes[i].dt, decodes[i].freq,
+                decodes[i].message, (int)decodes[i].drift, decodes[i].cycles/81,
+                decodes[i].jitter);
+        
+    }
     printf("<DecodeFinished>\n");
+    
+    fftw_free(fftin);
+    fftw_free(fftout);
     
     if ((fp_fftw_wisdom_file = fopen(wisdom_fname, "w"))) {
         fftw_export_wisdom_to_file(fp_fftw_wisdom_file);
@@ -930,6 +1197,7 @@ int main(int argc, char *argv[])
         }
         fclose(fhash);
     }
-    if(fblank+tblank+writenoise == 999) return -1;  //Silence compiler warning
+    
+    if(writenoise == 999) return -1;  //Silence compiler warning
     return 0;
 }
