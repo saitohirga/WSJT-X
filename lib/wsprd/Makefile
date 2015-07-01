@@ -22,7 +22,7 @@ LIBS = -lfftw3 -lm
 all:    wsprd wsprsim wsprd_exp
 
 DEPS =  wsprsim_utils.h wsprd_utils.h fano.h
-OBJS1 = wsprd.o wsprd_utils.o tab.o fano.o nhash.o
+OBJS1 = wsprd.o wsprd_utils.o wsprsim_utils.o tab.o fano.o nhash.o
 wsprd: $(OBJS1)
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
 

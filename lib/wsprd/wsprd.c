@@ -392,15 +392,23 @@ void subtract_signal2(double *id, double *qd, long np,
     double pi=4.*atan(1.0), twopidt, phi=0, dphi, cs;
     int i, j, k, ii, nsym=162, nspersym=256,  nfilt=256; //nfilt must be even number.
     int nsig=nsym*nspersym;
+    int nc2=45000;
     
-    double refi[45000],refq[45000];
-    double ci[45000],cq[45000],cfi[45000],cfq[45000];
-    memset(refi,0,sizeof(double)*45000);
-    memset(refq,0,sizeof(double)*45000);
-    memset(ci,0,sizeof(double)*45000);
-    memset(cq,0,sizeof(double)*45000);
-    memset(cfi,0,sizeof(double)*45000);
-    memset(cfq,0,sizeof(double)*45000);
+    double *refi, *refq, *ci, *cq, *cfi, *cfq;
+
+    refi=malloc(sizeof(double)*nc2);
+    refq=malloc(sizeof(double)*nc2);
+    ci=malloc(sizeof(double)*nc2);
+    cq=malloc(sizeof(double)*nc2);
+    cfi=malloc(sizeof(double)*nc2);
+    cfq=malloc(sizeof(double)*nc2);
+    
+    memset(refi,0,sizeof(double)*nc2);
+    memset(refq,0,sizeof(double)*nc2);
+    memset(ci,0,sizeof(double)*nc2);
+    memset(cq,0,sizeof(double)*nc2);
+    memset(cfi,0,sizeof(double)*nc2);
+    memset(cfq,0,sizeof(double)*nc2);
     
     twopidt=2.0*pi*dt;
     
@@ -487,6 +495,14 @@ void subtract_signal2(double *id, double *qd, long np,
             qd[k]=qd[k] - (cfi[j]*refq[i]+cfq[j]*refi[i])/norm;
         }
     }
+    
+    free(refi);
+    free(refq);
+    free(ci);
+    free(cq);
+    free(cfi);
+    free(cfq);
+
     return;
 }
 
@@ -494,13 +510,16 @@ unsigned long writec2file(char *c2filename, int trmin, double freq
                           , double *idat, double *qdat)
 {
     int i;
-    float buffer[2*45000];
+    float *buffer;
+    buffer=malloc(sizeof(float)*2*45000);
     memset(buffer,0,sizeof(float)*2*45000);
+    
     FILE *fp;
     
     fp = fopen(c2filename,"wb");
     if( fp == NULL ) {
         fprintf(stderr, "Could not open c2 file '%s'\n", c2filename);
+        free(buffer);
         return 0;
     }
     unsigned long nwrite = fwrite(c2filename,sizeof(char),14,fp);
@@ -516,6 +535,7 @@ unsigned long writec2file(char *c2filename, int trmin, double freq
     if( nwrite == 2*45000 ) {
         return nwrite;
     } else {
+        free(buffer);
         return 0;
     }
 }
