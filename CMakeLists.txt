@@ -853,6 +853,12 @@ add_executable (jt9code lib/jt9code.f90 wsjtx.rc)
 target_link_libraries (jt9code wsjt_fort wsjt_cxx)
 
 add_executable (wsprd lib/wsprd/wsprd.c lib/wsprd/wsprd_utils.c lib/wsprd/wsprsim_utils.c lib/wsprd/fano.c lib/wsprd/tab.c lib/wsprd/nhash.c)
+if (WIN32)
+  set_target_properties (wsprd
+    PROPERTIES
+    LINK_FLAGS "-Wl,--stack,4000000"
+    )
+endif (WIN32)
 target_link_libraries (wsprd ${FFTW3_LIBRARIES})
 
 add_executable (wsprsim lib/wsprd/wsprsim.c lib/wsprd/wsprsim_utils.c lib/wsprd/wsprd_utils.c lib/wsprd/fano.c lib/wsprd/tab.c lib/wsprd/nhash.c)
