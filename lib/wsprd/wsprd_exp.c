@@ -845,8 +845,10 @@ int main(int argc, char *argv[])
         }
         
         int npk=0;
-        for(j=1; j<410; j++) {
-            if((smspec[j]>smspec[j-1]) && (smspec[j]>smspec[j+1]) && (npk<200)) {
+	//        for(j=1; j<410; j++) {
+	//            if((smspec[j]>smspec[j-1]) && (smspec[j]>smspec[j+1]) && (npk<200)) {
+        for(j=1; j<410; j=j+2) {
+            if((smspec[j]>min_snr) && (npk<200)) {
                 freq0[npk]=(j-205)*df;
                 snr0[npk]=10*log10(smspec[j])-snr_scaling_factor;
                 npk++;

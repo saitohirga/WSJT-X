@@ -3330,22 +3330,14 @@ void MainWindow::band_changed (Frequency f)
 
 void MainWindow::enable_DXCC_entity (bool on)
 {
-  if (on)
-    {
-      // re-read the log and cty.dat files
-      m_logBook.init();
-    }
-
-  if (on)  // adjust the proportions between the two text displays
-    {
-      ui->gridLayout->setColumnStretch(0,55);
-      ui->gridLayout->setColumnStretch(1,45);
-    }
-  else
-    {
-      ui->gridLayout->setColumnStretch(0,0);
-      ui->gridLayout->setColumnStretch(1,0);
-    }
+  if (on and m_mode.mid(0,4)!="WSPR" and m_mode!="Echo") {
+    m_logBook.init();                        // re-read the log and cty.dat files
+    ui->gridLayout->setColumnStretch(0,55);  // adjust proportions of text displays
+    ui->gridLayout->setColumnStretch(1,45);
+  } else {
+    ui->gridLayout->setColumnStretch(0,0);
+    ui->gridLayout->setColumnStretch(1,0);
+  }
 }
 
 void MainWindow::on_pbCallCQ_clicked()
