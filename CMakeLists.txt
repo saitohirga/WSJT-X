@@ -395,6 +395,24 @@ set (wsjt_qt_UISRCS
   wf_palette_design_dialog.ui
   )
 
+set (wsprsim_CSRCS
+  lib/wsprd/wsprsim.c
+  lib/wsprd/wsprsim_utils.c
+  lib/wsprd/wsprd_utils.c
+  lib/wsprd/fano.c
+  lib/wsprd/tab.c
+  lib/wsprd/nhash.c
+  )
+
+set (wsprd_CSRCS
+  lib/wsprd/wsprd.c
+  lib/wsprd/wsprsim_utils.c
+  lib/wsprd/wsprd_utils.c
+  lib/wsprd/fano.c
+  lib/wsprd/tab.c
+  lib/wsprd/nhash.c
+  )
+
 set (wsjtx_UISRCS
   mainwindow.ui
   about.ui
@@ -421,6 +439,8 @@ set (all_CXXSRCS
 
 set (all_C_and_CXXSRCS
   ${wsjt_CSRCS}
+  ${wsprsim_CSRCS}
+  ${wsprd_CSRCS}
   ${all_CXXSRCS}
   )
 
@@ -679,13 +699,11 @@ find_package (OpenMP)
 # fftw3 single precsion library
 #
 find_package (FFTW3 COMPONENTS double single threads REQUIRED)
-include_directories (${FFTW3_INCLUDE_DIRS})
 
 #
 # libhamlib setup
 #
 find_package (hamlib 3 REQUIRED)
-include_directories (BEFORE ${hamlib_INCLUDE_DIRS})
 if (hamlib_STATIC_LIBRARY)
   # static link hamlib if archive library available
   set (hamlib_LIBRARY "${hamlib_STATIC_LIBRARY}")
@@ -835,9 +853,10 @@ endif (${OPENMP_FOUND} OR APPLE)
 
 # build a library of package Qt functionality
 add_library (wsjt_qt STATIC ${wsjt_qt_CXXSRCS} ${wsjt_qt_GENUISRCS} ${GENAXSRCS})
-qt5_use_modules (wsjt_qt Widgets OpenGL Network)
+target_link_libraries (wsjt_qt Qt5::Widgets Qt5::Network)
+target_include_directories (wsjt_qt BEFORE PRIVATE ${hamlib_INCLUDE_DIRS})
 if (WIN32)
-  qt5_use_modules (wsjt_qt AxContainer AxBase)
+  target_link_libraries (wsjt_qt Qt5::AxContainer Qt5::AxBase)
 endif (WIN32)
 
 add_executable (jt4sim lib/jt4sim.f90 wsjtx.rc)
@@ -852,11 +871,11 @@ target_link_libraries (jt65code wsjt_fort wsjt_cxx)
 add_executable (jt9code lib/jt9code.f90 wsjtx.rc)
 target_link_libraries (jt9code wsjt_fort wsjt_cxx)
 
-add_executable (wsprd lib/wsprd/wsprd.c lib/wsprd/wsprd_utils.c lib/wsprd/wsprsim_utils.c lib/wsprd/fano.c lib/wsprd/tab.c lib/wsprd/nhash.c)
+add_executable (wsprd ${wsprd_CSRCS})
+target_include_directories (wsprd PRIVATE ${FFTW3_INCLUDE_DIRS})
 target_link_libraries (wsprd ${FFTW3_LIBRARIES})
 
-add_executable (wsprsim lib/wsprd/wsprsim.c lib/wsprd/wsprsim_utils.c lib/wsprd/wsprd_utils.c lib/wsprd/fano.c lib/wsprd/tab.c lib/wsprd/nhash.c)
-target_link_libraries (wsprsim )
+add_executable (wsprsim ${wsprsim_CSRCS})
 
 add_executable (jt4code lib/jt4code.f90 wsjtx.rc)
 target_link_libraries (jt4code wsjt_fort wsjt_cxx)
@@ -881,11 +900,10 @@ if (${OPENMP_FOUND} OR APPLE)
       Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
       )
   endif (APPLE)
-  target_link_libraries (jt9 wsjt_fort_omp wsjt_cxx ${FFTW3_LIBRARIES})
+  target_link_libraries (jt9 wsjt_fort_omp wsjt_cxx ${FFTW3_LIBRARIES} Qt5::Core)
 else (${OPENMP_FOUND} OR APPLE)
-  target_link_libraries (jt9 wsjt_fort wsjt_cxx ${FFTW3_LIBRARIES})
+  target_link_libraries (jt9 wsjt_fort wsjt_cxx ${FFTW3_LIBRARIES} Qt5::Core)
 endif (${OPENMP_FOUND} OR APPLE)
-qt5_use_modules (jt9 Core)
 
 # build the main application
 add_executable (wsjtx MACOSX_BUNDLE
@@ -911,8 +929,8 @@ set_target_properties (wsjtx PROPERTIES
   MACOSX_BUNDLE_GUI_IDENTIFIER "org.k1jt.wsjtx"
   )
 
-target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
-qt5_use_modules (wsjtx Widgets OpenGL Network Multimedia SerialPort)
+target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES} Qt5::Multimedia)
+qt5_use_modules (wsjtx SerialPort) # not sure why the interface link library syntax above doesn't work
 
 add_resources (message_aggregator_RESOURCES /qss ${message_aggregator_STYLESHEETS})
 configure_file (message_aggregator.qrc.in message_aggregator.qrc @ONLY)
@@ -922,8 +940,7 @@ add_executable (message_aggregator
   wsjtx.rc
   ${message_aggregator_RESOURCES_RCC}
   )
-target_link_libraries (message_aggregator wsjt_qt)
-qt5_use_modules (message_aggregator Widgets OpenGL Network)
+target_link_libraries (message_aggregator wsjt_qt Qt5::Widgets)
 
 if (WSJT_CREATE_WINMAIN)
   set_target_properties (message_aggregator PROPERTIES WIN32_EXECUTABLE ON)
