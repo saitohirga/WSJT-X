@@ -180,7 +180,7 @@ unsigned long readwavfile(char *ptr_to_infile, int ntrmin, double *idat, double 
 
 //***************************************************************************
 void sync_and_demodulate(double *id, double *qd, long np,
-                         unsigned char *symbols, float *f1, float fstep,
+                         unsigned char *symbols, float *f1, int ifmin, int ifmax, float fstep,
                          int *shift1, int lagmin, int lagmax, int lagstep,
                          float *drift1, int symfac, float *sync, int mode)
 {
@@ -204,11 +204,10 @@ void sync_and_demodulate(double *id, double *qd, long np,
     dphi3, cdphi3, sdphi3;
     float fsum=0.0, f2sum=0.0, fsymb[162];
     int best_shift = 0, ifreq;
-    int ifmin=0, ifmax=0;
     
     syncmax=-1e30;
     if( mode == 0 ) {ifmin=0; ifmax=0; fstep=0.0; f0=*f1;}
-    if( mode == 1 ) {lagmin=*shift1;lagmax=*shift1;ifmin=-5;ifmax=5;f0=*f1;}
+    if( mode == 1 ) {lagmin=*shift1;lagmax=*shift1;f0=*f1;}
     if( mode == 2 ) {lagmin=*shift1;lagmax=*shift1;ifmin=0;ifmax=0;f0=*f1;}
     
     twopidt=2*pi*dt;
@@ -392,15 +391,23 @@ void subtract_signal2(double *id, double *qd, long np,
     double pi=4.*atan(1.0), twopidt, phi=0, dphi, cs;
     int i, j, k, ii, nsym=162, nspersym=256,  nfilt=256; //nfilt must be even number.
     int nsig=nsym*nspersym;
+    int nc2=45000;
     
-    double refi[45000],refq[45000];
-    double ci[45000],cq[45000],cfi[45000],cfq[45000];
-    memset(refi,0,sizeof(double)*45000);
-    memset(refq,0,sizeof(double)*45000);
-    memset(ci,0,sizeof(double)*45000);
-    memset(cq,0,sizeof(double)*45000);
-    memset(cfi,0,sizeof(double)*45000);
-    memset(cfq,0,sizeof(double)*45000);
+    double *refi, *refq, *ci, *cq, *cfi, *cfq;
+
+    refi=malloc(sizeof(double)*nc2);
+    refq=malloc(sizeof(double)*nc2);
+    ci=malloc(sizeof(double)*nc2);
+    cq=malloc(sizeof(double)*nc2);
+    cfi=malloc(sizeof(double)*nc2);
+    cfq=malloc(sizeof(double)*nc2);
+    
+    memset(refi,0,sizeof(double)*nc2);
+    memset(refq,0,sizeof(double)*nc2);
+    memset(ci,0,sizeof(double)*nc2);
+    memset(cq,0,sizeof(double)*nc2);
+    memset(cfi,0,sizeof(double)*nc2);
+    memset(cfq,0,sizeof(double)*nc2);
     
     twopidt=2.0*pi*dt;
     
@@ -487,6 +494,14 @@ void subtract_signal2(double *id, double *qd, long np,
             qd[k]=qd[k] - (cfi[j]*refq[i]+cfq[j]*refi[i])/norm;
         }
     }
+    
+    free(refi);
+    free(refq);
+    free(ci);
+    free(cq);
+    free(cfi);
+    free(cfq);
+
     return;
 }
 
@@ -494,13 +509,16 @@ unsigned long writec2file(char *c2filename, int trmin, double freq
                           , double *idat, double *qdat)
 {
     int i;
-    float buffer[2*45000];
+    float *buffer;
+    buffer=malloc(sizeof(float)*2*45000);
     memset(buffer,0,sizeof(float)*2*45000);
+    
     FILE *fp;
     
     fp = fopen(c2filename,"wb");
     if( fp == NULL ) {
         fprintf(stderr, "Could not open c2 file '%s'\n", c2filename);
+        free(buffer);
         return 0;
     }
     unsigned long nwrite = fwrite(c2filename,sizeof(char),14,fp);
@@ -516,6 +534,7 @@ unsigned long writec2file(char *c2filename, int trmin, double freq
     if( nwrite == 2*45000 ) {
         return nwrite;
     } else {
+        free(buffer);
         return 0;
     }
 }
@@ -557,7 +576,7 @@ int main(int argc, char *argv[])
     int c,delta,maxpts=65536,verbose=0,quickmode=0;
     int writenoise=0,usehashtable=1,wspr_type=2, ipass;
     int writec2=0, npasses=2, subtraction=1;
-    int shift1, lagmin, lagmax, lagstep, worth_a_try, not_decoded;
+    int shift1, lagmin, lagmax, lagstep, ifmin, ifmax, worth_a_try, not_decoded;
     unsigned int nbits=81;
     unsigned int npoints, metric, maxcycles, cycles, maxnp;
     float df=375.0/256.0/2;
@@ -597,7 +616,7 @@ int main(int argc, char *argv[])
     maxcycles=10000;                         //Fano timeout limit
     double minsync1=0.10;                    //First sync limit
     double minsync2=0.12;                    //Second sync limit
-    int iifac=3;                             //Step size in final DT peakup
+    int iifac=13;                             //Step size in final DT peakup
     int symfac=50;                           //Soft-symbol normalizing factor
     int maxdrift=4;                          //Maximum (+/-) drift
     double minrms=52.0 * (symfac/64.0);      //Final test for plausible decoding
@@ -765,12 +784,9 @@ int main(int argc, char *argv[])
     for (ipass=0; ipass<npasses; ipass++) {
         
         if( ipass == 1 && uniques == 0 ) break;
-        if( ipass == 1 ) {  //otherwise we bog down on the second pass
-            quickmode = 1;
-            if( verbose == 1 ) {
-                printf("-------------------- 2 --------------------\n");
-            }
-        }
+//        if( ipass == 1 ) {  //otherwise we bog down on the second pass
+//            quickmode = 1;
+//        }
         
         memset(ps,0.0, sizeof(float)*512*nffts);
         for (i=0; i<nffts; i++) {
@@ -831,7 +847,7 @@ int main(int argc, char *argv[])
         }
         for (j=0; j<411; j++) {
             smspec[j]=smspec[j]/noise_level - 1.0;
-            if( smspec[j] < min_snr) smspec[j]=0.1;
+            if( smspec[j] < min_snr) smspec[j]=0.1*min_snr;
             continue;
         }
         
@@ -845,10 +861,12 @@ int main(int argc, char *argv[])
         }
         
         int npk=0;
-	//        for(j=1; j<410; j++) {
-	//            if((smspec[j]>smspec[j-1]) && (smspec[j]>smspec[j+1]) && (npk<200)) {
-        for(j=1; j<410; j=j+2) {
-            if((smspec[j]>min_snr) && (npk<200)) {
+        for(j=1; j<410; j++) {
+            if(
+               (smspec[j]>smspec[j-1]) &&
+               (smspec[j]>smspec[j+1]) &&
+               (npk<200)
+               ) {
                 freq0[npk]=(j-205)*df;
                 snr0[npk]=10*log10(smspec[j])-snr_scaling_factor;
                 npk++;
@@ -966,7 +984,6 @@ int main(int argc, char *argv[])
          NB: best possibility for OpenMP may be here: several worker threads
          could each work on one candidate at a time.
          */
-        
         for (j=0; j<npk; j++) {
             memset(symbols,0,sizeof(char)*nbits*2);
             memset(callsign,0,sizeof(char)*13);
@@ -976,26 +993,40 @@ int main(int argc, char *argv[])
             drift1=drift0[j];
             shift1=shift0[j];
             sync1=sync0[j];
+
             
-            // Fine search for best sync lag (mode 0)
-            fstep=0.0;
-            lagmin=shift1-144;
-            lagmax=shift1+144;
-            lagstep=8;
-            if(quickmode) lagstep=16;
+            // do coarse searches over lag and freq, then check sync to see
+            // if we should continue.
+            fstep=0.0; ifmin=0; ifmax=0;
+            lagmin=shift1-128;
+            lagmax=shift1+128;
+            lagstep=64;
             t0 = clock();
-            sync_and_demodulate(idat, qdat, npoints, symbols, &f1, fstep, &shift1,
+            sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep, &shift1,
                                 lagmin, lagmax, lagstep, &drift1, symfac, &sync1, 0);
             tsync0 += (double)(clock()-t0)/CLOCKS_PER_SEC;
-            
-            // Fine search for frequency peak (mode 1)
-            fstep=0.1;
+
+            fstep=0.25; ifmin=-2; ifmax=2;
             t0 = clock();
-            sync_and_demodulate(idat, qdat, npoints, symbols, &f1, fstep, &shift1,
+            sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep, &shift1,
                                 lagmin, lagmax, lagstep, &drift1, symfac, &sync1, 1);
             tsync1 += (double)(clock()-t0)/CLOCKS_PER_SEC;
-            
+
             if( sync1 > minsync1 ) {
+                // fine search over lag
+                lagmin=shift1-32; lagmax=shift1+32; lagstep=8;
+                t0 = clock();
+                sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep, &shift1,
+                                    lagmin, lagmax, lagstep, &drift1, symfac, &sync1, 0);
+                tsync0 += (double)(clock()-t0)/CLOCKS_PER_SEC;
+            
+                // fine search over frequency
+                fstep=0.05; ifmin=-3; ifmax=3;
+                t0 = clock();
+                sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep, &shift1,
+                                lagmin, lagmax, lagstep, &drift1, symfac, &sync1, 1);
+                tsync1 += (double)(clock()-t0)/CLOCKS_PER_SEC;
+
                 worth_a_try = 1;
             } else {
                 worth_a_try = 0;
@@ -1013,7 +1044,7 @@ int main(int argc, char *argv[])
                 
                 // Use mode 2 to get soft-decision symbols
                 t0 = clock();
-                sync_and_demodulate(idat, qdat, npoints, symbols, &f1, fstep,
+                sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep,
                                     &jiggered_shift, lagmin, lagmax, lagstep, &drift1, symfac,
                                     &sync1, 2);
                 tsync2 += (double)(clock()-t0)/CLOCKS_PER_SEC;
@@ -1060,7 +1091,7 @@ int main(int argc, char *argv[])
                 // sanity checks on grid and power, and return
                 // call_loc_pow string and also callsign (for de-duping).
                 noprint=unpk_(message,hashtab,call_loc_pow,callsign);
-                
+//                printf("%d %s\n",ipass, call_loc_pow);
                 if( subtraction && (ipass == 0) && !noprint ) {
                     
                     unsigned char channel_symbols[162];
