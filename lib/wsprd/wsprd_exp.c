@@ -573,7 +573,7 @@ int main(int argc, char *argv[])
     char wisdom_fname[200],all_fname[200],spots_fname[200];
     char timer_fname[200],hash_fname[200];
     char uttime[5],date[7];
-    int c,delta,maxpts=65536,verbose=0,quickmode=0;
+    int c,delta,maxpts=65536,verbose=0,quickmode=0,decode_all_bins=0;
     int writenoise=0,usehashtable=1,wspr_type=2, ipass;
     int writec2=0, npasses=2, subtraction=1;
     int shift1, lagmin, lagmax, lagstep, ifmin, ifmax, worth_a_try, not_decoded;
@@ -632,13 +632,16 @@ int main(int argc, char *argv[])
     idat=malloc(sizeof(double)*maxpts);
     qdat=malloc(sizeof(double)*maxpts);
     
-    while ( (c = getopt(argc, argv, "a:ce:f:Hmqstwvz:")) !=-1 ) {
+    while ( (c = getopt(argc, argv, "a:cde:f:Hmqstwvz:")) !=-1 ) {
         switch (c) {
             case 'a':
                 data_dir = optarg;
                 break;
             case 'c':
                 writec2=1;
+                break;
+            case 'd':
+                decode_all_bins=1;
                 break;
             case 'e':
                 dialfreq_error = strtof(optarg,NULL);   // units of Hz
@@ -858,18 +861,29 @@ int main(int argc, char *argv[])
         }
         
         int npk=0;
-        for(j=1; j<410; j++) {
-            if(
-               (smspec[j]>smspec[j-1]) &&
-               (smspec[j]>smspec[j+1]) &&
-               (npk<200)
-               ) {
-                freq0[npk]=(j-205)*df;
-                snr0[npk]=10*log10(smspec[j])-snr_scaling_factor;
-                npk++;
+        unsigned char candidate;
+        if( decode_all_bins ) {
+            for(j=1; j<410; j=j+2) {
+                candidate = smspec[j]>min_snr && (npk<200);
+                if ( candidate ) {
+                    freq0[npk]=(j-205)*df;
+                    snr0[npk]=10*log10(smspec[j])-snr_scaling_factor;
+                    npk++;
+                }
+            }
+        } else {
+            for(j=1; j<410; j++) {
+                candidate = (smspec[j]>smspec[j-1]) &&
+                            (smspec[j]>smspec[j+1]) &&
+                            (npk<200);
+                if ( candidate ) {
+                    freq0[npk]=(j-205)*df;
+                    snr0[npk]=10*log10(smspec[j])-snr_scaling_factor;
+                    npk++;
+                }
             }
         }
-        
+
         // Compute corrected fmin, fmax, accounting for dial frequency error
         fmin += dialfreq_error;    // dialfreq_error is in units of Hz
         fmax += dialfreq_error;
