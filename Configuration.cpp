@@ -1416,7 +1416,10 @@ void Configuration::impl::set_rig_invariants ()
             }
         }
       ui_->CAT_serial_port_parameters_group_box->setEnabled (is_serial_CAT);
-      ui_->CAT_control_lines_group_box->setEnabled (is_serial_CAT && !is_hw_handshake);
+      ui_->CAT_control_lines_group_box->setEnabled (is_serial_CAT);
+      ui_->CAT_RTS_check_box->setEnabled (is_serial_CAT
+                                          && ui_->CAT_control_lines_group_box->isChecked ()
+                                          && !is_hw_handshake);
     }
 
   auto const& cat_port = ui_->CAT_port_combo_box->currentText ();
