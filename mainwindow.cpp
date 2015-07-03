@@ -823,6 +823,7 @@ void MainWindow::dataSink(qint64 frames)
       imin=imin - (imin%(m_TRperiod/60));
       QString t2;
       t2.sprintf("%2.2d%2.2d",ihr,imin);
+      m_fileToSave.clear ();
       m_fname=m_config.save_directory ().absoluteFilePath (t.date().toString("yyMMdd") +
                                                            "_" + t2 + ".wav");
       *future2 = QtConcurrent::run(savewav, m_fname, m_TRperiod);
@@ -1236,7 +1237,7 @@ void MainWindow::closeEvent(QCloseEvent * e)
   m_shortcuts.reset ();
   m_mouseCmnds.reset ();
 
-  if(m_fname != "") killFile();
+  killFile ();
   m_killAll=true;
   mem_jt9->detach();
   QFile quitFile {m_config.temp_dir ().absoluteFilePath (".quit")};
@@ -1393,20 +1394,13 @@ void MainWindow::diskWriteFinished()                       //diskWriteFinished
 //Delete ../save/*.wav
 void MainWindow::on_actionDelete_all_wav_files_in_SaveDir_triggered()
 {
-  int i;
-  QString fname;
-  int ret = QMessageBox::warning(this, "Confirm Delete",
-                                 "Are you sure you want to delete all *.wav files in\n" +
-                                 QDir::toNativeSeparators(m_config.save_directory ().absolutePath ()) + " ?",
-                                 QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-  if(ret==QMessageBox::Yes) {
-    QDir dir(m_config.save_directory ());
-    QStringList files=dir.entryList(QDir::Files);
-    QList<QString>::iterator f;
-    for(f=files.begin(); f!=files.end(); ++f) {
-      fname=*f;
-      i=(fname.indexOf(".wav"));
-      if(i>10) dir.remove(fname);
+  if (QMessageBox::Yes == QMessageBox::warning(this, "Confirm Delete",
+                                              "Are you sure you want to delete all *.wav and *.c2 files in\n" +
+                                              QDir::toNativeSeparators(m_config.save_directory ().absolutePath ()) + " ?",
+                                               QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)) {
+    Q_FOREACH (auto const& file
+               , m_config.save_directory ().entryList ({"*.wav", "*.c2"}, QDir::Files | QDir::Writable)) {
+      m_config.save_directory ().remove (file);
     }
   }
 }
@@ -1583,8 +1577,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
     if(m_mode=="JT4") t=t.mid(0,39) + t.mid(42,t.length()-42);
     if(t.indexOf("<DecodeFinished>") >= 0) {
       m_bdecoded = (t.mid(23,1).toInt()==1);
-      bool keepFile=m_saveAll or (m_saveDecoded and m_bdecoded);
-      if(!keepFile and !m_diskData) killFileTimer->start(45*1000); //Kill in 45 s
+      if(!m_diskData) killFileTimer->start (45*1000); //Kill in 45 s
       jt9com_.nagain=0;
       jt9com_.ndiskdat=0;
       m_nclearave=0;
@@ -1699,12 +1692,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
   }
 }
 
-void MainWindow::killFile()
+void MainWindow::killFile ()
 {
-  if(m_fname==m_fileToSave) {
-  } else {
-    QFile savedFile(m_fname);
-    savedFile.remove();
+  if (!m_fname.isEmpty ()
+      && !(m_saveAll || (m_saveDecoded && m_bdecoded) || m_fname == m_fileToSave)) {
+    QFile {m_fname}.remove();
   }
 }
 
