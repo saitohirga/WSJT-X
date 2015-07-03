@@ -824,14 +824,12 @@ void MainWindow::dataSink(qint64 frames)
       QString t2;
       t2.sprintf("%2.2d%2.2d",ihr,imin);
       m_fileToSave.clear ();
-      m_fname=m_config.save_directory ().absoluteFilePath (t.date().toString("yyMMdd") +
-                                                           "_" + t2 + ".wav");
-      *future2 = QtConcurrent::run(savewav, m_fname, m_TRperiod);
+      m_fname = m_config.save_directory ().absoluteFilePath (t.date().toString("yyMMdd") + "_" + t2);
+      *future2 = QtConcurrent::run(savewav, m_fname + ".wav", m_TRperiod);
       watcher2->setFuture(*future2);
 
-      if( m_mode.mid(0,4)=="WSPR" && (m_saveAll || (m_saveDecoded && m_bdecoded)) ) {
-        m_c2name=m_config.save_directory ().absoluteFilePath (t.date().toString("yyMMdd") +
-                                                              "_" + t2 + ".c2");
+      if (m_mode.mid (0,4) == "WSPR") {
+        m_c2name = m_fname + ".c2";
         int len1=m_c2name.length();
         char c2name[80];
         strcpy(c2name,m_c2name.toLatin1());
@@ -856,7 +854,7 @@ void MainWindow::dataSink(qint64 frames)
       } else {
         cmnd='"' + m_appDir + '"' + "/wsprd -a \"" +
             QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" " +
-            t2 + '"' + m_fname + '"';
+            t2 + '"' + m_fname + ".wav\"";
       }
       QString t3=cmnd;
       int i1=cmnd.indexOf("/wsprd ");
@@ -1696,7 +1694,8 @@ void MainWindow::killFile ()
 {
   if (!m_fname.isEmpty ()
       && !(m_saveAll || (m_saveDecoded && m_bdecoded) || m_fname == m_fileToSave)) {
-    QFile {m_fname}.remove();
+    QFile {m_fname + ".wav"}.remove();
+    QFile {m_fname + ".c2"}.remove();
   }
 }
 
@@ -4004,6 +4003,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
   while(p1.canReadLine()) {
     QString t(p1.readLine());
     if(t.indexOf("<DecodeFinished>") >= 0) {
+      m_bdecoded = m_nWSPRdecodes > 0;
       if(!m_diskData) {
         WSPR_history(m_dialFreqRxWSPR, m_nWSPRdecodes);
         if(m_nWSPRdecodes==0) {
@@ -4012,6 +4012,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
           t=WSPR_hhmm(-60) + ' ' + t.rightJustified (66, '-');
           ui->decodedTextBrowser->appendText(t);
         }
+        killFileTimer->start (45*1000); //Kill in 45s
       }
       m_nWSPRdecodes=0;
       ui->DecodeButton->setChecked (false);
@@ -4023,18 +4024,6 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
         QFile f(QDir::toNativeSeparators(m_dataDir.absolutePath()) + "/wspr_spots.txt");
         if(f.exists()) f.remove();
       }
-      if(!m_saveAll and !m_diskData) {
-        QFile savedWav(m_fname);
-        savedWav.remove();
-      }
-/*
-      if(m_saveAll and !m_diskData) {
-        int i1=m_fname.indexOf(".wav");
-        QString sc2=m_fname.mid(0,i1) + ".c2";
-        QFile savedC2(sc2);
-        savedC2.remove();
-      }
-*/
       m_RxLog=0;
       m_startAnother=m_loopall;
       m_blankLine=true;
