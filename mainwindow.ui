@@ -2407,7 +2407,7 @@ QPushButton[state=&quot;ok&quot;] {
   </action>
   <action name="actionDelete_all_wav_files_in_SaveDir">
    <property name="text">
-    <string>Delete all *.wav files in SaveDir</string>
+    <string>Delete all *.wav &amp;&amp; *.c2 files in SaveDir</string>
    </property>
   </action>
   <action name="actionQuickDecode">
