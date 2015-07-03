@@ -261,7 +261,10 @@ HamlibTransceiver::HamlibTransceiver (int model_number, TransceiverFactory::Para
       if (params.force_line_control)
         {
           set_conf ("dtr_state", params.dtr_high ? "ON" : "OFF");
-          set_conf ("rts_state", params.rts_high ? "ON" : "OFF");
+          if (TransceiverFactory::handshake_hardware != params.handshake)
+            {
+              set_conf ("rts_state", params.rts_high ? "ON" : "OFF");
+            }
         }
     }
 
