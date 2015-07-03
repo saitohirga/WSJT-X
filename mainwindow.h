@@ -228,7 +228,6 @@ private slots:
   void p3Error(QProcess::ProcessError e);
   void on_WSPRfreqSpinBox_valueChanged(int n);
   void on_pbTxNext_clicked(bool b);
-  void on_tabWidget_currentChanged (int);
 
   void on_actionEcho_Graph_triggered();
 
@@ -381,7 +380,6 @@ private:
   bool    m_bTxTime;
   bool    m_rxDone;
   bool    m_bSimplex; // not using split even if it is available
-  int     m_nonWSPRTab;
   bool    m_bEchoTxOK;
   bool    m_bTransmittedEcho;
   bool    m_bEchoTxed;
