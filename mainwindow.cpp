@@ -94,7 +94,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_uploading {false},
   m_tuneup {false},
   m_bSimplex {false},
-  m_nonWSPRTab {-1},
   m_appDir {QApplication::applicationDirPath ()},
   mem_jt9 {shdmem},
   m_msAudioOutputBuffered (0u),
@@ -3129,7 +3128,6 @@ void MainWindow::on_actionEcho_triggered()
   WSPR_config(true);                       //Make some irrelevant controls invisible
   ui->decodedTextLabel->setText("   UTC      N   Level    Sig      DF    Width   Q");
   auto_tx_label->setText("");
-  ui->tabWidget->setCurrentIndex(0);
 }
 
 void MainWindow::switch_mode (Mode mode)
@@ -3160,16 +3158,14 @@ void MainWindow::WSPR_config(bool b)
     ui->decodedTextLabel->setText(
           "UTC    dB   DT     Freq     Drift  Call          Grid    dBm   Dist");
     auto_tx_label->setText("");
-    ui->tabWidget->setCurrentIndex (2);
     Q_EMIT m_config.transceiver_tx_frequency (0); // turn off split
     m_bSimplex = true;
   } else {
     ui->decodedTextLabel->setText("UTC   dB   DT Freq   Message");
     auto_tx_label->setText (m_config.quick_call () ? "Tx-Enable Armed" : "Tx-Enable Disarmed");
-    ui->tabWidget->setCurrentIndex (m_nonWSPRTab >= 0 ? m_nonWSPRTab : 1);
     m_bSimplex = false;
   }
-  updateGeometry ();
+  enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
 }
 
 void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
@@ -3329,6 +3325,7 @@ void MainWindow::enable_DXCC_entity (bool on)
     ui->gridLayout->setColumnStretch(0,0);
     ui->gridLayout->setColumnStretch(1,0);
   }
+  updateGeometry ();
 }
 
 void MainWindow::on_pbCallCQ_clicked()
@@ -4265,13 +4262,6 @@ void MainWindow::WSPR_scheduling ()
     m_nrx = 0;
   } else {
     m_nrx = 1;
-  }
-}
-
-void MainWindow::on_tabWidget_currentChanged (int new_value)
-{
-  if (2 != new_value) {         // WSPR
-    m_nonWSPRTab = new_value;
   }
 }
 
