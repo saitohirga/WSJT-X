@@ -548,6 +548,7 @@ void usage(void)
     printf("Options:\n");
     printf("       -a <path> path to writeable data files, default=\".\"\n");
     printf("       -c write .c2 file at the end of the first pass\n");
+    printf("       -d deeper search. Much slower, a few more decodes\n");
     printf("       -e x (x is transceiver dial frequency error in Hz)\n");
     printf("       -f x (x is transceiver dial frequency in MHz)\n");
     printf("       -H do not use (or update) the hash table\n");
@@ -573,7 +574,7 @@ int main(int argc, char *argv[])
     char wisdom_fname[200],all_fname[200],spots_fname[200];
     char timer_fname[200],hash_fname[200];
     char uttime[5],date[7];
-    int c,delta,maxpts=65536,verbose=0,quickmode=0,decode_all_bins=0;
+    int c,delta,maxpts=65536,verbose=0,quickmode=0,more_candidates=0;
     int writenoise=0,usehashtable=1,wspr_type=2, ipass;
     int writec2=0, npasses=2, subtraction=1;
     int shift1, lagmin, lagmax, lagstep, ifmin, ifmax, worth_a_try, not_decoded;
@@ -641,7 +642,8 @@ int main(int argc, char *argv[])
                 writec2=1;
                 break;
             case 'd':
-                decode_all_bins=1;
+                more_candidates=1;
+                iifac=4;
                 break;
             case 'e':
                 dialfreq_error = strtof(optarg,NULL);   // units of Hz
@@ -786,7 +788,7 @@ int main(int argc, char *argv[])
     //*************** main loop starts here *****************
     for (ipass=0; ipass<npasses; ipass++) {
         
-        if( ipass == 1 && uniques == 0 ) break;
+        if( ipass > 0 && uniques == 0 ) break;
         
         memset(ps,0.0, sizeof(float)*512*nffts);
         for (i=0; i<nffts; i++) {
@@ -862,9 +864,9 @@ int main(int argc, char *argv[])
         
         int npk=0;
         unsigned char candidate;
-        if( decode_all_bins ) {
-            for(j=1; j<410; j=j+2) {
-                candidate = smspec[j]>min_snr && (npk<200);
+        if( more_candidates ) {
+            for(j=0; j<411; j=j+2) {
+                candidate = (smspec[j]>min_snr) && (npk<200);
                 if ( candidate ) {
                     freq0[npk]=(j-205)*df;
                     snr0[npk]=10*log10(smspec[j])-snr_scaling_factor;
@@ -942,7 +944,7 @@ int main(int argc, char *argv[])
         for(j=0; j<npk; j++) {                              //For each candidate...
             smax=-1e30;
             if0=freq0[j]/df+256;
-            for (ifr=if0-1; ifr<=if0+1; ifr++) {                      //Freq search
+            for (ifr=if0-2; ifr<=if0+2; ifr++) {                      //Freq search
                 for( k0=-10; k0<22; k0++) {                             //Time search
                     for (idrift=-maxdrift; idrift<=maxdrift; idrift++) {  //Drift search
                         ss=0.0;
@@ -1020,6 +1022,26 @@ int main(int argc, char *argv[])
             t0 = clock();
             sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep, &shift1,
                                 lagmin, lagmax, lagstep, &drift1, symfac, &sync1, 1);
+
+            // refine drift estimate
+            fstep=0.0; ifmin=0; ifmax=0;
+            float driftp,driftm,syncp,syncm;
+            driftp=drift1+0.5;
+            sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep, &shift1,
+                                lagmin, lagmax, lagstep, &driftp, symfac, &syncp, 1);
+            
+            driftm=drift1-0.5;
+            sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep, &shift1,
+                                lagmin, lagmax, lagstep, &driftm, symfac, &syncm, 1);
+            
+            if(syncp>sync1) {
+                drift1=driftp;
+                sync1=syncp;
+            } else if (syncm>sync1) {
+                drift1=driftm;
+                sync1=syncm;
+            }
+
             tsync1 += (double)(clock()-t0)/CLOCKS_PER_SEC;
 
             // fine-grid lag and freq search
@@ -1102,8 +1124,8 @@ int main(int argc, char *argv[])
                 // sanity checks on grid and power, and return
                 // call_loc_pow string and also callsign (for de-duping).
                 noprint=unpk_(message,hashtab,call_loc_pow,callsign);
-//                printf("%d %s\n",ipass, call_loc_pow);
-                if( subtraction && (ipass == 0) && !noprint ) {
+
+                if( subtraction && (ipass < (npasses-1) ) && !noprint ) {
                     
                     unsigned char channel_symbols[162];
                     
