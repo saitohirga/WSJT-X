@@ -38,7 +38,7 @@ subroutine decode4(dat,npts,dtx,nfreq,flip,mode4,ndepth,neme,minw,           &
   enddo
 
   do ich=ich1,ich2
-     nchips=nch(ich)
+     nchips=min(nch(ich),70)
      nspchip=1260/nchips
      k=istart
      phi=0.d0
