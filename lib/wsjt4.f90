@@ -55,7 +55,7 @@ subroutine wsjt4(dat,npts,nutc,NClearAve,minsync,ntol,emedelay,dttol,    &
   call timer('sync4   ',1)
 
   call timer('zplt    ',0)
-  do ich=4,6
+  do ich=4,7
      z(1:458,1:65)=zz(274:731,1:65,ich)
      call zplt(z,ich-4,syncz,dtxz,nfreqz,flipz,sync2z,0,emedelay,dttol,   &
           nfqso,ntol)
@@ -176,5 +176,5 @@ subroutine wsjt4(dat,npts,nutc,NClearAve,minsync,ntol,emedelay,dttol,    &
           deepave,cqual,char(ichar('A')+ich-1),ndeepave
   endif
 
-990  return
+990 return
 end subroutine wsjt4
