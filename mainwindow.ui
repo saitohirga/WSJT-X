@@ -1693,9 +1693,6 @@ list. The list can be maintained in Settings (F2).</string>
                     <property name="maximum">
                      <number>100</number>
                     </property>
-                    <property name="value">
-                     <number>20</number>
-                    </property>
                    </widget>
                   </item>
                   <item row="0" column="2">

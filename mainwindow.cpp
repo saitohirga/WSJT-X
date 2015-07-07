@@ -78,6 +78,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   ui(new Ui::MainWindow),
   m_config {settings, this},
   m_WSPR_band_hopping {settings, &m_config, this},
+  m_WSPR_tx_next {false},
   m_wideGraph (new WideGraph(settings)),
   m_echoGraph (new EchoGraph(settings)),
   m_logDlg (new LogQSO (program_title (), settings, this)),
@@ -361,7 +362,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_widebandDecode=false;
   m_ntx=1;
 
-  m_nrx=1;
   m_tx=0;
   m_txNext=false;
   m_grid6=false;
@@ -543,10 +543,9 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   ui->txrb1->setChecked(true);
 
   if(m_mode.mid(0,4)=="WSPR" and m_pctx>0)  {
-    QPalette* palette = new QPalette();
-    palette->setColor(QPalette::Base,Qt::yellow);
-    ui->sbTxPercent->setPalette(*palette);
-    delete palette;
+    QPalette palette {ui->sbTxPercent->palette ()};
+    palette.setColor(QPalette::Base,Qt::yellow);
+    ui->sbTxPercent->setPalette(palette);
   }
   if(m_mode=="WSPR-2") {
     m_hsymStop=396;
@@ -680,8 +679,6 @@ void MainWindow::readSettings()
   m_inGain=m_settings->value("InGain",0).toInt();
   ui->inGain->setValue(m_inGain);
   m_pctx=m_settings->value("PctTx",20).toInt();
-  m_rxavg=1.0;
-  if(m_pctx>0) m_rxavg=100.0/m_pctx - 1.0;  //Average # of Rx's per Tx
   ui->sbTxPercent->setValue(m_pctx);
   m_dBm=m_settings->value("dBm",37).toInt();
   ui->TxPowerComboBox->setCurrentIndex(int(0.3*(m_dBm + 30.0)+0.2));
@@ -982,14 +979,13 @@ void MainWindow::on_autoButton_clicked (bool checked)
     echocom_.nsum=0;
   }
   if(m_mode.mid(0,4)=="WSPR")  {
-    QPalette* palette = new QPalette();
+    QPalette palette {ui->sbTxPercent->palette ()};
     if(m_auto or m_pctx==0) {
-      palette->setColor(QPalette::Base,Qt::white);
+      palette.setColor(QPalette::Base,Qt::white);
     } else {
-      palette->setColor(QPalette::Base,Qt::yellow);
+      palette.setColor(QPalette::Base,Qt::yellow);
     }
-    ui->sbTxPercent->setPalette(*palette);
-    delete palette;
+    ui->sbTxPercent->setPalette(palette);
   }
 }
 
@@ -1792,8 +1788,9 @@ void MainWindow::guiUpdate()
   if(m_mode.mid(0,4)=="WSPR") {
     if(m_nseq==0 and m_ntr==0) {                   //Decide whether to Tx or Rx
       m_tuneup=false;                              //This is not an ATU tuneup
-      if(m_pctx==0) m_nrx=1;                       //Don't transmit if m_pctx=0
-      bool btx = m_auto and (m_nrx<=0);            //To Tx, we need m_auto and Rx sequsnce finished
+      if(m_pctx==0) m_WSPR_tx_next = false; //Don't transmit if m_pctx=0
+      bool btx = m_auto && m_WSPR_tx_next; // To Tx, we need m_auto and
+                                // scheduled transmit
       if(m_auto and m_txNext) btx=true;            //TxNext button overrides
       if(m_auto and m_pctx==100) btx=true;         //Always transmit
 
@@ -1853,7 +1850,6 @@ void MainWindow::guiUpdate()
   if(m_mode.mid(0,4)=="WSPR" and
      ((m_ntr==1 and m_rxDone) or (m_ntr==-1 and m_nseq>tx2))) {
     if(m_monitoring) {
-      m_nrx=m_nrx-1;               //Decrement the Rx-sequence count
       m_rxDone=false;
     }
     if(m_transmitting) {
@@ -1861,7 +1857,7 @@ void MainWindow::guiUpdate()
       m_bTxTime=false;                        //Time to stop a WSPR transmission
       m_btxok=false;
     }
-    if(m_ntr==1) {
+    if(m_ntr) {
       WSPR_scheduling ();
       m_ntr=0;                                //This WSPR Rx sequence is complete
     }
@@ -2105,7 +2101,6 @@ void MainWindow::guiUpdate()
     } else if(m_monitoring) {
       tx_status_label->setStyleSheet("QLabel{background-color: #00ff00}");
       QString t="Receiving ";
-      if(m_auto and (m_mode.mid(0,4)=="WSPR")) t += QString::number(m_nrx);
       tx_status_label->setText(t);
       transmitDisplay(false);
     } else if (!m_diskData) {
@@ -4183,9 +4178,7 @@ void MainWindow::on_TxPowerComboBox_currentIndexChanged(const QString &arg1)
 void MainWindow::on_sbTxPercent_valueChanged(int n)
 {
   m_pctx=n;
-  m_rxavg=1.0;
   if(m_pctx>0) {
-    m_rxavg=100.0/m_pctx - 1.0;  //Average # of Rx's per Tx
     ui->pbTxNext->setEnabled(true);
   } else {
     m_txNext=false;
@@ -4214,18 +4207,14 @@ void MainWindow::on_pbTxNext_clicked(bool b)
 
 void MainWindow::WSPR_scheduling ()
 {
-  bool transmit {false};
+  m_WSPR_tx_next = false;
   if (ui->band_hopping_group_box->isChecked ()) {
     auto hop_data = m_WSPR_band_hopping.next_hop ();
     // qDebug () << "hop data: period:" << hop_data.period_name_
     // << "frequencies index:" << hop_data.frequencies_index_
     // << "tune:" << hop_data.tune_required_
     // << "tx:" << hop_data.tx_next_;
-
-    transmit = hop_data.tx_next_;
-
-    //    QThread::msleep(500);       //### Is this OK to do ??? ###
-
+    m_WSPR_tx_next = hop_data.tx_next_;
     if (hop_data.frequencies_index_ >= 0) { // new band
       ui->bandComboBox->setCurrentIndex (hop_data.frequencies_index_);
       on_bandComboBox_activated (hop_data.frequencies_index_);
@@ -4255,13 +4244,7 @@ void MainWindow::WSPR_scheduling ()
     auto_tx_label->setText (hop_data.period_name_);
   }
   else {
-    transmit = m_WSPR_band_hopping.next_is_tx ();
-  }
-
-  if (m_auto && transmit) {
-    m_nrx = 0;
-  } else {
-    m_nrx = 1;
+    m_WSPR_tx_next = m_WSPR_band_hopping.next_is_tx ();
   }
 }
 
