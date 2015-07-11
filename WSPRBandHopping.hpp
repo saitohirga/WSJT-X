@@ -71,7 +71,7 @@ public:
     bool tx_next_;
   };
   // return the next band parameters
-  Hop next_hop ();
+  Hop next_hop (bool tx_enabled);
   // determine if the next period should be a transmit period
   bool next_is_tx ();
 
