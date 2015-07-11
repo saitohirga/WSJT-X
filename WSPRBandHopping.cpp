@@ -297,7 +297,7 @@ void WSPRBandHopping::set_tx_percent (int new_value)
 }
 
 // determine the parameters of the hop, if any
-auto WSPRBandHopping::next_hop () -> Hop
+auto WSPRBandHopping::next_hop (bool tx_enabled) -> Hop
 {
   auto const& now = QDateTime::currentDateTimeUtc ();
   auto const& date = now.date ();
@@ -322,7 +322,7 @@ auto WSPRBandHopping::next_hop () -> Hop
 
   band_index = next_hopping_band();
 
-  tx_next = next_is_tx ();
+  tx_next = next_is_tx () && tx_enabled;
 
   int frequencies_index {-1};
   auto const& frequencies = m_->configuration_->frequencies ();
@@ -422,14 +422,15 @@ auto WSPRBandHopping::next_hop () -> Hop
   return {
     periods[period_index]
 
-    , frequencies_index
+      , frequencies_index
 
-    , frequencies_index >= 0                 // new band
+      , frequencies_index >= 0               // new band
+      && tx_enabled                          // transmit is allowed
       && !tx_next                            // not going to Tx anyway
       && m_->bands_[4].testBit (band_index)  // tune up required
       && !m_->bands_[5].testBit (band_index) // not an Rx only band
 
-    , frequencies_index >= 0                 // new band
+      , frequencies_index >= 0               // new band
       && tx_next                             // Tx scheduled
       && !m_->bands_[5].testBit (band_index) // not an Rx only band
    };

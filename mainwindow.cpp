@@ -4209,11 +4209,11 @@ void MainWindow::WSPR_scheduling ()
 {
   m_WSPR_tx_next = false;
   if (ui->band_hopping_group_box->isChecked ()) {
-    auto hop_data = m_WSPR_band_hopping.next_hop ();
     // qDebug () << "hop data: period:" << hop_data.period_name_
     // << "frequencies index:" << hop_data.frequencies_index_
     // << "tune:" << hop_data.tune_required_
     // << "tx:" << hop_data.tx_next_;
+    auto hop_data = m_WSPR_band_hopping.next_hop (m_auto);
     m_WSPR_tx_next = hop_data.tx_next_;
     if (hop_data.frequencies_index_ >= 0) { // new band
       ui->bandComboBox->setCurrentIndex (hop_data.frequencies_index_);
