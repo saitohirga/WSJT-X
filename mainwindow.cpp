@@ -1857,7 +1857,7 @@ void MainWindow::guiUpdate()
       m_bTxTime=false;                        //Time to stop a WSPR transmission
       m_btxok=false;
     }
-    if(m_ntr) {
+    else if (m_ntr != -1) {
       WSPR_scheduling ();
       m_ntr=0;                                //This WSPR Rx sequence is complete
     }
