@@ -68,6 +68,11 @@ int tx_add_one(char* tx)
             }
         }
     }
+    // last resort - see if we can set the last slot to 1
+    if( tx[58]==0 && tx[59]==0 ) {
+      tx[59]=1;
+      return 1;
+    }
     return 0;
 }
 
