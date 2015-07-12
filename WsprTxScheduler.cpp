@@ -50,11 +50,22 @@ int tx_sum()
 
 int tx_add_one(char* tx)
 {
-    int i;
-    for (i=1; i<59; i++) {
-        if( tx[i-1]==0 && tx[i]==0 && tx[i+1]==0 ) {
-            tx[i]=1;
-            return 1;
+    int i, j, txflag, ngap;
+    // adds one tx slot to an existing array without
+    // creating successive tx slots. 
+    // try to fill largest gaps first  
+    // try gap sizes of 13, 11, 9, 7, 5, and finally 3
+    for (ngap=13; ngap>=3; ngap=ngap-2) {
+        for (i=0; i< 60-ngap; i++) {
+            txflag=0;
+            for (j=0; j<ngap; j++) {
+              if( tx[i+j]==1 ) 
+                  txflag=1;
+            }
+            if( txflag == 0 ) { // found a gap of size ngap
+                tx[i+ngap/2]=1;
+                return 1;
+            }
         }
     }
     return 0;
@@ -62,8 +73,16 @@ int tx_add_one(char* tx)
 
 int tx_trim(char* tx, int ntxlim)
 {
-    // trim array to that ntxlim is not exceeded
+    /* ntxlim is max number of successive transmissions 
+    * trim array so that ntxlim is not exceeded
+    * also make sure that first slot is never a tx slot
+    * this enures that we won't get a double tx because of the 
+    * last slot of one table and the first slot of the next table
+    * both being tx slots. 
+    */
     int i,nrun,sum;
+
+    if( tx[0] == 1 ) tx[0] = 0;
     nrun=0;
     for (i=0; i<60; i++) {
         if( tx[i]==1 ) {
@@ -100,20 +119,24 @@ int create_tx_schedule(int pctx)
 {
     char bsum[10];
     int i, j, k, sum, ntxlim, ntxbandmin, needed;
-    int iflag;
+    int iflag, nrx;
+    float rxavg,x;
     
     needed=60*(pctx/100.0)+0.5;
     
-    srand(time(NULL));
     memset(tx,0,sizeof(char)*60);
     
-    if( pctx < 17 ) {
-        needed=pctx*60/100;
-        for (i=0; i<needed; i++) {
-            tx[rand()%6][rand()%10]=1;
+    if( pctx <= 25 ) { // Use K1JT's algorithm in this regime
+        rxavg=100.0/pctx-1.0;
+        i=0; 
+        while(i<60) {
+            x=(rand()%100)/100.0;
+            nrx=(rxavg+3.0*x-1.0); //2-5 for 25%
+            i=i+nrx+1; 
+            tx[i/10][i%10]=1;
         }
         return 1;
-    } else if( pctx >= 17 && pctx < 33 ) {
+    } else if( pctx > 25 && pctx < 33 ) {
         ntxlim=1;
         ntxbandmin=1;
     } else if( pctx >= 33 && pctx < 50 ) {
@@ -126,7 +149,10 @@ int create_tx_schedule(int pctx)
         ntxlim=3;
         ntxbandmin=4;
     }
-    
+   
+    // when txpct>25% create a table that guarantees that all
+    // bands will be visited 1, 2, or 3 times, as appropriate. 
+    //
     // start by filling each band slot with ntxbandmin tx's
     for (i=0; i<ntxbandmin; i++) {
         for (j=0; j<10; j++) {
@@ -155,7 +181,7 @@ int create_tx_schedule(int pctx)
     }
     
     for(j=0; j < (needed-sum); j++ ) {
-        tx_add_one(*tx);
+        tx_add_one(*tx); 
     }
     return 0;
 }
