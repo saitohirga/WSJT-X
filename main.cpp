@@ -5,6 +5,7 @@
 
 #include <locale.h>
 
+#include <QDateTime>
 #include <QApplication>
 #include <QRegularExpression>
 #include <QObject>
@@ -28,6 +29,18 @@
 #include "TraceFile.hpp"
 #include "mainwindow.h"
 
+namespace
+{
+  struct RNGSetup
+  {
+    RNGSetup ()
+    {
+      // one time seed of pseudo RNGs from current time
+      auto seed = QDateTime::currentMSecsSinceEpoch ();
+      qsrand (seed);            // this is good for rand() as well
+    }
+  } seeding;
+}
 
 int main(int argc, char *argv[])
 {

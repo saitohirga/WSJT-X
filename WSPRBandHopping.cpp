@@ -6,7 +6,6 @@
 #include <QList>
 #include <QSet>
 #include <QtWidgets>
-#include <sys/time.h>
 
 #include "SettingsGroup.hpp"
 #include "Configuration.hpp"
@@ -119,12 +118,6 @@ Dialog::Dialog (QSettings * settings, Configuration const * configuration, BandL
   main_layout->addLayout (bottom_layout);
 
   setLayout (main_layout);
-    
-  //init random seed for random number generator used in tx scheduler
-  struct timeval time;
-  gettimeofday(&time,NULL);
-  srand((time.tv_sec*1000)+(time.tv_usec/1000));
-    
 }
 
 Dialog::~Dialog ()

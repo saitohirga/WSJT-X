@@ -38,7 +38,6 @@ PSK_Reporter::PSK_Reporter(MessageClient * message_client, QObject *parent) :
                            "00960004";        // Report time
 
 
-    qsrand(QDateTime::currentDateTime().toTime_t());
     m_randomId_h = QString("%1").arg(qrand(),8,16,QChar('0'));
 
     QHostInfo::lookupHost("report.pskreporter.info", this, SLOT(dnsLookupResult(QHostInfo)));

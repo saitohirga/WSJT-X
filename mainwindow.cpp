@@ -4009,7 +4009,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
       m_nWSPRdecodes=0;
       ui->DecodeButton->setChecked (false);
       if(m_uploadSpots) {
-        float x=rand()/((double)RAND_MAX + 1.0);
+        float x=qrand()/((double)RAND_MAX + 1.0);
         int msdelay=20000*x;
         uploadTimer->start(msdelay);                         //Upload delay
       } else {

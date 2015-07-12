@@ -32,14 +32,13 @@ Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds,
   , m_phi {0.0}
   , m_toneSpacing {0.0}
   , m_fSpread {0.0}
+  , m_itone0 {0}
   , m_frameRate {frameRate}
   , m_period {periodLengthInSeconds}
   , m_state {Idle}
   , m_tuning {false}
   , m_cwLevel {false}
 {
-  qsrand (QDateTime::currentMSecsSinceEpoch()); // Initialize random seed
-  m_itone0=0;
 }
 
 void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
@@ -232,8 +231,8 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 
           int j=m_ic/480;
           if(m_fSpread>0.0 and j!=j0) {
-            float x1=(float)rand()/RAND_MAX;
-            float x2=(float)rand()/RAND_MAX;
+            float x1=(float)qrand()/RAND_MAX;
+            float x2=(float)qrand()/RAND_MAX;
             toneFrequency = toneFrequency0 + 0.5*m_fSpread*(x1+x2-1.0);
             m_dphi = m_twoPi * toneFrequency / m_frameRate;
             j0=j;
