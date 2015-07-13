@@ -18,9 +18,7 @@
 #include <QHostAddress>
 #include <QPointer>
 
-#include "soundin.h"
 #include "AudioDevice.hpp"
-#include "soundout.h"
 #include "commons.h"
 #include "Radio.hpp"
 #include "Modes.hpp"
@@ -29,8 +27,6 @@
 #include "Transceiver.hpp"
 #include "psk_reporter.h"
 #include "logbook/logbook.h"
-#include "Detector.hpp"
-#include "Modulator.hpp"
 #include "decodedtext.h"
 
 #define NUM_JT4_SYMBOLS 206
@@ -63,6 +59,10 @@ class QTime;
 class WSPRBandHopping;
 class HelpTextWindow;
 class WSPRNet;
+class SoundOutput;
+class Modulator;
+class SoundInput;
+class Detector;
 
 class MainWindow : public QMainWindow
 {
@@ -282,11 +282,11 @@ private:
   Frequency  m_dialFreq;
   Frequency  m_dialFreqRxWSPR;
 
-  Detector m_detector;
-  SoundInput m_soundInput;
-  Modulator m_modulator;
-  SoundOutput m_soundOutput;
-  QThread * m_audioThread;
+  Detector * m_detector;
+  SoundInput * m_soundInput;
+  Modulator * m_modulator;
+  SoundOutput * m_soundOutput;
+  QThread m_audioThread;
 
   qint64  m_msErase;
   qint64  m_secBandChanged;

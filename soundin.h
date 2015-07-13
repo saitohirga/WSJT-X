@@ -6,6 +6,7 @@
 #include <QString>
 #include <QDateTime>
 #include <QScopedPointer>
+#include <QPointer>
 #include <QAudioInput>
 
 #include "AudioDevice.hpp"
@@ -45,7 +46,7 @@ private:
   bool audioError () const;
 
   QScopedPointer<QAudioInput> m_stream;
-  AudioDevice * m_sink;
+  QPointer<AudioDevice> m_sink;
 };
 
 #endif

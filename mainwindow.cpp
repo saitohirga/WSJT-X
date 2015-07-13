@@ -4,7 +4,6 @@
 #include <cinttypes>
 #include <limits>
 
-#include <QThread>
 #include <QLineEdit>
 #include <QRegExpValidator>
 #include <QRegExp>
@@ -21,6 +20,9 @@
 #include "revision_utils.hpp"
 #include "qt_helpers.hpp"
 #include "soundout.h"
+#include "soundin.h"
+#include "Modulator.hpp"
+#include "Detector.hpp"
 #include "plotter.h"
 #include "echoplot.h"
 #include "echograph.h"
@@ -83,9 +85,10 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_echoGraph (new EchoGraph(settings)),
   m_logDlg (new LogQSO (program_title (), settings, this)),
   m_dialFreq {std::numeric_limits<Radio::Frequency>::max ()},
-  m_detector (RX_SAMPLE_RATE, NTMAX, 6912 / 2, downSampleFactor),
-  m_modulator (TX_SAMPLE_RATE, NTMAX),
-  m_audioThread {new QThread},
+  m_detector {new Detector {RX_SAMPLE_RATE, NTMAX, 6912 / 2, downSampleFactor}},
+  m_soundInput {new SoundInput},
+  m_modulator {new Modulator {TX_SAMPLE_RATE, NTMAX}},
+  m_soundOutput {new SoundOutput},
   m_XIT {0},
   m_pctx {0},
   m_diskData {false},
@@ -133,39 +136,39 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   // start audio thread and hook up slots & signals for shutdown management
   // these objects need to be in the audio thread so that invoking
   // their slots is done in a thread safe way
-  m_soundOutput.moveToThread (m_audioThread);
-  m_modulator.moveToThread (m_audioThread);
-  m_soundInput.moveToThread (m_audioThread);
-  m_detector.moveToThread (m_audioThread);
+  m_soundOutput->moveToThread (&m_audioThread);
+  m_modulator->moveToThread (&m_audioThread);
+  m_soundInput->moveToThread (&m_audioThread);
+  m_detector->moveToThread (&m_audioThread);
 
-  connect (this, &MainWindow::finished, m_audioThread, &QThread::quit); // quit thread event loop
-  connect (m_audioThread, &QThread::finished, m_audioThread, &QThread::deleteLater); // disposal
+  // hook up sound output stream slots & signals and disposal
+  connect (this, &MainWindow::initializeAudioOutputStream, m_soundOutput, &SoundOutput::setFormat);
+  connect (m_soundOutput, &SoundOutput::error, this, &MainWindow::showSoundOutError);
+  // connect (m_soundOutput, &SoundOutput::status, this, &MainWindow::showStatusMessage);
+  connect (this, &MainWindow::outAttenuationChanged, m_soundOutput, &SoundOutput::setAttenuation);
+  connect (&m_audioThread, &QThread::finished, m_soundOutput, &QObject::deleteLater);
 
-  // hook up sound output stream slots & signals
-  connect (this, &MainWindow::initializeAudioOutputStream, &m_soundOutput, &SoundOutput::setFormat);
-  connect (&m_soundOutput, &SoundOutput::error, this, &MainWindow::showSoundOutError);
-  // connect (&m_soundOutput, &SoundOutput::status, this, &MainWindow::showStatusMessage);
-  connect (this, &MainWindow::outAttenuationChanged, &m_soundOutput, &SoundOutput::setAttenuation);
+  // hook up Modulator slots and disposal
+  connect (this, &MainWindow::transmitFrequency, m_modulator, &Modulator::setFrequency);
+  connect (this, &MainWindow::endTransmitMessage, m_modulator, &Modulator::stop);
+  connect (this, &MainWindow::tune, m_modulator, &Modulator::tune);
+  connect (this, &MainWindow::sendMessage, m_modulator, &Modulator::start);
+  connect (&m_audioThread, &QThread::finished, m_modulator, &QObject::deleteLater);
 
-  // hook up Modulator slots
-  connect (this, &MainWindow::transmitFrequency, &m_modulator, &Modulator::setFrequency);
-  connect (this, &MainWindow::endTransmitMessage, &m_modulator, &Modulator::stop);
-  connect (this, &MainWindow::tune, &m_modulator, &Modulator::tune);
-  connect (this, &MainWindow::sendMessage, &m_modulator, &Modulator::start);
-
-  // hook up the audio input stream
-  connect (this, &MainWindow::startAudioInputStream, &m_soundInput, &SoundInput::start);
-  connect (this, &MainWindow::suspendAudioInputStream, &m_soundInput, &SoundInput::suspend);
-  connect (this, &MainWindow::resumeAudioInputStream, &m_soundInput, &SoundInput::resume);
-  connect (this, &MainWindow::finished, &m_soundInput, &SoundInput::stop);
+  // hook up the audio input stream signals, slots and disposal
+  connect (this, &MainWindow::startAudioInputStream, m_soundInput, &SoundInput::start);
+  connect (this, &MainWindow::suspendAudioInputStream, m_soundInput, &SoundInput::suspend);
+  connect (this, &MainWindow::resumeAudioInputStream, m_soundInput, &SoundInput::resume);
+  connect (this, &MainWindow::finished, m_soundInput, &SoundInput::stop);
+  connect(m_soundInput, &SoundInput::error, this, &MainWindow::showSoundInError);
+  // connect(m_soundInput, &SoundInput::status, this, &MainWindow::showStatusMessage);
+  connect (&m_audioThread, &QThread::finished, m_soundInput, &QObject::deleteLater);
 
   connect (this, &MainWindow::finished, this, &MainWindow::close);
 
-  connect(&m_soundInput, &SoundInput::error, this, &MainWindow::showSoundInError);
-  // connect(&m_soundInput, &SoundInput::status, this, &MainWindow::showStatusMessage);
-
-  // hook up the detector
-  connect(&m_detector, &Detector::framesWritten, this, &MainWindow::dataSink);
+  // hook up the detector signals, slots and disposal
+  connect(m_detector, &Detector::framesWritten, this, &MainWindow::dataSink);
+  connect (&m_audioThread, &QThread::finished, m_detector, &QObject::deleteLater);
 
   // setup the waterfall
   connect(m_wideGraph.data (), SIGNAL(freezeDecode2(int)),this,
@@ -428,7 +431,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 
   readSettings();		         //Restore user's setup params
   // start the audio thread
-  m_audioThread->start (m_audioThreadPriority);
+  m_audioThread.start (m_audioThreadPriority);
 
 #ifdef WIN32
   if (!m_multiple)
@@ -523,7 +526,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   watcher2 = new QFutureWatcher<void>;
   connect(watcher2, SIGNAL(finished()),this,SLOT(diskWriteFinished()));
 
-  Q_EMIT startAudioInputStream (m_config.audio_input_device (), m_framesAudioInputBuffered, &m_detector, m_downSampleFactor, m_config.audio_input_channel ());
+  Q_EMIT startAudioInputStream (m_config.audio_input_device (), m_framesAudioInputBuffered, m_detector, m_downSampleFactor, m_config.audio_input_channel ());
   Q_EMIT initializeAudioOutputStream (m_config.audio_output_device (), AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2, m_msAudioOutputBuffered);
   Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value () - m_XIT);
 
@@ -557,7 +560,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
     m_hsymStop=173;
     if(m_config.decode_at_52s()) m_hsymStop=181;
   }
-  m_modulator.setPeriod(m_TRperiod);
+  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_dialFreqRxWSPR=0;
   wsprNet = new WSPRNet(this);
   connect( wsprNet, SIGNAL(uploadStatus(QString)), this, SLOT(uploadResponse(QString)));
@@ -574,7 +577,8 @@ MainWindow::~MainWindow()
   QString fname {QDir::toNativeSeparators(m_dataDir.absoluteFilePath ("wsjtx_wisdom.dat"))};
   QByteArray cfname=fname.toLocal8Bit();
   fftwf_export_wisdom_to_filename(cfname);
-  m_audioThread->wait ();
+  m_audioThread.quit ();
+  m_audioThread.wait ();
   delete ui, ui = 0;
 }
 
@@ -898,7 +902,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       if(m_mode=="JT9W-1") m_toneSpacing=pow(2,m_config.jt9w_bw_mult ())*12000.0/6912.0;
 
       if(m_config.restart_audio_input ()) {
-        Q_EMIT startAudioInputStream (m_config.audio_input_device (), m_framesAudioInputBuffered, &m_detector, m_downSampleFactor, m_config.audio_input_channel ());
+        Q_EMIT startAudioInputStream (m_config.audio_input_device (), m_framesAudioInputBuffered, m_detector, m_downSampleFactor, m_config.audio_input_channel ());
       }
       if(m_config.restart_audio_output ()) {
         Q_EMIT initializeAudioOutputStream (m_config.audio_output_device (), AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2, m_msAudioOutputBuffered);
@@ -2124,12 +2128,12 @@ void MainWindow::guiUpdate()
 
 void MainWindow::startTx2()
 {
-  if (!m_modulator.isActive ()) {
+  if (!m_modulator->isActive ()) { // TODO - not thread safe
     double fSpread=0.0;
     double snr=99.0;
     QString t=ui->tx5->currentText();
     if(t.mid(0,1)=="#") fSpread=t.mid(1,5).toDouble();
-    m_modulator.setSpread(fSpread);
+    m_modulator->setSpread(fSpread); // TODO - not thread safe
     t=ui->tx6->text();
     if(t.mid(0,1)=="#") snr=t.mid(1,5).toDouble();
     if(snr>0.0 or snr < -50.0) snr=99.0;
@@ -2818,7 +2822,7 @@ void MainWindow::on_tx6_editingFinished()                       //tx6 edited
 
   // double snr=t.mid(1,5).toDouble();
   // if(snr>0.0 or snr < -50.0) snr=99.0;
-  // m_modulator.setTxSNR(snr);
+  // m_modulator->setTxSNR(snr); // TODO - not thread safe
 }
 
 void MainWindow::on_dxCallEntry_textChanged(const QString &t) //dxCall changed
@@ -2907,8 +2911,8 @@ void MainWindow::on_actionJT9_1_triggered()
   if(m_modeTx!="JT9") on_pbTxMode_clicked();
   statusChanged();
   m_TRperiod=60;
-  m_modulator.setPeriod(m_TRperiod);
-  m_detector.setPeriod(m_TRperiod);
+  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;
   m_hsymStop=173;
   if(m_config.decode_at_52s()) m_hsymStop=181;
@@ -2935,8 +2939,8 @@ void MainWindow::on_actionJT9W_1_triggered()
   if(m_modeTx!="JT9") on_pbTxMode_clicked();
   statusChanged();
   m_TRperiod=60;
-  m_modulator.setPeriod(m_TRperiod);
-  m_detector.setPeriod(m_TRperiod);
+  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setPeriod(m_TRperiod);   // TODO - not thread safe
   m_nsps=6912;
   m_hsymStop=173;
   if(m_config.decode_at_52s()) m_hsymStop=181;
@@ -2969,8 +2973,8 @@ void MainWindow::on_actionJT65_triggered()
   if(m_modeTx!="JT65") on_pbTxMode_clicked();
   statusChanged();
   m_TRperiod=60;
-  m_modulator.setPeriod(m_TRperiod);
-  m_detector.setPeriod(m_TRperiod);
+  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setPeriod(m_TRperiod);   // TODO - not thread safe
   m_nsps=6912;                   //For symspec only
   m_hsymStop=173;
   if(m_config.decode_at_52s()) m_hsymStop=181;
@@ -3008,8 +3012,8 @@ void MainWindow::on_actionJT9_JT65_triggered()
   m_nSubMode=0;                    //Dual-mode always means JT9 and JT65A
   statusChanged();
   m_TRperiod=60;
-  m_modulator.setPeriod(m_TRperiod);
-  m_detector.setPeriod(m_TRperiod);
+  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;
   m_hsymStop=173;
   if(m_config.decode_at_52s()) m_hsymStop=181;
@@ -3036,8 +3040,8 @@ void MainWindow::on_actionJT4_triggered()
   m_modeTx="JT4";
   statusChanged();
   m_TRperiod=60;
-  m_modulator.setPeriod(m_TRperiod);
-  m_detector.setPeriod(m_TRperiod);
+  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;                   //For symspec only
   m_hsymStop=181;
 //  if(m_config.decode_at_52s()) m_hsymStop=181;
@@ -3075,8 +3079,8 @@ void MainWindow::on_actionWSPR_2_triggered()
   m_modeTx="WSPR-2";                                    //### not needed ?? ###
   statusChanged();
   m_TRperiod=120;
-  m_modulator.setPeriod(m_TRperiod);
-  m_detector.setPeriod(m_TRperiod);
+  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;                   //For symspec only
   m_hsymStop=396;
   m_toneSpacing=12000.0/8192.0;
@@ -3103,8 +3107,8 @@ void MainWindow::on_actionEcho_triggered()
   m_mode="Echo";
   ui->actionEcho->setChecked(true);
   m_TRperiod=3;
-  m_modulator.setPeriod(m_TRperiod);
-  m_detector.setPeriod(m_TRperiod);
+  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;                   //For symspec only
   m_hsymStop=10;
   m_toneSpacing=1.0;
@@ -3618,13 +3622,13 @@ void MainWindow::transmit (double snr)
     if(m_nSubMode==2) toneSpacing=4*11025.0/4096.0;
     Q_EMIT sendMessage (NUM_JT65_SYMBOLS,
            4096.0*12000.0/11025.0, ui->TxFreqSpinBox->value () - m_XIT,
-           toneSpacing, &m_soundOutput, m_config.audio_output_channel (),
+           toneSpacing, m_soundOutput, m_config.audio_output_channel (),
            true, snr);
   }
   if (m_modeTx == "JT9") {
     Q_EMIT sendMessage (NUM_JT9_SYMBOLS, m_nsps,
                         ui->TxFreqSpinBox->value () - m_XIT, m_toneSpacing,
-                        &m_soundOutput, m_config.audio_output_channel (), true, snr);
+                        m_soundOutput, m_config.audio_output_channel (), true, snr);
   }
   if (m_modeTx == "JT4") {
     if(m_nSubMode==0) toneSpacing=4.375;
@@ -3636,18 +3640,18 @@ void MainWindow::transmit (double snr)
     if(m_nSubMode==6) toneSpacing=72*4.375;
     Q_EMIT sendMessage (NUM_JT4_SYMBOLS,
            2520.0*12000.0/11025.0, ui->TxFreqSpinBox->value () - m_XIT,
-           toneSpacing, &m_soundOutput, m_config.audio_output_channel (),
+           toneSpacing, m_soundOutput, m_config.audio_output_channel (),
            true, snr);
   }
   if (m_mode=="WSPR-2") {                                      //### Similar code needed for WSPR-15 ###
 
     Q_EMIT sendMessage (NUM_WSPR_SYMBOLS, 8192.0,
                         ui->TxFreqSpinBox->value() - 1.5 * 12000 / 8192, m_toneSpacing,
-                        &m_soundOutput, m_config.audio_output_channel(),
+                        m_soundOutput, m_config.audio_output_channel(),
                         true, snr);
   }
   if(m_mode=="Echo") {
-    Q_EMIT sendMessage (27, 1024.0, 1500.0, 0.0, &m_soundOutput,
+    Q_EMIT sendMessage (27, 1024.0, 1500.0, 0.0, m_soundOutput,
                         m_config.audio_output_channel(),false, snr);
   }
 }

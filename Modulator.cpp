@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QDebug>
 #include "mainwindow.h"
+#include "soundout.h"
 
 #include "moc_Modulator.cpp"
 
@@ -27,7 +28,6 @@ unsigned const Modulator::m_nspd = 2048 + 512; // 22.5 WPM
 Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds,
                       QObject * parent)
   : AudioDevice {parent}
-  , m_stream {nullptr}
   , m_quickClose {false}
   , m_phi {0.0}
   , m_toneSpacing {0.0}
