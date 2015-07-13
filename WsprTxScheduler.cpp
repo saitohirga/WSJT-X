@@ -130,17 +130,23 @@ int create_tx_schedule(int pctx)
     needed=60*(pctx/100.0)+0.5;
     
     memset(tx,0,sizeof(char)*60);
-    
+   
+    if( pctx == 0 ) return 0;
+ 
     if( pctx <= 25 ) { // Use K1JT's algorithm in this regime
         rxavg=100.0/pctx-1.0;
         i=0; 
-        while(i<60) {
+        while(1) {
             x=(rand()%100)/100.0;
             nrx=(rxavg+3.0*x-1.0); //2-5 for 25%
             i=i+nrx+1; 
-            tx[i/10][i%10]=1;
+            if( i < 60 ) {
+                tx[i/10][i%10]=1;
+            } else {
+                break;
+            }
         }
-        return 1;
+        return 0;
     } else if( pctx > 25 && pctx < 33 ) {
         ntxlim=1;
         ntxbandmin=1;
