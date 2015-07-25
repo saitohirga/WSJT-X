@@ -51,23 +51,6 @@ struct node {
 #define	POLY2	0xe4613c47
 #endif
 
-/* Convolutional encoder macro. Takes the encoder state, generates
- * a rate 1/2 symbol pair and stores it in 'sym'. The symbol generated from
- * POLY1 goes into the 2-bit of sym, and the symbol generated from POLY2
- * goes into the 1-bit.
- */
-#define	ENCODE(sym,encstate) {\
-	unsigned long _tmp;\
-\
-	_tmp = (encstate) & POLY1;\
-	_tmp ^= _tmp >> 16;\
-	(sym) = Partab[(_tmp ^ (_tmp >> 8)) & 0xff] << 1;\
-	_tmp = (encstate) & POLY2;\
-	_tmp ^= _tmp >> 16;\
-	(sym) |= Partab[(_tmp ^ (_tmp >> 8)) & 0xff];\
-}
-
-
 /* Convolutionally encode a packet. The input data bytes are read
  * high bit first and the encoded packet is written into 'symbols',
  * one symbol per byte. The first symbol is generated from POLY1,
@@ -171,8 +154,8 @@ int fano(
   for(i=1;i <= maxcycles;i++) {
     if((int)(np-nodes) > (int)*maxnp) *maxnp=(int)(np-nodes);
 #ifdef	debug
-    printf("k=%ld, g=%ld, t=%d, m[%d]=%d, maxnp=%d\n",
-	   np-nodes,np->gamma,t,np->i,np->tm[np->i],*maxnp);
+    printf("k=%ld, g=%ld, t=%d, m[%d]=%d, maxnp=%d, encstate=%lx\n",
+	   np-nodes,np->gamma,t,np->i,np->tm[np->i],*maxnp,np->encstate);
 #endif
 // Look forward */
     ngamma = np->gamma + np->tm[np->i];
@@ -249,6 +232,7 @@ int fano(
     np += 8;
   }
   *cycles = i+1;
+
   free(nodes);
   if(i >= maxcycles) return -1;	          // Decoder timed out
   return 0;		                  // Successful completion

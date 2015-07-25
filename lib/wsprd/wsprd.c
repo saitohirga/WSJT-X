@@ -599,8 +599,10 @@ int main(int argc, char *argv[])
                     unsigned int cycles; int jitter; };
     struct result decodes[50];
     
-    char hashtab[32768][13];
+    char *hashtab;
+    hashtab=malloc(sizeof(char)*32768*13);
     memset(hashtab,0,sizeof(char)*32768*13);
+
     int nh;
     symbols=malloc(sizeof(char)*nbits*2);
     decdata=malloc((nbits+7)/8);
@@ -773,7 +775,7 @@ int main(int argc, char *argv[])
         if( (fhash=fopen(hash_fname,"r+")) ) {
             while (fgets(line, sizeof(line), fhash) != NULL) {
                 sscanf(line,"%d %s",&nh,hcall);
-                strcpy(*hashtab+nh*13,hcall);
+                strcpy(hashtab+nh*13,hcall);
             }
         } else {
             fhash=fopen(hash_fname,"w+");
@@ -1080,7 +1082,7 @@ int main(int argc, char *argv[])
                     
                     unsigned char channel_symbols[162];
                     
-                    if( get_wspr_channel_symbols(call_loc_pow, channel_symbols) ) {
+                    if( get_wspr_channel_symbols(call_loc_pow, hashtab, channel_symbols) ) {
                         subtract_signal2(idat, qdat, npoints, f1, shift1, drift1, channel_symbols);
                     } else {
                         break;
@@ -1211,8 +1213,8 @@ int main(int argc, char *argv[])
     if( usehashtable ) {
         fhash=fopen(hash_fname,"w");
         for (i=0; i<32768; i++) {
-            if( strncmp(hashtab[i],"\0",1) != 0 ) {
-                fprintf(fhash,"%5d %s\n",i,*hashtab+i*13);
+            if( strncmp(hashtab+i*13,"\0",1) != 0 ) {
+                fprintf(fhash,"%5d %s\n",i,hashtab+i*13);
             }
         }
         fclose(fhash);

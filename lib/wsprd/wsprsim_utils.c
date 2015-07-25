@@ -163,7 +163,7 @@ void interleave(unsigned char *sym)
     }
 }
 
-int get_wspr_channel_symbols(char* rawmessage, unsigned char* symbols) {
+int get_wspr_channel_symbols(char* rawmessage, char* hashtab, unsigned char* symbols) {
     int m=0, n=0, ntype=0;
     int i, j, ihash;
     unsigned char pr3[162]=
@@ -285,8 +285,8 @@ int get_wspr_channel_symbols(char* rawmessage, unsigned char* symbols) {
     // make sure that the 11-byte data vector is unpackable
     // unpack it with the routine that the decoder will use and display
     // the result. let the operator decide whether it worked.
-    char hashtab[32768][13];
-    memset(hashtab,0,sizeof(char)*32768*13);
+//    char hashtab[32768][13];
+//    memset(hashtab,0,sizeof(char)*32768*13);
     
     char *check_call_loc_pow, *check_callsign;
     check_call_loc_pow=malloc(sizeof(char)*23);

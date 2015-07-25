@@ -126,13 +126,18 @@ int main(int argc, char *argv[])
     extern int optind;
     int i, c, printchannel=0, writec2=0;
     float snr=50.0;
-    char *message, *c2filename;
+    char *message, *c2filename, *hashtab;
     c2filename=malloc(sizeof(char)*15);
+    hashtab=malloc(sizeof(char)*32768*13);
+    memset(hashtab,0,sizeof(char)*32768*13);
 
     // message length is 22 characters
     message=malloc(sizeof(char)*23);
     
     strcpy(c2filename,"000000_0001.c2");
+
+    srand(getpid());
+
     while ( (c = getopt(argc, argv, "cdo:s:")) !=-1 ) {
         switch (c) {
             case 'c':
@@ -159,7 +164,7 @@ int main(int argc, char *argv[])
     }
     
     unsigned char channel_symbols[162];
-    get_wspr_channel_symbols(message, channel_symbols);
+    get_wspr_channel_symbols(message, hashtab, channel_symbols);
     
     if( printchannel ) {
         printf("Channel symbols:\n");
