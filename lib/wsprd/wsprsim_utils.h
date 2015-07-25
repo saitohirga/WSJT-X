@@ -23,6 +23,6 @@ void pack_prefix(char *callsign, int32_t *n, int32_t *m, int32_t *nadd );
 
 void interleave(unsigned char *sym);
 
-int get_wspr_channel_symbols(char* message, unsigned char* symbols);
+int get_wspr_channel_symbols(char* message, char* hashtab, unsigned char* symbols);
 
 #endif

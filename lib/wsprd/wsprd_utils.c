@@ -225,6 +225,13 @@ void deinterleave(unsigned char *sym)
 }
 
 // used by qsort
+int doublecomp(const void* elem1, const void* elem2)
+{
+    if(*(const double*)elem1 < *(const double*)elem2)
+        return -1;
+    return *(const double*)elem1 > *(const double*)elem2;
+}
+
 int floatcomp(const void* elem1, const void* elem2)
 {
     if(*(const float*)elem1 < *(const float*)elem2)
@@ -232,7 +239,7 @@ int floatcomp(const void* elem1, const void* elem2)
     return *(const float*)elem1 > *(const float*)elem2;
 }
 
-int unpk_(signed char *message, char hashtab[32768][13], char *call_loc_pow, char *callsign)
+int unpk_(signed char *message, char *hashtab, char *call_loc_pow, char *callsign)
 {
     int n1,n2,n3,ndbm,ihash,nadd,noprint=0;
     char grid[5],grid6[7],cdbm[3];
@@ -270,7 +277,7 @@ int unpk_(signed char *message, char hashtab[32768][13], char *call_loc_pow, cha
             strncat(call_loc_pow,cdbm,2);
             strncat(call_loc_pow,"\0",1);
             ihash=nhash(callsign,strlen(callsign),(uint32_t)146);
-            strcpy(*hashtab+ihash*13,callsign);
+            strcpy(hashtab+ihash*13,callsign);
         } else {
             nadd=nu;
             if( nu > 3 ) nadd=nu-3;
@@ -287,7 +294,7 @@ int unpk_(signed char *message, char hashtab[32768][13], char *call_loc_pow, cha
             int nu=ndbm%10;
             if( nu == 0 || nu == 3 || nu == 7 || nu == 10 ) { //make sure power is OK
                 ihash=nhash(callsign,strlen(callsign),(uint32_t)146);
-                strcpy(*hashtab+ihash*13,callsign);
+                strcpy(hashtab+ihash*13,callsign);
             } else noprint=1;
         }
     } else if ( ntype < 0 ) {
@@ -303,12 +310,12 @@ int unpk_(signed char *message, char hashtab[32768][13], char *call_loc_pow, cha
                // grid is only 4 chars even though this is a hashed callsign...
                //         isalpha(grid6[4]) && isalpha(grid6[5]) ) ) {
                ihash=nhash(callsign,strlen(callsign),(uint32_t)146);
-               strcpy(*hashtab+ihash*13,callsign);
+               strcpy(hashtab+ihash*13,callsign);
            } else noprint=1;
         
         ihash=(n2-ntype-64)/128;
-        if( strncmp(hashtab[ihash],"\0",1) != 0 ) {
-            sprintf(callsign,"<%s>",hashtab[ihash]);
+        if( strncmp(hashtab+ihash*13,"\0",1) != 0 ) {
+            sprintf(callsign,"<%s>",hashtab+ihash*13);
         } else {
             sprintf(callsign,"%5s","<...>");
         }
