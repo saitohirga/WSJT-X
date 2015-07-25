@@ -1167,7 +1167,7 @@ if (NOT is_debug_build)
       # add plugins path for Mac Bundle
       install (CODE "
 file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION}/qt.conf\"
-\"Plugins = Plugins
+\"Plugins = PlugIns
 \")
 "
 	#COMPONENT runtime
