@@ -32,7 +32,7 @@ int jelinek(
             unsigned char *symbols,	/* Raw deinterleaved input symbols */
             unsigned int nbits,	/* Number of output bits */
             unsigned int stacksize,
-            struct node *stack,
+            struct snode *stack,
             int mettab[2][256],	/* Metric table, [sent sym][rx symbol] */
             unsigned int maxcycles)/* Decoding timeout in cycles per bit */
 {
@@ -51,11 +51,11 @@ int jelinek(
     }
     
     // zero the stack
-    memset(stack,0,stacksize*sizeof(struct node));
+    memset(stack,0,stacksize*sizeof(struct snode));
     
     // initialize the loop variables
-    unsigned int lsym, highbit, ntail=31;
-    uint64_t encstate=0, encstate_highbits=0;
+    unsigned int lsym, ntail=31;
+    uint64_t encstate=0;
     unsigned int nbuckets=1000;
     unsigned int low_bucket=nbuckets-1; //will be set on first run-through
     unsigned int high_bucket=0;
@@ -72,20 +72,22 @@ int jelinek(
     /********************* Start the stack decoder *****************/
     for (i=1; i <= ncycles; i++) {
 #ifdef DEBUG
-        printf("***stackptr=%d, depth=%d, gamma=%d, encstate=%lx, encstate_highbits=%lx\n",
-               stackptr, depth, gamma, encstate, encstate_highbits);
+        printf("***stackptr=%ld, depth=%d, gamma=%d, encstate=%lx, bucket %d, low_bucket %d, high_bucket %d\n",
+               stackptr, depth, gamma, encstate, bucket, low_bucket, high_bucket);
 #endif
-        // save the highbit of the encoder state and shift to the left, bringing
-        // in a 0. This is the encoder state of the daughter node connected
-        // to the current node by the "0" branch
-        highbit=encstate>>63;
-        encstate=encstate<<1;
-        if( depth > 63 ) {
-            encstate_highbits=(encstate_highbits<<1)|highbit;
+        // no need to store more than 7 bytes (56 bits) for encoder state because
+        // only 50 bits are not 0's.
+        if( depth < 56 ) {
+            encstate=encstate<<1;
         }
         
         // get channel symbols associated with the 0 branch
-        ENCODE(lsym,encstate);	/* 0-branch (LSB is 0) */
+        if( depth < 56 ) {
+            ENCODE(lsym,encstate);
+        } else {
+            ENCODE(lsym,encstate<<(depth-55));
+        }
+
         // lsym are the 0-branch channel symbols and 3^lsym are the 1-branch
         // channel symbols (due to a special property of our generator polynomials)
         totmet0 = gamma+metrics[depth][lsym];   // total metric for 0-branch daughter node
@@ -95,15 +97,14 @@ int jelinek(
         bucket=(totmet0>>5)+200; //fast, but not particularly safe - totmet can be negative
         if( bucket > high_bucket ) high_bucket=bucket;
         if( bucket < low_bucket ) low_bucket=bucket;
-        
+       
         // place the 0 node on the stack, overwriting the parent (current) node
         stack[ptr].encstate=encstate;
-        stack[ptr].encstate_highbits=encstate_highbits;
         stack[ptr].gamma=totmet0;
         stack[ptr].depth=depth;
         stack[ptr].jpointer=buckets[bucket];
         buckets[bucket]=ptr;
-
+        
         // if in the tail, only need to evaluate the "0" branch.
         // Otherwise, enter this "if" and place the 1 node on the stack,
         if( depth <= nbits_minus_ntail ) {
@@ -121,16 +122,15 @@ int jelinek(
             bucket=(totmet1>>5)+200; //this may not be safe on all compilers
             if( bucket > high_bucket ) high_bucket=bucket;
             if( bucket < low_bucket ) low_bucket=bucket;
-
+            
             stack[ptr].encstate=encstate+1;
-            stack[ptr].encstate_highbits=encstate_highbits;
             stack[ptr].gamma=totmet1;
             stack[ptr].depth=depth;
             stack[ptr].jpointer=buckets[bucket];
             buckets[bucket]=ptr;
         }
 
-        // pick off the latest entry from the high bucket
+    // pick off the latest entry from the high bucket
         while( buckets[high_bucket] == 0 ) {
             high_bucket--;
         }
@@ -139,7 +139,6 @@ int jelinek(
         depth=stack[ptr].depth;
         gamma=stack[ptr].gamma;
         encstate=stack[ptr].encstate;
-        encstate_highbits=stack[ptr].encstate_highbits;
 
         // we are done if the top entry on the stack is at depth nbits
         if (depth == nbits) {
@@ -149,24 +148,17 @@ int jelinek(
     
     *cycles = i+1;
     *metric =  gamma;	/* Return final path metric */
-    //    printf("cycles %d stackptr=%d, depth=%d, gamma=%d, encstate=%lx, encstate_highbits=%lx\n",
-    //           *cycles, stackptr, depth, *metric, encstate, encstate_highbits);
+
+    //    printf("cycles %d stackptr=%d, depth=%d, gamma=%d, encstate=%lx\n",
+    //           *cycles, stackptr, depth, *metric, encstate);
     
-    // 81 bits is an awkward number... shift everything to the right by one
-    // bit first
-    int highbit_lsb=encstate_highbits&(0x0000000000000001);
-     encstate_highbits=encstate_highbits>>1;
-     encstate=encstate>>1;
-     if( highbit_lsb == 1 ) {
-         encstate=encstate|(0x8000000000000000);
-     }
-    //copy data to output buffer
-    data[0]=encstate_highbits>>8;
-    data[1]=encstate_highbits&(0x00000000000000ff);
-    for (i=2; i<10; i++) {
-        data[i]=(encstate>>(56-(i-2)*8))&(0x00000000000000ff);
+    for (i=0; i<7; i++) {
+        data[i]=(encstate>>(48-i*8))&(0x00000000000000ff);
     }
-    
+    for (i=7; i<11; i++) {
+        data[i]=0;
+    }
+
     if(*cycles/nbits >= maxcycles) //timed out
     {
         return -1;

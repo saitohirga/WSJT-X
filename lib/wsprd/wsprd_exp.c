@@ -698,7 +698,7 @@ int main(int argc, char *argv[])
     }
     
     if( stackdecoder ) {
-        stack=malloc(stacksize*sizeof(struct node));
+        stack=malloc(stacksize*sizeof(struct snode));
     }
     
     if( optind+1 > argc) {
