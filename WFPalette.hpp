@@ -1,6 +1,7 @@
 #ifndef W_F_PALETTE_HPP__
 #define W_F_PALETTE_HPP__
 
+#include <QMetaType>
 #include <QList>
 #include <QVector>
 #include <QColor>
