@@ -1202,9 +1202,13 @@ void Configuration::impl::read_settings ()
 
   macros_.setStringList (settings_->value ("Macros", QStringList {"TNX 73 GL"}).toStringList ());
 
-  if (settings_->contains ("frequencies"))
+  if (settings_->contains ("FrequenciesForModes"))
     {
-      frequencies_.frequency_list (settings_->value ("frequencies").value<FrequencyList::FrequencyItems> ());
+      frequencies_.frequency_list (settings_->value ("FrequenciesForModes").value<FrequencyList::FrequencyItems> ());
+    }
+  else
+    {
+      frequencies_.reset_to_defaults ();
     }
 
   stations_.station_list (settings_->value ("stations").value<StationList::Stations> ());
@@ -1297,7 +1301,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("After73", id_after_73_);
   settings_->setValue ("TxQSYAllowed", tx_QSY_allowed_);
   settings_->setValue ("Macros", macros_.stringList ());
-  settings_->setValue ("frequencies", QVariant::fromValue (frequencies_.frequency_list ()));
+  settings_->setValue ("FrequenciesForModes", QVariant::fromValue (frequencies_.frequency_list ()));
   settings_->setValue ("stations", QVariant::fromValue (stations_.station_list ()));
   settings_->setValue ("toRTTY", log_as_RTTY_);
   settings_->setValue ("dBtoComments", report_in_comments_);

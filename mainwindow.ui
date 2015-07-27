@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>934</width>
-    <height>565</height>
+    <width>786</width>
+    <height>475</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -2236,12 +2236,6 @@ QPushButton[state=&quot;ok&quot;] {
         </item>
         <item row="0" column="0">
          <widget class="QComboBox" name="bandComboBox">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="toolTip">
            <string>Select operating band or frequency in MHz</string>
           </property>
@@ -2250,6 +2244,9 @@ QPushButton[state=&quot;ok&quot;] {
           </property>
           <property name="insertPolicy">
            <enum>QComboBox::NoInsert</enum>
+          </property>
+          <property name="sizeAdjustPolicy">
+           <enum>QComboBox::AdjustToMinimumContentsLength</enum>
           </property>
          </widget>
         </item>
@@ -2264,7 +2261,7 @@ QPushButton[state=&quot;ok&quot;] {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>934</width>
+     <width>786</width>
      <height>21</height>
     </rect>
    </property>
