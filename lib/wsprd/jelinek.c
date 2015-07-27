@@ -79,11 +79,7 @@ int jelinek(
         // only 50 bits are not 0's.
         if( depth < 56 ) {
             encstate=encstate<<1;
-        }
-        
-        // get channel symbols associated with the 0 branch
-        if( depth < 56 ) {
-            ENCODE(lsym,encstate);
+            ENCODE(lsym,encstate); // get channel symbols associated with the 0 branch
         } else {
             ENCODE(lsym,encstate<<(depth-55));
         }
