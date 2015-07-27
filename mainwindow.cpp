@@ -201,22 +201,34 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
     });
   connect (m_messageClient, &MessageClient::error, this, &MainWindow::networkError);
   connect (m_messageClient, &MessageClient::free_text, [this] (QString const& text, bool send) {
-    if (m_config.accept_udp_requests ()) {
-      if (0 == ui->tabWidget->currentIndex ()) {
-        ui->tx5->setCurrentText (text);
-        if (send) {
-          ui->txb5->click ();
-        } else {
-          ui->txrb5->click ();
-        }
-      } else if (1 == ui->tabWidget->currentIndex ()) {
-        ui->freeTextMsg->setCurrentText (text);
-        if (send) {
-          ui->rbFreeText->click ();
+      if (m_config.accept_udp_requests ()) {
+        // send + non-empty text means set and send the free text
+        // message, !send + non-empty text means set the current free
+        // text message, send + empty text means send the current free
+        // text message without change, !send + empty text means clear
+        // the current free text message
+        qDebug () << "Free text UDP message - text:" << text << "send:" << send << "text empty:" << text.isEmpty ();
+        if (0 == ui->tabWidget->currentIndex ()) {
+          if (!text.isEmpty ()) {
+            ui->tx5->setCurrentText (text);
+          }
+          if (send) {
+            ui->txb5->click ();
+          } else if (text.isEmpty ()) {
+            ui->tx5->setCurrentText (text);
+          }
+        } else if (1 == ui->tabWidget->currentIndex ()) {
+          if (!text.isEmpty ()) {
+            ui->freeTextMsg->setCurrentText (text);
+          }
+          if (send) {
+            ui->rbFreeText->click ();
+          } else if (text.isEmpty ()) {
+            ui->freeTextMsg->setCurrentText (text);
+          }
         }
       }
-    }
-  });
+    });
 
   // Hook up WSPR band hopping
   connect (ui->band_hopping_schedule_push_button, &QPushButton::clicked
