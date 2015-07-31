@@ -1235,7 +1235,6 @@ file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION
      set (gp_tool ${gp_tool})
      # canonicalize path in install context
      get_filename_component (the_exe ${fixup_exe} REALPATH)
-     message (STATUS \"fixup_exe: \${the_exe}\")
      fixup_bundle (\"\${the_exe}\" \"\${QTPLUGINS}\" \"${fixup_library_dirs}\")
    "
       #COMPONENT runtime
