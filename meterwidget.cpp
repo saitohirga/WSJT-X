@@ -10,8 +10,6 @@
 
 MeterWidget::MeterWidget(QWidget * parent)
   : QWidget {parent}
-  , m_top_padding {0}
-  , m_bottom_padding {0}
   , m_signal {0}
 {
   for ( int i = 0; i < 10; i++ ) {

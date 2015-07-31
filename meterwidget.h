@@ -23,8 +23,6 @@ protected:
   void paintEvent( QPaintEvent * ) override;
 
 private:
-  int m_top_padding;
-  int m_bottom_padding;
   QQueue<int> signalQueue;
   int m_signal;
   int m_sigPeak;
