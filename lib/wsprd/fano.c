@@ -105,7 +105,7 @@ int fano(
   unsigned int lsym;
   unsigned int i;
 
-  if((nodes = (struct node *)malloc(nbits*sizeof(struct node))) == NULL) {
+  if((nodes = (struct node *)malloc((nbits+1)*sizeof(struct node))) == NULL) {
     printf("malloc failed\n");
     return 0;
   }
@@ -172,7 +172,7 @@ int fano(
       }
       np[1].gamma = ngamma;                     // Move forward
       np[1].encstate = np->encstate << 1;
-      if(++np == lastnode) {
+      if( ++np == (lastnode+1) ) {
 	break;	                                // Done!
       }
 
