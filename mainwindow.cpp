@@ -3105,6 +3105,7 @@ void MainWindow::on_actionWSPR_2_triggered()
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   WSPR_config(true);
+  ui->TxFreqSpinBox->setValue(ui->WSPRfreqSpinBox->value());
 }
 
 void MainWindow::on_actionWSPR_15_triggered()
