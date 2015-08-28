@@ -226,7 +226,7 @@ using the MacPorts tools, here is a sed command to make the change:
 To build:
 
     cd ~/hamlib-prefix/build
-    ../src/hamlib/autogen.sh \
+    ../src/autogen.sh \
        --enable-static \
        --disable-shared \
        --disable-winradio \
