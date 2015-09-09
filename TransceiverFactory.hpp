@@ -96,8 +96,9 @@ public:
     DataBits data_bits;
     StopBits stop_bits;
     Handshake handshake;
-    bool force_line_control;
+    bool force_dtr;
     bool dtr_high;                  // to power interface
+    bool force_rts;
     bool rts_high;                  // to power interface
     PTTMethod ptt_type;             // "CAT" | "DTR" | "RTS" | "VOX"
     TXAudioSource audio_source;     // some rigs allow audio routing
@@ -117,8 +118,9 @@ public:
         && rhs.data_bits == data_bits
         && rhs.stop_bits == stop_bits
         && rhs.handshake == handshake
-        && rhs.force_line_control == force_line_control
+        && rhs.force_dtr == force_dtr
         && rhs.dtr_high == dtr_high
+        && rhs.force_rts == force_rts
         && rhs.rts_high == rts_high
         && rhs.ptt_type == ptt_type
         && rhs.audio_source == audio_source
