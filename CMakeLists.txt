@@ -1102,9 +1102,9 @@ endif (NOT WIN32 AND NOT APPLE)
 #
 if (NOT is_debug_build)
 
-  # get_target_property (QtCore_location Qt5::Core LOCATION)
-  # get_filename_component (QtCore_location ${QtCore_location} PATH)
-  # list (APPEND fixup_library_dirs ${QtCore_location})
+  get_target_property (QtCore_location Qt5::Core LOCATION)
+  get_filename_component (QtCore_location ${QtCore_location} PATH)
+  list (APPEND fixup_library_dirs ${QtCore_location})
 
   if (APPLE)
     set (CMAKE_POSTFLIGHT_SCRIPT
