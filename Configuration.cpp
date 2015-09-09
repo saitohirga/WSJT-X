@@ -394,9 +394,8 @@ private:
   Q_SLOT void on_split_mode_button_group_buttonClicked (int);
   Q_SLOT void on_test_CAT_push_button_clicked ();
   Q_SLOT void on_test_PTT_push_button_clicked (bool checked);
-  Q_SLOT void on_CAT_control_lines_group_box_toggled (bool);
-  Q_SLOT void on_CAT_DTR_check_box_toggled (bool);
-  Q_SLOT void on_CAT_RTS_check_box_toggled (bool);
+  Q_SLOT void on_force_DTR_combo_box_currentIndexChanged (int);
+  Q_SLOT void on_force_RTS_combo_box_currentIndexChanged (int);
   Q_SLOT void on_rig_combo_box_currentIndexChanged (int);
   Q_SLOT void on_sound_input_combo_box_currentTextChanged (QString const&);
   Q_SLOT void on_sound_output_combo_box_currentTextChanged (QString const&);
@@ -1048,9 +1047,22 @@ void Configuration::impl::initialize_models ()
   ui_->CAT_data_bits_button_group->button (rig_params_.data_bits)->setChecked (true);
   ui_->CAT_stop_bits_button_group->button (rig_params_.stop_bits)->setChecked (true);
   ui_->CAT_handshake_button_group->button (rig_params_.handshake)->setChecked (true);
-  ui_->CAT_control_lines_group_box->setChecked (rig_params_.force_line_control);
-  ui_->CAT_DTR_check_box->setChecked (rig_params_.dtr_high);
-  ui_->CAT_RTS_check_box->setChecked (rig_params_.rts_high);
+  if (rig_params_.force_dtr)
+    {
+      ui_->force_DTR_combo_box->setCurrentIndex (rig_params_.dtr_high ? 1 : 2);
+    }
+  else
+    {
+      ui_->force_DTR_combo_box->setCurrentIndex (0);
+    }
+  if (rig_params_.force_rts)
+    {
+      ui_->force_RTS_combo_box->setCurrentIndex (rig_params_.rts_high ? 1 : 2);
+    }
+  else
+    {
+      ui_->force_RTS_combo_box->setCurrentIndex (0);
+    }
   ui_->TX_audio_source_button_group->button (rig_params_.audio_source)->setChecked (true);
   ui_->CAT_poll_interval_spin_box->setValue (rig_params_.poll_interval);
   ui_->udp_server_line_edit->setText (udp_server_name_);
@@ -1223,8 +1235,9 @@ void Configuration::impl::read_settings ()
   rig_params_.data_bits = settings_->value ("CATDataBits", QVariant::fromValue (TransceiverFactory::eight_data_bits)).value<TransceiverFactory::DataBits> ();
   rig_params_.stop_bits = settings_->value ("CATStopBits", QVariant::fromValue (TransceiverFactory::two_stop_bits)).value<TransceiverFactory::StopBits> ();
   rig_params_.handshake = settings_->value ("CATHandshake", QVariant::fromValue (TransceiverFactory::handshake_none)).value<TransceiverFactory::Handshake> ();
-  rig_params_.force_line_control = settings_->value ("CATForceControlLines", false).toBool ();
+  rig_params_.force_dtr = settings_->value ("CATForceDTR", false).toBool ();
   rig_params_.dtr_high = settings_->value ("DTR", false).toBool ();
+  rig_params_.force_rts = settings_->value ("CATForceRTS", false).toBool ();
   rig_params_.rts_high = settings_->value ("RTS", false).toBool ();
   rig_params_.ptt_type = settings_->value ("PTTMethod", QVariant::fromValue (TransceiverFactory::PTT_method_VOX)).value<TransceiverFactory::PTTMethod> ();
   rig_params_.audio_source = settings_->value ("TXAudioSource", QVariant::fromValue (TransceiverFactory::TX_audio_source_front)).value<TransceiverFactory::TXAudioSource> ();
@@ -1322,8 +1335,9 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("73TxDisable", disable_TX_on_73_);
   settings_->setValue ("Runaway", watchdog_);
   settings_->setValue ("Tx2QSO", TX_messages_);
-  settings_->setValue ("CATForceControlLines", rig_params_.force_line_control);
+  settings_->setValue ("CATForceDTR", rig_params_.force_dtr);
   settings_->setValue ("DTR", rig_params_.dtr_high);
+  settings_->setValue ("CATForceRTS", rig_params_.force_rts);
   settings_->setValue ("RTS", rig_params_.rts_high);
   settings_->setValue ("TXAudioSource", QVariant::fromValue (rig_params_.audio_source));
   settings_->setValue ("Polling", rig_params_.poll_interval);
@@ -1360,6 +1374,23 @@ void Configuration::impl::set_rig_invariants ()
   auto port_type = transceiver_factory_.CAT_port_type (rig);
 
   bool is_serial_CAT (TransceiverFactory::Capabilities::serial == port_type);
+  auto const& cat_port = ui_->CAT_port_combo_box->currentText ();
+
+  // only enable CAT option if transceiver has CAT PTT
+  ui_->PTT_CAT_radio_button->setEnabled (CAT_PTT_enabled);
+
+  auto enable_ptt_port = TransceiverFactory::PTT_method_CAT != ptt_method && TransceiverFactory::PTT_method_VOX != ptt_method;
+  ui_->PTT_port_combo_box->setEnabled (enable_ptt_port);
+  ui_->PTT_port_label->setEnabled (enable_ptt_port);
+
+  ui_->PTT_port_combo_box->setItemData (ui_->PTT_port_combo_box->findText ("CAT")
+                                        , CAT_indirect_serial_PTT ? combo_box_item_enabled : combo_box_item_disabled
+                                        , Qt::UserRole - 1);
+
+  ui_->PTT_DTR_radio_button->setEnabled (!("CAT" == ptt_port && !CAT_indirect_serial_PTT));
+
+  ui_->PTT_RTS_radio_button->setEnabled (!((is_serial_CAT && ptt_port == cat_port && is_hw_handshake)
+                                           || ("CAT" == ptt_port && !CAT_indirect_serial_PTT)));
 
   if (TransceiverFactory::basic_transceiver_name_ == rig)
     {
@@ -1420,34 +1451,16 @@ void Configuration::impl::set_rig_invariants ()
             }
         }
       ui_->CAT_serial_port_parameters_group_box->setEnabled (is_serial_CAT);
-      ui_->CAT_control_lines_group_box->setEnabled (is_serial_CAT);
-      ui_->CAT_RTS_check_box->setEnabled (is_serial_CAT
-                                          && ui_->CAT_control_lines_group_box->isChecked ()
-                                          && !is_hw_handshake);
+      ui_->force_DTR_combo_box->setEnabled (is_serial_CAT
+                                            && (cat_port != ptt_port
+                                                || !ui_->PTT_DTR_radio_button->isEnabled ()
+                                                || !ui_->PTT_DTR_radio_button->isChecked ()));
+      ui_->force_RTS_combo_box->setEnabled (is_serial_CAT
+                                            && !is_hw_handshake
+                                            && (cat_port != ptt_port
+                                                || !ui_->PTT_RTS_radio_button->isEnabled ()
+                                                || !ui_->PTT_RTS_radio_button->isChecked ()));
     }
-
-  auto const& cat_port = ui_->CAT_port_combo_box->currentText ();
-
-  // only enable CAT option if transceiver has CAT PTT
-  ui_->PTT_CAT_radio_button->setEnabled (CAT_PTT_enabled);
-  
-  auto enable_ptt_port = TransceiverFactory::PTT_method_CAT != ptt_method && TransceiverFactory::PTT_method_VOX != ptt_method;
-  ui_->PTT_port_combo_box->setEnabled (enable_ptt_port);
-  ui_->PTT_port_label->setEnabled (enable_ptt_port);
-
-  ui_->PTT_port_combo_box->setItemData (ui_->PTT_port_combo_box->findText ("CAT")
-                                        , CAT_indirect_serial_PTT ? combo_box_item_enabled : combo_box_item_disabled
-                                        , Qt::UserRole - 1);
-
-  auto control_lines_available = !ui_->CAT_control_lines_group_box->isEnabled ()
-    || !ui_->CAT_control_lines_group_box->isChecked ();
-  ui_->PTT_DTR_radio_button->setEnabled (!(((is_serial_CAT && ptt_port == cat_port)
-                                          && !control_lines_available)
-                                           || ("CAT" == ptt_port && !CAT_indirect_serial_PTT)));
-
-  ui_->PTT_RTS_radio_button->setEnabled (!(((is_serial_CAT && ptt_port == cat_port)
-                                            && (!control_lines_available || is_hw_handshake))
-                                           || ("CAT" == ptt_port && !CAT_indirect_serial_PTT)));
 }
 
 bool Configuration::impl::validate ()
@@ -1522,9 +1535,10 @@ TransceiverFactory::ParameterPack Configuration::impl::gather_rig_data ()
   result.data_bits = static_cast<TransceiverFactory::DataBits> (ui_->CAT_data_bits_button_group->checkedId ());
   result.stop_bits = static_cast<TransceiverFactory::StopBits> (ui_->CAT_stop_bits_button_group->checkedId ());
   result.handshake = static_cast<TransceiverFactory::Handshake> (ui_->CAT_handshake_button_group->checkedId ());
-  result.force_line_control = ui_->CAT_control_lines_group_box->isChecked ();
-  result.dtr_high = ui_->CAT_DTR_check_box->isChecked ();
-  result.rts_high = ui_->CAT_RTS_check_box->isChecked ();
+  result.force_dtr = ui_->force_DTR_combo_box->isEnabled () && ui_->force_DTR_combo_box->currentIndex () > 0;
+  result.dtr_high = 1 == ui_->force_DTR_combo_box->currentIndex ();
+  result.force_rts = ui_->force_RTS_combo_box->isEnabled () && ui_->force_RTS_combo_box->currentIndex () > 0;
+  result.rts_high = 1 == ui_->force_RTS_combo_box->currentIndex ();
   result.poll_interval = ui_->CAT_poll_interval_spin_box->value ();
   result.ptt_type = static_cast<TransceiverFactory::PTTMethod> (ui_->PTT_method_button_group->checkedId ());
   result.ptt_port = ui_->PTT_port_combo_box->currentText ();
@@ -1911,17 +1925,12 @@ void Configuration::impl::on_test_PTT_push_button_clicked (bool checked)
     }
 }
 
-void Configuration::impl::on_CAT_control_lines_group_box_toggled (bool /* checked */)
+void Configuration::impl::on_force_DTR_combo_box_currentIndexChanged (int /* index */)
 {
   set_rig_invariants ();
 }
 
-void Configuration::impl::on_CAT_DTR_check_box_toggled (bool /* checked */)
-{
-  set_rig_invariants ();
-}
-
-void Configuration::impl::on_CAT_RTS_check_box_toggled (bool /* checked */)
+void Configuration::impl::on_force_RTS_combo_box_currentIndexChanged (int /* index */)
 {
   set_rig_invariants ();
 }
