@@ -25,8 +25,8 @@ namespace Radio
   //	QVariant argument is convertible to double and is assumed to
   //	be scaled by (10 ** -scale).
   //
-  Frequency frequency (QVariant const&, int scale);
-  FrequencyDelta frequency_delta (QVariant const&, int scale);
+  Frequency frequency (QVariant const&, int scale, QLocale const& = QLocale ());
+  FrequencyDelta frequency_delta (QVariant const&, int scale, QLocale const& = QLocale ());
 
   //
   // Frequency type formatting

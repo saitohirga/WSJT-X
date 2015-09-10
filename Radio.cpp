@@ -22,14 +22,32 @@ namespace Radio
   }
 
 
-  Frequency frequency (QVariant const& v, int scale)
+  Frequency frequency (QVariant const& v, int scale, QLocale const& locale)
   {
-    return std::llround (v.toDouble () * std::pow (10., scale));
+    double value {0};
+    if (QVariant::String == v.type ())
+      {
+        value = locale.toDouble (v.value<QString> ());
+      }
+    else
+      {
+        value = v.toDouble ();
+      }
+    return std::llround (value * std::pow (10., scale));
   }
 
-  FrequencyDelta frequency_delta (QVariant const& v, int scale)
+  FrequencyDelta frequency_delta (QVariant const& v, int scale, QLocale const& locale)
   {
-    return std::llround (v.toDouble () * std::pow (10., scale));
+    double value {0};
+    if (QVariant::String == v.type ())
+      {
+        value = locale.toDouble (v.value<QString> ());
+      }
+    else
+      {
+        value = v.toDouble ();
+      }
+    return std::llround (value * std::pow (10., scale));
   }
 
 
