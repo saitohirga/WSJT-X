@@ -410,7 +410,7 @@ QVariant FrequencyList::impl::data (QModelIndex const& index, int role) const
             {
             case Qt::EditRole:
             case Qt::AccessibleTextRole:
-              item = frequency_item.frequency_ / 1.e6;
+              item = Radio::frequency_MHz_string (frequency_item.frequency_);
               break;
 
             case Qt::DisplayRole:

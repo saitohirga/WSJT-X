@@ -3,13 +3,14 @@
 #include <QRegExpValidator>
 #include <QRegExp>
 #include <QString>
+#include <QLocale>
 
 #include "moc_FrequencyLineEdit.cpp"
 
 FrequencyLineEdit::FrequencyLineEdit (QWidget * parent)
   : QLineEdit (parent)
 {
-  setValidator (new QRegExpValidator {QRegExp {R"(\d{0,6}(\.\d{0,6})?)"}, this});
+  setValidator (new QRegExpValidator {QRegExp {QString {R"(\d{0,6}(\)"} + QLocale {}.decimalPoint () + R"(\d{0,6})?)"}, this});
 }
 
 auto FrequencyLineEdit::frequency () const -> Frequency
@@ -26,7 +27,7 @@ void FrequencyLineEdit::frequency (Frequency f)
 FrequencyDeltaLineEdit::FrequencyDeltaLineEdit (QWidget * parent)
   : QLineEdit (parent)
 {
-  setValidator (new QRegExpValidator {QRegExp {R"(-?\d{0,6}(\.\d{0,6})?)"}, this});
+  setValidator (new QRegExpValidator {QRegExp {QString {R"(-?\d{0,6}(\)"} + QLocale {}.decimalPoint () + R"(\d{0,6})?)"}, this});
 }
 
 auto FrequencyDeltaLineEdit::frequency_delta () const -> FrequencyDelta
