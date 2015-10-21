@@ -26,7 +26,7 @@
  *
  *      for the serialization details for each type, at the time of
  *      writing the above document is for Qt_5_0 format which is buggy
- *      so we use Qt_5_2 format, differences are:
+ *      so we use Qt_5_4 format, differences are:
  *
  *      QDateTime:
  *           QDate      qint64    Julian day number
@@ -49,19 +49,54 @@
  * strings and null strings. Empty strings have a length of zero
  * whereas null strings have a length field of 0xffffffff.
  *
- * Schema Version 1:
- * -----------------
+ * Schema Negotiation
+ * ------------------
+ *
+ * The NetworkMessage::Builder  class specifies a schema  number which
+ * may be  incremented from time to  time. It represents a  version of
+ * the underlying encoding schemes used to store data items. Since the
+ * underlying  encoding  is   defined  by  the  Qt   project  in  it's
+ * QDataStream  stream operators,  it  is essential  that clients  and
+ * servers  of  this protocol  can  agree  on  a common  scheme.   The
+ * NetworkMessage  utility classes  below exchange  the schema  number
+ * actually used.  The handling of  the schema is backwards compatible
+ * to  an  extent,  so  long   as  clients  and  servers  are  written
+ * correctly. For  example a server  written to any  particular schema
+ * version can communicate with a client written to a later schema.
+ *
+ * Schema Version 1:- this schema used the QDataStream::Qt_5_0 version
+ * 	which is broken.
+ *
+ * Schema Version 2:- this schema uses the QDataStream::Qt_5_2 version.
+ *
+ * Schema Version 3:- this schema uses the QDataStream::Qt_5_4 version.
+ *
+ *
  *
  * Message       Direction Value                  Type
  * ------------- --------- ---------------------- -----------
- * Heartbeat     Out       0                      quint32
+ * Heartbeat     Out/In    0                      quint32
  *                         Id (unique key)        utf8
+ *                         Maximum schema number  quint32
  *
- *		The  heartbeat  message  is  sent  on  a  periodic  basis  every
- *		NetworkMessage::pulse  seconds  (see  below).  This  message  is
- *		intended to be used by server to detect the presence of a client
- *		and  also   the  unexpected  disappearance  of   a  client.  The
- *		message_aggregator reference server does just that.
+ *		The heartbeat  message shall be  sent on a periodic  basis every
+ *		NetworkMessage::pulse   seconds   (see    below),   the   WSJT-X
+ *		application  does  that  using the  MessageClient  class.   This
+ *		message is intended to be used by servers to detect the presence
+ *		of a  client and also  the unexpected disappearance of  a client
+ *		and  by clients  to learn  the schema  negotiated by  the server
+ *		after it receives  the initial heartbeat message  from a client.
+ *		The message_aggregator reference server does just that using the
+ *		MessageServer class. Upon  initial startup a client  must send a
+ *		heartbeat message as soon as  is practical, this message is used
+ *		to negotiate the maximum schema  number common to the client and
+ *		server. Note  that the  server may  not be  able to  support the
+ *		client's  requested maximum  schema  number, in  which case  the
+ *		first  message received  from the  server will  specify a  lower
+ *		schema number (never a higher one  as that is not allowed). If a
+ *		server replies  with a lower  schema number then no  higher than
+ *		that number shall be used for all further outgoing messages from
+ *		either clients or the server itself.
  *
  *
  * Status        Out       1                      quint32
@@ -222,6 +257,7 @@
  *			"Send" flag is  unset.  Note that this API does  not include a
  *			command to  determine the  contents of  the current  free text
  *			message.
+ *
  */
 
 #include <QDataStream>
@@ -254,7 +290,7 @@ namespace NetworkMessage
   quint32 constexpr pulse {15}; // seconds
 
   //
-  // NetworkMessage::Build - build a message containing serialized Qt types
+  // NetworkMessage::Builder - build a message containing serialized Qt types
   //
   class Builder
     : public QDataStream
@@ -263,16 +299,23 @@ namespace NetworkMessage
     static quint32 constexpr magic {0xadbccbda}; // never change this
 
     // increment this if a newer Qt schema is required and add decode
-    // logic to InputMessageStream below
+    // logic to the Builder and Reader class implementations
+#if QT_VERSION >= 0x050400
+    static quint32 constexpr schema_number {3};
+#elif QT_VERSION >= 0x050200
     static quint32 constexpr schema_number {2};
+#else
+    // Schema 1 (Qt_5_0) is broken
+#error "Qt version 5.2 or greater required"
+#endif
 
-    explicit Builder (QIODevice *, Type, QString const& id);
-    explicit Builder (QByteArray *, Type, QString const& id);
+    explicit Builder (QIODevice *, Type, QString const& id, quint32 schema);
+    explicit Builder (QByteArray *, Type, QString const& id, quint32 schema);
     Builder (Builder const&) = delete;
     Builder& operator = (Builder const&) = delete;
 
   private:
-    void common_initialization (Type type, QString const& id);
+    void common_initialization (Type type, QString const& id, quint32 schema);
   };
 
   //

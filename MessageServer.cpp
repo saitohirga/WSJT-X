@@ -50,8 +50,20 @@ public:
   static BindMode const bind_mode_;
   struct Client
   {
+    Client () = default;
+    Client (QHostAddress const& sender_address, port_type const& sender_port)
+      : sender_address_ {sender_address}
+      , sender_port_ {sender_port}
+      , negotiated_schema_number_ {2} // not 1 because it's broken
+      , last_activity_ {QDateTime::currentDateTime ()}
+    {
+    }
+    Client (Client const&) = default;
+    Client& operator= (Client const&) = default;
+
     QHostAddress sender_address_;
     port_type sender_port_;
+    quint32 negotiated_schema_number_;
     QDateTime last_activity_;
   };
   QHash<QString, Client> clients_; // maps id to Client
@@ -115,16 +127,37 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
       auto id = in.id ();
       if (OK == check_status (in))
         {
-          bool new_client {false};
           if (!clients_.contains (id))
             {
-              new_client = true;
-            }
-          clients_[id] = {sender, sender_port, QDateTime::currentDateTime ()};
-          if (new_client)
-            {
+              auto& client = (clients_[id] = {sender, sender_port});
+
+              if (NetworkMessage::Heartbeat == in.type ())
+                {
+                  // negotiate a working schema number
+                  in >> client.negotiated_schema_number_;
+                  if (OK == check_status (in))
+                    {
+                      auto sn = NetworkMessage::Builder::schema_number;
+                      client.negotiated_schema_number_ = std::min (sn, client.negotiated_schema_number_);
+
+                      // reply to the new client informing it of the
+                      // negotiated schema number
+                      QByteArray message;
+                      NetworkMessage::Builder hb {&message, NetworkMessage::Heartbeat, id, client.negotiated_schema_number_};
+                      hb << NetworkMessage::Builder::schema_number; // maximum schema number accepted
+                      if (impl::OK == check_status (hb))
+                        {
+                          writeDatagram (message, client.sender_address_, client.sender_port_);
+                        }
+                      else
+                        {
+                          Q_EMIT self_->error ("Error creating UDP message");
+                        }
+                    }
+                }
               Q_EMIT self_->client_opened (id);
             }
+          clients_[id].last_activity_ = QDateTime::currentDateTime ();
   
           //
           // message format is described in NetworkMessage.hpp
@@ -233,13 +266,18 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
 void MessageServer::impl::tick ()
 {
   auto now = QDateTime::currentDateTime ();
-  for (auto iter = std::begin (clients_); iter != std::end (clients_); ++iter)
+  auto iter = std::begin (clients_);
+  while (iter != std::end (clients_))
     {
       if (now > (*iter).last_activity_.addSecs (NetworkMessage::pulse))
         {
           Q_EMIT self_->clear_decodes (iter.key ());
           Q_EMIT self_->client_closed (iter.key ());
-          clients_.erase (iter); // safe while iterating as doesn't rehash
+          iter = clients_.erase (iter); // safe while iterating as doesn't rehash
+        }
+      else
+        {
+          ++iter;
         }
     }
 }
@@ -251,7 +289,6 @@ auto MessageServer::impl::check_status (QDataStream const& stream) const -> Stre
   switch (stat)
     {
     case QDataStream::ReadPastEnd:
-      qDebug () << __PRETTY_FUNCTION__ << " warning: short UDP message received.";
       result = Short;
       break;
 
@@ -307,7 +344,7 @@ void MessageServer::reply (QString const& id, QTime time, qint32 snr, float delt
   if (iter != std::end (m_->clients_))
     {
       QByteArray message;
-      NetworkMessage::Builder out {&message, NetworkMessage::Reply, id};
+      NetworkMessage::Builder out {&message, NetworkMessage::Reply, id, (*iter).negotiated_schema_number_};
       out << time << snr << delta_time << delta_frequency << mode.toUtf8 () << message_text.toUtf8 ();
       if (impl::OK == m_->check_status (out))
         {
@@ -326,7 +363,7 @@ void MessageServer::replay (QString const& id)
   if (iter != std::end (m_->clients_))
     {
       QByteArray message;
-      NetworkMessage::Builder out {&message, NetworkMessage::Replay, id};
+      NetworkMessage::Builder out {&message, NetworkMessage::Replay, id, (*iter).negotiated_schema_number_};
       if (impl::OK == m_->check_status (out))
         {
           m_->writeDatagram (message, iter.value ().sender_address_, (*iter).sender_port_);
@@ -344,7 +381,7 @@ void MessageServer::halt_tx (QString const& id, bool auto_only)
   if (iter != std::end (m_->clients_))
     {
       QByteArray message;
-      NetworkMessage::Builder out {&message, NetworkMessage::HaltTx, id};
+      NetworkMessage::Builder out {&message, NetworkMessage::HaltTx, id, (*iter).negotiated_schema_number_};
       out << auto_only;
       if (impl::OK == m_->check_status (out))
         {
@@ -363,7 +400,7 @@ void MessageServer::free_text (QString const& id, QString const& text, bool send
   if (iter != std::end (m_->clients_))
     {
       QByteArray message;
-      NetworkMessage::Builder out {&message, NetworkMessage::FreeText, id};
+      NetworkMessage::Builder out {&message, NetworkMessage::FreeText, id, (*iter).negotiated_schema_number_};
       out << text.toUtf8 () << send;
       if (impl::OK == m_->check_status (out))
         {
