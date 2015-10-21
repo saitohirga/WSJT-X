@@ -25,7 +25,14 @@ void register_types ()
 {
   // Radio namespace
   auto frequency_type_id = qRegisterMetaType<Radio::Frequency> ("Frequency");
-  item_editor_factory ()->registerEditor (frequency_type_id, new QStandardItemEditorCreator<FrequencyLineEdit> ());
+  qRegisterMetaType<Radio::Frequencies> ("Frequencies");
+
+  // This is required to preserve v1.5 "frequencies" setting for
+  // backwards compatibility, without it the setting gets trashed by
+  // later versions.
+  qRegisterMetaTypeStreamOperators<Radio::Frequencies> ("Frequencies");
+
+ item_editor_factory ()->registerEditor (frequency_type_id, new QStandardItemEditorCreator<FrequencyLineEdit> ());
   auto frequency_delta_type_id = qRegisterMetaType<Radio::FrequencyDelta> ("FrequencyDelta");
   item_editor_factory ()->registerEditor (frequency_delta_type_id, new QStandardItemEditorCreator<FrequencyDeltaLineEdit> ());
 

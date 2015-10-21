@@ -1216,7 +1216,15 @@ void Configuration::impl::read_settings ()
 
   if (settings_->contains ("FrequenciesForModes"))
     {
-      frequencies_.frequency_list (settings_->value ("FrequenciesForModes").value<FrequencyList::FrequencyItems> ());
+      auto const& v = settings_->value ("FrequenciesForModes");
+      if (v.isValid ())
+        {
+          frequencies_.frequency_list (v.value<FrequencyList::FrequencyItems> ());
+        }
+      else
+        {
+          frequencies_.reset_to_defaults ();
+        }
     }
   else
     {
