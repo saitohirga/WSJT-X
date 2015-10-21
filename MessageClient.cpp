@@ -25,6 +25,7 @@ public:
     : self_ {self}
     , id_ {id}
     , server_port_ {server_port}
+    , schema_ {2}  // use 2 prior to negotiation not 1 which is broken
     , heartbeat_timer_ {new QTimer {this}}
   {
     connect (heartbeat_timer_, &QTimer::timeout, this, &impl::heartbeat);
@@ -57,6 +58,7 @@ public:
   QString server_string_;
   port_type server_port_;
   QHostAddress server_;
+  quint32 schema_;
   QTimer * heartbeat_timer_;
 
   // hold messages sent before host lookup completes asynchronously
@@ -75,6 +77,9 @@ void MessageClient::impl::host_info_results (QHostInfo host_info)
   else if (host_info.addresses ().size ())
     {
       server_ = host_info.addresses ()[0];
+
+      // send initial heartbeat which allows schema negotiation
+      heartbeat ();
 
       // clear any backlog
       while (pending_messages_.size ())
@@ -107,9 +112,14 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
       // message format is described in NetworkMessage.hpp
       // 
       NetworkMessage::Reader in {msg};
-
       if (OK == check_status (in) && id_ == in.id ()) // OK and for us
         {
+          if (schema_ < in.schema ()) // one time record of server's
+                                      // negotiated schema
+            {
+              schema_ = in.schema ();
+            }
+
           //
           // message format is described in NetworkMessage.hpp
           //
@@ -184,7 +194,8 @@ void MessageClient::impl::heartbeat ()
    if (server_port_ && !server_.isNull ())
     {
       QByteArray message;
-      NetworkMessage::Builder hb {&message, NetworkMessage::Heartbeat, id_};
+      NetworkMessage::Builder hb {&message, NetworkMessage::Heartbeat, id_, schema_};
+      hb << NetworkMessage::Builder::schema_number; // maximum schema number accepted
       if (OK == check_status (hb))
         {
           writeDatagram (message, server_, server_port_);
@@ -197,7 +208,7 @@ void MessageClient::impl::closedown ()
    if (server_port_ && !server_.isNull ())
     {
       QByteArray message;
-      NetworkMessage::Builder out {&message, NetworkMessage::Close, id_};
+      NetworkMessage::Builder out {&message, NetworkMessage::Close, id_, schema_};
       if (OK == check_status (out))
         {
           writeDatagram (message, server_, server_port_);
@@ -227,7 +238,6 @@ auto MessageClient::impl::check_status (QDataStream const& stream) const -> Stre
   switch (stat)
     {
     case QDataStream::ReadPastEnd:
-      qDebug () << __PRETTY_FUNCTION__ << " warning: short UDP message received.";
       result = Short;
       break;
 
@@ -300,7 +310,7 @@ void MessageClient::status_update (Frequency f, QString const& mode, QString con
   if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
       QByteArray message;
-      NetworkMessage::Builder out {&message, NetworkMessage::Status, m_->id_};
+      NetworkMessage::Builder out {&message, NetworkMessage::Status, m_->id_, m_->schema_};
       out << f << mode.toUtf8 () << dx_call.toUtf8 () << report.toUtf8 () << tx_mode.toUtf8 ()
           << tx_enabled << transmitting;
       if (impl::OK == m_->check_status (out))
@@ -320,7 +330,7 @@ void MessageClient::decode (bool is_new, QTime time, qint32 snr, float delta_tim
    if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
       QByteArray message;
-      NetworkMessage::Builder out {&message, NetworkMessage::Decode, m_->id_};
+      NetworkMessage::Builder out {&message, NetworkMessage::Decode, m_->id_, m_->schema_};
       out << is_new << time << snr << delta_time << delta_frequency << mode.toUtf8 () << message_text.toUtf8 ();
       if (impl::OK == m_->check_status (out))
         {
@@ -338,7 +348,7 @@ void MessageClient::clear_decodes ()
    if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
       QByteArray message;
-      NetworkMessage::Builder out {&message, NetworkMessage::Clear, m_->id_};
+      NetworkMessage::Builder out {&message, NetworkMessage::Clear, m_->id_, m_->schema_};
       if (impl::OK == m_->check_status (out))
         {
           m_->send_message (message);
@@ -358,7 +368,7 @@ void MessageClient::qso_logged (QDateTime time, QString const& dx_call, QString 
    if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
       QByteArray message;
-      NetworkMessage::Builder out {&message, NetworkMessage::QSOLogged, m_->id_};
+      NetworkMessage::Builder out {&message, NetworkMessage::QSOLogged, m_->id_, m_->schema_};
       out << time << dx_call.toUtf8 () << dx_grid.toUtf8 () << dial_frequency << mode.toUtf8 ()
           << report_sent.toUtf8 () << report_received.toUtf8 () << tx_power.toUtf8 () << comments.toUtf8 () << name.toUtf8 ();
       if (impl::OK == m_->check_status (out))

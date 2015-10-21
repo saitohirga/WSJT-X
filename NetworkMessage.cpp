@@ -9,23 +9,46 @@
 
 namespace NetworkMessage
 {
-  Builder::Builder (QIODevice * device, Type type, QString const& id)
+  Builder::Builder (QIODevice * device, Type type, QString const& id, quint32 schema)
     : QDataStream {device}
   {
-    common_initialization (type, id);
+    common_initialization (type, id, schema);
   }
 
-  Builder::Builder (QByteArray * a, Type type, QString const& id)
+  Builder::Builder (QByteArray * a, Type type, QString const& id, quint32 schema)
     : QDataStream {a, QIODevice::WriteOnly}
   {
-    common_initialization (type, id);
+    common_initialization (type, id, schema);
   }
 
-  void Builder::common_initialization (Type type, QString const& id)
+  void Builder::common_initialization (Type type, QString const& id, quint32 schema)
   {
+    if (schema <= 1)
+      {
+        setVersion (QDataStream::Qt_5_0); // Qt schema version
+      }
+#if QT_VERSION >= 0x050200
+    else if (schema <= 2)
+      {
+        setVersion (QDataStream::Qt_5_2); // Qt schema version
+      }
+#endif
+#if QT_VERSION >= 0x050400
+    else if (schema <= 3)
+      {
+        setVersion (QDataStream::Qt_5_4); // Qt schema version
+      }
+#endif
+    else
+      {
+        throw std::runtime_error {"Unrecognized message schema"};
+      }
+
+    // the following two items assume that the quint32 encoding is
+    // unchanged over QDataStream versions
     *this << magic;
-    *this << schema_number;
-    setVersion (QDataStream::Qt_5_2); // Qt schema version
+    *this << schema;
+
     *this << static_cast<quint32> (type) << id.toUtf8 ();
   }
 
@@ -49,10 +72,18 @@ namespace NetworkMessage
         {
           parent->setVersion (QDataStream::Qt_5_0);
         }
+#if QT_VERSION >= 0x050200
       else if (schema_ <= 2)
         {
           parent->setVersion (QDataStream::Qt_5_2);
         }
+#endif
+#if QT_VERSION >= 0x050400
+      else if (schema_ <= 3)
+        {
+          parent->setVersion (QDataStream::Qt_5_4);
+        }
+#endif
       quint32 type;
       *parent >> type >> id_;
       if (type >= maximum_message_type_)
