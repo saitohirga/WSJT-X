@@ -6,7 +6,7 @@ program JT65code
 
   character*22 testmsg(26)
   character*22 msg,msg0,msg1,decoded,cok*3,bad*1,msgtype*10
-  integer dgen(12),sent(63),recd(12),era(51)
+  integer dgen(12),sent(63),tmp(63),recd(12),era(51)
 
   nargs=iargc()
   if(nargs.ne.1) then
@@ -80,9 +80,10 @@ program JT65code
      call rs_encode(dgen,sent)               !RS encode
      call interleave63(sent,1)               !Interleave channel symbols
      call graycode(sent,63,1,sent)           !Apply Gray code
-     call graycode(sent,63,-1,sent)
-     call interleave63(sent,-1)
-     call rs_decode(sent,era,0,recd,nerr)
+
+     call graycode(sent,63,-1,tmp)           !Remove Gray code
+     call interleave63(tmp,-1)               !Remove interleaving
+     call rs_decode(tmp,era,0,recd,nerr)     !Decode the message
      call unpackmsg(recd,decoded)            !Unpack the user message
      if(cok.eq."OOO") decoded(20:22)=cok
      call fmtmsg(decoded,iz)
