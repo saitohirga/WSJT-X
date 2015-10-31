@@ -128,7 +128,7 @@ void LogQSO::accept()
       m_dateTime.time().toString("hh:mm,") + hisCall + "," +
       hisGrid + "," + strDialFreq + "," + mode +
       "," + rptSent + "," + rptRcvd + "," + m_txPower +
-      "," + comments; + "," + name;
+      "," + comments + "," + name;
     QTextStream out(&f);
     out << logEntry << endl;
     f.close();
