@@ -1,0 +1,14 @@
+// Status=review
+// Needs updating: GB Added 03-NOV-2015
+
+// add other sections here
+
+[[COMMAND_REF_LOGGING]]
+.Choose any desired options from this group:
+
+* Prompt me to log QSO
+* Convert mode to RTTY
+* db reports to comments
+* Clear DX call and grid after logging
+
+// more sections here
