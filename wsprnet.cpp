@@ -12,6 +12,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
+#include <QDebug>
 
 #include "moc_wsprnet.cpp"
 
