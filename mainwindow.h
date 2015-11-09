@@ -194,7 +194,6 @@ private slots:
   void on_actionAstronomical_data_triggered();
   void on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered();
   void getpfx();
-  void on_actionJT9W_1_triggered();
   void band_changed (Frequency);
   void monitor (bool);
   void stop_tuning ();

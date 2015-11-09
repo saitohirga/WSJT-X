@@ -240,7 +240,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 
   QActionGroup* modeGroup = new QActionGroup(this);
   ui->actionJT9_1->setActionGroup(modeGroup);
-  ui->actionJT9W_1->setActionGroup(modeGroup);
   ui->actionJT65->setActionGroup(modeGroup);
   ui->actionJT9_JT65->setActionGroup(modeGroup);
   ui->actionJT4->setActionGroup(modeGroup);
@@ -509,7 +508,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   genStdMsgs(m_rpt);
   m_ntx=6;
   ui->txrb6->setChecked(true);
-  if(m_mode!="JT9" and m_mode!="JT9W-1" and m_mode!="JT65" and m_mode!="JT9+JT65"
+  if(m_mode!="JT9" and m_mode!="JT65" and m_mode!="JT9+JT65"
      and m_mode!="JT4" and m_mode!="WSPR-2" and m_mode!="WSPR-15" and
      m_mode!="Echo") m_mode="JT9";
   on_actionWide_Waterfall_triggered();                   //###
@@ -519,7 +518,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 
   if(m_mode=="JT4") on_actionJT4_triggered();
   if(m_mode=="JT9") on_actionJT9_1_triggered();
-  if(m_mode=="JT9W-1") on_actionJT9W_1_triggered();
   if(m_mode=="JT65") on_actionJT65_triggered();
   if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
   if(m_mode=="WSPR-2") on_actionWSPR_2_triggered();
@@ -576,11 +574,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_dialFreqRxWSPR=0;
   wsprNet = new WSPRNet(this);
   connect( wsprNet, SIGNAL(uploadStatus(QString)), this, SLOT(uploadResponse(QString)));
-
-//### Remove this stuff!
-#if !WSJT_ENABLE_EXPERIMENTAL_FEATURES
-  ui->actionJT9W_1->setEnabled (false);
-#endif
 }
 
 //--------------------------------------------------- MainWindow destructor
@@ -910,8 +903,6 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
         {
           pskSetLocal ();
         }
-
-      if(m_mode=="JT9W-1") m_toneSpacing=pow(2,m_config.jt9w_bw_mult ())*12000.0/6912.0;
 
       if(m_config.restart_audio_input ()) {
         Q_EMIT startAudioInputStream (m_config.audio_input_device (), m_framesAudioInputBuffered, m_detector, m_downSampleFactor, m_config.audio_input_channel ());
@@ -1518,7 +1509,6 @@ void MainWindow::decode()                                       //decode()
   jt9com_.ntxmode=9;
   if(m_modeTx=="JT65") jt9com_.ntxmode=65;
   jt9com_.nmode=9;
-  if(m_mode=="JT9W-1") jt9com_.nmode=91;
   if(m_mode=="JT65") jt9com_.nmode=65;
   if(m_mode=="JT9+JT65") jt9com_.nmode=9+65;  // = 74
   if(m_mode=="JT4") {
@@ -1737,24 +1727,19 @@ void MainWindow::decodeBusy(bool b)                             //decodeBusy()
       if ("JT9+JT65" == m_mode) m_firstDecode = 65 + 9;
       showProgress = true;
     }
-  if (b && m_firstDecode != 9 && m_firstDecode != 65 + 9 &&
-      ("JT9" == m_mode || "JT9W-1" == m_mode))
-    {
-      m_firstDecode += 9;
-      showProgress = true;
-    }
-  if (showProgress)
-    {
-      // this sequence is needed to create an indeterminate progress
-      // bar
-      m_optimizingProgress.setRange (0, 1);
-      m_optimizingProgress.setValue (0);
-      m_optimizingProgress.setRange (0, 0);
-    }
-  if (!b)
-    {
-      m_optimizingProgress.reset ();
-    }
+  if (b && m_firstDecode != 9 && m_firstDecode != 65 + 9 && ("JT9" == m_mode)) {
+    m_firstDecode += 9;
+    showProgress = true;
+  }
+  if (showProgress) {
+      // this sequence is needed to create an indeterminate progress bar
+    m_optimizingProgress.setRange (0, 1);
+    m_optimizingProgress.setValue (0);
+    m_optimizingProgress.setRange (0, 0);
+  }
+  if (!b) {
+    m_optimizingProgress.reset ();
+  }
 
   m_decoderBusy=b;
   ui->DecodeButton->setEnabled(!b);
@@ -2933,34 +2918,6 @@ void MainWindow::on_actionJT9_1_triggered()
   m_toneSpacing=0.0;
   ui->ClrAvgButton->setVisible(false);
   ui->actionJT9_1->setChecked(true);
-  VHF_features_enabled(false);
-  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
-  m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
-  ui->pbTxMode->setEnabled(false);
-  VHF_controls_visible(false);
-  WSPR_config(false);
-  ui->label_6->setText("Band Activity");
-  ui->label_7->setText("Rx Frequency");
-}
-
-void MainWindow::on_actionJT9W_1_triggered()
-{
-  m_mode="JT9W-1";
-  switch_mode (Modes::JT9W_1);
-  if(m_modeTx!="JT9") on_pbTxMode_clicked();
-  statusChanged();
-  m_TRperiod=60;
-  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_detector->setPeriod(m_TRperiod);   // TODO - not thread safe
-  m_nsps=6912;
-  m_hsymStop=173;
-  if(m_config.decode_at_52s()) m_hsymStop=181;
-  m_toneSpacing=pow(2,m_config.jt9w_bw_mult ())*12000.0/6912.0;
-  mode_label->setStyleSheet("QLabel{background-color: #ff6ec7}");
-  mode_label->setText(m_mode);
-  ui->ClrAvgButton->setVisible(false);
-  ui->actionJT9W_1->setChecked(true);
   VHF_features_enabled(false);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);

@@ -20,7 +20,7 @@
       <string>Select tab to change configuration parameters.</string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="general_tab">
       <attribute name="title">
@@ -1180,26 +1180,6 @@ radio interface behave as expected.</string>
        <string>Audio interface settings</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
-       <item row="6" column="0">
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="0">
-        <widget class="Line" name="line_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
        <item row="2" column="0">
         <widget class="QGroupBox" name="save_path_group_box">
          <property name="title">
@@ -1367,160 +1347,6 @@ both here.</string>
          </layout>
         </widget>
        </item>
-       <item row="4" column="0">
-        <widget class="QGroupBox" name="jt9w_group_box">
-         <property name="title">
-          <string>JT9W Settings</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_9">
-          <item row="0" column="0">
-           <layout class="QFormLayout" name="formLayout_2">
-            <property name="fieldGrowthPolicy">
-             <enum>QFormLayout::ExpandingFieldsGrow</enum>
-            </property>
-            <item row="0" column="1">
-             <widget class="QComboBox" name="jt9w_bandwidth_mult_combo_box">
-              <item>
-               <property name="text">
-                <string>1</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>2</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>4</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>8</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>16</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>32</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>64</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>128</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>Bandwidth Multiplier:</string>
-              </property>
-              <property name="buddy">
-               <cstring>jt9w_bandwidth_mult_combo_box</cstring>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="0" column="2">
-           <layout class="QFormLayout" name="formLayout_3">
-            <property name="fieldGrowthPolicy">
-             <enum>QFormLayout::ExpandingFieldsGrow</enum>
-            </property>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>DT Max:</string>
-              </property>
-              <property name="buddy">
-               <cstring>jt9w_max_dt_double_spin_box</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_2">
-              <property name="text">
-               <string>DT Min:</string>
-              </property>
-              <property name="buddy">
-               <cstring>jt9w_min_dt_double_spin_box</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QDoubleSpinBox" name="jt9w_min_dt_double_spin_box">
-              <property name="suffix">
-               <string> s</string>
-              </property>
-              <property name="decimals">
-               <number>1</number>
-              </property>
-              <property name="minimum">
-               <double>-2.500000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>5.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.100000000000000</double>
-              </property>
-              <property name="value">
-               <double>-2.500000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QDoubleSpinBox" name="jt9w_max_dt_double_spin_box">
-              <property name="suffix">
-               <string> s</string>
-              </property>
-              <property name="decimals">
-               <number>1</number>
-              </property>
-              <property name="minimum">
-               <double>-2.500000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>5.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.100000000000000</double>
-              </property>
-              <property name="value">
-               <double>5.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="0" column="1">
-           <spacer name="horizontalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="3" column="0">
         <widget class="QGroupBox" name="azel_path_group_box">
          <property name="minimumSize">
@@ -1564,6 +1390,26 @@ both here.</string>
            </widget>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
         </widget>
        </item>
       </layout>
@@ -2344,9 +2190,6 @@ soundcard changes</string>
   <tabstop>sound_output_channel_combo_box</tabstop>
   <tabstop>save_path_select_push_button</tabstop>
   <tabstop>azel_path_select_push_button</tabstop>
-  <tabstop>jt9w_bandwidth_mult_combo_box</tabstop>
-  <tabstop>jt9w_min_dt_double_spin_box</tabstop>
-  <tabstop>jt9w_max_dt_double_spin_box</tabstop>
   <tabstop>add_macro_line_edit</tabstop>
   <tabstop>add_macro_push_button</tabstop>
   <tabstop>delete_macro_push_button</tabstop>
@@ -2440,12 +2283,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="split_mode_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
  </buttongroups>
 </ui>

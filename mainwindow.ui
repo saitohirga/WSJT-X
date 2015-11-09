@@ -2329,7 +2329,6 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionJT9_1"/>
     <addaction name="actionJT65"/>
     <addaction name="actionJT9_JT65"/>
-    <addaction name="actionJT9W_1"/>
     <addaction name="actionJT4"/>
     <addaction name="actionWSPR_2"/>
     <addaction name="actionWSPR_15"/>
@@ -2654,14 +2653,6 @@ QPushButton[state=&quot;ok&quot;] {
   <action name="actionAstronomical_data">
    <property name="text">
     <string>Astronomical data</string>
-   </property>
-  </action>
-  <action name="actionJT9W_1">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>JT9W-1</string>
    </property>
   </action>
   <action name="actionShort_list_of_add_on_prefixes_and_suffixes">

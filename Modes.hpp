@@ -17,7 +17,6 @@ public:
     NULL_MODE,
     JT65,
     JT9,
-    JT9W_1,
     JT4,
     WSPR,
     Echo,

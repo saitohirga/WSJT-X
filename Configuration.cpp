@@ -458,10 +458,6 @@ private:
   bool restart_sound_input_device_;
   bool restart_sound_output_device_;
 
-  unsigned jt9w_bw_mult_;
-  float jt9w_min_dt_;
-  float jt9w_max_dt_;
-
   Type2MsgGen type_2_msg_gen_;
 
   QStringListModel macros_;
@@ -583,9 +579,6 @@ QAudioDeviceInfo const& Configuration::audio_output_device () const {return m_->
 AudioDevice::Channel Configuration::audio_output_channel () const {return m_->audio_output_channel_;}
 bool Configuration::restart_audio_input () const {return m_->restart_sound_input_device_;}
 bool Configuration::restart_audio_output () const {return m_->restart_sound_output_device_;}
-unsigned Configuration::jt9w_bw_mult () const {return m_->jt9w_bw_mult_;}
-float Configuration::jt9w_min_dt () const {return m_->jt9w_min_dt_;}
-float Configuration::jt9w_max_dt () const {return m_->jt9w_max_dt_;}
 auto Configuration::type_2_msg_gen () const -> Type2MsgGen {return m_->type_2_msg_gen_;}
 QString Configuration::my_callsign () const {return m_->my_callsign_;}
 QString Configuration::my_grid () const {return m_->my_grid_;}
@@ -976,10 +969,6 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   initialize_models ();
 
   transceiver_thread_.start ();
-
-#if !WSJT_ENABLE_EXPERIMENTAL_FEATURES
-  ui_->jt9w_group_box->setEnabled (false);
-#endif
 }
 
 Configuration::impl::~impl ()
@@ -1036,9 +1025,6 @@ void Configuration::impl::initialize_models ()
   ui_->TX_messages_check_box->setChecked (TX_messages_);
   ui_->enable_VHF_features_check_box->setChecked(enable_VHF_features_);
   ui_->decode_at_52s_check_box->setChecked(decode_at_52s_);
-  ui_->jt9w_bandwidth_mult_combo_box->setCurrentText (QString::number (jt9w_bw_mult_));
-  ui_->jt9w_min_dt_double_spin_box->setValue (jt9w_min_dt_);
-  ui_->jt9w_max_dt_double_spin_box->setValue (jt9w_max_dt_);
   ui_->type_2_msg_gen_combo_box->setCurrentIndex (type_2_msg_gen_);
   ui_->rig_combo_box->setCurrentText (rig_params_.rig_name);
   ui_->TX_mode_button_group->button (data_mode_)->setChecked (true);
@@ -1199,19 +1185,12 @@ void Configuration::impl::read_settings ()
   // retrieve audio channel info
   audio_input_channel_ = AudioDevice::fromString (settings_->value ("AudioInputChannel", "Mono").toString ());
   audio_output_channel_ = AudioDevice::fromString (settings_->value ("AudioOutputChannel", "Mono").toString ());
-
-  jt9w_bw_mult_ = settings_->value ("ToneMult", 1).toUInt ();
-  jt9w_min_dt_ = settings_->value ("DTmin", -2.5).toFloat ();
-  jt9w_max_dt_ = settings_->value ("DTmax", 5.).toFloat ();
-
   type_2_msg_gen_ = settings_->value ("Type2MsgGen", QVariant::fromValue (Configuration::type_2_msg_3_full)).value<Configuration::Type2MsgGen> ();
-
   monitor_off_at_startup_ = settings_->value ("MonitorOFF", false).toBool ();
   monitor_last_used_ = settings_->value ("MonitorLastUsed", false).toBool ();
   spot_to_psk_reporter_ = settings_->value ("PSKReporter", false).toBool ();
   id_after_73_ = settings_->value ("After73", false).toBool ();
   tx_QSY_allowed_ = settings_->value ("TxQSYAllowed", false).toBool ();
-
   macros_.setStringList (settings_->value ("Macros", QStringList {"TNX 73 GL"}).toStringList ());
 
   if (settings_->contains ("FrequenciesForModes"))
@@ -1312,9 +1291,6 @@ void Configuration::impl::write_settings ()
 
   settings_->setValue ("AudioInputChannel", AudioDevice::toString (audio_input_channel_));
   settings_->setValue ("AudioOutputChannel", AudioDevice::toString (audio_output_channel_));
-  settings_->setValue ("ToneMult", jt9w_bw_mult_);
-  settings_->setValue ("DTmin", jt9w_min_dt_);
-  settings_->setValue ("DTmax", jt9w_max_dt_);
   settings_->setValue ("Type2MsgGen", QVariant::fromValue (type_2_msg_gen_));
   settings_->setValue ("MonitorOFF", monitor_off_at_startup_);
   settings_->setValue ("MonitorLastUsed", monitor_last_used_);
@@ -1693,9 +1669,6 @@ void Configuration::impl::accept ()
   tx_QSY_allowed_ = ui_->tx_QSY_check_box->isChecked ();
   monitor_off_at_startup_ = ui_->monitor_off_check_box->isChecked ();
   monitor_last_used_ = ui_->monitor_last_used_check_box->isChecked ();
-  jt9w_bw_mult_ = ui_->jt9w_bandwidth_mult_combo_box->currentText ().toUInt ();
-  jt9w_min_dt_ = static_cast<float> (ui_->jt9w_min_dt_double_spin_box->value ());
-  jt9w_max_dt_ = static_cast<float> (ui_->jt9w_max_dt_double_spin_box->value ());
   type_2_msg_gen_ = static_cast<Type2MsgGen> (ui_->type_2_msg_gen_combo_box->currentIndex ());
   log_as_RTTY_ = ui_->log_as_RTTY_check_box->isChecked ();
   report_in_comments_ = ui_->report_in_comments_check_box->isChecked ();
