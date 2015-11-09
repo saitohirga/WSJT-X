@@ -99,7 +99,8 @@ include::transceiver-setup.adoc[]
 == Basic Operating Tutorial
 
 Sections <<TUT_MAIN,6.1>> through <<TUT_EX2,6.4>> are keyed to the
-needs of operation on the HF bands.  Section <<TUT_VHF,6.5>> has
+needs of basic operation for two-way QSOs on the HF bands.  Section
+<<TUT_WSPR,6.5>> deals with WSPR mode, and section <<TUT_VHF,6.6>> has
 additional details of special relevance to VHF-and-up operation.
 
 [[TUT_MAIN]]
