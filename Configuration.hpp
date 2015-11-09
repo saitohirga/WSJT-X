@@ -127,9 +127,6 @@ public:
   QDir save_directory () const;
   QDir azel_directory () const;
   QString rig_name () const;
-  unsigned jt9w_bw_mult () const;
-  float jt9w_min_dt () const;
-  float jt9w_max_dt () const;
   Type2MsgGen type_2_msg_gen () const;
   QColor color_CQ () const;
   QColor color_MyCall () const;
