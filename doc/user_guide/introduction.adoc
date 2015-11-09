@@ -6,10 +6,10 @@ the program name stand for “Weak Signal communication by K1JT,” while
 the suffix “-X” indicates that _WSJT-X_ started as an extended (and
 experimental) branch of the program _WSJT_.
 
-_WSJT-X_ offers four protocols or “modes”: JT4, JT9, JT65 and WSPR.
-The first three are designed for making reliable, confirmed QSOs under
-extreme weak-signal conditions. They use nearly identical message
-structure and source encoding.  JT65 was designed for EME
+_WSJT-X_ Version 1.6 offers four protocols or “modes”: JT4, JT9, JT65
+and WSPR.  The first three are designed for making reliable 
+QSOs under extreme weak-signal conditions. They use nearly identical
+message structure and source encoding.  JT65 was designed for EME
 (“moonbounce”) on the VHF/UHF bands and has also proven very effective
 for worldwide QRP communication on the HF bands.  JT9 is optimized for
 the LF, MF, and lower HF bands.  It is about 2 dB more sensitive than
@@ -21,7 +21,7 @@ minimal QSO takes four to six minutes — two or three transmissions by
 each station, one sending in odd UTC minutes and the other even. On
 the HF bands, world-wide QSOs are possible using power levels of a few
 watts and compromise antennas.  On VHF bands and higher, QSOs are
-possible (by EME and other propagation methods) at signal levels 10 to
+possible (by EME and other propagation types) at signal levels 10 to
 15 dB below those required for CW.
 
 WSPR (pronounced “whisper”) stands for Weak Signal Propagation
