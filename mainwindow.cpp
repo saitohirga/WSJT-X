@@ -1169,7 +1169,12 @@ void MainWindow::displayDialFrequency ()
   }
 
   update_dynamic_property (ui->labDialFreq, "oob", !valid);
-  ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
+  if(m_dialFreq==18446744073709551615u) {
+    ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (default_frequency));
+  } else {
+    ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
+
+  }
 }
 
 void MainWindow::statusChanged()
