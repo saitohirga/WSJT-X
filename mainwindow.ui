@@ -573,7 +573,7 @@ QLabel[oob=&quot;true&quot;] {
         <item row="0" column="3" rowspan="3">
          <widget class="QStackedWidget" name="controls_stack_widget">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="page">
            <layout class="QHBoxLayout" name="horizontalLayout_8">
