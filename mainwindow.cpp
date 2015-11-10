@@ -422,6 +422,9 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_nclearave=1;
   m_bEchoTxed=false;
   m_nWSPRdecodes=0;
+  QString t1[28]={"1 uW","2 uW","5 uW","10 uW","20 uW","50 uW","100 uW","200 uW","500 uW",
+                  "1 mW","2 mW","5 mW","10 mW","20 mW","50 mW","100 mW","200 mW","500 mW",
+                  "1 W","2 W","5 W","10 W","20 W","50 W","100 W","200 W","500 W","1 kW"};
 
   for(int i=0; i<28; i++)  {                      //Initialize dBm values
     float dbm=(10.0*i)/3.0 - 30.0;
@@ -429,7 +432,8 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
     if(dbm<0) ndbm=int(dbm-0.5);
     if(dbm>=0) ndbm=int(dbm+0.5);
     QString t;
-    t.sprintf("%d dBm",ndbm);
+    t.sprintf("%d dBm  ",ndbm);
+    t+=t1[i];
     ui->TxPowerComboBox->addItem(t);
   }
 
