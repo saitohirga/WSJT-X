@@ -2332,7 +2332,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     }
 
   // only allow automatic mode changes between JT9 and JT65, and when not transmitting
-  if (!m_transmitting and m_mode != "JT4") {
+  if (!m_transmitting and m_mode == "JT9+JT65") {
       if (decodedtext.isJT9())
         {
           m_modeTx="JT9";
