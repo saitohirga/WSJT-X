@@ -501,7 +501,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Set Tx Enable OFF</string>
+           <string>Stop transmitting immediately</string>
           </property>
           <property name="text">
            <string>&amp;Halt Tx</string>
@@ -573,7 +573,7 @@ QLabel[oob=&quot;true&quot;] {
         <item row="0" column="3" rowspan="3">
          <widget class="QStackedWidget" name="controls_stack_widget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="page">
            <layout class="QHBoxLayout" name="horizontalLayout_8">
@@ -1671,6 +1671,9 @@ list. The list can be maintained in Settings (F2).</string>
                     <layout class="QHBoxLayout" name="horizontalLayout_7">
                      <item>
                       <widget class="QPushButton" name="band_hopping_schedule_push_button">
+                       <property name="toolTip">
+                        <string>Choose bands and times of day for band-hopping.</string>
+                       </property>
                        <property name="text">
                         <string>Schedule ...</string>
                        </property>
@@ -1681,6 +1684,9 @@ list. The list can be maintained in Settings (F2).</string>
                   </item>
                   <item row="1" column="1">
                    <widget class="QSpinBox" name="sbTxPercent">
+                    <property name="toolTip">
+                     <string>Percentage of 2-minute sequences devoted to transmitting.</string>
+                    </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
                     </property>
@@ -1697,6 +1703,9 @@ list. The list can be maintained in Settings (F2).</string>
                   </item>
                   <item row="0" column="2">
                    <widget class="QCheckBox" name="cbUploadWSPR_Spots">
+                    <property name="toolTip">
+                     <string>Upload decoded messages to WPRnet.org.</string>
+                    </property>
                     <property name="text">
                      <string>Upload spots</string>
                     </property>
@@ -1726,6 +1735,9 @@ list. The list can be maintained in Settings (F2).</string>
                   </item>
                   <item row="1" column="2">
                    <widget class="QPushButton" name="pbTxNext">
+                    <property name="toolTip">
+                     <string>Transmit during the next 2-minute sequence.</string>
+                    </property>
                     <property name="styleSheet">
                      <string notr="true">QPushButton:checked {
 	background-color: red;
@@ -1746,7 +1758,11 @@ list. The list can be maintained in Settings (F2).</string>
                    </widget>
                   </item>
                   <item row="2" column="2">
-                   <widget class="QComboBox" name="TxPowerComboBox"/>
+                   <widget class="QComboBox" name="TxPowerComboBox">
+                    <property name="toolTip">
+                     <string>Set Tx power in dBm (dB above 1 mW) as part of your WSPR message.</string>
+                    </property>
+                   </widget>
                   </item>
                   <item row="0" column="0">
                    <spacer name="horizontalSpacer_3">

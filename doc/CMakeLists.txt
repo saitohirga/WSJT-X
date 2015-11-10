@@ -6,99 +6,102 @@ set (common_SRCS
 
 set (UG_SRCS
   user_guide/acknowledgements.adoc
-  user_guide/install-from-source.adoc
-  user_guide/rig-config-drake.adoc
-  user_guide/settings-radio.adoc
   user_guide/compiling.adoc
-  user_guide/install-linux.adoc
-  user_guide/rig-config-elecraft.adoc
-  user_guide/settings-reporting.adoc
   user_guide/config-details.adoc
-  user_guide/install-mac.adoc
-  user_guide/rig-config-flexrad.adoc
-  user_guide/settings-txmacros.adoc
   user_guide/controls-functions-center.adoc
-  user_guide/install-windows.adoc
-  user_guide/rig-config-icom.adoc
-  user_guide/system-requirements.adoc
   user_guide/controls-functions-left.adoc
-  user_guide/introduction.adoc
-  user_guide/rig-config-kenwood.adoc
-  user_guide/transceiver-setup.adoc
   user_guide/controls-functions-main-window.adoc
-  user_guide/jt65-jt9-differences.adoc
-  user_guide/rig-config-main.adoc
-  user_guide/tutorial-example1.adoc
   user_guide/controls-functions-menus.adoc
-  user_guide/jt65-protocol.adoc
-  user_guide/rig-config-softrock.adoc
-  user_guide/tutorial-example2.adoc
-  user_guide/tutorial-vhf.adoc
   user_guide/controls-functions-messages.adoc
-  user_guide/jt9-protocol.adoc
-  user_guide/rig-config-template.adoc
-  user_guide/tutorial-main-window.adoc
   user_guide/controls-functions-status-bar.adoc
-  user_guide/make-qso.adoc
-  user_guide/rig-config-tentec.adoc
-  user_guide/tutorial-wide-graph-settings.adoc
   user_guide/controls-functions-wide-graph.adoc
-  user_guide/platform-dependencies.adoc
-  user_guide/rig-config-yaesu.adoc
-  user_guide/tx-rx.adoc
   user_guide/coop-prgrms.adoc
-  user_guide/rig-config-adat.adoc
-  user_guide/settings-audio.adoc
-  user_guide/utilities.adoc
-  user_guide/faq.adoc
-  user_guide/rig-config-alinco.adoc
-  user_guide/settings-frequencies.adoc
-  user_guide/wsjtx-main.adoc
-  user_guide/font-sizes.adoc
-  user_guide/rig-config-aor.adoc
-  user_guide/settings-general.adoc
   user_guide/cooperating-programs.adoc
+  user_guide/faq.adoc
+  user_guide/font-sizes.adoc
+  user_guide/install-from-source.adoc
+  user_guide/install-linux.adoc
+  user_guide/install-mac.adoc
+  user_guide/install-windows.adoc
+  user_guide/introduction.adoc
+  user_guide/jt65-jt9-differences.adoc
+  user_guide/jt65-protocol.adoc
+  user_guide/jt9-protocol.adoc
   user_guide/logging.adoc
+  user_guide/make-qso.adoc
+  user_guide/new_features.adoc
+  user_guide/platform-dependencies.adoc
+  user_guide/rig-config-adat.adoc
+  user_guide/rig-config-alinco.adoc
+  user_guide/rig-config-aor.adoc
+  user_guide/rig-config-drake.adoc
+  user_guide/rig-config-elecraft.adoc
+  user_guide/rig-config-flexrad.adoc
+  user_guide/rig-config-icom.adoc
+  user_guide/rig-config-kenwood.adoc
+  user_guide/rig-config-main.adoc
+  user_guide/rig-config-softrock.adoc
+  user_guide/rig-config-template.adoc
+  user_guide/rig-config-tentec.adoc
+  user_guide/rig-config-yaesu.adoc
+  user_guide/settings-audio.adoc
   user_guide/settings-colors.adoc
+  user_guide/settings-frequencies.adoc
+  user_guide/settings-general.adoc
+  user_guide/settings-radio.adoc
+  user_guide/settings-reporting.adoc
+  user_guide/settings-txmacros.adoc
   user_guide/support.adoc
+  user_guide/system-requirements.adoc
+  user_guide/transceiver-setup.adoc
+  user_guide/tutorial-example1.adoc
+  user_guide/tutorial-example2.adoc
+  user_guide/tutorial-main-window.adoc
+  user_guide/tutorial-wide-graph-settings.adoc
+  user_guide/tx-rx.adoc
+  user_guide/utilities.adoc
+  user_guide/vhf-and-up.adoc
+  user_guide/wsjtx-main.adoc
+  user_guide/wspr.adoc
   )
 
 set (UG_IMGS
   user_guide/images/130610_2343-wav-80.png
-  user_guide/images/freemsg.png
-  user_guide/images/misc-main-ui.png
-  user_guide/images/colors.png
-  user_guide/images/status-bar-a.png
-  user_guide/images/MacAppMenu.png
-  user_guide/images/help-menu.png
-  user_guide/images/mode-menu.png
-  user_guide/images/r4148-txmac-ui.png
-  user_guide/images/traditional-msg-box.png
-  user_guide/images/RadioTab.png
-  user_guide/images/keyboard-shortcuts.png
-  user_guide/images/new-msg-box.png
-  user_guide/images/save-menu.png
-  user_guide/images/tx-macros.png
   user_guide/images/band-settings.png
-  user_guide/images/log-qso.png
-  user_guide/images/r3666-config-screen-80.png
-  user_guide/images/settings-audio.png
-  user_guide/images/view-menu.png
+  user_guide/images/colors.png
   user_guide/images/decode-menu.png
-  user_guide/images/main-ui-1.5.png
-  user_guide/images/r3666-main-ui-80.png
-  user_guide/images/settings-general.png
-  user_guide/images/wide-graph-controls.png
   user_guide/images/decodes.png
-  user_guide/images/main-ui-controls.png
-  user_guide/images/reporting.png
-  user_guide/images/setup-menu.png
   user_guide/images/file-menu.png
-  user_guide/images/misc-controls-center.png
-  user_guide/images/settings-frequencies.png
-  user_guide/images/special-mouse-commands.png
-  user_guide/images/psk-reporter.png
+  user_guide/images/freemsg.png
+  user_guide/images/help-menu.png
   user_guide/images/jtalert.png
+  user_guide/images/keyboard-shortcuts.png
+  user_guide/images/log-qso.png
+  user_guide/images/MacAppMenu.png
+  user_guide/images/main-ui-1.5.png
+  user_guide/images/main-ui-controls.png
+  user_guide/images/misc-controls-center.png
+  user_guide/images/misc-main-ui.png
+  user_guide/images/mode-menu.png
+  user_guide/images/new-msg-box.png
+  user_guide/images/psk-reporter.png
+  user_guide/images/r3666-config-screen-80.png
+  user_guide/images/r3666-main-ui-80.png
+  user_guide/images/r4148-txmac-ui.png
+  user_guide/images/RadioTab.png
+  user_guide/images/reporting.png
+  user_guide/images/save-menu.png
+  user_guide/images/settings-audio.png
+  user_guide/images/settings-frequencies.png
+  user_guide/images/settings-general.png
+  user_guide/images/setup-menu.png
+  user_guide/images/special-mouse-commands.png
+  user_guide/images/status-bar-a.png
+  user_guide/images/traditional-msg-box.png
+  user_guide/images/tx-macros.png
+  user_guide/images/view-menu.png
+  user_guide/images/wide-graph-controls.png
+
 )
 
 find_package (PythonInterp 2.4 REQUIRED)
