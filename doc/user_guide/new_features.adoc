@@ -1,0 +1,17 @@
+For quick reference, here's a short list of features and capabilities
+added to _WSJT-X_ since Version 1.5.0:
+
+- *WSPR* mode, including automatic coordinated band-hopping and an
+improved sensitivity two-pass decoder.
+
+- EME-inspired features including *JT4* (submodes *A-G*), *Echo* mode,
+and *automatic Doppler tracking*.  Note that submodes *JT65B* and
+*JT65C* are also present in Version 1.6, but the high-sensitivity
+decoder required for EME is not yet included.
+
+- Tools for accurate *frequency calibration* of your radio, so you can
+be automatically ``on frequency'' to within about 1 Hz.
+
+- Mode-specific working frequencies accessible from the drop-down
+band selector.
+ 

@@ -15,6 +15,10 @@ to prevent transmitting them over the air.
 +.wav+ files.  A default directory for these files is provided; you
 can select another location if desired.
 
-- _JT9W Settings_: JT9W is an experimental mode designed for EME on
-the microwave bands, and is not enabled in current release versions.
+- _AzEl Directory_: A file named +azel.dat+ will appear in the
+specified directory.  The file contains information usable by another
+program for automatic tracking of the Sun or Moon, as well as
+predicted Doppler shift for the specified EME path.  The file is
+updated once per second.
+
 
