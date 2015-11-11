@@ -1,2 +1,47 @@
+V1.6.0 is the first _WSJT-X_ version to include features specifically
+designed for use on VHF and higher bands.  These features include JT4,
+a mode particularly useful for EME on the microwave bands; Echo mode,
+for detecting and measuring your own lunar echoes; and automatic
+Doppler tracking for the EME path.  Note that sub-modes JT65B and
+JT65C are present in v1.6.0, but are not yet fully implemented for EME
+purposes.
 
- 
+- Check the box labeled _Enable VHF/UHF/Microwave features_ on the
+*Settings | General* tab to activate the VHF-and-up features.  You
+will probably want to check also the boxes _Decode at t = 52 s_ and
+_Allow Tx frequency changes while transmitting_ to allow for the EME
+path delay and permit Doppler tracking while transmitting.  In
+appropriate modes the main window will reconfigure itself to include
+controls supporting the additional features.
+
+image::images/VHF_controls.png[align="center",alt="VHF Controls"]
+
+IMPORTANT: Not all transceivers permit computer adjustments
+of Tx frequency while transmitting.  Among those that do are the
+IC735, IC756 Pro II, IC910-H, FT-847, TS-2000 (with Rev 9 firmware
+upgrade), Flex 1500 and 5000, HPSDR, Anan-10, Anan-100, and KX3.
+
+- On the *View* menu, select *Astronomical data* to display a window
+with important information for tracking the Moon and performing
+automatic Doppler control.
+
+image::images/Astronomical_data.png[align="center",alt="Astronomical data"]
+
+- Note that two types of Doppler control are provided.  Use _Full
+Doppler to DX Grid_ if you know your QSO partner's locator and he/she
+is not using Doppler control.  Use _Constant frequency on Moon_ to
+correct only for your own (one-way) Doppler shift.  For any other
+station that does the same thing, you will then have full Doppler
+correction.
+
+=== EME with JT4
+
+- Select *JT4* from the *Mode* menu.
+
+- Select the desired submode, which determines the tone spacing.
+Higher spacings are used on the higher microwave bands, to allow for
+larger Doppler spreads. For example, JT4F is generally used for EME on
+the 10 GHz band.
+
+- If you are using a transverter, set the appropriate offset on the
+*Settings | Frequencies* tab.

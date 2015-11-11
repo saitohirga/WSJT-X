@@ -6,8 +6,8 @@ image::images/reporting.png[align="center",alt="Reporting Screen"]
 descriptions of their effects, see 
 <<COMMAND_REF_LOGGING,Logging Command Reference>> section.
 
-- _Network_: Check *Enable PSK Reporter Spotting* to send reception
-reports to the {pskreporter} mapping facility.
+- _Network Services_: Check *Enable PSK Reporter Spotting* to send
+reception reports to the {pskreporter} mapping facility.
 
 - _UDP Server_: This group of options controls the network name or
 address and port number used by a program that will receive status
