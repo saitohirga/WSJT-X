@@ -1745,7 +1745,8 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
   QString hiscall=ui->dxCallEntry->text().toUpper().trimmed();
   ui->dxCallEntry->setText(hiscall);
   QString t0=hiscall + " " + m_myCall + " ";
-  QString t=t0 + m_myGrid.mid(0,4);
+  QString t=t0;
+  if(t0.indexOf("/")<0) t=t0 + m_myGrid.mid(0,4);
   msgtype(t, ui->tx1);
   if(rpt == "") {
     t=t+" OOO";
