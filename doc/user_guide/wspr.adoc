@@ -1,22 +1,23 @@
-- Select *WSPR-2* from the *Mode* menu.  The main window will simplify
-itself by removing controls not used in WSPR mode.
+- Select *WSPR-2* from the *Mode* menu.  The main window will
+reconfigure itself to the WSPR interface, removing some controls not
+used in WSPR mode.
+
+- Configure the Wide Graph as suggested in the screen shot below.
+
+image::images/WSPR.png[align="center",alt="WSPR mode"]
 
 - Use the mouse to set the width and height of the main window as
 desired.
 
 - Select an active WSPR frequency (for example, 10.1387 MHz).
 
-- Configure the Wide Graph as suggested in the following screen shot.
-
 - Click *Monitor* to start a WSPR receiving period.
 
 - If you will be transmitting as well as receiving, select a suitable
-value for *Tx Pct* (percentage of 2-minute sequences devoted to
+value for *Tx Pct* (average percentage of 2-minute sequences devoted to
 transmitting) and activate the *Enable Tx* button.
 
 - Select your Tx power (in dBm) from the drop-down list.
-
-image::images/WSPR.png[align="center",alt="WSPR mode"]
 
 - To enable automatic band-hopping, check the indicated box and click
 *Schedule* to select the bands you will use at each time of day.
