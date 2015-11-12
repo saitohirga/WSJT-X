@@ -1,8 +1,8 @@
 ; For Use With JTSDK v2.0.0
 #define MyAppName "MAP65"
 #define MyAppVersion "2.5"
-#define MyAppPublisher "Greg Beam, KI7MT"
-#define MyAppCopyright "Copyright (C) 2001-2014 by Joe Taylor, K1JT"
+#define MyAppPublisher "Joe Taylor, K1JT"
+#define MyAppCopyright "Copyright (C) 2001-2015 by Joe Taylor, K1JT"
 #define MyAppURL "http://physics.princeton.edu/pulsar/k1jt/map65.html"
 #define WsjtGroupURL "https://groups.yahoo.com/neo/groups/wsjtgroup/info"
 
@@ -14,12 +14,11 @@ AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DisableReadyPage=yes
-DefaultDirName=C:\WSJT\MAP65-{#MyAppVersion}
-DisableDirPage=yes
+DefaultDirName=C:\WSJT\MAP65
 DefaultGroupName=WSJT
 DisableProgramGroupPage=yes
 LicenseFile=C:\JTSDK\common-licenses\GPL-3
-OutputDir=C:\JTSDK\wspr\package
+OutputDir=C:\JTSDK\map65\package
 OutputBaseFilename={#MyAppName}-{#MyAppVersion}-Win32
 SetupIconFile=C:\JTSDK\icons\wsjt.ico
 Compression=lzma
