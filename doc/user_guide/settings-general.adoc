@@ -10,5 +10,6 @@ Meanings of remaining options on the *General* tab should be
 self-explanatory after you have made some QSOs using _WSJT-X_.  You
 may return to set these options to your preferences later.  
 
-IMPORTANT: If you are using a callsign with an add-on prefix or suffix,
-be sure to read the section <<COMP-CALL,Compound Callsigns>>.
+IMPORTANT: If you are using a callsign with an add-on prefix or
+suffix, or wish to work a station using such a call, be sure to read
+the section <<COMP-CALL,Compound Callsigns>>.
