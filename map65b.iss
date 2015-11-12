@@ -28,8 +28,8 @@ SolidCompression=yes
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "c:\JTSDK\map65\install\Release\bin\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "C:\JTSDK\src\map65\resources\*"; DestDir: "{app}"; Flags: onlyifdoesntexist
+Source: "c:\JTSDK\map65\install\Release\bin\*"; DestDir: "{app}"; Excludes: CALL3.TXT; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\JTSDK\src\map65\resources\*"; DestDir: "{app}"; Flags: ignoreversion onlyifdoesntexist
 
 [Icons]
 Name: "{group}\{#MyAppName}\Documentation\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}"
