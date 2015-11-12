@@ -32,7 +32,7 @@ BandMap*   g_pBandMap = NULL;
 TxTune*    g_pTxTune = NULL;
 QSharedMemory mem_m65("mem_m65");
 
-QString rev="$Rev$";
+QString rev="$Rev$";                            //Must update by hand ???
 QString Program_Title_Version="  MAP65   v2.5, r" + rev.mid(6,4) +
                               "    by K1JT";
 
