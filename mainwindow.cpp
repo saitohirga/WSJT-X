@@ -2594,14 +2594,23 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
       t="DE " + m_config.my_callsign () + " 73";
       msgtype(t, ui->tx5->lineEdit ());
     }
+    if (hisCall != hisBase
+        && m_config.type_2_msg_gen () != Configuration::type_2_msg_5_only) {
+      // cfm we have his full call copied as we could not do this earlier
+      t = hisCall + " 73";
+      msgtype(t, ui->tx5->lineEdit ());
+    }
   } else {
     if(hisCall!=hisBase) {
       if(shortList(hisCall)) {
-        t=hisBase + " " + m_config.my_callsign () + " " + m_config.my_grid ().mid (0,4);
+        // cfm we know his full call with a type 1 tx1 message
+        t=hisCall + " " + m_config.my_callsign ();
         msgtype(t, ui->tx1);
       }
-      t=hisCall + " 73";
-      msgtype(t, ui->tx5->lineEdit());
+      else {
+        t=hisCall + " 73";
+        msgtype(t, ui->tx5->lineEdit());
+      }
     }
   }
   m_ntx=1;
