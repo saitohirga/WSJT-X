@@ -43,6 +43,17 @@ public:
   void tick ();
   void pending_datagrams ();
   StreamStatus check_status (QDataStream const&) const;
+  void send_message (QDataStream const& out, QByteArray const& message, QHostAddress const& address, port_type port)
+  {
+      if (OK == check_status (out))
+        {
+          writeDatagram (message, address, port);
+        }
+      else
+        {
+          Q_EMIT self_->error ("Error creating UDP message");
+        }
+  }
 
   MessageServer * self_;
   port_type port_;
@@ -182,12 +193,13 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 QByteArray tx_mode;
                 bool tx_enabled {false};
                 bool transmitting {false};
-                in >> f >> mode >> dx_call >> report >> tx_mode >> tx_enabled >> transmitting;
+                bool decoding {false};
+                in >> f >> mode >> dx_call >> report >> tx_mode >> tx_enabled >> transmitting >> decoding;
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->status_update (id, f, QString::fromUtf8 (mode), QString::fromUtf8 (dx_call)
                                                  , QString::fromUtf8 (report), QString::fromUtf8 (tx_mode)
-                                                 , tx_enabled, transmitting);
+                                                 , tx_enabled, transmitting, decoding);
                   }
               }
               break;
@@ -236,11 +248,8 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
               break;
 
             case NetworkMessage::Close:
-              if (check_status (in) != Fail)
-                {
-                  Q_EMIT self_->client_closed (id);
-                  clients_.remove (id);
-                }
+              Q_EMIT self_->client_closed (id);
+              clients_.remove (id);
               break;
 
             default:
@@ -346,14 +355,7 @@ void MessageServer::reply (QString const& id, QTime time, qint32 snr, float delt
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Reply, id, (*iter).negotiated_schema_number_};
       out << time << snr << delta_time << delta_frequency << mode.toUtf8 () << message_text.toUtf8 ();
-      if (impl::OK == m_->check_status (out))
-        {
-          m_->writeDatagram (message, iter.value ().sender_address_, (*iter).sender_port_);
-        }
-      else
-        {
-          Q_EMIT error ("Error creating UDP message");
-        }
+      m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
     }
 }
 
@@ -364,14 +366,7 @@ void MessageServer::replay (QString const& id)
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Replay, id, (*iter).negotiated_schema_number_};
-      if (impl::OK == m_->check_status (out))
-        {
-          m_->writeDatagram (message, iter.value ().sender_address_, (*iter).sender_port_);
-        }
-      else
-        {
-          Q_EMIT error ("Error creating UDP message");
-        }
+      m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
     }
 }
 
@@ -383,14 +378,7 @@ void MessageServer::halt_tx (QString const& id, bool auto_only)
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::HaltTx, id, (*iter).negotiated_schema_number_};
       out << auto_only;
-      if (impl::OK == m_->check_status (out))
-        {
-          m_->writeDatagram (message, iter.value ().sender_address_, (*iter).sender_port_);
-        }
-      else
-        {
-          Q_EMIT error ("Error creating UDP message");
-        }
+      m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
     }
 }
 
@@ -402,13 +390,6 @@ void MessageServer::free_text (QString const& id, QString const& text, bool send
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::FreeText, id, (*iter).negotiated_schema_number_};
       out << text.toUtf8 () << send;
-      if (impl::OK == m_->check_status (out))
-        {
-          m_->writeDatagram (message, iter.value ().sender_address_, (*iter).sender_port_);
-        }
-      else
-        {
-          Q_EMIT error ("Error creating UDP message");
-        }
+      m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
     }
 }

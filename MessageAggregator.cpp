@@ -260,7 +260,8 @@ public:
   }
 
   Q_SLOT void update_status (QString const& id, Frequency f, QString const& mode, QString const& dx_call
-                             , QString const& report, QString const& tx_mode, bool tx_enabled, bool transmitting)
+                             , QString const& report, QString const& tx_mode, bool tx_enabled
+                             , bool transmitting, bool decoding)
   {
     if (id == id_)
       {
@@ -271,6 +272,7 @@ public:
         update_dynamic_property (frequency_label_, "transmitting", transmitting);
         auto_off_button_->setEnabled (tx_enabled);
         halt_tx_button_->setEnabled (transmitting);
+        update_dynamic_property (mode_label_, "decoding", decoding);
       }
   }
 
