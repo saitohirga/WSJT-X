@@ -47,7 +47,7 @@ public:
 
   // outgoing messages
   Q_SLOT void status_update (Frequency, QString const& mode, QString const& dx_call, QString const& report
-                             , QString const& tx_mode, bool tx_enabled, bool transmitting);
+                             , QString const& tx_mode, bool tx_enabled, bool transmitting, bool decoding);
   Q_SLOT void decode (bool is_new, QTime time, qint32 snr, float delta_time, quint32 delta_frequency
                       , QString const& mode, QString const& message);
   Q_SLOT void clear_decodes ();

@@ -60,7 +60,8 @@ public:
   // matching message
   Q_SIGNAL void client_opened (QString const& id);
   Q_SIGNAL void status_update (QString const& id, Frequency, QString const& mode, QString const& dx_call
-                               , QString const& report, QString const& tx_mode, bool tx_enabled, bool transmitting);
+                               , QString const& report, QString const& tx_mode, bool tx_enabled
+                               , bool transmitting, bool decoding);
   Q_SIGNAL void client_closed (QString const& id);
   Q_SIGNAL void decode (bool is_new, QString const& id, QTime time, qint32 snr, float delta_time
                         , quint32 delta_frequency, QString const& mode, QString const& message);

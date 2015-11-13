@@ -50,6 +50,17 @@ public:
   void closedown ();
   StreamStatus check_status (QDataStream const&) const;
   void send_message (QByteArray const&);
+  void send_message (QDataStream const& out, QByteArray const& message)
+  {
+      if (OK == check_status (out))
+        {
+          send_message (message);
+        }
+      else
+        {
+          Q_EMIT self_->error ("Error creating UDP message");
+        }
+  }
 
   Q_SLOT void host_info_results (QHostInfo);
 
@@ -305,22 +316,15 @@ void MessageClient::send_raw_datagram (QByteArray const& message, QHostAddress c
 
 void MessageClient::status_update (Frequency f, QString const& mode, QString const& dx_call
                                    , QString const& report, QString const& tx_mode
-                                   , bool tx_enabled, bool transmitting)
+                                   , bool tx_enabled, bool transmitting, bool decoding)
 {
   if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Status, m_->id_, m_->schema_};
       out << f << mode.toUtf8 () << dx_call.toUtf8 () << report.toUtf8 () << tx_mode.toUtf8 ()
-          << tx_enabled << transmitting;
-      if (impl::OK == m_->check_status (out))
-        {
-          m_->send_message (message);
-        }
-      else
-        {
-          Q_EMIT error ("Error creating UDP message");
-        }
+          << tx_enabled << transmitting << decoding;
+      m_->send_message (out, message);
     }
 }
 
@@ -332,14 +336,7 @@ void MessageClient::decode (bool is_new, QTime time, qint32 snr, float delta_tim
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Decode, m_->id_, m_->schema_};
       out << is_new << time << snr << delta_time << delta_frequency << mode.toUtf8 () << message_text.toUtf8 ();
-      if (impl::OK == m_->check_status (out))
-        {
-          m_->send_message (message);
-        }
-      else
-        {
-          Q_EMIT error ("Error creating UDP message");
-        }
+      m_->send_message (out, message);
     }
 }
 
@@ -349,14 +346,7 @@ void MessageClient::clear_decodes ()
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Clear, m_->id_, m_->schema_};
-      if (impl::OK == m_->check_status (out))
-        {
-          m_->send_message (message);
-        }
-      else
-        {
-          Q_EMIT error ("Error creating UDP message");
-        }
+      m_->send_message (out, message);
     }
 }
 
@@ -371,13 +361,6 @@ void MessageClient::qso_logged (QDateTime time, QString const& dx_call, QString 
       NetworkMessage::Builder out {&message, NetworkMessage::QSOLogged, m_->id_, m_->schema_};
       out << time << dx_call.toUtf8 () << dx_grid.toUtf8 () << dial_frequency << mode.toUtf8 ()
           << report_sent.toUtf8 () << report_received.toUtf8 () << tx_power.toUtf8 () << comments.toUtf8 () << name.toUtf8 ();
-      if (impl::OK == m_->check_status (out))
-        {
-          m_->send_message (message);
-        }
-      else
-        {
-          Q_EMIT error ("Error creating UDP message");
-        }
+      m_->send_message (out, message);
     }
 }

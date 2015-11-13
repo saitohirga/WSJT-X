@@ -983,7 +983,7 @@ void MainWindow::on_autoButton_clicked (bool checked)
   m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
                                   QString::number (ui->rptSpinBox->value ()),
                                   m_modeTx, ui->autoButton->isChecked (),
-                                  m_transmitting);
+                                  m_transmitting, m_decoderBusy);
   m_bEchoTxOK=false;
   if(m_auto and (m_mode=="Echo")) {
     m_nclearave=1;
@@ -1182,7 +1182,7 @@ void MainWindow::statusChanged()
   m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
                                   QString::number (ui->rptSpinBox->value ()),
                                   m_modeTx, ui->autoButton->isChecked (),
-                                  m_transmitting);
+                                  m_transmitting, m_decoderBusy);
 
   QFile f {m_config.temp_dir ().absoluteFilePath ("wsjtx_status.txt")};
   if(f.open(QFile::WriteOnly | QIODevice::Text)) {
@@ -1755,6 +1755,11 @@ void MainWindow::decodeBusy(bool b)                             //decodeBusy()
   ui->actionOpen->setEnabled(!b);
   ui->actionOpen_next_in_directory->setEnabled(!b);
   ui->actionDecode_remaining_files_in_directory->setEnabled(!b);
+
+  m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
+                                  QString::number (ui->rptSpinBox->value ()),
+                                  m_modeTx, ui->autoButton->isChecked (),
+                                  m_transmitting, m_decoderBusy);
 }
 
 //------------------------------------------------------------- //guiUpdate()
@@ -2064,7 +2069,7 @@ void MainWindow::guiUpdate()
       m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
                                       QString::number (ui->rptSpinBox->value ()),
                                       m_modeTx, ui->autoButton->isChecked (),
-                                      m_transmitting);
+                                      m_transmitting, m_decoderBusy);
     }
 
   if(!m_btxok && btxok0 && g_iptt==1) stopTx();
@@ -2182,7 +2187,7 @@ void MainWindow::stopTx()
   m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
                                   QString::number (ui->rptSpinBox->value ()),
                                   m_modeTx, ui->autoButton->isChecked (),
-                                  m_transmitting);
+                                  m_transmitting, m_decoderBusy);
 }
 
 void MainWindow::stopTx2()
