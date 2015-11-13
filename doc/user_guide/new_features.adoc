@@ -23,11 +23,14 @@ Much work has already been done on what will become Version 1.7 of
 _WSJT-X_.  (Up to now it has been called v1.6.1.)  A number of people
 have been building this version for themselves, as development
 progresses, and reporting on their experiences.  The next release will
-almost certainly have the following features not present in
-Version 1.6.0:
+almost certainly have the following features not present in Version
+1.6.0, and perhaps others as well:
 
 - *JTMSK* mode, intended for meteor scatter, ionospheric scatter,
 aircraft scatter, and the like.  Unlike the FSK441, ISCAT, and JTMS
 modes present in the older program _WSJT_, JTMSK includes strong
 forward error correction and uses structured messages identical to
 those in JT4, JT9, and JT65.
+
+- Significantly improved decoding for JT65, especially in crowded HF
+bands.
