@@ -27,7 +27,6 @@ include::../common/links.adoc[]
 include::introduction.adoc[]
 
 [[NEW_FEATURES]]
-== New in Version 1.6
 include::new_features.adoc[]
 
 [[SYSREQ]]
@@ -131,7 +130,7 @@ include::wspr.adoc[]
 
 [[VHF_AND_UP]]
 == VHF Features
-include::vhf-and-up.adoc[]
+include::vhf-features.adoc[]
 
 [[MAKE_QSOS]]
 == Making QSOs
