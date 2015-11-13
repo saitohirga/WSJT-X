@@ -18,6 +18,7 @@
 #include "pimpl_impl.hpp"
 
 #include "Bands.hpp"
+#include "FrequencyList.hpp"
 
 #if !defined (QT_NO_DEBUG_STREAM)
 QDebug operator << (QDebug debug, StationList::Station const& station)
@@ -508,10 +509,9 @@ bool StationList::impl::dropMimeData (QMimeData const * data, Qt::DropAction act
       QDataStream stream {&encoded_data, QIODevice::ReadOnly};
       while (!stream.atEnd ())
         {
-          QString frequency_string;
-          stream >> frequency_string;
-          auto frequency = Radio::frequency (frequency_string, 0);
-          auto const& band = bands_->find (frequency);
+          FrequencyList::Item item;
+          stream >> item;
+          auto const& band = bands_->find (item.frequency_);
           if (stations_.cend () == std::find_if (stations_.cbegin ()
                                                  , stations_.cend ()
                                                  , [&band] (Station const& s) {return s.band_name_ == band;}))
