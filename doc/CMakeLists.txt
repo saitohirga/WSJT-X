@@ -60,7 +60,7 @@ set (UG_SRCS
   user_guide/tutorial-wide-graph-settings.adoc
   user_guide/tx-rx.adoc
   user_guide/utilities.adoc
-  user_guide/vhf-and-up.adoc
+  user_guide/vhf-features.adoc
   user_guide/wsjtx-main.adoc
   user_guide/wspr.adoc
   )

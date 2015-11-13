@@ -1,13 +1,15 @@
+=== New in Version 1.6
+
 For quick reference, here's a short list of features and capabilities
 added to _WSJT-X_ since Version 1.5.0:
 
 - *WSPR* mode, including automatic coordinated band-hopping and an
-improved sensitivity two-pass decoder.
+two-pass decoder that can decode overlapping signals.
 
 - EME-inspired features including *JT4* (submodes *A-G*), *Echo* mode,
-and *automatic Doppler tracking*.  Note that submodes *JT65B* and
+and automatic *Doppler tracking*.  (Note that submodes *JT65B* and
 *JT65C* are also present in Version 1.6, but the high-sensitivity
-decoder required for EME is not yet included.
+decoder required for EME is not yet included.)
 
 - Tools for accurate *frequency calibration* of your radio, so you can
 be automatically ``on frequency'' to within about 1 Hz.
@@ -15,3 +17,17 @@ be automatically ``on frequency'' to within about 1 Hz.
 - Mode-specific working frequencies accessible from the drop-down
 band selector.
  
+=== Future releases
+
+Much work has already been done on what will become Version 1.7 of
+_WSJT-X_.  (Up to now it has been called v1.6.1.)  A number of people
+have been building this version for themselves, as development
+progresses, and reporting on their experiences.  The next release will
+almost certainly have the following features not present in
+Version 1.6.0:
+
+- *JTMSK* mode, intended for meteor scatter, ionospheric scatter,
+aircraft scatter, and the like.  Unlike the FSK441, ISCAT, and JTMS
+modes present in the older program _WSJT_, JTMSK includes strong
+forward error correction and uses structured messages identical to
+those in JT4, JT9, and JT65.
