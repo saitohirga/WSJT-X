@@ -551,7 +551,7 @@ QMimeData * FrequencyList::impl::mimeData (QModelIndexList const& items) const
     {
       if (item.isValid () && frequency_column == item.column ())
         {
-          stream << QString {data (item, Qt::DisplayRole).toString ()};
+          stream << frequency_list_.at (item.row ());
         }
     }
 
