@@ -1219,7 +1219,7 @@ int main(int argc, char *argv[])
     for (i=0; i<uniques; i++) {
         printf("%4s %3.0f %4.1f %10.6f %2d  %-s \n",
                decodes[i].time, decodes[i].snr,decodes[i].dt, decodes[i].freq,
-               (int)decodes[i].dt, decodes[i].message);
+               (int)decodes[i].drift, decodes[i].message);
         fprintf(fall_wspr,
                 "%6s %4s %3d %3.0f %4.1f %10.7f  %-22s %2d %5u %4d\n",
                 decodes[i].date, decodes[i].time, (int)(10*decodes[i].sync),
