@@ -223,6 +223,27 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
               }
               break;
 
+            case NetworkMessage::WSPRDecode:
+              {
+                // unpack message
+                bool is_new {true};
+                QTime time;
+                qint32 snr;
+                float delta_time;
+                Frequency frequency;
+                qint32 drift;
+                QByteArray callsign;
+                QByteArray grid;
+                qint32 power;
+                in >> is_new >> time >> snr >> delta_time >> frequency >> drift >> callsign >> grid >> power;
+                if (check_status (in) != Fail)
+                  {
+                    Q_EMIT self_->WSPR_decode (is_new, id, time, snr, delta_time, frequency, drift
+                                          , QString::fromUtf8 (callsign), QString::fromUtf8 (grid), power);
+                  }
+              }
+              break;
+
             case NetworkMessage::QSOLogged:
               {
                 QDateTime time;
