@@ -137,7 +137,7 @@
  *                         Mode                   utf8
  *                         Message                utf8
  *
- *      The decode message is send when  a new decode is completed, in
+ *      The decode message is sent when  a new decode is completed, in
  *      this case the 'New' field is true. It is also used in response
  *      to  a "Replay"  message where  each  old decode  in the  "Band
  *      activity" window, that  has not been erased, is  sent in order
@@ -260,6 +260,26 @@
  *      command to  determine the  contents of  the current  free text
  *      message.
  *
+ * WSPRDecode    Out       10                     quint32
+ *                         Id (unique key)        utf8
+ *                         New                    bool
+ *                         Time                   QTime
+ *                         snr                    qint32
+ *                         Delta time (S)         float (serialized as double)
+ *                         Frequency (Hz)         quint64
+ *                         Drift (Hz)             qint32
+ *                         Callsign               utf8
+ *                         Grid                   utf8
+ *                         Power (dBm)            qint32
+ *
+ *      The decode message is sent when  a new decode is completed, in
+ *      this case the 'New' field is true. It is also used in response
+ *      to  a "Replay"  message where  each  old decode  in the  "Band
+ *      activity" window, that  has not been erased, is  sent in order
+ *      as  a one  of  these  messages with  the  'New'  field set  to
+ *      false. See the "Replay" message below for details of usage.
+ *
+ *
  */
 
 #include <QDataStream>
@@ -285,6 +305,7 @@ namespace NetworkMessage
       Replay,
       HaltTx,
       FreeText,
+      WSPRDecode,
       maximum_message_type_     // ONLY add new message types
                                 // immediately before here
     };

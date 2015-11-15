@@ -870,6 +870,10 @@ void MainWindow::dataSink(qint64 frames)
       cmnd=t3.mid(0,i1+7) + t3.mid(i1+7);
       ui->DecodeButton->setChecked (true);
       p1.start(QDir::toNativeSeparators(cmnd));
+      m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
+                                      QString::number (ui->rptSpinBox->value ()),
+                                      m_modeTx, ui->autoButton->isChecked (),
+                                      m_transmitting, (m_decoderBusy = true));
     }
     m_rxDone=true;
   }
@@ -1012,7 +1016,7 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
   switch(e->key())
     {
     case Qt::Key_D:
-      if(e->modifiers() & Qt::ShiftModifier) {
+      if(m_mode != "WSPR-2" && e->modifiers() & Qt::ShiftModifier) {
         if(!m_decoderBusy) {
           jt9com_.newdat=0;
           jt9com_.nagain=0;
@@ -1463,7 +1467,7 @@ void MainWindow::on_actionSpecial_mouse_commands_triggered()
 
 void MainWindow::on_DecodeButton_clicked (bool /* checked */)	//Decode request
 {
-  if(!m_decoderBusy) {
+  if(m_mode != "WSPR-2" && !m_decoderBusy) {
     jt9com_.newdat=0;
     jt9com_.nagain=1;
     m_blankLine=false; // don't insert the separator again
@@ -3925,17 +3929,27 @@ void MainWindow::replayDecodes ()
 {
   // we accept this request even if the setting to accept UDP requests
   // is not checked
+
+  // attempt to parse the decoded text
   Q_FOREACH (auto const& message, ui->decodedTextBrowser->toPlainText ().split ('\n', QString::SkipEmptyParts))
     {
       if (message.size() >= 4 && message.left (4) != "----")
         {
-          auto eom_pos = message.indexOf (' ', 35);
-          // we always want at least the characters to position 35
-          if (eom_pos < 35)
+          auto const& parts = message.split (' ', QString::SkipEmptyParts);
+          if (parts.size () >= 5 && parts[3].contains ('.')) // WSPR
             {
-              eom_pos = message.size () - 1;
+              postWSPRDecode (false, parts);
             }
-          postDecode (false, message.left (eom_pos + 1));
+          else
+            {
+              auto eom_pos = message.indexOf (' ', 35);
+              // we always want at least the characters to position 35
+              if (eom_pos < 35)
+                {
+                  eom_pos = message.size () - 1;
+                }
+              postDecode (false, message.left (eom_pos + 1));
+            }
         }
     }
   statusChanged ();
@@ -3943,13 +3957,25 @@ void MainWindow::replayDecodes ()
 
 void MainWindow::postDecode (bool is_new, QString const& message)
 {
-  auto decode = message.trimmed ();
-  auto parts = decode.left (21).split (' ', QString::SkipEmptyParts);
+  auto const& decode = message.trimmed ();
+  auto const& parts = decode.left (21).split (' ', QString::SkipEmptyParts);
   if (parts.size () >= 5)
     {
       m_messageClient->decode (is_new, QTime::fromString (parts[0], "hhmm"), parts[1].toInt ()
                                , parts[2].toFloat (), parts[3].toUInt (), parts[4], decode.mid (21));
     }
+}
+
+void MainWindow::postWSPRDecode (bool is_new, QStringList parts)
+{
+  if (parts.size () < 8)
+    {
+      parts.insert (6, "");
+    }
+  m_messageClient->WSPR_decode (is_new, QTime::fromString (parts[0], "hhmm"), parts[1].toInt ()
+                                , parts[2].toFloat (), Radio::frequency (parts[3].toFloat (), 6)
+                                , parts[4].toInt (), parts[5].remove ("&lt;").remove ("&gt;")
+                                , parts[6], parts[7].toInt ());
 }
 
 void MainWindow::networkError (QString const& e)
@@ -4016,7 +4042,10 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
       m_RxLog=0;
       m_startAnother=m_loopall;
       m_blankLine=true;
-      return;
+      m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
+                                      QString::number (ui->rptSpinBox->value ()),
+                                      m_modeTx, ui->autoButton->isChecked (),
+                                      m_transmitting, (m_decoderBusy = false));
     } else {
 
       int n=t.length();
@@ -4035,6 +4064,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
                   .arg(rxFields.at(5).leftJustified (12).replace ('<', "&lt;").replace ('>', "&gt;"))
                   .arg(rxFields.at(6), -6)
                   .arg(rxFields.at(7), 3);
+          postWSPRDecode (true, rxFields);
           grid = rxFields.at(6);
       } else if ( rxFields.count() == 7 ) { // Type 2 message
           rxLine = QString("%1 %2 %3 %4 %5   %6  %7  %8")
@@ -4046,6 +4076,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
                   .arg(rxFields.at(5).leftJustified (12).replace ('<', "&lt;").replace ('>', "&gt;"))
                   .arg("", -6)
                   .arg(rxFields.at(6), 3);
+          postWSPRDecode (true, rxFields);
       } else {
           rxLine = t;
       }

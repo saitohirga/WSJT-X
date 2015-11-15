@@ -65,6 +65,8 @@ public:
   Q_SIGNAL void client_closed (QString const& id);
   Q_SIGNAL void decode (bool is_new, QString const& id, QTime time, qint32 snr, float delta_time
                         , quint32 delta_frequency, QString const& mode, QString const& message);
+  Q_SIGNAL void WSPR_decode (bool is_new, QString const& id, QTime time, qint32 snr, float delta_time, Frequency
+                             , qint32 drift, QString const& callsign, QString const& grid, qint32 power);
   Q_SIGNAL void qso_logged (QString const& id, QDateTime time, QString const& dx_call, QString const& dx_grid
                             , Frequency dial_frequency, QString const& mode, QString const& report_sent
                             , QString const& report_received, QString const& tx_power, QString const& comments

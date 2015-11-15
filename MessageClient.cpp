@@ -272,9 +272,16 @@ MessageClient::MessageClient (QString const& id, QString const& server, port_typ
   , m_ {id, server_port, this}
 {
   connect (&*m_, static_cast<void (impl::*) (impl::SocketError)> (&impl::error)
-           , [this] (impl::SocketError /* e */)
+           , [this] (impl::SocketError e)
            {
-             Q_EMIT error (m_->errorString ());
+#if defined (Q_OS_WIN) && QT_VERSION >= 0x050500
+             if (e != impl::NetworkError) // take this out when Qt 5.5
+                                          // stops doing this
+                                          // spuriously
+#endif
+               {
+                 Q_EMIT error (m_->errorString ());
+               }
            });
   set_server (server);
 }
@@ -336,6 +343,19 @@ void MessageClient::decode (bool is_new, QTime time, qint32 snr, float delta_tim
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Decode, m_->id_, m_->schema_};
       out << is_new << time << snr << delta_time << delta_frequency << mode.toUtf8 () << message_text.toUtf8 ();
+      m_->send_message (out, message);
+    }
+}
+
+void MessageClient::WSPR_decode (bool is_new, QTime time, qint32 snr, float delta_time, Frequency frequency
+                                 , qint32 drift, QString const& callsign, QString const& grid, qint32 power)
+{
+   if (m_->server_port_ && !m_->server_string_.isEmpty ())
+    {
+      QByteArray message;
+      NetworkMessage::Builder out {&message, NetworkMessage::WSPRDecode, m_->id_, m_->schema_};
+      out << is_new << time << snr << delta_time << frequency << drift << callsign.toUtf8 ()
+          << grid.toUtf8 () << power;
       m_->send_message (out, message);
     }
 }

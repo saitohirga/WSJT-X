@@ -14,8 +14,8 @@ class QHostAddress;
 
 //
 // MessageClient - Manage messages sent and replies received from a
-//              	 matching server (MessageServer) at the other end of
-//								 the wire
+//                 matching server (MessageServer) at the other end of
+//                 the wire
 //
 //
 // Each outgoing message type is a Qt slot
@@ -50,6 +50,8 @@ public:
                              , QString const& tx_mode, bool tx_enabled, bool transmitting, bool decoding);
   Q_SLOT void decode (bool is_new, QTime time, qint32 snr, float delta_time, quint32 delta_frequency
                       , QString const& mode, QString const& message);
+  Q_SLOT void WSPR_decode (bool is_new, QTime time, qint32 snr, float delta_time, Frequency
+                           , qint32 drift, QString const& callsign, QString const& grid, qint32 power);
   Q_SLOT void clear_decodes ();
   Q_SLOT void qso_logged (QDateTime time, QString const& dx_call, QString const& dx_grid
                           , Frequency dial_frequency, QString const& mode, QString const& report_sent
