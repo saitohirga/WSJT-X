@@ -61,10 +61,11 @@ include::install-from-source.adoc[]
 [[CONFIG]] 
 == Settings
 
-Select *Settings* from the *File* menu or by typing *F2* (on
-Macintosh, *Command* or *Cmd*).  The following sections describe setup
-optiions available on each of seven tabs selectable near the top of the
-window.
+Select *Settings* from the *File* menu or by typing *F2*.  (On
+Macintosh select *Preferences* from the WSJT-X menu, or use the
+keyboard *Command* or *Cmd* key.)  The following sections describe
+setup optiions available on each of seven tabs selectable near the top
+of the window.
 
 [[GENERAL]]
 === General
@@ -137,8 +138,7 @@ include::vhf-features.adoc[]
 include::make-qso.adoc[]
 
 [[COMMAND_REF]]
-== Command Reference
-include::command-reference.adoc[]
+== On-Screen Controls
 
 [[CONTROLS_WIDE]]
 === Wide Graph

@@ -1,12 +1,13 @@
 === VHF Setup
 
 V1.6.0 is the first _WSJT-X_ version to include features specifically
-designed for use on VHF and higher bands.  These features include *JT4*,
-a mode particularly useful for EME on the microwave bands; *Echo* mode,
-for detecting and measuring your own lunar echoes; and automatic
-*Doppler tracking* for the EME path.  (Note that sub-modes JT65B and
-JT65C are present in v1.6.0, but are not yet fully implemented for EME
-purposes.)
+designed for use on VHF and higher bands.  These features include
+*JT4*, a mode particularly useful for EME on the microwave bands;
+*Echo* mode, for detecting and measuring your own lunar echoes; and
+automatic *Doppler tracking* for the EME path.  The accuracy of
+Doppler calculations is better than 1 Hz at 10 GHz.  (Note that
+sub-modes JT65B and JT65C are present in v1.6.0, but are not yet fully
+implemented for EME purposes.)
 
 - To activate the VHF-and-up features check the box labeled _Enable
   VHF/UHF/Microwave features_ on the *Settings | General* tab.
@@ -32,23 +33,30 @@ image::images/VHF_controls.png[align="center",alt="VHF Controls"]
 
 - On the *View* menu, select *Astronomical data* to display a window
 with important information for tracking the Moon and performing
-automatic Doppler control.
+automatic Doppler control.  Check the box labeled _Doppler tracking_
+to ensure that the right-hand portion of the window is visible.
 
 image::images/Astronomical_data.png[align="center",alt="Astronomical data"]
 
 IMPORTANT: Note that two different types of Doppler control are provided.  
 
 - Select _Full Doppler to DX Grid_ if you know your QSO partner's locator
-and he/she is not using Doppler control.
+and he/she will not be using any Doppler control.
 
 - Select _Constant frequency on Moon_ to correct for your own (one-way)
 Doppler shift to or from the Moon.  If your QSO partner does the same
 thing, both stations will have the required Doppler compensation.
 Moreover, anyone else using this option will hear both of you
 without the need for manual frequency changes.  The hypothetical ``man
-in the moon'' will copy all of you on the selected nominal frequency:
-in the example depicted above, this is 100 kHz above the stated band
-edge, e.g., 10368.100 MHz for the 10 GHz band.
+in the moon'' will copy all of you on the selected nominal frequency.
+
+- In the example depicted above, the moon-based nominal frequency is
+100 kHz above the stated band edge, or 10368.100 MHz for the 10 GHz
+band.  The home station two-way self Doppler shift is +6193 Hz, so the
+one-way shift is +3096.5 Hz.  Therefore, the receive frequency is set
+to 10,360.103097 Hz.  When a transmission is started, the frequency
+is reset to 3096.5 Hz below the nomial frequency.
+
 
 - Spinner controls at top right of the Astronomical Data window let you
 set a working frequency above the nominal band edge. The frequency above
@@ -61,21 +69,21 @@ band edge is the sum of the numbers in these two controls (kHz + Hz).
 - Select the desired submode, which determines the tone spacing.
 Higher spacings are used on the higher microwave bands, to allow for
 larger Doppler spreads. For example, JT4F is generally used for EME on
-the 10 GHz band.
+the 10 GHz band.  
 
-- If using a transverter, set the appropriate offset on the
-*Settings | Frequencies* tab.  Offset is defined as (desired
-transceiver dial reading) minus (desired on-the-air frequency).  For
-example, when using a 144 MHz radio at 10368 MHz, 
-offset = (144 - 10368) = -10224.000.  Right-click anywhere inside the 
-_Station Information_ box, select the desired band, and enter the 
-offset number.
+- If using a transverter, set the appropriate offset on the *Settings
+| Frequencies* tab.  Offset is defined as (desired transceiver dial
+reading) minus (desired on-the-air frequency).  For example, when
+using a 144 MHz radio at 10368 MHz, offset = (144 - 10368) =
+-10224.000.  If the band is already in the table, you can edit the
+offset by double clicking on the offset field itself.  Otherwise a new
+band can be added by right clicking in the table and selecting _Insert_.
 
 image::images/Add_station_info.png[align="center",alt="Station information"]
 
 - The JT4 decoder in _WSJT-X_ includes optional facilities for
-averaging over successive trandmissions and also correlation decoding,
-sometimesknown as ``Deep Search''.  The *Decode* menu appears to
+averaging over successive transmissions and also correlation decoding,
+sometimes known as ``Deep Search''.  The *Decode* menu appears to
 provide options to set different decoding behavior.  However, in JT4 mode
 this program version always behaves as if you have selected _Include
 correlation_.
@@ -87,9 +95,8 @@ activate automatic generation of these messages, check the box labeled
 _Sh_ on the main window.
 
 IMPORTANT: Many additional hints for using JT4 and Echo mode on the
-EME path are available here:
-http://physics.princeton.edu/pulsar/K1JT/WSJT-X_for_JT4_v6.pdf. Thanks
-to G3WDG for preparing this document!.
+EME path are available {jt4eme}.  (Thanks to G3WDG for preparing this 
+useful document.)
 
 === Echo Mode
 
@@ -99,7 +106,7 @@ from the *Mode* menu, aim your antenna at the moon, pick a clear
 frequency, and toggle click *Tx Enable*. _WSJT-X_ will then cycle
 through the following loop every 6 seconds:
 
-1. Transmit a fixed tone for 2.3 s
+1. Transmit a 1500 Hz fixed tone for 2.3 s
 2. Wait about 0.2 s for start of the return echo
 3. Record the received signal for 2.3 s
 4. Analyze, average, and display the results

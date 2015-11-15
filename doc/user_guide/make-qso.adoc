@@ -44,7 +44,7 @@ for decodability are around –24 dB for JT65, –26 dB for JT9.
 Users often add some friendly chit-chat at the end of a QSO.
 Free-format messages such as ``TNX ROBERT 73'' or ``5W VERT 73 GL''
 are supported, up to a maximum of 13 characters, including spaces.  In
-general you should avoid the character / in free-text nessages, as the
+general you should avoid the character / in free-text messages, as the
 program may then try to interpret your construction as part of a
 compound callsign.  It should be obvious that the JT9 and JT65
 protocols are not designed or well suited for extensive conversations
@@ -148,9 +148,9 @@ will be generated that best suit your needs.
 
 === Pre-QSO Checklist
 
-Before attempting your first QSO with JT9 or JT65, be sure to go
-through the <<TUTORIAL,Basic Operating Tutorial>> above, as well as the following
-checklist:
+Before attempting your first QSO with one of the WSJT modes, be sure
+to go through the <<TUTORIAL,Basic Operating Tutorial>> above as well
+as the following checklist:
 
 - Your callsign and grid locator set to correct values
 

@@ -37,20 +37,6 @@ decreasing *Bins/Pixel*, increasing *Start*, or reducing the width of
 the *Wide Graph*.  You might also choose to re-center the filter
 passband, if such control is available.
 
-My rig has only a single SSB filter, about 2700 Hz bandwidth.  Can I use split mode?::
-
-Set _Split Operation_ to *Rig* (or if necessary, *Fake It*) on the
-*Settings | Radio* tab.  To operate primarily in the JT9 frequency
-range, check the *{plus}2 kHz* box. VFO-A will be moved up by that
-amount, e.g., to 14.078 MHz on 20 meters.  The JT9 sub-band now falls
-between about 500 Hz and 2000Hz on the waterfall display.  As
-described above, VFO-B will be adjusted so as to keep your Tx audio
-always between 1500 and 2000 Hz.  To operate JT65, simply uncheck the
-*{plus}2 kHz* option.  If your rig has an IF shift control or
-equivalent (``passband tuning''), you can operate as if you had 4 kHz
-Rx bandwidth and use the IF shift control to focus on any 2.7 kHz
-portion of the JT65 and JT9 sub-bands.
-
 How should I configure _WSJT-X_ to run multiple instances?::
 
 Start _WSJT-X_ from a command-prompt window, passing each instance a
