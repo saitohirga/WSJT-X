@@ -54,3 +54,10 @@ will be a good level for audio drive.
 digital slider labeled *Pwr* at the right edge of the main window.
 
 * Toggle the *Tune* button once more to stop your test transmission. 
+
+IMPORTANT: Windows Vista and later incorrectly configure audio devices
+using the Texas Instruments PCM2900 series CODEC for microphone input
+rather line input.  (This chip is used in many radios with built-in
+USB CODECs, as well as various other audio interfaces.)  If using such
+a device, be sure to set the mic level in the Recording Device
+Properties to 0 dB.

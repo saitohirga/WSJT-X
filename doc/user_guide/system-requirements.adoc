@@ -8,6 +8,6 @@
   device for T/R switching, or CAT control, or VOX, as required for 
   your radio-to-computer connections
 - Audio input and output devices supported by the operating system and 
-  capable of 48 kHz sample rate
+  configured for sample rate 48000 Hz.
 - Audio or equivalent USB connections between transceiver and computer  
 - A means for synchronizing the computer clock to UTC within ±1 second

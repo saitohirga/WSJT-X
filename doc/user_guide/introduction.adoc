@@ -12,7 +12,7 @@ QSOs under extreme weak-signal conditions. They use nearly identical
 message structure and source encoding.  JT65 was designed for EME
 (“moonbounce”) on the VHF/UHF bands and has also proven very effective
 for worldwide QRP communication on the HF bands.  JT9 is optimized for
-the LF, MF, and lower HF bands.  It is about 2 dB more sensitive than
+the LF, MF, and lower HF bands.  It is 2 dB more sensitive than
 JT65 while using less than 10% of the bandwidth.  JT4 offers a wide
 variety of tone spacings and has proved very effective for EME on
 microwave bands up to 24 GHz.  All three of these modes use one-minute
@@ -34,12 +34,15 @@ internet access can automatically upload their reception reports to a
 central database called {wsprnet} that provides a mapping facility,
 archival storage, and many other features.
 
+Echo mode allows you to detect and measure your own lunar echoes,
+ even when they are far below the threshold of audibility.
+
 _WSJT-X_ provides spectral displays for passbands up to 5 kHz,
 flexible rig control for nearly all modern radios used by amateurs,
 and a wide variety of special aids such as automatic Doppler control
-for EME QSOs.  The program runs equally well on Windows, Macintosh,
-and Linux systems, and installation packages are available for all
-three platforms.
+for EME QSOs and echo testing.  The program runs equally well on
+Windows, Macintosh, and Linux systems, and installation packages are
+available for all three platforms.
 
 _WSJT-X_ is an open-source project released under the {gnu_gpl}
 (GPL). If you have programming or documentation skills or would like

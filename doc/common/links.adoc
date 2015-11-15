@@ -2,14 +2,14 @@
 Link file to hold all links
 File Location: ./doc/common/links.adoc
 Usage example: include::../common/links.adoc[]
-Syntax: [link-id] [link] [displayed test]
+Syntax: [link-id] [link] [displayed text]
 
 Example:
 :pskreporter: http://pskreporter.info/pskmap.html[PSK Reporter]
 
 [link-id] = :pskreporter:
 [link] http://pskreporter.info/pskmap.html
-[displayed test] PSK Reporter
+[displayed text] PSK Reporter
 
 Perform searches from the doc root directory: C:\JTSDK-DOC\doc
 Search: grep -rl --exclude-dir="*\.svn" {pskreporter} .
@@ -56,13 +56,16 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :fmt_arrl: http://www.arrl.org/frequency-measuring-test[ARRL FMT Info]
 :fmt_group: https://groups.yahoo.com/neo/groups/FMT-nuts/info[FMT Group]
 :fmt_k5cm: http://www.k5cm.com/[FMT Event Info]
+:fmt_wspr: http://www.physics.princeton.edu/pulsar/K1JT/FMT_User.pdf[here]
 :gnu_gpl: http://www.gnu.org/licenses/gpl-3.0.txt[GNU General Public License]
 :homepage: http://physics.princeton.edu/pulsar/K1JT/[WSJT Home Page]
 :hrd: http://www.hrdsoftwarellc.com/[Ham Radio Deluxe]
+:jt4eme: http://physics.princeton.edu/pulsar/K1JT/WSJT-X_for_JT4_v6.pdf[here]
 :jt65protocol: http://physics.princeton.edu/pulsar/K1JT/JT65.pdf[QEX]
 :jtalert: http://hamapps.com[JT-ALERT-X]
 :kvasd-installer: http://physics.princeton.edu/pulsar/K1JT/kv-installer.txt[here]
 :launchpadki7mt: https://launchpad.net/~ki7mt[KI7MT PPA's]
+:log4om: http://www.log4om.com[Log4OM]
 :msys_url: http://sourceforge.net/projects/mingwbuilds/files/external-binary-packages/[MSYS Download]
 :ntpsetup: http://www.satsignal.eu/ntp/setup.html[Network Time Protocol Setup]
 :osx_instructions: http://physics.princeton.edu/pulsar/K1JT/OSX_Readme[here]

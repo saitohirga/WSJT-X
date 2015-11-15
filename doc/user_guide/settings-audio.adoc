@@ -11,6 +11,9 @@ IMPORTANT: If you select the audio output device that is also your
 computer's default audio device, be sure to turn off all system sounds
 to prevent transmitting them over the air.
 
+IMPORTANT: If necessary, be sure that your audio device in configured to
+sample at 48000 Hz, 16 bits.
+
 - _Save Directory_: _WSJT-X_ can save its received audio sequences as
 +.wav+ files.  A default directory for these files is provided; you
 can select another location if desired.
@@ -20,5 +23,4 @@ specified directory.  The file contains information usable by another
 program for automatic tracking of the Sun or Moon, as well as
 predicted Doppler shift for the specified EME path.  The file is
 updated once per second.
-
 
