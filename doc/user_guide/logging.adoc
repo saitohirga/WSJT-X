@@ -1,7 +1,7 @@
 A basic logging facility in _WSJT-X_ saves QSO information to flies
 named +wsjtx.log+ (in comma-separated text format) and +wsjtx_log.adi+
 (in standard ADIF format).  These files can be imported directly into
-other programs, for example spreadsheets and popular logging prgrams.
+other programs, for example spreadsheets and popular logging programs.
 As described in the <<INSTALL,Installation>> and <<PLATFORM,Platform
 Dependencies>> sections, different operating systems may place your
 local log files in different locations.  You can always navigate to

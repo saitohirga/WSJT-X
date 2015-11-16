@@ -21,12 +21,19 @@ the desired mode (or leave the Mode selection blank).  Then click
 - Click the *Reset* button to return the table to its default
 configuration.
 
-_Frequency Calibration_: If you have calibrated your radio with the
-technique described {fmt_wspr}, or simply by measuring against WWV or
-another reliable frequency reference, enter the measured values for
-Intercept and Slope.  Frequency values sent to the radio and received
-from it will then be adjusted accordingly so that frequencies displayed
-by _WSJT-X_ will be correct.
+_Frequency Calibration_: If you have calibrated your radio using WWV
+or other reliable frequency references, or perhaps with the technique
+described {fmt_wspr}, enter the measured values for Intercept A and
+Slope B in the equation
+
+ Dial error = A * B*f
+
+where ``Dial error'' and A are in Hz, f is frequency in MHz, and B is
+parts per million (ppm).
+
+Frequency values sent to the radio and received from it will
+then be adjusted accordingly so that frequencies displayed by _WSJT-X_
+are correct.
 
 _Station Information_: You can save *Band*, *Offset* and *Antenna
 Description* information for your station.  The antenna information

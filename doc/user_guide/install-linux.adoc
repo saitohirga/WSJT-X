@@ -36,7 +36,7 @@ You may also need to execute the following commands in a terminal:
 All Linux users must install a companion program called +kvasd+, an
 implementation of the the Koetter-Vardy algebraic soft-decision
 decoder for the Reed Solomon (63,12) code.  Users of Ubuntu and other
-Debian-based sysyems can install +kvasd+ by executing the following
+Debian-based systems can install +kvasd+ by executing the following
 commands in a terminal:
 
  sudo add-apt-repository ppa:ki7mt/kvasd-installer
@@ -61,7 +61,7 @@ following standard tools already installed:
 
  autoconf awk bash dialog libgfortran svn
 
-Download the {kvasd_installer} tarfile to a conveniant directory, then
+Download the {kvasd_installer} tarfile to a convenient directory, then
 execute the following commands in a terminal there:
 
  tar xzf kvasd-installer-1.12.14.tar.gz

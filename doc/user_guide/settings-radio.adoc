@@ -63,13 +63,13 @@ result in a cleaner transmitted signal, by keeping the Tx audio always
 in the range 1500 to 2000 Hz so that audio harmonics cannot pass
 through the Tx sideband filter.  Select *Rig* to use the radio's Split
 mode, or *Fake It* to have _WSJT-X_ adjust the VFO frequency as
-needed, just before T/R switching occurs.  Choose *None* if you do not
+needed, when T/R switching occurs.  Choose *None* if you do not
 wish to use split operation.
 
 When all required settings have been made, click *Test CAT* to test
 communication between _WSJT-X_ and your radio.  The button should turn
 green to indicate that proper communication has been established.
 Failure of the CAT-control test turns the button red and displays an
-error message.  After a succesful CAT test, toggle the *Test PTT*
+error message.  After a successful CAT test, toggle the *Test PTT*
 button to confirm that your selected method of T/R control is working
 properly.

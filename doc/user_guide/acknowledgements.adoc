@@ -8,10 +8,10 @@ suggestions and advice that have greatly aided the development of
 _WSJT_ and its sister programs.
 
 For _WSJT-X_ in particular, we acknowledge contributions from *AC6SL,
-AE4JY, DJ0OT, G4KLA, G4WJS, K3WYC, K9AN, KA6MAL, KA9Q, KB1ZMX, KI7MT,
-KK1D, PY2SDR, VK3ACF, VK4BDJ, W4TI, W4TV, and W9MDB*.  Each of these
-amateurs has helped to bring the program’s design, code, and
-documentation to its present state.
+AE4JY, DJ0OT, G4KLA, G4WJS, K3WYC, K9AN, KA6MAL, KA9Q, KB1ZMX, KD6EKQ,
+KI7MT, KK1D, ND0B, PY2SDR, VK3ACF, VK4BDJ, W4TI, W4TV, and W9MDB*.
+Each of these amateurs has helped to bring the program’s design, code,
+and documentation to its present state.
 
 Most of the color palettes for the _WSJT-X_ waterfall were copied from
 the excellent, well documented, open-source program _fldigi_, by *W1HKJ*

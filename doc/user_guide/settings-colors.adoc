@@ -1,8 +1,7 @@
 [[COLORS]]
 
-image::images/colors.png[align="center",alt="Reporting Screen"]
+_WSJT-X_ uses colors to highlight decoded messages containing
+information of particular interest.  Click on one of the buttons to
+select your preferred colors for any message category.
 
-_WSJT-X_ uses colors to highlight decoded messages that contain
-information that may be of particular interest.  Click on one of
-the buttons to select your preferred colors for any message 
-category.
+image::images/colors.png[align="center",alt="Reporting Screen"]

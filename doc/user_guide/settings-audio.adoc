@@ -21,6 +21,6 @@ can select another location if desired.
 - _AzEl Directory_: A file named +azel.dat+ will appear in the
 specified directory.  The file contains information usable by another
 program for automatic tracking of the Sun or Moon, as well as
-predicted Doppler shift for the specified EME path.  The file is
+calculated Doppler shift for the specified EME path.  The file is
 updated once per second.
 

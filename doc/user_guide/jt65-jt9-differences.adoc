@@ -16,7 +16,7 @@ By comparison, JT9 allows for signal reports in the range –50 to +49
 dB. It manages this by taking over a small portion of ``message
 space'' that would otherwise be used for grid locators within 1 degree
 of the south pole. The S/N scale of the present JT9 decoder is
-reasonably linear (although it’s not intended to be a precision
+reasonably linear (although it's not intended to be a precision
 measurement tool).  
 
 With clean signals and a clean noise background, JT65 achieves nearly

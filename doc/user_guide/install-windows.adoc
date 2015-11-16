@@ -13,6 +13,10 @@ installation directory and its subdirectories.
 - Logs and other writeable files will normally be found in the 
 directory +C:\Users\<username>\AppData\Local\WSJT-X+.
 
+IMPORTANT: Note that your computer might be configured so that this
+directory is ``invisible''.  It's there, however, and accessible.
+An alternative (shortcut) directory name is %LOCALAPPDATA%\WSJT-X\.
+
 - The built-in Windows facility for time synchronization is usually
 not adequate. We recommend the program _Meinberg NTP_: see {ntpsetup}
 for downloading and installation instructions.
