@@ -278,6 +278,8 @@ MessageClient::MessageClient (QString const& id, QString const& server, port_typ
              if (e != impl::NetworkError) // take this out when Qt 5.5
                                           // stops doing this
                                           // spuriously
+#else
+             Q_UNUSED (e);
 #endif
                {
                  Q_EMIT error (m_->errorString ());
