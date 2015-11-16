@@ -55,7 +55,7 @@ in the moon'' will copy all of you on the selected nominal frequency.
 band.  The home station two-way self Doppler shift is +6193 Hz, so the
 one-way shift is +3096.5 Hz.  Therefore, the receive frequency is set
 to 10,360.103097 Hz.  When a transmission is started, the frequency
-is reset to 3096.5 Hz below the nomial frequency.
+is reset to 3096.5 Hz below the nominal frequency.
 
 
 - Spinner controls at top right of the Astronomical Data window let you
@@ -122,9 +122,14 @@ _Constant frequency on the Moon_
 - Choose your desired test frequency using the _Frequency above nominal
 band edge_ controls.
 
+- Be sure that your rig control has been set up for _Split Operation_
+(either _Rig_ of _Fake It_) on the *Settings | Radio* tab.
+
 - Click *Enable Tx* on the main window to start a sequence of 6-second
 cycles.
 
 - _WSJT-X_ calculates and compensates for Doppler shift automatically.
 Your return echo should always appear at the center of the plot area
-on the Echo Graph window.
+on the Echo Graph window, as in the screen shot below.
+
+image::images/echo_144.png[align="center",alt="Echo 144 MHz"]

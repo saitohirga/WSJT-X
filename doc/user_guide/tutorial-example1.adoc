@@ -12,7 +12,7 @@ those shown in the screen shot below.
 something similar to the to the following screen shot:
 
 [[X12]]
-image::images/main-ui-1.5.png[align="center",alt="Main UI and Wide Graph"]
+image::images/main-ui-1.6.png[align="center",alt="Main UI and Wide Graph"]
 
 .Decoding Overview
 

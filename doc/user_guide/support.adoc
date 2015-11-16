@@ -18,7 +18,7 @@ include at least the following information:
 - Program version
 - Operating system
 - Concise description of the problem
-- Sequence of steps required to reproduce the problem
+- Exact sequence of steps required to reproduce the problem
 
 === Feature Requests
 

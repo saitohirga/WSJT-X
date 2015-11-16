@@ -62,10 +62,10 @@ include::install-from-source.adoc[]
 == Settings
 
 Select *Settings* from the *File* menu or by typing *F2*.  (On
-Macintosh select *Preferences* from the WSJT-X menu, or use the
-keyboard *Command* or *Cmd* key.)  The following sections describe
-setup optiions available on each of seven tabs selectable near the top
-of the window.
+Macintosh select *Preferences* from the _WSJT-X_ menu, or use the
+keyboard shortcut *Cmd+,*).  The following sections describe setup
+options available on each of seven tabs selectable near the top of the
+window.
 
 [[GENERAL]]
 === General
@@ -106,7 +106,7 @@ Sections <<TUT_MAIN,7.1>> through <<TUT_EX2,7.4>> cover basic
 operation for making two-way QSOs with modes JT9 and JT65 on the HF
 bands.  Section <<TUT_WSPR,7.5>> covers WSPR mode.  If you are a new user
 of _WSJT-X_ we suggest that you go through the full tutorial.  It should
-taks no more than 20 minutes.
+take no more than 20 minutes.
 
 [[TUT_MAIN]]
 === Main Window Settings
@@ -130,7 +130,7 @@ include::wspr.adoc[]
 
 
 [[VHF_AND_UP]]
-== VHF Features
+== VHF+ Features
 include::vhf-features.adoc[]
 
 [[MAKE_QSOS]]

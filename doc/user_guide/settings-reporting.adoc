@@ -9,6 +9,5 @@ reception reports to the {pskreporter} mapping facility.
 
 - _UDP Server_: This group of options controls the network name or
 address and port number used by a program that will receive status
-updates from WSJT-X.  It is expected that cooperating applications
-like JTAlert-X use this feature to obtain information about a 
-running WSJT-X instance.
+updates from _WSJT-X_.  Cooperating applications like _JTAlert_ use 
+this feature to obtain information about a running _WSJT-X_ instance.

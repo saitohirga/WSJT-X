@@ -31,19 +31,6 @@ set (UG_SRCS
   user_guide/make-qso.adoc
   user_guide/new_features.adoc
   user_guide/platform-dependencies.adoc
-  user_guide/rig-config-adat.adoc
-  user_guide/rig-config-alinco.adoc
-  user_guide/rig-config-aor.adoc
-  user_guide/rig-config-drake.adoc
-  user_guide/rig-config-elecraft.adoc
-  user_guide/rig-config-flexrad.adoc
-  user_guide/rig-config-icom.adoc
-  user_guide/rig-config-kenwood.adoc
-  user_guide/rig-config-main.adoc
-  user_guide/rig-config-softrock.adoc
-  user_guide/rig-config-template.adoc
-  user_guide/rig-config-tentec.adoc
-  user_guide/rig-config-yaesu.adoc
   user_guide/settings-audio.adoc
   user_guide/settings-colors.adoc
   user_guide/settings-frequencies.adoc
