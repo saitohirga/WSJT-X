@@ -23,6 +23,6 @@ and convenient direct access to web services such as callsign lookup.
 image::images/jtalert.png[align="left",alt="JTAlert-X image"]
 
 * {alarmejt}, by F5JMH, is available only for Linux.  The program keeps
-its own logbook.  It fetches contact information from _WSJT_X and
+its own logbook.  It fetches contact information from _WSJT-X_ and
 provides visual alerts for new DXCC entities and grid squares on the
 current band, as well as other options.
