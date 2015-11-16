@@ -102,11 +102,14 @@ include::transceiver-setup.adoc[]
 [[TUTORIAL]]
 == Basic Operating Tutorial
 
-Sections <<TUT_MAIN,7.1>> through <<TUT_EX2,7.4>> cover basic
+<<TUT_MAIN,Sections 6.1>> through <<TUT_EX2,6.4>> cover basic
 operation for making two-way QSOs with modes JT9 and JT65 on the HF
-bands.  Section <<TUT_WSPR,7.5>> covers WSPR mode.  If you are a new user
-of _WSJT-X_ we suggest that you go through the full tutorial.  It should
-take no more than 20 minutes.
+bands.  <<WSPR,Section 7>> covers WSPR mode, and 
+<<VHF_AND_UP,Section 8>> covers VHF+ features.  If you are a new 
+user of _WSJT-X_ we suggest that you go through the full HF-oriented 
+tutorial while at your radio.  It should take no more than 20 minutes.
+If your main interests are WSPR of VHF+, you may then proceed to 
+Sections 7 and 8.
 
 [[TUT_MAIN]]
 === Main Window Settings
@@ -187,18 +190,8 @@ include::faq.adoc[]
 
 [[PROTOCOLS]]
 == Protocol Specifications
+include::protocols.adoc[]
 
-[[JT65PRO]]
-=== JT65
-include::jt65-protocol.adoc[]
-
-[[JT9PRO]]
-=== JT9
-include::jt9-protocol.adoc[]
-
-[[JT65_JT9]]
-=== JT65 & JT9 Differences
-include::jt65-jt9-differences.adoc[]
 
 [[TXRX]]
 == Implementation Details

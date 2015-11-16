@@ -3,7 +3,7 @@
 [[FIG_BAND_SETTINGS]]
 image::images/settings-frequencies.png[align="center",alt="Frequency Screen"]
 
-_Working Frequencies_: By default the *Working Frequency* table
+_Working Frequencies_: By default the *Working Frequencies* table
 contains a list of currently recommended dial frequencies for each
 mode.  You can modify the frequency table as desired.
 
@@ -23,22 +23,22 @@ configuration.
 
 _Frequency Calibration_: If you have calibrated your radio using WWV
 or other reliable frequency references, or perhaps with the technique
-described {fmt_wspr}, enter the measured values for Intercept A and
-Slope B in the equation
+described {fmt_wspr}, enter the measured values for _Intercept_ A and
+_Slope_ B in the equation
 
- Dial error = A * B*f
+ Dial error = A + B*f
 
 where ``Dial error'' and A are in Hz, f is frequency in MHz, and B is
-parts per million (ppm).
+in parts per million (ppm).
 
 Frequency values sent to the radio and received from it will
 then be adjusted accordingly so that frequencies displayed by _WSJT-X_
-are correct.
+are accurate.
 
 _Station Information_: You can save *Band*, *Offset* and *Antenna
 Description* information for your station.  The antenna information
 will be included in reception reports sent to {pskreporter}.  By
-default the frequency *Offset* for each band is zero.  Nonzero offsets
+default the frequency offset for each band is zero.  Nonzero offsets
 may be added if (for example) a transverter is in use.
 
 - For a simple setup approach you might want to delete any unwanted
@@ -47,7 +47,7 @@ on a *Frequency* entry and type *Ctrl+A* to ``select all,'' and
 drag-and-drop the entries onto the _Station Information_ table.  You
 can then add any transverter offsets and antenna details.
 
-- To avoid typing the same information multiple times, you can
+- To avoid typing the same information many times, you can
 drag-and-drop entries between the lines of the _Station Information_
 table.
 

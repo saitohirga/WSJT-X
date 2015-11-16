@@ -18,8 +18,9 @@ directory is ``invisible''.  It's there, however, and accessible.
 An alternative (shortcut) directory name is %LOCALAPPDATA%\WSJT-X\.
 
 - The built-in Windows facility for time synchronization is usually
-not adequate. We recommend the program _Meinberg NTP_: see {ntpsetup}
-for downloading and installation instructions.
+not adequate. We recommend the program _Meinberg NTP_ (see {ntpsetup}
+for downloading and installation instructions) or _Dimension 4_ from
+{dimension4}.
 
 - _WSJT-X_ expects your sound card to do its raw sampling at 48000 Hz.
 To ensure that this will be so when running under recent versions of

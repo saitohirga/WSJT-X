@@ -7,16 +7,12 @@ minimal QSOs using short, structured messages. The process works best
 if you use these formats and follow standard operating practices. The
 recommended basic QSO goes something like this:
 
-[width="90%",cols="3,7,12",options="header"]
-|=======================================
-|UTC|Transmitted Message|Comment
-|0001|CQ K1ABC FN42|K1ABC calls CQ
-|0002|K1ABC G0XYZ IO91|G0XYZ answers
-|0003|G0XYZ K1ABC –19|K1ABC sends report
-|0004|K1ABC G0XYZ R–22|G0XYZ sends acknowledgment and report
-|0005|G0XYZ K1ABC RRR|K1ABC sends acknowledgment
-|0006|K1ABC G0XYZ 73|G0XYZ sends 73
-|=======================================
+ CQ K1ABC FN42                          #K1ABC calls CQ
+                   K1ABC G0XYZ IO91     #G0XYZ answers
+ G0XYZ K1ABC –19                        #K1ABC sends report
+                   K1ABC G0XYZ R–22     #G0XYZ sends R+report
+ G0XYZ K1ABC RRR                        #K1ABC sends RRR
+                   K1ABC G0XYZ 73       #G0XYZ sends 73
 
 *Standard messages* consist of two callsigns (or CQ, QRZ, or DE and
 one callsign) followed by the transmitting station’s grid locator, a
@@ -35,9 +31,10 @@ lie in the range –30 to –1 dB, and values are significantly compressed
 above about -10 dB.  JT9 supports the extended range –50 to +49 dB and
 assigns more reliable numbers to relatively strong signals.
 
-IMPORTANT: Signals become visible on the waterfall around S/N = –26 dB and
-audible (to someone with very good hearing) around –15 dB. Thresholds
-for decodability are around –24 dB for JT65, –26 dB for JT9.
+IMPORTANT: Signals become visible on the waterfall around S/N = –26 dB
+and audible (to someone with very good hearing) around –15
+dB. Thresholds for decodability are around -23 dB for JT4, –24 dB for
+JT65, –26 dB for JT9.
 
 === Free Text Messages
 
@@ -46,7 +43,7 @@ Free-format messages such as ``TNX ROBERT 73'' or ``5W VERT 73 GL''
 are supported, up to a maximum of 13 characters, including spaces.  In
 general you should avoid the character / in free-text messages, as the
 program may then try to interpret your construction as part of a
-compound callsign.  It should be obvious that the JT9 and JT65
+compound callsign.  It should be obvious that the JT4, JT9, and JT65
 protocols are not designed or well suited for extensive conversations
 or rag-chewing.
 
@@ -73,8 +70,8 @@ compound callsigns:
 The following messages are _not_ valid, because a third word is not
 permitted in any message containing a *Type 1* compound callsign:
 
- ZA/K1ABC G0XYZ -22        #These messages will be sent
- G0XYZ K1ABC/4 73          #without the third "word"
+ ZA/K1ABC G0XYZ -22        #These messages are invalid; each would 
+ G0XYZ K1ABC/4 73          # be sent without its third "word"
 
 A QSO between two stations using *Type 1* compound-callsign messages
 might look like this:
@@ -108,8 +105,8 @@ messages containing *Type 2* compound callsigns:
  DE W4/G0XYZ RRR
  DE W4/G0XYZ 73
 
-In each case, the message is treated as *Type 2* because the add-on
-prefix or suffix is _not_ one of those in the fixed list.  Note
+In each case, the compound callsign is treated as *Type 2* because the
+add-on prefix or suffix is _not_ one of those in the fixed list.  Note
 that a second callsign is never permissible in these messages.
 
 IMPORTANT: Remember that during a transmission your transmitted message is
@@ -162,5 +159,6 @@ as the following checklist:
 
 - Radio filters centered and set to widest available passband (up to 5 kHz).
 
-IMPORTANT: Remember that JT9 and J65 generally do not require high
-power. Under most HF propagation conditions, QRP is the norm.
+IMPORTANT: Remember that JT4, JT9, J65, and WSPR generally do not
+require high power. Under most HF propagation conditions, QRP is the
+norm.

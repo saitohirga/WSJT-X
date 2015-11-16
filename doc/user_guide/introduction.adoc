@@ -39,7 +39,7 @@ even if they are far below the audible threshold.
 
 _WSJT-X_ provides spectral displays for passbands up to 5 kHz,
 flexible rig control for nearly all modern radios used by amateurs,
-and a wide variety of special aids such as automatic Doppler control
+and a wide variety of special aids such as automatic Doppler tracking
 for EME QSOs and Echo testing.  The program runs equally well on
 Windows, Macintosh, and Linux systems, and installation packages are
 available for all three platforms.

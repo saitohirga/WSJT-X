@@ -22,10 +22,10 @@ before'' status for this callsign (according to log file
 background color, as follows:
 
 [horizontal]
-!::  (default color bright purple) -- New DXCC entity
-~::  (light pink) -- You have already worked this DXCC entity but not 
+!::  default color bright purple: -- New DXCC entity
+~::  light pink: -- You have already worked this DXCC entity but not 
 this station
- ::  (green) -- You have previously worked the calling station
+ ::  green: -- You have previously worked the calling station
 
 In this respect the program does not distinguish between modes, but it
 does differentiate between bands.

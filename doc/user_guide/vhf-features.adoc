@@ -57,8 +57,7 @@ one-way shift is +3096.5 Hz.  Therefore, the receive frequency is set
 to 10,360.103097 Hz.  When a transmission is started, the frequency
 is reset to 3096.5 Hz below the nominal frequency.
 
-
-- Spinner controls at top right of the Astronomical Data window let you
+- Spinner controls at top right of the *Astronomical Data* window let you
 set a working frequency above the nominal band edge. The frequency above
 band edge is the sum of the numbers in these two controls (kHz + Hz).
 
@@ -74,7 +73,7 @@ the 10 GHz band.
 - If using a transverter, set the appropriate offset on the *Settings
 | Frequencies* tab.  Offset is defined as (desired transceiver dial
 reading) minus (desired on-the-air frequency).  For example, when
-using a 144 MHz radio at 10368 MHz, offset = (144 - 10368) =
+using a 144 MHz radio at 10368 MHz, _Offset (MHz)_ = (144 - 10368) =
 -10224.000.  If the band is already in the table, you can edit the
 offset by double clicking on the offset field itself.  Otherwise a new
 band can be added by right clicking in the table and selecting _Insert_.
@@ -83,10 +82,11 @@ image::images/Add_station_info.png[align="center",alt="Station information"]
 
 - The JT4 decoder in _WSJT-X_ includes optional facilities for
 averaging over successive transmissions and also correlation decoding,
-sometimes known as ``Deep Search''.  The *Decode* menu appears to
-provide options to set different decoding behavior.  However, in JT4 mode
-this program version always behaves as if you have selected _Include
-correlation_.
+sometimes known as ``Deep Search''.  
+
+IMPORTANT: The *Decode* menu appears to provide options to set
+different decoding behavior.  However, in JT4 mode _WSJT-X_ Version
+1.6 always behaves as if you have selected _Include correlation_.
 
 image::images/decoding_depth.png[align="center",alt="Decoding Depth"]
 
@@ -94,9 +94,8 @@ image::images/decoding_depth.png[align="center",alt="Decoding Depth"]
 activate automatic generation of these messages, check the box labeled
 _Sh_ on the main window.
 
-IMPORTANT: Many additional hints for using JT4 and Echo mode on the
-EME path are available {jt4eme}.  (Thanks to G3WDG for preparing this 
-useful document.)
+IMPORTANT: Thanks to G3WDG, many additional hints for using JT4 and
+Echo mode on the EME path are available {jt4eme}.
 
 === Echo Mode
 

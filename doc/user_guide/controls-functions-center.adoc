@@ -16,14 +16,14 @@ double-clicking on decoded text or a signal in the waterfall.  They
 can also be adjusted with spinner controls. 
 
 * You can force Tx frequency to the current Rx frequency by clicking
-the *Tx<Rx* button, and vice-versa for *Rx<Tx*.  (Copy is from right
-to left.)  Check the box *Lock Tx=Rx* to make the frequencies always
-track one another.  The on-the-air frequency of your lowest JT9 or
-JT65 tone is the sum of dial frequency and audio Tx frequency.
+the *Tx<Rx* button, and vice-versa for *Rx<Tx*.  Check the box *Lock
+Tx=Rx* to make the frequencies always track one another.  The
+on-the-air frequency of your lowest JT9 or JT65 tone is the sum of
+dial frequency and audio Tx frequency.
 
 IMPORTANT: In general we do not recommend using *Lock Tx=Rx* since it
 encourages poor radio etiquette when running a frequency.  With *Lock
-Tx=Rx* checked, your own frequency will move around following your
+Tx=Rx* checked, your own Tx frequency will move around following your
 callers.
 
 * The *Report* control lets you change a signal report that has been

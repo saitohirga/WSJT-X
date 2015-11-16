@@ -24,11 +24,6 @@ updating the spectral display.  Values around 5 are suitable for
 normal JT9 and JT65 operation.  Adjust *N Avg* to make the waterfall
 move faster or slower, as desired.
 
-- *Zero* and *Gain* control the reference level and scaling for
-waterfall colors.  Values around 0 for both parameters are usually
-about right, depending on the input signal level, the chosen palette,
-and your own preferences.
-
 - A dropdown list below the *Palette* label lets you select from a
 wide range of waterfall color palettes.  
 
@@ -37,13 +32,25 @@ user-defined palette.
 
 - Check *Flatten* if you want _WSJT-X_ to compensate for a sloping or
 uneven response across the received passband.  For this feature to
-work properly, remember to restrict the range of displayed frequencies
+work properly, you should restrict the range of displayed frequencies
 so that only the active part of the spectrum is shown.
 
 - Select *Current* or *Cumulative* for the spectrum displayed in the
 bottom one-third of the Wide Graph window.  *Current* is the average
 spectrum over the most recent *N Avg* FFT calculations.  *Cumulative*
 is the average spectrum since the start of the present UTC minute.
-(*Linear Avg* is not useful for JT9 or JT65; it is intended for use
+*Linear Avg* is useful in JT4 mode, especially when short-form
+messages are used.
+
+for JT9 or JT65; it is intended for use
 with the yet-to-be implemented JT4 mode.)
 
+- Four sliders control reference levels and scaling for waterfall
+colors and the spectrum plot.  Values around midscale are usually
+about right, depending on the input signal level, the chosen palette,
+and your own preferences.
+
+- *Smoothing* is active only when *Linear Average* has been selected.
+Smoothing the displayed spectrum over more than one bin can enhance
+your ability to detect weak EME signals with Doppler spread more than
+a few Hz.

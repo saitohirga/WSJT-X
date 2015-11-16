@@ -9,8 +9,8 @@ image::images/main-ui-controls.png[align="left",width=650,alt="Main UI Controls"
 about a QSO you have nearly completed.  You can edit or add to this
 information before clicking *OK* to log the QSO.  If you check *Prompt
 me to log QSO* on the *Setup* menu, the program will raise the
-confirmation screen automatically when you send a 73 or free-text
-message.
+confirmation screen automatically when you send a message containing
+73.
 
 //.Log QSO Window
 image::images/log-qso.png[align="center",alt="Log QSO"]
@@ -30,7 +30,7 @@ return to the original frequency.
 Double-clicking *Erase* clears both text windows.
 
 * *Decode* tells the program to repeat the decoding procedure at the
-Rx frequency (green marker on waterfall), using the most recently
+Rx frequency (green marker on waterfall scale), using the most recently
 completed sequence of received data.  
 
 * *Enable Tx* toggles the program into automatic T/R sequencing mode
@@ -43,9 +43,9 @@ s into a UTC minute.
 automatic T/R sequencing.
 
 * *Tune* may be used to switch into Tx mode and generate an
-unmodulated carrier at the specified Tx frequency (red marker
-on waterfall).  This process may be useful for adjusting an antenna
-tuner.  The button is highlighted in red while *Tune* is
-active.  Toggle the button a second time to terminate the *Tune*
-process.
+unmodulated carrier at the specified Tx frequency (red marker on
+waterfall scale).  This process may be useful for adjusting an antenna
+tuner.  The button is highlighted in red while *Tune* is active.
+Toggle the button a second time or click *Halt Tx* to terminate the
+*Tune* process.
 
