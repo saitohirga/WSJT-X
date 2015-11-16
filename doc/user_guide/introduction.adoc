@@ -6,8 +6,8 @@ the program name stand for “Weak Signal communication by K1JT,” while
 the suffix “-X” indicates that _WSJT-X_ started as an extended (and
 experimental) branch of the program _WSJT_.
 
-_WSJT-X_ Version 1.6 offers four protocols or “modes”: JT4, JT9, JT65
-and WSPR.  The first three are designed for making reliable 
+_WSJT-X_ Version 1.6 offers five protocols or “modes”: JT4, JT9, JT65
+WSPR, and Echo.  The first three are designed for making reliable 
 QSOs under extreme weak-signal conditions. They use nearly identical
 message structure and source encoding.  JT65 was designed for EME
 (“moonbounce”) on the VHF/UHF bands and has also proven very effective
