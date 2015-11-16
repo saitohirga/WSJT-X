@@ -21,9 +21,9 @@ mode, you should normally choose the widest one possible, up to about
 5 kHz.  This choice has the desirable effect of allowing the *Wide
 Graph* (waterfall and 2D spectrum) to display the conventional JT65
 and JT9 sub-bands simultaneously on most HF bands.  Further details
-are provided in the <<TUTORIAL,Tutorial>> section.  A wider displayed
-bandwidth may also be helpful at VHF and above, where usage of JT65
-and JT4 is found over a much wider range of frequencies.
+are provided in the <<TUTORIAL,Basic Operating Tutorial>>.  A wider
+displayed bandwidth may also be helpful at VHF and above, where JT4
+and JT65 signals are found over much wider ranges of frequencies.
 
 - If you have only a standard SSB filter you won’t be able to display
 more than about 2.7 kHz bandwidth.  Depending on the exact dial
@@ -58,6 +58,6 @@ digital slider labeled *Pwr* at the right edge of the main window.
 IMPORTANT: Windows Vista and later incorrectly configure audio devices
 using the Texas Instruments PCM2900 series CODEC for microphone input
 rather line input.  (This chip is used in many radios with built-in
-USB CODECs, as well as various other audio interfaces.)  If using such
-a device, be sure to set the mic level in the Recording Device
-Properties to 0 dB.
+USB CODECs, as well as various other audio interfaces.)  If you are
+using such a device, be sure to set the mic level in the Recording
+Device Properties to 0 dB.

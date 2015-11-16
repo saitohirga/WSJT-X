@@ -1,4 +1,4 @@
-=== Setup Help
+=== Help with Setup
 
 The best source of help in setting up your station or configuring
 _WSJT-X_ is the {wsjt_yahoo_group} at email address

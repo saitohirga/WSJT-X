@@ -19,25 +19,26 @@ be always on-frequency to within about 1 Hz.
 - Mode-specific standard working frequencies accessible from the
 drop-down band selector.
 
-- A number of corrections have been made to the Hamlib library, thereby
-fixing balky rig-control features.  A few unreliable features peculiar
-to particular radios have been removed.
- 
+- A number of corrections to the Hamlib library, fixing balky
+rig-control features.  A few unreliable features peculiar to
+particular radios have been removed.
+
 === Future releases
 
 Much work has already been done on Version 1.7 of _WSJT-X_.  (Up to
-now it has been called v1.6.1.)  More than 100 people have been
-building this version for themselves, as development progresses, and
-reporting on their experiences.  The next release will likely have the
-following features not present in Version 1.6.0, and perhaps others as
-well:
+now this branch has been called v1.6.1.)  More than 100 people have
+been building this version for themselves, as development progresses,
+and reporting on their experiences.  The next release will likely have
+the following features not present in Version 1.6.0, and perhaps
+others as well:
 
 - *JTMSK* mode, intended for meteor scatter, ionospheric scatter,
 aircraft scatter, and the like.  Unlike the FSK441, ISCAT, and JTMS
-modes present in the older program _WSJT_, *JTMSK* uses strong forward
-error correction and structured messages identical to those in JT4,
-JT9, and JT65.
+modes present in the older program _WSJT_, *JTMSK* uses forward error
+correction and structured messages identical to those in JT4, JT9, and
+JT65.
 
 - A significantly improved decoder for JT65, especially advantageous
 when used in crowded HF bands.  Starting with Version 1.7, _WSJT-X_
-will longer use the patented, closed-source Koetter-Vardy algorithm.
+will no longer use the patented, closed-source Koetter-Vardy
+algorithm.

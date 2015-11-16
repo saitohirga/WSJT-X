@@ -16,13 +16,14 @@ image::images/main-ui-1.6.png[align="center",alt="Main UI and Wide Graph"]
 
 .Decoding Overview
 
-Decoding takes place at the end of a receive sequence and is proceeds
-in two steps.  The first decode takes place at the selected Rx
-frequency, indicated by the U-shaped green marker on the waterfall
-scale.  Results appear in both the left (*Band Activity*) and right
-(*Rx Frequency*) text windows on the main screen. The program then
-finds and decodes all signals in the selected mode over the displayed
-frequency range. The red marker indicates your Tx frequency.
+Decoding takes place at the end of a receive sequence and proceeds in
+two steps.  The first decode is done at the selected Rx frequency,
+indicated by the U-shaped green marker on the waterfall scale.
+Results appear in both the left (*Band Activity*) and right (*Rx
+Frequency*) text windows on the main screen. The program then finds
+and decodes all signals in the selected mode over the displayed
+frequency range. The red marker on the waterfall scale indicates your
+Tx frequency.
 
 Seven JT9 signals are present in the example file, all decodable.
 When this file was recorded KF4RWA was finishing a QSO with K1JT.
@@ -80,7 +81,8 @@ automatically generated and selected for your next transmission.
 (Alternatively, you might choose to send a free text message or to
 call CQ again.)
 
-- Click somewhere on the waterfall to set Rx frequency (green marker).
+- Click somewhere on the waterfall to set Rx frequency (green marker
+on waterfall scale).
 
 - Ctrl-click on the waterfall to set both Rx and Tx frequencies.
 

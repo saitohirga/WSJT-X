@@ -38,7 +38,8 @@ for the proper parameter values.
 
 * _Force Control Lines_: A few station setups require the CAT serial
 port’s *RTS* and/or *DTR* control lines to be forced high or
-low. Check these boxes only if you are sure they are needed.
+low. Check these boxes only if you are sure they are needed (for
+example, to power the radio serial interface).
 
 - _PTT Method_: select *VOX*, *CAT*, *DTR*, or *RTS* as the desired
 method for T/R switching.  If your choice is *DTR* or *RTS*, select

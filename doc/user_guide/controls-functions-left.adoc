@@ -19,16 +19,16 @@ format works only if a working frequency has been set up on that band,
 in which case the first working frequency on that band is
 selected. 
 
-* If you are using CAT control, a small colored square appears in
+* If you are using CAT control, a small colored circle appears in
 green if the CAT control is activated and functional.  The green
-square contains the character S if the rig is detected to be in
-*Split* mode.  The square becomes red if you have requested CAT
+circle contains the character S if the rig is detected to be in
+*Split* mode.  The circle becomes red if you have requested CAT
 control but communication with the radio has been lost.
 
 IMPORTANT: Many Icom rigs cannot be queried for split status, current
 VFO or split transmit frequency.  Consequently you should not change
 the current VFO, split status or frequency using controls on the radio
-when using _WSJT-X_.
+when using _WSJT-X_ with an Icom radio.
 
 * If *DX Grid* contains a valid Maidenhead locator, the corresponding
 great-circle azimuth and distance from your location are displayed.

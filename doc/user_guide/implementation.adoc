@@ -4,10 +4,9 @@
 Immediately before the start of a transmission _WSJT-X_ encodes a
 user's message and computes the sequence of tones to be sent.  The
 audio waveform is computed on-the-fly, with 16-bit integer samples
-sent to the audio output device at a 48000 Hz rate.  Generated JT65
-and JT9 signals have continuous phase and constant amplitude, and
-there are no key clicks.  The transmitter's power amplifier need not
-be highly linear.
+sent to the audio output device at a 48000 Hz rate.  Generated signals
+have continuous phase and constant amplitude, and there are no key
+clicks.  The transmitter's power amplifier need not be highly linear.
 
 .Receiving
 
@@ -20,14 +19,14 @@ s, half the JT9 symbol length.
 .Decoding
 
 At the end of a reception sequence, about 50 seconds into the UTC
-minute, received data samples are forwarded to the decoder.  For
-operator convenience the decoder goes through its full procedure
-twice: first at the selected Rx frequency, and then over the full
-displayed frequency range.  Each decoding pass can be described as a
-sequence of discrete blocks.  The functional blocks are different for
-the JT65 and JT9 modes.  In dual-mode JT9+JT65 operation on computers
-with more than one CPU, decoding computations for the two modes are
-done in parallel.
+minute, received data samples are forwarded to the decoder.  In JT9
+and JT65 modes the decoder goes through its full procedure twice:
+first at the selected Rx frequency, and then over the full displayed
+frequency range.  Each decoding pass can be described as a sequence of
+discrete blocks.  Details of the functional blocks are different for
+each mode.  In dual-mode JT9+JT65 operation on computers with more
+than one CPU, decoding computations for the two modes are done in
+parallel.
 
 The basic decoding algorithm for JT65 mode is described in the 2005
 {jt65protocol} paper.  The following list summarizes the corresponding

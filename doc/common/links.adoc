@@ -33,6 +33,7 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 
 // General URL's
 //:launchpadac6sl: https://launchpad.net/~jnogatch/+archive/wsjtx[WSJT-X Linux Packages]
+:alarmejt: http://f5jmh.free.fr/index.php?page=english[AlarmeJT]
 :asciidoc_cheatsheet: http://powerman.name/doc/asciidoc[AsciiDoc Cheatsheet]
 :asciidoc_help: http://www.methods.co.nz/asciidoc/userguide.html[AsciiDoc User Guide]
 :asciidoc_questions: http://www.methods.co.nz/asciidoc/faq.html[AsciiDoc FAQ]
@@ -46,7 +47,7 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :dev_guide: http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjt-dev-guide.html[Dev-Guide]
 :devsvn1: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/[Devel-SVN]
 :devsvn: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/[SourceForge]
-:dimension4: http://www.thinkman.com/dimension4/[Dimension4]
+:dimension4: http://www.thinkman.com/dimension4/[Thinking Man Software]
 :download: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[Download Page]
 :dxatlas: http://www.dxatlas.com/[Afreet Software, Inc.]
 :dxlcommander: http://www.dxlabsuite.com/commander/[Commander]
@@ -60,9 +61,9 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :gnu_gpl: http://www.gnu.org/licenses/gpl-3.0.txt[GNU General Public License]
 :homepage: http://physics.princeton.edu/pulsar/K1JT/[WSJT Home Page]
 :hrd: http://www.hrdsoftwarellc.com/[Ham Radio Deluxe]
-:jt4eme: http://physics.princeton.edu/pulsar/K1JT/WSJT-X_for_JT4_v6.pdf[here]
+:jt4eme: http://physics.princeton.edu/pulsar/K1JT/WSJT-X_1.6.0_for_JT4_v7.pdf[here]
 :jt65protocol: http://physics.princeton.edu/pulsar/K1JT/JT65.pdf[QEX]
-:jtalert: http://hamapps.com[JT-ALERT-X]
+:jtalert: http://hamapps.hamspots.net[JT-ALERT-X]
 :kvasd-installer: http://physics.princeton.edu/pulsar/K1JT/kv-installer.txt[here]
 :launchpadki7mt: https://launchpad.net/~ki7mt[KI7MT PPA's]
 :log4om: http://www.log4om.com[Log4OM]

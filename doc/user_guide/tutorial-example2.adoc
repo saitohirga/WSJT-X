@@ -38,8 +38,8 @@ for JT9 and JT65 modes run simultaneously, so their results will be
 interspersed.  The *Band Activity* window contains all decodes (you
 might need to scroll back in the window to see some of them).  A
 signal at the frequency specified by the green marker is given
-decoding priority, and its message is displayed in the *Rx Frequency*
-window.
+decoding priority, and its message is displayed also in the *Rx
+Frequency* window.
 
 [[FigDecodes]]
 image::images/decodes.png[align="center"]
@@ -102,16 +102,16 @@ The signals in this file are all JT9 signals.  To decode them
 automatically in *JT9+JT65* mode you’ll need to move the *JT65 nnnn JT9*
 delimiter down to 1000 Hz or less.
 
-.Start, Zero, and Gain
+.Waterfall Controls
 
-Now is a good time to experiment with the *Start*, *Zero*, and *Gain*
-parameters.  *Start* determines the frequency displayed at the left
-side of the waterfall scale.  *Zero* sets the baseline level for
-colors, and *Gain* sets the sensitivity for color changes.  For the
-receiver setup of this file good values are close to *Zero*=0,
-*Gain*=0.  You may want to uncheck *Flatten* when adjusting the *Zero*
-and *Gain* controls.  Re-open the wave file after each change, to see
-the new results.
+Now is a good time to experiment with the *Start* control and the
+sliders controlling gain and zero-point of the waterfall and spectrum
+plots.  *Start* determines the frequency displayed at the left side of
+the waterfall scale.  Sliders set the baseline level and gain for the
+waterfall and the several types of spectra.  Good starting values
+should be close to mid-scale.  You might want to uncheck *Flatten*
+when adjusting the sliders.  Re-open the wave file after each change,
+to see the new results.
 
 IMPORTANT: When finished with this Tutorial, don’t forget to re-enter
 your own callsign as *My Call* on the *Settings | General* tab.

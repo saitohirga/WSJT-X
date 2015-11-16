@@ -21,7 +21,7 @@ a transmission.
 
 * All six Tx message fields are editable.  You can modify an
 automatically generated message or enter a desired message, keeping in
-mind the strict limits on message content.  See <<PROTOCOLS,Protocol
+mind the limits on message content.  See <<PROTOCOLS,Protocol
 Specifications>> for details.
 
 * Click on the pull-down arrow for message #5 to select one of the

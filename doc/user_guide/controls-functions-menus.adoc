@@ -41,6 +41,8 @@ decoded message.
 ==== Help Menu
 image::images/help-menu.png[align="left",alt="Help Menu"]
 
+===== Keyboard Shortcuts (F3)
 image::images/keyboard-shortcuts.png[align="left",alt="Help Menu"]
 
+===== Special Mouse Commands (F5)
 image::images/special-mouse-commands.png[align="left",alt="Help Menu"]
