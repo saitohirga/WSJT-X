@@ -22,7 +22,7 @@ file.
 * *Monitor* restarts normal receive operation.  This button is
 highlighted in green when the _WSJT-X_ is receiving.  If you are
 using CAT control, toggling *Monitor* OFF relinquishes control of the
-rig; if *Monitor returns to last used frequency" is selected
+rig; if _Monitor returns to last used frequency_ is selected
 on the *Settings | General* tab, toggling *Monitor* back ON will
 return to the original frequency.
 
