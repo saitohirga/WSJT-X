@@ -77,3 +77,11 @@ is programmed to ``time out'' and report failure for a given signal if
 it takes too long.  The choices *Fast | Normal | Deepest* on the
 *Decode* menu provide the user with a three-step adjustment of the
 timeout limit.
+
+Decoding in JT4 and WSPR modes is basically similar to that for JT9.
+The same K=32, r=1/2 sequential Fano algorithm is used for all three
+modes.  Other details such as tone numbers, symbol lengths,
+synchronizing scheme, and subroutine names are distinct for each mode.
+The WSPR decoder now uses a two-pass algorithm.  Decoded signals are
+reconstructed and subtracted from the received waveform, after which a
+second decoding pass takes place.
