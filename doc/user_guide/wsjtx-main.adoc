@@ -191,11 +191,6 @@ include::faq.adoc[]
 == Protocol Specifications
 include::protocols.adoc[]
 
-
-[[TXRX]]
-== Implementation Details
-include::tx-rx.adoc[]
-
 ////
 [[TROUBLE_SHOOTING]]
 == Troubleshooting
