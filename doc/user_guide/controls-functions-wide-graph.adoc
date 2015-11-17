@@ -42,9 +42,6 @@ is the average spectrum since the start of the present UTC minute.
 *Linear Avg* is useful in JT4 mode, especially when short-form
 messages are used.
 
-for JT9 or JT65; it is intended for use
-with the yet-to-be implemented JT4 mode.)
-
 - Four sliders control reference levels and scaling for waterfall
 colors and the spectrum plot.  Values around midscale are usually
 about right, depending on the input signal level, the chosen palette,
