@@ -7,7 +7,7 @@ program jt65sim
   parameter (NTMAX=54)
   parameter (NMAX=NTMAX*12000)
   type(hdr) h
-  integer*2 iwave(NMAX)                  !Generated waveform (no noise)
+  integer*2 iwave(NMAX)                  !Generated waveform
   integer*4 itone(126)                   !Channel symbols (values 0-65)
   integer dgen(12),sent(63)
   real*4 dat(NMAX)
@@ -56,11 +56,8 @@ program jt65sim
   h=default_header(12000,npts)
 
   do ifile=1,nfiles                  !Loop over all files
-     nmin=ifile
-     ihr=nmin/60
-     imin=mod(nmin,60)
-     write(fname,1002) ihr,imin      !Output filename
-1002 format('000000_',2i2.2)
+     write(fname,1002) ifile         !Output filename
+1002 format('000000_',i4.4)
      open(10,file=fname//'.wav',access='stream',status='unknown')
 
      if(snrdb.lt.90) then
@@ -77,6 +74,8 @@ program jt65sim
         if(mod(nsigs,2).eq.1) f0=1500.0 + dfsig*(isig-(nsigs+1)/2)
         nsnr=nint(snrdb)
         if(snrdb.eq.0.0) nsnr=-19 - isig
+        if(csubmode.eq.'B' .and. snrdb.eq.0.0) nsnr=-21 - isig
+        if(csubmode.eq.'C' .and. snrdb.eq.0.0) nsnr=-21 - isig
         write(msg,1010) nsnr
 1010    format('K1ABC W9XYZ ',i3.2)
 
@@ -96,9 +95,10 @@ program jt65sim
         enddo
 
         sig=10.0**(0.05*nsnr)
+!        sig=1.122*sig
         if(nsnr.gt.90.0) sig=1.0
         write(*,1020) ifile,isig,f0,csubmode,nsnr,sig,msg
-1020    format(i3,i4,f10.3,1x,a1,i5,f8.4,2x,a22)
+1020    format(i4,i4,f10.3,1x,a1,i5,f8.4,2x,a22)
 
         phi=0.d0
         dphi=0.d0
@@ -120,12 +120,11 @@ program jt65sim
         enddo
      enddo
 
-     fac=32767.0/nsigs                       !### ??? ###
+     fac=32767.0/nsigs
      if(snrdb.ge.90.0) iwave(1:npts)=nint(fac*dat(1:npts))
      if(snrdb.lt.90.0) iwave(1:npts)=nint(rms*dat(1:npts))
      write(10) h,iwave(1:npts)
      close(10)
-
   enddo
 
 999 end program jt65sim

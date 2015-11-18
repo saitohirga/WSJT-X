@@ -1,5 +1,5 @@
 # Set paths
-EXE_DIR = ../../wsjtx_exp_install_latest
+EXE_DIR = C:/JTSDK/wsjtx_exp/install/Debug/bin
 QT_DIR = /usr/include/qt5
 INCPATH = -I${QT_DIR} -I${QT_DIR}/QtCore 
 
@@ -12,9 +12,8 @@ CP = cp
 RANLIB = ranlib
 RM = rm -f
 
-FFLAGS = -I/opt/local/include -O2 -Wall -Wno-conversion \
-       -fno-second-underscore -fbounds-check -DUNIX
-CFLAGS = -I. -fPIE
+FFLAGS = -O2 -Wall -Wno-conversion -fno-second-underscore 
+CFLAGS = -I. -fbounds-check -fPIE -DBIGSYM
 
 # Default rules
 %.o: %.c
@@ -28,7 +27,7 @@ CFLAGS = -I. -fPIE
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    libjt9.a jt65
+all:    libjt9.a jt65 jt65sim
 
 OBJS1 = astrosub.o astro0.o astro.o sun.o coord.o tmoonsub.o \
         fmtmsg.o deg2grid.o\
@@ -36,7 +35,7 @@ OBJS1 = astrosub.o astro0.o astro.o sun.o coord.o tmoonsub.o \
 	igray.o fftw3mod.o packjt.o\
 	four2a.o grid2deg.o wisdom.o \
 	symspec.o analytic.o db.o \
-	encode232.o interleave9.o\
+	encode232.o interleave9.o \
 	entail.o fano232.o gran.o sync9.o decjt9.o \
 	fil3.o decoder.o timer.o \
 	twkfreq.o symspec2.o shell.o sync65.o peakup.o slope.o xcor.o\
@@ -54,8 +53,22 @@ libjt9.a: $(OBJS1)
 
 OBJS7 = jt65.o
 jt65: $(OBJS7) libjt9.a libsfrsd.a
-	$(FC) -o jt65 $(OBJS7) -L. -ljt9 -lsfrsd -lfftw3f_threads -lfftw3f 
-	$(CP) jt65 $(EXE_DIR)
+	$(FC) -o jt65 $(OBJS7) -L. -L./sfrsd2 -ljt9 -lsfrsd \
+	 C:\JTSDK\fftw3f\libfftw3f-3.dll
+
+OBJS2 = jt65sim.o wavhdr.o
+jt65sim: $(OBJS2) libjt9.a
+	$(FC) -o jt65sim $(OBJS2) -L. -ljt9
+	$(CP) jt65sim.exe $(EXE_DIR)
+
+init_rs.o: init_rs.c
+	$(CC) -c -DBIGSYM=1 -o init_rs.o init_rs.c
+
+encode_rs.o: encode_rs.c
+	$(CC) -c -DBIGSYM=1 -o encode_rs.o encode_rs.c
+
+decode_rs.o: decode_rs.c
+	$(CC) -c -DBIGSYM=1 -o decode_rs.o decode_rs.c
 
 .PHONY : clean
 
