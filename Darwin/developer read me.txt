@@ -3,7 +3,7 @@ Changing the content of the DragNDrop DMG root folder.
 
 The files and links in this folder are populated by the WSJT-X CMake build script. There are install commands which are only run on Apple hosts, this is important because they will get installed at the install root on other platforms, which would be very bad on Linux for example since that is /usr normally!
 
-The symlink to /Applications, the background image (derived from "~/src/wsjtx/artwork/DragNDrop Background.svg") and, the custom .DS_Store file ("~/src/wsjtx_DMG.DS_Store") are all handled specifically by the CPack DragNDrop packager so you don't need to install those.
+The symlink to /Applications, the background image (derived from ".../artwork/DragNDrop Background.svg") and, the custom .DS_Store file (".../Darwin/wsjtx_DMG.DS_Store") are all handled specifically by the CPack DragNDrop packager so you don't need to install those.
 
 
 
@@ -37,10 +37,10 @@ hdiutil resize -sectors 110000 rw.dmg
 hdiutil attach rw.dmg
 
 # change the hidden attribute on the background PNG
-chflags nohidden /Volumes/wsjtx-1.7.0-rc1-Darwin/background.png
+chflags nohidden /Volumes/WSJT-X/background.png
 
 # make the .DS_Store file writeable
-chmod 644 /Volumes/wsjtx-1.7.0-rc1-Darwin/.DS_Store
+chmod 644 /Volumes/WSJT-X/.DS_Store
 
 # now you can change Finder view options, rearrange icons etc. Remember that you are
 # only changing the folder options, not the folder content as that is controlled by
@@ -52,19 +52,19 @@ chmod 644 /Volumes/wsjtx-1.7.0-rc1-Darwin/.DS_Store
 # changes are saved.
 
 # set the background PNG as a hidden file
-chflags hidden /Volumes/wsjtx-1.7.0-rc1-Darwin/background.png
+chflags hidden /Volumes/WSJT-X/background.png
 
 # make the .DS_Store file read only
-chmod 444 /Volumes/wsjtx-1.7.0-rc1-Darwin/.DS_Store
+chmod 444 /Volumes/WSJT-X/.DS_Store
 
 # update the custom .DS_Store file in the source repository (NOTE the file name)
-cp /Volumes/wsjtx-1.7.0-rc1-Darwin/.DS_Store ~/src/wsjtx/wsjtx_DMG.DS_Store
+cp /Volumes/WSJT-X/.DS_Store .../wsjtx/wsjtx_DMG.DS_Store
+
+# dismount and eject the R/W DMG and discard it
+hdiutil detach /Volumes/WSJT-X
+rm rw.dmg
 
 # build a new package and try out the new installer to test your changes
 # if all is well commit the changes
-
-# dismount and eject the R/W DMG and discard it
-hdiutil detach /Volumes/wsjtx-1.7.0-rc1-Darwin
-rm rw.dmg
 
 # That's all Folks!
