@@ -79,7 +79,6 @@ set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
  standard SSB-width IF filters, switching between JT65 and JT9 modes
  is quick and convenient. Be sure to read the online ${PROJECT_NAME} User's
  Guide.")
-set (PROJECT_KVASD_URL http://svn.code.sf.net/p/wsjt/wsjt/trunk/kvasd-binary)
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake/Modules ${CMAKE_MODULE_PATH})
 
@@ -127,12 +126,6 @@ if you want a console application instead then set this option to OFF.
 If you just want to see the debug output from the application then the easiest way is to
 attach a debugger which will then receive the console output inside its console." ON
   "WIN32" OFF)
-
-#
-# decide if we are bundling kvasd (non-FOSS)
-#
-CMAKE_DEPENDENT_OPTION (WSJT_INCLUDE_KVASD "Include kvasd in the package." OFF
-  "NOT is_debug_build" ON)
 
 
 set (PROJECT_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")
@@ -979,24 +972,6 @@ if (WSJT_CREATE_WINMAIN)
   set_target_properties (message_aggregator PROPERTIES WIN32_EXECUTABLE ON)
 endif (WSJT_CREATE_WINMAIN)
 
-set (SYSTEM_NAME ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR})
-if (WIN32)
-  set (SYSTEM_NAME "${SYSTEM_NAME}i386")
-endif (WIN32)
-if (WSJT_INCLUDE_KVASD)
-  #
-  # fetch and validate kvasd
-  #
-  set (KVASD_BINARY contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
-
-  add_custom_target (kvasd ALL
-    ${CMAKE_COMMAND} -D SYSTEM_NAME=${SYSTEM_NAME} -D EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} -D URL=${PROJECT_KVASD_URL} -P ${CMAKE_SOURCE_DIR}/CMake/download_kvasd.cmake
-    COMMENT "Downloading kvasd for ${SYSTEM_NAME}"
-    VERBATIM
-    )
-endif (WSJT_INCLUDE_KVASD)
-
-
 if (UNIX)
   if (NOT WSJT_SKIP_MANPAGES)
     add_subdirectory (manpages)
@@ -1020,21 +995,6 @@ install (TARGETS jt9 jt65code jt9code jt4code wsprd message_aggregator
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
-
-if (WSJT_INCLUDE_KVASD)
-  install (PROGRAMS
-    ${CMAKE_BINARY_DIR}/${KVASD_BINARY}
-    DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
-  )
-else (WSJT_INCLUDE_KVASD)
-  if (APPLE)
-    install (DIRECTORY contrib/Darwin/KVASD-installer.app
-      DESTINATION .
-      USE_SOURCE_PERMISSIONS
-      #COMPONENT Runtime
-      )
-  endif (APPLE)
-endif (WSJT_INCLUDE_KVASD)
 
 install (PROGRAMS
   ${RIGCTL_EXE}
