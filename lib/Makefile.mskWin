@@ -1,0 +1,69 @@
+
+# Set paths
+EXE_DIR = ..\\..\\wsjtx_install
+QT_DIR = C:/wsjt-env/Qt5/5.2.1/mingw48_32
+FFTW3_DIR = ..
+
+INCPATH = -I${QT_DIR}/include/QtCore -I${QT_DIR}/include 
+
+# Compilers
+CC = gcc
+CXX = g++
+FC = gfortran
+AR = ar cr
+RANLIB = ranlib
+MKDIR = mkdir -p
+CP = cp
+RM = rm -f
+
+FFLAGS = -O2 -fbounds-check -Wall -Wno-conversion
+CFLAGS = -O2 -I. 
+
+# Default rules
+%.o: %.c
+	${CC} ${CFLAGS} -c $<
+%.o: %.f
+	${FC} ${FFLAGS} -c $<
+%.o: %.F
+	${FC} ${FFLAGS} -c $<
+%.o: %.f90
+	${FC} ${FFLAGS} -c $<
+%.o: %.F90
+	${FC} ${FFLAGS} -c $<
+
+#all:    jt9code JTMSKcode.exe
+all:	 testmsk.exe JTMSKsim.exe JTMSKcode.exe fixwav.exe
+
+OBJS3 = JTMSKsim.o wavhdr.o gran.o four2a.o db.o
+JTMSKsim.exe: $(OBJS3)
+	$(FC) -o JTMSKsim.exe $(OBJS3) C:\JTSDK\fftw3f\libfftw3f-3.dll
+
+OBJS4 = jt9code.o packjt.o fmtmsg.o gen9.o deg2grid.o grid2deg.o \
+      entail.o encode232.o interleave9.o graycode.o igray.o
+jt9code: $(OBJS4) 
+	$(FC) -o jt9code $(OBJS4) 
+
+OBJS5 = JTMSKcode.o packjt.o fmtmsg.o genmsk.o deg2grid.o grid2deg.o \
+      entail.o tab.o vit213.o hashing.o nhash.o
+JTMSKcode.exe: $(OBJS5) 
+	$(FC) -o JTMSKcode.exe $(OBJS5) 
+
+OBJS6 = testmsk.o jtmsk.o analytic.o four2a.o db.o pctile.o \
+      shell.o tweak1.o syncmsk.o genmsk.o packjt.o fmtmsg.o indexx.o \
+      deg2grid.o grid2deg.o entail.o hashing.o nhash.o tab.o vit213.o \
+      mskdt.o timer.o rectify_msk.o
+testmsk.exe: $(OBJS6) 
+	$(FC) -o testmsk.exe $(OBJS6) C:\JTSDK\fftw3f\libfftw3f-3.dll
+
+OBJS1 = fixwav.o wavhdr.o
+fixwav.exe: $(OBJS1)
+	$(FC) -o fixwav.exe $(OBJS1)
+
+OBJS2 = t6.o four2a.o db.o
+t6:   $(OBJS2)
+	$(FC) -o t6 $(OBJS2) C:\JTSDK\fftw3f\libfftw3f-3.dll
+
+.PHONY : clean
+
+clean:
+	$(RM) *.o JTMSKcode JTMSKcode.exe

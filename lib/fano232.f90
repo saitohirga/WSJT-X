@@ -9,14 +9,14 @@ subroutine fano232(symbol,nbits,mettab,ndelta,maxcycles,dat,     &
   parameter (MAXBYTES=(MAXBITS+7)/8)
   integer*1 symbol(0:2*MAXBITS-1)  !Soft symbols (as unsigned i*1)
   integer*1 dat(MAXBYTES)          !Decoded user data, 8 bits per byte
-  integer mettab(-128:127,0:1)        !Metric table
+  integer mettab(-128:127,0:1)     !Metric table
 
 ! These were the "node" structure in Karn's C code:
-  integer nstate(0:MAXBITS-1)      !Encoder state of next node
-  integer gamma(0:MAXBITS-1)       !Cumulative metric to this node
-  integer metrics(0:3,0:MAXBITS-1) !Metrics indexed by all possible Tx syms
-  integer tm(0:1,0:MAXBITS-1)      !Sorted metrics for current hypotheses
-  integer ii(0:MAXBITS-1)          !Current branch being tested
+  integer nstate(0:MAXBITS)        !Encoder state of next node
+  integer gamma(0:MAXBITS)         !Cumulative metric to this node
+  integer metrics(0:3,0:MAXBITS)   !Metrics indexed by all possible Tx syms
+  integer tm(0:1,0:MAXBITS)        !Sorted metrics for current hypotheses
+  integer ii(0:MAXBITS)            !Current branch being tested
 
   logical noback
   include 'conv232.f90'            !Polynomials defined here
@@ -69,7 +69,7 @@ subroutine fano232(symbol,nbits,mettab,ndelta,maxcycles,dat,     &
         gamma(np+1)=ngamma                   !Move forward
         nstate(np+1)=ishft(nstate(np),1)
         np=np+1
-        if(np.eq.nbits-1) go to 100          !We're done!
+        if(np.eq.nbits) go to 100          !We're done!
 
         n=iand(nstate(np),npoly1)
         n=ieor(n,ishft(n,-16))

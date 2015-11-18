@@ -57,8 +57,6 @@ void EPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
     m_2DPixmap = QPixmap(m_Size.width(), m_h2);
     m_2DPixmap.fill(Qt::black);
     m_OverlayPixmap = QPixmap(m_Size.width(), m_h2);
-    m_OverlayPixmap.fill(Qt::black);
-    m_2DPixmap.fill(Qt::black);
     m_ScalePixmap = QPixmap(m_w,30);
     m_ScalePixmap.fill(Qt::white);
     m_fSpan=m_w*m_fftBinWidth*m_binsPerPixel;
@@ -83,15 +81,24 @@ void EPlotter::draw()                           //draw()
   int i,j,y;
   float blue[4096],red[4096];
   float gain = pow(10.0,(m_plotGain/20.0));
+  QPen penBlue(QColor(0,255,255),1);
+  QPen penRed(Qt::red,1);
+  QPen penRed2(Qt::red,2);
+  QPen penBlack(Qt::black,1);
+  QPen penBlack2(Qt::black,2);
 
   if(m_2DPixmap.size().width()==0) return;
   QPainter painter2D(&m_2DPixmap);
   QRect tmp(0,0,m_w,m_h2);
-  painter2D.fillRect(tmp,Qt::black);
+  if(m_nColor < 2) {
+    painter2D.fillRect(tmp,Qt::black);
+  } else {
+    painter2D.fillRect(tmp,Qt::white);
+    painter2D.setPen(penBlack);
+    painter2D.drawLine(0,0,m_w,0);
+  }
 
   QPoint LineBuf[MAX_SCREENSIZE];
-  QPen penBlue(QColor(0,255,255),1);
-  QPen penRed(Qt::red,1);
 
   if(m_binsPerPixel==0) m_binsPerPixel=1;
   j=0;
@@ -125,8 +132,15 @@ void EPlotter::draw()                           //draw()
     }
     painter2D.drawPolyline(LineBuf,j);
   }
+  switch (m_nColor) {
+    case 0: painter2D.setPen(penRed); break;
+    case 1: painter2D.setPen(penRed2); break;
+    case 2: painter2D.setPen(penRed); break;
+    case 3: painter2D.setPen(penRed2); break;
+    case 4: painter2D.setPen(penBlack); break;
+    case 5: painter2D.setPen(penBlack2); break;
+  }
 
-  painter2D.setPen(penRed);
   j=0;
   for(int i=0; i<m_w; i++) {
     y = 0.9*m_h2 - gain*(m_h/10.0)*(red[i0+i]-1.0) - 0.01*m_h2*m_plotZero;
@@ -234,11 +248,12 @@ void EPlotter::DrawOverlay()                                 //DrawOverlay()
     }
   }
 
+/*
   QPen pen1(Qt::red, 3);                         //Mark Tx Freq with red tick
   painter0.setPen(pen1);
   x = XfromFreq(m_TxFreq);
   painter0.drawLine(x,17,x,30);
-
+*/
 }
 
 void EPlotter::MakeFrequencyStrs()                       //MakeFrequencyStrs
@@ -296,6 +311,12 @@ void EPlotter::setSmooth(int n)                               //setSmooth()
 int EPlotter::getSmooth()                                    //getSmooth()
 {
   return m_smooth;
+}
+
+void EPlotter::setColors(qint32 n)                               //setSmooth()
+{
+  m_nColor=n;
+  draw();
 }
 
 int EPlotter::plotWidth(){return m_2DPixmap.width();}

@@ -22,7 +22,7 @@ public:
   }
 
   QString textFromValue (int) const override;
-  int valueFromText (QString const&) const override;
+//  int valueFromText (QString const&) const override;
 
 private:
   bool lowercase_;

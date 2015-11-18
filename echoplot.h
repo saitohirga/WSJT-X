@@ -24,7 +24,6 @@ public:
 
   QSize minimumSizeHint() const;
   QSize sizeHint() const;
-  QColor  m_ColorTbl[256];
   float   m_fSpan;
   qint32  m_TxFreq;
   qint32  m_w;
@@ -32,6 +31,7 @@ public:
   qint32  m_plotGain;
   qint32  m_smooth;
   qint32  m_binsPerPixel;
+  qint32  m_nColor;
   bool    m_blue;
 
   void draw();		                                    //Update the Echo plot
@@ -45,6 +45,7 @@ public:
   void DrawOverlay();
   void setSmooth(int n);
   int  getSmooth();
+  void setColors(qint32 n);
 
 //  void SetPercent2DScreen(int percent){m_Percent2DScreen=percent;}
 

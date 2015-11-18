@@ -27,6 +27,7 @@ Astro::Astro(QSettings * settings, Configuration const * configuration, QWidget 
   , ui_ {new Ui::Astro}
   , m_bRxAudioTrack {false}
   , m_bTxAudioTrack {false}
+  , m_bTrackVFO {true}
   , m_DopplerMethod {0}
   , m_kHz {0}
   , m_Hz {0}
@@ -227,4 +228,14 @@ void Astro::on_HzSpinBox_valueChanged(int n)
 bool Astro::doppler_tracking () const
 {
   return ui_->cbDopplerTracking->isChecked ();
+}
+
+bool Astro::trackVFO()
+{
+  return m_bTrackVFO;
+}
+
+void Astro::on_cbTrackVFO_toggled(bool b)
+{
+  m_bTrackVFO=b;
 }

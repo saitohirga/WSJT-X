@@ -1,5 +1,6 @@
 #include "messageaveraging.h"
 #include <QSettings>
+#include <QApplication>
 #include "ui_messageaveraging.h"
 #include "commons.h"
 #include "moc_messageaveraging.cpp"
@@ -10,6 +11,7 @@ MessageAveraging::MessageAveraging(QSettings * settings, QWidget *parent) :
   ui(new Ui::MessageAveraging)
 {
   ui->setupUi(this);
+  setWindowTitle (QApplication::applicationName () + " - " + tr ("Message Averaging"));
   read_settings ();
 }
 

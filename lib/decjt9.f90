@@ -4,14 +4,13 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
   include 'constants.f90'
   real ss(184,NSMAX)
   character*22 msg
-  character*500 infile
   real*4 ccfred(NSMAX)
   real*4 red2(NSMAX)
   logical ccfok(NSMAX)
   logical done(NSMAX)
   integer*2 id2(NTMAX*12000)
   integer*1 i1SoftSymbols(207)
-  common/decstats/num65,numbm,numkv,num9,numfano,infile
+  common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
   save ccfred,red2
 
   nsynced=0
@@ -114,10 +113,6 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
 !$omp critical(decode_results) ! serialize writes - see also jt65a.f90
               write(*,1000) nutc,nsnr,xdt,nint(freq),msg
 1000          format(i4.4,i4,f5.1,i5,1x,'@',1x,a22)
-!              i1=index(infile,'.wav')
-!              write(*,1000) infile(i1-11:i1-1),nsnr,xdt,nint(freq),msg,   &
-!                   schk,drift,a3,nlim
-!1000          format(a11,i4,f5.1,i5,1x,'@',1x,a22,3f6.1,i6)
               write(13,1002) nutc,nsync,nsnr,xdt,freq,ndrift,msg
 1002          format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT9')
               call flush(6)

@@ -53,14 +53,14 @@ QSize CPlotter::sizeHint() const
 void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
 {
   if(!size().isValid()) return;
-  if( m_Size != size() ) {  //if changed, resize pixmaps to new screensize
+  if( m_Size != size() or (m_bReference != m_bReference0)) {
     m_Size = size();
     m_w = m_Size.width();
     m_h = m_Size.height();
     m_h2 = (m_Percent2DScreen)*(m_h)/100;
     if(m_h2>100) m_h2=100;
+    if(m_bReference) m_h2=m_h-30;
     m_h1=m_h-m_h2;
-
     m_2DPixmap = QPixmap(m_Size.width(), m_h2);
     m_2DPixmap.fill(Qt::black);
     m_WaterfallPixmap = QPixmap(m_Size.width(), m_h1);
@@ -88,18 +88,22 @@ void CPlotter::paintEvent(QPaintEvent *)                                // paint
 
 void CPlotter::draw(float swide[], bool bScroll)                            //draw()
 {
-  int j,j0,y2;
-  float y;
+  int j,j0;
+  float y,y2,ymin;
 
   double fac = sqrt(m_binsPerPixel*m_waterfallAvg/15.0);
   double gain = fac*pow(10.0,0.02*m_plotGain);
   double gain2d = pow(10.0,0.02*(m_plot2dGain));
+
+  if(m_bReference != m_bReference0) resizeEvent(NULL);
+  m_bReference0=m_bReference;
 
 //move current data down one line (must do this before attaching a QPainter object)
   if(bScroll) m_WaterfallPixmap.scroll(0,1,0,0,m_w,m_h1);
   QPainter painter1(&m_WaterfallPixmap);
   m_2DPixmap = m_OverlayPixmap.copy(0,0,m_w,m_h2);
   QPainter painter2D(&m_2DPixmap);
+  if(!painter2D.isActive()) return;
   QFont Font("Arial");
   Font.setPointSize(12);
   QFontMetrics metrics(Font);
@@ -108,6 +112,8 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
 
   if(m_bLinearAvg) {
     painter2D.setPen(Qt::yellow);
+  } else if(m_bReference) {
+    painter2D.setPen(Qt::red);
   } else {
     painter2D.setPen(Qt::green);
   }
@@ -124,7 +130,7 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
     flat4_(&jt9com_.savg[j0],&jz,&m_Flatten);
   }
 
-  float ymin=1.e30;
+  ymin=1.e30;
   if(swide[0]>1.e29 and swide[0]< 1.5e30) painter1.setPen(Qt::green);
   if(swide[0]>1.4e30) painter1.setPen(Qt::yellow);
   for(int i=0; i<iz; i++) {
@@ -133,7 +139,7 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
     int y1 = 10.0*gain*y + 10*m_plotZero +40;
     if (y1<0) y1=0;
     if (y1>254) y1=254;
-    if (swide[i]<1.e29) painter1.setPen(m_ColorTbl[y1]);
+    if (swide[i]<1.e29) painter1.setPen(g_ColorTbl[y1]);
     painter1.drawPoint(i,0);
   }
 
@@ -144,20 +150,16 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
     y2=0;
     if(m_bCurrent) y2 = gain2d*y + m_plot2dZero;            //Current
 
-    if(m_bCumulative) {                                     //Cumulative
-      if(bScroll) {
-        float sum=0.0;
-        int j=j0+m_binsPerPixel*i;
-        for(int k=0; k<m_binsPerPixel; k++) {
-          sum+=jt9com_.savg[j++];
-        }
-        y2=2.5*gain2d*sum/m_binsPerPixel + m_plot2dZero;
-        if(m_Flatten==0) y2 += 40;                      //### could do better! ###
-        m_y2[i]=y2;
-      } else {
-        y2=m_y2[i];
+    if(bScroll) {
+      float sum=0.0;
+      int j=j0+m_binsPerPixel*i;
+      for(int k=0; k<m_binsPerPixel; k++) {
+        sum+=jt9com_.savg[j++];
       }
+      m_sum[i]=sum;
     }
+    if(m_bCumulative) y2=2.5*gain2d*(m_sum[i]/m_binsPerPixel + m_plot2dZero);
+    if(m_Flatten==0) y2 += 15;                      //### could do better! ###
 
     if(m_bLinearAvg) {                                   //Linear Avg (yellow)
       float sum=0.0;
@@ -170,7 +172,7 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
 
     if(i==iz-1) painter2D.drawPolyline(LineBuf,j);
     LineBuf[j].setX(i);
-    LineBuf[j].setY(0.9*m_h2-y2*m_h2/70.0);
+    LineBuf[j].setY(int(0.9*m_h2-y2*m_h2/70.0));
     if(y2<y2min) y2min=y2;
     if(y2>y2max) y2max=y2;
     j++;
@@ -180,7 +182,15 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
   m_line++;
   if(m_line == 13) {
     painter1.setPen(Qt::white);
-    QString t=QDateTime::currentDateTimeUtc().toString("hh:mm") + "    " + m_rxBand;
+    QString t;
+    if(m_TRperiod < 60) {
+      qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
+      int n=(ms/1000) % m_TRperiod;
+      QDateTime t1=QDateTime::currentDateTimeUtc().addSecs(-n);
+      t=t1.toString("hh:mm:ss") + "    " + m_rxBand;
+    } else {
+      t=QDateTime::currentDateTimeUtc().toString("hh:mm") + "    " + m_rxBand;
+    }
     painter1.drawText(5,10,t);
   }
 
@@ -224,7 +234,6 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     painter.setBrush(Qt::SolidPattern);
 
     pixperdiv = m_freqPerDiv/df;
-    y = m_h2 - m_h2/VERT_DIVS;
     m_hdivs = w*df/m_freqPerDiv + 1.9999;
 
     float xx0=float(m_startFreq)/float(m_freqPerDiv);
@@ -234,8 +243,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
       x = (int)((float)i*pixperdiv ) - x0;
       if(x >= 0 and x<=m_w) {
         painter.setPen(QPen(Qt::white, 1,Qt::DotLine));
-        painter.drawLine(x, 0, x , y);
-        painter.drawLine(x, m_h2-5, x , m_h2);
+        painter.drawLine(x, 0, x , m_h2);
       }
     }
 
@@ -589,4 +597,9 @@ void CPlotter::setTol(int n)                                 //setTol()
 {
   m_tol=n;
   DrawOverlay();
+}
+
+void CPlotter::setColours(QVector<QColor> const& cl)
+{
+  g_ColorTbl = cl;
 }

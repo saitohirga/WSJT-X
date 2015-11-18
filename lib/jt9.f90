@@ -17,7 +17,7 @@ program jt9
   character(len=500) optarg, infile
   character wisfile*80
   integer :: arglen,stat,offset,remain,mode=0,flow=200,fsplit=2700,          &
-       fhigh=4000,nrxfreq=1500,ntrperiod=1,ndepth=1
+       fhigh=4000,nrxfreq=1500,ntrperiod=1,ndepth=60001
   logical :: shmem = .false., read_files = .false., have_args = .false.,     &
        tx9 = .false., display_help = .false.
   type (option) :: long_options(17) = [ &
@@ -58,7 +58,7 @@ program jt9
 
   common/tracer/limtrace,lu
   common/patience/npatience,nthreads
-  common/decstats/num65,numbm,numkv,num9,numfano,infile
+  common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
   data npatience/1/,nthreads/1/
 
   do
@@ -144,9 +144,10 @@ program jt9
   wisfile=trim(data_dir)//'/jt9_wisdom.dat'// C_NULL_CHAR
   iret=fftwf_import_wisdom_from_filename(wisfile)
 
-  num65=0
-  numbm=0
-  numkv=0
+  ntry65a=0
+  ntry65b=0
+  n65a=0
+  n65b=0
   num9=0
   numfano=0
 
@@ -243,8 +244,8 @@ program jt9
 
 999 continue
 ! Output decoder statistics
-  write(12,1100) numbm,numkv,numbm+numkv,num65,numfano,num9
-1100 format(58('-')/'     BM      KV     JT65   Tries     JT9   Tries'/  &
+  write(12,1100) n65a,ntry65a,n65b,ntry65b,numfano,num9
+1100 format(58('-')/'   JT65_1  Tries_1  JT65_2 Tries_2    JT9   Tries'/  &
             58('-')/6i8)
 
 ! Save wisdom and free memory

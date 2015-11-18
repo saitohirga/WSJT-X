@@ -9,11 +9,14 @@ subroutine afc65b(cx,npts,fsample,nflip,a,ccfbest,dtbest)
   a(2)=0.
   a(3)=0.
   a(4)=0.
+!  deltaa(1)=2.0
+!  deltaa(2)=2.0
+!  deltaa(3)=2.0
+!  deltaa(4)=0.05
   deltaa(1)=2.0
   deltaa(2)=2.0
-  deltaa(3)=2.0
-  deltaa(4)=0.05
-  nterms=3                                  !Maybe 2 is enough?
+  deltaa(3)=1.0
+  nterms=2                                  !Maybe 2 is enough?
 
 !  Start the iteration
   chisqr=0.

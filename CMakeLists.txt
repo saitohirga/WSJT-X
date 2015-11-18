@@ -234,6 +234,8 @@ set (wsjtx_CXXSRCS
   widegraph.cpp
   echograph.cpp
   echoplot.cpp
+  fastgraph.cpp
+  fastplot.cpp
   about.cpp
   astro.cpp
   messageaveraging.cpp
@@ -260,6 +262,7 @@ endif (WIN32)
 set (wsjt_FSRCS
   lib/afc65b.f90
   lib/afc9.f90
+  lib/ana932.f90
   lib/analytic.f90
   lib/astro.f90
   lib/astrosub.f90
@@ -275,9 +278,9 @@ set (wsjt_FSRCS
   lib/chkss2.f90
   lib/coord.f90
   lib/db.f90
+  lib/decode4.f90
   lib/decode65a.f90
   lib/decode65b.f90
-  lib/decode4.f90
   lib/decoder.f90
   lib/decjt9.f90
   lib/deep4.f90
@@ -289,9 +292,11 @@ set (wsjt_FSRCS
   lib/encode4.f90
   lib/entail.f90
   lib/ephem.f90
-  lib/extract.F90
+  lib/extract.f90
   lib/extract4.f90
   lib/fano232.f90
+  lib/fast9.f90
+  lib/fast_decode.f90
   lib/fchisq.f90
   lib/fchisq65.f90
   lib/fftw3mod.f90
@@ -306,11 +311,14 @@ set (wsjt_FSRCS
   lib/flat2.f90
   lib/flat4.f90
   lib/flat65.f90
+  lib/foldspec9f.f90
   lib/four2a.f90
   lib/fmtmsg.f90
   lib/gen4.f90
   lib/gen65.f90
   lib/gen9.f90
+  lib/geniscat.f90
+  lib/genmsk.f90
   lib/genwspr.f90
   lib/geodist.f90
   lib/getlags.f90
@@ -320,23 +328,28 @@ set (wsjt_FSRCS
   lib/grayline.f90
   lib/grid2deg.f90
   lib/hash.f90
+  lib/hashing.f90
+  lib/hspec.f90
   lib/image.f90
   lib/indexx.f90
   lib/interleave4.f90
   lib/interleave63.f90
   lib/interleave9.f90
   lib/inter_wspr.f90
+  lib/iscat.f90
   lib/jplsubs.f
   lib/jt4.f90
   lib/jt4a.f90
   lib/jt65a.f90
   lib/jt9fano.f90
+  lib/jtmsk.f90
   lib/libration.f90
   lib/lpf1.f90
   lib/mixlpf.f90
   lib/moondopjpl.f90
   lib/morse.f90
   lib/move.f90
+  lib/mskdt.f90
   lib/options.f90
   lib/packjt.f90
   lib/pctile.f90
@@ -345,6 +358,7 @@ set (wsjt_FSRCS
   lib/polyfit.f90
   lib/prog_args.f90
   lib/ps4.f90
+  lib/rectify_msk.f90
   lib/savec2.f90
   lib/sec_midn.f90
   lib/setup65.f90
@@ -354,22 +368,31 @@ set (wsjt_FSRCS
   lib/smo.f90
   lib/smo121.f90
   lib/softsym.f90
-  lib/sort.f90
+  lib/softsym9f.f90
+  lib/shell.f90
+  lib/spec9f.f90
   lib/stdmsg.f90
+  lib/subtract65.f90
   lib/sun.f90
   lib/symspec.f90
   lib/symspec2.f90
   lib/symspec65.f90
   lib/sync4.f90
+  lib/sync65.f90
   lib/sync9.f90
+  lib/sync9f.f90
+  lib/synciscat.f90
+  lib/syncmsk.f90
   lib/timer.f90
   lib/timf2.f90
+  lib/tweak1.f90
   lib/twkfreq.f90
   lib/twkfreq65.f90
   lib/wav11.f90
   lib/wav12.f90
   lib/wavhdr.f90
   lib/wsjt4.f90
+  lib/xcor.f90
   lib/xcor4.f90
   lib/zplt.f90
   lib/wavhdr.f90
@@ -379,14 +402,17 @@ set (wsjt_FSRCS
   )
 
 set (wsjt_CSRCS
-  lib/decode_rs.c
-  lib/encode_rs.c
+  lib/sfrsd2/decode_rs.c
+  lib/sfrsd2/encode_rs.c
+  lib/sfrsd2/init_rs.c
+  lib/sfrsd2/sfrsd2.c
   lib/gran.c
   lib/igray.c
-  lib/init_rs.c
   lib/wsprd/nhash.c
+  lib/tab.c
   lib/tmoonsub.c
   lib/usleep.c
+  lib/vit213.c
   lib/wisdom.c
   lib/wrapkarn.c
   )
@@ -418,6 +444,7 @@ set (wsjtx_UISRCS
   about.ui
   astro.ui
   echograph.ui
+  fastgraph.ui
   messageaveraging.ui
   widegraph.ui
   logqso.ui
@@ -515,11 +542,17 @@ endif (APPLE)
 
 set_source_files_properties (${WSJTX_ICON_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
-if (NOT WSJT_QDEBUG_IN_RELEASE)
+if (WSJT_QDEBUG_IN_RELEASE)
+  # context info in Qt message handler in release configuration
+  set_property (DIRECTORY APPEND PROPERTY
+    COMPILE_DEFINITIONS $<$<NOT:$<CONFIG:Debug>>:QT_MESSAGELOGCONTEXT>
+    )
+else (WSJT_QDEBUG_IN_RELEASE)
+  # disable Qt trace and warning messages from release configurations
   set_property (DIRECTORY APPEND PROPERTY
     COMPILE_DEFINITIONS $<$<NOT:$<CONFIG:Debug>>:QT_NO_DEBUG_OUTPUT;QT_NO_WARNING_OUTPUT>
     )
-endif (NOT WSJT_QDEBUG_IN_RELEASE)
+endif (WSJT_QDEBUG_IN_RELEASE)
 
 set_property (SOURCE ${all_C_and_CXXSRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -include wsjtx_config.h")
 set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY OBJECT_DEPENDS wsjtx_config.h)

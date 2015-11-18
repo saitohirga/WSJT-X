@@ -91,6 +91,8 @@ public:
   QString my_grid () const;
   QFont decoded_text_font () const;
   qint32 id_interval () const;
+  qint32 ntrials() const;
+  qint32 aggressive() const;
   bool id_after_73 () const;
   bool tx_QSY_allowed () const;
   bool spot_to_psk_reporter () const;
@@ -110,6 +112,13 @@ public:
   bool split_mode () const;
   bool enable_VHF_features () const;
   bool decode_at_52s () const;
+  bool twoPass() const;
+  bool MyDx() const;
+  bool CQMyN() const;
+  bool NDxG() const;
+  bool NN() const;
+  bool EMEonly() const;
+  bool offsetRxFreq () const;
   bool post_decodes () const;
   QString udp_server_name () const;
   port_type udp_server_port () const;

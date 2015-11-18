@@ -29,14 +29,17 @@
 #include "logbook/logbook.h"
 #include "decodedtext.h"
 
-#define NUM_JT4_SYMBOLS 206
-#define NUM_JT65_SYMBOLS 126
-#define NUM_JT9_SYMBOLS 85
-#define NUM_WSPR_SYMBOLS 162
+#define NUM_JT4_SYMBOLS 206                //(72+31)*2, embedded sync
+#define NUM_JT65_SYMBOLS 126               //63 data + 63 sync
+#define NUM_JT9_SYMBOLS 85                 //69 data + 16 sync
+#define NUM_WSPR_SYMBOLS 162               //(50+31)*2, embedded sync
+#define NUM_ISCAT_SYMBOLS 1291             //30*11025/256
+#define NUM_JTMSK_SYMBOLS 234              //(72+15+12)*2 + 3*11 sync + 3 f0-parity
+
 #define NUM_CW_SYMBOLS 250
 #define TX_SAMPLE_RATE 48000
 
-extern int volatile itone[NUM_JT4_SYMBOLS];   //Audio tones for all Tx symbols
+extern int volatile itone[NUM_ISCAT_SYMBOLS];   //Audio tones for all Tx symbols
 extern int volatile icw[NUM_CW_SYMBOLS];	    //Dits for CW ID
 
 //--------------------------------------------------------------- MainWindow
@@ -49,6 +52,7 @@ class QLineEdit;
 class QFont;
 class QHostInfo;
 class EchoGraph;
+class FastGraph;
 class WideGraph;
 class LogQSO;
 class Transceiver;
@@ -82,6 +86,7 @@ public slots:
   void showSoundOutError(const QString& errorMsg);
   void showStatusMessage(const QString& statusMsg);
   void dataSink(qint64 frames);
+  void fastSink(qint64 frames);
   void diskDat();
   void diskWriteFinished();
   void freezeDecode(int n);
@@ -97,6 +102,7 @@ public slots:
   void setXIT(int n);
   void setFreq4(int rxFreq, int txFreq);
   void msgAvgDecode2();
+  void fastPick(int x0, int x1, int y);
 
 protected:
   virtual void keyPressEvent( QKeyEvent *e );
@@ -146,7 +152,7 @@ private slots:
   void on_dxGridEntry_textChanged(const QString &arg1);
   void on_genStdMsgsPushButton_clicked();
   void on_logQSOButton_clicked();
-  void on_actionJT9_1_triggered();
+  void on_actionJT9_triggered();
   void on_actionJT65_triggered();
   void on_actionJT9_JT65_triggered();
   void on_actionJT4_triggered();
@@ -198,16 +204,13 @@ private slots:
   void monitor (bool);
   void stop_tuning ();
   void stopTuneATU();
-  void auto_tx_mode (bool);
+  void auto_tx_mode(bool);
   void on_actionMessage_averaging_triggered();
-  void on_FTol_combo_box_currentIndexChanged(QString const&);
   void on_actionInclude_averaging_triggered();
   void on_actionInclude_correlation_triggered();
-  void on_sbDT_valueChanged(double x);
   void VHF_controls_visible(bool b);
   void VHF_features_enabled(bool b);
   void on_cbEME_toggled(bool b);
-  void on_sbMinW_valueChanged(int n);
   void on_sbSubmode_valueChanged(int n);
   void on_cbShMsgs_toggled(bool b);
   void on_cbTx6_toggled(bool b);
@@ -221,17 +224,27 @@ private slots:
   void on_cbUploadWSPR_Spots_toggled(bool b);
   void WSPR_config(bool b);
   void uploadSpots();
+  void TxAgain();
+  void RxQSY();
   void uploadResponse(QString response);
   void p3ReadFromStdout();
   void p3ReadFromStderr();
   void p3Error(QProcess::ProcessError e);
   void on_WSPRfreqSpinBox_valueChanged(int n);
   void on_pbTxNext_clicked(bool b);
-
   void on_actionEcho_Graph_triggered();
-
   void on_actionEcho_triggered();
   void DopplerTracking_toggled (bool);
+  void on_actionISCAT_triggered();
+  void on_actionFast_Graph_triggered();
+  void fast_decode_done();
+  void on_actionSave_reference_spectrum_triggered();
+  void on_sbTR_valueChanged(int index);
+  void on_sbFtol_valueChanged(int index);
+  void on_cbFast9_clicked(bool b);
+  void on_actionJTMSK_triggered();
+  void on_sbCQRxFreq_valueChanged(int n);
+  void on_cbCQRx_toggled(bool b);
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
@@ -251,7 +264,8 @@ private:
   Q_SIGNAL void sendMessage (unsigned symbolsLength, double framesPerSymbol,
       double frequency, double toneSpacing,
       SoundOutput *, AudioDevice::Channel = AudioDevice::Mono,
-      bool synchronize = true, double dBSNR = 99.) const;
+      bool synchronize = true, bool fastMode = false, double dBSNR = 99.,
+                             int TRperiod=60) const;
   Q_SIGNAL void outAttenuationChanged (qreal) const;
   Q_SIGNAL void toggleShorthand () const;
 
@@ -271,6 +285,7 @@ private:
 
   QScopedPointer<WideGraph> m_wideGraph;
   QScopedPointer<EchoGraph> m_echoGraph;
+  QScopedPointer<FastGraph> m_fastGraph;
   QScopedPointer<LogQSO> m_logDlg;
   QScopedPointer<Astro> m_astroWidget;
   QScopedPointer<HelpTextWindow> m_shortcuts;
@@ -279,6 +294,7 @@ private:
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
 
   Frequency  m_dialFreq;
+  Frequency  m_dialFreq0;
   Frequency  m_dialFreqRxWSPR;
 
   Detector * m_detector;
@@ -292,10 +308,16 @@ private:
   qint64  m_freqMoon;
   qint64  m_freqNominal;
   qint64  m_dialFreqTx;
+  qint64  m_dialFreqRx;
 
   double  m_s6;
+  double  m_tRemaining;
 
   float   m_DTtol;
+  float   m_t0;
+  float   m_t1;
+  float   m_t0Pick;
+  float   m_t1Pick;
 
   qint32  m_waterfallAvg;
   qint32  m_ntx;
@@ -320,13 +342,22 @@ private:
   qint32  m_watchdogLimit;
   qint32  m_astroFont;
   qint32  m_nSubMode;
-  qint32  m_MinW;
   qint32  m_nclearave;
   qint32  m_minSync;
   qint32  m_dBm;
   qint32  m_pctx;
   qint32  m_nseq;
   qint32  m_nWSPRdecodes;
+  qint32  m_jh;
+  qint32  m_k0;
+  qint32  m_kdone;
+  qint32  m_nPick;
+  qint32  m_TRindex;
+  qint32  m_FtolIndex;
+  qint32  m_Ftol;
+  qint32  m_TRperiodFast;
+  qint32  m_nTx73;
+  qint32  m_freqCQ;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -342,7 +373,7 @@ private:
   bool    m_call3Modified;
   bool    m_dataAvailable;
   bool    m_killAll;
-  bool    m_bdecoded;
+  bool    m_bDecoded;
   bool    m_monitorStartOFF;
   bool    m_pskReporterInit;
   bool    m_noSuffix;
@@ -381,8 +412,13 @@ private:
   bool    m_bEchoTxOK;
   bool    m_bTransmittedEcho;
   bool    m_bEchoTxed;
-
+  bool    m_bFastMode;
+  bool    m_bFast9;
+  bool    m_bFastDecodeCalled;
+  bool    m_bDoubleClickAfterCQnnn;
   float   m_pctZap;
+
+  char    m_msg[100][80];
 
   // labels in status bar
   QLabel * tx_status_label;
@@ -407,7 +443,7 @@ private:
 
   WSPRNet *wsprNet;
 
-  QTimer m_guiTimer;
+  QTimer  m_guiTimer;
   QTimer* ptt1Timer;                 //StartTx delay
   QTimer* ptt0Timer;                 //StopTx delay
   QTimer* logQSOTimer;
@@ -415,6 +451,8 @@ private:
   QTimer* tuneButtonTimer;
   QTimer* uploadTimer;
   QTimer* tuneATU_Timer;
+  QTimer* TxAgainTimer;
+  QTimer* RxQSYTimer;
 
   QString m_path;
   QString m_pbdecoding_style1;
@@ -438,6 +476,7 @@ private:
   QString m_qsoStop;
   QString m_cmnd;
   QString m_msgSent0;
+  QString m_fileToKill;
   QString m_fileToSave;
   QString m_band;
   QString m_c2name;
@@ -508,6 +547,8 @@ private:
   void astroCalculations (QDateTime const&, bool adjust);
   void WSPR_history(Frequency dialFreq, int ndecodes);
   QString WSPR_hhmm(int n);
+  void fast_config(bool b);
+  void CQRxFreq();
 };
 
 extern void getfile(QString fname, int ntrperiod);
@@ -524,16 +565,23 @@ extern "C" {
   void symspec_(int* k, int* ntrperiod, int* nsps, int* ingain, int* minw,
                 float* px, float s[], float* df3, int* nhsym, int* npts8);
 
+  void hspec_(short int d2[], int* k, int* ingain, float green[], float s[], int* jh);
+
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, int len1, int len2);
 
   void gen9_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, int len1, int len2);
 
+  void genmsk_(char* msg, int* ichk, char* msgsent, int itone[],
+               int* itext, int len1, int len2);
+
   void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
               int* itext, int len1, int len2);
 
   void genwspr_(char* msg, char* msgsent, int itone[], int len1, int len2);
+
+  void geniscat_(char* msg, char* msgsent, int itone[], int len1, int len2);
 
   bool stdmsg_(const char* msg, int len);
 
@@ -554,6 +602,8 @@ extern "C" {
   void avecho_( short id2[], int* dop, int* nfrit, int* nqual, float* f1,
                 float* level, float* sigdb, float* snr, float* dfreq,
                 float* width);
+
+  void fast_decode_(short id2[], int narg[], char msg[], int len);
 }
 
 #endif // MAINWINDOW_H

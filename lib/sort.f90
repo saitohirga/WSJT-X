@@ -9,6 +9,7 @@ subroutine sort(n,arr)
   jstack=0
   l=1
   ir=n
+  n0=n
 
 1 if(ir-l.lt.m) then
      do j=l+1,ir
@@ -55,6 +56,14 @@ subroutine sort(n,arr)
      j=ir
      a=arr(l)
 3    i=i+1
+     if(i.gt.n0) then
+        do jj=1,n0
+           write(99,3001) jj,arr(jj),i,n,ir
+3001       format(i10,e12.3,3i10)
+        enddo
+        close(99)
+        stop 'Bounds error in sort.f90'
+     endif
      if(arr(i).lt.a) goto 3
 
 4    j=j-1
