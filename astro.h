@@ -25,6 +25,7 @@ public:
   FrequencyDelta astroUpdate(QDateTime const& t, QString const& mygrid, QString const& hisgrid, Frequency frequency,
                              bool dx_is_self, bool bTx);
   bool doppler_tracking () const;
+  bool trackVFO();
   Q_SIGNAL void doppler_tracking_toggled (bool);
 
 protected:
@@ -40,6 +41,7 @@ private slots:
   void on_cbTxAudioTrack_toggled(bool b);
   void on_kHzSpinBox_valueChanged(int n);
   void on_HzSpinBox_valueChanged(int n);
+  void on_cbTrackVFO_toggled(bool b);
 
 private:
   void read_settings ();
@@ -50,6 +52,7 @@ private:
   Ui::Astro * ui_;
   bool m_bRxAudioTrack;
   bool m_bTxAudioTrack;
+  bool m_bTrackVFO;
 
   qint32 m_DopplerMethod;
   qint32 m_kHz;

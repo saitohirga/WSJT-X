@@ -32,8 +32,8 @@ subroutine MoonDopJPL(nyear,month,nday,uth4,lon4,lat4,RAMoon4,        &
 
   RAMoon4=RA
   DecMoon4=Dec
-  LST4=LST
-  HA4=HA
+  LST4=0.                 !These two variables not presently used
+  HA4=0.
   AzMoon4=Az*rad
   ElMoon4=El*rad
   vr4=vr

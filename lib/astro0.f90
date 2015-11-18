@@ -7,7 +7,7 @@ subroutine astro0(nyear,month,nday,uth8,freq8,mygrid,hisgrid,              &
   character*6 mygrid,hisgrid
   real*8 AzSun8,ElSun8,AzMoon8,ElMoon8,AzMoonB8,ElMoonB8
   real*8 dbMoon8,RAMoon8,DecMoon8,HA8,Dgrd8,xnr8,dfdt,dfdt0,dt
-  real*8 sd8,poloffset8,day8,width1,width2,xlst8
+  real*8 sd8,poloffset8,width1,width2,xlst8
   real*8 uth8,techo8,freq8
   real*8 xl,b
   common/librcom/xl(2),b(2)
@@ -53,6 +53,7 @@ subroutine astro0(nyear,month,nday,uth8,freq8,mygrid,hisgrid,              &
   RAMoon8=RAMoon/15.0
   DecMoon8=DecMoon
   HA8=HA
+  xlst8=xlst
   Dgrd8=Dgrd
   sd8=sd
   poloffset8=poloffset

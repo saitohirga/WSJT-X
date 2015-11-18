@@ -4,11 +4,6 @@ subroutine slope(y,npts,xpk)
 ! ignore the peak around xpk +/- 2.
 
   real y(npts)
-  real x(100)
-
-  do i=1,npts
-     x(i)=i
-  enddo
 
   sumw=0.
   sumx=0.
@@ -16,14 +11,14 @@ subroutine slope(y,npts,xpk)
   sumx2=0.
   sumxy=0.
   sumy2=0.
-
   do i=1,npts
      if(abs(i-xpk).gt.2.0) then
         sumw=sumw + 1.0
-        sumx=sumx + x(i)
+        x=i
+        sumx=sumx + x
         sumy=sumy + y(i)
-        sumx2=sumx2 + x(i)**2
-        sumxy=sumxy + x(i)*y(i)
+        sumx2=sumx2 + x*x
+        sumxy=sumxy + x*y(i)
         sumy2=sumy2 + y(i)**2
      endif
   enddo
@@ -32,9 +27,13 @@ subroutine slope(y,npts,xpk)
   a=(sumx2*sumy - sumx*sumxy) / delta
   b=(sumw*sumxy - sumx*sumy) / delta
 
+  sq=0.
   do i=1,npts
-     y(i)=y(i)-(a + b*x(i))
+     y(i)=y(i)-(a + b*i)
+     if(abs(i-xpk).gt.2.0) sq=sq + y(i)**2
   enddo
+  rms=sqrt(sq/(sumw-2.0))
+  y=y/rms
 
   return
 end subroutine slope

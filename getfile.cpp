@@ -42,15 +42,18 @@ void getfile(QString fname, int ntrperiod)
 
   int i1=fname.lastIndexOf("/");
   QString baseName=fname.mid(i1+1);
-//  qDebug() << baseName << baseName.length();
 
-  int i0=fname.indexOf(".wav",0,Qt::CaseInsensitive);
+  i1=fname.indexOf(".wav",0,Qt::CaseInsensitive);
   jt9com_.nutc=0;
-  if(i0>0) {
-    int n=4;
-    if(baseName.length()!=15) n=6;
-    jt9com_.nutc=100*fname.mid(i0-n,2).toInt() + fname.mid(i0-n+2,2).toInt();
+  if(i1>0) {
+    int i0=fname.indexOf("_",-11);
+    if(i1==i0+7) {
+      jt9com_.nutc=fname.mid(i1-6,6).toInt();
+    } else {
+      jt9com_.nutc=100*fname.mid(i1-4,4).toInt();
+    }
   }
+  if(ntrperiod > 120 or ntrperiod <0) ntrperiod=120;
   int npts=ntrperiod*12000;
   memset(jt9com_.d2,0,2*npts);
 
@@ -61,7 +64,7 @@ void getfile(QString fname, int ntrperiod)
     if(hdr.nsamrate==11025) wav12_(jt9com_.d2,jt9com_.d2,&n,&hdr.nbitsam2);
     fclose(fp);
     jt9com_.newdat=1;
-    if(n==-99999) jt9com_.newdat=2;             //Silence compiler warning
+    jt9com_.kin=n;
   }
 }
 
@@ -128,7 +131,6 @@ void savewav(QString fname, int ntrperiod)
 }
 
 //#define	MAX_RANDOM	0x7fffffff
-
 /* Generate gaussian random float with mean=0 and std_dev=1 */
 float gran()
 {

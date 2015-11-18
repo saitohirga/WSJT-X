@@ -141,16 +141,32 @@
       <item>
        <widget class="QGroupBox" name="groupBox_3">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="title">
-         <string>Tx audio tracking</string>
+         <string>Enable</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
-          <widget class="QCheckBox" name="cbTxAudioTrack">
+          <widget class="QCheckBox" name="cbTrackVFO">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <property name="text">
-            <string>Enable</string>
+            <string>Track VFOs</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="cbTxAudioTrack">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Track Tx audio</string>
            </property>
           </widget>
          </item>
@@ -161,6 +177,12 @@
        <spacer name="verticalSpacer_2">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
         </property>
        </spacer>
       </item>

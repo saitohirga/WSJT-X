@@ -8,7 +8,14 @@
 #include <stdint.h>	/* defines uint32_t etc */
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 uint32_t nhash( const void * key, size_t length, uint32_t initval);
-uint32_t nhash_( void const * key, size_t const * length, uint32_t const * initval);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

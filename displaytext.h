@@ -19,7 +19,8 @@ public:
                             LogBook logBook, QColor color_CQ, QColor color_MyCall,
                             QColor color_DXCC, QColor color_NewCall);
     void displayTransmittedText(QString text, QString modeTx, qint32 txFreq,
-                                QColor color_TxMsg);
+                                QColor color_TxMsg, bool bFastMode);
+    void displayQSY(QString text);
 
 signals:
     void selectCallsign(bool shift, bool ctrl);

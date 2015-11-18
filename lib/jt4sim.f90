@@ -42,6 +42,8 @@ program jt4sim
   npts=60*12000
   sps=12000.d0/4.375d0               !2742.857...
   f0=1000.d0                         !Frequency of lowest tone (Hz)
+  freq=f0                            !Silence compiler warning
+  dphi=0.0                           !Silence compiler warning
 
   h=default_header(12000,npts)  
 

@@ -33,7 +33,10 @@ public:
   void setSpread(double s) {m_fSpread=s;}
   void setPeriod(unsigned p) {m_period=p;}
 
-  Q_SLOT void start (unsigned symbolsLength, double framesPerSymbol, double frequency, double toneSpacing, SoundOutput *, Channel = Mono, bool synchronize = true, double dBSNR = 99.);
+  Q_SLOT void start (unsigned symbolsLength, double framesPerSymbol, double frequency,
+                     double toneSpacing, SoundOutput *, Channel = Mono,
+                     bool synchronize = true, bool fastMode = false,
+                     double dBSNR = 99., int TRperiod=60);
   Q_SLOT void stop (bool quick = false);
   Q_SLOT void tune (bool newState = true);
   Q_SLOT void setFrequency (double newFrequency) {m_frequency = newFrequency;}
@@ -70,6 +73,7 @@ private:
 
   qint64 m_silentFrames;
   qint32 m_itone0;
+  qint32 m_TRperiod;
   qint16 m_ramp;
 
   unsigned m_frameRate;
@@ -78,6 +82,7 @@ private:
 
   bool volatile m_tuning;
   bool m_addNoise;
+  bool m_bFastMode;
 
   bool m_cwLevel;
   unsigned m_ic;

@@ -2,7 +2,7 @@ subroutine indexx(arr,n,indx)
 
   parameter (M=7,NSTACK=50)
   integer n,indx(n)
-  integer arr(n)
+  real arr(n)
   integer i,indxt,ir,itemp,j,jstack,k,l,istack(NSTACK)
   real a
 

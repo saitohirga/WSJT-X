@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QPainter>
 #include <QFontMetrics>
+#include <QDebug>
 
 #include <meterwidget.h>
 
@@ -89,10 +90,13 @@ SignalMeter::SignalMeter (QWidget * parent)
   setLayout (outer_layout);
 }
 
-void SignalMeter::setValue(int value)
+void SignalMeter::setValue(float value)
 {
+  if(value<0) value=0;
   QFontMetrics font_metrics {m_scale->font (), nullptr};
   m_meter->setContentsMargins (0, font_metrics.ascent () / 2, 0, font_metrics.ascent () / 2 + font_metrics.descent ());
-  m_meter->setValue(value);
-  m_reading->setText (QString {"%1dB"}.arg (value, 4));
+  m_meter->setValue(int(value));
+  QString t;
+  t.sprintf("%4.1f dB",value);
+  m_reading->setText(t);
 }

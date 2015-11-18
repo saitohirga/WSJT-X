@@ -76,7 +76,7 @@
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select data for spectral display&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <item>
           <property name="text">
@@ -91,6 +91,11 @@
          <item>
           <property name="text">
            <string>Linear Avg</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Reference</string>
           </property>
          </item>
         </widget>

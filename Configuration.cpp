@@ -205,8 +205,8 @@ public:
   explicit FrequencyDialog (Modes * modes_model, QWidget * parent = nullptr)
     : QDialog {parent}
   {
-    setWindowTitle (QApplication::applicationName () + " - " + tr ("Add Frequency"));
-
+    setWindowTitle (QApplication::applicationName () + " - " +
+                    tr ("Add Frequency"));
     mode_combo_box_.setModel (modes_model);
 
     auto form_layout = new QFormLayout ();
@@ -519,6 +519,8 @@ private:
   QColor color_NewCall_;
   QColor next_color_NewCall_;
   qint32 id_interval_;
+  qint32 ntrials_;
+  qint32 aggressive_;
   bool id_after_73_;
   bool tx_QSY_allowed_;
   bool spot_to_psk_reporter_;
@@ -537,6 +539,13 @@ private:
   bool TX_messages_;
   bool enable_VHF_features_;
   bool decode_at_52s_;
+  bool twoPass_;
+  bool MyDx_;
+  bool CQMyN_;
+  bool NDxG_;
+  bool NN_;
+  bool EMEonly_;
+  bool offsetRxFreq_;
   QString udp_server_name_;
   port_type udp_server_port_;
   bool accept_udp_requests_;
@@ -589,6 +598,8 @@ QColor Configuration::color_DXCC () const {return m_->color_DXCC_;}
 QColor Configuration::color_NewCall () const {return m_->color_NewCall_;}
 QFont Configuration::decoded_text_font () const {return m_->decoded_text_font_;}
 qint32 Configuration::id_interval () const {return m_->id_interval_;}
+qint32 Configuration::ntrials() const {return m_->ntrials_;}
+qint32 Configuration::aggressive() const {return m_->aggressive_;}
 bool Configuration::id_after_73 () const {return m_->id_after_73_;}
 bool Configuration::tx_QSY_allowed () const {return m_->tx_QSY_allowed_;}
 bool Configuration::spot_to_psk_reporter () const {return m_->spot_to_psk_reporter_;}
@@ -607,6 +618,13 @@ bool Configuration::watchdog () const {return m_->watchdog_;}
 bool Configuration::TX_messages () const {return m_->TX_messages_;}
 bool Configuration::enable_VHF_features () const {return m_->enable_VHF_features_;}
 bool Configuration::decode_at_52s () const {return m_->decode_at_52s_;}
+bool Configuration::twoPass() const {return m_->twoPass_;}
+bool Configuration::MyDx() const {return m_->MyDx_;}
+bool Configuration::CQMyN() const {return m_->CQMyN_;}
+bool Configuration::NDxG() const {return m_->NDxG_;}
+bool Configuration::NN() const {return m_->NN_;}
+bool Configuration::EMEonly() const {return m_->EMEonly_;}
+bool Configuration::offsetRxFreq () const {return m_->offsetRxFreq_;}
 bool Configuration::split_mode () const
 {
   return !m_->rig_is_dummy_ and
@@ -1003,7 +1021,9 @@ void Configuration::impl::initialize_models ()
   ui_->labTx->setStyleSheet(QString("background: %1").arg(color_TxMsg_.name()));
   ui_->labDXCC->setStyleSheet(QString("background: %1").arg(color_DXCC_.name()));
   ui_->labNewCall->setStyleSheet(QString("background: %1").arg(color_NewCall_.name()));
-  ui_->CW_id_interval_spin_box->setValue (id_interval_);
+  ui_->CW_id_interval_spin_box->setValue (id_interval_);  
+  ui_->sbNtrials->setValue (ntrials_);
+  ui_->sbAggressive->setValue (aggressive_);
   ui_->PTT_method_button_group->button (rig_params_.ptt_type)->setChecked (true);
   ui_->save_path_display_label->setText (save_directory_.absolutePath ());
   ui_->azel_path_display_label->setText (azel_directory_.absolutePath ());
@@ -1025,6 +1045,13 @@ void Configuration::impl::initialize_models ()
   ui_->TX_messages_check_box->setChecked (TX_messages_);
   ui_->enable_VHF_features_check_box->setChecked(enable_VHF_features_);
   ui_->decode_at_52s_check_box->setChecked(decode_at_52s_);
+  ui_->cbTwoPass->setChecked(twoPass_);
+  ui_->cbMyDx->setChecked(MyDx_);
+  ui_->cbCQMyN->setChecked(CQMyN_);
+  ui_->cbNDxG->setChecked(NDxG_);
+  ui_->cbNN->setChecked(NN_);
+  ui_->cbEMEonly->setChecked(EMEonly_);
+  ui_->offset_Rx_freq_check_box->setChecked(offsetRxFreq_);
   ui_->type_2_msg_gen_combo_box->setCurrentIndex (type_2_msg_gen_);
   ui_->rig_combo_box->setCurrentText (rig_params_.rig_name);
   ui_->TX_mode_button_group->button (data_mode_)->setChecked (true);
@@ -1126,6 +1153,8 @@ void Configuration::impl::read_settings ()
     }
 
   id_interval_ = settings_->value ("IDint", 0).toInt ();
+  ntrials_ = settings_->value ("nTrials", 6).toInt ();
+  aggressive_ = settings_->value ("Aggressive", 0).toInt ();
 
   save_directory_ = settings_->value ("SaveDir", default_save_directory_.absolutePath ()).toString ();
   azel_directory_ = settings_->value ("AzElDir", default_azel_directory_.absolutePath ()).toString ();
@@ -1185,12 +1214,15 @@ void Configuration::impl::read_settings ()
   // retrieve audio channel info
   audio_input_channel_ = AudioDevice::fromString (settings_->value ("AudioInputChannel", "Mono").toString ());
   audio_output_channel_ = AudioDevice::fromString (settings_->value ("AudioOutputChannel", "Mono").toString ());
+
   type_2_msg_gen_ = settings_->value ("Type2MsgGen", QVariant::fromValue (Configuration::type_2_msg_3_full)).value<Configuration::Type2MsgGen> ();
+
   monitor_off_at_startup_ = settings_->value ("MonitorOFF", false).toBool ();
   monitor_last_used_ = settings_->value ("MonitorLastUsed", false).toBool ();
   spot_to_psk_reporter_ = settings_->value ("PSKReporter", false).toBool ();
   id_after_73_ = settings_->value ("After73", false).toBool ();
   tx_QSY_allowed_ = settings_->value ("TxQSYAllowed", false).toBool ();
+
   macros_.setStringList (settings_->value ("Macros", QStringList {"TNX 73 GL"}).toStringList ());
 
   if (settings_->contains ("FrequenciesForModes"))
@@ -1241,6 +1273,13 @@ void Configuration::impl::read_settings ()
   TX_messages_ = settings_->value ("Tx2QSO", true).toBool ();
   enable_VHF_features_ = settings_->value("VHFUHF",false).toBool ();
   decode_at_52s_ = settings_->value("Decode52",false).toBool ();
+  twoPass_ = settings_->value("TwoPass",true).toBool ();
+  MyDx_ = settings_->value("MyDx",false).toBool ();
+  CQMyN_ = settings_->value("CQMyN",false).toBool ();
+  NDxG_ = settings_->value("NDxG",false).toBool ();
+  NN_ = settings_->value("NN",false).toBool ();
+  EMEonly_ = settings_->value("EMEonly",false).toBool ();
+  offsetRxFreq_ = settings_->value("OffsetRx",false).toBool();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
   rig_params_.split_mode = settings_->value ("SplitMode", QVariant::fromValue (TransceiverFactory::split_mode_none)).value<TransceiverFactory::SplitMode> ();
   udp_server_name_ = settings_->value ("UDPServer", "127.0.0.1").toString ();
@@ -1266,6 +1305,8 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Font", font_.toString ());
   settings_->setValue ("DecodedTextFont", decoded_text_font_.toString ());
   settings_->setValue ("IDint", id_interval_);
+  settings_->setValue ("nTrials", ntrials_);
+  settings_->setValue ("Aggressive", aggressive_);
   settings_->setValue ("PTTMethod", QVariant::fromValue (rig_params_.ptt_type));
   settings_->setValue ("PTTport", rig_params_.ptt_port);
   settings_->setValue ("SaveDir", save_directory_.absolutePath ());
@@ -1328,6 +1369,13 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("SplitMode", QVariant::fromValue (rig_params_.split_mode));
   settings_->setValue ("VHFUHF", enable_VHF_features_);
   settings_->setValue ("Decode52", decode_at_52s_);
+  settings_->setValue ("TwoPass", twoPass_);
+  settings_->setValue ("MyDx", MyDx_);
+  settings_->setValue ("CQMyN", CQMyN_);
+  settings_->setValue ("NDxG", NDxG_);
+  settings_->setValue ("NN", NN_);
+  settings_->setValue ("EMEonly", EMEonly_);
+  settings_->setValue("OffsetRx",offsetRxFreq_);
   settings_->setValue ("UDPServer", udp_server_name_);
   settings_->setValue ("UDPServerPort", udp_server_port_);
   settings_->setValue ("AcceptUDPRequests", accept_udp_requests_);
@@ -1665,6 +1713,8 @@ void Configuration::impl::accept ()
   my_grid_ = ui_->grid_line_edit->text ();
   spot_to_psk_reporter_ = ui_->psk_reporter_check_box->isChecked ();
   id_interval_ = ui_->CW_id_interval_spin_box->value ();
+  ntrials_ = ui_->sbNtrials->value ();
+  aggressive_ = ui_->sbAggressive->value ();
   id_after_73_ = ui_->CW_id_after_73_check_box->isChecked ();
   tx_QSY_allowed_ = ui_->tx_QSY_check_box->isChecked ();
   monitor_off_at_startup_ = ui_->monitor_off_check_box->isChecked ();
@@ -1686,6 +1736,14 @@ void Configuration::impl::accept ()
   azel_directory_ = ui_->azel_path_display_label->text ();
   enable_VHF_features_ = ui_->enable_VHF_features_check_box->isChecked ();
   decode_at_52s_ = ui_->decode_at_52s_check_box->isChecked ();
+  twoPass_ = ui_->cbTwoPass->isChecked ();
+  MyDx_ = ui_->cbMyDx->isChecked ();
+  CQMyN_ = ui_->cbCQMyN->isChecked ();
+  NDxG_ = ui_->cbNDxG->isChecked ();
+  NN_ = ui_->cbNN->isChecked ();
+  EMEonly_ = ui_->cbEMEonly->isChecked ();
+
+  offsetRxFreq_ = ui_->offset_Rx_freq_check_box->isChecked();
   frequency_calibration_intercept_ = ui_->calibration_intercept_spin_box->value ();
   frequency_calibration_slope_ppm_ = ui_->calibration_slope_ppm_spin_box->value ();
 

@@ -88,9 +88,12 @@ void DisplayText::_appendDXCCWorkedB4(DecodedText& t1, QString& bg,
 
     // the decoder (seems) to always generate 40 chars. For a normal CQ call, the last five are spaces
     // TODO this magic 36 characters is also referenced in MainWindow::doubleClickOnCall()
-    int s3 = t1.indexOf(" ",35);
-    if (s3 < 35)
-        s3 = 35; // we always want at least the characters to position 35
+    int nmin=35;
+    int i=t1.indexOf(" CQ ");
+    int k=t1.string().mid(i+4,3).toInt();
+    if(k>0 and k<999) nmin += 4;
+    int s3 = t1.indexOf(" ",nmin);
+    if (s3 < nmin) s3 = nmin; // always want at least the characters to position 35
     s3 += 1; // convert the index into a character count
     t1 = t1.left(s3);  // reduce trailing white space
     charsAvail -= s3;
@@ -166,15 +169,28 @@ void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall,
 
 
 void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 txFreq,
-                                         QColor color_TxMsg)
+                                         QColor color_TxMsg, bool bFastMode)
 {
     QString bg=color_TxMsg.name();
     QString t1=" @ ";
     if(modeTx=="JT65") t1=" # ";
+    if(modeTx=="JTMSK") t1=" & ";
     QString t2;
     t2.sprintf("%4d",txFreq);
-    QString t = QDateTime::currentDateTimeUtc().toString("hhmm") + \
-        "  Tx      " + t2 + t1 + text;   // The position of the 'Tx' is searched for in DecodedText and in MainWindow.  Not sure if thats required anymore? VK3ACF
-
+    QString t;
+    if(bFastMode) {
+      t = QDateTime::currentDateTimeUtc().toString("hhmmss") + \
+        "  Tx      " + t2 + t1 + text;
+    } else {
+      t = QDateTime::currentDateTimeUtc().toString("hhmm") + \
+        "  Tx      " + t2 + t1 + text;
+    }
     appendText(t,bg);
+}
+
+void DisplayText::displayQSY(QString text)
+{
+  QString t = QDateTime::currentDateTimeUtc().toString("hhmmss") + "            " + text;
+  QString bg="hot pink";
+  appendText(t,bg);
 }

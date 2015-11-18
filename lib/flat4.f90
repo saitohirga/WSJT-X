@@ -22,7 +22,7 @@ subroutine flat4(s,npts0,nflatten)
   nlen=npts/nseg                      !Length of test segment
   i0=npts/2                           !Midpoint
   k=0
-  do n=2,nseg                         !Skip first segment, likely rolloff here
+  do n=1,nseg                         !Skip first segment, likely rolloff here
      ib=n*nlen
      ia=ib-nlen+1
      if(n.eq.nseg) ib=npts
@@ -37,7 +37,7 @@ subroutine flat4(s,npts0,nflatten)
   enddo
   kz=k
   a=0.
-  nterms=3
+  nterms=5
   
   call polyfit(x,y,y,kz,nterms,0,a,chisqr)  !Fit a low-order polynomial
 

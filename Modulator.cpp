@@ -44,7 +44,7 @@ Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds,
 void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
                        double frequency, double toneSpacing,
                        SoundOutput * stream, Channel channel,
-                       bool synchronize, double dBSNR)
+                       bool synchronize, bool fastMode, double dBSNR, int TRperiod)
 {
   Q_ASSERT (stream);
 
@@ -66,6 +66,8 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   m_frequency = frequency;
   m_amp = std::numeric_limits<qint16>::max ();
   m_toneSpacing = toneSpacing;
+  m_bFastMode=fastMode;
+  m_TRperiod=TRperiod;
 
   // noise generator parameters
   if (m_addNoise) {
@@ -76,14 +78,14 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
 
   unsigned mstr = ms0 % (1000 * m_period); // ms in period
   m_ic = (mstr / 1000) * m_frameRate; // we start exactly N seconds
+  if(m_bFastMode) m_ic=0;
   // into period where N is the next whole second
 
   m_silentFrames = 0;
   // calculate number of silent frames to send
-  if (synchronize && !m_tuning)	{
+  if (synchronize && !m_tuning && !m_bFastMode)	{
     m_silentFrames = m_ic + m_frameRate - (mstr * m_frameRate / 1000);
   }
-
   initialize (QIODevice::ReadOnly, channel);
   Q_EMIT stateChanged ((m_state = (synchronize && m_silentFrames) ?
                         Synchronizing : Active));
@@ -158,8 +160,9 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 
     case Active:
       {
-        unsigned isym (m_tuning ? 0 : m_ic / (4.0 * m_nsps)); // Actual fsample=48000
-        if (isym >= m_symbolsLength && icw[0] > 0) { // start CW condition
+        unsigned int isym=0;
+        if(!m_tuning) isym=m_ic/(4.0*m_nsps);            // Actual fsample=48000
+        if (isym >= m_symbolsLength && icw[0] > 0) {     // start CW condition
           // Output the CW ID
           m_dphi = m_twoPi * m_frequency / m_frameRate;
           unsigned const ic0 = m_symbolsLength * 4 * m_nsps;
@@ -209,11 +212,24 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 
         double const baud (12000.0 / m_nsps);
         // fade out parameters (no fade out for tuning)
-        unsigned const i0 = m_tuning ? 9999 * m_nsps : (m_symbolsLength - 0.017) * 4.0 * m_nsps;
-        unsigned const i1 = m_tuning ? 9999 * m_nsps :  m_symbolsLength * 4.0 * m_nsps;
+        unsigned int i0,i1;
+        if(m_tuning) {
+          i0=9999*m_nsps;
+          i1=9999*m_nsps;
+        } else {
+          i0=(m_symbolsLength - 0.017) * 4.0 * m_nsps;
+          i1= m_symbolsLength * 4.0 * m_nsps;
+        }
+        if(m_bFastMode) {
+          i1=m_TRperiod*48000 - 24000;
+          i0=i1-816;
+        }
+
 
         for (unsigned i = 0; i < numFrames && m_ic <= i1; ++i) {
-          isym = m_tuning ? 0 : m_ic / (4.0 * m_nsps); //Actual fsample=48000
+          isym=0;
+          if(!m_tuning) isym=m_ic / (4.0 * m_nsps);         //Actual fsample=48000
+          if(m_bFastMode) isym=isym%m_symbolsLength;
           if (isym != m_isym0 || m_frequency != m_frequency0) {
             if(itone[0]>=100) {
               toneFrequency0=itone[0];
@@ -224,6 +240,8 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
                 toneFrequency0=m_frequency + itone[isym]*m_toneSpacing;
               }
             }
+//            qDebug() << "B" << m_bFastMode << m_ic << numFrames << isym << itone[isym]
+//                            << toneFrequency0 << m_nsps;
             m_dphi = m_twoPi * toneFrequency0 / m_frameRate;
             m_isym0 = isym;
             m_frequency0 = m_frequency;         //???

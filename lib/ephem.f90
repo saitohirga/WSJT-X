@@ -11,7 +11,7 @@ subroutine ephem(mjd0,dut,east_long,geodetic_lat,height,nspecial,     &
   real*8 rmeTrue(6)              !Include nutation
   real*8 raeTrue(6)              !Vector from Earth center to Obs at Date
   real*8 rmaTrue(6)              !Vector from Obs to Moon at Date
-  logical km,bary,jplok          !Set km=.true. to get km, km/s from ephemeris
+  logical km,bary                !Set km=.true. to get km, km/s from ephemeris
   common/stcomx/km,bary,pvsun(6) !Common used in JPL subroutines
   common/librcom/xl(2),b(2)
 
@@ -32,8 +32,6 @@ subroutine ephem(mjd0,dut,east_long,geodetic_lat,height,nspecial,     &
      djtt=mjd + sla_DTT(jd)/86400.d0
      ttjd=jd + sla_DTT(jd)/86400.d0
 
-!     inquire(file='JPLEPH',exist=jplok)
-!     if(jplok) then
      if(nspecial.ne.8) then
         call pleph(ttjd,10,3,rme2000)            !RME (J2000) from JPL ephemeris
 

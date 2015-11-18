@@ -106,7 +106,7 @@ void TraceFile::impl::message_handler (QtMsgType type, QMessageLogContext const&
     QMutexLocker guard (&lock);
     Q_ASSERT_X (current_stream_, "TraceFile:message_handler", "no stream to write to");
     *current_stream_
-      << QDateTime::currentDateTimeUtc ().toString ()
+      << QDateTime::currentDateTimeUtc ().toString ("yyyy-MM-ddTHH:mm:ss.zzzZ")
       << '(' << context.file << ':' << context.line /* << ", " << context.function */ << ')'
       << severity << ": " << msg.trimmed () << endl;
   }
