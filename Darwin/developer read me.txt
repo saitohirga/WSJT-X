@@ -1,24 +1,3 @@
-KVASD-installer
-===============
-This is a small AppleScriptObjbC Xcode project that is an application bundle GUI tool
-to install the KVASD tool into a WSJT-X application bundle. It fetches the KVASD EULA
-from the SourceForge web svn server and presents it to the user, the user may store
-license or print it. They must agree the license terms before the KVASD tool is also
-downloaded from the SourceForge web svn server. The user then can select the target
-WSJT-X application bundle for installation either via a file chooser dialog or simply
-by dragging the target WSJT-X application bundle onto the KVASD-installer window.
-Once selected the "Install" button starts the installation process. The installation
-copies the kvasd binary into the WSJT-X bundle and adjusts the dylib paths in it to
-point to the libgcc dylibs that are shipped inside the WSJT_X bundle.
-
-KVASD-installer is not built as part of the WSJT-X project build, instead it must be
-built within Xcode and deployed into the source tree at the location 'contrib/Darwin'
-as a bare application bundle which is then checked into source control. The WSJT-X 
-CMake build, when building a DragNDrop installer package for WSJT-X inserts the 
-KVASD-installer application bundle into the root of the package DMG ready to be used
-after installing the main WSJT-X application bundle.
-
-
 Changing the content of the DragNDrop DMG root folder.
 ======================================================
 
@@ -40,7 +19,7 @@ The installer DMG is read only and shrunk to exactly the size of the contents, a
 The following recipe shows how to amend the content and layout of the DMG root folder:
 
 # convert the DMG to a R/W copy (substitute the DMG you have built)
-hdiutil convert wsjtx-1.4.0-rc1-Darwin.dmg -format UDRW -o rw.dmg
+hdiutil convert wsjtx-1.7.0-rc1-Darwin.dmg -format UDRW -o rw.dmg
 
 # expand the R/W copy to make room for changes
 # first find the current number of sectors
@@ -58,10 +37,10 @@ hdiutil resize -sectors 110000 rw.dmg
 hdiutil attach rw.dmg
 
 # change the hidden attribute on the background PNG
-chflags nohidden /Volumes/wsjtx-1.4.0-rc1-Darwin/background.png
+chflags nohidden /Volumes/wsjtx-1.7.0-rc1-Darwin/background.png
 
 # make the .DS_Store file writeable
-chmod 644 /Volumes/wsjtx-1.4.0-rc1-Darwin/.DS_Store
+chmod 644 /Volumes/wsjtx-1.7.0-rc1-Darwin/.DS_Store
 
 # now you can change Finder view options, rearrange icons etc. Remember that you are
 # only changing the folder options, not the folder content as that is controlled by
@@ -73,19 +52,19 @@ chmod 644 /Volumes/wsjtx-1.4.0-rc1-Darwin/.DS_Store
 # changes are saved.
 
 # set the background PNG as a hidden file
-chflags hidden /Volumes/wsjtx-1.4.0-rc1-Darwin/background.png
+chflags hidden /Volumes/wsjtx-1.7.0-rc1-Darwin/background.png
 
 # make the .DS_Store file read only
-chmod 444 /Volumes/wsjtx-1.4.0-rc1-Darwin/.DS_Store
+chmod 444 /Volumes/wsjtx-1.7.0-rc1-Darwin/.DS_Store
 
 # update the custom .DS_Store file in the source repository (NOTE the file name)
-cp /Volumes/wsjtx-1.4.0-rc1-Darwin/.DS_Store ~/src/wsjtx/wsjtx_DMG.DS_Store
+cp /Volumes/wsjtx-1.7.0-rc1-Darwin/.DS_Store ~/src/wsjtx/wsjtx_DMG.DS_Store
 
 # build a new package and try out the new installer to test your changes
 # if all is well commit the changes
 
 # dismount and eject the R/W DMG and discard it
-hdiutil detach /Volumes/wsjtx-1.4.0-rc1-Darwin
+hdiutil detach /Volumes/wsjtx-1.7.0-rc1-Darwin
 rm rw.dmg
 
 # That's all Folks!
