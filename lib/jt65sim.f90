@@ -1,6 +1,6 @@
 program jt65sim
 
-! Generate simulated data for testing of WSJT-X
+! Generate simulated JT65 data for testing WSJT-X
 
   use wavhdr
   use packjt
@@ -30,7 +30,7 @@ program jt65sim
   nargs=iargc()
   if(nargs.ne.5) then
      print*,'Usage:   jt65sim mode nsigs fspread SNR nfiles'
-     print*,'Example: jt65sim   B    10    0.0   -24    1'
+     print*,'Example: jt65sim   A    10    0.2   -24    1'
      print*,'Enter SNR = 0 to generate a range of SNRs.'
      go to 999
   endif
