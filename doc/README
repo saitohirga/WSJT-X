@@ -1,5 +1,5 @@
 This folder  contains the sources  of WSJT-X documentation.   To build
-these you will need the asciidoc and Python v2 tools installed.
+these you will need the asciidoctor tool installed.
 
 If you do not wish to build  the documentation, it is possible to skip
 this  directory  in the  WSJT-X  build  by  setting the  CMake  option
@@ -13,11 +13,11 @@ You will probably have these installed already if you are building the
 WSJT-X  manpages,  if you  are  not  you  will  just need  to  install
 asciidoc:
 
- sudo apt-get install asciidoc
+ sudo apt-get install asciidoctor
 
 or
 
- sudo yum install asciidoc
+ sudo yum install asciidoctor
 
 or whatever your distribution and package management requires.
 
@@ -27,25 +27,14 @@ On Mac OS X
 
 I recommend MacPorts:
 
- sudo port install asciidoc
+ sudo port install rb-rubygems
+ sudo gem install asciidoctor
 
 
 On Windows
 ==========
 
-The asciidoc  tool is a  Python script so you  will need to  install a
-version of  Python v2. If  you already have  Python v3 as  the default
-Python interpreter on your system  then download and install Python v2
-(probably v2.7.x) but  adjust the installer options so as  not to make
-it  the  default  system  Python   interpreter,  this  is  normally  a
-configuration option in the MSI installer.
+The asciidoctor  tool is a  Ruby script so you  will need to  install a
+version of Ruby. The gem tool is a good way to install asciidoctor:
 
-The current  version of asciidoc (8.6.9)  is broken on Windows  so you
-will need to get the latest development version:
-
- download https://github.com/asciidoc/asciidoc/archive/master.zip
-
-and unzip  it somewhere like  C:\Tools then you  will need to  add the
-path to asciidoc and possibly Python  v2 to your CMake tool chain file
-for building WSJT-X. The directory  containing asciidoc.py needs to be
-included in the CMAKE_PREFIX_PATH variable.
+   gem install asciidoctor

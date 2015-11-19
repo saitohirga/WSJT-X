@@ -88,22 +88,13 @@ set (UG_IMGS
 
 )
 
-find_package (PythonInterp 2.4 REQUIRED)
-if (PYTHON_VERSION_STRING VERSION_GREATER 2.9.9)
-  message (FATAL_ERROR "The asciidoc package requires a Python version less than 3
+find_program (ASCIIDOCTOR_EXECUTABLE NAMES asciidoctor)
+if (NOT ASCIIDOCTOR_EXECUTABLE)
+  message (FATAL_ERROR "asciidoctor is required to build the documentation
 
-Use CMAKE_PREFIX_PATH to point to an earlier version or install one,
-you can also skip building the documentation by switching the option
-WSJT_GENERATE_DOCS to OFF.")
-endif (PYTHON_VERSION_STRING VERSION_GREATER 2.9.9)
-
-find_program (ASCIIDOC_EXECUTABLE NAMES asciidoc asciidoc.py)
-if (NOT ASCIIDOC_EXECUTABLE)
-  message (FATAL_ERROR "Asciidoc is required to build the documentation
-
-Building the documenation may optionally be tured off by setting the CMake
+Building the documenation may optionally be turned off by setting the CMake
 option WSJT_GENERATE_DOCS to OFF.")
-endif (NOT ASCIIDOC_EXECUTABLE)
+endif (NOT ASCIIDOCTOR_EXECUTABLE)
 
 include (CMakeParseArguments)
 
@@ -111,36 +102,34 @@ include (CMakeParseArguments)
 #
 # HTML - variable for output file ${CMAKE_CURRENT_BINARY_DIR}/`$basename ${SOURCE}`.html
 # SOURCE - top level asciidoc file
-# ASCIIDOC_OPTIONS - asciidoc command options
+# ASCIIDOCTOR_OPTIONS - asciidoctor command options
 # DEPENDS - dependent files
 function (html_document)
-  cmake_parse_arguments (args "" "SOURCE;HTML" "ASCIIDOC_OPTIONS;DEPENDS" ${ARGN})
+  cmake_parse_arguments (args "" "SOURCE;HTML" "ASCIIDOCTOR_OPTIONS;DEPENDS" ${ARGN})
   get_filename_component (_output_name_we ${args_SOURCE} NAME_WE)
   get_filename_component (_path ${args_SOURCE} PATH)
   set (_doc_file ${CMAKE_CURRENT_BINARY_DIR}/${_output_name_we}.html)
   add_custom_command (
     OUTPUT ${_doc_file}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${path}
-    COMMAND ${PYTHON_EXECUTABLE} ARGS ${ASCIIDOC_EXECUTABLE} ${args_ASCIIDOC_OPTIONS} --out-file=${CMAKE_CURRENT_BINARY_DIR}/${_output_name_we}.html ${args_SOURCE}
+    COMMAND ${ASCIIDOCTOR_EXECUTABLE} ${args_ASCIIDOCTOR_OPTIONS}
+    -b html5
+    -a VERSION_MAJOR=${WSJTX_VERSION_MAJOR}
+    -a VERSION_MINOR=${WSJTX_VERSION_MINOR}
+    -a VERSION_PATCH=${WSJTX_VERSION_PATCH}
+    -a VERSION=${wsjtx_VERSION}
+    --out-file=${_doc_file} ${args_SOURCE}
     DEPENDS ${args_DEPENDS}
     COMMENT "Generating ${_doc_file}"
     )
   set (${args_HTML} ${_doc_file} PARENT_SCOPE)
 endfunction (html_document)
 
-configure_file (wsjtx.conf.in wsjtx.conf.out)
-# copy the file to the final location only if the generated output
-# changes reduces needless rebuilds
-execute_process (
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different wsjtx.conf.out wsjtx.conf
-  )
-
 html_document(
   HTML user_guide
   SOURCE user_guide/wsjtx-main.adoc
-  ASCIIDOC_OPTIONS -a data-uri -a toc2 -a max-width=1024px --conf-file=${CMAKE_CURRENT_BINARY_DIR}/wsjtx.conf --backend=xhtml11 --theme wsjt
-  DEPENDS ${common_SRCS} ${UG_SRCS} ${UG_IMGS} wsjtx.conf.in theme/wsjt/wsjt.css
+  ASCIIDOCTOR_OPTIONS -d book -a data-uri -a toc=left -a max-width=1100px
+  DEPENDS ${common_SRCS} ${UG_SRCS} ${UG_IMGS}
   )
 add_custom_target (docs ALL DEPENDS ${user_guide})
 
