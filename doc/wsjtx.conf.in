@@ -1,8 +1,0 @@
-# This is an  asciidoc configuraiton file which is  processed by CMake
-# as a configuration file to substitute variables
-[attributes]
-themedir=@CMAKE_CURRENT_SOURCE_DIR@/theme/wsjt
-VERSION_MAJOR=@WSJTX_VERSION_MAJOR@
-VERSION_MINOR=@WSJTX_VERSION_MINOR@
-VERSION_PATCH=@WSJTX_VERSION_PATCH@
-VERSION=@wsjtx_VERSION@
