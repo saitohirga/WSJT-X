@@ -58,7 +58,7 @@ jt65: $(OBJS7) libjt9.a libsfrsd.a
 
 OBJS2 = jt65sim.o wavhdr.o
 jt65sim: $(OBJS2) libjt9.a
-	$(FC) -o jt65sim $(OBJS2) -L. -L/opt/local/lib -ljt9
+	$(FC) -o jt65sim $(OBJS2) -L. -L/opt/local/lib -ljt9 -lfftw3f
 	$(CP) jt65sim $(EXE_DIR)
 
 init_rs.o: init_rs.c

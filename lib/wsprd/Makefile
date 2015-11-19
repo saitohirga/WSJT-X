@@ -1,9 +1,10 @@
 CC = gcc
-#CC = clang
+#CC = clang-3.5
 FC = gfortran
 
 CFLAGS= -I/usr/include -Wall -Wno-missing-braces -O3 -ffast-math
 LDFLAGS = -L/usr/lib
+FFLAGS =  -O2 -Wall -Wno-conversion
 LIBS = -lfftw3 -lm
 
 # Default rules
@@ -29,7 +30,7 @@ OBJS2 = wsprsim.o wsprsim_utils.o wsprd_utils.o tab.o fano.o nhash.o
 wsprsim: $(OBJS2) 
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
 
-OBJS3 = wsprd_exp.o wsprsim_utils.o wsprd_utils.o tab.o fano.o jelinek.o nhash.o 
+OBJS3 = wsprd_exp.o wsprsim_utils.o wsprd_utils.o tab.o fano.o jelinek.o nhash.o
 wsprd_exp: $(OBJS3)
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
 clean:
