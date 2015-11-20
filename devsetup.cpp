@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <portaudio.h>
 
-#define MAXDEVICES 100
+#define MAXDEVICES 200
 
 //----------------------------------------------------------- DevSetup()
 DevSetup::DevSetup(QWidget *parent) :	QDialog(parent)
