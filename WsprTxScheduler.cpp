@@ -200,7 +200,7 @@ int create_tx_schedule(int pctx)
 int next_tx_state(int pctx)
 {
   time_t now=time(0)+30;
-  tm *ltm = localtime(&now);
+  tm *ltm = gmtime(&now);
   int hour  = ltm->tm_hour;
   int minute = ltm->tm_min;
 
@@ -221,7 +221,7 @@ int next_tx_state(int pctx)
 int next_hopping_band()
 {
   time_t now=time(0)+30;
-  tm *ltm = localtime(&now);
+  tm *ltm = gmtime(&now);
   int minute = ltm->tm_min;
   int tx_2min_slot = (minute%20)/2;
   return tx_2min_slot;
