@@ -3557,6 +3557,7 @@ void MainWindow::on_actionEcho_triggered()
   m_mode="Echo";
   ui->actionEcho->setChecked(true);
   mode_label->setStyleSheet("QLabel{background-color: #66ffff}");
+  mode_label->setText(m_mode);
   m_TRperiod=3;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
