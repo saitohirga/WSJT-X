@@ -5,7 +5,6 @@
 #include <QString>
 #include <QChar>
 #include <QDebug>
-#include <QRegExpValidator>
 #include <QDataStream>
 #include <QRegularExpression>
 
