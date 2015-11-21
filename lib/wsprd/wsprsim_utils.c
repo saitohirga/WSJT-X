@@ -46,7 +46,7 @@ long unsigned int pack_call(char *callsign) {
     char call6[6];
     memset(call6,32,sizeof(char)*6);
     // callsign is 6 characters in length. Exactly.
-    int call_len = strlen(callsign);
+    size_t call_len = strlen(callsign);
     if( call_len > 6 ) {
         return 0;
     }
@@ -80,11 +80,11 @@ long unsigned int pack_call(char *callsign) {
 }
 
 void pack_prefix(char *callsign, int32_t *n, int32_t *m, int32_t *nadd ) {
-    int i;
+    size_t i;
     char *call6;
     call6=malloc(sizeof(char)*6);
     memset(call6,32,sizeof(char)*6);
-    int i1=strcspn(callsign,"/");
+    size_t i1=strcspn(callsign,"/");
     
     if( callsign[i1+2] == 0 ) { 
         //single char suffix
@@ -115,7 +115,7 @@ void pack_prefix(char *callsign, int32_t *n, int32_t *m, int32_t *nadd ) {
         char* pfx=strtok(callsign,"/");
         call6=strtok(NULL," ");
         *n=pack_call(call6);
-        int plen=strlen(pfx);
+        size_t plen=strlen(pfx);
         if( plen ==1 ) {
             *m=36;
             *m=37*(*m)+36;
@@ -187,11 +187,11 @@ int get_wspr_channel_symbols(char* rawmessage, char* hashtab, unsigned char* sym
         i++;
     }
     
-    int i1=strcspn(message," ");
-    int i2=strcspn(message,"/");
-    int i3=strcspn(message,"<");
-    int i4=strcspn(message,">");
-    int mlen=strlen(message);
+    size_t i1=strcspn(message," ");
+    size_t i2=strcspn(message,"/");
+    size_t i3=strcspn(message,"<");
+    size_t i4=strcspn(message,">");
+    size_t mlen=strlen(message);
     
     // Use the presence and/or absence of "<" and "/" to decide what
     // type of message. No sanity checks! Beware!

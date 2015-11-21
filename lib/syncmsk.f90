@@ -71,6 +71,7 @@ subroutine syncmsk(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
      dt=1.0/12000.0
      f0=1000.0
      f1=2000.0
+     dphi=0                     !quel compiler gripe
      do i=1,11
         if(b11(i).eq.0) dphi=twopi*f0*dt
         if(b11(i).eq.1) dphi=twopi*f1*dt

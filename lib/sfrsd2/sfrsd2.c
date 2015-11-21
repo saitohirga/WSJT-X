@@ -30,74 +30,74 @@ void sfrsd2_(int mrsym[], int mrprob[], int mr2sym[], int mr2prob[],
   int rxdat[63], rxprob[63], rxdat2[63], rxprob2[63];
   int workdat[63];
   int era_pos[51];
-  int i, j, numera, nerr, nn=63, kk=12;
-  FILE *datfile, *logfile;
+  int i, j, numera, nerr, nn=63;
+  FILE *logfile = NULL;
   int ntrials = *ntrials0;
   int verbose = *verbose0;
   int nhard=0,nhard_min=32768,nsoft=0,nsoft_min=32768;
   int nsofter=0,nsofter_min=32768,ntotal=0,ntotal_min=32768,ncandidates;
-  int nera_best;
+  int nera_best=0;
   clock_t t0=0,t1=0;
   static unsigned int nseed;
 
 /* For JT exp(x) symbol metrics - gaussian noise, no fading
   int perr[8][8] = {
-     12,     31,     44,     52,     60,     57,     50,     50,
-     28,     38,     49,     58,     65,     69,     64,     80,
-     40,     41,     53,     62,     66,     73,     76,     81,
-     50,     53,     53,     64,     70,     76,     77,     81,
-     50,     50,     52,     60,     71,     72,     77,     84,
-     50,     50,     56,     62,     67,     73,     81,     85,
-     50,     50,     71,     62,     70,     77,     80,     85,
-     50,     50,     62,     64,     71,     75,     82,     87};
+     {12,     31,     44,     52,     60,     57,     50,     50},
+     {28,     38,     49,     58,     65,     69,     64,     80},
+     {40,     41,     53,     62,     66,     73,     76,     81},
+     {50,     53,     53,     64,     70,     76,     77,     81},
+     {50,     50,     52,     60,     71,     72,     77,     84},
+     {50,     50,     56,     62,     67,     73,     81,     85},
+     {50,     50,     71,     62,     70,     77,     80,     85},
+     {50,     50,     62,     64,     71,     75,     82,     87}};
 */
 
 /* For JT exp(x) symbol metrics - hf conditions
   int perr[8][8] = {
-     10,     10,     10,     12,     13,     15,     15,      9,
-     28,     30,     43,     50,     61,     58,     50,     34,
-     40,     40,     50,     53,     70,     65,     58,     45,
-     50,     50,     53,     74,     71,     68,     66,     52,
-     50,     50,     52,     45,     67,     70,     70,     60,
-     50,     50,     56,     73,     55,     74,     69,     67,
-     50,     50,     70,     81,     81,     69,     76,     75,
-     50,     50,     62,     57,     77,     81,     73,     78};
+     {10,     10,     10,     12,     13,     15,     15,      9},
+     {28,     30,     43,     50,     61,     58,     50,     34},
+     {40,     40,     50,     53,     70,     65,     58,     45},
+     {50,     50,     53,     74,     71,     68,     66,     52},
+     {50,     50,     52,     45,     67,     70,     70,     60},
+     {50,     50,     56,     73,     55,     74,     69,     67},
+     {50,     50,     70,     81,     81,     69,     76,     75},
+     {50,     50,     62,     57,     77,     81,     73,     78}};
 */
 
 // For SF power-percentage symbol metrics - composite gnnf/hf 
   int perr[8][8] = {
-      4,      9,     11,     13,     14,     14,     15,     15,
-      2,     20,     20,     30,     40,     50,     50,     50,
-      7,     24,     27,     40,     50,     50,     50,     50,
-     13,     25,     35,     46,     52,     70,     50,     50,
-     17,     30,     42,     54,     55,     64,     71,     70,
-     25,     39,     48,     57,     64,     66,     77,     77,
-     32,     45,     54,     63,     66,     75,     78,     83,
-     51,     58,     57,     66,     72,     77,     82,     86};
+    {4,      9,     11,     13,     14,     14,     15,     15},
+    {2,     20,     20,     30,     40,     50,     50,     50},
+    {7,     24,     27,     40,     50,     50,     50,     50},
+    {13,     25,     35,     46,     52,     70,     50,     50},
+    {17,     30,     42,     54,     55,     64,     71,     70},
+    {25,     39,     48,     57,     64,     66,     77,     77},
+    {32,     45,     54,     63,     66,     75,     78,     83},
+    {51,     58,     57,     66,     72,     77,     82,     86}};
 //
 
 /* For SF power-percentage symbol metrics - gaussian noise, no fading
   int perr[8][8] = {
-      1,     10,     10,     20,     30,     50,     50,     50,
-      2,     20,     20,     30,     40,     50,     50,     50,
-      7,     24,     27,     40,     50,     50,     50,     50,
-     13,     25,     35,     46,     52,     70,     50,     50,
-     17,     30,     42,     54,     55,     64,     71,     70,
-     25,     39,     48,     57,     64,     66,     77,     77,
-     32,     45,     54,     63,     66,     75,     78,     83,
-     51,     58,     57,     66,     72,     77,     82,     86};
+      {1,     10,     10,     20,     30,     50,     50,     50},
+      {2,     20,     20,     30,     40,     50,     50,     50},
+      {7,     24,     27,     40,     50,     50,     50,     50},
+     {13,     25,     35,     46,     52,     70,     50,     50},
+     {17,     30,     42,     54,     55,     64,     71,     70},
+     {25,     39,     48,     57,     64,     66,     77,     77},
+     {32,     45,     54,     63,     66,     75,     78,     83},
+     {51,     58,     57,     66,     72,     77,     82,     86}};
 */
 
 /* For SF power-percentage symbol metrics - hf
   int perr[8][8] = {
-      4,      9,     11,     13,     14,     14,     15,     15,
-      9,     12,     14,     25,     28,     30,     50,     50,
-     18,     22,     22,     28,     32,     35,     50,     50,
-     30,     35,     38,     38,     57,     50,     50,     50,
-     43,     46,     45,     53,     50,     64,     70,     50,
-     56,     58,     58,     57,     67,     66,     80,     77,
-     65,     72,     73,     72,     67,     75,     80,     83,
-     70,     74,     73,     70,     75,     77,     80,     86};
+      {4,      9,     11,     13,     14,     14,     15,     15},
+      {9,     12,     14,     25,     28,     30,     50,     50},
+     {18,     22,     22,     28,     32,     35,     50,     50},
+     {30,     35,     38,     38,     57,     50,     50,     50},
+     {43,     46,     45,     53,     50,     64,     70,     50},
+     {56,     58,     58,     57,     67,     66,     80,     77},
+     {65,     72,     73,     72,     67,     75,     80,     83},
+     {70,     74,     73,     70,     75,     77,     80,     86}};
 */
 
   if(verbose) {
@@ -146,7 +146,7 @@ void sfrsd2_(int mrsym[], int mrprob[], int mr2sym[], int mr2prob[],
   memcpy(workdat,rxdat,sizeof(rxdat));
   nerr=decode_rs_int(rs,workdat,era_pos,numera,1);
   if( nerr >= 0 ) {
-    if(verbose) {
+    if(logfile) {
       fprintf(logfile,"BM decode nerrors= %3d : \n",nerr);
       fclose(logfile);
     }
@@ -169,7 +169,7 @@ used to decide which codeword is "best".
 
   nseed=1;                                 //Seed for random numbers
 
-  float ratio, ratio0[63];
+  float ratio;
   int thresh, nsum;
   int thresh0[63];
   ncandidates=0;
@@ -179,7 +179,6 @@ used to decide which codeword is "best".
     nsum=nsum+rxprob[i];
     j = indexes[62-i];
     ratio = (float)rxprob2[j]/((float)rxprob[j]+0.01);
-    ratio0[i]=ratio;
     ii = 7.999*ratio;
     jj = (62-i)/8;
     thresh0[i] = 1.3*perr[ii][jj];
@@ -254,7 +253,7 @@ NB: j is the symbol-vector index of the symbol with rank i.
     nhard_min=-1;
   }
   
-  if(verbose) {
+  if(logfile) {
     fprintf(logfile,"ncand %4d nhard %4d nsoft %4d nhard+nsoft %4d nsum %8d\n",
       ncandidates,nhard_min,nsoft_min,ntotal_min,nsum);
     fclose(logfile);

@@ -394,10 +394,15 @@ set (wsjt_FSRCS
   lib/zplot9.f90
   )
 
-set (wsjt_CSRCS
+set (ka9q_CSRCS
   lib/sfrsd2/decode_rs.c
   lib/sfrsd2/encode_rs.c
   lib/sfrsd2/init_rs.c
+  )
+set_source_files_properties (${ka9q_CSRCS} PROPERTIES COMPILE_FLAGS -Wno-sign-compare)
+
+set (wsjt_CSRCS
+  ${ka9q_CSRCS}
   lib/sfrsd2/sfrsd2.c
   lib/gran.c
   lib/igray.c

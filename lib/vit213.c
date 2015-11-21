@@ -46,12 +46,13 @@ int enc213(unsigned char symbols[], unsigned char data[],
        unsigned int nbytes, unsigned int startstate,
        unsigned int endstate)
 {
-  int i,j,k,n=-1;
+  unsigned int i,j,k;
+  int l,n=-1;
   unsigned int encstate = startstate;
 
   for(k=0; k<nbytes; k++) {
-    for(i=7;i>=0;i--){
-      encstate = (encstate + encstate) + ((data[k] >> i) & 1);
+    for(l=7;l>=0;l--){
+      encstate = (encstate + encstate) + ((data[k] >> l) & 1);
       for(j=0;j<N;j++) {
 	n=n+1;
 	symbols[n] = parity(encstate & Polys[j]);
@@ -157,7 +158,7 @@ unsigned int endstate            /* Encoder ending state */
       pp++;
       ipp++;
     }
-    if(++bitcnt == nbits){
+    if(++bitcnt == (int)nbits){
       *metric = nmetric[endstate];
       break;
     }

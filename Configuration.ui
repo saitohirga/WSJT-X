@@ -2155,7 +2155,7 @@ Right click for insert and delete options.</string>
          <string>Aggressive decoding level:</string>
         </property>
        </widget>
-       <widget class="QWidget" name="layoutWidget">
+       <widget class="QWidget" name="layoutWidget2">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -2243,7 +2243,7 @@ Right click for insert and delete options.</string>
            <property name="title">
             <string>Experience-based decoding</string>
            </property>
-           <widget class="QWidget" name="layoutWidget">
+           <widget class="QWidget" name="layoutWidget3">
             <property name="geometry">
              <rect>
               <x>20</x>
