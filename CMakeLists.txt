@@ -454,12 +454,20 @@ set (message_aggregator_CXXSRCS
   MessageAggregator.cpp
   )
 
+set (UDPDaemon_CXXSRCS
+  NetworkMessage.cpp
+  MessageServer.cpp
+  Radio.cpp
+  UDPDaemon.cpp
+  )
+
 set (all_CXXSRCS
   ${wsjt_CXXSRCS}
   ${wsjt_qt_CXXSRCS}
   ${jt9_CXXSRCS}
   ${wsjtx_CXXSRCS}
   ${message_aggregator_CXXSRCS}
+  ${UDPDaemon_CXXSRCS}
   )
 
 set (all_C_and_CXXSRCS
@@ -973,6 +981,12 @@ add_executable (message_aggregator
   )
 target_link_libraries (message_aggregator wsjt_qt Qt5::Widgets)
 
+add_executable (udp_daemon
+  ${UDPDaemon_CXXSRCS}
+  wsjtx.rc
+  )
+target_link_libraries (udp_daemon Qt5::Core Qt5::Network)
+
 if (WSJT_CREATE_WINMAIN)
   set_target_properties (message_aggregator PROPERTIES WIN32_EXECUTABLE ON)
 endif (WSJT_CREATE_WINMAIN)
@@ -996,7 +1010,7 @@ install (TARGETS wsjtx
   BUNDLE DESTINATION . COMPONENT runtime
   )
 
-install (TARGETS jt9 jt65code jt9code jt4code wsprd message_aggregator
+install (TARGETS jt9 jt65code jt9code jt4code wsprd message_aggregator udp_daemon
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
