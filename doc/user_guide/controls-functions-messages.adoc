@@ -8,7 +8,7 @@ you click *Generate Std Msgs* or double-click on an appropriate line
 in one of the decoded text windows.
 
 //.Traditional Message Menu
-image::images/traditional-msg-box.png[align="center",alt="Traditional Message Menu"]
+image::traditional-msg-box.png[align="center",alt="Traditional Message Menu"]
 
 * Select the next message to be transmitted (at the start of your next
 Tx sequence) by clicking on the circle under *Next*.
@@ -33,7 +33,7 @@ The second arrangement of controls for generating and selecting
 Tx messages appears on *Tab 2* of the Message Control Panel:
 
 //.New Message Menu
-image::images/new-msg-box.png[align="center",alt="New Message Menu"]
+image::new-msg-box.png[align="center",alt="New Message Menu"]
 
 With this setup you normally follow a top-to-bottom sequence of
 transmissions from the left column if you are calling CQ, or the right

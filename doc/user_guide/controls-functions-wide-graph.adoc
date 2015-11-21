@@ -4,7 +4,7 @@ The following controls appear at the bottom of the Wide Graph window.
 With the exception of *JT65 nnnn JT9*, they affect only the graphical
 displays — they have no effect on the decoding process.
 
-image::images/wide-graph-controls.png[align="center",alt="Wide Graph Controls"]
+image::wide-graph-controls.png[align="center",alt="Wide Graph Controls"]
 
 - *Bins/Pixel* controls the displayed frequency resolution.  Set this
 value to 1 for the highest possible resolution, or to higher numbers

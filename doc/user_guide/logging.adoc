@@ -16,8 +16,8 @@ The program option *Show DXCC entity and worked before status*
 use on non-Windows platforms, where {jtalert} is not available.  When
 this option is checked _WSJT-X_ appends some additional information to
 all CQ messages displayed in the _Band Activity_ window.  The name of
-the DXCC entity is shown, abbreviated if necessary.  Your ``worked
-before'' status for this callsign (according to log file
+the DXCC entity is shown, abbreviated if necessary.  Your "`worked
+before`" status for this callsign (according to log file
 +wsjtx_log.adi+) is flagged with a single character and a change of
 background color, as follows:
 
@@ -37,7 +37,7 @@ and readable, it will be used in preference to the built-in one.
 
 The log file +wsjtx_log.adi+ is updated whenever you log a QSO from
 _WSJT-X_.  (Keep in mind that if you erase this file you will lose all
-``worked before'' information.)  You can append or overwrite the
+"`worked before`" information.)  You can append or overwrite the
 +wsjtx_log.adi+ file by exporting your QSO history as an ADIF file
 from another logging program.  Turning *Show DXCC entity and worked
 before status* off and then on again will cause _WSJT-X_ to re-read

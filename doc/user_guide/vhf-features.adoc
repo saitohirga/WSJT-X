@@ -29,14 +29,14 @@ upgrade), Flex 1500 and 5000, HPSDR, Anan-10, Anan-100, and KX3.
 supporting features of each mode.  For example, in JT4 mode the
 central part of the main window will look like this:
 
-image::images/VHF_controls.png[align="center",alt="VHF Controls"]
+image::VHF_controls.png[align="center",alt="VHF Controls"]
 
 - On the *View* menu, select *Astronomical data* to display a window
 with important information for tracking the Moon and performing
 automatic Doppler control.  Check the box labeled _Doppler tracking_
 to ensure that the right-hand portion of the window is visible.
 
-image::images/Astronomical_data.png[align="center",alt="Astronomical data"]
+image::Astronomical_data.png[align="center",alt="Astronomical data"]
 
 IMPORTANT: Note that two different types of Doppler control are provided.  
 
@@ -47,8 +47,8 @@ and he/she will not be using any Doppler control.
 Doppler shift to or from the Moon.  If your QSO partner does the same
 thing, both stations will have the required Doppler compensation.
 Moreover, anyone else using this option will hear both of you
-without the need for manual frequency changes.  The hypothetical ``man
-in the moon'' will copy all of you on the selected nominal frequency.
+without the need for manual frequency changes.  The hypothetical "`man
+in the moon`" will copy all of you on the selected nominal frequency.
 
 - In the example depicted above, the moon-based nominal frequency is
 100 kHz above the stated band edge, or 10368.100 MHz for the 10 GHz
@@ -78,19 +78,19 @@ using a 144 MHz radio at 10368 MHz, _Offset (MHz)_ = (144 - 10368) =
 offset by double clicking on the offset field itself.  Otherwise a new
 band can be added by right clicking in the table and selecting _Insert_.
 
-image::images/Add_station_info.png[align="center",alt="Station information"]
+image::Add_station_info.png[align="center",alt="Station information"]
 
 - The JT4 decoder in _WSJT-X_ includes optional facilities for
 averaging over successive transmissions and also correlation decoding,
-sometimes known as ``Deep Search''.  
+sometimes known as "`Deep Search`".  
 
 IMPORTANT: The *Decode* menu appears to provide options to set
 different decoding behavior.  However, in JT4 mode _WSJT-X_ Version
 1.6 always behaves as if you have selected _Include correlation_.
 
-image::images/decoding_depth.png[align="center",alt="Decoding Depth"]
+image::decoding_depth.png[align="center",alt="Decoding Depth"]
 
-- By convention, EME with JT4 can use ``short form'' messages.  To
+- By convention, EME with JT4 can use "`short form`" messages.  To
 activate automatic generation of these messages, check the box labeled
 _Sh_ on the main window.
 
@@ -131,4 +131,4 @@ cycles.
 Your return echo should always appear at the center of the plot area
 on the Echo Graph window, as in the screen shot below.
 
-image::images/echo_144.png[align="center",alt="Echo 144 MHz"]
+image::echo_144.png[align="center",alt="Echo 144 MHz"]

@@ -5,7 +5,7 @@ station being called, and date and time are found at lower left of the
 main window:
 
 //.Misc Controls Left
-image::images/misc-main-ui.png[align="center",alt="Mist Menu Items"]
+image::misc-main-ui.png[align="center",alt="Misc Menu Items"]
 
 * A drop-down list of frequencies and bands at upper left lets you
 select the operating band and sets dial frequency to a value taken

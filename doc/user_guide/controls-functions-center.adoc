@@ -4,7 +4,7 @@ At the center of the main window are a number of controls used when
 making QSOs:
 
 //.Misc Controls Center
-image::images/misc-controls-center.png[align="center",alt="Misc Controls Center"]
+image::misc-controls-center.png[align="center",alt="Misc Controls Center"]
 
 * Check *Tx even* to transmit in even-numbered UTC minutes.  Uncheck
 this box to transmit in the odd minutes.  This selection is made

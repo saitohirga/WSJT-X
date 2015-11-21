@@ -4,7 +4,7 @@ used in WSPR mode.
 
 - Configure the Wide Graph as suggested in the screen shot below.
 
-image::images/WSPR.png[align="center",alt="WSPR mode"]
+image::WSPR.png[align="center",alt="WSPR mode"]
 
 - Use the mouse to set the width and height of the main window as
 desired.
@@ -32,19 +32,19 @@ the main window.
 - Click *Schedule* to open the *WSPR Band Hopping* window, and select
 the bands you wish to use at each time of day.
 
-image::images/band_hopping.png[align="center",alt="Band Hopping"]
+image::band_hopping.png[align="center",alt="Band Hopping"]
 
 - Band-switching occurs after each 2-minute interval.  Preferred bands
 are identified with time slots in a repeating 20-minute cycle,
 according to the following table:
 
-[width="73%",cols="11,10*^",align="center",options="header"]
-|======================================================================
-|*Band:*       |160 | 80 | 60 | 40 | 30 | 20 | 17 | 15 | 12 | 10
-|*UTC minute:* | 00 | 02 | 04 | 06 | 08 | 10 | 12 | 14 | 16 | 18
-|              | 20 | 22 | 24 | 26 | 28 | 30 | 32 | 34 | 36 | 38
-|              | 40 | 42 | 44 | 46 | 48 | 50 | 52 | 54 | 56 | 58
-|======================================================================
+[width="80%",align="center",cols=">20,10*>8",options="header"]
+|===
+|Band:            |160|80|60|40|30|20|17|15|12|10
+.3+|*UTC minute:* | 00|02|04|06|08|10|12|14|16|18
+                 >| 20|22|24|26|28|30|32|34|36|38
+                 >| 40|42|44|46|48|50|52|54|56|58
+|===
 
 - If the preferred band is not active according to your band-hopping
 schedule, a band will be selected at random from among the active

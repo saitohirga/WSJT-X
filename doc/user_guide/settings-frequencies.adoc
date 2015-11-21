@@ -1,7 +1,7 @@
 // Status=review
 
 [[FIG_BAND_SETTINGS]]
-image::images/settings-frequencies.png[align="center",alt="Frequency Screen"]
+image::settings-frequencies.png[align="center",alt="Frequency Screen"]
 
 _Working Frequencies_: By default the *Working Frequencies* table
 contains a list of currently recommended dial frequencies for each
@@ -28,7 +28,7 @@ _Slope_ B in the equation
 
  Dial error = A + B*f
 
-where ``Dial error'' and A are in Hz, f is frequency in MHz, and B is
+where "`Dial error`" and A are in Hz, f is frequency in MHz, and B is
 in parts per million (ppm).
 
 Frequency values sent to the radio and received from it will
@@ -43,7 +43,7 @@ may be added if (for example) a transverter is in use.
 
 - For a simple setup approach you might want to delete any unwanted
 bands -- for example, bands where you have no equipment.  Then click
-on a *Frequency* entry and type *Ctrl+A* to ``select all,'' and
+on a *Frequency* entry and type *Ctrl+A* to "`select all,`" and
 drag-and-drop the entries onto the _Station Information_ table.  You
 can then add any transverter offsets and antenna details.
 

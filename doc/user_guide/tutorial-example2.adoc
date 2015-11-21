@@ -18,7 +18,7 @@ The waterfall should look like this:
 
 //.130610_2343.wav Decode
 [[X14]]
-image::images/130610_2343-wav-80.png[align="left",alt="Wide Graph Decode 130610_2343"]
+image::130610_2343-wav-80.png[align="left",alt="Wide Graph Decode 130610_2343"]
 
 IMPORTANT: Notice the [blue]*BLUE* marker on the waterfall scale, here
 set at 2500 Hz.  Its position is set by the spinner control *JT65 nnnn
@@ -42,14 +42,14 @@ decoding priority, and its message is displayed also in the *Rx
 Frequency* window.
 
 [[FigDecodes]]
-image::images/decodes.png[align="center"]
+image::decodes.png[align="center"]
 
 - Confirm that mouse-click behavior is similar to that described
 earlier, in <<TUT_EX1,Example 1>>.  _WSJT-X_ automatically determines
 the mode of each JT9 or JT65 message.
 
 IMPORTANT: When you double-click on a signal in the waterfall it will be
-properly decoded even if on the ``wrong'' side of the *JT65 nnnn JT9*
+properly decoded even if on the "`wrong`" side of the *JT65 nnnn JT9*
 marker.  The Tx mode automatically switches to that of the decoded
 signal and the Rx and Tx frequency markers on the waterfall scale
 resize themselves accordingly. When selecting a JT65 signal, click on
@@ -61,20 +61,20 @@ window.  Between the *UTC* and *Freq* columns on the decoded text line
 you will find *dB*, the measured signal-to-noise ratio, and *DT*, the
 signal's time offset in seconds relative to your computer clock.
 
-[width="70%",cols="3,^3,^3,^4,^4,30",options="header"]
-|=================================
+[width="80%",align="center",cols="^10,2*^8,2*^10,54",options="header"]
+|===
 |UTC|dB|DT|Freq|Mode|Message
 |+2343+|+-7+|+0.3+|+815+|+#+|+KK4DSD W7VP -16+
-|=================================
+|===
 
 - Double-click on the waterfall at 3196 Hz.  The program will decode a
 JT9 message from IZ0MIT:
 
-[width="70%",cols="3,^3,^3,^4,^4,30",options="header"]
-|=====================================
+[width="80%",align="center",cols="^10,2*^8,2*^10,54",options="header"]
+|===
 |UTC|dB|DT|Freq|Mode|Message
 |+2343+|+-7+|+0.3+|+3196+|+@+|+WB8QPG IZ0MIT -11+
-|=====================================
+|===
 
 - Scroll back in the *Band Activity* window and double-click on the
 message +CQ DL7ACA JO40+. The program will set *Tx mode* to JT65 and Tx

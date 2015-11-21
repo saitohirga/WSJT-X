@@ -4,7 +4,7 @@ A *Status Bar* at the bottom edge of the main window provides
 information about operating conditions.  
 
 //.Status Bar
-image::images/status-bar-a.png[align="left",alt="New Message Menu"]
+image::status-bar-a.png[align="left",alt="Status Bar"]
 
 Labels on the *Status Bar* display such information as the program's
 current operating state, operating mode, the content of your most

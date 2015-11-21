@@ -45,7 +45,7 @@ radio into transmit mode and generate a steady audio tone.
 facility. The transmitted tone should be perfectly smooth, with no
 clicks or glitches.
 
-* Open the computer's audio mixer controls for output (``Playback'')
+* Open the computer's audio mixer controls for output ("`Playback`")
 devices and adjust the volume slider downward from its maximum until
 the RF output from your transmitter falls by around ten percent.  This
 will be a good level for audio drive.

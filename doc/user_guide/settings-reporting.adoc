@@ -1,6 +1,6 @@
 // Status=review
 [[FIG_CONFIG_RPT]]
-image::images/reporting.png[align="center",alt="Reporting Screen"]
+image::reporting.png[align="center",alt="Reporting Screen"]
 
 - _Logging_: Choose any desired options from this group.
 

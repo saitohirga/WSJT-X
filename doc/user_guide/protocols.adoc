@@ -1,7 +1,7 @@
 [[JT65PRO]]
 === JT65
 
-JT65 was designed for making minimal QSOs via EME (``moon-bounce'') on
+JT65 was designed for making minimal QSOs via EME ("`moon-bounce`") on
 the VHF and UHF bands. A detailed description of the protocol and its
 implementation in program _WSJT_ was published in {jt65protocol} for
 September-October, 2005. Briefly stated, JT65 uses 60 s T/R sequences
@@ -19,7 +19,7 @@ sequences of 63 six-bit channel symbols.
 
 JT65 requires tight synchronization of time and frequency between
 transmitting and receiving stations. Each transmission is divided into
-126 contiguous tone intervals or ``symbols'' of length 4096/11025 =
+126 contiguous tone intervals or "`symbols`" of length 4096/11025 =
 0.372 s. Within each interval the waveform is a constant-amplitude
 sinusoid at one of 65 pre-defined frequencies. Frequency steps between
 intervals are accomplished in a phase-continuous manner. Half of the
@@ -125,8 +125,8 @@ decoders are clamped at an upper limit –1 dB, and the S/N scale is
 nonlinear above –10 dB.
 
 By comparison, JT9 allows for signal reports in the range –50 to +49
-dB. It manages this by taking over a small portion of ``message
-space'' that would otherwise be used for grid locators within 1 degree
+dB. It manages this by taking over a small portion of "`message
+space`" that would otherwise be used for grid locators within 1 degree
 of the south pole. The S/N scale of the present JT9 decoder is
 reasonably linear (although it's not intended to be a precision
 measurement tool).  

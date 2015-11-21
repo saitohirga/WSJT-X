@@ -39,7 +39,7 @@ JT65, –26 dB for JT9.
 === Free Text Messages
 
 Users often add some friendly chit-chat at the end of a QSO.
-Free-format messages such as ``TNX ROBERT 73'' or ``5W VERT 73 GL''
+Free-format messages such as "`TNX ROBERT 73`" or "`5W VERT 73 GL`"
 are supported, up to a maximum of 13 characters, including spaces.  In
 general you should avoid the character / in free-text messages, as the
 program may then try to interpret your construction as part of a

@@ -61,9 +61,9 @@ problem, and are working to resolve it.
 
 I am running _WSJT-X_ under Ubuntu 14.04.  The program starts, but menu bar is missing from the top of the main window and the hot-keys don't work.::
 
-Ubuntu's new ``Unity'' desktop puts the menu for the currently active
+Ubuntu's new "`Unity`" desktop puts the menu for the currently active
 window at the top of the primary display screen.  You can restore menu
 bars to their traditional locations by typing the following in a
 command-prompt window:
 
- sudo apt-get remove appmenu-qt5 
+ sudo apt-get remove appmenu-qt5
