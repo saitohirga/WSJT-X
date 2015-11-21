@@ -3,7 +3,7 @@ The following buttons appear just under the decoded text windows on
 the main screen:
 
 //.Main UI Controls
-image::images/main-ui-controls.png[align="left",width=650,alt="Main UI Controls"]
+image::main-ui-controls.png[align="left",width=650,alt="Main UI Controls"]
 
 * *Log QSO* raises a dialog window pre-filled with known information
 about a QSO you have nearly completed.  You can edit or add to this
@@ -13,7 +13,7 @@ confirmation screen automatically when you send a message containing
 73.
 
 //.Log QSO Window
-image::images/log-qso.png[align="center",alt="Log QSO"]
+image::log-qso.png[align="center",alt="Log QSO"]
 
 * *Stop* will terminate normal data acquisition in case you want to
 freeze the waterfall or open and explore a previously recorded audio

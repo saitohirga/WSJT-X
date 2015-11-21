@@ -73,7 +73,7 @@ can take exponentially long times.  If the +sync9+ step in the above
 sequence finds many seemingly worthy candidate signals and many of
 them turn out to be undecodable, the decoding loop can take an
 inconveniently long time.  For this reason the step labeled +decode9+
-is programmed to ``time out'' and report failure for a given signal if
+is programmed to "`time out`" and report failure for a given signal if
 it takes too long.  The choices *Fast | Normal | Deepest* on the
 *Decode* menu provide the user with a three-step adjustment of the
 timeout limit.

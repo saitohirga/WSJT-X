@@ -9,7 +9,7 @@ drivers -- the same ones used by _WSJT-X_ itself.
 
 Additional utility programs *+jt4code+*, *+jt9code+*, and *+jt65code+*
 let you explore the conversion of user-level messages into channel
-symbols or ``tone numbers,'' and back again.  These programs can be
+symbols or "`tone numbers,`" and back again.  These programs can be
 useful to someone designing a beacon generator, for understanding the
 permissible structure of transmitted messages, and for studying
 behavior of the error-control codes.

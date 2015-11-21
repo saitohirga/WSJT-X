@@ -29,7 +29,7 @@ Much work has already been done on Version 1.7 of _WSJT-X_.  (Up to
 now this branch has been called v1.6.1.)  More than 100 people have
 been building this version for themselves as development progresses,
 and reporting on their experiences.  The next release will offer
-several ``fast modes'' intended for meteor and ionospheric scatter,
+several "`fast modes`" intended for meteor and ionospheric scatter,
 including a new FEC-enhanced mode called *JTMSK*.  It will also have a
 significantly improved JT65 decoder, especially advantageous when used
 in crowded HF bands.  Starting with Version 1.7, _WSJT-X_ will no

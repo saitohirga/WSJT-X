@@ -1,7 +1,7 @@
 // Status=review
 
 Since 2005 the _WSJT_ project (including programs _WSJT_, _MAP65_,
-_WSPR_, _WSJT-X_, and _WSPR-X_) has been ``open source'', with all
+_WSPR_, _WSJT-X_, and _WSPR-X_) has been "`open source`", with all
 code licensed under the GNU Public License (GPL).  Many users of these
 programs, too numerous to mention here individually, have contributed
 suggestions and advice that have greatly aided the development of

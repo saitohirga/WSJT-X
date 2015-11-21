@@ -1,6 +1,6 @@
 // Status=review
 [[FIG_CONFIG_STATION]]
-image::images/settings-general.png[align="center",alt="Settings Window"]
+image::settings-general.png[align="center",alt="Settings Window"]
 
 Select the *General* tab on the *Settings* window.  Under _Station
 Details_, enter your call sign and 4-digit or 6-digit grid locator.

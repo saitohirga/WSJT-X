@@ -5,6 +5,8 @@ set (common_SRCS
   )
 
 set (UG_SRCS
+  user_guide/docinfo.html
+  user_guide/docinfo.xml
   user_guide/acknowledgements.adoc
   user_guide/compiling.adoc
   user_guide/config-details.adoc
@@ -96,45 +98,89 @@ Building the documenation may optionally be turned off by setting the CMake
 option WSJT_GENERATE_DOCS to OFF.")
 endif (NOT ASCIIDOCTOR_EXECUTABLE)
 
+find_program (FOPUB_EXECUTABLE NAMES fopub)
+
 include (CMakeParseArguments)
 
-# generate an HTML document from asciidoc text files(s)
+# generate a document from asciidoc text files(s)
 #
-# HTML - variable for output file ${CMAKE_CURRENT_BINARY_DIR}/`$basename ${SOURCE}`.html
+# HTML - generate an HTML document
+# PDF - generate a PDF document
 # SOURCE - top level asciidoc file
 # ASCIIDOCTOR_OPTIONS - asciidoctor command options
 # DEPENDS - dependent files
-function (html_document)
-  cmake_parse_arguments (args "" "SOURCE;HTML" "ASCIIDOCTOR_OPTIONS;DEPENDS" ${ARGN})
-  get_filename_component (_output_name_we ${args_SOURCE} NAME_WE)
-  get_filename_component (_path ${args_SOURCE} PATH)
-  set (_doc_file ${CMAKE_CURRENT_BINARY_DIR}/${_output_name_we}.html)
-  add_custom_command (
-    OUTPUT ${_doc_file}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${path}
-    COMMAND ${ASCIIDOCTOR_EXECUTABLE} ${args_ASCIIDOCTOR_OPTIONS}
-    -b html5
-    -a VERSION_MAJOR=${WSJTX_VERSION_MAJOR}
-    -a VERSION_MINOR=${WSJTX_VERSION_MINOR}
-    -a VERSION_PATCH=${WSJTX_VERSION_PATCH}
-    -a VERSION=${wsjtx_VERSION}
-    --out-file=${_doc_file} ${args_SOURCE}
-    DEPENDS ${args_DEPENDS}
-    COMMENT "Generating ${_doc_file}"
-    )
-  set (${args_HTML} ${_doc_file} PARENT_SCOPE)
-endfunction (html_document)
+function (document)
+  cmake_parse_arguments (_args "HTML" "SOURCE;OUTPUT" "ASCIIDOCTOR_OPTIONS;PDF;DEPENDS" ${ARGN})
+  get_filename_component (_source_path ${_args_SOURCE} PATH)
+  get_filename_component (_source_name ${_args_SOURCE} NAME)
+  get_filename_component (_output_name_we ${_args_SOURCE} NAME_WE)
 
-html_document(
-  HTML user_guide
+  # HTML
+  if (${_args_HTML})
+    set (_html_file ${CMAKE_CURRENT_BINARY_DIR}/${_output_name_we}.html)
+    add_custom_command (
+      OUTPUT ${_html_file}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${_source_path}
+      COMMAND ${ASCIIDOCTOR_EXECUTABLE} ${_args_ASCIIDOCTOR_OPTIONS}
+      -b html5
+      -a VERSION_MAJOR=${WSJTX_VERSION_MAJOR}
+      -a VERSION_MINOR=${WSJTX_VERSION_MINOR}
+      -a VERSION_PATCH=${WSJTX_VERSION_PATCH}
+      -a VERSION=${wsjtx_VERSION}
+      --out-file=${_html_file} ${_source_name}
+      DEPENDS ${_args_DEPENDS}
+      COMMENT "Generating ${_html_file}"
+      )
+    list (APPEND _output_files ${_html_file})
+  endif (${_args_HTML})
+
+  # PDF
+  if (_args_PDF AND EXISTS ${FOPUB_EXECUTABLE})
+    set (_docbook_file ${CMAKE_CURRENT_BINARY_DIR}/${_output_name_we}.xml)
+    set (_pdf_file_we ${CMAKE_CURRENT_BINARY_DIR}/${_output_name_we})
+    add_custom_command (
+      OUTPUT ${_docbook_file} "${_pdf_file_we} (USLetter).pdf" "${_pdf_file_we} (A4).pdf"
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${_source_path}
+      COMMAND ${ASCIIDOCTOR_EXECUTABLE} ARGS ${_args_ASCIIDOCTOR_OPTIONS}
+      -b docbook
+      -a data-uri!
+      -a VERSION_MAJOR=${WSJTX_VERSION_MAJOR}
+      -a VERSION_MINOR=${WSJTX_VERSION_MINOR}
+      -a VERSION_PATCH=${WSJTX_VERSION_PATCH}
+      -a VERSION=${wsjtx_VERSION}
+      -D ${CMAKE_CURRENT_BINARY_DIR}
+      -o ${_docbook_file} ${_source_name}
+      COMMAND ${FOPUB_EXECUTABLE} ARGS ${_docbook_file} ${_args_PDF} -param paper.type USLetter
+      COMMAND ${CMAKE_COMMAND} ARGS -E rename ${_pdf_file_we}.pdf '${_pdf_file_we} \(USLetter\).pdf'
+      COMMAND ${FOPUB_EXECUTABLE} ARGS ${_docbook_file} ${_args_PDF} -param paper.type A4
+      COMMAND ${CMAKE_COMMAND} ARGS -E rename ${_pdf_file_we}.pdf '${_pdf_file_we} \(A4\).pdf'
+      DEPENDS ${_args_DEPENDS}
+      COMMENT "Generating ${_pdf_file_we}.pdf"
+      )
+    list (APPEND _output_files "${_pdf_file_we} (USLetter).pdf" "${_pdf_file_we} (A4).pdf")
+  endif (_args_PDF AND EXISTS ${FOPUB_EXECUTABLE})
+
+  set (${_args_OUTPUT} ${_output_files} PARENT_SCOPE)
+endfunction (document)
+
+document(
+  HTML
   SOURCE user_guide/wsjtx-main.adoc
-  ASCIIDOCTOR_OPTIONS -d book -a data-uri -a toc=left -a max-width=1100px
+  OUTPUT html
+  ASCIIDOCTOR_OPTIONS -d book -a data-uri -a toc=left -a max-width=1024px
   DEPENDS ${common_SRCS} ${UG_SRCS} ${UG_IMGS}
   )
-add_custom_target (docs ALL DEPENDS ${user_guide})
+document(
+  PDF -param body.font.master 11 -param body.font.family "'Noto Sans, Helvetica, sans-serif'" -param title.font.family "'Noto Serif, Times New Roman, serif'" -param page.margin.inner 1cm -param page.margin.outer 1cm -param page.margin.top 0.75cm -param page.margin.bottom 0.5cm -param generate.toc 0
+  SOURCE user_guide/wsjtx-main.adoc
+  OUTPUT pdf
+  ASCIIDOCTOR_OPTIONS -d book
+  DEPENDS ${common_SRCS} ${UG_SRCS} ${UG_IMGS}
+  )
+add_custom_target (docs ALL DEPENDS ${html} ${pdf})
 
 install (FILES
-  ${user_guide}
+  ${html}
   DESTINATION ${WSJT_SHARE_DESTINATION}/${WSJT_DOC_DESTINATION}
   RENAME ${PROJECT_MANUAL}
   #COMPONENT runtime

@@ -7,6 +7,7 @@ Joseph H Taylor, Jr, K1JT
 // are non-free, so can't be included as part of the Debian package.
 // :badges:
 :docinfo1:
+:imagesdir: images
 :icons: font
 :numbered:
 :keywords: amateur radio weak signal communication K1JT WSJT JT65 JT9

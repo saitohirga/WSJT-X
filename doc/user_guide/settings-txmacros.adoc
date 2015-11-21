@@ -1,7 +1,7 @@
 // Status=review
 
 [[FigTxMacros]]
-image::images/tx-macros.png[align="center",alt="Tx Macros Screen"]
+image::tx-macros.png[align="center",alt="Tx Macros Screen"]
 
 *Tx Macros* are an aid for sending brief, frequently used free-text
 messages such as the examples shown above.
