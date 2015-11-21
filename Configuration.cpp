@@ -1249,6 +1249,7 @@ void Configuration::impl::read_settings ()
   rig_params_.rig_name = settings_->value ("Rig", TransceiverFactory::basic_transceiver_name_).toString ();
   rig_is_dummy_ = TransceiverFactory::basic_transceiver_name_ == rig_params_.rig_name;
   rig_params_.network_port = settings_->value ("CATNetworkPort").toString ();
+  rig_params_.usb_port = settings_->value ("CATUSBPort").toString ();
   rig_params_.serial_port = settings_->value ("CATSerialPort").toString ();
   rig_params_.baud = settings_->value ("CATSerialRate", 4800).toInt ();
   rig_params_.data_bits = settings_->value ("CATDataBits", QVariant::fromValue (TransceiverFactory::eight_data_bits)).value<TransceiverFactory::DataBits> ();
@@ -1345,6 +1346,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("dBtoComments", report_in_comments_);
   settings_->setValue ("Rig", rig_params_.rig_name);
   settings_->setValue ("CATNetworkPort", rig_params_.network_port);
+  settings_->setValue ("CATUSBPort", rig_params_.usb_port);
   settings_->setValue ("CATSerialPort", rig_params_.serial_port);
   settings_->setValue ("CATSerialRate", rig_params_.baud);
   settings_->setValue ("CATDataBits", QVariant::fromValue (rig_params_.data_bits));
@@ -1476,6 +1478,17 @@ void Configuration::impl::set_rig_invariants ()
               ui_->CAT_port_combo_box->setEnabled (true);
               break;
 
+            case TransceiverFactory::Capabilities::usb:
+              ui_->CAT_port_combo_box->clear ();
+              ui_->CAT_port_combo_box->setCurrentText (rig_params_.usb_port);
+              ui_->CAT_port_label->setText (tr ("USB Device:"));
+              ui_->CAT_port_combo_box->setToolTip (tr ("Optional device identification.\n"
+                                                       "Leave blank for a sensible default for the rig.\n"
+                                                       "Format:\n"
+                                                       "\t[VID[:PID[:VENDOR[:PRODUCT]]]]"));
+              ui_->CAT_port_combo_box->setEnabled (true);
+              break;
+
             default:
               ui_->CAT_port_combo_box->clear ();
               ui_->CAT_port_combo_box->setEnabled (false);
@@ -1554,12 +1567,20 @@ TransceiverFactory::ParameterPack Configuration::impl::gather_rig_data ()
     {
     case TransceiverFactory::Capabilities::network:
       result.network_port = ui_->CAT_port_combo_box->currentText ();
+      result.usb_port = rig_params_.usb_port;
+      result.serial_port = rig_params_.serial_port;
+      break;
+
+    case TransceiverFactory::Capabilities::usb:
+      result.usb_port = ui_->CAT_port_combo_box->currentText ();
+      result.network_port = rig_params_.network_port;
       result.serial_port = rig_params_.serial_port;
       break;
 
     default:
       result.serial_port = ui_->CAT_port_combo_box->currentText ();
       result.network_port = rig_params_.network_port;
+      result.usb_port = rig_params_.usb_port;
       break;
     }
 

@@ -31,7 +31,7 @@ public:
   //
   struct Capabilities
   {
-    enum PortType {none, serial, network};
+    enum PortType {none, serial, network, usb};
 
     explicit Capabilities (int model_number = 0
                            , PortType port_type = none
@@ -92,6 +92,7 @@ public:
     QString rig_name;           // from supported_transceivers () key
     QString serial_port;        // serial port device name or empty
     QString network_port;       // hostname:port or empty
+    QString usb_port;           // [vid[:pid[:vendor[:product]]]]
     int baud;
     DataBits data_bits;
     StopBits stop_bits;
@@ -114,6 +115,7 @@ public:
       return rhs.rig_name == rig_name
         && rhs.serial_port == serial_port
         && rhs.network_port == network_port
+        && rhs.usb_port == usb_port
         && rhs.baud == baud
         && rhs.data_bits == data_bits
         && rhs.stop_bits == stop_bits

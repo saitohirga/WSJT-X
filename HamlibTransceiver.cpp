@@ -84,6 +84,10 @@ namespace
         port_type = TransceiverFactory::Capabilities::network;
         break;
 
+      case RIG_PORT_USB:
+        port_type = TransceiverFactory::Capabilities::usb;
+        break;
+
       default: break;
       }
     (*rigs)[key] = TransceiverFactory::Capabilities (caps->rig_model
@@ -233,6 +237,28 @@ HamlibTransceiver::HamlibTransceiver (int model_number, TransceiverFactory::Para
             {
               set_conf ("rig_pathname", params.serial_port.toLatin1 ().data ());
             }
+          set_conf ("serial_speed", QByteArray::number (params.baud).data ());
+          set_conf ("data_bits", TransceiverFactory::seven_data_bits == params.data_bits ? "7" : "8");
+          set_conf ("stop_bits", TransceiverFactory::one_stop_bit == params.stop_bits ? "1" : "2");
+
+          switch (params.handshake)
+            {
+            case TransceiverFactory::handshake_none: set_conf ("serial_handshake", "None"); break;
+            case TransceiverFactory::handshake_XonXoff: set_conf ("serial_handshake", "XONXOFF"); break;
+            case TransceiverFactory::handshake_hardware: set_conf ("serial_handshake", "Hardware"); break;
+            }
+
+          if (params.force_dtr)
+            {
+              set_conf ("dtr_state", params.dtr_high ? "ON" : "OFF");
+            }
+          if (params.force_rts)
+            {
+              if (TransceiverFactory::handshake_hardware != params.handshake)
+                {
+                  set_conf ("rts_state", params.rts_high ? "ON" : "OFF");
+                }
+            }
           break;
 
         case RIG_PORT_NETWORK:
@@ -242,32 +268,16 @@ HamlibTransceiver::HamlibTransceiver (int model_number, TransceiverFactory::Para
             }
           break;
 
+        case RIG_PORT_USB:
+          if (!params.usb_port.isEmpty ())
+            {
+              set_conf ("rig_pathname", params.usb_port.toLatin1 ().data ());
+            }
+          break;
+
         default:
           throw error {tr ("Unsupported CAT type")};
           break;
-        }
-
-      set_conf ("serial_speed", QByteArray::number (params.baud).data ());
-      set_conf ("data_bits", TransceiverFactory::seven_data_bits == params.data_bits ? "7" : "8");
-      set_conf ("stop_bits", TransceiverFactory::one_stop_bit == params.stop_bits ? "1" : "2");
-
-      switch (params.handshake)
-        {
-        case TransceiverFactory::handshake_none: set_conf ("serial_handshake", "None"); break;
-        case TransceiverFactory::handshake_XonXoff: set_conf ("serial_handshake", "XONXOFF"); break;
-        case TransceiverFactory::handshake_hardware: set_conf ("serial_handshake", "Hardware"); break;
-        }
-
-      if (params.force_dtr)
-        {
-          set_conf ("dtr_state", params.dtr_high ? "ON" : "OFF");
-        }
-      if (params.force_rts)
-        {
-          if (TransceiverFactory::handshake_hardware != params.handshake)
-            {
-              set_conf ("rts_state", params.rts_high ? "ON" : "OFF");
-            }
         }
     }
 
