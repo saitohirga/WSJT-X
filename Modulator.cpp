@@ -220,7 +220,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
           i0=(m_symbolsLength - 0.017) * 4.0 * m_nsps;
           i1= m_symbolsLength * 4.0 * m_nsps;
         }
-        if(m_bFastMode) {
+        if(m_bFastMode and !m_tuning) {
           i1=m_TRperiod*48000 - 24000;
           i0=i1-816;
         }
