@@ -6,7 +6,7 @@ subroutine rectify_msk(c,msg,freq2)
   complex c1(0:NSPM-1)                        !Rectified signal
   complex c2(0:NSPM-1)                        !Integral of rectified signal
   complex c3(0:2*NSPM-1)                      !FFT of rectified signal
-  complex cfac,z
+  complex cfac !,z
   character*22 msg,msgsent
   integer i4tone(234)
 

@@ -38,6 +38,8 @@ subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
   df8=1500.0/nsps8
   dblim=db(864.0/nsps8) - 26.2
 
+  ia1=1                         !quel compiler gripe
+  ib1=1                         !quel compiler gripe
   do nqd=1,0,-1
      limit=5000
      ccflim=3.0

@@ -100,7 +100,7 @@ unsigned long readc2file(char *ptr_to_infile, double *idat, double *qdat,
 //***************************************************************************
 unsigned long readwavfile(char *ptr_to_infile, int ntrmin, double *idat, double *qdat )
 {
-    unsigned long i, j, npoints;
+    int i, j, npoints;
     int nfft1, nfft2, nh2, i0;
     double df;
     
