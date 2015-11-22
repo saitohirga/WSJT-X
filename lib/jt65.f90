@@ -13,10 +13,11 @@ logical :: display_help=.false.,err
   character(len=500) optarg
   common/tracer/limtrace,lu
   equivalence (lenfile,ihdr(2))
-  type (option) :: long_options(3) = [ &
+  type (option) :: long_options(4) = [ &
     option ('help',.false.,'h','Display this help message',''),      &
     option ('ntrials',.true.,'n','default=1000',''),                 &
-    option ('single-signal mode',.false.,'s','default=1000','') ]
+    option ('robust sync',.false.,'n','default: disabled',''),                 &
+    option ('single-signal mode',.false.,'s','default: disabled','') ]
 
 limtrace=0
 lu=12
@@ -28,9 +29,10 @@ ntrials=10000
 nlow=200
 nhigh=4000
 n2pass=2
+nrobust=0
 
   do
-    call getopt('hn:s',long_options,c,optarg,narglen,nstat,noffset,nremain,err)
+    call getopt('hn:rs',long_options,c,optarg,narglen,nstat,noffset,nremain,err)
     if( nstat .ne. 0 ) then
       exit
     end if
@@ -39,6 +41,8 @@ n2pass=2
         display_help = .true.
       case ('n')
         read (optarg(:narglen), *) ntrials
+      case ('r')
+        nrobust=1
       case ('s')
         nlow=1250
         nhigh=1290
@@ -49,6 +53,7 @@ n2pass=2
   nargs=iargc()
   if(display_help .or. (nargs.lt.1)) then
      print*,'Usage: jt65 [-n ntrials] [-s] file1 [file2 ...]'
+     print*,'             -r robust sync'
      print*,'             -s single-signal mode'
      go to 999
   endif
@@ -80,7 +85,7 @@ n2pass=2
 !     write(56) ihdr(1:11)
 
      call jt65a(dd,npts,newdat,nutc,nfa,nfb,nfqso,ntol,nsubmode, &
-                minsync,nagain,n2pass,ntrials, naggressive,ndepth,ndecoded)
+                minsync,nagain,n2pass,nrobust,ntrials, naggressive,ndepth,ndecoded)
      call timer('jt65a   ',1)
   enddo
 

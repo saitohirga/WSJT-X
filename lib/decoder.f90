@@ -21,6 +21,8 @@ subroutine decoder(ss,id2,nfsample)
 
   n2pass=ndepth/100000
   ndepth=ndepth-n2pass*100000
+  nrobust=ndepth/10000
+  ndepth=ndepth-nrobust*10000
   n=ndepth/1000
   if(mod(n,2).eq.0) ntrials=10**(n/2)
   if(mod(n,2).eq.1) ntrials=3*10**(n/2)
@@ -78,7 +80,7 @@ subroutine decoder(ss,id2,nfsample)
      nf2=nfb
      call timer('jt65a   ',0)
      call jt65a(dd,npts65,newdat65,nutc,nf1,nf2,nfqso,ntol65,nsubmode,      &
-          minsync,nagain,n2pass,ntrials,naggressive,ndepth,ndecoded)
+          minsync,nagain,n2pass,nrobust,ntrials,naggressive,ndepth,ndecoded)
      call timer('jt65a   ',1)
 
   else if(nmode.eq.9 .or. (nmode.eq.(65+9) .and. ntxmode.eq.9)) then
@@ -97,7 +99,7 @@ subroutine decoder(ss,id2,nfsample)
         nf2=nfb
         call timer('jt65a   ',0)
         call jt65a(dd,npts65,newdat65,nutc,nf1,nf2,nfqso,ntol65,nsubmode,   &
-             minsync,nagain,n2pass,ntrials,naggressive,ndepth,ndecoded)
+             minsync,nagain,n2pass,nrobust,ntrials,naggressive,ndepth,ndecoded)
         call timer('jt65a   ',1)
      else
         call timer('decjt9  ',0)

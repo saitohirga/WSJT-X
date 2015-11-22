@@ -113,6 +113,7 @@ public:
   bool enable_VHF_features () const;
   bool decode_at_52s () const;
   bool twoPass() const;
+  bool sync1Bit() const;
   bool MyDx() const;
   bool CQMyN() const;
   bool NDxG() const;

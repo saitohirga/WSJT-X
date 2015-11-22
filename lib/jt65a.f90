@@ -1,5 +1,5 @@
 subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
-     minsync,nagain,n2pass,ntrials,naggressive,ndepth,ndecoded)
+     minsync,nagain,n2pass,nrobust,ntrials,naggressive,ndepth,ndecoded)
 
 !  Process dd0() data to find and decode JT65 signals.
 
@@ -7,7 +7,6 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
   parameter (NFFT=1000)
   real dd0(NZMAX)
   real dd(NZMAX)
-!  integer*2 id2(NZMAX)
   real ss(322,NSZ)
   real savg(NSZ)
   real a(5)
@@ -17,7 +16,7 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
      real dt
      real sync
   end type candidate
-  type(candidate) ca(300)
+  type(candidate) ca(300), car(300)
   type decode
      real freq
      real dt
@@ -31,11 +30,10 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
 
   dd=dd0
   ndecoded=0
-
   do ipass=1,n2pass                             ! 2-pass decoding loop
     newdat=1
     if(ipass.eq.1) then                         !first-pass parameters
-      thresh0=2.5 ! use thresh0=2.0 for -24dB files when using 1-bit sync ccf
+      thresh0=2.5
       nsubtract=1
     elseif( ipass.eq.2 ) then !second-pass parameters
       thresh0=2.5
@@ -54,24 +52,51 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
 !     nfa=max(200,nfqso-ntol)
 !     nfb=min(4000,nfqso+ntol)
 
-    ncand=0
-    nrobust=0 ! controls use of robust correlation estimator in sync65
-    call timer('sync65  ',0)
-    call sync65(ss,nfa,nfb,nhsym,ca,ncand,nrobust)    !Get a list of JT65 candidates
-    call timer('sync65  ',1)
-
-! When AGC threshold is set too low, noise will suddenly quiet when a strong
-! signal starts up. This causes a lot of false syncs, and bogs down the decoder.
-! If 1-bit correlation doesn't tame the resulting false syncs then, as a last
-! resort, drop down to nrials=100.
-    if(ncand.ge.50) then
+! OPTION 2 is not used at present. Checkbox in Advanced setup selects nrobust=1
+! nrobust = 0: use only float ccf
+! nrobust = 1: use only robust (1-bit) ccf
+! nrobust = 2: use algorithm below
+!              find ncand using float ccf and ncandr using 1-bit ccf
+!              if ncand>50, use robust ccf
+!              if ncand<25 and ncandr<25, form union of both sets
+!              else, use float ccf
+    if( (nrobust.eq.0) .or. (nrobust.eq.2) ) then
       ncand=0
-      nrobust=1
       call timer('sync65  ',0)
-      call sync65(ss,nfa,nfb,nhsym,ca,ncand,nrobust)    !Get a list of JT65 candidates
+      call sync65(ss,nfa,nfb,nhsym,ca,ncand,0)
       call timer('sync65  ',1)
     endif
-!write(*,*) 'ncand',ncand
+
+    if( (nrobust.eq.1) .or. (nrobust.eq.2) ) then
+      ncandr=0
+      call timer('sync65  ',0)
+      call sync65(ss,nfa,nfb,nhsym,car,ncandr,1)
+      call timer('sync65  ',1)
+    endif
+    if( (nrobust.eq.1) .or. ((nrobust.eq.2) .and. (ncand.gt.50)) ) then
+      ncand=ncandr
+      do i=1,ncand
+        ca(i)=car(i)
+      enddo
+    elseif(nrobust.eq.2.and.ncand.le.25.and.ncandr.le.25) then
+      do icand=1,ncand ! combine ca and car, without dupes
+        ndupe=0
+        do j=1,ncandr
+          if( abs(ca(icand)%freq-car(j)%freq) .lt. 1.0 ) then
+            ndupe=1
+          endif
+        enddo
+        if( ndupe.eq.0 ) then
+          ncandr=ncandr+1
+          car(ncandr)=ca(icand)
+        endif
+      enddo
+      ncand=ncandr
+      do i=1,ncand
+        ca(i)=car(i)
+      enddo
+    endif
+
     nvec=ntrials
     if(ncand.gt.75) then
 !      write(*,*) 'Pass ',ipass,' ncandidates too large ',ncand
