@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>535</width>
-    <height>493</height>
+    <width>670</width>
+    <height>564</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <string>Select tab to change configuration parameters.</string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>7</number>
      </property>
      <widget class="QWidget" name="general_tab">
       <attribute name="title">
@@ -450,7 +450,7 @@ quiet period when decoding is done.</string>
               <property name="editable">
                <bool>true</bool>
               </property>
-              <property name="currentText">
+              <property name="currentText" stdset="0">
                <string/>
               </property>
               <property name="insertPolicy">
@@ -870,7 +870,7 @@ other hardware interface for PTT.</string>
               <property name="editable">
                <bool>true</bool>
               </property>
-              <property name="currentText">
+              <property name="currentText" stdset="0">
                <string/>
               </property>
               <property name="currentIndex">
@@ -2133,7 +2133,7 @@ Right click for insert and delete options.</string>
          <x>10</x>
          <y>10</y>
          <width>211</width>
-         <height>251</height>
+         <height>277</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -2142,26 +2142,13 @@ Right click for insert and delete options.</string>
        <property name="title">
         <string>JT65 decoding parameters</string>
        </property>
-       <widget class="QLabel" name="label_3">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>270</y>
-          <width>131</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Aggressive decoding level:</string>
-        </property>
-       </widget>
        <widget class="QWidget" name="layoutWidget2">
         <property name="geometry">
          <rect>
           <x>10</x>
           <y>20</y>
-          <width>191</width>
-          <height>222</height>
+          <width>192</width>
+          <height>253</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -2227,14 +2214,14 @@ Right click for insert and delete options.</string>
           </widget>
          </item>
          <item>
-             <widget class="QCheckBox" name="cbSync1Bit">
-                 <property name="text">
-                     <string>Robust sync</string>
-                 </property>
-                 <property name="checked">
-                     <bool>true</bool>
-                 </property>
-             </widget>
+          <widget class="QCheckBox" name="cbSync1Bit">
+           <property name="text">
+            <string>Robust sync</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QGroupBox" name="groupBox_6">
@@ -2563,12 +2550,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="split_mode_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
  </buttongroups>
 </ui>
