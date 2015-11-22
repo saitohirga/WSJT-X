@@ -16,7 +16,7 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
      real dt
      real sync
   end type candidate
-  type(candidate) ca(300), car(300)
+  type(candidate) ca(300)
   type decode
      real freq
      real dt
@@ -52,49 +52,20 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
 !     nfa=max(200,nfqso-ntol)
 !     nfb=min(4000,nfqso+ntol)
 
-! OPTION 2 is not used at present. Checkbox in Advanced setup selects nrobust=1
-! nrobust = 0: use only float ccf
+! nrobust = 0: use float ccf. Only if ncand>50 fall back to robust (1-bit) ccf
 ! nrobust = 1: use only robust (1-bit) ccf
-! nrobust = 2: use algorithm below
-!              find ncand using float ccf and ncandr using 1-bit ccf
-!              if ncand>50, use robust ccf
-!              if ncand<25 and ncandr<25, form union of both sets
-!              else, use float ccf
-    if( (nrobust.eq.0) .or. (nrobust.eq.2) ) then
-      ncand=0
+    ncand=0
+    if(nrobust.eq.0) then
       call timer('sync65  ',0)
       call sync65(ss,nfa,nfb,nhsym,ca,ncand,0)
       call timer('sync65  ',1)
     endif
-
-    if( (nrobust.eq.1) .or. (nrobust.eq.2) ) then
-      ncandr=0
+    if(ncand.gt.50) nrobust=1
+    if(nrobust.eq.1) then
+      ncand=0
       call timer('sync65  ',0)
-      call sync65(ss,nfa,nfb,nhsym,car,ncandr,1)
+      call sync65(ss,nfa,nfb,nhsym,ca,ncand,1)
       call timer('sync65  ',1)
-    endif
-    if( (nrobust.eq.1) .or. ((nrobust.eq.2) .and. (ncand.gt.50)) ) then
-      ncand=ncandr
-      do i=1,ncand
-        ca(i)=car(i)
-      enddo
-    elseif(nrobust.eq.2.and.ncand.le.25.and.ncandr.le.25) then
-      do icand=1,ncand ! combine ca and car, without dupes
-        ndupe=0
-        do j=1,ncandr
-          if( abs(ca(icand)%freq-car(j)%freq) .lt. 1.0 ) then
-            ndupe=1
-          endif
-        enddo
-        if( ndupe.eq.0 ) then
-          ncandr=ncandr+1
-          car(ncandr)=ca(icand)
-        endif
-      enddo
-      ncand=ncandr
-      do i=1,ncand
-        ca(i)=car(i)
-      enddo
     endif
 
     nvec=ntrials
