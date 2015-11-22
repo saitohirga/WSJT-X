@@ -55,6 +55,8 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   ui->bppSpinBox->setValue(n);
   m_nsmo=m_settings->value("SmoothYellow",1).toInt();
   ui->smoSpinBox->setValue(m_nsmo);
+  m_Percent2DScreen=m_settings->value("Percent2D",30).toInt();
+  ui->sbPercent2dPlot->setValue(m_Percent2DScreen);
   m_waterfallAvg = m_settings->value("WaterfallAvg",5).toInt();
   ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
   ui->widePlot->setWaterfallAvg(m_waterfallAvg);
@@ -116,6 +118,7 @@ void WideGraph::saveSettings()                                           //saveS
   m_settings->setValue ("PlotWidth", ui->widePlot->plotWidth ());
   m_settings->setValue ("BinsPerPixel", ui->bppSpinBox->value ());
   m_settings->setValue ("SmoothYellow", ui->smoSpinBox->value ());
+  m_settings->setValue ("Percent2D",m_Percent2DScreen);
   m_settings->setValue ("WaterfallAvg", ui->waterfallAvgSpinBox->value ());
   m_settings->setValue ("Current", ui->widePlot->current());
   m_settings->setValue ("Cumulative", ui->widePlot->cumulative());
@@ -294,13 +297,11 @@ void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)
   ui->widePlot->setLinearAvg(false);
   ui->widePlot->setReference(false);
   ui->smoSpinBox->setEnabled(false);
-  ui->labSmooth->setEnabled(false);
   if(arg1=="Current") ui->widePlot->setCurrent(true);
   if(arg1=="Cumulative") ui->widePlot->setCumulative(true);
   if(arg1=="Linear Avg") {
     ui->widePlot->setLinearAvg(true);
     ui->smoSpinBox->setEnabled(true);
-    ui->labSmooth->setEnabled(true);
   }
   if(arg1=="Reference") {
     ui->widePlot->setReference(true);
@@ -440,4 +441,10 @@ int WideGraph::smoothYellow()
 void WideGraph::setWSPRtransmitted()
 {
   m_bHaveTransmitted=true;
+}
+
+void WideGraph::on_sbPercent2dPlot_valueChanged(int n)
+{
+  m_Percent2DScreen=n;
+  ui->widePlot->SetPercent2DScreen(n);
 }
