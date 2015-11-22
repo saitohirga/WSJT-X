@@ -570,9 +570,9 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   ui->label_9->setStyleSheet("QLabel{background-color: #aabec8}");
   ui->label_10->setStyleSheet("QLabel{background-color: #aabec8}");
 
+  // this must be done before initializing the mode as some modes need
+  // to turn off split om the rig e.g. WSPR
   m_config.transceiver_online (true);
-  on_monitorButton_clicked (!m_config.monitor_off_at_startup ());
-  if(m_mode=="Echo") monitor(false); //Don't auto-start Monitor in Echo mode.
 
   bool b=m_config.enable_VHF_features() and (m_mode=="JT4" or m_mode=="JT65" or
                                              m_mode=="ISCAT" or m_mode=="JT9" or
@@ -588,6 +588,11 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   if(m_mode=="Echo") on_actionEcho_triggered();
   if(m_mode=="ISCAT") on_actionISCAT_triggered();
   if(m_mode=="JTMSK") on_actionJTMSK_triggered();
+
+  // this can only be done after mode is initialized otherwise split
+  // on rig may be incorrect selected
+  on_monitorButton_clicked (!m_config.monitor_off_at_startup ());
+  if(m_mode=="Echo") monitor(false); //Don't auto-start Monitor in Echo mode.
 
   m_ntx=1;
   ui->txrb1->setChecked(true);
@@ -3675,7 +3680,6 @@ void MainWindow::WSPR_config(bool b)
 void MainWindow::fast_config(bool b)
 {
   m_bFastMode=b;
-  m_bSimplex=b;
   ui->ClrAvgButton->setVisible(!b);
   ui->TxFreqSpinBox->setEnabled(!b);
   if(b) {
