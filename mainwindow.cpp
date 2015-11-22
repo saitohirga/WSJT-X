@@ -4021,7 +4021,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
       m_bdecoded = m_nWSPRdecodes > 0;
       if(!m_diskData) {
         WSPR_history(m_dialFreqRxWSPR, m_nWSPRdecodes);
-        if(m_nWSPRdecodes==0) {
+        if(m_nWSPRdecodes==0 and ui->band_hopping_group_box->isChecked()) {
           t = " Receiving " + m_mode + " ----------------------- " +
               m_config.bands ()->find (m_dialFreqRxWSPR);
           t=WSPR_hhmm(-60) + ' ' + t.rightJustified (66, '-');
