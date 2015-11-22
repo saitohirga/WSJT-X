@@ -20,7 +20,7 @@
       <string>Select tab to change configuration parameters.</string>
      </property>
      <property name="currentIndex">
-      <number>7</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="general_tab">
       <attribute name="title">
@@ -450,7 +450,7 @@ quiet period when decoding is done.</string>
               <property name="editable">
                <bool>true</bool>
               </property>
-              <property name="currentText" stdset="0">
+              <property name="currentText">
                <string/>
               </property>
               <property name="insertPolicy">
@@ -870,7 +870,7 @@ other hardware interface for PTT.</string>
               <property name="editable">
                <bool>true</bool>
               </property>
-              <property name="currentText" stdset="0">
+              <property name="currentText">
                <string/>
               </property>
               <property name="currentIndex">
@@ -2127,137 +2127,74 @@ Right click for insert and delete options.</string>
       <attribute name="title">
        <string>Advanced</string>
       </attribute>
-      <widget class="QGroupBox" name="groupBox_5">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>211</width>
-         <height>277</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;User-selectable parameters for JT65 decoding.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="title">
-        <string>JT65 decoding parameters</string>
-       </property>
-       <widget class="QWidget" name="layoutWidget2">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>20</y>
-          <width>192</width>
-          <height>253</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_9">
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_13">
-           <item>
-            <widget class="QLabel" name="label_2">
-             <property name="minimumSize">
-              <size>
-               <width>130</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>130</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Random erasure patterns:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="sbNtrials">
-             <property name="minimumSize">
-              <size>
-               <width>35</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>30</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maximum number of erasure patterns for stochastic soft-decision Reed Solomon decoder is 10^(n/2).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="minimum">
-              <number>0</number>
-             </property>
-             <property name="maximum">
-              <number>12</number>
-             </property>
-             <property name="value">
-              <number>6</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="cbTwoPass">
-           <property name="text">
-            <string>Two-pass decoding</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="cbSync1Bit">
-           <property name="text">
-            <string>Robust sync</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox_6">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>141</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>183</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="title">
-            <string>Experience-based decoding</string>
-           </property>
-           <widget class="QWidget" name="layoutWidget3">
-            <property name="geometry">
-             <rect>
-              <x>20</x>
-              <y>20</y>
-              <width>152</width>
-              <height>111</height>
-             </rect>
+      <layout class="QGridLayout" name="gridLayout_15">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;User-selectable parameters for JT65 decoding.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="title">
+          <string>JT65 decoding parameters</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_12">
+          <item>
+           <layout class="QFormLayout" name="formLayout_2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Random erasure patterns:</string>
+              </property>
+              <property name="buddy">
+               <cstring>sbNtrials</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="sbNtrials">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maximum number of erasure patterns for stochastic soft-decision Reed Solomon decoder is 10^(n/2).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="minimum">
+               <number>0</number>
+              </property>
+              <property name="maximum">
+               <number>12</number>
+              </property>
+              <property name="value">
+               <number>6</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbSync1Bit">
+            <property name="text">
+             <string>Robust sync</string>
             </property>
-            <layout class="QGridLayout" name="gridLayout_9">
-             <item row="0" column="0">
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbTwoPass">
+            <property name="text">
+             <string>Two-pass decoding</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_6">
+            <property name="title">
+             <string>Experience-based decoding</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_9">
+             <item>
               <widget class="QCheckBox" name="cbMyDx">
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>0</height>
-                </size>
-               </property>
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Test codewords corresponding to messages of the form &amp;quot;MyCall DxCall Dxgrid&amp;quot;, &amp;quot;MyCall DxCall rpt&amp;quot;. &amp;quot;MyCall DxCall RRR&amp;quot;. and &amp;quot;MyCall DxCall 73&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
@@ -2266,14 +2203,8 @@ Right click for insert and delete options.</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
+             <item>
               <widget class="QCheckBox" name="cbCQMyN">
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>0</height>
-                </size>
-               </property>
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Test codewords corresponding to messages of the form &amp;quot;CQ Call Grid&amp;quot; and  &amp;quot;MyCall Call Grid&amp;quot; for all Call/Grid combinations selected from the list of known calls.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
@@ -2282,14 +2213,8 @@ Right click for insert and delete options.</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="0">
+             <item>
               <widget class="QCheckBox" name="cbNDxG">
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>0</height>
-                </size>
-               </property>
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Test codewords corresponding to messages of the form &amp;quot;Call DxCall DxGrid OOO&amp;quot; for all Call/Grid combinations selected from the list of known calls.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
@@ -2298,14 +2223,8 @@ Right click for insert and delete options.</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
+             <item>
               <widget class="QCheckBox" name="cbNN">
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>0</height>
-                </size>
-               </property>
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Test codewords corresponding to messages of the form &amp;quot;Call1 Call2 Grid2&amp;quot;for all Call/Grid combinations selected from the list of known calls.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
@@ -2314,14 +2233,8 @@ Right click for insert and delete options.</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="0">
+             <item>
               <widget class="QCheckBox" name="cbEMEonly">
-               <property name="minimumSize">
-                <size>
-                 <width>150</width>
-                 <height>0</height>
-                </size>
-               </property>
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Call/Grid combinations from list of known calls only if marked as active on EME.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
@@ -2332,56 +2245,61 @@ Right click for insert and delete options.</string>
              </item>
             </layout>
            </widget>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_12">
-           <item>
-            <widget class="QLabel" name="label_4">
-             <property name="minimumSize">
-              <size>
-               <width>120</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>130</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Aggressive decoding level:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="sbAggressive">
-             <property name="minimumSize">
-              <size>
-               <width>35</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>35</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Higher levels will increase the probability of decoding, but will also increase probability of a false decode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="maximum">
-              <number>10</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </widget>
+          </item>
+          <item>
+           <layout class="QFormLayout" name="formLayout_3">
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="sbAggressive">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Higher levels will increase the probability of decoding, but will also increase probability of a false decode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="maximum">
+               <number>10</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>Aggressive decoding level:</string>
+              </property>
+              <property name="buddy">
+               <cstring>sbAggressive</cstring>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <spacer name="horizontalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <spacer name="verticalSpacer_8">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>
@@ -2491,8 +2409,8 @@ soundcard changes</string>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>245</x>
-     <y>605</y>
+     <x>254</x>
+     <y>554</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -2507,8 +2425,8 @@ soundcard changes</string>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>313</x>
-     <y>605</y>
+     <x>322</x>
+     <y>554</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -2523,7 +2441,7 @@ soundcard changes</string>
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>576</x>
+     <x>566</x>
      <y>62</y>
     </hint>
     <hint type="destinationlabel">
@@ -2543,19 +2461,19 @@ soundcard changes</string>
      <y>60</y>
     </hint>
     <hint type="destinationlabel">
-     <x>576</x>
+     <x>566</x>
      <y>62</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <buttongroups>
+  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="split_mode_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
-  <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
  </buttongroups>
 </ui>
