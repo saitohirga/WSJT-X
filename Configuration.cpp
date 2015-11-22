@@ -540,6 +540,7 @@ private:
   bool enable_VHF_features_;
   bool decode_at_52s_;
   bool twoPass_;
+  bool sync1Bit_;
   bool MyDx_;
   bool CQMyN_;
   bool NDxG_;
@@ -619,6 +620,7 @@ bool Configuration::TX_messages () const {return m_->TX_messages_;}
 bool Configuration::enable_VHF_features () const {return m_->enable_VHF_features_;}
 bool Configuration::decode_at_52s () const {return m_->decode_at_52s_;}
 bool Configuration::twoPass() const {return m_->twoPass_;}
+bool Configuration::sync1Bit() const {return m_->sync1Bit_;}
 bool Configuration::MyDx() const {return m_->MyDx_;}
 bool Configuration::CQMyN() const {return m_->CQMyN_;}
 bool Configuration::NDxG() const {return m_->NDxG_;}
@@ -1046,6 +1048,7 @@ void Configuration::impl::initialize_models ()
   ui_->enable_VHF_features_check_box->setChecked(enable_VHF_features_);
   ui_->decode_at_52s_check_box->setChecked(decode_at_52s_);
   ui_->cbTwoPass->setChecked(twoPass_);
+  ui_->cbSync1Bit->setChecked(sync1Bit_);
   ui_->cbMyDx->setChecked(MyDx_);
   ui_->cbCQMyN->setChecked(CQMyN_);
   ui_->cbNDxG->setChecked(NDxG_);
@@ -1275,6 +1278,7 @@ void Configuration::impl::read_settings ()
   enable_VHF_features_ = settings_->value("VHFUHF",false).toBool ();
   decode_at_52s_ = settings_->value("Decode52",false).toBool ();
   twoPass_ = settings_->value("TwoPass",true).toBool ();
+  sync1Bit_ = settings_->value("1BitSync",true).toBool ();
   MyDx_ = settings_->value("MyDx",false).toBool ();
   CQMyN_ = settings_->value("CQMyN",false).toBool ();
   NDxG_ = settings_->value("NDxG",false).toBool ();
@@ -1372,6 +1376,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("VHFUHF", enable_VHF_features_);
   settings_->setValue ("Decode52", decode_at_52s_);
   settings_->setValue ("TwoPass", twoPass_);
+  settings_->setValue ("Sync1Bit", sync1Bit_);
   settings_->setValue ("MyDx", MyDx_);
   settings_->setValue ("CQMyN", CQMyN_);
   settings_->setValue ("NDxG", NDxG_);
@@ -1758,6 +1763,7 @@ void Configuration::impl::accept ()
   enable_VHF_features_ = ui_->enable_VHF_features_check_box->isChecked ();
   decode_at_52s_ = ui_->decode_at_52s_check_box->isChecked ();
   twoPass_ = ui_->cbTwoPass->isChecked ();
+  sync1Bit_ = ui_->cbSync1Bit->isChecked ();
   MyDx_ = ui_->cbMyDx->isChecked ();
   CQMyN_ = ui_->cbCQMyN->isChecked ();
   NDxG_ = ui_->cbNDxG->isChecked ();

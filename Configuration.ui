@@ -2227,6 +2227,16 @@ Right click for insert and delete options.</string>
           </widget>
          </item>
          <item>
+             <widget class="QCheckBox" name="cbSync1Bit">
+                 <property name="text">
+                     <string>Robust sync</string>
+                 </property>
+                 <property name="checked">
+                     <bool>true</bool>
+                 </property>
+             </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="groupBox_6">
            <property name="minimumSize">
             <size>
