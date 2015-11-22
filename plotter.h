@@ -62,7 +62,7 @@ public:
   void setMode(QString mode);
   void setSubMode(int n);
   void setModeTx(QString modeTx);
-  void SetPercent2DScreen(int percent){m_Percent2DScreen=percent;}
+  void SetPercent2DScreen(int percent);
   int  Fmax();
   void setDialFreq(double d);
   void setCurrent(bool b) {m_bCurrent = b;}
@@ -147,6 +147,7 @@ private:
   qint32  m_freqPerDiv;
   qint32  m_nsps;
   qint32  m_Percent2DScreen;
+  qint32  m_Percent2DScreen0;
   qint32  m_h;
   qint32  m_h1;
   qint32  m_h2;

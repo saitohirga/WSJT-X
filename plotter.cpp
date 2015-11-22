@@ -33,6 +33,7 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   m_nsps=6912;
   m_dBStepSize=10;
   m_Percent2DScreen = 30;	//percent of screen used for 2D display
+  m_Percent2DScreen0 = 0;
   m_txFreq=0;
   m_fftBinWidth=1500.0/2048.0;
   m_bScaleOK=false;
@@ -53,24 +54,26 @@ QSize CPlotter::sizeHint() const
 void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
 {
   if(!size().isValid()) return;
-  if( m_Size != size() or (m_bReference != m_bReference0)) {
+  if( m_Size != size() or (m_bReference != m_bReference0) or
+      m_Percent2DScreen != m_Percent2DScreen0) {
     m_Size = size();
     m_w = m_Size.width();
     m_h = m_Size.height();
-    m_h2 = (m_Percent2DScreen)*(m_h)/100;
-    if(m_h2>100) m_h2=100;
+    m_h2 = m_Percent2DScreen*m_h/100.0;
+    if(m_h2>m_h-30) m_h2=m_h-30;
     if(m_bReference) m_h2=m_h-30;
+    if(m_h2<1) m_h2=1;
     m_h1=m_h-m_h2;
     m_2DPixmap = QPixmap(m_Size.width(), m_h2);
     m_2DPixmap.fill(Qt::black);
     m_WaterfallPixmap = QPixmap(m_Size.width(), m_h1);
     m_OverlayPixmap = QPixmap(m_Size.width(), m_h2);
     m_OverlayPixmap.fill(Qt::black);
-
     m_WaterfallPixmap.fill(Qt::black);
     m_2DPixmap.fill(Qt::black);
-    m_ScalePixmap = QPixmap(m_w,30);
+    m_ScalePixmap = QPixmap(m_w,m_h2);
     m_ScalePixmap.fill(Qt::white);
+    m_Percent2DScreen0 = m_Percent2DScreen;
   }
   DrawOverlay();
 }
@@ -602,4 +605,12 @@ void CPlotter::setTol(int n)                                 //setTol()
 void CPlotter::setColours(QVector<QColor> const& cl)
 {
   g_ColorTbl = cl;
+}
+
+void CPlotter::SetPercent2DScreen(int percent)
+{
+  m_Percent2DScreen=percent;
+  resizeEvent(NULL);
+//  DrawOverlay();
+  update();
 }

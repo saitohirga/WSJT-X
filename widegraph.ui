@@ -252,22 +252,6 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="9">
-        <widget class="QLabel" name="labSmooth">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>65</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Smoothing</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="7">
         <widget class="QSlider" name="gainSlider">
          <property name="minimumSize">
@@ -501,13 +485,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>65</width>
+             <width>75</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>50</width>
+             <width>75</width>
              <height>16777215</height>
             </size>
            </property>
@@ -516,6 +500,12 @@
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
+           </property>
+           <property name="suffix">
+            <string/>
+           </property>
+           <property name="prefix">
+            <string>Smooth  </string>
            </property>
            <property name="minimum">
             <number>1</number>
@@ -539,6 +529,37 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="0" column="9">
+        <widget class="QSpinBox" name="sbPercent2dPlot">
+         <property name="minimumSize">
+          <size>
+           <width>75</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>75</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="suffix">
+          <string> %</string>
+         </property>
+         <property name="prefix">
+          <string>Spec </string>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="singleStep">
+          <number>5</number>
+         </property>
+         <property name="value">
+          <number>30</number>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
