@@ -68,6 +68,8 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
       call timer('sync65  ',1)
     endif
 
+    call fqso_first(nfqso,ntol,ca,ncand)
+
     nvec=ntrials
     if(ncand.gt.75) then
 !      write(*,*) 'Pass ',ipass,' ncandidates too large ',ncand
