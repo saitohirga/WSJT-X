@@ -1278,7 +1278,7 @@ void Configuration::impl::read_settings ()
   enable_VHF_features_ = settings_->value("VHFUHF",false).toBool ();
   decode_at_52s_ = settings_->value("Decode52",false).toBool ();
   twoPass_ = settings_->value("TwoPass",true).toBool ();
-  sync1Bit_ = settings_->value("1BitSync",false).toBool ();
+  sync1Bit_ = settings_->value("Sync1Bit",false).toBool ();
   MyDx_ = settings_->value("MyDx",false).toBool ();
   CQMyN_ = settings_->value("CQMyN",false).toBool ();
   NDxG_ = settings_->value("NDxG",false).toBool ();
