@@ -1531,6 +1531,9 @@ void MainWindow::diskDat()                                   //diskDat()
   int kstep=3456;
   m_diskData=true;
 
+  float db=m_config.degrade();
+  if(db > 0.0) degrade_snr_(jt9com_.d2,&jt9com_.kin,&db);
+
   for(int n=1; n<=m_hsymStop; n++) {                      // Do the waterfall spectra
     k=(n+1)*kstep;
     if(k > jt9com_.kin) break;

@@ -278,6 +278,7 @@ set (wsjt_FSRCS
   lib/decjt9.f90
   lib/deep4.f90
   lib/deg2grid.f90
+  lib/degrade_snr.f90
   lib/demod64a.f90
   lib/determ.f90
   lib/downsam9.f90
