@@ -93,6 +93,7 @@ public:
   qint32 id_interval () const;
   qint32 ntrials() const;
   qint32 aggressive() const;
+  double degrade() const;
   bool id_after_73 () const;
   bool tx_QSY_allowed () const;
   bool spot_to_psk_reporter () const;

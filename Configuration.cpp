@@ -357,7 +357,6 @@ public:
   Q_SLOT void reject () override;
   Q_SLOT void done (int) override;
 
-
 private:
   typedef QList<QAudioDeviceInfo> AudioDevices;
 
@@ -521,6 +520,7 @@ private:
   qint32 id_interval_;
   qint32 ntrials_;
   qint32 aggressive_;
+  double degrade_;
   bool id_after_73_;
   bool tx_QSY_allowed_;
   bool spot_to_psk_reporter_;
@@ -601,6 +601,7 @@ QFont Configuration::decoded_text_font () const {return m_->decoded_text_font_;}
 qint32 Configuration::id_interval () const {return m_->id_interval_;}
 qint32 Configuration::ntrials() const {return m_->ntrials_;}
 qint32 Configuration::aggressive() const {return m_->aggressive_;}
+double Configuration::degrade() const {return m_->degrade_;}
 bool Configuration::id_after_73 () const {return m_->id_after_73_;}
 bool Configuration::tx_QSY_allowed () const {return m_->tx_QSY_allowed_;}
 bool Configuration::spot_to_psk_reporter () const {return m_->spot_to_psk_reporter_;}
@@ -1026,6 +1027,7 @@ void Configuration::impl::initialize_models ()
   ui_->CW_id_interval_spin_box->setValue (id_interval_);  
   ui_->sbNtrials->setValue (ntrials_);
   ui_->sbAggressive->setValue (aggressive_);
+  ui_->sbDegrade->setValue (degrade_);
   ui_->PTT_method_button_group->button (rig_params_.ptt_type)->setChecked (true);
   ui_->save_path_display_label->setText (save_directory_.absolutePath ());
   ui_->azel_path_display_label->setText (azel_directory_.absolutePath ());
@@ -1158,7 +1160,6 @@ void Configuration::impl::read_settings ()
   id_interval_ = settings_->value ("IDint", 0).toInt ();
   ntrials_ = settings_->value ("nTrials", 6).toInt ();
   aggressive_ = settings_->value ("Aggressive", 0).toInt ();
-
   save_directory_ = settings_->value ("SaveDir", default_save_directory_.absolutePath ()).toString ();
   azel_directory_ = settings_->value ("AzElDir", default_azel_directory_.absolutePath ()).toString ();
 
@@ -1741,6 +1742,7 @@ void Configuration::impl::accept ()
   id_interval_ = ui_->CW_id_interval_spin_box->value ();
   ntrials_ = ui_->sbNtrials->value ();
   aggressive_ = ui_->sbAggressive->value ();
+  degrade_ = ui_->sbDegrade->value ();
   id_after_73_ = ui_->CW_id_after_73_check_box->isChecked ();
   tx_QSY_allowed_ = ui_->tx_QSY_check_box->isChecked ();
   monitor_off_at_startup_ = ui_->monitor_off_check_box->isChecked ();

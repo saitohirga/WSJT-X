@@ -604,6 +604,7 @@ extern "C" {
                 float* width);
 
   void fast_decode_(short id2[], int narg[], char msg[], int len);
+  void degrade_snr_(short d2[], int* n, float* db);
 }
 
 #endif // MAINWINDOW_H

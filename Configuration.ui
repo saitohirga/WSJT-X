@@ -20,7 +20,7 @@
       <string>Select tab to change configuration parameters.</string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>7</number>
      </property>
      <widget class="QWidget" name="general_tab">
       <attribute name="title">
@@ -2127,7 +2127,7 @@ Right click for insert and delete options.</string>
       <attribute name="title">
        <string>Advanced</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_15">
+      <layout class="QGridLayout" name="gridLayout_9">
        <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox_5">
          <property name="toolTip">
@@ -2268,6 +2268,33 @@ Right click for insert and delete options.</string>
               </property>
              </widget>
             </item>
+            <item row="1" column="0" colspan="2">
+             <layout class="QHBoxLayout" name="horizontalLayout_12">
+              <item>
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>Degrade S/N of .wav file: </string>
+                </property>
+                <property name="buddy">
+                 <cstring>sbDegrade</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="sbDegrade">
+                <property name="suffix">
+                 <string> dB</string>
+                </property>
+                <property name="decimals">
+                 <number>1</number>
+                </property>
+                <property name="singleStep">
+                 <double>0.100000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
            </layout>
           </item>
          </layout>
@@ -2286,7 +2313,7 @@ Right click for insert and delete options.</string>
          </property>
         </spacer>
        </item>
-       <item row="1" column="0" colspan="2">
+       <item row="1" column="0">
         <spacer name="verticalSpacer_8">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -2468,12 +2495,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
  </buttongroups>
 </ui>
