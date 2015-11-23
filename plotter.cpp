@@ -74,7 +74,6 @@ void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
     m_ScalePixmap = QPixmap(m_w,30);
     m_ScalePixmap.fill(Qt::white);
     m_Percent2DScreen0 = m_Percent2DScreen;
-    qDebug() << "a" << m_h1 << m_h2 << m_h;
   }
   DrawOverlay();
 }
