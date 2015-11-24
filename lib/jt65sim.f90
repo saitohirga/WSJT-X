@@ -98,7 +98,8 @@ program jt65sim
            endif
         enddo
 
-        sig=10.0**(0.05*nsnr)
+        bandwidth_ratio=2500.0/6000.0
+        sig=sqrt(2*bandwidth_ratio)*10.0**(0.05*nsnr)
         if(nsnr.gt.90.0) sig=1.0
         write(*,1020) ifile,isig,f0,csubmode,nsnr,sig,msg
 1020    format(i4,i4,f10.3,1x,a1,i5,f8.4,2x,a22)
