@@ -53,8 +53,8 @@ program jt9
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,          &
        ntr,mousefqso,newdat,npts8a,nfa,nfsplit,nfb,ntol,kin,nzhsym,         &
        nsubmode,nagain,ndepth,ntxmode,nmode,minw,nclearave,minsync,         &
-       emedelay,dttol,nlist,listutc(10),datetime,mycall,mygrid,             &
-       hiscall,hisgrid
+       emedelay,dttol,nlist,listutc(10),n2pass,nranera,naggressive,         &
+       nrobust,nspare(10),datetime,mycall,mygrid,hiscall,hisgrid
 
   common/tracer/limtrace,lu
   common/patience/npatience,nthreads

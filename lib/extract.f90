@@ -62,6 +62,7 @@ subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,ncount,nhist,   &
   call interleave63(mr2sym,-1)       !from second-most-reliable symbols
   call interleave63(mr2prob,-1)
 
+  write(71) mrsym,mrprob,mr2sym,mr2prob
   nverbose=0
   ntry=0
   call timer('sfrsd   ',0)
