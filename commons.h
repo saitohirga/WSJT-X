@@ -33,6 +33,11 @@ extern struct FortranCommon {
   float dttol;
   int nlist;
   int listutc[10];
+  int n2pass;
+  int nranera;
+  int naggressive;
+  int nrobust;
+  int nspare[10];
   char datetime[20];
   char mycall[12];
   char mygrid[6];

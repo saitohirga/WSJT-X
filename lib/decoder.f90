@@ -11,24 +11,17 @@ subroutine decoder(ss,id2,nfsample)
   character datetime*20,mycall*12,mygrid*6,hiscall*12,hisgrid*6
   common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfsplit,nfb,    &
        ntol,kin,nzhsym,nsubmode,nagain,ndepth,ntxmode,nmode,minw,nclearave,  &
-       minsync,emedelay,dttol,nlist,listutc(10),datetime,mycall,mygrid,      &
-       hiscall,hisgrid
+       minsync,emedelay,dttol,nlist,listutc(10),n2pass,nranera,naggressive,  &
+       nrobust,nspare(10),datetime,mycall,mygrid,hiscall,hisgrid
   common/tracer/limtrace,lu
   integer onlevel(0:10)
   common/tracer_priv/level,onlevel
 !$omp threadprivate(/tracer_priv/)
   save
 
-  n2pass=ndepth/100000
-  ndepth=ndepth-n2pass*100000
-  nrobust=ndepth/10000
-  ndepth=ndepth-nrobust*10000
-  n=ndepth/1000
-  if(mod(n,2).eq.0) ntrials=10**(n/2)
-  if(mod(n,2).eq.1) ntrials=3*10**(n/2)
-  if(n.eq.0) ntrials=0
-  naggressive=(ndepth - (n*1000))/10
-  ndepth=mod(ndepth,10)
+  if(mod(n,2).eq.0) ntrials=10**(nranera/2)
+  if(mod(n,2).eq.1) ntrials=3*10**(nranera/2)
+  if(nranera.eq.0) ntrials=0
 
   rms=sqrt(dot_product(float(id2(300000:310000)),                            &
                        float(id2(300000:310000)))/10000.0)
