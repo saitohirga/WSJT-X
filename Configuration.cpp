@@ -738,6 +738,8 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   , setup_split_ {false}
   , required_tx_frequency_ {0}
   , enforce_mode_and_split_ {false}
+  , degrade_ {0.}               // initialize to zero each run, not
+                                // saved in settings
   , default_audio_input_device_selected_ {false}
   , default_audio_output_device_selected_ {false}
 {
