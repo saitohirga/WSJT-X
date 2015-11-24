@@ -46,8 +46,6 @@ subroutine demod64a(s3,nadd,afac1,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
            i2=i                              !Second most reliable
         endif
      enddo
-!     p1=fs(i1)/fsum           !Normalized probabilities for kvasd
-!     p2=fs(i2)/fsum
      p1=s1/psum                !Use these for sfrsd
      p2=s2/psum                !
      mrsym(j)=i1-1
