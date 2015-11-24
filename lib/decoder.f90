@@ -36,9 +36,6 @@ subroutine decoder(ss,id2,nfsample)
   if(nmode.eq.4 .or. nmode.eq.65) open(14,file=trim(temp_dir)//'/avemsg.txt', &
        status='unknown')
 
-  if(nmode.eq.65 .or. nmode.eq.(65+9)) open(22,file=trim(temp_dir)//    &
-       '/kvasd.dat',access='direct',recl=1024,status='unknown')
-
   if(nmode.eq.4) then
      jz=52*nfsample
      if(newdat.ne.0) then
@@ -110,7 +107,6 @@ subroutine decoder(ss,id2,nfsample)
   call flush(6)
   close(13) 
   if(nmode.eq.4 .or. nmode.eq.65) close(14)
-  close(22)
 
   return
 end subroutine decoder
