@@ -61,10 +61,9 @@ subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,ncount,nhist,   &
   call graycode65(mr2sym,63,-1)      !Remove gray code and interleaving
   call interleave63(mr2sym,-1)       !from second-most-reliable symbols
   call interleave63(mr2prob,-1)
-
-  write(71) mrsym,mrprob,mr2sym,mr2prob
-  nverbose=0
   ntry=0
+
+  nverbose=0
   call timer('sfrsd   ',0)
   call sfrsd2(mrsym,mrprob,mr2sym,mr2prob,ntrials,nverbose,correct,   &
        param,indx,tt,ntry)
@@ -72,20 +71,27 @@ subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,ncount,nhist,   &
   ncandidates=param(0)
   nhard=param(1)
   nsoft=param(2)
-  nera=param(3)
-  ngmd=param(4)
-  ndone=ndone+1
-  do i=1,12
-     dat4(i)=correct(13-i)
-  enddo
 
+  if(nhard.lt.0 .and. ndepth.ge.5) then
+     call timer('exp_deco',0)
+     call exp_decode65(mrsym,mrprob,mr2sym,nhard,nsoft,nbest,correct)
+     if(nbest.gt.72+2*naggressive) then
+        nhard=-1
+     endif
+     call timer('exp_deco',1)
+  endif
+
+  ndone=ndone+1
   ncount=-1
   decoded='                      '
   ltext=.false.
   if(nhard.ge.0) then
     !turn the corrected symbol array into channel symbols for subtraction
     !pass it back to jt65a via common block "chansyms65"
-    do i=1,63
+     do i=1,12
+        dat4(i)=correct(13-i)
+     enddo
+     do i=1,63
        tmp(i)=correct(64-i)
      enddo
      correct(1:63)=tmp(1:63)
@@ -100,4 +106,3 @@ subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,ncount,nhist,   &
 
   return
 end subroutine extract
-

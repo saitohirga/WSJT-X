@@ -286,6 +286,7 @@ set (wsjt_FSRCS
   lib/encode4.f90
   lib/entail.f90
   lib/ephem.f90
+  lib/exp_decode65.f90
   lib/extract.f90
   lib/extract4.f90
   lib/fano232.f90
