@@ -9,7 +9,7 @@ subroutine xcor(ss,ipk,nsteps,nsym,lag1,lag2,ccf,ccf0,lagpk,flip,fdot,nrobust)
   parameter (NSMAX=322)            !Max number of half-symbol steps
   real ss(NSMAX,NHMAX)             !2d spectrum, stepped by half-symbols
   real a(NSMAX)
-  real ccf(-5:540)
+  real ccf(-11:540)
   include 'prcom.f90'
   data lagmin/0/                              !Silence g77 warning
   save

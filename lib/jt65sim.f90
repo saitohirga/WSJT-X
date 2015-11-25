@@ -28,9 +28,9 @@ program jt65sim
             1,1,1,1,1,1/
 
   nargs=iargc()
-  if(nargs.ne.5) then
-     print*,'Usage:   jt65sim mode nsigs fspread SNR nfiles'
-     print*,'Example: jt65sim   A    10    0.2   -24    1'
+  if(nargs.ne.6) then
+     print*,'Usage:   jt65sim mode nsigs fspread SNR  DT  nfiles'
+     print*,'Example: jt65sim   A    10    0.2   -24  0.0   1'
      print*,'Enter SNR = 0 to generate a range of SNRs.'
      go to 999
   endif
@@ -47,6 +47,8 @@ program jt65sim
   call getarg(4,arg)
   read(arg,*) snrdb                  !S/N in dB (2500 hz reference BW)
   call getarg(5,arg)
+  read(arg,*) xdt                    !Generated DT
+  call getarg(6,arg)
   read(arg,*) nfiles                 !Number of files     
 
   rms=100.
@@ -106,7 +108,7 @@ program jt65sim
 
         phi=0.d0
         dphi=0.d0
-        k=12000                             !Start audio at t = 1.0 s
+        k=12000 + xdt*12000                 !Start audio at t = xdt + 1.0 s
         isym0=-99
         do i=1,npts                         !Add this signal into cdat()
            isym=nint(i/sps)+1
@@ -121,7 +123,7 @@ program jt65sim
            xphi=phi
            z=cmplx(cos(xphi),sin(xphi))
            k=k+1
-           cdat(k)=cdat(k) + sig*z
+           if(k.ge.1) cdat(k)=cdat(k) + sig*z
         enddo
      enddo
 

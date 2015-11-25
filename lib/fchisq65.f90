@@ -60,7 +60,7 @@ real function fchisq65(cx,npts,fsample,nflip,a,ccfmax,dtmax)
      dtmax=xlagpk*dtstep
   endif
   fchisq65=-ccfmax
-
   call timer('fchisq65',1)
+
   return
 end function fchisq65

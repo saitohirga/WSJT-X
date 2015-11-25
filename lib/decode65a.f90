@@ -50,14 +50,17 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   nsym=126
   nfft=512
   j=int(dtbest*1378.125)
-  if(j.lt.0) j=0
 
   c5a=cmplx(0.0,0.0)
   call timer('sh_ffts ',0)
   do k=1,nsym
      do i=1,nfft
         j=j+1
-        if( j .le. NMAX/8 ) c5a(i)=cx(j)
+        if(j.ge.1 .and. j.le.NMAX/8) then
+           c5a(i)=cx(j)
+        else
+           c5a(i)=0.
+        endif
      enddo
      call four2a(c5a,nfft,1,1,1)
      do i=1,66

@@ -23,6 +23,12 @@ subroutine fillcom(nutc0,ndepth0,nrxfreq,mode,tx9,flow,fsplit,fhigh)
   nzhsym=181
   ndepth=ndepth0
   dttol=3.0
+
+  n2pass=1
+  nranera=8
+  naggressive=10
+  nrobust=0
+
   if (tx9) then
     ntxmode=9
   else

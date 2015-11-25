@@ -2,7 +2,7 @@ subroutine sync65(ss,nfa,nfb,nhsym,ca,ncand,nrobust)
 
   parameter (NSZ=3413,NFFT=8192,MAXCAND=300)
   real ss(322,NSZ)
-  real ccfblue(-5:540)             !CCF with pseudorandom sequence
+  real ccfblue(-11:540)             !CCF with pseudorandom sequence
   real ccfred(NSZ)                 !Peak of ccfblue, as function of freq
   
   type candidate
@@ -18,7 +18,7 @@ subroutine sync65(ss,nfa,nfb,nhsym,ca,ncand,nrobust)
   df=12000.0/NFFT                            !df = 12000.0/16384 = 0.732 Hz
   ia=max(2,nint(nfa/df))
   ib=min(NSZ-1,nint(nfb/df))
-  lag1=-5
+  lag1=-11
   lag2=59
   nsym=126
 !!  thresh0=5.5
