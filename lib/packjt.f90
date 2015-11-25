@@ -388,7 +388,7 @@ subroutine packbits(dbits,nsymd,m0,sym)
  900 return
  end subroutine unpackgrid
 
- subroutine packmsg(msg,dat,itype)
+ subroutine packmsg(msg0,dat,itype)
 
  ! Packs a JT4/JT9/JT65 message into twelve 6-bit symbols
 
@@ -404,13 +404,14 @@ subroutine packbits(dbits,nsymd,m0,sym)
 
    parameter (NBASE=37*36*10*27*27*27)
    parameter (NBASE2=262178562)
-   character*22 msg
+   character*22 msg0,msg
    integer dat(12)
    character*12 c1,c2
    character*4 c3
    character*6 grid6
    logical text1,text2,text3
 
+   msg=msg0
    itype=1
    call fmtmsg(msg,iz)
 
