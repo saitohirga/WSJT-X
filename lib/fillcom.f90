@@ -6,7 +6,7 @@ subroutine fillcom(nutc0,ndepth0,nrxfreq,mode,tx9,flow,fsplit,fhigh)
   common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfsplit,nfb,    &
        ntol,kin,nzhsym,nsubmode,nagain,ndepth,ntxmode,nmode,minw,nclearave,  &
        minsync,emedelay,dttol,nlist,listutc(10),n2pass,nranera,naggressive,  &
-       nrobust,nspare(10),datetime,mycall,mygrid,hiscall,hisgrid
+       nrobust,nexp_decode,nspare(9),datetime,mycall,mygrid,hiscall,hisgrid
   save
 
   nutc=nutc0

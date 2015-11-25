@@ -37,7 +37,8 @@ extern struct FortranCommon {
   int nranera;
   int naggressive;
   int nrobust;
-  int nspare[10];
+  int nexp_decode;
+  int nspare[9];
   char datetime[20];
   char mycall[12];
   char mygrid[6];

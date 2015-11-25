@@ -1,4 +1,5 @@
-subroutine exp_decode65(mrsym,mrprob,mr2sym,nhard,nsoft,nbest,correct)
+subroutine exp_decode65(mrsym,mrprob,mr2sym,nexp_decode,nhard,nsoft,nbest,  &
+     correct)
 
   use packjt
   use prog_args

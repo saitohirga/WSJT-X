@@ -54,7 +54,7 @@ program jt9
        ntr,mousefqso,newdat,npts8a,nfa,nfsplit,nfb,ntol,kin,nzhsym,         &
        nsubmode,nagain,ndepth,ntxmode,nmode,minw,nclearave,minsync,         &
        emedelay,dttol,nlist,listutc(10),n2pass,nranera,naggressive,         &
-       nrobust,nspare(10),datetime,mycall,mygrid,hiscall,hisgrid
+       nrobust,nexp_decode,nspare(9),datetime,mycall,mygrid,hiscall,hisgrid
 
   common/tracer/limtrace,lu
   common/patience/npatience,nthreads

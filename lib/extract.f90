@@ -1,5 +1,5 @@
-subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,ncount,nhist,   &
-     decoded,ltext,nsf)
+subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,nexp_decode,   &
+     ncount,nhist,decoded,ltext,nsf)
 
 ! Input:
 !   s3       64-point spectra for each of 63 data symbols
@@ -74,7 +74,8 @@ subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,ncount,nhist,   &
 
   if(nhard.lt.0 .and. ndepth.ge.5) then
      call timer('exp_deco',0)
-     call exp_decode65(mrsym,mrprob,mr2sym,nhard,nsoft,nbest,correct)
+     call exp_decode65(mrsym,mrprob,mr2sym,nexp_decode,nhard,nsoft,nbest,  &
+          correct)
      if(nbest.gt.72+2*naggressive) then
         nhard=-1
      endif

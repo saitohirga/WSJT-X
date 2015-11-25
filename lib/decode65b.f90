@@ -1,5 +1,5 @@
-subroutine decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,nqd,   &
-     nsf,nhist,decoded)
+subroutine decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,nexp_decode, &
+     nqd,nsf,nhist,decoded)
 
   real s2(66,126)
   real s3(64,63)
@@ -23,8 +23,8 @@ subroutine decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,nqd,   &
   enddo
 
   nadd=mode65
-  call extract(s3,nadd,nqd,ntrials,naggressive,ndepth,ncount,nhist,   &
-       decoded,ltext,nsf)           !Extract the message
+  call extract(s3,nadd,nqd,ntrials,naggressive,ndepth,nexp_decode,     &
+       ncount,nhist,decoded,ltext,nsf)           !Extract the message
 
 ! Suppress "birdie messages" and other garbage decodes:
   if(decoded(1:7).eq.'000AAA ') ncount=-1
