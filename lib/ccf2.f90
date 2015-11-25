@@ -1,7 +1,6 @@
 subroutine ccf2(ss,nz,nflip,ccfbest,xlagpk)
 
-!  parameter (LAGMAX=60)
-  parameter (LAGMAX=200)
+  parameter (LAGMIN=-86,LAGMAX=258)
   real ss(nz)
   real ccf(-LAGMAX:LAGMAX)
   integer npr(126)
@@ -18,7 +17,7 @@ subroutine ccf2(ss,nz,nflip,ccfbest,xlagpk)
   save
 
   ccfbest=0.
-  lag1=-LAGMAX
+  lag1=LAGMIN
   lag2=LAGMAX
   do lag=lag1,lag2
      s0=0.
@@ -38,11 +37,12 @@ subroutine ccf2(ss,nz,nflip,ccfbest,xlagpk)
      if(ccf(lag).gt.ccfbest) then
         ccfbest=ccf(lag)
         lagpk=lag
+        xlagpk=lagpk
      endif
   enddo
   if( lagpk.gt.-LAGMAX .and. lagpk.lt.LAGMAX) then
-    call peakup(ccf(lagpk-1),ccf(lagpk),ccf(lagpk+1),dx)
-    xlagpk=lagpk+dx
+     call peakup(ccf(lagpk-1),ccf(lagpk),ccf(lagpk+1),dx)
+     xlagpk=lagpk+dx
   endif
   return
 end subroutine ccf2
