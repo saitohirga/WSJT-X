@@ -13,7 +13,8 @@ logical :: display_help=.false.,err
   character(len=500) optarg
   common/tracer/limtrace,lu
   equivalence (lenfile,ihdr(2))
-  type (option) :: long_options(4) = [ &
+  type (option) :: long_options(5) = [ &
+    option ('freq',.true.,'n','default=1270',''),      &
     option ('help',.false.,'h','Display this help message',''),      &
     option ('ntrials',.true.,'n','default=1000',''),                 &
     option ('robust sync',.false.,'n','default: disabled',''),                 &
@@ -21,7 +22,7 @@ logical :: display_help=.false.,err
 
 limtrace=0
 lu=12
-ntol=50
+ntol=10
 nfqso=1270
 nagain=0
 nsubmode=0
@@ -32,11 +33,13 @@ n2pass=2
 nrobust=0
 
   do
-    call getopt('hn:rs',long_options,c,optarg,narglen,nstat,noffset,nremain,err)
+    call getopt('f:hn:rs',long_options,c,optarg,narglen,nstat,noffset,nremain,err)
     if( nstat .ne. 0 ) then
       exit
     end if
     select case (c)
+      case ('f')
+        read (optarg(:narglen), *) nfqso
       case ('h')
         display_help = .true.
       case ('n')
@@ -44,15 +47,15 @@ nrobust=0
       case ('r')
         nrobust=1
       case ('s')
-        nlow=1250
-        nhigh=1290
+        nlow=nfqso-ntol
+        nhigh=nfqso+ntol
         n2pass=1
     end select
   end do
 
   nargs=iargc()
   if(display_help .or. (nargs.lt.1)) then
-     print*,'Usage: jt65 [-n ntrials] [-s] file1 [file2 ...]'
+     print*,'Usage: jt65 [-f freq] [-n ntrials] [-s] file1 [file2 ...]'
      print*,'             -r robust sync'
      print*,'             -s single-signal mode'
      go to 999
