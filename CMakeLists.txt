@@ -904,6 +904,9 @@ endif (WIN32)
 add_executable (jt4sim lib/jt4sim.f90 wsjtx.rc)
 target_link_libraries (jt4sim wsjt_fort wsjt_cxx)
 
+add_executable (jt65sim lib/jt65sim.f90 wsjtx.rc)
+target_link_libraries (jt65sim wsjt_fort wsjt_cxx ${FFTW3_LIBRARIES})
+
 add_executable (jt9sim lib/jt9sim.f90 wsjtx.rc)
 target_link_libraries (jt9sim wsjt_fort wsjt_cxx)
 
