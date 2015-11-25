@@ -1697,6 +1697,12 @@ void MainWindow::decode()                                       //decode()
   jt9com_.emedelay=0.0;
   if(m_bEME) jt9com_.emedelay=2.5;
   jt9com_.minSync=m_minSync;
+  jt9com_.nexp_decode=0;
+  if(m_config.MyDx()) jt9com_.nexp_decode += 1;
+  if(m_config.CQMyN()) jt9com_.nexp_decode += 2;
+  if(m_config.NDxG()) jt9com_.nexp_decode += 4;
+  if(m_config.NN()) jt9com_.nexp_decode += 8;
+  if(m_config.EMEonly()) jt9com_.nexp_decode += 16;
 
   strncpy(jt9com_.datetime, m_dateTime.toLatin1(), 20);
   strncpy(jt9com_.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);

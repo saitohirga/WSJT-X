@@ -12,7 +12,7 @@ subroutine decoder(ss,id2,nfsample)
   common/npar/nutc,ndiskdat,ntrperiod,nfqso,newdat,npts8,nfa,nfsplit,nfb,    &
        ntol,kin,nzhsym,nsubmode,nagain,ndepth,ntxmode,nmode,minw,nclearave,  &
        minsync,emedelay,dttol,nlist,listutc(10),n2pass,nranera,naggressive,  &
-       nrobust,nspare(10),datetime,mycall,mygrid,hiscall,hisgrid
+       nrobust,nexp_decode,nspare(9),datetime,mycall,mygrid,hiscall,hisgrid
   common/tracer/limtrace,lu
   integer onlevel(0:10)
   common/tracer_priv/level,onlevel
@@ -70,7 +70,8 @@ subroutine decoder(ss,id2,nfsample)
      nf2=nfb
      call timer('jt65a   ',0)
      call jt65a(dd,npts65,newdat65,nutc,nf1,nf2,nfqso,ntol65,nsubmode,      &
-          minsync,nagain,n2pass,nrobust,ntrials,naggressive,ndepth,ndecoded)
+          minsync,nagain,n2pass,nrobust,ntrials,naggressive,ndepth,         &
+          nexp_decode,ndecoded)
      call timer('jt65a   ',1)
 
   else if(nmode.eq.9 .or. (nmode.eq.(65+9) .and. ntxmode.eq.9)) then
@@ -89,7 +90,8 @@ subroutine decoder(ss,id2,nfsample)
         nf2=nfb
         call timer('jt65a   ',0)
         call jt65a(dd,npts65,newdat65,nutc,nf1,nf2,nfqso,ntol65,nsubmode,   &
-             minsync,nagain,n2pass,nrobust,ntrials,naggressive,ndepth,ndecoded)
+             minsync,nagain,n2pass,nrobust,ntrials,naggressive,ndepth,      &
+             nexp_decode,ndecoded)
         call timer('jt65a   ',1)
      else
         call timer('decjt9  ',0)
