@@ -111,7 +111,7 @@ program jt65sim
         k=12000 + xdt*12000                 !Start audio at t = xdt + 1.0 s
         isym0=-99
         do i=1,npts                         !Add this signal into cdat()
-           isym=nint(i/sps)+1
+           isym=floor(i/sps)+1
            if(isym.gt.nsym) exit
            if(isym.ne.isym0) then
               freq=f0 + itone(isym)*baud*mode65
