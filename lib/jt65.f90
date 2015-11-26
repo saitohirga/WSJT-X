@@ -88,7 +88,8 @@ nrobust=0
 !     write(56) ihdr(1:11)
 
      call jt65a(dd,npts,newdat,nutc,nfa,nfb,nfqso,ntol,nsubmode, &
-                minsync,nagain,n2pass,nrobust,ntrials, naggressive,ndepth,ndecoded)
+                minsync,nagain,n2pass,nrobust,ntrials, naggressive,ndepth, &
+                nexp_decoded,ndecoded)
      call timer('jt65a   ',1)
   enddo
 
