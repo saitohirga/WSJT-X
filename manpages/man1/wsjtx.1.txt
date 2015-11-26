@@ -6,7 +6,7 @@
 
 == NAME
 
-wsjtx, jt9, - Weak signal communications program.
+wsjtx, jt9 - Weak signal communications program.
 
 == SYNOPSIS
 
