@@ -45,7 +45,7 @@ real function fchisq65(cx,npts,fsample,nflip,a,ccfmax,dtmax)
      j=nsps+(i-1)*nsps/16 !steps by 8 samples (1/16 of a symbol)
      k=j-nsps
      ss(i)=0.
-     if(k.ge.0) then
+     if(k.ge.0 .and. j.le.npts) then
         z=csx(j)-csx(k) ! difference over span of 128 pts
         ss(i)=fac*(real(z)**2 + aimag(z)**2)
      endif
