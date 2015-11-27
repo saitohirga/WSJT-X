@@ -17,7 +17,7 @@ program jt65sim
   complex cspread(0:NFFT-1)              !Complex amplitude for Rayleigh fading
   complex z
   real*8 f0,dt,twopi,phi,dphi,baud,fsample,freq,sps
-  character msg*22,arg*8,fname*11,csubmode*1
+  character msg*22,arg*8,fname*11,csubmode*1,call1*5,call2*5
   integer nprc(126)                                      !Sync pattern
   data nprc/1,0,0,1,1,0,0,0,1,1,1,1,1,1,0,1,0,1,0,0,  &
             0,1,0,1,1,0,0,1,0,0,0,1,1,1,0,0,1,1,1,1,  &
@@ -29,8 +29,8 @@ program jt65sim
 
   nargs=iargc()
   if(nargs.ne.6) then
-     print*,'Usage:   jt65sim mode nsigs fspread SNR  DT  nfiles'
-     print*,'Example: jt65sim   A    10    0.2   -24  0.0   1'
+     print*,'Usage:   jt65sim mode nsigs fspread  SNR   DT  nfiles'
+     print*,'Example: jt65sim   A    10    0.2   -24.5  0.0   1'
      print*,'Enter SNR = 0 to generate a range of SNRs.'
      go to 999
   endif
@@ -78,12 +78,18 @@ program jt65sim
      do isig=1,nsigs                        !Generate requested number of sigs
         if(mod(nsigs,2).eq.0) f0=1500.0 + dfsig*(isig-0.5-nsigs/2)
         if(mod(nsigs,2).eq.1) f0=1500.0 + dfsig*(isig-(nsigs+1)/2)
-        nsnr=nint(snrdb)
-        if(snrdb.eq.0.0) nsnr=-19 - isig
-        if(csubmode.eq.'B' .and. snrdb.eq.0.0) nsnr=-21 - isig
-        if(csubmode.eq.'C' .and. snrdb.eq.0.0) nsnr=-21 - isig
-        write(msg,1010) nsnr
-1010    format('K1ABC W9XYZ ',i3.2)
+        xsnr=snrdb
+        if(snrdb.eq.0.0) xsnr=-19 - isig
+        if(csubmode.eq.'B' .and. snrdb.eq.0.0) xsnr=-21 - isig
+        if(csubmode.eq.'C' .and. snrdb.eq.0.0) xsnr=-21 - isig
+
+        call1="K1ABC"
+        ic3=65+mod(isig-1,26)
+        ic2=65+mod((isig-1)/26,26)
+        ic1=65
+        call2="W9"//char(ic1)//char(ic2)//char(ic3)
+        write(msg,1010) call1,call2,nint(xsnr)
+1010    format(a5,1x,a5,1x,i3.2)
 
         call packmsg(msg,dgen,itype)        !Pack message into 12 six-bit bytes
         call rs_encode(dgen,sent)           !Encode using RS(63,12)
@@ -101,10 +107,10 @@ program jt65sim
         enddo
 
         bandwidth_ratio=2500.0/6000.0
-        sig=sqrt(2*bandwidth_ratio)*10.0**(0.05*nsnr)
-        if(nsnr.gt.90.0) sig=1.0
-        write(*,1020) ifile,isig,f0,csubmode,nsnr,sig,msg
-1020    format(i4,i4,f10.3,1x,a1,i5,f8.4,2x,a22)
+        sig=sqrt(2*bandwidth_ratio)*10.0**(0.05*xsnr)
+        if(xsnr.gt.90.0) sig=1.0
+        write(*,1020) ifile,isig,f0,csubmode,xsnr,sig,msg
+1020    format(i4,i4,f10.3,2x,a1,2x,f5.1,f8.4,2x,a22)
 
         phi=0.d0
         dphi=0.d0
