@@ -826,7 +826,8 @@ The decoder has a built-in table of symbol error probabilities derived from
 \emph on
 a-priori
 \emph default
- probability of symbol error that is expected based on the 
+ probability of symbol error that is expected based on a given symbol's
+ 
 \begin_inset Formula $p_{1}$
 \end_inset
 
@@ -841,7 +842,8 @@ a-priori
 \emph default
  symbol error probabilities will be close to 1 for lower-quality symbols
  and closer to 0 for high-quality symbols.
- Recall, from Case 2, that the best performance was obtained when 
+ Recall, from Cases 2 and 3, that the best performance was obtained when
+ 
 \begin_inset Formula $n_{e}>X$
 \end_inset
 
@@ -850,36 +852,74 @@ a-priori
  erasing a symbol is somewhat larger than the probability that the symbol
  is incorrect.
  Empirically, it was determined that good performance of the SFRSD algorithm
- is obtained when the symbol erasure probability is somewhat larger than
- the prior estimate of symbol error probability.
- It has been empirically determined that choosing the erasure probabilities
- to be a factor of 
+ is obtained when the symbol erasure probability is a factor of 
 \begin_inset Formula $1.3$
 \end_inset
 
- larger than the symbol error probabilities gives the best results.
+ larger than the symbol error probability.
 \end_layout
 
 \begin_layout Standard
-The SFRSD algorithm successively tries to decode the received word.
+The SFRSD algorithm successively tries to decode the received word using
+ educated guesses at the symbols that should be erased.
  In each iteration, an independent stochastic erasure vector is generated
- based on a-priori symbol erasure probabilities.
- Technically, the algorithm is a list-decoder, potentially generating a
- list of candidate codewords.
- Each codeword on the list is assigned a quality metric, defined to be the
- soft distance between the received word and the codeword.
+ based on the symbol erasure probabilities.
+ The guessed erasure vector is provided to the BM decoder along with the
+ received word.
+ If the BM decoder finds a candidate codeword, then the codeword is assigned
+ a quality metric, defined to be the soft distance, 
+\begin_inset Formula $d_{s}$
+\end_inset
+
+, between the received word and the codeword, where
+\begin_inset Formula 
+\begin{equation}
+d_{s}=\sum_{i=1}^{n}(1+p_{1,i})\alpha_{i}.\label{eq:soft_distance}
+\end{equation}
+
+\end_inset
+
+and 
+\begin_inset Formula $p_{1,i}$
+\end_inset
+
+ is the fractional power associated with the i'th received symbol and 
+\begin_inset Formula $\alpha_{i}=0$
+\end_inset
+
+ if the i'th received symbol is the same as the corresponding symbol in
+ the codeword, and 
+\begin_inset Formula $\alpha_{i}=1$
+\end_inset
+
+ if the i'th symbol in the received word and the codeword are different.
+ This soft distance can be written as two terms, the first of which is just
+ the Hamming distance between the received word and the codeword.
+ The second term ensures that if two candidate codewords have the same Hamming
+ distance from the received word, a smaller distance will be assigned to
+ the one where the different symbols occurred in lower quality symbols.
+ 
+\end_layout
+
+\begin_layout Standard
+Technically, the algorithm is a list-decoder, potentially generating a list
+ of candidate codewords.
  Among the list of candidate codewords found by this stochastic search algorithm
 , only the one with the smallest soft-distance from the received word is
  kept.
  As with all such algorithms, a stopping criterion is necessary.
  SFRSD accepts a codeword unconditionally if its soft distance is smaller
- than an acceptance threshold, 
+ than an empirically determined acceptance threshold, 
 \begin_inset Formula $d_{a}$
 \end_inset
 
 .
- A timeout is employed to limit the execution time of the algorithm.
- 
+ A timeout is employed to limit the execution time of the algorithm in cases
+ where no codewords within soft distance 
+\begin_inset Formula $d_{a}$
+\end_inset
+
+ of the received word are found in a reasonable number of trials.
 \end_layout
 
 \begin_layout Paragraph
@@ -887,12 +927,14 @@ Algorithm
 \end_layout
 
 \begin_layout Enumerate
-For each symbol in the received word, find the erasure probability from
- the erasure-probability matrix and the 
+For each symbol in the received word, define the erasure probability to
+ be 1.3 times the a priori symbol-error probability determined by the soft-symbol
+ information 
 \begin_inset Formula $\{p_{1}\textrm{-rank},p_{2}/p_{1}\}$
 \end_inset
 
- soft-symbol information.
+.
+ 
 \end_layout
 
 \begin_layout Enumerate
