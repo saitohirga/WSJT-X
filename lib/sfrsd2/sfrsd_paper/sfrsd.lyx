@@ -2,7 +2,7 @@
 \lyxformat 474
 \begin_document
 \begin_header
-\textclass IEEEtran
+\textclass paper
 \use_default_options true
 \maintain_unincluded_children false
 \language english
@@ -28,7 +28,7 @@
 \spacing single
 \use_hyperref false
 \papersize default
-\use_geometry false
+\use_geometry true
 \use_package amsmath 1
 \use_package amssymb 1
 \use_package cancel 1
@@ -52,6 +52,10 @@
 \shortcut idx
 \color #008000
 \end_index
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 1in
+\bottommargin 1in
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
@@ -107,6 +111,10 @@ Koetter-Vardy
  The SFRSD algorithm is conceptually simple and is built around the well-known
  Berlekamp-Massey errors-and-erasures decoder.
  
+\end_layout
+
+\begin_layout Section
+Introduction
 \end_layout
 
 \begin_layout Standard
@@ -216,11 +224,11 @@ A decoder, such as BM, must carry out two tasks:
 \end_layout
 
 \begin_layout Enumerate
-figure out which symbols were received incorrectly 
+determine which symbols were received incorrectly 
 \end_layout
 
 \begin_layout Enumerate
-figure out the correct value of the incorrect symbols 
+determine the correct value of the incorrect symbols 
 \end_layout
 
 \begin_layout Standard
@@ -270,24 +278,24 @@ errors
  When the erasure information is imperfect, then some of the erased symbols
  will actually be correct, and some of the unerased symbols will be in error.
  If a total of 
-\begin_inset Formula $n_{era}$
+\begin_inset Formula $n_{e}$
 \end_inset
 
  symbols are erased and the remaining unerased symbols contain 
-\begin_inset Formula $n_{err}$
+\begin_inset Formula $x$
 \end_inset
 
  errors, then the BM algorithm can find the correct codeword as long as
  
 \begin_inset Formula 
 \begin{equation}
-n_{era}+2n_{err}\le d-1\label{eq:erasures_and_errors}
+n_{e}+2x\le d-1\label{eq:erasures_and_errors}
 \end{equation}
 
 \end_inset
 
 If 
-\begin_inset Formula $n_{era}=0$
+\begin_inset Formula $n_{e}=0$
 \end_inset
 
 , then the decoder is said to be an 
@@ -308,7 +316,7 @@ errors-only
 
 =25 for JT65).
  If 
-\begin_inset Formula $0<n_{era}\le d-1$
+\begin_inset Formula $0<n_{e}\le d-1$
 \end_inset
 
  (
@@ -336,13 +344,13 @@ reference "eq:erasures_and_errors"
 \end_inset
 
 ) says that if 
-\begin_inset Formula $n_{era}$
+\begin_inset Formula $n_{e}$
 \end_inset
 
  symbols are declared to be erased, then the BM decoder will find the correct
  codeword as long as the remaining un-erased symbols contain no more than
  
-\begin_inset Formula $\left\lfloor \frac{51-n_{era}}{2}\right\rfloor $
+\begin_inset Formula $\left\lfloor \frac{51-n_{e}}{2}\right\rfloor $
 \end_inset
 
  errors.
@@ -362,24 +370,17 @@ reference "eq:erasures_and_errors"
 \end_inset
 
 ) to appreciate how the new decoder algorithm works.
- Section 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sec:Errors-and-erasures-decoding-exa"
-
-\end_inset
-
- describes some examples that should illustrate how the errors-and-erasures
+ Section NN describes some examples that illustrate ho w the errors-and-erasures
  capability can be combined with some information about the quality of the
- received symbols to enable development of a decoding algorithm that can
- reliably decode received words that contain many more than 25 errors.
- Section describes the SFRSD decoding algorithm.
+ received symbols to enable a decoding algorithm to reliably decode received
+ words that contain many more than 25 errors.
+ Section NN describes the SFRSD decoding algorithm.
 \end_layout
 
 \begin_layout Section
 \begin_inset CommandInset label
 LatexCommand label
-name "sec:Errors-and-erasures-decoding-exa"
+name "sec:You've-got-to"
 
 \end_inset
 
@@ -390,8 +391,7 @@ You've got to ask yourself.
 \begin_layout Standard
 Consider a particular received codeword that contains 40 incorrect symbols
  and 23 correct symbols.
- It is not known which 40 symbols are in error.
- 
+ It is not known which 40 symbols are in error
 \begin_inset Foot
 status open
 
@@ -402,8 +402,9 @@ In practice the number of errors will not be known either, but this is not
 
 \end_inset
 
+.
  Suppose that the decoder randomly chooses 40 symbols to erase (
-\begin_inset Formula $n_{era}=40$
+\begin_inset Formula $n_{e}=40$
 \end_inset
 
 ), leaving 23 unerased symbols.
@@ -415,7 +416,11 @@ reference "eq:erasures_and_errors"
 \end_inset
 
 ), the BM decoder can successfully decode this word as long as the number
- of errors present in the 23 unerased symbols is 5 or less.
+ of errors, 
+\begin_inset Formula $x$
+\end_inset
+
+, present in the 23 unerased symbols is 5 or less.
  This means that the number of errors captured in the set of 40 erased symbols
  must be at least 35.
  
@@ -432,53 +437,71 @@ Define:
 \end_layout
 
 \begin_layout Itemize
-\begin_inset Formula $N$
+\begin_inset Formula $n$
 \end_inset
 
 = number of symbols in a codeword (63 for JT65),
 \end_layout
 
 \begin_layout Itemize
-\begin_inset Formula $K$
+\begin_inset Formula $X$
 \end_inset
 
 = number of incorrect symbols in a codeword,
 \end_layout
 
 \begin_layout Itemize
-\begin_inset Formula $n$
+\begin_inset Formula $n_{e}$
 \end_inset
 
 = number of symbols erased for errors-and-erasures decoding,
 \end_layout
 
 \begin_layout Itemize
-\begin_inset Formula $k$
+\begin_inset Formula $x$
 \end_inset
 
 = number of incorrect symbols in the set of erased symbols.
 \end_layout
 
 \begin_layout Standard
-Let 
+In an ensemble of received words, 
 \begin_inset Formula $X$
 \end_inset
 
- be the number of incorrect symbols in a set of 
-\begin_inset Formula $n$
+ and 
+\begin_inset Formula $x$
 \end_inset
 
- symbols chosen for erasure.
+ will be random variables.
+ Let 
+\begin_inset Formula $P(x|(X,n_{e}))$
+\end_inset
+
+ denote the conditional probability mass function for the number of incorrect
+ symbols, 
+\begin_inset Formula $x$
+\end_inset
+
+, given that the number of incorrect symbols in the codeword is X and the
+ number of erased symbols is 
+\begin_inset Formula $n_{e}$
+\end_inset
+
+.
  Then
+\end_layout
+
+\begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-P(X=k)=\frac{\binom{K}{k}\binom{N-K}{n-k}}{\binom{N}{n}}\label{eq:hypergeometric_pdf-1}
+P(x|(X,n_{e}))=\frac{\binom{X}{x}\binom{n-X}{n_{e}-x}}{\binom{n}{n_{e}}}\label{eq:hypergeometric_pdf}
 \end{equation}
 
 \end_inset
 
 where 
-\begin_inset Formula $\binom{n}{m}=\frac{n!}{m!(n-m)!}$
+\begin_inset Formula $\binom{n}{k}=\frac{n!}{k!(n-k)!}$
 \end_inset
 
  is the binomial coefficient.
@@ -486,17 +509,31 @@ where
 \begin_inset Quotes eld
 \end_inset
 
-nchoosek(n,k)
+nchoosek(
+\begin_inset Formula $n,k$
+\end_inset
+
+)
 \begin_inset Quotes erd
 \end_inset
 
  function in Gnu Octave.
- The hypergeometric probability mass function is available in Gnu Octave
- as function 
+ The hypergeometric probability mass function defined in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:hypergeometric_pdf"
+
+\end_inset
+
+) is available in Gnu Octave as function 
 \begin_inset Quotes eld
 \end_inset
 
-hygepdf(k,N,K,n)
+hygepdf(
+\begin_inset Formula $x,n,X,n_{e}$
+\end_inset
+
+)
 \begin_inset Quotes erd
 \end_inset
 
@@ -504,14 +541,18 @@ hygepdf(k,N,K,n)
  
 \end_layout
 
+\begin_layout Paragraph
+Case 1
+\end_layout
+
 \begin_layout Case
 A codeword contains 
-\begin_inset Formula $K=40$
+\begin_inset Formula $X=40$
 \end_inset
 
  incorrect symbols.
  In an attempt to decode using an errors-and-erasures decoder, 
-\begin_inset Formula $n=40$
+\begin_inset Formula $n_{e}=40$
 \end_inset
 
  symbols are randomly selected for erasure.
@@ -522,7 +563,7 @@ A codeword contains
  of the erased symbols are incorrect is:
 \begin_inset Formula 
 \[
-P(X=35)=\frac{\binom{40}{35}\binom{63-40}{40-35}}{\binom{63}{40}}=2.356\times10^{-7}.
+P(x=35)=\frac{\binom{40}{35}\binom{63-40}{40-35}}{\binom{63}{40}}=2.356\times10^{-7}.
 \]
 
 \end_inset
@@ -530,7 +571,7 @@ P(X=35)=\frac{\binom{40}{35}\binom{63-40}{40-35}}{\binom{63}{40}}=2.356\times10^
 Similarly:
 \begin_inset Formula 
 \[
-P(X=36)=8.610\times10^{-9}.
+P(x=36)=8.610\times10^{-9}.
 \]
 
 \end_inset
@@ -547,37 +588,40 @@ Since the probability of catching 36 errors is so much smaller than the
  in 4 million.
 \end_layout
 
-\begin_layout Case
-A codeword contains 
-\begin_inset Formula $K=40$
-\end_inset
+\begin_layout Paragraph
+Case 2
+\end_layout
 
- incorrect symbols.
- It is interesting to work out the best choice for the number of symbols
+\begin_layout Case
+It is interesting to work out the best choice for the number of symbols
  that should be selected at random for erasure if the goal is to maximize
  the probability of successfully decoding the word.
- By exhaustive search, it turns out that the best case is to erase 
+ By exhaustive search, it turns out that if 
+\begin_inset Formula $X=40$
+\end_inset
+
+, then the best strategy is to erase 
 \begin_inset Formula $n=45$
 \end_inset
 
  symbols, in which case the word will be decoded if the set of erased symbols
  contains at least 37 errors.
  With 
-\begin_inset Formula $N=63$
+\begin_inset Formula $n=63$
 \end_inset
 
 , 
-\begin_inset Formula $K=40$
+\begin_inset Formula $X=40$
 \end_inset
 
 , 
-\begin_inset Formula $n=45$
+\begin_inset Formula $n_{e}=45$
 \end_inset
 
 , then 
 \begin_inset Formula 
 \[
-P(X\ge37)\simeq2\times10^{-6}.
+P(x\ge37)\simeq2\times10^{-6}.
 \]
 
 \end_inset
@@ -592,6 +636,10 @@ This probability is about 8 times higher than the probability of success
  
 \end_layout
 
+\begin_layout Paragraph
+Case 3
+\end_layout
+
 \begin_layout Case
 Cases 1 and 2 illustrate the fact that a strategy that tries to guess which
  symbols to erase is not going to be very successful unless we are prepared
@@ -599,7 +647,7 @@ Cases 1 and 2 illustrate the fact that a strategy that tries to guess which
  Consider a slight modification to the strategy that can tip the odds in
  our favor.
  Suppose that the codeword contains 
-\begin_inset Formula $K=40$
+\begin_inset Formula $X=40$
 \end_inset
 
  incorrect symbols, as before.
@@ -610,45 +658,81 @@ Cases 1 and 2 illustrate the fact that a strategy that tries to guess which
  the set of erasures is chosen from the smaller set of 53 less reliable
  symbols.
  If 
-\begin_inset Formula $n=40$
+\begin_inset Formula $n_{e}=45$
 \end_inset
 
  symbols are chosen randomly from the set of 
-\begin_inset Formula $N=53$
+\begin_inset Formula $n=53$
 \end_inset
 
  least reliable symbols, it is still necessary for the erased symbols to
- include at least 35 errors (as in Case 1).
+ include at least 37 errors (as in Case 2).
  In this case, with 
-\begin_inset Formula $N=53$
+\begin_inset Formula $n=53$
 \end_inset
 
 , 
-\begin_inset Formula $K=40$
+\begin_inset Formula $X=40$
 \end_inset
 
 , 
-\begin_inset Formula $n=35$
+\begin_inset Formula $n_{e}=45$
 \end_inset
 
 , 
-\begin_inset Formula $P(X=35)=0.001$
+\begin_inset Formula $P(x\ge37)=0.016$
 \end_inset
 
 ! Now, the situation is much better.
- The odds of decoding the word on the first try are approximately 1 in 1000.
- The odds are even better if 41 symbols are erased, in which case 
-\begin_inset Formula $P(X=35)=0.0042$
+ The odds of decoding the word on the first try are approximately 1 in 62.5!
+ 
+\end_layout
+
+\begin_layout Standard
+Even better odds are obtained with 
+\begin_inset Formula $n_{e}=47$
 \end_inset
 
-, giving odds of about 1 in 200!
+ which requires 
+\begin_inset Formula $x\ge38$
+\end_inset
+
+.
+ With 
+\begin_inset Formula $n=53$
+\end_inset
+
+, 
+\begin_inset Formula $X=40$
+\end_inset
+
+, 
+\begin_inset Formula $n_{e}=47$
+\end_inset
+
+, 
+\begin_inset Formula $P(x\ge38)=0.0266$
+\end_inset
+
+, which makes the odds the best so far; about 1 in 38.
+ 
+\end_layout
+
+\begin_layout Section
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:The-decoding-algorithm"
+
+\end_inset
+
+The SFRSD decoding algorithm
 \end_layout
 
 \begin_layout Standard
 Case 3 illustrates how, with the addition of some reliable information about
- the quality of just 10 of the 63 symbols, it is possible to decode received
- words containing a relatively large number of errors using only the BM
- errors-and-erasures decoder.
+ the quality of just 10 of the 63 symbols, it is possible to devise an algorithm
+ that can decode received words containing a relatively large number of
+ errors using only the BM errors-and-erasures decoder.
  The key to improving the odds enough to make the strategy of 
 \begin_inset Quotes eld
 \end_inset
@@ -659,86 +743,220 @@ guessing
 
  at the erasure vector useful for practical implementation is to use information
  about the quality of the received symbols to decide which ones are most
- likely to be in error, and to assign a relatively high probability of erasure
- to the lowest quality symbols and a relatively low probability of erasure
- to the highest quality symbols.
- It turns out that a good choice of the erasure probabilities can increase
- the probability of a successful decode by several orders of magnitude relative
- to a bad choice.
+ likely to be in error.
+ In practice, because the number of errors in the received word is unknown,
+ rather than erase a fixed number of symbols, it is better use a stochastic
+ algorithm which assigns a relatively high probability of erasure to the
+ lowest quality symbols and a relatively low probability of erasure to the
+ highest quality symbols.
+ As illustrated by case 3, a good choice of the erasure probabilities can
+ increase the probability of a successful decode by many orders of magnitude
+ relative to a bad choice.
 \end_layout
 
 \begin_layout Standard
-Rather than selecting a fixed number of symbols to erase, the SFRSD algorithm
- uses information available from the demodulator to assign a variable probabilit
-y of erasure to each received symbol.
- Symbols that are determined to be of low quality and thus likely to be
- incorrect are assigned a high probability of erasure, and symbols that
- are likely to be correct are assigned low erasure probabilities.
+The SFRSD algorithm uses information available from the demodulator to assign
+ a variable probability of erasure to each received symbol.
  The erasure probability for a symbol is determined using two quality indices
- that are derived from information provided by the demodulator.
+ that are derived from the the JT65 64-FSK demodulator.
+ The noncoherent 64-FSK demodulator identifies the most likely received
+ symbol based on which of 64 frequency bins contains the the largest signal
+ plus noise power.
+ The percentage of the total signal plus noise power in the two bins containing
+ the largest and second largest powers (denoted by, 
+\begin_inset Formula $p_{1}$
+\end_inset
+
+ and 
+\begin_inset Formula $p_{2}$
+\end_inset
+
+, respectively) are passed to the decoder from the demodulator as 
+\begin_inset Quotes eld
+\end_inset
+
+soft-symbol
+\begin_inset Quotes erd
+\end_inset
+
+ information.
+ The decoder derives two metrics from 
+\begin_inset Formula $\{p_{1},p_{2}\}:$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $p_{1}$
+\end_inset
+
+-rank: the rank 
+\begin_inset Formula $\{1,2,\ldots,63\}$
+\end_inset
+
+ of the symbol's power percentage, 
+\begin_inset Formula $p_{1}$
+\end_inset
+
+ in the sorted list of 
+\begin_inset Formula $p_{1}$
+\end_inset
+
+ values.
+ High ranking symbols have larger signal to noise ratio than lower ranked
+ symbols.
  
 \end_layout
 
-\begin_layout Section
-The decoding algorithm
+\begin_layout Itemize
+\begin_inset Formula $p_{2}/p_{1}$
+\end_inset
+
+: when 
+\begin_inset Formula $p_{2}/p_{1}$
+\end_inset
+
+ is not small compared to 1, the most likely symbol is not much better than
+ the second most likely symbol
 \end_layout
 
 \begin_layout Standard
-Preliminary setup: Using a large dataset of received words that have been
- successfully decoded, estimate the probability of symbol error as a function
- of the symbol's metrics P1-rank and P2/P1.
- The resulting matrix is scaled by a factor (1.3) and used as the erasure-probabi
-lity matrix in step 2.
+The decoder has a built-in table of symbol error probabilities derived from
+ a large dataset of received words that have been successfully decoded.
+ The table provides an estimate of the 
+\emph on
+a-priori
+\emph default
+ probability of symbol error that is expected based on the 
+\begin_inset Formula $p_{1}$
+\end_inset
+
+-rank and 
+\begin_inset Formula $p_{2}/p_{1}$
+\end_inset
+
+ metrics.
+ These 
+\emph on
+a-priori
+\emph default
+ symbol error probabilities will be close to 1 for lower-quality symbols
+ and closer to 0 for high-quality symbols.
+ Recall, from Case 2, that the best performance was obtained when 
+\begin_inset Formula $n_{e}>X$
+\end_inset
+
+.
+ Correspondingly, the SFRSD algorithm works best when the probability of
+ erasing a symbol is somewhat larger than the probability that the symbol
+ is incorrect.
+ Empirically, it was determined that good performance of the SFRSD algorithm
+ is obtained when the symbol erasure probability is somewhat larger than
+ the prior estimate of symbol error probability.
+ It has been empirically determined that choosing the erasure probabilities
+ to be a factor of 
+\begin_inset Formula $1.3$
+\end_inset
+
+ larger than the symbol error probabilities gives the best results.
 \end_layout
 
 \begin_layout Standard
-For each received word:
+The SFRSD algorithm successively tries to decode the received word.
+ In each iteration, an independent stochastic erasure vector is generated
+ based on a-priori symbol erasure probabilities.
+ Technically, the algorithm is a list-decoder, potentially generating a
+ list of candidate codewords.
+ Each codeword on the list is assigned a quality metric, defined to be the
+ soft distance between the received word and the codeword.
+ Among the list of candidate codewords found by this stochastic search algorithm
+, only the one with the smallest soft-distance from the received word is
+ kept.
+ As with all such algorithms, a stopping criterion is necessary.
+ SFRSD accepts a codeword unconditionally if its soft distance is smaller
+ than an acceptance threshold, 
+\begin_inset Formula $d_{a}$
+\end_inset
+
+.
+ A timeout is employed to limit the execution time of the algorithm.
+ 
 \end_layout
 
-\begin_layout Standard
-1.
- Determine symbol metrics for each symbol in the received word.
- The metrics are the rank {1,2,...,63} of the symbol's power percentage and
- the ratio of the power percentages of the second most likely symbol and
- the most likely symbol.
- Denote these metrics by P1-rank and P2/P1.
+\begin_layout Paragraph
+Algorithm
 \end_layout
 
-\begin_layout Standard
-2.
- Use the erasure probability for each symbol, make independent decisions
- about whether or not to erase each symbol in the word.
+\begin_layout Enumerate
+For each symbol in the received word, find the erasure probability from
+ the erasure-probability matrix and the 
+\begin_inset Formula $\{p_{1}\textrm{-rank},p_{2}/p_{1}\}$
+\end_inset
+
+ soft-symbol information.
+\end_layout
+
+\begin_layout Enumerate
+Make independent decisions about whether or not to erase each symbol in
+ the word using the symbol's erasure probability.
  Allow a total of up to 51 symbols to be erased.
  
 \end_layout
 
-\begin_layout Standard
-3.
- Attempt errors-and-erasures decoding with the erasure vector that was determine
-d in step 3.
- If the decoder is successful, it returns a candidate codeword.
- Go to step 5.
+\begin_layout Enumerate
+Attempt BM errors-and-erasures decoding with the set of erased symbols that
+ was determined in step 2.
+ If the BM decoder is successful go to step 5.
 \end_layout
 
-\begin_layout Standard
-4.
- If decoding is not successful, go to step 2.
+\begin_layout Enumerate
+If decoding is not successful, go to step 2.
 \end_layout
 
-\begin_layout Standard
-5.
- If a candidate codeword is returned by the decoder, calculate its soft
- distance from the received word and save the codeword if the soft distance
- is the smallest one encountered so far.
- If the soft distance is smaller than threshold dthresh, delare a successful
- decode and return the codeword.
+\begin_layout Enumerate
+Calculate the soft distance, 
+\begin_inset Formula $d_{s}$
+\end_inset
+
+, between the candidate codeword and the received word.
+ Set 
+\begin_inset Formula $d_{s,min}=d_{s}$
+\end_inset
+
+ if the soft distance is the smallest one encountered so far.
 \end_layout
 
-\begin_layout Standard
-6.
- If the number of trials is equal to the maximum allowed number, exit and
- return the current best codeword.
- Otherwise, go to 2
+\begin_layout Enumerate
+If 
+\begin_inset Formula $d_{s,min}\le d_{a}$
+\end_inset
+
+, go to 8.
+ 
+\end_layout
+
+\begin_layout Enumerate
+If the number of trials is less than the maximum allowed number, go to 2.
+ Otherwise, declare decoding failure and exit.
+\end_layout
+
+\begin_layout Enumerate
+A codeword with 
+\begin_inset Formula $d_{s}\le d_{a}$
+\end_inset
+
+ has been found.
+ Declare that is successful.
+ Return the best codeword found so far.
+\end_layout
+
+\begin_layout Section
+Results
+\end_layout
+
+\begin_layout Section
+Summary 
 \end_layout
 
 \begin_layout Bibliography
