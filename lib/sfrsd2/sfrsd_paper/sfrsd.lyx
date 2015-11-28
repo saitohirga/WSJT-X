@@ -755,13 +755,11 @@ guessing
 \end_layout
 
 \begin_layout Standard
-The SFRSD algorithm uses information available from the demodulator to assign
- a variable probability of erasure to each received symbol.
- The erasure probability for a symbol is determined using two quality indices
- that are derived from the the JT65 64-FSK demodulator.
- The noncoherent 64-FSK demodulator identifies the most likely received
- symbol based on which of 64 frequency bins contains the the largest signal
- plus noise power.
+The SFRSD algorithm uses two quality indices available from the JT65 noncoherent
+ 64-FSK demodulator to assign a variable probability of erasure to each
+ received symbol.
+ The demodulator identifies the most likely received symbol based on which
+ of 64 frequency bins contains the the largest signal plus noise power.
  The percentage of the total signal plus noise power in the two bins containing
  the largest and second largest powers (denoted by, 
 \begin_inset Formula $p_{1}$
@@ -947,7 +945,7 @@ A codeword with
 \end_inset
 
  has been found.
- Declare that is successful.
+ Declare a successful decode.
  Return the best codeword found so far.
 \end_layout
 
