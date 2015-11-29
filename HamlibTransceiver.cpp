@@ -166,6 +166,7 @@ HamlibTransceiver::HamlibTransceiver (TransceiverFactory::PTTMethod ptt_type, QS
   , back_ptt_port_ {false}
   , is_dummy_ {true}
   , reversed_ {false}
+  , mode_query_works_ {true}
   , split_query_works_ {true}
   , get_vfo_works_ {true}
 {
@@ -213,6 +214,7 @@ HamlibTransceiver::HamlibTransceiver (int model_number, TransceiverFactory::Para
   , back_ptt_port_ {TransceiverFactory::TX_audio_source_rear == params.audio_source}
   , is_dummy_ {RIG_MODEL_DUMMY == model_number}
   , reversed_ {false}
+  , mode_query_works_ {true}
   , split_query_works_ {true}
   , tickle_hamlib_ {false}
   , get_vfo_works_ {true}
@@ -428,10 +430,20 @@ void HamlibTransceiver::do_start ()
 
           reversed_ = RIG_VFO_B == v;
 
-          if (!(rig_->caps->targetable_vfo & (RIG_TARGETABLE_MODE | RIG_TARGETABLE_PURE)))
+          if (mode_query_works_ && !(rig_->caps->targetable_vfo & (RIG_TARGETABLE_MODE | RIG_TARGETABLE_PURE)))
             {
-              error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w), tr ("getting current mode"));
-              TRACE_CAT ("rig_get_mode current mode =" << rig_strrmode (m) << "bw =" << w);
+              if (RIG_OK == rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w))
+                {
+                  TRACE_CAT ("rig_get_mode current mode =" << rig_strrmode (m) << "bw =" << w);
+                }
+              else
+                {
+                  mode_query_works_ = false;
+                  // Some rigs (HDSDR) don't have a working way of
+                  // reporting MODE so we give up on mode queries -
+                  // sets will still cause an error
+                  TRACE_CAT_POLL ("rig_get_mode can't do on this rig");
+                }
             }
         }
       update_mode (map_mode (m));
@@ -462,8 +474,11 @@ void HamlibTransceiver::do_stop ()
   if (is_dummy_)
     {
       rig_get_freq (rig_.data (), RIG_VFO_CURR, &dummy_frequency_);
-      pbwidth_t width;
-      rig_get_mode (rig_.data (), RIG_VFO_CURR, &dummy_mode_, &width);
+      if (mode_query_works_)
+        {
+          pbwidth_t width;
+          rig_get_mode (rig_.data (), RIG_VFO_CURR, &dummy_mode_, &width);
+        }
     }
   if (rig_)
     {
@@ -516,7 +531,7 @@ void HamlibTransceiver::do_frequency (Frequency f, MODE m)
   // set
   error_check (rig_set_freq (rig_.data (), RIG_VFO_CURR, f), tr ("setting frequency"));
 
-  if (UNK != m)
+  if (mode_query_works_ && UNK != m)
     {
       do_mode (m, false);
 
@@ -702,9 +717,12 @@ void HamlibTransceiver::poll ()
       update_other_frequency (f);
     }
 
-  error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w), tr ("getting current VFO mode"));
-  TRACE_CAT_POLL ("rig_get_mode mode =" << rig_strrmode (m) << "bw =" << w);
-  update_mode (map_mode (m));
+  if (mode_query_works_)
+    {
+      error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w), tr ("getting current VFO mode"));
+      TRACE_CAT_POLL ("rig_get_mode mode =" << rig_strrmode (m) << "bw =" << w);
+      update_mode (map_mode (m));
+    }
 
   if (!is_dummy_ && rig_->caps->get_split_vfo && split_query_works_)
     {
