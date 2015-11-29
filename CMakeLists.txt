@@ -148,32 +148,40 @@ message (STATUS "******************************************************")
 #
 # install locations
 #
-set (WSJT_BIN_DESTINATION bin)
-set (WSJT_LIB_DESTINATION lib)
-set (WSJT_SHARE_DESTINATION share)
-set (WSJT_DOC_DESTINATION doc/${CMAKE_PROJECT_NAME})
-set (WSJT_DATA_DESTINATION ${CMAKE_PROJECT_NAME})
-set (WSJT_MANPAGE_DESTINATION share)
-set (WSJT_PLUGIN_DESTINATION lib/plugins)
-set (WSJT_QT_CONF_DESTINATION bin)
+set (BIN_DESTINATION bin)
+set (LIB_DESTINATION lib)
+set (SHARE_DESTINATION share)
+set (DOC_DESTINATION ${SHARE_DESTINATION}/doc/${CMAKE_PROJECT_NAME})
+set (DATA_DESTINATION ${SHARE_DESTINATION}/${CMAKE_PROJECT_NAME})
+set (MANPAGE_DESTINATION ${SHARE_DESTINATION})
+set (PLUGIN_DESTINATION lib/plugins)
+set (QT_CONF_DESTINATION bin)
 
 if (WIN32)
-  set (WSJT_SHARE_DESTINATION bin)
-  set (WSJT_DOC_DESTINATION doc)
-  set (WSJT_DATA_DESTINATION data)
-  set (WSJT_PLUGIN_DESTINATION plugins)
+  set (SHARE_DESTINATION bin)
+  set (DOC_DESTINATION ${SHARE_DESTINATION}/doc)
+  set (DATA_DESTINATION ${SHARE_DESTINATION}/data)
+  set (PLUGIN_DESTINATION plugins)
 endif (WIN32)
 
 if (APPLE)
-  set (WSJT_BIN_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/MacOS)
-  set (WSJT_SHARE_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
-  set (WSJT_MANPAGE_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
-  set (WSJT_DOC_DESTINATION doc)
-  set (WSJT_DATA_DESTINATION data)
-  set (WSJT_PLUGIN_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/PlugIns)
-  set (WSJT_QT_CONF_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
+  set (BIN_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/MacOS)
+  set (SHARE_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
+  set (MANPAGE_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
+  set (DOC_DESTINATION ${SHARE_DESTINATION}/doc)
+  set (DATA_DESTINATION ${SHARE_DESTINATION}/data)
+  set (PLUGIN_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/PlugIns)
+  set (QT_CONF_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
 endif (APPLE)
 
+set (WSJT_BIN_DESTINATION ${BIN_DESTINATION} CACHE PATH "Path for executables")
+set (WSJT_LIB_DESTINATION ${LIB_DESTINATION} CACHE PATH "Path for libraries")
+set (WSJT_SHARE_DESTINATION ${SHARE_DESTINATION} CACHE PATH "Path for shared content")
+set (WSJT_DOC_DESTINATION ${DOC_DESTINATION} CACHE PATH "Path for documentation")
+set (WSJT_DATA_DESTINATION ${DATA_DESTINATION} CACHE PATH "Path for shared RO data")
+set (WSJT_MANPAGE_DESTINATION ${MANPAGE_DESTINATION} CACHE PATH "Path for manpages")
+set (WSJT_PLUGIN_DESTINATION ${PLUGIN_DESTINATION} CACHE PATH "Path for plugins")
+set (WSJT_QT_CONF_DESTINATION ${QT_CONF_DESTINATION} CACHE PATH "Path for the qt.conf file")
 
 #
 # Project sources
@@ -1025,13 +1033,13 @@ install (FILES
   NEWS
   INSTALL
   BUGS
-  DESTINATION ${WSJT_SHARE_DESTINATION}/${WSJT_DOC_DESTINATION}
+  DESTINATION ${WSJT_DOC_DESTINATION}
   #COMPONENT runtime
   )
 
 install (FILES
   contrib/Ephemeris/JPLEPH
-  DESTINATION ${WSJT_SHARE_DESTINATION}/${WSJT_DATA_DESTINATION}
+  DESTINATION ${WSJT_DATA_DESTINATION}
   #COMPONENT runtime
   )
 
@@ -1122,7 +1130,8 @@ if (NOT is_debug_build)
 
     # install a qt.conf file
     install (CODE "
-  file (WRITE \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION}/qt.conf\"
+        get_filename_component (the_qt_conf \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION}/qt.conf\" REALPATH)
+        file (WRITE \"\${the_qt_conf}\"
 \"[Paths]
 \")
 "
@@ -1130,7 +1139,7 @@ if (NOT is_debug_build)
       )
 
     # if a system Qt is used (e.g. installed in /usr/lib/), it will not be included in the installation
-    set (fixup_exe "\${CMAKE_INSTALL_PREFIX}/${WSJT_BIN_DESTINATION}/${CMAKE_PROJECT_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
+    set (fixup_exe "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_BIN_DESTINATION}/${CMAKE_PROJECT_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
 
     #get_filename_component (hamlib_lib_dir ${hamlib_LIBRARIES} PATH)
 
@@ -1166,7 +1175,8 @@ if (NOT is_debug_build)
 
       # add plugins path for Mac Bundle
       install (CODE "
-file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION}/qt.conf\"
+          get_filename_component (the_qt_conf \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION}/qt.conf\" REALPATH)
+          file (APPEND \"\${the_qt_conf}\"
 \"Plugins = PlugIns
 \")
 "
@@ -1213,7 +1223,8 @@ file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION
       # add plugins path for WIN32
       file (RELATIVE_PATH _plugins_path "${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION}" "${CMAKE_INSTALL_PREFIX}/${WSJT_PLUGIN_DESTINATION}")
       install (CODE "
-file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION}/qt.conf\"
+        get_filename_component (the_qt_conf \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION}/qt.conf\" REALPATH)
+        file (APPEND \"\${the_qt_conf}\"
 \"Plugins = ${_plugins_path}
 \")
 "
@@ -1227,16 +1238,15 @@ file (APPEND \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_QT_CONF_DESTINATION
     list (APPEND fixup_library_dirs ${hamlib_LIBRARY_DIRS})
 
     install (CODE "
-     file (GLOB_RECURSE QTPLUGINS
-       \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_PLUGIN_DESTINATION}/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
-     set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake/Modules ${CMAKE_MODULE_PATH})
-     include (BundleUtilities)
-     set (BU_CHMOD_BUNDLE_ITEMS ON)
-     set (gp_tool ${gp_tool})
-     # canonicalize path in install context
-     get_filename_component (the_exe ${fixup_exe} REALPATH)
-     fixup_bundle (\"\${the_exe}\" \"\${QTPLUGINS}\" \"${fixup_library_dirs}\")
-   "
+        get_filename_component (the_path \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_PLUGIN_DESTINATION}\" REALPATH)
+        file (GLOB_RECURSE QTPLUGINS \"\${the_path}/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
+        set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake/Modules ${CMAKE_MODULE_PATH})
+        include (BundleUtilities)
+        set (BU_CHMOD_BUNDLE_ITEMS ON)
+        set (gp_tool ${gp_tool})
+        # canonicalize path in install context
+        get_filename_component (the_exe ${fixup_exe} REALPATH)
+        fixup_bundle (\"\${the_exe}\" \"\${QTPLUGINS}\" \"${fixup_library_dirs}\")"
       #COMPONENT runtime
       )
   endif (APPLE OR WIN32)
