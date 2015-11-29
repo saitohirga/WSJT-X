@@ -146,7 +146,7 @@ add_custom_target (docs ALL DEPENDS ${user_guide})
 
 install (FILES
   ${user_guide}
-  DESTINATION ${WSJT_SHARE_DESTINATION}/${WSJT_DOC_DESTINATION}
+  DESTINATION ${WSJT_DOC_DESTINATION}
   RENAME ${PROJECT_MANUAL}
   #COMPONENT runtime
   )
