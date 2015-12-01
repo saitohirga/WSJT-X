@@ -4123,6 +4123,10 @@ void MainWindow::handle_transceiver_failure (QString reason)
   ui->readFreq->setEnabled (true);
   on_stopTxButton_clicked ();
   rigFailure ("Rig Control Error", reason);
+
+  // disable WSPR band hopping so that spots are not sent on the wrong
+  // band
+  ui->band_hopping_group_box->setChecked (false);
 }
 
 void MainWindow::rigFailure (QString const& reason, QString const& detail)
