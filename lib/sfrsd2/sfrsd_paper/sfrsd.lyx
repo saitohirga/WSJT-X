@@ -829,7 +829,7 @@ For each received symbol, define the erasure probability as 1.3 times the
 a priori
 \emph default
  symbol-error probability determined from soft-symbol information 
-\begin_inset Formula $\{p_{1}\textrm{-rank},\,p_{2}/p_{1}\}$
+\begin_inset Formula $\{p_{1}\textrm{-rank},\, p_{2}/p_{1}\}$
 \end_inset
 
 .
@@ -931,6 +931,43 @@ Number of decodes vs.
 \begin_layout Itemize
 Probability of successful decode vs.
  Es/No or S/N in 2500 Hz BW
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename fig_psuccess.pdf
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Percentage of JT65 messages successfully decoded as a function of SNR in
+ 2.5 kHz bandwidth.
+ Results are shown for the hard-decision Berlekamp-Massey (BM) and the Franke-Ta
+ylor (FT) decoding algorithms.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Itemize
