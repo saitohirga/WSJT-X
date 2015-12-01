@@ -4,6 +4,11 @@
 
 #include <QByteArray>
 #include <QString>
+#include <QStandardPaths>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QDebug>
 
 #include "moc_HamlibTransceiver.cpp"
@@ -229,6 +234,52 @@ HamlibTransceiver::HamlibTransceiver (int model_number, TransceiverFactory::Para
     }
 
   // rig_->state.obj = this;
+
+  {
+    //
+    // user defined Hamlib settings
+    //
+    QFile settings_file {QStandardPaths::locate (
+#if QT_VERSION >= 0x050500
+                                                 QStandardPaths::AppConfigLocation
+#else
+                                                 QStandardPaths::ConfigLocation
+#endif
+                                                 , "hamlib_settings.json")};
+    if (settings_file.open (QFile::ReadOnly))
+      {
+        QJsonParseError status;
+        auto settings_doc = QJsonDocument::fromJson (settings_file.readAll (), &status);
+        if (status.error)
+          {
+            throw error {tr ("Hamlib settings file error: %1 at character offset %2")
+                .arg (status.errorString ()).arg (status.offset)};
+          }
+        if (!settings_doc.isObject ())
+          {
+            throw error {tr ("Hamlib settings file error: top level must be a JSON object")};
+          }
+        auto const& settings = settings_doc.object ();
+
+        //
+        // configuration settings
+        //
+        auto const& config = settings["config"];
+        if (!config.isUndefined ())
+          {
+            if (!config.isObject ())
+              {
+                throw error {tr ("Hamlib settings file error: config must be a JSON object")};
+              }
+            auto const& config_list = config.toObject ();
+            for (auto item = config_list.constBegin (); item != config_list.constEnd (); ++item)
+              {
+                set_conf (item.key ().toLocal8Bit ().constData ()
+                          , (*item).toVariant ().toString ().toLocal8Bit ().constData ());
+              }
+          }
+      }
+  }
 
   if (RIG_MODEL_DUMMY != model_number)
     {
