@@ -536,7 +536,7 @@ How might we best choose the number of symbols to erase, in order to maximize
 , the probability of successful decode in a single try is 
 \begin_inset Formula 
 \[
-P(x\ge37)\simeq2\times10^{-6}.
+P(x\ge37)\simeq1.9\times10^{-6}.
 \]
 
 \end_inset
@@ -911,7 +911,7 @@ histogram of
 \begin_inset Formula $s$
 \end_inset
 
- (number of erasures) for succeffsul decodes with HF and EME data
+ (number of erasures) for successful decodes with HF and EME data
 \end_layout
 
 \begin_layout Itemize
@@ -960,8 +960,8 @@ status open
 \begin_layout Plain Layout
 Percentage of JT65 messages successfully decoded as a function of SNR in
  2.5 kHz bandwidth.
- Results are shown for the hard-decision Berlekamp-Massey (BM) and the soft-deci
-sion Franke-Taylor (FT) decoding algorithms.
+ Results are shown for the hard-decision Berlekamp-Massey (BM) and soft-decision
+ Franke-Taylor (FT) decoding algorithms.
 \end_layout
 
 \end_inset
