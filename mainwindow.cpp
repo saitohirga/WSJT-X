@@ -2348,8 +2348,8 @@ void MainWindow::guiUpdate()
         m_ntx=7;
         ui->rbGenMsg->setChecked(true);
       } else {
-        m_ntx=6;
-        ui->txrb6->setChecked(true);
+//JHT 11/29/2015        m_ntx=6;
+//        ui->txrb6->setChecked(true);
       }
     }
   }

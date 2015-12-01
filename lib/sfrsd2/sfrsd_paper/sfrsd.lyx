@@ -89,23 +89,14 @@ The JT65 mode has revolutionized amateur-radio weak-signal communication
  by enabling amateur radio operators with small antennas and relatively
  low-power transmitters to communicate over propagation paths not usable
  with traditional technologies.
- One reason for the success and popularity of JT65 is its use of strong
- error-correction coding.
- The JT65 code is a short block-length, low-rate, Reed-Solomon code based
- on a 64-symbol alphabet.
- Since 2004, most JT65 decoders have used the patented 
-\begin_inset Quotes eld
-\end_inset
-
-Koetter-Vardy
-\begin_inset Quotes erd
-\end_inset
-
- (KV) algebraic soft-decision decoder.
+ A major reason for the success and popularity of JT65 is its use of strong
+ error-correction coding: a short block-length, low-rate, Reed-Solomon code
+ based on a 64-symbol alphabet.
+ Since 2004, most JT65 decoders have used the patented Koetter-Vardy (KV)
+ algebraic soft-decision decoder.
  The KV decoder is implemented in a closed-source program licensed to K1JT
  for use in amateur radio applications.
- We describe here a new open-source alternative called the FTRSD (or FT)
- algotithm.
+ We describe here a new open-source alternative called the FT algotithm.
  It is conceptually simple, is built around the well-known Berlekamp-Massey
  errors-and-erasures algorithm, and perform at least as well as the KV decoder.
 \end_layout
@@ -116,7 +107,7 @@ Introduction
 
 \begin_layout Standard
 JT65 message frames consist of a short, compressed message encoded for transmiss
-ion using a Reed-Solomon code.
+ion with a Reed-Solomon code.
  Reed-Solomon codes are block codes; as such they are characterized by the
  length of their codewords, 
 \begin_inset Formula $n$
@@ -134,7 +125,8 @@ ion using a Reed-Solomon code.
 
 .
  JT65 uses a (63,12) Reed-Solomon code with 64 possible values for each
- symbol, so each symbol represents 
+ symbol.
+ Each symbol represents 
 \begin_inset Formula $\log_{2}64=6$
 \end_inset
 
@@ -181,9 +173,9 @@ The minimum Hamming distance of the JT65 code is
 \end_layout
 
 \begin_layout Standard
-Given only a received word containing some incorrect symbols (errors), the
- received word can be decoded into the correct codeword using a deterministic,
- algebraic algorithm provided that no more than 
+Given a received word containing some incorrect symbols (errors), the received
+ word can be decoded into the correct codeword using a deterministic, algebraic
+ algorithm provided that no more than 
 \begin_inset Formula $t$
 \end_inset
 
@@ -199,11 +191,11 @@ For the JT65 code,
 \begin_inset Formula $t=25$
 \end_inset
 
-, which means that it is always possible to efficiently decode a received
- word having no more than 25 symbol errors.
+: it is always possible to efficiently decode a received word having no
+ more than 25 symbol errors.
  Any one of several well-known algebraic algorithms, such as the widely
  used Berlekamp-Massey (BM) algorithm, can carry out the decoding.
- Two steps are ncessarily involved, namely
+ Two steps are ncessarily involved in this process, namely
 \end_layout
 
 \begin_layout Enumerate
@@ -215,16 +207,16 @@ determine the correct value of the incorrect symbols
 \end_layout
 
 \begin_layout Standard
-If it is somehow known that certain symbols are incorrect, this information
- can be used to reduce the amount of work in step 1 and to allow step 2
- to correct more than 
+If we somehow know that certain symbols are incorrect, this information
+ can be used to reduce the work in step 1 and allow step 2 to correct more
+ than 
 \begin_inset Formula $t$
 \end_inset
 
  errors.
- In the unlikely event that the location of every error can be provided
- to the BM decoder, and if no correct symbols are accidentally labeled as
- errors, the BM algorithm can correct up to 
+ In the unlikely event that the location of every error is known, and if
+ no correct symbols are accidentally labeled as errors, the BM algorithm
+ can correct up to 
 \begin_inset Formula $d$
 \end_inset
 
@@ -233,34 +225,33 @@ If it is somehow known that certain symbols are incorrect, this information
 \end_layout
 
 \begin_layout Standard
-The FT algorithm creates a list of symbols suspected of being incorrect
- and sends it to the BM decoder.
+The FT algorithm creates lists of symbols suspected of being incorrect and
+ sends them to the BM decoder.
  Symbols flagged in this way are called 
 \begin_inset Quotes eld
 \end_inset
 
-erasures
+erasures,
 \begin_inset Quotes erd
 \end_inset
 
-, while other incorrect symbols will be called 
+ while other incorrect symbols will be called 
 \begin_inset Quotes eld
 \end_inset
 
-errors
+errors.
 \begin_inset Quotes erd
 \end_inset
 
-.
  As already noted, with perfect erasure information up to 51 errors can
  be corrected.
- When the erasure information is imperfect, some of the erased symbols may
- be correct and some other symbols in error.
+ Imperfect erasure information means that some erased symbols may be correct,
+ and some other symbols in error.
  If 
 \begin_inset Formula $s$
 \end_inset
 
- symbols are erased and the remaining unerased symbols contain 
+ symbols are erased and the remaining (unerased) symbols contain 
 \begin_inset Formula $e$
 \end_inset
 
@@ -301,7 +292,7 @@ errors-only
 \begin_inset Formula $d-1=51$
 \end_inset
 
- for JT65), the decoder is said to be an 
+ for JT65), the decoder is called an 
 \begin_inset Quotes eld
 \end_inset
 
@@ -310,8 +301,8 @@ errors-and-erasures
 \end_inset
 
  decoder.
- The errors-and-erasures capability of Reed-Solomon codes lies at the core
- of the FTRSD algorithm.
+ The possibility of doing errors-and-erasures decoding lies at the heart
+ of the FT algorithm.
  
 \end_layout
 
@@ -326,17 +317,17 @@ Do I feel lucky?
 \end_layout
 
 \begin_layout Standard
-The FTRSD algorithm uses a statistical argument based on the quality of
- received symbols to generate lists of symbols likely to be in error, thereby
- enabling reliable decoding of received codewords with more than 25 errors.
- As a specific example, consider a received JT65 codeword with 23 correct
+The FT algorithm uses the estimated quality of received symbols to generate
+ lists of symbols considered likely to be in error, thereby enabling reliable
+ decoding of received words with more than 25 errors.
+ As a specific example, consider a received JT65 signal producing 23 correct
  symbols and 40 errors.
  We do not know which symbols are in error.
- Suppose that the decoder randomly chooses 
+ Suppose that the decoder randomly selects 
 \begin_inset Formula $s=40$
 \end_inset
 
- symbols to erase, leaving 23 unerased symbols.
+ symbols for erasure, leaving 23 unerased symbols.
  According to Eq.
  (
 \begin_inset CommandInset ref
@@ -381,15 +372,11 @@ tric probability distribution.
 \end_inset
 
  will be random variables.
- Let 
-\begin_inset Formula $P(x|N,X,s)$
-\end_inset
-
- denote the conditional probability mass function for 
+ The conditional probability mass function for 
 \begin_inset Formula $x$
 \end_inset
 
-, the number of erased incorrect symbols, given the stated values of 
+ given stated values of 
 \begin_inset Formula $N$
 \end_inset
 
@@ -401,8 +388,7 @@ tric probability distribution.
 \begin_inset Formula $s$
 \end_inset
 
-.
- Then
+ may be written as
 \end_layout
 
 \begin_layout Standard
@@ -418,7 +404,7 @@ where
 \end_inset
 
  is the binomial coefficient.
- [The binomial coefficient can be calculated using the 
+ The binomial coefficient can be calculated using the function 
 \begin_inset Quotes eld
 \end_inset
 
@@ -430,7 +416,7 @@ nchoosek(
 \begin_inset Quotes erd
 \end_inset
 
- function in Gnu Octave.
+ in the interpreted language GNU Octave.
  The hypergeometric probability mass function defined in Eq.
  (
 \begin_inset CommandInset ref
@@ -439,7 +425,7 @@ reference "eq:hypergeometric_pdf"
 
 \end_inset
 
-) is available in Gnu Octave as function 
+) is available in GNU Octave as function 
 \begin_inset Quotes eld
 \end_inset
 
@@ -451,15 +437,15 @@ hygepdf(
 \begin_inset Quotes erd
 \end_inset
 
-.]
+.
 \end_layout
 
 \begin_layout Paragraph
 Example 1:
 \end_layout
 
-\begin_layout Case
-A codeword contains 
+\begin_layout Standard
+Suppose a codeword contains 
 \begin_inset Formula $X=40$
 \end_inset
 
@@ -477,7 +463,7 @@ A codeword contains
 \begin_inset Formula $x=35$
 \end_inset
 
- of the erased symbols are incorrect is then
+ of the erased symbols are actually incorrect is then
 \begin_inset Formula 
 \[
 P(x=35)=\frac{\binom{40}{35}\binom{63-40}{40-35}}{\binom{63}{40}}=2.356\times10^{-7}.
@@ -513,10 +499,10 @@ ty of erasing 35 errors, we may safely conclude that the probability of
 Example 2:
 \end_layout
 
-\begin_layout Case
-How might we best choose the number of symbols to be chosen for erasure,
- so as to maximize the probability of successful decoding? By exhaustive
- search over all possible values up to 
+\begin_layout Standard
+How might we best choose the number of symbols to erase, in order to maximize
+ the probability of successful decoding? By exhaustive search over all possible
+ values up to 
 \begin_inset Formula $s=51$
 \end_inset
 
@@ -551,8 +537,9 @@ P(x\ge37)\simeq2\times10^{-6}.
 \end_inset
 
 This probability is about 8 times higher than the probability of success
- when only 40 symbols were erased, but the odds of successfully decoding
- on the first try are still only about 1 in 500,000.
+ when only 40 symbols were erased.
+ Nevertheless, the odds of successfully decoding on the first try are still
+ only about 1 in 500,000.
  
 \end_layout
 
@@ -560,19 +547,19 @@ This probability is about 8 times higher than the probability of success
 Example 3:
 \end_layout
 
-\begin_layout Case
-Examples 1 and 2 show that a strategy of randomly selecting symbols to erase
+\begin_layout Standard
+Examples 1 and 2 show that a random strategy for selecting symbols to erase
  is unlikely to be successful unless we are prepared to wait a long time
  for an answer.
  So let's modify the strategy to tip the odds in our favor.
- Let the received symbol set contain 
+ Let the received word contain 
 \begin_inset Formula $X=40$
 \end_inset
 
- incorrect symbols, as before, but suppose it is known that 10 symbols are
- much more reliable than the other 53.
- The 10 most reliable symbols are therefore protected from erasure, and
- erasures chosen from the smaller set of 
+ incorrect symbols, as before, but suppose we know that 10 symbols are significa
+ntly more reliable than the other 53.
+ We might therefore protect the 10 most reliable symbols from erasure, and
+ choose erasures from the smaller set of 
 \begin_inset Formula $N=53$
 \end_inset
 
@@ -581,11 +568,9 @@ Examples 1 and 2 show that a strategy of randomly selecting symbols to erase
 \begin_inset Formula $s=45$
 \end_inset
 
- symbols are now chosen randomly from the set of 53 least reliable symbols,
- it is still necessary for the erased symbols to include at least 37 errors,
- as in Example 2.
- However, the probabilities are now much more favorable.
- With 
+ symbols are chosen randomly in this way, it is still necessary for the
+ erased symbols to include at least 37 errors, as in Example 2.
+ However, the probabilities are now much more favorable: with 
 \begin_inset Formula $N=53$
 \end_inset
 
@@ -593,7 +578,7 @@ Examples 1 and 2 show that a strategy of randomly selecting symbols to erase
 \begin_inset Formula $X=40$
 \end_inset
 
-, 
+, and 
 \begin_inset Formula $s=45$
 \end_inset
 
@@ -610,7 +595,7 @@ reference "eq:hypergeometric_pdf"
 \end_inset
 
 .
- Even better odds are obtained with 
+ Even better odds are obtained by choosing 
 \begin_inset Formula $s=47$
 \end_inset
 
@@ -627,7 +612,7 @@ reference "eq:hypergeometric_pdf"
 \begin_inset Formula $X=40$
 \end_inset
 
-, and
+, and 
 \begin_inset Formula $s=47$
 \end_inset
 
@@ -636,8 +621,9 @@ reference "eq:hypergeometric_pdf"
 \end_inset
 
 .
- These odds are the best so far, about 1 in 38.
- 
+ The odds for successful decoding on the first try are now about 1 in 38.
+ A few hundred independently randomized tries would be enough to all-but-guarant
+ee production of a valid codeword from the BM decoder.
 \end_layout
 
 \begin_layout Section
@@ -647,23 +633,21 @@ name "sec:The-decoding-algorithm"
 
 \end_inset
 
-The FTRSD decoding algorithm
+The FT decoding algorithm
 \end_layout
 
 \begin_layout Standard
-Example 3 shows how reliable information about symbol quality might lead
- to an algorithm capable of decoding received frames with a large number
- of errors.
- In practice the number of errors in the received word is unknown, so it
- is better use a stochastic algorithm to assign a high probability of erasure
- to low-quality symbols and a relatively low probability to high-quality
- symbols.
- As illustrated by Example 3, a good choice of erasure probabilities can
- increase the chance of a successful decode by many orders of magnitude.
+Example 3 shows how reliable information about symbol quality should make
+ it possible to decode received frames having a large number of errors.
+ In practice the number of errors in the received word is unknown, so we
+ use a stochastic algorithm to assign a high erasure probability to low-quality
+ symbols and a relatively low probability to high-quality symbols.
+ As illustrated by Example 3, a good choice of these probabilities can increase
+ the chance of a successful decode by many orders of magnitude.
 \end_layout
 
 \begin_layout Standard
-The FTRSD algorithm uses two quality indices made available by a noncoherent
+The FT algorithm uses two quality indices made available by a noncoherent
  64-FSK demodulator.
  The demodulator identifies the most likely value for each symbol based
  on which of 64 frequency bins contains the the largest signal-plus-noise
@@ -710,9 +694,8 @@ soft-symbol
 \end_inset
 
  values.
- High ranking symbols have larger signal-to-noise ratio than lower ranked
- symbols.
- 
+ High ranking symbols have larger signal-to-noise ratio than those with
+ lower rank.
 \end_layout
 
 \begin_layout Itemize
@@ -728,8 +711,8 @@ soft-symbol
 \end_layout
 
 \begin_layout Standard
-The FTRSD decoder uses a table of symbol error probabilities derived from
- a large dataset of received words that have been successfully decoded.
+The FT decoder uses a table of symbol error probabilities derived from a
+ large dataset of received words that have been successfully decoded.
  The table provides an estimate of the 
 \emph on
 a-priori
@@ -743,50 +726,40 @@ a-priori
 \end_inset
 
  metrics.
- These probabilities will be close to 1 for low-quality symbols and close
- to 0 for high-quality symbols.
- Recall from Examples 2 and 3 that the best performance was obtained when
- 
+ These probabilities are close to 1 for low-quality symbols and close to
+ 0 for high-quality symbols.
+ Recall from Examples 2 and 3 that best performance was obtained with 
 \begin_inset Formula $s>X$
 \end_inset
 
 .
- Correspondingly, the FTRSD algorithm works best when the probability of
- erasing a symbol is somewhat larger than the probability that the symbol
- is incorrect.
+ Correspondingly, the FT algorithm works best when the probability of erasing
+ a symbol is somewhat larger than the probability that the symbol is incorrect.
  Empirically, we found good decoding performance when the symbol erasure
  probability is about 1.3 times the symbol error probability.
 \end_layout
 
 \begin_layout Standard
-The FTRSD algorithm tries successively to decode the received word using
- educated guesses to select symbols for erasure.
- For each iteration an independent stochastic erasure vector is generated
- based on the symbol erasure probabilities.
- The erasure vector is provided to the BM decoder along with the full set
- of 63 received symbols.
- If the BM decoder finds a candidate codeword it is assigned a quality metric,
- defined as the soft distance, 
+The FT algorithm tries successively to decode the received word using independen
+t educated guesses to select symbols for erasure.
+ For each iteration an stochastic erasure vector is generated based on the
+ symbol erasure probabilities.
+ The erasure vector is sent to the BM decoder along with the full set of
+ 63 received symbols.
+ When the BM decoder finds a candidate codeword it is assigned a quality
+ metric 
 \begin_inset Formula $d_{s}$
 \end_inset
 
-, between the received word and the codeword:
+defined as the soft distance between the received word and the codeword:
 \begin_inset Formula 
 \begin{equation}
-d_{s}=\sum_{i=1}^{n}(1+p_{1,i})\alpha_{i}.\label{eq:soft_distance}
+d_{s}=\sum_{i=1}^{n}\alpha_{i}\,(1+p_{1,i}).\label{eq:soft_distance}
 \end{equation}
 
 \end_inset
 
 Here 
-\begin_inset Formula $p_{1,i}$
-\end_inset
-
- is the fractional power associated with received symbol 
-\begin_inset Formula $i$
-\end_inset
-
-; 
 \begin_inset Formula $\alpha_{i}=0$
 \end_inset
 
@@ -794,28 +767,36 @@ Here
 \begin_inset Formula $i$
 \end_inset
 
- is the same as the corresponding symbol in the codeword, and 
+ is the same as the corresponding symbol in the codeword, 
 \begin_inset Formula $\alpha_{i}=1$
 \end_inset
 
- if the received symbol and codeword symbol are different.
- This soft distance can be written as two terms, the first of which is just
- the Hamming distance between the received word and the codeword.
- The second term ensures that if two candidate codewords have the same Hamming
- distance from the received word, a smaller distance will be assigned to
- the one where the different symbols occurred in lower quality symbols.
+ if the received symbol and codeword symbol are different, and 
+\begin_inset Formula $p_{1,i}$
+\end_inset
+
+ is the fractional power associated with received symbol 
+\begin_inset Formula $i$
+\end_inset
+
+.
+ Think of the soft distance as two terms: the first is the Hamming distance
+ between the received word and the codeword, and the second ensures that
+ if two candidate codewords have the same Hamming distance from the received
+ word, a smaller distance will be assigned to the one where differences
+ occur in symbols of lower quality.
  
 \end_layout
 
 \begin_layout Standard
-Technically the FT algorithm is a list-decoder, potentially generating a
+Technically the FT algorithm is a list decoder, potentially generating a
  list of candidate codewords.
  Among the list of candidate codewords found by this stochastic search algorithm
 , only the one with the smallest soft-distance from the received word is
  retained.
  As with all such algorithms, a stopping criterion is necessary.
- FTRSD accepts a codeword unconditionally if its soft distance is smaller
- than an empirically determined acceptance threshold, 
+ FT accepts a codeword unconditionally if its soft distance is smaller than
+ an empirically determined acceptance threshold, 
 \begin_inset Formula $d_{a}$
 \end_inset
 
