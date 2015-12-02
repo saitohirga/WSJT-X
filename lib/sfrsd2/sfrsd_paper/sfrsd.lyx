@@ -95,7 +95,8 @@ The JT65 mode has revolutionized amateur-radio weak-signal communication
  Since 2004, most JT65 decoders have used the patented Koetter-Vardy (KV)
  algebraic soft-decision decoder, licensed to K1JT and implemented in a
  closed-source program for use in amateur radio applications.
- We describe here a new open-source alternative called the FT algotithm.
+ We describe here a new open-source alternative called the Franke-Taylor
+ (FT, or K9AN-K1JT) algorithm.
  It is conceptually simple, built around the well-known Berlekamp-Massey
  errors-and-erasures algorithm, and performs at least as well as the KV
  decoder.
@@ -195,7 +196,7 @@ For the JT65 code,
  no more than 25 symbol errors.
  Any one of several well-known algebraic algorithms, such as the widely
  used Berlekamp-Massey (BM) algorithm, can carry out the decoding.
- Two steps are ncessarily involved in this process, namely
+ Two steps are necessarily involved in this process, namely
 \end_layout
 
 \begin_layout Enumerate
@@ -561,8 +562,8 @@ Examples 1 and 2 show that a random strategy for selecting symbols to erase
 \begin_inset Formula $X=40$
 \end_inset
 
- incorrect symbols, as before, but suppose we know that 10 symbols are significa
-ntly more reliable than the other 53.
+ incorrect symbols, as before, but suppose we know that 10 received symbols
+ are significantly more reliable than the other 53.
  We might therefore protect the 10 most reliable symbols from erasure, selecting
  erasures from the smaller set of 
 \begin_inset Formula $N=53$
@@ -573,8 +574,8 @@ ntly more reliable than the other 53.
 \begin_inset Formula $s=45$
 \end_inset
 
- symbols are chosen randomly in this way, it is still necessary for the
- erased symbols to include at least 37 errors, as in Example 2.
+ symbols are chosen randomly for erasure in this way, it is still necessary
+ for the erased symbols to include at least 37 errors, as in Example 2.
  However, the probabilities are now much more favorable: with 
 \begin_inset Formula $N=53$
 \end_inset
@@ -622,7 +623,7 @@ reference "eq:hypergeometric_pdf"
 \end_inset
 
 , 
-\begin_inset Formula $P(x\ge38)=0.0266$
+\begin_inset Formula $P(x\ge38)=0.027$
 \end_inset
 
 .
@@ -638,7 +639,7 @@ name "sec:The-decoding-algorithm"
 
 \end_inset
 
-The FT decoding algorithm
+The Franke-Taylor decoding algorithm
 \end_layout
 
 \begin_layout Standard
@@ -647,8 +648,8 @@ Example 3 shows how reliable information about symbol quality should make
  In practice the number of errors in the received word is unknown, so we
  use a stochastic algorithm to assign high erasure probability to low-quality
  symbols and relatively low probability to high-quality symbols.
- As illustrated by Example 3, a good choice of these probabilities can increase
- the chance of a successful decode by many orders of magnitude.
+ As illustrated by Example 3, a good choice of erasure probabilities can
+ increase the chance of a successful decode by many orders of magnitude.
 \end_layout
 
 \begin_layout Standard
@@ -656,7 +657,7 @@ The FT algorithm uses two quality indices made available by a noncoherent
  64-FSK demodulator.
  The demodulator identifies the most likely value for each symbol based
  on the largest signal-plus-noise power in 64 frequency bins.
- The fraction of total power in the two bins containing the largest and
+ The fractions of total power in the two bins containing the largest and
  second-largest powers (denoted by 
 \begin_inset Formula $p_{1}$
 \end_inset
@@ -846,7 +847,7 @@ Make independent stochastic decisions about whether to erase each symbol
 
 \begin_layout Enumerate
 Attempt errors-and-erasures decoding by using the BM algorithm and the set
- of eraseures determined in step 2.
+ of erasures determined in step 2.
  If the BM decoder is successful go to step 5.
 \end_layout
 
