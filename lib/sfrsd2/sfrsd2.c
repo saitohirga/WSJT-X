@@ -146,13 +146,17 @@ void sfrsd2_(int mrsym[], int mrprob[], int mr2sym[], int mr2prob[],
   memcpy(workdat,rxdat,sizeof(rxdat));
   nerr=decode_rs_int(rs,workdat,era_pos,numera,1);
   if( nerr >= 0 ) {
+    nhard=0;
+    for (i=0; i<63; i++) {
+      if( workdat[i] != rxdat[i] ) nhard=nhard+1;
+    }
     if(logfile) {
       fprintf(logfile,"BM decode nerrors= %3d : \n",nerr);
       fclose(logfile);
     }
     memcpy(correct,workdat,63*sizeof(int));
     param[0]=0;
-    param[1]=0;
+    param[1]=nhard;
     param[2]=0;
     param[3]=0;
     param[4]=0;
@@ -185,7 +189,7 @@ used to decide which codeword is "best".
   }
   if(nsum==0) return;
 
-  for (k=0; k<ntrials; k++) {
+  for (k=1; k<=ntrials; k++) {
     memset(era_pos,0,51*sizeof(int));
     memcpy(workdat,rxdat,sizeof(rxdat));
 
@@ -246,7 +250,7 @@ NB: j is the symbol-vector index of the symbol with rank i.
       }
       if(ntotal_min<72 && nhard_min<42) break;  
     }
-    if(k == ntrials-1) ntry[0]=k+1;
+    if(k == ntrials) ntry[0]=k;
   }
   
   if( ntotal_min>=76 || nhard>=44 ) {
