@@ -141,7 +141,7 @@ program jt65sim
 
         do i=1,NH
            f=i*df
-           x=-f/fspread
+           x=f/fspread
            z=0.
            a=0.
            if(x.lt.50.0) then
