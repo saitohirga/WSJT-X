@@ -168,6 +168,7 @@ HamlibTransceiver::HamlibTransceiver (TransceiverFactory::PTTMethod ptt_type, QS
   , reversed_ {false}
   , mode_query_works_ {true}
   , split_query_works_ {true}
+  , tickle_hamlib_ {false}
   , get_vfo_works_ {true}
 {
   if (!rig_)
@@ -214,8 +215,8 @@ HamlibTransceiver::HamlibTransceiver (int model_number, TransceiverFactory::Para
   , back_ptt_port_ {TransceiverFactory::TX_audio_source_rear == params.audio_source}
   , is_dummy_ {RIG_MODEL_DUMMY == model_number}
   , reversed_ {false}
-  , mode_query_works_ {true}
-  , split_query_works_ {true}
+  , mode_query_works_ {rig_ && rig_->caps->get_mode}
+  , split_query_works_ {rig_ && rig_->caps->get_split_vfo}
   , tickle_hamlib_ {false}
   , get_vfo_works_ {true}
 {
