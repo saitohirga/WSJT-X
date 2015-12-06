@@ -364,7 +364,11 @@ tric probability distribution.
 \begin_inset Formula $X$
 \end_inset
 
- as the number of incorrect symbols in the received set, and 
+ as the number of incorrect symbols in the set of 
+\begin_inset Formula $N$
+\end_inset
+
+ symbols, and 
 \begin_inset Formula $x$
 \end_inset
 
@@ -400,7 +404,7 @@ tric probability distribution.
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-P(x|N,X,s)=\frac{\binom{X}{x}\binom{N-X}{s-x}}{\binom{N}{s}}\label{eq:hypergeometric_pdf}
+P(x=\epsilon|N,X,s)=\frac{\binom{X}{x}\binom{N-X}{s-\epsilon}}{\binom{N}{s}}\label{eq:hypergeometric_pdf}
 \end{equation}
 
 \end_inset
@@ -444,6 +448,35 @@ hygepdf(
 \end_inset
 
 .
+ The cumulative probability that 
+\emph on
+at least
+\emph default
+ 
+\begin_inset Formula $\epsilon$
+\end_inset
+
+ errors are captured in a subset of 
+\begin_inset Formula $s$
+\end_inset
+
+ erased symbols selected from a group of 
+\begin_inset Formula $N$
+\end_inset
+
+ symbols containing 
+\begin_inset Formula $X$
+\end_inset
+
+ errors is
+\begin_inset Formula 
+\begin{equation}
+P(x\ge\epsilon|N,X,s)=\sum_{j=\epsilon}^{N}P(x=j|N,X,s)\label{eq:cumulative_prob}
+\end{equation}
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Paragraph
@@ -833,7 +866,7 @@ For each received symbol, define the erasure probability as 1.3 times the
 a priori
 \emph default
  symbol-error probability determined from soft-symbol information 
-\begin_inset Formula $\{p_{1}\textrm{-rank},\,p_{2}/p_{1}\}$
+\begin_inset Formula $\{p_{1}\textrm{-rank},\, p_{2}/p_{1}\}$
 \end_inset
 
 .
@@ -959,10 +992,50 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Percentage of JT65 messages successfully decoded as a function of SNR in
- 2.5 kHz bandwidth.
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Psuccess"
+
+\end_inset
+
+Percentage of JT65 messages (
+\begin_inset Quotes eld
+\end_inset
+
+words
+\begin_inset Quotes erd
+\end_inset
+
+) successfully decoded as a function of SNR in 2.5 kHz bandwidth.
  Results are shown for the hard-decision Berlekamp-Massey (BM) and soft-decision
  Franke-Taylor (FT) decoding algorithms.
+ Results for the FT algorithm are shown for two different sets of time-out
+ and acceptance criteria.
+ FT-1 was obtained with a limit of 
+\begin_inset Formula $10^{4}$
+\end_inset
+
+ erasure vectors and with acceptance criteria 
+\begin_inset Formula $d_{a}<72$
+\end_inset
+
+ and 
+\begin_inset Formula $n_{hard}<42$
+\end_inset
+
+, and FT-2 corresponds to 
+\begin_inset Formula $10^{5}$
+\end_inset
+
+ erasure vectors and 
+\begin_inset Formula $d_{a}<76$
+\end_inset
+
+, 
+\begin_inset Formula $n_{hard}<44$
+\end_inset
+
+.
 \end_layout
 
 \end_inset
@@ -971,6 +1044,104 @@ Percentage of JT65 messages successfully decoded as a function of SNR in
 \end_layout
 
 \begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename fig_wer.pdf
+	lyxscale 120
+	scale 120
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:WER"
+
+\end_inset
+
+Word error rate as a function of 
+\begin_inset Formula $E_{s}/N_{o}$
+\end_inset
+
+.
+ The results from Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Psuccess"
+
+\end_inset
+
+ plotted as the fraction of frames that are not decoded vs symbol SNR.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename fig_ntrials_vs_nhard.pdf
+	lyxscale 120
+	scale 120
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+The number of trials needed to decode a received word vs the Hamming distance
+ between the received word and the decoded codeword plotted for 1000 simulated
+ frames with -24 dB SNR in 2500 Hz bandwidth (
+\begin_inset Formula $E_{s}/N_{o}=5.7$
+\end_inset
+
+ dB).
+ Execution time will be roughly proportional to the number of trials.
+ The mean and variance of the number of trials (and execution time) increase
+ with the number of errors in the received word.
+ 
+\end_layout
+
+\end_inset
+
 
 \end_layout
 
