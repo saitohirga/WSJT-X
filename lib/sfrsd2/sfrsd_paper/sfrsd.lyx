@@ -246,8 +246,8 @@ errors.
 \begin_inset Quotes erd
 \end_inset
 
- As already noted, with perfect erasure information up to 51 errors can
- be corrected.
+ As already noted, with perfect erasure information up to 51 incorrect symbols
+ can be corrected.
  Imperfect erasure information means that some erased symbols may be correct,
  and some other symbols in error.
  If 
@@ -472,7 +472,7 @@ at least
  errors is
 \begin_inset Formula 
 \begin{equation}
-P(x\ge\epsilon|N,X,s)=\sum_{j=\epsilon}^{N}P(x=j|N,X,s)\label{eq:cumulative_prob}
+P(x\ge\epsilon|N,X,s)=\sum_{j=\epsilon}^{N}P(x=j|N,X,s).\label{eq:cumulative_prob}
 \end{equation}
 
 \end_inset
