@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# jt65 end-to-end simulator. Run enough cases to get a given
+# number of successful decodes or a given number of errors
+
+nruns=0
+ndecodes=0
+ngood=0
+nbad=0
+snr=-23.0
+
+while [ $[ $nruns - $ngood ] -lt 50 ] 
+#while [ $ngood -lt 100 ] 
+#while [ $nruns -lt 1000 ] 
+
+do
+  ./jt65sim A 1 0.0 $snr 0.0 1 > /dev/null 
+  decoded=$( ./jt65 -n 100000 -f 1500 -s 000000_0001.wav ) 
+#  echo $decoded
+  goodone=$( echo $decoded | grep "K1ABC" | wc -l )
+  nruns=$[$nruns+1]
+  if [ ! -z "$decoded" ]; then  # if decoded string is not empty
+    ndecodes=$[$ndecodes+1]
+    if [ $goodone -eq 1 ] ; then
+      ngood=$[$ngood+1]
+    else
+      nbad=$[$nbad+1]
+    fi
+  fi
+nmissed=$[$nruns-$ngood]
+echo -en nruns: $nruns ndecodes: $ndecodes ngood: $ngood nbad: $nbad nmissed: $nmissed "\r"
+done
+echo  nruns: $nruns ndecodes: $ndecodes ngood: $ngood nbad: $nbad nmissed: $nmissed 
+
