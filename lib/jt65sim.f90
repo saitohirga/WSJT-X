@@ -62,6 +62,9 @@ program jt65sim
   h=default_header(12000,npts)
   dfsig=2000.0/nsigs                 !Freq spacing between sigs in file (Hz)
 
+! generate new random number seed for each run using /dev/urandom on linux and os x
+  nerr=sgran()
+
   do ifile=1,nfiles                  !Loop over requested number of files
      write(fname,1002) ifile         !Output filename
 1002 format('000000_',i4.4)
