@@ -3889,7 +3889,8 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
   if (decode_parts.contains ("CQ") || decode_parts.contains ("QRZ"))
     {
       // a message we are willing to accept
-      auto cqtext = QString {"%1 %2 %3 %4 %5 %6"}.arg (time.toString ("hhmm"))
+      QString format_string {"%1 %2 %3 %4 %5 %6"};
+      auto cqtext = format_string.arg (time.toString ("hhmm"))
                                                     .arg (snr, 3)
                                                     .arg (delta_time, 4, 'f', 1)
                                                     .arg (delta_frequency, 4)
@@ -3897,6 +3898,16 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
                                                     .arg (message_text);
       auto messages = ui->decodedTextBrowser->toPlainText ();
       auto position = messages.lastIndexOf (cqtext);
+      if (position < 0)
+        {
+          // try again with with -0.0 delta time
+          position = messages.lastIndexOf (format_string.arg (time.toString ("hhmm"))
+                                           .arg (snr, 3)
+                                           .arg ('-' + QString::number (delta_time, 'f', 1), 4)
+                                           .arg (delta_frequency, 4)
+                                           .arg (mode)
+                                           .arg (message_text));
+        }
       if (position >= 0)
         {
           if (m_config.udpWindowToFront ())
