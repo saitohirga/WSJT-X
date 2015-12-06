@@ -1113,7 +1113,7 @@ reference "fig:Psuccess"
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -1143,6 +1143,49 @@ The number of trials needed to decode a received word vs the Hamming distance
  The mean and variance of the number of trials (and execution time) increase
  with the number of errors in the received word.
  
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename fig_wer2.pdf
+	lyxscale 120
+	scale 120
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Word error rate (WER) as a function of 
+\begin_inset Formula $E_{s}/N_{o}$
+\end_inset
+
+ for Rayleigh-fading with Doppler-spread 
+\begin_inset Formula $\sigma_{f}=0.2$
+\end_inset
+
+ Hz.
 \end_layout
 
 \end_inset
