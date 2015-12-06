@@ -13,12 +13,16 @@ FC = gfortran
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    probs.out
+all:    mfsk probs.out
 
 OBJS1 = prob.o binomial_subs.o
 prob:   $(OBJS1)
 	$(FC) -o prob $(OBJS1)
 
+OBJS2 = mfsk.o binomial_subs.o
+mfsk:	$(OBJS2)
+	$(FC) -o mfsk $(OBJS2)
+	
 probs.out: prob
 #             x  N  X  s
 	prob 35 63 40 40 > probs.out
