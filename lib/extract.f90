@@ -71,6 +71,7 @@ subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,nexp_decode,   &
   ncandidates=param(0)
   nhard=param(1)
   nsoft=param(2)
+  nerased=param(3)
 
   if(nhard.lt.0 .and. ndepth.ge.5) then
      call timer('exp_deco',0)
@@ -99,6 +100,9 @@ subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,nexp_decode,   &
      call interleave63(correct,63,1)
      call graycode65(correct,63,1)
      call unpackmsg(dat4,decoded)     !Unpack the user message
+!  open(43,file='stats.dat',access='append',status='unknown')
+!  write(43,*) nhard,nsoft,nerased,ntry
+!  close(43)
      ncount=0
      if(iand(dat4(10),8).ne.0) ltext=.true.
      nsf=1
