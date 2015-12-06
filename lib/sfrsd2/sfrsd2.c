@@ -248,12 +248,13 @@ NB: j is the symbol-vector index of the symbol with rank i.
         nera_best=numera;
         ntry[0]=k;
       }
-      if(ntotal_min<72 && nhard_min<42) break;  
+//      if(ntotal_min<72 && nhard_min<42) break;  
+      if(ntotal_min<76 && nhard_min<44) break;  
     }
     if(k == ntrials) ntry[0]=k;
   }
   
-  if( ntotal_min>=76 || nhard>=44 ) {
+  if( ntotal_min>=76 || nhard_min>=44 ) {
     nhard_min=-1;
   }
   
