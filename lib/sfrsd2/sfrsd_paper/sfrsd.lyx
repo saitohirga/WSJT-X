@@ -24,6 +24,7 @@
 \output_sync 0
 \bibtex_command default
 \index_command default
+\float_placement H
 \paperfontsize 12
 \spacing onehalf
 \use_hyperref false
@@ -1007,6 +1008,8 @@ words
 \end_inset
 
 ) successfully decoded as a function of SNR in 2.5 kHz bandwidth.
+ These results are for the idealized situation of a non-fading signal in
+ additive white Gaussian noise (AWGN).
  Results are shown for the hard-decision Berlekamp-Massey (BM) and soft-decision
  Franke-Taylor (FT) decoding algorithms.
  Results for the FT algorithm are shown for two different sets of time-out
@@ -1080,19 +1083,20 @@ name "fig:WER"
 
 \end_inset
 
-Word error rate as a function of 
+Word error rate (WER) as a function of 
 \begin_inset Formula $E_{s}/N_{o}$
 \end_inset
 
-.
- The results from Figure 
+ for non-fading signals in AWGN.
+ This is the same data that is shown in Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:Psuccess"
 
 \end_inset
 
- plotted as the fraction of frames that are not decoded vs symbol SNR.
+, but plotted as the fraction of frames that were not decoded vs symbol
+ SNR.
 \end_layout
 
 \end_inset
@@ -1129,7 +1133,8 @@ status open
 \begin_layout Plain Layout
 The number of trials needed to decode a received word vs the Hamming distance
  between the received word and the decoded codeword plotted for 1000 simulated
- frames with -24 dB SNR in 2500 Hz bandwidth (
+ frames with no fading.
+ The SNR in 2500 Hz bandwidth is -24 dB (
 \begin_inset Formula $E_{s}/N_{o}=5.7$
 \end_inset
 
@@ -1166,7 +1171,80 @@ key "key-1"
 
 \end_inset
 
+"Stochastic Chase Decoding of Reed-Solomon Codes", Camille Leroux, Saied
+ Hemati, Shie Mannor, Warren J.
+ Gross, IEEE Communications Letters, Vol.
+ 14, No.
+ 9, September 2010.
+\end_layout
 
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-2"
+
+\end_inset
+
+"Soft-Decision Decoding of Reed-Solomon Codes Using Successive Error-and-Erasure
+ Decoding," Soo-Woong Lee and B.
+ V.
+ K.
+ Vijaya Kumar, IEEE 
+\begin_inset Quotes eld
+\end_inset
+
+GLOBECOM
+\begin_inset Quotes erd
+\end_inset
+
+ 2008 proceedings.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-3"
+
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+Stochastic Erasure-Only List Decoding Algorithms for Reed-Solomon Codes,
+\begin_inset Quotes erd
+\end_inset
+
+ Chang-Ming Lee and Yu T.
+ Su, IEEE Signal Processing Letters, Vol.
+ 16, No.
+ 8, August 2009.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-4"
+
+\end_inset
+
+“Algebraic soft-decision decoding of Reed-Solomon codes,” R.
+ Köetter and A.
+ Vardy, IEEE Trans.
+ Inform.
+ Theory, Vol.
+ 49, Nov.
+ 2003.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-5"
+
+\end_inset
+
+Berlekamp-Massey decoder written by Phil Karn, http://www.ka9q.net/code/fec/
 \end_layout
 
 \end_body
