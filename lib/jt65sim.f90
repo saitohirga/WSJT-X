@@ -63,7 +63,7 @@ program jt65sim
   dfsig=2000.0/nsigs                 !Freq spacing between sigs in file (Hz)
 
 ! generate new random number seed for each run using /dev/urandom on linux and os x
-  nerr=sgran()
+!  nerr=sgran()
 
   do ifile=1,nfiles                  !Loop over requested number of files
      write(fname,1002) ifile         !Output filename
