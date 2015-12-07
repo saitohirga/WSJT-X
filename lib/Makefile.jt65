@@ -37,7 +37,7 @@ OBJS1 = astrosub.o astro0.o astro.o sun.o coord.o tmoonsub.o \
 	symspec.o analytic.o db.o \
 	encode232.o interleave9.o\
 	entail.o fano232.o gran.o sync9.o decjt9.o \
-	fil3.o decoder.o timer.o \
+	fil3.o decoder.o timer.o exp_decode65.o fqso_first.o \
 	twkfreq.o symspec2.o shell.o sync65.o peakup.o slope.o xcor.o\
 	fillcom.o chkss2.o zplot9.o flat1.o flat2.o \
 	jt65a.o symspec65.o flat65.o ccf65.o decode65a.o \

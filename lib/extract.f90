@@ -64,10 +64,10 @@ subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,nexp_decode,   &
   ntry=0
 
   nverbose=0
-  call timer('sfrsd   ',0)
-  call sfrsd2(mrsym,mrprob,mr2sym,mr2prob,ntrials,nverbose,correct,   &
+  call timer('ftrsd   ',0)
+  call ftrsd2(mrsym,mrprob,mr2sym,mr2prob,ntrials,nverbose,correct,   &
        param,indx,tt,ntry)
-  call timer('sfrsd   ',1)
+  call timer('ftrsd   ',1)
   ncandidates=param(0)
   nhard=param(1)
   nsoft=param(2)
