@@ -52,7 +52,7 @@ subroutine extract2(s3,nadd,ntrials,param,msg)
   call interleave63(mr2prob,-1)
 
   nverbose=0
-  call sfrsd2(mrsym,mrprob,mr2sym,mr2prob,ntrials,nverbose,correct,   &
+  call ftrsd2(mrsym,mrprob,mr2sym,mr2prob,ntrials,nverbose,correct,   &
        param,indx,tt,ntry)
   ncandidates=param(0)
   nhard=param(1)

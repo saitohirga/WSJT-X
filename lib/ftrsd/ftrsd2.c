@@ -1,5 +1,5 @@
 /*
- sfrsd2.c
+ ftrsd2.c
  
  A soft-decision decoder for the JT65 (63,12) Reed-Solomon code.
  
@@ -23,7 +23,7 @@
 
 static void *rs;
 
-void sfrsd2_(int mrsym[], int mrprob[], int mr2sym[], int mr2prob[], 
+void ftrsd2_(int mrsym[], int mrprob[], int mr2sym[], int mr2prob[], 
 	     int* ntrials0, int* verbose0, int correct[], int param[],
 	     int indexes[], double tt[], int ntry[])
 {
@@ -101,9 +101,9 @@ void sfrsd2_(int mrsym[], int mrprob[], int mr2sym[], int mr2prob[],
 */
 
   if(verbose) {
-    logfile=fopen("/tmp/sfrsd.log","a");
+    logfile=fopen("/tmp/ftrsd.log","a");
     if( !logfile ) {
-      printf("Unable to open sfrsd.log\n");
+      printf("Unable to open ftrsd.log\n");
       exit(1);
     }
   }
