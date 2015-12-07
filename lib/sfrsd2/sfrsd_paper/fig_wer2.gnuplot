@@ -1,6 +1,6 @@
-# gnuplot script for "Percent copy" figure
-# run: gnuplot fig_wer.gnuplot
-# then: pdflatex fig_wer.tex
+# gnuplot script for "word error rate" figure
+# run: gnuplot fig_wer2.gnuplot
+# then: pdflatex fig_wer2.tex
 #
 set term epslatex standalone size 12cm,8cm
 set output "fig_wer2.tex"
@@ -13,4 +13,5 @@ set mxtics 2
 set mytics 10 
 set grid
 set logscale y
-plot "bmdata-2.dat" using ($1+29.7):(1-$2) every ::1 with linespoints pt 5 title 'BM'
+plot "ftdata-2.dat" using ($1+29.7):(1-$2) every ::1 with linespoints pt 7 title "FT", \
+"bmdata-2.dat" using ($1+29.7):(1-$2) every ::1 with linespoints pt 5 title 'BM'
