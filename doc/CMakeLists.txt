@@ -181,7 +181,7 @@ add_custom_target (docs ALL DEPENDS ${html} ${pdf})
 
 install (FILES
   ${html}
-  DESTINATION ${WSJT_DOC_DESTINATION}
+  DESTINATION ${WSJT_SHARE_DESTINATION}/${WSJT_DOC_DESTINATION}
   RENAME ${PROJECT_MANUAL}
   #COMPONENT runtime
   )
