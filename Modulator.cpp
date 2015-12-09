@@ -61,6 +61,7 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   m_symbolsLength = symbolsLength;
   m_isym0 = std::numeric_limits<unsigned>::max (); // big number
   m_frequency0 = 0.;
+  m_phi = 0.;
   m_addNoise = dBSNR < 0.;
   m_nsps = framesPerSymbol;
   m_frequency = frequency;
