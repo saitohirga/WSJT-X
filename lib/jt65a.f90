@@ -27,6 +27,8 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
   type(decode) dec(30)
   common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
   common/steve/thresh0
+  common/test000/ncandidates,nhard_min,nsoft_min,nera_best,nsofter_min,   &
+       ntotal_min,ntry         !### TEST ONLY ###
   save
 
   dd=dd0
@@ -87,16 +89,13 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
       freq=ca(icand)%freq
       dtx=ca(icand)%dt
       sync1=ca(icand)%sync
-
       if(ipass.eq.1) ntry65a=ntry65a + 1
       if(ipass.eq.2) ntry65b=ntry65b + 1
       call timer('decod65a',0)
       call decode65a(dd,npts,newdat,nqd,freq,nflip,mode65,nvec,     &
-           naggressive,ndepth,nexp_decode,sync2,a,dtx,nsf,nhist,decoded)
+           naggressive,ndepth,nexp_decode,sync2,a,dtx,nft,qual,nhist,decoded)
       call timer('decod65a',1)
-!write(*,*) icand,freq+a(1),dtx,sync1,sync2
-      if(decoded.eq.decoded0) cycle            !Don't display dupes
-
+      if(decoded.eq.decoded0 .and. minsync.ge.0) cycle     !Don't display dupes
       if(decoded.ne.'                      ' .or. minsync.lt.0) then
         if( nsubtract .eq. 1 ) then
            call timer('subtr65 ',0)
@@ -114,9 +113,12 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
 !$omp critical(decode_results) 
         ndupe=0 ! de-dedupe
         do i=1, ndecoded
-          if( decoded==dec(i)%decoded ) ndupe=1
+          if(decoded==dec(i)%decoded) then
+             ndupe=1
+             exit
+          endif
         enddo
-        if(ndupe.ne.1) then
+        if(ndupe.ne.1 .or. minsync.lt.0) then
           if(ipass.eq.1) n65a=n65a + 1
           if(ipass.eq.2) n65b=n65b + 1
           ndecoded=ndecoded+1
@@ -124,14 +126,22 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
           dec(ndecoded)%dt=dtx
           dec(ndecoded)%sync=sync2
           dec(ndecoded)%decoded=decoded
+          nqual=qual
+          if(nqual.gt.10) nqual=10
           write(*,1010) nutc,nsnr,dtx-1.0,nfreq,decoded
 1010      format(i4.4,i4,f5.1,i5,1x,'#',1x,a22)
           write(13,1012) nutc,nint(sync1),nsnr,dtx-1.0,float(nfreq),ndrift,  &
-             decoded,nsf
+             decoded,nft
 1012      format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT65',i4)
           call flush(6)
           call flush(13)
+          write(79,3001) nutc,nint(sync1),nsnr,dtx-1.0,nfreq,ncandidates,    &
+               nhard_min,ntotal_min,ntry,naggressive,nft,nqual,decoded
+3001      format(i4.4,i3,i4,f6.2,i5,i6,i3,i4,i8,i3,i2,i3,1x,a22)
+          flush(79)
         endif
+        decoded0=decoded
+        if(decoded0.eq.'                      ') decoded0='*'
 !$omp end critical(decode_results)
       endif
     enddo                                 !candidate loop

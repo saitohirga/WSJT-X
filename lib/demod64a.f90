@@ -38,6 +38,7 @@ subroutine demod64a(s3,nadd,afac1,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
            i1=i                              !Most reliable
         endif
      enddo
+     if(psum.eq.0.0) psum=1.e-6
 
      s2=-1.e30
      do i=1,64
@@ -47,7 +48,7 @@ subroutine demod64a(s3,nadd,afac1,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
         endif
      enddo
      p1=s1/psum                !Use these for sfrsd
-     p2=s2/psum                !
+     p2=s2/psum                !...
      mrsym(j)=i1-1
      mr2sym(j)=i2-1
      mrprob(j)=scale*p1

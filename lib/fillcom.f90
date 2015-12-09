@@ -23,10 +23,11 @@ subroutine fillcom(nutc0,ndepth0,nrxfreq,mode,tx9,flow,fsplit,fhigh)
   nzhsym=181
   ndepth=ndepth0
   dttol=3.0
+  minsync=-1               !### TEST ONLY
 
   n2pass=1
-  nranera=8
-  naggressive=10
+  nranera=10               !ntrials=100000
+  naggressive=3
   nrobust=0
 
   if (tx9) then
