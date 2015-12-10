@@ -28,14 +28,14 @@ void MessageAveraging::closeEvent (QCloseEvent * e)
 void MessageAveraging::read_settings ()
 {
   settings_->beginGroup ("MessageAveraging");
-  move (settings_->value ("window/pos", pos ()).toPoint ());
+  restoreGeometry (settings_->value ("window/geometry").toByteArray ());
   settings_->endGroup ();
 }
 
 void MessageAveraging::write_settings ()
 {
   settings_->beginGroup ("MessageAveraging");
-  settings_->setValue ("window/pos", pos ());
+  settings_->setValue ("window/geometry", saveGeometry ());
   settings_->endGroup ();
 }
 
