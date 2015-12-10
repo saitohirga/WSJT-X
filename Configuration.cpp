@@ -1116,8 +1116,7 @@ void Configuration::impl::done (int r)
 {
   // do this here since window is still on screen at this point
   SettingsGroup g {settings_, "Configuration"};
-  settings_->setValue ("window/size", size ());
-  settings_->setValue ("window/pos", pos ());
+  settings_->setValue ("window/geometry", saveGeometry ());
 
   QDialog::done (r);
 }
@@ -1125,9 +1124,7 @@ void Configuration::impl::done (int r)
 void Configuration::impl::read_settings ()
 {
   SettingsGroup g {settings_, "Configuration"};
-
-  resize (settings_->value ("window/size", size ()).toSize ());
-  move (settings_->value ("window/pos", pos ()).toPoint ());
+  restoreGeometry (settings_->value ("window/geometry").toByteArray ());
 
   my_callsign_ = settings_->value ("MyCall", "").toString ();
   my_grid_ = settings_->value ("MyGrid", "").toString ();
