@@ -3488,6 +3488,8 @@ void MainWindow::on_actionJT9_JT65_triggered()
   VHF_controls_visible(false);
   WSPR_config(false);
   fast_config(false);
+  ui->sbSubmode->setValue(0);
+  ui->sbTR->setValue(0);
   ui->label_6->setText("Band Activity");
   ui->label_7->setText("Rx Frequency");
   ui->ClrAvgButton->setVisible(false);
