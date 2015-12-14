@@ -50,8 +50,8 @@ libjt9.a: $(OBJS1)
 	$(RANLIB) libjt9.a
 
 OBJS7 = jt65.o
-jt65: $(OBJS7) libjt9.a libsfrsd.a
-	$(FC) -o jt65 $(OBJS7) -L. -L/opt/local/lib -L./sfrsd2 -ljt9 -lsfrsd -lfftw3f_threads -lfftw3f 
+jt65: $(OBJS7) libjt9.a libftrsd.a
+	$(FC) -o jt65 $(OBJS7) -L. -L/opt/local/lib -L./ftrsd -ljt9 -lftrsd -lfftw3f_threads -lfftw3f 
 	$(CP) jt65 $(EXE_DIR)
 
 OBJS2 = jt65sim.o wavhdr.o
