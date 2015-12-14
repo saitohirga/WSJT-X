@@ -9,8 +9,8 @@ program mfsk
   nargs=iargc()
   if(nargs.ne.1) then
      print*,'Probability of symbol error for noncoherent MFSK'
-     print*,'Usage:    prob   M'
-     print*,'Example:  prob  64'
+     print*,'Usage:    mfsk   M'
+     print*,'Example:  mfsk  64'
      go to 999
   endif
   call getarg(1,arg)
@@ -19,7 +19,7 @@ program mfsk
   write(*,1012) 
 1012 format('Es/No  P(symbol error)'/  &
              '----------------------')
-  do isnr=0,20
+  do isnr=0,40
     esno=10**(isnr/2.0/10.0)
     hsum=0.d0
     do k=1,M-1
