@@ -23,6 +23,7 @@ program t1
   call getarg(3,arg)
   read(arg,*) iters
 
+  call init_random_seed()
   call random_number(r)
   itone=0
   where(r.gt.0.5) itone=1

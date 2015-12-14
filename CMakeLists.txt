@@ -336,6 +336,7 @@ set (wsjt_FSRCS
   lib/hspec.f90
   lib/image.f90
   lib/indexx.f90
+  lib/init_random_seed.f90
   lib/interleave4.f90
   lib/interleave63.f90
   lib/interleave9.f90
@@ -417,6 +418,7 @@ set (wsjt_CSRCS
   lib/ftrsd/ftrsd2.c
   lib/gran.c
   lib/igray.c
+  lib/init_random_seed.c
   lib/wsprd/nhash.c
   lib/tab.c
   lib/tmoonsub.c
@@ -446,6 +448,7 @@ set (wsprd_CSRCS
   lib/wsprd/fano.c
   lib/wsprd/tab.c
   lib/wsprd/nhash.c
+  lib/init_random_seed.c
   )
 
 set (wsjtx_UISRCS

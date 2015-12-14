@@ -20,6 +20,7 @@
 #include <time.h>
 #include <string.h>
 #include "rs.h"
+#include "init_random_seed.h"
 
 static void *rs;
 
@@ -175,12 +176,9 @@ int main(int argc, char *argv[]){
     // "soft" distance between each codeword and the received word is
     // used to decide which codeword is "best".
     //
-    //  srandom(time(NULL));
-#ifdef WIN32
-    srand(0xdeadbeef);
-#else
-    srandom(0xdeadbeef);
-#endif
+
+    init_random_seed();
+
     float p_erase;
     int thresh, nsum;
     ncandidates=0;
@@ -207,11 +205,7 @@ int main(int argc, char *argv[]){
             }
             thresh = p_erase*100;
             long int ir;
-#ifdef WIN32
             ir=rand();
-#else
-            ir=random();
-#endif
             if( ((ir % 100) < thresh ) && numera < 51 ) {
                 era_pos[numera]=indexes[62-i];
                 numera=numera+1;
