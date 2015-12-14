@@ -17,6 +17,8 @@ program code426
   call getarg(2,arg)
   read(arg,*) iters
 
+  call init_random_seed()
+
   open(13,file='code426.out',status='unknown')
 
   write(*,1002) nmsgs,iters

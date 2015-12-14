@@ -1,15 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include "init_random_seed.h"
 
-/* seed rand using urandom */
+/* seed rand */
 float sgran_()
 {
-  unsigned int seed;
-  FILE *urandom;
-  urandom = fopen ("/dev/urandom","r");
-  fread (&seed, sizeof (seed), 1, urandom);
-  srand (seed);
-
+  init_random_seed();
   return(0);
 }

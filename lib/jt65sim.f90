@@ -35,6 +35,8 @@ program jt65sim
      go to 999
   endif
 
+  call init_random_seed(1)
+
   csubmode='A'
   call getarg(1,csubmode)
   mode65=1
@@ -61,9 +63,6 @@ program jt65sim
   nsym=126                           !Number of channel symbols
   h=default_header(12000,npts)
   dfsig=2000.0/nsigs                 !Freq spacing between sigs in file (Hz)
-
-! generate new random number seed for each run using /dev/urandom on linux and os x
-!  nerr=sgran()
 
   do ifile=1,nfiles                  !Loop over requested number of files
      write(fname,1002) ifile         !Output filename

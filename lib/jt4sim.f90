@@ -45,6 +45,8 @@ program jt4sim
   freq=f0                            !Silence compiler warning
   dphi=0.0                           !Silence compiler warning
 
+  call init_random_seed()
+
   h=default_header(12000,npts)  
 
   if(message(1:3).eq.'sin') read(message(4:),*) sinfreq

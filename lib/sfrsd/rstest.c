@@ -17,6 +17,7 @@ Information-carrying channel symbols
 #include <time.h>
 #include <string.h>
 #include "rs.h"
+#include "init_random_seed.h"
 
 static void *rs;
 
@@ -34,6 +35,8 @@ int main(){
   float xlambda;
   int mrsym[63],mrprob[63],mr2sym[63],mr2prob[63];
   int nsec2,ncount,dat4[12];
+
+  init_random_seed();
 
   datfile=fopen("kvasd.dat","rb");
   if( !datfile ) {
@@ -96,11 +99,11 @@ int main(){
   printf("num_errors = %d\n",num_errors);
   for( i=0; i<num_errors; i++) {
     do {
-      errval = random() & nn;
+      errval = rand() & nn;
     } while(errval == 0);  //generate random 
 
     do {
-      errloc = random() % nn;
+      errloc = rand() % nn;
     } while(errlocs[errloc]!=0); 
 
     errlocs[errloc] = errval;
