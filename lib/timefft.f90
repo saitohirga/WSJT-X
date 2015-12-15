@@ -19,6 +19,8 @@ program timefft
   lthreading=maxthreads.ge.1
   maxthreads=max(1,maxthreads)
 
+  call sgran()                  ! see C rand generator (used in gran)
+
 ! Allocate data arrays
   pa=fftwf_alloc_complex(int(nfft,C_SIZE_T))
   call c_f_pointer(pa,a,[nfft])

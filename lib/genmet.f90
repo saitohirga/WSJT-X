@@ -33,6 +33,8 @@ program genmet
   hist=0
   nerr=0
 
+  call sgran()
+
   do iter=1,iters
      do i=0,ntones-1
         r(i)=0.

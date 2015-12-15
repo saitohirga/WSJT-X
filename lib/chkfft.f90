@@ -42,6 +42,8 @@ program chkfft
   call getarg(5,arg)
   read(arg,*) npatience
 
+  call sgran()
+
   if(list) write(*,1000) infile,nr,nw,ncomplex,npatience
 1000 format(/'infile: ',a12,'   nr:',i2,'   nw',i2,'   nc:',i2,'   np:',i2/)
   if(.not.list) write(*,1002) nfft,nr,nw,ncomplex,npatience

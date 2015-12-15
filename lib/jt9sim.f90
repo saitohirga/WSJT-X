@@ -67,6 +67,9 @@ program jt9sim
 !  if(minutes.eq.30) f0=1025.
 
 
+  call init_random_seed(1)      ! seed Fortran RANDOM_NUMBER generator
+  call sgran()                  ! see C rand generator (used in gran)
+
   h=default_header(12000,npts)  
   k=0                                !Silence compiler warning
 

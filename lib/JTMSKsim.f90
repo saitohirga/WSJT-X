@@ -41,6 +41,9 @@ program JTMSKsim
   phi0=0.
   sig=10.0**(0.05*snrdb)
 
+  call init_random_seed(1)      ! seed Fortran RANDOM_NUMBER generator
+  call sgran()                  ! see C rand generator (used in gran)
+
 ! Generate the Tx waveform
   cb11=0.
   do j=1,234

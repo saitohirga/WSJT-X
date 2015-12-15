@@ -23,7 +23,9 @@ program t1
   call getarg(3,arg)
   read(arg,*) iters
 
-  call init_random_seed()
+  call init_random_seed(1)      ! seed Fortran RANDOM_NUMBER generator
+  call sgran()                  ! see C rand generator (used in gran)
+
   call random_number(r)
   itone=0
   where(r.gt.0.5) itone=1

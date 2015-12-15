@@ -28,6 +28,7 @@
 #include "SettingsGroup.hpp"
 #include "TraceFile.hpp"
 #include "mainwindow.h"
+#include "lib/init_random_seed.h"
 
 namespace
 {
@@ -44,6 +45,8 @@ namespace
 
 int main(int argc, char *argv[])
 {
+  init_random_seed ();
+
   register_types ();            // make the Qt magic happen
 
   // Multiple instances:
@@ -56,7 +59,7 @@ int main(int argc, char *argv[])
                                    // consistent format, do this after
                                    // instantiating QApplication so
                                    // that GUI has correct l18n
-	      
+
       // Override programs executable basename as application name.
       a.setApplicationName ("WSJT-X");
       a.setApplicationVersion (version ());
