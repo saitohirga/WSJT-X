@@ -18,36 +18,39 @@ program jt9
   character wisfile*80
   integer :: arglen,stat,offset,remain,mode=0,flow=200,fsplit=2700,          &
        fhigh=4000,nrxfreq=1500,ntrperiod=1,ndepth=60001
-  logical :: shmem = .false., read_files = .false., have_args = .false.,     &
+  logical :: shmem = .false., read_files = .false.,                          &
        tx9 = .false., display_help = .false.
   type (option) :: long_options(17) = [ &
     option ('help', .false., 'h', 'Display this help message', ''),          &
-    option ('shmem',.true.,'s','Use shared memory for sample data','<key>'), &
-    option ('tr-period', .true., 'p', 'Tx/Rx period, default=1', '<minutes>'), &
-    option ('executable-path', .true., 'e',                                   &
-        'Location of subordinate executables (KVASD) default="."', '<path>'), &
-    option ('data-path', .true., 'a',                                         &
-        'Location of writeable data files, default="."', '<path>'),          &
-    option ('temp-path', .true., 't', 'Temporary files path, default="."',    &
-        '<path>'), &
-    option ('lowest', .true., 'L',                                            &
-        'Lowest frequency decoded (JT65), default=200Hz', '<hertz>'),         &
-    option ('highest', .true., 'H',                                           &
-        'Highest frequency decoded, default=4007Hz', '<hertz>'),              &
-    option ('split', .true., 'S',                                             &
-        'Lowest JT9 frequency decoded, default=2700Hz', '<hertz>'),           &
-    option ('rx-frequency', .true., 'f',                                      &
-        'Receive frequency offset, default=1500', '<hertz>'),                 &
-    option ('patience', .true., 'w',                                          &
-        'FFTW3 planing patience (0-4), default=1', '<patience>'),             &
-    option ('fft-threads', .true., 'm',                                       &
-        'Number of threads to process large FFTs, default=1', '<number>'),    &
-    option ('jt65', .false., '6', 'JT65 mode', ''),                           &
-    option ('jt9', .false., '9', 'JT9 mode', ''),                             &
-    option ('jt4', .false., '4', 'JT4 mode', ''),                             &
-    option ('depth', .true., 'd', 'JT9 decoding depth (1-3), default=1',      &
-        '<number>'),                                                          &
-    option ('tx-jt9', .false., 'T', 'Tx mode is JT9, default=JT65', '') ]
+    option ('shmem',.true.,'s','Use shared memory for sample data','KEY'),   &
+    option ('tr-period', .true., 'p', 'Tx/Rx period, default MINUTES=1',     &
+        'MINUTES'),                                                          &
+    option ('executable-path', .true., 'e',                                  &
+        'Location of subordinate executables (KVASD) default PATH="."',      &
+        'PATH'),                                                             &
+    option ('data-path', .true., 'a',                                        &
+        'Location of writeable data files, default PATH="."', 'PATH'),       &
+    option ('temp-path', .true., 't',                                        &
+        'Temporary files path, default PATH="."', 'PATH'),                   &
+    option ('lowest', .true., 'L',                                           &
+        'Lowest frequency decoded (JT65), default HERTZ=200', 'HERTZ'),      &
+    option ('highest', .true., 'H',                                          &
+        'Highest frequency decoded, default HERTZ=4007', 'HERTZ'),           &
+    option ('split', .true., 'S',                                            &
+        'Lowest JT9 frequency decoded, default HERTZ=2700', 'HERTZ'),        &
+    option ('rx-frequency', .true., 'f',                                     &
+        'Receive frequency offset, default HERTZ=1500', 'HERTZ'),            &
+    option ('patience', .true., 'w',                                         &
+        'FFTW3 planing patience (0-4), default PATIENCE=1', 'PATIENCE'),     &
+    option ('fft-threads', .true., 'm',                                      &
+        'Number of threads to process large FFTs, default THREADS=1',        &
+        'THREADS'),                                                          &
+    option ('jt65', .false., '6', 'JT65 mode', ''),                          &
+    option ('jt9', .false., '9', 'JT9 mode', ''),                            &
+    option ('jt4', .false., '4', 'JT4 mode', ''),                            &
+    option ('depth', .true., 'd',                                            &
+        'JT9 decoding depth (1-3), default DEPTH=1', 'DEPTH'),               &
+    option ('tx-jt9', .false., 'T', 'Tx mode is JT9', '') ]
 
   character datetime*20,mycall*12,mygrid*6,hiscall*12,hisgrid*6
   common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,          &
@@ -63,11 +66,10 @@ program jt9
 
   do
      call getopt('hs:e:a:r:m:p:d:f:w:t:964TL:S:H:',long_options,c,            &
-          optarg,arglen,stat,offset,remain)
+          optarg,arglen,stat,offset,remain,.true.)
      if (stat .ne. 0) then
         exit
      end if
-     have_args = .true.
      select case (c)
         case ('h')
            display_help = .true.
@@ -117,19 +119,20 @@ program jt9
      end select
   end do
 
-  if (display_help .or. .not. have_args .or.                               &
-       (stat .lt. 0 .or. (shmem .and. remain .gt. 0)                       &
-       .or. (read_files .and. remain .eq. 0) .or.                          &
-       (shmem .and. read_files))) then
+  if (display_help .or. stat .lt. 0                      &
+       .or. (shmem .and. remain .gt. 0)                  &
+       .or. (read_files .and. remain .lt. 1)             &
+       .or. (shmem .and. read_files)) then
 
-     print*,'Usage: jt9 -p <per> OPTIONS file1 [file2 ...]'
-     print*,'       Reads data from *.wav files.'
-     print*,''
-     print*,'       jt9 -s <key> [-w n] [-m n] [-e path] [-a path] [-t path]'
-     print*,'       Gets data from shared memory region with key==<key>'
-
+     print *, 'Usage: jt9 [OPTIONS] file1 [file2 ...]'
+     print *, '       Reads data from *.wav files.'
+     print *, ''
+     print *, '       jt9 -s <key> [-w patience] [-m threads] [-e path] [-a path] [-t path]'
+     print *, '       Gets data from shared memory region with key==<key>'
+     print *, ''
+     print *, 'OPTIONS:'
+     print *, ''
      do i = 1, size (long_options)
-       print*,''
        call long_options(i) % print (6)
      end do
      go to 999
