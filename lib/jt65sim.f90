@@ -35,7 +35,8 @@ program jt65sim
      go to 999
   endif
 
-  call init_random_seed(1)
+  call init_random_seed(1)      ! seed Fortran RANDOM_NUMBER generator
+  call sgran()                  ! see C rand generator (used in gran)
 
   csubmode='A'
   call getarg(1,csubmode)

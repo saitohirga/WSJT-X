@@ -2,7 +2,7 @@
 #define INIT_RANDOM_SEED_H__
 
 #ifdef __cplusplus
-exten "C" {
+extern "C" {
 #endif
 
   /*

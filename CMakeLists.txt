@@ -416,6 +416,7 @@ set_source_files_properties (${ka9q_CSRCS} PROPERTIES COMPILE_FLAGS -Wno-sign-co
 set (wsjt_CSRCS
   ${ka9q_CSRCS}
   lib/ftrsd/ftrsd2.c
+  lib/sgran.c
   lib/gran.c
   lib/igray.c
   lib/init_random_seed.c
