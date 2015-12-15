@@ -1,14 +1,17 @@
-subroutine exp_decode65(s3,mrs,mrs2,mode65,flip,mycall,qual,decoded)
+subroutine exp_decode65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
+     mycall,qual,decoded)
 
   use packjt
   use prog_args
   parameter (NMAX=10000)
   real s3(64,63)
-  real pp(NMAX)
+  real pp(NMAX),bb(NMAX)
   integer*1 sym1(0:62,NMAX)
   integer*1 sym2(0:62,NMAX)
   integer mrs(63),mrs2(63)
+  integer mrsym(0:62),mr2sym(0:62),mrprob(0:62)
   integer dgen(12),sym(0:62),sym_rev(0:62)
+  integer test(0:62)
   character*6 mycall,hiscall(NMAX)
   character*4 hisgrid(NMAX)
   character callsign*12,grid*4
@@ -17,8 +20,8 @@ subroutine exp_decode65(s3,mrs,mrs2,mode65,flip,mycall,qual,decoded)
   character*22 msg0(1000),decoded
   logical*1 eme(NMAX)
   logical first
-  data first/.true./
-  save first,sym1,nused,msg0,sym2
+  data first/.true./,nn/0/
+  save first,sym1,nused,msg0,sym2,nn
 
   if(first) then
      neme=1
@@ -58,7 +61,7 @@ subroutine exp_decode65(s3,mrs,mrs2,mode65,flip,mycall,qual,decoded)
         do isnr=-20,-30,-1
            j=j+1
            msg=mycall//' '//hiscall(i)//' '//hisgrid(i)
-           write(msg(14:18),"(i3,'  ')") isnr
+           if(isnr.ne.-20) write(msg(14:18),"(i3,'  ')") isnr
            call fmtmsg(msg,iz)
            call packmsg(msg,dgen,itype)            !Pack message into 72 bits
            call rs_encode(dgen,sym_rev)            !RS encode
@@ -83,40 +86,68 @@ subroutine exp_decode65(s3,mrs,mrs2,mode65,flip,mycall,qual,decoded)
 
   p1=-1.e30
   p2=-1.e30
+  bb1=1.e30
+  bb2=1.e30
+
+! Find p1 and p2 (best and second-best) codeword from a list, using 
+! matched filters
   ip1=1                                    !Silence compiler warning
+  ip2=1
   do k=1,nused
      pp(k)=0.
      if(k.ge.2 .and. k.le.64 .and. flip.lt.0.0) cycle
 ! Test all messages if flip=+1; skip the CQ messages if flip=-1.
      if(flip.gt.0.0 .or. msg0(k)(1:3).ne.'CQ ') then
-        sum=0.
+        psum=0.
         ref=ref0
         do j=1,63
 !           i=ncode(j,k)+1
            i=sym2(j-1,k)+1
-           sum=sum + s3(i,j)
+           psum=psum + s3(i,j)
            if(i.eq.mrs(j)+1) ref=ref - s3(i,j) + s3(mrs2(j)+1,j)
         enddo
-        p=sum/ref
+        p=psum/ref
         pp(k)=p
         if(p.gt.p1) then
            p1=p
            ip1=k
         endif
      endif
-!     write(*,3001) k,p,msg0(k)
-!3001 format(i5,f10.3,2x,a22)
+
+! Find best and second-best codeword using the FT-defined soft distance
+     test=sym1(0:62,k)
+     nh=0
+     ns=0
+     do i=0,62
+        j=62-i
+        if(mrsym(j).ne.test(i)) then
+           nh=nh+1
+           if(mr2sym(j).ne.test(i)) ns=ns+mrprob(j)
+        endif
+     enddo
+     ds=ns*63.0/sum(mrprob)
+     bb(k)=nh+ds
+
+     if(nh+ds.lt.bb1) then
+        nhard=nh
+        dsoft=ds
+        bb1=nh+ds
+        ncandidates=0
+        ntry=0
+        ip2=k
+      endif
   enddo
 
   do i=1,nused
      if(pp(i).gt.p2 .and. pp(i).ne.p1) p2=pp(i)
+     if(bb(i).lt.bb2 .and. bb(i).ne.bb1) bb2=bb(i)
   enddo
 
 ! ### DO NOT REMOVE ### 
 !  call cs_lock('deep65')
-  rewind 77
-  write(77,*) p1,p2
-  call flush(77)
+!  rewind 77
+!  write(77,*) p1,p2
+!  call flush(77)
 !  call cs_unlock
 ! ### Works OK without it (in both Windows and Linux) if compiled 
 ! ### without optimization.  However, in Windows this is a colossal 
@@ -128,9 +159,10 @@ subroutine exp_decode65(s3,mrs,mrs2,mode65,flip,mycall,qual,decoded)
 
   if(p2.eq.p1 .and. p1.ne.-1.e30) stop 'Error in deep65'
   qual=100.0*(p1-bias)
-  if(qual.lt.0.0) qual=0.0
   decoded='                      '
-  if(qual.ge.1.0) decoded=msg0(ip1)
+  if(bb1.le.110.0) decoded=msg0(ip2)
+  nn=nn+1
+  qual2=110.0-bb1 + 1.0
 
   return
 end subroutine exp_decode65

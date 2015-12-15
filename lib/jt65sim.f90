@@ -140,13 +140,16 @@ program jt65sim
         if(csubmode.eq.'B' .and. snrdb.eq.0.0) xsnr=-21 - isig
         if(csubmode.eq.'C' .and. snrdb.eq.0.0) xsnr=-21 - isig
 
-        call1="K1ABC"
-        ic3=65+mod(isig-1,26)
-        ic2=65+mod((isig-1)/26,26)
-        ic1=65
-        call2="W9"//char(ic1)//char(ic2)//char(ic3)
-        write(msg,1010) call1,call2,nint(xsnr)
-1010    format(a5,1x,a5,1x,i3.2)
+!###
+!        call1="K1ABC"
+!        ic3=65+mod(isig-1,26)
+!        ic2=65+mod((isig-1)/26,26)
+!        ic1=65
+!        call2="W9"//char(ic1)//char(ic2)//char(ic3)
+!        write(msg,1010) call1,call2,nint(xsnr)
+!1010    format(a5,1x,a5,1x,i3.2)
+        msg="K1ABC W9XYZ EN37"
+!###
 
         call packmsg(msg,dgen,itype)        !Pack message into 12 six-bit bytes
         call rs_encode(dgen,sent)           !Encode using RS(63,12)

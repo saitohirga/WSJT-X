@@ -23,8 +23,8 @@ subroutine decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,nexp_decode, &
   enddo
 
   nadd=mode65
-  call extract(s3,nadd,nqd,ntrials,naggressive,ndepth,                  &
-       ncount,nhist,decoded,ltext,nft,qual)           !Extract the message
+  call extract(s3,nadd,ntrials,naggressive,ndepth,ncount,nhist,decoded,  &
+       ltext,nft,qual)           !Extract the message
 
 ! Suppress "birdie messages" and other garbage decodes:
   if(decoded(1:7).eq.'000AAA ') ncount=-1

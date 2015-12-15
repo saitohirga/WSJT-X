@@ -1,5 +1,5 @@
-subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,              &
-     ncount,nhist,decoded,ltext,nft,qual)
+subroutine extract(s3,nadd,ntrials,naggressive,ndepth,ncount,nhist,    &
+     decoded,ltext,nft,qual)
 
 ! Input:
 !   s3       64-point spectra for each of 63 data symbols
@@ -21,15 +21,12 @@ subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,              &
   character*6 mycall
   integer dat4(12)
   integer mrsym(63),mr2sym(63),mrprob(63),mr2prob(63)
-  integer mrs(63),mrs2(63)
   integer correct(63),tmp(63)
-  integer param(0:7)
-  integer indx(0:62)
-  real*8 tt
-  logical nokv,ltext
+  integer param(0:8)
+  logical ltext
   common/chansyms65/correct
   common/test000/param                              !### TEST ONLY ###
-  data nokv/.false./,nsec1/0/
+  common/test001/s3a(64,63),mrs(63),mrs2(63)        !### TEST ONLY ###
   save
 
   qual=0.
@@ -41,6 +38,8 @@ subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,              &
   decoded='                      '
   call pctile(s3,4032,npct,base)
   s3=s3/base
+  s3a=s3                                            !###
+
 ! Get most reliable and second-most-reliable symbol values, and their
 ! probabilities
 1 call demod64a(s3,nadd,afac1,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
@@ -70,10 +69,9 @@ subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,              &
   call interleave63(mr2prob,-1)
   ntry=0
 
-  nverbose=0
   call timer('ftrsd   ',0)
-  call ftrsd2(mrsym,mrprob,mr2sym,mr2prob,ntrials,nverbose,correct,   &
-       param,indx,tt,ntry)
+  param=0
+  call ftrsd2(mrsym,mrprob,mr2sym,mr2prob,ntrials,correct,param,ntry)
   call timer('ftrsd   ',1)
   ncandidates=param(0)
   nhard=param(1)
@@ -81,20 +79,18 @@ subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,              &
   nerased=param(3)
   nsofter=param(4)
   ntotal=param(5)
+  qual=0.001*param(7)
+  qmin=11-naggressive
+  if(qual.ge.qmin) nft=1
 
-  nhard_max=44
-  nd_a=72 + naggressive
-  if(nhard.le.nhard_max .and. ntotal.le.nd_a) nft=1
-
-!  print*,'AAA',ndepth
   if(nft.eq.0 .and. ndepth.ge.5) then
-!     print*,'BBB',ndepth
      call timer('exp_deco',0)
      mode65=1
      flip=1.0
      mycall='K1ABC'                   !### TEMPORARY ###
-     call exp_decode65(s3,mrs,mrs2,mode65,flip,mycall,qual,decoded)
-     if(qual.ge.1.0) then
+     call exp_decode65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
+          mycall,qual,decoded)
+     if(qual.ge.qmin) then
         nft=2
      else
         param=0
@@ -108,8 +104,8 @@ subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,              &
   decoded='                      '
   ltext=.false.
   if(nft.gt.0) then
-    !turn the corrected symbol array into channel symbols for subtraction
-    !pass it back to jt65a via common block "chansyms65"
+! Turn the corrected symbol array into channel symbols for subtraction;
+! pass it back to jt65a via common block "chansyms65".
      do i=1,12
         dat4(i)=correct(13-i)
      enddo
@@ -125,8 +121,34 @@ subroutine extract(s3,nadd,nqd,ntrials,naggressive,ndepth,              &
   endif
 900 continue
   if(nft.eq.1 .and. nhard.lt.0) decoded='                      '
-!  write(*,3300) nft,nhard,ntotal,int(qual),decoded
-!3300 format(4i5,2x,a22)
+
+!  write(71,3300) nft,nhard,ntotal,int(qual),ncount,decoded
+!3300 format(5i5,2x,a22)
 
   return
 end subroutine extract
+
+subroutine getpp(workdat,p)
+
+  integer workdat(63)
+  integer a(63)
+  common/test001/s3a(64,63),mrs(63),mrs2(63)
+
+  a(1:63)=workdat(63:1:-1)
+  call interleave63(a,1)
+  call graycode(a,63,1,a)
+
+  psum=0.
+  ref=0.
+  do j=1,63
+     i=a(j)+1
+     x=s3a(i,j)
+     s3a(i,j)=0.
+     psum=psum + x
+     ref=ref + maxval(s3a(1:64,j))
+     s3a(i,j)=x
+  enddo
+  p=psum/ref
+
+  return
+end subroutine getpp
