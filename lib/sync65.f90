@@ -46,9 +46,9 @@ subroutine sync65(ss,nfa,nfb,nhsym,ca,ncand,nrobust)
         itry=1
         ncand=ncand+1
      endif
-!     write(79,1010) i,freq,ccfred(i),itry,ncand
+!     write(76,1010) i,freq,ccfred(i),itry,ncand
 !1010 format(i6,2f10.2,i5,i6)
-!     flush(79)
+!     flush(76)
      if(itry.ne.0) then
         call xcor(ss,i,nhsym,nsym,lag1,lag2,ccfblue,ccf0,lagpk,flip,fdot,nrobust)
         call slope(ccfblue(lag1),lag2-lag1+1,lagpk-lag1+1.0)
