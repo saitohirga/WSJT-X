@@ -2,7 +2,7 @@ subroutine noisegen(d4,nmax)
 
   real*4 d4(4,nmax)
 
-  call init_random_seed(1)      ! seed Fortran RANDOM_NUMBER generator
+  call init_random_seed()       ! seed Fortran RANDOM_NUMBER generator
   call sgran()                  ! see C rand generator (used in gran)
 
   do i=1,nmax
