@@ -4,6 +4,7 @@ program jt65sim
 
   use wavhdr
   use packjt
+  use options
   parameter (NMAX=54*12000)              ! = 648,000
   parameter (NFFT=10*65536,NH=NFFT/2)
   type(hdr) h                            !Header for .wav file
@@ -17,7 +18,19 @@ program jt65sim
   complex cspread(0:NFFT-1)              !Complex amplitude for Rayleigh fading
   complex z
   real*8 f0,dt,twopi,phi,dphi,baud,fsample,freq,sps
-  character msg*22,arg*8,fname*11,csubmode*1,call1*5,call2*5
+  character msg*22,fname*11,csubmode*1,call1*5,call2*5,c,optarg*500,numbuf*32
+  logical :: display_help=.false.,seed_prngs=.true.
+  type (option) :: long_options(8) = [ &
+    option ('help',.false.,'h','Display this help message',''),                                &
+    option ('sub-mode',.true.,'m','sub mode, default MODE=A','MODE'),                          &
+    option ('num-sigs',.true.,'n','number of signals per file, default SIGNALS=10','SIGNALS'), &
+    option ('doppler-spread',.true.,'d','Doppler spread, default SPREAD=0.0','SPREAD'),        &
+    option ('time-offset',.true.,                                                              &
+            't','Time delta, use \ to escape -ve values, default SECONDS=0.0','SECONDS'),      &
+    option ('num-files',.true.,'f','Number of files to generate, default FILES=1','FILES'),    &
+    option ('no-prng-seed',.false.,'p','Do not seed PRNGs (use for reproducible tests)',''),   &
+    option ('strength',.true.,'s',                                                             &
+            'S/N in dB (2500Hz reference b/w), use 0 for a range, use \ to escape -ve values, default SNR=0','SNR') ]
   integer nprc(126)                                      !Sync pattern
   data nprc/1,0,0,1,1,0,0,0,1,1,1,1,1,1,0,1,0,1,0,0,  &
             0,1,0,1,1,0,0,1,0,0,0,1,1,1,0,0,1,1,1,1,  &
@@ -27,32 +40,75 @@ program jt65sim
             0,1,0,1,0,0,1,1,0,0,1,0,0,1,0,0,0,0,1,1,  &
             1,1,1,1,1,1/
 
-  nargs=iargc()
-  if(nargs.ne.6) then
-     print*,'Usage:   jt65sim mode nsigs fspread  SNR   DT  nfiles'
-     print*,'Example: jt65sim   A    10    0.2   -24.5  0.0   1'
-     print*,'Enter SNR = 0 to generate a range of SNRs.'
+  csubmode='A'
+  mode65=1
+  nsigs=10
+  fspread=0.
+  xdt=0.
+  snrdb=0.
+  nfiles=1
+
+  do
+     call getopt('hm:n:d:t:f:ps:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+     if( nstat .ne. 0 ) then
+        exit
+     end if
+     select case (c)
+     case ('h')
+        display_help = .true.
+     case ('m')
+        read (optarg(:narglen), *) csubmode
+        if(csubmode.eq.'A') mode65=1
+        if(csubmode.eq.'B') mode65=2
+        if(csubmode.eq.'C') mode65=4
+     case ('n')
+        read (optarg(:narglen), *,err=10) nsigs
+     case ('d')
+        read (optarg(:narglen), *,err=10) fspread
+     case ('t')
+        read (optarg(:narglen), *) numbuf
+        if (numbuf(1:1) == '\') then
+           read (numbuf(2:), *,err=10) xdt
+        else
+           read (numbuf, *,err=10) xdt
+        end if
+     case ('f')
+        read (optarg(:narglen), *,err=10) nfiles
+     case ('p')
+        seed_prngs=.false.
+     case ('s')
+        read (optarg(:narglen), *) numbuf
+        if (numbuf(1:1) == '\') then
+           read (numbuf(2:), *,err=10) snrdb
+        else
+           read (numbuf, *,err=10) snrdb
+        end if
+     end select
+     cycle
+10   display_help=.true.
+     print *, 'Optional argument format error for option -', c
+  end do
+
+  if(display_help .or. nstat.lt.0 .or. nremain.ge.1) then
+     print *, ''
+     print *, 'Usage: jt65sim [OPTIONS]'
+     print *, ''
+     print *, '       Generate one or more simulated JT65 signals in .WAV file(s)'
+     print *, ''
+     print *, 'Example: jt65sim -m B -n 10 -d 0.2 -s \-24.5 -t 0.0 -f 4'
+     print *, ''
+     print *, 'OPTIONS:'
+     print *, ''
+     do i = 1, size (long_options)
+       call long_options(i) % print (6)
+     end do
      go to 999
   endif
 
-  call init_random_seed()       ! seed Fortran RANDOM_NUMBER generator
-  call sgran()                  ! see C rand generator (used in gran)
-
-  csubmode='A'
-  call getarg(1,csubmode)
-  mode65=1
-  if(csubmode.eq.'B') mode65=2
-  if(csubmode.eq.'C') mode65=4
-  call getarg(2,arg)
-  read(arg,*) nsigs                  !Number of signals in each file
-  call getarg(3,arg)
-  read(arg,*) fspread                !Doppler spread (Hz)
-  call getarg(4,arg)
-  read(arg,*) snrdb                  !S/N in dB (2500 hz reference BW)
-  call getarg(5,arg)
-  read(arg,*) xdt                    !Generated DT
-  call getarg(6,arg)
-  read(arg,*) nfiles                 !Number of files     
+  if (seed_prngs) then
+     call init_random_seed()    ! seed Fortran RANDOM_NUMBER generator
+     call sgran()               ! see C rand generator (used in gran)
+  end if
 
   rms=100.
   fsample=12000.d0                   !Sample rate (Hz)

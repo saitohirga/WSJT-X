@@ -937,6 +937,9 @@ add_executable (wsprsim ${wsprsim_CSRCS})
 add_executable (jt4code lib/jt4code.f90 wsjtx.rc)
 target_link_libraries (jt4code wsjt_fort wsjt_cxx)
 
+add_executable (jt65 lib/jt65.f90 ${jt65_CXXSRCS} wsjtx.rc)
+target_link_libraries (jt65 wsjt_fort wsjt_cxx ${FFTW3_LIBRARIES})
+
 add_executable (jt9 lib/jt9.f90 lib/jt9a.f90 lib/jt9b.f90 lib/jt9c.f90 ${jt9_CXXSRCS} wsjtx.rc)
 if (${OPENMP_FOUND} OR APPLE)
   if (APPLE)

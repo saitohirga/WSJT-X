@@ -4,7 +4,7 @@ program jt65
 
   use options
   character c
-logical :: display_help=.false.,err
+  logical :: display_help=.false.
   parameter (NZMAX=60*12000)
   integer*4 ihdr(11)
   integer*2 id2(NZMAX)
@@ -14,11 +14,11 @@ logical :: display_help=.false.,err
   common/tracer/limtrace,lu
   equivalence (lenfile,ihdr(2))
   type (option) :: long_options(5) = [ &
-    option ('freq',.true.,'n','default=1270',''),      &
-    option ('help',.false.,'h','Display this help message',''),      &
-    option ('ntrials',.true.,'n','default=1000',''),                 &
-    option ('robust sync',.false.,'n','default: disabled',''),                 &
-    option ('single-signal mode',.false.,'s','default: disabled','') ]
+    option ('freq',.true.,'f','signal frequency, default FREQ=1270','FREQ'),         &
+    option ('help',.false.,'h','Display this help message',''),                      &
+    option ('ntrials',.true.,'n','number of trials, default TRIALS=10000','TRIALS'), &
+    option ('robust-sync',.false.,'r','robust sync',''),                             &
+    option ('single-signal-mode',.false.,'s','decode at signal frequency only','') ]
 
 limtrace=0
 lu=12
@@ -33,7 +33,7 @@ n2pass=2
 nrobust=0
 
   do
-    call getopt('f:hn:rs',long_options,c,optarg,narglen,nstat,noffset,nremain,err)
+    call getopt('f:hn:rs',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
     if( nstat .ne. 0 ) then
       exit
     end if
@@ -53,11 +53,17 @@ nrobust=0
     end select
   end do
 
-  nargs=iargc()
-  if(display_help .or. (nargs.lt.1)) then
-     print*,'Usage: jt65 [-f freq] [-n ntrials] [-s] file1 [file2 ...]'
-     print*,'             -r robust sync'
-     print*,'             -s single-signal mode'
+  if(display_help .or. nstat.lt.0 .or. nremain.lt.1) then
+     print *, ''
+     print *, 'Usage: jt65 [OPTIONS] file1 [file2 ...]'
+     print *, ''
+     print *, '       JT65 decode pre-recorded .WAV file(s)'
+     print *, ''
+     print *, 'OPTIONS:'
+     print *, ''
+     do i = 1, size (long_options)
+       call long_options(i) % print (6)
+     end do
      go to 999
   endif
 
@@ -65,12 +71,12 @@ nrobust=0
   call timer('jt65    ',0)
 
   ndecoded=0
-  do ifile=1,nargs
+  do ifile=noffset+1,noffset+nremain
      newdat=1
      nfa=nlow
      nfb=nhigh
-     call getarg(ifile+noffset,infile)
-     if( infile.eq.'' ) goto 900
+     call get_command_argument(ifile,optarg,narglen)
+     infile=optarg(:narglen)
      open(10,file=infile,access='stream',status='old',err=998)
      call timer('read    ',0)
      read(10) ihdr
@@ -93,7 +99,7 @@ nrobust=0
      call timer('jt65a   ',1)
   enddo
 
-900 call timer('jt65    ',1)
+  call timer('jt65    ',1)
   call timer('jt65    ',101)
 !  call four2a(a,-1,1,1,1)                  !Free the memory used for plans
 !  call filbig(a,-1,1,0.0,0,0,0,0,0)        ! (ditto)
