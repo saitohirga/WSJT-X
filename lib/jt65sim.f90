@@ -25,12 +25,10 @@ program jt65sim
     option ('sub-mode',.true.,'m','sub mode, default MODE=A','MODE'),                          &
     option ('num-sigs',.true.,'n','number of signals per file, default SIGNALS=10','SIGNALS'), &
     option ('doppler-spread',.true.,'d','Doppler spread, default SPREAD=0.0','SPREAD'),        &
-    option ('time-offset',.true.,                                                              &
-            't','Time delta, use \ to escape -ve values, default SECONDS=0.0','SECONDS'),      &
+    option ('time-offset',.true.,'t','Time delta, default SECONDS=0.0','SECONDS'),             &
     option ('num-files',.true.,'f','Number of files to generate, default FILES=1','FILES'),    &
     option ('no-prng-seed',.false.,'p','Do not seed PRNGs (use for reproducible tests)',''),   &
-    option ('strength',.true.,'s',                                                             &
-            'S/N in dB (2500Hz reference b/w), use 0 for a range, use \ to escape -ve values, default SNR=0','SNR') ]
+    option ('strength',.true.,'s','S/N in dB (2500Hz reference b/w), default SNR=0','SNR') ]
   integer nprc(126)                                      !Sync pattern
   data nprc/1,0,0,1,1,0,0,0,1,1,1,1,1,1,0,1,0,1,0,0,  &
             0,1,0,1,1,0,0,1,0,0,0,1,1,1,0,0,1,1,1,1,  &
@@ -95,9 +93,9 @@ program jt65sim
      print *, ''
      print *, '       Generate one or more simulated JT65 signals in .WAV file(s)'
      print *, ''
-     print *, 'Example: jt65sim -m B -n 10 -d 0.2 -s \-24.5 -t 0.0 -f 4'
+     print *, 'Example: jt65sim -m B -n 10 -d 0.2 -s \\-24.5 -t 0.0 -f 4'
      print *, ''
-     print *, 'OPTIONS:'
+     print *, 'OPTIONS: NB Use \ (\\ on *nix shells) to escape -ve arguments'
      print *, ''
      do i = 1, size (long_options)
        call long_options(i) % print (6)
