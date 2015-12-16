@@ -1,5 +1,5 @@
-subroutine extract(s3,nadd,ntrials,naggressive,ndepth,       &
-     mycall_12,hiscall_12,hisgrid,ncount,nhist,decoded,ltext,nft,qual)
+subroutine extract(s3,nadd,ntrials,naggressive,ndepth,mycall_12,    &
+     hiscall_12,hisgrid,nexp_decode,ncount,nhist,decoded,ltext,nft,qual)
 
 ! Input:
 !   s3       64-point spectra for each of 63 data symbols
@@ -91,7 +91,7 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,       &
      mode65=1
      flip=1.0
      call exp_decode65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
-          mycall,qual,decoded)
+          mycall,hiscall,hisgrid,nexp_decode,qual,decoded)
      if(qual.ge.qmin) then
         nft=2
      else

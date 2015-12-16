@@ -1,5 +1,5 @@
 subroutine exp_decode65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
-     mycall,qual,decoded)
+     mycall,hiscall0,hisgrid0,nexp_decode,qual,decoded)
 
   use packjt
   use prog_args
@@ -12,7 +12,7 @@ subroutine exp_decode65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
   integer mrsym(0:62),mr2sym(0:62),mrprob(0:62)
   integer dgen(12),sym(0:62),sym_rev(0:62)
   integer test(0:62)
-  character*6 mycall,hiscall(NMAX)
+  character*6 mycall,hiscall0,hisgrid0,hiscall(NMAX)
   character*4 hisgrid(NMAX)
   character callsign*12,grid*4
   character*180 line
@@ -22,6 +22,8 @@ subroutine exp_decode65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
   logical first
   data first/.true./,nn/0/
   save first,sym1,nused,msg0,sym2,nn
+
+!  print*,mycall,hiscall0,hisgrid0,nexp_decode
 
   if(first) then
      neme=1
