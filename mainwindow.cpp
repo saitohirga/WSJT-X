@@ -118,6 +118,8 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_monitoring {false},
   m_transmitting {false},
   m_tune {false},
+  m_tune_attenuation {0},
+  m_tune_attenuation_restore {0},
   m_lastMonitoredFrequency {default_frequency},
   m_toneSpacing {0.},
   m_firstDecode {0},
@@ -680,6 +682,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("FastMode",m_bFastMode);
   m_settings->setValue("Fast9",m_bFast9);
   m_settings->setValue("CQRxfreq",m_freqCQ);
+  m_settings->setValue("TuneAttenuation",m_tune_attenuation);
   m_settings->endGroup();
 }
 
@@ -752,6 +755,7 @@ void MainWindow::readSettings()
   ui->band_hopping_group_box->setChecked (m_settings->value ("BandHopping", false).toBool());
   // setup initial value of tx attenuator
   ui->outAttenuation->setValue (m_settings->value ("OutAttenuation", 0).toInt ());
+  m_tune_attenuation = m_settings->value ("TuneAttenuation", 0).toInt ();
   on_outAttenuation_valueChanged (ui->outAttenuation->value ());
   m_freqCQ=m_settings->value("CQRxFreq",285).toInt();
   ui->sbCQRxFreq->setValue(m_freqCQ);
@@ -3986,6 +3990,8 @@ void MainWindow::on_tuneButton_clicked (bool checked)
     m_repeatMsg=0;
     itone[0]=0;
     on_monitorButton_clicked (true);
+    m_tune_attenuation_restore = ui->outAttenuation->value();
+    ui->outAttenuation->setValue(m_tune_attenuation);
     m_tune=true;
   }
   Q_EMIT tune (checked);
@@ -3997,6 +4003,7 @@ void MainWindow::stop_tuning ()
   ui->tuneButton->setChecked (false);
   m_bTxTime=false;
   m_tune=false;
+  ui->outAttenuation->setValue(m_tune_attenuation_restore);
 }
 
 void MainWindow::stopTuneATU()
@@ -4257,6 +4264,9 @@ void MainWindow::transmit (double snr)
 
 void MainWindow::on_outAttenuation_valueChanged (int a)
 {
+  if (m_tune) {
+    m_tune_attenuation = a;
+  }
   qreal dBAttn (a / 10.);      // slider interpreted as hundredths of a dB
   ui->outAttenuation->setToolTip (tr ("Transmit digital gain ") + (a ? QString::number (-dBAttn, 'f', 1) : "0") + "dB");
   Q_EMIT outAttenuationChanged (dBAttn);
