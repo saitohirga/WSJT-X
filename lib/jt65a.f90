@@ -24,7 +24,7 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
      real sync
      character*22 decoded
   end type decode
-  type(decode) dec(30)
+  type(decode) dec(50)
   common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
   common/steve/thresh0
   common/test000/ncandidates,nhard_min,nsoft_min,nera_best,nsofter_min,   &
@@ -96,8 +96,16 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
       call decode65a(dd,npts,newdat,nqd,freq,nflip,mode65,nvec,     &
            naggressive,ndepth,nexp_decode,sync2,a,dtx,nft,qual,nhist,decoded)
       call timer('decod65a',1)
+
+!### Suppress false decodes in crowded HF bands ###
+      if(naggressive.eq.0 .and. ntrials.le.10000) then
+         if(ntry.eq.ntrials .or. ncandidates.eq.100) then
+            if(nhard_min.ge.42 .or. ntotal_min.ge.71) cycle
+         endif
+      endif
+
       if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
-           minsync.ge.0) cycle     !Don't display dupes
+           minsync.ge.0) cycle                  !Don't display dupes
       if(decoded.ne.'                      ' .or. minsync.lt.0) then
         if( nsubtract .eq. 1 ) then
            call timer('subtr65 ',0)
@@ -138,9 +146,8 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
           call flush(6)
           call flush(13)
 !          write(79,3001) nutc,nint(sync1),nsnr,dtx-1.0,nfreq,ncandidates,    &
-!               nhard_min,ntotal_min,ntry,naggressive,nft,nqual,ntry0,        &
-!               ntot,decoded(1:16)
-!3001      format(i4.4,i3,i4,f6.2,i5,i7,i3,i4,i8,i3,i2,i5,i5,i4,1x,a16)
+!               nhard_min,ntotal_min,ntry,naggressive,nft,nqual,decoded
+!3001      format(i4.4,i3,i4,f6.2,i5,i7,i3,i4,i8,i3,i2,i5,1x,a22)
 !          flush(79)
         endif
         decoded0=decoded

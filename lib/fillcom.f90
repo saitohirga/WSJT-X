@@ -23,7 +23,7 @@ subroutine fillcom(nutc0,ndepth0,nrxfreq,mode,tx9,flow,fsplit,fhigh)
   nzhsym=181
   ndepth=ndepth0
   dttol=3.0
-  minsync=-1               !### TEST ONLY
+!  minsync=-1               !### TEST ONLY
 
   n2pass=1
   nranera=8               !ntrials=10000
