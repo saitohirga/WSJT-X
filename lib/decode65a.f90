@@ -1,5 +1,6 @@
 subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
-     naggressive,ndepth,nexp_decode,sync2,a,dt,nft,qual,nhist,decoded)
+     naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,sync2,    &
+     a,dt,nft,qual,nhist,decoded)
 
 ! Apply AFC corrections to a candidate JT65 signal, then decode it.
 
@@ -12,6 +13,7 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   real a(5)
   logical first
   character decoded*22
+  character mycall*12,hiscall*12,hisgrid*6
   data first/.true./,jjjmin/1000/,jjjmax/-1000/
   data nhz0/-9999999/
   save
@@ -73,8 +75,8 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   call timer('sh_ffts ',1)
 
   call timer('dec65b  ',0)
-  call decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,nexp_decode,   &
-       nqd,nft,qual,nhist,decoded)
+  call decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,           &
+       mycall,hiscall,hisgrid,nexp_decode,nqd,nft,qual,nhist,decoded)
   dt=dtbest !return new, improved estimate of dt
   call timer('dec65b  ',1)
 

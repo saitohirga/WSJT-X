@@ -1,6 +1,6 @@
 subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
      minsync,nagain,n2pass,nrobust,ntrials,naggressive,ndepth,       &
-     nexp_decode,ndecoded)
+     mycall,hiscall,hisgrid,nexp_decode,ndecoded)
 
 !  Process dd0() data to find and decode JT65 signals.
 
@@ -12,6 +12,7 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
   real savg(NSZ)
   real a(5)
   character*22 decoded,decoded0
+  character mycall*12,hiscall*12,hisgrid*6
   type candidate
      real freq
      real dt
@@ -94,7 +95,8 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
       if(ipass.eq.2) ntry65b=ntry65b + 1
       call timer('decod65a',0)
       call decode65a(dd,npts,newdat,nqd,freq,nflip,mode65,nvec,     &
-           naggressive,ndepth,nexp_decode,sync2,a,dtx,nft,qual,nhist,decoded)
+           naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,   &
+           sync2,a,dtx,nft,qual,nhist,decoded)
       call timer('decod65a',1)
 
 !### Suppress false decodes in crowded HF bands ###

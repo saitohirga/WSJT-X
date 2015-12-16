@@ -1,10 +1,11 @@
-subroutine decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,nexp_decode, &
-     nqd,nft,qual,nhist,decoded)
+subroutine decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,      &
+     mycall,hiscall,hisgrid,nexp_decode,nqd,nft,qual,nhist,decoded)
 
   real s2(66,126)
   real s3(64,63)
   logical first,ltext
   character decoded*22
+  character mycall*12,hiscall*12,hisgrid*6
   common/prcom/pr(126),mdat(126),mref(126,2),mdat2(126),mref2(126,2)
   data first/.true./
   save
@@ -23,8 +24,8 @@ subroutine decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,nexp_decode, &
   enddo
 
   nadd=mode65
-  call extract(s3,nadd,ntrials,naggressive,ndepth,ncount,nhist,decoded,  &
-       ltext,nft,qual)           !Extract the message
+  call extract(s3,nadd,ntrials,naggressive,ndepth,mycall,hiscall,hisgrid,  &
+       ncount,nhist,decoded,ltext,nft,qual)           !Extract the message
 
 ! Suppress "birdie messages" and other garbage decodes:
   if(decoded(1:7).eq.'000AAA ') ncount=-1
