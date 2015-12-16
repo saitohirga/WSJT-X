@@ -506,6 +506,8 @@ private:
   bool m_monitoring;
   bool m_transmitting;
   bool m_tune;
+  int m_tune_attenuation;
+  int m_tune_attenuation_restore;
   Frequency m_lastMonitoredFrequency;
   double m_toneSpacing;
   int m_firstDecode;
