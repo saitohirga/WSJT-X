@@ -1,5 +1,5 @@
-subroutine extract(s3,nadd,ntrials,naggressive,ndepth,ncount,nhist,    &
-     decoded,ltext,nft,qual)
+subroutine extract(s3,nadd,ntrials,naggressive,ndepth,       &
+     mycall_12,hiscall_12,hisgrid,ncount,nhist,decoded,ltext,nft,qual)
 
 ! Input:
 !   s3       64-point spectra for each of 63 data symbols
@@ -18,7 +18,8 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,ncount,nhist,    &
 
   real s3(64,63)
   character decoded*22
-  character*6 mycall
+  character*12 mycall_12,hiscall_12
+  character*6 mycall,hiscall,hisgrid
   integer dat4(12)
   integer mrsym(63),mr2sym(63),mrprob(63),mr2prob(63)
   integer correct(63),tmp(63)
@@ -29,6 +30,8 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,ncount,nhist,    &
   common/test001/s3a(64,63),mrs(63),mrs2(63)        !### TEST ONLY ###
   save
 
+  mycall=mycall_12(1:6)
+  hiscall=hiscall_12(1:6)
   qual=0.
   nbirdie=20
   npct=50
@@ -87,7 +90,6 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,ncount,nhist,    &
      call timer('exp_deco',0)
      mode65=1
      flip=1.0
-     mycall='K1ABC'                   !### TEMPORARY ###
      call exp_decode65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
           mycall,qual,decoded)
      if(qual.ge.qmin) then
