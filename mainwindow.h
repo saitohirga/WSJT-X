@@ -508,6 +508,7 @@ private:
   bool m_tune;
   int m_tune_attenuation;
   int m_tune_attenuation_restore;
+  bool m_block_pwr_tooltip;
   Frequency m_lastMonitoredFrequency;
   double m_toneSpacing;
   int m_firstDecode;

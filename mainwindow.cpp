@@ -16,6 +16,8 @@
 #include <QProgressDialog>
 #include <QHostInfo>
 #include <QVector>
+#include <QCursor>
+#include <QToolTip>
 
 #include "revision_utils.hpp"
 #include "qt_helpers.hpp"
@@ -120,6 +122,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_tune {false},
   m_tune_attenuation {0},
   m_tune_attenuation_restore {0},
+  m_block_pwr_tooltip {false},
   m_lastMonitoredFrequency {default_frequency},
   m_toneSpacing {0.},
   m_firstDecode {0},
@@ -3991,7 +3994,12 @@ void MainWindow::on_tuneButton_clicked (bool checked)
     itone[0]=0;
     on_monitorButton_clicked (true);
     m_tune_attenuation_restore = ui->outAttenuation->value();
-    ui->outAttenuation->setValue(m_tune_attenuation);
+    if (m_tune_attenuation)
+      {
+        m_block_pwr_tooltip = true;
+        ui->outAttenuation->setValue(m_tune_attenuation);
+        m_block_pwr_tooltip = false;
+      }
     m_tune=true;
   }
   Q_EMIT tune (checked);
@@ -4003,13 +4011,14 @@ void MainWindow::stop_tuning ()
   ui->tuneButton->setChecked (false);
   m_bTxTime=false;
   m_tune=false;
+  m_block_pwr_tooltip = true;
   ui->outAttenuation->setValue(m_tune_attenuation_restore);
+  m_block_pwr_tooltip = false;
 }
 
 void MainWindow::stopTuneATU()
 {
   on_tuneButton_clicked(false);
-  m_tune=false;
   m_bTxTime=false;
 }
 
@@ -4264,11 +4273,32 @@ void MainWindow::transmit (double snr)
 
 void MainWindow::on_outAttenuation_valueChanged (int a)
 {
-  if (m_tune) {
-    m_tune_attenuation = a;
-  }
-  qreal dBAttn (a / 10.);      // slider interpreted as hundredths of a dB
-  ui->outAttenuation->setToolTip (tr ("Transmit digital gain ") + (a ? QString::number (-dBAttn, 'f', 1) : "0") + "dB");
+  QString tt_str;
+  qreal dBAttn {a / 10.};       // slider interpreted as dB / 100
+  if (m_tune && Qt::ShiftModifier == QGuiApplication::keyboardModifiers ())
+    {
+      // special attenuation value for Tune button
+      m_tune_attenuation = a;
+      if (a)
+        {
+          tt_str = tr ("Tune digital gain ")
+            + (a ? QString::number (-dBAttn, 'f', 1) : "0") + "dB\n"
+            "Set at top to cancel";
+        }
+      else
+        {
+          tt_str = tr ("Tune power = Tx power");
+        }
+    }
+  else
+    {
+      tt_str = tr ("Transmit digital gain ")
+        + (a ? QString::number (-dBAttn, 'f', 1) : "0") + "dB";
+    }
+  if (!m_block_pwr_tooltip)
+    {
+      QToolTip::showText (QCursor::pos (), tt_str, ui->outAttenuation);
+    }
   Q_EMIT outAttenuationChanged (dBAttn);
 }
 
