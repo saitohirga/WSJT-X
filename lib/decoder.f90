@@ -19,8 +19,8 @@ subroutine decoder(ss,id2,nfsample)
 !$omp threadprivate(/tracer_priv/)
   save
 
-  if(mod(n,2).eq.0) ntrials=10**(nranera/2.0)
-  if(mod(n,2).eq.1) ntrials=3*10**(nranera/2.0)
+  if(mod(nranera,2).eq.0) ntrials=10**(nranera/2)
+  if(mod(nranera,2).eq.1) ntrials=3*10**(nranera/2)
   if(nranera.eq.0) ntrials=0
 
   rms=sqrt(dot_product(float(id2(300000:310000)),                            &
