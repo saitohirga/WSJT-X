@@ -20,9 +20,9 @@ program jt65
     option ('ntrials',.true.,'n','number of trials, default TRIALS=10000','TRIALS'), &
     option ('robust-sync',.false.,'r','robust sync',''),                             &
     option ('my-call',.true.,'c','my callsign',''),                                  &
-    option ('his-call',.true.,'d','his callsign',''),                                &
+    option ('his-call',.true.,'x','his callsign',''),                                &
     option ('his-grid',.true.,'g','his grid locator',''),                            &
-    option ('experience-decoding',.true.,'e'                                         &
+    option ('experience-decoding',.true.,'X'                                         &
             ,'experience decoding options (1..n), default FLAGS=0','FLAGS'),         &
     option ('single-signal-mode',.false.,'s','decode at signal frequency only','') ]
 
@@ -40,7 +40,7 @@ nrobust=0
 nexp_decoded=0
 
   do
-    call getopt('f:hn:rc:d:g:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+    call getopt('f:hn:rc:x:g:X',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
     if( nstat .ne. 0 ) then
       exit
     end if
@@ -55,11 +55,11 @@ nexp_decoded=0
         nrobust=1
       case ('c')
         read (optarg(:narglen), *) mycall
-      case ('d')
+      case ('x')
         read (optarg(:narglen), *) hiscall
       case ('g')
         read (optarg(:narglen), *) hisgrid
-      case ('e')
+      case ('X')
         read (optarg(:narglen), *) nexp_decoded
       case ('s')
         nlow=nfqso-ntol

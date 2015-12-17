@@ -28,6 +28,7 @@
 #include "SettingsGroup.hpp"
 #include "TraceFile.hpp"
 #include "mainwindow.h"
+#include "commons.h"
 #include "lib/init_random_seed.h"
 
 namespace
@@ -181,16 +182,12 @@ int main(int argc, char *argv[])
       mem_jt9.setKey(a.applicationName ());
 
       if(!mem_jt9.attach()) {
-        if (!mem_jt9.create(sizeof(jt9com_))) {
+        if (!mem_jt9.create(sizeof(struct dec_data))) {
           QMessageBox::critical (nullptr, "Error", "Unable to create shared memory segment.");
           exit(1);
         }
       }
-      char *to = (char*)mem_jt9.data();
-      int size=sizeof(jt9com_);
-      if(jt9com_.newdat==0) {
-      }
-      memset(to,0,size);         //Zero all decoding params in shared memory
+      memset(mem_jt9.data(),0,sizeof(struct dec_data)); //Zero all decoding params in shared memory
 
       unsigned downSampleFactor;
       {

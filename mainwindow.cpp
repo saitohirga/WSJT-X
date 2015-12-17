@@ -51,8 +51,57 @@
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
 
+
+extern "C" {
+  //----------------------------------------------------- C and Fortran routines
+  void symspec_(struct dec_data *, int* k, int* ntrperiod, int* nsps, int* ingain, int* minw,
+                float* px, float s[], float* df3, int* nhsym, int* npts8);
+
+  void hspec_(short int d2[], int* k, int* ingain, float green[], float s[], int* jh);
+
+  void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
+               int* itext, int len1, int len2);
+
+  void gen9_(char* msg, int* ichk, char* msgsent, int itone[],
+               int* itext, int len1, int len2);
+
+  void genmsk_(char* msg, int* ichk, char* msgsent, int itone[],
+               int* itext, int len1, int len2);
+
+  void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
+              int* itext, int len1, int len2);
+
+  void genwspr_(char* msg, char* msgsent, int itone[], int len1, int len2);
+
+  void geniscat_(char* msg, char* msgsent, int itone[], int len1, int len2);
+
+  bool stdmsg_(const char* msg, int len);
+
+  void azdist_(char* MyGrid, char* HisGrid, double* utch, int* nAz, int* nEl,
+               int* nDmiles, int* nDkm, int* nHotAz, int* nHotABetter,
+               int len1, int len2);
+
+  void morse_(char* msg, int* icw, int* ncw, int len);
+
+  int ptt_(int nport, int ntx, int* iptt, int* nopen);
+
+  int fftwf_import_wisdom_from_filename(const char *);
+  int fftwf_export_wisdom_to_filename(const char *);
+
+  void wspr_downsample_(short int d2[], int* k);
+  void savec2_(char* fname, int* m_TRseconds, double* m_dialFreq, int len1);
+
+  void avecho_( short id2[], int* dop, int* nfrit, int* nqual, float* f1,
+                float* level, float* sigdb, float* snr, float* dfreq,
+                float* width);
+
+  void fast_decode_(short id2[], int narg[], char msg[], int len);
+  void degrade_snr_(short d2[], int* n, float* db);
+}
+
 int volatile itone[NUM_ISCAT_SYMBOLS];	//Audio tones for all Tx symbols
 int volatile icw[NUM_CW_SYMBOLS];	    //Dits for CW ID
+struct dec_data dec_data;             // for sharing with Fortran
 
 int outBufSize;
 int rc;
@@ -810,9 +859,9 @@ void MainWindow::dataSink(qint64 frames)
   static float df3;
 
   if(m_diskData) {
-    jt9com_.ndiskdat=1;
+    dec_data.params.ndiskdat=1;
   } else {
-    jt9com_.ndiskdat=0;
+    dec_data.params.ndiskdat=0;
   }
 
   if(m_mode=="ISCAT" or m_mode=="JTMSK" or m_bFast9) {
@@ -824,13 +873,13 @@ void MainWindow::dataSink(qint64 frames)
   trmin=m_TRperiod/60;
 //  int k (frames - 1);
   int k (frames);
-  jt9com_.nfa=m_wideGraph->nStartFreq();
-  jt9com_.nfb=m_wideGraph->Fmax();
+  dec_data.params.nfa=m_wideGraph->nStartFreq();
+  dec_data.params.nfb=m_wideGraph->Fmax();
   int nsps=m_nsps;
   if(m_bFastMode) nsps=6912;
   int nsmo=m_wideGraph->smoothYellow()-1;
-  symspec_(&k,&trmin,&nsps,&m_inGain,&nsmo,&px,s,&df3,&ihsym,&npts8);
-  if(m_mode=="WSPR-2") wspr_downsample_(jt9com_.d2,&k);
+  symspec_(&dec_data,&k,&trmin,&nsps,&m_inGain,&nsmo,&px,s,&df3,&ihsym,&npts8);
+  if(m_mode=="WSPR-2") wspr_downsample_(dec_data.d2,&k);
   if(ihsym <=0) return;
   QString t;
   m_pctZap=nzap*100.0/m_nsps;
@@ -867,7 +916,7 @@ void MainWindow::dataSink(qint64 frames)
       float width=0.0;
       echocom_.nclearave=m_nclearave;
       int nDop=0;
-      avecho_(&jt9com_.d2[0],&nDop,&nfrit,&nqual,&f1,&xlevel,&sigdb,
+      avecho_(dec_data.d2,&nDop,&nfrit,&nqual,&f1,&xlevel,&sigdb,
           &snr,&dfreq,&width);
       QString t;
       t.sprintf("%3d %7.1f %7.1f %7.1f %7.1f %3d",echocom_.nsum,xlevel,sigdb,
@@ -885,10 +934,10 @@ void MainWindow::dataSink(qint64 frames)
     }
     if( m_dialFreqRxWSPR==0) m_dialFreqRxWSPR=m_dialFreq;
     m_dataAvailable=true;
-    jt9com_.npts8=(ihsym*m_nsps)/16;
-    jt9com_.newdat=1;
-    jt9com_.nagain=0;
-    jt9com_.nzhsym=m_hsymStop;
+    dec_data.params.npts8=(ihsym*m_nsps)/16;
+    dec_data.params.newdat=1;
+    dec_data.params.nagain=0;
+    dec_data.params.nzhsym=m_hsymStop;
     QDateTime t = QDateTime::currentDateTimeUtc();
     m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
     if(m_mode.mid(0,4)!="WSPR") decode();                            //Start decoder
@@ -963,7 +1012,7 @@ void MainWindow::fastSink(qint64 frames)
       memcpy(fast_green2,fast_green,4*703);        //Copy fast_green[] to fast_green2[]
       memcpy(fast_s2,fast_s,4*703*64);             //Copy fast_s[] into fast_s2[]
       fast_jh2=fast_jh;
-      if(!m_diskData) memset(jt9com_.d2,0,2*30*12000);   //Zero the d2[] array
+      if(!m_diskData) memset(dec_data.d2,0,2*30*12000);   //Zero the d2[] array
       decodeEarly=false;
       m_bFastDecodeCalled=false;
       QDateTime t=QDateTime::currentDateTimeUtc();     //.addSecs(2-m_TRperiod);
@@ -978,7 +1027,7 @@ void MainWindow::fastSink(qint64 frames)
     }
   }
 
-  hspec_(&jt9com_.d2[0], &k, &m_inGain, fast_green, fast_s, &fast_jh);
+  hspec_(dec_data.d2, &k, &m_inGain, fast_green, fast_s, &fast_jh);
   px=fast_green[fast_jh] - 5.0;
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);
@@ -987,7 +1036,7 @@ void MainWindow::fastSink(qint64 frames)
 
   decodeNow=false;
   m_k0=k;
-  if(m_diskData and m_k0 >= jt9com_.kin-3456) decodeNow=true;
+  if(m_diskData and m_k0 >= dec_data.params.kin-3456) decodeNow=true;
   if(!m_diskData and m_tRemaining<0.35 and !m_bFastDecodeCalled) decodeNow=true;
 
   if(decodeNow) {
@@ -995,7 +1044,7 @@ void MainWindow::fastSink(qint64 frames)
     m_t0=0.0;
     m_t1=k/12000.0;
     m_kdone=k;
-    jt9com_.newdat=1;
+    dec_data.params.newdat=1;
     if(!m_decoderBusy) {
       m_bFastDecodeCalled=true;
       decode();
@@ -1156,8 +1205,8 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
     case Qt::Key_D:
       if(m_mode != "WSPR-2" && e->modifiers() & Qt::ShiftModifier) {
         if(!m_decoderBusy) {
-          jt9com_.newdat=0;
-          jt9com_.nagain=0;
+          dec_data.params.newdat=0;
+          dec_data.params.nagain=0;
           decode();
           return;
         }
@@ -1539,12 +1588,12 @@ void MainWindow::diskDat()                                   //diskDat()
   m_diskData=true;
 
   float db=m_config.degrade();
-  if(db > 0.0) degrade_snr_(jt9com_.d2,&jt9com_.kin,&db);
+  if(db > 0.0) degrade_snr_(dec_data.d2,&dec_data.params.kin,&db);
 
   for(int n=1; n<=m_hsymStop; n++) {                      // Do the waterfall spectra
     k=(n+1)*kstep;
-    if(k > jt9com_.kin) break;
-    jt9com_.npts8=k/8;
+    if(k > dec_data.params.kin) break;
+    dec_data.params.npts8=k/8;
     dataSink(k);
     qApp->processEvents();                                //Update the waterfall
   }
@@ -1618,8 +1667,8 @@ void MainWindow::on_actionSpecial_mouse_commands_triggered()
 void MainWindow::on_DecodeButton_clicked (bool /* checked */)	//Decode request
 {
   if(m_mode != "WSPR-2" && !m_decoderBusy) {
-    jt9com_.newdat=0;
-    jt9com_.nagain=1;
+    dec_data.params.newdat=0;
+    dec_data.params.nagain=1;
     m_blankLine=false; // don't insert the separator again
     decode();
   }
@@ -1647,14 +1696,14 @@ void MainWindow::decode()                                       //decode()
 {
   if(!m_dataAvailable or m_TRperiod==0) return;
   ui->DecodeButton->setChecked (true);
-  if(m_diskData and !m_bFastMode) jt9com_.nutc=jt9com_.nutc/100;
-  if(jt9com_.newdat==1 && (!m_diskData)) {
+  if(m_diskData and !m_bFastMode) dec_data.params.nutc=dec_data.params.nutc/100;
+  if(dec_data.params.newdat==1 && (!m_diskData)) {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int imin=ms/60000;
     int ihr=imin/60;
     imin=imin % 60;
     if(m_TRperiod>=60) imin=imin - (imin % (m_TRperiod/60));
-    jt9com_.nutc=100*ihr + imin;
+    dec_data.params.nutc=100*ihr + imin;
     if(m_mode=="ISCAT" or m_bFast9) {
 
       QDateTime t=QDateTime::currentDateTimeUtc().addSecs(2-m_TRperiod);
@@ -1662,71 +1711,71 @@ void MainWindow::decode()                                       //decode()
       imin=t.toString("mm").toInt();
       int isec=t.toString("ss").toInt();
       isec=isec - isec%m_TRperiod;
-      jt9com_.nutc=10000*ihr + 100*imin + isec;
+      dec_data.params.nutc=10000*ihr + 100*imin + isec;
     }
   }
 
-  jt9com_.nfqso=m_wideGraph->rxFreq();
-  jt9com_.ndepth=m_ndepth;
-  jt9com_.n2pass=1;
-  if(m_config.twoPass()) jt9com_.n2pass=2;
-  jt9com_.nranera=m_config.ntrials();
-  jt9com_.naggressive=m_config.aggressive();
-  jt9com_.nrobust=0;
-  if(m_config.sync1Bit()) jt9com_.nrobust=1;
-  jt9com_.ndiskdat=0;
-  if(m_diskData) jt9com_.ndiskdat=1;
-  jt9com_.nfa=m_wideGraph->nStartFreq();
-  jt9com_.nfSplit=m_wideGraph->Fmin();
-  jt9com_.nfb=m_wideGraph->Fmax();
-  jt9com_.ntol=m_Ftol;
-  if(m_mode=="JT9+JT65") jt9com_.ntol=20;
-  if(jt9com_.nutc < m_nutc0) m_RxLog = 1;       //Date and Time to all.txt
-  m_nutc0=jt9com_.nutc;
-  jt9com_.ntxmode=9;
-  if(m_modeTx=="JT65") jt9com_.ntxmode=65;
-  jt9com_.nmode=9;
-  if(m_mode=="JT65") jt9com_.nmode=65;
-  if(m_mode=="JT9+JT65") jt9com_.nmode=9+65;  // = 74
+  dec_data.params.nfqso=m_wideGraph->rxFreq();
+  dec_data.params.ndepth=m_ndepth;
+  dec_data.params.n2pass=1;
+  if(m_config.twoPass()) dec_data.params.n2pass=2;
+  dec_data.params.nranera=m_config.ntrials();
+  dec_data.params.naggressive=m_config.aggressive();
+  dec_data.params.nrobust=0;
+  if(m_config.sync1Bit()) dec_data.params.nrobust=1;
+  dec_data.params.ndiskdat=0;
+  if(m_diskData) dec_data.params.ndiskdat=1;
+  dec_data.params.nfa=m_wideGraph->nStartFreq();
+  dec_data.params.nfSplit=m_wideGraph->Fmin();
+  dec_data.params.nfb=m_wideGraph->Fmax();
+  dec_data.params.ntol=m_Ftol;
+  if(m_mode=="JT9+JT65") dec_data.params.ntol=20;
+  if(dec_data.params.nutc < m_nutc0) m_RxLog = 1;       //Date and Time to all.txt
+  m_nutc0=dec_data.params.nutc;
+  dec_data.params.ntxmode=9;
+  if(m_modeTx=="JT65") dec_data.params.ntxmode=65;
+  dec_data.params.nmode=9;
+  if(m_mode=="JT65") dec_data.params.nmode=65;
+  if(m_mode=="JT9+JT65") dec_data.params.nmode=9+65;  // = 74
   if(m_mode=="JT4") {
-    jt9com_.nmode=4;
-    jt9com_.ntxmode=4;
+    dec_data.params.nmode=4;
+    dec_data.params.ntxmode=4;
   }
-  jt9com_.ntrperiod=m_TRperiod;
-  jt9com_.nsubmode=m_nSubMode;
-  jt9com_.minw=0;
-  jt9com_.nclearave=m_nclearave;
+  dec_data.params.ntrperiod=m_TRperiod;
+  dec_data.params.nsubmode=m_nSubMode;
+  dec_data.params.minw=0;
+  dec_data.params.nclearave=m_nclearave;
   if(m_nclearave!=0) {
     QFile f(m_config.temp_dir ().absoluteFilePath ("avemsg.txt"));
     f.remove();
   }
-  jt9com_.dttol=m_DTtol;
-  jt9com_.emedelay=0.0;
-  if(m_bEME) jt9com_.emedelay=2.5;
-  jt9com_.minSync=m_minSync;
-  jt9com_.nexp_decode=0;
-  if(m_config.MyDx()) jt9com_.nexp_decode += 1;
-  if(m_config.CQMyN()) jt9com_.nexp_decode += 2;
-  if(m_config.NDxG()) jt9com_.nexp_decode += 4;
-  if(m_config.NN()) jt9com_.nexp_decode += 8;
-  if(m_config.EMEonly()) jt9com_.nexp_decode += 16;
+  dec_data.params.dttol=m_DTtol;
+  dec_data.params.emedelay=0.0;
+  if(m_bEME) dec_data.params.emedelay=2.5;
+  dec_data.params.minSync=m_minSync;
+  dec_data.params.nexp_decode=0;
+  if(m_config.MyDx()) dec_data.params.nexp_decode += 1;
+  if(m_config.CQMyN()) dec_data.params.nexp_decode += 2;
+  if(m_config.NDxG()) dec_data.params.nexp_decode += 4;
+  if(m_config.NN()) dec_data.params.nexp_decode += 8;
+  if(m_config.EMEonly()) dec_data.params.nexp_decode += 16;
 
-  strncpy(jt9com_.datetime, m_dateTime.toLatin1(), 20);
-  strncpy(jt9com_.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
-  strncpy(jt9com_.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
+  strncpy(dec_data.params.datetime, m_dateTime.toLatin1(), 20);
+  strncpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
+  strncpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
   QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
   QString hisGrid=ui->dxGridEntry->text().toUpper().trimmed();
-  strncpy(jt9com_.hiscall,(hisCall+"            ").toLatin1(),12);
-  strncpy(jt9com_.hisgrid,(hisGrid+"      ").toLatin1(),6);
+  strncpy(dec_data.params.hiscall,(hisCall+"            ").toLatin1(),12);
+  strncpy(dec_data.params.hisgrid,(hisGrid+"      ").toLatin1(),6);
 
   //newdat=1  ==> this is new data, must do the big FFT
   //nagain=1  ==> decode only at fQSO +/- Tol
 
   char *to = (char*)mem_jt9->data();
-  char *from = (char*) jt9com_.ss;
-  int size=sizeof(jt9com_);
-  if(jt9com_.newdat==0) {
-    int noffset = 4*184*NSMAX + 4*NSMAX + 2*NTMAX*12000;
+  char *from = (char*) dec_data.ss;
+  int size=sizeof(struct dec_data);
+  if(dec_data.params.newdat==0) {
+    int noffset {offsetof (struct dec_data, params.nutc)};
     to += noffset;
     from += noffset;
     size -= noffset;
@@ -1742,25 +1791,25 @@ void MainWindow::decode()                                       //decode()
     }
     static int narg[12];
     static short int d2b[360000];
-    narg[0]=jt9com_.nutc;
+    narg[0]=dec_data.params.nutc;
     if(m_kdone>12000*m_TRperiod) {
       m_kdone=12000*m_TRperiod;
     }
     narg[1]=m_kdone;
     narg[2]=m_nSubMode;
-    narg[3]=jt9com_.newdat;
-    narg[4]=jt9com_.minSync;
+    narg[3]=dec_data.params.newdat;
+    narg[4]=dec_data.params.minSync;
     narg[5]=m_nPick;
     narg[6]=1000.0*t0;
     narg[7]=1000.0*t1;
     narg[8]=2;                                //Max decode lines per decode attempt
-    if(jt9com_.minSync<0) narg[8]=50;
+    if(dec_data.params.minSync<0) narg[8]=50;
     if(m_mode=="ISCAT") narg[9]=101;          //ISCAT
     if(m_mode=="JT9") narg[9]=102;            //Fast JT9
     if(m_mode=="JTMSK") narg[9]=103;          //JTMSK
     narg[10]=ui->RxFreqSpinBox->value();
     narg[11]=m_Ftol;
-    memcpy(d2b,jt9com_.d2,2*360000);
+    memcpy(d2b,dec_data.d2,2*360000);
     *future3 = QtConcurrent::run(fast_decode_,&d2b[0],&narg[0],&m_msg[0][0],80);
     watcher3->setFuture(*future3);
   } else {
@@ -1870,8 +1919,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
     if(t.indexOf("<DecodeFinished>") >= 0) {
       m_bDecoded = (t.mid(23,1).toInt()==1);
       if(!m_diskData) killFileTimer->start (3*1000*m_TRperiod/4); //Kill in 45 s
-      jt9com_.nagain=0;
-      jt9com_.ndiskdat=0;
+      dec_data.params.nagain=0;
+      dec_data.params.ndiskdat=0;
       m_nclearave=0;
       QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.open(QIODevice::ReadWrite);
       ui->DecodeButton->setChecked (false);
@@ -5017,8 +5066,8 @@ void MainWindow::fastPick(int x0, int x1, int y)
 {
   if(m_mode!="ISCAT") return;
   if(!m_decoderBusy) {
-    jt9com_.newdat=0;
-    jt9com_.nagain=1;
+    dec_data.params.newdat=0;
+    dec_data.params.nagain=1;
     m_blankLine=false;                 // don't insert the separator again
     m_nPick=1;
     if(y > 120) m_nPick=2;

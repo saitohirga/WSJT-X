@@ -1,21 +1,25 @@
 subroutine jt9a()
-
+  use, intrinsic :: iso_c_binding, only: c_f_pointer
   use prog_args
+
+  include 'jt9com.f90'
 
 ! These routines connect the shared memory region to the decoder.
   interface
      function address_jt9()
-     integer*1, pointer :: address_jt9
+       use, intrinsic :: iso_c_binding, only: c_ptr
+       type(c_ptr) :: address_jt9
      end function address_jt9
   end interface
 
   integer*1 attach_jt9
 !  integer*1 lock_jt9,unlock_jt9
   integer size_jt9
-  integer*1, pointer :: p_jt9
   character*80 cwd
 ! Multiple instances:
   character*80 mykey
+  type(dec_data), pointer :: shared_data
+  type(params_block) :: local_params
   logical fileExists
   common/tracer/limtrace,lu
 
@@ -56,17 +60,19 @@ subroutine jt9a()
      print*,"Must start 'jt9 -s <thekey>' from within WSJT-X."
      go to 999
   endif
-  p_jt9=>address_jt9()
-  call timer('jt9b    ',0)
-  call jt9b(p_jt9,nbytes)
-  call timer('jt9b    ',1)
+  call c_f_pointer(address_jt9(),shared_data)
+  local_params=shared_data%params !save a copy because wsjtx carries on accessing
+  call flush(6)
+  call timer('decoder ',0)
+  call decoder(shared_data%ss,shared_data%id2,local_params,12000)
+  call timer('decoder ',1)
 
 100 inquire(file=trim(temp_dir)//'/.lock',exist=fileExists)
   if(fileExists) go to 10
   call sleep_msec(100)
   go to 100
 
-999 call timer('jt9b    ',101)
+999 call timer('decoder ',101)
 
   return
 end subroutine jt9a

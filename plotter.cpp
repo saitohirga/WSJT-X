@@ -1,6 +1,7 @@
 #include "plotter.h"
 #include <math.h>
 #include <QDebug>
+#include "commons.h"
 
 #include "moc_plotter.cpp"
 
@@ -130,7 +131,7 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
 
   if(bScroll) {
     flat4_(swide,&iz,&m_Flatten);
-    flat4_(&jt9com_.savg[j0],&jz,&m_Flatten);
+    flat4_(&dec_data.savg[j0],&jz,&m_Flatten);
   }
 
   ymin=1.e30;
@@ -157,7 +158,7 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
       float sum=0.0;
       int j=j0+m_binsPerPixel*i;
       for(int k=0; k<m_binsPerPixel; k++) {
-        sum+=jt9com_.savg[j++];
+        sum+=dec_data.savg[j++];
       }
       m_sum[i]=sum;
     }

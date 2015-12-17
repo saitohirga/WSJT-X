@@ -1,4 +1,4 @@
-subroutine symspec(k,ntrperiod,nsps,ingain,nminw,pxdb,s,df3,ihsym,npts8)
+subroutine symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,df3,ihsym,npts8)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -17,22 +17,16 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nminw,pxdb,s,df3,ihsym,npts8)
 !  ss()      JT9 symbol spectra at half-symbol steps
 !  savg()    average spectra for waterfall display
 
-  include 'constants.f90'
+  include 'jt9com.f90'
+
+  type(dec_data) :: shared_data
   real*4 w3(MAXFFT3)
   real*4 s(NSMAX)
   real*4 ssum(NSMAX)
   real*4 xc(0:MAXFFT3-1)
   real*4 tmp(NSMAX)
   complex cx(0:MAXFFT3/2)
-  integer*2 id2
   integer nch(7)
-
-  character datetime*20,mycall*12,mygrid*6,hiscall*12,hisgrid*6
-  common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,          &
-       ntr,mousefqso,newdat,npts8a,nfa,nfsplit,nfb,ntol,kin,nzhsym,         &
-       nsubmode,nagain,ndepth,ntxmode,nmode,minw,nclearave,minsync,         &
-       emedelay,dttol,nlist,listutc(10),datetime,mycall,mygrid,             &
-       hiscall,hisgrid
 
   common/jt9w/syellow(NSMAX)
   data rms/999.0/,k0/99999999/,nfft3z/0/
@@ -64,12 +58,12 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nminw,pxdb,s,df3,ihsym,npts8)
      ja=0
      ssum=0.
      ihsym=0
-     if(ndiskdat.eq.0) id2(k+1:)=0   !Needed to prevent "ghosts". Not sure why.
+     if(shared_data%params%ndiskdat.eq.0) shared_data%id2(k+1:)=0   !Needed to prevent "ghosts". Not sure why.
   endif
   gain=10.0**(0.1*ingain)
   sq=0.
   do i=k0+1,k
-     x1=id2(i)
+     x1=shared_data%id2(i)
      sq=sq + x1*x1
   enddo
   sq=sq * gain
@@ -85,7 +79,7 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nminw,pxdb,s,df3,ihsym,npts8)
   do i=0,nfft3-1                      !Copy data into cx
      j=ja+i-(nfft3-1)
      xc(i)=0.
-     if(j.ge.1 .and.j.le.NMAX) xc(i)=fac0*id2(j)
+     if(j.ge.1 .and.j.le.NMAX) xc(i)=fac0*shared_data%id2(j)
   enddo
   ihsym=ihsym+1
 
@@ -99,18 +93,18 @@ subroutine symspec(k,ntrperiod,nsps,ingain,nminw,pxdb,s,df3,ihsym,npts8)
      j=i-1
      if(j.lt.0) j=j+nfft3
      sx=fac*(real(cx(j))**2 + aimag(cx(j))**2)
-     if(ihsym.le.184) ss(ihsym,i)=sx
+     if(ihsym.le.184) shared_data%ss(ihsym,i)=sx
      ssum(i)=ssum(i) + sx
      s(i)=1000.0*gain*sx
   enddo
 
-  savg=ssum/ihsym
+  shared_data%savg=ssum/ihsym
 
   if(mod(ihsym,10).eq.0) then
      mode4=nch(nminw+1)
      nsmo=min(10*mode4,150)
      nsmo=4*nsmo
-     call flat1(savg,iz,nsmo,syellow)
+     call flat1(shared_data%savg,iz,nsmo,syellow)
      if(mode4.ge.2) call smo(syellow,iz,tmp,mode4)
      if(mode4.ge.2) call smo(syellow,iz,tmp,mode4)
      syellow(1:250)=0.
