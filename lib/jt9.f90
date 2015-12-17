@@ -13,12 +13,11 @@ program jt9
   integer(C_INT) iret
   integer*4 ihdr(11)
   real*4 s(NSMAX)
-  integer*2 id2
   character c
   character(len=500) optarg, infile
   character wisfile*80
   integer :: arglen,stat,offset,remain,mode=0,flow=200,fsplit=2700,          &
-       fhigh=4000,nrxfreq=1500,ntrperiod0=1,ndepth=60001,nexp_decode=0
+       fhigh=4000,nrxfreq=1500,ntrperiod=1,ndepth=60001,nexp_decode=0
   logical :: shmem = .false., read_files = .false.,                          &
        tx9 = .false., display_help = .false.
   type (option) :: long_options(22) = [ &
@@ -90,7 +89,7 @@ program jt9
            read (optarg(:arglen), *) nthreads
         case ('p')
            read_files = .true.
-           read (optarg(:arglen), *) ntrperiod0
+           read (optarg(:arglen), *) ntrperiod
         case ('d')
            read_files = .true.
            read (optarg(:arglen), *) ndepth
@@ -200,19 +199,19 @@ program jt9
      go to 2
 1    nutc=0
 2    nsps=0
-     if(ntrperiod0.eq.1)  then
+     if(ntrperiod.eq.1)  then
         nsps=6912
         shared_data%params%nzhsym=181
-     else if(ntrperiod0.eq.2)  then
+     else if(ntrperiod.eq.2)  then
         nsps=15360
         shared_data%params%nzhsym=178
-     else if(ntrperiod0.eq.5)  then
+     else if(ntrperiod.eq.5)  then
         nsps=40960
         shared_data%params%nzhsym=172
-     else if(ntrperiod0.eq.10) then
+     else if(ntrperiod.eq.10) then
         nsps=82944
         shared_data%params%nzhsym=171
-     else if(ntrperiod0.eq.30) then
+     else if(ntrperiod.eq.30) then
         nsps=252000
         shared_data%params%nzhsym=167
      endif
@@ -227,7 +226,7 @@ program jt9
         call timer('jt9     ',0)
      endif
 
-     id2=0                               !??? Why is this necessary ???
+     shared_data%id2=0          !??? Why is this necessary ???
 
      do iblk=1,npts/kstep
         k=iblk*kstep

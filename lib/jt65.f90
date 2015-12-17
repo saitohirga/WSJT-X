@@ -11,7 +11,8 @@ program jt65
   real*4 dd(NZMAX)
   character*80 infile
   character(len=500) optarg
-  character*6 mycall,hiscall,hisgrid
+  character*12 mycall,hiscall
+  character*6 hisgrid
   common/tracer/limtrace,lu
   equivalence (lenfile,ihdr(2))
   type (option) :: long_options(9) = [ &
@@ -38,9 +39,10 @@ nhigh=4000
 n2pass=2
 nrobust=0
 nexp_decoded=0
+naggressive=1
 
   do
-    call getopt('f:hn:rc:x:g:X',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+    call getopt('f:hn:rc:x:g:X:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
     if( nstat .ne. 0 ) then
       exit
     end if
@@ -90,6 +92,7 @@ nexp_decoded=0
      newdat=1
      nfa=nlow
      nfb=nhigh
+     minsync=0
      call get_command_argument(ifile,optarg,narglen)
      infile=optarg(:narglen)
      open(10,file=infile,access='stream',status='old',err=998)
@@ -109,7 +112,7 @@ nexp_decoded=0
 !     write(56) ihdr(1:11)
 
      call jt65a(dd,npts,newdat,nutc,nfa,nfb,nfqso,ntol,nsubmode, &
-                minsync,nagain,n2pass,nrobust,ntrials, naggressive,ndepth, &
+                minsync,nagain,n2pass,nrobust,ntrials,naggressive,ndepth, &
                 mycall,hiscall,hisgrid,nexp_decoded,ndecoded)
      call timer('jt65a   ',1)
   enddo
