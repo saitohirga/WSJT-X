@@ -169,8 +169,8 @@ program jt65sim
         bandwidth_ratio=2500.0/6000.0
         sig=sqrt(2*bandwidth_ratio)*10.0**(0.05*xsnr)
         if(xsnr.gt.90.0) sig=1.0
-        write(*,1020) ifile,isig,f0,csubmode,xsnr,sig,msg
-1020    format(i4,i4,f10.3,2x,a1,2x,f5.1,f8.4,2x,a22)
+        write(*,1020) ifile,isig,f0,csubmode,xsnr,xdt,fspread,msg
+1020    format(i4,i4,f10.3,2x,a1,2x,f5.1,f6.2,f5.1,1x,a22)
 
         phi=0.d0
         dphi=0.d0
