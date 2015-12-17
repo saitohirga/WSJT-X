@@ -3,6 +3,8 @@
 #include <QSharedMemory>
 #include <QSystemSemaphore>
 
+#include "../commons.h"
+
 // Multiple instances: KK1D, 17 Jul 2013
 QSharedMemory mem_jt9;
 
@@ -16,17 +18,13 @@ extern "C" {
   bool detach_jt9_();
   bool lock_jt9_();
   bool unlock_jt9_();
-  char* address_jt9_();
+  struct jt9com * address_jt9_();
   int size_jt9_();
 // Multiple instances:  wrapper for QSharedMemory::setKey()
   bool setkey_jt9_(char* mykey, int mykey_len);
 
   bool acquire_jt9_();
   bool release_jt9_();
-
-  extern struct {
-    char c[10];
-  } jt9com_;
 }
 
 bool attach_jt9_() {return mem_jt9.attach();}
@@ -34,7 +32,7 @@ bool create_jt9_(int nsize) {return mem_jt9.create(nsize);}
 bool detach_jt9_() {return mem_jt9.detach();}
 bool lock_jt9_() {return mem_jt9.lock();}
 bool unlock_jt9_() {return mem_jt9.unlock();}
-char* address_jt9_() {return (char*)mem_jt9.constData();}
+struct jt9com * address_jt9_() {return reinterpret_cast<struct jt9com *>(mem_jt9.data());}
 int size_jt9_() {return (int)mem_jt9.size();}
 
 // Multiple instances:

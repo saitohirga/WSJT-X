@@ -16,6 +16,8 @@
 #include <err.h>
 #endif
 
+#include "commons.h"
+
 void getfile(QString fname, int ntrperiod)
 {
   struct WAVHDR {
@@ -44,27 +46,27 @@ void getfile(QString fname, int ntrperiod)
   QString baseName=fname.mid(i1+1);
 
   i1=fname.indexOf(".wav",0,Qt::CaseInsensitive);
-  jt9com_.nutc=0;
+  dec_data.params.nutc=0;
   if(i1>0) {
     int i0=fname.indexOf("_",-11);
     if(i1==i0+7) {
-      jt9com_.nutc=fname.mid(i1-6,6).toInt();
+      dec_data.params.nutc=fname.mid(i1-6,6).toInt();
     } else {
-      jt9com_.nutc=100*fname.mid(i1-4,4).toInt();
+      dec_data.params.nutc=100*fname.mid(i1-4,4).toInt();
     }
   }
   if(ntrperiod > 120 or ntrperiod <0) ntrperiod=120;
   int npts=ntrperiod*12000;
-  memset(jt9com_.d2,0,2*npts);
+  memset(dec_data.d2,0,2*npts);
 
   if(fp != NULL) {
 // Read (and ignore) a 44-byte WAV header; then read data
     int n=fread(&hdr,1,44,fp);
-    n=fread(jt9com_.d2,2,npts,fp);
-    if(hdr.nsamrate==11025) wav12_(jt9com_.d2,jt9com_.d2,&n,&hdr.nbitsam2);
+    n=fread(dec_data.d2,2,npts,fp);
+    if(hdr.nsamrate==11025) wav12_(dec_data.d2,dec_data.d2,&n,&hdr.nbitsam2);
     fclose(fp);
-    jt9com_.newdat=1;
-    jt9com_.kin=n;
+    dec_data.params.newdat=1;
+    dec_data.params.kin=n;
   }
 }
 
@@ -122,9 +124,9 @@ void savewav(QString fname, int ntrperiod)
     hdr.ndata=2*npts;
 
     fwrite(&hdr,sizeof(hdr),1,fp);
-//    memcpy(jt9com_.d2,buf,2*npts);
+//    memcpy(dec_data.d2,buf,2*npts);
 //    fwrite(buf,2,npts,fp);
-    fwrite(jt9com_.d2,2,npts,fp);
+    fwrite(dec_data.d2,2,npts,fp);
     fclose(fp);
   }
 //  free(buf);

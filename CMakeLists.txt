@@ -308,7 +308,6 @@ set (wsjt_FSRCS
   lib/fil4.f90
   lib/fil6521.f90
   lib/filbig.f90
-  lib/fillcom.f90
   lib/flat1.f90
   lib/flat1a.f90
   lib/flat2.f90
@@ -940,7 +939,7 @@ target_link_libraries (jt4code wsjt_fort wsjt_cxx)
 add_executable (jt65 lib/jt65.f90 ${jt65_CXXSRCS} wsjtx.rc)
 target_link_libraries (jt65 wsjt_fort wsjt_cxx ${FFTW3_LIBRARIES})
 
-add_executable (jt9 lib/jt9.f90 lib/jt9a.f90 lib/jt9b.f90 lib/jt9c.f90 ${jt9_CXXSRCS} wsjtx.rc)
+add_executable (jt9 lib/jt9.f90 lib/jt9a.f90 ${jt9_CXXSRCS} wsjtx.rc)
 if (${OPENMP_FOUND} OR APPLE)
   if (APPLE)
     # On  Mac  we don't  have  working  OpenMP  support in  the  C/C++

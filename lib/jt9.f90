@@ -8,7 +8,8 @@ program jt9
   use, intrinsic :: iso_c_binding
   use FFTW3
 
-  include 'constants.f90'
+  include 'jt9com.f90'
+
   integer(C_INT) iret
   integer*4 ihdr(11)
   real*4 s(NSMAX)
@@ -17,10 +18,10 @@ program jt9
   character(len=500) optarg, infile
   character wisfile*80
   integer :: arglen,stat,offset,remain,mode=0,flow=200,fsplit=2700,          &
-       fhigh=4000,nrxfreq=1500,ntrperiod=1,ndepth=60001
+       fhigh=4000,nrxfreq=1500,ntrperiod0=1,ndepth=60001,nexp_decode=0
   logical :: shmem = .false., read_files = .false.,                          &
        tx9 = .false., display_help = .false.
-  type (option) :: long_options(17) = [ &
+  type (option) :: long_options(22) = [ &
     option ('help', .false., 'h', 'Display this help message', ''),          &
     option ('shmem',.true.,'s','Use shared memory for sample data','KEY'),   &
     option ('tr-period', .true., 'p', 'Tx/Rx period, default MINUTES=1',     &
@@ -50,22 +51,25 @@ program jt9
     option ('jt4', .false., '4', 'JT4 mode', ''),                            &
     option ('depth', .true., 'd',                                            &
         'JT9 decoding depth (1-3), default DEPTH=1', 'DEPTH'),               &
-    option ('tx-jt9', .false., 'T', 'Tx mode is JT9', '') ]
+    option ('tx-jt9', .false., 'T', 'Tx mode is JT9', ''),                   &
+    option ('my-call', .true., 'c', 'my callsign', 'CALL'),                  &
+    option ('my-grid', .true., 'G', 'my grid locator', 'GRID'),              &
+    option ('his-call', .true., 'x', 'his callsign', 'CALL'),                &
+    option ('his-grid', .true., 'g', 'his grid locator', 'GRID'),            &
+    option ('experience-decode', .true., 'X',                                &
+        'experience based decoding flags (1..n), default FLAGS=0',           &
+        'FLAGS') ]
 
-  character datetime*20,mycall*12,mygrid*6,hiscall*12,hisgrid*6
-  common/jt9com/ss(184,NSMAX),savg(NSMAX),id2(NMAX),nutc,ndiskdat,          &
-       ntr,mousefqso,newdat,npts8a,nfa,nfsplit,nfb,ntol,kin,nzhsym,         &
-       nsubmode,nagain,ndepth,ntxmode,nmode,minw,nclearave,minsync,         &
-       emedelay,dttol,nlist,listutc(10),n2pass,nranera,naggressive,         &
-       nrobust,nexp_decode,nspare(9),datetime,mycall,mygrid,hiscall,hisgrid
-
+  type(dec_data), allocatable :: shared_data
+  character(len=12) :: mycall, hiscall
+  character(len=6) :: mygrid, hisgrid
   common/tracer/limtrace,lu
   common/patience/npatience,nthreads
   common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
   data npatience/1/,nthreads/1/
 
   do
-     call getopt('hs:e:a:r:m:p:d:f:w:t:964TL:S:H:',long_options,c,            &
+     call getopt('hs:e:a:r:m:p:d:f:w:t:964TL:S:H:c:G:x:g:X:',long_options,c,   &
           optarg,arglen,stat,offset,remain,.true.)
      if (stat .ne. 0) then
         exit
@@ -86,7 +90,7 @@ program jt9
            read (optarg(:arglen), *) nthreads
         case ('p')
            read_files = .true.
-           read (optarg(:arglen), *) ntrperiod
+           read (optarg(:arglen), *) ntrperiod0
         case ('d')
            read_files = .true.
            read (optarg(:arglen), *) ndepth
@@ -116,6 +120,21 @@ program jt9
            tx9 = .true.
         case ('w')
            read (optarg(:arglen), *) npatience
+        case ('c')
+           read_files = .true.
+           read (optarg(:arglen), *) mycall
+        case ('G')
+           read_files = .true.
+           read (optarg(:arglen), *) mygrid
+        case ('x')
+           read_files = .true.
+           read (optarg(:arglen), *) hiscall
+        case ('g')
+           read_files = .true.
+           read (optarg(:arglen), *) hisgrid
+        case ('X')
+           read_files = .true.
+           read (optarg(:arglen), *) nexp_decode
      end select
   end do
 
@@ -159,6 +178,7 @@ program jt9
      go to 999
   endif
 
+  allocate(shared_data)
   limtrace=0              !We're running jt9 in stand-alone mode
   lu=12
   nflatten=0
@@ -169,32 +189,32 @@ program jt9
      open(10,file=infile,access='stream',status='old',err=998)
      read(10) ihdr
      nfsample=ihdr(7)
-     nutc0=ihdr(1)                           !Silence compiler warning
+     nutc=ihdr(1)                           !Silence compiler warning
      i1=index(infile,'.wav')
      if(i1.lt.1) i1=index(infile,'.WAV')
      if(infile(i1-5:i1-5).eq.'_') then
-        read(infile(i1-4:i1-1),*,err=1) nutc0
+        read(infile(i1-4:i1-1),*,err=1) nutc
      else
-        read(infile(i1-6:i1-3),*,err=1) nutc0
+        read(infile(i1-6:i1-3),*,err=1) nutc
      endif
      go to 2
-1    nutc0=0
+1    nutc=0
 2    nsps=0
-     if(ntrperiod.eq.1)  then
+     if(ntrperiod0.eq.1)  then
         nsps=6912
-        nzhsym=181
-     else if(ntrperiod.eq.2)  then
+        shared_data%params%nzhsym=181
+     else if(ntrperiod0.eq.2)  then
         nsps=15360
-        nzhsym=178
-     else if(ntrperiod.eq.5)  then
+        shared_data%params%nzhsym=178
+     else if(ntrperiod0.eq.5)  then
         nsps=40960
-        nzhsym=172
-     else if(ntrperiod.eq.10) then
+        shared_data%params%nzhsym=172
+     else if(ntrperiod0.eq.10) then
         nsps=82944
-        nzhsym=171
-     else if(ntrperiod.eq.30) then
+        shared_data%params%nzhsym=171
+     else if(ntrperiod0.eq.30) then
         nsps=252000
-        nzhsym=167
+        shared_data%params%nzhsym=167
      endif
      if(nsps.eq.0) stop 'Error: bad TRperiod'
 
@@ -212,7 +232,7 @@ program jt9
      do iblk=1,npts/kstep
         k=iblk*kstep
         call timer('read_wav',0)
-        read(10,end=3) id2(k-kstep+1:k)
+        read(10,end=3) shared_data%id2(k-kstep+1:k)
         go to 4
 3       call timer('read_wav',1)
         print*,'EOF on input file ',infile
@@ -225,7 +245,7 @@ program jt9
               ingain=0
               call timer('symspec ',0)
               nminw=1
-              call symspec(k,ntrperiod,nsps,ingain,nminw,pxdb,s,df3,   &
+              call symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,df3,   &
                    ihsym,npts8)
               call timer('symspec ',1)
            endif
@@ -234,8 +254,46 @@ program jt9
         endif
      enddo
      close(10)
-     call fillcom(nutc0,ndepth,nrxfreq,mode,tx9,flow,fsplit,fhigh)
-     call decoder(ss,id2,nfsample)
+     shared_data%params%nutc=nutc
+     shared_data%params%ndiskdat=1
+     shared_data%params%ntr=60
+     shared_data%params%nfqso=nrxfreq
+     shared_data%params%newdat=1
+     shared_data%params%npts8=74736
+     shared_data%params%nfa=flow
+     shared_data%params%nfsplit=fsplit
+     shared_data%params%nfb=fhigh
+     shared_data%params%ntol=20
+     shared_data%params%kin=64800
+     shared_data%params%nzhsym=181
+     shared_data%params%ndepth=ndepth
+     shared_data%params%dttol=3.
+     shared_data%params%minsync=-1 !### TEST ONLY
+     shared_data%params%naggressive=1
+     shared_data%params%n2pass=1
+     shared_data%params%nranera=8 ! ntrials=10000
+     shared_data%params%nrobust=0
+     shared_data%params%nexp_decode=nexp_decode
+     shared_data%params%mycall=mycall
+     shared_data%params%mygrid=mygrid
+     shared_data%params%hiscall=hiscall
+     shared_data%params%hisgrid=hisgrid
+     if (shared_data%params%mycall == '') shared_data%params%mycall='K1ABC'
+     if (shared_data%params%hiscall == '') shared_data%params%hiscall='W9XYZ'
+     if (shared_data%params%hisgrid == '') shared_data%params%hiscall='EN37'
+     if (tx9) then
+        shared_data%params%ntxmode=9
+     else
+        shared_data%params%ntxmode=65
+     end if
+     if (mode.eq.0) then
+        shared_data%params%nmode=65+9
+     else
+        shared_data%params%nmode=mode
+     end if
+     shared_data%params%datetime="2013-Apr-16 15:13" !### Temp
+     if(mode.eq.9 .and. fsplit.ne.2700) shared_data%params%nfa=fsplit
+     call decoder(shared_data%ss,shared_data%id2,shared_data%params,nfsample)
   enddo
 
   call timer('jt9     ',1)

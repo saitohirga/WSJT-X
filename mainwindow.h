@@ -28,6 +28,7 @@
 #include "psk_reporter.h"
 #include "logbook/logbook.h"
 #include "decodedtext.h"
+#include "commons.h"
 
 #define NUM_JT4_SYMBOLS 206                //(72+31)*2, embedded sync
 #define NUM_JT65_SYMBOLS 126               //63 data + 63 sync
@@ -562,52 +563,5 @@ extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
                    int minSpeed[], int maxSpeed[]);
 extern int ptt(int nport, int ntx, int* iptt, int* nopen);
 extern int next_tx_state(int pctx);
-
-extern "C" {
-  //----------------------------------------------------- C and Fortran routines
-  void symspec_(int* k, int* ntrperiod, int* nsps, int* ingain, int* minw,
-                float* px, float s[], float* df3, int* nhsym, int* npts8);
-
-  void hspec_(short int d2[], int* k, int* ingain, float green[], float s[], int* jh);
-
-  void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
-               int* itext, int len1, int len2);
-
-  void gen9_(char* msg, int* ichk, char* msgsent, int itone[],
-               int* itext, int len1, int len2);
-
-  void genmsk_(char* msg, int* ichk, char* msgsent, int itone[],
-               int* itext, int len1, int len2);
-
-  void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
-              int* itext, int len1, int len2);
-
-  void genwspr_(char* msg, char* msgsent, int itone[], int len1, int len2);
-
-  void geniscat_(char* msg, char* msgsent, int itone[], int len1, int len2);
-
-  bool stdmsg_(const char* msg, int len);
-
-  void azdist_(char* MyGrid, char* HisGrid, double* utch, int* nAz, int* nEl,
-               int* nDmiles, int* nDkm, int* nHotAz, int* nHotABetter,
-               int len1, int len2);
-
-  void morse_(char* msg, int* icw, int* ncw, int len);
-
-  int ptt_(int nport, int ntx, int* iptt, int* nopen);
-
-  int fftwf_import_wisdom_from_filename(const char *);
-  int fftwf_export_wisdom_to_filename(const char *);
-
-  void wspr_downsample_(short int d2[], int* k);
-  void savec2_(char* fname, int* m_TRseconds, double* m_dialFreq, int len1);
-
-  void avecho_( short id2[], int* dop, int* nfrit, int* nqual, float* f1,
-                float* level, float* sigdb, float* snr, float* dfreq,
-                float* width);
-
-  void fast_decode_(short id2[], int narg[], char msg[], int len);
-  void degrade_snr_(short d2[], int* n, float* db);
-}
 
 #endif // MAINWINDOW_H

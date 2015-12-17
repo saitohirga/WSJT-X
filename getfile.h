@@ -4,7 +4,6 @@
 #include <QString>
 #include <QFile>
 #include <QDebug>
-#include "commons.h"
 
 void getfile(QString fname, int ntrperiod);
 float gran();
