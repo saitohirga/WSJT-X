@@ -147,10 +147,10 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
 1012      format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT65',i4)
           call flush(6)
           call flush(13)
-!          write(79,3001) nutc,nint(sync1),nsnr,dtx-1.0,nfreq,ncandidates,    &
-!               nhard_min,ntotal_min,ntry,naggressive,nft,nqual,decoded
-!3001      format(i4.4,i3,i4,f6.2,i5,i7,i3,i4,i8,i3,i2,i5,1x,a22)
-!          flush(79)
+          write(79,3001) nutc,nint(sync1),nsnr,dtx-1.0,nfreq,ncandidates,    &
+               nhard_min,ntotal_min,ntry,naggressive,nft,nqual,decoded
+3001      format(i4.4,i3,i4,f6.2,i5,i7,i3,i4,i8,i3,i2,i5,1x,a22)
+          flush(79)
         endif
         decoded0=decoded
         freq0=freq
