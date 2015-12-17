@@ -11,13 +11,19 @@ program jt65
   real*4 dd(NZMAX)
   character*80 infile
   character(len=500) optarg
+  character*6 mycall,hiscall,hisgrid
   common/tracer/limtrace,lu
   equivalence (lenfile,ihdr(2))
-  type (option) :: long_options(5) = [ &
+  type (option) :: long_options(9) = [ &
     option ('freq',.true.,'f','signal frequency, default FREQ=1270','FREQ'),         &
     option ('help',.false.,'h','Display this help message',''),                      &
     option ('ntrials',.true.,'n','number of trials, default TRIALS=10000','TRIALS'), &
     option ('robust-sync',.false.,'r','robust sync',''),                             &
+    option ('my-call',.true.,'c','my callsign',''),                                  &
+    option ('his-call',.true.,'d','his callsign',''),                                &
+    option ('his-grid',.true.,'g','his grid locator',''),                            &
+    option ('experience-decoding',.true.,'e'                                         &
+            ,'experience decoding options (1..n), default FLAGS=0','FLAGS'),         &
     option ('single-signal-mode',.false.,'s','decode at signal frequency only','') ]
 
 limtrace=0
@@ -31,9 +37,10 @@ nlow=200
 nhigh=4000
 n2pass=2
 nrobust=0
+nexp_decoded=0
 
   do
-    call getopt('f:hn:rs',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+    call getopt('f:hn:rc:d:g:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
     if( nstat .ne. 0 ) then
       exit
     end if
@@ -46,6 +53,14 @@ nrobust=0
         read (optarg(:narglen), *) ntrials
       case ('r')
         nrobust=1
+      case ('c')
+        read (optarg(:narglen), *) mycall
+      case ('d')
+        read (optarg(:narglen), *) hiscall
+      case ('g')
+        read (optarg(:narglen), *) hisgrid
+      case ('e')
+        read (optarg(:narglen), *) nexp_decoded
       case ('s')
         nlow=nfqso-ntol
         nhigh=nfqso+ntol
@@ -95,7 +110,7 @@ nrobust=0
 
      call jt65a(dd,npts,newdat,nutc,nfa,nfb,nfqso,ntol,nsubmode, &
                 minsync,nagain,n2pass,nrobust,ntrials, naggressive,ndepth, &
-                nexp_decoded,ndecoded)
+                mycall,hiscall,hisgrid,nexp_decoded,ndecoded)
      call timer('jt65a   ',1)
   enddo
 
