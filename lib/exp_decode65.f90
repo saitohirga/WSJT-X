@@ -146,14 +146,11 @@ subroutine exp_decode65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
   enddo
 
 ! ### DO NOT REMOVE ### 
-!  call cs_lock('deep65')
-!  rewind 77
-!  write(77,*) p1,p2
-!  call flush(77)
-!  call cs_unlock
-! ### Works OK without it (in both Windows and Linux) if compiled 
-! ### without optimization.  However, in Windows this is a colossal 
-! ### pain because of the way F2PY wants to run the compile step.
+  rewind 77
+  write(77,*) p1,p2
+  call flush(77)
+! ### Works OK without these three lines (in both Windows and Linux) 
+! ### if compiled without optimization. 
 
   bias=max(1.12*p2,0.335)
   if(mode65.eq.2) bias=max(1.08*p2,0.405)
