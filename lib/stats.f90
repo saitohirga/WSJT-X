@@ -31,16 +31,17 @@ program stats
      nbadsync=0
 
      do iline=1,999999
-        read(10,1010,end=100) nutc,nsync,nsnr,dt,nfreq,ncandidates,nhard,  &
+        read(10,1010,end=100) nutc,sync,nsnr,dt,nfreq,ncandidates,nhard,  &
              ntotal,ntry,naggressive,nft,nqual,decoded
-1010    format(i4.4,i3,i4,f6.2,i5,i7,i3,i4,i8,i3,i2,i5,1x,a22)
-        ndfreq=9999
-        do ifreq=600,2400,200
-           n=abs(nfreq-ifreq)
-           if(n.lt.ndfreq) ndfreq=n
-        enddo
+1010    format(i4.4,f6.2,i4,f6.2,i5,i7,i3,i4,i8,i3,i2,i5,1x,a22)
+!        ndfreq=9999
+!        do ifreq=600,2400,200
+!           n=abs(nfreq-ifreq)
+!           if(n.lt.ndfreq) ndfreq=n
+!        enddo
+        ndfreq=abs(nfreq-1500)
 
-        if(nsync.ge.3 .and. abs(dt).le.ttol .and. ndfreq.le.nftol) then
+        if(sync.ge.1.0 .and. abs(dt).le.ttol .and. ndfreq.le.nftol) then
            nsynced=nsynced+1
         else
            nbadsync=nbadsync+1
