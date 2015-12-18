@@ -1,4 +1,5 @@
-subroutine symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,df3,ihsym,npts8)
+subroutine symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,   &
+     df3,ihsym,npts8)
 
 ! Input:
 !  k         pointer to the most recent new data

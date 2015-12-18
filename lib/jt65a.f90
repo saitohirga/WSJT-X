@@ -53,22 +53,25 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
 !  endif
      nfa=nf1
      nfb=nf2
-!     nfa=max(200,nfqso-ntol)
-!     nfb=min(4000,nfqso+ntol)
+     if(naggressive.gt.0 .and. ntol.lt.1000) then
+        nfa=max(200,nfqso-ntol)
+        nfb=min(4000,nfqso+ntol)
+        thresh0=1.0
+     endif
 
 ! nrobust = 0: use float ccf. Only if ncand>50 fall back to robust (1-bit) ccf
 ! nrobust = 1: use only robust (1-bit) ccf
     ncand=0
     if(nrobust.eq.0) then
       call timer('sync65  ',0)
-      call sync65(ss,nfa,nfb,nhsym,ca,ncand,0)
+      call sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,0)
       call timer('sync65  ',1)
     endif
     if(ncand.gt.50) nrobust=1
     if(nrobust.eq.1) then
       ncand=0
       call timer('sync65  ',0)
-      call sync65(ss,nfa,nfb,nhsym,ca,ncand,1)
+      call sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,1)
       call timer('sync65  ',1)
     endif
 
@@ -147,10 +150,11 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
 1012      format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT65',i4)
           call flush(6)
           call flush(13)
-          write(79,3001) nutc,nint(sync1),nsnr,dtx-1.0,nfreq,ncandidates,    &
-               nhard_min,ntotal_min,ntry,naggressive,nft,nqual,decoded
-3001      format(i4.4,i3,i4,f6.2,i5,i7,i3,i4,i8,i3,i2,i5,1x,a22)
-          flush(79)
+!!          write(79,3001) nutc,nint(sync1),nsnr,dtx-1.0,nfreq,ncandidates,    &
+!          write(79,3001) nutc,sync1,nsnr,dtx-1.0,nfreq,ncandidates,    &
+!               nhard_min,ntotal_min,ntry,naggressive,nft,nqual,decoded
+!3001      format(i4.4,f6.2,i4,f6.2,i5,i7,i3,i4,i8,i3,i2,i5,1x,a22)
+!          flush(79)
         endif
         decoded0=decoded
         freq0=freq
