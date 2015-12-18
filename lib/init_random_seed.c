@@ -30,7 +30,7 @@ void init_random_seed(void)
 
   // try /dev/urandom for an initial seed
   int random_source;
-  if (0  == (random_source = open ("/dev/urandom", O_RDONLY)))
+  if ((random_source = open ("/dev/urandom", O_RDONLY)) >= 0)
     {
       size_t random_data_length = 0;
       have_seed = -1;
