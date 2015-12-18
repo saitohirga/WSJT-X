@@ -18,8 +18,7 @@ program jt9
   character wisfile*80
   integer :: arglen,stat,offset,remain,mode=0,flow=200,fsplit=2700,          &
        fhigh=4000,nrxfreq=1500,ntrperiod=1,ndepth=60001,nexp_decode=0
-  logical :: shmem = .false., read_files = .false.,                          &
-       tx9 = .false., display_help = .false.
+  logical :: read_files = .true., tx9 = .false., display_help = .false.
   type (option) :: long_options(22) = [ &
     option ('help', .false., 'h', 'Display this help message', ''),          &
     option ('shmem',.true.,'s','Use shared memory for sample data','KEY'),   &
@@ -77,7 +76,7 @@ program jt9
         case ('h')
            display_help = .true.
         case ('s')
-           shmem = .true.
+           read_files = .false.
            shm_key = optarg(:arglen)
         case ('e')
            exe_dir = optarg(:arglen)
@@ -88,59 +87,43 @@ program jt9
         case ('m')
            read (optarg(:arglen), *) nthreads
         case ('p')
-           read_files = .true.
            read (optarg(:arglen), *) ntrperiod
         case ('d')
-           read_files = .true.
            read (optarg(:arglen), *) ndepth
         case ('f')
-           read_files = .true.
            read (optarg(:arglen), *) nrxfreq
         case ('L')
-           read_files = .true.
            read (optarg(:arglen), *) flow
         case ('S')
-           read_files = .true.
            read (optarg(:arglen), *) fsplit
         case ('H')
-           read_files = .true.
            read (optarg(:arglen), *) fhigh
         case ('4')
-           read_files = .true.
            mode = 4
         case ('6')
-           read_files = .true.
            if (mode.lt.65) mode = mode + 65
         case ('9')
-           read_files = .true.
            if (mode.lt.9.or.mode.eq.65) mode = mode + 9
         case ('T')
-           read_files = .true.
            tx9 = .true.
         case ('w')
            read (optarg(:arglen), *) npatience
         case ('c')
-           read_files = .true.
            read (optarg(:arglen), *) mycall
         case ('G')
-           read_files = .true.
            read (optarg(:arglen), *) mygrid
         case ('x')
-           read_files = .true.
            read (optarg(:arglen), *) hiscall
         case ('g')
-           read_files = .true.
            read (optarg(:arglen), *) hisgrid
         case ('X')
-           read_files = .true.
            read (optarg(:arglen), *) nexp_decode
      end select
   end do
 
   if (display_help .or. stat .lt. 0                      &
-       .or. (shmem .and. remain .gt. 0)                  &
-       .or. (read_files .and. remain .lt. 1)             &
-       .or. (shmem .and. read_files)) then
+       .or. (.not. read_files .and. remain .gt. 0)       &
+       .or. (read_files .and. remain .lt. 1)) then
 
      print *, 'Usage: jt9 [OPTIONS] file1 [file2 ...]'
      print *, '       Reads data from *.wav files.'
@@ -172,7 +155,7 @@ program jt9
   num9=0
   numfano=0
 
-  if (shmem) then
+  if (.not. read_files) then
      call jt9a()          !We're running under control of WSJT-X
      go to 999
   endif
