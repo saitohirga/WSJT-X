@@ -95,6 +95,7 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,mycall_12,    &
      if(qual.ge.qmin) then
         nft=2
      else
+        decoded='                      '
         param=0
         ntry=0
      endif
