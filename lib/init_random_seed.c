@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <time.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 /* basic PRNG to use for improving the basic seed selection */
@@ -48,8 +48,14 @@ void init_random_seed(void)
     }
   if (!have_seed)
     {
-      // fallback to XOR:ing the time and pid
-      seed = time (NULL) ^ getpid ();
+      // fallback to combining the time and PID in a fairly random way
+      pid_t pid = getpid ();
+      struct timeval tv;
+      gettimeofday (&tv, NULL);
+      seed = (unsigned)(((unsigned)pid << 16)
+        ^ (unsigned)pid
+        ^ (unsigned)tv.tv_sec
+        ^ (unsigned)tv.tv_usec);
       seed = lcg (seed);
     }
   srand (seed);
