@@ -1,4 +1,4 @@
-subroutine sync65(ss,nfa,nfb,nhsym,ca,ncand,nrobust)
+subroutine sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,nrobust)
 
   parameter (NSZ=3413,NFFT=8192,MAXCAND=300)
   real ss(322,NSZ)
@@ -15,23 +15,28 @@ subroutine sync65(ss,nfa,nfb,nhsym,ca,ncand,nrobust)
   common/steve/thresh0
 
   call setup65
-  df=12000.0/NFFT                            !df = 12000.0/16384 = 0.732 Hz
+  df=12000.0/NFFT                            !df = 12000.0/8192 = 1.465 Hz
   ia=max(2,nint(nfa/df))
   ib=min(NSZ-1,nint(nfb/df))
   lag1=-11
   lag2=59
   nsym=126
-!!  thresh0=5.5
   ncand=0
   fdot=0.
   ccfred=0.
   ccfblue=0.
+  ccfmax=0.
+  ipk=0
 
   do i=ia,ib
      call xcor(ss,i,nhsym,nsym,lag1,lag2,ccfblue,ccf0,lagpk0,flip,fdot,nrobust)
 ! Remove best-fit slope from ccfblue and normalize so baseline rms=1.0
      call slope(ccfblue(lag1),lag2-lag1+1,lagpk0-lag1+1.0)
      ccfred(i)=ccfblue(lagpk0)
+     if(ccfred(i).gt.ccfmax) then
+        ccfmax=ccfred(i)
+        ipk=i
+     endif
   enddo
   call pctile(ccfred(ia:ib),ib-ia+1,35,xmed)
   ccfred(ia:ib)=ccfred(ia:ib)-xmed
@@ -41,10 +46,16 @@ subroutine sync65(ss,nfa,nfb,nhsym,ca,ncand,nrobust)
   do i=ia,ib
      freq=i*df
      itry=0
-     if(ccfred(i).gt.thresh0 .and. ccfred(i).gt.ccfred(i-1) .and.       &
-          ccfred(i).gt.ccfred(i+1)) then
+     if(naggressive.gt.0 .and. ntol.lt.1000 .and. ccfmax.ge.thresh0) then
+        if(i.ne.ipk) cycle
         itry=1
         ncand=ncand+1
+     else
+        if(ccfred(i).ge.thresh0 .and. ccfred(i).gt.ccfred(i-1) .and.       &
+             ccfred(i).gt.ccfred(i+1)) then
+           itry=1
+           ncand=ncand+1
+        endif
      endif
 !     write(76,1010) i,freq,ccfred(i),itry,ncand
 !1010 format(i6,2f10.2,i5,i6)
