@@ -2619,6 +2619,7 @@ void MainWindow::on_txFirstCheckBox_stateChanged(int nstate)        //TxFirst
 void MainWindow::set_ntx(int n)                                   //set_ntx()
 {
   m_ntx=n;
+  m_repeatMsg=0;
 }
 
 void MainWindow::on_txb1_clicked()                                //txb1
