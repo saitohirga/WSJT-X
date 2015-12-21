@@ -86,21 +86,20 @@ Steven J.
 \end_layout
 
 \begin_layout Abstract
-The JT65 mode has revolutionized amateur-radio weak-signal communication
+The JT65 protocol has revolutionized amateur-radio weak-signal communication
  by enabling amateur radio operators with small antennas and relatively
  low-power transmitters to communicate over propagation paths not usable
  with traditional technologies.
  A major reason for the success and popularity of JT65 is its use of a strong
  error-correction code: a short block-length, low-rate Reed-Solomon code
  based on a 64-symbol alphabet.
- Since 2004, most JT65 decoders have used the patented Koetter-Vardy (KV)
- algebraic soft-decision decoder, licensed to K1JT and implemented in a
- closed-source program for use in amateur radio applications.
+ Since 2004, most programs implementing JT65 have used the patented Koetter-Vard
+y (KV) algebraic soft-decision decoder, licensed to K1JT and implemented
+ in a closed-source program for use in amateur radio applications.
  We describe here a new open-source alternative called the Franke-Taylor
  (FT, or K9AN-K1JT) algorithm.
  It is conceptually simple, built around the well-known Berlekamp-Massey
- errors-and-erasures algorithm, and performs at least as well as the KV
- decoder.
+ errors-and-erasures algorithm, and performs even better than the KV decoder.
 \end_layout
 
 \begin_layout Section
@@ -125,18 +124,6 @@ on with a Reed-Solomon code.
 \begin_inset Formula $(n,k)$
 \end_inset
 
-, and the 
-\begin_inset Quotes eld
-\end_inset
-
-rate
-\begin_inset Quotes erd
-\end_inset
-
- of the code is 
-\begin_inset Formula $k/n$
-\end_inset
-
 .
  JT65 uses a (63,12) Reed-Solomon code with 64 possible values for each
  symbol.
@@ -146,7 +133,7 @@ rate
 
  message bits.
  The source-encoded messages conveyed by a 63-symbol JT65 frame thus consist
- of 72 bits.
+ of 72 information bits.
  The JT65 code is systematic, which means that the 12 message symbols are
  embedded in the codeword without modification and another 51 parity symbols
  derived from the message symbols are added to form a codeword of 63 symbols.
@@ -439,7 +426,7 @@ nchoosek(
 \begin_inset Quotes erd
 \end_inset
 
- in the interpreted language GNU Octave, as well as many free online calculators.
+ in the interpreted language GNU Octave, as well as many free online calculators
  The hypergeometric probability mass function defined in Eq.
  (
 \begin_inset CommandInset ref
@@ -702,9 +689,9 @@ Example 3 shows how reliable information about symbol quality should make
 \begin_layout Standard
 The FT algorithm uses two quality indices made available by a noncoherent
  64-FSK demodulator.
- The demodulator The demodulator computes the power spectrum for each symbol
- and identifies the most likely symbol value based on the largest signal-plus-no
-ise power in 64 frequency bins.
+ The demodulator computes the power spectrum for each symbol and identifies
+ the most likely symbol value based on the largest signal-plus-noise power
+ in 64 frequency bins.
  The fractions of total power in the two bins containing the largest and
  second-largest powers (denoted by 
 \begin_inset Formula $p_{1}$
@@ -862,12 +849,8 @@ Technically the FT algorithm is a list decoder, potentially generating a
 \end_inset
 
 .
- A timeout criterion 
-\begin_inset Formula $T$
-\end_inset
-
- is used to limit the algorithm's execution time if no codewords within
- soft distance 
+ A timeout is used to limit the algorithm's execution time if no codewords
+ within soft distance 
 \begin_inset Formula $d_{a}$
 \end_inset
 
@@ -930,11 +913,7 @@ If
 \end_layout
 
 \begin_layout Enumerate
-If the number of trials is less than 
-\begin_inset Formula $T$
-\end_inset
-
-, the maximum allowed number, go to 2.
+If the number of trials is less than the maximum allowed number, go to 2.
  Otherwise, declare decoding failure and exit.
 \end_layout
 
@@ -952,206 +931,36 @@ best
 \end_inset
 
  has been found.
- Declare a successful decode and return this codeword.
-\end_layout
-
-\begin_layout Paragraph
-Experience-Based Lists of Candidate Codewords
-\end_layout
-
-\begin_layout Standard
-JT65 was designed and developed to facilitate amateur communication via
- the Moon as a passive reflector.
- Signals propagating over the Earth-Moon-Earth (EME, or 
-\begin_inset Quotes eld
-\end_inset
-
-moonbounce
-\begin_inset Quotes erd
-\end_inset
-
-) path suffer attenuation of order 240 dB or more, so received signals are
- always weak.
- To be EME-capable an amateur station must have a very sensitive receiver,
- reasonably high power, and a reasonably large antenna on a VHF, UHF, or
- microwave band.
- At a given time the number of stations engaging in this specialized activity
- is probably 
-\begin_inset Formula $M<1000$
-\end_inset
-
-, world-wide.
- EME communications often consist of little more than an exchange of callsigns,
- signal reports, and acknowledgments, so most messages being exchanged are
- likely to appear in a list no more than a few times 
-\begin_inset Formula $M^{2}$
-\end_inset
-
- in length.
- Such lists (and subsets thereof) offer potential alternatives to the stochastic
- method described above for selecting candidate codewords.
- A list of active callsigns can be built up cumulatively from previously
- decoded messages.
- Candidate codewords derived from the list can be injected into the FT algorithm
- at step 5, where the soft distance between the set of received symbols
- and the codeword is computed.
- A decoder taking advantage of this experience-based approach will have
- significant speed and performance advantages over a purely probabilistic
- algorithm.
- However, it must accept the limitation that these advantages apply only
- to messages appearing in the candidate list.
- In the open-source program 
-\shape italic
-WSJT-X
-\shape default
- we generate candidate message lists of several different lengths.
- List lengths range from a few times 
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\strikeout off
-\uuline off
-\uwave off
-\noun off
-\color none
-
-\begin_inset Formula $M$
-\end_inset
-
- up to about 
-\begin_inset Formula $M^{2}$
-\end_inset
-
-.
+ Declare a successful decode and return this codeword .
 \end_layout
 
 \begin_layout Section
-Results and Comparisons
+Comparison with Berlekamp-Massey and Koetter-Vardy
 \end_layout
 
 \begin_layout Standard
-We measured performance of the Franke-Taylor soft-decision decoder using
- simulations with many thousands of signal realizations at a range of calibrated
- signal-to-noise ratios (SNRs).
- Our first series of tests assumed an ideal additive white Gaussian noise
- (AWGN) channel.
- The dotted curve in Figure 
+Comparisons of decoding performance are usually presented in the professional
+ literature as plots of word error rate as a function of 
+\begin_inset Formula $E_{b}/N_{0}$
+\end_inset
+
+, the signal-to-noise ratio per information bit.
+ Results for the Berlekamp-Massey, Koetter-Vardy, and Franke-Taylor decoding
+ algorithms on the (63,12) code are shown in Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "fig:Psuccess"
+reference "fig:WER"
 
-\end_inset
-
- shows the fraction of raw symbols expected to be received incorrectly over
- such a channel.
- Filled circles and the short-dashed curve illustrate performance of the
- hard-decision Berlekamp-Massey algorithm, while filled squares and a solid
- curve give results for the FT algorithm with conservative settings for
- the timeout parameter 
-\begin_inset Formula $T$
-\end_inset
-
- and maximum acceptable soft distance 
-\begin_inset Formula $d_{a}$
 \end_inset
 
 .
- Note that sensitivity with soft-decision decoding is about 2 dB better
- than with hard decisions.
- For comparison, open squares and a long-dashed curve show somewhat looser
- settings for timeout and soft distance parameters can gain roughly another
- 0.4 dB.
- At this setting the rate of false decodes is no doubt slightly higher,
- though in our simulations it was still found to be
-\begin_inset Formula $<10^{-4}$
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\align center
-\begin_inset Graphics
-	filename fig_psuccess.pdf
-	lyxscale 150
-	scale 150
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-\begin_inset CommandInset label
-LatexCommand label
-name "fig:Psuccess"
-
-\end_inset
-
-Fraction of JT65 messages (
-\begin_inset Quotes eld
-\end_inset
-
-words
-\begin_inset Quotes erd
-\end_inset
-
-) successfully decoded as a function of SNR in 2.5 kHz bandwidth, for a non-fadin
-g signal in additive white Gaussian noise (AWGN).
- BM: hard-decision Berlekamp-Massey decoder; FT-1: soft-decision Franke-Taylor
- decoder with 
-\begin_inset Formula $T=10^{4}$
-\end_inset
-
-, 
-\begin_inset Formula $d_{a}=72$
-\end_inset
-
-, 
-\begin_inset Formula $h_{max}=42$
-\end_inset
-
-; FT-2: soft-decision decoder with 
-\begin_inset Formula $T=10^{5}$
-\end_inset
-
-, 
-\begin_inset Formula $d_{a}=76$
-\end_inset
-
-, 
-\begin_inset Formula $h_{max}=44$
-\end_inset
-
-.
- algorithms.
+ For these initial tests we generated 1000 signals at each signal-to-noise
+ ratio, assuming the additive white gaussian noise (AWGN) channel, and processed
+ the data using each algorithm.
+ It's easy to see that, as expected, the soft-decision algorithms FT and
+ KV are about 2 dB better than the hard-decision BM algorithm, and that
+ FT has a slight edge (about 0.2 dB) over KV.
  
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard
@@ -1183,19 +992,11 @@ name "fig:WER"
 \end_inset
 
 Word error rate (WER) as a function of 
-\begin_inset Formula $E_{s}/N_{o}$
+\begin_inset Formula $E_{b}/N_{0}$
 \end_inset
 
  for non-fading signals in AWGN.
- This is the same data that is shown in Figure 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "fig:Psuccess"
-
-\end_inset
-
-, but plotted as the fraction of frames that were not decoded vs symbol
- SNR.
+ 
 \end_layout
 
 \end_inset
@@ -1209,10 +1010,115 @@ reference "fig:Psuccess"
 \end_layout
 
 \begin_layout Standard
+In the professional literature plots like Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:WER"
+
+\end_inset
+
+usually extend downward to even smaller error rates, say
+\begin_inset Formula $10^{-6}$
+\end_inset
+
+or less, because of the importance of error-free transmission.
+ The circumstances for minimal amateur-radio QSOs are very different, however:
+ error rates on the order of 0.1, or ever higher, may be acceptable.
+ In this case the essential information is better presented in a plot like
+ Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Psuccess"
+
+\end_inset
+
+, which shows the percentage of transmissions copied correctly as a function
+ of signal-to-noise ratio in a standard bandwidth.
+ 
+\end_layout
+
+\begin_layout Standard
+In Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Psuccess"
+
+\end_inset
+
+ we have plotted the results of simulations for signal-to-noise ratios 
+\begin_inset Formula $-30\leq SNR\leq-18$
+\end_inset
+
+ dB, again using 1000 simulated signals for each point.
+ For each decoding algorithm we include three curves: one for the AWGN channel
+ and no fading, and two more for Doppler spreads of 0.2 and 1.0 Hz.
+ (Note that the JT65 symbol rate is about 2.69 Hz; the simulated Doppler
+ spreads are comparable to those encountered on HF ionospheric paths and
+ for EME at VHF and lower UHF bands.)
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename fig_psuccess.pdf
+	lyxscale 90
+	scale 90
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Psuccess"
+
+\end_inset
+
+Percentage of JT65 messages successfully decoded as a function of SNR in
+ 2500 Hz bandwidth.
+ Results are shown for the hard-decision Berlekamp-Massey (BM) and soft-decision
+ Franke-Taylor (FT) decoding algorithms.
+ Curves labeled DS correspond to the hinted-decode (
+\begin_inset Quotes eld
+\end_inset
+
+Deep Search
+\begin_inset Quotes erd
+\end_inset
+
+) matched-filter algorithm.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
 
 \begin_layout Plain Layout
 \align center
@@ -1295,6 +1201,40 @@ Word error rate (WER) as a function of
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+Possible figures:
+\end_layout
+
+\begin_layout Itemize
+histogram of 
+\begin_inset Formula $s$
+\end_inset
+
+ (number of erasures) for successful decodes with HF and EME data
+\end_layout
+
+\begin_layout Itemize
+histogram of 
+\begin_inset Quotes eld
+\end_inset
+
+ntrials
+\begin_inset Quotes erd
+\end_inset
+
+ (or execution time)
+\end_layout
+
+\begin_layout Itemize
+Number of decodes vs.
+ ntrials
+\end_layout
+
+\begin_layout Itemize
+Probability of successful decode vs.
+ Es/No or S/N in 2500 Hz BW
 \end_layout
 
 \begin_layout Itemize
