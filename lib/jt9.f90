@@ -250,10 +250,12 @@ program jt9
      shared_data%params%nzhsym=181
      shared_data%params%ndepth=ndepth
      shared_data%params%dttol=3.
-     shared_data%params%minsync=-1 !### TEST ONLY
-     shared_data%params%naggressive=1
+     shared_data%params%minsync=-1      !### TEST ONLY
+     shared_data%params%nfqso=1500      !### TEST ONLY
+     mycall="K1ABC       "  !### TEST ONLY
+     shared_data%params%naggressive=10
      shared_data%params%n2pass=1
-     shared_data%params%nranera=8 ! ntrials=10000
+     shared_data%params%nranera=8  ! ntrials=10000
      shared_data%params%nrobust=0
      shared_data%params%nexp_decode=nexp_decode
      shared_data%params%mycall=mycall

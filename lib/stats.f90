@@ -13,14 +13,16 @@ program stats
   ttol=0.1
   nftol=1
   write(*,1000)
-1000 format(' SNR  Nsigs  Sync    BM    FT  Hint Total  False BadSync'/  &
-          67('-'))
+1000 format(' SNR  Files  Sync    BM    FT  Hint Total  False BadSync'/  &
+          56('-'))
 
   do ifile=1,nargs
      call getarg(ifile,infile)
      open(10,file=infile,status='old')
-     i1=index(infile,".")
-     read(infile(i1+1:i1+2),*) snrgen
+     i1=index(infile,".")+1
+     i2=40
+     if(index(infile,"_").gt.1) i2=index(infile,"_") - 1
+     read(infile(i1:i2),*) snrgen
      snrgen=-snrgen
      nsynced=0
      nbm=0
@@ -57,7 +59,7 @@ program stats
         endif
      enddo
 
-100  write(*,1100) snrgen,10*nutc,nsynced,nbm,nftok,nhint,ngood,nbad,   &
+100  write(*,1100) snrgen,nutc,nsynced,nbm,nftok,nhint,ngood,nbad,   &
           nbadsync
 1100 format(f5.1,8i6)
   enddo
