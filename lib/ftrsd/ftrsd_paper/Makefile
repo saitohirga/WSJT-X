@@ -22,7 +22,12 @@ prob:   $(OBJS1)
 OBJS2 = mfsk.o binomial_subs.o
 mfsk:	$(OBJS2)
 	$(FC) -o mfsk $(OBJS2)
-	
+
+OBJS3 = bodide.o binomial_subs.o	
+bodide:	$(OBJS3)
+	$(FC) -o bodide $(OBJS3)
+			
+
 probs.out: prob
 #             x  N  X  s
 	prob 35 63 40 40 > probs.out
