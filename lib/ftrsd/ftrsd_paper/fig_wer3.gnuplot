@@ -13,6 +13,7 @@ set grid
 set logscale y
 #set format y "10^{%L}"
 plot "ftdata-1000-rf.dat" using ($1+29.7):(1-$2) every ::1 with linespoints pt 7 title "FT-1K-RF", \
+"ftdata-10000-rf.dat" using ($1+29.7):(1-$2) every ::1 with linespoints pt 7 title "FT-10K-RF", \
 "bmdata-rf.dat" using ($1+29.7):(1-$2) every ::1 with linespoints pt 5 title 'BM-RF', \
 "ftdata-10000.dat" using ($1+29.7):(1-$2) every ::1 with linespoints pt 7 title 'FT-10K-AWGN', \
 "bmdata.dat" using ($1+29.7):(1-$2) with linespoints pt 5 title 'BM-AWGN'
