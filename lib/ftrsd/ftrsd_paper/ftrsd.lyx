@@ -189,28 +189,18 @@ t=\left\lfloor \frac{n-k}{2}\right\rfloor .\label{eq:t}
 
 \end_inset
 
-For the JT65 code, 
+For the JT65 code 
 \begin_inset Formula $t=25$
 \end_inset
 
-, so it is always possible to efficiently decode a received word having
- no more than 25 symbol errors.
+, so it is always possible to decode a received word having 25 or fewer
+ symbol errors.
  Any one of several well-known algebraic algorithms, such as the widely
  used Berlekamp-Massey (BM) algorithm, can carry out the decoding.
- Two steps are necessarily involved in this process, namely
-\end_layout
-
-\begin_layout Enumerate
-Determine which symbols were received incorrectly.
- 
-\end_layout
-
-\begin_layout Enumerate
-Find the correct value of the incorrect symbols.
-\end_layout
-
-\begin_layout Standard
-If we somehow know that certain symbols are incorrect, this information
+ Two steps are necessarily involved in this process.
+ We must (1) determine which symbols were received incorrectly, and (2)
+ find the correct value of the incorrect symbols.
+ If we somehow know that certain symbols are incorrect, that information
  can be used to reduce the work involved in step 1 and allow step 2 to correct
  more than 
 \begin_inset Formula $t$
@@ -220,7 +210,7 @@ If we somehow know that certain symbols are incorrect, this information
  In the unlikely event that the location of every error is known and if
  no correct symbols are accidentally labeled as errors, the BM algorithm
  can correct up to 
-\begin_inset Formula $d-1$
+\begin_inset Formula $d-1=n-k$
 \end_inset
 
  errors.
@@ -246,8 +236,8 @@ errors.
 \begin_inset Quotes erd
 \end_inset
 
- As already noted, with perfect erasure information up to 51 incorrect symbols
- can be corrected.
+ With perfect erasure information up to 51 incorrect symbols can be corrected
+ for the JT65 code.
  Imperfect erasure information means that some erased symbols may be correct,
  and some other symbols in error.
  If 
@@ -447,11 +437,7 @@ hygepdf(
 \end_inset
 
 .
- The cumulative probability that 
-\emph on
-at least
-\emph default
- 
+ The cumulative probability that at least 
 \begin_inset Formula $\epsilon$
 \end_inset
 
@@ -521,15 +507,15 @@ P(x=36)\simeq8.6\times10^{-9}.
 
 \end_inset
 
-Since the probability of erasing 36 errors is so much smaller than the probabili
-ty of erasing 35 errors, we may safely conclude that the probability of
- randomly choosing an erasure vector that can decode the received word is
- approximately 
+Since the probability of erasing 36 errors is so much smaller than that
+ for erasing 35 errors, we may safely conclude that the probability of randomly
+ choosing an erasure vector that can decode the received word is approximately
+ 
 \begin_inset Formula $P(x=35)\simeq2.4\times10^{-7}$
 \end_inset
 
 .
- The odds of successfully decoding the word on the first try are very poor,
+ The odds of producing a valid codeword on the first try are very poor,
  about 1 in 4 million.
 \end_layout
 
@@ -660,7 +646,7 @@ reference "eq:hypergeometric_pdf"
 \end_inset
 
 .
- The odds for successful decoding on the first try are now about 1 in 38.
+ The odds for producing a codeword on the first try are now about 1 in 38.
  A few hundred independently randomized tries would be enough to all-but-guarant
 ee production of a valid codeword by the BM decoder.
 \end_layout
@@ -682,15 +668,15 @@ Example 3 shows how statistical information about symbol quality should
  use a stochastic algorithm to assign high erasure probability to low-quality
  symbols and relatively low probability to high-quality symbols.
  As illustrated by Example 3, a good choice of erasure probabilities can
- increase the chance of producing a codeword by many orders of magnitude.
- Note that at this stage we treat any codeword selected by errors-and-erasures
- decoding as only a 
+ increase by many orders of magnitude the chance of producing a codeword.
+ Note that at this stage we must treat any codeword obtained by errors-and-erasu
+res decoding as no more than a 
 \emph on
 candidate
 \emph default
 .
- The next task is to find a metric that can reliably select one of many
- proffered candidates as the codeword that was actually transmitted.
+ Our next task is to find a metric that can reliably select one of many
+ proffered candidates as the codeword actually transmitted.
 \end_layout
 
 \begin_layout Standard
@@ -704,11 +690,11 @@ The FT algorithm uses quality indices made available by a noncoherent 64-FSK
 \begin_inset Formula $i=1,64$
 \end_inset
 
- is the spectral bin number and 
+ is the frequency index and 
 \begin_inset Formula $j=1,63$
 \end_inset
 
- the symbol number.
+ the symbol index.
  The most likely value for symbol 
 \begin_inset Formula $j$
 \end_inset
@@ -719,8 +705,8 @@ The FT algorithm uses quality indices made available by a noncoherent 64-FSK
 \end_inset
 
 .
- The fraction of total power in the two bins containing the largest and
- second-largest powers (denoted by 
+ The fractions of total power in the two bins containing the largest and
+ second-largest powers, denoted respectively by 
 \begin_inset Formula $p_{1}$
 \end_inset
 
@@ -728,16 +714,8 @@ The FT algorithm uses quality indices made available by a noncoherent 64-FSK
 \begin_inset Formula $p_{2}$
 \end_inset
 
-, respectively) are passed from demodulator to decoder as 
-\begin_inset Quotes eld
-\end_inset
-
-soft-symbol
-\begin_inset Quotes erd
-\end_inset
-
- information.
- The decoder then derives two metrics from 
+, are passed from demodulator to decoder as soft-symbol information.
+ The FT decoder derives two metrics from 
 \begin_inset Formula $p_{1}$
 \end_inset
 
@@ -745,7 +723,7 @@ and
 \begin_inset Formula $p_{2}$
 \end_inset
 
-:
+, namely 
 \end_layout
 
 \begin_layout Itemize
@@ -757,7 +735,7 @@ and
 \end_inset
 
  of the symbol's fractional power 
-\begin_inset Formula $p_{1}$
+\begin_inset Formula $p_{1,\,j}$
 \end_inset
 
  in a sorted list of 
@@ -825,7 +803,7 @@ educated guesses
  For each iteration a stochastic erasure vector is generated based on the
  symbol erasure probabilities.
  The erasure vector is sent to the BM decoder along with the full set of
- 63 received hard-decision symbols.
+ 63 hard-decision symbol values.
  When the BM decoder finds a candidate codeword it is assigned a quality
  metric 
 \begin_inset Formula $d_{s}$
@@ -879,7 +857,7 @@ In practice we find that
 \end_inset
 
  dB.
- We also find that weaker signals can often be decoded by using soft-symbol
+ We also find that weaker signals frequently can be decoded by using soft-symbol
  information beyond that contained in 
 \begin_inset Formula $p_{1}$
 \end_inset
@@ -893,11 +871,8 @@ and
 \begin_inset Formula $u$
 \end_inset
 
-, the average signal-plus-noise power in all 
-\begin_inset Formula $n$
-\end_inset
-
- symbols according to a candidate codeword's symbol values:
+, the average signal-plus-noise power in all symbols, according to a candidate
+ codeword's symbol values:
 \end_layout
 
 \begin_layout Standard
@@ -917,7 +892,7 @@ Here the
 \end_layout
 
 \begin_layout Standard
-The correct codeword produces a value for 
+The correct JT65 codeword produces a value for 
 \begin_inset Formula $u$
 \end_inset
 
@@ -925,11 +900,12 @@ The correct codeword produces a value for
 \begin_inset Formula $n=63$
 \end_inset
 
- bins of signal-plus-noise, while incorrect codewords have at most 
+ bins containing both signal and noise power.
+ Incorrect codewords have at most 
 \begin_inset Formula $k=12$
 \end_inset
 
- bins with signal-plus-noise and at least 
+ such bins and at least 
 \begin_inset Formula $n-k=51$
 \end_inset
 
@@ -938,8 +914,8 @@ The correct codeword produces a value for
 \begin_inset Formula $S(i,\,j)$
 \end_inset
 
- is normalized so that its median value (essentially the average noise level)
- is unity, the correct codeword is expected to yield
+ has been normalized so that its median value (essentially the average noise
+ level) is unity, the correct codeword is expected to yield the metric value
 \end_layout
 
 \begin_layout Standard
@@ -954,23 +930,30 @@ where
 \begin_inset Formula $y$
 \end_inset
 
- is the signal-to-noise ratio in power units and the quoted one standard
- deviation uncertainty range assumes Gaussian statistics.
- Incorrect codewords will yield at most
+ is the signal-to-noise ratio (in linear power units) and the quoted one-standar
+d-deviation uncertainty range assumes Gaussian statistics.
+ Incorrect codewords will yield metric values no larger than
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \[
-u=\frac{n-k\pm\sqrt[]{n-k}}{n}+\frac{k\pm\sqrt[]{k}}{n}(1+y)\approx1\pm0.13+(0.19\pm0.06)\,y.
+u=\frac{n-k\pm\sqrt{n-k}}{n}+\frac{k\pm\sqrt{k}}{n}(1+y).
 \]
 
 \end_inset
 
-
+For JT65 this expression evaluates to 
 \end_layout
 
 \begin_layout Standard
+\begin_inset Formula 
+\[
+u\approx1\pm0.13+(0.19\pm0.06)\,y.
+\]
+
+\end_inset
+
 As a specific example, consider signal strength 
 \begin_inset Formula $y=4$
 \end_inset
@@ -980,11 +963,12 @@ As a specific example, consider signal strength
 \end_inset
 
  dB.
- (For JT65, the corresponding SNR in 2500 Hz bandwidth is 
+ For JT65, the corresponding SNR in 2500 Hz bandwidth is 
 \begin_inset Formula $-23.7$
 \end_inset
 
- dB.) The correct codeword is then expected to yield 
+ dB.
+ The correct codeword is then expected to yield 
 \begin_inset Formula $u\approx5.0\pm$
 \end_inset
 
@@ -993,13 +977,13 @@ As a specific example, consider signal strength
 \end_inset
 
  or less.
- A threshold set at 
+ We find that a threshold set at 
 \begin_inset Formula $u_{0}=4.4$
 \end_inset
 
-, about 8 standard deviations above the expected maximum for incorrect codewords
-, serves reliably to distinguish the correct codeword from all other candidates,
- with a very small probability of false decodes.
+ (about 8 standard deviations above the expected maximum for incorrect codewords
+) reliably serves to distinguish correct codewords from all other candidates,
+ while ensuring a very small probability of false decodes.
 \end_layout
 
 \begin_layout Standard
@@ -1124,14 +1108,15 @@ The fraction of time that
 \begin_inset Formula $X$
 \end_inset
 
-, the number of symbols received incorrectly, is less than some number 
+, the number of symbols received incorrectly, is expected to be less than
+ some number 
 \begin_inset Formula $D$
 \end_inset
 
- depends of course on signal-to-noise ratio.
+ depends on signal-to-noise ratio.
  For the case of additive white Gaussian noise (AWGN) and noncoherent 64-FSK
- demodulation this probability is easily calculated, and representative
- examples for 
+ demodulation this probability is easy to calculate.
+ Representative examples for 
 \begin_inset Formula $D=25,$
 \end_inset
 
@@ -1174,15 +1159,15 @@ reference "fig:bodide"
 
 \end_inset
 
- as filled squares with connecting lines.
- The rightmost curve with solid squares shows that on the AWGN channel the
- hard-decision BM decoder should succeed about 90% of the time at 
+ for a range of SNRs as filled squares with connecting lines.
+ The rightmost such curve shows that on the AWGN channel the hard-decision
+ BM decoder should succeed about 90% of the time at 
 \begin_inset Formula $E_{s}/N_{0}=7.5$
 \end_inset
 
  dB, 99% of the time at 8 dB, and 99.98% at 8.5 dB.
- The righmost curve with open squares shows that simulated results agree
- with theory to within 0.2 dB.
+ For comparison, the righmost curve with open squares shows that simulated
+ results agree with theory to within less than 0.2 dB.
  
 \end_layout
 
@@ -1273,28 +1258,20 @@ WSJT-X
 \end_layout
 
 \begin_layout Standard
-Received JT65 words with 
-\begin_inset Formula $X>25$
-\end_inset
-
- incorrect symbols can be decoded if sufficient information is available
- concerning individual symbol reliabilities.
+Received JT65 words with more than 25 incorrect symbols can be decoded if
+ sufficient information on individual symbol reliabilities is available.
  Using values of 
 \begin_inset Formula $T$
 \end_inset
 
  that are practical with today's personal computers and the soft-symbol
- information described above, we find that the FT algorithm produces correct
- decodes most of the time up to 
-\begin_inset Formula $X\approx40$
+ information described above, we find that the FT algorithm nearly always
+ produces correct decodes up to 
+\begin_inset Formula $X=40$
 \end_inset
 
-, with some additional decodes in the range 
-\begin_inset Formula $X=41$
-\end_inset
-
- to 43.
- As a specific example, Figure 
+, and some additional decodes are found in the range 41 to 43.
+ As an example, Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:N_vs_X"
@@ -1302,16 +1279,16 @@ reference "fig:N_vs_X"
 \end_inset
 
  plots the number of stochastic erasure trials required to find the correct
- codeword versus the number of hard-decision errors.
- This result was obtained with 1000 simulated frames at 
+ codeword versus the number of hard-decision errors for a run with 1000
+ simulated transmissions at 
 \begin_inset Formula $SNR=-24$
 \end_inset
 
  dB, just slightly above the decoding threshold.
- Note that the mean and variance of the required number of trials both increase
+ Note that both mean and variance of the required number of trials increase
  steeply with the number of errors in the received word.
  Execution time of the FT algorithm is roughly proportional to the number
- of trials.
+ of required trials.
  
 \end_layout
 
@@ -1343,9 +1320,9 @@ name "fig:N_vs_X"
 
 \end_inset
 
-The number of trials needed to decode a received word vs the Hamming distance
- between the received word and the decoded codeword plotted for 1000 simulated
- frames with no fading.
+Number of trials needed to decode a received word versus Hamming distance
+ between the received word and the decoded codeword, for 1000 simulated
+ frames on an AWGN channel with no fading.
  The SNR in 2500 Hz bandwidth is -24 dB (
 \begin_inset Formula $E_{s}/N_{o}=5.7$
 \end_inset
@@ -1376,8 +1353,8 @@ Comparisons of decoding performance are usually presented in the professional
 
 , the signal-to-noise ratio per information bit.
  Results of simulations using the Berlekamp-Massey, Koetter-Vardy, and Franke-Ta
-ylor decoding algorithms on the (63,12) code are shown inthis way in Figure
- 
+ylor decoding algorithms on the (63,12) code are presented in this way in
+ Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:WER"
@@ -1441,7 +1418,8 @@ Word error rate (WER) as a function of
 \end_layout
 
 \begin_layout Standard
-Plots like Figure 
+Because of the importance of error-free transmission in commercial applications,
+ plots like that in Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:WER"
@@ -1452,38 +1430,39 @@ reference "fig:WER"
 \begin_inset Formula $10^{-6}$
 \end_inset
 
-or less, because of the importance of error-free transmission in commercial
- applications.
+ or less, .
  The circumstances for minimal amateur-radio QSOs are very different, however.
- Error rates on the order of 0.1, or ever higher, may be acceptable.
- In this case the essential information is better presented in a plot like
- Figure 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "fig:Psuccess"
-
-\end_inset
-
- showing the percentage of transmissions copied correctly as a function
- of signal-to-noise ratio.
+ Error rates of order 0.1, or ever higher, may be acceptable.
+ In this case the essential information is better presented in a plot showing
+ the percentage of transmissions copied correctly as a function of signal-to-noi
+se ratio.
  
 \end_layout
 
 \begin_layout Standard
-In Figure 
+Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:Psuccess"
 
 \end_inset
 
- we plot the results of simulations for signal-to-noise ratios ranging from
- -18 to -30 dB, again using 1000 simulated signals for each point.
- For each decoding algorithm we include three curves: one for the AWGN channel
- and no fading, and two more for Doppler spreads of 0.2 and 1.0 Hz.
- (For reference, we note that the JT65 symbol rate is about 2.69 Hz.
+ presents the results of simulations for signal-to-noise ratios ranging
+ from 
+\begin_inset Formula $-18$
+\end_inset
+
+ to 
+\begin_inset Formula $-30$
+\end_inset
+
+ dB, again using 1000 simulated signals for each plotted point.
+ We include three curves for each decoding algorithm: one for the AWGN channel
+ and no fading, and two more for simulated Doppler spreads of 0.2 and 1.0
+ Hz.
+ For reference, we note that the JT65 symbol rate is about 2.69 Hz.
  The simulated Doppler spreads are comparable to those encountered on HF
- ionospheric paths and for EME at VHF and lower UHF bands.)
+ ionospheric paths and for EME at VHF and lower UHF bands.
 \end_layout
 
 \begin_layout Standard
@@ -1545,11 +1524,16 @@ Hinted Decoding
 
 \begin_layout Standard
 ...
- TBD ...
+ Still to come ...
 \end_layout
 
 \begin_layout Section
-Summary 
+Summary
+\end_layout
+
+\begin_layout Standard
+...
+ Still to come ...
 \end_layout
 
 \begin_layout Bibliography
