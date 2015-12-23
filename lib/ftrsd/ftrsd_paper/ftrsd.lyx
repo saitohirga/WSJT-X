@@ -99,7 +99,8 @@ y (KV) algebraic soft-decision decoder, licensed to K1JT and implemented
  We describe here a new open-source alternative called the Franke-Taylor
  (FT, or K9AN-K1JT) algorithm.
  It is conceptually simple, built around the well-known Berlekamp-Massey
- errors-and-erasures algorithm, and performs even better than the KV decoder.
+ errors-and-erasures algorithm, and in this application it performs even
+ better than the KV decoder.
 \end_layout
 
 \begin_layout Section
@@ -150,7 +151,7 @@ distance
 \end_inset
 
  between different codewords, or between a received word and a codeword.
- Hamming distance is the number of code symbols that differ in the two words
+ Hamming distance is the number of code symbols that differ in two words
  being compared.
  Reed-Solomon codes have minimum Hamming distance 
 \begin_inset Formula $d$
@@ -219,7 +220,7 @@ If we somehow know that certain symbols are incorrect, this information
  In the unlikely event that the location of every error is known and if
  no correct symbols are accidentally labeled as errors, the BM algorithm
  can correct up to 
-\begin_inset Formula $d$
+\begin_inset Formula $d-1$
 \end_inset
 
  errors.
@@ -286,11 +287,7 @@ errors-only
 \begin_inset Formula $0<s\le d-1$
 \end_inset
 
- (
-\begin_inset Formula $d-1=51$
-\end_inset
-
- for JT65), the decoder is called an 
+, the decoder is called an 
 \begin_inset Quotes eld
 \end_inset
 
@@ -309,7 +306,8 @@ soft
 \begin_inset Quotes erd
 \end_inset
 
- information on symbol reliability, thereby producing a soft-decision decoder.
+ information on the reliability of individual symbols, thereby producing
+ a soft-decision decoder.
 \end_layout
 
 \begin_layout Section
@@ -324,8 +322,8 @@ Do I feel lucky?
 
 \begin_layout Standard
 The FT algorithm uses the estimated quality of received symbols to generate
- lists of symbols considered likely to be in error, thus enabling reliable
- decoding of received words with more than 25 errors.
+ lists of symbols considered likely to be in error, thus enabling decoding
+ of received words with more than 25 errors.
  As a specific example, consider a received JT65 word with 23 correct symbols
  and 40 errors.
  We do not know which symbols are in error.
@@ -372,7 +370,7 @@ tric probability distribution.
 \begin_inset Formula $x$
 \end_inset
 
- as the number of errors in the erased symbols.
+ as the number of errors in the symbols actually erased.
  In an ensemble of many received words, 
 \begin_inset Formula $X$
 \end_inset
@@ -386,7 +384,7 @@ tric probability distribution.
 \begin_inset Formula $x$
 \end_inset
 
- given stated values of 
+ with stated values of 
 \begin_inset Formula $N$
 \end_inset
 
@@ -426,7 +424,8 @@ nchoosek(
 \begin_inset Quotes erd
 \end_inset
 
- in the interpreted language GNU Octave, as well as many free online calculators
+ in the interpreted language GNU Octave, or with one of many free online
+ calculators.
  The hypergeometric probability mass function defined in Eq.
  (
 \begin_inset CommandInset ref
@@ -677,22 +676,50 @@ The Franke-Taylor decoding algorithm
 \end_layout
 
 \begin_layout Standard
-Example 3 shows how reliable information about symbol quality should make
- it possible to decode received frames having a large number of errors.
+Example 3 shows how statistical information about symbol quality should
+ make it possible to decode received frames having a large number of errors.
  In practice the number of errors in the received word is unknown, so we
  use a stochastic algorithm to assign high erasure probability to low-quality
  symbols and relatively low probability to high-quality symbols.
  As illustrated by Example 3, a good choice of erasure probabilities can
- increase the chance of a successful decode by many orders of magnitude.
+ increase the chance of producing a codeword by many orders of magnitude.
+ Note that at this stage we treat any codeword selected by errors-and-erasures
+ decoding as only a 
+\emph on
+candidate
+\emph default
+.
+ The next task is to find a metric that can reliably select one of many
+ proffered candidates as the codeword that was actually transmitted.
 \end_layout
 
 \begin_layout Standard
-The FT algorithm uses two quality indices made available by a noncoherent
- 64-FSK demodulator.
- The demodulator computes the power spectrum for each symbol and identifies
- the most likely symbol value based on the largest signal-plus-noise power
- in 64 frequency bins.
- The fractions of total power in the two bins containing the largest and
+The FT algorithm uses quality indices made available by a noncoherent 64-FSK
+ demodulator.
+ The demodulator computes the power spectrum 
+\begin_inset Formula $S(i,j)$
+\end_inset
+
+ for each signalling interval; for the JT65 protocol 
+\begin_inset Formula $i=1,64$
+\end_inset
+
+ is the spectral bin number and 
+\begin_inset Formula $j=1,63$
+\end_inset
+
+ the symbol number.
+ The most likely value for symbol 
+\begin_inset Formula $j$
+\end_inset
+
+ is taken as the frequency bin with largest signal-plus-noise power over
+ all values of 
+\begin_inset Formula $i$
+\end_inset
+
+.
+ The fraction of total power in the two bins containing the largest and
  second-largest powers (denoted by 
 \begin_inset Formula $p_{1}$
 \end_inset
@@ -701,7 +728,7 @@ The FT algorithm uses two quality indices made available by a noncoherent
 \begin_inset Formula $p_{2}$
 \end_inset
 
-, respectively) are passed to the decoder from the demodulator as 
+, respectively) are passed from demodulator to decoder as 
 \begin_inset Quotes eld
 \end_inset
 
@@ -710,11 +737,15 @@ soft-symbol
 \end_inset
 
  information.
- The decoder derives two metrics from 
-\begin_inset Formula $\{p_{1},p_{2}\}:$
+ The decoder then derives two metrics from 
+\begin_inset Formula $p_{1}$
 \end_inset
 
+and 
+\begin_inset Formula $p_{2}$
+\end_inset
 
+:
 \end_layout
 
 \begin_layout Itemize
@@ -725,11 +756,11 @@ soft-symbol
 \begin_inset Formula $\{1,2,\ldots,63\}$
 \end_inset
 
- of the symbol's fractional power, 
+ of the symbol's fractional power 
 \begin_inset Formula $p_{1}$
 \end_inset
 
- in the sorted list of 
+ in a sorted list of 
 \begin_inset Formula $p_{1}$
 \end_inset
 
@@ -751,13 +782,13 @@ soft-symbol
 \end_layout
 
 \begin_layout Standard
-The FT decoder uses a table of symbol error probabilities derived from a
- large dataset of received words that have been successfully decoded.
+We use an empirical table of symbol error probabilities derived from a large
+ dataset of received words that were successfully decoded.
  The table provides an estimate of the 
 \emph on
-a-priori
+a priori
 \emph default
- probability of symbol error based on a given symbol's 
+ probability of symbol error based on the 
 \begin_inset Formula $p_{1}$
 \end_inset
 
@@ -768,7 +799,8 @@ a-priori
  metrics.
  These probabilities are close to 1 for low-quality symbols and close to
  0 for high-quality symbols.
- Recall from Examples 2 and 3 that best performance was obtained with 
+ Recall from Examples 2 and 3 that candidate codewords are produced with
+ higher probability when 
 \begin_inset Formula $s>X$
 \end_inset
 
@@ -793,39 +825,38 @@ educated guesses
  For each iteration a stochastic erasure vector is generated based on the
  symbol erasure probabilities.
  The erasure vector is sent to the BM decoder along with the full set of
- 63 received symbols.
+ 63 received hard-decision symbols.
  When the BM decoder finds a candidate codeword it is assigned a quality
  metric 
 \begin_inset Formula $d_{s}$
 \end_inset
 
- defined as the soft distance between the received word and the codeword,
- where
+, the soft distance between the received word and the codeword: 
 \begin_inset Formula 
 \begin{equation}
-d_{s}=\sum_{i=1}^{n}\alpha_{i}\,(1+p_{1,i}).\label{eq:soft_distance}
+d_{s}=\sum_{j=1}^{n}\alpha_{j}\,(1+p_{1,j}).\label{eq:soft_distance}
 \end{equation}
 
 \end_inset
 
 Here 
-\begin_inset Formula $\alpha_{i}=0$
+\begin_inset Formula $\alpha_{j}=0$
 \end_inset
 
  if received symbol 
-\begin_inset Formula $i$
+\begin_inset Formula $j$
 \end_inset
 
  is the same as the corresponding symbol in the codeword, 
-\begin_inset Formula $\alpha_{i}=1$
+\begin_inset Formula $\alpha_{j}=1$
 \end_inset
 
  if the received symbol and codeword symbol are different, and 
-\begin_inset Formula $p_{1,i}$
+\begin_inset Formula $p_{1,j}$
 \end_inset
 
  is the fractional power associated with received symbol 
-\begin_inset Formula $i$
+\begin_inset Formula $j$
 \end_inset
 
 .
@@ -834,27 +865,172 @@ Here
  that if two candidate codewords have the same Hamming distance from the
  received word, a smaller soft distance will be assigned to the one where
  differences occur in symbols of lower estimated reliability.
+ 
 \end_layout
 
 \begin_layout Standard
-Technically the FT algorithm is a list decoder, potentially generating a
- list of candidate codewords.
- Among the list of candidate codewords found by the stochastic search algorithm,
- only the one with the smallest soft distance from the received word is
- retained.
- As with all such algorithms, a stopping criterion is necessary.
- FT accepts a codeword unconditionally if its soft distance is smaller than
- an empirically determined acceptance threshold, 
-\begin_inset Formula $d_{a}$
+In practice we find that 
+\begin_inset Formula $d_{s}$
+\end_inset
+
+ can reliably indentify the correct codeword if the signal-to-noise ratio
+ for individual symbols is greater than about 4 in power units, or 
+\begin_inset Formula $E_{s}/N_{0}\apprge6$
+\end_inset
+
+ dB.
+ We also find that weaker signals can often be decoded by using soft-symbol
+ information beyond that contained in 
+\begin_inset Formula $p_{1}$
+\end_inset
+
+and 
+\begin_inset Formula $p_{2}$
 \end_inset
 
 .
- A timeout is used to limit the algorithm's execution time if no codewords
- within soft distance 
-\begin_inset Formula $d_{a}$
+ To this end we define an additional metric 
+\begin_inset Formula $u$
 \end_inset
 
- of the received word are found in a reasonable number of trials.
+, the average signal-plus-noise power in all 
+\begin_inset Formula $n$
+\end_inset
+
+ symbols according to a candidate codeword's symbol values:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+u=\frac{1}{n}\sum_{j=1}^{n}S(c_{j},\,j).
+\]
+
+\end_inset
+
+Here the 
+\begin_inset Formula $c_{j}$
+\end_inset
+
+'s are the symbol values for the candidate codeword being tested.
+ 
+\end_layout
+
+\begin_layout Standard
+The correct codeword produces a value for 
+\begin_inset Formula $u$
+\end_inset
+
+ equal to average of 
+\begin_inset Formula $n=63$
+\end_inset
+
+ bins of signal-plus-noise, while incorrect codewords have at most 
+\begin_inset Formula $k=12$
+\end_inset
+
+ bins with signal-plus-noise and at least 
+\begin_inset Formula $n-k=51$
+\end_inset
+
+ bins containing noise only.
+ Thus, if the spectral array 
+\begin_inset Formula $S(i,\,j)$
+\end_inset
+
+ is normalized so that its median value (essentially the average noise level)
+ is unity, the correct codeword is expected to yield
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+u=(1\pm n^{-\frac{1}{2}})(1+y)\approx(1.0\pm0.13)(1+y),
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $y$
+\end_inset
+
+ is the signal-to-noise ratio in power units and the quoted one standard
+ deviation uncertainty range assumes Gaussian statistics.
+ Incorrect codewords will yield at most
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+u=\frac{n-k\pm\sqrt[]{n-k}}{n}+\frac{k\pm\sqrt[]{k}}{n}(1+y)\approx1\pm0.13+(0.19\pm0.06)\,y.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+As a specific example, consider signal strength 
+\begin_inset Formula $y=4$
+\end_inset
+
+, corresponding to 
+\begin_inset Formula $E_{s}/N_{0}=6$
+\end_inset
+
+ dB.
+ (For JT65, the corresponding SNR in 2500 Hz bandwidth is 
+\begin_inset Formula $-23.7$
+\end_inset
+
+ dB.) The correct codeword is then expected to yield 
+\begin_inset Formula $u\approx5.0\pm$
+\end_inset
+
+0.6, while incorrect codewords will give 
+\begin_inset Formula $u\approx2.0\pm0.3$
+\end_inset
+
+ or less.
+ A threshold set at 
+\begin_inset Formula $u_{0}=4.4$
+\end_inset
+
+, about 8 standard deviations above the expected maximum for incorrect codewords
+, serves reliably to distinguish the correct codeword from all other candidates,
+ with a very small probability of false decodes.
+\end_layout
+
+\begin_layout Standard
+Technically the FT algorithm is a list decoder.
+ Among the list of candidate codewords found by the stochastic search algorithm,
+ only the one with the largest 
+\begin_inset Formula $u$
+\end_inset
+
+ is retained.
+ As with all such algorithms, a stopping criterion is necessary.
+ FT accepts a codeword unconditionally if 
+\begin_inset Formula $u>u_{0}$
+\end_inset
+
+.
+ A timeout is used to limit the algorithm's execution time if no acceptable
+ codeword is found in a reasonable number of trials,
+\begin_inset Formula $T$
+\end_inset
+
+.
+ Today's personal computers are fast enough that 
+\begin_inset Formula $T$
+\end_inset
+
+ can be set as large as 
+\begin_inset Formula $10^{5},$
+\end_inset
+
+ or even higher.
 \end_layout
 
 \begin_layout Paragraph
@@ -883,55 +1059,309 @@ Make independent stochastic decisions about whether to erase each symbol
 \begin_layout Enumerate
 Attempt errors-and-erasures decoding by using the BM algorithm and the set
  of erasures determined in step 2.
- If the BM decoder is successful go to step 5.
+ If the BM decoder produces a candidate codeword, go to step 5.
 \end_layout
 
 \begin_layout Enumerate
-If decoding is not successful, go to step 2.
+If BM decoding was not successful, go to step 2.
 \end_layout
 
 \begin_layout Enumerate
-Calculate the soft distance 
+Calculate the hard-decision Hamming distance between the candidate codeword
+ and the received symbols, the corresponding soft distance 
 \begin_inset Formula $d_{s}$
 \end_inset
 
- between the candidate codeword and the received symbols.
- Set 
-\begin_inset Formula $d_{s,min}=d_{s}$
+, and the quality metric 
+\begin_inset Formula $u$
 \end_inset
 
- if the soft distance is the smallest one encountered so far.
+.
+ If 
+\begin_inset Formula $u$
+\end_inset
+
+ is the largest one encountered so far, set 
+\begin_inset Formula $u_{max}=u$
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Enumerate
 If 
-\begin_inset Formula $d_{s,min}\le d_{a}$
+\begin_inset Formula $u_{max}>u_{0}$
 \end_inset
 
-, go to 8.
+, go to step 8.
  
 \end_layout
 
 \begin_layout Enumerate
-If the number of trials is less than the maximum allowed number, go to 2.
+If the number of trials is less than the timeout limit
+\begin_inset Formula $T,$
+\end_inset
+
+ go to 2.
  Otherwise, declare decoding failure and exit.
 \end_layout
 
 \begin_layout Enumerate
-A 
-\begin_inset Quotes eld
-\end_inset
-
-best
-\begin_inset Quotes erd
-\end_inset
-
- codeword with 
-\begin_inset Formula $d_{s,min}\le d_{a}$
+An acceptable codeword with 
+\begin_inset Formula $u_{max}>u_{0}$
 \end_inset
 
  has been found.
  Declare a successful decode and return this codeword .
+\end_layout
+
+\begin_layout Section
+Theory and Simulations
+\end_layout
+
+\begin_layout Standard
+The fraction of time that 
+\begin_inset Formula $X$
+\end_inset
+
+, the number of symbols received incorrectly, is less than some number 
+\begin_inset Formula $D$
+\end_inset
+
+ depends of course on signal-to-noise ratio.
+ For the case of additive white Gaussian noise (AWGN) and noncoherent 64-FSK
+ demodulation this probability is easily calculated, and representative
+ examples for 
+\begin_inset Formula $D=25,$
+\end_inset
+
+ 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $D=40$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+, and 
+\begin_inset Formula $D=43$
+\end_inset
+
+ are plotted in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bodide"
+
+\end_inset
+
+ as filled squares with connecting lines.
+ The rightmost curve with solid squares shows that on the AWGN channel the
+ hard-decision BM decoder should succeed about 90% of the time at 
+\begin_inset Formula $E_{s}/N_{0}=7.5$
+\end_inset
+
+ dB, 99% of the time at 8 dB, and 99.98% at 8.5 dB.
+ The righmost curve with open squares shows that simulated results agree
+ with theory to within 0.2 dB.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename fig_bodide.pdf
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:bodide"
+
+\end_inset
+
+Word error rates as a function of 
+\begin_inset Formula $E_{s}/N_{0},$
+\end_inset
+
+ the signal-to-noise ratio in bandwidth equal to the symbol rate.
+ Filled squares illustrate theoretical values for 
+\begin_inset Formula $D=25,$
+\end_inset
+
+ 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $D=40$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+, and 
+\begin_inset Formula $D=43$
+\end_inset
+
+.
+ Open squares illustrate measured results for the BM and FT (
+\begin_inset Formula $T=10^{5}$
+\end_inset
+
+) decoders in program 
+\emph on
+WSJT-X
+\emph default
+.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Received JT65 words with 
+\begin_inset Formula $X>25$
+\end_inset
+
+ incorrect symbols can be decoded if sufficient information is available
+ concerning individual symbol reliabilities.
+ Using values of 
+\begin_inset Formula $T$
+\end_inset
+
+ that are practical with today's personal computers and the soft-symbol
+ information described above, we find that the FT algorithm produces correct
+ decodes most of the time up to 
+\begin_inset Formula $X\approx40$
+\end_inset
+
+, with some additional decodes in the range 
+\begin_inset Formula $X=41$
+\end_inset
+
+ to 43.
+ As a specific example, Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:N_vs_X"
+
+\end_inset
+
+ plots the number of stochastic erasure trials required to find the correct
+ codeword versus the number of hard-decision errors.
+ This result was obtained with 1000 simulated frames at 
+\begin_inset Formula $SNR=-24$
+\end_inset
+
+ dB, just slightly above the decoding threshold.
+ Note that the mean and variance of the required number of trials both increase
+ steeply with the number of errors in the received word.
+ Execution time of the FT algorithm is roughly proportional to the number
+ of trials.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename fig_ntrials_vs_nhard.pdf
+	lyxscale 120
+	scale 120
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:N_vs_X"
+
+\end_inset
+
+The number of trials needed to decode a received word vs the Hamming distance
+ between the received word and the decoded codeword plotted for 1000 simulated
+ frames with no fading.
+ The SNR in 2500 Hz bandwidth is -24 dB (
+\begin_inset Formula $E_{s}/N_{o}=5.7$
+\end_inset
+
+ dB).
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -940,13 +1370,14 @@ Comparison with Berlekamp-Massey and Koetter-Vardy
 
 \begin_layout Standard
 Comparisons of decoding performance are usually presented in the professional
- literature as plots of word error rate as a function of 
+ literature as plots of word error rate versus 
 \begin_inset Formula $E_{b}/N_{0}$
 \end_inset
 
 , the signal-to-noise ratio per information bit.
- Results for the Berlekamp-Massey, Koetter-Vardy, and Franke-Taylor decoding
- algorithms on the (63,12) code are shown in Figure 
+ Results of simulations using the Berlekamp-Massey, Koetter-Vardy, and Franke-Ta
+ylor decoding algorithms on the (63,12) code are shown inthis way in Figure
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:WER"
@@ -954,13 +1385,13 @@ reference "fig:WER"
 \end_inset
 
 .
- For these initial tests we generated 1000 signals at each signal-to-noise
- ratio, assuming the additive white gaussian noise (AWGN) channel, and processed
+ For these tests we generated 1000 signals at each signal-to-noise ratio,
+ assuming the additive white gaussian noise (AWGN) channel, and processed
  the data using each algorithm.
- It's easy to see that, as expected, the soft-decision algorithms FT and
- KV are about 2 dB better than the hard-decision BM algorithm, and that
- FT has a slight edge (about 0.2 dB) over KV.
- 
+ As expected, the soft-decision algorithms FT and KV are about 2 dB better
+ than the hard-decision BM algorithm.
+ FT has a slight edge (about 0.2 dB) over KV with the default settings for
+ each algorithm, as implemented in our JT65 decoders.
 \end_layout
 
 \begin_layout Standard
@@ -1010,20 +1441,21 @@ Word error rate (WER) as a function of
 \end_layout
 
 \begin_layout Standard
-In the professional literature plots like Figure 
+Plots like Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:WER"
 
 \end_inset
 
-usually extend downward to even smaller error rates, say
+ often extend downward to much smaller error rates, say
 \begin_inset Formula $10^{-6}$
 \end_inset
 
-or less, because of the importance of error-free transmission.
- The circumstances for minimal amateur-radio QSOs are very different, however:
- error rates on the order of 0.1, or ever higher, may be acceptable.
+or less, because of the importance of error-free transmission in commercial
+ applications.
+ The circumstances for minimal amateur-radio QSOs are very different, however.
+ Error rates on the order of 0.1, or ever higher, may be acceptable.
  In this case the essential information is better presented in a plot like
  Figure 
 \begin_inset CommandInset ref
@@ -1032,8 +1464,8 @@ reference "fig:Psuccess"
 
 \end_inset
 
-, which shows the percentage of transmissions copied correctly as a function
- of signal-to-noise ratio in a standard bandwidth.
+ showing the percentage of transmissions copied correctly as a function
+ of signal-to-noise ratio.
  
 \end_layout
 
@@ -1045,16 +1477,13 @@ reference "fig:Psuccess"
 
 \end_inset
 
- we have plotted the results of simulations for signal-to-noise ratios 
-\begin_inset Formula $-30\leq SNR\leq-18$
-\end_inset
-
- dB, again using 1000 simulated signals for each point.
+ we plot the results of simulations for signal-to-noise ratios ranging from
+ -18 to -30 dB, again using 1000 simulated signals for each point.
  For each decoding algorithm we include three curves: one for the AWGN channel
  and no fading, and two more for Doppler spreads of 0.2 and 1.0 Hz.
- (Note that the JT65 symbol rate is about 2.69 Hz; the simulated Doppler
- spreads are comparable to those encountered on HF ionospheric paths and
- for EME at VHF and lower UHF bands.)
+ (For reference, we note that the JT65 symbol rate is about 2.69 Hz.
+ The simulated Doppler spreads are comparable to those encountered on HF
+ ionospheric paths and for EME at VHF and lower UHF bands.)
 \end_layout
 
 \begin_layout Standard
@@ -1110,136 +1539,13 @@ Deep Search
 
 \end_layout
 
-\begin_layout Standard
-
+\begin_layout Section
+Hinted Decoding
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\align center
-\begin_inset Graphics
-	filename fig_ntrials_vs_nhard.pdf
-	lyxscale 120
-	scale 120
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-The number of trials needed to decode a received word vs the Hamming distance
- between the received word and the decoded codeword plotted for 1000 simulated
- frames with no fading.
- The SNR in 2500 Hz bandwidth is -24 dB (
-\begin_inset Formula $E_{s}/N_{o}=5.7$
-\end_inset
-
- dB).
- Execution time will be roughly proportional to the number of trials.
- The mean and variance of the number of trials (and execution time) increase
- with the number of errors in the received word.
- 
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\align center
-\begin_inset Graphics
-	filename fig_wer2.pdf
-	lyxscale 120
-	scale 120
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-Word error rate (WER) as a function of 
-\begin_inset Formula $E_{s}/N_{o}$
-\end_inset
-
- for Rayleigh-fading with Doppler-spread 
-\begin_inset Formula $\sigma_{f}=0.2$
-\end_inset
-
- Hz.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Possible figures:
-\end_layout
-
-\begin_layout Itemize
-histogram of 
-\begin_inset Formula $s$
-\end_inset
-
- (number of erasures) for successful decodes with HF and EME data
-\end_layout
-
-\begin_layout Itemize
-histogram of 
-\begin_inset Quotes eld
-\end_inset
-
-ntrials
-\begin_inset Quotes erd
-\end_inset
-
- (or execution time)
-\end_layout
-
-\begin_layout Itemize
-Number of decodes vs.
- ntrials
-\end_layout
-
-\begin_layout Itemize
-Probability of successful decode vs.
- Es/No or S/N in 2500 Hz BW
-\end_layout
-
-\begin_layout Itemize
-other...
- ?
+...
+ TBD ...
 \end_layout
 
 \begin_layout Section
