@@ -63,13 +63,18 @@ QString revision (QString const& svn_rev_string)
   return result.trimmed ();
 }
 
-QString version ()
+QString version (bool include_patch)
 {
 #if defined (CMAKE_BUILD)
-  QString v {WSJTX_STRINGIZE (WSJTX_VERSION_MAJOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_MINOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_PATCH)};
+  QString v {WSJTX_STRINGIZE (WSJTX_VERSION_MAJOR) "." WSJTX_STRINGIZE (WSJTX_VERSION_MINOR)};
+  if (include_patch)
+    {
+      v += "." WSJTX_STRINGIZE (WSJTX_VERSION_PATCH)
 # if defined (WSJTX_RC)
-  v += "-rc" WSJTX_STRINGIZE (WSJTX_RC);
+        + "-rc" WSJTX_STRINGIZE (WSJTX_RC)
 # endif
+        ;
+    }
 #else
   QString v {"Not for Release"};
 #endif

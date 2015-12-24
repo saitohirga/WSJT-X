@@ -7,6 +7,7 @@
 
 #include <QDateTime>
 #include <QApplication>
+#include <QNetworkAccessManager>
 #include <QRegularExpression>
 #include <QObject>
 #include <QSettings>
@@ -206,7 +207,7 @@ int main(int argc, char *argv[])
                                            ).toBool () ? 1u : 4u;
       }
 
-      MainWindow w(multiple, &settings, &mem_jt9, downSampleFactor);
+      MainWindow w(multiple, &settings, &mem_jt9, downSampleFactor, new QNetworkAccessManager {&a});
       w.show();
 
       QObject::connect (&a, SIGNAL (lastWindowClosed()), &a, SLOT (quit()));
