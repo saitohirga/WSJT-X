@@ -3920,12 +3920,15 @@ void MainWindow::on_bandComboBox_activated (int index)
 void MainWindow::band_changed (Frequency f)
 {
   if (m_bandEdited) {
+    ui->stopTxButton->click();  // halt any transmission
+    auto_tx_mode (false);       // disable auto Tx
     m_bandEdited = false;
     psk_Reporter->sendReport();      // Upload any queued spots before changing band
     if (!m_transmitting) monitor (true);
     Q_EMIT m_config.transceiver_frequency (f);
     qsy (f);
     setXIT (ui->TxFreqSpinBox->value ());
+    m_repeatMsg = 0;            // reset Tx watchdog
   }
 }
 
