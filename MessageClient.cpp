@@ -74,6 +74,7 @@ public:
 
   // hold messages sent before host lookup completes asynchronously
   QQueue<QByteArray> pending_messages_;
+  QByteArray last_message_;
 };
 
 #include "MessageClient.moc"
@@ -233,7 +234,11 @@ void MessageClient::impl::send_message (QByteArray const& message)
     {
       if (!server_.isNull ())
         {
-          writeDatagram (message, server_, server_port_);
+          if (message != last_message_) // avoid duplicates
+            {
+              writeDatagram (message, server_, server_port_);
+              last_message_ = message;
+            }
         }
       else
         {
