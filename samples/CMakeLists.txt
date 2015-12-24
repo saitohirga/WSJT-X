@@ -113,8 +113,8 @@ find_program (RSYNC_EXECUTABLE rsync)
 if (RSYNC_EXECUTABLE)
   add_custom_command (
     OUTPUT upload.timestamp
-    COMMAND ${RSYNC_EXECUTABLE} ARGS -avz ${CMAKE_CURRENT_BINARY_DIR}/web/samples ${PROJECT_SAMPLES_UPLOAD_DEST}
-    COMMAND ${CMAKE_COMMAND} ARGS touch upload.timestamp
+    COMMAND ${RSYNC_EXECUTABLE} ARGS -avz --progress ${CMAKE_CURRENT_BINARY_DIR}/web/samples ${PROJECT_SAMPLES_UPLOAD_DEST}
+    COMMAND ${CMAKE_COMMAND} ARGS -E touch upload.timestamp
     DEPENDS ${contents_file_} ${SAMPLE_FILES}
     COMMENT "Uploading WSJT-X samples to web server"
     )
