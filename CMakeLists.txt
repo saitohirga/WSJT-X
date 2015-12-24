@@ -51,9 +51,11 @@ set (PROJECT_NAME "WSJT-X")
 set (PROJECT_VENDOR "Joe Taylor, K1JT")
 set (PROJECT_CONTACT "Joe Taylor <k1jt@arrl.net>")
 set (PROJECT_COPYRIGHT "Copyright (C) 2001-2015 by Joe Taylor, K1JT")
-set (PROJECT_HOMEPAGE "http://www.physics.princeton.edu/pulsar/K1JT/wsjtx.html")
+set (PROJECT_HOMEPAGE http://www.physics.princeton.edu/pulsar/K1JT/wsjtx.html)
 set (PROJECT_MANUAL wsjtx-main-${wsjtx_VERSION}.html)
 set (PROJECT_MANUAL_DIRECTORY_URL http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc)
+set (PROJECT_SAMPLES_URL http://downloads.sourceforge.net/project/wsjt/)
+set (PROJECT_SAMPLES_UPLOAD_DEST frs.sourceforge.net:/home/frs/project/wsjt/)
 set (PROJECT_SUMMARY_DESCRIPTION "${PROJECT_NAME} - JT9 and JT65 Modes for LF, MF and HF Amateur Radio.")
 set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
  ${PROJECT_NAME} implements JT9, a new mode designed especially for the LF, MF,
@@ -111,7 +113,6 @@ option (WSJT_TRACE_CAT_POLLS "Debugging option that turns on CAT diagnostics dur
 option (WSJT_HAMLIB_TRACE "Debugging option that turns on minimal Hamlib internal diagnostics.")
 option (WSJT_SOFT_KEYING "Apply a ramp to CW keying envelope to reduce transients." ON)
 option (WSJT_SKIP_MANPAGES "Skip *nix manpage generation.")
-option (WSJT_EMBED_SAMPLES "Embed sample files into WSJT-X resources." ON)
 option (WSJT_GENERATE_DOCS "Generate documentation files." ON)
 
 CMAKE_DEPENDENT_OPTION (WSJT_HAMLIB_VERBOSE_TRACE "Debugging option that turns on full Hamlib internal diagnostics." OFF WSJT_HAMLIB_TRACE OFF)
@@ -209,6 +210,11 @@ set (wsjt_qt_CXXSRCS
   MessageClient.cpp
   LettersSpinBox.cpp
   HelpTextWindow.cpp
+  SampleDownloader.cpp
+  SampleDownloader/DirectoryDelegate.cpp
+  SampleDownloader/Directory.cpp
+  SampleDownloader/FileNode.cpp
+  SampleDownloader/RemoteFile.cpp
   )
 
 set (jt9_CXXSRCS
@@ -533,11 +539,6 @@ set (PALETTE_FILES
   Palettes/ZL1FZ.pal
 )
 
-set (SAMPLE_FILES
-  samples/130418_1742.wav
-  samples/130610_2343.wav
-  )
-
 if (APPLE)
   set (WSJTX_ICON_FILE ${CMAKE_PROJECT_NAME}.icns)
   set (ICONSRCS
@@ -618,6 +619,11 @@ endif (APPLE)
 #
 find_program(CTAGS ctags)
 find_program(ETAGS etags)
+
+#
+# sub-directories
+#
+add_subdirectory (samples)
 if (WSJT_GENERATE_DOCS)
   add_subdirectory (doc)
 endif (WSJT_GENERATE_DOCS)
@@ -855,9 +861,6 @@ endfunction (add_resources resources path)
 
 add_resources (wsjtx_RESOURCES "" ${TOP_LEVEL_RESOURCES})
 add_resources (wsjtx_RESOURCES /Palettes ${PALETTE_FILES})
-if (WSJT_EMBED_SAMPLES)
-  add_resources (wsjtx_RESOURCES /samples ${SAMPLE_FILES})
-endif (WSJT_EMBED_SAMPLES)
 
 configure_file (wsjtx.qrc.in wsjtx.qrc @ONLY)
 

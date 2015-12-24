@@ -49,6 +49,7 @@ namespace Ui {
 }
 
 class QSettings;
+class QNetworkAccessManager;
 class QLineEdit;
 class QFont;
 class QHostInfo;
@@ -68,6 +69,7 @@ class SoundOutput;
 class Modulator;
 class SoundInput;
 class Detector;
+class SampleDownloader;
 
 class MainWindow : public QMainWindow
 {
@@ -79,7 +81,8 @@ public:
 
   // Multiple instances: call MainWindow() with *thekey
   explicit MainWindow(bool multiple, QSettings *, QSharedMemory *shdmem,
-                      unsigned downSampleFactor, QWidget *parent = 0);
+                      unsigned downSampleFactor, QNetworkAccessManager * network_manager,
+                      QWidget *parent = 0);
   ~MainWindow();
 
 public slots:
@@ -283,6 +286,7 @@ private:
   WSPRBandHopping m_WSPR_band_hopping;
   bool m_WSPR_tx_next;
   QMessageBox m_rigErrorMessageBox;
+  QScopedPointer<SampleDownloader> m_sampleDownloader;
 
   QScopedPointer<WideGraph> m_wideGraph;
   QScopedPointer<EchoGraph> m_echoGraph;

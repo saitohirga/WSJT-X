@@ -2351,6 +2351,7 @@ QPushButton[state=&quot;ok&quot;] {
     </property>
     <addaction name="actionOnline_User_Guide"/>
     <addaction name="actionLocal_User_Guide"/>
+    <addaction name="download_samples_action"/>
     <addaction name="separator"/>
     <addaction name="actionKeyboard_shortcuts"/>
     <addaction name="actionSpecial_mouse_commands"/>
@@ -2814,6 +2815,14 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
    <property name="text">
     <string>JTMSK</string>
+   </property>
+  </action>
+  <action name="download_samples_action">
+   <property name="text">
+    <string>&amp;Download Samples ...</string>
+   </property>
+   <property name="whatsThis">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Download sample audio files demonstrating the various modes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
  </widget>

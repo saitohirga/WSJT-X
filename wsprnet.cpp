@@ -22,9 +22,9 @@ namespace
   // char const * const wsprNetUrl = "http://127.0.0.1/post?";
 };
 
-WSPRNet::WSPRNet(QObject *parent)
+WSPRNet::WSPRNet(QNetworkAccessManager * manager, QObject *parent)
   : QObject{parent}
-  , networkManager {new QNetworkAccessManager {this}}
+  , networkManager {manager}
   , uploadTimer {new QTimer {this}}
   , m_urlQueueSize {0}
 {
@@ -74,33 +74,35 @@ void WSPRNet::upload(QString const& call, QString const& grid, QString const& rf
 
 void WSPRNet::networkReply(QNetworkReply *reply)
 {
-  if (QNetworkReply::NoError != reply->error ()) {
-    Q_EMIT uploadStatus (QString {"Error: %1"}.arg (reply->error ()));
-    // not clearing queue or halting queuing as it may be a transient
-    // one off request error
-  }
-  else {
-    QString serverResponse = reply->readAll();
-    if( m_uploadType == 2) {
-      if (!serverResponse.contains(QRegExp("spot\\(s\\) added"))) {
-        emit uploadStatus("Upload Failed");
-        urlQueue.clear();
+  // check if request was ours
+  if (m_outstandingRequests.removeOne (reply)) {
+    if (QNetworkReply::NoError != reply->error ()) {
+      Q_EMIT uploadStatus (QString {"Error: %1"}.arg (reply->error ()));
+      // not clearing queue or halting queuing as it may be a transient
+      // one off request error
+    }
+    else {
+      QString serverResponse = reply->readAll();
+      if( m_uploadType == 2) {
+        if (!serverResponse.contains(QRegExp("spot\\(s\\) added"))) {
+          emit uploadStatus("Upload Failed");
+          urlQueue.clear();
+          uploadTimer->stop();
+        }
+      }
+
+      if (urlQueue.isEmpty()) {
+        emit uploadStatus("done");
+        QFile::remove(m_file);
         uploadTimer->stop();
       }
     }
 
-    if (urlQueue.isEmpty()) {
-      emit uploadStatus("done");
-      QFile::remove(m_file);
-      uploadTimer->stop();
-    }
+    qDebug () << QString {"WSPRnet.org %1 outstanding requests"}.arg (m_outstandingRequests.size ());
+
+    // delete request object instance on return to the event loop otherwise it is leaked
+    reply->deleteLater ();
   }
-
-  m_outstandingRequests.removeOne (reply);
-  qDebug () << QString {"WSPRnet.org %1 outstanding requests"}.arg (m_outstandingRequests.size ());
-
-  // delete request object instance on return to the event loop otherwise it is leaked
-  reply->deleteLater ();
 }
 
 bool WSPRNet::decodeLine(QString const& line, QHash<QString,QString> &query)

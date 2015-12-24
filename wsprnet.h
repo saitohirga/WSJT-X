@@ -16,7 +16,7 @@ class WSPRNet : public QObject
   Q_OBJECT;
 
 public:
-    explicit WSPRNet(QObject *parent = nullptr);
+  explicit WSPRNet(QNetworkAccessManager *, QObject *parent = nullptr);
     void upload(QString const& call, QString const& grid, QString const& rfreq, QString const& tfreq,
                 QString const& mode, QString const& tpct, QString const& dbm, QString const& version,
                 QString const& fileName);

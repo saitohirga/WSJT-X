@@ -47,6 +47,7 @@
 #include "wsprnet.h"
 #include "signalmeter.h"
 #include "HelpTextWindow.hpp"
+#include "SampleDownloader.hpp"
 
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
@@ -130,7 +131,8 @@ namespace
 
 //--------------------------------------------------- MainWindow constructor
 MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdmem,
-                       unsigned downSampleFactor, QWidget *parent) :
+                       unsigned downSampleFactor, QNetworkAccessManager * network_manager,
+                       QWidget *parent) :
   QMainWindow(parent),
   m_dataDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)},
   m_revision {revision ()},
@@ -326,6 +328,14 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   ui->actionDeepestDecode->setActionGroup(DepthGroup);
   ui->actionInclude_averaging->setActionGroup(DepthGroup);
   ui->actionInclude_correlation->setActionGroup(DepthGroup);
+
+  connect (ui->download_samples_action, &QAction::triggered, [this, network_manager] () {
+      if (!m_sampleDownloader)
+        {
+          m_sampleDownloader.reset (new SampleDownloader {m_settings, &m_config, network_manager, this});
+        }
+      m_sampleDownloader->show ();
+    });
 
   QButtonGroup* txMsgButtonGroup = new QButtonGroup;
   txMsgButtonGroup->addButton(ui->txrb1,1);
@@ -669,7 +679,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   progressBar->setMaximum(m_TRperiod);
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_dialFreqRxWSPR=0;
-  wsprNet = new WSPRNet(this);
+  wsprNet = new WSPRNet(network_manager, this);
   connect( wsprNet, SIGNAL(uploadStatus(QString)), this, SLOT(uploadResponse(QString)));
   if(m_bFastMode) {
     int ntr[]={5,10,15,30};

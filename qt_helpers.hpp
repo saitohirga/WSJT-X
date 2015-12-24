@@ -76,6 +76,21 @@ QString font_as_stylesheet (QFont const&);
 // conditional style sheet updates
 void update_dynamic_property (QWidget *, char const * property, QVariant const& value);
 
+template <class T>
+class VPtr
+{
+public:
+  static T * asPtr (QVariant v)
+  {
+    return reinterpret_cast<T *> (v.value<void *> ());
+  }
+
+  static QVariant asQVariant(T * ptr)
+  {
+    return qVariantFromValue (reinterpret_cast<void *> (ptr));
+  }
+};
+
 // Register some useful Qt types with QMetaType
 Q_DECLARE_METATYPE (QHostAddress);
 
