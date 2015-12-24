@@ -3,7 +3,7 @@ set (SAMPLE_FILES
   JT9/130418_1742.wav
   )
 
-#set_directory_properties (PROPERTIES EXCLUDE_FROM_ALL ON)
+set_directory_properties (PROPERTIES EXCLUDE_FROM_ALL ON)
 
 set (contents_file_ ${CMAKE_CURRENT_BINARY_DIR}/contents_${WSJTX_VERSION_MAJOR}.${WSJTX_VERSION_MINOR}.json)
 
