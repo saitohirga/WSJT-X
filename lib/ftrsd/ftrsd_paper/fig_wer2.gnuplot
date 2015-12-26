@@ -1,31 +1,24 @@
-# gnuplot script for "word error rate" figure
+# gnuplot script for "Percent copy" figure
 # run: gnuplot fig_wer2.gnuplot
 # then: pdflatex fig_wer2.tex
 #
-set term epslatex standalone size 16cm,10cm
+set term epslatex standalone size 5in,5*2/3in
 set output "fig_wer2.tex"
-set xlabel "$E_s/N_o$ (dB)"
-set x2label "SNR in 2500 Hz (dB)"
-set ylabel "WER"
-#set autoscale xfix
-#set autoscale x2fix
+set xlabel "SNR in 2500 Hz Bandwidth (dB)"
+set ylabel "Percent Copy"
 set style func linespoints
-set key on top outside nobox
+set key off
 set tics in
 set mxtics 2
 set mytics 10 
-set grid ytics
-set logscale y
-set x2tics out
-set xtics nomirror
-set mx2tics 2
-#set xrange [3:13]
-#set x2range [(3-29.7):(13-29.7)]
-set xrange [4:7.5]
-set x2range [(4-29.7):(7.5-29.7)]
-set yrange [0.001:1.0]
-plot "ftdata-1000-rf.dat" using ($1+29.7):(1-$2) every ::1 with linespoints pt 4 title "FT-1K-RF", \
-"ftdata-100-rf.dat" using ($1+29.7):(1-$2) every ::1 with linespoints pt 5 title 'FT-100-RF', \
-"kvasd-7999-rf.dat" using ($1+29.7):(1-$2) every ::1 with linespoints pt 6 title 'KV-8-RF', \
-"kvasd-11999-rf.dat" using 1:(1-$2) every ::1 with linespoints pt 7 title 'KV-12-RF' axes x2y1
-#"bmdata-rf.dat" using 1:(1-$2) every ::1 with linespoints pt 8 title 'BM-RF' axes x2y1
+set grid
+plot [-27:-22] [0:110] \
+     "ftdata-100000.dat" using 1:(100*$2) with linespoints lt 1 pt 7 title 'FT-100K', \
+     "ftdata-10000.dat" using 1:(100*$2) with linespoints lt 1 pt 7 title 'FT-10K', \
+     "ftdata-1000.dat" using 1:(100*$2) with linespoints lt 1 pt 7 title 'FT-1K', \
+     "ftdata-100.dat" using 1:(100*$2) with linespoints lt 1 pt 7 title 'FT-100', \
+     "kvasd-8.dat" using 1:(100*$2) with linespoints lt 2 pt 8 title 'KV-8', \
+     "kvasd-12.dat" using 1:(100*$2) with linespoints lt 2 pt 8 title 'KV-12', \
+     "kvasd-15.dat" using 1:(100*$2) with linespoints lt 2 pt 8 title 'KV-15', \
+     "bmdata.dat" using 1:(100*$2) with linespoints pt 11 title 'BM', \
+     "wer2.lab" with labels

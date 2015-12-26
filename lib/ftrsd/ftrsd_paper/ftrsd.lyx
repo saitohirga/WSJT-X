@@ -2,7 +2,7 @@
 \lyxformat 474
 \begin_document
 \begin_header
-\textclass paper
+\textclass article
 \use_default_options true
 \maintain_unincluded_children false
 \language english
@@ -75,8 +75,7 @@
 \begin_body
 
 \begin_layout Title
-A stochastic successive erasures soft-decision decoder for the JT65 (63,12)
- Reed-Solomon code
+Open Source Soft-Decision Decoder for the JT65 (63,12) Reed-Solomon code
 \end_layout
 
 \begin_layout Author
@@ -104,7 +103,27 @@ y (KV) algebraic soft-decision decoder, licensed to K1JT and implemented
 \end_layout
 
 \begin_layout Section
-Introduction
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Introduction-and-Motivation"
+
+\end_inset
+
+Introduction and Motivation
+\end_layout
+
+\begin_layout Standard
+To be written...
+\end_layout
+
+\begin_layout Section
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:JT65-messages-and"
+
+\end_inset
+
+JT65 messages and Reed Solomon Codes
 \end_layout
 
 \begin_layout Standard
@@ -303,11 +322,11 @@ soft
 \begin_layout Section
 \begin_inset CommandInset label
 LatexCommand label
-name "sec:You've-got-to"
+name "sec:Statistical Framework"
 
 \end_inset
 
-Do I feel lucky?
+Statistical Framework
 \end_layout
 
 \begin_layout Standard
@@ -1100,7 +1119,41 @@ An acceptable codeword with
 \end_layout
 
 \begin_layout Section
-Theory and Simulations
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Hinted-Decoding"
+
+\end_inset
+
+Hinted Decoding
+\end_layout
+
+\begin_layout Standard
+Write this...
+\end_layout
+
+\begin_layout Section
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Implementation-in-WSJT-X"
+
+\end_inset
+
+Implementation in WSJT-X
+\end_layout
+
+\begin_layout Standard
+Write this...
+\end_layout
+
+\begin_layout Section
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Theory,-Simulation,-and"
+
+\end_inset
+
+Decoder Performance Evaluation: Simulations and Real Data
 \end_layout
 
 \begin_layout Standard
@@ -1341,7 +1394,7 @@ Number of trials needed to decode a received word versus Hamming distance
 
 \end_layout
 
-\begin_layout Section
+\begin_layout Subsection
 Comparison with Berlekamp-Massey and Koetter-Vardy
 \end_layout
 
@@ -1519,15 +1572,6 @@ Deep Search
 \end_layout
 
 \begin_layout Section
-Hinted Decoding
-\end_layout
-
-\begin_layout Standard
-...
- Still to come ...
-\end_layout
-
-\begin_layout Section
 Summary
 \end_layout
 
@@ -1617,6 +1661,160 @@ key "key-5"
 \end_inset
 
 Berlekamp-Massey decoder written by Phil Karn, http://www.ka9q.net/code/fec/
+\end_layout
+
+\begin_layout Section
+\start_of_appendix
+Signal to Noise Ratios
+\end_layout
+
+\begin_layout Standard
+The signal to noise ratio in a bandwidth, 
+\begin_inset Formula $B$
+\end_inset
+
+, that is at least as large as the bandwidth occupied by the signal is:
+\begin_inset Formula 
+\begin{equation}
+SNR_{B}=\frac{P_{s}}{N_{o}B}\label{eq:SNR}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $P_{s}$
+\end_inset
+
+ is the signal power, 
+\begin_inset Formula $N_{o}$
+\end_inset
+
+ is one-sided noise power spectral density, and 
+\begin_inset Formula $B$
+\end_inset
+
+ is the bandwidth in Hz.
+ In amateur radio applications, digital modes are often compared based on
+ the SNR defined in a 2.5 kHz reference bandwidth, 
+\begin_inset Formula $SNR_{2.5\,\mathrm{kHz}}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+In the professional literature, decoder performance is characterized in
+ terms of 
+\begin_inset Formula $E_{b}/N_{o}$
+\end_inset
+
+, the ratio of the energy collected per information bit, 
+\begin_inset Formula $E_{b}$
+\end_inset
+
+, to the one-sided noise power spectral density, 
+\begin_inset Formula $N_{o}$
+\end_inset
+
+, or in terms of 
+\begin_inset Formula $E_{s}/N_{o}$
+\end_inset
+
+, the ratio of the energy collected per received symbol, 
+\begin_inset Formula $E_{s}$
+\end_inset
+
+, and 
+\begin_inset Formula $N_{o}$
+\end_inset
+
+.
+ Denote the duration of a channel symbol by 
+\begin_inset Formula $\tau_{s}$
+\end_inset
+
+ (for JT65, 
+\begin_inset Formula $\tau_{s}=0.375\,\mathrm{s}$
+\end_inset
+
+).
+ Signal power is related to the energy per symbol by 
+\begin_inset Formula 
+\begin{equation}
+P_{s}=E_{s}/\tau_{s},\label{eq:signal_power}
+\end{equation}
+
+\end_inset
+
+The total energy in a received JT65 message consisting of 
+\begin_inset Formula $n=63$
+\end_inset
+
+ channel symbols is 
+\begin_inset Formula $63E_{s}$
+\end_inset
+
+.
+ The energy collected for each of the 72 bits of information conveyed by
+ the message is then
+\begin_inset Formula 
+\begin{equation}
+E_{b}=\frac{63E_{s}}{72}=0.875E_{s.}\label{eq:Eb_Es}
+\end{equation}
+
+\end_inset
+
+Using equations (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:SNR"
+
+\end_inset
+
+)-(
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:Eb_Es"
+
+\end_inset
+
+), 
+\begin_inset Formula $SNR_{2.5\,\mathrm{kHz}}$
+\end_inset
+
+ can be written in terms of 
+\begin_inset Formula $E_{b}/N_{o}$
+\end_inset
+
+ or 
+\begin_inset Formula $E_{s}/N_{o}$
+\end_inset
+
+:
+\begin_inset Formula 
+\[
+SNR_{2.5\,\mathrm{kHz}}=1.08\times10^{-3}\frac{E_{s}}{N_{o}}=1.23\times10^{-3}\frac{E_{b}}{N_{o}}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+If all quantities are expressed in dB, then:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+SNR_{2.5\,\mathrm{kHz}}=(E_{b}/N_{o})_{\mathrm{dB}}-29.66\,\mathrm{dB}=(E_{s}/N_{o})_{\mathrm{dB}}-29.10\,\mathrm{dB}.
+\]
+
+\end_inset
+
+
 \end_layout
 
 \end_body
