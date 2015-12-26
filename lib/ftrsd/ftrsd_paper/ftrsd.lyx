@@ -899,7 +899,7 @@ In practice we find that
 \begin_inset Formula $p_{1}$
 \end_inset
 
-and 
+ and 
 \begin_inset Formula $p_{2}$
 \end_inset
 
@@ -1246,9 +1246,36 @@ reference "fig:bodide"
  also shows theoretical results (filled squares) for comparison with the
  BM results.
  The simulated BM results agree with theory to within about 0.1 dB.
- As expected, the soft-decision algorithms FT and KV are about 2 dB better
+ This difference between simulated BM results and theory is caused by small
+ errors in the estimates of time- and frequency-offset of the received signal
+ in the simulated results.
+ Such 
+\begin_inset Quotes eld
+\end_inset
+
+sync losses
+\begin_inset Quotes erd
+\end_inset
+
+ are not accounted for in the idealized theoretical results.
+ 
+\end_layout
+
+\begin_layout Standard
+As expected, the soft-decision algorithms, FT and KV, are about 2 dB better
  than the hard-decision BM algorithm.
  In addition, FT has a slight edge (about 0.2 dB) over KV.
+ On the other hand, the execution time for FT with 
+\begin_inset Formula $T=10^{5}$
+\end_inset
+
+ is longer than the execution time for the KV algorithm.
+ Nevertheless, the execution time required for the FT algorithm with 
+\begin_inset Formula $T=10^{5}$
+\end_inset
+
+ is small enough to be practical on most computers.
+ 
 \end_layout
 
 \begin_layout Standard
