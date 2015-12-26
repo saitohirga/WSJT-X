@@ -2,7 +2,7 @@
 \lyxformat 474
 \begin_document
 \begin_header
-\textclass article
+\textclass paper
 \use_default_options true
 \maintain_unincluded_children false
 \language english
@@ -82,6 +82,15 @@ Open Source Soft-Decision Decoder for the JT65 (63,12) Reed-Solomon code
 Steven J.
  Franke, K9AN and Joseph H.
  Taylor, K1JT
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Abstract
@@ -333,7 +342,16 @@ Statistical Framework
 The FT algorithm uses the estimated quality of received symbols to generate
  lists of symbols considered likely to be in error, thus enabling decoding
  of received words with more than 25 errors.
- As a specific example, consider a received JT65 word with 23 correct symbols
+ 
+\end_layout
+
+\begin_layout Standard
+(SF: provide brief overview of literature survey and discuss the inspiration
+ for the FT approach).
+\end_layout
+
+\begin_layout Standard
+As a specific example, consider a received JT65 word with 23 correct symbols
  and 40 errors.
  We do not know which symbols are in error.
  Suppose that the decoder randomly selects 
@@ -738,7 +756,7 @@ The FT algorithm uses quality indices made available by a noncoherent 64-FSK
 \begin_inset Formula $p_{1}$
 \end_inset
 
-and 
+ and 
 \begin_inset Formula $p_{2}$
 \end_inset
 
@@ -1020,7 +1038,7 @@ Technically the FT algorithm is a list decoder.
 
 .
  A timeout is used to limit the algorithm's execution time if no acceptable
- codeword is found in a reasonable number of trials,
+ codeword is found in a reasonable number of trials, 
 \begin_inset Formula $T$
 \end_inset
 
@@ -1129,7 +1147,7 @@ Hinted Decoding
 \end_layout
 
 \begin_layout Standard
-Write this...
+To be written...
 \end_layout
 
 \begin_layout Section
@@ -1143,7 +1161,7 @@ Implementation in WSJT-X
 \end_layout
 
 \begin_layout Standard
-Write this...
+To be written...
 \end_layout
 
 \begin_layout Section
@@ -1153,75 +1171,84 @@ name "sec:Theory,-Simulation,-and"
 
 \end_inset
 
-Decoder Performance Evaluation: Simulations and Real Data
+Decoder Performance Evaluation
+\end_layout
+
+\begin_layout Subsection
+Simulated results on the AWGN channel
 \end_layout
 
 \begin_layout Standard
-The fraction of time that 
-\begin_inset Formula $X$
+Comparisons of decoding performance are usually presented in the professional
+ literature as plots of word error-rate versus 
+\begin_inset Formula $E_{b}/N_{0}$
 \end_inset
 
-, the number of symbols received incorrectly, is expected to be less than
- some number 
-\begin_inset Formula $D$
+, the ratio of the energy collected per information bit to the one-sided
+ noise power spectral density, 
+\begin_inset Formula $N_{0}$
 \end_inset
 
- depends on signal-to-noise ratio.
- For the case of additive white Gaussian noise (AWGN) and noncoherent 64-FSK
- demodulation this probability is easy to calculate.
- Representative examples for 
-\begin_inset Formula $D=25,$
+.
+ In amateur radio circles performance is usually plotted as the probability
+ of successfully decoding a received word vs signal-to-noise ratio in a
+ 2.5 kHz reference bandwidth, 
+\begin_inset Formula $\mathrm{SNR}{}_{2.5\,\mathrm{kHz}}$
 \end_inset
 
+.
+ The relationship between 
+\begin_inset Formula $E_{b}/N_{o}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathrm{SNR}{}_{2.5\,\mathrm{kHz}}$
+\end_inset
+
+ is described in Appendix 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Appendix:SNR"
+
+\end_inset
+
+.
  
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\strikeout off
-\uuline off
-\uwave off
-\noun off
-\color none
+\end_layout
 
-\begin_inset Formula $D=40$
+\begin_layout Standard
+Results of simulations using the BM, FT, and KV decoding algorithms on the
+ JT65 (63,12) code are presented in terms of word error-rate vs 
+\begin_inset Formula $E_{b}/N_{o}$
 \end_inset
 
-
-\family default
-\series default
-\shape default
-\size default
-\emph default
-\bar default
-\strikeout default
-\uuline default
-\uwave default
-\noun default
-\color inherit
-, and 
-\begin_inset Formula $D=43$
-\end_inset
-
- are plotted in Figure 
+ in Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:bodide"
 
 \end_inset
 
- for a range of SNRs as filled squares with connecting lines.
- The rightmost such curve shows that on the AWGN channel the hard-decision
- BM decoder should succeed about 90% of the time at 
-\begin_inset Formula $E_{s}/N_{0}=7.5$
+.
+ For these tests we generated at least 1000 signals at each signal-to-noise
+ ratio, assuming the additive white gaussian noise (AWGN) channel, and processed
+ the data using each algorithm.
+ For word error-rates less than 0.1 it was necessary to process 10,000 or
+ even 100,000 simulated signals in order to capture enough errors to make
+ the estimates of word-error-rate statistically meaningful.
+ As a test of the fidelity of our numerical simulations, Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bodide"
+
 \end_inset
 
- dB, 99% of the time at 8 dB, and 99.98% at 8.5 dB.
- For comparison, the righmost curve with open squares shows that simulated
- results agree with theory to within less than 0.2 dB.
- 
+ also shows theoretical results (filled squares) for comparison with the
+ BM results.
+ The simulated BM results agree with theory to within about 0.1 dB.
+ As expected, the soft-decision algorithms FT and KV are about 2 dB better
+ than the hard-decision BM algorithm.
+ In addition, FT has a slight edge (about 0.2 dB) over KV.
 \end_layout
 
 \begin_layout Standard
@@ -1248,56 +1275,33 @@ name "fig:bodide"
 \end_inset
 
 Word error rates as a function of 
-\begin_inset Formula $E_{s}/N_{0},$
+\begin_inset Formula $E_{b}/N_{0},$
 \end_inset
 
- the signal-to-noise ratio in bandwidth equal to the symbol rate.
- Filled squares illustrate theoretical values for 
-\begin_inset Formula $D=25,$
-\end_inset
-
- 
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\strikeout off
-\uuline off
-\uwave off
-\noun off
-\color none
-
-\begin_inset Formula $D=40$
-\end_inset
-
-
-\family default
-\series default
-\shape default
-\size default
-\emph default
-\bar default
-\strikeout default
-\uuline default
-\uwave default
-\noun default
-\color inherit
-, and 
-\begin_inset Formula $D=43$
-\end_inset
-
-.
- Open squares illustrate measured results for the BM and FT (
+ the signal-to-noise ratio per bit.
+ The single curve marked with filled squares shows a theoretical prediction
+ for the BM decoder.
+ Open squares illustrate simulation results for an AWGN channel with the
+ BM, FT (
 \begin_inset Formula $T=10^{5}$
 \end_inset
 
-) decoders in program 
+) and KV (
+\begin_inset Formula $\lambda=15$
+\end_inset
+
+) decoders used in program 
 \emph on
 WSJT-X
 \emph default
 .
+ The KV results are for decoding complexity coefficient 
+\begin_inset Formula $\lambda=15$
+\end_inset
+
+, the most aggressive setting that has historically been used in earlier
+ versions of the WSJT programs.
+ 
 \end_layout
 
 \end_inset
@@ -1311,38 +1315,170 @@ WSJT-X
 \end_layout
 
 \begin_layout Standard
-Received JT65 words with more than 25 incorrect symbols can be decoded if
- sufficient information on individual symbol reliabilities is available.
- Using values of 
+Because of the importance of error-free transmission in commercial applications,
+ plots like that in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bodide"
+
+\end_inset
+
+ often extend downward to much smaller error rates, say 
+\begin_inset Formula $10^{-6}$
+\end_inset
+
+ or less.
+ The circumstances for minimal amateur-radio QSOs are very different, however.
+ Error rates of order 0.1 or higher may be acceptable.
+ In this case the essential information is better presented in a plot showing
+ the percentage of transmissions copied correctly as a function of signal-to-noi
+se ratio.
+ Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:WER2"
+
+\end_inset
+
+ shows the FT results for 
+\begin_inset Formula $T=10^{5}$
+\end_inset
+
+ and the KV results that were shown in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bodide"
+
+\end_inset
+
+ in this format along with additional FT results for 
+\begin_inset Formula $T=10^{4},10^{3},$
+\end_inset
+
+ and 
+\begin_inset Formula $10^{2}$
+\end_inset
+
+.
+ The KV results are plotted with open triangles.
+ It is apparent that the FT algorithm produces more decodes than KV when
+ 
+\begin_inset Formula $T=10^{4}$
+\end_inset
+
+ or larger.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename fig_wer2.pdf
+	lyxscale 120
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:WER2"
+
+\end_inset
+
+Percent of JT65 messages copied as a function of SNR in 2.5 kHz bandwidth.
+ Solid lines with filled round circles are results from the FT decoder with
+ 
+\begin_inset Formula $T=10^{5},10^{4},10^{3},$
+\end_inset
+
+ and 
+\begin_inset Formula $10^{2}$
+\end_inset
+
+, respectively, from left to right.
+ The dashed line with open triangles is the KV decoder with complexity coefficie
+nt 
+\begin_inset Formula $\lambda=15$
+\end_inset
+
+.
+ Results from the BM algorithm are also shown with filled triangles.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The timeout parameter 
 \begin_inset Formula $T$
 \end_inset
 
- that are practical with today's personal computers and the soft-symbol
- information described above, we find that the FT algorithm nearly always
- produces correct decodes up to 
-\begin_inset Formula $X=40$
-\end_inset
-
-, and some additional decodes are found in the range 41 to 43.
- As an example, Figure 
+ employed in the FT algorithm is the maximum number of symbol-erasure trials
+ allowed for a particular attempt at decoding a received word.
+ Most successful decodes take only a small fraction of the maximum allowed
+ number of trials.
+ Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:N_vs_X"
 
 \end_inset
 
- plots the number of stochastic erasure trials required to find the correct
- codeword versus the number of hard-decision errors for a run with 1000
- simulated transmissions at 
-\begin_inset Formula $SNR=-24$
+ shows the number of stochastic erasure trials required to find the correct
+ codeword versus the number of hard-decision errors in the received word
+ for a run with 1000 simulated transmissions at 
+\begin_inset Formula $\mathrm{SNR}=-24$
 \end_inset
 
  dB, just slightly above the decoding threshold.
- Note that both mean and variance of the required number of trials increase
- steeply with the number of errors in the received word.
- Execution time of the FT algorithm is roughly proportional to the number
- of required trials.
- 
+ The timeout parameter was 
+\begin_inset Formula $T=10^{5}$
+\end_inset
+
+ for this run.
+ No points are shown for 
+\begin_inset Formula $X\le25$
+\end_inset
+
+ because all such words were successfully decoded by the BM algorithm.
+ Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:N_vs_X"
+
+\end_inset
+
+ shows that the FT algorithm decoded received words with as many as 
+\begin_inset Formula $X=43$
+\end_inset
+
+ symbol errors.
+ The results also show that, on average, the number of trials increases
+ with the number of errors in the received word.
+ The variability of the decoding time also increases dramatically with the
+ number of errors in the received word.
+ These results also provide insight into the mean and variance of the execution
+ time for the FT algorithm, as execution time will be roughly proportional
+ to the number of required trials.
 \end_layout
 
 \begin_layout Standard
@@ -1356,7 +1492,6 @@ status open
 \begin_inset Graphics
 	filename fig_ntrials_vs_nhard.pdf
 	lyxscale 120
-	scale 120
 
 \end_inset
 
@@ -1377,7 +1512,7 @@ Number of trials needed to decode a received word versus Hamming distance
  between the received word and the decoded codeword, for 1000 simulated
  frames on an AWGN channel with no fading.
  The SNR in 2500 Hz bandwidth is -24 dB (
-\begin_inset Formula $E_{s}/N_{o}=5.7$
+\begin_inset Formula $E_{b}/N_{o}=5.1$
 \end_inset
 
  dB).
@@ -1395,101 +1530,7 @@ Number of trials needed to decode a received word versus Hamming distance
 \end_layout
 
 \begin_layout Subsection
-Comparison with Berlekamp-Massey and Koetter-Vardy
-\end_layout
-
-\begin_layout Standard
-Comparisons of decoding performance are usually presented in the professional
- literature as plots of word error rate versus 
-\begin_inset Formula $E_{b}/N_{0}$
-\end_inset
-
-, the signal-to-noise ratio per information bit.
- Results of simulations using the Berlekamp-Massey, Koetter-Vardy, and Franke-Ta
-ylor decoding algorithms on the (63,12) code are presented in this way in
- Figure 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "fig:WER"
-
-\end_inset
-
-.
- For these tests we generated 1000 signals at each signal-to-noise ratio,
- assuming the additive white gaussian noise (AWGN) channel, and processed
- the data using each algorithm.
- As expected, the soft-decision algorithms FT and KV are about 2 dB better
- than the hard-decision BM algorithm.
- FT has a slight edge (about 0.2 dB) over KV with the default settings for
- each algorithm, as implemented in our JT65 decoders.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\align center
-\begin_inset Graphics
-	filename fig_wer.pdf
-	lyxscale 120
-	scale 120
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-\begin_inset CommandInset label
-LatexCommand label
-name "fig:WER"
-
-\end_inset
-
-Word error rate (WER) as a function of 
-\begin_inset Formula $E_{b}/N_{0}$
-\end_inset
-
- for non-fading signals in AWGN.
- 
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Because of the importance of error-free transmission in commercial applications,
- plots like that in Figure 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "fig:WER"
-
-\end_inset
-
- often extend downward to much smaller error rates, say
-\begin_inset Formula $10^{-6}$
-\end_inset
-
- or less, .
- The circumstances for minimal amateur-radio QSOs are very different, however.
- Error rates of order 0.1, or ever higher, may be acceptable.
- In this case the essential information is better presented in a plot showing
- the percentage of transmissions copied correctly as a function of signal-to-noi
-se ratio.
- 
+Simulated results for hinted decoding and Rayleigh fading
 \end_layout
 
 \begin_layout Standard
@@ -1529,7 +1570,6 @@ status open
 \begin_inset Graphics
 	filename fig_psuccess.pdf
 	lyxscale 90
-	scale 90
 
 \end_inset
 
@@ -1665,7 +1705,13 @@ Berlekamp-Massey decoder written by Phil Karn, http://www.ka9q.net/code/fec/
 
 \begin_layout Section
 \start_of_appendix
-Signal to Noise Ratios
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Appendix:SNR"
+
+\end_inset
+
+Appendix: Signal to Noise Ratios
 \end_layout
 
 \begin_layout Standard
@@ -1676,7 +1722,7 @@ The signal to noise ratio in a bandwidth,
 , that is at least as large as the bandwidth occupied by the signal is:
 \begin_inset Formula 
 \begin{equation}
-SNR_{B}=\frac{P_{s}}{N_{o}B}\label{eq:SNR}
+\mathrm{SNR}_{B}=\frac{P_{s}}{N_{o}B}\label{eq:SNR}
 \end{equation}
 
 \end_inset
@@ -1685,18 +1731,18 @@ where
 \begin_inset Formula $P_{s}$
 \end_inset
 
- is the signal power, 
+ is the signal power (W), 
 \begin_inset Formula $N_{o}$
 \end_inset
 
- is one-sided noise power spectral density, and 
+ is one-sided noise power spectral density (W/Hz), and 
 \begin_inset Formula $B$
 \end_inset
 
  is the bandwidth in Hz.
  In amateur radio applications, digital modes are often compared based on
  the SNR defined in a 2.5 kHz reference bandwidth, 
-\begin_inset Formula $SNR_{2.5\,\mathrm{kHz}}$
+\begin_inset Formula $\mathrm{SNR}_{2.5\,\mathrm{kHz}}$
 \end_inset
 
 .
@@ -1717,32 +1763,20 @@ In the professional literature, decoder performance is characterized in
 \begin_inset Formula $N_{o}$
 \end_inset
 
-, or in terms of 
-\begin_inset Formula $E_{s}/N_{o}$
-\end_inset
-
-, the ratio of the energy collected per received symbol, 
-\begin_inset Formula $E_{s}$
-\end_inset
-
-, and 
-\begin_inset Formula $N_{o}$
-\end_inset
-
 .
  Denote the duration of a channel symbol by 
 \begin_inset Formula $\tau_{s}$
 \end_inset
 
  (for JT65, 
-\begin_inset Formula $\tau_{s}=0.375\,\mathrm{s}$
+\begin_inset Formula $\tau_{s}=0.3715\,\mathrm{s}$
 \end_inset
 
 ).
  Signal power is related to the energy per symbol by 
 \begin_inset Formula 
 \begin{equation}
-P_{s}=E_{s}/\tau_{s},\label{eq:signal_power}
+P_{s}=E_{s}/\tau_{s}.\label{eq:signal_power}
 \end{equation}
 
 \end_inset
@@ -1780,36 +1814,28 @@ reference "eq:Eb_Es"
 \end_inset
 
 ), 
-\begin_inset Formula $SNR_{2.5\,\mathrm{kHz}}$
+\begin_inset Formula $\mathrm{SNR}_{2.5\,\mathrm{kHz}}$
 \end_inset
 
  can be written in terms of 
 \begin_inset Formula $E_{b}/N_{o}$
 \end_inset
 
- or 
-\begin_inset Formula $E_{s}/N_{o}$
-\end_inset
-
 :
 \begin_inset Formula 
 \[
-SNR_{2.5\,\mathrm{kHz}}=1.08\times10^{-3}\frac{E_{s}}{N_{o}}=1.23\times10^{-3}\frac{E_{b}}{N_{o}}.
+\mathrm{SNR}_{2.5\,\mathrm{kHz}}=1.23\times10^{-3}\frac{E_{b}}{N_{o}}.
 \]
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
 If all quantities are expressed in dB, then:
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \[
-SNR_{2.5\,\mathrm{kHz}}=(E_{b}/N_{o})_{\mathrm{dB}}-29.66\,\mathrm{dB}=(E_{s}/N_{o})_{\mathrm{dB}}-29.10\,\mathrm{dB}.
+SNR_{2.5\,\mathrm{kHz}}=(E_{b}/N_{o})_{\mathrm{dB}}-29.1\,\mathrm{dB}.
 \]
 
 \end_inset
