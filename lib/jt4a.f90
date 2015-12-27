@@ -2,6 +2,8 @@ subroutine jt4a(dd,jz,nutc,nfqso,ntol0,emedelay,dttol,nagain,ndepth,     &
      nclearave,minsync,minw,nsubmode,mycall,hiscall,hisgrid,nlist0,listutc0)
 
   use jt4
+  use timer_module, only: timer
+
   integer listutc0(10)
   real*4 dd(jz)
   real*4 dat(30*12000)

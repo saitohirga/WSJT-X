@@ -4,6 +4,8 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
 
 ! Apply AFC corrections to a candidate JT65 signal, then decode it.
 
+  use timer_module, only: timer
+
   parameter (NMAX=60*12000)          !Samples per 60 s
   real*4  dd(NMAX)                   !92 MB: raw data from Linrad timf2
   complex cx(NMAX/8)                 !Data at 1378.125 samples/s

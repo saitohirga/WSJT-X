@@ -8,6 +8,8 @@ subroutine wsjt4(dat,npts,nutc,NClearAve,minsync,ntol,emedelay,dttol,    &
 ! range -- analogous to the nqd=1 step in JT9 and JT65.
 
   use jt4
+  use timer_module, only: timer
+
   real dat(npts)                                     !Raw data
   real z(458,65)
   logical first,prtavg

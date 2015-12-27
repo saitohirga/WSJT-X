@@ -4,6 +4,8 @@ subroutine jt65a(dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
 
 !  Process dd0() data to find and decode JT65 signals.
 
+  use timer_module, only: timer
+
   parameter (NSZ=3413,NZMAX=60*12000)
   parameter (NFFT=1000)
   real dd0(NZMAX)

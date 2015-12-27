@@ -3,6 +3,8 @@ subroutine softsym(id2,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,        &
 
 ! Compute the soft symbols
 
+  use timer_module, only: timer
+
   parameter (NZ2=1512,NZ3=1360)
   complex c2(0:NZ2-1)
   complex c3(0:NZ3-1)

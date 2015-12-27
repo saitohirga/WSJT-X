@@ -3,6 +3,8 @@ subroutine sync4(dat,jz,mode4,minw)
 ! Synchronizes JT4 data, finding the best-fit DT and DF.  
 
   use jt4
+  use timer_module, only: timer
+
   parameter (NFFTMAX=2520)         !Max length of FFTs
   parameter (NHMAX=NFFTMAX/2)      !Max length of power spectra
   parameter (NSMAX=525)            !Max number of half-symbol steps

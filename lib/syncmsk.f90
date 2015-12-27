@@ -5,6 +5,8 @@ subroutine syncmsk(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
   use iso_c_binding, only: c_loc,c_size_t
   use packjt
   use hashing
+  use timer_module, only: timer
+
   parameter (NSPM=1404,NSAVE=2000)
   complex cdat(npts)                    !Analytic signal
   complex cb(66)                        !Complex waveform for Barker-11 code

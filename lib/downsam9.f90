@@ -5,6 +5,7 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2)
 
   use, intrinsic :: iso_c_binding
   use FFTW3
+  use timer_module, only: timer
 
   include 'constants.f90'
   integer(C_SIZE_T) NMAX1

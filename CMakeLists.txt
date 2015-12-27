@@ -347,6 +347,7 @@ set (wsjt_FSRCS
   lib/interleave9.f90
   lib/inter_wspr.f90
   lib/iscat.f90
+  lib/iso_c_utilities.f90
   lib/jplsubs.f
   lib/jt4.f90
   lib/jt4a.f90
@@ -393,7 +394,9 @@ set (wsjt_FSRCS
   lib/sync9f.f90
   lib/synciscat.f90
   lib/syncmsk.f90
-  lib/timer.f90
+  lib/timer_C_wrapper.f90
+  lib/timer_impl.f90
+  lib/timer_module.f90
   lib/timf2.f90
   lib/tweak1.f90
   lib/twkfreq.f90

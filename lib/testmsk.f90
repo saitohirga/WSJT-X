@@ -1,5 +1,7 @@
 program testmsk
 
+  use timer_module, only: timer
+
   parameter (NMAX=359424)
   integer*2 id2(NMAX)
   integer narg(0:11)
@@ -22,6 +24,7 @@ program testmsk
   ttotal=0.
   ndecodes=0
 
+  call init_timer()
   call timer('testmsk ',0)
   do ifile=1,nfiles
      call getarg(ifile,infile)

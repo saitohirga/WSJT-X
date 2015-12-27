@@ -1,6 +1,8 @@
 subroutine decjt9(ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
      nzhsym,nagain,ndepth,nmode)
 
+  use timer_module, only: timer
+
   include 'constants.f90'
   real ss(184,NSMAX)
   character*22 msg
