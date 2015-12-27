@@ -122,7 +122,23 @@ Introduction and Motivation
 \end_layout
 
 \begin_layout Standard
-To be written...
+The following paragraph may not belong here - feel free to get rid of it,
+ change it, whatever.
+\end_layout
+
+\begin_layout Standard
+The Franke-Taylor (FT) decoder described herein is a probabilistic list-decoder
+ that has been optimized for use in the short block-length, low-rate Reed-Solomo
+n code used in JT65.
+ The particular approach that we have developed has a number of desirable
+ properties, not the least of which is its conceptual simplicity.
+ The decoding performance and complexity scale in a useful way, providing
+ steadily increasing soft-decision decoding gain as a tunable computational
+ complexity parameter is increased over more than 5 orders of magnitude.
+ The fact that the algorithm requires a large number of independent decoding
+ trials should also make it possible to obtain significant performance gains
+ through parallelization.
+ 
 \end_layout
 
 \begin_layout Section
@@ -341,18 +357,52 @@ Statistical Framework
 \begin_layout Standard
 The FT algorithm uses the estimated quality of received symbols to generate
  lists of symbols considered likely to be in error, thus enabling decoding
- of received words with more than 25 errors.
- 
+ of received words with more than 25 errors using the errors-and-erasures
+ capability of the BM decoder.
+ Algorithms of this type are generally called 
+\begin_inset Quotes eld
+\end_inset
+
+reliability based
+\begin_inset Quotes erd
+\end_inset
+
+ or 
+\begin_inset Quotes eld
+\end_inset
+
+probabilistic
+\begin_inset Quotes erd
+\end_inset
+
+ decoding methods 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "key-1"
+
+\end_inset
+
+.
+ These algorithms generally involve some amount of educating guessing about
+ which received symbols are in error.
+ The guesses are informed by quality metrics, also known as 
+\begin_inset Quotes eld
+\end_inset
+
+soft-symbol
+\begin_inset Quotes erd
+\end_inset
+
+ metrics, associated with the received symbols.
+ To illustrate why it is absolutely essential to use such soft-symbol informatio
+n to identify symbols that are most likely to be in error it helps to consider
+ what would happen if we tried to use completely random guesses, ignoring
+ any available soft-symbol information.
 \end_layout
 
 \begin_layout Standard
-(SF: provide brief overview of literature survey and discuss the inspiration
- for the FT approach).
-\end_layout
-
-\begin_layout Standard
-As a specific example, consider a received JT65 word with 23 correct symbols
- and 40 errors.
+As a specific example, we will consider a received JT65 word with 23 correct
+ symbols and 40 errors.
  We do not know which symbols are in error.
  Suppose that the decoder randomly selects 
 \begin_inset Formula $s=40$
@@ -398,7 +448,7 @@ tric probability distribution.
 \end_inset
 
  as the number of errors in the symbols actually erased.
- In an ensemble of many received words, 
+ In an ensemble of many received words 
 \begin_inset Formula $X$
 \end_inset
 
@@ -406,7 +456,15 @@ tric probability distribution.
 \begin_inset Formula $x$
 \end_inset
 
- will be random variables.
+ will be random variables but for this example we will assume that 
+\begin_inset Formula $X$
+\end_inset
+
+ is known and that only 
+\begin_inset Formula $x$
+\end_inset
+
+ is random.
  The conditional probability mass function for 
 \begin_inset Formula $x$
 \end_inset
@@ -1081,6 +1139,17 @@ Make independent stochastic decisions about whether to erase each symbol
 Attempt errors-and-erasures decoding by using the BM algorithm and the set
  of erasures determined in step 2.
  If the BM decoder produces a candidate codeword, go to step 5.
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Our implementation of the FT-algorithm is based on the excellent open-source
+ BM decoder written by Phil Karn, KA9Q.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Enumerate
@@ -1133,7 +1202,63 @@ An acceptable codeword with
 \end_inset
 
  has been found.
- Declare a successful decode and return this codeword .
+ Declare a successful decode and return this codeword.
+\end_layout
+
+\begin_layout Standard
+The inspiration for the FT decoding algorithm came from a number of sources,
+ particularly references 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "key-2"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "key-3"
+
+\end_inset
+
+ and the textbook by Lin and Costello 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "key-1"
+
+\end_inset
+
+.
+ After developing this algorithm, we became aware that our approach is conceptua
+lly similar to a 
+\begin_inset Quotes eld
+\end_inset
+
+stochastic erasures-only list decoding algorithm
+\begin_inset Quotes erd
+\end_inset
+
+, described in reference 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "key-4"
+
+\end_inset
+
+.
+ The algorithm in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "key-4"
+
+\end_inset
+
+ is applied to higher-rate Reed-Solomon codes on a binary-input channel
+ over which BPSK-modulated symbols are transmitted.
+ Our 64-ary input channel with 64-FSK modulation required us to develop
+ our own unique methods for assigning erasure probabilities and for defining
+ an acceptance criteria to select the best codeword from the list of candidates.
+ 
 \end_layout
 
 \begin_layout Section
@@ -1650,7 +1775,20 @@ Summary
 \begin_layout Bibliography
 \begin_inset CommandInset bibitem
 LatexCommand bibitem
+label "1"
 key "key-1"
+
+\end_inset
+
+Error Control Coding, 2nd edition, Shu Lin and Daniel J.
+ Costello, Pearson-Prentice Hall, 2004.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label "2"
+key "key-2"
 
 \end_inset
 
@@ -1664,7 +1802,8 @@ key "key-1"
 \begin_layout Bibliography
 \begin_inset CommandInset bibitem
 LatexCommand bibitem
-key "key-2"
+label "3"
+key "key-3"
 
 \end_inset
 
@@ -1686,7 +1825,8 @@ GLOBECOM
 \begin_layout Bibliography
 \begin_inset CommandInset bibitem
 LatexCommand bibitem
-key "key-3"
+label "4"
+key "key-4"
 
 \end_inset
 
@@ -1707,7 +1847,8 @@ Stochastic Erasure-Only List Decoding Algorithms for Reed-Solomon Codes,
 \begin_layout Bibliography
 \begin_inset CommandInset bibitem
 LatexCommand bibitem
-key "key-4"
+label "5"
+key "key-5"
 
 \end_inset
 
@@ -1723,7 +1864,8 @@ key "key-4"
 \begin_layout Bibliography
 \begin_inset CommandInset bibitem
 LatexCommand bibitem
-key "key-5"
+label "6"
+key "key-6"
 
 \end_inset
 
