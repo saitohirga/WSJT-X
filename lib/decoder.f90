@@ -1,18 +1,17 @@
 subroutine decoder(ss,id2,params,nfsample)
 
-  use prog_args
   !$ use omp_lib
+  use prog_args
+  use timer_module, only: timer
 
   include 'jt9com.f90'
+  include 'timer_common.inc'
+
   real ss(184,NSMAX)
   logical baddata
   integer*2 id2(NTMAX*12000)
   type(params_block) :: params
   real*4 dd(NTMAX*12000)
-  common/tracer/limtrace,lu
-  integer onlevel(0:10)
-  common/tracer_priv/level,onlevel
-!$omp threadprivate(/tracer_priv/)
   save
 
   if(mod(params%nranera,2).eq.0) ntrials=10**(params%nranera/2)
@@ -57,7 +56,7 @@ subroutine decoder(ss,id2,params,nfsample)
   newdat9=params%newdat
 
 !$ call omp_set_dynamic(.true.)
-!$omp parallel sections num_threads(2) copyin(/tracer_priv/) shared(ndecoded) if(.true.) !iif() needed on Mac
+!$omp parallel sections num_threads(2) copyin(/timer_private/) shared(ndecoded) if(.true.) !iif() needed on Mac
 
 !$omp section
   if(params%nmode.eq.65 .or. (params%nmode.eq.(65+9) .and. params%ntxmode.eq.65)) then

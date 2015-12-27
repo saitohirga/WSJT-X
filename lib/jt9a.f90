@@ -1,6 +1,8 @@
 subroutine jt9a()
   use, intrinsic :: iso_c_binding, only: c_f_pointer
   use prog_args
+  use timer_module, only: timer
+  use timer_impl, only: init_timer !, limtrace
 
   include 'jt9com.f90'
 
@@ -15,24 +17,19 @@ subroutine jt9a()
   integer*1 attach_jt9
 !  integer*1 lock_jt9,unlock_jt9
   integer size_jt9
-  character*80 cwd
 ! Multiple instances:
   character*80 mykey
   type(dec_data), pointer :: shared_data
   type(params_block) :: local_params
   logical fileExists
-  common/tracer/limtrace,lu
 
 ! Multiple instances:
   i0 = len(trim(shm_key))
 
-  call getcwd(cwd)
-  open(12,file=trim(data_dir)//'/timer.out',status='unknown')
+  call init_timer (trim(data_dir)//'/timer.out')
 !  open(23,file=trim(data_dir)//'/CALL3.TXT',status='unknown')
 
-  limtrace=0
 !  limtrace=-1                            !Disable all calls to timer()
-  lu=12
 
 ! Multiple instances: set the shared memory key before attaching
   mykey=trim(repeat(shm_key,1))

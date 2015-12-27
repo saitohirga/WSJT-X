@@ -7,6 +7,8 @@ program jt9
   use prog_args
   use, intrinsic :: iso_c_binding
   use FFTW3
+  use timer_module, only: timer
+  use timer_impl, only: init_timer, fini_timer
 
   include 'jt9com.f90'
 
@@ -61,7 +63,6 @@ program jt9
   type(dec_data), allocatable :: shared_data
   character(len=12) :: mycall, hiscall
   character(len=6) :: mygrid, hisgrid
-  common/tracer/limtrace,lu
   common/patience/npatience,nthreads
   common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
   data npatience/1/,nthreads/1/
@@ -161,8 +162,6 @@ program jt9
   endif
 
   allocate(shared_data)
-  limtrace=0              !We're running jt9 in stand-alone mode
-  lu=12
   nflatten=0
 
   do iarg = offset + 1, offset + remain
@@ -205,7 +204,7 @@ program jt9
      nhsym0=-999
      npts=(60*ntrperiod-6)*12000
      if(iarg .eq. offset + 1) then
-        open(12,file=trim(data_dir)//'/timer.out',status='unknown')
+        call init_timer (trim(data_dir)//'/timer.out')
         call timer('jt9     ',0)
      endif
 
@@ -288,7 +287,9 @@ program jt9
   print*,infile
 
 999 continue
-! Output decoder statistics
+  ! Output decoder statistics
+  call fini_timer ()
+  open (unit=12, file=trim(data_dir)//'/timer.out', status='unknown', position='append')
   write(12,1100) n65a,ntry65a,n65b,ntry65b,numfano,num9
 1100 format(58('-')/'   JT65_1  Tries_1  JT65_2 Tries_2    JT9   Tries'/  &
             58('-')/6i8)

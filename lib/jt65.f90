@@ -3,6 +3,9 @@ program jt65
 ! Test the JT65 decoder for WSJT-X
 
   use options
+  use timer_module, only: timer
+  use timer_impl, only: init_timer
+
   character c
   logical :: display_help=.false.
   parameter (NZMAX=60*12000)
@@ -13,7 +16,6 @@ program jt65
   character(len=500) optarg
   character*12 mycall,hiscall
   character*6 hisgrid
-  common/tracer/limtrace,lu
   equivalence (lenfile,ihdr(2))
   type (option) :: long_options(9) = [ &
     option ('freq',.true.,'f','signal frequency, default FREQ=1270','FREQ'),         &
@@ -27,8 +29,6 @@ program jt65
             ,'experience decoding options (1..n), default FLAGS=0','FLAGS'),         &
     option ('single-signal-mode',.false.,'s','decode at signal frequency only','') ]
 
-limtrace=0
-lu=12
 ntol=10
 nfqso=1270
 nagain=0
@@ -84,7 +84,7 @@ naggressive=1
      go to 999
   endif
 
-  open(12,file='timer.out',status='unknown')
+  call init_timer()
   call timer('jt65    ',0)
 
   ndecoded=0

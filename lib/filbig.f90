@@ -5,6 +5,7 @@ subroutine filbig(dd,npts,f0,newdat,c4a,n4,sq0)
 
   use, intrinsic :: iso_c_binding
   use FFTW3
+  use timer_module, only: timer
 
   parameter (NSZ=3413)
   parameter (NFFT1=672000,NFFT2=77175)

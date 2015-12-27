@@ -8,6 +8,8 @@ subroutine subtract65(dd,npts,f0,dt)
 ! Subtract         : dd(t)    = dd(t) - 2*REAL{cref*cfilt}
 
   use packjt
+  use timer_module, only: timer
+
   integer correct(63)
   parameter (NMAX=60*12000) !Samples per 60 s
   parameter (NFILT=1600)

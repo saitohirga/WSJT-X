@@ -18,6 +18,7 @@ subroutine symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,   &
 !  ss()      JT9 symbol spectra at half-symbol steps
 !  savg()    average spectra for waterfall display
 
+  use, intrinsic :: iso_c_binding, only: c_int, c_short, c_float, c_char
   include 'jt9com.f90'
 
   type(dec_data) :: shared_data

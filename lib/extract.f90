@@ -15,6 +15,7 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,mycall_12,    &
 
   use prog_args                       !shm_key, exe_dir, data_dir
   use packjt
+  use timer_module, only: timer
 
   real s3(64,63)
   character decoded*22
