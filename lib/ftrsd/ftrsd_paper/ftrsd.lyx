@@ -127,18 +127,27 @@ The following paragraph may not belong here - feel free to get rid of it,
 \end_layout
 
 \begin_layout Standard
-The Franke-Taylor (FT) decoder described herein is a probabilistic list-decoder
- that has been optimized for use in the short block-length, low-rate Reed-Solomo
-n code used in JT65.
- The particular approach that we have developed has a number of desirable
+The Franke-Taylor (FT) decoder is a probabilistic list-decoder that we have
+ developed for use in the short block-length, low-rate Reed-Solomon code
+ used in JT65.
+ JT65 provides a unique sandbox for playing with decoding algorithms.
+ Several seconds are available for decoding a single 63-symbol message.
+ This is a long time! The luxury of essentially unlimited time allows us
+ to experiment with decoders that have high computational complexity.
+ The payoff is that we can extend the decoding threshold by many dB over
+ the hard-decision, Berlekamp-Massey decoder on a typical fading channel,
+ and by a meaningful amount over the KV decoder, long considered to be the
+ best available soft-decision decoder.
+ In addition to its excellent performance, the FT algorithm has other desirable
  properties, not the least of which is its conceptual simplicity.
- The decoding performance and complexity scale in a useful way, providing
- steadily increasing soft-decision decoding gain as a tunable computational
- complexity parameter is increased over more than 5 orders of magnitude.
- The fact that the algorithm requires a large number of independent decoding
- trials should also make it possible to obtain significant performance gains
- through parallelization.
- 
+ Decoding performance and complexity scale in a useful way, providing steadily
+ increasing soft-decision decoding gain as a tunable computational complexity
+ parameter is increased over more than 5 orders of magnitude.
+ This means that appreciable gain should be available from our decoder even
+ on very simple (and slow) computers.
+ On the other hand, because the algorithm requires a large number of independent
+ decoding trials, it should be possible to obtain significant performance
+ gains through parallelization on high-performance computers.
 \end_layout
 
 \begin_layout Section
@@ -378,14 +387,16 @@ probabilistic
  decoding methods 
 \begin_inset CommandInset citation
 LatexCommand cite
+after "Chapter 10"
 key "key-1"
 
 \end_inset
 
 .
- These algorithms generally involve some amount of educating guessing about
- which received symbols are in error.
- The guesses are informed by quality metrics, also known as 
+ Such algorithms involve some amount of educating guessing about which received
+ symbols are in error or, alternatively, about which received symbols are
+ correct.
+ The guesses are informed by 
 \begin_inset Quotes eld
 \end_inset
 
@@ -393,11 +404,11 @@ soft-symbol
 \begin_inset Quotes erd
 \end_inset
 
- metrics, associated with the received symbols.
+ quality metrics associated with the received symbols.
  To illustrate why it is absolutely essential to use such soft-symbol informatio
-n to identify symbols that are most likely to be in error it helps to consider
- what would happen if we tried to use completely random guesses, ignoring
- any available soft-symbol information.
+n in these algorithms it helps to consider what would happen if we tried
+ to use completely random guesses, ignoring any available soft-symbol informatio
+n.
 \end_layout
 
 \begin_layout Standard
@@ -997,11 +1008,11 @@ The correct JT65 codeword produces a value for
 
  bins containing both signal and noise power.
  Incorrect codewords have at most 
-\begin_inset Formula $k=12$
+\begin_inset Formula $k-1=11$
 \end_inset
 
  such bins and at least 
-\begin_inset Formula $n-k=51$
+\begin_inset Formula $n-k+1=52$
 \end_inset
 
  bins containing noise only.
@@ -1033,7 +1044,7 @@ d-deviation uncertainty range assumes Gaussian statistics.
 \begin_layout Standard
 \begin_inset Formula 
 \[
-u=\frac{n-k\pm\sqrt{n-k}}{n}+\frac{k\pm\sqrt{k}}{n}(1+y).
+u=\frac{n-k+1\pm\sqrt{n-k+1}}{n}+\frac{k-1\pm\sqrt{k-1}}{n}(1+y).
 \]
 
 \end_inset
@@ -1044,7 +1055,7 @@ For JT65 this expression evaluates to
 \begin_layout Standard
 \begin_inset Formula 
 \[
-u\approx1\pm0.13+(0.19\pm0.06)\, y.
+u\approx1\pm0.11+(0.17\pm0.05)\, y.
 \]
 
 \end_inset
@@ -1068,7 +1079,7 @@ As a specific example, consider signal strength
 \end_inset
 
 0.6, while incorrect codewords will give 
-\begin_inset Formula $u\approx2.0\pm0.3$
+\begin_inset Formula $u\approx1.7\pm0.3$
 \end_inset
 
  or less.

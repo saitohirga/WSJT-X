@@ -1,19 +1,17 @@
-# gnuplot script for AWGN vs Rayleigh figure
+# gnuplot script for "Percent copy" figure
+# run: gnuplot fig_wer3.gnuplot
+# then: pdflatex fig_wer3.tex
 #
-set term epslatex standalone size 16cm,8cm
+set term epslatex standalone size 6in,6*2/3in
 set output "fig_wer3.tex"
-set xlabel "$E_s/N_o$ (dB)"
-set ylabel "WER"
+set xlabel "SNR in 2500 Hz Bandwidth (dB)"
+set ylabel "Percent Copy"
 set style func linespoints
-set key on top outside nobox
+set key off
 set tics in
 set mxtics 2
 set mytics 10 
 set grid
-set logscale y
-#set format y "10^{%L}"
-plot "ftdata-1000-rf.dat" using ($1+29.7):(1-$2) every ::1 with linespoints pt 7 title "FT-1K-RF", \
-"ftdata-10000-rf.dat" using ($1+29.7):(1-$2) every ::1 with linespoints pt 7 title "FT-10K-RF", \
-"bmdata-rf.dat" using ($1+29.7):(1-$2) every ::1 with linespoints pt 5 title 'BM-RF', \
-"ftdata-10000.dat" using ($1+29.7):(1-$2) every ::1 with linespoints pt 7 title 'FT-10K-AWGN', \
-"bmdata.dat" using ($1+29.7):(1-$2) with linespoints pt 5 title 'BM-AWGN'
+plot [-27:-22] [0:110] \
+     "ftdata-100000.dat" using 1:(100*$3) with linespoints lt 1 pt 7 title 'FT-100K', \
+     "ftdata-100000.dat" using 1:(100*$2) with linespoints lt 1 pt 7 title 'FT-100K'
