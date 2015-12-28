@@ -1515,22 +1515,22 @@ reference "fig:bodide"
 \end_inset
 
  in this format along with additional FT results for 
-\begin_inset Formula $T=10^{4},10^{3},$
+\begin_inset Formula $T=10^{4},10^{3},10^{2}$
 \end_inset
 
  and 
-\begin_inset Formula $10^{2}$
+\begin_inset Formula $10^{1}$
 \end_inset
 
 .
  The KV results are plotted with open triangles.
- It is apparent that the FT algorithm produces more decodes than KV when
- 
+ It is apparent that the FT decoder produces more decodes than KV when 
 \begin_inset Formula $T=10^{4}$
 \end_inset
 
  or larger.
- 
+ It also provides a very significant gain over the hard-decision BM decoder
+ even when limited to at most 10 trials.
 \end_layout
 
 \begin_layout Standard
@@ -1563,11 +1563,11 @@ name "fig:WER2"
 Percent of JT65 messages copied as a function of SNR in 2.5 kHz bandwidth.
  Solid lines with filled round circles are results from the FT decoder with
  
-\begin_inset Formula $T=10^{5},10^{4},10^{3},$
+\begin_inset Formula $T=10^{5},10^{4},10^{3},10^{2}$
 \end_inset
 
  and 
-\begin_inset Formula $10^{2}$
+\begin_inset Formula $10$
 \end_inset
 
 , respectively, from left to right.

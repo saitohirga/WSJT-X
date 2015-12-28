@@ -17,6 +17,7 @@ plot [-27:-22] [0:110] \
      "ftdata-10000.dat" using 1:(100*$2) with linespoints lt 1 pt 7 title 'FT-10K', \
      "ftdata-1000.dat" using 1:(100*$2) with linespoints lt 1 pt 7 title 'FT-1K', \
      "ftdata-100.dat" using 1:(100*$2) with linespoints lt 1 pt 7 title 'FT-100', \
+     "ftdata-10.dat" using 1:(100*$2) with linespoints lt 1 pt 7 title 'FT-10', \
      "kvasd-15.dat" using 1:(100*$2) with linespoints lt 2 pt 8 title 'KV-15', \
      "bmdata.dat" using 1:(100*$2) with linespoints pt 11 title 'BM', \
      "wer2.lab" with labels
