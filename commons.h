@@ -6,7 +6,10 @@
 #define RX_SAMPLE_RATE 12000
 
 #ifdef __cplusplus
+#include <cstdbool>
 extern "C" {
+#else
+#include <stdbool.h>
 #endif
 
   /*
@@ -20,10 +23,10 @@ extern struct dec_data {
   struct
   {
     int nutc;                   //UTC as integer, HHMM
-    int ndiskdat;               //1 ==> data read from *.wav file
+    bool ndiskdat;              //true ==> data read from *.wav file
     int ntrperiod;              //TR period (seconds)
     int nfqso;                  //User-selected QSO freq (kHz)
-    int newdat;                 //1 ==> new data, must do long FFT
+    bool newdat;                //true ==> new data, must do long FFT
     int npts8;                  //npts for c0() array
     int nfa;                    //Low decode limit (Hz)
     int nfSplit;                //JT65 | JT9 split frequency
@@ -32,7 +35,7 @@ extern struct dec_data {
     int kin;
     int nzhsym;
     int nsubmode;
-    int nagain;
+    bool nagain;
     int ndepth;
     int ntxmode;
     int nmode;
@@ -46,7 +49,7 @@ extern struct dec_data {
     int n2pass;
     int nranera;
     int naggressive;
-    int nrobust;
+    bool nrobust;
     int nexp_decode;
     char datetime[20];
     char mycall[12];
