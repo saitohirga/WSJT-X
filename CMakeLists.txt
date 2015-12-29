@@ -289,7 +289,6 @@ set (wsjt_FSRCS
   lib/decode65a.f90
   lib/decode65b.f90
   lib/decoder.f90
-  lib/decjt9.f90
   lib/deep4.f90
   lib/deg2grid.f90
   lib/degrade_snr.f90
@@ -350,8 +349,10 @@ set (wsjt_FSRCS
   lib/iso_c_utilities.f90
   lib/jplsubs.f
   lib/jt4.f90
+  lib/jt4_decode.f90
   lib/jt4a.f90
-  lib/jt65a.f90
+  lib/jt65_decode.f90
+  lib/jt9_decode.f90
   lib/jt9fano.f90
   lib/jtmsk.f90
   lib/libration.f90
@@ -404,7 +405,6 @@ set (wsjt_FSRCS
   lib/wav11.f90
   lib/wav12.f90
   lib/wavhdr.f90
-  lib/wsjt4.f90
   lib/xcor.f90
   lib/xcor4.f90
   lib/zplt.f90
