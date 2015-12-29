@@ -61,7 +61,7 @@ subroutine jt9a()
   local_params=shared_data%params !save a copy because wsjtx carries on accessing
   call flush(6)
   call timer('decoder ',0)
-  call decoder(shared_data%ss,shared_data%id2,local_params,12000)
+  call multimode_decoder(shared_data%ss,shared_data%id2,local_params,12000)
   call timer('decoder ',1)
 
 100 inquire(file=trim(temp_dir)//'/.lock',exist=fileExists)

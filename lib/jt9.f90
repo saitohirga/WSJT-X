@@ -21,7 +21,7 @@ program jt9
   integer :: arglen,stat,offset,remain,mode=0,flow=200,fsplit=2700,          &
        fhigh=4000,nrxfreq=1500,ntrperiod=1,ndepth=60001,nexp_decode=0
   logical :: read_files = .true., tx9 = .false., display_help = .false.
-  type (option) :: long_options(22) = [ &
+  type (option) :: long_options(23) = [ &
     option ('help', .false., 'h', 'Display this help message', ''),          &
     option ('shmem',.true.,'s','Use shared memory for sample data','KEY'),   &
     option ('tr-period', .true., 'p', 'Tx/Rx period, default MINUTES=1',     &
@@ -49,6 +49,7 @@ program jt9
     option ('jt65', .false., '6', 'JT65 mode', ''),                          &
     option ('jt9', .false., '9', 'JT9 mode', ''),                            &
     option ('jt4', .false., '4', 'JT4 mode', ''),                            &
+    option ('sub-mode', .true., 'b', 'Sub mode, default SUBMODE=A', 'A'),    &
     option ('depth', .true., 'd',                                            &
         'JT9 decoding depth (1-3), default DEPTH=1', 'DEPTH'),               &
     option ('tx-jt9', .false., 'T', 'Tx mode is JT9', ''),                   &
@@ -67,8 +68,10 @@ program jt9
   common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
   data npatience/1/,nthreads/1/
 
+  nsubmode = 0
+
   do
-     call getopt('hs:e:a:r:m:p:d:f:w:t:964TL:S:H:c:G:x:g:X:',long_options,c,   &
+     call getopt('hs:e:a:b:r:m:p:d:f:w:t:964TL:S:H:c:G:x:g:X:',long_options,c,   &
           optarg,arglen,stat,offset,remain,.true.)
      if (stat .ne. 0) then
         exit
@@ -83,6 +86,8 @@ program jt9
            exe_dir = optarg(:arglen)
         case ('a')
            data_dir = optarg(:arglen)
+        case ('b')
+           nsubmode = ichar (optarg(:1)) - ichar ('A')
         case ('t')
            temp_dir = optarg(:arglen)
         case ('m')
@@ -236,10 +241,10 @@ program jt9
      enddo
      close(10)
      shared_data%params%nutc=nutc
-     shared_data%params%ndiskdat=1
+     shared_data%params%ndiskdat=.true.
      shared_data%params%ntr=60
      shared_data%params%nfqso=nrxfreq
-     shared_data%params%newdat=1
+     shared_data%params%newdat=.true.
      shared_data%params%npts8=74736
      shared_data%params%nfa=flow
      shared_data%params%nfsplit=fsplit
@@ -250,12 +255,11 @@ program jt9
      shared_data%params%ndepth=ndepth
      shared_data%params%dttol=3.
      shared_data%params%minsync=-1      !### TEST ONLY
-     shared_data%params%nfqso=1500      !### TEST ONLY
-     mycall="K1ABC       "  !### TEST ONLY
+     !mycall="K1ABC       "  !### TEST ONLY
      shared_data%params%naggressive=10
      shared_data%params%n2pass=1
      shared_data%params%nranera=8  ! ntrials=10000
-     shared_data%params%nrobust=0
+     shared_data%params%nrobust=.false.
      shared_data%params%nexp_decode=nexp_decode
      shared_data%params%mycall=mycall
      shared_data%params%mygrid=mygrid
@@ -274,9 +278,10 @@ program jt9
      else
         shared_data%params%nmode=mode
      end if
+     shared_data%params%nsubmode=nsubmode
      shared_data%params%datetime="2013-Apr-16 15:13" !### Temp
      if(mode.eq.9 .and. fsplit.ne.2700) shared_data%params%nfa=fsplit
-     call decoder(shared_data%ss,shared_data%id2,shared_data%params,nfsample)
+     call multimode_decoder(shared_data%ss,shared_data%id2,shared_data%params,nfsample)
   enddo
 
   call timer('jt9     ',1)
@@ -300,5 +305,4 @@ program jt9
   call filbig(a,-1,1,0.0,0,0,0,0,0)        !used for FFT plans
   call fftwf_cleanup_threads()
   call fftwf_cleanup()
-
 end program jt9

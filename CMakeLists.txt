@@ -275,7 +275,6 @@ set (wsjt_FSRCS
   lib/astrosub.f90
   lib/astro0.f90
   lib/avecho.f90
-  lib/avg4.f90
   lib/azdist.f90
   lib/baddata.f90
   lib/ccf2.f90
@@ -350,7 +349,6 @@ set (wsjt_FSRCS
   lib/jplsubs.f
   lib/jt4.f90
   lib/jt4_decode.f90
-  lib/jt4a.f90
   lib/jt65_decode.f90
   lib/jt9_decode.f90
   lib/jt9fano.f90
@@ -942,7 +940,7 @@ add_executable (wsprsim ${wsprsim_CSRCS})
 add_executable (jt4code lib/jt4code.f90 wsjtx.rc)
 target_link_libraries (jt4code wsjt_fort wsjt_cxx)
 
-add_executable (jt65 lib/jt65.f90 ${jt65_CXXSRCS} wsjtx.rc)
+add_executable (jt65 lib/jt65.f90 lib/jt65_test.f90 wsjtx.rc)
 target_link_libraries (jt65 wsjt_fort wsjt_cxx ${FFTW3_LIBRARIES})
 
 add_executable (jt9 lib/jt9.f90 lib/jt9a.f90 ${jt9_CXXSRCS} wsjtx.rc)

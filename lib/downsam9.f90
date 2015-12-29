@@ -13,6 +13,7 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2)
   parameter (NFFT1=653184,NFFT2=1512)
   type(C_PTR) :: plan                        !Pointers plan for big FFT
   integer*2 id2(0:8*npts8-1)
+  logical, intent(inout) :: newdat
   real*4, pointer :: x1(:)
   complex c1(0:NFFT1/2)
   complex c2(0:NFFT2-1)
@@ -46,7 +47,7 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2)
      first=.false.
   endif
 
-  if(newdat.eq.1) then
+  if(newdat) then
      x1(0:npts-1)=id2(0:npts-1)
      x1(npts:NFFT1-1)=0.                      !Zero the rest of x1
      call timer('FFTbig9 ',0)
@@ -62,7 +63,7 @@ subroutine downsam9(id2,npts8,nsps8,newdat,nspsd,fpk,c2)
            s(i)=s(i)+real(c1(j))**2 + aimag(c1(j))**2
         enddo
      enddo
-     newdat=0
+     newdat=.false.
   endif
 
   ndown=8*nsps8/nspsd                      !Downsample factor = 432

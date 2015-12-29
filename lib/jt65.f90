@@ -1,14 +1,14 @@
 program jt65
 
-! Test the JT65 decoder for WSJT-X
+  ! Test the JT65 decoder for WSJT-X
 
   use options
   use timer_module, only: timer
   use timer_impl, only: init_timer
+  use jt65_test
 
   character c
-  logical :: display_help=.false.
-  parameter (NZMAX=60*12000)
+  logical :: display_help=.false.,nrobust=.false.
   integer*4 ihdr(11)
   integer*2 id2(NZMAX)
   real*4 dd(NZMAX)
@@ -18,56 +18,54 @@ program jt65
   character*6 hisgrid
   equivalence (lenfile,ihdr(2))
   type (option) :: long_options(9) = [ &
-    option ('freq',.true.,'f','signal frequency, default FREQ=1270','FREQ'),         &
-    option ('help',.false.,'h','Display this help message',''),                      &
-    option ('ntrials',.true.,'n','number of trials, default TRIALS=10000','TRIALS'), &
-    option ('robust-sync',.false.,'r','robust sync',''),                             &
-    option ('my-call',.true.,'c','my callsign',''),                                  &
-    option ('his-call',.true.,'x','his callsign',''),                                &
-    option ('his-grid',.true.,'g','his grid locator',''),                            &
-    option ('experience-decoding',.true.,'X'                                         &
-            ,'experience decoding options (1..n), default FLAGS=0','FLAGS'),         &
-    option ('single-signal-mode',.false.,'s','decode at signal frequency only','') ]
+       option ('freq',.true.,'f','signal frequency, default FREQ=1270','FREQ'),         &
+       option ('help',.false.,'h','Display this help message',''),                      &
+       option ('ntrials',.true.,'n','number of trials, default TRIALS=10000','TRIALS'), &
+       option ('robust-sync',.false.,'r','robust sync',''),                             &
+       option ('my-call',.true.,'c','my callsign',''),                                  &
+       option ('his-call',.true.,'x','his callsign',''),                                &
+       option ('his-grid',.true.,'g','his grid locator',''),                            &
+       option ('experience-decoding',.true.,'X'                                         &
+               ,'experience decoding options (1..n), default FLAGS=0','FLAGS'),         &
+       option ('single-signal-mode',.false.,'s','decode at signal frequency only','') ]
 
-ntol=10
-nfqso=1270
-nagain=0
-nsubmode=0
-ntrials=10000
-nlow=200
-nhigh=4000
-n2pass=2
-nrobust=0
-nexp_decoded=0
-naggressive=1
+  ntol=10
+  nfqso=1270
+  nsubmode=0
+  ntrials=10000
+  nlow=200
+  nhigh=4000
+  n2pass=2
+  nexp_decoded=0
+  naggressive=0
 
   do
-    call getopt('f:hn:rc:x:g:X:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
-    if( nstat .ne. 0 ) then
-      exit
-    end if
-    select case (c)
-      case ('f')
+     call getopt('f:hn:rc:x:g:X:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+     if( nstat .ne. 0 ) then
+        exit
+     end if
+     select case (c)
+     case ('f')
         read (optarg(:narglen), *) nfqso
-      case ('h')
+     case ('h')
         display_help = .true.
-      case ('n')
+     case ('n')
         read (optarg(:narglen), *) ntrials
-      case ('r')
-        nrobust=1
-      case ('c')
+     case ('r')
+        nrobust=.true.
+     case ('c')
         read (optarg(:narglen), *) mycall
-      case ('x')
+     case ('x')
         read (optarg(:narglen), *) hiscall
-      case ('g')
+     case ('g')
         read (optarg(:narglen), *) hisgrid
-      case ('X')
+     case ('X')
         read (optarg(:narglen), *) nexp_decoded
-      case ('s')
+     case ('s')
         nlow=nfqso-ntol
         nhigh=nfqso+ntol
         n2pass=1
-    end select
+     end select
   end do
 
   if(display_help .or. nstat.lt.0 .or. nremain.lt.1) then
@@ -79,17 +77,16 @@ naggressive=1
      print *, 'OPTIONS:'
      print *, ''
      do i = 1, size (long_options)
-       call long_options(i) % print (6)
+        call long_options(i) % print (6)
      end do
      go to 999
   endif
 
-  call init_timer()
+  call init_timer ('timer.out')
   call timer('jt65    ',0)
 
   ndecoded=0
   do ifile=noffset+1,noffset+nremain
-     newdat=1
      nfa=nlow
      nfb=nhigh
      minsync=0
@@ -106,24 +103,23 @@ naggressive=1
      call timer('read    ',1)
      dd(1:npts)=id2(1:npts)
      dd(npts+1:)=0.
-     call timer('jt65a   ',0)
 
-!     open(56,file='subtracted.wav',access='stream',status='unknown')
-!     write(56) ihdr(1:11)
+     !     open(56,file='subtracted.wav',access='stream',status='unknown')
+     !     write(56) ihdr(1:11)
 
-     call jt65a(dd,npts,newdat,nutc,nfa,nfb,nfqso,ntol,nsubmode, &
-                minsync,nagain,n2pass,nrobust,ntrials,naggressive,ndepth, &
-                mycall,hiscall,hisgrid,nexp_decoded,ndecoded)
-     call timer('jt65a   ',1)
+     call test(dd,nutc,nfa,nfb,nfqso,ntol,nsubmode, &
+          n2pass,nrobust,ntrials,naggressive, &
+          mycall,hiscall,hisgrid,nexp_decoded)
   enddo
 
   call timer('jt65    ',1)
   call timer('jt65    ',101)
-!  call four2a(a,-1,1,1,1)                  !Free the memory used for plans
-!  call filbig(a,-1,1,0.0,0,0,0,0,0)        ! (ditto)
+  !  call four2a(a,-1,1,1,1)                  !Free the memory used for plans
+  !  call filbig(a,-1,1,0.0,0,0,0,0,0)        ! (ditto)
   go to 999
 
 998 print*,'Cannot read from file:'
   print*,infile
 
-999 end program jt65
+999 continue
+end program jt65
