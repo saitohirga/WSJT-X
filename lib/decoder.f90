@@ -184,8 +184,10 @@ contains
     integer, intent(in) :: freq
     logical, intent(in) :: flip
 
-    character(len=1) :: cused='.', csync='*'
+    character(len=1) :: cused, csync
 
+    cused = '.'
+    csync = '*'
     if (used) cused = '$'
     if (flip) csync = '$'
     write(14,1000) cused,utc,sync,dt,freq,csync
