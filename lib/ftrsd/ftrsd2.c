@@ -209,9 +209,8 @@ NB: j is the symbol-vector index of the symbol with rank i.
       } else {
 	if(pp>pp2 && pp!=pp1) pp2=pp;
       }
-      //      if(pp2==0.0 && pp1>5.0) break;
-      //      if(pp2>0.0 && pp1>4.4 && pp1>pp2+0.6) break;
-      if(ntotal_min <= 81 && pp2/pp1 <= 0.87) break;
+      //      if(ntotal_min <= 81 && pp2/pp1 <= 0.87) break;
+      if(nhard_min <= 41 && ntotal_min <= 71) break;
     }
     if(k == ntrials) ntry[0]=k;
   }

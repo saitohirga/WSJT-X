@@ -75,10 +75,20 @@ contains
     end type accepted_decode
     type(accepted_decode) dec(50)
     logical :: first_time, robust
+
+    integer h0(0:11),d0(0:11),ne(0:11)
+    real r0(0:11)
     common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
     common/steve/thresh0
     common/test000/ncandidates,nhard_min,nsoft_min,nera_best,nrtt1000,   &
          ntotal_min,ntry,nq1000,npp1         !### TEST ONLY ###
+
+!            0  1  2  3  4  5  6  7  8  9 10 11
+    data h0/41,42,43,43,44,45,46,47,48,48,49,49/
+    data d0/71,72,73,74,76,77,78,80,81,82,83,83/
+
+!             0    1    2    3    4    5    6    7    8    9   10   11
+    data r0/0.70,0.72,0.74,0.76,0.78,0.80,0.82,0.84,0.86,0.88,0.90,0.90/
     save
 
     this%callback => callback
@@ -153,13 +163,20 @@ contains
                naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,   &
                sync2,a,dtx,nft,qual,nhist,decoded)
           call timer('decod65a',1)
+          if(nhard_min.gt.50) cycle
 
-          !### Suppress false decodes in crowded HF bands ###
-          if(naggressive.eq.0 .and. ntrials.le.10000) then
-             if(ntry.eq.ntrials .or. ncandidates.eq.100) then
-                if(nhard_min.ge.42 .or. ntotal_min.ge.71) cycle
-             endif
-          endif
+          n=naggressive
+          rtt=0.001*nrtt1000
+          if(nhard_min.gt.h0(n)) cycle
+          if(ntotal_min.gt.d0(n)) cycle
+          if(rtt.gt.r0(n)) cycle
+
+!          !### Suppress false decodes in crowded HF bands ###
+!          if(naggressive.eq.0 .and. ntrials.le.10000) then
+!             if(ntry.eq.ntrials) then
+!                if(nhard_min.ge.42 .or. ntotal_min.ge.71) cycle
+!             endif
+!          endif
 
           if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
                minsync.ge.0) cycle                  !Don't display dupes
