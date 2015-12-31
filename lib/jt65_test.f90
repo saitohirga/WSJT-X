@@ -34,7 +34,7 @@ contains
   end subroutine test
 
   subroutine my_callback (this, utc, sync, snr, dt, freq, drift, decoded   &
-       , ft, qual, candidates, tries, total_min, hard_min, aggression, rtt)
+       , ft, qual, candidates, tries, total_min, hard_min, aggression)
     use jt65_decode
     implicit none
 
@@ -53,7 +53,6 @@ contains
     integer, intent(in) :: total_min
     integer, intent(in) :: hard_min
     integer, intent(in) :: aggression
-    real, intent(in) :: rtt
 
     write(*,1010) utc,snr,dt,freq,decoded
 1010 format(i4.4,i4,f5.1,i5,1x,'#',1x,a22)
