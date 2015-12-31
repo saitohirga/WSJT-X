@@ -81,11 +81,17 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,mycall_12,    &
   nhard=param(1)
   nsoft=param(2)
   nerased=param(3)
-  nsofter=param(4)
+  rtt=0.001*param(4)
   ntotal=param(5)
   qual=0.001*param(7)
-  qmin=11-naggressive
-  if(qual.ge.qmin) nft=1
+  nd0=81
+  r0=0.87
+  if(naggressive.eq.10) then
+     nd0=83
+     r0=0.90
+  endif
+  if(ntotal.le.nd0 .and. rtt.le.r0) nft=1
+!  nft=1                                         !### TEST ONLY ###
 
   if(nft.eq.0 .and. ndepth.ge.5) then
      call timer('exp_deco',0)
@@ -97,7 +103,7 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,mycall_12,    &
         nft=2
      else
         decoded='                      '
-        param=0
+!###        param=0
         ntry=0
      endif
      call timer('exp_deco',1)
@@ -143,16 +149,14 @@ subroutine getpp(workdat,p)
   call graycode(a,63,1,a)
 
   psum=0.
-  ref=0.
   do j=1,63
      i=a(j)+1
      x=s3a(i,j)
      s3a(i,j)=0.
      psum=psum + x
-     ref=ref + maxval(s3a(1:64,j))
      s3a(i,j)=x
   enddo
-  p=psum/ref
+  p=psum/63.0
 
   return
 end subroutine getpp

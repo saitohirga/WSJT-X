@@ -77,8 +77,8 @@ contains
     logical :: first_time, robust
     common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
     common/steve/thresh0
-    common/test000/ncandidates,nhard_min,nsoft_min,nera_best,nsofter_min,   &
-         ntotal_min,ntry,nq1000,ntot         !### TEST ONLY ###
+    common/test000/ncandidates,nhard_min,nsoft_min,nera_best,nrtt1000,   &
+         ntotal_min,ntry,nq1000,npp1         !### TEST ONLY ###
     save
 
     this%callback => callback
