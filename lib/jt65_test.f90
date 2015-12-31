@@ -34,7 +34,7 @@ contains
   end subroutine test
 
   subroutine my_callback (this, utc, sync, snr, dt, freq, drift, decoded   &
-       , ft, qual, candidates, tries, total_min, hard_min, aggression)
+       , ft, qual, candidates, tries, total_min, hard_min, aggression, rtt)
     use jt65_decode
     implicit none
 
@@ -53,16 +53,17 @@ contains
     integer, intent(in) :: total_min
     integer, intent(in) :: hard_min
     integer, intent(in) :: aggression
+    real, intent(in) :: rtt
 
     write(*,1010) utc,snr,dt,freq,decoded
 1010 format(i4.4,i4,f5.1,i5,1x,'#',1x,a22)
     write(13,1012) utc,nint(sync),snr,dt,float(freq),drift,decoded,ft
 1012 format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT65',i4)
     call flush(6)
-    !          write(79,3001) utc,nint(sync),snr,dt,freq,candidates,    &
-    write(79,3001) utc,sync,snr,dt,freq,candidates,    &
-         hard_min,total_min,tries,aggression,ft,qual,decoded
-3001 format(i4.4,f6.2,i4,f6.2,i5,i7,i3,i4,i8,i3,i2,i5,1x,a22)
+!    write(79,3001) utc,sync,snr,dt,freq,candidates,    &
+!         hard_min,total_min,rtt,tries,ft,qual,decoded
+!3001 format(i4.4,f5.1,i4,f5.1,i5,i6,i3,i4,f6.3,i8,i2,i3,1x,a22)
+
   end subroutine my_callback
 
 end module jt65_test

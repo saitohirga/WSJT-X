@@ -38,8 +38,7 @@ void ftrsd2_(int mrsym[], int mrprob[], int mr2sym[], int mr2prob[],
   int nhard=0,nhard_min=32768,nsoft=0,nsoft_min=32768;
   int nsofter=0,nsofter_min=32768,ntotal=0,ntotal_min=32768,ncandidates;
   int nera_best=0;
-  float pp,pp1,pp2,bias;
-  float qual=0.0;
+  float pp,pp1,pp2;
   static unsigned int nseed;
 
 // Power-percentage symbol metrics - composite gnnf/hf 
@@ -121,8 +120,10 @@ Hard-decision decoding failed.  Try the FT soft-decision method.
 Generate random erasure-locator vectors and see if any of them
 decode. This will generate a list of "candidate" codewords.  The
 soft distance between each candidate codeword and the received 
-word (or a quality estimator "qual") is used to decide which 
-candidate codeword is "best".
+word is estimated by finding the largest (pp1) and second-largest 
+(pp2) outputs from a synchronized filter-bank operating on the 
+symbol spectra, and using these to decide which candidate 
+codeword is "best".
 */
 
   nseed=1;                                 //Seed for random numbers
@@ -173,8 +174,8 @@ NB: j is the symbol-vector index of the symbol with rank i.
     nerr=decode_rs_int(rs,workdat,era_pos,numera,0);        
     if( nerr >= 0 ) {
       // We have a candidate coderowd.  Find its hard and soft distance from
-      // the received word.  Also find its quality estimate "qual" from the 
-      // full s3(64,63) array of synchronized symbol spectra.
+      // the received word.  Also find pp1 and pp2 from the full array 
+      // s3(64,63) of synchronized symbol spectra.
       ncandidates=ncandidates+1;
       nhard=0;
       nsoft=0;
@@ -205,17 +206,12 @@ NB: j is the symbol-vector index of the symbol with rank i.
         memcpy(correct,workdat,63*sizeof(int));
         nera_best=numera;
         ntry[0]=k;
-	bias=1.12*pp2;
-	if(bias<0.570) bias=0.570;
-	//	if(bias<0.335) bias=0.335;
-        //  if(mode65.eq.2) bias=max(1.08*p2,0.405)
-        //  if(mode65.ge.4) bias=max(1.04*p2,0.505)
-	qual=100.0*(pp1-bias);
       } else {
 	if(pp>pp2 && pp!=pp1) pp2=pp;
       }
-
-      if(qual>10.0 && ncandidates>=100) break;
+      //      if(pp2==0.0 && pp1>5.0) break;
+      //      if(pp2>0.0 && pp1>4.4 && pp1>pp2+0.6) break;
+      if(ntotal_min <= 81 && pp2/pp1 <= 0.87) break;
     }
     if(k == ntrials) ntry[0]=k;
   }
@@ -230,10 +226,11 @@ NB: j is the symbol-vector index of the symbol with rank i.
   param[1]=nhard_min;
   param[2]=nsoft_min;
   param[3]=nera_best;
-  param[4]=nsofter_min;
+  param[4]=1000.0*pp2/pp1;
   param[5]=ntotal_min;
   param[6]=ntry[0];
-  param[7]=1000.0*qual;
+  param[7]=1000.0*pp2;
+  param[8]=1000.0*pp1;
   if(param[0]==0) param[2]=-1;
   return;
 }

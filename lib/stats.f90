@@ -22,8 +22,9 @@ program stats
      i1=index(infile,".")+1
      i2=40
      if(index(infile,"_").gt.1) i2=index(infile,"_") - 1
-     read(infile(i1:i2),*) snrgen
-     snrgen=-snrgen
+     snrgen=0.
+     read(infile(i1:i2),*,err=1) snrgen
+1     snrgen=-snrgen
      nsynced=0
      nbm=0
      nftok=0
@@ -34,8 +35,9 @@ program stats
 
      do iline=1,999999
         read(10,1010,end=100) nutc,sync,nsnr,dt,nfreq,ncandidates,nhard,  &
-             ntotal,ntry,naggressive,nft,nqual,decoded
-1010    format(i4.4,f6.2,i4,f6.2,i5,i7,i3,i4,i8,i3,i2,i5,1x,a22)
+             ntotal,rtt,ntry,nft,nqual,decoded
+1010    format(i4.4,f5.1,i4,f5.1,i5,i6,i3,i4,f6.3,i8,i2,i3,1x,a22)
+
 !        ndfreq=9999
 !        do ifreq=600,2400,200
 !           n=abs(nfreq-ifreq)
@@ -49,13 +51,16 @@ program stats
            nbadsync=nbadsync+1
         endif
         if(decoded.eq.'                      ') cycle
-        if(decoded(1:11).eq.'K1ABC W9XYZ') then
-           ngood=ngood+1
-           if(ncandidates.eq.0) nbm=nbm+1
-           if(nft.eq.1) nftok=nftok+1
-           if(nft.ge.1) nhint=nhint+1
-        else
-           nbad=nbad+1
+!        if(ntotal.le.83 .and. rtt.le.0.90) then           !nag=10
+        if(ntotal.le.81 .and. rtt.le.0.87) then           !nag=0
+           if(decoded(1:11).eq.'K1ABC W9XYZ') then
+              ngood=ngood+1
+              if(ncandidates.eq.0) nbm=nbm+1
+              if(nft.eq.1) nftok=nftok+1
+              if(nft.ge.1) nhint=nhint+1
+           else
+              nbad=nbad+1
+           endif
         endif
      enddo
 
