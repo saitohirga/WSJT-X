@@ -1739,7 +1739,10 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.nfSplit=m_wideGraph->Fmin();
   dec_data.params.nfb=m_wideGraph->Fmax();
   dec_data.params.ntol=m_Ftol;
-  if(m_mode=="JT9+JT65") dec_data.params.ntol=20;
+  if(m_mode=="JT9+JT65") {
+    dec_data.params.ntol=20;
+    dec_data.params.naggressive=0;
+  }
   if(dec_data.params.nutc < m_nutc0) m_RxLog = 1;       //Date and Time to all.txt
   m_nutc0=dec_data.params.nutc;
   dec_data.params.ntxmode=9;
