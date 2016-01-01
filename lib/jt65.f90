@@ -17,7 +17,8 @@ program jt65
   character*12 mycall,hiscall
   character*6 hisgrid
   equivalence (lenfile,ihdr(2))
-  type (option) :: long_options(9) = [ &
+  type (option) :: long_options(10) = [ &
+       option ('aggressive',.true.,'a','aggressiveness [0-10], default AGGR=0','AGGR'), &
        option ('freq',.true.,'f','signal frequency, default FREQ=1270','FREQ'),         &
        option ('help',.false.,'h','Display this help message',''),                      &
        option ('ntrials',.true.,'n','number of trials, default TRIALS=10000','TRIALS'), &
@@ -29,22 +30,24 @@ program jt65
                ,'experience decoding options (1..n), default FLAGS=0','FLAGS'),         &
        option ('single-signal-mode',.false.,'s','decode at signal frequency only','') ]
 
-  ntol=10
+  naggressive=0
   nfqso=1270
-  nsubmode=0
   ntrials=10000
+  nexp_decoded=0
+  ntol=1000
+  nsubmode=0
   nlow=200
   nhigh=4000
   n2pass=2
-  nexp_decoded=0
-  naggressive=0
 
   do
-     call getopt('f:hn:rc:x:g:X:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+     call getopt('a:f:hn:rc:x:g:X:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
      if( nstat .ne. 0 ) then
         exit
      end if
      select case (c)
+     case ('a')
+        read (optarg(:narglen), *) naggressive
      case ('f')
         read (optarg(:narglen), *) nfqso
      case ('h')
