@@ -6,17 +6,17 @@ program jt65
   use timer_module, only: timer
   use timer_impl, only: init_timer
   use jt65_test
+  use readwav
 
   character c
   logical :: display_help=.false.,nrobust=.false.
-  integer*4 ihdr(11)
+  type(wav_header) :: wav
   integer*2 id2(NZMAX)
   real*4 dd(NZMAX)
   character*80 infile
   character(len=500) optarg
   character*12 mycall,hiscall
   character*6 hisgrid
-  equivalence (lenfile,ihdr(2))
   type (option) :: long_options(10) = [ &
        option ('aggressive',.true.,'a','aggressiveness [0-10], default AGGR=0','AGGR'), &
        option ('freq',.true.,'f','signal frequency, default FREQ=1270','FREQ'),         &
@@ -95,21 +95,17 @@ program jt65
      minsync=0
      call get_command_argument(ifile,optarg,narglen)
      infile=optarg(:narglen)
-     open(10,file=infile,access='stream',status='old',err=998)
      call timer('read    ',0)
-     read(10) ihdr
+     call wav%read (infile)
      i1=index(infile,'.wav')
      if( i1 .eq. 0 ) i1=index(infile,'.WAV')
      read(infile(i1-4:i1-1),*,err=998) nutc
      npts=52*12000
-     read(10) id2(1:npts)
+     read(unit=wav%lun) id2(1:npts)
+     close(unit=wav%lun)
      call timer('read    ',1)
      dd(1:npts)=id2(1:npts)
      dd(npts+1:)=0.
-
-     !     open(56,file='subtracted.wav',access='stream',status='unknown')
-     !     write(56) ihdr(1:11)
-
      call test(dd,nutc,nfa,nfb,nfqso,ntol,nsubmode, &
           n2pass,nrobust,ntrials,naggressive, &
           mycall,hiscall,hisgrid,nexp_decoded)

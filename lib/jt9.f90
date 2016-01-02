@@ -9,11 +9,12 @@ program jt9
   use FFTW3
   use timer_module, only: timer
   use timer_impl, only: init_timer, fini_timer
+  use readwav
 
   include 'jt9com.f90'
 
   integer(C_INT) iret
-  integer*4 ihdr(11)
+  type(wav_header) wav
   real*4 s(NSMAX)
   character c
   character(len=500) optarg, infile
@@ -172,10 +173,8 @@ program jt9
   do iarg = offset + 1, offset + remain
      call get_command_argument (iarg, optarg, arglen)
      infile = optarg(:arglen)
-     open(10,file=infile,access='stream',status='old',err=998)
-     read(10) ihdr
-     nfsample=ihdr(7)
-     nutc=ihdr(1)                           !Silence compiler warning
+     call wav%read (infile)
+     nfsample=wav%audio_format%sample_rate
      i1=index(infile,'.wav')
      if(i1.lt.1) i1=index(infile,'.WAV')
      if(infile(i1-5:i1-5).eq.'_') then
@@ -218,7 +217,7 @@ program jt9
      do iblk=1,npts/kstep
         k=iblk*kstep
         call timer('read_wav',0)
-        read(10,end=3) shared_data%id2(k-kstep+1:k)
+        read(unit=wav%lun,end=3) shared_data%id2(k-kstep+1:k)
         go to 4
 3       call timer('read_wav',1)
         print*,'EOF on input file ',infile
@@ -239,7 +238,7 @@ program jt9
            if(nhsym.ge.181) exit
         endif
      enddo
-     close(10)
+     close(unit=wav%lun)
      shared_data%params%nutc=nutc
      shared_data%params%ndiskdat=.true.
      shared_data%params%ntr=60
@@ -290,10 +289,6 @@ program jt9
 
   call timer('jt9     ',1)
   call timer('jt9     ',101)
-  go to 999
-
-998 print*,'Cannot open file:'
-  print*,infile
 
 999 continue
   ! Output decoder statistics

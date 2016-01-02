@@ -368,6 +368,7 @@ set (wsjt_FSRCS
   lib/polyfit.f90
   lib/prog_args.f90
   lib/ps4.f90
+  lib/readwav.f90
   lib/rectify_msk.f90
   lib/savec2.f90
   lib/sec_midn.f90
