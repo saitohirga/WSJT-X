@@ -554,7 +554,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
     }
 #endif
 
-  auto_tx_label->setText (m_config.quick_call () ? "Tx-Enable Armed" : "Tx-Enable Disarmed");
+  auto_tx_label->setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" : "Auto-Tx-Enable Disarmed");
 
   {
     //delete any .quit file that might have been left lying around
@@ -1115,7 +1115,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
                                             m_msAudioOutputBuffered);
       }
 
-      auto_tx_label->setText (m_config.quick_call () ? "Tx-Enable Armed" : "Tx-Enable Disarmed");
+      auto_tx_label->setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" : "Auto-Tx-Enable Disarmed");
       displayDialFrequency ();
       bool b=m_config.enable_VHF_features() and (m_mode=="JT4" or m_mode=="JT65" or
                               m_mode=="ISCAT" or m_mode=="JT9" or m_mode=="JTMSK");
@@ -3757,7 +3757,7 @@ void MainWindow::WSPR_config(bool b)
     m_bSimplex = true;
   } else {
     ui->decodedTextLabel->setText("UTC   dB   DT Freq   Message");
-    auto_tx_label->setText (m_config.quick_call () ? "Tx-Enable Armed" : "Tx-Enable Disarmed");
+    auto_tx_label->setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" : "Auto-Tx-Enable Disarmed");
     m_bSimplex = false;
   }
   enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
