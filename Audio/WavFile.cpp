@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <numeric>
+#include <algorithm>
 
 #include <qendian.h>
 #include <QAudioFormat>
@@ -24,7 +25,7 @@ namespace
     {
       if (id)
         {
-          auto len = std::min (4u, strlen (id));
+          auto len = std::min (size_t (4), strlen (id));
           memcpy (id_.data (), id, len);
           memset (id_.data () + len, ' ', 4u - len);
         }
@@ -183,7 +184,7 @@ bool WavFile::read_header ()
 {
   if (!file_.seek (0)) return false;
   Desc outer_desc;
-  auto outer_offset = file_.pos ();
+  quint32 outer_offset = file_.pos ();
   quint32 outer_size {0};
   bool be {false};
   while (outer_offset < sizeof outer_desc + outer_desc.size_ - 1) // allow for uncounted pad
@@ -200,7 +201,7 @@ bool WavFile::read_header ()
             {
               // WAVE
               Desc wave_desc;
-              auto wave_offset = file_.pos ();
+              quint32 wave_offset = file_.pos ();
               quint32 wave_size {0};
               while (wave_offset < outer_offset + sizeof outer_desc + outer_size - 1)
                 {
@@ -232,7 +233,7 @@ bool WavFile::read_header ()
                       if (!memcmp (list_type, "INFO", 4))
                         {
                           Desc info_desc;
-                          auto info_offset = file_.pos ();
+                          quint32 info_offset = file_.pos ();
                           quint32 info_size {0};
                           while (info_offset < wave_offset + sizeof wave_desc + wave_size - 1)
                             {
