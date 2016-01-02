@@ -183,7 +183,8 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_messageClient {new MessageClient {QApplication::applicationName (),
                    m_config.udp_server_name (), m_config.udp_server_port (),
                    this}},
-  psk_Reporter {new PSK_Reporter {m_messageClient, this}}
+  psk_Reporter {new PSK_Reporter {m_messageClient, this}},
+  m_manual {network_manager}
 {
   ui->setupUi(this);
 
@@ -1479,7 +1480,7 @@ void MainWindow::msgBox(QString t)                             //msgBox
 void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
 {
 #if defined (CMAKE_BUILD)
-  QDesktopServices::openUrl (QUrl (PROJECT_MANUAL_DIRECTORY_URL "/" PROJECT_MANUAL));
+  m_manual.display_html_url (QUrl {PROJECT_MANUAL_DIRECTORY_URL}, PROJECT_MANUAL);
 #endif
 }
 
@@ -1487,8 +1488,7 @@ void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
 void MainWindow::on_actionLocal_User_Guide_triggered()
 {
 #if defined (CMAKE_BUILD)
-  auto file = m_config.doc_dir ().absoluteFilePath (PROJECT_MANUAL);
-  QDesktopServices::openUrl (QUrl {"file:///" + file});
+  m_manual.display_html_file (m_config.doc_dir (), PROJECT_MANUAL);
 #endif
 }
 
