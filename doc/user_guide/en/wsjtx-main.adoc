@@ -15,7 +15,7 @@ Joseph H Taylor, Jr, K1JT
 :prog: WSJT-X
 
 // use global link file
-include::../common/links.adoc[]
+include::../../common/links.adoc[]
 
 // These [[xxxx]] labels are HTML anchors, and can be used to
 // navigate though the document easily: <<INTRO,See Introduction>> will
@@ -219,5 +219,5 @@ include::acknowledgements.adoc[]
 
 [[LICENSE]]
 == License
-include::../common/license.adoc[]
+include::../../common/license.adoc[]
 
