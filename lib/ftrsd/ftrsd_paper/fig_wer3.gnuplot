@@ -12,6 +12,10 @@ set tics in
 set mxtics 2
 set mytics 10 
 set grid
+set label "r6315" at -25.25,30
+set label "r6330" at -26.0,30
+set label "$T=10^5$" at -22.8,15
+set label "$d=0.0$" at -22.8,10
 plot [-27:-22] [0:110] \
      "ftdata-100000.dat" using 1:(100*$3) with linespoints lt 1 pt 7 title 'FT-100K', \
      "ftdata-100000.dat" using 1:(100*$2) with linespoints lt 1 pt 7 title 'FT-100K'
