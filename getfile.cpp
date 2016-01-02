@@ -1,6 +1,8 @@
 #include "getfile.h"
 #include <QDir>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 #include <math.h>
 
 #ifdef WIN32
@@ -60,10 +62,41 @@ void getfile(QString fname, int ntrperiod)
   memset(dec_data.d2,0,2*npts);
 
   if(fp != NULL) {
+    struct
+    {
+      char id[4];
+      uint32_t size;
+    } desc;
+    char type[4];
+    struct
+    {
+      uint16_t nfmt2;
+      uint16_t nchan2;
+      uint32_t nsamrate;
+      uint32_t nbytesec;
+      uint16_t nbytesam2;
+      uint16_t nbitsam2;
+    } fmt;
+
+    // read header
+    fread(&desc, 1, sizeof desc, fp); // RIFF
+    fread(type, 1, sizeof type, fp);  // WAVE
+    do
+      {
+        fread(&desc, 1, sizeof desc, fp); // WAVE component
+        if (!memcmp(desc.id,"fmt ",4)) {
+          fpos_t pos;
+          fgetpos(fp,&pos);
+          fread(&fmt,1,sizeof fmt,fp);
+          fsetpos(fp,&pos);
+        }
+        if (!memcmp(desc.id,"data",sizeof desc.id)) break;
+      } while (!fseek(fp,(desc.size + 1) / 2 * 2,SEEK_CUR));
+    
 // Read (and ignore) a 44-byte WAV header; then read data
-    int n=fread(&hdr,1,44,fp);
-    n=fread(dec_data.d2,2,npts,fp);
-    if(hdr.nsamrate==11025) wav12_(dec_data.d2,dec_data.d2,&n,&hdr.nbitsam2);
+//    int n=fread(&hdr,1,44,fp);
+    int n=fread(dec_data.d2,2,npts,fp);
+    if(hdr.nsamrate==11025) wav12_(dec_data.d2,dec_data.d2,&n,(short*)&fmt.nbitsam2);
     fclose(fp);
     dec_data.params.newdat=1;
     dec_data.params.kin=n;
