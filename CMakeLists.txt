@@ -217,6 +217,10 @@ set (wsjt_qt_CXXSRCS
   SampleDownloader/RemoteFile.cpp
   )
 
+set (wsjt_qtmm_CXXSRCS
+  Audio/WavFile.cpp
+  )
+
 set (jt9_CXXSRCS
   lib/ipcomm.cpp
   )
@@ -486,6 +490,7 @@ set (UDPDaemon_CXXSRCS
 set (all_CXXSRCS
   ${wsjt_CXXSRCS}
   ${wsjt_qt_CXXSRCS}
+  ${wsjt_qtmm_CXXSRCS}
   ${jt9_CXXSRCS}
   ${wsjtx_CXXSRCS}
   ${message_aggregator_CXXSRCS}
@@ -890,8 +895,10 @@ add_library (wsjt_cxx STATIC ${wsjt_CSRCS} ${wsjt_CXXSRCS})
 
 # build an OpenMP variant of the Fortran library routines
 add_library (wsjt_fort STATIC ${wsjt_FSRCS})
+target_link_libraries (wsjt_fort  ${FFTW3_LIBRARIES})
 if (${OPENMP_FOUND} OR APPLE)
   add_library (wsjt_fort_omp STATIC ${wsjt_FSRCS})
+  target_link_libraries (wsjt_fort_omp  ${FFTW3_LIBRARIES})
   set_target_properties (wsjt_fort_omp
     PROPERTIES
     COMPILE_FLAGS "${OpenMP_C_FLAGS}"
@@ -917,11 +924,14 @@ if (WIN32)
   target_link_libraries (wsjt_qt Qt5::AxContainer Qt5::AxBase)
 endif (WIN32)
 
+add_library (wsjt_qtmm STATIC ${wsjt_qtmm_CXXSRCS} ${wsjt_qtmm_GENUISRCS})
+target_link_libraries (wsjt_qtmm Qt5::Multimedia)
+
 add_executable (jt4sim lib/jt4sim.f90 wsjtx.rc)
 target_link_libraries (jt4sim wsjt_fort wsjt_cxx)
 
 add_executable (jt65sim lib/jt65sim.f90 wsjtx.rc)
-target_link_libraries (jt65sim wsjt_fort wsjt_cxx ${FFTW3_LIBRARIES})
+target_link_libraries (jt65sim wsjt_fort wsjt_cxx)
 
 add_executable (jt9sim lib/jt9sim.f90 wsjtx.rc)
 target_link_libraries (jt9sim wsjt_fort wsjt_cxx)
@@ -942,7 +952,7 @@ add_executable (jt4code lib/jt4code.f90 wsjtx.rc)
 target_link_libraries (jt4code wsjt_fort wsjt_cxx)
 
 add_executable (jt65 lib/jt65.f90 lib/jt65_test.f90 wsjtx.rc)
-target_link_libraries (jt65 wsjt_fort wsjt_cxx ${FFTW3_LIBRARIES})
+target_link_libraries (jt65 wsjt_fort wsjt_cxx)
 
 add_executable (jt9 lib/jt9.f90 lib/jt9a.f90 ${jt9_CXXSRCS} wsjtx.rc)
 if (${OPENMP_FOUND} OR APPLE)
@@ -964,9 +974,9 @@ if (${OPENMP_FOUND} OR APPLE)
       Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
       )
   endif (APPLE)
-  target_link_libraries (jt9 wsjt_fort_omp wsjt_cxx ${FFTW3_LIBRARIES} Qt5::Core)
+  target_link_libraries (jt9 wsjt_fort_omp wsjt_cxx Qt5::Core)
 else (${OPENMP_FOUND} OR APPLE)
-  target_link_libraries (jt9 wsjt_fort wsjt_cxx ${FFTW3_LIBRARIES} Qt5::Core)
+  target_link_libraries (jt9 wsjt_fort wsjt_cxx Qt5::Core)
 endif (${OPENMP_FOUND} OR APPLE)
 
 # build the main application
@@ -993,7 +1003,7 @@ set_target_properties (wsjtx PROPERTIES
   MACOSX_BUNDLE_GUI_IDENTIFIER "org.k1jt.wsjtx"
   )
 
-target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES} Qt5::Multimedia)
+target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 qt5_use_modules (wsjtx SerialPort) # not sure why the interface link library syntax above doesn't work
 
 add_resources (message_aggregator_RESOURCES /qss ${message_aggregator_STYLESHEETS})
