@@ -1,3 +1,21 @@
+!
+! readwav - open and read the header of a WAV format file
+!
+! On successful exit the file is left positioned at the start of the
+! data.
+!
+! Example of usage:
+!
+!  use readwav
+!  integer*2 sample
+!  type(wav_header) wav
+!  call wav%read ('file.wav')
+!  write (*,*) 'Sample rate is: ', wav%audio_format%sample_rate
+!  do i=0,wav%data_size
+!    read (unit=wav%lun) sample
+!    ! process sample
+!  end do
+!
 module readwav
   implicit none
 
@@ -13,6 +31,7 @@ module readwav
   type, public :: wav_header
      integer :: lun
      type(format_chunk) :: audio_format
+     integer :: data_size
    contains
      procedure :: read
   end type wav_header
@@ -43,6 +62,7 @@ contains
        if (desc%id .eq. 'fmt ') then
           read (unit=this%lun) this%audio_format
        else if (desc%id .eq. 'data') then
+          this%data_size = desc%size
           exit
        end if
        filepos = filepos + (desc%size + 1) / 2 * 2 ! pad to even alignment
