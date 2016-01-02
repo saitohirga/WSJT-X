@@ -52,7 +52,7 @@ set (PROJECT_VENDOR "Joe Taylor, K1JT")
 set (PROJECT_CONTACT "Joe Taylor <k1jt@arrl.net>")
 set (PROJECT_COPYRIGHT "Copyright (C) 2001-2015 by Joe Taylor, K1JT")
 set (PROJECT_HOMEPAGE http://www.physics.princeton.edu/pulsar/K1JT/wsjtx.html)
-set (PROJECT_MANUAL wsjtx-main-${wsjtx_VERSION}.html)
+set (PROJECT_MANUAL wsjtx-main)
 set (PROJECT_MANUAL_DIRECTORY_URL http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc)
 set (PROJECT_SAMPLES_URL http://downloads.sourceforge.net/project/wsjt/)
 set (PROJECT_SAMPLES_UPLOAD_DEST frs.sourceforge.net:/home/frs/project/wsjt/)
@@ -215,6 +215,7 @@ set (wsjt_qt_CXXSRCS
   SampleDownloader/Directory.cpp
   SampleDownloader/FileNode.cpp
   SampleDownloader/RemoteFile.cpp
+  DisplayManual.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS

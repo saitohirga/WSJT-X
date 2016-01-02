@@ -25,6 +25,7 @@
 #include "Configuration.hpp"
 #include "WSPRBandHopping.hpp"
 #include "Transceiver.hpp"
+#include "DisplayManual.hpp"
 #include "psk_reporter.h"
 #include "logbook/logbook.h"
 #include "decodedtext.h"
@@ -521,6 +522,7 @@ private:
   QTimer m_heartbeat;
   MessageClient * m_messageClient;
   PSK_Reporter *psk_Reporter;
+  DisplayManual m_manual;
 
   //---------------------------------------------------- private functions
   void readSettings();
