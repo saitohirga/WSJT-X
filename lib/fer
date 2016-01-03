@@ -2,33 +2,37 @@
 
 # jt65 end-to-end simulator. Run enough cases to get a given
 # number of successful decodes or a given number of errors
+# For better performance, copy this script and jt65, jt65sim
+# executables to a ramdisk and run from there.
 
 nruns=0
 ndecodes=0
 ngood=0
 nbad=0
-snr=-23.0
+snr=-26.0
 
-while [ $[ $nruns - $ngood ] -lt 50 ] 
-#while [ $ngood -lt 100 ] 
-#while [ $nruns -lt 1000 ] 
+#while [ $[ $nruns - $ngood ] -lt 200 ] 
+#while [ $ngood -lt 200 ] 
+while [ $nruns -lt 20000 ] 
 
 do
-  ./jt65sim A 1 0.0 $snr 0.0 1 > /dev/null 
-  decoded=$( ./jt65 -n 100000 -f 1500 -s 000000_0001.wav ) 
-#  echo $decoded
-  goodone=$( echo $decoded | grep "K1ABC" | wc -l )
-  nruns=$[$nruns+1]
-  if [ ! -z "$decoded" ]; then  # if decoded string is not empty
-    ndecodes=$[$ndecodes+1]
-    if [ $goodone -eq 1 ] ; then
-      ngood=$[$ngood+1]
-    else
-      nbad=$[$nbad+1]
-    fi
+  rm 000000_0001.wav
+  ./jt65sim -n 1 -d 0.0 -s \\$snr > /dev/null
+  rm decoded.txt
+  ./jt65 -a 10 -f 1500 -n 10 -s 000000_0001.wav > decoded.txt
+  if [ -e decoded.txt ]; then
+    nd=$( wc -l < decoded.txt )
+    ng=$( grep "K1ABC" decoded.txt | wc -l )
+    nb=$[$nd-$ng]
+    ndecodes=$[$ndecodes + $nd]
+    ngood=$[$ngood + $ng]
+    nbad=$[$nbad + $nb]
   fi
-nmissed=$[$nruns-$ngood]
-echo -en nruns: $nruns ndecodes: $ndecodes ngood: $ngood nbad: $nbad nmissed: $nmissed "\r"
+  nruns=$[$nruns + 1]
+  nmissed=$[$nruns-$ngood]
+  pe=$( echo "scale=5; $nmissed/$nruns" | bc -l )
+  ps=$( echo "scale=5; $ngood/$nruns" | bc -l )
+  echo -en snr: $snr nruns: $nruns ndecodes: $ndecodes ngood: $ngood nbad: $nbad nmissed: $nmissed wer: $pe success: $ps"\r"
 done
-echo  nruns: $nruns ndecodes: $ndecodes ngood: $ngood nbad: $nbad nmissed: $nmissed 
+echo snr: $snr nruns: $nruns ndecodes: $ndecodes ngood: $ngood nbad: $nbad nmissed: $nmissed wer: $pe success: $ps
 
