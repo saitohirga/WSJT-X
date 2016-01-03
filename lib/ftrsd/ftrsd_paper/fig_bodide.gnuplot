@@ -16,6 +16,6 @@ set logscale y
 plot [3:9] [1e-4:1] "bmdata.dat" using ($1+29.1):(1-$2) with linespoints lt 1 pt 4 title 'BM', \
   "ftdata-100000.dat" using ($1+29.1):(1-$3) every ::1 with linespoints lt 1 pt 4 title 'FT', \
   "bmtheory25.dat" using ($1-0.6):3 with linespoints lt 2 pt 5 title 'theory25', \
-  "kvasd-15.dat" using ($1+29.1):(1-$2) every ::1 with linespoints lt 1 pt 4 title 'KV', \
+  "kvasd-15.dat" using ($1+29.1):(1-$3) every ::1 with linespoints lt 1 pt 4 title 'KV', \
   "bodide.lab" with labels
 
