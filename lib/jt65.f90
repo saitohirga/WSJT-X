@@ -65,6 +65,7 @@ program jt65
      case ('X')
         read (optarg(:narglen), *) nexp_decoded
      case ('s')
+        ntol=10
         nlow=nfqso-ntol
         nhigh=nfqso+ntol
         n2pass=1
