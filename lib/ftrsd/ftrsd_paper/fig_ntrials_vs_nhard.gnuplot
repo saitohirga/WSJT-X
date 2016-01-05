@@ -4,9 +4,8 @@
 #
 set term epslatex standalone size 6in,2*6/3in
 set output "fig_ntrials_vs_nhard.tex"
-set xlabel "Errors in received word ($X$)"
+set xlabel "Errors in received word, $X$"
 set ylabel "Number of trials"
-set title "AWGN, $\\frac{E_b}{N_o}=5.1$ dB"
 set tics in
 set mxtics 5
 set mytics 10
