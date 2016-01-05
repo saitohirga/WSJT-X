@@ -89,10 +89,10 @@ qint64 Detector::writeData (char const * data, qint64 maxSize)
                   &framesAfterDownSample);
             dec_data.params.kin += framesAfterDownSample;
           } else {
-            qDebug() << "framesToProcess     = " << framesToProcess;
-            qDebug() << "dec_data.params.kin = " << dec_data.params.kin;
-            qDebug() << "secondInPeriod      = " << secondInPeriod();
-            qDebug() << "framesAfterDownSample" << framesAfterDownSample;
+            // qDebug() << "framesToProcess     = " << framesToProcess;
+            // qDebug() << "dec_data.params.kin = " << dec_data.params.kin;
+            // qDebug() << "secondInPeriod      = " << secondInPeriod();
+            // qDebug() << "framesAfterDownSample" << framesAfterDownSample;
           }
           Q_EMIT framesWritten (dec_data.params.kin);
           m_bufferPos = 0;
