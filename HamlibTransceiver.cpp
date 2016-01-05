@@ -240,45 +240,49 @@ HamlibTransceiver::HamlibTransceiver (int model_number, TransceiverFactory::Para
     //
     // user defined Hamlib settings
     //
-    QFile settings_file {QStandardPaths::locate (
+    auto settings_file_name = QStandardPaths::locate (
 #if QT_VERSION >= 0x050500
                                                  QStandardPaths::AppConfigLocation
 #else
                                                  QStandardPaths::ConfigLocation
 #endif
-                                                 , "hamlib_settings.json")};
-    if (settings_file.open (QFile::ReadOnly))
+                                                 , "hamlib_settings.json");
+    if (!settings_file_name.isEmpty ())
       {
-        QJsonParseError status;
-        auto settings_doc = QJsonDocument::fromJson (settings_file.readAll (), &status);
-        if (status.error)
-          {
-            throw error {tr ("Hamlib settings file error: %1 at character offset %2")
-                .arg (status.errorString ()).arg (status.offset)};
-          }
-        if (!settings_doc.isObject ())
-          {
-            throw error {tr ("Hamlib settings file error: top level must be a JSON object")};
-          }
-        auto const& settings = settings_doc.object ();
+	QFile settings_file {settings_file_name};
+	if (settings_file.open (QFile::ReadOnly))
+	  {
+	    QJsonParseError status;
+	    auto settings_doc = QJsonDocument::fromJson (settings_file.readAll (), &status);
+	    if (status.error)
+	      {
+		throw error {tr ("Hamlib settings file error: %1 at character offset %2")
+		    .arg (status.errorString ()).arg (status.offset)};
+	      }
+	    if (!settings_doc.isObject ())
+	      {
+		throw error {tr ("Hamlib settings file error: top level must be a JSON object")};
+	      }
+	    auto const& settings = settings_doc.object ();
 
-        //
-        // configuration settings
-        //
-        auto const& config = settings["config"];
-        if (!config.isUndefined ())
-          {
-            if (!config.isObject ())
-              {
-                throw error {tr ("Hamlib settings file error: config must be a JSON object")};
-              }
-            auto const& config_list = config.toObject ();
-            for (auto item = config_list.constBegin (); item != config_list.constEnd (); ++item)
-              {
-                set_conf (item.key ().toLocal8Bit ().constData ()
-                          , (*item).toVariant ().toString ().toLocal8Bit ().constData ());
-              }
-          }
+	    //
+	    // configuration settings
+	    //
+	    auto const& config = settings["config"];
+	    if (!config.isUndefined ())
+	      {
+		if (!config.isObject ())
+		  {
+		    throw error {tr ("Hamlib settings file error: config must be a JSON object")};
+		  }
+		auto const& config_list = config.toObject ();
+		for (auto item = config_list.constBegin (); item != config_list.constEnd (); ++item)
+		  {
+		    set_conf (item.key ().toLocal8Bit ().constData ()
+			      , (*item).toVariant ().toString ().toLocal8Bit ().constData ());
+		  }
+	      }
+	  }
       }
   }
 
