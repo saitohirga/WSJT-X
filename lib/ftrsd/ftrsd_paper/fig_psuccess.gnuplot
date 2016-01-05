@@ -12,14 +12,15 @@ set tics in
 set mxtics 2
 set mytics 2
 set grid
-plot [-30:-18] [0:105] "stats_0.0" using 1:($3)/10.0 with linespoints lt 4 pt 1 title 'Sync', \
-     "stats_0.0" using 1:($4)/10.0 with linespoints lt 2 lw 2 pt 2 title 'BB 0', \
-     "stats_0.0" using 1:($5)/10.0 with linespoints lt 1 lw 2 pt 3 title 'FT 0', \
-     "stats_0.0" using 1:($6)/10.0 with linespoints lt 3 lw 2 pt 4 title 'DS 0', \
-     "stats_0.2" using 1:($4)/10.0 with linespoints lt 2 pt 2 title 'BB 0.2', \
-     "stats_0.2" using 1:($5)/10.0 with linespoints lt 1 pt 3 title 'FT 0.2', \
-     "stats_0.2" using 1:($6)/10.0 with linespoints lt 3 pt 4 title 'DS 0.2', \
-     "stats_1.0" using 1:($4)/10.0 with linespoints lt 2 pt 2 title 'BB 1', \
-     "stats_1.0" using 1:($5)/10.0 with linespoints lt 1 pt 3 title 'FT 1', \
-     "stats_1.0" using 1:($6)/10.0 with linespoints lt 3 pt 4 title 'DS 1', \
+plot [-30:-18] [0:105] \
+     "stats_0.0" using 1:($3)/10.0 with linespoints lt 4 pt 1, \
+     "stats_0.0" using 1:($4)/10.0 with linespoints lt 2 lw 2 pt 2, \
+     "stats_0.0" using 1:($5)/10.0 with linespoints lt 1 lw 2 pt 3, \
+     "stats_0.0" using 1:($6)/10.0 with linespoints lt 3 lw 2 pt 4, \
+     "stats_0.2" using 1:($4)/10.0 with linespoints lt 2 pt 2, \
+     "stats_0.2" using 1:($5)/10.0 with linespoints lt 1 pt 3, \
+     "stats_0.2" using 1:($6)/10.0 with linespoints lt 3 pt 4, \
+     "stats_1.0" using 1:($4)/10.0 with linespoints lt 2 pt 2, \
+     "stats_1.0" using 1:($5)/10.0 with linespoints lt 1 pt 3, \
+     "stats_1.0" using 1:($6)/10.0 with linespoints lt 3 pt 4, \
      "psuccess.lab" with labels
