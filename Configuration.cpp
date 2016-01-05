@@ -145,6 +145,7 @@
 #include <QAction>
 #include <QFileDialog>
 #include <QDir>
+#include <QTemporaryFile>
 #include <QFormLayout>
 #include <QString>
 #include <QStringList>
@@ -796,12 +797,29 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
         temp_dir_.setPath (temp_location);
       }
 
+    bool ok {false};
     QString unique_directory {QApplication::applicationName ()};
-    if (!temp_dir_.mkpath (unique_directory) || !temp_dir_.cd (unique_directory))
+    do
       {
-        QMessageBox::critical (this, "WSJT-X", tr ("Create temporary directory error: ") + temp_dir_.absolutePath ());
-        throw std::runtime_error {"Failed to create usable temporary directory"};
+        if (!temp_dir_.mkpath (unique_directory)
+            || !temp_dir_.cd (unique_directory))
+          {
+            QMessageBox::critical (this, "WSJT-X", tr ("Create temporary directory error: ") + temp_dir_.absolutePath ());
+            throw std::runtime_error {"Failed to create a temporary directory"};
+          }
+        if (!temp_dir_.isReadable () || !(ok = QTemporaryFile {temp_dir_.absoluteFilePath ("test")}.open ()))
+          {
+            if (QMessageBox::Cancel == QMessageBox::critical (this, "WSJT-X",
+                                                              tr ("Create temporary directory error:\n%1\n"
+                                                                  "Another application may be locking the directory").arg (temp_dir_.absolutePath ()),
+                                                              QMessageBox::Retry | QMessageBox::Cancel))
+              {
+                throw std::runtime_error {"Failed to create a usable temporary directory"};
+              }
+            temp_dir_.cdUp ();  // revert to parent as this one is no good
+          }
       }
+    while (!ok);
   }
 
   {
