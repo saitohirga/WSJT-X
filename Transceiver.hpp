@@ -122,7 +122,7 @@ public:
 
   // Connect and disconnect.
   Q_SLOT virtual void start () noexcept = 0;
-  Q_SLOT virtual void stop () noexcept = 0;
+  Q_SLOT virtual void stop (bool reset_split = false) noexcept = 0;
 
   // Set frequency in Hertz.
   Q_SLOT virtual void frequency (Frequency, MODE = UNK) noexcept = 0;

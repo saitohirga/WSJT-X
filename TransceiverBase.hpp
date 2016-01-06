@@ -68,7 +68,7 @@ public:
   // Implement the Transceiver abstract interface.
   //
   void start () noexcept override final;
-  void stop () noexcept override final;
+  void stop (bool reset_split = false) noexcept override final;
   void frequency (Frequency rx, MODE = UNK) noexcept override final;
   void tx_frequency (Frequency tx, bool rationalise_mode) noexcept override final;
   void mode (MODE, bool rationalise) noexcept override final;
