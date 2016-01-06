@@ -849,7 +849,7 @@ The FT algorithm uses quality indices made available by a noncoherent 64-FSK
 \end_inset
 
  of the symbol's fractional power 
-\begin_inset Formula $p_{1,\, j}$
+\begin_inset Formula $p_{1,\,j}$
 \end_inset
 
  in a sorted list of 
@@ -919,7 +919,7 @@ t educated guesses to select symbols for erasure.
 , the soft distance between the received word and the codeword: 
 \begin_inset Formula 
 \begin{equation}
-d_{s}=\sum_{j=1}^{n}\alpha_{j}\,(1+p_{1,\, j}).\label{eq:soft_distance}
+d_{s}=\sum_{j=1}^{n}\alpha_{j}\,(1+p_{1,\,j}).\label{eq:soft_distance}
 \end{equation}
 
 \end_inset
@@ -937,7 +937,7 @@ Here
 \end_inset
 
  if the received symbol and codeword symbol are different, and 
-\begin_inset Formula $p_{1,\, j}$
+\begin_inset Formula $p_{1,\,j}$
 \end_inset
 
  is the fractional power associated with received symbol 
@@ -981,7 +981,7 @@ In practice we find that
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-u=\frac{1}{n}\sum_{j=1}^{n}S(c_{j},\, j).\label{eq:u-metric}
+u=\frac{1}{n}\sum_{j=1}^{n}S(c_{j},\,j).\label{eq:u-metric}
 \end{equation}
 
 \end_inset
@@ -1010,7 +1010,7 @@ Here the
 
  bins containing noise only.
  Thus, if the spectral array 
-\begin_inset Formula $S(i,\, j)$
+\begin_inset Formula $S(i,\,j)$
 \end_inset
 
  has been normalized so that the average value of the noise-only bins is
@@ -1051,17 +1051,39 @@ where
 
 \end_inset
 
-In contrast, worst-case incorrect codewords will yield 
+
+\end_layout
+
+\begin_layout Standard
+In contrast, the expected value and standard deviation of the 
 \begin_inset Formula $u$
 \end_inset
 
--metrics with expectation value and standard deviation given by
+-metric for a randomly selected incorrect codeword (selected from a population
+ of all 
+\begin_inset Quotes eld
+\end_inset
+
+worst case
+\begin_inset Quotes erd
+\end_inset
+
+ codewords, 
+\emph on
+i.e.
+\emph default
+, those with 
+\begin_inset Formula $k-1$
+\end_inset
+
+ symbols identical to corresponding ones in the correct word) are given
+ by
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\bar{u}_{2}=1+\left(\frac{k-1}{n}\right)y,\label{eq:u2-exp}
+\bar{u}_{i}=1+\left(\frac{k-1}{n}\right)y,\label{eq:u2-exp}
 \end{equation}
 
 \end_inset
@@ -1072,39 +1094,72 @@ In contrast, worst-case incorrect codewords will yield
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\sigma_{2}=\frac{1}{n}\left[n+2y(k-1)\right]^{1/2}.\label{eq:sigma2}
+\sigma_{i}=\frac{1}{n}\left[n+2y(k-1)\right]^{1/2}.\label{eq:sigma2}
 \end{equation}
 
 \end_inset
 
+If 
+\begin_inset Formula $u$
+\end_inset
 
-\end_layout
-
-\begin_layout Standard
-If tests on a number of tested candidate codewords yield largest and second-larg
-est metrics 
+ is evaluated for a large number of candidate codewords, one of which is
+ correct, we should expect the largest value 
 \begin_inset Formula $u_{1}$
+\end_inset
+
+ to be drawn from a population with statistics described by 
+\begin_inset Formula $\bar{u}_{1}$
 \end_inset
 
  and 
-\begin_inset Formula $u_{2},$
+\begin_inset Formula $\sigma_{1}.$
 \end_inset
 
- respectively, we expect the ratio 
-\begin_inset Formula $r=u_{2}/u_{1}$
-\end_inset
-
- to be significantly smaller in cases where the candidate associated with
- 
+ If no tested codeword is correct, 
 \begin_inset Formula $u_{1}$
 \end_inset
 
- is in fact the correct codeword.
- On the other hand, if none of the tested candidates is correct, 
-\begin_inset Formula $r$
+ is likely to come from the 
+\begin_inset Formula $(\bar{u}_{i},\,\sigma_{i})$
+\end_inset
+
+ population and to be several standard deviations above the mean.
+ In either case the second-largest value, 
+\begin_inset Formula $u_{2},$
+\end_inset
+
+ will likely come from the 
+\begin_inset Formula $(\bar{u}_{i},\,\sigma_{i})$
+\end_inset
+
+ population, again several standard deviations above the mean.
+ 
+\end_layout
+
+\begin_layout Standard
+If no tested codeword is correct or the signal-to-noise ratio 
+\begin_inset Formula $y$
+\end_inset
+
+ is too small for decoding to be possible, the ratio 
+\begin_inset Formula $r=u_{2}/u_{1}$
 \end_inset
 
  will likely be close to 1.
+ On the other hand, correctly identified codewords will produce 
+\begin_inset Formula $u_{1}$
+\end_inset
+
+ significantly larger than 
+\begin_inset Formula $u_{2}$
+\end_inset
+
+ and thus smaller values of 
+\begin_inset Formula $r$
+\end_inset
+
+.
  We therefore apply a ratio threshold test, say 
 \begin_inset Formula $r<r_{1}$
 \end_inset
@@ -1203,7 +1258,7 @@ For each received symbol, define the erasure probability as 1.3 times the
 a priori
 \emph default
  symbol-error probability determined from soft-symbol information 
-\begin_inset Formula $\{p_{1}\textrm{-rank},\, p_{2}/p_{1}\}$
+\begin_inset Formula $\{p_{1}\textrm{-rank},\,p_{2}/p_{1}\}$
 \end_inset
 
 .
