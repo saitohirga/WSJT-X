@@ -282,7 +282,7 @@ application bundle onto the supplied /Applications link.
 To  complete  the  install  process  you need  to  run  the  CMake-gui
 application as root from a terminal shell as follows:
 
-$ sudo "/Applications/CMake.app/Contents/MacOS/CMake-gui" --install
+$ sudo "/Applications/CMake.app/Contents/MacOS/cmake-gui" --install
 
 that installs  the CMake command  line tools  which you can  verify by
 typing into a terminal window:
