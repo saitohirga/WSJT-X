@@ -849,7 +849,7 @@ The FT algorithm uses quality indices made available by a noncoherent 64-FSK
 \end_inset
 
  of the symbol's fractional power 
-\begin_inset Formula $p_{1,\,j}$
+\begin_inset Formula $p_{1,\, j}$
 \end_inset
 
  in a sorted list of 
@@ -919,7 +919,7 @@ t educated guesses to select symbols for erasure.
 , the soft distance between the received word and the codeword: 
 \begin_inset Formula 
 \begin{equation}
-d_{s}=\sum_{j=1}^{n}\alpha_{j}\,(1+p_{1,\,j}).\label{eq:soft_distance}
+d_{s}=\sum_{j=1}^{n}\alpha_{j}\,(1+p_{1,\, j}).\label{eq:soft_distance}
 \end{equation}
 
 \end_inset
@@ -937,7 +937,7 @@ Here
 \end_inset
 
  if the received symbol and codeword symbol are different, and 
-\begin_inset Formula $p_{1,\,j}$
+\begin_inset Formula $p_{1,\, j}$
 \end_inset
 
  is the fractional power associated with received symbol 
@@ -981,7 +981,7 @@ In practice we find that
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-u=\frac{1}{n}\sum_{j=1}^{n}S(c_{j},\,j).\label{eq:u-metric}
+u=\frac{1}{n}\sum_{j=1}^{n}S(c_{j},\, j).\label{eq:u-metric}
 \end{equation}
 
 \end_inset
@@ -1010,11 +1010,11 @@ Here the
 
  bins containing noise only.
  Thus, if the spectral array 
-\begin_inset Formula $S(i,\,j)$
+\begin_inset Formula $S(i,\, j)$
 \end_inset
 
- has been normalized so that its median value (essentially the average noise
- level) is unity, 
+ has been normalized so that the average value of the noise-only bins is
+ unity, 
 \begin_inset Formula $u$
 \end_inset
 
@@ -1203,7 +1203,7 @@ For each received symbol, define the erasure probability as 1.3 times the
 a priori
 \emph default
  symbol-error probability determined from soft-symbol information 
-\begin_inset Formula $\{p_{1}\textrm{-rank},\,p_{2}/p_{1}\}$
+\begin_inset Formula $\{p_{1}\textrm{-rank},\, p_{2}/p_{1}\}$
 \end_inset
 
 .
@@ -1816,7 +1816,8 @@ reference "fig:N_vs_X"
 \begin_inset Formula $X\le25$
 \end_inset
 
- because all such words are successfully decoded by the BM algorithm.
+ because all such words are successfully decoded by a single run of the
+ errors-only BM algorithm.
  Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -1930,7 +1931,7 @@ It is interesting to note that while Rayleigh fading severely degrades the
  success rate of the BM decoder, the penalties are much smaller with both
  FT and hinted decoding.
  Simulated Doppler spreads of 0.2 Hz actually increased the FT and DS decoding
- rates slightly at SNRs close to the decosing threshold, presumably because
+ rates slightly at SNRs close to the decoding threshold, presumably because
  with the low-rate JT65 code signal peaks can be enough to produce good
  copy.
 \end_layout
