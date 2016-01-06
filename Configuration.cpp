@@ -61,7 +61,7 @@
 // need be  carried out since the  UI control data models  are used as
 // the temporary store of unconfirmed settings.  As some settings will
 // depend  on each  other a  validate() operation  is available,  this
-// operations implements a check of any complex multi-field values.
+// operation implements a check of any complex multi-field values.
 //
 // 4) If the  user discards the settings changes by  dismissing the UI
 // with the  "Cancel" button;  the reject()  operation is  called. The
@@ -424,7 +424,7 @@ private:
 
   // typenames used as arguments must match registered type names :(
   Q_SIGNAL void start_transceiver () const;
-  Q_SIGNAL void stop_transceiver () const;
+  Q_SIGNAL void stop_transceiver (bool reset_split) const;
   Q_SIGNAL void frequency (Frequency rx, Transceiver::MODE) const;
   Q_SIGNAL void tx_frequency (Frequency tx, bool rationalize_mode) const;
   Q_SIGNAL void mode (Transceiver::MODE, bool rationalize) const;
@@ -504,6 +504,7 @@ private:
                                     // no split.
 
   bool enforce_mode_and_split_;
+  bool reset_split_;
 
   // configuration fields that we publish
   QString my_callsign_;
@@ -1081,6 +1082,7 @@ void Configuration::impl::initialize_models ()
   ui_->rig_combo_box->setCurrentText (rig_params_.rig_name);
   ui_->TX_mode_button_group->button (data_mode_)->setChecked (true);
   ui_->split_mode_button_group->button (rig_params_.split_mode)->setChecked (true);
+  ui_->reset_split_check_box->setChecked (reset_split_);
   ui_->CAT_serial_baud_combo_box->setCurrentText (QString::number (rig_params_.baud));
   ui_->CAT_data_bits_button_group->button (rig_params_.data_bits)->setChecked (true);
   ui_->CAT_stop_bits_button_group->button (rig_params_.stop_bits)->setChecked (true);
@@ -1305,6 +1307,7 @@ void Configuration::impl::read_settings ()
   offsetRxFreq_ = settings_->value("OffsetRx",false).toBool();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
   rig_params_.split_mode = settings_->value ("SplitMode", QVariant::fromValue (TransceiverFactory::split_mode_none)).value<TransceiverFactory::SplitMode> ();
+  reset_split_ = settings_->value ("ResetSplitOnExit", true).toBool ();
   udp_server_name_ = settings_->value ("UDPServer", "127.0.0.1").toString ();
   udp_server_port_ = settings_->value ("UDPServerPort", 2237).toUInt ();
   accept_udp_requests_ = settings_->value ("AcceptUDPRequests", false).toBool ();
@@ -1391,6 +1394,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("TXAudioSource", QVariant::fromValue (rig_params_.audio_source));
   settings_->setValue ("Polling", rig_params_.poll_interval);
   settings_->setValue ("SplitMode", QVariant::fromValue (rig_params_.split_mode));
+  settings_->setValue ("ResetSplitOnExit", reset_split_);
   settings_->setValue ("VHFUHF", enable_VHF_features_);
   settings_->setValue ("Decode52", decode_at_52s_);
   settings_->setValue ("TwoPass", twoPass_);
@@ -1528,6 +1532,8 @@ void Configuration::impl::set_rig_invariants ()
                                             && (cat_port != ptt_port
                                                 || !ui_->PTT_RTS_radio_button->isEnabled ()
                                                 || !ui_->PTT_RTS_radio_button->isChecked ()));
+      ui_->reset_split_check_box->setEnabled (TransceiverFactory::split_mode_rig
+                                              == static_cast<TransceiverFactory::SplitMode> (ui_->split_mode_button_group->checkedId ()));
     }
 }
 
@@ -1788,6 +1794,7 @@ void Configuration::impl::accept ()
   NDxG_ = ui_->cbNDxG->isChecked ();
   NN_ = ui_->cbNN->isChecked ();
   EMEonly_ = ui_->cbEMEonly->isChecked ();
+  reset_split_ = ui_->reset_split_check_box->isChecked ();
 
   offsetRxFreq_ = ui_->offset_Rx_freq_check_box->isChecked();
   frequency_calibration_intercept_ = ui_->calibration_intercept_spin_box->value ();
@@ -1977,6 +1984,7 @@ void Configuration::impl::on_split_mode_button_group_buttonClicked (int /* id */
 {
   setup_split_ = true;
   required_tx_frequency_ = 0;
+  set_rig_invariants ();
 }
 
 void Configuration::impl::on_test_CAT_push_button_clicked ()
@@ -2458,7 +2466,7 @@ void Configuration::impl::close_rig ()
   if (rig_active_)
     {
       ui_->test_CAT_push_button->setStyleSheet ("QPushButton {background-color: red;}");
-      Q_EMIT stop_transceiver ();
+      Q_EMIT stop_transceiver (reset_split_);
       Q_FOREACH (auto const& connection, rig_connections_)
         {
           disconnect (connection);

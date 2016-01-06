@@ -37,7 +37,7 @@ public:
   void ptt (bool on) noexcept override;
 
   // forward everything else to wrapped Transceiver
-  void stop () noexcept override {wrapped_->stop (); Q_EMIT finished ();}
+  void stop (bool /* reset_split */) noexcept override {wrapped_->stop (false); Q_EMIT finished ();}
   void mode (MODE m, bool /* rationalise */) noexcept override {wrapped_->mode (m, false);}
   void sync (bool force_signal) noexcept override {wrapped_->sync (force_signal);}
 

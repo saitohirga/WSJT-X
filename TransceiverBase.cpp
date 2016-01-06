@@ -52,7 +52,7 @@ void TransceiverBase::start () noexcept
     }
 }
 
-void TransceiverBase::stop () noexcept
+void TransceiverBase::stop (bool reset_split) noexcept
 {
   QString message;
   try
@@ -64,6 +64,12 @@ void TransceiverBase::stop () noexcept
               // try and ensure PTT isn't left set
               do_ptt (false);
               do_post_ptt (false);
+              if (reset_split)
+                {
+                  // try and reset split mode
+                  do_tx_frequency (0, false);
+                  do_post_tx_frequency (0, false);
+                }
             }
           catch (...)
             {
