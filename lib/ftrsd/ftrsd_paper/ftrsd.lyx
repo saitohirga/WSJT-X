@@ -1595,7 +1595,15 @@ sync losses
 \begin_layout Standard
 As expected, the soft-decision algorithms, FT and KV, are about 2 dB better
  than the hard-decision BM algorithm.
- In addition, FT has a slight edge (about 0.2 dB) over KV.
+ In addition, FT has an edge over KV that increases from 
+\begin_inset Formula $\sim0.2$
+\end_inset
+
+ dB at higher SNRs to 
+\begin_inset Formula $\sim0.5$
+\end_inset
+
+ dB at low SNR.
  On the other hand, the execution time for FT with timeout parameter 
 \begin_inset Formula $T=10^{5}$
 \end_inset
@@ -1725,6 +1733,22 @@ reference "fig:bodide"
 \end_inset
 
  or larger.
+ As already noted in connection with Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bodide"
+
+\end_inset
+
+, FT with 
+\begin_inset Formula $T=10^{5}$
+\end_inset
+
+ has approximately 
+\begin_inset Formula $0.5$
+\end_inset
+
+ dB gain over KV at low SNR.
  It also provides a very significant gain over the hard-decision BM decoder
  even when limited to 10 or fewer trials.
 \end_layout
