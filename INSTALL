@@ -289,6 +289,16 @@ typing into a terminal window:
 
 $ cmake --version
 
+If the install command above fails  with a "No such file or directory"
+error, that probably means that /usr/local/bin does not exist. You can
+create it correctly with the following commands:
+
+$ sudo mkdir -p /usr/local/bin
+$ sudo chmod 755 /usr/local/bin
+$ sudo chgrp wheel /usr/local/bin
+
+and then retry the install command.
+
 
 WSJT-X
 ------
