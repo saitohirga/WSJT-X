@@ -74,7 +74,7 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   ui->fStartSpinBox->setValue(ui->widePlot->startFreq());
   m_waterfallPalette=m_settings->value("WaterfallPalette","Default").toString();
   m_userPalette = WFPalette {m_settings->value("UserPalette").value<WFPalette::Colours> ()};
-  int m_fMin = m_settings->value ("fMin", 2500).toInt ();
+  int m_fMin = m_settings->value ("Fmin", 2500).toInt ();
   ui->fSplitSpinBox->setValue (m_fMin);
   setRxRange (m_fMin);
   m_settings->endGroup();
