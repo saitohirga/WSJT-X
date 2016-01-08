@@ -72,6 +72,8 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,mycall_12,    &
   call interleave63(mr2sym,-1)       !from second-most-reliable symbols
   call interleave63(mr2prob,-1)
   ntry=0
+  iftest=0
+  if(iftest.eq.2) go to 10
 
   call timer('ftrsd   ',0)
   param=0
@@ -91,19 +93,19 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,mycall_12,    &
      r0=0.90
   endif
   if(ntotal.le.nd0 .and. rtt.le.r0) nft=1
-!  nft=1                                         !### TEST ONLY ###
+  if(iftest.eq.1) nft=1                             !### TEST ONLY ###
 
-  if(nft.eq.0 .and. ndepth.ge.5) then
-     call timer('exp_deco',0)
+10 if(iftest.eq.2 .or. (nft.eq.0 .and. ndepth.ge.5)) then
      mode65=1
      flip=1.0
+     qmin=1.0
+          call timer('exp_deco',0)
      call exp_decode65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
           mycall,hiscall,hisgrid,nexp_decode,qual,decoded)
      if(qual.ge.qmin) then
         nft=2
      else
         decoded='                      '
-!###        param=0
         ntry=0
      endif
      call timer('exp_deco',1)
@@ -131,9 +133,6 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,mycall_12,    &
   endif
 900 continue
   if(nft.eq.1 .and. nhard.lt.0) decoded='                      '
-
-!  write(71,3300) nft,nhard,ntotal,int(qual),ncount,decoded
-!3300 format(5i5,2x,a22)
 
   return
 end subroutine extract
