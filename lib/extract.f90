@@ -99,8 +99,8 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,mycall_12,    &
      mode65=1
      flip=1.0
      qmin=1.0
-          call timer('exp_deco',0)
-     call exp_decode65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
+          call timer('hint65  ',0)
+     call hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
           mycall,hiscall,hisgrid,nexp_decode,qual,decoded)
      if(qual.ge.qmin) then
         nft=2
@@ -108,7 +108,7 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,mycall_12,    &
         decoded='                      '
         ntry=0
      endif
-     call timer('exp_deco',1)
+     call timer('hint65  ',1)
      go to 900
   endif
 

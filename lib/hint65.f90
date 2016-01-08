@@ -1,4 +1,4 @@
-subroutine exp_decode65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
+subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
      mycall,hiscall0,hisgrid0,nexp_decode,qual,decoded)
 
   use packjt
@@ -132,4 +132,4 @@ subroutine exp_decode65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
   if(qual.ge.qmin) decoded=msg0(ipk)
 
   return
-end subroutine exp_decode65
+end subroutine hint65
