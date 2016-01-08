@@ -1167,7 +1167,7 @@ If the signal-to-noise ratio
 
 .
  We therefore apply a ratio threshold test, say 
-\begin_inset Formula $r<r_{1}$
+\begin_inset Formula $r<R_{1}$
 \end_inset
 
 , to identify codewords with high probability of being correct.
@@ -1179,7 +1179,7 @@ reference "sec:Theory,-Simulation,-and"
 \end_inset
 
 , we use simulations to set an empirical acceptance threshold 
-\begin_inset Formula $r_{1}$
+\begin_inset Formula $R_{1}$
 \end_inset
 
  that maximizes the probability of correct decodes while ensuring a low
@@ -1208,16 +1208,16 @@ Technically the FT algorithm is a list decoder.
 \end_inset
 
  and 
-\begin_inset Formula $d_{0}$
+\begin_inset Formula $D_{0}$
 \end_inset
 
 .
  Secondary acceptance criteria 
-\begin_inset Formula $d_{s}<d_{1}$
+\begin_inset Formula $d_{s}<D_{1}$
 \end_inset
 
  and 
-\begin_inset Formula $r<r_{1}$
+\begin_inset Formula $r<R_{1}$
 \end_inset
 
  are used to validate additional codewords that did not pass the first test.
@@ -1338,7 +1338,7 @@ If
 \end_inset
 
  and 
-\begin_inset Formula $d_{s}<D_{0}$
+\begin_inset Formula $d_{1}<D_{0}$
 \end_inset
 
 , go to step 11.
@@ -1363,7 +1363,7 @@ If
 \end_inset
 
  and 
-\begin_inset Formula $r=u2/u1<r_{1},$
+\begin_inset Formula $r=u_{2}/u_{1}<R_{1},$
 \end_inset
 
  go to step 11.
@@ -1518,8 +1518,8 @@ For hinted decoding we again invoke a ratio threshold test, but in this
 
  the largest and second-largest values of total signal-plus-noise power
  among all the tested codewords.
- Once again the criterion for comparison is chosen empirically to maximize
- the number of correct decodes while ensuring that false decodes are rare.
+ The criterion for comparison is chosen empirically to maximize the number
+ of correct decodes while ensuring that false decodes are rare.
  Because tested candidate codewords are drawn from a list typically no longer
  than a few thousand, rather than 
 \begin_inset Formula $2^{72},$
@@ -1604,7 +1604,7 @@ If the number of tested codewords is less than
 
 \begin_layout Enumerate
 If 
-\begin_inset Formula $r=u2/u1<r_{2},$
+\begin_inset Formula $r=u_{2}/u_{1}<R_{2},$
 \end_inset
 
  go to step 7.
@@ -1674,19 +1674,19 @@ reference "sec:Appendix:SNR"
 \end_inset
 
  
-\begin_inset Formula $d_{0},$
+\begin_inset Formula $D_{0},$
 \end_inset
 
  
-\begin_inset Formula $d_{1},$
+\begin_inset Formula $D_{1},$
 \end_inset
 
  
-\begin_inset Formula $r_{1},$
+\begin_inset Formula $R_{1},$
 \end_inset
 
  and 
-\begin_inset Formula $r_{2}.$
+\begin_inset Formula $R_{2}.$
 \end_inset
 
 
