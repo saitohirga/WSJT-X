@@ -54,13 +54,14 @@ subroutine afc9(c3a,npts,fsample,a,syncpk)
      enddo
      if(a(3).ne.a3) call shft(c3a,a(3),a3,c3)
      chisqr=fchisq(c3,npts,fsample,a)
+!     write(*,4000) 0,0,a,-chisqr
      if(chisqr/chisqr0.gt.0.99) exit
      chisqr0=chisqr
   enddo
 
   syncpk=-chisqr
   c3a=c3
-!  write(*,4001) a,-chisq2
+!  write(*,4001) a,syncpk
 !4001 format(3x,3f10.4,f11.3)
 
   return
