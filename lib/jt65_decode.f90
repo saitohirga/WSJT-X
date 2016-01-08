@@ -163,13 +163,14 @@ contains
                naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,   &
                sync2,a,dtx,nft,qual,nhist,decoded)
           call timer('decod65a',1)
-          if(nhard_min.gt.50) cycle
-
           n=naggressive
           rtt=0.001*nrtt1000
-          if(nhard_min.gt.h0(n)) cycle
-          if(ntotal_min.gt.d0(n)) cycle
-          if(rtt.gt.r0(n)) cycle
+          if(nft.lt.2) then
+             if(nhard_min.gt.50) cycle
+             if(nhard_min.gt.h0(n)) cycle
+             if(ntotal_min.gt.d0(n)) cycle
+             if(rtt.gt.r0(n)) cycle
+          endif
 
 !          !### Suppress false decodes in crowded HF bands ###
 !          if(naggressive.eq.0 .and. ntrials.le.10000) then
@@ -177,7 +178,6 @@ contains
 !                if(nhard_min.ge.42 .or. ntotal_min.ge.71) cycle
 !             endif
 !          endif
-
           if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
                minsync.ge.0) cycle                  !Don't display dupes
           if(decoded.ne.'                      ' .or. minsync.lt.0) then

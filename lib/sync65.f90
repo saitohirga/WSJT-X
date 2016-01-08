@@ -57,9 +57,6 @@ subroutine sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,nrobust)
            ncand=ncand+1
         endif
      endif
-!     write(76,1010) i,freq,ccfred(i),itry,ncand
-!1010 format(i6,2f10.2,i5,i6)
-!     flush(76)
      if(itry.ne.0) then
         call xcor(ss,i,nhsym,nsym,lag1,lag2,ccfblue,ccf0,lagpk,flip,fdot,nrobust)
         call slope(ccfblue(lag1),lag2-lag1+1,lagpk-lag1+1.0)
@@ -71,12 +68,6 @@ subroutine sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,nrobust)
         dtx=xlag*2048.0/11025.0
         ccfblue(lag1)=0.
         ccfblue(lag2)=0.
-!        open(14,file="/tmp/fort.14",access="append")
-!        do j=lag1,lag2
-!           write(14,1020) j,ccfblue(j)
-!1020       format(i5,f10.3)
-!        enddo
-!        close(14)
         ca(ncand)%freq=freq
         ca(ncand)%dt=dtx
         ca(ncand)%sync=ccfred(i)

@@ -38,26 +38,20 @@ program stats
              ntotal,rtt,ntry,nft,nqual,decoded
 1010    format(i4.4,f5.1,i4,f5.1,i5,i6,i3,i4,f6.3,i8,i2,i3,1x,a22)
 
-!        ndfreq=9999
-!        do ifreq=600,2400,200
-!           n=abs(nfreq-ifreq)
-!           if(n.lt.ndfreq) ndfreq=n
-!        enddo
         ndfreq=abs(nfreq-1500)
-
         if(sync.ge.1.0 .and. abs(dt).le.ttol .and. ndfreq.le.nftol) then
            nsynced=nsynced+1
         else
            nbadsync=nbadsync+1
         endif
+
         if(decoded.eq.'                      ') cycle
-!        if(ntotal.le.83 .and. rtt.le.0.90) then           !nag=10
-        if(ntotal.le.81 .and. rtt.le.0.87) then           !nag=0
+        if(nft.eq.2 .or. (ntotal.le.81 .and. rtt.le.0.87)) then       !nag=0
            if(decoded(1:11).eq.'K1ABC W9XYZ') then
               ngood=ngood+1
-              if(ncandidates.eq.0) nbm=nbm+1
+              if(nft.eq.1 .and. ncandidates.eq.0) nbm=nbm+1
               if(nft.eq.1) nftok=nftok+1
-              if(nft.ge.1) nhint=nhint+1
+              if(nft.ge.2) nhint=nhint+1
            else
               nbad=nbad+1
            endif
