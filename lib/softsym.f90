@@ -28,10 +28,12 @@ subroutine softsym(id2,npts8,nsps8,newdat,fpk,syncpk,snrdb,xdt,        &
   fsample=1500.0/ndown
   a=0.
   call timer('afc9    ',0)
-  call afc9(c3,nz3,fsample,a,syncpk)  !Find deltaF, fDot, fDDot
+  call afc9(c3,nz3,fsample,a,syncpk)  !Find deltaF, fDot, extra DT
   call timer('afc9    ',1)
   freq=fpk - a(1)
   drift=-2.0*a(2)
+!  write(*,3301) fpk,freq,a
+!3301 format(2f9.3,3f10.4)
   a3=a(3)
   a(3)=0.
 
