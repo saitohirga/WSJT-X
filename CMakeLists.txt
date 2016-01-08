@@ -303,7 +303,6 @@ set (wsjt_FSRCS
   lib/encode4.f90
   lib/entail.f90
   lib/ephem.f90
-  lib/exp_decode65.f90
   lib/extract.f90
   lib/extract4.f90
   lib/fano232.f90
@@ -341,6 +340,7 @@ set (wsjt_FSRCS
   lib/grid2deg.f90
   lib/hash.f90
   lib/hashing.f90
+  lib/hint65.f90
   lib/hspec.f90
   lib/image.f90
   lib/indexx.f90
