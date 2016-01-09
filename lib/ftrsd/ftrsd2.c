@@ -32,11 +32,9 @@ void ftrsd2_(int mrsym[], int mrprob[], int mr2sym[], int mr2prob[],
   int indexes[63];
   int era_pos[51];
   int i, j, numera, nerr, nn=63;
-  FILE *logfile = NULL;
   int ntrials = *ntrials0;
-  int verbose = 0;
   int nhard=0,nhard_min=32768,nsoft=0,nsoft_min=32768;
-  int nsofter=0,nsofter_min=32768,ntotal=0,ntotal_min=32768,ncandidates;
+  int ntotal=0,ntotal_min=32768,ncandidates;
   int nera_best=0;
   float pp,pp1,pp2;
   static unsigned int nseed;
@@ -52,13 +50,6 @@ void ftrsd2_(int mrsym[], int mrprob[], int mr2sym[], int mr2prob[],
     {32,     45,     54,     63,     66,     75,     78,     83},
     {51,     58,     57,     66,     72,     77,     82,     86}};
 
-  if(verbose) {
-    logfile=fopen("/tmp/ftrsd.log","a");
-    if( !logfile ) {
-      printf("Unable to open ftrsd.log\n");
-      exit(1);
-    }
-  }
     
 // Initialize the KA9Q Reed-Solomon encoder/decoder
   unsigned int symsize=6, gfpoly=0x43, fcr=3, prim=1, nroots=51;
@@ -82,12 +73,12 @@ void ftrsd2_(int mrsym[], int mrprob[], int mr2sym[], int mr2prob[],
   for (pass = 1; pass <= nsym-1; pass++) {
     for (k = 0; k < nsym - pass; k++) {
       if( probs[k] < probs[k+1] ) {
-	tmp = probs[k];
-	probs[k] = probs[k+1];
-	probs[k+1] = tmp;
-	tmp = indexes[k];
-	indexes[k] = indexes[k+1];
-	indexes[k+1] = tmp;
+        tmp = probs[k];
+        probs[k] = probs[k+1];
+        probs[k+1] = tmp;
+        tmp = indexes[k];
+        indexes[k] = indexes[k+1];
+        indexes[k+1] = tmp;
       }
     }
   }
@@ -173,54 +164,41 @@ NB: j is the symbol-vector index of the symbol with rank i.
 
     nerr=decode_rs_int(rs,workdat,era_pos,numera,0);        
     if( nerr >= 0 ) {
-      // We have a candidate coderowd.  Find its hard and soft distance from
+      // We have a candidate codeword.  Find its hard and soft distance from
       // the received word.  Also find pp1 and pp2 from the full array 
       // s3(64,63) of synchronized symbol spectra.
       ncandidates=ncandidates+1;
       nhard=0;
       nsoft=0;
-      nsofter=0;
       for (i=0; i<63; i++) {
-	if(workdat[i] != rxdat[i]) {
-	  nhard=nhard+1;
-	  nsofter=nsofter+rxprob[i];
-	  if(workdat[i] != rxdat2[i]) {
-	    nsoft=nsoft+rxprob[i];
-	  }
-	} else {
-          nsofter=nsofter-rxprob[i];
-        } 
+        if(workdat[i] != rxdat[i]) {
+          nhard=nhard+1;
+          if(workdat[i] != rxdat2[i]) {
+            nsoft=nsoft+rxprob[i];
+          }
+        }
       }
       nsoft=63*nsoft/nsum;
-      nsofter=63*nsofter/nsum;
       ntotal=nsoft+nhard;
 
       getpp_(workdat,&pp);
       if(pp>pp1) {
-	pp2=pp1;
-	pp1=pp;
+        pp2=pp1;
+        pp1=pp;
         nsoft_min=nsoft;
         nhard_min=nhard;
-        nsofter_min=nsofter;
         ntotal_min=ntotal;
         memcpy(correct,workdat,63*sizeof(int));
         nera_best=numera;
         ntry[0]=k;
       } else {
-	if(pp>pp2 && pp!=pp1) pp2=pp;
+        if(pp>pp2 && pp!=pp1) pp2=pp;
       }
-      //      if(ntotal_min <= 81 && pp2/pp1 <= 0.87) break;
       if(nhard_min <= 41 && ntotal_min <= 71) break;
     }
     if(k == ntrials) ntry[0]=k;
   }
   
-  if(logfile) {
-    fprintf(logfile,"ncand %4d nhard %4d nsoft %4d nhard+nsoft %4d nsum %8d\n",
-      ncandidates,nhard_min,nsoft_min,ntotal_min,nsum);
-    fclose(logfile);
-  }
-
   param[0]=ncandidates;
   param[1]=nhard_min;
   param[2]=nsoft_min;
