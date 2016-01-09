@@ -2247,6 +2247,56 @@ Mention two-pass decoding.
 
 \begin_layout Standard
 Experience with FT on crowded HF bands.
+ 
+\end_layout
+
+\begin_layout Standard
+Re Figure 5 - just playing around with ideas.
+ May not be appropriate for this paper.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename fig_waterfall.tiff
+	width 6.5in
+	BoundingBox 0bp 0bp 1124bp 200bp
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+A spectrogram showing one minute of data collected under crowded band conditions
+ on 20m during daytime hours.
+ WSJT-X extracted 21 JT65 messages in approximately the same bandwidth required
+ for a single SSB signal.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
