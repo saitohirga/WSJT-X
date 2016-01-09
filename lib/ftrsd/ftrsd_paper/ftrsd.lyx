@@ -1276,7 +1276,7 @@ Make independent stochastic decisions about whether to erase each symbol
 \end_layout
 
 \begin_layout Enumerate
-Attempt errors-and-erasures decoding by using the BM algorithm and the set
+Attempt errors-and-erasures decoding using the BM algorithm and the set
  of erasures determined in step 2.
  If the BM decoder produces a candidate codeword, go to step 5.
 \end_layout
@@ -1752,7 +1752,7 @@ reference "fig:bodide"
  also shows results calculated from theoretical probability distributions
  for comparison with the BM results.
  The simulated BM results agree with theory to within about 0.1 dB.
- This differences are caused by small errors in the estimates of time and
+ The differences are caused by small errors in the estimates of time and
  frequency offset of the received signal in the simulated data.
  Such 
 \begin_inset Quotes eld
@@ -2423,7 +2423,7 @@ The signal to noise ratio in a bandwidth,
 , that is at least as large as the bandwidth occupied by the signal is:
 \begin_inset Formula 
 \begin{equation}
-\mathrm{SNR}_{B}=\frac{P_{s}}{N_{o}B}\label{eq:SNR}
+\mathrm{SNR}_{B}=\frac{P_{s}}{N_{0}B}\label{eq:SNR}
 \end{equation}
 
 \end_inset
@@ -2432,8 +2432,8 @@ where
 \begin_inset Formula $P_{s}$
 \end_inset
 
- is the signal power (W), 
-\begin_inset Formula $N_{o}$
+ is the average signal power (W), 
+\begin_inset Formula $N_{0}$
 \end_inset
 
  is one-sided noise power spectral density (W/Hz), and 
@@ -2453,7 +2453,7 @@ where
 \begin_layout Standard
 In the professional literature, decoder performance is characterized in
  terms of 
-\begin_inset Formula $E_{b}/N_{o}$
+\begin_inset Formula $E_{b}/N_{0}$
 \end_inset
 
 , the ratio of the energy collected per information bit, 
@@ -2461,7 +2461,7 @@ In the professional literature, decoder performance is characterized in
 \end_inset
 
 , to the one-sided noise power spectral density, 
-\begin_inset Formula $N_{o}$
+\begin_inset Formula $N_{0}$
 \end_inset
 
 .
@@ -2474,7 +2474,12 @@ In the professional literature, decoder performance is characterized in
 \end_inset
 
 ).
- Signal power is related to the energy per symbol by 
+ JT65 signals have constant envelope, so the average signal power is related
+ to the energy per symbol, 
+\begin_inset Formula $E_{s}$
+\end_inset
+
+, by 
 \begin_inset Formula 
 \begin{equation}
 P_{s}=E_{s}/\tau_{s}.\label{eq:signal_power}
@@ -2525,7 +2530,7 @@ reference "eq:Eb_Es"
 :
 \begin_inset Formula 
 \begin{equation}
-\mathrm{SNR}_{2500}=1.23\times10^{-3}\frac{E_{b}}{N_{o}}.\label{eq:SNR2500}
+\mathrm{SNR}_{2500}=1.23\times10^{-3}\frac{E_{b}}{N_{0}}.\label{eq:SNR2500}
 \end{equation}
 
 \end_inset
@@ -2536,7 +2541,7 @@ If all quantities are expressed in dB, then:
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\mathrm{SNR}_{2500}=(E_{b}/N_{o})_{\mathrm{dB}}-29.1\,\mathrm{dB}=(E_{s}/N_{0})_{\mathrm{dB}}-29.7\,\mathrm{dB}.\label{eq:SNR_all_types}
+\mathrm{SNR}_{2500}=(E_{b}/N_{0})_{\mathrm{dB}}-29.1\,\mathrm{dB}=(E_{s}/N_{0})_{\mathrm{dB}}-29.7\,\mathrm{dB}.\label{eq:SNR_all_types}
 \end{equation}
 
 \end_inset
