@@ -720,9 +720,22 @@ void HamlibTransceiver::poll ()
 
   if (mode_query_works_)
     {
-      error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w), tr ("getting current VFO mode"));
-      TRACE_CAT_POLL ("rig_get_mode mode =" << rig_strrmode (m) << "bw =" << w);
-      update_mode (map_mode (m));
+      // We have to ignore errors here because Yaesu FTdx... rigs can
+      // report the wrong mode when transmitting split with different
+      // modes per VFO. This is unfortunate because that is exactly
+      // what you need to do to get 4kHz Rx b.w and modulation into
+      // the rig through the data socket or USB. I.e.  USB for Rx and
+      // DATA-USB for Tx.
+      auto rc = rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w);
+      if (RIG_OK == rc)
+        {
+          TRACE_CAT_POLL ("rig_get_mode mode =" << rig_strrmode (m) << "bw =" << w);
+          update_mode (map_mode (m));
+        }
+      else
+        {
+          TRACE_CAT_POLL ("rig_get_mode mode failed with rc:" << rc << "ignoring");
+        }
     }
 
   if (!is_dummy_ && rig_->caps->get_split_vfo && split_query_works_)
