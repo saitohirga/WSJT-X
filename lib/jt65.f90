@@ -31,7 +31,7 @@ program jt65
        option ('single-signal-mode',.false.,'s','decode at signal frequency only','') ]
 
   naggressive=0
-  nfqso=1270
+  nfqso=1500
   ntrials=10000
   nexp_decoded=0
   ntol=1000
@@ -39,6 +39,7 @@ program jt65
   nlow=200
   nhigh=4000
   n2pass=2
+  ndepth=5
 
   do
      call getopt('a:f:hn:rc:x:g:X:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
@@ -108,7 +109,7 @@ program jt65
      dd(1:npts)=id2(1:npts)
      dd(npts+1:)=0.
      call test(dd,nutc,nfa,nfb,nfqso,ntol,nsubmode, &
-          n2pass,nrobust,ntrials,naggressive, &
+          n2pass,nrobust,ntrials,naggressive,ndepth, &
           mycall,hiscall,hisgrid,nexp_decoded)
   enddo
 
