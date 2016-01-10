@@ -2241,172 +2241,6 @@ MAP65
  
 \end_layout
 
-\begin_layout Standard
-Mention two-pass decoding - could use Fig 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "fig:spectrogram"
-
-\end_inset
-
- as a case study.
- The table below is for the data shown in Fig 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "fig:spectrogram"
-
-\end_inset
-
-.
- Maybe less confusing if the third row was deleted.
-\begin_inset Float table
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\align center
-\begin_inset Tabular
-<lyxtabular version="3" rows="5" columns="2">
-<features rotate="0" tabularvalignment="middle">
-<column alignment="center" valignment="top">
-<column alignment="center" valignment="top">
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Case
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-# decodes
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-one-pass, BM
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-9
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-one-pass, FT
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-12
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-two-pass, BM
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-12
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-two-pass, FT
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-21
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-The effect of soft-symbol decoding combined with signal subtraction on the
- data shown in Figure 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "fig:spectrogram"
-
-\end_inset
-
-.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Subsubsection*
 Experience with FT on crowded HF bands:
 \end_layout
@@ -2437,20 +2271,22 @@ moonbounce
  reflection paths at HF.
  Use on HF was not originally an intended application for the mode, but
  at present HF use accounts for the largest number of 2-way contacts.
- Figure 
+ 
+\end_layout
+
+\begin_layout Standard
+Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:spectrogram"
 
 \end_inset
 
- is a spectrogram with frequency in Hz on the horizontal axis showing JT65
- activity during a one-minute time-segment (JT65 transmissions start at
+ (top) shows JT65 activity in a one-minute time-segment on the 20m amateur
+ band during crowded daytime band conditions (JT65 transmissions start at
  the beginning of a minute and last for approximately 47 s).
- The data was collected in the 20m amateur band during daytime under crowded
- band conditions.
  With some straightforward signal processing to demodulate the signals and
- produce soft-symbol data for the FT decoder it is possible to extract and
+ produce soft-symbol data for the FT decoder we are able to extract and
  decode 21 messages from the data summarized in Figure 5.
  This is achieved with a relatively small timeout parameter 
 \begin_inset Formula $T=1000$
@@ -2459,9 +2295,23 @@ reference "fig:spectrogram"
  and in spite of the fact that the 200 Hz-wide 65-FSK (sync plut 64-FSK)
  signals overlap, with as many as 4 signals superposed in some parts of
  the spectrum.
+ To achieve these results we use two successive sweeps over the spectrum.
+ The strongest signals are sequentially decoded and then subtracted from
+ the spectrum on the first pass.
+ Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:spectrogram"
+
+\end_inset
+
+ (bottom) shows the spectrogram after subtracting 12 signals that were decoded
+ in the first pass.
+ Another 9 signals are decoded from the data shown in the bottom figure
+ on the second pass.
  Using exactly the same pre-processing, but without soft-symbol information
- the errors-only BM decoder is able to decode only 12 messages.
- 
+ the errors-only BM decoder is able to decode only 12 messages in two passes
+ over the data.
 \end_layout
 
 \begin_layout Standard
@@ -2484,6 +2334,18 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
+\begin_inset Graphics
+	filename fig_subtracted.tiff
+	width 6.5in
+	BoundingBox 0bp 0bp 1126bp 202bp
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
@@ -2493,10 +2355,10 @@ name "fig:spectrogram"
 
 \end_inset
 
-A spectrogram showing one minute of data collected under crowded band conditions
- on 20m during daytime hours.
- WSJT-X extracted 21 JT65 messages in approximately the same bandwidth required
- for a single SSB signal.
+(top) A spectrogram showing one minute of data collected under crowded band
+ conditions on 20m during daytime hours.
+ (bottom) The spectrogram after the subtracting all signals successfully
+ decoded on the first pass.
  
 \end_layout
 
