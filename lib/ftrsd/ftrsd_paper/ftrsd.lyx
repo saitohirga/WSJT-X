@@ -2245,14 +2245,46 @@ MAP65
 Mention two-pass decoding.
 \end_layout
 
-\begin_layout Standard
-Experience with FT on crowded HF bands.
- 
+\begin_layout Subsubsection*
+Experience with FT on crowded HF bands:
 \end_layout
 
 \begin_layout Standard
-Re Figure 5 - just playing around with ideas.
- May not be appropriate for this paper.
+(Re the following paragraph and Figure 5 - just playing around with ideas
+ - feel free to change, delete, etc.)
+\end_layout
+
+\begin_layout Standard
+The JT65 mode has proven to be remarkably versatile.
+ Thousands of users regularly use the mode for two-way communication over
+ straight line-of-sight paths and the earth-moon-earth (
+\begin_inset Quotes eld
+\end_inset
+
+moonbounce
+\begin_inset Quotes erd
+\end_inset
+
+) path at frequencies from VHF to microwaves, and over multi-hop ionospheric
+ reflection paths at HF.
+ Use on HF was not originally an intended application for the mode, but
+ at present HF use accounts for the largest number of 2-way contacts.
+ Figure 5 is a spectrogram with frequency in Hz on the horizontal axis showing
+ JT65 activity during a one-minute time-segment (JT65 transmissions start
+ at the beginning of a minute and last for approximately 47 s).
+ The data was collected in the 20m amateur band during daytime under crowded
+ band conditions.
+ With some straightforward signal processing to demodulate the signals and
+ produce soft-symbol data for the FT decoder it is possible to extract and
+ decode 21 messages from the data summarized in Figure 5, and this is achieved
+ with a relatively small timeout parameter 
+\begin_inset Formula $T=1000$
+\end_inset
+
+.
+ Using exactly the same pre-processing, but without soft-symbol information
+ the errors-only BM decoder is able to decode only 12 messages.
+ 
 \end_layout
 
 \begin_layout Standard
