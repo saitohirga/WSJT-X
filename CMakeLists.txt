@@ -219,7 +219,7 @@ set (wsjt_qt_CXXSRCS
   )
 
 set (wsjt_qtmm_CXXSRCS
-  Audio/WavFile.cpp
+  Audio/BWFFile.cpp
   )
 
 set (jt9_CXXSRCS
