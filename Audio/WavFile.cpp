@@ -6,12 +6,19 @@
 
 #include <qendian.h>
 #include <QAudioFormat>
-#include <QDebug>
+#include <QDateTime>
+#include <QDate>
+#include <QTime>
+#include <QString>
+#include <QUuid>
+
+#include "pimpl_impl.hpp"
 
 #include "moc_WavFile.cpp"
 
 namespace
 {
+  // chunk descriptor
   struct Desc
   {
     Desc () = default;
@@ -48,6 +55,7 @@ namespace
     quint32 size_;
   };
 
+  // "fmt " chunk contents
   struct FormatChunk
   {
     quint16 audio_format;
@@ -57,131 +65,133 @@ namespace
     quint16 block_align;
     quint16 bits_per_sample;
   };
+
+  // "bext" chunk contents
+  struct BroadcastAudioExtension
+  {
+    using Version = BWFFile::BextVersion;
+    using UMID = BWFFile::UMID;
+
+    BroadcastAudioExtension (Version version = Version::v_0)
+      : version_ {static_cast<quint16> (version)}
+      , umid_ {{}}
+    {
+      // set some sensible defaults for the "bext" fields
+      auto now = QDateTime::currentDateTimeUtc ();
+      std::strncpy (origination_date_,
+                    now.date ().toString ("yyyy-MM-dd").toLocal8Bit ().constData (),
+                    sizeof origination_date_);
+      std::strncpy (origination_time_,
+                    now.time ().toString ("hh-mm-ss").toLocal8Bit ().constData (),
+                    sizeof origination_time_);
+      auto uuid = QUuid::createUuid ().toRfc4122 ();
+      std::copy (uuid.cbegin (), uuid.cend (), umid_.data () + 16);
+    }
+
+    char description_[256];
+    char originator_[32];
+    char originator_reference_[32];
+    char origination_date_[10];
+    char origination_time_[10];
+    quint32 time_reference_low_;
+    quint32 time_reference_high_;
+    quint16 version_;
+    UMID umid_;                       // V1 zero for V0
+    quint16 loudness_value_;          // V2
+    quint16 loudness_range_;          // V2
+    quint16 max_true_peak_level_;     // V2
+    quint16 max_momentary_loudness_;  // V2
+    quint16 max_short_term_loudness_; // V2
+    quint8 reserved_[180];
+    char coding_history_[];
+  };
 }
 
-WavFile::WavFile (QAudioFormat const& format, QObject * parent)
-  : QIODevice {parent}
-  , header_dirty_ {true}
-  , format_ {format}
-  , header_length_ {-1}
+class BWFFile::impl final
 {
-}
+public:
+  impl (QAudioFormat const& format)
+    : header_dirty_ {true}
+    , format_ {format}
+    , header_length_ {-1}
+    , data_size_ {-1}
+  {
+  }
 
-WavFile::WavFile (QAudioFormat const& format, QString const& name, QObject * parent)
-  : QIODevice {parent}
-  , header_dirty_ {true}
-  , format_ {format}
-  , file_ {name}
-  , header_length_ {-1}
-{
-}
+  impl (QAudioFormat const& format, QString const& name)
+    : header_dirty_ {true}
+    , format_ {format}
+    , file_ {name}
+    , header_length_ {-1}
+    , data_size_ {-1}
+  {
+  }
 
-WavFile::WavFile (QAudioFormat const& format, QString const& name
-                  , InfoDictionary const& dictionay, QObject * parent)
-  : QIODevice {parent}
-  , header_dirty_ {true}
-  , format_ {format}
-  , file_ {name}
-  , header_length_ {-1}
-  , info_dictionary_ {dictionay}
-{
-}
+  impl (QAudioFormat const& format, QString const& name, InfoDictionary const& dictionary)
+    : header_dirty_ {true}
+    , format_ {format}
+    , file_ {name}
+    , info_dictionary_ {dictionary}
+    , header_length_ {-1}
+    , data_size_ {-1}
+  {
+  }
 
-WavFile::~WavFile ()
-{
-  QIODevice::close ();
-  if (header_dirty_) update_header ();
-  file_.close ();
-}
+  ~impl ()
+  {
+    file_.close ();
+  }
 
-bool WavFile::open (OpenMode mode)
+  bool initialize (BWFFile * self, OpenMode mode);
+  bool read_header ();
+  bool write_header (QAudioFormat);
+  bool update_header ();
+
+  BroadcastAudioExtension const * bext () const
+  {
+    return bext_.isEmpty () ? nullptr : reinterpret_cast<BroadcastAudioExtension const *> (bext_.constData ());
+  }
+
+  BroadcastAudioExtension * bext ()
+  {
+    if (bext_.isEmpty ())       // create a "bext" chunk in place
+      {
+        bext_.data ();
+        bext_.fill ('\0', sizeof (BroadcastAudioExtension));
+        new (bext_.data ()) BroadcastAudioExtension {};
+      }
+    return reinterpret_cast<BroadcastAudioExtension *> (bext_.data ());
+  }
+
+  bool header_dirty_;
+  QAudioFormat format_;
+  QFile file_;
+  QByteArray bext_;
+  InfoDictionary info_dictionary_;
+  qint64 header_length_;
+  qint64 data_size_;
+};
+
+bool BWFFile::impl::initialize (BWFFile * self, OpenMode mode)
 {
   bool result {false};
-  if (!(mode & ReadOnly)) return result;
-  if (!(mode & WriteOnly))
-    {
-      result = file_.open (mode & ~Text) && read_header ();
-    }
-  else
-    {
-      if ((result = file_.open (mode & ~Text)))
-        {
-          if (!(result = read_header () || write_header (format_)))
-            {
-              file_.close ();
-              return false;
-            }
-        }
-    }
-  return result ? initialize (mode) : false;
-}
-
-bool WavFile::open(FILE * fh, OpenMode mode, FileHandleFlags flags)
-{
-  bool result {false};
-  if (!(mode & ReadOnly)) return result;
-  if (!mode & WriteOnly)
-    {
-      result = file_.open (fh, mode & ~Text, flags) && read_header ();
-    }
-  else
-    {
-      if ((result = file_.open (fh, mode & ~Text, flags)))
-        {
-          if (!(result = read_header () || write_header (format_)))
-            {
-              file_.close ();
-              return false;
-            }
-        }
-    }
-  return result ? initialize (mode) : false;
-}
-
-bool WavFile::open (int fd, OpenMode mode, FileHandleFlags flags)
-{
-  bool result {false};
-  if (!(mode & ReadOnly)) return result;
-  if (!(mode & WriteOnly))
-    {
-      result = file_.open (fd, mode & ~Text, flags) && read_header ();
-    }
-  else
-    {
-      if ((result = file_.open (fd, mode & ~Text, flags)))
-        {
-          if (!(result = read_header () || write_header (format_)))
-            {
-              file_.close ();
-              return false;
-            }
-        }
-    }
-  return result ? initialize (mode) : false;
-}
-
-bool WavFile::initialize (OpenMode mode)
-{
-  bool result {QIODevice::open (mode | Unbuffered)};
-  if (result && (mode & Append))
+  if (mode & Append)
     {
       result = file_.seek (file_.size ());
-      if (result) result = seek (file_.size () - header_length_);
+      if (result) result = self->seek (file_.size () - header_length_);
     }
   else
     {
-      result = seek (0);
-    }
-  if (!result)
-    {
-      file_.close ();
-      close ();
+      result = self->seek (0);
     }
   return result;
 }
 
-bool WavFile::read_header ()
+bool BWFFile::impl::read_header ()
 {
+  header_length_ = -1;
+  data_size_ = -1;
+  if (!(file_.openMode () & ReadOnly)) return false;
   if (!file_.seek (0)) return false;
   Desc outer_desc;
   quint32 outer_offset = file_.pos ();
@@ -207,6 +217,10 @@ bool WavFile::read_header ()
                 {
                   if (file_.read (&wave_desc, sizeof wave_desc) != sizeof wave_desc) return false;
                   wave_size = be ? qFromBigEndian<quint32> (wave_desc.size_) : qFromLittleEndian<quint32> (wave_desc.size_);
+                  if (!memcmp (&wave_desc.id_, "bext", 4))
+                    {
+                      bext_ = file_.read (wave_size);
+                    }
                   if (!memcmp (&wave_desc.id_, "fmt ", 4))
                     {
                       FormatChunk fmt;
@@ -223,8 +237,8 @@ bool WavFile::read_header ()
                     }
                   else if (!memcmp (&wave_desc.id_, "data", 4))
                     {
+                      data_size_ = wave_size;
                       header_length_ = file_.pos ();
-                      return true; // done
                     }
                   else if (!memcmp (&wave_desc.id_, "LIST", 4))
                     {
@@ -253,12 +267,14 @@ bool WavFile::read_header ()
       if (!file_.seek (outer_offset + sizeof outer_desc + (outer_size + 1) / 2 * 2)) return false;
       outer_offset = file_.pos ();
     }
-  return false;
+  return data_size_ >= 0 && file_.seek (header_length_);
 }
 
-bool WavFile::write_header (QAudioFormat format)
+bool BWFFile::impl::write_header (QAudioFormat format)
 {
+  data_size_ = -1;
   if ("audio/pcm" != format.codec ()) return false;
+  if (!(file_.openMode () & WriteOnly)) return false;
   if (!file_.seek (0)) return false;
   header_length_ = 0;
   bool be {QAudioFormat::BigEndian == format_.byteOrder ()};
@@ -266,6 +282,7 @@ bool WavFile::write_header (QAudioFormat format)
   if (file_.write (&desc, sizeof desc) != sizeof desc) return false;
   header_dirty_ = true;
   if (file_.write ("WAVE", 4) != 4) return false;
+
   FormatChunk fmt;
   if (be)
     {
@@ -289,92 +306,533 @@ bool WavFile::write_header (QAudioFormat format)
     }
   if (file_.write (&desc, sizeof desc) != sizeof desc) return false;
   if (file_.write (reinterpret_cast<char const *> (&fmt), sizeof fmt) != sizeof fmt) return false;
-  if (info_dictionary_.size ())
-    {
-      auto position = file_.pos ();
-      desc.set ("LIST");
-      if (file_.write (&desc, sizeof desc) != sizeof desc) return false;
-      if (file_.write ("INFO", 4) != 4) return false;
-      for (auto iter = info_dictionary_.constBegin ()
-             ; iter != info_dictionary_.constEnd (); ++iter)
-        {
-          auto value = iter.value ();
-          auto len = value.size () + 1;
-          auto padded_len = (len + 1) / 2 * 2;
-          if (padded_len > value.size ()) value.append ('\0');
-          desc.set (iter.key ().data (), be ? qToBigEndian<quint32> (len) : qToLittleEndian<quint32> (len));
-          if (file_.write (&desc, sizeof desc) != sizeof desc) return false;
-          if (file_.write (value.constData (), padded_len) != padded_len) return false;
-        }
-      auto end_position = file_.pos ();
-      if (!file_.seek (position)) return false;
-      if (file_.peek (&desc, sizeof desc) != sizeof desc) return false;
-      Q_ASSERT (!memcmp (desc.id_.data (), "LIST", 4));
-      auto size = end_position - position - sizeof desc;
-      desc.size_ = be ? qToBigEndian<quint32> (size) : qToLittleEndian<quint32> (size);
-      if (file_.write (&desc, sizeof desc) != sizeof desc) return false;
-      if (!file_.seek (end_position)) return false;
-    }
-  auto size = file_.size () - file_.pos () - sizeof desc;
-  desc.set ("data", be ? qToBigEndian<quint32> (size) : qToLittleEndian<quint32> (size));
+
+  desc.set ("data");
   if (file_.write (&desc, sizeof desc) != sizeof desc) return false;
   header_length_ = file_.pos ();
   return true;
 }
 
-bool WavFile::update_header ()
+bool BWFFile::impl::update_header ()
 {
   if (header_length_ < 0 || !(file_.openMode () & WriteOnly)) return false;
   auto position = file_.pos ();
   bool be {QAudioFormat::BigEndian == format_.byteOrder ()};
   Desc desc;
+  auto size = data_size_ < 0 ? file_.size () - header_length_ : data_size_;
   if (!file_.seek (header_length_ - sizeof desc)) return false;
-  if (file_.peek (&desc, sizeof desc) != sizeof desc) return false;
-  Q_ASSERT (!memcmp (desc.id_.data (), "data", 4));
-  auto size = file_.size () - header_length_;
-  desc.size_ = be ? qToBigEndian<quint32> (size) : qToLittleEndian<quint32> (size);
+  desc.set ("data", be ? qToBigEndian<quint32> (size) : qToLittleEndian<quint32> (size));
   if (file_.write (&desc, sizeof desc) != sizeof desc) return false;
-  if (!file_.seek (0)) return false;
-  if (file_.peek (&desc, sizeof desc) != sizeof desc) return false;
-  Q_ASSERT (!memcmp (desc.id_.data (), "RIFF", 4) || !memcmp (desc.id_.data (), "RIFX", 4));
+
+  if (!bext_.isEmpty ())
+    {
+      if (!file_.seek (file_.size ())) return false;
+      auto size = bext_.size ();
+      desc.set ("bext", be ? qToBigEndian<quint32> (size) : qToLittleEndian<quint32> (size));
+      if ((file_.size () % 2) && file_.write ("\0", 1) != 1) return false;
+      if (file_.write (&desc, sizeof desc) != sizeof desc) return false;
+      auto * data = reinterpret_cast<BroadcastAudioExtension *> (bext_.data ());
+      if (be)
+        {
+          data->time_reference_low_ = qToBigEndian<quint32> (data->time_reference_low_);
+          data->time_reference_high_ = qToBigEndian<quint32> (data->time_reference_high_);
+          switch (static_cast<BextVersion> (data->version_))
+            {
+            case BextVersion::v_0:
+              data->version_ = qToBigEndian<quint32> (data->version_);
+            default:
+              data->loudness_value_ = qToBigEndian<quint16> (data->loudness_value_);
+              data->loudness_range_ = qToBigEndian<quint16> (data->loudness_range_);
+              data->max_true_peak_level_ = qToBigEndian<quint16> (data->max_true_peak_level_);
+              data->max_momentary_loudness_ = qToBigEndian<quint16> (data->max_momentary_loudness_);
+              data->max_short_term_loudness_ = qToBigEndian<quint16> (data->max_short_term_loudness_);
+            }
+        }
+      else
+        {
+          data->time_reference_low_ = qToLittleEndian<quint32> (data->time_reference_low_);
+          data->time_reference_high_ = qToLittleEndian<quint32> (data->time_reference_high_);
+          switch (static_cast<BextVersion> (data->version_))
+            {
+            case BextVersion::v_0:
+              data->version_ = qToLittleEndian<quint32> (data->version_);
+            default:
+              data->loudness_value_ = qToLittleEndian<quint16> (data->loudness_value_);
+              data->loudness_range_ = qToLittleEndian<quint16> (data->loudness_range_);
+              data->max_true_peak_level_ = qToLittleEndian<quint16> (data->max_true_peak_level_);
+              data->max_momentary_loudness_ = qToLittleEndian<quint16> (data->max_momentary_loudness_);
+              data->max_short_term_loudness_ = qToLittleEndian<quint16> (data->max_short_term_loudness_);
+            }
+        }
+      if (file_.write (bext_) != size) return false;
+    }
+
+  if (info_dictionary_.size ())
+    {
+      if (!file_.seek (file_.size ())) return false;
+      desc.set ("LIST");
+      if ((file_.size () % 2) && file_.write ("\0", 1) != 1) return false;
+      if (file_.write (&desc, sizeof desc) != sizeof desc) return false;
+      auto list_start = file_.pos ();
+      if (file_.write ("INFO", 4) != 4) return false;
+      for (auto iter = info_dictionary_.constBegin ()
+             ; iter != info_dictionary_.constEnd (); ++iter)
+        {
+          auto value = iter.value ();
+          auto len = value.size () + 1; // include terminating null char
+          desc.set (iter.key ().data (), be ? qToBigEndian<quint32> (len) : qToLittleEndian<quint32> (len));
+          if ((file_.size () % 2) && file_.write ("\0", 1) != 1) return false;
+          if (file_.write (&desc, sizeof desc) != sizeof desc) return false;
+          if (file_.write (value.constData (), len) != len) return false;
+        }
+      auto size = file_.pos () - list_start;
+      if (!file_.seek (list_start - sizeof desc)) return false;
+      desc.set ("LIST", be ? qToBigEndian<quint32> (size) : qToLittleEndian<quint32> (size));
+      if (file_.write (&desc, sizeof desc) != sizeof desc) return false;
+    }
+
   size = file_.size () - sizeof desc;
-  desc.size_ = be ? qToBigEndian<quint32> (size) : qToLittleEndian<quint32> (size);
+  if ((file_.size () % 2) && file_.seek (file_.size ()) && file_.write ("\0", 1) != 1) return false;
+  if (!file_.seek (0)) return false;
+  desc.set (be ? "RIFX" : "RIFF", be ? qToBigEndian<quint32> (size) : qToLittleEndian<quint32> (size));
   if (file_.write (&desc, sizeof desc) != sizeof desc) return false;
   return file_.seek (position);
 }
 
-bool WavFile::reset ()
+//
+// BWFFile implementation
+//
+BWFFile::BWFFile (QAudioFormat const& format, QObject * parent)
+  : QIODevice {parent}
+  , m_ {format}
 {
-  file_.seek (header_length_);
+}
+
+BWFFile::BWFFile (QAudioFormat const& format, QString const& name, QObject * parent)
+  : QIODevice {parent}
+  , m_ {format, name}
+{
+}
+
+BWFFile::BWFFile (QAudioFormat const& format, QString const& name
+                  , InfoDictionary const& dictionary, QObject * parent)
+  : QIODevice {parent}
+  , m_ {format, name, dictionary}
+{
+}
+
+BWFFile::~BWFFile ()
+{
+  if (isOpen ()) close ();
+}
+
+bool BWFFile::open (OpenMode mode)
+{
+  bool result {false};
+  if (!(mode & WriteOnly))
+    {
+      result = m_->file_.open (mode & ~Text) && m_->read_header ();
+    }
+  else
+    {
+      if ((result = m_->file_.open (mode & ~Text)))
+        {
+          if (!(result = m_->read_header ()
+                || m_->write_header (m_->format_)
+                || m_->file_.resize (m_->header_length_)))
+            {
+              m_->file_.close ();
+              return false;
+            }
+        }
+    }
+  if (result && (result = QIODevice::open (mode | Unbuffered)))
+    {
+      return m_->initialize (this, mode);
+    }
+  if (!result) close ();
+  return result;
+}
+
+bool BWFFile::open(FILE * fh, OpenMode mode, FileHandleFlags flags)
+{
+  bool result {false};
+  if (!(mode & ReadOnly)) return result;
+  if (!mode & WriteOnly)
+    {
+      result = m_->file_.open (fh, mode & ~Text, flags) && m_->read_header ();
+    }
+  else
+    {
+      if ((result = m_->file_.open (fh, mode & ~Text, flags)))
+        {
+          if (!(result = m_->read_header ()
+                || m_->write_header (m_->format_)
+                || m_->file_.resize (m_->header_length_)))
+            {
+              m_->file_.close ();
+              return false;
+            }
+        }
+    }
+  if (result && (result = QIODevice::open (mode | Unbuffered)))
+    {
+      return m_->initialize (this, mode);
+    }
+  if (!result) close ();
+  return result;
+}
+
+bool BWFFile::open (int fd, OpenMode mode, FileHandleFlags flags)
+{
+  bool result {false};
+  if (!(mode & ReadOnly)) return result;
+  if (!(mode & WriteOnly))
+    {
+      result = m_->file_.open (fd, mode & ~Text, flags) && m_->read_header ();
+    }
+  else
+    {
+      if ((result = m_->file_.open (fd, mode & ~Text, flags)))
+        {
+          if (!(result = m_->read_header ()
+                || m_->write_header (m_->format_)
+                || m_->file_.resize (m_->header_length_)))
+            {
+              m_->file_.close ();
+              return false;
+            }
+        }
+    }
+  if (result && (result = QIODevice::open (mode | Unbuffered)))
+    {
+      return m_->initialize (this, mode);
+    }
+  if (!result) close ();
+  return result;
+}
+
+QAudioFormat const& BWFFile::format () const {return m_->format_;}
+
+auto BWFFile::list_info () -> InfoDictionary&
+{
+  m_->header_dirty_ = true;
+  return m_->info_dictionary_;
+}
+
+
+// Broadcast Audio Extension fields
+auto BWFFile::bext_version () const -> BextVersion
+{
+  return static_cast<BextVersion> (m_->bext () ? 0 : m_->bext ()->version_);
+}
+
+void BWFFile::bext_version (BextVersion version)
+{
+  m_->header_dirty_ = true;
+  m_->bext ()->version_ = static_cast<quint16> (version);
+}
+
+QByteArray BWFFile::bext_description () const
+{
+  if (!m_->bext ()) return {};
+  return QByteArray::fromRawData (m_->bext ()->description_, strlen (m_->bext ()->description_));
+}
+
+void BWFFile::bext_description (QByteArray const& description)
+{
+  m_->header_dirty_ = true;
+  std::strncpy (m_->bext ()->description_, description.constData (), sizeof (BroadcastAudioExtension::description_));
+}
+
+QByteArray BWFFile::bext_originator () const
+{
+  if (!m_->bext ()) return {};
+  return QByteArray::fromRawData (m_->bext ()->originator_, strlen (m_->bext ()->originator_));
+}
+
+void BWFFile::bext_originator (QByteArray const& originator)
+{
+  m_->header_dirty_ = true;
+  std::strncpy (m_->bext ()->originator_, originator.constData (), sizeof (BroadcastAudioExtension::originator_));
+}
+
+QByteArray BWFFile::bext_originator_reference () const
+{
+  if (!m_->bext ()) return {};
+  return QByteArray::fromRawData (m_->bext ()->originator_reference_, strlen (m_->bext ()->originator_reference_));
+}
+
+void BWFFile::bext_originator_reference (QByteArray const& reference)
+{
+  m_->header_dirty_ = true;
+  std::strncpy (m_->bext ()->originator_reference_, reference.constData (), sizeof (BroadcastAudioExtension::originator_reference_));
+}
+
+QDateTime BWFFile::bext_origination_date_time () const
+{
+  if (!m_->bext ()) return {};
+  return {QDate::fromString (m_->bext ()->origination_date_, "yyyy-MM-dd"),
+      QTime::fromString (m_->bext ()->origination_time_, "hh-mm-ss"), Qt::UTC};
+}
+
+void BWFFile::bext_origination_date_time (QDateTime const& dt)
+{
+  m_->header_dirty_ = true;
+  std::strncpy (m_->bext ()->origination_date_,
+                dt.date ().toString ("yyyy-MM-dd").toLocal8Bit ().constData (),
+                sizeof (BroadcastAudioExtension::origination_date_));
+  std::strncpy (m_->bext ()->origination_time_,
+                dt.time ().toString ("hh-mm-ss").toLocal8Bit ().constData (),
+                sizeof (BroadcastAudioExtension::origination_time_));
+}
+
+quint64 BWFFile::bext_time_reference () const
+{
+  if (!m_->bext ()) return 0;
+  return (quint64 (m_->bext ()->time_reference_high_) << 32) + m_->bext ()->time_reference_low_;
+}
+
+void BWFFile::bext_time_reference (quint64 time_code)
+{
+  m_->header_dirty_ = true;
+  m_->bext ()->time_reference_low_ = time_code & 0x00000000ffffffffll;
+  m_->bext ()->time_reference_high_ = time_code >> 32;
+}
+
+auto BWFFile::bext_umid () const -> UMID
+{
+  UMID umid {'\0'};
+  if (m_->bext ())
+    {
+      umid = m_->bext ()->umid_;
+    }
+  return umid;
+}
+
+void BWFFile::bext_umid (UMID const& umid)
+{
+  m_->header_dirty_ = true;
+  m_->bext ()->umid_ = umid;
+}
+
+quint16 BWFFile::bext_loudness_value () const
+{
+  if (!m_->bext ()) return 0;
+  return m_->bext ()->loudness_value_;
+}
+
+void BWFFile::bext_loudness_value (quint16 value)
+{
+  m_->header_dirty_ = true;
+  m_->bext ()->loudness_value_ = value;
+}
+
+quint16 BWFFile::bext_loudness_range () const
+{
+  if (!m_->bext ()) return 0;
+  return m_->bext ()->loudness_range_;
+}
+
+void BWFFile::bext_loudness_range (quint16 range)
+{
+  m_->header_dirty_ = true;
+  m_->bext ()->loudness_range_ = range;
+}
+
+quint16 BWFFile::bext_max_true_peak_level () const
+{
+  if (!m_->bext ()) return 0;
+  return m_->bext ()->max_true_peak_level_;
+}
+
+void BWFFile::bext_max_true_peak_level (quint16 level)
+{
+  m_->header_dirty_ = true;
+  m_->bext ()->max_true_peak_level_ = level;
+}
+
+quint16 BWFFile::bext_max_momentary_loudness () const
+{
+  if (!m_->bext ()) return 0;
+  return m_->bext ()->max_momentary_loudness_;
+}
+
+void BWFFile::bext_max_momentary_loudness (quint16 loudness)
+{
+  m_->header_dirty_ = true;
+  m_->bext ()->max_momentary_loudness_ = loudness;
+}
+
+quint16 BWFFile::bext_max_short_term_loudness () const
+{
+  if (!m_->bext ()) return 0;
+  return m_->bext ()->max_short_term_loudness_;
+}
+
+void BWFFile::bext_max_short_term_loudness (quint16 loudness)
+{
+  m_->header_dirty_ = true;
+  m_->bext ()->max_short_term_loudness_ = loudness;
+}
+
+QByteArray BWFFile::bext_coding_history () const
+{
+  if (size_t (m_->bext_.size ()) <= sizeof (BroadcastAudioExtension)) return {};
+  return QByteArray::fromRawData (m_->bext ()->coding_history_,
+                                  m_->bext_.size () - sizeof (BroadcastAudioExtension));
+}
+
+void BWFFile::bext_coding_history (QByteArray const& text)
+{
+  m_->header_dirty_ = true;
+  m_->bext ();                  // ensure we have a correctly
+                                // initialized m_->bext_
+  auto length = std::min (strlen (text.constData ()), size_t (text.size ()));
+  m_->bext_.resize (sizeof (BroadcastAudioExtension) + length);
+  std::strncpy (m_->bext ()->coding_history_, text.constData (), length);
+}
+
+
+bool BWFFile::reset ()
+{
+  if (m_->file_.isOpen ())
+    {
+      m_->info_dictionary_.clear ();
+      m_->bext_.clear ();
+      auto size = m_->data_size_ < 0 ? m_->file_.size () - m_->header_length_ : m_->data_size_;
+      m_->data_size_ = size;
+      if (m_->header_length_ > 3 * sizeof (Desc) + 4 + sizeof (FormatChunk))
+        {
+          // we need to move the data down
+          auto old_pos = m_->header_length_;
+          m_->write_header (m_->format_);
+          auto new_pos = m_->header_length_;
+          QByteArray buffer;
+          while (size)
+            {
+              m_->file_.seek (old_pos);
+              buffer = m_->file_.read (std::min (size, qint64 (32768)));
+              m_->file_.seek (new_pos);
+              m_->file_.write (buffer);
+              new_pos += buffer.size ();
+              old_pos += buffer.size ();
+              size -= buffer.size ();
+            }
+        }
+      m_->file_.resize (m_->header_length_ + m_->data_size_);
+      m_->header_dirty_ = true;
+    }
   return QIODevice::reset ();
 }
 
-bool WavFile::isSequential () const
+qint64 BWFFile::size () const
 {
-  return file_.isSequential ();
+  return m_->data_size_ < 0 ? m_->file_.size () - m_->header_length_ : m_->data_size_;
 }
 
-void WavFile::close ()
+bool BWFFile::isSequential () const
+{
+  return m_->file_.isSequential ();
+}
+
+void BWFFile::close ()
 {
   QIODevice::close ();
-  file_.close ();
+  if (m_->header_dirty_ || m_->data_size_ < 0) m_->update_header ();
+  m_->file_.close ();
 }
 
-bool WavFile::seek (qint64 pos)
+bool BWFFile::seek (qint64 pos)
 {
   if (pos < 0) return false;
   QIODevice::seek (pos);
-  return file_.seek (pos + header_length_);
+  return m_->file_.seek (pos + m_->header_length_);
 }
 
-qint64 WavFile::readData (char * data, qint64 max_size)
+qint64 BWFFile::readData (char * data, qint64 max_size)
 {
-  return file_.read (data, max_size);
+  return m_->file_.read (data, max_size);
 }
 
-qint64 WavFile::writeData (char const* data, qint64 max_size)
+qint64 BWFFile::writeData (char const* data, qint64 max_size)
 {
-  auto bytes = file_.write (data, max_size);
-  if (bytes > 0 && atEnd ()) header_dirty_ = true;
+  auto bytes = m_->file_.write (data, max_size);
+  if (bytes > 0 && atEnd ())
+    {
+      m_->header_dirty_ = true;
+      m_->data_size_ = -1;
+    }
   return bytes;
 }
+
+// forward to QFile
+bool BWFFile::copy (QString const& new_name)
+{
+  close ();
+  return m_->file_.copy (new_name);
+}
+
+bool BWFFile::exists () const {return m_->file_.exists ();}
+
+bool BWFFile::link (QString const& link_name) {return m_->file_.link (link_name);}
+
+bool BWFFile::remove ()
+{
+  close ();
+  return m_->file_.remove ();
+}
+
+bool BWFFile::rename (QString const& new_name)
+{
+  close ();
+  return m_->file_.rename (new_name);
+}
+
+void BWFFile::setFileName (QString const& name) {m_->file_.setFileName (name);}
+
+QString BWFFile::symLinkTarget () const {return m_->file_.symLinkTarget ();}
+
+QString BWFFile::fileName () const {return m_->file_.fileName ();}
+
+auto BWFFile::permissions () const -> Permissions {return m_->file_.permissions ();}
+
+bool BWFFile::resize (qint64 new_size)
+{
+  auto size = m_->file_.size ();
+  if (pos () > new_size) seek (new_size);
+  auto result = m_->file_.resize (m_->header_length_ + new_size);
+  if (m_->data_size_ >= 0)
+    {
+      // set any fresh bytes to zero
+      auto end_of_data = m_->header_length_ + m_->data_size_;
+      auto length = std::min (size - end_of_data, m_->file_.size () - end_of_data);
+      if (length > 0)
+        {
+          auto position = m_->file_.pos ();
+          m_->file_.seek (m_->header_length_ + m_->data_size_);
+          m_->file_.write (QByteArray {int (length), '\0'});
+          m_->file_.seek (position);
+        }
+      m_->data_size_ = -1;
+    }
+  m_->header_dirty_ = true;
+  return result;
+}
+
+bool BWFFile::setPermissions (Permissions permissions) {return m_->file_.setPermissions (permissions);}
+
+auto BWFFile::error () const -> FileError {return m_->file_.error ();}
+
+bool BWFFile::flush () {return m_->file_.flush ();}
+
+int BWFFile::handle () const {return m_->file_.handle ();}
+
+uchar * BWFFile::map (qint64 offset, qint64 size, MemoryMapFlags flags)
+{
+  return m_->file_.map (offset + m_->header_length_, size, flags);
+}
+
+bool BWFFile::unmap (uchar * address) {return m_->file_.unmap (address);}
+
+void BWFFile::unsetError () {m_->file_.unsetError ();}

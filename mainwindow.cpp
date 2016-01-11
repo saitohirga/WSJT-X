@@ -35,7 +35,6 @@
 #include "messageaveraging.h"
 #include "widegraph.h"
 #include "sleep.h"
-#include "getfile.h"
 #include "logqso.h"
 #include "Radio.hpp"
 #include "Bands.hpp"
@@ -48,6 +47,7 @@
 #include "signalmeter.h"
 #include "HelpTextWindow.hpp"
 #include "SampleDownloader.hpp"
+#include "Audio/WavFile.hpp"
 
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
@@ -98,6 +98,7 @@ extern "C" {
 
   void fast_decode_(short id2[], int narg[], char msg[], int len);
   void degrade_snr_(short d2[], int* n, float* db);
+  void wav12_(short d2[], short d1[], int* nbytes, short* nbitsam2);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];	//Audio tones for all Tx symbols
@@ -614,13 +615,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
 
-  future1 = new QFuture<void>;
-  watcher1 = new QFutureWatcher<void>;
-  connect(watcher1, SIGNAL(finished()),this,SLOT(diskDat()));
-
-  future2 = new QFuture<void>;
-  watcher2 = new QFutureWatcher<void>;
-  connect(watcher2, SIGNAL(finished()),this,SLOT(diskWriteFinished()));
+  connect (&m_wav_future_watcher, &QFutureWatcher<void>::finished, this, &MainWindow::diskDat);
 
   future3 = new QFuture<void>;
   watcher3 = new QFutureWatcher<void>;
@@ -961,8 +956,9 @@ void MainWindow::dataSink(qint64 frames)
       t2.sprintf("%2.2d%2.2d",ihr,imin);
       m_fileToSave.clear ();
       m_fname = m_config.save_directory ().absoluteFilePath (t.date().toString("yyMMdd") + "_" + t2);
-      *future2 = QtConcurrent::run(savewav, m_fname + ".wav", m_TRperiod);
-      watcher2->setFuture(*future2);
+      // the following is potential a threading hazard - not a good
+      // idea to pass pointer to be processed in another thread
+      QtConcurrent::run(this, &MainWindow::save_wave_file, m_fname + ".wav", &dec_data.d2[0], m_TRperiod);
 
       if (m_mode.mid (0,4) == "WSPR") {
         m_c2name = m_fname + ".c2";
@@ -1004,6 +1000,36 @@ void MainWindow::dataSink(qint64 frames)
     }
     m_rxDone=true;
   }
+}
+
+void MainWindow::save_wave_file (QString const& name, short const * data, int seconds) const
+{
+  QAudioFormat format;
+  format.setCodec ("audio/pcm");
+  format.setSampleRate (12000);
+  format.setChannelCount (1);
+  format.setSampleSize (16);
+  format.setSampleType (QAudioFormat::SignedInt);
+  auto source = QString {"%1, %2"}.arg (m_config.my_callsign ()).arg (m_config.my_grid ());
+  auto comment = QString {"Mode=%1%2, Freq=%3%4"}
+     .arg (m_mode)
+     .arg (QString {m_mode.contains ('J') && !m_mode.contains ('+')
+           ? QString {", Sub Mode="} + QChar {'A' + m_nSubMode}
+         : QString {}})
+     .arg (Radio::frequency_MHz_string (m_dialFreq))
+     .arg (QString {!m_mode.contains ("WSPR") ? QString {", DXCall=%1, DXGrid=%2"}
+         .arg (m_hisCall)
+         .arg (m_hisGrid).toLocal8Bit () : ""});
+  BWFFile::InfoDictionary list_info {
+    {{'I','S','R','C'}, source.toLocal8Bit ()},
+    {{'I','S','F','T'}, program_title (revision ()).simplified ().toLocal8Bit ()},
+    {{'I','C','R','D'}, QDateTime::currentDateTime ()
+                          .toString ("yyyy-MM-ddTHH:mm:ss.zzzZ").toLocal8Bit ()},
+    {{'I','C','M','T'}, comment.toLocal8Bit ()},
+  };
+  BWFFile wav {format, name, list_info};
+  wav.open (BWFFile::WriteOnly);
+  wav.write (reinterpret_cast<char const *> (data), sizeof (short) * seconds * format.sampleRate ());
 }
 
 //-------------------------------------------------------------- fastSink()
@@ -1062,8 +1088,9 @@ void MainWindow::fastSink(qint64 frames)
     }
     if(!m_diskData and (m_saveAll or m_saveDecoded) and m_fname != "" and
        !decodeEarly) {
-      *future2 = QtConcurrent::run(savewav, m_fname, m_TRperiod);
-      watcher2->setFuture(*future2);
+      // the following is potential a threading hazard - not a good
+      // idea to pass pointer to be processed in another thread
+      QtConcurrent::run (this, &MainWindow::save_wave_file, m_fname, &dec_data.d2[0], m_TRperiod);
       m_fileToKill=m_fname;
       killFileTimer->start (3*1000*m_TRperiod/4); //Kill 3/4 period from now
     }
@@ -1544,7 +1571,7 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
   QString fname;
   fname=QFileDialog::getOpenFileName(this, "Open File", m_path,
                                      "WSJT Files (*.wav)");
-  if(fname != "") {
+  if(!fname.isEmpty ()) {
     m_path=fname;
     int i1=fname.lastIndexOf("/");
     QString baseName=fname.mid(i1+1);
@@ -1552,9 +1579,44 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
     tx_status_label->setText(" " + baseName + " ");
     on_stopButton_clicked();
     m_diskData=true;
-    *future1 = QtConcurrent::run(getfile, fname, m_TRperiod);
-    watcher1->setFuture(*future1);         // call diskDat() when done
+    read_wav_file (fname);
   }
+}
+
+void MainWindow::read_wav_file (QString const& fname)
+{
+  m_wav_future = QtConcurrent::run ([this, fname] {
+      auto basename = fname.mid (fname.lastIndexOf ('/') + 1);
+      auto pos = fname.indexOf (".wav", 0, Qt::CaseInsensitive);
+      // global variables and threads do not mix well, this needs changing
+      dec_data.params.nutc = 0;
+      if (pos > 0)
+        {
+          if (pos == fname.indexOf ('_', -11) + 7)
+            {
+              dec_data.params.nutc = fname.mid (pos - 6, 6).toInt ();
+            }
+          else
+            {
+              dec_data.params.nutc = 100 * fname.mid (pos - 4, 4).toInt ();
+            }
+        }
+      BWFFile file {QAudioFormat {}, fname};
+      file.open (BWFFile::ReadOnly);
+      auto ntps = std::min (m_TRperiod * 12000, 120 * 12000);
+      auto bytes_per_frame = file.format ().bytesPerFrame ();
+      int n = file.read (reinterpret_cast<char *> (dec_data.d2),
+                         std::min (qint64 (bytes_per_frame * ntps), file.size ()));
+      std::memset (dec_data.d2 + n, 0, bytes_per_frame * ntps - n);
+      if (11025 == file.format ().sampleRate ())
+        {
+          auto sample_size = static_cast<short > (file.format ().sampleSize ());
+          wav12_ (dec_data.d2, dec_data.d2, &n, &sample_size);
+        }
+      dec_data.params.kin = n;
+      dec_data.params.newdat = 1;
+    });
+  m_wav_future_watcher.setFuture(m_wav_future); // call diskDat() when done
 }
 
 void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
@@ -1577,9 +1639,7 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
       tx_status_label->setStyleSheet("QLabel{background-color: #99ffff}");
       tx_status_label->setText(" " + baseName + " ");
       m_diskData=true;
-      *future1 = QtConcurrent::run(getfile, fname, m_TRperiod);
-      watcher1->setFuture(*future1);
-      return;
+      read_wav_file (fname);
     }
   }
 }
@@ -1607,10 +1667,6 @@ void MainWindow::diskDat()                                   //diskDat()
     dataSink(k);
     qApp->processEvents();                                //Update the waterfall
   }
-}
-
-void MainWindow::diskWriteFinished()                       //diskWriteFinished
-{
 }
 
 //Delete ../save/*.wav

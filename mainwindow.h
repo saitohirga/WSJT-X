@@ -93,7 +93,6 @@ public slots:
   void dataSink(qint64 frames);
   void fastSink(qint64 frames);
   void diskDat();
-  void diskWriteFinished();
   void freezeDecode(int n);
   void guiUpdate();
   void doubleClickOnCall(bool shift, bool ctrl);
@@ -436,12 +435,10 @@ private:
 
   QMessageBox msgBox0;
 
-  QFuture<void>* future1;
-  QFuture<void>* future2;
+  QFuture<void> m_wav_future;
   QFuture<void>* future3;
-  QFutureWatcher<void>* watcher1;
-  QFutureWatcher<void>* watcher2;
-  QFutureWatcher<void>* watcher3;
+  QFutureWatcher<void> m_wav_future_watcher;
+  QFutureWatcher<void> * watcher3;
 
   QProcess proc_jt9;
   QProcess p1;
@@ -559,15 +556,14 @@ private:
   QString WSPR_hhmm(int n);
   void fast_config(bool b);
   void CQRxFreq();
+  void save_wave_file (QString const& name, short const * data, int seconds) const;
+  void read_wav_file (QString const& fname);
 };
 
-extern void getfile(QString fname, int ntrperiod);
-extern void savewav(QString fname, int ntrperiod);
 extern int killbyname(const char* progName);
 extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
                    int minChan[], int maxChan[],
                    int minSpeed[], int maxSpeed[]);
-extern int ptt(int nport, int ntx, int* iptt, int* nopen);
 extern int next_tx_state(int pctx);
 
 #endif // MAINWINDOW_H
