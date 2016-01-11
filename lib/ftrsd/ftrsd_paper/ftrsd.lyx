@@ -110,6 +110,8 @@ moonbounce
 ) communication, where the scattered return signals are always weak.
  It was soon found that JT65 also enables worldwide communication on the
  HF bands with low power, modest antennas, and efficient spectral usage.
+ At least several thousand amateurs now use JT65 on a regular basis, making
+ contacts on all bands from 160 meters through microwaves.
 \end_layout
 
 \begin_layout Standard
@@ -179,7 +181,7 @@ name "sec:JT65-messages-and"
 
 \end_inset
 
-JT65 messages and Reed Solomon Codes
+JT65 Messages and Reed Solomon Codes
 \end_layout
 
 \begin_layout Standard
@@ -771,7 +773,7 @@ name "sec:The-decoding-algorithm"
 
 \end_inset
 
-The Franke-Taylor decoding algorithm
+The Franke-Taylor Decoding Algorithm
 \end_layout
 
 \begin_layout Standard
@@ -849,7 +851,7 @@ The FT algorithm uses quality indices made available by a noncoherent 64-FSK
 \end_inset
 
  of the symbol's fractional power 
-\begin_inset Formula $p_{1,\, j}$
+\begin_inset Formula $p_{1,\,j}$
 \end_inset
 
  in a sorted list of 
@@ -919,7 +921,7 @@ t educated guesses to select symbols for erasure.
 , the soft distance between the received word and the codeword: 
 \begin_inset Formula 
 \begin{equation}
-d_{s}=\sum_{j=1}^{n}\alpha_{j}\,(1+p_{1,\, j}).\label{eq:soft_distance}
+d_{s}=\sum_{j=1}^{n}\alpha_{j}\,(1+p_{1,\,j}).\label{eq:soft_distance}
 \end{equation}
 
 \end_inset
@@ -937,7 +939,7 @@ Here
 \end_inset
 
  if the received symbol and codeword symbol are different, and 
-\begin_inset Formula $p_{1,\, j}$
+\begin_inset Formula $p_{1,\,j}$
 \end_inset
 
  is the fractional power associated with received symbol 
@@ -981,7 +983,7 @@ In practice we find that
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-u=\frac{1}{n}\sum_{j=1}^{n}S(c_{j},\, j).\label{eq:u-metric}
+u=\frac{1}{n}\sum_{j=1}^{n}S(c_{j},\,j).\label{eq:u-metric}
 \end{equation}
 
 \end_inset
@@ -1014,7 +1016,7 @@ The correct JT65 codeword produces a value for
 
  bins containing noise only.
  Thus, if the spectral array 
-\begin_inset Formula $S(i,\, j)$
+\begin_inset Formula $S(i,\,j)$
 \end_inset
 
  has been normalized so that the average value of the noise-only bins is
@@ -1263,7 +1265,7 @@ For each received symbol, define the erasure probability as 1.3 times the
 a priori
 \emph default
  symbol-error probability determined from soft-symbol information 
-\begin_inset Formula $\{p_{1}\textrm{-rank},\, p_{2}/p_{1}\}$
+\begin_inset Formula $\{p_{1}\textrm{-rank},\,p_{2}/p_{1}\}$
 \end_inset
 
 .
@@ -1548,7 +1550,7 @@ Deep Search
 \begin_inset Quotes erd
 \end_inset
 
- algorithm is presented in an accompanying text box.
+ algorithm is presented as Algorithm 2 in an accompanying text box.
 \end_layout
 
 \begin_layout Standard
@@ -1723,8 +1725,8 @@ Simulated results on the AWGN channel
 \end_layout
 
 \begin_layout Standard
-Results of simulations using the BM, FT, and KV decoding algorithms on the
- JT65 code are presented in terms of word error rate versus 
+Results of simulations using the BM, KV, and FT, decoding algorithms on
+ the JT65 code are presented in terms of word error rate versus 
 \begin_inset Formula $E_{b}/N_{o}$
 \end_inset
 
@@ -1871,10 +1873,10 @@ reference "fig:bodide"
 
  or less.
  The circumstances for minimal amateur-radio QSOs are very different, however.
- Error rates of order 0.1 or higher may be acceptable.
- In this case the essential information is better presented in a plot showing
- the percentage of transmissions copied correctly as a function of signal-to-noi
-se ratio.
+ Decoding failure rates of order 0.1 or higher may be acceptable.
+ In this case the essential information is more usefully presented in a
+ plot showing the percentage of transmissions copied correctly as a function
+ of signal-to-noise ratio.
  Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -2074,11 +2076,11 @@ Number of trials needed to decode a received word versus Hamming distance
 \end_inset
 
  between the received word and the decoded codeword, for 1000 simulated
- transmissions on an AWGN channel with no fading and
+ transmissions on an AWGN channel with no fading and 
 \begin_inset Formula $\mathrm{SNR}{}_{2500}=-24$
 \end_inset
 
- dB, which corresponds to 
+ dB or 
 \begin_inset Formula $E_{b}/N_{o}=5.1$
 \end_inset
 
@@ -2123,7 +2125,7 @@ reference "fig:Psuccess"
  Hz.
  These simulated Doppler spreads are comparable to those encountered on
  HF ionospheric paths and also for EME at VHF and the lower UHF bands.
- For reference, we note that the JT65 symbol rate is about 2.69 Hz.
+ For comparison we note that the JT65 symbol rate is about 2.69 Hz.
  
 \end_layout
 
@@ -2216,62 +2218,110 @@ WSJT-X
 \end_layout
 
 \begin_layout Section
-Summary
+On-the-air Experience
 \end_layout
 
 \begin_layout Standard
-...
- Still to come ...
+The JT65 protocol has proven remarkably versatile.
+ Today the mode is used by thousands of amateurs around the world, communicating
+ over terrestrial paths on the MF and HF bands and over terrestrial as well
+ as EME paths from 50 MHz through 10 GHz.
+ Three submodes are in use, together accommodating a wide range of Doppler
+ spreads and potential instrumental instabilities.
+ All three submodes transmit the 63 data symbols interspersed with 63 synchroniz
+ation symbols at keying rate 11025/4096 = 2.69 baud.
+ Submode JT65A uses tone spacing equal to the symbol rate, so its total
+ occupied bandwidth is 
+\begin_inset Formula $66\times2.69=177.6$
+\end_inset
+
+ Hz.
+ Submodes B and C have tone spacings and occupied bandwidths 2 and 4 times
+ larger.
+ In practice JT65A is generally used at 50 MHz and below, JT65B on 144 through
+ 432 MHz, and JT65C at 1296 MHz and above.
 \end_layout
 
 \begin_layout Standard
-Possible ideas: 
-\end_layout
-
-\begin_layout Standard
-Tie it in to 
-\emph on
-WSJT-X
-\emph default
- and 
-\emph on
-MAP65
-\emph default
-.
- 
-\end_layout
-
-\begin_layout Subsubsection*
-Experience with FT on crowded HF bands:
-\end_layout
-
-\begin_layout Standard
-(Re the following paragraph and Figure 
+Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "fig:spectrogram"
+reference "fig:JT65B_EME"
 
 \end_inset
 
- - just playing around with ideas - feel free to change, delete, etc.)
+ shows portions of the main window and spectrogram displays of program 
+\emph on
+WSJT-X,
+\emph default
+ illustrating replies to an EME CQ from K1JT on 144.118 MHz using submode
+ JT65B.
+ Speckled vertical lines on the waterfall at 1494 and 1515 Hz are the synchroniz
+ing tones of signals from DL7UAE and SP6GWB.
+ Other visible speckles (barely above the noise) up to about 1693 Hz are
+ data tones from these two stations.
+ Two lines of decoded text show that the estimated average signal strengths
+ were 
+\begin_inset Formula $\mathrm{SNR}{}_{2500}=-23$
+\end_inset
+
+ and 
+\begin_inset Formula $-24$
+\end_inset
+
+ dB, respectrively, just one or two dB above the decoding threshold for
+ the FT decoder.
+ Note that the two signals overlap throughout 94% of their occupied bandwidths,
+ yet both are decoded cleanly and without errors.
+ Such behavior is typical of the JT65 protocol.
 \end_layout
 
 \begin_layout Standard
-The JT65 mode has proven to be remarkably versatile.
- Thousands of users regularly use the mode for two-way communication over
- terrestrial paths and the earth-moon-earth (
-\begin_inset Quotes eld
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename JT65B_EME.png
+
 \end_inset
 
-moonbounce
-\begin_inset Quotes erd
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:JT65B_EME"
+
 \end_inset
 
-) path at frequencies from VHF to microwaves, and over multi-hop ionospheric
- reflection paths at HF.
- Use on HF was not originally an intended application for the mode, but
- at present HF use accounts for the largest number of 2-way contacts.
+ Examples of JT65B EME signals recorded at K1JT.
+ Numbers above the spectrogram are audio frequencies in Hz, and the spectrogram'
+s vertical direction is one minute of time.
+ The horizintal green bar indicates full band occupied by the second decoded
+ signal, a reply from SP6GWB.
+ See text for additional details.
+\end_layout
+
+\end_inset
+
  
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -2282,36 +2332,27 @@ reference "fig:spectrogram"
 
 \end_inset
 
- (top) shows JT65 activity in a one-minute time-segment on the 20m amateur
- band during crowded daytime band conditions (JT65 transmissions start at
- the beginning of a minute and last for approximately 47 s).
- With some straightforward signal processing to demodulate the signals and
- produce soft-symbol data for the FT decoder we are able to extract and
- decode 21 messages from the data summarized in Figure 5.
- This is achieved with a relatively small timeout parameter 
-\begin_inset Formula $T=1000$
+ shows activity in submode JT65A during a single minute on the 20 m amateur
+ band.
+ At this time the band was crowded with overlapping signals; you can probably
+ count at least 19 distinct synchronizing tones (the speckled vertical lines
+ in the figure), and see that in some places as many as four signals overlap.
+ After straightforward signal processing to demodulate the signals and produce
+ soft-symbol data for the FT decoder, program 
+\emph on
+WSJT-X
+\emph default
+ extracts and decodes 21 error-free messages from this recorded data segment.
+ This is achieved with a relatively small timeout parameter, 
+\begin_inset Formula $T=1000.$
 \end_inset
 
- and in spite of the fact that the 200 Hz-wide 65-FSK (sync plut 64-FSK)
- signals overlap, with as many as 4 signals superposed in some parts of
- the spectrum.
- To achieve these results we use two successive sweeps over the spectrum.
- The strongest signals are sequentially decoded and then subtracted from
- the spectrum on the first pass.
- Figure 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "fig:spectrogram"
-
-\end_inset
-
- (bottom) shows the spectrogram after subtracting 12 signals that were decoded
- in the first pass.
- Another 9 signals are decoded from the data shown in the bottom figure
- on the second pass.
- Using exactly the same pre-processing, but without soft-symbol information
- the errors-only BM decoder is able to decode only 12 messages in two passes
- over the data.
+ For these results the decoder uses two successive sweeps over the spectrum.
+ The strongest signals (12 in this example) are sequentially decoded and
+ subtracted from the raw data after the first pass.
+ Another 9 signals are decoded in the second pass.
+ For comparison, the hard-decision BM decoder decodes only 12 messages from
+ this recording (9 in the first pass and 3 more in a second pass).
 \end_layout
 
 \begin_layout Standard
@@ -2334,18 +2375,6 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Graphics
-	filename fig_subtracted.tiff
-	width 6.5in
-	BoundingBox 0bp 0bp 1126bp 202bp
-	clip
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
@@ -2355,10 +2384,9 @@ name "fig:spectrogram"
 
 \end_inset
 
-(top) A spectrogram showing one minute of data collected under crowded band
- conditions on 20m during daytime hours.
- (bottom) The spectrogram after the subtracting all signals successfully
- decoded on the first pass.
+ Spectrogram showing one minute of data collected under crowded band conditions
+ on the 20 m band.
+ Numbers on the scale are frequencies (in Hz) above 14.076 MHz.
  
 \end_layout
 
@@ -2377,27 +2405,60 @@ name "fig:spectrogram"
 \end_layout
 
 \begin_layout Standard
-Maybe one screen shot, or partial screen shot of the 
-\begin_inset Quotes eld
+Our implementation of the FT decoder, written in a combination of Fortran
+ and C, is freely available as open-source code 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "wsjt_sourceforge"
+
 \end_inset
 
-Band Activity
-\begin_inset Quotes erd
+.
+ For the Berlekamp-Massey part of the algorithm we use routines written
+ by Phil Karn, KA9Q 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "karn"
+
 \end_inset
 
- window?
-\end_layout
-
-\begin_layout Standard
-Some EME results needed! 
-\end_layout
-
-\begin_layout Standard
-Something about the code repository and how to build 
+, modified slightly so that the Reed-Solomon syndromes are computed only
+ once in our most time-consuming loop (steps 2 through 8 in Algorithm 1).
+ The FT algorithm is now an integral part of programs 
 \emph on
-WSJT-X 
+WSJT,
+\emph default
+ 
+\emph on
+MAP65, 
+\emph default
+and 
+\emph on
+WSJT-X
 \emph default
 .
+ Improvement in sensitivity over the Kötter-Vardy decoder is small, only
+ a few tenths of a dB, but especially on the EME path such small advantages
+ are sometimes very important.
+ Perhaps even more essential, programs in the 
+\emph on
+WSJT 
+\emph default
+suite are now entirely open source.
+ We no longer need to use the patented KV algorithm or the specially licensed
+ executable program 
+\family typewriter
+kvasd[.exe]
+\family default
+.
+\end_layout
+
+\begin_layout Section
+Acknowledgments
+\end_layout
+
+\begin_layout Standard
+We thank X, Y, and Z for A and B...
 \end_layout
 
 \begin_layout Bibliography
@@ -2524,6 +2585,17 @@ IEEE Signal Processing Letters,
 \begin_inset CommandInset bibitem
 LatexCommand bibitem
 label "7"
+key "wsjt_sourceforge"
+
+\end_inset
+
+The WSJT project at SourceForge, https://sourceforge.net/projects/wsjt/
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label "8"
 key "karn"
 
 \end_inset
