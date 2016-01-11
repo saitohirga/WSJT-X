@@ -1,5 +1,7 @@
 module jt65_decode
 
+  integer, parameter :: NSZ=3413, NZMAX=60*12000, NFFT=1000
+
   type :: jt65_decoder
      procedure(jt65_decode_callback), pointer :: callback => null()
    contains
@@ -43,8 +45,6 @@ contains
     use timer_module, only: timer
 
     include 'constants.f90'
-    parameter (NSZ=3413,NZMAX=60*12000)
-    parameter (NFFT=1000)
 
     class(jt65_decoder), intent(inout) :: this
     procedure(jt65_decode_callback) :: callback
