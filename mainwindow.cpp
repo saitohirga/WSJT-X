@@ -47,7 +47,7 @@
 #include "signalmeter.h"
 #include "HelpTextWindow.hpp"
 #include "SampleDownloader.hpp"
-#include "Audio/WavFile.hpp"
+#include "Audio/BWFFile.hpp"
 
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"

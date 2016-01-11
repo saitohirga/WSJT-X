@@ -1,4 +1,4 @@
-#include "WavFile.hpp"
+#include "BWFFile.hpp"
 
 #include <cstring>
 #include <numeric>
@@ -14,7 +14,7 @@
 
 #include "pimpl_impl.hpp"
 
-#include "moc_WavFile.cpp"
+#include "moc_BWFFile.cpp"
 
 namespace
 {
