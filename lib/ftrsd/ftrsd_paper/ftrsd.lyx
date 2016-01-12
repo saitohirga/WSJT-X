@@ -185,8 +185,8 @@ JT65 Messages and Reed Solomon Codes
 \end_layout
 
 \begin_layout Standard
-JT65 message frames consist of a short compressed message encoded for transmissi
-on with a Reed-Solomon code.
+JT65 message frames consist of a short compressed 72-bit message encoded
+ for transmission with a Reed-Solomon code.
  Reed-Solomon codes are block codes characterized by 
 \begin_inset Formula $n$
 \end_inset
@@ -302,15 +302,7 @@ The FT algorithm creates lists of symbols suspected of being incorrect and
 \begin_inset Quotes eld
 \end_inset
 
-erasures,
-\begin_inset Quotes erd
-\end_inset
-
- while other incorrect symbols will be called 
-\begin_inset Quotes eld
-\end_inset
-
-errors.
+erasures.
 \begin_inset Quotes erd
 \end_inset
 
@@ -726,7 +718,7 @@ Examples 1 and 2 show that a random strategy for selecting symbols to erase
  (
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "eq:hypergeometric_pdf"
+reference "eq:cumulative_prob"
 
 \end_inset
 
