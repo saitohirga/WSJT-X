@@ -1640,6 +1640,7 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
       tx_status_label->setText(" " + baseName + " ");
       m_diskData=true;
       read_wav_file (fname);
+      return;
     }
   }
 }
