@@ -164,9 +164,9 @@ The JT65 protocol specifies transmissions that normally start one second
  and by a meaningful amount over the KV decoder.
  In addition to its excellent performance, the new algorithm has other desirable
  properties, not least of which is its conceptual simplicity.
- Decoding performance and complexity scale in a convenient way, providing
- steadily increasing soft-decision decoding gain as a tunable computational
- complexity parameter is increased over more than five orders of magnitude.
+ Decoding performance and computational complexity scale in a convenient
+ way, providing steadily increasing soft-decision decoding gain as a tunable
+ parameter is increased over more than five orders of magnitude.
  Appreciable gain is available from our decoder even on very simple (and
  relatively slow) computers.
  On the other hand, because the algorithm benefits from a large number of
@@ -1636,11 +1636,11 @@ Otherwise, declare decoding failure and exit.
 An acceptable hinted decode has been found.
  Declare a successful result and return the saved codeword and the value
  
-\begin_inset Formula $q=100*(u_{1}-bu_{2})$
+\begin_inset Formula $q=100(u_{1}-bu_{2})$
 \end_inset
 
  as a confidence indicator.
- By default we use 
+ By default we use the value 
 \begin_inset Formula $b=1.12$
 \end_inset
 
@@ -1672,12 +1672,12 @@ Comparisons of decoding performance are usually presented in the professional
  noise power spectral density.
  For weak-signal amateur radio work, performance is more conveniently presented
  as the probability of successfully decoding a received word plotted against
- signal-to-noise ratio in a 2500 Hz reference bandwidth, 
+ 
 \begin_inset Formula $\mathrm{SNR}{}_{2500}$
 \end_inset
 
-.
- The relationship between 
+, the signal-to-noise ratio in a 2500 Hz reference bandwidth, The relationship
+ between 
 \begin_inset Formula $E_{b}/N_{o}$
 \end_inset
 
@@ -1725,8 +1725,8 @@ Simulated results on the AWGN channel
 \end_layout
 
 \begin_layout Standard
-Results of simulations using the BM, KV, and FT, decoding algorithms on
- the JT65 code are presented in terms of word error rate versus 
+Results of simulations using the BM, KV, and FT decoding algorithms on the
+ JT65 code are presented in terms of word error rate versus 
 \begin_inset Formula $E_{b}/N_{o}$
 \end_inset
 
@@ -1905,10 +1905,10 @@ reference "fig:bodide"
 
 .
  It is apparent that the FT decoder produces more decodes than KV when 
-\begin_inset Formula $T=10^{4}$
+\begin_inset Formula $T\gtrsim3000$
 \end_inset
 
- or larger.
+.
  As already noted in connection with Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -2075,16 +2075,17 @@ Number of trials needed to decode a received word versus Hamming distance
 \begin_inset Formula $X$
 \end_inset
 
- between the received word and the decoded codeword, for 1000 simulated
- transmissions on an AWGN channel with no fading and 
+ between the received word and the decoded codeword.
+ We used 1000 simulated transmissions on an AWGN channel with no fading,
+ and 
 \begin_inset Formula $\mathrm{SNR}{}_{2500}=-24$
 \end_inset
 
- dB or 
-\begin_inset Formula $E_{b}/N_{o}=5.1$
+ dB 
+\begin_inset Formula $(E_{b}/N_{o}=5.1$
 \end_inset
 
- dB.
+ dB).
  
 \end_layout
 
@@ -2126,13 +2127,9 @@ reference "fig:Psuccess"
  These simulated Doppler spreads are comparable to those encountered on
  HF ionospheric paths and also for EME at VHF and the lower UHF bands.
  For comparison we note that the JT65 symbol rate is about 2.69 Hz.
- 
-\end_layout
-
-\begin_layout Standard
-It is interesting to note that while Rayleigh fading severely degrades the
- success rate of the BM decoder, the penalties are much smaller with both
- FT and 
+ It is interesting to note that while Rayleigh fading severely degrades
+ the success rate of the BM decoder, the penalties are much smaller with
+ both FT and 
 \begin_inset Quotes eld
 \end_inset
 
@@ -2143,8 +2140,8 @@ Deep Search
  decoding.
  Simulated Doppler spreads of 0.2 Hz actually increased the FT and DS decoding
  rates slightly at SNRs close to the decoding threshold, presumably because
- with the low-rate JT65 code signal peaks can be enough to produce good
- copy.
+ with the low-rate JT65 code signal peaks can provide the information needed
+ for good copy.
 \end_layout
 
 \begin_layout Standard
@@ -2254,11 +2251,10 @@ reference "fig:JT65B_EME"
 \emph on
 WSJT-X,
 \emph default
- illustrating replies to an EME CQ from K1JT on 144.118 MHz using submode
- JT65B.
+ illustrating replies to an EME CQ from K1JT on 144.118 MHz.
  Speckled vertical lines on the waterfall at 1494 and 1515 Hz are the synchroniz
 ing tones of signals from DL7UAE and SP6GWB.
- Other visible speckles (barely above the noise) up to about 1693 Hz are
+ Other visible speckles (barely above the noise) up to about 1870 Hz are
  data tones from these two stations.
  Two lines of decoded text show that the estimated average signal strengths
  were 
@@ -2315,17 +2311,13 @@ s vertical direction is one minute of time.
  
 \end_layout
 
-\begin_layout Plain Layout
-
-\end_layout
-
 \end_inset
 
 
 \end_layout
 
 \begin_layout Standard
-Figure 
+As another example, Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:spectrogram"
@@ -2334,16 +2326,17 @@ reference "fig:spectrogram"
 
  shows activity in submode JT65A during a single minute on the 20 m amateur
  band.
- At this time the band was crowded with overlapping signals; you can probably
- count at least 19 distinct synchronizing tones (the speckled vertical lines
- in the figure), and see that in some places as many as four signals overlap.
+ At this time the band was crowded with overlapping signals.
+ You can probably count at least 19 distinct synchronizing tones (the speckled
+ vertical lines in the figure), and can see that in some places as many
+ as four signals overlap.
  After straightforward signal processing to demodulate the signals and produce
  soft-symbol data for the FT decoder, program 
 \emph on
 WSJT-X
 \emph default
  extracts and decodes 21 error-free messages from this recorded data segment.
- This is achieved with a relatively small timeout parameter, 
+ This result is achieved with a relatively small timeout parameter, 
 \begin_inset Formula $T=1000.$
 \end_inset
 
@@ -2351,8 +2344,8 @@ WSJT-X
  The strongest signals (12 in this example) are sequentially decoded and
  subtracted from the raw data after the first pass.
  Another 9 signals are decoded in the second pass.
- For comparison, the hard-decision BM decoder decodes only 12 messages from
- this recording (9 in the first pass and 3 more in a second pass).
+ For comparison, the hard-decision BM decoder decodes a total of 12 messages
+ from this recording (9 in the first pass and 3 more in a second).
 \end_layout
 
 \begin_layout Standard
@@ -2423,7 +2416,7 @@ key "karn"
 \end_inset
 
 , modified slightly so that the Reed-Solomon syndromes are computed only
- once in our most time-consuming loop (steps 2 through 8 in Algorithm 1).
+ once in our most time-consuming loop (steps 2 through 8, Algorithm 1).
  The FT algorithm is now an integral part of programs 
 \emph on
 WSJT,
