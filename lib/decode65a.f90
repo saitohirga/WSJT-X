@@ -39,7 +39,8 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   dtbest=dt
   call afc65b(c5x,n6,fsample,nflip,a,ccfbest,dtbest)
   call timer('afc65b  ',1)
-
+  dtbest=dtbest+0.003628 ! remove decimation filter and coh. integrator delay
+  dt=dtbest !return new, improved estimate of dt
   sync2=3.7e-4*ccfbest/sq0                    !Constant is empirical 
 
 ! Apply AFC corrections to the time-domain signal
@@ -79,7 +80,6 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   call timer('dec65b  ',0)
   call decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,           &
        mycall,hiscall,hisgrid,nexp_decode,nqd,nft,qual,nhist,decoded)
-  dt=dtbest !return new, improved estimate of dt
   call timer('dec65b  ',1)
 
   return
