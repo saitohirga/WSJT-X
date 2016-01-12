@@ -851,7 +851,7 @@ The FT algorithm uses quality indices made available by a noncoherent 64-FSK
 \end_inset
 
  of the symbol's fractional power 
-\begin_inset Formula $p_{1,\,j}$
+\begin_inset Formula $p_{1,\, j}$
 \end_inset
 
  in a sorted list of 
@@ -921,7 +921,7 @@ t educated guesses to select symbols for erasure.
 , the soft distance between the received word and the codeword: 
 \begin_inset Formula 
 \begin{equation}
-d_{s}=\sum_{j=1}^{n}\alpha_{j}\,(1+p_{1,\,j}).\label{eq:soft_distance}
+d_{s}=\sum_{j=1}^{n}\alpha_{j}\,(1+p_{1,\, j}).\label{eq:soft_distance}
 \end{equation}
 
 \end_inset
@@ -939,7 +939,7 @@ Here
 \end_inset
 
  if the received symbol and codeword symbol are different, and 
-\begin_inset Formula $p_{1,\,j}$
+\begin_inset Formula $p_{1,\, j}$
 \end_inset
 
  is the fractional power associated with received symbol 
@@ -983,7 +983,7 @@ In practice we find that
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-u=\frac{1}{n}\sum_{j=1}^{n}S(c_{j},\,j).\label{eq:u-metric}
+u=\frac{1}{n}\sum_{j=1}^{n}S(c_{j},\, j).\label{eq:u-metric}
 \end{equation}
 
 \end_inset
@@ -1016,7 +1016,7 @@ The correct JT65 codeword produces a value for
 
  bins containing noise only.
  Thus, if the spectral array 
-\begin_inset Formula $S(i,\,j)$
+\begin_inset Formula $S(i,\, j)$
 \end_inset
 
  has been normalized so that the average value of the noise-only bins is
@@ -1265,7 +1265,7 @@ For each received symbol, define the erasure probability as 1.3 times the
 a priori
 \emph default
  symbol-error probability determined from soft-symbol information 
-\begin_inset Formula $\{p_{1}\textrm{-rank},\,p_{2}/p_{1}\}$
+\begin_inset Formula $\{p_{1}\textrm{-rank},\, p_{2}/p_{1}\}$
 \end_inset
 
 .
@@ -2265,8 +2265,8 @@ ing tones of signals from DL7UAE and SP6GWB.
 \begin_inset Formula $-24$
 \end_inset
 
- dB, respectrively, just one or two dB above the decoding threshold for
- the FT decoder.
+ dB, respectively, just one or two dB above the decoding threshold for the
+ FT decoder.
  Note that the two signals overlap throughout 94% of their occupied bandwidths,
  yet both are decoded cleanly and without errors.
  Such behavior is typical of the JT65 protocol.
@@ -2301,8 +2301,8 @@ name "fig:JT65B_EME"
  Examples of JT65B EME signals recorded at K1JT.
  Numbers above the spectrogram are audio frequencies in Hz, and the spectrogram'
 s vertical direction is one minute of time.
- The horizintal green bar indicates full band occupied by the second decoded
- signal, a reply from SP6GWB.
+ The horizontal green bar on the frequency axis indicates the bandwidth
+ occupied by the second decoded signal, a reply from SP6GWB.
  See text for additional details.
 \end_layout
 
