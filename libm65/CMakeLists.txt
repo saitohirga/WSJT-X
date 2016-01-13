@@ -62,8 +62,10 @@ set (FSRCS
   decode0.f90
   decode1a.f90
   deep65.f90
+  demod64a.f90
   display.f90
   dpol.f90
+  extract.f90
   four2a.f90
   ftninit.f90
   ftnquit.f90
@@ -94,10 +96,8 @@ set (FSRCS
   dcoord.f
   decode65b.f
   deg2grid.f
-  demod64a.f
   dot.f
   encode65.f
-  extract.F
   f77_wisdom.f
   fchisq.f
   fil6521.f
