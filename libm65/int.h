@@ -7,19 +7,18 @@
 
 /* Reed-Solomon codec control block */
 struct rs {
-  int mm;              /* Bits per symbol */
-  int nn;              /* Symbols per block (= (1<<mm)-1) */
-  DTYPE *alpha_to;     /* log lookup table */
-  DTYPE *index_of;     /* Antilog lookup table */
-  DTYPE *genpoly;      /* Generator polynomial */
-  int nroots;     /* Number of generator roots = number of parity symbols */
-  int fcr;        /* First consecutive root, index form */
-  int prim;       /* Primitive element, index form */
-  int iprim;      /* prim-th root of 1, index form */
-  int pad;        /* Padding bytes in shortened block */
+  unsigned int mm;   /* Bits per symbol */
+  unsigned int nn;   /* Symbols per block (= (1<<mm)-1) */
+  int *alpha_to;      /* log lookup table */
+  int *index_of;      /* Antilog lookup table */
+  int *genpoly;       /* Generator polynomial */
+  unsigned int nroots;     /* Number of generator roots = number of parity symbols */
+  unsigned int fcr;        /* First consecutive root, index form */
+  unsigned int prim;       /* Primitive element, index form */
+  unsigned int iprim;      /* prim-th root of 1, index form */
 };
 
-static int modnn(struct rs *rs,int x){
+static inline int modnn(struct rs *rs,int x){
   while (x >= rs->nn) {
     x -= rs->nn;
     x = (x >> rs->mm) + (x & rs->nn);
@@ -33,12 +32,10 @@ static int modnn(struct rs *rs,int x){
 #define ALPHA_TO (rs->alpha_to) 
 #define INDEX_OF (rs->index_of)
 #define GENPOLY (rs->genpoly)
-//#define NROOTS (rs->nroots)
-#define NROOTS (51)
+#define NROOTS (rs->nroots)
 #define FCR (rs->fcr)
 #define PRIM (rs->prim)
 #define IPRIM (rs->iprim)
-#define PAD (rs->pad)
 #define A0 (NN)
 
 #define ENCODE_RS encode_rs_int
@@ -47,9 +44,9 @@ static int modnn(struct rs *rs,int x){
 #define FREE_RS free_rs_int
 
 void ENCODE_RS(void *p,DTYPE *data,DTYPE *parity);
-int DECODE_RS(void *p,DTYPE *data,int *eras_pos,int no_eras);
-void *INIT_RS(int symsize,int gfpoly,int fcr,
-		   int prim,int nroots,int pad);
+int DECODE_RS(void *p,DTYPE *data,int *eras_pos,int no_eras, int calc_syn);
+void *INIT_RS(unsigned int symsize,unsigned int gfpoly,unsigned int fcr,
+		   unsigned int prim,unsigned int nroots);
 void FREE_RS(void *p);
 
 

@@ -71,6 +71,7 @@ set (FSRCS
   ftnquit.f90
   gen65.f90
   getdphi.f90
+  graycode65.f90
   iqcal.f90
   iqfix.f90
   jt65code.f90
@@ -138,6 +139,7 @@ set (FSRCS
 set (CSRCS
   decode_rs.c
   encode_rs.c
+  ftrsd2.c
   gran.c
   igray.c
   init_rs.c

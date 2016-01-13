@@ -33,10 +33,12 @@ subroutine demod64a(s3,nadd,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
   do j=1,63
      s1=-1.e30
      fsum=0.
+     psum=0.
      do i=1,64
         x=min(afac*s3(i,j)/ave,50.d0)
         fs(i)=exp(x)
         fsum=fsum+fs(i)
+        psum=psum + s3(i,j)
         if(s3(i,j).gt.s1) then
            s1=s3(i,j)
            i1=i                              !Most reliable
@@ -50,8 +52,10 @@ subroutine demod64a(s3,nadd,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
            i2=i                              !Second most reliable
         endif
      enddo
-     p1=fs(i1)/fsum                          !Normalized probabilities
-     p2=fs(i2)/fsum
+!     p1=fs(i1)/fsum                          !Normalized probabilities
+!     p2=fs(i2)/fsum
+     p1=s1/psum
+     p2=s2/psum
      mrsym(j)=i1-1
      mr2sym(j)=i2-1
      mrprob(j)=scale*p1
@@ -66,7 +70,8 @@ subroutine demod64a(s3,nadd,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
      sum=sum+mrprob(j)
      if(mrprob(j).le.5) nlow=nlow+1
   enddo
-  ntest=sum/63
+!  ntest=sum/63
+  ntest=sum
 
   return
 end subroutine demod64a
