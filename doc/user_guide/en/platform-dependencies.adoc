@@ -14,9 +14,11 @@ Default save::
 
 * *Windows, when using "--rig-name=xxx"*
 Settings::
- +%LOCALAPPDATA%\WSJT-X - xxx+
-Log files::
   +%LOCALAPPDATA%\WSJT-X - xxx\WSJT-X - xxx.ini+
+Log files::
+ +%LOCALAPPDATA%\WSJT-X - xxx\+
+Default save::
+ +%LOCALAPPDATA%\WSJT-X - xxx\save\+
 
 * *Linux*
 Settings::
@@ -27,10 +29,12 @@ Default save::
  +~/.local/share/WSJT-X/save/+
 
 * *Linux, when using "--rig-name=xxx"*
+Settings::
+ +~/.config/WSJT-X - xxx.ini+
 Log files::
  +~/.local/share/WSJT-X - xxx/+
 Default save::
- +~/.config/WSJT-x - xxx.ini+
+ +~/.local/share/WSJT-X - xxx/save/+
 
 * *Macintosh*
 Settings::
@@ -41,8 +45,10 @@ Default save::
  +~/Library/Application Support/WSJT-X/save/+
 
 * *Macintosh, when using "--rig-name=xxx"*
+Settings::
+ +~/Library/Preferences/WSJT-X - xxx.ini+
 Log files::
  +~/Library/Application Support/WSJT-X - xxx/+
 Default save::
- +~/Library/Preferences/WSJT-X - xxx.ini+
+ +~/Library/Application Support/WSJT-X - xxx/save/+
 
