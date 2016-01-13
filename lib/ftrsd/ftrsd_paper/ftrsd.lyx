@@ -9,9 +9,9 @@
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman default
-\font_sans default
-\font_typewriter default
+\font_roman lmodern
+\font_sans lmss
+\font_typewriter lmtt
 \font_math auto
 \font_default_family default
 \use_non_tex_fonts false
@@ -107,7 +107,14 @@ moonbounce
 \begin_inset Quotes erd
 \end_inset
 
-) communication, where the scattered return signals are always weak.
+) communication 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "jt65_protocol"
+
+\end_inset
+
+, where the scattered return signals are always weak.
  It was soon found that JT65 also enables worldwide communication on the
  HF bands with low power, modest antennas, and efficient spectral usage.
  At least several thousand amateurs now use JT65 on a regular basis, making
@@ -172,6 +179,54 @@ The JT65 protocol specifies transmissions that normally start one second
  On the other hand, because the algorithm benefits from a large number of
  independent decoding trials, further performance gains should be achievable
  through parallelization on high-performance computers.
+\end_layout
+
+\begin_layout Standard
+The remainder of this paper is organized as follows.
+ Section 2 presents a brief overview of the nature of Reed Solomon codes
+ and their error-correcting capabilities.
+ Section 3 provides statistical motivation for the FT algorithm, and Section
+ 4 describes the algorithm in full detail.
+ (Material in these two sections is important because it documents our approach
+ and underlines its fundamental technical contributions.
+ It is heavier in formal mathematics than common in these pages, however;
+ some readers may choose to skim or skip these sections and proceed to the
+ results more quickly.
+ Many readers will benefit by reviewing the original paper on the JT65 protocol
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "jt65_protocol"
+
+\end_inset
+
+.) A procedure for 
+\begin_inset Quotes eld
+\end_inset
+
+hinted decoding
+\begin_inset Quotes erd
+\end_inset
+
+ --- determining which one, if any, of a list of likely messages matches
+ the one that was received --- is outlined in Section 5.
+ Finally, in Section 6 we present performance measurements of the FT algorithm
+ and make explicit comparisons to the BM and KV decoders familiar to users
+ of programs 
+\emph on
+WSJT
+\emph default
+, 
+\emph on
+MAP65
+\emph default
+ and 
+\emph on
+WSJT-X
+\emph default
+.
+ Section 7 summarizes some early on-the-air experiences with the new decoder.
+ 
 \end_layout
 
 \begin_layout Section
@@ -2446,6 +2501,23 @@ Acknowledgments
 \begin_inset CommandInset bibitem
 LatexCommand bibitem
 label "1"
+key "jt65_protocol"
+
+\end_inset
+
+“The JT65 Communications Protocol”, J.
+ Taylor, K1JT, 
+\emph on
+QEX
+\emph default
+, September-October 2005.
+ Available also at http://physics.princeton.edu/pulsar/K1JT/JT65.pdf.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label "2"
 key "kv2001"
 
 \end_inset
@@ -2464,7 +2536,7 @@ IEEE Transactions on Information Theory
 \begin_layout Bibliography
 \begin_inset CommandInset bibitem
 LatexCommand bibitem
-label "2"
+label "3"
 key "wsjt"
 
 \end_inset
@@ -2479,7 +2551,7 @@ WSJT Home Page
 \begin_layout Bibliography
 \begin_inset CommandInset bibitem
 LatexCommand bibitem
-label "3"
+label "4"
 key "lc2004"
 
 \end_inset
@@ -2495,7 +2567,7 @@ Error Control Coding, 2nd Edition
 \begin_layout Bibliography
 \begin_inset CommandInset bibitem
 LatexCommand bibitem
-label "4"
+label "5"
 key "lhmg2010"
 
 \end_inset
@@ -2514,7 +2586,7 @@ IEEE Communications Letters
 \begin_layout Bibliography
 \begin_inset CommandInset bibitem
 LatexCommand bibitem
-label "5"
+label "6"
 key "lk2008"
 
 \end_inset
@@ -2539,7 +2611,7 @@ GLOBECOM
 \begin_layout Bibliography
 \begin_inset CommandInset bibitem
 LatexCommand bibitem
-label "6"
+label "7"
 key "ls2009"
 
 \end_inset
@@ -2565,7 +2637,7 @@ IEEE Signal Processing Letters,
 \begin_layout Bibliography
 \begin_inset CommandInset bibitem
 LatexCommand bibitem
-label "7"
+label "8"
 key "wsjt_sourceforge"
 
 \end_inset
@@ -2581,7 +2653,7 @@ e.net/projects/wsjt/
 \begin_layout Bibliography
 \begin_inset CommandInset bibitem
 LatexCommand bibitem
-label "8"
+label "9"
 key "karn"
 
 \end_inset
