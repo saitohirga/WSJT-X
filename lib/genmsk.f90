@@ -50,6 +50,13 @@ subroutine genmsk(msg0,ichk,msgsent,i4tone,itype)
         message=message(i+1:)
      enddo
 
+     if(message(1:1).eq.'<') then
+        call genmsk_short(message,msgsent,i4tone,itype)
+        if(itype.lt.0) go to 999
+        itone(38)=-37
+        go to 900
+     endif
+
      call packmsg(message,i4Msg6BitWords,itype)  !Pack into 12 6-bit bytes
      call unpackmsg(i4Msg6BitWords,msgsent)      !Unpack to get msgsent
      if(ichk.ne.0) go to 999
@@ -93,7 +100,7 @@ subroutine genmsk(msg0,ichk,msgsent,i4tone,itype)
      if(mod(nn3,2).eq.0) i4tone(36+n1+n2+n3)=1      !1 parity bit
   endif
 
-  n=count(i4tone.eq.0)
+900 n=count(i4tone.eq.0)
   if(mod(n,2).ne.0) stop 'Parity error in genmsk.'
      
 999 return
