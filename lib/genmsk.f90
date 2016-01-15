@@ -53,7 +53,7 @@ subroutine genmsk(msg0,ichk,msgsent,i4tone,itype)
      if(message(1:1).eq.'<') then
         call genmsk_short(message,msgsent,i4tone,itype)
         if(itype.lt.0) go to 999
-        itone(38)=-37
+        i4tone(38)=-37
         go to 900
      endif
 
