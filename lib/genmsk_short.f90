@@ -15,6 +15,7 @@ subroutine genmsk_short(msg,msgsent,itone,itype)
   itone=0
   i1=index(msg,'>')
   if(i1.lt.9) go to 900
+  call fmtmsg(msg,iz)
   crpt=msg(i1+2:i1+5)
   do i=0,7
      if(crpt.eq.rpt(i)) go to 10
