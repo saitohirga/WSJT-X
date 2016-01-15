@@ -120,7 +120,7 @@ QVector<QColor> g_ColorTbl;
 namespace
 {
   Radio::Frequency constexpr default_frequency {14076000};
-  QRegExp message_alphabet {"[- @A-Za-z0-9+./?#]*"};
+  QRegExp message_alphabet {"[- @A-Za-z0-9+./?#<>]*"};
 
   bool message_is_73 (int type, QStringList const& msg_parts)
   {
@@ -3309,7 +3309,8 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   tx->setPalette(p);
   int len=t.length();
   auto pos  = tx->cursorPosition ();
-  if(text) {
+//  if(text) {
+  if(text && m_mode!="JTMSK" && t.mid(0,1)!="<") {
     len=qMin(len,13);
     tx->setText(t.mid(0,len).toUpper());
   } else {
@@ -4338,7 +4339,9 @@ void MainWindow::transmit (double snr)
     m_nsps=6;
     m_toneSpacing=6000.0/m_nsps;
     double f0=1000.0;
-    Q_EMIT sendMessage (NUM_JTMSK_SYMBOLS, double(m_nsps), f0, m_toneSpacing,
+    int nsym=NUM_JTMSK_SYMBOLS;
+    if(itone[37] < 0) nsym=37;
+    Q_EMIT sendMessage (nsym, double(m_nsps), f0, m_toneSpacing,
                         m_soundOutput, m_config.audio_output_channel (),
                         true, true, snr, m_TRperiod);
   }
