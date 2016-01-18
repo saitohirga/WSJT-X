@@ -138,7 +138,7 @@ key "kv2001"
  Since 2001 the KV decoder has been considered the best available soft-decision
  decoder for Reed Solomon codes.
  We describe here a new open-source alternative called the Franke-Taylor
- (FT, or K9AN-K1JT) algorithm.
+ (FT, or K9AN-K1JT) soft-decision decoding algorithm.
  It is conceptually simple, built around the well-known Berlekamp-Massey
  errors-and-erasures algorithm, and in this application it performs even
  better than the KV decoder.
@@ -298,7 +298,15 @@ d=n-k+1.\label{eq:minimum_distance}
 
 \end_inset
 
-The minimum Hamming distance of the JT65 code is 
+With 
+\begin_inset Formula $n=63$
+\end_inset
+
+ and 
+\begin_inset Formula $k=12$
+\end_inset
+
+ the minimum Hamming distance of the JT65 code is 
 \begin_inset Formula $d=52$
 \end_inset
 
@@ -361,8 +369,11 @@ erasures.
 \begin_inset Quotes erd
 \end_inset
 
- With perfect erasure information up to 51 incorrect symbols can be corrected
- for the JT65 code.
+ With perfect erasure information up to 
+\begin_inset Formula $n-k=51$
+\end_inset
+
+ incorrect symbols can be corrected for the JT65 code.
  Imperfect erasure information means that some erased symbols may be correct,
  and some other symbols in error.
  If 
@@ -701,8 +712,31 @@ How might we best choose the number of symbols to erase, in order to maximize
 \end_inset
 
  symbols.
- Decoding will then be assured if the set of erased symbols contains at
- least 37 errors.
+ According to equation 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:erasures_and_errors"
+
+\end_inset
+
+, with 
+\begin_inset Formula $s=45$
+\end_inset
+
+ and 
+\begin_inset Formula $d=52$
+\end_inset
+
+ then 
+\begin_inset Formula $e\le3$
+\end_inset
+
+, so decoding will be assured if the set of erased symbols contains at least
+ 
+\begin_inset Formula $40-3=37$
+\end_inset
+
+ errors.
  With 
 \begin_inset Formula $N=63$
 \end_inset
@@ -826,19 +860,32 @@ The Franke-Taylor Decoding Algorithm
 \begin_layout Standard
 Example 3 shows how statistical information about symbol quality should
  make it possible to decode received frames having a large number of errors.
- In practice the number of errors in the received word is unknown, so we
- use a stochastic algorithm to assign high erasure probability to low-quality
- symbols and relatively low probability to high-quality symbols.
+ In practice the number of errors in the received word is unknown, so our
+ algorithm simply assigns a high erasure probability to low-quality symbols
+ and relatively low probability to high-quality symbols.
  As illustrated by Example 3, a good choice of erasure probabilities can
  increase by many orders of magnitude the chance of producing a codeword.
- Note that at this stage we must treat any codeword obtained by errors-and-erasu
-res decoding as no more than a 
+ Once erasure probabilities have been assigned to each of the 63 received
+ symbols, the FT algorithm uses a random number generator to decide whether
+ or not to erase each symbol according to its assigned erasure probability.
+ The list of erased symbols is then submitted to the BM decoder which either
+ produces a codeword or fails to decode.
+ 
+\end_layout
+
+\begin_layout Standard
+The process of selecting the list of symbols to erase and calling the BM
+ decoder comprises one cycle of the FT algorithm.
+ The next cycle proceeds with a new selection of erased symbols.
+ At this stage we must treat any codeword obtained by errors-and-erasures
+ decoding as no more than a 
 \emph on
 candidate
 \emph default
 .
  Our next task is to find a metric that can reliably select one of many
  proffered candidates as the codeword actually transmitted.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -898,7 +945,7 @@ The FT algorithm uses quality indices made available by a noncoherent 64-FSK
 \end_inset
 
  of the symbol's fractional power 
-\begin_inset Formula $p_{1,\,j}$
+\begin_inset Formula $p_{1,\, j}$
 \end_inset
 
  in a sorted list of 
@@ -923,7 +970,8 @@ The FT algorithm uses quality indices made available by a noncoherent 64-FSK
 \end_layout
 
 \begin_layout Standard
-We use an empirical table of symbol error probabilities derived from a large
+We use a 3-bit quantization of these two metrics to index the entries in
+ an 8x8 table of symbol error probabilities derived empirically from a large
  dataset of received words that were successfully decoded.
  The table provides an estimate of the 
 \emph on
@@ -938,10 +986,22 @@ a priori
 \end_inset
 
  metrics.
- These probabilities are close to 1 for low-quality symbols and close to
- 0 for high-quality symbols.
+ This table is a key element of the algorithm, as it will define which symbols
+ are effectively 
+\begin_inset Quotes eld
+\end_inset
+
+protected
+\begin_inset Quotes erd
+\end_inset
+
+ from erasure.
+ The a priori symbol error probabilities are close to 1 for low-quality
+ symbols and close to 0 for high-quality symbols.
  Recall from Examples 2 and 3 that candidate codewords are produced with
- higher probability when 
+ higher probability when the number of erased symbols is larger than the
+ number of symbols that are in error, i.e.
+ when 
 \begin_inset Formula $s>X$
 \end_inset
 
@@ -968,7 +1028,7 @@ t educated guesses to select symbols for erasure.
 , the soft distance between the received word and the codeword: 
 \begin_inset Formula 
 \begin{equation}
-d_{s}=\sum_{j=1}^{n}\alpha_{j}\,(1+p_{1,\,j}).\label{eq:soft_distance}
+d_{s}=\sum_{j=1}^{n}\alpha_{j}\,(1+p_{1,\, j}).\label{eq:soft_distance}
 \end{equation}
 
 \end_inset
@@ -986,7 +1046,7 @@ Here
 \end_inset
 
  if the received symbol and codeword symbol are different, and 
-\begin_inset Formula $p_{1,\,j}$
+\begin_inset Formula $p_{1,\, j}$
 \end_inset
 
  is the fractional power associated with received symbol 
@@ -1030,7 +1090,7 @@ In practice we find that
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-u=\frac{1}{n}\sum_{j=1}^{n}S(c_{j},\,j).\label{eq:u-metric}
+u=\frac{1}{n}\sum_{j=1}^{n}S(c_{j},\, j).\label{eq:u-metric}
 \end{equation}
 
 \end_inset
@@ -1063,7 +1123,7 @@ The correct JT65 codeword produces a value for
 
  bins containing noise only.
  Thus, if the spectral array 
-\begin_inset Formula $S(i,\,j)$
+\begin_inset Formula $S(i,\, j)$
 \end_inset
 
  has been normalized so that the average value of the noise-only bins is
@@ -1078,7 +1138,7 @@ The correct JT65 codeword produces a value for
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\bar{u}_{1}=1+y,\label{eq:u1-exp}
+\bar{u}_{c}=1+y,\label{eq:u1-exp}
 \end{equation}
 
 \end_inset
@@ -1090,7 +1150,7 @@ where
  is the signal-to-noise ratio in linear power units.
  If we assume Gaussian statistics and a large number of trials, the standard
  deviation of measured values of 
-\begin_inset Formula $u_{1}$
+\begin_inset Formula $u$
 \end_inset
 
  is
@@ -1099,7 +1159,7 @@ where
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\sigma_{1}=\left(\frac{1+2y}{n}\right)^{1/2}.\label{eq:sigma1}
+\sigma_{c}=\left(\frac{1+2y}{n}\right)^{1/2}.\label{eq:sigma1}
 \end{equation}
 
 \end_inset
@@ -1143,12 +1203,28 @@ i.e.
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\sigma_{i}=\frac{1}{n}\left[n+2y(k-1)\right]^{1/2}.\label{eq:sigma2}
+\sigma_{i}=\frac{1}{n}\left[n+2y(k-1)\right]^{1/2},\label{eq:sigma2}
 \end{equation}
 
 \end_inset
 
+where the subscript 
+\begin_inset Quotes eld
+\end_inset
 
+i
+\begin_inset Quotes erd
+\end_inset
+
+ is an abbreviation for 
+\begin_inset Quotes eld
+\end_inset
+
+incorrect
+\begin_inset Quotes erd
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
@@ -1162,11 +1238,11 @@ If
 \end_inset
 
  to be drawn from a population with statistics described by 
-\begin_inset Formula $\bar{u}_{1}$
+\begin_inset Formula $\bar{u}_{c}$
 \end_inset
 
  and 
-\begin_inset Formula $\sigma_{1}.$
+\begin_inset Formula $\sigma_{c}.$
 \end_inset
 
  If no tested codeword is correct, 
@@ -1235,14 +1311,8 @@ reference "sec:Theory,-Simulation,-and"
 \end_layout
 
 \begin_layout Standard
-Technically the FT algorithm is a list decoder.
- Among the list of candidate codewords found by the stochastic search algorithm,
- only the one with the largest 
-\begin_inset Formula $u$
-\end_inset
-
- is retained.
- As with all such algorithms, a stopping criterion is necessary.
+As with all decoding algorithms that generate a list of possible codewords,
+ a stopping criterion is necessary.
  FT accepts a codeword unconditionally if the Hamming distance 
 \begin_inset Formula $X$
 \end_inset
@@ -1312,7 +1382,7 @@ For each received symbol, define the erasure probability as 1.3 times the
 a priori
 \emph default
  symbol-error probability determined from soft-symbol information 
-\begin_inset Formula $\{p_{1}\textrm{-rank},\,p_{2}/p_{1}\}$
+\begin_inset Formula $\{p_{1}\textrm{-rank},\, p_{2}/p_{1}\}$
 \end_inset
 
 .
