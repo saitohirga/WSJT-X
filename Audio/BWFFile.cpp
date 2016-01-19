@@ -289,7 +289,7 @@ bool BWFFile::impl::write_header (QAudioFormat format)
       fmt.audio_format = qToBigEndian<quint16> (1); // PCM
       fmt.num_channels = qToBigEndian<quint16> (format.channelCount ());
       fmt.sample_rate = qToBigEndian<quint32> (format.sampleRate ());
-      fmt.byte_rate = qToBigEndian<quint32> (format.bytesForDuration (1000));
+      fmt.byte_rate = qToBigEndian<quint32> (format.bytesForDuration (1000000));
       fmt.block_align = qToBigEndian<quint16> (format.bytesPerFrame ());
       fmt.bits_per_sample = qToBigEndian<quint16> (format.sampleSize ());
       desc.set ("fmt", qToBigEndian<quint32> (sizeof fmt));
@@ -299,7 +299,7 @@ bool BWFFile::impl::write_header (QAudioFormat format)
       fmt.audio_format = qToLittleEndian<quint16> (1); // PCM
       fmt.num_channels = qToLittleEndian<quint16> (format.channelCount ());
       fmt.sample_rate = qToLittleEndian<quint32> (format.sampleRate ());
-      fmt.byte_rate = qToLittleEndian<quint32> (format.bytesForDuration (1000));
+      fmt.byte_rate = qToLittleEndian<quint32> (format.bytesForDuration (1000000));
       fmt.block_align = qToLittleEndian<quint16> (format.bytesPerFrame ());
       fmt.bits_per_sample = qToLittleEndian<quint16> (format.sampleSize ());
       desc.set ("fmt", qToLittleEndian<quint32> (sizeof fmt));
