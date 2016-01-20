@@ -602,7 +602,7 @@ void BWFFile::bext_time_reference (quint64 time_code)
 
 auto BWFFile::bext_umid () const -> UMID
 {
-  UMID umid {'\0'};
+  UMID umid {{'\0'}};
   if (m_->bext ())
     {
       umid = m_->bext ()->umid_;
@@ -702,7 +702,7 @@ bool BWFFile::reset ()
       m_->bext_.clear ();
       auto size = m_->data_size_ < 0 ? m_->file_.size () - m_->header_length_ : m_->data_size_;
       m_->data_size_ = size;
-      if (m_->header_length_ > 3 * sizeof (Desc) + 4 + sizeof (FormatChunk))
+      if (m_->header_length_ > qint64 (3 * sizeof (Desc) + 4 + sizeof (FormatChunk)))
         {
           // we need to move the data down
           auto old_pos = m_->header_length_;

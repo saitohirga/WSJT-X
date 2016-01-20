@@ -57,7 +57,6 @@ protected:
   void download_finished (bool success) override;
 
 private:
-  QNetworkAccessManager * network_manager_;
   RemoteFile remote_file_;      // active download
   bool block_sync_;
 
