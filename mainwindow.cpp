@@ -1021,11 +1021,11 @@ void MainWindow::save_wave_file (QString const& name, short const * data, int se
          .arg (m_hisCall)
          .arg (m_hisGrid).toLocal8Bit () : ""});
   BWFFile::InfoDictionary list_info {
-    {{'I','S','R','C'}, source.toLocal8Bit ()},
-    {{'I','S','F','T'}, program_title (revision ()).simplified ().toLocal8Bit ()},
-    {{'I','C','R','D'}, QDateTime::currentDateTime ()
+      {{{'I','S','R','C'}}, source.toLocal8Bit ()},
+      {{{'I','S','F','T'}}, program_title (revision ()).simplified ().toLocal8Bit ()},
+      {{{'I','C','R','D'}}, QDateTime::currentDateTime ()
                           .toString ("yyyy-MM-ddTHH:mm:ss.zzzZ").toLocal8Bit ()},
-    {{'I','C','M','T'}, comment.toLocal8Bit ()},
+      {{{'I','C','M','T'}}, comment.toLocal8Bit ()},
   };
   BWFFile wav {format, name, list_info};
   wav.open (BWFFile::WriteOnly);
