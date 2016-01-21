@@ -52,7 +52,8 @@
 using port_type = MessageServer::port_type;
 using Frequency = MessageServer::Frequency;
 
-QRegExp message_alphabet {"[- A-Za-z0-9+./?]*"};
+//QRegExp message_alphabet {"[- A-Za-z0-9+./?]*"};
+QRegExp message_alphabet {"[- @A-Za-z0-9+./?#<>]*"};
 
 //
 // Decodes Model - simple data model for all decodes

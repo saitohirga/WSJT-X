@@ -128,7 +128,6 @@ subroutine jtmsk_short(cdat,npts,msg,decoded)
            n=1
            decoded=msg(1:14)//rpt(irpt)
         endif
-        print*,'a ', decoded
         go to 900
 
 !        if(n.eq.0) nbad=nbad+1

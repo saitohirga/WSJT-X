@@ -190,7 +190,9 @@ namespace
   int const combo_box_item_enabled (32 | 1);
   int const combo_box_item_disabled (0);
 
-  QRegExp message_alphabet {"[- A-Za-z0-9+./?]*"};
+//  QRegExp message_alphabet {"[- A-Za-z0-9+./?]*"};
+  QRegExp message_alphabet {"[- @A-Za-z0-9+./?#<>]*"};
+
 }
 
 

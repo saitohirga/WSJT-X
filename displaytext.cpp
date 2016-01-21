@@ -52,8 +52,10 @@ void DisplayText::insertLineSpacer(QString const& line)
 
 void DisplayText::appendText(QString const& text, QString const& bg)
 {
+    QString t=text.trimmed().replace('<','(');
+    t=t.replace('>',')');
     QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-      bg + "\">" + text.trimmed ().replace (' ', "&nbsp;") + "</td></tr></table>";
+      bg + "\">" + t.trimmed ().replace (' ', "&nbsp;") + "</td></tr></table>";
     auto cursor = textCursor ();
     cursor.movePosition (QTextCursor::End);
     auto pos = cursor.position ();
@@ -66,7 +68,6 @@ void DisplayText::appendText(QString const& text, QString const& bg)
     // position so viewport scrolled to left
     cursor.movePosition (QTextCursor::Up);
     cursor.movePosition (QTextCursor::StartOfLine);
-
     setTextCursor (cursor);
     ensureCursorVisible ();
 }
@@ -163,7 +164,6 @@ void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall,
     if (displayDXCCEntity && CQcall)
         _appendDXCCWorkedB4(/*mod*/decodedText,bg,logBook,color_CQ,
                             color_DXCC,color_NewCall);
-
     appendText(decodedText.string(),bg);
 }
 
