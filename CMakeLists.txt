@@ -358,7 +358,8 @@ set (wsjt_FSRCS
   lib/jt65_decode.f90
   lib/jt9_decode.f90
   lib/jt9fano.f90
-  lib/jtmsk.f90
+  lib/jtmsk_decode.f90
+  lib/jtmsk_short.f90
   lib/libration.f90
   lib/lpf1.f90
   lib/mixlpf.f90

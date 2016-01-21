@@ -1,4 +1,4 @@
-subroutine jtmsk(id2,narg,line)
+subroutine jtmsk_decode(id2,narg,line)
 
 ! Decoder for JTMSK
 
@@ -12,14 +12,12 @@ subroutine jtmsk(id2,narg,line)
   real d(0:NMAX)                       !Raw r*4 data
   real ty(703)
   real yellow(703)
-!  real spk2(20)
-!  real fpk2(20)
-!  integer jpk2(20)
   complex c(NFFTMAX)                   !Complex (analytic) data
   complex cdat(24000)                  !Short segments, up to 2 s
   complex cdat2(24000)
   integer narg(0:11)                   !Arguments passed from calling pgm
   character*22 msg,msg0                !Decoded message
+  character*22 msg1         !### Test ###
   character*80 line(100)               !Decodes passed back to caller
 
   limtrace=-1
@@ -56,6 +54,29 @@ subroutine jtmsk(id2,narg,line)
   call analytic(d,npts,nfft,c)         !Convert to analytic signal
   call timer('analytic',1)
 
+  msg1="<K1ABC W9XYZ> R26"
+  msg='                      '
+  call jtmsk_short(c,npts,msg1,msg)
+
+!### Needs work!
+  print*,'b ',msg
+  nsnr=1
+  if(msg.ne.'                      ') then
+     if(msg.ne.msg0) then
+        nline=nline+1
+        nsnr0=-99
+     endif
+     if(nsnr.gt.nsnr0) then
+!        call rectify_msk(cdat2(jpk:jpk+NSPM-1),msg,freq2)
+        write(line(nline),1020) nutc,nsnr,t0,nint(freq2),msg
+        nsnr0=nsnr
+        go to 900
+     endif
+     msg0=msg
+     if(nline.ge.maxlines) go to 900
+  endif
+!###
+
   nbefore=NSPM
   nafter=4*NSPM
 ! Process ping list (sorted by S/N) from top down.
@@ -69,8 +90,6 @@ subroutine jtmsk(id2,narg,line)
      ja=ia/NSPM + 1
      jb=ib/NSPM
      t0=ia/12000.0
-!     call msksync(cdat,iz,jpk2,fpk2,spk2)
-!     call softmsk(cdat,iz,jpk2,fpk2,spk2)
 
      do itry=1,21
         idf1=(itry/2) * 50
@@ -85,8 +104,6 @@ subroutine jtmsk(id2,narg,line)
         call syncmsk(cdat,iz,jpk,ipk,idf,rmax,snr,metric,msg)
         call timer('syncmsk ',1)
         freq=fpk+idf
-!        write(72,4001) jpk,idf,nint(freq),rmax,snr,msg
-!4001    format(3i6,2f9.2,2x,a22)
         if(metric.eq.-9999) cycle             !No output if no significant sync
         t0=(ia+jpk)/12000.0
         nsnr=nint(yellow(n)-2.0)
@@ -109,6 +126,7 @@ subroutine jtmsk(id2,narg,line)
   enddo
 
 900 if(line(1)(1:6).eq.'      ') line(1)(1:1)=char(0)
+  print*,'z ',line(1)
 
   return
-end subroutine jtmsk
+end subroutine jtmsk_decode
