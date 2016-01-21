@@ -59,7 +59,6 @@ subroutine jtmsk_decode(id2,narg,line)
   call jtmsk_short(c,npts,msg1,msg)
 
 !### Needs work!
-  print*,'b ',msg
   nsnr=1
   if(msg.ne.'                      ') then
      if(msg.ne.msg0) then
@@ -126,7 +125,6 @@ subroutine jtmsk_decode(id2,narg,line)
   enddo
 
 900 if(line(1)(1:6).eq.'      ') line(1)(1:1)=char(0)
-  print*,'z ',line(1)
 
   return
 end subroutine jtmsk_decode

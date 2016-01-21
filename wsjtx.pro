@@ -64,7 +64,8 @@ SOURCES += \
   getfile.cpp soundout.cpp soundin.cpp meterwidget.cpp signalmeter.cpp \
   WFPalette.cpp plotter.cpp widegraph.cpp about.cpp WsprTxScheduler.cpp mainwindow.cpp \
   main.cpp decodedtext.cpp wsprnet.cpp messageaveraging.cpp \
-  echoplot.cpp echograph.cpp fastgraph.cpp fastplot.cpp Modes.cpp WSPRBandHopping.cpp
+  echoplot.cpp echograph.cpp fastgraph.cpp fastplot.cpp Modes.cpp \
+  WSPRBandHopping.cpp MessageAggregator.cpp
 
 HEADERS  += qt_helpers.hpp \
   pimpl_h.hpp pimpl_impl.hpp \
