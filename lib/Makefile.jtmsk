@@ -1,0 +1,41 @@
+CC = gcc
+CXX = g++
+FC = gfortran
+AR = ar cr
+MKDIR = mkdir -p
+CP = cp
+RANLIB = ranlib
+RM = rm -f
+
+FFLAGS = -O2 -Wall -Wno-conversion -fbounds-check -fno-second-underscore -DUNIX
+CFLAGS = -I. -fPIE
+
+# Default rules
+%.o: %.c
+	${CC} ${CFLAGS} -c $<
+%.o: %.f
+	${FC} ${FFLAGS} -c $<
+%.o: %.F
+	${FC} ${FFLAGS} -c $<
+%.o: %.f90
+	${FC} ${FFLAGS} -c $<
+%.o: %.F90
+	${FC} ${FFLAGS} -c $<
+%.mod: %.f90
+	${FC} ${FFLAGS} -c $<
+
+#all:    jt4.mod testjt4 testfast9
+all:	JTMSKsim
+
+OBJS1 = JTMSKsim.o genmsk.o makepings.o genmsk_short.o jtmsk_short.o \
+      hash.o nhash.o golay24_table.o vit213.o tab.o gran.o
+JTMSKsim: $(OBJS1) 
+	$(FC) -o JTMSKsim $(OBJS1) -L. libwsjt_fort.a -lfftw3f 
+
+nhash.o: wsprd/nhash.c
+	 $(CC) -c wsprd/nhash.c
+
+.PHONY : clean
+
+clean:
+	$(RM) *.o JTMSKsim
