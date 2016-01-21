@@ -1,4 +1,4 @@
-subroutine jtmsk_short(cdat,npts,msg)
+subroutine jtmsk_short(cdat,npts,msg,decoded)
 
   parameter (NMAX=15*12000,NSAVE=100)
   character*22 msg,decoded,msgsent
@@ -11,16 +11,14 @@ subroutine jtmsk_short(cdat,npts,msg)
   real r1(0:NMAX-1)
   real r2(0:4096)
   real r1save(NSAVE)
-  integer*8 count0,count1,clkfreq
+!  integer*8 count0,count1,clkfreq
   integer itone(234)                      !Message bits
   integer jgood(NSAVE)
   integer indx(NSAVE)
   logical first
   data rpt /'26 ','27 ','28 ','R26','R27','R28','RRR','73 '/
   data first/.true./
-  save first,cw
-
-!  msg='<W2DEF K3GHI> 73      '
+  save first,cw,cb11
 
   if(first) then
      dt=1.d0/12000.d0
@@ -49,18 +47,19 @@ subroutine jtmsk_short(cdat,npts,msg)
            enddo
         enddo
      enddo
+     cb11=cw(0:65,0)
      first=.false.
   endif
 
-  r1thresh=0.40
+!  r1thresh=0.40
+  r1thresh=0.80
   r2thresh=0.50
   rmax=0.9
   ngood=0
   nbad=0
   maxdecodes=999
 
-  cb11=cw(0:65,0)
-  call system_clock(count0,clkfreq)
+!  call system_clock(count0,clkfreq)
 
   r1max=0.
   do j=0,npts-210                         !Find the B11 sync vectors
@@ -94,9 +93,11 @@ subroutine jtmsk_short(cdat,npts,msg)
   do kk=1,kmax
      k=indx(kmax+1-kk)
      j=jgood(k)
+     if(j.lt.144 .or. j.gt.npts-210) cycle
      u1=0.
      u2=0.
      r2max=0.
+     ibest=-1
      do imsg=0,4096
         ssa=0.
         ssb=0.
@@ -127,19 +128,20 @@ subroutine jtmsk_short(cdat,npts,msg)
            n=1
            decoded=msg(1:14)//rpt(irpt)
         endif
-        if(n.eq.0) nbad=nbad+1
-        if(n.eq.1) ngood=ngood+1
-        if(n.eq.0 .and. r2max.gt.r2bad) r2bad=r2max
-        write(52,3020) k,t,ibest,r1(j),r2max,u2/u1,r1or2,n,decoded
-3020    format(i3,f9.4,i5,4f7.2,i2,1x,a22)
-        if(ngood+nbad.ge.maxdecodes) exit
+        print*,'a ', decoded
+        go to 900
+
+!        if(n.eq.0) nbad=nbad+1
+!        if(n.eq.1) ngood=ngood+1
+!        if(n.eq.0 .and. r2max.gt.r2bad) r2bad=r2max
+!        write(52,3020) k,t,ibest,r1(j),r2max,u2/u1,r1or2,n,decoded
+!3020    format(i3,f9.4,i5,4f7.2,i2,1x,a22)
+!        if(ngood+nbad.ge.maxdecodes) exit
      endif
   enddo
 
-  call system_clock(count1,clkfreq)
-  t=float(count1-count0)/float(clkfreq)
-  print "('Decode:            ',f6.3)",t
-  print "('Worst false decode:',f6.3)",r2bad
-  print "('Good:',i3,'   Bad:',i3)",ngood,nbad
-  return
+!  print "('Worst false decode:',f6.3)",r2bad
+!  print "('Good:',i3,'   Bad:',i3)",ngood,nbad
+
+900 return
 end subroutine jtmsk_short

@@ -50,9 +50,9 @@ program testmsk
      narg(10)=nrxfreq
      narg(11)=ntol
 
-     call timer('jtmsk   ',0)
-     call jtmsk(id2,narg,line)
-     call timer('jtmsk   ',1)
+     call timer('jtmsk_de',0)
+     call jtmsk_decode(id2,narg,line)
+     call timer('jtmsk_de',1)
      do i=1,narg(8)
         if(line(i)(1:1).eq.char(0)) exit
         ndecodes=ndecodes+1
