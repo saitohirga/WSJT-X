@@ -430,6 +430,7 @@ set (wsjt_CSRCS
   ${ka9q_CSRCS}
   lib/ftrsd/ftrsd2.c
   lib/sgran.c
+  lib/golay24_table.c
   lib/gran.c
   lib/igray.c
   lib/init_random_seed.c

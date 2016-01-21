@@ -137,7 +137,11 @@ key "kv2001"
  use only in amateur radio applications.
  Since 2001 the KV decoder has been considered the best available soft-decision
  decoder for Reed Solomon codes.
- We describe here a new open-source alternative called the Franke-Taylor
+ 
+\end_layout
+
+\begin_layout Standard
+We describe here a new open-source alternative called the Franke-Taylor
  (FT, or K9AN-K1JT) soft-decision decoding algorithm.
  It is conceptually simple, built around the well-known Berlekamp-Massey
  errors-and-erasures algorithm, and in this application it performs even
