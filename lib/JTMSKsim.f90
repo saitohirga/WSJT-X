@@ -1,134 +1,93 @@
 program JTMSKsim
 
   use wavhdr
-  parameter (NSPM=1404)
-  parameter (NFFT=256*1024)
   parameter (NMAX=15*12000)
-  type(hdr) h
-  complex cb11(0:NSPM-1)
-  complex cmsg(0:NSPM-1)
-  complex c(0:NFFT-1)
-  complex c1(0:NSPM-1)
-  complex c2(0:NSPM-1)
-  integer i4tone(NSPM)
-  integer*2 iwave(NMAX)
-  real w(0:255)
-  character*8 arg
+  real pings(0:NMAX-1)
+  character arg*8,msg*22,msgsent*22,fname*40
+  character*3 rpt(0:7)
+  complex cmsg(0:1404-1)               !Waveform of message (once)
+  complex cwave(0:NMAX-1)              !Simulated received waveform
+  real*8 dt,twopi,freq,phi,dphi0,dphi1,dphi
+  type(hdr) h                          !Header for .wav file
+  integer*2 iwave(0:NMAX-1)
+  integer itone(234)                   !Message bits
+  integer b11(11)                      !Barker-11 code
+  data b11/1,1,1,0,0,0,1,0,0,1,0/
+  data rpt /'26 ','27 ','28 ','R26','R27','R28','RRR','73 '/
 
   nargs=iargc()
-  if(nargs.ne.2) then
-     print*,'Usage: JTMSK freq dB'
+  if(nargs.ne.5) then
+     print*,'Usage:    JTMSKsim        message       freq width snr nfiles'
+     print*,' '
+     print*,'Examples: JTMSKsim  "K1ABC W9XYZ EN37"  1500  0.05 0.0   1'
+     print*,'          JTMSKsim  "<K1ABC W9XYZ> R26" 1500  0.01 0.0  10'
      go to 999
   endif
-  call getarg(1,arg)
-  read(arg,*) fmid
+  call getarg(1,msg)
   call getarg(2,arg)
+  read(arg,*) freq
+  call getarg(3,arg)
+  read(arg,*) width
+  call getarg(4,arg)
   read(arg,*) snrdb
-
-  open(10,file='JTMSKcode.out',status='old')
-  do j=1,234
-     read(10,*) junk,i4tone(j)
-  enddo
-  close(10)
-
-  npts=NMAX
-  h=default_header(12000,npts)
-  twopi=8.0*atan(1.0)
-  dt=1.0/12000.0
-  df=12000.0/NFFT
-  k=-1
-  phi=0.
-  phi0=0.
+  call getarg(5,arg)
+  read(arg,*) nfiles
   sig=10.0**(0.05*snrdb)
+  twopi=8.d0*atan(1.d0)
+  h=default_header(12000,NMAX)
 
-  call init_random_seed()       ! seed Fortran RANDOM_NUMBER generator
-  call sgran()                  ! see C rand generator (used in gran)
+  ichk=0
+  call genmsk(msg,ichk,msgsent,itone,itype)       !Check message type
+  if(itype.lt.1 .or. itype.gt.7) then
+     print*,'Illegal message'
+     go to 999
+  endif
+  dt=1.d0/12000.d0                                !Sample interval
+  dphi0=twopi*(freq-500.d0)*dt                    !Phase increment, lower tone
+  dphi1=twopi*(freq+500.d0)*dt                    !Phase increment, upper tone
 
-! Generate the Tx waveform
-  cb11=0.
-  do j=1,234
-     dphi=twopi*(fmid-500.0)*dt
-     if(i4tone(j).eq.1) dphi=twopi*(fmid+500.0)*dt
-     dphi0=twopi*1000.0*dt
-     if(i4tone(j).eq.1) dphi0=twopi*2000.0*dt
+  nsym=234
+  if(itype.eq.7) nsym=35
+  nspm=6*nsym                               !Samples per message
+  k=-1
+  phi=0.d0
+  do j=1,nsym
+     dphi=dphi0
+     if(itone(j).eq.1) dphi=dphi1
      do i=1,6
         k=k+1
-        phi=phi+dphi
+        phi=phi + dphi
         if(phi.gt.twopi) phi=phi-twopi
-        cmsg(k)=cmplx(cos(phi),sin(phi))
-        phi0=phi0+dphi0
-        if(phi0.gt.twopi) phi0=phi0-twopi
-!        if((k.ge.1 .and. k.le.66) .or. (k.ge.283 .and. k.le.348) .or.      &
-!             (k.ge.769 .and.k.le.834)) cb11(k)=cmplx(cos(phi0),sin(phi0))
-        if(k.ge.1 .and. k.le.66) cb11(k)=cmplx(cos(phi0),sin(phi0))
-!        write(11,3001) k*dt,cmsg(k),phi
-!3001    format(4f12.6)
+        xphi=phi
+        cmsg(k)=cmplx(cos(xphi),sin(xphi))
      enddo
   enddo
 
-! Generate noise with B=2500 Hz, rms=1.0 
-  c=0.
-  ia=nint(250.0/df)
-  ib=nint(2759.0/df)
-  do i=ia,ib
-     x=gran()
-     y=gran()
-     c(i)=cmplx(x,y)
-  enddo
-  call four2a(c,NFFT,1,1,1)
-  sq=0.
-  do i=0,npts-1
-     sq=sq + real(c(i))**2 + aimag(c(i))**2
-  enddo
-  rms=sqrt(0.5*sq/npts)
-  c=c/rms
+  call makepings(pings,NMAX,width,sig)
 
-  i0=3*12000
-  ncopy=NSPM
-!  ncopy=0.5*NSPM
-  c(i0:i0+ncopy-1)=c(i0:i0+ncopy-1) + sig*cmsg(0:ncopy-1)
-  do i=1,npts
-     iwave(i)=100.0*real(c(i))
-  enddo
+  do ifile=1,nfiles                  !Loop over requested number of files
+     write(fname,1002) ifile         !Output filename
+1002 format('000000_',i4.4)
+     open(10,file=fname(1:11)//'.wav',access='stream',status='unknown')
 
-  open(12,file='150901_000000.wav',status='unknown',access='stream')
-  write(12) h,iwave(1:npts)
-
-  smax=0.
-  fpk=0.
-  jpk=0
-  nfft1=256
-  w=0.
-  do i=0,65
-     w(i)=sin(i*twopi/132.0)
-  enddo
-
-  do ia=0,npts-nfft1
-     c1(0:nfft1-1)=c(ia:ia+nfft1-1)*conjg(cb11(0:nfft1-1))
-     c2(0:nfft1-1)=w(0:nfft1-1)*c1(0:nfft1-1)
-     call four2a(c2,nfft1,1,-1,1)
-     do i=0,nfft1-1
-!        write(21,1100) i,c1(i)
-!1100    format(i6,2f12.3)
+     fac=sqrt(6000.0/2500.0)
+     j=-1
+     do i=0,NMAX-1
+        j=j+1
+        if(j.ge.6*nsym) j=j-6*nsym
+        xx=0.707*gran()
+        yy=0.707*gran()
+        cwave(i)=pings(i)*cmsg(j) + fac*cmplx(xx,yy)
+        iwave(i)=30.0*real(cwave(i))
+!        write(88,3003) i,i/12000.d0,cwave(i)
+!3003    format(i8,f12.6,2f10.3)
      enddo
 
-     df1=12000.0/nfft1
-     do i=-20,20
-        j=i
-        if(i.lt.0) j=j+nfft1
-        f=j*df1
-        if(i.lt.0) f=f-12000.0
-        s=1.e-3*(real(c2(j))**2 + aimag(c2(j))**2)
-        if(abs(ia-i0).lt.1404) write(22,1110) f,c2(j),s,ia
-1110    format(4f12.3,i6)
-        if(s.gt.smax) then
-           smax=s
-           jpk=ia
-           fpk=f
-        endif
-     enddo
+     write(10) h,iwave               !Save the .wav file
+     close(10)
+
+     call jtmsk_short(cwave,NMAX,msg)
+
   enddo
-  print*,smax,jpk*dt,fpk
 
 999 end program JTMSKsim
-
