@@ -3,16 +3,18 @@ subroutine genmsk(msg0,ichk,msgsent,i4tone,itype)
 ! Encode a JTMSK message
 ! Input:
 !   - msg0     requested message to be transmitted
-!   - ichk     if nonzero, return only msgsent
+!   - ichk     if ichk=1, return only msgsent
+!              if ichk.ge.10000, set imsg=ichk-10000 for short msg
 !   - msgsent  message as it will be decoded
 !   - i4tone   array of audio tone values, 0 or 1
 !   - itype    message type 
-!                 1 = standard message  <call1> <call2> <grid/rpt>
+!                 1 = standard message  "Call_1 Call_2 Grid/Rpt"
 !                 2 = type 1 prefix
 !                 3 = type 1 suffix
 !                 4 = type 2 prefix
 !                 5 = type 2 suffix
 !                 6 = free text (up to 13 characters)
+!                 7 = short message     "<Call_1 Call2> Rpt"
 
   use iso_c_binding, only: c_loc,c_size_t
   use packjt
@@ -51,15 +53,15 @@ subroutine genmsk(msg0,ichk,msgsent,i4tone,itype)
      enddo
 
      if(message(1:1).eq.'<') then
-        call genmsk_short(message,msgsent,i4tone,itype)
+        call genmsk_short(message,msgsent,ichk,i4tone,itype)
         if(itype.lt.0) go to 999
-        i4tone(38)=-37
+        i4tone(36)=-35
         go to 999
      endif
 
      call packmsg(message,i4Msg6BitWords,itype)  !Pack into 12 6-bit bytes
      call unpackmsg(i4Msg6BitWords,msgsent)      !Unpack to get msgsent
-     if(ichk.ne.0) go to 999
+     if(ichk.eq.1) go to 999
      call entail(i4Msg6BitWords,i1Msg8BitBytes)  !Add tail, make 8-bit bytes
      ihash=nhash(c_loc(i1Msg8BitBytes),int(9,c_size_t),146)
      ihash=2*iand(ihash,32767)                   !Generate the CRC

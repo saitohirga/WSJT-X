@@ -1,14 +1,21 @@
-subroutine genmsk_short(msg,msgsent,itone,itype)
+subroutine genmsk_short(msg,msgsent,ichk,itone,itype)
 
   use hashing
-  character*22 msg0,msg,msgsent
+  character*22 msg,msgsent
   character*3 crpt,rpt(0:7)
-  integer itone(37)
+  logical first
+  integer itone(35)
+  integer ig24(0:4096-1)                  !Codewords for Golay (24,12) code
   integer b11(11)
-  integer golay_15_3(0:7)
   data b11/1,1,1,0,0,0,1,0,0,1,0/         !Barker 11 code
-  data rpt        /'26 ','27 ','28 ','R26','R27','R28','RRR','73 '/
-  data golay_15_3/00000,07025,11704,14025,19164,20909,26468,31765/
+  data rpt /'26 ','27 ','28 ','R26','R27','R28','RRR','73 '/
+  data first/.true./
+  save first,ig24
+
+  if(first) then
+     call golay24_table(ig24)             !Define the Golay(24,12) codewords
+     first=.false.
+  endif
 
   itype=-1
   msgsent='*** bad message ***'
@@ -22,25 +29,27 @@ subroutine genmsk_short(msg,msgsent,itone,itype)
   enddo
   go to 900
 
-10 itone(1:11)=b11
-  irpt=i
-  ncodeword=golay_15_3(irpt)            !Save the 15-bit codeword for report
-  do i=26,12,-1                         !Insert codeword into itone array
-     itone(i)=iand(ncodeword,1)
-     ncodeword=ncodeword/2
-  enddo 
-  call hash(msg(2:i1-1),i1-2,ihash)  
-  ihash=iand(ihash,1023)                   !10-bit hash for the two callsigns
-  n=ihash
-  do i=36,27,-1
-     itone(i)=iand(n,1)
+10 irpt=i                               !Report index, 0-7
+  if(ichk.lt.10000) then
+     call hash(msg(2:i1-1),i1-2,ihash)  
+     ihash=iand(ihash,511)                 !9-bit hash for the two callsigns
+     ig=8*ihash + irpt                     !12-bit message information
+  else
+     ig=ichk-10000
+  endif
+  ncodeword=ig24(ig)
+  itone(1:11)=b11                       !Insert the Barker-11 code
+  n=2**24
+  do i=12,35                            !Insert codeword into itone array
      n=n/2
-  enddo
-  n=count(itone(1:36).eq.0)
-  itone(37)=1
-  if(iand(n,1).eq.1) itone(37)=0
+     itone(i)=0
+     if(iand(ncodeword,n).ne.0) itone(i)=1
+  enddo 
   msgsent=msg
   itype=7
+
+  n=count(itone(1:35).eq.0)
+  if(mod(n,2).ne.0) stop 'Parity error in genmsk_short.'
 
 900 return
 end subroutine genmsk_short
