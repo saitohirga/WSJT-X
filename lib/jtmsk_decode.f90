@@ -109,7 +109,7 @@ subroutine jtmsk_decode(id2,narg,line)
      if(msg.ne.'                      ') then
         nline=nline+1
         j=nint(12000.0*tbest/512.0)
-        nsnr=nint(yellow(j)-1.0)
+        nsnr=nint(3*(yellow(j)-2.0))
         write(line(nline),1020) nutc,nsnr,tbest,nrxfreq,msg
      endif
 !###

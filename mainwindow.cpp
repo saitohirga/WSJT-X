@@ -97,6 +97,7 @@ extern "C" {
                 float* width);
 
   void fast_decode_(short id2[], int narg[], char msg[], int len);
+  void hash_calls_(char calls[], int* ih9, int len);
   void degrade_snr_(short d2[], int* n, float* db);
   void wav12_(short d2[], short d1[], int* nbytes, short* nbitsam2);
 }
@@ -115,6 +116,7 @@ float fast_s[44992];                                    //44992=64*703
 float fast_s2[44992];
 int   fast_jh;
 int   fast_jh2;
+int narg[14];
 QVector<QColor> g_ColorTbl;
 
 namespace
@@ -781,6 +783,7 @@ void MainWindow::readSettings()
   ui->sbSubmode->setValue(m_nSubMode);
   m_FtolIndex=m_settings->value("FtolIndex",21).toInt();
   ui->sbFtol->setValue(m_FtolIndex);
+  on_sbFtol_valueChanged(m_FtolIndex);
 //  ui->FTol_combo_box->setCurrentText(m_settings->value("FTol","500").toString ());
   ui->syncSpinBox->setValue(m_settings->value("MinSync",0).toInt());
   m_bEME=m_settings->value("EME",false).toBool();
@@ -1859,7 +1862,6 @@ void MainWindow::decode()                                       //decode()
       t1=m_t1Pick;
       if(t1 > m_kdone/12000.0) t1=m_kdone/12000.0;
     }
-    static int narg[12];
     static short int d2b[360000];
     narg[0]=dec_data.params.nutc;
     if(m_kdone>12000*m_TRperiod) {
@@ -1879,6 +1881,9 @@ void MainWindow::decode()                                       //decode()
     if(m_mode=="JTMSK") narg[9]=103;          //JTMSK
     narg[10]=ui->RxFreqSpinBox->value();
     narg[11]=m_Ftol;
+    m_calls="<" + m_config.my_callsign() + " " + hisCall + ">";
+    hash_calls_(m_calls.toLatin1().data(), &narg[12], m_calls.length());
+    narg[13]=-1;
     memcpy(d2b,dec_data.d2,2*360000);
     *future3 = QtConcurrent::run(fast_decode_,&d2b[0],&narg[0],&m_msg[0][0],80);
     watcher3->setFuture(*future3);
@@ -1903,6 +1908,7 @@ void::MainWindow::fast_decode_done()
     }
     if(m_msg[i][0]==0) break;
     QString message=QString::fromLatin1(m_msg[i]);
+    if(narg[13]==narg[12]) message=message.trimmed().replace("<...>",m_calls);
 
 //Left (Band activity) window
     DecodedText decodedtext;
@@ -4340,7 +4346,7 @@ void MainWindow::transmit (double snr)
     m_toneSpacing=6000.0/m_nsps;
     double f0=1000.0;
     int nsym=NUM_JTMSK_SYMBOLS;
-    if(itone[37] < 0) nsym=37;
+    if(itone[35] < 0) nsym=35;
     Q_EMIT sendMessage (nsym, double(m_nsps), f0, m_toneSpacing,
                         m_soundOutput, m_config.audio_output_channel (),
                         true, true, snr, m_TRperiod);

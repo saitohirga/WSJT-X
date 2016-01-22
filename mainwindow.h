@@ -483,6 +483,7 @@ private:
   QString m_fileToSave;
   QString m_band;
   QString m_c2name;
+  QString m_calls;
 
   QStringList m_prefix;
   QStringList m_suffix;
