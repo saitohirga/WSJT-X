@@ -15,9 +15,8 @@ subroutine jtmsk_decode(id2,narg,line)
   complex c(NFFTMAX)                   !Complex (analytic) data
   complex cdat(24000)                  !Short segments, up to 2 s
   complex cdat2(24000)
-  integer narg(0:11)                   !Arguments passed from calling pgm
+  integer narg(0:13)                   !Arguments passed from calling pgm
   character*22 msg,msg0                !Decoded message
-  character*22 msg1         !### Test ###
   character*80 line(100)               !Decodes passed back to caller
 
   limtrace=-1
@@ -33,7 +32,7 @@ subroutine jtmsk_decode(id2,narg,line)
   nmode=narg(9)
   nrxfreq=narg(10)                     !Target Rx audio frequency (Hz)
   ntol=narg(11)                        !Search range, +/- ntol (Hz)
-
+  nhashcalls=narg(12)
   nsnr0=-99
   nline=0
   line(1:100)(1:1)=char(0)
@@ -53,28 +52,6 @@ subroutine jtmsk_decode(id2,narg,line)
   call timer('analytic',0)
   call analytic(d,npts,nfft,c)         !Convert to analytic signal
   call timer('analytic',1)
-
-  msg1="<K1ABC W9XYZ> R26"
-  msg='                      '
-  call jtmsk_short(c,npts,msg1,msg)
-
-!### Needs work!
-  nsnr=1
-  if(msg.ne.'                      ') then
-     if(msg.ne.msg0) then
-        nline=nline+1
-        nsnr0=-99
-     endif
-     if(nsnr.gt.nsnr0) then
-!        call rectify_msk(cdat2(jpk:jpk+NSPM-1),msg,freq2)
-        write(line(nline),1020) nutc,nsnr,t0,nint(freq2),msg
-        nsnr0=nsnr
-        go to 900
-     endif
-     msg0=msg
-     if(nline.ge.maxlines) go to 900
-  endif
-!###
 
   nbefore=NSPM
   nafter=4*NSPM
@@ -124,7 +101,21 @@ subroutine jtmsk_decode(id2,narg,line)
      enddo
   enddo
 
-900 if(line(1)(1:6).eq.'      ') line(1)(1:1)=char(0)
+900 if(nline.eq.0) then
+     msg='                      '
+     call jtmsk_short(c,npts,narg,tbest,msg)
+
+!### Needs work!
+     if(msg.ne.'                      ') then
+        nline=nline+1
+        j=nint(12000.0*tbest/512.0)
+        nsnr=nint(yellow(j)-1.0)
+        write(line(nline),1020) nutc,nsnr,tbest,nrxfreq,msg
+     endif
+!###
+
+  endif
+  if(line(1)(1:6).eq.'      ') line(1)(1:1)=char(0)
 
   return
 end subroutine jtmsk_decode
