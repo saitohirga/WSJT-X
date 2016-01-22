@@ -3066,6 +3066,13 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
   } else {
     int n=rpt.toInt();
     rpt.sprintf("%+2.2d",n);
+    if(m_mode=="JTMSK" and m_bShMsgs) {
+      int i=t0.length()-1;
+      t0="<" + t0.mid(0,i) + "> ";
+      if(n<26) n=26;
+      if(n>28) n=28;
+      rpt.sprintf("%2.2d",n);
+    }
     t=t0 + rpt;
     msgtype(t, ui->tx2);
     t=t0 + "R" + rpt;
@@ -3303,6 +3310,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   msgsent[22]=0;
   bool text=false;
   if(itype==6) text=true;
+  if(m_mode=="JTMSK" and t.mid(0,1)=="<") text=false;
   QString t1;
   t1.fromLatin1(msgsent);
   if(text) t1=t1.mid(0,13);
@@ -3311,11 +3319,11 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
     p.setColor(QPalette::Base,"#ffccff");
   } else {
     p.setColor(QPalette::Base,Qt::white);
+    if(m_mode=="JTMSK" and t.mid(0,1)=="<") p.setColor(QPalette::Base,"#00ffff");
   }
   tx->setPalette(p);
   int len=t.length();
   auto pos  = tx->cursorPosition ();
-//  if(text) {
   if(text && m_mode!="JTMSK" && t.mid(0,1)!="<") {
     len=qMin(len,13);
     tx->setText(t.mid(0,len).toUpper());
@@ -3520,7 +3528,7 @@ void MainWindow::on_actionJTMSK_triggered()
   VHF_features_enabled(true);
   VHF_controls_visible(true);
   ui->cbFast9->setVisible(false);
-  ui->cbShMsgs->setVisible(false);
+  ui->cbShMsgs->setVisible(true);
   ui->cbTx6->setVisible(false);
   ui->sbSubmode->setVisible(false);
   WSPR_config(false);
@@ -4685,6 +4693,7 @@ void MainWindow::on_cbShMsgs_toggled(bool b)
 {
   ui->cbTx6->setEnabled(b);
   m_bShMsgs=b;
+  if(m_bShMsgs and m_mode=="JTMSK") ui->rptSpinBox->setValue(26);
   int itone0=itone[0];
   int ntx=m_ntx;
   genStdMsgs(m_rpt);
