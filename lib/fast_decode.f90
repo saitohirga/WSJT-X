@@ -2,7 +2,7 @@ subroutine fast_decode(id2,narg,line)
 
   parameter (NMAX=30*12000)
   integer*2 id2(NMAX)
-  integer narg(0:9)
+  integer narg(0:13)
   real dat(30*12000)
   complex cdat(262145),cdat2(262145)
   real psavg(450)
@@ -21,8 +21,9 @@ subroutine fast_decode(id2,narg,line)
   t1=0.001*narg(7)
   maxlines=narg(8)
   nmode=narg(9)
-
-!  call sleep_msec(100)                       !### TEMPORARY ###
+  nrxfreq=narg(10)
+  ntol=narg(11)
+  nhashcalls=narg(12)
 
   if(nmode.eq.102) then
      call fast9(id2,narg,line)
@@ -45,7 +46,6 @@ subroutine fast_decode(id2,narg,line)
 ! NB: npts, nsps, etc., are all reduced by 9/32
 
   write(cfile6,'(i6.6)') nutc
-  ntol=400
   nfreeze=1
   mousedf=0
   mousebutton=0

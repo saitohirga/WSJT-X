@@ -53,3 +53,14 @@ subroutine genmsk_short(msg,msgsent,ichk,itone,itype)
 
 900 return
 end subroutine genmsk_short
+
+subroutine hash_calls(calls,ih9)
+
+  use hashing
+  character*(*) calls
+  i1=index(calls,'>')
+  call hash(calls(2:i1-1),i1-2,ih9)
+  ih9=iand(ih9,511)                      !9-bit hash for the two callsigns
+
+  return
+end subroutine hash_calls
