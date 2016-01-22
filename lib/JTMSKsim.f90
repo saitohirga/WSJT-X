@@ -19,8 +19,8 @@ program JTMSKsim
   if(nargs.ne.5) then
      print*,'Usage:    JTMSKsim        message       freq width snr nfiles'
      print*,' '
-     print*,'Examples: JTMSKsim  "K1ABC W9XYZ EN37"  1500  0.05 0.0   1'
-     print*,'          JTMSKsim  "<K1ABC W9XYZ> R26" 1500  0.01 0.0  10'
+     print*,'Examples: JTMSKsim  "K1ABC W9XYZ EN37"  1500  0.12  2   1'
+     print*,'          JTMSKsim  "<K1ABC W9XYZ> R26" 1500  0.01  1   3'
      go to 999
   endif
   call getarg(1,msg)
@@ -86,7 +86,7 @@ program JTMSKsim
      write(10) h,iwave               !Save the .wav file
      close(10)
 
-     call jtmsk_short(cwave,NMAX,msg)
+!     call jtmsk_short(cwave,NMAX,msg)
 
   enddo
 

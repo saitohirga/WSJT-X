@@ -52,10 +52,9 @@ void DisplayText::insertLineSpacer(QString const& line)
 
 void DisplayText::appendText(QString const& text, QString const& bg)
 {
-    QString t=text.trimmed().replace('<','(');
-    t=t.replace('>',')');
+    QString escaped {text.trimmed().replace('<',"&lt;").replace('>',"&gt;").replace(' ', "&nbsp;")};
     QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-      bg + "\">" + t.trimmed ().replace (' ', "&nbsp;") + "</td></tr></table>";
+    bg + "\">" + escaped + "</td></tr></table>";
     auto cursor = textCursor ();
     cursor.movePosition (QTextCursor::End);
     auto pos = cursor.position ();
