@@ -2258,10 +2258,10 @@ Deep Search
 \begin_inset Quotes erd
 \end_inset
 
- decoding.
- Simulated Doppler spreads of 0.2 Hz actually increased the FT and DS decoding
- rates slightly at SNRs close to the decoding threshold, presumably because
- with the low-rate JT65 code signal peaks can provide the information needed
+ (DS) decoding.
+ Simulated Doppler spreads of 0.2 Hz actually increased the FT decoding rate
+ slightly at SNRs close to the decoding threshold, presumably because with
+ the low-rate JT65 code signal peaks can provide the information needed
  for good copy.
 \end_layout
 
@@ -2307,22 +2307,23 @@ Deep Search
 \begin_inset Quotes erd
 \end_inset
 
- algorithm.
+ algorithm with a codeword list of length 
+\begin_inset Formula $L=5850$
+\end_inset
+
+.
  Numbers adjacent to the curves are simulated Doppler spreads in Hz.
- The curve labeled 
-\begin_inset Quotes eld
-\end_inset
-
-Sync
-\begin_inset Quotes erd
-\end_inset
-
- illustrates the success rate of correct time and frequency synchronization
- in the decoder presently implemented in program 
+ In the current version of 
 \emph on
 WSJT-X
 \emph default
+ the performance of the DS algorithm is limited by synchronization failures
+ when 
+\begin_inset Formula $SNR\lesssim-28\,\textrm{dB}$
+\end_inset
+
 .
+ 
 \end_layout
 
 \end_inset
