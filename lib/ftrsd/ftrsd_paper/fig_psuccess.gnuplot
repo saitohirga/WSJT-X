@@ -13,7 +13,6 @@ set mxtics 2
 set mytics 2
 set grid
 plot [-30:-18] [0:105] \
-     "stats_0.0" using 1:($3)/10.0 with linespoints lt 4 pt 1, \
      "stats_0.0" using 1:($4)/10.0 with linespoints lt 2 lw 2 pt 2, \
      "stats_0.0" using 1:($5)/10.0 with linespoints lt 1 lw 2 pt 3, \
      "stats_0.0" using 1:($6)/10.0 with linespoints lt 3 lw 2 pt 4, \
