@@ -17,8 +17,9 @@ program jt65
   character(len=500) optarg
   character*12 mycall,hiscall
   character*6 hisgrid
-  type (option) :: long_options(10) = [ &
+  type (option) :: long_options(11) = [ &
        option ('aggressive',.true.,'a','aggressiveness [0-10], default AGGR=0','AGGR'), &
+       option ('depth',.true.,'d','depth=5 hinted decoding, default DEPTH=0','DEPTH'),  &
        option ('freq',.true.,'f','signal frequency, default FREQ=1270','FREQ'),         &
        option ('help',.false.,'h','Display this help message',''),                      &
        option ('ntrials',.true.,'n','number of trials, default TRIALS=10000','TRIALS'), &
@@ -39,16 +40,18 @@ program jt65
   nlow=200
   nhigh=4000
   n2pass=2
-  ndepth=5
+  ndepth=0
 
   do
-     call getopt('a:f:hn:rc:x:g:X:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+     call getopt('a:d:f:hn:rc:x:g:X:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
      if( nstat .ne. 0 ) then
         exit
      end if
      select case (c)
      case ('a')
         read (optarg(:narglen), *) naggressive
+     case ('d')
+        read (optarg(:narglen), *) ndepth
      case ('f')
         read (optarg(:narglen), *) nfqso
      case ('h')
