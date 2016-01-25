@@ -1,10 +1,8 @@
 #!/bin/sh
 # this script characterizes a single code over a narrow range of Eb/No
 # note relationship between noise standard deviation, sigma, and Eb/No:
-# Ps/Pn = 1/(2*sigma^2)
-# Ps/Pn = (Es/tau_s)/(W*No)=(Eb/R)/(tau_s*W*No)=(Eb/No)*(1/(tau_s*R*W))
-# If pulses are sent at Nyquist signaling limit, then: 1/tau_s=2*W -> tau_s*W=1/2
-# so Eb/No=(1/2*sigma^2)*(2*R) = 
+# Eb/No = 1/(2*R*sigma^2)
+# If R=1/2, then Eb/No = 1/sigma^2  Right? Check this. 
 
 set -e  # Stop if an error occurs
 set -v  # Echo commands as they are read
