@@ -11,11 +11,11 @@
 set -e  # Stop if an error occurs
 set -v  # Echo commands as they are read
 
-for i in `seq 1 1000`;
+for i in `seq 1000 2000`;
 do
   seed=$i
   echo seed $seed
-make-ldpc ldpc-144-72.pchk 72 144 $seed evenboth 6x3/4x4 no4cycle
+make-ldpc ldpc-144-72.pchk 72 144 $seed evenboth 5x3/5x4 no4cycle
 make-gen  ldpc-144-72.pchk ldpc-144-72.gen dense
 rand-src  ldpc-144-72.src 2 72x100000
 encode    ldpc-144-72.pchk ldpc-144-72.gen ldpc-144-72.src \

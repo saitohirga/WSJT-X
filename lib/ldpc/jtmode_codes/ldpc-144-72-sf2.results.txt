@@ -1,58 +1,74 @@
-#!/bin/sh
-# this script characterizes a single code over a narrow range of Eb/No
-# note relationship between noise standard deviation, sigma, and Eb/No:
-# Eb/No = 1/(2*R*sigma^2)
-# If R=1/2, then Eb/No = 1/sigma^2  Right? Check this. 
-
-set -e  # Stop if an error occurs
-set -v  # Echo commands as they are read
-
-#make-ldpc ldpc-144-72.pchk 80 160 12 evenboth 6x3/4x4 no4cycle
-#make-ldpc ldpc-144-72.pchk 72 144 33 evenboth 6x3/4x4 no4cycle
-#make-ldpc ldpc-144-72.pchk 72 144 8 evenboth 3 no4cycle
 make-ldpc ldpc-144-72.pchk 72 144 1087 evenboth 3x3/7x4 no4cycle
+Eliminated 259 cycles of length four by moving checks within column
 #cp ldpc-144-72-6x3-4x4-sf1.pchk ldpc-144-72.pchk
 make-gen  ldpc-144-72.pchk ldpc-144-72.gen dense
+Number of 1s per check in Inv(A) X B is 30.9
 rand-src  ldpc-144-72.src 1 72x1000000
 encode    ldpc-144-72.pchk ldpc-144-72.gen ldpc-144-72.src \
           ldpc-144-72.enc
+Encoded 1000000 blocks, source block size 72, encoded block size 144
 
 # NOISE STANDARD DEVIATION 0.75, Eb/N0 = 2.50 dB
 
 transmit ldpc-144-72.enc ldpc-144-72.rec 1 awgn 0.75
+Transmitted 144000000 bits
 decode   ldpc-144-72.pchk ldpc-144-72.rec ldpc-144-72.dec awgn 0.75\
          prprp 250
+Decoded 1000000 blocks, 873685 valid.  Average 37.9 iterations, 9% bit changes
 verify   ldpc-144-72.pchk ldpc-144-72.dec ldpc-144-72.gen \
          ldpc-144-72.src 
+Block counts: tot 1000000, with chk errs 126315, with src errs 126105, both 126091
+Total good frames: 873671  Total undetected errors: 14
+Bit error rate (on message bits only): 1.259e-02
 
 # NOISE STANDARD DEVIATION 0.80, Eb/N0 = 1.94 dB
 
 transmit ldpc-144-72.enc ldpc-144-72.rec 1 awgn 0.80
+Transmitted 144000000 bits
 decode   ldpc-144-72.pchk ldpc-144-72.rec ldpc-144-72.dec awgn 0.80\
          prprp 250
+Decoded 1000000 blocks, 676606 valid.  Average 86.8 iterations, 9% bit changes
 verify   ldpc-144-72.pchk ldpc-144-72.dec ldpc-144-72.gen \
          ldpc-144-72.src 
+Block counts: tot 1000000, with chk errs 323394, with src errs 322911, both 322888
+Total good frames: 676583  Total undetected errors: 23
+Bit error rate (on message bits only): 3.303e-02
 
 # NOISE STANDARD DEVIATION 0.85, Eb/N0 = 1.41 dB
 
 transmit ldpc-144-72.enc ldpc-144-72.rec 1 awgn 0.85
+Transmitted 144000000 bits
 decode   ldpc-144-72.pchk ldpc-144-72.rec ldpc-144-72.dec awgn 0.85\
          prprp 250
+Decoded 1000000 blocks, 429243 valid.  Average 147.1 iterations, 9% bit changes
 verify   ldpc-144-72.pchk ldpc-144-72.dec ldpc-144-72.gen \
          ldpc-144-72.src 
+Block counts: tot 1000000, with chk errs 570757, with src errs 569982, both 569956
+Total good frames: 429217  Total undetected errors: 26
+Bit error rate (on message bits only): 6.138e-02
 
 # NOISE STANDARD DEVIATION 0.90, Eb/N0 = 0.92 dB
 
 transmit ldpc-144-72.enc ldpc-144-72.rec 1 awgn 0.90
+Transmitted 144000000 bits
 decode   ldpc-144-72.pchk ldpc-144-72.rec ldpc-144-72.dec awgn 0.90\
          prprp 250
+Decoded 1000000 blocks, 219252 valid.  Average 197.8 iterations, 8% bit changes
 verify   ldpc-144-72.pchk ldpc-144-72.dec ldpc-144-72.gen \
          ldpc-144-72.src 
+Block counts: tot 1000000, with chk errs 780748, with src errs 779961, both 779939
+Total good frames: 219230  Total undetected errors: 22
+Bit error rate (on message bits only): 9.086e-02
 
 # NOISE STANDARD DEVIATION 0.95, Eb/N0 = 0.45 dB
 
 transmit ldpc-144-72.enc ldpc-144-72.rec 1 awgn 0.95
+Transmitted 144000000 bits
 decode   ldpc-144-72.pchk ldpc-144-72.rec ldpc-144-72.dec awgn 0.95\
          prprp 250
+Decoded 1000000 blocks, 89468 valid.  Average 228.9 iterations, 7% bit changes
 verify   ldpc-144-72.pchk ldpc-144-72.dec ldpc-144-72.gen \
          ldpc-144-72.src
+Block counts: tot 1000000, with chk errs 910532, with src errs 909905, both 909896
+Total good frames: 89459  Total undetected errors: 9
+Bit error rate (on message bits only): 1.167e-01
