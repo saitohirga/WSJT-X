@@ -10,7 +10,7 @@ subroutine tweak1(ca,jz,f0,cb)
 
   if(twopi.eq.0.d0) twopi=8.d0*atan(1.d0)
   w=1.d0
-  dphi=twopi*f0/11025.d0
+  dphi=twopi*f0/12000.d0
   wstep=cmplx(cos(dphi),sin(dphi))
   do i=1,jz
      w=w*wstep
