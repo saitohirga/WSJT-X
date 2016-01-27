@@ -15,6 +15,7 @@
 \makeatother
 
 \usepackage{nomencl}
+\usepackage{overcite}
 
 \renewcommand{\nomname}{Sidebar: Glossary of Specialized Terms}
 \end_preamble
@@ -383,9 +384,9 @@ WSJT-X
  Section 7 summarizes some on-the-air experiences with the new decoder.
  Refer to the sidebar 
 \series bold
-Glossary
+Glossary of Specialized Terms
 \series default
- for brief definitions of some specialized terms.
+ for brief definitions of some potentially unfamiliar language.
 \end_layout
 
 \begin_layout Section
@@ -399,7 +400,7 @@ JT65 Messages and Reed Solomon Codes
 \end_layout
 
 \begin_layout Standard
-JT65 message frames consist of a short compressed 72-bit message encoded
+The JT65 message frame consists of a short, compressed 72-bit message encoded
  for transmission with a Reed-Solomon code.
  Reed-Solomon codes are 
 \emph on
@@ -434,7 +435,7 @@ description "For the JT65 code, a vector of 63 symbol values each in the range 0
 \end_inset
 
 , the number of message symbols conveyed by the codeword; and the transmission
- alphabet, or number of possible values for each symbol in the codewords.
+ alphabet, or number of possible values for each symbol in a codeword.
  The codeword length and the number of message symbols are specified with
  the notation 
 \begin_inset Formula $(n,k)$
@@ -456,7 +457,7 @@ description "Compression of a message to use a minimum number or bits.  JT65 sou
 
 \end_inset
 
- messages conveyed by a 63-symbol JT65 frame thus consist of 72 information
+ message conveyed by a 63-symbol JT65 frame thus consists of 72 information
  bits.
  The JT65 code is 
 \emph on
@@ -666,7 +667,7 @@ The FT algorithm uses the estimated quality of received symbols to generate
  of received words with more than 25 errors.
  Algorithms of this type are generally called 
 \emph on
-reliability based
+reliability-based
 \emph default
  or 
 \emph on
@@ -1192,7 +1193,7 @@ We use 3-bit quantization of the metrics
 \begin_inset Formula $p_{2}/p_{1}$
 \end_inset
 
-to index the entries in an 
+ to index the entries in an 
 \begin_inset Formula $8\times8$
 \end_inset
 
@@ -2010,7 +2011,7 @@ Comparisons of decoding performance are usually presented in the professional
 
 , the signal-to-noise ratio in a 2500 Hz reference bandwidth.
  The relationship between 
-\begin_inset Formula $E_{b}/N_{o}$
+\begin_inset Formula $E_{b}/N_{0}$
 \end_inset
 
  and 
@@ -2060,7 +2061,7 @@ Simulated results on the AWGN channel
 \begin_layout Standard
 Results of simulations using the BM, KV, and FT decoding algorithms on the
  JT65 code are presented in terms of word error rate versus 
-\begin_inset Formula $E_{b}/N_{o}$
+\begin_inset Formula $E_{b}/N_{0}$
 \end_inset
 
  in Figure 
@@ -2110,7 +2111,7 @@ As expected, on the AWGN channel the soft-decision algorithms FT and KV
 \begin_inset Formula $T=10^{5}$
 \end_inset
 
-execution time for FT is longer than that for the KV algorithm, but still
+ execution time for FT is longer than that for the KV algorithm, but still
  small enough to be fully practical on today's home computers.
  
 \end_layout
@@ -2178,7 +2179,7 @@ WSJT
 
 \begin_layout Standard
 Error-free transmission is important in commercial applications, so plots
- like that in Figure 
+ like Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:bodide"
@@ -2204,7 +2205,7 @@ reference "fig:WER2"
 
 \end_inset
 
- replots the FT and KV results from Figure 
+ shows the FT and KV results from Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:bodide"
@@ -2658,8 +2659,8 @@ reference "fig:spectrogram"
  band.
  At this time the band was crowded with overlapping signals.
  With care you can count at least 19 distinct synchronizing tones (the speckled
- vertical lines in the figure), and can see that in some places as many
- as four signals overlap.
+ vertical lines in the figure), and can see as many as four signals overlapping
+ in some places.
  After signal processing to demodulate the signals and produce soft-symbol
  data for the FT decoder, program 
 \emph on
@@ -2674,8 +2675,8 @@ WSJT-X
  The strongest signals (12 in this example) are sequentially decoded and
  subtracted from the raw data after the first pass.
  Another 9 signals are decoded in the second pass.
- For comparison, the hard-decision BM decoder decodes a total of 12 messages
- from this recording (9 in the first pass and 3 more in a second).
+ For comparison, the hard-decision BM decoder decodes only 12 messages from
+ this recording (9 in the first pass and 3 more in a second).
 \end_layout
 
 \begin_layout Standard
@@ -2687,8 +2688,8 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename fig_waterfall.tiff
-	width 6.5in
+	filename fig_waterfall.png
+	scale 60
 	BoundingBox 0bp 0bp 1124bp 200bp
 	clip
 
@@ -2750,7 +2751,11 @@ key "karn"
 \end_inset
 
 , modified slightly so that the Reed-Solomon syndromes are computed only
- once in our most time-consuming loop (steps 2 through 8, Algorithm 1).
+ once in our most time-consuming loop (steps 2 through 8, 
+\series bold
+Algorithm 1
+\series default
+).
  The FT algorithm has become an integral part of programs 
 \emph on
 WSJT,
@@ -2838,8 +2843,8 @@ key "kv2001"
 IEEE Transactions on Information Theory
 \emph default
 , Vol.
- 49, Nov.
- 2003.
+ 49, pp.
+ 2809-2825, 2003.
 \end_layout
 
 \begin_layout Bibliography
@@ -2889,7 +2894,8 @@ IEEE Communications Letters
 \emph default
 , Vol.
  14, No.
- 9, September 2010.
+ 9, pp.
+ 863-865, 2010.
 \end_layout
 
 \begin_layout Bibliography
@@ -2914,7 +2920,11 @@ GLOBECOM
 \begin_inset Quotes erd
 \end_inset
 
- 2008 proceedings.
+ Proceedings, 
+\emph default
+2008
+\emph on
+.
 \end_layout
 
 \begin_layout Bibliography
@@ -2935,8 +2945,8 @@ key "ls2009"
 IEEE Signal Processing Letters,
 \emph default
  Vol.
- 16, No.
- 8, August 2009.
+ 16, pp.
+ 691-694, 2009.
 \end_layout
 
 \begin_layout Bibliography
