@@ -173,8 +173,8 @@ d for the first callsign.
  It should be obvious that the JT65 protocol is intended for the basic purpose
  of completing legitimate, documented two-way contacts, but not for extended
  conversations.
- Full details of the message structure and encoding procedure are presented
- in reference 
+ Full details of the message structure and encoding procedure were presented
+ in an earlier publication
 \begin_inset CommandInset citation
 LatexCommand cite
 key "jt65_protocol"
@@ -676,7 +676,6 @@ probabilistic
  decoding methods 
 \begin_inset CommandInset citation
 LatexCommand cite
-after "Chapter 10"
 key "lc2004"
 
 \end_inset
@@ -1162,7 +1161,7 @@ JT65 Message Processing
 \end_inset
 
  of the symbol's fractional power 
-\begin_inset Formula $p_{1,\,j}$
+\begin_inset Formula $p_{1,\, j}$
 \end_inset
 
  in a sorted list of 
@@ -1258,7 +1257,7 @@ description "The soft distance between a received word and a codeword is a measu
  between the received word and the codeword: 
 \begin_inset Formula 
 \begin{equation}
-d_{s}=\sum_{j=1}^{n}\alpha_{j}\,(1+p_{1,\,j}).\label{eq:soft_distance}
+d_{s}=\sum_{j=1}^{n}\alpha_{j}\,(1+p_{1,\, j}).\label{eq:soft_distance}
 \end{equation}
 
 \end_inset
@@ -1276,7 +1275,7 @@ Here
 \end_inset
 
  if the received symbol and codeword symbol are different, and 
-\begin_inset Formula $p_{1,\,j}$
+\begin_inset Formula $p_{1,\, j}$
 \end_inset
 
  is the fractional power associated with received symbol 
@@ -1320,7 +1319,7 @@ In practice we find that
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-u=\frac{1}{n}\sum_{j=1}^{n}S(c_{j},\,j).\label{eq:u-metric}
+u=\frac{1}{n}\sum_{j=1}^{n}S(c_{j},\, j).\label{eq:u-metric}
 \end{equation}
 
 \end_inset
@@ -1353,7 +1352,7 @@ The correct JT65 codeword produces a value for
 
  bins containing noise only.
  Thus, if the spectral array 
-\begin_inset Formula $S(i,\,j)$
+\begin_inset Formula $S(i,\, j)$
 \end_inset
 
  has been normalized so that the average value of the noise-only bins is
@@ -1608,7 +1607,7 @@ For each received symbol, define the erasure probability as 1.3 times the
 a priori
 \emph default
  symbol-error probability determined from soft-symbol information 
-\begin_inset Formula $\{p_{1}\textrm{-rank},\,p_{2}/p_{1}\}$
+\begin_inset Formula $\{p_{1}\textrm{-rank},\, p_{2}/p_{1}\}$
 \end_inset
 
 .
@@ -1736,32 +1735,56 @@ An acceptable codeword has been found.
 \end_layout
 
 \begin_layout Standard
-Inspiration for the FT decoding algorithm came from a number of sources,
- particularly references 
-\begin_inset CommandInset citation
-LatexCommand cite
-key "lhmg2010"
-
-\end_inset
-
- and 
-\begin_inset CommandInset citation
-LatexCommand cite
-key "lk2008"
-
-\end_inset
-
- and the textbook by Lin and Costello 
+Inspiration for the FT decoding algorithm came from a number of sources.
 \begin_inset CommandInset citation
 LatexCommand cite
 key "lc2004"
 
 \end_inset
 
-.
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+textsuperscript{,}
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "lhmg2010"
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+textsuperscript{,}
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "lk2008"
+
+\end_inset
+
  After developing this algorithm, we became aware that our approach is conceptua
-lly similar to the stochastic, erasures-only list decoding algorithm described
- in reference 
+lly similar to a stochastic, erasures-only list decoding algorithm described
+ in another reference 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "ls2009"
@@ -1769,15 +1792,8 @@ key "ls2009"
 \end_inset
 
 .
- The algorithm in 
-\begin_inset CommandInset citation
-LatexCommand cite
-key "ls2009"
-
-\end_inset
-
- is applied to higher-rate Reed-Solomon codes on a symmetric channel using
- binary phase-shift keying (BPSK).
+ That algorithm is applied to higher-rate Reed-Solomon codes on a symmetric
+ channel using binary phase-shift keying (BPSK).
  Our 64-ary input channel with 64-FSK modulation required us to develop
  unique methods for assigning erasure probabilities and for defining acceptance
  criteria to select the best codeword from the list of tested candidates.
@@ -2790,8 +2806,8 @@ Acknowledgments
 \end_layout
 
 \begin_layout Standard
-We thank G3WDG, G4WJS, PY2SDR, SM5BSZ, VK7MO, W3SZ, and Casey Smith for
- helpful comments on an earlier version of this paper.
+We thank G3WDG, G4WJS, KD9DSW, PY2SDR, SM5BSZ, VK7MO, and W3SZ for helpful
+ comments on an earlier version of this paper.
 \end_layout
 
 \begin_layout Standard
