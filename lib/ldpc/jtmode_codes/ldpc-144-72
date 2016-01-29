@@ -10,7 +10,7 @@ set -v  # Echo commands as they are read
 #make-ldpc ldpc-144-72.pchk 80 160 12 evenboth 6x3/4x4 no4cycle
 #make-ldpc ldpc-144-72.pchk 72 144 33 evenboth 6x3/4x4 no4cycle
 #make-ldpc ldpc-144-72.pchk 72 144 8 evenboth 3 no4cycle
-make-ldpc ldpc-144-72.pchk 72 144 1087 evenboth 3x3/7x4 no4cycle
+make-ldpc ldpc-144-72.pchk 72 144 3017 evenboth 2x3/8x4 no4cycle
 #cp ldpc-144-72-6x3-4x4-sf1.pchk ldpc-144-72.pchk
 make-gen  ldpc-144-72.pchk ldpc-144-72.gen dense
 rand-src  ldpc-144-72.src 1 72x1000000
