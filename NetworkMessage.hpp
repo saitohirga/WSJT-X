@@ -98,6 +98,11 @@
  *    that number shall be used for all further outgoing messages from
  *    either clients or the server itself.
  *
+ *    Note: the  "Maximum schema number"  field was introduced  at the
+ *    same time as schema 3, therefore servers and clients must assume
+ *    schema 2 is the highest schema number supported if the Heartbeat
+ *    message does not contain the "Maximum schema number" field.
+ *
  *
  * Status        Out       1                      quint32
  *                         Id (unique key)        utf8
