@@ -54,8 +54,9 @@ subroutine syncmsk(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
      bias=0.0
      scale=20.0
      xln2=log(2.0)
+     mettab=0
      do i=128,156
-        x0=log(max(0.0001,2.0*xp(i-127)))/xln2
+        x0=log(max(0.001,2.0*xp(i-127)))/xln2
         x1=log(max(0.001,2.0*(1.0-xp(i-127))))/xln2
         mettab(i,0)=nint(scale*(x0-bias))
         mettab(i,1)=nint(scale*(x1-bias))
