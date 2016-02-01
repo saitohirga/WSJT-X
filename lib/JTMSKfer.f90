@@ -33,9 +33,10 @@ program JTMSKfer
   bias=0.0
   scale=20.0
   xln2=log(2.0)
+  mettab=0
   do i=128,156
-     x0=log(max(0.0001,2.0*xp(i-127)))/xln2
-     x1=log(max(0.001,2.0*(1.0-xp(i-127))))/xln2
+     x0=log(max(0.001,2.0*xp(i-127)))/xln2
+     x1=log(max(0.001,2.0*(1-xp(i-127))))/xln2
      mettab(i,0)=nint(scale*(x0-bias))
      mettab(i,1)=nint(scale*(x1-bias))
      mettab(256-i,0)=mettab(i,1)
@@ -48,7 +49,7 @@ program JTMSKfer
      mettab(256-i,1)=mettab(i,0)
   enddo
 
-  rdscale=2.0 ! empirically optimized
+  rdscale=2.0
   ntrials=1000000
   rate=72.0/198.0
   msg="123"
@@ -67,7 +68,7 @@ program JTMSKfer
 
 !  call sgran()
 
-  do idb=0,11
+  do idb=6,11
     db=idb/2.0-0.5   ! Eb/N0=1/(2*R*sigma^2), so sigma= sqrt( 1/(2*R*Eb/N0) )
     sigma=1/sqrt( 2*rate*(10**(db/10.0)) )
 
