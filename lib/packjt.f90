@@ -7,8 +7,8 @@ subroutine packbits(dbits,nsymd,m0,sym)
  ! Pack 0s and 1s from dbits() into sym() with m0 bits per word.
  ! NB: nsymd is the number of packed output words.
 
-   integer sym(nsymd)
-   integer*1 dbits(*)
+   integer sym(:)
+   integer*1 dbits(:)
 
    k=0
    do i=1,nsymd
@@ -30,8 +30,8 @@ subroutine packbits(dbits,nsymd,m0,sym)
  ! NB: nsymd is the number of input words, and m0 their length.
  ! there will be m0*nsymd output bytes, each 0 or 1.
 
-   integer sym(nsymd)
-   integer*1 dbits(*)
+   integer sym(:)
+   integer*1 dbits(:)
 
    k=0
    do i=1,nsymd
@@ -405,7 +405,7 @@ subroutine packbits(dbits,nsymd,m0,sym)
    parameter (NBASE=37*36*10*27*27*27)
    parameter (NBASE2=262178562)
    character*22 msg0,msg
-   integer dat(12)
+   integer dat(:)
    character*12 c1,c2
    character*4 c3
    character*6 grid6
@@ -512,7 +512,7 @@ subroutine packbits(dbits,nsymd,m0,sym)
 
    parameter (NBASE=37*36*10*27*27*27)
    parameter (NGBASE=180*180)
-   integer dat(12)
+   integer dat(:)
    character c1*12,c2*12,grid*4,msg*22,grid6*6,psfx*4,junk2*4
    logical cqnnn
 
@@ -901,7 +901,7 @@ subroutine packbits(dbits,nsymd,m0,sym)
 
  subroutine pack50(n1,n2,dat)
 
-   integer*1 dat(11),i1
+   integer*1 dat(:),i1
 
    i1=iand(ishft(n1,-20),255)                !8 bits
    dat(1)=i1
