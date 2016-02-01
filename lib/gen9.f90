@@ -44,8 +44,8 @@ subroutine gen9(msg0,ichk,msgsent,i4tone,itype)
      nsym2=206
      call encode232(i1Msg8BitBytes,nsym2,i1EncodedBits)   !Encode K=32, r=1/2
      call interleave9(i1EncodedBits,1,i1ScrambledBits)    !Interleave bits
-     call packbits(i1ScrambledBits,nsym2/3,3,i4DataSymbols) !Pk 3-bits into words
-     call graycode(i4DataSymbols,nsym2/3,1,i4GrayCodedSymbols) !Apply Gray code
+     call packbits(i1ScrambledBits,69,3,i4DataSymbols)    !Pk 3-bits into words
+     call graycode(i4DataSymbols,69,1,i4GrayCodedSymbols) !Apply Gray code
 
 ! Insert sync symbols at ntone=0 and add 1 to the data-tone numbers.
      j=0
