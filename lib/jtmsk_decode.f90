@@ -2,9 +2,6 @@ subroutine jtmsk_decode(id2,narg,line)
 
 ! Decoder for JTMSK
 
-  use timer_module, only: timer
-  use timer_impl, only: limtrace
-
   parameter (NMAX=30*12000)
   parameter (NFFTMAX=512*1024)
   parameter (NSPM=1404)                !Samples per JTMSK message
@@ -42,16 +39,12 @@ subroutine jtmsk_decode(id2,narg,line)
   d(0:npts-1)=id2(0:npts-1)
   rms=sqrt(dot_product(d(0:npts-1),d(0:npts-1))/npts)
   d(0:npts-1)=d(0:npts-1)/rms
-  call timer('mskdt   ',0)
   call mskdt(d,npts,ty,yellow,nyel)
   nyel=min(nyel,5)
-  call timer('mskdt   ',1)
 
   n=log(float(npts))/log(2.0) + 1.0
   nfft=min(2**n,1024*1024)
-  call timer('analytic',0)
   call analytic(d,npts,nfft,c)         !Convert to analytic signal
-  call timer('analytic',1)
 
   nbefore=NSPM
   nafter=4*NSPM
@@ -72,13 +65,9 @@ subroutine jtmsk_decode(id2,narg,line)
         if(mod(itry,2).eq.1) idf1=-idf1
         if(abs(idf1).gt.ntol) exit
         fpk=idf1 + nrxfreq
-        call timer('tweak1  ',0)
         call tweak1(cdat2,iz,1500.0-fpk,cdat)
-        call timer('tweak1  ',1)
 
-        call timer('syncmsk ',0)
         call syncmsk(cdat,iz,jpk,ipk,idf,rmax,snr,metric,msg)
-        call timer('syncmsk ',1)
         freq=fpk+idf
         if(metric.eq.-9999) cycle             !No output if no significant sync
         t0=(ia+jpk)/12000.0
@@ -103,14 +92,14 @@ subroutine jtmsk_decode(id2,narg,line)
 
 900 if(nline.eq.0) then
      msg='                      '
-     call jtmsk_short(c,npts,narg,tbest,msg)
+     call jtmsk_short(c,npts,narg,tbest,idfpk,msg)
 
 !### Needs work!
      if(msg.ne.'                      ') then
         nline=nline+1
         j=nint(12000.0*tbest/512.0)
         nsnr=nint(3*(yellow(j)-2.0))
-        write(line(nline),1020) nutc,nsnr,tbest,nrxfreq,msg
+        write(line(nline),1020) nutc,nsnr,tbest,nrxfreq+idfpk,msg
      endif
 !###
 
