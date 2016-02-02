@@ -85,7 +85,7 @@ void WSPRNet::networkReply(QNetworkReply *reply)
       QString serverResponse = reply->readAll();
       if( m_uploadType == 2) {
         if (!serverResponse.contains(QRegExp("spot\\(s\\) added"))) {
-          emit uploadStatus("Upload Failed");
+          emit uploadStatus(QString {"Upload Failed: %1"}.arg (serverResponse));
           urlQueue.clear();
           uploadTimer->stop();
         }

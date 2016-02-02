@@ -5016,9 +5016,10 @@ void MainWindow::uploadResponse(QString response)
 {
   if (response == "done") {
     m_uploading=false;
-  } else if (response == "Upload Failed") {
-    m_uploading=false;
   } else {
+    if (response.startsWith ("Upload Failed")) {
+      m_uploading=false;
+    }
     qDebug () << "WSPRnet.org status:" << response;
   }
 }
