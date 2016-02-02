@@ -158,6 +158,7 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
             case NetworkMessage::Replay:
               if (check_status (in) != Fail)
                 {
+                  last_message_.clear ();
                   Q_EMIT self_->replay ();
                 }
               break;
