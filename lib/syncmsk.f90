@@ -74,7 +74,7 @@ subroutine syncmsk(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
      dt=1.0/12000.0
      f0=1000.0
      f1=2000.0
-     dphi=0                     !quel compiler gripe
+     dphi=0
      do i=1,11
         if(b11(i).eq.0) dphi=twopi*f0*dt
         if(b11(i).eq.1) dphi=twopi*f1*dt
@@ -182,9 +182,7 @@ subroutine syncmsk(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
   call timer('sync2   ',1)
   kmax=k
 
-  call timer('indexx  ',0)
   call indexx(rsave,kmax,indx)
-  call timer('indexx  ',1)
 
   call timer('sync3   ',0)
   do kk=1,kmax
@@ -197,7 +195,6 @@ subroutine syncmsk(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
      smax=0.
      dfx=0.
      idfbest=0
-     call timer('idf     ',0)
      do itry=1,25
         idf=itry/2
         if(mod(itry,2).eq.0) idf=-idf
@@ -216,9 +213,7 @@ subroutine syncmsk(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
      call tweak1(cdat,npts,-dfx,cdat)
      cfac=cmplx(cos(phi),-sin(phi))
      cdat=cfac*cdat
-     call timer('idf     ',1)
 
-     call timer('softsym ',0)
      sig=0.
      ref=0.
      rdat(1:npts)=cdat
@@ -266,7 +261,6 @@ subroutine syncmsk(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
         symbol(n)=sym
      enddo
      snr=db(sig/ref-1.0)
-     call timer('softsym ',1)
 
      rdata(1:35)=symbol(12:46)
      rdata(36:104)=symbol(59:127)
@@ -288,16 +282,10 @@ subroutine syncmsk(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
         e1(j)=i1
         rd2(j)=rdata(i+99)
      enddo
-!     call system_clock(count0,clkfreq)
-!     tsoft=tsoft + (count0-count1)/float(clkfreq)
 
 ! Decode the message
      nb1=87
-     call timer('vit213  ',0)
      call vit213(e1,nb1,mettab,d8,metric)
-     call timer('vit213  ',1)
-!     call system_clock(count1,clkfreq)
-!     tvit=tvit + (count1-count0)/float(clkfreq)
      ihash=nhash(c_loc(d8),int(9,c_size_t),146)
      ihash=2*iand(ihash,32767)
      decoded='                      '
