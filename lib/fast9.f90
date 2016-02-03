@@ -4,7 +4,7 @@ subroutine fast9(id2,narg,line)
 
   parameter (NMAX=30*12000,NSAVE=500)
   integer*2 id2(0:NMAX)
-  integer narg(0:13)
+  integer narg(0:14)
   integer*1 i1SoftSymbols(207)
   integer*1 i1save(207,NSAVE)
   integer indx(NSAVE)

@@ -2,7 +2,7 @@ subroutine fast_decode(id2,narg,line)
 
   parameter (NMAX=30*12000)
   integer*2 id2(NMAX)
-  integer narg(0:13)
+  integer narg(0:14)
   real dat(30*12000)
   complex cdat(262145),cdat2(262145)
   real psavg(450)

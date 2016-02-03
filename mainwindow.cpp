@@ -116,7 +116,7 @@ float fast_s[44992];                                    //44992=64*703
 float fast_s2[44992];
 int   fast_jh;
 int   fast_jh2;
-int narg[14];
+int narg[15];
 QVector<QColor> g_ColorTbl;
 
 namespace
@@ -1884,6 +1884,7 @@ void MainWindow::decode()                                       //decode()
     m_calls="<" + m_config.my_callsign() + " " + hisCall + ">";
     hash_calls_(m_calls.toLatin1().data(), &narg[12], m_calls.length());
     narg[13]=-1;
+    narg[14]=m_config.aggressive();
     memcpy(d2b,dec_data.d2,2*360000);
     *future3 = QtConcurrent::run(fast_decode_,&d2b[0],&narg[0],&m_msg[0][0],80);
     watcher3->setFuture(*future3);
