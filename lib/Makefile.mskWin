@@ -32,7 +32,7 @@ CFLAGS = -O2 -I.
 	${FC} ${FFLAGS} -c $<
 
 #all:    jt9code JTMSKcode.exe
-all:	 testmsk.exe JTMSKsim.exe JTMSKcode.exe fixwav.exe
+all:	 jtmsk.exe JTMSKsim.exe JTMSKcode.exe fixwav.exe
 
 OBJS3 = JTMSKsim.o wavhdr.o gran.o four2a.o db.o
 JTMSKsim.exe: $(OBJS3)
@@ -48,12 +48,14 @@ OBJS5 = JTMSKcode.o packjt.o fmtmsg.o genmsk.o deg2grid.o grid2deg.o \
 JTMSKcode.exe: $(OBJS5) 
 	$(FC) -o JTMSKcode.exe $(OBJS5) 
 
-OBJS6 = testmsk.o jtmsk.o analytic.o four2a.o db.o pctile.o \
+OBJS6 = jtmsk.o analytic.o four2a.o db.o pctile.o \
       shell.o tweak1.o syncmsk.o genmsk.o packjt.o fmtmsg.o indexx.o \
       deg2grid.o grid2deg.o entail.o hashing.o nhash.o tab.o vit213.o \
-      mskdt.o timer.o rectify_msk.o
-testmsk.exe: $(OBJS6) 
-	$(FC) -o testmsk.exe $(OBJS6) C:\JTSDK\fftw3f\libfftw3f-3.dll
+      mskdt.o rectify_msk.o timer.o jtmsk_decode.o genmsk_short.o \
+      jtmsk_short.o golay24_table.o hash.o
+
+jtmsk.exe: $(OBJS6) 
+	$(FC) -o jtmsk.exe $(OBJS6) C:\JTSDK\fftw3f\libfftw3f-3.dll
 
 OBJS1 = fixwav.o wavhdr.o
 fixwav.exe: $(OBJS1)

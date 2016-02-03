@@ -14,7 +14,6 @@ subroutine jtmsk_short(cdat,npts,narg,tbest,idfpk,decoded)
   real r1(0:NMAX-1)
   real r2(0:4095)
   real r1save(NSAVE)
-!  integer*8 count0,count1,clkfreq
   integer itone(234)                      !Message bits
   integer jgood(NSAVE)
   integer indx(NSAVE)
@@ -23,8 +22,6 @@ subroutine jtmsk_short(cdat,npts,narg,tbest,idfpk,decoded)
   data rpt /'26 ','27 ','28 ','R26','R27','R28','RRR','73 '/
   data first/.true./,nrxfreq0/-1/,ttot/0.0/
   save first,cw,cb11,nrxfreq0,ttot
-
-!  call system_clock(count0,clkfreq)
 
   nrxfreq=narg(10)                      !Target Rx audio frequency (Hz)
   ntol=narg(11)                         !Search range, +/- ntol (Hz)
@@ -66,6 +63,7 @@ subroutine jtmsk_short(cdat,npts,narg,tbest,idfpk,decoded)
   maxdecodes=999
 
   r1max=0.
+!  call timer('r1      ',0)
   do j=0,npts-210                         !Find the B11 sync vectors
      z1=0.
      ss=0.
@@ -80,6 +78,7 @@ subroutine jtmsk_short(cdat,npts,narg,tbest,idfpk,decoded)
         jpk=j
      endif
   enddo
+!  call timer('r1      ',1)
 
   k=0
   do j=1,npts-211
@@ -97,6 +96,7 @@ subroutine jtmsk_short(cdat,npts,narg,tbest,idfpk,decoded)
   ibest2=-1
   idfbest=0
   u1best=0.
+!  call timer('kk      ',0)
   do kk=1,min(kmax,10)
      k=indx(kmax+1-kk)
      j=jgood(k)
@@ -109,6 +109,7 @@ subroutine jtmsk_short(cdat,npts,narg,tbest,idfpk,decoded)
 
      do iidf=0,10
         idf=20*((iidf+1)/2)
+        if(idf.gt.ntol) exit
         if(iand(iidf,1).eq.1) idf=-idf
         call tweak1(cdat(j-144:j+209),354,float(-idf),cd)
         cd(354:)=0.
@@ -165,16 +166,13 @@ subroutine jtmsk_short(cdat,npts,narg,tbest,idfpk,decoded)
 !     if(r1best.gt.0.0) write(*,3101) tbest,kk,nrxfreq+idfbest,ibest,nn,    &
 !          r1best,u1best,u2best,u2best/u1best,r1_r2best,idfbest
   enddo
+!  call timer('kk      ',1)
+
 !  if(r1best.gt.0.0) then
 !     write(*,3101) tbest,kk,nrxfreq+idfbest,ibest,nn,r1best,u1best,u2best,   &
 !          u2best/u1best,r1_r2best,idfbest
 !3101 format(f6.2,4i5,5f8.2,i6)
 !  endif
-
-!  call system_clock(count1,clkfreq)
-!  ttot=float(count1-count0)/float(clkfreq)
-!  write(*,3001) ttot
-!3001 format('Execution time:',f7.3)
 
   return
 end subroutine jtmsk_short
