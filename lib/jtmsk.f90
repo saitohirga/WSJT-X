@@ -2,7 +2,7 @@ program jtmsk
 
  parameter (NMAX=359424)
   integer*2 id2(NMAX)
-  integer narg(0:13)
+  integer narg(0:14)
   character*6 mycall,hiscall
   character*22 msg,arg*8
   character*80 line(100)

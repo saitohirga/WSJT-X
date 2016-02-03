@@ -17,7 +17,7 @@ subroutine jtmsk_short(cdat,npts,narg,tbest,idfpk,decoded)
   integer itone(234)                      !Message bits
   integer jgood(NSAVE)
   integer indx(NSAVE)
-  integer narg(0:13)
+  integer narg(0:14)
   logical first
   data rpt /'26 ','27 ','28 ','R26','R27','R28','RRR','73 '/
   data first/.true./,nrxfreq0/-1/,ttot/0.0/
@@ -63,7 +63,6 @@ subroutine jtmsk_short(cdat,npts,narg,tbest,idfpk,decoded)
   maxdecodes=999
 
   r1max=0.
-!  call timer('r1      ',0)
   do j=0,npts-210                         !Find the B11 sync vectors
      z1=0.
      ss=0.
@@ -78,7 +77,6 @@ subroutine jtmsk_short(cdat,npts,narg,tbest,idfpk,decoded)
         jpk=j
      endif
   enddo
-!  call timer('r1      ',1)
 
   k=0
   do j=1,npts-211
@@ -96,7 +94,6 @@ subroutine jtmsk_short(cdat,npts,narg,tbest,idfpk,decoded)
   ibest2=-1
   idfbest=0
   u1best=0.
-!  call timer('kk      ',0)
   do kk=1,min(kmax,10)
      k=indx(kmax+1-kk)
      j=jgood(k)
@@ -136,16 +133,11 @@ subroutine jtmsk_short(cdat,npts,narg,tbest,idfpk,decoded)
               t2=t
               n=0
               if(imsg.eq.2296 .or. imsg.eq.2302) n=1
-!              write(51,3101) t,kk,nrxfreq+idf,ibest,n,    &
-!                   r1(j),u1,u2,u2/u1,r1(j)/r2max,idf
-!              flush(51)
            endif
         enddo
      enddo
 
      r1_r2=r1(j)/r2max
-!     write(*,3101) t2,kk,nrxfreq+idfpk,ibest,0,    &
-!          r1(j),u1,u2,u2/u1,r1(j)/r2max,idfpk
      if(u1.ge.0.71 .and. u2/u1.lt.0.91 .and. r1_r2.lt.1.3) then
         if(u1.gt.u1best) then
            irpt=iand(ibest,7)
@@ -163,16 +155,7 @@ subroutine jtmsk_short(cdat,npts,narg,tbest,idfpk,decoded)
            if(ihash.eq.narg(12) .and. iand(ibest2,7).eq.0) nn=1
         endif
      endif
-!     if(r1best.gt.0.0) write(*,3101) tbest,kk,nrxfreq+idfbest,ibest,nn,    &
-!          r1best,u1best,u2best,u2best/u1best,r1_r2best,idfbest
   enddo
-!  call timer('kk      ',1)
-
-!  if(r1best.gt.0.0) then
-!     write(*,3101) tbest,kk,nrxfreq+idfbest,ibest,nn,r1best,u1best,u2best,   &
-!          u2best/u1best,r1_r2best,idfbest
-!3101 format(f6.2,4i5,5f8.2,i6)
-!  endif
 
   return
 end subroutine jtmsk_short
