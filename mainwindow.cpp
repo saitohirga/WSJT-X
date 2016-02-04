@@ -1485,9 +1485,7 @@ void MainWindow::closeEvent(QCloseEvent * e)
   mem_jt9->detach();
   QFile quitFile {m_config.temp_dir ().absoluteFilePath (".quit")};
   quitFile.open(QIODevice::ReadWrite);
-  qDebug() << "A";
   QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.remove(); // Allow jt9 to terminate
-  qDebug() << "B";
   bool b=proc_jt9.waitForFinished(1000);
   if(!b) proc_jt9.kill();
   quitFile.remove();
