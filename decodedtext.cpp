@@ -133,7 +133,7 @@ void DecodedText::deCallAndGrid(/*out*/QString& call, QString& grid)
   call = msg.mid(i1+1);
   int i2 = call.indexOf(" ");
   grid = call.mid(i2+1,4);
-  call = call.mid(0,i2);
+  call = call.mid(0,i2).replace(">","");
 }
 
 int DecodedText::timeInSeconds()
