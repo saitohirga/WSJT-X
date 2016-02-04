@@ -2920,12 +2920,20 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   m_hisGrid = ui->dxGridEntry->text();
 
   QString rpt = decodedtext.report();
-  ui->rptSpinBox->setValue(rpt.toInt());
+  int n=rpt.toInt();
+  if(m_mode=="JTMSK" and m_bShMsgs) {
+    n=26;
+    if(rpt.toInt()>4) n=27;
+    if(rpt.toInt()>8) n=28;
+    rpt=QString::number(n);
+  }
+  ui->rptSpinBox->setValue(n);
   genStdMsgs(rpt);
 
 // Determine appropriate response to received message
   auto dtext = " " + decodedtext.string () + " ";
   if(dtext.contains (" " + m_baseCall + " ")
+     || dtext.contains ("<" + m_baseCall + " ")
      || dtext.contains ("/" + m_baseCall + " ")
      || dtext.contains (" " + m_baseCall + "/")
      || (firstcall == "DE" && ((t4.size () > 7 && t4.at(7) != "73") || t4.size () <= 7)))
