@@ -62,7 +62,7 @@ program jtmsk
         ndecodes=ndecodes+1
         line0=line(i)(1:60)
         i1=index(line(i)(1:60),'<...>')
-        if(i1.gt.0 .and. narg(13).eq.narg(12)) then
+        if(i1.gt.0 .and. narg(13)/8.eq.narg(12)) then
            i2=index(msg,'>')
            line0=line(i)(1:i1-1)//msg(1:i2)//line(i)(i1+5:i1+10)
         endif
