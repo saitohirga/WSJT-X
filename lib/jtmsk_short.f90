@@ -142,7 +142,7 @@ subroutine jtmsk_short(cdat,npts,narg,tbest,idfpk,decoded)
         if(u1.gt.u1best) then
            irpt=iand(ibest,7)
            ihash=ibest/8
-           narg(13)=ihash
+           narg(13)=ibest
            decoded="<...> "//rpt(irpt)
            tbest=t
            r1best=r1(j)

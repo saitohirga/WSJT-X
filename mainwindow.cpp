@@ -875,7 +875,7 @@ void MainWindow::dataSink(qint64 frames)
 
   if(m_mode=="ISCAT" or m_mode=="JTMSK" or m_bFast9) {
     fastSink(frames);
-//    return;
+    return;               //### Had been commented out (2/4/2016) ###
   }
 
   // Get power, spectrum, and ihsym
@@ -1485,7 +1485,9 @@ void MainWindow::closeEvent(QCloseEvent * e)
   mem_jt9->detach();
   QFile quitFile {m_config.temp_dir ().absoluteFilePath (".quit")};
   quitFile.open(QIODevice::ReadWrite);
+  qDebug() << "A";
   QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.remove(); // Allow jt9 to terminate
+  qDebug() << "B";
   bool b=proc_jt9.waitForFinished(1000);
   if(!b) proc_jt9.kill();
   quitFile.remove();
@@ -1909,7 +1911,7 @@ void::MainWindow::fast_decode_done()
     }
     if(m_msg[i][0]==0) break;
     QString message=QString::fromLatin1(m_msg[i]);
-    if(narg[13]==narg[12]) message=message.trimmed().replace("<...>",m_calls);
+    if(narg[13]/8==narg[12]) message=message.trimmed().replace("<...>",m_calls);
 
 //Left (Band activity) window
     DecodedText decodedtext;
