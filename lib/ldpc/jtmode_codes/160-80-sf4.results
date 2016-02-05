@@ -1,4 +1,4 @@
-sf4 160,80 ldpc, Eb/N0_dB, ngood, nundet, 10^6 trials
+sf4 160,80 ldpc 2x3/8x4 seed=3, Eb/N0_dB, ngood, nundet, 10^6 trials
 columns 2,3 decoder uses variable sigma, columns 4,5 decoder uses fixed sigma=0.9 
 -0.5 2906 0  10862 5
 0.0 18899 1  34663 6
