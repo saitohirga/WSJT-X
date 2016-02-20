@@ -109,6 +109,11 @@ bool RemoteFile::sync (QUrl const& url, bool local, bool force)
 
 void RemoteFile::download (QUrl const& url)
 {
+  if (QNetworkAccessManager::Accessible != network_manager_->networkAccessible ()) {
+    // try and recover network access for QNAM
+    network_manager_->setNetworkAccessible (QNetworkAccessManager::Accessible);
+  }
+
   QNetworkRequest request {url};
   request.setRawHeader ("User-Agent", "WSJT Sample Downloader");
   request.setOriginatingObject (this);
