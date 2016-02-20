@@ -207,14 +207,18 @@ QString WSPRNet::urlEncodeSpot(QHash<QString,QString> const& query)
 
 void WSPRNet::work()
 {
-    if (!urlQueue.isEmpty()) {
-        QUrl url(urlQueue.dequeue());
-        QNetworkRequest request(url);
-        m_outstandingRequests << networkManager->get(request);
-        emit uploadStatus(QString {"Uploading Spot %1/%2"}.arg (m_urlQueueSize - urlQueue.size()).arg (m_urlQueueSize));
-    } else {
-        uploadTimer->stop();
+  if (!urlQueue.isEmpty()) {
+    if (QNetworkAccessManager::Accessible != networkManager->networkAccessible ()) {
+      // try and recover network access for QNAM
+      networkManager->setNetworkAccessible (QNetworkAccessManager::Accessible);
     }
+    QUrl url(urlQueue.dequeue());
+    QNetworkRequest request(url);
+    m_outstandingRequests << networkManager->get(request);
+    emit uploadStatus(QString {"Uploading Spot %1/%2"}.arg (m_urlQueueSize - urlQueue.size()).arg (m_urlQueueSize));
+  } else {
+    uploadTimer->stop();
+  }
 }
 
 void WSPRNet::abortOutstandingRequests () {
@@ -222,4 +226,5 @@ void WSPRNet::abortOutstandingRequests () {
   for (auto& request : m_outstandingRequests) {
     request->abort ();
   }
+  m_urlQueueSize = 0;
 }

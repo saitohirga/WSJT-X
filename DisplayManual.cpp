@@ -49,6 +49,11 @@ public:
 
   void display (QUrl const& url, QString const& name_we)
   {
+    if (QNetworkAccessManager::Accessible != qnam_->networkAccessible ()) {
+      // try and recover network access for QNAM
+      qnam_->setNetworkAccessible (QNetworkAccessManager::Accessible);
+    }
+
     // try and find a localized manual
     auto lang = QLocale::system ().name ();
     // try for language and country first
