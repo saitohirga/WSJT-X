@@ -8,11 +8,6 @@ program mskber
   real ct(-NSPS:NSPS*NSYM-1)              !cos(pi*t/2T)
   real st(-NSPS:NSPS*NSYM-1)              !sin(pi*t/2T)
   real r(NSYM)                            !Random numbers to determine test bits
-  real ai(0:NSPS*(NSYM+1)-1)              !Rectangular pulses for even symbols
-  real aq(0:NSPS*(NSYM+1)-1)              !Rectangular pulses for odd symbols
-
-  real xe(0:NSPS*(NSYM+3)-1)              !Temp array for received even symbols
-  real xo(0:NSPS*(NSYM+3)-1)              !Temp array for received odd symbols
   real xsym(0:NSYM-1)                     !Soft Rx symbols
 
   complex xt(0:NSPS*(NSYM+1)-1)           !Complex baseband Tx waveform
@@ -98,7 +93,7 @@ subroutine mskdemod(yt,nsym,nsps,ct,st,xsym)
   real xo(0:nsps*(nsym+3)-1)              !Temp array for received odd symbols
   real xsym(0:nsym-1)                     !Soft Rx symbols
 
-  iz=nsps*nsym
+  iz=nsps*(nsym+1)
   xe(0:iz-1)=real(yt)*ct
   xo(0:iz-1)=aimag(yt)*st
   do j=0,nsym-1,2
