@@ -1,22 +1,24 @@
 #!/bin/sh
 # search for a good code
-n=160
-k=72
+#  make-ldpc ldpc.pchk $m $n $seed evenboth 2x3/8x4 no4cycle
+n=128
+k=80
 m=$((n-k))
+niterations=5
 
 set -e  # Stop if an error occurs
 
-rand-src  ldpc.src 2 "$k"x1000000
+rand-src  ldpc.src 2 "$k"x100000
 
-for i in `seq 1 1000`
+for i in `seq 1000 2000`
 do
   seed=$i
   echo seed $seed
-  make-ldpc ldpc.pchk $m $n $seed evenboth 2x3/8x4 no4cycle
+  make-ldpc ldpc.pchk $m $n $seed evenboth 120x3/8x4 no4cycle
   make-gen  ldpc.pchk ldpc.gen dense
   encode    ldpc.pchk ldpc.gen ldpc.src ldpc.enc
-  transmit ldpc.enc ldpc.rec 1 awgn 0.8
-  decode   ldpc.pchk ldpc.rec ldpc.dec awgn 0.80 prprp 250
+  transmit ldpc.enc ldpc.rec 1 awgn 0.7
+  decode   ldpc.pchk ldpc.rec ldpc.dec awgn 0.70 prprp $niterations
   verify   ldpc.pchk ldpc.dec ldpc.gen ldpc.src
 done
 

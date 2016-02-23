@@ -1,24 +1,27 @@
 #!/bin/sh
 # this script characterizes a single code over a range of Eb/N0
+# a baseband signal with mean power = 1 
 # note relationship between noise standard deviation, sigma, and Eb/No:
 # Eb/No = 1/(2*R*sigma^2)
 # If R=1/2, then Eb/No = 1/sigma^2 
+# make-ldpc ldpc.pchk "$m" "$n" $seed evenboth 2x3/8x4 no4cycle
 
 set -e  # Stop if an error occurs
 #set -v  # Echo commands as they are read
 
-n=174
-k=87
+n=128
+k=82
 m=$((n-k))
-seed=4
-ntrials=1000000
+seed=182
+ntrials=10000
+niterations=10
 
 rate=$(echo "scale=5; $k/$n" | bc)
 echo n=$n k=$k rate=$rate m=$m
 
-make-ldpc ldpc.pchk "$m" "$n" $seed evenboth 2x3/8x4 no4cycle
+make-ldpc ldpc.pchk "$m" "$n" $seed evenboth 9x3/1x4 no4cycle
 
-make-gen  ldpc.pchk ldpc.gen dense
+make-gen  ldpc.pchk ldpc.gen sparse
 rand-src  ldpc.src 1 "$k"x"$ntrials"
 encode    ldpc.pchk ldpc.gen ldpc.src ldpc.enc
 
@@ -30,9 +33,6 @@ do
   echo db $db ebno $ebno sigma $sigma
 
   transmit ldpc.enc ldpc.rec 1 awgn $sigma
-  decode   ldpc.pchk ldpc.rec ldpc.dec awgn $sigma\
-         prprp 250
-  verify   ldpc.pchk ldpc.dec ldpc.gen \
-         ldpc.src 
-
+  decode   ldpc.pchk ldpc.rec ldpc.dec awgn $sigma prprp $niterations 
+  verify   ldpc.pchk ldpc.dec ldpc.gen ldpc.src
 done
