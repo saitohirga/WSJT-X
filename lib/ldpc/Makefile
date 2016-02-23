@@ -70,7 +70,6 @@ progs:	modules
 	$(LINK) verify.o mod2sparse.o mod2dense.o mod2convert.o check.o \
 	   rcode.o alloc.o intio.o blockio.o open.o -lm -o verify
 
-
 # MAKE THE TEST PROGRAMS.  First makes the modules used.
 
 tests:	modules

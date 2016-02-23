@@ -1,0 +1,39 @@
+# Compilers
+CC = gcc
+CXX = g++
+FC = gfortran
+AR = ar cr
+RANLIB = ranlib
+MKDIR = mkdir -p
+CP = cp
+RM = rm -f
+
+FFLAGS = -O2 -fbounds-check -Wall -Wno-conversion
+CFLAGS = -O2 -I.
+
+# Default rules
+%.o: %.c
+	${CC} ${CFLAGS} -c $<
+%.o: %.f
+	${FC} ${FFLAGS} -c $<
+%.o: %.F
+	${FC} ${FFLAGS} -c $<
+%.o: %.f90
+	${FC} ${FFLAGS} -c $<
+%.o: %.F90
+	${FC} ${FFLAGS} -c $<
+
+all:	msksim
+
+OBJS = msksim.o alloc.o rcode.o channel.o dec.o enc.o \
+	intio.o blockio.o check.o open.o mod2dense.o \
+	mod2sparse.o mod2convert.o distrib.o rand.o
+
+msksim:	$(OBJS)
+	$(FC) -o msksim $(OBJS) 
+
+rand.o:
+	$(CC) -DRAND_FILE=\"`pwd`/randfile\" rand.c
+        
+clean:
+	$(RM) *.o msksim 

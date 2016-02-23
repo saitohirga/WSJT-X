@@ -383,3 +383,9 @@ void iterprp
     }
   }
 }
+
+void ldpc_decode_ ( mod2sparse *H, double *lratio, char *dblk, char *pchk, double *bprb )
+{
+  int n;
+  n = prprp_decode ( H, lratio, dblk, pchk, bprb );
+} 

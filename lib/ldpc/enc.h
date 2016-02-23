@@ -16,3 +16,4 @@
 void sparse_encode (char *, char *);
 void dense_encode  (char *, char *, mod2dense *, mod2dense *);
 void mixed_encode  (char *, char *, mod2dense *, mod2dense *);
+void ldpc_encode_  (char *, char *);

@@ -152,3 +152,12 @@ void mixed_encode
   { cblk[cols[j]] = mod2dense_get(v,j,0);
   }
 }
+
+// Wrapper for calling sparse_encode from fortran
+void ldpc_encode_(
+char msg[72],
+char cdw[128]
+){
+  sparse_encode(msg,cdw);
+}
+
