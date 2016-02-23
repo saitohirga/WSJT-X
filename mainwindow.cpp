@@ -98,7 +98,7 @@ extern "C" {
 
   void fast_decode_(short id2[], int narg[], char msg[], int len);
   void hash_calls_(char calls[], int* ih9, int len);
-  void degrade_snr_(short d2[], int* n, float* db);
+  void degrade_snr_(short d2[], int* n, float* db, float* bandwidth);
   void wav12_(short d2[], short d1[], int* nbytes, short* nbitsam2);
 }
 
@@ -1662,7 +1662,8 @@ void MainWindow::diskDat()                                   //diskDat()
   m_diskData=true;
 
   float db=m_config.degrade();
-  if(db > 0.0) degrade_snr_(dec_data.d2,&dec_data.params.kin,&db);
+  float bw=m_config.RxBandwidth();
+  if(db > 0.0) degrade_snr_(dec_data.d2,&dec_data.params.kin,&db,&bw);
 
   for(int n=1; n<=m_hsymStop; n++) {                      // Do the waterfall spectra
     k=(n+1)*kstep;
