@@ -1616,7 +1616,7 @@ void MainWindow::read_wav_file (QString const& fname)
           auto sample_size = static_cast<short > (file.format ().sampleSize ());
           wav12_ (dec_data.d2, dec_data.d2, &n, &sample_size);
         }
-      dec_data.params.kin = n;
+      dec_data.params.kin = n / file.format ().bytesPerFrame ();
       dec_data.params.newdat = 1;
     });
   m_wav_future_watcher.setFuture(m_wav_future); // call diskDat() when done
