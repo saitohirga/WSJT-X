@@ -155,9 +155,18 @@ void mixed_encode
 
 // Wrapper for calling sparse_encode from fortran
 void ldpc_encode_(
-char msg[72],
+char msg[82],
 char cdw[128]
 ){
+  int i;
+  printf("msg: ");
+  for (i=0; i<82; i++) {
+  printf("%d", msg[i]); }
+  printf("\n");
   sparse_encode(msg,cdw);
+  printf("cdw: ");
+  for (i=0; i<128; i++) {
+  printf("%d", cdw[i]); }
+  printf("\n");
 }
 

@@ -384,8 +384,19 @@ void iterprp
   }
 }
 
-void ldpc_decode_ ( mod2sparse *H, double *lratio, char *dblk, char *pchk, double *bprb )
+void ldpc_decode_ ( double *lratio, char *dblk, char *pchk, double *bprb )
 {
-  int n;
+  int i, n;
   n = prprp_decode ( H, lratio, dblk, pchk, bprb );
+  printf("in ldpc_decode n=%d\n");
+  printf("dblk: ");
+  for( i=0; i<128; i++) {
+    printf("%d",dblk[i]);
+  }
+  printf("\n");
+  printf("pchk: ");
+  for( i=0; i<46; i++) {
+    printf("%d",pchk[i]);
+  }
+  printf("\n");
 } 
