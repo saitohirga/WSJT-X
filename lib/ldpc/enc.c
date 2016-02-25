@@ -159,11 +159,20 @@ char msg[82],
 char cdw[128]
 ){
   int i;
+  char checks[46];
+
   printf("msg: ");
   for (i=0; i<82; i++) {
   printf("%d", msg[i]); }
   printf("\n");
   sparse_encode(msg,cdw);
+  mod2sparse_mulvec (H, cdw, checks);
+  for (i = 0; i<46; i++) {
+    if( checks[i] == 1 ) {
+      printf("Failed to encode.\n");
+      abort();
+    }
+  } 
   printf("cdw: ");
   for (i=0; i<128; i++) {
   printf("%d", cdw[i]); }

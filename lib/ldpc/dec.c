@@ -384,19 +384,23 @@ void iterprp
   }
 }
 
-void ldpc_decode_ ( double *lratio, char *dblk, char *pchk, double *bprb )
+void ldpc_decode_ ( double lratio[], char decoded[], int *max_iterations, int *niterations)
 {
-  int i, n;
-  n = prprp_decode ( H, lratio, dblk, pchk, bprb );
-  printf("in ldpc_decode n=%d\n");
-  printf("dblk: ");
-  for( i=0; i<128; i++) {
-    printf("%d",dblk[i]);
+  int i, j, valid;
+  char dblk[N],pchk[M];
+  double bprb[N];
+    
+  max_iter=*max_iterations;
+  *niterations = prprp_decode ( H, lratio, dblk, pchk, bprb );
+  valid = check( H, dblk, pchk )==0;
+  if( !valid ) {
+      *niterations=-1;
+  };
+
+  j=0;
+  for( i=M; i<N; i++ ) {
+    decoded[j]=dblk[cols[i]];
+    j=j+1;
   }
-  printf("\n");
-  printf("pchk: ");
-  for( i=0; i<46; i++) {
-    printf("%d",pchk[i]);
-  }
-  printf("\n");
+
 } 

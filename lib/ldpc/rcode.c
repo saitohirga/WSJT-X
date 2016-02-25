@@ -199,19 +199,11 @@ garbled:
   exit(1);
 }
 
-// Fortran interface routine
-void init_ldpc_ ( )
+// Fortran interface routine for WSJT-X
+void init_ldpc_ (char *pfile, char *gfile )
 {
     char *pchk_file,*gen_file;
-    pchk_file="./jtmode_codes/ldpc-128-82-sf11.pchk";
-    gen_file="./jtmode_codes/ldpc-128-82-sf11.gen";
- 
-    printf("pchk_file %s\n",pchk_file);
-    printf("gen_file %s\n",gen_file);
-
-    read_pchk( pchk_file );
-    read_gen( gen_file, 0, 0 );
-
-    printf("N %d M %d\n",N,M);
+    read_pchk( pfile );
+    read_gen( gfile, 0, 0 );
 }
 
