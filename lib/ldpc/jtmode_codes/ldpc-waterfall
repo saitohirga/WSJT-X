@@ -10,16 +10,16 @@ set -e  # Stop if an error occurs
 #set -v  # Echo commands as they are read
 
 n=128
-k=82
+k=80
 m=$((n-k))
-seed=182
-ntrials=10000
+seed=873
+ntrials=1000000
 niterations=10
 
 rate=$(echo "scale=5; $k/$n" | bc)
 echo n=$n k=$k rate=$rate m=$m
 
-make-ldpc ldpc.pchk "$m" "$n" $seed evenboth 9x3/1x4 no4cycle
+make-ldpc ldpc.pchk "$m" "$n" $seed evenboth 120x3/8x4 no4cycle
 
 make-gen  ldpc.pchk ldpc.gen sparse
 rand-src  ldpc.src 1 "$k"x"$ntrials"

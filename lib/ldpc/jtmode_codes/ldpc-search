@@ -4,13 +4,13 @@
 n=128
 k=80
 m=$((n-k))
-niterations=5
+niterations=10
 
 set -e  # Stop if an error occurs
 
 rand-src  ldpc.src 2 "$k"x100000
 
-for i in `seq 1000 2000`
+for i in `seq 1 1000`
 do
   seed=$i
   echo seed $seed
