@@ -155,27 +155,19 @@ void mixed_encode
 
 // Wrapper for calling sparse_encode from fortran
 void ldpc_encode_(
-char msg[82],
-char cdw[128]
+char msg[N-M],
+char cdw[N]
 ){
   int i;
-  char checks[46];
+  char checks[M];
 
-  printf("msg: ");
-  for (i=0; i<82; i++) {
-  printf("%d", msg[i]); }
-  printf("\n");
   sparse_encode(msg,cdw);
   mod2sparse_mulvec (H, cdw, checks);
-  for (i = 0; i<46; i++) {
+  for (i = 0; i<M; i++) {
     if( checks[i] == 1 ) {
       printf("Failed to encode.\n");
       abort();
     }
   } 
-  printf("cdw: ");
-  for (i=0; i<128; i++) {
-  printf("%d", cdw[i]); }
-  printf("\n");
 }
 

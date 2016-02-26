@@ -14,7 +14,7 @@ for i in `seq 1 1000`
 do
   seed=$i
   echo seed $seed
-  make-ldpc ldpc.pchk $m $n $seed evenboth 120x3/8x4 no4cycle
+  make-ldpc ldpc.pchk $m $n $seed evenboth 124x3/4x4 no4cycle
   make-gen  ldpc.pchk ldpc.gen dense
   encode    ldpc.pchk ldpc.gen ldpc.src ldpc.enc
   transmit ldpc.enc ldpc.rec 1 awgn 0.7

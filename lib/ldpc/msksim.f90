@@ -2,26 +2,25 @@ program msksim
 
 use, intrinsic :: iso_c_binding
 
-parameter (N=128, M=46, K=82) ! M and N are global variables on the C side. 
+parameter (N=128, M=48, K=80) ! M and N are global variables on the C side.
 integer(1) message(1:K)
 integer(1) codeword(1:N)
 integer(1) decoded(1:K)
 real*8 lratio(N)
 character(50) pchk_file,gen_file
 
-pchk_file="./jtmode_codes/ldpc-128-82-sf11.pchk"
-gen_file="./jtmode_codes/ldpc-128-82-sf11.gen"
+pchk_file="./jtmode_codes/ldpc-128-80-sf13.pchk"
+gen_file="./jtmode_codes/ldpc-128-80-sf13.gen"
 
 call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
 
-
-message(1:41)=1
-message(42:82)=0
+message(1:40)=1
+message(41:80)=0
 call ldpc_encode(message,codeword)
 
 max_iterations=10
 ntrials=1000000
-rate=82.0/128.0
+rate=real(K)/real(N)
 
 write(*,*) "Eb/N0   ngood    nundetected"
 do idb = 0, 11
@@ -30,7 +29,6 @@ do idb = 0, 11
 
   ngood=0
   nue=0
-  aviter=0.0
 
   do itrial=1, ntrials
 
