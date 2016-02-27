@@ -2,12 +2,14 @@ program msksim
 
 use, intrinsic :: iso_c_binding
 
+! To change to a new code, edit the following line and the filenames
+! that contain the parity check and generator matrices.
 parameter (N=128, M=48, K=80) ! M and N are global variables on the C side.
+
 character(50) pchk_file,gen_file
 integer(1) codeword(1:N), decoded(1:K), message(1:K)
 real*8 lratio(N), rxdata(N)
 
-! To change to a different code, edit the following 3 lines.
 pchk_file="./jtmode_codes/ldpc-128-80-sf13.pchk"
 gen_file="./jtmode_codes/ldpc-128-80-sf13.gen"
 
