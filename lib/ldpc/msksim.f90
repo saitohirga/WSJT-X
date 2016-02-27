@@ -3,14 +3,15 @@ program msksim
 use, intrinsic :: iso_c_binding
 
 parameter (N=128, M=48, K=80) ! M and N are global variables on the C side.
-integer(1) message(1:K)
-integer(1) codeword(1:N)
-integer(1) decoded(1:K)
-real*8 lratio(N)
 character(50) pchk_file,gen_file
+integer(1) codeword(1:N), decoded(1:K), message(1:K)
+real*8 lratio(N), rxdata(N)
 
+! To change to a different code, edit the following 3 lines.
 pchk_file="./jtmode_codes/ldpc-128-80-sf13.pchk"
 gen_file="./jtmode_codes/ldpc-128-80-sf13.gen"
+
+rate=real(K)/real(N)
 
 call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
 
@@ -20,7 +21,6 @@ call ldpc_encode(message,codeword)
 
 max_iterations=10
 ntrials=1000000
-rate=real(K)/real(N)
 
 write(*,*) "Eb/N0   ngood    nundetected"
 do idb = 0, 11
@@ -33,8 +33,20 @@ do idb = 0, 11
   do itrial=1, ntrials
 
     do i=1,N
-      rxdata = 2.0*(codeword(i)-0.5) + sigma*gran()
-      lratio(i)=exp(2.0*rxdata/(sigma*sigma))
+      rxdata(i) = 2.0*(codeword(i)-0.5) + sigma*gran()
+    enddo
+
+! correct signal normalization is important for this decoder.
+    rxav=sum(rxdata)/N
+    rx2av=sum(rxdata*rxdata)/N
+    rxsig=sqrt(rx2av-rxav*rxav)
+    rxdata=rxdata/rxsig
+
+! s can be tuned to trade a few tenth's dB of threshold 
+! for an order of magnitude in UER 
+    do i=1,N
+      s=0.75
+      lratio(i)=exp(2.0*rxdata(i)/(s*s))
     enddo
 
     call ldpc_decode(lratio, decoded, max_iterations, niterations)
