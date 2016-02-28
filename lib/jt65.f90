@@ -8,7 +8,7 @@ program jt65
   use jt65_test
   use readwav
 
-  character c
+  character c,mode
   logical :: display_help=.false.,nrobust=.false.
   type(wav_header) :: wav
   integer*2 id2(NZMAX)
@@ -17,11 +17,13 @@ program jt65
   character(len=500) optarg
   character*12 mycall,hiscall
   character*6 hisgrid
-  type (option) :: long_options(11) = [ &
+
+  type (option) :: long_options(12) = [ &
        option ('aggressive',.true.,'a','aggressiveness [0-10], default AGGR=0','AGGR'), &
        option ('depth',.true.,'d','depth=5 hinted decoding, default DEPTH=0','DEPTH'),  &
        option ('freq',.true.,'f','signal frequency, default FREQ=1270','FREQ'),         &
        option ('help',.false.,'h','Display this help message',''),                      &
+       option ('mode',.true.,'m','Mode A, B, C. Default is A.','MODE'),                 &
        option ('ntrials',.true.,'n','number of trials, default TRIALS=10000','TRIALS'), &
        option ('robust-sync',.false.,'r','robust sync',''),                             &
        option ('my-call',.true.,'c','my callsign',''),                                  &
@@ -43,7 +45,7 @@ program jt65
   ndepth=0
 
   do
-     call getopt('a:d:f:hn:rc:x:g:X:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+     call getopt('a:d:f:hm:n:rc:x:g:X:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
      if( nstat .ne. 0 ) then
         exit
      end if
@@ -56,6 +58,14 @@ program jt65
         read (optarg(:narglen), *) nfqso
      case ('h')
         display_help = .true.
+     case ('m')
+        read (optarg(:narglen), *) mode
+        if( mode .eq. 'b' .or. mode .eq. 'B' ) then
+          nsubmode=1
+        endif
+        if( mode .eq. 'c' .or. mode .eq. 'C' ) then
+          nsubmode=2
+        endif
      case ('n')
         read (optarg(:narglen), *) ntrials
      case ('r')
