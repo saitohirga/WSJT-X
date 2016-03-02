@@ -57,6 +57,7 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
 ! Compute spectrum for each symbol.
   nsym=126
   nfft=512
+  df=1378.125/nfft
   j=int(dtbest*1378.125)
 
   c5a=cmplx(0.0,0.0)
