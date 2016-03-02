@@ -8,7 +8,8 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
 
   parameter (NMAX=60*12000)          !Samples per 60 s
   real*4  dd(NMAX)                   !92 MB: raw data from Linrad timf2
-  complex cx(NMAX/8)                 !Data at 1378.125 samples/s
+  complex cx(NMAX/8)                 !Data at 1378.125 sps
+  complex cx1(NMAX/8)                !Data at 1378.125 sps, offset by 355.3 Hz
   complex c5x(NMAX/32)               !Data at 344.53125 Hz
   complex c5a(512)
   real s2(66,126)
@@ -23,6 +24,7 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
 ! Mix sync tone to baseband, low-pass filter, downsample to 1378.125 Hz
   call timer('filbig  ',0)
   call filbig(dd,npts,f0,newdat,cx,n5,sq0)
+  if(mode65.eq.4) call filbig(dd,npts,f0+355.297852,newdat,cx1,n5,sq0)
   call timer('filbig  ',1)
 
 ! NB: cx has sample rate 12000*77125/672000 = 1378.125 Hz
@@ -42,6 +44,7 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   dtbest=dtbest+0.003628 ! remove decimation filter and coh. integrator delay
   dt=dtbest !return new, improved estimate of dt
   sync2=3.7e-4*ccfbest/sq0                    !Constant is empirical 
+  if(mode65.eq.4) cx=cx1
 
 ! Apply AFC corrections to the time-domain signal
 ! Now we are back to using the 1378.125 Hz sample rate, enough to 
@@ -71,7 +74,12 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
      do i=1,66
         jj=i
         if(mode65.eq.2) jj=2*i-1
-        if(mode65.eq.4) jj=4*i-3
+        if(mode65.eq.4) then
+!           jj=4*i-3
+           ff=4*(i-1)*df - 355.297852
+           jj=nint(ff/df)+1
+           if(jj.lt.1) jj=jj+512
+        endif
         s2(i,k)=real(c5a(jj))**2 + aimag(c5a(jj))**2
      enddo
   enddo
