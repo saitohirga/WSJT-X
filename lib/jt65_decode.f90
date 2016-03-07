@@ -81,7 +81,7 @@ contains
     common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
     common/steve/thresh0
     common/test000/ncandidates,nhard_min,nsoft_min,nera_best,nrtt1000,   &
-         ntotal_min,ntry,nq1000,npp1         !### TEST ONLY ###
+         ntotal_min,ntry,nq1000,npp1,nsmo         !### TEST ONLY ###
 
 !            0  1  2  3  4  5  6  7  8  9 10 11
     data h0/41,42,43,43,44,45,46,47,48,48,49,49/
@@ -161,7 +161,7 @@ contains
           call timer('decod65a',0)
           call decode65a(dd,npts,first_time,nqd,freq,nflip,mode65,nvec,     &
                naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,   &
-               sync2,a,dtx,nft,qual,nhist,decoded)
+               sync2,a,dtx,nft,qual,nhist,nsmo,decoded)
           call timer('decod65a',1)
           n=naggressive
           rtt=0.001*nrtt1000

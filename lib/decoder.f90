@@ -215,16 +215,23 @@ contains
     integer, intent(in) :: hard_min
     integer, intent(in) :: aggression
 
-    integer param(0:8)
+    integer param(0:9)
+    integer nsmo
     real rtt
     common/test000/param                              !### TEST ONLY ###
+
     rtt=0.001*param(4)
+    nsmo=param(9)
 
     !$omp critical(decode_results)
-    write(*,1010) utc,snr,dt,freq,decoded
-1010 format(i4.4,i4,f5.1,i5,1x,'#',1x,a22)
-    write(13,1012) utc,nint(sync),snr,dt,float(freq),drift,decoded,ft
-1012 format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT65',i4)
+    if(ft.eq.2 .or. nsmo.gt.0) then
+       write(*,1010) utc,snr,dt,freq,decoded,ft,nsmo
+    else
+       write(*,1010) utc,snr,dt,freq,decoded
+1010 format(i4.4,i4,f5.1,i5,1x,'#',1x,a22,i4,i2)
+    endif
+    write(13,1012) utc,nint(sync),snr,dt,float(freq),drift,decoded,ft,nsmo
+1012 format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT65',i4,i2)
     call flush(6)
 !    write(79,3001) utc,sync,snr,dt,freq,candidates,    &
 !         hard_min,total_min,rtt,tries,ft,min(qual,99),decoded

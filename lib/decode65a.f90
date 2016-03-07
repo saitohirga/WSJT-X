@@ -1,6 +1,6 @@
 subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
      naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,sync2,    &
-     a,dt,nft,qual,nhist,decoded)
+     a,dt,nft,qual,nhist,nsmo,decoded)
 
 ! Apply AFC corrections to a candidate JT65 signal, then decode it.
 
@@ -12,6 +12,7 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   complex cx1(NMAX/8)                !Data at 1378.125 sps, offset by 355.3 Hz
   complex c5x(NMAX/32)               !Data at 344.53125 Hz
   complex c5a(512)
+  real s1(-255:256,126)
   real s2(66,126)
   real a(5)
   logical first
@@ -60,8 +61,8 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   df=1378.125/nfft
   j=int(dtbest*1378.125)
 
-  c5a=cmplx(0.0,0.0)
   call timer('sh_ffts ',0)
+  c5a=cmplx(0.0,0.0)
   do k=1,nsym
      do i=1,nfft
         j=j+1
@@ -72,23 +73,44 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
         endif
      enddo
      call four2a(c5a,nfft,1,1,1)
-     do i=1,66
+     do i=1,512
         jj=i
-        if(mode65.eq.2) jj=2*i-1
-        if(mode65.eq.4) then
-!           jj=4*i-3
-           ff=4*(i-1)*df - 355.297852
-           jj=nint(ff/df)+1
-           if(jj.lt.1) jj=jj+512
-        endif
-        s2(i,k)=real(c5a(jj))**2 + aimag(c5a(jj))**2
+        if(i.gt.256) jj=i-512
+        s1(jj,k)=real(c5a(i))**2 + aimag(c5a(i))**2
      enddo
   enddo
   call timer('sh_ffts ',1)
 
   call timer('dec65b  ',0)
-  call decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,           &
-       mycall,hiscall,hisgrid,nexp_decode,nqd,nft,qual,nhist,decoded)
+  maxsmo=0
+  if(mode65.eq.2) maxsmo=2
+  if(mode65.eq.4) maxsmo=5
+  do ismo=0,maxsmo
+     if(ismo.gt.0) then
+        do j=1,126
+              call smo121(s1(-255,j),512)
+        enddo
+     endif
+
+     do i=1,66
+        jj=i
+        if(mode65.eq.2) jj=2*i-1
+        if(mode65.eq.4) then
+           ff=4*(i-1)*df - 355.297852
+           jj=nint(ff/df)+1
+        endif
+        s2(i,1:126)=s1(jj,1:126)
+     enddo
+
+     call decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,           &
+          mycall,hiscall,hisgrid,nexp_decode,nqd,nft,qual,nhist,decoded)
+     if(nft.eq.1) then
+!### Should also deal with nft=2 solutions, if no nft=1.
+        nsmo=ismo
+        exit
+     endif
+  enddo
+
   call timer('dec65b  ',1)
 
   return

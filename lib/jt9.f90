@@ -19,8 +19,9 @@ program jt9
   character c
   character(len=500) optarg, infile
   character wisfile*80
+!### ndepth was defined as 60001.  Why???
   integer :: arglen,stat,offset,remain,mode=0,flow=200,fsplit=2700,          &
-       fhigh=4000,nrxfreq=1500,ntrperiod=1,ndepth=60001,nexp_decode=0
+       fhigh=4000,nrxfreq=1500,ntrperiod=1,ndepth=1,nexp_decode=0
   logical :: read_files = .true., tx9 = .false., display_help = .false.
   type (option) :: long_options(23) = [ &
     option ('help', .false., 'h', 'Display this help message', ''),          &

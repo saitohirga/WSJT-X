@@ -24,7 +24,7 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,mycall_12,    &
   integer dat4(12)
   integer mrsym(63),mr2sym(63),mrprob(63),mr2prob(63)
   integer correct(63),tmp(63)
-  integer param(0:8)
+  integer param(0:9)
   logical ltext
   common/chansyms65/correct
   common/test000/param                              !### TEST ONLY ###
@@ -72,8 +72,6 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,mycall_12,    &
   call interleave63(mr2sym,-1)       !from second-most-reliable symbols
   call interleave63(mr2prob,-1)
   ntry=0
-  iftest=0
-  if(iftest.eq.2) go to 10
 
   call timer('ftrsd   ',0)
   param=0
@@ -93,9 +91,8 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,mycall_12,    &
      r0=0.90
   endif
   if(ntotal.le.nd0 .and. rtt.le.r0) nft=1
-  if(iftest.eq.1) nft=1                             !### TEST ONLY ###
 
-10 if(iftest.eq.2 .or. (nft.eq.0 .and. ndepth.ge.5)) then
+  if(nft.eq.0 .and. ndepth.ge.5) then
      mode65=1
      flip=1.0
      qmin=1.0
