@@ -1,4 +1,4 @@
-subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
+subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
      mycall,hiscall0,hisgrid0,nexp_decode,qual,decoded)
 
   use packjt

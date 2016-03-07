@@ -105,9 +105,11 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
      call decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,           &
           mycall,hiscall,hisgrid,nexp_decode,nqd,nft,qual,nhist,decoded)
      if(nft.eq.1) then
-!### Should also deal with nft=2 solutions, if no nft=1.
         nsmo=ismo
         exit
+     else if(nft.eq.2) then
+!### Should also deal with nft=2 solutions
+        
      endif
   enddo
 
