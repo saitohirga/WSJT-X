@@ -1,4 +1,4 @@
-subroutine extract(s3,nadd,ntrials,naggressive,ndepth,mycall_12,    &
+subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,mycall_12,    &
      hiscall_12,hisgrid,nexp_decode,ncount,nhist,decoded,ltext,nft,qual)
 
 ! Input:
@@ -93,11 +93,10 @@ subroutine extract(s3,nadd,ntrials,naggressive,ndepth,mycall_12,    &
   if(ntotal.le.nd0 .and. rtt.le.r0) nft=1
 
   if(nft.eq.0 .and. ndepth.ge.5) then
-     mode65=1
      flip=1.0
      qmin=1.0
-          call timer('hint65  ',0)
-     call hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,mode65,flip,   &
+     call timer('hint65  ',0)
+     call hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
           mycall,hiscall,hisgrid,nexp_decode,qual,decoded)
      if(qual.ge.qmin) then
         nft=2
