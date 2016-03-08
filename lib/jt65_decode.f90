@@ -60,7 +60,7 @@ contains
     real ss(322,NSZ)
     real savg(NSZ)
     real a(5)
-    character*22 decoded,decoded0
+    character*22 decoded,decoded0,avemsg,deepave
     type candidate
        real freq
        real dt
@@ -74,9 +74,9 @@ contains
        character*22 decoded
     end type accepted_decode
     type(accepted_decode) dec(50)
-    logical :: first_time, robust
+    logical :: first_time, robust, prtavg
 
-    integer h0(0:11),d0(0:11),ne(0:11)
+    integer h0(0:11),d0(0:11)
     real r0(0:11)
     common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
     common/steve/thresh0
@@ -89,6 +89,7 @@ contains
 
 !             0    1    2    3    4    5    6    7    8    9   10   11
     data r0/0.70,0.72,0.74,0.76,0.78,0.80,0.82,0.84,0.86,0.88,0.90,0.90/
+    data nutc0/-999/,nfreq0/-999/,nsave/0/
     save
 
     this%callback => callback
@@ -151,6 +152,7 @@ contains
        nqd=0
        decoded0=""
        freq0=0.
+       prtavg=.false.
 
        do icand=1,ncand
           freq=ca(icand)%freq
@@ -163,6 +165,35 @@ contains
                naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,   &
                sync2,a,dtx,nft,qual,nhist,nsmo,decoded)
           call timer('decod65a',1)
+          nfreq=nint(freq+a(1))
+          ndrift=nint(2.0*a(2))
+!###
+          if(nft.ne.1 .and. ndepth.ge.4 .and. (.not.prtavg)) then
+! Single-sequence FT decode failed, so try for an average FT decode.
+             if(nutc.ne.nutc0 .or. abs(nfreq-nfreq0).gt.ntol) then
+! This is a new minute or a new frequency, so call avg65.
+                nutc0=nutc
+                nfreq0=nfreq
+                nsave=nsave+1
+                call avg65(nutc,nsave,sync1,dtx,nflip,nfreq,mode65,ntol,    &
+                     ndepth,neme,mycall,hiscall,hisgrid,nftt,avemsg,        &
+                     qave,deepave,ich,ndeepave)
+
+                if (associated(this%callback)) then
+                   call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
+                        decoded,nft,nqual,ncandidates,ntry,ntotal_min,       &
+                        nhard_min,naggressive)
+                end if
+
+             endif
+          endif
+          if(nftt.eq.1) then
+!             print*,'A: ',avemsg,nftt
+             nft=1
+             decoded=avemsg
+             go to 5
+          endif
+!###
           n=naggressive
           rtt=0.001*nrtt1000
           if(nft.lt.2) then
@@ -171,6 +202,9 @@ contains
              if(ntotal_min.gt.d0(n)) cycle
              if(rtt.gt.r0(n)) cycle
           endif
+
+5         continue
+!          print*,'B: ',avemsg,nftt
 
           if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
                minsync.ge.0) cycle                  !Don't display dupes
@@ -181,8 +215,6 @@ contains
                 call subtract65(dd,npts,freq,dtx)
                 call timer('subtr65 ',1)
              endif
-             nfreq=nint(freq+a(1))
-             ndrift=nint(2.0*a(2))
              s2db=10.0*log10(sync2) - 35             !### empirical ###
              nsnr=nint(s2db)
              if(nsnr.lt.-30) nsnr=-30
@@ -220,5 +252,131 @@ contains
 
     return
   end subroutine decode
+
+  subroutine avg65(nutc,nsave,snrsync,dtxx,nflip,nfreq,mode65,ntol,ndepth,  &
+       neme,mycall,hiscall,hisgrid,nftt,avemsg,qave,deepave,ichbest,    &
+       ndeepave)
+! Decodes averaged JT65 data
+    parameter (MAXAVE=64)
+    character*22 avemsg,deepave,deepbest
+    character mycall*12,hiscall*12,hisgrid*6
+    character*1 csync,cused(64)
+    integer iused(64)
+! Accumulated data for message averaging
+    integer iutc(MAXAVE)
+    integer nfsave(MAXAVE)
+    integer listutc(10)
+    integer nflipsave(MAXAVE)
+    real s3save(64,63,MAXAVE)
+    real s3b(64,63)
+    real dtsave(MAXAVE)
+    real syncsave(MAXAVE)
+    logical first
+    data first/.true./
+    common/test001/s3a(64,63)
+    save
+
+    if(first) then
+       iutc=-1
+       nfsave=0
+       dtdiff=0.2
+       first=.false.
+    endif
+
+    do i=1,64
+       if(nutc.eq.iutc(i) .and. abs(nhz-nfsave(i)).le.ntol) go to 10
+    enddo
+
+    ! Save data for message averaging
+    iutc(nsave)=nutc
+    syncsave(nsave)=snrsync
+    dtsave(nsave)=dtxx
+    nfsave(nsave)=nfreq
+    nflipsave(nsave)=nflip
+    s3save(1:64,1:63,nsave)=s3a
+
+10  sym=0.
+    syncsum=0.
+    dtsum=0.
+    nfsum=0
+    nsum=0
+
+    do i=1,64
+       cused(i)='.'
+       if(iutc(i).lt.0) cycle
+       if(mod(iutc(i),2).ne.mod(nutc,2)) cycle  !Use only same (odd/even) seq
+       if(abs(dtxx-dtsave(i)).gt.dtdiff) cycle  !DT must match
+       if(abs(nfreq-nfsave(i)).gt.ntol) cycle   !Freq must match
+       if(nflip.ne.nflipsave(i)) cycle          !Sync type (*/#) must match
+       s3b=s3b + s3save(1:64,1:63,i)
+       syncsum=syncsum + syncsave(i)
+       dtsum=dtsum + dtsave(i)
+       nfsum=nfsum + nfsave(i)
+       cused(i)='$'
+       nsum=nsum+1
+       iused(nsum)=i
+    enddo
+    if(nsum.lt.64) iused(nsum+1)=0
+
+    syncave=0.
+    dtave=0.
+    fave=0.
+    if(nsum.gt.0) then
+       sym=sym/nsum
+       syncave=syncsum/nsum
+       dtave=dtsum/nsum
+       fave=float(nfsum)/nsum
+    endif
+
+    do i=1,nsave
+       csync='*'
+       if(nflipsave(i).lt.0.0) csync='#'
+       write(61,1000) cused(i),iutc(i),syncsave(i),dtsave(i),nfsave(i),csync
+1000   format(a1,i5.4,f6.1,f6.2,i6,1x,a1)
+    enddo
+
+    rewind 62
+    sqt=0.
+    sqf=0.
+    do j=1,64
+       i=iused(j)
+       if(i.eq.0) exit
+       csync='*'
+       if(nflipsave(i).lt.0) csync='#'
+       write(62,3001) i,iutc(i),syncsave(i),dtsave(i),nfsave(i),csync
+3001   format(i3,i6.4,f6.1,f6.2,i6,1x,a1)
+       sqt=sqt + (dtsave(i)-dtave)**2
+       sqf=sqf + (nfsave(i)-fave)**2
+    enddo
+    rmst=0.
+    rmsf=0.
+    if(nsum.ge.2) then
+       rmst=sqrt(sqt/(nsum-1))
+       rmsf=sqrt(sqf/(nsum-1))
+    endif
+    write(62,3002)
+3002 format(16x,'----- -----')
+    write(62,3003) dtave,nint(fave)
+    write(62,3003) rmst,nint(rmsf)
+3003 format(15x,f6.2,i6)
+    flush(62)
+
+    nadd=nsum*mode65
+    nftt=0
+!###
+    ntrials=3000
+    naggressive=10
+    hiscall='W9XYZ'
+    hisgrid='EN37'
+    nexp_decode=0    !### not used, anyway
+!###
+!    print*,'A',nadd,mode65,ntrials,naggressive,ndepth,mycall,    &
+!         hiscall,hisgrid,nexp_decode
+
+    call extract(s3b,nadd,mode65,ntrials,naggressive,ndepth,mycall,    &
+     hiscall,hisgrid,nexp_decode,ncount,nhist,avemsg,ltext,nftt,qual)
+
+    return
+  end subroutine avg65
 
 end module jt65_decode

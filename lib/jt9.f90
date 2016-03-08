@@ -261,8 +261,8 @@ program jt9
 
      shared_data%params%naggressive=10
      shared_data%params%n2pass=1
-     shared_data%params%nranera=8                      !### ntrials=10000
-     if(ndepth.eq.4) shared_data%params%nranera=10     !### ntrials=100,000
+!     shared_data%params%nranera=8                      !### ntrials=10000
+     shared_data%params%nranera=7                      !### ntrials=3000
      shared_data%params%nrobust=.false.
      shared_data%params%nexp_decode=nexp_decode
      shared_data%params%mycall=mycall
