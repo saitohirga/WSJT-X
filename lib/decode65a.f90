@@ -122,7 +122,7 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
            nnbest=nn
            nsmobest=ismo
         endif
-!        print*,'A',nn,ismo,qual,decoded
+!        print*,'A',nn,ndepth,ntrials,ismo,qual,decoded
      endif
   enddo
 
