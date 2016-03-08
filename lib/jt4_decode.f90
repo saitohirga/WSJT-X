@@ -253,7 +253,7 @@ contains
           endif
 
           if(nfanoave.gt.0) then
-             ! Fano succeeded: report the mess                      AVG FANO OK
+             ! Fano succeeded: report the message                   AVG FANO OK
              if (associated (this%decode_callback)) then
                 call this%decode_callback(nutc,nsnr,dtx,nfreq,.true.,csync,   &
                      .false.,avemsg,0.,ich,.true.,nfanoave)
