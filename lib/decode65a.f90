@@ -16,7 +16,7 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   real s2(66,126)
   real a(5)
   logical first
-  character decoded*22
+  character decoded*22,decoded_best*22
   character mycall*12,hiscall*12,hisgrid*6
   data first/.true./,jjjmin/1000/,jjjmax/-1000/
   data nhz0/-9999999/
@@ -82,13 +82,20 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   call timer('sh_ffts ',1)
 
   call timer('dec65b  ',0)
+  qualbest=0.
   maxsmo=0
-  if(mode65.eq.2) maxsmo=2
-  if(mode65.eq.4) maxsmo=5
+  if(mode65.eq.2) maxsmo=5
+  if(mode65.eq.4) maxsmo=10
+  nn=0
   do ismo=0,maxsmo
      if(ismo.gt.0) then
         do j=1,126
+           call smo121(s1(-255,j),512)
+           if(j.eq.1) nn=nn+1
+           if(nn.ge.4) then
               call smo121(s1(-255,j),512)
+              if(j.eq.1) nn=nn+1
+           endif
         enddo
      endif
 
@@ -109,9 +116,22 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
         exit
      else if(nft.eq.2) then
 !### Should also deal with nft=2 solutions
-        
+        if(qual.gt.qualbest) then
+           decoded_best=decoded
+           qualbest=qual
+           nnbest=nn
+           nsmobest=ismo
+        endif
+!        print*,'A',nn,ismo,qual,decoded
      endif
   enddo
+
+  if(nft.eq.2) then
+     decoded=decoded_best
+     qual=qualbest
+     nsmo=nsmobest
+!     print*,'B',nnbest,nsmo,qual,decoded
+  endif
 
   call timer('dec65b  ',1)
 
