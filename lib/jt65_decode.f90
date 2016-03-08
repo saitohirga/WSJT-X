@@ -172,14 +172,9 @@ contains
              if(rtt.gt.r0(n)) cycle
           endif
 
-!          !### Suppress false decodes in crowded HF bands ###
-!          if(naggressive.eq.0 .and. ntrials.le.10000) then
-!             if(ntry.eq.ntrials) then
-!                if(nhard_min.ge.42 .or. ntotal_min.ge.71) cycle
-!             endif
-!          endif
           if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
                minsync.ge.0) cycle                  !Don't display dupes
+
           if(decoded.ne.'                      ' .or. minsync.lt.0) then
              if( nsubtract .eq. 1 ) then
                 call timer('subtr65 ',0)
@@ -209,19 +204,19 @@ contains
                 dec(ndecoded)%sync=sync2
                 dec(ndecoded)%decoded=decoded
                 nqual=min(qual,9999.0)
-                !          if(nqual.gt.10) nqual=10
                 if (associated(this%callback)) then
-                   call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,decoded &
-                        ,nft,nqual,ncandidates,ntry,ntotal_min,nhard_min,naggressive)
+                   call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
+                        decoded,nft,nqual,ncandidates,ntry,ntotal_min,       &
+                        nhard_min,naggressive)
                 end if
              endif
              decoded0=decoded
              freq0=freq
              if(decoded0.eq.'                      ') decoded0='*'
           endif
-       enddo                                 !candidate loop
+       enddo                                 !Candidate loop
        if(ndecoded.lt.1) exit
-    enddo                                   !two-pass loop
+    enddo                                    !Two-pass loop
 
     return
   end subroutine decode
