@@ -37,7 +37,7 @@ contains
   end subroutine test
 
   subroutine my_callback (this, utc, sync, snr, dt, freq, drift, decoded   &
-       , ft, qual)
+       , ft, qual, smo, sum, minsync, submode, aggression)
     use jt65_decode
     implicit none
 
@@ -51,6 +51,11 @@ contains
     character(len=22), intent(in) :: decoded
     integer, intent(in) :: ft
     integer, intent(in) :: qual
+    integer, intent(in) :: smo
+    integer, intent(in) :: sum
+    integer, intent(in) :: minsync
+    integer, intent(in) :: submode
+    integer, intent(in) :: aggression
 
     write(*,1010) utc,snr,dt,freq,decoded
 1010 format(i4.4,i4,f5.1,i5,1x,'#',1x,a22)
