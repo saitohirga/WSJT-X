@@ -12,8 +12,9 @@ module jt65_decode
   ! Callback function to be called with each decode
   !
   abstract interface
-     subroutine jt65_decode_callback (this, utc, sync, snr, dt, freq, drift,          &
-          decoded, ft, qual, candidates, tries, total_min, hard_min, aggression)
+     subroutine jt65_decode_callback(this,utc,sync,snr,dt,freq,drift,     &
+          decoded,ft,qual,nsmo,nsum,minsync,nsubmode,naggressive)
+
        import jt65_decoder
        implicit none
        class(jt65_decoder), intent(inout) :: this
@@ -26,19 +27,20 @@ module jt65_decode
        character(len=22), intent(in) :: decoded
        integer, intent(in) :: ft
        integer, intent(in) :: qual
-       integer, intent(in) :: candidates
-       integer, intent(in) :: tries
-       integer, intent(in) :: total_min
-       integer, intent(in) :: hard_min
-       integer, intent(in) :: aggression
+       integer, intent(in) :: nsmo
+       integer, intent(in) :: nsum
+       integer, intent(in) :: minsync
+       integer, intent(in) :: nsubmode
+       integer, intent(in) :: naggressive
+
      end subroutine jt65_decode_callback
   end interface
 
 contains
 
-  subroutine decode(this,callback,dd0,npts,newdat,nutc,nf1,nf2,nfqso,ntol,nsubmode,   &
-       minsync,nagain,n2pass,nrobust,ntrials,naggressive,ndepth,       &
-       mycall,hiscall,hisgrid,nexp_decode)
+  subroutine decode(this,callback,dd0,npts,newdat,nutc,nf1,nf2,nfqso,     &
+       ntol,nsubmode,minsync,nagain,n2pass,nrobust,ntrials,naggressive,   &
+       ndepth,nclearave,mycall,hiscall,hisgrid,nexp_decode)
 
     !  Process dd0() data to find and decode JT65 signals.
 
@@ -167,7 +169,11 @@ contains
           call timer('decod65a',1)
           nfreq=nint(freq+a(1))
           ndrift=nint(2.0*a(2))
-!###
+          s2db=10.0*log10(sync2) - 35             !### empirical ###
+          nsnr=nint(s2db)
+          if(nsnr.lt.-30) nsnr=-30
+          if(nsnr.gt.-1) nsnr=-1
+
           if(nft.ne.1 .and. ndepth.ge.4 .and. (.not.prtavg)) then
 ! Single-sequence FT decode failed, so try for an average FT decode.
              if(nutc.ne.nutc0 .or. abs(nfreq-nfreq0).gt.ntol) then
@@ -175,25 +181,29 @@ contains
                 nutc0=nutc
                 nfreq0=nfreq
                 nsave=nsave+1
+                nsave=mod(nsave-1,64)+1
                 call avg65(nutc,nsave,sync1,dtx,nflip,nfreq,mode65,ntol,    &
-                     ndepth,neme,mycall,hiscall,hisgrid,nftt,avemsg,        &
-                     qave,deepave,ich,ndeepave)
+                     ndepth,nclearave,neme,mycall,hiscall,hisgrid,nftt,     &
+                     avemsg,qave,deepave,nsum,ndeepave)
 
                 if (associated(this%callback)) then
+!                   print*,'FT1 failed; nsave,nftt: ',nsave,nftt
+!                   print*,'A',nftt,nsum,nsmo
                    call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
-                        decoded,nft,nqual,ncandidates,ntry,ntotal_min,       &
-                        nhard_min,naggressive)
+                        avemsg,nftt,nqual,nsmo,nsum,minsync,nsubmode,       &
+                        naggressive)
+                   prtavg=.true.
+                   cycle
                 end if
 
              endif
           endif
-          if(nftt.eq.1) then
-!             print*,'A: ',avemsg,nftt
-             nft=1
-             decoded=avemsg
-             go to 5
-          endif
-!###
+!          if(nftt.eq.1) then
+!             nft=1
+!             decoded=avemsg
+!             go to 5
+!          endif
+
           n=naggressive
           rtt=0.001*nrtt1000
           if(nft.lt.2) then
@@ -203,10 +213,7 @@ contains
              if(rtt.gt.r0(n)) cycle
           endif
 
-5         continue
-!          print*,'B: ',avemsg,nftt
-
-          if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
+5         if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
                minsync.ge.0) cycle                  !Don't display dupes
 
           if(decoded.ne.'                      ' .or. minsync.lt.0) then
@@ -215,10 +222,6 @@ contains
                 call subtract65(dd,npts,freq,dtx)
                 call timer('subtr65 ',1)
              endif
-             s2db=10.0*log10(sync2) - 35             !### empirical ###
-             nsnr=nint(s2db)
-             if(nsnr.lt.-30) nsnr=-30
-             if(nsnr.gt.-1) nsnr=-1
 
              ndupe=0 ! de-dedupe
              do i=1, ndecoded
@@ -237,9 +240,10 @@ contains
                 dec(ndecoded)%decoded=decoded
                 nqual=min(qual,9999.0)
                 if (associated(this%callback)) then
+!                   print*,'B',nsave,nft,nsmo,nsum
                    call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
-                        decoded,nft,nqual,ncandidates,ntry,ntotal_min,       &
-                        nhard_min,naggressive)
+                        decoded,nft,nqual,nsmo,nsum,minsync,nsubmode,        &
+                        naggressive)
                 end if
              endif
              decoded0=decoded
@@ -254,9 +258,11 @@ contains
   end subroutine decode
 
   subroutine avg65(nutc,nsave,snrsync,dtxx,nflip,nfreq,mode65,ntol,ndepth,  &
-       neme,mycall,hiscall,hisgrid,nftt,avemsg,qave,deepave,ichbest,    &
-       ndeepave)
+       nclearave,neme,mycall,hiscall,hisgrid,nftt,avemsg,qave,deepave,      &
+       nsum,ndeepave)
+
 ! Decodes averaged JT65 data
+
     parameter (MAXAVE=64)
     character*22 avemsg,deepave,deepbest
     character mycall*12,hiscall*12,hisgrid*6
@@ -276,12 +282,13 @@ contains
     common/test001/s3a(64,63)
     save
 
-    if(first) then
+    if(first .or. (nclearave.eq.1)) then
        iutc=-1
        nfsave=0
        dtdiff=0.2
        first=.false.
     endif
+    nclearave=0
 
     do i=1,64
        if(nutc.eq.iutc(i) .and. abs(nhz-nfsave(i)).le.ntol) go to 10

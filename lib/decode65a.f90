@@ -12,12 +12,12 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   complex cx1(NMAX/8)                !Data at 1378.125 sps, offset by 355.3 Hz
   complex c5x(NMAX/32)               !Data at 344.53125 Hz
   complex c5a(512)
-  real s1(-255:256,126)
   real s2(66,126)
   real a(5)
   logical first
   character decoded*22,decoded_best*22
   character mycall*12,hiscall*12,hisgrid*6
+  common/test002/s1(-255:256,126)
   data first/.true./,jjjmin/1000/,jjjmax/-1000/
   data nhz0/-9999999/
   save
