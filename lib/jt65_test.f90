@@ -23,18 +23,21 @@ contains
     character(len=12), intent(in) :: mycall, hiscall
     character(len=6), intent(in) :: hisgrid
     type(jt65_decoder) :: my_decoder
+    integer nclearave                          !### Should be a dummy arg?
+    nclearave=0
 
     call timer('jt65a   ',0)
-    call my_decoder%decode(my_callback,dd,npts=52*12000,newdat=.true.,nutc=nutc,nf1=nflow,nf2=nfhigh    &
-         ,nfqso=nfqso,ntol=ntol,nsubmode=nsubmode, minsync=0,nagain=.false.     &
-         ,n2pass=n2pass,nrobust=nrobust,ntrials=ntrials,naggressive=naggressive &
-         ,ndepth=ndepth,mycall=mycall,hiscall=hiscall,hisgrid=hisgrid                &
-         ,nexp_decode=nexp_decode)
+    call my_decoder%decode(my_callback,dd,npts=52*12000,newdat=.true.,     &
+         nutc=nutc,nf1=nflow,nf2=nfhigh,nfqso=nfqso,ntol=ntol,             &
+         nsubmode=nsubmode, minsync=0,nagain=.false.,n2pass=n2pass,        &
+         nrobust=nrobust,ntrials=ntrials,naggressive=naggressive,          &
+         ndepth=ndepth,nclearave=nclearave,mycall=mycall,hiscall=hiscall,  &
+         hisgrid=hisgrid,nexp_decode=nexp_decode)
     call timer('jt65a   ',1)
   end subroutine test
 
   subroutine my_callback (this, utc, sync, snr, dt, freq, drift, decoded   &
-       , ft, qual, candidates, tries, total_min, hard_min, aggression)
+       , ft, qual)
     use jt65_decode
     implicit none
 
@@ -48,11 +51,6 @@ contains
     character(len=22), intent(in) :: decoded
     integer, intent(in) :: ft
     integer, intent(in) :: qual
-    integer, intent(in) :: candidates
-    integer, intent(in) :: tries
-    integer, intent(in) :: total_min
-    integer, intent(in) :: hard_min
-    integer, intent(in) :: aggression
 
     write(*,1010) utc,snr,dt,freq,decoded
 1010 format(i4.4,i4,f5.1,i5,1x,'#',1x,a22)
