@@ -520,11 +520,20 @@ void CPlotter::mousePressEvent(QMouseEvent *event)             //mousePressEvent
   if(x<0) x=0;
   if(x>m_Size.width()) x=m_Size.width();
   bool ctrl = (event->modifiers() & Qt::ControlModifier);
-  int freq = int(FreqfromX(x)+0.5);
-  int tx_freq = m_txFreq;
-  if (ctrl or m_lockTxFreq) tx_freq = freq;
+  bool shift = (event->modifiers() & Qt::ShiftModifier);
+  int newFreq = int(FreqfromX(x)+0.5);
+  int oldTxFreq = m_txFreq;
+  int oldRxFreq = m_rxFreq;
 
-  emit setFreq1 (freq, tx_freq);
+  if (ctrl or m_lockTxFreq) {
+    emit setFreq1 (newFreq, newFreq);
+  }
+  else if (shift) {
+    emit setFreq1 (oldRxFreq, newFreq);
+  }
+  else {
+    emit setFreq1(newFreq,oldTxFreq);
+  }
 
   int n=1;
   if(ctrl) n+=100;

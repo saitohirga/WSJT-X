@@ -5,9 +5,11 @@
   </tr>
   <tr>
     <td align="right">Waterfall:</td>
-    <td>Set Rx frequency.<br/>
-        Double-click to set Rx frequency and decode there.<br/>
-        Ctrl-click to set Rx and Tx frequencies and decode.
+    <td>Click to set the Rx frequency.<br/>
+        Shift-click to set Tx frequency.<br/>
+        Ctrl-click to set Rx and Tx frequencies.<br/>
+	Double-clicks decode at the resulting Rx frequency.<br/>
+        If Lock Tx=Rx is checked all actions set Tx/Rx.
     </td>
   </tr>
   <tr>

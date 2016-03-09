@@ -84,6 +84,8 @@ call CQ again.)
 - Click somewhere on the waterfall to set Rx frequency (green marker
 on waterfall scale).
 
+- Shift-click on the waterfall to set Tx frequency (red marker).
+
 - Ctrl-click on the waterfall to set both Rx and Tx frequencies.
 
 - Double-click on a signal in the waterfall to set Rx frequency and
