@@ -93,17 +93,6 @@ contains
     data nutc0/-999/,nfreq0/-999/,nsave/0/
     save
 
-!    ncandidates=param(0)
-    nhard_min=param(1)
-!    nsoft_min=param(2)
-!    nera_best=param(3)
-    nrtt1000=param(4)
-    ntotal_min=param(5)
-!    ntry=param(6)
-!    nq1000=param(7)
-!    npp1=param(8)
-    nsmo=param(9)
-
     this%callback => callback
     first_time=newdat
     robust=nrobust
@@ -180,6 +169,19 @@ contains
                naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,       &
                sync2,a,dtx,nft,qual,nhist,nsmo,decoded)
           call timer('decod65a',1)
+
+!          ncandidates=param(0)
+          nhard_min=param(1)
+!          nsoft_min=param(2)
+!          nera_best=param(3)
+          nrtt1000=param(4)
+          ntotal_min=param(5)
+!          ntry=param(6)
+!          nq1000=param(7)
+!          npp1=param(8)
+
+          nsmo=param(9)
+
           nfreq=nint(freq+a(1))
           ndrift=nint(2.0*a(2))
           s2db=10.0*log10(sync2) - 35             !### empirical ###
@@ -211,12 +213,11 @@ contains
 
              endif
           endif
-!          if(nftt.eq.1) then
-!             nft=1
-!             decoded=avemsg
-!             go to 5
-!          endif
-
+          if(nftt.eq.1) then
+             nft=1
+             decoded=avemsg
+             go to 5
+          endif
           n=naggressive
           rtt=0.001*nrtt1000
           if(nft.lt.2) then
@@ -226,7 +227,7 @@ contains
              if(rtt.gt.r0(n)) cycle
           endif
 
-5         if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
+5          if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
                minsync.ge.0) cycle                  !Don't display dupes
 
           if(decoded.ne.'                      ' .or. minsync.lt.0) then
@@ -243,6 +244,7 @@ contains
                    exit
                 endif
              enddo
+
              if(ndupe.ne.1 .or. minsync.lt.0) then
                 if(ipass.eq.1) n65a=n65a + 1
                 if(ipass.eq.2) n65b=n65b + 1
