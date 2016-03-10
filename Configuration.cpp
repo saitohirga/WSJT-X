@@ -544,6 +544,7 @@ private:
   bool TX_messages_;
   bool enable_VHF_features_;
   bool decode_at_52s_;
+  bool single_decode_;
   bool twoPass_;
   bool sync1Bit_;
   bool MyDx_;
@@ -626,6 +627,7 @@ bool Configuration::watchdog () const {return m_->watchdog_;}
 bool Configuration::TX_messages () const {return m_->TX_messages_;}
 bool Configuration::enable_VHF_features () const {return m_->enable_VHF_features_;}
 bool Configuration::decode_at_52s () const {return m_->decode_at_52s_;}
+bool Configuration::single_decode () const {return m_->single_decode_;}
 bool Configuration::twoPass() const {return m_->twoPass_;}
 bool Configuration::sync1Bit() const {return m_->sync1Bit_;}
 bool Configuration::MyDx() const {return m_->MyDx_;}
@@ -1075,6 +1077,7 @@ void Configuration::impl::initialize_models ()
   ui_->TX_messages_check_box->setChecked (TX_messages_);
   ui_->enable_VHF_features_check_box->setChecked(enable_VHF_features_);
   ui_->decode_at_52s_check_box->setChecked(decode_at_52s_);
+  ui_->single_decode_check_box->setChecked(single_decode_);
   ui_->cbTwoPass->setChecked(twoPass_);
   ui_->cbSync1Bit->setChecked(sync1Bit_);
   ui_->cbMyDx->setChecked(MyDx_);
@@ -1303,6 +1306,7 @@ void Configuration::impl::read_settings ()
   TX_messages_ = settings_->value ("Tx2QSO", true).toBool ();
   enable_VHF_features_ = settings_->value("VHFUHF",false).toBool ();
   decode_at_52s_ = settings_->value("Decode52",false).toBool ();
+  single_decode_ = settings_->value("SingleDecode",false).toBool ();
   twoPass_ = settings_->value("TwoPass",true).toBool ();
   sync1Bit_ = settings_->value("Sync1Bit",false).toBool ();
   MyDx_ = settings_->value("MyDx",false).toBool ();
@@ -1404,6 +1408,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("ResetSplitOnExit", reset_split_);
   settings_->setValue ("VHFUHF", enable_VHF_features_);
   settings_->setValue ("Decode52", decode_at_52s_);
+  settings_->setValue ("SingleDecode", single_decode_);
   settings_->setValue ("TwoPass", twoPass_);
   settings_->setValue ("Sync1Bit", sync1Bit_);
   settings_->setValue ("MyDx", MyDx_);
@@ -1795,6 +1800,7 @@ void Configuration::impl::accept ()
   azel_directory_ = ui_->azel_path_display_label->text ();
   enable_VHF_features_ = ui_->enable_VHF_features_check_box->isChecked ();
   decode_at_52s_ = ui_->decode_at_52s_check_box->isChecked ();
+  single_decode_ = ui_->single_decode_check_box->isChecked ();
   twoPass_ = ui_->cbTwoPass->isChecked ();
   sync1Bit_ = ui_->cbSync1Bit->isChecked ();
   MyDx_ = ui_->cbMyDx->isChecked ();

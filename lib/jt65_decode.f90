@@ -150,6 +150,7 @@ contains
           call timer('sync65  ',1)
        endif
 
+       print*,'A',nexp_decode,iand(nexp_decode,32),nexp_decode
        call fqso_first(nfqso,ntol,ca,ncand)
 
        nvec=ntrials

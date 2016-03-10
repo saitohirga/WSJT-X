@@ -249,6 +249,30 @@
           <string>Behavior</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="enable_VHF_features_check_box">
+            <property name="text">
+             <string>Enable VHF/UHF/Microwave features</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QCheckBox" name="offset_Rx_freq_check_box">
+            <property name="text">
+             <string>Rx frequency offset with &quot;CQ nnn ...&quot;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="monitor_last_used_check_box">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this if you wish to automatically return to the last monitored frequency when monitor is enabled, leave it unchecked if you wish to have the current rig frequency maintained.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Monitor returns to last used frequency</string>
+            </property>
+           </widget>
+          </item>
           <item row="2" column="0">
            <widget class="QCheckBox" name="disable_TX_on_73_check_box">
             <property name="toolTip">
@@ -352,16 +376,6 @@ quiet period when decoding is done.</string>
             </item>
            </layout>
           </item>
-          <item row="0" column="1">
-           <widget class="QCheckBox" name="monitor_last_used_check_box">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this if you wish to automatically return to the last monitored frequency when monitor is enabled, leave it unchecked if you wish to have the current rig frequency maintained.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string>Monitor returns to last used frequency</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="1">
            <widget class="QCheckBox" name="tx_QSY_check_box">
             <property name="toolTip">
@@ -372,13 +386,6 @@ quiet period when decoding is done.</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QCheckBox" name="enable_VHF_features_check_box">
-            <property name="text">
-             <string>Enable VHF/UHF/Microwave features</string>
-            </property>
-           </widget>
-          </item>
           <item row="3" column="1">
            <widget class="QCheckBox" name="decode_at_52s_check_box">
             <property name="text">
@@ -386,10 +393,10 @@ quiet period when decoding is done.</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
-           <widget class="QCheckBox" name="offset_Rx_freq_check_box">
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="single_decode_check_box">
             <property name="text">
-             <string>Rx frequency offset with &quot;CQ nnn ...&quot;</string>
+             <string>Single decode</string>
             </property>
            </widget>
           </item>
@@ -2391,11 +2398,9 @@ soundcard changes</string>
   <tabstop>font_push_button</tabstop>
   <tabstop>decoded_text_font_push_button</tabstop>
   <tabstop>monitor_off_check_box</tabstop>
-  <tabstop>monitor_last_used_check_box</tabstop>
   <tabstop>quick_call_check_box</tabstop>
   <tabstop>tx_QSY_check_box</tabstop>
   <tabstop>disable_TX_on_73_check_box</tabstop>
-  <tabstop>enable_VHF_features_check_box</tabstop>
   <tabstop>watchdog_check_box</tabstop>
   <tabstop>decode_at_52s_check_box</tabstop>
   <tabstop>CW_id_after_73_check_box</tabstop>
@@ -2527,12 +2532,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="split_mode_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
  </buttongroups>
 </ui>
