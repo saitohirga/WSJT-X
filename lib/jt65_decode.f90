@@ -77,7 +77,7 @@ contains
        character*22 decoded
     end type accepted_decode
     type(accepted_decode) dec(50)
-    logical :: first_time, robust, prtavg
+    logical :: first_time,robust,prtavg,single_decode
 
     integer h0(0:11),d0(0:11)
     real r0(0:11)
@@ -128,7 +128,8 @@ contains
        !  endif
        nfa=nf1
        nfb=nf2
-       if(naggressive.gt.0 .and. ntol.lt.1000) then
+       single_decode=iand(nexp_decode,32).ne.0
+       if(single_decode .or. (naggressive.gt.0 .and. ntol.lt.1000)) then
           nfa=max(200,nfqso-ntol)
           nfb=min(4000,nfqso+ntol)
           thresh0=1.0
@@ -150,7 +151,9 @@ contains
           call timer('sync65  ',1)
        endif
 
+! If a candidate was found within +/- ntol of nfqso, move it into ca(1).
        call fqso_first(nfqso,ntol,ca,ncand)
+       if(single_decode) ncand=1
 
        nvec=ntrials
        if(ncand.gt.75) then
@@ -174,7 +177,7 @@ contains
           if(ipass.eq.2) ntry65b=ntry65b + 1
           call timer('decod65a',0)
           call decode65a(dd,npts,first_time,nqd,freq,nflip,mode65,nvec,     &
-               naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,   &
+               naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,       &
                sync2,a,dtx,nft,qual,nhist,nsmo,decoded)
           call timer('decod65a',1)
           nfreq=nint(freq+a(1))
@@ -352,7 +355,7 @@ contains
     do i=1,nsave
        csync='*'
        if(nflipsave(i).lt.0.0) csync='#'
-       write(61,1000) cused(i),iutc(i),syncsave(i),dtsave(i),nfsave(i),csync
+       write(14,1000) cused(i),iutc(i),syncsave(i),dtsave(i),nfsave(i),csync
 1000   format(a1,i5.4,f6.1,f6.2,i6,1x,a1)
     enddo
 
