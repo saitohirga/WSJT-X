@@ -1607,9 +1607,9 @@ void MainWindow::read_wav_file (QString const& fname)
       BWFFile file {QAudioFormat {}, fname};
       file.open (BWFFile::ReadOnly);
       auto bytes_per_frame = file.format ().bytesPerFrame ();
-      qint64 max_bytes {std::min (std::size_t (m_TRperiod * RX_SAMPLE_RATE),
-                                  sizeof (dec_data.d2) / sizeof (dec_data.d2[0]))
-          * bytes_per_frame};
+      qint64 max_bytes = std::min (std::size_t (m_TRperiod * RX_SAMPLE_RATE),
+                                   sizeof (dec_data.d2) / sizeof (dec_data.d2[0]))
+          * bytes_per_frame;
       auto n = file.read (reinterpret_cast<char *> (dec_data.d2),
                           std::min (max_bytes, file.size ()));
       int frames_read = n / bytes_per_frame;
