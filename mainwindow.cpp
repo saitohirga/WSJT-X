@@ -1606,18 +1606,21 @@ void MainWindow::read_wav_file (QString const& fname)
         }
       BWFFile file {QAudioFormat {}, fname};
       file.open (BWFFile::ReadOnly);
-      auto ntps = std::min (m_TRperiod * 12000, 120 * 12000);
       auto bytes_per_frame = file.format ().bytesPerFrame ();
-      int n = file.read (reinterpret_cast<char *> (dec_data.d2),
-                         std::min (qint64 (bytes_per_frame * ntps), file.size ()));
-      int npts=n / file.format ().bytesPerFrame ();
-      std::memset (dec_data.d2 + n, 0, bytes_per_frame * ntps - n);
+      qint64 max_bytes {std::min (std::size_t (m_TRperiod * RX_SAMPLE_RATE),
+                                  sizeof (dec_data.d2) / sizeof (dec_data.d2[0]))
+          * bytes_per_frame};
+      auto n = file.read (reinterpret_cast<char *> (dec_data.d2),
+                          std::min (max_bytes, file.size ()));
+      int frames_read = n / bytes_per_frame;
+      // zero unfilled remaining sample space
+      std::memset (&dec_data.d2[0] + n, 0, max_bytes - n);
       if (11025 == file.format ().sampleRate ())
         {
-          auto sample_size = static_cast<short > (file.format ().sampleSize ());
-          wav12_ (dec_data.d2, dec_data.d2, &npts, &sample_size);
+          short sample_size = file.format ().sampleSize ();
+          wav12_ (dec_data.d2, dec_data.d2, &frames_read, &sample_size);
         }
-      dec_data.params.kin = npts;
+      dec_data.params.kin = frames_read;
       dec_data.params.newdat = 1;
     });
   m_wav_future_watcher.setFuture(m_wav_future); // call diskDat() when done

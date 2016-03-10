@@ -23,7 +23,7 @@ subroutine wav12(d2,d1,npts,nbitsam2)
 
   jz=min(NZ11,npts)
   if(nbitsam2.eq.8) then
-     jz=min(NZ11,2*npts)
+     jz=min(NZ11,npts)
      d1a(1:jz)=d1(1:jz)            !d1 and d2 may be same array in calling prog 
      do i=1,jz                     !Move data from d1a into d2
         i2=0
