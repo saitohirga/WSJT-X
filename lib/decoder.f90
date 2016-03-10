@@ -239,7 +239,7 @@ contains
           ctail(2:2)=c(nsum+1:nsum+1)
           if(nsubmode.gt.0) ctail(3:3)=c(nsmo+1:nsmo+1)
        endif
-       write(*,1010) utc,snr,dt,freq,'*',decoded,ctail
+       write(*,1010) utc,snr,dt,freq,'#',decoded,ctail
 1010   format(i4.4,i4,f5.1,i5,1x,a1,1x,a22,a3)
     endif
 

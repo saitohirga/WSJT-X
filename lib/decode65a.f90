@@ -4,6 +4,7 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
 
 ! Apply AFC corrections to a candidate JT65 signal, then decode it.
 
+  use jt65_mod
   use timer_module, only: timer
 
   parameter (NMAX=60*12000)          !Samples per 60 s
@@ -17,7 +18,6 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   logical first
   character decoded*22,decoded_best*22
   character mycall*12,hiscall*12,hisgrid*6
-  common/test002/s1(-255:256,126)
   data first/.true./,jjjmin/1000/,jjjmax/-1000/
   data nhz0/-9999999/
   save
