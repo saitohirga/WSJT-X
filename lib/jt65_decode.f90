@@ -179,7 +179,6 @@ contains
 !          ntry=param(6)
 !          nq1000=param(7)
 !          npp1=param(8)
-
           nsmo=param(9)
 
           nfreq=nint(freq+a(1))
@@ -198,12 +197,10 @@ contains
                 nsave=nsave+1
                 nsave=mod(nsave-1,64)+1
                 call avg65(nutc,nsave,sync1,dtx,nflip,nfreq,mode65,ntol,    &
-                     ndepth,nclearave,neme,mycall,hiscall,hisgrid,nftt,     &
-                     avemsg,qave,deepave,nsum,ndeepave)
+                     ndepth,ntrials,naggressive,nclearave,neme,mycall,      &
+                     hiscall,hisgrid,nftt,avemsg,qave,deepave,nsum,ndeepave)
 
                 if (associated(this%callback)) then
-!                   print*,'FT1 failed; nsave,nftt: ',nsave,nftt
-!                   print*,'A',nftt,nsum,nsmo
                    call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
                         avemsg,nftt,nqual,nsmo,nsum,minsync,nsubmode,       &
                         naggressive)
@@ -229,7 +226,6 @@ contains
 
 5          if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
                minsync.ge.0) cycle                  !Don't display dupes
-
           if(decoded.ne.'                      ' .or. minsync.lt.0) then
              if( nsubtract .eq. 1 ) then
                 call timer('subtr65 ',0)
@@ -255,7 +251,6 @@ contains
                 dec(ndecoded)%decoded=decoded
                 nqual=min(qual,9999.0)
                 if (associated(this%callback)) then
-!                   print*,'B',nsave,nft,nsmo,nsum
                    call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
                         decoded,nft,nqual,nsmo,nsum,minsync,nsubmode,        &
                         naggressive)
@@ -273,8 +268,8 @@ contains
   end subroutine decode
 
   subroutine avg65(nutc,nsave,snrsync,dtxx,nflip,nfreq,mode65,ntol,ndepth,  &
-       nclearave,neme,mycall,hiscall,hisgrid,nftt,avemsg,qave,deepave,      &
-       nsum,ndeepave)
+       ntrials,naggressive,nclearave,neme,mycall,hiscall,hisgrid,nftt,      &
+       avemsg,qave,deepave,nsum,ndeepave)
 
 ! Decodes averaged JT65 data
 
@@ -389,15 +384,7 @@ contains
 
     nadd=nsum*mode65
     nftt=0
-!###
-    ntrials=3000
-    naggressive=10
-    hiscall='W9XYZ'
-    hisgrid='EN37'
-    nexp_decode=0    !### not used, anyway
-!###
-!    print*,'A',nadd,mode65,ntrials,naggressive,ndepth,mycall,    &
-!         hiscall,hisgrid,nexp_decode
+!    nexp_decode=0    !### not used, anyway
 
     call extract(s3b,nadd,mode65,ntrials,naggressive,ndepth,mycall,    &
      hiscall,hisgrid,nexp_decode,ncount,nhist,avemsg,ltext,nftt,qual)

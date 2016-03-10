@@ -130,7 +130,7 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
      decoded=decoded_best
      qual=qualbest
      nsmo=nsmobest
-!     print*,'B',nnbest,nsmo,qual,decoded
+     param(9)=nsmo
   endif
 
   call timer('dec65b  ',1)
