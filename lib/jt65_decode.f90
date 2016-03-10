@@ -44,6 +44,7 @@ contains
 
     !  Process dd0() data to find and decode JT65 signals.
 
+    use jt65_mod
     use timer_module, only: timer
 
     include 'constants.f90'
@@ -82,8 +83,6 @@ contains
     real r0(0:11)
     common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
     common/steve/thresh0
-    common/test000/ncandidates,nhard_min,nsoft_min,nera_best,nrtt1000,   &
-         ntotal_min,ntry,nq1000,npp1,nsmo         !### TEST ONLY ###
 
 !            0  1  2  3  4  5  6  7  8  9 10 11
     data h0/41,42,43,43,44,45,46,47,48,48,49,49/
@@ -93,6 +92,17 @@ contains
     data r0/0.70,0.72,0.74,0.76,0.78,0.80,0.82,0.84,0.86,0.88,0.90,0.90/
     data nutc0/-999/,nfreq0/-999/,nsave/0/
     save
+
+!    ncandidates=param(0)
+    nhard_min=param(1)
+!    nsoft_min=param(2)
+!    nera_best=param(3)
+    nrtt1000=param(4)
+    ntotal_min=param(5)
+!    ntry=param(6)
+!    nq1000=param(7)
+!    npp1=param(8)
+    nsmo=param(9)
 
     this%callback => callback
     first_time=newdat
@@ -263,6 +273,7 @@ contains
 
 ! Decodes averaged JT65 data
 
+    use jt65_mod
     parameter (MAXAVE=64)
     character*22 avemsg,deepave,deepbest
     character mycall*12,hiscall*12,hisgrid*6
@@ -273,13 +284,14 @@ contains
     integer nfsave(MAXAVE)
     integer listutc(10)
     integer nflipsave(MAXAVE)
+    real s1b(-255:256,126)
+    real s1save(-255:256,126,MAXAVE)
     real s3save(64,63,MAXAVE)
     real s3b(64,63)
     real dtsave(MAXAVE)
     real syncsave(MAXAVE)
     logical first
     data first/.true./
-    common/test001/s3a(64,63)
     save
 
     if(first .or. (nclearave.eq.1)) then
@@ -287,6 +299,8 @@ contains
        nfsave=0
        dtdiff=0.2
        first=.false.
+!       s3a=0.
+       nsave=1           !### ???
     endif
     nclearave=0
 
@@ -300,15 +314,16 @@ contains
     dtsave(nsave)=dtxx
     nfsave(nsave)=nfreq
     nflipsave(nsave)=nflip
+    s1save(-255:256,1:126,nsave)=s1
     s3save(1:64,1:63,nsave)=s3a
 
-10  sym=0.
-    syncsum=0.
+10  syncsum=0.
     dtsum=0.
     nfsum=0
     nsum=0
+    s3b=0.
 
-    do i=1,64
+    do i=1,64                                   !Consider all saved spectra
        cused(i)='.'
        if(iutc(i).lt.0) cycle
        if(mod(iutc(i),2).ne.mod(nutc,2)) cycle  !Use only same (odd/even) seq
@@ -329,7 +344,6 @@ contains
     dtave=0.
     fave=0.
     if(nsum.gt.0) then
-       sym=sym/nsum
        syncave=syncsum/nsum
        dtave=dtsum/nsum
        fave=float(nfsum)/nsum

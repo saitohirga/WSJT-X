@@ -15,6 +15,7 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,mycall_12,    &
 
   use prog_args                       !shm_key, exe_dir, data_dir
   use packjt
+  use jt65_mod
   use timer_module, only: timer
 
   real s3(64,63)
@@ -24,11 +25,8 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,mycall_12,    &
   integer dat4(12)
   integer mrsym(63),mr2sym(63),mrprob(63),mr2prob(63)
   integer correct(63),tmp(63)
-  integer param(0:9)
   logical ltext
   common/chansyms65/correct
-  common/test000/param                              !### TEST ONLY ###
-  common/test001/s3a(64,63),mrs(63),mrs2(63)        !### TEST ONLY ###
   save
 
   mycall=mycall_12(1:6)
@@ -135,9 +133,9 @@ end subroutine extract
 
 subroutine getpp(workdat,p)
 
+  use jt65_mod
   integer workdat(63)
   integer a(63)
-  common/test001/s3a(64,63),mrs(63),mrs2(63)
 
   a(1:63)=workdat(63:1:-1)
   call interleave63(a,1)
