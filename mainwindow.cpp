@@ -1768,8 +1768,10 @@ void MainWindow::decode()                                       //decode()
 {
   if(!m_dataAvailable or m_TRperiod==0) return;
   ui->DecodeButton->setChecked (true);
-  if(m_diskData and !m_bFastMode) dec_data.params.nutc=dec_data.params.nutc/100;
-  if(dec_data.params.newdat==1 && (!m_diskData)) {
+  if(dec_data.params.nagain==0 && m_diskData && !m_bFastMode) {
+    dec_data.params.nutc=dec_data.params.nutc/100;
+  }
+  if(dec_data.params.nagain==0 && dec_data.params.newdat==1 && (!m_diskData)) {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int imin=ms/60000;
     int ihr=imin/60;
@@ -1786,7 +1788,6 @@ void MainWindow::decode()                                       //decode()
       dec_data.params.nutc=10000*ihr + 100*imin + isec;
     }
   }
-
   dec_data.params.nfqso=m_wideGraph->rxFreq();
   dec_data.params.ndepth=m_ndepth;
   dec_data.params.n2pass=1;
