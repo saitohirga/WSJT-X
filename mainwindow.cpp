@@ -1610,13 +1610,14 @@ void MainWindow::read_wav_file (QString const& fname)
       auto bytes_per_frame = file.format ().bytesPerFrame ();
       int n = file.read (reinterpret_cast<char *> (dec_data.d2),
                          std::min (qint64 (bytes_per_frame * ntps), file.size ()));
+      int npts=n / file.format ().bytesPerFrame ();
       std::memset (dec_data.d2 + n, 0, bytes_per_frame * ntps - n);
       if (11025 == file.format ().sampleRate ())
         {
           auto sample_size = static_cast<short > (file.format ().sampleSize ());
-          wav12_ (dec_data.d2, dec_data.d2, &n, &sample_size);
+          wav12_ (dec_data.d2, dec_data.d2, &npts, &sample_size);
         }
-      dec_data.params.kin = n / file.format ().bytesPerFrame ();
+      dec_data.params.kin = npts;
       dec_data.params.newdat = 1;
     });
   m_wav_future_watcher.setFuture(m_wav_future); // call diskDat() when done
