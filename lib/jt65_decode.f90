@@ -157,7 +157,11 @@ contains
        decoded0=""
        freq0=0.
        prtavg=.false.
-       nsum=0
+       if(.not.nagain) nsum=0
+       if(nclearave.eq.1) then
+          nsum=0
+          nsave=0
+       endif
 
        do icand=1,ncand
           freq=ca(icand)%freq
@@ -171,7 +175,6 @@ contains
                sync2,a,dtx,nft,qual,nhist,nsmo,decoded)
           call timer('decod65a',1)
           if(nft.eq.1) nsum=1
-!          write(*,'("a",3i3,a6)') nft,nsum,nsmo,decoded(1:6)
 
 !          ncandidates=param(0)
           nhard_min=param(1)
@@ -203,7 +206,7 @@ contains
                      ndepth,ntrials,naggressive,nclearave,neme,mycall,      &
                      hiscall,hisgrid,nftt,avemsg,qave,deepave,nsum,ndeepave)
 
-                if (associated(this%callback)) then
+                if (associated(this%callback) .and. nsum.ge.2) then
                    call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
                         avemsg,nftt,nqual,nsmo,nsum,minsync,nsubmode,       &
                         naggressive)
@@ -303,7 +306,7 @@ contains
        nfsave=0
        dtdiff=0.2
        first=.false.
-!       s3a=0.
+       s3b=0.
        nsave=1           !### ???
     endif
     nclearave=0
