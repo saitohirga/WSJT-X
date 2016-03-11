@@ -3,8 +3,8 @@ subroutine setup65
 ! Defines arrays related to the JT65 pseudo-random synchronizing pattern.
 ! Executed at program start.
 
+  use jt65_mod
   integer nprc(126)
-  common/prcom/pr(126),mdat(126),mref(126,2),mdat2(126),mref2(126,2)
 
 ! JT65
   data nprc/                                   &
