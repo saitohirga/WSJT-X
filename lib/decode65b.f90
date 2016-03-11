@@ -1,17 +1,13 @@
 subroutine decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,      &
      mycall,hiscall,hisgrid,nexp_decode,nqd,nft,qual,nhist,decoded)
 
+  use jt65_mod
   real s2(66,126)
   real s3(64,63)
   logical first,ltext
   character decoded*22
   character mycall*12,hiscall*12,hisgrid*6
-  common/prcom/pr(126),mdat(126),mref(126,2),mdat2(126),mref2(126,2)
-  data first/.true./
   save
-
-  if(first) call setup65
-  first=.false.
 
   do j=1,63
      k=mdat(j)                       !Points to data symbol

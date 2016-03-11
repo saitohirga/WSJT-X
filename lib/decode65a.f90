@@ -111,18 +111,19 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
 
      call decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,           &
           mycall,hiscall,hisgrid,nexp_decode,nqd,nft,qual,nhist,decoded)
+
      if(nft.eq.1) then
         nsmo=ismo
+        param(9)=nsmo
+        nsum=1
         exit
      else if(nft.eq.2) then
-!### Should also deal with nft=2 solutions
         if(qual.gt.qualbest) then
            decoded_best=decoded
            qualbest=qual
            nnbest=nn
            nsmobest=ismo
         endif
-!        print*,'A',nn,ndepth,ntrials,ismo,qual,decoded
      endif
   enddo
 

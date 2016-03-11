@@ -157,6 +157,7 @@ contains
        decoded0=""
        freq0=0.
        prtavg=.false.
+       nsum=0
 
        do icand=1,ncand
           freq=ca(icand)%freq
@@ -169,6 +170,8 @@ contains
                naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,       &
                sync2,a,dtx,nft,qual,nhist,nsmo,decoded)
           call timer('decod65a',1)
+          if(nft.eq.1) nsum=1
+!          write(*,'("a",3i3,a6)') nft,nsum,nsmo,decoded(1:6)
 
 !          ncandidates=param(0)
           nhard_min=param(1)
@@ -210,6 +213,7 @@ contains
 
              endif
           endif
+
           if(nftt.eq.1) then
              nft=1
              decoded=avemsg
@@ -217,7 +221,7 @@ contains
           endif
           n=naggressive
           rtt=0.001*nrtt1000
-          if(nft.lt.2) then
+          if(nft.lt.2 .and. minsync.ge.0) then
              if(nhard_min.gt.50) cycle
              if(nhard_min.gt.h0(n)) cycle
              if(ntotal_min.gt.d0(n)) cycle
@@ -284,8 +288,8 @@ contains
     integer nfsave(MAXAVE)
     integer listutc(10)
     integer nflipsave(MAXAVE)
-    real s1b(-255:256,126)
-    real s1save(-255:256,126,MAXAVE)
+!    real s1b(-255:256,126)
+!    real s1save(-255:256,126,MAXAVE)
     real s3save(64,63,MAXAVE)
     real s3b(64,63)
     real dtsave(MAXAVE)
@@ -314,7 +318,7 @@ contains
     dtsave(nsave)=dtxx
     nfsave(nsave)=nfreq
     nflipsave(nsave)=nflip
-    s1save(-255:256,1:126,nsave)=s1
+!    s1save(-255:256,1:126,nsave)=s1
     s3save(1:64,1:63,nsave)=s3a
 
 10  syncsum=0.
@@ -355,6 +359,7 @@ contains
        write(14,1000) cused(i),iutc(i),syncsave(i),dtsave(i),nfsave(i),csync
 1000   format(a1,i5.4,f6.1,f6.2,i6,1x,a1)
     enddo
+    if(nsum.lt.2) go to 900
 
     rewind 62
     sqt=0.
@@ -389,6 +394,7 @@ contains
     call extract(s3b,nadd,mode65,ntrials,naggressive,ndepth,mycall,    &
      hiscall,hisgrid,nexp_decode,ncount,nhist,avemsg,ltext,nftt,qual)
 
+900 continue
     return
   end subroutine avg65
 
