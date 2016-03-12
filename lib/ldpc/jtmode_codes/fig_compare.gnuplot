@@ -17,13 +17,9 @@ plot [-1:6] [1e-6:1] \
    "jtmskcode.results" using 1:($5/1000000) with linespoints lt 1 lw 2 pt 1, \
    "160-80-sf4.results" using 1:(1000000-$2)/1000000 with linespoints lt 2 lw 2 pt 2, \
    "160-80-sf4.results" using 1:($3/1000000) with linespoints lt 2 lw 2 pt 2, \
-   "128-82-sf10.results" using 1:(1000000-$2)/1000000 with linespoints lt 3 lw 2 pt 3, \
-   "128-82-sf10.results" using 1:($3/1000000) with linespoints lt 3 lw 2 pt 3, \
-   "128-82-sf11.results" using 1:(1000000-$2)/1000000 with linespoints lt 4 lw 2 pt 4, \
-   "128-82-sf11.results" using 1:($3/1000000) with linespoints lt 4 lw 2 pt 4, \
-   "128-82-sf11.results" using 1:(1000000-$4)/1000000 with linespoints lt 4 lw 2 pt 4, \
-   "128-82-sf11.results" using 1:($5/1000000) with linespoints lt 4 lw 2 pt 4, \
-   "128-64.results" using 1:(1000000-$2)/1000000 with linespoints lt 5 lw 2 pt 5, \
-   "128-64.results" using 1:($3/1000000) with linespoints lt 5 lw 2 pt 5, \
+   "128-80-sf13.results" using 1:(1000000-$10)/1000000 with linespoints lt 3 lw 2 pt 3, \
+   "128-80-sf13.results" using 1:($11/1000000) with linespoints lt 3 lw 2 pt 3, \
+   "206-72-sf14.results" using 1:(1000000-$4)/1000000 with linespoints lt 4 lw 2 pt 4, \
+   "206-72-sf14.results" using 1:($5/1000000) with linespoints lt 4 lw 2 pt 4, \
    "compare.lab" with labels
 exit
