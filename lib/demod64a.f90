@@ -26,13 +26,11 @@ subroutine demod64a(s3,nadd,afac1,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
 ! Compute probabilities for most reliable symbol values
   do j=1,63
      s1=-1.e30
-     fsum=0.
-     psum=0.   ! used for sfrsd metrics
+     psum=0. 
      do i=1,64
         x=min(afac*s3(i,j)/ave,50.d0)
         fs(i)=exp(x)
         psum=psum+s3(i,j)
-        fsum=fsum+fs(i)
         if(s3(i,j).gt.s1) then
            s1=s3(i,j)
            i1=i                              !Most reliable
@@ -47,8 +45,8 @@ subroutine demod64a(s3,nadd,afac1,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
            i2=i                              !Second most reliable
         endif
      enddo
-     p1=s1/psum                !Use these for sfrsd
-     p2=s2/psum                !...
+     p1=s1/psum                              !Symbol metrics for ftrsd
+     p2=s2/psum               
      mrsym(j)=i1-1
      mr2sym(j)=i2-1
      mrprob(j)=scale*p1
