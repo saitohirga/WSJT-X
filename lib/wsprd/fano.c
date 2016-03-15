@@ -69,7 +69,7 @@ int encode(
   int i;
 
   encstate = 0;
-  while(nbytes-- != 0) {
+  while(--nbytes != 0) {
     for(i=7;i>=0;i--) {
       encstate = (encstate << 1) | ((*data >> i) & 1);
       ENCODE(sym,encstate);
