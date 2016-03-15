@@ -50,10 +50,11 @@ program fer65
   open(20,file='fer65.20',status='unknown')
   open(21,file='fer65.21',status='unknown')
 
-  write(20,1000) iters,ntrials,naggressive,d
-1000 format('Iters:',i6,'   T:',i7,'   Aggressive:',i3,'   Doppler:',f6.1)
+  write(20,1000) submode,iters,ntrials,naggressive,d
+1000 format('JT65',a1,'   Iters:',i6,'   T:',i7,'   Aggressive:',i3,   &
+          '   Doppler:',f6.1)
   write(20,1002) 
-1002 format('  dB  nsync ngood nbad    sync       snr         ',    &
+1002 format(/'  dB  nsync ngood nbad     sync       dsnr        ',     &
             'DT        Freq       Drift'/77('-'))
 
   do isnr=0,20
@@ -138,6 +139,7 @@ program fer65
      endif
 
      dsnr=xsnr-snr
+     if(ngood.eq.0) dsnr=0.
      write(20,1100) snr,nsync,ngood,nbad,xsync,esync,dsnr,esnr,  &
           xdt,edt,xfreq,efreq,xdrift,edrift
 1100 format(f5.1,2i6i4,2f6.1,f6.1,f5.1,f6.2,f5.2,f7.1,3f5.1)

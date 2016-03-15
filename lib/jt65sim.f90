@@ -200,18 +200,20 @@ program jt65sim
         cspread(0)=1.0
         cspread(NH)=0.
 
-! The following statement was added 3/15/2016 to make the half-power tone 
+! The following options were added 3/15/2016 to make the half-power tone 
 ! widths equal to the requested Doppler spread.  (Previously we effectively 
-! used b=1.0, which made the tones 1.665 times wider.)
-        b=2.0*sqrt(log(2.0))
+! used b=1.0 and Gaussian shape, which made the tones 1.665 times wider.)
+!        b=2.0*sqrt(log(2.0))                          !Gaussian
+        b=2.0                                         !Lorenzian
 
         do i=1,NH
            f=i*df
            x=b*f/fspread
            z=0.
            a=0.
-           if(x.lt.50.0) then
-              a=sqrt(exp(-x*x))
+           if(x.lt.3.0) then                          !Cutoff beyond x=3
+!              a=sqrt(exp(-x*x))                      !Gaussian
+              a=sqrt(1.0/(1.0+x*x))                   !Lorentzian
               call random_number(r1)
               phi1=twopi*r1
               z=a*cmplx(cos(phi1),sin(phi1))
