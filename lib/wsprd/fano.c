@@ -60,7 +60,7 @@ struct node {
  * and easier than trying to pack them more compactly.
  */
 int encode(
-	   unsigned char *symbols,	// Output buffer, 2*nbytes
+	   unsigned char *symbols,	// Output buffer, 2*nbytes*8
 	   unsigned char *data,		// Input buffer, nbytes
 	   unsigned int nbytes)		// Number of bytes in data
 {
@@ -69,7 +69,7 @@ int encode(
   int i;
 
   encstate = 0;
-  while(--nbytes != 0) {
+  while(nbytes-- != 0) {
     for(i=7;i>=0;i--) {
       encstate = (encstate << 1) | ((*data >> i) & 1);
       ENCODE(sym,encstate);
