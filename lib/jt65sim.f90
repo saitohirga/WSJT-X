@@ -200,9 +200,14 @@ program jt65sim
         cspread(0)=1.0
         cspread(NH)=0.
 
+! The following statement was added 3/15/2016 to make the half-power tone 
+! widths equal to the requested Doppler spread.  (Previously we effectively 
+! used b=1.0, which made the tones 1.665 times wider.)
+        b=2.0*sqrt(log(2.0))
+
         do i=1,NH
            f=i*df
-           x=f/fspread
+           x=b*f/fspread
            z=0.
            a=0.
            if(x.lt.50.0) then
