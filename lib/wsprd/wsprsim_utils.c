@@ -296,10 +296,9 @@ int get_wspr_channel_symbols(char* rawmessage, char* hashtab, unsigned char* sym
     unpk_(check_data,hashtab,check_call_loc_pow,check_callsign);
 //    printf("Will decode as: %s\n",check_call_loc_pow);
     
-    unsigned int nbytes=11; // The message with tail is packed into 11 bytes.
-    unsigned int nencoded=162;
-    unsigned char channelbits[nencoded];
-    memset(channelbits,0,sizeof(char)*nencoded);
+    unsigned int nbytes=11; // The message with tail is packed into almost 11 bytes.
+    unsigned char channelbits[nbytes*8*2]; /* 162 rounded up */
+    memset(channelbits,0,sizeof channelbits);
     
     encode(channelbits,data,nbytes);
     
