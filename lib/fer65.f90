@@ -151,7 +151,10 @@ program fer65
 
      dsnr=xsnr-snr
      dfreq=xfreq-1500.0
-     if(ngood.eq.0) dsnr=0.
+     if(ngood.eq.0) then
+        dsnr=0.
+        dfreq=0.
+     endif
      write(20,1100) snr,nsync,ngood,nbad,xsync,esync,dsnr,esnr,  &
           xdt,edt,dfreq,efreq,xdrift,edrift,xwidth,ewidth
 1100 format(f5.1,2i6i4,2f6.1,f6.1,f5.1,f6.2,f5.2,6f5.1)

@@ -124,6 +124,19 @@ contains
           nfb=min(4000,nfqso+ntol)
           thresh0=1.0
        endif
+       df=12000.0/8192.0                     !df = 1.465 Hz
+       if(single_decode) then
+          ia=max(1,nint(nfa/df)-100)
+          ib=min(NSZ,nint(nfb/df)+100)
+          nz=ib-ia+1
+          call lorentzian(savg(ia),nz,a)
+          baseline=a(1)
+          amp=a(2)
+          f0=(a(3)+ia-1)*df
+          width=a(4)*df
+!          write(*,3001) baseline,amp,f0,width
+!3001      format(4f10.3)
+       endif
 
        ! robust = .false.: use float ccf. Only if ncand>50 fall back to robust (1-bit) ccf
        ! robust = .true. : use only robust (1-bit) ccf
@@ -143,39 +156,7 @@ contains
 
 ! If a candidate was found within +/- ntol of nfqso, move it into ca(1).
        call fqso_first(nfqso,ntol,ca,ncand)
-       df=12000.0/8192.0                     !df = 1.465 Hz
-       width=0.
-       if(single_decode) then
-          ncand=1
-          smax=-1.e30
-          do i=151,NSZ-150
-             if(savg(i).gt.smax) then
-                smax=savg(i)
-                ipk=i
-             endif
-!             write(50,3001) i*df,savg(i)
-!3001         format(2f12.3)
-          enddo
-          base=(sum(savg(ipk-149:ipk-50)) + sum(savg(ipk+51:ipk+150)))/200.0
-
-          stest=smax - 0.5*(smax-base)
-          ssum=savg(ipk)
-          do i=1,50
-             if(savg(ipk+i).lt.stest) exit
-             ssum=ssum + savg(ipk+i)
-          enddo
-          do i=1,50
-             if(savg(ipk-i).lt.stest) exit
-             ssum=ssum + savg(ipk-i)
-          enddo
-          ww=ssum/savg(ipk)
-          width=2
-          t=ww*ww - 5.67
-          if(t.gt.0.0) width=sqrt(t)
-          width=df*width
-!          print*,'Width:',width
-       endif
-
+       if(single_decode) ncand=1
        nvec=ntrials
        if(ncand.gt.75) then
           !      write(*,*) 'Pass ',ipass,' ncandidates too large ',ncand
@@ -220,9 +201,10 @@ contains
 
           nfreq=nint(freq+a(1))
           ndrift=nint(2.0*a(2))
-          s2db=10.0*log10(sync2) - 35             !### empirical ###
-          if(width.gt.3) s2db=s2db + 2.1*sqrt(width-3.0) + 1.5 +     &
-               0.11*(width-7.0)                   !### empirical^2 ###
+!          s2db=10.0*log10(sync2) - 35             !### empirical ###
+!          if(width.gt.3) s2db=s2db + 2.1*sqrt(width-3.0) + 1.5 +     &
+!               0.11*(width-7.0)                   !### empirical^2 ###
+          s2db=sync1 - 30.0
           nsnr=nint(s2db)
           if(nsnr.lt.-30) nsnr=-30
           if(nsnr.gt.-1) nsnr=-1

@@ -309,6 +309,7 @@ set (wsjt_FSRCS
   lib/fast9.f90
   lib/fast_decode.f90
   lib/fchisq.f90
+  lib/fchisq0.f90
   lib/fchisq65.f90
   lib/fftw3mod.f90
   lib/fil3.f90
@@ -362,6 +363,7 @@ set (wsjt_FSRCS
   lib/jtmsk_decode.f90
   lib/jtmsk_short.f90
   lib/libration.f90
+  lib/lorentzian.f90
   lib/lpf1.f90
   lib/mixlpf.f90
   lib/moondopjpl.f90

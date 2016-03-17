@@ -58,8 +58,10 @@ contains
     integer, intent(in) :: submode
     integer, intent(in) :: aggression
     integer nwidth
+    real t
 
-    nwidth=max(nint(width),2)
+    t=max(0.0,width*width-7.2)
+    nwidth=max(nint(sqrt(t)),2)
     write(*,1010) utc,snr,dt,freq,decoded
 1010 format(i4.4,i4,f5.1,i5,1x,'#',1x,a22)
     write(13,1012) utc,nint(sync),snr,dt,freq,drift,nwidth,         &
