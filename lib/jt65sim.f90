@@ -213,7 +213,7 @@ program jt65sim
            a=0.
            if(x.lt.3.0) then                          !Cutoff beyond x=3
 !              a=sqrt(exp(-x*x))                      !Gaussian
-              a=sqrt(1.0/(1.0+x*x))                   !Lorentzian
+              a=sqrt(1.111/(1.0+x*x)-0.1)             !Lorentzian
               call random_number(r1)
               phi1=twopi*r1
               z=a*cmplx(cos(phi1),sin(phi1))

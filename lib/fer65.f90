@@ -18,7 +18,7 @@ program fer65
 !  -s S/N in 2500 Hz                   -s single-decode mode
 
   implicit real*8 (a-h,o-z)
-  real*8 s(5),sq(5)
+  real*8 s(6),sq(6)
   character arg*12,cmnd*100,decoded*22,submode*1,csync*1
   logical syncok
 
@@ -51,11 +51,11 @@ program fer65
   open(21,file='fer65.21',status='unknown')
 
   write(20,1000) submode,iters,ntrials,naggressive,d
-1000 format('JT65',a1,'   Iters:',i6,'   T:',i7,'   Aggressive:',i3,   &
+1000 format(/'JT65',a1,'   Iters:',i6,'   T:',i7,'   Aggressive:',i3,  &
           '   Doppler:',f6.1)
   write(20,1002) 
 1002 format(/'  dB  nsync ngood nbad     sync       dsnr        ',     &
-            'DT        Freq       Drift'/77('-'))
+            'DT       Freq      Drift    Width'/85('-'))
 
   do isnr=0,20
      snr=snr1+isnr
@@ -77,37 +77,41 @@ program fer65
         isync=0
         nsnr=0
         dt=0.
-        freq=0.
+        nfreq=0
         ndrift=0
+        nwidth=0
         cmnd='./jt65 -m A -a 10 -f 1500 -n 1000 -d 3 -s -X 32 000000_0001.wav > decoded.txt'
         cmnd(11:11)=submode
 !        print*,cmnd
         call system(cmnd)
         open(13,file='fort.13',status='old',err=20)
-        read(13,1012) nutc,isync,nsnr,dt,freq,ndrift,decoded,nft,nsum,nsmo
-1012    format(i4,i4,i5,f6.2,f8.0,i4,3x,a22,5x,3i3)
+        read(13,1012) nutc,isync,nsnr,dt,nfreq,ndrift,nwidth,decoded,         &
+             nft,nsum,nsmo
+1012    format(i4,i4,i5,f6.2,i5,i4,i3,1x,a22,5x,3i3)
         close(13)
-        syncok=abs(dt).lt.0.2 .and. abs(freq-1500.0).lt.dfmax
+        syncok=abs(dt).lt.0.2 .and. float(abs(nfreq-1500)).lt.dfmax
         csync=' '
         if(syncok) csync='*'
-        write(21,1014) nutc,isync,nsnr,dt,freq,ndrift,nft,nsum,nsmo,csync,   &
-             decoded(1:16)
-1014    format(i4,i4,i5,f6.2,f8.0,i4,3x,3i3,1x,a1,1x,a16)
+        write(21,1014) nutc,isync,nsnr,dt,nfreq,ndrift,nwidth,     &
+             nft,nsum,nsmo,csync,decoded(1:16)
+1014    format(i4,i4,i5,f6.2,i5,i4,3x,4i3,1x,a1,1x,a16)
 
         if(syncok) then
            nsync=nsync+1
+           s(1)=s(1) + isync
+           sq(1)=sq(1) + isync*isync
+           s(6)=s(6) + nwidth
+           sq(6)=sq(6) + nwidth*nwidth
            if(decoded.eq.'K1ABC W9XYZ EN37      ') then
               ngood=ngood+1
-              s(1)=s(1) + isync
               s(2)=s(2) + nsnr
               s(3)=s(3) + dt
-              s(4)=s(4) + freq
+              s(4)=s(4) + nfreq
               s(5)=s(5) + ndrift
 
-              sq(1)=sq(1) + isync*isync
               sq(2)=sq(2) + nsnr*nsnr
               sq(3)=sq(3) + dt*dt
-              sq(4)=sq(4) + freq*freq
+              sq(4)=sq(4) + nfreq*nfreq
               sq(5)=sq(5) + ndrift*ndrift
            else if(decoded.ne.'                      ') then
               nbad=nbad+1
@@ -118,20 +122,27 @@ program fer65
         fsync=float(nsync)/iter
         fgood=float(ngood)/iter
         fbad=float(nbad)/iter
-        write(*,1020) iter,isync,nsnr,dt,int(freq),ndrift,fsync,fgood,fbad,  &
-             decoded(1:16)
-1020    format(i8,2i4,f7.2,i6,i4,2f7.3,f10.6,1x,a16)
+        write(*,1020) iter,isync,nsnr,dt,nfreq,ndrift,nwidth,fsync,fgood,   &
+             fbad,decoded(1:18)
+1020    format(i8,2i4,f7.2,i6,i4,i3,2f7.3,f8.4,1x,a18)
      enddo
 
+     if(nsync.ge.1) then
+        xsync=s(1)/nsync
+        xwidth=s(6)/nsync
+     endif
+     if(nsync.ge.2) then
+        esync=sqrt(sq(1)/nsync - xsync**2)
+        ewidth=sqrt(sq(6)/nsync - xwidth**2)
+     endif
+
      if(ngood.ge.1) then
-        xsync=s(1)/ngood
         xsnr=s(2)/ngood
         xdt=s(3)/ngood
         xfreq=s(4)/ngood
         xdrift=s(5)/ngood
      endif
      if(ngood.ge.2) then
-        esync=sqrt(sq(1)/ngood - xsync**2)
         esnr=sqrt(sq(2)/ngood - xsnr**2)
         edt=sqrt(sq(3)/ngood - xdt**2)
         efreq=sqrt(sq(4)/ngood - xfreq**2)
@@ -139,10 +150,11 @@ program fer65
      endif
 
      dsnr=xsnr-snr
+     dfreq=xfreq-1500.0
      if(ngood.eq.0) dsnr=0.
      write(20,1100) snr,nsync,ngood,nbad,xsync,esync,dsnr,esnr,  &
-          xdt,edt,xfreq,efreq,xdrift,edrift
-1100 format(f5.1,2i6i4,2f6.1,f6.1,f5.1,f6.2,f5.2,f7.1,3f5.1)
+          xdt,edt,dfreq,efreq,xdrift,edrift,xwidth,ewidth
+1100 format(f5.1,2i6i4,2f6.1,f6.1,f5.1,f6.2,f5.2,6f5.1)
      flush(20)
 
   enddo

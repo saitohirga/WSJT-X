@@ -198,7 +198,7 @@ contains
 1000 format(a1,i5.4,f6.1,f6.2,i6,1x,a1)
   end subroutine jt4_average
 
-  subroutine jt65_decoded(this,utc,sync,snr,dt,freq,drift,decoded,ft,     &
+  subroutine jt65_decoded(this,utc,sync,snr,dt,freq,drift,width,decoded,ft,  &
        qual,nsmo,nsum,minsync,nsubmode,naggressive)
 
     use jt65_decode
@@ -211,6 +211,7 @@ contains
     real, intent(in) :: dt
     integer, intent(in) :: freq
     integer, intent(in) :: drift
+    real, intent(in) :: width
     character(len=22), intent(in) :: decoded
     integer, intent(in) :: ft
     integer, intent(in) :: qual
@@ -243,8 +244,8 @@ contains
 1010   format(i4.4,i4,f5.1,i5,1x,a1,1x,a22,a3)
     endif
 
-    write(13,1012) utc,nint(sync),snr,dt,float(freq),drift,decoded,ft,nsmo
-1012 format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT65',i4,i2)
+    write(13,1012) utc,nint(sync),snr,dt,float(freq),drift,decoded,ft,nsum,nsmo
+1012 format(i4.4,i4,i5,f6.2,f8.0,i4,3x,a22,' JT65',3i3)
     call flush(6)
 
 !$omp end critical(decode_results)
