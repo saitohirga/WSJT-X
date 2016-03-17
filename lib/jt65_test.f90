@@ -29,14 +29,14 @@ contains
     call timer('jt65a   ',0)
     call my_decoder%decode(my_callback,dd,npts=52*12000,newdat=.true.,     &
          nutc=nutc,nf1=nflow,nf2=nfhigh,nfqso=nfqso,ntol=ntol,             &
-         nsubmode=nsubmode, minsync=0,nagain=.false.,n2pass=n2pass,        &
+         nsubmode=nsubmode, minsync=-1,nagain=.false.,n2pass=n2pass,       &
          nrobust=nrobust,ntrials=ntrials,naggressive=naggressive,          &
          ndepth=ndepth,nclearave=nclearave,mycall=mycall,hiscall=hiscall,  &
          hisgrid=hisgrid,nexp_decode=nexp_decode)
     call timer('jt65a   ',1)
   end subroutine test
 
-  subroutine my_callback (this, utc, sync, snr, dt, freq, drift, decoded   &
+  subroutine my_callback (this,utc,sync,snr,dt,freq,drift,width,decoded    &
        , ft, qual, smo, sum, minsync, submode, aggression)
     use jt65_decode
     implicit none
@@ -48,6 +48,7 @@ contains
     real, intent(in) :: dt
     integer, intent(in) :: freq
     integer, intent(in) :: drift
+    real, intent(in) :: width
     character(len=22), intent(in) :: decoded
     integer, intent(in) :: ft
     integer, intent(in) :: qual
@@ -56,11 +57,14 @@ contains
     integer, intent(in) :: minsync
     integer, intent(in) :: submode
     integer, intent(in) :: aggression
+    integer nwidth
 
+    nwidth=max(nint(width),2)
     write(*,1010) utc,snr,dt,freq,decoded
 1010 format(i4.4,i4,f5.1,i5,1x,'#',1x,a22)
-    write(13,1012) utc,nint(sync),snr,dt,float(freq),drift,decoded,ft
-1012 format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT65',i4)
+    write(13,1012) utc,nint(sync),snr,dt,freq,drift,nwidth,         &
+         decoded,ft,sum,smo
+1012 format(i4.4,i4,i5,f6.2,i5,i4,i3,1x,a22,' JT65',3i3)
     call flush(6)
 !    write(79,3001) utc,sync,snr,dt,freq,candidates,    &
 !         hard_min,total_min,rtt,tries,ft,qual,decoded

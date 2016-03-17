@@ -83,11 +83,14 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
 
   call timer('dec65b  ',0)
   qualbest=0.
+  minsmo=0
   maxsmo=0
-  if(mode65.eq.2) maxsmo=5
-  if(mode65.eq.4) maxsmo=10
+  if(mode65.ge.2) then
+     minsmo=nint(width/df)
+     maxsmo=2*minsmo
+  endif
   nn=0
-  do ismo=0,maxsmo
+  do ismo=minsmo,maxsmo
      if(ismo.gt.0) then
         do j=1,126
            call smo121(s1(-255,j),512)
@@ -126,6 +129,8 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
         endif
      endif
   enddo
+
+!  print*,width,minsmo,maxsmo,nsmo,nn
 
   if(nft.eq.2) then
      decoded=decoded_best

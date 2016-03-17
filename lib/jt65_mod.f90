@@ -8,5 +8,6 @@ module jt65_mod
   real s1(-255:256,126)
   real s3a(64,63)
   real pr(126)
+  real width
 
 end module jt65_mod

@@ -1,6 +1,6 @@
 module jt65_decode
 
-  integer, parameter :: NSZ=3413, NZMAX=60*12000, NFFT=1000
+  integer, parameter :: NSZ=3413, NZMAX=60*12000
 
   type :: jt65_decoder
      procedure(jt65_decode_callback), pointer :: callback => null()
@@ -13,7 +13,7 @@ module jt65_decode
   !
   abstract interface
      subroutine jt65_decode_callback(this,utc,sync,snr,dt,freq,drift,     &
-          decoded,ft,qual,nsmo,nsum,minsync,nsubmode,naggressive)
+          width,decoded,ft,qual,nsmo,nsum,minsync,nsubmode,naggressive)
 
        import jt65_decoder
        implicit none
@@ -24,6 +24,7 @@ module jt65_decode
        real, intent(in) :: dt
        integer, intent(in) :: freq
        integer, intent(in) :: drift
+       real, intent(in) :: width
        character(len=22), intent(in) :: decoded
        integer, intent(in) :: ft
        integer, intent(in) :: qual
@@ -142,7 +143,38 @@ contains
 
 ! If a candidate was found within +/- ntol of nfqso, move it into ca(1).
        call fqso_first(nfqso,ntol,ca,ncand)
-       if(single_decode) ncand=1
+       df=12000.0/8192.0                     !df = 1.465 Hz
+       width=0.
+       if(single_decode) then
+          ncand=1
+          smax=-1.e30
+          do i=151,NSZ-150
+             if(savg(i).gt.smax) then
+                smax=savg(i)
+                ipk=i
+             endif
+!             write(50,3001) i*df,savg(i)
+!3001         format(2f12.3)
+          enddo
+          base=(sum(savg(ipk-149:ipk-50)) + sum(savg(ipk+51:ipk+150)))/200.0
+
+          stest=smax - 0.5*(smax-base)
+          ssum=savg(ipk)
+          do i=1,50
+             if(savg(ipk+i).lt.stest) exit
+             ssum=ssum + savg(ipk+i)
+          enddo
+          do i=1,50
+             if(savg(ipk-i).lt.stest) exit
+             ssum=ssum + savg(ipk-i)
+          enddo
+          ww=ssum/savg(ipk)
+          width=2
+          t=ww*ww - 5.67
+          if(t.gt.0.0) width=sqrt(t)
+          width=df*width
+!          print*,'Width:',width
+       endif
 
        nvec=ntrials
        if(ncand.gt.75) then
@@ -150,7 +182,6 @@ contains
           nvec=100
        endif
 
-       df=12000.0/NFFT                     !df = 12000.0/8192 = 1.465 Hz
        mode65=2**nsubmode
        nflip=1                             !### temporary ###
        nqd=0
@@ -164,9 +195,9 @@ contains
        endif
 
        do icand=1,ncand
-          freq=ca(icand)%freq
-          dtx=ca(icand)%dt
           sync1=ca(icand)%sync
+          dtx=ca(icand)%dt
+          freq=ca(icand)%freq
           if(ipass.eq.1) ntry65a=ntry65a + 1
           if(ipass.eq.2) ntry65b=ntry65b + 1
           call timer('decod65a',0)
@@ -190,6 +221,8 @@ contains
           nfreq=nint(freq+a(1))
           ndrift=nint(2.0*a(2))
           s2db=10.0*log10(sync2) - 35             !### empirical ###
+          if(width.gt.3) s2db=s2db + 2.1*sqrt(width-3.0) + 1.5 +     &
+               0.11*(width-7.0)                   !### empirical^2 ###
           nsnr=nint(s2db)
           if(nsnr.lt.-30) nsnr=-30
           if(nsnr.gt.-1) nsnr=-1
@@ -208,7 +241,7 @@ contains
 
                 if (associated(this%callback) .and. nsum.ge.2) then
                    call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
-                        avemsg,nftt,nqual,nsmo,nsum,minsync,nsubmode,       &
+                        width,avemsg,nftt,nqual,nsmo,nsum,minsync,nsubmode,  &
                         naggressive)
                    prtavg=.true.
                    cycle
@@ -231,7 +264,8 @@ contains
              if(rtt.gt.r0(n)) cycle
           endif
 
-5          if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
+5         continue
+          if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
                minsync.ge.0) cycle                  !Don't display dupes
           if(decoded.ne.'                      ' .or. minsync.lt.0) then
              if( nsubtract .eq. 1 ) then
@@ -259,7 +293,7 @@ contains
                 nqual=min(qual,9999.0)
                 if (associated(this%callback)) then
                    call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
-                        decoded,nft,nqual,nsmo,nsum,minsync,nsubmode,        &
+                        width,decoded,nft,nqual,nsmo,nsum,minsync,nsubmode,  &
                         naggressive)
                 end if
              endif
