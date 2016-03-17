@@ -31,7 +31,7 @@ subroutine sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,nrobust)
   do i=ia,ib
      call xcor(ss,i,nhsym,nsym,lag1,lag2,ccfblue,ccf0,lagpk0,flip,fdot,nrobust)
 ! Remove best-fit slope from ccfblue and normalize so baseline rms=1.0
-     call slope(ccfblue(lag1),lag2-lag1+1,lagpk0-lag1+1.0)
+!     call slope(ccfblue(lag1),lag2-lag1+1,lagpk0-lag1+1.0)
      ccfred(i)=ccfblue(lagpk0)
      if(ccfred(i).gt.ccfmax) then
         ccfmax=ccfred(i)
@@ -42,6 +42,12 @@ subroutine sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,nrobust)
   ccfred(ia:ib)=ccfred(ia:ib)-xmed
   ccfred(ia-1)=ccfred(ia)
   ccfred(ib+1)=ccfred(ib)
+
+!  do i=1,NSZ
+!     ssum=sum(ss(1:322,i))/322.0
+!     write(61,3001) i*df,ccfred(i),ssum
+!  enddo
+
 
   do i=ia,ib
      freq=i*df
@@ -59,7 +65,7 @@ subroutine sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,nrobust)
      endif
      if(itry.ne.0) then
         call xcor(ss,i,nhsym,nsym,lag1,lag2,ccfblue,ccf0,lagpk,flip,fdot,nrobust)
-        call slope(ccfblue(lag1),lag2-lag1+1,lagpk-lag1+1.0)
+!        call slope(ccfblue(lag1),lag2-lag1+1,lagpk-lag1+1.0)
         xlag=lagpk
         if(lagpk.gt.lag1 .and. lagpk.lt.lag2) then
            call peakup(ccfblue(lagpk-1),ccfmax,ccfblue(lagpk+1),dx2)
@@ -70,10 +76,20 @@ subroutine sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,nrobust)
         ccfblue(lag2)=0.
         ca(ncand)%freq=freq
         ca(ncand)%dt=dtx
-        ca(ncand)%sync=ccfred(i)
+!        ca(ncand)%sync=ccfred(i)
+        ca(ncand)%sync=db(ccfred(i)) - 16.0
      endif
      if(ncand.eq.MAXCAND) return
   enddo
+
+!  do i=1,NSZ
+!     write(52,3001) i*df,ccfred(i)
+!3001 format(3f12.3)
+!  enddo
+!  do i=-10,58
+!     write(53,3002) i,i*2048.0/11025.0,ccfblue(i)
+!3002 format(i6,2f12.3)
+!  enddo
 
   return
 end subroutine sync65

@@ -1,7 +1,7 @@
 subroutine slope(y,npts,xpk)
 
 ! Remove best-fit slope from data in y(i).  When fitting the straight line,
-! ignore the peak around xpk +/- 2.
+! ignore the peak around xpk +/- nhw
 
   real y(npts)
 
