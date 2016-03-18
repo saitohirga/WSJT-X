@@ -204,7 +204,7 @@ contains
 !          s2db=10.0*log10(sync2) - 35             !### empirical ###
 !          if(width.gt.3) s2db=s2db + 2.1*sqrt(width-3.0) + 1.5 +     &
 !               0.11*(width-7.0)                   !### empirical^2 ###
-          s2db=sync1 - 30.0
+          s2db=sync1 - 30.0 + db(width/3.3)
           nsnr=nint(s2db)
           if(nsnr.lt.-30) nsnr=-30
           if(nsnr.gt.-1) nsnr=-1
@@ -307,7 +307,7 @@ contains
     integer nfsave(MAXAVE)
     integer listutc(10)
     integer nflipsave(MAXAVE)
-!    real s1b(-255:256,126)
+!    real s1a(-255:256,126)
 !    real s1save(-255:256,126,MAXAVE)
     real s3save(64,63,MAXAVE)
     real s3b(64,63)
@@ -380,31 +380,31 @@ contains
     enddo
     if(nsum.lt.2) go to 900
 
-    rewind 62
-    sqt=0.
-    sqf=0.
-    do j=1,64
-       i=iused(j)
-       if(i.eq.0) exit
-       csync='*'
-       if(nflipsave(i).lt.0) csync='#'
-       write(62,3001) i,iutc(i),syncsave(i),dtsave(i),nfsave(i),csync
-3001   format(i3,i6.4,f6.1,f6.2,i6,1x,a1)
-       sqt=sqt + (dtsave(i)-dtave)**2
-       sqf=sqf + (nfsave(i)-fave)**2
-    enddo
-    rmst=0.
-    rmsf=0.
-    if(nsum.ge.2) then
-       rmst=sqrt(sqt/(nsum-1))
-       rmsf=sqrt(sqf/(nsum-1))
-    endif
-    write(62,3002)
-3002 format(16x,'----- -----')
-    write(62,3003) dtave,nint(fave)
-    write(62,3003) rmst,nint(rmsf)
-3003 format(15x,f6.2,i6)
-    flush(62)
+!    rewind 62
+!    sqt=0.
+!    sqf=0.
+!    do j=1,64
+!       i=iused(j)
+!       if(i.eq.0) exit
+!       csync='*'
+!       if(nflipsave(i).lt.0) csync='#'
+!       write(62,3001) i,iutc(i),syncsave(i),dtsave(i),nfsave(i),csync
+!3001   format(i3,i6.4,f6.1,f6.2,i6,1x,a1)
+!       sqt=sqt + (dtsave(i)-dtave)**2
+!       sqf=sqf + (nfsave(i)-fave)**2
+!    enddo
+!    rmst=0.
+!    rmsf=0.
+!    if(nsum.ge.2) then
+!       rmst=sqrt(sqt/(nsum-1))
+!       rmsf=sqrt(sqf/(nsum-1))
+!    endif
+!    write(62,3002)
+!3002 format(16x,'----- -----')
+!    write(62,3003) dtave,nint(fave)
+!    write(62,3003) rmst,nint(rmsf)
+!3003 format(15x,f6.2,i6)
+!    flush(62)
 
     nadd=nsum*mode65
     nftt=0

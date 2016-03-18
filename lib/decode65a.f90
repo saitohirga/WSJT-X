@@ -13,6 +13,7 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   complex cx1(NMAX/8)                !Data at 1378.125 sps, offset by 355.3 Hz
   complex c5x(NMAX/32)               !Data at 344.53125 Hz
   complex c5a(512)
+  real s1a(-255:256,126)
   real s2(66,126)
   real a(5)
   logical first
@@ -90,16 +91,15 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
      maxsmo=2*minsmo
   endif
   nn=0
-  do ismo=minsmo,maxsmo
+  do ismo=0,3
      if(ismo.gt.0) then
+        w=width/df
+        if(ismo.eq.2) w=1.414*w
+        if(ismo.eq.3) w=2.0*w
         do j=1,126
-           call smo121(s1(-255,j),512)
-           if(j.eq.1) nn=nn+1
-           if(nn.ge.4) then
-              call smo121(s1(-255,j),512)
-              if(j.eq.1) nn=nn+1
-           endif
+           call smolorentz(s1(-255,j),512,w,s1a(-255,j))
         enddo
+        s1=s1a
      endif
 
      do i=1,66
