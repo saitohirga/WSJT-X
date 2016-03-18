@@ -388,6 +388,7 @@ set (wsjt_FSRCS
   lib/slope.f90
   lib/smo.f90
   lib/smo121.f90
+  lib/smolorentz.f90
   lib/softsym.f90
   lib/softsym9f.f90
   lib/shell.f90

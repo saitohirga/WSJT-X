@@ -19,13 +19,13 @@ program fer65
 
   implicit real*8 (a-h,o-z)
   real*8 s(6),sq(6)
-  character arg*12,cmnd*100,decoded*22,submode*1,csync*1
+  character arg*12,cmnd*100,decoded*22,submode*1,csync*1,f1*15,f2*15
   logical syncok
 
   nargs=iargc()
-  if(nargs.ne.5) then
-     print*,'Usage:   fer65 submode fspread snr1 snr2 iters'
-     print*,'Example: fer65    C      3.0   -28  -12  1000'
+  if(nargs.ne.6) then
+     print*,'Usage:   fer65 submode fspread snr1 snr2 depth iters'
+     print*,'Example: fer65    C      3.0   -28  -12    5   1000'
      go to 999
   endif
 
@@ -37,6 +37,8 @@ program fer65
   call getarg(4,arg)
   read(arg,*) snr2
   call getarg(5,arg)
+  read(arg,*) ndepth
+  call getarg(6,arg)
   read(arg,*) iters
 
   dfmax=min(d,0.5*2.69)
@@ -46,13 +48,15 @@ program fer65
 
   ntrials=1000
   naggressive=10
+  nfiles=1
+  if(ndepth.eq.4) nfiles=4
 
   open(20,file='fer65.20',status='unknown')
   open(21,file='fer65.21',status='unknown')
 
-  write(20,1000) submode,iters,ntrials,naggressive,d
-1000 format(/'JT65',a1,'   Iters:',i6,'   T:',i7,'   Aggressive:',i3,  &
-          '   Doppler:',f6.1)
+  write(20,1000) submode,iters,ntrials,naggressive,d,ndepth,nfiles
+1000 format(/'JT65',a1,'  Iters:',i5,'  T:',i6,'  Aggressive:',i3,  &
+          '  Doppler:',f5.1,'  Depth:',i2,'  Navg:',i3)
   write(20,1002) 
 1002 format(/'  dB  nsync ngood nbad     sync       dsnr        ',     &
             'DT       Freq      Drift    Width'/85('-'))
@@ -67,11 +71,19 @@ program fer65
      s=0.
      sq=0.
      do iter=1,iters
-        write(cmnd,1010) submode,d,snr
-1010    format('./jt65sim -n 1 -m ',a1,' -d',f6.1,' -s \\',f5.1,' >devnull')
-        call unlink('000000_0001.wav')
-!        print*,cmnd
+        write(cmnd,1010) submode,d,snr,nfiles
+1010    format('./jt65sim -n 1 -m ',a1,' -d',f6.1,' -s \\',f5.1,' -f',i3,' >devnull')
+        call unlink('000000_????.wav')
         call system(cmnd)
+        if(nfiles.gt.1) then
+           do i=nfiles,2,-1
+              j=2*i-1
+              write(f1,1011) i
+              write(f2,1011) j
+1011          format('000000_',i4.4,'.wav')
+              call rename(f1,f2)
+           enddo
+        endif
         call unlink('decoded.txt')
         call unlink('fort.13')
         isync=0
@@ -80,14 +92,16 @@ program fer65
         nfreq=0
         ndrift=0
         nwidth=0
-        cmnd='./jt65 -m A -a 10 -f 1500 -n 1000 -d 3 -s -X 32 000000_0001.wav > decoded.txt'
+        cmnd='./jt65 -m A -a 10 -c K1ABC -f 1500 -n 1000 -d 5 -s -X 32 000000_????.wav > decoded.txt'
         cmnd(11:11)=submode
-!        print*,cmnd
+        write(cmnd(47:47),'(i1)') ndepth
         call system(cmnd)
         open(13,file='fort.13',status='old',err=20)
-        read(13,1012) nutc,isync,nsnr,dt,nfreq,ndrift,nwidth,decoded,         &
+        do i=1,nfiles
+           read(13,1012) nutc,isync,nsnr,dt,nfreq,ndrift,nwidth,decoded,     &
              nft,nsum,nsmo
-1012    format(i4,i4,i5,f6.2,i5,i4,i3,1x,a22,5x,3i3)
+1012       format(i4,i4,i5,f6.2,i5,i4,i3,1x,a22,5x,3i3)
+        enddo
         close(13)
         syncok=abs(dt).lt.0.2 .and. float(abs(nfreq-1500)).lt.dfmax
         csync=' '
