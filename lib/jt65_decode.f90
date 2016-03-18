@@ -143,14 +143,16 @@ contains
        ncand=0
        if(.not.robust) then
           call timer('sync65  ',0)
-          call sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,0)
+          call sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,0,    &
+               single_decode)
           call timer('sync65  ',1)
        endif
        if(ncand.gt.50) robust=.true.
        if(robust) then
           ncand=0
           call timer('sync65  ',0)
-          call sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,1)
+          call sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,1,   &
+               single_decode)
           call timer('sync65  ',1)
        endif
 
@@ -201,10 +203,10 @@ contains
 
           nfreq=nint(freq+a(1))
           ndrift=nint(2.0*a(2))
-!          s2db=10.0*log10(sync2) - 35             !### empirical ###
-!          if(width.gt.3) s2db=s2db + 2.1*sqrt(width-3.0) + 1.5 +     &
-!               0.11*(width-7.0)                   !### empirical^2 ###
-          s2db=sync1 - 30.0 + db(width/3.3)
+!###
+!          s2db=10.0*log10(sync2) - 35             !### empirical (HF) 
+          s2db=sync1 - 30.0 + db(width/3.3)        !### VHF/UHF/microwave
+!###
           nsnr=nint(s2db)
           if(nsnr.lt.-30) nsnr=-30
           if(nsnr.gt.-1) nsnr=-1
