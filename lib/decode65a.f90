@@ -84,14 +84,10 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
 
   call timer('dec65b  ',0)
   qualbest=0.
-  minsmo=0
   maxsmo=0
-  if(mode65.ge.2) then
-     minsmo=nint(width/df)
-     maxsmo=2*minsmo
-  endif
+  if(mode65.ge.2) maxsmo=3
   nn=0
-  do ismo=0,3
+  do ismo=0,maxsmo
      if(ismo.gt.0) then
         w=width/df
         if(ismo.eq.2) w=1.414*w
@@ -129,8 +125,6 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
         endif
      endif
   enddo
-
-!  print*,width,minsmo,maxsmo,nsmo,nn
 
   if(nft.eq.2) then
      decoded=decoded_best
