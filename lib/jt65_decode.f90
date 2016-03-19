@@ -203,10 +203,11 @@ contains
 
           nfreq=nint(freq+a(1))
           ndrift=nint(2.0*a(2))
-!###
-!          s2db=10.0*log10(sync2) - 35             !### empirical (HF) 
-          s2db=sync1 - 30.0 + db(width/3.3)        !### VHF/UHF/microwave
-!###
+          if(single_decode) then
+             s2db=sync1 - 30.0 + db(width/3.3)        !### VHF/UHF/microwave
+          else
+             s2db=10.0*log10(sync2) - 35             !### empirical (HF) 
+          endif
           nsnr=nint(s2db)
           if(nsnr.lt.-30) nsnr=-30
           if(nsnr.gt.-1) nsnr=-1
