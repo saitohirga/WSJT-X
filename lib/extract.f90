@@ -90,7 +90,7 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,mycall_12,    &
   endif
   if(ntotal.le.nd0 .and. rtt.le.r0) nft=1
 
-  if(nft.eq.0 .and. ndepth.ge.5) then
+  if(nft.eq.0 .and. (ndepth.ge.5 .or. iand(nexp_decode,31).ne.0)) then
      flip=1.0
      qmin=1.0
      call timer('hint65  ',0)
