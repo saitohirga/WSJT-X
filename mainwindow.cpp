@@ -1158,6 +1158,13 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     {
       Q_EMIT m_config.transceiver_frequency (m_dialFreq);
     }
+  if(m_config.single_decode() or m_mode=="JT4") {
+    ui->label_6->setText("Single-Period Decodes");
+    ui->label_7->setText("Average Decodes");
+  } else {
+    ui->label_6->setText("Band Activity");
+    ui->label_7->setText("Rx Frequency");
+  }
 }
 
 void MainWindow::on_monitorButton_clicked (bool checked)
@@ -1999,8 +2006,20 @@ void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine()) {
     QByteArray t=proc_jt9.readLine();
-    bool baveJT4msg=(t.length()>49);
-    if(m_mode=="JT4") t=t.mid(0,39) + t.mid(42,t.length()-42);
+    bool bAvgMsg=false;
+    int navg=0;
+    if(m_mode=="JT4") {
+        t=t.mid(0,39) + t.mid(42,t.length()-42);
+        bAvgMsg=(t.length()>49);
+    }
+    if(m_mode=="JT65") {
+      int n=t.indexOf("f");
+      if(n<0) n=t.indexOf("h");
+      if(n>0) {
+        navg=t.mid(n+1,1).toInt();
+        if(navg>1) bAvgMsg=true;
+      }
+    }
     if(t.indexOf("<DecodeFinished>") >= 0) {
       m_bDecoded = (t.mid(23,1).toInt()==1);
       if(!m_diskData) killFileTimer->start (3*1000*m_TRperiod/4); //Kill in 45 s
@@ -2045,7 +2064,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       decodedtext = t.replace("\n",""); //t.replace("\n","").mid(0,t.length()-4);
 
         //Left (Band activity) window
-      if(!baveJT4msg) {
+      if(!bAvgMsg) {
         ui->decodedTextBrowser->displayDecodedText (decodedtext
                                                     , m_baseCall
                                                     , m_config.DXCC ()
@@ -2057,8 +2076,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
 
         //Right (Rx Frequency) window
-      if (((abs(decodedtext.frequencyOffset() - m_wideGraph->rxFreq()) <= 10) and
-           m_mode!="JT4") or baveJT4msg) {
+      bool bDisplayRight=bAvgMsg;
+      if(!m_config.single_decode() and m_mode!="JT4" and
+              (abs(decodedtext.frequencyOffset() - m_wideGraph->rxFreq()) <= 10)) bDisplayRight=true;
+      if (bDisplayRight) {
           // This msg is within 10 hertz of our tuned frequency, or a JT4 avg
         ui->decodedTextBrowser2->displayDecodedText(decodedtext
                                                     , m_baseCall
@@ -3613,8 +3634,13 @@ void MainWindow::on_actionJT65_triggered()
     ui->sbSubmode->setValue(0);
     ui->sbTR->setValue(0);
   }
-  ui->label_6->setText("Band Activity");
-  ui->label_7->setText("Rx Frequency");
+  if(m_config.single_decode()) {
+    ui->label_6->setText("Single-Period Decodes");
+    ui->label_7->setText("Average Decodes");
+  } else {
+    ui->label_6->setText("Band Activity");
+    ui->label_7->setText("Rx Frequency");
+  }
 }
 
 void MainWindow::on_actionJT9_JT65_triggered()

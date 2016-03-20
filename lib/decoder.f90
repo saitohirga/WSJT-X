@@ -235,8 +235,8 @@ contains
     else
        ctail='   '
        if(naggressive.gt.0 .and. ft.gt.0) then
-          ctail(1:1)='~'
-          if(ft.eq.1) ctail(1:1)='*'
+          ctail(1:1)='h'
+          if(ft.eq.1) ctail(1:1)='f'
           ctail(2:2)=c(nsum+1:nsum+1)
           if(nsubmode.gt.0) ctail(3:3)=c(nsmo+1:nsmo+1)
        endif
