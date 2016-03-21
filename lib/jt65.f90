@@ -42,7 +42,7 @@ program jt65
   nlow=200
   nhigh=4000
   n2pass=2
-  ndepth=0
+  ndepth=3
 
   do
      call getopt('a:d:f:hm:n:rc:x:g:X:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)

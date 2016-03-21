@@ -93,7 +93,8 @@ subroutine decode4(dat,npts,dtx,nfreq,flip,mode4,ndepth,neme,minw,           &
      endif
 
      qual=0.                                    !Now try deep search
-     if(ndepth.ge.1) then
+!     if(ndepth.ge.1) then
+     if(iand(ndepth,32).eq.32) then
         call deep4(sym(2),neme,flip,mycall,hiscall,hisgrid,deepmsg,qual)
         if(qual.gt.qbest) then
            qbest=qual

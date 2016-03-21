@@ -75,11 +75,11 @@ contains
        ccflim=3.0
        red2lim=1.6
        schklim=2.2
-       if(ndepth.eq.2) then
+       if(iand(ndepth,7).eq.2) then
           limit=10000
           ccflim=2.7
        endif
-       if(ndepth.ge.3 .or. nqd.eq.1) then
+       if(iand(ndepth,7).eq.3 .or. nqd.eq.1) then
           limit=30000
           ccflim=2.5
           schklim=2.0

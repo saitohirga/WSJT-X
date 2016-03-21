@@ -2334,6 +2334,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionQuickDecode"/>
     <addaction name="actionMediumDecode"/>
     <addaction name="actionDeepestDecode"/>
+    <addaction name="separator"/>
     <addaction name="actionInclude_averaging"/>
     <addaction name="actionInclude_correlation"/>
    </widget>
@@ -2739,7 +2740,7 @@ QPushButton[state=&quot;ok&quot;] {
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Include averaging</string>
+    <string>Enable averaging</string>
    </property>
   </action>
   <action name="actionInclude_correlation">
@@ -2747,7 +2748,7 @@ QPushButton[state=&quot;ok&quot;] {
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Include correlation</string>
+    <string>Enable deep search</string>
    </property>
   </action>
   <action name="actionWSPR_2">

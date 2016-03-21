@@ -330,8 +330,8 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   ui->actionQuickDecode->setActionGroup(DepthGroup);
   ui->actionMediumDecode->setActionGroup(DepthGroup);
   ui->actionDeepestDecode->setActionGroup(DepthGroup);
-  ui->actionInclude_averaging->setActionGroup(DepthGroup);
-  ui->actionInclude_correlation->setActionGroup(DepthGroup);
+//  ui->actionInclude_averaging->setActionGroup(DepthGroup);
+//  ui->actionInclude_correlation->setActionGroup(DepthGroup);
 
   connect (ui->download_samples_action, &QAction::triggered, [this, network_manager] () {
       if (!m_sampleDownloader)
@@ -384,10 +384,8 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   ui->bandComboBox->view ()->setMinimumWidth (ui->bandComboBox->view ()->sizeHintForColumn (FrequencyList::frequency_mhz_column));
 
   // Enable live band combo box entry validation and action.
-  auto band_validator = new LiveFrequencyValidator {ui->bandComboBox
-                                                    , m_config.bands ()
-                                                    , m_config.frequencies ()
-                                                    , this};
+  auto band_validator = new LiveFrequencyValidator {ui->bandComboBox, m_config.bands(),
+                                                    m_config.frequencies(), this};
   ui->bandComboBox->setValidator (band_validator);
 
   // Hook up signals.
@@ -637,8 +635,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_config.transceiver_online (true);
 
   bool b=m_config.enable_VHF_features() and (m_mode=="JT4" or m_mode=="JT65" or
-                                             m_mode=="ISCAT" or m_mode=="JT9" or
-                                             m_mode=="JTMSK");
+                          m_mode=="ISCAT" or m_mode=="JT9" or m_mode=="JTMSK");
   VHF_controls_visible(b);
 
   if(m_mode=="JT4") on_actionJT4_triggered();
@@ -674,6 +671,8 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
     m_hsymStop=173;
     if(m_config.decode_at_52s()) m_hsymStop=179;
   }
+  VHF_features_enabled(m_config.enable_VHF_features());
+
   progressBar->setMaximum(m_TRperiod);
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_dialFreqRxWSPR=0;
@@ -837,11 +836,11 @@ void MainWindow::readSettings()
   m_audioThreadPriority = static_cast<QThread::Priority> (m_settings->value ("Audio/ThreadPriority", QThread::HighPriority).toInt () % 8);
   m_settings->endGroup ();
 
-  if(m_ndepth==1) ui->actionQuickDecode->setChecked(true);
-  if(m_ndepth==2) ui->actionMediumDecode->setChecked(true);
-  if(m_ndepth==3) ui->actionDeepestDecode->setChecked(true);
-  if(m_ndepth==4) ui->actionInclude_averaging->setChecked(true);
-  if(m_ndepth==5) ui->actionInclude_correlation->setChecked(true);
+  if((m_ndepth&7)==1) ui->actionQuickDecode->setChecked(true);
+  if((m_ndepth&7)==2) ui->actionMediumDecode->setChecked(true);
+  if((m_ndepth&7)==3) ui->actionDeepestDecode->setChecked(true);
+  ui->actionInclude_averaging->setChecked((m_ndepth&16)>0);
+  ui->actionInclude_correlation->setChecked((m_ndepth&32)>0);
 
   statusChanged();
 }
@@ -1150,6 +1149,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       displayDialFrequency ();
       bool b=m_config.enable_VHF_features() and (m_mode=="JT4" or m_mode=="JT65" or
                               m_mode=="ISCAT" or m_mode=="JT9" or m_mode=="JTMSK");
+      VHF_features_enabled(b);
       VHF_controls_visible(b);
     }
 
@@ -2014,7 +2014,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
     }
     if(m_mode=="JT65") {
       int n=t.indexOf("f");
-      if(n<0) n=t.indexOf("h");
+      if(n<0) n=t.indexOf("d");
       if(n>0) {
         navg=t.mid(n+1,1).toInt();
         if(navg>1) bAvgMsg=true;
@@ -3918,32 +3918,32 @@ void MainWindow::on_RxFreqSpinBox_valueChanged(int n)
 
 void MainWindow::on_actionQuickDecode_triggered()
 {
-  m_ndepth=1;
+  m_ndepth=(m_ndepth&48) + 1;
   ui->actionQuickDecode->setChecked(true);
 }
 
 void MainWindow::on_actionMediumDecode_triggered()
 {
-  m_ndepth=2;
+  m_ndepth=(m_ndepth&48) + 2;
   ui->actionMediumDecode->setChecked(true);
 }
 
 void MainWindow::on_actionDeepestDecode_triggered()
 {
-  m_ndepth=3;
+  m_ndepth=(m_ndepth&48) + 3;
   ui->actionDeepestDecode->setChecked(true);
 }
 
 void MainWindow::on_actionInclude_averaging_triggered()
 {
-  m_ndepth=4;
-  ui->actionInclude_averaging->setChecked(true);
+    m_ndepth=m_ndepth ^ 16;
+  ui->actionInclude_averaging->setChecked(m_ndepth&16);
 }
 
 void MainWindow::on_actionInclude_correlation_triggered()
 {
-  m_ndepth=5;
-  ui->actionInclude_correlation->setChecked(true);
+  m_ndepth=m_ndepth ^ 32;
+  ui->actionInclude_correlation->setChecked(m_ndepth&32);
 }
 
 void MainWindow::on_inGain_valueChanged(int n)

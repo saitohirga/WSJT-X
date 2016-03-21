@@ -49,7 +49,7 @@ program fer65
   ntrials=1000
   naggressive=10
   nfiles=1
-  if(ndepth.eq.4) nfiles=4
+  if(iand(ndepth,16).eq.16) nfiles=16
 
   open(20,file='fer65.20',status='unknown')
   open(21,file='fer65.21',status='unknown')
@@ -92,9 +92,9 @@ program fer65
         nfreq=0
         ndrift=0
         nwidth=0
-        cmnd='./jt65 -m A -a 10 -c K1ABC -f 1500 -n 1000 -d 5 -s -X 32 000000_????.wav > decoded.txt'
+        cmnd='./jt65 -m A -a 10 -c K1ABC -f 1500 -n 1000 -d  5 -s -X 32 000000_????.wav > decoded.txt'
         cmnd(11:11)=submode
-        write(cmnd(47:47),'(i1)') ndepth
+        write(cmnd(47:48),'(i2)') ndepth
         call system(cmnd)
         open(13,file='fort.13',status='old',err=20)
         do i=1,nfiles
