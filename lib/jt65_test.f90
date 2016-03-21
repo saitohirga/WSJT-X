@@ -6,6 +6,7 @@ module jt65_test
 
   public :: test
   integer, parameter, public :: NZMAX=60*12000
+  integer, public :: nft
 
 contains
 
@@ -67,6 +68,7 @@ contains
     write(13,1012) utc,nint(sync),snr,dt,freq,drift,nwidth,         &
          decoded,ft,sum,smo
 1012 format(i4.4,i4,i5,f6.2,i5,i4,i3,1x,a22,' JT65',3i3)
+    nft=ft
     call flush(6)
 !    write(79,3001) utc,sync,snr,dt,freq,candidates,    &
 !         hard_min,total_min,rtt,tries,ft,qual,decoded

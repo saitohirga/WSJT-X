@@ -18,7 +18,7 @@ program fer65
 !  -s S/N in 2500 Hz                   -s single-decode mode
 
   implicit real*8 (a-h,o-z)
-  real*8 s(6),sq(6)
+  real*8 s(7),sq(7)
   character arg*12,cmnd*100,decoded*22,submode*1,csync*1,f1*15,f2*15
   logical syncok
 
@@ -59,7 +59,7 @@ program fer65
           '  Doppler:',f5.1,'  Depth:',i2,'  Navg:',i3)
   write(20,1002) 
 1002 format(/'  dB  nsync ngood nbad     sync       dsnr        ',     &
-            'DT       Freq      Drift    Width'/85('-'))
+            'DT       Freq      Nsum     Width'/85('-'))
 
   do isnr=0,20
      snr=snr1+isnr
@@ -101,6 +101,7 @@ program fer65
            read(13,1012) nutc,isync,nsnr,dt,nfreq,ndrift,nwidth,decoded,     &
              nft,nsum,nsmo
 1012       format(i4,i4,i5,f6.2,i5,i4,i3,1x,a22,5x,3i3)
+           if(nft.gt.0) exit
         enddo
         close(13)
         syncok=abs(dt).lt.0.2 .and. float(abs(nfreq-1500)).lt.dfmax
@@ -122,11 +123,13 @@ program fer65
               s(3)=s(3) + dt
               s(4)=s(4) + nfreq
               s(5)=s(5) + ndrift
+              s(7)=s(7) + nsum
 
               sq(2)=sq(2) + nsnr*nsnr
               sq(3)=sq(3) + dt*dt
               sq(4)=sq(4) + nfreq*nfreq
               sq(5)=sq(5) + ndrift*ndrift
+              sq(7)=sq(7) + nsum*nsum
            else if(decoded.ne.'                      ') then
               nbad=nbad+1
               print*,nbad,decoded
@@ -155,12 +158,14 @@ program fer65
         xdt=s(3)/ngood
         xfreq=s(4)/ngood
         xdrift=s(5)/ngood
+        xsum=s(7)/ngood
      endif
      if(ngood.ge.2) then
         esnr=sqrt(sq(2)/ngood - xsnr**2)
         edt=sqrt(sq(3)/ngood - xdt**2)
         efreq=sqrt(sq(4)/ngood - xfreq**2)
         edrift=sqrt(sq(5)/ngood - xdrift**2)
+        esum=sqrt(sq(7)/ngood - xsum**2)
      endif
 
      dsnr=xsnr-snr
@@ -170,7 +175,7 @@ program fer65
         dfreq=0.
      endif
      write(20,1100) snr,nsync,ngood,nbad,xsync,esync,dsnr,esnr,  &
-          xdt,edt,dfreq,efreq,xdrift,edrift,xwidth,ewidth
+          xdt,edt,dfreq,efreq,xsum,esum,xwidth,ewidth
 1100 format(f5.1,2i6i4,2f6.1,f6.1,f5.1,f6.2,f5.2,6f5.1)
      flush(20)
 
