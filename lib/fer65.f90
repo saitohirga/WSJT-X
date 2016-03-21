@@ -3,7 +3,7 @@ program fer65
 ! End-to-end simulator for testing JT65.
 
 ! Options 
-! jt65sim                             jt65sim
+!  jt65sim                             jt65
 !----------------------------------------------------------------
 !                                      -a aggressive
 !  -d Doppler spread                   -d depth

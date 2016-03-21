@@ -15,8 +15,6 @@ subroutine decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,      &
      do i=1,64
         s3(i,j)=s2(i+2,k)
      enddo
-     k=mdat2(j)                       !Points to data symbol
-     if(nflip.lt.0) k=mdat(j)
   enddo
 
   nadd=mode65
