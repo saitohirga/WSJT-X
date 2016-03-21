@@ -425,7 +425,8 @@ contains
     qave=0.
 
     ! Possibly should pass nadd=nused, also ?
-    if(ndepth.ge.3) then
+!    if(ndepth.ge.3) then
+    if(iand(ndepth,32).eq.32) then
        flipx=1.0                     !Normal flip not relevant for ave msg
        qbest=0.
        do k=ich1,ich2

@@ -211,8 +211,9 @@ contains
           nsnr=nint(s2db)
           if(nsnr.lt.-30) nsnr=-30
           if(nsnr.gt.-1) nsnr=-1
+          nftt=0
 
-          if(nft.ne.1 .and. ndepth.ge.4 .and. (.not.prtavg)) then
+          if(nft.ne.1 .and. iand(ndepth,16).eq.16 .and. (.not.prtavg)) then
 ! Single-sequence FT decode failed, so try for an average FT decode.
              if(nutc.ne.nutc0 .or. abs(nfreq-nfreq0).gt.ntol) then
 ! This is a new minute or a new frequency, so call avg65.
@@ -326,9 +327,9 @@ contains
        dtdiff=0.2
        first=.false.
        s3b=0.
+       s3save=0.
        nsave=1           !### ???
     endif
-    nclearave=0
 
     do i=1,64
        if(nutc.eq.iutc(i) .and. abs(nhz-nfsave(i)).le.ntol) go to 10

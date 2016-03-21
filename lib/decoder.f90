@@ -221,7 +221,7 @@ contains
     integer, intent(in) :: nsubmode
     integer, intent(in) :: naggressive
 
-    integer nft,nsmo2,nsum2
+    integer nft,nsmo2,nsum2,n
     character*3 ctail
     character*36 c
     data c/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
@@ -235,9 +235,10 @@ contains
     else
        ctail='   '
        if(naggressive.gt.0 .and. ft.gt.0) then
-          ctail(1:1)='h'
+          ctail(1:1)='d'
           if(ft.eq.1) ctail(1:1)='f'
-          ctail(2:2)=c(nsum+1:nsum+1)
+          n=max(2,nsum+1)
+          ctail(2:2)=c(n:n)
           if(nsubmode.gt.0) ctail(3:3)=c(nsmo+1:nsmo+1)
        endif
        write(*,1010) utc,snr,dt,freq,'#',decoded,ctail
