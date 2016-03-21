@@ -23,9 +23,9 @@ program fer65
   logical syncok
 
   nargs=iargc()
-  if(nargs.ne.6) then
-     print*,'Usage:   fer65 submode fspread snr1 snr2 depth iters'
-     print*,'Example: fer65    C      3.0   -28  -12    5   1000'
+  if(nargs.ne.7) then
+     print*,'Usage:   fer65 submode fspread snr1 snr2 depth Navg iters'
+     print*,'Example: fer65    C      3.0   -28  -12    19    1   1000'
      go to 999
   endif
 
@@ -39,6 +39,8 @@ program fer65
   call getarg(5,arg)
   read(arg,*) ndepth
   call getarg(6,arg)
+  read(arg,*) navg
+  call getarg(7,arg)
   read(arg,*) iters
 
   dfmax=min(d,0.5*2.69)
@@ -48,13 +50,11 @@ program fer65
 
   ntrials=1000
   naggressive=10
-  nfiles=1
-  if(iand(ndepth,16).eq.16) nfiles=16
 
   open(20,file='fer65.20',status='unknown')
   open(21,file='fer65.21',status='unknown')
 
-  write(20,1000) submode,iters,ntrials,naggressive,d,ndepth,nfiles
+  write(20,1000) submode,iters,ntrials,naggressive,d,ndepth,navg
 1000 format(/'JT65',a1,'  Iters:',i5,'  T:',i6,'  Aggressive:',i3,  &
           '  Doppler:',f5.1,'  Depth:',i2,'  Navg:',i3)
   write(20,1002) 
@@ -71,12 +71,12 @@ program fer65
      s=0.
      sq=0.
      do iter=1,iters
-        write(cmnd,1010) submode,d,snr,nfiles
+        write(cmnd,1010) submode,d,snr,navg
 1010    format('./jt65sim -n 1 -m ',a1,' -d',f6.1,' -s \\',f5.1,' -f',i3,' >devnull')
         call unlink('000000_????.wav')
         call system(cmnd)
-        if(nfiles.gt.1) then
-           do i=nfiles,2,-1
+        if(navg.gt.1) then
+           do i=navg,2,-1
               j=2*i-1
               write(f1,1011) i
               write(f2,1011) j
@@ -97,7 +97,7 @@ program fer65
         write(cmnd(47:48),'(i2)') ndepth
         call system(cmnd)
         open(13,file='fort.13',status='old',err=20)
-        do i=1,nfiles
+        do i=1,navg
            read(13,1012) nutc,isync,nsnr,dt,nfreq,ndrift,nwidth,decoded,     &
              nft,nsum,nsmo
 1012       format(i4,i4,i5,f6.2,i5,i4,i3,1x,a22,5x,3i3)
