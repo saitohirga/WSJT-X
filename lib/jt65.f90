@@ -124,6 +124,7 @@ program jt65
      call test(dd,nutc,nfa,nfb,nfqso,ntol,nsubmode, &
           n2pass,nrobust,ntrials,naggressive,ndepth, &
           mycall,hiscall,hisgrid,nexp_decoded)
+     if(nft.gt.0) exit
   enddo
 
   call timer('jt65    ',1)
