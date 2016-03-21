@@ -224,6 +224,7 @@ contains
                 call avg65(nutc,nsave,sync1,dtx,nflip,nfreq,mode65,ntol,    &
                      ndepth,ntrials,naggressive,nclearave,neme,mycall,      &
                      hiscall,hisgrid,nftt,avemsg,qave,deepave,nsum,ndeepave)
+                nsmo=param(9)
 
                 if (associated(this%callback) .and. nsum.ge.2) then
                    call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
@@ -311,10 +312,12 @@ contains
     integer nfsave(MAXAVE)
     integer listutc(10)
     integer nflipsave(MAXAVE)
-!    real s1a(-255:256,126)
-!    real s1save(-255:256,126,MAXAVE)
+    real s1b(-255:256,126)
+    real s1save(-255:256,126,MAXAVE)
+    real s2(66,126)
     real s3save(64,63,MAXAVE)
     real s3b(64,63)
+    real s3c(64,63)
     real dtsave(MAXAVE)
     real syncsave(MAXAVE)
     logical first
@@ -326,8 +329,8 @@ contains
        nfsave=0
        dtdiff=0.2
        first=.false.
-       s3b=0.
        s3save=0.
+       s1save=0.
        nsave=1           !### ???
     endif
 
@@ -335,22 +338,24 @@ contains
        if(nutc.eq.iutc(i) .and. abs(nhz-nfsave(i)).le.ntol) go to 10
     enddo
 
-    ! Save data for message averaging
+! Save data for message averaging
     iutc(nsave)=nutc
     syncsave(nsave)=snrsync
     dtsave(nsave)=dtxx
     nfsave(nsave)=nfreq
     nflipsave(nsave)=nflip
-!    s1save(-255:256,1:126,nsave)=s1
+    s1save(-255:256,1:126,nsave)=s1
     s3save(1:64,1:63,nsave)=s3a
 
 10  syncsum=0.
     dtsum=0.
     nfsum=0
     nsum=0
+    s1b=0.
     s3b=0.
+    s3c=0.
 
-    do i=1,64                                   !Consider all saved spectra
+    do i=1,MAXAVE                               !Consider all saved spectra
        cused(i)='.'
        if(iutc(i).lt.0) cycle
        if(mod(iutc(i),2).ne.mod(nutc,2)) cycle  !Use only same (odd/even) seq
@@ -358,6 +363,7 @@ contains
        if(abs(nfreq-nfsave(i)).gt.ntol) cycle   !Freq must match
        if(nflip.ne.nflipsave(i)) cycle          !Sync type (*/#) must match
        s3b=s3b + s3save(1:64,1:63,i)
+       s1b=s1b + s1save(-255:256,1:126,i)
        syncsum=syncsum + syncsave(i)
        dtsum=dtsum + dtsave(i)
        nfsum=nfsum + nfsave(i)
@@ -412,12 +418,72 @@ contains
 
     nadd=nsum*mode65
     nftt=0
-!    nexp_decode=0    !### not used, anyway
+    df=1378.125/512.0
 
-    call extract(s3b,nadd,mode65,ntrials,naggressive,ndepth,mycall,    &
-     hiscall,hisgrid,nexp_decode,ncount,nhist,avemsg,ltext,nftt,qual)
+! Do the smoothing loop
+    qualbest=0.
+    minsmo=0
+    maxsmo=0
+    if(mode65.ge.2) then
+       minsmo=nint(width/df)
+       maxsmo=2*minsmo
+    endif
+    nn=0
+    do ismo=minsmo,maxsmo
+       if(ismo.gt.0) then
+          do j=1,126
+             call smo121(s1b(-255,j),512)
+             if(j.eq.1) nn=nn+1
+             if(nn.ge.4) then
+                call smo121(s1b(-255,j),512)
+                if(j.eq.1) nn=nn+1
+             endif
+          enddo
+       endif
 
+       do i=1,66
+          jj=i
+          if(mode65.eq.2) jj=2*i-1
+          if(mode65.eq.4) then
+             ff=4*(i-1)*df - 355.297852
+             jj=nint(ff/df)+1
+          endif
+          s2(i,1:126)=s1b(jj,1:126)
+       enddo
+
+       do j=1,63
+          k=mdat(j)                       !Points to data symbol
+          if(nflip.lt.0) k=mdat2(j)
+          do i=1,64
+             s3c(i,j)=4.e-5*s2(i+2,k)
+          enddo
+       enddo
+
+       call extract(s3c,nadd,mode65,ntrials,naggressive,ndepth,mycall,    &
+            hiscall,hisgrid,nexp_decode,ncount,nhist,avemsg,ltext,nftt,qual)
+
+       if(nftt.eq.1) then
+          nsmo=ismo
+          param(9)=nsmo
+          exit
+       else if(nftt.eq.2) then
+          if(qual.gt.qualbest) then
+             decoded_best=decoded
+             qualbest=qual
+             nnbest=nn
+             nsmobest=ismo
+          endif
+       endif
+    enddo
+
+    if(nftt.eq.2) then
+       decoded=decoded_best
+       qual=qualbest
+       nsmo=nsmobest
+       param(9)=nsmo
+    endif
 900 continue
+
     return
   end subroutine avg65
 
