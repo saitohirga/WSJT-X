@@ -198,7 +198,7 @@ contains
 1000 format(a1,i5.4,f6.1,f6.2,i6,1x,a1)
   end subroutine jt4_average
 
-  subroutine jt65_decoded(this,utc,sync,snr,dt,freq,drift,width,decoded,ft,  &
+  subroutine jt65_decoded(this,utc,sync,snr,dt,freq,drift,width,decoded0,ft,  &
        qual,nsmo,nsum,minsync,nsubmode,naggressive)
 
     use jt65_decode
@@ -212,7 +212,7 @@ contains
     integer, intent(in) :: freq
     integer, intent(in) :: drift
     real, intent(in) :: width
-    character(len=22), intent(in) :: decoded
+    character(len=22), intent(in) :: decoded0
     integer, intent(in) :: ft
     integer, intent(in) :: qual
     integer, intent(in) :: nsmo
@@ -222,7 +222,8 @@ contains
     integer, intent(in) :: naggressive
 
     integer nft,nsmo2,nsum2,n
-    character*3 ctail
+    character*5 ctail
+    character*22 decoded
     character*36 c
     data c/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
 
@@ -230,19 +231,26 @@ contains
 !    write(*,3301) ft,qual,nsmo,nsum,minsync,naggressive,sync    !###
 !3301 format('decoded.f90:',6i3,f5.1)        !###
 
+    decoded=decoded0
     if(int(sync).lt.minsync) then
        write(*,1010) utc,snr,dt,freq
     else
-       ctail='   '
+       ctail='     '
        if(naggressive.gt.0 .and. ft.gt.0) then
           ctail(1:1)='d'
           if(ft.eq.1) ctail(1:1)='f'
           n=max(2,nsum+1)
+          n=min(n,36)
           ctail(2:2)=c(n:n)
           if(nsubmode.gt.0) ctail(3:3)=c(nsmo+1:nsmo+1)
+          if(ft.eq.2) then
+             ctail(5:5)='*'
+             if(qual.le.9) ctail(5:5)=char(48+qual)
+             if(qual.lt.3) decoded(21:21)='?'
+          endif
        endif
        write(*,1010) utc,snr,dt,freq,'#',decoded,ctail
-1010   format(i4.4,i4,f5.1,i5,1x,a1,1x,a22,a3)
+1010   format(i4.4,i4,f5.1,i5,1x,a1,1x,a22,a5)
     endif
 
     write(13,1012) utc,nint(sync),snr,dt,float(freq),drift,decoded,ft,nsum,nsmo
