@@ -9,7 +9,7 @@ program jt65
   use readwav
 
   character c,mode
-  logical :: display_help=.false.,nrobust=.false.
+  logical :: display_help=.false.,nrobust=.false.,single_decode=.false.
   type(wav_header) :: wav
   integer*2 id2(NZMAX)
   real*4 dd(NZMAX)
@@ -36,7 +36,7 @@ program jt65
   naggressive=0
   nfqso=1500
   ntrials=10000
-  nexp_decoded=0
+  nexp_decode=0
   ntol=1000
   nsubmode=0
   nlow=200
@@ -77,8 +77,9 @@ program jt65
      case ('g')
         read (optarg(:narglen), *) hisgrid
      case ('X')
-        read (optarg(:narglen), *) nexp_decoded
+        read (optarg(:narglen), *) nexp_decode
      case ('s')
+        single_decode=.true.
         ntol=100
         nlow=nfqso-ntol
         nhigh=nfqso+ntol
@@ -86,6 +87,7 @@ program jt65
      end select
   end do
 
+  if(single_decode) nexp_decode=ior(nexp_decode,32)
   if(display_help .or. nstat.lt.0 .or. nremain.lt.1) then
      print *, ''
      print *, 'Usage: jt65 [OPTIONS] file1 [file2 ...]'
@@ -123,7 +125,7 @@ program jt65
      dd(npts+1:)=0.
      call test(dd,nutc,nfa,nfb,nfqso,ntol,nsubmode, &
           n2pass,nrobust,ntrials,naggressive,ndepth, &
-          mycall,hiscall,hisgrid,nexp_decoded)
+          mycall,hiscall,hisgrid,nexp_decode)
      if(nft.gt.0) exit
   enddo
 

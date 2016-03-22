@@ -225,10 +225,11 @@ contains
                      ndepth,ntrials,naggressive,nclearave,neme,mycall,      &
                      hiscall,hisgrid,nftt,avemsg,qave,deepave,nsum,ndeepave)
                 nsmo=param(9)
+                nqave=qave
 
                 if (associated(this%callback) .and. nsum.ge.2) then
                    call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
-                        width,avemsg,nftt,nqual,nsmo,nsum,minsync,nsubmode,  &
+                        width,avemsg,nftt,nqave,nsmo,nsum,minsync,nsubmode,  &
                         naggressive)
                    prtavg=.true.
                    cycle
@@ -461,26 +462,28 @@ contains
 
        call extract(s3c,nadd,mode65,ntrials,naggressive,ndepth,mycall,    &
             hiscall,hisgrid,nexp_decode,ncount,nhist,avemsg,ltext,nftt,qual)
-
        if(nftt.eq.1) then
           nsmo=ismo
           param(9)=nsmo
-          exit
+          go to 900
        else if(nftt.eq.2) then
           if(qual.gt.qualbest) then
-             decoded_best=decoded
+             deepbest=avemsg
              qualbest=qual
              nnbest=nn
              nsmobest=ismo
+             nfttbest=nftt
           endif
        endif
     enddo
 
-    if(nftt.eq.2) then
-       decoded=decoded_best
-       qual=qualbest
+    if(nfttbest.eq.2) then
+       avemsg=deepbest       !### ???
+       deepave=deepbest
+       qave=qualbest
        nsmo=nsmobest
        param(9)=nsmo
+       nftt=nfttbest
     endif
 900 continue
 
