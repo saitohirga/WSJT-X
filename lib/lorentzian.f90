@@ -10,9 +10,9 @@ subroutine lorentzian(y,npts,a)
   real y(npts)
   real a(4)
   real deltaa(4)
-  real x(1000)
+  real x(2000)
 
-  if(npts.gt.1000) stop 'Error in lorentzian'
+  if(npts.gt.2000) stop 'Error in lorentzian'
 
   a=0.
   df=12000.0/8192.0                               !df = 1.465 Hz
