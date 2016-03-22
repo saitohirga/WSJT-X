@@ -50,6 +50,7 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
         hisgrid(j)=grid
      enddo
 10   ncalls=j
+     if(ncalls.lt.10) stop 'CALL3.TXT very short or missing?'
      close(23)
 
 

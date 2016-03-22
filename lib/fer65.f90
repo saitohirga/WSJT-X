@@ -20,6 +20,7 @@ program fer65
   implicit real*8 (a-h,o-z)
   real*8 s(7),sq(7)
   character arg*12,cmnd*100,decoded*22,submode*1,csync*1,f1*15,f2*15
+  character*10 outfile
   logical syncok
 
   nargs=iargc()
@@ -43,6 +44,11 @@ program fer65
   call getarg(7,arg)
   read(arg,*) iters
 
+
+  write(outfile,1001) submode,d,navg,nds
+1001 format(a1,f4.1,'_',i2.2,'_',i1)
+  if(outfile(2:2).eq.' ') outfile(2:2)='0'
+
   ndepth=3
   if(navg.gt.1) ndepth=ndepth+16
   if(nds.ne.0) ndepth=ndepth+32
@@ -55,7 +61,7 @@ program fer65
   ntrials=1000
   naggressive=10
 
-  open(20,file='fer65.20',status='unknown')
+  open(20,file=outfile,status='unknown')
   open(21,file='fer65.21',status='unknown')
 
   write(20,1000) submode,iters,ntrials,naggressive,d,iand(ndepth,3),navg,nds
@@ -64,6 +70,7 @@ program fer65
   write(20,1002) 
 1002 format(/'  dB  nsync ngood nbad     sync       dsnr        ',     &
             'DT       Freq      Nsum     Width'/85('-'))
+  flush(20)
 
   do isnr=0,20
      snr=snr1+isnr
@@ -112,8 +119,9 @@ program fer65
         csync=' '
         if(syncok) csync='*'
         write(21,1014) nutc,isync,nsnr,dt,nfreq,ndrift,nwidth,     &
-             nft,nsum,nsmo,csync,decoded(1:16)
-1014    format(i4,i4,i5,f6.2,i5,i4,3x,4i3,1x,a1,1x,a16)
+             nft,nsum,nsmo,csync,decoded(1:16),nft,nsum,nsmo
+1014    format(i4,i4,i5,f6.2,i5,i4,3x,4i3,1x,a1,1x,a16,i2,2i3)
+        flush(21)
 
         if(syncok) then
            nsync=nsync+1
@@ -137,21 +145,23 @@ program fer65
            else if(decoded.ne.'                      ') then
               nbad=nbad+1
               print*,'Nbad:',nbad,decoded
+              stop
            endif
         endif
 20      continue
         fsync=float(nsync)/iter
         fgood=float(ngood)/iter
         fbad=float(nbad)/iter
-        write(*,1020) iter,isync,nsnr,dt,nfreq,ndrift,nwidth,fsync,fgood,   &
-             fbad,decoded(1:18)
-1020    format(i8,2i4,f7.2,i6,i4,i3,2f7.3,f8.4,1x,a18)
+        write(*,1020) nint(snr),iter,isync,nsnr,dt,nfreq,ndrift,nwidth,fsync,  &
+             fgood,fbad,decoded(1:16),nft,nsum,nsmo
+1020    format(i3,i5,i3,i4,f6.2,i5,i3,i3,2f6.3,f7.4,1x,a16,i2,2i3)
      enddo
 
      if(nsync.ge.1) then
         xsync=s(1)/nsync
         xwidth=s(6)/nsync
      endif
+     esync=0.
      if(nsync.ge.2) then
         esync=sqrt(sq(1)/nsync - xsync**2)
         ewidth=sqrt(sq(6)/nsync - xwidth**2)
@@ -182,7 +192,7 @@ program fer65
           xdt,edt,dfreq,efreq,xsum,esum,xwidth,ewidth
 1100 format(f5.1,2i6i4,2f6.1,f6.1,f5.1,f6.2,f5.2,6f5.1)
      flush(20)
-
+     if(ngood.eq.iters) exit
   enddo
 
 999 end program fer65
