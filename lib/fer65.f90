@@ -24,8 +24,8 @@ program fer65
 
   nargs=iargc()
   if(nargs.ne.7) then
-     print*,'Usage:   fer65 submode fspread snr1 snr2 depth Navg iters'
-     print*,'Example: fer65    C      3.0   -28  -12    19    1   1000'
+     print*,'Usage:   fer65 submode fspread snr1 snr2 Navg  DS  iters'
+     print*,'Example: fer65    C      3.0   -28  -12    8    1  1000'
      go to 999
   endif
 
@@ -37,11 +37,15 @@ program fer65
   call getarg(4,arg)
   read(arg,*) snr2
   call getarg(5,arg)
-  read(arg,*) ndepth
-  call getarg(6,arg)
   read(arg,*) navg
+  call getarg(6,arg)
+  read(arg,*) nds
   call getarg(7,arg)
   read(arg,*) iters
+
+  ndepth=3
+  if(navg.gt.1) ndepth=ndepth+16
+  if(nds.ne.0) ndepth=ndepth+32
 
   dfmax=min(d,0.5*2.69)
   if(submode.eq.'b' .or. submode.eq.'B') dfmax=min(d,2.69)
@@ -54,9 +58,9 @@ program fer65
   open(20,file='fer65.20',status='unknown')
   open(21,file='fer65.21',status='unknown')
 
-  write(20,1000) submode,iters,ntrials,naggressive,d,ndepth,navg
-1000 format(/'JT65',a1,'  Iters:',i5,'  T:',i6,'  Aggressive:',i3,  &
-          '  Doppler:',f5.1,'  Depth:',i2,'  Navg:',i3)
+  write(20,1000) submode,iters,ntrials,naggressive,d,iand(ndepth,3),navg,nds
+1000 format(/'JT65',a1,'  Iters:',i5,'  T:',i6,'  Aggr:',i3,  &
+          '  Dop:',f5.1,'  Depth:',i2,'  Navg:',i3,'  DS:',i2)
   write(20,1002) 
 1002 format(/'  dB  nsync ngood nbad     sync       dsnr        ',     &
             'DT       Freq      Nsum     Width'/85('-'))
@@ -92,7 +96,7 @@ program fer65
         nfreq=0
         ndrift=0
         nwidth=0
-        cmnd='./jt65 -m A -a 10 -c K1ABC -f 1500 -n 1000 -d  5 -s -X 32 000000_????.wav > decoded.txt'
+        cmnd='./jt65 -m A -a 10 -c K1ABC -f 1500 -n 1000 -d  5 -s 000000_????.wav > decoded.txt'
         cmnd(11:11)=submode
         write(cmnd(47:48),'(i2)') ndepth
         call system(cmnd)
@@ -132,7 +136,7 @@ program fer65
               sq(7)=sq(7) + nsum*nsum
            else if(decoded.ne.'                      ') then
               nbad=nbad+1
-              print*,nbad,decoded
+              print*,'Nbad:',nbad,decoded
            endif
         endif
 20      continue
