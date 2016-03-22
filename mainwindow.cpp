@@ -2016,7 +2016,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
       int n=t.indexOf("f");
       if(n<0) n=t.indexOf("d");
       if(n>0) {
-        navg=t.mid(n+1,1).toInt();
+        QString tt=t.mid(n+1,1);
+        navg=tt.toInt();
+        if(navg==0) {
+          char c = tt.data()->toLatin1();
+          if(int(c)>=65 and int(c)<=90) navg=int(c)-54;
+        }
         if(navg>1) bAvgMsg=true;
       }
     }
