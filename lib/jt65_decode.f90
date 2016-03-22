@@ -486,6 +486,8 @@ contains
        nftt=nfttbest
     endif
 900 continue
+!    write(*,3301) 'Z',nftt,nsave,nsum,nsmo,qave,avemsg
+!3301 format(a1,4i3,f7.1,1x,a22)
 
     return
   end subroutine avg65

@@ -485,7 +485,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>75</width>
+             <width>90</width>
              <height>0</height>
             </size>
            </property>
@@ -534,7 +534,7 @@
         <widget class="QSpinBox" name="sbPercent2dPlot">
          <property name="minimumSize">
           <size>
-           <width>75</width>
+           <width>90</width>
            <height>0</height>
           </size>
          </property>
