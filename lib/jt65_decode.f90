@@ -386,7 +386,7 @@ contains
     do i=1,nsave
        csync='*'
        if(nflipsave(i).lt.0.0) csync='#'
-       write(14,1000) cused(i),iutc(i),syncsave(i),dtsave(i),nfsave(i),csync
+       write(14,1000) cused(i),iutc(i),syncsave(i),dtsave(i)-1.0,nfsave(i),csync
 1000   format(a1,i5.4,f6.1,f6.2,i6,1x,a1)
     enddo
     if(nsum.lt.2) go to 900

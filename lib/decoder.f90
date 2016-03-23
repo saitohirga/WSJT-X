@@ -232,7 +232,7 @@ contains
 !3301 format('decoded.f90:',6i3,f5.1)        !###
 
     decoded=decoded0
-    if(int(sync).lt.minsync) then
+    if(ft.eq.0 .and. minsync.ge.0 .and. int(sync).lt.minsync) then
        write(*,1010) utc,snr,dt,freq
     else
        ctail='     '
