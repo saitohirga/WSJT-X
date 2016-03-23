@@ -70,12 +70,15 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
 
 ! NB: generation of test messages is not yet complete!
      j=0
-     do i=0,ncalls         !### if ncalls is too small, generate random msgs ???
+     do i=-1,ncalls         !### if ncalls is too small, generate random msgs ???
         mz=2
+        if(i.eq.-1) mz=1
         if(i.eq.0) mz=65
         do m=1,mz
            j=j+1
-           if(i.eq.0) then
+           if(i.eq.-1) then
+              msg='0123456789ABC'
+           else if(i.eq.0) then
               if(m.eq.1) msg=mycall//' '//hiscall//' '//hisgrid(1:4)
               if(m.eq.2) msg='CQ '//hiscall//' '//hisgrid(1:4)
               if(m.ge.3) msg=mycall//' '//hiscall//' '//rpt(m-2)
@@ -109,7 +112,7 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
   u1=0.
   u1=-99.0
   u2=u1
-  dtotal=199.0
+!  dtotal=199.0
 
 ! Find u1 and u2 (best and second-best) codeword from a list, using 
 ! a bank of matched filters on the symbol spectra s3(i,j).
