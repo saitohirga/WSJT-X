@@ -145,7 +145,6 @@ program fer65
            else if(decoded.ne.'                      ') then
               nbad=nbad+1
               print*,'Nbad:',nbad,decoded
-              stop
            endif
         endif
 20      continue
@@ -192,7 +191,7 @@ program fer65
           xdt,edt,dfreq,efreq,xsum,esum,xwidth,ewidth
 1100 format(f5.1,2i6i4,2f6.1,f6.1,f5.1,f6.2,f5.2,6f5.1)
      flush(20)
-     if(ngood.eq.iters) exit
+     if(ngood.ge.int(0.99*iters)) exit
   enddo
 
 999 end program fer65

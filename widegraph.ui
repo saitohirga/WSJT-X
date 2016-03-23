@@ -544,6 +544,9 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
          <property name="suffix">
           <string> %</string>
          </property>

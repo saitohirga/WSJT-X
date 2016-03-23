@@ -188,7 +188,7 @@ contains
                naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,       &
                sync2,a,dtx,nft,qual,nhist,nsmo,decoded)
           call timer('decod65a',1)
-          if(nft.eq.1) nsum=1
+          if(nft.ne.0) nsum=1
 
 !          ncandidates=param(0)
           nhard_min=param(1)
