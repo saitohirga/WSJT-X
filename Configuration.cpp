@@ -752,6 +752,7 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   , default_audio_output_device_selected_ {false}
 {
   ui_->setupUi (this);
+  ui_->groupBox_6->setVisible(false);              //### Temporary ??? ###
 
 #if !defined (CMAKE_BUILD)
 #define WSJT_SHARE_DESTINATION "."
