@@ -1,25 +1,39 @@
 subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
-     mycall,hiscall0,hisgrid0,nexp_decode,qual,decoded)
+     mycall,hiscall,hisgrid,nexp_decode,qual,decoded)
 
   use packjt
   use prog_args
-  parameter (NMAX=10000)
+  parameter (MAXCALLS=10000,MAXRPT=63)
+  parameter (MAXMSG=2*MAXCALLS + 2 + MAXRPT)
   real s3(64,63)
-  integer*1 sym1(0:62,NMAX)
-  integer*1 sym2(0:62,NMAX)
+  integer*1 sym1(0:62,MAXMSG)
+  integer*1 sym2(0:62,MAXMSG)
   integer mrs(63),mrs2(63)
   integer mrsym(0:62),mr2sym(0:62),mrprob(0:62)
   integer dgen(12),sym(0:62),sym_rev(0:62)
 !  integer test(0:62)
-  character*6 mycall,hiscall0,hisgrid0,hiscall(NMAX)
-  character*4 hisgrid(NMAX)
+  character*6 mycall,hiscall,hisgrid,call2(MAXCALLS)
+  character*4 grid2(MAXCALLS),rpt(MAXRPT)
   character callsign*12,grid*4
   character*180 line
   character ceme*3,msg*22
-  character*22 msg0(2*NMAX+100),decoded
-  logical*1 eme(NMAX)
+  character*22 msg0(MAXMSG),decoded
+  logical*1 eme(MAXCALLS)
   logical first
   data first/.true./
+  data rpt/'-01','-02','-03','-04','-05',          &
+           '-06','-07','-08','-09','-10',          &
+           '-11','-12','-13','-14','-15',          &
+           '-16','-17','-18','-19','-20',          &
+           '-21','-22','-23','-24','-25',          &
+           '-26','-27','-28','-29','-30',          &
+           'R-01','R-02','R-03','R-04','R-05',     &
+           'R-06','R-07','R-08','R-09','R-10',     &
+           'R-11','R-12','R-13','R-14','R-15',     &
+           'R-16','R-17','R-18','R-19','R-20',     &
+           'R-21','R-22','R-23','R-24','R-25',     &
+           'R-26','R-27','R-28','R-29','R-30',     &
+           'RO','RRR','73'/
   save first,sym1,nused,msg0,sym2
 
   if(first) then
@@ -27,7 +41,7 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
      open(23,file=trim(data_dir)//'/CALL3.TXT',status='unknown')
      icall=0
      j=0
-     do i=1,NMAX
+     do i=1,MAXCALLS
         read(23,1002,end=10) line
 1002    format(a80)
         if(line(1:4).eq.'ZZZZ') cycle
@@ -46,8 +60,8 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
         eme(i)=ceme.eq.'EME'
         if(neme.eq.1 .and. (.not.eme(i))) cycle
         j=j+1
-        hiscall(j)=callsign(1:6)               !### Fix for compound callsigns!
-        hisgrid(j)=grid
+        call2(j)=callsign(1:6)               !### Fix for compound callsigns!
+        grid2(j)=grid
      enddo
 10   ncalls=j
      if(ncalls.lt.10) stop 'CALL3.TXT very short or missing?'
@@ -56,20 +70,32 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
 
 ! NB: generation of test messages is not yet complete!
      j=0
-     do i=1,ncalls
-        j=j+1
-        msg=mycall//' '//hiscall(i)//' '//hisgrid(i)
-!        if(isnr.ne.-20) write(msg(14:18),"(i3,'  ')") isnr
-        call fmtmsg(msg,iz)
-        call packmsg(msg,dgen,itype)            !Pack message into 72 bits
-        call rs_encode(dgen,sym_rev)            !RS encode
-        sym(0:62)=sym_rev(62:0:-1)
-        sym1(0:62,j)=sym
+     do i=0,ncalls         !### if ncalls is too small, generate random msgs ???
+        mz=2
+        if(i.eq.0) mz=65
+        do m=1,mz
+           j=j+1
+           if(i.eq.0) then
+              if(m.eq.1) msg=mycall//' '//hiscall//' '//hisgrid(1:4)
+              if(m.eq.2) msg='CQ '//hiscall//' '//hisgrid(1:4)
+              if(m.ge.3) msg=mycall//' '//hiscall//' '//rpt(m-2)
+           else
+              if(m.eq.1)  msg=mycall//' '//call2(i)//' '//grid2(i)
+              if(m.eq.2)  msg='CQ '//call2(i)//' '//grid2(i)
+           endif
+           call fmtmsg(msg,iz)
+!           write(65,3001) msg
+!3001       format(a22)
+           call packmsg(msg,dgen,itype)            !Pack message into 72 bits
+           call rs_encode(dgen,sym_rev)            !RS encode
+           sym(0:62)=sym_rev(62:0:-1)
+           sym1(0:62,j)=sym
 
-        call interleave63(sym_rev,1)            !Interleave channel symbols
-        call graycode(sym_rev,63,1,sym_rev)     !Apply Gray code
-        sym2(0:62,j)=sym_rev(0:62)
-        msg0(j)=msg
+           call interleave63(sym_rev,1)            !Interleave channel symbols
+           call graycode(sym_rev,63,1,sym_rev)     !Apply Gray code
+           sym2(0:62,j)=sym_rev(0:62)
+           msg0(j)=msg
+        enddo
      enddo
      nused=j
      first=.false.
