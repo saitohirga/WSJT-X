@@ -8,7 +8,7 @@ subroutine gen65(msg0,ichk,msgsent,itone,itype)
   character*22 message          !Message to be generated
   character*22 msgsent          !Message as it will be received
   integer itone(126)
-!  character*3 cok               !'   ' or 'OOO'
+  character*3 cok               !'   ' or 'OOO'
   integer dgen(13)
   integer sent(63)
   integer nprc(126)
@@ -40,8 +40,7 @@ subroutine gen65(msg0,ichk,msgsent,itone,itype)
         message=message(i+1:)
      enddo
 
-     nspecial=0
-!  call chkmsg(message,cok,nspecial,flip)
+     call chkmsg(message,cok,nspecial,flip)
      if(nspecial.eq.0) then
         call packmsg(message,dgen,itype)    !Pack message into 72 bits
         call unpackmsg(dgen,msgsent)        !Unpack to get message sent
@@ -51,19 +50,29 @@ subroutine gen65(msg0,ichk,msgsent,itone,itype)
         call interleave63(sent,1)           !Apply interleaving
         call graycode65(sent,63,1)          !Apply Gray code
         nsym=126                            !Symbols per transmission
+        k=0
+        do j=1,nsym
+           if(nprc(j).eq.0) then
+              k=k+1
+              itone(j)=sent(k)+2
+           else
+              itone(j)=0
+           endif
+        enddo
      else
         nsym=32
+        k=0
+        do j=1,nsym
+           do n=1,4
+              k=k+1
+              if(iand(j,1).eq.1) itone(k)=0
+              if(iand(j,1).eq.0) itone(k)=10*nspecial
+              if(k.eq.126) go to 10
+           enddo
+        enddo
+10      msgsent=message
+        itype=7
      endif
-
-     k=0
-     do j=1,nsym
-        if(nprc(j).eq.0) then
-           k=k+1
-           itone(j)=sent(k)+2
-        else
-           itone(j)=0
-        endif
-     enddo
   endif
 
 999 return

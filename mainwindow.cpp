@@ -2588,9 +2588,9 @@ void MainWindow::guiUpdate()
       sprintf(s,"Tx: %s",msgsent);
       nsendingsh=0;
       if(s[4]==64) nsendingsh=1;
-      if(nsendingsh==1) {
+      if(nsendingsh==1 or m_currentMessageType==7) {
         tx_status_label->setStyleSheet("QLabel{background-color: #66ffff}");
-      } else if(nsendingsh==-1) {
+      } else if(nsendingsh==-1 or m_currentMessageType==6) {
         tx_status_label->setStyleSheet("QLabel{background-color: #ffccff}");
       } else {
         tx_status_label->setStyleSheet("QLabel{background-color: #ffff33}");
@@ -3349,10 +3349,13 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
   int ichk=1,itype=0;
-  gen9_(message,&ichk,msgsent,const_cast<int *>(itone),&itype,len1,len1);
+//  gen9_(message,&ichk,msgsent,const_cast<int *>(itone),&itype,len1,len1);
+  gen65_(message,&ichk,msgsent,const_cast<int *>(itone),&itype,len1,len1);
   msgsent[22]=0;
   bool text=false;
+  bool short65=false;
   if(itype==6) text=true;
+  if(itype==7) short65=true;
   if(m_mode=="JTMSK" and t.mid(0,1)=="<") text=false;
   QString t1;
   t1.fromLatin1(msgsent);
@@ -3361,8 +3364,12 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   if(text) {
     p.setColor(QPalette::Base,"#ffccff");
   } else {
-    p.setColor(QPalette::Base,Qt::white);
-    if(m_mode=="JTMSK" and t.mid(0,1)=="<") p.setColor(QPalette::Base,"#00ffff");
+    if(short65) {
+      p.setColor(QPalette::Base,"#66ffff");
+    } else {
+      p.setColor(QPalette::Base,Qt::white);
+      if(m_mode=="JTMSK" and t.mid(0,1)=="<") p.setColor(QPalette::Base,"#00ffff");
+    }
   }
   tx->setPalette(p);
   int len=t.length();
