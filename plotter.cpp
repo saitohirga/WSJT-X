@@ -2,7 +2,6 @@
 #include <math.h>
 #include <QDebug>
 #include "commons.h"
-
 #include "moc_plotter.cpp"
 
 #define MAX_SCREENSIZE 2048
@@ -222,7 +221,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   if(m_OverlayPixmap.isNull()) return;
   if(m_WaterfallPixmap.isNull()) return;
   int w = m_WaterfallPixmap.width();
-  int x,y,x1,x2;
+  int x,y,x1,x2,x3,x4,x5;
   float pixperdiv;
 
   double df = m_binsPerPixel*m_fftBinWidth;
@@ -342,7 +341,6 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     if(m_nSubMode==2) bw=4*bw;
   }
 
-
   QPen pen0(Qt::green, 3);                 //Mark Rx Freq with green
   painter0.setPen(pen0);
   if(m_mode=="WSPR-2") {                   //### WSPR-15 code needed here, too ###
@@ -356,6 +354,14 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     painter0.drawLine(x1,24,x1,30);
     painter0.drawLine(x1,28,x2,28);
     painter0.drawLine(x2,24,x2,30);
+    if(g_single_decode) {
+      x3=XfromFreq(m_rxFreq+22.0*bw/66.0);
+      painter0.drawLine(x3,24,x3,30);
+      x4=XfromFreq(m_rxFreq+32.0*bw/66.0);
+      painter0.drawLine(x4,24,x4,30);
+      x5=XfromFreq(m_rxFreq+42.0*bw/66.0);
+      painter0.drawLine(x5,24,x5,30);
+    }
   }
 
   if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65" or

@@ -118,6 +118,7 @@ int   fast_jh;
 int   fast_jh2;
 int narg[15];
 QVector<QColor> g_ColorTbl;
+bool g_single_decode;
 
 namespace
 {
@@ -672,6 +673,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
     if(m_config.decode_at_52s()) m_hsymStop=179;
   }
   VHF_features_enabled(m_config.enable_VHF_features());
+  g_single_decode=m_config.single_decode();
 
   progressBar->setMaximum(m_TRperiod);
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
@@ -1847,7 +1849,6 @@ void MainWindow::decode()                                       //decode()
   if(m_config.EMEonly()) dec_data.params.nexp_decode += 16;
   if(m_config.single_decode()) dec_data.params.nexp_decode += 32;
 
-
   strncpy(dec_data.params.datetime, m_dateTime.toLatin1(), 20);
   strncpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
   strncpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
@@ -2566,6 +2567,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
+    g_single_decode=m_config.single_decode();
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
       progressBar->setMaximum(6);
       progressBar->setValue(int(m_s6));
