@@ -11,12 +11,12 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
   integer mrs(63),mrs2(63)
   integer mrsym(0:62),mr2sym(0:62),mrprob(0:62)
   integer dgen(12),sym(0:62),sym_rev(0:62)
-!  integer test(0:62)
   character*6 mycall,hiscall,hisgrid,call2(MAXCALLS)
   character*4 grid2(MAXCALLS),rpt(MAXRPT)
   character callsign*12,grid*4
   character*180 line
   character ceme*3,msg*22
+  character cgood*1
   character*22 msg0(MAXMSG),decoded
   logical*1 eme(MAXCALLS)
   logical first
@@ -67,10 +67,9 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
      if(ncalls.lt.10) stop 'CALL3.TXT very short or missing?'
      close(23)
 
-
 ! NB: generation of test messages is not yet complete!
      j=0
-     do i=-1,ncalls         !### if ncalls is too small, generate random msgs ???
+     do i=-1,ncalls       !### if ncalls is too small, generate random msgs ???
         mz=2
         if(i.eq.-1) mz=1
         if(i.eq.0) mz=65
@@ -130,34 +129,20 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
         enddo
         p=psum/ref
 
-! Find the FT-defined soft distance
-!        test=sym1(0:62,k)
-!        nh=0
-!        ns=0
-!        do i=0,62
-!           j=62-i
-!           if(mrsym(j).ne.test(i)) then
-!              nh=nh+1
-!              if(mr2sym(j).ne.test(i)) ns=ns+mrprob(j)
-!           endif
-!        enddo
-!        ds=ns*63.0/sum(mrprob)
-
         if(p.gt.u1) then
            u2=u1
            u1=p
            ipk=k
-!           nhard=nh
-!           dsoft=ds
-!           dtotal=nh+ds
-!           ncandidates=0
-!           ntry=0
         endif
+        if(p.ne.u1 .and. p.gt.u2) u2=p
      endif
   enddo
 
   decoded='                      '
-  qual=100.0*(u1-1.12*u2)
+  bias=max(1.12*u2,0.35)
+  if(nadd.ge.4) bias=max(1.08*u2,0.45)
+  if(nadd.ge.8) bias=max(1.04*u2,0.60)
+  qual=100.0*(u1-bias)
   qmin=1.0
   if(qual.ge.qmin) decoded=msg0(ipk)
 
