@@ -42,8 +42,8 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   dtbest=dt
   call afc65b(c5x,n6,fsample,nflip,a,ccfbest,dtbest)
   call timer('afc65b  ',1)
-  dtbest=dtbest+0.003628 ! remove decimation filter and coh. integrator delay
-  dt=dtbest !return new, improved estimate of dt
+  dtbest=dtbest+0.003628 !Remove decimation filter and coh. integrator delay
+  dt=dtbest              !Return new, improved estimate of dt
   sync2=3.7e-4*ccfbest/sq0                    !Constant is empirical 
   if(mode65.eq.4) cx=cx1
 
@@ -83,6 +83,7 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
 
   call timer('dec65b  ',0)
   qualbest=0.
+  qual0=-1.e30
   minsmo=0
   maxsmo=0
   if(mode65.ge.2) then
@@ -112,7 +113,8 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
         s2(i,1:126)=s1(jj,1:126)
      enddo
 
-     call decode65b(s2,nflip,mode65,ntrials,naggressive,ndepth,           &
+     nadd=ismo  !### ??? ###
+     call decode65b(s2,nflip,nadd,mode65,ntrials,naggressive,ndepth,        &
           mycall,hiscall,hisgrid,nexp_decode,nqd,nft,qual,nhist,decoded)
 
      if(nft.eq.1) then
@@ -128,15 +130,16 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
            nsmobest=ismo
         endif
      endif
+     if(qual.lt.qual0) exit
+     qual0=qual
   enddo
-
-!  print*,width,minsmo,maxsmo,nsmo,nn
 
   if(nft.eq.2) then
      decoded=decoded_best
      qual=qualbest
      nsmo=nsmobest
      param(9)=nsmo
+     nn=nnbest
   endif
 
   call timer('dec65b  ',1)
