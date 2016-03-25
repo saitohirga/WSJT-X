@@ -391,33 +391,6 @@ contains
     enddo
     if(nsum.lt.2) go to 900
 
-!    rewind 62
-!    sqt=0.
-!    sqf=0.
-!    do j=1,64
-!       i=iused(j)
-!       if(i.eq.0) exit
-!       csync='*'
-!       if(nflipsave(i).lt.0) csync='#'
-!       write(62,3001) i,iutc(i),syncsave(i),dtsave(i),nfsave(i),csync
-!3001   format(i3,i6.4,f6.1,f6.2,i6,1x,a1)
-!       sqt=sqt + (dtsave(i)-dtave)**2
-!       sqf=sqf + (nfsave(i)-fave)**2
-!    enddo
-!    rmst=0.
-!    rmsf=0.
-!    if(nsum.ge.2) then
-!       rmst=sqrt(sqt/(nsum-1))
-!       rmsf=sqrt(sqf/(nsum-1))
-!    endif
-!    write(62,3002)
-!3002 format(16x,'----- -----')
-!    write(62,3003) dtave,nint(fave)
-!    write(62,3003) rmst,nint(rmsf)
-!3003 format(15x,f6.2,i6)
-!    flush(62)
-
-    nadd=nsum*mode65
     nftt=0
     df=1378.125/512.0
 
@@ -460,6 +433,7 @@ contains
           enddo
        enddo
 
+       nadd=nsum*ismo
        call extract(s3c,nadd,mode65,ntrials,naggressive,ndepth,mycall,    &
             hiscall,hisgrid,nexp_decode,ncount,nhist,avemsg,ltext,nftt,qual)
        if(nftt.eq.1) then
