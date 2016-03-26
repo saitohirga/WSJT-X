@@ -19,7 +19,8 @@ niterations=10
 rate=$(echo "scale=5; $k/$n" | bc)
 echo n=$n k=$k rate=$rate m=$m
 
-make-ldpc ldpc.pchk "$m" "$n" $seed evenboth 120x3/8x4 no4cycle
+#make-ldpc ldpc.pchk "$m" "$n" $seed evenboth 120x3/8x4 no4cycle
+cp sfpeg2.pchk ldpc.pchk
 
 make-gen  ldpc.pchk ldpc.gen sparse
 rand-src  ldpc.src 1 "$k"x"$ntrials"
