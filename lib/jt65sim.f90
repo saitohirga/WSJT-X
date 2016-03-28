@@ -203,8 +203,9 @@ program jt65sim
 ! The following options were added 3/15/2016 to make the half-power tone 
 ! widths equal to the requested Doppler spread.  (Previously we effectively 
 ! used b=1.0 and Gaussian shape, which made the tones 1.665 times wider.)
-!        b=2.0*sqrt(log(2.0))                          !Gaussian
-        b=2.0                                         !Lorenzian
+!        b=2.0*sqrt(log(2.0))                     !Gaussian (before 3/15/2016)
+!        b=2.0                                    !Lorenzian 3/15 - 3/27
+        b=6.0                                     !Lorenzian 3/28 onward
 
         do i=1,NH
            f=i*df
