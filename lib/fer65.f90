@@ -20,7 +20,7 @@ program fer65
   implicit real*8 (a-h,o-z)
   real*8 s(7),sq(7)
   character arg*12,cmnd*100,decoded*22,submode*1,csync*1,f1*15,f2*15
-  character*10 outfile
+  character*12 outfile
   logical syncok
 
   nargs=iargc()
@@ -44,19 +44,18 @@ program fer65
   call getarg(7,arg)
   read(arg,*) iters
 
-
   write(outfile,1001) submode,d,navg,nds
-1001 format(a1,f4.1,'_',i2.2,'_',i1)
+1001 format(a1,f6.2,'_',i2.2,'_',i1)
   if(outfile(2:2).eq.' ') outfile(2:2)='0'
+  if(outfile(3:3).eq.' ') outfile(3:3)='0'
 
   ndepth=3
   if(navg.gt.1) ndepth=ndepth+16
   if(nds.ne.0) ndepth=ndepth+32
 
-  dfmax=min(d,0.5*2.69)
-  if(submode.eq.'b' .or. submode.eq.'B') dfmax=min(d,2.69)
-  if(submode.eq.'c' .or. submode.eq.'C') dfmax=min(d,2.0*2.69)
-  if(dfmax.lt.0.5*2.69) dfmax=0.5*2.69
+  dfmax=3
+  if(submode.eq.'b' .or. submode.eq.'B') dfmax=6
+  if(submode.eq.'c' .or. submode.eq.'C') dfmax=11
 
   ntrials=1000
   naggressive=10
@@ -64,9 +63,9 @@ program fer65
   open(20,file=outfile,status='unknown')
   open(21,file='fer65.21',status='unknown')
 
-  write(20,1000) submode,iters,ntrials,naggressive,d,iand(ndepth,3),navg,nds
+  write(20,1000) submode,iters,ntrials,naggressive,d,ndepth,navg,nds
 1000 format(/'JT65',a1,'  Iters:',i5,'  T:',i6,'  Aggr:',i3,  &
-          '  Dop:',f5.1,'  Depth:',i2,'  Navg:',i3,'  DS:',i2)
+          '  Dop:',f6.2,'  Depth:',i2,'  Navg:',i3,'  DS:',i2)
   write(20,1002) 
 1002 format(/'  dB  nsync ngood nbad     sync       dsnr        ',     &
             'DT       Freq      Nsum     Width'/85('-'))
@@ -75,7 +74,6 @@ program fer65
   do isnr=0,20
      snr=snr1+isnr
      if(snr.gt.snr2) exit
-
      nsync=0
      ngood=0
      nbad=0
@@ -83,7 +81,7 @@ program fer65
      sq=0.
      do iter=1,iters
         write(cmnd,1010) submode,d,snr,navg
-1010    format('./jt65sim -n 1 -m ',a1,' -d',f6.1,' -s \\',f5.1,' -f',i3,' >devnull')
+1010    format('./jt65sim -n 1 -m ',a1,' -d',f7.2,' -s \\',f5.1,' -f',i3,' >devnull')
         call unlink('000000_????.wav')
         call system(cmnd)
         if(navg.gt.1) then

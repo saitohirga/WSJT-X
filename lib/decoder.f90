@@ -93,9 +93,10 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   else if(params%nmode.eq.9 .or. (params%nmode.eq.(65+9) .and. params%ntxmode.eq.9)) then
      ! We're in JT9 mode, or should do JT9 first
      call timer('decjt9  ',0)
-     call my_jt9%decode(jt9_decoded,ss,id2,params%nutc,params%nfqso,newdat9,params%npts8,   &
-          params%nfa,params%nfsplit,params%nfb,params%ntol,params%nzhsym,                   &
-          logical(params%nagain),params%ndepth,params%nmode)
+     call my_jt9%decode(jt9_decoded,ss,id2,params%nutc,params%nfqso,       &
+          newdat9,params%npts8,params%nfa,params%nfsplit,params%nfb,       &
+          params%ntol,params%nzhsym,logical(params%nagain),params%ndepth,  &
+          params%nmode,params%nsubmode)
      call timer('decjt9  ',1)
   endif
 
@@ -114,9 +115,10 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
         call timer('jt65a   ',1)
      else
         call timer('decjt9  ',0)
-        call my_jt9%decode(jt9_decoded,ss,id2,params%nutc,params%nfqso,newdat9,params%npts8,&
-             params%nfa,params%nfsplit,params%nfb,params%ntol,params%nzhsym,                &
-             logical(params%nagain),params%ndepth,params%nmode)
+        call my_jt9%decode(jt9_decoded,ss,id2,params%nutc,params%nfqso,    &
+             newdat9,params%npts8,params%nfa,params%nfsplit,params%nfb,    &
+             params%ntol,params%nzhsym,logical(params%nagain),             &
+             params%ndepth,params%nmode,params%nsubmode)
         call timer('decjt9  ',1)
      end if
   endif
