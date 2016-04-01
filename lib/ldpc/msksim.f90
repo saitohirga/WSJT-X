@@ -4,14 +4,14 @@ use, intrinsic :: iso_c_binding
 
 ! To change to a new code, edit the following line and the filenames
 ! that contain the parity check and generator matrices.
-parameter (N=128, M=48, K=80) ! M and N are global variables on the C side.
+parameter (N=198, M=126, K=72) ! M and N are global variables on the C side.
 
 character(50) pchk_file,gen_file
 integer(1) codeword(1:N), decoded(1:K), message(1:K)
 real*8 lratio(N), rxdata(N)
 
-pchk_file="./jtmode_codes/peg-128-80-reg3.pchk"
-gen_file="./jtmode_codes/peg-128-80-reg3.gen"
+pchk_file="./jtmode_codes/peg-198-72-irreg-8x3-2x4.pchk"
+gen_file="./jtmode_codes/peg-198-72-irreg-8x3-2x4.gen"
 
 rate=real(K)/real(N)
 
@@ -21,7 +21,7 @@ message(1:K/2)=1
 message((K/2+1):K)=0
 call ldpc_encode(message,codeword)
 
-max_iterations=10
+max_iterations=50
 ntrials=1000000
 
 write(*,*) "Eb/N0   ngood    nundetected"
