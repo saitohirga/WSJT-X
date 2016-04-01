@@ -222,6 +222,11 @@ set (wsjt_qtmm_CXXSRCS
   Audio/BWFFile.cpp
   )
 
+set (jt9_FSRCS
+  lib/jt9.f90
+  lib/jt9a.f90
+  )
+
 set (jt9_CXXSRCS
   lib/ipcomm.cpp
   )
@@ -917,9 +922,9 @@ if (${OPENMP_FOUND} OR APPLE)
     # On  Mac  we don't  have  working  OpenMP  support in  the  C/C++
     # compilers so  we have to manually  set the correct flags  to get
     # OpenMP support in jt9.
-    set_target_properties (wsjt_fort_omp
-      PROPERTIES
-      COMPILE_FLAGS "-fopenmp"	# assumes GNU style Fortran compiler
+    target_compile_options (wsjt_fort_omp
+      PRIVATE
+      $<$<COMPILE_LANGUAGE:Fortran>:-fopenmp>   # assumes GNU style Fortran compiler
       )
   endif (APPLE)
 endif (${OPENMP_FOUND} OR APPLE)
@@ -962,7 +967,7 @@ target_link_libraries (jt4code wsjt_fort wsjt_cxx)
 add_executable (jt65 lib/jt65.f90 lib/jt65_test.f90 wsjtx.rc)
 target_link_libraries (jt65 wsjt_fort wsjt_cxx)
 
-add_executable (jt9 lib/jt9.f90 lib/jt9a.f90 ${jt9_CXXSRCS} wsjtx.rc)
+add_executable (jt9 ${jt9_FSRCS} ${jt9_CXXSRCS} wsjtx.rc)
 if (${OPENMP_FOUND} OR APPLE)
   if (APPLE)
     # On  Mac  we don't  have  working  OpenMP  support in  the  C/C++
@@ -970,9 +975,12 @@ if (${OPENMP_FOUND} OR APPLE)
     # and libraries to get OpenMP support in jt9.
     set_target_properties (jt9
       PROPERTIES
-      COMPILE_FLAGS "-fopenmp"	# assumes GNU style Fortran compiler
       Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
       LINK_LIBRARIES "gomp;gcc_s.1" # assume GNU libgcc OpenMP
+      )
+    target_compile_options (jt9
+      PRIVATE
+      $<$<COMPILE_LANGUAGE:Fortran>:-fopenmp>   # assumes GNU style Fortran compiler
       )
   else (APPLE)
     set_target_properties (jt9
