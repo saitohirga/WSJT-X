@@ -2,7 +2,7 @@ real function fchisq0(y,npts,a)
 
   real y(npts),a(4)
   
-  rewind 51
+!  rewind 51
   chisq = 0.
   do i=1,npts
      x=i

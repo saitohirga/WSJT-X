@@ -8,15 +8,15 @@ subroutine lorentzian(y,npts,a)
 !         a(4) = width
 
   real y(npts)
-  real a(4)
+  real a(5)
   real deltaa(4)
-  real x(2000)
 
   if(npts.gt.2000) stop 'Error in lorentzian'
 
   a=0.
   df=12000.0/8192.0                               !df = 1.465 Hz
   width=0.
+  ipk=0
   ymax=-1.e30
   do i=1,npts
      if(y(i).gt.ymax) then
@@ -93,12 +93,10 @@ subroutine lorentzian(y,npts,a)
      enddo
      chisqr=fchisq0(y,npts,a)
 !       write(*,4000) 0,0,a,chisqr
-     if(chisqr/chisqr0.gt.0.99) go to 30
+     if(chisqr/chisqr0.gt.0.99) exit
      chisqr0=chisqr
   enddo
-    
-30 ccfbest=ccfmax * (1378.125/fsample)**2
-  dtbest=dtmax
+  a(5)=chisqr
 
   return
 end subroutine lorentzian

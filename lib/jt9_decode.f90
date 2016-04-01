@@ -7,7 +7,8 @@ module jt9_decode
   end type jt9_decoder
 
   abstract interface
-     subroutine jt9_decode_callback (this, utc, sync, snr, dt, freq, drift, decoded)
+     subroutine jt9_decode_callback (this, utc, sync, snr, dt, freq, drift, &
+          decoded)
        import jt9_decoder
        implicit none
        class(jt9_decoder), intent(inout) :: this
@@ -23,8 +24,8 @@ module jt9_decode
 
 contains
 
-  subroutine decode(this,callback,ss,id2,nutc,nfqso,newdat,npts8,nfa,nfsplit,nfb,ntol,  &
-       nzhsym,nagain,ndepth,nmode)
+  subroutine decode(this,callback,ss,id2,nutc,nfqso,newdat,npts8,nfa,    &
+       nfsplit,nfb,ntol,nzhsym,nagain,ndepth,nmode,nsubmode)
     use timer_module, only: timer
 
     include 'constants.f90'
@@ -41,6 +42,8 @@ contains
     integer*1 i1SoftSymbols(207)
     common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
     save ccfred,red2
+
+    write(60) nutc,nfqso,ntol,ndepth,nmode,nsubmode,nzhsym,ss,id2(1:60*12000)
 
     this%callback => callback
     nsynced=0
