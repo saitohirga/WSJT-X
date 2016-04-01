@@ -86,8 +86,6 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
               if(m.eq.2)  msg='CQ '//call2(i)//' '//grid2(i)
            endif
            call fmtmsg(msg,iz)
-!           write(65,3001) msg
-!3001       format(a22)
            call packmsg(msg,dgen,itype)            !Pack message into 72 bits
            call rs_encode(dgen,sym_rev)            !RS encode
            sym(0:62)=sym_rev(62:0:-1)
@@ -116,6 +114,7 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
 ! Find u1 and u2 (best and second-best) codeword from a list, using 
 ! a bank of matched filters on the symbol spectra s3(i,j).
   ipk=1
+  ipk2=0
   do k=1,nused
      if(k.ge.2 .and. k.le.64 .and. flip.lt.0.0) cycle
 ! Test all messages if flip=+1; skip the CQ messages if flip=-1.
@@ -131,18 +130,32 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
 
         if(p.gt.u1) then
            u2=u1
+           ipk2=ipk
            u1=p
            ipk=k
         endif
-        if(p.ne.u1 .and. p.gt.u2) u2=p
+        if(p.ne.u1 .and. p.gt.u2) then
+           u2=p
+           ipk2=k
+        endif
      endif
+!     write(91,3401) k,p,u1,u2,ipk,ipk2,msg0(k)
+!3401  format(i6,3f9.3,2i6,2x,a22)
   enddo
+
+!### Just in case ???
+  rewind 77
+  write(77,*) u1,u2,ipk,ipk2
+  call flush(77)
+!###
 
   decoded='                      '
   bias=max(1.12*u2,0.35)
   if(nadd.ge.4) bias=max(1.08*u2,0.45)
   if(nadd.ge.8) bias=max(1.04*u2,0.60)
   qual=100.0*(u1-bias)
+!  write(*,3301) u1,u2,u1/u2,bias,qual,nadd,ipk,ipk2
+!3301 format(5f6.2,i3,2i6)
   qmin=1.0
   if(qual.ge.qmin) decoded=msg0(ipk)
 
