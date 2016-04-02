@@ -1,5 +1,4 @@
 # Compilers
-# $(CC) -DRAND_FILE=\"`pwd`/randfile\" rand.c
 CC = gcc
 CXX = g++
 FC = gfortran
@@ -24,14 +23,14 @@ CFLAGS = -O2 -I.
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:	msksim
+all:	ldpcsim
 
-OBJS = msksim.o alloc.o rcode.o dec.o enc.o \
+OBJS = ldpcsim.o alloc.o rcode.o dec.o enc.o \
 	intio.o blockio.o check.o open.o mod2dense.o \
 	mod2sparse.o mod2convert.o distrib.o rand.o gran.o
 
-msksim:	$(OBJS)
-	$(FC) -o msksim $(OBJS) 
+ldpcsim:$(OBJS)
+	$(FC) -o ldpcsim $(OBJS) 
 
 rand.o:
 	$(CC) $(CFLAGS) -DRAND_FILE=\"./randfile\" -c rand.c
