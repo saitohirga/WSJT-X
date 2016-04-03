@@ -43,7 +43,7 @@ contains
     common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
     save ccfred,red2
 
-    write(60) nutc,nfqso,ntol,ndepth,nmode,nsubmode,nzhsym,ss,id2(1:60*12000)
+!    write(60) nutc,nfqso,ntol,ndepth,nmode,nsubmode,nzhsym,ss,id2(1:60*12000)
 
     this%callback => callback
     nsynced=0
