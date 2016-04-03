@@ -30,8 +30,5 @@ OBJS2 = wsprsim.o wsprsim_utils.o wsprd_utils.o tab.o fano.o nhash.o
 wsprsim: $(OBJS2) 
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
 
-OBJS3 = wsprd_exp.o wsprsim_utils.o wsprd_utils.o tab.o fano.o jelinek.o nhash.o
-wsprd_exp: $(OBJS3)
-	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
 clean:
-	rm *.o wsprd wsprsim wsprd_exp
+	rm *.o wsprd wsprsim
