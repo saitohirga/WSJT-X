@@ -40,7 +40,7 @@
 #include "nhash.h"
 #include "wsprd_utils.h"
 #include "wsprsim_utils.h"
-#include "lib/init_random_seed.h"
+//#include "lib/init_random_seed.h"
 
 #define max(x,y) ((x) > (y) ? (x) : (y))
 // Possible PATIENCE options: FFTW_ESTIMATE, FFTW_ESTIMATE_PATIENT,
@@ -616,7 +616,7 @@ int main(int argc, char *argv[])
     
     int uniques=0, noprint=0;
 
-    init_random_seed();
+//    init_random_seed();
 
     // Parameters used for performance-tuning:
     maxcycles=10000;                         //Fano timeout limit
