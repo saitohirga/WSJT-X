@@ -470,6 +470,7 @@ set (wsprd_CSRCS
   lib/wsprd/wsprsim_utils.c
   lib/wsprd/wsprd_utils.c
   lib/wsprd/fano.c
+  lib/wsprd/jelinek.c
   lib/wsprd/tab.c
   lib/wsprd/nhash.c
   lib/init_random_seed.c
@@ -775,7 +776,7 @@ endif ()
 find_package (OpenMP)
 
 #
-# fftw3 single precsion library
+# fftw3 single precision library
 #
 find_package (FFTW3 COMPONENTS double single threads REQUIRED)
 
