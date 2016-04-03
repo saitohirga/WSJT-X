@@ -5,7 +5,7 @@ FC = gfortran
 CFLAGS= -I/usr/include -Wall -Wno-missing-braces -O3 -ffast-math
 LDFLAGS = -L/usr/lib
 FFLAGS =  -O2 -Wall -Wno-conversion
-LIBS = -lfftw3 -lm
+LIBS = -lfftw3f -lm
 
 # Default rules
 %.o: %.c $(DEPS)
