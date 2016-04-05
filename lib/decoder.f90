@@ -96,7 +96,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      call my_jt9%decode(jt9_decoded,ss,id2,params%nutc,params%nfqso,       &
           newdat9,params%npts8,params%nfa,params%nfsplit,params%nfb,       &
           params%ntol,params%nzhsym,logical(params%nagain),params%ndepth,  &
-          params%nmode,params%nsubmode)
+          params%nmode,params%nsubmode,params%nexp_decode)
      call timer('decjt9  ',1)
   endif
 
@@ -118,7 +118,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
         call my_jt9%decode(jt9_decoded,ss,id2,params%nutc,params%nfqso,    &
              newdat9,params%npts8,params%nfa,params%nfsplit,params%nfb,    &
              params%ntol,params%nzhsym,logical(params%nagain),             &
-             params%ndepth,params%nmode,params%nsubmode)
+             params%ndepth,params%nmode,params%nsubmode,params%nexp_decode)
         call timer('decjt9  ',1)
      end if
   endif

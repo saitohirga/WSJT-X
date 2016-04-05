@@ -297,6 +297,7 @@ set (wsjt_FSRCS
   lib/decode4.f90
   lib/decode65a.f90
   lib/decode65b.f90
+  lib/decode9w.f90
   lib/decoder.f90
   lib/deep4.f90
   lib/deg2grid.f90
@@ -395,6 +396,7 @@ set (wsjt_FSRCS
   lib/smo121.f90
   lib/softsym.f90
   lib/softsym9f.f90
+  lib/softsym9w.f90
   lib/shell.f90
   lib/spec9f.f90
   lib/stdmsg.f90
@@ -407,6 +409,7 @@ set (wsjt_FSRCS
   lib/sync65.f90
   lib/sync9.f90
   lib/sync9f.f90
+  lib/sync9w.f90
   lib/synciscat.f90
   lib/syncmsk.f90
   lib/timer_C_wrapper.f90
