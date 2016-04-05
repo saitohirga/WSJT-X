@@ -15,12 +15,12 @@ subroutine softsym9w(id2,npts,xdt0,f0,width,nsubmode,xdt1,i1softsymbols)
   df=12000.0/NFFT
 !  i0a=1
 !  i0b=5*12000
-  i0a=max(0.0,(xdt0-1.0)*12000.0)
+  i0a=max(1.0,(xdt0-1.0)*12000.0)
   i0b=(xdt0+1.0)*12000.0
   k1=nint((f0-0.5*width)/df)
   k2=nint((f0+0.5*width)/df)
   smax=0.
-  i0pk=0
+  i0pk=1
   i1softsymbols=0
 
   do i0=i0a,i0b,432
