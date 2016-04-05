@@ -25,7 +25,7 @@ module jt9_decode
 contains
 
   subroutine decode(this,callback,ss,id2,nutc,nfqso,newdat,npts8,nfa,    &
-       nfsplit,nfb,ntol,nzhsym,nagain,ndepth,nmode,nsubmode)
+       nfsplit,nfb,ntol,nzhsym,nagain,ndepth,nmode,nsubmode,nexp_decode)
     use timer_module, only: timer
 
     include 'constants.f90'
@@ -43,9 +43,16 @@ contains
     common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
     save ccfred,red2
 
-!    write(60) nutc,nfqso,ntol,ndepth,nmode,nsubmode,nzhsym,ss,id2(1:60*12000)
-
     this%callback => callback
+    if(nmode.eq.9 .and. nsubmode.ge.1) then
+       call decode9w(nutc,nfqso,ntol,nsubmode,ss,id2,sync,nsnr,xdt,freq,msg)
+       if (associated(this%callback)) then
+          ndrift=0
+          call this%callback(nutc,sync,nsnr,xdt,freq,ndrift,msg)
+       end if
+       go to 999
+    endif
+
     nsynced=0
     ndecoded=0
     nsps=6912                                   !Params for JT9-1
@@ -160,6 +167,6 @@ contains
        if(nagain) exit
     enddo
 
-    return
+999 return
   end subroutine decode
 end module jt9_decode
