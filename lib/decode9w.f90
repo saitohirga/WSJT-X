@@ -42,7 +42,7 @@ subroutine decode9w(nutc,nfqso,ntol,nsubmode,ss,id2,sync,nsnr,xdt1,f0,decoded)
      ccfblue=(ccfblue-base)/rms
   enddo
 
-  call softsym9w(id2,npts,xdt0,f0,a(4)*df,nsubmode,xdt1,i1softsymbols)
+  call softsym9w(id2,npts,xdt0,f0,a(4)*df,nsubmode,xdt1-1.05,i1softsymbols)
   call jt9fano(i1softsymbols,limit,nlim,decoded)
 
   return
