@@ -143,13 +143,6 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="6">
-        <widget class="QCheckBox" name="cbFlatten">
-         <property name="text">
-          <string>Flatten</string>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="4">
         <widget class="QComboBox" name="paletteComboBox">
          <property name="sizePolicy">
@@ -563,6 +556,24 @@
           <number>30</number>
          </property>
         </widget>
+       </item>
+       <item row="0" column="6">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QCheckBox" name="cbFlatten">
+           <property name="text">
+            <string>Flat</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="cbRef">
+           <property name="text">
+            <string>Ref</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>

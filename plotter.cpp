@@ -335,8 +335,19 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     }
   }
 
+  if(m_modeTx=="JT9" and m_nSubMode>0) {       //JT9
+    bw=8.0*12000.0/m_nsps;
+    if(m_nSubMode==1) bw=2*bw;
+    if(m_nSubMode==2) bw=4*bw;
+    if(m_nSubMode==3) bw=8*bw;
+    if(m_nSubMode==4) bw=16*bw;
+    if(m_nSubMode==5) bw=32*bw;
+    if(m_nSubMode==6) bw=64*bw;
+    if(m_nSubMode==7) bw=128*bw;
+  }
+
   if(m_modeTx=="JT65") {                     //JT65
-    bw=66.0*11025.0/4096.0;
+    bw=65.0*11025.0/4096.0;
     if(m_nSubMode==1) bw=2*bw;
     if(m_nSubMode==2) bw=4*bw;
   }
@@ -354,7 +365,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     painter0.drawLine(x1,24,x1,30);
     painter0.drawLine(x1,28,x2,28);
     painter0.drawLine(x2,24,x2,30);
-    if(g_single_decode) {
+    if(g_single_decode and m_mode=="JT65") {
       x3=XfromFreq(m_rxFreq+22.0*bw/66.0);
       painter0.drawLine(x3,24,x3,30);
       x4=XfromFreq(m_rxFreq+32.0*bw/66.0);
