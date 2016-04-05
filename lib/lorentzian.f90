@@ -1,11 +1,12 @@
 subroutine lorentzian(y,npts,a)
 
 ! Input:  y(npts); assume x(i)=i, i=1,npts
-! Output: a(4)
+! Output: a(5)
 !         a(1) = baseline
 !         a(2) = amplitude
 !         a(3) = x0
 !         a(4) = width
+!         a(5) = chisqr
 
   real y(npts)
   real a(5)
