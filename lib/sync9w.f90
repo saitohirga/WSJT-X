@@ -74,6 +74,8 @@ subroutine sync9w(ss,nzhsym,lag1,lag2,ia,ib,ccfred,ccfblue,ipkbest,lagpk,nadd)
         lagpk=lag
      endif
   enddo
+  if(lagpk.eq.-9) lagpk=-8                !Protect the ends of ccfblue()
+  if(lagpk.eq.18) lagpk=17
 
   return
 end subroutine sync9w
