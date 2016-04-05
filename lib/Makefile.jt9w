@@ -35,7 +35,7 @@ all:	 jt9w
 
 OBJS1 = jt9w.o smo.o sync9w.o pctile.o shell.o lorentzian.o fchisq0.o \
       softsym9w.o four2a.o interleave9.o jt9fano.o fano232.o packjt.o \
-      deg2grid.o grid2deg.o fmtmsg.o db.o
+      deg2grid.o grid2deg.o fmtmsg.o db.o decode9w.o
       
 jt9w: $(OBJS1) 
 	$(FC) -o jt9w $(OBJS1) -lfftw3f
