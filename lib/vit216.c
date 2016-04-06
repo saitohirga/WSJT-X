@@ -18,8 +18,8 @@
 /* Rate 1/2 codes */
 unsigned int Poly216[] = {0126723, 0152711};	/* k = 16  */
 
+#include <stdlib.h>
 #include <memory.h>
-#define NULL ((void *)0)
 
 #define LONGBITS 32
 #define LOGLONGBITS 5
