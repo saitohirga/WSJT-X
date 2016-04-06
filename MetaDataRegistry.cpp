@@ -32,7 +32,7 @@ void register_types ()
   // later versions.
   qRegisterMetaTypeStreamOperators<Radio::Frequencies> ("Frequencies");
 
- item_editor_factory ()->registerEditor (frequency_type_id, new QStandardItemEditorCreator<FrequencyLineEdit> ());
+  item_editor_factory ()->registerEditor (frequency_type_id, new QStandardItemEditorCreator<FrequencyLineEdit> ());
   auto frequency_delta_type_id = qRegisterMetaType<Radio::FrequencyDelta> ("FrequencyDelta");
   item_editor_factory ()->registerEditor (frequency_delta_type_id, new QStandardItemEditorCreator<FrequencyDeltaLineEdit> ());
 
@@ -46,33 +46,39 @@ void register_types ()
   qRegisterMetaType<AudioDevice::Channel> ("AudioDevice::Channel");
 
   // Configuration
+#if QT_VERSION < 0x050500
   qRegisterMetaType<Configuration::DataMode> ("Configuration::DataMode");
-  qRegisterMetaTypeStreamOperators<Configuration::DataMode> ("Configuration::DataMode");
   qRegisterMetaType<Configuration::Type2MsgGen> ("Configuration::Type2MsgGen");
+#endif
+  qRegisterMetaTypeStreamOperators<Configuration::DataMode> ("Configuration::DataMode");
   qRegisterMetaTypeStreamOperators<Configuration::Type2MsgGen> ("Configuration::Type2MsgGen");
 
   // Station details
   qRegisterMetaType<StationList::Station> ("Station");
-  qRegisterMetaTypeStreamOperators<StationList::Station> ("Station");
   qRegisterMetaType<StationList::Stations> ("Stations");
+  qRegisterMetaTypeStreamOperators<StationList::Station> ("Station");
   qRegisterMetaTypeStreamOperators<StationList::Stations> ("Stations");
 
   // Transceiver
   qRegisterMetaType<Transceiver::TransceiverState> ("Transceiver::TransceiverState");
+#if QT_VERSION < 0x050500
   qRegisterMetaType<Transceiver::MODE> ("Transceiver::MODE");
+#endif
 
   // Transceiver factory
+#if QT_VERSION < 0x050500
   qRegisterMetaType<TransceiverFactory::DataBits> ("TransceiverFactory::DataBits");
-  qRegisterMetaTypeStreamOperators<TransceiverFactory::DataBits> ("TransceiverFactory::DataBits");
   qRegisterMetaType<TransceiverFactory::StopBits> ("TransceiverFactory::StopBits");
-  qRegisterMetaTypeStreamOperators<TransceiverFactory::StopBits> ("TransceiverFactory::StopBits");
   qRegisterMetaType<TransceiverFactory::Handshake> ("TransceiverFactory::Handshake");
-  qRegisterMetaTypeStreamOperators<TransceiverFactory::Handshake> ("TransceiverFactory::Handshake");
   qRegisterMetaType<TransceiverFactory::PTTMethod> ("TransceiverFactory::PTTMethod");
-  qRegisterMetaTypeStreamOperators<TransceiverFactory::PTTMethod> ("TransceiverFactory::PTTMethod");
   qRegisterMetaType<TransceiverFactory::TXAudioSource> ("TransceiverFactory::TXAudioSource");
-  qRegisterMetaTypeStreamOperators<TransceiverFactory::TXAudioSource> ("TransceiverFactory::TXAudioSource");
   qRegisterMetaType<TransceiverFactory::SplitMode> ("TransceiverFactory::SplitMode");
+#endif
+  qRegisterMetaTypeStreamOperators<TransceiverFactory::DataBits> ("TransceiverFactory::DataBits");
+  qRegisterMetaTypeStreamOperators<TransceiverFactory::StopBits> ("TransceiverFactory::StopBits");
+  qRegisterMetaTypeStreamOperators<TransceiverFactory::Handshake> ("TransceiverFactory::Handshake");
+  qRegisterMetaTypeStreamOperators<TransceiverFactory::PTTMethod> ("TransceiverFactory::PTTMethod");
+  qRegisterMetaTypeStreamOperators<TransceiverFactory::TXAudioSource> ("TransceiverFactory::TXAudioSource");
   qRegisterMetaTypeStreamOperators<TransceiverFactory::SplitMode> ("TransceiverFactory::SplitMode");
 
   // Waterfall palette

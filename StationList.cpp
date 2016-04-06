@@ -14,6 +14,7 @@
 #include <QDataStream>
 #include <QByteArray>
 #include <QDebug>
+#include <QDebugStateSaver>
 
 #include "pimpl_impl.hpp"
 
@@ -23,11 +24,12 @@
 #if !defined (QT_NO_DEBUG_STREAM)
 QDebug operator << (QDebug debug, StationList::Station const& station)
 {
+  QDebugStateSaver saver {debug};
   debug.nospace () << "Station("
                    << station.band_name_ << ", "
                    << station.offset_ << ", "
                    << station.antenna_description_ << ')';
-  return debug.space ();
+  return debug;
 }
 #endif
 

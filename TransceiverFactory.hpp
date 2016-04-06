@@ -20,8 +20,8 @@ class QDir;
 class TransceiverFactory
   : public QObject
 {
-  Q_OBJECT;
-  Q_ENUMS (DataBits StopBits Handshake PTTMethod TXAudioSource SplitMode);
+  Q_OBJECT
+  Q_ENUMS (DataBits StopBits Handshake PTTMethod TXAudioSource SplitMode)
 
 public:
   //
@@ -65,11 +65,17 @@ public:
   // various Transceiver parameters
   //
   enum DataBits {seven_data_bits = 7, eight_data_bits};
+  Q_ENUM (DataBits)
   enum StopBits {one_stop_bit = 1, two_stop_bits};
+  Q_ENUM (StopBits)
   enum Handshake {handshake_none, handshake_XonXoff, handshake_hardware};
+  Q_ENUM (Handshake)
   enum PTTMethod {PTT_method_VOX, PTT_method_CAT, PTT_method_DTR, PTT_method_RTS};
+  Q_ENUM (PTTMethod)
   enum TXAudioSource {TX_audio_source_front, TX_audio_source_rear};
+  Q_ENUM (TXAudioSource)
   enum SplitMode {split_mode_none, split_mode_rig, split_mode_emulate};
+  Q_ENUM (SplitMode)
 
   TransceiverFactory ();
 
@@ -157,12 +163,14 @@ bool operator != (TransceiverFactory::ParameterPack const& lhs, TransceiverFacto
 // boilerplate routines to make enum types useable and debuggable in
 // Qt
 //
+#if QT_VERSION < 0x050500
 Q_DECLARE_METATYPE (TransceiverFactory::DataBits);
 Q_DECLARE_METATYPE (TransceiverFactory::StopBits);
 Q_DECLARE_METATYPE (TransceiverFactory::Handshake);
 Q_DECLARE_METATYPE (TransceiverFactory::PTTMethod);
 Q_DECLARE_METATYPE (TransceiverFactory::TXAudioSource);
 Q_DECLARE_METATYPE (TransceiverFactory::SplitMode);
+#endif
 
 #if !defined (QT_NO_DEBUG_STREAM)
 ENUM_QDEBUG_OPS_DECL (TransceiverFactory, DataBits);
