@@ -79,15 +79,15 @@ void getfile(QString fname, int ntrperiod)
     } fmt;
 
     // read header
-    (void)fread(&desc, 1, sizeof desc, fp); // RIFF
-    (void)fread(type, 1, sizeof type, fp);  // WAVE
+    if (fread(&desc, sizeof desc, 1, fp) < 1) return; // RIFF
+    if (fread(type, sizeof type, 1, fp) < 1) return;  // WAVE
     do
       {
-        (void)fread(&desc, 1, sizeof desc, fp); // WAVE component
+        if (fread(&desc, sizeof desc, 1, fp) < 1) return; // WAVE component
         if (!memcmp(desc.id,"fmt ",4)) {
           fpos_t pos;
           fgetpos(fp,&pos);
-          (void)fread(&fmt,1,sizeof fmt,fp);
+          if (fread(&fmt,sizeof fmt,1,fp) < 1) return;
           fsetpos(fp,&pos);
         }
         if (!memcmp(desc.id,"data",sizeof desc.id)) break;
