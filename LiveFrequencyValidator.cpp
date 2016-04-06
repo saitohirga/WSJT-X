@@ -13,20 +13,25 @@
 LiveFrequencyValidator::LiveFrequencyValidator (QComboBox * combo_box
                                                 , Bands const * bands
                                                 , FrequencyList const * frequencies
+                                                , Frequency const * nominal_frequency
                                                 , QWidget * parent)
   : QRegExpValidator {
       QRegExp {       // frequency in MHz or band
         bands->data (QModelIndex {}).toString () // out of band string
           + QString {R"(|((\d{0,6}(\)"}    // or up to 6 digits
           + QLocale {}.decimalPoint () // (followed by decimal separator
-          + R"(\d{0,2})?)([Mm]{1,2}|([Cc][Mm])))|(\d{0,4}(\)" // followed by up to 2 digits and either 'm' or 'cm' or 'mm' (case insensitive))
+          + R"(\d{0,2})?)([Mm]{1,2}|([Cc][Mm])))|(\d{0,6}(\)" // followed by up to 2 digits and either 'm' or 'cm' or 'mm' (case insensitive))
           + QLocale {}.decimalPoint () // or a decimal separator
-          + R"(\d{0,6})?))"        //  followed by up to 6 digits
+          + R"(\d{0,6})?)|(\d{0,3}(\)"        //  followed by up to 6
+                                              //  digits or a decimal number
+          + QLocale {}.decimalPoint () // or a decimal separator
+          + R"(\d{0,6})?[Kk]))"        // followed by a 'k' or 'K'
       }
       , parent
     }
   , bands_ {bands}
   , frequencies_ {frequencies}
+  , nominal_frequency_ {nominal_frequency}
   , combo_box_ {combo_box}
 {
 }
@@ -64,6 +69,14 @@ void LiveFrequencyValidator::fixup (QString& input) const
             {
               input = QString {};
             }
+        }
+      else if (input.contains (QChar {'k'}, Qt::CaseInsensitive))
+        {
+          // kHz in current MHz input
+          auto f = Radio::frequency (input.remove (QChar {'k'}, Qt::CaseInsensitive), 3);
+          f += *nominal_frequency_ / 1000000u * 1000000u;
+          input = bands_->find (f);
+          Q_EMIT valid (f);
         }
       else
         {

@@ -1045,6 +1045,9 @@ this setting allows you to select which audio input will be used
          </item>
          <item>
           <widget class="QSpinBox" name="CAT_poll_interval_spin_box">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interval to poll rig for status. Set to zero for no polling. Longer intervals will mean that changes to the rig will take longer to be detected.&lt;/p&gt;&lt;p&gt;If you set this to zero then spots may be uploaded with an incorrect frequency.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="suffix">
             <string> s</string>
            </property>
@@ -1127,13 +1130,10 @@ radio interface behave as expected.</string>
           <string>Split Operation</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_12">
-          <item row="0" column="0">
-           <widget class="QRadioButton" name="split_none_radio_button">
+          <item row="0" column="2">
+           <widget class="QRadioButton" name="split_emulate_radio_button">
             <property name="text">
-             <string>None</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
+             <string>Fake It</string>
             </property>
             <attribute name="buttonGroup">
              <string notr="true">split_mode_button_group</string>
@@ -1150,27 +1150,17 @@ radio interface behave as expected.</string>
             </attribute>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QRadioButton" name="split_emulate_radio_button">
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="split_none_radio_button">
             <property name="text">
-             <string>Fake It</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">split_mode_button_group</string>
-            </attribute>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="3">
-           <widget class="QCheckBox" name="reset_split_check_box">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset split on program exit&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string>Reset split on exit</string>
+             <string>None</string>
             </property>
             <property name="checked">
              <bool>true</bool>
             </property>
+            <attribute name="buttonGroup">
+             <string notr="true">split_mode_button_group</string>
+            </attribute>
            </widget>
           </item>
          </layout>
@@ -1388,12 +1378,6 @@ both here.</string>
        </item>
        <item row="3" column="0">
         <widget class="QGroupBox" name="azel_path_group_box">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>56</height>
-          </size>
-         </property>
          <property name="title">
           <string>AzEl Directory</string>
          </property>
@@ -1402,6 +1386,9 @@ both here.</string>
            <widget class="QLabel" name="azel_path_label">
             <property name="text">
              <string>Location:</string>
+            </property>
+            <property name="buddy">
+             <cstring>azel_path_select_push_button</cstring>
             </property>
            </widget>
           </item>
@@ -2476,8 +2463,8 @@ soundcard changes</string>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>254</x>
-     <y>554</y>
+     <x>272</x>
+     <y>606</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -2492,8 +2479,8 @@ soundcard changes</string>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>322</x>
-     <y>554</y>
+     <x>340</x>
+     <y>606</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -2508,7 +2495,7 @@ soundcard changes</string>
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>566</x>
+     <x>404</x>
      <y>62</y>
     </hint>
     <hint type="destinationlabel">

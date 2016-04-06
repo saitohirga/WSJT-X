@@ -27,15 +27,16 @@ public:
   static void register_transceivers (TransceiverFactory::Transceivers *, int id);
 
   // takes ownership of wrapped Transceiver
-  explicit DXLabSuiteCommanderTransceiver (std::unique_ptr<TransceiverBase> wrapped, QString const& address, bool use_for_ptt, int poll_interval);
-  ~DXLabSuiteCommanderTransceiver ();
+  explicit DXLabSuiteCommanderTransceiver (std::unique_ptr<TransceiverBase> wrapped,
+                                           QString const& address, bool use_for_ptt,
+                                           int poll_interval, QObject * parent = nullptr);
 
 protected:
-  void do_start () override;
+  int do_start () override;
   void do_stop () override;
-  void do_frequency (Frequency, MODE) override;
-  void do_tx_frequency (Frequency, bool rationalise_mode) override;
-  void do_mode (MODE, bool rationalise) override;
+  void do_frequency (Frequency, MODE, bool no_ignore) override;
+  void do_tx_frequency (Frequency, bool no_ignore) override;
+  void do_mode (MODE) override;
   void do_ptt (bool on) override;
 
   void poll () override;
@@ -47,7 +48,7 @@ private:
   QString frequency_to_string (Frequency) const;
   Frequency string_to_frequency (QString) const;
 
-  std::unique_ptr<TransceiverBase> wrapped_;
+  std::unique_ptr<TransceiverBase> wrapped_; // may be null
   bool use_for_ptt_;
   QString server_;
   QTcpSocket * commander_;

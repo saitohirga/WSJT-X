@@ -14,29 +14,15 @@ namespace
   auto const unexpected = TransceiverBase::tr ("Unexpected rig error");
 }
 
-void TransceiverBase::start () noexcept
+void TransceiverBase::start (unsigned sequence_number) noexcept
 {
   QString message;
   try
     {
-      if (state_.online ())
-        {
-          try
-            {
-              // try and ensure PTT isn't left set
-              do_ptt (false);
-              do_post_ptt (false);
-            }
-          catch (...)
-            {
-              // don't care about exceptions
-            }
-          do_stop ();
-          do_post_stop ();
-        }
-      do_start ();
-      do_post_start ();
-      state_.online (true);
+      may_update u {this, true};
+      shutdown ();
+      startup ();
+      last_sequence_number_ = sequence_number;
     }
   catch (std::exception const& e)
     {
@@ -52,33 +38,138 @@ void TransceiverBase::start () noexcept
     }
 }
 
-void TransceiverBase::stop (bool reset_split) noexcept
+void TransceiverBase::set (TransceiverState const& s,
+                           unsigned sequence_number) noexcept
+{
+  TRACE_CAT ("TransceiverBase", "#:" << sequence_number << s);
+
+  QString message;
+  try
+    {
+      may_update u {this, true};
+      bool was_online {requested_.online ()};
+      if (!s.online () && was_online)
+        {
+          shutdown ();
+        }
+      else if (s.online () && !was_online)
+        {
+          shutdown ();
+          startup ();
+        }
+      if (requested_.online ())
+        {
+          bool ptt_on {false};
+          bool ptt_off {false};
+          if (s.ptt () != requested_.ptt ())
+            {
+              ptt_on = s.ptt ();
+              ptt_off = !s.ptt ();
+            }
+          if (ptt_off)
+            {
+              do_ptt (false);
+              do_post_ptt (false);
+              QThread::msleep (100); // some rigs cannot process CAT
+                                     // commands while switching from
+                                     // Tx to Rx
+            }
+          if ((s.frequency () != requested_.frequency () // and QSY
+               || (s.mode () != UNK && s.mode () != requested_.mode ())) // or mode change
+              || ptt_off)       // or just returned to rx
+            {
+              do_frequency (s.frequency (), s.mode (), ptt_off);
+              do_post_frequency (s.frequency (), s.mode ());
+
+              // record what actually changed
+              requested_.frequency (actual_.frequency ());
+              requested_.mode (actual_.mode ());
+            }
+          if (!s.tx_frequency () || s.tx_frequency () > 10000) // ignore bogus startup values
+            {
+              if ((s.tx_frequency () != requested_.tx_frequency () // and QSY
+                   || (s.mode () != UNK && s.mode () != requested_.mode ())) // or mode change
+                  // || s.split () != requested_.split ())) // or split change
+                  || ptt_on)   // or about to tx
+                {
+                  do_tx_frequency (s.tx_frequency (), ptt_on);
+                  do_post_tx_frequency (s.tx_frequency ());
+
+                  // record what actually changed
+                  requested_.tx_frequency (actual_.tx_frequency ());
+                  requested_.split (actual_.split ());
+                }
+            }
+          if (ptt_on)
+            {
+              do_ptt (true);
+              do_post_ptt (true);
+              QThread::msleep (100); // some rigs cannot process CAT
+                                     // commands while switching from
+                                     // Rx to Tx
+            }
+
+          // record what actually changed
+          requested_.ptt (actual_.ptt ());
+        }
+      last_sequence_number_ = sequence_number;
+    }
+  catch (std::exception const& e)
+    {
+      message = e.what ();
+    }
+  catch (...)
+    {
+      message = unexpected;
+    }
+  if (!message.isEmpty ())
+    {
+      offline (message);
+    }
+}
+
+void TransceiverBase::startup ()
+{
+  Q_EMIT resolution (do_start ());
+  do_post_start ();
+  actual_.online (true);
+  requested_.online (true);
+}
+
+void TransceiverBase::shutdown ()
+{
+  may_update u {this};
+  if (requested_.online ())
+    {
+      try
+        {
+          // try and ensure PTT isn't left set
+          do_ptt (false);
+          do_post_ptt (false);
+          if (requested_.split ())
+            {
+              // try and reset split mode
+              do_tx_frequency (0, true);
+              do_post_tx_frequency (0);
+            }
+        }
+      catch (...)
+        {
+          // don't care about exceptions
+        }
+    }
+  do_stop ();
+  do_post_stop ();
+  actual_.online (false);
+  requested_.online (false);
+}
+
+void TransceiverBase::stop () noexcept
 {
   QString message;
   try
     {
-      if (state_.online ())
-        {
-          try
-            {
-              // try and ensure PTT isn't left set
-              do_ptt (false);
-              do_post_ptt (false);
-              if (reset_split)
-                {
-                  // try and reset split mode
-                  do_tx_frequency (0, false);
-                  do_post_tx_frequency (0, false);
-                }
-            }
-          catch (...)
-            {
-              // don't care about exceptions
-            }
-        }
-      do_stop ();
-      do_post_stop ();
-      state_.online (false);
+      shutdown ();
     }
   catch (std::exception const& e)
     {
@@ -98,206 +189,82 @@ void TransceiverBase::stop (bool reset_split) noexcept
     }
 }
 
-void TransceiverBase::frequency (Frequency f, MODE m) noexcept
-{
-  QString message;
-  try
-    {
-      if (state_.online ())
-        {
-          do_frequency (f, m);
-          do_post_frequency (f, m);
-        }
-    }
-  catch (std::exception const& e)
-    {
-      message = e.what ();
-    }
-  catch (...)
-    {
-      message = unexpected;
-    }
-  if (!message.isEmpty ())
-    {
-      offline (message);
-    }
-}
-
-void TransceiverBase::tx_frequency (Frequency tx, bool rationalise_mode) noexcept
-{
-  QString message;
-  try
-    {
-      if (state_.online ())
-        {
-          do_tx_frequency (tx, rationalise_mode);
-          do_post_tx_frequency (tx, rationalise_mode);
-        }
-    }
-  catch (std::exception const& e)
-    {
-      message = e.what ();
-    }
-  catch (...)
-    {
-      message = unexpected;
-    }
-  if (!message.isEmpty ())
-    {
-      offline (message);
-    }
-}
-
-void TransceiverBase::mode (MODE m, bool rationalise) noexcept
-{
-  QString message;
-  try
-    {
-      if (state_.online ())
-        {
-          do_mode (m, rationalise);
-          do_post_mode (m, rationalise);
-        }
-    }
-  catch (std::exception const& e)
-    {
-      message = e.what ();
-    }
-  catch (...)
-    {
-      message = unexpected;
-    }
-  if (!message.isEmpty ())
-    {
-      offline (message);
-    }
-}
-
-void TransceiverBase::ptt (bool on) noexcept
-{
-  QString message;
-  try
-    {
-      if (state_.online ())
-        {
-          do_ptt (on);
-          do_post_ptt (on);
-        }
-    }
-  catch (std::exception const& e)
-    {
-      message = e.what ();
-    }
-  catch (...)
-    {
-      message = unexpected;
-    }
-  if (!message.isEmpty ())
-    {
-      offline (message);
-    }
-}
-
-void TransceiverBase::sync (bool force_signal) noexcept
-{
-  QString message;
-  try
-    {
-      if (state_.online ())
-        {
-          do_sync (force_signal);
-        }
-    }
-  catch (std::exception const& e)
-    {
-      message = e.what ();
-    }
-  catch (...)
-    {
-      message = unexpected;
-    }
-  if (!message.isEmpty ())
-    {
-      offline (message);
-    }
-}
-
 void TransceiverBase::update_rx_frequency (Frequency rx)
 {
-  state_.frequency (rx);
+  actual_.frequency (rx);
+  requested_.frequency (rx);    // track rig changes
 }
 
 void TransceiverBase::update_other_frequency (Frequency tx)
 {
-  state_.tx_frequency (tx);
+  actual_.tx_frequency (tx);
 }
 
 void TransceiverBase::update_split (bool state)
 {
-  state_.split (state);
+  actual_.split (state);
 }
 
 void TransceiverBase::update_mode (MODE m)
 {
-  state_.mode (m);
+  actual_.mode (m);
 }
 
 void TransceiverBase::update_PTT (bool state)
 {
-  auto prior = state_.ptt ();
-  state_.ptt (state);
-  if (state != prior)
-    {
-      // always signal PTT changes because some MainWindow logic
-      // depends on it
-      update_complete ();
-    }
+  actual_.ptt (state);
 }
 
-void TransceiverBase::updated ()
-  {
-    if (do_pre_update ())
-      {
-        Q_EMIT update (state_);
-      }
-  }
-
-void TransceiverBase::update_complete ()
+bool TransceiverBase::maybe_low_resolution (Radio::Frequency low_res,
+                                            Radio::Frequency high_res)
 {
-  // Use a timer to ensure that the calling function completes before
-  // the Transceiver::update signal is triggered.
-  QTimer::singleShot (0, this, SLOT (updated ()));
+  if (resolution_ != Resolution::truncate
+      && low_res == (high_res + 5) / 10 * 10) // rounded to 10's
+    {
+      resolution_ = Resolution::round;
+      return true;
+    }
+  if (resolution_ != Resolution::round
+      && low_res == high_res / 10 * 10) // truncated to 10's
+    {
+      resolution_ = Resolution::truncate;
+      return true;
+    }
+
+  if (resolution_ != Resolution::truncate
+      && low_res == (high_res + 50) / 100 * 100) // rounded to 100's
+    {
+      resolution_ = Resolution::round;
+      return true;
+    }
+  if (resolution_ != Resolution::round
+      && low_res == high_res / 100 * 100) // truncated to 100's
+    {
+      resolution_ = Resolution::truncate;
+      return true;
+    }
+
+  return false;
+}
+
+void TransceiverBase::update_complete (bool force_signal)
+{
+  if ((do_pre_update () && actual_ != last_) || force_signal)
+    {
+      Q_EMIT update (actual_, last_sequence_number_);
+      last_ = actual_;
+    }
 }
 
 void TransceiverBase::offline (QString const& reason)
 {
-  QString message;
+  Q_EMIT failure (reason);
   try
     {
-      if (state_.online ())
-        {
-          try
-            {
-              // try and ensure PTT isn't left set
-              do_ptt (false);
-              do_post_ptt (false);
-            }
-          catch (...)
-            {
-              // don't care about exceptions
-            }
-        }
-      do_stop ();
-      do_post_stop ();
-      state_.online (false);
-    }
-  catch (std::exception const& e)
-    {
-      message = e.what ();
+      shutdown ();
     }
   catch (...)
     {
-      message = unexpected;
+      // don't care
     }
-  Q_EMIT failure (reason + '\n' + message);
 }

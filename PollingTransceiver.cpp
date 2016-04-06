@@ -13,8 +13,9 @@ namespace
   unsigned const polls_to_stabilize {3};
 }
 
-PollingTransceiver::PollingTransceiver (int poll_interval)
-  : interval_ {poll_interval * 1000}
+PollingTransceiver::PollingTransceiver (int poll_interval, QObject * parent)
+  : TransceiverBase {parent}
+  , interval_ {poll_interval * 1000}
   , poll_timer_ {nullptr}
   , retries_ {0}
 {
@@ -26,11 +27,18 @@ void PollingTransceiver::start_timer ()
     {
       if (!poll_timer_)
         {
-          poll_timer_ = new QTimer {this}; // pass ownership to QObject which handles destruction for us
+          poll_timer_ = new QTimer {this}; // pass ownership to
+                                           // QObject which handles
+                                           // destruction for us
 
-          connect (poll_timer_, &QTimer::timeout, this, &PollingTransceiver::handle_timeout);
+          connect (poll_timer_, &QTimer::timeout, this,
+                   &PollingTransceiver::handle_timeout);
         }
       poll_timer_->start (interval_);
+    }
+  else
+    {
+      stop_timer ();
     }
 }
 
@@ -77,7 +85,7 @@ void PollingTransceiver::do_post_frequency (Frequency f, MODE m)
     }
 }
 
-void PollingTransceiver::do_post_tx_frequency (Frequency f, bool /* rationalize */)
+void PollingTransceiver::do_post_tx_frequency (Frequency f)
 {
   if (next_state_.tx_frequency () != f)
     {
@@ -89,7 +97,7 @@ void PollingTransceiver::do_post_tx_frequency (Frequency f, bool /* rationalize 
     }
 }
 
-void PollingTransceiver::do_post_mode (MODE m, bool /*rationalize_mode*/)
+void PollingTransceiver::do_post_mode (MODE m)
 {
   // we don't ever expect mode to goto to unknown
   if (m != UNK && next_state_.mode () != m)
@@ -106,7 +114,8 @@ void PollingTransceiver::do_post_ptt (bool p)
     {
       // update expected state with new PTT and set poll count
       next_state_.ptt (p);
-      retries_ = 0;             // fast feedback on PTT
+      retries_ = polls_to_stabilize;
+      //retries_ = 0;             // fast feedback on PTT
     }
 }
 
@@ -120,10 +129,9 @@ bool PollingTransceiver::do_pre_update ()
   return true;
 }
 
-void PollingTransceiver::do_sync (bool force_signal)
+void PollingTransceiver::do_sync (bool force_signal, bool no_poll)
 {
-  poll ();                      // tell sub-classes to update our
-                                // state
+  if (!no_poll) poll ();        // tell sub-classes to update our state
 
   // Signal new state if it is directly requested or, what we expected
   // or, hasn't become what we expected after polls_to_stabilize
@@ -142,9 +150,9 @@ void PollingTransceiver::do_sync (bool force_signal)
     }
   else if (force_signal || state () != last_signalled_state_)
     {
-      // here is the normal passive polling path
-      // either our client has requested a state update regardless of change
-      // or sate has changed asynchronously
+      // here is the normal passive polling path either our client has
+      // requested a state update regardless of change or state has
+      // changed asynchronously
       force_signal = true;
     }
 
@@ -154,7 +162,7 @@ void PollingTransceiver::do_sync (bool force_signal)
       retries_ = 0;
       next_state_ = state ();
       last_signalled_state_ = state ();
-      update_complete ();
+      update_complete (true);
     }
 }
 
@@ -166,7 +174,7 @@ void PollingTransceiver::handle_timeout ()
   // inform our parent of the failure via the offline() message
   try
     {
-      do_sync (false);
+      do_sync ();
     }
   catch (std::exception const& e)
     {

@@ -372,7 +372,7 @@ private:
   void set_application_font (QFont const&);
 
   void initialize_models ();
-  bool open_rig ();
+  bool open_rig (bool force = false);
   //bool set_mode ();
   void close_rig ();
   TransceiverFactory::ParameterPack gather_rig_data ();
@@ -416,8 +416,8 @@ private:
   Q_SLOT void insert_frequency ();
   Q_SLOT void delete_stations ();
   Q_SLOT void insert_station ();
-  Q_SLOT void handle_transceiver_update (TransceiverState);
-  Q_SLOT void handle_transceiver_failure (QString reason);
+  Q_SLOT void handle_transceiver_update (TransceiverState const&, unsigned sequence_number);
+  Q_SLOT void handle_transceiver_failure (QString const& reason);
   Q_SLOT void on_pbCQmsg_clicked();
   Q_SLOT void on_pbMyCall_clicked();
   Q_SLOT void on_pbTxMsg_clicked();
@@ -425,17 +425,14 @@ private:
   Q_SLOT void on_pbNewCall_clicked();
 
   // typenames used as arguments must match registered type names :(
-  Q_SIGNAL void start_transceiver () const;
-  Q_SIGNAL void stop_transceiver (bool reset_split) const;
-  Q_SIGNAL void frequency (Frequency rx, Transceiver::MODE) const;
-  Q_SIGNAL void tx_frequency (Frequency tx, bool rationalize_mode) const;
-  Q_SIGNAL void mode (Transceiver::MODE, bool rationalize) const;
-  Q_SIGNAL void ptt (bool) const;
-  Q_SIGNAL void sync (bool force_signal) const;
+  Q_SIGNAL void start_transceiver (unsigned seqeunce_number) const;
+  Q_SIGNAL void set_transceiver (Transceiver::TransceiverState const&,
+                                 unsigned sequence_number) const;
+  Q_SIGNAL void stop_transceiver () const;
 
   Configuration * const self_;	// back pointer to public interface
 
-  QThread transceiver_thread_;
+  QThread * transceiver_thread_;
   TransceiverFactory transceiver_factory_;
   QList<QMetaObject::Connection> rig_connections_;
 
@@ -473,6 +470,7 @@ private:
   StationList stations_;
   StationList next_stations_;
   FrequencyDelta current_offset_;
+  FrequencyDelta current_tx_offset_;
 
   QAction * frequency_delete_action_;
   QAction * frequency_insert_action_;
@@ -489,24 +487,10 @@ private:
   bool have_rig_;
   bool rig_changed_;
   TransceiverState cached_rig_state_;
+  int rig_resolution_;          // see Transceiver::resolution signal
   double frequency_calibration_intercept_;
   double frequency_calibration_slope_ppm_;
-
-  // the following members are required to get the rig into split the
-  // first time monitor or tune or Tx occur
-  bool setup_split_;
-  Frequency required_tx_frequency_; // this is needed because DX Lab
-                                    // Suite Commander in particular
-                                    // insists on reporting out of
-                                    // date state after successful
-                                    // commands to change the rig
-                                    // state :( Zero is valid and it
-                                    // means that we don't know the Tx
-                                    // frequency rather than implying
-                                    // no split.
-
-  bool enforce_mode_and_split_;
-  bool reset_split_;
+  unsigned transceiver_command_number_;
 
   // configuration fields that we publish
   QString my_callsign_;
@@ -588,6 +572,7 @@ QDir Configuration::data_dir () const {return m_->data_dir_;}
 QDir Configuration::temp_dir () const {return m_->temp_dir_;}
 
 int Configuration::exec () {return m_->exec ();}
+bool Configuration::is_active () const {return m_->isVisible ();}
 
 QAudioDeviceInfo const& Configuration::audio_input_device () const {return m_->audio_input_device_;}
 AudioDevice::Channel Configuration::audio_input_channel () const {return m_->audio_input_channel_;}
@@ -668,13 +653,18 @@ bool Configuration::transceiver_online (bool open_if_closed)
   return m_->have_rig (open_if_closed);
 }
 
+int Configuration::transceiver_resolution () const
+{
+  return m_->rig_resolution_;
+}
+
 void Configuration::transceiver_offline ()
 {
 #if WSJT_TRACE_CAT
   qDebug () << "Configuration::transceiver_offline:" << m_->cached_rig_state_;
 #endif
 
-  return m_->close_rig ();
+  m_->close_rig ();
 }
 
 void Configuration::transceiver_frequency (Frequency f)
@@ -691,8 +681,6 @@ void Configuration::transceiver_tx_frequency (Frequency f)
   qDebug () << "Configuration::transceiver_tx_frequency:" << f << m_->cached_rig_state_;
 #endif
 
-  m_->setup_split_ = true;
-  m_->required_tx_frequency_ = f;
   m_->transceiver_tx_frequency (f);
 }
 
@@ -720,10 +708,11 @@ void Configuration::sync_transceiver (bool force_signal, bool enforce_mode_and_s
   qDebug () << "Configuration::sync_transceiver: force signal:" << force_signal << "enforce_mode_and_split:" << enforce_mode_and_split << m_->cached_rig_state_;
 #endif
 
-  m_->enforce_mode_and_split_ = enforce_mode_and_split;
-  m_->setup_split_ = enforce_mode_and_split;
-  m_->required_tx_frequency_ = 0;
   m_->sync_transceiver (force_signal);
+  if (!enforce_mode_and_split)
+    {
+      m_->transceiver_tx_frequency (0);
+    }
 }
 
 Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget * parent)
@@ -738,15 +727,14 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   , stations_ {&bands_}
   , next_stations_ {&bands_}
   , current_offset_ {0}
+  , current_tx_offset_ {0}
   , frequency_dialog_ {new FrequencyDialog {&modes_, this}}
   , station_dialog_ {new StationDialog {&next_stations_, &bands_, this}}
   , rig_active_ {false}
   , have_rig_ {false}
   , rig_changed_ {false}
-    //  , ptt_state_ {false}
-  , setup_split_ {false}
-  , required_tx_frequency_ {0}
-  , enforce_mode_and_split_ {false}
+  , rig_resolution_ {0}
+  , transceiver_command_number_ {0}
   , degrade_ {0.}               // initialize to zero each run, not
                                 // saved in settings
   , default_audio_input_device_selected_ {false}
@@ -1018,18 +1006,15 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   enumerate_rigs ();
   initialize_models ();
 
-  transceiver_thread_.start ();
+  transceiver_thread_ = new QThread {this};
+  transceiver_thread_->start ();
 }
 
 Configuration::impl::~impl ()
 {
+  transceiver_thread_->quit ();
+  transceiver_thread_->wait ();
   write_settings ();
-
-  close_rig ();
-
-  transceiver_thread_.quit ();
-  transceiver_thread_.wait ();
-
   temp_dir_.removeRecursively (); // clean up temp files
 }
 
@@ -1092,7 +1077,6 @@ void Configuration::impl::initialize_models ()
   ui_->rig_combo_box->setCurrentText (rig_params_.rig_name);
   ui_->TX_mode_button_group->button (data_mode_)->setChecked (true);
   ui_->split_mode_button_group->button (rig_params_.split_mode)->setChecked (true);
-  ui_->reset_split_check_box->setChecked (reset_split_);
   ui_->CAT_serial_baud_combo_box->setCurrentText (QString::number (rig_params_.baud));
   ui_->CAT_data_bits_button_group->button (rig_params_.data_bits)->setChecked (true);
   ui_->CAT_stop_bits_button_group->button (rig_params_.stop_bits)->setChecked (true);
@@ -1318,8 +1302,8 @@ void Configuration::impl::read_settings ()
   EMEonly_ = settings_->value("EMEonly",false).toBool ();
   offsetRxFreq_ = settings_->value("OffsetRx",false).toBool();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
+  rig_params_.set_rig_mode = data_mode_ != data_mode_none;
   rig_params_.split_mode = settings_->value ("SplitMode", QVariant::fromValue (TransceiverFactory::split_mode_none)).value<TransceiverFactory::SplitMode> ();
-  reset_split_ = settings_->value ("ResetSplitOnExit", true).toBool ();
   udp_server_name_ = settings_->value ("UDPServer", "127.0.0.1").toString ();
   udp_server_port_ = settings_->value ("UDPServerPort", 2237).toUInt ();
   accept_udp_requests_ = settings_->value ("AcceptUDPRequests", false).toBool ();
@@ -1407,7 +1391,6 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("TXAudioSource", QVariant::fromValue (rig_params_.audio_source));
   settings_->setValue ("Polling", rig_params_.poll_interval);
   settings_->setValue ("SplitMode", QVariant::fromValue (rig_params_.split_mode));
-  settings_->setValue ("ResetSplitOnExit", reset_split_);
   settings_->setValue ("VHFUHF", enable_VHF_features_);
   settings_->setValue ("Decode52", decode_at_52s_);
   settings_->setValue ("SingleDecode", single_decode_);
@@ -1644,6 +1627,7 @@ TransceiverFactory::ParameterPack Configuration::impl::gather_rig_data ()
   result.ptt_type = static_cast<TransceiverFactory::PTTMethod> (ui_->PTT_method_button_group->checkedId ());
   result.ptt_port = ui_->PTT_port_combo_box->currentText ();
   result.audio_source = static_cast<TransceiverFactory::TXAudioSource> (ui_->TX_audio_source_button_group->checkedId ());
+  result.set_rig_mode = static_cast<DataMode> (ui_->TX_mode_button_group->checkedId ()) != data_mode_none;
   result.split_mode = static_cast<TransceiverFactory::SplitMode> (ui_->split_mode_button_group->checkedId ());
   return result;
 }
@@ -1815,7 +1799,6 @@ void Configuration::impl::accept ()
   NDxG_ = ui_->cbNDxG->isChecked ();
   NN_ = ui_->cbNN->isChecked ();
   EMEonly_ = ui_->cbEMEonly->isChecked ();
-  reset_split_ = ui_->reset_split_check_box->isChecked ();
 
   offsetRxFreq_ = ui_->offset_Rx_freq_check_box->isChecked();
   frequency_calibration_intercept_ = ui_->calibration_intercept_spin_box->value ();
@@ -2003,8 +1986,6 @@ void Configuration::impl::on_CAT_poll_interval_spin_box_valueChanged (int /* val
 
 void Configuration::impl::on_split_mode_button_group_buttonClicked (int /* id */)
 {
-  setup_split_ = true;
-  required_tx_frequency_ = 0;
   set_rig_invariants ();
 }
 
@@ -2016,9 +1997,9 @@ void Configuration::impl::on_test_CAT_push_button_clicked ()
     }
 
   ui_->test_CAT_push_button->setStyleSheet ({});
-  if (open_rig ())
+  if (open_rig (true))
     {
-      Q_EMIT sync (true);
+      //Q_EMIT sync (true);
     }
 
   set_rig_invariants ();
@@ -2218,52 +2199,58 @@ bool Configuration::impl::have_rig (bool open_if_closed)
   return rig_active_;
 }
 
-bool Configuration::impl::open_rig ()
+bool Configuration::impl::open_rig (bool force)
 {
   auto result = false;
 
   auto const rig_data = gather_rig_data ();
-  if (!rig_active_ || rig_data != saved_rig_params_)
+  if (force || !rig_active_ || rig_data != saved_rig_params_)
     {
       try
         {
           close_rig ();
 
           // create a new Transceiver object
-          auto rig = transceiver_factory_.create (rig_data, &transceiver_thread_);
+          auto rig = transceiver_factory_.create (rig_data, transceiver_thread_);
+          cached_rig_state_ = Transceiver::TransceiverState {};
 
           // hook up Configuration transceiver control signals to Transceiver slots
           //
           // these connections cross the thread boundary
-          rig_connections_ << connect (this, &Configuration::impl::frequency, rig.get (), &Transceiver::frequency);
-          rig_connections_ << connect (this, &Configuration::impl::tx_frequency, rig.get (), &Transceiver::tx_frequency);
-          rig_connections_ << connect (this, &Configuration::impl::mode, rig.get (), &Transceiver::mode);
-          rig_connections_ << connect (this, &Configuration::impl::ptt, rig.get (), &Transceiver::ptt);
-          rig_connections_ << connect (this, &Configuration::impl::sync, rig.get (), &Transceiver::sync);
+          rig_connections_ << connect (this, &Configuration::impl::set_transceiver,
+                                       rig.get (), &Transceiver::set);
 
           // hook up Transceiver signals to Configuration signals
           //
           // these connections cross the thread boundary
-          connect (rig.get (), &Transceiver::update, this, &Configuration::impl::handle_transceiver_update);
-          connect (rig.get (), &Transceiver::failure, this, &Configuration::impl::handle_transceiver_failure);
+          rig_connections_ << connect (rig.get (), &Transceiver::resolution, this, [=] (int resolution) {
+              rig_resolution_ = resolution;
+            });
+          rig_connections_ << connect (rig.get (), &Transceiver::update, this, &Configuration::impl::handle_transceiver_update);
+          rig_connections_ << connect (rig.get (), &Transceiver::failure, this, &Configuration::impl::handle_transceiver_failure);
 
           // setup thread safe startup and close down semantics
           rig_connections_ << connect (this, &Configuration::impl::start_transceiver, rig.get (), &Transceiver::start);
-          connect (this, &Configuration::impl::stop_transceiver, rig.get (), &Transceiver::stop);
+          rig_connections_ << connect (this, &Configuration::impl::stop_transceiver, rig.get (), &Transceiver::stop);
 
           auto p = rig.release ();	// take ownership
-          // schedule eventual destruction
+
+          // schedule destruction on thread quit
+          connect (transceiver_thread_, &QThread::finished, p, &QObject::deleteLater);
+
+          // schedule eventual destruction for non-closing situations
           //
-          // must be queued connection to avoid premature self-immolation
-          // since finished signal is going to be emitted from the object
-          // that will get destroyed in its own stop slot i.e. a same
-          // thread signal to slot connection which by default will be
-          // reduced to a method function call.
+          // must   be   queued    connection   to   avoid   premature
+          // self-immolation  since finished  signal  is  going to  be
+          // emitted from  the object that  will get destroyed  in its
+          // own  stop  slot  i.e.  a   same  thread  signal  to  slot
+          // connection which by  default will be reduced  to a method
+          // function call.
           connect (p, &Transceiver::finished, p, &Transceiver::deleteLater, Qt::QueuedConnection);
 
           ui_->test_CAT_push_button->setStyleSheet ({});
           rig_active_ = true;
-          Q_EMIT start_transceiver (); // start rig on its thread
+          Q_EMIT start_transceiver (++transceiver_command_number_); // start rig on its thread
           result = true;
         }
       catch (std::exception const& e)
@@ -2284,98 +2271,85 @@ bool Configuration::impl::open_rig ()
 void Configuration::impl::transceiver_frequency (Frequency f)
 {
   Transceiver::MODE mode {Transceiver::UNK};
-  if (ui_->mode_group_box->isEnabled ())
+  switch (data_mode_)
     {
-      switch (static_cast<DataMode> (ui_->TX_mode_button_group->checkedId ()))
-        {
-        case data_mode_USB: mode = Transceiver::USB; break;
-        case data_mode_data: mode = Transceiver::DIG_U; break;
-        case data_mode_none: break;
-        }
+    case data_mode_USB: mode = Transceiver::USB; break;
+    case data_mode_data: mode = Transceiver::DIG_U; break;
+    case data_mode_none: break;
     }
 
-  if (cached_rig_state_.frequency () != f
-      || (mode != Transceiver::UNK && mode != cached_rig_state_.mode ()))
-    {
-      cached_rig_state_.frequency (f);
-      cached_rig_state_.mode (mode);
+  cached_rig_state_.online (true); // we want the rig online
+  cached_rig_state_.mode (mode);
 
-      // apply any offset & calibration
-      // we store the offset here for use in feedback from the rig, we
-      // cannot absolutely determine if the offset should apply but by
-      // simply picking an offset when the Rx frequency is set and
-      // sticking to it we get sane behaviour
-      current_offset_ = stations_.offset (f);
-      Q_EMIT frequency (apply_calibration (f + current_offset_), mode);
-    }
+  // apply any offset & calibration
+  // we store the offset here for use in feedback from the rig, we
+  // cannot absolutely determine if the offset should apply but by
+  // simply picking an offset when the Rx frequency is set and
+  // sticking to it we get sane behaviour
+  current_offset_ = stations_.offset (f);
+  cached_rig_state_.frequency (apply_calibration (f + current_offset_));
+
+  Q_EMIT set_transceiver (cached_rig_state_, ++transceiver_command_number_);
 }
 
 void Configuration::impl::transceiver_tx_frequency (Frequency f)
 {
-  if (/* set_mode () || */ cached_rig_state_.tx_frequency () != f || !cached_rig_state_.compare_split (!!f))
+  cached_rig_state_.online (true); // we want the rig online
+  cached_rig_state_.split (f);
+  cached_rig_state_.tx_frequency (f);
+
+  // lookup offset for tx and apply calibration
+  if (f)
     {
-      cached_rig_state_.split (f);
-      cached_rig_state_.tx_frequency (f);
-
-      // lookup offset and apply calibration if we are in split mode
-      if (cached_rig_state_.split ())
-        {
-          // apply and offset and calibration
-          // we store the offset here for use in feedback from the
-          // rig, we cannot absolutely determine if the offset should
-          // apply but by simply picking an offset when the Rx
-          // frequency is set and sticking to it we get sane behaviour
-          current_offset_ = stations_.offset (f);
-          f = apply_calibration (f + current_offset_);
-        }
-
-
-      // Rationalise TX VFO mode if we ask for split and are
-      // responsible for mode.
-      Q_EMIT tx_frequency (f, cached_rig_state_.split ()
-                           && ui_->mode_group_box->isEnabled ()
-                           && data_mode_none != data_mode_);
+      // apply and offset and calibration
+      // we store the offset here for use in feedback from the
+      // rig, we cannot absolutely determine if the offset should
+      // apply but by simply picking an offset when the Rx
+      // frequency is set and sticking to it we get sane behaviour
+      current_tx_offset_ = stations_.offset (f);
+      cached_rig_state_.tx_frequency (apply_calibration (f + current_tx_offset_));
     }
+
+  Q_EMIT set_transceiver (cached_rig_state_, ++transceiver_command_number_);
 }
 
 void Configuration::impl::transceiver_mode (MODE m)
 {
-  if (cached_rig_state_.mode () != m)
-    {
-      cached_rig_state_.mode (m);
-
-      // Rationalise mode if we are responsible for it and in split mode.
-      Q_EMIT mode (m, cached_rig_state_.split ()
-                   && ui_->mode_group_box->isEnabled ()
-                   && data_mode_none != data_mode_);
-    }
+  cached_rig_state_.online (true); // we want the rig online
+  cached_rig_state_.mode (m);
+  Q_EMIT set_transceiver (cached_rig_state_, ++transceiver_command_number_);
 }
 
 void Configuration::impl::transceiver_ptt (bool on)
 {
+  cached_rig_state_.online (true); // we want the rig online
   cached_rig_state_.ptt (on);
-
-  // pass this on regardless of cache
-  Q_EMIT ptt (on);
+  Q_EMIT set_transceiver (cached_rig_state_, ++transceiver_command_number_);
 }
 
-void Configuration::impl::sync_transceiver (bool force_signal)
+void Configuration::impl::sync_transceiver (bool /*force_signal*/)
 {
   // pass this on as cache must be ignored
-  Q_EMIT sync (force_signal);
+  // Q_EMIT sync (force_signal);
 }
 
-void Configuration::impl::handle_transceiver_update (TransceiverState state)
+void Configuration::impl::handle_transceiver_update (TransceiverState const& state,
+                                                     unsigned sequence_number)
 {
 #if WSJT_TRACE_CAT
-  qDebug () << "Configuration::handle_transceiver_update: Transceiver State:" << state;
+  qDebug () << "Configuration::handle_transceiver_update: Transceiver State #:" << sequence_number << state;
 #endif
+
+  // only follow rig on some information, ignore other stuff
+  cached_rig_state_.online (state.online ());
+  cached_rig_state_.frequency (state.frequency ());
+  cached_rig_state_.mode (state.mode ());
+  cached_rig_state_.split (state.split ());
 
   if (state.online ())
     {
       ui_->test_PTT_push_button->setChecked (state.ptt ());
 
-      TransceiverFactory::SplitMode split_mode_selected;
       if (isVisible ())
         {
           ui_->test_CAT_push_button->setStyleSheet ("QPushButton {background-color: green;}");
@@ -2386,80 +2360,37 @@ void Configuration::impl::handle_transceiver_update (TransceiverState state)
           ui_->test_PTT_push_button->setEnabled ((TransceiverFactory::PTT_method_CAT == ptt_method && CAT_PTT_enabled)
                                                  || TransceiverFactory::PTT_method_DTR == ptt_method
                                                  || TransceiverFactory::PTT_method_RTS == ptt_method);
-
-
-          // Follow the setup choice.
-          split_mode_selected = static_cast<TransceiverFactory::SplitMode> (ui_->split_mode_button_group->checkedId ());
         }
-      else
-        {
-          // Follow the rig unless configuration has been changed.
-          split_mode_selected = static_cast<TransceiverFactory::SplitMode> (rig_params_.split_mode);
-
-          if (enforce_mode_and_split_)
-            {
-              if (TransceiverFactory::basic_transceiver_name_ != ui_->rig_combo_box->currentText ()
-                  && ((TransceiverFactory::split_mode_none != split_mode_selected) != state.split ()))
-                {
-                  if (!setup_split_)
-                    {
-                      // Rig split mode isn't consistent with settings so
-                      // change settings.
-                      //
-                      // For rigs that can't report split mode changes
-                      // (e.g.Icom) this is going to confuse operators, but
-                      // what can we do if they change the rig?
-                      // auto split_mode = state.split () ? TransceiverFactory::split_mode_rig : TransceiverFactory::split_mode_none;
-                      // rig_params_.split_mode = split_mode;
-                      // ui_->split_mode_button_group->button (split_mode)->setChecked (true);
-                      // split_mode_selected = split_mode;
-                      setup_split_ = true;
-                      required_tx_frequency_ = 0;
-
-                      // Q_EMIT self_->transceiver_failure (tr ("Rig
-                      // split mode setting not consistent with WSJT-X
-                      // settings. Changing WSJT-X settings for
-                      // you."));
-                      if (cached_rig_state_.split () != state.split ())
-                        {
-                          Q_EMIT self_->transceiver_failure (tr ("Rig split mode setting not consistent with WSJT-X settings."));
-                        }
-                    }
-                }
-            }
-        }
-
-      // One time rig setup split
-      if (setup_split_ && cached_rig_state_.split () != state.split ())
-        {
-          Q_EMIT tx_frequency (TransceiverFactory::split_mode_none != split_mode_selected && cached_rig_state_.split ()
-                               ? (required_tx_frequency_ ? required_tx_frequency_ : state.tx_frequency ())
-                               : 0, true);
-        }
-      setup_split_ = false;
-      required_tx_frequency_ = 0;
     }
   else
     {
       close_rig ();
     }
 
-  // take off calibration & offset
-  state.frequency (remove_calibration (state.frequency ()) - current_offset_);
-
-  if (state.tx_frequency ())
+  // pass on to clients if current command is processed
+  if (sequence_number == transceiver_command_number_)
     {
+      TransceiverState reported_state {state};
       // take off calibration & offset
-      state.tx_frequency (remove_calibration (state.tx_frequency ()) - current_offset_);
+      reported_state.frequency (remove_calibration (reported_state.frequency ()) - current_offset_);
+
+      if (reported_state.tx_frequency ())
+        {
+          // take off calibration & offset
+          reported_state.tx_frequency (remove_calibration (reported_state.tx_frequency ()) - current_tx_offset_);
+        }
+
+      Q_EMIT self_->transceiver_update (reported_state);
     }
-
-  cached_rig_state_ = state;
-
-  // pass on to clients
-  Q_EMIT self_->transceiver_update (cached_rig_state_);
+  else
+    {
+#if WSJT_TRACE_CAT
+      qDebug () << "Configuration::handle_transceiver_update: skipping because of command #:" << transceiver_command_number_;
+#endif
+    }
 }
 
-void Configuration::impl::handle_transceiver_failure (QString reason)
+void Configuration::impl::handle_transceiver_failure (QString const& reason)
 {
 #if WSJT_TRACE_CAT
   qDebug () << "Configuration::handle_transceiver_failure: reason:" << reason;
@@ -2487,7 +2418,7 @@ void Configuration::impl::close_rig ()
   if (rig_active_)
     {
       ui_->test_CAT_push_button->setStyleSheet ("QPushButton {background-color: red;}");
-      Q_EMIT stop_transceiver (reset_split_);
+      Q_EMIT stop_transceiver ();
       Q_FOREACH (auto const& connection, rig_connections_)
         {
           disconnect (connection);

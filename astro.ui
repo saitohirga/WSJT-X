@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>440</width>
-    <height>406</height>
+    <width>359</width>
+    <height>287</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="sizeConstraint">
@@ -23,50 +29,6 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QGroupBox" name="groupBox_4">
-        <property name="title">
-         <string>Frequency above nominal band edge</string>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="QSpinBox" name="kHzSpinBox">
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="suffix">
-            <string>  kHz</string>
-           </property>
-           <property name="maximum">
-            <number>999</number>
-           </property>
-           <property name="value">
-            <number>200</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="HzSpinBox">
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="suffix">
-            <string>   Hz</string>
-           </property>
-           <property name="minimum">
-            <number>-2000</number>
-           </property>
-           <property name="maximum">
-            <number>2000</number>
-           </property>
-           <property name="singleStep">
-            <number>100</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
        <widget class="QGroupBox" name="groupBox">
         <property name="title">
          <string>Doppler tracking</string>
@@ -74,6 +36,9 @@
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="QRadioButton" name="rbFullTrack">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;One station does all Doppler shift correction, their QSO partner receives and transmits on the sked frequency.&lt;/p&gt;&lt;p&gt;If the rig does not accept CAT QSY commands while transmitting a single correction is applied for the whole transmit period.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Full Doppler to DX Grid</string>
            </property>
@@ -83,7 +48,20 @@
           </widget>
          </item>
          <item>
+          <widget class="QRadioButton" name="rbRxOnly">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Both stations do full correction to their QSO partner's grid square during receive, no correction is applied on transmit.&lt;/p&gt;&lt;p&gt;This mode facilitates accurate Doppler shift correction when one or both stations have a rig that does not accept CAT QSY commands while transmitting.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Receive only</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QRadioButton" name="rbConstFreqOnMoon">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Both stations correct for Doppler shift such that they would be heard on the moon at the sked frequency.&lt;/p&gt;&lt;p&gt;If the rig does not accept CAT QSY commands while transmitting a single correction is applied for the whole transmit period.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Constant frequency on Moon</string>
            </property>
@@ -94,6 +72,9 @@
          </item>
          <item>
           <widget class="QRadioButton" name="rbNoDoppler">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;No Doppler shift correction is applied. This may be used when the QSO partner does full Doppler correction to your grid square.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>None</string>
            </property>
@@ -106,67 +87,89 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_2">
-        <property name="title">
-         <string>Transceiver step size</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <item>
-          <widget class="QRadioButton" name="rb1Hz">
-           <property name="text">
-            <string>1 Hz</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="rb10Hz">
-           <property name="text">
-            <string>10 Hz</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="rb100Hz">
-           <property name="text">
-            <string>100 Hz</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
        <widget class="QGroupBox" name="groupBox_3">
         <property name="enabled">
          <bool>true</bool>
         </property>
         <property name="title">
-         <string>Enable</string>
+         <string>Sked frequency</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_5">
-         <item>
-          <widget class="QCheckBox" name="cbTrackVFO">
-           <property name="enabled">
-            <bool>true</bool>
+        <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,1">
+         <item row="1" column="1">
+          <widget class="QLabel" name="sked_tx_frequency_label">
+           <property name="styleSheet">
+            <string notr="true">* {
+	font-family: Courier;
+	font-size: 12pt;
+	font-weight: bold;
+}</string>
            </property>
            <property name="text">
-            <string>Track VFOs</string>
+            <string>0</string>
            </property>
-           <property name="checked">
-            <bool>true</bool>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QCheckBox" name="cbTxAudioTrack">
-           <property name="enabled">
-            <bool>false</bool>
+         <item row="0" column="1">
+          <widget class="QLabel" name="sked_frequency_label">
+           <property name="styleSheet">
+            <string notr="true">* {
+	font-family: Courier;
+	font-size: 12pt;
+	font-weight: bold;
+}</string>
            </property>
            <property name="text">
-            <string>Track Tx audio</string>
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="styleSheet">
+            <string notr="true">* {
+	font-family: Courier;
+	font-size: 12pt;
+	font-weight: bold;
+}</string>
+           </property>
+           <property name="text">
+            <string>Rx:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="styleSheet">
+            <string notr="true">* {
+	font-family: Courier;
+	font-size: 12pt;
+	font-weight: bold;
+}</string>
+           </property>
+           <property name="text">
+            <string>Tx:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="2">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Press and hold the CTRL key to adjust the sked frequency manually with the rig's VFO dial or enter directly into the band edit.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::AutoText</enum>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -194,7 +197,7 @@
      <item alignment="Qt::AlignHCenter">
       <widget class="QLabel" name="text_label">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>

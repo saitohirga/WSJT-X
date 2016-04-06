@@ -30,19 +30,17 @@ public:
   enum RigNumber {One = 1, Two};
 
   // takes ownership of wrapped Transceiver
-  explicit OmniRigTransceiver (std::unique_ptr<TransceiverBase> wrapped, RigNumber, TransceiverFactory::PTTMethod ptt_type, QString const& ptt_port);
-  ~OmniRigTransceiver ();
+  explicit OmniRigTransceiver (std::unique_ptr<TransceiverBase> wrapped, RigNumber, TransceiverFactory::PTTMethod ptt_type, QString const& ptt_port, QObject * parent = nullptr);
 
-  void do_start () override;
+  int do_start () override;
   void do_stop () override;
-  void do_frequency (Frequency, MODE) override;
-  void do_tx_frequency (Frequency, bool rationalise_mode) override;
-  void do_mode (MODE, bool rationalise) override;
+  void do_frequency (Frequency, MODE, bool no_ignore) override;
+  void do_tx_frequency (Frequency, bool no_ignore) override;
+  void do_mode (MODE) override;
   void do_ptt (bool on) override;
-  void do_sync (bool force_signal) override;
+  void do_sync (bool force_signal, bool no_poll) override;
 
 private:
-  Q_SLOT void online_check ();
   Q_SLOT void handle_COM_exception (int,  QString, QString, QString);
   Q_SLOT void handle_visible_change ();
   Q_SLOT void handle_rig_type_change (int rig_number);
@@ -50,12 +48,10 @@ private:
   Q_SLOT void handle_params_change (int rig_number, int params);
   Q_SLOT void handle_custom_reply (int, QVariant const& command, QVariant const& reply);
 
-  void init_rig ();
-
   static MODE map_mode (OmniRig::RigParamX param);
   static OmniRig::RigParamX map_mode (MODE mode);
 
-  std::unique_ptr<TransceiverBase> wrapped_;
+  std::unique_ptr<TransceiverBase> wrapped_; // may be null
   bool use_for_ptt_;
   TransceiverFactory::PTTMethod ptt_type_;
   QScopedPointer<OmniRig::OmniRigX> omni_rig_;

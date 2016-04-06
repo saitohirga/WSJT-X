@@ -60,20 +60,29 @@ class TransceiverBase
 {
   Q_OBJECT;
 
+private:
+  enum class Resolution {accurate, round, truncate};
+
 protected:
-  TransceiverBase () = default;
+  TransceiverBase (QObject * parent)
+    : Transceiver {parent}
+    , resolution_ {Resolution::accurate}
+    , last_sequence_number_ {0}
+  {}
 
 public:
   //
   // Implement the Transceiver abstract interface.
   //
-  void start () noexcept override final;
-  void stop (bool reset_split = false) noexcept override final;
-  void frequency (Frequency rx, MODE = UNK) noexcept override final;
-  void tx_frequency (Frequency tx, bool rationalise_mode) noexcept override final;
-  void mode (MODE, bool rationalise) noexcept override final;
-  void ptt (bool) noexcept override final;
-  void sync (bool force_signal) noexcept override final;
+  void start (unsigned sequence_number) noexcept override final;
+  void set (TransceiverState const&,
+            unsigned sequence_number) noexcept override final;
+  void stop () noexcept override final;
+
+  //
+  // Query operations
+  //
+  TransceiverState const& state () const {return actual_;}
 
 protected:
   //
@@ -82,32 +91,32 @@ protected:
   struct error
     : public std::runtime_error
   {
-    error (char const * const msg) : std::runtime_error (msg) {}
-    error (QString const& msg) : std::runtime_error (msg.toStdString ()) {}
+    explicit error (char const * const msg) : std::runtime_error (msg) {}
+    explicit error (QString const& msg) : std::runtime_error (msg.toStdString ()) {}
   };
 
   // Template methods that sub classes implement to do what they need to do.
   //
   // These methods may throw exceptions to signal errors.
-  virtual void do_start () = 0;
+  virtual int do_start () = 0;  // returns resolution, See Transceiver::resolution
   virtual void do_post_start () {}
 
   virtual void do_stop () = 0;
   virtual void do_post_stop () {}
 
-  virtual void do_frequency (Frequency rx, MODE = UNK) = 0;
-  virtual void do_post_frequency (Frequency, MODE = UNK) {}
+  virtual void do_frequency (Frequency, MODE, bool no_ignore) = 0;
+  virtual void do_post_frequency (Frequency, MODE) {}
 
-  virtual void do_tx_frequency (Frequency tx = 0u, bool rationalise_mode = false) = 0;
-  virtual void do_post_tx_frequency (Frequency = 0u, bool /* rationalise_mode */ = false) {}
+  virtual void do_tx_frequency (Frequency, bool no_ignore) = 0;
+  virtual void do_post_tx_frequency (Frequency) {}
 
-  virtual void do_mode (MODE, bool rationalise = true) = 0;
-  virtual void do_post_mode (MODE, bool /* rationalise */ = true) {}
+  virtual void do_mode (MODE) = 0;
+  virtual void do_post_mode (MODE) {}
 
   virtual void do_ptt (bool = true) = 0;
   virtual void do_post_ptt (bool = true) {}
 
-  virtual void do_sync (bool force_signal = false) = 0;
+  virtual void do_sync (bool force_signal = false, bool no_poll = false) = 0;
 
   virtual bool do_pre_update () {return true;}
 
@@ -119,31 +128,48 @@ protected:
   void update_PTT (bool = true);
 
   // Calling this eventually triggers the Transceiver::update(State) signal.
-  void update_complete ();
+  void update_complete (bool force_signal = false);
 
   // sub class may asynchronously take the rig offline by calling this
   void offline (QString const& reason);
 
-  // and query state with this one
-  TransceiverState const& state () const {return state_;}
-
 private:
-  Q_SLOT void updated ();
+  void startup ();
+  void shutdown ();
+  bool maybe_low_resolution (Frequency low_res, Frequency high_res);
 
-  TransceiverState state_;
+  // use this convenience class to notify in update methods
+  class may_update
+  {
+  public:
+    explicit may_update (TransceiverBase * self, bool force_signal = false)
+      : self_ {self}
+      , force_signal_ {force_signal}
+    {}
+    ~may_update () {self_->update_complete (force_signal_);}
+  private:
+    TransceiverBase * self_;
+    bool force_signal_;
+  };
+
+  TransceiverState requested_;
+  TransceiverState actual_;
+  TransceiverState last_;
+  Resolution resolution_;            // rig accuracy
+  unsigned last_sequence_number_;    // from set state operation
 };
 
 // some trace macros
 #if WSJT_TRACE_CAT
-#define TRACE_CAT(MSG) qDebug () << __PRETTY_FUNCTION__ << MSG
+#define TRACE_CAT(FAC, MSG) qDebug () << QString {"%1::%2:"}.arg ((FAC)).arg (__func__) << MSG
 #else
-#define TRACE_CAT(MSG)
+#define TRACE_CAT(FAC, MSG)
 #endif
 
 #if WSJT_TRACE_CAT && WSJT_TRACE_CAT_POLLS
-#define TRACE_CAT_POLL(MSG) qDebug () << __PRETTY_FUNCTION__ << MSG
+#define TRACE_CAT_POLL(FAC, MSG) qDebug () << QString {"%1::%2:"}.arg ((FAC)).arg (__func__) << MSG
 #else
-#define TRACE_CAT_POLL(MSG)
+#define TRACE_CAT_POLL(FAC, MSG)
 #endif
 
 #endif

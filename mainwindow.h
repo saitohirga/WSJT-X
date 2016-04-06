@@ -30,6 +30,7 @@
 #include "logbook/logbook.h"
 #include "decodedtext.h"
 #include "commons.h"
+#include "astro.h"
 
 #define NUM_JT4_SYMBOLS 206                //(72+31)*2, embedded sync
 #define NUM_JT65_SYMBOLS 126               //63 data + 63 sync
@@ -59,7 +60,6 @@ class FastGraph;
 class WideGraph;
 class LogQSO;
 class Transceiver;
-class Astro;
 class MessageAveraging;
 class MessageClient;
 class QTime;
@@ -78,6 +78,7 @@ class MainWindow : public QMainWindow
 
 public:
   using Frequency = Radio::Frequency;
+  using FrequencyDelta = Radio::FrequencyDelta;
   using Mode = Modes::Mode;
 
   // Multiple instances: call MainWindow() with *thekey
@@ -103,7 +104,7 @@ public slots:
   void p1ReadFromStdout();
   void p1ReadFromStderr();
   void p1Error(QProcess::ProcessError);
-  void setXIT(int n);
+  void setXIT(int n, Frequency base = 0u);
   void setFreq4(int rxFreq, int txFreq);
   void msgAvgDecode2();
   void fastPick(int x0, int x1, int y);
@@ -199,9 +200,9 @@ private slots:
   void on_cbTxLock_clicked(bool checked);
   void on_outAttenuation_valueChanged (int);
   void rigOpen ();
-  void handle_transceiver_update (Transceiver::TransceiverState);
-  void handle_transceiver_failure (QString reason);
-  void on_actionAstronomical_data_triggered();
+  void handle_transceiver_update (Transceiver::TransceiverState const&);
+  void handle_transceiver_failure (QString const& reason);
+  void on_actionAstronomical_data_toggled (bool);
   void on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered();
   void getpfx();
   void band_changed (Frequency);
@@ -238,7 +239,6 @@ private slots:
   void on_pbTxNext_clicked(bool b);
   void on_actionEcho_Graph_triggered();
   void on_actionEcho_triggered();
-  void DopplerTracking_toggled (bool);
   void on_actionISCAT_triggered();
   void on_actionFast_Graph_triggered();
   void fast_decode_done();
@@ -274,6 +274,8 @@ private:
   Q_SIGNAL void toggleShorthand () const;
 
 private:
+  void astroUpdate ();
+
   QDir m_dataDir;
   QString m_revision;
   bool m_multiple;
@@ -298,9 +300,11 @@ private:
   QScopedPointer<HelpTextWindow> m_mouseCmnds;
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
 
-  Frequency  m_dialFreq;
-  Frequency  m_dialFreq0;
-  Frequency  m_dialFreqRxWSPR;
+  Transceiver::TransceiverState m_rigState;
+  Frequency  m_lastDialFreq;
+  QString m_lastBand;
+  Frequency  m_callingFrequency;
+  Frequency  m_dialFreqRxWSPR;  // best guess at WSPR QRG
 
   Detector * m_detector;
   SoundInput * m_soundInput;
@@ -311,9 +315,9 @@ private:
   qint64  m_msErase;
   qint64  m_secBandChanged;
   qint64  m_freqMoon;
-  qint64  m_freqNominal;
-  qint64  m_dialFreqTx;
-  qint64  m_dialFreqRx;
+  Frequency m_freqNominal;
+  Frequency m_freqTxNominal;
+  Astro::Correction m_astroCorrection;
 
   double  m_s6;
   double  m_tRemaining;
@@ -536,7 +540,6 @@ private:
   void msgtype(QString t, QLineEdit* tx);
   void stub();
   void statusChanged();
-  void qsy(Frequency f);
   bool gridOK(QString g);
   bool shortList(QString callsign);
   void transmit (double snr = 99.);
@@ -552,7 +555,7 @@ private:
   void enable_DXCC_entity (bool on);
   void switch_mode (Mode);
   void WSPR_scheduling ();
-  void astroCalculations (QDateTime const&, bool adjust);
+  void setRig ();
   void WSPR_history(Frequency dialFreq, int ndecodes);
   QString WSPR_hhmm(int n);
   void fast_config(bool b);

@@ -104,17 +104,18 @@ public:
     StopBits stop_bits;
     Handshake handshake;
     bool force_dtr;
-    bool dtr_high;                  // to power interface
+    bool dtr_high;              // to power interface
     bool force_rts;
-    bool rts_high;                  // to power interface
-    PTTMethod ptt_type;             // "CAT" | "DTR" | "RTS" | "VOX"
-    TXAudioSource audio_source;     // some rigs allow audio routing
-                                    // to Mic/Data connector
-    SplitMode split_mode;           // how to support split TX mode
-    QString ptt_port;         // serial port device name or special
-                              // value "CAT"
-    int poll_interval;        // in seconds for interfaces that
-                              // require polling for state changes
+    bool rts_high;              // to power interface
+    PTTMethod ptt_type;         // "CAT" | "DTR" | "RTS" | "VOX"
+    TXAudioSource audio_source; // some rigs allow audio routing
+                                // to Mic/Data connector
+    bool set_rig_mode;          // handle rig mode when required
+    SplitMode split_mode;       // how to support split TX mode
+    QString ptt_port;           // serial port device name or special
+                                // value "CAT"
+    int poll_interval;          // in seconds for interfaces that
+                                // require polling for state changes
 
     bool operator == (ParameterPack const& rhs) const
     {
@@ -132,9 +133,11 @@ public:
         && rhs.rts_high == rts_high
         && rhs.ptt_type == ptt_type
         && rhs.audio_source == audio_source
+        && rhs.set_rig_mode == set_rig_mode
         && rhs.split_mode == split_mode
         && rhs.ptt_port == ptt_port
-        && rhs.poll_interval == poll_interval;
+        && rhs.poll_interval == poll_interval
+        ;
     }
   };
 
