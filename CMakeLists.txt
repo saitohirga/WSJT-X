@@ -786,28 +786,14 @@ find_package (FFTW3 COMPONENTS double single threads REQUIRED)
 #
 # libhamlib setup
 #
+set (hamlib_STATIC 1)
 find_package (hamlib 3 REQUIRED)
-if (hamlib_STATIC_LIBRARY)
-  # static link hamlib if archive library available
-  set (hamlib_LIBRARY "${hamlib_STATIC_LIBRARY}")
-  set (hamlib_LIBRARIES "${hamlib_STATIC_LIBRARIES}")
-endif ()
 find_program (RIGCTL_EXE rigctl)
 find_program (RIGCTLD_EXE rigctld)
 
 message (STATUS "hamlib_INCLUDE_DIRS: ${hamlib_INCLUDE_DIRS}")
-message (STATUS "hamlib_LIBRARY: ${hamlib_LIBRARY}")
 message (STATUS "hamlib_LIBRARIES: ${hamlib_LIBRARIES}")
-message (STATUS "hamlib_STATIC_LIBRARY: ${hamlib_STATIC_LIBRARY}")
-message (STATUS "hamlib_STATIC_LIBRARIES: ${hamlib_STATIC_LIBRARIES}")
-
-# if (WIN32)
-#   find_library (hamlib_RUNTIME NAMES hamlib hamlib-2 PATH_SUFFIXES bin)
-#   get_filename_component (_hamlib_runtime_path "${hamlib_RUNTIME}" PATH)
-#   file (GLOB hamlib_BACKENDS ${_hamlib_runtime_path}/hamlib*.dll)
-#   find_library (usb_RUNTIME NAMES usb0 PATH_SUFFIXES bin)
-# endif (WIN32)
-
+message (STATUS "hamlib_LIBRARY_DIRS: ${hamlib_LIBRARY_DIRS}")
 
 #
 # Qt5 setup
@@ -1355,11 +1341,11 @@ endif ()
 
 set (CPACK_DEBIAN_PACKAGE_DESCRIPTION "${PROJECT_DESCRIPTION}")
 set (CPACK_DEBIAN_PACKAGE_HOMEPAGE "${PROJECT_HOMEPAGE}")
-set (CPACK_DEBIAN_PACKAGE_DEPENDS "libgfortran3 (>=4.8.2), libqt5serialport5 (>=5.2), libqt5multimedia5-plugins (>=5.2), libqt5widgets5 (>=5.2), libc6 (>=2.19)")
+set (CPACK_DEBIAN_PACKAGE_DEPENDS "libgfortran3 (>=4.8.2), libqt5serialport5 (>=5.2), libqt5multimedia5-plugins (>=5.2), libqt5widgets5 (>=5.2), libusb-1.0, libudev, libc6 (>=2.19)")
 set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 
 set (CPACK_RPM_PACKAGE_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
-set (CPACK_RPM_PACKAGE_REQUIRES "qt5-qtserialport >= 5.2, qt5-qtmultimedia >= 5.2, glibc >= 2, libgfortran >= 4.8.2")
+set (CPACK_RPM_PACKAGE_REQUIRES "qt5-qtserialport >= 5.2, qt5-qtmultimedia >= 5.2, libusb-1.0, libudev, glibc >= 2, libgfortran >= 4.8.2")
 set (CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION /usr/share/pixmaps /usr/share/applications /usr/share/man /usr/share/man1)
 
 configure_file ("${PROJECT_SOURCE_DIR}/CMakeCPackOptions.cmake.in"

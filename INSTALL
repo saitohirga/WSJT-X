@@ -43,6 +43,13 @@ the  libfftw library  development  package.   Normally installing  the
 library  development  package  pulls  in all  the  FFTW  v3  libraries
 including the single precision variant.
 
+The Hamlib library optionally requires  the libusb-1.0 library, if the
+development   version  (libusb-1.0-dev)   is  available   Hamlib  will
+configure its  custom USB device  back end  drivers. Most rigs  do not
+require this so normally you  can choose not to install libusb-1.0-dev
+but if you have  a SoftRock USB or similar SDR that  uses a custom USB
+interface then it is required.
+
 The Hamlib  library is  required. Currently WSJT-X  needs to  be built
 using a  forked version of the  Hamlib git master. This  fork contains
 patches  not yet  accepted by  the Hamlib  development team  which are
@@ -62,7 +69,7 @@ $ ../src/autogen.sh --prefix=$HOME/hamlib-prefix \
    CFLAGS="-fdata-sections -ffunction-sections" \
    LDFLAGS="-Wl,--gc-sections"
 $ make
-$ make install
+$ make install-strip
 
 This will build a binary  hamlib package located at ~/hamlib-prefix so
 you will need  to add that to your CMAKE_PREFIX_PATH  variable in your
@@ -115,6 +122,13 @@ the  JT-SDK the  following recipe  should help.  Reasons for  building
 Hamlib from source might include picking up the very latest patches or
 building a different branch that you wish to contribute to.
 
+Hamlib optionally depends upon  libusb-1.0, see "Building from Source"
+above  for more  details.   If you  wish to  include  support for  the
+optional  custom  USB  Hamlib  rig   drivers  then  you  must  install
+libusb-1.0 before  building Hamlib. The  package may be  obtained from
+http://libusb.info/,  install   it  in  a  convenient   location  like
+C:\Tools.
+
 On Windows there is a complication in that the compilers used to build
 Qt  and WSJT-X  are the  MinGW ones  bundled with  the Qt  package but
 Hamlib needs to be build from an MSYS shell with the tools required to
@@ -138,14 +152,19 @@ $ cd ../build
    --without-cxx-binding --disable-winradio \
    CC=<path-to-Qt-MinGW-tools>/gcc \
    CXX=<path-to-Qt-MinGW-tools>/g++ \
-   CFLAGS="-fdata-sections -ffunction-sections" \
-   LDFLAGS="-Wl,--gc-sections"
+   CFLAGS="-fdata-sections -ffunction-sections -I<path-to-libusb-1.0>/include" \
+   LDFLAGS="-Wl,--gc-sections" \
+   LIBUSB_LIBS="-L<path-to-libusb-1.0>/MinGW32/dll -lusb-1.0"
 $ make
 $ make install
 
 NOTE: <path-to-Qt-MinGQ-tools>  should be substituted with  the actual
 path   to  your   Qt   bundled  tools   e.g  on   my   system  it   is
 C:\Tools\Qt\Tools\mingw48_32\bin
+
+NOTE: <path-to-libusb-1.0> should be  substituted with the actual path
+to  your libusb-1.0  installation directory  e.g. on  my system  it is
+C:\Tools\libusb-1.0.20
 
 This   will    leave   a   Hamlib   binary    package   installed   at
 c:/Users/<user-name>/hamlib-prefix which  is what needs to  be on your
@@ -188,12 +207,13 @@ texinfo
 gcc49
 fftw-3-single +gcc49
 asciidoc
+libusb-devel
 
 These are install by typing:
 
 $ sudo port install autoconf automake \
    libtool pkgconfig texinfo gcc49 asciidoc \
-   fftw-3-single +gcc49
+   fftw-3-single +gcc49 libusb-devel
 
 Once complete you should have all the tools required to build WSJT-X.
 
@@ -230,7 +250,9 @@ $ cd ~/hamlib-prefix/build
    --enable-static \
    --disable-shared \
    --disable-winradio \
-   --prefix=$HOME/hamlib-prefix
+   --prefix=$HOME/hamlib-prefix \
+   CFLAGS="-I/opt/local/include" \
+   LIBUSB_LIBS="/opt/local/lib/libusb-1.0.la"
 $ make
 $ make install-strip
 
