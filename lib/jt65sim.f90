@@ -18,7 +18,8 @@ program jt65sim
   complex cspread(0:NFFT-1)              !Complex amplitude for Rayleigh fading
   complex z
   real*8 f0,dt,twopi,phi,dphi,baud,fsample,freq,sps
-  character msg*22,fname*11,csubmode*1,call1*5,call2*5,c,optarg*500,numbuf*32
+  character msg*22,fname*11,csubmode*1,c,optarg*500,numbuf*32
+!  character call1*5,call2*5
   logical :: display_help=.false.,seed_prngs=.true.
   type (option) :: long_options(8) = [ &
     option ('help',.false.,'h','Display this help message',''),                                &

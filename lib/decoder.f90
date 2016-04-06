@@ -226,7 +226,7 @@ contains
     integer, intent(in) :: nsubmode
     integer, intent(in) :: naggressive
 
-    integer nft,nsmo2,nsum2,n
+    integer n
     character*5 ctail
     character*22 decoded
     character*36 c

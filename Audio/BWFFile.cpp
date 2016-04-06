@@ -49,7 +49,7 @@ namespace
     }
 
     char * operator & () {return reinterpret_cast<char *> (this);}
-    char const * operator & () const {return &*this;}
+    char const * operator & () const {return reinterpret_cast<char const *> (this);}
 
     std::array<char, 4> id_;
     quint32 size_;

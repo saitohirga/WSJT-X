@@ -32,7 +32,6 @@ Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds,
   , m_phi {0.0}
   , m_toneSpacing {0.0}
   , m_fSpread {0.0}
-  , m_itone0 {0}
   , m_frameRate {frameRate}
   , m_period {periodLengthInSeconds}
   , m_state {Idle}

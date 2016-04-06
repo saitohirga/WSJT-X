@@ -19,7 +19,6 @@
 unsigned int Poly213[] = {012767,016461};	/* k = 13  */
 
 #include <memory.h>
-#define NULL ((void *)0)
 
 #define LONGBITS 32
 #define LOGLONGBITS 5

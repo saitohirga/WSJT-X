@@ -105,7 +105,7 @@ unsigned long readc2file(char *ptr_to_infile, float *idat, float *qdat,
 //***************************************************************************
 unsigned long readwavfile(char *ptr_to_infile, int ntrmin, float *idat, float *qdat )
 {
-    unsigned long i, j, npoints;
+    size_t i, j, npoints;
     int nfft1, nfft2, nh2, i0;
     double df;
     
@@ -151,7 +151,7 @@ unsigned long readwavfile(char *ptr_to_infile, int ntrmin, float *idat, float *q
         realin[i]=buf2[i]/32768.0;
     }
     
-    for (i=npoints; i<nfft1; i++) {
+    for (i=npoints; i<(size_t)nfft1; i++) {
         realin[i]=0.0;
     }
     
@@ -161,9 +161,9 @@ unsigned long readwavfile(char *ptr_to_infile, int ntrmin, float *idat, float *q
     
     fftin=(fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex)*nfft2);
     
-    for (i=0; i<nfft2; i++) {
+    for (i=0; i<(size_t)nfft2; i++) {
         j=i0+i;
-        if( i>nh2 ) j=j-nfft2;
+        if( i>(size_t)nh2 ) j=j-nfft2;
         fftin[i][0]=fftout[j][0];
         fftin[i][1]=fftout[j][1];
     }
@@ -173,7 +173,7 @@ unsigned long readwavfile(char *ptr_to_infile, int ntrmin, float *idat, float *q
     PLAN2 = fftwf_plan_dft_1d(nfft2, fftin, fftout, FFTW_BACKWARD, PATIENCE);
     fftwf_execute(PLAN2);
     
-    for (i=0; i<nfft2; i++) {
+    for (i=0; i<(size_t)nfft2; i++) {
         idat[i]=fftout[i][0]/1000.0;
         qdat[i]=fftout[i][1]/1000.0;
     }

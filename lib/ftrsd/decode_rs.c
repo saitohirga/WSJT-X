@@ -10,7 +10,6 @@
 
 #include <string.h>
 
-#define NULL ((void *)0)
 #define	min(a,b)	((a) < (b) ? (a) : (b))
 
 #ifdef FIXED

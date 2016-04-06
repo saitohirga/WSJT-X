@@ -43,8 +43,8 @@ public:
   Q_SIGNAL void stateChanged (ModulatorState) const;
 
 protected:
-  qint64 readData (char * data, qint64 maxSize);
-  qint64 writeData (char const * /* data */, qint64 /* maxSize */)
+  qint64 readData (char * data, qint64 maxSize) override;
+  qint64 writeData (char const * /* data */, qint64 /* maxSize */) override
   {
     return -1;			// we don't consume data
   }
@@ -72,7 +72,6 @@ private:
   double m_fSpread;
 
   qint64 m_silentFrames;
-  qint32 m_itone0;
   qint32 m_TRperiod;
   qint16 m_ramp;
 
