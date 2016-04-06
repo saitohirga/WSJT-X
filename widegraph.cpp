@@ -252,6 +252,11 @@ int WideGraph::Fmax()                                              //Fmax
   return n;
 }
 
+int WideGraph::fSpan()
+{
+  return ui->widePlot->fSpan ();
+}
+
 void WideGraph::setPeriod(int ntrperiod, int nsps)                  //SetPeriod
 {
   m_TRperiod=ntrperiod;
