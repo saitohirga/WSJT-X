@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>configuration_dialog</class>
  <widget class="QDialog" name="configuration_dialog">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>545</width>
-    <height>614</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>Settings</string>
   </property>
@@ -807,7 +799,7 @@ a few, particularly some Kenwood rigs, require it).</string>
           <item row="0" column="1">
            <widget class="QRadioButton" name="PTT_DTR_radio_button">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the RS-232 DTR control line to toggle your radio's PTT,&lt;/p&gt;&lt;p&gt;requires hardware to inteface the line.&lt;/p&gt;&lt;p&gt;Some commercial interface units also use this method.&lt;/p&gt;&lt;p&gt;The DTR control line of the CAT serial port may be used for this or&lt;/p&gt;&lt;p&gt;a DTR control line on a different serial port may be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the RS-232 DTR control line to toggle your radio's PTT, requires hardware to inteface the line.&lt;/p&gt;&lt;p&gt;Some commercial interface units also use this method.&lt;/p&gt;&lt;p&gt;The DTR control line of the CAT serial port may be used for this or a DTR control line on a different serial port may be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>&amp;DTR</string>
@@ -838,7 +830,7 @@ other hardware interface for PTT.</string>
           <item row="1" column="1">
            <widget class="QRadioButton" name="PTT_RTS_radio_button">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the RS-232 RTS control line to toggle your radio's PTT,&lt;/p&gt;&lt;p&gt;requires hardware to inteface the line.&lt;/p&gt;&lt;p&gt;Some commercial interface units also use this method.&lt;/p&gt;&lt;p&gt;The RTS control line of the CAT serial port may be used for this or&lt;/p&gt;&lt;p&gt;a RTS control line on a different serial port may be used.&lt;/p&gt;&lt;p&gt;Note that this options is not available on the CAT serial port&lt;/p&gt;&lt;p&gt;when hardware flow control is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the RS-232 RTS control line to toggle your radio's PTT, requires hardware to inteface the line.&lt;/p&gt;&lt;p&gt;Some commercial interface units also use this method.&lt;/p&gt;&lt;p&gt;The RTS control line of the CAT serial port may be used for this or a RTS control line on a different serial port may be used. Note that this option is not available on the CAT serial port when hardware flow control is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>R&amp;TS</string>
@@ -872,7 +864,7 @@ other hardware interface for PTT.</string>
                </sizepolicy>
               </property>
               <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the RS-232 serial port utilised for PTT control,&lt;/p&gt;&lt;p&gt;this option is available when DTR or RTS is selected above&lt;/p&gt;&lt;p&gt;as a transmit method.&lt;/p&gt;&lt;p&gt;This port can be the same one as the one used for CAT control.&lt;/p&gt;&lt;p&gt;For some interface types the special value CAT may be chosen,&lt;/p&gt;&lt;p&gt;this is used for non-serial CAT interfaces that can control&lt;/p&gt;&lt;p&gt;serial port control lines remotely (OmniRig for example).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the RS-232 serial port utilised for PTT control, this option is available when DTR or RTS is selected above as a transmit method.&lt;/p&gt;&lt;p&gt;This port can be the same one as the one used for CAT control.&lt;/p&gt;&lt;p&gt;For some interface types the special value CAT may be chosen, this is used for non-serial CAT interfaces that can control serial port control lines remotely (OmniRig for example).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="editable">
                <bool>true</bool>
@@ -2403,6 +2395,7 @@ soundcard changes</string>
   <tabstop>disable_TX_on_73_check_box</tabstop>
   <tabstop>watchdog_check_box</tabstop>
   <tabstop>decode_at_52s_check_box</tabstop>
+  <tabstop>offset_Rx_freq_check_box</tabstop>
   <tabstop>CW_id_after_73_check_box</tabstop>
   <tabstop>CW_id_interval_spin_box</tabstop>
   <tabstop>rig_combo_box</tabstop>
@@ -2419,8 +2412,8 @@ soundcard changes</string>
   <tabstop>force_DTR_combo_box</tabstop>
   <tabstop>force_RTS_combo_box</tabstop>
   <tabstop>PTT_VOX_radio_button</tabstop>
-  <tabstop>PTT_DTR_radio_button</tabstop>
   <tabstop>PTT_CAT_radio_button</tabstop>
+  <tabstop>PTT_DTR_radio_button</tabstop>
   <tabstop>PTT_RTS_radio_button</tabstop>
   <tabstop>PTT_port_combo_box</tabstop>
   <tabstop>TX_source_data_radio_button</tabstop>
@@ -2463,6 +2456,16 @@ soundcard changes</string>
   <tabstop>pbTxMsg</tabstop>
   <tabstop>pbNewDXCC</tabstop>
   <tabstop>pbNewCall</tabstop>
+  <tabstop>sbNtrials</tabstop>
+  <tabstop>cbSync1Bit</tabstop>
+  <tabstop>cbTwoPass</tabstop>
+  <tabstop>cbMyDx</tabstop>
+  <tabstop>cbCQMyN</tabstop>
+  <tabstop>cbNDxG</tabstop>
+  <tabstop>cbNN</tabstop>
+  <tabstop>cbEMEonly</tabstop>
+  <tabstop>sbAggressive</tabstop>
+  <tabstop>sbDegrade</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -2525,19 +2528,19 @@ soundcard changes</string>
      <y>60</y>
     </hint>
     <hint type="destinationlabel">
-     <x>566</x>
+     <x>404</x>
      <y>62</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
  </buttongroups>
 </ui>
