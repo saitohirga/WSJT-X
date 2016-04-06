@@ -18,6 +18,7 @@
 #include <QStringList>
 #include <QMessageBox>
 #include <QLockFile>
+#include <QStack>
 
 #if QT_VERSION >= 0x050200
 #include <QCommandLineParser>
@@ -43,10 +44,39 @@ namespace
       qsrand (seed);            // this is good for rand() as well
     }
   } seeding;
+
+  class MessageTimestamper
+  {
+  public:
+    MessageTimestamper ()
+    {
+      prior_handlers_.push (qInstallMessageHandler (message_handler));
+    }
+    ~MessageTimestamper ()
+    {
+      if (prior_handlers_.size ()) qInstallMessageHandler (prior_handlers_.pop ());
+    }
+
+  private:
+    static void message_handler (QtMsgType type, QMessageLogContext const& context, QString const& msg)
+    {
+      QtMessageHandler handler {prior_handlers_.top ()};
+      if (handler)
+        {
+          handler (type, context,
+                   QDateTime::currentDateTimeUtc ().toString ("yy-MM-ddTHH:mm:ss.zzzZ: ") + msg);
+        }
+    }
+    static QStack<QtMessageHandler> prior_handlers_;
+  };
+  QStack<QtMessageHandler> MessageTimestamper::prior_handlers_;
 }
 
 int main(int argc, char *argv[])
 {
+  // Add timestamps to all debug messages
+  MessageTimestamper message_timestamper;
+
   init_random_seed ();
 
   register_types ();            // make the Qt magic happen
@@ -171,11 +201,30 @@ int main(int argc, char *argv[])
         }
 
 #if WSJT_QDEBUG_TO_FILE
-      // // open a trace file
+      // Open a trace file
       TraceFile trace_file {QDir {QStandardPaths::writableLocation (QStandardPaths::TempLocation)}.absoluteFilePath (a.applicationName () + "_trace.log")};
 
-      // announce to trace file
+      // announce to trace file and dump settings
       qDebug () << program_title (revision ()) + " - Program startup";
+      qDebug () << "++++++++++++++++++++++++++++ Settings ++++++++++++++++++++++++++++";
+      for (auto const& key: settings.allKeys ())
+        {
+          auto const& value = settings.value (key);
+          if (value.canConvert<QVariantList> ())
+            {
+              auto const sequence = value.value<QSequentialIterable> ();
+              qDebug ().nospace () << key << ": ";
+              for (auto const& item: sequence)
+                {
+                  qDebug ().nospace () << '\t' << item;
+                }
+            }
+          else
+            {
+              qDebug ().nospace () << key << ": " << value;
+            }
+        }
+      qDebug () << "---------------------------- Settings ----------------------------";
 #endif
 
       // Create and initialize shared memory segment
@@ -207,9 +256,9 @@ int main(int argc, char *argv[])
                                            ).toBool () ? 1u : 4u;
       }
 
+      // run the application UI
       MainWindow w(multiple, &settings, &mem_jt9, downSampleFactor, new QNetworkAccessManager {&a});
       w.show();
-
       QObject::connect (&a, SIGNAL (lastWindowClosed()), &a, SLOT (quit()));
       return a.exec();
     }
