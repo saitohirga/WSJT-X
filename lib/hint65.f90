@@ -16,7 +16,6 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
   character callsign*12,grid*4
   character*180 line
   character ceme*3,msg*22
-  character cgood*1
   character*22 msg0(MAXMSG),decoded
   logical*1 eme(MAXCALLS)
   logical first

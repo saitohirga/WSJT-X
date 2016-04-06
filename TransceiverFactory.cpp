@@ -189,7 +189,7 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (ParameterPack const& pa
         }
     }
 
-  return std::move (result);
+  return result;
 }
 
 #if !defined (QT_NO_DEBUG_STREAM)

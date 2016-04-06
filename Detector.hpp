@@ -31,12 +31,12 @@ public:
   bool reset () override;
 
 protected:
-  qint64 readData (char * /* data */, qint64 /* maxSize */)
+  qint64 readData (char * /* data */, qint64 /* maxSize */) override
   {
     return -1;			// we don't produce data
   }
 
-  qint64 writeData (char const * data, qint64 maxSize);
+  qint64 writeData (char const * data, qint64 maxSize) override;
 
 private:
   void clear ();		// discard buffer contents

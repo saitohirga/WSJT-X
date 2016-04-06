@@ -311,7 +311,6 @@ contains
 ! Accumulated data for message averaging
     integer iutc(MAXAVE)
     integer nfsave(MAXAVE)
-    integer listutc(10)
     integer nflipsave(MAXAVE)
     real s1b(-255:256,126)
     real s1save(-255:256,126,MAXAVE)

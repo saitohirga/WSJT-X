@@ -30,8 +30,6 @@ private:
   void write_settings ();
   QSettings * settings_;
 
-  qint32 m_k;
-
   Ui::MessageAveraging *ui;
 };
 

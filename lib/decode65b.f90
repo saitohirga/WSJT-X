@@ -4,7 +4,7 @@ subroutine decode65b(s2,nflip,nadd,mode65,ntrials,naggressive,ndepth,      &
   use jt65_mod
   real s2(66,126)
   real s3(64,63)
-  logical first,ltext
+  logical ltext
   character decoded*22
   character mycall*12,hiscall*12,hisgrid*6
   save
