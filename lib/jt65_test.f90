@@ -24,15 +24,15 @@ contains
     character(len=12), intent(in) :: mycall, hiscall
     character(len=6), intent(in) :: hisgrid
     type(jt65_decoder) :: my_decoder
-    integer nclearave                          !### Should be a dummy arg?
-    nclearave=0
+    logical nclearave                          !### Should be a dummy arg?
+    nclearave=.false.
 
     call timer('jt65a   ',0)
     call my_decoder%decode(my_callback,dd,npts=52*12000,newdat=.true.,     &
          nutc=nutc,nf1=nflow,nf2=nfhigh,nfqso=nfqso,ntol=ntol,             &
          nsubmode=nsubmode, minsync=-1,nagain=.false.,n2pass=n2pass,       &
          nrobust=nrobust,ntrials=ntrials,naggressive=naggressive,          &
-         ndepth=ndepth,nclearave=nclearave,mycall=mycall,hiscall=hiscall,  &
+         ndepth=ndepth,clearave=nclearave,mycall=mycall,hiscall=hiscall,   &
          hisgrid=hisgrid,nexp_decode=nexp_decode)
     call timer('jt65a   ',1)
   end subroutine test

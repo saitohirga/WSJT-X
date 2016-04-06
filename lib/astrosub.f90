@@ -17,6 +17,7 @@ subroutine astrosub(nyear,month,nday,uth8,freq8,mygrid,hisgrid,          &
      dbMoon8,RAMoon8,DecMoon8,HA8,Dgrd8,sd8,poloffset8,xnr8,dfdt,dfdt0,  &
      width1,width2,xlst8,techo8)
 
+  if (len_trim(AzElFileName) .eq. 0) go to 999
   imin=60*uth8
   isec=3600*uth8
   ih=uth8
@@ -50,5 +51,5 @@ subroutine astrosub(nyear,month,nday,uth8,freq8,mygrid,hisgrid,          &
 
 900 print*,'Error opening azel.dat'
 
-999 return  
+999 return
 end subroutine astrosub

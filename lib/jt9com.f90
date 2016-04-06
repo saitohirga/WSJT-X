@@ -24,7 +24,7 @@
      integer(c_int) :: ntxmode
      integer(c_int) :: nmode
      integer(c_int) :: minw
-     integer(c_int) :: nclearave
+     logical(c_bool) :: nclearave
      integer(c_int) :: minsync
      real(c_float) :: emedelay
      real(c_float) :: dttol
