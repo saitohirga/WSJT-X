@@ -413,8 +413,8 @@ void HamlibTransceiver::do_start ()
       error_check (rc, "getting current VFO");
     }
 
-  if (!is_dummy_ && rig_->caps->set_split_vfo) // if split is possible
-                                               // do some extra setup
+  if ((WSJT_RIG_NONE_CAN_SPLIT || !is_dummy_)
+      && rig_->caps->set_split_vfo) // if split is possible do some extra setup
     {
       freq_t f1;
       freq_t f2;
@@ -576,7 +576,7 @@ auto HamlibTransceiver::get_vfos () const -> std::tuple<vfo_t, vfo_t>
   // else only toggle available but both VFOs should be substitutable 
 
   auto rx_vfo = rig_->state.vfo_list & RIG_VFO_A ? RIG_VFO_A : RIG_VFO_MAIN;
-  auto tx_vfo = !is_dummy_ && state ().split ()
+  auto tx_vfo = (WSJT_RIG_NONE_CAN_SPLIT || !is_dummy_)
     ? (rig_->state.vfo_list & RIG_VFO_B ? RIG_VFO_B : RIG_VFO_SUB)
     : rx_vfo;
   if (reversed_)
@@ -617,8 +617,7 @@ void HamlibTransceiver::do_tx_frequency (Frequency tx, bool rationalise_mode)
 {
   TRACE_CAT (tx << "rationalise mode:" << rationalise_mode << "reversed:" << reversed_);
 
-  if (!is_dummy_)               // split is meaning less if you can't
-                                // see it
+  if (WSJT_RIG_NONE_CAN_SPLIT || !is_dummy_) // split is meaningless if you can't see it
     {
       auto split = tx ? RIG_SPLIT_ON : RIG_SPLIT_OFF;
       update_split (tx);
@@ -766,7 +765,9 @@ void HamlibTransceiver::poll ()
   TRACE_CAT_POLL ("rig_get_freq frequency =" << f);
   update_rx_frequency (f);
 
-  if (!is_dummy_ && state ().split () && (rig_->caps->targetable_vfo & (RIG_TARGETABLE_FREQ | RIG_TARGETABLE_PURE)))
+  if ((WSJT_RIG_NONE_CAN_SPLIT || !is_dummy_)
+      && state ().split ()
+      && (rig_->caps->targetable_vfo & (RIG_TARGETABLE_FREQ | RIG_TARGETABLE_PURE)))
     {
       // only read "other" VFO if in split, this allows rigs like
       // FlexRadio to work in Kenwood TS-2000 mode despite them
@@ -803,7 +804,8 @@ void HamlibTransceiver::poll ()
         }
     }
 
-  if (!is_dummy_ && rig_->caps->get_split_vfo && split_query_works_)
+  if ((WSJT_RIG_NONE_CAN_SPLIT || !is_dummy_)
+      && rig_->caps->get_split_vfo && split_query_works_)
     {
       vfo_t v {RIG_VFO_NONE};		// so we can tell if it doesn't get updated :(
       auto rc = rig_get_split_vfo (rig_.data (), RIG_VFO_CURR, &s, &v);

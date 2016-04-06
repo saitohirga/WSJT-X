@@ -638,8 +638,9 @@ bool Configuration::EMEonly() const {return m_->EMEonly_;}
 bool Configuration::offsetRxFreq () const {return m_->offsetRxFreq_;}
 bool Configuration::split_mode () const
 {
-  return !m_->rig_is_dummy_ and
-      (m_->rig_params_.split_mode != TransceiverFactory::split_mode_none);
+  return
+    (WSJT_RIG_NONE_CAN_SPLIT || !m_->rig_is_dummy_) &&
+    (m_->rig_params_.split_mode != TransceiverFactory::split_mode_none);
 }
 QString Configuration::udp_server_name () const {return m_->udp_server_name_;}
 auto Configuration::udp_server_port () const -> port_type {return m_->udp_server_port_;}
@@ -1483,8 +1484,6 @@ void Configuration::impl::set_rig_invariants ()
       ui_->test_PTT_push_button->setEnabled (TransceiverFactory::PTT_method_DTR == ptt_method
                                              || TransceiverFactory::PTT_method_RTS == ptt_method);
       ui_->TX_audio_source_group_box->setEnabled (false);
-      ui_->mode_group_box->setEnabled (false);
-      ui_->split_operation_group_box->setEnabled (false);
     }
   else
     {
@@ -1493,8 +1492,6 @@ void Configuration::impl::set_rig_invariants ()
       ui_->test_CAT_push_button->setEnabled (true);
       ui_->test_PTT_push_button->setEnabled (false);
       ui_->TX_audio_source_group_box->setEnabled (transceiver_factory_.has_CAT_PTT_mic_data (rig) && TransceiverFactory::PTT_method_CAT == ptt_method);
-      ui_->mode_group_box->setEnabled (true);
-      ui_->split_operation_group_box->setEnabled (true);
       if (port_type != last_port_type)
         {
           last_port_type = port_type;
@@ -1552,9 +1549,11 @@ void Configuration::impl::set_rig_invariants ()
                                             && (cat_port != ptt_port
                                                 || !ui_->PTT_RTS_radio_button->isEnabled ()
                                                 || !ui_->PTT_RTS_radio_button->isChecked ()));
-      ui_->reset_split_check_box->setEnabled (TransceiverFactory::split_mode_rig
-                                              == static_cast<TransceiverFactory::SplitMode> (ui_->split_mode_button_group->checkedId ()));
     }
+  ui_->mode_group_box->setEnabled (WSJT_RIG_NONE_CAN_SPLIT
+                                   || TransceiverFactory::basic_transceiver_name_ != rig);
+  ui_->split_operation_group_box->setEnabled (WSJT_RIG_NONE_CAN_SPLIT
+                                              || TransceiverFactory::basic_transceiver_name_ != rig);
 }
 
 bool Configuration::impl::validate ()
