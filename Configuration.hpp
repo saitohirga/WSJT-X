@@ -54,8 +54,8 @@ class QHostAddress;
 class Configuration final
   : public QObject
 {
-  Q_OBJECT;
-  Q_ENUMS (DataMode Type2MsgGen);
+  Q_OBJECT
+  Q_ENUMS (DataMode Type2MsgGen)
 
 public:
   using MODE = Transceiver::MODE;
@@ -64,7 +64,9 @@ public:
   using port_type = quint16;
 
   enum DataMode {data_mode_none, data_mode_USB, data_mode_data};
+  Q_ENUM (DataMode)
   enum Type2MsgGen {type_2_msg_1_full, type_2_msg_3_full, type_2_msg_5_only};
+  Q_ENUM (Type2MsgGen)
 
   explicit Configuration (QSettings * settings, QWidget * parent = nullptr);
   ~Configuration ();
@@ -219,9 +221,10 @@ private:
   pimpl<impl> m_;
 };
 
-
+#if QT_VERSION < 0x050500
 Q_DECLARE_METATYPE (Configuration::DataMode);
 Q_DECLARE_METATYPE (Configuration::Type2MsgGen);
+#endif
 
 #if !defined (QT_NO_DEBUG_STREAM)
 ENUM_QDEBUG_OPS_DECL (Configuration, DataMode);

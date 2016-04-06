@@ -8,8 +8,8 @@
 class Modes final
   : public QAbstractListModel
 {
-  Q_OBJECT;
-  Q_ENUMS (Mode);
+  Q_OBJECT
+  Q_ENUMS (Mode)
 
 public:
   enum Mode
@@ -23,6 +23,7 @@ public:
     ISCAT,
     JTMSK,
   };
+  Q_ENUM (Mode)
 
   explicit Modes (QObject * parent = nullptr);
 
@@ -38,7 +39,9 @@ public:
   QVariant headerData (int section, Qt::Orientation, int = Qt::DisplayRole) const override;
 };
 
+#if QT_VERSION < 0x050500
 Q_DECLARE_METATYPE (Modes::Mode);
+#endif
 
 #if !defined (QT_NO_DEBUG_STREAM)
 ENUM_QDEBUG_OPS_DECL (Modes, Mode);

@@ -51,8 +51,8 @@ class QString;
 class Transceiver
   : public QObject
 {
-  Q_OBJECT;
-  Q_ENUMS (MODE);
+  Q_OBJECT
+  Q_ENUMS (MODE)
 
 public:
   using Frequency = Radio::Frequency;
@@ -68,6 +68,7 @@ public:
   }
 
   enum MODE {UNK, CW, CW_R, USB, LSB, FSK, FSK_R, DIG_U, DIG_L, AM, FM, DIG_FM};
+  Q_ENUM (MODE)
 
   //
   // Aggregation of all of the rig and PTT state accessible via this
@@ -153,7 +154,9 @@ public:
 };
 
 Q_DECLARE_METATYPE (Transceiver::TransceiverState);
+#if QT_VERSION < 0x050500
 Q_DECLARE_METATYPE (Transceiver::MODE);
+#endif
 
 #if !defined (QT_NO_DEBUG_STREAM)
 ENUM_QDEBUG_OPS_DECL (Transceiver, MODE);
@@ -162,7 +165,6 @@ QDebug operator << (QDebug, Transceiver::TransceiverState const&);
 #endif
 
 ENUM_QDATASTREAM_OPS_DECL (Transceiver, MODE);
-
 ENUM_CONVERSION_OPS_DECL (Transceiver, MODE);
 
 bool operator != (Transceiver::TransceiverState const&, Transceiver::TransceiverState const&);

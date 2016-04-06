@@ -11,6 +11,8 @@
 #include <QMimeData>
 #include <QDataStream>
 #include <QByteArray>
+#include <QDebug>
+#include <QDebugStateSaver>
 
 #include "Bands.hpp"
 #include "pimpl_impl.hpp"
@@ -105,10 +107,11 @@ namespace
 #if !defined (QT_NO_DEBUG_STREAM)
 QDebug operator << (QDebug debug, FrequencyList::Item const& item)
 {
+  QDebugStateSaver saver {debug};
   debug.nospace () << "FrequencyItem("
                    << item.frequency_ << ", "
                    << item.mode_ << ')';
-  return debug.space ();
+  return debug;
 }
 #endif
 
