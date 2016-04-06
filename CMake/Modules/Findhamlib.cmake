@@ -22,7 +22,6 @@ if (__hamlib_pc_path)
   set (ENV{PKG_CONFIG_PATH} "${__hamlib_pc_path}" "$ENV{PKG_CONFIG_PATH}")
   unset (__hamlib_pc_path CACHE)
 endif ()
-message (STATUS "ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}")
 
 # Use pkg-config to get hints about paths, libs and, flags
 unset (__pkg_config_checked_hamlib CACHE)
