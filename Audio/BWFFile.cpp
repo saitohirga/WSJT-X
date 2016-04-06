@@ -34,7 +34,10 @@ namespace
         {
           auto len = std::min (size_t (4), strlen (id));
           memcpy (id_.data (), id, len);
-          memset (id_.data () + len, ' ', 4u - len);
+          if (len < 4u)
+            {
+              memset (id_.data () + len, ' ', 4u - len);
+            }
         }
       else
         {
