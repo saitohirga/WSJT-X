@@ -29,25 +29,23 @@ class EmulateSplitTransceiver final
 {
 public:
   // takes ownership of wrapped Transceiver
-  explicit EmulateSplitTransceiver (std::unique_ptr<Transceiver> wrapped);
+  explicit EmulateSplitTransceiver (std::unique_ptr<Transceiver> wrapped,
+                                    QObject * parent = nullptr);
 
-  void start () noexcept override;
-  void frequency (Frequency, MODE) noexcept override;
-  void tx_frequency (Frequency, bool rationalise_mode) noexcept override;
-  void ptt (bool on) noexcept override;
+  void set (TransceiverState const&,
+            unsigned sequence_number) noexcept override;
 
   // forward everything else to wrapped Transceiver
-  void stop (bool /* reset_split */) noexcept override {wrapped_->stop (false); Q_EMIT finished ();}
-  void mode (MODE m, bool /* rationalise */) noexcept override {wrapped_->mode (m, false);}
-  void sync (bool force_signal) noexcept override {wrapped_->sync (force_signal);}
+  void start (unsigned sequence_number) noexcept override {wrapped_->start (sequence_number);}
+  void stop () noexcept override {wrapped_->stop ();}
 
 private:
-  void handle_update (TransceiverState);
+  void handle_update (TransceiverState const&, unsigned seqeunce_number);
 
   std::unique_ptr<Transceiver> wrapped_;
-  Frequency frequency_[2];  // [0] <- RX, [1] <- other
-  Frequency pre_tx_frequency_;  // return to this on switching to Rx
-  bool tx_;
+  Frequency rx_frequency_;        // requested Rx frequency
+  Frequency tx_frequency_;        // requested Tx frequency
+  bool split_; // requested split state
 };
 
 #endif

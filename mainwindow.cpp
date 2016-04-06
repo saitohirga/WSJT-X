@@ -31,7 +31,6 @@
 #include "fastplot.h"
 #include "fastgraph.h"
 #include "about.h"
-#include "astro.h"
 #include "messageaveraging.h"
 #include "widegraph.h"
 #include "sleep.h"
@@ -90,7 +89,7 @@ extern "C" {
   int fftwf_export_wisdom_to_filename(const char *);
 
   void wspr_downsample_(short int d2[], int* k);
-  void savec2_(char* fname, int* m_TRseconds, double* m_dialFreq, int len1);
+  void savec2_(char* fname, int* TR_seconds, double* dial_freq, int len1);
 
   void avecho_( short id2[], int* dop, int* nfrit, int* nqual, float* f1,
                 float* level, float* sigdb, float* snr, float* dfreq,
@@ -150,11 +149,14 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_echoGraph (new EchoGraph(settings)),
   m_fastGraph (new FastGraph(settings)),
   m_logDlg (new LogQSO (program_title (), settings, this)),
-  m_dialFreq {std::numeric_limits<Radio::Frequency>::max ()},
+  m_lastDialFreq {0},
+  //m_dialFreq {std::numeric_limits<Radio::Frequency>::max ()},
   m_detector {new Detector {RX_SAMPLE_RATE, NTMAX, 6912 / 2, downSampleFactor}},
   m_soundInput {new SoundInput},
   m_modulator {new Modulator {TX_SAMPLE_RATE, NTMAX}},
   m_soundOutput {new SoundOutput},
+  m_freqNominal {0},
+  m_freqTxNominal {0},
   m_XIT {0},
   m_pctx {0},
   m_diskData {false},
@@ -385,8 +387,11 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   ui->bandComboBox->view ()->setMinimumWidth (ui->bandComboBox->view ()->sizeHintForColumn (FrequencyList::frequency_mhz_column));
 
   // Enable live band combo box entry validation and action.
-  auto band_validator = new LiveFrequencyValidator {ui->bandComboBox, m_config.bands(),
-                                                    m_config.frequencies(), this};
+  auto band_validator = new LiveFrequencyValidator {ui->bandComboBox
+                                                    , m_config.bands ()
+                                                    , m_config.frequencies ()
+                                                    , &m_freqNominal
+                                                    , this};
   ui->bandComboBox->setValidator (band_validator);
 
   // Hook up signals.
@@ -517,7 +522,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   m_TRperiodFast=-1;
   m_nTx73=0;
   m_freqCQ=0;
-  m_dialFreq0=0;
+  m_callingFrequency=0;
   QString t1[28]={"1 uW","2 uW","5 uW","10 uW","20 uW","50 uW","100 uW","200 uW","500 uW",
                   "1 mW","2 mW","5 mW","10 mW","20 mW","50 mW","100 mW","200 mW","500 mW",
                   "1 W","2 W","5 W","10 W","20 W","50 W","100 W","200 W","500 W","1 kW"};
@@ -632,7 +637,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   ui->label_10->setStyleSheet("QLabel{background-color: #aabec8}");
 
   // this must be done before initializing the mode as some modes need
-  // to turn off split om the rig e.g. WSPR
+  // to turn off split on the rig e.g. WSPR
   m_config.transceiver_online (true);
 
   bool b=m_config.enable_VHF_features() and (m_mode=="JT4" or m_mode=="JT65" or
@@ -649,9 +654,6 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   if(m_mode=="ISCAT") on_actionISCAT_triggered();
   if(m_mode=="JTMSK") on_actionJTMSK_triggered();
 
-  // this can only be done after mode is initialized otherwise split
-  // on rig may be incorrect selected
-  on_monitorButton_clicked (!m_config.monitor_off_at_startup ());
   if(m_mode=="Echo") monitor(false); //Don't auto-start Monitor in Echo mode.
 
   m_ntx=1;
@@ -689,6 +691,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
 //--------------------------------------------------- MainWindow destructor
 MainWindow::~MainWindow()
 {
+  m_astroWidget.reset ();
   QString fname {QDir::toNativeSeparators(m_dataDir.absoluteFilePath ("wsjtx_wisdom.dat"))};
   QByteArray cfname=fname.toLocal8Bit();
   fftwf_export_wisdom_to_filename(cfname);
@@ -765,7 +768,7 @@ void MainWindow::readSettings()
   m_settings->endGroup();
 
   // do this outside of settings group because it uses groups internally
-  if (displayAstro) on_actionAstronomical_data_triggered ();
+  ui->actionAstronomical_data->setChecked (displayAstro);
   if (displayMsgAvg) on_actionMessage_averaging_triggered();
 
   m_settings->beginGroup("Common");
@@ -911,7 +914,7 @@ void MainWindow::dataSink(qint64 frames)
   }
 
   if(ihsym==3*m_hsymStop/4) {
-    m_dialFreqRxWSPR=m_dialFreq;
+    m_dialFreqRxWSPR=m_freqNominal;
   }
 
   if(ihsym == m_hsymStop) {
@@ -942,7 +945,7 @@ void MainWindow::dataSink(qint64 frames)
       }
       return;
     }
-    if( m_dialFreqRxWSPR==0) m_dialFreqRxWSPR=m_dialFreq;
+    if( m_dialFreqRxWSPR==0) m_dialFreqRxWSPR=m_freqNominal;
     m_dataAvailable=true;
     dec_data.params.npts8=(ihsym*m_nsps)/16;
     dec_data.params.newdat=1;
@@ -971,7 +974,7 @@ void MainWindow::dataSink(qint64 frames)
         strcpy(c2name,m_c2name.toLatin1());
         int nsec=120;
         int nbfo=1500;
-        double f0m1500=m_dialFreq/1000000.0 + nbfo - 1500;
+        double f0m1500=m_freqNominal/1000000.0 + nbfo - 1500;
         savec2_(c2name,&nsec,&f0m1500,len1);
       }
     }
@@ -997,7 +1000,7 @@ void MainWindow::dataSink(qint64 frames)
       cmnd=t3.mid(0,i1+7) + t3.mid(i1+7);
       ui->DecodeButton->setChecked (true);
       p1.start(QDir::toNativeSeparators(cmnd));
-      m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
+      m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
                                       QString::number (ui->rptSpinBox->value ()),
                                       m_modeTx, ui->autoButton->isChecked (),
                                       m_transmitting, (m_decoderBusy = true));
@@ -1020,7 +1023,7 @@ void MainWindow::save_wave_file (QString const& name, short const * data, int se
      .arg (QString {m_mode.contains ('J') && !m_mode.contains ('+')
            ? QString {", Sub Mode="} + QChar {'A' + m_nSubMode}
          : QString {}})
-     .arg (Radio::frequency_MHz_string (m_dialFreq))
+        .arg (Radio::frequency_MHz_string (m_freqNominal))
      .arg (QString {!m_mode.contains ("WSPR") ? QString {", DXCall=%1, DXGrid=%2"}
          .arg (m_hisCall)
          .arg (m_hisGrid).toLocal8Bit () : ""});
@@ -1155,11 +1158,8 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       VHF_controls_visible(b);
     }
 
+  m_config.transceiver_online (true);
   if(!m_bFastMode) setXIT (ui->TxFreqSpinBox->value ());
-  if (m_config.transceiver_online ())
-    {
-      Q_EMIT m_config.transceiver_frequency (m_dialFreq);
-    }
   if(m_config.single_decode() or m_mode=="JT4") {
     ui->label_6->setText("Single-Period Decodes");
     ui->label_7->setText("Average Decodes");
@@ -1178,21 +1178,18 @@ void MainWindow::on_monitorButton_clicked (bool checked)
 
       if (checked && !prior)
         {
-          Frequency operating_frequency {m_dialFreq};
           if (m_config.monitor_last_used ())
             {
               // put rig back where it was when last in control
-              operating_frequency = m_lastMonitoredFrequency;
-              Q_EMIT m_config.transceiver_frequency (operating_frequency);
-            }
-          qsy (operating_frequency);
-          if (m_config.monitor_last_used ())
-            {
+              m_freqNominal = m_lastMonitoredFrequency;
+              m_freqTxNominal = m_freqNominal;
+              if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
+              setRig ();
               setXIT (ui->TxFreqSpinBox->value ());
             }
         }
 
-//Get Configuration in/out of strict split and mode checking
+      //Get Configuration in/out of strict split and mode checking
       Q_EMIT m_config.sync_transceiver (true, checked);
     }
   else
@@ -1221,7 +1218,7 @@ void MainWindow::on_actionAbout_triggered()                  //Display "About"
 void MainWindow::on_autoButton_clicked (bool checked)
 {
   m_auto = checked;
-  m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
+  m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
                                   QString::number (ui->rptSpinBox->value ()),
                                   m_modeTx, ui->autoButton->isChecked (),
                                   m_transmitting, m_decoderBusy);
@@ -1345,49 +1342,21 @@ void MainWindow::bumpFqso(int n)                                 //bumpFqso()
   }
 }
 
-void MainWindow::qsy (Frequency f)
-{
-  if (!m_transmitting)
-    {
-      if (m_monitoring)
-        {
-          m_lastMonitoredFrequency = f;
-        }
-//      if (m_dialFreq != f)
-      if (m_dialFreq != f and (m_mode!="JTMSK" or !ui->cbCQRx->isChecked()))
-        {
-          m_dialFreq = f;
-          m_repeatMsg=0;
-          m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
-          if(m_dialFreq/1000000 < 30 and m_mode.mid(0,4)!="WSPR") {
-// Write freq changes to ALL.TXT only below 30 MHz.
-            QFile f2 {m_dataDir.absoluteFilePath ("ALL.TXT")};
-            if (f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
-              QTextStream out(&f2);
-              out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-                  << "  " << (m_dialFreq / 1.e6) << " MHz  " << m_mode << endl;
-              f2.close();
-            } else {
-              msgBox("Cannot open \"" + f2.fileName () + "\" for append:" + f2.errorString ());
-            }
-          }
-
-          if (m_config.spot_to_psk_reporter ()) {
-            pskSetLocal ();
-          }
-          displayDialFrequency ();
-          statusChanged();
-          m_wideGraph->setDialFreq(m_dialFreq / 1.e6);
-        }
-    }
-}
-
 void MainWindow::displayDialFrequency ()
 {
+  Frequency dial_frequency {m_rigState.ptt () && m_rigState.split () ?
+      m_rigState.tx_frequency () : m_rigState.frequency ()};
+
   // lookup band
-  auto const& band_name = m_config.bands ()->find (m_dialFreq);
-  ui->bandComboBox->setCurrentText (band_name);
-  m_wideGraph->setRxBand (band_name);
+  auto const& band_name = m_config.bands ()->find (dial_frequency);
+  if (m_lastBand != band_name)
+    {
+      // only change this when necessary as we get called a lot and it
+      // would trash any user input to the band combo box line edit
+      ui->bandComboBox->setCurrentText (band_name);
+      m_wideGraph->setRxBand (band_name);
+      m_lastBand = band_name;
+    }
 
   // search working frequencies for one we are within 10kHz of (1 Mhz
   // of on VHF and up)
@@ -1399,29 +1368,24 @@ void MainWindow::displayDialFrequency ()
       // ensure that we can use unsigned Radio::Frequency since we
       // potentially use the full 64-bit unsigned range.
       auto const& working_frequency = item.frequency_;
-      auto const& offset = m_dialFreq > working_frequency ? m_dialFreq - working_frequency : working_frequency - m_dialFreq;
+      auto const& offset = dial_frequency > working_frequency ?
+        dial_frequency - working_frequency :
+        working_frequency - dial_frequency;
       if (offset < min_offset) {
-         m_freqNominal = working_frequency;
-         min_offset = offset;
+        min_offset = offset;
       }
-  }
-  if (min_offset < 10000u or (m_config.enable_VHF_features() and
-                              min_offset < 1000000u)) {
+    }
+  if (min_offset < 10000u || (m_config.enable_VHF_features() && min_offset < 1000000u)) {
     valid = true;
   }
 
   update_dynamic_property (ui->labDialFreq, "oob", !valid);
-  if(m_dialFreq==18446744073709551615u) {
-    ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (default_frequency));
-  } else {
-    ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
-
-  }
+  ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (dial_frequency));
 }
 
 void MainWindow::statusChanged()
 {
-  m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
+  m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
                                   QString::number (ui->rptSpinBox->value ()),
                                   m_modeTx, ui->autoButton->isChecked (),
                                   m_transmitting, m_decoderBusy);
@@ -1429,7 +1393,8 @@ void MainWindow::statusChanged()
   QFile f {m_config.temp_dir ().absoluteFilePath ("wsjtx_status.txt")};
   if(f.open(QFile::WriteOnly | QIODevice::Text)) {
     QTextStream out(&f);
-    out << (m_dialFreq / 1.e6) << ";" << m_mode << ";" << m_hisCall << ";"
+    out << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6)
+        << ";" << m_mode << ";" << m_hisCall << ";"
         << ui->rptSpinBox->value() << ";" << m_modeTx << endl;
     f.close();
   } else {
@@ -1546,20 +1511,29 @@ void MainWindow::on_actionFast_Graph_triggered()
   m_fastGraph->show();
 }
 
-void MainWindow::on_actionAstronomical_data_triggered()
+void MainWindow::on_actionAstronomical_data_toggled (bool checked)
 {
-  if (!m_astroWidget)
+  if (checked)
     {
       m_astroWidget.reset (new Astro {m_settings, &m_config});
 
       // hook up termination signal
       connect (this, &MainWindow::finished, m_astroWidget.data (), &Astro::close);
-      connect (m_astroWidget.data (), &Astro::doppler_tracking_toggled
-               , this, &MainWindow::DopplerTracking_toggled);
+      connect (m_astroWidget.data (), &Astro::tracking_update, [this] {
+          m_astroCorrection = {};
+          setRig ();
+          setXIT (ui->TxFreqSpinBox->value ());
+          displayDialFrequency ();
+        });
+      m_astroWidget->showNormal();
+      m_astroWidget->raise ();
+      m_astroWidget->activateWindow ();
+      m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
     }
-  m_astroWidget->showNormal();
-  m_astroWidget->raise ();
-  m_astroWidget->activateWindow ();
+  else
+    {
+      m_astroWidget.reset ();
+    }
 }
 
 void MainWindow::on_actionMessage_averaging_triggered()
@@ -1947,7 +1921,8 @@ void::MainWindow::fast_decode_done()
       QTextStream out(&f);
       if(m_RxLog==1) {
         out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-            << "  " << (m_dialFreq / 1.e6) << " MHz  " << m_mode << endl;
+            << "  " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz  "
+            << m_mode << endl;
         m_RxLog=0;
       }
       int n=message.length();
@@ -1973,7 +1948,7 @@ void::MainWindow::fast_decode_done()
         decodedtext.deCallAndGrid(/*out*/deCall,grid);
         int audioFrequency = decodedtext.frequencyOffset();
         int snr = decodedtext.snr();
-        Frequency frequency = m_dialFreq + audioFrequency;
+        Frequency frequency = m_freqNominal + audioFrequency;
         pskSetLocal();
         if(gridOK(grid))
 //          qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
@@ -2045,7 +2020,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
         QTextStream out(&f);
         if(m_RxLog==1) {
           out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-              << "  " << (m_dialFreq / 1.e6) << " MHz  " << m_mode << endl;
+              << "  " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz  "
+              << m_mode << endl;
           m_RxLog=0;
         }
         int n=t.length();
@@ -2060,7 +2036,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
             QString band;
             if (QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged > 50)
               {
-                band = ' ' + m_config.bands ()->find (m_dialFreq);
+                band = ' ' + m_config.bands ()->find (m_freqNominal);
               }
             ui->decodedTextBrowser->insertLineSpacer (band.rightJustified  (40, '-'));
             m_blankLine = false;
@@ -2120,7 +2096,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         decodedtext.deCallAndGrid(/*out*/deCall,grid);
         int audioFrequency = decodedtext.frequencyOffset();
         int snr = decodedtext.snr();
-        Frequency frequency = m_dialFreq + audioFrequency;
+        Frequency frequency = m_freqNominal + audioFrequency;
         pskSetLocal ();
         if(gridOK(grid))
           psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
@@ -2211,7 +2187,7 @@ void MainWindow::decodeBusy(bool b)                             //decodeBusy()
   ui->actionOpen_next_in_directory->setEnabled(!b);
   ui->actionDecode_remaining_files_in_directory->setEnabled(!b);
 
-  m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
+  m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
                                   QString::number (ui->rptSpinBox->value ()),
                                   m_modeTx, ui->autoButton->isChecked (),
                                   m_transmitting, m_decoderBusy);
@@ -2296,7 +2272,7 @@ void MainWindow::guiUpdate()
        fmod(tsec,m_TRperiod)<(1.0 + 85.0*m_nsps/12000.0)) m_bTxTime=true;
 
 // Don't transmit another mode in the 30 m WSPR sub-band
-    Frequency onAirFreq = m_dialFreq + ui->TxFreqSpinBox->value();
+    Frequency onAirFreq = m_freqNominal + ui->TxFreqSpinBox->value();
     if ((onAirFreq > 10139900 and onAirFreq < 10140320) and
         m_mode.mid(0,4)!="WSPR") {
       m_bTxTime=false;
@@ -2316,27 +2292,21 @@ void MainWindow::guiUpdate()
     if(g_iptt==0 and ((m_bTxTime and fTR<99) or m_tune )) {   //### Allow late starts
       icw[0]=m_ncw;
       g_iptt = 1;
-      setXIT (ui->TxFreqSpinBox->value ());         //Ensure correct offset
+      setRig ();
+      setXIT (ui->TxFreqSpinBox->value ());
 
 // If "CQ nnn ..." feature is active, set the proper Tx frequency
-      if(m_config.offsetRxFreq() and ui->cbCQRx->isChecked()) {
-        if(m_ntx==6) {
-          m_dialFreqTx = m_dialFreq0;
-        } else {
-          int MHz=int(m_dialFreq/1000000);
-          m_dialFreqTx=1000000*MHz + 1000*m_freqCQ;
+      if(m_config.offsetRxFreq() && ui->cbCQRx->isChecked()
+        && (m_monitoring || m_transmitting)
+          && m_config.transceiver_online ()
+          && m_config.split_mode ())
+        {
+          // All conditions are met, reset the transceiver Tx frequency:
+          Frequency tx_frequency {6 == m_ntx ?
+              m_callingFrequency :
+              m_freqTxNominal / 1000000 * 1000000 + 1000 * m_freqCQ + m_XIT};
+          Q_EMIT m_config.transceiver_tx_frequency (tx_frequency);
         }
-
-        if (m_monitoring || m_transmitting) {
-          if (m_config.transceiver_online ()) {
-            if (m_config.split_mode ()) {
-            // All conditions are met, reset the transceiver dial frequency:
-//            ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
-              Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
-            }
-          }
-        }
-      }
 
       Q_EMIT m_config.transceiver_ptt (true);       //Assert the PTT
       ptt1Timer->start(200);                        //Sequencer delay
@@ -2350,7 +2320,7 @@ void MainWindow::guiUpdate()
       m_rxDone=false;
     }
     if(m_transmitting) {
-      WSPR_history(m_dialFreq,-1);
+      WSPR_history(m_freqNominal,-1);
       m_bTxTime=false;                        //Time to stop a WSPR transmission
       m_btxok=false;
     }
@@ -2439,7 +2409,8 @@ void MainWindow::guiUpdate()
         {
           QTextStream out(&f);
           out << QDateTime::currentDateTimeUtc().toString("hhmm")
-              << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz  " << m_modeTx
+              << "  Transmitting " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6)
+              << " MHz  " << m_modeTx
               << ":  " << m_currentMessage << endl;
           f.close();
         }
@@ -2536,7 +2507,8 @@ void MainWindow::guiUpdate()
         if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
           QTextStream out(&f);
           out << QDateTime::currentDateTimeUtc().toString("hhmm")
-              << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz  " << m_modeTx
+              << "  Transmitting " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz  "
+              << m_modeTx
               << ":  " << m_currentMessage << endl;
           f.close();
         } else {
@@ -2552,7 +2524,7 @@ void MainWindow::guiUpdate()
 
       m_transmitting = true;
       transmitDisplay (true);
-      m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
+      m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
                                       QString::number (ui->rptSpinBox->value ()),
                                       m_modeTx, ui->autoButton->isChecked (),
                                       m_transmitting, m_decoderBusy);
@@ -2583,8 +2555,8 @@ void MainWindow::guiUpdate()
       }
     }
 
-    QDateTime t = QDateTime::currentDateTimeUtc();
-    astroCalculations (t, (m_astroWidget && m_astroWidget->doppler_tracking()));
+    astroUpdate ();
+
     if(m_transmitting) {
       char s[37];
       sprintf(s,"Tx: %s",msgsent);
@@ -2616,6 +2588,7 @@ void MainWindow::guiUpdate()
       tx_status_label->setText("");
     }
 
+    QDateTime t = QDateTime::currentDateTimeUtc();
     QString utc = t.date().toString("yyyy MMM dd") + "\n " +
       t.time().toString() + " ";
     ui->labUTC->setText(utc);
@@ -2623,6 +2596,7 @@ void MainWindow::guiUpdate()
       ui->signal_meter_widget->setValue(0);
     }
     m_sec0=nsec;
+    displayDialFrequency ();
   }
   iptt0=g_iptt;
   btxok0=m_btxok;
@@ -2647,7 +2621,7 @@ void MainWindow::startTx2()
     if(m_mode.mid(0,4)=="WSPR" and !m_tune) {
       if (m_config.TX_messages ()) {
         t = " Transmitting " + m_mode + " ----------------------- " +
-          m_config.bands ()->find (m_dialFreq);
+          m_config.bands ()->find (m_freqNominal);
         t=WSPR_hhmm(0) + ' ' + t.rightJustified (66, '-');
         ui->decodedTextBrowser->appendText(t);
       }
@@ -2656,7 +2630,7 @@ void MainWindow::startTx2()
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
         QTextStream out(&f);
         out << QDateTime::currentDateTimeUtc().toString("yyMMdd hhmm")
-            << "  Transmitting " << (m_dialFreq / 1.e6) << " MHz:  "
+            << "  Transmitting " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz:  "
             << m_currentMessage << "  " + m_mode << endl;
         f.close();
       } else {
@@ -2676,7 +2650,7 @@ void MainWindow::stopTx()
   tx_status_label->setText("");
   ptt0Timer->start(200);                       //Sequencer delay
   monitor (true);
-  m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
+  m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
                                   QString::number (ui->rptSpinBox->value ()),
                                   m_modeTx, ui->autoButton->isChecked (),
                                   m_transmitting, m_decoderBusy);
@@ -2701,14 +2675,17 @@ void MainWindow::stopTx2()
     m_ntr=0;
   }
   if(m_config.offsetRxFreq() and ui->cbCQRx->isChecked()) {
-//    Q_EMIT m_config.transceiver_frequency(m_dialFreq);
+//    Q_EMIT m_config.transceiver_frequency(m_freqNominal);
     RxQSYTimer->start(50);
   }
 }
 
 void MainWindow::RxQSY()
 {
-  Q_EMIT m_config.transceiver_frequency(m_dialFreq);
+  // this appears to be a null directive
+  if (m_config.transceiver_online ()) {
+    Q_EMIT m_config.transceiver_frequency(m_freqNominal);
+  }
 }
 
 void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
@@ -2830,21 +2807,21 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       if(ok and kHz>=0 and kHz<=999) {
         t2a=t2a.mid(0,i1+4) + t2a.mid(i1+8,-1);
         if (m_config.transceiver_online ()) {
-          int MHz=int(m_dialFreq/1000000);
-          m_dialFreq = 1000000*MHz + 1000*kHz;            //QSY Freq for answering CQ nnn
+          Frequency frequency {m_freqNominal / 1000000 * 1000000 + 1000*kHz}; //QSY Freq for answering CQ nnn
           QString t;
-          t.sprintf("QSY %7.3f",0.000001*m_dialFreq);
+          t.sprintf("QSY %7.3f", frequency / 10e6);
           ui->decodedTextBrowser2->displayQSY(t);
-          ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
-          Q_EMIT m_config.transceiver_frequency (m_dialFreq);
+          // ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (frequency));
+          if (m_config.transceiver_online ()) {
+            Q_EMIT m_config.transceiver_frequency (frequency);
+          }
 
-          if (m_monitoring || m_transmitting) {
-            if (m_config.transceiver_online ()) {
-              if (m_config.split_mode ()) {
-                // All conditions are met, reset the transceiver dial frequency:
-                Q_EMIT m_config.transceiver_tx_frequency(m_dialFreq);
-              }
-            }
+          if ((m_monitoring || m_transmitting)
+              && m_config.transceiver_online ()
+              && m_config.split_mode ())
+            {
+            // All conditions are met, reset the transmit dial frequency:
+            Q_EMIT m_config.transceiver_tx_frequency(frequency);
           }
 
         }
@@ -3477,7 +3454,7 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   m_dateTimeQSO=QDateTime::currentDateTimeUtc();
 
   m_logDlg->initLogQSO (m_hisCall, m_hisGrid, m_modeTx, m_rptSent, m_rptRcvd,
-                        m_dateTimeQSO, m_dialFreq + ui->TxFreqSpinBox->value(),
+                        m_dateTimeQSO, m_freqNominal + ui->TxFreqSpinBox->value(),
                         m_config.my_callsign(), m_config.my_grid(), m_noSuffix,
                         m_config.log_as_RTTY(), m_config.report_in_comments());
 }
@@ -3489,7 +3466,7 @@ void MainWindow::acceptQSO2(QDateTime const& QSO_date, QString const& call, QStr
                             , QString const& name)
 {
   QString date = m_dateTimeQSO.toString("yyyyMMdd");
-  m_logBook.addAsWorked (m_hisCall, m_config.bands ()->find (m_dialFreq), m_modeTx, date);
+  m_logBook.addAsWorked (m_hisCall, m_config.bands ()->find (m_freqNominal), m_modeTx, date);
 
   m_messageClient->qso_logged (QSO_date, call, grid, dial_freq, mode, rpt_sent, rpt_received, tx_power, comments, name);
 
@@ -3510,6 +3487,7 @@ void MainWindow::on_actionJT9_triggered()
   }
   m_bFast9=ui->cbFast9->isChecked();
   m_bFastMode=m_bFast9;
+  WSPR_config(false);
   switch_mode (Modes::JT9);
   if(m_modeTx!="JT9") on_pbTxMode_clicked();
   statusChanged();
@@ -3538,7 +3516,6 @@ void MainWindow::on_actionJT9_triggered()
   ui->cbEME->setVisible(true);
   ui->sbSubmode->setVisible(true);
   ui->sbSubmode->setMaximum(7);
-  WSPR_config(false);
   fast_config(m_bFastMode);
   if(m_bFast9) {
     m_TRperiod=ui->sbTR->cleanText().toInt();
@@ -3569,6 +3546,7 @@ void MainWindow::on_actionJTMSK_triggered()
   m_mode="JTMSK";
   m_modeTx="JTMSK";
   ui->actionJTMSK->setChecked(true);
+  WSPR_config(false);
   switch_mode (Modes::JTMSK);
   statusChanged();
   m_nsps=6;
@@ -3583,7 +3561,6 @@ void MainWindow::on_actionJTMSK_triggered()
   ui->cbShMsgs->setVisible(true);
   ui->cbTx6->setVisible(false);
   ui->sbSubmode->setVisible(false);
-  WSPR_config(false);
   m_bFastMode=true;
   m_bFast9=true;
   fast_config(m_bFastMode);
@@ -3614,6 +3591,7 @@ void MainWindow::on_actionJT65_triggered()
     on_pbTxMode_clicked();
   }
   m_mode="JT65";
+  WSPR_config(false);
   switch_mode (Modes::JT65);
   if(m_modeTx!="JT65") on_pbTxMode_clicked();
   statusChanged();
@@ -3639,7 +3617,6 @@ void MainWindow::on_actionJT65_triggered()
   m_bFast9=false;
   VHF_controls_visible(bVHF);
   ui->cbFast9->setVisible(false);
-  WSPR_config(false);
   fast_config(false);
   ui->sbSubmode->setMaximum(2);
   if(bVHF) {
@@ -3660,6 +3637,7 @@ void MainWindow::on_actionJT65_triggered()
 void MainWindow::on_actionJT9_JT65_triggered()
 {
   m_mode="JT9+JT65";
+  WSPR_config(false);
   switch_mode (Modes::JT65);
   if(m_modeTx != "JT65") {
     ui->pbTxMode->setText("Tx JT9  @");
@@ -3685,7 +3663,6 @@ void MainWindow::on_actionJT9_JT65_triggered()
   m_bFastMode=false;
   m_bFast9=false;
   VHF_controls_visible(false);
-  WSPR_config(false);
   fast_config(false);
   ui->sbSubmode->setValue(0);
   ui->sbTR->setValue(0);
@@ -3697,6 +3674,7 @@ void MainWindow::on_actionJT9_JT65_triggered()
 void MainWindow::on_actionJT4_triggered()
 {
   m_mode="JT4";
+  WSPR_config(false);
   switch_mode (Modes::JT4);
   m_modeTx="JT4";
   mode_label->setStyleSheet("QLabel{background-color: #cc99ff}");
@@ -3718,7 +3696,6 @@ void MainWindow::on_actionJT4_triggered()
   m_bFast9=false;
   bool bVHF=m_config.enable_VHF_features();
   VHF_controls_visible(bVHF);
-  WSPR_config(false);
   fast_config(false);
   ui->cbFast9->setVisible(false);
   ui->cbShMsgs->setVisible(true);
@@ -3741,6 +3718,7 @@ void MainWindow::on_actionJT4_triggered()
 void MainWindow::on_actionWSPR_2_triggered()
 {
   m_mode="WSPR-2";
+  WSPR_config(true);
   switch_mode (Modes::WSPR);
   m_modeTx="WSPR-2";                                    //### not needed ?? ###
   statusChanged();
@@ -3760,7 +3738,6 @@ void MainWindow::on_actionWSPR_2_triggered()
   m_wideGraph->setModeTx(m_modeTx);
   m_bFastMode=false;
   m_bFast9=false;
-  WSPR_config(true);
   fast_config(false);
   ui->TxFreqSpinBox->setValue(ui->WSPRfreqSpinBox->value());
 }
@@ -3792,11 +3769,12 @@ void MainWindow::on_actionEcho_triggered()
   ui->TxFreqSpinBox->setEnabled (false);
   statusChanged();
   if(!m_echoGraph->isVisible()) m_echoGraph->show();
-  on_actionAstronomical_data_triggered ();
+  if (!ui->actionAstronomical_data->isChecked ()) {
+    ui->actionAstronomical_data->setChecked (true);
+  }
   m_bFastMode=false;
   m_bFast9=false;
   VHF_controls_visible(false);
-  WSPR_config(true);                       //Make some irrelevant controls invisible
   fast_config(false);
   ui->decodedTextLabel->setText("   UTC      N   Level    Sig      DF    Width   Q");
   auto_tx_label->setText("");
@@ -3814,6 +3792,7 @@ void MainWindow::on_actionISCAT_triggered()
   m_nsps=6912;                   //For symspec only
   m_hsymStop=103;
   m_toneSpacing=11025.0/256.0;
+  WSPR_config(false);
   switch_mode(Modes::ISCAT);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
@@ -3823,7 +3802,6 @@ void MainWindow::on_actionISCAT_triggered()
   mode_label->setStyleSheet("QLabel{background-color: #ff9933}");
   mode_label->setText(m_mode);
   VHF_controls_visible(true);
-  WSPR_config(false);
   fast_config(true);
   ui->pbTxMode->setVisible(false);
   ui->cbFast9->setVisible(false);
@@ -3849,9 +3827,8 @@ void MainWindow::on_actionISCAT_triggered()
 
 void MainWindow::switch_mode (Mode mode)
 {
-  auto f = m_dialFreq;
   m_config.frequencies ()->filter (mode);
-  auto const& row = m_config.frequencies ()->best_working_frequency (f);
+  auto const& row = m_config.frequencies ()->best_working_frequency (m_freqNominal);
   if (row >= 0) {
     ui->bandComboBox->setCurrentIndex (row);
     on_bandComboBox_activated (row);
@@ -3882,7 +3859,9 @@ void MainWindow::WSPR_config(bool b)
     ui->decodedTextLabel->setText(
           "UTC    dB   DT     Freq     Drift  Call          Grid    dBm   Dist");
     auto_tx_label->setText("");
-    Q_EMIT m_config.transceiver_tx_frequency (0); // turn off split
+    if (m_config.transceiver_online ()) {
+      Q_EMIT m_config.transceiver_tx_frequency (0); // turn off split
+    }
     m_bSimplex = true;
   } else {
     ui->decodedTextLabel->setText("UTC   dB   DT Freq   Message");
@@ -4013,11 +3992,11 @@ void MainWindow::on_bandComboBox_currentIndexChanged (int index)
 {
   auto const& frequencies = m_config.frequencies ();
   auto const& source_index = frequencies->mapToSource (frequencies->index (index, FrequencyList::frequency_column));
-  Frequency frequency {m_dialFreq};
+  Frequency frequency {m_freqNominal};
   if (source_index.isValid ())
     {
       frequency = frequencies->frequency_list ()[source_index.row ()].frequency_;
-      m_dialFreq0=frequency;
+      m_callingFrequency = frequency;
     }
 
   // Lookup band
@@ -4039,7 +4018,7 @@ void MainWindow::on_bandComboBox_activated (int index)
 {
   auto const& frequencies = m_config.frequencies ();
   auto const& source_index = frequencies->mapToSource (frequencies->index (index, FrequencyList::frequency_column));
-  Frequency frequency {m_dialFreq};
+  Frequency frequency {m_freqNominal};
   if (source_index.isValid ())
     {
       frequency = frequencies->frequency_list ()[source_index.row ()].frequency_;
@@ -4052,15 +4031,33 @@ void MainWindow::on_bandComboBox_activated (int index)
 void MainWindow::band_changed (Frequency f)
 {
   if (m_bandEdited) {
-    if (!m_mode.startsWith ("WSPR")) {
-      ui->stopTxButton->click (); // halt any transmission
-      auto_tx_mode (false);       // disable auto Tx
+    if (!m_mode.startsWith ("WSPR")) { // band hopping preserves auto Tx
+      if (f + m_wideGraph->nStartFreq () > m_freqNominal + ui->TxFreqSpinBox->value ()
+          || f + m_wideGraph->nStartFreq () + m_wideGraph->fSpan () <=
+          m_freqNominal + ui->TxFreqSpinBox->value ()) {
+        qDebug () << "start f:" << m_wideGraph->nStartFreq () << "span:" << m_wideGraph->fSpan () << "DF:" << ui->TxFreqSpinBox->value ();
+        // disable auto Tx if "blind" QSY outside of waterfall
+        ui->stopTxButton->click (); // halt any transmission
+        auto_tx_mode (false);       // disable auto Tx
+      }
+      else {
+        // adjust DF:s
+        int shift = f - m_freqNominal;
+        ui->RxFreqSpinBox->setValue (ui->RxFreqSpinBox->value () - shift);
+        if (!m_mode.startsWith ("JT4")) // JT4 uses fixed 1000Hz Tx DF
+          {
+            ui->TxFreqSpinBox->setValue (ui->TxFreqSpinBox->value () - shift);
+          }
+      }
     }
+    m_lastBand.clear ();
     m_bandEdited = false;
     psk_Reporter->sendReport();      // Upload any queued spots before changing band
     if (!m_transmitting) monitor (true);
-    Q_EMIT m_config.transceiver_frequency (f);
-    qsy (f);
+    m_freqNominal = f;
+    m_freqTxNominal = m_freqNominal;
+    if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
+    setRig ();
     setXIT (ui->TxFreqSpinBox->value ());
     m_repeatMsg = 0;            // reset Tx watchdog
   }
@@ -4233,7 +4230,7 @@ void MainWindow::rigOpen ()
   ui->readFreq->setText ("");
   ui->readFreq->setEnabled (true);
   m_config.transceiver_online (true);
-  Q_EMIT m_config.sync_transceiver (true);
+  Q_EMIT m_config.sync_transceiver (true, true);
 }
 
 void MainWindow::on_pbR2T_clicked()
@@ -4256,7 +4253,7 @@ void MainWindow::on_readFreq_clicked()
 
   if (m_config.transceiver_online (true))
     {
-      Q_EMIT m_config.sync_transceiver (true);
+      Q_EMIT m_config.sync_transceiver (true, true);
     }
 }
 
@@ -4273,8 +4270,10 @@ void MainWindow::on_pbTxMode_clicked()
   statusChanged();
 }
 
-void MainWindow::setXIT(int n)
+void MainWindow::setXIT(int n, Frequency base)
 {
+  if (m_transmitting && !m_config.tx_QSY_allowed ()) return;
+  if (!base) base = m_freqNominal;
   m_XIT = 0;
   if (!m_bSimplex) {
     // m_bSimplex is false, so we can use split mode if requested
@@ -4283,14 +4282,16 @@ void MainWindow::setXIT(int n)
       m_XIT=(n/500)*500 - 1500;
     }
 
-    if (m_monitoring || m_transmitting) {
-      if (m_config.transceiver_online ()) {
-        if (m_config.split_mode ()) {
-          // All conditions are met, reset the transceiver dial frequency:
-          Q_EMIT m_config.transceiver_tx_frequency (m_dialFreq + m_XIT);
-        }
+    if ((m_monitoring || m_transmitting)
+        && m_config.transceiver_online ()
+        && m_config.split_mode ())
+      {
+        // All conditions are met, reset the transceiver Tx dial
+        // frequency
+        m_freqTxNominal = base + m_XIT;
+        if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
+        Q_EMIT m_config.transceiver_tx_frequency (m_freqTxNominal + m_astroCorrection.tx);
       }
-    }
   }
   //Now set the audio Tx freq
   Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value () - m_XIT);
@@ -4309,6 +4310,17 @@ void MainWindow::setFreq4(int rxFreq, int txFreq)
     if (ui->TxFreqSpinBox->isEnabled ()) {
       ui->TxFreqSpinBox->setValue(txFreq);
     }
+    else if (m_mode=="JT4"
+             && m_freqNominal >= 432000000u
+             && (Qt::ControlModifier & QApplication::keyboardModifiers ())) {
+      auto temp = ui->TxFreqSpinBox->value ();
+      m_freqNominal += txFreq - temp;
+      m_freqTxNominal += txFreq - temp;
+      ui->RxFreqSpinBox->setValue (temp);
+      if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
+      setRig ();
+      setXIT (ui->TxFreqSpinBox->value ());
+    }
   }
 }
 
@@ -4319,20 +4331,75 @@ void MainWindow::on_cbTxLock_clicked(bool checked)
   if(m_lockTxFreq) on_pbR2T_clicked();
 }
 
-void MainWindow::handle_transceiver_update (Transceiver::TransceiverState s)
+void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const& s)
 {
-  transmitDisplay (s.ptt ());
-  if ((s.frequency () - m_dialFreq) || s.split () != m_splitMode)
+  // qDebug () << "MainWindow::handle_transceiver_update:" << s;
+  Transceiver::TransceiverState old_state {m_rigState};
+  //transmitDisplay (s.ptt ());
+  m_rigState = s;
+  if (old_state.online () == false && s.online () == true)
+    {
+      // initializing
+      on_monitorButton_clicked (!m_config.monitor_off_at_startup ());
+    }
+  if (s.frequency () != old_state.frequency () || s.split () != m_splitMode)
     {
       m_splitMode = s.split ();
-      qsy (s.frequency ());
+      if (!s.ptt ()) //!m_transmitting)
+        {
+          auto temp = m_freqNominal;
+          m_freqNominal = s.frequency () - m_astroCorrection.rx;
+          if (temp != m_freqNominal)
+            {
+              m_freqTxNominal = m_freqNominal;
+            }
+
+          if (m_monitoring)
+            {
+              m_lastMonitoredFrequency = m_freqNominal;
+            }
+          if (m_lastDialFreq != m_freqNominal and (m_mode!="JTMSK" or !ui->cbCQRx->isChecked()))
+            {
+              m_lastDialFreq = m_freqNominal;
+              m_repeatMsg=0;
+              m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
+              if(s.frequency () < 30000000u && m_mode.mid(0,4)!="WSPR") {
+                // Write freq changes to ALL.TXT only below 30 MHz.
+                QFile f2 {m_dataDir.absoluteFilePath ("ALL.TXT")};
+                if (f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
+                  QTextStream out(&f2);
+                  out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
+                      << "  " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz  "
+                      << m_mode << endl;
+                  f2.close();
+                } else {
+                  msgBox("Cannot open \"" + f2.fileName () + "\" for append:" + f2.errorString ());
+                }
+              }
+
+              if (m_config.spot_to_psk_reporter ()) {
+                pskSetLocal ();
+              }
+              statusChanged();
+              m_wideGraph->setDialFreq(m_freqNominal / 1.e6);
+            }
+        }
+      else
+        {
+          m_freqTxNominal = s.split () ? s.tx_frequency () - m_astroCorrection.tx : s.frequency ();
+        }
+      if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
     }
+  // ensure frequency display is correct
+  if (m_astroWidget && old_state.ptt () != s.ptt ()) setRig ();
+
+  displayDialFrequency ();
   update_dynamic_property (ui->readFreq, "state", "ok");
   ui->readFreq->setEnabled (false);
   ui->readFreq->setText (s.split () ? "S" : "");
 }
 
-void MainWindow::handle_transceiver_failure (QString reason)
+void MainWindow::handle_transceiver_failure (QString const& reason)
 {
   update_dynamic_property (ui->readFreq, "state", "error");
   ui->readFreq->setEnabled (true);
@@ -4600,7 +4667,6 @@ void MainWindow::pskSetLocal ()
 
 void MainWindow::transmitDisplay (bool transmitting)
 {
-
   if (transmitting == m_transmitting) {
     if (transmitting) {
       ui->signal_meter_widget->setValue(0);
@@ -4609,14 +4675,14 @@ void MainWindow::transmitDisplay (bool transmitting)
     }
 
     auto QSY_allowed = !transmitting or m_config.tx_QSY_allowed () or
-        !m_config.split_mode ();
+      !m_config.split_mode ();
     if (ui->cbTxLock->isChecked ()) {
       ui->RxFreqSpinBox->setEnabled (QSY_allowed);
       ui->pbT2R->setEnabled (QSY_allowed);
     }
 
-    if(m_mode=="JT4" and (m_dialFreq/1000000 >= 432)) {
-//    if(m_mode=="JT4") {
+    if(m_mode=="JT4" && m_freqNominal >= 432000000u) {
+      //    if(m_mode=="JT4") {
       ui->TxFreqSpinBox->setValue(1000);
       ui->TxFreqSpinBox->setEnabled (false);
       ui->cbTxLock->setChecked(false);
@@ -4627,17 +4693,17 @@ void MainWindow::transmitDisplay (bool transmitting)
       ui->cbTxLock->setEnabled (QSY_allowed);
     }
 
-      // the following are always disallowed in transmit
+    // the following are always disallowed in transmit
     ui->menuMode->setEnabled (!transmitting);
-    ui->bandComboBox->setEnabled (!transmitting);
-      if (!transmitting) {
-        if ("JT9+JT65" == m_mode) {
-              // allow mode switch in Rx when in dual mode
-          ui->pbTxMode->setEnabled (true);
-        }
-      } else {
-        ui->pbTxMode->setEnabled (false);
+    //ui->bandComboBox->setEnabled (!transmitting);
+    if (!transmitting) {
+      if ("JT9+JT65" == m_mode) {
+        // allow mode switch in Rx when in dual mode
+        ui->pbTxMode->setEnabled (true);
       }
+    } else {
+      ui->pbTxMode->setEnabled (false);
+    }
   }
 }
 
@@ -4951,7 +5017,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
       m_RxLog=0;
       m_startAnother=m_loopall;
       m_blankLine=true;
-      m_messageClient->status_update (m_dialFreq, m_mode, m_hisCall,
+      m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
                                       QString::number (ui->rptSpinBox->value ()),
                                       m_modeTx, ui->autoButton->isChecked (),
                                       m_transmitting, (m_decoderBusy = false));
@@ -5145,11 +5211,11 @@ void MainWindow::WSPR_scheduling ()
 {
   m_WSPR_tx_next = false;
   if (ui->band_hopping_group_box->isChecked ()) {
-    // qDebug () << "hop data: period:" << hop_data.period_name_
-    // << "frequencies index:" << hop_data.frequencies_index_
-    // << "tune:" << hop_data.tune_required_
-    // << "tx:" << hop_data.tx_next_;
     auto hop_data = m_WSPR_band_hopping.next_hop (m_auto);
+    qDebug () << "hop data: period:" << hop_data.period_name_
+              << "frequencies index:" << hop_data.frequencies_index_
+              << "tune:" << hop_data.tune_required_
+              << "tx:" << hop_data.tx_next_;
     m_WSPR_tx_next = hop_data.tx_next_;
     if (hop_data.frequencies_index_ >= 0) { // new band
       ui->bandComboBox->setCurrentIndex (hop_data.frequencies_index_);
@@ -5162,7 +5228,7 @@ void MainWindow::WSPR_scheduling ()
           QFile f {path};
           if (f.exists ()) {
             m_cmnd = QDir::toNativeSeparators (f.fileName ()) + ' ' +
-              m_config.bands ()->find (m_dialFreq).remove ('m');
+              m_config.bands ()->find (m_freqNominal).remove ('m');
           }
         }
       if(m_cmnd!="") p3.start(m_cmnd);     // Execute user's hardware controller
@@ -5184,34 +5250,73 @@ void MainWindow::WSPR_scheduling ()
   }
 }
 
-void MainWindow::DopplerTracking_toggled (bool enabled)
+void MainWindow::astroUpdate ()
 {
-  if (!enabled) {
-    // do one astro update and last adjustment
-    astroCalculations (QDateTime::currentDateTimeUtc(), true);
-  }
+  if (m_astroWidget)
+    {
+      auto correction = m_astroWidget->astroUpdate(QDateTime::currentDateTimeUtc (),
+                                                   m_config.my_grid(), m_hisGrid,
+                                                   m_freqNominal,
+                                                   "Echo" == m_mode, m_transmitting,
+                                                   !m_config.tx_QSY_allowed (), m_TRperiod);
+      // no Doppler correction while CTRL pressed allows manual tuning
+      if (Qt::ControlModifier & QApplication::queryKeyboardModifiers ()) return;
+
+      // no Doppler correction in Tx if rig can't do it
+      if (m_transmitting && !m_config.tx_QSY_allowed ()) return;
+      if (!m_astroWidget->doppler_tracking ()) return;
+      if ((m_monitoring || m_transmitting)
+          // no Doppler correction below 6m
+          && m_freqNominal >= 50000000
+          && m_config.split_mode ())
+        {
+          // adjust for rig resolution
+          if (m_config.transceiver_resolution () > 1)
+            {
+              correction.rx = (correction.rx + 50) / 100 * 100;
+              correction.tx = (correction.tx + 50) / 100 * 100;
+            }
+          else if (m_config.transceiver_resolution () > 0)
+            {
+              correction.rx = (correction.rx + 5) / 10 * 10;
+              correction.tx = (correction.tx + 5) / 10 * 10;
+            }
+          else if (m_config.transceiver_resolution () < -1)
+            {
+              correction.rx = correction.rx / 100 * 100;
+              correction.tx = correction.tx / 100 * 100;
+            }
+          else if (m_config.transceiver_resolution () < 0)
+            {
+              correction.rx = correction.rx / 10 * 10;
+              correction.tx = correction.tx / 10 * 10;
+            }
+          m_astroCorrection = correction;
+        }
+      else
+        {
+          m_astroCorrection = {};
+        }
+
+      setRig ();
+    }
 }
 
-void MainWindow::astroCalculations (QDateTime const& time, bool adjust)
+void MainWindow::setRig ()
 {
-  if (m_astroWidget) {
-    auto astro_correction = m_astroWidget->astroUpdate(time, m_config.my_grid(),
-                 m_hisGrid, m_dialFreq, "Echo" == m_mode, m_transmitting);
-    // Adjust frequency only if requested, allowed by mode, and freq > 50MHz.
-    if (adjust && !m_bSimplex && (m_dialFreq >= 50000000) &&
-        m_astroWidget->trackVFO()) {
-      if(m_transmitting) {
-        m_dialFreqTx = m_freqNominal + astro_correction;
-        ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreqTx));
-        Q_EMIT m_config.transceiver_tx_frequency (m_dialFreqTx);
-      } else {
-        m_dialFreq = m_freqNominal + astro_correction;
-        ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
-        Q_EMIT m_config.transceiver_frequency(m_dialFreq);
-      }
+  if(m_transmitting && !m_config.tx_QSY_allowed ()) return;
+  if ((m_monitoring || m_transmitting)
+      && m_config.transceiver_online ())
+    {
+      if(m_transmitting && m_config.split_mode ())
+        {
+          Q_EMIT m_config.transceiver_tx_frequency (m_freqTxNominal + m_astroCorrection.tx);
+        }
+      else
+        {
+          Q_EMIT m_config.transceiver_frequency (m_freqNominal + m_astroCorrection.rx);
+        }
     }
-//    qDebug() << "A" << 0.000001*m_dialFreq << 0.000001*m_dialFreqTx << astro_correction;
-  }
 }
 
 void MainWindow::fastPick(int x0, int x1, int y)
@@ -5254,13 +5359,11 @@ void MainWindow::on_cbCQRx_toggled(bool b)
 
 void MainWindow::CQRxFreq()
 {
-  if(m_config.offsetRxFreq() and ui->cbCQRx->isChecked()) {
-    int MHz=int(m_dialFreq/1000000);
-    m_dialFreq = 1000000*MHz + 1000*m_freqCQ;
-  } else {
-    m_dialFreq = m_dialFreq0;
+  Frequency rx_frequency {m_config.offsetRxFreq () && ui->cbCQRx->isChecked () ?
+      m_freqNominal / 1000000 * 1000000 + 1000 * m_freqCQ :
+      m_callingFrequency};
+  if (m_config.transceiver_online ()) {
+    Q_EMIT m_config.transceiver_frequency (rx_frequency);
   }
-  ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (m_dialFreq));
-  Q_EMIT m_config.transceiver_frequency(m_dialFreq);
 }
 

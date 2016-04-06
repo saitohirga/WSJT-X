@@ -2692,6 +2692,9 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
   </action>
   <action name="actionAstronomical_data">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Astronomical data</string>
    </property>

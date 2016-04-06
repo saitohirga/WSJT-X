@@ -35,10 +35,11 @@ class PollingTransceiver
   Q_OBJECT;                     // for translation context
 
 protected:
-  explicit PollingTransceiver (int poll_interval); // in seconds
+  explicit PollingTransceiver (int poll_interval, // in seconds
+                               QObject * parent);
 
 protected:
-  void do_sync (bool force_signal) override final;
+  void do_sync (bool force_signal = false, bool no_poll = false) override final;
 
   // Sub-classes implement this and fetch what they can from the rig
   // in a non-intrusive manner.
@@ -46,9 +47,9 @@ protected:
 
   void do_post_start () override final;
   void do_post_stop () override final;
-  void do_post_frequency (Frequency, MODE = UNK) override final;
-  void do_post_tx_frequency (Frequency, bool rationalize = true) override final;
-  void do_post_mode (MODE, bool rationalize = true) override final;
+  void do_post_frequency (Frequency, MODE) override final;
+  void do_post_tx_frequency (Frequency) override final;
+  void do_post_mode (MODE) override final;
   void do_post_ptt (bool = true) override final;
   bool do_pre_update () override final;
 

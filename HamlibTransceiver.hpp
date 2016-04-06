@@ -26,16 +26,17 @@ class HamlibTransceiver final
  public:
   static void register_transceivers (TransceiverFactory::Transceivers *);
 
-  explicit HamlibTransceiver (int model_number, TransceiverFactory::ParameterPack const&);
-  explicit HamlibTransceiver (TransceiverFactory::PTTMethod ptt_type, QString const& ptt_port);
-  ~HamlibTransceiver ();
+  explicit HamlibTransceiver (int model_number, TransceiverFactory::ParameterPack const&,
+                              QObject * parent = nullptr);
+  explicit HamlibTransceiver (TransceiverFactory::PTTMethod ptt_type, QString const& ptt_port,
+                              QObject * parent = nullptr);
 
  private:
-  void do_start () override;
+  int do_start () override;
   void do_stop () override;
-  void do_frequency (Frequency, MODE) override;
-  void do_tx_frequency (Frequency, bool rationalise_mode) override;
-  void do_mode (MODE, bool rationalise) override;
+  void do_frequency (Frequency, MODE, bool no_ignore) override;
+  void do_tx_frequency (Frequency, bool no_ignore) override;
+  void do_mode (MODE) override;
   void do_ptt (bool) override;
 
   void poll () override;
@@ -45,12 +46,14 @@ class HamlibTransceiver final
   QByteArray get_conf (char const * item);
   Transceiver::MODE map_mode (rmode_t) const;
   rmode_t map_mode (Transceiver::MODE mode) const;
-  std::tuple<vfo_t, vfo_t> get_vfos () const;
+  std::tuple<vfo_t, vfo_t> get_vfos (bool for_split) const;
 
   struct RIGDeleter {static void cleanup (RIG *);};
   QScopedPointer<RIG, RIGDeleter> rig_;
 
+  bool set_rig_mode_;
   bool back_ptt_port_;
+  bool one_VFO_;
   bool is_dummy_;
 
   // these are saved on destruction so we can start new instances

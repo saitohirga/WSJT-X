@@ -35,7 +35,10 @@ public:
 
   LiveFrequencyValidator (QComboBox * combo_box // associated combo box
                           , Bands const * bands // bands model
-                          , FrequencyList const * frequencies // working frequencies model
+                          , FrequencyList const * frequencies // working
+                                                              // frequencies
+                                                              // model
+                          , Frequency const * nominal_frequency
                           , QWidget * parent = nullptr);
 
   State validate (QString& input, int& pos) const override;
@@ -46,6 +49,7 @@ public:
 private:
   Bands const * bands_;
   FrequencyList const * frequencies_;
+  Frequency const * nominal_frequency_;
   QComboBox * combo_box_;
 };
 

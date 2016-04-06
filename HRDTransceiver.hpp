@@ -34,16 +34,17 @@ public:
   explicit HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped
                            , QString const& server
                            , bool use_for_ptt
-                           , int poll_interval);
-  ~HRDTransceiver ();
+                           , int poll_interval
+                           , bool set_rig_mode
+                           , QObject * parent = nullptr);
 
 protected:
   // Implement the TransceiverBase interface.
-  void do_start () override;
+  int do_start () override;
   void do_stop () override;
-  void do_frequency (Frequency, MODE) override;
-  void do_tx_frequency (Frequency, bool rationalise_mode) override;
-  void do_mode (MODE, bool rationalise) override;
+  void do_frequency (Frequency, MODE, bool no_ignore) override;
+  void do_tx_frequency (Frequency, bool no_ignore) override;
+  void do_mode (MODE) override;
   void do_ptt (bool on) override;
 
   // Implement the PollingTransceiver interface.
@@ -74,9 +75,11 @@ private:
 
   // An alternate TransceiverBase instance that can be used to drive
   // PTT if required.
-  std::unique_ptr<TransceiverBase> wrapped_;
+  std::unique_ptr<TransceiverBase> wrapped_; // may be null
 
   bool use_for_ptt_;            // Use HRD for PTT.
+
+  bool set_rig_mode_;           // Set VFO mode when required
 
   QString server_;              // The TCP/IP addrress and port for
                                 // the HRD server.

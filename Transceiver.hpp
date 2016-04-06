@@ -16,9 +16,9 @@ class QString;
 //
 // Responsibilities
 //
-//  Provides  Qt slots  to set  the frequency,  mode and  PTT of  some
-//  transceiver. They are Qt slots so  that they may be invoked across
-//  a thread boundary.
+//  Provides a  Qt slot  to set  the frequency, mode  and PTT  of some
+//  transceiver. This is a Qt slot so  that it may be invoked across a
+//  thread boundary.
 //
 //  Provides a synchronisation Qt slot  which should be implemented in
 //  sub-classes in such a way that  normal operation of the rig is not
@@ -58,14 +58,10 @@ public:
   using Frequency = Radio::Frequency;
 
 protected:
-  Transceiver ()
-  {
-  }
+  Transceiver (QObject * parent) : QObject {parent} {}
 
 public:
-  virtual ~Transceiver ()
-  {
-  }
+  virtual ~Transceiver () {}
 
   enum MODE {UNK, CW, CW_R, USB, LSB, FSK, FSK_R, DIG_U, DIG_L, AM, FM, DIG_FM};
   Q_ENUM (MODE)
@@ -79,33 +75,34 @@ public:
   public:
     TransceiverState ()
       : online_ {false}
-      , frequency_ {0, 0}
+      , rx_frequency_ {0}
+      , tx_frequency_ {0}
       , mode_ {UNK}
-      , split_ {unknown}
+      , split_ {Split::unknown}
       , ptt_ {false}
     {
     }
 
     bool online () const {return online_;}
-    Frequency frequency () const {return frequency_[0];}
-    Frequency tx_frequency () const {return frequency_[1];}
-    bool split () const {return on == split_;}
-    bool compare_split (bool with) const {return split_ == (with ? on : off);}
+    Frequency frequency () const {return rx_frequency_;}
+    Frequency tx_frequency () const {return tx_frequency_;}
+    bool split () const {return Split::on == split_;}
     MODE mode () const {return mode_;}
     bool ptt () const {return ptt_;}
 
     void online (bool state) {online_ = state;}
-    void frequency (Frequency f) {frequency_[0] = f;}
-    void tx_frequency (Frequency f) {frequency_[1] = f;}
-    void split (bool state) {split_ = state ? on : off;}
+    void frequency (Frequency f) {rx_frequency_ = f;}
+    void tx_frequency (Frequency f) {tx_frequency_ = f;}
+    void split (bool state) {split_ = state ? Split::on : Split::off;}
     void mode (MODE m) {mode_ = m;}
     void ptt (bool state) {ptt_ = state;}
 
   private:
     bool online_;
-    Frequency frequency_[2];  // [0] -> Rx; [1] -> Other
+    Frequency rx_frequency_;
+    Frequency tx_frequency_;    // 0 means use Rx
     MODE mode_;
-    enum {unknown, off, on} split_;
+    enum class Split {unknown, off, on} split_;
     bool ptt_;
     // Don't forget to update the debug print and != operator if you
     // add more members here
@@ -115,39 +112,42 @@ public:
   };
 
   //
-  // The following slots and signals are expected to all run in the
-  // same thread which is not necessarily the main GUI thread. It is
-  // up to the client of the Transceiver class to organise the
+  // The following  slots and signals are  expected to all run  in the
+  // same thread which  is not necessarily the main GUI  thread. It is
+  // up  to  the client  of  the  Transceiver  class to  organise  the
   // allocation to a thread and the lifetime of the object instances.
   //
 
+  // Apply  state changes  to the  rig. The  sequence_number parameter
+  // will  be included  in  any status  updates  generated after  this
+  // transaction  is processed.  The sequence  number may  be used  to
+  // ignore any status  updates until the results  of this transaction
+  // have been processed thus avoiding any unwanted "ping-pong" due to
+  // signals crossing in transit.
+  Q_SLOT virtual void set (Transceiver::TransceiverState const&,
+                           unsigned sequence_number) noexcept = 0;
+
   // Connect and disconnect.
-  Q_SLOT virtual void start () noexcept = 0;
-  Q_SLOT virtual void stop (bool reset_split = false) noexcept = 0;
+  Q_SLOT virtual void start (unsigned sequence_number) noexcept = 0;
+  Q_SLOT virtual void stop () noexcept = 0;
 
-  // Set frequency in Hertz.
-  Q_SLOT virtual void frequency (Frequency, MODE = UNK) noexcept = 0;
-
-  // Setting a non-zero TX frequency means split operation, the value
-  // zero means simplex operation.
   //
-  // Rationalise_mode means ensure TX uses same mode as RX.
-  Q_SLOT virtual void tx_frequency (Frequency tx = 0, bool rationalise_mode = true) noexcept = 0;
-
-  // Set mode.
-  // Rationalise means ensure TX uses same mode as RX.
-  Q_SLOT virtual void mode (MODE, bool rationalise = true) noexcept = 0;
-
-  // Set/unset PTT.
-  Q_SLOT virtual void ptt (bool = true) noexcept = 0;
-
-  // Attempt to re-synchronise or query state.
-  // Force_signal guarantees a update or failure signal.
-  Q_SLOT virtual void sync (bool force_signal = false) noexcept = 0;
-
   // asynchronous status updates
-  Q_SIGNAL void update (Transceiver::TransceiverState) const;
-  Q_SIGNAL void failure (QString reason) const;
+  //
+
+  // 0 - 1Hz
+  // 1 - 10Hz rounded
+  // -1 - 10Hz truncated
+  // 2 - 100Hz rounded
+  // -2 - 100Hz truncated
+  Q_SIGNAL void resolution (int);
+
+  // rig state changed
+  Q_SIGNAL void update (Transceiver::TransceiverState const&,
+                        unsigned sequence_number) const;
+
+  // something went wrong - not recoverable, start new instance
+  Q_SIGNAL void failure (QString const& reason) const;
 
   // Ready to be destroyed.
   Q_SIGNAL void finished () const;

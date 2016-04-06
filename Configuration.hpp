@@ -72,6 +72,7 @@ public:
   ~Configuration ();
 
   int exec ();
+  bool is_active () const;
 
   QDir temp_dir () const;
   QDir doc_dir () const;
@@ -155,6 +156,15 @@ public:
   // open_if_closed parameter is passed as true.
   bool transceiver_online (bool open_if_closed = false);
 
+  // Frequency resolution of the rig
+  //
+  //  0 - 1Hz
+  //  1 - 10Hz rounded
+  // -1 - 10Hz truncated
+  //  2 - 100Hz rounded
+  // -2 - 100Hz truncated
+  int transceiver_resolution () const;
+
   // Close down connection to rig.
   void transceiver_offline ();
 
@@ -206,7 +216,7 @@ public:
   //
 
   // signals a change in one of the TransceiverState members
-  Q_SIGNAL void transceiver_update (Transceiver::TransceiverState) const;
+  Q_SIGNAL void transceiver_update (Transceiver::TransceiverState const&) const;
 
   // Signals a failure of a control rig CAT or PTT connection.
   //
@@ -214,7 +224,7 @@ public:
   // connections are closed automatically. The connections can be
   // re-established with a call to transceiver_online(true) assuming
   // the fault condition has been rectified or is transient.
-  Q_SIGNAL void transceiver_failure (QString reason) const;
+  Q_SIGNAL void transceiver_failure (QString const& reason) const;
 
 private:
   class impl;
