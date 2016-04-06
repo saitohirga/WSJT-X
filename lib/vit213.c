@@ -5,6 +5,8 @@
  * May be used under the terms of the GNU Public License
  */
 
+#include <stdlib.h>
+
 /* Select code here */
 
 #define V213

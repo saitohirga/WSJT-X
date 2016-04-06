@@ -8,6 +8,7 @@
 #include <stdio.h>
 #endif
 
+#include <stdlib.h>
 #include <string.h>
 
 #define	min(a,b)	((a) < (b) ? (a) : (b))
