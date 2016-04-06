@@ -40,7 +40,7 @@ extern struct dec_data {
     int ntxmode;
     int nmode;
     int minw;
-    int nclearave;
+    bool nclearave;
     int minSync;
     float emedelay;
     float dttol;

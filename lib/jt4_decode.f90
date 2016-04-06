@@ -59,10 +59,10 @@ contains
 
     class(jt4_decoder), intent(inout) :: this
     procedure(jt4_decode_callback) :: decode_callback
-    integer, intent(in) :: jz,nutc,nfqso,ntol0,ndepth,nclearave,              &
-         minsync,minw,nsubmode,nlist0,listutc0(10)
+    integer, intent(in) :: jz,nutc,nfqso,ntol0,ndepth,minsync,minw,nsubmode,  &
+         nlist0,listutc0(10)
     real, intent(in) :: dd(jz),emedelay,dttol
-    logical, intent(in) :: nagain
+    logical, intent(in) :: nagain, nclearave
     character(len=12), intent(in) :: mycall,hiscall
     character(len=6), intent(in) :: hisgrid
     procedure(jt4_average_callback), optional :: average_callback
@@ -119,9 +119,9 @@ contains
     use timer_module, only: timer
 
     class(jt4_decoder), intent(inout) :: this
-    integer, intent(in) :: npts,nutc,NClearAve,minsync,ntol,mode4,minw,       &
+    integer, intent(in) :: npts,nutc,minsync,ntol,mode4,minw,       &
          nfqso,ndepth,neme
-    logical, intent(in) :: NAgain
+    logical, intent(in) :: NAgain,NClearAve
     character(len=12), intent(in) :: mycall,hiscall
     character(len=6), intent(in) :: hisgrid
 
@@ -150,7 +150,7 @@ contains
     nq1=3
     nq2=6
     if(naggressive.eq.1) nq1=1
-    if(NClearAve.ne.0) then
+    if(NClearAve) then
        nsave=0
        iutc=-1
        nfsave=0.

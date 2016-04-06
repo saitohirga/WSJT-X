@@ -41,7 +41,7 @@ contains
 
   subroutine decode(this,callback,dd0,npts,newdat,nutc,nf1,nf2,nfqso,     &
        ntol,nsubmode,minsync,nagain,n2pass,nrobust,ntrials,naggressive,   &
-       ndepth,nclearave,mycall,hiscall,hisgrid,nexp_decode)
+       ndepth,clearave,mycall,hiscall,hisgrid,nexp_decode)
 
     !  Process dd0() data to find and decode JT65 signals.
 
@@ -56,7 +56,7 @@ contains
     integer, intent(in) :: npts, nutc, nf1, nf2, nfqso, ntol     &
          , nsubmode, minsync, n2pass, ntrials, naggressive, ndepth      &
          , nexp_decode
-    logical, intent(in) :: newdat, nagain, nrobust
+    logical, intent(in) :: newdat, nagain, nrobust, clearave
     character(len=12), intent(in) :: mycall, hiscall
     character(len=6), intent(in) :: hisgrid
 
@@ -172,7 +172,7 @@ contains
        freq0=0.
        prtavg=.false.
        if(.not.nagain) nsum=0
-       if(nclearave.eq.1) then
+       if(clearave) then
           nsum=0
           nsave=0
        endif
@@ -222,7 +222,7 @@ contains
                 nsave=nsave+1
                 nsave=mod(nsave-1,64)+1
                 call avg65(nutc,nsave,sync1,dtx,nflip,nfreq,mode65,ntol,    &
-                     ndepth,ntrials,naggressive,nclearave,neme,mycall,      &
+                     ndepth,ntrials,naggressive,clearave,neme,mycall,      &
                      hiscall,hisgrid,nftt,avemsg,qave,deepave,nsum,ndeepave)
                 nsmo=param(9)
                 nqave=qave
@@ -297,7 +297,7 @@ contains
   end subroutine decode
 
   subroutine avg65(nutc,nsave,snrsync,dtxx,nflip,nfreq,mode65,ntol,ndepth,  &
-       ntrials,naggressive,nclearave,neme,mycall,hiscall,hisgrid,nftt,      &
+       ntrials,naggressive,clearave,neme,mycall,hiscall,hisgrid,nftt,      &
        avemsg,qave,deepave,nsum,ndeepave)
 
 ! Decodes averaged JT65 data
@@ -321,11 +321,11 @@ contains
     real s3c(64,63)
     real dtsave(MAXAVE)
     real syncsave(MAXAVE)
-    logical first
+    logical first,clearave
     data first/.true./
     save
 
-    if(first .or. (nclearave.eq.1)) then
+    if(first .or. clearave) then
        iutc=-1
        nfsave=0
        dtdiff=0.2

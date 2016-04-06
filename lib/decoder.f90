@@ -57,8 +57,9 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      endif
      call my_jt4%decode(jt4_decoded,dd,jz,params%nutc,params%nfqso,params%ntol,             &
           params%emedelay,params%dttol,logical(params%nagain),params%ndepth,                &
-          params%nclearave,params%minsync,params%minw,params%nsubmode,params%mycall,        &
-          params%hiscall,params%hisgrid,params%nlist,params%listutc,jt4_average)
+          logical (params%nclearave),params%minsync,params%minw,params%nsubmode,            &
+          params%mycall,params%hiscall,params%hisgrid,params%nlist,params%listutc,          &
+          jt4_average)
      go to 800
   endif
 
@@ -86,8 +87,9 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      call my_jt65%decode(jt65_decoded,dd,npts65,newdat65,params%nutc,      &
           nf1,nf2,params%nfqso,ntol65,params%nsubmode,params%minsync,      &
           logical(params%nagain),params%n2pass,logical(params%nrobust),    &
-          ntrials,params%naggressive,params%ndepth,params%nclearave,       &
-          params%mycall,params%hiscall,params%hisgrid,params%nexp_decode)
+          ntrials,params%naggressive,params%ndepth,                        &
+          logical(params%nclearave),params%mycall,params%hiscall,          &
+          params%hisgrid,params%nexp_decode)
      call timer('jt65a   ',1)
 
   else if(params%nmode.eq.9 .or. (params%nmode.eq.(65+9) .and. params%ntxmode.eq.9)) then
@@ -110,8 +112,9 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
         call my_jt65%decode(jt65_decoded,dd,npts65,newdat65,params%nutc,   &
              nf1,nf2,params%nfqso,ntol65,params%nsubmode,params%minsync,   &
              logical(params%nagain),params%n2pass,logical(params%nrobust), &
-             ntrials,params%naggressive,params%ndepth,params%nclearave,    &
-             params%mycall,params%hiscall,params%hisgrid,params%nexp_decode)
+             ntrials,params%naggressive,params%ndepth,                     &
+             logical(params%nclearave),params%mycall,params%hiscall,       &
+             params%hisgrid,params%nexp_decode)
         call timer('jt65a   ',1)
      else
         call timer('decjt9  ',0)
