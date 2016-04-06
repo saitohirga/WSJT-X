@@ -1457,14 +1457,21 @@ void Configuration::impl::set_rig_invariants ()
   ui_->PTT_port_combo_box->setEnabled (enable_ptt_port);
   ui_->PTT_port_label->setEnabled (enable_ptt_port);
 
-  ui_->PTT_port_combo_box->setItemData (ui_->PTT_port_combo_box->findText ("CAT")
-                                        , CAT_indirect_serial_PTT ? combo_box_item_enabled : combo_box_item_disabled
-                                        , Qt::UserRole - 1);
-
-  ui_->PTT_DTR_radio_button->setEnabled (!("CAT" == ptt_port && !CAT_indirect_serial_PTT));
-
-  ui_->PTT_RTS_radio_button->setEnabled (!((is_serial_CAT && ptt_port == cat_port && is_hw_handshake)
-                                           || ("CAT" == ptt_port && !CAT_indirect_serial_PTT)));
+  if (CAT_indirect_serial_PTT)
+    {
+      ui_->PTT_port_combo_box->setItemData (ui_->PTT_port_combo_box->findText ("CAT")
+                                            , combo_box_item_enabled, Qt::UserRole - 1);
+    }
+  else
+    {
+      ui_->PTT_port_combo_box->setItemData (ui_->PTT_port_combo_box->findText ("CAT")
+                                            , combo_box_item_disabled, Qt::UserRole - 1);
+      if ("CAT" == ui_->PTT_port_combo_box->currentText () && ui_->PTT_port_combo_box->currentIndex () > 0)
+        {
+          ui_->PTT_port_combo_box->setCurrentIndex (ui_->PTT_port_combo_box->currentIndex () - 1);
+        }
+    }
+  ui_->PTT_RTS_radio_button->setEnabled (!(is_serial_CAT && ptt_port == cat_port && is_hw_handshake));
 
   if (TransceiverFactory::basic_transceiver_name_ == rig)
     {
@@ -1631,9 +1638,9 @@ TransceiverFactory::ParameterPack Configuration::impl::gather_rig_data ()
   result.stop_bits = static_cast<TransceiverFactory::StopBits> (ui_->CAT_stop_bits_button_group->checkedId ());
   result.handshake = static_cast<TransceiverFactory::Handshake> (ui_->CAT_handshake_button_group->checkedId ());
   result.force_dtr = ui_->force_DTR_combo_box->isEnabled () && ui_->force_DTR_combo_box->currentIndex () > 0;
-  result.dtr_high = 1 == ui_->force_DTR_combo_box->currentIndex ();
+  result.dtr_high = ui_->force_DTR_combo_box->isEnabled () && 1 == ui_->force_DTR_combo_box->currentIndex ();
   result.force_rts = ui_->force_RTS_combo_box->isEnabled () && ui_->force_RTS_combo_box->currentIndex () > 0;
-  result.rts_high = 1 == ui_->force_RTS_combo_box->currentIndex ();
+  result.rts_high = ui_->force_RTS_combo_box->isEnabled () && 1 == ui_->force_RTS_combo_box->currentIndex ();
   result.poll_interval = ui_->CAT_poll_interval_spin_box->value ();
   result.ptt_type = static_cast<TransceiverFactory::PTTMethod> (ui_->PTT_method_button_group->checkedId ());
   result.ptt_port = ui_->PTT_port_combo_box->currentText ();
