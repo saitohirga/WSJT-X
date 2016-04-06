@@ -29,6 +29,7 @@ public:
   int    nStartFreq();
   int    Fmin();
   int    Fmax();
+  int    fSpan();
   void   saveSettings();
   void   setRxRange(int fMin);
   void   setFsample(int n);
