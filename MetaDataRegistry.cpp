@@ -23,6 +23,10 @@ QItemEditorFactory * item_editor_factory ()
 
 void register_types ()
 {
+  // we still have to register the fully qualified names of enum types
+  // used as signal/slot connection arguments since the new Qt 5.5
+  // Q_ENUM macro only seems to register the unqualified name
+  
   // Radio namespace
   auto frequency_type_id = qRegisterMetaType<Radio::Frequency> ("Frequency");
   qRegisterMetaType<Radio::Frequencies> ("Frequencies");
@@ -61,9 +65,7 @@ void register_types ()
 
   // Transceiver
   qRegisterMetaType<Transceiver::TransceiverState> ("Transceiver::TransceiverState");
-#if QT_VERSION < 0x050500
   qRegisterMetaType<Transceiver::MODE> ("Transceiver::MODE");
-#endif
 
   // Transceiver factory
 #if QT_VERSION < 0x050500
