@@ -372,6 +372,12 @@ private:
   void set_application_font (QFont const&);
 
   void initialize_models ();
+  bool split_mode () const
+  {
+    return
+      (WSJT_RIG_NONE_CAN_SPLIT || !rig_is_dummy_) &&
+      (rig_params_.split_mode != TransceiverFactory::split_mode_none);
+  }
   bool open_rig (bool force = false);
   //bool set_mode ();
   void close_rig ();
@@ -621,12 +627,7 @@ bool Configuration::NDxG() const {return m_->NDxG_;}
 bool Configuration::NN() const {return m_->NN_;}
 bool Configuration::EMEonly() const {return m_->EMEonly_;}
 bool Configuration::offsetRxFreq () const {return m_->offsetRxFreq_;}
-bool Configuration::split_mode () const
-{
-  return
-    (WSJT_RIG_NONE_CAN_SPLIT || !m_->rig_is_dummy_) &&
-    (m_->rig_params_.split_mode != TransceiverFactory::split_mode_none);
-}
+bool Configuration::split_mode () const {return m_->split_mode ();}
 QString Configuration::udp_server_name () const {return m_->udp_server_name_;}
 auto Configuration::udp_server_port () const -> port_type {return m_->udp_server_port_;}
 bool Configuration::accept_udp_requests () const {return m_->accept_udp_requests_;}
@@ -2294,23 +2295,27 @@ void Configuration::impl::transceiver_frequency (Frequency f)
 
 void Configuration::impl::transceiver_tx_frequency (Frequency f)
 {
-  cached_rig_state_.online (true); // we want the rig online
-  cached_rig_state_.split (f);
-  cached_rig_state_.tx_frequency (f);
-
-  // lookup offset for tx and apply calibration
-  if (f)
+  Q_ASSERT (!f || split_mode ());
+  if (split_mode ())
     {
-      // apply and offset and calibration
-      // we store the offset here for use in feedback from the
-      // rig, we cannot absolutely determine if the offset should
-      // apply but by simply picking an offset when the Rx
-      // frequency is set and sticking to it we get sane behaviour
-      current_tx_offset_ = stations_.offset (f);
-      cached_rig_state_.tx_frequency (apply_calibration (f + current_tx_offset_));
-    }
+      cached_rig_state_.online (true); // we want the rig online
+      cached_rig_state_.split (f);
+      cached_rig_state_.tx_frequency (f);
 
-  Q_EMIT set_transceiver (cached_rig_state_, ++transceiver_command_number_);
+      // lookup offset for tx and apply calibration
+      if (f)
+        {
+          // apply and offset and calibration
+          // we store the offset here for use in feedback from the
+          // rig, we cannot absolutely determine if the offset should
+          // apply but by simply picking an offset when the Rx
+          // frequency is set and sticking to it we get sane behaviour
+          current_tx_offset_ = stations_.offset (f);
+          cached_rig_state_.tx_frequency (apply_calibration (f + current_tx_offset_));
+        }
+
+      Q_EMIT set_transceiver (cached_rig_state_, ++transceiver_command_number_);
+    }
 }
 
 void Configuration::impl::transceiver_mode (MODE m)
@@ -2343,7 +2348,6 @@ void Configuration::impl::handle_transceiver_update (TransceiverState const& sta
   // only follow rig on some information, ignore other stuff
   cached_rig_state_.online (state.online ());
   cached_rig_state_.frequency (state.frequency ());
-  cached_rig_state_.mode (state.mode ());
   cached_rig_state_.split (state.split ());
 
   if (state.online ())
@@ -2381,12 +2385,6 @@ void Configuration::impl::handle_transceiver_update (TransceiverState const& sta
         }
 
       Q_EMIT self_->transceiver_update (reported_state);
-    }
-  else
-    {
-#if WSJT_TRACE_CAT
-      qDebug () << "Configuration::handle_transceiver_update: skipping because of command #:" << transceiver_command_number_;
-#endif
     }
 }
 
