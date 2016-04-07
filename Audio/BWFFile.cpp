@@ -461,7 +461,7 @@ bool BWFFile::open(FILE * fh, OpenMode mode, FileHandleFlags flags)
 {
   bool result {false};
   if (!(mode & ReadOnly)) return result;
-  if (!mode & WriteOnly)
+  if (!(mode & WriteOnly))
     {
       result = m_->file_.open (fh, mode & ~Text, flags) && m_->read_header ();
     }
