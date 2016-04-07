@@ -74,9 +74,10 @@ void TransceiverBase::set (TransceiverState const& s,
                                      // commands while switching from
                                      // Tx to Rx
             }
-          if ((s.frequency () != requested_.frequency () // and QSY
-               || (s.mode () != UNK && s.mode () != requested_.mode ())) // or mode change
-              || ptt_off)       // or just returned to rx
+          if (s.frequency ()    // ignore bogus zero frequencies
+              && ((s.frequency () != requested_.frequency () // and QSY
+                   || (s.mode () != UNK && s.mode () != requested_.mode ())) // or mode change
+                  || ptt_off))       // or just returned to rx
             {
               do_frequency (s.frequency (), s.mode (), ptt_off);
               do_post_frequency (s.frequency (), s.mode ());
@@ -90,7 +91,7 @@ void TransceiverBase::set (TransceiverState const& s,
               if ((s.tx_frequency () != requested_.tx_frequency () // and QSY
                    || (s.mode () != UNK && s.mode () != requested_.mode ())) // or mode change
                   // || s.split () != requested_.split ())) // or split change
-                  || ptt_on)   // or about to tx
+                  || (s.tx_frequency () && ptt_on)) // or about to tx split
                 {
                   do_tx_frequency (s.tx_frequency (), ptt_on);
                   do_post_tx_frequency (s.tx_frequency ());
