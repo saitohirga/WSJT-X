@@ -1,9 +1,9 @@
 #ifndef DETECTOR_HPP__
 #define DETECTOR_HPP__
-
 #include "AudioDevice.hpp"
-
 #include <QScopedArrayPointer>
+
+extern bool g_bRefSpec;
 
 //
 // output device that distributes data in predefined chunks via a signal

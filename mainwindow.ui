@@ -2810,7 +2810,7 @@ QPushButton[state=&quot;ok&quot;] {
   </action>
   <action name="actionSave_reference_spectrum">
    <property name="text">
-    <string>Save reference spectrum</string>
+    <string>Measure reference spectrum</string>
    </property>
   </action>
   <action name="actionJTMSK">
