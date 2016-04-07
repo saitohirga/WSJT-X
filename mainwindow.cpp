@@ -118,6 +118,7 @@ int   fast_jh2;
 int narg[15];
 QVector<QColor> g_ColorTbl;
 bool g_single_decode;
+bool g_bRefSpec;
 
 namespace
 {
@@ -676,6 +677,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   }
   VHF_features_enabled(m_config.enable_VHF_features());
   g_single_decode=m_config.single_decode();
+  g_bRefSpec=false;
 
   progressBar->setMaximum(m_TRperiod);
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
@@ -1472,7 +1474,11 @@ void MainWindow::closeEvent(QCloseEvent * e)
 void MainWindow::on_stopButton_clicked()                       //stopButton
 {
   monitor (false);
-  m_loopall=false;  
+  m_loopall=false;
+  if(g_bRefSpec) {
+//    msgBox("Reference spectrum saved.");
+    g_bRefSpec=false;
+  }
 }
 
 void MainWindow::msgBox(QString t)                             //msgBox
@@ -5336,7 +5342,7 @@ void MainWindow::fastPick(int x0, int x1, int y)
 
 void MainWindow::on_actionSave_reference_spectrum_triggered()
 {
-  msgBox("Reference spectrum not presently implemented");
+  g_bRefSpec=true;
 }
 
 void MainWindow::on_sbCQRxFreq_valueChanged(int n)
