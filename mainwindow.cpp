@@ -99,7 +99,7 @@ extern "C" {
   void hash_calls_(char calls[], int* ih9, int len);
   void degrade_snr_(short d2[], int* n, float* db, float* bandwidth);
   void wav12_(short d2[], short d1[], int* nbytes, short* nbitsam2);
-  void refspec_(short int d2[], int* k);
+  void refspectrum_(short int d2[], bool* brefspec);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];	//Audio tones for all Tx symbols
@@ -874,8 +874,7 @@ void MainWindow::dataSink(qint64 frames)
   static float df3;
 
   int k (frames);
-  refspec_(dec_data.d2,&k);
-//  wspr_downsample_(dec_data.d2,&k);
+  refspectrum_(&dec_data.d2[k-3456],&m_bRefSpec);
 
   if(m_diskData) {
     dec_data.params.ndiskdat=1;
