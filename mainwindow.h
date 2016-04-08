@@ -425,6 +425,7 @@ private:
   bool    m_bFast9;
   bool    m_bFastDecodeCalled;
   bool    m_bDoubleClickAfterCQnnn;
+  bool    m_bRefSpec;
   float   m_pctZap;
 
   char    m_msg[100][80];
