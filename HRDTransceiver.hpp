@@ -72,6 +72,8 @@ private:
   void map_modes (int dropdown, ModeMap *);
   int lookup_mode (MODE, ModeMap const&) const;
   MODE lookup_mode (int, ModeMap const&) const;
+  void set_data_mode (MODE);
+  MODE get_data_mode (MODE, bool no_debug = false);
 
   // An alternate TransceiverBase instance that can be used to drive
   // PTT if required.
@@ -132,6 +134,15 @@ private:
                                 // VFO mode setting not available.
 
   ModeMap mode_B_map_;          // The map of modes for VFO B.
+
+  int data_mode_dropdown_;      // Index of data mode drop down, may
+                                // be -1 if no such drop down exists
+
+  std::vector<int> data_mode_dropdown_selection_on_; // The drop down
+                                // selection to turn on data mode.
+
+  std::vector<int> data_mode_dropdown_selection_off_; // The drop
+                                // down selection to disable data mode.
 
   int split_mode_button_;       // Button to use to select split
                                 // operation. May be -1 if no button
