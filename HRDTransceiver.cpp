@@ -89,6 +89,9 @@ HRDTransceiver::HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped
   , vfo_toggle_button_ {-1}
   , mode_A_dropdown_ {-1}
   , mode_B_dropdown_ {-1}
+  , data_mode_dropdown_ {-1}
+  , data_mode_dropdown_selection_on_ {-1}
+  , data_mode_dropdown_selection_off_ {-1}
   , split_mode_button_ {-1}
   , split_mode_dropdown_ {-1}
   , split_mode_dropdown_write_only_ {false}
@@ -266,6 +269,13 @@ int HRDTransceiver::do_start ()
       map_modes (mode_B_dropdown_, &mode_B_map_);
     }
 
+  // Some newer Icoms have a Data drop down with (Off, On, D1, D2, D3)
+  if ((data_mode_dropdown_ = find_dropdown (QRegExp ("^(Data)$"))) >= 0)
+    {
+      data_mode_dropdown_selection_on_ = find_dropdown_selection (data_mode_dropdown_, QRegExp ("^(On)$"));
+      data_mode_dropdown_selection_off_ = find_dropdown_selection (data_mode_dropdown_, QRegExp ("^(Off)$"));
+    }
+
   ptt_button_ = find_button (QRegExp ("^(TX)$"));
 
   if (vfo_count_ == 1 && ((vfo_B_button_ >= 0 && vfo_A_button_ >= 0) || vfo_toggle_button_ >= 0))
@@ -273,11 +283,11 @@ int HRDTransceiver::do_start ()
       // put the rig into a known state for tricky cases like Icoms
 
       auto f = send_command ("get frequency").toUInt ();
-      auto m = lookup_mode (get_dropdown (mode_A_dropdown_), mode_A_map_);
+      auto m = get_data_mode (lookup_mode (get_dropdown (mode_A_dropdown_), mode_A_map_));
       set_button (vfo_B_button_ >= 0 ? vfo_B_button_ : vfo_toggle_button_);
       auto fo = send_command ("get frequency").toUInt ();
       update_other_frequency (fo);
-      auto mo = lookup_mode (get_dropdown (mode_A_dropdown_), mode_A_map_);
+      auto mo = get_data_mode (lookup_mode (get_dropdown (mode_A_dropdown_), mode_A_map_));
       set_button (vfo_A_button_ >= 0 ? vfo_A_button_ : vfo_toggle_button_);
       if (f != fo || m != mo)
         {
@@ -288,7 +298,7 @@ int HRDTransceiver::do_start ()
       else
         {
           update_rx_frequency (send_command ("get frequency").toUInt ());
-          update_mode (lookup_mode (get_dropdown (mode_A_dropdown_), mode_A_map_));
+          update_mode (get_data_mode (lookup_mode (get_dropdown (mode_A_dropdown_), mode_A_map_)));
         }
     }
 
@@ -478,6 +488,43 @@ void HRDTransceiver::set_button (int button_index, bool checked)
     }
 }
 
+void HRDTransceiver::set_data_mode (MODE m)
+{
+  if (data_mode_dropdown_ >= 0)
+    {
+      switch (m)
+        {
+        case DIG_U:
+        case DIG_L:
+        case DIG_FM:
+          set_dropdown (data_mode_dropdown_, data_mode_dropdown_selection_on_.front ());
+          break;
+        default:
+          set_dropdown (data_mode_dropdown_, data_mode_dropdown_selection_off_.front ());
+          break;
+        }
+    }
+}
+
+auto HRDTransceiver::get_data_mode (MODE m, bool quiet) -> MODE
+{
+  if (data_mode_dropdown_ >= 0)
+    {
+      auto selection = get_dropdown (data_mode_dropdown_, quiet);
+      if (selection >= 0 && selection != data_mode_dropdown_selection_off_.front ())
+        {
+          switch (m)
+            {
+            case USB: m = DIG_U; break;
+            case LSB: m = DIG_L; break;
+            case FM: m = DIG_FM; break;
+            default: break;
+            }
+        }
+    }
+  return m;
+}
+
 void HRDTransceiver::do_frequency (Frequency f, MODE m, bool /*no_ignore*/)
 {
   TRACE_CAT ("HRDTransceiver", f << "reversed" << reversed_);
@@ -545,18 +592,21 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, bool /*no_ignore*/)
                 {
                   set_button (reversed_ ? rx_A_button_ : rx_B_button_);
                   set_dropdown (mode_A_dropdown_, lookup_mode (state ().mode (), mode_A_map_));
+                  set_data_mode (state ().mode ());
                   set_button (reversed_ ? rx_B_button_ : rx_A_button_);
                 }
               else if (receiver_dropdown_ >= 0)
                 {
                   set_dropdown (receiver_dropdown_, (reversed_ ? rx_A_selection_ : rx_B_selection_).front ());
                   set_dropdown (mode_A_dropdown_, lookup_mode (state ().mode (), mode_A_map_));
+                  set_data_mode (state ().mode ());
                   set_dropdown (receiver_dropdown_, (reversed_ ? rx_B_selection_ : rx_A_selection_).front ());
                 }
               else if (vfo_count_ > 1)
                 {
                   set_button (vfo_A_button_ >= 0 ? (reversed_ ? vfo_A_button_ : vfo_B_button_) : vfo_toggle_button_);
                   set_dropdown (mode_A_dropdown_, lookup_mode (state ().mode (), mode_A_map_));
+                  set_data_mode (state ().mode ());
                   set_button (vfo_A_button_ >= 0 ? (reversed_ ? vfo_B_button_ : vfo_A_button_) : vfo_toggle_button_);
                 }
               // else Tx VFO mode gets set with frequency below
@@ -588,6 +638,7 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, bool /*no_ignore*/)
                   // do this here rather than later so we only
                   // toggle/switch VFOs once
                   set_dropdown (mode_A_dropdown_, lookup_mode (state ().mode (), mode_A_map_));
+                  set_data_mode (state ().mode ());
                 }
               set_button (vfo_A_button_ >= 0 ? vfo_A_button_ : vfo_toggle_button_);
             }
@@ -742,6 +793,7 @@ void HRDTransceiver::do_mode (MODE mode)
             }
         }
     }
+  set_data_mode (mode);
   update_mode (mode);
 }
 
@@ -780,6 +832,7 @@ void HRDTransceiver::poll ()
   is_button_checked (ptt_button_);
   get_dropdown (mode_A_dropdown_);
   get_dropdown (mode_B_dropdown_);
+  get_dropdown (data_mode_dropdown_);
   if (!split_mode_dropdown_write_only_)
     {
       get_dropdown (split_mode_dropdown_);
@@ -854,10 +907,20 @@ void HRDTransceiver::poll ()
     }
   else
     {
-      update_rx_frequency (send_command ("get frequency", quiet).toUInt ());
+      // read frequency is unreliable on single VFO addressing rigs
+      // while transmitting
+      if (!state ().ptt ())
+        {
+          update_rx_frequency (send_command ("get frequency", quiet).toUInt ());
+        }
     }
 
-  update_mode (lookup_mode (get_dropdown (mode_A_dropdown_, quiet), mode_A_map_));
+  // read mode is unreliable on single VFO addressing rigs while
+  // transmitting
+  if (vfo_count_ > 1 || !state ().ptt ())
+    {
+      update_mode (get_data_mode (lookup_mode (get_dropdown (mode_A_dropdown_, quiet), mode_A_map_), quiet));
+    }
 }
 
 QString HRDTransceiver::send_command (QString const& cmd, bool no_debug, bool prepend_context, bool recurse)
