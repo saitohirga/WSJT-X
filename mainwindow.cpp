@@ -99,6 +99,7 @@ extern "C" {
   void hash_calls_(char calls[], int* ih9, int len);
   void degrade_snr_(short d2[], int* n, float* db, float* bandwidth);
   void wav12_(short d2[], short d1[], int* nbytes, short* nbitsam2);
+  void refspec_(short int d2[], int* k);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];	//Audio tones for all Tx symbols
@@ -118,7 +119,6 @@ int   fast_jh2;
 int narg[15];
 QVector<QColor> g_ColorTbl;
 bool g_single_decode;
-bool g_bRefSpec;
 
 namespace
 {
@@ -677,7 +677,7 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   }
   VHF_features_enabled(m_config.enable_VHF_features());
   g_single_decode=m_config.single_decode();
-  g_bRefSpec=false;
+  m_bRefSpec=false;
 
   progressBar->setMaximum(m_TRperiod);
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
@@ -873,6 +873,10 @@ void MainWindow::dataSink(qint64 frames)
   static float px=0.0;
   static float df3;
 
+  int k (frames);
+  refspec_(dec_data.d2,&k);
+//  wspr_downsample_(dec_data.d2,&k);
+
   if(m_diskData) {
     dec_data.params.ndiskdat=1;
   } else {
@@ -887,7 +891,6 @@ void MainWindow::dataSink(qint64 frames)
   // Get power, spectrum, and ihsym
   trmin=m_TRperiod/60;
 //  int k (frames - 1);
-  int k (frames);
   dec_data.params.nfa=m_wideGraph->nStartFreq();
   dec_data.params.nfb=m_wideGraph->Fmax();
   int nsps=m_nsps;
@@ -1475,9 +1478,9 @@ void MainWindow::on_stopButton_clicked()                       //stopButton
 {
   monitor (false);
   m_loopall=false;
-  if(g_bRefSpec) {
+  if(m_bRefSpec) {
 //    msgBox("Reference spectrum saved.");
-    g_bRefSpec=false;
+    m_bRefSpec=false;
   }
 }
 
@@ -5342,7 +5345,7 @@ void MainWindow::fastPick(int x0, int x1, int y)
 
 void MainWindow::on_actionSave_reference_spectrum_triggered()
 {
-  g_bRefSpec=true;
+  m_bRefSpec=true;
 }
 
 void MainWindow::on_sbCQRxFreq_valueChanged(int n)

@@ -3,8 +3,6 @@
 #include "AudioDevice.hpp"
 #include <QScopedArrayPointer>
 
-extern bool g_bRefSpec;
-
 //
 // output device that distributes data in predefined chunks via a signal
 //
