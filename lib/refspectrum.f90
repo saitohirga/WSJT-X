@@ -12,7 +12,7 @@ subroutine refspectrum(id2,brefspec)
   complex cx(0:NH)
   equivalence(x,cx)
   data nsave/0/,brefspec0/.false./
-  save brefspec0,nsave
+  save brefspec0,nsave,s
 
   if(brefspec) then
      if(.not.brefspec0) then
@@ -32,19 +32,19 @@ subroutine refspectrum(id2,brefspec)
 
      if(mod(nsave,34).eq.0) then                   !About 9.8 sec 
         df=12000.0/NFFT
-        ia=nint(500.0/df)
-        ib=nint(2500.0/df)
-        call pctile(s(ia),ib-ia+1,50,xmed)
-        db0=db(xmed)
-        nhadd=10
+!        ia=nint(500.0/df)
+!        ib=nint(2500.0/df)
+!        call pctile(s(ia),ib-ia+1,50,xmed)
+!        db0=db(xmed)
+!        nhadd=10
         open(16,file='refspec.dat',status='unknown')
         do i=1,NH
            freq=i*df
-           ia=max(1,i-nhadd)
-           ib=min(NH,i+nhadd)
-           smo=sum(s(ia:ib))/(ib-ia+1)
-           write(16,1000) freq,db(smo)-db0
-1000       format(2f10.3)
+!           ia=max(1,i-nhadd)
+!           ib=min(NH,i+nhadd)
+!           smo=sum(s(ia:ib))/(ib-ia+1)
+           write(16,1000) freq,s(i),db(s(i))
+1000       format(f10.3,e12.3,f12.6)
         enddo
         close(16)
      endif

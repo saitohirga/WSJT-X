@@ -48,9 +48,9 @@ OBJS3 = t2.o four2a.o db.o
 t2:   $(OBJS3)
 	$(FC) -o t2 $(OBJS3) -lfftw3f
 
-OBJS4 = t3.o four2a.o db.o
+OBJS4 = t3.o 
 t3:   $(OBJS4)
-	$(FC) -o t3 $(OBJS4) -lfftw3f
+	$(FC) -o t3 $(OBJS4) -L. -ljt9 C:\JTSDK\fftw3f\libfftw3f-3.dll
 
 .PHONY : clean
 

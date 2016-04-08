@@ -874,7 +874,7 @@ void MainWindow::dataSink(qint64 frames)
   static float df3;
 
   int k (frames);
-  refspectrum_(&dec_data.d2[k-3456],&m_bRefSpec);
+  if(m_bRefSpec) refspectrum_(&dec_data.d2[k-3456],&m_bRefSpec);
 
   if(m_diskData) {
     dec_data.params.ndiskdat=1;
