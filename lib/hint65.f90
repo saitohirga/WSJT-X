@@ -35,6 +35,7 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
            'RO','RRR','73'/
   save first,sym1,nused,msg0,sym2
 
+  first=.true.   !### For now, at least: always recompute hypothetical messages
   if(first) then
      neme=0
      open(23,file=trim(data_dir)//'/CALL3.TXT',status='unknown')
