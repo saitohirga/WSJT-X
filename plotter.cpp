@@ -168,9 +168,15 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
       float sum=0.0;
       int j=j0+m_binsPerPixel*i;
       for(int k=0; k<m_binsPerPixel; k++) {
-        sum+=jt9w_.syellow[j++];
+        sum+=spectra_.syellow[j++];
       }
       y2=gain2d*sum/m_binsPerPixel + m_plot2dZero;
+    }
+
+    if(m_bReference) {                                   //Reference (red)
+      float df_ref=12000.0/6912.0;
+      int j=FreqfromX(i)/df_ref + 0.5;
+      y2=gain2d*spectra_.ref[j] + m_plot2dZero;
     }
 
     if(i==iz-1) painter2D.drawPolyline(LineBuf,j);
