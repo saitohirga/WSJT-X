@@ -61,7 +61,8 @@ extern struct dec_data {
 
 extern struct {
   float syellow[NSMAX];
-} jt9w_;
+  float ref[3457];
+} spectra_;
 
 extern struct {
   int   nclearave;

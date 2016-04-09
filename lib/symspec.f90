@@ -30,7 +30,7 @@ subroutine symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,   &
   complex cx(0:MAXFFT3/2)
   integer nch(7)
 
-  common/jt9w/syellow(NSMAX)
+  common/spectra/syellow(NSMAX),ref(0:3456)
   data rms/999.0/,k0/99999999/,nfft3z/0/
   data nch/1,2,4,9,18,36,72/
   equivalence (xc,cx)
