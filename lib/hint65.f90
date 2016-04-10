@@ -15,7 +15,7 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
   character*4 grid2(MAXCALLS),rpt(MAXRPT)
   character callsign*12,grid*4
   character*180 line
-  character ceme*3,msg*22
+  character ceme*3,msg*22,msg00*22
   character*22 msg0(MAXMSG),decoded
   logical*1 eme(MAXCALLS)
   logical first
@@ -59,6 +59,7 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
         ceme=line(i2+1:i3-1)
         eme(i)=ceme.eq.'EME'
         if(neme.eq.1 .and. (.not.eme(i))) cycle
+        if(callsign(1:6).eq.hiscall .and. grid.eq.hisgrid) cycle
         j=j+1
         call2(j)=callsign(1:6)               !### Fix for compound callsigns!
         grid2(j)=grid
@@ -69,7 +70,8 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
 
 ! NB: generation of test messages is not yet complete!
      j=0
-     do i=-1,ncalls       !### if ncalls is too small, generate random msgs ???
+     do i=-1,ncalls
+        if(i.eq.0 .and. hiscall.eq.'      ' .and. hisgrid.eq.'    ') cycle
         mz=2
         if(i.eq.-1) mz=1
         if(i.eq.0) mz=65
@@ -115,6 +117,7 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
 ! a bank of matched filters on the symbol spectra s3(i,j).
   ipk=1
   ipk2=0
+  msg00='                      '
   do k=1,nused
      if(k.ge.2 .and. k.le.64 .and. flip.lt.0.0) cycle
 ! Test all messages if flip=+1; skip the CQ messages if flip=-1.
@@ -129,12 +132,15 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
         p=psum/ref
 
         if(p.gt.u1) then
-           u2=u1
-           ipk2=ipk
+           if(msg0(k).ne.msg00) then
+              ipk2=ipk
+              u2=u1
+           endif
            u1=p
            ipk=k
+           msg00=msg0(k)
         endif
-        if(p.ne.u1 .and. p.gt.u2) then
+        if(msg0(k).ne.msg00 .and. p.gt.u2) then
            u2=p
            ipk2=k
         endif
