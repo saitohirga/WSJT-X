@@ -99,7 +99,8 @@ extern "C" {
   void hash_calls_(char calls[], int* ih9, int len);
   void degrade_snr_(short d2[], int* n, float* db, float* bandwidth);
   void wav12_(short d2[], short d1[], int* nbytes, short* nbitsam2);
-  void refspectrum_(short int d2[], bool* brefspec);
+  void refspectrum_(short int d2[], bool* brefspec, bool* buseref,
+                    const char* c_fname, int len);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];	//Audio tones for all Tx symbols
@@ -874,7 +875,12 @@ void MainWindow::dataSink(qint64 frames)
   static float df3;
 
   int k (frames);
-  if(m_bRefSpec) refspectrum_(&dec_data.d2[k-3456],&m_bRefSpec);
+  QString fname {QDir::toNativeSeparators(m_dataDir.absoluteFilePath ("refspec.dat"))};
+  QByteArray bafname = fname.toLatin1();
+  const char *c_fname = bafname.data();
+  int len=fname.length();
+  m_bUseRef=m_wideGraph->useRef();
+  refspectrum_(&dec_data.d2[k-3456],&m_bRefSpec,&m_bUseRef,c_fname,len);
 
   if(m_diskData) {
     dec_data.params.ndiskdat=1;
@@ -4043,7 +4049,7 @@ void MainWindow::band_changed (Frequency f)
       if (f + m_wideGraph->nStartFreq () > m_freqNominal + ui->TxFreqSpinBox->value ()
           || f + m_wideGraph->nStartFreq () + m_wideGraph->fSpan () <=
           m_freqNominal + ui->TxFreqSpinBox->value ()) {
-        qDebug () << "start f:" << m_wideGraph->nStartFreq () << "span:" << m_wideGraph->fSpan () << "DF:" << ui->TxFreqSpinBox->value ();
+//        qDebug () << "start f:" << m_wideGraph->nStartFreq () << "span:" << m_wideGraph->fSpan () << "DF:" << ui->TxFreqSpinBox->value ();
         // disable auto Tx if "blind" QSY outside of waterfall
         ui->stopTxButton->click (); // halt any transmission
         auto_tx_mode (false);       // disable auto Tx
@@ -5344,6 +5350,7 @@ void MainWindow::fastPick(int x0, int x1, int y)
 
 void MainWindow::on_actionSave_reference_spectrum_triggered()
 {
+  if(!m_monitoring) on_monitorButton_clicked (true);
   m_bRefSpec=true;
 }
 

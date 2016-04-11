@@ -562,14 +562,14 @@
          <item>
           <widget class="QCheckBox" name="cbFlatten">
            <property name="text">
-            <string>Flat</string>
+            <string>Flatten</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QCheckBox" name="cbRef">
            <property name="text">
-            <string>Ref</string>
+            <string>Ref Spec</string>
            </property>
           </widget>
          </item>

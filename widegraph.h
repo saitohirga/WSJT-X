@@ -40,6 +40,7 @@ public:
   void   setModeTx(QString modeTx);
   void   setLockTxFreq(bool b);
   bool   flatten();
+  bool   useRef();
   void   setTol(int n);
   int    smoothYellow();
   void   setRxBand(QString band);
@@ -68,6 +69,7 @@ private slots:
   void on_fStartSpinBox_valueChanged(int n);
   void on_paletteComboBox_activated(const QString &palette);
   void on_cbFlatten_toggled(bool b);
+  void on_cbRef_toggled(bool b);
   void on_adjust_palette_push_button_clicked (bool);
   void on_gainSlider_valueChanged(int value);
   void on_zeroSlider_valueChanged(int value);
@@ -99,6 +101,7 @@ private:
 
   bool   m_lockTxFreq;
   bool   m_bFlatten;
+  bool   m_bRef;
   bool   m_bHaveTransmitted;    //Set true at end of a WSPR transmission
 
   QString m_mode;
