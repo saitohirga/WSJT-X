@@ -4058,7 +4058,7 @@ void MainWindow::band_changed (Frequency f)
         // adjust DF:s
         int shift = f - m_freqNominal;
         ui->RxFreqSpinBox->setValue (ui->RxFreqSpinBox->value () - shift);
-        if (!m_mode.startsWith ("JT4")) // JT4 uses fixed 1000Hz Tx DF
+        if (!m_config.enable_VHF_features ()) // for VHF & up we fix the Tx DF
           {
             ui->TxFreqSpinBox->setValue (ui->TxFreqSpinBox->value () - shift);
           }
@@ -4291,8 +4291,8 @@ void MainWindow::setXIT(int n, Frequency base)
   m_XIT = 0;
   if (!m_bSimplex) {
     // m_bSimplex is false, so we can use split mode if requested
-    if (m_config.split_mode () && m_mode != "JT4") {
-      // Don't use XIT in JT4, we may be using Doppler control
+    if (m_config.split_mode () && !m_config.enable_VHF_features ()) {
+      // Don't use XIT for VHF & up
       m_XIT=(n/500)*500 - 1500;
     }
 
@@ -4324,9 +4324,10 @@ void MainWindow::setFreq4(int rxFreq, int txFreq)
     if (ui->TxFreqSpinBox->isEnabled ()) {
       ui->TxFreqSpinBox->setValue(txFreq);
     }
-    else if (m_mode=="JT4"
-             && m_freqNominal >= 432000000u
+    else if (m_config.enable_VHF_features ()
              && (Qt::ControlModifier & QApplication::keyboardModifiers ())) {
+      // for VHF & up we adjust Tx dial frequency to equalize Tx to Rx
+      // when user CTRL+clicks on waterfall
       auto temp = ui->TxFreqSpinBox->value ();
       m_freqNominal += txFreq - temp;
       m_freqTxNominal += txFreq - temp;
