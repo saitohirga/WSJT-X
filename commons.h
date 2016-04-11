@@ -62,6 +62,7 @@ extern struct dec_data {
 extern struct {
   float syellow[NSMAX];
   float ref[3457];
+  float filter[3457];
 } spectra_;
 
 extern struct {
