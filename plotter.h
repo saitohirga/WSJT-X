@@ -77,7 +77,7 @@ public:
   float fSpan() const {return m_fSpan;}
   void setLockTxFreq(bool b) {m_lockTxFreq = b;}
   void setColours(QVector<QColor> const& cl);
-  void setFlatten(bool b);
+  void setFlatten(bool b1, bool b2);
   void setTol(int n);
   void setRxBand(QString band);
   void setReference(bool b) {m_bReference = b;}

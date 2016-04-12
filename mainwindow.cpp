@@ -2167,6 +2167,7 @@ void MainWindow::on_EraseButton_clicked()                          //Erase
 
 void MainWindow::decodeBusy(bool b)                             //decodeBusy()
 {
+/* ###   Temporarily(?) disable the long-decode progress bar.
   bool showProgress = false;
   if (b && m_firstDecode < 65 && ("JT65" == m_mode || "JT9+JT65" == m_mode))
     {
@@ -2180,7 +2181,6 @@ void MainWindow::decodeBusy(bool b)                             //decodeBusy()
       m_firstDecode += 9;
       showProgress = true;
     }
-/* ###   Temporarily(?) disable the long-decode progress bar.
   if (showProgress)
     {
       // this sequence is needed to create an indeterminate progress

@@ -50,8 +50,8 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   int n = m_settings->value("BinsPerPixel",2).toInt();
   m_bFlatten=m_settings->value("Flatten",true).toBool();
   ui->cbFlatten->setChecked(m_bFlatten);
-  ui->widePlot->setFlatten(m_bFlatten);
   m_bRef=m_settings->value("UseRef",false).toBool();
+  ui->widePlot->setFlatten(m_bFlatten,m_bRef);
   ui->cbRef->setChecked(m_bRef);
   ui->widePlot->setBreadth(m_settings->value("PlotWidth",1000).toInt());
   ui->bppSpinBox->setValue(n);
@@ -384,7 +384,7 @@ void WideGraph::on_cbFlatten_toggled(bool b)                          //Flatten 
     m_bRef=false;
     ui->cbRef->setChecked(false);
   }
-  ui->widePlot->setFlatten(m_bFlatten);
+  ui->widePlot->setFlatten(m_bFlatten,m_bRef);
 }
 
 void WideGraph::on_cbRef_toggled(bool b)
@@ -394,6 +394,7 @@ void WideGraph::on_cbRef_toggled(bool b)
     m_bFlatten=false;
     ui->cbFlatten->setChecked(false);
   }
+  ui->widePlot->setFlatten(m_bFlatten,m_bRef);
 }
 
 void WideGraph::on_adjust_palette_push_button_clicked (bool)   //Adjust Palette
