@@ -2900,7 +2900,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
         m_lockTxFreq or ctrl) {
       if (ui->TxFreqSpinBox->isEnabled ()) {
         if(!m_bFastMode) ui->TxFreqSpinBox->setValue(frequency);
-      } else if(m_mode!="JT4") {
+      } else if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9")) {
         return;
       }
     }
