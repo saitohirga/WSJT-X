@@ -62,14 +62,16 @@ subroutine refspectrum(id2,brefspec,buseref,fname)
            endif
         enddo
 
+! Modify these if spectrum falls off steeply inside these stated bounds:
         ia=nint(240.0/df)
+        ib=nint(4000.0/df)
+
         fac=fac0
         do i=ia,1,-1
            fac=fac*fac0
            fil(i)=fac*fil(i)
         enddo
 
-        ib=nint(4000.0/df)
         fac=fac0
         do i=ib,NH
            fac=fac*fac0
