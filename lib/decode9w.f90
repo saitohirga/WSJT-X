@@ -17,8 +17,8 @@ subroutine decode9w(nutc,nfqso,ntol,nsubmode,ss,id2,sync,nsnr,xdt1,f0,decoded)
   npts=52*12000
   limit=10000                            !Fano timeout parameter
 
-  ia=nint((nfqso-ntol)/df)               !Start frequency bin
-  ib=nint((nfqso+ntol)/df)               !End frequency bin
+  ia=max(1,nint((nfqso-ntol)/df))        !Start frequency bin
+  ib=min(NSMAX,nint((nfqso+ntol)/df))    !End frequency bin
   lag1=-int(2.5/tstep + 0.9999)          !Start lag
   lag2=int(5.0/tstep + 0.9999)           !End lag
   nhsym=184                              !Number of half-symbols
