@@ -56,15 +56,24 @@ subroutine refspectrum(id2,brefspec,buseref,fname)
         avemid=sum(s(ia:ib))/(ib-ia+1)
         do i=0,NH
            fil(i)=0.
-           filter(i)=-60.0
            if(s(i).gt.0.0) then
               fil(i)=sqrt(avemid/s(i))
            endif
         enddo
 
-! Modify these if spectrum falls off steeply inside these stated bounds:
+! Default range is 240 - 4000 Hz.  For narrower filters, use frequencies
+! at which gain is -20 dB relative to 1500 Hz.
         ia=nint(240.0/df)
         ib=nint(4000.0/df)
+        i0=nint(1500.0/df)
+        do i=i0,ia,-1
+           if(s(i)/s(i0).lt.0.01) exit
+        enddo
+        ia=i
+        do i=i0,ib,1
+           if(s(i)/s(i0).lt.0.01) exit
+        enddo
+        ib=i
 
         fac=fac0
         do i=ia,1,-1
@@ -78,7 +87,7 @@ subroutine refspectrum(id2,brefspec,buseref,fname)
            fil(i)=fac*fil(i)
         enddo
 
-        do iter=1,1000                        !### ??? ###
+        do iter=1,100                        !### ??? ###
            call smo121(fil,NH)
         enddo
 
