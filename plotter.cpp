@@ -408,7 +408,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     painter0.drawLine(x1,8,x1,28);
   }
 
-  if(m_dialFreq>10.13 and m_dialFreq< 10.15) {
+  if(m_dialFreq>10.13 and m_dialFreq< 10.15 and m_mode.mid(0,4)!="WSPR") {
     float f1=1.0e6*(10.1401 - m_dialFreq);
     float f2=f1+200.0;
     x1=XfromFreq(f1);
@@ -625,10 +625,11 @@ void CPlotter::setRxBand(QString band)
   m_rxBand=band;
 }
 
-void CPlotter::setFlatten(bool b)
+void CPlotter::setFlatten(bool b1, bool b2)
 {
   m_Flatten=0;
-  if(b) m_Flatten=1;
+  if(b1) m_Flatten=1;
+  if(b2) m_Flatten=2;
 }
 
 void CPlotter::setTol(int n)                                 //setTol()
