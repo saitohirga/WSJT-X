@@ -177,7 +177,7 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
       float df_ref=12000.0/6912.0;
       int j=FreqfromX(i)/df_ref + 0.5;
       y2=spectra_.ref[j] + m_plot2dZero;
-      if(gain2d>1.5) y2=spectra_.filter[j] + m_plot2dZero;
+//      if(gain2d>1.5) y2=spectra_.filter[j] + m_plot2dZero;
 
     }
 
