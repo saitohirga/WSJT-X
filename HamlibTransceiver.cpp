@@ -517,7 +517,7 @@ int HamlibTransceiver::do_start ()
                   // Some rigs (HDSDR) don't have a working way of
                   // reporting MODE so we give up on mode queries -
                   // sets will still cause an error
-                  TRACE_CAT_POLL ("HamlibTransceiver", "rig_get_mode can't do on this rig");
+                  TRACE_CAT ("HamlibTransceiver", "rig_get_mode can't do on this rig");
                 }
             }
         }
