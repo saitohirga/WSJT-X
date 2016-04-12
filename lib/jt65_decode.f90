@@ -126,8 +126,8 @@ contains
        endif
        df=12000.0/8192.0                     !df = 1.465 Hz
        if(single_decode) then
-          ia=max(1,nint(nfa/df)-100)
-          ib=min(NSZ,nint(nfb/df)+100)
+          ia=max(1,nint(nfa/df)-ntol)
+          ib=min(NSZ,nint(nfb/df)+ntol)
           nz=ib-ia+1
           call lorentzian(savg(ia),nz,a)
           baseline=a(1)
@@ -145,6 +145,7 @@ contains
           call timer('sync65  ',0)
           call sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,0,    &
                single_decode)
+
           call timer('sync65  ',1)
        endif
        if(ncand.gt.50) robust=.true.
