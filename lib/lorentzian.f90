@@ -12,8 +12,6 @@ subroutine lorentzian(y,npts,a)
   real a(5)
   real deltaa(4)
 
-  if(npts.gt.2000) stop 'Error in lorentzian'
-
   a=0.
   df=12000.0/8192.0                               !df = 1.465 Hz
   width=0.
