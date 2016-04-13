@@ -1835,7 +1835,10 @@ void MainWindow::decode()                                       //decode()
   if(m_config.NDxG()) dec_data.params.nexp_decode += 4;
   if(m_config.NN()) dec_data.params.nexp_decode += 8;
   if(m_config.EMEonly()) dec_data.params.nexp_decode += 16;
-  if(m_config.single_decode()) dec_data.params.nexp_decode += 32;
+  if(m_config.single_decode()) {
+    dec_data.params.nexp_decode += 32;
+    if(dec_data.params.naggressive<1) dec_data.params.naggressive=1;
+  }
 
   strncpy(dec_data.params.datetime, m_dateTime.toLatin1(), 20);
   strncpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
