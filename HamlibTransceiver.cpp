@@ -1,6 +1,7 @@
 #include "HamlibTransceiver.hpp"
 
 #include <cstring>
+#include <cmath>
 
 #include <QByteArray>
 #include <QString>
@@ -439,6 +440,7 @@ int HamlibTransceiver::do_start ()
           // assume it is as when we started by setting at open time right
           // here. We also gather/set other initial state.
           error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &f1), tr ("getting current frequency"));
+          f1 = std::round (f1);
           TRACE_CAT ("HamlibTransceiver", "current frequency =" << f1);
 
           error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w), tr ("getting current mode"));
@@ -456,6 +458,7 @@ int HamlibTransceiver::do_start ()
             }
 
           error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &f2), tr ("getting other VFO frequency"));
+          f2 = std::round (f2);
           TRACE_CAT ("HamlibTransceiver", "rig_get_freq other frequency =" << f2);
 
           error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &mb, &wb), tr ("getting other VFO mode"));
@@ -481,6 +484,7 @@ int HamlibTransceiver::do_start ()
           else
             {
               error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &f1), tr ("getting frequency"));
+              f1 = std::round (f1);
               TRACE_CAT ("HamlibTransceiver", "rig_get_freq frequency =" << f1);
 
               error_check (rig_get_mode (rig_.data (), RIG_VFO_CURR, &m, &w), tr ("getting mode"));
@@ -542,6 +546,7 @@ int HamlibTransceiver::do_start ()
   int resolution {0};
   freq_t current_frequency;
   error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &current_frequency), tr ("getting current VFO frequency"));
+  current_frequency = std::round (current_frequency);
   Frequency f = current_frequency;
   if (f && !(f % 10))
     {
@@ -549,6 +554,7 @@ int HamlibTransceiver::do_start ()
       error_check (rig_set_freq (rig_.data (), RIG_VFO_CURR, test_frequency), tr ("setting frequency"));
       freq_t new_frequency;
       error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &new_frequency), tr ("getting current VFO frequency"));
+      new_frequency = std::round (new_frequency);
       switch (static_cast<Radio::FrequencyDelta> (new_frequency - test_frequency))
         {
         case -5: resolution = -1; break;  // 10Hz truncated
@@ -570,6 +576,7 @@ void HamlibTransceiver::do_stop ()
   if (is_dummy_)
     {
       rig_get_freq (rig_.data (), RIG_VFO_CURR, &dummy_frequency_);
+      dummy_frequency_ = std::round (dummy_frequency_);
       if (mode_query_works_)
         {
           pbwidth_t width;
@@ -851,6 +858,7 @@ void HamlibTransceiver::poll ()
   if (!state ().ptt () || !state ().split ())
     {
       error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &f), tr ("getting current VFO frequency"));
+      f = std::round (f);
       TRACE_CAT_POLL ("HamlibTransceiver", "rig_get_freq frequency =" << f);
       update_rx_frequency (f);
     }
@@ -871,6 +879,7 @@ void HamlibTransceiver::poll ()
                                  ? (rig_->state.vfo_list & RIG_VFO_A ? RIG_VFO_A : RIG_VFO_MAIN)
                                  : (rig_->state.vfo_list & RIG_VFO_B ? RIG_VFO_B : RIG_VFO_SUB)
                                  , &f), tr ("getting other VFO frequency"));
+      f = std::round (f);
       TRACE_CAT_POLL ("HamlibTransceiver", "rig_get_freq other VFO =" << f);
       update_other_frequency (f);
     }
