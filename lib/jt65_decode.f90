@@ -135,7 +135,7 @@ contains
           f0=(a(3)+ia-1)*df
           width=a(4)*df
 !          write(*,3001) baseline,amp,f0,width
-!3001      format(4f10.3)
+!3001      format('A',4f10.3)
        endif
 
        ! robust = .false.: use float ccf. Only if ncand>50 fall back to robust (1-bit) ccf
@@ -159,7 +159,10 @@ contains
 
 ! If a candidate was found within +/- ntol of nfqso, move it into ca(1).
        call fqso_first(nfqso,ntol,ca,ncand)
-       if(single_decode) ncand=1
+       if(single_decode) then
+          ncand=1
+          if(abs(ca(1)%freq - f0).gt.width) width=2*df
+       endif
        nvec=ntrials
        if(ncand.gt.75) then
           !      write(*,*) 'Pass ',ipass,' ncandidates too large ',ncand

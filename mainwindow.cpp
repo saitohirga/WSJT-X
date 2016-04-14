@@ -3607,6 +3607,7 @@ void MainWindow::on_actionJT65_triggered()
     m_modeTx="JT9";
     on_pbTxMode_clicked();
   }
+  on_actionJT9_triggered();
   m_mode="JT65";
   WSPR_config(false);
   switch_mode (Modes::JT65);
