@@ -247,7 +247,8 @@ contains
           n=max(2,nsum+1)
           n=min(n,36)
           ctail(2:2)=c(n:n)
-          if(nsubmode.gt.0) ctail(3:3)=c(nsmo+1:nsmo+1)
+          n=min(nsmo+1,36)
+          if(nsubmode.gt.0) ctail(3:3)=c(n:n)
           if(ft.eq.2) then
              ctail(5:5)='*'
              if(qual.le.9) ctail(5:5)=char(48+qual)
