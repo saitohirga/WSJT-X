@@ -1,0 +1,87 @@
+#ifndef MULTISETTINGS_HPP_
+
+#include "pimpl_h.hpp"
+
+class QSettings;
+class QMainWindow;
+class QMenu;
+
+//
+// MultiSettings - Manage multiple configuration names
+//
+// Responsibilities:
+//
+//	MultiSettings allows a  Qt application to be  run with alternative
+// 	settings as  stored in a QSettings  INI style file. As  far as the
+// 	application is  concerned it uses the  QSettings instance returned
+// 	by the MultiSettings::settings() method as  if it were the one and
+// 	only QSettings  object. The  only caution  is the  the application
+// 	must  not  end the  outer  settings  group since  the  alternative
+// 	settings  are actually  maintained as  QSettings groups  which are
+// 	children of a  root level group called  MultiSettings. The default
+// 	settings are themselves stored at  the root so the QSettings group
+// 	name  MultiSettings is  reserved. Also  at  the root  level a  key
+// 	called CurrentMultiSettingsConfiguration is  reserved to store the
+// 	current configuration name.
+//
+//
+// Example Usage:
+//
+//  #include <QApplication>
+// 	#include "MultiSettings.hpp"
+//	#include "MyMainWindow.hpp"
+//
+//	int main (int argc, char * argv[]) {
+// 		QApplication a {argc, argv};
+//		MultiSettings multi_settings;
+//		int result;
+//		do {
+//			MyMainWindow main_window {&multi_settings};
+//			main_window.show ();
+//			result = a.exec ();
+//		} while (!result && !multi_settings.exit ());
+//		return result;
+//	}
+//
+//	In  the main  window call  MultiSettings::create_menu_actions() to
+//	populate an existing QMenu widget with the configuration switching
+//	and maintenance actions.  This would normally be done  in the main
+//	window class constructor:
+//
+//	MyMainWindow::MyMainWindow (MultiSettings * multi_settings) {
+//		QSettings * settings {multi_settings->settings ()};
+//		// ...
+//		multi_settings->create_menu_actions (this, ui->configurations_menu);
+//		// ...
+//	}
+//
+
+class MultiSettings
+{
+public:
+  explicit MultiSettings ();
+  MultiSettings (MultiSettings const&) = delete;
+  MultiSettings& operator = (MultiSettings const&) = delete;
+  ~MultiSettings ();
+
+  // Add multiple configurations navigation and maintenance actions to
+  // a provided  menu. The provided  main window object  instance will
+  // have its close() function called when a "Switch To" configuration
+  // action is triggered.
+  void create_menu_actions (QMainWindow *, QMenu *);
+
+  // Access to the QSettings object instance.
+  QSettings * settings ();
+
+  // Call this to  determine if the application is  terminating, if it
+  // returns  false  then  the   application  main  window  should  be
+  // recreated,  shown  and  the application  exec()  function  called
+  // again.
+  bool exit ();
+
+private:
+  class impl;
+  pimpl<impl> m_;
+};
+
+#endif

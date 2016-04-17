@@ -18,6 +18,8 @@
 #include <QVector>
 #include <QCursor>
 #include <QToolTip>
+#include <QAction>
+#include <QActionGroup>
 
 #include "revision_utils.hpp"
 #include "qt_helpers.hpp"
@@ -47,6 +49,7 @@
 #include "HelpTextWindow.hpp"
 #include "SampleDownloader.hpp"
 #include "Audio/BWFFile.hpp"
+#include "MultiSettings.hpp"
 
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
@@ -135,22 +138,24 @@ namespace
 }
 
 //--------------------------------------------------- MainWindow constructor
-MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdmem,
+MainWindow::MainWindow(bool multiple, MultiSettings * multi_settings,
+                       QSharedMemory *shdmem,
                        unsigned downSampleFactor, QNetworkAccessManager * network_manager,
                        QWidget *parent) :
   QMainWindow(parent),
   m_dataDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)},
   m_revision {revision ()},
   m_multiple {multiple},
-  m_settings {settings},
+  m_multi_settings {multi_settings},
+  m_settings {multi_settings->settings ()},
   ui(new Ui::MainWindow),
-  m_config {settings, this},
-  m_WSPR_band_hopping {settings, &m_config, this},
+  m_config {m_settings, this},
+  m_WSPR_band_hopping {m_settings, &m_config, this},
   m_WSPR_tx_next {false},
-  m_wideGraph (new WideGraph(settings)),
-  m_echoGraph (new EchoGraph(settings)),
-  m_fastGraph (new FastGraph(settings)),
-  m_logDlg (new LogQSO (program_title (), settings, this)),
+  m_wideGraph (new WideGraph(m_settings)),
+  m_echoGraph (new EchoGraph(m_settings)),
+  m_fastGraph (new FastGraph(m_settings)),
+  m_logDlg (new LogQSO (program_title (), m_settings, this)),
   m_lastDialFreq {0},
   //m_dialFreq {std::numeric_limits<Radio::Frequency>::max ()},
   m_detector {new Detector {RX_SAMPLE_RATE, NTMAX, 6912 / 2, downSampleFactor}},
@@ -405,6 +410,9 @@ MainWindow::MainWindow(bool multiple, QSettings * settings, QSharedMemory *shdme
   connect (&m_config, &Configuration::transceiver_failure, this, &MainWindow::handle_transceiver_failure);
   connect (&m_config, &Configuration::udp_server_changed, m_messageClient, &MessageClient::set_server);
   connect (&m_config, &Configuration::udp_server_port_changed, m_messageClient, &MessageClient::set_server_port);
+
+  // set up configurations menu
+  m_multi_settings->create_menu_actions (this, ui->menuConfig);
 
   // set up message text validators
   ui->tx1->setValidator (new QRegExpValidator {message_alphabet, this});

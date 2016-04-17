@@ -217,6 +217,7 @@ set (wsjt_qt_CXXSRCS
   SampleDownloader/FileNode.cpp
   SampleDownloader/RemoteFile.cpp
   DisplayManual.cpp
+  MultiSettings.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS

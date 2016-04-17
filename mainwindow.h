@@ -71,6 +71,7 @@ class Modulator;
 class SoundInput;
 class Detector;
 class SampleDownloader;
+class MultiSettings;
 
 class MainWindow : public QMainWindow
 {
@@ -82,7 +83,7 @@ public:
   using Mode = Modes::Mode;
 
   // Multiple instances: call MainWindow() with *thekey
-  explicit MainWindow(bool multiple, QSettings *, QSharedMemory *shdmem,
+  explicit MainWindow(bool multiple, MultiSettings *, QSharedMemory *shdmem,
                       unsigned downSampleFactor, QNetworkAccessManager * network_manager,
                       QWidget *parent = 0);
   ~MainWindow();
@@ -279,8 +280,8 @@ private:
   QDir m_dataDir;
   QString m_revision;
   bool m_multiple;
+  MultiSettings * m_multi_settings;
   QSettings * m_settings;
-
   Ui::MainWindow * ui;
 
   // other windows
