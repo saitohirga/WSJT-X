@@ -29,6 +29,7 @@
 #include "MetaDataRegistry.hpp"
 #include "SettingsGroup.hpp"
 #include "TraceFile.hpp"
+#include "MultiSettings.hpp"
 #include "mainwindow.h"
 #include "commons.h"
 #include "lib/init_random_seed.h"
@@ -186,81 +187,77 @@ int main(int argc, char *argv[])
         }
 #endif
 
-      auto config_directory = QStandardPaths::writableLocation (QStandardPaths::ConfigLocation);
-      QDir config_path {config_directory}; // will be "." if config_directory is empty
-      if (!config_path.mkpath ("."))
-        {
-          throw std::runtime_error {"Cannot find a usable configuration path \"" + config_path.path ().toStdString () + '"'};
-        }
-
-      auto settings_file = config_path.absoluteFilePath (a.applicationName () + ".ini");
-      QSettings settings(settings_file, QSettings::IniFormat);
-      if (!settings.isWritable ())
-        {
-          throw std::runtime_error {QString {"Cannot access \"%1\" for writing"}.arg (settings_file).toStdString ()};
-        }
+      MultiSettings multi_settings;
 
 #if WSJT_QDEBUG_TO_FILE
       // Open a trace file
       TraceFile trace_file {QDir {QStandardPaths::writableLocation (QStandardPaths::TempLocation)}.absoluteFilePath (a.applicationName () + "_trace.log")};
-
-      // announce to trace file and dump settings
       qDebug () << program_title (revision ()) + " - Program startup";
-      qDebug () << "++++++++++++++++++++++++++++ Settings ++++++++++++++++++++++++++++";
-      for (auto const& key: settings.allKeys ())
+#endif
+
+      int result;
+      do
         {
-          auto const& value = settings.value (key);
-          if (value.canConvert<QVariantList> ())
+#if WSJT_QDEBUG_TO_FILE
+          // announce to trace file and dump settings
+          qDebug () << "++++++++++++++++++++++++++++ Settings ++++++++++++++++++++++++++++";
+          for (auto const& key: multi_settings.settings ()->allKeys ())
             {
-              auto const sequence = value.value<QSequentialIterable> ();
-              qDebug ().nospace () << key << ": ";
-              for (auto const& item: sequence)
+              auto const& value = multi_settings.settings ()->value (key);
+              if (value.canConvert<QVariantList> ())
                 {
-                  qDebug ().nospace () << '\t' << item;
+                  auto const sequence = value.value<QSequentialIterable> ();
+                  qDebug ().nospace () << key << ": ";
+                  for (auto const& item: sequence)
+                    {
+                      qDebug ().nospace () << '\t' << item;
+                    }
+                }
+              else
+                {
+                  qDebug ().nospace () << key << ": " << value;
                 }
             }
-          else
-            {
-              qDebug ().nospace () << key << ": " << value;
+          qDebug () << "---------------------------- Settings ----------------------------";
+#endif
+
+          // Create and initialize shared memory segment
+          // Multiple instances: use rig_name as shared memory key
+          mem_jt9.setKey(a.applicationName ());
+
+          if(!mem_jt9.attach()) {
+            if (!mem_jt9.create(sizeof(struct dec_data))) {
+              QMessageBox::critical (nullptr, "Error", "Unable to create shared memory segment.");
+              exit(1);
             }
-        }
-      qDebug () << "---------------------------- Settings ----------------------------";
-#endif
+          }
+          memset(mem_jt9.data(),0,sizeof(struct dec_data)); //Zero all decoding params in shared memory
 
-      // Create and initialize shared memory segment
-      // Multiple instances: use rig_name as shared memory key
-      mem_jt9.setKey(a.applicationName ());
+          unsigned downSampleFactor;
+          {
+            SettingsGroup {multi_settings.settings (), "Tune"};
 
-      if(!mem_jt9.attach()) {
-        if (!mem_jt9.create(sizeof(struct dec_data))) {
-          QMessageBox::critical (nullptr, "Error", "Unable to create shared memory segment.");
-          exit(1);
-        }
-      }
-      memset(mem_jt9.data(),0,sizeof(struct dec_data)); //Zero all decoding params in shared memory
-
-      unsigned downSampleFactor;
-      {
-        SettingsGroup {&settings, "Tune"};
-
-        // deal with Windows Vista and earlier input audio rate
-        // converter problems
-        downSampleFactor = settings.value ("Audio/DisableInputResampling",
+            // deal with Windows Vista and earlier input audio rate
+            // converter problems
+            downSampleFactor = multi_settings.settings ()->value ("Audio/DisableInputResampling",
 #if defined (Q_OS_WIN)
-                                           // default to true for
-                                           // Windows Vista and older
-                                           QSysInfo::WV_VISTA >= QSysInfo::WindowsVersion ? true : false
+                                                                  // default to true for
+                                                                  // Windows Vista and older
+                                                                  QSysInfo::WV_VISTA >= QSysInfo::WindowsVersion ? true : false
 #else
-                                           false
+                                                                  false
 #endif
-                                           ).toBool () ? 1u : 4u;
-      }
+                                                                  ).toBool () ? 1u : 4u;
+          }
 
-      // run the application UI
-      MainWindow w(multiple, &settings, &mem_jt9, downSampleFactor, new QNetworkAccessManager {&a});
-      w.show();
-      QObject::connect (&a, SIGNAL (lastWindowClosed()), &a, SLOT (quit()));
-      return a.exec();
+          // run the application UI
+          MainWindow w(multiple, &multi_settings, &mem_jt9, downSampleFactor, new QNetworkAccessManager {&a});
+          w.show();
+          QObject::connect (&a, SIGNAL (lastWindowClosed()), &a, SLOT (quit()));
+          result = a.exec();
+        }
+      while (!result && !multi_settings.exit ());
+      return result;
     }
   catch (std::exception const& e)
     {

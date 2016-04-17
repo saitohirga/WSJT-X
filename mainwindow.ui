@@ -2375,7 +2375,13 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionISCAT"/>
     <addaction name="actionJTMSK"/>
    </widget>
+   <widget class="QMenu" name="menuConfig">
+    <property name="title">
+     <string>Configurations</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuConfig"/>
    <addaction name="menuView"/>
    <addaction name="menuMode"/>
    <addaction name="menuDecode"/>
