@@ -5,7 +5,7 @@ subroutine refspectrum(id2,brefspec,buseref,fname)
 !  brefspec  logical    True when accumulating a reference spectrum
 
   parameter (NFFT=6912,NH=NFFT/2)
-  integer*2 id2(NH)
+  integer*2 id2(NFFT)
   logical*1 brefspec,buseref
 
   real x0(0:NH-1)                         !Input samples
@@ -39,7 +39,7 @@ subroutine refspectrum(id2,brefspec,buseref,fname)
   endif
 
   if(brefspec) then
-     x(0:NH-1)=0.001*id2
+     x(0:NH-1)=0.001*id2(1:NH)
      x(NH:NFFT-1)=0.0
      call four2a(x,NFFT,1,-1,0)                 !r2c FFT
 
@@ -120,7 +120,7 @@ subroutine refspectrum(id2,brefspec,buseref,fname)
 10      close(16)
       firstuse=.false.
      endif
-     x0=id2
+     x0=id2(NH+1:NFFT)
      x(0:NH-1)=x0s                         !Previous 2nd half to new 1st half
      x(NH:NFFT-1)=x0                       !New 2nd half
      x0s=x0                                !Save the new 2nd half
@@ -129,10 +129,9 @@ subroutine refspectrum(id2,brefspec,buseref,fname)
      cx=fil*cx
      call four2a(cx,NFFT,1,1,-1)           !c2r FFT (back to time domain)
      x1=x1s + x(0:NH-1)                    !Add previous segment's 2nd half
-     id2=nint(x1)
+     id2(1:NH)=nint(x1)
      x1s=x(NH:NFFT-1)                      !Save the new 2nd half
   endif
-
 
   return
 end subroutine refspectrum
