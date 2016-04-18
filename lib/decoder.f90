@@ -36,7 +36,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(mod(params%nranera,2).eq.1) ntrials=3*10**(params%nranera/2)
   if(params%nranera.eq.0) ntrials=0
 
-  rms=sqrt(dot_product(float(id2(300000:310000)),                                           &
+  rms=sqrt(dot_product(float(id2(300000:310000)),            &
        float(id2(300000:310000)))/10000.0)
   if(rms.lt.2.0) go to 800 
 
