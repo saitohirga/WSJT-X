@@ -15,8 +15,10 @@ logical function baddata(id2,nz)
         sq=sq + x*x
      enddo
      rms=sqrt(sq/nadd)
-     smin=min(smin,rms)
-     smax=max(smax,rms)
+     if(i.gt.6) then
+        smin=min(smin,rms)
+        smax=max(smax,rms)
+     endif
   enddo
 
   sratio=smax/(smin+1.e-30)
