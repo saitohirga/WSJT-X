@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "rand.h"
+/*#include "rand.h"*/
 #include "alloc.h"
 #include "mod2sparse.h"
 #include "mod2dense.h"

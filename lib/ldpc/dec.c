@@ -25,7 +25,7 @@
 #include "mod2sparse.h"
 #include "mod2dense.h"
 #include "mod2convert.h"
-#include "rand.h"
+/*#include "rand.h"*/
 #include "rcode.h"
 #include "check.h"
 #include "dec.h"
@@ -384,23 +384,36 @@ void iterprp
   }
 }
 
-void ldpc_decode_ ( double lratio[], char decoded[], int *max_iterations, int *niterations)
+void ldpc_decode_ ( double lratio[], char decoded[], int *max_iterations, int *niterations, int *max_dither, int *ndither)
 {
-  int i, j, valid;
+  int i, j, itry, valid;
   char dblk[N],pchk[M];
-  double bprb[N];
-    
+  double bprb[N],lr[N];
+  float fac;
+  
   max_iter=*max_iterations;
-  *niterations = prprp_decode ( H, lratio, dblk, pchk, bprb );
-  valid = check( H, dblk, pchk )==0;
-  if( !valid ) {
-      *niterations=-1;
-  };
-
-  j=0;
-  for( i=M; i<N; i++ ) {
-    decoded[j]=dblk[cols[i]];
-    j=j+1;
+  for (itry=0; itry< *max_dither; itry++) {
+    for (i=0; i<N; i++) {
+       if( itry == 0 ) {
+         fac=1.0;
+       } else { 
+         fac=1.0+0.8*(rand()%1024-512)/512.0;
+       }
+       lr[i]=lratio[i]*fac;
+    }
+    *niterations = prprp_decode ( H, lr, dblk, pchk, bprb );
+    valid = check( H, dblk, pchk )==0;
+    if( !valid ) {
+       *niterations=-1;
+    } else {
+      j=0;
+      for( i=M; i<N; i++ ) {
+        decoded[j]=dblk[cols[i]];
+        j=j+1;
+      }
+      *ndither=itry;
+//      printf("ldpc_decode %d %d \n",*niterations, *ndither);
+      return;
+    }
   }
-
 } 
