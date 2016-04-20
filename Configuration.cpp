@@ -347,7 +347,7 @@ public:
   explicit impl (Configuration * self, QSettings * settings, QWidget * parent);
   ~impl ();
 
-  bool have_rig (bool open_if_closed = true);
+  bool have_rig ();
 
   void transceiver_frequency (Frequency);
   void transceiver_tx_frequency (Frequency);
@@ -602,7 +602,11 @@ double Configuration::degrade() const {return m_->degrade_;}
 qint32 Configuration::RxBandwidth() const {return m_->RxBandwidth_;}
 bool Configuration::id_after_73 () const {return m_->id_after_73_;}
 bool Configuration::tx_QSY_allowed () const {return m_->tx_QSY_allowed_;}
-bool Configuration::spot_to_psk_reporter () const {return m_->spot_to_psk_reporter_;}
+bool Configuration::spot_to_psk_reporter () const
+{
+  // rig must be open and working to spot externally
+  return is_transceiver_online () && m_->spot_to_psk_reporter_;
+}
 bool Configuration::monitor_off_at_startup () const {return m_->monitor_off_at_startup_;}
 bool Configuration::monitor_last_used () const {return m_->rig_is_dummy_ || m_->monitor_last_used_;}
 bool Configuration::log_as_RTTY () const {return m_->log_as_RTTY_;}
@@ -645,13 +649,22 @@ QDir Configuration::save_directory () const {return m_->save_directory_;}
 QDir Configuration::azel_directory () const {return m_->azel_directory_;}
 QString Configuration::rig_name () const {return m_->rig_params_.rig_name;}
 
-bool Configuration::transceiver_online (bool open_if_closed)
+bool Configuration::is_transceiver_online () const
 {
 #if WSJT_TRACE_CAT
-  qDebug () << "Configuration::transceiver_online: open_if_closed:" << open_if_closed << m_->cached_rig_state_;
+  qDebug () << "Configuration::is_transceiver_online: " << m_->cached_rig_state_;
 #endif
 
-  return m_->have_rig (open_if_closed);
+  return m_->rig_active_;
+}
+
+bool Configuration::transceiver_online ()
+{
+#if WSJT_TRACE_CAT
+  qDebug () << "Configuration::transceiver_online: " << m_->cached_rig_state_;
+#endif
+
+  return m_->have_rig ();
 }
 
 int Configuration::transceiver_resolution () const
@@ -2191,9 +2204,9 @@ void Configuration::impl::on_azel_path_select_push_button_clicked (bool /* check
   }
 }
 
-bool Configuration::impl::have_rig (bool open_if_closed)
+bool Configuration::impl::have_rig ()
 {
-  if (open_if_closed && !open_rig ())
+  if (!open_rig ())
     {
       QMessageBox::critical (this, "WSJT-X", tr ("Failed to open connection to rig"));
     }
