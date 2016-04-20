@@ -344,7 +344,8 @@ public:
   using FrequencyDelta = Radio::FrequencyDelta;
   using port_type = Configuration::port_type;
 
-  explicit impl (Configuration * self, QSettings * settings, QWidget * parent);
+  explicit impl (Configuration * self, QDir const& temp_directory,
+                 QSettings * settings, QWidget * parent);
   ~impl ();
 
   bool have_rig ();
@@ -564,8 +565,9 @@ private:
 
 
 // delegate to implementation class
-Configuration::Configuration (QSettings * settings, QWidget * parent)
-  : m_ {this, settings, parent}
+Configuration::Configuration (QDir const& temp_directory,
+                              QSettings * settings, QWidget * parent)
+  : m_ {this, temp_directory, settings, parent}
 {
 }
 
@@ -734,13 +736,15 @@ void Configuration::sync_transceiver (bool force_signal, bool enforce_mode_and_s
     }
 }
 
-Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget * parent)
+Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
+                           QSettings * settings, QWidget * parent)
   : QDialog {parent}
   , self_ {self}
   , ui_ {new Ui::configuration_dialog}
   , settings_ {settings}
   , doc_dir_ {QApplication::applicationDirPath ()}
   , data_dir_ {QApplication::applicationDirPath ()}
+  , temp_dir_ {temp_directory}
   , frequencies_ {&bands_}
   , next_frequencies_ {&bands_}
   , stations_ {&bands_}
@@ -804,39 +808,6 @@ Configuration::impl::impl (Configuration * self, QSettings * settings, QWidget *
   doc_dir_.cd (WSJT_DOC_DESTINATION);
   data_dir_.cd (WSJT_DATA_DESTINATION);
 #endif
-
-  {
-    // Create a temporary directory in a suitable location
-    QString temp_location {QStandardPaths::writableLocation (QStandardPaths::TempLocation)};
-    if (!temp_location.isEmpty ())
-      {
-        temp_dir_.setPath (temp_location);
-      }
-
-    bool ok {false};
-    QString unique_directory {QApplication::applicationName ()};
-    do
-      {
-        if (!temp_dir_.mkpath (unique_directory)
-            || !temp_dir_.cd (unique_directory))
-          {
-            QMessageBox::critical (this, "WSJT-X", tr ("Create temporary directory error: ") + temp_dir_.absolutePath ());
-            throw std::runtime_error {"Failed to create a temporary directory"};
-          }
-        if (!temp_dir_.isReadable () || !(ok = QTemporaryFile {temp_dir_.absoluteFilePath ("test")}.open ()))
-          {
-            if (QMessageBox::Cancel == QMessageBox::critical (this, "WSJT-X",
-                                                              tr ("Create temporary directory error:\n%1\n"
-                                                                  "Another application may be locking the directory").arg (temp_dir_.absolutePath ()),
-                                                              QMessageBox::Retry | QMessageBox::Cancel))
-              {
-                throw std::runtime_error {"Failed to create a usable temporary directory"};
-              }
-            temp_dir_.cdUp ();  // revert to parent as this one is no good
-          }
-      }
-    while (!ok);
-  }
 
   {
     // Find a suitable data file location
@@ -1034,7 +1005,6 @@ Configuration::impl::~impl ()
   transceiver_thread_->quit ();
   transceiver_thread_->wait ();
   write_settings ();
-  temp_dir_.removeRecursively (); // clean up temp files
 }
 
 void Configuration::impl::initialize_models ()

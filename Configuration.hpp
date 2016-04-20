@@ -68,7 +68,8 @@ public:
   enum Type2MsgGen {type_2_msg_1_full, type_2_msg_3_full, type_2_msg_5_only};
   Q_ENUM (Type2MsgGen)
 
-  explicit Configuration (QSettings * settings, QWidget * parent = nullptr);
+  explicit Configuration (QDir const& temp_directory, QSettings * settings,
+                          QWidget * parent = nullptr);
   ~Configuration ();
 
   int exec ();
