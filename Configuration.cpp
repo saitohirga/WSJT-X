@@ -658,6 +658,11 @@ bool Configuration::is_transceiver_online () const
   return m_->rig_active_;
 }
 
+bool Configuration::is_dummy_rig () const
+{
+  return m_->rig_is_dummy_;
+}
+
 bool Configuration::transceiver_online ()
 {
 #if WSJT_TRACE_CAT
