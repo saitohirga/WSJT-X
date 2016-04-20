@@ -150,11 +150,12 @@ public:
   QColor color_DXCC () const;
   QColor color_NewCall () const;
 
-  // This method queries if a CAT and PTT connection is operational,
-  //
-  // It also doubles as an initialisation method when the
-  // open_if_closed parameter is passed as true.
-  bool transceiver_online (bool open_if_closed = false);
+  // This method queries if a CAT and PTT connection is operational.
+  bool is_transceiver_online () const;
+
+  // Start the rig connection, safe and normal to call when rig is
+  // already open.
+  bool transceiver_online ();
 
   // Frequency resolution of the rig
   //

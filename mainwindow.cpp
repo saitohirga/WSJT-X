@@ -648,7 +648,7 @@ MainWindow::MainWindow(bool multiple, MultiSettings * multi_settings,
 
   // this must be done before initializing the mode as some modes need
   // to turn off split on the rig e.g. WSPR
-  m_config.transceiver_online (true);
+  m_config.transceiver_online ();
 
   bool b=m_config.enable_VHF_features() and (m_mode=="JT4" or m_mode=="JT65" or
                           m_mode=="ISCAT" or m_mode=="JT9" or m_mode=="JTMSK");
@@ -1176,7 +1176,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       VHF_controls_visible(b);
     }
 
-  m_config.transceiver_online (true);
+  m_config.transceiver_online ();
   if(!m_bFastMode) setXIT (ui->TxFreqSpinBox->value ());
   if(m_config.single_decode() or m_mode=="JT4") {
     ui->label_6->setText("Single-Period Decodes");
@@ -1976,9 +1976,12 @@ void::MainWindow::fast_decode_done()
         Frequency frequency = m_freqNominal + audioFrequency;
         pskSetLocal();
         if(gridOK(grid))
-//          qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
-          psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
-                  QString::number(snr),QString::number(QDateTime::currentDateTime().toTime_t()));
+          {
+            // qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
+            psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
+                                           QString::number(snr),
+                                           QString::number(QDateTime::currentDateTime().toTime_t()));
+          }
       }
     }
 
@@ -2124,8 +2127,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
         Frequency frequency = m_freqNominal + audioFrequency;
         pskSetLocal ();
         if(gridOK(grid))
-          psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
-             QString::number(snr),QString::number(QDateTime::currentDateTime().toTime_t()));
+          {
+            // qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
+            psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
+                                           QString::number(snr),
+                                           QString::number(QDateTime::currentDateTime().toTime_t()));
+          }
       }
 
       if((m_mode=="JT4" or m_mode=="JT65") and m_msgAvgWidget!=NULL) {
@@ -2323,7 +2330,7 @@ void MainWindow::guiUpdate()
 // If "CQ nnn ..." feature is active, set the proper Tx frequency
       if(m_config.offsetRxFreq() && ui->cbCQRx->isChecked()
         && (m_monitoring || m_transmitting)
-          && m_config.transceiver_online ()
+          && m_config.is_transceiver_online ()
           && m_config.split_mode ())
         {
           // All conditions are met, reset the transceiver Tx frequency:
@@ -2708,7 +2715,7 @@ void MainWindow::stopTx2()
 void MainWindow::RxQSY()
 {
   // this appears to be a null directive
-  if (m_config.transceiver_online ()) {
+  if (m_config.is_transceiver_online ()) {
     Q_EMIT m_config.transceiver_frequency(m_freqNominal);
   }
 }
@@ -2831,18 +2838,18 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       int kHz=t2a.mid(i1+4,3).toInt(&ok);
       if(ok and kHz>=0 and kHz<=999) {
         t2a=t2a.mid(0,i1+4) + t2a.mid(i1+8,-1);
-        if (m_config.transceiver_online ()) {
+        if (m_config.is_transceiver_online ()) {
           Frequency frequency {m_freqNominal / 1000000 * 1000000 + 1000*kHz}; //QSY Freq for answering CQ nnn
           QString t;
           t.sprintf("QSY %7.3f", frequency / 10e6);
           ui->decodedTextBrowser2->displayQSY(t);
           // ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (frequency));
-          if (m_config.transceiver_online ()) {
+          if (m_config.is_transceiver_online ()) {
             Q_EMIT m_config.transceiver_frequency (frequency);
           }
 
           if ((m_monitoring || m_transmitting)
-              && m_config.transceiver_online ()
+              && m_config.is_transceiver_online ()
               && m_config.split_mode ())
             {
             // All conditions are met, reset the transmit dial frequency:
@@ -3885,7 +3892,7 @@ void MainWindow::WSPR_config(bool b)
     ui->decodedTextLabel->setText(
           "UTC    dB   DT     Freq     Drift  Call          Grid    dBm   Dist");
     auto_tx_label->setText("");
-    if (m_config.transceiver_online ()) {
+    if (m_config.is_transceiver_online ()) {
       Q_EMIT m_config.transceiver_tx_frequency (0); // turn off split
     }
     m_bSimplex = true;
@@ -4255,7 +4262,7 @@ void MainWindow::rigOpen ()
   update_dynamic_property (ui->readFreq, "state", "warning");
   ui->readFreq->setText ("");
   ui->readFreq->setEnabled (true);
-  m_config.transceiver_online (true);
+  m_config.transceiver_online ();
   Q_EMIT m_config.sync_transceiver (true, true);
 }
 
@@ -4277,7 +4284,7 @@ void MainWindow::on_readFreq_clicked()
 {
   if (m_transmitting) return;
 
-  if (m_config.transceiver_online (true))
+  if (m_config.transceiver_online ())
     {
       Q_EMIT m_config.sync_transceiver (true, true);
     }
@@ -4309,7 +4316,7 @@ void MainWindow::setXIT(int n, Frequency base)
     }
 
     if ((m_monitoring || m_transmitting)
-        && m_config.transceiver_online ()
+        && m_config.is_transceiver_online ()
         && m_config.split_mode ())
       {
         // All conditions are met, reset the transceiver Tx dial
@@ -4428,10 +4435,6 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
 
 void MainWindow::handle_transceiver_failure (QString const& reason)
 {
-  // disable WSPR band hopping so that spots are not sent on the wrong
-  // band
-  ui->band_hopping_group_box->setChecked (false);
-
   update_dynamic_property (ui->readFreq, "state", "error");
   ui->readFreq->setEnabled (true);
   on_stopTxButton_clicked ();
@@ -4687,6 +4690,7 @@ void MainWindow::pskSetLocal ()
     antenna_description = stations->index (matches.first ().row ()
                                            , StationList::description_column).data ().toString ();
   }
+  // qDebug() << "To PSKreporter: local station details";
   psk_Reporter->setLocalStation(m_config.my_callsign (), m_config.my_grid (),
         antenna_description, QString {"WSJT-X v" + version() + " " +
         m_revision}.simplified ());
@@ -5035,7 +5039,8 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
       }
       m_nWSPRdecodes=0;
       ui->DecodeButton->setChecked (false);
-      if(m_uploadSpots) {
+      if(m_uploadSpots
+         && m_config.is_transceiver_online ()) { // need working rig control
         float x=qrand()/((double)RAND_MAX + 1.0);
         int msdelay=20000*x;
         uploadTimer->start(msdelay);                         //Upload delay
@@ -5148,7 +5153,8 @@ void MainWindow::WSPR_history(Frequency dialFreq, int ndecodes)
 
 void MainWindow::uploadSpots()
 {
-  if(m_diskData) return;
+  // do not spot replays or if rig control not working
+  if(m_diskData || !m_config.is_transceiver_online ()) return;
   if(m_uploading) {
     qDebug() << "Previous upload has not completed, spots were lost";
     wsprNet->abortOutstandingRequests ();
@@ -5239,7 +5245,8 @@ void MainWindow::on_pbTxNext_clicked(bool b)
 void MainWindow::WSPR_scheduling ()
 {
   m_WSPR_tx_next = false;
-  if (ui->band_hopping_group_box->isChecked ()) {
+  if (m_config.is_transceiver_online () // need rig control for hopping
+      && ui->band_hopping_group_box->isChecked ()) {
     auto hop_data = m_WSPR_band_hopping.next_hop (m_auto);
     qDebug () << "hop data: period:" << hop_data.period_name_
               << "frequencies index:" << hop_data.frequencies_index_
@@ -5335,7 +5342,7 @@ void MainWindow::setRig ()
 {
   if(m_transmitting && !m_config.tx_QSY_allowed ()) return;
   if ((m_monitoring || m_transmitting)
-      && m_config.transceiver_online ())
+      && m_config.is_transceiver_online ())
     {
       if(m_transmitting && m_config.split_mode ())
         {
@@ -5392,7 +5399,7 @@ void MainWindow::CQRxFreq()
   Frequency rx_frequency {m_config.offsetRxFreq () && ui->cbCQRx->isChecked () ?
       m_freqNominal / 1000000 * 1000000 + 1000 * m_freqCQ :
       m_callingFrequency};
-  if (m_config.transceiver_online ()) {
+  if (m_config.is_transceiver_online ()) {
     Q_EMIT m_config.transceiver_frequency (rx_frequency);
   }
 }
