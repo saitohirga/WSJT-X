@@ -157,6 +157,9 @@ public:
   // already open.
   bool transceiver_online ();
 
+  // check if a real rig is configured
+  bool is_dummy_rig () const;
+
   // Frequency resolution of the rig
   //
   //  0 - 1Hz
