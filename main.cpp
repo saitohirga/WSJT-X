@@ -158,11 +158,15 @@ int main(int argc, char *argv[])
           multiple = true;
         }
 
+      // find the temporary files path
+      QDir temp_dir {QStandardPaths::writableLocation (QStandardPaths::TempLocation)};
+      Q_ASSERT (temp_dir.exists ()); // sanity check
+
       // disallow multiple instances with same instance key
-      QLockFile instance_lock {QDir {QStandardPaths::writableLocation (QStandardPaths::TempLocation)}.absoluteFilePath (a.applicationName () + ".lock")};
+      QLockFile instance_lock {temp_dir.absoluteFilePath (a.applicationName () + ".lock")};
       instance_lock.setStaleLockTime (0);
-      auto ok = false;
-      while (!(ok = instance_lock.tryLock ()))
+      bool lock_ok {false};
+      while (!(lock_ok = instance_lock.tryLock ()))
         {
           if (QLockFile::LockFailedError == instance_lock.error ())
             {
@@ -187,13 +191,41 @@ int main(int argc, char *argv[])
         }
 #endif
 
-      MultiSettings multi_settings;
-
 #if WSJT_QDEBUG_TO_FILE
       // Open a trace file
-      TraceFile trace_file {QDir {QStandardPaths::writableLocation (QStandardPaths::TempLocation)}.absoluteFilePath (a.applicationName () + "_trace.log")};
+      TraceFile trace_file {temp_dir.absoluteFilePath (a.applicationName () + "_trace.log")};
       qDebug () << program_title (revision ()) + " - Program startup";
 #endif
+
+      // Create a unique writeable temporary directory in a suitable location
+      bool temp_ok {false};
+      QString unique_directory {QApplication::applicationName ()};
+      do
+        {
+          if (!temp_dir.mkpath (unique_directory)
+              || !temp_dir.cd (unique_directory))
+            {
+              QMessageBox::critical (nullptr,
+                                     "WSJT-X",
+                                     QObject::tr ("Create temporary directory error: ") + temp_dir.absolutePath ());
+              throw std::runtime_error {"Failed to create a temporary directory"};
+            }
+          if (!temp_dir.isReadable () || !(temp_ok = QTemporaryFile {temp_dir.absoluteFilePath ("test")}.open ()))
+            {
+              if (QMessageBox::Cancel == QMessageBox::critical (nullptr,
+                                                                "WSJT-X",
+                                                                QObject::tr ("Create temporary directory error:\n%1\n"
+                                                                    "Another application may be locking the directory").arg (temp_dir.absolutePath ()),
+                                                                QMessageBox::Retry | QMessageBox::Cancel))
+                {
+                  throw std::runtime_error {"Failed to create a usable temporary directory"};
+                }
+              temp_dir.cdUp ();  // revert to parent as this one is no good
+            }
+        }
+      while (!temp_ok);
+
+      MultiSettings multi_settings;
 
       int result;
       do
@@ -251,12 +283,13 @@ int main(int argc, char *argv[])
           }
 
           // run the application UI
-          MainWindow w(multiple, &multi_settings, &mem_jt9, downSampleFactor, new QNetworkAccessManager {&a});
+          MainWindow w(temp_dir, multiple, &multi_settings, &mem_jt9, downSampleFactor, new QNetworkAccessManager {&a});
           w.show();
           QObject::connect (&a, SIGNAL (lastWindowClosed()), &a, SLOT (quit()));
           result = a.exec();
         }
       while (!result && !multi_settings.exit ());
+      temp_dir.removeRecursively (); // clean up temp files
       return result;
     }
   catch (std::exception const& e)

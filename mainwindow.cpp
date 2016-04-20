@@ -138,8 +138,8 @@ namespace
 }
 
 //--------------------------------------------------- MainWindow constructor
-MainWindow::MainWindow(bool multiple, MultiSettings * multi_settings,
-                       QSharedMemory *shdmem,
+MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
+                       MultiSettings * multi_settings, QSharedMemory *shdmem,
                        unsigned downSampleFactor, QNetworkAccessManager * network_manager,
                        QWidget *parent) :
   QMainWindow(parent),
@@ -149,7 +149,7 @@ MainWindow::MainWindow(bool multiple, MultiSettings * multi_settings,
   m_multi_settings {multi_settings},
   m_settings {multi_settings->settings ()},
   ui(new Ui::MainWindow),
-  m_config {m_settings, this},
+  m_config {temp_directory, m_settings, this},
   m_WSPR_band_hopping {m_settings, &m_config, this},
   m_WSPR_tx_next {false},
   m_wideGraph (new WideGraph(m_settings)),

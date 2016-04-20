@@ -82,10 +82,10 @@ public:
   using FrequencyDelta = Radio::FrequencyDelta;
   using Mode = Modes::Mode;
 
-  // Multiple instances: call MainWindow() with *thekey
-  explicit MainWindow(bool multiple, MultiSettings *, QSharedMemory *shdmem,
-                      unsigned downSampleFactor, QNetworkAccessManager * network_manager,
-                      QWidget *parent = 0);
+  explicit MainWindow(QDir const& temp_directory, bool multiple, MultiSettings *,
+                      QSharedMemory *shdmem, unsigned downSampleFactor,
+                      QNetworkAccessManager * network_manager,
+                      QWidget *parent = nullptr);
   ~MainWindow();
 
 public slots:
