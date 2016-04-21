@@ -15,14 +15,12 @@ class QMenu;
 // 	settings as  stored in a QSettings  INI style file. As  far as the
 // 	application is  concerned it uses the  QSettings instance returned
 // 	by the MultiSettings::settings() method as  if it were the one and
-// 	only QSettings  object. The  only caution  is the  the application
-// 	must  not  end the  outer  settings  group since  the  alternative
-// 	settings  are actually  maintained as  QSettings groups  which are
-// 	children of a  root level group called  MultiSettings. The default
-// 	settings are themselves stored at  the root so the QSettings group
-// 	name  MultiSettings is  reserved. Also  at  the root  level a  key
-// 	called CurrentMultiSettingsConfiguration is  reserved to store the
-// 	current configuration name.
+// 	only  QSettings object.   The alternative  settings are  stored as
+// 	QSettings groups which  are children of a root  level group called
+// 	MultiSettings. The  current settings are themselves  stored at the
+// 	root so the QSettings group  name MultiSettings is reserved.  Also
+// 	at the  root level a key  called CurrentMultiSettingsConfiguration
+// 	is reserved to store the current configuration name.
 //
 //
 // Example Usage:
