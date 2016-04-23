@@ -205,15 +205,15 @@ libtool
 pkgconfig
 texinfo
 gcc49
-fftw-3-single +gcc49
+fftw-3-single +gcc5
 asciidoc
 libusb-devel
 
 These are install by typing:
 
 $ sudo port install autoconf automake \
-   libtool pkgconfig texinfo gcc49 asciidoc \
-   fftw-3-single +gcc49 libusb-devel
+   libtool pkgconfig texinfo gcc5 asciidoc \
+   fftw-3-single +gcc5 libusb-devel
 
 Once complete you should have all the tools required to build WSJT-X.
 
@@ -252,22 +252,30 @@ $ cd ~/hamlib-prefix/build
    --disable-winradio \
    --prefix=$HOME/hamlib-prefix \
    CFLAGS="-I/opt/local/include" \
-   LIBUSB_LIBS="/opt/local/lib/libusb-1.0.la"
+   LIBUSB_LIBS="-L/opt/local/lib -lusb-1.0"
 $ make
 $ make install-strip
 
-The above commands will build hamlib and install it into ~/hamlib-prefix
+The   above  commands   will  build   hamlib  and   install  it   into
+~/hamlib-prefix. If `make install-strip` fails, try `make install`.
 
 
 Qt
 --
-The   binary    Qt   distributions    from   http://www.qt.io/download
-unfortunately  are built  to use  the libstdc++  C++ support  library,
-WSJT-X uses  a less  geriatric C++  dialet which  uses the  libc++ C++
-support  library.  This   means  that  you  need  to   build  Qt  from
-sources. This is not difficult but does take some time.
 
-Download       the      Qt       source       tar      ball       from
+NOTE: As of Qt  v5.4 building Qt from source on Mac OS  X is no longer
+necessary since the  Qt team have switched to using  the modern libc++
+Standard    C++   Library    for    all    distributable   run    time
+components. Instead you may simply  download a binary installer for OS
+X 64-bit.
+
+The    binary   Qt    distributions    prior   to    Qt   v5.4    from
+http://www.qt.io/download unfortunately are built to use the libstdc++
+C++ support  library, WSJT-X uses  a less geriatric C++  dialect which
+uses the  libc++ C++  support library.   This means  that you  need to
+build Qt from sources. This is not difficult but does take some time.
+
+Download        the        Qt        source        tarball        from
 http://www.qt.io/download-open-source/,  the link  is  about half  way
 down the page, you want the full  sources tar ball shown as a 'tar.gz'
 link.
@@ -342,17 +350,18 @@ generation. For now  we will build the latest  development sources. To
 configure:
 
 $ cd ~/wsjtx-prefix/build
-$ FC=gfortran-mp-4.9 \
+$ FC=gfortran-mp-5.0 \
    cmake \
-   -D CMAKE_PREFIX_PATH="~/local/qt-macx-clang;~/hamlib-prefix;/opt/local" \
+   -D CMAKE_PREFIX_PATH="~/Qt/5.6/clang_64;~/hamlib-prefix;/opt/local" \
    -D CMAKE_INSTALL_PREFIX=~/wsjtx-prefix \
    ~/wsjtx-prefix/src
 
 The CMAKE_PREFIX_PATH variable specifies where CMake should look first
 for other packages, the two  elements may be different depending where
-you  have  installed Qt  and  what  version  you  have and  where  you
-installed  Hamlib (i.e.  the --prefix  configure option  above in  the
-hamlib section).
+you have installed Qt and what version you have (~/local/qt-macx-clang
+if  you have  built  Qt from  sources  as described  above  in teh  Qt
+section) and where you installed  Hamlib (i.e.  the --prefix configure
+option above in the Hamlib section).
 
 If you already have the fftw3-dev  package installed on your system it
 may well get selected in preference to  the one you built above in the
