@@ -395,11 +395,11 @@ void ldpc_decode_ ( double lratio[], char decoded[], int *max_iterations, int *n
   for (itry=0; itry< *max_dither; itry++) {
     for (i=0; i<N; i++) {
        if( itry == 0 ) {
-         fac=1.0;
+         fac=0.0;
        } else { 
-         fac=1.0+0.8*(rand()%1024-512)/512.0;
-       }
-       lr[i]=lratio[i]*fac;
+         fac=(rand()%1024-512)/512.0;
+       } 
+       lr[i]=lratio[i]*exp(fac); 
     }
     *niterations = prprp_decode ( H, lr, dblk, pchk, bprb );
     valid = check( H, dblk, pchk )==0;
