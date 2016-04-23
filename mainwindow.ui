@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>786</width>
-    <height>475</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>WSJT-X   by K1JT</string>
   </property>
@@ -1715,7 +1707,7 @@ list. The list can be maintained in Settings (F2).</string>
                   <item row="0" column="2">
                    <widget class="QCheckBox" name="cbUploadWSPR_Spots">
                     <property name="toolTip">
-                     <string>Upload decoded messages to WPRnet.org.</string>
+                     <string>Upload decoded messages to WSPRnet.org.</string>
                     </property>
                     <property name="text">
                      <string>Upload spots</string>
@@ -2290,14 +2282,6 @@ QPushButton[state=&quot;ok&quot;] {
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>786</width>
-     <height>21</height>
-    </rect>
-   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
