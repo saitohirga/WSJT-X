@@ -23,8 +23,8 @@ configuration.
 
 _Frequency Calibration_: If you have calibrated your radio using WWV
 or other reliable frequency references, or perhaps with the technique
-described {fmt_wspr}, enter the measured values for _Intercept_ A and
-_Slope_ B in the equation
+described in {fmt_wspr}, enter the measured values for _Intercept_ A
+and _Slope_ B in the equation
 
  Dial error = A + B*f
 

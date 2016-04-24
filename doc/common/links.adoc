@@ -11,10 +11,10 @@ Example:
 [link] http://pskreporter.info/pskmap.html
 [displayed text] PSK Reporter
 
-Perform searches from the doc root directory: C:\JTSDK-DOC\doc
+Perform searches from the doc root directory: doc
 Search: grep -rl --exclude-dir="*\.svn" {pskreporter} .
-		grep -rl --exclude-dir="*\.svn" PSK Reporter .
-		grep -rl --exclude-dir="*\.svn" {devsvn} .
+	grep -rl --exclude-dir="*\.svn" PSK Reporter .
+	grep -rl --exclude-dir="*\.svn" {devsvn} .
         grep -rl --exclude-dir="*\.svn" {kvasd} .
         grep -rl --exclude-dir="*\.svn" {ntpsetup} .
 
@@ -23,10 +23,18 @@ Exclude links.adoc: grep -rl --exclude-dir="*\.svn" {pskreporter} .
 
 Note(s):
 a). Don't forget a space then "." at the end.
+
 b). To include links.adoc file itself, remove the brackets {} from
 the pattern search:
-c). Look at each of the files listed to ensure the [displayed test]
-still makes sense in the caption. If not, just add another link.
+
+c). Look at each of the files listed to ensure the [displayed text]
+still makes sense in the caption.  If not, just add another link. Be
+aware of the translators requirements by trying to keep the displayed
+text language agnostic or neutral e.g.  use a proper noun like a
+persons name or a document title in the language of the linked
+document. Do not use plain English generic words for link text link
+"here".
+
 d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 
 ////
@@ -57,19 +65,18 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :fmt_arrl: http://www.arrl.org/frequency-measuring-test[ARRL FMT Info]
 :fmt_group: https://groups.yahoo.com/neo/groups/FMT-nuts/info[FMT Group]
 :fmt_k5cm: http://www.k5cm.com/[FMT Event Info]
-:fmt_wspr: http://www.physics.princeton.edu/pulsar/K1JT/FMT_User.pdf[here]
+:fmt_wspr: http://www.physics.princeton.edu/pulsar/K1JT/FMT_User.pdf[Accurate Frequency Measurements with your WSPR Setup]
 :gnu_gpl: http://www.gnu.org/licenses/gpl-3.0.txt[GNU General Public License]
 :homepage: http://physics.princeton.edu/pulsar/K1JT/[WSJT Home Page]
 :hrd: http://www.hrdsoftwarellc.com/[Ham Radio Deluxe]
-:jt4eme: http://physics.princeton.edu/pulsar/K1JT/WSJT-X_1.6.0_for_JT4_v7.pdf[here]
+:jt4eme: http://physics.princeton.edu/pulsar/K1JT/WSJT-X_1.6.0_for_JT4_v7.pdf[Using WSJT-X for JT4 EME Operation]
 :jt65protocol: http://physics.princeton.edu/pulsar/K1JT/JT65.pdf[QEX]
 :jtalert: http://hamapps.hamspots.net[JT-ALERT-X]
-:kvasd-installer: http://physics.princeton.edu/pulsar/K1JT/kv-installer.txt[here]
 :launchpadki7mt: https://launchpad.net/~ki7mt[KI7MT PPA's]
 :log4om: http://www.log4om.com[Log4OM]
 :msys_url: http://sourceforge.net/projects/mingwbuilds/files/external-binary-packages/[MSYS Download]
 :ntpsetup: http://www.satsignal.eu/ntp/setup.html[Network Time Protocol Setup]
-:osx_instructions: http://physics.princeton.edu/pulsar/K1JT/OSX_Readme[here]
+:osx_instructions: http://physics.princeton.edu/pulsar/K1JT/OSX_Readme[Mac OS X Install Instructions]
 :ppa: http://en.wikipedia.org/wiki/Personal_Package_Archive[PPA]
 :projsummary: http://sourceforge.net/projects/wsjt/[Project Summary]
 :pskreporter: http://pskreporter.info/pskmap.html[PSK Reporter]
@@ -84,24 +91,21 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :wsprnet_activity: http://wsprnet.org/drupal/wsprnet/activity[WSPRnet Activity page]
 
 // Download Links
-:cty_dat: http://www.country-files.com/cty/[here]
-:hamlib3: https://dl.dropboxusercontent.com/u/4192709/Hamlib-integration-wsjtx.zip[Download]
+:cty_dat: http://www.country-files.com/cty/[Amateur Radio Country Files]
 :jtsdk_doc: http://physics.princeton.edu/pulsar/K1JT/JTSDK-DOC.exe[Download]
 :jtsdk_installer: http://sourceforge.net/projects/jtsdk/files/win32/2.0.0/JTSDK-2.0.0-B2-Win32.exe/download[Download]
 :jtsdk_omnirig: http://sourceforge.net/projects/jtsdk/files/win32/2.0.0/base/contrib/OmniRig.zip/download[Download]
 :jtsdk_py: http://physics.princeton.edu/pulsar/K1JT/JTSDK-PY.exe[Download]
 :jtsdk_qt: http://physics.princeton.edu/pulsar/K1JT/JTSDK-QT.exe[Download]
 :jtsdk_vcredist: http://sourceforge.net/projects/jtsdk/files/win32/2.0.0/base/contrib/vcredist_x86.exe/download[Download]
-:kvasd: http://physics.princeton.edu/pulsar/K1JT/kvasd[kvasd]
 :nh6z: http://www.nh6z.net/Amatuer_Radio_Station_NH6Z/Other_Peoples_Software.html[here]
 :omnirig: http://www.dxatlas.com/OmniRig/Files/OmniRig.zip[Download]
 :osx: http://physics.princeton.edu/pulsar/K1JT/wsjtx-{VERSION}-Darwin.dmg[wsjtx-{VERSION}-Darwin.dmg]
 :svn: http://subversion.apache.org/packages.html#windows[Subversion]
 :win32: http://physics.princeton.edu/pulsar/K1JT/wsjtx-{VERSION}-win32.exe[wsjtx-{VERSION}-win32.exe]
-:wsjt_svn: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/[here]
+:wsjt_svn: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/[WSJT Source Repository]
 :wspr_code: http://physics.princeton.edu/pulsar/K1JT/WSPRcode.exe[WSPRcode.exe]
-:wspr_svn: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/branches/wspr/[here]
-:kvasd_installer: http://sourceforge.net/projects/wsjt/files/kvasd-installer/kvasd-installer-1.12.14/kvasd-installer-1.12.14.tar.gz/download[kvasd-installer]
+:wspr_svn: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/branches/wspr/[WSPR Source Repository]
 
 // MAIL-TO links
 :alex_efros: mailto:powerman@powerman.name[Alex Efros]

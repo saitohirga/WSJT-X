@@ -30,10 +30,11 @@ this station
 In this respect the program does not distinguish between modes, but it
 does differentiate between bands.
 
-_WSJT-X_ includes a built-in +cty.dat+ file containing DXCC prefix 
-information.  Updated files can be downloaded from {cty_dat} when 
-required.  If an updated +cty.dat+ is present in the logs folder 
-and readable, it will be used in preference to the built-in one.
+_WSJT-X_ includes a built-in +cty.dat+ file containing DXCC prefix
+information.  Updated files can be downloaded from the {cty_dat} web
+site when required.  If an updated +cty.dat+ is present in the logs
+folder and readable, it will be used in preference to the built-in
+one.
 
 The log file +wsjtx_log.adi+ is updated whenever you log a QSO from
 _WSJT-X_.  (Keep in mind that if you erase this file you will lose all
