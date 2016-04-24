@@ -370,6 +370,7 @@ set (wsjt_FSRCS
   lib/jt9fano.f90
   lib/jtmsk_decode.f90
   lib/jtmsk_short.f90
+  lib/ldpcsim.f90
   lib/libration.f90
   lib/lorentzian.f90
   lib/lpf1.f90
@@ -441,6 +442,21 @@ set (ka9q_CSRCS
   )
 set_source_files_properties (${ka9q_CSRCS} PROPERTIES COMPILE_FLAGS -Wno-sign-compare)
 
+set (ldpc_CSRCS
+  lib/ldpc/alloc.c
+  lib/ldpc/rcode.c
+  lib/ldpc/dec.c
+  lib/ldpc/enc.c
+  lib/ldpc/intio.c
+  lib/ldpc/blockio.c
+  lib/ldpc/check.c
+  lib/ldpc/open.c
+  lib/ldpc/mod2dense.c
+  lib/ldpc/mod2sparse.c
+  lib/ldpc/mod2convert.c
+  lib/ldpc/distrib.c
+  )
+
 set (wsjt_CSRCS
   ${ka9q_CSRCS}
   lib/ftrsd/ftrsd2.c
@@ -456,6 +472,7 @@ set (wsjt_CSRCS
   lib/vit213.c
   lib/wisdom.c
   lib/wrapkarn.c
+  ${ldpc_CSRCS}
   )
 
 set (wsjt_qt_UISRCS
@@ -959,6 +976,9 @@ target_link_libraries (jt4code wsjt_fort wsjt_cxx)
 
 add_executable (jt65 lib/jt65.f90 lib/jt65_test.f90 wsjtx.rc)
 target_link_libraries (jt65 wsjt_fort wsjt_cxx)
+
+add_executable (ldpcsim lib/ldpcsim.f90 wsjtx.rc)
+target_link_libraries (ldpcsim wsjt_fort wsjt_cxx)
 
 add_executable (jt9 ${jt9_FSRCS} ${jt9_CXXSRCS} wsjtx.rc)
 if (${OPENMP_FOUND} OR APPLE)
