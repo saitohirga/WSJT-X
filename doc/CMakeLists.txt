@@ -142,8 +142,16 @@ function (document)
   if (_args_PDF AND EXISTS ${FOPUB_EXECUTABLE})
     set (_docbook_file ${CMAKE_CURRENT_BINARY_DIR}/${_output_name_we}_${lang}.xml)
     set (_pdf_file_we ${CMAKE_CURRENT_BINARY_DIR}/${_output_name_we}_${lang})
+    if (${lang} MATCHES "^(en|es|fr)$") # en-us, fr-ca and es-{mx,co} use US-Letter or equivalent
+      set (_usl_commands
+	COMMAND ${FOPUB_EXECUTABLE} ARGS ${_docbook_file} ${_args_PDF} -param paper.type USLetter
+	COMMAND ${CMAKE_COMMAND} ARGS -E rename ${_pdf_file_we}.pdf '${_pdf_file_we} \(USLetter\).pdf'
+	)
+      list (APPEND _output_files "${_pdf_file_we} (USLetter).pdf")
+    endif ()
+    list (APPEND _output_files "${_pdf_file_we}.pdf")
     add_custom_command (
-      OUTPUT ${_docbook_file} "${_pdf_file_we} (USLetter).pdf" "${_pdf_file_we} (A4).pdf"
+      OUTPUT ${_docbook_file} ${_output_files}
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${_source_path}/${lang}
       COMMAND ${ASCIIDOCTOR_EXECUTABLE} ARGS ${_args_ASCIIDOCTOR_OPTIONS}
       -b docbook
@@ -154,14 +162,12 @@ function (document)
       -a VERSION=${wsjtx_VERSION}
       -D ${CMAKE_CURRENT_BINARY_DIR}
       -o ${_docbook_file} ${_source_name}
-      COMMAND ${FOPUB_EXECUTABLE} ARGS ${_docbook_file} ${_args_PDF} -param paper.type USLetter
-      COMMAND ${CMAKE_COMMAND} ARGS -E rename ${_pdf_file_we}.pdf '${_pdf_file_we} \(USLetter\).pdf'
+      ${_usl_commands}
       COMMAND ${FOPUB_EXECUTABLE} ARGS ${_docbook_file} ${_args_PDF} -param paper.type A4
-      COMMAND ${CMAKE_COMMAND} ARGS -E rename ${_pdf_file_we}.pdf '${_pdf_file_we} \(A4\).pdf'
+      COMMAND ${CMAKE_COMMAND} ARGS -E rename ${_pdf_file_we}.pdf '${_pdf_file_we}.pdf'
       DEPENDS ${_args_DEPENDS}
-      COMMENT "Generating ${_pdf_file_we}.pdf"
+      COMMENT "Generating ${_output_files}"
       )
-    list (APPEND _output_files "${_pdf_file_we} (USLetter).pdf" "${_pdf_file_we} (A4).pdf")
   endif (_args_PDF AND EXISTS ${FOPUB_EXECUTABLE})
 
   set (${_args_OUTPUT} ${_output_files} PARENT_SCOPE)
