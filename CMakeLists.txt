@@ -852,10 +852,10 @@ if (${OPENMP_FOUND} OR APPLE)
     # On  Mac  we don't  have  working  OpenMP  support in  the  C/C++
     # compilers so  we have to manually  set the correct flags  to get
     # OpenMP support in jt9.
-    set_target_properties (wsjt_fort_omp
-      PROPERTIES
-      COMPILE_FLAGS "-fopenmp"	# assumes GNU style Fortran compiler
-      )
+    target_compile_options (wsjt_fort_omp
+        PRIVATE
+        $<$<COMPILE_LANGUAGE:Fortran>:-fopenmp> # assumes GNU style Fortran compiler
+        )
   endif (APPLE)
 endif (${OPENMP_FOUND} OR APPLE)
 
@@ -896,10 +896,13 @@ if (${OPENMP_FOUND} OR APPLE)
     # and libraries to get OpenMP support in jt9.
     set_target_properties (jt9
       PROPERTIES
-      COMPILE_FLAGS "-fopenmp"	# assumes GNU style Fortran compiler
       Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
       LINK_LIBRARIES "gomp;gcc_s.1" # assume GNU libgcc OpenMP
       )
+    target_compile_options (jt9
+        PRIVATE
+        $<$<COMPILE_LANGUAGE:Fortran>:-fopenmp>    # assumes GNU style Fortran compiler
+        )
   else (APPLE)
     set_target_properties (jt9
       PROPERTIES
