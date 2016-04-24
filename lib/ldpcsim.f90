@@ -1,12 +1,11 @@
 program ldpcsim
 
+! simulate with packed 72-bit messages and 8-bit hash - so only makes
+! sense to use this with codes having K=80.
+
 use, intrinsic :: iso_c_binding
 use hashing
 use packjt
-
-! To change to a new code, edit the following line and the filenames
-! that contain the parity check and generator matrices.
-! parameter (N=128, K=80) ! M and N are global variables on the C side.
 
 character*22 msg,msgsent
 integer*4 i4Msg6BitWords(12)
