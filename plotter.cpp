@@ -109,7 +109,6 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
   if(!painter2D.isActive()) return;
   QFont Font("Arial");
   Font.setPointSize(12);
-  QFontMetrics metrics(Font);
   Font.setWeight(QFont::Normal);
   painter2D.setFont(Font);
 
@@ -191,7 +190,7 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
 
   if(swide[0]>1.0e29) m_line=0;
   m_line++;
-  if(m_line == 13) {
+  if(m_line == painter1.fontMetrics ().height ()) {
     painter1.setPen(Qt::white);
     QString t;
     if(m_TRperiod < 60) {
@@ -202,7 +201,7 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
     } else {
       t=QDateTime::currentDateTimeUtc().toString("hh:mm") + "    " + m_rxBand;
     }
-    painter1.drawText(5,10,t);
+    painter1.drawText (5, painter1.fontMetrics ().ascent (), t);
   }
 
   if(m_mode=="JT4") {
@@ -273,7 +272,6 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   //create Font to use for scales
   QFont Font("Arial");
   Font.setPointSize(12);
-  QFontMetrics metrics(Font);
   Font.setWeight(QFont::Normal);
   painter0.setFont(Font);
   painter0.setPen(Qt::black);
