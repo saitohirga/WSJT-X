@@ -7,6 +7,7 @@
 #include <QString>
 #include <QStringList>
 #include <QDir>
+#include <QFont>
 #include <QApplication>
 #include <QStandardPaths>
 #include <QMainWindow>
@@ -28,6 +29,7 @@
 #include <QMetaObject>
 
 #include "SettingsGroup.hpp"
+#include "qt_helpers.hpp"
 
 #include "pimpl_impl.hpp"
 
@@ -180,6 +182,7 @@ private:
   // remove a configuration
   void delete_configuration (QMainWindow *);
 
+  QFont original_font_;
   QString current_;
 
   // action to take on restart
@@ -307,6 +310,15 @@ bool MultiSettings::impl::reposition ()
         }
       // insert the new settings
       load_from (new_settings_, false);
+      if (!new_settings_.size ())
+        {
+          // if we are clearing the current settings then we must
+          // reset the application font and the font in the
+          // application style sheet, this is necessary since the
+          // application instance is not recreated
+          qApp->setFont (original_font_);
+          qApp->setStyleSheet (qApp->styleSheet () + "* {" + font_as_stylesheet (original_font_) + '}');
+        }
       // now we have set up the new current we can safely purge it
       // from the alternatives
       {
@@ -422,8 +434,10 @@ auto MultiSettings::impl::get_settings () const -> Dictionary
   Dictionary settings;
   for (auto const& key: settings_.allKeys ())
     {
-      // filter out multi settings group
-      if (!key.contains (multi_settings_root_group))
+      // filter out multi settings group and empty settings
+      // placeholder
+      if (!key.contains (multi_settings_root_group)
+          && !key.contains (multi_settings_place_holder_key))
         {
           settings[key] = settings_.value (key);
         }

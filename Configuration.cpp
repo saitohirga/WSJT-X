@@ -1141,12 +1141,12 @@ void Configuration::impl::read_settings ()
       && next_font_ != font_)
     {
       font_ = next_font_;
-      set_application_font (font_);
     }
   else
     {
       next_font_ = font_;
     }
+  set_application_font (font_);
 
   if (next_decoded_text_font_.fromString (settings_->value ("DecodedTextFont", "Courier, 10").toString ())
       && next_decoded_text_font_ != decoded_text_font_)
@@ -2511,6 +2511,9 @@ void Configuration::impl::update_audio_channels (QComboBox const * source_combo_
 
 void Configuration::impl::set_application_font (QFont const& font)
 {
+  qApp->setFont (font);
+  // set font in the application style sheet as well in case it has
+  // been modified in the style sheet which has priority
   qApp->setStyleSheet (qApp->styleSheet () + "* {" + font_as_stylesheet (font) + '}');
   for (auto& widget : qApp->topLevelWidgets ())
     {
