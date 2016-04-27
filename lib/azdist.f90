@@ -1,5 +1,6 @@
-subroutine azdist(MyGrid,HisGrid,utch,nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter)
+subroutine azdist(grid1,grid2,utch,nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter)
 
+  character*(*) grid1,grid2
   character*6 MyGrid,HisGrid,mygrid0,hisgrid0
   real*8 utch,utch0
   logical HotABetter,IamEast
@@ -10,6 +11,11 @@ subroutine azdist(MyGrid,HisGrid,utch,nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter)
        10.,10.,10.,10.,10.,10.,9.,9.,9.,8.,8./
   data mygrid0/"      "/,hisgrid0/"      "/,utch0/-999.d0/
   save
+
+  MyGrid=grid1
+  HisGrid=grid2
+  if(ichar(grid1(5:5)).eq.0) MyGrid(5:6)='  '
+  if(ichar(grid2(5:5)).eq.0) HisGrid(5:6)='  '
 
   if(MyGrid.eq.HisGrid) then
      naz=0
@@ -46,7 +52,19 @@ subroutine azdist(MyGrid,HisGrid,utch,nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter)
 
   call grid2deg(MyGrid,dlong1,dlat1)
   call grid2deg(HisGrid,dlong2,dlat2)
-  call geodist(dlat1,dlong1,dlat2,dlong2,Az,Baz,Dkm)
+  eps=1.e-6
+  if(abs(dlat1-dlat2).lt.eps .and. abs(dling1-dling2).lt.eps) then
+     Az=0.
+     Dmiles=0.
+     Dkm=0.0
+     El=0.
+     HotA=0.
+     HotB=0.
+     HotABetter=.true.
+     go to 900
+  else
+     call geodist(dlat1,dlong1,dlat2,dlong2,Az,Baz,Dkm)
+  endif
 
   ndkm=Dkm/100
   j=ndkm-4
