@@ -29,6 +29,13 @@ subroutine geodist(Eplat,Eplon,Stlat,Stlon,Az,Baz,Dist)
   data D2R/0.01745329251994/      ! degrees to radians conversion factor
   data Pi2/6.28318530718/
 
+  if(abs(Eplat-Stlat).lt.0.02 .and. abs(Eplon-Stlon).lt.0.02) then
+     Az=0.
+     Baz=180.0
+     Dist=0
+     go to 999
+  endif
+
   BOA = BL/AL
   F = 1.0 - BOA
 ! Convert st/end pts to radians
@@ -93,4 +100,6 @@ subroutine geodist(Eplat,Eplon,Stlat,Stlon,Az,Baz,Dist)
   
   az = 360.0 - az
   baz = 360.0 - baz
+
+999 return
 end subroutine geodist
