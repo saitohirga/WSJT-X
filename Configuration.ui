@@ -1070,8 +1070,7 @@ this setting allows you to select which audio input will be used
          <item>
           <widget class="QPushButton" name="test_CAT_push_button">
            <property name="toolTip">
-            <string>Attempt to connect to the radio with these settings.
-Another dialog will pop up where you can verify correct operation.</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempt to connect to the radio with these settings.&lt;/p&gt;&lt;p&gt;The button will turn green if the connection is successful or red if there is a problem.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string>Test CAT</string>
@@ -2522,12 +2521,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
  </buttongroups>
 </ui>
