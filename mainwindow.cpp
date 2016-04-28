@@ -4751,6 +4751,7 @@ void MainWindow::on_sbFtol_valueChanged(int index)
 void::MainWindow::VHF_controls_visible(bool b)
 {
   ui->VHFControls_widget->setVisible (b);
+  ui->cbFast9->setVisible(b);
 }
 
 void::MainWindow::VHF_features_enabled(bool b)
