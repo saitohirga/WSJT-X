@@ -90,7 +90,7 @@ Hz, the inverse of the symbol duration. The total occupied bandwidth
 is 9 × 1.736 = 15.6 Hz.
 
 [[PROTOCOL_SUMMARY]]
-=== Summary
+=== Comparison of Slow Modes
 
 Frequency spacing between tones, total occupied bandwidth, and
 approximate decoding thresholds are given for the various submodes of
@@ -135,3 +135,59 @@ JT9 is an order of magnitude better than JT65 in spectral
 efficiency. On a busy HF band, the conventional 2-kHz-wide JT65
 sub-band is often filled with overlapping signals. Ten times as many
 JT9 signals can fit into the same frequency range, without collisions.
+
+=== ISCAT
+
+ISCAT messages are free-form, up to 28 characters in length.
+Modulation is 42-tone frequency-shift keying at 11025 / 512 = 21.533
+baud (ISCAT-A), or 11025 / 256 = 43.066 baud (ISCAT-B).  Tone
+frequencies are spaced by an amount in Hz equal to the baud rate.  The
+available character set is
+
+----
+ 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ /.?@-
+----
+
+Transmissions consist of sequences of 24 symbols: a synchronizing
+pattern of four symbols at tone numbers 0, 1, 3, and 2, followed by
+two symbols with tone number corresponding to the message length, and
+finally 18 symbols conveying the user's message, sent repeatedly
+character by character.  The message always starts with +@+, the
+beginning-of-message symbol, which is not displayed to the user.  The
+sync pattern and message-length indicator have a fixed repetition
+period, recurring every 24 symbols.  Message information occurs
+periodically within the 18 symbol positions set aside for its use,
+repeating at its own natural length.
+
+For example, consider the user message +CQ WA9XYZ+.  Including the
+beginning-of-message symbol +@+, the message is 10 characters long.
+Using the character sequence displayed above to indicate tone numbers,
+the transmitted message will therefore start out as shown in the first
+line below:
+
+----
+ 0132AA@CQ WA9XYZ@CQ WA9X0132AAYZ@CQ WA9XYZ@CQ W0132AAA9X ...
+ sync##                  sync##                 sync##
+----
+
+Note that the first six symbols (four for sync, two for message
+length) repeat every 24 symbols.  Within the 18 information-carrying
+symbols in each 24, the user message +@CQ WA9XYZ+ repeats at its own
+natural length, 10 characters.  The resulting sequence is extended as
+many times as will fit into a Tx sequence.
+
+=== JTMSK
+
+The letters MS are often used to abbreviate meteor scatter; the three
+letters MSK mean "Minimum Shift Keying", the modulation scheme used in
+JTMSK.  This mode uses the same standard message structure as the slow
+modes JT4, JT9, and JT65.  User information is "`source encoded`" to
+72 bits; a 15-bit cyclic redundancy check (CRC) is appended, and a
+convolutional code with constraint length K=13 and rate r=1/2 is then
+applied.  This procedure makes for a total of (72+15+12)*2 = 198
+information bits for the encoded message.  Three copies of the
+"`Barker-11`" code and three even-parity bits are added for
+synchronization, making a total of 198+33+3 = 234 channel symbols.
+Modulation is carried out using a constant-envelope, continuous-phase
+minimum-shift keying (MSK) waveform, with tone frequencies of 1000
+and 2000 Hz.
