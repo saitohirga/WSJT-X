@@ -538,7 +538,7 @@ int HamlibTransceiver::do_start ()
       update_rx_frequency (dummy_frequency_);
       if (RIG_MODE_NONE != dummy_mode_)
         {
-          rig_set_mode (rig_.data (), RIG_VFO_CURR, dummy_mode_, RIG_PASSBAND_NORMAL);
+          rig_set_mode (rig_.data (), RIG_VFO_CURR, dummy_mode_, RIG_PASSBAND_NOCHANGE);
           update_mode (map_mode (dummy_mode_));
         }
     }
@@ -650,7 +650,7 @@ void HamlibTransceiver::do_frequency (Frequency f, MODE m, bool no_ignore)
           if (new_mode != current_mode)
             {
               TRACE_CAT ("HamlibTransceiver", "rig_set_mode mode = " << rig_strrmode (new_mode));
-              error_check (rig_set_mode (rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NORMAL), tr ("setting current VFO mode"));
+              error_check (rig_set_mode (rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NOCHANGE), tr ("setting current VFO mode"));
 
               // for the 2nd time because a mode change may have caused a
               // frequency change
@@ -659,7 +659,7 @@ void HamlibTransceiver::do_frequency (Frequency f, MODE m, bool no_ignore)
               // for the second time because some rigs change mode according
               // to frequency such as the TS-2000 auto mode setting
               TRACE_CAT ("HamlibTransceiver", "rig_set_mode mode = " << rig_strrmode (new_mode));
-              error_check (rig_set_mode (rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NORMAL), tr ("setting current VFO mode"));
+              error_check (rig_set_mode (rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NOCHANGE), tr ("setting current VFO mode"));
             }
           update_mode (m);
         }
@@ -728,7 +728,7 @@ void HamlibTransceiver::do_tx_frequency (Frequency tx, bool no_ignore)
                   if (new_mode != current_mode)
                     {
                       TRACE_CAT ("HamlibTransceiver", "rig_set_mode mode = " << rig_strrmode (new_mode));
-                      error_check (rig_set_mode (rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NORMAL), tr ("setting current VFO mode"));
+                      error_check (rig_set_mode (rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NOCHANGE), tr ("setting current VFO mode"));
                     }
                 }
               update_other_frequency (tx);
@@ -741,7 +741,7 @@ void HamlibTransceiver::do_tx_frequency (Frequency tx, bool no_ignore)
                   auto new_mode = map_mode (state ().mode ());
                   TRACE_CAT ("HamlibTransceiver", "rig_set_split_freq_mode freq = " << tx
                              << " mode = " << rig_strrmode (new_mode));
-                  error_check (rig_set_split_freq_mode (rig_.data (), RIG_VFO_CURR, tx, new_mode, RIG_PASSBAND_NORMAL), tr ("setting split TX frequency and mode"));
+                  error_check (rig_set_split_freq_mode (rig_.data (), RIG_VFO_CURR, tx, new_mode, RIG_PASSBAND_NOCHANGE), tr ("setting split TX frequency and mode"));
                 }
               else
                 {
@@ -800,7 +800,7 @@ void HamlibTransceiver::do_mode (MODE mode)
       if (new_mode != current_mode)
         {
           TRACE_CAT ("HamlibTransceiver", "rig_set_mode mode = " << rig_strrmode (new_mode));
-          error_check (rig_set_mode (rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NORMAL), tr ("setting current VFO mode"));
+          error_check (rig_set_mode (rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NOCHANGE), tr ("setting current VFO mode"));
         }
     }
 
@@ -813,7 +813,7 @@ void HamlibTransceiver::do_mode (MODE mode)
       if (new_mode != current_mode)
         {
           TRACE_CAT ("HamlibTransceiver", "rig_set_mode mode = " << rig_strrmode (new_mode));
-          error_check (rig_set_mode (rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NORMAL), tr ("setting current VFO mode"));
+          error_check (rig_set_mode (rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NOCHANGE), tr ("setting current VFO mode"));
         }
     }
   else if (state ().split () && !one_VFO_)
@@ -825,7 +825,7 @@ void HamlibTransceiver::do_mode (MODE mode)
         {
           TRACE_CAT ("HamlibTransceiver", "rig_set_split_mode mode = " << rig_strrmode (new_mode));
           hamlib_tx_vfo_fixup fixup (rig_.data (), tx_vfo);
-          error_check (rig_set_split_mode (rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NORMAL), tr ("setting split TX VFO mode"));
+          error_check (rig_set_split_mode (rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NOCHANGE), tr ("setting split TX VFO mode"));
         }
     }
   update_mode (mode);
