@@ -489,6 +489,7 @@ private:
 
   TransceiverFactory::ParameterPack rig_params_;
   TransceiverFactory::ParameterPack saved_rig_params_;
+  bool last_port_type_;
   bool rig_is_dummy_;
   bool rig_active_;
   bool have_rig_;
@@ -753,6 +754,8 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
   , current_tx_offset_ {0}
   , frequency_dialog_ {new FrequencyDialog {&modes_, this}}
   , station_dialog_ {new StationDialog {&next_stations_, &bands_, this}}
+  , last_port_type_ {TransceiverFactory::Capabilities::none}
+  , rig_is_dummy_ {false}
   , rig_active_ {false}
   , have_rig_ {false}
   , rig_changed_ {false}
@@ -1417,7 +1420,6 @@ void Configuration::impl::set_rig_invariants ()
   ui_->CAT_poll_interval_label->setEnabled (!asynchronous_CAT);
   ui_->CAT_poll_interval_spin_box->setEnabled (!asynchronous_CAT);
 
-  static auto last_port_type = TransceiverFactory::Capabilities::none;
   auto port_type = transceiver_factory_.CAT_port_type (rig);
 
   bool is_serial_CAT (TransceiverFactory::Capabilities::serial == port_type);
@@ -1464,9 +1466,9 @@ void Configuration::impl::set_rig_invariants ()
       ui_->test_CAT_push_button->setEnabled (true);
       ui_->test_PTT_push_button->setEnabled (false);
       ui_->TX_audio_source_group_box->setEnabled (transceiver_factory_.has_CAT_PTT_mic_data (rig) && TransceiverFactory::PTT_method_CAT == ptt_method);
-      if (port_type != last_port_type)
+      if (port_type != last_port_type_)
         {
-          last_port_type = port_type;
+          last_port_type_ = port_type;
           switch (port_type)
             {
             case TransceiverFactory::Capabilities::serial:
