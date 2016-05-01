@@ -34,7 +34,7 @@ public:
   bool sync (bool local);
   void abort ();
 
-  static int const Type {UserType + 1};
+  static int constexpr Type {UserType + 1};
 
   //
   // Clients may  use this RAII  class to  block nested calls  to sync

@@ -173,6 +173,15 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_uploading {false},
   m_tuneup {false},
   m_bSimplex {false},
+  m_ihsym {0},
+  m_nzap {0},
+  m_px {0.0},
+  m_decodeEarly {false},
+  m_iptt0 {0},
+  m_btxok0 {false},
+  m_nsendingsh {0},
+  m_onAirFreq0 {0.0},
+  m_first_error {true},
   m_appDir {QApplication::applicationDirPath ()},
   mem_jt9 {shdmem},
   m_msAudioOutputBuffered (0u),
@@ -875,12 +884,6 @@ void MainWindow::setDecodedTextFont (QFont const& font)
 void MainWindow::dataSink(qint64 frames)
 {
   static float s[NSMAX];
-  static int ihsym=0;
-  static int nzap=0;
-  static int trmin;
-  static int npts8;
-  static float px=0.0;
-  static float df3;
 
   int k (frames);
   QString fname {QDir::toNativeSeparators(m_dataDir.absoluteFilePath ("refspec.dat"))};
@@ -902,22 +905,22 @@ void MainWindow::dataSink(qint64 frames)
   }
 
   // Get power, spectrum, and ihsym
-  trmin=m_TRperiod/60;
+  int trmin=m_TRperiod/60;
 //  int k (frames - 1);
   dec_data.params.nfa=m_wideGraph->nStartFreq();
   dec_data.params.nfb=m_wideGraph->Fmax();
   int nsps=m_nsps;
   if(m_bFastMode) nsps=6912;
   int nsmo=m_wideGraph->smoothYellow()-1;
-  symspec_(&dec_data,&k,&trmin,&nsps,&m_inGain,&nsmo,&px,s,&df3,&ihsym,&npts8);
+  symspec_(&dec_data,&k,&trmin,&nsps,&m_inGain,&nsmo,&m_px,s,&m_df3,&m_ihsym,&m_npts8);
   if(m_mode=="WSPR-2") wspr_downsample_(dec_data.d2,&k);
-  if(ihsym <=0) return;
+  if(m_ihsym <=0) return;
   QString t;
-  m_pctZap=nzap*100.0/m_nsps;
-  t.sprintf(" Rx noise: %5.1f ",px);
-  ui->signal_meter_widget->setValue(px); // Update thermometer
+  m_pctZap=m_nzap*100.0/m_nsps; // TODO: this is currently redundant
+  t.sprintf(" Rx noise: %5.1f ",m_px);
+  ui->signal_meter_widget->setValue(m_px); // Update thermometer
   if(m_monitoring || m_diskData) {
-    m_wideGraph->dataSink2(s,df3,ihsym,m_diskData);
+    m_wideGraph->dataSink2(s,m_df3,m_ihsym,m_diskData);
   }
 
   if(m_mode=="WSPR-2") {
@@ -931,11 +934,11 @@ void MainWindow::dataSink(qint64 frames)
     if(m_config.decode_at_52s()) m_hsymStop=179;
   }
 
-  if(ihsym==3*m_hsymStop/4) {
+  if(m_ihsym==3*m_hsymStop/4) {
     m_dialFreqRxWSPR=m_freqNominal;
   }
 
-  if(ihsym == m_hsymStop) {
+  if(m_ihsym == m_hsymStop) {
     if(m_mode=="Echo") {
       float snr=0;
       int nfrit=0;
@@ -965,7 +968,7 @@ void MainWindow::dataSink(qint64 frames)
     }
     if( m_dialFreqRxWSPR==0) m_dialFreqRxWSPR=m_freqNominal;
     m_dataAvailable=true;
-    dec_data.params.npts8=(ihsym*m_nsps)/16;
+    dec_data.params.npts8=(m_ihsym*m_nsps)/16;
     dec_data.params.newdat=1;
     dec_data.params.nagain=0;
     dec_data.params.nzhsym=m_hsymStop;
@@ -1060,8 +1063,6 @@ void MainWindow::save_wave_file (QString const& name, short const * data, int se
 //-------------------------------------------------------------- fastSink()
 void MainWindow::fastSink(qint64 frames)
 {
-  static float px;
-  static bool decodeEarly;
   int k (frames);
   bool decodeNow=false;
 
@@ -1075,7 +1076,7 @@ void MainWindow::fastSink(qint64 frames)
       memcpy(fast_s2,fast_s,4*703*64);             //Copy fast_s[] into fast_s2[]
       fast_jh2=fast_jh;
       if(!m_diskData) memset(dec_data.d2,0,2*30*12000);   //Zero the d2[] array
-      decodeEarly=false;
+      m_decodeEarly=false;
       m_bFastDecodeCalled=false;
       QDateTime t=QDateTime::currentDateTimeUtc();     //.addSecs(2-m_TRperiod);
       int ihr=t.toString("hh").toInt();
@@ -1090,7 +1091,7 @@ void MainWindow::fastSink(qint64 frames)
   }
 
   hspec_(dec_data.d2, &k, &m_inGain, fast_green, fast_s, &fast_jh);
-  px=fast_green[fast_jh] - 5.0;
+  float px = fast_green[fast_jh] - 5.0;
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);
   ui->signal_meter_widget->setValue(px); // Update thermometer
@@ -1112,14 +1113,14 @@ void MainWindow::fastSink(qint64 frames)
       decode();
     }
     if(!m_diskData and (m_saveAll or m_saveDecoded) and m_fname != "" and
-       !decodeEarly) {
+       !m_decodeEarly) {
       // the following is potential a threading hazard - not a good
       // idea to pass pointer to be processed in another thread
       QtConcurrent::run (this, &MainWindow::save_wave_file, m_fname, &dec_data.d2[0], m_TRperiod);
       m_fileToKill=m_fname;
       killFileTimer->start (3*1000*m_TRperiod/4); //Kill 3/4 period from now
     }
-    decodeEarly=false;
+    m_decodeEarly=false;
   }
 }
 
@@ -2228,12 +2229,8 @@ void MainWindow::decodeBusy(bool b)                             //decodeBusy()
 //------------------------------------------------------------- //guiUpdate()
 void MainWindow::guiUpdate()
 {
-  static int iptt0=0;
-  static bool btxok0=false;
   static char message[29];
   static char msgsent[29];
-  static int nsendingsh=0;
-  static double onAirFreq0=0.0;
   double txDuration;
   QString rt;
 
@@ -2310,8 +2307,8 @@ void MainWindow::guiUpdate()
       m_bTxTime=false;
 //      if (m_tune) stop_tuning ();
       if (m_auto) auto_tx_mode (false);
-      if(onAirFreq!=onAirFreq0) {
-        onAirFreq0=onAirFreq;
+      if(onAirFreq!=m_onAirFreq0) {
+        m_onAirFreq0=onAirFreq;
         QString t="Please choose another Tx frequency.\n";
         t+="WSJT-X will not knowingly transmit another\n";
         t+="mode in the WSPR sub-band on 30 m.";
@@ -2363,7 +2360,7 @@ void MainWindow::guiUpdate()
   }
 
   // Calculate Tx tones when needed
-  if((g_iptt==1 && iptt0==0) || m_restart) {
+  if((g_iptt==1 && m_iptt0==0) || m_restart) {
 //----------------------------------------------------------------------
     QByteArray ba;
 
@@ -2525,7 +2522,7 @@ void MainWindow::guiUpdate()
     }
   }
 
-  if (g_iptt == 1 && iptt0 == 0)
+  if (g_iptt == 1 && m_iptt0 == 0)
     {
       QString t=QString::fromLatin1(msgsent);
       if(t==m_msgSent0) {
@@ -2562,7 +2559,7 @@ void MainWindow::guiUpdate()
                                       m_transmitting, m_decoderBusy);
     }
 
-  if(!m_btxok && btxok0 && g_iptt==1) stopTx();
+  if(!m_btxok && m_btxok0 && g_iptt==1) stopTx();
 
   if(m_startAnother) {
     m_startAnother=false;
@@ -2592,11 +2589,11 @@ void MainWindow::guiUpdate()
     if(m_transmitting) {
       char s[37];
       sprintf(s,"Tx: %s",msgsent);
-      nsendingsh=0;
-      if(s[4]==64) nsendingsh=1;
-      if(nsendingsh==1 or m_currentMessageType==7) {
+      m_nsendingsh=0;
+      if(s[4]==64) m_nsendingsh=1;
+      if(m_nsendingsh==1 or m_currentMessageType==7) {
         tx_status_label->setStyleSheet("QLabel{background-color: #66ffff}");
-      } else if(nsendingsh==-1 or m_currentMessageType==6) {
+      } else if(m_nsendingsh==-1 or m_currentMessageType==6) {
         tx_status_label->setStyleSheet("QLabel{background-color: #ffccff}");
       } else {
         tx_status_label->setStyleSheet("QLabel{background-color: #ffff33}");
@@ -2630,8 +2627,8 @@ void MainWindow::guiUpdate()
     m_sec0=nsec;
     displayDialFrequency ();
   }
-  iptt0=g_iptt;
-  btxok0=m_btxok;
+  m_iptt0=g_iptt;
+  m_btxok0=m_btxok;
 }               //End of GUIupdate
 
 
@@ -4443,12 +4440,11 @@ void MainWindow::handle_transceiver_failure (QString const& reason)
 
 void MainWindow::rigFailure (QString const& reason, QString const& detail)
 {
-  static bool first_error {true};
-  if (first_error)
+  if (m_first_error)
     {
       // one automatic retry
       QTimer::singleShot (0, this, SLOT (rigOpen ()));
-      first_error = false;
+      m_first_error = false;
     }
   else
     {
@@ -4470,7 +4466,7 @@ void MainWindow::rigFailure (QString const& reason, QString const& detail)
           QTimer::singleShot (0, this, SLOT (close ()));
           break;
         }
-      first_error = true;       // reset
+      m_first_error = true;     // reset
     }
 }
 

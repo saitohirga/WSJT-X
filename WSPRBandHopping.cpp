@@ -64,7 +64,7 @@ private:
   QPointer<QTableWidget> bands_table_;
   QBrush coord_background_brush_;
   QPointer<QSpinBox> gray_line_width_spin_box_;
-  static int const band_index_role {Qt::UserRole};
+  static int constexpr band_index_role {Qt::UserRole};
 };
 
 Dialog::Dialog (QSettings * settings, Configuration const * configuration, BandList const * WSPR_bands

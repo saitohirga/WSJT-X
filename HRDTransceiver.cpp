@@ -62,12 +62,9 @@ struct HRDMessage
   qint32 checksum_;            // Apparently not used.
   QChar payload_[0];           // UTF-16 (which is wchar_t on Windows)
 
-  static qint32 const magic_1_value_;
-  static qint32 const magic_2_value_;
+  static qint32 constexpr magic_1_value_ = 0x1234ABCD;
+  static qint32 constexpr magic_2_value_ = 0xABCD1234;
 };
-
-qint32 const HRDMessage::magic_1_value_ (0x1234ABCD);
-qint32 const HRDMessage::magic_2_value_ (0xABCD1234);
 
 HRDTransceiver::HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped
                                 , QString const& server

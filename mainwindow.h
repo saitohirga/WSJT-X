@@ -429,6 +429,17 @@ private:
   bool    m_bRefSpec;
   bool    m_bUseRef;
   float   m_pctZap;
+  int			m_ihsym;
+  int			m_nzap;
+  int			m_npts8;
+  float		m_px;
+  float		m_df3;
+  bool		m_decodeEarly;
+  int			m_iptt0;
+  bool		m_btxok0;
+  int			m_nsendingsh;
+  double	m_onAirFreq0;
+  bool		m_first_error;
 
   char    m_msg[100][80];
 

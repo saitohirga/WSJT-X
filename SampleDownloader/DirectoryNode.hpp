@@ -39,7 +39,7 @@ public:
     return name == text (0);
   }
 
-  static int const Type {UserType};
+  static int constexpr Type {UserType};
 };
 
 inline

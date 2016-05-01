@@ -57,8 +57,8 @@ private:
 
   unsigned m_symbolsLength;
 
-  static double const m_twoPi;
-  static unsigned const m_nspd;	// CW ID WPM factor
+  static double constexpr m_twoPi = 2.0 * 3.141592653589793238462;
+  static unsigned constexpr m_nspd = 2048 + 512; // CW ID WPM factor = 22.5 WPM
 
   double m_phi;
   double m_dphi;
@@ -86,6 +86,8 @@ private:
   bool m_cwLevel;
   unsigned m_ic;
   unsigned m_isym0;
+  int m_j0;
+  double m_toneFrequency0;
 };
 
 #endif

@@ -18,12 +18,12 @@ extern float gran();		// Noise generator (for tests only)
 # define SOFT_KEYING 1
 #endif
 
-double const Modulator::m_twoPi = 2.0 * 3.141592653589793238462;
+double constexpr Modulator::m_twoPi;
 
 //    float wpm=20.0;
 //    unsigned m_nspd=1.2*48000.0/wpm;
 //    m_nspd=3072;                           //18.75 WPM
-unsigned const Modulator::m_nspd = 2048 + 512; // 22.5 WPM
+unsigned const Modulator::m_nspd;
 
 Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds,
                       QObject * parent)
@@ -37,6 +37,8 @@ Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds,
   , m_state {Idle}
   , m_tuning {false}
   , m_cwLevel {false}
+  , m_j0 {-1}
+  , m_toneFrequency0 {1500.0}
 {
 }
 
@@ -127,8 +129,6 @@ void Modulator::close ()
 
 qint64 Modulator::readData (char * data, qint64 maxSize)
 {
-  static int j0=-1;
-  static double toneFrequency0=1500.0;
   double toneFrequency=1500.0;
 
   if(maxSize==0) return 0;
@@ -232,28 +232,28 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
           if(m_bFastMode) isym=isym%m_symbolsLength;
           if (isym != m_isym0 || m_frequency != m_frequency0) {
             if(itone[0]>=100) {
-              toneFrequency0=itone[0];
+              m_toneFrequency0=itone[0];
             } else {
               if(m_toneSpacing==0.0) {
-                toneFrequency0=m_frequency + itone[isym]*baud;
+                m_toneFrequency0=m_frequency + itone[isym]*baud;
               } else {
-                toneFrequency0=m_frequency + itone[isym]*m_toneSpacing;
+                m_toneFrequency0=m_frequency + itone[isym]*m_toneSpacing;
               }
             }
 //            qDebug() << "B" << m_bFastMode << m_ic << numFrames << isym << itone[isym]
-//                            << toneFrequency0 << m_nsps;
-            m_dphi = m_twoPi * toneFrequency0 / m_frameRate;
+//                            << m_toneFrequency0 << m_nsps;
+            m_dphi = m_twoPi * m_toneFrequency0 / m_frameRate;
             m_isym0 = isym;
             m_frequency0 = m_frequency;         //???
           }
 
           int j=m_ic/480;
-          if(m_fSpread>0.0 and j!=j0) {
+          if(m_fSpread>0.0 and j!=m_j0) {
             float x1=(float)qrand()/RAND_MAX;
             float x2=(float)qrand()/RAND_MAX;
-            toneFrequency = toneFrequency0 + 0.5*m_fSpread*(x1+x2-1.0);
+            toneFrequency = m_toneFrequency0 + 0.5*m_fSpread*(x1+x2-1.0);
             m_dphi = m_twoPi * toneFrequency / m_frameRate;
-            j0=j;
+            m_j0=j;
           }
 
           m_phi += m_dphi;

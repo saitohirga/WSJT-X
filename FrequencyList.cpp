@@ -154,7 +154,7 @@ public:
   QMimeData * mimeData (QModelIndexList const&) const override;
 
   static int constexpr num_cols {3};
-  static auto constexpr mime_type ="application/wsjt.Frequencies";
+  static auto constexpr mime_type = "application/wsjt.Frequencies";
 
   Bands const * bands_;
   FrequencyItems frequency_list_;

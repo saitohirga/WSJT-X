@@ -17,7 +17,8 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   QDialog(parent),
   ui(new Ui::WideGraph),
   m_settings (settings),
-  m_palettes_path {":/Palettes"}
+  m_palettes_path {":/Palettes"},
+  m_n {0}
 {
   ui->setupUi(this);
 
@@ -140,22 +141,21 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dat
 {
   static float splot[NSMAX];
   int nbpp = ui->widePlot->binsPerPixel();
-  static int n=0;
 
   //Average spectra over specified number, m_waterfallAvg
-  if (n==0) {
+  if (m_n==0) {
     for (int i=0; i<NSMAX; i++)
       splot[i]=s[i];
   } else {
     for (int i=0; i<NSMAX; i++)
       splot[i] += s[i];
   }
-  n++;
+  m_n++;
 
-  if (n>=m_waterfallAvg) {
+  if (m_n>=m_waterfallAvg) {
     for (int i=0; i<NSMAX; i++)
-        splot[i] /= n;                       //Normalize the average
-    n=0;
+        splot[i] /= m_n;        //Normalize the average
+    m_n=0;
     int i=int(ui->widePlot->startFreq()/df3 + 0.5);
     int jz=5000.0/(nbpp*df3);
 		if(jz>MAX_SCREENSIZE) jz=MAX_SCREENSIZE;
