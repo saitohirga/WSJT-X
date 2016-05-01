@@ -23,7 +23,6 @@ double constexpr Modulator::m_twoPi;
 //    float wpm=20.0;
 //    unsigned m_nspd=1.2*48000.0/wpm;
 //    m_nspd=3072;                           //18.75 WPM
-unsigned const Modulator::m_nspd;
 
 Modulator::Modulator (unsigned frameRate, unsigned periodLengthInSeconds,
                       QObject * parent)
