@@ -34,7 +34,7 @@ namespace
   int debug_callback (enum rig_debug_level_e level, rig_ptr_t /* arg */, char const * format, va_list ap)
   {
     QString message;
-    static char const fmt[] = "Hamlib: %s";
+    static char constexpr fmt[] = "Hamlib: %s";
     message = message.vsprintf (format, ap).trimmed ();
 
     switch (level)

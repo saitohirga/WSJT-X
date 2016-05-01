@@ -107,6 +107,7 @@ private:
   QString m_mode;
   QString m_modeTx;
   QString m_waterfallPalette;
+  int			m_n;
 };
 
 #endif // WIDEGRAPH_H

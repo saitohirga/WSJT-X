@@ -59,11 +59,11 @@ protected:
   }
 
 private:
-  static int const tick_length {4};
-  static int const text_indent {2};
-  static int const line_spacing {0};
-  static int const range {6};
-  static int const scale {10};
+  static int constexpr tick_length {4};
+  static int constexpr text_indent {2};
+  static int constexpr line_spacing {0};
+  static int constexpr range {6};
+  static int constexpr scale {10};
 };
 
 SignalMeter::SignalMeter (QWidget * parent)

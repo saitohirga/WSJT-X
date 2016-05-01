@@ -58,7 +58,7 @@ public:
   MessageServer * self_;
   port_type port_;
   QHostAddress multicast_group_address_;
-  static BindMode const bind_mode_;
+  static BindMode constexpr bind_mode_ = ShareAddress | ReuseAddressHint;
   struct Client
   {
     Client () = default;
@@ -81,9 +81,9 @@ public:
   QTimer * clock_;
 };
 
-#include "MessageServer.moc"
+MessageServer::impl::BindMode constexpr MessageServer::impl::bind_mode_;
 
-MessageServer::impl::BindMode const MessageServer::impl::bind_mode_ = ShareAddress | ReuseAddressHint;
+#include "MessageServer.moc"
 
 void MessageServer::impl::leave_multicast_group ()
 {
