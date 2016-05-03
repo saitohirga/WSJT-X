@@ -37,8 +37,8 @@ contains
     call timer('jt65a   ',1)
   end subroutine test
 
-  subroutine my_callback (this,utc,sync,snr,dt,freq,drift,width,decoded    &
-       , ft, qual, smo, sum, minsync, submode, aggression)
+  subroutine my_callback (this,utc,sync,snr,dt,freq,drift,nflip,width,     &
+       decoded,ft,qual,smo,sum,minsync,submode,aggression)
     use jt65_decode
     implicit none
 
@@ -49,6 +49,7 @@ contains
     real, intent(in) :: dt
     integer, intent(in) :: freq
     integer, intent(in) :: drift
+    integer, intent(in) :: nflip
     real, intent(in) :: width
     character(len=22), intent(in) :: decoded
     integer, intent(in) :: ft
@@ -63,6 +64,7 @@ contains
 
     t=max(0.0,width*width-7.2)
     nwidth=max(nint(sqrt(t)),2)
+!### deal with nflip here! ###
     write(*,1010) utc,snr,dt,freq,decoded
 1010 format(i4.4,i4,f5.1,i5,1x,'#',1x,a22)
     write(13,1012) utc,nint(sync),snr,dt,freq,drift,nwidth,         &

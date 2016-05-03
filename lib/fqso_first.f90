@@ -6,6 +6,7 @@ subroutine fqso_first(nfqso,ntol,ca,ncand)
      real freq
      real dt
      real sync
+     real flip
   end type candidate
   type(candidate) ca(300),cb
 

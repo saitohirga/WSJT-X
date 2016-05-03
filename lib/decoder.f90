@@ -192,7 +192,6 @@ contains
     real, intent(in) :: dt
     integer, intent(in) :: freq
     logical, intent(in) :: flip
-
     character(len=1) :: cused, csync
 
     cused = '.'
@@ -203,8 +202,8 @@ contains
 1000 format(a1,i5.4,f6.1,f6.2,i6,1x,a1)
   end subroutine jt4_average
 
-  subroutine jt65_decoded(this,utc,sync,snr,dt,freq,drift,width,decoded0,ft,  &
-       qual,nsmo,nsum,minsync,nsubmode,naggressive)
+  subroutine jt65_decoded(this,utc,sync,snr,dt,freq,drift,nflip,width,     &
+       decoded0,ft,qual,nsmo,nsum,minsync,nsubmode,naggressive)
 
     use jt65_decode
     implicit none
@@ -216,6 +215,7 @@ contains
     real, intent(in) :: dt
     integer, intent(in) :: freq
     integer, intent(in) :: drift
+    integer, intent(in) :: nflip
     real, intent(in) :: width
     character(len=22), intent(in) :: decoded0
     integer, intent(in) :: ft
@@ -226,9 +226,10 @@ contains
     integer, intent(in) :: nsubmode
     integer, intent(in) :: naggressive
 
-    integer n
+    integer i,n
     character*5 ctail
     character*22 decoded
+    character*1 csync
     character*36 c
     data c/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
 
@@ -255,7 +256,20 @@ contains
              if(qual.lt.3) decoded(21:21)='?'
           endif
        endif
-       write(*,1010) utc,snr,dt,freq,'#',decoded,ctail
+       csync=' '
+       if(sync.ge.float(minsync)) then
+          csync='*'
+          if(nflip.eq.-1) then
+             csync='#'
+             if(decoded.ne.'                      ') then
+                do i=22,1,-1
+                   if(decoded(i:i).ne.' ') exit
+                enddo
+                decoded(i+2:i+4)='OOO'
+             endif
+          endif
+       endif
+       write(*,1010) utc,snr,dt,freq,csync,decoded,ctail
 1010   format(i4.4,i4,f5.1,i5,1x,a1,1x,a22,a5)
     endif
 
