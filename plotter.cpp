@@ -366,18 +366,25 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     painter0.drawLine(x1,29,x2,29);
   }
   if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65") {
-    x1=XfromFreq(m_rxFreq);
-    x2=XfromFreq(m_rxFreq+bw);
-    painter0.drawLine(x1,24,x1,30);
-    painter0.drawLine(x1,28,x2,28);
-    painter0.drawLine(x2,24,x2,30);
+
     if(g_single_decode and m_mode=="JT65") {
-      x3=XfromFreq(m_rxFreq+22.0*bw/66.0);
+      x1=XfromFreq(m_rxFreq-m_tol);
+      x2=XfromFreq(m_rxFreq+m_tol);
+      painter0.drawLine(x1,28,x2,28);
+      x1=XfromFreq(m_rxFreq);
+      painter0.drawLine(x1,24,x1,30);
+      x3=XfromFreq(m_rxFreq+20.0*bw/65.0);
       painter0.drawLine(x3,24,x3,30);
-      x4=XfromFreq(m_rxFreq+32.0*bw/66.0);
+      x4=XfromFreq(m_rxFreq+30.0*bw/65.0);
       painter0.drawLine(x4,24,x4,30);
-      x5=XfromFreq(m_rxFreq+42.0*bw/66.0);
+      x5=XfromFreq(m_rxFreq+40.0*bw/65.0);
       painter0.drawLine(x5,24,x5,30);
+    } else {
+      x1=XfromFreq(m_rxFreq);
+      x2=XfromFreq(m_rxFreq+bw);
+      painter0.drawLine(x1,24,x1,30);
+      painter0.drawLine(x1,28,x2,28);
+      painter0.drawLine(x2,24,x2,30);
     }
   }
 
