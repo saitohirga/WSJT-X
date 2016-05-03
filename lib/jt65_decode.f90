@@ -13,7 +13,7 @@ module jt65_decode
   !
   abstract interface
      subroutine jt65_decode_callback(this,utc,sync,snr,dt,freq,drift,     &
-          width,decoded,ft,qual,nsmo,nsum,minsync,nsubmode,naggressive)
+          nflip,width,decoded,ft,qual,nsmo,nsum,minsync,nsubmode,naggressive)
 
        import jt65_decoder
        implicit none
@@ -24,6 +24,7 @@ module jt65_decode
        real, intent(in) :: dt
        integer, intent(in) :: freq
        integer, intent(in) :: drift
+       integer, intent(in) :: nflip
        real, intent(in) :: width
        character(len=22), intent(in) :: decoded
        integer, intent(in) :: ft
@@ -69,6 +70,7 @@ contains
        real freq
        real dt
        real sync
+       real flip
     end type candidate
     type(candidate) ca(300)
     type accepted_decode
@@ -170,7 +172,7 @@ contains
        endif
 
        mode65=2**nsubmode
-       nflip=1                             !### temporary ###
+       nflip=1
        nqd=0
        decoded0=""
        freq0=0.
@@ -185,6 +187,11 @@ contains
           sync1=ca(icand)%sync
           dtx=ca(icand)%dt
           freq=ca(icand)%freq
+          if(single_decode) then
+             flip=ca(icand)%flip
+             nflip=flip
+             if(sync1.lt.float(minsync)) cycle
+          endif
           if(ipass.eq.1) ntry65a=ntry65a + 1
           if(ipass.eq.2) ntry65b=ntry65b + 1
           call timer('decod65a',0)
@@ -233,8 +240,8 @@ contains
 
                 if (associated(this%callback) .and. nsum.ge.2) then
                    call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
-                        width,avemsg,nftt,nqave,nsmo,nsum,minsync,nsubmode,  &
-                        naggressive)
+                        nflip,width,avemsg,nftt,nqave,nsmo,nsum,minsync,     &
+                        nsubmode,naggressive)
                    prtavg=.true.
                    cycle
                 end if
@@ -285,8 +292,8 @@ contains
                 nqual=min(qual,9999.0)
                 if (associated(this%callback)) then
                    call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
-                        width,decoded,nft,nqual,nsmo,nsum,minsync,nsubmode,  &
-                        naggressive)
+                        nflip,width,decoded,nft,nqual,nsmo,nsum,minsync,     &
+                        nsubmode,naggressive)
                 end if
              endif
              decoded0=decoded

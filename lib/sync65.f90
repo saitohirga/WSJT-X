@@ -11,6 +11,7 @@ subroutine sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,nrobust,   &
      real freq
      real dt
      real sync
+     real flip
   end type candidate
   type(candidate) ca(MAXCAND)
 
@@ -76,13 +77,14 @@ subroutine sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,nrobust,   &
         ccfblue(lag2)=0.
         ca(ncand)%freq=freq
         ca(ncand)%dt=dtx
+        ca(ncand)%flip=flip
         if(single_decode) then
            ca(ncand)%sync=db(ccfred(i)) - 16.0
         else
            ca(ncand)%sync=ccfred(i)
         endif
      endif
-     if(ncand.eq.MAXCAND) return
+     if(ncand.eq.MAXCAND) exit
   enddo
 
   return
