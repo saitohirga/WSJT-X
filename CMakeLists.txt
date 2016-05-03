@@ -393,6 +393,8 @@ set (wsjt_FSRCS
   lib/savec2.f90
   lib/sec_midn.f90
   lib/setup65.f90
+  lib/sh65.f90
+  lib/sh65snr.f90
   lib/slasubs.f
   lib/sleep_msec.f90
   lib/slope.f90

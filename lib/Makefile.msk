@@ -54,9 +54,13 @@ OBJS1 = t1.o four2a.o db.o
 t1:   $(OBJS1)
 	$(FC) -o t1 $(OBJS1) -lfftw3f
 
-OBJS2 = t6.o four2a.o db.o
-t6:   $(OBJS2)
-	$(FC) -o t6 $(OBJS2) -lfftw3f
+OBJS2 = t2.o four2a.o db.o
+t2:   $(OBJS2)
+	$(FC) -o t2 $(OBJS2) -lfftw3f
+
+OBJS6 = t6.o four2a.o db.o
+t6:   $(OBJS6)
+	$(FC) -o t6 $(OBJS6) -lfftw3f
 
 nhash.o: wsprd/nhash.h wsprd/nhash.c
 	 $(CC) -c -O2 wsprd/nhash.c
