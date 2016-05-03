@@ -190,15 +190,17 @@ contains
           if(single_decode) then
              flip=ca(icand)%flip
              nflip=flip
-             if(sync1.lt.float(minsync)) cycle
           endif
           if(ipass.eq.1) ntry65a=ntry65a + 1
           if(ipass.eq.2) ntry65b=ntry65b + 1
           call timer('decod65a',0)
           call decode65a(dd,npts,first_time,nqd,freq,nflip,mode65,nvec,     &
-               naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,       &
-               sync2,a,dtx,nft,qual,nhist,nsmo,decoded)
+               naggressive,ndepth,ntol,mycall,hiscall,hisgrid,              &
+               nexp_decode,single_decode,sync2,a,dtx,nft,qual,nhist,        &
+               nsmo,decoded)
           call timer('decod65a',1)
+          if(sync1.lt.float(minsync) .and.                                  &
+               decoded.eq.'                      ') nflip=0
           if(nft.ne.0) nsum=1
 
 !          ncandidates=param(0)

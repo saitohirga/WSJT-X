@@ -61,9 +61,13 @@ OBJS1 = fixwav.o wavhdr.o
 fixwav.exe: $(OBJS1)
 	$(FC) -o fixwav.exe $(OBJS1)
 
-OBJS2 = t6.o four2a.o db.o
-t6:   $(OBJS2)
-	$(FC) -o t6 $(OBJS2) C:\JTSDK\fftw3f\libfftw3f-3.dll
+OBJS2 = t2.o four2a.o db.o
+t2:   $(OBJS2)
+	$(FC) -o t2 $(OBJS2) C:\JTSDK\fftw3f\libfftw3f-3.dll
+
+OBJS6 = t6.o four2a.o db.o
+t6:   $(OBJS6)
+	$(FC) -o t6 $(OBJS6) C:\JTSDK\fftw3f\libfftw3f-3.dll
 
 .PHONY : clean
 

@@ -1,6 +1,6 @@
 subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
-     naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,sync2,    &
-     a,dt,nft,qual,nhist,nsmo,decoded)
+     naggressive,ndepth,ntol,mycall,hiscall,hisgrid,nexp_decode,     &
+     single_decode,sync2,a,dt,nft,qual,nhist,nsmo,decoded)
 
 ! Apply AFC corrections to a candidate JT65 signal, then decode it.
 
@@ -15,7 +15,7 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   complex c5a(512)
   real s2(66,126)
   real a(5)
-  logical first
+  logical single_decode,first
   character decoded*22,decoded_best*22
   character mycall*12,hiscall*12,hisgrid*6
   data first/.true./,jjjmin/1000/,jjjmax/-1000/
@@ -27,8 +27,22 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   call filbig(dd,npts,f0,newdat,cx,n5,sq0)
   if(mode65.eq.4) call filbig(dd,npts,f0+355.297852,newdat,cx1,n5,sq0)
   call timer('filbig  ',1)
-
 ! NB: cx has sample rate 12000*77125/672000 = 1378.125 Hz
+
+! Check for a shorthand message
+  if(single_decode) then
+     call sh65(cx,n5,mode65,ntol,xdf,nspecial,snrdb)
+     if(nspecial.gt.0) then
+        a=0.
+        a(1)=xdf
+        if(nspecial.eq.2) decoded='RO'
+        if(nspecial.eq.3) decoded='RRR'
+        if(nspecial.eq.4) decoded='73'
+        nflip=0
+        sync2=snrdb
+        go to 900
+     endif
+  endif
 
 ! Find best DF, drift, curvature, and DT.  Start by downsampling to 344.53125 Hz
   call timer('fil6521 ',0)
@@ -144,5 +158,5 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
 
   call timer('dec65b  ',1)
 
-  return
+900 return
 end subroutine decode65a

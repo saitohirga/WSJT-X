@@ -257,7 +257,7 @@ contains
           endif
        endif
        csync=' '
-       if(sync.ge.float(minsync)) then
+       if(nflip.ne.0 .and. sync.ge.max(0.0,float(minsync))) then
           csync='*'
           if(nflip.eq.-1) then
              csync='#'
