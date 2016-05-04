@@ -174,6 +174,7 @@ contains
        mode65=2**nsubmode
        nflip=1
        nqd=0
+       decoded='                      '
        decoded0=""
        freq0=0.
        prtavg=.false.
@@ -191,6 +192,7 @@ contains
              flip=ca(icand)%flip
              nflip=flip
           endif
+          if(sync1.lt.float(minsync)) nflip=0
           if(ipass.eq.1) ntry65a=ntry65a + 1
           if(ipass.eq.2) ntry65b=ntry65b + 1
           call timer('decod65a',0)
