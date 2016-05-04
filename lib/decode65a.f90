@@ -36,9 +36,9 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
         a=0.
         a(1)=xdf
         nflip=0
-        go to 900
      endif
   endif
+  if(nflip.eq.0) go to 900
 
 ! Find best DF, drift, curvature, and DT.  Start by downsampling to 344.53125 Hz
   call timer('fil6521 ',0)
