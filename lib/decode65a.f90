@@ -1,6 +1,6 @@
 subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
      naggressive,ndepth,ntol,mycall,hiscall,hisgrid,nexp_decode,     &
-     single_decode,sync2,a,dt,nft,qual,nhist,nsmo,decoded)
+     single_decode,sync2,a,dt,nft,nspecial,qual,nhist,nsmo,decoded)
 
 ! Apply AFC corrections to a candidate JT65 signal, then decode it.
 
@@ -31,15 +31,11 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
 
 ! Check for a shorthand message
   if(single_decode) then
-     call sh65(cx,n5,mode65,ntol,xdf,nspecial,snrdb)
+     call sh65(cx,n5,mode65,ntol,xdf,nspecial,sync2)
      if(nspecial.gt.0) then
         a=0.
         a(1)=xdf
-        if(nspecial.eq.2) decoded='RO'
-        if(nspecial.eq.3) decoded='RRR'
-        if(nspecial.eq.4) decoded='73'
         nflip=0
-        sync2=snrdb
         go to 900
      endif
   endif

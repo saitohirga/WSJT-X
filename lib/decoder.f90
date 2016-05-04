@@ -229,7 +229,7 @@ contains
     integer i,n
     character*5 ctail
     character*22 decoded
-    character*1 csync
+    character*2 csync
     character*36 c
     data c/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
 
@@ -256,11 +256,11 @@ contains
              if(qual.lt.3) decoded(21:21)='?'
           endif
        endif
-       csync=' '
+       csync='# '
        if(nflip.ne.0 .and. sync.ge.max(0.0,float(minsync))) then
-          csync='*'
+          csync='#*'
           if(nflip.eq.-1) then
-             csync='#'
+             csync='##'
              if(decoded.ne.'                      ') then
                 do i=22,1,-1
                    if(decoded(i:i).ne.' ') exit
@@ -270,7 +270,7 @@ contains
           endif
        endif
        write(*,1010) utc,snr,dt,freq,csync,decoded,ctail
-1010   format(i4.4,i4,f5.1,i5,1x,a1,1x,a22,a5)
+1010   format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,a5)
     endif
 
     write(13,1012) utc,nint(sync),snr,dt,float(freq),drift,decoded,ft,nsum,nsmo

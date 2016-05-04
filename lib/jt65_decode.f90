@@ -196,8 +196,11 @@ contains
           call timer('decod65a',0)
           call decode65a(dd,npts,first_time,nqd,freq,nflip,mode65,nvec,     &
                naggressive,ndepth,ntol,mycall,hiscall,hisgrid,              &
-               nexp_decode,single_decode,sync2,a,dtx,nft,qual,nhist,        &
-               nsmo,decoded)
+               nexp_decode,single_decode,sync2,a,dtx,nft,nspecial,qual,     &
+               nhist,nsmo,decoded)
+          if(nspecial.eq.2) decoded='RO'
+          if(nspecial.eq.3) decoded='RRR'
+          if(nspecial.eq.4) decoded='73'
           call timer('decod65a',1)
           if(sync1.lt.float(minsync) .and.                                  &
                decoded.eq.'                      ') nflip=0
@@ -218,6 +221,7 @@ contains
           ndrift=nint(2.0*a(2))
           if(single_decode) then
              s2db=sync1 - 30.0 + db(width/3.3)        !### VHF/UHF/microwave
+             if(nspecial.gt.0) s2db=sync2
           else
              s2db=10.0*log10(sync2) - 35             !### empirical (HF) 
           endif

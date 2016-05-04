@@ -73,38 +73,22 @@ subroutine sh65(cx,n5,mode65,ntol,xdf,nspecial,snrdb)
   if(n2best.gt.8) n2best=nbest-4
   xdf=min(ipk(nbest),ipk(n2best))*df
   nspecial=0
-  if(abs(xdf).gt.ntol) go to 10
-
-  idiff=abs(ipk(nbest)-ipk(n2best))
-  xk=float(idiff)/nfac
-  k=nint(xk)
-  iderr=nint((xk-k)*nfac)
-  maxerr=nint(0.008*abs(idiff) + 0.51)
-  if(abs(iderr).le.maxerr .and. k.ge.2 .and. k.le.4) nspecial=k
-  nstest=0
-  if(nspecial.gt.0) then
-     call sh65snr(ss(ia2,nbest),ib2-ia2+1,snr1)
-     call sh65snr(ss(ia2,n2best),ib2-ia2+1,snr2)
-     snr=0.5*(snr1+snr2)
-     if(snr.gt.snrbest) then
-        snrbest=snr
-        nspecialbest=nspecial
-        nstest=snr/2.0 - 2.0             !Threshold set here
-        if(nstest.lt.0) nstest=0
-        if(nstest.gt.10) nstest=10
-        dfsh=nint(xdf)
-        iderrbest=iderr
-        snrdb=db(snr) - db(2500.0/df) - db(sqrt(nblks/4.0))+1.8
-        n1=nbest
-        n2=n2best
-        ipk1=ipk(n1)
-        ipk2=ipk(n2)
+  if(abs(xdf).le.ntol) then
+     idiff=abs(ipk(nbest)-ipk(n2best))
+     xk=float(idiff)/nfac
+     k=nint(xk)
+     iderr=nint((xk-k)*nfac)
+     maxerr=nint(0.008*abs(idiff) + 0.51)
+     if(abs(iderr).le.maxerr .and. k.ge.2 .and. k.le.4) nspecial=k
+     snrdb=-30.0
+     if(nspecial.gt.0) then
+        call sh65snr(ss(ia2,nbest),ib2-ia2+1,snr1)
+        call sh65snr(ss(ia2,n2best),ib2-ia2+1,snr2)
+        snr=0.5*(snr1+snr2)
+        snrdb=db(snr) - db(2500.0/df) - db(sqrt(nblks/4.0)) + 8.0
      endif
+     if(snr1.lt.4.0 .or. snr2.lt.4.0 .or. snr.lt.5.0) nspecial=0
   endif
-  if(nstest.eq.0) nspecial=0
-10 continue
-
-!  print*,'a',ia2,ib2,snrdb,xdf,nspecial
 
   return
 end subroutine sh65
