@@ -174,9 +174,9 @@ contains
                char(ichar('A')+ich-1)
        end if
     else
-       write(*,1000) utc ,snr, dt, freq
+       write(*,1000) utc,snr,dt,freq
     end if
-1000 format(i4.4,i4,f5.2,i5,1x,a1,1x,a22,a2,1x,a1,i3)
+1000 format(i4.4,i4,f5.2,i5,1x,'$',a1,1x,a22,a2,1x,a1,i3)
     select type(this)
     type is (counting_jt4_decoder)
        this%decoded = this%decoded + 1
