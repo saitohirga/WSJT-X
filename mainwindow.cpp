@@ -1837,7 +1837,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.dttol=m_DTtol;
   dec_data.params.emedelay=0.0;
   if(m_bEME) dec_data.params.emedelay=2.5;
-  dec_data.params.minSync=m_minSync;
+  dec_data.params.minSync=ui->syncSpinBox->isVisible () ? m_minSync : 0;
   dec_data.params.nexp_decode=0;
   if(m_config.MyDx()) dec_data.params.nexp_decode += 1;
   if(m_config.CQMyN()) dec_data.params.nexp_decode += 2;
