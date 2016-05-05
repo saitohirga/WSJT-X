@@ -2858,9 +2858,6 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     }
   }
   decodedtext = t2a;
-  int nmod=ntsec % (2*m_TRperiod);
-  m_txFirst=(nmod!=0);
-  ui->txFirstCheckBox->setChecked(m_txFirst);
 
   if (decodedtext.indexOf(" CQ ") > 0) {
 // TODO this magic 36 characters is also referenced in DisplayText::_appendDXCCWorkedB4()
@@ -2873,6 +2870,10 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   auto t3 = decodedtext.string ();
   auto t4 = t3.replace (" CQ DX ", " CQ_DX ").split (" ", QString::SkipEmptyParts);
   if(t4.size () < 6) return;             //Skip the rest if no decoded text
+
+  int nmod=ntsec % (2*m_TRperiod);
+  m_txFirst=(nmod!=0);
+  ui->txFirstCheckBox->setChecked(m_txFirst);
 
   QString hiscall;
   QString hisgrid;
