@@ -38,7 +38,7 @@ contains
   end subroutine test
 
   subroutine my_callback (this,utc,sync,snr,dt,freq,drift,nflip,width,     &
-       decoded,ft,qual,smo,sum,minsync,submode,aggression)
+       decoded,ft,qual,smo,sum,minsync,submode,aggression,single_decode)
     use jt65_decode
     implicit none
 
@@ -59,12 +59,15 @@ contains
     integer, intent(in) :: minsync
     integer, intent(in) :: submode
     integer, intent(in) :: aggression
+    logical, intent(in) :: single_decode
+
     integer nwidth
     real t
 
     t=max(0.0,width*width-7.2)
     nwidth=max(nint(sqrt(t)),2)
 !### deal with nflip here! ###
+!### also single_decode, csync, etc... ###
     write(*,1010) utc,snr,dt,freq,decoded
 1010 format(i4.4,i4,f5.1,i5,1x,'#',1x,a22)
     write(13,1012) utc,nint(sync),snr,dt,freq,drift,nwidth,         &
