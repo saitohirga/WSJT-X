@@ -12,14 +12,12 @@ module jt65_decode
   ! Callback function to be called with each decode
   !
   abstract interface
-     subroutine jt65_decode_callback(this,utc,sync,snr,dt,freq,drift,     &
-          nflip,width,decoded,ft,qual,nsmo,nsum,minsync,nsubmode,         &
-          naggressive,single_decode)
+     subroutine jt65_decode_callback(this,sync,snr,dt,freq,drift,     &
+          nflip,width,decoded,ft,qual,nsmo,nsum,minsync)
 
        import jt65_decoder
        implicit none
        class(jt65_decoder), intent(inout) :: this
-       integer, intent(in) :: utc
        real, intent(in) :: sync
        integer, intent(in) :: snr
        real, intent(in) :: dt
@@ -33,9 +31,6 @@ module jt65_decode
        integer, intent(in) :: nsmo
        integer, intent(in) :: nsum
        integer, intent(in) :: minsync
-       integer, intent(in) :: nsubmode
-       integer, intent(in) :: naggressive
-       logical, intent(in) :: single_decode
 
      end subroutine jt65_decode_callback
   end interface
@@ -249,9 +244,8 @@ contains
                 nqave=qave
 
                 if (associated(this%callback) .and. nsum.ge.2) then
-                   call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
-                        nflip,width,avemsg,nftt,nqave,nsmo,nsum,minsync,     &
-                        nsubmode,naggressive,single_decode)
+                   call this%callback(sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
+                        nflip,width,avemsg,nftt,nqave,nsmo,nsum,minsync)
                    prtavg=.true.
                    cycle
                 end if
@@ -301,9 +295,8 @@ contains
                 dec(ndecoded)%decoded=decoded
                 nqual=min(qual,9999.0)
                 if (associated(this%callback)) then
-                   call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
-                        nflip,width,decoded,nft,nqual,nsmo,nsum,minsync,     &
-                        nsubmode,naggressive,single_decode)
+                   call this%callback(sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
+                        nflip,width,decoded,nft,nqual,nsmo,nsum,minsync)
                 end if
              endif
              decoded0=decoded

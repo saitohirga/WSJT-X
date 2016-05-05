@@ -37,13 +37,12 @@ contains
     call timer('jt65a   ',1)
   end subroutine test
 
-  subroutine my_callback (this,utc,sync,snr,dt,freq,drift,nflip,width,     &
-       decoded,ft,qual,smo,sum,minsync,submode,aggression,single_decode)
+  subroutine my_callback (this,sync,snr,dt,freq,drift,nflip,width,     &
+       decoded,ft,qual,smo,sum,minsync)
     use jt65_decode
     implicit none
 
     class(jt65_decoder), intent(inout) :: this
-    integer, intent(in) :: utc
     real, intent(in) :: sync
     integer, intent(in) :: snr
     real, intent(in) :: dt
@@ -57,9 +56,6 @@ contains
     integer, intent(in) :: smo
     integer, intent(in) :: sum
     integer, intent(in) :: minsync
-    integer, intent(in) :: submode
-    integer, intent(in) :: aggression
-    logical, intent(in) :: single_decode
 
     integer nwidth
     real t
@@ -68,16 +64,16 @@ contains
     nwidth=max(nint(sqrt(t)),2)
 !### deal with nflip here! ###
 !### also single_decode, csync, etc... ###
-    write(*,1010) utc,snr,dt,freq,decoded
-1010 format(i4.4,i4,f5.1,i5,1x,'#',1x,a22)
-    write(13,1012) utc,nint(sync),snr,dt,freq,drift,nwidth,         &
+    write(*,1010) snr,dt,freq,decoded
+1010 format(i4,f5.1,i5,1x,'#',1x,a22)
+    write(13,1012) nint(sync),snr,dt,freq,drift,nwidth,         &
          decoded,ft,sum,smo
-1012 format(i4.4,i4,i5,f6.2,i5,i4,i3,1x,a22,' JT65',3i3)
+1012 format(i4,i5,f6.2,i5,i4,i3,1x,a22,' JT65',3i3)
     nft=ft
     call flush(6)
-!    write(79,3001) utc,sync,snr,dt,freq,candidates,    &
+!    write(79,3001) sync,snr,dt,freq,candidates,    &
 !         hard_min,total_min,rtt,tries,ft,qual,decoded
-!3001 format(i4.4,f5.1,i4,f5.1,i5,i6,i3,i4,f6.3,i8,i2,i3,1x,a22)
+!3001 format(f5.1,i4,f5.1,i5,i6,i3,i4,f6.3,i8,i2,i3,1x,a22)
 
   end subroutine my_callback
 

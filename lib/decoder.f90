@@ -95,7 +95,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   else if(params%nmode.eq.9 .or. (params%nmode.eq.(65+9) .and. params%ntxmode.eq.9)) then
      ! We're in JT9 mode, or should do JT9 first
      call timer('decjt9  ',0)
-     call my_jt9%decode(jt9_decoded,ss,id2,params%nutc,params%nfqso,       &
+     call my_jt9%decode(jt9_decoded,ss,id2,params%nfqso,       &
           newdat9,params%npts8,params%nfa,params%nfsplit,params%nfb,       &
           params%ntol,params%nzhsym,logical(params%nagain),params%ndepth,  &
           params%nmode,params%nsubmode,params%nexp_decode)
@@ -118,7 +118,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
         call timer('jt65a   ',1)
      else
         call timer('decjt9  ',0)
-        call my_jt9%decode(jt9_decoded,ss,id2,params%nutc,params%nfqso,    &
+        call my_jt9%decode(jt9_decoded,ss,id2,params%nfqso,                &
              newdat9,params%npts8,params%nfa,params%nfsplit,params%nfb,    &
              params%ntol,params%nzhsym,logical(params%nagain),             &
              params%ndepth,params%nmode,params%nsubmode,params%nexp_decode)
@@ -140,11 +140,10 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 
 contains
 
-  subroutine jt4_decoded(this,utc,snr,dt,freq,have_sync,sync,is_deep,    &
+  subroutine jt4_decoded(this,snr,dt,freq,have_sync,sync,is_deep,    &
        decoded,qual,ich,is_average,ave)
     implicit none
     class(jt4_decoder), intent(inout) :: this
-    integer, intent(in) :: utc
     integer, intent(in) :: snr
     real, intent(in) :: dt
     integer, intent(in) :: freq
@@ -163,18 +162,18 @@ contains
        if (int(qual).gt.0) then
           write(cqual, '(i2)') int(qual)
           if (ave.gt.0) then
-             write(*,1000) utc,snr,dt,freq,sync,decoded,cqual,           &
+             write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cqual,           &
                   char(ichar('A')+ich-1), ave
           else
-             write(*,1000) utc,snr,dt,freq,sync,decoded,cqual,           &
+             write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cqual,           &
                   char(ichar('A')+ich-1)
           end if
        else
-          write(*,1000) utc,snr,dt,freq,sync,decoded,' *',               &
+          write(*,1000) params%nutc,snr,dt,freq,sync,decoded,' *',               &
                char(ichar('A')+ich-1)
        end if
     else
-       write(*,1000) utc,snr,dt,freq
+       write(*,1000) params%nutc,snr,dt,freq
     end if
 1000 format(i4.4,i4,f5.2,i5,1x,'$',a1,1x,a22,a2,1x,a1,i3)
     select type(this)
@@ -202,14 +201,13 @@ contains
 1000 format(a1,i5.4,f6.1,f6.2,i6,1x,a1)
   end subroutine jt4_average
 
-  subroutine jt65_decoded(this,utc,sync,snr,dt,freq,drift,nflip,width,     &
-       decoded0,ft,qual,nsmo,nsum,minsync,nsubmode,naggressive,single_decode)
+  subroutine jt65_decoded(this,sync,snr,dt,freq,drift,nflip,width,     &
+       decoded0,ft,qual,nsmo,nsum,minsync)
 
     use jt65_decode
     implicit none
 
     class(jt65_decoder), intent(inout) :: this
-    integer, intent(in) :: utc
     real, intent(in) :: sync
     integer, intent(in) :: snr
     real, intent(in) :: dt
@@ -223,9 +221,6 @@ contains
     integer, intent(in) :: nsmo
     integer, intent(in) :: nsum
     integer, intent(in) :: minsync
-    integer, intent(in) :: nsubmode
-    integer, intent(in) :: naggressive
-    logical, intent(in) :: single_decode
 
     integer i,n
     character*5 ctail,decoded*22,csync*2,fmt*33
@@ -236,21 +231,22 @@ contains
 !    write(*,3301) ft,qual,nsmo,nsum,minsync,naggressive,sync    !###
 !3301 format('decoded.f90:',6i3,f5.1)        !###
 
+    if (iand(params%nexp_decode,32).ne.0) print *, 'OK'
     decoded=decoded0
     fmt='(i4.4,i4,f5.1,i5,1x,a1,1x,a22,a5)'
-    if(single_decode) fmt='(i4.4,i4,f5.1,i5,1x,a2,1x,a22,a5)'
+    if(iand(params%nexp_decode,32).ne.0) fmt='(i4.4,i4,f5.1,i5,1x,a2,1x,a22,a5)'
     if(ft.eq.0 .and. minsync.ge.0 .and. int(sync).lt.minsync) then
-       write(*,fmt) utc,snr,dt,freq
+       write(*,fmt) params%nutc,snr,dt,freq
     else
        ctail='     '
-       if(naggressive.gt.0 .and. ft.gt.0) then
+       if(params%naggressive.gt.0 .and. ft.gt.0) then
           ctail(1:1)='d'
           if(ft.eq.1) ctail(1:1)='f'
           n=max(2,nsum+1)
           n=min(n,36)
           ctail(2:2)=c(n:n)
           n=min(nsmo+1,36)
-          if(nsubmode.gt.0) ctail(3:3)=c(n:n)
+          if(params%nsubmode.gt.0) ctail(3:3)=c(n:n)
           if(ft.eq.2) then
              ctail(5:5)='*'
              if(qual.le.9) ctail(5:5)=char(48+qual)
@@ -270,10 +266,10 @@ contains
              endif
           endif
        endif
-       write(*,fmt) utc,snr,dt,freq,csync,decoded,ctail
+       write(*,fmt) params%nutc,snr,dt,freq,csync,decoded,ctail
     endif
 
-    write(13,1012) utc,nint(sync),snr,dt,float(freq),drift,decoded,ft,nsum,nsmo
+    write(13,1012) params%nutc,nint(sync),snr,dt,float(freq),drift,decoded,ft,nsum,nsmo
 1012 format(i4.4,i4,i5,f6.2,f8.0,i4,3x,a22,' JT65',3i3)
     call flush(6)
 
@@ -284,12 +280,11 @@ contains
     end select
   end subroutine jt65_decoded
 
-  subroutine jt9_decoded (this, utc, sync, snr, dt, freq, drift, decoded)
+  subroutine jt9_decoded (this, sync, snr, dt, freq, drift, decoded)
     use jt9_decode
     implicit none
 
     class(jt9_decoder), intent(inout) :: this
-    integer, intent(in) :: utc
     real, intent(in) :: sync
     integer, intent(in) :: snr
     real, intent(in) :: dt
@@ -298,9 +293,9 @@ contains
     character(len=22), intent(in) :: decoded
 
     !$omp critical(decode_results)
-    write(*,1000) utc,snr,dt,nint(freq),decoded
-1000 format(i4.4,i4,f5.1,i5,1x,'@',1x,a22)
-    write(13,1002) utc,nint(sync),snr,dt,freq,drift,decoded
+    write(*,1000) params%nutc,snr,dt,nint(freq),decoded
+1000 format(i4.4,i4,f5.1,i5,1x,'@ ',1x,a22)
+    write(13,1002) params%nutc,nint(sync),snr,dt,freq,drift,decoded
 1002 format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT9')
     call flush(6)
     !$omp end critical(decode_results)

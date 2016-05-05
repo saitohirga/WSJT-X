@@ -7,12 +7,11 @@ module jt9_decode
   end type jt9_decoder
 
   abstract interface
-     subroutine jt9_decode_callback (this, utc, sync, snr, dt, freq, drift, &
+     subroutine jt9_decode_callback (this, sync, snr, dt, freq, drift, &
           decoded)
        import jt9_decoder
        implicit none
        class(jt9_decoder), intent(inout) :: this
-       integer, intent(in) :: utc
        real, intent(in) :: sync
        integer, intent(in) :: snr
        real, intent(in) :: dt
@@ -24,7 +23,7 @@ module jt9_decode
 
 contains
 
-  subroutine decode(this,callback,ss,id2,nutc,nfqso,newdat,npts8,nfa,    &
+  subroutine decode(this,callback,ss,id2,nfqso,newdat,npts8,nfa,    &
        nfsplit,nfb,ntol,nzhsym,nagain,ndepth,nmode,nsubmode,nexp_decode)
     use timer_module, only: timer
 
@@ -45,10 +44,10 @@ contains
 
     this%callback => callback
     if(nmode.eq.9 .and. nsubmode.ge.1) then
-       call decode9w(nutc,nfqso,ntol,nsubmode,ss,id2,sync,nsnr,xdt,freq,msg)
+       call decode9w(nfqso,ntol,nsubmode,ss,id2,sync,nsnr,xdt,freq,msg)
        if (associated(this%callback)) then
           ndrift=0
-          call this%callback(nutc,sync,nsnr,xdt,freq,ndrift,msg)
+          call this%callback(sync,nsnr,xdt,freq,ndrift,msg)
        end if
        go to 999
     endif
@@ -152,7 +151,7 @@ contains
              if(msg.ne.'                      ') then
                 numfano=numfano+1
                 if (associated(this%callback)) then
-                   call this%callback(nutc,sync,nsnr,xdt,freq,ndrift,msg)
+                   call this%callback(sync,nsnr,xdt,freq,ndrift,msg)
                 end if
                 iaa=max(1,i-1)
                 ibb=min(NSMAX,i+22)
