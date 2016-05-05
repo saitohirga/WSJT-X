@@ -294,7 +294,7 @@ contains
 
     !$omp critical(decode_results)
     write(*,1000) params%nutc,snr,dt,nint(freq),decoded
-1000 format(i4.4,i4,f5.1,i5,1x,'@ ',1x,a22)
+1000 format(i4.4,i4,f5.1,i5,1x,'@',1x,a22)
     write(13,1002) params%nutc,nint(sync),snr,dt,freq,drift,decoded
 1002 format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT9')
     call flush(6)
