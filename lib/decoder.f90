@@ -203,7 +203,7 @@ contains
   end subroutine jt4_average
 
   subroutine jt65_decoded(this,utc,sync,snr,dt,freq,drift,nflip,width,     &
-       decoded0,ft,qual,nsmo,nsum,minsync,nsubmode,naggressive)
+       decoded0,ft,qual,nsmo,nsum,minsync,nsubmode,naggressive,single_decode)
 
     use jt65_decode
     implicit none
@@ -225,11 +225,10 @@ contains
     integer, intent(in) :: minsync
     integer, intent(in) :: nsubmode
     integer, intent(in) :: naggressive
+    logical, intent(in) :: single_decode
 
     integer i,n
-    character*5 ctail
-    character*22 decoded
-    character*2 csync
+    character*5 ctail,decoded*22,csync*2,fmt*33
     character*36 c
     data c/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
 
@@ -238,8 +237,10 @@ contains
 !3301 format('decoded.f90:',6i3,f5.1)        !###
 
     decoded=decoded0
+    fmt='(i4.4,i4,f5.1,i5,1x,a1,1x,a22,a5)'
+    if(single_decode) fmt='(i4.4,i4,f5.1,i5,1x,a2,1x,a22,a5)'
     if(ft.eq.0 .and. minsync.ge.0 .and. int(sync).lt.minsync) then
-       write(*,1010) utc,snr,dt,freq
+       write(*,fmt) utc,snr,dt,freq
     else
        ctail='     '
        if(naggressive.gt.0 .and. ft.gt.0) then
@@ -269,8 +270,7 @@ contains
              endif
           endif
        endif
-       write(*,1010) utc,snr,dt,freq,csync,decoded,ctail
-1010   format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,a5)
+       write(*,fmt) utc,snr,dt,freq,csync,decoded,ctail
     endif
 
     write(13,1012) utc,nint(sync),snr,dt,float(freq),drift,decoded,ft,nsum,nsmo

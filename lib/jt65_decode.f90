@@ -13,7 +13,8 @@ module jt65_decode
   !
   abstract interface
      subroutine jt65_decode_callback(this,utc,sync,snr,dt,freq,drift,     &
-          nflip,width,decoded,ft,qual,nsmo,nsum,minsync,nsubmode,naggressive)
+          nflip,width,decoded,ft,qual,nsmo,nsum,minsync,nsubmode,         &
+          naggressive,single_decode)
 
        import jt65_decoder
        implicit none
@@ -34,6 +35,7 @@ module jt65_decode
        integer, intent(in) :: minsync
        integer, intent(in) :: nsubmode
        integer, intent(in) :: naggressive
+       logical, intent(in) :: single_decode
 
      end subroutine jt65_decode_callback
   end interface
@@ -249,7 +251,7 @@ contains
                 if (associated(this%callback) .and. nsum.ge.2) then
                    call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
                         nflip,width,avemsg,nftt,nqave,nsmo,nsum,minsync,     &
-                        nsubmode,naggressive)
+                        nsubmode,naggressive,single_decode)
                    prtavg=.true.
                    cycle
                 end if
@@ -301,7 +303,7 @@ contains
                 if (associated(this%callback)) then
                    call this%callback(nutc,sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
                         nflip,width,decoded,nft,nqual,nsmo,nsum,minsync,     &
-                        nsubmode,naggressive)
+                        nsubmode,naggressive,single_decode)
                 end if
              endif
              decoded0=decoded
