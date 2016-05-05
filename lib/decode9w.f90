@@ -1,4 +1,4 @@
-subroutine decode9w(nutc,nfqso,ntol,nsubmode,ss,id2,sync,nsnr,xdt1,f0,decoded)
+subroutine decode9w(nfqso,ntol,nsubmode,ss,id2,sync,nsnr,xdt1,f0,decoded)
 
 ! Decode a weak signal in a wide/slow JT9 submode.
 

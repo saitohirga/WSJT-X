@@ -11,12 +11,11 @@ module jt4_decode
   ! Callback function to be called with each decode
   !
   abstract interface
-     subroutine jt4_decode_callback (this, utc, snr, dt, freq, have_sync,     &
+     subroutine jt4_decode_callback (this, snr, dt, freq, have_sync,     &
           sync, is_deep, decoded, qual, ich, is_average, ave)
        import jt4_decoder
        implicit none
        class(jt4_decoder), intent(inout) :: this
-       integer, intent(in) :: utc
        integer, intent(in) :: snr
        real, intent(in) :: dt
        integer, intent(in) :: freq
@@ -187,7 +186,7 @@ contains
     nsnr=nint(snrx)
     if(sync.lt.syncmin) then
        if (associated (this%decode_callback)) then
-          call this%decode_callback(nutc,nsnr,dtxz,nfreqz,.false.,csync,      &
+          call this%decode_callback(nsnr,dtxz,nfreqz,.false.,csync,      &
                .false.,decoded,0.,ich,.false.,0)
        end if
        go to 990
@@ -219,7 +218,7 @@ contains
        if(nfano.gt.0) then
           ! Fano succeeded: report the message and return               FANO OK
           if (associated (this%decode_callback)) then
-             call this%decode_callback(nutc,nsnr,dtx,nfreq,.true.,csync,      &
+             call this%decode_callback(nsnr,dtx,nfreq,.true.,csync,      &
                   .false.,decoded,0.,ich,.false.,0)
           end if
           nsave=0
@@ -255,7 +254,7 @@ contains
           if(nfanoave.gt.0) then
              ! Fano succeeded: report the message                   AVG FANO OK
              if (associated (this%decode_callback)) then
-                call this%decode_callback(nutc,nsnr,dtx,nfreq,.true.,csync,   &
+                call this%decode_callback(nsnr,dtx,nfreq,.true.,csync,   &
                      .false.,avemsg,0.,ich,.true.,nfanoave)
              end if
              prtavg=.true.
@@ -279,10 +278,10 @@ contains
     qual=qbest
     if (associated (this%decode_callback)) then
        if(int(qual).ge.nq1) then
-          call this%decode_callback(nutc,nsnr,dtx,nfreqz,.true.,csync,.true., &
+          call this%decode_callback(nsnr,dtx,nfreqz,.true.,csync,.true., &
                deepmsg,qual,ich,.false.,0)
        else
-          call this%decode_callback(nutc,nsnr,dtxz,nfreqz,.true.,csync,       &
+          call this%decode_callback(nsnr,dtxz,nfreqz,.true.,csync,       &
                .false.,blank,0.,ich,.false.,0)
        endif
     end if
@@ -294,7 +293,7 @@ contains
     qave=qabest
     if (associated (this%decode_callback)) then
        if(int(qave).ge.nq1) then
-          call this%decode_callback(nutc,nsnr,dtx,nfreq,.true.,csync,.true.,  &
+          call this%decode_callback(nsnr,dtx,nfreq,.true.,csync,.true.,  &
                deepave,qave,ich,.true.,ndeepave)
        endif
     end if
