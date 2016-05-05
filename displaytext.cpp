@@ -86,9 +86,9 @@ void DisplayText::_appendDXCCWorkedB4(DecodedText& t1, QString& bg,
 
     int charsAvail = 48;
 
-    // the decoder (seems) to always generate 40 chars. For a normal CQ call, the last five are spaces
-    // TODO this magic 36 characters is also referenced in MainWindow::doubleClickOnCall()
-    int nmin=35;
+    // the decoder (seems) to always generate 41 chars. For a normal CQ call, the last five are spaces
+    // TODO this magic 37 characters is also referenced in MainWindow::doubleClickOnCall()
+    int nmin=37;
     int i=t1.indexOf(" CQ ");
     int k=t1.string().mid(i+4,3).toInt();
     if(k>0 and k<999) nmin += 4;
