@@ -23,7 +23,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   end type counting_jt9_decoder
 
   real ss(184,NSMAX)
-  logical baddata,newdat65,newdat9
+  logical baddata,newdat65,newdat9,single_decode
   integer*2 id2(NTMAX*12000)
   type(params_block) :: params
   real*4 dd(NTMAX*12000)
@@ -32,6 +32,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   type(counting_jt65_decoder) :: my_jt65
   type(counting_jt9_decoder) :: my_jt9
 
+  single_decode=iand(params%nexp_decode,32).ne.0
   if(mod(params%nranera,2).eq.0) ntrials=10**(params%nranera/2)
   if(mod(params%nranera,2).eq.1) ntrials=3*10**(params%nranera/2)
   if(params%nranera.eq.0) ntrials=0
@@ -223,7 +224,7 @@ contains
     integer, intent(in) :: minsync
 
     integer i,n
-    character*5 ctail,decoded*22,csync*2,fmt*33
+    character*5 ctail,decoded*22,csync*2
     character*36 c
     data c/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
 
@@ -231,12 +232,11 @@ contains
 !    write(*,3301) ft,qual,nsmo,nsum,minsync,naggressive,sync    !###
 !3301 format('decoded.f90:',6i3,f5.1)        !###
 
-    if (iand(params%nexp_decode,32).ne.0) print *, 'OK'
     decoded=decoded0
-    fmt='(i4.4,i4,f5.1,i5,1x,a1,1x,a22,a5)'
-    if(iand(params%nexp_decode,32).ne.0) fmt='(i4.4,i4,f5.1,i5,1x,a2,1x,a22,a5)'
+!    fmt='(i4.4,i4,f5.1,i5,1x,a1,1x,a22,a5)'
+!    if(single_decode) fmt='(i4.4,i4,f5.1,i5,1x,a2,1x,a22,a5)'
     if(ft.eq.0 .and. minsync.ge.0 .and. int(sync).lt.minsync) then
-       write(*,fmt) params%nutc,snr,dt,freq
+       write(*,1010) params%nutc,snr,dt,freq
     else
        ctail='     '
        if(params%naggressive.gt.0 .and. ft.gt.0) then
@@ -254,7 +254,7 @@ contains
           endif
        endif
        csync='# '
-       if(nflip.ne.0 .and. sync.ge.max(0.0,float(minsync))) then
+       if(single_decode .and. nflip.ne.0 .and. sync.ge.max(0.0,float(minsync))) then
           csync='#*'
           if(nflip.eq.-1) then
              csync='##'
@@ -266,7 +266,8 @@ contains
              endif
           endif
        endif
-       write(*,fmt) params%nutc,snr,dt,freq,csync,decoded,ctail
+       write(*,1010) params%nutc,snr,dt,freq,csync,decoded,ctail
+1010   format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,a5)
     endif
 
     write(13,1012) params%nutc,nint(sync),snr,dt,float(freq),drift,decoded,ft,nsum,nsmo
@@ -294,7 +295,7 @@ contains
 
     !$omp critical(decode_results)
     write(*,1000) params%nutc,snr,dt,nint(freq),decoded
-1000 format(i4.4,i4,f5.1,i5,1x,'@',1x,a22)
+1000 format(i4.4,i4,f5.1,i5,1x,'@ ',1x,a22)
     write(13,1002) params%nutc,nint(sync),snr,dt,freq,drift,decoded
 1002 format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT9')
     call flush(6)

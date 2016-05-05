@@ -560,7 +560,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->labAz->setStyleSheet("border: 0px;");
   ui->labDist->setStyleSheet("border: 0px;");
 
-  auto t = "UTC   dB   DT Freq   Message";
+  auto t = "UTC   dB   DT Freq    Message";
   ui->decodedTextLabel->setText(t);
   ui->decodedTextLabel2->setText(t);
 
@@ -2860,10 +2860,10 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   decodedtext = t2a;
 
   if (decodedtext.indexOf(" CQ ") > 0) {
-// TODO this magic 36 characters is also referenced in DisplayText::_appendDXCCWorkedB4()
-    auto eom_pos = decodedtext.string ().indexOf (' ', 35);
-    if (eom_pos < 35) eom_pos = decodedtext.string ().size () - 1; // we always want at least the characters
-                            // to position 35
+// TODO this magic 37 characters is also referenced in DisplayText::_appendDXCCWorkedB4()
+    auto eom_pos = decodedtext.string ().indexOf (' ', 36);
+    if (eom_pos < 36) eom_pos = decodedtext.string ().size () - 1; // we always want at least the characters
+                            // to position 36
     decodedtext = decodedtext.string ().left (eom_pos + 1);  // remove DXCC entity and worked B4 status. TODO need a better way to do this
   }
 
@@ -3558,8 +3558,8 @@ void MainWindow::on_actionJT9_triggered()
     ui->sbTR->setVisible(true);
   } else {
     m_TRperiod=60;
-    ui->decodedTextLabel->setText("UTC   dB   DT Freq   Message");
-    ui->decodedTextLabel2->setText("UTC   dB   DT Freq   Message");
+    ui->decodedTextLabel->setText("UTC   dB   DT Freq    Message");
+    ui->decodedTextLabel2->setText("UTC   dB   DT Freq    Message");
     ui->sbTR->setVisible(false);
   }
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
@@ -3895,7 +3895,7 @@ void MainWindow::WSPR_config(bool b)
     }
     m_bSimplex = true;
   } else {
-    ui->decodedTextLabel->setText("UTC   dB   DT Freq   Message");
+    ui->decodedTextLabel->setText("UTC   dB   DT Freq    Message");
     auto_tx_label->setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" : "Auto-Tx-Enable Disarmed");
     m_bSimplex = false;
   }
@@ -4968,7 +4968,7 @@ void MainWindow::postDecode (bool is_new, QString const& message)
   if (parts.size () >= 5)
     {
       m_messageClient->decode (is_new, QTime::fromString (parts[0], "hhmm"), parts[1].toInt ()
-                               , parts[2].toFloat (), parts[3].toUInt (), parts[4], decode.mid (21));
+                               , parts[2].toFloat (), parts[3].toUInt (), parts[4][0], decode.mid (21));
     }
 }
 

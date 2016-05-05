@@ -28,13 +28,13 @@ class DecodedText
 {
 public:
      // These define the columns in the decoded text where fields are to be found.
-     // We rely on these columns being the same in the fortran code (lib/decode.f90) that formats the decoded text
+     // We rely on these columns being the same in the fortran code (lib/decoder.f90) that formats the decoded text
      enum Columns { column_time    = 0,
                     column_snr     = 5,
                     column_dt      = 9,
                     column_freq    = 14,
                     column_mode    = 19,
-                    column_qsoText = 21 };
+                    column_qsoText = 22 };
 
     void operator=(const QString &rhs)
     {
