@@ -143,6 +143,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
                        unsigned downSampleFactor, QNetworkAccessManager * network_manager,
                        QWidget *parent) :
   QMainWindow(parent),
+  m_valid {true},
   m_dataDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)},
   m_revision {revision ()},
   m_multiple {multiple},
@@ -382,17 +383,34 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   setWindowTitle (program_title ());
   createStatusBar();
 
-  connect(&proc_jt9, SIGNAL(readyReadStandardOutput()),this, SLOT(readFromStdout()));
-  connect(&proc_jt9, SIGNAL(error(QProcess::ProcessError)),this, SLOT(jt9_error(QProcess::ProcessError)));
-  connect(&proc_jt9, SIGNAL(readyReadStandardError()),this, SLOT(readFromStderr()));
+  connect(&proc_jt9, &QProcess::readyReadStandardOutput, this, &MainWindow::readFromStdout);
+  connect(&proc_jt9, static_cast<void (QProcess::*) (QProcess::ProcessError)> (&QProcess::error),
+          [this] (QProcess::ProcessError error) {
+            subProcessError (&proc_jt9, error);
+          });
+  connect(&proc_jt9, static_cast<void (QProcess::*) (int, QProcess::ExitStatus)> (&QProcess::finished),
+          [this] (int exitCode, QProcess::ExitStatus status) {
+            subProcessFailed (&proc_jt9, exitCode, status);
+          });
 
-  connect(&p1, SIGNAL(readyReadStandardOutput()),this, SLOT(p1ReadFromStdout()));
-  connect(&p1, SIGNAL(error(QProcess::ProcessError)),this, SLOT(p1Error(QProcess::ProcessError)));
-  connect(&p1, SIGNAL(readyReadStandardError()),this, SLOT(p1ReadFromStderr()));
+  connect(&p1, &QProcess::readyReadStandardOutput, this, &MainWindow::p1ReadFromStdout);
+  connect(&proc_jt9, static_cast<void (QProcess::*) (QProcess::ProcessError)> (&QProcess::error),
+          [this] (QProcess::ProcessError error) {
+            subProcessError (&p1, error);
+          });
+  connect(&p1, static_cast<void (QProcess::*) (int, QProcess::ExitStatus)> (&QProcess::finished),
+          [this] (int exitCode, QProcess::ExitStatus status) {
+            subProcessFailed (&p1, exitCode, status);
+          });
 
-//  connect(&p3, SIGNAL(readyReadStandardOutput()),this, SLOT(p3ReadFromStdout()));
-  connect(&p3, SIGNAL(error(QProcess::ProcessError)),this, SLOT(p3Error(QProcess::ProcessError)));
-  connect(&p3, SIGNAL(readyReadStandardError()),this, SLOT(p3ReadFromStderr()));
+  connect(&p3, static_cast<void (QProcess::*) (QProcess::ProcessError)> (&QProcess::error),
+          [this] (QProcess::ProcessError error) {
+            subProcessError (&p3, error);
+          });
+  connect(&p3, static_cast<void (QProcess::*) (int, QProcess::ExitStatus)> (&QProcess::finished),
+          [this] (int exitCode, QProcess::ExitStatus status) {
+            subProcessFailed (&p3, exitCode, status);
+          });
 
   // Hook up working frequencies.
   ui->bandComboBox->setModel (m_config.frequencies ());
@@ -485,7 +503,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_txFirst=false;
   m_btxok=false;
   m_restart=false;
-  m_killAll=false;
   m_widebandDecode=false;
   m_ntx=1;
 
@@ -706,6 +723,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     int ntr[]={5,10,15,30};
     m_TRperiod=ntr[m_TRindex-11];
   }
+
+  // this must be the last statement of constructor
+  if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
 }
 
 //--------------------------------------------------- MainWindow destructor
@@ -1464,6 +1484,43 @@ void MainWindow::createStatusBar()                           //createStatusBar
   progressBar->setFormat("%v/%m");
 }
 
+void MainWindow::subProcessFailed (QProcess * process, int exit_code, QProcess::ExitStatus status)
+{
+  if (m_valid && (exit_code || QProcess::NormalExit != status))
+    {
+      QStringList arguments;
+      for (auto argument: process->arguments ())
+        {
+          if (argument.contains (' ')) argument = '"' + argument + '"';
+          arguments << argument;
+        }
+      msgBox (tr ("Subprocess failed with exit code %1\nRunning:%2\n%3")
+              .arg (exit_code)
+              .arg (process->program () + ' ' + arguments.join (' '))
+              .arg (QString {process->readAllStandardError()}));
+      close ();
+      m_valid = false;          // ensures exit if still constructing
+    }
+}
+
+void MainWindow::subProcessError (QProcess * process, QProcess::ProcessError)
+{
+  if (m_valid)
+    {
+      QStringList arguments;
+      for (auto argument: process->arguments ())
+        {
+          if (argument.contains (' ')) argument = '"' + argument + '"';
+          arguments << argument;
+        }
+      msgBox (tr ("Subprocess error\nRunning: %1\n%2")
+              .arg (process->program () + ' ' + arguments.join (' '))
+              .arg (process->errorString ()));
+      close ();
+      m_valid = false;              // ensures exit if still constructing
+    }
+}
+
 void MainWindow::closeEvent(QCloseEvent * e)
 {
   m_config.transceiver_offline ();
@@ -1474,7 +1531,6 @@ void MainWindow::closeEvent(QCloseEvent * e)
   m_mouseCmnds.reset ();
 
   killFile ();
-  m_killAll=true;
   mem_jt9->detach();
   QFile quitFile {m_config.temp_dir ().absoluteFilePath (".quit")};
   quitFile.open(QIODevice::ReadWrite);
@@ -1992,19 +2048,16 @@ void::MainWindow::fast_decode_done()
   ui->DecodeButton->setChecked (false);
 }
 
-void MainWindow::jt9_error (QProcess::ProcessError e)
+void MainWindow::decodeDone ()
 {
-  if(!m_killAll) {
-    msgBox("Error starting or running\n" + m_appDir + "/jt9 -s");
-    qDebug() << e;                           // silence compiler warning
-    exit(1);
-  }
-}
-
-void MainWindow::readFromStderr()                             //readFromStderr
-{
-  QByteArray t=proc_jt9.readAllStandardError();
-  msgBox(t);
+  dec_data.params.nagain=0;
+  dec_data.params.ndiskdat=0;
+  m_nclearave=0;
+  QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.open(QIODevice::ReadWrite);
+  ui->DecodeButton->setChecked (false);
+  decodeBusy(false);
+  m_RxLog=0;
+  m_blankLine=true;
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout
@@ -2033,15 +2086,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
     if(t.indexOf("<DecodeFinished>") >= 0) {
       m_bDecoded = (t.mid(23,1).toInt()==1);
       if(!m_diskData) killFileTimer->start (3*1000*m_TRperiod/4); //Kill in 45 s
-      dec_data.params.nagain=0;
-      dec_data.params.ndiskdat=0;
-      m_nclearave=0;
-      QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.open(QIODevice::ReadWrite);
-      ui->DecodeButton->setChecked (false);
-      decodeBusy(false);
-      m_RxLog=0;
+      decodeDone ();
       m_startAnother=m_loopall;
-      m_blankLine=true;
       return;
     } else {
       QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
@@ -5003,21 +5049,6 @@ void MainWindow::on_syncSpinBox_valueChanged(int n)
   m_minSync=n;
 }
 
-void MainWindow::p1ReadFromStderr()                        //p1readFromStderr
-{
-  QByteArray t=p1.readAllStandardError();
-  msgBox(t);
-}
-
-void MainWindow::p1Error (QProcess::ProcessError e)
-{
-  if(!m_killAll) {
-    msgBox("Error starting or running\n" + m_appDir + "/wsprd");
-    qDebug() << e;                           // silence compiler warning
-    exit(1);
-  }
-}
-
 void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
 {
   QString t1;
@@ -5179,30 +5210,6 @@ void MainWindow::uploadResponse(QString response)
     qDebug () << "WSPRnet.org status:" << response;
   }
 }
-
-
-void MainWindow::p3ReadFromStdout()                        //p3readFromStdout
-{
-  QByteArray t=p3.readAllStandardOutput();
-  if(t.length()>0) {
-    msgBox("user_hardware stdout:\n\n"+t+"\n"+m_cmnd);
-  }
-}
-
-void MainWindow::p3ReadFromStderr()                        //p3readFromStderr
-{
-  QByteArray t=p3.readAllStandardError();
-  if(t.length()>0) {
-    msgBox("user_hardware stderr:\n\n"+t+"\n"+m_cmnd);
-  }
-}
-
-void MainWindow::p3Error(QProcess::ProcessError e)                                     //p3rror
-{
-  msgBox("Error attempting to run user_hardware.\n\n"+m_cmnd);
-  qDebug() << e;                           // silence compiler warning
-}
-
 
 void MainWindow::on_TxPowerComboBox_currentIndexChanged(const QString &arg1)
 {

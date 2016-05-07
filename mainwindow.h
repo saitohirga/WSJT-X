@@ -100,11 +100,7 @@ public slots:
   void doubleClickOnCall(bool shift, bool ctrl);
   void doubleClickOnCall2(bool shift, bool ctrl);
   void readFromStdout();
-  void readFromStderr();
-  void jt9_error(QProcess::ProcessError);
   void p1ReadFromStdout();
-  void p1ReadFromStderr();
-  void p1Error(QProcess::ProcessError);
   void setXIT(int n, Frequency base = 0u);
   void setFreq4(int rxFreq, int txFreq);
   void msgAvgDecode2();
@@ -233,9 +229,6 @@ private slots:
   void TxAgain();
   void RxQSY();
   void uploadResponse(QString response);
-  void p3ReadFromStdout();
-  void p3ReadFromStderr();
-  void p3Error(QProcess::ProcessError e);
   void on_WSPRfreqSpinBox_valueChanged(int n);
   void on_pbTxNext_clicked(bool b);
   void on_actionEcho_Graph_triggered();
@@ -277,6 +270,7 @@ private:
 private:
   void astroUpdate ();
 
+  bool m_valid;
   QDir m_dataDir;
   QString m_revision;
   bool m_multiple;
@@ -382,7 +376,6 @@ private:
   bool    m_widebandDecode;
   bool    m_call3Modified;
   bool    m_dataAvailable;
-  bool    m_killAll;
   bool    m_bDecoded;
   bool    m_monitorStartOFF;
   bool    m_pskReporterInit;
@@ -576,6 +569,9 @@ private:
   void CQRxFreq();
   void save_wave_file (QString const& name, short const * data, int seconds) const;
   void read_wav_file (QString const& fname);
+  void decodeDone ();
+  void subProcessFailed (QProcess *, int exit_code, QProcess::ExitStatus);
+  void subProcessError (QProcess *, QProcess::ProcessError);
 };
 
 extern int killbyname(const char* progName);
