@@ -108,11 +108,9 @@ contains
   subroutine wsjt4(this,dat,npts,nutc,NClearAve,minsync,ntol,emedelay,dttol,  &
        mode4,minw,mycall,hiscall,hisgrid,nfqso,NAgain,ndepth,neme)
 
-    ! Orchestrates the process of decoding JT4 messages, using data that 
-    ! have been 2x downsampled.
-
-    ! NB: JT4 presently looks for only one decodable signal in the FTol 
-    ! range -- analogous to the nqd=1 step in JT9 and JT65.
+! Orchestrates the process of decoding JT4 messages.  Note that JT4
+! always operates as if in "Single Decode" mode; it looks for only one 
+! decodable signal in the FTol range.
 
     use jt4
     use timer_module, only: timer
@@ -162,7 +160,7 @@ contains
        ndeepave=0
     endif
 
-    ! Attempt to synchronize: look for sync pattern, get DF and DT.
+! Attempt to synchronize: look for sync pattern, get DF and DT.
     call timer('sync4   ',0)
     call sync4(dat,npts,mode4,minw)
     call timer('sync4   ',1)
@@ -179,7 +177,9 @@ contains
     enddo
     call timer('zplt    ',1)
 
-    ! Use results from zplt
+! Use results from zplt
+!### NB: JT4 is severely "sync limited" at present...
+
     flip=flipz
     sync=syncz
     snrx=db(sync) - 26.
@@ -192,7 +192,7 @@ contains
        go to 990
     endif
 
-    ! We have achieved sync
+! We have achieved sync
     decoded=blank
     deepmsg=blank
     special='     '
@@ -209,14 +209,14 @@ contains
        nfreq=nfreqz + 2*idf
 
 
-       ! Attempt a single-sequence decode, including deep4 if Fano fails.
+! Attempt a single-sequence decode, including deep4 if Fano fails.
        call timer('decode4 ',0)
        call decode4(dat,npts,dtx,nfreq,flip,mode4,ndepth,neme,minw,           &
             mycall,hiscall,hisgrid,decoded,nfano,deepmsg,qual,ich)
        call timer('decode4 ',1)
 
        if(nfano.gt.0) then
-          ! Fano succeeded: report the message and return               FANO OK
+! Fano succeeded: report the message and return              !Fano OK
           if (associated (this%decode_callback)) then
              call this%decode_callback(nsnr,dtx,nfreq,.true.,csync,      &
                   .false.,decoded,0.,ich,.false.,0)
@@ -224,7 +224,7 @@ contains
           nsave=0
           go to 990
 
-       else          !                                                  NO FANO 
+       else                                                  !Fano failed
           if(qual.gt.qbest) then
              dtx0=dtx
              nfreq0=nfreq
@@ -235,12 +235,12 @@ contains
        endif
 
        if(idt.ne.0) cycle
-       ! Single-sequence Fano decode failed, so try for an average Fano decode:
+! Single-sequence Fano decode failed, so try for an average Fano decode:
        qave=0.
-       ! If this is a new minute or a new frequency, call avg4
+! If this is a new minute or a new frequency, call avg4
        if(.not. prtavg) then
           if(nutc.ne.nutc0 .or. abs(nfreq-nfreq0).gt.ntol) then
-             nutc0=nutc                                   !             TRY AVG
+             nutc0=nutc                                   !Try decoding average
              nfreq0=nfreq
              nsave=nsave+1
              nsave=mod(nsave-1,64)+1
@@ -304,7 +304,7 @@ contains
   subroutine avg4(this,nutc,snrsync,dtxx,flip,nfreq,mode4,ntol,ndepth,neme,   &
        mycall,hiscall,hisgrid,nfanoave,avemsg,qave,deepave,ichbest,ndeepave)
 
-    ! Decodes averaged JT4 data
+! Decodes averaged JT4 data
 
     use jt4
     class(jt4_decoder), intent(inout) :: this
@@ -329,7 +329,7 @@ contains
        if(nutc.eq.iutc(i) .and. abs(nhz-nfsave(i)).le.ntol) go to 10
     enddo
 
-    ! Save data for message averaging
+! Save data for message averaging
     iutc(nsave)=nutc
     syncsave(nsave)=snrsync
     dtsave(nsave)=dtxx
@@ -370,7 +370,6 @@ contains
        fave=float(nfsum)/nsum
     endif
 
-    !  rewind 80
     do i=1,nsave
        csync='*'
        if(flipsave(i).lt.0.0) csync='#'
@@ -378,8 +377,6 @@ contains
           call this%average_callback(cused(i) .eq. '$',iutc(i),               &
                syncsave(i) - 5.,dtsave(i),nfsave(i),flipsave(i) .lt.0.)
        end if
-!       write(14,1000) cused(i),iutc(i),syncsave(i)-5.0,dtsave(i),nfsave(i),csync
-!1000   format(a1,i5.4,f6.1,f6.2,i6,1x,a1)
     enddo
 
     sqt=0.
@@ -389,8 +386,6 @@ contains
        if(i.eq.0) exit
        csync='*'
        if(flipsave(i).lt.0.0) csync='#'
-       !     write(80,3001) i,iutc(i),syncsave(i),dtsave(i),nfsave(i),csync
-       !3001 format(i3,i6.4,f6.1,f6.2,i6,1x,a1)
        sqt=sqt + (dtsave(i)-dtave)**2
        sqf=sqf + (nfsave(i)-fave)**2
     enddo
@@ -400,14 +395,6 @@ contains
        rmst=sqrt(sqt/(nsum-1))
        rmsf=sqrt(sqf/(nsum-1))
     endif
-    !  write(80,3002)
-    !3002 format(16x,'----- -----')
-    !  write(80,3003) dtave,nint(fave)
-    !  write(80,3003) rmst,nint(rmsf)
-    !3003 format(15x,f6.2,i6)
-    !  flush(80)
-
-    !  nadd=nused*mode4
     kbest=ich1
     do k=ich1,ich2
        call extract4(sym(1,k),ncount,avemsg)     !Do the Fano decode
@@ -423,15 +410,13 @@ contains
     deepave='                      '
     qave=0.
 
-    ! Possibly should pass nadd=nused, also ?
+! Possibly should pass nadd=nused, also ?
 !    if(ndepth.ge.3) then
     if(iand(ndepth,32).eq.32) then
        flipx=1.0                     !Normal flip not relevant for ave msg
        qbest=0.
        do k=ich1,ich2
           call deep4(sym(2,k),neme,flipx,mycall,hiscall,hisgrid,deepave,qave)
-          !        write(82,3101) nutc,sym(51:53,k),flipx,k,qave,deepave
-          !3101    format(i4.4,4f8.1,i3,f7.2,2x,a22)
           if(qave.gt.qbest) then
              qbest=qave
              deepbest=deepave
