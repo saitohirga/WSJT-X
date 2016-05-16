@@ -219,7 +219,7 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
     x1=XfromFreq(m_rxFreq+750);
     painter2D.drawText(x1-4,y,"73");
   }
-  update();                    //trigger a new paintEvent
+  update();                                  //trigger a new paintEvent
   m_bScaleOK=true;
 }
 
@@ -228,41 +228,42 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   if(m_OverlayPixmap.isNull()) return;
   if(m_WaterfallPixmap.isNull()) return;
   int w = m_WaterfallPixmap.width();
-  int x,y,x1,x2,x3,x4,x5;
+  int x,y,x1,x2,x3,x4,x5,x6;
   float pixperdiv;
 
   double df = m_binsPerPixel*m_fftBinWidth;
   QRect rect;
-  {
-    QPainter painter(&m_OverlayPixmap);
-    painter.initFrom(this);
-    QLinearGradient gradient(0, 0, 0 ,m_h2);         //fill background with gradient
-    gradient.setColorAt(1, Qt::black);
-    gradient.setColorAt(0, Qt::darkBlue);
-    painter.setBrush(gradient);
-    painter.drawRect(0, 0, m_w, m_h2);
-    painter.setBrush(Qt::SolidPattern);
+  QPen penOrange(QColor(255,165,0),3);
+  QPen penGreen(Qt::green, 3);                 //Mark Tol range with green line
+  QPen penRed(Qt::red, 3);                   //Mark Tx freq with red
+  QPainter painter(&m_OverlayPixmap);
+  painter.initFrom(this);
+  QLinearGradient gradient(0, 0, 0 ,m_h2);         //fill background with gradient
+  gradient.setColorAt(1, Qt::black);
+  gradient.setColorAt(0, Qt::darkBlue);
+  painter.setBrush(gradient);
+  painter.drawRect(0, 0, m_w, m_h2);
+  painter.setBrush(Qt::SolidPattern);
 
-    pixperdiv = m_freqPerDiv/df;
-    m_hdivs = w*df/m_freqPerDiv + 1.9999;
+  pixperdiv = m_freqPerDiv/df;
+  m_hdivs = w*df/m_freqPerDiv + 1.9999;
 
-    float xx0=float(m_startFreq)/float(m_freqPerDiv);
-    xx0=xx0-int(xx0);
-    int x0=xx0*pixperdiv+0.5;
-    for( int i=1; i<m_hdivs; i++) {                  //draw vertical grids
-      x = (int)((float)i*pixperdiv ) - x0;
-      if(x >= 0 and x<=m_w) {
-        painter.setPen(QPen(Qt::white, 1,Qt::DotLine));
-        painter.drawLine(x, 0, x , m_h2);
-      }
+  float xx0=float(m_startFreq)/float(m_freqPerDiv);
+  xx0=xx0-int(xx0);
+  int x0=xx0*pixperdiv+0.5;
+  for( int i=1; i<m_hdivs; i++) {                  //draw vertical grids
+    x = (int)((float)i*pixperdiv ) - x0;
+    if(x >= 0 and x<=m_w) {
+      painter.setPen(QPen(Qt::white, 1,Qt::DotLine));
+      painter.drawLine(x, 0, x , m_h2);
     }
+  }
 
-    pixperdiv = (float)m_h2 / (float)VERT_DIVS;
-    painter.setPen(QPen(Qt::white, 1,Qt::DotLine));
-    for( int i=1; i<VERT_DIVS; i++) {                //draw horizontal grids
-      y = (int)( (float)i*pixperdiv );
-      painter.drawLine(0, y, w, y);
-    }
+  pixperdiv = (float)m_h2 / (float)VERT_DIVS;
+  painter.setPen(QPen(Qt::white, 1,Qt::DotLine));
+  for( int i=1; i<VERT_DIVS; i++) {                //draw horizontal grids
+    y = (int)( (float)i*pixperdiv );
+    painter.drawLine(0, y, w, y);
   }
 
   QRect rect0;
@@ -322,8 +323,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     if(m_nSubMode==5) bw=36*bw;
     if(m_nSubMode==6) bw=72*bw;
 
-    QPen pen0(Qt::green, 3);                 //Mark Tol range with green line
-    painter0.setPen(pen0);
+    painter0.setPen(penGreen);
     x1=XfromFreq(m_rxFreq-m_tol);
     x2=XfromFreq(m_rxFreq+m_tol);
     painter0.drawLine(x1,29,x2,29);
@@ -333,8 +333,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
       if(i==0) j=18;
       painter0.drawLine(x1,j,x1,30);
     }
-    QPen pen1(Qt::red, 3);                   //Mark Tx freq with red
-    painter0.setPen(pen1);
+    painter0.setPen(penRed);
     for(int i=0; i<4; i++) {
       x1=XfromFreq(m_txFreq+bw*i/3.0);
       painter0.drawLine(x1,12,x1,18);
@@ -358,8 +357,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     if(m_nSubMode==2) bw=4*bw;
   }
 
-  QPen pen0(Qt::green, 3);                 //Mark Rx Freq with green
-  painter0.setPen(pen0);
+  painter0.setPen(penGreen);
   if(m_mode=="WSPR-2") {                   //### WSPR-15 code needed here, too ###
     x1=XfromFreq(1400);
     x2=XfromFreq(1600);
@@ -368,18 +366,26 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65") {
 
     if(g_single_decode and m_mode=="JT65") {
+      painter0.setPen(penGreen);
       x1=XfromFreq(m_rxFreq-m_tol);
       x2=XfromFreq(m_rxFreq+m_tol);
       painter0.drawLine(x1,28,x2,28);
       x1=XfromFreq(m_rxFreq);
       painter0.drawLine(x1,24,x1,30);
-      x3=XfromFreq(m_rxFreq+20.0*bw/65.0);
+
+      painter0.setPen(penOrange);
+      x3=XfromFreq(m_rxFreq+20.0*bw/65.0);    //RO
       painter0.drawLine(x3,24,x3,30);
-      x4=XfromFreq(m_rxFreq+30.0*bw/65.0);
+      x4=XfromFreq(m_rxFreq+30.0*bw/65.0);    //RRR
       painter0.drawLine(x4,24,x4,30);
-      x5=XfromFreq(m_rxFreq+40.0*bw/65.0);
+      x5=XfromFreq(m_rxFreq+40.0*bw/65.0);    //73
       painter0.drawLine(x5,24,x5,30);
+      painter0.setPen(penGreen);
+      x6=XfromFreq(m_rxFreq+bw);             //Highest tone
+      painter0.drawLine(x6,24,x6,30);
+
     } else {
+      painter0.setPen(penGreen);
       x1=XfromFreq(m_rxFreq);
       x2=XfromFreq(m_rxFreq+bw);
       painter0.drawLine(x1,24,x1,30);
@@ -390,8 +396,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
 
   if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65" or
      m_mode.mid(0,4)=="WSPR") {
-    QPen pen1(Qt::red, 3);                   //Mark Tx freq with red
-    painter0.setPen(pen1);
+    painter0.setPen(penRed);
     x1=XfromFreq(m_txFreq);
     x2=XfromFreq(m_txFreq+bw);
     if(m_mode=="WSPR-2") {                  //### WSPR-15 code needed here, too
@@ -419,8 +424,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     x1=XfromFreq(f1);
     x2=XfromFreq(f2);
     if(x1<=m_w and x2>=0) {
-      QPen pen1(QColor(255,165,0),3);             //Mark WSPR sub-band orange
-      painter0.setPen(pen1);
+      painter0.setPen(penOrange);               //Mark WSPR sub-band orange
       painter0.drawLine(x1,9,x2,9);
     }
   }
