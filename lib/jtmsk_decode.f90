@@ -100,7 +100,7 @@ subroutine jtmsk_decode(id2,narg,line)
               if(msg(1:1).eq.'<') freq=freq2+idfpk
 !### Check freq values !!!
               write(line(nline),1020) nutc,nsnr,t0,nint(freq),msg
-1020          format(i6.6,i4,f5.1,i5,' & ',a22)
+1020          format(i6.6,i4,f5.1,i5,' &  ',a22)
               nsnr0=nsnr
               go to 900
            endif
