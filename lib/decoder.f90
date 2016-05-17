@@ -159,9 +159,12 @@ contains
 
     character*2 :: cqual
 
+!    write(*,3001) 'A',have_sync,is_deep,is_average,int(qual),ave,decoded
+!3001 format(a1,3L2,2i4,1x,a22)
     if (have_sync) then
+       write(cqual, '(i2)') int(qual)
+       if(int(qual).eq.99) cqual=' f'
        if (int(qual).gt.0) then
-          write(cqual, '(i2)') int(qual)
           if (ave.gt.0) then
              write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cqual,    &
                   char(ichar('A')+ich-1),ave
@@ -171,11 +174,16 @@ contains
           end if
        else
           if (ave.gt.0) then
-             write(*,1000) params%nutc,snr,dt,freq,sync,decoded,'*',    &
+             if(int(qual).eq.99) cqual=' f'
+             write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cqual,    &
                   char(ichar('A')+ich-1),ave
           else
-             write(*,1000) params%nutc,snr,dt,freq,sync,decoded,' *',        &
-                  char(ichar('A')+ich-1)
+             if(int(qual).le.0) then
+                write(*,1000) params%nutc,snr,dt,freq,sync
+             else
+                write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cqual,  &
+                     char(ichar('A')+ich-1)
+             endif
           endif
        end if
     else
