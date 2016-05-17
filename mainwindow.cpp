@@ -1854,7 +1854,10 @@ void MainWindow::decode()                                       //decode()
     }
   }
   dec_data.params.nfqso=m_wideGraph->rxFreq();
-  dec_data.params.ndepth=m_ndepth;
+  qint32 depth {m_ndepth};
+  if (!ui->actionInclude_averaging->isEnabled ()) depth &= ~16;
+  if (!ui->actionInclude_correlation->isEnabled ()) depth &= ~32;
+  dec_data.params.ndepth=depth;
   dec_data.params.n2pass=1;
   if(m_config.twoPass()) dec_data.params.n2pass=2;
   dec_data.params.nranera=m_config.ntrials();
@@ -2917,6 +2920,20 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   auto t4 = t3.replace (" CQ DX ", " CQ_DX ").split (" ", QString::SkipEmptyParts);
   if(t4.size () < 6) return;             //Skip the rest if no decoded text
 
+  int frequency = decodedtext.frequencyOffset();
+  if (ui->RxFreqSpinBox->isEnabled ())
+    {
+      ui->RxFreqSpinBox->setValue (frequency); //Set Rx freq
+    }
+  if (decodedtext.isTX())
+    {
+      if (ctrl && ui->TxFreqSpinBox->isEnabled ())
+        {
+          ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
+        }
+      return;
+    }
+
   int nmod=ntsec % (2*m_TRperiod);
   m_txFirst=(nmod!=0);
   ui->txFirstCheckBox->setChecked(m_txFirst);
@@ -2937,23 +2954,22 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
 
   // only allow automatic mode changes between JT9 and JT65, and when not transmitting
   if (!m_transmitting and m_mode == "JT9+JT65") {
-      if (decodedtext.isJT9())
-        {
-          m_modeTx="JT9";
-          ui->pbTxMode->setText("Tx JT9  @");
-          m_wideGraph->setModeTx(m_modeTx);
-        } else if (decodedtext.isJT65()) {
-          m_modeTx="JT65";
-          ui->pbTxMode->setText("Tx JT65  #");
-          m_wideGraph->setModeTx(m_modeTx);
-        }
-    } else if ((decodedtext.isJT9 () and m_modeTx != "JT9" and m_mode != "JT4") or
-               (decodedtext.isJT65 () and m_modeTx != "JT65" and m_mode != "JT4")) {
-      // if we are not allowing mode change then don't process decode
-      return;
+    if (decodedtext.isJT9())
+      {
+        m_modeTx="JT9";
+        ui->pbTxMode->setText("Tx JT9  @");
+        m_wideGraph->setModeTx(m_modeTx);
+      } else if (decodedtext.isJT65()) {
+      m_modeTx="JT65";
+      ui->pbTxMode->setText("Tx JT65  #");
+      m_wideGraph->setModeTx(m_modeTx);
     }
+  } else if ((decodedtext.isJT9 () and m_modeTx != "JT9" and m_mode != "JT4") or
+             (decodedtext.isJT65 () and m_modeTx != "JT65" and m_mode != "JT4")) {
+    // if we are not allowing mode change then don't process decode
+    return;
+  }
 
-  int frequency = decodedtext.frequencyOffset();
   QString firstcall = decodedtext.call();
   if(!m_bFastMode) {
   // Don't change Tx freq if in a fast mode; also not if a station is calling me,
@@ -2976,19 +2992,6 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
               m_config.color_CQ(), m_config.color_MyCall(), m_config.color_DXCC(),
               m_config.color_NewCall());
       m_QSOText=decodedtext;
-    }
-
-  if (ui->RxFreqSpinBox->isEnabled ())
-    {
-      ui->RxFreqSpinBox->setValue (frequency); //Set Rx freq
-    }
-  if (decodedtext.isTX())
-    {
-      if (ctrl && ui->TxFreqSpinBox->isEnabled ())
-        {
-          ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
-        }
-      return;
     }
 
   // prior DX call (possible QSO partner)
@@ -3599,8 +3602,8 @@ void MainWindow::on_actionJT9_triggered()
     m_fastGraph->show();
     ui->TxFreqSpinBox->setValue(700);
     ui->RxFreqSpinBox->setValue(700);
-    ui->decodedTextLabel->setText("UTC     dB   T  Freq   Message");
-    ui->decodedTextLabel2->setText("UTC     dB   T  Freq   Message");
+    ui->decodedTextLabel->setText("UTC     dB    T Freq    Message");
+    ui->decodedTextLabel2->setText("UTC     dB    T Freq    Message");
     ui->sbTR->setVisible(true);
   } else {
     m_TRperiod=60;
@@ -3645,8 +3648,8 @@ void MainWindow::on_actionJTMSK_triggered()
   m_fastGraph->show();
   ui->TxFreqSpinBox->setValue(1500);
   ui->RxFreqSpinBox->setValue(1500);
-  ui->decodedTextLabel->setText("UTC     dB   T  Freq   Message");
-  ui->decodedTextLabel2->setText("UTC     dB   T  Freq   Message");
+  ui->decodedTextLabel->setText("UTC     dB    T Freq    Message");
+  ui->decodedTextLabel2->setText("UTC     dB    T Freq    Message");
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
@@ -5010,11 +5013,11 @@ void MainWindow::replayDecodes ()
 void MainWindow::postDecode (bool is_new, QString const& message)
 {
   auto const& decode = message.trimmed ();
-  auto const& parts = decode.left (21).split (' ', QString::SkipEmptyParts);
+  auto const& parts = decode.left (22).split (' ', QString::SkipEmptyParts);
   if (parts.size () >= 5)
     {
       m_messageClient->decode (is_new, QTime::fromString (parts[0], "hhmm"), parts[1].toInt ()
-                               , parts[2].toFloat (), parts[3].toUInt (), parts[4][0], decode.mid (21));
+                               , parts[2].toFloat (), parts[3].toUInt (), parts[4][0], decode.mid (22));
     }
 }
 
