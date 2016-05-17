@@ -8,9 +8,7 @@ module jt65_decode
      procedure :: decode
   end type jt65_decoder
 
-  !
-  ! Callback function to be called with each decode
-  !
+! Callback function to be called with each decode
   abstract interface
      subroutine jt65_decode_callback(this,sync,snr,dt,freq,drift,     &
           nflip,width,decoded,ft,qual,nsmo,nsum,minsync)
@@ -41,7 +39,7 @@ contains
        ntol,nsubmode,minsync,nagain,n2pass,nrobust,ntrials,naggressive,   &
        ndepth,clearave,mycall,hiscall,hisgrid,nexp_decode)
 
-    !  Process dd0() data to find and decode JT65 signals.
+!  Process dd0() data to find and decode JT65 signals.
 
     use jt65_mod
     use timer_module, only: timer
@@ -98,12 +96,12 @@ contains
     robust=nrobust
     dd=dd0
     ndecoded=0
-    do ipass=1,n2pass                             ! 2-pass decoding loop
+    do ipass=1,n2pass                             !Two-pass decoding loop
        first_time=.true.
-       if(ipass.eq.1) then                         !first-pass parameters
+       if(ipass.eq.1) then                        !First-pass parameters
           thresh0=2.5
           nsubtract=1
-       elseif( ipass.eq.2 ) then !second-pass parameters
+       elseif( ipass.eq.2 ) then                  !Second-pass parameters
           thresh0=2.5
           nsubtract=0
        endif
@@ -133,12 +131,10 @@ contains
           amp=a(2)
           f0=(a(3)+ia-1)*df
           width=a(4)*df
-!          write(*,3001) baseline,amp,f0,width
-!3001      format('A',4f10.3)
        endif
 
-       ! robust = .false.: use float ccf. Only if ncand>50 fall back to robust (1-bit) ccf
-       ! robust = .true. : use only robust (1-bit) ccf
+! robust = .false.: use float ccf. Only if ncand>50 fall back to robust (1-bit) ccf
+! robust = .true. : use only robust (1-bit) ccf
        ncand=0
        if(.not.robust) then
           call timer('sync65  ',0)
@@ -164,7 +160,6 @@ contains
        endif
        nvec=ntrials
        if(ncand.gt.75) then
-          !      write(*,*) 'Pass ',ipass,' ncandidates too large ',ncand
           nvec=100
        endif
 
@@ -205,24 +200,18 @@ contains
                decoded.eq.'                      ') nflip=0
           if(nft.ne.0) nsum=1
 
-!          ncandidates=param(0)
           nhard_min=param(1)
-!          nsoft_min=param(2)
-!          nera_best=param(3)
           nrtt1000=param(4)
           ntotal_min=param(5)
-!          ntry=param(6)
-!          nq1000=param(7)
-!          npp1=param(8)
           nsmo=param(9)
 
           nfreq=nint(freq+a(1))
           ndrift=nint(2.0*a(2))
           if(single_decode) then
-             s2db=sync1 - 30.0 + db(width/3.3)        !### VHF/UHF/microwave
+             s2db=sync1 - 30.0 + db(width/3.3)       !### VHF/UHF/microwave
              if(nspecial.gt.0) s2db=sync2
           else
-             s2db=10.0*log10(sync2) - 35             !### empirical (HF) 
+             s2db=10.0*log10(sync2) - 35             !### Empirical (HF) 
           endif
           nsnr=nint(s2db)
           if(nsnr.lt.-30) nsnr=-30
@@ -247,14 +236,13 @@ contains
                    call this%callback(sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
                         nflip,width,avemsg,nftt,nqave,nsmo,nsum,minsync)
                    prtavg=.true.
-                   cycle
                 end if
 
              endif
           endif
 
           if(nftt.eq.1) then
-             nft=1
+!             nft=1
              decoded=avemsg
              go to 5
           endif
@@ -267,11 +255,10 @@ contains
              if(rtt.gt.r0(n)) cycle
           endif
 
-5         continue
-          if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
+5         if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
                minsync.ge.0) cycle                  !Don't display dupes
           if(decoded.ne.'                      ' .or. minsync.lt.0) then
-             if( nsubtract .eq. 1 ) then
+             if(nsubtract.eq.1) then
                 call timer('subtr65 ',0)
                 call subtract65(dd,npts,freq,dtx)
                 call timer('subtr65 ',1)
@@ -285,7 +272,7 @@ contains
                 endif
              enddo
 
-             if(ndupe.ne.1 .or. minsync.lt.0) then
+             if(ndupe.ne.1 .or. minsync.lt.0) then 
                 if(ipass.eq.1) n65a=n65a + 1
                 if(ipass.eq.2) n65b=n65b + 1
                 ndecoded=ndecoded+1
@@ -294,9 +281,10 @@ contains
                 dec(ndecoded)%sync=sync2
                 dec(ndecoded)%decoded=decoded
                 nqual=min(qual,9999.0)
+
                 if (associated(this%callback)) then
                    call this%callback(sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
-                        nflip,width,decoded,nft,nqual,nsmo,nsum,minsync)
+                        nflip,width,decoded,nft,nqual,nsmo,1,minsync)
                 end if
              endif
              decoded0=decoded
@@ -447,7 +435,7 @@ contains
        enddo
 
        nadd=nsum*ismo
-       call extract(s3c,nadd,mode65,ntrials,naggressive,ndepth,mycall,    &
+       call extract(s3c,nadd,mode65,ntrials,naggressive,ndepth,nflip,mycall, &
             hiscall,hisgrid,nexp_decode,ncount,nhist,avemsg,ltext,nftt,qual)
        if(nftt.eq.1) then
           nsmo=ismo

@@ -1,4 +1,4 @@
-subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
+subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,nflip,   &
      mycall,hiscall,hisgrid,nexp_decode,qual,decoded)
 
   use packjt
@@ -65,7 +65,10 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
         grid2(j)=grid
      enddo
 10   ncalls=j
-     if(ncalls.lt.10) stop 'CALL3.TXT very short or missing?'
+     if(ncalls.lt.10) then
+        write(*,1010) ncalls
+1010    format('CALL3.TXT very short (N =',i2,') or missing?')
+     endif
      close(23)
 
 ! NB: generation of test messages is not yet complete!
@@ -111,7 +114,6 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
   u1=0.
   u1=-99.0
   u2=u1
-!  dtotal=199.0
 
 ! Find u1 and u2 (best and second-best) codeword from a list, using 
 ! a bank of matched filters on the symbol spectra s3(i,j).
@@ -119,9 +121,9 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
   ipk2=0
   msg00='                      '
   do k=1,nused
-     if(k.ge.2 .and. k.le.64 .and. flip.lt.0.0) cycle
-! Test all messages if flip=+1; skip the CQ messages if flip=-1.
-     if(flip.gt.0.0 .or. msg0(k)(1:3).ne.'CQ ') then
+     if(k.ge.2 .and. k.le.64 .and. nflip.lt.0) cycle
+! Test all messages if nflip=+1; skip the CQ messages if nflip=-1.
+     if(nflip.gt.0 .or. msg0(k)(1:3).ne.'CQ ') then
         psum=0.
         ref=ref0
         do j=1,63
@@ -145,8 +147,6 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,flip,   &
            ipk2=k
         endif
      endif
-!     write(91,3401) k,p,u1,u2,ipk,ipk2,msg0(k)
-!3401  format(i6,3f9.3,2i6,2x,a22)
   enddo
 
 !### Just in case ???
