@@ -56,11 +56,11 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
         if(nfsample.eq.12000) call wav11(id2,jz,dd)
         if(nfsample.eq.11025) dd(1:jz)=id2(1:jz)
      endif
-     call my_jt4%decode(jt4_decoded,dd,jz,params%nutc,params%nfqso,params%ntol,             &
-          params%emedelay,params%dttol,logical(params%nagain),params%ndepth,                &
-          logical (params%nclearave),params%minsync,params%minw,params%nsubmode,            &
-          params%mycall,params%hiscall,params%hisgrid,params%nlist,params%listutc,          &
-          jt4_average)
+     call my_jt4%decode(jt4_decoded,dd,jz,params%nutc,params%nfqso,         &
+          params%ntol,params%emedelay,params%dttol,logical(params%nagain),  &
+          params%ndepth,logical(params%nclearave),params%minsync,           &
+          params%minw,params%nsubmode,params%mycall,params%hiscall,         &
+          params%hisgrid,params%nlist,params%listutc,jt4_average)
      go to 800
   endif
 
@@ -75,12 +75,12 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   newdat65=params%newdat
   newdat9=params%newdat
 
-  !$call omp_set_dynamic(.true.)
-  !$omp parallel sections num_threads(2) copyin(/timer_private/) shared(ndecoded) if(.true.) !iif() needed on Mac
+!$call omp_set_dynamic(.true.)
+!$omp parallel sections num_threads(2) copyin(/timer_private/) shared(ndecoded) if(.true.) !iif() needed on Mac
 
-  !$omp section
+!$omp section
   if(params%nmode.eq.65 .or. (params%nmode.eq.(65+9) .and. params%ntxmode.eq.65)) then
-     ! We're in JT65 mode, or should do JT65 first
+! We're in JT65 mode, or should do JT65 first
      if(newdat65) dd(1:npts65)=id2(1:npts65)
      nf1=params%nfa
      nf2=params%nfb
@@ -94,7 +94,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      call timer('jt65a   ',1)
 
   else if(params%nmode.eq.9 .or. (params%nmode.eq.(65+9) .and. params%ntxmode.eq.9)) then
-     ! We're in JT9 mode, or should do JT9 first
+! We're in JT9 mode, or should do JT9 first
      call timer('decjt9  ',0)
      call my_jt9%decode(jt9_decoded,ss,id2,params%nfqso,       &
           newdat9,params%npts8,params%nfa,params%nfsplit,params%nfb,       &
@@ -103,8 +103,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      call timer('decjt9  ',1)
   endif
 
-  !$omp section
-  if(params%nmode.eq.(65+9)) then          !Do the other mode (we're in dual mode)
+!$omp section
+  if(params%nmode.eq.(65+9)) then       !Do the other mode (we're in dual mode)
      if (params%ntxmode.eq.9) then
         if(newdat65) dd(1:npts65)=id2(1:npts65)
         nf1=params%nfa
@@ -127,9 +127,9 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      end if
   endif
 
-  !$omp end parallel sections
+!$omp end parallel sections
 
-  ! JT65 is not yet producing info for nsynced, ndecoded.
+! JT65 is not yet producing info for nsynced, ndecoded.
   ndecoded = my_jt4%decoded + my_jt65%decoded + my_jt9%decoded
 800 write(*,1010) nsynced,ndecoded
 1010 format('<DecodeFinished>',2i4)
@@ -159,18 +159,21 @@ contains
 
     character*2 :: cqual
 
+    write(*,3101) 'A',is_deep,is_average,qual,decoded
+3101 format(a1,2L3,f6.1,1x,a22)
+
     if (have_sync) then
        if (int(qual).gt.0) then
           write(cqual, '(i2)') int(qual)
           if (ave.gt.0) then
-             write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cqual,           &
+             write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cqual,    &
                   char(ichar('A')+ich-1), ave
           else
-             write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cqual,           &
+             write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cqual,    &
                   char(ichar('A')+ich-1)
           end if
        else
-          write(*,1000) params%nutc,snr,dt,freq,sync,decoded,' *',               &
+          write(*,1000) params%nutc,snr,dt,freq,sync,decoded,' *',        &
                char(ichar('A')+ich-1)
        end if
     else
@@ -229,12 +232,7 @@ contains
     data c/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
 
 !$omp critical(decode_results)
-!    write(*,3301) ft,qual,nsmo,nsum,minsync,naggressive,sync    !###
-!3301 format('decoded.f90:',6i3,f5.1)        !###
-
     decoded=decoded0
-!    fmt='(i4.4,i4,f5.1,i5,1x,a1,1x,a22,a5)'
-!    if(single_decode) fmt='(i4.4,i4,f5.1,i5,1x,a2,1x,a22,a5)'
     if(ft.eq.0 .and. minsync.ge.0 .and. int(sync).lt.minsync) then
        write(*,1010) params%nutc,snr,dt,freq
     else
@@ -254,7 +252,9 @@ contains
           endif
        endif
        csync='# '
-       if(single_decode .and. nflip.ne.0 .and. sync.ge.max(0.0,float(minsync))) then
+       i=0
+       if(single_decode .and. nflip.ne.0 .and.                         &
+            sync.ge.max(0.0,float(minsync))) then
           csync='#*'
           if(nflip.eq.-1) then
              csync='##'
@@ -262,6 +262,8 @@ contains
                 do i=22,1,-1
                    if(decoded(i:i).ne.' ') exit
                 enddo
+!                write(*,*) 'C',i,decoded
+                if(i.gt.18) i=18
                 decoded(i+2:i+4)='OOO'
              endif
           endif
@@ -270,7 +272,8 @@ contains
 1010   format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,a5)
     endif
 
-    write(13,1012) params%nutc,nint(sync),snr,dt,float(freq),drift,decoded,ft,nsum,nsmo
+    write(13,1012) params%nutc,nint(sync),snr,dt,float(freq),drift,    &
+         decoded,ft,nsum,nsmo
 1012 format(i4.4,i4,i5,f6.2,f8.0,i4,3x,a22,' JT65',3i3)
     call flush(6)
 

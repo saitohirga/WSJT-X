@@ -240,6 +240,7 @@ contains
 ! If this is a new minute or a new frequency, call avg4
        if(.not. prtavg) then
           if(nutc.ne.nutc0 .or. abs(nfreq-nfreq0).gt.ntol) then
+! This is a new minute or a new frequency, so call avg4.
              nutc0=nutc                                   !Try decoding average
              nfreq0=nfreq
              nsave=nsave+1

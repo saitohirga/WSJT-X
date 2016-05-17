@@ -17,8 +17,8 @@ subroutine decode65b(s2,nflip,nadd,mode65,ntrials,naggressive,ndepth,      &
      enddo
   enddo
 
-  call extract(s3,nadd,mode65,ntrials,naggressive,ndepth,mycall,hiscall,  &
-       hisgrid,nexp_decode,ncount,nhist,decoded,ltext,nft,qual)
+  call extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,mycall,   &
+       hiscall,hisgrid,nexp_decode,ncount,nhist,decoded,ltext,nft,qual)
 
 ! Suppress "birdie messages" and other garbage decodes:
   if(decoded(1:7).eq.'000AAA ') ncount=-1
