@@ -938,7 +938,7 @@ void MainWindow::dataSink(qint64 frames)
   QString t;
   m_pctZap=m_nzap*100.0/m_nsps; // TODO: this is currently redundant
   t.sprintf(" Rx noise: %5.1f ",m_px);
-  ui->signal_meter_widget->setValue(m_px); // Update thermometer
+  if (ui) ui->signal_meter_widget->setValue(m_px); // Update thermometer
   if(m_monitoring || m_diskData) {
     m_wideGraph->dataSink2(s,m_df3,m_ihsym,m_diskData);
   }
@@ -976,7 +976,7 @@ void MainWindow::dataSink(qint64 frames)
       t.sprintf("%3d %7.1f %7.1f %7.1f %7.1f %3d",echocom_.nsum,xlevel,sigdb,
                 dfreq,width,nqual);
       t=QDateTime::currentDateTimeUtc().toString("hh:mm:ss  ") + t;
-      ui->decodedTextBrowser->appendText(t);
+      if (ui) ui->decodedTextBrowser->appendText(t);
       if(m_echoGraph->isVisible()) m_echoGraph->plotSpec();
       m_nclearave=0;
 //Don't restart Monitor after an Echo transmission
@@ -1039,12 +1039,12 @@ void MainWindow::dataSink(qint64 frames)
       QString t3=cmnd;
       int i1=cmnd.indexOf("/wsprd ");
       cmnd=t3.mid(0,i1+7) + t3.mid(i1+7);
-      ui->DecodeButton->setChecked (true);
+      if (ui) ui->DecodeButton->setChecked (true);
       p1.start(QDir::toNativeSeparators(cmnd));
-      m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
-                                      QString::number (ui->rptSpinBox->value ()),
-                                      m_modeTx, ui->autoButton->isChecked (),
-                                      m_transmitting, (m_decoderBusy = true));
+      if (ui) m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
+                                              QString::number (ui->rptSpinBox->value ()),
+                                              m_modeTx, ui->autoButton->isChecked (),
+                                              m_transmitting, (m_decoderBusy = true));
     }
     m_rxDone=true;
   }
