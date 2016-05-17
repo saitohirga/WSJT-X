@@ -159,27 +159,30 @@ contains
 
     character*2 :: cqual
 
-    write(*,3101) 'A',is_deep,is_average,qual,decoded
-3101 format(a1,2L3,f6.1,1x,a22)
-
     if (have_sync) then
        if (int(qual).gt.0) then
           write(cqual, '(i2)') int(qual)
           if (ave.gt.0) then
              write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cqual,    &
-                  char(ichar('A')+ich-1), ave
+                  char(ichar('A')+ich-1),ave
           else
              write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cqual,    &
                   char(ichar('A')+ich-1)
           end if
        else
-          write(*,1000) params%nutc,snr,dt,freq,sync,decoded,' *',        &
-               char(ichar('A')+ich-1)
+          if (ave.gt.0) then
+             write(*,1000) params%nutc,snr,dt,freq,sync,decoded,'*',    &
+                  char(ichar('A')+ich-1),ave
+          else
+             write(*,1000) params%nutc,snr,dt,freq,sync,decoded,' *',        &
+                  char(ichar('A')+ich-1)
+          endif
        end if
     else
        write(*,1000) params%nutc,snr,dt,freq
     end if
-1000 format(i4.4,i4,f5.2,i5,1x,'$',a1,1x,a22,a2,1x,a1,i3)
+1000 format(i4.4,i4,f5.1,i5,1x,'$',a1,1x,a22,a2,1x,a1,i3)
+
     select type(this)
     type is (counting_jt4_decoder)
        this%decoded = this%decoded + 1

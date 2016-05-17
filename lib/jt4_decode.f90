@@ -7,9 +7,7 @@ module jt4_decode
      procedure, private :: wsjt4, avg4
   end type jt4_decoder
 
-  !
-  ! Callback function to be called with each decode
-  !
+! Callback function to be called with each decode
   abstract interface
      subroutine jt4_decode_callback (this, snr, dt, freq, have_sync,     &
           sync, is_deep, decoded, qual, ich, is_average, ave)
@@ -30,9 +28,7 @@ module jt4_decode
      end subroutine jt4_decode_callback
   end interface
 
-  !
-  ! Callback function to be called with each average result
-  !
+! Callback function to be called with each average result
   abstract interface
      subroutine jt4_average_callback (this, used, utc, sync, dt, freq, flip)
        import jt4_decoder
@@ -86,13 +82,6 @@ contains
     call lpf1(dd,jz,dat,jz2)
     call timer('lpf1    ',1)
 
-    !i=index(MyCall,char(0))
-    !if(i.le.0) i=index(MyCall,' ')
-    !mycall=MyCall(1:i-1)//'            '
-    !i=index(HisCall,char(0))
-    !if(i.le.0) i=index(HisCall,' ')
-    !hiscall=HisCall(1:i-1)//'            '
-
     write(cfile6(1:4),1000) nutc
 1000 format(i4.4)
     cfile6(5:6)='  '
@@ -137,7 +126,6 @@ contains
        blank='                      '
        ccfblue=0.
        ccfred=0.
-       !nagain=.false.
     endif
 
     zz=0.
@@ -166,7 +154,7 @@ contains
     call timer('sync4   ',1)
 
     call timer('zplt    ',0)
-    do ich=4,7
+    do ich=1,7
        z(1:458,1:65)=zz(274:731,1:65,ich)
        call zplt(z,ich-4,syncz,dtxz,nfreqz,flipz,sync2z,0,emedelay,dttol,     &
             nfqso,ntol)
@@ -178,7 +166,7 @@ contains
     call timer('zplt    ',1)
 
 ! Use results from zplt
-!### NB: JT4 is severely "sync limited" at present...
+!### NB: JT4 is severely "sync limited" at present...  (Maybe not still true???)
 
     flip=flipz
     sync=syncz
@@ -207,7 +195,6 @@ contains
     do idt=-2,2
        dtx=dtxz + 0.03*idt
        nfreq=nfreqz + 2*idf
-
 
 ! Attempt a single-sequence decode, including deep4 if Fano fails.
        call timer('decode4 ',0)
@@ -253,7 +240,7 @@ contains
           endif
 
           if(nfanoave.gt.0) then
-             ! Fano succeeded: report the message                   AVG FANO OK
+! Fano succeeded: report the message                       AVG FANO OK
              if (associated (this%decode_callback)) then
                 call this%decode_callback(nsnr,dtx,nfreq,.true.,csync,   &
                      .false.,avemsg,0.,ich,.true.,nfanoave)
@@ -277,6 +264,7 @@ contains
     deepmsg=deepmsg0
     ich=ich0
     qual=qbest
+
     if (associated (this%decode_callback)) then
        if(int(qual).ge.nq1) then
           call this%decode_callback(nsnr,dtx,nfreqz,.true.,csync,.true., &
@@ -292,7 +280,8 @@ contains
     deepave=deepave1
     ich=ich1
     qave=qabest
-    if (associated (this%decode_callback)) then
+
+    if (associated (this%decode_callback) .and. ndeepave.ge.2) then
        if(int(qave).ge.nq1) then
           call this%decode_callback(nsnr,dtx,nfreq,.true.,csync,.true.,  &
                deepave,qave,ich,.true.,ndeepave)
@@ -347,7 +336,7 @@ contains
     do i=1,64
        cused(i)='.'
        if(iutc(i).lt.0) cycle
-       if(mod(iutc(i),2).ne.mod(nutc,2)) cycle  !Use only same (odd/even) sequence
+       if(mod(iutc(i),2).ne.mod(nutc,2)) cycle  !Use only same sequence
        if(abs(dtxx-dtsave(i)).gt.dtdiff) cycle  !DT must match
        if(abs(nfreq-nfsave(i)).gt.ntol) cycle   !Freq must match
        if(flip.ne.flipsave(i)) cycle            !Sync (*/#) must match
@@ -412,7 +401,6 @@ contains
     qave=0.
 
 ! Possibly should pass nadd=nused, also ?
-!    if(ndepth.ge.3) then
     if(iand(ndepth,32).eq.32) then
        flipx=1.0                     !Normal flip not relevant for ave msg
        qbest=0.
