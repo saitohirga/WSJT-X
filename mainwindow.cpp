@@ -4933,7 +4933,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
   if (decode_parts.contains ("CQ") || decode_parts.contains ("QRZ"))
     {
       // a message we are willing to accept
-      QString format_string {"%1 %2 %3 %4 %5 %6"};
+      QString format_string {"%1 %2 %3 %4 %5  %6"};
       auto cqtext = format_string.arg (time.toString ("hhmm"))
                                                     .arg (snr, 3)
                                                     .arg (delta_time, 4, 'f', 1)
