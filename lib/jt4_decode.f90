@@ -206,7 +206,7 @@ contains
 ! Fano succeeded: report the message and return              !Fano OK
           if (associated (this%decode_callback)) then
              call this%decode_callback(nsnr,dtx,nfreq,.true.,csync,      &
-                  .false.,decoded,0.,ich,.false.,0)
+                  .false.,decoded,99.,ich,.false.,0)
           end if
           nsave=0
           go to 990
@@ -243,7 +243,7 @@ contains
 ! Fano succeeded: report the message                       AVG FANO OK
              if (associated (this%decode_callback)) then
                 call this%decode_callback(nsnr,dtx,nfreq,.true.,csync,   &
-                     .false.,avemsg,0.,ich,.true.,nfanoave)
+                     .false.,avemsg,99.,ich,.true.,nfanoave)
              end if
              prtavg=.true.
              cycle
