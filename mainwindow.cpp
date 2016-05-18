@@ -897,6 +897,9 @@ void MainWindow::setDecodedTextFont (QFont const& font)
   auto style_sheet = "QLabel {" + font_as_stylesheet (font) + '}';
   ui->decodedTextLabel->setStyleSheet (ui->decodedTextLabel->styleSheet () + style_sheet);
   ui->decodedTextLabel2->setStyleSheet (ui->decodedTextLabel2->styleSheet () + style_sheet);
+  if (m_msgAvgWidget) {
+    m_msgAvgWidget->changeFont (font);
+  }
   updateGeometry ();
 }
 
@@ -1619,7 +1622,7 @@ void MainWindow::on_actionMessage_averaging_triggered()
 {
   if (!m_msgAvgWidget)
     {
-      m_msgAvgWidget.reset (new MessageAveraging {m_settings});
+      m_msgAvgWidget.reset (new MessageAveraging {m_settings, m_config.decoded_text_font ()});
 
       // Connect signals from Message Averaging window
       connect (this, &MainWindow::finished, m_msgAvgWidget.data (), &MessageAveraging::close);
