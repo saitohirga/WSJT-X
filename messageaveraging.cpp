@@ -1,17 +1,22 @@
 #include "messageaveraging.h"
 #include <QSettings>
 #include <QApplication>
+#include <QTextCharFormat>
+
+#include "SettingsGroup.hpp"
+#include "qt_helpers.hpp"
 #include "ui_messageaveraging.h"
-#include "commons.h"
 #include "moc_messageaveraging.cpp"
 
-MessageAveraging::MessageAveraging(QSettings * settings, QWidget *parent) :
+MessageAveraging::MessageAveraging(QSettings * settings, QFont const& font, QWidget *parent) :
   QWidget(parent),
   settings_ {settings},
   ui(new Ui::MessageAveraging)
 {
   ui->setupUi(this);
   setWindowTitle (QApplication::applicationName () + " - " + tr ("Message Averaging"));
+  ui->msgAvgPlainTextEdit->setReadOnly (true);
+  changeFont (font);
   read_settings ();
 }
 
@@ -19,6 +24,33 @@ MessageAveraging::~MessageAveraging()
 {
   if (isVisible ()) write_settings ();
   delete ui;
+}
+
+void MessageAveraging::changeFont (QFont const& font)
+{
+  ui->header_label->setStyleSheet (font_as_stylesheet (font));
+  ui->msgAvgPlainTextEdit->setStyleSheet (font_as_stylesheet (font));
+  setContentFont (font);
+  updateGeometry ();
+}
+
+void MessageAveraging::setContentFont(QFont const& font)
+{
+  ui->msgAvgPlainTextEdit->setFont (font);
+  QTextCharFormat charFormat;
+  charFormat.setFont (font);
+  ui->msgAvgPlainTextEdit->selectAll ();
+  auto cursor = ui->msgAvgPlainTextEdit->textCursor ();
+  cursor.mergeCharFormat (charFormat);
+  cursor.clearSelection ();
+  cursor.movePosition (QTextCursor::End);
+
+  // position so viewport scrolled to left
+  cursor.movePosition (QTextCursor::Up);
+  cursor.movePosition (QTextCursor::StartOfLine);
+
+  ui->msgAvgPlainTextEdit->setTextCursor (cursor);
+  ui->msgAvgPlainTextEdit->ensureCursorVisible ();
 }
 
 void MessageAveraging::closeEvent (QCloseEvent * e)
@@ -29,19 +61,17 @@ void MessageAveraging::closeEvent (QCloseEvent * e)
 
 void MessageAveraging::read_settings ()
 {
-  settings_->beginGroup ("MessageAveraging");
+  SettingsGroup group {settings_, "MessageAveraging"};
   restoreGeometry (settings_->value ("window/geometry").toByteArray ());
-  settings_->endGroup ();
 }
 
 void MessageAveraging::write_settings ()
 {
-  settings_->beginGroup ("MessageAveraging");
+  SettingsGroup group {settings_, "MessageAveraging"};
   settings_->setValue ("window/geometry", saveGeometry ());
-  settings_->endGroup ();
 }
 
-void MessageAveraging::displayAvg(QString t)
+void MessageAveraging::displayAvg(QString const& t)
 {
-  ui->msgAvgTextBrowser->setText(t);
+  ui->msgAvgPlainTextEdit->setPlainText(t);
 }
