@@ -62,7 +62,7 @@ contains
     character(len=6), intent(in) :: hisgrid
     procedure(jt4_average_callback), optional :: average_callback
 
-    real*4 dat(30*12000)
+    real*4 dat(30*11025)
     character*6 cfile6
 
     this%decode_callback => decode_callback
@@ -158,15 +158,18 @@ contains
        z(1:458,1:65)=zz(274:731,1:65,ich)
        call zplt(z,ich-4,syncz,dtxz,nfreqz,flipz,sync2z,0,emedelay,dttol,     &
             nfqso,ntol)
-       if(ich.eq.5) then
-          dtxzz=dtxz
-          nfreqzz=nfreqz
-       endif
     enddo
     call timer('zplt    ',1)
 
 ! Use results from zplt
 !### NB: JT4 is severely "sync limited" at present...  (Maybe not still true???)
+
+!###  TESTS ONLY! ###
+    nfreqz=1000
+    dtxz=0.0
+    flipz=1.0
+    syncz=5.0
+!###
 
     flip=flipz
     sync=syncz

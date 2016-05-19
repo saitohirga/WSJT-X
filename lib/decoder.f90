@@ -142,7 +142,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 contains
 
   subroutine jt4_decoded(this,snr,dt,freq,have_sync,sync,is_deep,    &
-       decoded,qual,ich,is_average,ave)
+       decoded0,qual,ich,is_average,ave)
     implicit none
     class(jt4_decoder), intent(inout) :: this
     integer, intent(in) :: snr
@@ -151,45 +151,35 @@ contains
     logical, intent(in) :: have_sync
     logical, intent(in) :: is_deep
     character(len=1), intent(in) :: sync
-    character(len=22), intent(in) :: decoded
+    character(len=22), intent(in) :: decoded0
     real, intent(in) :: qual
     integer, intent(in) :: ich
     logical, intent(in) :: is_average
     integer, intent(in) :: ave
 
-    character*2 :: cqual
+    character*22 decoded
+    character*3 cflags
 
-!    write(*,3001) 'A',have_sync,is_deep,is_average,int(qual),ave,decoded
-!3001 format(a1,3L2,2i4,1x,a22)
     if (have_sync) then
-       write(cqual, '(i2)') int(qual)
-       if(int(qual).eq.99) cqual=' f'
-       if (int(qual).gt.0) then
-          if (ave.gt.0) then
-             write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cqual,    &
-                  char(ichar('A')+ich-1),ave
-          else
-             write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cqual,    &
-                  char(ichar('A')+ich-1)
-          end if
-       else
-          if (ave.gt.0) then
-             if(int(qual).eq.99) cqual=' f'
-             write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cqual,    &
-                  char(ichar('A')+ich-1),ave
-          else
-             if(int(qual).le.0) then
-                write(*,1000) params%nutc,snr,dt,freq,sync
-             else
-                write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cqual,  &
-                     char(ichar('A')+ich-1)
-             endif
-          endif
-       end if
+       decoded=decoded0
+!       write(*,3001) 'A',is_deep,is_average,int(qual),ave,decoded
+!3001   format(a1,2L2,2i4,1x,a22)
+       cflags='f  '
+       if(is_deep) then
+          cflags(1:2)='d1'
+          write(cflags(3:3),'(i1)') min(int(qual),9)
+          if(qual.ge.10.0) cflags(3:3)='*'
+          if(qual.lt.3.0) decoded(22:22)='?'
+       endif
+       if(is_average) then
+          write(cflags(2:2),'(i1)') min(ave,9)
+          if(ave.ge.10) cflags(2:2)='*'
+       endif
+       write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cflags
+1000   format(i4.4,i4,f5.1,i5,1x,'$',a1,1x,a22,1x,a3)
     else
        write(*,1000) params%nutc,snr,dt,freq
     end if
-1000 format(i4.4,i4,f5.1,i5,1x,'$',a1,1x,a22,a2,1x,a1,i3)
 
     select type(this)
     type is (counting_jt4_decoder)
@@ -238,28 +228,28 @@ contains
     integer, intent(in) :: minsync
 
     integer i,n
-    character*5 ctail,decoded*22,csync*2
-    character*36 c
-    data c/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
+    logical have_sync,is_deep,is_average
+    character decoded*22,csync*2,cflags*3
 
 !$omp critical(decode_results)
     decoded=decoded0
     if(ft.eq.0 .and. minsync.ge.0 .and. int(sync).lt.minsync) then
        write(*,1010) params%nutc,snr,dt,freq
     else
-       ctail='     '
+       cflags='   '
+       is_deep=ft.eq.2
+       is_average=nsum.ge.2
        if(params%naggressive.gt.0 .and. ft.gt.0) then
-          ctail(1:1)='d'
-          if(ft.eq.1) ctail(1:1)='f'
-          n=max(2,nsum+1)
-          n=min(n,36)
-          ctail(2:2)=c(n:n)
-          n=min(nsmo+1,36)
-          if(params%nsubmode.gt.0) ctail(3:3)=c(n:n)
-          if(ft.eq.2) then
-             ctail(5:5)='*'
-             if(qual.le.9) ctail(5:5)=char(48+qual)
-             if(qual.lt.3) decoded(21:21)='?'
+          cflags='f  '
+          if(is_deep) then
+             cflags(1:2)='d1'
+             write(cflags(3:3),'(i1)') min(qual,9)
+             if(qual.ge.10) cflags(3:3)='*'
+             if(qual.lt.3) decoded(22:22)='?'
+          endif
+          if(is_average) then
+             write(cflags(2:2),'(i1)') min(nsum,9)
+             if(nsum.ge.10) cflags(2:2)='*'
           endif
        endif
        csync='# '
@@ -273,14 +263,13 @@ contains
                 do i=22,1,-1
                    if(decoded(i:i).ne.' ') exit
                 enddo
-!                write(*,*) 'C',i,decoded
                 if(i.gt.18) i=18
                 decoded(i+2:i+4)='OOO'
              endif
           endif
        endif
-       write(*,1010) params%nutc,snr,dt,freq,csync,decoded,ctail
-1010   format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,a5)
+       write(*,1010) params%nutc,snr,dt,freq,csync,decoded,cflags
+1010   format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,1x,a3)
     endif
 
     write(13,1012) params%nutc,nint(sync),snr,dt,float(freq),drift,    &

@@ -2072,11 +2072,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
     QByteArray t=proc_jt9.readLine();
     bool bAvgMsg=false;
     int navg=0;
-    if(m_mode=="JT4") {
-        t=t.mid(0,39) + t.mid(42,t.length()-42);
-        bAvgMsg=(t.length()>49);
-    }
-    if(m_mode=="JT65") {
+    if(m_mode=="JT4" or m_mode=="JT65") {
       int n=t.indexOf("f");
       if(n<0) n=t.indexOf("d");
       if(n>0) {
