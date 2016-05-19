@@ -327,6 +327,7 @@ set (wsjt_FSRCS
   lib/filbig.f90
   lib/flat1.f90
   lib/flat1a.f90
+  lib/flat1b.f90
   lib/flat2.f90
   lib/flat4.f90
   lib/flat65.f90
@@ -352,7 +353,6 @@ set (wsjt_FSRCS
   lib/hashing.f90
   lib/hint65.f90
   lib/hspec.f90
-  lib/image.f90
   lib/indexx.f90
   lib/init_random_seed.f90
   lib/interleave4.f90
@@ -430,7 +430,6 @@ set (wsjt_FSRCS
   lib/wavhdr.f90
   lib/xcor.f90
   lib/xcor4.f90
-  lib/zplt.f90
   lib/wavhdr.f90
   lib/wqencode.f90
   lib/wspr_downsample.f90
