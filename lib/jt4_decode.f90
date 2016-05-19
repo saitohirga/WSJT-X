@@ -110,9 +110,13 @@ contains
     logical, intent(in) :: NAgain,NClearAve
     character(len=12), intent(in) :: mycall,hiscall
     character(len=6), intent(in) :: hisgrid
-
     real, intent(in) :: dat(npts) !Raw data
-    real z(458,65)
+
+    real ccfblue(-5:540)                             !CCF in time
+    real ccfred(-224:224)                            !CCF in frequency
+    real ps0(450)
+
+!    real z(458,65)
     logical first,prtavg
     character decoded*22,special*5
     character*22 avemsg,deepmsg,deepave,blank,deepmsg0,deepave1
@@ -129,7 +133,8 @@ contains
     endif
 
     zz=0.
-    syncmin=3.0 + minsync
+!    syncmin=3.0 + minsync
+    syncmin=1.0+minsync
     naggressive=0
     if(ndepth.ge.2) naggressive=1
     nq1=3
@@ -150,29 +155,14 @@ contains
 
 ! Attempt to synchronize: look for sync pattern, get DF and DT.
     call timer('sync4   ',0)
-    call sync4(dat,npts,mode4,minw)
+    mousedf=nint(nfqso + 1.5*4.375*mode4 - 1270.46)
+    call sync4(dat,npts,ntol,1,MouseDF,4,mode4,minw+1,dtx,dfx,    &
+         snrx,snrsync,ccfblue,ccfred,flip,width,ps0)
+    sync=snrsync
+    dtxz=dtx-0.8
+    nfreqz=dfx + 1270.46 - 1.5*4.375*mode4
     call timer('sync4   ',1)
 
-    call timer('zplt    ',0)
-    do ich=1,7
-       z(1:458,1:65)=zz(274:731,1:65,ich)
-       call zplt(z,ich-4,syncz,dtxz,nfreqz,flipz,sync2z,0,emedelay,dttol,     &
-            nfqso,ntol)
-    enddo
-    call timer('zplt    ',1)
-
-! Use results from zplt
-!### NB: JT4 is severely "sync limited" at present...  (Maybe not still true???)
-
-!###  TESTS ONLY! ###
-    nfreqz=1000
-    dtxz=0.0
-    flipz=1.0
-    syncz=5.0
-!###
-
-    flip=flipz
-    sync=syncz
     snrx=db(sync) - 26.
     nsnr=nint(snrx)
     if(sync.lt.syncmin) then
@@ -368,7 +358,7 @@ contains
        if(flipsave(i).lt.0.0) csync='#'
        if (associated (this%average_callback)) then
           call this%average_callback(cused(i) .eq. '$',iutc(i),               &
-               syncsave(i) - 5.,dtsave(i),nfsave(i),flipsave(i) .lt.0.)
+               syncsave(i),dtsave(i),nfsave(i),flipsave(i).lt.0.)
        end if
     enddo
 

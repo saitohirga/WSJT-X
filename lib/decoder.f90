@@ -162,9 +162,8 @@ contains
 
     if (have_sync) then
        decoded=decoded0
-!       write(*,3001) 'A',is_deep,is_average,int(qual),ave,decoded
-!3001   format(a1,2L2,2i4,1x,a22)
-       cflags='f  '
+       cflags='   '
+       if(decoded.ne.'                      ') cflags='f  '
        if(is_deep) then
           cflags(1:2)='d1'
           write(cflags(3:3),'(i1)') min(int(qual),9)
