@@ -204,12 +204,12 @@ automake
 libtool
 pkgconfig
 texinfo
-gcc49
+gcc5
 fftw-3-single +gcc5
 asciidoc
 libusb-devel
 
-These are install by typing:
+These are installed by typing:
 
 $ sudo port install autoconf automake \
    libtool pkgconfig texinfo gcc5 asciidoc \
@@ -267,7 +267,9 @@ NOTE: As of Qt  v5.4 building Qt from source on Mac OS  X is no longer
 necessary since the  Qt team have switched to using  the modern libc++
 Standard    C++   Library    for    all    distributable   run    time
 components. Instead you may simply  download a binary installer for OS
-X 64-bit.
+X 64-bit. The binary installer is here:
+
+    http://www.qt.io/download
 
 The    binary   Qt    distributions    prior   to    Qt   v5.4    from
 http://www.qt.io/download unfortunately are built to use the libstdc++
@@ -312,7 +314,7 @@ application bundle onto the supplied /Applications link.
 To  complete  the  install  process  you need  to  run  the  CMake-gui
 application as root from a terminal shell as follows:
 
-$ sudo "/Applications/CMake.app/Contents/MacOS/cmake-gui" --install
+$ sudo "/Applications/CMake.app/Contents/MacOS/cmake" --install
 
 that installs  the CMake command  line tools  which you can  verify by
 typing into a terminal window:
@@ -354,12 +356,16 @@ $ FC=gfortran-mp-5.0 \
    cmake \
    -D CMAKE_PREFIX_PATH="~/Qt/5.6/clang_64;~/hamlib-prefix;/opt/local" \
    -D CMAKE_INSTALL_PREFIX=~/wsjtx-prefix \
+   -D CMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk \
    ~/wsjtx-prefix/src
+
+Substitute the  Mac OS X SDK  version you have installed  in the above
+command if you have a different version from 10.11.
 
 The CMAKE_PREFIX_PATH variable specifies where CMake should look first
 for other packages, the two  elements may be different depending where
 you have installed Qt and what version you have (~/local/qt-macx-clang
-if  you have  built  Qt from  sources  as described  above  in teh  Qt
+if  you have  built  Qt from  sources  as described  above  in the  Qt
 section) and where you installed  Hamlib (i.e.  the --prefix configure
 option above in the Hamlib section).
 
