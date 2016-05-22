@@ -352,7 +352,7 @@ generation. For now  we will build the latest  development sources. To
 configure:
 
 $ cd ~/wsjtx-prefix/build
-$ FC=gfortran-mp-5.0 \
+$ FC=gfortran-mp-5 \
    cmake \
    -D CMAKE_PREFIX_PATH="~/Qt/5.6/clang_64;~/hamlib-prefix;/opt/local" \
    -D CMAKE_INSTALL_PREFIX=~/wsjtx-prefix \
