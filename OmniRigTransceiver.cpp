@@ -406,9 +406,11 @@ void OmniRigTransceiver::handle_params_change (int rig_number, int params)
                 {
                   update_other_frequency (rig_->FreqB ());
                 }
+              need_frequency = false;
             }
         }
-      if (need_frequency && (readable_params_ & OmniRig::PM_FREQ))
+      if (need_frequency && (readable_params_ & OmniRig::PM_FREQ)
+          && !state ().ptt ())
         {
           update_rx_frequency (rig_->Freq ());
         }
