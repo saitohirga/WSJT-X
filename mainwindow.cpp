@@ -2082,7 +2082,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           char c = tt.data()->toLatin1();
           if(int(c)>=65 and int(c)<=90) navg=int(c)-54;
         }
-        if(navg>1) bAvgMsg=true;
+        if(navg>1 or t.indexOf("f*")>0) bAvgMsg=true;
       }
     }
     if(t.indexOf("<DecodeFinished>") >= 0) {
