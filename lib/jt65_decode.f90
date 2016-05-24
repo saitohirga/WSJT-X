@@ -188,6 +188,7 @@ contains
           if(ipass.eq.1) ntry65a=ntry65a + 1
           if(ipass.eq.2) ntry65b=ntry65b + 1
           call timer('decod65a',0)
+          nft=0
           call decode65a(dd,npts,first_time,nqd,freq,nflip,mode65,nvec,     &
                naggressive,ndepth,ntol,mycall,hiscall,hisgrid,              &
                nexp_decode,single_decode,sync2,a,dtx,nft,nspecial,qual,     &
@@ -226,8 +227,8 @@ contains
                 nfreq0=nfreq
                 nsave=nsave+1
                 nsave=mod(nsave-1,64)+1
-                call avg65(nutc,nsave,sync1,dtx,nflip,nfreq,mode65,ntol,    &
-                     ndepth,ntrials,naggressive,clearave,neme,mycall,      &
+                call avg65(nutc,nsave,sync1,dtx,nflip,nfreq,mode65,ntol,     &
+                     ndepth,nagain,ntrials,naggressive,clearave,neme,mycall, &
                      hiscall,hisgrid,nftt,avemsg,qave,deepave,nsum,ndeepave)
                 nsmo=param(9)
                 nqave=qave
@@ -298,8 +299,8 @@ contains
     return
   end subroutine decode
 
-  subroutine avg65(nutc,nsave,snrsync,dtxx,nflip,nfreq,mode65,ntol,ndepth,  &
-       ntrials,naggressive,clearave,neme,mycall,hiscall,hisgrid,nftt,      &
+  subroutine avg65(nutc,nsave,snrsync,dtxx,nflip,nfreq,mode65,ntol,ndepth,    &
+       nagain, ntrials,naggressive,clearave,neme,mycall,hiscall,hisgrid,nftt, &
        avemsg,qave,deepave,nsum,ndeepave)
 
 ! Decodes averaged JT65 data
@@ -309,6 +310,7 @@ contains
     character*22 avemsg,deepave,deepbest
     character mycall*12,hiscall*12,hisgrid*6
     character*1 csync,cused(64)
+    logical nagain
     integer iused(64)
 ! Accumulated data for message averaging
     integer iutc(MAXAVE)
@@ -337,7 +339,8 @@ contains
     endif
 
     do i=1,64
-       if(nutc.eq.iutc(i) .and. abs(nhz-nfsave(i)).le.ntol) go to 10
+       if(iutc(i).lt.0) exit
+       if(nutc.eq.iutc(i) .and. abs(nfreq-nfsave(i)).le.ntol) go to 10
     enddo
 
 ! Save data for message averaging

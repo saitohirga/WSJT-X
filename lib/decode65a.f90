@@ -19,7 +19,6 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   character decoded*22,decoded_best*22
   character mycall*12,hiscall*12,hisgrid*6
   data first/.true./,jjjmin/1000/,jjjmax/-1000/
-  data nhz0/-9999999/
   save
 
 ! Mix sync tone to baseband, low-pass filter, downsample to 1378.125 Hz
