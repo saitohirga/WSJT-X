@@ -1044,10 +1044,8 @@ void MainWindow::dataSink(qint64 frames)
       cmnd=t3.mid(0,i1+7) + t3.mid(i1+7);
       if (ui) ui->DecodeButton->setChecked (true);
       p1.start(QDir::toNativeSeparators(cmnd));
-      if (ui) m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
-                                              QString::number (ui->rptSpinBox->value ()),
-                                              m_modeTx, ui->autoButton->isChecked (),
-                                              m_transmitting, (m_decoderBusy = true));
+      m_decoderBusy = true;
+      statusUpdate ();
     }
     m_rxDone=true;
   }
@@ -1260,10 +1258,7 @@ void MainWindow::on_actionAbout_triggered()                  //Display "About"
 void MainWindow::on_autoButton_clicked (bool checked)
 {
   m_auto = checked;
-  m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
-                                  QString::number (ui->rptSpinBox->value ()),
-                                  m_modeTx, ui->autoButton->isChecked (),
-                                  m_transmitting, m_decoderBusy);
+  statusUpdate ();
   m_bEchoTxOK=false;
   if(m_auto and (m_mode=="Echo")) {
     m_nclearave=1;
@@ -1427,11 +1422,7 @@ void MainWindow::displayDialFrequency ()
 
 void MainWindow::statusChanged()
 {
-  m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
-                                  QString::number (ui->rptSpinBox->value ()),
-                                  m_modeTx, ui->autoButton->isChecked (),
-                                  m_transmitting, m_decoderBusy);
-
+  statusUpdate ();
   QFile f {m_config.temp_dir ().absoluteFilePath ("wsjtx_status.txt")};
   if(f.open(QFile::WriteOnly | QIODevice::Text)) {
     QTextStream out(&f);
@@ -2268,10 +2259,7 @@ void MainWindow::decodeBusy(bool b)                             //decodeBusy()
   ui->actionOpen_next_in_directory->setEnabled(!b);
   ui->actionDecode_remaining_files_in_directory->setEnabled(!b);
 
-  m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
-                                  QString::number (ui->rptSpinBox->value ()),
-                                  m_modeTx, ui->autoButton->isChecked (),
-                                  m_transmitting, m_decoderBusy);
+  statusUpdate ();
 }
 
 //------------------------------------------------------------- //guiUpdate()
@@ -2601,10 +2589,7 @@ void MainWindow::guiUpdate()
 
       m_transmitting = true;
       transmitDisplay (true);
-      m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
-                                      QString::number (ui->rptSpinBox->value ()),
-                                      m_modeTx, ui->autoButton->isChecked (),
-                                      m_transmitting, m_decoderBusy);
+      statusUpdate ();
     }
 
   if(!m_btxok && m_btxok0 && g_iptt==1) stopTx();
@@ -2727,10 +2712,7 @@ void MainWindow::stopTx()
   tx_status_label->setText("");
   ptt0Timer->start(200);                       //Sequencer delay
   monitor (true);
-  m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
-                                  QString::number (ui->rptSpinBox->value ()),
-                                  m_modeTx, ui->autoButton->isChecked (),
-                                  m_transmitting, m_decoderBusy);
+  statusUpdate ();
 }
 
 void MainWindow::stopTx2()
@@ -3480,6 +3462,7 @@ void MainWindow::on_dxCallEntry_textChanged(const QString &t) //dxCall changed
   m_hisCall=t.toUpper().trimmed();
   ui->dxCallEntry->setText(m_hisCall);
   statusChanged();
+  statusUpdate ();
 }
 
 void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
@@ -3519,6 +3502,7 @@ void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
     ui->labAz->setText("");
     ui->labDist->setText("");
   }
+  statusUpdate ();
 }
 
 void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
@@ -3977,6 +3961,7 @@ void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
   m_wideGraph->setTxFreq(n);
   if(m_lockTxFreq) ui->RxFreqSpinBox->setValue(n);
   Q_EMIT transmitFrequency (n - m_XIT);
+  statusUpdate ();
 }
 
 void MainWindow::on_RxFreqSpinBox_valueChanged(int n)
@@ -3985,6 +3970,10 @@ void MainWindow::on_RxFreqSpinBox_valueChanged(int n)
   if (m_lockTxFreq && ui->TxFreqSpinBox->isEnabled ())
     {
       ui->TxFreqSpinBox->setValue (n);
+    }
+  else
+    {
+      statusUpdate ();
     }
 }
 
@@ -5082,10 +5071,8 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
       m_RxLog=0;
       m_startAnother=m_loopall;
       m_blankLine=true;
-      m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
-                                      QString::number (ui->rptSpinBox->value ()),
-                                      m_modeTx, ui->autoButton->isChecked (),
-                                      m_transmitting, (m_decoderBusy = false));
+      m_decoderBusy = false;
+      statusUpdate ();
     } else {
 
       int n=t.length();
@@ -5412,3 +5399,16 @@ void MainWindow::CQRxFreq()
   }
 }
 
+void MainWindow::statusUpdate () const
+{
+  if (ui)
+    {
+      m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
+                                      QString::number (ui->rptSpinBox->value ()),
+                                      m_modeTx, ui->autoButton->isChecked (),
+                                      m_transmitting, m_decoderBusy,
+                                      ui->RxFreqSpinBox->value (), ui->TxFreqSpinBox->value (),
+                                      m_config.my_callsign (), m_config.my_grid (),
+                                      m_hisGrid);
+    }
+}

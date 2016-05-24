@@ -33,6 +33,8 @@
 #include "mainwindow.h"
 #include "commons.h"
 #include "lib/init_random_seed.h"
+#include "Radio.hpp"
+#include "FrequencyList.hpp"
 
 namespace
 {
@@ -80,9 +82,11 @@ int main(int argc, char *argv[])
 
   init_random_seed ();
 
-  register_types ();            // make the Qt magic happen
+  // make the Qt type magic happen
+  Radio::register_types ();
+  register_types ();
 
-  // Multiple instances:
+  // Multiple instances communicate with jt9 via this
   QSharedMemory mem_jt9;
 
   QApplication a(argc, argv);

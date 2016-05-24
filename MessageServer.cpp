@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <QHash>
 
+#include "Radio.hpp"
 #include "NetworkMessage.hpp"
 #include "qt_helpers.hpp"
 
@@ -25,6 +26,9 @@ public:
     , port_ {0u}
     , clock_ {new QTimer {this}}
   {
+    // register the required types with Qt
+    Radio::register_types ();
+
     connect (this, &QIODevice::readyRead, this, &MessageServer::impl::pending_datagrams);
     connect (this, static_cast<void (impl::*) (SocketError)> (&impl::error)
              , [this] (SocketError /* e */)
@@ -194,12 +198,20 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 bool tx_enabled {false};
                 bool transmitting {false};
                 bool decoding {false};
-                in >> f >> mode >> dx_call >> report >> tx_mode >> tx_enabled >> transmitting >> decoding;
+                qint32 rx_df {-1};
+                qint32 tx_df {-1};
+                QByteArray de_call;
+                QByteArray de_grid;
+                QByteArray dx_grid;
+                in >> f >> mode >> dx_call >> report >> tx_mode >> tx_enabled >> transmitting >> decoding
+                   >> rx_df >> tx_df >> de_call >> de_grid >> dx_grid;
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->status_update (id, f, QString::fromUtf8 (mode), QString::fromUtf8 (dx_call)
                                                  , QString::fromUtf8 (report), QString::fromUtf8 (tx_mode)
-                                                 , tx_enabled, transmitting, decoding);
+                                                 , tx_enabled, transmitting, decoding, rx_df, tx_df
+                                                 , QString::fromUtf8 (de_call), QString::fromUtf8 (de_grid)
+                                                 , QString::fromUtf8 (dx_grid));
                   }
               }
               break;

@@ -2,6 +2,7 @@
 
 #include <utility>
 
+#include <QMetaType>
 #include <QAbstractTableModel>
 #include <QString>
 #include <QList>

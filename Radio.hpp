@@ -1,8 +1,11 @@
-#ifndef RADIO_HPP_
-#define RADIO_HPP_
+#ifndef RADIO_HPP__
+#define RADIO_HPP__
 
 #include <QObject>
 #include <QLocale>
+#include <QList>
+
+#include "udp_export.h"
 
 class QVariant;
 class QString;
@@ -21,29 +24,34 @@ namespace Radio
   using FrequencyDelta = qint64;
 
   //
+  // Qt type registration
+  //
+  void UDP_NO_EXPORT register_types ();
+
+  //
   // Frequency type conversion.
   //
   //	QVariant argument is convertible to double and is assumed to
   //	be scaled by (10 ** -scale).
   //
-  Frequency frequency (QVariant const&, int scale, QLocale const& = QLocale ());
-  FrequencyDelta frequency_delta (QVariant const&, int scale, QLocale const& = QLocale ());
+  Frequency UDP_EXPORT frequency (QVariant const&, int scale, QLocale const& = QLocale ());
+  FrequencyDelta UDP_EXPORT frequency_delta (QVariant const&, int scale, QLocale const& = QLocale ());
 
   //
   // Frequency type formatting
   //
-  QString frequency_MHz_string (Frequency, QLocale const& = QLocale ());
-  QString frequency_MHz_string (FrequencyDelta, QLocale const& = QLocale ());
-  QString pretty_frequency_MHz_string (Frequency, QLocale const& = QLocale ());
-  QString pretty_frequency_MHz_string (double, int scale, QLocale const& = QLocale ());
-  QString pretty_frequency_MHz_string (FrequencyDelta, QLocale const& = QLocale ());
+  QString UDP_EXPORT frequency_MHz_string (Frequency, QLocale const& = QLocale ());
+  QString UDP_EXPORT frequency_MHz_string (FrequencyDelta, QLocale const& = QLocale ());
+  QString UDP_EXPORT pretty_frequency_MHz_string (Frequency, QLocale const& = QLocale ());
+  QString UDP_EXPORT pretty_frequency_MHz_string (double, int scale, QLocale const& = QLocale ());
+  QString UDP_EXPORT pretty_frequency_MHz_string (FrequencyDelta, QLocale const& = QLocale ());
 
   //
   // Callsigns
   //
-  bool is_callsign (QString const&);
-  bool is_compound_callsign (QString const&);
-  QString base_callsign (QString);
+  bool UDP_EXPORT is_callsign (QString const&);
+  bool UDP_EXPORT is_compound_callsign (QString const&);
+  QString UDP_EXPORT base_callsign (QString);
 }
 
 Q_DECLARE_METATYPE (Radio::Frequency);
