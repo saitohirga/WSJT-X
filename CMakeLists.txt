@@ -1080,7 +1080,7 @@ target_include_directories (wsjtx_udp
 qt5_use_modules (wsjtx_udp Network)
 generate_export_header (wsjtx_udp BASE_NAME udp)
 
-add_executable (udp_daemon UDPExamples/UDPDaemon.cpp UDPExamples/udp_daemon.rc)
+add_executable (udp_daemon UDPExamples/UDPDaemon.cpp UDPExamples/udp_daemon.rc ${WSJTX_ICON_FILE})
 target_link_libraries (udp_daemon wsjtx_udp)
 
 add_resources (message_aggregator_RESOURCES /qss ${message_aggregator_STYLESHEETS})
@@ -1088,6 +1088,7 @@ configure_file (UDPExamples/message_aggregator.qrc.in message_aggregator.qrc @ON
 qt5_add_resources (message_aggregator_RESOURCES_RCC ${CMAKE_CURRENT_BINARY_DIR}/message_aggregator.qrc)
 add_executable (message_aggregator
   ${message_aggregator_CXXSRCS}
+  ${WSJTX_ICON_FILE}
   UDPExamples/message_aggregator.rc
   ${message_aggregator_RESOURCES_RCC}
   )
@@ -1219,7 +1220,7 @@ if (NOT WIN32 AND NOT APPLE)
   # install a desktop file so wsjtx appears in the application start
   # menu with an icon
   install (
-    FILES wsjtx.desktop
+    FILES wsjtx.desktop message_aggregator.desktop
     DESTINATION share/applications
     #COMPONENT runtime
     )
@@ -1422,7 +1423,7 @@ endif ()
 
 set (CPACK_DEBIAN_PACKAGE_DESCRIPTION "${PROJECT_DESCRIPTION}")
 set (CPACK_DEBIAN_PACKAGE_HOMEPAGE "${PROJECT_HOMEPAGE}")
-set (CPACK_DEBIAN_PACKAGE_DEPENDS "libgfortran3 (>=4.8.2), libqt5serialport5 (>=5.2), libqt5multimedia5-plugins (>=5.2), libqt5widgets5 (>=5.2), libusb-1.0, libudev, libc6 (>=2.19)")
+set (CPACK_DEBIAN_PACKAGE_DEPENDS "libgfortran3 (>=4.8.2), libqt5serialport5 (>=5.2), libqt5multimedia5-plugins (>=5.2), libqt5widgets5 (>=5.2), libusb-1.0-0, libudev1, libc6 (>=2.19)")
 set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 
 set (CPACK_RPM_PACKAGE_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
