@@ -1122,7 +1122,6 @@ install (TARGETS wsjtx_udp EXPORT udp
 install (EXPORT udp NAMESPACE wsjtx::
   DESTINATION ${WSJT_LIB_DESTINATION}/cmake/wsjtx
   )
-export (EXPORT udp NAMESPACE wsjtx:: FILE udp-exports.cmake)
 install (FILES
   Radio.hpp
   MessageServer.hpp
