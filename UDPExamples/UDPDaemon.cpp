@@ -47,7 +47,8 @@ public:
 
   Q_SLOT void update_status (QString const& id, Frequency f, QString const& /*mode*/, QString const& /*dx_call*/
                              , QString const& /*report*/, QString const& /*tx_mode*/, bool /*tx_enabled*/
-                             , bool /*transmitting*/, bool /*decoding*/)
+                             , bool /*transmitting*/, bool /*decoding*/, qint32 /*rx_df*/, qint32 /*tx_df*/
+                             , QString const& /*de_call*/, QString const& /*de_grid*/, QString const& /*dx_grid*/)
   {
     if (id == id_)
       {

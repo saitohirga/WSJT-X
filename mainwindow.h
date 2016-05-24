@@ -572,6 +572,7 @@ private:
   void decodeDone ();
   void subProcessFailed (QProcess *, int exit_code, QProcess::ExitStatus);
   void subProcessError (QProcess *, QProcess::ProcessError);
+  void statusUpdate () const;
 };
 
 extern int killbyname(const char* progName);

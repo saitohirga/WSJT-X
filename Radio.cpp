@@ -4,8 +4,6 @@
 
 #include <QString>
 #include <QChar>
-#include <QDebug>
-#include <QDataStream>
 #include <QRegularExpression>
 
 namespace Radio

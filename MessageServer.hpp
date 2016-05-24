@@ -6,6 +6,7 @@
 #include <QDateTime>
 #include <QHostAddress>
 
+#include "udp_export.h"
 #include "Radio.hpp"
 
 #include "pimpl_h.hpp"
@@ -21,7 +22,7 @@ class QString;
 // applications that use the Qt framework. Other applications should
 // use this classes' implementation as a reference implementation.
 //
-class MessageServer
+class UDP_EXPORT MessageServer
   : public QObject
 {
   Q_OBJECT;
@@ -61,7 +62,8 @@ public:
   Q_SIGNAL void client_opened (QString const& id);
   Q_SIGNAL void status_update (QString const& id, Frequency, QString const& mode, QString const& dx_call
                                , QString const& report, QString const& tx_mode, bool tx_enabled
-                               , bool transmitting, bool decoding);
+                               , bool transmitting, bool decoding, qint32 rx_df, qint32 tx_df
+                               , QString const& de_call, QString const& de_grid, QString const& dx_grid);
   Q_SIGNAL void client_closed (QString const& id);
   Q_SIGNAL void decode (bool is_new, QString const& id, QTime time, qint32 snr, float delta_time
                         , quint32 delta_frequency, QString const& mode, QString const& message);
@@ -77,7 +79,7 @@ public:
   Q_SIGNAL void error (QString const&) const;
 
 private:
-  class impl;
+  class UDP_NO_EXPORT impl;
   pimpl<impl> m_;
 };
 

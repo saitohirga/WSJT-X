@@ -40,6 +40,9 @@ if (POLICY CMP0043)
   cmake_policy (SET CMP0043 NEW) # ignore COMPILE_DEFINITIONS_<CONFIG>
 endif (POLICY CMP0043)
 
+if (POLICY CMP0063)
+  cmake_policy (SET CMP0063 NEW) # honour visibility properties for all library types
+endif (POLICY CMP0063)
 
 include (${PROJECT_SOURCE_DIR}/CMake/VersionCompute.cmake)
 message (STATUS "Building ${CMAKE_PROJECT_NAME}-${wsjtx_VERSION}")
@@ -50,7 +53,7 @@ message (STATUS "Building ${CMAKE_PROJECT_NAME}-${wsjtx_VERSION}")
 set (PROJECT_NAME "WSJT-X")
 set (PROJECT_VENDOR "Joe Taylor, K1JT")
 set (PROJECT_CONTACT "Joe Taylor <k1jt@arrl.net>")
-set (PROJECT_COPYRIGHT "Copyright (C) 2001-2015 by Joe Taylor, K1JT")
+set (PROJECT_COPYRIGHT "Copyright (C) 2001-2016 by Joe Taylor, K1JT")
 set (PROJECT_HOMEPAGE http://www.physics.princeton.edu/pulsar/K1JT/wsjtx.html)
 set (PROJECT_MANUAL wsjtx-main)
 set (PROJECT_MANUAL_DIRECTORY_URL http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/)
@@ -104,6 +107,15 @@ endif ()
 #
 include (CMakeDependentOption)
 
+# Allow the developer to select if Dynamic or Static libraries are built
+OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
+# Set the LIB_TYPE variable to STATIC
+SET (LIB_TYPE STATIC)
+if (BUILD_SHARED_LIBS)
+  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
+  set (LIB_TYPE SHARED)
+endif (BUILD_SHARED_LIBS)
+
 option (UPDATE_TRANSLATIONS "Update source translation translations/*.ts
 files (WARNING: make clean will delete the source .ts files! Danger!)")
 option (WSJT_SHARED_RUNTIME "Debugging option that allows running from a shared Cloud directory.")
@@ -145,6 +157,7 @@ message (STATUS "******************************************************")
 #
 set (BIN_DESTINATION bin)
 set (LIB_DESTINATION lib)
+set (INCLUDE_DESTINATION include)
 set (SHARE_DESTINATION share)
 set (DOC_DESTINATION doc/${CMAKE_PROJECT_NAME})
 set (DATA_DESTINATION ${CMAKE_PROJECT_NAME})
@@ -171,6 +184,7 @@ endif (APPLE)
 
 set (WSJT_BIN_DESTINATION ${BIN_DESTINATION} CACHE PATH "Path for executables")
 set (WSJT_LIB_DESTINATION ${LIB_DESTINATION} CACHE PATH "Path for libraries")
+set (WSJT_INCLUDE_DESTINATION ${INCLUDE_DESTINATION} CACHE PATH "Path for library headers")
 set (WSJT_SHARE_DESTINATION ${SHARE_DESTINATION} CACHE PATH "Path for shared content")
 set (WSJT_DOC_DESTINATION ${DOC_DESTINATION} CACHE PATH "Path for documentation")
 set (WSJT_DATA_DESTINATION ${DATA_DESTINATION} CACHE PATH "Path for shared RO data")
@@ -188,6 +202,7 @@ set (wsjt_qt_CXXSRCS
   revision_utils.cpp
   WFPalette.cpp
   Radio.cpp
+  RadioMetaType.cpp
   Bands.cpp
   Modes.cpp
   FrequencyList.cpp
@@ -512,16 +527,23 @@ set (wsjtx_UISRCS
   Configuration.ui
   )
 
-set (message_aggregator_CXXSRCS
-  MessageServer.cpp
-  MessageAggregator.cpp
-  )
-
-set (UDPDaemon_CXXSRCS
+set (UDP_library_CXXSRCS
+  Radio.cpp
+  RadioMetaType.cpp
   NetworkMessage.cpp
   MessageServer.cpp
-  Radio.cpp
-  UDPDaemon.cpp
+  )
+
+set (message_aggregator_CXXSRCS
+  UDPExamples/MessageAggregator.cpp
+  UDPExamples/MessageAggregatorMainWindow.cpp
+  UDPExamples/DecodesModel.cpp
+  UDPExamples/BeaconsModel.cpp
+  UDPExamples/ClientWidget.cpp
+  )
+
+set (message_aggregator_STYLESHEETS
+  UDPExamples/qss/default.qss
   )
 
 set (all_CXXSRCS
@@ -530,8 +552,6 @@ set (all_CXXSRCS
   ${wsjt_qtmm_CXXSRCS}
   ${jt9_CXXSRCS}
   ${wsjtx_CXXSRCS}
-  ${message_aggregator_CXXSRCS}
-  ${UDPDaemon_CXXSRCS}
   )
 
 set (all_C_and_CXXSRCS
@@ -539,10 +559,6 @@ set (all_C_and_CXXSRCS
   ${wsprsim_CSRCS}
   ${wsprd_CSRCS}
   ${all_CXXSRCS}
-  )
-
-set (message_aggregator_STYLESHEETS
-  qss/default.qss
   )
 
 set (TOP_LEVEL_RESOURCES
@@ -620,7 +636,7 @@ else (WSJT_QDEBUG_IN_RELEASE)
 endif (WSJT_QDEBUG_IN_RELEASE)
 
 set_property (SOURCE ${all_C_and_CXXSRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -include wsjtx_config.h")
-set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY OBJECT_DEPENDS wsjtx_config.h)
+set_property (SOURCE ${all_C_and_CXXSRCS} APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/wsjtx_config.h)
 
 if (WIN32)
   # generate the OmniRig COM interface source
@@ -672,6 +688,18 @@ if (WSJT_GENERATE_DOCS)
   add_subdirectory (doc)
 endif (WSJT_GENERATE_DOCS)
 
+
+#
+# Library building setup
+#
+include (GenerateExportHeader)
+set (CMAKE_CXX_VISIBILITY_PRESET hidden)
+set (CMAKE_C_VISIBILITY_PRESET hidden)
+set (CMAKE_Fortran_VISIBILITY_PRESET hidden)
+set (CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+#set (CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
+
+
 #
 # C & C++ setup
 #
@@ -688,7 +716,7 @@ if (NOT APPLE)
 endif (NOT APPLE)
 
 if (WIN32)
-  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-keep-inline-dllexport")
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 endif (WIN32)
 if (APPLE)
   if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
@@ -849,6 +877,7 @@ set (QT_MKSPECS_DIR ${QT_DATA_DIR}/mkspecs)
 
 # Tell CMake to run moc when necessary
 set (CMAKE_AUTOMOC ON)
+include_directories (${CMAKE_CURRENT_BINARY_DIR})
 
 # don't use Qt "keywords" signal, slot, emit in generated files to
 # avoid compatability issue with other libraries
@@ -883,7 +912,7 @@ add_custom_target (etags COMMAND ${ETAGS} -o ${CMAKE_SOURCE_DIR}/TAGS -R ${sourc
 function (add_resources resources path)
   foreach (resource_file_ ${ARGN})
     get_filename_component (name_ ${resource_file_} NAME)
-    file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/${resource_file_} source_)
+    file (TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${resource_file_} source_)
     file (TO_NATIVE_PATH ${path}/${name_} dest_)
     set (resources_ "${resources_}\n    <file alias=\"${dest_}\">${source_}</file>")
     set (${resources} ${${resources}}${resources_} PARENT_SCOPE)
@@ -942,6 +971,8 @@ endif (${OPENMP_FOUND} OR APPLE)
 
 # build a library of package Qt functionality
 add_library (wsjt_qt STATIC ${wsjt_qt_CXXSRCS} ${wsjt_qt_GENUISRCS} ${GENAXSRCS})
+# set wsjtx_udp exports to static variants
+set_target_properties (wsjt_qt PROPERTIES COMPILE_FLAGS -DUDP_STATIC_DEFINE)
 target_link_libraries (wsjt_qt Qt5::Widgets Qt5::Network)
 target_include_directories (wsjt_qt BEFORE PRIVATE ${hamlib_INCLUDE_DIRS})
 if (WIN32)
@@ -1033,24 +1064,34 @@ set_target_properties (wsjtx PROPERTIES
   MACOSX_BUNDLE_GUI_IDENTIFIER "org.k1jt.wsjtx"
   )
 
+# set wsjtx_udp exports to static variants
+set_target_properties (wsjtx PROPERTIES COMPILE_FLAGS -DUDP_STATIC_DEFINE)
 target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 qt5_use_modules (wsjtx SerialPort) # not sure why the interface link library syntax above doesn't work
 
+# make a library for WSJT-X UDP servers
+add_library (wsjtx_udp ${LIB_TYPE} ${UDP_library_CXXSRCS})
+target_include_directories (wsjtx_udp
+  INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:${WSJT_INCLUDE_DESTINATION}/wsjtx>
+  )
+qt5_use_modules (wsjtx_udp Network)
+generate_export_header (wsjtx_udp BASE_NAME udp)
+
+add_executable (udp_daemon UDPExamples/UDPDaemon.cpp UDPExamples/udp_daemon.rc)
+target_link_libraries (udp_daemon wsjtx_udp)
+
 add_resources (message_aggregator_RESOURCES /qss ${message_aggregator_STYLESHEETS})
-configure_file (message_aggregator.qrc.in message_aggregator.qrc @ONLY)
-qt5_add_resources (message_aggregator_RESOURCES_RCC ${CMAKE_BINARY_DIR}/message_aggregator.qrc)
+configure_file (UDPExamples/message_aggregator.qrc.in message_aggregator.qrc @ONLY)
+qt5_add_resources (message_aggregator_RESOURCES_RCC ${CMAKE_CURRENT_BINARY_DIR}/message_aggregator.qrc)
 add_executable (message_aggregator
   ${message_aggregator_CXXSRCS}
-  wsjtx.rc
+  UDPExamples/message_aggregator.rc
   ${message_aggregator_RESOURCES_RCC}
   )
-target_link_libraries (message_aggregator wsjt_qt Qt5::Widgets)
-
-add_executable (udp_daemon
-  ${UDPDaemon_CXXSRCS}
-  wsjtx.rc
-  )
-target_link_libraries (udp_daemon Qt5::Core Qt5::Network)
+target_link_libraries (message_aggregator wsjt_qt Qt5::Widgets wsjtx_udp)
 
 if (WSJT_CREATE_WINMAIN)
   set_target_properties (message_aggregator PROPERTIES WIN32_EXECUTABLE ON)
@@ -1075,7 +1116,25 @@ install (TARGETS wsjtx
   BUNDLE DESTINATION . COMPONENT runtime
   )
 
-install (TARGETS jt9 jt65code jt9code jt4code wsprd message_aggregator udp_daemon
+install (TARGETS wsjtx_udp EXPORT udp
+  DESTINATION ${WSJT_LIB_DESTINATION}
+  )
+install (EXPORT udp NAMESPACE wsjtx::
+  DESTINATION ${WSJT_LIB_DESTINATION}/cmake/wsjtx
+  )
+export (EXPORT udp NAMESPACE wsjtx:: FILE udp-exports.cmake)
+install (FILES
+  Radio.hpp
+  MessageServer.hpp
+  ${PROJECT_BINARY_DIR}/udp_export.h
+  DESTINATION ${WSJT_INCLUDE_DESTINATION}/wsjtx)
+
+install (TARGETS udp_daemon message_aggregator
+  RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
+  BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
+  )
+
+install (TARGETS jt9 jt65code jt9code jt4code wsprd
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
@@ -1152,10 +1211,9 @@ add_dependencies(wsjt_qt revisiontag)
 # versioning and configuration
 #
 configure_file (
-  "${PROJECT_SOURCE_DIR}/wsjtx_config.h.in"
-  "${PROJECT_BINARY_DIR}/wsjtx_config.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/wsjtx_config.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/wsjtx_config.h"
   )
-include_directories (BEFORE "${PROJECT_BINARY_DIR}")
 
 
 if (NOT WIN32 AND NOT APPLE)
@@ -1258,7 +1316,7 @@ if (NOT is_debug_build)
       #set (hamlib_lib_dir ${hamlib_lib_dir}/../bin)
 
       get_filename_component (fftw_lib_dir ${FFTW3F_LIBRARY} PATH)
-      list (APPEND fixup_library_dirs ${fftw_lib_dir})
+      list (APPEND fixup_library_dirs ${WSJT_LIB_DESTINATION} ${fftw_lib_dir})
 
       # install required Qt plugins
       install (

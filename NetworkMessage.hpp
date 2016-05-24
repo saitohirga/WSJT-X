@@ -114,6 +114,11 @@
  *                         Tx Enabled             bool
  *                         Transmitting           bool
  *                         Decoding               bool
+ *                         Rx DF                  qint32
+ *                         Tx DF                  qint32
+ *                         DE call                utf8
+ *                         DE grid                utf8
+ *                         DX grid                utf8
  *
  *    WSJT-X  sends this  status message  when various  internal state
  *    changes to allow the server to  track the relevant state of each
@@ -129,7 +134,11 @@
  *      Changes to the "Rpt" spinner,
  *      After an old decodes replay sequence (see Replay below),
  *      When switching between Tx and Rx mode,
- *      At the start and end of decoding.
+ *      At the start and end of decoding,
+ *      When the Rx DF changes,
+ *      When the Tx DF changes,
+ *      When the DE call or grid changes (currently when settings are exited),
+ *      When the DX call or grid changes.
  *
  *
  * Decode        Out       2                      quint32
