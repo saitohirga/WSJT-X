@@ -309,7 +309,7 @@ contains
     endif
 
     do i=1,64
-       if(nutc.eq.iutc(i) .and. abs(nhz-nfsave(i)).le.ntol) go to 10
+       if(nutc.eq.iutc(i) .and. abs(nfreq-nfsave(i)).le.ntol) go to 10
     enddo
 
 ! Save data for message averaging

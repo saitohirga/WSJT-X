@@ -232,11 +232,11 @@ contains
 
 !$omp critical(decode_results)
     decoded=decoded0
+    cflags='   '
+    is_deep=ft.eq.2
     if(ft.eq.0 .and. minsync.ge.0 .and. int(sync).lt.minsync) then
        write(*,1010) params%nutc,snr,dt,freq
     else
-       cflags='   '
-       is_deep=ft.eq.2
        is_average=nsum.ge.2
        if(params%naggressive.gt.0 .and. ft.gt.0) then
           cflags='f  '
