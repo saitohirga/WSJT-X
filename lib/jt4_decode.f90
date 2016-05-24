@@ -217,8 +217,8 @@ contains
        if(idt.ne.0) cycle
 ! Single-sequence Fano decode failed, so try for an average Fano decode:
        qave=0.
-! If this is a new minute or a new frequency, call avg4
-       if(.not. prtavg) then
+! If we're doing averaging, call avg4
+       if(iand(ndepth,16).eq.16 .and. (.not.prtavg)) then
           if(nutc.ne.nutc0 .or. abs(nfreq-nfreq0).gt.ntol) then
 ! This is a new minute or a new frequency, so call avg4.
              nutc0=nutc                                   !Try decoding average
