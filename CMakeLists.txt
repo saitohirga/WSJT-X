@@ -534,6 +534,12 @@ set (UDP_library_CXXSRCS
   MessageServer.cpp
   )
 
+set (UDP_library_HEADERS
+  Radio.hpp
+  MessageServer.hpp
+  ${PROJECT_BINARY_DIR}/udp_export.h
+  )
+
 set (message_aggregator_CXXSRCS
   UDPExamples/MessageAggregator.cpp
   UDPExamples/MessageAggregatorMainWindow.cpp
@@ -1070,14 +1076,25 @@ target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRA
 qt5_use_modules (wsjtx SerialPort) # not sure why the interface link library syntax above doesn't work
 
 # make a library for WSJT-X UDP servers
-add_library (wsjtx_udp ${LIB_TYPE} ${UDP_library_CXXSRCS})
+add_library (wsjtx_udp SHARED ${UDP_library_CXXSRCS})
+add_library (wsjtx_udp-static STATIC ${UDP_library_CXXSRCS})
 target_include_directories (wsjtx_udp
   INTERFACE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<INSTALL_INTERFACE:${WSJT_INCLUDE_DESTINATION}/wsjtx>
   )
+target_include_directories (wsjtx_udp-static
+  INTERFACE
+  $<INSTALL_INTERFACE:${WSJT_INCLUDE_DESTINATION}/wsjtx>
+  )
+set_target_properties (wsjtx_udp PROPERTIES
+  PUBLIC_HEADER "${UDP_library_HEADERS}"
+  )
+set_target_properties (wsjtx_udp-static PROPERTIES
+  COMPILE_FLAGS -DUDP_STATIC_DEFINE
+  OUTPUT_NAME wsjtx_udp
+  )
 qt5_use_modules (wsjtx_udp Network)
+qt5_use_modules (wsjtx_udp-static Network)
 generate_export_header (wsjtx_udp BASE_NAME udp)
 
 add_executable (udp_daemon UDPExamples/UDPDaemon.cpp UDPExamples/udp_daemon.rc ${WSJTX_ICON_FILE})
@@ -1118,16 +1135,21 @@ install (TARGETS wsjtx
   )
 
 install (TARGETS wsjtx_udp EXPORT udp
+  RUNTIME DESTINATION ${WSJT_BIN_DESTINATION}
+  LIBRARY DESTINATION ${WSJT_LIB_DESTINATION}
+  ARCHIVE DESTINATION ${WSJT_LIB_DESTINATION}
+  PUBLIC_HEADER DESTINATION ${WSJT_INCLUDE_DESTINATION}/wsjtx
+  )
+install (TARGETS wsjtx_udp-static EXPORT udp-static
   DESTINATION ${WSJT_LIB_DESTINATION}
   )
+
 install (EXPORT udp NAMESPACE wsjtx::
   DESTINATION ${WSJT_LIB_DESTINATION}/cmake/wsjtx
   )
-install (FILES
-  Radio.hpp
-  MessageServer.hpp
-  ${PROJECT_BINARY_DIR}/udp_export.h
-  DESTINATION ${WSJT_INCLUDE_DESTINATION}/wsjtx)
+install (EXPORT udp-static NAMESPACE wsjtx::
+  DESTINATION ${WSJT_LIB_DESTINATION}/cmake/wsjtx
+  )
 
 install (TARGETS udp_daemon message_aggregator
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
@@ -1316,7 +1338,7 @@ if (NOT is_debug_build)
       #set (hamlib_lib_dir ${hamlib_lib_dir}/../bin)
 
       get_filename_component (fftw_lib_dir ${FFTW3F_LIBRARY} PATH)
-      list (APPEND fixup_library_dirs ${WSJT_LIB_DESTINATION} ${fftw_lib_dir})
+      list (APPEND fixup_library_dirs ${fftw_lib_dir})
 
       # install required Qt plugins
       install (
