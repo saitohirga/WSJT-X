@@ -978,7 +978,7 @@ endif (${OPENMP_FOUND} OR APPLE)
 # build a library of package Qt functionality
 add_library (wsjt_qt STATIC ${wsjt_qt_CXXSRCS} ${wsjt_qt_GENUISRCS} ${GENAXSRCS})
 # set wsjtx_udp exports to static variants
-set_target_properties (wsjt_qt PROPERTIES COMPILE_FLAGS -DUDP_STATIC_DEFINE)
+target_compile_definitions (wsjt_qt PUBLIC UDP_STATIC_DEFINE)
 target_link_libraries (wsjt_qt Qt5::Widgets Qt5::Network)
 target_include_directories (wsjt_qt BEFORE PRIVATE ${hamlib_INCLUDE_DIRS})
 if (WIN32)
@@ -1070,8 +1070,6 @@ set_target_properties (wsjtx PROPERTIES
   MACOSX_BUNDLE_GUI_IDENTIFIER "org.k1jt.wsjtx"
   )
 
-# set wsjtx_udp exports to static variants
-set_target_properties (wsjtx PROPERTIES COMPILE_FLAGS -DUDP_STATIC_DEFINE)
 target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 qt5_use_modules (wsjtx SerialPort) # not sure why the interface link library syntax above doesn't work
 
@@ -1090,9 +1088,9 @@ set_target_properties (wsjtx_udp PROPERTIES
   PUBLIC_HEADER "${UDP_library_HEADERS}"
   )
 set_target_properties (wsjtx_udp-static PROPERTIES
-  COMPILE_FLAGS -DUDP_STATIC_DEFINE
   OUTPUT_NAME wsjtx_udp
   )
+target_compile_definitions (wsjtx_udp-static PUBLIC UDP_STATIC_DEFINE)
 qt5_use_modules (wsjtx_udp Network)
 qt5_use_modules (wsjtx_udp-static Network)
 generate_export_header (wsjtx_udp BASE_NAME udp)
