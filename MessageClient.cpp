@@ -281,9 +281,13 @@ MessageClient::MessageClient (QString const& id, QString const& server, port_typ
            , [this] (impl::SocketError e)
            {
 #if defined (Q_OS_WIN) && QT_VERSION >= 0x050500
-             if (e != impl::NetworkError) // take this out when Qt 5.5
-                                          // stops doing this
-                                          // spuriously
+             if (e != impl::NetworkError // take this out when Qt 5.5
+                                         // stops doing this
+                                         // spuriously
+                 && e != impl::ConnectionRefusedError) // not
+                                                       // interested
+                                                       // in this with
+                                                       // UDP socket
 #else
              Q_UNUSED (e);
 #endif
