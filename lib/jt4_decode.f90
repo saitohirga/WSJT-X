@@ -114,7 +114,6 @@ contains
 
     real ccfblue(-5:540)                             !CCF in time
     real ccfred(-224:224)                            !CCF in frequency
-    real ps0(450)
 
 !    real z(458,65)
     logical first,prtavg
@@ -124,7 +123,7 @@ contains
     data first/.true./,nutc0/-999/,nfreq0/-999999/
     save
 
-    if(first) then
+    if(first .or. nclearave) then
        nsave=0
        first=.false.
        blank='                      '
@@ -155,9 +154,8 @@ contains
 
 ! Attempt to synchronize: look for sync pattern, get DF and DT.
     call timer('sync4   ',0)
-    mousedf=nint(nfqso + 1.5*4.375*mode4 - 1270.46)
-    call sync4(dat,npts,ntol,1,MouseDF,4,mode4,minw+1,dtx,dfx,    &
-         snrx,snrsync,ccfblue,ccfred,flip,width,ps0)
+    call sync4(dat,npts,ntol,1,nfqso,4,mode4,minw+1,dtx,dfx,    &
+         snrx,snrsync,ccfblue,ccfred,flip,width)
     sync=snrsync
     dtxz=dtx-0.8
     nfreqz=dfx + 1270.46 - 1.5*4.375*mode4
@@ -227,8 +225,8 @@ contains
              nsave=mod(nsave-1,64)+1
              call timer('avg4    ',0)
              call this%avg4(nutc,sync,dtx,flip,nfreq,mode4,ntol,ndepth,neme,  &
-                  mycall,hiscall,hisgrid,nfanoave,avemsg,qave,deepave,ich,    &
-                  ndeepave)
+                  nclearave,mycall,hiscall,hisgrid,nfanoave,avemsg,qave,      &
+                  deepave,ich,ndeepave)
              call timer('avg4    ',1)
           endif
 
@@ -285,7 +283,8 @@ contains
   end subroutine wsjt4
 
   subroutine avg4(this,nutc,snrsync,dtxx,flip,nfreq,mode4,ntol,ndepth,neme,   &
-       mycall,hiscall,hisgrid,nfanoave,avemsg,qave,deepave,ichbest,ndeepave)
+       nclearave, mycall,hiscall,hisgrid,nfanoave,avemsg,qave,deepave,        &
+       ichbest,ndeepave)
 
 ! Decodes averaged JT4 data
 
@@ -297,14 +296,14 @@ contains
     character*1 csync,cused(64)
     real sym(207,7)
     integer iused(64)
-    logical first
+    logical first,nclearave
     data first/.true./
     save
 
-    if(first) then
+    if(first .or. nclearave) then
        iutc=-1
        nfsave=0
-       dtdiff=0.2
+       dtdiff=0.25
        first=.false.
     endif
 
@@ -320,19 +319,33 @@ contains
     flipsave(nsave)=flip
     ppsave(1:207,1:7,nsave)=rsymbol(1:207,1:7)  
 
-10  sym=0.
+10  dtsum=0.
+    nsum=0
+    ok=.false.
+
+    do i=1,nsave
+       if(iutc(i).lt.0) cycle
+       if(mod(iutc(i),2).ne.mod(nutc,2)) cycle    !Use only same sequence
+       if(abs(nfreq-nfsave(i)).gt.ntol) cycle     !Freq must match
+       if(flip.ne.flipsave(i)) cycle              !Sync (*/#) must match
+       if(abs(dtxx-dtsave(i)).gt.2*dtdiff) cycle  !Pk-to-pk DT range < 2*dtdiff
+       dtsum=dtsum+dtsave(i)
+       nsum=nsum+1
+       ok(i)=.true.
+    enddo
+    dtave=0.
+    if(nsum.ge.1) dtave=dtsum/nsum
+
+    sym=0.
     syncsum=0.
     dtsum=0.
     nfsum=0
     nsum=0
-
-    do i=1,64
+    do i=1,nsave
        cused(i)='.'
-       if(iutc(i).lt.0) cycle
-       if(mod(iutc(i),2).ne.mod(nutc,2)) cycle  !Use only same sequence
-       if(abs(dtxx-dtsave(i)).gt.dtdiff) cycle  !DT must match
-       if(abs(nfreq-nfsave(i)).gt.ntol) cycle   !Freq must match
-       if(flip.ne.flipsave(i)) cycle            !Sync (*/#) must match
+       dttest=dtsave(i)-dtave
+       if(.not.ok(i)) cycle
+       if(abs(dttest).gt.dtdiff) cycle          !DT must match
        sym(1:207,1:7)=sym(1:207,1:7) +  ppsave(1:207,1:7,i)
        syncsum=syncsum + syncsave(i)
        dtsum=dtsum + dtsave(i)

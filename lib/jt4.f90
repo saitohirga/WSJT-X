@@ -3,6 +3,7 @@ module jt4
   integer iutc(MAXAVE)
   integer nfsave(MAXAVE)
   integer listutc(10)
+  logical ok(MAXAVE)
   real    ppsave(207,7,MAXAVE)           !Accumulated data for message averaging
   real    rsymbol(207,7)                 
   real    dtsave(MAXAVE)
