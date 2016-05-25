@@ -489,7 +489,7 @@ private:
 
   TransceiverFactory::ParameterPack rig_params_;
   TransceiverFactory::ParameterPack saved_rig_params_;
-  bool last_port_type_;
+  TransceiverFactory::Capabilities::PortType last_port_type_;
   bool rig_is_dummy_;
   bool rig_active_;
   bool have_rig_;
