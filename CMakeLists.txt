@@ -1107,7 +1107,7 @@ add_executable (message_aggregator
   UDPExamples/message_aggregator.rc
   ${message_aggregator_RESOURCES_RCC}
   )
-target_link_libraries (message_aggregator wsjt_qt Qt5::Widgets wsjtx_udp)
+target_link_libraries (message_aggregator Qt5::Widgets wsjtx_udp)
 
 if (WSJT_CREATE_WINMAIN)
   set_target_properties (message_aggregator PROPERTIES WIN32_EXECUTABLE ON)
