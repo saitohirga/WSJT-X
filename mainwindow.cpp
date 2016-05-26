@@ -1492,7 +1492,7 @@ void MainWindow::subProcessFailed (QProcess * process, int exit_code, QProcess::
               .arg (exit_code)
               .arg (process->program () + ' ' + arguments.join (' '))
               .arg (QString {process->readAllStandardError()}));
-      close ();
+      QTimer::singleShot (0, this, SLOT (close ()));
       m_valid = false;          // ensures exit if still constructing
     }
 }
@@ -1510,13 +1510,14 @@ void MainWindow::subProcessError (QProcess * process, QProcess::ProcessError)
       msgBox (tr ("Subprocess error\nRunning: %1\n%2")
               .arg (process->program () + ' ' + arguments.join (' '))
               .arg (process->errorString ()));
-      close ();
+      QTimer::singleShot (0, this, SLOT (close ()));
       m_valid = false;              // ensures exit if still constructing
     }
 }
 
 void MainWindow::closeEvent(QCloseEvent * e)
 {
+  m_valid = false;              // suppresses subprocess errors
   m_config.transceiver_offline ();
   writeSettings ();
   m_guiTimer.stop ();
@@ -1530,7 +1531,7 @@ void MainWindow::closeEvent(QCloseEvent * e)
   quitFile.open(QIODevice::ReadWrite);
   QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.remove(); // Allow jt9 to terminate
   bool b=proc_jt9.waitForFinished(1000);
-  if(!b) proc_jt9.kill();
+  if(!b) proc_jt9.close();
   quitFile.remove();
 
   Q_EMIT finished ();
