@@ -1,8 +1,7 @@
 subroutine genmsk144(msg0,ichk,msgsent,waveform,itype)
 
-!!!!!!!!!!!!!!!!!!!!! Experimental ldpc version
-! b11 + 128bit code + 1 zero bit = 140 bits (70ms message duration)
-! b13 + 128bit code + 2 slack + 1 zero bit = 144 bits (71ms message duration)
+!!!!!!!!!!!!!!!!!! Experimental small blocklength ldpc version
+! s8 + 48bits + s8 + 40 bits = 144 bits (72ms message duration)
 !
 ! Encode a JTMSK message
 ! Input:
@@ -36,14 +35,14 @@ subroutine genmsk144(msg0,ichk,msgsent,waveform,itype)
   integer*1 bitseq(144)                   !Tone #s, data and sync (values 0-1)
   integer*1 i1hash(4)
   integer*1 b7(7)
-  integer*1 b8(8)
+  integer*1 s8(8)
   integer*1 b11(11)
   integer*1 b13(13)
   real*8 pp(12)
   real*8 xi(864),xq(864),pi,twopi,phi,dphi
   real waveform(864)
   data b7/1,1,1,0,0,1,0/
-  data b8/0,1,1,1,0,0,1,0/
+  data s8/0,1,1,1,0,0,1,0/
   data b11/1,1,1,0,0,0,1,0,0,1,0/         !Barker 11 code
   data b13/1,1,1,1,1,0,0,1,1,0,1,0,1/     !Barker 13 code
   equivalence (ihash,i1hash)
@@ -105,7 +104,7 @@ subroutine genmsk144(msg0,ichk,msgsent,waveform,itype)
          i4=iand(i4,255)
          if(ik.eq.8) then
            im=im+1
-!           if(i4.gt.127) i4=i4-256 
+!           if(i4.gt.127) i4=i4-256
            i1Msg8BitBytes(im)=i4
            ik=0
          endif
@@ -137,9 +136,9 @@ subroutine genmsk144(msg0,ichk,msgsent,waveform,itype)
 !Create 144-bit channel vector:
 !8-bit sync word + 48 bits + 8-bit sync word + 80 bits
      bitseq=0 
-     bitseq(1:8)=b8
+     bitseq(1:8)=s8
      bitseq(9:56)=reorderedcodeword(1:48)
-     bitseq(57:64)=b8
+     bitseq(57:64)=s8
      bitseq(65:144)=reorderedcodeword(49:128)
      bitseq=2*bitseq-1
 
