@@ -387,7 +387,6 @@ set (wsjt_FSRCS
   lib/jtmsk_decode.f90
   lib/jtmsk_short.f90
   lib/ldpcsim.f90
-  lib/ldpcwav.f90
   lib/libration.f90
   lib/lorentzian.f90
   lib/lpf1.f90
