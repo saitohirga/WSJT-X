@@ -1,4 +1,4 @@
-subroutine genmsk144(msg0,ichk,msgsent,waveform,itype)
+subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
 
 !!!!!!!!!!!!!!!!!! Experimental small blocklength ldpc version
 ! s8 + 48bits + s8 + 40 bits = 144 bits (72ms message duration)
@@ -153,43 +153,31 @@ subroutine genmsk144(msg0,ichk,msgsent,waveform,itype)
        xi(is:is+11)=bitseq(2*i)*pp
      enddo
 
-     dphi=2*pi*1500/12000.0;
-     phi=0.0
-     do i=1,864
-       waveform(i)=imag(complex(xi(i),xq(i))*complex(cos(phi),sin(phi)))
-       phi=mod(phi+dphi,twopi)
-     enddo
-
-! Map bits to I and Q (in anticipation of coherent demodulation), 
-! If bit indices run from 1 to 140.
-! I bits are 1,3,5,...139
-! Q bits are 2,4,6,...140
-! Sample the offset qpsk waveform at 140 sampling instants to determine tones.
-! Send low tone if I and Q have different sign, send high tone if I and Q have same sign.
-! Modulator will take care of ensuring phase continuity.
-!     i4tone=0 
-!     iq=140
-!     it=1
-!     do ii=1,139,2
-!       do inner=1,2
-!         if( bitseq(ii) .eq. bitseq(iq) ) then
-!           i4tone(it)=1
-!         endif
-!         print*,it,ii,iq,bitseq(ii),bitseq(iq),bitseq(it),i4tone(it)
-!         if( mod(it,2) .eq. 1 ) then
-!           iq=mod(iq+2,140)
-!           if( iq .eq. 0 ) iq=140
-!         endif
-!         it=it+1
-!       enddo
+!     dphi=2*pi*1500/12000.0;
+!     phi=0.0
+!     do i=1,864
+!       waveform(i)=imag(complex(xi(i),xq(i))*complex(cos(phi),sin(phi)))
+!       phi=mod(phi+dphi,twopi)
 !     enddo
+
+! Map I and Q  to tones. 
+    i4tone=0 
+    iq=144
+    it=1
+    do i=1,72
+      i4tone(2*i-1)=(bitseq(2*i)*bitseq(2*i-1)+1)/2;
+      i4tone(2*i)=-(bitseq(2*i)*bitseq(mod(2*i,144)+1)-1)/2;
+    enddo
   endif
 
-!i4tone(1:11)=b11
+! Had to flip the polarity - not sure if this will be needed when we are 
+! sending the tone to  Modulator.cpp.
+  i4tone=-i4tone+1
+
 !  print*,"transmitted tones"
-!  do i=1,140
-!    print*,i,i4tone(i)
+!  do i=1,144
+!    print*,i,bitseq(i),i4tone(i)
 !  enddo
 
 999 return
-end subroutine genmsk
+end subroutine genmsk144

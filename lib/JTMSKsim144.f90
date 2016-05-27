@@ -33,11 +33,29 @@ program JTMSKsim
   call getarg(5,arg)
   read(arg,*) nfiles
   sig=sqrt(2.0)*10.0**(0.05*snrdb)
-  twopi=8.d0*atan(1.d0)
   h=default_header(12000,NMAX)
 
   ichk=0
-  call genmsk(msg,ichk,msgsent,waveform,itype)   !this is genmsk144
+  call genmsk144(msg,ichk,msgsent,itone,itype) 
+  twopi=8.d0*atan(1.d0)
+  
+  dphi0=twopi*1000/12000.0
+  dphi1=twopi*2000/12000.0
+  phi=0.0
+  indx=0
+  do i=1,144
+    if( itone(i) .eq. 0 ) then
+      dphi=dphi0
+    else
+      dphi=dphi1
+    endif
+    do j=1,6  
+      waveform(indx)=cos(phi);
+      indx=indx+1
+      phi=mod(phi+dphi,twopi)
+    enddo 
+  enddo
+ 
   if(itype.lt.1 .or. itype.gt.7) then
      print*,'Illegal message'
      go to 999
@@ -57,7 +75,7 @@ program JTMSKsim
         j=mod(j+1,864)
         xx=gran()
         wave(i)=pings(i)*waveform(j) + fac*xx
-        write(*,*) pings(i),fac,waveform(j),wave(j)
+!        write(*,*) pings(i),fac,waveform(j),wave(j)
         iwave(i)=30.0*wave(i)
      enddo
 
