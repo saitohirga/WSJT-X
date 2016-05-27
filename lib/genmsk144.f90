@@ -162,8 +162,6 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
 
 ! Map I and Q  to tones. 
     i4tone=0 
-    iq=144
-    it=1
     do i=1,72
       i4tone(2*i-1)=(bitseq(2*i)*bitseq(2*i-1)+1)/2;
       i4tone(2*i)=-(bitseq(2*i)*bitseq(mod(2*i,144)+1)-1)/2;
