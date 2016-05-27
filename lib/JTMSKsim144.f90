@@ -37,15 +37,15 @@ program JTMSKsim
   h=default_header(12000,NMAX)
 
   ichk=0
-  call genmsk(msg,ichk,msgsent,waveform,itype)       !Check message type
+  call genmsk(msg,ichk,msgsent,waveform,itype)   !this is genmsk144
   if(itype.lt.1 .or. itype.gt.7) then
      print*,'Illegal message'
      go to 999
   endif
 
-!  call makepings(pings,NMAX,width,sig)
-  pings=0.0
-  pings(12345:24000)=sig
+  call makepings(pings,NMAX,width,sig)
+!  pings=0.0
+!  pings(12345:24000)=sig
   do ifile=1,nfiles                  !Loop over requested number of files
      write(fname,1002) ifile         !Output filename
 1002 format('000000_',i4.4)

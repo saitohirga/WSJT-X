@@ -383,13 +383,16 @@ set (wsjt_FSRCS
   lib/jt65_mod.f90
   lib/jt9_decode.f90
   lib/jt9fano.f90
+  lib/JTMSKsim.f90
   lib/jtmsk_decode.f90
   lib/jtmsk_short.f90
   lib/ldpcsim.f90
+  lib/ldpcwav.f90
   lib/libration.f90
   lib/lorentzian.f90
   lib/lpf1.f90
   lib/mixlpf.f90
+  lib/makepings.f90
   lib/moondopjpl.f90
   lib/morse.f90
   lib/move.f90
@@ -1017,6 +1020,9 @@ target_link_libraries (jt65 wsjt_fort wsjt_cxx)
 
 add_executable (ldpcsim lib/ldpcsim.f90 wsjtx.rc)
 target_link_libraries (ldpcsim wsjt_fort wsjt_cxx)
+
+add_executable (JTMSKsim lib/JTMSKsim.f90 wsjtx.rc)
+target_link_libraries (JTMSKsim wsjt_fort wsjt_cxx)
 
 add_executable (jt9 ${jt9_FSRCS} ${jt9_CXXSRCS} wsjtx.rc)
 if (${OPENMP_FOUND} OR APPLE)
