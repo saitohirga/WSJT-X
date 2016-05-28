@@ -51,7 +51,6 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
   save
 
   if( first ) then
-    print*,"Initializing ldpc"
     first=.false.
     nsym=128
     pchk_file="peg-128-80-reg3.pchk"

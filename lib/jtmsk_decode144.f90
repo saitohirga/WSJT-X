@@ -86,33 +86,34 @@ subroutine jtmsk_decode(id2,narg,line)
         fpk=idf1 + nrxfreq
         call tweak1(cdat2,iz,1500.0-fpk,cdat)
         call syncmsk144(cdat,iz,jpk,ipk,idf,rmax,snr,metric,msg,freq)
+print*,'returned message :',msg
         if(metric.eq.-9999) cycle             !No output if no significant sync
         if(msg(1:1).eq.' ') call jtmsk_short(cdat,iz,narg,tbest,idfpk,msg)
         if(msg(1:1).eq.'<' .and. naggressive.eq.0 .and.      &
              narg(13)/8.ne.narg(12)) msg='                      '
         if(msg(1:1).ne.' ') then
-           if(msg.ne.msg0) then
+!           if(msg.ne.msg0) then
               nline=nline+1
               nsnr0=-99
-           endif
+!           endif
            t0=(ia+jpk)/12000.0
            y=10.0**(0.1*(yellow(n)-1.5))
            nsnr=max(-5,nint(db(y)))
-           if(nsnr.gt.nsnr0 .and. nline.gt.0) then
+!           if(nsnr.gt.nsnr0 .and. nline.gt.0) then
               write(line(nline),1020) nutc,nsnr,t0,nint(freq),msg
 1020          format(i6.6,i4,f5.1,i5,' & ',a22)
               nsnr0=nsnr
-              go to 900
-           endif
+!              go to 900
+!           endif
            msg0=msg
-           if(nline.ge.maxlines) go to 900
+!           if(nline.ge.maxlines) go to 900
         endif
      enddo
-!     print*,'c',nutc,n,nint(yellow(n)-4.0),freq,freq2
+     print*,'c',nutc,n,nint(yellow(n)-4.0),freq,freq2
   enddo
 
 900 continue
-!  print*,'d',nutc,n,nint(yellow(n)-4.0),freq,freq2
+  print*,'d',nutc,n,nint(yellow(n)-4.0),freq,freq2
   if(line(1)(1:6).eq.'      ') line(1)(1:1)=char(0)
 
   return

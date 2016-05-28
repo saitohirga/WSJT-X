@@ -1,4 +1,4 @@
-subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
+subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
 
 ! Attempt synchronization, and if successful decode using Viterbi algorithm.
 
@@ -22,10 +22,11 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
   integer s8(8),hardbits(144),hardword(128),unscrambledhardbits(128)
   integer*1, target:: i1Dec8BitBytes(10)
   integer, dimension(1) :: iloc
-  integer*4 i4Msg6BitWords(12)            !72-bit message as 6-bit words
+  integer*4 i4Msg6BitWords(12)          !72-bit message as 6-bit words
   integer*4 i4Dec6BitWords(12)  
   integer*1 decoded(80)   
   integer*1, allocatable :: message(:)
+  integer*1 i1hashdec
   logical ismask(6000)
   real cbi(42),cbq(42)
   real tonespec(6000)
@@ -36,14 +37,7 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
   real softbits(144)
   real*8 unscrambledsoftbits(128)
   real lratio(128)
- 
-  integer*1, target :: d8(13)
-  integer*1 i1hash(4)
-  integer*1 i1
-  character*72 c72
   logical first
-  equivalence (i1,i4)
-  equivalence (ihash,i1hash)
   data first/.true./
 
   data s8/0,1,1,1,0,0,1,0/
@@ -57,7 +51,7 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
 
 ! define half-sine pulse and raised-cosine edge window
      pi=4d0*datan(1d0)
-     twopi=4d0*datan(1d0)
+     twopi=8d0*datan(1d0)
      dt=1.0/12000.0
      do i=1,12
        angle=(i-1)*pi/12.0
@@ -141,14 +135,14 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
   iloc=maxloc(dd)           
   ic2=iloc(1)
   
-  write(*,*) ic1,ic2
+  write(*,*) "Syncs: ic1,ic2 ",ic1,ic2
   ic=ic2
 
-  open(unit=78,file="blah.txt")
-  do i=1,npts-448-41
-    write(78,*) i,abs(cc1(i)),abs(cc2(i)),abs(cc(i)),dd(i)
-  enddo
-  close(78)
+!  open(unit=78,file="blah.txt")
+!  do i=1,npts-448-41
+!    write(78,*) i,abs(cc1(i)),abs(cc2(i)),abs(cc(i)),dd(i),abs(cc3(i))
+!  enddo
+!  close(78)
 
   cca=sum(cdat(ic:ic+41)*conjg(cb))
   ccb=sum(cdat(ic+56*6:ic+56*6+41)*conjg(cb))
@@ -158,8 +152,8 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
   write(*,*) "Fine frequency error: ",ferr2
   write(*,*) "Coarse Carrier phase       : ",phase0
 
-  f0=1500+ferr+ferr2
-  write(*,*) "Estimated f0        : ",f0
+  fest=1500+ferr+ferr2
+  write(*,*) "Estimated f0        : ",fest
 
 ! Remove fine frequency error
   call tweak1(cdat,npts,-ferr2,cdat)
@@ -167,7 +161,11 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
 ! Estimate final carrier phase
   cca=sum(cdat(ic:ic+41)*conjg(cb))
   ccb=sum(cdat(ic+56*6:ic+56*6+41)*conjg(cb))
+  cfac=ccb*conjg(cca)
+  ffin=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
   phase0=atan2(imag(cca+ccb),real(cca+ccb))
+  write(*,*) "Final freq    error: ",ffin
+
   cfac=cmplx(cos(phase0),sin(phase0))
   cdat=cdat*conjg(cfac)
 
@@ -192,14 +190,13 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
       hardbits(i)=1
     endif
   enddo 
-  write(*,*) hardbits(1:8)
-  write(*,*) hardbits(57:57+7)
+!  write(*,*) hardbits(1:8)
+!  write(*,*) hardbits(57:57+7)
 
   hardword(1:48)=hardbits(9:9+47)  
   hardword(49:128)=hardbits(65:65+80-1)  
   unscrambledhardbits(1:127:2)=hardword(1:64) 
   unscrambledhardbits(2:128:2)=hardword(65:128) 
-!  write(*,*) 'unscrambledhardbits',unscrambledhardbits
   sav=sum(softbits)/144
   s2av=sum(softbits*softbits)/144
   ssig=sqrt(s2av-sav*sav)
@@ -213,15 +210,18 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
   unscrambledsoftbits(1:127:2)=lratio(1:64) 
   unscrambledsoftbits(2:128:2)=lratio(65:128) 
 
-  max_iterations=50
-  max_dither=1
+  max_iterations=20
+  max_dither=100
   call ldpc_decode(unscrambledsoftbits, decoded, max_iterations, niterations, max_dither, ndither)
-  write(*,*) 'after decoder ',niterations, ndither
+  write(*,*) 'Decoder used ',niterations,' and ',ndither,' dither trials.'
 
-  if( niterations .ge. 0 ) then 
+  if( niterations .lt. 0 ) then 
+    msgreceived=' '
+    return
+  endif
+
 ! The decoder found a codeword - compare decoded hash with calculated
-
-! Collapse 80 decoded bits to 10 bytes. Bytes 1-9 are the message, bute 10 is the hash
+! Collapse 80 decoded bits to 10 bytes. Bytes 1-9 are the message, byte 10 is the hash
     do ibyte=1,10   
       itmp=0
       do ibit=1,8
@@ -236,22 +236,19 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
 
 ! Compare calculated hash with received byte 10 - if they agree, keep the message.
     i1hashdec=ihashdec
-    if( i1hashdec .ne. i1Dec8BitBytes(10) ) then
-       nbadhash=nbadhash+1
-       nhashflag=1
-     endif
+    write(*,*) "Hashes",i1hashdec,i1Dec8BitBytes(10)
 
-! unpack 72-bit message
-     do ibyte=1,12
-       itmp=0
-       do ibit=1,6
-         itmp=ishft(itmp,1)+iand(1,decoded((ibyte-1)*6+ibit))
-       enddo
-       i4Dec6BitWords(ibyte)=itmp
-     enddo
-     call unpackmsg(i4Dec6BitWords,msgreceived)
-     print*,"Received ",msgreceived
-endif
+    if( i1hashdec .eq. i1Dec8BitBytes(10) ) then
+! Good hash --- unpack 72-bit message
+      do ibyte=1,12
+        itmp=0
+        do ibit=1,6
+          itmp=ishft(itmp,1)+iand(1,decoded((ibyte-1)*6+ibit))
+        enddo
+        i4Dec6BitWords(ibyte)=itmp
+      enddo
+      call unpackmsg(i4Dec6BitWords,msgreceived)
+    endif
 
 return
 

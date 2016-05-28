@@ -32,6 +32,8 @@ program JTMSKsim
   read(arg,*) snrdb
   call getarg(5,arg)
   read(arg,*) nfiles
+
+!sig is the peak amplitude of the ping. 
   sig=sqrt(2.0)*10.0**(0.05*snrdb)
   h=default_header(12000,NMAX)
 
@@ -62,8 +64,7 @@ program JTMSKsim
   endif
 
   call makepings(pings,NMAX,width,sig)
-!  pings=0.0
-!  pings(12345:24000)=sig
+
   do ifile=1,nfiles                  !Loop over requested number of files
      write(fname,1002) ifile         !Output filename
 1002 format('000000_',i4.4)
@@ -75,7 +76,6 @@ program JTMSKsim
         j=mod(j+1,864)
         xx=gran()
         wave(i)=pings(i)*waveform(j) + fac*xx
-!        write(*,*) pings(i),fac,waveform(j),wave(j)
         iwave(i)=30.0*wave(i)
      enddo
 
