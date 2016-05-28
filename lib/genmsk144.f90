@@ -125,7 +125,7 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
      enddo
 
      call ldpc_encode(msgbits,codeword)
-
+write(*,*) 'codeword',codeword
      j=0
      do i=1,nsym/2                               !Reorder the encoded bits
        j=j+1

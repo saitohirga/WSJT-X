@@ -1,10 +1,10 @@
 subroutine jtmsk_decode(id2,narg,line)
 
-! Decoder for JTMSK mode
+! Calls the experimental decoder for JTMSK 72ms ldpc messages
 
   parameter (NMAX=30*12000)
   parameter (NFFTMAX=512*1024)
-  parameter (NSPM=840)               !Samples per JTMSK long message
+  parameter (NSPM=864)               !Samples per JTMSK long message
   integer*2 id2(0:NMAX)                !Raw i*2 data, up to T/R = 30 s
   integer hist(0:32868)
   real d(0:NMAX)                       !Raw r*4 data
@@ -54,10 +54,9 @@ subroutine jtmsk_decode(id2,narg,line)
 !### Would it be better to set median rms to 1.0 ?
 !  d(0:npts-1)=d(0:npts-1)/rms          !Normalize so that rms=1.0
   call mskdt(d,npts,ty,yellow,nyel)
-  print*,nyel
-  do i=1,nyel
-    print*,i,ty(i),yellow(i)
-  enddo
+!  do i=1,nyel
+!    print*,i,ty(i),yellow(i)
+!  enddo
 
   nyel=min(nyel,5)
 
@@ -65,17 +64,17 @@ subroutine jtmsk_decode(id2,narg,line)
   nfft=min(2**n,1024*1024)
   call analytic(d,npts,nfft,c)         !Convert to analytic signal and filter
 
-  nbefore=NSPM
-  nafter=4*NSPM
+  nafter=NSPM
 ! Process ping list (sorted by S/N) from top down.
 !  do n=1,nyel
-  do n=1,1
-     ia=ty(n)*12000.0 - nbefore
+  do n=1,nyel
+     ia=ty(n)*12000.0 - NSPM/2
      if(ia.lt.1) ia=1
-     ib=ia + nafter
+     ib=ia + 2*nafter-1
      if(ib.gt.NFFTMAX) ib=NFFTMAX
      iz=ib-ia+1
      cdat2(1:iz)=c(ia:ib)               !Select nlen complex samples
+     write(*,*) ty(1),ia,ib,iz
      ja=ia/NSPM + 1
      jb=ib/NSPM
      t0=ia/12000.0
@@ -86,7 +85,7 @@ subroutine jtmsk_decode(id2,narg,line)
         if(abs(idf1).gt.ntol) exit
         fpk=idf1 + nrxfreq
         call tweak1(cdat2,iz,1500.0-fpk,cdat)
-        call syncmsk(cdat,iz,jpk,ipk,idf,rmax,snr,metric,msg)
+        call syncmsk144(cdat,iz,jpk,ipk,idf,rmax,snr,metric,msg,freq)
         if(metric.eq.-9999) cycle             !No output if no significant sync
         if(msg(1:1).eq.' ') call jtmsk_short(cdat,iz,narg,tbest,idfpk,msg)
         if(msg(1:1).eq.'<' .and. naggressive.eq.0 .and.      &
@@ -96,15 +95,10 @@ subroutine jtmsk_decode(id2,narg,line)
               nline=nline+1
               nsnr0=-99
            endif
-           freq=fpk+idf
            t0=(ia+jpk)/12000.0
            y=10.0**(0.1*(yellow(n)-1.5))
            nsnr=max(-5,nint(db(y)))
            if(nsnr.gt.nsnr0 .and. nline.gt.0) then
-              call rectify_msk(cdat2(jpk:jpk+NSPM-1),msg,narg(13),freq2)
-              freq=freq2
-              if(msg(1:1).eq.'<') freq=freq2+idfpk
-!### Check freq values !!!
               write(line(nline),1020) nutc,nsnr,t0,nint(freq),msg
 1020          format(i6.6,i4,f5.1,i5,' & ',a22)
               nsnr0=nsnr

@@ -39,8 +39,8 @@ program JTMSKsim
   call genmsk144(msg,ichk,msgsent,itone,itype) 
   twopi=8.d0*atan(1.d0)
   
-  dphi0=twopi*1000/12000.0
-  dphi1=twopi*2000/12000.0
+  dphi0=twopi*(freq-500)/12000.0
+  dphi1=twopi*(freq+500)/12000.0
   phi=0.0
   indx=0
   do i=1,144

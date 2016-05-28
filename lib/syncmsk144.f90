@@ -1,4 +1,4 @@
-subroutine syncmsk(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
+subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
 
 ! Attempt synchronization, and if successful decode using Viterbi algorithm.
 
@@ -7,264 +7,252 @@ subroutine syncmsk(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
   use hashing
   use timer_module, only: timer
 
-  parameter (NSPM=840,NSAVE=2000)
+  parameter (NSPM=864,NSAVE=2000)
+  character*22 msgreceived
   character*85 pchk_file,gen_file
   complex cdat(npts)                    !Analytic signal
-  complex cb(72)                        !Complex waveform for bit-reversed B11 
-  complex cd(0:11,0:3)
-  complex c(0:NSPM-1)                   !Complex data for one message length
-  complex c2(0:NSPM-1)
-  complex cb3(1:NSPM,3)
-  real r(12000)
-  real rdat(12000)
-  real ss1(12000)
-  real symbol(140)
-  real rdata(140)
-  real rd2(128)
-  real rsave(NSAVE)
-  real xp(29)
+  complex c(NSPM)
+  complex ctmp(6000)                  
+  complex cb(42)                        !Complex waveform for sync word 
+  complex csum,cfac,cca,ccb
+  complex cc(npts)
+  complex cc1(npts)
+  complex cc2(npts)
+  complex cc3(npts)
+  integer s8(8),hardbits(144),hardword(128),unscrambledhardbits(128)
+  integer*1, target:: i1Dec8BitBytes(10)
+  integer, dimension(1) :: iloc
+  integer*4 i4Msg6BitWords(12)            !72-bit message as 6-bit words
+  integer*4 i4Dec6BitWords(12)  
+  integer*1 decoded(80)   
+  integer*1, allocatable :: message(:)
+  logical ismask(6000)
+  real cbi(42),cbq(42)
+  real tonespec(6000)
+  real rcw(12)
+  real dd(npts)
   real pp(12)                          !Half-sine pulse shape
-  real cbi(72),cbq(72)
-  complex z,z0,z1,z2,z3,cfac
-  integer*1 e1(128)
+  real*8 dt, df, fs, twopi
+  real softbits(144)
+  real*8 unscrambledsoftbits(128)
+  real lratio(128)
+ 
   integer*1, target :: d8(13)
   integer*1 i1hash(4)
   integer*1 i1
-  integer*4 i4Msg6BitWords(12)            !72-bit message as 6-bit words
-  integer mettab(0:255,0:1)               !Metric table for BPSK modulation
-  integer ipksave(NSAVE)
-  integer jpksave(NSAVE)
-  integer indx(NSAVE)
-  integer b11(11)                      !Barker-11 code
-  character*22 decoded
   character*72 c72
   logical first
   equivalence (i1,i4)
   equivalence (ihash,i1hash)
   data first/.true./
-  data b11/1,1,1,0,0,0,1,0,0,1,0/
-  save first,cb,cd,pi,twopi,dt,f0,f1,mettab
 
-  phi=0.
+  data s8/0,1,1,1,0,0,1,0/
+  save first,cb,cd,pi,twopi,dt,f0,f1
+
   if(first) then
+     print*,"Initializing ldpc."
      pchk_file="peg-128-80-reg3.pchk"
      gen_file="peg-128-80-reg3.gen"
      call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
 
-     pi=4.0*atan(1.0)
+! define half-sine pulse and raised-cosine edge window
+     pi=4d0*datan(1d0)
+     twopi=4d0*datan(1d0)
+     dt=1.0/12000.0
      do i=1,12
        angle=(i-1)*pi/12.0
        pp(i)=sin(angle)
+       rcw(i)=(1-cos(angle))/2
      enddo
 
-     cbi(1:12)=(2*b11(11)-1)*pp
-     cbi(13:24)=(2*b11(9)-1)*pp
-     cbi(25:36)=(2*b11(7)-1)*pp
-     cbi(37:48)=(2*b11(5)-1)*pp
-     cbi(49:60)=(2*b11(3)-1)*pp
-     cbi(61:72)=(2*b11(1)-1)*pp
-     cbq(1:6)=0.0
-     cbq(7:18)=(2*b11(10)-1)*pp
-     cbq(19:30)=(2*b11(8)-1)*pp
-     cbq(31:42)=(2*b11(6)-1)*pp
-     cbq(43:54)=(2*b11(4)-1)*pp
-     cbq(55:66)=(2*b11(2)-1)*pp
-     cbq(67:72)=0.0 
-     print*,"cb"
-     do i=1,72
-       print*,i,cbi(i),cbq(i)
-       cb(i)=complex(cbi(i),cbq(i))
-     enddo
+! define the sync word waveform
+     s8=2*s8-1  
+     cbq(1:6)=pp(7:12)*s8(1)
+     cbq(7:18)=pp*s8(3)
+     cbq(19:30)=pp*s8(5)
+     cbq(31:42)=pp*s8(7)
+     cbi(1:12)=pp*s8(2)
+     cbi(13:24)=pp*s8(4)
+     cbi(25:36)=pp*s8(6)
+     cbi(37:42)=pp(1:6)*s8(8)
+     cb=cmplx(cbi,cbq)
+!     print*,"cb"
+!     do i=1,42
+!       print*,i,cbi(i),cbq(i)
+!     enddo
  
      first=.false.
   endif
 
-  nfft=NSPM
-  jz=npts-nfft
-  decoded="                      "
-  ipk=0
-  jpk=0
-  metric=-9999
-  r=0.
+  
+! Coarse carrier frequency sync
+! look for tones near 2k and 4k in the analytic signal spectrum 
+! search range for coarse frequency error is +/- 100 Hz
+  fs=12000.0
+  nfft=6000      !using a zero-padded fft to get 2 Hz bins
+  df=fs/nfft
+
+  ctmp=cmplx(0.0,0.0)
+  ctmp(1:npts)=cdat**2   
+  ctmp(1:12)=ctmp(1:12)*rcw
+  ctmp(npts-11:npts)=ctmp(npts-11:npts)*rcw(12:1:-1)
+  call four2a(ctmp,nfft,1,-1,1)  
+  tonespec=abs(ctmp)**2 
+  ismask=.false.
+  ismask(1901:2101)=.true.  ! high tone search window
+  iloc=maxloc(tonespec,ismask)           
+  ihpk=iloc(1)
+  ah=tonespec(ihpk)
+  ismask=.false.
+  ismask(901:1101)=.true.   ! window for low tone
+  iloc=maxloc(tonespec,ismask)           
+  ilpk=iloc(1)
+  al=tonespec(ilpk)
+  if( ah .ge. al ) then
+    ferr=(ihpk-2001)*df/2.0 
+    tot=sum(tonespec(1901:2101))
+    q1=200*ah/(tot-tonespec(ihpk))
+  else
+    ferr=(ilpk-1001)*df/2.0
+    tot=sum(tonespec(901:1101))
+    q1=200*al/(tot-tonespec(ilpk))
+  endif
+  fdiff=(ihpk-ilpk)*df
+  write(*,*) "Coarse frequency error: ",ferr
+  write(*,*) "Tone / avg            : ",q1
+  write(*,*) "Tone separation       : ",fdiff
+
+! remove coarse freq error - should now be within a few Hz
+  call tweak1(cdat,npts,-(1500+ferr),cdat)
+
+! correlate with sync word waveform
+  cc=0
+  cc1=0
+  cc2=0
+  cc3=0
+  do i=1,npts-448-41
+    cc1(i)=sum(cdat(i:i+41)*conjg(cb))
+    cc2(i)=sum(cdat(i+56*6:i+56*6+41)*conjg(cb))
+  enddo
+  cc=cc1+cc2
+  dd=abs(cc1)*abs(cc2)
+  iloc=maxloc(abs(cc))           
+  ic1=iloc(1)
+  iloc=maxloc(dd)           
+  ic2=iloc(1)
+  
+  write(*,*) ic1,ic2
+  ic=ic2
+
   open(unit=78,file="blah.txt")
-  call timer('sync1   ',0)
-  do j=1,jz                               !Find the Barker-11 sync vectors
-     z=0.
-     ss=0.
-     do i=1, 72
-        ss=ss + real(cdat(j+i-1))**2 + aimag(cdat(j+i-1))**2
-        z=z + cdat(j+i-1)*conjg(cb(i))    !Signal matching Barker 11
-     enddo
-     ss=sqrt(ss/72.0)*72.0
-     r(j)=abs(z)/ss                       !Goodness-of-fit to Barker 11
-     ss1(j)=ss
-     write(78,*) j,r(j),ss1(j)
+  do i=1,npts-448-41
+    write(78,*) i,abs(cc1(i)),abs(cc2(i)),abs(cc(i)),dd(i)
   enddo
+  close(78)
 
-  z=0
-  dt=1.0/12000.0
-  do j=7,jz
-    z=z+(cdat(j)*conjg(cdat(j-6)))**2 
+  cca=sum(cdat(ic:ic+41)*conjg(cb))
+  ccb=sum(cdat(ic+56*6:ic+56*6+41)*conjg(cb))
+  phase0=atan2(imag(cca+ccb),real(cca+ccb))
+  cfac=ccb*conjg(cca)
+  ferr2=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
+  write(*,*) "Fine frequency error: ",ferr2
+  write(*,*) "Coarse Carrier phase       : ",phase0
+
+  f0=1500+ferr+ferr2
+  write(*,*) "Estimated f0        : ",f0
+
+! Remove fine frequency error
+  call tweak1(cdat,npts,-ferr2,cdat)
+
+! Estimate final carrier phase
+  cca=sum(cdat(ic:ic+41)*conjg(cb))
+  ccb=sum(cdat(ic+56*6:ic+56*6+41)*conjg(cb))
+  phase0=atan2(imag(cca+ccb),real(cca+ccb))
+  cfac=cmplx(cos(phase0),sin(phase0))
+  cdat=cdat*conjg(cfac)
+
+  open(unit=79,file="cdat.txt")
+  write(*,*) "npts = ",npts
+  do i=1,864
+    ii=ic+i-1
+    if( ii .gt. npts ) then
+      ii=ii-864
+    endif
+    c(i)=cdat(ii)
+    write(79,*) i,real(c(i)),imag(c(i))
   enddo
-  fff=(atan2(aimag(z),real(z))-pi)/(4*pi*6*dt)
-  print*,"Frequency error ",fff
-  call timer('sync1   ',1)
-
-  call timer('sync2   ',0)
-  jz=npts-nfft
-  rmax=0.
-!  n1=35, n2=69, n3=94
-  k=0
-  do j=1,jz                               !Find best full-message sync
-     if(ss1(j).lt.85.0) cycle
-     r1=r(j) + r(j+282) + r(j+768)        ! 6*(12+n1) 6*(24+n1+n2)
-     r2=r(j) + r(j+486) + r(j+1122)       ! 6*(12+n2) 6*(24+n2+n3)
-     r3=r(j) + r(j+636) + r(j+918)        ! 6*(12+n3) 6*(24+n3+n1)
-     if(r1.gt.rmax) then
-        rmax=r1
-        jpk=j
-        ipk=1
-     endif
-     if(r2.gt.rmax) then
-        rmax=r2
-        jpk=j
-        ipk=2
-     endif
-     if(r3.gt.rmax) then
-        rmax=r3
-        jpk=j
-        ipk=3
-     endif
-     rrmax=max(r1,r2,r3)
-     if(rrmax.gt.1.9) then
-        k=min(k+1,NSAVE)
-        if(r1.eq.rrmax) ipksave(k)=1
-        if(r2.eq.rrmax) ipksave(k)=2
-        if(r3.eq.rrmax) ipksave(k)=3
-        jpksave(k)=j
-        rsave(k)=rrmax
-     endif
+  close(79)
+  do i=1,72
+    softbits(2*i-1)=imag(c(1+(i-1)*12))
+    softbits(2*i)=real(c(7+(i-1)*12))  
   enddo
-  call timer('sync2   ',1)
-  kmax=k
+  hardbits=0
+  do i=1,144
+    if( softbits(i) .ge. 0.0 ) then
+      hardbits(i)=1
+    endif
+  enddo 
+  write(*,*) hardbits(1:8)
+  write(*,*) hardbits(57:57+7)
 
-  call indexx(rsave,kmax,indx)
+  hardword(1:48)=hardbits(9:9+47)  
+  hardword(49:128)=hardbits(65:65+80-1)  
+  unscrambledhardbits(1:127:2)=hardword(1:64) 
+  unscrambledhardbits(2:128:2)=hardword(65:128) 
+!  write(*,*) 'unscrambledhardbits',unscrambledhardbits
+  sav=sum(softbits)/144
+  s2av=sum(softbits*softbits)/144
+  ssig=sqrt(s2av-sav*sav)
+  softbits=softbits/ssig
 
-  call timer('sync3   ',0)
-  do kk=1,kmax
-     k=indx(kmax+1-kk)
-     ipk=ipksave(k)
-     jpk=jpksave(k)
-     rmax=rsave(k)
+  sigma=0.65
+  lratio(1:48)=softbits(9:9+47)
+  lratio(49:128)=softbits(65:65+80-1)
+  lratio=exp(2.0*lratio/(sigma*sigma))
+  
+  unscrambledsoftbits(1:127:2)=lratio(1:64) 
+  unscrambledsoftbits(2:128:2)=lratio(65:128) 
 
-     c=conjg(cb3(1:NSPM,ipk))*cdat(jpk:jpk+nfft-1)
-     smax=0.
-     dfx=0.
-     idfbest=0
-     do itry=1,25
-        idf=itry/2
-        if(mod(itry,2).eq.0) idf=-idf
-        idf=4*idf
-        twk=idf
-        call tweak1(c,NSPM,-twk,c2)
-        z=sum(c2)
-        if(abs(z).gt.smax) then
-           dfx=twk
-           smax=abs(z)
-           phi=atan2(aimag(z),real(z))            !Carrier phase offset
-           idfbest=idf
-        endif
-     enddo
-     idf=idfbest
-     call tweak1(cdat,npts,-dfx,cdat)
-     cfac=cmplx(cos(phi),-sin(phi))
-     cdat=cfac*cdat
+  max_iterations=50
+  max_dither=1
+  call ldpc_decode(unscrambledsoftbits, decoded, max_iterations, niterations, max_dither, ndither)
+  write(*,*) 'after decoder ',niterations, ndither
 
-     sig=0.
-     ref=0.
-     rdat(1:npts)=cdat
-     iz=11
-     do k=1,234                                !Compute soft symbols
-        j=jpk+6*(k-1)
+  if( niterations .ge. 0 ) then 
+! The decoder found a codeword - compare decoded hash with calculated
 
-        z0=2.0*dot_product(cdat(j:j+iz),cd(0:iz,0))
-        z1=2.0*dot_product(cdat(j:j+iz),cd(0:iz,1))
-        z2=2.0*dot_product(cdat(j:j+iz),cd(0:iz,2))
-        z3=2.0*dot_product(cdat(j:j+iz),cd(0:iz,3))
+! Collapse 80 decoded bits to 10 bytes. Bytes 1-9 are the message, bute 10 is the hash
+    do ibyte=1,10   
+      itmp=0
+      do ibit=1,8
+        itmp=ishft(itmp,1)+iand(1,decoded((ibyte-1)*8+ibit))
+      enddo
+      i1Dec8BitBytes(ibyte)=itmp
+    enddo
 
-!### Maybe these should be weighted by yellow() ?
-        if(j+1404+iz.lt.npts) then
-           z0=z0 + dot_product(cdat(j+1404:j+1404+iz),cd(0:iz,0))
-           z1=z1 + dot_product(cdat(j+1404:j+1404+iz),cd(0:iz,1))
-           z2=z2 + dot_product(cdat(j+1404:j+1404+iz),cd(0:iz,2))
-           z3=z3 + dot_product(cdat(j+1404:j+1404+iz),cd(0:iz,3))
-        endif
+! Calculate the hash using the first 9 bytes.
+    ihashdec=nhash(c_loc(i1Dec8BitBytes),int(9,c_size_t),146)
+    ihashdec=2*iand(ihashdec,255)
 
-        if(j-1404.ge.1) then
-           z0=z0 + dot_product(cdat(j-1404:j-1404+iz),cd(0:iz,0))
-           z1=z1 + dot_product(cdat(j-1404:j-1404+iz),cd(0:iz,1))
-           z2=z2 + dot_product(cdat(j-1404:j-1404+iz),cd(0:iz,2))
-           z3=z3 + dot_product(cdat(j-1404:j-1404+iz),cd(0:iz,3))
-        endif
-
-        sym=max(abs(real(z2)),abs(real(z3))) - max(abs(real(z0)),abs(real(z1)))
-
-        if(sym.lt.0.0) then
-           phi=atan2(aimag(z0),real(z0))
-           sig=sig + real(z0)**2
-           ref=ref + aimag(z0)**2
-        else
-           phi=atan2(aimag(z1),real(z1))
-           sig=sig + real(z1)**2
-           ref=ref + aimag(z1)**2
-        endif
-        n=k
-        if(ipk.eq.2) n=k+47
-        if(ipk.eq.3) n=k+128
-        if(n.gt.234) n=n-234
-        ibit=0
-        if(sym.ge.0) ibit=1
-        symbol(n)=sym
-     enddo
-     snr=db(sig/ref-1.0)
-
-!     rdata(1:35)=symbol(12:46)
-!     rdata(36:104)=symbol(59:127)
-!     rdata(105:198)=symbol(140:233)
-
-! Re-order the symbols and make them i*1
-     j=0
-     do i=1,99
-        i4=128+rdata(i)                       !### Should be nint() ??? ###
-        if(i4.gt.255)  i4=255
-        if(i4.lt.0) i4=0
-        j=j+1
-        e1(j)=i1
-        rd2(j)=rdata(i)
-        i4=128+rdata(i+99)
-        if(i4.gt.255)  i4=255
-        if(i4.lt.0) i4=0
-        j=j+1
-        e1(j)=i1
-        rd2(j)=rdata(i+99)
-     enddo
-
-! Decode the message
-     nb1=87
-     call vit213(e1,nb1,mettab,d8,metric)
-     ihash=nhash(c_loc(d8),int(9,c_size_t),146)
-     ihash=2*iand(ihash,32767)
-     decoded='                      '
-     if(d8(10).eq.i1hash(2) .and. d8(11).eq.i1hash(1)) then
-        write(c72,1012) d8(1:9)
-1012    format(9b8.8)
-        read(c72,1014) i4Msg6BitWords
-1014    format(12b6.6)
-        call unpackmsg(i4Msg6BitWords,decoded)      !Unpack to get msgsent
+! Compare calculated hash with received byte 10 - if they agree, keep the message.
+    i1hashdec=ihashdec
+    if( i1hashdec .ne. i1Dec8BitBytes(10) ) then
+       nbadhash=nbadhash+1
+       nhashflag=1
      endif
-     if(decoded.ne.'                      ') exit
-  enddo
-  call timer('sync3   ',1)
 
-  return
-end subroutine syncmsk
+! unpack 72-bit message
+     do ibyte=1,12
+       itmp=0
+       do ibit=1,6
+         itmp=ishft(itmp,1)+iand(1,decoded((ibyte-1)*6+ibit))
+       enddo
+       i4Dec6BitWords(ibyte)=itmp
+     enddo
+     call unpackmsg(i4Dec6BitWords,msgreceived)
+     print*,"Received ",msgreceived
+endif
+
+return
+
+end subroutine syncmsk144
