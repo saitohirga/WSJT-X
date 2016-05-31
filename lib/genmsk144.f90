@@ -1,7 +1,7 @@
 subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
 
 !!!!!!!!!!!!!!!!!! Experimental small blocklength ldpc version
-! s8 + 48bits + s8 + 40 bits = 144 bits (72ms message duration)
+! s8 + 48bits + s8 + 80 bits = 144 bits (72ms message duration)
 !
 ! Encode a JTMSK message
 ! Input:
