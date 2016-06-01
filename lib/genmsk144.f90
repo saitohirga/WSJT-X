@@ -160,6 +160,6 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
 
 ! Flip polarity
   i4tone=-i4tone+1
-
+  
 999 return
 end subroutine genmsk144

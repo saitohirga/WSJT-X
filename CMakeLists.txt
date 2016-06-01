@@ -355,6 +355,7 @@ set (wsjt_FSRCS
   lib/gen9.f90
   lib/geniscat.f90
   lib/genmsk.f90
+  lib/genmsk144.f90
   lib/genmsk_short.f90
   lib/genwspr.f90
   lib/geodist.f90
@@ -384,6 +385,7 @@ set (wsjt_FSRCS
   lib/jt9_decode.f90
   lib/jt9fano.f90
   lib/JTMSKsim.f90
+  lib/msk144sim.f90
   lib/jtmsk_decode.f90
   lib/jtmsk_short.f90
   lib/ldpcsim.f90
@@ -396,6 +398,8 @@ set (wsjt_FSRCS
   lib/morse.f90
   lib/move.f90
   lib/mskdt.f90
+  lib/msk144d.f90
+  lib/msk144_decode.f90
   lib/options.f90
   lib/packjt.f90
   lib/pctile.f90
@@ -435,6 +439,7 @@ set (wsjt_FSRCS
   lib/sync9w.f90
   lib/synciscat.f90
   lib/syncmsk.f90
+  lib/syncmsk144.f90
   lib/timer_C_wrapper.f90
   lib/timer_impl.f90
   lib/timer_module.f90
@@ -1022,6 +1027,12 @@ target_link_libraries (ldpcsim wsjt_fort wsjt_cxx)
 
 add_executable (JTMSKsim lib/JTMSKsim.f90 wsjtx.rc)
 target_link_libraries (JTMSKsim wsjt_fort wsjt_cxx)
+
+add_executable (msk144sim lib/msk144sim.f90 wsjtx.rc)
+target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
+
+add_executable (msk144d lib/msk144d.f90 wsjtx.rc)
+target_link_libraries (msk144d wsjt_fort wsjt_cxx)
 
 add_executable (jt9 ${jt9_FSRCS} ${jt9_CXXSRCS} wsjtx.rc)
 if (${OPENMP_FOUND} OR APPLE)

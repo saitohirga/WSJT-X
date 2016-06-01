@@ -1,4 +1,4 @@
-program JTMSKsim
+program msk144sim
 
   use wavhdr
   parameter (NMAX=15*12000)
@@ -17,10 +17,9 @@ program JTMSKsim
 
   nargs=iargc()
   if(nargs.ne.5) then
-     print*,'Usage:    JTMSKsim        message       freq width snr nfiles'
+     print*,'Usage:    msk144sim        message       freq width snr nfiles'
      print*,' '
-     print*,'Examples: JTMSKsim  "K1ABC W9XYZ EN37"  1500  0.12  2   1'
-     print*,'          JTMSKsim  "<K1ABC W9XYZ> R26" 1500  0.01  1   3'
+     print*,'Example: msk144sim  "K1ABC W9XYZ EN37"  1500  0.12  2   1'
      go to 999
   endif
   call getarg(1,msg)
@@ -86,4 +85,4 @@ program JTMSKsim
 
   enddo
 
-999 end program JTMSKsim
+999 end program msk144sim
