@@ -1,7 +1,4 @@
-subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
-
-! Attempt synchronization, and if successful decode using Viterbi algorithm.
-
+subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   use iso_c_binding, only: c_loc,c_size_t
   use packjt
   use hashing
@@ -43,13 +40,11 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
   data s8/0,1,1,1,0,0,1,0/
   save first,cb,cd,pi,twopi,dt,f0,f1
 
-  open(unit=78,file="/Users/sfranke/Builds/wsjtx_install/sfdebug.txt")
   if(first) then
-     write(78,*) "Initializing ldpc."
-     pchk_file="/Users/sfranke/Builds/wsjtx_install/peg-128-80-reg3.pchk"
-     gen_file="/Users/sfranke/Builds/wsjtx_install/peg-128-80-reg3.gen"
+! These files can be found in /lib/ldpc/jtmode_codes directory
+     pchk_file="peg-128-80-reg3.pchk"
+     gen_file="peg-128-80-reg3.gen"
      call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
-     write(78,*) "after init_ldpc"
 ! define half-sine pulse and raised-cosine edge window
      pi=4d0*datan(1d0)
      twopi=8d0*datan(1d0)
@@ -75,7 +70,6 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
      first=.false.
   endif
 
-  
 ! Coarse carrier frequency sync
 ! look for tones near 2k and 4k in the analytic signal spectrum 
 ! search range for coarse frequency error is +/- 100 Hz
@@ -89,6 +83,7 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
   ctmp(npts-11:npts)=ctmp(npts-11:npts)*rcw(12:1:-1)
   call four2a(ctmp,nfft,1,-1,1)  
   tonespec=abs(ctmp)**2 
+
   ismask=.false.
   ismask(1901:2101)=.true.  ! high tone search window
   iloc=maxloc(tonespec,ismask)           
@@ -110,9 +105,9 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
   endif
   fdiff=(ihpk-ilpk)*df
 
-!  write(78,*) "Coarse frequency error: ",ferr
-!  write(78,*) "Tone / avg            : ",q1
-!  write(78,*) "Tone separation       : ",fdiff
+  write(78,*) "Coarse frequency error: ",ferr
+  write(78,*) "Tone / avg            : ",q1
+  write(78,*) "Tone separation       : ",fdiff
 
 ! remove coarse freq error - should now be within a few Hz
   call tweak1(cdat,npts,-(1500+ferr),cdat)
@@ -133,7 +128,7 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
   iloc=maxloc(dd)           
   ic2=iloc(1)
   
-!  write(78,*) "Syncs: ic1,ic2 ",ic1,ic2
+  write(78,*) "Syncs: ic1,ic2 ",ic1,ic2
   ic=ic2
 
 !  do i=1,npts-448-41
@@ -145,8 +140,8 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
   phase0=atan2(imag(cca+ccb),real(cca+ccb))
   cfac=ccb*conjg(cca)
   ferr2=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
- write(78,*) "Fine frequency error: ",ferr2
- write(78,*) "Coarse Carrier phase       : ",phase0
+  write(78,*) "Fine frequency error: ",ferr2
+  write(78,*) "Coarse Carrier phase       : ",phase0
 
   fest=1500+ferr+ferr2
   write(78,*) "Estimated f0        : ",fest
@@ -182,8 +177,12 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
       hardbits(i)=1
     endif
   enddo 
-!  write(78,*) hardbits(1:8)
-!  write(78,*) hardbits(57:57+7)
+
+! calculated the number of sync-word bits that are incorrect
+  nbadsync=sum(s8*(2*hardbits(1:8)-1))
+  nbadsync=nbadsync+sum(s8*(2*hardbits(57:57+7)-1))
+  nbadsync=16-nbadsync
+  write(78,*) nbadsync," bad sync bits"
 
   hardword(1:48)=hardbits(9:9+47)  
   hardword(49:128)=hardbits(65:65+80-1)  
@@ -240,7 +239,6 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
       enddo
       call unpackmsg(i4Dec6BitWords,msgreceived)
     endif
-close(78)
 return
 
 end subroutine syncmsk144
