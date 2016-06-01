@@ -53,8 +53,9 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
   if( first ) then
     first=.false.
     nsym=128
-    pchk_file="peg-128-80-reg3.pchk"
-    gen_file="peg-128-80-reg3.gen"
+!! Fix this
+    pchk_file="/Users/sfranke/Builds/wsjtx_install/peg-128-80-reg3.pchk"
+    gen_file="/Users/sfranke/Builds/wsjtx_install/peg-128-80-reg3.gen"
     call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))  
     pi=4.*atan(1.0)
     twopi=8.*atan(1.0)
@@ -124,13 +125,10 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
      enddo
 
      call ldpc_encode(msgbits,codeword)
-write(*,*) 'codeword',codeword
-     j=0
-     do i=1,nsym/2                               !Reorder the encoded bits
-       j=j+1
-       reorderedcodeword(j)=codeword(2*i-1)
-       reorderedcodeword(j+nsym/2)=codeword(2*i)
-     enddo
+
+! Reorder the bits.
+     reorderedcodeword(1:64)=codeword(1:127:2)
+     reorderedcodeword(65:128)=codeword(2:128:2)
 
 !Create 144-bit channel vector:
 !8-bit sync word + 48 bits + 8-bit sync word + 80 bits
@@ -146,18 +144,11 @@ write(*,*) 'codeword',codeword
        is=(i-1)*12+7
        xq(is:is+11)=bitseq(2*i+1)*pp
      enddo 
-     xq(864-5:864)=bitseq(1)*pp(1:6)   !first half of last zero bit on q channel
+     xq(864-5:864)=bitseq(1)*pp(1:6)   !last half symbol
      do i=1,72                                    
        is=(i-1)*12+1
        xi(is:is+11)=bitseq(2*i)*pp
      enddo
-
-!     dphi=2*pi*1500/12000.0;
-!     phi=0.0
-!     do i=1,864
-!       waveform(i)=imag(complex(xi(i),xq(i))*complex(cos(phi),sin(phi)))
-!       phi=mod(phi+dphi,twopi)
-!     enddo
 
 ! Map I and Q  to tones. 
     i4tone=0 
@@ -167,14 +158,8 @@ write(*,*) 'codeword',codeword
     enddo
   endif
 
-! Had to flip the polarity - not sure if this will be needed when we are 
-! sending the tone to  Modulator.cpp.
+! Flip polarity
   i4tone=-i4tone+1
-
-!  print*,"transmitted tones"
-!  do i=1,144
-!    print*,i,bitseq(i),i4tone(i)
-!  enddo
 
 999 return
 end subroutine genmsk144
