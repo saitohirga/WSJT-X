@@ -162,6 +162,7 @@ contains
     call timer('sync4   ',1)
 
     snrx=db(sync) - 26.
+    if(snrx.lt.-26.0) snrx=-26.0
     nsnr=nint(snrx)
     if(sync.lt.syncmin) then
        if (associated (this%decode_callback)) then
