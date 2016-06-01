@@ -86,7 +86,6 @@ subroutine jtmsk_decode(id2,narg,line)
         fpk=idf1 + nrxfreq
         call tweak1(cdat2,iz,1500.0-fpk,cdat)
         call syncmsk144(cdat,iz,jpk,ipk,idf,rmax,snr,metric,msg,freq)
-print*,'returned message :',msg
         if(metric.eq.-9999) cycle             !No output if no significant sync
         if(msg(1:1).eq.' ') call jtmsk_short(cdat,iz,narg,tbest,idfpk,msg)
         if(msg(1:1).eq.'<' .and. naggressive.eq.0 .and.      &
@@ -109,11 +108,11 @@ print*,'returned message :',msg
 !           if(nline.ge.maxlines) go to 900
         endif
      enddo
-     print*,'c',nutc,n,nint(yellow(n)-4.0),freq,freq2
+!     print*,'c',nutc,n,nint(yellow(n)-4.0),freq,freq2
   enddo
 
 900 continue
-  print*,'d',nutc,n,nint(yellow(n)-4.0),freq,freq2
+!  print*,'d',nutc,n,nint(yellow(n)-4.0),freq,freq2
   if(line(1)(1:6).eq.'      ') line(1)(1:1)=char(0)
 
   return

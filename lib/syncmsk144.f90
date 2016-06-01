@@ -43,12 +43,13 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
   data s8/0,1,1,1,0,0,1,0/
   save first,cb,cd,pi,twopi,dt,f0,f1
 
+  open(unit=78,file="/Users/sfranke/Builds/wsjtx_install/sfdebug.txt")
   if(first) then
-     print*,"Initializing ldpc."
-     pchk_file="peg-128-80-reg3.pchk"
-     gen_file="peg-128-80-reg3.gen"
+     write(78,*) "Initializing ldpc."
+     pchk_file="/Users/sfranke/Builds/wsjtx_install/peg-128-80-reg3.pchk"
+     gen_file="/Users/sfranke/Builds/wsjtx_install/peg-128-80-reg3.gen"
      call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
-
+     write(78,*) "after init_ldpc"
 ! define half-sine pulse and raised-cosine edge window
      pi=4d0*datan(1d0)
      twopi=8d0*datan(1d0)
@@ -70,11 +71,7 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
      cbi(25:36)=pp*s8(6)
      cbi(37:42)=pp(1:6)*s8(8)
      cb=cmplx(cbi,cbq)
-!     print*,"cb"
-!     do i=1,42
-!       print*,i,cbi(i),cbq(i)
-!     enddo
- 
+
      first=.false.
   endif
 
@@ -112,9 +109,10 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
     q1=200*al/(tot-tonespec(ilpk))
   endif
   fdiff=(ihpk-ilpk)*df
-  write(*,*) "Coarse frequency error: ",ferr
-  write(*,*) "Tone / avg            : ",q1
-  write(*,*) "Tone separation       : ",fdiff
+
+!  write(78,*) "Coarse frequency error: ",ferr
+!  write(78,*) "Tone / avg            : ",q1
+!  write(78,*) "Tone separation       : ",fdiff
 
 ! remove coarse freq error - should now be within a few Hz
   call tweak1(cdat,npts,-(1500+ferr),cdat)
@@ -135,25 +133,23 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
   iloc=maxloc(dd)           
   ic2=iloc(1)
   
-  write(*,*) "Syncs: ic1,ic2 ",ic1,ic2
+!  write(78,*) "Syncs: ic1,ic2 ",ic1,ic2
   ic=ic2
 
-!  open(unit=78,file="blah.txt")
 !  do i=1,npts-448-41
 !    write(78,*) i,abs(cc1(i)),abs(cc2(i)),abs(cc(i)),dd(i),abs(cc3(i))
 !  enddo
-!  close(78)
 
   cca=sum(cdat(ic:ic+41)*conjg(cb))
   ccb=sum(cdat(ic+56*6:ic+56*6+41)*conjg(cb))
   phase0=atan2(imag(cca+ccb),real(cca+ccb))
   cfac=ccb*conjg(cca)
   ferr2=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
-  write(*,*) "Fine frequency error: ",ferr2
-  write(*,*) "Coarse Carrier phase       : ",phase0
+ write(78,*) "Fine frequency error: ",ferr2
+ write(78,*) "Coarse Carrier phase       : ",phase0
 
   fest=1500+ferr+ferr2
-  write(*,*) "Estimated f0        : ",fest
+  write(78,*) "Estimated f0        : ",fest
 
 ! Remove fine frequency error
   call tweak1(cdat,npts,-ferr2,cdat)
@@ -164,22 +160,18 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
   cfac=ccb*conjg(cca)
   ffin=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
   phase0=atan2(imag(cca+ccb),real(cca+ccb))
-  write(*,*) "Final freq    error: ",ffin
+  write(78,*) "Final freq    error: ",ffin
 
   cfac=cmplx(cos(phase0),sin(phase0))
   cdat=cdat*conjg(cfac)
 
-  open(unit=79,file="cdat.txt")
-  write(*,*) "npts = ",npts
   do i=1,864
     ii=ic+i-1
     if( ii .gt. npts ) then
       ii=ii-864
     endif
     c(i)=cdat(ii)
-    write(79,*) i,real(c(i)),imag(c(i))
   enddo
-  close(79)
   do i=1,72
     softbits(2*i-1)=imag(c(1+(i-1)*12))
     softbits(2*i)=real(c(7+(i-1)*12))  
@@ -190,8 +182,8 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
       hardbits(i)=1
     endif
   enddo 
-!  write(*,*) hardbits(1:8)
-!  write(*,*) hardbits(57:57+7)
+!  write(78,*) hardbits(1:8)
+!  write(78,*) hardbits(57:57+7)
 
   hardword(1:48)=hardbits(9:9+47)  
   hardword(49:128)=hardbits(65:65+80-1)  
@@ -213,7 +205,7 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
   max_iterations=20
   max_dither=100
   call ldpc_decode(unscrambledsoftbits, decoded, max_iterations, niterations, max_dither, ndither)
-  write(*,*) 'Decoder used ',niterations,' and ',ndither,' dither trials.'
+  write(78,*) 'Decoder used ',niterations,'iterations and ',ndither,' dither trials.'
 
   if( niterations .lt. 0 ) then 
     msgreceived=' '
@@ -236,7 +228,6 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
 
 ! Compare calculated hash with received byte 10 - if they agree, keep the message.
     i1hashdec=ihashdec
-    write(*,*) "Hashes",i1hashdec,i1Dec8BitBytes(10)
 
     if( i1hashdec .eq. i1Dec8BitBytes(10) ) then
 ! Good hash --- unpack 72-bit message
@@ -249,7 +240,7 @@ subroutine syncmsk144(cdat,npts,jpk,ipk,idf,rmax,snr,metric,msgreceived,fest)
       enddo
       call unpackmsg(i4Dec6BitWords,msgreceived)
     endif
-
+close(78)
 return
 
 end subroutine syncmsk144
