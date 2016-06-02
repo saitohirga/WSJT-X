@@ -71,7 +71,7 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   endif
 
 ! Coarse carrier frequency sync
-! look for tones near 2k and 4k in the analytic signal spectrum 
+! look for tones near 2k and 4k in the (analytic signal)**2 spectrum 
 ! search range for coarse frequency error is +/- 100 Hz
   fs=12000.0
   nfft=6000      !using a zero-padded fft to get 2 Hz bins
@@ -103,20 +103,17 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
     tot=sum(tonespec(901:1101))
     q1=200*al/(tot-tonespec(ilpk))
   endif
-  fdiff=(ihpk-ilpk)*df
-
-  write(78,*) "Coarse frequency error: ",ferr
-  write(78,*) "Tone / avg            : ",q1
-  write(78,*) "Tone separation       : ",fdiff
+  fdiff=(ihpk-ilpk)*df 
 
 ! remove coarse freq error - should now be within a few Hz
   call tweak1(cdat,npts,-(1500+ferr),cdat)
 
-! correlate with sync word waveform
+! attempt frame synchronization
+! correlate with sync word waveforms - the resulting complex
+! correlations provide all synch information.
   cc=0
   cc1=0
   cc2=0
-  cc3=0
   do i=1,npts-448-41
     cc1(i)=sum(cdat(i:i+41)*conjg(cb))
     cc2(i)=sum(cdat(i+56*6:i+56*6+41)*conjg(cb))
@@ -127,39 +124,38 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   ic1=iloc(1)
   iloc=maxloc(dd)           
   ic2=iloc(1)
-  
-  write(78,*) "Syncs: ic1,ic2 ",ic1,ic2
+! the goal is for ic to be the index of the first sample of the message
+! This parameter could be dithered
   ic=ic2
 
-!  do i=1,npts-448-41
-!    write(78,*) i,abs(cc1(i)),abs(cc2(i)),abs(cc(i)),dd(i),abs(cc3(i))
-!  enddo
-
+! Estimate fine frequency error and initial carrier phase using 
+! difference and sum of sync-word phases. Only frequency error is used.
   cca=sum(cdat(ic:ic+41)*conjg(cb))
   ccb=sum(cdat(ic+56*6:ic+56*6+41)*conjg(cb))
   phase0=atan2(imag(cca+ccb),real(cca+ccb))
   cfac=ccb*conjg(cca)
   ferr2=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
-  write(78,*) "Fine frequency error: ",ferr2
-  write(78,*) "Coarse Carrier phase       : ",phase0
 
+! Final estimate of the carrier frequency - returned to the calling program
   fest=1500+ferr+ferr2
-  write(78,*) "Estimated f0        : ",fest
 
 ! Remove fine frequency error
   call tweak1(cdat,npts,-ferr2,cdat)
 
-! Estimate final carrier phase
+! Estimate final frequency error and carrier phase using 
+! difference and sum of sync-word phases
   cca=sum(cdat(ic:ic+41)*conjg(cb))
   ccb=sum(cdat(ic+56*6:ic+56*6+41)*conjg(cb))
   cfac=ccb*conjg(cca)
   ffin=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
   phase0=atan2(imag(cca+ccb),real(cca+ccb))
-  write(78,*) "Final freq    error: ",ffin
 
+! Remove the static phase error from the data
   cfac=cmplx(cos(phase0),sin(phase0))
   cdat=cdat*conjg(cfac)
 
+! we hope that we are synced. For now we use only the frame
+! that starts at ic
   do i=1,864
     ii=ic+i-1
     if( ii .gt. npts ) then
@@ -182,7 +178,6 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   nbadsync=sum(s8*(2*hardbits(1:8)-1))
   nbadsync=nbadsync+sum(s8*(2*hardbits(57:57+7)-1))
   nbadsync=16-nbadsync
-  write(78,*) nbadsync," bad sync bits"
 
   hardword(1:48)=hardbits(9:9+47)  
   hardword(49:128)=hardbits(65:65+80-1)  
@@ -202,9 +197,8 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   unscrambledsoftbits(2:128:2)=lratio(65:128) 
 
   max_iterations=20
-  max_dither=100
+  max_dither=50
   call ldpc_decode(unscrambledsoftbits, decoded, max_iterations, niterations, max_dither, ndither)
-  write(78,*) 'Decoder used ',niterations,'iterations and ',ndither,' dither trials.'
 
   if( niterations .lt. 0 ) then 
     msgreceived=' '
@@ -239,6 +233,8 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
       enddo
       call unpackmsg(i4Dec6BitWords,msgreceived)
     endif
+
+write(78,*) fest,nbadsync,phase0,niterations,ndither,i1hashdec,i1Dec8BitBytes(10),msgreceived
 return
 
 end subroutine syncmsk144
