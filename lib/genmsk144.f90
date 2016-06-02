@@ -54,8 +54,10 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
     first=.false.
     nsym=128
 !! Fix this
-    pchk_file="/Users/sfranke/Builds/wsjtx_install/peg-128-80-reg3.pchk"
-    gen_file="/Users/sfranke/Builds/wsjtx_install/peg-128-80-reg3.gen"
+!    pchk_file="/Users/sfranke/Builds/wsjtx_install/peg-128-80-reg3.pchk"
+!    gen_file="/Users/sfranke/Builds/wsjtx_install/peg-128-80-reg3.gen"
+    pchk_file="peg-128-80-reg3.pchk"
+    gen_file="peg-128-80-reg3.gen"
     call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))  
     pi=4.*atan(1.0)
     twopi=8.*atan(1.0)
