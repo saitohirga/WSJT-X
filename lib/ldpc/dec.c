@@ -392,6 +392,7 @@ void ldpc_decode_ ( double lratio[], char decoded[], int *max_iterations, int *n
   float fac;
   
   max_iter=*max_iterations;
+  srand(-1);
   for (itry=0; itry< *max_dither; itry++) {
     for (i=0; i<N; i++) {
        if( itry == 0 ) {
