@@ -1,5 +1,5 @@
-subroutine sync4(dat,jz,ntol,NFreeze,nfqso,mode,mode4,minwidth,    &
-     dtx,dfx,snrx,snrsync,ccfblue,ccfred1,flip,width)
+subroutine sync4(dat,jz,ntol,NFreeze,MouseDF,mode,mode4,minwidth,    &
+     dtx,dfx,snrx,snrsync,ccfblue,ccfred1,flip,width,ps0)
 
 ! Synchronizes JT4 data, finding the best-fit DT and DF.  
 
@@ -9,6 +9,7 @@ subroutine sync4(dat,jz,ntol,NFreeze,nfqso,mode,mode4,minwidth,    &
   integer ntol                     !Range of DF search
   real dat(jz)
   real psavg(NHMAX)                !Average spectrum of whole record
+  real ps0(450)                    !Avg spectrum for plotting
   real s2(NHMAX,NSMAX)             !2d spectrum, stepped by half-symbols
   real ccfblue(-5:540)             !CCF with pseudorandom sequence
   real ccfred(-450:450)            !Peak of ccfblue, as function of freq
@@ -21,6 +22,9 @@ subroutine sync4(dat,jz,ntol,NFreeze,nfqso,mode,mode4,minwidth,    &
   equivalence (ipk1,ipk1a)
   data nch/1,2,4,9,18,36,72/
   save
+
+!  write(*,3001) 'A',ntol,nfreeze,mousedf,mode,mode4,minwidth
+!3001 format(a1,6i6)
 
 ! Do FFTs of twice symbol length, stepped by half symbols.  Note that 
 ! we have already downsampled the data by factor of 2.
@@ -42,21 +46,18 @@ subroutine sync4(dat,jz,ntol,NFreeze,nfqso,mode,mode4,minwidth,    &
   nsmo=min(10*mode4,150)
   call flat1b(psavg,nsmo,s2,nh,nsteps,NHMAX,NSMAX)        !Flatten spectra
 
-  if(mode4.ge.9) then
-     call smo(psavg,nh,tmp,mode4/4)
-     psavg=psavg/(mode4/4.0)
-     do j=1,nsteps
-        call smo(s2(1,j),nh,tmp,mode4/4)
-     enddo
-     s2=s2/(mode4/4.0)
-  endif
+  if(mode4.ge.9) call smo(psavg,nh,tmp,mode4/4)
+
+  i0=132
+  do i=1,450
+     ps0(i)=5.0*(psavg(i0+2*i) + psavg(i0+2*i+1) - 2.0)
+  enddo
 
 ! Set freq and lag ranges
   famin=200.0 + 3*mode4*df
   fbmax=2700.0 - 3*mode4*df
   fa=famin
   fb=fbmax
-  mousedf=nint(nfqso + 1.5*4.375*mode4 - 1270.46)
   if(NFreeze.eq.1) then
      fa=max(famin,1270.46+MouseDF-ntol)
      fb=min(fbmax,1270.46+MouseDF+ntol)
@@ -76,23 +77,21 @@ subroutine sync4(dat,jz,ntol,NFreeze,nfqso,mode,mode4,minwidth,    &
   ccfred=0.
   jmax=-1000
   jmin=1000
-!  rewind 83
 
   do ich=minwidth,7                       !Find best width
+     kz=nch(ich)/2
      savered=.false.
-     do i=ia,ib                           !Find best frequency channel for CCF
+     do i=ia+kz,ib-kz                     !Find best frequency channel for CCF
         call xcor4(s2,i,nsteps,nsym,lag1,lag2,ich,mode4,ccfblue,ccf0,   &
              lagpk0,flip)
         j=i-i0 + 3*mode4
         if(j.ge.-372 .and. j.le.372) then
            ccfred(j)=ccf0
-!           write(83,4001) i*df,ccf0
-!4001       format(f10.1,e12.3)
            jmax=max(j,jmax)
            jmin=min(j,jmin)
         endif
 
-! Normalize ccfblue so that baseline rms = 1.0
+! Find rms of the CCF, without main peak
         call slope(ccfblue(lag1),lag2-lag1+1,lagpk0-lag1+1.0)
         sync=abs(ccfblue(lagpk0))
 
@@ -174,28 +173,7 @@ subroutine sync4(dat,jz,ntol,NFreeze,nfqso,mode,mode4,minwidth,    &
   enddo
   width=(i-i1)*df
 
-!  rewind 80
-!  rewind 81
-!  rewind 82
-
-!  do i=1,NHMAX
-!     write(80,3004) i*df,psavg(i),sum(s2(i,1:nsteps))
-!3004 format(f10.1,2e12.3)
-!  enddo
-
-!  do i=jmin,jmax
-!     write(81,3001) i,ccfred1(i),width
-!3001 format(i5,2f10.3)
-!  enddo
-!  do i=lag1,lag2
-!     write(82,3002) i,ccfblue(i)
-!3002 format(i5,f10.3)
-!  enddo
-!  flush(80)
-!  flush(81)
-!  flush(82)
-!  flush(83)
-
   return
 end subroutine sync4
 
+include 'flat1b.f90'
