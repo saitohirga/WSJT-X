@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>896</width>
+    <height>565</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>WSJT-X   by K1JT</string>
   </property>
@@ -2282,6 +2290,14 @@ QPushButton[state=&quot;ok&quot;] {
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>896</width>
+     <height>21</height>
+    </rect>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
@@ -2358,6 +2374,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="separator"/>
     <addaction name="actionISCAT"/>
     <addaction name="actionJTMSK"/>
+    <addaction name="actionMSK144"/>
    </widget>
    <widget class="QMenu" name="menuConfig">
     <property name="title">
@@ -2817,6 +2834,14 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
    <property name="whatsThis">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Download sample audio files demonstrating the various modes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </action>
+  <action name="actionMSK144">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>MSK144</string>
    </property>
   </action>
  </widget>

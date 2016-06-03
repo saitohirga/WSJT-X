@@ -22,6 +22,7 @@ public:
     Echo,
     ISCAT,
     JTMSK,
+    MSK144,
   };
   Q_ENUM (Mode)
 

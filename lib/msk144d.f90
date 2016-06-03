@@ -63,7 +63,7 @@ program msk144d
      read(unit=wav%lun) id2(1:npts)
      close(unit=wav%lun)
      call timer('read    ',1)
-     call msk144_decode(id2,npts,nutc,line)
+     call msk144_decode(id2,npts,nutc,1,line)
   enddo
 
   call timer('msk144    ',1)
