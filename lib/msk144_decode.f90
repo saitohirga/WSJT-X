@@ -1,4 +1,4 @@
-subroutine msk144_decode(id2,npts,nutc,line)
+subroutine msk144_decode(id2,npts,nutc,nprint,line)
 
 ! Calls the experimental decoder for JTMSK 72ms ldpc messages
 
@@ -67,8 +67,8 @@ subroutine msk144_decode(id2,npts,nutc,line)
        y=10.0**(0.1*(yellow(n)-1.5))
        nsnr=max(-5,nint(db(y)))
 !      if(nsnr.gt.nsnr0 .and. nline.gt.0) then
-!      write(line(nline),1020) nutc,nsnr,t0,nint(freq),msg
-       write(*,1020) nutc,nsnr,t0,nint(freq),msg
+      write(line(nline),1020) nutc,nsnr,t0,nint(freq),msg
+      if(nprint.ne.0) write(*,1020) nutc,nsnr,t0,nint(freq),msg
 1020   format(i6.6,i4,f5.1,i5,' & ',a22)
        nsnr0=nsnr
 !      go to 900

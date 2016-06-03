@@ -16,7 +16,8 @@ namespace
     "WSPR",
     "Echo",
     "ISCAT",
-    "JTMSK"
+    "JTMSK",
+    "MSK144"
   };
 }
 

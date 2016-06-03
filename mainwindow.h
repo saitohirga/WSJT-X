@@ -38,6 +38,7 @@
 #define NUM_WSPR_SYMBOLS 162               //(50+31)*2, embedded sync
 #define NUM_ISCAT_SYMBOLS 1291             //30*11025/256
 #define NUM_JTMSK_SYMBOLS 234              //(72+15+12)*2 + 3*11 sync + 3 f0-parity
+#define NUM_MSK144_SYMBOLS 144             //s8 + d48 + s8 + d80
 
 #define NUM_CW_SYMBOLS 250
 #define TX_SAMPLE_RATE 48000
@@ -243,6 +244,8 @@ private slots:
   void on_actionJTMSK_triggered();
   void on_sbCQRxFreq_valueChanged(int n);
   void on_cbCQRx_toggled(bool b);
+
+  void on_actionMSK144_triggered();
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
