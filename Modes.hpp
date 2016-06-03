@@ -23,6 +23,7 @@ public:
     ISCAT,
     JTMSK,
     MSK144,
+    MODES_END_SENTINAL_AND_COUNT // this must be last
   };
   Q_ENUM (Mode)
 
@@ -34,7 +35,7 @@ public:
   // Implement the QAbstractListModel interface
   int rowCount (QModelIndex const& parent = QModelIndex {}) const override
   {
-    return parent.isValid () ? 0 : 8; // Number of modes in Mode enumeration class
+    return parent.isValid () ? 0 : MODES_END_SENTINAL_AND_COUNT; // Number of modes in Mode enumeration class
   }
   QVariant data (QModelIndex const&, int role = Qt::DisplayRole) const override;
   QVariant headerData (int section, Qt::Orientation, int = Qt::DisplayRole) const override;
