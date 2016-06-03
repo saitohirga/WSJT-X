@@ -1986,6 +1986,7 @@ void::MainWindow::fast_decode_done()
     }
     if(m_msg[i][0]==0) break;
     QString message=QString::fromLatin1(m_msg[i]);
+    if(message.length()>80) message=message.mid(0,80);
     if(narg[13]/8==narg[12]) message=message.trimmed().replace("<...>",m_calls);
 
 //Left (Band activity) window
@@ -2204,10 +2205,10 @@ void MainWindow::killFile ()
       !(m_saveAll || (m_saveDecoded && m_bDecoded) || m_fname == m_fileToSave)) {
     if(m_fname.indexOf(".wav")<0) f+= ".wav";
     QFile f1{f};
-    f1.remove();
+    if(f1.exists()) f1.remove();
     if(m_mode.startsWith ("WSPR")) {
       QFile f2{m_fname + ".c2"};
-      f2.remove();
+      if(f2.exists()) f2.remove();
     }
   }
 }
@@ -3666,6 +3667,8 @@ void MainWindow::on_actionMSK144_triggered()
   mode_label->setStyleSheet("QLabel{background-color: #ff6666}");
   mode_label->setText(m_mode);
   m_toneSpacing=0.0;
+  ui->cbShMsgs->setChecked(false);
+  ui->cbShMsgs->setVisible(false);
   ui->actionMSK144->setChecked(true);
 }
 
