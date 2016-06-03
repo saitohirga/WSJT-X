@@ -23,7 +23,7 @@ typedef enum
 
 extern decoding_method dec_method; /* Decoding method to use */
 
-extern int table;	/* Trace option, 2 for a table of decoding details */
+extern int ldpc_table;	/* Trace option, 2 for a table of decoding details */
 extern int block_no;	/* Number of current block, from zero */
 
 extern int max_iter;	/* Maximum number of iteratons of decoding to do */

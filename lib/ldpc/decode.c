@@ -64,18 +64,18 @@ int main
 
   /* Look at initial flag arguments. */
 
-  table = 0;
+  ldpc_table = 0;
   blockio_flush = 0;
 
   while (argc>1)
   {
     if (strcmp(argv[1],"-t")==0)
-    { if (table!=0) usage();
-      table = 1;
+    { if (ldpc_table!=0) usage();
+      ldpc_table = 1;
     }
     else if (strcmp(argv[1],"-T")==0)
-    { if (table!=0) usage();
-      table = 2;
+    { if (ldpc_table!=0) usage();
+      ldpc_table = 2;
     }
     else if (strcmp(argv[1],"-f")==0)
     { if (blockio_flush!=0) usage();
@@ -141,7 +141,7 @@ int main
   { fprintf(stderr,"Can't read more than one stream from standard input\n");
     exit(1);
   }
-  if ((table>0) 
+  if ((ldpc_table>0) 
     + (strcmp(dfile,"-")==0) 
     + (pfile!=0 && strcmp(pfile,"-")==0) > 1)
   { fprintf(stderr,"Can't send more than one stream to standard output\n");
@@ -209,7 +209,7 @@ int main
 
   /* Print header for summary table. */
 
-  if (table==1)
+  if (ldpc_table==1)
   { printf("  block iterations valid  changed\n");
   }
 
@@ -319,7 +319,7 @@ int main
 
     /* Print summary table entry. */
 
-    if (table==1)
+    if (ldpc_table==1)
     { printf ("%7d %10f    %d  %8.1f\n",
         block_no, (double)iters, valid, (double)chngd);
         /* iters is printed as a double to avoid problems if it's >= 2^31 */
