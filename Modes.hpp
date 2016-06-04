@@ -5,6 +5,26 @@
 
 #include "qt_helpers.hpp"
 
+class QString;
+class QVariant;
+class QModelIndex;
+
+//
+// Class Modes - Qt model that implements a list of data modes
+//
+//
+// Responsibilities
+//
+// 	Provides  a  single column  list  model  that contains  the  human
+// 	readable string version of the data mode in the display role. Also
+// 	provided  is a  translatable  column header  string  and tool  tip
+// 	string.
+//
+//
+// Collaborations
+//
+// 	Implements a concrete sub-class of the QAbstractListModel class.
+//
 class Modes final
   : public QAbstractListModel
 {
@@ -12,9 +32,14 @@ class Modes final
   Q_ENUMS (Mode)
 
 public:
+  //
+  // This enumeration contains the supported modes, to complement this
+  // an array of human readable strings in the implementation
+  // (Modes.cpp) must be maintained in parallel.
+  //
   enum Mode
   {
-    NULL_MODE,
+    NULL_MODE,                  // NULL Mode - matches with all modes
     JT65,
     JT9,
     JT4,
@@ -29,6 +54,7 @@ public:
 
   explicit Modes (QObject * parent = nullptr);
 
+  // translate between enumeration and human readable strings
   static char const * name (Mode);
   static Mode value (QString const&);
 
@@ -41,7 +67,12 @@ public:
   QVariant headerData (int section, Qt::Orientation, int = Qt::DisplayRole) const override;
 };
 
+// Qt boilerplate to make the Modes::Mode enumeration a type that can
+// be streamed and queued as a signal argument as well as showing the
+// human readable string when output to debug streams.
 #if QT_VERSION < 0x050500
+// Qt 5.6 introduces the Q_ENUM macro which automatically registers
+// the meta-type
 Q_DECLARE_METATYPE (Modes::Mode);
 #endif
 
