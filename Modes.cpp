@@ -1,12 +1,16 @@
 #include "Modes.hpp"
 
+#include <algorithm>
+
 #include <QString>
 #include <QVariant>
+#include <QModelIndex>
 
 #include "moc_Modes.cpp"
 
 namespace
 {
+  // human readable strings for each Mode enumeration value
   char const * const mode_names[] =
   {
     "",
@@ -19,11 +23,14 @@ namespace
     "JTMSK",
     "MSK144"
   };
+  std::size_t constexpr mode_names_size = sizeof (mode_names) / sizeof (mode_names[0]);
 }
 
 Modes::Modes (QObject * parent)
   : QAbstractListModel {parent}
 {
+  static_assert (mode_names_size == MODES_END_SENTINAL_AND_COUNT,
+                 "mode_names array must match Mode enumeration");
 }
 
 char const * Modes::name (Mode m)
@@ -33,7 +40,7 @@ char const * Modes::name (Mode m)
 
 auto Modes::value (QString const& s) -> Mode
 {
-  auto end = mode_names + sizeof (mode_names) / sizeof (mode_names[0]);
+  auto end = mode_names + mode_names_size;
   auto p = std::find_if (mode_names, end
                          , [&s] (char const * const name) {
                            return name == s;
