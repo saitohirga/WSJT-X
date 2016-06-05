@@ -73,7 +73,7 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
 
 ! Coarse carrier frequency sync
 ! look for tones near 2k and 4k in the (analytic signal)**2 spectrum 
-! search range for coarse frequency error is +/- 200 Hz
+! search range for coarse frequency error is +/- 100 Hz
   fs=12000.0
   nfft=6000      !using a zero-padded fft to get 2 Hz bins
   df=fs/nfft
@@ -97,17 +97,25 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
   iloc=maxloc(tonespec,ismask)           
   ilpk=iloc(1)
   al=tonespec(ilpk)
-  if( ah .ge. al ) then
-    ferr=(ihpk-2001)*df/2.0 
-    tot=sum(tonespec(1901:2101))
-    q1=200*ah/(tot-tonespec(ihpk))
-  else
-    ferr=(ilpk-1001)*df/2.0
-    tot=sum(tonespec(901:1101))
-    q1=200*al/(tot-tonespec(ilpk))
-  endif
   fdiff=(ihpk-ilpk)*df 
-
+  ferrh=(ihpk-2001)*df/2.0 
+  ferrl=(ilpk-1001)*df/2.0
+  if( abs(fdiff-2000) .le. 8.0 ) then  ! we are pretty sure we've got the right peaks
+    if( ah .ge. al ) then
+      ferr=ferrh
+    else 
+      ferr=ferrl
+    endif
+  else                                 
+! if fdiff is not 2000, then carrier acquisition is on shaky ground
+! in this case, ignore amplitude and pick the peak that has the smallest ferr
+    if( abs(ihpk-2001) .le. abs(ilpk-1001) ) then
+      ferr=ferrh
+    else
+      ferr=ferrl
+    endif
+  endif  
+    
 ! remove coarse freq error - should now be within a few Hz
   call tweak1(cdat,npts,-(1500+ferr),cdat)
 
