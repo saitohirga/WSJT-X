@@ -41,7 +41,8 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   data first/.true./
 
   data s8/0,1,1,1,0,0,1,0/
-  save first,cb,cd,pi,twopi,dt,f0,f1
+!  save first,cb,cd,pi,twopi,dt,f0,f1
+  save
 
   if(first) then
 ! These files can be found in /lib/ldpc/jtmode_codes directory
