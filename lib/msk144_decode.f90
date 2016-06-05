@@ -58,8 +58,7 @@ subroutine msk144_decode(id2,npts,nutc,nprint,line)
      iz=ib-ia+1
      cdat2(1:iz)=c(ia:ib)               !Select nlen complex samples
      t0=ia/12000.0
-     call syncmsk144(cdat2,iz,metric,msg,freq)
-     if(metric.eq.-9999) cycle             !No output if no significant sync
+     call syncmsk144(cdat2,iz,msg,freq)
      if(msg(1:1).ne.' ') then
 !      if(msg.ne.msg0) then
          nline=nline+1

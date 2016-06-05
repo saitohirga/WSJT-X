@@ -1,4 +1,4 @@
-subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
+subroutine syncmsk144(cdat,npts,msgreceived,fest)
   use iso_c_binding, only: c_loc,c_size_t
   use packjt
   use hashing
@@ -25,7 +25,6 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   integer*1, allocatable :: message(:)
   integer*1 i1hashdec
   integer ipeaks(10)
-  integer metric
   logical ismask(6000)
   real cbi(42),cbq(42)
   real tonespec(6000)
@@ -42,7 +41,6 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   data s8/0,1,1,1,0,0,1,0/
   save first,cb,pi,twopi,dt,f0,f1
 !  save
-
   if(first) then
 ! These files can be found in /lib/ldpc/jtmode_codes directory
      pchk_file="peg-128-80-reg3.pchk"
@@ -136,7 +134,6 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
     dd(max(1,ic2-7):min(npts-56*6-41,ic2+7))=0.0
   enddo
 
-
 ! See if we can find "closed brackets" - a pair of peaks that differ by 864, plus or minus
 ! This information is not yet used for anything
   do ii=1,5
@@ -206,7 +203,7 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   fest=1500+ferr+ferr2
 
 ! Remove fine frequency error
-  call tweak1(c,npts,-ferr2,c)
+  call tweak1(c,NSPM,-ferr2,c)
 
 ! Estimate final frequency error and carrier phase. 
   cca=sum(c(1:1+41)*conjg(cb))
@@ -268,6 +265,7 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   if( niterations .ge. 0.0 ) then
     goto 778
   endif
+
 enddo
 enddo
 enddo
