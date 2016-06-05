@@ -4,10 +4,12 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   use hashing
   use timer_module, only: timer
 
-  parameter (NSPM=864,NSAVE=2000)
+  parameter (NSPM=864)
   character*22 msgreceived
   character*85 pchk_file,gen_file
   complex cdat(npts)                    !Analytic signal
+  complex cdat2(npts)                    !Analytic signal
+  complex cav(NSPM)                    !Analytic signal
   complex c(NSPM)
   complex ctmp(6000)                  
   complex cb(42)                        !Complex waveform for sync word 
@@ -15,7 +17,7 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   complex cc(npts)
   complex cc1(npts)
   complex cc2(npts)
-  complex cc3(npts)
+  complex bb(6)
   integer s8(8),hardbits(144),hardword(128),unscrambledhardbits(128)
   integer*1, target:: i1Dec8BitBytes(10)
   integer, dimension(1) :: iloc
@@ -24,6 +26,7 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   integer*1 decoded(80)   
   integer*1, allocatable :: message(:)
   integer*1 i1hashdec
+  integer ipeaks(10)
   logical ismask(6000)
   real cbi(42),cbq(42)
   real tonespec(6000)
@@ -114,55 +117,103 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   cc=0
   cc1=0
   cc2=0
-  do i=1,npts-448-41
+  do i=1,npts-(56*6+41)
     cc1(i)=sum(cdat(i:i+41)*conjg(cb))
     cc2(i)=sum(cdat(i+56*6:i+56*6+41)*conjg(cb))
   enddo
   cc=cc1+cc2
   dd=abs(cc1)*abs(cc2)
-  iloc=maxloc(abs(cc))           
-  ic1=iloc(1)
-  iloc=maxloc(dd)           
-  ic2=iloc(1)
-! the goal is for ic to be the index of the first sample of the message
-! This parameter could be dithered
-  ic=ic2
 
-! Estimate fine frequency error and initial carrier phase using 
-! difference and sum of sync-word phases. Only frequency error is used.
-  cca=sum(cdat(ic:ic+41)*conjg(cb))
-  ccb=sum(cdat(ic+56*6:ic+56*6+41)*conjg(cb))
-  phase0=atan2(imag(cca+ccb),real(cca+ccb))
+! Find 5 largest peaks
+  do ipk=1,5
+    iloc=maxloc(abs(cc))           
+    ic1=iloc(1)
+    iloc=maxloc(dd)           
+    ic2=iloc(1)
+    ipeaks(ipk)=ic2
+    dd(max(1,ic2-7):min(npts-56*6-41,ic2+7))=0.0
+  enddo
+
+
+! See if we can find "closed brackets" - a pair of peaks that differ by 864, plus or minus
+! This information is not yet used for anything
+  do ii=1,5
+    do jj=ii+1,5
+      if( (ii .ne. jj) .and. (abs( abs(ipeaks(ii)-ipeaks(jj))-864) .le. 5) ) then
+      write(78,*) "closed brackets: ",ii,jj,ipeaks(ii),ipeaks(jj),abs(ipeaks(ii)-ipeaks(jj))
+      endif
+    enddo
+  enddo
+
+  do iav=0,1
+  do ipk=1,5 
+! we want ic to be the index of the first sample of the message
+  ic=ipeaks(ipk)
+
+! This needs to be improved - it's used to protect the edges of the array from
+! overruns. 
+  if( ic .lt. 12 .or. ic .gt. 2*864-12 ) then
+!    write(*,*) "Peak not in central section: ",ipk,is,ic
+    cycle
+  endif
+
+! bb is used to place the sampling index at the center of the eye
+  do i=1,6
+   io=i-3
+   bb(i) = sum( ( cdat(ic+io:ic+io+864:6) * conjg( cdat(ic+io+6:ic+io+6+864:6) ) )*2 )
+  enddo
+  iloc=maxloc(abs(bb))
+  ibb=iloc(1)
+!  write(*,*) 'ic0: ',ic,'bb peak is at : ',ibb
+! Adjust frame index to place peak of bb at desired lag
+  ic=ic + ibb-2
+
+! Sanity check - recompute bb and verify that peak is now at designated lag.
+!  do i=1,6
+!   io=i-3
+!   bb(i) = sum( ( cdat(ic+io:ic+io+864:6) * conjg( cdat(ic+io+6:ic+io+6+864:6) ) )*2 )
+!  enddo
+!  iloc=maxloc(abs(bb))
+!  ibb=iloc(1)
+! write(*,*) 'ic1: ',ic,'bb peak is at : ',ibb
+
+! Average two frames on the second pass only if its incredibly easy to do
+! better than nothing. Should be improved.
+  c=cdat(ic:ic+864-1)
+  if( iav .eq. 1 ) then
+    id0=ic+864
+    id1=ic+864+863
+    if( id1 .le. npts ) then
+      c=c+cdat(id0:id1)
+    else
+      cycle
+    endif
+  endif 
+
+! Estimate fine frequency error. 
+  cca=sum(c(1:1+41)*conjg(cb))
+  ccb=sum(c(1+56*6:1+56*6+41)*conjg(cb))
   cfac=ccb*conjg(cca)
   ferr2=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
 
 ! Final estimate of the carrier frequency - returned to the calling program
   fest=1500+ferr+ferr2
 
-! Remove fine frequency error
-  call tweak1(cdat,npts,-ferr2,cdat)
+! Remove fine frequency error and put the results in cdat2
+  call tweak1(c,npts,-ferr2,c)
 
-! Estimate final frequency error and carrier phase using 
-! difference and sum of sync-word phases
-  cca=sum(cdat(ic:ic+41)*conjg(cb))
-  ccb=sum(cdat(ic+56*6:ic+56*6+41)*conjg(cb))
+! Estimate final frequency error and carrier phase. 
+  cca=sum(c(1:1+41)*conjg(cb))
+  ccb=sum(c(1+56*6:1+56*6+41)*conjg(cb))
   cfac=ccb*conjg(cca)
   ffin=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
   phase0=atan2(imag(cca+ccb),real(cca+ccb))
 
 ! Remove the static phase error from the data
   cfac=cmplx(cos(phase0),sin(phase0))
-  cdat=cdat*conjg(cfac)
+  c=c*conjg(cfac)
 
-! we hope that we are synced. For now we use only the frame
-! that starts at ic
-  do i=1,864
-    ii=ic+i-1
-    if( ii .gt. npts ) then
-      ii=ii-864
-    endif
-    c(i)=cdat(ii)
-  enddo
+! sample to get softsamples
   do i=1,72
     softbits(2*i-1)=imag(c(1+(i-1)*12))
     softbits(2*i)=real(c(7+(i-1)*12))  
@@ -175,14 +226,19 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   enddo 
 
 ! calculated the number of sync-word bits that are incorrect
+! this might come in handy some day
   nbadsync=sum(s8*(2*hardbits(1:8)-1))
   nbadsync=nbadsync+sum(s8*(2*hardbits(57:57+7)-1))
   nbadsync=16-nbadsync
 
+! this could be used to count the number of hard errors that were corrected
   hardword(1:48)=hardbits(9:9+47)  
   hardword(49:128)=hardbits(65:65+80-1)  
   unscrambledhardbits(1:127:2)=hardword(1:64) 
   unscrambledhardbits(2:128:2)=hardword(65:128) 
+
+
+! normalize the softsymbols before submitting to decoder
   sav=sum(softbits)/144
   s2av=sum(softbits*softbits)/144
   ssig=sqrt(s2av-sav*sav)
@@ -200,11 +256,20 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   max_dither=50
   call ldpc_decode(unscrambledsoftbits, decoded, max_iterations, niterations, max_dither, ndither)
 
-  if( niterations .lt. 0 ) then 
-    msgreceived=' '
-    return
+!  if( niterations .lt. 0 ) then 
+!    msgreceived=' '
+!    return
+!  endif
+  if( niterations .ge. 0.0 ) then
+    goto 778
   endif
+enddo
+enddo
 
+msgreceived=' '
+goto 999
+
+778 continue
 ! The decoder found a codeword - compare decoded hash with calculated
 ! Collapse 80 decoded bits to 10 bytes. Bytes 1-9 are the message, byte 10 is the hash
     do ibyte=1,10   
@@ -234,7 +299,8 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
       call unpackmsg(i4Dec6BitWords,msgreceived)
     endif
 
-write(78,*) fest,nbadsync,phase0,niterations,ndither,i1hashdec,i1Dec8BitBytes(10),msgreceived
-return
+write(78,1001) iav,ipk,is,fest,nbadsync,phase0,niterations,ndither,i1hashdec,i1Dec8BitBytes(10),msgreceived
+1001 format(i6,i6,i6,f10.1,i6,f10.2,i6,i6,i6,i6,4x,a22)
+999 return
 
 end subroutine syncmsk144

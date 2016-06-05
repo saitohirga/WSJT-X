@@ -47,12 +47,13 @@ subroutine msk144_decode(id2,npts,nutc,nprint,line)
   nfft=min(2**n,1024*1024)
   call analytic(d,npts,nfft,c)         !Convert to analytic signal and filter
 
-  nafter=NSPM
+  nafter=2*NSPM
+  nbefore=NSPM
 ! Process ping list (sorted by S/N) from top down.
   do n=1,nyel
-     ia=ty(n)*12000.0 - NSPM/2
+     ia=ty(n)*12000.0 - nbefore
      if(ia.lt.1) ia=1
-     ib=ia + 2*nafter-1
+     ib=ia + nbefore + nafter - 1
      if(ib.gt.NFFTMAX) ib=NFFTMAX
      iz=ib-ia+1
      cdat2(1:iz)=c(ia:ib)               !Select nlen complex samples
