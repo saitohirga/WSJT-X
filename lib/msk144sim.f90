@@ -66,8 +66,8 @@ program msk144sim
 
   do ifile=1,nfiles                  !Loop over requested number of files
      write(fname,1002) ifile         !Output filename
-1002 format('000000_',i4.4)
-     open(10,file=fname(1:11)//'.wav',access='stream',status='unknown')
+1002 format('000000_',i6.6)
+     open(10,file=fname(1:13)//'.wav',access='stream',status='unknown')
 
      fac=sqrt(6000.0/2500.0)
      j=-1
