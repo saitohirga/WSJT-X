@@ -4302,7 +4302,10 @@ void MainWindow::stop_tuning ()
   m_bTxTime=false;
   m_tune=false;
   m_block_pwr_tooltip = true;
-  ui->outAttenuation->setValue(m_tune_attenuation_restore);
+  if (m_tune_attenuation)
+    {
+      ui->outAttenuation->setValue(m_tune_attenuation_restore);
+    }
   m_block_pwr_tooltip = false;
 }
 
