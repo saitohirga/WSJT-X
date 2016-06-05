@@ -213,8 +213,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
         // fade out parameters (no fade out for tuning)
         unsigned int i0,i1;
         if(m_tuning) {
-          i0=9999*m_nsps;
-          i1=9999*m_nsps;
+          i1 = i0 = (m_bFastMode ? 999999 : 9999) * m_nsps;
         } else {
           i0=(m_symbolsLength - 0.017) * 4.0 * m_nsps;
           i1= m_symbolsLength * 4.0 * m_nsps;
