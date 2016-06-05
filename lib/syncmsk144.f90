@@ -161,23 +161,19 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
 ! we want ic to be the index of the first sample of the message
   ic=ipeaks(ipk)
 
-! This needs to be improved - it's used to protect the edges of the array from
-! overruns. 
-  if( ic .lt. 12 .or. ic .gt. 2*864-12 ) then
-!    write(*,*) "Peak not in central section: ",ipk,is,ic
-    cycle
-  endif
-
 ! bb is used to place the sampling index at the center of the eye
   do i=1,6
    io=i-3
-   bb(i) = sum( ( cdat(ic+io:ic+io+864:6) * conjg( cdat(ic+io+6:ic+io+6+864:6) ) )*2 )
+   ul=min(ic+io+6+864,npts)
+   bb(i) = sum( ( cdat(ic+io:ul-6:6) * conjg( cdat(ic+io+6:ul:6) ) )*2 )
   enddo
   iloc=maxloc(abs(bb))
   ibb=iloc(1)
 !  write(*,*) 'ic0: ',ic,'bb peak is at : ',ibb
 ! Adjust frame index to place peak of bb at desired lag
   ic=ic + ibb-2+is
+  if( ic .le. 864 ) ic=ic+864
+  if( ic .gt. 2*864 ) ic=ic-864
 
 ! Sanity check - recompute bb and verify that peak is now at designated lag.
 !  do i=1,6
@@ -188,17 +184,17 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
 !  ibb=iloc(1)
 ! write(*,*) 'ic1: ',ic,'bb peak is at : ',ibb
 
-! Average two frames on the second pass only if its incredibly easy to do
-! better than nothing. Should be improved.
+! Average three frames on the second pass - truncation of the high frame 
+! is not properly accounted for.
   c=cdat(ic:ic+864-1)
   if( iav .eq. 1 ) then
     id0=ic+864
-    id1=ic+864+863
-    if( id1 .le. npts ) then
-      c=c+cdat(id0:id1)
-    else
-      cycle
-    endif
+    id1=min(ic+864+863,npts)
+    np=id1-id0+1
+    c(1:np)=c(1:np)+cdat(id0:id1)
+    id0=ic-864
+    id1=ic-1
+    c=c+cdat(id0:id1)
   endif 
 
 ! Estimate fine frequency error. 
