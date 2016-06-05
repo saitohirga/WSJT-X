@@ -8,8 +8,6 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   character*22 msgreceived
   character*85 pchk_file,gen_file
   complex cdat(npts)                    !Analytic signal
-  complex cdat2(npts)                    !Analytic signal
-  complex cav(NSPM)                    !Analytic signal
   complex c(NSPM)
   complex ctmp(6000)                  
   complex cb(42)                        !Complex waveform for sync word 
@@ -27,13 +25,14 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   integer*1, allocatable :: message(:)
   integer*1 i1hashdec
   integer ipeaks(10)
+  integer metric
   logical ismask(6000)
   real cbi(42),cbq(42)
   real tonespec(6000)
   real rcw(12)
   real dd(npts)
   real pp(12)                          !Half-sine pulse shape
-  real*8 dt, df, fs, twopi
+  real*8 dt, df, fs, pi, twopi
   real softbits(144)
   real*8 unscrambledsoftbits(128)
   real lratio(128)
@@ -41,8 +40,8 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   data first/.true./
 
   data s8/0,1,1,1,0,0,1,0/
-!  save first,cb,cd,pi,twopi,dt,f0,f1
-  save
+  save first,cb,pi,twopi,dt,f0,f1
+!  save
 
   if(first) then
 ! These files can be found in /lib/ldpc/jtmode_codes directory
@@ -76,7 +75,7 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
 
 ! Coarse carrier frequency sync
 ! look for tones near 2k and 4k in the (analytic signal)**2 spectrum 
-! search range for coarse frequency error is +/- 100 Hz
+! search range for coarse frequency error is +/- 200 Hz
   fs=12000.0
   nfft=6000      !using a zero-padded fft to get 2 Hz bins
   df=fs/nfft
@@ -90,11 +89,13 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
 
   ismask=.false.
   ismask(1901:2101)=.true.  ! high tone search window
+!  ismask(1801:2201)=.true.  ! high tone search window
   iloc=maxloc(tonespec,ismask)           
   ihpk=iloc(1)
   ah=tonespec(ihpk)
   ismask=.false.
   ismask(901:1101)=.true.   ! window for low tone
+!  ismask(801:1201)=.true.   ! window for low tone
   iloc=maxloc(tonespec,ismask)           
   ilpk=iloc(1)
   al=tonespec(ilpk)
@@ -141,13 +142,17 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   do ii=1,5
     do jj=ii+1,5
       if( (ii .ne. jj) .and. (abs( abs(ipeaks(ii)-ipeaks(jj))-864) .le. 5) ) then
-      write(78,*) "closed brackets: ",ii,jj,ipeaks(ii),ipeaks(jj),abs(ipeaks(ii)-ipeaks(jj))
+!      write(78,*) "closed brackets: ",ii,jj,ipeaks(ii),ipeaks(jj),abs(ipeaks(ii)-ipeaks(jj))
       endif
     enddo
   enddo
 
   do iav=0,1
   do ipk=1,5 
+  do id=1,3
+    if( id .eq. 1 ) is=0
+    if( id .eq. 2 ) is=-1
+    if( id .eq. 3 ) is=1
 ! we want ic to be the index of the first sample of the message
   ic=ipeaks(ipk)
 
@@ -167,7 +172,7 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   ibb=iloc(1)
 !  write(*,*) 'ic0: ',ic,'bb peak is at : ',ibb
 ! Adjust frame index to place peak of bb at desired lag
-  ic=ic + ibb-2
+  ic=ic + ibb-2+is
 
 ! Sanity check - recompute bb and verify that peak is now at designated lag.
 !  do i=1,6
@@ -200,7 +205,7 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
 ! Final estimate of the carrier frequency - returned to the calling program
   fest=1500+ferr+ferr2
 
-! Remove fine frequency error and put the results in cdat2
+! Remove fine frequency error
   call tweak1(c,npts,-ferr2,c)
 
 ! Estimate final frequency error and carrier phase. 
@@ -238,7 +243,6 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   unscrambledhardbits(1:127:2)=hardword(1:64) 
   unscrambledhardbits(2:128:2)=hardword(65:128) 
 
-
 ! normalize the softsymbols before submitting to decoder
   sav=sum(softbits)/144
   s2av=sum(softbits*softbits)/144
@@ -264,6 +268,7 @@ subroutine syncmsk144(cdat,npts,metric,msgreceived,fest)
   if( niterations .ge. 0.0 ) then
     goto 778
   endif
+enddo
 enddo
 enddo
 
@@ -298,10 +303,12 @@ goto 999
         i4Dec6BitWords(ibyte)=itmp
       enddo
       call unpackmsg(i4Dec6BitWords,msgreceived)
+    else
+      msgreceived=' '
     endif
 
-write(78,1001) iav,ipk,is,fest,nbadsync,phase0,niterations,ndither,i1hashdec,i1Dec8BitBytes(10),msgreceived
-1001 format(i6,i6,i6,f10.1,i6,f10.2,i6,i6,i6,i6,4x,a22)
+write(78,1001) iav,ipk,is,fdiff,fest,nbadsync,phase0,niterations,ndither,i1hashdec,i1Dec8BitBytes(10),msgreceived
+1001 format(i6,i6,i6,f10.1,f10.1,i6,f10.2,i6,i6,i6,i6,4x,a22)
 999 return
 
 end subroutine syncmsk144
