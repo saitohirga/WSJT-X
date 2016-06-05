@@ -12,7 +12,6 @@ program msk144d
   logical :: display_help=.false.
   type(wav_header) :: wav
   integer*2 id2(15*12000)
-  integer narg(0:14)
   character*80 infile
   character(len=500) optarg
 
@@ -58,7 +57,7 @@ program msk144d
      call wav%read (infile)
      i1=index(infile,'.wav')
      if( i1 .eq. 0 ) i1=index(infile,'.WAV')
-     read(infile(i1-4:i1-1),*,err=998) nutc
+     read(infile(i1-6:i1-1),*,err=998) nutc
      npts=15*12000
      read(unit=wav%lun) id2(1:npts)
      close(unit=wav%lun)
