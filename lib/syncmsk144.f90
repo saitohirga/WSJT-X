@@ -163,12 +163,15 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
 ! we want ic to be the index of the first sample of the message
     ic=ipeaks(ipk)
 
+    if( ic .le. 864 ) ic=ic+864
+    if( ic .gt. 2*864 ) ic=ic-864
 ! now do fine adjustment of sync index
 ! bb is used to place the sampling index at the center of the eye
   do i=1,6
    io=i-3
-   ul=min(ic+io+6+864,npts)
-   bb(i) = sum( ( cdat(ic+io:ul-6:6) * conjg( cdat(ic+io+6:ul:6) ) )*2 )
+   ill=max(1,ic+io)
+   iul=min(ic+io+6+864,npts)
+   bb(i) = sum( ( cdat(ic+io:iul-6:6) * conjg( cdat(ic+io+6:iul:6) ) )*2 )
   enddo
   iloc=maxloc(abs(bb))
   ibb=iloc(1)
