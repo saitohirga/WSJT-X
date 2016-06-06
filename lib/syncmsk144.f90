@@ -8,6 +8,7 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
   character*22 msgreceived
   character*85 pchk_file,gen_file
   complex cdat(npts)                    !Analytic signal
+  complex cdat2(npts)
   complex c(NSPM)
   complex ctmp(6000)                  
   complex cb(42)                        !Complex waveform for sync word 
@@ -152,15 +153,17 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
     enddo
   enddo
 
-  do iav=0,1
+  do iav=1,3
   do ipk=1,5 
   do id=1,3
     if( id .eq. 1 ) is=0
     if( id .eq. 2 ) is=-1
     if( id .eq. 3 ) is=1
-! we want ic to be the index of the first sample of the message
-  ic=ipeaks(ipk)
 
+! we want ic to be the index of the first sample of the message
+    ic=ipeaks(ipk)
+
+! now do fine adjustment of sync index
 ! bb is used to place the sampling index at the center of the eye
   do i=1,6
    io=i-3
@@ -169,7 +172,6 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
   enddo
   iloc=maxloc(abs(bb))
   ibb=iloc(1)
-!  write(*,*) 'ic0: ',ic,'bb peak is at : ',ibb
 ! Adjust frame index to place peak of bb at desired lag
   ic=ic + ibb-2+is
   if( ic .le. 864 ) ic=ic+864
@@ -184,22 +186,10 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
 !  ibb=iloc(1)
 ! write(*,*) 'ic1: ',ic,'bb peak is at : ',ibb
 
-! Average three frames on the second pass - truncation of the high frame 
-! is not properly accounted for.
-  c=cdat(ic:ic+864-1)
-  if( iav .eq. 1 ) then
-    id0=ic+864
-    id1=min(ic+864+863,npts)
-    np=id1-id0+1
-    c(1:np)=c(1:np)+cdat(id0:id1)
-    id0=ic-864
-    id1=ic-1
-    c=c+cdat(id0:id1)
-  endif 
-
 ! Estimate fine frequency error. 
-  cca=sum(c(1:1+41)*conjg(cb))
-  ccb=sum(c(1+56*6:1+56*6+41)*conjg(cb))
+! Should a larger separation be used when frames are averaged?
+  cca=sum(cdat(ic:ic+41)*conjg(cb))
+  ccb=sum(cdat(ic+56*6:ic+56*6+41)*conjg(cb))
   cfac=ccb*conjg(cca)
   ferr2=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
 
@@ -207,7 +197,19 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
   fest=1500+ferr+ferr2
 
 ! Remove fine frequency error
-  call tweak1(c,NSPM,-ferr2,c)
+  call tweak1(cdat,npts,-ferr2,cdat2)
+
+! place the beginning of the central frame at NSPM+1
+  cdat2=cshift(cdat2,ic-865)
+
+! Do frame averaging on passes 2 and 3
+  if( iav .eq. 1 ) then
+    c=cdat2(NSPM+1:2*NSPM)
+  elseif( iav .eq. 2 ) then
+    c=cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:npts)
+  elseif( iav .eq. 3 ) then
+    c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:npts)
+  endif 
 
 ! Estimate final frequency error and carrier phase. 
   cca=sum(c(1:1+41)*conjg(cb))
@@ -238,6 +240,8 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
   nbadsync=nbadsync+sum(s8*(2*hardbits(57:57+7)-1))
   nbadsync=16-nbadsync
 
+  if( nbadsync .gt. 6 ) cycle
+
 ! this could be used to count the number of hard errors that were corrected
   hardword(1:48)=hardbits(9:9+47)  
   hardword(49:128)=hardbits(65:65+80-1)  
@@ -258,8 +262,8 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
   unscrambledsoftbits(1:127:2)=lratio(1:64) 
   unscrambledsoftbits(2:128:2)=lratio(65:128) 
 
-  max_iterations=20
-  max_dither=50
+  max_iterations=10
+  max_dither=100
   call ldpc_decode(unscrambledsoftbits, decoded, max_iterations, niterations, max_dither, ndither)
 
 !  if( niterations .lt. 0 ) then 
