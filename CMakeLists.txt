@@ -1203,6 +1203,8 @@ install (FILES
 
 install (FILES
   contrib/Ephemeris/JPLEPH
+  contrib/LDPC/peg-128-80-reg3.gen
+  contrib/LDPC/peg-128-80-reg3.pchk
   DESTINATION ${WSJT_SHARE_DESTINATION}/${WSJT_DATA_DESTINATION}
   #COMPONENT runtime
   )

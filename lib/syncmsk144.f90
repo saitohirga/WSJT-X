@@ -44,8 +44,8 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
 
   if(first) then
 ! These files can be found in /lib/ldpc/jtmode_codes directory
-     pchk_file="peg-128-80-reg3.pchk"
-     gen_file="peg-128-80-reg3.gen"
+     pchk_file="./data/peg-128-80-reg3.pchk"
+     gen_file="./data/peg-128-80-reg3.gen"
      call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
 ! define half-sine pulse and raised-cosine edge window
      pi=4d0*datan(1d0)
