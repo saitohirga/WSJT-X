@@ -62,7 +62,8 @@ subroutine mskdt(d,npts,ty,yellow,nyel)
   do j=2,nyel
      ok=.true.
      do i=1,j-1
-        if(abs(ty(i)-ty(j)).lt.0.117) ok=.false.
+!        if(abs(ty(i)-ty(j)).lt.0.117) ok=.false.
+        if(abs(ty(i)-ty(j)).lt.0.072) ok=.false.  ! does this break jtmsk?
      enddo
      if(ok) then
         k=k+1

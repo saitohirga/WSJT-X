@@ -41,7 +41,7 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
 
   data s8/0,1,1,1,0,0,1,0/
   save first,cb,pi,twopi,dt,f0,f1
-!  save
+
   if(first) then
 ! These files can be found in /lib/ldpc/jtmode_codes directory
      pchk_file="peg-128-80-reg3.pchk"
@@ -88,35 +88,28 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
 
   ismask=.false.
   ismask(1901:2101)=.true.  ! high tone search window
-!  ismask(1801:2201)=.true.  ! high tone search window
   iloc=maxloc(tonespec,ismask)           
   ihpk=iloc(1)
   ah=tonespec(ihpk)
   ismask=.false.
   ismask(901:1101)=.true.   ! window for low tone
-!  ismask(801:1201)=.true.   ! window for low tone
   iloc=maxloc(tonespec,ismask)           
   ilpk=iloc(1)
   al=tonespec(ilpk)
   fdiff=(ihpk-ilpk)*df 
   ferrh=(ihpk-2001)*df/2.0 
   ferrl=(ilpk-1001)*df/2.0
-  if( abs(fdiff-2000) .le. 8.0 ) then  ! we are pretty sure we've got the right peaks
+  if( abs(fdiff-2000) .le. 16.0 ) then  
     if( ah .ge. al ) then
       ferr=ferrh
     else 
       ferr=ferrl
     endif
-  else                                 
-! if fdiff is not 2000, then carrier acquisition is on shaky ground
-! in this case, ignore amplitude and pick the peak that has the smallest ferr
-    if( abs(ihpk-2001) .le. abs(ilpk-1001) ) then
-      ferr=ferrh
-    else
-      ferr=ferrl
-    endif
-  endif  
-    
+  else   
+    msgreceived=' '
+    goto 999 
+  endif
+ 
 ! remove coarse freq error - should now be within a few Hz
   call tweak1(cdat,npts,-(1500+ferr),cdat)
 
@@ -148,12 +141,12 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
   do ii=1,5
     do jj=ii+1,5
       if( (ii .ne. jj) .and. (abs( abs(ipeaks(ii)-ipeaks(jj))-864) .le. 5) ) then
-!      write(78,*) "closed brackets: ",ii,jj,ipeaks(ii),ipeaks(jj),abs(ipeaks(ii)-ipeaks(jj))
+!      write(*,*) "closed brackets: ",ii,jj,ipeaks(ii),ipeaks(jj),abs(ipeaks(ii)-ipeaks(jj))
       endif
     enddo
   enddo
 
-  do iav=1,3
+  do iav=1,6  
   do ipk=1,5 
   do id=1,3
     if( id .eq. 1 ) is=0
@@ -175,6 +168,7 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
   enddo
   iloc=maxloc(abs(bb))
   ibb=iloc(1)
+
 ! Adjust frame index to place peak of bb at desired lag
   ic=ic + ibb-2+is
   if( ic .le. 864 ) ic=ic+864
@@ -198,19 +192,25 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
 
 ! Final estimate of the carrier frequency - returned to the calling program
   fest=1500+ferr+ferr2
-
 ! Remove fine frequency error
   call tweak1(cdat,npts,-ferr2,cdat2)
 
 ! place the beginning of the central frame at NSPM+1
   cdat2=cshift(cdat2,ic-865)
 
-! Do frame averaging on passes 2 and 3
+! Try each of the three frames individually, and then
+! do frame averaging on passes 4 and 5
   if( iav .eq. 1 ) then
     c=cdat2(NSPM+1:2*NSPM)
   elseif( iav .eq. 2 ) then
-    c=cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:npts)
+    c=cdat2(2*NSPM+1:npts)
   elseif( iav .eq. 3 ) then
+    c=cdat2(1:NSPM)
+  elseif( iav .eq. 4 ) then
+    c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)
+  elseif( iav .eq. 5 ) then
+    c=cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:npts)
+  elseif( iav .eq. 6 ) then
     c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:npts)
   endif 
 
@@ -269,10 +269,6 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
   max_dither=100
   call ldpc_decode(unscrambledsoftbits, decoded, max_iterations, niterations, max_dither, ndither)
 
-!  if( niterations .lt. 0 ) then 
-!    msgreceived=' '
-!    return
-!  endif
   if( niterations .ge. 0.0 ) then
     goto 778
   endif
