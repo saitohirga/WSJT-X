@@ -2375,6 +2375,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionISCAT"/>
     <addaction name="actionJTMSK"/>
     <addaction name="actionMSK144"/>
+    <addaction name="actionQRA"/>
    </widget>
    <widget class="QMenu" name="menuConfig">
     <property name="title">
@@ -2842,6 +2843,14 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
    <property name="text">
     <string>MSK144</string>
+   </property>
+  </action>
+  <action name="actionQRA">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>QRA</string>
    </property>
   </action>
  </widget>
