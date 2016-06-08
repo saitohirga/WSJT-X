@@ -1963,6 +1963,9 @@ void MainWindow::decode()                                       //decode()
     narg[13]=-1;
     narg[14]=m_config.aggressive();
     memcpy(d2b,dec_data.d2,2*360000);
+//  QString pchk_file = m_config.data_dir().absoluteFilePath("peg-128-80-reg3.pchk");
+//  qDebug() << pchk_file << pchk_file.length();
+//  Q: How to pass "pchk-file" as a standard string to Fortran routine fast_decode() ??
     *future3 = QtConcurrent::run(fast_decode_,&d2b[0],&narg[0],&m_msg[0][0],80);
     watcher3->setFuture(*future3);
   } else {
