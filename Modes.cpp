@@ -21,7 +21,8 @@ namespace
     "Echo",
     "ISCAT",
     "JTMSK",
-    "MSK144"
+    "MSK144",
+    "QRA"
   };
   std::size_t constexpr mode_names_size = sizeof (mode_names) / sizeof (mode_names[0]);
 }
