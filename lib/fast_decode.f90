@@ -8,11 +8,15 @@ subroutine fast_decode(id2,narg,line)
   real psavg(450)
   logical pick
   character*6 cfile6
-  character*80 line(100),pchk_file
+  character*80 line(100)
+  character*80 pchk_file,gen_file
   save npts
 
   pchk_file=line(1)
-  print*,pchk_file
+  i=index(pchk_file,".pchk")
+  gen_file=pchk_file(1:i-1)//".gen"
+!  print*,pchk_file
+!  print*,gen_file
 
   nutc=narg(0)
   ndat0=narg(1)
