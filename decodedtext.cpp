@@ -12,6 +12,10 @@ QString DecodedText::CQersCall()
     {
       s1 = 7 + position;
     }
+  else if ((position = _string.indexOf (" CQDX ")) >= 0)
+    {
+      s1 = 6 + position;
+    }
   else if ((position = _string.indexOf (" CQ ")) >= 0)
     {
       s1 = 4 + position;
