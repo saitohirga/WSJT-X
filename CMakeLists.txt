@@ -398,6 +398,7 @@ set (wsjt_FSRCS
   lib/morse.f90
   lib/move.f90
   lib/mskdt.f90
+  lib/msk144dt.f90
   lib/msk144d.f90
   lib/msk144_decode.f90
   lib/options.f90
