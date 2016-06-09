@@ -1,4 +1,4 @@
-subroutine msk144_decode(id2,npts,nutc,nprint,line)
+subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,line)
 
 ! Calls the experimental decoder for JTMSK 72ms ldpc messages
 
@@ -15,6 +15,7 @@ subroutine msk144_decode(id2,npts,nutc,nprint,line)
   complex cdat2(24000)
   character*22 msg,msg0                !Decoded message
   character*80 line(100)               !Decodes passed back to caller
+  character*512 pchk_file
   equivalence (hist,d)
 
   nsnr0=-99
@@ -58,7 +59,7 @@ subroutine msk144_decode(id2,npts,nutc,nprint,line)
      iz=ib-ia+1
      cdat2(1:iz)=c(ia:ib)               !Select nlen complex samples
      t0=ia/12000.0
-     call syncmsk144(cdat2,iz,msg,freq,nutc,t0)
+     call syncmsk144(cdat2,iz,pchk_file,msg,freq,nutc,t0)
      if(msg(1:1).ne.' ') then
        if(msg.ne.msg0) then
          nline=nline+1
