@@ -1,4 +1,4 @@
-subroutine syncmsk144(cdat,npts,msgreceived,fest)
+subroutine syncmsk144(cdat,npts,msgreceived,fest,nutc,t0)  !nutc and t0 are for debug output 
   use iso_c_binding, only: c_loc,c_size_t
   use packjt
   use hashing
@@ -107,6 +107,10 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
     endif
   else   
     msgreceived=' '
+    phase0=-97      !-97 is failed carrier sync, -98 failure to decode, -99 decoded, bad hash
+    niterations=0
+    ndither=0
+    i1hashdec=0
     goto 999 
   endif
  
@@ -174,15 +178,6 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
   if( ic .le. 864 ) ic=ic+864
   if( ic .gt. 2*864 ) ic=ic-864
 
-! Sanity check - recompute bb and verify that peak is now at designated lag.
-!  do i=1,6
-!   io=i-3
-!   bb(i) = sum( ( cdat(ic+io:ic+io+864:6) * conjg( cdat(ic+io+6:ic+io+6+864:6) ) )*2 )
-!  enddo
-!  iloc=maxloc(abs(bb))
-!  ibb=iloc(1)
-! write(*,*) 'ic1: ',ic,'bb peak is at : ',ibb
-
 ! Estimate fine frequency error. 
 ! Should a larger separation be used when frames are averaged?
   cca=sum(cdat(ic:ic+41)*conjg(cb))
@@ -238,11 +233,10 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
   enddo 
 
 ! calculated the number of sync-word bits that are incorrect
-! this might come in handy some day
-  nbadsync=sum(s8*(2*hardbits(1:8)-1))
-  nbadsync=nbadsync+sum(s8*(2*hardbits(57:57+7)-1))
-  nbadsync=16-nbadsync
-
+! don't present to the decoder if there are too many sync-word bit-errors 
+  nbadsync1=(8-sum(s8*(2*hardbits(1:8)-1)))/2
+  nbadsync2=(8-sum(s8*(2*hardbits(57:57+7)-1)))/2
+  nbadsync=nbadsync1+nbadsync2
   if( nbadsync .gt. 6 ) cycle
 
 ! this could be used to count the number of hard errors that were corrected
@@ -257,7 +251,8 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
   ssig=sqrt(s2av-sav*sav)
   softbits=softbits/ssig
 
-  sigma=0.65
+! sigma=0.65
+  sigma=0.70
   lratio(1:48)=softbits(9:9+47)
   lratio(49:128)=softbits(65:65+80-1)
   lratio=exp(2.0*lratio/(sigma*sigma))
@@ -266,7 +261,7 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest)
   unscrambledsoftbits(2:128:2)=lratio(65:128) 
 
   max_iterations=10
-  max_dither=100
+  max_dither=50
   call ldpc_decode(unscrambledsoftbits, decoded, max_iterations, niterations, max_dither, ndither)
 
   if( niterations .ge. 0.0 ) then
@@ -278,6 +273,8 @@ enddo
 enddo
 
 msgreceived=' '
+phase0=-98
+i1hashdec=0
 goto 999
 
 778 continue
@@ -310,10 +307,13 @@ goto 999
       call unpackmsg(i4Dec6BitWords,msgreceived)
     else
       msgreceived=' '
+      phase0=-99
     endif
 
-write(78,1001) iav,ipk,is,fdiff,fest,nbadsync,phase0,niterations,ndither,i1hashdec,i1Dec8BitBytes(10),msgreceived
-1001 format(i6,i6,i6,f10.1,f10.1,i6,f10.2,i6,i6,i6,i6,4x,a22)
-999 return
+999 continue
+    write(78,1001) nutc,t0,iav,ipk,is,fdiff,fest,nbadsync1,nbadsync2, &
+               phase0,niterations,ndither,i1hashdec,i1Dec8BitBytes(10),msgreceived 
+1001 format(i6,f8.2,i4,i4,i4,f8.2,f8.2,i4,i4,f8.2,i4,i4,i4,i4,2x,a22)
 
+    return
 end subroutine syncmsk144

@@ -39,9 +39,9 @@ subroutine msk144_decode(id2,npts,nutc,nprint,line)
 !### Would it be better to set median rms to 1.0 ?
 !  d(0:npts-1)=d(0:npts-1)/rms          !Normalize so that rms=1.0
 
-  call mskdt(d,npts,ty,yellow,nyel)
+  call msk144dt(d,npts,ty,yellow,nyel)
 
-  nyel=min(nyel,100)
+  nyel=min(nyel,20)
 
   n=log(float(npts))/log(2.0) + 1.0
   nfft=min(2**n,1024*1024)
@@ -58,21 +58,24 @@ subroutine msk144_decode(id2,npts,nutc,nprint,line)
      iz=ib-ia+1
      cdat2(1:iz)=c(ia:ib)               !Select nlen complex samples
      t0=ia/12000.0
-     call syncmsk144(cdat2,iz,msg,freq)
+     call syncmsk144(cdat2,iz,msg,freq,nutc,t0)
      if(msg(1:1).ne.' ') then
-!      if(msg.ne.msg0) then
+       if(msg.ne.msg0) then
          nline=nline+1
          nsnr0=-99
-!      endif
-       y=10.0**(0.1*(yellow(n)-1.5))
-       nsnr=max(-5,nint(db(y)))
-!      if(nsnr.gt.nsnr0 .and. nline.gt.0) then
+       endif
+!       y=10.0**(0.1*(yellow(n)-1.5))
+!       nsnr=max(-5,nint(db(y)))
+      y=yellow(n)-1.5
+      nsnr=y*10   ! this should be 10*db (centibels?)
+      if( nsnr .gt. 999 ) nsnr=99
+      if(nsnr.gt.nsnr0 .and. nline.gt.0) then
       write(line(nline),1020) nutc,nsnr,t0,nint(freq),msg
       if(nprint.ne.0) write(*,1020) nutc,nsnr,t0,nint(freq),msg
-1020   format(i6.6,i4,f5.1,i5,' & ',a22)
-       nsnr0=nsnr
-!      go to 900
-!    endif
+1020  format(i6.6,i4,f5.1,i5,' & ',a22)
+      nsnr0=nsnr
+      go to 900
+     endif
      msg0=msg
      endif
   enddo
