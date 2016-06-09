@@ -113,11 +113,14 @@ namespace
 class BWFFile::impl final
 {
 public:
+  using FileError = QFile::FileError;
+
   impl (QAudioFormat const& format)
     : header_dirty_ {true}
     , format_ {format}
     , header_length_ {-1}
     , data_size_ {-1}
+    , error_ {FileError::NoError}
   {
   }
 
@@ -127,6 +130,7 @@ public:
     , file_ {name}
     , header_length_ {-1}
     , data_size_ {-1}
+    , error_ {FileError::NoError}
   {
   }
 
@@ -137,12 +141,13 @@ public:
     , info_dictionary_ {dictionary}
     , header_length_ {-1}
     , data_size_ {-1}
+    , error_ {FileError::NoError}
   {
   }
 
   ~impl ()
   {
-    file_.close ();
+    if (file_.isOpen ()) file_.close ();
   }
 
   bool initialize (BWFFile * self, OpenMode mode);
@@ -173,6 +178,7 @@ public:
   InfoDictionary info_dictionary_;
   qint64 header_length_;
   qint64 data_size_;
+  FileError error_;
 };
 
 bool BWFFile::impl::initialize (BWFFile * self, OpenMode mode)
@@ -431,88 +437,218 @@ BWFFile::~BWFFile ()
 
 bool BWFFile::open (OpenMode mode)
 {
-  bool result {false};
+  bool success {false};
   if (!(mode & WriteOnly))
     {
-      result = m_->file_.open (mode & ~Text) && m_->read_header ();
-    }
-  else
-    {
-      if ((result = m_->file_.open (mode & ~Text)))
+      if (!(success = m_->file_.open (mode & ~Text)))
         {
-          if (!(result = m_->read_header ()
-                || m_->write_header (m_->format_)
-                || m_->file_.resize (m_->header_length_)))
+          setErrorString (m_->file_.errorString ());
+        }
+      else
+        {
+          if (!(success = m_->read_header ()))
             {
-              m_->file_.close ();
-              return false;
+              if (FileError::NoError == m_->file_.error ())
+                {
+                  setErrorString ("Unable to read file header");
+                  m_->error_ = FileError::ReadError;
+                }
+              else
+                {
+                  setErrorString (m_->file_.errorString ());
+                }
             }
         }
     }
-  if (result && (result = QIODevice::open (mode | Unbuffered)))
+  else
     {
-      return m_->initialize (this, mode);
+      if (!(success = m_->file_.open (mode & ~Text)))
+        {
+          setErrorString (m_->file_.errorString ());
+        }
+      else
+        {
+          if (!(success = (m_->read_header () || m_->write_header (m_->format_))))
+            {
+              if (FileError::NoError == m_->file_.error ())
+                {
+                  setErrorString ("Unable to update file header");
+                  m_->error_ = FileError::WriteError;
+                }
+              else
+                {
+                  setErrorString (m_->file_.errorString ());
+                }
+            }
+          else if (!(success = m_->file_.resize (m_->header_length_)))
+            {
+              setErrorString (m_->file_.errorString ());
+            }
+        }
     }
-  if (!result) close ();
-  return result;
+  success && (success = QIODevice::open (mode | Unbuffered));
+  if (success && !(success = m_->initialize (this, mode)))
+    {
+      if (FileError::NoError == m_->file_.error ())
+        {
+          setErrorString ("Unable to initialize file header");
+          m_->error_ = FileError::WriteError;
+        }
+      else
+        {
+          setErrorString (m_->file_.errorString ());
+        }
+    }
+  if (!success) close ();
+  return success;
 }
 
 bool BWFFile::open(FILE * fh, OpenMode mode, FileHandleFlags flags)
 {
-  bool result {false};
-  if (!(mode & ReadOnly)) return result;
+  bool success {false};
+  if (!(mode & ReadOnly))
+    {
+      setErrorString ("Read or read/write access must be specified");
+      m_->error_ = FileError::OpenError;
+      return success;
+    }
   if (!(mode & WriteOnly))
     {
-      result = m_->file_.open (fh, mode & ~Text, flags) && m_->read_header ();
-    }
-  else
-    {
-      if ((result = m_->file_.open (fh, mode & ~Text, flags)))
+      if (!(success = m_->file_.open (fh, mode & ~Text, flags)))
         {
-          if (!(result = m_->read_header ()
-                || m_->write_header (m_->format_)
-                || m_->file_.resize (m_->header_length_)))
+          setErrorString (m_->file_.errorString ());
+        }
+      else
+        {
+          if (!(success = m_->read_header ()))
             {
-              m_->file_.close ();
-              return false;
+              if (FileError::NoError == m_->file_.error ())
+                {
+                  setErrorString ("Unable to read file header");
+                  m_->error_ = FileError::ReadError;
+                }
+              else
+                {
+                  setErrorString (m_->file_.errorString ());
+                }
             }
         }
     }
-  if (result && (result = QIODevice::open (mode | Unbuffered)))
+  else
     {
-      return m_->initialize (this, mode);
+      if (!(success = m_->file_.open (fh, mode & ~Text, flags)))
+        {
+          setErrorString (m_->file_.errorString ());
+        }
+      else
+        {
+          if (!(success = (m_->read_header () || m_->write_header (m_->format_))))
+            {
+              if (FileError::NoError == m_->file_.error ())
+                {
+                  setErrorString ("Unable to update file header");
+                  m_->error_ = FileError::WriteError;
+                }
+              else
+                {
+                  setErrorString (m_->file_.errorString ());
+                }
+            }
+          else if (!(success = m_->file_.resize (m_->header_length_)))
+            {
+              setErrorString (m_->file_.errorString ());
+            }
+        }
     }
-  if (!result) close ();
-  return result;
+  success && (success = QIODevice::open (mode | Unbuffered));
+  if (success && !(success = m_->initialize (this, mode)))
+    {
+      if (FileError::NoError == m_->file_.error ())
+        {
+          setErrorString ("Unable to initialize file header");
+          m_->error_ = FileError::WriteError;
+        }
+      else
+        {
+          setErrorString (m_->file_.errorString ());
+        }
+    }
+  if (!success) close ();
+  return success;
 }
 
 bool BWFFile::open (int fd, OpenMode mode, FileHandleFlags flags)
 {
-  bool result {false};
-  if (!(mode & ReadOnly)) return result;
+  bool success {false};
+  if (!(mode & ReadOnly))
+    {
+      setErrorString ("Read or read/write access must be specified");
+      m_->error_ = FileError::OpenError;
+      return success;
+    }
   if (!(mode & WriteOnly))
     {
-      result = m_->file_.open (fd, mode & ~Text, flags) && m_->read_header ();
-    }
-  else
-    {
-      if ((result = m_->file_.open (fd, mode & ~Text, flags)))
+      if (!(success = m_->file_.open (fd, mode & ~Text, flags)))
         {
-          if (!(result = m_->read_header ()
-                || m_->write_header (m_->format_)
-                || m_->file_.resize (m_->header_length_)))
+          setErrorString (m_->file_.errorString ());
+        }
+      else
+        {
+          if (!(success = m_->read_header ()))
             {
-              m_->file_.close ();
-              return false;
+              if (FileError::NoError == m_->file_.error ())
+                {
+                  setErrorString ("Unable to read file header");
+                  m_->error_ = FileError::ReadError;
+                }
+              else
+                {
+                  setErrorString (m_->file_.errorString ());
+                }
             }
         }
     }
-  if (result && (result = QIODevice::open (mode | Unbuffered)))
+  else
     {
-      return m_->initialize (this, mode);
+      if (!(success = m_->file_.open (fd, mode & ~Text, flags)))
+        {
+          setErrorString (m_->file_.errorString ());
+        }
+      else
+        {
+          if (!(success = (m_->read_header () || m_->write_header (m_->format_))))
+            {
+              if (FileError::NoError == m_->file_.error ())
+                {
+                  setErrorString ("Unable to update file header");
+                  m_->error_ = FileError::WriteError;
+                }
+              else
+                {
+                  setErrorString (m_->file_.errorString ());
+                }
+            }
+          else if (!(success = m_->file_.resize (m_->header_length_)))
+            {
+              setErrorString (m_->file_.errorString ());
+            }
+        }
     }
-  if (!result) close ();
-  return result;
+  success && (success = QIODevice::open (mode | Unbuffered));
+  if (success && !(success = m_->initialize (this, mode)))
+    {
+      if (FileError::NoError == m_->file_.error ())
+        {
+          setErrorString ("Unable to initialize file header");
+          m_->error_ = FileError::WriteError;
+        }
+      else
+        {
+          setErrorString (m_->file_.errorString ());
+        }
+    }
+  if (!success) close ();
+  return success;
 }
 
 QAudioFormat const& BWFFile::format () const {return m_->format_;}
@@ -699,6 +835,7 @@ void BWFFile::bext_coding_history (QByteArray const& text)
 
 bool BWFFile::reset ()
 {
+  bool success {true};
   if (m_->file_.isOpen ())
     {
       m_->info_dictionary_.clear ();
@@ -709,24 +846,74 @@ bool BWFFile::reset ()
         {
           // we need to move the data down
           auto old_pos = m_->header_length_;
-          m_->write_header (m_->format_);
-          auto new_pos = m_->header_length_;
-          QByteArray buffer;
-          while (size)
+          if (!(success = m_->write_header (m_->format_)))
             {
-              m_->file_.seek (old_pos);
-              buffer = m_->file_.read (std::min (size, qint64 (32768)));
-              m_->file_.seek (new_pos);
-              m_->file_.write (buffer);
-              new_pos += buffer.size ();
-              old_pos += buffer.size ();
-              size -= buffer.size ();
+              auto new_pos = m_->header_length_;
+              QByteArray buffer;
+              while (size)
+                {
+                  success = m_->file_.seek (old_pos);
+                  if (!success)
+                    {
+                      setErrorString (m_->file_.errorString ());
+                    }
+                  else
+                    {
+                      buffer = m_->file_.read (std::min (size, qint64 (32768)));
+                      success = m_->file_.seek (new_pos);
+                      if (!success)
+                        {
+                          setErrorString (m_->file_.errorString ());
+                        }
+                      else
+                        {
+                          qint64 bytes = m_->file_.write (buffer);
+                          if (bytes < 0)
+                            {
+                              setErrorString (m_->file_.errorString ());
+                              success = false;
+                            }
+                          else
+                            {
+                              new_pos += buffer.size ();
+                              old_pos += buffer.size ();
+                              size -= buffer.size ();
+                            }
+                        }
+                    }
+                }
+            }
+          else
+            {
+              if (FileError::NoError == m_->file_.error ())
+                {
+                  setErrorString ("Unable to update file header");
+                  m_->error_ = FileError::WriteError;
+                }
+              else
+                {
+                  setErrorString (m_->file_.errorString ());
+                }
+              return success;
             }
         }
-      m_->file_.resize (m_->header_length_ + m_->data_size_);
-      m_->header_dirty_ = true;
+      if (success)
+        {
+          success = m_->file_.resize (m_->header_length_ + m_->data_size_);
+          if (!success)
+            {
+              setErrorString (m_->file_.errorString ());
+            }
+          m_->header_dirty_ = true;
+        }
     }
-  return QIODevice::reset ();
+  else
+    {
+      setErrorString ("File not open");
+      m_->error_ = FileError::WriteError;
+      success = false;
+    }
+  return success && QIODevice::reset ();
 }
 
 qint64 BWFFile::size () const
@@ -741,16 +928,32 @@ bool BWFFile::isSequential () const
 
 void BWFFile::close ()
 {
-  QIODevice::close ();
-  if (m_->header_dirty_ || m_->data_size_ < 0) m_->update_header ();
-  m_->file_.close ();
+  if (isOpen ()) QIODevice::close ();
+  if (m_->header_dirty_ || m_->data_size_ < 0)
+    {
+      m_->update_header ();
+    }
+  if (m_->file_.isOpen ())
+    {
+      m_->file_.close ();
+    }
 }
 
 bool BWFFile::seek (qint64 pos)
 {
-  if (pos < 0) return false;
-  QIODevice::seek (pos);
-  return m_->file_.seek (pos + m_->header_length_);
+  if (pos < 0)
+    {
+      setErrorString ("Attempt to seek before beginning of data");
+      m_->error_ = FileError::PositionError;
+      return false;
+    }
+  bool success = QIODevice::seek (pos);
+  if (success)
+    {
+      success = m_->file_.seek (pos + m_->header_length_);
+      if (!success) setErrorString (m_->file_.errorString ());
+    }
+  return success;
 }
 
 qint64 BWFFile::readData (char * data, qint64 max_size)
@@ -823,19 +1026,48 @@ bool BWFFile::resize (qint64 new_size)
   return result;
 }
 
-bool BWFFile::setPermissions (Permissions permissions) {return m_->file_.setPermissions (permissions);}
+bool BWFFile::setPermissions (Permissions permissions)
+{
+  bool success = m_->file_.setPermissions (permissions);
+  if (!success) setErrorString (m_->file_.errorString ());
+  return success;
+}
 
-auto BWFFile::error () const -> FileError {return m_->file_.error ();}
+auto BWFFile::error () const -> FileError
+{
+  return m_->error_ != FileError::NoError ? m_->error_ : m_->file_.error ();
+}
 
-bool BWFFile::flush () {return m_->file_.flush ();}
+bool BWFFile::flush ()
+{
+  bool success = m_->file_.flush ();
+  if (!success) setErrorString (m_->file_.errorString ());
+  return success;
+}
 
-int BWFFile::handle () const {return m_->file_.handle ();}
+int BWFFile::handle () const
+{
+  int h {m_->file_.handle ()};
+  if (h < 0) const_cast<BWFFile *> (this)->setErrorString (m_->file_.errorString ());
+  return h;
+}
 
 uchar * BWFFile::map (qint64 offset, qint64 size, MemoryMapFlags flags)
 {
-  return m_->file_.map (offset + m_->header_length_, size, flags);
+  uchar * address = m_->file_.map (offset + m_->header_length_, size, flags);
+  if (!address) setErrorString (m_->file_.errorString ());
+  return address;
 }
 
-bool BWFFile::unmap (uchar * address) {return m_->file_.unmap (address);}
+bool BWFFile::unmap (uchar * address)
+{
+  bool success = m_->file_.unmap (address);
+  if (!success) setErrorString (m_->file_.errorString ());
+  return success;
+}
 
-void BWFFile::unsetError () {m_->file_.unsetError ();}
+void BWFFile::unsetError ()
+{
+  m_->error_ = FileError::NoError;
+  m_->file_.unsetError ();
+}
