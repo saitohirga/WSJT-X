@@ -67,7 +67,7 @@ subroutine msk144_decode(id2,npts,nutc,nprint,line)
 !       y=10.0**(0.1*(yellow(n)-1.5))
 !       nsnr=max(-5,nint(db(y)))
       y=yellow(n)-1.5
-      nsnr=y*10   ! this should be 10*db (centibels?)
+      nsnr=y   
       if( nsnr .gt. 999 ) nsnr=99
       if(nsnr.gt.nsnr0 .and. nline.gt.0) then
       write(line(nline),1020) nutc,nsnr,t0,nint(freq),msg
