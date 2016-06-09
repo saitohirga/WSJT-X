@@ -195,6 +195,7 @@ public:
   // Seek offsets are relative to the start of the sample data
   bool seek (qint64) override;
 
+  // this can fail due to updating header issues, errors are ignored
   void close () override;
 
 protected:
