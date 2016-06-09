@@ -5044,7 +5044,9 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
 
   auto decode_parts = message_text.split (' ', QString::SkipEmptyParts);
 
-  if (decode_parts.contains ("CQ") || decode_parts.contains ("QRZ"))
+  if (decode_parts[0] == "CQ"
+      || decode_parts[0] == "CQDX"
+      || decode_parts[0] == "QRZ")
     {
       // a message we are willing to accept
       QString format_string {"%1 %2 %3 %4 %5  %6"};

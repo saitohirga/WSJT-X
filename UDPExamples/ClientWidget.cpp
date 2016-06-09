@@ -7,7 +7,7 @@ namespace
 {
   //QRegExp message_alphabet {"[- A-Za-z0-9+./?]*"};
   QRegExp message_alphabet {"[- @A-Za-z0-9+./?#<>]*"};
-  QRegularExpression cq_re {"[^A-Z0-9]*(CQ|QRZ)[^A-Z0-9]*"};
+  QRegularExpression cq_re {"(CQ|CQDX|QRZ)[^A-Z0-9/]+"};
 
   void update_dynamic_property (QWidget * widget, char const * property, QVariant const& value)
   {

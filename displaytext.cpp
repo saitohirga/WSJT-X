@@ -147,7 +147,9 @@ void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall,
 {
     QString bg="white";
     bool CQcall = false;
-    if (decodedText.string ().contains (" CQ ") > 0 || decodedText.string ().contains (" CQ DX "))
+    if (decodedText.string ().contains (" CQ ")
+        || decodedText.string ().contains (" CQDX ")
+        || decodedText.string ().contains (" QRZ "))
     {
         CQcall = true;
         bg=color_CQ.name();
