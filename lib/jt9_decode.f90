@@ -42,6 +42,7 @@ contains
     common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
     save ccfred,red2
 
+    if(nexp_decode.eq.-99) stop     !Silence compiler warning
     this%callback => callback
     if(nmode.eq.9 .and. nsubmode.ge.1) then
        call decode9w(nfqso,ntol,nsubmode,ss,id2,sync,nsnr,xdt,freq,msg)

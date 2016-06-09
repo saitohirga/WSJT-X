@@ -9,6 +9,7 @@ subroutine decode65b(s2,nflip,nadd,mode65,ntrials,naggressive,ndepth,      &
   character mycall*12,hiscall*12,hisgrid*6
   save
 
+  if(nqd.eq.-99) stop                !Silence compiler warning
   do j=1,63
      k=mdat(j)                       !Points to data symbol
      if(nflip.lt.0) k=mdat2(j)

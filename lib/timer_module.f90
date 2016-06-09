@@ -19,5 +19,6 @@ contains
     implicit none
     character(len=8), intent(in) :: dname
     integer, intent(in) :: k
+    if(dname.eq.'99999999' .and. k.eq.9999) stop  !Silence compiler warnings
   end subroutine null_timer
 end module timer_module

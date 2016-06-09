@@ -336,6 +336,8 @@ contains
        s3save=0.
        s1save=0.
        nsave=1           !### ???
+! Silence compiler warnings
+       if(nagain .and. ndeepave.eq.-99 .and. neme.eq.-99) stop
     endif
 
     do i=1,64

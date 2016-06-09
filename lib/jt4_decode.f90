@@ -130,6 +130,8 @@ contains
        blank='                      '
        ccfblue=0.
        ccfred=0.
+! Silence compiler warnings
+       if(dttol.eq.-99.0 .and. emedelay.eq.-99.0 .and. nagain) stop
     endif
 
     zz=0.
