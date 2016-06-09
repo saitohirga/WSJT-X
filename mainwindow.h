@@ -455,6 +455,7 @@ private:
   QFuture<void>* future3;
   QFutureWatcher<void> m_wav_future_watcher;
   QFutureWatcher<void> * watcher3;
+  QFutureWatcher<QString> m_saveWAVWatcher;
 
   QProcess proc_jt9;
   QProcess p1;
@@ -572,7 +573,16 @@ private:
   QString WSPR_hhmm(int n);
   void fast_config(bool b);
   void CQRxFreq();
-  void save_wave_file (QString const& name, short const * data, int seconds) const;
+  QString save_wave_file (QString const& name
+                          , short const * data
+                          , int seconds
+                          , QString const& my_callsign
+                          , QString const& my_grid
+                          , QString const& mode
+                          , qint32 sub_mode
+                          , Frequency frequency
+                          , QString const& his_call
+                          , QString const& his_grid) const;
   void read_wav_file (QString const& fname);
   void decodeDone ();
   void subProcessFailed (QProcess *, int exit_code, QProcess::ExitStatus);
