@@ -311,9 +311,9 @@ goto 999
     endif
 
 999 continue
-    write(78,1001) nutc,t0,iav,ipk,is,fdiff,fest,nbadsync1,nbadsync2, &
-               phase0,niterations,ndither,i1hashdec,i1Dec8BitBytes(10),msgreceived 
-1001 format(i6,f8.2,i4,i4,i4,f8.2,f8.2,i4,i4,f8.2,i4,i4,i4,i4,2x,a22)
+!    write(78,1001) nutc,t0,iav,ipk,is,fdiff,fest,nbadsync1,nbadsync2, &
+!               phase0,niterations,ndither,i1hashdec,i1Dec8BitBytes(10),msgreceived 
+!1001 format(i6,f8.2,i4,i4,i4,f8.2,f8.2,i4,i4,f8.2,i4,i4,i4,i4,2x,a22)
 
     return
 end subroutine syncmsk144

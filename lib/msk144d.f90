@@ -9,6 +9,7 @@ program msk144d
 
   character c,mode
   character*80 line(100)
+  character*512 pchk_file
   logical :: display_help=.false.
   type(wav_header) :: wav
   integer*2 id2(15*12000)
@@ -49,6 +50,7 @@ program msk144d
   call init_timer ('timer.out')
   call timer('jt65    ',0)
 
+  pchk_file='./peg-128-80-reg3.pchk'
   ndecoded=0
   do ifile=noffset+1,noffset+nremain
      call get_command_argument(ifile,optarg,narglen)
@@ -62,7 +64,7 @@ program msk144d
      read(unit=wav%lun) id2(1:npts)
      close(unit=wav%lun)
      call timer('read    ',1)
-     call msk144_decode(id2,npts,nutc,1,line)
+     call msk144_decode(id2,npts,nutc,1,pchk_file,line)
   enddo
 
   call timer('msk144    ',1)
