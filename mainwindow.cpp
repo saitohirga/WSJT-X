@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include <cinttypes>
 #include <limits>
+#include <functional>
 
 #include <QLineEdit>
 #include <QRegExpValidator>
@@ -417,6 +418,16 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
           [this] (int exitCode, QProcess::ExitStatus status) {
             subProcessFailed (&p3, exitCode, status);
           });
+
+  // hook up save WAV file exit handling
+  connect (&m_saveWAVWatcher, &QFutureWatcher<QString>::finished, [this] {
+      // extract the promise from the future
+      auto const& result = m_saveWAVWatcher.future ().result ();
+      if (!result.isEmpty ())   // error
+        {
+          QMessageBox::critical (this, tr("Error writing WAV file"), result);
+        }
+    });
 
   // Hook up working frequencies.
   ui->bandComboBox->setModel (m_config.frequencies ());
@@ -1023,8 +1034,18 @@ void MainWindow::dataSink(qint64 frames)
       m_fname = m_config.save_directory ().absoluteFilePath (t.date().toString("yyMMdd") + "_" + t2);
       // the following is potential a threading hazard - not a good
       // idea to pass pointer to be processed in another thread
-      QtConcurrent::run(this, &MainWindow::save_wave_file, m_fname + ".wav", &dec_data.d2[0], m_TRperiod);
-
+      m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file
+                                                                , this
+                                                                , m_fname
+                                                                , &dec_data.d2[0]
+                                                                , m_TRperiod
+                                                                , m_config.my_callsign ()
+                                                                , m_config.my_grid ()
+                                                                , m_mode
+                                                                , m_nSubMode
+                                                                , m_freqNominal
+                                                                , m_hisCall
+                                                                , m_hisGrid)));
       if (m_mode.startsWith ("WSPR")) {
         m_c2name = m_fname + ".c2";
         int len1=m_c2name.length();
@@ -1065,24 +1086,38 @@ void MainWindow::dataSink(qint64 frames)
   }
 }
 
-void MainWindow::save_wave_file (QString const& name, short const * data, int seconds) const
+QString MainWindow::save_wave_file (QString const& name
+                                    , short const * data
+                                    , int seconds
+                                    , QString const& my_callsign
+                                    , QString const& my_grid
+                                    , QString const& mode
+                                    , qint32 sub_mode
+                                    , Frequency frequency
+                                    , QString const& his_call
+                                    , QString const& his_grid) const
 {
+  //
+  // This member function runs in a thread and should not access
+  // members that may be changed in the GUI thread or any other thread
+  // without suitable synchronization.
+  //
   QAudioFormat format;
   format.setCodec ("audio/pcm");
   format.setSampleRate (12000);
   format.setChannelCount (1);
   format.setSampleSize (16);
   format.setSampleType (QAudioFormat::SignedInt);
-  auto source = QString {"%1, %2"}.arg (m_config.my_callsign ()).arg (m_config.my_grid ());
+  auto source = QString {"%1, %2"}.arg (my_callsign).arg (my_grid);
   auto comment = QString {"Mode=%1%2, Freq=%3%4"}
-     .arg (m_mode)
-     .arg (QString {m_mode.contains ('J') && !m_mode.contains ('+')
-           ? QString {", Sub Mode="} + QChar {'A' + m_nSubMode}
+     .arg (mode)
+     .arg (QString {mode.contains ('J') && !mode.contains ('+')
+           ? QString {", Sub Mode="} + QChar {'A' + sub_mode}
          : QString {}})
-        .arg (Radio::frequency_MHz_string (m_freqNominal))
-     .arg (QString {!m_mode.startsWith ("WSPR") ? QString {", DXCall=%1, DXGrid=%2"}
-         .arg (m_hisCall)
-         .arg (m_hisGrid).toLocal8Bit () : ""});
+        .arg (Radio::frequency_MHz_string (frequency))
+     .arg (QString {!mode.startsWith ("WSPR") ? QString {", DXCall=%1, DXGrid=%2"}
+         .arg (his_call)
+         .arg (his_grid).toLocal8Bit () : ""});
   BWFFile::InfoDictionary list_info {
       {{{'I','S','R','C'}}, source.toLocal8Bit ()},
       {{{'I','S','F','T'}}, program_title (revision ()).simplified ().toLocal8Bit ()},
@@ -1090,9 +1125,14 @@ void MainWindow::save_wave_file (QString const& name, short const * data, int se
                           .toString ("yyyy-MM-ddTHH:mm:ss.zzzZ").toLocal8Bit ()},
       {{{'I','C','M','T'}}, comment.toLocal8Bit ()},
   };
-  BWFFile wav {format, name, list_info};
-  wav.open (BWFFile::WriteOnly);
-  wav.write (reinterpret_cast<char const *> (data), sizeof (short) * seconds * format.sampleRate ());
+  BWFFile wav {format, name + ".wav", list_info};
+  if (!wav.open (BWFFile::WriteOnly)
+      || 0 > wav.write (reinterpret_cast<char const *> (data)
+                        , sizeof (short) * seconds * format.sampleRate ()))
+    {
+      return wav.errorString ();
+    }
+  return QString {};
 }
 
 //-------------------------------------------------------------- fastSink()
@@ -1151,7 +1191,18 @@ void MainWindow::fastSink(qint64 frames)
        !m_decodeEarly) {
       // the following is potential a threading hazard - not a good
       // idea to pass pointer to be processed in another thread
-      QtConcurrent::run (this, &MainWindow::save_wave_file, m_fname, &dec_data.d2[0], m_TRperiod);
+      m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file
+                                                                , this
+                                                                , m_fname
+                                                                , &dec_data.d2[0]
+                                                                , m_TRperiod
+                                                                , m_config.my_callsign ()
+                                                                , m_config.my_grid ()
+                                                                , m_mode
+                                                                , m_nSubMode
+                                                                , m_freqNominal
+                                                                , m_hisCall
+                                                                , m_hisGrid)));
       m_fileToKill=m_fname;
       killFileTimer->start (3*1000*m_TRperiod/4); //Kill 3/4 period from now
     }
