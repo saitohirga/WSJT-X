@@ -72,7 +72,7 @@ extern "C" {
                int* itext, int len1, int len2);
 
   void genmsk144_(char* msg, int* ichk, char* msgsent, int itone[],
-               int* itext, int len1, int len2);
+               int* itext, char pchkFile[], int len1, int len2, int len3);
 
   void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
               int* itext, int len1, int len2);
@@ -101,7 +101,8 @@ extern "C" {
                 float* level, float* sigdb, float* snr, float* dfreq,
                 float* width);
 
-  void fast_decode_(short id2[], int narg[], char msg[], int len);
+  void fast_decode_(short id2[], int narg[], char msg[], char pchkFile[],
+                    int len1, int len2);
   void hash_calls_(char calls[], int* ih9, int len);
   void degrade_snr_(short d2[], int* n, float* db, float* bandwidth);
   void wav12_(short d2[], short d1[], int* nbytes, short* nbitsam2);
@@ -729,6 +730,12 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_bFastMode) {
     int ntr[]={5,10,15,30};
     m_TRperiod=ntr[m_TRindex-11];
+  }
+  QString pchkFile = m_config.data_dir().absoluteFilePath("peg-128-80-reg3.pchk");
+  QByteArray ba = pchkFile.toLocal8Bit();
+  for(int i=0; i<512; i++) {
+    m_pchkFile[i]=32;
+    if(i<pchkFile.length()) m_pchkFile[i]=ba[i];
   }
 
   // this must be the last statement of constructor
@@ -1965,19 +1972,8 @@ void MainWindow::decode()                                       //decode()
     narg[13]=-1;
     narg[14]=m_config.aggressive();
     memcpy(d2b,dec_data.d2,2*360000);
-
-//  I'm sure there's a better way to do this...  I'm sending the file path to
-//  fast_decode() as the first word of the m_msg[] array.
-//###
-    QString pchk_file = m_config.data_dir().absoluteFilePath("peg-128-80-reg3.pchk");
-    m_ba = pchk_file.toLocal8Bit();
-    for(int i=0; i<80; i++) {
-      m_msg[0][i]=32;
-      if(i<pchk_file.length()) m_msg[0][i]=m_ba[i];
-    }
-//###
-
-    *future3 = QtConcurrent::run(fast_decode_,&d2b[0],&narg[0],&m_msg[0][0],80);
+    *future3 = QtConcurrent::run(std::bind(fast_decode_,&d2b[0],&narg[0],&m_msg[0][0],
+        &m_pchkFile[0],80,512));
     watcher3->setFuture(*future3);
   } else {
     memcpy(to, from, qMin(mem_jt9->size(), size));
@@ -2484,7 +2480,7 @@ void MainWindow::guiUpdate()
         if(m_modeTx=="JTMSK") genmsk_(message, &ichk, msgsent, const_cast<int *> (itone),
                                   &m_currentMessageType, len1, len1);
         if(m_modeTx=="MSK144") genmsk144_(message, &ichk, msgsent, const_cast<int *> (itone),
-                                  &m_currentMessageType, len1, len1);
+                                  &m_currentMessageType, &m_pchkFile[0], len1, len1, 512);
         msgsent[22]=0;
       }
     }

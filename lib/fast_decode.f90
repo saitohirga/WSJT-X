@@ -1,4 +1,4 @@
-subroutine fast_decode(id2,narg,line)
+subroutine fast_decode(id2,narg,line,pchk_file)
 
   parameter (NMAX=30*12000)
   integer*2 id2(NMAX)
@@ -9,14 +9,8 @@ subroutine fast_decode(id2,narg,line)
   logical pick
   character*6 cfile6
   character*80 line(100)
-  character*80 pchk_file,gen_file
+  character*512 pchk_file
   save npts
-
-  pchk_file=line(1)
-  i=index(pchk_file,".pchk")
-  gen_file=pchk_file(1:i-1)//".gen"
-!  print*,pchk_file
-!  print*,gen_file
 
   nutc=narg(0)
   ndat0=narg(1)
@@ -39,7 +33,7 @@ subroutine fast_decode(id2,narg,line)
      call jtmsk_decode(id2,narg,line)
      go to 900
   else if(nmode.eq.104) then
-     call msk144_decode(id2,ndat0,nutc,0,line)
+     call msk144_decode(id2,ndat0,nutc,0,pchk_file,line)
      go to 900
   endif
 

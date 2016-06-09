@@ -1,4 +1,5 @@
-subroutine syncmsk144(cdat,npts,msgreceived,fest,nutc,t0)  !nutc and t0 are for debug output 
+subroutine syncmsk144(cdat,npts,pchk_file,msgreceived,fest,nutc,t0)  
+!nutc and t0 are for debug output 
   use iso_c_binding, only: c_loc,c_size_t
   use packjt
   use hashing
@@ -6,7 +7,7 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest,nutc,t0)  !nutc and t0 are for 
 
   parameter (NSPM=864)
   character*22 msgreceived
-  character*85 pchk_file,gen_file
+  character*512 pchk_file,gen_file
   complex cdat(npts)                    !Analytic signal
   complex cdat2(npts)
   complex c(NSPM)
@@ -43,9 +44,8 @@ subroutine syncmsk144(cdat,npts,msgreceived,fest,nutc,t0)  !nutc and t0 are for 
   save first,cb,pi,twopi,dt,f0,f1
 
   if(first) then
-! These files can be found in /lib/ldpc/jtmode_codes directory
-     pchk_file="./data/peg-128-80-reg3.pchk"
-     gen_file="./data/peg-128-80-reg3.gen"
+     i=index(pchk_file,".pchk")
+     gen_file=pchk_file(1:i-1)//".gen"
      call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
 ! define half-sine pulse and raised-cosine edge window
      pi=4d0*datan(1d0)

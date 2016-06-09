@@ -1,4 +1,4 @@
-subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
+subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file)
 
 !!!!!!!!!!!!!!!!!! Experimental small blocklength ldpc version
 ! s8 + 48bits + s8 + 80 bits = 144 bits (72ms message duration)
@@ -22,7 +22,7 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
   use iso_c_binding, only: c_loc,c_size_t
   use packjt
   use hashing
-  character*85 pchk_file,gen_file
+  character*512 pchk_file,gen_file
   character*22 msg0
   character*22 message                    !Message to be generated
   character*22 msgsent                    !Message as it will be received
@@ -53,11 +53,8 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
   if( first ) then
     first=.false.
     nsym=128
-!! Fix this
-!    pchk_file="/Users/sfranke/Builds/wsjtx_install/peg-128-80-reg3.pchk"
-!    gen_file="/Users/sfranke/Builds/wsjtx_install/peg-128-80-reg3.gen"
-    pchk_file="./data/peg-128-80-reg3.pchk"
-    gen_file="./data/peg-128-80-reg3.gen"
+    i=index(pchk_file,".pchk")
+    gen_file=pchk_file(1:i-1)//".gen"
     call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))  
     pi=4.*atan(1.0)
     twopi=8.*atan(1.0)

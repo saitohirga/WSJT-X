@@ -439,6 +439,7 @@ private:
   bool		m_first_error;
 
   char    m_msg[100][80];
+  char    m_pchkFile[512];
 
   // labels in status bar
   QLabel * tx_status_label;
@@ -512,8 +513,6 @@ private:
   QHash<QString,bool> m_sfx;
 
   QDateTime m_dateTimeQSO;
-
-  QByteArray m_ba;
 
   QSharedMemory *mem_jt9;
   LogBook m_logBook;
