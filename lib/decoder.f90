@@ -32,6 +32,11 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   type(counting_jt65_decoder) :: my_jt65
   type(counting_jt9_decoder) :: my_jt9
 
+  ! initialize decode counts
+  my_jt4%decoded = 0
+  my_jt65%decoded = 0
+  my_jt9%decoded = 0
+
   single_decode=iand(params%nexp_decode,32).ne.0
   if(mod(params%nranera,2).eq.0) ntrials=10**(params%nranera/2)
   if(mod(params%nranera,2).eq.1) ntrials=3*10**(params%nranera/2)
