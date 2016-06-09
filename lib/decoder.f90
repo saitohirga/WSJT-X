@@ -160,6 +160,7 @@ contains
     character*22 decoded
     character*3 cflags
 
+    if(ich.eq.-99) stop                         !Silence compiler warning
     if (have_sync) then
        decoded=decoded0
        cflags='   '
@@ -226,10 +227,11 @@ contains
     integer, intent(in) :: nsum
     integer, intent(in) :: minsync
 
-    integer i,n
-    logical have_sync,is_deep,is_average
+    integer i
+    logical is_deep,is_average
     character decoded*22,csync*2,cflags*3
 
+    if(width.eq.-9999.0) stop              !Silence compiler warning
 !$omp critical(decode_results)
     decoded=decoded0
     cflags='   '
