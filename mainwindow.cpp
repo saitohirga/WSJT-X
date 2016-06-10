@@ -2192,7 +2192,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
     }
     if(t.indexOf("<DecodeFinished>") >= 0) {
-      m_bDecoded = (t.mid(23,1).toInt()==1);
+      m_bDecoded = t.mid (20).trimmed ().toInt () > 0;
       if(!m_diskData) killFileTimer.start (3*1000*m_TRperiod/4); //Kill in 45 s
       decodeDone ();
       m_startAnother=m_loopall;
