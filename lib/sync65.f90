@@ -17,6 +17,7 @@ subroutine sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,nrobust,   &
 
   common/steve/thresh0
 
+  if(ntol.eq.-99) stop                       !Silence compiler warning
   call setup65
   df=12000.0/NFFT                            !df = 12000.0/8192 = 1.465 Hz
   ia=max(2,nint(nfa/df))

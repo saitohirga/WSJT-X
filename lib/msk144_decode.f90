@@ -11,7 +11,6 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,line)
   real ty(NMAX/512)                    !Ping times
   real yellow(NMAX/512)
   complex c(NFFTMAX)                   !Complex (analytic) data
-  complex cdat(24000)                  !Short segments, up to 2 s
   complex cdat2(24000)
   character*22 msg,msg0                !Decoded message
   character*80 line(100)               !Decodes passed back to caller
