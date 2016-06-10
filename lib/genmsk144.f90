@@ -39,8 +39,7 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file)
   integer*1 b11(11)
   integer*1 b13(13)
   real*8 pp(12)
-  real*8 xi(864),xq(864),pi,twopi,phi,dphi
-  real waveform(864)
+  real*8 xi(864),xq(864),pi,twopi
   data b7/1,1,1,0,0,1,0/
   data s8/0,1,1,1,0,0,1,0/
   data b11/1,1,1,0,0,0,1,0,0,1,0/         !Barker 11 code

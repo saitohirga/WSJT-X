@@ -1,5 +1,4 @@
-subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,nflip,   &
-     mycall,hiscall,hisgrid,nexp_decode,qual,decoded)
+subroutine hint65(s3,mrs,mrs2,nadd,nflip,mycall,hiscall,hisgrid,qual,decoded)
 
   use packjt
   use prog_args
@@ -9,7 +8,6 @@ subroutine hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,nflip,   &
   integer*1 sym1(0:62,MAXMSG)
   integer*1 sym2(0:62,MAXMSG)
   integer mrs(63),mrs2(63)
-  integer mrsym(0:62),mr2sym(0:62),mrprob(0:62)
   integer dgen(12),sym(0:62),sym_rev(0:62)
   character*6 mycall,hiscall,hisgrid,call2(MAXCALLS)
   character*4 grid2(MAXCALLS),rpt(MAXRPT)

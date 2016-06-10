@@ -13,7 +13,7 @@ subroutine syncmsk144(cdat,npts,pchk_file,msgreceived,fest,nutc,t0)
   complex c(NSPM)
   complex ctmp(6000)                  
   complex cb(42)                        !Complex waveform for sync word 
-  complex csum,cfac,cca,ccb
+  complex cfac,cca,ccb
   complex cc(npts)
   complex cc1(npts)
   complex cc2(npts)
@@ -21,10 +21,8 @@ subroutine syncmsk144(cdat,npts,pchk_file,msgreceived,fest,nutc,t0)
   integer s8(8),hardbits(144),hardword(128),unscrambledhardbits(128)
   integer*1, target:: i1Dec8BitBytes(10)
   integer, dimension(1) :: iloc
-  integer*4 i4Msg6BitWords(12)          !72-bit message as 6-bit words
   integer*4 i4Dec6BitWords(12)  
   integer*1 decoded(80)   
-  integer*1, allocatable :: message(:)
   integer*1 i1hashdec
   integer ipeaks(10)
   logical ismask(6000)
@@ -41,7 +39,7 @@ subroutine syncmsk144(cdat,npts,pchk_file,msgreceived,fest,nutc,t0)
   data first/.true./
 
   data s8/0,1,1,1,0,0,1,0/
-  save first,cb,pi,twopi,dt,f0,f1
+  save first,cb,pi,twopi,dt
 
   if(first) then
      i=index(pchk_file,".pchk")

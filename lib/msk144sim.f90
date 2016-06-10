@@ -8,7 +8,7 @@ program msk144sim
   character*512 pchk_file
   character*3 rpt(0:7)
   real wave(0:NMAX-1)              !Simulated received waveform
-  real*8 dt,twopi,freq,phi,dphi0,dphi1,dphi
+  real*8 twopi,freq,phi,dphi0,dphi1,dphi
   type(hdr) h                          !Header for .wav file
   integer*2 iwave(0:NMAX-1)
   integer itone(144)                   !Message bits

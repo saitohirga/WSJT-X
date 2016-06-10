@@ -12,6 +12,7 @@ subroutine softsym9w(id2,npts,xdt0,f0,width,nsubmode,xdt1,i1softsymbols)
   include 'jt9sync.f90'
   equivalence (x,cx)
 
+  if(npts.eq.-99) stop                     !Silence compiler warning
   df=12000.0/NFFT
   i0a=max(1.0,(xdt0-1.0)*12000.0)
   i0b=(xdt0+1.0)*12000.0

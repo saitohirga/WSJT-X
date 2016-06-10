@@ -60,6 +60,7 @@ contains
     integer nwidth
     real t
 
+    if(minsync+nflip+qual.eq.-9999) stop            !Silence compiler warning
     t=max(0.0,width*width-7.2)
     nwidth=max(nint(sqrt(t)),2)
 !### deal with nflip here! ###

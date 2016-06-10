@@ -30,6 +30,7 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
   common/chansyms65/correct
   save
 
+  if(mode65.eq.-99) stop                   !Silence compiler warning
   mycall=mycall_12(1:6)
   hiscall=hiscall_12(1:6)
   qual=0.
@@ -94,8 +95,7 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
   if(nft.eq.0 .and. iand(ndepth,32).eq.32) then
      qmin=2.0 - 0.1*naggressive
      call timer('hint65  ',0)
-     call hint65(s3,mrs,mrs2,mrsym,mr2sym,mrprob,nadd,nflip,   &
-          mycall,hiscall,hisgrid,nexp_decode,qual,decoded)
+     call hint65(s3,mrs,mrs2,nadd,nflip,mycall,hiscall,hisgrid,qual,decoded)
      if(qual.ge.qmin) then
         nft=2
         ncount=0

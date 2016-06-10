@@ -7,7 +7,7 @@ program msk144d
   use timer_impl, only: init_timer
   use readwav
 
-  character c,mode
+  character c
   character*80 line(100)
   character*512 pchk_file
   logical :: display_help=.false.
