@@ -1087,6 +1087,7 @@ set_target_properties (wsjtx PROPERTIES
   MACOSX_BUNDLE_GUI_IDENTIFIER "org.k1jt.wsjtx"
   )
 
+target_include_directories (wsjtx PRIVATE ${FFTW3_INCLUDE_DIRS})
 target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 qt5_use_modules (wsjtx SerialPort) # not sure why the interface link library syntax above doesn't work
 
