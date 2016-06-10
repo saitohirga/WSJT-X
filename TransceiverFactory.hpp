@@ -78,6 +78,7 @@ public:
   Q_ENUM (SplitMode)
 
   TransceiverFactory ();
+  ~TransceiverFactory ();
 
   static char const * const basic_transceiver_name_; // dummy transceiver is basic model
 

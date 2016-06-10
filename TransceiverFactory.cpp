@@ -43,6 +43,11 @@ TransceiverFactory::TransceiverFactory ()
 #endif
 }
 
+TransceiverFactory::~TransceiverFactory ()
+{
+  HamlibTransceiver::unregister_transceivers ();
+}
+
 auto TransceiverFactory::supported_transceivers () const -> Transceivers const&
 {
   return transceivers_;

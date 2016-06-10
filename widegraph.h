@@ -1,6 +1,7 @@
 // -*- Mode: C++ -*-
 #ifndef WIDEGRAPH_H
 #define WIDEGRAPH_H
+
 #include <QDialog>
 #include <QScopedPointer>
 #include <QDir>
@@ -81,15 +82,13 @@ private slots:
 private:
   void   readPalette();
 
-//  QScopedPointer<Ui::WideGraph> ui;
-  Ui::WideGraph *ui;
+  QScopedPointer<Ui::WideGraph> ui;
 
   QSettings * m_settings;
   QDir m_palettes_path;
   WFPalette m_userPalette;
 
   qint32 m_waterfallAvg;
-  qint32 m_fSample;
   qint32 m_TRperiod;
   qint32 m_nsps;
   qint32 m_ntr0;

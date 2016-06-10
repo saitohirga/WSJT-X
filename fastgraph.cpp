@@ -39,7 +39,6 @@ FastGraph::FastGraph(QSettings * settings, QWidget *parent) :
 FastGraph::~FastGraph()
 {
   saveSettings();
-  delete ui;
 }
 
 void FastGraph::closeEvent (QCloseEvent * e)

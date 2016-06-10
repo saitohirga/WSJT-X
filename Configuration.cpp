@@ -443,7 +443,7 @@ private:
   TransceiverFactory transceiver_factory_;
   QList<QMetaObject::Connection> rig_connections_;
 
-  Ui::configuration_dialog * ui_;
+  QScopedPointer<Ui::configuration_dialog> ui_;
 
   QSettings * settings_;
 
@@ -2407,7 +2407,7 @@ void Configuration::impl::close_rig ()
     {
       ui_->test_CAT_push_button->setStyleSheet ("QPushButton {background-color: red;}");
       Q_EMIT stop_transceiver ();
-      Q_FOREACH (auto const& connection, rig_connections_)
+      for (auto const& connection: rig_connections_)
         {
           disconnect (connection);
         }

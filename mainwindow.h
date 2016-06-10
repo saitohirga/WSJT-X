@@ -17,6 +17,9 @@
 #include <QAbstractSocket>
 #include <QHostAddress>
 #include <QPointer>
+#include <QSet>
+#include <QFuture>
+#include <QFutureWatcher>
 
 #include "AudioDevice.hpp"
 #include "commons.h"
@@ -203,7 +206,6 @@ private slots:
   void handle_transceiver_failure (QString const& reason);
   void on_actionAstronomical_data_toggled (bool);
   void on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered();
-  void getpfx();
   void band_changed (Frequency);
   void monitor (bool);
   void stop_tuning ();
@@ -280,7 +282,7 @@ private:
   bool m_multiple;
   MultiSettings * m_multi_settings;
   QSettings * m_settings;
-  Ui::MainWindow * ui;
+  QScopedPointer<Ui::MainWindow> ui;
 
   // other windows
   Configuration m_config;
@@ -342,13 +344,11 @@ private:
   qint32  m_TRperiod;
   qint32  m_nsps;
   qint32  m_hsymStop;
-  qint32  m_len1;
   qint32  m_inGain;
   qint32  m_ncw;
   qint32  m_secID;
   qint32  m_repeatMsg;
   qint32  m_watchdogLimit;
-  qint32  m_astroFont;
   qint32  m_nSubMode;
   qint32  m_nclearave;
   qint32  m_minSync;
@@ -356,7 +356,6 @@ private:
   qint32  m_pctx;
   qint32  m_nseq;
   qint32  m_nWSPRdecodes;
-  qint32  m_jh;
   qint32  m_k0;
   qint32  m_kdone;
   qint32  m_nPick;
@@ -381,31 +380,16 @@ private:
   bool    m_call3Modified;
   bool    m_dataAvailable;
   bool    m_bDecoded;
-  bool    m_monitorStartOFF;
-  bool    m_pskReporterInit;
   bool    m_noSuffix;
-  bool    m_toRTTY;
-  bool    m_dBtoComments;
-  bool    m_promptToLog;
   bool    m_blankLine;
-  bool    m_insertBlank;
-  bool    m_displayDXCCEntity;
-  bool    m_clearCallGrid;
-  bool    m_bMiles;
   bool    m_decodedText2;
   bool    m_freeText;
-  bool    m_quickCall;
-  bool    m_73TxDisable;
   bool    m_sentFirst73;
   int     m_currentMessageType;
   QString m_currentMessage;
   int     m_lastMessageType;
   QString m_lastMessageSent;
-  bool    m_bMultipleOK;
   bool    m_lockTxFreq;
-  bool    m_tx2QSO;
-  bool    m_CATerror;
-  bool    m_bAstroData;
   bool    m_bEME;
   bool    m_bShMsgs;
   bool    m_uploadSpots;
@@ -452,9 +436,8 @@ private:
   QMessageBox msgBox0;
 
   QFuture<void> m_wav_future;
-  QFuture<void>* future3;
   QFutureWatcher<void> m_wav_future_watcher;
-  QFutureWatcher<void> * watcher3;
+  QFutureWatcher<void> watcher3;
   QFutureWatcher<QString> m_saveWAVWatcher;
 
   QProcess proc_jt9;
@@ -464,26 +447,21 @@ private:
   WSPRNet *wsprNet;
 
   QTimer  m_guiTimer;
-  QTimer* ptt1Timer;                 //StartTx delay
-  QTimer* ptt0Timer;                 //StopTx delay
-  QTimer* logQSOTimer;
-  QTimer* killFileTimer;
-  QTimer* tuneButtonTimer;
-  QTimer* uploadTimer;
-  QTimer* tuneATU_Timer;
-  QTimer* TxAgainTimer;
-  QTimer* RxQSYTimer;
+  QTimer ptt1Timer;                 //StartTx delay
+  QTimer ptt0Timer;                 //StopTx delay
+  QTimer logQSOTimer;
+  QTimer killFileTimer;
+  QTimer tuneButtonTimer;
+  QTimer uploadTimer;
+  QTimer tuneATU_Timer;
+  QTimer TxAgainTimer;
+  QTimer RxQSYTimer;
 
   QString m_path;
-  QString m_pbdecoding_style1;
-  QString m_pbmonitor_style;
-  QString m_pbAutoOn_style;
-  QString m_pbTune_style;
   QString m_baseCall;
   QString m_hisCall;
   QString m_hisGrid;
   QString m_appDir;
-  QString m_dxccPfx;
   QString m_palette;
   QString m_dateTime;
   QString m_mode;
@@ -498,20 +476,10 @@ private:
   QString m_msgSent0;
   QString m_fileToKill;
   QString m_fileToSave;
-  QString m_band;
-  QString m_c2name;
   QString m_calls;
 
-  QStringList m_prefix;
-  QStringList m_suffix;
-  QStringList m_sunriseBands;
-  QStringList m_dayBands;
-  QStringList m_sunsetBands;
-  QStringList m_nightBands;
-  QStringList m_tuneBands;
-
-  QHash<QString,bool> m_pfx;
-  QHash<QString,bool> m_sfx;
+  QSet<QString> m_pfx;
+  QSet<QString> m_sfx;
 
   QDateTime m_dateTimeQSO;
 

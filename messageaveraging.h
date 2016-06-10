@@ -2,22 +2,16 @@
 #define MESSAGEAVERAGING_H
 
 #include <QWidget>
-#include <QDebug>
-#include <QCheckBox>
-#include <QList>
-#include <QLineEdit>
 
 class QSettings;
 class QFont;
 
 namespace Ui {
-class MessageAveraging;
+  class MessageAveraging;
 }
 
 class MessageAveraging : public QWidget
 {
-  Q_OBJECT
-
 public:
   explicit MessageAveraging(QSettings *, QFont const&, QWidget * parent = 0);
   ~MessageAveraging();
@@ -33,7 +27,7 @@ private:
   void setContentFont (QFont const&);
   QSettings * settings_;
 
-  Ui::MessageAveraging *ui;
+  QScopedPointer<Ui::MessageAveraging> ui;
 };
 
 #endif // MESSAGEAVERAGING_H

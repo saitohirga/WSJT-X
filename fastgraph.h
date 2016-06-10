@@ -1,6 +1,8 @@
 #ifndef FASTGRAPH_H
 #define FASTGRAPH_H
+
 #include <QDialog>
+#include <QScopedPointer>
 
 namespace Ui {
   class FastGraph;
@@ -38,7 +40,7 @@ private:
   QSettings * m_settings;
   float m_ave;
 
-  Ui::FastGraph *ui;
+  QScopedPointer<Ui::FastGraph> ui;
 };
 
 extern float fast_green[703];

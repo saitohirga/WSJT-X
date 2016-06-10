@@ -7,7 +7,32 @@
 #define MAX_SCREENSIZE 2048
 
 CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
-  QFrame(parent)
+  QFrame {parent},
+  m_bScaleOK {false},
+  m_bReference {false},
+  m_bReference0 {false},
+  m_fSpan {2000.0},
+  m_plotZero {0},
+  m_plotGain {0},
+  m_plot2dGain {0},
+  m_plot2dZero {0},
+  m_nSubMode {0},
+  m_Running {false},
+  m_paintEventBusy {false},
+  m_fftBinWidth {1500.0/2048.0},
+  m_dialFreq {0.},
+  m_sum {},
+  m_dBStepSize {10},
+  m_FreqUnits {1},
+  m_hdivs {HORZ_DIVS},
+  m_line {0},
+  m_fSample {12000},
+  m_nsps {6912},
+  m_Percent2DScreen {30},      //percent of screen used for 2D display
+  m_Percent2DScreen0 {0},
+  m_rxFreq {1020},
+  m_txFreq {0},
+  m_startFreq {0}
 {
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   setFocusPolicy(Qt::StrongFocus);
@@ -15,28 +40,6 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   setAutoFillBackground(false);
   setAttribute(Qt::WA_OpaquePaintEvent, false);
   setAttribute(Qt::WA_NoSystemBackground, true);
-
-  m_startFreq = 0;
-  m_fSpan=2000.0;
-  m_hdivs = HORZ_DIVS;
-  m_FreqUnits = 1;
-  m_Running = false;
-  m_paintEventBusy=false;
-  m_WaterfallPixmap = QPixmap(0,0);
-  m_2DPixmap = QPixmap(0,0);
-  m_ScalePixmap = QPixmap(0,0);
-  m_OverlayPixmap = QPixmap(0,0);
-  m_Size = QSize(0,0);
-  m_rxFreq = 1020;
-  m_line = 0;
-  m_fSample = 12000;
-  m_nsps=6912;
-  m_dBStepSize=10;
-  m_Percent2DScreen = 30;	//percent of screen used for 2D display
-  m_Percent2DScreen0 = 0;
-  m_txFreq=0;
-  m_fftBinWidth=1500.0/2048.0;
-  m_bScaleOK=false;
 }
 
 CPlotter::~CPlotter() { }                                      // Destructor
@@ -245,6 +248,15 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   painter.drawRect(0, 0, m_w, m_h2);
   painter.setBrush(Qt::SolidPattern);
 
+  m_fSpan = w*df;
+//  int n=m_fSpan/10;
+  m_freqPerDiv=10;
+  if(m_fSpan>100) m_freqPerDiv=20;
+  if(m_fSpan>250) m_freqPerDiv=50;
+  if(m_fSpan>500) m_freqPerDiv=100;
+  if(m_fSpan>1000) m_freqPerDiv=200;
+  if(m_fSpan>2500) m_freqPerDiv=500;
+
   pixperdiv = m_freqPerDiv/df;
   m_hdivs = w*df/m_freqPerDiv + 1.9999;
 
@@ -278,14 +290,6 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   painter0.setPen(Qt::black);
 
   if(m_binsPerPixel < 1) m_binsPerPixel=1;
-  m_fSpan = w*df;
-//  int n=m_fSpan/10;
-  m_freqPerDiv=10;
-  if(m_fSpan>100) m_freqPerDiv=20;
-  if(m_fSpan>250) m_freqPerDiv=50;
-  if(m_fSpan>500) m_freqPerDiv=100;
-  if(m_fSpan>1000) m_freqPerDiv=200;
-  if(m_fSpan>2500) m_freqPerDiv=500;
   m_hdivs = w*df/m_freqPerDiv + 0.9999;
 
   m_ScalePixmap.fill(Qt::white);

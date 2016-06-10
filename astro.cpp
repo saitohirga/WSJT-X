@@ -107,12 +107,14 @@ auto Astro::astroUpdate(QDateTime const& t, QString const& mygrid, QString const
   int ndop;
   int ndop00;
 
-  astrosub_(&nyear, &month, &nday, &uth, &freq8, mygrid.toLatin1().constData(),
-            hisgrid.toLatin1().constData(), &azsun, &elsun, &azmoon, &elmoon,
-            &azmoondx, &elmoondx, &ntsky, &ndop, &ndop00, &ramoon, &decmoon,
-            &dgrd, &poloffset, &xnr, &techo, &width1, &width2, &bTx,
-            AzElFileName.toLatin1().constData(), jpleph.toLatin1().constData(), 6, 6,
-            AzElFileName.length(), jpleph.length());
+  QString mygrid_padded {(mygrid + "      ").left (6)};
+  QString hisgrid_padded {(hisgrid + "      ").left (6)};
+  astrosub_(&nyear, &month, &nday, &uth, &freq8, mygrid_padded.toLatin1().constData(),
+	    hisgrid_padded.toLatin1().constData(), &azsun, &elsun, &azmoon, &elmoon,
+	    &azmoondx, &elmoondx, &ntsky, &ndop, &ndop00, &ramoon, &decmoon,
+	    &dgrd, &poloffset, &xnr, &techo, &width1, &width2, &bTx,
+	    AzElFileName.toLatin1().constData(), jpleph.toLatin1().constData(), 6, 6,
+	    AzElFileName.length(), jpleph.length());
 
   QString message;
   {
@@ -183,8 +185,8 @@ auto Astro::astroUpdate(QDateTime const& t, QString const& mygrid, QString const
         int nmin {target_date_time.time().minute()};
         double sec {target_date_time.time().second() + 0.001*target_date_time.time().msec()};
         double uth {nhr + nmin/60.0 + sec/3600.0};
-        astrosub_(&nyear, &month, &nday, &uth, &freq8, mygrid.toLatin1().constData(),
-                  hisgrid.toLatin1().constData(), &azsun, &elsun, &azmoon, &elmoon,
+        astrosub_(&nyear, &month, &nday, &uth, &freq8, mygrid_padded.toLatin1().constData(),
+                  hisgrid_padded.toLatin1().constData(), &azsun, &elsun, &azmoon, &elmoon,
                   &azmoondx, &elmoondx, &ntsky, &ndop, &ndop00, &ramoon, &decmoon,
                   &dgrd, &poloffset, &xnr, &techo, &width1, &width2, &bTx,
                   "", jpleph.toLatin1().constData(), 6, 6,

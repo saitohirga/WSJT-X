@@ -5,6 +5,8 @@
 #include <limits>
 #include <functional>
 
+#include <fftw3.h>
+
 #include <QLineEdit>
 #include <QRegExpValidator>
 #include <QRegExp>
@@ -61,6 +63,8 @@ extern "C" {
   void symspec_(struct dec_data *, int* k, int* ntrperiod, int* nsps, int* ingain, int* minw,
                 float* px, float s[], float* df3, int* nhsym, int* npts8);
 
+  void four2a_(_Complex float *, int * nfft, int * ndim, int * isign, int * iform, int len);
+
   void hspec_(short int d2[], int* k, int* ingain, float green[], float s[], int* jh);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
@@ -92,9 +96,6 @@ extern "C" {
 
   int ptt_(int nport, int ntx, int* iptt, int* nopen);
 
-  int fftwf_import_wisdom_from_filename(const char *);
-  int fftwf_export_wisdom_to_filename(const char *);
-
   void wspr_downsample_(short int d2[], int* k);
   void savec2_(char* fname, int* TR_seconds, double* dial_freq, int len1);
 
@@ -117,14 +118,14 @@ struct dec_data dec_data;             // for sharing with Fortran
 
 int outBufSize;
 int rc;
-qint32  g_iptt;
+qint32  g_iptt {0};
 wchar_t buffer[256];
 float fast_green[703];
 float fast_green2[703];
 float fast_s[44992];                                    //44992=64*703
 float fast_s2[44992];
-int   fast_jh;
-int   fast_jh2;
+int   fast_jh {0};
+int   fast_jh2 {0};
 int narg[15];
 QVector<QColor> g_ColorTbl;
 bool g_single_decode;
@@ -163,22 +164,72 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_fastGraph (new FastGraph(m_settings)),
   m_logDlg (new LogQSO (program_title (), m_settings, this)),
   m_lastDialFreq {0},
-  //m_dialFreq {std::numeric_limits<Radio::Frequency>::max ()},
+  m_callingFrequency {0},
+  m_dialFreqRxWSPR {0},
   m_detector {new Detector {RX_SAMPLE_RATE, NTMAX, 6912 / 2, downSampleFactor}},
   m_soundInput {new SoundInput},
   m_modulator {new Modulator {TX_SAMPLE_RATE, NTMAX}},
   m_soundOutput {new SoundOutput},
+  m_msErase {0},
+  m_secBandChanged {0},
   m_freqNominal {0},
   m_freqTxNominal {0},
+  m_DTtol {3.0},
+  m_waterfallAvg {1},
+  m_ntx {1},
   m_XIT {0},
+  m_sec0 {-1},
+  m_RxLog {1},			//Write Date and Time to RxLog
+  m_nutc0 {9999},
+  m_ntr {0},
+  m_tx {0},
+  m_TRperiod {60},
+  m_inGain {0},
+  m_secID {0},
+  m_repeatMsg {0},
+  m_watchdogLimit {7},
+  m_nSubMode {0},
+  m_nclearave {1},
   m_pctx {0},
+  m_nseq {0},
+  m_nWSPRdecodes {0},
+  m_k0 {9999999},
+  m_nPick {0},
+  m_TRperiodFast {-1},
+  m_nTx73 {0},
+  m_freqCQ {0},
+  m_btxok {false},
   m_diskData {false},
+  m_loopall {false},
+  m_txFirst {false},
+  m_auto {false},
+  m_restart {false},
+  m_startAnother {false},
+  m_saveDecoded {false},
+  m_saveAll {false},
+  m_widebandDecode {false},
+  m_dataAvailable {false},
+  m_blankLine {false},
+  m_decodedText2 {false},
+  m_freeText {false},
   m_sentFirst73 {false},
   m_currentMessageType {-1},
   m_lastMessageType {-1},
+  m_lockTxFreq {false},
+  m_bShMsgs {false},
   m_uploading {false},
+  m_txNext {false},
+  m_grid6 {false},
   m_tuneup {false},
+  m_bTxTime {false},
+  m_rxDone {false},
   m_bSimplex {false},
+  m_bEchoTxOK {false},
+  m_bTransmittedEcho {false},
+  m_bEchoTxed {false},
+  m_bFastDecodeCalled {false},
+  m_bDoubleClickAfterCQnnn {false},
+  m_bRefSpec {false},
   m_ihsym {0},
   m_nzap {0},
   m_px {0.0},
@@ -188,7 +239,69 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_nsendingsh {0},
   m_onAirFreq0 {0.0},
   m_first_error {true},
+  tx_status_label {new QLabel {"Receiving"}},
+  mode_label {new QLabel {""}},
+  last_tx_label {new QLabel {""}},
+  auto_tx_label {new QLabel {""}},
+  progressBar {new QProgressBar},
+  wsprNet {new WSPRNet {network_manager, this}},
   m_appDir {QApplication::applicationDirPath ()},
+  m_palette {"Linrad"},
+  m_mode {"JT9"},
+  m_rpt {"-15"},
+  m_pfx {
+    "1A", "1S",
+      "3A", "3B6", "3B8", "3B9", "3C", "3C0", "3D2", "3D2C",
+      "3D2R", "3DA", "3V", "3W", "3X", "3Y", "3YB", "3YP",
+      "4J", "4L", "4S", "4U1I", "4U1U", "4W", "4X",
+      "5A", "5B", "5H", "5N", "5R", "5T", "5U", "5V", "5W", "5X", "5Z",
+      "6W", "6Y",
+      "7O", "7P", "7Q", "7X",
+      "8P", "8Q", "8R",
+      "9A", "9G", "9H", "9J", "9K", "9L", "9M2", "9M6", "9N",
+      "9Q", "9U", "9V", "9X", "9Y",
+      "A2", "A3", "A4", "A5", "A6", "A7", "A9", "AP",
+      "BS7", "BV", "BV9", "BY",
+      "C2", "C3", "C5", "C6", "C9", "CE", "CE0X", "CE0Y",
+      "CE0Z", "CE9", "CM", "CN", "CP", "CT", "CT3", "CU",
+      "CX", "CY0", "CY9",
+      "D2", "D4", "D6", "DL", "DU",
+      "E3", "E4", "E5", "EA", "EA6", "EA8", "EA9", "EI", "EK",
+      "EL", "EP", "ER", "ES", "ET", "EU", "EX", "EY", "EZ",
+      "F", "FG", "FH", "FJ", "FK", "FKC", "FM", "FO", "FOA",
+      "FOC", "FOM", "FP", "FR", "FRG", "FRJ", "FRT", "FT5W",
+      "FT5X", "FT5Z", "FW", "FY",
+      "M", "MD", "MI", "MJ", "MM", "MU", "MW",
+      "H4", "H40", "HA", "HB", "HB0", "HC", "HC8", "HH",
+      "HI", "HK", "HK0", "HK0M", "HL", "HM", "HP", "HR",
+      "HS", "HV", "HZ",
+      "I", "IS", "IS0",
+      "J2", "J3", "J5", "J6", "J7", "J8", "JA", "JDM",
+      "JDO", "JT", "JW", "JX", "JY",
+      "K", "KC4", "KG4", "KH0", "KH1", "KH2", "KH3", "KH4", "KH5",
+      "KH5K", "KH6", "KH7", "KH8", "KH9", "KL", "KP1", "KP2",
+      "KP4", "KP5",
+      "LA", "LU", "LX", "LY", "LZ",
+      "OA", "OD", "OE", "OH", "OH0", "OJ0", "OK", "OM", "ON",
+      "OX", "OY", "OZ",
+      "P2", "P4", "PA", "PJ2", "PJ7", "PY", "PY0F", "PT0S", "PY0T", "PZ",
+      "R1F", "R1M",
+      "S0", "S2", "S5", "S7", "S9", "SM", "SP", "ST", "SU",
+      "SV", "SVA", "SV5", "SV9",
+      "T2", "T30", "T31", "T32", "T33", "T5", "T7", "T8", "T9", "TA",
+      "TF", "TG", "TI", "TI9", "TJ", "TK", "TL", "TN", "TR", "TT",
+      "TU", "TY", "TZ",
+      "UA", "UA2", "UA9", "UK", "UN", "UR",
+      "V2", "V3", "V4", "V5", "V6", "V7", "V8", "VE", "VK", "VK0H",
+      "VK0M", "VK9C", "VK9L", "VK9M", "VK9N", "VK9W", "VK9X", "VP2E",
+      "VP2M", "VP2V", "VP5", "VP6", "VP6D", "VP8", "VP8G", "VP8H",
+      "VP8O", "VP8S", "VP9", "VQ9", "VR", "VU", "VU4", "VU7",
+      "XE", "XF4", "XT", "XU", "XW", "XX9", "XZ",
+      "YA", "YB", "YI", "YJ", "YK", "YL", "YN", "YO", "YS", "YU", "YV", "YV0",
+      "Z2", "Z3", "ZA", "ZB", "ZC4", "ZD7", "ZD8", "ZD9", "ZF", "ZK1N",
+      "ZK1S", "ZK2", "ZK3", "ZL", "ZL7", "ZL8", "ZL9", "ZP", "ZS", "ZS8"
+      },
+  m_sfx {"P",  "0",  "1",  "2",  "3",  "4",  "5",  "6",  "7",  "8",  "9",  "A"},
   mem_jt9 {shdmem},
   m_msAudioOutputBuffered (0u),
   m_framesAudioInputBuffered (RX_SAMPLE_RATE / 10),
@@ -215,6 +328,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_manual {network_manager}
 {
   ui->setupUi(this);
+
+  m_baseCall = Radio::base_callsign (m_config.my_callsign ());
 
   m_optimizingProgress.setWindowModality (Qt::WindowModal);
   m_optimizingProgress.setAutoReset (false);
@@ -368,7 +483,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       m_sampleDownloader->show ();
     });
 
-  QButtonGroup* txMsgButtonGroup = new QButtonGroup;
+  QButtonGroup* txMsgButtonGroup = new QButtonGroup {this};
   txMsgButtonGroup->addButton(ui->txrb1,1);
   txMsgButtonGroup->addButton(ui->txrb2,2);
   txMsgButtonGroup->addButton(ui->txrb3,3);
@@ -480,102 +595,37 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect(&m_guiTimer, &QTimer::timeout, this, &MainWindow::guiUpdate);
   m_guiTimer.start(100);   //### Don't change the 100 ms! ###
 
-  ptt0Timer = new QTimer(this);
-  ptt0Timer->setSingleShot(true);
-  connect(ptt0Timer, &QTimer::timeout, this, &MainWindow::stopTx2);
-  ptt1Timer = new QTimer(this);
-  ptt1Timer->setSingleShot(true);
-  connect(ptt1Timer, &QTimer::timeout, this, &MainWindow::startTx2);
+  ptt0Timer.setSingleShot(true);
+  connect(&ptt0Timer, &QTimer::timeout, this, &MainWindow::stopTx2);
+  ptt1Timer.setSingleShot(true);
+  connect(&ptt1Timer, &QTimer::timeout, this, &MainWindow::startTx2);
 
-  logQSOTimer = new QTimer(this);
-  logQSOTimer->setSingleShot(true);
-  connect(logQSOTimer, &QTimer::timeout, this, &MainWindow::on_logQSOButton_clicked);
+  logQSOTimer.setSingleShot(true);
+  connect(&logQSOTimer, &QTimer::timeout, this, &MainWindow::on_logQSOButton_clicked);
 
-  tuneButtonTimer= new QTimer(this);
-  tuneButtonTimer->setSingleShot(true);
-  connect(tuneButtonTimer, &QTimer::timeout, this, &MainWindow::on_stopTxButton_clicked);
+  tuneButtonTimer.setSingleShot(true);
+  connect(&tuneButtonTimer, &QTimer::timeout, this, &MainWindow::on_stopTxButton_clicked);
 
-  tuneATU_Timer= new QTimer(this);
-  tuneATU_Timer->setSingleShot(true);
-  connect(tuneATU_Timer, &QTimer::timeout, this, &MainWindow::stopTuneATU);
+  tuneATU_Timer.setSingleShot(true);
+  connect(&tuneATU_Timer, &QTimer::timeout, this, &MainWindow::stopTuneATU);
 
-  killFileTimer = new QTimer(this);
-  killFileTimer->setSingleShot(true);
-  connect(killFileTimer, &QTimer::timeout, this, &MainWindow::killFile);
+  killFileTimer.setSingleShot(true);
+  connect(&killFileTimer, &QTimer::timeout, this, &MainWindow::killFile);
 
-  uploadTimer = new QTimer(this);
-  uploadTimer->setSingleShot(true);
-  connect(uploadTimer, SIGNAL(timeout()), this, SLOT(uploadSpots()));
+  uploadTimer.setSingleShot(true);
+  connect(&uploadTimer, SIGNAL(timeout()), this, SLOT(uploadSpots()));
 
-  TxAgainTimer = new QTimer(this);
-  TxAgainTimer->setSingleShot(true);
-  connect(TxAgainTimer, SIGNAL(timeout()), this, SLOT(TxAgain()));
+  TxAgainTimer.setSingleShot(true);
+  connect(&TxAgainTimer, SIGNAL(timeout()), this, SLOT(TxAgain()));
 
-  RxQSYTimer = new QTimer(this);
-  RxQSYTimer->setSingleShot(true);
-  connect(RxQSYTimer, SIGNAL(timeout()), this, SLOT(RxQSY()));
+  RxQSYTimer.setSingleShot(true);
+  connect(&RxQSYTimer, SIGNAL(timeout()), this, SLOT(RxQSY()));
 
-  m_auto=false;
-  m_waterfallAvg = 1;
-  m_txFirst=false;
-  m_btxok=false;
-  m_restart=false;
-  m_widebandDecode=false;
-  m_ntx=1;
+  connect(m_wideGraph.data (), SIGNAL(setFreq3(int,int)),this,
+          SLOT(setFreq4(int,int)));
 
-  m_tx=0;
-  m_txNext=false;
-  m_grid6=false;
-  m_nseq=0;
-  m_ntr=0;
-
-  m_loopall=false;
-  m_startAnother=false;
-  m_saveDecoded=false;
-  m_saveAll=false;
-  m_sec0=-1;
-  m_palette="Linrad";
-  m_RxLog=1;                     //Write Date and Time to RxLog
-  m_nutc0=9999;
-  m_mode="JT9";
-  m_rpt="-15";
-  m_TRperiod=60;
-  m_inGain=0;
-  m_dataAvailable=false;
-  g_iptt=0;
-  m_secID=0;
-  m_blankLine=false;
-  m_decodedText2=false;
-  m_freeText=false;
-  m_msErase=0;
-  m_sentFirst73=false;
-  m_watchdogLimit=7;
-  m_repeatMsg=0;
-  m_secBandChanged=0;
-  m_lockTxFreq=false;
-  m_baseCall = Radio::base_callsign (m_config.my_callsign ());
   m_QSOText.clear();
   decodeBusy(false);
-  m_nSubMode=0;
-  m_DTtol=0.5;
-  m_wideGraph->setTol(500);
-  m_bShMsgs=false;
-  m_bTxTime=false;
-  m_rxDone=false;
-  m_bEchoTxOK=false;
-  m_bTransmittedEcho=false;
-  m_bFastDecodeCalled=false;
-  m_bDoubleClickAfterCQnnn=false;
-  m_nclearave=1;
-  m_bEchoTxed=false;
-  m_nWSPRdecodes=0;
-  m_k0=9999999;
-  m_nPick=0;
-  m_DTtol=3.0;
-  m_TRperiodFast=-1;
-  m_nTx73=0;
-  m_freqCQ=0;
-  m_callingFrequency=0;
   QString t1[28]={"1 uW","2 uW","5 uW","10 uW","20 uW","50 uW","100 uW","200 uW","500 uW",
                   "1 mW","2 mW","5 mW","10 mW","20 mW","50 mW","100 mW","200 mW","500 mW",
                   "1 W","2 W","5 W","10 W","20 W","50 W","100 W","200 W","500 W","1 kW"};
@@ -662,23 +712,13 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   QByteArray cfname=fname.toLocal8Bit();
   fftwf_import_wisdom_from_filename(cfname);
 
-  getpfx();                               //Load the prefix/suffix dictionary
   genStdMsgs(m_rpt);
-  m_ntx=6;
+  m_ntx = 6;
   ui->txrb6->setChecked(true);
-  if(m_mode=="") m_mode="JT9";
-  on_actionWide_Waterfall_triggered();
-  connect(m_wideGraph.data (), SIGNAL(setFreq3(int,int)),this,
-          SLOT(setFreq4(int,int)));
-  m_wideGraph->setLockTxFreq(m_lockTxFreq);
-  m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
 
   connect (&m_wav_future_watcher, &QFutureWatcher<void>::finished, this, &MainWindow::diskDat);
 
-  future3 = new QFuture<void>;
-  watcher3 = new QFutureWatcher<void>;
-  connect(watcher3, SIGNAL(finished()),this,SLOT(fast_decode_done()));
+  connect(&watcher3, SIGNAL(finished()),this,SLOT(fast_decode_done()));
 //  Q_EMIT startAudioInputStream (m_config.audio_input_device (), m_framesAudioInputBuffered, &m_detector, m_downSampleFactor, m_config.audio_input_channel ());
   Q_EMIT startAudioInputStream (m_config.audio_input_device (), m_framesAudioInputBuffered, m_detector, m_downSampleFactor, m_config.audio_input_channel ());
   Q_EMIT initializeAudioOutputStream (m_config.audio_output_device (), AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2, m_msAudioOutputBuffered);
@@ -711,7 +751,38 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_mode=="QRA") on_actionQRA_triggered();
   if(m_mode=="Echo") monitor(false); //Don't auto-start Monitor in Echo mode.
 
-  m_ntx=1;
+  ui->sbSubmode->setValue(m_nSubMode);
+  ui->txFirstCheckBox->setChecked(m_txFirst);
+  morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),
+         const_cast<int *> (icw), &m_ncw, m_config.my_callsign ().length());
+  on_actionWide_Waterfall_triggered();
+  m_wideGraph->setTol(500);
+  m_wideGraph->setLockTxFreq(m_lockTxFreq);
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
+  ui->sbFtol->setValue(m_FtolIndex);
+  on_sbFtol_valueChanged(m_FtolIndex);
+  ui->cbEME->setChecked(m_bEME);
+  ui->cbFast9->setChecked(m_bFast9);
+  if(m_bFast9) m_bFastMode=true;
+  ui->sbTR->setValue(m_TRindex);
+  Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value () - m_XIT);
+  m_saveDecoded=ui->actionSave_decoded->isChecked();
+  m_saveAll=ui->actionSave_all->isChecked();
+  ui->inGain->setValue(m_inGain);
+  ui->sbTxPercent->setValue(m_pctx);
+  ui->TxPowerComboBox->setCurrentIndex(int(0.3*(m_dBm + 30.0)+0.2));
+  ui->cbUploadWSPR_Spots->setChecked(m_uploadSpots);
+  on_outAttenuation_valueChanged (ui->outAttenuation->value ());
+  ui->sbCQRxFreq->setValue(m_freqCQ);
+  ui->cbTxLock->setChecked(m_lockTxFreq);
+  if((m_ndepth&7)==1) ui->actionQuickDecode->setChecked(true);
+  if((m_ndepth&7)==2) ui->actionMediumDecode->setChecked(true);
+  if((m_ndepth&7)==3) ui->actionDeepestDecode->setChecked(true);
+  ui->actionInclude_averaging->setChecked((m_ndepth&16)>0);
+  ui->actionInclude_correlation->setChecked((m_ndepth&32)>0);
+
+  m_ntx = 1;
   ui->txrb1->setChecked(true);
 
   if(m_mode.startsWith ("WSPR") and m_pctx>0)  {
@@ -731,12 +802,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
   VHF_features_enabled(m_config.enable_VHF_features());
   g_single_decode=m_config.single_decode();
-  m_bRefSpec=false;
 
   progressBar->setMaximum(m_TRperiod);
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_dialFreqRxWSPR=0;
-  wsprNet = new WSPRNet(network_manager, this);
   connect( wsprNet, SIGNAL(uploadStatus(QString)), this, SLOT(uploadResponse(QString)));
   if(m_bFastMode) {
     int ntr[]={5,10,15,30};
@@ -749,6 +817,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     if(i<pchkFile.length()) m_pchkFile[i]=ba[i];
   }
 
+  statusChanged();
+
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
 }
@@ -760,9 +830,18 @@ MainWindow::~MainWindow()
   QString fname {QDir::toNativeSeparators(m_dataDir.absoluteFilePath ("wsjtx_wisdom.dat"))};
   QByteArray cfname=fname.toLocal8Bit();
   fftwf_export_wisdom_to_filename(cfname);
+  {
+    int nfft {-1};
+    int ndim {1};
+    int isign {1};
+    int iform {1};
+    // free FFT plan resources
+    four2a_ (nullptr, &nfft, &ndim, &isign, &iform, 0);
+  }
+  fftwf_forget_wisdom ();
+  fftwf_cleanup ();
   m_audioThread.quit ();
   m_audioThread.wait ();
-  delete ui, ui = 0;
 }
 
 //-------------------------------------------------------- writeSettings()
@@ -825,7 +904,6 @@ void MainWindow::readSettings()
   ui->dxGridEntry->setText(m_settings->value("DXgrid","").toString());
   m_path = m_settings->value("MRUdir", m_config.save_directory ().absolutePath ()).toString ();
   m_txFirst = m_settings->value("TxFirst",false).toBool();
-  ui->txFirstCheckBox->setChecked(m_txFirst);
   auto displayAstro = m_settings->value ("AstroDisplayed", false).toBool ();
   auto displayMsgAvg = m_settings->value ("MsgAvgDisplayed", false).toBool ();
   if (m_settings->contains ("FreeText")) ui->freeTextMsg->setCurrentText (
@@ -834,11 +912,8 @@ void MainWindow::readSettings()
 
   // do this outside of settings group because it uses groups internally
   ui->actionAstronomical_data->setChecked (displayAstro);
-  if (displayMsgAvg) on_actionMessage_averaging_triggered();
 
   m_settings->beginGroup("Common");
-  morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),
-         const_cast<int *> (icw), &m_ncw, m_config.my_callsign ().length());
   m_mode=m_settings->value("Mode","JT9").toString();
   m_modeTx=m_settings->value("ModeTx","JT9").toString();
   if(m_modeTx.mid(0,3)=="JT9") ui->pbTxMode->setText("Tx JT9  @");
@@ -849,52 +924,35 @@ void MainWindow::readSettings()
   ui->RxFreqSpinBox->setValue(0); // ensure a change is signaled
   ui->RxFreqSpinBox->setValue(m_settings->value("RxFreq",1500).toInt());
   m_nSubMode=m_settings->value("SubMode",0).toInt();
-  ui->sbSubmode->setValue(m_nSubMode);
   m_FtolIndex=m_settings->value("FtolIndex",21).toInt();
-  ui->sbFtol->setValue(m_FtolIndex);
-  on_sbFtol_valueChanged(m_FtolIndex);
 //  ui->FTol_combo_box->setCurrentText(m_settings->value("FTol","500").toString ());
   ui->syncSpinBox->setValue(m_settings->value("MinSync",0).toInt());
   m_bEME=m_settings->value("EME",false).toBool();
-  ui->cbEME->setChecked(m_bEME);
-  m_TRindex=m_settings->value("TRindex",0).toInt();
-  ui->sbTR->setValue(m_TRindex);
   m_bFast9=m_settings->value("Fast9",false).toBool();
-  ui->cbFast9->setChecked(m_bFast9);
   m_bFastMode=m_settings->value("FastMode",false).toBool();
-  if(m_bFast9) m_bFastMode=true;
+  m_TRindex=m_settings->value("TRindex",0).toInt();
   m_lastMonitoredFrequency = m_settings->value ("DialFreq",
      QVariant::fromValue<Frequency> (default_frequency)).value<Frequency> ();
   ui->WSPRfreqSpinBox->setValue(0); // ensure a change is signaled
   ui->WSPRfreqSpinBox->setValue(m_settings->value("WSPRfreq",1500).toInt());
   ui->TxFreqSpinBox->setValue(0); // ensure a change is signaled
   ui->TxFreqSpinBox->setValue(m_settings->value("TxFreq",1500).toInt());
-  Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value () - m_XIT);
-  m_saveDecoded=ui->actionSave_decoded->isChecked();
-  m_saveAll=ui->actionSave_all->isChecked();
   m_ndepth=m_settings->value("NDepth",3).toInt();
   m_inGain=m_settings->value("InGain",0).toInt();
-  ui->inGain->setValue(m_inGain);
   m_pctx=m_settings->value("PctTx",20).toInt();
-  ui->sbTxPercent->setValue(m_pctx);
   m_dBm=m_settings->value("dBm",37).toInt();
-  ui->TxPowerComboBox->setCurrentIndex(int(0.3*(m_dBm + 30.0)+0.2));
   m_uploadSpots=m_settings->value("UploadSpots",false).toBool();
-  ui->cbUploadWSPR_Spots->setChecked(m_uploadSpots);
   if(!m_uploadSpots) ui->cbUploadWSPR_Spots->setStyleSheet("QCheckBox{background-color: yellow}");
   ui->band_hopping_group_box->setChecked (m_settings->value ("BandHopping", false).toBool());
   // setup initial value of tx attenuator
   ui->outAttenuation->setValue (m_settings->value ("OutAttenuation", 0).toInt ());
   m_tune_attenuation = m_settings->value ("TuneAttenuation", 0).toInt ();
-  on_outAttenuation_valueChanged (ui->outAttenuation->value ());
   m_freqCQ=m_settings->value("CQRxFreq",285).toInt();
-  ui->sbCQRxFreq->setValue(m_freqCQ);
   m_noSuffix=m_settings->value("NoSuffix",false).toBool();
   int n=m_settings->value("GUItab",0).toInt();
   ui->tabWidget->setCurrentIndex(n);
   outBufSize=m_settings->value("OutBufSize",4096).toInt();
   m_lockTxFreq=m_settings->value("LockTxFreq",false).toBool();
-  ui->cbTxLock->setChecked(m_lockTxFreq);
   m_TRindex=m_settings->value("TRindex",4).toInt();
   m_settings->endGroup();
 
@@ -906,13 +964,7 @@ void MainWindow::readSettings()
   m_audioThreadPriority = static_cast<QThread::Priority> (m_settings->value ("Audio/ThreadPriority", QThread::HighPriority).toInt () % 8);
   m_settings->endGroup ();
 
-  if((m_ndepth&7)==1) ui->actionQuickDecode->setChecked(true);
-  if((m_ndepth&7)==2) ui->actionMediumDecode->setChecked(true);
-  if((m_ndepth&7)==3) ui->actionDeepestDecode->setChecked(true);
-  ui->actionInclude_averaging->setChecked((m_ndepth&16)>0);
-  ui->actionInclude_correlation->setChecked((m_ndepth&32)>0);
-
-  statusChanged();
+  if (displayMsgAvg) on_actionMessage_averaging_triggered();
 }
 
 void MainWindow::setDecodedTextFont (QFont const& font)
@@ -1047,10 +1099,10 @@ void MainWindow::dataSink(qint64 frames)
                                                                 , m_hisCall
                                                                 , m_hisGrid)));
       if (m_mode.startsWith ("WSPR")) {
-        m_c2name = m_fname + ".c2";
-        int len1=m_c2name.length();
+        QString c2name_string {m_fname + ".c2"};
+        int len1=c2name_string.length();
         char c2name[80];
-        strcpy(c2name,m_c2name.toLatin1());
+        strcpy(c2name,c2name_string.toLatin1 ().constData ());
         int nsec=120;
         int nbfo=1500;
         double f0m1500=m_freqNominal/1000000.0 + nbfo - 1500;
@@ -1204,7 +1256,7 @@ void MainWindow::fastSink(qint64 frames)
                                                                 , m_hisCall
                                                                 , m_hisGrid)));
       m_fileToKill=m_fname;
-      killFileTimer->start (3*1000*m_TRperiod/4); //Kill 3/4 period from now
+      killFileTimer.start (3*1000*m_TRperiod/4); //Kill 3/4 period from now
     }
     m_decodeEarly=false;
   }
@@ -1513,7 +1565,6 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)  //eventFilter()
 
 void MainWindow::createStatusBar()                           //createStatusBar
 {
-  tx_status_label = new QLabel("Receiving");
   tx_status_label->setAlignment(Qt::AlignHCenter);
   tx_status_label->setMinimumSize(QSize(150,18));
   tx_status_label->setStyleSheet("QLabel{background-color: #00ff00}");
@@ -1521,25 +1572,21 @@ void MainWindow::createStatusBar()                           //createStatusBar
   statusBar()->addWidget(tx_status_label);
 
 
-  mode_label = new QLabel("");
   mode_label->setAlignment(Qt::AlignHCenter);
   mode_label->setMinimumSize(QSize(80,18));
   mode_label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(mode_label);
 
-  last_tx_label = new QLabel("");
   last_tx_label->setAlignment(Qt::AlignHCenter);
   last_tx_label->setMinimumSize(QSize(150,18));
   last_tx_label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(last_tx_label);
 
-  auto_tx_label = new QLabel("");
   auto_tx_label->setAlignment(Qt::AlignHCenter);
   auto_tx_label->setMinimumSize(QSize(150,18));
   auto_tx_label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(auto_tx_label);
 
-  progressBar = new QProgressBar;
   statusBar()->addWidget(progressBar);
   progressBar->setFormat("%v/%m");
 }
@@ -1711,42 +1758,42 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
 
 void MainWindow::read_wav_file (QString const& fname)
 {
-  m_wav_future = QtConcurrent::run ([this, fname] {
-      auto basename = fname.mid (fname.lastIndexOf ('/') + 1);
-      auto pos = fname.indexOf (".wav", 0, Qt::CaseInsensitive);
-      // global variables and threads do not mix well, this needs changing
-      dec_data.params.nutc = 0;
-      if (pos > 0)
-        {
-          if (pos == fname.indexOf ('_', -11) + 7)
-            {
-              dec_data.params.nutc = fname.mid (pos - 6, 6).toInt ();
-            }
-          else
-            {
-              dec_data.params.nutc = 100 * fname.mid (pos - 4, 4).toInt ();
-            }
-        }
-      BWFFile file {QAudioFormat {}, fname};
-      file.open (BWFFile::ReadOnly);
-      auto bytes_per_frame = file.format ().bytesPerFrame ();
-      qint64 max_bytes = std::min (std::size_t (m_TRperiod * RX_SAMPLE_RATE),
-                                   sizeof (dec_data.d2) / sizeof (dec_data.d2[0]))
+  // call diskDat() when done
+  m_wav_future_watcher.setFuture (QtConcurrent::run ([this, fname] {
+	auto basename = fname.mid (fname.lastIndexOf ('/') + 1);
+	auto pos = fname.indexOf (".wav", 0, Qt::CaseInsensitive);
+	// global variables and threads do not mix well, this needs changing
+	dec_data.params.nutc = 0;
+	if (pos > 0)
+	  {
+	    if (pos == fname.indexOf ('_', -11) + 7)
+	      {
+		dec_data.params.nutc = fname.mid (pos - 6, 6).toInt ();
+	      }
+	    else
+	      {
+		dec_data.params.nutc = 100 * fname.mid (pos - 4, 4).toInt ();
+	      }
+	  }
+	BWFFile file {QAudioFormat {}, fname};
+	file.open (BWFFile::ReadOnly);
+	auto bytes_per_frame = file.format ().bytesPerFrame ();
+	qint64 max_bytes = std::min (std::size_t (m_TRperiod * RX_SAMPLE_RATE),
+				     sizeof (dec_data.d2) / sizeof (dec_data.d2[0]))
           * bytes_per_frame;
-      auto n = file.read (reinterpret_cast<char *> (dec_data.d2),
-                          std::min (max_bytes, file.size ()));
-      int frames_read = n / bytes_per_frame;
-      // zero unfilled remaining sample space
-      std::memset (&dec_data.d2[0] + n, 0, max_bytes - n);
-      if (11025 == file.format ().sampleRate ())
-        {
+	auto n = file.read (reinterpret_cast<char *> (dec_data.d2),
+			    std::min (max_bytes, file.size ()));
+	int frames_read = n / bytes_per_frame;
+	// zero unfilled remaining sample space
+	std::memset (&dec_data.d2[0] + n, 0, max_bytes - n);
+	if (11025 == file.format ().sampleRate ())
+	  {
           short sample_size = file.format ().sampleSize ();
           wav12_ (dec_data.d2, dec_data.d2, &frames_read, &sample_size);
-        }
-      dec_data.params.kin = frames_read;
-      dec_data.params.newdat = 1;
-    });
-  m_wav_future_watcher.setFuture(m_wav_future); // call diskDat() when done
+	  }
+	dec_data.params.kin = frames_read;
+	dec_data.params.newdat = 1;
+      }));
 }
 
 void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
@@ -2023,9 +2070,8 @@ void MainWindow::decode()                                       //decode()
     narg[13]=-1;
     narg[14]=m_config.aggressive();
     memcpy(d2b,dec_data.d2,2*360000);
-    *future3 = QtConcurrent::run(std::bind(fast_decode_,&d2b[0],&narg[0],&m_msg[0][0],
-        &m_pchkFile[0],80,512));
-    watcher3->setFuture(*future3);
+    watcher3.setFuture (QtConcurrent::run (std::bind (fast_decode_,&d2b[0],&narg[0],&m_msg[0][0],
+        &m_pchkFile[0],80,512)));
   } else {
     memcpy(to, from, qMin(mem_jt9->size(), size));
     QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.remove (); // Allow jt9 to start
@@ -2147,7 +2193,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
     }
     if(t.indexOf("<DecodeFinished>") >= 0) {
       m_bDecoded = (t.mid(23,1).toInt()==1);
-      if(!m_diskData) killFileTimer->start (3*1000*m_TRperiod/4); //Kill in 45 s
+      if(!m_diskData) killFileTimer.start (3*1000*m_TRperiod/4); //Kill in 45 s
       decodeDone ();
       m_startAnother=m_loopall;
       return;
@@ -2442,7 +2488,7 @@ void MainWindow::guiUpdate()
       }
 
       Q_EMIT m_config.transceiver_ptt (true);       //Assert the PTT
-      ptt1Timer->start(200);                        //Sequencer delay
+      ptt1Timer.start(200);                        //Sequencer delay
     }
     if(!m_bTxTime and !m_tune) m_btxok=false;       //Time to stop transmitting
   }
@@ -2577,7 +2623,7 @@ void MainWindow::guiUpdate()
         icw[0] = m_ncw;
       }
       if (m_config.prompt_to_log () && !m_tune) {
-        logQSOTimer->start (0);
+        logQSOTimer.start (0);
       }
     }
     if (is_73 && m_config.disable_TX_on_73 ()) {
@@ -2785,7 +2831,7 @@ void MainWindow::stopTx()
   g_iptt=0;
   tx_status_label->setStyleSheet("");
   tx_status_label->setText("");
-  ptt0Timer->start(200);                       //Sequencer delay
+  ptt0Timer.start(200);                       //Sequencer delay
   monitor (true);
   statusUpdate ();
 }
@@ -2810,7 +2856,7 @@ void MainWindow::stopTx2()
   }
   if(m_config.offsetRxFreq() and ui->cbCQRx->isChecked()) {
 //    Q_EMIT m_config.transceiver_frequency(m_freqNominal);
-    RxQSYTimer->start(50);
+    RxQSYTimer.start(50);
   }
 }
 
@@ -3139,7 +3185,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
 
         if(m_bDoubleClickAfterCQnnn and m_transmitting) {
           on_stopTxButton_clicked();
-          TxAgainTimer->start(1500);
+          TxAgainTimer.start(1500);
         }
         m_bDoubleClickAfterCQnnn=false;
       }
@@ -4358,7 +4404,7 @@ void MainWindow::on_rptSpinBox_valueChanged(int n)
 void MainWindow::on_tuneButton_clicked (bool checked)
 {
   if (m_tune) {
-    tuneButtonTimer->start(250);
+    tuneButtonTimer.start(250);
   } else {
     m_sentFirst73=false;
     m_repeatMsg=0;
@@ -4768,63 +4814,6 @@ void MainWindow::on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered()
   m_prefixes->raise ();
 }
 
-void MainWindow::getpfx()
-{
-  m_prefix <<"1A" <<"1S" <<"3A" <<"3B6" <<"3B8" <<"3B9" <<"3C" <<"3C0" \
-           <<"3D2" <<"3D2C" <<"3D2R" <<"3DA" <<"3V" <<"3W" <<"3X" <<"3Y" \
-           <<"3YB" <<"3YP" <<"4J" <<"4L" <<"4S" <<"4U1I" <<"4U1U" <<"4W" \
-           <<"4X" <<"5A" <<"5B" <<"5H" <<"5N" <<"5R" <<"5T" <<"5U" \
-           <<"5V" <<"5W" <<"5X" <<"5Z" <<"6W" <<"6Y" <<"7O" <<"7P" \
-           <<"7Q" <<"7X" <<"8P" <<"8Q" <<"8R" <<"9A" <<"9G" <<"9H" \
-           <<"9J" <<"9K" <<"9L" <<"9M2" <<"9M6" <<"9N" <<"9Q" <<"9U" \
-           <<"9V" <<"9X" <<"9Y" <<"A2" <<"A3" <<"A4" <<"A5" <<"A6" \
-           <<"A7" <<"A9" <<"AP" <<"BS7" <<"BV" <<"BV9" <<"BY" <<"C2" \
-           <<"C3" <<"C5" <<"C6" <<"C9" <<"CE" <<"CE0X" <<"CE0Y" <<"CE0Z" \
-           <<"CE9" <<"CM" <<"CN" <<"CP" <<"CT" <<"CT3" <<"CU" <<"CX" \
-           <<"CY0" <<"CY9" <<"D2" <<"D4" <<"D6" <<"DL" <<"DU" <<"E3" \
-           <<"E4" <<"EA" <<"EA6" <<"EA8" <<"EA9" <<"EI" <<"EK" <<"EL" \
-           <<"EP" <<"ER" <<"ES" <<"ET" <<"EU" <<"EX" <<"EY" <<"EZ" \
-           <<"F" <<"FG" <<"FH" <<"FJ" <<"FK" <<"FKC" <<"FM" <<"FO" \
-           <<"FOA" <<"FOC" <<"FOM" <<"FP" <<"FR" <<"FRG" <<"FRJ" <<"FRT" \
-           <<"FT5W" <<"FT5X" <<"FT5Z" <<"FW" <<"FY" <<"M" <<"MD" <<"MI" \
-           <<"MJ" <<"MM" <<"MU" <<"MW" <<"H4" <<"H40" <<"HA" \
-           <<"HB" <<"HB0" <<"HC" <<"HC8" <<"HH" <<"HI" <<"HK" <<"HK0" \
-           <<"HK0M" <<"HL" <<"HM" <<"HP" <<"HR" <<"HS" <<"HV" <<"HZ" \
-           <<"I" <<"IS" <<"IS0" <<"J2" <<"J3" <<"J5" <<"J6" \
-           <<"J7" <<"J8" <<"JA" <<"JDM" <<"JDO" <<"JT" <<"JW" \
-           <<"JX" <<"JY" <<"K" <<"KG4" <<"KH0" <<"KH1" <<"KH2" <<"KH3" \
-           <<"KH4" <<"KH5" <<"KH5K" <<"KH6" <<"KH7" <<"KH8" <<"KH9" <<"KL" \
-           <<"KP1" <<"KP2" <<"KP4" <<"KP5" <<"LA" <<"LU" <<"LX" <<"LY" \
-           <<"LZ" <<"OA" <<"OD" <<"OE" <<"OH" <<"OH0" <<"OJ0" <<"OK" \
-           <<"OM" <<"ON" <<"OX" <<"OY" <<"OZ" <<"P2" <<"P4" <<"PA" \
-           <<"PJ2" <<"PJ7" <<"PY" <<"PY0F" <<"PT0S" <<"PY0T" <<"PZ" <<"R1F" \
-           <<"R1M" <<"S0" <<"S2" <<"S5" <<"S7" <<"S9" <<"SM" <<"SP" \
-           <<"ST" <<"SU" <<"SV" <<"SVA" <<"SV5" <<"SV9" <<"T2" <<"T30" \
-           <<"T31" <<"T32" <<"T33" <<"T5" <<"T7" <<"T8" <<"T9" <<"TA" \
-           <<"TF" <<"TG" <<"TI" <<"TI9" <<"TJ" <<"TK" <<"TL" \
-           <<"TN" <<"TR" <<"TT" <<"TU" <<"TY" <<"TZ" <<"UA" <<"UA2" \
-           <<"UA9" <<"UK" <<"UN" <<"UR" <<"V2" <<"V3" <<"V4" <<"V5" \
-           <<"V6" <<"V7" <<"V8" <<"VE" <<"VK" <<"VK0H" <<"VK0M" <<"VK9C" \
-           <<"VK9L" <<"VK9M" <<"VK9N" <<"VK9W" <<"VK9X" <<"VP2E" <<"VP2M" <<"VP2V" \
-           <<"VP5" <<"VP6" <<"VP6D" <<"VP8" <<"VP8G" <<"VP8H" <<"VP8O" <<"VP8S" \
-           <<"VP9" <<"VQ9" <<"VR" <<"VU" <<"VU4" <<"VU7" <<"XE" <<"XF4" \
-           <<"XT" <<"XU" <<"XW" <<"XX9" <<"XZ" <<"YA" <<"YB" <<"YI" \
-           <<"YJ" <<"YK" <<"YL" <<"YN" <<"YO" <<"YS" <<"YU" <<"YV" \
-           <<"YV0" <<"Z2" <<"Z3" <<"ZA" <<"ZB" <<"ZC4" <<"ZD7" <<"ZD8" \
-           <<"ZD9" <<"ZF" <<"ZK1N" <<"ZK1S" <<"ZK2" <<"ZK3" <<"ZL" <<"ZL7" \
-           <<"ZL8" <<"ZL9" <<"ZP" <<"ZS" <<"ZS8" <<"KC4" <<"E5";
-
-  m_suffix << "P" << "0" << "1" << "2" << "3" << "4" << "5" << "6" \
-           << "7" << "8" << "9" << "A";
-
-  for(int i=0; i<12; i++) {
-    m_sfx.insert(m_suffix[i],true);
-  }
-  for(int i=0; i<339; i++) {
-    m_pfx.insert(m_prefix[i],true);
-  }
-}
-
 bool MainWindow::shortList(QString callsign)
 {
   int n=callsign.length();
@@ -5183,7 +5172,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
           t=WSPR_hhmm(-60) + ' ' + t.rightJustified (66, '-');
           ui->decodedTextBrowser->appendText(t);
         }
-        killFileTimer->start (45*1000); //Kill in 45s
+        killFileTimer.start (45*1000); //Kill in 45s
       }
       m_nWSPRdecodes=0;
       ui->DecodeButton->setChecked (false);
@@ -5191,7 +5180,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
          && m_config.is_transceiver_online ()) { // need working rig control
         float x=qrand()/((double)RAND_MAX + 1.0);
         int msdelay=20000*x;
-        uploadTimer->start(msdelay);                         //Upload delay
+        uploadTimer.start(msdelay);                         //Upload delay
       } else {
         QFile f(QDir::toNativeSeparators(m_dataDir.absolutePath()) + "/wspr_spots.txt");
         if(f.exists()) f.remove();
@@ -5397,7 +5386,7 @@ void MainWindow::WSPR_scheduling ()
       if (hop_data.tune_required_) {
         m_tuneup = true;
         on_tuneButton_clicked (true);
-        tuneATU_Timer->start (2500);
+        tuneATU_Timer.start (2500);
       }
     }
 
