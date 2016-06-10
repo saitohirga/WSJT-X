@@ -18,6 +18,8 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   ui(new Ui::WideGraph),
   m_settings (settings),
   m_palettes_path {":/Palettes"},
+  m_ntr0 {0},
+  m_lockTxFreq {false},
   m_n {0}
 {
   ui->setupUi(this);
@@ -50,8 +52,8 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   ui->zero2dSlider->setValue(ui->widePlot->plot2dZero());
   int n = m_settings->value("BinsPerPixel",2).toInt();
   m_bFlatten=m_settings->value("Flatten",true).toBool();
-  ui->cbFlatten->setChecked(m_bFlatten);
   m_bRef=m_settings->value("UseRef",false).toBool();
+  ui->cbFlatten->setChecked(m_bFlatten);
   ui->widePlot->setFlatten(m_bFlatten,m_bRef);
   ui->cbRef->setChecked(m_bRef);
   ui->widePlot->setBreadth(m_settings->value("PlotWidth",1000).toInt());

@@ -61,7 +61,7 @@ namespace
 
   // callback function that receives transceiver capabilities from the
   // hamlib libraries
-  int rigCallback (rig_caps const * caps, void * callback_data)
+  int register_callback (rig_caps const * caps, void * callback_data)
   {
     TransceiverFactory::Transceivers * rigs = reinterpret_cast<TransceiverFactory::Transceivers *> (callback_data);
 
@@ -103,6 +103,12 @@ namespace
                                                          || RIG_PTT_RIG_MICDATA == caps->ptt_type)
                                                      , RIG_PTT_RIG_MICDATA == caps->ptt_type);
 
+    return 1;			// keep them coming
+  }
+
+  int unregister_callback (rig_caps const * caps, void *)
+  {
+    rig_unregister (caps->rig_model);
     return 1;			// keep them coming
   }
 
@@ -158,7 +164,12 @@ void HamlibTransceiver::register_transceivers (TransceiverFactory::Transceivers 
 #endif
 
   rig_load_all_backends ();
-  rig_list_foreach (rigCallback, registry);
+  rig_list_foreach (register_callback, registry);
+}
+
+void HamlibTransceiver::unregister_transceivers ()
+{
+  rig_list_foreach (unregister_callback, nullptr);
 }
 
 void HamlibTransceiver::RIGDeleter::cleanup (RIG * rig)

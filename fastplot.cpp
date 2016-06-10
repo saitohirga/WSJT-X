@@ -7,7 +7,21 @@
 #define MAX_SCREENSIZE 2048
 
 FPlotter::FPlotter(QWidget *parent) :                  //FPlotter Constructor
-  QFrame(parent)
+  QFrame {parent},
+  m_w {703},
+  m_plotGain {0},
+  m_greenZero {0},
+  m_x0 {0},
+  m_x1 {0},
+  m_ScalePixmap {QPixmap {703, 20}},
+  m_pixPerSecond {12000.0/512.0},
+  m_hdivs {30},
+  m_h {220},
+  m_h1 {20},
+  m_h2 {m_h-m_h1},
+  m_HorizPixmap {QPixmap {m_w, m_h2}},
+  m_jh0 {9999},
+  m_bPaint2 {true}
 {
   setFocusPolicy(Qt::StrongFocus);
   setAttribute(Qt::WA_PaintOnScreen,false);
@@ -15,22 +29,9 @@ FPlotter::FPlotter(QWidget *parent) :                  //FPlotter Constructor
   setAttribute(Qt::WA_OpaquePaintEvent, false);
   setAttribute(Qt::WA_NoSystemBackground, true);
 
-  m_pixPerSecond= 12000.0/512.0;
-  m_hdivs = 30;
-  m_jh0=9999;
-  m_HorizPixmap = QPixmap(703,200);
-  m_ScalePixmap = QPixmap(703,20);
-  m_w = 703;
-  m_h = 220;
-  m_h1=20;
-  m_h2=m_h-m_h1;
-  m_HorizPixmap = QPixmap(m_w, m_h2);
   m_HorizPixmap.fill(Qt::black);
   m_HorizPixmap.fill(Qt::black);
   m_ScalePixmap.fill(Qt::white);
-  m_bPaint2=true;
-  m_x0=0;
-  m_x1=0;
   drawScale();
   draw();
 }

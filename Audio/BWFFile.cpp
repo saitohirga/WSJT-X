@@ -21,7 +21,11 @@ namespace
   // chunk descriptor
   struct Desc
   {
-    Desc () = default;
+    Desc ()
+      : size_ {0}
+    {
+    }
+
     explicit Desc (char const * id, quint32 size = 0)
       : size_ {size}
     {

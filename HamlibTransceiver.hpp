@@ -25,6 +25,7 @@ class HamlibTransceiver final
 
  public:
   static void register_transceivers (TransceiverFactory::Transceivers *);
+  static void unregister_transceivers ();
 
   explicit HamlibTransceiver (int model_number, TransceiverFactory::ParameterPack const&,
                               QObject * parent = nullptr);

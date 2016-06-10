@@ -1,4 +1,5 @@
 #include "messageaveraging.h"
+
 #include <QSettings>
 #include <QApplication>
 #include <QTextCharFormat>
@@ -6,7 +7,6 @@
 #include "SettingsGroup.hpp"
 #include "qt_helpers.hpp"
 #include "ui_messageaveraging.h"
-#include "moc_messageaveraging.cpp"
 
 MessageAveraging::MessageAveraging(QSettings * settings, QFont const& font, QWidget *parent) :
   QWidget(parent),
@@ -23,7 +23,6 @@ MessageAveraging::MessageAveraging(QSettings * settings, QFont const& font, QWid
 MessageAveraging::~MessageAveraging()
 {
   if (isVisible ()) write_settings ();
-  delete ui;
 }
 
 void MessageAveraging::changeFont (QFont const& font)

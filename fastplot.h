@@ -52,7 +52,6 @@ private:
   float TimefromX(int x);
   qint64 RoundFreq(qint64 freq, int resolution);
 
-  QPixmap m_HorizPixmap;
   QPixmap m_ScalePixmap;
   QString m_HDivText[483];
   QString m_t;
@@ -64,6 +63,7 @@ private:
   qint32  m_h;
   qint32  m_h1;
   qint32  m_h2;
+  QPixmap m_HorizPixmap;
   qint32  m_jh0;
 
   bool    m_bPaint2;

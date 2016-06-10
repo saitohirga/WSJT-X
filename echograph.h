@@ -1,6 +1,8 @@
 #ifndef ECHOGRAPH_H
 #define ECHOGRAPH_H
+
 #include <QDialog>
+#include <QScopedPointer>
 
 namespace Ui {
   class EchoGraph;
@@ -35,7 +37,7 @@ private:
   QSettings * m_settings;
   qint32 m_nColor;
 
-  Ui::EchoGraph *ui;
+  QScopedPointer<Ui::EchoGraph> ui;
 };
 
 #endif // ECHOGRAPH_H

@@ -45,7 +45,6 @@ EchoGraph::EchoGraph(QSettings * settings, QWidget *parent) :
 EchoGraph::~EchoGraph()
 {
   saveSettings();
-  delete ui;
 }
 
 void EchoGraph::closeEvent (QCloseEvent * e)

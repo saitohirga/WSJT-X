@@ -3,6 +3,7 @@
 #define ASTRO_H
 
 #include <QDialog>
+#include <QScopedPointer>
 
 #include "Radio.hpp"
 
@@ -67,7 +68,7 @@ private:
 
   QSettings * settings_;
   Configuration const * configuration_;
-  Ui::Astro * ui_;
+  QScopedPointer<Ui::Astro> ui_;
 
   qint32 m_DopplerMethod;
 };
