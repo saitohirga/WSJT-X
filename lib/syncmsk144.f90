@@ -39,7 +39,7 @@ subroutine syncmsk144(cdat,npts,pchk_file,msgreceived,fest,nutc,t0)
   data first/.true./
 
   data s8/0,1,1,1,0,0,1,0/
-  save first,cb,pi,twopi,dt
+  save first,cb,pi,twopi,dt,s8,rcw,pp
 
   if(first) then
      i=index(pchk_file,".pchk")
