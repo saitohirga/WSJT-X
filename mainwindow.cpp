@@ -63,8 +63,6 @@ extern "C" {
   void symspec_(struct dec_data *, int* k, int* ntrperiod, int* nsps, int* ingain, int* minw,
                 float* px, float s[], float* df3, int* nhsym, int* npts8);
 
-  void four2a_(_Complex float *, int * nfft, int * ndim, int * isign, int * iform, int len);
-
   void hspec_(short int d2[], int* k, int* ingain, float green[], float s[], int* jh);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
@@ -832,16 +830,6 @@ MainWindow::~MainWindow()
   QString fname {QDir::toNativeSeparators(m_dataDir.absoluteFilePath ("wsjtx_wisdom.dat"))};
   QByteArray cfname=fname.toLocal8Bit();
   fftwf_export_wisdom_to_filename(cfname);
-  {
-    int nfft {-1};
-    int ndim {1};
-    int isign {1};
-    int iform {1};
-    // free FFT plan resources
-    four2a_ (nullptr, &nfft, &ndim, &isign, &iform, 0);
-  }
-  fftwf_forget_wisdom ();
-  fftwf_cleanup ();
   m_audioThread.quit ();
   m_audioThread.wait ();
 }
