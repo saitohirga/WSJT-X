@@ -3599,8 +3599,8 @@ void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
     qint64 nsec = QDateTime::currentMSecsSinceEpoch() % 86400;
     double utch=nsec/3600.0;
     int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
-    azdist_(const_cast <char *> (m_config.my_grid ().toLatin1().constData()),
-            const_cast <char *> (m_hisGrid.toLatin1().constData()),&utch,
+    azdist_(const_cast <char *> ((m_config.my_grid () + "      ").left (6).toLatin1().constData()),
+            const_cast <char *> ((m_hisGrid + "      ").left (6).toLatin1().constData()),&utch,
             &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
     QString t;
     t.sprintf("Az: %d",nAz);
