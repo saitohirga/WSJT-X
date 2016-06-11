@@ -109,6 +109,10 @@ subroutine syncmsk144(cdat,npts,pchk_file,msgreceived,fest,nutc,t0)
     niterations=0
     ndither=0
     i1hashdec=0
+    fest=0.0
+    i1Dec8BitBytes=0
+    nbadsync1=-1
+    nbadsync2=-1
     goto 999 
   endif
  
@@ -140,70 +144,102 @@ subroutine syncmsk144(cdat,npts,pchk_file,msgreceived,fest,nutc,t0)
 
 ! See if we can find "closed brackets" - a pair of peaks that differ by 864, plus or minus
 ! This information is not yet used for anything
-  do ii=1,5
-    do jj=ii+1,5
-      if( (ii .ne. jj) .and. (abs( abs(ipeaks(ii)-ipeaks(jj))-864) .le. 5) ) then
+!  do ii=1,5
+!    do jj=ii+1,5
+!      if( (ii .ne. jj) .and. (abs( abs(ipeaks(ii)-ipeaks(jj))-864) .le. 5) ) then
 !      write(*,*) "closed brackets: ",ii,jj,ipeaks(ii),ipeaks(jj),abs(ipeaks(ii)-ipeaks(jj))
-      endif
-    enddo
-  enddo
+!      endif
+!    enddo
+!  enddo
 
-  do iav=1,6  
   do ipk=1,5 
-  do id=1,3
-    if( id .eq. 1 ) is=0
-    if( id .eq. 2 ) is=-1
-    if( id .eq. 3 ) is=1
 
-! we want ic to be the index of the first sample of the message
-    ic=ipeaks(ipk)
+! we want ic to be the index of the first sample of the frame
+    ic0=ipeaks(ipk)
 
-    if( ic .le. 864 ) ic=ic+864
-    if( ic .gt. 2*864 ) ic=ic-864
-! now do fine adjustment of sync index
-! bb is used to place the sampling index at the center of the eye
+! fine adjustment of sync index
+! bb lag used to place the sampling index at the center of the eye
   do i=1,6
-   io=i-3
-   ill=max(1,ic+io)
-   iul=min(ic+io+6+864,npts)
-   bb(i) = sum( ( cdat(ic+io:iul-6:6) * conjg( cdat(ic+io+6:iul:6) ) )*2 )
+    if( ic0+11+NSPM .le. npts ) then
+      bb(i) = sum( ( cdat(ic0+i-1+6:ic0+i-1+6+NSPM:6) * conjg( cdat(ic0+i-1:ic0+i-1+NSPM:6) ) )*2 )
+    else
+      bb(i) = sum( ( cdat(ic0+i-1+6:npts:6) * conjg( cdat(ic0+i-1:npts-6:6) ) )*2 )
+    endif
   enddo
   iloc=maxloc(abs(bb))
   ibb=iloc(1)
-
+  bba=abs(bb(ibb))
+  if( ibb .le. 3 ) ibb=ibb-1
+  if( ibb .gt. 3 ) ibb=ibb-7
+  do id=1,3             ! slicer dither 
+    if( id .eq. 1 ) is=0
+    if( id .eq. 2 ) is=-1
+    if( id .eq. 3 ) is=1
 ! Adjust frame index to place peak of bb at desired lag
-  ic=ic + ibb-2+is
-  if( ic .le. 864 ) ic=ic+864
-  if( ic .gt. 2*864 ) ic=ic-864
+  ic=ic0+ibb+is
+  if( ic .lt. 1 ) ic=ic+864
 
 ! Estimate fine frequency error. 
 ! Should a larger separation be used when frames are averaged?
   cca=sum(cdat(ic:ic+41)*conjg(cb))
-  ccb=sum(cdat(ic+56*6:ic+56*6+41)*conjg(cb))
-  cfac=ccb*conjg(cca)
-  ferr2=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
+  if( ic+56*6+41 .le. npts ) then
+    ccb=sum(cdat(ic+56*6:ic+56*6+41)*conjg(cb))
+    cfac=ccb*conjg(cca)
+    ferr2=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
+  else
+    ccb=sum(cdat(ic-88*6:ic-88*6+41)*conjg(cb))    
+    cfac=cca*conjg(ccb)
+    ferr2=atan2(imag(cfac),real(cfac))/(twopi*88*6*dt)
+  endif
 
 ! Final estimate of the carrier frequency - returned to the calling program
   fest=1500+ferr+ferr2
 ! Remove fine frequency error
   call tweak1(cdat,npts,-ferr2,cdat2)
 
-! place the beginning of the central frame at NSPM+1
-  cdat2=cshift(cdat2,ic-865)
+! place the beginning of frame at index NSPM+1
+  cdat2=cshift(cdat2,ic-(NSPM+1))
 
+  do iav=1,7  
 ! Try each of the three frames individually, and then
 ! do frame averaging on passes 4 and 5
+if( 0 .eq. 1 ) then
   if( iav .eq. 1 ) then
-    c=cdat2(NSPM+1:2*NSPM)
-  elseif( iav .eq. 2 ) then
-    c=cdat2(2*NSPM+1:npts)
-  elseif( iav .eq. 3 ) then
     c=cdat2(1:NSPM)
+  elseif( iav .eq. 2 ) then
+    c=cdat2(NSPM+1:2*NSPM)
+  elseif( iav .eq. 3 ) then
+    c=cdat2(2*NSPM+1:npts)
   elseif( iav .eq. 4 ) then
     c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)
   elseif( iav .eq. 5 ) then
-    c=cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:npts)
+    c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)
   elseif( iav .eq. 6 ) then
+    c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)
+  elseif( iav .eq. 7 ) then
+    c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)
+  elseif( iav .eq. 8 ) then
+    c=cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:npts)
+  elseif( iav .eq. 9 ) then
+    c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:npts)
+  endif 
+endif
+
+  if( iav .eq. 1 ) then
+    c(1:NSPM)=cdat2(NSPM+1:2*NSPM)  !avg 1 frame to the right of ic
+  elseif( iav .eq. 2 ) then
+    c=cdat2(NSPM-431:NSPM+432)      !1 frame centered on ic
+    c=cshift(c,-432)
+  elseif( iav .eq. 3 ) then         !1 frame to the left of ic
+    c=cdat2(1:NSPM)
+  elseif( iav .eq. 4 ) then
+    c=cdat2(NSPM+432:NSPM+432+863)  !1 frame beginning 36ms to the right of ic
+    c=cshift(c,432)
+  elseif( iav .eq. 5 ) then
+    c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)
+  elseif( iav .eq. 6 ) then
+    c=cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:npts)
+  elseif( iav .eq. 7 ) then
     c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:npts)
   endif 
 
@@ -214,28 +250,33 @@ subroutine syncmsk144(cdat,npts,pchk_file,msgreceived,fest,nutc,t0)
   ffin=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
   phase0=atan2(imag(cca+ccb),real(cca+ccb))
 
-! Remove the static phase error from the data
   cfac=cmplx(cos(phase0),sin(phase0))
   c=c*conjg(cfac)
 
 ! sample to get softsamples
-  do i=1,72
-    softbits(2*i-1)=imag(c(1+(i-1)*12))
-    softbits(2*i)=real(c(7+(i-1)*12))  
+!  do i=1,72
+!    softbits(2*i-1)=imag(c(1+(i-1)*12))
+!    softbits(2*i)=real(c(7+(i-1)*12))  
+!  enddo
+
+! matched filter
+  softbits(1)=sum(imag(c(1:6))*pp(7:12))+sum(imag(c(864-5:864))*pp(1:6))
+  softbits(2)=sum(real(c(1:12))*pp)
+  do i=2,72
+    softbits(2*i-1)=sum(imag(c(1+(i-1)*12-6:1+(i-1)*12+5))*pp)
+    softbits(2*i)=sum(real(c(7+(i-1)*12-6:7+(i-1)*12+5))*pp)
   enddo
+
   hardbits=0
   do i=1,144
     if( softbits(i) .ge. 0.0 ) then
       hardbits(i)=1
     endif
   enddo 
-
-! calculated the number of sync-word bits that are incorrect
-! don't present to the decoder if there are too many sync-word bit-errors 
-  nbadsync1=(8-sum(s8*(2*hardbits(1:8)-1)))/2
-  nbadsync2=(8-sum(s8*(2*hardbits(57:57+7)-1)))/2
+  nbadsync1=(8-sum( (2*hardbits(1:8)-1)*s8 ) )/2
+  nbadsync2=(8-sum( (2*hardbits(1+56:8+56)-1)*s8 ) )/2 
   nbadsync=nbadsync1+nbadsync2
-  if( nbadsync .gt. 6 ) cycle
+  if( nbadsync .gt. 4 ) cycle
 
 ! this could be used to count the number of hard errors that were corrected
   hardword(1:48)=hardbits(9:9+47)  
@@ -249,8 +290,7 @@ subroutine syncmsk144(cdat,npts,pchk_file,msgreceived,fest,nutc,t0)
   ssig=sqrt(s2av-sav*sav)
   softbits=softbits/ssig
 
-! sigma=0.65
-  sigma=0.70
+  sigma=0.65
   lratio(1:48)=softbits(9:9+47)
   lratio(49:128)=softbits(65:65+80-1)
   lratio=exp(2.0*lratio/(sigma*sigma))
@@ -258,7 +298,7 @@ subroutine syncmsk144(cdat,npts,pchk_file,msgreceived,fest,nutc,t0)
   unscrambledsoftbits(1:127:2)=lratio(1:64) 
   unscrambledsoftbits(2:128:2)=lratio(65:128) 
 
-  max_iterations=10
+  max_iterations=20
   max_dither=50
   call ldpc_decode(unscrambledsoftbits, decoded, max_iterations, niterations, max_dither, ndither)
 
@@ -309,9 +349,9 @@ goto 999
     endif
 
 999 continue
-!    write(78,1001) nutc,t0,iav,ipk,is,fdiff,fest,nbadsync1,nbadsync2, &
+!    write(78,1001) nutc,t0,iav,ipk,is,fdiff,fest,ffin,nbadsync1,nbadsync2, &
 !               phase0,niterations,ndither,i1hashdec,i1Dec8BitBytes(10),msgreceived 
-!1001 format(i6,f8.2,i4,i4,i4,f8.2,f8.2,i4,i4,f8.2,i4,i4,i4,i4,2x,a22)
+!1001 format(i6,f8.2,i4,i4,i4,f8.2,f8.2,f8.2,i4,i4,f8.2,i4,i4,i4,i4,2x,a22)
 
     return
 end subroutine syncmsk144
