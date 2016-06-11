@@ -114,13 +114,17 @@ void mod2sparse_free
 { 
   mod2block *b;
 
-  free(m->rows);
-  free(m->cols);
+  if (m)
+  { free(m->rows);
+    free(m->cols);
 
-  while (m->blocks!=0)
-  { b = m->blocks;
-    m->blocks = b->next;
-    free(b);
+    while (m->blocks!=0)
+    { b = m->blocks;
+      m->blocks = b->next;
+      free(b);
+    }
+
+    free (m);
   }
 }
 
@@ -1186,7 +1190,7 @@ int mod2sparse_decomp
       cc2 = 0;
       for (j = 0; j<N; j++)
       { cc3 = mod2sparse_count_col(B,j);
-        if (cc3>k || cc3==k && cc>0)
+        if (cc3>k || (cc3==k && cc>0))
         { if (cc3==k) cc -= 1;
           for (;;)
           { f = mod2sparse_first_in_col(B,j);

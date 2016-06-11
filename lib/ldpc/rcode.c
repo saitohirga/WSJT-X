@@ -199,11 +199,19 @@ garbled:
   exit(1);
 }
 
-// Fortran interface routine for WSJT-X
+// Fortran interface routines for WSJT-X
 void init_ldpc_ (char *pfile, char *gfile )
 {
-    char *pchk_file,*gen_file;
     read_pchk( pfile );
     read_gen( gfile, 0, 0 );
 }
 
+void fini_ldpc_ ()
+{
+  mod2dense_free (G);
+  mod2sparse_free (U);
+  mod2sparse_free (L);
+  free (cols);
+  free (rows);
+  mod2sparse_free (H);
+}

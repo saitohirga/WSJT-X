@@ -65,9 +65,11 @@ mod2dense *mod2dense_allocate
 void mod2dense_free
 ( mod2dense *m		/* Matrix to free */
 )
-{ free(m->bits);
-  free(m->col);
-  free(m);
+{ if (m)
+  { free(m->bits);
+    free(m->col);
+    free(m);
+  }
 }
 
 
