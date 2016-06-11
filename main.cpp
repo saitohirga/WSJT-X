@@ -4,6 +4,7 @@
 #include <string>
 
 #include <locale.h>
+#include <fftw3.h>
 
 #include <QDateTime>
 #include <QApplication>
@@ -35,6 +36,12 @@
 #include "lib/init_random_seed.h"
 #include "Radio.hpp"
 #include "FrequencyList.hpp"
+
+extern "C" {
+  // Fortran procedures we need
+  void four2a_(_Complex float *, int * nfft, int * ndim, int * isign, int * iform, int len);
+  void fini_ldpc_ ();
+}
 
 namespace
 {
@@ -293,6 +300,20 @@ int main(int argc, char *argv[])
           result = a.exec();
         }
       while (!result && !multi_settings.exit ());
+
+      // clean up lazily initialized resources
+      {
+        int nfft {-1};
+        int ndim {1};
+        int isign {1};
+        int iform {1};
+        // free FFT plan resources
+        four2a_ (nullptr, &nfft, &ndim, &isign, &iform, 0);
+      }
+      fftwf_forget_wisdom ();
+      fftwf_cleanup ();
+      fini_ldpc_ ();            // free LDPC decoder resources
+
       temp_dir.removeRecursively (); // clean up temp files
       return result;
     }
