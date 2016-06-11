@@ -945,7 +945,9 @@ void MainWindow::readSettings()
   if(!m_uploadSpots) ui->cbUploadWSPR_Spots->setStyleSheet("QCheckBox{background-color: yellow}");
   ui->band_hopping_group_box->setChecked (m_settings->value ("BandHopping", false).toBool());
   // setup initial value of tx attenuator
+  m_block_pwr_tooltip = true;
   ui->outAttenuation->setValue (m_settings->value ("OutAttenuation", 0).toInt ());
+  m_block_pwr_tooltip = false;
   m_tune_attenuation = m_settings->value ("TuneAttenuation", 0).toInt ();
   m_freqCQ=m_settings->value("CQRxFreq",285).toInt();
   m_noSuffix=m_settings->value("NoSuffix",false).toBool();
@@ -4428,12 +4430,12 @@ void MainWindow::stop_tuning ()
   ui->tuneButton->setChecked (false);
   m_bTxTime=false;
   m_tune=false;
-  m_block_pwr_tooltip = true;
   if (m_tune_attenuation)
     {
+      m_block_pwr_tooltip = true;
       ui->outAttenuation->setValue(m_tune_attenuation_restore);
+      m_block_pwr_tooltip = false;
     }
-  m_block_pwr_tooltip = false;
 }
 
 void MainWindow::stopTuneATU()
