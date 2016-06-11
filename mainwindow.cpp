@@ -174,6 +174,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_secBandChanged {0},
   m_freqNominal {0},
   m_freqTxNominal {0},
+  m_s6 {0.},
+  m_tRemaining {0.},
   m_DTtol {3.0},
   m_waterfallAvg {1},
   m_ntx {1},
@@ -738,6 +740,21 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
          m_mode=="QRA");
   VHF_controls_visible(b);
 
+  ui->txFirstCheckBox->setChecked(m_txFirst);
+  morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),
+         const_cast<int *> (icw), &m_ncw, m_config.my_callsign ().length());
+  on_actionWide_Waterfall_triggered();
+  m_wideGraph->setTol(500);
+  m_wideGraph->setLockTxFreq(m_lockTxFreq);
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
+  ui->sbSubmode->setValue(m_nSubMode);
+  ui->sbFtol->setValue(m_FtolIndex);
+  on_sbFtol_valueChanged(m_FtolIndex);
+  ui->cbEME->setChecked(m_bEME);
+  ui->cbFast9->setChecked(m_bFast9);
+  if(m_bFast9) m_bFastMode=true;
+
   if(m_mode=="JT4") on_actionJT4_triggered();
   if(m_mode=="JT9") on_actionJT9_triggered();
   if(m_mode=="JT65") on_actionJT65_triggered();
@@ -751,20 +768,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_mode=="QRA") on_actionQRA_triggered();
   if(m_mode=="Echo") monitor(false); //Don't auto-start Monitor in Echo mode.
 
-  ui->sbSubmode->setValue(m_nSubMode);
-  ui->txFirstCheckBox->setChecked(m_txFirst);
-  morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),
-         const_cast<int *> (icw), &m_ncw, m_config.my_callsign ().length());
-  on_actionWide_Waterfall_triggered();
-  m_wideGraph->setTol(500);
-  m_wideGraph->setLockTxFreq(m_lockTxFreq);
-  m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
-  ui->sbFtol->setValue(m_FtolIndex);
-  on_sbFtol_valueChanged(m_FtolIndex);
-  ui->cbEME->setChecked(m_bEME);
-  ui->cbFast9->setChecked(m_bFast9);
-  if(m_bFast9) m_bFastMode=true;
   ui->sbTR->setValue(m_TRindex);
   Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value () - m_XIT);
   m_saveDecoded=ui->actionSave_decoded->isChecked();
@@ -773,7 +776,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->sbTxPercent->setValue(m_pctx);
   ui->TxPowerComboBox->setCurrentIndex(int(0.3*(m_dBm + 30.0)+0.2));
   ui->cbUploadWSPR_Spots->setChecked(m_uploadSpots);
-  on_outAttenuation_valueChanged (ui->outAttenuation->value ());
   ui->sbCQRxFreq->setValue(m_freqCQ);
   ui->cbTxLock->setChecked(m_lockTxFreq);
   if((m_ndepth&7)==1) ui->actionQuickDecode->setChecked(true);
