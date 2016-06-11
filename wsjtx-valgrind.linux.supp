@@ -145,7 +145,7 @@
    <libpulse>
    Memcheck:Leak
    ...
-   obj:/usr/lib/*/pulseaudio/libpulse*
+   obj:/usr/lib/*/libpulse*
    ...
 }
 {
@@ -367,5 +367,19 @@
    Memcheck:Leak
    ...
    obj:/usr/lib/*/libxcb*
+   ...
+}
+{
+   <QFont::fromString>
+   Memcheck:Leak
+   ...
+   fun:_ZN5QFont10fromStringERK7QString
+   ...
+}
+{
+   <QFontDatabase::load>
+   Memcheck:Leak
+   ...
+   fun:_ZN13QFontDatabase4loadEPK12QFontPrivatei
    ...
 }
