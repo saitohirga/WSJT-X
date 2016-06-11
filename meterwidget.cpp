@@ -11,6 +11,7 @@
 MeterWidget::MeterWidget(QWidget * parent)
   : QWidget {parent}
   , m_signal {0}
+  , m_sigPeak {0}
 {
   for ( int i = 0; i < 10; i++ ) {
     signalQueue.enqueue(0);
