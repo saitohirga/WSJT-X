@@ -6,6 +6,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   use timer_module, only: timer
 
   parameter (NSPM=864, NPTS=3*NSPM)
+  integer, parameter :: nstep=693
   character*22 msgreceived,allmessages(20)
   character*80 lines(100)
   character*512 pchk_file,gen_file
@@ -26,12 +27,12 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   integer*4 i4Dec6BitWords(12)  
   integer*1 decoded(80)   
   integer*1 i1hashdec
-  integer indices(700)
+  integer indices(nstep)
   integer ipeaks(10)
   logical ismask(6000)
   real cbi(42),cbq(42)
-  real detmet(700)
-  real detfer(700)
+  real detmet(-2:nstep+3)
+  real detfer(nstep)
   real tonespec(6000)
   real rcw(12)
   real dd(NPTS)
@@ -82,7 +83,8 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
      first=.false.
   endif
 
-  nstep=693  ! fill the detmet, detsnr, detferr arrays
+  ! fill the detmet, detferr arrays
+  detmet=0
   do istp=1,nstep
     ns=1+256*(istp-1)
     ne=ns+NPTS-1
@@ -127,14 +129,14 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
     detfer(istp)=ferr
   enddo  ! end of detection-metric, snr, and frequency error estimation loop
 
-  call indexx(detmet,nstep,indices) !find median of detection metric vector
+  call indexx(detmet(1:nstep),nstep,indices) !find median of detection metric vector
   xmed=detmet(indices(nstep/2))
   detmet=detmet/xmed ! noise floor of detection metric is 1.0
 
   ndet=0
 
   do ip=1,20 ! use something like the "clean" algorithm to find candidates
-    iloc=maxloc(detmet)
+    iloc=maxloc(detmet(1:nstep))
     il=iloc(1)
     if( (detmet(il) .lt. 2.0) .or. (abs(detfer(il)) .gt. 100.0) ) cycle 
     ndet=ndet+1
@@ -358,8 +360,8 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
       if( ndupe .eq. 0 ) then
         nmessages=nmessages+1
         allmessages(nmessages)=msgreceived
-        write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived,char(0)
-1020    format(i6.6,i4,f5.1,i5,' & ',a22,a1)
+        write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
+1020    format(i6.6,i4,f5.1,i5,' & ',a22)
       endif
     endif  
     
