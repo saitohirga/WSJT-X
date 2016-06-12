@@ -320,6 +320,7 @@ set (wsjt_FSRCS
   lib/deg2grid.f90
   lib/degrade_snr.f90
   lib/demod64a.f90
+  lib/detectmsk144.f90
   lib/determ.f90
   lib/downsam9.f90
   lib/encode232.f90
