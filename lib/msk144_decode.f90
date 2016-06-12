@@ -4,24 +4,15 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,line)
 
   parameter (NMAX=30*12000)
   parameter (NFFTMAX=512*1024)
-  parameter (NSPM=864)               !Samples per JTMSK long message
   integer*2 id2(0:NMAX)                !Raw i*2 data, up to T/R = 30 s
   integer hist(0:32868)
   real d(0:NMAX)                       !Raw r*4 data
-  real ty(NMAX/512)                    !Ping times
-  real yellow(NMAX/512)
   complex c(NFFTMAX)                   !Complex (analytic) data
-  complex cdat2(24000)
-  character*22 msg,msg0                !Decoded message
   character*80 line(100)               !Decodes passed back to caller
   character*512 pchk_file
-  equivalence (hist,d)
+!  equivalence (hist,d)
 
-  nsnr0=-99
-  nline=0
   line(1:100)(1:1)=char(0)
-  msg0='                      '
-  msg=msg0
 
   hist=0
   do i=0,npts-1
@@ -35,52 +26,16 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,line)
   enddo
   fac=1.0/(1.5*n)
   d(0:npts-1)=fac*id2(0:npts-1)
-!  rms=sqrt(dot_product(d(0:npts-1),d(0:npts-1))/npts)
-!### Would it be better to set median rms to 1.0 ?
-!  d(0:npts-1)=d(0:npts-1)/rms          !Normalize so that rms=1.0
-
-  call msk144dt(d,npts,ty,yellow,nyel)
-
-  nyel=min(nyel,20)
 
   n=log(float(npts))/log(2.0) + 1.0
   nfft=min(2**n,1024*1024)
   call analytic(d,npts,nfft,c)         !Convert to analytic signal and filter
-
-  nafter=2*NSPM
-  nbefore=NSPM
-! Process ping list (sorted by S/N) from top down.
-  do n=1,nyel
-     ia=ty(n)*12000.0 - nbefore
-     if(ia.lt.1) ia=1
-     ib=ia + nbefore + nafter - 1
-     if(ib.gt.NFFTMAX) ib=NFFTMAX
-     iz=ib-ia+1
-     cdat2(1:iz)=c(ia:ib)               !Select nlen complex samples
-     t0=ia/12000.0
-     call syncmsk144(cdat2,iz,pchk_file,msg,freq,nutc,t0)
-     if(msg(1:1).ne.' ') then
-       if(msg.ne.msg0) then
-         nline=nline+1
-         nsnr0=-99
-       endif
-!       y=10.0**(0.1*(yellow(n)-1.5))
-!       nsnr=max(-5,nint(db(y)))
-      y=yellow(n)-1.5
-      nsnr=y   
-      if( nsnr .gt. 999 ) nsnr=99
-      if(nsnr.gt.nsnr0 .and. nline.gt.0) then
-      write(line(nline),1020) nutc,nsnr,t0,nint(freq),msg
-      if(nprint.ne.0) write(*,1020) nutc,nsnr,t0,nint(freq),msg
-1020  format(i6.6,i4,f5.1,i5,' & ',a22)
-      nsnr0=nsnr
-      go to 900
-     endif
-     msg0=msg
-     endif
-  enddo
-
-900 continue
-
+  call detectmsk144(c,npts,pchk_file,line,nline,nutc)
+  if( nprint .ne. 0 ) then
+    do i=1,nline
+      write(*,'(a80)') line(i)
+    enddo
+  endif
+  if(line(1)(1:6).eq.'      ') line(1)(1:1)=char(0)
   return
 end subroutine msk144_decode
