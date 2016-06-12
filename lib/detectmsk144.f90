@@ -87,10 +87,11 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
      first=.false.
   endif
 
-  nstep=694  ! fill the detmet, detsnr, detferr arrays
+  nstep=693  ! fill the detmet, detsnr, detferr arrays
   do istp=1,nstep
     ns=1+256*(istp-1)
     ne=ns+NPTS-1
+    if( ne .gt. n ) exit
     tt=(ns+ne)/2.0/12000.0
     cdat=cbig(ns:ne)
 
