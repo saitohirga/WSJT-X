@@ -43,7 +43,6 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   real softbits(144)
   real*8 unscrambledsoftbits(128)
   real lratio(128)
-  real ttt(NPTS)
   logical first
   data first/.true./
 
@@ -51,8 +50,6 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   save df,first,cb,fs,nfft,pi,twopi,dt,s8,rcw,pp
 
   if(first) then
-     allmessages=' '
-     lines=' '
      i=index(pchk_file,".pchk")
      gen_file=pchk_file(1:i-1)//".gen"
      call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
@@ -82,8 +79,6 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
      cbi(37:42)=pp(1:6)*s8(8)
      cb=cmplx(cbi,cbq)
 
-     ttt=(/ (i, i=1,NPTS) /)
-     ttt=(ttt-NPTS/2)/(NPTS/2)
      first=.false.
   endif
 
@@ -137,6 +132,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   detmet=detmet/xmed ! noise floor of detection metric is 1.0
 
   ndet=0
+
   do ip=1,20 ! use something like the "clean" algorithm to find candidates
     iloc=maxloc(detmet)
     il=iloc(1)
@@ -149,7 +145,10 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   enddo
 
   nmessages=0
-  do ip=1,ndet 
+  allmessages=char(0)
+  lines=char(0)
+
+  do ip=1,ndet  !run through the candidates and try to sync/demod/decode
     imid=times(ip)*fs
     t0=times(ip)
     cdat=cbig(imid-NPTS/2+1:imid+NPTS/2)
