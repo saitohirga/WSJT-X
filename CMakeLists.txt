@@ -399,7 +399,6 @@ set (wsjt_FSRCS
   lib/morse.f90
   lib/move.f90
   lib/mskdt.f90
-  lib/msk144dt.f90
   lib/msk144d.f90
   lib/msk144_decode.f90
   lib/options.f90
@@ -441,7 +440,6 @@ set (wsjt_FSRCS
   lib/sync9w.f90
   lib/synciscat.f90
   lib/syncmsk.f90
-  lib/syncmsk144.f90
   lib/timer_C_wrapper.f90
   lib/timer_impl.f90
   lib/timer_module.f90
