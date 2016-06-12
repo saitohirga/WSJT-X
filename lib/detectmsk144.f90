@@ -303,7 +303,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
           unscrambledsoftbits(2:128:2)=lratio(65:128)
 
           max_iterations=20
-          max_dither=50
+          max_dither=1
           call ldpc_decode(unscrambledsoftbits, decoded, &
                            max_iterations, niterations, max_dither, ndither)
 
