@@ -329,6 +329,7 @@ set (wsjt_FSRCS
   lib/ephem.f90
   lib/extract.f90
   lib/extract4.f90
+  lib/extractmessage144.f90
   lib/fano232.f90
   lib/fast9.f90
   lib/fast_decode.f90
@@ -386,7 +387,6 @@ set (wsjt_FSRCS
   lib/jt9_decode.f90
   lib/jt9fano.f90
   lib/JTMSKsim.f90
-  lib/msk144sim.f90
   lib/jtmsk_decode.f90
   lib/jtmsk_short.f90
   lib/ldpcsim.f90
@@ -401,6 +401,7 @@ set (wsjt_FSRCS
   lib/mskdt.f90
   lib/msk144d.f90
   lib/msk144_decode.f90
+  lib/msk144sim.f90
   lib/options.f90
   lib/packjt.f90
   lib/pctile.f90
