@@ -1,12 +1,7 @@
 subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
-!nutc and t0 are for debug output 
-  use iso_c_binding, only: c_loc,c_size_t
-  use packjt
-  use hashing
   use timer_module, only: timer
 
-  parameter (NSPM=864, NPTS=3*NSPM)
-  integer, parameter :: nstep=693
+  parameter (NSPM=864, NPTS=3*NSPM, MAXSTEPS=1500)
   character*22 msgreceived,allmessages(20)
   character*80 lines(100)
   character*512 pchk_file,gen_file
@@ -22,17 +17,14 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   complex cc2(NPTS)
   complex bb(6)
   integer s8(8),hardbits(144)
-  integer*1, target:: i1Dec8BitBytes(10)
   integer, dimension(1) :: iloc
-  integer*4 i4Dec6BitWords(12)  
   integer*1 decoded(80)   
-  integer*1 i1hashdec
-  integer indices(nstep)
+  integer indices(MAXSTEPS)
   integer ipeaks(10)
   logical ismask(6000)
   real cbi(42),cbq(42)
-  real detmet(-2:nstep+3)
-  real detfer(nstep)
+  real detmet(-2:MAXSTEPS+3)
+  real detfer(MAXSTEPS)
   real tonespec(6000)
   real rcw(12)
   real dd(NPTS)
@@ -46,11 +38,11 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   real lratio(128)
   logical first
   data first/.true./
-
   data s8/0,1,1,1,0,0,1,0/
   save df,first,cb,fs,nfft,pi,twopi,dt,s8,rcw,pp
 
   if(first) then
+     nmatchedfilter=1
      i=index(pchk_file,".pchk")
      gen_file=pchk_file(1:i-1)//".gen"
      call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
@@ -84,12 +76,12 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   endif
 
   ! fill the detmet, detferr arrays
+  nstep=(n-NSPM)/256
   detmet=0
   do istp=1,nstep
     ns=1+256*(istp-1)
     ne=ns+NPTS-1
     if( ne .gt. n ) exit
-    tt=(ns+ne)/2.0/12000.0
     cdat=cbig(ns:ne)
 
 ! Coarse carrier frequency sync - seek tones at 2000 Hz and 4000 Hz in 
@@ -127,7 +119,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
     endif
     detmet(istp)=ah+al
     detfer(istp)=ferr
-  enddo  ! end of detection-metric, snr, and frequency error estimation loop
+  enddo  ! end of detection-metric and frequency error estimation loop
 
   call indexx(detmet(1:nstep),nstep,indices) !find median of detection metric vector
   xmed=detmet(indices(nstep/2))
@@ -138,7 +130,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   do ip=1,20 ! use something like the "clean" algorithm to find candidates
     iloc=maxloc(detmet(1:nstep))
     il=iloc(1)
-    if( (detmet(il) .lt. 2.0) .or. (abs(detfer(il)) .gt. 100.0) ) cycle 
+    if( (detmet(il) .lt. 1.5) .or. (abs(detfer(il)) .gt. 100.0) ) cycle 
     ndet=ndet+1
     times(ndet)=((il-1)*256+NPTS/2)*dt
     ferrs(ndet)=detfer(il)
@@ -188,7 +180,6 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
       ic0=ipeaks(ipk)
 
 ! fine adjustment of sync index
-! bb lag used to place the sampling index at the center of the eye
       do i=1,6
         if( ic0+11+NSPM .le. NPTS ) then
           bb(i) = sum( ( cdat(ic0+i-1+6:ic0+i-1+6+NSPM:6) * conjg( cdat(ic0+i-1:ic0+i-1+NSPM:6) ) )*2 )
@@ -201,7 +192,8 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
       bba=abs(bb(ibb))
       if( ibb .le. 3 ) ibb=ibb-1
       if( ibb .gt. 3 ) ibb=ibb-7
-      do id=1,3             ! slicer dither
+
+      do id=1,3     ! slicer dither. bb is very good - may be able to remove this.
         if( id .eq. 1 ) is=0
         if( id .eq. 2 ) is=-1
         if( id .eq. 3 ) is=1
@@ -224,152 +216,136 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
         endif
 
 ! Final estimate of the carrier frequency - returned to the calling program
-        fest=1500+ferr+ferr2
+          fest=1500+ferr+ferr2 
+
+        do idf=0,10   ! frequency jitter
+          if( idf .eq. 0 ) then
+            deltaf=0.0
+          elseif( mod(idf,2) .eq. 0 ) then
+            deltaf=idf/2.0
+          else
+            deltaf=-(idf+1)/2.0
+          endif
 
 ! Remove fine frequency error
-        call tweak1(cdat,NPTS,-ferr2,cdat2)
+          call tweak1(cdat,NPTS,-(ferr2+deltaf),cdat2)
 
 ! place the beginning of frame at index NSPM+1
-        cdat2=cshift(cdat2,ic-(NSPM+1))
+          cdat2=cshift(cdat2,ic-(NSPM+1))
 
-        do iav=1,7 ! try each of 7 averaging patterns, hope that one works
-
-          if( iav .eq. 1 ) then
-            c(1:NSPM)=cdat2(NSPM+1:2*NSPM)  !avg 1 frame to the right of ic
-          elseif( iav .eq. 2 ) then
-            c=cdat2(NSPM-431:NSPM+432)      !1 frame centered on ic
-            c=cshift(c,-432)
-          elseif( iav .eq. 3 ) then         !1 frame to the left of ic
-            c=cdat2(1:NSPM)
-          elseif( iav .eq. 4 ) then
-            c=cdat2(NSPM+432:NSPM+432+863)  !1 frame beginning 36ms to the right of ic
-            c=cshift(c,432)
-          elseif( iav .eq. 5 ) then
-            c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)
-          elseif( iav .eq. 6 ) then
-            c=cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:NPTS)
-          elseif( iav .eq. 7 ) then
-            c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:NPTS)
-          endif
+          do iav=1,8 ! Hopefully we can eliminate some of these after looking at more examples 
+            if( iav .eq. 1 ) then
+              c=cdat2(NSPM+1:2*NSPM)  
+            elseif( iav .eq. 2 ) then
+              c=cdat2(NSPM-431:NSPM+432)  
+              c=cshift(c,-432)
+            elseif( iav .eq. 3 ) then         
+              c=cdat2(2*NSPM-431:2*NSPM+432)  
+              c=cshift(c,-432)
+            elseif( iav .eq. 4 ) then
+              c=cdat2(1:NSPM)
+            elseif( iav .eq. 5 ) then
+              c=cdat2(2*NSPM+1:NPTS) 
+            elseif( iav .eq. 6 ) then
+              c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)
+            elseif( iav .eq. 7 ) then
+              c=cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:NPTS)
+            elseif( iav .eq. 8 ) then
+              c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:NPTS)
+            endif
 
 ! Estimate final frequency error and carrier phase. 
-          cca=sum(c(1:1+41)*conjg(cb))
-          ccb=sum(c(1+56*6:1+56*6+41)*conjg(cb))
-          cfac=ccb*conjg(cca)
-          ffin=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
-          phase0=atan2(imag(cca+ccb),real(cca+ccb))
+            cca=sum(c(1:1+41)*conjg(cb))
+            ccb=sum(c(1+56*6:1+56*6+41)*conjg(cb))
+            cfac=ccb*conjg(cca)
+            ffin=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
+            phase0=atan2(imag(cca+ccb),real(cca+ccb))
+ 
+! Remove phase error - want constellation rotated so that sample points lie on I/Q axes
+            cfac=cmplx(cos(phase0),sin(phase0))
+            c=c*conjg(cfac)
 
-! Remove phase error - want constellation such that sample points lie on re,im axes
-          cfac=cmplx(cos(phase0),sin(phase0))
-          c=c*conjg(cfac)
-
+            if( nmatchedfilter .eq. 0 ) then
 ! sample to get softsamples
-!  do i=1,72
-!    softbits(2*i-1)=imag(c(1+(i-1)*12))
-!    softbits(2*i)=real(c(7+(i-1)*12))  
-!  enddo
-
-! matched filter - might be possible to improve this
-          softbits(1)=sum(imag(c(1:6))*pp(7:12))+sum(imag(c(864-5:864))*pp(1:6))
-          softbits(2)=sum(real(c(1:12))*pp)
-          do i=2,72
-            softbits(2*i-1)=sum(imag(c(1+(i-1)*12-6:1+(i-1)*12+5))*pp)
-            softbits(2*i)=sum(real(c(7+(i-1)*12-6:7+(i-1)*12+5))*pp)
-          enddo
-
-          hardbits=0
-          do i=1,144
-            if( softbits(i) .ge. 0.0 ) then
-              hardbits(i)=1
+              do i=1,72
+                softbits(2*i-1)=imag(c(1+(i-1)*12))
+                softbits(2*i)=real(c(7+(i-1)*12))  
+              enddo
+            else
+! matched filter - 
+! how much mismatch does the RX/TX/analytic filter cause?, how rig (pair) dependent is this loss?
+              softbits(1)=sum(imag(c(1:6))*pp(7:12))+sum(imag(c(864-5:864))*pp(1:6))
+              softbits(2)=sum(real(c(1:12))*pp)
+              do i=2,72
+                softbits(2*i-1)=sum(imag(c(1+(i-1)*12-6:1+(i-1)*12+5))*pp)
+                softbits(2*i)=sum(real(c(7+(i-1)*12-6:7+(i-1)*12+5))*pp)
+              enddo
             endif
-          enddo
-          nbadsync1=(8-sum( (2*hardbits(1:8)-1)*s8 ) )/2
-          nbadsync2=(8-sum( (2*hardbits(1+56:8+56)-1)*s8 ) )/2
-          nbadsync=nbadsync1+nbadsync2
-          if( nbadsync .gt. 4 ) cycle
+
+! sync word hard error weight is a good discriminator for 
+! frames that have reasonable probability of decoding
+            hardbits=0
+            do i=1,144
+              if( softbits(i) .ge. 0.0 ) then
+                hardbits(i)=1
+              endif
+            enddo
+            nbadsync1=(8-sum( (2*hardbits(1:8)-1)*s8 ) )/2
+            nbadsync2=(8-sum( (2*hardbits(1+56:8+56)-1)*s8 ) )/2
+            nbadsync=nbadsync1+nbadsync2
+            if( nbadsync .gt. 6 ) cycle
 
 ! normalize the softsymbols before submitting to decoder
-          sav=sum(softbits)/144
-          s2av=sum(softbits*softbits)/144
-          ssig=sqrt(s2av-sav*sav)
-          softbits=softbits/ssig
+            sav=sum(softbits)/144
+            s2av=sum(softbits*softbits)/144
+            ssig=sqrt(s2av-sav*sav)
+            softbits=softbits/ssig
 
-          sigma=0.65
-          lratio(1:48)=softbits(9:9+47)
-          lratio(49:128)=softbits(65:65+80-1)
-          lratio=exp(2.0*lratio/(sigma*sigma))
+            sigma=0.65
+            lratio(1:48)=softbits(9:9+47)
+            lratio(49:128)=softbits(65:65+80-1)
+            lratio=exp(2.0*lratio/(sigma*sigma))
   
-          unscrambledsoftbits(1:127:2)=lratio(1:64)
-          unscrambledsoftbits(2:128:2)=lratio(65:128)
+            unscrambledsoftbits(1:127:2)=lratio(1:64)
+            unscrambledsoftbits(2:128:2)=lratio(65:128)
 
-          max_iterations=20
-          max_dither=1
-          call ldpc_decode(unscrambledsoftbits, decoded, &
+            max_iterations=20
+            max_dither=1
+            call ldpc_decode(unscrambledsoftbits, decoded, &
                            max_iterations, niterations, max_dither, ndither)
 
-          if( niterations .ge. 0.0 ) then
-            goto 778
-          endif
-
-        enddo ! frame averaging loop
+            if( niterations .ge. 0.0 ) then
+              call extractmessage144(decoded,msgreceived,nhashflag)
+              if( nhashflag .gt. 0 ) then  ! CRCs match, so print it 
+                ndupe=0
+                do im=1,nmessages
+                  if( allmessages(im) .eq. msgreceived ) ndupe=1
+                enddo
+                if( ndupe .eq. 0 ) then
+                  nmessages=nmessages+1
+                  allmessages(nmessages)=msgreceived
+                  write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
+1020              format(i6.6,i4,f5.1,i5,' & ',a22)
+                endif
+                goto 999
+              else
+                msgreceived=' '
+                ndither=-99             ! -99 is bad hash flag
+!                write(78,1001) nutc,t0,nsnr,ipk,is,idf,iav,deltaf,fest,ffin,nbadsync1,nbadsync2, &
+!                             phase0,niterations,ndither,msgreceived
+              endif
+            endif
+          enddo ! frame averaging loop
+        enddo  ! frequency dithering loop
       enddo   ! sample-time dither loop
-    enddo     ! peak loop - could be made more efficient
+    enddo     ! peak loop - could be made more efficient by working harder to find good peaks
 
     msgreceived=' '
-    phase0=-98
-    i1hashdec=0
-    goto 999
-
-778 continue
-! The decoder found a codeword - compare decoded hash with calculated
-! Collapse 80 decoded bits to 10 bytes. Bytes 1-9 are the message, byte 10 is the hash
-    do ibyte=1,10   
-      itmp=0
-      do ibit=1,8
-        itmp=ishft(itmp,1)+iand(1,decoded((ibyte-1)*8+ibit))
-      enddo
-      i1Dec8BitBytes(ibyte)=itmp
-    enddo
-
-! Calculate the hash using the first 9 bytes.
-    ihashdec=nhash(c_loc(i1Dec8BitBytes),int(9,c_size_t),146)
-    ihashdec=2*iand(ihashdec,255)
-
-! Compare calculated hash with received byte 10 - if they agree, keep the message.
-    i1hashdec=ihashdec
-
-    if( i1hashdec .eq. i1Dec8BitBytes(10) ) then
-! Good hash --- unpack 72-bit message
-      do ibyte=1,12
-        itmp=0
-        do ibit=1,6
-          itmp=ishft(itmp,1)+iand(1,decoded((ibyte-1)*6+ibit))
-        enddo
-        i4Dec6BitWords(ibyte)=itmp
-      enddo
-      call unpackmsg(i4Dec6BitWords,msgreceived)
-    else
-      msgreceived=' '
-      phase0=-99
-    endif
-    if( msgreceived .ne. ' ' ) then
-      ndupe=0
-      do im=1,nmessages
-        if( allmessages(im) .eq. msgreceived ) ndupe=1
-      enddo
-      if( ndupe .eq. 0 ) then
-        nmessages=nmessages+1
-        allmessages(nmessages)=msgreceived
-        write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
-1020    format(i6.6,i4,f5.1,i5,' & ',a22)
-      endif
-    endif  
-    
+    ndither=-98   
 999 continue
-!    write(78,1001) nutc,t0,iav,ipk,is,fest,ffin,nbadsync1,nbadsync2, &
-!               phase0,niterations,ndither,i1hashdec,i1Dec8BitBytes(10),msgreceived
-!1001 format(i6,f8.2,i4,i4,i4,f8.2,f8.2,i4,i4,f8.2,i4,i4,i4,i4,2x,a22)
-
+!    write(78,1001) nutc,t0,nsnr,ipk,is,idf,iav,deltaf,fest,ffin,nbadsync1,nbadsync2, &
+!               phase0,niterations,ndither,msgreceived
+!1001 format(i6.6,f8.2,i4,i4,i4,i4,i4,f8.2,f8.2,f8.2,i4,i4,f8.2,i5,i5,2x,a22)
   enddo
   return
 end subroutine detectmsk144

@@ -12,8 +12,8 @@ program msk144d
   character*512 pchk_file
   logical :: display_help=.false.
   type(wav_header) :: wav
-  integer*2 id2(15*12000)
-  character*80 infile
+  integer*2 id2(30*12000)
+  character*500 infile
   character(len=500) optarg
 
   type (option) :: long_options(2) = [ &
@@ -60,7 +60,8 @@ program msk144d
      i1=index(infile,'.wav')
      if( i1 .eq. 0 ) i1=index(infile,'.WAV')
      read(infile(i1-6:i1-1),*,err=998) nutc
-     npts=15*12000
+     inquire(FILE=infile,SIZE=isize)
+     npts=min((isize-216)/2,360000)
      read(unit=wav%lun) id2(1:npts)
      close(unit=wav%lun)
      call timer('read    ',1)
