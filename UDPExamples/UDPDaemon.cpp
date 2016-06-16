@@ -23,6 +23,7 @@
 #include <QDateTime>
 #include <QTime>
 #include <QHash>
+#include <QDebug>
 
 #include "MessageServer.hpp"
 #include "Radio.hpp"
@@ -60,22 +61,28 @@ public:
       }
   }
 
-  Q_SLOT void decode_added (bool /*is_new*/, QString const& client_id, QTime /*time*/, qint32 /*snr*/
-      , float /*delta_time*/, quint32 /*delta_frequency*/, QString const& /*mode*/
+  Q_SLOT void decode_added (bool is_new, QString const& client_id, QTime time, qint32 snr
+      , float delta_time, quint32 delta_frequency, QString const& mode
       , QString const& message)
   {
     if (client_id == id_)
       {
+        qDebug () << "new:" << is_new << "t:" << time << "snr:" << snr
+                  << "Dt:" << delta_time << "Df:" << delta_frequency
+                  << "mode:" << mode;
         std::cout << tr ("%1: Decoded %2").arg (id_).arg (message).toStdString () << std::endl;
       }
   }
 
-  Q_SLOT void beacon_spot_added (bool /*is_new*/, QString const& client_id, QTime /*time*/, qint32 /*snr*/
-      , float /*delta_time*/, Frequency /*delta_frequency*/, qint32 /*drift*/, QString const& callsign
+  Q_SLOT void beacon_spot_added (bool is_new, QString const& client_id, QTime time, qint32 snr
+      , float delta_time, Frequency delta_frequency, qint32 drift, QString const& callsign
       , QString const& grid, qint32 power)
   {
     if (client_id == id_)
       {
+        qDebug () << "new:" << is_new << "t:" << time << "snr:" << snr
+                  << "Dt:" << delta_time << "Df:" << delta_frequency
+                  << "drift:" << drift;
         std::cout << tr ("%1: WSPR decode %2 grid %3 power: %4").arg (id_).arg (callsign).arg (grid).arg (power).toStdString () << std::endl;
       }
   }
@@ -155,14 +162,16 @@ int main (int argc, char * argv[])
 
       QCommandLineOption port_option (QStringList {"p", "port"},
                                       app.translate ("UDPDaemon",
-                                                     "Where <PORT> is the UDP service port number to listen on."),
+                                                     "Where <PORT> is the UDP service port number to listen on.\n"
+                                                     "The default service port is 2237."),
                                       app.translate ("UDPDaemon", "PORT"),
                                       "2237");
       parser.addOption (port_option);
 
       QCommandLineOption multicast_addr_option (QStringList {"g", "multicast-group"},
                                                 app.translate ("UDPDaemon",
-                                                               "Where <GROUP> is the multicast group to join."),
+                                                               "Where <GROUP> is the multicast group to join.\n"
+                                                               "The default is a unicast server listening on all interfaces."),
                                                 app.translate ("UDPDaemon", "GROUP"));
       parser.addOption (multicast_addr_option);
 
