@@ -260,6 +260,7 @@ private:
   Q_SIGNAL void suspendAudioInputStream () const;
   Q_SIGNAL void resumeAudioInputStream () const;
   Q_SIGNAL void startDetector (AudioDevice::Channel) const;
+  Q_SIGNAL void FFTSize (unsigned) const;
   Q_SIGNAL void detectorClose () const;
   Q_SIGNAL void finished () const;
   Q_SIGNAL void transmitFrequency (double) const;
@@ -308,6 +309,7 @@ private:
   Frequency  m_dialFreqRxWSPR;  // best guess at WSPR QRG
 
   Detector * m_detector;
+  unsigned m_FFTSize;
   SoundInput * m_soundInput;
   Modulator * m_modulator;
   SoundOutput * m_soundOutput;
