@@ -22,11 +22,13 @@ public:
   //
   // the samplesPerFFT argument is the number after down sampling
   //
-  Detector (unsigned frameRate, unsigned periodLengthInSeconds, unsigned samplesPerFFT, unsigned downSampleFactor = 4u, QObject * parent = 0);
+  Detector (unsigned frameRate, unsigned periodLengthInSeconds, unsigned downSampleFactor = 4u, QObject * parent = 0);
 
-  Q_SIGNAL void framesWritten (qint64) const;
   void setPeriod(unsigned p) {m_period=p;}
   bool reset () override;
+
+  Q_SIGNAL void framesWritten (qint64) const;
+  Q_SLOT void setBlockSize (unsigned);
 
 protected:
   qint64 readData (char * /* data */, qint64 /* maxSize */) override
@@ -45,6 +47,7 @@ private:
   unsigned m_downSampleFactor;
   qint32 m_samplesPerFFT;	// after any down sampling
   qint32 m_ns;
+  static size_t const max_buffer_size {7 * 512};
   QScopedArrayPointer<short> m_buffer; // de-interleaved sample buffer
   // big enough for all the
   // samples for one increment of

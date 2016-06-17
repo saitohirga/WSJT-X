@@ -164,7 +164,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_lastDialFreq {0},
   m_callingFrequency {0},
   m_dialFreqRxWSPR {0},
-  m_detector {new Detector {RX_SAMPLE_RATE, NTMAX, 6912 / 2, downSampleFactor}},
+  m_detector {new Detector {RX_SAMPLE_RATE, NTMAX, downSampleFactor}},
+  m_FFTSize {6192 / 2},         // conservative value to avoid buffer overruns
   m_soundInput {new SoundInput},
   m_modulator {new Modulator {TX_SAMPLE_RATE, NTMAX}},
   m_soundOutput {new SoundOutput},
@@ -378,6 +379,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (this, &MainWindow::finished, this, &MainWindow::close);
 
   // hook up the detector signals, slots and disposal
+  connect (this, &MainWindow::FFTSize, m_detector, &Detector::setBlockSize);
   connect(m_detector, &Detector::framesWritten, this, &MainWindow::dataSink);
   connect (&m_audioThread, &QThread::finished, m_detector, &QObject::deleteLater);
 
@@ -995,7 +997,7 @@ void MainWindow::dataSink(qint64 frames)
   }
 
   m_bUseRef=m_wideGraph->useRef();
-  refspectrum_(&dec_data.d2[k-3456],&m_bRefSpec,&m_bUseRef,c_fname,len);
+  refspectrum_(&dec_data.d2[k-m_nsps/2],&m_bRefSpec,&m_bUseRef,c_fname,len);
 
 // Get power, spectrum, and ihsym
   int trmin=m_TRperiod/60;
@@ -1219,7 +1221,7 @@ void MainWindow::fastSink(qint64 frames)
 
   decodeNow=false;
   m_k0=k;
-  if(m_diskData and m_k0 >= dec_data.params.kin-3456) decodeNow=true;
+  if(m_diskData and m_k0 >= dec_data.params.kin - 7 * 512) decodeNow=true;
   if(!m_diskData and m_tRemaining<0.35 and !m_bFastDecodeCalled) decodeNow=true;
 
   if(decodeNow) {
@@ -1753,39 +1755,39 @@ void MainWindow::read_wav_file (QString const& fname)
 {
   // call diskDat() when done
   m_wav_future_watcher.setFuture (QtConcurrent::run ([this, fname] {
-	auto basename = fname.mid (fname.lastIndexOf ('/') + 1);
-	auto pos = fname.indexOf (".wav", 0, Qt::CaseInsensitive);
-	// global variables and threads do not mix well, this needs changing
-	dec_data.params.nutc = 0;
-	if (pos > 0)
-	  {
-	    if (pos == fname.indexOf ('_', -11) + 7)
-	      {
-		dec_data.params.nutc = fname.mid (pos - 6, 6).toInt ();
-	      }
-	    else
-	      {
-		dec_data.params.nutc = 100 * fname.mid (pos - 4, 4).toInt ();
-	      }
-	  }
-	BWFFile file {QAudioFormat {}, fname};
-	file.open (BWFFile::ReadOnly);
-	auto bytes_per_frame = file.format ().bytesPerFrame ();
-	qint64 max_bytes = std::min (std::size_t (m_TRperiod * RX_SAMPLE_RATE),
-				     sizeof (dec_data.d2) / sizeof (dec_data.d2[0]))
+        auto basename = fname.mid (fname.lastIndexOf ('/') + 1);
+        auto pos = fname.indexOf (".wav", 0, Qt::CaseInsensitive);
+        // global variables and threads do not mix well, this needs changing
+        dec_data.params.nutc = 0;
+        if (pos > 0)
+          {
+            if (pos == fname.indexOf ('_', -11) + 7)
+              {
+                dec_data.params.nutc = fname.mid (pos - 6, 6).toInt ();
+              }
+            else
+              {
+                dec_data.params.nutc = 100 * fname.mid (pos - 4, 4).toInt ();
+              }
+          }
+        BWFFile file {QAudioFormat {}, fname};
+        file.open (BWFFile::ReadOnly);
+        auto bytes_per_frame = file.format ().bytesPerFrame ();
+        qint64 max_bytes = std::min (std::size_t (m_TRperiod * RX_SAMPLE_RATE),
+                                     sizeof (dec_data.d2) / sizeof (dec_data.d2[0]))
           * bytes_per_frame;
-	auto n = file.read (reinterpret_cast<char *> (dec_data.d2),
-			    std::min (max_bytes, file.size ()));
-	int frames_read = n / bytes_per_frame;
-	// zero unfilled remaining sample space
-	std::memset (&dec_data.d2[0] + n, 0, max_bytes - n);
-	if (11025 == file.format ().sampleRate ())
-	  {
-          short sample_size = file.format ().sampleSize ();
-          wav12_ (dec_data.d2, dec_data.d2, &frames_read, &sample_size);
-	  }
-	dec_data.params.kin = frames_read;
-	dec_data.params.newdat = 1;
+        auto n = file.read (reinterpret_cast<char *> (dec_data.d2),
+                            std::min (max_bytes, file.size ()));
+        int frames_read = n / bytes_per_frame;
+        // zero unfilled remaining sample space
+        std::memset (&dec_data.d2[0] + n, 0, max_bytes - n);
+        if (11025 == file.format ().sampleRate ())
+          {
+            short sample_size = file.format ().sampleSize ();
+            wav12_ (dec_data.d2, dec_data.d2, &frames_read, &sample_size);
+          }
+        dec_data.params.kin = frames_read;
+        dec_data.params.newdat = 1;
       }));
 }
 
@@ -1824,8 +1826,7 @@ void MainWindow::on_actionDecode_remaining_files_in_directory_triggered()
 void MainWindow::diskDat()                                   //diskDat()
 {
   int k;
-//  int kstep=m_nsps/2;
-  int kstep=3456;
+  int kstep=m_FFTSize;
   m_diskData=true;
 
   float db=m_config.degrade();
@@ -3671,6 +3672,8 @@ void MainWindow::on_actionJT9_triggered()
   if(m_modeTx!="JT9") on_pbTxMode_clicked();
   statusChanged();
   m_nsps=6912;
+  m_FFTSize = m_nsps / 2;
+  Q_EMIT FFTSize (m_FFTSize);
   QString t1=(QString)QChar(short(m_nSubMode+65));
   m_hsymStop=173;
   if(m_config.decode_at_52s()) m_hsymStop=179;
@@ -3729,6 +3732,8 @@ void MainWindow::on_actionJTMSK_triggered()
   switch_mode (Modes::JTMSK);
   statusChanged();
   m_nsps=6;
+  m_FFTSize = 7 * 512;
+  Q_EMIT FFTSize (m_FFTSize);
   mode_label->setStyleSheet("QLabel{background-color: #ff6666}");
   mode_label->setText(m_mode);
   m_toneSpacing=0.0;
@@ -3770,6 +3775,8 @@ void MainWindow::on_actionMSK144_triggered()
   switch_mode (Modes::MSK144);
   statusChanged();
   m_nsps=6;
+  m_FFTSize = 7 * 512;
+  Q_EMIT FFTSize (m_FFTSize);
   mode_label->setStyleSheet("QLabel{background-color: #ff6666}");
   mode_label->setText(m_mode);
   m_toneSpacing=0.0;
@@ -3810,6 +3817,8 @@ void MainWindow::on_actionJT65_triggered()
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);   // TODO - not thread safe
   m_nsps=6912;                   //For symspec only
+  m_FFTSize = m_nsps / 2;
+  Q_EMIT FFTSize (m_FFTSize);
   m_hsymStop=173;
   if(m_config.decode_at_52s()) m_hsymStop=179;
   m_toneSpacing=0.0;
@@ -3860,6 +3869,8 @@ void MainWindow::on_actionJT9_JT65_triggered()
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;
+  m_FFTSize = m_nsps / 2;
+  Q_EMIT FFTSize (m_FFTSize);
   m_hsymStop=173;
   if(m_config.decode_at_52s()) m_hsymStop=179;
   m_toneSpacing=0.0;
@@ -3894,6 +3905,8 @@ void MainWindow::on_actionJT4_triggered()
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;                   //For symspec only
+  m_FFTSize = m_nsps / 2;
+  Q_EMIT FFTSize (m_FFTSize);
   m_hsymStop=179;
   m_toneSpacing=0.0;
   ui->actionJT4->setChecked(true);
@@ -3937,6 +3950,8 @@ void MainWindow::on_actionWSPR_2_triggered()
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;                   //For symspec only
+  m_FFTSize = m_nsps / 2;
+  Q_EMIT FFTSize (m_FFTSize);
   m_hsymStop=396;
   m_toneSpacing=12000.0/8192.0;
   mode_label->setStyleSheet("QLabel{background-color: #ff66ff}");
@@ -3970,6 +3985,8 @@ void MainWindow::on_actionEcho_triggered()
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;                   //For symspec only
+  m_FFTSize = m_nsps / 2;
+  Q_EMIT FFTSize (m_FFTSize);
   m_hsymStop=10;
   m_toneSpacing=1.0;
   switch_mode(Modes::Echo);
@@ -4001,6 +4018,8 @@ void MainWindow::on_actionISCAT_triggered()
   m_detector->setPeriod(m_TRperiod);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_nsps=6912;                   //For symspec only
+  m_FFTSize = m_nsps / 2;
+  Q_EMIT FFTSize (m_FFTSize);
   m_hsymStop=103;
   m_toneSpacing=11025.0/256.0;
   WSPR_config(false);
@@ -4699,6 +4718,8 @@ void MainWindow::transmit (double snr)
 
   if (m_modeTx == "JTMSK" or m_modeTx == "MSK144") {
     m_nsps=6;
+    m_FFTSize = 7 * 512;
+    Q_EMIT FFTSize (m_FFTSize);
     m_toneSpacing=6000.0/m_nsps;
     double f0=1000.0;
     int nsym;

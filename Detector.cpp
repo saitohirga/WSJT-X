@@ -11,20 +11,24 @@ extern "C" {
 }
 
 Detector::Detector (unsigned frameRate, unsigned periodLengthInSeconds,
-                    unsigned samplesPerFFT, unsigned downSampleFactor,
-                    QObject * parent)
+                    unsigned downSampleFactor, QObject * parent)
   : AudioDevice (parent)
   , m_frameRate (frameRate)
   , m_period (periodLengthInSeconds)
   , m_downSampleFactor (downSampleFactor)
-  , m_samplesPerFFT (samplesPerFFT)
+  , m_samplesPerFFT {max_buffer_size}
   , m_ns (999)
   , m_buffer ((downSampleFactor > 1) ?
-              new short [samplesPerFFT * downSampleFactor] : 0)
+              new short [max_buffer_size * downSampleFactor] : nullptr)
   , m_bufferPos (0)
 {
   (void)m_frameRate;            // quell compiler warning
   clear ();
+}
+
+void Detector::setBlockSize (unsigned n)
+{
+  m_samplesPerFFT = n;
 }
 
 bool Detector::reset ()
@@ -83,7 +87,7 @@ qint64 Detector::writeData (char const * data, qint64 maxSize)
         if(m_bufferPos==m_samplesPerFFT*m_downSampleFactor) {
           qint32 framesToProcess (m_samplesPerFFT * m_downSampleFactor);
           qint32 framesAfterDownSample (m_samplesPerFFT);
-          if(framesToProcess==13824 and dec_data.params.kin>=0 and
+          if(m_downSampleFactor > 1 && dec_data.params.kin>=0 &&
              dec_data.params.kin < (NTMAX*12000 - framesAfterDownSample)) {
             fil4_(&m_buffer[0], &framesToProcess, &dec_data.d2[dec_data.params.kin],
                   &framesAfterDownSample);
