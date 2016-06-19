@@ -418,6 +418,8 @@ private:
   void delete_selected_macros (QModelIndexList);
   Q_SLOT void on_save_path_select_push_button_clicked (bool);
   Q_SLOT void on_azel_path_select_push_button_clicked (bool);
+  Q_SLOT void on_calibration_intercept_spin_box_valueChanged (double);
+  Q_SLOT void on_calibration_slope_ppm_spin_box_valueChanged (double);
   Q_SLOT void delete_frequencies ();
   Q_SLOT void on_reset_frequencies_push_button_clicked (bool);
   Q_SLOT void insert_frequency ();
@@ -2179,6 +2181,16 @@ void Configuration::impl::on_azel_path_select_push_button_clicked (bool /* check
       ui_->azel_path_display_label->setText(fd.selectedFiles().at(0));
     }
   }
+}
+
+void Configuration::impl::on_calibration_intercept_spin_box_valueChanged (double)
+{
+  rig_active_ = false;          // force reset
+}
+
+void Configuration::impl::on_calibration_slope_ppm_spin_box_valueChanged (double)
+{
+  rig_active_ = false;          // force reset
 }
 
 bool Configuration::impl::have_rig ()
