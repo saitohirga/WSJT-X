@@ -9,6 +9,8 @@ subroutine sync9(ss,nzhsym,lag1,lag2,ia,ib,ccfred,red2,ipkbest)
   real smo(-5:25)
   real sq(NSMAX)
   real red2(NSMAX)
+  character*27 cr
+  data cr/'(C) 2016, Joe Taylor - K1JT'/
   include 'jt9sync.f90'
 
   ipk=0

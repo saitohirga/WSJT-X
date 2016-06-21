@@ -570,6 +570,8 @@ void usage(void)
 //***************************************************************************
 int main(int argc, char *argv[])
 {
+    char cr[] = "(C) 2016, Steven Franke - K9AN";
+    (void)cr;
     extern char *optarg;
     extern int optind;
     int i,j,k;
