@@ -18,7 +18,8 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   logical single_decode,first
   character decoded*22,decoded_best*22
   character mycall*12,hiscall*12,hisgrid*6
-  data first/.true./,jjjmin/1000/,jjjmax/-1000/
+  character*27 cr
+  data first/.true./,jjjmin/1000/,jjjmax/-1000/,cr/'(C) 2016, Joe Taylor - K1JT'/
   save
 
 ! Mix sync tone to baseband, low-pass filter, downsample to 1378.125 Hz
