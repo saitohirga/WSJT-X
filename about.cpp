@@ -28,7 +28,9 @@ CAboutDlg::CAboutDlg(QWidget *parent) :
                          "VK3ACF, VK4BDJ, W4TI, W4TV, and W9MDB.<br><br>"
                          "WSJT-X is licensed under the terms of Version 3 <br>"
                          "of the GNU General Public License (GPL) <br>"
-                         "https://www.gnu.org/licenses/gpl-3.0.txt");
+                         "<a href=\"https://www.gnu.org/licenses/gpl-3.0.txt\">"
+                         "<img src=\":/gpl-v3-logo.svg\" height=\"80\" /><br />"
+                         "https://www.gnu.org/licenses/gpl-3.0.txt</a>");\
 }
 
 CAboutDlg::~CAboutDlg()

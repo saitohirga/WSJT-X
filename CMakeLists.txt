@@ -580,6 +580,7 @@ set (TOP_LEVEL_RESOURCES
   mouse_commands.txt
   prefixes.txt
   cty.dat
+  contrib/gpl-v3-logo.svg
   )
 
 set (PALETTE_FILES
@@ -1317,6 +1318,7 @@ if (NOT is_debug_build)
 	${QT_PLUGINS_DIR}/platforms
 	${QT_PLUGINS_DIR}/audio
 	${QT_PLUGINS_DIR}/accessible
+	${QT_PLUGINS_DIR}/imageformats
 	DESTINATION ${WSJT_PLUGIN_DESTINATION}
 	CONFIGURATIONS Release MinSizeRel
 	#COMPONENT runtime
@@ -1364,6 +1366,7 @@ if (NOT is_debug_build)
 	${QT_PLUGINS_DIR}/platforms
 	${QT_PLUGINS_DIR}/accessible
 	${QT_PLUGINS_DIR}/audio
+	${QT_PLUGINS_DIR}/imageformats
 	DESTINATION ${WSJT_PLUGIN_DESTINATION}
 	CONFIGURATIONS Release MinSizeRel
 	#COMPONENT runtime
