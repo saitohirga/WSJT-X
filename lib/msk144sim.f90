@@ -3,7 +3,7 @@ program msk144sim
   use wavhdr
   parameter (NMAX=15*12000)
   real pings(0:NMAX-1)
-  real waveform(0:864-1)
+  real waveform(0:NMAX-1)
   character arg*8,msg*22,msgsent*22,fname*40
   character*512 pchk_file
   character*3 rpt(0:7)
@@ -12,8 +12,6 @@ program msk144sim
   type(hdr) h                          !Header for .wav file
   integer*2 iwave(0:NMAX-1)
   integer itone(144)                   !Message bits
-  integer b11(11)                      !Barker-11 code
-  data b11/1,1,1,0,0,0,1,0,0,1,0/
   data rpt /'26 ','27 ','28 ','R26','R27','R28','RRR','73 '/
 
   pchk_file='./peg-128-80-reg3.pchk'
@@ -47,19 +45,23 @@ program msk144sim
   dphi1=twopi*(freq+500)/12000.0
   phi=0.0
   indx=0
-  do i=1,144
-    if( itone(i) .eq. 0 ) then
-      dphi=dphi0
-    else
-      dphi=dphi1
-    endif
-    do j=1,6  
-      waveform(indx)=cos(phi);
-      indx=indx+1
-      phi=mod(phi+dphi,twopi)
-    enddo 
-  enddo
- 
+  nreps=NMAX/(144*6)
+  do jrep=1,nreps
+    do i=1,144
+      jj=mod(i,864)
+      if( itone(i) .eq. 0 ) then
+        dphi=dphi0
+      else
+        dphi=dphi1
+      endif
+      do j=1,6  
+        waveform(indx)=cos(phi);
+        indx=indx+1
+        phi=mod(phi+dphi,twopi)
+      enddo 
+    enddo
+  enddo 
+
   if(itype.lt.1 .or. itype.gt.7) then
      print*,'Illegal message'
      go to 999
@@ -73,12 +75,12 @@ program msk144sim
 1002 format('000000_',i6.6)
      open(10,file=fname(1:13)//'.wav',access='stream',status='unknown')
 
+     wave=0.0
+     iwave=0
      fac=sqrt(6000.0/2500.0)
-     j=-1
      do i=0,NMAX-1
-        j=mod(j+1,864)
         xx=gran()
-        wave(i)=pings(i)*waveform(j) + fac*xx
+        wave(i)=pings(i)*waveform(i) + fac*xx
         iwave(i)=30.0*wave(i)
      enddo
 
