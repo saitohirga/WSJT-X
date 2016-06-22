@@ -481,6 +481,16 @@ set (ldpc_CSRCS
   lib/ldpc/distrib.c
   )
 
+set (qra_CSRCS
+  lib/qra/qra65/qra65.c
+  lib/qra/qra65/qra65_subs.c
+  lib/qra/qracodes/npfwht.c
+  lib/qra/qracodes/pdmath.c 
+  lib/qra/qracodes/qra12_63_64_irr_b.c
+  lib/qra/qracodes/qra13_64_64_irr_e.c
+  lib/qra/qracodes/qracodes.c
+  )
+
 set (wsjt_CSRCS
   ${ka9q_CSRCS}
   lib/ftrsd/ftrsd2.c
@@ -497,6 +507,7 @@ set (wsjt_CSRCS
   lib/wisdom.c
   lib/wrapkarn.c
   ${ldpc_CSRCS}
+  ${qra_CSRCS}
   )
 
 set (wsjt_qt_UISRCS
@@ -1004,11 +1015,17 @@ target_link_libraries (jt4sim wsjt_fort wsjt_cxx)
 add_executable (jt65sim lib/jt65sim.f90 wsjtx.rc)
 target_link_libraries (jt65sim wsjt_fort wsjt_cxx)
 
+add_executable (qra65sim lib/qra/qra65/qra65sim.f90 wsjtx.rc)
+target_link_libraries (qra65sim wsjt_fort wsjt_cxx)
+
 add_executable (jt9sim lib/jt9sim.f90 wsjtx.rc)
 target_link_libraries (jt9sim wsjt_fort wsjt_cxx)
 
 add_executable (jt65code lib/jt65code.f90 wsjtx.rc)
 target_link_libraries (jt65code wsjt_fort wsjt_cxx)
+
+add_executable (qra65code lib/qra65code.f90 wsjtx.rc)
+target_link_libraries (qra65code wsjt_fort wsjt_cxx)
 
 add_executable (jt9code lib/jt9code.f90 wsjtx.rc)
 target_link_libraries (jt9code wsjt_fort wsjt_cxx)
@@ -1174,7 +1191,7 @@ install (TARGETS udp_daemon message_aggregator
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
 
-install (TARGETS jt9 jt65code jt9code jt4code wsprd
+install (TARGETS jt9 jt65code qra65code jt9code jt4code wsprd
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
