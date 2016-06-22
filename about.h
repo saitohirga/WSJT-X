@@ -9,10 +9,9 @@ namespace Ui {
   class CAboutDlg;
 }
 
-class CAboutDlg : public QDialog
+class CAboutDlg
+  : public QDialog
 {
-  Q_OBJECT;
-
 public:
 	explicit CAboutDlg(QWidget *parent = nullptr);
   ~CAboutDlg ();
