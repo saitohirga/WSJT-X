@@ -463,7 +463,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->actionISCAT->setActionGroup(modeGroup);
   ui->actionJTMSK->setActionGroup(modeGroup);
   ui->actionMSK144->setActionGroup(modeGroup);
-  ui->actionQRA->setActionGroup(modeGroup);
+  ui->actionQRA65->setActionGroup(modeGroup);
 
   QActionGroup* saveGroup = new QActionGroup(this);
   ui->actionNone->setActionGroup(saveGroup);
@@ -737,7 +737,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   bool b=m_config.enable_VHF_features() and (m_mode=="JT4" or m_mode=="JT65" or
          m_mode=="ISCAT" or m_mode=="JT9" or m_mode=="JTMSK" or m_mode=="MSK144" or
-         m_mode=="QRA");
+         m_mode=="QRA65");
   VHF_controls_visible(b);
 
   ui->txFirstCheckBox->setChecked(m_txFirst);
@@ -765,7 +765,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_mode=="ISCAT") on_actionISCAT_triggered();
   if(m_mode=="JTMSK") on_actionJTMSK_triggered();
   if(m_mode=="MSK144") on_actionMSK144_triggered();
-  if(m_mode=="QRA") on_actionQRA_triggered();
+  if(m_mode=="QRA65") on_actionQRA65_triggered();
   if(m_mode=="Echo") monitor(false); //Don't auto-start Monitor in Echo mode.
 
   ui->sbTR->setValue(m_TRindex);
@@ -820,7 +820,15 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
 
   statusChanged();
-
+//###
+  {
+    QString t=m_config.my_callsign();
+    if(t!="IV3NWV" and t!="K1JT" and t!="K9AN" and t!="G4WJS" and t!="IW0HDV") {
+      ui->actionQRA65->setChecked(false);
+      ui->actionQRA65->setEnabled(false);
+    }
+  }
+//###
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
 }
@@ -1306,7 +1314,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       displayDialFrequency ();
       bool b=m_config.enable_VHF_features() and (m_mode=="JT4" or m_mode=="JT65" or
                               m_mode=="ISCAT" or m_mode=="JT9" or m_mode=="JTMSK" or
-                              m_mode=="MSK144" or m_mode=="QRA");
+                              m_mode=="MSK144" or m_mode=="QRA65");
       VHF_features_enabled(b);
       VHF_controls_visible(b);
     }
@@ -1981,7 +1989,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.ntxmode=9;
   if(m_modeTx=="JT65") dec_data.params.ntxmode=65;
   dec_data.params.nmode=9;
-  if(m_mode=="JT65" or m_mode=="QRA") dec_data.params.nmode=65;
+  if(m_mode=="JT65" or m_mode=="QRA65") dec_data.params.nmode=65;
   if(m_mode=="JT9+JT65") dec_data.params.nmode=9+65;  // = 74
   if(m_mode=="JT4") {
     dec_data.params.nmode=4;
@@ -2172,7 +2180,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
     QByteArray t=proc_jt9.readLine();
     bool bAvgMsg=false;
     int navg=0;
-    if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA") {
+    if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA65") {
       int n=t.indexOf("f");
       if(n<0) n=t.indexOf("d");
       if(n>0) {
@@ -2284,7 +2292,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
       }
 
-      if((m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA") and m_msgAvgWidget!=NULL) {
+      if((m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA65") and m_msgAvgWidget!=NULL) {
         if(m_msgAvgWidget->isVisible()) {
           QFile f(m_config.temp_dir ().absoluteFilePath ("avemsg.txt"));
           if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -2383,7 +2391,7 @@ void MainWindow::guiUpdate()
   txDuration=0.0;
   if(m_modeTx=="JT4")  txDuration=1.0 + 207.0*2520/11025.0;   // JT4
   if(m_modeTx=="JT9")  txDuration=1.0 + 85.0*m_nsps/12000.0;  // JT9
-  if(m_modeTx=="JT65" or m_mode=="QRA") txDuration=1.0 + 126*4096/11025.0;  // JT65 or QRA
+  if(m_modeTx=="JT65" or m_mode=="QRA65") txDuration=1.0 + 126*4096/11025.0;  // JT65 or QRA65
   if(m_mode=="WSPR-2") txDuration=2.0 + 162*8192/12000.0;     // WSPR
   if(m_mode=="ISCAT" or m_mode=="JTMSK" or m_mode=="MSK144" or m_bFast9) {
     txDuration=m_TRperiod-0.25; // ISCAT, JT9-fast, JTMSK, MSK144
@@ -2563,7 +2571,7 @@ void MainWindow::guiUpdate()
                                     &m_currentMessageType, len1, len1);
 //###
 // To be changed!
-        if(m_modeTx=="QRA") gen65_(message, &ichk, msgsent, const_cast<int *> (itone),
+        if(m_modeTx=="QRA65") gen65_(message, &ichk, msgsent, const_cast<int *> (itone),
                                     &m_currentMessageType, len1, len1);
 //###
         if(m_mode.startsWith ("WSPR")) genwspr_(message, msgsent, const_cast<int *> (itone),
@@ -3075,7 +3083,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       if (ui->TxFreqSpinBox->isEnabled ()) {
         if(!m_bFastMode) ui->TxFreqSpinBox->setValue(frequency);
       } else if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
-                m_mode != "QRA") {
+                m_mode != "QRA65") {
         return;
       }
     }
@@ -3785,17 +3793,18 @@ void MainWindow::on_actionMSK144_triggered()
   ui->actionMSK144->setChecked(true);
 }
 
-void MainWindow::on_actionQRA_triggered()
+void MainWindow::on_actionQRA65_triggered()
 {
   on_actionJT65_triggered();
-  m_mode="QRA";
-  m_modeTx="QRA";
-  ui->actionQRA->setChecked(true);
-  switch_mode (Modes::QRA);
+  m_mode="QRA65";
+  m_modeTx="QRA65";
+  ui->actionQRA65->setChecked(true);
+  switch_mode (Modes::QRA65);
   statusChanged();
   mode_label->setStyleSheet("QLabel{background-color: #99ff33}");
   QString t1=(QString)QChar(short(m_nSubMode+65));
-  mode_label->setText(m_mode + " " + t1);
+//  mode_label->setText(m_mode + " " + t1);
+  mode_label->setText("QRA01 " + t1);
 }
 
 
@@ -4689,11 +4698,11 @@ void MainWindow::transmit (double snr)
            true, false, snr, m_TRperiod);
   }
 
-  if (m_modeTx == "QRA") {
+  if (m_modeTx == "QRA65") {
     if(m_nSubMode==0) toneSpacing=11025.0/4096.0;
     if(m_nSubMode==1) toneSpacing=2*11025.0/4096.0;
     if(m_nSubMode==2) toneSpacing=4*11025.0/4096.0;
-    Q_EMIT sendMessage (NUM_QRA_SYMBOLS,
+    Q_EMIT sendMessage (NUM_QRA65_SYMBOLS,
            4096.0*12000.0/11025.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
            true, false, snr, m_TRperiod);

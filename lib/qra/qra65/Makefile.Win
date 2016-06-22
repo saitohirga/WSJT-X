@@ -1,3 +1,4 @@
+FC = gfortran
 CC = gcc
 CFLAGS = -O2 -Wall -I. -D_WIN32
 
@@ -13,14 +14,17 @@ CFLAGS = -O2 -Wall -I. -D_WIN32
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:	qra65sim.exe
+all:	qra65.exe
 
 OBJS1 = main.o qra65.o
+qra65.exe: $(OBJS1)
+	${CC} -o qra65.exe $(OBJS1) ../qracodes/libqra65.a -lm
 
-qra65sim.exe: $(OBJS1) 
-	${CC} -o qra65sim.exe $(OBJS1) ../qracodes/libqra65.a -lm
+OBJS2 = qra65sim.o options.o wavhdr.o 
+qra65sim.exe: $(OBJS2)
+	${FC} -o qra65sim.exe $(OBJS2) ../qracodes/libqra65.a -lm
 
 .PHONY : clean
 
 clean:
-	$(RM) *.o qra65sim.exe
+	$(RM) *.o qra65.exe qra65sim.exe
