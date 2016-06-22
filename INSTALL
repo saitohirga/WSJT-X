@@ -160,7 +160,7 @@ $ make install
 
 NOTE: <path-to-Qt-MinGQ-tools>  should be substituted with  the actual
 path   to  your   Qt   bundled  tools   e.g  on   my   system  it   is
-C:\Tools\Qt\Tools\mingw48_32\bin
+C:\Tools\Qt\Tools\mingw530_32\bin
 
 NOTE: <path-to-libusb-1.0> should be  substituted with the actual path
 to  your libusb-1.0  installation directory  e.g. on  my system  it is
@@ -238,20 +238,15 @@ $ git checkout integration
 The integration  branch is my system  testing branch which has  all my
 latest published changes.
 
-You need  to make one  small change  to the sources  to build on  OS X
-using the MacPorts tools, here is a sed command to make the change:
-
-$ sed -i.orig '/libtoolize/s/lib/glib/' autogen.sh
-
 To build:
 
 $ cd ~/hamlib-prefix/build
-   ../src/autogen.sh \
+$ ../src/autogen.sh \
    --enable-static \
    --disable-shared \
    --disable-winradio \
    --prefix=$HOME/hamlib-prefix \
-   CFLAGS="-I/opt/local/include" \
+   CFLAGS="-mmacosx-version-min=10.7 -I/opt/local/include" \
    LIBUSB_LIBS="-L/opt/local/lib -lusb-1.0"
 $ make
 $ make install-strip
@@ -354,7 +349,7 @@ configure:
 $ cd ~/wsjtx-prefix/build
 $ FC=gfortran-mp-5 \
    cmake \
-   -D CMAKE_PREFIX_PATH="~/Qt/5.6/clang_64;~/hamlib-prefix;/opt/local" \
+   -D CMAKE_PREFIX_PATH="~/Qt/5.7/clang_64;~/hamlib-prefix;/opt/local" \
    -D CMAKE_INSTALL_PREFIX=~/wsjtx-prefix \
    -D CMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk \
    ~/wsjtx-prefix/src
