@@ -67,6 +67,7 @@ program msk144sim
 
   call makepings(pings,NMAX,width,sig)
 
+!  call sgran()
   do ifile=1,nfiles                  !Loop over requested number of files
      write(fname,1002) ifile         !Output filename
 1002 format('000000_',i6.6)

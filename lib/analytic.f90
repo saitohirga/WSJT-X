@@ -13,7 +13,7 @@ subroutine analytic(d,npts,nfft,c)
   nh=nfft/2
   if(nfft.ne.nfft0) then
      t=1.0/2000.0
-     beta=0.6
+     beta=0.1
      pi=4.0*atan(1.0)
      do i=1,nh+1
         ff=(i-1)*df
@@ -23,7 +23,7 @@ subroutine analytic(d,npts,nfft,c)
         if(abs(f).gt.(1-beta)/(2*t) .and. abs(f).le.(1+beta)/(2*t)) then
            h(i)=0.5*(1+cos((pi*t/beta )*(abs(f)-(1-beta)/(2*t))))
         endif
-        h(i)=sqrt(h(i))
+!        h(i)=sqrt(h(i))
      enddo
      nfft0=nfft
   endif
