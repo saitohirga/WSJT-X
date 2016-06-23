@@ -14,12 +14,12 @@
 //    main.c		 - this file
 //    qra65.c/.h     - qra65 mode encode/decoding functions
 // 
-//    ..\qracodes\normrnd.c/.h   - random gaussian number generator
-//    ..\qracodes\npfwht.c/.h    - Fast Walsh-Hadamard Transforms
-//    ..\qracodes\pdmath.c/.h    - Elementary math on probability distributions
-//    ..\qracodes\qra12_63_64_irr_b.c/.h - Tables for a QRA(12,63) irregular RA code over GF(64)
-//    ..\qracodes\qra13_64_64_irr_e.c/.h - Tables for a QRA(13,64) irregular RA code "     "
-//    ..\qracodes\qracodes.c/.h  - QRA codes encoding/decoding functions
+//    ../qracodes/normrnd.{c,h}   - random gaussian number generator
+//    ../qracodes/npfwht.{c,h}    - Fast Walsh-Hadamard Transforms
+//    ../qracodes/pdmath.{c,h}    - Elementary math on probability distributions
+//    ../qracodes/qra12_63_64_irr_b.{c,h} - Tables for a QRA(12,63) irregular RA code over GF(64)
+//    ../qracodes/qra13_64_64_irr_e.{c,h} - Tables for a QRA(13,64) irregular RA code "     "
+//    ../qracodes/qracodes.{c,h}  - QRA codes encoding/decoding functions
 //
 // -------------------------------------------------------------------------------
 //
@@ -39,7 +39,7 @@
 // -----------------------------------------------------------------------------
 
 // The code used by the QRA65 mode is the code:
-// QRA13_64_64_IRR_E: K=13 N=64 Q=64 irregular QRA code (defined in qra13_64_64_irr_e.h /.c)
+// QRA13_64_64_IRR_E: K=13 N=64 Q=64 irregular QRA code (defined in qra13_64_64_irr_e.{h,c})
 // This code has been designed to include a CRC as the 13th information symbol
 // and improve the code UER (Undetected Error Rate).
 // The CRC symbol is not sent along the channel (the codes are punctured) and the 
@@ -76,7 +76,7 @@ unsigned GetTickCount(void) {
 #include <stdio.h>
 
 #include "qra65.h"
-#include "..\qracodes\normrnd.h"		   // gaussian numbers generator
+#include "../qracodes/normrnd.h"		   // gaussian numbers generator
 
 // -----------------------------------------------------------------------------------
 
