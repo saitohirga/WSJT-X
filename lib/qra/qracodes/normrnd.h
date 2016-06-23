@@ -37,9 +37,11 @@ void normrnd_s(float *dst, int nitems, float mean, float stdev);
 // generate a random array of numbers with a gaussian distribution of given mean and stdev
 // use MS rand_s(...) function
 
+/* not used
 void normrnd(float *dst, int nitems, float mean, float stdev);
 // generate a random array of numbers with a gaussian distribution of given mean and stdev
 // use MS rand() function
+*/
 
 #ifdef __cplusplus
 }

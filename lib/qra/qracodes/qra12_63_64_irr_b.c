@@ -52,7 +52,7 @@ static const int qra_acc_input_idx[qra_NC+1] = {
 };
 
 // table of the systematic symbols weight logarithms over GF(M)
-static const unsigned int qra_acc_input_wlog[qra_NC+1] = {
+static const  int qra_acc_input_wlog[qra_NC+1] = {
  39,   0,  34,  16,  25,   0,  34,  48,  19,  13, 
  29,  56,   0,   5,  39,  42,  31,   0,  10,   0, 
  57,  62,  33,  43,   0,  14,  22,  48,  28,  20, 
@@ -73,7 +73,7 @@ static const int qra_log[qra_M] = {
 };
 
 // table of GF(M) elements given their logarithm
-static const unsigned int qra_exp[qra_M-1] = {
+static const  int qra_exp[qra_M-1] = {
   1,   2,   4,   8,  16,  32,   3,   6,  12,  24, 
  48,  35,   5,  10,  20,  40,  19,  38,  15,  30, 
  60,  59,  53,  41,  17,  34,   7,  14,  28,  56, 
@@ -84,7 +84,7 @@ static const unsigned int qra_exp[qra_M-1] = {
 };
 
 // table of the messages weight logarithms over GF(M)
-static const unsigned int qra_msgw[qra_NMSG] = {
+static const  int qra_msgw[qra_NMSG] = {
   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, 
   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, 
   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, 
@@ -110,7 +110,7 @@ static const unsigned int qra_msgw[qra_NMSG] = {
 };
 
 // table of the degrees of the variable nodes
-static const unsigned int qra_vdeg[qra_V] = {
+static const  int qra_vdeg[qra_V] = {
   4,   4,   4,   4,   5,   5,   5,   6,   6,   6, 
   7,   8,   3,   3,   3,   3,   3,   3,   3,   3, 
   3,   3,   3,   3,   3,   3,   3,   3,   3,   3, 
@@ -121,7 +121,7 @@ static const unsigned int qra_vdeg[qra_V] = {
 };
 
 // table of the degrees of the factor nodes
-static const unsigned int qra_cdeg[qra_C] = {
+static const  int qra_cdeg[qra_C] = {
   1,   1,   1,   1,   1,   1,   1,   1,   1,   1, 
   1,   1,   1,   1,   1,   1,   1,   1,   1,   1, 
   1,   1,   1,   1,   1,   1,   1,   1,   1,   1, 
@@ -237,7 +237,7 @@ static const int qra_c2vmidx[qra_C*qra_MAXCDEG] = {
 };
 
 // permutation matrix to compute Prob(x*alfa^logw)
-static const unsigned int qra_pmat[qra_M*qra_M] = {
+static const  int qra_pmat[qra_M*qra_M] = {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15, 
  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,  31, 
  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47, 

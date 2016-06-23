@@ -331,14 +331,14 @@ void pd_memset(float *dst, const float *src, int ndim, int nitems)
 		}
 }
 
-void  pd_fwdperm(float *dst, float *src, const unsigned int *perm, int ndim)
+void  pd_fwdperm(float *dst, float *src, const  int *perm, int ndim)
 {
 	// TODO: non-loop implementation
 	while (ndim--) 
 		dst[ndim] = src[perm[ndim]];
 }
 
-void  pd_bwdperm(float *dst, float *src, const unsigned int *perm, int ndim)
+void  pd_bwdperm(float *dst, float *src, const  int *perm, int ndim)
 {
 	// TODO: non-loop implementation
 	while (ndim--) 

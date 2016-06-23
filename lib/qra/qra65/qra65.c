@@ -152,7 +152,7 @@ void qra65_encode(qra65codec *pcodec, int *y, const int *x)
 
 int qra65_decode(qra65codec *pcodec, int *x, const float *rxen)
 {
-	uint k;
+	int k;
 	float *srctmp, *dsttmp;
 	float ix[QRA65_NC*QRA65_M];		// (depunctured) intrisic information to the decoder
 	int rc;
@@ -276,7 +276,7 @@ static void ix_mask(float *dst, const float *src, const int *mask, const int *x)
 {
 	// mask intrinsic information (channel observations) with a priori knowledge
 	
-	uint k,kk, smask;
+	int k,kk, smask;
 	float *row;
 
 	memcpy(dst,src,(QRA65_NC*QRA65_M)*sizeof(float));

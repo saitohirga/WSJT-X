@@ -74,6 +74,7 @@ unsigned GetTickCount(void) {
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "qra65.h"
 #include "../qracodes/normrnd.h"		   // gaussian numbers generator
@@ -209,7 +210,7 @@ int test_proc_1(int channel_type, float EbNodB, int mode)
 
 	int x[QRA65_K], xdec[QRA65_K];
 	int y[QRA65_N];
-	float *r;
+	float *rx;
 	int rc;
 
 	// each simulated station must use its own codec
@@ -222,40 +223,40 @@ int test_proc_1(int channel_type, float EbNodB, int mode)
 	printf("IV3NWV tx: CQ IV3NWV\n");
 	encodemsg_jt65(x,CALL_CQ,CALL_IV3NWV,GRID_BLANK);
 	qra65_encode(codec_iv3nwv, y, x);
-	r = mfskchannel(y,channel_type,EbNodB);
+	rx = mfskchannel(y,channel_type,EbNodB);
 
 	// K1JT attempts to decode
-	rc = qra65_decode(codec_k1jt, xdec,r);
+	rc = qra65_decode(codec_k1jt, xdec,rx);
 	if (rc>=0) { // decoded
 		printf("K1JT   rx: received with apcode=%d %s\n",rc, decode_type[rc]);
 		// K1JT replies to IV3NWV (with no grid)
 		printf("K1JT   tx: IV3NWV K1JT\n");
 		encodemsg_jt65(x,CALL_IV3NWV,CALL_K1JT, GRID_BLANK);
 		qra65_encode(codec_k1jt, y, x);
-		r = mfskchannel(y,channel_type,EbNodB);
+		rx = mfskchannel(y,channel_type,EbNodB);
 
 		// IV3NWV attempts to decode
-		rc = qra65_decode(codec_iv3nwv, xdec,r);
+		rc = qra65_decode(codec_iv3nwv, xdec,rx);
 		if (rc>=0) { // decoded
 			printf("IV3NWV rx: received with apcode=%d %s\n",rc, decode_type[rc]);
 			// IV3NWV replies to K1JT with a 73
 			printf("IV3NWV tx: K1JT   IV3NWV 73\n");
 			encodemsg_jt65(x,CALL_K1JT,CALL_IV3NWV, GRID_73);
 			qra65_encode(codec_iv3nwv, y, x);
-			r = mfskchannel(y,channel_type,EbNodB);
+			rx = mfskchannel(y,channel_type,EbNodB);
 
 			// K1JT attempts to decode
-			rc = qra65_decode(codec_k1jt, xdec,r);
+			rc = qra65_decode(codec_k1jt, xdec,rx);
 			if (rc>=0) { // decoded
 				printf("K1JT   rx: received with apcode=%d %s\n",rc, decode_type[rc]);
 				// K1JT replies to IV3NWV with a 73
 				printf("K1JT   tx: IV3NWV K1JT   73\n");
 				encodemsg_jt65(x,CALL_IV3NWV,CALL_K1JT, GRID_73);
 				qra65_encode(codec_k1jt, y, x);
-				r = mfskchannel(y,channel_type,EbNodB);
+				rx = mfskchannel(y,channel_type,EbNodB);
 
 				// IV3NWV attempts to decode
-				rc = qra65_decode(codec_iv3nwv, xdec,r);
+				rc = qra65_decode(codec_iv3nwv, xdec,rx);
 				if (rc>=0) { // decoded
 					printf("IV3NWV rx: received with apcode=%d %s\n",rc, decode_type[rc]);
 					return 0;
@@ -292,7 +293,7 @@ int test_proc_2(int channel_type, float EbNodB, int mode)
 
 	int x[QRA65_K], xdec[QRA65_K];
 	int y[QRA65_N];
-	float *r;
+	float *rx;
 	int rc,k;
 
 	int ndecok[6] = { 0, 0, 0, 0, 0, 0};
@@ -315,8 +316,8 @@ int test_proc_2(int channel_type, float EbNodB, int mode)
 
 	for (k=0;k<ntx;k++) {
 		printf(".");
-		r = mfskchannel(y,channel_type,EbNodB);
-		rc = qra65_decode(codec_k1jt, xdec,r);
+		rx = mfskchannel(y,channel_type,EbNodB);
+		rc = qra65_decode(codec_k1jt, xdec,rx);
 		if (rc>=0) 
 			ndecok[rc]++;
 		}
@@ -369,7 +370,7 @@ int main(int argc, char* argv[])
 			}
 		else
 		if (strncmp(*argv,"-a",2)==0) {
-			mode = (unsigned int)atoi((*argv)+2);
+			mode = ( int)atoi((*argv)+2);
 			if (mode>1) {
 				printf("Invalid decoding mode\n");
 				syntax();
@@ -387,7 +388,7 @@ int main(int argc, char* argv[])
 			}
 		else
 		if (strncmp(*argv,"-t",2)==0) {
-			testtype = (unsigned int)atoi((*argv)+2);
+			testtype = ( int)atoi((*argv)+2);
 			if (testtype>1) {
 				printf("Invalid test type\n");
 				syntax();
@@ -396,7 +397,7 @@ int main(int argc, char* argv[])
 			}
 		else
 		if (strncmp(*argv,"-c",2)==0) {
-			channel = (unsigned int)atoi((*argv)+2);
+			channel = ( int)atoi((*argv)+2);
 			if (channel>CHANNEL_RAYLEIGH) {
 				printf("Invalid channel type\n");
 				syntax();
@@ -411,6 +412,10 @@ int main(int argc, char* argv[])
 		}
 
 	EbNodB = SNRdB+29.1f;
+
+#if defined(__linux__) || defined(__unix__)
+	srand48(GetTickCount());
+#endif
 
 	if (testtype==0) {
 		for (k=0;k<nqso;k++) {
