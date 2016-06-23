@@ -2,7 +2,8 @@ program QRA65code
 
 ! Provides examples of message packing, bit and symbol ordering,
 ! QRA (63,12) encoding, and other necessary details of the QRA65
-! protocol.
+! protocol.  Also permits simple simulations to measure performance
+! on an AWGN channel with secure time and frequency synchronization.
 
 ! Return codes from qra65_dec:
 !  irc=0    [?    ?    ?] AP0	(decoding with no a-priori information)
