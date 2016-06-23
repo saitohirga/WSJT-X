@@ -96,7 +96,7 @@ program QRA65code
         ii=imsg
         if(nrpt.gt.1) ii=nn
         write(*,1020) ii,msg0,decoded,itype,msgtype,irc
-1020    format(i3,2x,a22,2x,a22,4x,i3,": ",a13,i3)
+1020    format(i4,1x,a22,2x,a22,4x,i3,": ",a13,i3)
      enddo
 
      if(nmsg.eq.1 .and.nrpt.eq.1) then
@@ -113,7 +113,7 @@ program QRA65code
 
   if(nrpt.gt.1) then
      write(*,1060) ngood,nrpt,nbad
-1060 format('Decoded messages: ',i3,'/',i3,'   Undetected errors:',i4)
+1060 format('Decoded messages:',i5,'/',i4,'   Undetected errors:',i5)
   endif
 
 999 end program QRA65code
