@@ -40,7 +40,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   logical first
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
-  save df,first,cb,fs,pi,twopi,dt,s8,rcw,pp,hannwindow
+  save df,first,cb,fs,pi,twopi,dt,s8,rcw,pp,hannwindow,nmatchedfilter
 
   if(first) then
      nmatchedfilter=1
@@ -147,7 +147,8 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   enddo  ! end of detection-metric and frequency error estimation loop
 
   call indexx(detmet(1:nstep),nstep,indices) !find median of detection metric vector
-  xmed=detmet(indices(nstep/2))
+!  xmed=detmet(indices(nstep/2))
+  xmed=detmet(indices(nstep/4))
   detmet=detmet/xmed ! noise floor of detection metric is 1.0
   ndet=0
 
@@ -158,7 +159,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
     ndet=ndet+1
     times(ndet)=((il-1)*216+NSPM/2)*dt
     ferrs(ndet)=detfer(il)
-    snrs(ndet)=10.0*log10(detmet(il))/2-5.0 !/2 because detmet is a 4th order moment
+    snrs(ndet)=12.0*log10(detmet(il))/2-9.0
     detmet(il-3:il+3)=0.0
 !    write(*,*) ndet,"snr ",snrs(ndet),"ferr ",ferrs(ndet)
   enddo
