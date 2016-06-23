@@ -48,7 +48,6 @@ program msk144sim
   nreps=NMAX/(144*6)
   do jrep=1,nreps
     do i=1,144
-      jj=mod(i,864)
       if( itone(i) .eq. 0 ) then
         dphi=dphi0
       else
