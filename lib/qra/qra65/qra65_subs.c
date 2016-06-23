@@ -13,6 +13,15 @@ void qra65_enc_(int x[], int y[])
 
 void qra65_dec_(float r[], int xdec[], int* rc)
 {
+// Return codes:
+//   rc<0    no decode
+//   rc=0    [?    ?    ?] AP0	(decoding with no a-priori information)
+//   rc=1    [CQ   ?    ?] AP27
+//   rc=2    [CQ   ?     ] AP44
+//   rc=3    [CALL ?    ?] AP29
+//   rc=4    [CALL ?     ] AP45
+//   rc=5    [CALL CALL ?] AP57
+
   //  int ncall=0xf70c238;                          //K1ABC
   int ncall=0x890c60c;                          //KA1ABC
   int i;
