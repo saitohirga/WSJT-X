@@ -29,22 +29,22 @@
 
 #define QRA_DEBUG 
 
-int qra_encode(const qracode *pcode, uint *y, const uint *x)
+int qra_encode(const qracode *pcode, int *y, const int *x)
 {
-	uint k,j,kk,jj;
-	uint t, chk = 0;
+	int k,j,kk,jj;
+	int t, chk = 0;
 
-	const uint K = pcode->K;
-	const uint M = pcode->M;
-	const uint NC= pcode->NC;
-	const uint a = pcode->a;
+	const int K = pcode->K;
+	const int M = pcode->M;
+	const int NC= pcode->NC;
+	const int a = pcode->a;
 	const int  *acc_input_idx  = pcode->acc_input_idx;
-	const uint *acc_input_wlog = pcode->acc_input_wlog;
+	const int *acc_input_wlog = pcode->acc_input_wlog;
 	const int  *gflog		   = pcode->gflog;
-	const uint *gfexp          = pcode->gfexp;
+	const int *gfexp          = pcode->gfexp;
 
 	// copy the systematic symbols to destination
-	memcpy(y,x,K*sizeof(uint));
+	memcpy(y,x,K*sizeof(int));
 
 	y = y+K;	// point to check symbols
 
@@ -144,7 +144,7 @@ static void qra_ioapprox(float *src, float C, int nitems)
 }
 
 
-void qra_mfskbesselmetric(float *pix, const float *rsq, const uint m, const uint N, float EsNoMetric)
+void qra_mfskbesselmetric(float *pix, const float *rsq, const int m, const int N, float EsNoMetric)
 {
 	// Computes the codeword symbols intrinsic probabilities
 	// given the square of the received input amplitudes.
@@ -167,12 +167,12 @@ void qra_mfskbesselmetric(float *pix, const float *rsq, const uint m, const uint
 	// nevertheless it is usually better than a generic parameter-free metric which
 	// makes no assumptions on the input Es/No.
 
-	uint k;
+	int k;
 	float rsum = 0.f;
 	float sigmaest, cmetric;
 
-	const uint M = 1<<m;
-	const uint nsamples = M*N;
+	const int M = 1<<m;
+	const int nsamples = M*N;
 
 	// compute total power and modulus of input signal
 	for (k=0;k<nsamples;k++) {
@@ -226,29 +226,29 @@ int qra_extrinsic(const qracode *pcode,
 				  float *qra_v2cmsg,
 				  float *qra_c2vmsg)
 {
-	const uint qra_M		= pcode->M;
-	const uint qra_m		= pcode->m;
-	const uint qra_V		= pcode->V;
-	const uint qra_MAXVDEG  = pcode->MAXVDEG;
+	const int qra_M		= pcode->M;
+	const int qra_m		= pcode->m;
+	const int qra_V		= pcode->V;
+	const int qra_MAXVDEG  = pcode->MAXVDEG;
 	const int  *qra_vdeg    = pcode->vdeg;
-	const uint qra_C		= pcode->C;
-	const uint qra_MAXCDEG  = pcode->MAXCDEG;
-	const uint *qra_cdeg    = pcode->cdeg;
+	const int qra_C		= pcode->C;
+	const int qra_MAXCDEG  = pcode->MAXCDEG;
+	const int *qra_cdeg    = pcode->cdeg;
 	const int  *qra_v2cmidx = pcode->v2cmidx;
 	const int  *qra_c2vmidx = pcode->c2vmidx;
 	const int  *qra_pmat    = pcode->gfpmat;
-	const uint *qra_msgw    = pcode->msgw;
+	const int *qra_msgw    = pcode->msgw;
 
 //	float msgout[qra_M];		 // buffer to store temporary results
 	float msgout[QRACODE_MAX_M]; // we use a fixed size in order to avoid mallocs
 
 	float totex;	// total extrinsic information
 	int nit;		// current iteration
-	uint nv;		// current variable
-	uint nc;		// current check
-	uint k,kk;		// loop indexes
+	int nv;		// current variable
+	int nc;		// current check
+	int k,kk;		// loop indexes
 
-	uint ndeg;		// current node degree
+	int ndeg;		// current node degree
 	int msgbase;	// current offset in the table of msg indexes
 	int imsg;		// current message index
 	int wmsg;		// current message weight
@@ -448,7 +448,7 @@ int qra_extrinsic(const qracode *pcode,
 	return rc;
 }
 
-void qra_mapdecode(const qracode *pcode, uint *xdec, float *pex, const float *pix)
+void qra_mapdecode(const qracode *pcode, int *xdec, float *pex, const float *pix)
 {
 // Maximum a posteriori probability decoding.
 // Given the intrinsic information (pix) and extrinsic information (pex) (computed with qra_extrinsic(...))
@@ -460,11 +460,11 @@ void qra_mapdecode(const qracode *pcode, uint *xdec, float *pex, const float *pi
 
 //  Note: pex is destroyed and overwritten with mapp
 
-	const uint qra_M		= pcode->M;
-	const uint qra_m		= pcode->m;
-	const uint qra_K		= pcode->K;
+	const int qra_M		= pcode->M;
+	const int qra_m		= pcode->m;
+	const int qra_K		= pcode->K;
 
-	uint k;
+	int k;
 
 	for (k=0;k<qra_K;k++) {
 		// compute a posteriori prob

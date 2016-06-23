@@ -22,8 +22,6 @@
 #ifndef _qracodes_h_
 #define _qracodes_h_
 
-typedef unsigned int uint;
-
 // type of codes
 #define QRATYPE_NORMAL			0x00 // normal code 
 #define QRATYPE_CRC 			0x01 // code with crc - last information symbol is a CRC
@@ -32,29 +30,29 @@ typedef unsigned int uint;
 
 typedef struct {
 	// code parameters
-	const uint K;			// number of information symbols
-	const uint N;			// codeword length in symbols
-	const uint m;			// bits/symbol
-	const uint M;			// Symbol alphabet cardinality (2^m)
-	const uint a;			// code grouping factor
-	const uint NC;			// number of check symbols (N-K)
-	const uint V;			// number of variables in the code graph (N)
-	const uint C;			// number of factors in the code graph (N +(N-K)+1)
-	const uint NMSG;		// number of msgs in the code graph
-	const uint MAXVDEG;		// maximum variable degree 
-	const uint MAXCDEG;		// maximum factor degree
-	const uint type;		// see QRATYPE_xx defines
+	const int K;			// number of information symbols
+	const int N;			// codeword length in symbols
+	const int m;			// bits/symbol
+	const int M;			// Symbol alphabet cardinality (2^m)
+	const int a;			// code grouping factor
+	const int NC;			// number of check symbols (N-K)
+	const int V;			// number of variables in the code graph (N)
+	const int C;			// number of factors in the code graph (N +(N-K)+1)
+	const int NMSG;		// number of msgs in the code graph
+	const int MAXVDEG;		// maximum variable degree 
+	const int MAXCDEG;		// maximum factor degree
+	const int type;		// see QRATYPE_xx defines
 	const float R;			// code rate (K/N)
 	const char  name[64];	// code name
 	// tables used by the encoder
 	const int	 *acc_input_idx;	
-	const uint   *acc_input_wlog;
+	const int   *acc_input_wlog;
 	const int	 *gflog;
-	const uint   *gfexp;
+	const int   *gfexp;
 	// tables used by the decoder -------------------------
-	const uint *msgw;
-	const uint *vdeg;
-	const uint *cdeg;
+	const int *msgw;
+	const int *vdeg;
+	const int *cdeg;
 	const int  *v2cmidx;
 	const int  *c2vmidx;
 	const int  *gfpmat;
@@ -69,10 +67,10 @@ typedef struct {
 extern "C" {
 #endif
 
-int  qra_encode(const qracode *pcode, uint *y, const uint *x);
-void qra_mfskbesselmetric(float *pix, const float *rsq, const uint m, const uint N, float EsNoMetric);
+int  qra_encode(const qracode *pcode, int *y, const int *x);
+void qra_mfskbesselmetric(float *pix, const float *rsq, const int m, const int N, float EsNoMetric);
 int  qra_extrinsic(const qracode *pcode, float *pex, const float *pix, int maxiter,float *qra_v2cmsg,float *qra_c2vmsg);
-void qra_mapdecode(const qracode *pcode, uint *xdec, float *pex, const float *pix);
+void qra_mapdecode(const qracode *pcode, int *xdec, float *pex, const float *pix);
 
 #ifdef __cplusplus
 }

@@ -57,12 +57,12 @@ float        pd_norm(float *pd, int nlogdim);
 // are replaced with a uniform distribution
 // Returns the norm of the distribution prior to the normalization
 
-void         pd_fwdperm(float *dst, float *src, const unsigned int *perm, int ndim);
+void         pd_fwdperm(float *dst, float *src, const  int *perm, int ndim);
 // Forward permutation of a distribution
 // Computes dst[k] = src[perm[k]] for every element in the distribution
 // perm must be a pointer to an array of integers of length ndim
 
-void         pd_bwdperm(float *dst, float *src, const unsigned int *perm, int ndim);
+void         pd_bwdperm(float *dst, float *src, const  int *perm, int ndim);
 // Backward permutation of a distribution
 // Computes dst[perm[k]] = src[k] for every element in the distribution
 // perm must be a pointer to an array of integers of length ndim
