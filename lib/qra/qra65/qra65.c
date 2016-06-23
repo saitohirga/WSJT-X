@@ -35,9 +35,9 @@
 #include <math.h>
 
 #include "qra65.h"
-#include "..\qracodes\qracodes.h"
-#include "..\qracodes\qra13_64_64_irr_e.h"
-#include "..\qracodes\pdmath.h"
+#include "../qracodes/qracodes.h"
+#include "../qracodes/qra13_64_64_irr_e.h"
+#include "../qracodes/pdmath.h"
 
 // Code parameters of the QRA65 mode 
 #define QRA65_CODE  qra_13_64_64_irr_e
