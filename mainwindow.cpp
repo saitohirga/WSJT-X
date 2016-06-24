@@ -1080,7 +1080,7 @@ void MainWindow::dataSink(qint64 frames)
     if(!m_mode.startsWith ("WSPR")) decode(); //Start decoder
 
     if(!m_diskData) {                        //Always save; may delete later
-      auto const& period_start = now.addSecs (-now.time ().minute () % (m_TRperiod / 60));
+      auto const& period_start = now.addSecs (-(now.time ().minute () % (m_TRperiod / 60)) * 60);
       m_fnameWE = m_config.save_directory ().absoluteFilePath (period_start.toString ("yyMMdd_hhmm"));
       m_fileToSave.clear ();
       // the following is potential a threading hazard - not a good
@@ -1222,7 +1222,7 @@ void MainWindow::fastSink(qint64 frames)
       m_bFastDecodeCalled=true;
       decode();
     }
-    if(!m_diskData) {
+    if(!m_diskData) {           // Always save; may delete later
       QDateTime now {QDateTime::currentDateTimeUtc()};
       auto const& period_start = now.addSecs (-now.time ().second () % m_TRperiod);
       m_fnameWE = m_config.save_directory ().absoluteFilePath (period_start.toString ("yyMMdd_hhmmss"));
