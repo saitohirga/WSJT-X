@@ -8,9 +8,9 @@ program QRA65code
 ! Return codes from qra65_dec:
 !  irc=0    [?    ?    ?] AP0	(decoding with no a-priori information)
 !  irc=1    [CQ   ?    ?] AP27
-!  irc=2    [CQ   ?     ] AP44
+!  irc=2    [CQ   ?     ] AP42
 !  irc=3    [CALL ?    ?] AP29
-!  irc=4    [CALL ?     ] AP45
+!  irc=4    [CALL ?     ] AP44
 !  irc=5    [CALL CALL ?] AP57
 
   use packjt

@@ -84,7 +84,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 !$omp parallel sections num_threads(2) copyin(/timer_private/) shared(ndecoded) if(.true.) !iif() needed on Mac
 
 !$omp section
-  if(params%nmode.eq.65 .or. (params%nmode.eq.(65+9) .and. params%ntxmode.eq.65)) then
+  if(params%nmode.eq.65 .or. params%nmode.eq.165 .or.                      &
+       (params%nmode.eq.(65+9) .and. params%ntxmode.eq.65)) then
 ! We're in JT65 mode, or should do JT65 first
      if(newdat65) dd(1:npts65)=id2(1:npts65)
      nf1=params%nfa
@@ -274,8 +275,13 @@ contains
              endif
           endif
        endif
-       write(*,1010) params%nutc,snr,dt,freq,csync,decoded,cflags
-1010   format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,1x,a3)
+       if(ft.ge.100) then
+          write(*,1009) params%nutc,snr,dt,freq,csync,decoded,ft-100
+1009      format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,i2)
+       else
+          write(*,1010) params%nutc,snr,dt,freq,csync,decoded,cflags
+1010      format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,1x,a3)
+       endif
     endif
 
     write(13,1012) params%nutc,nint(sync),snr,dt,float(freq),drift,    &
