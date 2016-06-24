@@ -62,7 +62,8 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
   endif
 
   if(mode65.eq.101) then
-     call qra65_dec(s3,dat4,irc)            !Decode
+     call packcall(mycall,nmycall,ltext)
+     call qra65_dec(s3,nmycall,dat4,irc)       !Attempt decoding
      decoded="                      "
      if(irc.ge.0) then
         call unpackmsg(dat4,decoded)           !Unpack the user message
