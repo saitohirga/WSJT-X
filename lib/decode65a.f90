@@ -30,7 +30,7 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
 ! NB: cx has sample rate 12000*77125/672000 = 1378.125 Hz
 
 ! Check for a shorthand message
-  if(single_decode) then
+  if(single_decode .and. mode65.ne.101) then
      call sh65(cx,n5,mode65,ntol,xdf,nspecial,sync2)
      if(nspecial.gt.0) then
         a=0.
@@ -96,7 +96,7 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   qual0=-1.e30
   minsmo=0
   maxsmo=0
-  if(mode65.ge.2) then
+  if(mode65.ge.2 .and. mode65.ne.101) then
      minsmo=nint(width/df)
      maxsmo=2*minsmo
   endif

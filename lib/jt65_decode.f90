@@ -163,7 +163,9 @@ contains
           nvec=100
        endif
 
-       mode65=2**nsubmode
+       if(nsubmode.le.8) mode65=2**nsubmode
+       if(nsubmode.eq.101) mode65=101
+
        nflip=1
        nqd=0
        decoded='                      '

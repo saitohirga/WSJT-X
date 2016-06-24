@@ -820,7 +820,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
 
   statusChanged();
-//###
+//### The following is temporary ###
   {
     QString t=m_config.my_callsign();
     if(t!="IV3NWV" and t!="K1JT" and t!="K9AN" and t!="G4WJS"
@@ -1991,7 +1991,9 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.ntxmode=9;
   if(m_modeTx=="JT65") dec_data.params.ntxmode=65;
   dec_data.params.nmode=9;
-  if(m_mode=="JT65" or m_mode=="QRA65") dec_data.params.nmode=65;
+  if(m_mode=="JT65") dec_data.params.nmode=65;
+  if(m_mode=="QRA65") dec_data.params.nmode=165;
+  if(m_mode=="QRA65") dec_data.params.ntxmode=165;
   if(m_mode=="JT9+JT65") dec_data.params.nmode=9+65;  // = 74
   if(m_mode=="JT4") {
     dec_data.params.nmode=4;
@@ -1999,6 +2001,7 @@ void MainWindow::decode()                                       //decode()
   }
   dec_data.params.ntrperiod=m_TRperiod;
   dec_data.params.nsubmode=m_nSubMode;
+  if(m_mode=="QRA65") dec_data.params.nsubmode=101;
   dec_data.params.minw=0;
   dec_data.params.nclearave=m_nclearave;
   if(m_nclearave!=0) {
