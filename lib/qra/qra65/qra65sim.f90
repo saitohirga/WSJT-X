@@ -121,6 +121,8 @@ program qra65sim
   h=default_header(12000,npts)
   dfsig=2000.0/nsigs                 !Freq spacing between sigs in file (Hz)
 
+  print*,'A',nsigs,nfiles
+
   do ifile=1,nfiles                  !Loop over requested number of files
      write(fname,1002) ifile         !Output filename
 1002 format('000000_',i4.4)
@@ -146,9 +148,8 @@ program qra65sim
         call packmsg(msg,dgen,itype)        !Pack message into 12 six-bit bytes
         call qra65_enc(dgen,sent)           !Encode using QRA65
 !        call qra65_dec(sent,dgen,ierr)      !Decode (### for test only ###)
-
-        write(*,3001) sent
-3001    format(21i3)
+!        write(*,3001) sent
+!3001    format(21i3)
 
         k=0
         do j=1,nsym                         !Insert sync and data into itone()

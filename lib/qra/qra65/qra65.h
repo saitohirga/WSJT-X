@@ -43,18 +43,18 @@
 #define GRID_BLANK		0x7E91
 
 typedef struct {
-		float decEsNoMetric;
-		int apflags;
-		int apmycall;
-		int apsrccall;
-		int apmsg_cqqrz[12];		// [cq/qrz ? blank] 
-		int apmsg_call1[12];		// [mycall ? blank] 
-		int apmsg_call1_call2[12];	// [mycall srccall ?]
-		int apmask_cqqrz[12];		
-		int apmask_cqqrz_ooo[12];	
-		int apmask_call1[12];        
-		int apmask_call1_ooo[12];    
-		int apmask_call1_call2[12];  
+  float decEsNoMetric;
+  int apflags;
+  int apmycall;
+  int apsrccall;
+  int apmsg_cqqrz[12];		// [cq/qrz ? blank] 
+  int apmsg_call1[12];		// [mycall ? blank] 
+  int apmsg_call1_call2[12];	// [mycall srccall ?]
+  int apmask_cqqrz[12];		
+  int apmask_cqqrz_ooo[12];	
+  int apmask_call1[12];        
+  int apmask_call1_ooo[12];    
+  int apmask_call1_call2[12];  
 } qra65codec;
 
 #ifdef __cplusplus
