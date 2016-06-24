@@ -35,7 +35,7 @@ public:
   void drawScale();
 
 signals:
-  void fastPick1(int x0, int x1, int y);
+  void fastPick (int x0, int x1, int y);
 
 protected:
   //re-implemented widget event handlers

@@ -234,7 +234,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_ihsym {0},
   m_nzap {0},
   m_px {0.0},
-  m_decodeEarly {false},
   m_iptt0 {0},
   m_btxok0 {false},
   m_nsendingsh {0},
@@ -388,8 +387,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect(m_wideGraph.data (), SIGNAL(f11f12(int)),this,SLOT(bumpFqso(int)));
   connect(m_wideGraph.data (), SIGNAL(setXIT2(int)),this,SLOT(setXIT(int)));
 
-  connect(m_fastGraph.data(),SIGNAL(fastPick(int,int,int)),this,
-          SLOT(fastPick(int,int,int)));
+  connect (m_fastGraph.data (), &FastGraph::fastPick, this, &MainWindow::fastPick);
 
   connect (this, &MainWindow::finished, m_wideGraph.data (), &WideGraph::close);
   connect (this, &MainWindow::finished, m_echoGraph.data (), &EchoGraph::close);
@@ -1077,23 +1075,19 @@ void MainWindow::dataSink(qint64 frames)
     dec_data.params.newdat=1;
     dec_data.params.nagain=0;
     dec_data.params.nzhsym=m_hsymStop;
-    QDateTime t = QDateTime::currentDateTimeUtc();
-    m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
+    QDateTime now {QDateTime::currentDateTimeUtc ()};
+    m_dateTime = now.toString ("yyyy-MMM-dd hh:mm");
     if(!m_mode.startsWith ("WSPR")) decode(); //Start decoder
 
     if(!m_diskData) {                        //Always save; may delete later
-      int ihr=t.time().toString("hh").toInt();
-      int imin=t.time().toString("mm").toInt();
-      imin=imin - (imin%(m_TRperiod/60));
-      QString t2;
-      t2.sprintf("%2.2d%2.2d",ihr,imin);
+      auto const& period_start = now.addSecs (-now.time ().minute () % (m_TRperiod / 60));
+      m_fnameWE = m_config.save_directory ().absoluteFilePath (period_start.toString ("yyMMdd_hhmm"));
       m_fileToSave.clear ();
-      m_fname = m_config.save_directory ().absoluteFilePath (t.date().toString("yyMMdd") + "_" + t2);
       // the following is potential a threading hazard - not a good
       // idea to pass pointer to be processed in another thread
       m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file
                                                                 , this
-                                                                , m_fname
+                                                                , m_fnameWE
                                                                 , &dec_data.d2[0]
                                                                 , m_TRperiod
                                                                 , m_config.my_callsign ()
@@ -1104,7 +1098,7 @@ void MainWindow::dataSink(qint64 frames)
                                                                 , m_hisCall
                                                                 , m_hisGrid)));
       if (m_mode.startsWith ("WSPR")) {
-        QString c2name_string {m_fname + ".c2"};
+        QString c2name_string {m_fnameWE + ".c2"};
         int len1=c2name_string.length();
         char c2name[80];
         strcpy(c2name,c2name_string.toLatin1 ().constData ());
@@ -1129,7 +1123,7 @@ void MainWindow::dataSink(qint64 frames)
       } else {
         cmnd='"' + m_appDir + '"' + "/wsprd -a \"" +
             QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" " +
-            t2 + '"' + m_fname + ".wav\"";
+            t2 + '"' + m_fnameWE + ".wav\"";
       }
       QString t3=cmnd;
       int i1=cmnd.indexOf("/wsprd ");
@@ -1198,28 +1192,12 @@ void MainWindow::fastSink(qint64 frames)
   int k (frames);
   bool decodeNow=false;
 
-  if(m_k0==9999999) {
-    memset(fast_green,0,sizeof(float)*703);        //Zero fast_gereen[]
-    memset(fast_s2,0,sizeof(float)*703*64);        //Zero fast_s2[]
+  if(k < m_k0) {                                 //New sequence ?
+    memcpy(fast_green2,fast_green,4*703);        //Copy fast_green[] to fast_green2[]
+    memcpy(fast_s2,fast_s,4*703*64);             //Copy fast_s[] into fast_s2[]
+    fast_jh2=fast_jh;
+    if(!m_diskData) memset(dec_data.d2,0,2*30*12000);   //Zero the d2[] array
     m_bFastDecodeCalled=false;
-  } else {
-    if(k < m_k0) {                                 //New sequence ?
-      memcpy(fast_green2,fast_green,4*703);        //Copy fast_green[] to fast_green2[]
-      memcpy(fast_s2,fast_s,4*703*64);             //Copy fast_s[] into fast_s2[]
-      fast_jh2=fast_jh;
-      if(!m_diskData) memset(dec_data.d2,0,2*30*12000);   //Zero the d2[] array
-      m_decodeEarly=false;
-      m_bFastDecodeCalled=false;
-      QDateTime t=QDateTime::currentDateTimeUtc();     //.addSecs(2-m_TRperiod);
-      int ihr=t.toString("hh").toInt();
-      int imin=t.toString("mm").toInt();
-      int isec=t.toString("ss").toInt();
-      isec=isec - isec%m_TRperiod;
-      QString t2;
-      t2.sprintf("%2.2d%2.2d%2.2d.wav",ihr,imin,isec);
-      m_fname = m_config.save_directory().absoluteFilePath(
-            t.date().toString("yyMMdd") + "_" + t2);
-    }
   }
 
   hspec_(dec_data.d2, &k, &m_inGain, fast_green, fast_s, &fast_jh);
@@ -1244,13 +1222,16 @@ void MainWindow::fastSink(qint64 frames)
       m_bFastDecodeCalled=true;
       decode();
     }
-    if(!m_diskData and (m_saveAll or m_saveDecoded) and m_fname != "" and
-       !m_decodeEarly) {
+    if(!m_diskData) {
+      QDateTime now {QDateTime::currentDateTimeUtc()};
+      auto const& period_start = now.addSecs (-now.time ().second () % m_TRperiod);
+      m_fnameWE = m_config.save_directory ().absoluteFilePath (period_start.toString ("yyMMdd_hhmmss"));
+      m_fileToSave.clear ();
       // the following is potential a threading hazard - not a good
       // idea to pass pointer to be processed in another thread
       m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file
                                                                 , this
-                                                                , m_fname
+                                                                , m_fnameWE
                                                                 , &dec_data.d2[0]
                                                                 , m_TRperiod
                                                                 , m_config.my_callsign ()
@@ -1260,10 +1241,8 @@ void MainWindow::fastSink(qint64 frames)
                                                                 , m_freqNominal
                                                                 , m_hisCall
                                                                 , m_hisGrid)));
-      m_fileToKill=m_fname;
       killFileTimer.start (3*1000*m_TRperiod/4); //Kill 3/4 period from now
     }
-    m_decodeEarly=false;
   }
 }
 
@@ -1472,7 +1451,7 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
       break;
     case Qt::Key_V:
       if(e->modifiers() & Qt::AltModifier) {
-        m_fileToSave=m_fname;
+        m_fileToSave = m_fnameWE;
         return;
       }
       break;
@@ -2313,15 +2292,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
 void MainWindow::killFile ()
 {
-  QString f=m_fname;
-  if(m_bFastMode) f=m_fileToKill;
-  if (!m_fname.isEmpty() &&
-      !(m_saveAll || (m_saveDecoded && m_bDecoded) || m_fname == m_fileToSave)) {
-    if(m_fname.indexOf(".wav")<0) f+= ".wav";
-    QFile f1{f};
+  if (m_fnameWE.size () &&
+      !(m_saveAll || (m_saveDecoded && m_bDecoded) || m_fnameWE == m_fileToSave)) {
+    QFile f1 {m_fnameWE + ".wav"};
     if(f1.exists()) f1.remove();
     if(m_mode.startsWith ("WSPR")) {
-      QFile f2{m_fname + ".c2"};
+      QFile f2 {m_fnameWE + ".c2"};
       if(f2.exists()) f2.remove();
     }
   }

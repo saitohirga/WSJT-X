@@ -27,9 +27,6 @@ public:
 signals:
   void fastPick(int x0, int x1, int y);
 
-public slots:
-  void fastPick1a(int x0, int x1, int y);
-
 private slots:
   void on_gainSlider_valueChanged(int value);
   void on_zeroSlider_valueChanged(int value);  
