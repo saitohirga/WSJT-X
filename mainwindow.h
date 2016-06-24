@@ -417,7 +417,6 @@ private:
   int			m_npts8;
   float		m_px;
   float		m_df3;
-  bool		m_decodeEarly;
   int			m_iptt0;
   bool		m_btxok0;
   int			m_nsendingsh;
@@ -468,7 +467,7 @@ private:
   QString m_dateTime;
   QString m_mode;
   QString m_modeTx;
-  QString m_fname;
+  QString m_fnameWE;            // save path without extension
   QString m_rpt;
   QString m_rptSent;
   QString m_rptRcvd;
@@ -476,7 +475,6 @@ private:
   QString m_qsoStop;
   QString m_cmnd;
   QString m_msgSent0;
-  QString m_fileToKill;
   QString m_fileToSave;
   QString m_calls;
 
