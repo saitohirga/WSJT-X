@@ -1,7 +1,7 @@
 subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   use timer_module, only: timer
 
-  parameter (NSPM=864, NPTS=3*NSPM, MAXSTEPS=1700, NFFT=NSPM)
+  parameter (NSPM=864, NPTS=3*NSPM, MAXSTEPS=1700, NFFT=NSPM, MAXCAND=20)
   character*22 msgreceived,allmessages(20)
   character*80 lines(100)
   character*512 pchk_file,gen_file
@@ -28,10 +28,10 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   real hannwindow(NPTS)
   real rcw(12)
   real dd(NPTS)
-  real ferrs(20)
+  real ferrs(MAXCAND)
   real pp(12)                          !Half-sine pulse shape
-  real snrs(20)
-  real times(20)
+  real snrs(MAXCAND)
+  real times(MAXCAND)
   real tonespec(NFFT)
   real*8 dt, df, fs, pi, twopi
   real softbits(144)
@@ -123,27 +123,13 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
     i4000=4000/df+1
     ferrh=(ihpk+deltah-i4000)*df/2.0
     ferrl=(ilpk+deltal-i2000)*df/2.0
-!    if( abs(fdiff-2000) .le. 25.0 ) then
-      if( ah .ge. al ) then
-        ferr=ferrh
-      else
-        ferr=ferrl
-      endif
-!    else
-!      ferr=-999.99
-!    endif
-!    detmet(istp)=ah+al
+    if( ah .ge. al ) then
+      ferr=ferrh
+    else
+      ferr=ferrl
+    endif
     detmet(istp)=max(ah,al)
     detfer(istp)=ferr
-!    if( detmet(istp) .gt. detmax ) then
-!      open(unit=77,file="tonespec.dat")
-!      do i=1,NFFT
-!      write(77,*) (i-1)*df,tonespec(i)
-!      enddo
-!      close(77)
-!      detmax=detmet(istp)
-!    endif
-!write(*,*) ihpk,ilpk,deltah,deltal,ferrh,ferrl,fdiff
   enddo  ! end of detection-metric and frequency error estimation loop
 
   call indexx(detmet(1:nstep),nstep,indices) !find median of detection metric vector
@@ -152,17 +138,23 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   detmet=detmet/xmed ! noise floor of detection metric is 1.0
   ndet=0
 
-  do ip=1,20 ! use something like the "clean" algorithm to find candidates
+  do ip=1,MAXCAND ! use something like the "clean" algorithm to find candidates
     iloc=maxloc(detmet(1:nstep))
     il=iloc(1)
-    if( (detmet(il) .lt. 2.0) .or. (abs(detfer(il)) .gt. 100.0) ) cycle 
-    ndet=ndet+1
-    times(ndet)=((il-1)*216+NSPM/2)*dt
-    ferrs(ndet)=detfer(il)
-    snrs(ndet)=12.0*log10(detmet(il))/2-9.0
-    detmet(il-3:il+3)=0.0
-!    write(*,*) ndet,"snr ",snrs(ndet),"ferr ",ferrs(ndet)
+    if( (detmet(il) .lt. 3.5) ) exit 
+    if( abs(detfer(il)) .le. 100.0 ) then 
+      ndet=ndet+1
+      times(ndet)=((il-1)*216+NSPM/2)*dt
+      ferrs(ndet)=detfer(il)
+      snrs(ndet)=12.0*log10(detmet(il))/2-9.0
+    endif
+!    detmet(max(1,il-3):min(nstep,il+3))=0.0
+    detmet(il)=0.0
   enddo
+
+!  do ip=1,ndet
+!    write(*,*) ip,times(ip),snrs(ip),ferrs(ip)
+!  enddo
 
   nmessages=0
   allmessages=char(0)
@@ -192,17 +184,20 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
     cc=cc1+cc2
     dd=abs(cc1)*abs(cc2)
 
-! Find 5 largest peaks
-    do ipk=1,5
+! Find 6 largest peaks
+    do ipk=1,6
       iloc=maxloc(abs(cc))
       ic1=iloc(1)
       iloc=maxloc(dd)
       ic2=iloc(1)
-      ipeaks(ipk)=ic2
-      dd(max(1,ic2-7):min(NPTS-56*6-41,ic2+7))=0.0
+!      ipeaks(ipk)=ic2
+!      dd(max(1,ic2-7):min(NPTS-56*6-41,ic2+7))=0.0
+      ipeaks(ipk)=ic1
+      cc(max(1,ic1-7):min(NPTS-56*6-41,ic1+7))=0.0
+!write(*,*) ipk,ic1
     enddo
 
-    do ipk=1,5
+    do ipk=1,6
 
 ! we want ic to be the index of the first sample of the frame
       ic0=ipeaks(ipk)
@@ -338,7 +333,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
             unscrambledsoftbits(1:127:2)=lratio(1:64)
             unscrambledsoftbits(2:128:2)=lratio(65:128)
 
-            max_iterations=20
+            max_iterations=10
             max_dither=1
             call ldpc_decode(unscrambledsoftbits, decoded, &
                            max_iterations, niterations, max_dither, ndither)
@@ -360,7 +355,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
               else
                 msgreceived=' '
                 ndither=-99             ! -99 is bad hash flag
-!                write(78,1001) nutc,t0,nsnr,ipk,is,idf,iav,deltaf,fest,ferr,ferr2,ffin,bba,bbp,nbadsync1,nbadsync2, &
+!                write(78,1001) nutc,t0,nsnr,ic,ipk,is,idf,iav,deltaf,fest,ferr,ferr2,ffin,bba,bbp,nbadsync1,nbadsync2, &
 !                             phase0,niterations,ndither,msgreceived
               endif
             endif
@@ -373,10 +368,10 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
     ndither=-98   
 999 continue
     if( nmessages .ge. 1 ) then 
-!      write(78,1001) nutc,t0,nsnr,ipk,is,idf,iav,deltaf,fest,ferr,ferr2,ffin,bba,bbp,nbadsync1,nbadsync2, &
+!      write(78,1001) nutc,t0,nsnr,ic,ipk,is,idf,iav,deltaf,fest,ferr,ferr2,ffin,bba,bbp,nbadsync1,nbadsync2, &
 !               phase0,niterations,ndither,msgreceived
 !      call flush(78)
-!1001 format(i6.6,f8.2,i4,i4,i4,i4,i4,f8.2,f8.2,f8.2,f8.2,f8.2,f8.2,f8.2,i4,i4,f8.2,i5,i5,2x,a22)
+!1001 format(i6.6,f8.2,i5,i5,i5,i5,i5,i5,f8.2,f8.2,f8.2,f8.2,f8.2,f10.2,f8.2,i5,i5,f8.2,i5,i5,2x,a22)
       exit
     endif
   enddo
