@@ -359,6 +359,7 @@ set (wsjt_FSRCS
   lib/genmsk.f90
   lib/genmsk144.f90
   lib/genmsk_short.f90
+  lib/genqra65.f90
   lib/genwspr.f90
   lib/geodist.f90
   lib/getlags.f90

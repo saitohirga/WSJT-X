@@ -80,6 +80,9 @@ extern "C" {
   void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
               int* itext, int len1, int len2);
 
+  void genqra65_(char* msg, int* ichk, char* msgsent, int itone[],
+              int* itext, int len1, int len2);
+
   void genwspr_(char* msg, char* msgsent, int itone[], int len1, int len2);
 
   void geniscat_(char* msg, char* msgsent, int itone[], int len1, int len2);
@@ -2550,11 +2553,8 @@ void MainWindow::guiUpdate()
                                   &m_currentMessageType, len1, len1);
         if(m_modeTx=="JT65") gen65_(message, &ichk, msgsent, const_cast<int *> (itone),
                                     &m_currentMessageType, len1, len1);
-//###
-// To be changed!
-        if(m_modeTx=="QRA65") gen65_(message, &ichk, msgsent, const_cast<int *> (itone),
+        if(m_modeTx=="QRA65") genqra65_(message, &ichk, msgsent, const_cast<int *> (itone),
                                     &m_currentMessageType, len1, len1);
-//###
         if(m_mode.startsWith ("WSPR")) genwspr_(message, msgsent, const_cast<int *> (itone),
                                              len1, len1);
         if(m_modeTx=="JTMSK") genmsk_(message, &ichk, msgsent, const_cast<int *> (itone),
