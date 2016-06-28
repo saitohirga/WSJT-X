@@ -10,6 +10,7 @@
 #include <QLineEdit>
 #include <QRegExpValidator>
 #include <QRegExp>
+#include <QRegularExpression>
 #include <QDesktopServices>
 #include <QUrl>
 #include <QStandardPaths>
@@ -5035,11 +5036,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
       return;
     }
 
-  auto decode_parts = message_text.split (' ', QString::SkipEmptyParts);
-
-  if (decode_parts[0] == "CQ"
-      || decode_parts[0] == "CQDX"
-      || decode_parts[0] == "QRZ")
+  if (message_text.contains (QRegularExpression {R"(^(CQ |CQDX |QRZ ))"}))
     {
       // a message we are willing to accept
       QString format_string {"%1 %2 %3 %4 %5  %6"};
