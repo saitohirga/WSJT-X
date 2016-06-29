@@ -4681,11 +4681,11 @@ void MainWindow::transmit (double snr)
   }
 
   if (m_modeTx == "QRA65") {
-    if(m_nSubMode==0) toneSpacing=11025.0/4096.0;
-    if(m_nSubMode==1) toneSpacing=2*11025.0/4096.0;
-    if(m_nSubMode==2) toneSpacing=4*11025.0/4096.0;
+    if(m_nSubMode==0) toneSpacing=12000.0/6912.0;
+    if(m_nSubMode==1) toneSpacing=2*12000.0/6912.0;
+    if(m_nSubMode==2) toneSpacing=4*12000.0/6912.0;
     Q_EMIT sendMessage (NUM_QRA65_SYMBOLS,
-           4096.0*12000.0/11025.0, ui->TxFreqSpinBox->value () - m_XIT,
+           6912.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
            true, false, snr, m_TRperiod);
   }

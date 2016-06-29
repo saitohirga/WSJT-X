@@ -14,7 +14,9 @@ program QRA65code
 !  irc=5    [CALL CALL ?] AP57
 
   use packjt
-  character*22 msg,msg0,msg1,decoded,cok*3,bad*1,msgtype*10,arg*12
+  character*22 msg,msg0,msg1,decoded,cok*3,msgtype*10,arg*12
+  character*6 mycall
+  logical ltext
   integer dgen(12),sent(63),dec(12)
   real s3(0:63,1:63)
   include 'testmsg.f90'
@@ -80,7 +82,12 @@ program QRA65code
            s3(k,j)=x*x + y*y
         enddo
 
-        call qra65_dec(s3,dec,irc)            !Decode
+        i1=index(msg1,' ')
+        mycall='      '
+        if(i1.ge.4) mycall=msg(1:i1-1)
+        call packcall(mycall,nmycall,ltext)
+        call qra65_dec(s3,nmycall,dec,irc)            !Decode
+
         decoded="                      "
         if(irc.ge.0) then
            call unpackmsg(dec,decoded)           !Unpack the user message
