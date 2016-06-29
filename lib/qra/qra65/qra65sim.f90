@@ -9,7 +9,8 @@ program qra65sim
   parameter (NFFT=10*65536,NH=NFFT/2)
   type(hdr) h                            !Header for .wav file
   integer*2 iwave(NMAX)                  !Generated waveform
-  integer*4 itone(126)                   !Channel symbols (values 0-65)
+!  integer*4 itone(126)                   !Channel symbols (values 0-65)
+  integer*4 itone(84)                    !Channel symbols (values 0-63)
   integer dgen(12)                       !Twelve 6-bit data symbols
   integer sent(63)                       !RS(63,12) codeword
   real*4 xnoise(NMAX)                    !Generated random noise
@@ -19,6 +20,7 @@ program qra65sim
   complex z
   real*8 f0,dt,twopi,phi,dphi,baud,fsample,freq,sps
   character msg*22,fname*11,csubmode*1,c,optarg*500,numbuf*32
+  character msgsent*22
   logical :: display_help=.false.,seed_prngs=.true.
   type (option) :: long_options(8) = [ &
     option ('help',.false.,'h','Display this help message',''),                                &
@@ -29,15 +31,6 @@ program qra65sim
     option ('num-files',.true.,'f','Number of files to generate, default FILES=1','FILES'),    &
     option ('no-prng-seed',.false.,'p','Do not seed PRNGs (use for reproducible tests)',''),   &
     option ('strength',.true.,'s','S/N in dB (2500Hz reference b/w), default SNR=0','SNR') ]
-
-  integer nprc(126)                                      !Sync pattern
-  data nprc/1,0,0,1,1,0,0,0,1,1,1,1,1,1,0,1,0,1,0,0,  &
-            0,1,0,1,1,0,0,1,0,0,0,1,1,1,0,0,1,1,1,1,  &
-            0,1,1,0,1,1,1,1,0,0,0,1,1,0,1,0,1,0,1,1,  &
-            0,0,1,1,0,1,0,1,0,1,0,0,1,0,0,0,0,0,0,1,  &
-            1,0,0,0,0,0,0,0,1,1,0,1,0,0,1,0,1,1,0,1,  &
-            0,1,0,1,0,0,1,1,0,0,1,0,0,1,0,0,0,0,1,1,  &
-            1,1,1,1,1,1/
 
 ! Default parameters:
   csubmode='A'
@@ -115,13 +108,14 @@ program qra65sim
   dt=1.d0/fsample                    !Sample interval (s)
   twopi=8.d0*atan(1.d0)
   npts=54*12000                      !Total samples in .wav file
-  baud=11025.d0/4096.d0              !Keying rate
-  sps=12000.d0/baud                  !Samples per symbol, at fsample=12000 Hz
-  nsym=126                           !Number of channel symbols
+  nsps=6912
+!  baud=11025.d0/4096.d0              !Keying rate
+  baud=12000.d0/6912                 !Keying rate = 1.7361111111
+!  sps=12000.d0/baud                  !Samples per symbol, at fsample=12000 Hz
+!  nsym=126                           !Number of channel symbols
+  nsym=84                            !Number of channel symbols
   h=default_header(12000,npts)
   dfsig=2000.0/nsigs                 !Freq spacing between sigs in file (Hz)
-
-  print*,'A',nsigs,nfiles
 
   do ifile=1,nfiles                  !Loop over requested number of files
      write(fname,1002) ifile         !Output filename
@@ -145,21 +139,15 @@ program qra65sim
         if(csubmode.eq.'B' .and. snrdb.eq.0.0) xsnr=-21 - isig
         if(csubmode.eq.'C' .and. snrdb.eq.0.0) xsnr=-21 - isig
 
-        call packmsg(msg,dgen,itype)        !Pack message into 12 six-bit bytes
-        call qra65_enc(dgen,sent)           !Encode using QRA65
-!        call qra65_dec(sent,dgen,ierr)      !Decode (### for test only ###)
-!        write(*,3001) sent
-!3001    format(21i3)
+        xsnr=xsnr+5   !### TEMPORARY ###
 
-        k=0
-        do j=1,nsym                         !Insert sync and data into itone()
-           if(nprc(j).eq.0) then
-              k=k+1
-              itone(j)=sent(k)+2
-           else
-              itone(j)=0
-           endif
-        enddo
+        call genqra65(msg,ichk,msgsent,itone,itype)
+
+!        call packmsg(msg,dgen,itype)        !Pack message into 12 six-bit bytes
+!        call qra65_enc(dgen,sent)           !Encode using QRA65
+!!        call qra65_dec(sent,dgen,ierr)      !Decode (### for test only ###)
+!!        write(*,3001) sent
+!!3001    format(21i3)
 
         bandwidth_ratio=2500.0/6000.0
         sig=sqrt(2*bandwidth_ratio)*10.0**(0.05*xsnr)
@@ -172,7 +160,7 @@ program qra65sim
         k=12000 + xdt*12000                 !Start audio at t = xdt + 1.0 s
         isym0=-99
         do i=1,npts                         !Add this signal into cdat()
-           isym=floor(i/sps)+1
+           isym=i/nsps + 1
            if(isym.gt.nsym) exit
            if(isym.ne.isym0) then
               freq=f0 + itone(isym)*baud*mode65
