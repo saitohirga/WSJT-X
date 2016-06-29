@@ -1653,6 +1653,7 @@ void MainWindow::on_stopButton_clicked()                       //stopButton
 void MainWindow::msgBox(QString t)                             //msgBox
 {
   msgBox0.setText(t);
+  QApplication::alert (this);
   msgBox0.exec();
 }
 
@@ -5074,6 +5075,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
           // find the linefeed at the end of the line
           position = ui->decodedTextBrowser->toPlainText().indexOf("\n",position);
           processMessage (messages, position, false);
+          QApplication::alert (this);
         }
       else
         {
