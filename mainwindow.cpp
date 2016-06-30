@@ -748,9 +748,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   on_actionWide_Waterfall_triggered();
   m_wideGraph->setTol(500);
   m_wideGraph->setLockTxFreq(m_lockTxFreq);
-  m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
-  ui->sbSubmode->setValue(m_nSubMode);
   ui->sbFtol->setValue(m_FtolIndex);
   on_sbFtol_valueChanged(m_FtolIndex);
   ui->cbEME->setChecked(m_bEME);
@@ -833,6 +830,10 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       ui->actionMSK144->setEnabled(false);    }
   }
 //###
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
+  ui->sbSubmode->setValue(m_nSubMode);
+
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
 }
@@ -2377,7 +2378,8 @@ void MainWindow::guiUpdate()
   txDuration=0.0;
   if(m_modeTx=="JT4")  txDuration=1.0 + 207.0*2520/11025.0;   // JT4
   if(m_modeTx=="JT9")  txDuration=1.0 + 85.0*m_nsps/12000.0;  // JT9
-  if(m_modeTx=="JT65" or m_mode=="QRA65") txDuration=1.0 + 126*4096/11025.0;  // JT65 or QRA65
+  if(m_modeTx=="JT65") txDuration=1.0 + 126*4096/11025.0;     // JT65
+  if(m_mode=="QRA65")  txDuration=1.0 + 84*6912/12000.0;      // QRA65
   if(m_mode=="WSPR-2") txDuration=2.0 + 162*8192/12000.0;     // WSPR
   if(m_mode=="ISCAT" or m_mode=="JTMSK" or m_mode=="MSK144" or m_bFast9) {
     txDuration=m_TRperiod-0.25; // ISCAT, JT9-fast, JTMSK, MSK144
@@ -2555,7 +2557,7 @@ void MainWindow::guiUpdate()
                                   &m_currentMessageType, len1, len1);
         if(m_modeTx=="JT65") gen65_(message, &ichk, msgsent, const_cast<int *> (itone),
                                     &m_currentMessageType, len1, len1);
-        if(m_modeTx=="QRA65") genqra65_(message, &ichk, msgsent, const_cast<int *> (itone),
+        if(m_mode=="QRA65") genqra65_(message, &ichk, msgsent, const_cast<int *> (itone),
                                     &m_currentMessageType, len1, len1);
         if(m_mode.startsWith ("WSPR")) genwspr_(message, msgsent, const_cast<int *> (itone),
                                              len1, len1);
@@ -3787,7 +3789,7 @@ void MainWindow::on_actionQRA65_triggered()
   mode_label->setStyleSheet("QLabel{background-color: #99ff33}");
   QString t1=(QString)QChar(short(m_nSubMode+65));
 //  mode_label->setText(m_mode + " " + t1);
-  mode_label->setText("QRA01 " + t1);
+  mode_label->setText("QRA02 " + t1);
 }
 
 
@@ -4685,6 +4687,7 @@ void MainWindow::transmit (double snr)
     if(m_nSubMode==0) toneSpacing=12000.0/6912.0;
     if(m_nSubMode==1) toneSpacing=2*12000.0/6912.0;
     if(m_nSubMode==2) toneSpacing=4*12000.0/6912.0;
+    qDebug() << "b" << m_modeTx << itone[0]<< itone[1]<< itone[2]<< itone[3]<< itone[4]<< itone[5] ;
     Q_EMIT sendMessage (NUM_QRA65_SYMBOLS,
            6912.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
