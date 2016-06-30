@@ -222,11 +222,11 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
     x1=XfromFreq(m_rxFreq+750);
     painter2D.drawText(x1-4,y,"73");
   }
-  update();                                  //trigger a new paintEvent
+  update();                                    //trigger a new paintEvent
   m_bScaleOK=true;
 }
 
-void CPlotter::DrawOverlay()                                 //DrawOverlay()
+void CPlotter::DrawOverlay()                   //DrawOverlay()
 {
   if(m_OverlayPixmap.isNull()) return;
   if(m_WaterfallPixmap.isNull()) return;
@@ -238,10 +238,10 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   QRect rect;
   QPen penOrange(QColor(255,165,0),3);
   QPen penGreen(Qt::green, 3);                 //Mark Tol range with green line
-  QPen penRed(Qt::red, 3);                   //Mark Tx freq with red
+  QPen penRed(Qt::red, 3);                     //Mark Tx freq with red
   QPainter painter(&m_OverlayPixmap);
   painter.initFrom(this);
-  QLinearGradient gradient(0, 0, 0 ,m_h2);         //fill background with gradient
+  QLinearGradient gradient(0, 0, 0 ,m_h2);     //fill background with gradient
   gradient.setColorAt(1, Qt::black);
   gradient.setColorAt(0, Qt::darkBlue);
   painter.setBrush(gradient);
@@ -344,21 +344,29 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     }
   }
 
-  if(m_modeTx=="JT9" and m_nSubMode>0) {       //JT9
+  if(m_modeTx=="JT9" and m_nSubMode>0) {     //JT9
     bw=8.0*12000.0/m_nsps;
-    if(m_nSubMode==1) bw=2*bw;
-    if(m_nSubMode==2) bw=4*bw;
-    if(m_nSubMode==3) bw=8*bw;
-    if(m_nSubMode==4) bw=16*bw;
-    if(m_nSubMode==5) bw=32*bw;
-    if(m_nSubMode==6) bw=64*bw;
-    if(m_nSubMode==7) bw=128*bw;
+    if(m_nSubMode==1) bw=2*bw;   //B
+    if(m_nSubMode==2) bw=4*bw;   //C
+    if(m_nSubMode==3) bw=8*bw;   //D
+    if(m_nSubMode==4) bw=16*bw;  //E
+    if(m_nSubMode==5) bw=32*bw;  //F
+    if(m_nSubMode==6) bw=64*bw;  //G
+    if(m_nSubMode==7) bw=128*bw; //H
+  }
+
+  if(m_mode=="QRA65") {                      //QRA65
+    bw=63.0*12000.0/m_nsps;
+    if(m_nSubMode==1) bw=2*bw;   //B
+    if(m_nSubMode==2) bw=4*bw;   //C
+    if(m_nSubMode==3) bw=8*bw;   //D
+    if(m_nSubMode==4) bw=16*bw;  //E
   }
 
   if(m_modeTx=="JT65") {                     //JT65
     bw=65.0*11025.0/4096.0;
-    if(m_nSubMode==1) bw=2*bw;
-    if(m_nSubMode==2) bw=4*bw;
+    if(m_nSubMode==1) bw=2*bw;   //B
+    if(m_nSubMode==2) bw=4*bw;   //C
   }
 
   painter0.setPen(penGreen);
@@ -367,7 +375,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
     x2=XfromFreq(1600);
     painter0.drawLine(x1,29,x2,29);
   }
-  if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65") {
+  if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65" or m_mode=="QRA65") {
 
     if(g_single_decode and m_mode=="JT65") {
       painter0.setPen(penGreen);
@@ -399,7 +407,7 @@ void CPlotter::DrawOverlay()                                 //DrawOverlay()
   }
 
   if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65" or
-     m_mode.mid(0,4)=="WSPR") {
+     m_mode.mid(0,4)=="WSPR" or m_mode=="QRA65") {
     painter0.setPen(penRed);
     x1=XfromFreq(m_txFreq);
     x2=XfromFreq(m_txFreq+bw);
