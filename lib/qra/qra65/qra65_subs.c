@@ -24,19 +24,13 @@ void qra65_dec_(float r[], int* nmycall, int xdec[], int* rc)
 //   rc=4    [CALL ?     ] AP44
 //   rc=5    [CALL CALL ?] AP57
 
-  static int ncall0=0;
-  int ncall;
-  int x[63],y[12];
+  static ncall0=-1;
+  int ncall=*nmycall;
+  static qra65codec *codec;
 
-  ncall = *nmycall;
-  qra65codec *codec = qra65_init(1,ncall);	//codec for ncall
-/*
-  if(ncall != ncall0) {
-    memset(y,0,sizeof(y));
-    qra65_encode(codec, y, x);
-    printf("Updated codec %d\n",ncall);
+  if(ncall!=ncall0) {
+    codec = qra65_init(1,ncall);	//codec for ncall
+    ncall0=ncall;
   }
-  ncall0=ncall;
-*/
   *rc = qra65_decode(codec,xdec,r);
 }

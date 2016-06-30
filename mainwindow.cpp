@@ -4727,7 +4727,6 @@ void MainWindow::transmit (double snr)
     if(m_nSubMode==0) toneSpacing=12000.0/6912.0;
     if(m_nSubMode==1) toneSpacing=2*12000.0/6912.0;
     if(m_nSubMode==2) toneSpacing=4*12000.0/6912.0;
-    qDebug() << "b" << m_modeTx << itone[0]<< itone[1]<< itone[2]<< itone[3]<< itone[4]<< itone[5] ;
     Q_EMIT sendMessage (NUM_QRA65_SYMBOLS,
            6912.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),

@@ -233,7 +233,7 @@ contains
     integer, intent(in) :: nsum
     integer, intent(in) :: minsync
 
-    integer i
+    integer i,nft
     logical is_deep,is_average
     character decoded*22,csync*2,cflags*3
 
@@ -242,6 +242,18 @@ contains
     decoded=decoded0
     cflags='   '
     is_deep=ft.eq.2
+
+    if(ft.ge.80) then
+       nft=ft-100
+       csync=':'
+       write(*,1009) params%nutc,snr,dt,freq,csync,decoded,nft
+1009   format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,i2)
+       write(13,1011) params%nutc,nint(sync),snr,dt,float(freq),drift,    &
+            decoded,nft
+1011   format(i4.4,i4,i5,f6.2,f8.0,i4,3x,a22,' QRA65',i3)
+       go to 100
+    endif
+
     if(ft.eq.0 .and. minsync.ge.0 .and. int(sync).lt.minsync) then
        write(*,1010) params%nutc,snr,dt,freq
     else
@@ -275,19 +287,14 @@ contains
              endif
           endif
        endif
-       if(ft.ge.100) then
-          write(*,1009) params%nutc,snr,dt,freq,csync,decoded,ft-100
-1009      format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,i2)
-       else
-          write(*,1010) params%nutc,snr,dt,freq,csync,decoded,cflags
-1010      format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,1x,a3)
-       endif
+       write(*,1010) params%nutc,snr,dt,freq,csync,decoded,cflags
+1010   format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,1x,a3)
     endif
-
     write(13,1012) params%nutc,nint(sync),snr,dt,float(freq),drift,    &
          decoded,ft,nsum,nsmo
 1012 format(i4.4,i4,i5,f6.2,f8.0,i4,3x,a22,' JT65',3i3)
-    call flush(6)
+
+100 call flush(6)
 
 !$omp end critical(decode_results)
     select type(this)
