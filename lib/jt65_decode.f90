@@ -101,7 +101,8 @@ contains
 ! This is QRA65 mode
 !       print*,'A',nsubmode,nsubmode,nsubmode
        call qra02(dd,nf1,nf2,nfqso,ntol,mycall,sync,nsnr,dtx,nfreq,decoded,nft)
-!       print*,'Z',nft,decoded
+!       print*,'Z',sync,nft,decoded
+       if(sync.lt.12.8) go to 900                 !### Temporary ###
        if (associated(this%callback)) then
           ndrift=0
           nflip=1
@@ -111,7 +112,6 @@ contains
           call this%callback(sync,nsnr,dtx,nfreq,ndrift,  &
                nflip,width,decoded,nft,nqual,nsmo,1,minsync)
        end if
-
        go to 900
     endif
 

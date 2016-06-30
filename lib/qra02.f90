@@ -128,11 +128,13 @@ subroutine qra02(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
 !  flush(75)
 !  flush(76)
 
-  nsnr=-30
-  if(sync.gt.1.0) nsnr=nint(10.0*log10(sync) - 38.0)
-
   decoded='                      '
   nft=100
+  nsnr=-30
+  if(sync.gt.1.0) nsnr=nint(10.0*log10(sync) - 38.0)
+  if(sync.lt.12.8) go to 900                !### Temporary ###
+!  print*,'A',sync,nsnr
+
   mycall=mycall_12(1:6)                     !### May need fixing ###
   call packcall(mycall,nmycall,ltext)
 !  write(77,3002) s3
@@ -147,5 +149,5 @@ subroutine qra02(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
      nft=100 + irc
   endif
 
-  return
+900 return
 end subroutine qra02
