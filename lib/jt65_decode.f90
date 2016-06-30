@@ -96,6 +96,25 @@ contains
     robust=nrobust
     dd=dd0
     ndecoded=0
+
+    if(nsubmode.ge.100) then
+! This is QRA65 mode
+!       print*,'A',nsubmode,nsubmode,nsubmode
+       call qra02(dd,nf1,nf2,nfqso,ntol,mycall,sync,nsnr,dtx,nfreq,decoded,nft)
+!       print*,'Z',nft,decoded
+       if (associated(this%callback)) then
+          ndrift=0
+          nflip=1
+          width=1.0
+          nsmo=0
+          nqual=0
+          call this%callback(sync,nsnr,dtx,nfreq,ndrift,  &
+               nflip,width,decoded,nft,nqual,nsmo,1,minsync)
+       end if
+
+       go to 900
+    endif
+
     do ipass=1,n2pass                             !Two-pass decoding loop
        first_time=.true.
        if(ipass.eq.1) then                        !First-pass parameters
@@ -163,9 +182,7 @@ contains
           nvec=100
        endif
 
-       if(nsubmode.le.8) mode65=2**nsubmode
-       if(nsubmode.eq.101) mode65=101
-
+       mode65=2**nsubmode
        nflip=1
        nqd=0
        decoded='                      '
@@ -298,7 +315,7 @@ contains
        if(ndecoded.lt.1) exit
     enddo                                    !Two-pass loop
 
-    return
+900 return
   end subroutine decode
 
   subroutine avg65(nutc,nsave,snrsync,dtxx,nflip,nfreq,mode65,ntol,ndepth,    &
