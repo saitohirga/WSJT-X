@@ -112,9 +112,10 @@ public slots:
   void fastPick(int x0, int x1, int y);
 
 protected:
-  virtual void keyPressEvent( QKeyEvent *e );
-  void  closeEvent(QCloseEvent*);
-  virtual bool eventFilter(QObject *object, QEvent *event);
+  void keyPressEvent (QKeyEvent *) override;
+  void mousePressEvent (QMouseEvent *) override;
+  void closeEvent(QCloseEvent*) override;
+  bool eventFilter(QObject *object, QEvent *event) override;
 
 private slots:
   void on_tx1_editingFinished();
@@ -556,6 +557,7 @@ private:
   void subProcessFailed (QProcess *, int exit_code, QProcess::ExitStatus);
   void subProcessError (QProcess *, QProcess::ProcessError);
   void statusUpdate () const;
+  void updateProgressBarFormat (bool wd_in_use);
 };
 
 extern int killbyname(const char* progName);
