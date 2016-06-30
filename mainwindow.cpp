@@ -192,7 +192,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_inGain {0},
   m_secID {0},
   m_repeatMsg {0},
-  m_watchdogLimit {7},
+  m_watchdogLimit {6},
   m_nSubMode {0},
   m_nclearave {1},
   m_pctx {0},
@@ -1388,8 +1388,40 @@ void MainWindow::auto_tx_mode (bool state)
   on_autoButton_clicked (state);
 }
 
-void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
+void MainWindow::updateProgressBarFormat (bool wd_in_use)
 {
+  if (wd_in_use)
+    {
+      progressBar->setFormat (QString {"%v/%m WD:%1"}.arg (m_watchdogLimit - m_repeatMsg));
+    }
+  else
+    {
+      progressBar->setFormat ("%v/%m");
+    }
+}
+
+void MainWindow::mousePressEvent (QMouseEvent * e)
+{
+  if (!m_mode.startsWith ("WSPR") && m_mode!="Echo" && m_config.watchdog ()) {
+    m_repeatMsg = 0;              // reset Tx watchdog
+    updateProgressBarFormat (true);
+  }
+  else {
+    updateProgressBarFormat (false);
+  }
+  QMainWindow::mousePressEvent (e);
+}
+
+void MainWindow::keyPressEvent (QKeyEvent * e)
+{
+  if (!m_mode.startsWith ("WSPR") && m_mode!="Echo" && m_config.watchdog ()) {
+    m_repeatMsg = 0;              // reset Tx watchdog
+    updateProgressBarFormat (true);
+  }
+  else {
+    updateProgressBarFormat (false);
+  }
+
   int n;
   switch(e->key())
     {
@@ -1577,7 +1609,8 @@ void MainWindow::createStatusBar()                           //createStatusBar
   statusBar()->addWidget(auto_tx_label);
 
   statusBar()->addWidget(progressBar);
-  progressBar->setFormat("%v/%m");
+  progressBar->setMinimumSize (QSize {150, 18});
+  updateProgressBarFormat (!m_mode.startsWith ("WSPR") && m_mode!="Echo" && m_config.watchdog ());
 }
 
 void MainWindow::subProcessFailed (QProcess * process, int exit_code, QProcess::ExitStatus status)
@@ -2668,13 +2701,20 @@ void MainWindow::guiUpdate()
 
   if (g_iptt == 1 && m_iptt0 == 0)
     {
-      QString t=QString::fromLatin1(msgsent);
-      if(t==m_msgSent0) {
-        m_repeatMsg++;
-      } else {
-        m_repeatMsg=0;
-        m_msgSent0=t;
+      auto const& current_message = QString::fromLatin1 (msgsent);
+      if(!m_mode.startsWith ("WSPR") && m_mode!="Echo" && m_config.watchdog ()) {
+        if (current_message == m_msgSent0) {
+          m_repeatMsg++;
+        } else {
+          m_repeatMsg=0;          // in case we are auto sequencing
+          m_msgSent0 = current_message;
+        }
+        updateProgressBarFormat (true);
       }
+      else {
+        updateProgressBarFormat (false);
+      }
+
       if(!m_tune) {
         QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
         if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
@@ -2691,7 +2731,7 @@ void MainWindow::guiUpdate()
       }
 
       if (m_config.TX_messages () && !m_tune) {
-        ui->decodedTextBrowser2->displayTransmittedText(t,m_modeTx,
+        ui->decodedTextBrowser2->displayTransmittedText(current_message, m_modeTx,
               ui->TxFreqSpinBox->value(),m_config.color_TxMsg(),m_bFastMode);
       }
 
@@ -2830,11 +2870,16 @@ void MainWindow::stopTx2()
     on_stopTxButton_clicked();
     m_nTx73=0;
   }
-  if (!m_mode.startsWith ("WSPR") and m_mode!="Echo" and m_config.watchdog() and
-      m_repeatMsg>=m_watchdogLimit-1) {
-    on_stopTxButton_clicked();
-    msgBox("Runaway Tx watchdog");
-    m_repeatMsg=0;
+  if (!m_mode.startsWith ("WSPR") && m_mode!="Echo" && m_config.watchdog()) {
+    if (m_repeatMsg >= m_watchdogLimit) {
+      on_stopTxButton_clicked();
+      msgBox("Runaway Tx watchdog");
+      m_repeatMsg = 0;
+    }
+    updateProgressBarFormat (true);
+  }
+  else {
+    updateProgressBarFormat (false);
   }
   if(m_mode.startsWith ("WSPR") and m_ntr==-1 and !m_tuneup) {
     m_wideGraph->setWSPRtransmitted();
@@ -2876,7 +2921,6 @@ void MainWindow::on_txFirstCheckBox_stateChanged(int nstate)        //TxFirst
 void MainWindow::set_ntx(int n)                                   //set_ntx()
 {
   m_ntx=n;
-  m_repeatMsg=0;
 }
 
 void MainWindow::on_txb1_clicked()                                //txb1
@@ -4288,7 +4332,6 @@ void MainWindow::band_changed (Frequency f)
     if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
     setRig ();
     setXIT (ui->TxFreqSpinBox->value ());
-    m_repeatMsg = 0;            // reset Tx watchdog
   }
 }
 
@@ -4413,7 +4456,6 @@ void MainWindow::on_tuneButton_clicked (bool checked)
     tuneButtonTimer.start(250);
   } else {
     m_sentFirst73=false;
-    m_repeatMsg=0;
     itone[0]=0;
     on_monitorButton_clicked (true);
     m_tune_attenuation_restore = ui->outAttenuation->value();
@@ -4453,7 +4495,6 @@ void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
   if (m_tune) stop_tuning ();
   if (m_auto and !m_tuneup) auto_tx_mode (false);
   m_btxok=false;
-  m_repeatMsg=0;
 }
 
 void MainWindow::rigOpen ()
@@ -4594,7 +4635,6 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
           if (m_lastDialFreq != m_freqNominal and ((m_mode!="JTMSK" and m_mode!="MSK144") or
               !ui->cbCQRx->isChecked())) {
             m_lastDialFreq = m_freqNominal;
-            m_repeatMsg=0;
             m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
             if(s.frequency () < 30000000u && !m_mode.startsWith ("WSPR")) {
               // Write freq changes to ALL.TXT only below 30 MHz.
