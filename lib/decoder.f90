@@ -245,11 +245,11 @@ contains
 
     if(ft.ge.80) then
        nft=ft-100
-       if(snr.eq.-30 .and. decoded.eq.'                      ') then
-          csync=': '
+       csync=': '
+       if(snr.gt.-30) csync=':*'
+       if(nft.lt.0) then
           write(*,1009) params%nutc,snr,dt,freq,csync,decoded
        else
-          csync=':*'
           write(*,1009) params%nutc,snr,dt,freq,csync,decoded,nft
 1009      format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,i2)
        endif
