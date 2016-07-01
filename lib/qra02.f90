@@ -9,8 +9,7 @@ subroutine qra02(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
   integer icos7(0:6)
   integer ipk(1)
   integer jpk(1)
-!  integer dat4(12)
-  integer dat4(120)
+  integer dat4(12)
   real dd(60*12000)
   real s(NZ)
   real savg(NZ)
@@ -24,10 +23,14 @@ subroutine qra02(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
   common/qra65com/ss(NZ,194),s3(0:63,1:63),ccf(NZ,0:25)
   save
 
+!  rewind 73
 !  rewind 74
 !  rewind 75
+!  rewind 76
 
-!  print*,'B',nf1,nf2,nfqso,ntol
+  decoded='                      '
+  nft=100
+  nsnr=-30
   nsps=6912
   istep=nsps/2
   nsteps=52*12000/istep - 2
@@ -51,10 +54,6 @@ subroutine qra02(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
   call pctile(savg,NZ,45,base)
   savg=savg/base - 1.0
   ss=ss/base
-!  do i=1,NZ
-!     write(73,1010) i*df,savg(i),i
-!1010 format(2f10.3,i8)
-!  enddo
 
   fa=max(nf1,nfqso-ntol)
   fb=min(nf2,nfqso+ntol)
@@ -84,6 +83,31 @@ subroutine qra02(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
      enddo
   enddo
 
+  if0=nint(f0/df)
+  nfreq=nint(f0)
+  blue(0:25)=ccf(if0,0:25)
+  jpk=maxloc(blue)
+  xpk=jpk(1) + 1.0
+  call slope(blue,26,xpk)
+
+! Insist on at least 10 correct hard decisions in the 21 Costas bins.
+  nhard=0
+  do n=0,6
+     ipk=maxloc(ss(i0:i0+63,1+j0+2*n)) - 1
+     i=abs(ipk(1)-2*icos7(n))
+     if(i.le.1) nhard=nhard+1
+
+     ipk=maxloc(ss(i0:i0+63,1+j0+2*n+78)) - 1
+     i=abs(ipk(1)-2*icos7(n))
+     if(i.le.1) nhard=nhard+1
+
+     ipk=maxloc(ss(i0:i0+63,1+j0+2*n+154)) - 1
+     i=abs(ipk(1)-2*icos7(n))
+     if(i.le.1) nhard=nhard+1
+  enddo
+!  print*,'a',nhard,nhard,nhard
+  if(nhard.lt.6) go to 900
+
   do i=0,63
      k=i0 + 2*i
      jj=j0+13
@@ -94,55 +118,12 @@ subroutine qra02(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
      enddo
   enddo
 
-  do j=1,63
-     do i=0,63
-        n=0.25*s3(i,j)
-        if(n.lt.0) n=0
-        if(n.gt.5) n=5
-        zplot(i)=mark(n)
-     enddo
-     ipk=maxloc(s3(0:63,j))
-!     write(76,3001) j,zplot,ipk(1)-1
-!3001 format(i2,1x,'|',64a1,'|',i4)
-  enddo
-
-  if0=nint(f0/df)
-  nfreq=nint(f0)
-  blue(0:25)=ccf(if0,0:25)
-  jpk=maxloc(blue)
-  xpk=jpk(1) + 1.0
-  call slope(blue,26,xpk)
-
-!  do j=0,25
-!     tsec=j*istep/12000.0
-!     write(74,1020) tsec,blue(j)
-!1020 format(f5.2,i3,10f7.1)
-!  enddo
-
-!  do i=ia,ib
-!     f=i*df
-!     write(75,1030) f,red(i)
-!1030 format(2f10.2)
-!  enddo
-!  flush(74)
-!  flush(75)
-!  flush(76)
-
-  decoded='                      '
-  nft=100
-  nsnr=-30
-  if(sync.gt.1.0) nsnr=nint(10.0*log10(sync) - 38.0)
-  if(sync.lt.12.8) go to 900                !### Temporary ###
-!  print*,'A',sync,nsnr
+  if(sync.gt.1.0) nsnr=nint(10.0*log10(sync) - 39.0)
+!  if(sync.lt.12.8) go to 900                !### Temporary ###
 
   mycall=mycall_12(1:6)                     !### May need fixing ###
   call packcall(mycall,nmycall,ltext)
-!  write(77,3002) s3
-!3002 format(f10.3)
-!  flush(77)
-!  print*,'a',sync,dtx,base
   call qra65_dec(s3,nmycall,dat4,irc)       !Attempt decoding
-!  print*,'z',sync,dtx,nfreq
   if(irc.ge.0) then
      call unpackmsg(dat4,decoded)           !Unpack the user message
      call fmtmsg(decoded,iz)
