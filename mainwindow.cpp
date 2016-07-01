@@ -2523,7 +2523,11 @@ void MainWindow::guiUpdate()
         auto const& message = tr ("Please choose another Tx frequency.\n"
                                   "WSJT-X will not knowingly transmit another\n"
                                   "mode in the WSPR sub-band on 30 m.");
+#if QT_VERSION >= 0x050400
         QTimer::singleShot (0, [=] {msgBox (message);}); // don't block guiUpdate
+#else
+        msgBox (message);
+#endif
       }
     }
 
@@ -2532,7 +2536,11 @@ void MainWindow::guiUpdate()
       m_bTxTime=false;
       if (m_tune) stop_tuning ();
       if (m_auto) auto_tx_mode (false);
+#if QT_VERSION >= 0x050400
       QTimer::singleShot (0, [=] {msgBox ("Runaway Tx watchdog");}); // don't block guiUpdate
+#else
+      msgBox ("Runaway Tx watchdog");
+#endif
       m_repeatMsg = 0;
       updateProgressBarFormat (true);
     }
@@ -2669,7 +2677,11 @@ void MainWindow::guiUpdate()
         {
           auto const& message = tr ("Cannot open \"%1\" for append: %2")
             .arg (f.fileName ()).arg (f.errorString ());
+#if QT_VERSION >= 0x050400
           QTimer::singleShot (0, [=] {msgBox (message);}); // don't block guiUpdate
+#else
+          msgBox (message);
+#endif
         }
       if (m_config.TX_messages ())
         {
@@ -2769,7 +2781,11 @@ void MainWindow::guiUpdate()
         } else {
           auto const& message = tr ("Cannot open \"%1\" for append: %2")
             .arg (f.fileName ()).arg(f.errorString ());
+#if QT_VERSION >= 0x050400
           QTimer::singleShot (0, [=] {msgBox (message);}); // don't block guiUpdate
+#else
+          msgBox (message);
+#endif
         }
       }
 
