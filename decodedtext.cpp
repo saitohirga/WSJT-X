@@ -86,7 +86,8 @@ bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /
     bool b = stdmsg_(msg.mid(0,22).toLatin1().constData(),22);  // stdmsg is a fortran routine that packs the text, unpacks it and compares the result
 
     QStringList w=msg.split(" ",QString::SkipEmptyParts);
-    if(b && (w[0] == myBaseCall
+    if(w.size ()
+       && b && (w[0] == myBaseCall
              || w[0].endsWith ("/" + myBaseCall)
              || w[0].startsWith (myBaseCall + "/")
              || (w.size () > 1 && !dxBaseCall.isEmpty ()
