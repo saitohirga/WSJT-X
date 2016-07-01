@@ -377,7 +377,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
   }
   if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65" or m_mode=="QRA65") {
 
-    if(g_single_decode and m_mode=="JT65") {
+    if(m_mode=="QRA65" or (g_single_decode and m_mode=="JT65")) {
       painter0.setPen(penGreen);
       x1=XfromFreq(m_rxFreq-m_tol);
       x2=XfromFreq(m_rxFreq+m_tol);
@@ -385,13 +385,15 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
       x1=XfromFreq(m_rxFreq);
       painter0.drawLine(x1,24,x1,30);
 
-      painter0.setPen(penOrange);
-      x3=XfromFreq(m_rxFreq+20.0*bw/65.0);    //RO
-      painter0.drawLine(x3,24,x3,30);
-      x4=XfromFreq(m_rxFreq+30.0*bw/65.0);    //RRR
-      painter0.drawLine(x4,24,x4,30);
-      x5=XfromFreq(m_rxFreq+40.0*bw/65.0);    //73
-      painter0.drawLine(x5,24,x5,30);
+      if(m_mode=="JT65") {
+        painter0.setPen(penOrange);
+        x3=XfromFreq(m_rxFreq+20.0*bw/65.0);    //RO
+        painter0.drawLine(x3,24,x3,30);
+        x4=XfromFreq(m_rxFreq+30.0*bw/65.0);    //RRR
+        painter0.drawLine(x4,24,x4,30);
+        x5=XfromFreq(m_rxFreq+40.0*bw/65.0);    //73
+        painter0.drawLine(x5,24,x5,30);
+      }
       painter0.setPen(penGreen);
       x6=XfromFreq(m_rxFreq+bw);             //Highest tone
       painter0.drawLine(x6,24,x6,30);
