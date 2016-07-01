@@ -143,6 +143,13 @@ namespace
       && ((type < 6 && msg_parts.contains ("73"))
           || (type == 6 && !msg_parts.filter ("73").isEmpty ()));
   }
+
+  int ms_to_next_minute ()
+  {
+    auto const& now = QDateTime::currentDateTime ();
+    auto const& time = now.time ();
+    return now.msecsTo (QDateTime {now.date (), QTime {time.hour (), time.minute (), 0}}.addSecs (60));
+  }
 }
 
 //--------------------------------------------------- MainWindow constructor
@@ -192,7 +199,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_inGain {0},
   m_secID {0},
   m_repeatMsg {0},
-  m_watchdogLimit {6},
   m_nSubMode {0},
   m_nclearave {1},
   m_pctx {0},
@@ -423,7 +429,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
         // text message, send + empty text means send the current free
         // text message without change, !send + empty text means clear
         // the current free text message
-        qDebug () << "Free text UDP message - text:" << text << "send:" << send << "text empty:" << text.isEmpty ();
         if (0 == ui->tabWidget->currentIndex ()) {
           if (!text.isEmpty ()) {
             ui->tx5->setCurrentText (text);
@@ -507,7 +512,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     });
 
   setWindowTitle (program_title ());
-  createStatusBar();
 
   connect(&proc_jt9, &QProcess::readyReadStandardOutput, this, &MainWindow::readFromStdout);
   connect(&proc_jt9, static_cast<void (QProcess::*) (QProcess::ProcessError)> (&QProcess::error),
@@ -653,6 +657,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->decodedTextLabel2->setText(t);
 
   readSettings();		         //Restore user's setup params
+
+  createStatusBar();
 
   m_audioThread.start (m_audioThreadPriority);
 
@@ -834,8 +840,40 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_wideGraph->setModeTx(m_modeTx);
   ui->sbSubmode->setValue(m_nSubMode);
 
+  connect (&minuteTimer, &QTimer::timeout, this, &MainWindow::on_the_minute);
+  minuteTimer.setSingleShot (true);
+  minuteTimer.start (ms_to_next_minute ());
+
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
+}
+
+void MainWindow::on_the_minute ()
+{
+  if (minuteTimer.isSingleShot ())
+    {
+      minuteTimer.setSingleShot (false);
+      minuteTimer.start (60 * 1000); // run free
+    }
+  else
+    {
+      auto const& ms = ms_to_next_minute ();
+      if (qAbs (60 * 1000 - ms) > 1000) // correct drift
+        {
+          minuteTimer.setSingleShot (true);
+          minuteTimer.start (ms);
+        }
+    }
+
+  if (m_repeatMsg < m_config.watchdog ()) ++m_repeatMsg;
+  if (!m_mode.startsWith ("WSPR") && m_config.watchdog () != 0)
+    {
+      updateProgressBarFormat (true);
+    }
+  else
+    {
+      updateProgressBarFormat (false);
+    }
 }
 
 //--------------------------------------------------- MainWindow destructor
@@ -1392,7 +1430,7 @@ void MainWindow::updateProgressBarFormat (bool wd_in_use)
 {
   if (wd_in_use)
     {
-      progressBar->setFormat (QString {"%v/%m WD:%1"}.arg (m_watchdogLimit - m_repeatMsg));
+      progressBar->setFormat (QString {"%v/%m WD:%1m"}.arg (m_config.watchdog () - m_repeatMsg));
     }
   else
     {
@@ -1400,28 +1438,8 @@ void MainWindow::updateProgressBarFormat (bool wd_in_use)
     }
 }
 
-void MainWindow::mousePressEvent (QMouseEvent * e)
-{
-  if (!m_mode.startsWith ("WSPR") && m_mode!="Echo" && m_config.watchdog ()) {
-    m_repeatMsg = 0;              // reset Tx watchdog
-    updateProgressBarFormat (true);
-  }
-  else {
-    updateProgressBarFormat (false);
-  }
-  QMainWindow::mousePressEvent (e);
-}
-
 void MainWindow::keyPressEvent (QKeyEvent * e)
 {
-  if (!m_mode.startsWith ("WSPR") && m_mode!="Echo" && m_config.watchdog ()) {
-    m_repeatMsg = 0;              // reset Tx watchdog
-    updateProgressBarFormat (true);
-  }
-  else {
-    updateProgressBarFormat (false);
-  }
-
   int n;
   switch(e->key())
     {
@@ -1570,17 +1588,35 @@ void MainWindow::statusChanged()
         << ui->rptSpinBox->value() << ";" << m_modeTx << endl;
     f.close();
   } else {
-    msgBox("Cannot open \"" + f.fileName () + "\" for writing:" + f.errorString ());
+    msgBox (tr ("Cannot open \"%1\" for writing: %2").arg (f.fileName ()).arg (f.errorString ()));
   }
 }
 
-bool MainWindow::eventFilter(QObject *object, QEvent *event)  //eventFilter()
+bool MainWindow::eventFilter (QObject * object, QEvent * event)
 {
-  if (event->type() == QEvent::KeyPress) {
-    QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-    MainWindow::keyPressEvent(keyEvent);
-    return QObject::eventFilter(object, event);
-  }
+  switch (event->type())
+    {
+    case QEvent::KeyPress:
+      // fall through
+    case QEvent::MouseButtonPress:
+      if (m_repeatMsg && !m_mode.startsWith ("WSPR") && m_config.watchdog () != 0) {
+        m_repeatMsg = 0;        // reset Tx watchdog
+        updateProgressBarFormat (true);
+      }
+      break;
+
+    case QEvent::ChildAdded:
+      // ensure our child widgets get added to our event filter
+      add_child_to_event_filter (static_cast<QChildEvent *> (event)->child ());
+      break;
+
+    case QEvent::ChildRemoved:
+      // ensure our child widgets get d=removed from our event filter
+      remove_child_from_event_filter (static_cast<QChildEvent *> (event)->child ());
+      break;
+
+    default: break;
+    }
   return QObject::eventFilter(object, event);
 }
 
@@ -1591,7 +1627,6 @@ void MainWindow::createStatusBar()                           //createStatusBar
   tx_status_label->setStyleSheet("QLabel{background-color: #00ff00}");
   tx_status_label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(tx_status_label);
-
 
   mode_label->setAlignment(Qt::AlignHCenter);
   mode_label->setMinimumSize(QSize(80,18));
@@ -1610,7 +1645,7 @@ void MainWindow::createStatusBar()                           //createStatusBar
 
   statusBar()->addWidget(progressBar);
   progressBar->setMinimumSize (QSize {150, 18});
-  updateProgressBarFormat (!m_mode.startsWith ("WSPR") && m_mode!="Echo" && m_config.watchdog ());
+  updateProgressBarFormat (!m_mode.startsWith ("WSPR") && m_config.watchdog () != 0);
 }
 
 void MainWindow::subProcessFailed (QProcess * process, int exit_code, QProcess::ExitStatus status)
@@ -1684,11 +1719,11 @@ void MainWindow::on_stopButton_clicked()                       //stopButton
   }
 }
 
-void MainWindow::msgBox(QString t)                             //msgBox
+void MainWindow::msgBox (QString const& text)
 {
-  msgBox0.setText(t);
+  msgBox0.setText (text);
   QApplication::alert (this);
-  msgBox0.exec();
+  msgBox0.exec ();
 }
 
 void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
@@ -2149,7 +2184,7 @@ void::MainWindow::fast_decode_done()
       out << message.mid(0,n-2) << endl;
       f.close();
     } else {
-      msgBox("Cannot open \"" + f.fileName () + "\" for append:" + f.errorString ());
+      msgBox (tr ("Cannot open \"%1\" for append: %2").arg (f.fileName ()).arg (f.errorString ()));
     }
 
     if(m_mode=="JT9" or m_mode=="JTMSK" or m_mode=="MSK144") {
@@ -2236,7 +2271,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         out << t.mid(0,n-2) << endl;
         f.close();
       } else {
-        msgBox("Cannot open \"" + f.fileName () + "\" for append:" + f.errorString ());
+        msgBox (tr ("Cannot open \"%1\" for append: %2").arg (f.fileName ()).arg (f.errorString ()));
       }
 
         if (m_config.insert_blank () && m_blankLine)
@@ -2485,11 +2520,21 @@ void MainWindow::guiUpdate()
       if (m_auto) auto_tx_mode (false);
       if(onAirFreq!=m_onAirFreq0) {
         m_onAirFreq0=onAirFreq;
-        QString t="Please choose another Tx frequency.\n";
-        t+="WSJT-X will not knowingly transmit another\n";
-        t+="mode in the WSPR sub-band on 30 m.";
-        msgBox(t);
+        auto const& message = tr ("Please choose another Tx frequency.\n"
+                                  "WSJT-X will not knowingly transmit another\n"
+                                  "mode in the WSPR sub-band on 30 m.");
+        QTimer::singleShot (0, [=] {msgBox (message);}); // don't block guiUpdate
       }
+    }
+
+    if (!m_mode.startsWith ("WSPR") && m_config.watchdog() != 0
+        && m_repeatMsg >= m_config. watchdog ()) {
+      m_bTxTime=false;
+      if (m_tune) stop_tuning ();
+      if (m_auto) auto_tx_mode (false);
+      QTimer::singleShot (0, [=] {msgBox ("Runaway Tx watchdog");}); // don't block guiUpdate
+      m_repeatMsg = 0;
+      updateProgressBarFormat (true);
     }
 
     float fTR=float((nsec%m_TRperiod))/m_TRperiod;
@@ -2622,7 +2667,9 @@ void MainWindow::guiUpdate()
         }
       else
         {
-          msgBox("Cannot open \"" + f.fileName () + "\" for append:" + f.errorString ());
+          auto const& message = tr ("Cannot open \"%1\" for append: %2")
+            .arg (f.fileName ()).arg (f.errorString ());
+          QTimer::singleShot (0, [=] {msgBox (message);}); // don't block guiUpdate
         }
       if (m_config.TX_messages ())
         {
@@ -2702,17 +2749,12 @@ void MainWindow::guiUpdate()
   if (g_iptt == 1 && m_iptt0 == 0)
     {
       auto const& current_message = QString::fromLatin1 (msgsent);
-      if(!m_mode.startsWith ("WSPR") && m_mode!="Echo" && m_config.watchdog ()) {
-        if (current_message == m_msgSent0) {
-          m_repeatMsg++;
-        } else {
+      if(!m_mode.startsWith ("WSPR") && m_config.watchdog () != 0) {
+        if (current_message != m_msgSent0) {
           m_repeatMsg=0;          // in case we are auto sequencing
           m_msgSent0 = current_message;
         }
         updateProgressBarFormat (true);
-      }
-      else {
-        updateProgressBarFormat (false);
       }
 
       if(!m_tune) {
@@ -2725,8 +2767,9 @@ void MainWindow::guiUpdate()
               << ":  " << m_currentMessage << endl;
           f.close();
         } else {
-          msgBox("Cannot open \"" + f.fileName () + "\" for append:" +
-                 f.errorString ());
+          auto const& message = tr ("Cannot open \"%1\" for append: %2")
+            .arg (f.fileName ()).arg(f.errorString ());
+          QTimer::singleShot (0, [=] {msgBox (message);}); // don't block guiUpdate
         }
       }
 
@@ -2844,7 +2887,8 @@ void MainWindow::startTx2()
             << m_currentMessage << "  " + m_mode << endl;
         f.close();
       } else {
-        msgBox("Cannot open \"" + f.fileName () + "\" for append:" + f.errorString ());
+        msgBox (tr ("Cannot open \"%1\" for append: %2")
+                .arg (f.fileName ()).arg (f.errorString ()));
       }
     }
   }
@@ -2869,17 +2913,6 @@ void MainWindow::stopTx2()
   if(m_mode=="JT9" and m_bFast9 and ui->cbEME->isChecked() and m_ntx==5 and (m_nTx73>=5)) {
     on_stopTxButton_clicked();
     m_nTx73=0;
-  }
-  if (!m_mode.startsWith ("WSPR") && m_mode!="Echo" && m_config.watchdog()) {
-    if (m_repeatMsg >= m_watchdogLimit) {
-      on_stopTxButton_clicked();
-      msgBox("Runaway Tx watchdog");
-      m_repeatMsg = 0;
-    }
-    updateProgressBarFormat (true);
-  }
-  else {
-    updateProgressBarFormat (false);
   }
   if(m_mode.startsWith ("WSPR") and m_ntr==-1 and !m_tuneup) {
     m_wideGraph->setWSPRtransmitted();
@@ -4136,6 +4169,7 @@ void MainWindow::WSPR_config(bool b)
     auto_tx_label->setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" : "Auto-Tx-Enable Disarmed");
     m_bSimplex = false;
   }
+  auto_tx_label->setVisible (!b);
   enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
 }
 
@@ -5572,5 +5606,48 @@ void MainWindow::statusUpdate () const
                                       ui->RxFreqSpinBox->value (), ui->TxFreqSpinBox->value (),
                                       m_config.my_callsign (), m_config.my_grid (),
                                       m_hisGrid);
+    }
+}
+
+void MainWindow::childEvent (QChildEvent * e)
+{
+  if (e->child ()->isWidgetType ())
+    {
+      switch (e->type ())
+        {
+        case QEvent::ChildAdded: add_child_to_event_filter (e->child ()); break;
+        case QEvent::ChildRemoved: remove_child_from_event_filter (e->child ()); break;
+        default: break;
+        }
+    }
+  QMainWindow::childEvent (e);
+}
+
+// add widget and any child widgets to our event filter so that we can
+// take action on key press ad mouse press events anywhere in the main window
+void MainWindow::add_child_to_event_filter (QObject * target)
+{
+  if (target && target->isWidgetType ())
+    {
+      target->installEventFilter (this);
+    }
+  auto const& children = target->children ();
+  for (auto iter = children.begin (); iter != children.end (); ++iter)
+    {
+      add_child_to_event_filter (*iter);
+    }
+}
+
+// recursively remove widget and any child widgets from our event filter
+void MainWindow::remove_child_from_event_filter (QObject * target)
+{
+  auto const& children = target->children ();
+  for (auto iter = children.begin (); iter != children.end (); ++iter)
+    {
+      remove_child_from_event_filter (*iter);
+    }
+  if (target && target->isWidgetType ())
+    {
+      target->removeEventFilter (this);
     }
 }

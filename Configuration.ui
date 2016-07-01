@@ -132,6 +132,16 @@
           <string>Display</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="insert_blank_check_box">
+            <property name="toolTip">
+             <string>Include a separator line between periods in the band activity window.</string>
+            </property>
+            <property name="text">
+             <string>&amp;Blank line between decoding periods</string>
+            </property>
+           </widget>
+          </item>
           <item row="3" column="0">
            <widget class="QCheckBox" name="DXCC_check_box">
             <property name="toolTip">
@@ -145,13 +155,36 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="insert_blank_check_box">
+          <item row="0" column="1">
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="miles_check_box">
             <property name="toolTip">
-             <string>Include a separator line between periods in the band activity window.</string>
+             <string>Show distance to DX station in miles rather than kilometers.</string>
             </property>
             <property name="text">
-             <string>&amp;Blank line between decoding periods</string>
+             <string>Display dista&amp;nce in miles</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="TX_messages_check_box">
+            <property name="toolTip">
+             <string>Show outgoing transmitted messages in the Rx frequency window.</string>
+            </property>
+            <property name="text">
+             <string>&amp;Tx messages to Rx frequency window</string>
             </property>
            </widget>
           </item>
@@ -192,39 +225,6 @@
             </item>
            </layout>
           </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="miles_check_box">
-            <property name="toolTip">
-             <string>Show distance to DX station in miles rather than kilometers.</string>
-            </property>
-            <property name="text">
-             <string>Display dista&amp;nce in miles</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="TX_messages_check_box">
-            <property name="toolTip">
-             <string>Show outgoing transmitted messages in the Rx frequency window.</string>
-            </property>
-            <property name="text">
-             <string>&amp;Tx messages to Rx frequency window</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
          </layout>
         </widget>
        </item>
@@ -255,47 +255,6 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
-           <widget class="QCheckBox" name="monitor_last_used_check_box">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this if you wish to automatically return to the last monitored frequency when monitor is enabled, leave it unchecked if you wish to have the current rig frequency maintained.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string>Monitor returns to last used frequency</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="disable_TX_on_73_check_box">
-            <property name="toolTip">
-             <string>Turns off automatic transmissions after sending a 73 or any other free
-text message.</string>
-            </property>
-            <property name="text">
-             <string>Di&amp;sable Tx after sending 73</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QCheckBox" name="watchdog_check_box">
-            <property name="toolTip">
-             <string>Stop transmitting automatically after five periods.</string>
-            </property>
-            <property name="text">
-             <string>Runaway Tx &amp;watchdog</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="quick_call_check_box">
-            <property name="toolTip">
-             <string>Automatic transmission mode.</string>
-            </property>
-            <property name="text">
-             <string>Doubl&amp;e-click on call sets Tx enable</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
            <widget class="QCheckBox" name="monitor_off_check_box">
             <property name="toolTip">
@@ -306,6 +265,13 @@ text message.</string>
             </property>
             <property name="checked">
              <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QCheckBox" name="decode_at_52s_check_box">
+            <property name="text">
+             <string>Decode at t = 52 s</string>
             </property>
            </widget>
           </item>
@@ -368,6 +334,13 @@ quiet period when decoding is done.</string>
             </item>
            </layout>
           </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="single_decode_check_box">
+            <property name="text">
+             <string>Single decode</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="1">
            <widget class="QCheckBox" name="tx_QSY_check_box">
             <property name="toolTip">
@@ -378,17 +351,80 @@ quiet period when decoding is done.</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="QCheckBox" name="decode_at_52s_check_box">
+          <item row="4" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_12">
+            <item>
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>Tx watchdog:</string>
+              </property>
+              <property name="buddy">
+               <cstring>tx_watchdog_spin_box</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="tx_watchdog_spin_box">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of minutes before unattended transmissions are aborted&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="specialValueText">
+               <string>Disabled</string>
+              </property>
+              <property name="suffix">
+               <string> minutes</string>
+              </property>
+              <property name="prefix">
+               <string/>
+              </property>
+              <property name="value">
+               <number>6</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="monitor_last_used_check_box">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this if you wish to automatically return to the last monitored frequency when monitor is enabled, leave it unchecked if you wish to have the current rig frequency maintained.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
-             <string>Decode at t = 52 s</string>
+             <string>Monitor returns to last used frequency</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QCheckBox" name="single_decode_check_box">
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="quick_call_check_box">
+            <property name="toolTip">
+             <string>Automatic transmission mode.</string>
+            </property>
             <property name="text">
-             <string>Single decode</string>
+             <string>Doubl&amp;e-click on call sets Tx enable</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="disable_TX_on_73_check_box">
+            <property name="toolTip">
+             <string>Turns off automatic transmissions after sending a 73 or any other free
+text message.</string>
+            </property>
+            <property name="text">
+             <string>Di&amp;sable Tx after sending 73</string>
             </property>
            </widget>
           </item>
@@ -2376,10 +2412,7 @@ soundcard changes</string>
   <tabstop>font_push_button</tabstop>
   <tabstop>decoded_text_font_push_button</tabstop>
   <tabstop>monitor_off_check_box</tabstop>
-  <tabstop>quick_call_check_box</tabstop>
   <tabstop>tx_QSY_check_box</tabstop>
-  <tabstop>disable_TX_on_73_check_box</tabstop>
-  <tabstop>watchdog_check_box</tabstop>
   <tabstop>decode_at_52s_check_box</tabstop>
   <tabstop>offset_Rx_freq_check_box</tabstop>
   <tabstop>CW_id_after_73_check_box</tabstop>
@@ -2522,11 +2555,11 @@ soundcard changes</string>
  </connections>
  <buttongroups>
   <buttongroup name="split_mode_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
  </buttongroups>
 </ui>
