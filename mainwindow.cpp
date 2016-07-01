@@ -3883,6 +3883,8 @@ void MainWindow::on_actionQRA65_triggered()
   QString t1=(QString)QChar(short(m_nSubMode+65));
 //  mode_label->setText(m_mode + " " + t1);
   mode_label->setText("QRA02 " + t1);
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
 }
 
 
