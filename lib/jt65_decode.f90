@@ -99,10 +99,8 @@ contains
 
     if(nsubmode.ge.100) then
 ! This is QRA65 mode
-!       print*,'A',nsubmode,nsubmode,nsubmode
        call qra02(dd,nf1,nf2,nfqso,ntol,mycall,sync,nsnr,dtx,nfreq,decoded,nft)
-!       print*,'Z',sync,nft,decoded
-       if(sync.lt.12.8) go to 900                 !### Temporary ###
+!       if(sync.lt.12.8) go to 900                 !### Temporary ###
        if (associated(this%callback)) then
           ndrift=0
           nflip=1

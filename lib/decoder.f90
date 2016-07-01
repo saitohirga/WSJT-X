@@ -245,9 +245,14 @@ contains
 
     if(ft.ge.80) then
        nft=ft-100
-       csync=':'
-       write(*,1009) params%nutc,snr,dt,freq,csync,decoded,nft
-1009   format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,i2)
+       if(snr.eq.-30 .and. decoded.eq.'                      ') then
+          csync=': '
+          write(*,1009) params%nutc,snr,dt,freq,csync,decoded
+       else
+          csync=':*'
+          write(*,1009) params%nutc,snr,dt,freq,csync,decoded,nft
+1009      format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,i2)
+       endif
        write(13,1011) params%nutc,nint(sync),snr,dt,float(freq),drift,    &
             decoded,nft
 1011   format(i4.4,i4,i5,f6.2,f8.0,i4,3x,a22,' QRA65',i3)
