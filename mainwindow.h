@@ -113,9 +113,9 @@ public slots:
 
 protected:
   void keyPressEvent (QKeyEvent *) override;
-  void mousePressEvent (QMouseEvent *) override;
-  void closeEvent(QCloseEvent*) override;
-  bool eventFilter(QObject *object, QEvent *event) override;
+  void closeEvent(QCloseEvent *) override;
+  void childEvent(QChildEvent *) override;
+  bool eventFilter(QObject *, QEvent *) override;
 
 private slots:
   void on_tx1_editingFinished();
@@ -351,7 +351,6 @@ private:
   qint32  m_ncw;
   qint32  m_secID;
   qint32  m_repeatMsg;
-  qint32  m_watchdogLimit;
   qint32  m_nSubMode;
   qint32  m_nclearave;
   qint32  m_minSync;
@@ -458,6 +457,7 @@ private:
   QTimer tuneATU_Timer;
   QTimer TxAgainTimer;
   QTimer RxQSYTimer;
+  QTimer minuteTimer;
 
   QString m_path;
   QString m_baseCall;
@@ -514,7 +514,7 @@ private:
   void writeSettings();
   void createStatusBar();
   void updateStatusBar();
-  void msgBox(QString t);
+  void msgBox(QString const&);
   void genStdMsgs(QString rpt);
   void clearDX ();
   void lookup();
@@ -558,6 +558,9 @@ private:
   void subProcessError (QProcess *, QProcess::ProcessError);
   void statusUpdate () const;
   void updateProgressBarFormat (bool wd_in_use);
+  void on_the_minute ();
+  void add_child_to_event_filter (QObject *);
+  void remove_child_from_event_filter (QObject *);
 };
 
 extern int killbyname(const char* progName);
