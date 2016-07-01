@@ -29,7 +29,7 @@ subroutine qra02(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
 !  rewind 76
 
   decoded='                      '
-  nft=100
+  nft=99
   nsnr=-30
   nsps=6912
   istep=nsps/2
