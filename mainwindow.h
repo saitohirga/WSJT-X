@@ -427,12 +427,12 @@ private:
   char    m_pchkFile[512];
 
   // labels in status bar
-  QLabel * tx_status_label;
-  QLabel * mode_label;
-  QLabel * last_tx_label;
-  QLabel * auto_tx_label;
-
-  QProgressBar* progressBar;
+  QLabel tx_status_label;
+  QLabel mode_label;
+  QLabel last_tx_label;
+  QLabel auto_tx_label;
+  QLabel band_hopping_label;
+  QProgressBar progressBar;
 
   QMessageBox msgBox0;
 
@@ -561,6 +561,7 @@ private:
   void on_the_minute ();
   void add_child_to_event_filter (QObject *);
   void remove_child_from_event_filter (QObject *);
+  void setup_status_bar (bool vhf);
 };
 
 extern int killbyname(const char* progName);
