@@ -48,7 +48,7 @@ public:
     ISCAT,
     JTMSK,
     MSK144,
-    QRA65,
+    QRA64,
     MODES_END_SENTINAL_AND_COUNT // this must be last
   };
   Q_ENUM (Mode)

@@ -1,5 +1,5 @@
-// qra65.h
-// Encoding/decoding functions for the QRA65 mode
+// qra64.h
+// Encoding/decoding functions for the QRA64 mode
 // 
 // (c) 2016 - Nico Palermo, IV3NWV 
 // ------------------------------------------------------------------------------
@@ -19,19 +19,19 @@
 //    along with qracodes source distribution.  
 //    If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef _qra65_h_
-#define _qra65_h_
+#ifndef _qra64_h_
+#define _qra64_h_
 
-// qra65_init(...) initialization flags
+// qra64_init(...) initialization flags
 #define QRA_NOAP   0	// don't use a-priori knowledge
 #define QRA_AUTOAP 1	// use  auto a-priori knowledge 
 
 // QRA code parameters
-#define QRA65_K  12	// information symbols
-#define QRA65_N  63	// codeword length
-#define QRA65_C  51	// (number of parity checks C=(N-K))
-#define QRA65_M  64	// code alphabet size
-#define QRA65_m  6	// bits per symbol
+#define QRA64_K  12	// information symbols
+#define QRA64_N  63	// codeword length
+#define QRA64_C  51	// (number of parity checks C=(N-K))
+#define QRA64_M  64	// code alphabet size
+#define QRA64_m  6	// bits per symbol
 
 // packed predefined callsigns and fields as defined in JT65
 #define CALL_CQ			0xFA08319 
@@ -55,14 +55,14 @@ typedef struct {
   int apmask_call1[12];        
   int apmask_call1_ooo[12];    
   int apmask_call1_call2[12];  
-} qra65codec;
+} qra64codec;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-qra65codec *qra65_init(int flags, const int mycall);
-// QRA65 mode initialization function
+qra64codec *qra64_init(int flags, const int mycall);
+// QRA64 mode initialization function
 // arguments:
 //		flags: set the decoder mode
 //				When flags = QRA_NOAP    no a-priori information will be used by the decoder
@@ -70,37 +70,37 @@ qra65codec *qra65_init(int flags, const int mycall);
 //              of available a-priori information
 //		mycall: 28-bit packed callsign of the user (as computed by JT65)
 // returns:
-//      Pointer to the qra65codec data structure allocated and inizialized by the function
+//      Pointer to the qra64codec data structure allocated and inizialized by the function
 //		this handle should be passed to the encoding/decoding functions
 //
 //		0   if unsuccessful (can't allocate memory)
 // -------------------------------------------------------------------------------------------
 
-void qra65_encode(qra65codec *pcodec, int *y, const int *x);
-// QRA65 mode encoder
+void qra64_encode(qra64codec *pcodec, int *y, const int *x);
+// QRA64 mode encoder
 // arguments:
-//		pcodec = pointer to a qra65codec data structure as returned by qra65_init
+//		pcodec = pointer to a qra64codec data structure as returned by qra64_init
 //      x      = pointer to the message to encode
 //				 x must point to an array of integers (i.e. defined as int x[12])
 //      y      = pointer to the encoded message
 //				 y must point to an array of integers of lenght 63 (i.e. defined as int y[63])
 // -------------------------------------------------------------------------------------------
 
-int  qra65_decode(qra65codec *pcodec, int *x, const float *r);
-// QRA65 mode decoder
+int  qra64_decode(qra64codec *pcodec, int *x, const float *r);
+// QRA64 mode decoder
 // arguments:
-//		pcodec = pointer to a qra65codec data structure as returned by qra65_init
+//		pcodec = pointer to a qra64codec data structure as returned by qra64_init
 //      x      = pointer to the array of integers where the decoded message will be stored
 //				 x must point to an array of integers (i.e. defined as int x[12])
 //		r      = pointer to the received symbols energies (squared amplitudes)
-//               r must point to an array of QRA65_M*QRA65_N (=64*63=4032) float numbers.
+//               r must point to an array of QRA64_M*QRA64_N (=64*63=4032) float numbers.
 //				 The first QRA_M entries should be the energies of the first symbol in the codeword
 //               The last QRA_M entries should be the energies of the last symbol in the codeword
 //
 // return code:
 //
 //  The return code is <0 when decoding is unsuccessful
-//  -16 indicates that the definition of QRA65_NMSG does not match what required by the code
+//  -16 indicates that the definition of QRA64_NMSG does not match what required by the code
 //  If the decoding process is successfull the return code is accordingly to the following table
 //		rc=0    [?    ?    ?] AP0	(decoding with no a-priori)
 //		rc=1    [CQ   ?    ?] AP27
@@ -120,4 +120,4 @@ void decodemsg_jt65(int *call1, int *call2, int *grid, const int *x);
 }
 #endif
 
-#endif // _qra65_h_
+#endif // _qra64_h_

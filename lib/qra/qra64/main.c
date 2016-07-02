@@ -1,6 +1,6 @@
 /*
 main.c 
-QRA65 mode encode/decode test
+QRA64 mode encode/decode test
 
 (c) 2016 - Nico Palermo, IV3NWV
 
@@ -13,7 +13,7 @@ encoding/decoding package based on Q-ary RA (Repeat and Accumulate) LDPC codes.
 
 Files in this package:
    main.c		 - this file
-   qra65.c/.h     - qra65 mode encode/decoding functions
+   qra64.c/.h     - qra64 mode encode/decoding functions
 
    ../qracodes/normrnd.{c,h}   - random gaussian number generator
    ../qracodes/npfwht.{c,h}    - Fast Walsh-Hadamard Transforms
@@ -41,7 +41,7 @@ Files in this package:
 
 -----------------------------------------------------------------------------
 
-The code used by the QRA65 mode is the code: QRA13_64_64_IRR_E: K=13
+The code used by the QRA64 mode is the code: QRA13_64_64_IRR_E: K=13
 N=64 Q=64 irregular QRA code (defined in qra13_64_64_irr_e.{h,c}).
 
 This code has been designed to include a CRC as the 13th information
@@ -80,7 +80,7 @@ unsigned GetTickCount(void) {
 #include <stdio.h>
 #include <string.h>
 
-#include "qra65.h"
+#include "qra64.h"
 #include "../qracodes/normrnd.h"		   // gaussian numbers generator
 
 // ----------------------------------------------------------------------------
@@ -106,7 +106,7 @@ void printwordh(char *msg, int *x, int size)
   printf("\n");
 }
 
-#define NSAMPLES (QRA65_N*QRA65_M)
+#define NSAMPLES (QRA64_N*QRA64_M)
 
 static float rp[NSAMPLES];
 static float rq[NSAMPLES];
@@ -119,22 +119,22 @@ float *mfskchannel(int *x, int channel_type, float EbNodB)
 /*
 Simulate an MFSK channel, either AWGN or Rayleigh.
 
-x is a pointer to the transmitted codeword, an array of QRA65_N
+x is a pointer to the transmitted codeword, an array of QRA64_N
 integers in the range 0..63.
 
 Returns the received symbol energies (squared amplitudes) as an array of 
-(QRA65_M*QRA65_N) floats.  The first QRA65_M entries of this array are 
-the energies of the first symbol in the codeword.  The second QRA65_M 
+(QRA64_M*QRA64_N) floats.  The first QRA64_M entries of this array are 
+the energies of the first symbol in the codeword.  The second QRA64_M 
 entries are those of the second symbol, and so on up to the last codeword 
 symbol.
 */
   const float No = 1.0f;		        // noise spectral density
   const float sigma   = (float)sqrt(No/2.0f);	// std dev of noise I/Q components
   const float sigmach = (float)sqrt(1/2.0f);	// std dev of channel I/Q gains
-  const float R = 1.0f*QRA65_K/QRA65_N;	
+  const float R = 1.0f*QRA64_K/QRA64_N;	
 
   float EbNo = (float)pow(10,EbNodB/10);
-  float EsNo = 1.0f*QRA65_m*R*EbNo;
+  float EsNo = 1.0f*QRA64_m*R*EbNo;
   float Es = EsNo*No;
   float A = (float)sqrt(Es);
   int k;
@@ -143,15 +143,15 @@ symbol.
   normrnd_s(rq,NSAMPLES,0,sigma);
 
   if (channel_type == CHANNEL_AWGN) 
-    for (k=0;k<QRA65_N;k++) 
-      rp[k*QRA65_M+x[k]]+=A;
+    for (k=0;k<QRA64_N;k++) 
+      rp[k*QRA64_M+x[k]]+=A;
   else 
     if (channel_type == CHANNEL_RAYLEIGH) {
-      normrnd_s(chp,QRA65_N,0,sigmach);
-      normrnd_s(chq,QRA65_N,0,sigmach);
-      for (k=0;k<QRA65_N;k++) {
-	rp[k*QRA65_M+x[k]]+=A*chp[k];
-	rq[k*QRA65_M+x[k]]+=A*chq[k];
+      normrnd_s(chp,QRA64_N,0,sigmach);
+      normrnd_s(chq,QRA64_N,0,sigmach);
+      for (k=0;k<QRA64_N;k++) {
+	rp[k*QRA64_M+x[k]]+=A*chp[k];
+	rq[k*QRA64_M+x[k]]+=A*chq[k];
       }
     }
     else {
@@ -224,57 +224,57 @@ by their recipients (with no retries) and -1 if any of them could not
 be decoded
 */
 
-  int x[QRA65_K], xdec[QRA65_K];
-  int y[QRA65_N];
+  int x[QRA64_K], xdec[QRA64_K];
+  int y[QRA64_N];
   float *rx;
   int rc;
 
 // Each simulated station must use its own codec, since it might work with
 // different a-priori information.
-  qra65codec *codec_iv3nwv = qra65_init(mode,CALL_IV3NWV);  // codec for IV3NWV
-  qra65codec *codec_k1jt   = qra65_init(mode,CALL_K1JT);    // codec for K1JT
+  qra64codec *codec_iv3nwv = qra64_init(mode,CALL_IV3NWV);  // codec for IV3NWV
+  qra64codec *codec_k1jt   = qra64_init(mode,CALL_K1JT);    // codec for K1JT
 
 // Step 1a: IV3NWV makes a CQ call (with no grid)
   printf("IV3NWV tx: CQ IV3NWV\n");
   encodemsg_jt65(x,CALL_CQ,CALL_IV3NWV,GRID_BLANK);
-  qra65_encode(codec_iv3nwv, y, x);
+  qra64_encode(codec_iv3nwv, y, x);
   rx = mfskchannel(y,channel_type,EbNodB);
 
 // Step 1b: K1JT attempts to decode [? ? ?], [CQ/QRZ ? ?] or [CQ/QRZ ?]
-  rc = qra65_decode(codec_k1jt, xdec,rx);
+  rc = qra64_decode(codec_k1jt, xdec,rx);
   if (rc>=0) { // decoded
     printf("K1JT   rx: received with apcode=%d %s\n",rc, decode_type[rc]);
 
 // Step 2a: K1JT replies to IV3NWV (with no grid)
     printf("K1JT   tx: IV3NWV K1JT\n");
     encodemsg_jt65(x,CALL_IV3NWV,CALL_K1JT, GRID_BLANK);
-    qra65_encode(codec_k1jt, y, x);
+    qra64_encode(codec_k1jt, y, x);
     rx = mfskchannel(y,channel_type,EbNodB);
 
 // Step 2b: IV3NWV attempts to decode [? ? ?], [IV3NWV ? ?] or [IV3NWV ?]
-    rc = qra65_decode(codec_iv3nwv, xdec,rx);
+    rc = qra64_decode(codec_iv3nwv, xdec,rx);
     if (rc>=0) { // decoded
       printf("IV3NWV rx: received with apcode=%d %s\n",rc, decode_type[rc]);
 
 // Step 3a: IV3NWV replies to K1JT with a 73
       printf("IV3NWV tx: K1JT   IV3NWV 73\n");
       encodemsg_jt65(x,CALL_K1JT,CALL_IV3NWV, GRID_73);
-      qra65_encode(codec_iv3nwv, y, x);
+      qra64_encode(codec_iv3nwv, y, x);
       rx = mfskchannel(y,channel_type,EbNodB);
 
 // Step 3b: K1JT attempts to decode [? ? ?] or [K1JT IV3NWV ?]
-      rc = qra65_decode(codec_k1jt, xdec,rx);
+      rc = qra64_decode(codec_k1jt, xdec,rx);
       if (rc>=0) { // decoded
 	printf("K1JT   rx: received with apcode=%d %s\n",rc, decode_type[rc]);
 
 // Step 4a: K1JT replies to IV3NWV with a 73
 	printf("K1JT   tx: IV3NWV K1JT   73\n");
 	encodemsg_jt65(x,CALL_IV3NWV,CALL_K1JT, GRID_73);
-	qra65_encode(codec_k1jt, y, x);
+	qra64_encode(codec_k1jt, y, x);
 	rx = mfskchannel(y,channel_type,EbNodB);
 
 // Step 4b: IV3NWV attempts to decode [? ? ?], [IV3NWV ? ?], or [IV3NWV ?]
-	rc = qra65_decode(codec_iv3nwv, xdec,rx);
+	rc = qra64_decode(codec_iv3nwv, xdec,rx);
 	if (rc>=0) { // decoded
 	  printf("IV3NWV rx: received with apcode=%d %s\n",rc, decode_type[rc]);
 	  return 0;
@@ -297,7 +297,7 @@ If mode=QRA_NOAP, K1JT decoder attempts to decode only msgs of type [? ? ?].
 If mode=QRA_AUTOP, K1JT decoder will attempt to decode also the msgs 
 [K1JT IV3NWV] and [K1JT IV3NWV ?].
 
-In the case a decode is successful the return code of the qra65_decode function
+In the case a decode is successful the return code of the qra64_decode function
 indicates the amount of a-priori information required to decode the received 
 message according to this table:
 
@@ -314,33 +314,33 @@ This test simulates the situation ntx times and reports how many times
 a particular type decode among the above 6 cases succeded.
 */
 
-  int x[QRA65_K], xdec[QRA65_K];
-  int y[QRA65_N];
+  int x[QRA64_K], xdec[QRA64_K];
+  int y[QRA64_N];
   float *rx;
   int rc,k;
 
   int ndecok[6] = { 0, 0, 0, 0, 0, 0};
   int ntx = 100,ndec=0;
 
-  qra65codec *codec_iv3nwv = qra65_init(mode,CALL_IV3NWV);   // codec for IV3NWV
-  qra65codec *codec_k1jt   = qra65_init(mode,CALL_K1JT);     // codec for K1JT
+  qra64codec *codec_iv3nwv = qra64_init(mode,CALL_IV3NWV);   // codec for IV3NWV
+  qra64codec *codec_k1jt   = qra64_init(mode,CALL_K1JT);     // codec for K1JT
 
 // This will enable K1JT's decoder to look for IV3NWV calls
   encodemsg_jt65(x,CALL_IV3NWV,CALL_K1JT,GRID_BLANK);
-  qra65_encode(codec_k1jt, y, x);
+  qra64_encode(codec_k1jt, y, x);
   printf("K1JT   tx: IV3NWV K1JT\n");
 
   // IV3NWV reply to K1JT
   printf("IV3NWV tx: K1JT IV3NWV JN66\n");
   encodemsg_jt65(x,CALL_K1JT,CALL_IV3NWV,GRID_JN66);
-  qra65_encode(codec_iv3nwv, y, x);
+  qra64_encode(codec_iv3nwv, y, x);
 
   printf("Simulating decodes by K1JT up to AP56 ...");
 
   for (k=0;k<ntx;k++) {
     printf(".");
     rx = mfskchannel(y,channel_type,EbNodB);
-    rc = qra65_decode(codec_k1jt, xdec,rx);
+    rc = qra64_decode(codec_k1jt, xdec,rx);
     if (rc>=0) 
       ndecok[rc]++;
   }
@@ -359,10 +359,10 @@ a particular type decode among the above 6 cases succeded.
 
 void syntax(void)
 {
-  printf("\nQRA65 Mode Tests\n");
+  printf("\nQRA64 Mode Tests\n");
   printf("2016, Nico Palermo - IV3NWV\n\n");
   printf("---------------------------\n\n");
-  printf("Syntax: qra65 [-s<snrdb>] [-c<channel>] [-a<ap-type>] [-t<testtype>] [-h]\n");
+  printf("Syntax: qra64 [-s<snrdb>] [-c<channel>] [-a<ap-type>] [-t<testtype>] [-h]\n");
   printf("Options: \n");
   printf("       -s<snrdb>   : set simulation SNR in 2500 Hz BW (default:-27.5 dB)\n");
   printf("       -c<channel> : set channel type 0=AWGN (default) 1=Rayleigh\n");

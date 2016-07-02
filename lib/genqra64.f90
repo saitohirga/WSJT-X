@@ -1,6 +1,6 @@
-subroutine genqra65(msg0,ichk,msgsent,itone,itype)
+subroutine genqra64(msg0,ichk,msgsent,itone,itype)
 
-! Encodes a QRA65 message to yield itone(1:84)
+! Encodes a QRA64 message to yield itone(1:84)
 
   use packjt
   character*22 msg0
@@ -37,7 +37,7 @@ subroutine genqra65(msg0,ichk,msgsent,itone,itype)
      call packmsg(message,dgen,itype)    !Pack message into 72 bits
      call unpackmsg(dgen,msgsent)        !Unpack to get message sent
      if(ichk.ne.0) go to 999             !Return if checking only
-     call qra65_enc(dgen,sent)           !Encode using QRA65
+     call qra64_enc(dgen,sent)           !Encode using QRA64
 
      itone(1:7)=icos7                    !Insert 7x7 Costas array in 3 places
      itone(8:39)=sent(1:32)
@@ -47,4 +47,4 @@ subroutine genqra65(msg0,ichk,msgsent,itone,itype)
   endif
 
 999 return
-end subroutine genqra65
+end subroutine genqra64

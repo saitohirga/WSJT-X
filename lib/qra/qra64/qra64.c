@@ -1,6 +1,6 @@
 /*
-qra65.c 
-Encoding/decoding functions for the QRA65 mode
+qra64.c 
+Encoding/decoding functions for the QRA64 mode
 
 (c) 2016 - Nico Palermo, IV3NWV
 
@@ -36,24 +36,24 @@ resulting code is a (12,63) code
 #include <stdlib.h>
 #include <math.h>
 
-#include "qra65.h"
+#include "qra64.h"
 #include "../qracodes/qracodes.h"
 #include "../qracodes/qra13_64_64_irr_e.h"
 #include "../qracodes/pdmath.h"
 
-// Code parameters of the QRA65 mode 
-#define QRA65_CODE  qra_13_64_64_irr_e
-#define QRA65_NMSG  218        // Must much value indicated in QRA65_CODE.NMSG
+// Code parameters of the QRA64 mode 
+#define QRA64_CODE  qra_13_64_64_irr_e
+#define QRA64_NMSG  218        // Must much value indicated in QRA64_CODE.NMSG
 
-#define QRA65_KC (QRA65_K+1)   // Information symbols (crc included)
-#define QRA65_NC (QRA65_N+1)   // Codeword length (as defined in the code)
-#define QRA65_NITER 100	       // max number of iterations per decode
+#define QRA64_KC (QRA64_K+1)   // Information symbols (crc included)
+#define QRA64_NC (QRA64_N+1)   // Codeword length (as defined in the code)
+#define QRA64_NITER 100	       // max number of iterations per decode
 
 // static functions declarations ----------------------------------------------
 static int  calc_crc6(const int *x, int sz);
 static void ix_mask(float *dst, const float *src, const int *mask, 
 		    const int *x);
-static int  qra65_do_decode(int *x, const float *pix, const int *ap_mask, 
+static int  qra64_do_decode(int *x, const float *pix, const int *ap_mask, 
 			    const int *ap_x);
 
 // a-priori information masks for fields in JT65-like msgs --------------------
@@ -64,20 +64,20 @@ static int  qra65_do_decode(int *x, const float *pix, const int *ap_mask,
 #define MASK_GRIDBIT	0x8000	  // b[15] is 1 for free text, 0 otherwise
 // ----------------------------------------------------------------------------
 
-qra65codec *qra65_init(int flags, const int mycall)
+qra64codec *qra64_init(int flags, const int mycall)
 {
 
   // Eb/No value for which we optimize the decoder metric
   const float EbNodBMetric = 2.8f; 
   const float EbNoMetric   = (float)pow(10,EbNodBMetric/10);
-  const float R = 1.0f*(QRA65_KC)/(QRA65_NC);	
+  const float R = 1.0f*(QRA64_KC)/(QRA64_NC);	
 
-  qra65codec *pcodec = (qra65codec*)malloc(sizeof(qra65codec));
+  qra64codec *pcodec = (qra64codec*)malloc(sizeof(qra64codec));
 
   if (!pcodec)
     return 0;	// can't allocate memory
 
-  pcodec->decEsNoMetric   = 1.0f*QRA65_m*R*EbNoMetric;
+  pcodec->decEsNoMetric   = 1.0f*QRA64_m*R*EbNoMetric;
   pcodec->apflags			= flags;
 
   if (flags!=QRA_AUTOAP)
@@ -107,20 +107,20 @@ qra65codec *qra65_init(int flags, const int mycall)
   return pcodec;
 }
 
-void qra65_encode(qra65codec *pcodec, int *y, const int *x)
+void qra64_encode(qra64codec *pcodec, int *y, const int *x)
 {
-  int encx[QRA65_KC];	// encoder input buffer
-  int ency[QRA65_NC];	// encoder output buffer
+  int encx[QRA64_KC];	// encoder input buffer
+  int ency[QRA64_NC];	// encoder output buffer
 
   int call1,call2,grid;
 
-  memcpy(encx,x,QRA65_K*sizeof(int));		// Copy input to encoder buffer
-  encx[QRA65_K]=calc_crc6(encx,QRA65_K);	// Compute and add crc symbol
-  qra_encode(&QRA65_CODE, ency, encx);	 // encode msg+crc using given QRA code
+  memcpy(encx,x,QRA64_K*sizeof(int));		// Copy input to encoder buffer
+  encx[QRA64_K]=calc_crc6(encx,QRA64_K);	// Compute and add crc symbol
+  qra_encode(&QRA64_CODE, ency, encx);	 // encode msg+crc using given QRA code
 
   // copy codeword to output puncturing the crc symbol 
-  memcpy(y,ency,QRA65_K*sizeof(int));		// copy information symbols 
-  memcpy(y+QRA65_K,ency+QRA65_KC,QRA65_C*sizeof(int)); // copy parity symbols 
+  memcpy(y,ency,QRA64_K*sizeof(int));		// copy information symbols 
+  memcpy(y+QRA64_K,ency+QRA64_KC,QRA64_C*sizeof(int)); // copy parity symbols 
 
   if (pcodec->apflags!=QRA_AUTOAP)
     return;
@@ -149,59 +149,59 @@ void qra65_encode(qra65codec *pcodec, int *y, const int *x)
   }
 }
 
-int qra65_decode(qra65codec *pcodec, int *x, const float *rxen)
+int qra64_decode(qra64codec *pcodec, int *x, const float *rxen)
 {
   int k;
   float *srctmp, *dsttmp;
-  float ix[QRA65_NC*QRA65_M];		// (depunctured) intrisic information
+  float ix[QRA64_NC*QRA64_M];		// (depunctured) intrisic information
   int rc;
   
-  if (QRA65_NMSG!=QRA65_CODE.NMSG)      // sanity check 
-    return -16;				// QRA65_NMSG define is wrong
+  if (QRA64_NMSG!=QRA64_CODE.NMSG)      // sanity check 
+    return -16;				// QRA64_NMSG define is wrong
 
   // compute symbols intrinsic probabilities from received energy observations
-  qra_mfskbesselmetric(ix, rxen, QRA65_m, QRA65_N,pcodec->decEsNoMetric);
+  qra_mfskbesselmetric(ix, rxen, QRA64_m, QRA64_N,pcodec->decEsNoMetric);
 
   // de-puncture observations adding a uniform distribution for the crc symbol
 
   // move check symbols distributions one symbol towards the end
-  dsttmp = PD_ROWADDR(ix,QRA65_M, QRA65_NC-1);	//Point to last symbol prob dist
-  srctmp = dsttmp-QRA65_M;              // source is the previous pd
-  for (k=0;k<QRA65_C;k++) {
-    pd_init(dsttmp,srctmp,QRA65_M);
-    dsttmp -=QRA65_M;
-    srctmp -=QRA65_M;
+  dsttmp = PD_ROWADDR(ix,QRA64_M, QRA64_NC-1);	//Point to last symbol prob dist
+  srctmp = dsttmp-QRA64_M;              // source is the previous pd
+  for (k=0;k<QRA64_C;k++) {
+    pd_init(dsttmp,srctmp,QRA64_M);
+    dsttmp -=QRA64_M;
+    srctmp -=QRA64_M;
   }
   // Initialize crc prob to a uniform distribution
-  pd_init(dsttmp,pd_uniform(QRA65_m),QRA65_M);
+  pd_init(dsttmp,pd_uniform(QRA64_m),QRA64_M);
 
   // Attempt to decode without a-priori info --------------------------------
-  rc = qra65_do_decode(x, ix, NULL, NULL);
+  rc = qra64_do_decode(x, ix, NULL, NULL);
   if (rc>=0) return 0;                        // successfull decode with AP0
 
   if (pcodec->apflags!=QRA_AUTOAP) return rc; // rc<0 = unsuccessful decode
 
   // Attempt to decode CQ calls
-  rc = qra65_do_decode(x,ix,pcodec->apmask_cqqrz, pcodec->apmsg_cqqrz); // AP27
+  rc = qra64_do_decode(x,ix,pcodec->apmask_cqqrz, pcodec->apmsg_cqqrz); // AP27
   if (rc>=0) return 1;	                      // decoded [cq/qrz ? ?]
 
-  rc = qra65_do_decode(x, ix, pcodec->apmask_cqqrz_ooo, 
+  rc = qra64_do_decode(x, ix, pcodec->apmask_cqqrz_ooo, 
 		       pcodec->apmsg_cqqrz);	                        // AP42
   if (rc>=0) return 2;	                      // decoded [cq ? ooo]
 
   // attempt to decode calls directed to us (mycall)
-  rc = qra65_do_decode(x, ix, pcodec->apmask_call1, 
+  rc = qra64_do_decode(x, ix, pcodec->apmask_call1, 
 		       pcodec->apmsg_call1);		                // AP29
   if (rc>=0) return 3;	                      // decoded [mycall ? ?]
 
-  rc = qra65_do_decode(x, ix, pcodec->apmask_call1_ooo, 
+  rc = qra64_do_decode(x, ix, pcodec->apmask_call1_ooo, 
 		       pcodec->apmsg_call1);	                        // AP44
   if (rc>=0) return 4;	// decoded [mycall ? ooo]
 
   // if apsrccall is set attempt to decode [mycall srccall ?] msgs
   if (pcodec->apsrccall==0) return rc; // nothing more to do
 
-  rc = qra65_do_decode(x, ix, pcodec->apmask_call1_call2, 
+  rc = qra64_do_decode(x, ix, pcodec->apmask_call1_call2, 
 		       pcodec->apmsg_call1_call2);	                // AP57
   if (rc>=0) return 5;	// decoded [mycall srccall ?]	
 
@@ -211,17 +211,17 @@ int qra65_decode(qra65codec *pcodec, int *x, const float *rxen)
 // Static functions definitions ----------------------------------------------
 
 // Decode with given a-priori information 
-static int qra65_do_decode(int *x, const float *pix, const int *ap_mask, 
+static int qra64_do_decode(int *x, const float *pix, const int *ap_mask, 
 			   const int *ap_x)
 {
   int rc;
   const float *ixsrc;
-  float ix_masked[QRA65_NC*QRA65_M];  // Masked intrinsic information
-  float ex[QRA65_NC*QRA65_M];	      // Extrinsic information from the decoder
+  float ix_masked[QRA64_NC*QRA64_M];  // Masked intrinsic information
+  float ex[QRA64_NC*QRA64_M];	      // Extrinsic information from the decoder
 
-  float v2cmsg[QRA65_NMSG*QRA65_M];   // buffers for the decoder messages
-  float c2vmsg[QRA65_NMSG*QRA65_M];
-  int   xdec[QRA65_KC];
+  float v2cmsg[QRA64_NMSG*QRA64_M];   // buffers for the decoder messages
+  float c2vmsg[QRA64_NMSG*QRA64_M];
+  int   xdec[QRA64_KC];
 
   if (ap_mask==NULL) {   // no a-priori information
     ixsrc = pix;	 // intrinsic source is what passed as argument
@@ -233,19 +233,19 @@ static int qra65_do_decode(int *x, const float *pix, const int *ap_mask,
   }
 
   // run the decoding algorithm
-  rc = qra_extrinsic(&QRA65_CODE,ex,ixsrc,QRA65_NITER,v2cmsg,c2vmsg);
+  rc = qra_extrinsic(&QRA64_CODE,ex,ixsrc,QRA64_NITER,v2cmsg,c2vmsg);
   if (rc<0)
     return -1;	// no convergence in given iterations
 
   // decode 
-  qra_mapdecode(&QRA65_CODE,xdec,ex,ixsrc);
+  qra_mapdecode(&QRA64_CODE,xdec,ex,ixsrc);
 
   // verify crc
-  if (calc_crc6(xdec,QRA65_K)!=xdec[QRA65_K]) // crc doesn't match (detected error)
+  if (calc_crc6(xdec,QRA64_K)!=xdec[QRA64_K]) // crc doesn't match (detected error)
     return -2;	// decoding was succesfull but crc doesn't match
 
   // success. copy decoded message to output buffer
-  memcpy(x,xdec,QRA65_K*sizeof(int));
+  memcpy(x,xdec,QRA64_K*sizeof(int));
 
   return 0;
 }
@@ -284,17 +284,17 @@ static void ix_mask(float *dst, const float *src, const int *mask,
   int k,kk, smask;
   float *row;
 
-  memcpy(dst,src,(QRA65_NC*QRA65_M)*sizeof(float));
+  memcpy(dst,src,(QRA64_NC*QRA64_M)*sizeof(float));
 
-  for (k=0;k<QRA65_K;k++) {	// we can mask only information symbols distrib
+  for (k=0;k<QRA64_K;k++) {	// we can mask only information symbols distrib
     smask = mask[k];
-    row = PD_ROWADDR(dst,QRA65_M,k);
+    row = PD_ROWADDR(dst,QRA64_M,k);
     if (smask) {
-      for (kk=0;kk<QRA65_M;kk++) 
+      for (kk=0;kk<QRA64_M;kk++) 
 	if (((kk^x[k])&smask)!=0)
 	  *(row+kk) = 0.f;
 
-      pd_norm(row,QRA65_m);
+      pd_norm(row,QRA64_m);
     }
   }
 }

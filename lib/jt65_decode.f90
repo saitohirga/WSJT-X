@@ -99,7 +99,7 @@ contains
 
     if(nsubmode.ge.100) then
 ! This is QRA65 mode
-       call qra02(dd,nf1,nf2,nfqso,ntol,mycall,sync,nsnr,dtx,nfreq,decoded,nft)
+       call qra64a(dd,nf1,nf2,nfqso,ntol,mycall,sync,nsnr,dtx,nfreq,decoded,nft)
 !       if(sync.lt.12.8) go to 900                 !### Temporary ###
        if (associated(this%callback)) then
           ndrift=0

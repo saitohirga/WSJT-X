@@ -1,6 +1,6 @@
-program qra65sim
+program qra64sim
 
-! Generate simulated QRA65 data for testing the decoder.
+! Generate simulated QRA64 data for testing the decoder.
 
   use wavhdr
   use packjt
@@ -141,11 +141,11 @@ program qra65sim
 
         xsnr=xsnr+5   !### TEMPORARY ###
 
-        call genqra65(msg,ichk,msgsent,itone,itype)
+        call genqra64(msg,ichk,msgsent,itone,itype)
 
 !        call packmsg(msg,dgen,itype)        !Pack message into 12 six-bit bytes
-!        call qra65_enc(dgen,sent)           !Encode using QRA65
-!!        call qra65_dec(sent,dgen,ierr)      !Decode (### for test only ###)
+!        call qra64_enc(dgen,sent)           !Encode using QRA64
+!!        call qra64_dec(sent,dgen,ierr)      !Decode (### for test only ###)
 !!        write(*,3001) sent
 !!3001    format(21i3)
 
@@ -249,4 +249,4 @@ program qra65sim
      close(10)
   enddo
 
-999 end program qra65sim
+999 end program qra64sim
