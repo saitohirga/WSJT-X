@@ -249,11 +249,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_nsendingsh {0},
   m_onAirFreq0 {0.0},
   m_first_error {true},
-  tx_status_label {new QLabel {"Receiving"}},
-  mode_label {new QLabel {""}},
-  last_tx_label {new QLabel {""}},
-  auto_tx_label {new QLabel {""}},
-  progressBar {new QProgressBar},
+  tx_status_label {"Receiving"},
   wsprNet {new WSPRNet {network_manager, this}},
   m_appDir {QApplication::applicationDirPath ()},
   m_palette {"Linrad"},
@@ -675,7 +671,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     }
 #endif
 
-  auto_tx_label->setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" : "Auto-Tx-Enable Disarmed");
+  auto_tx_label.setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" : "Auto-Tx-Enable Disarmed");
 
   {
     //delete any .quit file that might have been left lying around
@@ -743,9 +739,11 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   // to turn off split on the rig e.g. WSPR
   m_config.transceiver_online ();
 
-  bool b=m_config.enable_VHF_features() and (m_mode=="JT4" or m_mode=="JT65" or
-         m_mode=="ISCAT" or m_mode=="JT9" or m_mode=="JTMSK" or m_mode=="MSK144" or
-         m_mode=="QRA65");
+  bool vhf {m_config.enable_VHF_features ()};
+  bool b = vhf and (m_mode=="JT4" or m_mode=="JT65" or
+                    m_mode=="ISCAT" or m_mode=="JT9" or
+                    m_mode=="JTMSK" or m_mode=="MSK144" or
+                    m_mode=="QRA65");
   VHF_controls_visible(b);
 
   ui->txFirstCheckBox->setChecked(m_txFirst);
@@ -773,6 +771,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_mode=="QRA65") on_actionQRA65_triggered();
   if(m_mode=="Echo") monitor(false); //Don't auto-start Monitor in Echo mode.
 
+  ui->sbSubmode->setValue (vhf ? m_nSubMode : 0);
   ui->sbTR->setValue(m_TRindex);
   Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value () - m_XIT);
   m_saveDecoded=ui->actionSave_decoded->isChecked();
@@ -810,7 +809,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   VHF_features_enabled(m_config.enable_VHF_features());
   g_single_decode=m_config.single_decode();
 
-  progressBar->setMaximum(m_TRperiod);
+  progressBar.setMaximum(m_TRperiod);
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   connect( wsprNet, SIGNAL(uploadStatus(QString)), this, SLOT(uploadResponse(QString)));
   if(m_bFastMode) {
@@ -838,7 +837,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 //###
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
-  ui->sbSubmode->setValue(m_nSubMode);
 
   connect (&minuteTimer, &QTimer::timeout, this, &MainWindow::on_the_minute);
   minuteTimer.setSingleShot (true);
@@ -1334,11 +1332,14 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
                                             m_msAudioOutputBuffered);
       }
 
-      auto_tx_label->setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" : "Auto-Tx-Enable Disarmed");
+      auto_tx_label.setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" : "Auto-Tx-Enable Disarmed");
       displayDialFrequency ();
-      bool b=m_config.enable_VHF_features() and (m_mode=="JT4" or m_mode=="JT65" or
-                              m_mode=="ISCAT" or m_mode=="JT9" or m_mode=="JTMSK" or
-                              m_mode=="MSK144" or m_mode=="QRA65");
+      bool vhf {m_config.enable_VHF_features ()};
+      if (!vhf) ui->sbSubmode->setValue (0);
+      setup_status_bar (vhf);
+      bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or
+                       m_mode=="ISCAT" or m_mode=="JT9" or m_mode=="JTMSK" or
+                       m_mode=="MSK144" or m_mode=="QRA65");
       VHF_features_enabled(b);
       VHF_controls_visible(b);
     }
@@ -1430,11 +1431,11 @@ void MainWindow::updateProgressBarFormat (bool wd_in_use)
 {
   if (wd_in_use)
     {
-      progressBar->setFormat (QString {"%v/%m WD:%1m"}.arg (m_config.watchdog () - m_repeatMsg));
+      progressBar.setFormat (QString {"%v/%m WD:%1m"}.arg (m_config.watchdog () - m_repeatMsg));
     }
   else
     {
-      progressBar->setFormat ("%v/%m");
+      progressBar.setFormat ("%v/%m");
     }
 }
 
@@ -1622,30 +1623,100 @@ bool MainWindow::eventFilter (QObject * object, QEvent * event)
 
 void MainWindow::createStatusBar()                           //createStatusBar
 {
-  tx_status_label->setAlignment(Qt::AlignHCenter);
-  tx_status_label->setMinimumSize(QSize(150,18));
-  tx_status_label->setStyleSheet("QLabel{background-color: #00ff00}");
-  tx_status_label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  statusBar()->addWidget(tx_status_label);
+  tx_status_label.setAlignment (Qt::AlignHCenter);
+  tx_status_label.setMinimumSize (QSize  {150, 18});
+  tx_status_label.setStyleSheet ("QLabel{background-color: #00ff00}");
+  tx_status_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
+  statusBar()->addWidget (&tx_status_label);
 
-  mode_label->setAlignment(Qt::AlignHCenter);
-  mode_label->setMinimumSize(QSize(80,18));
-  mode_label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  statusBar()->addWidget(mode_label);
+  mode_label.setAlignment (Qt::AlignHCenter);
+  mode_label.setMinimumSize (QSize {80, 18});
+  mode_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
+  statusBar()->addWidget (&mode_label);
 
-  last_tx_label->setAlignment(Qt::AlignHCenter);
-  last_tx_label->setMinimumSize(QSize(150,18));
-  last_tx_label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  statusBar()->addWidget(last_tx_label);
+  last_tx_label.setAlignment (Qt::AlignHCenter);
+  last_tx_label.setMinimumSize (QSize {150, 18});
+  last_tx_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
+  statusBar()->addWidget (&last_tx_label);
 
-  auto_tx_label->setAlignment(Qt::AlignHCenter);
-  auto_tx_label->setMinimumSize(QSize(150,18));
-  auto_tx_label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  statusBar()->addWidget(auto_tx_label);
+  auto_tx_label.setAlignment (Qt::AlignHCenter);
+  auto_tx_label.setMinimumSize (QSize {150, 18});
+  auto_tx_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
 
-  statusBar()->addWidget(progressBar);
-  progressBar->setMinimumSize (QSize {150, 18});
+  band_hopping_label.setAlignment (Qt::AlignHCenter);
+  band_hopping_label.setMinimumSize (QSize {90, 18});
+  band_hopping_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
+
+  statusBar()->addPermanentWidget(&progressBar, 1);
+  progressBar.setMinimumSize (QSize {100, 18});
   updateProgressBarFormat (!m_mode.startsWith ("WSPR") && m_config.watchdog () != 0);
+}
+
+void MainWindow::setup_status_bar (bool vhf)
+{
+  mode_label.setText ("QRA65" == m_mode ? QString {"QRA02"} : m_mode);
+  if (m_mode.contains (QRegularExpression {R"(^(JT65|JT9|JT4|ISCAT|QRA65)$)"}))
+    {
+      if (vhf || "JT4" == m_mode || "ISCAT" == m_mode)
+        {
+          mode_label.setText (mode_label.text () + " " + QChar {short (m_nSubMode + 65)});
+        }
+    }
+  if ("ISCAT" == m_mode)
+    {
+      mode_label.setStyleSheet ("QLabel{background-color: #ff9933}");
+    }
+  else if ("JT4" == m_mode)
+    {
+      mode_label.setStyleSheet ("QLabel{background-color: #cc99ff}");
+    }
+  else if ("Echo" == m_mode)
+    {
+      mode_label.setStyleSheet ("QLabel{background-color: #66ffff}");
+    }
+  else if ("JT9+JT65" == m_mode)
+    {
+      mode_label.setStyleSheet ("QLabel{background-color: #ffff66}");
+    }
+  else if ("JT65" == m_mode)
+    {
+      mode_label.setStyleSheet ("QLabel{background-color: #66ff66}");
+    }
+  else if ("QRA65" == m_mode)
+    {
+      mode_label.setStyleSheet ("QLabel{background-color: #99ff33}");
+    }
+  else if ("MSK144" == m_mode)
+    {
+      mode_label.setStyleSheet ("QLabel{background-color: #ff6666}");
+    }
+  else if ("JTMSK" == m_mode)
+    {
+      mode_label.setStyleSheet ("QLabel{background-color: #ff6666}");
+    }
+  last_tx_label.setText (QString {});
+  if (m_mode.contains (QRegularExpression {R"(^(Echo|ISCAT))"}))
+    {
+      if (auto_tx_label.isVisible ()) statusBar ()->removeWidget (&auto_tx_label);
+      if (band_hopping_label.isVisible ()) statusBar ()->removeWidget (&band_hopping_label);
+    }
+  else if (m_mode.startsWith ("WSPR"))
+    {
+      mode_label.setStyleSheet ("QLabel{background-color: #ff66ff}");
+      if (auto_tx_label.isVisible ()) statusBar ()->removeWidget (&auto_tx_label);
+      if (!band_hopping_label.isVisible ()) {
+        statusBar ()->addWidget (&band_hopping_label);
+        band_hopping_label.show ();
+      }
+    }
+  else
+    {
+      if (band_hopping_label.isVisible ()) statusBar ()->removeWidget (&band_hopping_label);
+      if (!auto_tx_label.isVisible ()) {
+        statusBar ()->addWidget (&auto_tx_label);
+        auto_tx_label.show ();
+      }
+    }
 }
 
 void MainWindow::subProcessFailed (QProcess * process, int exit_code, QProcess::ExitStatus status)
@@ -1806,8 +1877,8 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
     m_path=fname;
     int i1=fname.lastIndexOf("/");
     QString baseName=fname.mid(i1+1);
-    tx_status_label->setStyleSheet("QLabel{background-color: #99ffff}");
-    tx_status_label->setText(" " + baseName + " ");
+    tx_status_label.setStyleSheet("QLabel{background-color: #99ffff}");
+    tx_status_label.setText(" " + baseName + " ");
     on_stopButton_clicked();
     m_diskData=true;
     read_wav_file (fname);
@@ -1871,8 +1942,8 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
       m_path=fname;
       int i1=fname.lastIndexOf("/");
       QString baseName=fname.mid(i1+1);
-      tx_status_label->setStyleSheet("QLabel{background-color: #99ffff}");
-      tx_status_label->setText(" " + baseName + " ");
+      tx_status_label.setStyleSheet("QLabel{background-color: #99ffff}");
+      tx_status_label.setText(" " + baseName + " ");
       m_diskData=true;
       read_wav_file (fname);
       return;
@@ -2531,18 +2602,14 @@ void MainWindow::guiUpdate()
       }
     }
 
-    if (!m_mode.startsWith ("WSPR") && m_config.watchdog() != 0
-        && m_repeatMsg >= m_config. watchdog ()) {
+    if (!m_mode.startsWith ("WSPR") && m_config.watchdog()
+        && m_repeatMsg >= m_config.watchdog ()) {
       m_bTxTime=false;
       if (m_tune) stop_tuning ();
       if (m_auto) auto_tx_mode (false);
-#if QT_VERSION >= 0x050400
-      QTimer::singleShot (0, [=] {msgBox ("Runaway Tx watchdog");}); // don't block guiUpdate
-#else
-      msgBox ("Runaway Tx watchdog");
-#endif
-      m_repeatMsg = 0;
-      updateProgressBarFormat (true);
+      tx_status_label.setStyleSheet ("QLabel{background-color: #ff0000}");
+      tx_status_label.setText ("Runaway Tx watchdog");
+      QApplication::alert (this);
     }
 
     float fTR=float((nsec%m_TRperiod))/m_TRperiod;
@@ -2661,7 +2728,7 @@ void MainWindow::guiUpdate()
         m_currentMessage = "TUNE";
         m_currentMessageType = -1;
       }
-    last_tx_label->setText("Last Tx:  " + m_currentMessage);
+    last_tx_label.setText("Last Tx:  " + m_currentMessage);
     if(m_restart) {
       QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append))
@@ -2810,17 +2877,17 @@ void MainWindow::guiUpdate()
   if(nsec != m_sec0) {
     g_single_decode=m_config.single_decode();
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
-      progressBar->setMaximum(6);
-      progressBar->setValue(int(m_s6));
+      progressBar.setMaximum(6);
+      progressBar.setValue(int(m_s6));
     }
 
     if(m_mode!="Echo") {
       if(m_monitoring or m_transmitting) {
-        progressBar->setMaximum(m_TRperiod);
+        progressBar.setMaximum(m_TRperiod);
         int isec=int(fmod(tsec,m_TRperiod));
-        progressBar->setValue(isec);
+        progressBar.setValue(isec);
       } else {
-        progressBar->setValue(0);
+        progressBar.setValue(0);
       }
     }
 
@@ -2832,29 +2899,30 @@ void MainWindow::guiUpdate()
       m_nsendingsh=0;
       if(s[4]==64) m_nsendingsh=1;
       if(m_nsendingsh==1 or m_currentMessageType==7) {
-        tx_status_label->setStyleSheet("QLabel{background-color: #66ffff}");
+        tx_status_label.setStyleSheet("QLabel{background-color: #66ffff}");
       } else if(m_nsendingsh==-1 or m_currentMessageType==6) {
-        tx_status_label->setStyleSheet("QLabel{background-color: #ffccff}");
+        tx_status_label.setStyleSheet("QLabel{background-color: #ffccff}");
       } else {
-        tx_status_label->setStyleSheet("QLabel{background-color: #ffff33}");
+        tx_status_label.setStyleSheet("QLabel{background-color: #ffff33}");
       }
       if(m_tune) {
-        tx_status_label->setText("Tx: TUNE");
+        tx_status_label.setText("Tx: TUNE");
       } else {
         if(m_mode=="Echo") {
-          tx_status_label->setText("Tx: ECHO");
+          tx_status_label.setText("Tx: ECHO");
         } else {
-          tx_status_label->setText(s);
+          tx_status_label.setText(s);
         }
       }
     } else if(m_monitoring) {
-      tx_status_label->setStyleSheet("QLabel{background-color: #00ff00}");
-      QString t="Receiving ";
-      tx_status_label->setText(t);
+      if (m_repeatMsg < m_config.watchdog ()) {
+        tx_status_label.setStyleSheet("QLabel{background-color: #00ff00}");
+        tx_status_label.setText ("Receiving");
+      }
       transmitDisplay(false);
-    } else if (!m_diskData) {
-      tx_status_label->setStyleSheet("");
-      tx_status_label->setText("");
+    } else if (!m_diskData && m_repeatMsg < m_config.watchdog ()) {
+      tx_status_label.setStyleSheet("");
+      tx_status_label.setText("");
     }
 
     QDateTime t = QDateTime::currentDateTimeUtc();
@@ -2916,8 +2984,10 @@ void MainWindow::stopTx()
   m_btxok = false;
   m_transmitting = false;
   g_iptt=0;
-  tx_status_label->setStyleSheet("");
-  tx_status_label->setText("");
+  if (m_repeatMsg < m_config.watchdog ()) {
+    tx_status_label.setStyleSheet("");
+    tx_status_label.setText("");
+  }
   ptt0Timer.start(200);                       //Sequencer delay
   monitor (true);
   statusUpdate ();
@@ -3763,14 +3833,8 @@ void MainWindow::on_actionJT9_triggered()
   QString t1=(QString)QChar(short(m_nSubMode+65));
   m_hsymStop=173;
   if(m_config.decode_at_52s()) m_hsymStop=179;
-  mode_label->setStyleSheet("QLabel{background-color: #ff99cc}");
   bool bVHF=m_config.enable_VHF_features();
-  if(bVHF) {
-    QString t1=(QString)QChar(short(m_nSubMode+65));
-    mode_label->setText(m_mode + " " + t1);
-  } else {
-    mode_label->setText(m_mode);
-  }
+  setup_status_bar (bVHF);
   m_toneSpacing=0.0;
   ui->actionJT9->setChecked(true);
   m_wideGraph->setMode(m_mode);
@@ -3820,8 +3884,7 @@ void MainWindow::on_actionJTMSK_triggered()
   m_nsps=6;
   m_FFTSize = 7 * 512;
   Q_EMIT FFTSize (m_FFTSize);
-  mode_label->setStyleSheet("QLabel{background-color: #ff6666}");
-  mode_label->setText(m_mode);
+  setup_status_bar (true);
   m_toneSpacing=0.0;
   ui->actionJTMSK->setChecked(true);
   ui->pbTxMode->setVisible(false);
@@ -3863,8 +3926,7 @@ void MainWindow::on_actionMSK144_triggered()
   m_nsps=6;
   m_FFTSize = 7 * 512;
   Q_EMIT FFTSize (m_FFTSize);
-  mode_label->setStyleSheet("QLabel{background-color: #ff6666}");
-  mode_label->setText(m_mode);
+  setup_status_bar (true);
   m_toneSpacing=0.0;
   ui->cbShMsgs->setChecked(false);
   ui->cbShMsgs->setVisible(false);
@@ -3879,10 +3941,7 @@ void MainWindow::on_actionQRA65_triggered()
   ui->actionQRA65->setChecked(true);
   switch_mode (Modes::QRA65);
   statusChanged();
-  mode_label->setStyleSheet("QLabel{background-color: #99ff33}");
-  QString t1=(QString)QChar(short(m_nSubMode+65));
-//  mode_label->setText(m_mode + " " + t1);
-  mode_label->setText("QRA02 " + t1);
+  setup_status_bar (m_config.enable_VHF_features ());
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
 }
@@ -3911,9 +3970,6 @@ void MainWindow::on_actionJT65_triggered()
   m_hsymStop=173;
   if(m_config.decode_at_52s()) m_hsymStop=179;
   m_toneSpacing=0.0;
-  mode_label->setStyleSheet("QLabel{background-color: #66ff66}");
-  QString t1=(QString)QChar(short(m_nSubMode+65));
-  mode_label->setText(m_mode + " " + t1);
   ui->ClrAvgButton->setVisible(false);
   ui->actionJT65->setChecked(true);
   VHF_features_enabled(true);
@@ -3922,6 +3978,7 @@ void MainWindow::on_actionJT65_triggered()
   m_wideGraph->setModeTx(m_modeTx);
   ui->pbTxMode->setVisible(false);
   bool bVHF=m_config.enable_VHF_features();
+  setup_status_bar (bVHF);
   m_bFastMode=false;
   m_bFast9=false;
   VHF_controls_visible(bVHF);
@@ -3963,8 +4020,7 @@ void MainWindow::on_actionJT9_JT65_triggered()
   m_hsymStop=173;
   if(m_config.decode_at_52s()) m_hsymStop=179;
   m_toneSpacing=0.0;
-  mode_label->setStyleSheet("QLabel{background-color: #ffff66}");
-  mode_label->setText(m_mode);
+  setup_status_bar (false);
   ui->actionJT9_JT65->setChecked(true);
   VHF_features_enabled(false);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
@@ -3988,7 +4044,6 @@ void MainWindow::on_actionJT4_triggered()
   WSPR_config(false);
   switch_mode (Modes::JT4);
   m_modeTx="JT4";
-  mode_label->setStyleSheet("QLabel{background-color: #cc99ff}");
   statusChanged();
   m_TRperiod=60;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
@@ -4008,6 +4063,7 @@ void MainWindow::on_actionJT4_triggered()
   m_bFastMode=false;
   m_bFast9=false;
   bool bVHF=m_config.enable_VHF_features();
+  setup_status_bar (bVHF);
   VHF_controls_visible(bVHF);
   fast_config(false);
   ui->cbFast9->setVisible(false);
@@ -4024,8 +4080,6 @@ void MainWindow::on_actionJT4_triggered()
     ui->sbSubmode->setValue(0);
     ui->sbTR->setValue(0);
   }
-  QString t1=(QString)QChar(short(m_nSubMode+65));
-  mode_label->setText(m_mode + " " + t1);
 }
 
 void MainWindow::on_actionWSPR_2_triggered()
@@ -4043,8 +4097,7 @@ void MainWindow::on_actionWSPR_2_triggered()
   Q_EMIT FFTSize (m_FFTSize);
   m_hsymStop=396;
   m_toneSpacing=12000.0/8192.0;
-  mode_label->setStyleSheet("QLabel{background-color: #ff66ff}");
-  mode_label->setText(m_mode);
+  setup_status_bar (false);
   ui->actionWSPR_2->setChecked(true);
   VHF_features_enabled(false);
   ui->ClrAvgButton->setVisible(false);
@@ -4068,8 +4121,6 @@ void MainWindow::on_actionEcho_triggered()
   on_actionJT4_triggered();
   m_mode="Echo";
   ui->actionEcho->setChecked(true);
-  mode_label->setStyleSheet("QLabel{background-color: #66ffff}");
-  mode_label->setText(m_mode);
   m_TRperiod=3;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
@@ -4080,6 +4131,7 @@ void MainWindow::on_actionEcho_triggered()
   m_toneSpacing=1.0;
   switch_mode(Modes::Echo);
   m_modeTx="Echo";
+  setup_status_bar (true);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   ui->TxFreqSpinBox->setValue(1500);
@@ -4094,7 +4146,6 @@ void MainWindow::on_actionEcho_triggered()
   VHF_controls_visible(false);
   fast_config(false);
   ui->decodedTextLabel->setText("   UTC      N   Level    Sig      DF    Width   Q");
-  auto_tx_label->setText("");
 }
 
 void MainWindow::on_actionISCAT_triggered()
@@ -4118,8 +4169,7 @@ void MainWindow::on_actionISCAT_triggered()
   statusChanged();
   if(!m_fastGraph->isVisible()) m_fastGraph->show();
   if(m_wideGraph->isVisible()) m_wideGraph->hide();
-  mode_label->setStyleSheet("QLabel{background-color: #ff9933}");
-  mode_label->setText(m_mode);
+  setup_status_bar (true);
   VHF_controls_visible(true);
   fast_config(true);
   ui->pbTxMode->setVisible(false);
@@ -4134,11 +4184,8 @@ void MainWindow::on_actionISCAT_triggered()
   ui->decodedTextLabel2->setVisible(false);
   ui->decodedTextLabel->setText(
         "  UTC  Sync dB   DT   DF  F1                                   N  L  A   T");
-  auto_tx_label->setText("");
   ui->tabWidget->setCurrentIndex(0);
   ui->sbSubmode->setMaximum(1);
-  QString t1=(QString)QChar(short(m_nSubMode+65));
-  mode_label->setText(m_mode + " " + t1);
   if(m_nSubMode==0) ui->TxFreqSpinBox->setValue(1012);
   if(m_nSubMode==1) ui->TxFreqSpinBox->setValue(560);
   ui->TxFreqSpinBox->setEnabled (false);
@@ -4177,17 +4224,14 @@ void MainWindow::WSPR_config(bool b)
   if(b and (m_mode!="Echo")) {
     ui->decodedTextLabel->setText(
           "UTC    dB   DT     Freq     Drift  Call          Grid    dBm   Dist");
-    auto_tx_label->setText("");
     if (m_config.is_transceiver_online ()) {
       Q_EMIT m_config.transceiver_tx_frequency (0); // turn off split
     }
     m_bSimplex = true;
   } else {
     ui->decodedTextLabel->setText("UTC   dB   DT Freq    Message");
-    auto_tx_label->setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" : "Auto-Tx-Enable Disarmed");
     m_bSimplex = false;
   }
-  auto_tx_label->setVisible (!b);
   enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
 }
 
@@ -5030,7 +5074,7 @@ void MainWindow::on_sbTR_valueChanged(int index)
     m_TRperiod=ui->sbTR->cleanText().toInt();
     if(m_TRperiod<5 or m_TRperiod>30) m_TRperiod=30;
     m_TRperiodFast=m_TRperiod;
-    progressBar->setMaximum(m_TRperiod);
+    progressBar.setMaximum(m_TRperiod);
   }
   if(m_monitoring) {
     on_stopButton_clicked();
@@ -5048,8 +5092,10 @@ void MainWindow::on_sbSubmode_valueChanged(int n)
 {
   m_nSubMode=n;
   m_wideGraph->setSubMode(m_nSubMode);
-  QString t1=(QString)QChar(short(m_nSubMode+65));
-  mode_label->setText(m_mode + " " + t1);
+  mode_label.setText (m_mode);
+  if (m_mode != "JT9+JT65" || !m_config.enable_VHF_features ()) {
+    mode_label.setText (mode_label.text () + " " + QChar {short (m_nSubMode + 65)});
+  }
   if(m_mode=="ISCAT") {
     if(m_nSubMode==0) ui->TxFreqSpinBox->setValue(1012);
     if(m_nSubMode==1) ui->TxFreqSpinBox->setValue(560);
@@ -5089,7 +5135,7 @@ void MainWindow::on_cbFast9_clicked(bool b)
     ui->cbEME->setText("EME delay");
     m_TRperiod=60;
   }
-  progressBar->setMaximum(m_TRperiod);
+  progressBar.setMaximum(m_TRperiod);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   fast_config(b);
 }
@@ -5169,6 +5215,10 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
           // find the linefeed at the end of the line
           position = ui->decodedTextBrowser->toPlainText().indexOf("\n",position);
           processMessage (messages, position, false);
+          if (m_repeatMsg && !m_mode.startsWith ("WSPR") && m_config.watchdog () != 0) {
+            m_repeatMsg = 0;    // reset Tx watchdog
+            updateProgressBarFormat (true);
+          }
           QApplication::alert (this);
         }
       else
@@ -5488,7 +5538,7 @@ void MainWindow::WSPR_scheduling ()
     }
 
     // Display grayline status
-    auto_tx_label->setText (hop_data.period_name_);
+    band_hopping_label.setText (hop_data.period_name_);
   }
   else {
     m_WSPR_tx_next = m_WSPR_band_hopping.next_is_tx ();
