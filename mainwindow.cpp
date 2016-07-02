@@ -1654,7 +1654,7 @@ void MainWindow::createStatusBar()                           //createStatusBar
 
 void MainWindow::setup_status_bar (bool vhf)
 {
-  mode_label.setText ("QRA64" == m_mode ? QString {"QRA02"} : m_mode);
+  mode_label.setText ("QRA64" == m_mode ? QString {"QRA64"} : m_mode);
   if (m_mode.contains (QRegularExpression {R"(^(JT65|JT9|JT4|ISCAT|QRA64)$)"}))
     {
       if (vhf || "JT4" == m_mode || "ISCAT" == m_mode)
