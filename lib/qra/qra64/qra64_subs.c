@@ -1,17 +1,17 @@
-// qra65_subs.c 
-// Fortran interface routines for QRA65
+// qra64_subs.c 
+// Fortran interface routines for QRA64
 
-#include "qra65.h"
+#include "qra64.h"
 #include <stdio.h>
 
-void qra65_enc_(int x[], int y[])
+void qra64_enc_(int x[], int y[])
 {
   int ncall=0xf70c238;                          //K1ABC
-  qra65codec *codec = qra65_init(0,ncall);	//codec for ncall
-  qra65_encode(codec, y, x);
+  qra64codec *codec = qra64_init(0,ncall);	//codec for ncall
+  qra64_encode(codec, y, x);
 }
 
-void qra65_dec_(float r[], int* nmycall, int xdec[], int* rc)
+void qra64_dec_(float r[], int* nmycall, int xdec[], int* rc)
 {
 // Return codes:
 //   rc=-16  failed sanity check
@@ -26,11 +26,11 @@ void qra65_dec_(float r[], int* nmycall, int xdec[], int* rc)
 
   static ncall0=-1;
   int ncall=*nmycall;
-  static qra65codec *codec;
+  static qra64codec *codec;
 
   if(ncall!=ncall0) {
-    codec = qra65_init(1,ncall);	//codec for ncall
+    codec = qra64_init(1,ncall);	//codec for ncall
     ncall0=ncall;
   }
-  *rc = qra65_decode(codec,xdec,r);
+  *rc = qra64_decode(codec,xdec,r);
 }

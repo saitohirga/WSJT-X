@@ -81,7 +81,7 @@ extern "C" {
   void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
               int* itext, int len1, int len2);
 
-  void genqra65_(char* msg, int* ichk, char* msgsent, int itone[],
+  void genqra64_(char* msg, int* ichk, char* msgsent, int itone[],
               int* itext, int len1, int len2);
 
   void genwspr_(char* msg, char* msgsent, int itone[], int len1, int len2);
@@ -466,7 +466,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->actionISCAT->setActionGroup(modeGroup);
   ui->actionJTMSK->setActionGroup(modeGroup);
   ui->actionMSK144->setActionGroup(modeGroup);
-  ui->actionQRA65->setActionGroup(modeGroup);
+  ui->actionQRA64->setActionGroup(modeGroup);
 
   QActionGroup* saveGroup = new QActionGroup(this);
   ui->actionNone->setActionGroup(saveGroup);
@@ -743,7 +743,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   bool b = vhf and (m_mode=="JT4" or m_mode=="JT65" or
                     m_mode=="ISCAT" or m_mode=="JT9" or
                     m_mode=="JTMSK" or m_mode=="MSK144" or
-                    m_mode=="QRA65");
+                    m_mode=="QRA64");
   VHF_controls_visible(b);
 
   ui->txFirstCheckBox->setChecked(m_txFirst);
@@ -768,7 +768,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_mode=="ISCAT") on_actionISCAT_triggered();
   if(m_mode=="JTMSK") on_actionJTMSK_triggered();
   if(m_mode=="MSK144") on_actionMSK144_triggered();
-  if(m_mode=="QRA65") on_actionQRA65_triggered();
+  if(m_mode=="QRA64") on_actionQRA64_triggered();
   if(m_mode=="Echo") monitor(false); //Don't auto-start Monitor in Echo mode.
 
   ui->sbSubmode->setValue (vhf ? m_nSubMode : 0);
@@ -829,8 +829,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     QString t=m_config.my_callsign();
     if(t!="IV3NWV" and t!="K1JT" and t!="K9AN" and t!="G4WJS"
        and t!="IW0HDV" and t!="VE1SKY" and t!="KI7MT") {
-      ui->actionQRA65->setChecked(false);
-      ui->actionQRA65->setEnabled(false);
+      ui->actionQRA64->setChecked(false);
+      ui->actionQRA64->setEnabled(false);
       ui->actionMSK144->setChecked(false);
       ui->actionMSK144->setEnabled(false);    }
   }
@@ -1339,7 +1339,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       setup_status_bar (vhf);
       bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or
                        m_mode=="ISCAT" or m_mode=="JT9" or m_mode=="JTMSK" or
-                       m_mode=="MSK144" or m_mode=="QRA65");
+                       m_mode=="MSK144" or m_mode=="QRA64");
       VHF_features_enabled(b);
       VHF_controls_visible(b);
     }
@@ -1654,8 +1654,8 @@ void MainWindow::createStatusBar()                           //createStatusBar
 
 void MainWindow::setup_status_bar (bool vhf)
 {
-  mode_label.setText ("QRA65" == m_mode ? QString {"QRA02"} : m_mode);
-  if (m_mode.contains (QRegularExpression {R"(^(JT65|JT9|JT4|ISCAT|QRA65)$)"}))
+  mode_label.setText ("QRA64" == m_mode ? QString {"QRA02"} : m_mode);
+  if (m_mode.contains (QRegularExpression {R"(^(JT65|JT9|JT4|ISCAT|QRA64)$)"}))
     {
       if (vhf || "JT4" == m_mode || "ISCAT" == m_mode)
         {
@@ -1682,7 +1682,7 @@ void MainWindow::setup_status_bar (bool vhf)
     {
       mode_label.setStyleSheet ("QLabel{background-color: #66ff66}");
     }
-  else if ("QRA65" == m_mode)
+  else if ("QRA64" == m_mode)
     {
       mode_label.setStyleSheet ("QLabel{background-color: #99ff33}");
     }
@@ -2116,8 +2116,8 @@ void MainWindow::decode()                                       //decode()
   if(m_modeTx=="JT65") dec_data.params.ntxmode=65;
   dec_data.params.nmode=9;
   if(m_mode=="JT65") dec_data.params.nmode=65;
-  if(m_mode=="QRA65") dec_data.params.nmode=165;
-  if(m_mode=="QRA65") dec_data.params.ntxmode=165;
+  if(m_mode=="QRA64") dec_data.params.nmode=165;
+  if(m_mode=="QRA64") dec_data.params.ntxmode=165;
   if(m_mode=="JT9+JT65") dec_data.params.nmode=9+65;  // = 74
   if(m_mode=="JT4") {
     dec_data.params.nmode=4;
@@ -2125,7 +2125,7 @@ void MainWindow::decode()                                       //decode()
   }
   dec_data.params.ntrperiod=m_TRperiod;
   dec_data.params.nsubmode=m_nSubMode;
-  if(m_mode=="QRA65") dec_data.params.nsubmode=101;
+  if(m_mode=="QRA64") dec_data.params.nsubmode=101;
   dec_data.params.minw=0;
   dec_data.params.nclearave=m_nclearave;
   if(m_nclearave!=0) {
@@ -2309,7 +2309,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
     QByteArray t=proc_jt9.readLine();
     bool bAvgMsg=false;
     int navg=0;
-    if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA65") {
+    if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64") {
       int n=t.indexOf("f");
       if(n<0) n=t.indexOf("d");
       if(n>0) {
@@ -2421,7 +2421,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
       }
 
-      if((m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA65") and m_msgAvgWidget!=NULL) {
+      if((m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64") and m_msgAvgWidget!=NULL) {
         if(m_msgAvgWidget->isVisible()) {
           QFile f(m_config.temp_dir ().absoluteFilePath ("avemsg.txt"));
           if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -2518,7 +2518,7 @@ void MainWindow::guiUpdate()
   if(m_modeTx=="JT4")  txDuration=1.0 + 207.0*2520/11025.0;   // JT4
   if(m_modeTx=="JT9")  txDuration=1.0 + 85.0*m_nsps/12000.0;  // JT9
   if(m_modeTx=="JT65") txDuration=1.0 + 126*4096/11025.0;     // JT65
-  if(m_mode=="QRA65")  txDuration=1.0 + 84*6912/12000.0;      // QRA65
+  if(m_mode=="QRA64")  txDuration=1.0 + 84*6912/12000.0;      // QRA64
   if(m_mode=="WSPR-2") txDuration=2.0 + 162*8192/12000.0;     // WSPR
   if(m_mode=="ISCAT" or m_mode=="JTMSK" or m_mode=="MSK144" or m_bFast9) {
     txDuration=m_TRperiod-0.25; // ISCAT, JT9-fast, JTMSK, MSK144
@@ -2710,7 +2710,7 @@ void MainWindow::guiUpdate()
                                   &m_currentMessageType, len1, len1);
         if(m_modeTx=="JT65") gen65_(message, &ichk, msgsent, const_cast<int *> (itone),
                                     &m_currentMessageType, len1, len1);
-        if(m_mode=="QRA65") genqra65_(message, &ichk, msgsent, const_cast<int *> (itone),
+        if(m_mode=="QRA64") genqra64_(message, &ichk, msgsent, const_cast<int *> (itone),
                                     &m_currentMessageType, len1, len1);
         if(m_mode.startsWith ("WSPR")) genwspr_(message, msgsent, const_cast<int *> (itone),
                                              len1, len1);
@@ -3231,7 +3231,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       if (ui->TxFreqSpinBox->isEnabled ()) {
         if(!m_bFastMode) ui->TxFreqSpinBox->setValue(frequency);
       } else if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
-                m_mode != "QRA65") {
+                m_mode != "QRA64") {
         return;
       }
     }
@@ -3933,13 +3933,13 @@ void MainWindow::on_actionMSK144_triggered()
   ui->actionMSK144->setChecked(true);
 }
 
-void MainWindow::on_actionQRA65_triggered()
+void MainWindow::on_actionQRA64_triggered()
 {
   on_actionJT65_triggered();
-  m_mode="QRA65";
-  m_modeTx="QRA65";
-  ui->actionQRA65->setChecked(true);
-  switch_mode (Modes::QRA65);
+  m_mode="QRA64";
+  m_modeTx="QRA64";
+  ui->actionQRA64->setChecked(true);
+  switch_mode (Modes::QRA64);
   statusChanged();
   setup_status_bar (m_config.enable_VHF_features ());
   m_wideGraph->setMode(m_mode);
@@ -4819,11 +4819,11 @@ void MainWindow::transmit (double snr)
            true, false, snr, m_TRperiod);
   }
 
-  if (m_modeTx == "QRA65") {
+  if (m_modeTx == "QRA64") {
     if(m_nSubMode==0) toneSpacing=12000.0/6912.0;
     if(m_nSubMode==1) toneSpacing=2*12000.0/6912.0;
     if(m_nSubMode==2) toneSpacing=4*12000.0/6912.0;
-    Q_EMIT sendMessage (NUM_QRA65_SYMBOLS,
+    Q_EMIT sendMessage (NUM_QRA64_SYMBOLS,
            6912.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
            true, false, snr, m_TRperiod);

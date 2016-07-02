@@ -1,4 +1,4 @@
-subroutine qra02(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
+subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
      decoded,nft)
 
   use packjt
@@ -20,7 +20,7 @@ subroutine qra02(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
   equivalence (x,cx)
   data icos7/2,5,6,0,4,1,3/                            !Costas 7x7 pattern
   data mark/' ','.','-','+','X','$'/
-  common/qra65com/ss(NZ,194),s3(0:63,1:63),ccf(NZ,0:25)
+  common/qra64com/ss(NZ,194),s3(0:63,1:63),ccf(NZ,0:25)
   save
 
 !  rewind 73
@@ -123,7 +123,7 @@ subroutine qra02(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
 
   mycall=mycall_12(1:6)                     !### May need fixing ###
   call packcall(mycall,nmycall,ltext)
-  call qra65_dec(s3,nmycall,dat4,irc)       !Attempt decoding
+  call qra64_dec(s3,nmycall,dat4,irc)       !Attempt decoding
   if(irc.ge.0) then
      call unpackmsg(dat4,decoded)           !Unpack the user message
      call fmtmsg(decoded,iz)
@@ -131,4 +131,4 @@ subroutine qra02(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
   endif
 
 900 return
-end subroutine qra02
+end subroutine qra64a

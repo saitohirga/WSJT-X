@@ -1,11 +1,11 @@
-program QRA65code
+program QRA64code
 
 ! Provides examples of message packing, bit and symbol ordering,
-! QRA (63,12) encoding, and other necessary details of the QRA65
+! QRA (63,12) encoding, and other necessary details of the QRA64
 ! protocol.  Also permits simple simulations to measure performance
 ! on an AWGN channel with secure time and frequency synchronization.
 
-! Return codes from qra65_dec:
+! Return codes from qra64_dec:
 !  irc=0    [?    ?    ?] AP0	(decoding with no a-priori information)
 !  irc=1    [CQ   ?    ?] AP27
 !  irc=2    [CQ   ?     ] AP42
@@ -23,8 +23,8 @@ program QRA65code
 
   nargs=iargc()
   if(nargs.lt.1) then
-     print*,'Usage: qra65code "message" [snr2500] [Nrpt]'
-     print*,'       qra65code -t [snr2500]'
+     print*,'Usage: qra64code "message" [snr2500] [Nrpt]'
+     print*,'       qra64code -t [snr2500]'
      go to 999
   endif
 
@@ -67,7 +67,7 @@ program QRA65code
         if(itype.eq.5) msgtype="Type 2 sfx"
         if(itype.eq.6) msgtype="Free text"
 
-        call qra65_enc(dgen,sent)              !Encode using QRA65
+        call qra64_enc(dgen,sent)              !Encode using QRA64
 
 ! Generate a simulated s3() array with moderately high S/N
         do j=1,63
@@ -86,7 +86,7 @@ program QRA65code
         mycall='      '
         if(i1.ge.4) mycall=msg(1:i1-1)
         call packcall(mycall,nmycall,ltext)
-        call qra65_dec(s3,nmycall,dec,irc)            !Decode
+        call qra64_dec(s3,nmycall,dec,irc)            !Decode
 
         decoded="                      "
         if(irc.ge.0) then
@@ -124,4 +124,4 @@ program QRA65code
 1060 format('Decoded messages:',i5,'/',i4,'   Undetected errors:',i5)
   endif
 
-999 end program QRA65code
+999 end program QRA64code
