@@ -118,7 +118,7 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
      enddo
   enddo
 
-  if(sync.gt.1.0) nsnr=nint(10.0*log10(sync) - 39.0)
+  if(sync.gt.1.0) nsnr=nint(10.0*log10(sync) - 38.0)
 !  if(sync.lt.12.8) go to 900                !### Temporary ###
 
   mycall=mycall_12(1:6)                     !### May need fixing ###
