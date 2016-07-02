@@ -255,7 +255,7 @@ contains
        endif
        write(13,1011) params%nutc,nint(sync),snr,dt,float(freq),drift,    &
             decoded,nft
-1011   format(i4.4,i4,i5,f6.2,f8.0,i4,3x,a22,' QRA65',i3)
+1011   format(i4.4,i4,i5,f6.2,f8.0,i4,3x,a22,' QRA64',i3)
        go to 100
     endif
 

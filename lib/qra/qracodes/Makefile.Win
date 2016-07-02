@@ -13,21 +13,21 @@ CFLAGS = -O2 -Wall -I. -D_WIN32
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:	 libqra65.a qracodes.exe
+all:	 libqra64.a qracodes.exe
 
 OBJS1 = normrnd.o npfwht.o pdmath.o qra12_63_64_irr_b.o \
 	qra13_64_64_irr_e.o qracodes.o 
 
-libqra65.a: $(OBJS1)
-	ar cr libqra65.a $(OBJS1) 
-	ranlib libqra65.a
+libqra64.a: $(OBJS1)
+	ar cr libqra64.a $(OBJS1) 
+	ranlib libqra64.a
 
 OBJS2 = main.o 
 
 qracodes.exe: $(OBJS2)
-	${CC} -o qracodes.exe $(OBJS2) libqra65.a -lm
+	${CC} -o qracodes.exe $(OBJS2) libqra64.a -lm
 
 .PHONY : clean
 
 clean:
-	$(RM) *.o libqra65.a qracodes.exe
+	$(RM) *.o libqra64.a qracodes.exe
