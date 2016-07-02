@@ -9,21 +9,19 @@ program qra64sim
   parameter (NFFT=10*65536,NH=NFFT/2)
   type(hdr) h                            !Header for .wav file
   integer*2 iwave(NMAX)                  !Generated waveform
-!  integer*4 itone(126)                   !Channel symbols (values 0-65)
   integer*4 itone(84)                    !Channel symbols (values 0-63)
-  integer dgen(12)                       !Twelve 6-bit data symbols
-  integer sent(63)                       !RS(63,12) codeword
   real*4 xnoise(NMAX)                    !Generated random noise
   real*4 dat(NMAX)                       !Generated real data
   complex cdat(NMAX)                     !Generated complex waveform
   complex cspread(0:NFFT-1)              !Complex amplitude for Rayleigh fading
   complex z
-  real*8 f0,dt,twopi,phi,dphi,baud,fsample,freq,sps
+  real*8 f0,dt,twopi,phi,dphi,baud,fsample,freq
   character msg*22,fname*11,csubmode*1,c,optarg*500,numbuf*32
   character msgsent*22
   logical :: display_help=.false.,seed_prngs=.true.
-  type (option) :: long_options(8) = [ &
+  type (option) :: long_options(9) = [ &
     option ('help',.false.,'h','Display this help message',''),                                &
+    option ('sub-mode',.true.,'M','message','MSG'),                           &
     option ('sub-mode',.true.,'m','sub mode, default MODE=A','MODE'),                          &
     option ('num-sigs',.true.,'n','number of signals per file, default SIGNALS=10','SIGNALS'), &
     option ('doppler-spread',.true.,'d','Doppler spread, default SPREAD=0.0','SPREAD'),        &
@@ -42,13 +40,16 @@ program qra64sim
   nfiles=1
 
   do
-     call getopt('hm:n:d:t:f:ps:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+     call getopt('hM:m:n:d:t:f:ps:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
      if( nstat .ne. 0 ) then
         exit
      end if
      select case (c)
      case ('h')
         display_help = .true.
+     case ('M')
+        read (optarg(:narglen), *) msg
+        print*,msg
      case ('m')
         read (optarg(:narglen), *) csubmode
         if(csubmode.eq.'A') mode65=1
@@ -109,13 +110,11 @@ program qra64sim
   twopi=8.d0*atan(1.d0)
   npts=54*12000                      !Total samples in .wav file
   nsps=6912
-!  baud=11025.d0/4096.d0              !Keying rate
-  baud=12000.d0/6912                 !Keying rate = 1.7361111111
-!  sps=12000.d0/baud                  !Samples per symbol, at fsample=12000 Hz
-!  nsym=126                           !Number of channel symbols
+  baud=12000.d0/nsps                 !Keying rate = 1.7361111111
   nsym=84                            !Number of channel symbols
   h=default_header(12000,npts)
   dfsig=2000.0/nsigs                 !Freq spacing between sigs in file (Hz)
+  ichk=0
 
   do ifile=1,nfiles                  !Loop over requested number of files
      write(fname,1002) ifile         !Output filename
@@ -130,7 +129,7 @@ program qra64sim
         enddo
      endif
 
-     msg="K1ABC W9XYZ EN37"
+!     msg="K1ABC W9XYZ EN37"
      do isig=1,nsigs                 !Generate requested number of sigs
         if(mod(nsigs,2).eq.0) f0=1500.0 + dfsig*(isig-0.5-nsigs/2)
         if(mod(nsigs,2).eq.1) f0=1500.0 + dfsig*(isig-(nsigs+1)/2)
@@ -139,15 +138,7 @@ program qra64sim
         if(csubmode.eq.'B' .and. snrdb.eq.0.0) xsnr=-21 - isig
         if(csubmode.eq.'C' .and. snrdb.eq.0.0) xsnr=-21 - isig
 
-        xsnr=xsnr+5   !### TEMPORARY ###
-
         call genqra64(msg,ichk,msgsent,itone,itype)
-
-!        call packmsg(msg,dgen,itype)        !Pack message into 12 six-bit bytes
-!        call qra64_enc(dgen,sent)           !Encode using QRA64
-!!        call qra64_dec(sent,dgen,ierr)      !Decode (### for test only ###)
-!!        write(*,3001) sent
-!!3001    format(21i3)
 
         bandwidth_ratio=2500.0/6000.0
         sig=sqrt(2*bandwidth_ratio)*10.0**(0.05*xsnr)
