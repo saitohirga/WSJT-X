@@ -59,11 +59,16 @@ You may see delays up to 20 seconds or so in frequency changes or
 other radio commands, due to a bug in HRD.  HRD folks are aware of the
 problem, and are working to resolve it.
 
-I am running _WSJT-X_ under Ubuntu 14.04.  The program starts, but menu bar is missing from the top of the main window and the hot-keys don't work.::
+I am running _WSJT-X_ under Ubuntu.  The program starts, but menu bar is missing from the top of the main window and the hot-keys don't work.::
 
 Ubuntu's new "`Unity`" desktop puts the menu for the currently active
 window at the top of the primary display screen.  You can restore menu
 bars to their traditional locations by typing the following in a
 command-prompt window:
 
- sudo apt-get remove appmenu-qt5
+ sudo apt remove appmenu-qt5
+
++
+Alternatively you can disable the common menu bar for just WSJT-X by starting the application with the environment variable QT_QPA_PLATFORMTHEME set to empty (the space after the '=' character is necessary):
+
+ QT_QPA_PLATFORMTHEME= wsjtx
