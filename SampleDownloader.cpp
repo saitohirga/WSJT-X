@@ -4,10 +4,10 @@
 #include <QSettings>
 #include <QtWidgets>
 
+#include "pimpl_impl.hpp"
 #include "SettingsGroup.hpp"
 #include "SampleDownloader/Directory.hpp"
-
-#include "pimpl_impl.hpp"
+#include "MessageBox.hpp"
 
 #include "moc_SampleDownloader.cpp"
 
@@ -124,7 +124,7 @@ SampleDownloader::impl::impl (QSettings * settings
         }
       else
         {
-          QMessageBox::warning (this, "Input Error", "Invalid URL format");
+          MessageBox::warning_message (this, tr ("Input Error"), tr ("Invalid URL format"));
         }
     });
 }

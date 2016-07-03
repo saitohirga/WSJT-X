@@ -81,7 +81,7 @@ MessageAggregatorMainWindow::MessageAggregatorMainWindow ()
 
   // connect up server
   connect (server_, &MessageServer::error, [this] (QString const& message) {
-      QMessageBox::warning (this, tr ("Network Error"), message);
+      QMessageBox::warning (this, QApplication::applicationName (), tr ("Network Error"), message);
     });
   connect (server_, &MessageServer::client_opened, this, &MessageAggregatorMainWindow::add_client);
   connect (server_, &MessageServer::client_closed, this, &MessageAggregatorMainWindow::remove_client);

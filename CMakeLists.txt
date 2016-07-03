@@ -197,6 +197,7 @@ set (WSJT_QT_CONF_DESTINATION ${QT_CONF_DESTINATION} CACHE PATH "Path for the qt
 #
 set (wsjt_qt_CXXSRCS
   qt_helpers.cpp
+  MessageBox.cpp
   MetaDataRegistry.cpp
   NetworkServerLookup.cpp
   revision_utils.cpp

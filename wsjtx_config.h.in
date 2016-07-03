@@ -33,4 +33,13 @@
 #define WSJTX_STRINGIZE1(x) #x
 #define WSJTX_STRINGIZE(x) WSJTX_STRINGIZE1(x)
 
+/* consistent UNICODE behaviour */
+#ifndef UNICODE
+#	undef _UNICODE
+#else
+#	ifndef _UNICODE
+#		define _UNICODE
+#	endif
+#endif
+
 #endif

@@ -5,7 +5,6 @@
 #include <QApplication>
 #include <QFile>
 #include <QTextStream>
-#include <QMessageBox>
 #include <QSettings>
 #include <QDateTime>
 #include <QStandardPaths>
@@ -13,6 +12,7 @@
 #include <QDebug>
 
 #include "commons.h"
+#include "MessageBox.hpp"
 #include "Configuration.hpp"
 #include "SettingsGroup.hpp"
 #include "qt_helpers.hpp"
@@ -214,8 +214,9 @@ void Astro::check_split ()
 {
   if (doppler_tracking () && !configuration_->split_mode ())
     {
-      QMessageBox::warning (this, "Doppler Tracking",
-                            "Split operating is required for Doppler tracking");
+      MessageBox::warning_message (this, tr ("Doppler Tracking Error"),
+                                   tr ("Split operating is required for Doppler tracking"),
+                                   tr ("Go to \"Menu->File->Settings->Radio\" to enable split operation"));
       ui_->rbNoDoppler->click ();
     }
 }

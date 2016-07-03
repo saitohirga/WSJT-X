@@ -14,7 +14,6 @@
 #include <QMenu>
 #include <QAction>
 #include <QActionGroup>
-#include <QMessageBox>
 #include <QDialog>
 #include <QLineEdit>
 #include <QRegularExpression>
@@ -30,6 +29,8 @@
 
 #include "SettingsGroup.hpp"
 #include "qt_helpers.hpp"
+#include "SettingsGroup.hpp"
+#include "MessageBox.hpp"
 
 #include "pimpl_impl.hpp"
 
@@ -551,11 +552,11 @@ void MultiSettings::impl::clone_into_configuration (QMainWindow * main_window)
       if (sources.size () && (1 == sources.size () || QDialog::Accepted == dialog.exec ()))
         {
           QString source_name {1 == sources.size () ? sources.at (0) : dialog.name ()};
-          if (QMessageBox::Yes == QMessageBox::question (main_window,
-                                                         tr ("Clone Into Configuration"),
-                                                         tr ("Confirm overwrite of all values for configuration \"%1\" with values from \"%2\"?")
-                                                         .arg (target_name)
-                                                         .arg (source_name)))
+          if (MessageBox::Yes == MessageBox::query_message (main_window,
+                                                            tr ("Clone Into Configuration"),
+                                                            tr ("Confirm overwrite of all values for configuration \"%1\" with values from \"%2\"?")
+                                                            .arg (target_name)
+                                                            .arg (source_name)))
             {
               // grab the data to clone from
               if (source_name == current_group_name)
@@ -597,10 +598,10 @@ void MultiSettings::impl::reset_configuration (QMainWindow * main_window)
     {
       auto const& target_name = active_sub_menu_->title ();
 
-      if (QMessageBox::Yes != QMessageBox::question (main_window,
-                                                     tr ("Reset Configuration"),
-                                                     tr ("Confirm reset to default values for configuration \"%1\"?")
-                                                     .arg (target_name)))
+      if (MessageBox::Yes != MessageBox::query_message (main_window,
+                                                        tr ("Reset Configuration"),
+                                                        tr ("Confirm reset to default values for configuration \"%1\"?")
+                                                        .arg (target_name)))
         {
           return;
         }
@@ -680,10 +681,10 @@ void MultiSettings::impl::delete_configuration (QMainWindow * main_window)
         }
       else
         {
-          if (QMessageBox::Yes != QMessageBox::question (main_window,
-                                                         tr ("Delete Configuration"),
-                                                         tr ("Confirm deletion of configuration \"%1\"?")
-                                                         .arg (target_name)))
+          if (MessageBox::Yes != MessageBox::query_message (main_window,
+                                                            tr ("Delete Configuration"),
+                                                            tr ("Confirm deletion of configuration \"%1\"?")
+                                                            .arg (target_name)))
             {
               return;
             }
