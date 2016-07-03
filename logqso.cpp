@@ -7,9 +7,9 @@
 #include <QDebug>
 
 #include "logbook/adif.h"
+#include "MessageBox.hpp"
 
 #include "ui_logqso.h"
-
 #include "moc_logqso.cpp"
 
 LogQSO::LogQSO(QString const& programTitle, QSettings * settings, QWidget *parent)
@@ -112,17 +112,16 @@ void LogQSO::accept()
   adifile.init(adifilePath);
   if (!adifile.addQSOToFile(hisCall,hisGrid,mode,rptSent,rptRcvd,date,time,band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower))
   {
-      QMessageBox m;
-      m.setText("Cannot open file \"" + adifilePath + "\".");
-      m.exec();
+    MessageBox::warning_message (this, tr ("Log file error"),
+                                 tr ("Cannot open \"%1\"").arg (adifilePath));
   }
 
 //Log this QSO to file "wsjtx.log"
   static QFile f {QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("wsjtx.log")};
   if(!f.open(QIODevice::Text | QIODevice::Append)) {
-    QMessageBox m;
-    m.setText("Cannot open file \"" + f.fileName () + "\" for append:" + f.errorString ());
-    m.exec();
+    MessageBox::warning_message (this, tr ("Log file error"),
+                                 tr ("Cannot open \"%1\" for append").arg (f.fileName ()),
+                                 tr ("Error: %1").arg (f.errorString ()));
   } else {
     QString logEntry=m_dateTime.date().toString("yyyy-MMM-dd,") +
       m_dateTime.time().toString("hh:mm,") + hisCall + "," +

@@ -141,7 +141,6 @@
 #include <QAudioDeviceInfo>
 #include <QAudioInput>
 #include <QDialog>
-#include <QMessageBox>
 #include <QAction>
 #include <QFileDialog>
 #include <QDir>
@@ -163,6 +162,7 @@
 #include <QScopedPointer>
 #include <QDebug>
 
+#include "pimpl_impl.hpp"
 #include "qt_helpers.hpp"
 #include "MetaDataRegistry.hpp"
 #include "SettingsGroup.hpp"
@@ -176,8 +176,7 @@
 #include "FrequencyList.hpp"
 #include "StationList.hpp"
 #include "NetworkServerLookup.hpp"
-
-#include "pimpl_impl.hpp"
+#include "MessageBox.hpp"
 
 #include "ui_Configuration.h"
 #include "moc_Configuration.cpp"
@@ -386,7 +385,6 @@ private:
   void enumerate_rigs ();
   void set_rig_invariants ();
   bool validate ();
-  void message_box (QString const& reason, QString const& detail = QString ());
   void fill_port_combo_box (QComboBox *);
   Frequency apply_calibration (Frequency) const;
   Frequency remove_calibration (Frequency) const;
@@ -819,7 +817,8 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
     QDir data_dir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)};
     if (!data_dir.mkpath ("."))
       {
-        QMessageBox::critical (this, "WSJT-X", tr ("Create data directory error: ") + data_dir.absolutePath ());
+        MessageBox::critical_message (this, tr ("Failed to create data directory"),
+                                      tr ("path: \"%1\"").arg (data_dir.absolutePath ()));
         throw std::runtime_error {"Failed to create data directory"};
       }
 
@@ -829,8 +828,9 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
     default_azel_directory_ = data_dir;
     if (!default_save_directory_.mkpath (save_dir) || !default_save_directory_.cd (save_dir))
       {
-        QMessageBox::critical (this, "WSJT-X", tr ("Create Directory", "Cannot create directory \"") +
-                               default_save_directory_.absoluteFilePath (save_dir) + "\".");
+        MessageBox::critical_message (this, tr ("Failed to create save directory"),
+                                      tr ("path: \"%1\%")
+                                      .arg (default_save_directory_.absoluteFilePath (save_dir)));
         throw std::runtime_error {"Failed to create save directory"};
       }
 
@@ -840,9 +840,10 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
     QString samples_dir {"samples"};
     if (!default_save_directory_.mkpath (samples_dir))
       {
-        QMessageBox::critical (this, "WSJT-X", tr ("Create Directory", "Cannot create directory \"") +
-                               default_save_directory_.absoluteFilePath (samples_dir) + "\".");
-        throw std::runtime_error {"Failed to create save directory"};
+        MessageBox::critical_message (this, tr ("Failed to create samples directory"),
+                                      tr ("path: \"%1\"")
+                                      .arg (default_save_directory_.absoluteFilePath (samples_dir)));
+        throw std::runtime_error {"Failed to create samples directory"};
       }
 
     // copy in any new sample files to the sample directory
@@ -1537,20 +1538,20 @@ bool Configuration::impl::validate ()
   if (ui_->sound_input_combo_box->currentIndex () < 0
       && !QAudioDeviceInfo::availableDevices (QAudio::AudioInput).empty ())
     {
-      message_box (tr ("Invalid audio input device"));
+      MessageBox::critical_message (this, tr ("Invalid audio input device"));
       return false;
     }
 
   if (ui_->sound_output_combo_box->currentIndex () < 0
       && !QAudioDeviceInfo::availableDevices (QAudio::AudioOutput).empty ())
     {
-      message_box (tr ("Invalid audio output device"));
+      MessageBox::critical_message (this, tr ("Invalid audio out device"));
       return false;
     }
 
   if (!ui_->PTT_method_button_group->checkedButton ()->isEnabled ())
     {
-      message_box (tr ("Invalid PTT method"));
+      MessageBox::critical_message (this, tr ("Invalid PTT method"));
       return false;
     }
 
@@ -1560,7 +1561,7 @@ bool Configuration::impl::validate ()
       && (ptt_port.isEmpty ()
           || combo_box_item_disabled == ui_->PTT_port_combo_box->itemData (ui_->PTT_port_combo_box->findText (ptt_port), Qt::UserRole - 1)))
     {
-      message_box (tr ("Invalid PTT port"));
+      MessageBox::critical_message (this, tr ("Invalid PTT port"));
       return false;
     }
 
@@ -1858,20 +1859,6 @@ void Configuration::impl::reject ()
   QDialog::reject ();
 }
 
-void Configuration::impl::message_box (QString const& reason, QString const& detail)
-{
-  QMessageBox mb;
-  mb.setText (reason);
-  if (!detail.isEmpty ())
-    {
-      mb.setDetailedText (detail);
-    }
-  mb.setStandardButtons (QMessageBox::Ok);
-  mb.setDefaultButton (QMessageBox::Ok);
-  mb.setIcon (QMessageBox::Critical);
-  mb.exec ();
-}
-
 void Configuration::impl::on_font_push_button_clicked ()
 {
   next_font_ = QFontDialog::getFont (0, next_font_, this);
@@ -2120,10 +2107,10 @@ void Configuration::impl::delete_frequencies ()
 
 void Configuration::impl::on_reset_frequencies_push_button_clicked (bool /* checked */)
 {
-  if (QMessageBox::Yes == QMessageBox::question (this, tr ("Reset Working Frequencies")
-                                                 , tr ("Are you sure you want to discard your current "
-                                                       "working frequencies and replace them with default "
-                                                       "ones?")))
+  if (MessageBox::Yes == MessageBox::query_message (this, tr ("Reset Working Frequencies")
+                                                    , tr ("Are you sure you want to discard your current "
+                                                          "working frequencies and replace them with default "
+                                                          "ones?")))
     {
       next_frequencies_.reset_to_defaults ();
     }
@@ -2197,7 +2184,8 @@ bool Configuration::impl::have_rig ()
 {
   if (!open_rig ())
     {
-      QMessageBox::critical (this, "WSJT-X", tr ("Failed to open connection to rig"));
+      MessageBox::critical_message (this, tr ("Rig control error")
+                                    , tr ("Failed to open connection to rig"));
     }
   return rig_active_;
 }
@@ -2401,7 +2389,7 @@ void Configuration::impl::handle_transceiver_failure (QString const& reason)
 
   if (isVisible ())
     {
-      message_box (tr ("Rig failure"), reason);
+      MessageBox::critical_message (this, tr ("Rig failure"), reason);
     }
   else
     {

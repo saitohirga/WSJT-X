@@ -168,6 +168,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_config {temp_directory, m_settings, this},
   m_WSPR_band_hopping {m_settings, &m_config, this},
   m_WSPR_tx_next {false},
+  m_rigErrorMessageBox {MessageBox::Critical, tr ("Rig Control Error")
+      , MessageBox::Cancel | MessageBox::Ok | MessageBox::Retry},
   m_wideGraph (new WideGraph(m_settings)),
   m_echoGraph (new EchoGraph(m_settings)),
   m_fastGraph (new FastGraph(m_settings)),
@@ -346,9 +348,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   // parts of the rig error message box that are fixed
   m_rigErrorMessageBox.setInformativeText (tr ("Do you want to reconfigure the radio interface?"));
-  m_rigErrorMessageBox.setStandardButtons (QMessageBox::Cancel | QMessageBox::Ok | QMessageBox::Retry);
-  m_rigErrorMessageBox.setDefaultButton (QMessageBox::Ok);
-  m_rigErrorMessageBox.setIcon (QMessageBox::Critical);
+  m_rigErrorMessageBox.setDefaultButton (MessageBox::Ok);
 
   // start audio thread and hook up slots & signals for shutdown management
   // these objects need to be in the audio thread so that invoking
@@ -544,7 +544,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       auto const& result = m_saveWAVWatcher.future ().result ();
       if (!result.isEmpty ())   // error
         {
-          QMessageBox::critical (this, tr("Error writing WAV file"), result);
+          MessageBox::critical_message (this, tr("Error Writing WAV File"), result);
         }
     });
 
@@ -665,8 +665,10 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
         {
           int iret=killbyname("jt9.exe");
           if(iret == 603) break;
-          if(iret != 0) msgBox("KillByName return code: " +
-                               QString::number(iret));
+          if(iret != 0)
+            MessageBox::warning_message (this, tr ("Error Killing jt9.exe Process")
+                                         , tr ("KillByName return code: %1")
+                                         .arg (iret));
         }
     }
 #endif
@@ -682,8 +684,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       {
         if (!quitFile.remove ())
           {
-            msgBox ("Error removing \"" + quitFile.fileName () +
-                    "\" - OK to retry.");
+            MessageBox::query_message (this, tr ("Error removing \"%1\"").arg (quitFile.fileName ())
+                                       , tr ("Click OK to retry"));
           }
       }
   }
@@ -1288,10 +1290,10 @@ void MainWindow::fastSink(qint64 frames)
 }
 
 void MainWindow::showSoundInError(const QString& errorMsg)
-{QMessageBox::critical(this, tr("Error in SoundInput"), errorMsg);}
+{MessageBox::critical_message (this, tr ("Error in Sound Input"), errorMsg);}
 
 void MainWindow::showSoundOutError(const QString& errorMsg)
-{QMessageBox::critical(this, tr("Error in SoundOutput"), errorMsg);}
+{MessageBox::critical_message (this, tr ("Error in Sound Output"), errorMsg);}
 
 void MainWindow::showStatusMessage(const QString& statusMsg)
 {statusBar()->showMessage(statusMsg);}
@@ -1589,7 +1591,9 @@ void MainWindow::statusChanged()
         << ui->rptSpinBox->value() << ";" << m_modeTx << endl;
     f.close();
   } else {
-    msgBox (tr ("Cannot open \"%1\" for writing: %2").arg (f.fileName ()).arg (f.errorString ()));
+    MessageBox::warning_message (this, tr ("Status File Error")
+                                 , tr ("Cannot open \"%1\" for writing: %2")
+                                 .arg (f.fileName ()).arg (f.errorString ()));
   }
 }
 
@@ -1729,10 +1733,12 @@ void MainWindow::subProcessFailed (QProcess * process, int exit_code, QProcess::
           if (argument.contains (' ')) argument = '"' + argument + '"';
           arguments << argument;
         }
-      msgBox (tr ("Subprocess failed with exit code %1\nRunning:%2\n%3")
-              .arg (exit_code)
-              .arg (process->program () + ' ' + arguments.join (' '))
-              .arg (QString {process->readAllStandardError()}));
+      MessageBox::critical_message (this, tr ("Subprocess Error")
+                                    , tr ("Subprocess failed with exit code %1")
+                                    .arg (exit_code)
+                                    , tr ("Running: %1\n%2")
+                                    .arg (process->program () + ' ' + arguments.join (' '))
+                                    .arg (QString {process->readAllStandardError()}));
       QTimer::singleShot (0, this, SLOT (close ()));
       m_valid = false;          // ensures exit if still constructing
     }
@@ -1748,9 +1754,10 @@ void MainWindow::subProcessError (QProcess * process, QProcess::ProcessError)
           if (argument.contains (' ')) argument = '"' + argument + '"';
           arguments << argument;
         }
-      msgBox (tr ("Subprocess error\nRunning: %1\n%2")
-              .arg (process->program () + ' ' + arguments.join (' '))
-              .arg (process->errorString ()));
+      MessageBox::critical_message (this, tr ("Subprocess error")
+                                    , tr ("Running: %1\n%2")
+                                    .arg (process->program () + ' ' + arguments.join (' '))
+                                    .arg (process->errorString ()));
       QTimer::singleShot (0, this, SLOT (close ()));
       m_valid = false;              // ensures exit if still constructing
     }
@@ -1785,16 +1792,9 @@ void MainWindow::on_stopButton_clicked()                       //stopButton
   monitor (false);
   m_loopall=false;
   if(m_bRefSpec) {
-//    msgBox("Reference spectrum saved.");
+//    MessageBox::information_message (this, tr ("Reference spectrum saved"));
     m_bRefSpec=false;
   }
-}
-
-void MainWindow::msgBox (QString const& text)
-{
-  msgBox0.setText (text);
-  QApplication::alert (this);
-  msgBox0.exec ();
 }
 
 void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
@@ -1979,10 +1979,10 @@ void MainWindow::diskDat()                                   //diskDat()
 //Delete ../save/*.wav
 void MainWindow::on_actionDelete_all_wav_files_in_SaveDir_triggered()
 {
-  if (QMessageBox::Yes == QMessageBox::warning(this, "Confirm Delete",
-                                              "Are you sure you want to delete all *.wav and *.c2 files in\n" +
-                                              QDir::toNativeSeparators(m_config.save_directory ().absolutePath ()) + " ?",
-                                               QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)) {
+  auto button = MessageBox::query_message (this, tr ("Confirm Delete"),
+                                             tr ("Are you sure you want to delete all *.wav and *.c2 files in \"%1\"?")
+                                             .arg (QDir::toNativeSeparators (m_config.save_directory ().absolutePath ())));
+  if (MessageBox::Yes == button) {
     Q_FOREACH (auto const& file
                , m_config.save_directory ().entryList ({"*.wav", "*.c2"}, QDir::Files | QDir::Writable)) {
       m_config.save_directory ().remove (file);
@@ -2255,7 +2255,9 @@ void::MainWindow::fast_decode_done()
       out << message.mid(0,n-2) << endl;
       f.close();
     } else {
-      msgBox (tr ("Cannot open \"%1\" for append: %2").arg (f.fileName ()).arg (f.errorString ()));
+      MessageBox::warning_message (this, tr ("File Open Error")
+                                   , tr ("Cannot open \"%1\" for append: %2")
+                                   .arg (f.fileName ()).arg (f.errorString ()));
     }
 
     if(m_mode=="JT9" or m_mode=="JTMSK" or m_mode=="MSK144") {
@@ -2342,7 +2344,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
         out << t.mid(0,n-2) << endl;
         f.close();
       } else {
-        msgBox (tr ("Cannot open \"%1\" for append: %2").arg (f.fileName ()).arg (f.errorString ()));
+        MessageBox::warning_message (this, tr ("File Open Error")
+                                     , tr ("Cannot open \"%1\" for append: %2")
+                                     .arg (f.fileName ()).arg (f.errorString ()));
       }
 
         if (m_config.insert_blank () && m_blankLine)
@@ -2591,13 +2595,15 @@ void MainWindow::guiUpdate()
       if (m_auto) auto_tx_mode (false);
       if(onAirFreq!=m_onAirFreq0) {
         m_onAirFreq0=onAirFreq;
-        auto const& message = tr ("Please choose another Tx frequency.\n"
-                                  "WSJT-X will not knowingly transmit another\n"
-                                  "mode in the WSPR sub-band on 30 m.");
+        auto const& message = tr ("Please choose another Tx frequency."
+                                  " WSJT-X will not knowingly transmit another"
+                                  " mode in the WSPR sub-band on 30m.");
 #if QT_VERSION >= 0x050400
-        QTimer::singleShot (0, [=] {msgBox (message);}); // don't block guiUpdate
+        QTimer::singleShot (0, [=] { // don't block guiUpdate
+            MessageBox::warning_message (this, tr ("WSPR Guard Band"), message);
+          });
 #else
-        msgBox (message);
+        MessageBox::warning_message (this, tr ("WSPR Guard Band"), message);
 #endif
       }
     }
@@ -2745,9 +2751,11 @@ void MainWindow::guiUpdate()
           auto const& message = tr ("Cannot open \"%1\" for append: %2")
             .arg (f.fileName ()).arg (f.errorString ());
 #if QT_VERSION >= 0x050400
-          QTimer::singleShot (0, [=] {msgBox (message);}); // don't block guiUpdate
+          QTimer::singleShot (0, [=] { // don't block guiUpdate
+              MessageBox::warning_message (this, tr ("Log File Error"), message);
+            });
 #else
-          msgBox (message);
+          MessageBox::warning_message (this, tr ("Log File Error"), message);
 #endif
         }
       if (m_config.TX_messages ())
@@ -2849,9 +2857,11 @@ void MainWindow::guiUpdate()
           auto const& message = tr ("Cannot open \"%1\" for append: %2")
             .arg (f.fileName ()).arg(f.errorString ());
 #if QT_VERSION >= 0x050400
-          QTimer::singleShot (0, [=] {msgBox (message);}); // don't block guiUpdate
+          QTimer::singleShot (0, [=] { // don't block guiUpdate
+              MessageBox::warning_message (this, tr ("Log File Error"), message);
+            });
 #else
-          msgBox (message);
+          MessageBox::warning_message (this, tr ("Log File Error"), message);
 #endif
         }
       }
@@ -2971,8 +2981,9 @@ void MainWindow::startTx2()
             << m_currentMessage << "  " + m_mode << endl;
         f.close();
       } else {
-        msgBox (tr ("Cannot open \"%1\" for append: %2")
-                .arg (f.fileName ()).arg (f.errorString ()));
+        MessageBox::warning_message (this, tr ("Log File Error"),
+                                     tr ("Cannot open \"%1\" for append: %2")
+                                     .arg (f.fileName ()).arg (f.errorString ()));
       }
     }
   }
@@ -3095,7 +3106,10 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 {
   QTextCursor cursor;
   QString t;                         //Full contents
-  if(m_mode=="ISCAT") msgBox("Double-click not presently implemented for ISCAT mode");
+  if(m_mode=="ISCAT") {
+    MessageBox::information_message (this,
+                                     "Double-click not presently implemented for ISCAT mode");
+  }
   if(shift) t="";                    //Silence compiler warning
   if(m_decodedText2) {
     cursor=ui->decodedTextBrowser->textCursor();
@@ -3574,7 +3588,8 @@ void MainWindow::on_lookupButton_clicked()                    //Lookup button
 void MainWindow::on_addButton_clicked()                       //Add button
 {
   if(ui->dxGridEntry->text()=="") {
-    msgBox("Please enter a valid grid locator.");
+    MessageBox::warning_message (this, tr ("Add to CALL3.TXT")
+                                 , tr ("Please enter a valid grid locator"));
     return;
   }
   m_call3Modified=false;
@@ -3582,10 +3597,9 @@ void MainWindow::on_addButton_clicked()                       //Add button
   QString hisgrid=ui->dxGridEntry->text().trimmed();
   QString newEntry=hisCall + "," + hisgrid;
 
-  //  int ret = QMessageBox::warning(this, "Add",
-  //       newEntry + "\n" + "Is this station known to be active on EME?",
-  //       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-  //  if(ret==QMessageBox::Yes) {
+  //  int ret = MessageBox::query_message(this, tr ("Add to CALL3.TXT"),
+  //       tr ("Is %1 known to be active on EME?").arg (newEntry));
+  //  if(ret==MessageBox::Yes) {
   //    newEntry += ",EME,,";
   //  } else {
   newEntry += ",,,";
@@ -3593,7 +3607,9 @@ void MainWindow::on_addButton_clicked()                       //Add button
   
   QFile f1 {m_dataDir.absoluteFilePath ("CALL3.TXT")};
   if(!f1.open(QIODevice::ReadWrite | QIODevice::Text)) {
-    msgBox("Cannot open \"" + f1.fileName () + "\" for read/write:" + f1.errorString ());
+    MessageBox::warning_message (this, tr ("Add to CALL3.TXT")
+                                 , tr ("Cannot open \"%1\" for read/write: %2")
+                                 .arg (f1.fileName ()).arg (f1.errorString ()));
     return;
   }
   if(f1.size()==0) {
@@ -3604,7 +3620,9 @@ void MainWindow::on_addButton_clicked()                       //Add button
   }
   QFile f2 {m_dataDir.absoluteFilePath ("CALL3.TMP")};
   if(!f2.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    msgBox("Cannot open \"" + f2.fileName () + "\" for writing:" + f2.errorString ());
+    MessageBox::warning_message (this, tr ("Add to CALL3.TXT")
+                                 , tr ("Cannot open \"%1\" for writing: %2")
+                                 .arg (f2.fileName ()).arg (f2.errorString ()));
     return;
   }
   QTextStream in(&f1);          //Read from CALL3.TXT
@@ -3626,11 +3644,10 @@ void MainWindow::on_addButton_clicked()                       //Add button
         out << s + "\n";
         m_call3Modified=true;
       } else if(hc==hc2) {
-        QString t=s + "\n\n is already in CALL3.TXT\n" +
-          "Do you wish to replace it?";
-        int ret = QMessageBox::warning(this, "Add",t,
-                                       QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-        if(ret==QMessageBox::Yes) {
+        QString t {tr ("%1\nis already in CALL3.TXT"
+                       ", do you wish to replace it?").arg (s)};
+        int ret = MessageBox::query_message (this, tr ("Add to CALL3.TXT"), t);
+        if(ret==MessageBox::Yes) {
           out << newEntry + "\n";
           m_call3Modified=true;
         }
@@ -4112,7 +4129,7 @@ void MainWindow::on_actionWSPR_2_triggered()
 
 void MainWindow::on_actionWSPR_15_triggered()
 {
-  msgBox("WSPR-15 is not yet available");
+  MessageBox::information_message (this, tr ("WSPR-15 is not yet available"));
   switch_mode (Modes::WSPR);
 }
 
@@ -4315,10 +4332,9 @@ void MainWindow::on_inGain_valueChanged(int n)
 
 void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT
 {
-  int ret = QMessageBox::warning(this, "Confirm Erase",
-                                 "Are you sure you want to erase file ALL.TXT ?",
-                                 QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-  if(ret==QMessageBox::Yes) {
+  int ret = MessageBox::query_message (this, tr ("Confirm Erase"),
+                                         tr ("Are you sure you want to erase file ALL.TXT?"));
+  if(ret==MessageBox::Yes) {
     QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
     f.remove();
     m_RxLog=1;
@@ -4327,10 +4343,9 @@ void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT
 
 void MainWindow::on_actionErase_wsjtx_log_adi_triggered()
 {
-  int ret = QMessageBox::warning(this, "Confirm Erase",
-                                 "Are you sure you want to erase file wsjtx_log.adi ?",
-                                 QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-  if(ret==QMessageBox::Yes) {
+  int ret = MessageBox::query_message (this, tr ("Confirm Erase"),
+                                       tr ("Are you sure you want to erase file wsjtx_log.adi?"));
+  if(ret==MessageBox::Yes) {
     QFile f {m_dataDir.absoluteFilePath ("wsjtx_log.adi")};
     f.remove();
   }
@@ -4742,7 +4757,9 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
                     << m_mode << endl;
                 f2.close();
               } else {
-                msgBox("Cannot open \"" + f2.fileName () + "\" for append:" + f2.errorString ());
+                MessageBox::warning_message (this, tr ("File Error")
+                                             ,tr ("Cannot open \"%1\" for append: %2")
+                                             .arg (f2.fileName ()).arg (f2.errorString ()));
               }
             }
 
@@ -4771,10 +4788,10 @@ void MainWindow::handle_transceiver_failure (QString const& reason)
   update_dynamic_property (ui->readFreq, "state", "error");
   ui->readFreq->setEnabled (true);
   on_stopTxButton_clicked ();
-  rigFailure ("Rig Control Error", reason);
+  rigFailure (reason);
 }
 
-void MainWindow::rigFailure (QString const& reason, QString const& detail)
+void MainWindow::rigFailure (QString const& reason)
 {
   if (m_first_error)
     {
@@ -4784,21 +4801,20 @@ void MainWindow::rigFailure (QString const& reason, QString const& detail)
     }
   else
     {
-      m_rigErrorMessageBox.setText (reason);
-      m_rigErrorMessageBox.setDetailedText (detail);
+      m_rigErrorMessageBox.setDetailedText (reason);
 
       // don't call slot functions directly to avoid recursion
       switch (m_rigErrorMessageBox.exec ())
         {
-        case QMessageBox::Ok:
+        case MessageBox::Ok:
           QTimer::singleShot (0, this, SLOT (on_actionSettings_triggered ()));
           break;
 
-        case QMessageBox::Retry:
+        case MessageBox::Retry:
           QTimer::singleShot (0, this, SLOT (rigOpen ()));
           break;
 
-        case QMessageBox::Cancel:
+        case MessageBox::Cancel:
           QTimer::singleShot (0, this, SLOT (close ()));
           break;
         }
@@ -5287,12 +5303,14 @@ void MainWindow::postWSPRDecode (bool is_new, QStringList parts)
 
 void MainWindow::networkError (QString const& e)
 {
-  if (QMessageBox::Retry == QMessageBox::warning (this, tr ("Network Error")
-                                                  , tr ("Error: %1\nUDP server %2:%3")
-                                                  .arg (e)
-                                                  .arg (m_config.udp_server_name ())
-                                                  .arg (m_config.udp_server_port ())
-                                                  , QMessageBox::Cancel | QMessageBox::Retry, QMessageBox::Cancel))
+  if (MessageBox::Retry == MessageBox::warning_message (this, tr ("Network Error")
+                                                        , tr ("Error: %1\nUDP server %2:%3")
+                                                        .arg (e)
+                                                        .arg (m_config.udp_server_name ())
+                                                        .arg (m_config.udp_server_port ())
+                                                        , QString {}
+                                                        , MessageBox::Cancel | MessageBox::Retry
+                                                        , MessageBox::Cancel))
     {
       // retry server lookup
       m_messageClient->set_server (m_config.udp_server_name ());
@@ -5428,7 +5446,9 @@ void MainWindow::WSPR_history(Frequency dialFreq, int ndecodes)
     out << t1 << endl;
     f.close();
   } else {
-    msgBox("Cannot open \"" + f.fileName () + "\" for append:" + f.errorString ());
+    MessageBox::warning_message (this, tr ("File Error")
+                                 , tr ("Cannot open \"%1\" for append: %2")
+                                 .arg (f.fileName ()).arg (f.errorString ()));
   }
 }
 

@@ -34,6 +34,7 @@
 #include "decodedtext.h"
 #include "commons.h"
 #include "astro.h"
+#include "MessageBox.hpp"
 
 #define NUM_JT4_SYMBOLS 206                //(72+31)*2, embedded sync
 #define NUM_JT65_SYMBOLS 126               //63 data + 63 sync
@@ -290,7 +291,7 @@ private:
   Configuration m_config;
   WSPRBandHopping m_WSPR_band_hopping;
   bool m_WSPR_tx_next;
-  QMessageBox m_rigErrorMessageBox;
+  MessageBox m_rigErrorMessageBox;
   QScopedPointer<SampleDownloader> m_sampleDownloader;
 
   QScopedPointer<WideGraph> m_wideGraph;
@@ -434,8 +435,6 @@ private:
   QLabel band_hopping_label;
   QProgressBar progressBar;
 
-  QMessageBox msgBox0;
-
   QFuture<void> m_wav_future;
   QFutureWatcher<void> m_wav_future_watcher;
   QFutureWatcher<void> watcher3;
@@ -514,7 +513,6 @@ private:
   void writeSettings();
   void createStatusBar();
   void updateStatusBar();
-  void msgBox(QString const&);
   void genStdMsgs(QString rpt);
   void clearDX ();
   void lookup();
@@ -525,7 +523,7 @@ private:
   bool gridOK(QString g);
   bool shortList(QString callsign);
   void transmit (double snr = 99.);
-  void rigFailure (QString const& reason, QString const& detail);
+  void rigFailure (QString const& reason);
   void pskSetLocal ();
   void displayDialFrequency ();
   void transmitDisplay (bool);

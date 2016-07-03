@@ -17,7 +17,6 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QStringList>
-#include <QMessageBox>
 #include <QLockFile>
 #include <QStack>
 
@@ -36,6 +35,7 @@
 #include "lib/init_random_seed.h"
 #include "Radio.hpp"
 #include "FrequencyList.hpp"
+#include "MessageBox.hpp"       // last to avoid nasty MS macro definitions
 
 extern "C" {
   // Fortran procedures we need
@@ -127,19 +127,19 @@ int main(int argc, char *argv[])
 
       if (!parser.parse (a.arguments ()))
         {
-          QMessageBox::critical (nullptr, a.applicationName (), parser.errorText ());
+          MessageBox::critical_message (nullptr, a.translate ("main", "Command line error"), parser.errorText ());
           return -1;
         }
       else
         {
           if (parser.isSet (help_option))
             {
-              QMessageBox::information (nullptr, a.applicationName (), parser.helpText ());
+              MessageBox::information_message (nullptr, a.translate ("main", "Command line help"), parser.helpText ());
               return 0;
             }
           else if (parser.isSet (version_option))
             {
-              QMessageBox::information (nullptr, a.applicationName (), a.applicationVersion ());
+              MessageBox::information_message (nullptr, a.translate ("main", "Application version"), a.applicationVersion ());
               return 0;
             }
         }
@@ -181,18 +181,19 @@ int main(int argc, char *argv[])
         {
           if (QLockFile::LockFailedError == instance_lock.error ())
             {
-              auto button = QMessageBox::question (nullptr
-                                                   , QApplication::applicationName ()
-                                                   , QObject::tr ("Another instance may be running, try to remove stale lock file?")
-                                                   , QMessageBox::Yes | QMessageBox::Retry | QMessageBox::No
-                                                   , QMessageBox::Yes);
+              auto button = MessageBox::query_message (nullptr
+                                                       , a.translate ("main", "Another instance may be running")
+                                                       , a.translate ("main", "try to remove stale lock file?")
+                                                       , QString {}
+                                                       , MessageBox::Yes | MessageBox::Retry | MessageBox::No
+                                                       , MessageBox::Yes);
               switch (button)
                 {
-                case QMessageBox::Yes:
+                case MessageBox::Yes:
                   instance_lock.removeStaleLockFile ();
                   break;
 
-                case QMessageBox::Retry:
+                case MessageBox::Retry:
                   break;
 
                 default:
@@ -216,18 +217,19 @@ int main(int argc, char *argv[])
           if (!temp_dir.mkpath (unique_directory)
               || !temp_dir.cd (unique_directory))
             {
-              QMessageBox::critical (nullptr,
-                                     "WSJT-X",
-                                     QObject::tr ("Create temporary directory error: ") + temp_dir.absolutePath ());
+              MessageBox::critical_message (nullptr,
+                                            a.translate ("main", "Failed to create a temporary directory"),
+                                            a.translate ("main", "Path: \"%1\"").arg (temp_dir.absolutePath ()));
               throw std::runtime_error {"Failed to create a temporary directory"};
             }
           if (!temp_dir.isReadable () || !(temp_ok = QTemporaryFile {temp_dir.absoluteFilePath ("test")}.open ()))
             {
-              if (QMessageBox::Cancel == QMessageBox::critical (nullptr,
-                                                                "WSJT-X",
-                                                                QObject::tr ("Create temporary directory error:\n%1\n"
-                                                                    "Another application may be locking the directory").arg (temp_dir.absolutePath ()),
-                                                                QMessageBox::Retry | QMessageBox::Cancel))
+              auto button =  MessageBox::critical_message (nullptr,
+                                                           a.translate ("main", "Failed to create a usable temporary directory"),
+                                                           a.translate ("main", "Another application may be locking the directory"),
+                                                           a.translate ("main", "Path: \"%1\"").arg (temp_dir.absolutePath ()),
+                                                           MessageBox::Retry | MessageBox::Cancel);
+              if (MessageBox::Cancel == button)
                 {
                   throw std::runtime_error {"Failed to create a usable temporary directory"};
                 }
@@ -270,8 +272,9 @@ int main(int argc, char *argv[])
 
           if(!mem_jt9.attach()) {
             if (!mem_jt9.create(sizeof(struct dec_data))) {
-              QMessageBox::critical (nullptr, "Error", "Unable to create shared memory segment.");
-              exit(1);
+              MessageBox::critical_message (nullptr, a.translate ("main", "Shared memory error"),
+                                            a.translate ("main", "Unable to create shared memory segment"));
+              throw std::runtime_error {"Shared memory error"};
             }
           }
           memset(mem_jt9.data(),0,sizeof(struct dec_data)); //Zero all decoding params in shared memory
@@ -319,13 +322,13 @@ int main(int argc, char *argv[])
     }
   catch (std::exception const& e)
     {
-      QMessageBox::critical (nullptr, a.applicationName (), e.what ());
+      MessageBox::critical_message (nullptr, a.translate ("main", "Fatal error"), e.what ());
       std::cerr << "Error: " << e.what () << '\n';
     }
   catch (...)
     {
-      QMessageBox::critical (nullptr, a.applicationName (), QObject::tr ("Unexpected error"));
-      std::cerr << "Unexpected error\n";
+      MessageBox::critical_message (nullptr, a.translate ("main", "Unexpected fatal error"));
+      std::cerr << "Unexpected fatal error\n";
       throw;			// hoping the runtime might tell us more about the exception
     }
   return -1;

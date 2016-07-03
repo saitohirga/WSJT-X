@@ -4,9 +4,9 @@
 #include <QUrl>
 #include <QDir>
 #include <QFileInfo>
-#include <QMessageBox>
 
 #include "Directory.hpp"
+#include "MessageBox.hpp"
 
 FileNode::FileNode (QTreeWidgetItem * parent
                     , QNetworkAccessManager * network_manager
@@ -26,7 +26,7 @@ FileNode::FileNode (QTreeWidgetItem * parent
 
 void FileNode::error (QString const& title, QString const& message)
 {
-  QMessageBox::warning (treeWidget (), title, message);
+  MessageBox::warning_message (treeWidget (), title, message);
 }
 
 bool FileNode::sync (bool local)
