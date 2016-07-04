@@ -144,11 +144,12 @@ namespace
           || (type == 6 && !msg_parts.filter ("73").isEmpty ()));
   }
 
-  int ms_to_next_minute ()
+  int ms_minute_error ()
   {
     auto const& now = QDateTime::currentDateTime ();
     auto const& time = now.time ();
-    return now.msecsTo (QDateTime {now.date (), QTime {time.hour (), time.minute (), 0}}.addSecs (60));
+    auto second = time.second ();
+    return now.msecsTo (now.addSecs (second > 30 ? 60 - second : -second)) - time.msec ();
   }
 }
 
@@ -842,7 +843,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   connect (&minuteTimer, &QTimer::timeout, this, &MainWindow::on_the_minute);
   minuteTimer.setSingleShot (true);
-  minuteTimer.start (ms_to_next_minute ());
+  minuteTimer.start (ms_minute_error () + 60 * 1000);
 
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
@@ -857,11 +858,11 @@ void MainWindow::on_the_minute ()
     }
   else
     {
-      auto const& ms = ms_to_next_minute ();
-      if (qAbs (60 * 1000 - ms) > 1000) // correct drift
+        auto const& ms_error = ms_minute_error ();
+        if (qAbs (ms_error) > 1000) // keep drift within +-1s
         {
           minuteTimer.setSingleShot (true);
-          minuteTimer.start (ms);
+          minuteTimer.start (ms_error + 60 * 1000);
         }
     }
 
