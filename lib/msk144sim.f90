@@ -6,13 +6,11 @@ program msk144sim
   real waveform(0:NMAX-1)
   character arg*8,msg*22,msgsent*22,fname*40
   character*512 pchk_file
-  character*3 rpt(0:7)
   real wave(0:NMAX-1)              !Simulated received waveform
   real*8 twopi,freq,phi,dphi0,dphi1,dphi
   type(hdr) h                          !Header for .wav file
   integer*2 iwave(0:NMAX-1)
   integer itone(144)                   !Message bits
-  data rpt /'26 ','27 ','28 ','R26','R27','R28','RRR','73 '/
 
   pchk_file='./peg-128-80-reg3.pchk'
 
@@ -40,14 +38,16 @@ program msk144sim
   ichk=0
   call genmsk144(msg,ichk,msgsent,itone,itype,pchk_file) 
   twopi=8.d0*atan(1.d0)
-  
+
+  nsym=144
+  if( itone(33) .lt. 0 ) nsym=32
   dphi0=twopi*(freq-500)/12000.0
   dphi1=twopi*(freq+500)/12000.0
   phi=0.0
   indx=0
-  nreps=NMAX/(144*6)
+  nreps=NMAX/(nsym*6)
   do jrep=1,nreps
-    do i=1,144
+    do i=1,nsym
       if( itone(i) .eq. 0 ) then
         dphi=dphi0
       else
@@ -85,8 +85,6 @@ program msk144sim
 
      write(10) h,iwave               !Save the .wav file
      close(10)
-
-!     call jtmsk_short(cwave,NMAX,msg)
 
   enddo
 

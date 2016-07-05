@@ -1,6 +1,6 @@
 subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,line)
 
-! Calls the experimental decoder for JTMSK 72ms ldpc messages
+! Calls the experimental decoder for MSK 72ms/16ms messages
 
   parameter (NMAX=30*12000)
   parameter (NFFTMAX=512*1024)
@@ -10,7 +10,6 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,line)
   complex c(NFFTMAX)                   !Complex (analytic) data
   character*80 line(100)               !Decodes passed back to caller
   character*512 pchk_file
-!  equivalence (hist,d)
 
   line(1:100)(1:1)=char(0)
 
@@ -36,6 +35,16 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,line)
       write(*,'(a80)') line(i)
     enddo
   endif
-  if(line(1)(1:6).eq.'      ') line(1)(1:1)=char(0)
+
+  if(nline .eq. 0) then
+    call detectmsk32(c,npts,line,nline,nutc)
+  endif
+
+  if( nprint .ne. 0 ) then
+    do i=1,nline
+      write(*,'(a80)') line(i)
+    enddo
+  endif
+
   return
 end subroutine msk144_decode
