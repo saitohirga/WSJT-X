@@ -45,5 +45,6 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,line)
     endif
   endif
 
+  if(line(1)(1:6).eq.'      ') line(1)(1:1)=char(0)
   return
 end subroutine msk144_decode
