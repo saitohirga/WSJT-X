@@ -176,7 +176,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   allmessages=char(0)
   lines=char(0)
 
-  do ip=1,1  !run through the candidates and try to sync/demod/decode
+  do ip=1,ndet  !run through the candidates and try to sync/demod/decode
     imid=times(ip)*fs
     if( imid .lt. NPTS/2 ) imid=NPTS/2
     if( imid .gt. n-NPTS/2 ) imid=n-NPTS/2

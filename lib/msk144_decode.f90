@@ -33,17 +33,16 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,line)
   if( nprint .ne. 0 ) then
     do i=1,nline
       write(*,'(a80)') line(i)
-    enddo
+    enddo 
   endif
 
   if(nline .eq. 0) then
     call detectmsk32(c,npts,line,nline,nutc)
-  endif
-
-  if( nprint .ne. 0 ) then
-    do i=1,nline
-      write(*,'(a80)') line(i)
-    enddo
+    if( nprint .ne. 0 ) then
+      do i=1,nline
+        write(*,'(a80)') line(i)
+      enddo
+    endif
   endif
 
   return
