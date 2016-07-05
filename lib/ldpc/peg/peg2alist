@@ -2,7 +2,7 @@
 # read a parity check matrix produced by the peg algorithm and
 # convert to alist format so that it can be read using alist_to_pcheck
 arg_list=argv();
-filename=arg_list(1);
+filename=arg_list{1};
 fid=fopen(filename,"r");
 N=fscanf(fid,"%d",[1]);
 M=fscanf(fid,"%d",[1]);

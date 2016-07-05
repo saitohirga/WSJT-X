@@ -11,12 +11,16 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   complex c(NSPM)
   complex ctmp(NFFT)                  
   complex cb(42)                        !Complex waveform for sync word 
+  complex cbr(42)                       !Complex waveform for reversed sync word 
   complex cfac,cca,ccb
   complex cc(NPTS)
+  complex ccr(NPTS)
   complex cc1(NPTS)
   complex cc2(NPTS)
+  complex ccr1(NPTS)
+  complex ccr2(NPTS)
   complex bb(6)
-  integer s8(8),hardbits(144)
+  integer s8(8),s8r(8),hardbits(144)
   integer, dimension(1) :: iloc
   integer*1 decoded(80)   
   integer indices(MAXSTEPS)
@@ -28,6 +32,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   real hannwindow(NPTS)
   real rcw(12)
   real dd(NPTS)
+  real ddr(NPTS)
   real ferrs(MAXCAND)
   real pp(12)                          !Half-sine pulse shape
   real snrs(MAXCAND)
@@ -40,6 +45,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   logical first
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
+  data s8r/1,0,1,1,0,0,0,1/
   save df,first,cb,fs,pi,twopi,dt,s8,rcw,pp,hannwindow,nmatchedfilter
 
   if(first) then
@@ -64,7 +70,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
        hannwindow(i)=0.5*(1-cos(twopi*(i-1)/NPTS))
      enddo
 
-! define the sync word waveform
+! define the sync word waveforms
      s8=2*s8-1  
      cbq(1:6)=pp(7:12)*s8(1)
      cbq(7:18)=pp*s8(3)
@@ -75,6 +81,16 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
      cbi(25:36)=pp*s8(6)
      cbi(37:42)=pp(1:6)*s8(8)
      cb=cmplx(cbi,cbq)
+     s8r=2*s8r-1  
+     cbq(1:6)=pp(7:12)*s8r(1)
+     cbq(7:18)=pp*s8r(3)
+     cbq(19:30)=pp*s8r(5)
+     cbq(31:42)=pp*s8r(7)
+     cbi(1:12)=pp*s8r(2)
+     cbi(13:24)=pp*s8r(4)
+     cbi(25:36)=pp*s8r(6)
+     cbi(37:42)=pp(1:6)*s8r(8)
+     cbr=cmplx(cbi,cbq)
 
      first=.false.
   endif
@@ -160,7 +176,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
   allmessages=char(0)
   lines=char(0)
 
-  do ip=1,ndet  !run through the candidates and try to sync/demod/decode
+  do ip=1,1  !run through the candidates and try to sync/demod/decode
     imid=times(ip)*fs
     if( imid .lt. NPTS/2 ) imid=NPTS/2
     if( imid .gt. n-NPTS/2 ) imid=n-NPTS/2
@@ -175,14 +191,27 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
 ! attempt frame synchronization
 ! correlate with sync word waveforms
     cc=0
+    ccr=0
     cc1=0
     cc2=0
+    ccr1=0
+    ccr2=0
     do i=1,NPTS-(56*6+41)
       cc1(i)=sum(cdat(i:i+41)*conjg(cb))
       cc2(i)=sum(cdat(i+56*6:i+56*6+41)*conjg(cb))
     enddo
     cc=cc1+cc2
     dd=abs(cc1)*abs(cc2)
+    do i=1,NPTS-(32*6+41)
+      ccr1(i)=sum(cdat(i:i+41)*conjg(cbr))
+      ccr2(i)=sum(cdat(i+32*6:i+32*6+41)*conjg(cbr))
+    enddo
+    ccr=ccr1+ccr2
+    ddr=abs(ccr1)*abs(ccr2)
+    cmax=maxval(abs(cc))
+    crmax=maxval(abs(ccr))
+    ishort=0
+    if( crmax .gt. cmax ) ishort=1
 
 ! Find 6 largest peaks
     do ipk=1,6
@@ -325,7 +354,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
             ssig=sqrt(s2av-sav*sav)
             softbits=softbits/ssig
 
-            sigma=0.65
+            sigma=0.75
             lratio(1:48)=softbits(9:9+47)
             lratio(49:128)=softbits(65:65+80-1)
             lratio=exp(2.0*lratio/(sigma*sigma))
@@ -355,8 +384,8 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
               else
                 msgreceived=' '
                 ndither=-99             ! -99 is bad hash flag
-!                write(78,1001) nutc,t0,nsnr,ic,ipk,is,idf,iav,deltaf,fest,ferr,ferr2,ffin,bba,bbp,nbadsync1,nbadsync2, &
-!                             phase0,niterations,ndither,msgreceived
+                write(78,1001) nutc,t0,nsnr,ic,ipk,is,idf,iav,deltaf,fest,ferr,ferr2,ffin,bba,bbp,nbadsync1,nbadsync2, &
+                             phase0,niterations,ndither,msgreceived
               endif
             endif
           enddo ! frame averaging loop
@@ -368,10 +397,10 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
     ndither=-98   
 999 continue
     if( nmessages .ge. 1 ) then 
-!      write(78,1001) nutc,t0,nsnr,ic,ipk,is,idf,iav,deltaf,fest,ferr,ferr2,ffin,bba,bbp,nbadsync1,nbadsync2, &
-!               phase0,niterations,ndither,msgreceived
-!      call flush(78)
-!1001 format(i6.6,f8.2,i5,i5,i5,i5,i5,i5,f8.2,f8.2,f8.2,f8.2,f8.2,f10.2,f8.2,i5,i5,f8.2,i5,i5,2x,a22)
+      write(78,1001) nutc,t0,nsnr,ic,ipk,is,idf,iav,deltaf,fest,ferr,ferr2,ffin,bba,bbp,nbadsync1,nbadsync2, &
+               phase0,niterations,ndither,msgreceived
+      call flush(78)
+1001 format(i6.6,f8.2,i5,i5,i5,i5,i5,i5,f8.2,f8.2,f8.2,f8.2,f8.2,f10.2,f8.2,i5,i5,f8.2,i5,i5,2x,a22)
       exit
     endif
   enddo
