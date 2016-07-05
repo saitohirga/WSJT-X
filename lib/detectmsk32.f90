@@ -443,6 +443,6 @@ subroutine detectmsk32(cbig,n,lines,nmessages,nutc)
 !                    cdbest,cdratbest,nbadsyncbest,ipkbest,idbest,idfbest,iavbest
     endif
   endif
-1022 format(i4.4,2x,i4,f8.3,f8.2,f8.2,i6,i6,a6,i8,i10,i4,f8.2,f8.2,i5,i5,i5,i5,i5) 
+!1022 format(i4.4,2x,i4,f8.3,f8.2,f8.2,i6,i6,a6,i8,i10,i4,f8.2,f8.2,i5,i5,i5,i5,i5) 
   return
 end subroutine detectmsk32
