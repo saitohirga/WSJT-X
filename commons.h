@@ -19,6 +19,7 @@ extern "C" {
 extern struct dec_data {
   float ss[184*NSMAX];
   float savg[NSMAX];
+  float sred[5760];
   short int d2[NTMAX*RX_SAMPLE_RATE];
   struct
   {

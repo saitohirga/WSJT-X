@@ -139,6 +139,11 @@ void WideGraph::saveSettings()                                           //saveS
   m_settings->endGroup ();
 }
 
+void WideGraph::drawRed(int ia, int ib)
+{
+  ui->widePlot->drawRed(ia,ib,swide);
+}
+
 void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dataSink2
 {
   static float splot[NSMAX];
@@ -181,7 +186,7 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dat
       m_bHaveTransmitted=false;
     }
     m_ntr0=ntr;
-    ui->widePlot->draw(swide,true);
+    ui->widePlot->draw(swide,true,false);
   }
 }
 
@@ -219,7 +224,7 @@ void WideGraph::keyPressEvent(QKeyEvent *e)                                 //F1
 void WideGraph::setRxFreq(int n)                                           //setRxFreq
 {
   ui->widePlot->setRxFreq(n);
-  ui->widePlot->draw(swide,false);
+  ui->widePlot->draw(swide,false,false);
   if(m_lockTxFreq) setTxFreq(n);
 }
 
@@ -316,7 +321,7 @@ void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)
   if(arg1=="Reference") {
     ui->widePlot->setReference(true);
   }
-  if(ui->widePlot->m_bScaleOK) ui->widePlot->draw(swide,false);
+  if(ui->widePlot->m_bScaleOK) ui->widePlot->draw(swide,false,false);
 }
 
 void WideGraph::on_fSplitSpinBox_valueChanged(int n)              //fSplit
@@ -437,13 +442,19 @@ void WideGraph::on_zeroSlider_valueChanged(int value)                 //Zero
 void WideGraph::on_gain2dSlider_valueChanged(int value)               //Gain2
 {
   ui->widePlot->setPlot2dGain(value);
-  if(ui->widePlot->m_bScaleOK) ui->widePlot->draw(swide,false);
+  if(ui->widePlot->m_bScaleOK) {
+    ui->widePlot->draw(swide,false,false);
+    if(m_mode=="QRA64") ui->widePlot->draw(swide,false,true);
+  }
 }
 
 void WideGraph::on_zero2dSlider_valueChanged(int value)               //Zero2
 {
   ui->widePlot->setPlot2dZero(value);
-  if(ui->widePlot->m_bScaleOK) ui->widePlot->draw(swide,false);
+  if(ui->widePlot->m_bScaleOK) {
+    ui->widePlot->draw(swide,false,false);
+    if(m_mode=="QRA64") ui->widePlot->draw(swide,false,true);
+  }
 }
 
 void WideGraph::setTol(int n)                                         //setTol

@@ -2117,8 +2117,8 @@ void MainWindow::decode()                                       //decode()
   if(m_modeTx=="JT65") dec_data.params.ntxmode=65;
   dec_data.params.nmode=9;
   if(m_mode=="JT65") dec_data.params.nmode=65;
-  if(m_mode=="QRA64") dec_data.params.nmode=165;
-  if(m_mode=="QRA64") dec_data.params.ntxmode=165;
+  if(m_mode=="QRA64") dec_data.params.nmode=164;
+  if(m_mode=="QRA64") dec_data.params.ntxmode=164;
   if(m_mode=="JT9+JT65") dec_data.params.nmode=9+65;  // = 74
   if(m_mode=="JT4") {
     dec_data.params.nmode=4;
@@ -2326,6 +2326,26 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
     }
     if(t.indexOf("<DecodeFinished>") >= 0) {
+
+//###
+      if(m_mode=="QRA64") {
+        char name[512];
+        QString fname=m_config.temp_dir ().absoluteFilePath ("red.dat");
+        strncpy(name,fname.toLatin1(), sizeof (name) - 1);
+        name[sizeof (name) - 1] = '\0';
+        FILE* fp=fopen(name,"rb");
+        if(fp != NULL) {
+          int n,ia,ib;
+          memset(dec_data.sred,0,4*5760);
+          n=fread(&ia,4,1,fp);
+          n=fread(&ib,4,1,fp);
+          n=fread(&dec_data.sred[ia-1],4,ib-ia+1,fp);
+          m_wideGraph->drawRed(ia,ib);
+
+        }
+      }
+//###
+
       m_bDecoded = t.mid (20).trimmed ().toInt () > 0;
       if(!m_diskData) killFileTimer.start (3*1000*m_TRperiod/4); //Kill in 45 s
       decodeDone ();
