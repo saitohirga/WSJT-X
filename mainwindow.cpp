@@ -337,6 +337,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_manual {network_manager}
 {
   ui->setupUi(this);
+  add_child_to_event_filter (this);
 
   m_baseCall = Radio::base_callsign (m_config.my_callsign ());
 
@@ -886,6 +887,7 @@ MainWindow::~MainWindow()
   fftwf_export_wisdom_to_filename(cfname);
   m_audioThread.quit ();
   m_audioThread.wait ();
+  remove_child_from_event_filter (this);
 }
 
 //-------------------------------------------------------- writeSettings()
