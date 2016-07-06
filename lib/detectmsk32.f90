@@ -108,7 +108,7 @@ subroutine detectmsk32(cbig,n,lines,nmessages,nutc)
     likelymessages(irpt)=ig
 !    write(*,*) hashmsg,ig,ig24(ig)
   enddo  
-  qsocontext=.true.
+  qsocontext=.false.
 
   ! fill the detmet, detferr arrays
   nstepsize=48  ! 4ms steps
@@ -225,7 +225,7 @@ subroutine detectmsk32(cbig,n,lines,nmessages,nutc)
     ddr=abs(ccr1)*abs(ccr2)
     crmax=maxval(abs(ccr))
 
-! Find 3 largest peaks
+! Find 6 largest peaks
     do ipk=1,6
       iloc=maxloc(abs(ccr))
       ic1=iloc(1)
@@ -235,7 +235,7 @@ subroutine detectmsk32(cbig,n,lines,nmessages,nutc)
       ccr(max(1,ic1-7):min(NPTS-32*6-41,ic1+7))=0.0
     enddo
 
-    do ipk=1,6
+    do ipk=1,2
 
 ! we want ic to be the index of the first sample of the frame
       ic0=ipeaks(ipk)
@@ -279,7 +279,7 @@ subroutine detectmsk32(cbig,n,lines,nmessages,nutc)
 ! Final estimate of the carrier frequency - returned to the calling program
         fest=1500+ferr+ferr2 
 
-        do idf=0,10   ! frequency jitter
+        do idf=0,6                         ! frequency jitter
           if( idf .eq. 0 ) then
             deltaf=0.0
           elseif( mod(idf,2) .eq. 0 ) then
@@ -294,7 +294,7 @@ subroutine detectmsk32(cbig,n,lines,nmessages,nutc)
 ! place the beginning of frame at index NSPM+1
           cdat2=cshift(cdat2,ic-(NSPM+1))
 
-          do iav=1,8 ! Hopefully we can eliminate some of these after looking at more examples 
+          do iav=1,8 ! Frame averaging patterns 
             if( iav .eq. 1 ) then
               c=cdat2(NSPM+1:2*NSPM)  
             elseif( iav .eq. 2 ) then
@@ -397,7 +397,8 @@ subroutine detectmsk32(cbig,n,lines,nmessages,nutc)
             iloc=minloc(cd)
             imsg2=iloc(1)-1
             cdrat=cdm2/(cdm+0.001)
-            if( cdrat .gt. cdratbest ) then
+!            if( cdrat .gt. cdratbest ) then
+            if( cdm .lt. cdbest ) then
               cdratbest = cdrat
               cdbest = cdm
               imsgbest = imsg
@@ -407,7 +408,7 @@ subroutine detectmsk32(cbig,n,lines,nmessages,nutc)
               idfbest = idf
               idbest = id
               nbadsyncbest = nbadsync
-              if( ( ihammd(imsgbest)+nbadsyncbest  .le. 5 )  .and. ( (cdratbest .gt. 1000.0) .or. (cdbest .eq. 0.0) ) ) goto 999
+              if( ( ihammd(imsgbest)+nbadsyncbest  .le. 4 )  .and. ( (cdratbest .gt. 100.0) .and. (cdbest .le. 0.05) ) ) goto 999
             endif
 
           enddo ! frame averaging loop
@@ -423,7 +424,7 @@ subroutine detectmsk32(cbig,n,lines,nmessages,nutc)
   enddo
 999 continue
   if( imsgbest .ge. 0 ) then
-    if(ihammd(imsgbest)+nbadsyncbest .le. 5) then
+    if( ( ihammd(imsgbest)+nbadsyncbest  .le. 4 )  .and. ( (cdratbest .gt. 50.0) .and. (cdbest .le. 0.05) ) ) then
       if( qsocontext ) then
         nrxrpt=iand(likelymessages(imsgbest),31)
         nrxhash=(likelymessages(imsgbest)-nrxrpt)/32
