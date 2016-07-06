@@ -2202,8 +2202,8 @@ void MainWindow::decode()                                       //decode()
     narg[13]=-1;
     narg[14]=m_config.aggressive();
     memcpy(d2b,dec_data.d2,2*360000);
-    watcher3.setFuture (QtConcurrent::run (std::bind (fast_decode_,&d2b[0],&narg[0],&m_msg[0][0],
-        &m_pchkFile[0],80,512)));
+    watcher3.setFuture (QtConcurrent::run (std::bind (fast_decode_,&d2b[0],
+        &narg[0],&m_msg[0][0],&m_pchkFile[0],80,512)));
   } else {
     memcpy(to, from, qMin(mem_jt9->size(), size));
     QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.remove (); // Allow jt9 to start
@@ -3458,8 +3458,10 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
     if((m_mode=="JTMSK" or m_mode=="MSK144") and m_bShMsgs) {
       int i=t0.length()-1;
       t0="<" + t0.mid(0,i) + "> ";
-      if(n<26) n=26;
-      if(n>28) n=28;
+      if(m_mode=="JTMSK") {
+         if(n<26) n=26;
+         if(n>28) n=28;
+      }
       rpt.sprintf("%2.2d",n);
     }
     t=t0 + rpt;
@@ -3967,7 +3969,7 @@ void MainWindow::on_actionMSK144_triggered()
   setup_status_bar (true);
   m_toneSpacing=0.0;
   ui->cbShMsgs->setChecked(false);
-  ui->cbShMsgs->setVisible(false);
+  ui->cbShMsgs->setVisible(true);
   ui->actionMSK144->setChecked(true);
 }
 
@@ -5182,7 +5184,8 @@ void MainWindow::on_cbShMsgs_toggled(bool b)
 {
   ui->cbTx6->setEnabled(b);
   m_bShMsgs=b;
-  if(m_bShMsgs and (m_mode=="JTMSK" or m_mode=="JTMSK")) ui->rptSpinBox->setValue(26);
+  if(m_bShMsgs and (m_mode=="JTMSK")) ui->rptSpinBox->setValue(26);
+  if(m_bShMsgs and (m_mode=="MSK144")) ui->rptSpinBox->setValue(1);
   int itone0=itone[0];
   int ntx=m_ntx;
   genStdMsgs(m_rpt);
