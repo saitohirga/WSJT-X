@@ -92,11 +92,11 @@ void CPlotter::paintEvent(QPaintEvent *)                                // paint
   m_paintEventBusy=false;
 }
 
-void CPlotter::draw(float swide[], bool bScroll)                            //draw()
+void CPlotter::draw(float swide[], bool bScroll, bool bRed)
 {
   int j,j0;
+  static int jtop=0;
   float y,y2,ymin;
-
   double fac = sqrt(m_binsPerPixel*m_waterfallAvg/15.0);
   double gain = fac*pow(10.0,0.02*m_plotGain);
   double gain2d = pow(10.0,0.02*(m_plot2dGain));
@@ -118,17 +118,52 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
   if(m_bLinearAvg) {
     painter2D.setPen(Qt::yellow);
   } else if(m_bReference) {
-    painter2D.setPen(Qt::red);
+    painter2D.setPen(Qt::blue);
   } else {
     painter2D.setPen(Qt::green);
   }
-
-  QPoint LineBuf[MAX_SCREENSIZE];
+  static QPoint LineBuf[MAX_SCREENSIZE];
+  QPoint LineBuf2[MAX_SCREENSIZE];
   j=0;
   j0=int(m_startFreq/m_fftBinWidth + 0.5);
   int iz=XfromFreq(5000.0);
   int jz=iz*m_binsPerPixel;
   m_fMax=FreqfromX(iz);
+
+  m_line++;
+  if(m_mode=="QRA64" and bRed) {
+    double df_qra64=12000.0/(2*6912);
+    int j0,j1;
+    int k=0;
+    float smax,y3max=0;
+    float y3[MAX_SCREENSIZE];
+    for(int i=1; i<iz; i++) {
+      j0=FreqfromX(i-1)/df_qra64;
+      j1=FreqfromX(i)/df_qra64;
+      smax=0.0;
+      y3[i]=0.0;
+      for(int jj=j0; jj<=j1; jj++) {
+        if(dec_data.sred[jj]>smax) smax=dec_data.sred[jj];
+      }
+      y3[i]=smax;
+      if(smax>y3max)y3max=smax;
+    }
+//    qDebug() << "a" << y3max << m_ia << m_ib;
+    float fac=0.8/qMax(y3max,50.0f);
+    for(int i=1; i<iz; i++) {
+      if(y3[i]>0.0) {
+        y2=fac*y3[i];
+        LineBuf2[k].setX(i);
+        LineBuf2[k].setY(int(m_h2*(0.9-y2)));
+        k++;
+      }
+    }
+    painter2D.drawPolyline(LineBuf,jtop);
+    painter2D.setPen(Qt::red);
+    painter2D.drawPolyline(LineBuf2,k);
+    update();                                    //trigger a new paintEvent
+    return;
+  }
 
   if(bScroll) {
     flat4_(swide,&iz,&m_Flatten);
@@ -184,6 +219,7 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
     }
 
     if(i==iz-1) painter2D.drawPolyline(LineBuf,j);
+    jtop=j;
     LineBuf[j].setX(i);
     LineBuf[j].setY(int(0.9*m_h2-y2*m_h2/70.0));
     if(y2<y2min) y2min=y2;
@@ -192,7 +228,6 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
   }
 
   if(swide[0]>1.0e29) m_line=0;
-  m_line++;
   if(m_line == painter1.fontMetrics ().height ()) {
     painter1.setPen(Qt::white);
     QString t;
@@ -224,6 +259,14 @@ void CPlotter::draw(float swide[], bool bScroll)                            //dr
   }
   update();                                    //trigger a new paintEvent
   m_bScaleOK=true;
+}
+
+void CPlotter::drawRed(int ia, int ib, float swide[])
+{
+  m_ia=ia;
+  m_ib=ib;
+
+  draw(swide,false,true);
 }
 
 void CPlotter::DrawOverlay()                   //DrawOverlay()

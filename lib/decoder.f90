@@ -52,8 +52,10 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   else
      open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown')
   end if
-  if(params%nmode.eq.4 .or. params%nmode.eq.65) open(14,file=trim(temp_dir)//'/avemsg.txt', &
-       status='unknown')
+  if(params%nmode.eq.4 .or. params%nmode.eq.65) open(14,file=trim(temp_dir)// &
+       '/avemsg.txt',status='unknown')
+  if(params%nmode.eq.164) open(17,file=trim(temp_dir)//'/red.dat',          &
+       access='stream',status='unknown')
 
   if(params%nmode.eq.4) then
      jz=52*nfsample
@@ -84,7 +86,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 !$omp parallel sections num_threads(2) copyin(/timer_private/) shared(ndecoded) if(.true.) !iif() needed on Mac
 
 !$omp section
-  if(params%nmode.eq.65 .or. params%nmode.eq.165 .or.                      &
+  if(params%nmode.eq.65 .or. params%nmode.eq.164 .or.                      &
        (params%nmode.eq.(65+9) .and. params%ntxmode.eq.65)) then
 ! We're in JT65 mode, or should do JT65 first
      if(newdat65) dd(1:npts65)=id2(1:npts65)

@@ -45,6 +45,7 @@
   type, bind(C) :: dec_data
      real(c_float) :: ss(184,NSMAX)
      real(c_float) :: savg(NSMAX)
+     real(c_float) :: sred(5760)
      integer(c_short) :: id2(NMAX)
      type(params_block) :: params
   end type dec_data

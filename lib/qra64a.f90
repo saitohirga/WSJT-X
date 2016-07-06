@@ -14,6 +14,7 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
   real s(NZ)
   real savg(NZ)
   real blue(0:25)
+  real red0(NZ)
   real red(NZ)
   real x(NFFT)
   complex cx(0:NH)
@@ -22,11 +23,6 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
   data mark/' ','.','-','+','X','$'/
   common/qra64com/ss(NZ,194),s3(0:63,1:63),ccf(NZ,0:25)
   save
-
-!  rewind 73
-!  rewind 74
-!  rewind 75
-!  rewind 76
 
   decoded='                      '
   nft=99
@@ -59,10 +55,11 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
   fb=min(nf2,nfqso+ntol)
   ia=nint(fa/df)
   ib=nint(fb/df)
+  red0=0.
   fac=1.0/sqrt(21.0)
   sync=0.
   do if0=ia,ib
-     red(if0)=0.
+     red0(if0)=0.
      do j=0,25
         t=-3.0
         do n=0,6
@@ -70,10 +67,10 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
            t=t + ss(i,1+2*n+j) + ss(i,1+2*n+j+78) + ss(i,1+2*n+j+154)
         enddo
         ccf(if0,j)=fac*t
-        if(ccf(if0,j).gt.red(if0)) then
-           red(if0)=ccf(if0,j)
-           if(red(if0).gt.sync) then
-              sync=red(if0)
+        if(ccf(if0,j).gt.red0(if0)) then
+           red0(if0)=ccf(if0,j)
+           if(red0(if0).gt.sync) then
+              sync=red0(if0)
               f0=if0*df
               dtx=j*istep/12000.0 - 1.0
               i0=if0
@@ -82,6 +79,22 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
         endif
      enddo
   enddo
+
+  red(ia:ib)=0.
+  rewind 73
+  do i=ia+3,ib-3
+     r1=red0(i)
+     red0(i)=0.
+     r0=maxval(red0(i-3:i+3))
+     red0(i)=r1
+     red(i)=max(0.0,r1-r0)
+     write(73,3001) i*df,red(i),red0(i),r0
+3001 format(4f12.3)
+  enddo
+  flush(73)
+
+  write(17) ia,ib,red(ia:ib)
+  close(17)
 
   if0=nint(f0/df)
   nfreq=nint(f0)

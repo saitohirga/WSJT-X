@@ -35,7 +35,7 @@ public:
   QSize sizeHint() const;
   bool    m_bScaleOK;
 
-  void draw(float swide[], bool bScroll);		//Update the waterfall
+  void draw(float swide[], bool bScroll, bool bRed);		//Update the waterfall
   void SetRunningState(bool running);
   void setPlotZero(int plotZero);
   int  plotZero();
@@ -82,6 +82,7 @@ public:
   void setRxBand(QString band);
   void setReference(bool b) {m_bReference = b;}
   bool Reference() const {return m_bReference;}
+  void drawRed(int ia, int ib, float swide[]);
 
 signals:
   void freezeDecode1(int n);
@@ -116,6 +117,8 @@ private:
   qint32  m_w;
   qint32  m_Flatten;
   qint32  m_nSubMode;
+  qint32  m_ia;
+  qint32  m_ib;
 
   QPixmap m_WaterfallPixmap;
   QPixmap m_2DPixmap;

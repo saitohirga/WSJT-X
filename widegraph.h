@@ -46,6 +46,7 @@ public:
   int    smoothYellow();
   void   setRxBand(QString band);
   void   setWSPRtransmitted();
+  void   drawRed(int ia, int ib);
 
 signals:
   void freezeDecode2(int n);
