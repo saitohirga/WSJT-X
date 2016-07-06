@@ -4,7 +4,7 @@ subroutine genmsk32(msg,msgsent,ichk,itone,itype)
   character*22 msg,msgsent,hashmsg
   character*4 crpt,rpt(0:31)
   logical first
-  integer itone(32)
+  integer itone(144)
   integer ig24(0:4096-1)                  !Codewords for Golay (24,12) code
   integer*1 codeword(24),bitseq(32)
   integer*1 s8r(8)
