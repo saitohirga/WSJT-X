@@ -85,7 +85,7 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
   do i=ia+3,ib-3
      r1=red0(i)
      red0(i)=0.
-     r0=maxval(red0(i-3:i+3))
+     r0=max(red0(i-3),red0(i-2),red0(i+2),red0(i+3))
      red0(i)=r1
      red(i)=max(0.0,r1-r0)
      write(73,3001) i*df,red(i),red0(i),r0
