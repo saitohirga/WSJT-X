@@ -99,7 +99,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc)
 
 ! Define the 32 likely messages 
   do irpt=0,31
-    hashmsg=mycall//' '//partnercall//' '//rpt(irpt)
+    hashmsg=trim(mycall)//' '//trim(partnercall)//' '//rpt(irpt)
     call fmtmsg(hashmsg,iz)
     call hash(hashmsg,22,ihash)
     ihash=iand(ihash,127)
@@ -107,7 +107,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc)
     likelymessages(irpt)=ig
 !    write(*,*) irpt,hashmsg,ig,ig24(ig)
   enddo  
-  qsocontext=.false.
+  qsocontext=.true.
 
 ! Fill the detmet, detferr arrays
   nstepsize=48  ! 4ms steps
@@ -196,6 +196,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc)
   lines=char(0)
 
   imsgbest=-99
+  nbadsyncbest=99
   cdbest=1e32
   cdratbest=0.0
 
@@ -414,36 +415,42 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc)
                 nbadsyncbest = nbadsync
                 if( ( ihammd(imsgbest)+nbadsyncbest  .le. 4 )  .and. ( (cdratbest .gt. 100.0) .and. (cdbest .le. 0.05) ) ) goto 999
               endif
-            enddo ! phase loop
-          enddo ! frame averaging loop
-        enddo  ! frequency dithering loop
+            enddo   ! phase loop
+          enddo   ! frame averaging loop
+        enddo   ! frequency dithering loop
       enddo   ! sample-time dither loop
-    enddo     ! peak loop - could be made more efficient by working harder to find good peaks
+    enddo   ! peak loop
 
-    msgreceived=' '
 !    write(78,1001) nutc,t0,nsnr,ic,ipk,is,idf,iav,deltaf,fest,ferr,ferr2,ffin,bba,bbp,nbadsync, &
 !             phase0,msgreceived
 !      call flush(78)
 !1001 format(i6.6,f8.2,i5,i5,i5,i5,i5,i5,f8.2,f8.2,f8.2,f8.2,f8.2,f10.2,f8.2,i5,f8.2,2x,a22)
   enddo
 999 continue
-  if( imsgbest .ge. 0 ) then
-    if( ( ihammd(imsgbest)+nbadsyncbest  .le. 4 )  .and. ( (cdratbest .gt. 50.0) .and. (cdbest .le. 0.05) ) ) then
-      if( qsocontext ) then
-        nrxrpt=iand(likelymessages(imsgbest),31)
-        nrxhash=(likelymessages(imsgbest)-nrxrpt)/32
-        imessage=likelymessages(imsgbest)
-      else
-        nrxrpt=iand(imsgbest,31)
-        nrxhash=(imsgbest-nrxrpt)/32
-        imessage=imsgbest
-      endif
-      nmessages=1
-      write(msgreceived,'(a1,i3,a1,1x,a4)') "<",nrxhash,">",rpt(nrxrpt)
-      write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
-1020  format(i6.6,i4,f5.1,i5,' & ',a22)
+  msgreceived=' '
+  if( ( ihammd(imsgbest)+nbadsyncbest  .le. 4 )  .and. ( (cdratbest .gt. 50.0) .and. (cdbest .le. 0.05) ) ) then
+    if( qsocontext ) then
+      nrxrpt=iand(likelymessages(imsgbest),31)
+      nrxhash=(likelymessages(imsgbest)-nrxrpt)/32
+      imessage=likelymessages(imsgbest)
+    else
+      nrxrpt=iand(imsgbest,31)
+      nrxhash=(imsgbest-nrxrpt)/32
+      imessage=imsgbest
+    endif
 
-!      write(*,1022) nutc,ipbest,times(ipbest),snrs(ipbest),fest,nrxrpt,nrxhash, &
+! See if this message has a hash that is expected for a message sent to mycall by partnercall
+    hashmsg=trim(mycall)//' '//trim(partnercall)//' '//rpt(nrxrpt)
+    call fmtmsg(hashmsg,iz)
+    call hash(hashmsg,22,ihash)
+    ihash=iand(ihash,127)
+    if( nrxhash .eq. ihash ) then
+      nmessages=1
+      write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),trim(partnercall),">",rpt(nrxrpt)    
+      write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
+1020    format(i6.6,i4,f5.1,i5,' & ',a22)
+
+!       write(*,1022) nutc,ipbest,times(ipbest),snrs(ipbest),fest,nrxrpt,nrxhash, &
 !                    rpt(nrxrpt),imessage,ig24(imessage),ihammd(imsgbest), &
 !                    cdbest,cdratbest,nbadsyncbest,ipkbest,idbest,idfbest,iavbest,iphabest
     endif

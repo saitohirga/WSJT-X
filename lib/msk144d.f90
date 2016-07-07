@@ -14,14 +14,16 @@ program msk144d
   type(wav_header) :: wav
   integer*2 id2(30*12000)
   character*500 infile
+  character*12 mycall,hiscall
   character(len=500) optarg
 
-  type (option) :: long_options(2) = [ &
-       option ('help',.false.,'h','Display this help message',''),                      &
-       option ('ntrials',.true.,'n','number of trials, default TRIALS=10000','TRIALS')  &
+  type (option) :: long_options(3) = [ &
+       option ('help',.false.,'h','Display this help message',''), &
+       option ('mycall',.true.,'c','mycall',''), &
+       option ('hiscall',.true.,'x','hiscall','') &  
        ]
   do
-     call getopt('hn:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+     call getopt('c:hx:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
      if( nstat .ne. 0 ) then
         exit
      end if
@@ -30,6 +32,10 @@ program msk144d
         display_help = .true.
      case ('n')
         read (optarg(:narglen), *) ntrials
+     case ('c')
+        read (optarg(:narglen), *) mycall
+     case ('x')
+        read (optarg(:narglen), *) hiscall
      end select
   end do
 
@@ -65,7 +71,7 @@ program msk144d
      read(unit=wav%lun) id2(1:npts)
      close(unit=wav%lun)
      call timer('read    ',1)
-     call msk144_decode(id2,npts,nutc,1,pchk_file,line)
+     call msk144_decode(id2,npts,nutc,1,pchk_file,mycall,hiscall,line)
   enddo
 
   call timer('msk144    ',1)
