@@ -107,7 +107,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc)
     likelymessages(irpt)=ig
 !    write(*,*) irpt,hashmsg,ig,ig24(ig)
   enddo  
-  qsocontext=.true.
+  qsocontext=.false.
 
 ! Fill the detmet, detferr arrays
   nstepsize=48  ! 4ms steps
@@ -428,31 +428,33 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc)
   enddo
 999 continue
   msgreceived=' '
-  if( ( ihammd(imsgbest)+nbadsyncbest  .le. 4 )  .and. ( (cdratbest .gt. 50.0) .and. (cdbest .le. 0.05) ) ) then
-    if( qsocontext ) then
-      nrxrpt=iand(likelymessages(imsgbest),31)
-      nrxhash=(likelymessages(imsgbest)-nrxrpt)/32
-      imessage=likelymessages(imsgbest)
-    else
-      nrxrpt=iand(imsgbest,31)
-      nrxhash=(imsgbest-nrxrpt)/32
-      imessage=imsgbest
-    endif
+  if( imsgbest .gt. 0 ) then
+    if( ( ihammd(imsgbest)+nbadsyncbest .le. 4 ) .and. (cdratbest .gt. 50.0) .and. (cdbest .le. 0.05) ) then
+      if( qsocontext ) then
+        nrxrpt=iand(likelymessages(imsgbest),31)
+        nrxhash=(likelymessages(imsgbest)-nrxrpt)/32
+        imessage=likelymessages(imsgbest)
+      else
+        nrxrpt=iand(imsgbest,31)
+        nrxhash=(imsgbest-nrxrpt)/32
+        imessage=imsgbest
+      endif
 
 ! See if this message has a hash that is expected for a message sent to mycall by partnercall
-    hashmsg=trim(mycall)//' '//trim(partnercall)//' '//rpt(nrxrpt)
-    call fmtmsg(hashmsg,iz)
-    call hash(hashmsg,22,ihash)
-    ihash=iand(ihash,127)
-    if( nrxhash .eq. ihash ) then
-      nmessages=1
-      write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),trim(partnercall),">",rpt(nrxrpt)    
-      write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
+      hashmsg=trim(mycall)//' '//trim(partnercall)//' '//rpt(nrxrpt)
+      call fmtmsg(hashmsg,iz)
+      call hash(hashmsg,22,ihash)
+      ihash=iand(ihash,127)
+      if( nrxhash .eq. ihash ) then
+        nmessages=1
+        write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),trim(partnercall),">",rpt(nrxrpt)    
+        write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
 1020    format(i6.6,i4,f5.1,i5,' & ',a22)
 
 !       write(*,1022) nutc,ipbest,times(ipbest),snrs(ipbest),fest,nrxrpt,nrxhash, &
 !                    rpt(nrxrpt),imessage,ig24(imessage),ihammd(imsgbest), &
 !                    cdbest,cdratbest,nbadsyncbest,ipkbest,idbest,idfbest,iavbest,iphabest
+      endif
     endif
   endif
 !1022 format(i4.4,2x,i4,f8.3,f8.2,f8.2,i6,i6,a6,i8,i10,i4,f8.2,f8.2,i5,i5,i5,i5,i5,i5) 
