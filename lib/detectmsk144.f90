@@ -246,7 +246,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
       if( ibb .le. 3 ) ibb=ibb-1
       if( ibb .gt. 3 ) ibb=ibb-7
 
-      do id=1,1     ! slicer dither. bb is very good - may be able to remove this.
+      do id=1,3     ! slicer dither. bb is very good - may be able to remove this.
         if( id .eq. 1 ) is=0
         if( id .eq. 2 ) is=-1
         if( id .eq. 3 ) is=1
