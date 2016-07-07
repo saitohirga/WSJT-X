@@ -319,98 +319,103 @@ subroutine detectmsk32(cbig,n,lines,nmessages,nutc)
             cca=sum(c(1:1+41)*conjg(cb))
             phase0=atan2(imag(cca),real(cca))
 
-! Remove phase error - want constellation rotated so that sample points lie on I/Q axes
-            cfac=cmplx(cos(phase0),sin(phase0))
-            c=c*conjg(cfac)
+            do ipha=1,3
+              if( ipha.eq.2 ) phase0=phase0-20*pi/180.0
+              if( ipha.eq.3 ) phase0=phase0+20*pi/180.0
 
-            if( nmatchedfilter .eq. 0 ) then
+! Remove phase error - want constellation rotated so that sample points lie on I/Q axes
+              cfac=cmplx(cos(phase0),sin(phase0))
+              c=c*conjg(cfac)
+
+              if( nmatchedfilter .eq. 0 ) then
 ! sample to get softsamples
-              do i=1, 16 
-                softbits(2*i-1)=imag(c(1+(i-1)*12))
-                softbits(2*i)=real(c(7+(i-1)*12))  
-              enddo
-            else
+                do i=1, 16 
+                  softbits(2*i-1)=imag(c(1+(i-1)*12))
+                  softbits(2*i)=real(c(7+(i-1)*12))  
+                enddo
+              else
 ! matched filter - 
-              softbits(1)=sum(imag(c(1:6))*pp(7:12))+sum(imag(c(NSPM-5:NSPM))*pp(1:6))
-              softbits(2)=sum(real(c(1:12))*pp)
-              do i=2,16
-                softbits(2*i-1)=sum(imag(c(1+(i-1)*12-6:1+(i-1)*12+5))*pp)
-                softbits(2*i)=sum(real(c(7+(i-1)*12-6:7+(i-1)*12+5))*pp)
-              enddo
-            endif
+                softbits(1)=sum(imag(c(1:6))*pp(7:12))+sum(imag(c(NSPM-5:NSPM))*pp(1:6))
+                softbits(2)=sum(real(c(1:12))*pp)
+                do i=2,16
+                  softbits(2*i-1)=sum(imag(c(1+(i-1)*12-6:1+(i-1)*12+5))*pp)
+                  softbits(2*i)=sum(real(c(7+(i-1)*12-6:7+(i-1)*12+5))*pp)
+                enddo
+              endif
 
 ! sync word hard error weight is a good discriminator for 
 ! frames that have reasonable probability of decoding
-            hardbits=0
-            do i=1, 32 
-              if( softbits(i) .ge. 0.0 ) then
-                hardbits(i)=1
-              endif
-            enddo
-            nbadsync1=(8-sum( (2*hardbits(1:8)-1)*s8r ) )/2
-            nbadsync=nbadsync1
-            if( nbadsync .gt. 3 ) cycle
+              hardbits=0
+              do i=1, 32 
+                if( softbits(i) .ge. 0.0 ) then
+                  hardbits(i)=1
+                endif
+              enddo
+              nbadsync1=(8-sum( (2*hardbits(1:8)-1)*s8r ) )/2
+              nbadsync=nbadsync1
+              if( nbadsync .gt. 3 ) cycle
 
 ! normalize the softsymbols before submitting to decoder
-            sav=sum(softbits)/32
-            s2av=sum(softbits*softbits)/32
-            ssig=sqrt(s2av-sav*sav)
-            softbits=softbits/ssig
+              sav=sum(softbits)/32
+              s2av=sum(softbits*softbits)/32
+              ssig=sqrt(s2av-sav*sav)
+              softbits=softbits/ssig
             
-            if( qsocontext ) then
+              if( qsocontext ) then
             ! search 32 likely messages only, using correlation discrepancy 
-              cd=1e6
-              ihammd=99
-              do i=0,31
-                ncw=ig24(likelymessages(i))
-                cd(i)=0.0
-                ihammd(i)=0
-                do ii=1,24
-                  ib=iand(1,ishft(ncw,1-ii))
-                  ib=2*ib-1 
-                  if( ib*softbits(ii+8) .lt. 0 ) cd(i)=cd(i)+abs(softbits(ii+8))
-                  if( ib*(2*hardbits(ii+8)-1) .lt. 0 ) ihammd(i)=ihammd(i)+1
+                cd=1e6
+                ihammd=99
+                do i=0,31
+                  ncw=ig24(likelymessages(i))
+                  cd(i)=0.0
+                  ihammd(i)=0
+                  do ii=1,24
+                    ib=iand(1,ishft(ncw,1-ii))
+                    ib=2*ib-1 
+                    if( ib*softbits(ii+8) .lt. 0 ) cd(i)=cd(i)+abs(softbits(ii+8))
+                    if( ib*(2*hardbits(ii+8)-1) .lt. 0 ) ihammd(i)=ihammd(i)+1
+                  enddo
                 enddo
-              enddo
-            else
+              else
             ! exhaustive search decoder, using correlation discrepancy 
-              cd=1e6
-              ihammd=99
-              do i=0,4096-1
-                ncw=ig24(i)
-                cd(i)=0.0
-                ihammd(i)=0
-                do ii=1,24
-                  ib=iand(1,ishft(ncw,1-ii))
-                  ib=2*ib-1 
-                  if( ib*softbits(ii+8) .lt. 0 ) cd(i)=cd(i)+abs(softbits(ii+8))
-                  if( ib*(2*hardbits(ii+8)-1) .lt. 0 ) ihammd(i)=ihammd(i)+1
+                cd=1e6
+                ihammd=99
+                do i=0,4096-1
+                  ncw=ig24(i)
+                  cd(i)=0.0
+                  ihammd(i)=0
+                  do ii=1,24
+                    ib=iand(1,ishft(ncw,1-ii))
+                    ib=2*ib-1 
+                    if( ib*softbits(ii+8) .lt. 0 ) cd(i)=cd(i)+abs(softbits(ii+8))
+                    if( ib*(2*hardbits(ii+8)-1) .lt. 0 ) ihammd(i)=ihammd(i)+1
+                  enddo
                 enddo
-              enddo
-            endif
+              endif
 
-            cdm=minval(cd)
-            iloc=minloc(cd)
-            imsg=iloc(1)-1
-            cd(imsg)=1e6
-            cdm2=minval(cd)
-            iloc=minloc(cd)
-            imsg2=iloc(1)-1
-            cdrat=cdm2/(cdm+0.001)
-!            if( cdrat .gt. cdratbest ) then
-            if( cdm .lt. cdbest ) then
-              cdratbest = cdrat
-              cdbest = cdm
-              imsgbest = imsg
-              iavbest = iav
-              ipbest  = ip
-              ipkbest = ipk   
-              idfbest = idf
-              idbest = id
-              nbadsyncbest = nbadsync
-              if( ( ihammd(imsgbest)+nbadsyncbest  .le. 4 )  .and. ( (cdratbest .gt. 100.0) .and. (cdbest .le. 0.05) ) ) goto 999
-            endif
-
+              cdm=minval(cd)
+              iloc=minloc(cd)
+              imsg=iloc(1)-1
+              cd(imsg)=1e6
+              cdm2=minval(cd)
+              iloc=minloc(cd)
+              imsg2=iloc(1)-1
+              cdrat=cdm2/(cdm+0.001)
+!             if( cdrat .gt. cdratbest ) then
+              if( cdm .lt. cdbest ) then
+                cdratbest = cdrat
+                cdbest = cdm
+                imsgbest = imsg
+                iavbest = iav
+                ipbest  = ip
+                ipkbest = ipk   
+                idfbest = idf
+                idbest = id
+                iphabest = ipha
+                nbadsyncbest = nbadsync
+                if( ( ihammd(imsgbest)+nbadsyncbest  .le. 4 )  .and. ( (cdratbest .gt. 100.0) .and. (cdbest .le. 0.05) ) ) goto 999
+              endif
+            enddo ! phase loop
           enddo ! frame averaging loop
         enddo  ! frequency dithering loop
       enddo   ! sample-time dither loop
@@ -441,9 +446,9 @@ subroutine detectmsk32(cbig,n,lines,nmessages,nutc)
 
 !      write(*,1022) nutc,ipbest,times(ipbest),snrs(ipbest),fest,nrxrpt,nrxhash, &
 !                    rpt(nrxrpt),imessage,ig24(imessage),ihammd(imsgbest), &
-!                    cdbest,cdratbest,nbadsyncbest,ipkbest,idbest,idfbest,iavbest
+!                    cdbest,cdratbest,nbadsyncbest,ipkbest,idbest,idfbest,iavbest,iphabest
     endif
   endif
-!1022 format(i4.4,2x,i4,f8.3,f8.2,f8.2,i6,i6,a6,i8,i10,i4,f8.2,f8.2,i5,i5,i5,i5,i5) 
+!1022 format(i4.4,2x,i4,f8.3,f8.2,f8.2,i6,i6,a6,i8,i10,i4,f8.2,f8.2,i5,i5,i5,i5,i5,i5) 
   return
 end subroutine detectmsk32
