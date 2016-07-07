@@ -45,16 +45,16 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
      ss(1:NZ,j)=s
      savg=savg+s
   enddo
-
   savg=savg/nsteps
-  call pctile(savg,NZ,45,base)
-  savg=savg/base - 1.0
-  ss=ss/base
 
   fa=max(nf1,nfqso-ntol)
   fb=min(nf2,nfqso+ntol)
   ia=nint(fa/df)
   ib=nint(fb/df)
+  call pctile(savg(ia),ib-ia+1,45,base)
+  savg=savg/base - 1.0
+  ss=ss/base
+
   red0=0.
   fac=1.0/sqrt(21.0)
   sync=0.
