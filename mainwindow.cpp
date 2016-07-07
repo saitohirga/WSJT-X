@@ -106,7 +106,8 @@ extern "C" {
                 float* width);
 
   void fast_decode_(short id2[], int narg[], char msg[], char pchkFile[],
-                    int len1, int len2);
+                    char mycall[], char hiscall[], int len1, int len2,
+                    int len3, int len4);
   void hash_calls_(char calls[], int* ih9, int len);
   void degrade_snr_(short d2[], int* n, float* db, float* bandwidth);
   void wav12_(short d2[], short d1[], int* nbytes, short* nbitsam2);
@@ -2206,7 +2207,8 @@ void MainWindow::decode()                                       //decode()
     narg[14]=m_config.aggressive();
     memcpy(d2b,dec_data.d2,2*360000);
     watcher3.setFuture (QtConcurrent::run (std::bind (fast_decode_,&d2b[0],
-        &narg[0],&m_msg[0][0],&m_pchkFile[0],80,512)));
+        &narg[0],&m_msg[0][0],&m_pchkFile[0],dec_data.params.mycall,
+        dec_data.params.hiscall,80,512,12,12)));
   } else {
     memcpy(to, from, qMin(mem_jt9->size(), size));
     QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.remove (); // Allow jt9 to start

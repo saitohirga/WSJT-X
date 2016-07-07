@@ -1,4 +1,4 @@
-subroutine detectmsk32(cbig,n,lines,nmessages,nutc)
+subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc)
   use timer_module, only: timer
 
   parameter (NSPM=192, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=40)
@@ -6,7 +6,6 @@ subroutine detectmsk32(cbig,n,lines,nmessages,nutc)
   character*6 mycall,partnercall
   character*22 msg,hashmsg,msgreceived,allmessages(20)
   character*80 lines(100)
-!  character*512 pchk_file,gen_file
   complex cbig(n)
   complex cdat(NPTS)                    !Analytic signal
   complex cdat2(NPTS)
@@ -98,19 +97,19 @@ subroutine detectmsk32(cbig,n,lines,nmessages,nutc)
      first=.false.
   endif
 
-  ! define the 32 likely messages 
+! Define the 32 likely messages 
   do irpt=0,31
-    hashmsg='K9AN K1JT '//rpt(irpt)
+    hashmsg=mycall//' '//partnercall//' '//rpt(irpt)
     call fmtmsg(hashmsg,iz)
     call hash(hashmsg,22,ihash)
     ihash=iand(ihash,127)
     ig=32*ihash + irpt
     likelymessages(irpt)=ig
-!    write(*,*) hashmsg,ig,ig24(ig)
+!    write(*,*) irpt,hashmsg,ig,ig24(ig)
   enddo  
   qsocontext=.false.
 
-  ! fill the detmet, detferr arrays
+! Fill the detmet, detferr arrays
   nstepsize=48  ! 4ms steps
   nstep=(n-NPTS)/nstepsize  
   detmet=0

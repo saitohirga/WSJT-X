@@ -1,4 +1,4 @@
-subroutine fast_decode(id2,narg,line,pchk_file)
+subroutine fast_decode(id2,narg,line,pchk_file,mycall_12,hiscall_12)
 
   parameter (NMAX=30*12000)
   integer*2 id2(NMAX)
@@ -10,8 +10,12 @@ subroutine fast_decode(id2,narg,line,pchk_file)
   character*6 cfile6
   character*80 line(100)
   character*512 pchk_file
+  character*12 mycall_12,hiscall_12
+  character*6 mycall,hiscall
   save npts
 
+  mycall=mycall_12(1:6)
+  hiscall=hiscall_12(1:6)
   nutc=narg(0)
   ndat0=narg(1)
   nsubmode=narg(2)
@@ -33,7 +37,7 @@ subroutine fast_decode(id2,narg,line,pchk_file)
      call jtmsk_decode(id2,narg,line)
      go to 900
   else if(nmode.eq.104) then
-     call msk144_decode(id2,ndat0,nutc,0,pchk_file,line)
+     call msk144_decode(id2,ndat0,nutc,0,pchk_file,mycall,hiscall,line)
      go to 900
   endif
 
