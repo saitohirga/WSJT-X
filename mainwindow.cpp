@@ -832,7 +832,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   {
     QString t=m_config.my_callsign();
     if(t!="IV3NWV" and t!="K1JT" and t!="K9AN" and t!="G4WJS"
-       and t!="IW0HDV" and t!="VE1SKY" and t!="KI7MT") {
+       and t!="IW0HDV" and t!="VE1SKY" and t!="KI7MT" and t!"W8WN"
+       and t!="G4SWX") {
       ui->actionQRA64->setChecked(false);
       ui->actionQRA64->setEnabled(false);
       ui->actionMSK144->setChecked(false);
