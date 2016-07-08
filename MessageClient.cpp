@@ -337,7 +337,8 @@ void MessageClient::status_update (Frequency f, QString const& mode, QString con
                                    , QString const& report, QString const& tx_mode
                                    , bool tx_enabled, bool transmitting, bool decoding
                                    , qint32 rx_df, qint32 tx_df, QString const& de_call
-                                   , QString const& de_grid, QString const& dx_grid)
+                                   , QString const& de_grid, QString const& dx_grid
+                                   , bool watchdog_timeout)
 {
   if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
@@ -345,7 +346,7 @@ void MessageClient::status_update (Frequency f, QString const& mode, QString con
       NetworkMessage::Builder out {&message, NetworkMessage::Status, m_->id_, m_->schema_};
       out << f << mode.toUtf8 () << dx_call.toUtf8 () << report.toUtf8 () << tx_mode.toUtf8 ()
           << tx_enabled << transmitting << decoding << rx_df << tx_df << de_call.toUtf8 ()
-          << de_grid.toUtf8 () << dx_grid.toUtf8 ();
+          << de_grid.toUtf8 () << dx_grid.toUtf8 () << watchdog_timeout;
       m_->send_message (out, message);
     }
 }

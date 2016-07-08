@@ -194,7 +194,8 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
 void ClientWidget::update_status (QString const& id, Frequency f, QString const& mode, QString const& /*dx_call*/
                                   , QString const& report, QString const& tx_mode, bool tx_enabled
                                   , bool transmitting, bool decoding, qint32 rx_df, qint32 tx_df
-                                  , QString const& de_call, QString const& /*de_grid*/, QString const& /*dx_grid*/)
+                                  , QString const& de_call, QString const& /*de_grid*/, QString const& /*dx_grid*/
+                                  , bool watchdog_timeout)
 {
   if (id == id_)
     {
@@ -203,14 +204,15 @@ void ClientWidget::update_status (QString const& id, Frequency f, QString const&
       mode_label_->setText (QString {"Mode: %1%2"}
            .arg (mode)
            .arg (tx_mode.isEmpty () || tx_mode == mode ? "" : '(' + tx_mode + ')'));
-        frequency_label_->setText ("QRG: " + Radio::pretty_frequency_MHz_string (f));
-        rx_df_label_->setText (rx_df >= 0 ? QString {"Rx: %1"}.arg (rx_df) : "");
-        tx_df_label_->setText (tx_df >= 0 ? QString {"Tx: %1"}.arg (tx_df) : "");
-        report_label_->setText ("SNR: " + report);
-        update_dynamic_property (frequency_label_, "transmitting", transmitting);
-        auto_off_button_->setEnabled (tx_enabled);
-        halt_tx_button_->setEnabled (transmitting);
-        update_dynamic_property (mode_label_, "decoding", decoding);
+      frequency_label_->setText ("QRG: " + Radio::pretty_frequency_MHz_string (f));
+      rx_df_label_->setText (rx_df >= 0 ? QString {"Rx: %1"}.arg (rx_df) : "");
+      tx_df_label_->setText (tx_df >= 0 ? QString {"Tx: %1"}.arg (tx_df) : "");
+      report_label_->setText ("SNR: " + report);
+      update_dynamic_property (frequency_label_, "transmitting", transmitting);
+      auto_off_button_->setEnabled (tx_enabled);
+      halt_tx_button_->setEnabled (transmitting);
+      update_dynamic_property (mode_label_, "decoding", decoding);
+      update_dynamic_property (tx_df_label_, "watchdog_timeout", watchdog_timeout);
     }
 }
 

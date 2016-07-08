@@ -5717,13 +5717,14 @@ void MainWindow::statusUpdate () const
 {
   if (ui)
     {
+      bool watchdog_timeout = !m_mode.startsWith("WSPR") && m_config.watchdog () && m_repeatMsg >= m_config.watchdog ();
       m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
                                       QString::number (ui->rptSpinBox->value ()),
                                       m_modeTx, ui->autoButton->isChecked (),
                                       m_transmitting, m_decoderBusy,
                                       ui->RxFreqSpinBox->value (), ui->TxFreqSpinBox->value (),
                                       m_config.my_callsign (), m_config.my_grid (),
-                                      m_hisGrid);
+                                      m_hisGrid, watchdog_timeout);
     }
 }
 
