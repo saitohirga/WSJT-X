@@ -119,6 +119,7 @@
  *                         DE call                utf8
  *                         DE grid                utf8
  *                         DX grid                utf8
+ *                         Tx Watchdog            bool
  *
  *    WSJT-X  sends this  status message  when various  internal state
  *    changes to allow the server to  track the relevant state of each
@@ -138,7 +139,8 @@
  *      When the Rx DF changes,
  *      When the Tx DF changes,
  *      When the DE call or grid changes (currently when settings are exited),
- *      When the DX call or grid changes.
+ *      When the DX call or grid changes,
+ *      When the Tx watchdog is triggered.
  *
  *
  * Decode        Out       2                      quint32
