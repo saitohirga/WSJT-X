@@ -869,13 +869,15 @@ void MainWindow::on_the_minute ()
         }
     }
 
-  if (m_repeatMsg < m_config.watchdog ()) ++m_repeatMsg;
-  if (!m_mode.startsWith ("WSPR") && m_config.watchdog () != 0)
+  if (!m_mode.startsWith ("WSPR") && m_config.watchdog () != 0
+      && m_repeatMsg < m_config.watchdog ())
     {
+      ++m_repeatMsg;
       updateProgressBarFormat (true);
     }
   else
     {
+      m_repeatMsg = 0;
       updateProgressBarFormat (false);
     }
 }
