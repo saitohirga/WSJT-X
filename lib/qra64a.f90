@@ -78,20 +78,21 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
      enddo
   enddo
 
-  red(ia:ib)=0.
-  rewind 73
-  do i=ia+3,ib-3
-     r1=red0(i)
-     red0(i)=0.
-     r0=max(red0(i-3),red0(i-2),red0(i+2),red0(i+3))
-     red0(i)=r1
-     red(i)=max(0.0,r1-r0)
-     write(73,3001) i*df,red(i),red0(i),r0
-3001 format(4f12.3)
-  enddo
-  flush(73)
+!  red(ia:ib)=0.
+!  rewind 73
+!  do i=ia+3,ib-3
+!     r1=red0(i)
+!     red0(i)=0.
+!     r0=max(red0(i-3),red0(i-2),red0(i+2),red0(i+3))
+!     red0(i)=r1
+!     red(i)=max(0.0,r1-r0)
+!     write(73,3001) i*df,red(i),red0(i),r0
+!3001 format(4f12.3)
+!  enddo
+!  flush(73)
 
-  write(17) ia,ib,red(ia:ib)
+  red0=red0-4.0
+  write(17) ia,ib,red0(ia:ib)
   close(17)
 
   if0=nint(f0/df)

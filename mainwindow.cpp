@@ -3975,7 +3975,6 @@ void MainWindow::on_actionMSK144_triggered()
   m_toneSpacing=0.0;
   ui->cbShMsgs->setChecked(false);
   ui->cbShMsgs->setVisible(true);
-//  ui->sbFtol->setVisible(false);  //Maybe?
   ui->actionMSK144->setChecked(true);
 }
 

@@ -148,7 +148,8 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
       y3[i]=smax;
       if(smax>y3max)y3max=smax;
     }
-    float fac=0.8/qMax(y3max,50.0f);
+    float fac=0.8/qMax(y3max,10.0f);
+    qDebug() << "a" << y3max;
     for(int i=1; i<iz; i++) {
       if(y3[i]>0.0) {
         y2=fac*y3[i];
