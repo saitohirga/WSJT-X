@@ -1,4 +1,4 @@
-subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc)
+subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
   use timer_module, only: timer
 
   parameter (NSPM=192, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=40)
