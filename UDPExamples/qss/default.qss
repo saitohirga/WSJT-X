@@ -7,3 +7,7 @@
 [decoding="true"] {
        background-color: cyan
 }
+
+[watchdog_timeout="true"] {
+       background-color: red
+}
