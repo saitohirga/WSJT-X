@@ -4,7 +4,6 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
   use packjt
   parameter (NFFT=2*6912,NH=NFFT/2,NZ=5760)
   character decoded*22,mycall_12*12,mycall*6
-  character*1 mark(0:5),zplot(0:63)
   logical ltext
   integer icos7(0:6)
   integer ipk(1)
@@ -20,7 +19,6 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
   complex cx(0:NH)
   equivalence (x,cx)
   data icos7/2,5,6,0,4,1,3/                            !Costas 7x7 pattern
-  data mark/' ','.','-','+','X','$'/
   common/qra64com/ss(NZ,194),s3(0:63,1:63),ccf(NZ,0:25)
   save
 

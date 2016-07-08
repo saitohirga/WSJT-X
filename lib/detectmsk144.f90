@@ -1,4 +1,4 @@
-subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc)
+subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
   use timer_module, only: timer
 
   parameter (NSPM=864, NPTS=3*NSPM, MAXSTEPS=1700, NFFT=NSPM, MAXCAND=20)
