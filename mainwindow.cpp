@@ -202,7 +202,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_TRperiod {60},
   m_inGain {0},
   m_secID {0},
-  m_repeatMsg {0},
+  m_idleMinutes {0},
   m_nSubMode {0},
   m_nclearave {1},
   m_pctx {0},
@@ -870,14 +870,14 @@ void MainWindow::on_the_minute ()
     }
 
   if (!m_mode.startsWith ("WSPR") && m_config.watchdog () != 0
-      && m_repeatMsg < m_config.watchdog ())
+      && m_idleMinutes < m_config.watchdog ())
     {
-      ++m_repeatMsg;
+      ++m_idleMinutes;
       updateProgressBarFormat (true);
     }
   else
     {
-      m_repeatMsg = 0;
+      m_idleMinutes = 0;
       updateProgressBarFormat (false);
     }
 }
@@ -1440,7 +1440,7 @@ void MainWindow::updateProgressBarFormat (bool wd_in_use)
 {
   if (wd_in_use)
     {
-      progressBar.setFormat (QString {"%v/%m WD:%1m"}.arg (m_config.watchdog () - m_repeatMsg));
+      progressBar.setFormat (QString {"%v/%m WD:%1m"}.arg (m_config.watchdog () - m_idleMinutes));
     }
   else
     {
@@ -1611,8 +1611,8 @@ bool MainWindow::eventFilter (QObject * object, QEvent * event)
     case QEvent::KeyPress:
       // fall through
     case QEvent::MouseButtonPress:
-      if (m_repeatMsg && !m_mode.startsWith ("WSPR") && m_config.watchdog () != 0) {
-        m_repeatMsg = 0;        // reset Tx watchdog
+      if (m_idleMinutes && !m_mode.startsWith ("WSPR") && m_config.watchdog () != 0) {
+        m_idleMinutes = 0;        // reset Tx watchdog
         updateProgressBarFormat (true);
       }
       break;
@@ -2342,11 +2342,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
         name[sizeof (name) - 1] = '\0';
         FILE* fp=fopen(name,"rb");
         if(fp != NULL) {
-          int n,ia,ib;
+          int ia,ib;
           memset(dec_data.sred,0,4*5760);
-          n=fread(&ia,4,1,fp);
-          n=fread(&ib,4,1,fp);
-          n=fread(&dec_data.sred[ia-1],4,ib-ia+1,fp);
+          fread(&ia,4,1,fp);
+          fread(&ib,4,1,fp);
+          fread(&dec_data.sred[ia-1],4,ib-ia+1,fp);
           m_wideGraph->drawRed(ia,ib);
 
         }
@@ -2637,7 +2637,7 @@ void MainWindow::guiUpdate()
     }
 
     if (!m_mode.startsWith ("WSPR") && m_config.watchdog()
-        && m_repeatMsg >= m_config.watchdog ()) {
+        && m_idleMinutes >= m_config.watchdog ()) {
       m_bTxTime=false;
       if (m_tune) stop_tuning ();
       if (m_auto) auto_tx_mode (false);
@@ -2866,7 +2866,7 @@ void MainWindow::guiUpdate()
       auto const& current_message = QString::fromLatin1 (msgsent);
       if(!m_mode.startsWith ("WSPR") && m_config.watchdog () != 0) {
         if (current_message != m_msgSent0) {
-          m_repeatMsg=0;          // in case we are auto sequencing
+          m_idleMinutes=0;          // in case we are auto sequencing
           m_msgSent0 = current_message;
         }
         updateProgressBarFormat (true);
@@ -2953,12 +2953,12 @@ void MainWindow::guiUpdate()
         }
       }
     } else if(m_monitoring) {
-      if (m_repeatMsg < m_config.watchdog ()) {
+      if (m_idleMinutes < m_config.watchdog ()) {
         tx_status_label.setStyleSheet("QLabel{background-color: #00ff00}");
         tx_status_label.setText ("Receiving");
       }
       transmitDisplay(false);
-    } else if (!m_diskData && m_repeatMsg < m_config.watchdog ()) {
+    } else if (!m_diskData && m_idleMinutes < m_config.watchdog ()) {
       tx_status_label.setStyleSheet("");
       tx_status_label.setText("");
     }
@@ -3023,7 +3023,7 @@ void MainWindow::stopTx()
   m_btxok = false;
   m_transmitting = false;
   g_iptt=0;
-  if (m_repeatMsg < m_config.watchdog ()) {
+  if (m_idleMinutes < m_config.watchdog ()) {
     tx_status_label.setStyleSheet("");
     tx_status_label.setText("");
   }
@@ -5263,8 +5263,8 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
           // find the linefeed at the end of the line
           position = ui->decodedTextBrowser->toPlainText().indexOf("\n",position);
           processMessage (messages, position, false);
-          if (m_repeatMsg && !m_mode.startsWith ("WSPR") && m_config.watchdog () != 0) {
-            m_repeatMsg = 0;    // reset Tx watchdog
+          if (m_idleMinutes && !m_mode.startsWith ("WSPR") && m_config.watchdog () != 0) {
+            m_idleMinutes = 0;    // reset Tx watchdog
             updateProgressBarFormat (true);
           }
           QApplication::alert (this);
@@ -5719,7 +5719,7 @@ void MainWindow::statusUpdate () const
 {
   if (ui)
     {
-      bool watchdog_timeout = !m_mode.startsWith("WSPR") && m_config.watchdog () && m_repeatMsg >= m_config.watchdog ();
+      bool watchdog_timeout = !m_mode.startsWith("WSPR") && m_config.watchdog () && m_idleMinutes >= m_config.watchdog ();
       m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
                                       QString::number (ui->rptSpinBox->value ()),
                                       m_modeTx, ui->autoButton->isChecked (),

@@ -351,7 +351,7 @@ private:
   qint32  m_inGain;
   qint32  m_ncw;
   qint32  m_secID;
-  qint32  m_repeatMsg;
+  qint32  m_idleMinutes;
   qint32  m_nSubMode;
   qint32  m_nclearave;
   qint32  m_minSync;
