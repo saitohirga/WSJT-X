@@ -140,7 +140,7 @@
  *      When the Tx DF changes,
  *      When the DE call or grid changes (currently when settings are exited),
  *      When the DX call or grid changes,
- *      When the Tx watchdog is triggered.
+ *      When the Tx watchdog is set or reset.
  *
  *
  * Decode        Out       2                      quint32
