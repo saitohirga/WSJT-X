@@ -869,10 +869,9 @@ void MainWindow::on_the_minute ()
         }
     }
 
-  if (!m_mode.startsWith ("WSPR") && m_config.watchdog () != 0
-      && m_idleMinutes < m_config.watchdog ())
+  if (m_config.watchdog () && !m_mode.startsWith ("WSPR"))
     {
-      ++m_idleMinutes;
+      if (m_idleMinutes < m_config.watchdog ()) ++m_idleMinutes;
       updateProgressBarFormat (true);
     }
   else
@@ -1362,6 +1361,8 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     ui->label_6->setText("Band Activity");
     ui->label_7->setText("Rx Frequency");
   }
+
+  updateProgressBarFormat (m_config.watchdog () && !m_mode.startsWith ("WSPR"));
 }
 
 void MainWindow::on_monitorButton_clicked (bool checked)
@@ -1611,9 +1612,10 @@ bool MainWindow::eventFilter (QObject * object, QEvent * event)
     case QEvent::KeyPress:
       // fall through
     case QEvent::MouseButtonPress:
-      if (m_idleMinutes && !m_mode.startsWith ("WSPR") && m_config.watchdog () != 0) {
+      if (m_idleMinutes && m_config.watchdog () && !m_mode.startsWith ("WSPR")) {
         m_idleMinutes = 0;        // reset Tx watchdog
         updateProgressBarFormat (true);
+        statusUpdate ();
       }
       break;
 
@@ -1660,7 +1662,7 @@ void MainWindow::createStatusBar()                           //createStatusBar
 
   statusBar()->addPermanentWidget(&progressBar, 1);
   progressBar.setMinimumSize (QSize {100, 18});
-  updateProgressBarFormat (!m_mode.startsWith ("WSPR") && m_config.watchdog () != 0);
+  updateProgressBarFormat (m_config.watchdog () && !m_mode.startsWith ("WSPR"));
 }
 
 void MainWindow::setup_status_bar (bool vhf)
@@ -2636,7 +2638,7 @@ void MainWindow::guiUpdate()
       }
     }
 
-    if (!m_mode.startsWith ("WSPR") && m_config.watchdog()
+    if (m_config.watchdog() && !m_mode.startsWith ("WSPR")
         && m_idleMinutes >= m_config.watchdog ()) {
       m_bTxTime=false;
       if (m_tune) stop_tuning ();
@@ -2864,7 +2866,7 @@ void MainWindow::guiUpdate()
   if (g_iptt == 1 && m_iptt0 == 0)
     {
       auto const& current_message = QString::fromLatin1 (msgsent);
-      if(!m_mode.startsWith ("WSPR") && m_config.watchdog () != 0) {
+      if(m_config.watchdog () && !m_mode.startsWith ("WSPR")) {
         if (current_message != m_msgSent0) {
           m_idleMinutes=0;          // in case we are auto sequencing
           m_msgSent0 = current_message;
@@ -5263,7 +5265,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
           // find the linefeed at the end of the line
           position = ui->decodedTextBrowser->toPlainText().indexOf("\n",position);
           processMessage (messages, position, false);
-          if (m_idleMinutes && !m_mode.startsWith ("WSPR") && m_config.watchdog () != 0) {
+          if (m_idleMinutes && m_config.watchdog () && !m_mode.startsWith ("WSPR")) {
             m_idleMinutes = 0;    // reset Tx watchdog
             updateProgressBarFormat (true);
           }
@@ -5719,7 +5721,9 @@ void MainWindow::statusUpdate () const
 {
   if (ui)
     {
-      bool watchdog_timeout = !m_mode.startsWith("WSPR") && m_config.watchdog () && m_idleMinutes >= m_config.watchdog ();
+      bool watchdog_timeout {m_config.watchdog ()
+          && m_idleMinutes >= m_config.watchdog ()
+          && !m_mode.startsWith("WSPR")};
       m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
                                       QString::number (ui->rptSpinBox->value ()),
                                       m_modeTx, ui->autoButton->isChecked (),
