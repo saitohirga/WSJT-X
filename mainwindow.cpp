@@ -322,6 +322,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_monitoring {false},
   m_transmitting {false},
   m_tune {false},
+  m_tx_watchdog {false},
   m_tune_attenuation {0},
   m_tune_attenuation_restore {0},
   m_block_pwr_tooltip {false},
@@ -423,6 +424,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (m_messageClient, &MessageClient::error, this, &MainWindow::networkError);
   connect (m_messageClient, &MessageClient::free_text, [this] (QString const& text, bool send) {
       if (m_config.accept_udp_requests ()) {
+        tx_watchdog (false);
         // send + non-empty text means set and send the free text
         // message, !send + non-empty text means set the current free
         // text message, send + empty text means send the current free
@@ -447,6 +449,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
             ui->freeTextMsg->setCurrentText (text);
           }
         }
+        QApplication::alert (this);
       }
     });
 
@@ -872,12 +875,11 @@ void MainWindow::on_the_minute ()
   if (m_config.watchdog () && !m_mode.startsWith ("WSPR"))
     {
       if (m_idleMinutes < m_config.watchdog ()) ++m_idleMinutes;
-      updateProgressBarFormat (true);
+      update_watchdog_label ();
     }
   else
     {
-      m_idleMinutes = 0;
-      updateProgressBarFormat (false);
+      tx_watchdog (false);
     }
 }
 
@@ -1362,7 +1364,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     ui->label_7->setText("Rx Frequency");
   }
 
-  updateProgressBarFormat (m_config.watchdog () && !m_mode.startsWith ("WSPR"));
+  update_watchdog_label ();
 }
 
 void MainWindow::on_monitorButton_clicked (bool checked)
@@ -1435,18 +1437,6 @@ void MainWindow::auto_tx_mode (bool state)
 {
   ui->autoButton->setChecked (state);
   on_autoButton_clicked (state);
-}
-
-void MainWindow::updateProgressBarFormat (bool wd_in_use)
-{
-  if (wd_in_use)
-    {
-      progressBar.setFormat (QString {"%v/%m WD:%1m"}.arg (m_config.watchdog () - m_idleMinutes));
-    }
-  else
-    {
-      progressBar.setFormat ("%v/%m");
-    }
 }
 
 void MainWindow::keyPressEvent (QKeyEvent * e)
@@ -1612,11 +1602,8 @@ bool MainWindow::eventFilter (QObject * object, QEvent * event)
     case QEvent::KeyPress:
       // fall through
     case QEvent::MouseButtonPress:
-      if (m_idleMinutes && m_config.watchdog () && !m_mode.startsWith ("WSPR")) {
-        m_idleMinutes = 0;        // reset Tx watchdog
-        updateProgressBarFormat (true);
-        statusUpdate ();
-      }
+      // reset the Tx watchdog
+      tx_watchdog (false);
       break;
 
     case QEvent::ChildAdded:
@@ -1662,7 +1649,10 @@ void MainWindow::createStatusBar()                           //createStatusBar
 
   statusBar()->addPermanentWidget(&progressBar, 1);
   progressBar.setMinimumSize (QSize {100, 18});
-  updateProgressBarFormat (m_config.watchdog () && !m_mode.startsWith ("WSPR"));
+  progressBar.setFormat ("%v/%m");
+
+  statusBar ()->addPermanentWidget (&watchdog_label);
+  update_watchdog_label ();
 }
 
 void MainWindow::setup_status_bar (bool vhf)
@@ -2640,12 +2630,7 @@ void MainWindow::guiUpdate()
 
     if (m_config.watchdog() && !m_mode.startsWith ("WSPR")
         && m_idleMinutes >= m_config.watchdog ()) {
-      m_bTxTime=false;
-      if (m_tune) stop_tuning ();
-      if (m_auto) auto_tx_mode (false);
-      tx_status_label.setStyleSheet ("QLabel{background-color: #ff0000}");
-      tx_status_label.setText ("Runaway Tx watchdog");
-      QApplication::alert (this);
+      tx_watchdog (true);       // disable transmit
     }
 
     float fTR=float((nsec%m_TRperiod))/m_TRperiod;
@@ -2866,12 +2851,10 @@ void MainWindow::guiUpdate()
   if (g_iptt == 1 && m_iptt0 == 0)
     {
       auto const& current_message = QString::fromLatin1 (msgsent);
-      if(m_config.watchdog () && !m_mode.startsWith ("WSPR")) {
-        if (current_message != m_msgSent0) {
-          m_idleMinutes=0;          // in case we are auto sequencing
-          m_msgSent0 = current_message;
-        }
-        updateProgressBarFormat (true);
+      if(m_config.watchdog () && !m_mode.startsWith ("WSPR")
+         && current_message != m_msgSent0) {
+        tx_watchdog (false);  // in case we are auto sequencing
+        m_msgSent0 = current_message;
       }
 
       if(!m_tune) {
@@ -2955,12 +2938,12 @@ void MainWindow::guiUpdate()
         }
       }
     } else if(m_monitoring) {
-      if (m_idleMinutes < m_config.watchdog ()) {
+      if (!m_tx_watchdog) {
         tx_status_label.setStyleSheet("QLabel{background-color: #00ff00}");
         tx_status_label.setText ("Receiving");
       }
       transmitDisplay(false);
-    } else if (!m_diskData && m_idleMinutes < m_config.watchdog ()) {
+    } else if (!m_diskData && !m_tx_watchdog) {
       tx_status_label.setStyleSheet("");
       tx_status_label.setText("");
     }
@@ -3025,7 +3008,7 @@ void MainWindow::stopTx()
   m_btxok = false;
   m_transmitting = false;
   g_iptt=0;
-  if (m_idleMinutes < m_config.watchdog ()) {
+  if (!m_tx_watchdog) {
     tx_status_label.setStyleSheet("");
     tx_status_label.setText("");
   }
@@ -5265,10 +5248,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
           // find the linefeed at the end of the line
           position = ui->decodedTextBrowser->toPlainText().indexOf("\n",position);
           processMessage (messages, position, false);
-          if (m_idleMinutes && m_config.watchdog () && !m_mode.startsWith ("WSPR")) {
-            m_idleMinutes = 0;    // reset Tx watchdog
-            updateProgressBarFormat (true);
-          }
+          tx_watchdog (false);
           QApplication::alert (this);
         }
       else
@@ -5719,19 +5699,14 @@ void MainWindow::CQRxFreq()
 
 void MainWindow::statusUpdate () const
 {
-  if (ui)
-    {
-      bool watchdog_timeout {m_config.watchdog ()
-          && m_idleMinutes >= m_config.watchdog ()
-          && !m_mode.startsWith("WSPR")};
-      m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
-                                      QString::number (ui->rptSpinBox->value ()),
-                                      m_modeTx, ui->autoButton->isChecked (),
-                                      m_transmitting, m_decoderBusy,
-                                      ui->RxFreqSpinBox->value (), ui->TxFreqSpinBox->value (),
-                                      m_config.my_callsign (), m_config.my_grid (),
-                                      m_hisGrid, watchdog_timeout);
-    }
+  if (!ui) return;
+  m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
+                                  QString::number (ui->rptSpinBox->value ()),
+                                  m_modeTx, ui->autoButton->isChecked (),
+                                  m_transmitting, m_decoderBusy,
+                                  ui->RxFreqSpinBox->value (), ui->TxFreqSpinBox->value (),
+                                  m_config.my_callsign (), m_config.my_grid (),
+                                  m_hisGrid, m_tx_watchdog);
 }
 
 void MainWindow::childEvent (QChildEvent * e)
@@ -5774,5 +5749,40 @@ void MainWindow::remove_child_from_event_filter (QObject * target)
   if (target && target->isWidgetType ())
     {
       target->removeEventFilter (this);
+    }
+}
+
+void MainWindow::tx_watchdog (bool triggered)
+{
+  auto prior = m_tx_watchdog;
+  m_tx_watchdog = triggered;
+  if (triggered)
+    {
+      m_bTxTime=false;
+      if (m_tune) stop_tuning ();
+      if (m_auto) auto_tx_mode (false);
+      tx_status_label.setStyleSheet ("QLabel{background-color: #ff0000}");
+      tx_status_label.setText ("Runaway Tx watchdog");
+      QApplication::alert (this);
+    }
+  else
+    {
+      m_idleMinutes = 0;
+      update_watchdog_label ();
+    }
+  if (prior != triggered) statusUpdate ();
+}
+
+void MainWindow::update_watchdog_label ()
+{
+  if (m_config.watchdog () && !m_mode.startsWith ("WSPR"))
+    {
+      watchdog_label.setText (QString {"WD:%1m"}.arg (m_config.watchdog () - m_idleMinutes));
+      watchdog_label.setVisible (true);
+    }
+  else
+    {
+      watchdog_label.setText (QString {});
+      watchdog_label.setVisible (false);
     }
 }
