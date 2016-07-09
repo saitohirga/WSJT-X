@@ -434,6 +434,7 @@ private:
   QLabel auto_tx_label;
   QLabel band_hopping_label;
   QProgressBar progressBar;
+  QLabel watchdog_label;
 
   QFuture<void> m_wav_future;
   QFutureWatcher<void> m_wav_future_watcher;
@@ -495,6 +496,7 @@ private:
   bool m_monitoring;
   bool m_transmitting;
   bool m_tune;
+  bool m_tx_watchdog;           // true when watchdog triggered
   int m_tune_attenuation;
   int m_tune_attenuation_restore;
   bool m_block_pwr_tooltip;
@@ -555,11 +557,12 @@ private:
   void subProcessFailed (QProcess *, int exit_code, QProcess::ExitStatus);
   void subProcessError (QProcess *, QProcess::ProcessError);
   void statusUpdate () const;
-  void updateProgressBarFormat (bool wd_in_use);
+  void update_watchdog_label ();
   void on_the_minute ();
   void add_child_to_event_filter (QObject *);
   void remove_child_from_event_filter (QObject *);
   void setup_status_bar (bool vhf);
+  void tx_watchdog (bool triggered);
 };
 
 extern int killbyname(const char* progName);
