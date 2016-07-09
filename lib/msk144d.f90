@@ -11,29 +11,36 @@ program msk144d
   character*80 line(100)
   character*512 pchk_file
   logical :: display_help=.false.
+  logical*1 bShMsgs
   type(wav_header) :: wav
   integer*2 id2(30*12000)
   character*500 infile
   character*12 mycall,hiscall
   character(len=500) optarg
 
-  type (option) :: long_options(3) = [ &
+  type (option) :: long_options(4) = [ &
        option ('help',.false.,'h','Display this help message',''), &
        option ('mycall',.true.,'c','mycall',''), &
+       option ('nftol',.true.,'n','nftol',''), &
        option ('hiscall',.true.,'x','hiscall','') &  
        ]
+  
+  ntol=100
+  mycall=''
+  hiscall=''
+ 
   do
-     call getopt('c:hx:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+     call getopt('c:hn:x:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
      if( nstat .ne. 0 ) then
         exit
      end if
      select case (c)
      case ('h')
         display_help = .true.
-     case ('n')
-        read (optarg(:narglen), *) ntrials
      case ('c')
         read (optarg(:narglen), *) mycall
+     case ('n')
+        read (optarg(:narglen), *) ntol
      case ('x')
         read (optarg(:narglen), *) hiscall
      end select
@@ -55,7 +62,7 @@ program msk144d
 
   call init_timer ('timer.out')
   call timer('jt65    ',0)
-
+  bShMsgs=.true.
   pchk_file='./peg-128-80-reg3.pchk'
   ndecoded=0
   do ifile=noffset+1,noffset+nremain
@@ -71,7 +78,7 @@ program msk144d
      read(unit=wav%lun) id2(1:npts)
      close(unit=wav%lun)
      call timer('read    ',1)
-     call msk144_decode(id2,npts,nutc,1,pchk_file,mycall,hiscall,line)
+     call msk144_decode(id2,npts,nutc,1,pchk_file,mycall,hiscall,bShMsgs,ntol,line)
   enddo
 
   call timer('msk144    ',1)
