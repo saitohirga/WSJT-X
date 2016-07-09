@@ -1,7 +1,7 @@
 subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
   use timer_module, only: timer
 
-  parameter (NSPM=864, NPTS=3*NSPM, MAXSTEPS=1700, NFFT=NSPM, MAXCAND=20)
+  parameter (NSPM=864, NPTS=3*NSPM, MAXSTEPS=1700, NFFT=NSPM, MAXCAND=12)
   character*22 msgreceived,allmessages(20)
   character*80 lines(100)
   character*512 pchk_file,gen_file
@@ -29,7 +29,6 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
   real cbi(42),cbq(42)
   real detmet(-2:MAXSTEPS+3)
   real detfer(MAXSTEPS)
-  real hannwindow(NPTS)
   real rcw(12)
   real dd(NPTS)
   real ddr(NPTS)
@@ -46,7 +45,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
   data s8r/1,0,1,1,0,0,0,1/
-  save df,first,cb,fs,pi,twopi,dt,s8,rcw,pp,hannwindow,nmatchedfilter
+  save df,first,cb,fs,pi,twopi,dt,s8,rcw,pp,nmatchedfilter
 
   if(first) then
      nmatchedfilter=1
@@ -64,10 +63,6 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
        angle=(i-1)*pi/12.0
        pp(i)=sin(angle)
        rcw(i)=(1-cos(angle))/2
-     enddo
-
-     do i=1,NPTS
-       hannwindow(i)=0.5*(1-cos(twopi*(i-1)/NPTS))
      enddo
 
 ! define the sync word waveforms
@@ -114,22 +109,21 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
     ctmp=ctmp**2
     ctmp(1:12)=ctmp(1:12)*rcw
     ctmp(NSPM-11:NSPM)=ctmp(NSPM-11:NSPM)*rcw(12:1:-1)
-!    ctmp(1:NSPM)=ctmp(1:NSPM)*hannwindow
     call four2a(ctmp,NFFT,1,-1,1)
     tonespec=abs(ctmp)**2
 
-    i3800=3800/df+1
-    i4200=4200/df+1
+    ihlo=(4000-2*ntol)/df+1
+    ihhi=(4000+2*ntol)/df+1
     ismask=.false.
-    ismask(i3800:i4200)=.true.  ! high tone search window
+    ismask(ihlo:ihhi)=.true.  ! high tone search window
     iloc=maxloc(tonespec,ismask)
     ihpk=iloc(1)
     deltah=-real( (ctmp(ihpk-1)-ctmp(ihpk+1)) / (2*ctmp(ihpk)-ctmp(ihpk-1)-ctmp(ihpk+1)) )
     ah=tonespec(ihpk)
-    i1800=1800/df+1
-    i2200=2200/df+1
+    illo=(2000-2*ntol)/df+1
+    ilhi=(2000+2*ntol)/df+1
     ismask=.false.
-    ismask(i1800:i2200)=.true.   ! window for low tone
+    ismask(illo:ilhi)=.true.   ! window for low tone
     iloc=maxloc(tonespec,ismask)
     ilpk=iloc(1)
     deltal=-real( (ctmp(ilpk-1)-ctmp(ilpk+1)) / (2*ctmp(ilpk)-ctmp(ilpk-1)-ctmp(ilpk+1)) )
@@ -149,34 +143,29 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
   enddo  ! end of detection-metric and frequency error estimation loop
 
   call indexx(detmet(1:nstep),nstep,indices) !find median of detection metric vector
-!  xmed=detmet(indices(nstep/2))
   xmed=detmet(indices(nstep/4))
   detmet=detmet/xmed ! noise floor of detection metric is 1.0
   ndet=0
 
-  do ip=1,MAXCAND ! use something like the "clean" algorithm to find candidates
+  do ip=1,MAXCAND ! Find candidates
     iloc=maxloc(detmet(1:nstep))
     il=iloc(1)
     if( (detmet(il) .lt. 3.5) ) exit 
-    if( abs(detfer(il)) .le. 100.0 ) then 
+    if( abs(detfer(il)) .le. ntol ) then 
       ndet=ndet+1
       times(ndet)=((il-1)*216+NSPM/2)*dt
       ferrs(ndet)=detfer(il)
       snrs(ndet)=12.0*log10(detmet(il))/2-9.0
     endif
-!    detmet(max(1,il-3):min(nstep,il+3))=0.0
+!    detmet(max(1,il-2):min(nstep,il+2))=0.0
     detmet(il)=0.0
   enddo
-
-!  do ip=1,ndet
-!    write(*,*) ip,times(ip),snrs(ip),ferrs(ip)
-!  enddo
 
   nmessages=0
   allmessages=char(0)
   lines=char(0)
 
-  do ip=1,ndet  !run through the candidates and try to sync/demod/decode
+  do ip=1,ndet  ! Try to sync/demod/decode each candidate.
     imid=times(ip)*fs
     if( imid .lt. NPTS/2 ) imid=NPTS/2
     if( imid .gt. n-NPTS/2 ) imid=n-NPTS/2
@@ -219,11 +208,11 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
       ic1=iloc(1)
       iloc=maxloc(dd)
       ic2=iloc(1)
-!      ipeaks(ipk)=ic2
-!      dd(max(1,ic2-7):min(NPTS-56*6-41,ic2+7))=0.0
-      ipeaks(ipk)=ic1
-      cc(max(1,ic1-7):min(NPTS-56*6-41,ic1+7))=0.0
-!write(*,*) ipk,ic1
+      ipeaks(ipk)=ic2
+      dd(max(1,ic2-7):min(NPTS-56*6-41,ic2+7))=0.0
+!      ipeaks(ipk)=ic1
+!      cc(max(1,ic1-7):min(NPTS-56*6-41,ic1+7))=0.0
+!write(*,*) ipk,ic2
     enddo
 
     do ipk=1,6
@@ -246,7 +235,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
       if( ibb .le. 3 ) ibb=ibb-1
       if( ibb .gt. 3 ) ibb=ibb-7
 
-      do id=1,3     ! slicer dither. bb is very good - may be able to remove this.
+      do id=1,3     ! Slicer dither. 
         if( id .eq. 1 ) is=0
         if( id .eq. 2 ) is=-1
         if( id .eq. 3 ) is=1
@@ -271,13 +260,13 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
 ! Final estimate of the carrier frequency - returned to the calling program
           fest=1500+ferr+ferr2 
 
-        do idf=0,10   ! frequency jitter
+        do idf=0,6   ! frequency jitter
           if( idf .eq. 0 ) then
             deltaf=0.0
           elseif( mod(idf,2) .eq. 0 ) then
-            deltaf=idf/2.0
+            deltaf=idf
           else
-            deltaf=-(idf+1)/2.0
+            deltaf=-(idf+1)
           endif
 
 ! Remove fine frequency error
@@ -314,9 +303,9 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
             ffin=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
             phase0=atan2(imag(cca+ccb),real(cca+ccb))
 
-            do ipha=1,3
-              if( ipha.eq.2 ) phase0=phase0+20*pi/180.0
-              if( ipha.eq.3 ) phase0=phase0-20*pi/180.0
+            do ipha=1,1
+              if( ipha.eq.2 ) phase0=phase0+30*pi/180.0
+              if( ipha.eq.3 ) phase0=phase0-30*pi/180.0
 
 ! Remove phase error - want constellation rotated so that sample points lie on I/Q axes
               cfac=cmplx(cos(phase0),sin(phase0))
@@ -388,7 +377,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
                 else
                   msgreceived=' '
                   ndither=-99             ! -99 is bad hash flag
-!                  write(78,1001) nutc,t0,nsnr,ic,ipk,is,idf,iav,ipha,deltaf,fest,ferr,ferr2, &
+!                  write(78,1001) nutc,t0,nsnr,ip,ipk,is,idf,iav,ipha,deltaf,fest,ferr,ferr2, &
 !                                 ffin,bba,bbp,nbadsync1,nbadsync2, &
 !                                 phase0,niterations,ndither,msgreceived
                 endif
@@ -403,11 +392,11 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
     ndither=-98   
 999 continue
     if( nmessages .ge. 1 ) then 
-!      write(78,1001) nutc,t0,nsnr,ic,ipk,is,idf,iav,ipha,deltaf,fest,ferr,ferr2,  &
+!      write(78,1001) nutc,t0,nsnr,ip,ipk,is,idf,iav,ipha,deltaf,fest,ferr,ferr2,  &
 !                     ffin,bba,bbp,nbadsync1,nbadsync2, &
 !                     phase0,niterations,ndither,msgreceived
 !      call flush(78)
-!1001 format(i6.6,f8.2,i5,i5,i5,i5,i5,i5,i5,f8.2,f8.2,f8.2,f8.2,f8.2,f10.2,f8.2,i5,i5,f8.2,i5,i5,2x,a22)
+!1001 format(i6.6,f8.2,i5,i5,i5,i5,i5,i5,i5,f6.2,f8.2,f8.2,f8.2,f8.2,f11.1,f8.2,i5,i5,f8.2,i5,i5,2x,a22)
       exit
     endif
   enddo
