@@ -177,6 +177,8 @@
 #include "StationList.hpp"
 #include "NetworkServerLookup.hpp"
 #include "MessageBox.hpp"
+#include "MaidenheadLocatorValidator.hpp"
+#include "CallsignValidator.hpp"
 
 #include "ui_Configuration.h"
 #include "moc_Configuration.cpp"
@@ -191,7 +193,6 @@ namespace
 
 //  QRegExp message_alphabet {"[- A-Za-z0-9+./?]*"};
   QRegExp message_alphabet {"[- @A-Za-z0-9+./?#<>]*"};
-
 }
 
 
@@ -409,8 +410,6 @@ private:
   Q_SLOT void on_add_macro_push_button_clicked (bool = false);
   Q_SLOT void on_delete_macro_push_button_clicked (bool = false);
   Q_SLOT void on_PTT_method_button_group_buttonClicked (int);
-  Q_SLOT void on_callsign_line_edit_editingFinished ();
-  Q_SLOT void on_grid_line_edit_editingFinished ();
   Q_SLOT void on_add_macro_line_edit_editingFinished ();
   Q_SLOT void delete_macro ();
   void delete_selected_macros (QModelIndexList);
@@ -870,8 +869,8 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
   //
   // validation
   //
-  ui_->callsign_line_edit->setValidator (new QRegExpValidator {QRegExp {"[A-Za-z0-9/]+"}, this});
-  ui_->grid_line_edit->setValidator (new QRegExpValidator {QRegExp {"[A-Ra-r]{2,2}[0-9]{2,2}[A-Xa-x]{0,2}"}, this});
+  ui_->callsign_line_edit->setValidator (new CallsignValidator {this});
+  ui_->grid_line_edit->setValidator (new MaidenheadLocatorValidator {this});
   ui_->add_macro_line_edit->setValidator (new QRegExpValidator {message_alphabet, this});
 
   ui_->udp_server_port_spin_box->setMinimum (1);
@@ -1135,8 +1134,8 @@ void Configuration::impl::read_settings ()
   SettingsGroup g {settings_, "Configuration"};
   restoreGeometry (settings_->value ("window/geometry").toByteArray ());
 
-  my_callsign_ = settings_->value ("MyCall", "").toString ();
-  my_grid_ = settings_->value ("MyGrid", "").toString ();
+  my_callsign_ = settings_->value ("MyCall", QString {}).toString ();
+  my_grid_ = settings_->value ("MyGrid", QString {}).toString ();
   next_color_CQ_ = color_CQ_ = settings_->value("colorCQ","#66ff66").toString();
   next_color_MyCall_ = color_MyCall_ = settings_->value("colorMyCall","#ff6666").toString();
   next_color_TxMsg_ = color_TxMsg_ = settings_->value("colorTxMsg","#ffff00").toString();
@@ -2013,17 +2012,6 @@ void Configuration::impl::on_force_RTS_combo_box_currentIndexChanged (int /* ind
 void Configuration::impl::on_PTT_method_button_group_buttonClicked (int /* id */)
 {
   set_rig_invariants ();
-}
-
-void Configuration::impl::on_callsign_line_edit_editingFinished ()
-{
-  ui_->callsign_line_edit->setText (ui_->callsign_line_edit->text ().toUpper ());
-}
-
-void Configuration::impl::on_grid_line_edit_editingFinished ()
-{
-  auto text = ui_->grid_line_edit->text ();
-  ui_->grid_line_edit->setText (text.left (4).toUpper () + text.mid (4).toLower ());
 }
 
 void Configuration::impl::on_sound_input_combo_box_currentTextChanged (QString const& text)

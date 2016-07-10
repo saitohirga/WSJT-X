@@ -234,6 +234,8 @@ set (wsjt_qt_CXXSRCS
   SampleDownloader/RemoteFile.cpp
   DisplayManual.cpp
   MultiSettings.cpp
+  MaidenheadLocatorValidator.cpp
+  CallsignValidator.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS

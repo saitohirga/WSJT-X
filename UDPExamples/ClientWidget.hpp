@@ -26,13 +26,14 @@ public:
   Q_SLOT void update_status (QString const& id, Frequency f, QString const& mode, QString const& dx_call
                              , QString const& report, QString const& tx_mode, bool tx_enabled
                              , bool transmitting, bool decoding, qint32 rx_df, qint32 tx_df
-                             , QString const& de_call, QString const& de_grid, QString const& dx_grid, bool watchdog_timeout);
-  Q_SLOT void decode_added (bool /*is_new*/, QString const& client_id, QTime /*time*/, qint32 /*snr*/
-                            , float /*delta_time*/, quint32 /*delta_frequency*/, QString const& /*mode*/
-                            , QString const& /*message*/);
-  Q_SLOT void beacon_spot_added (bool /*is_new*/, QString const& client_id, QTime /*time*/, qint32 /*snr*/
-                                 , float /*delta_time*/, Frequency /*delta_frequency*/, qint32 /*drift*/
-                                 , QString const& /*callsign*/, QString const& /*grid*/, qint32 /*power*/);
+                             , QString const& de_call, QString const& de_grid, QString const& dx_grid
+                             , bool watchdog_timeout);
+  Q_SLOT void decode_added (bool is_new, QString const& client_id, QTime, qint32 snr
+                            , float delta_time, quint32 delta_frequency, QString const& mode
+                            , QString const& message);
+  Q_SLOT void beacon_spot_added (bool is_new, QString const& client_id, QTime, qint32 snr
+                                 , float delta_time, Frequency delta_frequency, qint32 drift
+                                 , QString const& callsign, QString const& grid, qint32 power);
 
   Q_SIGNAL void do_reply (QModelIndex const&);
   Q_SIGNAL void do_halt_tx (QString const& id, bool auto_only);
@@ -68,6 +69,7 @@ private:
   QAbstractButton * halt_tx_button_;
   QLabel * mode_label_;
   QLabel * frequency_label_;
+  QLabel * dx_label_;
   QLabel * rx_df_label_;
   QLabel * tx_df_label_;
   QLabel * report_label_;
