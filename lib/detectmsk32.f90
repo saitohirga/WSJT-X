@@ -176,14 +176,14 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
   do ip=1,MAXCAND ! use something like the "clean" algorithm to find candidates
     iloc=maxloc(detmet(1:nstep))
     il=iloc(1)
-    if( (detmet(il) .lt. 4.0) ) exit 
-    if( abs(detfer(il)) .le. 100.0 ) then 
+    if( (detmet(il) .lt. 4.2) ) exit 
+    if( abs(detfer(il)) .le. ntol ) then 
       ndet=ndet+1
       times(ndet)=((il-1)*nstepsize+NPTS/2)*dt
       ferrs(ndet)=detfer(il)
-      snrs(ndet)=12.0*log10(detmet(il))/2-9.0
+      snrs(ndet)=12.0*log10(detmet(il)-1)/2-8.0
     endif
-    detmet(max(1,il-5):min(nstep,il+5))=0.0
+    detmet(max(1,il-3):min(nstep,il+3))=0.0
 !    detmet(il)=0.0
   enddo
  
@@ -195,8 +195,9 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
   allmessages=char(0)
   lines=char(0)
 
-  imsgbest=-99
+  imsgbest=-1
   nbadsyncbest=99
+  nhammdbest=99
   cdbest=1e32
   cdratbest=0.0
 
@@ -207,7 +208,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
     t0=times(ip)
     cdat=cbig(imid-NPTS/2+1:imid+NPTS/2)
     ferr=ferrs(ip)
-    nsnr=snrs(ip)
+    nsnr=nint(snrs(ip))
 
 ! remove coarse freq error - should now be within a few Hz
     call tweak1(cdat,NPTS,-(1500+ferr),cdat)
@@ -235,7 +236,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
       ccr(max(1,ic1-7):min(NPTS-32*6-41,ic1+7))=0.0
     enddo
 
-    do ipk=1,2
+    do ipk=1,3
 
 ! we want ic to be the index of the first sample of the frame
       ic0=ipeaks(ipk)
@@ -283,9 +284,9 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
           if( idf .eq. 0 ) then
             deltaf=0.0
           elseif( mod(idf,2) .eq. 0 ) then
-            deltaf=4*idf
+            deltaf=2*idf
           else
-            deltaf=-4*(idf+1)
+            deltaf=-2*(idf+1)
           endif
 
 ! Remove fine frequency error
@@ -294,24 +295,14 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
 ! place the beginning of frame at index NSPM+1
           cdat2=cshift(cdat2,ic-(NSPM+1))
 
-          do iav=1,8 ! Frame averaging patterns 
+          do iav=1,4 ! Frame averaging patterns 
             if( iav .eq. 1 ) then
               c=cdat2(NSPM+1:2*NSPM)  
             elseif( iav .eq. 2 ) then
-              c=cdat2(NSPM-95:NSPM+96)  
-              c=cshift(c,-96)
-            elseif( iav .eq. 3 ) then         
-              c=cdat2(2*NSPM-95:2*NSPM+96)  
-              c=cshift(c,-96)
-            elseif( iav .eq. 4 ) then
-              c=cdat2(1:NSPM)
-            elseif( iav .eq. 5 ) then
-              c=cdat2(2*NSPM+1:3*NSPM) 
-            elseif( iav .eq. 6 ) then
               c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)
-            elseif( iav .eq. 7 ) then
+            elseif( iav .eq. 3 ) then
               c=cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:3*NSPM)
-            elseif( iav .eq. 8 ) then
+            elseif( iav .eq. 4 ) then
               c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:3*NSPM)
             endif
 
@@ -328,13 +319,11 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
               c=c*conjg(cfac)
 
               if( nmatchedfilter .eq. 0 ) then
-! sample to get softsamples
                 do i=1, 16 
                   softbits(2*i-1)=imag(c(1+(i-1)*12))
                   softbits(2*i)=real(c(7+(i-1)*12))  
                 enddo
-              else
-! matched filter - 
+              else   ! matched filter
                 softbits(1)=sum(imag(c(1:6))*pp(7:12))+sum(imag(c(NSPM-5:NSPM))*pp(1:6))
                 softbits(2)=sum(real(c(1:12))*pp)
                 do i=2,16
@@ -343,9 +332,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
                 enddo
               endif
 
-! sync word hard error weight is a good discriminator for 
-! frames that have reasonable probability of decoding
-              hardbits=0
+              hardbits=0  ! use sync word hard error weight to decide whether to send to decoder
               do i=1, 32 
                 if( softbits(i) .ge. 0.0 ) then
                   hardbits(i)=1
@@ -355,14 +342,13 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
               nbadsync=nbadsync1
               if( nbadsync .gt. 3 ) cycle
 
-! normalize the softsymbols before submitting to decoder
+              ! normalize the softsymbols before submitting to decoder
               sav=sum(softbits)/32
               s2av=sum(softbits*softbits)/32
               ssig=sqrt(s2av-sav*sav)
               softbits=softbits/ssig
             
-              if( qsocontext ) then
-            ! search 32 likely messages only, using correlation discrepancy 
+              if( qsocontext ) then  ! search only 32 likely messages.
                 cd=1e6
                 ihammd=99
                 do i=0,31
@@ -372,12 +358,13 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
                   do ii=1,24
                     ib=iand(1,ishft(ncw,1-ii))
                     ib=2*ib-1 
-                    if( ib*softbits(ii+8) .lt. 0 ) cd(i)=cd(i)+abs(softbits(ii+8))
-                    if( ib*(2*hardbits(ii+8)-1) .lt. 0 ) ihammd(i)=ihammd(i)+1
+                    if( ib*softbits(ii+8) .lt. 0 ) then
+                      cd(i)=cd(i)+abs(softbits(ii+8))
+                      ihammd(i)=ihammd(i)+1
+                    endif
                   enddo
                 enddo
-              else
-            ! exhaustive search decoder, using correlation discrepancy 
+              else  ! exhaustive decoder, look at every codeword.
                 cd=1e6
                 ihammd=99
                 do i=0,4096-1
@@ -387,12 +374,13 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
                   do ii=1,24
                     ib=iand(1,ishft(ncw,1-ii))
                     ib=2*ib-1 
-                    if( ib*softbits(ii+8) .lt. 0 ) cd(i)=cd(i)+abs(softbits(ii+8))
-                    if( ib*(2*hardbits(ii+8)-1) .lt. 0 ) ihammd(i)=ihammd(i)+1
+                    if( ib*softbits(ii+8) .lt. 0 ) then
+                      cd(i)=cd(i)+abs(softbits(ii+8))
+                      ihammd(i)=ihammd(i)+1
+                    endif
                   enddo
                 enddo
               endif
-
               cdm=minval(cd)
               iloc=minloc(cd)
               imsg=iloc(1)-1
@@ -401,11 +389,13 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
               iloc=minloc(cd)
               imsg2=iloc(1)-1
               cdrat=cdm2/(cdm+0.001)
-!             if( cdrat .gt. cdratbest ) then
-              if( cdm .lt. cdbest ) then
+              cdrat2=cdm/(cdm2+0.0001)
+              if( (cdm .lt. cdbest) .or. ((cdm .eq. cdbest) .and. (ihammd(imsg) .lt. nhammdbest)) ) then
                 cdratbest = cdrat
+                cdrat2best = cdrat2
                 cdbest = cdm
                 imsgbest = imsg
+                imsg2best = imsg2
                 iavbest = iav
                 ipbest  = ip
                 ipkbest = ipk   
@@ -413,23 +403,19 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
                 idbest = id
                 iphabest = ipha
                 nbadsyncbest = nbadsync
-                if( ( ihammd(imsgbest)+nbadsyncbest  .le. 4 )  .and. ( (cdratbest .gt. 100.0) .and. (cdbest .le. 0.05) ) ) goto 999
+                nhammdbest = ihammd(imsg)
+                if( ( nhammdbest  .eq. 0 )  .and. (cdbest .eq. 0.0) .and. (cdratbest .gt. 2000.0) ) goto 999
               endif
             enddo   ! phase loop
           enddo   ! frame averaging loop
         enddo   ! frequency dithering loop
-      enddo   ! sample-time dither loop
-    enddo   ! peak loop
-
-!    write(78,1001) nutc,t0,nsnr,ic,ipk,is,idf,iav,deltaf,fest,ferr,ferr2,ffin,bba,bbp,nbadsync, &
-!             phase0,msgreceived
-!      call flush(78)
-!1001 format(i6.6,f8.2,i5,i5,i5,i5,i5,i5,f8.2,f8.2,f8.2,f8.2,f8.2,f10.2,f8.2,i5,f8.2,2x,a22)
-  enddo
+      enddo   ! slicer dither loop
+    enddo   ! time-sync correlation-peak loop
+  enddo  ! candidate loop
 999 continue
   msgreceived=' '
   if( imsgbest .gt. 0 ) then
-    if( ( ihammd(imsgbest)+nbadsyncbest .le. 4 ) .and. (cdratbest .gt. 50.0) .and. (cdbest .le. 0.05) ) then
+    if( ( nhammdbest+nbadsyncbest .le. 4 ) .and. cdratbest .gt. 10.0 ) then
       if( qsocontext ) then
         nrxrpt=iand(likelymessages(imsgbest),31)
         nrxhash=(likelymessages(imsgbest)-nrxrpt)/32
@@ -452,11 +438,11 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
 1020    format(i6.6,i4,f5.1,i5,' & ',a22)
 
 !       write(*,1022) nutc,ipbest,times(ipbest),snrs(ipbest),fest,nrxrpt,nrxhash, &
-!                    rpt(nrxrpt),imessage,ig24(imessage),ihammd(imsgbest), &
-!                    cdbest,cdratbest,nbadsyncbest,ipkbest,idbest,idfbest,iavbest,iphabest
+!                    rpt(nrxrpt),imessage,ig24(imessage),nhammdbest, &
+!                    cdbest,cdratbest,cdrat2best,nbadsyncbest,ipkbest,idbest,idfbest,iavbest,iphabest
       endif
     endif
   endif
-!1022 format(i4.4,2x,i4,f8.3,f8.2,f8.2,i6,i6,a6,i8,i10,i4,f8.2,f8.2,i5,i5,i5,i5,i5,i5) 
+1022 format(i4.4,2x,i4,f8.3,f8.2,f8.2,i6,i6,a6,i8,i10,i4,f8.3,f8.2,f8.2,i5,i5,i5,i5,i5,i5) 
   return
 end subroutine detectmsk32
