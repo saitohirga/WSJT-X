@@ -107,6 +107,7 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
   , halt_tx_button_ {new QPushButton {tr ("&Halt Tx")}}
   , mode_label_ {new QLabel}
   , frequency_label_ {new QLabel}
+  , dx_label_ {new QLabel}
   , rx_df_label_ {new QLabel}
   , tx_df_label_ {new QLabel}
   , report_label_ {new QLabel}
@@ -170,6 +171,7 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
   auto status_bar = new QStatusBar;
   status_bar->addPermanentWidget (mode_label_);
   status_bar->addPermanentWidget (frequency_label_);
+  status_bar->addPermanentWidget (dx_label_);
   status_bar->addPermanentWidget (rx_df_label_);
   status_bar->addPermanentWidget (tx_df_label_);
   status_bar->addPermanentWidget (report_label_);
@@ -191,10 +193,10 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
     });
 }
 
-void ClientWidget::update_status (QString const& id, Frequency f, QString const& mode, QString const& /*dx_call*/
+void ClientWidget::update_status (QString const& id, Frequency f, QString const& mode, QString const& dx_call
                                   , QString const& report, QString const& tx_mode, bool tx_enabled
                                   , bool transmitting, bool decoding, qint32 rx_df, qint32 tx_df
-                                  , QString const& de_call, QString const& /*de_grid*/, QString const& /*dx_grid*/
+                                  , QString const& de_call, QString const& /*de_grid*/, QString const& dx_grid
                                   , bool watchdog_timeout)
 {
   if (id == id_)
@@ -205,6 +207,8 @@ void ClientWidget::update_status (QString const& id, Frequency f, QString const&
            .arg (mode)
            .arg (tx_mode.isEmpty () || tx_mode == mode ? "" : '(' + tx_mode + ')'));
       frequency_label_->setText ("QRG: " + Radio::pretty_frequency_MHz_string (f));
+      dx_label_->setText (dx_call.size () >= 0 ? QString {"DX: %1%2"}.arg (dx_call)
+                          .arg (dx_grid.size () ? '(' + dx_grid + ')' : QString {}) : QString {});
       rx_df_label_->setText (rx_df >= 0 ? QString {"Rx: %1"}.arg (rx_df) : "");
       tx_df_label_->setText (tx_df >= 0 ? QString {"Tx: %1"}.arg (tx_df) : "");
       report_label_->setText ("SNR: " + report);

@@ -157,8 +157,8 @@ private slots:
   void on_txb6_clicked();
   void on_lookupButton_clicked();
   void on_addButton_clicked();
-  void on_dxCallEntry_textChanged(const QString &arg1);
-  void on_dxGridEntry_textChanged(const QString &arg1);
+  void on_dxCallEntry_textChanged (QString const&);
+  void on_dxGridEntry_textChanged (QString const&);
   void on_genStdMsgsPushButton_clicked();
   void on_logQSOButton_clicked();
   void on_actionJT9_triggered();
@@ -522,7 +522,6 @@ private:
   void msgtype(QString t, QLineEdit* tx);
   void stub();
   void statusChanged();
-  bool gridOK(QString g);
   bool shortList(QString callsign);
   void transmit (double snr = 99.);
   void rigFailure (QString const& reason);

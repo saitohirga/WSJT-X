@@ -54,6 +54,8 @@
 #include "SampleDownloader.hpp"
 #include "Audio/BWFFile.hpp"
 #include "MultiSettings.hpp"
+#include "MaidenheadLocatorValidator.hpp"
+#include "CallsignValidator.hpp"
 
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
@@ -137,6 +139,7 @@ namespace
 {
   Radio::Frequency constexpr default_frequency {14076000};
   QRegExp message_alphabet {"[- @A-Za-z0-9+./?#<>]*"};
+  QRegExp grid_regexp {QRegExp {"[A-Ra-r]{2}[0-9]{2}([A-Xa-x]{2}){0,1}"}};
 
   bool message_is_73 (int type, QStringList const& msg_parts)
   {
@@ -340,6 +343,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 {
   ui->setupUi(this);
   add_child_to_event_filter (this);
+  ui->dxGridEntry->setValidator (new MaidenheadLocatorValidator {this});
+  ui->dxCallEntry->setValidator (new CallsignValidator {this});
 
   m_baseCall = Radio::base_callsign (m_config.my_callsign ());
 
@@ -951,8 +956,8 @@ void MainWindow::readSettings()
   m_settings->beginGroup("MainWindow");
   restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
   restoreState (m_settings->value ("state", saveState ()).toByteArray ());
-  ui->dxCallEntry->setText(m_settings->value("DXcall","").toString());
-  ui->dxGridEntry->setText(m_settings->value("DXgrid","").toString());
+  ui->dxCallEntry->setText (m_settings->value ("DXcall", QString {}).toString ());
+  ui->dxGridEntry->setText (m_settings->value ("DXgrid", QString {}).toString ());
   m_path = m_settings->value("MRUdir", m_config.save_directory ().absolutePath ()).toString ();
   m_txFirst = m_settings->value("TxFirst",false).toBool();
   auto displayAstro = m_settings->value ("AstroDisplayed", false).toBool ();
@@ -2149,10 +2154,10 @@ void MainWindow::decode()                                       //decode()
   strncpy(dec_data.params.datetime, m_dateTime.toLatin1(), 20);
   strncpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
   strncpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
-  QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
-  QString hisGrid=ui->dxGridEntry->text().toUpper().trimmed();
-  strncpy(dec_data.params.hiscall,(hisCall+"            ").toLatin1(),12);
-  strncpy(dec_data.params.hisgrid,(hisGrid+"      ").toLatin1(),6);
+  QString hisCall {ui->dxCallEntry->text ()};
+  QString hisGrid {ui->dxGridEntry->text ()};
+  strncpy(dec_data.params.hiscall,(hisCall + "            ").toLatin1 ().constData (), 12);
+  strncpy(dec_data.params.hisgrid,(hisGrid + "      ").toLatin1 ().constData (), 6);
 
   //newdat=1  ==> this is new data, must do the big FFT
   //nagain=1  ==> decode only at fQSO +/- Tol
@@ -2265,7 +2270,7 @@ void::MainWindow::fast_decode_done()
       QString msg=message.mid(0,4) + message.mid(6,-1);
       decodedtext=msg.replace("\n","");
       bool stdMsg = decodedtext.report(m_baseCall,
-              Radio::base_callsign(ui->dxCallEntry->text().toUpper().trimmed()), m_rptRcvd);
+              Radio::base_callsign(ui->dxCallEntry->text()), m_rptRcvd);
 
 // extract details and send to PSKreporter
       if(m_config.spot_to_psk_reporter() and stdMsg and !m_diskData) {
@@ -2277,7 +2282,7 @@ void::MainWindow::fast_decode_done()
         int snr = decodedtext.snr();
         Frequency frequency = m_freqNominal + audioFrequency;
         pskSetLocal();
-        if(gridOK(grid))
+        if(grid_regexp.exactMatch (grid))
           {
             // qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
             psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
@@ -2422,7 +2427,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
       // find and extract any report for myCall
       bool stdMsg = decodedtext.report(m_baseCall,
-          Radio::base_callsign(ui->dxCallEntry->text().toUpper().trimmed()), m_rptRcvd);
+          Radio::base_callsign(ui->dxCallEntry->text()), m_rptRcvd);
       // extract details and send to PSKreporter
       int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
       bool okToPost=(nsec>50);
@@ -2436,7 +2441,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         int snr = decodedtext.snr();
         Frequency frequency = m_freqNominal + audioFrequency;
         pskSetLocal ();
-        if(gridOK(grid))
+        if(grid_regexp.exactMatch (grid))
           {
             // qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
             psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
@@ -3275,19 +3280,19 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     }
 
   // prior DX call (possible QSO partner)
-  auto qso_partner_base_call = Radio::base_callsign (ui->dxCallEntry-> text ().toUpper ().trimmed ());
+  auto qso_partner_base_call = Radio::base_callsign (ui->dxCallEntry-> text ());
 
   auto base_call = Radio::base_callsign (hiscall);
-  if (base_call != Radio::base_callsign (ui->dxCallEntry-> text ().toUpper ().trimmed ()) || base_call != hiscall)
+  if (base_call != Radio::base_callsign (ui->dxCallEntry-> text ()) || base_call != hiscall)
     {
-  // his base call different or his call more qualified
-  // i.e. compound version of same base call
-      ui->dxCallEntry->setText(hiscall);
+      // his base call different or his call more qualified
+      // i.e. compound version of same base call
+      ui->dxCallEntry->setText (hiscall);
     }
-  if (gridOK(hisgrid)) {
+  if (grid_regexp.exactMatch (hisgrid)) {
     if(ui->dxGridEntry->text().mid(0,4) != hisgrid) ui->dxGridEntry->setText(hisgrid);
   }
-  if (ui->dxGridEntry->text()=="")
+  if (!ui->dxGridEntry->text ().size ())
     lookup();
   m_hisGrid = ui->dxGridEntry->text();
 
@@ -3312,7 +3317,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     {
 
       if (t4.size () > 7   // enough fields for a normal msg
-          and !gridOK (t4.at (7))) // but no grid on end of msg
+          and !grid_regexp.exactMatch  (t4.at (7))) // but no grid on end of msg
         {
           QString r=t4.at (7);
           if(r.mid(0,3)=="RRR" || (r.toInt()==73)) {
@@ -3403,7 +3408,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   if(m_config.quick_call()) auto_tx_mode(true);
 }
 
-void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
+void MainWindow::genStdMsgs(QString rpt)
 {
   QString t;
   if(m_config.my_callsign() !="" and m_config.my_grid() !="")
@@ -3420,17 +3425,16 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
     {
       ui->tx6->setText("");
     }
-  QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
-  ui->dxCallEntry->setText(hisCall);
-  if(hisCall=="") {
-    ui->labAz->setText("");
-    ui->labDist->setText("");
-    ui->tx1->setText("");
-    ui->tx2->setText("");
-    ui->tx3->setText("");
-    ui->tx4->setText("");
-    ui->tx5->setCurrentText("");
-    ui->genMsg->setText("");
+  QString hisCall=ui->dxCallEntry->text();
+  if(!hisCall.size ()) {
+    ui->labAz->clear ();
+    ui->labDist->clear ();
+    ui->tx1->clear ();
+    ui->tx2->clear ();
+    ui->tx3->clear ();
+    ui->tx4->clear ();
+    ui->tx5->lineEdit ()->clear ();
+    ui->genMsg->clear ();
     return;
   }
   QString hisBase = Radio::base_callsign (hisCall);
@@ -3438,7 +3442,7 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
   QString t0=hisBase + " " + m_baseCall + " ";
   t=t0 + m_config.my_grid ().mid(0,4);
   msgtype(t, ui->tx1);
-  if(rpt == "") {
+  if(!rpt.size ()) {
     t=t+" OOO";
     msgtype(t, ui->tx2);
     msgtype("RO", ui->tx3);
@@ -3536,15 +3540,13 @@ void MainWindow::TxAgain()
 
 void MainWindow::clearDX ()
 {
-  ui->dxCallEntry->setText("");
-  ui->dxGridEntry->setText("");
-  m_hisCall="";
-  m_hisGrid="";
-  m_rptSent="";
-  m_rptRcvd="";
-  m_qsoStart="";
-  m_qsoStop="";
-  genStdMsgs("");
+  ui->dxCallEntry->clear ();
+  ui->dxGridEntry->clear ();
+  m_rptSent.clear ();
+  m_rptRcvd.clear ();
+  m_qsoStart.clear ();
+  m_qsoStop.clear ();
+  genStdMsgs (QString {});
   if (1 == ui->tabWidget->currentIndex())
     {
       ui->genMsg->setText(ui->tx6->text());
@@ -3560,12 +3562,8 @@ void MainWindow::clearDX ()
 
 void MainWindow::lookup()                                       //lookup()
 {
-  QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
-  if (hisCall.isEmpty ())
-    {
-      return;
-    }
-  ui->dxCallEntry->setText(hisCall);
+  QString hisCall {ui->dxCallEntry->text()};
+  if (!hisCall.size ()) return;
   QFile f {m_dataDir.absoluteFilePath ("CALL3.TXT")};
   if (f.open (QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -3574,7 +3572,7 @@ void MainWindow::lookup()                                       //lookup()
       for(int i=0; i<999999; i++) {
         n=f.readLine(c,sizeof(c));
         if(n <= 0) {
-          ui->dxGridEntry->setText("");
+          ui->dxGridEntry->clear ();
           break;
         }
         QString t=QString(c);
@@ -3602,14 +3600,14 @@ void MainWindow::on_lookupButton_clicked()                    //Lookup button
 
 void MainWindow::on_addButton_clicked()                       //Add button
 {
-  if(ui->dxGridEntry->text()=="") {
+  if(!ui->dxGridEntry->text ().size ()) {
     MessageBox::warning_message (this, tr ("Add to CALL3.TXT")
                                  , tr ("Please enter a valid grid locator"));
     return;
   }
   m_call3Modified=false;
-  QString hisCall=ui->dxCallEntry->text().toUpper().trimmed();
-  QString hisgrid=ui->dxGridEntry->text().trimmed();
+  QString hisCall=ui->dxCallEntry->text();
+  QString hisgrid=ui->dxGridEntry->text();
   QString newEntry=hisCall + "," + hisgrid;
 
   //  int ret = MessageBox::query_message(this, tr ("Add to CALL3.TXT"),
@@ -3763,29 +3761,20 @@ void MainWindow::on_tx6_editingFinished()                       //tx6 edited
   msgtype(t, ui->tx6);
 }
 
-void MainWindow::on_dxCallEntry_textChanged(const QString &t) //dxCall changed
+void MainWindow::on_dxCallEntry_textChanged (QString const& call)
 {
-  m_hisCall=t.toUpper().trimmed();
-  ui->dxCallEntry->setText(m_hisCall);
+  m_hisCall = call;
   statusChanged();
   statusUpdate ();
 }
 
-void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
+void MainWindow::on_dxGridEntry_textChanged (QString const& grid)
 {
-  int n=t.length();
-  if(n!=4 and n!=6) {
-    ui->labAz->setText("");
-    ui->labDist->setText("");
-    return;
-  }
-  if(!t[0].isLetter() or !t[1].isLetter()) return;
-  if(!t[2].isDigit() or !t[3].isDigit()) return;
-  if(n==4) m_hisGrid=t.mid(0,2).toUpper() + t.mid(2,2);
-  if(n==6) m_hisGrid=t.mid(0,2).toUpper() + t.mid(2,2) +
-             t.mid(4,2).toLower();
-  ui->dxGridEntry->setText(m_hisGrid);
-  if(gridOK(m_hisGrid)) {
+  if (ui->dxGridEntry->hasAcceptableInput ()) {
+    if (grid != m_hisGrid) {
+      m_hisGrid = grid;
+      statusUpdate ();
+    }
     qint64 nsec = QDateTime::currentMSecsSinceEpoch() % 86400;
     double utch=nsec/3600.0;
     int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
@@ -3794,7 +3783,7 @@ void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
             &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
     QString t;
     t.sprintf("Az: %d",nAz);
-    ui->labAz->setText(t);
+    ui->labAz->setText (grid);
     if (m_config.miles ())
       {
         t.sprintf ("%d mi", int (0.621371 * nDkm));
@@ -3804,11 +3793,16 @@ void MainWindow::on_dxGridEntry_textChanged(const QString &t) //dxGrid changed
         t.sprintf ("%d km", nDkm);
       }
     ui->labDist->setText(t);
-  } else {
-    ui->labAz->setText("");
-    ui->labDist->setText("");
   }
-  statusUpdate ();
+  else {
+    if (m_hisGrid.size ())
+      {
+        m_hisGrid.clear ();
+        ui->labAz->clear ();
+        ui->labDist->clear ();
+        statusUpdate ();
+      }
+  }
 }
 
 void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
@@ -3818,7 +3812,7 @@ void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
 
 void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 {
-  if(m_hisCall=="") return;
+  if (!m_hisCall.size ()) return;
   m_dateTimeQSO=QDateTime::currentDateTimeUtc();
 
   m_logDlg->initLogQSO (m_hisCall, m_hisGrid, m_modeTx, m_rptSent, m_rptRcvd,
@@ -4369,22 +4363,6 @@ void MainWindow::on_actionErase_wsjtx_log_adi_triggered()
 void MainWindow::on_actionOpen_log_directory_triggered ()
 {
   QDesktopServices::openUrl (QUrl::fromLocalFile (m_dataDir.absolutePath ()));
-}
-
-bool MainWindow::gridOK(QString g)
-{
-  bool b=false;
-  if(g.length()>=4) {
-    b=g.mid(0,1).compare("A")>=0 and
-        g.mid(0,1).compare("R")<=0 and
-        g.mid(1,1).compare("A")>=0 and
-        g.mid(1,1).compare("R")<=0 and
-        g.mid(2,1).compare("0")>=0 and
-        g.mid(2,1).compare("9")<=0 and
-        g.mid(3,1).compare("0")>=0 and
-        g.mid(3,1).compare("9")<=0;
-  }
-  return b;
 }
 
 void MainWindow::on_bandComboBox_currentIndexChanged (int index)
