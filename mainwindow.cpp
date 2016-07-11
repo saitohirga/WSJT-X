@@ -3783,7 +3783,7 @@ void MainWindow::on_dxGridEntry_textChanged (QString const& grid)
             &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
     QString t;
     t.sprintf("Az: %d",nAz);
-    ui->labAz->setText (grid);
+    ui->labAz->setText (t);
     if (m_config.miles ())
       {
         t.sprintf ("%d mi", int (0.621371 * nDkm));
