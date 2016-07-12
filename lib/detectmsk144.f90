@@ -39,8 +39,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
   real tonespec(NFFT)
   real*8 dt, df, fs, pi, twopi
   real softbits(144)
-  real*8 unscrambledsoftbits(128)
-  real lratio(128)
+  real*8 lratio(128)
   logical first
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
@@ -352,12 +351,9 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
               lratio(49:128)=softbits(65:65+80-1)
               lratio=exp(2.0*lratio/(sigma*sigma))
   
-              unscrambledsoftbits(1:127:2)=lratio(1:64)
-              unscrambledsoftbits(2:128:2)=lratio(65:128)
-
               max_iterations=10
               max_dither=1
-              call ldpc_decode(unscrambledsoftbits, decoded, &
+              call ldpc_decode(lratio, decoded, &
                            max_iterations, niterations, max_dither, ndither)
 
               if( niterations .ge. 0.0 ) then
