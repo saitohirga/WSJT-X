@@ -48,10 +48,10 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
   data s8r/1,0,1,1,0,0,0,1/
-  data rpt /'-04 ','-03 ','-02 ','-01 ','00 ','01 ','02 ','03 ','04 ', &
-            '05 ','06 ','07 ','08 ','09 ','10 ', &
-            'R-04','R-03','R-02','R-01','R00','R01','R02','R03','R04', &
-            'R05','R06','R07','R08','R09','R10', &
+  data rpt /'-04 ','-03 ','-02 ','-01 ','+00 ','+01 ','+02 ','+03 ','+04 ', &
+            '+05 ','+06 ','+07 ','+08 ','+09 ','+10 ', &
+            'R-04','R-03','R-02','R-01','R+00','R+01','R+02','R+03','R+04', &
+            'R+05','R+06','R+07','R+08','R+09','R10', &
             'RRR ','73  '/
   save df,first,cb,cbr,fs,pi,twopi,dt,s8,rcw,pp,nmatchedfilter,ig24
 
@@ -431,7 +431,20 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
       call fmtmsg(hashmsg,iz)
       call hash(hashmsg,22,ihash)
       ihash=iand(ihash,127)
-      if( nrxhash .eq. ihash ) then
+
+!###
+!Temporarily, check for short messages sent with positive dB and no + sign.
+      ihash2=-1
+      i1=index(hashmsg,'+')
+      if(i1.gt.0) then
+         hashmsg=hashmsg(1:i1-1)//hashmsg(i1+1:22)//' '
+         call hash(hashmsg,22,ihash2)
+         ihash2=iand(ihash2,127)
+      endif
+      if(nrxhash.eq.ihash .or. nrxhash.eq.ihash2) then
+!###
+!      if( nrxhash .eq. ihash ) then
+
         nmessages=1
         write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),trim(partnercall),">",rpt(nrxrpt)    
         write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
@@ -440,9 +453,9 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
 !       write(*,1022) nutc,ipbest,times(ipbest),snrs(ipbest),fest,nrxrpt,nrxhash, &
 !                    rpt(nrxrpt),imessage,ig24(imessage),nhammdbest, &
 !                    cdbest,cdratbest,cdrat2best,nbadsyncbest,ipkbest,idbest,idfbest,iavbest,iphabest
+!1022 format(i4.4,2x,i4,f8.3,f8.2,f8.2,i6,i6,a6,i8,i10,i4,f8.3,f8.2,f8.2,i5,i5,i5,i5,i5,i5) 
       endif
     endif
   endif
-1022 format(i4.4,2x,i4,f8.3,f8.2,f8.2,i6,i6,a6,i8,i10,i4,f8.3,f8.2,f8.2,i5,i5,i5,i5,i5,i5) 
   return
 end subroutine detectmsk32

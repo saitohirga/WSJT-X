@@ -664,7 +664,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->decodedTextLabel2->setText(t);
 
   readSettings();		         //Restore user's setup params
-
   createStatusBar();
 
   m_audioThread.start (m_audioThreadPriority);
@@ -768,6 +767,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->sbFtol->setValue(m_FtolIndex);
   on_sbFtol_valueChanged(m_FtolIndex);
   ui->cbEME->setChecked(m_bEME);
+  ui->cbShMsgs->setChecked(m_bShMsgs);
   ui->cbFast9->setChecked(m_bFast9);
   if(m_bFast9) m_bFastMode=true;
 
@@ -931,6 +931,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("FtolIndex",m_FtolIndex);
   m_settings->setValue("MinSync",m_minSync);
   m_settings->setValue("EME",m_bEME);
+  m_settings->setValue("ShMsgs",m_bShMsgs);
   m_settings->setValue ("DialFreq", QVariant::fromValue(m_lastMonitoredFrequency));
   m_settings->setValue("InGain",m_inGain);
   m_settings->setValue("OutAttenuation", ui->outAttenuation->value ());
@@ -984,6 +985,7 @@ void MainWindow::readSettings()
 //  ui->FTol_combo_box->setCurrentText(m_settings->value("FTol","500").toString ());
   ui->syncSpinBox->setValue(m_settings->value("MinSync",0).toInt());
   m_bEME=m_settings->value("EME",false).toBool();
+  m_bShMsgs=m_settings->value("ShMsgs",false).toBool();
   m_bFast9=m_settings->value("Fast9",false).toBool();
   m_bFastMode=m_settings->value("FastMode",false).toBool();
   m_TRindex=m_settings->value("TRindex",0).toInt();
@@ -3298,10 +3300,15 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
 
   QString rpt = decodedtext.report();
   int n=rpt.toInt();
-  if((m_mode=="JTMSK" or m_mode=="MSK144") and m_bShMsgs) {
+  if(m_mode=="JTMSK" and m_bShMsgs) {
     n=26;
     if(rpt.toInt()>4) n=27;
     if(rpt.toInt()>8) n=28;
+    rpt=QString::number(n);
+  }
+  if(m_mode=="MSK144" and m_bShMsgs) {
+    if(rpt.toInt()<-4) n=-4;
+    if(rpt.toInt()>10) n=10;
     rpt=QString::number(n);
   }
   ui->rptSpinBox->setValue(n);
@@ -3450,15 +3457,16 @@ void MainWindow::genStdMsgs(QString rpt)
     msgtype("73", ui->tx5->lineEdit ());
   } else {
     int n=rpt.toInt();
-    rpt.sprintf("%+2.2d",n);
     if((m_mode=="JTMSK" or m_mode=="MSK144") and m_bShMsgs) {
       int i=t0.length()-1;
       t0="<" + t0.mid(0,i) + "> ";
       if(m_mode=="JTMSK") {
          if(n<26) n=26;
          if(n>28) n=28;
+         rpt.sprintf("%2.2d",n);   //In JTMSK mode, "26" not "+26"
+      } else {
+        rpt.sprintf("%+2.2d",n);
       }
-      rpt.sprintf("%2.2d",n);
     }
     t=t0 + rpt;
     msgtype(t, ui->tx2);
@@ -3954,7 +3962,6 @@ void MainWindow::on_actionMSK144_triggered()
   Q_EMIT FFTSize (m_FFTSize);
   setup_status_bar (true);
   m_toneSpacing=0.0;
-  ui->cbShMsgs->setChecked(false);
   ui->cbShMsgs->setVisible(true);
   ui->actionMSK144->setChecked(true);
 }
