@@ -31,7 +31,6 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file)
   integer*1, target:: i1Msg8BitBytes(10)  !80 bits represented in 10 bytes 
   integer*1 codeword(128)                 !Encoded bits before re-ordering
   integer*1 msgbits(80)                   !72-bit message + 8-bit hash
-  integer*1 reorderedcodeword(128)        !Odd bits first, then even
   integer*1 bitseq(144)                   !Tone #s, data and sync (values 0-1)
   integer*1 i1hash(4)
   integer*1 b7(7)
@@ -124,17 +123,13 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file)
 
      call ldpc_encode(msgbits,codeword)
 
-! Reorder the bits.
-     reorderedcodeword(1:64)=codeword(1:127:2)
-     reorderedcodeword(65:128)=codeword(2:128:2)
-
 !Create 144-bit channel vector:
 !8-bit sync word + 48 bits + 8-bit sync word + 80 bits
      bitseq=0 
      bitseq(1:8)=s8
-     bitseq(9:56)=reorderedcodeword(1:48)
+     bitseq(9:56)=codeword(1:48)
      bitseq(57:64)=s8
-     bitseq(65:144)=reorderedcodeword(49:128)
+     bitseq(65:144)=codeword(49:128)
      bitseq=2*bitseq-1
 
      xq(1:6)=bitseq(1)*pp(7:12)   !first bit is mapped to 1st half-symbol on q
