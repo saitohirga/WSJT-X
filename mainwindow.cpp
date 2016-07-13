@@ -2744,18 +2744,24 @@ void MainWindow::guiUpdate()
                                              len1, len1);
         if(m_modeTx=="JTMSK") genmsk_(message, &ichk, msgsent, const_cast<int *> (itone),
                                   &m_currentMessageType, len1, len1);
-        if(m_modeTx=="MSK144") genmsk144_(message, &ichk, msgsent, const_cast<int *> (itone),
-                                  &m_currentMessageType, &m_pchkFile[0], len1, len1, 512);
+        if(m_modeTx=="MSK144") {
+          genmsk144_(message, &ichk, msgsent, const_cast<int *> (itone),
+                     &m_currentMessageType, &m_pchkFile[0], len1, len1, 512);
+          if(m_restart) {
+            int nsym=144;
+            if(itone[32]==-32) nsym=32;
+            m_modulator->set_nsym(nsym);
+          }
+        }
         msgsent[22]=0;
       }
     }
 
     m_currentMessage = QString::fromLatin1(msgsent);
-    if (m_tune)
-      {
-        m_currentMessage = "TUNE";
-        m_currentMessageType = -1;
-      }
+    if (m_tune) {
+      m_currentMessage = "TUNE";
+      m_currentMessageType = -1;
+    }
     last_tx_label.setText("Last Tx:  " + m_currentMessage);
     if(m_restart) {
       QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
