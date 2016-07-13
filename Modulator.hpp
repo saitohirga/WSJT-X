@@ -32,6 +32,7 @@ public:
   bool isActive () const {return m_state != Idle;}
   void setSpread(double s) {m_fSpread=s;}
   void setPeriod(unsigned p) {m_period=p;}
+  void set_nsym(int n) {m_symbolsLength=n;}
 
   Q_SLOT void start (unsigned symbolsLength, double framesPerSymbol, double frequency,
                      double toneSpacing, SoundOutput *, Channel = Mono,
