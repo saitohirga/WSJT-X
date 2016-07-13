@@ -3314,7 +3314,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   }
   if(m_mode=="MSK144" and m_bShMsgs) {
     if(rpt.toInt()<-4) n=-4;
-    if(rpt.toInt()>10) n=10;
+    if(rpt.toInt()>24) n=24;
     rpt=QString::number(n);
   }
   ui->rptSpinBox->setValue(n);
