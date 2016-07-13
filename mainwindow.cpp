@@ -3970,6 +3970,10 @@ void MainWindow::on_actionMSK144_triggered()
   m_toneSpacing=0.0;
   ui->cbShMsgs->setVisible(true);
   ui->actionMSK144->setChecked(true);
+  ui->rptSpinBox->setMinimum(-4);
+  ui->rptSpinBox->setMaximum(24);
+  ui->rptSpinBox->setValue(0);
+  ui->rptSpinBox->setSingleStep(2);
 }
 
 void MainWindow::on_actionQRA64_triggered()
@@ -4246,6 +4250,9 @@ void MainWindow::switch_mode (Mode mode)
   ui->pbT2R->setVisible(!b);
   ui->cbTxLock->setVisible(!b);
   ui->TxFreqSpinBox->setVisible(!b);
+  ui->rptSpinBox->setSingleStep(1);
+  ui->rptSpinBox->setMinimum(-50);
+  ui->rptSpinBox->setMaximum(49);
 }
 
 void MainWindow::WSPR_config(bool b)
@@ -4552,6 +4559,11 @@ void MainWindow::on_freeTextMsg_currentTextChanged (QString const& text)
 
 void MainWindow::on_rptSpinBox_valueChanged(int n)
 {
+  int step=ui->rptSpinBox->singleStep();
+  if(n%step !=0) {
+    n++;
+    ui->rptSpinBox->setValue(n);
+  }
   m_rpt=QString::number(n);
   int ntx0=m_ntx;
   QString t=ui->tx5->currentText();
