@@ -171,7 +171,9 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol)
     t0=times(ip)
     cdat=cbig(imid-NPTS/2+1:imid+NPTS/2)
     ferr=ferrs(ip)
-    nsnr=snrs(ip)
+    nsnr=2*nint(snrs(ip)/2.0)
+    if( nsnr .lt. -4 ) nsnr=-4
+    if( nsnr .gt. 24 ) nsnr=24
 
 ! remove coarse freq error - should now be within a few Hz
     call tweak1(cdat,NPTS,-(1500+ferr),cdat)

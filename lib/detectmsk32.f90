@@ -48,10 +48,10 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
   data s8r/1,0,1,1,0,0,0,1/
-  data rpt /'-04 ','-03 ','-02 ','-01 ','+00 ','+01 ','+02 ','+03 ','+04 ', &
-            '+05 ','+06 ','+07 ','+08 ','+09 ','+10 ', &
-            'R-04','R-03','R-02','R-01','R+00','R+01','R+02','R+03','R+04', &
-            'R+05','R+06','R+07','R+08','R+09','R10', &
+  data rpt /'-04 ','-02 ','+00 ','+02 ','+04 ','+06 ','+08 ','+10 ','+12 ', &
+            '+14 ','+16 ','+18 ','+20 ','+22 ','+24 ', &
+            'R-04','R-02','R+00','R+02','R+04','R+06','R+08','R+10','R+12', &
+            'R+14','R+16','R+18','R+20','R+22','R+24', &
             'RRR ','73  '/
   save df,first,cb,cbr,fs,pi,twopi,dt,s8,rcw,pp,nmatchedfilter,ig24
 
@@ -208,7 +208,9 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
     t0=times(ip)
     cdat=cbig(imid-NPTS/2+1:imid+NPTS/2)
     ferr=ferrs(ip)
-    nsnr=nint(snrs(ip))
+    nsnr=2*nint(snrs(ip)/2.0)
+    if( nsnr .lt. -4 ) nsnr=-4
+    if( nsnr .gt. 24 ) nsnr=24
 
 ! remove coarse freq error - should now be within a few Hz
     call tweak1(cdat,NPTS,-(1500+ferr),cdat)
