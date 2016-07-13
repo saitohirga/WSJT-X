@@ -3463,6 +3463,7 @@ void MainWindow::genStdMsgs(QString rpt)
     msgtype("73", ui->tx5->lineEdit ());
   } else {
     int n=rpt.toInt();
+    rpt.sprintf("%+2.2d",n);
     if((m_mode=="JTMSK" or m_mode=="MSK144") and m_bShMsgs) {
       int i=t0.length()-1;
       t0="<" + t0.mid(0,i) + "> ";
