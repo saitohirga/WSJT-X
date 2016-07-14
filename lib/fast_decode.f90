@@ -38,8 +38,11 @@ subroutine fast_decode(id2,narg,bShMsgs,line,pchk_file,mycall_12,hiscall_12)
      call jtmsk_decode(id2,narg,line)
      go to 900
   else if(nmode.eq.104) then
-     call msk144_decode(id2,ndat0,nutc,0,pchk_file,mycall,hiscall,bShMsgs,  &
-          ntol,line)
+     ia=max(1,nint(t0*12000.0))
+     ib=min(ndat0,nint(t1*12000.0))
+     nz=ib-ia+1
+     call msk144_decode(id2(ia),nz,nutc,0,pchk_file,mycall,hiscall,bShMsgs,  &
+          ntol,t0,line)
      go to 900
   endif
 

@@ -5661,7 +5661,7 @@ void MainWindow::setRig ()
 
 void MainWindow::fastPick(int x0, int x1, int y)
 {
-  if(m_mode!="ISCAT") return;
+  if(m_mode!="ISCAT" and m_mode!="MSK144") return;
   if(!m_decoderBusy) {
     dec_data.params.newdat=0;
     dec_data.params.nagain=1;

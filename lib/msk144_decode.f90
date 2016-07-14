@@ -1,5 +1,5 @@
 subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,mycall,hiscall,   &
-     bShMsgs,ntol,line)
+     bShMsgs,ntol,t0,line)
 
 ! Calls the experimental decoder for MSK 72ms/16ms messages
 
@@ -32,7 +32,7 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,mycall,hiscall,   &
   n=log(float(npts))/log(2.0) + 1.0
   nfft=min(2**n,1024*1024)
   call analytic(d,npts,nfft,c)         !Convert to analytic signal and filter
-  call detectmsk144(c,npts,pchk_file,line,nline,nutc,ntol)
+  call detectmsk144(c,npts,pchk_file,line,nline,nutc,ntol,t0)
   if( nprint .ne. 0 ) then
     do i=1,nline
       write(*,'(a80)') line(i)
@@ -41,7 +41,7 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,mycall,hiscall,   &
 
 
   if(nline.eq.0 .and. bShMsgs) then
-    call detectmsk32(c,npts,mycall,hiscall,line,nline,nutc,ntol)
+    call detectmsk32(c,npts,mycall,hiscall,line,nline,nutc,ntol,t0)
     if( nprint .ne. 0 ) then
       do i=1,nline
         write(*,'(a80)') line(i)
