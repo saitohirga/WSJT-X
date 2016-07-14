@@ -1282,7 +1282,9 @@ void MainWindow::fastSink(qint64 frames)
     }
     if(!m_diskData) {           // Always save; may delete later
       QDateTime now {QDateTime::currentDateTimeUtc()};
-      auto const& period_start = now.addSecs (-now.time ().second () % m_TRperiod);
+      int n=now.time().second() % m_TRperiod;
+      if(n<(m_TRperiod/2)) n=n+m_TRperiod;
+      auto const& period_start = now.addSecs (-n);
       m_fnameWE = m_config.save_directory ().absoluteFilePath (period_start.toString ("yyMMdd_hhmmss"));
       m_fileToSave.clear ();
       // the following is potential a threading hazard - not a good
