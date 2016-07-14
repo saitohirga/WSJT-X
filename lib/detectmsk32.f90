@@ -1,4 +1,4 @@
-subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
+subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
   use timer_module, only: timer
 
   parameter (NSPM=192, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=40)
@@ -205,7 +205,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
     imid=times(ip)*fs
     if( imid .lt. NPTS/2 ) imid=NPTS/2
     if( imid .gt. n-NPTS/2 ) imid=n-NPTS/2
-    t0=times(ip)
+    t0=times(ip) + t00
     cdat=cbig(imid-NPTS/2+1:imid+NPTS/2)
     ferr=ferrs(ip)
     nsnr=2*nint(snrs(ip)/2.0)
