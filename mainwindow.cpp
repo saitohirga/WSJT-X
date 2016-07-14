@@ -3977,6 +3977,9 @@ void MainWindow::on_actionMSK144_triggered()
   ui->rptSpinBox->setMaximum(24);
   ui->rptSpinBox->setValue(0);
   ui->rptSpinBox->setSingleStep(2);
+  ui->sbFtol->setMinimum(23);
+  ui->sbFtol->setMaximum(25);
+  ui->sbFtol->setValue(25);
 }
 
 void MainWindow::on_actionQRA64_triggered()
@@ -4256,6 +4259,8 @@ void MainWindow::switch_mode (Mode mode)
   ui->rptSpinBox->setSingleStep(1);
   ui->rptSpinBox->setMinimum(-50);
   ui->rptSpinBox->setMaximum(49);
+  ui->sbFtol->setMinimum(21);
+  ui->sbFtol->setMaximum(27);
 }
 
 void MainWindow::WSPR_config(bool b)
