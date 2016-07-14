@@ -2229,7 +2229,7 @@ void::MainWindow::fast_decode_done()
     int i2=msg0.indexOf(m_hisCall);
     if((m_mode=="JTMSK" or m_mode=="MSK144" or m_bFast9) and m_bEME and tmax>=0.0 and
        i1>10 and i2>i1+3) {     //Here, "m_bEME" implies AutoSeq
-      processMessage(msg0,40,false);
+      if((msg0.indexOf(" 73") < 0) or (m_ntx!=6)) processMessage(msg0,40,false);
     }
     if(m_msg[i][0]==0) break;
     QString message=QString::fromLatin1(m_msg[i]);
