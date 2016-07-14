@@ -434,7 +434,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
       call hash(hashmsg,22,ihash)
       ihash=iand(ihash,127)
 
-      if(nrxhash.eq.ihash .or. t0.gt.0.0) then
+      if(nrxhash.eq.ihash .or. t00.gt.0.0) then
         nmessages=1
         if(nrxhash.eq.ihash) then
            write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),      &
@@ -442,7 +442,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
            write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
 1020       format(i6.6,i4,f5.1,i5,' & ',a22)
         endif
-        if(nrxhash.ne.ihash .and. t0.gt.0.0 .and. nsnr.gt.-4) then
+        if(nrxhash.ne.ihash .and. t00.gt.0.0 .and. nsnr.gt.-4) then
            write(msgreceived,'(a5,1x,a4)') "<...>",rpt(nrxrpt)
            write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
         endif
