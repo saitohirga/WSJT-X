@@ -132,18 +132,18 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
     call four2a(ctmp,NFFT,1,-1,1)
     tonespec=abs(ctmp)**2
 
-    i3800=3800/df+1
-    i4200=4200/df+1
+    ihlo=(4000-2*ntol)/df+1
+    ihhi=(4000+2*ntol)/df+1
     ismask=.false.
-    ismask(i3800:i4200)=.true.  ! high tone search window
+    ismask(ihlo:ihhi)=.true.  ! high tone search window
     iloc=maxloc(tonespec,ismask)
     ihpk=iloc(1)
     deltah=-real( (ctmp(ihpk-1)-ctmp(ihpk+1)) / (2*ctmp(ihpk)-ctmp(ihpk-1)-ctmp(ihpk+1)) )
     ah=tonespec(ihpk)
-    i1800=1800/df+1
-    i2200=2200/df+1
+    illo=(2000-2*ntol)/df+1
+    ilhi=(2000+2*ntol)/df+1
     ismask=.false.
-    ismask(i1800:i2200)=.true.   ! window for low tone
+    ismask(illo:ilhi)=.true.   ! window for low tone
     iloc=maxloc(tonespec,ismask)
     ilpk=iloc(1)
     deltal=-real( (ctmp(ilpk-1)-ctmp(ilpk+1)) / (2*ctmp(ilpk)-ctmp(ilpk-1)-ctmp(ilpk+1)) )
@@ -434,19 +434,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol)
       call hash(hashmsg,22,ihash)
       ihash=iand(ihash,127)
 
-!###
-!Temporarily, check for short messages sent with positive dB and no + sign.
-      ihash2=-1
-      i1=index(hashmsg,'+')
-      if(i1.gt.0) then
-         hashmsg=hashmsg(1:i1-1)//hashmsg(i1+1:22)//' '
-         call hash(hashmsg,22,ihash2)
-         ihash2=iand(ihash2,127)
-      endif
-      if(nrxhash.eq.ihash .or. nrxhash.eq.ihash2) then
-!###
-!      if( nrxhash .eq. ihash ) then
-
+      if( nrxhash.eq.ihash ) then
         nmessages=1
         write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),trim(partnercall),">",rpt(nrxrpt)    
         write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
