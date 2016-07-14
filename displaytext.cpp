@@ -155,11 +155,13 @@ void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall,
         bg=color_CQ.name();
     }
     if (myCall != "" and (
-                          decodedText.indexOf (" " + myCall + " ") >= 0
-                          or decodedText.indexOf (" " + myCall + "/") >= 0
-                          or decodedText.indexOf ("/" + myCall + " ") >= 0
-                          ))
+          decodedText.indexOf (" " + myCall + " ") >= 0
+          or decodedText.indexOf (" " + myCall + "/") >= 0
+          or decodedText.indexOf ("/" + myCall + " ") >= 0
+          or decodedText.indexOf ("<" + myCall + " ") >= 0
+          or decodedText.indexOf (" " + myCall + ">") >= 0)) {
       bg=color_MyCall.name();
+    }
 
     // if enabled add the DXCC entity and B4 status to the end of the preformated text line t1
     if (displayDXCCEntity && CQcall)
