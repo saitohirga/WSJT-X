@@ -18,19 +18,20 @@ program msk144d
   character*12 mycall,hiscall
   character(len=500) optarg
 
-  type (option) :: long_options(4) = [ &
+  type (option) :: long_options(5) = [ &
        option ('help',.false.,'h','Display this help message',''), &
        option ('mycall',.true.,'c','mycall',''), &
+       option ('evemode',.true.,'e','',''), &
        option ('nftol',.true.,'n','nftol',''), &
        option ('hiscall',.true.,'x','hiscall','') &  
        ]
-  
+  t0=0.0
   ntol=100
   mycall=''
   hiscall=''
  
   do
-     call getopt('c:hn:x:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+     call getopt('c:ehn:x:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
      if( nstat .ne. 0 ) then
         exit
      end if
@@ -39,6 +40,8 @@ program msk144d
         display_help = .true.
      case ('c')
         read (optarg(:narglen), *) mycall
+     case ('e')
+        t0=1e-4
      case ('n')
         read (optarg(:narglen), *) ntol
      case ('x')
@@ -78,7 +81,7 @@ program msk144d
      read(unit=wav%lun) id2(1:npts)
      close(unit=wav%lun)
      call timer('read    ',1)
-     call msk144_decode(id2,npts,nutc,1,pchk_file,mycall,hiscall,bShMsgs,ntol,line)
+     call msk144_decode(id2,npts,nutc,1,pchk_file,mycall,hiscall,bShMsgs,ntol,t0,line)
   enddo
 
   call timer('msk144    ',1)
