@@ -851,7 +851,7 @@ QLabel[oob=&quot;true&quot;] {
                       <item>
                        <widget class="QSpinBox" name="syncSpinBox">
                         <property name="toolTip">
-                         <string>Synchorizing threshold</string>
+                         <string>Synchronizing threshold</string>
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignCenter</set>
