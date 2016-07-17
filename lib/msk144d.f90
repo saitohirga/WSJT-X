@@ -64,7 +64,7 @@ program msk144d
   endif
 
   call init_timer ('timer.out')
-  call timer('jt65    ',0)
+  call timer('msk144  ',0)
   bShMsgs=.true.
   pchk_file='./peg-128-80-reg3.pchk'
   ndecoded=0
@@ -84,8 +84,8 @@ program msk144d
      call msk144_decode(id2,npts,nutc,1,pchk_file,mycall,hiscall,bShMsgs,ntol,t0,line)
   enddo
 
-  call timer('msk144    ',1)
-  call timer('msk144    ',101)
+  call timer('msk144  ',1)
+  call timer('msk144  ',101)
   go to 999
 
 998 print*,'Cannot read from file:'

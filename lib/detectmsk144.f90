@@ -1,7 +1,7 @@
 subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
   use timer_module, only: timer
 
-  parameter (NSPM=864, NPTS=3*NSPM, MAXSTEPS=1700, NFFT=NSPM, MAXCAND=12)
+  parameter (NSPM=864, NPTS=3*NSPM, MAXSTEPS=1700, NFFT=NSPM, MAXCAND=16)
   character*22 msgreceived,allmessages(20)
   character*80 lines(100)
   character*512 pchk_file,gen_file
@@ -149,14 +149,14 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
   do ip=1,MAXCAND ! Find candidates
     iloc=maxloc(detmet(1:nstep))
     il=iloc(1)
-    if( (detmet(il) .lt. 3.5) ) exit 
+    if( (detmet(il) .lt. 4.0) ) exit 
     if( abs(detfer(il)) .le. ntol ) then 
       ndet=ndet+1
       times(ndet)=((il-1)*216+NSPM/2)*dt
       ferrs(ndet)=detfer(il)
       snrs(ndet)=12.0*log10(detmet(il))/2-9.0
     endif
-!    detmet(max(1,il-2):min(nstep,il+2))=0.0
+!    detmet(max(1,il-1):min(nstep,il+1))=0.0
     detmet(il)=0.0
   enddo
 
@@ -261,7 +261,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
 ! Final estimate of the carrier frequency - returned to the calling program
           fest=1500+ferr+ferr2 
 
-        do idf=0,6   ! frequency jitter
+        do idf=0,4   ! frequency jitter
           if( idf .eq. 0 ) then
             deltaf=0.0
           elseif( mod(idf,2) .eq. 0 ) then
@@ -355,8 +355,10 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
   
               max_iterations=10
               max_dither=1
+              call timer('ldpcdecod',0)
               call ldpc_decode(lratio, decoded, &
                            max_iterations, niterations, max_dither, ndither)
+              call timer('ldpcdecod',1)
 
               if( niterations .ge. 0.0 ) then
                 call extractmessage144(decoded,msgreceived,nhashflag)
