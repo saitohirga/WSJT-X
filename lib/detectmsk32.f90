@@ -4,7 +4,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
   parameter (NSPM=192, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=40)
   character*4 rpt(0:31)
   character*6 mycall,partnercall
-  character*22 msg,hashmsg,msgreceived,allmessages(20)
+  character*22 hashmsg,msgreceived,allmessages(20)
   character*80 lines(100)
   complex cbig(n)
   complex cdat(NPTS)                    !Analytic signal
@@ -349,7 +349,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
               s2av=sum(softbits*softbits)/32
               ssig=sqrt(s2av-sav*sav)
               softbits=softbits/ssig
-            
+              call timer('search32',0) 
               if( qsocontext ) then  ! search only 32 likely messages.
                 cd=1e6
                 ihammd=99
@@ -383,6 +383,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
                   enddo
                 enddo
               endif
+              call timer('search32',1) 
               cdm=minval(cd)
               iloc=minloc(cd)
               imsg=iloc(1)-1
