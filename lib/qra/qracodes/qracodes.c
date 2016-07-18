@@ -27,8 +27,6 @@
 
 #include "qracodes.h"
 
-#define QRA_DEBUG 
-
 int qra_encode(const qracode *pcode, int *y, const int *x)
 {
 	int k,j,kk,jj;
@@ -144,7 +142,7 @@ static void qra_ioapprox(float *src, float C, int nitems)
 }
 
 
-void qra_mfskbesselmetric(float *pix, const float *rsq, const int m, const int N, float EsNoMetric)
+float qra_mfskbesselmetric(float *pix, const float *rsq, const int m, const int N, float EsNoMetric)
 {
 	// Computes the codeword symbols intrinsic probabilities
 	// given the square of the received input amplitudes.
@@ -166,6 +164,8 @@ void qra_mfskbesselmetric(float *pix, const float *rsq, const int m, const int N
 	// The metric computed in this way is optimal only at this predefined Es/No value,
 	// nevertheless it is usually better than a generic parameter-free metric which
 	// makes no assumptions on the input Es/No.
+
+	// returns the estimated noise standard deviation
 
 	int k;
 	float rsum = 0.f;
@@ -196,7 +196,7 @@ void qra_mfskbesselmetric(float *pix, const float *rsq, const int m, const int N
 		pd_norm(PD_ROWADDR(pix,M,k),m);
 		}
 
-	return;
+	return sigmaest;
 }
 
 

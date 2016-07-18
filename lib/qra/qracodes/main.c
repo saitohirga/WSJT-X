@@ -56,18 +56,38 @@
 	#include <process.h>   // _beginthread
 #endif
 
-#if __linux__
-#include <unistd.h>
+#if defined(__linux__)
+
+// remove unwanted macros
+#define __cdecl
+
+// implements Windows API
 #include <time.h>
 
- GetTickCount(void) {
+ unsigned int GetTickCount(void) {
     struct timespec ts;
-     theTick = 0U;
+    unsigned int theTick = 0U;
     clock_gettime( CLOCK_REALTIME, &ts );
     theTick  = ts.tv_nsec / 1000000;
     theTick += ts.tv_sec * 1000;
     return theTick;
 }
+
+// Convert Windows millisecond sleep
+//
+// VOID WINAPI Sleep(_In_ DWORD dwMilliseconds);
+//
+// to Posix usleep (in microseconds)
+//
+// int usleep(useconds_t usec);
+//
+#include <unistd.h>
+#define Sleep(x)  usleep(x*1000)
+
+#endif
+
+#if defined(__linux__) || ( defined(__MINGW32__) || defined (__MIGW64__) )
+#include <pthread.h>
 #endif
 
 #if __APPLE__
@@ -86,7 +106,7 @@
 
 // -----------------------------------------------------------------------------------
 
-#define NTHREADS_MAX 24	
+#define NTHREADS_MAX 160	
 
 // channel types
 #define CHANNEL_AWGN     0
@@ -367,8 +387,20 @@ void wer_test_thread(wer_test_ds *pdata)
 
 	pdata->done=1;
 
+	#if _WIN32
 	_endthread();
+	#endif
 }
+
+#if defined(__linux__) || ( defined(__MINGW32__) || defined (__MIGW64__) )
+
+void *wer_test_pthread(void *p)
+{
+	wer_test_thread ((wer_test_ds *)p);
+	return 0;
+}
+
+#endif
 
 void ix_mask(const qracode *pcode, float *r, const int *mask, const int *x)
 {
@@ -454,7 +486,14 @@ int wer_test_proc(const qracode *pcode, int nthreads, int chtype, int ap_index, 
 			wt[j].nerrsu=0;
 			wt[j].done = 0;
 			wt[j].stop = 0;
+			#if defined(__linux__) || ( defined(__MINGW32__) || defined (__MIGW64__) )
+			if (pthread_create (&wt[j].thread, 0, wer_test_pthread, &wt[j])) {
+				perror ("Creating thread: ");
+				exit (255);
+			}
+			#else
 			_beginthread((void*)(void*)wer_test_thread,0,&wt[j]);
+			#endif
 			}
 
 		nd = 0;
@@ -487,9 +526,19 @@ int wer_test_proc(const qracode *pcode, int nthreads, int chtype, int ap_index, 
 
 		// wait for the working threads to exit
 		for (j=0;j<nthreads;j++) 
+		#if defined(__linux__) || ( defined(__MINGW32__) || defined (__MIGW64__) )
+		{
+			void *rc;
+			if (pthread_join (wt[j].thread, &rc)) {
+				perror ("Waiting working threads to exit");
+				exit (255);
+			}
+		}
+		#else
 			while(wt[j].done==0)
 				Sleep(1);
 
+		#endif
 		printf("\n");
 		fflush (stdout);
 
@@ -601,6 +650,7 @@ int main(int argc, char* argv[])
 		else
 		if (strncmp(*argv,"-t",2)==0) {
 			nthreads = (int)atoi((*argv)+2);
+			printf("nthreads = %d\n",nthreads);
 			if (nthreads>NTHREADS_MAX) {
 				printf("Invalid number of threads\n");
 				syntax();

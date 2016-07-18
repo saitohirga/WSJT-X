@@ -89,6 +89,9 @@ unsigned GetTickCount(void) {
 #define CHANNEL_AWGN     0
 #define CHANNEL_RAYLEIGH 1
 
+#define JT65_SNR_EBNO_OFFSET 29.1f		// with the synch used in JT65
+#define QRA64_SNR_EBNO_OFFSET 31.0f		// with the costas array synch 
+
 void printwordd(char *msg, int *x, int size)
 {
   int k;
@@ -171,13 +174,21 @@ symbol.
 #define GRID_JN66		0x3AE4		// JN66
 #define GRID_73 		0x7ED0		// 73
 
-char decode_type[6][32] = {
+char decode_type[9][32] = {
   "[?    ?    ?] AP0",
   "[CQ   ?    ?] AP27",
   "[CQ   ?     ] AP42",
   "[CALL ?    ?] AP29",
   "[CALL ?     ] AP44",
-  "[CALL CALL ?] AP57"
+  "[CALL CALL ?] AP57",
+  "[?    CALL ?] AP29",
+  "[?    CALL  ] AP44",
+  "[CALL CALL G] AP72"
+};
+char apmode_type[3][32] = {
+  "NO AP",
+  "AUTO AP",
+  "USER AP"
 };
 
 int test_proc_1(int channel_type, float EbNodB, int mode)
@@ -229,10 +240,10 @@ be decoded
   float *rx;
   int rc;
 
-// Each simulated station must use its own codec, since it might work with
+// Each simulated station must use its own codec since it might work with
 // different a-priori information.
-  qra64codec *codec_iv3nwv = qra64_init(mode,CALL_IV3NWV);  // codec for IV3NWV
-  qra64codec *codec_k1jt   = qra64_init(mode,CALL_K1JT);    // codec for K1JT
+  qra64codec *codec_iv3nwv = qra64_init(mode);  // codec for IV3NWV
+  qra64codec *codec_k1jt   = qra64_init(mode);    // codec for K1JT
 
 // Step 1a: IV3NWV makes a CQ call (with no grid)
   printf("IV3NWV tx: CQ IV3NWV\n");
@@ -241,7 +252,7 @@ be decoded
   rx = mfskchannel(y,channel_type,EbNodB);
 
 // Step 1b: K1JT attempts to decode [? ? ?], [CQ/QRZ ? ?] or [CQ/QRZ ?]
-  rc = qra64_decode(codec_k1jt, xdec,rx);
+  rc = qra64_decode(codec_k1jt, 0, xdec,rx);
   if (rc>=0) { // decoded
     printf("K1JT   rx: received with apcode=%d %s\n",rc, decode_type[rc]);
 
@@ -252,7 +263,7 @@ be decoded
     rx = mfskchannel(y,channel_type,EbNodB);
 
 // Step 2b: IV3NWV attempts to decode [? ? ?], [IV3NWV ? ?] or [IV3NWV ?]
-    rc = qra64_decode(codec_iv3nwv, xdec,rx);
+    rc = qra64_decode(codec_iv3nwv, 0, xdec,rx);
     if (rc>=0) { // decoded
       printf("IV3NWV rx: received with apcode=%d %s\n",rc, decode_type[rc]);
 
@@ -263,7 +274,7 @@ be decoded
       rx = mfskchannel(y,channel_type,EbNodB);
 
 // Step 3b: K1JT attempts to decode [? ? ?] or [K1JT IV3NWV ?]
-      rc = qra64_decode(codec_k1jt, xdec,rx);
+      rc = qra64_decode(codec_k1jt, 0, xdec,rx);
       if (rc>=0) { // decoded
 	printf("K1JT   rx: received with apcode=%d %s\n",rc, decode_type[rc]);
 
@@ -274,7 +285,7 @@ be decoded
 	rx = mfskchannel(y,channel_type,EbNodB);
 
 // Step 4b: IV3NWV attempts to decode [? ? ?], [IV3NWV ? ?], or [IV3NWV ?]
-	rc = qra64_decode(codec_iv3nwv, xdec,rx);
+	rc = qra64_decode(codec_iv3nwv, 0, xdec,rx);
 	if (rc>=0) { // decoded
 	  printf("IV3NWV rx: received with apcode=%d %s\n",rc, decode_type[rc]);
 	  return 0;
@@ -282,7 +293,7 @@ be decoded
       }
     }
   }
-  printf("the other party did not decode\n");
+  printf("no decode\n");
   return -1;
 }
 
@@ -307,6 +318,9 @@ message according to this table:
  rc=3    [CALL ?    ?] AP29
  rc=4    [CALL ?     ] AP44
  rc=5    [CALL CALL ?] AP57
+ rc=6    [?    CALL ?]     AP29
+ rc=7    [?    CALL  ]     AP44
+ rc=8    [CALL CALL GRID ] AP72
 
 The return code is <0 when decoding is unsuccessful
 
@@ -317,42 +331,67 @@ a particular type decode among the above 6 cases succeded.
   int x[QRA64_K], xdec[QRA64_K];
   int y[QRA64_N];
   float *rx;
+  float ebnodbest, ebnodbavg=0;
   int rc,k;
 
-  int ndecok[6] = { 0, 0, 0, 0, 0, 0};
+  int ndecok[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int nundet = 0;
   int ntx = 100,ndec=0;
 
-  qra64codec *codec_iv3nwv = qra64_init(mode,CALL_IV3NWV);   // codec for IV3NWV
-  qra64codec *codec_k1jt   = qra64_init(mode,CALL_K1JT);     // codec for K1JT
+  qra64codec *codec_iv3nwv = qra64_init(mode);   // codec for IV3NWV
+  qra64codec *codec_k1jt   = qra64_init(mode);     // codec for K1JT
 
-// This will enable K1JT's decoder to look for IV3NWV calls
-  encodemsg_jt65(x,CALL_IV3NWV,CALL_K1JT,GRID_BLANK);
-  qra64_encode(codec_k1jt, y, x);
-  printf("K1JT   tx: IV3NWV K1JT\n");
+  printf("\nQRA64 Test #2 - Decoding with AP knowledge (SNR-Eb/No offset = %.1f dB)\n\n",
+		   QRA64_SNR_EBNO_OFFSET);
+
+// This will enable K1JT's decoder to look for calls directed to him [K1JT ? ?/b]
+  printf("K1JT decoder enabled for [K1JT  ?     ?/blank]\n");
+  qra64_apset(codec_k1jt, CALL_K1JT,0,0,APTYPE_MYCALL);
+
+// This will enable K1JT's decoder to look for IV3NWV calls directed to him [K1JT IV3NWV ?/b]
+  printf("K1JT decoder enabled for [K1JT IV3NWV ?]\n");
+  qra64_apset(codec_k1jt, CALL_K1JT,CALL_IV3NWV,0,APTYPE_BOTHCALLS);
+
+// This will enable K1JT's decoder to look for msges sent by IV3NWV [? IV3NWV ?]
+  printf("K1JT decoder enabled for [?    IV3NWV ?/blank]\n");
+  qra64_apset(codec_k1jt, 0,CALL_IV3NWV,GRID_BLANK,APTYPE_HISCALL);
+
+// This will enable K1JT's decoder to look for full-knowledge [K1JT IV3NWV JN66] msgs
+  printf("K1JT decoder enabled for [K1JT IV3NWV JN66]\n");
+  qra64_apset(codec_k1jt, CALL_K1JT,CALL_IV3NWV,GRID_JN66,APTYPE_FULL);
 
   // IV3NWV reply to K1JT
-  printf("IV3NWV tx: K1JT IV3NWV JN66\n");
+  printf("\nIV3NWV encoder sends msg: [K1JT IV3NWV JN66]\n\n");
   encodemsg_jt65(x,CALL_K1JT,CALL_IV3NWV,GRID_JN66);
   qra64_encode(codec_iv3nwv, y, x);
 
-  printf("Simulating decodes by K1JT up to AP56 ...");
+  printf("Simulating K1JT decoder up to AP72\n");
 
   for (k=0;k<ntx;k++) {
     printf(".");
     rx = mfskchannel(y,channel_type,EbNodB);
-    rc = qra64_decode(codec_k1jt, xdec,rx);
-    if (rc>=0) 
-      ndecok[rc]++;
+    rc = qra64_decode(codec_k1jt, &ebnodbest, xdec,rx);
+	if (rc>=0) {
+	  ebnodbavg +=ebnodbest;
+	  if (memcmp(xdec,x,12*sizeof(int))==0)
+		ndecok[rc]++;
+	  else
+	    nundet++;
+	}
   }
-  printf("\n");
+  printf("\n\n");
 
-  printf("Transimtted:%d - Decoded:\n",ntx);
-  for (k=0;k<6;k++) {
+
+  printf("Transimtted msgs:%d\nDecoded msgs:\n\n",ntx);
+  for (k=0;k<9;k++) {
     printf("%3d with %s\n",ndecok[k],decode_type[k]);
     ndec += ndecok[k];
   }
-  printf("Total: %d/%d\n",ndec,ntx);
-  printf("\n");
+  printf("\nTotal: %d/%d (%d undetected errors)\n\n",ndec,ntx,nundet);
+  printf("");
+
+  ebnodbavg/=(ndec+nundet);
+  printf("Estimated SNR (average in dB) = %.2f dB\n\n",ebnodbavg-QRA64_SNR_EBNO_OFFSET);
 
   return 0;
 }
@@ -366,7 +405,7 @@ void syntax(void)
   printf("Options: \n");
   printf("       -s<snrdb>   : set simulation SNR in 2500 Hz BW (default:-27.5 dB)\n");
   printf("       -c<channel> : set channel type 0=AWGN (default) 1=Rayleigh\n");
-  printf("       -a<ap-type> : set decode type 0=NO_AP 1=AUTO_AP (default)\n");
+  printf("       -a<ap-type> : set decode type 0=NOAP 1=AUTOAP (default) 2=USERAP\n");
   printf("       -t<testtype>: 0=simulate seq of msgs between IV3NWV and K1JT (default)\n");
   printf("                     1=simulate K1JT receiving K1JT IV3NWV JN66\n");
   printf("       -h: this help\n");
@@ -391,7 +430,7 @@ int main(int argc, char* argv[])
     } else {
       if (strncmp(*argv,"-a",2)==0) {
 	mode = ( int)atoi((*argv)+2);
-	if (mode>1) {
+	if (mode>2) {
 	  printf("Invalid decoding mode\n");
 	  syntax();
 	  return -1;
@@ -399,8 +438,8 @@ int main(int argc, char* argv[])
       } else {
 	if (strncmp(*argv,"-s",2)==0) {
 	  SNRdB = (float)atof((*argv)+2);
-	  if (SNRdB>0 || SNRdB<-40) {
-	    printf("SNR should be in the range [-40..0]\n");
+	  if (SNRdB>20 || SNRdB<-40) {
+	    printf("SNR should be in the range [-40..20]\n");
 	    syntax();
 	    return -1;
 	  }
@@ -431,7 +470,7 @@ int main(int argc, char* argv[])
     }
   }
   
-  EbNodB = SNRdB+29.1f;
+  EbNodB = SNRdB+QRA64_SNR_EBNO_OFFSET;	
   
 #if defined(__linux__) || defined(__unix__)
   srand48(GetTickCount());
@@ -449,10 +488,10 @@ int main(int argc, char* argv[])
     test_proc_2(channel, EbNodB, mode);
   }
   
-  printf("SNR = %.1fdB channel=%s ap-mode=%s\n\n",
+  printf("Input SNR = %.1fdB channel=%s ap-mode=%s\n\n",
 	 SNRdB,
 	 channel==CHANNEL_AWGN?"AWGN":"RAYLEIGH",
-	 mode==QRA_NOAP?"NO_AP":"AUTO_AP"
+	 apmode_type[mode]
 	 );
   return 0;
 }
