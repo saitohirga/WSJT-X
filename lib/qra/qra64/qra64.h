@@ -23,8 +23,9 @@
 #define _qra64_h_
 
 // qra64_init(...) initialization flags
-#define QRA_NOAP   0	// don't use a-priori knowledge
-#define QRA_AUTOAP 1	// use  auto a-priori knowledge 
+#define QRA_NOAP     0	// don't use a-priori knowledge
+#define QRA_AUTOAP   1	// use  auto a-priori knowledge 
+#define QRA_USERAP   2	// a-priori knowledge messages provided by the user
 
 // QRA code parameters
 #define QRA64_K  12	// information symbols
@@ -42,33 +43,48 @@
 #define CALL_DE  		0xFF641D1
 #define GRID_BLANK		0x7E91
 
+// Types of a-priori knowledge messages
+#define APTYPE_CQQRZ     0	// [cq/qrz ?       ?/blank]
+#define APTYPE_MYCALL    1	// [mycall ?       ?/blank]
+#define APTYPE_HISCALL   2  // [?      hiscall ?/blank]
+#define APTYPE_BOTHCALLS 3  // [mycall hiscall ?]
+#define APTYPE_FULL		 4  // [mycall hiscall grid]
+#define APTYPE_SIZE		(APTYPE_FULL+1)
+
 typedef struct {
   float decEsNoMetric;
   int apflags;
-  int apmycall;
-  int apsrccall;
-  int apmsg_cqqrz[12];		// [cq/qrz ? blank] 
-  int apmsg_call1[12];		// [mycall ? blank] 
-  int apmsg_call1_call2[12];	// [mycall srccall ?]
+  int apmsg_set[APTYPE_SIZE];     // indicate which ap type knowledge has been set by the user
+  // ap messages buffers
+  int apmsg_cqqrz[12];		      // [cq/qrz ?       ?/blank] 
+  int apmsg_call1[12];		      // [mycall ?       ?/blank] 
+  int apmsg_call2[12];		      // [?      hiscall ?/blank] 
+  int apmsg_call1_call2[12];      // [mycall hiscall ?]
+  int apmsg_call1_call2_grid[12]; // [mycall hiscall grid]
+  // ap messages masks
   int apmask_cqqrz[12];		
   int apmask_cqqrz_ooo[12];	
   int apmask_call1[12];        
   int apmask_call1_ooo[12];    
+  int apmask_call2[12];        
+  int apmask_call2_ooo[12];    
   int apmask_call1_call2[12];  
+  int apmask_call1_call2_grid[12];  
 } qra64codec;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-qra64codec *qra64_init(int flags, const int mycall);
+qra64codec *qra64_init(int flags);
 // QRA64 mode initialization function
 // arguments:
 //		flags: set the decoder mode
 //				When flags = QRA_NOAP    no a-priori information will be used by the decoder
 //				When flags = QRA_AUTOAP  the decoder will attempt to decode with the amount
 //              of available a-priori information
-//		mycall: 28-bit packed callsign of the user (as computed by JT65)
+//				When flags = QRA_USERAP  the decoder will attempt to decode with the amount
+//				of a-priori information as provided by the caller with the function qra64_apset(...)
 // returns:
 //      Pointer to the qra64codec data structure allocated and inizialized by the function
 //		this handle should be passed to the encoding/decoding functions
@@ -86,10 +102,12 @@ void qra64_encode(qra64codec *pcodec, int *y, const int *x);
 //				 y must point to an array of integers of lenght 63 (i.e. defined as int y[63])
 // -------------------------------------------------------------------------------------------
 
-int  qra64_decode(qra64codec *pcodec, int *x, const float *r);
+int  qra64_decode(qra64codec *pcodec, float *ebno, int *x, const float *r);
 // QRA64 mode decoder
 // arguments:
 //		pcodec = pointer to a qra64codec data structure as returned by qra64_init
+//      ebno   = pointer to a float number where the avg Eb/No (in dB) will be stored 
+//               in case of successfull decoding (pass a null pointer if not interested)
 //      x      = pointer to the array of integers where the decoded message will be stored
 //				 x must point to an array of integers (i.e. defined as int x[12])
 //		r      = pointer to the received symbols energies (squared amplitudes)
@@ -102,14 +120,54 @@ int  qra64_decode(qra64codec *pcodec, int *x, const float *r);
 //  The return code is <0 when decoding is unsuccessful
 //  -16 indicates that the definition of QRA64_NMSG does not match what required by the code
 //  If the decoding process is successfull the return code is accordingly to the following table
-//		rc=0    [?    ?    ?] AP0	(decoding with no a-priori)
-//		rc=1    [CQ   ?    ?] AP27
-//		rc=2    [CQ   ?     ] AP44
-//		rc=3    [CALL ?    ?] AP29
-//		rc=4    [CALL ?     ] AP45
-//		rc=5    [CALL CALL ?] AP57
-//  return codes in the range 1-5 indicate the amount of a-priori information which was required
-//  to decode the received message and are possible only when the QRA_AUTOAP mode has been enabled.
+//		rc=0    [?    ?    ?]    AP0	(decoding with no a-priori)
+//		rc=1    [CQ   ?    ?]    AP27
+//		rc=2    [CQ   ?     ]    AP44
+//		rc=3    [CALL ?    ?]    AP29
+//		rc=4    [CALL ?     ]    AP45
+//		rc=5    [CALL CALL ?]    AP57
+//		rc=6    [?    CALL ?]    AP29
+//		rc=7    [?    CALL  ]    AP45
+//		rc=8    [CALL CALL GRID] AP72
+//  return codes in the range 1-8 indicate the amount and the type of a-priori information 
+//  which was required to decode the received message 
+
+int qra64_apset(qra64codec *pcodec, const int mycall, const int hiscall, const int grid, const int aptype);
+// Set decoder a-priori knowledge accordingly to the type of the message to look up for
+// arguments:
+//		pcodec    = pointer to a qra64codec data structure as returned by qra64_init
+//		mycall    = mycall to look for
+//		hiscall   = hiscall to look for
+//		grid      = grid to look for
+//		aptype    = define the type of AP to be set accordingly to the following table:
+//			APTYPE_CQQRZ     set [cq/qrz ?       ?/blank]
+//			APTYPE_MYCALL    set [mycall ?       ?/blank]
+//			APTYPE_HISCALL   set [?      hiscall ?/blank]
+//			APTYPE_BOTHCALLS set [mycall hiscall ?]
+//			APTYPE_FULL		 set [mycall hiscall grid]
+// returns:
+//		0   on success
+//      -1  when qra64_init was called with the QRA_NOAP flag
+//		-2  invalid apytpe (aptype must be in the range [APTYPE_MYCALL..APTYPE_FULL]
+//			(APTYPE_CQQRZ [cq/qrz ? ?] is set during the initialization function and 
+//           doesn't need to be set by the user
+
+void qra64_apdisable(qra64codec *pcodec, const int aptype);
+// disable specific AP type
+// arguments:
+//		pcodec    = pointer to a qra64codec data structure as returned by qra64_init
+//		aptype    = define the type of AP to be disabled
+//			APTYPE_CQQRZ     disable [cq/qrz ?       ?/blank]
+//			APTYPE_MYCALL    disable [mycall ?       ?/blank]
+//			APTYPE_HISCALL   disable [?      hiscall ?/blank]
+//			APTYPE_BOTHCALLS disable [mycall hiscall ?]
+//			APTYPE_FULL		 disable [mycall hiscall grid]
+
+void qra64_close(qra64codec *pcodec);
+// Free memory allocated by qra64_init
+// arguments:
+//		pcodec = pointer to a qra64codec data structure as returned by qra64_init
+
 // -------------------------------------------------------------------------------------------
 
 // encode/decode std msgs in 12 symbols as done in jt65

@@ -67,10 +67,10 @@ typedef struct {
 extern "C" {
 #endif
 
-int  qra_encode(const qracode *pcode, int *y, const int *x);
-void qra_mfskbesselmetric(float *pix, const float *rsq, const int m, const int N, float EsNoMetric);
-int  qra_extrinsic(const qracode *pcode, float *pex, const float *pix, int maxiter,float *qra_v2cmsg,float *qra_c2vmsg);
-void qra_mapdecode(const qracode *pcode, int *xdec, float *pex, const float *pix);
+int   qra_encode(const qracode *pcode, int *y, const int *x);
+float qra_mfskbesselmetric(float *pix, const float *rsq, const int m, const int N, float EsNoMetric);
+int   qra_extrinsic(const qracode *pcode, float *pex, const float *pix, int maxiter,float *qra_v2cmsg,float *qra_c2vmsg);
+void  qra_mapdecode(const qracode *pcode, int *xdec, float *pex, const float *pix);
 
 #ifdef __cplusplus
 }

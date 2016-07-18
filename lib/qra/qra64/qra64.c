@@ -35,6 +35,7 @@ resulting code is a (12,63) code
 
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #include "qra64.h"
 #include "../qracodes/qracodes.h"
@@ -64,7 +65,7 @@ static int  qra64_do_decode(int *x, const float *pix, const int *ap_mask,
 #define MASK_GRIDBIT	0x8000	  // b[15] is 1 for free text, 0 otherwise
 // ----------------------------------------------------------------------------
 
-qra64codec *qra64_init(int flags, const int mycall)
+qra64codec *qra64_init(int flags)
 {
 
   // Eb/No value for which we optimize the decoder metric
@@ -80,31 +81,92 @@ qra64codec *qra64_init(int flags, const int mycall)
   pcodec->decEsNoMetric   = 1.0f*QRA64_m*R*EbNoMetric;
   pcodec->apflags			= flags;
 
-  if (flags!=QRA_AUTOAP)
+  memset(pcodec->apmsg_set,0,APTYPE_SIZE*sizeof(int));
+
+  if (flags==QRA_NOAP)
     return pcodec;
 
-  // initialize messages and mask for decoding with a-priori information
+  // for QRA_USERAP and QRA_AUTOAP modes we always enable [CQ/QRZ ? ?] mgs look-up.
+  // encode CQ/QRZ AP messages 
+  // NOTE: Here we handle only CQ and QRZ msgs. 
+  // 'CQ nnn', 'CQ DX' and 'DE' msgs will be handled by the decoder 
+  // as messages with no a-priori knowledge
+  qra64_apset(pcodec, CALL_CQ, 0, GRID_BLANK, APTYPE_CQQRZ);
 
-  pcodec->apmycall  = mycall;
-  pcodec->apsrccall = 0;	
+  // initialize masks for decoding with a-priori information
+  encodemsg_jt65(pcodec->apmask_cqqrz,     MASK_CQQRZ, 0, MASK_GRIDBIT);     
+  encodemsg_jt65(pcodec->apmask_cqqrz_ooo, MASK_CQQRZ, 0, MASK_GRIDFULL);
+  encodemsg_jt65(pcodec->apmask_call1,     MASK_CALL1, 0, MASK_GRIDBIT);
+  encodemsg_jt65(pcodec->apmask_call1_ooo, MASK_CALL1, 0, MASK_GRIDFULL);
+  encodemsg_jt65(pcodec->apmask_call2,     0, MASK_CALL2, MASK_GRIDBIT);
+  encodemsg_jt65(pcodec->apmask_call2_ooo, 0, MASK_CALL2, MASK_GRIDFULL);
+  encodemsg_jt65(pcodec->apmask_call1_call2,     MASK_CALL1,MASK_CALL2, MASK_GRIDBIT);
+  encodemsg_jt65(pcodec->apmask_call1_call2_grid,MASK_CALL1,MASK_CALL2, MASK_GRIDFULL);
 
-  // encode CQ/QRZ messages and masks
-  // NOTE: Here we handle only CQ and QRZ msgs
-  // 'CQ nnn', 'CQ DX' and 'DE' msgs 
-  // will be handled by the decoder as messages with no a-priori knowledge
-  encodemsg_jt65(pcodec->apmsg_cqqrz, CALL_CQ, 0, GRID_BLANK);
-  encodemsg_jt65(pcodec->apmask_cqqrz, MASK_CQQRZ,0, MASK_GRIDBIT);     // AP27
-  encodemsg_jt65(pcodec->apmask_cqqrz_ooo, MASK_CQQRZ,0, MASK_GRIDFULL);// AP42
-
-  // encode [mycall ? x] messages and set masks
-  encodemsg_jt65(pcodec->apmsg_call1,  mycall,  0, GRID_BLANK);
-  encodemsg_jt65(pcodec->apmask_call1, MASK_CALL1, 0, MASK_GRIDBIT);	// AP29
-  encodemsg_jt65(pcodec->apmask_call1_ooo, MASK_CALL1,0, MASK_GRIDFULL);// AP44
-
-  // set mask for  [mycall srccall ?] messages
-  encodemsg_jt65(pcodec->apmask_call1_call2,MASK_CALL1,MASK_CALL2, 
-		 MASK_GRIDBIT);                                         // AP56
   return pcodec;
+}
+
+void qra64_close(qra64codec *pcodec)
+{
+	free(pcodec);
+}
+
+int qra64_apset(qra64codec *pcodec, const int mycall, const int hiscall, const int grid, const int aptype)
+{
+// Set decoder a-priori knowledge accordingly to the type of the message to look up for
+// arguments:
+//		pcodec    = pointer to a qra64codec data structure as returned by qra64_init
+//		mycall    = mycall to look for
+//		hiscall   = hiscall to look for
+//		grid      = grid to look for
+//		aptype    = define and masks the type of AP to be set accordingly to the following:
+//			APTYPE_CQQRZ     set [cq/qrz ?       ?/blank]
+//			APTYPE_MYCALL    set [mycall ?       ?/blank]
+//			APTYPE_HISCALL   set [?      hiscall ?/blank]
+//			APTYPE_BOTHCALLS set [mycall hiscall ?]
+//			APTYPE_FULL		 set [mycall hiscall grid]
+// returns:
+//		0   on success
+//      -1  when qra64_init was called with the QRA_NOAP flag
+//		-2  invalid apytpe
+
+	if (pcodec->apflags==QRA_NOAP)
+		return -1;
+
+	switch (aptype) {
+		case APTYPE_CQQRZ:
+			encodemsg_jt65(pcodec->apmsg_cqqrz,  CALL_CQ, 0, GRID_BLANK);
+			break;
+		case APTYPE_MYCALL:
+			encodemsg_jt65(pcodec->apmsg_call1,  mycall,  0, GRID_BLANK);
+			break;
+		case APTYPE_HISCALL:
+			encodemsg_jt65(pcodec->apmsg_call2,  0, hiscall, GRID_BLANK);
+			break;
+		case APTYPE_BOTHCALLS:
+			encodemsg_jt65(pcodec->apmsg_call1_call2,  mycall, hiscall, GRID_BLANK);
+			break;
+		case APTYPE_FULL:
+			encodemsg_jt65(pcodec->apmsg_call1_call2_grid,  mycall, hiscall, grid);
+			break;
+		default:
+			return -2;	// invalid ap type
+		}
+
+	  pcodec->apmsg_set[aptype]=1;	// signal the decoder to look-up for the specified type
+
+
+	  return 0;
+}
+void qra64_apdisable(qra64codec *pcodec, const int aptype)
+{
+	if (pcodec->apflags==QRA_NOAP)
+		return;
+
+	if (aptype<APTYPE_CQQRZ || aptype>APTYPE_FULL)
+		return;
+
+	pcodec->apmsg_set[aptype] = 0;	//  signal the decoder not to look-up to the specified type
 }
 
 void qra64_encode(qra64codec *pcodec, int *y, const int *x)
@@ -112,7 +174,7 @@ void qra64_encode(qra64codec *pcodec, int *y, const int *x)
   int encx[QRA64_KC];	// encoder input buffer
   int ency[QRA64_NC];	// encoder output buffer
 
-  int call1,call2,grid;
+  int hiscall,mycall,grid;
 
   memcpy(encx,x,QRA64_K*sizeof(int));		// Copy input to encoder buffer
   encx[QRA64_K]=calc_crc6(encx,QRA64_K);	// Compute and add crc symbol
@@ -125,42 +187,56 @@ void qra64_encode(qra64codec *pcodec, int *y, const int *x)
   if (pcodec->apflags!=QRA_AUTOAP)
     return;
 
+  // Here we handle the QRA_AUTOAP mode --------------------------------------------
+
+  // When a [hiscall mycall ?] msg is detected we instruct the decoder
+  // to look for [mycall hiscall ?] msgs
+  // otherwise when a [cq mycall ?] msg is sent we reset the APTYPE_BOTHCALLS 
+
   // look if the msg sent is a std type message (bit15 of grid field = 0)
   if ((x[9]&0x80)==1)
-    return;	// no, it's a text message
+    return;	// no, it's a text message, nothing to do
 
-  // It's a [call1 call2 grid] message
+  // It's a [hiscall mycall grid] message
 
-  // We assume that call2 is our call (but we don't check it)
-  // call1 the station callsign we are calling or indicates a general call (CQ/QRZ/etc..)
-  decodemsg_jt65(&call1,&call2,&grid,x);
-	
-  if ((call1>=CALL_CQ && call1<=CALL_CQ999) || call1==CALL_CQDX || 
-      call1==CALL_DE) {
-    // We are making a general call; don't know who might reply (srccall)
-    // Reset apsrccall to 0 so decoder won't look for [mycall srccall ?] msgs
-    pcodec->apsrccall = 0;
+  // We assume that mycall is our call (but we don't check it)
+  // hiscall the station we are calling or a general call (CQ/QRZ/etc..)
+  decodemsg_jt65(&hiscall,&mycall,&grid,x);
+
+
+  if ((hiscall>=CALL_CQ && hiscall<=CALL_CQ999) || hiscall==CALL_CQDX || 
+      hiscall==CALL_DE) {
+	// tell the decoder to look for msgs directed to us
+	qra64_apset(pcodec,mycall,0,0,APTYPE_MYCALL);
+    // We are making a general call and don't know who might reply 
+    // Reset APTYPE_BOTHCALLS so decoder won't look for [mycall hiscall ?] msgs
+    qra64_apdisable(pcodec,APTYPE_BOTHCALLS);
   } else {
-    // We are replying to someone named call1
-    // Set apmsg_call1_call2 so decoder will try for [mycall call1 ?] msgs
-    pcodec->apsrccall = call1;
-    encodemsg_jt65(pcodec->apmsg_call1_call2, pcodec->apmycall, 
-		   pcodec->apsrccall, 0);
+    // We are replying to someone named hiscall
+    // Set APTYPE_BOTHCALLS so decoder will try for [mycall hiscall ?] msgs
+    qra64_apset(pcodec,mycall, hiscall, GRID_BLANK, APTYPE_BOTHCALLS);
   }
+
 }
 
-int qra64_decode(qra64codec *pcodec, int *x, const float *rxen)
+#define EBNO_MIN -10.0f		// minimum Eb/No value returned by the decoder (in dB)
+int qra64_decode(qra64codec *pcodec, float *ebno, int *x, const float *rxen)
 {
   int k;
   float *srctmp, *dsttmp;
   float ix[QRA64_NC*QRA64_M];		// (depunctured) intrisic information
+  int   xdec[QRA64_KC];				// decoded message (with crc)
+  int   ydec[QRA64_NC];				// re-encoded message (for snr calculations)
+  float noisestd;					// estimated noise variance
+  float msge;						// estimated message energy
+  float ebnoval;					// estimated Eb/No
   int rc;
   
   if (QRA64_NMSG!=QRA64_CODE.NMSG)      // sanity check 
     return -16;				// QRA64_NMSG define is wrong
 
   // compute symbols intrinsic probabilities from received energy observations
-  qra_mfskbesselmetric(ix, rxen, QRA64_m, QRA64_N,pcodec->decEsNoMetric);
+  noisestd = qra_mfskbesselmetric(ix, rxen, QRA64_m, QRA64_N,pcodec->decEsNoMetric);
 
   // de-puncture observations adding a uniform distribution for the crc symbol
 
@@ -176,34 +252,109 @@ int qra64_decode(qra64codec *pcodec, int *x, const float *rxen)
   pd_init(dsttmp,pd_uniform(QRA64_m),QRA64_M);
 
   // Attempt to decode without a-priori info --------------------------------
-  rc = qra64_do_decode(x, ix, NULL, NULL);
-  if (rc>=0) return 0;                        // successfull decode with AP0
+  rc = qra64_do_decode(xdec, ix, NULL, NULL);
+  if (rc>=0) {
+	  rc = 0; // successfull decode with AP0
+	  goto decode_end;                        
+	  }
+  else
+	  if (pcodec->apflags==QRA_NOAP) 
+		  // nothing more to do
+		  return rc; // rc<0 = unsuccessful decode
 
-  if (pcodec->apflags!=QRA_AUTOAP) return rc; // rc<0 = unsuccessful decode
+  // Here we handle decoding with AP knowledge
 
   // Attempt to decode CQ calls
-  rc = qra64_do_decode(x,ix,pcodec->apmask_cqqrz, pcodec->apmsg_cqqrz); // AP27
-  if (rc>=0) return 1;	                      // decoded [cq/qrz ? ?]
+  rc = qra64_do_decode(xdec,ix,pcodec->apmask_cqqrz, pcodec->apmsg_cqqrz); 
+  if (rc>=0) { rc = 1; goto decode_end; };    // decoded [cq/qrz ? ?]
 
-  rc = qra64_do_decode(x, ix, pcodec->apmask_cqqrz_ooo, 
-		       pcodec->apmsg_cqqrz);	                        // AP42
-  if (rc>=0) return 2;	                      // decoded [cq ? ooo]
+  rc = qra64_do_decode(xdec, ix, pcodec->apmask_cqqrz_ooo, 
+		       pcodec->apmsg_cqqrz);	                        
+  if (rc>=0) { rc = 2; goto decode_end; };    // decoded [cq ? ooo]
 
-  // attempt to decode calls directed to us (mycall)
-  rc = qra64_do_decode(x, ix, pcodec->apmask_call1, 
-		       pcodec->apmsg_call1);		                // AP29
-  if (rc>=0) return 3;	                      // decoded [mycall ? ?]
+  // attempt to decode calls directed to us 
+  if (pcodec->apmsg_set[APTYPE_MYCALL]) {
+	rc = qra64_do_decode(xdec, ix, pcodec->apmask_call1, 
+		       pcodec->apmsg_call1);		                
+	if (rc>=0) { rc = 3; goto decode_end; };    // decoded [mycall ? ?]
+	rc = qra64_do_decode(xdec, ix, pcodec->apmask_call1_ooo, 
+		       pcodec->apmsg_call1);	                    
+	if (rc>=0) { rc = 4; goto decode_end; };    // decoded [mycall ? ooo]
+	}
 
-  rc = qra64_do_decode(x, ix, pcodec->apmask_call1_ooo, 
-		       pcodec->apmsg_call1);	                        // AP44
-  if (rc>=0) return 4;	// decoded [mycall ? ooo]
+  // attempt to decode [mycall srccall ?] msgs
+  if (pcodec->apmsg_set[APTYPE_BOTHCALLS]) {
+	rc = qra64_do_decode(xdec, ix, pcodec->apmask_call1_call2, 
+		       pcodec->apmsg_call1_call2);	                
+	if (rc>=0) { rc = 5; goto decode_end; };    // decoded [mycall srccall ?]	
+	}
 
-  // if apsrccall is set attempt to decode [mycall srccall ?] msgs
-  if (pcodec->apsrccall==0) return rc; // nothing more to do
+  // attempt to decode [? hiscall ?] msgs
+  if (pcodec->apmsg_set[APTYPE_HISCALL]) {
+	rc = qra64_do_decode(xdec, ix, pcodec->apmask_call2, 
+		       pcodec->apmsg_call2);		                
+	if (rc>=0) { rc = 6; goto decode_end; };    // decoded [? hiscall ?]
+	rc = qra64_do_decode(xdec, ix, pcodec->apmask_call2_ooo, 
+		       pcodec->apmsg_call2);	                    
+	if (rc>=0) { rc = 7; goto decode_end; };    // decoded [? hiscall ooo]
+	}
 
-  rc = qra64_do_decode(x, ix, pcodec->apmask_call1_call2, 
-		       pcodec->apmsg_call1_call2);	                // AP57
-  if (rc>=0) return 5;	// decoded [mycall srccall ?]	
+  if (pcodec->apmsg_set[APTYPE_FULL]) {
+	rc = qra64_do_decode(xdec, ix, pcodec->apmask_call1_call2_grid, 
+		       pcodec->apmsg_call1_call2_grid);		                
+	if (rc>=0) { rc = 8; goto decode_end; };    // decoded [mycall hiscall grid]
+	}
+
+  // all decoding attempts failed
+  return rc;
+
+decode_end: // successfull decode 
+  
+  // copy decoded message (without crc) to output buffer
+  memcpy(x,xdec,QRA64_K*sizeof(int));
+
+  if (ebno==0)	// null pointer indicates we are not interested in the Eb/No estimate
+	  return rc;
+
+  // reencode message and estimate Eb/No
+  qra_encode(&QRA64_CODE, ydec, xdec);	 
+  // puncture crc
+  memmove(ydec+QRA64_K,ydec+QRA64_KC,QRA64_C*sizeof(int)); 
+  // compute total power of decoded message
+  msge = 0;
+  for (k=0;k<QRA64_N;k++) {
+	  msge +=rxen[ydec[k]];	// add energy of current symbol
+	  rxen+=QRA64_M;			// ptr to next symbol
+	  }
+
+  // NOTE:
+  // To make a more accurate Eb/No estimation we should compute the noise variance
+  // on all the rxen values but the transmitted symbols.
+  // Noisestd is compute by qra_mfskbesselmetric assuming that
+  // the signal power is much less than the total noise power in the QRA64_M tones
+  // but this is true only if the Eb/No is low.
+  // Here, in order to improve accuracy, we linearize the estimated Eb/No value empirically
+  // (it gets compressed when it is very high as in this case the noise variance 
+  // is overestimated)
+
+  // this would be the exact value if the noisestd were not overestimated at high Eb/No
+  ebnoval = (0.5f/(QRA64_K*QRA64_m))*msge/(noisestd*noisestd)-1.0f; 
+
+  // Empirical linearization (to remove the noise variance overestimation)
+  // the resulting SNR is accurate up to +20 dB (51 dB Eb/No)
+  if (ebnoval>57.004f)
+	  ebnoval=57.004f;
+  ebnoval = ebnoval*57.03f/(57.03f-ebnoval);
+
+  // compute value in dB
+  if (ebnoval<=0)
+	  ebnoval = EBNO_MIN; // assume a minimum, positive value
+  else
+	  ebnoval = 10.0f*(float)log10(ebnoval);
+	  if (ebnoval<EBNO_MIN)
+		  ebnoval = EBNO_MIN;
+  
+  *ebno = ebnoval;
 
   return rc;	
 }
@@ -211,7 +362,7 @@ int qra64_decode(qra64codec *pcodec, int *x, const float *rxen)
 // Static functions definitions ----------------------------------------------
 
 // Decode with given a-priori information 
-static int qra64_do_decode(int *x, const float *pix, const int *ap_mask, 
+static int qra64_do_decode(int *xdec, const float *pix, const int *ap_mask, 
 			   const int *ap_x)
 {
   int rc;
@@ -221,7 +372,6 @@ static int qra64_do_decode(int *x, const float *pix, const int *ap_mask,
 
   float v2cmsg[QRA64_NMSG*QRA64_M];   // buffers for the decoder messages
   float c2vmsg[QRA64_NMSG*QRA64_M];
-  int   xdec[QRA64_KC];
 
   if (ap_mask==NULL) {   // no a-priori information
     ixsrc = pix;	 // intrinsic source is what passed as argument
@@ -243,9 +393,6 @@ static int qra64_do_decode(int *x, const float *pix, const int *ap_mask,
   // verify crc
   if (calc_crc6(xdec,QRA64_K)!=xdec[QRA64_K]) // crc doesn't match (detected error)
     return -2;	// decoding was succesfull but crc doesn't match
-
-  // success. copy decoded message to output buffer
-  memcpy(x,xdec,QRA64_K*sizeof(int));
 
   return 0;
 }
