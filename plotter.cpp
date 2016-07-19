@@ -141,7 +141,6 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
       j0=FreqfromX(i-1)/df_qra64;
       j1=FreqfromX(i)/df_qra64;
       smax=0.0;
-      y3[i]=0.0;
       for(int jj=j0; jj<=j1; jj++) {
         if(dec_data.sred[jj]>smax) smax=dec_data.sred[jj];
       }
@@ -150,7 +149,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     }
     float fac=0.8/qMax(y3max,10.0f);
     for(int i=1; i<iz; i++) {
-      if(y3[i]>0.0) {
+      if(y3[i]>0) {
         y2=fac*y3[i];
         LineBuf2[k].setX(i);
         LineBuf2[k].setY(int(m_h2*(0.9-y2)));
@@ -271,7 +270,6 @@ void CPlotter::drawRed(int ia, int ib, float swide[])
 {
   m_ia=ia;
   m_ib=ib;
-
   draw(swide,false,true);
 }
 
