@@ -1,4 +1,4 @@
-subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
+subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
      sync,nsnr,dtx,nfreq,decoded,nft)
 
   use packjt
@@ -10,13 +10,10 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
   logical ltext
   integer*8 count0,count1,clkfreq
   integer icos7(0:6)
-  integer ipk(1)
-  integer jpk(1)
   integer dat4(12)
   real dd(60*12000)
   real s(NZ)
   real savg(NZ)
-  real blue(0:25)
   real red(NZ)
   real x(NFFT)
   complex cx(0:NH)
@@ -85,29 +82,8 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
 
   if0=nint(f0/df)
   nfreq=nint(f0)
-  blue(0:25)=ccf(if0,0:25)
-  jpk=maxloc(blue)
-  xpk=jpk(1) + 1.0
-  call slope(blue,26,xpk)
 
-! Insist on at least 10 correct hard decisions in the 21 Costas bins.
-  nhard=0
-  do n=0,6
-     ipk=maxloc(ss(i0:i0+63,1+j0+2*n)) - 1
-     i=abs(ipk(1)-2*icos7(n))
-     if(i.le.1) nhard=nhard+1
-
-     ipk=maxloc(ss(i0:i0+63,1+j0+2*n+78)) - 1
-     i=abs(ipk(1)-2*icos7(n))
-     if(i.le.1) nhard=nhard+1
-
-     ipk=maxloc(ss(i0:i0+63,1+j0+2*n+154)) - 1
-     i=abs(ipk(1)-2*icos7(n))
-     if(i.le.1) nhard=nhard+1
-  enddo
-  if(nhard.lt.5) go to 900
-
-  do i=0,63
+  do i=0,63                                !Copy symbol spectra into s3()
      k=i0 + 2*i
      jj=j0+13
      do j=1,63
@@ -117,7 +93,7 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
      enddo
   enddo
 
-  if(sync.gt.1.0) snr1=10.0*log10(sync) - 38.0
+  if(sync.gt.1.0) snr1=10.0*log10(sync) - 39.0
   nsnr=nint(snr1)
 
   mycall=mycall_12(1:6)                     !### May need fixing ###
@@ -130,10 +106,10 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
   nmycall=ncq
 
   snr2=-99.
-  ttot=0.
-  do naptype=4,0,-1
+  naptype=4
+  do iter=1,2
      call system_clock(count0,clkfreq)
-     if(naptype.eq.0) nmycall=ncq
+     if(iter.eq.2) nmycall=ncq
      call qra64_dec(s3,nmycall,nhiscall,nhisgrid,naptype,dat4,snr2,irc)
      if(irc.ge.0) then
         call unpackmsg(dat4,decoded)           !Unpack the user message
@@ -145,12 +121,10 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
      endif
      call system_clock(count1,clkfreq)
      tsec=float(count1-count0)/float(clkfreq)
-     ttot=ttot+tsec
-     write(78,3900) sync,snr1,snr2,snr2-snr1,dtx,nfreq,nhard,naptype,irc,  &
-          tsec,ttot,decoded
-3900 format(4f6.1,f6.2,i5,i3,i2,i3,2f6.3,1x,a22)
+     write(78,3900) nutc,sync,snr1,snr2,dtx,nfreq,iter,irc,tsec,decoded
+3900 format(i4.4,3f6.1,f6.2,i5,i2,i3,f6.3,1x,a22)
      if(irc.ge.0) exit
   enddo
 
-900  return
+     return
 end subroutine qra64a
