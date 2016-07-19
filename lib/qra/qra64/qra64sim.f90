@@ -4,7 +4,6 @@ program qra64sim
 
   use wavhdr
   use packjt
-  use options
   parameter (NMAX=54*12000)              ! = 648,000
   parameter (NFFT=10*65536,NH=NFFT/2)
   type(hdr) h                            !Header for .wav file
@@ -16,93 +15,29 @@ program qra64sim
   complex cspread(0:NFFT-1)              !Complex amplitude for Rayleigh fading
   complex z
   real*8 f0,dt,twopi,phi,dphi,baud,fsample,freq
-  character msg*22,fname*11,csubmode*1,c,optarg*500,numbuf*32
+  character msg*22,fname*11,csubmode*1,arg*12
   character msgsent*22
-  logical :: display_help=.false.,seed_prngs=.true.
-  type (option) :: long_options(9) = [ &
-    option ('help',.false.,'h','Display this help message',''),                                &
-    option ('sub-mode',.true.,'M','message','MSG'),                           &
-    option ('sub-mode',.true.,'m','sub mode, default MODE=A','MODE'),                          &
-    option ('num-sigs',.true.,'n','number of signals per file, default SIGNALS=10','SIGNALS'), &
-    option ('doppler-spread',.true.,'d','Doppler spread, default SPREAD=0.0','SPREAD'),        &
-    option ('time-offset',.true.,'t','Time delta, default SECONDS=0.0','SECONDS'),             &
-    option ('num-files',.true.,'f','Number of files to generate, default FILES=1','FILES'),    &
-    option ('no-prng-seed',.false.,'p','Do not seed PRNGs (use for reproducible tests)',''),   &
-    option ('strength',.true.,'s','S/N in dB (2500Hz reference b/w), default SNR=0','SNR') ]
 
-! Default parameters:
-  csubmode='A'
-  mode65=1
-  nsigs=10
-  fspread=0.
-  xdt=0.
-  snrdb=0.
-  nfiles=1
-
-  do
-     call getopt('hM:m:n:d:t:f:ps:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
-     if( nstat .ne. 0 ) then
-        exit
-     end if
-     select case (c)
-     case ('h')
-        display_help = .true.
-     case ('M')
-        read (optarg(:narglen), *) msg
-        print*,msg
-     case ('m')
-        read (optarg(:narglen), *) csubmode
-        if(csubmode.eq.'A') mode65=1
-        if(csubmode.eq.'B') mode65=2
-        if(csubmode.eq.'C') mode65=4
-     case ('n')
-        read (optarg(:narglen), *,err=10) nsigs
-     case ('d')
-        read (optarg(:narglen), *,err=10) fspread
-     case ('t')
-        read (optarg(:narglen), *) numbuf
-        if (numbuf(1:1) == '\') then
-           read (numbuf(2:), *,err=10) xdt
-        else
-           read (numbuf, *,err=10) xdt
-        end if
-     case ('f')
-        read (optarg(:narglen), *,err=10) nfiles
-     case ('p')
-        seed_prngs=.false.
-     case ('s')
-        read (optarg(:narglen), *) numbuf
-        if (numbuf(1:1) == '\') then
-           read (numbuf(2:), *,err=10) snrdb
-        else
-           read (numbuf, *,err=10) snrdb
-        end if
-     end select
-     cycle
-10   display_help=.true.
-     print *, 'Optional argument format error for option -', c
-  end do
-
-  if(display_help .or. nstat.lt.0 .or. nremain.ge.1) then
-     print *, ''
-     print *, 'Usage: jt65sim [OPTIONS]'
-     print *, ''
-     print *, '       Generate one or more simulated JT65 signals in .WAV file(s)'
-     print *, ''
-     print *, 'Example: jt65sim -m B -n 10 -d 0.2 -s \\-24.5 -t 0.0 -f 4'
-     print *, ''
-     print *, 'OPTIONS: NB Use \ (\\ on *nix shells) to escape -ve arguments'
-     print *, ''
-     do i = 1, size (long_options)
-       call long_options(i) % print (6)
-     end do
+  nargs=iargc()
+  if(nargs.ne. 7) then
+     print *, 'Usage:   qra64sim         "msg"     A-E Nsigs fDop DT Nfiles SNR'
+     print *, 'Example  qra64sim "K1ABC W9XYZ EN37" A   10   0.2 0.0   1     0'
      go to 999
   endif
-
-  if (seed_prngs) then
-     call init_random_seed()         !Seed Fortran RANDOM_NUMBER generator
-     call sgran()                    !Seed C rand generator (used in gran)
-  end if
+  call getarg(1,msg)
+  call getarg(2,csubmode)
+  mode64=2**(ichar(csubmode)-ichar('A'))
+  print*,csubmode,' ',mode64
+  call getarg(3,arg)
+  read(arg,*) nsigs
+  call getarg(4,arg)
+  read(arg,*) fspread
+  call getarg(5,arg)
+  read(arg,*) xdt
+  call getarg(6,arg)
+  read(arg,*) nfiles
+  call getarg(7,arg)
+  read(arg,*) snrdb
 
   rms=100.
   fsample=12000.d0                   !Sample rate (Hz)
@@ -116,11 +51,13 @@ program qra64sim
   dfsig=2000.0/nsigs                 !Freq spacing between sigs in file (Hz)
   ichk=0
 
+  write(*,1000) 
+1000 format('File  Sig    Freq  A-E   S/N   DT   Dop    Message'/60('-'))
+
   do ifile=1,nfiles                  !Loop over requested number of files
      write(fname,1002) ifile         !Output filename
 1002 format('000000_',i4.4)
      open(10,file=fname//'.wav',access='stream',status='unknown')
-
      xnoise=0.
      cdat=0.
      if(snrdb.lt.90) then
@@ -129,32 +66,30 @@ program qra64sim
         enddo
      endif
 
-!     msg="K1ABC W9XYZ EN37"
      do isig=1,nsigs                 !Generate requested number of sigs
         if(mod(nsigs,2).eq.0) f0=1500.0 + dfsig*(isig-0.5-nsigs/2)
         if(mod(nsigs,2).eq.1) f0=1500.0 + dfsig*(isig-(nsigs+1)/2)
         xsnr=snrdb
         if(snrdb.eq.0.0) xsnr=-19 - isig
-        if(csubmode.eq.'B' .and. snrdb.eq.0.0) xsnr=-21 - isig
-        if(csubmode.eq.'C' .and. snrdb.eq.0.0) xsnr=-21 - isig
 
         call genqra64(msg,ichk,msgsent,itone,itype)
 
-        bandwidth_ratio=2500.0/6000.0
-        sig=sqrt(2*bandwidth_ratio)*10.0**(0.05*xsnr)
+!        bandwidth_ratio=2500.0/6000.0
+!        sig=sqrt(2*bandwidth_ratio)*10.0**(0.05*xsnr)
+        sig=sqrt(2.0)*10.0**(0.05*xsnr)
         if(xsnr.gt.90.0) sig=1.0
         write(*,1020) ifile,isig,f0,csubmode,xsnr,xdt,fspread,msg
 1020    format(i4,i4,f10.3,2x,a1,2x,f5.1,f6.2,f5.1,1x,a22)
 
         phi=0.d0
         dphi=0.d0
-        k=12000 + xdt*12000                 !Start audio at t = xdt + 1.0 s
+        k=(xdt+1.0)*12000                   !Start audio at t = xdt + 1.0 s
         isym0=-99
         do i=1,npts                         !Add this signal into cdat()
            isym=i/nsps + 1
            if(isym.gt.nsym) exit
            if(isym.ne.isym0) then
-              freq=f0 + itone(isym)*baud*mode65
+              freq=f0 + itone(isym)*baud*mode64
               dphi=twopi*freq*dt
               isym0=isym
            endif
@@ -172,21 +107,13 @@ program qra64sim
         twopi=8*atan(1.0)
         cspread(0)=1.0
         cspread(NH)=0.
-
-! The following options were added 3/15/2016 to make the half-power tone 
-! widths equal to the requested Doppler spread.  (Previously we effectively 
-! used b=1.0 and Gaussian shape, which made the tones 1.665 times wider.)
-!        b=2.0*sqrt(log(2.0))                     !Gaussian (before 3/15/2016)
-!        b=2.0                                    !Lorenzian 3/15 - 3/27
         b=6.0                                     !Lorenzian 3/28 onward
-
         do i=1,NH
            f=i*df
            x=b*f/fspread
            z=0.
            a=0.
            if(x.lt.3.0) then                          !Cutoff beyond x=3
-!              a=sqrt(exp(-x*x))                      !Gaussian
               a=sqrt(1.111/(1.0+x*x)-0.1)             !Lorentzian
               call random_number(r1)
               phi1=twopi*r1

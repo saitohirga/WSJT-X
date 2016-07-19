@@ -1,9 +1,12 @@
-subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
-     decoded,nft)
+subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
+     sync,nsnr,dtx,nfreq,decoded,nft)
 
   use packjt
   parameter (NFFT=2*6912,NH=NFFT/2,NZ=5760)
-  character decoded*22,mycall_12*12,mycall*6
+  character decoded*22
+  character*12 mycall_12,hiscall_12
+  character*6 mycall,hiscall,hisgrid_6
+  character*4 hisgrid
   logical ltext
   integer icos7(0:6)
   integer ipk(1)
@@ -13,7 +16,6 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
   real s(NZ)
   real savg(NZ)
   real blue(0:25)
-  real red0(NZ)
   real red(NZ)
   real x(NFFT)
   complex cx(0:NH)
@@ -53,11 +55,10 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
   savg=savg/base - 1.0
   ss=ss/base
 
-  red0=0.
+  red=-99.
   fac=1.0/sqrt(21.0)
   sync=0.
   do if0=ia,ib
-     red0(if0)=0.
      do j=0,25
         t=-3.0
         do n=0,6
@@ -65,10 +66,10 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
            t=t + ss(i,1+2*n+j) + ss(i,1+2*n+j+78) + ss(i,1+2*n+j+154)
         enddo
         ccf(if0,j)=fac*t
-        if(ccf(if0,j).gt.red0(if0)) then
-           red0(if0)=ccf(if0,j)
-           if(red0(if0).gt.sync) then
-              sync=red0(if0)
+        if(ccf(if0,j).gt.red(if0)) then
+           red(if0)=ccf(if0,j)
+           if(red(if0).gt.sync) then
+              sync=red(if0)
               f0=if0*df
               dtx=j*istep/12000.0 - 1.0
               i0=if0
@@ -78,21 +79,7 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
      enddo
   enddo
 
-!  red(ia:ib)=0.
-!  rewind 73
-!  do i=ia+3,ib-3
-!     r1=red0(i)
-!     red0(i)=0.
-!     r0=max(red0(i-3),red0(i-2),red0(i+2),red0(i+3))
-!     red0(i)=r1
-!     red(i)=max(0.0,r1-r0)
-!     write(73,3001) i*df,red(i),red0(i),r0
-!3001 format(4f12.3)
-!  enddo
-!  flush(73)
-
-  red0=red0-4.0
-  write(17) ia,ib,red0(ia:ib)
+  write(17) ia,ib,red(ia:ib)
   close(17)
 
   if0=nint(f0/df)
@@ -117,8 +104,7 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
      i=abs(ipk(1)-2*icos7(n))
      if(i.le.1) nhard=nhard+1
   enddo
-!  print*,'a',nhard,nhard,nhard
-  if(nhard.lt.6) go to 900
+  if(nhard.lt.5) go to 900
 
   do i=0,63
      k=i0 + 2*i
@@ -130,17 +116,29 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,sync,nsnr,dtx,nfreq,    &
      enddo
   enddo
 
-  if(sync.gt.1.0) nsnr=nint(10.0*log10(sync) - 38.0)
-!  if(sync.lt.12.8) go to 900                !### Temporary ###
+  if(sync.gt.1.0) snr1=10.0*log10(sync) - 38.0
+  nsnr=nint(snr1)
 
   mycall=mycall_12(1:6)                     !### May need fixing ###
+  hiscall=hiscall_12(1:6)
+  hisgrid=hisgrid_6(1:4)
   call packcall(mycall,nmycall,ltext)
-  call qra64_dec(s3,nmycall,dat4,irc)       !Attempt decoding
+  call packcall(hiscall,nhiscall,ltext)
+  call packgrid(hisgrid,nhisgrid,ltext)
+  snr2=-99.
+  call qra64_dec(s3,nmycall,nhiscall,nhisgrid,dat4,snr2,irc)   !Attempt decoding
   if(irc.ge.0) then
      call unpackmsg(dat4,decoded)           !Unpack the user message
      call fmtmsg(decoded,iz)
      nft=100 + irc
+     nsnr=nint(snr2)
+  else
+     snr2=0.
   endif
 
-900 return
+900 continue
+  write(78,3900) sync,snr1,snr2,snr2-snr1,dtx,nfreq,nhard,irc,decoded
+3900 format(4f7.1,f7.2,i6,2i4,2x,a22)
+
+  return
 end subroutine qra64a

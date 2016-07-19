@@ -86,7 +86,7 @@ program QRA64code
         mycall='      '
         if(i1.ge.4) mycall=msg(1:i1-1)
         call packcall(mycall,nmycall,ltext)
-        call qra64_dec(s3,nmycall,dec,irc)            !Decode
+        call qra64_dec(s3,nmycall,dec,snr,irc)            !Decode
 
         decoded="                      "
         if(irc.ge.0) then

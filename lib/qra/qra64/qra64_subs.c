@@ -1,4 +1,4 @@
-// qra64_subs.c 
+// qra64_subs.c
 // Fortran interface routines for QRA64
 
 #include "qra64.h"
@@ -10,13 +10,12 @@ static qra64codec *pqra64codec = NULL;
 
 void qra64_enc_(int x[], int y[])
 {
-  if (pqra64codec==NULL)
-	  pqra64codec = qra64_init(QRA_AUTOAP);
-  
+  if (pqra64codec==NULL) pqra64codec = qra64_init(QRA_AUTOAP);  
   qra64_encode(pqra64codec, y, x);
 }
 
-void qra64_dec_(float r[], int* nmycall, int xdec[], int* rc)
+void qra64_dec_(float r[], int* nmycall, int* nhiscall, int* nhisgrid, 
+		int xdec[], float* snr, int* rc)
 {
 // Return codes:
 //   rc=-16  failed sanity check
@@ -41,21 +40,20 @@ void qra64_dec_(float r[], int* nmycall, int xdec[], int* rc)
 #endif
   
   if(ncall!=ncall0) {
-	if (pqra64codec!=NULL)
-		qra64_close(pqra64codec);
-	pqra64codec = qra64_init(QRA_AUTOAP);
-	// the following apset call is not strictly necessary
-	// It enables AP decoding of messages directed to our call
-	// also in the case we have never made a CQ
-	qra64_apset(pqra64codec,ncall,0,0,APTYPE_MYCALL);
+    if (pqra64codec!=NULL) qra64_close(pqra64codec);
+    pqra64codec = qra64_init(QRA_AUTOAP);
+    // the following apset call is not strictly necessary
+    // It enables AP decoding of messages directed to our call
+    // also in the case we have never made a CQ
+    qra64_apset(pqra64codec,ncall,0,0,APTYPE_MYCALL);
     ncall0=ncall;
   }
   *rc = qra64_decode(pqra64codec,&EbNodBEstimated,xdec,r);
+  *snr = EbNodBEstimated - 31.0;
 
 #ifdef NICO_WANTS_SNR_DUMP  
   fout = fopen("C:\\JTSDK\\snrdump.txt","a+");
-  if ((*rc)>=0) 
-	  fprintf(fout,"rc=%d snr=%.2f dB\n",*rc,EbNodBEstimated-31.0f);
+  if ((*rc)>=0) fprintf(fout,"rc=%d snr=%.2f dB\n",*rc,EbNodBEstimated-31.0f);
   fclose(fout);
-#endif  
+#endif
 }
