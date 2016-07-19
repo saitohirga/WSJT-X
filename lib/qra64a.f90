@@ -126,10 +126,14 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
   call packcall(mycall,nmycall,ltext)
   call packcall(hiscall,nhiscall,ltext)
   call packgrid(hisgrid,nhisgrid,ltext)
+  call packcall("CQ    ",ncq,ltext)
+  nmycall=ncq
+
   snr2=-99.
   ttot=0.
   do naptype=4,0,-1
      call system_clock(count0,clkfreq)
+     if(naptype.eq.0) nmycall=ncq
      call qra64_dec(s3,nmycall,nhiscall,nhisgrid,naptype,dat4,snr2,irc)
      if(irc.ge.0) then
         call unpackmsg(dat4,decoded)           !Unpack the user message
