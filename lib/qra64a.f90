@@ -8,6 +8,7 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
   character*6 mycall,hiscall,hisgrid_6
   character*4 hisgrid
   logical ltext
+  integer*8 count0,count1,clkfreq
   integer icos7(0:6)
   integer ipk(1)
   integer jpk(1)
@@ -126,19 +127,26 @@ subroutine qra64a(dd,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
   call packcall(hiscall,nhiscall,ltext)
   call packgrid(hisgrid,nhisgrid,ltext)
   snr2=-99.
-  call qra64_dec(s3,nmycall,nhiscall,nhisgrid,dat4,snr2,irc)   !Attempt decoding
-  if(irc.ge.0) then
-     call unpackmsg(dat4,decoded)           !Unpack the user message
-     call fmtmsg(decoded,iz)
-     nft=100 + irc
-     nsnr=nint(snr2)
-  else
-     snr2=0.
-  endif
+  ttot=0.
+  do naptype=4,0,-1
+     call system_clock(count0,clkfreq)
+     call qra64_dec(s3,nmycall,nhiscall,nhisgrid,naptype,dat4,snr2,irc)
+     if(irc.ge.0) then
+        call unpackmsg(dat4,decoded)           !Unpack the user message
+        call fmtmsg(decoded,iz)
+        nft=100 + irc
+        nsnr=nint(snr2)
+     else
+        snr2=0.
+     endif
+     call system_clock(count1,clkfreq)
+     tsec=float(count1-count0)/float(clkfreq)
+     ttot=ttot+tsec
+     write(78,3900) sync,snr1,snr2,snr2-snr1,dtx,nfreq,nhard,naptype,irc,  &
+          tsec,ttot,decoded
+3900 format(4f6.1,f6.2,i5,i3,i2,i3,2f6.3,1x,a22)
+     if(irc.ge.0) exit
+  enddo
 
-900 continue
-  write(78,3900) sync,snr1,snr2,snr2-snr1,dtx,nfreq,nhard,irc,decoded
-3900 format(4f7.1,f7.2,i6,2i4,2x,a22)
-
-  return
+900  return
 end subroutine qra64a
