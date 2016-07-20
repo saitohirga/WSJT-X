@@ -15,7 +15,7 @@ void qra64_enc_(int x[], int y[])
 }
 
 void qra64_dec_(float r[], int* nc1, int* nc2, int* ng2, int* APtype, 
-		int xdec[], float* snr, int* rc)
+		int* iset, int xdec[], float* snr, int* rc)
 {
 /*
   APtype:
@@ -52,12 +52,14 @@ void qra64_dec_(float r[], int* nc1, int* nc2, int* ng2, int* APtype,
   err=qra64_apset(pqra64codec,*nc1,*nc2,*ng2,*APtype);
   if(err<0) printf("ERROR: qra64_apset returned %d\n",err);
 
-  *rc = qra64_decode(pqra64codec,&EbNodBEstimated,xdec,r);
-  *snr = EbNodBEstimated - 31.0;
+  if(*iset==0) {
+    *rc = qra64_decode(pqra64codec,&EbNodBEstimated,xdec,r);
+    *snr = EbNodBEstimated - 31.0;
 
 #ifdef NICO_WANTS_SNR_DUMP  
-  fout = fopen("C:\\JTSDK\\snrdump.txt","a+");
-  if ((*rc)>=0) fprintf(fout,"rc=%d snr=%.2f dB\n",*rc,EbNodBEstimated-31.0f);
-  fclose(fout);
+    fout = fopen("C:\\JTSDK\\snrdump.txt","a+");
+    if ((*rc)>=0) fprintf(fout,"rc=%d snr=%.2f dB\n",*rc,EbNodBEstimated-31.0f);
+    fclose(fout);
 #endif
+  }
 }
