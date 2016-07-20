@@ -3181,7 +3181,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
         if (m_config.is_transceiver_online ()) {
           Frequency frequency {m_freqNominal / 1000000 * 1000000 + 1000*kHz}; //QSY Freq for answering CQ nnn
           QString t;
-          t.sprintf("QSY %7.3f", frequency / 10e6);
+          t.sprintf("QSY %7.3f", frequency / 1e6);
           ui->decodedTextBrowser2->displayQSY(t);
           // ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (frequency));
           if (m_config.is_transceiver_online ()) {
