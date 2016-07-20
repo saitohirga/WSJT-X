@@ -17,8 +17,10 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
   real red(NZ)
   real x(NFFT)
   complex cx(0:NH)
+  logical first
   equivalence (x,cx)
   data icos7/2,5,6,0,4,1,3/                            !Costas 7x7 pattern
+  data nc1z/-1/,nc2z/-1/,ng2z/-1/
   common/qra64com/ss(NZ,194),s3(0:63,1:63),ccf(NZ,0:25)
   save
 
@@ -99,32 +101,37 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
   mycall=mycall_12(1:6)                     !### May need fixing ###
   hiscall=hiscall_12(1:6)
   hisgrid=hisgrid_6(1:4)
-  call packcall(mycall,nmycall,ltext)
-  call packcall(hiscall,nhiscall,ltext)
-  call packgrid(hisgrid,nhisgrid,ltext)
+  call packcall(mycall,nc1,ltext)
+  call packcall(hiscall,nc2,ltext)
+  call packgrid(hisgrid,ng2,ltext)
   call packcall("CQ    ",ncq,ltext)
-  nmycall=ncq
+
+  if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z) then
+     do naptype=0,4
+        call qra64_dec(s3,nc1,nc2,ng2,naptype,1,dat4,snr2,irc)
+     enddo
+     nc1z=nc1
+     nc2z=nc2
+     ng2z=ng2
+  endif
 
   snr2=-99.
   naptype=4
-  do iter=1,2
-     call system_clock(count0,clkfreq)
-     if(iter.eq.2) nmycall=ncq
-     call qra64_dec(s3,nmycall,nhiscall,nhisgrid,naptype,dat4,snr2,irc)
-     if(irc.ge.0) then
-        call unpackmsg(dat4,decoded)           !Unpack the user message
-        call fmtmsg(decoded,iz)
-        nft=100 + irc
-        nsnr=nint(snr2)
-     else
-        snr2=0.
-     endif
-     call system_clock(count1,clkfreq)
-     tsec=float(count1-count0)/float(clkfreq)
-     write(78,3900) nutc,sync,snr1,snr2,dtx,nfreq,iter,irc,tsec,decoded
+  call system_clock(count0,clkfreq)
+  call qra64_dec(s3,nc1,nc2,ng2,naptype,0,dat4,snr2,irc)
+  if(irc.ge.0) then
+     call unpackmsg(dat4,decoded)           !Unpack the user message
+     call fmtmsg(decoded,iz)
+     nft=100 + irc
+     nsnr=nint(snr2)
+  else
+     snr2=0.
+  endif
+  call system_clock(count1,clkfreq)
+  tsec=float(count1-count0)/float(clkfreq)
+  write(78,3900) nutc,sync,snr1,snr2,dtx,nfreq,1,irc,tsec,decoded
 3900 format(i4.4,3f6.1,f6.2,i5,i2,i3,f6.3,1x,a22)
-     if(irc.ge.0) exit
-  enddo
+  flush(78)
 
-     return
+  return
 end subroutine qra64a
