@@ -2,7 +2,7 @@ subroutine qra64a(dd0,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,   &
      hisgrid_6,sync,nsnr,dtx,nfreq,decoded,nft)
 
   use packjt
-  parameter (NFFT=2*6912,NH=NFFT/2,NZ=5760,NMAX=60*12000)
+  parameter (NFFT=2*6912,NZ=5760,NMAX=60*12000)
   character decoded*22
   character*12 mycall_12,hiscall_12
   character*6 mycall,hiscall,hisgrid_6
@@ -20,6 +20,8 @@ subroutine qra64a(dd0,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,   &
   data nc1z/-1/,nc2z/-1/,ng2z/-1/
   common/qra64com/ss(NZ,194),s3(0:63,1:63),ccf(NZ,0:25)
   save
+
+!  write(60) dd0
 
   decoded='                      '
   nft=99
