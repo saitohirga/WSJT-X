@@ -102,6 +102,8 @@ qra64codec *qra64_init(int flags)
   encodemsg_jt65(pcodec->apmask_call2_ooo, 0, MASK_CALL2, MASK_GRIDFULL);
   encodemsg_jt65(pcodec->apmask_call1_call2,     MASK_CALL1,MASK_CALL2, MASK_GRIDBIT);
   encodemsg_jt65(pcodec->apmask_call1_call2_grid,MASK_CALL1,MASK_CALL2, MASK_GRIDFULL);
+  encodemsg_jt65(pcodec->apmask_cq_call2,     MASK_CQQRZ, MASK_CALL2, MASK_GRIDBIT);
+  encodemsg_jt65(pcodec->apmask_cq_call2_ooo, MASK_CQQRZ, MASK_CALL2, MASK_GRIDFULL);
 
   return pcodec;
 }
@@ -125,6 +127,7 @@ int qra64_apset(qra64codec *pcodec, const int mycall, const int hiscall, const i
 //			APTYPE_HISCALL   set [?      hiscall ?/blank]
 //			APTYPE_BOTHCALLS set [mycall hiscall ?]
 //			APTYPE_FULL		 set [mycall hiscall grid]
+//			APTYPE_CQHISCALL set [cq/qrz hiscall ?/blank] and [cq/qrz hiscall grid]
 // returns:
 //		0   on success
 //      -1  when qra64_init was called with the QRA_NOAP flag
@@ -149,6 +152,10 @@ int qra64_apset(qra64codec *pcodec, const int mycall, const int hiscall, const i
 		case APTYPE_FULL:
 			encodemsg_jt65(pcodec->apmsg_call1_call2_grid,  mycall, hiscall, grid);
 			break;
+		case APTYPE_CQHISCALL:
+			encodemsg_jt65(pcodec->apmsg_cq_call2,      CALL_CQ, hiscall, GRID_BLANK);
+			encodemsg_jt65(pcodec->apmsg_cq_call2_grid, CALL_CQ, hiscall, grid);
+			break;
 		default:
 			return -2;	// invalid ap type
 		}
@@ -163,7 +170,7 @@ void qra64_apdisable(qra64codec *pcodec, const int aptype)
 	if (pcodec->apflags==QRA_NOAP)
 		return;
 
-	if (aptype<APTYPE_CQQRZ || aptype>APTYPE_FULL)
+	if (aptype<APTYPE_CQQRZ || aptype>=APTYPE_SIZE)
 		return;
 
 	pcodec->apmsg_set[aptype] = 0;	//  signal the decoder not to look-up to the specified type
@@ -267,7 +274,6 @@ int qra64_decode(qra64codec *pcodec, float *ebno, int *x, const float *rxen)
   // Attempt to decode CQ calls
   rc = qra64_do_decode(xdec,ix,pcodec->apmask_cqqrz, pcodec->apmsg_cqqrz); 
   if (rc>=0) { rc = 1; goto decode_end; };    // decoded [cq/qrz ? ?]
-
   rc = qra64_do_decode(xdec, ix, pcodec->apmask_cqqrz_ooo, 
 		       pcodec->apmsg_cqqrz);	                        
   if (rc>=0) { rc = 2; goto decode_end; };    // decoded [cq ? ooo]
@@ -289,7 +295,7 @@ int qra64_decode(qra64codec *pcodec, float *ebno, int *x, const float *rxen)
 	if (rc>=0) { rc = 5; goto decode_end; };    // decoded [mycall srccall ?]	
 	}
 
-  // attempt to decode [? hiscall ?] msgs
+  // attempt to decode [? hiscall ?/b] msgs
   if (pcodec->apmsg_set[APTYPE_HISCALL]) {
 	rc = qra64_do_decode(xdec, ix, pcodec->apmask_call2, 
 		       pcodec->apmsg_call2);		                
@@ -299,6 +305,24 @@ int qra64_decode(qra64codec *pcodec, float *ebno, int *x, const float *rxen)
 	if (rc>=0) { rc = 7; goto decode_end; };    // decoded [? hiscall ooo]
 	}
 
+  // attempt to decode [cq/qrz hiscall ?/b/grid] msgs
+  if (pcodec->apmsg_set[APTYPE_CQHISCALL]) {
+
+	rc = qra64_do_decode(xdec, ix, pcodec->apmask_cq_call2, 
+				pcodec->apmsg_cq_call2);		                
+	if (rc>=0) { rc = 9; goto decode_end; };    // decoded [cq/qrz hiscall ?]
+
+	rc = qra64_do_decode(xdec, ix, pcodec->apmask_cq_call2_ooo, 
+		       pcodec->apmsg_cq_call2_grid);	                    
+	if (rc>=0) { rc = 11; goto decode_end; };    // decoded [cq/qrz hiscall grid]
+
+	rc = qra64_do_decode(xdec, ix, pcodec->apmask_cq_call2_ooo, 
+		       pcodec->apmsg_cq_call2);	                    
+	if (rc>=0) { rc = 10; goto decode_end; };    // decoded [cq/qrz hiscall ]
+	}
+
+
+  // attempt to decode [mycall hiscall grid]
   if (pcodec->apmsg_set[APTYPE_FULL]) {
 	rc = qra64_do_decode(xdec, ix, pcodec->apmask_call1_call2_grid, 
 		       pcodec->apmsg_call1_call2_grid);		                

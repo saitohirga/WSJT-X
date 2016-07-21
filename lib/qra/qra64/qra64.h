@@ -48,8 +48,9 @@
 #define APTYPE_MYCALL    1  // [mycall ?       ?/blank]
 #define APTYPE_HISCALL   2  // [?      hiscall ?/blank]
 #define APTYPE_BOTHCALLS 3  // [mycall hiscall ?]
-#define APTYPE_FULL	 4  // [mycall hiscall grid]
-#define APTYPE_SIZE	(APTYPE_FULL+1)
+#define APTYPE_FULL	     4  // [mycall hiscall grid]
+#define APTYPE_CQHISCALL 5  // [cq/qrz hiscall ?/blank]
+#define APTYPE_SIZE	(APTYPE_CQHISCALL+1)
 
 typedef struct {
   float decEsNoMetric;
@@ -60,8 +61,10 @@ typedef struct {
   int apmsg_cqqrz[12];		      // [cq/qrz ?       ?/blank] 
   int apmsg_call1[12];		      // [mycall ?       ?/blank] 
   int apmsg_call2[12];		      // [?      hiscall ?/blank] 
-  int apmsg_call1_call2[12];          // [mycall hiscall ?]
-  int apmsg_call1_call2_grid[12];     // [mycall hiscall grid]
+  int apmsg_call1_call2[12];      // [mycall hiscall ?]
+  int apmsg_call1_call2_grid[12]; // [mycall hiscall grid]
+  int apmsg_cq_call2[12];         // [cq     hiscall ?/blank] 
+  int apmsg_cq_call2_grid[12];    // [cq     hiscall grid]
 
 // ap messages masks
   int apmask_cqqrz[12];		
@@ -72,6 +75,8 @@ typedef struct {
   int apmask_call2_ooo[12];    
   int apmask_call1_call2[12];  
   int apmask_call1_call2_grid[12];  
+  int apmask_cq_call2[12];  
+  int apmask_cq_call2_ooo[12];  
 } qra64codec;
 
 #ifdef __cplusplus
@@ -129,7 +134,10 @@ int  qra64_decode(qra64codec *pcodec, float *ebno, int *x, const float *r);
 //		rc=6    [?    CALL ?]    AP29
 //		rc=7    [?    CALL  ]    AP45
 //		rc=8    [CALL CALL GRID] AP72
-//  return codes in the range 1-8 indicate the amount and the type of a-priori 
+//		rc=9    [CQ   CALL ?]    AP55
+//		rc=10   [CQ   CALL  ]    AP70
+
+//  return codes in the range 1-10 indicate the amount and the type of a-priori 
 //  information was required to decode the received message.
 
 int qra64_apset(qra64codec *pcodec, const int mycall, const int hiscall, const int grid, const int aptype);
@@ -146,10 +154,12 @@ int qra64_apset(qra64codec *pcodec, const int mycall, const int hiscall, const i
 //		APTYPE_HISCALL   set [?      hiscall ?/blank]
 //		APTYPE_BOTHCALLS set [mycall hiscall ?]
 //		APTYPE_FULL		 set [mycall hiscall grid]
+//		APTYPE_CQHISCALL set [cq/qrz hiscall ?/blank]
+
 // returns:
 //	 0  on success
-//      -1  when qra64_init was called with the QRA_NOAP flag
-//	-2  invalid apytpe (valid range [APTYPE_MYCALL..APTYPE_FULL]
+//  -1  when qra64_init was called with the QRA_NOAP flag
+//	-2  invalid apytpe (valid range [APTYPE_CQQRZ..APTYPE_CQHISCALL]
 //	    (APTYPE_CQQRZ [cq/qrz ? ?] is set by default )
 
 void qra64_apdisable(qra64codec *pcodec, const int aptype);
@@ -162,6 +172,7 @@ void qra64_apdisable(qra64codec *pcodec, const int aptype);
 //		APTYPE_HISCALL   disable [   ?   hiscall  ?/blank]
 //		APTYPE_BOTHCALLS disable [mycall hiscall     ?   ]
 //		APTYPE_FULL	 disable [mycall hiscall     grid]
+//		APTYPE_CQHISCALL set [cq/qrz hiscall ?/blank]
 
 void qra64_close(qra64codec *pcodec);
 // Free memory allocated by qra64_init

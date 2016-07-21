@@ -17,7 +17,6 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
   real red(NZ)
   real x(NFFT)
   complex cx(0:NH)
-  logical first
   equivalence (x,cx)
   data icos7/2,5,6,0,4,1,3/                            !Costas 7x7 pattern
   data nc1z/-1/,nc2z/-1/,ng2z/-1/
@@ -104,10 +103,10 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
   call packcall(mycall,nc1,ltext)
   call packcall(hiscall,nc2,ltext)
   call packgrid(hisgrid,ng2,ltext)
-  call packcall("CQ    ",ncq,ltext)
+!  call packcall("CQ    ",ncq,ltext)
 
   if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z) then
-     do naptype=0,4
+     do naptype=0,5
         call qra64_dec(s3,nc1,nc2,ng2,naptype,1,dat4,snr2,irc)
      enddo
      nc1z=nc1

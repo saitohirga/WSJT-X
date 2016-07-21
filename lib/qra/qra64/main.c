@@ -174,7 +174,7 @@ symbol.
 #define GRID_JN66		0x3AE4		// JN66
 #define GRID_73 		0x7ED0		// 73
 
-char decode_type[9][32] = {
+char decode_type[12][32] = {
   "[?    ?    ?] AP0",
   "[CQ   ?    ?] AP27",
   "[CQ   ?     ] AP42",
@@ -183,7 +183,10 @@ char decode_type[9][32] = {
   "[CALL CALL ?] AP57",
   "[?    CALL ?] AP29",
   "[?    CALL  ] AP44",
-  "[CALL CALL G] AP72"
+  "[CALL CALL G] AP72",
+  "[CQ   CALL ?] AP55",
+  "[CQ   CALL  ] AP70",
+  "[CQ   CALL G] AP70"
 };
 char apmode_type[3][32] = {
   "NO AP",
@@ -312,15 +315,18 @@ In the case a decode is successful the return code of the qra64_decode function
 indicates the amount of a-priori information required to decode the received 
 message according to this table:
 
- rc=0    [?    ?    ?] AP0
- rc=1    [CQ   ?    ?] AP27
- rc=2    [CQ   ?     ] AP42
- rc=3    [CALL ?    ?] AP29
- rc=4    [CALL ?     ] AP44
- rc=5    [CALL CALL ?] AP57
- rc=6    [?    CALL ?]     AP29
- rc=7    [?    CALL  ]     AP44
- rc=8    [CALL CALL GRID ] AP72
+ rc=0    [?    ?    ?]		AP0
+ rc=1    [CQ   ?    ?]		AP27
+ rc=2    [CQ   ?     ]		AP42
+ rc=3    [CALL ?    ?]		AP29
+ rc=4    [CALL ?     ]		AP44
+ rc=5    [CALL CALL ?]		AP57
+ rc=6    [?    CALL ?]		AP29
+ rc=7    [?    CALL  ]		AP44
+ rc=8    [CALL CALL GRID]	AP72
+ rc=9    [CQ   CALL ?]		AP55
+ rc=10   [CQ   CALL  ]		AP70
+ rc=11   [CQ   CALL GRID]	AP70
 
 The return code is <0 when decoding is unsuccessful
 
@@ -334,7 +340,7 @@ a particular type decode among the above 6 cases succeded.
   float ebnodbest, ebnodbavg=0;
   int rc,k;
 
-  int ndecok[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int ndecok[12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   int nundet = 0;
   int ntx = 100,ndec=0;
 
@@ -360,9 +366,16 @@ a particular type decode among the above 6 cases succeded.
   printf("K1JT decoder enabled for [K1JT IV3NWV JN66]\n");
   qra64_apset(codec_k1jt, CALL_K1JT,CALL_IV3NWV,GRID_JN66,APTYPE_FULL);
 
-  // IV3NWV reply to K1JT
-  printf("\nIV3NWV encoder sends msg: [K1JT IV3NWV JN66]\n\n");
-  encodemsg_jt65(x,CALL_K1JT,CALL_IV3NWV,GRID_JN66);
+// This will enable K1JT's decoder to look for calls from IV3NWV [CQ IV3NWV ?/b] msgs
+  printf("K1JT decoder enabled for [CQ   IV3NWV ?/b/JN66]\n");
+  qra64_apset(codec_k1jt, 0,CALL_IV3NWV,GRID_JN66,APTYPE_CQHISCALL);
+
+
+  // Dx station IV3NWV calls
+  printf("\nIV3NWV encoder sends msg: [CQ IV3NWV JN66]\n\n");
+  encodemsg_jt65(x,CALL_CQ,CALL_IV3NWV,GRID_JN66);
+//  printf("\nIV3NWV encoder sends msg: [CQ IV3NWV]\n\n");
+//  encodemsg_jt65(x,CALL_CQ,CALL_IV3NWV,GRID_BLANK);
   qra64_encode(codec_iv3nwv, y, x);
 
   printf("Simulating K1JT decoder up to AP72\n");
@@ -383,7 +396,7 @@ a particular type decode among the above 6 cases succeded.
 
 
   printf("Transimtted msgs:%d\nDecoded msgs:\n\n",ntx);
-  for (k=0;k<9;k++) {
+  for (k=0;k<12;k++) {
     printf("%3d with %s\n",ndecok[k],decode_type[k]);
     ndec += ndecok[k];
   }
