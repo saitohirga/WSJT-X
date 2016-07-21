@@ -1,8 +1,8 @@
-subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
-     sync,nsnr,dtx,nfreq,decoded,nft)
+subroutine qra64a(dd0,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,   &
+     hisgrid_6,sync,nsnr,dtx,nfreq,decoded,nft)
 
   use packjt
-  parameter (NFFT=2*6912,NH=NFFT/2,NZ=5760)
+  parameter (NFFT=2*6912,NH=NFFT/2,NZ=5760,NMAX=60*12000)
   character decoded*22
   character*12 mycall_12,hiscall_12
   character*6 mycall,hiscall,hisgrid_6
@@ -11,13 +11,11 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
   integer*8 count0,count1,clkfreq
   integer icos7(0:6)
   integer dat4(12)
-  real dd(60*12000)
+  real dd0(NMAX),dd(NMAX)
   real s(NZ)
   real savg(NZ)
+  real blue(0:25)
   real red(NZ)
-  real x(NFFT)
-  complex cx(0:NH)
-  equivalence (x,cx)
   data icos7/2,5,6,0,4,1,3/                            !Costas 7x7 pattern
   data nc1z/-1/,nc2z/-1/,ng2z/-1/
   common/qra64com/ss(NZ,194),s3(0:63,1:63),ccf(NZ,0:25)
@@ -29,23 +27,8 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
   nsps=6912
   istep=nsps/2
   nsteps=52*12000/istep - 2
-  ia=1-istep
-  savg=0.
   df=12000.0/NFFT
-  do j=1,nsteps
-     ia=ia+istep
-     ib=ia+nsps-1
-     x(1:nsps)=1.2e-4*dd(ia:ib)
-     x(nsps+1:)=0.0
-     call four2a(x,nfft,1,-1,0)        !r2c FFT
-     do i=1,NZ
-        s(i)=real(cx(i))**2 + aimag(cx(i))**2
-     enddo
-     ss(1:NZ,j)=s
-     savg=savg+s
-  enddo
-  savg=savg/nsteps
-
+  call spec64(dd0,-1,s,savg,ss)
   fa=max(nf1,nfqso-ntol)
   fb=min(nf2,nfqso+ntol)
   ia=nint(fa/df)
@@ -70,7 +53,7 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
            if(red(if0).gt.sync) then
               sync=red(if0)
               f0=if0*df
-              dtx=j*istep/12000.0 - 1.0
+!              dtx=j*istep/12000.0 - 1.0
               i0=if0
               j0=j
            endif
@@ -83,6 +66,23 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
 
   if0=nint(f0/df)
   nfreq=nint(f0)
+  blue(0:25)=ccf(if0,0:25)
+  dj=0.
+  if(j0.ge.1 .and. j0.le.24) call peakup(blue(j0-1),blue(j0),blue(j0+1),dj)
+  xpk=j0 + dj
+  dtx=xpk*istep/12000.0 - 1.0
+  i=nint(dj*istep)
+  if(i.lt.0) then
+     dd(1-i:NMAX)=dd0(1:NMAX+i)
+     dd(1:-i)=0.0
+  else
+     dd(1:NMAX-i)=dd0(1+i:NMAX)
+     dd(NMAX-i+1:NMAX)=0.0
+  endif
+
+! Recompute the symbol spectra, this time aligned for best DT estimate.
+  ss=0.
+  call spec64(dd,j0,s,savg,ss)
 
   do i=0,63                                !Copy symbol spectra into s3()
      k=i0 + 2*i
@@ -103,7 +103,6 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
   call packcall(mycall,nc1,ltext)
   call packcall(hiscall,nc2,ltext)
   call packgrid(hisgrid,ng2,ltext)
-!  call packcall("CQ    ",ncq,ltext)
 
   if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z) then
      do naptype=0,5
@@ -134,3 +133,39 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,hisgrid_6,   &
 
   return
 end subroutine qra64a
+
+subroutine spec64(dd,j0,s,savg,ss)
+
+  parameter (NFFT=2*6912,NH=NFFT/2,NZ=5760)
+  real dd(60*12000)
+  real s(NZ)
+  real savg(NZ)
+  real ss(NZ,194)
+  real x(NFFT)
+  complex cx(0:NH)
+  equivalence (x,cx)
+
+  nsps=6912
+  istep=nsps/2
+  nsteps=52*12000/istep - 2
+  ia=1-istep
+  savg=0.
+  df=12000.0/NFFT
+  mj0=mod(j0,2)
+  do j=1,nsteps
+     ia=ia+istep
+     if(j0.ge.0 .and. mod(j,2).eq.mj0) cycle   !Skip half of FFTs in 2nd pass
+     ib=ia+nsps-1
+     x(1:nsps)=1.2e-4*dd(ia:ib)
+     x(nsps+1:)=0.0
+     call four2a(x,nfft,1,-1,0)                !r2c FFT
+     do i=1,NZ
+        s(i)=real(cx(i))**2 + aimag(cx(i))**2
+     enddo
+     ss(1:NZ,j)=s
+     savg=savg+s
+  enddo
+  savg=savg/nsteps
+
+  return
+end subroutine spec64
