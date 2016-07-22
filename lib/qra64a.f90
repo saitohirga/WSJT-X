@@ -16,9 +16,13 @@ subroutine qra64a(dd0,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,   &
   real savg(NZ)
   real blue(0:25)
   real red(NZ)
+  real ss(NZ,194)
+  real ccf(NZ,0:25)
+  real s3(0:63,1:63)
+  real s3a(0:63,1:63)  
   data icos7/2,5,6,0,4,1,3/                            !Costas 7x7 pattern
   data nc1z/-1/,nc2z/-1/,ng2z/-1/
-  common/qra64com/ss(NZ,194),s3(0:63,1:63),ccf(NZ,0:25)
+!  common/qra64com/ss(NZ,194),ccf(NZ,0:25),s3(0:63,1:63),s3a(0:63,1:63)
   save
 
 !  write(60) dd0
@@ -98,6 +102,11 @@ subroutine qra64a(dd0,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,   &
 
   if(sync.gt.1.0) snr1=10.0*log10(sync) - 39.0
   nsnr=nint(snr1)
+!  write(*,5001) dtx,nint(f0),0,snr1
+!5001 format(f6.3,2i6,f7.1)
+  maxf1=10
+  call sync64(dd0,nf1,nf2,maxf1,dtx,f0,kpk,snr,s3a)
+!  write(*,5001) dtx,nint(f0),kpk,snr
 
   mycall=mycall_12(1:6)                     !### May need fixing ###
   hiscall=hiscall_12(1:6)
@@ -171,3 +180,6 @@ subroutine spec64(dd,j0,s,savg,ss)
 
   return
 end subroutine spec64
+
+include 'sync64.f90'
+include 'averms.f90'

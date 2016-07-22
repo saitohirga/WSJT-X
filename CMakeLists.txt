@@ -305,6 +305,7 @@ set (wsjt_FSRCS
   lib/astrosub.f90
   lib/astro0.f90
   lib/avecho.f90
+  lib/averms.f90
   lib/azdist.f90
   lib/baddata.f90
   lib/ccf2.f90
@@ -442,6 +443,7 @@ set (wsjt_FSRCS
   lib/symspec2.f90
   lib/symspec65.f90
   lib/sync4.f90
+  lib/sync64.f90
   lib/sync65.f90
   lib/sync9.f90
   lib/sync9f.f90
