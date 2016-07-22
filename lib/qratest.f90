@@ -7,35 +7,38 @@ program qratest
   character*8 arg
 
   nargs=iargc()
-  if(nargs.ne.2) then
-     print*,'Usage: qratest f0 fTol'
+  if(nargs.ne.3) then
+     print*,'Usage: qratest f0 maxf1 fTol'
      go to 999
   endif
   call getarg(1,arg)
   read(arg,*) nf0
   call getarg(2,arg)
+  read(arg,*) maxf1
+  call getarg(3,arg)
   read(arg,*) ntol
   nf1=nf0-ntol
   nf2=nf0+ntol
 
+!  do iskip=1,13
+!     read(60)
+!  enddo
+
   do n=1,999
      read(60,end=999) dd
      call system_clock(count0,clkfreq)
-     call sync64(dd,nf1,nf2,dtx,f0,f01,f02,f03,snr,t)
+     call sync64(dd,nf1,nf2,maxf1,dtx,f0,kpk,snr,t)
      call system_clock(count1,clkfreq)
      tsec=float(count1-count0)/float(clkfreq)
 !     nf0=200*nint(f0/200.)
      dfreq0=f0-nf0
-     dfreq1=f01-nf0
-     dfreq2=f02-nf0
-     dfreq3=f03-nf0
-     write(*,1000) dtx,f0,dfreq0,dfreq1,dfreq2,dfreq3,snr,tsec,t(1),t(2)
-1000 format(f8.3,f8.2,4f7.2,f8.1,3f6.3)
+     write(*,1000) dtx,f0,dfreq0,kpk,snr,tsec
+1000 format(f8.3,f8.2,f7.2,i4,f8.1,f7.3)
   enddo
 
 999 end program qratest
 
-subroutine sync64(dd,nf1,nf2,dtx,f0,f01,f02,f03,snr,t)
+subroutine sync64(dd,nf1,nf2,maxf1,dtx,f0,kpk,snr,t)
   parameter (NMAX=60*12000)                  !Max size of raw data at 12000 Hz
   parameter (NSPS=2304)                      !Samples per symbol at 4000 Hz
   parameter (NSPC=7*NSPS)                    !Samples per Costas array
@@ -49,13 +52,10 @@ subroutine sync64(dd,nf1,nf2,dtx,f0,f01,f02,f03,snr,t)
   real s3(0:NSPC-1)
 
   real s0a(0:NSPC-1)
-  real s1a(0:NSPC-1)
-  real s2a(0:NSPC-1)
-  real s3a(0:NSPC-1)
 
   integer*8 count0,count1,clkfreq
   integer icos7(0:6)
-  integer ipk(1)
+  integer ipk0(1)
 
   complex cc(0:NSPC-1)
   complex c0(0:336000)
@@ -97,12 +97,15 @@ subroutine sync64(dd,nf1,nf2,dtx,f0,f01,f02,f03,snr,t)
   ia=nint(nf1/df3)
   ib=nint(nf2/df3)
   iz=ib-ia+1
-  smax=0.
+  snr=0.
   jpk=0
-  s0=0.
   ja=0
   jb=6*4000
   jstep=200
+  ka=-maxf1
+  kb=maxf1
+  ipk=0
+  kpk=0
   call system_clock(count0,clkfreq)
   do iter=1,2
      do j1=ja,jb,jstep
@@ -114,55 +117,64 @@ subroutine sync64(dd,nf1,nf2,dtx,f0,f01,f02,f03,snr,t)
         call four2a(c2,nfft3,1,-1,1)
         c3=1.e-4*c0(j3:j3+NSPC-1) * conjg(cc)
         call four2a(c3,nfft3,1,-1,1)
+        s0=0.
+        s1=0.
+        s2=0.
+        s3=0.
         do i=ia,ib
            freq=i*df3
            s1(i)=real(c1(i))**2 + aimag(c1(i))**2
            s2(i)=real(c2(i))**2 + aimag(c2(i))**2
            s3(i)=real(c3(i))**2 + aimag(c3(i))**2
         enddo
-        call smo121(s1(ia:ib),iz)
-        call smo121(s2(ia:ib),iz)
-        call smo121(s3(ia:ib),iz)
-        s0(ia:ib)=s1(ia:ib) + s2(ia:ib) + s3(ia:ib)
-        s=maxval(s0(ia:ib))
-        if(s.gt.smax) then
-           jpk=j1
-           s0a=s0
-           s1a=s1
-           s2a=s2
-           s3a=s3
-           smax=s
-           dtx=jpk/4000.0 - 1.0
-           ipk=maxloc(s0(ia:ib))
-           f0=(ipk(1)+ia-1)*df3
-
-           ipk=maxloc(s1(ia:ib))
-           f01=(ipk(1)+ia-1)*df3
-
-           ipk=maxloc(s2(ia:ib))
-           f02=(ipk(1)+ia-1)*df3
-
-           ipk=maxloc(s3(ia:ib))
-           f03=(ipk(1)+ia-1)*df3
-        endif
+        do k=ka,kb
+           s0(ia:ib)=s1(ia-k:ib-k) + s2(ia:ib) + s3(ia+k:ib+k)
+           call smo121(s0(ia:ib),iz)
+           call averms(s0(ia:ib),iz,14,ave,rms)
+           s=(maxval(s0(ia:ib))-ave)/rms
+           if(s.gt.snr) then
+              jpk=j1
+              s0a=s0
+              snr=s
+              dtx=jpk/4000.0 - 1.0
+              ipk0=maxloc(s0(ia:ib))
+              ipk=ipk0(1)
+              f0=(ipk+ia-1)*df3
+              kpk=k
+              write(16,3101) jpk,ipk,kpk,dtx,f0,snr
+3101          format(3i5,f8.3,f8.2,f10.1)
+           endif
+        enddo
      enddo
      ja=jpk-2*jstep
      jb=jpk+2*jstep
      jstep=10
+!     ka=kpk
+!     kb=kpk
   enddo
   call system_clock(count1,clkfreq)
   t(2)=float(count1-count0)/float(clkfreq)
 
-  ave=sum(s0a(ia:ib))/iz
-  sq=dot_product(s0a(ia:ib),s0a(ia:ib))
-  rms=sqrt(sq/iz - ave*ave)
-  snr=(smax-ave)/rms
-
-!  do i=0,nfft3-1
-!     freq=i*df3
-!     if(freq.gt.2500.0) exit
-!     write(14,1020) freq,s0a(i),s1a(i),s2a(i),s3a(i)
-!1020 format(f10.3,4f12.1)
-!  enddo
-        
+  return
 end subroutine sync64
+
+subroutine averms(x,n,nskip,ave,rms)
+  real x(n)
+  integer ipk(1)
+
+  ns=0
+  s=0.
+  sq=0.
+  ipk=maxloc(x)
+  do i=1,n
+     if(abs(i-ipk(1)).gt.nskip) then
+        s=s + x(i)
+        sq=sq + x(i)**2
+        ns=ns+1
+     endif
+  enddo
+  ave=s/ns
+  rms=sqrt(sq/ns - ave*ave)
+ 
+  return
+end subroutine averms
