@@ -180,6 +180,3 @@ subroutine spec64(dd,j0,s,savg,ss)
 
   return
 end subroutine spec64
-
-include 'sync64.f90'
-include 'averms.f90'
