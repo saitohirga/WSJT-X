@@ -5060,9 +5060,12 @@ void MainWindow::transmitDisplay (bool transmitting)
 
     if (!m_mode.startsWith ("WSPR")) {
       if(m_config.enable_VHF_features ()) {
+//### During tests, at least, allow use of Tx Freq spinner with VHF features enabled.
         // used fixed 1000Hz Tx DF for VHF & up QSO modes
-        ui->TxFreqSpinBox->setValue(1000);
-        ui->TxFreqSpinBox->setEnabled (false);
+//        ui->TxFreqSpinBox->setValue(1000);
+//        ui->TxFreqSpinBox->setEnabled (false);
+        ui->TxFreqSpinBox->setEnabled (true);
+//###
         ui->cbTxLock->setChecked(false);
         ui->cbTxLock->setEnabled(false);
       } else {
