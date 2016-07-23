@@ -3984,7 +3984,9 @@ void MainWindow::on_actionMSK144_triggered()
 
 void MainWindow::on_actionQRA64_triggered()
 {
+  int n=m_nSubMode;
   on_actionJT65_triggered();
+  m_nSubMode=n;
   m_mode="QRA64";
   m_modeTx="QRA64";
   ui->actionQRA64->setChecked(true);
@@ -3993,8 +3995,14 @@ void MainWindow::on_actionQRA64_triggered()
   setup_status_bar (m_config.enable_VHF_features ());
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
+  ui->sbSubmode->setMaximum(4);
+  if(m_config.enable_VHF_features()) {
+    ui->sbSubmode->setValue(m_nSubMode);
+  } else {
+    ui->sbSubmode->setValue(0);
+    ui->sbTR->setValue(0);
+  }
 }
-
 
 void MainWindow::on_actionJT65_triggered()
 {
@@ -4865,6 +4873,8 @@ void MainWindow::transmit (double snr)
     if(m_nSubMode==0) toneSpacing=12000.0/6912.0;
     if(m_nSubMode==1) toneSpacing=2*12000.0/6912.0;
     if(m_nSubMode==2) toneSpacing=4*12000.0/6912.0;
+    if(m_nSubMode==3) toneSpacing=8*12000.0/6912.0;
+    if(m_nSubMode==4) toneSpacing=16*12000.0/6912.0;
     Q_EMIT sendMessage (NUM_QRA64_SYMBOLS,
            6912.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
