@@ -1,4 +1,4 @@
-subroutine sync64(dd,nf1,nf2,maxf1,dtx,f0,kpk,snrdb,s3a)
+subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,kpk,snrdb,s3a)
 
   parameter (NMAX=60*12000)                  !Max size of raw data at 12000 Hz
   parameter (NSPS=2304)                      !Samples per symbol at 4000 Hz
@@ -53,8 +53,10 @@ subroutine sync64(dd,nf1,nf2,maxf1,dtx,f0,kpk,snrdb,s3a)
   nfft3=NSPC
   nh3=nfft3/2
   df3=4000.0/nfft3
-  ia=nint(nf1/df3)
-  ib=nint(nf2/df3)
+  fa=max(nf1,nfqso-ntol)
+  fb=min(nf2,nfqso+ntol)
+  ia=max(maxf1,nint(fa/df3))
+  ib=min(NSPC-1-maxf1,nint(fb/df3))
   iz=ib-ia+1
   snr=0.
   jpk=0
