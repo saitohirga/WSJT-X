@@ -105,7 +105,7 @@ subroutine qra64a(dd0,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,   &
 !  write(*,5001) dtx,nint(f0),0,snr1
 !5001 format(f6.3,2i6,f7.1)
   maxf1=10
-  call sync64(dd0,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,kpk,snr,s3a)
+!  call sync64(dd0,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,kpk,snr,s3a)
 !  write(*,5001) dtx,nint(f0),kpk,snr
 
   mycall=mycall_12(1:6)                     !### May need fixing ###
