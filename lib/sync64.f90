@@ -104,8 +104,8 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,kpk,snrdb,s3a)
            endif
         enddo
      enddo
-     ja=jpk-2*jstep
-     jb=jpk+2*jstep
+     ja=max(0,jpk-2*jstep)
+     jb=min(336000-NSPC,jpk+2*jstep)
      jstep=10
 !     ka=kpk
 !     kb=kpk
