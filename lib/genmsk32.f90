@@ -47,7 +47,7 @@ subroutine genmsk32(msg,msgsent,ichk,itone,itype)
 
   ncodeword=ig24(ig)
 
-!write(*,*) 'codeword is: ',ncodeword,'message is: ',ig,'report index: ',irpt,'hash: ',ihash
+write(*,*) 'codeword is: ',ncodeword,'message is: ',ig,'report index: ',irpt,'hash: ',ihash
 
   do i=1,24
     codeword(i)=iand(1,ishft(ncodeword,1-i))

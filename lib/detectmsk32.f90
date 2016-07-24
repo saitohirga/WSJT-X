@@ -23,15 +23,17 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
   complex bb(6)
   integer s8(8),s8r(8),hardbits(32)
   integer, dimension(1) :: iloc
+  integer icd(0:4095)
   integer ihammd(0:4096-1)
   integer indices(MAXSTEPS)
   integer ipeaks(10)
   integer ig24(0:4096-1)
+  integer ig(0:23,0:4095)
+  integer isoftbits(32)
   integer likelymessages(0:31)
   logical qsocontext
   logical ismask(NFFT)
   real cbi(42),cbq(42)
-  real cd(0:4095)
   real detmet(-2:MAXSTEPS+3)
   real detfer(MAXSTEPS)
   real rcw(12)
@@ -94,6 +96,14 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
 
      call golay24_table(ig24)
 
+     do i=0,4095
+       ncw=ig24(i)
+       do j=0,23
+         ib=iand(1,ishft(ncw,-j))
+         ig(j,i)=2*ib-1
+       enddo
+     enddo
+ 
      first=.false.
   endif
 
@@ -103,9 +113,9 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
     call fmtmsg(hashmsg,iz)
     call hash(hashmsg,22,ihash)
     ihash=iand(ihash,127)
-    ig=32*ihash + irpt
-    likelymessages(irpt)=ig
-!    write(*,*) irpt,hashmsg,ig,ig24(ig)
+    igl=32*ihash + irpt
+    likelymessages(irpt)=igl
+!    write(*,*) irpt,hashmsg,igl,ig24(igl)
   enddo  
   qsocontext=.false.
 
@@ -198,7 +208,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
   imsgbest=-1
   nbadsyncbest=99
   nhammdbest=99
-  cdbest=1e32
+  icdbest=1e6
   cdratbest=0.0
 
   do ip=1,ndet  !run through the candidates and try to sync/demod/decode
@@ -349,54 +359,56 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
               s2av=sum(softbits*softbits)/32
               ssig=sqrt(s2av-sav*sav)
               softbits=softbits/ssig
+              isoftbits=softbits*1e4
               call timer('search32',0) 
               if( qsocontext ) then  ! search only 32 likely messages.
-                cd=1e6
+                icd=1e6
                 ihammd=99
                 do i=0,31
                   ncw=ig24(likelymessages(i))
-                  cd(i)=0.0
+                  icd(i)=0.0
                   ihammd(i)=0
                   do ii=1,24
                     ib=iand(1,ishft(ncw,1-ii))
                     ib=2*ib-1 
                     if( ib*softbits(ii+8) .lt. 0 ) then
-                      cd(i)=cd(i)+abs(softbits(ii+8))
+                      icd(i)=cd(i)+abs(softbits(ii+8))
                       ihammd(i)=ihammd(i)+1
                     endif
                   enddo
                 enddo
               else  ! exhaustive decoder, look at every codeword.
-                cd=1e6
+                icd=1e6
                 ihammd=99
                 do i=0,4096-1
-                  ncw=ig24(i)
-                  cd(i)=0.0
+!                  ncw=ig24(i)
+                  icd(i)=0.0
                   ihammd(i)=0
                   do ii=1,24
-                    ib=iand(1,ishft(ncw,1-ii))
-                    ib=2*ib-1 
-                    if( ib*softbits(ii+8) .lt. 0 ) then
-                      cd(i)=cd(i)+abs(softbits(ii+8))
+!                    ib=iand(1,ishft(ncw,1-ii))
+                    ib=ig(ii-1,i)
+!                    ib=2*ib-1 
+                    if( ib*isoftbits(ii+8) .lt. 0 ) then
+                      icd(i)=icd(i)+abs(isoftbits(ii+8))
                       ihammd(i)=ihammd(i)+1
                     endif
                   enddo
                 enddo
               endif
               call timer('search32',1) 
-              cdm=minval(cd)
-              iloc=minloc(cd)
+              icdm=minval(icd)
+              iloc=minloc(icd)
               imsg=iloc(1)-1
-              cd(imsg)=1e6
-              cdm2=minval(cd)
-              iloc=minloc(cd)
+              icd(imsg)=1e6
+              icdm2=minval(icd)
+              iloc=minloc(icd)
               imsg2=iloc(1)-1
-              cdrat=cdm2/(cdm+0.001)
-              cdrat2=cdm/(cdm2+0.0001)
-              if( (cdm .lt. cdbest) .or. ((cdm .eq. cdbest) .and. (ihammd(imsg) .lt. nhammdbest)) ) then
+              cdrat=icdm2/(icdm+1)
+              cdrat2=icdm/(icdm2+1)
+              if( (icdm .lt. icdbest) .or. ((icdm .eq. icdbest) .and. (ihammd(imsg) .lt. nhammdbest)) ) then
                 cdratbest = cdrat
                 cdrat2best = cdrat2
-                cdbest = cdm
+                icdbest = icdm
                 imsgbest = imsg
                 imsg2best = imsg2
                 iavbest = iav
@@ -407,7 +419,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
                 iphabest = ipha
                 nbadsyncbest = nbadsync
                 nhammdbest = ihammd(imsg)
-                if( ( nhammdbest  .eq. 0 )  .and. (cdbest .eq. 0.0) .and. (cdratbest .gt. 2000.0) ) goto 999
+                if( ( nhammdbest  .eq. 0 )  .and. (icdbest .eq. 0.0) .and. (cdratbest .gt. 2000.0) ) goto 999
               endif
             enddo   ! phase loop
           enddo   ! frame averaging loop
@@ -418,7 +430,7 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
 999 continue
   msgreceived=' '
   if( imsgbest .gt. 0 ) then
-    if( ( nhammdbest+nbadsyncbest .le. 4 ) .and. cdratbest .gt. 10.0 ) then
+    if( ( nhammdbest+nbadsyncbest .le. 4 ) .and. cdratbest .gt. 5.0 ) then
       if( qsocontext ) then
         nrxrpt=iand(likelymessages(imsgbest),31)
         nrxhash=(likelymessages(imsgbest)-nrxrpt)/32
@@ -445,14 +457,15 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
         endif
         if(nrxhash.ne.ihash .and. t00.gt.0.0 .and. nsnr.gt.-4) then
            nmessages=1
-           write(msgreceived,'(a5,1x,a4)') "<...>",rpt(nrxrpt)
+!           write(msgreceived,'(a5,1x,a4)') "<...>",rpt(nrxrpt)
+           write(msgreceived,'(a1,i3,1x,i3,a1,a4)') "<",nrxhash,ihash,">",rpt(nrxrpt)
            write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
         endif
 
 !       write(*,1022) nutc,ipbest,times(ipbest),snrs(ipbest),fest,nrxrpt,nrxhash, &
 !                    rpt(nrxrpt),imessage,ig24(imessage),nhammdbest, &
-!                    cdbest,cdratbest,cdrat2best,nbadsyncbest,ipkbest,idbest,idfbest,iavbest,iphabest
-!1022 format(i4.4,2x,i4,f8.3,f8.2,f8.2,i6,i6,a6,i8,i10,i4,f8.3,f8.2,f8.2,i5,i5,i5,i5,i5,i5) 
+!                    icdbest,cdratbest,cdrat2best,nbadsyncbest,ipkbest,idbest,idfbest,iavbest,iphabest
+!1022 format(i6.6,2x,i4,f8.3,f8.2,f8.2,i6,i6,a6,i8,i10,i4,i8,f10.2,f10.2,i5,i5,i5,i5,i5,i5) 
       endif
     endif
   endif
