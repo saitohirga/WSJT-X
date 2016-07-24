@@ -53,11 +53,10 @@ subroutine hint65(s3,mrs,mrs2,nadd,nflip,mycall,hiscall,hisgrid,qual,decoded)
         if(i3.lt.1) i3=index(line(i2+1:),' ')
         i3=i2+i3
         callsign=line(1:i1-1)
-        grid=line(i1+1:i2-1)
+        grid=line(i1+1:i1+4)
         ceme=line(i2+1:i3-1)
         eme(i)=ceme.eq.'EME'
         if(neme.eq.1 .and. (.not.eme(i))) cycle
-        if(callsign(1:6).eq.hiscall .and. grid.eq.hisgrid) cycle
         j=j+1
         call2(j)=callsign(1:6)               !### Fix for compound callsigns!
         grid2(j)=grid
@@ -72,7 +71,7 @@ subroutine hint65(s3,mrs,mrs2,nadd,nflip,mycall,hiscall,hisgrid,qual,decoded)
 ! NB: generation of test messages is not yet complete!
      j=0
      do i=-1,ncalls
-        if(i.eq.0 .and. hiscall.eq.'      ' .and. hisgrid.eq.'    ') cycle
+        if(i.eq.0 .and. hiscall.eq.'      ' .and. hisgrid(1:4).eq.'    ') cycle
         mz=2
         if(i.eq.-1) mz=1
         if(i.eq.0) mz=65
