@@ -2,24 +2,29 @@ subroutine genmsk32(msg,msgsent,ichk,itone,itype)
 
   use hashing
   character*22 msg,msgsent,hashmsg
-  character*4 crpt,rpt(0:31)
+  character*4 crpt,rpt(0:63)
   logical first
   integer itone(144)
-  integer ig24(0:4096-1)                  !Codewords for Golay (24,12) code
-  integer*1 codeword(24),bitseq(32)
+  integer ig32(0:65536-1)                  !Codewords for Golay (24,12) code
+  integer*1 codeword(32),bitseq(32)
   integer*1 s8r(8)
   data s8r/1,0,1,1,0,0,0,1/
-  data rpt /'-04 ','-02 ','+00 ','+02 ','+04 ','+06 ','+08 ','+10 ','+12 ', &
-            '+14 ','+16 ','+18 ','+20 ','+22 ','+24 ', &
-            'R-04','R-02','R+00','R+02','R+04','R+06','R+08','R+10','R+12', &
-            'R+14','R+16','R+18','R+20','R+22','R+24', &
-            'RRR ','73  '/
-
   data first/.true./
-  save first,ig24
+  save first,ig32
 
   if(first) then
-     call golay24_table(ig24)             !Define the Golay(24,12) codewords
+     call ldpc32_table(ig32)             !Define the Golay(24,12) codewords
+     do i=0,30
+       if( i.lt.5 ) then
+         write(rpt(i),'(a1,i2.2,a1)') '-',abs(i-5)
+         write(rpt(i+31),'(a2,i2.2,a1)') 'R-',abs(i-5)
+       else
+         write(rpt(i),'(a1,i2.2,a1)') '+',i-5
+         write(rpt(i+31),'(a2,i2.2,a1)') 'R+',i-5
+       endif
+     enddo
+     rpt(62)='RRR '
+     rpt(63)='73  '
      first=.false.
   endif
 
@@ -30,7 +35,7 @@ subroutine genmsk32(msg,msgsent,ichk,itone,itype)
   if(i1.lt.9) go to 900
   call fmtmsg(msg,iz)
   crpt=msg(i1+2:i1+5)
-  do i=0,31
+  do i=0,63
      if(crpt.eq.rpt(i)) go to 10
   enddo
   go to 900
@@ -39,22 +44,21 @@ subroutine genmsk32(msg,msgsent,ichk,itone,itype)
   if(ichk.lt.10000) then
      hashmsg=msg(2:i1-1)//' '//crpt
      call hash(hashmsg,22,ihash)          
-     ihash=iand(ihash,127)                 !7-bit hash 
-     ig=32*ihash + irpt                    !12-bit codeword
+     ihash=iand(ihash,1023)                 !10-bit hash 
+     ig=64*ihash + irpt                     !6-bit report 
   else
      ig=ichk-10000
   endif
 
-  ncodeword=ig24(ig)
+  ncodeword=ig32(ig)
 
-!  write(*,*) 'codeword is: ',ncodeword,'message is: ',ig,'report index: ',irpt,'hash: ',ihash
+  write(*,*) 'codeword is: ',ncodeword,'message is: ',ig,'report index: ',irpt,'hash: ',ihash
 
-  do i=1,24
+  do i=1,32
     codeword(i)=iand(1,ishft(ncodeword,1-i))
   enddo
 
-  bitseq(1:8)=s8r
-  bitseq(9:32)=codeword 
+  bitseq=codeword
   bitseq=2*bitseq-1
 
 ! Map I and Q  to tones.
