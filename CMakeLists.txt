@@ -435,6 +435,7 @@ set (wsjt_FSRCS
   lib/softsym9f.f90
   lib/softsym9w.f90
   lib/shell.f90
+  lib/spec64.f90
   lib/spec9f.f90
   lib/stdmsg.f90
   lib/subtract65.f90

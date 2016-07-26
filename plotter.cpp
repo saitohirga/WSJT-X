@@ -132,7 +132,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
 
   m_line++;
   if(m_mode=="QRA64" and bRed) {
-    double df_qra64=12000.0/(2*6912);
+    double df_qra64=4000.0/(7*2304);
     int j0,j1;
     int k=0;
     float smax,y3max=0;
@@ -149,7 +149,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     }
     float fac=0.8/qMax(y3max,10.0f);
     for(int i=1; i<iz; i++) {
-      if(y3[i]>0) {
+      if(FreqfromX(i)>=m_ia*df_qra64 and FreqfromX(i)<m_ib*df_qra64) {
         y2=fac*y3[i];
         LineBuf2[k].setX(i);
         LineBuf2[k].setY(int(m_h2*(0.9-y2)));
@@ -160,7 +160,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     painter2D.setPen(Qt::red);
     painter2D.drawPolyline(LineBuf2,k);
     ktop=k;
-    update();                                    //trigger a new paintEvent
+    update();                                   //trigger a new paintEvent
     return;
   }
 

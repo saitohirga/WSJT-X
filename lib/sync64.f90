@@ -1,11 +1,9 @@
-subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,kpk,snrdb,s3a)
+subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
 
   parameter (NMAX=60*12000)                  !Max size of raw data at 12000 Hz
   parameter (NSPS=2304)                      !Samples per symbol at 4000 Hz
   parameter (NSPC=7*NSPS)                    !Samples per Costas array
   real dd(NMAX)                              !Raw data
-  real x(672000)                             !Up to 56 s at 12000 Hz
-  real s3a(0:63,1:63)                        !Synchronized symbol spectra
   real s1(0:NSPC-1)                          !Power spectrum of Costas 1
   real s2(0:NSPC-1)                          !Power spectrum of Costas 2
   real s3(0:NSPC-1)                          !Power spectrum of Costas 3
@@ -14,12 +12,11 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,kpk,snrdb,s3a)
   integer icos7(0:6)                         !Costas 7x7 tones
   integer ipk0(1)
   complex cc(0:NSPC-1)                       !Costas waveform
-  complex c0(0:336000)                       !Complex spectrum of dd()
+  complex c0(0:360000)                       !Complex spectrum of dd()
   complex c1(0:NSPC-1)                       !Complex spectrum of Costas 1
   complex c2(0:NSPC-1)                       !Complex spectrum of Costas 2
   complex c3(0:NSPC-1)                       !Complex spectrum of Costas 3
   logical first
-  equivalence (x,c0)
   data icos7/2,5,6,0,4,1,3/                  !Costas 7x7 tone pattern
   data first/.true./
   save
@@ -46,7 +43,10 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,kpk,snrdb,s3a)
   nfft2=nfft1/3
   df1=12000.0/nfft1
   fac=2.0/nfft1
-  x=fac*dd(1:nfft1)
+!  x=fac*dd(1:nfft1)
+  do i=0,nfft1/2
+     c0(i)=fac*cmplx(dd(1+2*i),dd(2+2*i))
+  enddo
   call four2a(c0,nfft1,1,-1,0)             !Forward r2c FFT
   call four2a(c0,nfft2,1,1,1)              !Inverse c2c FFT; c0 is analytic sig
   npts2=npts0/3                            !Downsampled complex data length
@@ -94,7 +94,8 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,kpk,snrdb,s3a)
            s=(maxval(s0(ia:ib))-ave)/rms
            if(s.gt.snr) then
               jpk=j1
-              s0a=s0
+!              s0a=(s0-ave)/rms
+              s0a=s0/rms
               snr=s
               dtx=jpk/4000.0 - 1.0
               ipk0=maxloc(s0(ia:ib))
@@ -110,11 +111,20 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,kpk,snrdb,s3a)
 !     ka=kpk
 !     kb=kpk
   enddo
-  snrdb=10.0*log10(snr)-39.0
 
 !###
-! Now use tweak on the c0() array, then do nfft4=NSPS FFTs to get s3a(), 
-! the properly synchronized symbol spectra.
+!  rewind 73
+!  do i=ia,ib
+!     write(73,3201) i*df3,s0a(i),db(s0a(i))
+!3201 format(3f10.3)
+!  enddo
+!  flush(73)
+!###
+
+  write(17) ia,ib,s0a(ia:ib)                !Save red()
+  close(17)
+
+  snrdb=10.0*log10(snr)-39.0
 
   return
 end subroutine sync64
