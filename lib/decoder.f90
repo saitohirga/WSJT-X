@@ -248,7 +248,7 @@ contains
     if(ft.ge.80) then
        nft=ft-100
        csync=': '
-       if(snr.gt.-30) csync=':*'
+       if(snr.gt.-30 .or. nft.ge.0) csync=':*'
        if(nft.lt.0) then
           write(*,1009) params%nutc,snr,dt,freq,csync,decoded
        else
