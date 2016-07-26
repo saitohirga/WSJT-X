@@ -43,7 +43,6 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
   nfft2=nfft1/3
   df1=12000.0/nfft1
   fac=2.0/nfft1
-!  x=fac*dd(1:nfft1)
   do i=0,nfft1/2
      c0(i)=fac*cmplx(dd(1+2*i),dd(2+2*i))
   enddo
@@ -108,22 +107,10 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
      ja=max(0,jpk-2*jstep)
      jb=min(336000-NSPC,jpk+2*jstep)
      jstep=10
-!     ka=kpk
-!     kb=kpk
   enddo
 
-!###
-!  rewind 73
-!  do i=ia,ib
-!     write(73,3201) i*df3,s0a(i),db(s0a(i))
-!3201 format(3f10.3)
-!  enddo
-!  flush(73)
-!###
-
-  write(17) ia,ib,s0a(ia:ib)                !Save red()
+  write(17) ia,ib,s0a(ia:ib)                !Save data for red curve
   close(17)
-
   snrdb=10.0*log10(snr)-39.0
 
   return

@@ -11,11 +11,11 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,   &
   complex c00(0:360000)                      !Complex spectrum of dd()
   complex c0(0:360000)                       !Complex spectrum of dd()
 !  integer*8 count0,count1,clkfreq
-  integer icos7(0:6)
-  integer dat4(12)
   real a(3)
-  real dd(NMAX)
-  real s3(0:63,1:63)
+  real dd(NMAX)                              !Raw data sampled at 12000 Hz
+  real s3(0:63,1:63)                         !Symbol spectra
+  integer dat4(12)                           !Decoded message (as 12 integers)
+  integer icos7(0:6)
   data icos7/2,5,6,0,4,1,3/                  !Costas 7x7 pattern
   data nc1z/-1/,nc2z/-1/,ng2z/-1/
   save
@@ -28,7 +28,6 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,   &
   call packcall(mycall,nc1,ltext)
   call packcall(hiscall,nc2,ltext)
   call packgrid(hisgrid,ng2,ltext)
-
   if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z) then
      do naptype=0,5
         call qra64_dec(s3,nc1,nc2,ng2,naptype,1,dat4,snr2,irc)
@@ -39,12 +38,9 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,   &
   endif
 
   maxf1=5
-!  maxf1=0
   call sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,jpk,kpk,snr1,c00)
   
-!###
   npts2=216000
-  snr2=-99.
   naptype=4
   do itry0=1,3
      idf0=itry0/2
