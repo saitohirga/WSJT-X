@@ -1,7 +1,7 @@
 subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
   use timer_module, only: timer
 
-  parameter (NSPM=192, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=10)
+  parameter (NSPM=192, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=5)
   character*4 rpt(0:63)
   character*6 mycall,partnercall
   character*22 msg,msgsent,msgreceived,allmessages(32)
@@ -19,6 +19,8 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
   real detmet(-2:MAXSTEPS+3)
   real detfer(MAXSTEPS)
   real ferrs(MAXCAND)
+  real f2(64)
+  real peak(64)
   real pp(12)
   real rcw(12)
   real snrs(MAXCAND)
@@ -166,13 +168,13 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
   nmessages=0
   lines=char(0)
 
-  fbest=1e6
-  pkbest=-1e6
+  pkbest=-1.0
+  ratbest=0.0
   imsgbest=-1
-  istartbest=-1
+  fbest=0.0
   ipbest=-1
-  nsnrbest=-100
-  t0best=-1e6
+  nsnrbest=-1
+
   do ip=1,ndet  !run through the candidates and try to sync/demod/decode
     imid=times(ip)*fs
     if( imid .lt. NPTS/2 ) imid=NPTS/2
@@ -180,12 +182,30 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
     t0=times(ip) + t00
     cdat=cbig(imid-NPTS/2+1:imid+NPTS/2)
     ferr=ferrs(ip)
-    nsnr=2*nint(snrs(ip)/2.0)
-    if( nsnr .lt. -4 ) nsnr=-4
-    if( nsnr .gt. 24 ) nsnr=24
+    nsnr=nint(snrs(ip))
+    if( nsnr .lt. -5 ) nsnr=-5
+    if( nsnr .gt. 25 ) nsnr=25
 
-    do imsg=1,64
-      do istart=NSPM-NSPM/2,NPTS-NSPM
+    ic0=NSPM
+    do i=1,6
+!      if( ic0+11+NSPM .le. NPTS ) then
+        bb(i) = sum( ( cdat(ic0+i-1+6:ic0+i-1+6+NSPM:6) * conjg( cdat(ic0+i-1:ic0+i-1+NSPM:6) ) )**2 )
+!      else
+!        bb(i) = sum( ( cdat(ic0+i-1+6:NPTS:6) * conjg( cdat(ic0+i-1:NPTS-6:6) ) )**2 )
+!      endif
+!      write(*,*) ip,i,abs(bb(i))
+    enddo
+    iloc=maxloc(abs(bb))
+    ibb=iloc(1)
+    bba=abs(bb(ibb))
+    bbp=atan2(-imag(bb(ibb)),-real(bb(ibb)))/(2*twopi*6*dt)
+    if( ibb .le. 3 ) ibb=ibb-1
+    if( ibb .gt. 3 ) ibb=ibb-7
+!    write(*,*) ibb
+    ic0=ic0+ibb+2
+
+    do istart=ic0,ic0+32*6-1,6
+      do imsg=1,64
         cft(1:144)=cdat(istart:istart+144-1)*conjg(cwaveforms(1:144,imsg))
         cft(145:512)=0.
         df=12000.0/512.0
@@ -195,26 +215,36 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
         pk=abs(cft(ipk))
         fpk=(ipk-1)*df
         if( fpk.gt.12000.0 ) fpk=fpk-12000.0
-        if( pk .gt. pkbest .and. abs(fpk-1500.0) .le. ntol) then
-          ipbest=ip
-          pkbest=pk
-          fbest=fpk
-          imsgbest=imsg
-          istartbest=istart
-          nsnrbest=nsnr
-          t0best=t0
-        endif
+        f2(imsg)=fpk
+        peak(imsg)=pk
       enddo
+    iloc=maxloc(peak)
+    imsg1=iloc(1)
+    pk1=peak(imsg1)
+    peak(imsg1)=-1
+    pk2=maxval(peak)
+    rat=pk1/pk2
+    if( abs(f2(imsg1)-1500) .le. ntol .and. (pk1 .gt. pkbest) ) then
+      pkbest=pk1
+      ratbest=rat
+      imsgbest=imsg1
+      fbest=f2(imsg1)
+      ipbest=ip
+      t0best=t0
+      nsnrbest=nsnr
+      istartbest=istart
+    endif
     enddo
+!    write(*,*) ip,imid,istart,imsgbest,pkbest,ratbest,nsnrbest
+!    if( pkbest .gt. 110.0 .and. ratbest .gt. 1.2 ) goto 999
 
   enddo  ! candidate loop
 
 999 continue
   msgreceived=' '
-  if( imsgbest .gt. 0 .and. pkbest .ge. 108.0) then
+  if( imsgbest .gt. 0 .and. pkbest .ge. 110.0 .and. ratbest .ge. 1.20) then
            nrxrpt=iand(imsgbest-1,63)
-           nrxhash=(imsgbest-1-nrxrpt)/64
-!write(*,*) ipbest,pkbest,fbest,imsgbest,istartbest,nsnrbest,t0best,nrxrpt,nrxhash
+!write(*,*) ipbest,pkbest,fbest,imsgbest,istartbest,nsnrbest,t0best
            nmessages=1
            write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),      &
                 trim(partnercall),">",rpt(nrxrpt)
