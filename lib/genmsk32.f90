@@ -10,7 +10,7 @@ subroutine genmsk32(msg,msgsent,ichk,itone,itype)
   integer*1 s8r(8)
   data s8r/1,0,1,1,0,0,0,1/
   data first/.true./
-  save first,ig32
+  save first,rpt,ig32
 
   if(first) then
      call ldpc32_table(ig32)             !Define the Golay(24,12) codewords
@@ -52,7 +52,7 @@ subroutine genmsk32(msg,msgsent,ichk,itone,itype)
 
   ncodeword=ig32(ig)
 
-  write(*,*) 'codeword is: ',ncodeword,'message is: ',ig,'report index: ',irpt,'hash: ',ihash
+!  write(*,*) 'codeword is: ',ncodeword,'message is: ',ig,'report index: ',irpt,'hash: ',ihash
 
   do i=1,32
     codeword(i)=iand(1,ishft(ncodeword,1-i))
