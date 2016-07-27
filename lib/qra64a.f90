@@ -45,13 +45,13 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,   &
   do itry0=1,3
      idf0=itry0/2
      if(mod(itry0,2).eq.0) idf0=-idf0
-     a(1)=-(f0+0.248*idf0)
+     a(1)=-(f0+0.248*(idf0-0.33*kpk))
      nfreq=nint(-a(1))
      a(3)=0.
-     do itry1=1,1
+     do itry1=1,3
         idf1=itry1/2
         if(mod(itry1,2).eq.0) idf1=-idf1
-        a(2)=0.5*idf1
+        a(2)=-0.67*(idf1 + 0.67*kpk)
         call twkfreq(c00,c0,npts2,4000.0,a)
         call spec64(c0,npts2,jpk,s3)
         call qra64_dec(s3,nc1,nc2,ng2,naptype,0,dat4,snr2,irc)
@@ -64,8 +64,8 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,   &
         else
            snr2=0.
         endif
-        write(78,3900) nutc,snr1,snr2,dtx,nfreq,idf0,idf1,irc,decoded
-3900    format(i4.4,2f6.1,f6.2,i5,3i3,1x,a22)
+        write(78,3900) nutc,snr1,snr2,dtx,nfreq,kpk,idf0,idf1,irc,decoded
+3900    format(i4.4,2f6.1,f6.2,i5,4i3,1x,a22)
         flush(78)
 !        write(*,3006) idf0,idf1,nfreq,jpk,kpk,irc,decoded
 !3006    format(2i4,i6,i7,2i4,2x,a22)
