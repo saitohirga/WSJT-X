@@ -4,12 +4,12 @@ program msk32d
   parameter (NSPM=6*32)
   complex c0(0:NZ0-1)
   complex c(0:NZ-1)
-  complex cmsg(0:NSPM-1,0:63)
+  complex cmsg(0:NSPM-1,0:31)
   complex z
   real a(3)
   real p0(0:NSPM-1)
   real p(0:NSPM-1)
-  real s0(0:63)
+  real s0(0:31)
   real dd(NZ)
   integer itone(144)
   integer ihdr(11)
@@ -17,7 +17,12 @@ program msk32d
   integer*2 id2(NZ)
   character*22 msg,msgsent
   character mycall*8,hiscall*6,arg*12,infile*80,datetime*13
-  character*4 rpt(0:63)
+  character*4 rpt(0:31)
+  data rpt /'-04 ','-02 ','+00 ','+02 ','+04 ','+06 ','+08 ','+10 ','+12 ', &
+            '+14 ','+16 ','+18 ','+20 ','+22 ','+24 ',                      &
+            'R-04','R-02','R+00','R+02','R+04','R+06','R+08','R+10','R+12', &
+            'R+14','R+16','R+18','R+20','R+22','R+24',                      &
+            'RRR ','73  '/
   equivalence (ipk0,ipk)
 
   nargs=iargc()
@@ -35,25 +40,13 @@ program msk32d
   idf1=nf1-1500
   idf2=nf2-1500
 
-  do i=0,30
-    if( i.lt.5 ) then
-       write(rpt(i),'(a1,i2.2,a1)') '-',abs(i-5)
-       write(rpt(i+31),'(a2,i2.2,a1)') 'R-',abs(i-5)
-    else
-       write(rpt(i),'(a1,i2.2,a1)') '+',i-5
-       write(rpt(i+31),'(a2,i2.2,a1)') 'R+',i-5
-    endif
-  enddo
-  rpt(62)='RRR '
-  rpt(63)='73  '
-
 ! Generate the test messages
   twopi=8.0*atan(1.0)
   nsym=32
   freq=1500.0
   dphi0=twopi*(freq-500.0)/12000.0
   dphi1=twopi*(freq+500.0)/12000.0
-  do imsg=0,63
+  do imsg=0,31
      i=index(hiscall," ")
      msg="<"//mycall//" "//hiscall(1:i-1)//"> "//rpt(imsg)
      call fmtmsg(msg,iz)
@@ -88,7 +81,7 @@ program msk32d
      nfft=min(2**n,1024*1024)
      call analytic(dd,npts,nfft,c0)         !Convert to analytic signal
      sbest=0.
-     do imsg=0, 63                          !Try all short messages
+     do imsg=0,31                           !Try all short messages
         do idf=idf1,idf2,10                 !Frequency dither
            a(1)=-idf
            a(2:3)=0.
@@ -147,7 +140,7 @@ program msk32d
      s0=s0-ave
      s1=sbest-ave
      s2=0.
-     do i=0,63
+     do i=0,31
         if(i.ne.ibest .and. s0(i).gt.s2) s2=s0(i)
         write(15,1020) i,idf,jpk/12000.0,s0(i)
 1020    format(2i6,2f10.2)
