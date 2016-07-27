@@ -509,6 +509,7 @@ set (wsjt_CSRCS
   lib/gran.c
   lib/igray.c
   lib/init_random_seed.c
+  lib/ldpc32_table.c
   lib/wsprd/nhash.c
   lib/tab.c
   lib/tmoonsub.c
