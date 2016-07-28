@@ -143,7 +143,7 @@ program msk32d
 1030    format(i5,f10.6,f10.3)
      enddo
 
-     ave=(sum(s0)-sbest)/31
+     ave=(sum(s0)-sbest)/63
      s0=s0-ave
      s1=sbest-ave
      s2=0.
