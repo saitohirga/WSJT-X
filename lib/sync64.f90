@@ -1,4 +1,4 @@
-subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
+subroutine sync64(dd,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
 
   parameter (NMAX=60*12000)                  !Max size of raw data at 12000 Hz
   parameter (NSPS=2304)                      !Samples per symbol at 4000 Hz
@@ -9,6 +9,7 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
   real s3(0:NSPC-1)                          !Power spectrum of Costas 3
   real s0(0:NSPC-1)                          !Sum of s1+s2+s3
   real s0a(0:NSPC-1)                         !Best synchromized spectrum
+  real a(5)
   integer icos7(0:6)                         !Costas 7x7 tones
   integer ipk0(1)
   complex cc(0:NSPC-1)                       !Costas waveform
@@ -16,14 +17,13 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
   complex c1(0:NSPC-1)                       !Complex spectrum of Costas 1
   complex c2(0:NSPC-1)                       !Complex spectrum of Costas 2
   complex c3(0:NSPC-1)                       !Complex spectrum of Costas 3
-  logical first
   data icos7/2,5,6,0,4,1,3/                  !Costas 7x7 tone pattern
-  data first/.true./
+  data mode64z/-1/
   save
 
-  if(first) then
+  if(mode64.ne.mode64z) then
      twopi=8.0*atan(1.0)
-     dfgen=12000.0/6912.0
+     dfgen=mode64*12000.0/6912.0
      k=-1
      phi=0.
      do j=0,6                               !Compute complex Costas waveform
@@ -35,7 +35,7 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
            cc(k)=cmplx(cos(phi),sin(phi))
         enddo
      enddo
-     first=.false.
+     mode64z=mode64
   endif
 
   npts0=54*12000
@@ -43,7 +43,7 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
   nfft2=nfft1/3
   df1=12000.0/nfft1
   fac=2.0/nfft1
-  do i=0,nfft1/2
+  do i=0,nfft1/2                           !Load real data into c0
      c0(i)=fac*cmplx(dd(1+2*i),dd(2+2*i))
   enddo
   call four2a(c0,nfft1,1,-1,0)             !Forward r2c FFT
@@ -88,12 +88,15 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
         enddo
         do k=ka,kb
            s0(ia:ib)=s1(ia-k:ib-k) + s2(ia:ib) + s3(ia+k:ib+k)
-           call smo121(s0(ia:ib),iz)
+!###
+           do nn=1,mode64
+              call smo121(s0(ia:ib),iz)
+           enddo
+!###
            call averms(s0(ia:ib),iz,14,ave,rms)
            s=(maxval(s0(ia:ib))-ave)/rms
            if(s.gt.snr) then
               jpk=j1
-!              s0a=(s0-ave)/rms
               s0a=s0/rms
               snr=s
               dtx=jpk/4000.0 - 1.0

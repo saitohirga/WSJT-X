@@ -1,4 +1,4 @@
-subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,   &
+subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mode64,mycall_12,hiscall_12,   &
      hisgrid_6,sync,nsnr,dtx,nfreq,decoded,nft)
 
   use packjt
@@ -38,7 +38,7 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,   &
   endif
 
   maxf1=5
-  call sync64(dd,nf1,nf2,nfqso,ntol,maxf1,dtx,f0,jpk,kpk,snr1,c00)
+  call sync64(dd,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,snr1,c00)
   
   npts2=216000
   naptype=4
@@ -53,7 +53,7 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall_12,hiscall_12,   &
         if(mod(itry1,2).eq.0) idf1=-idf1
         a(2)=-0.67*(idf1 + 0.67*kpk)
         call twkfreq(c00,c0,npts2,4000.0,a)
-        call spec64(c0,npts2,jpk,s3)
+        call spec64(c0,npts2,mode64,jpk,s3)
         call qra64_dec(s3,nc1,nc2,ng2,naptype,0,dat4,snr2,irc)
         decoded='                      '
         if(irc.ge.0) then

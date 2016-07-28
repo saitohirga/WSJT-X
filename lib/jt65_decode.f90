@@ -99,9 +99,9 @@ contains
 
     if(nsubmode.ge.100) then
 ! This is QRA64 mode
-       call qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mycall,hiscall,hisgrid,     &
-            sync,nsnr,dtx,nfreq,decoded,nft)
-!       if(sync.lt.12.8) go to 900                 !### Temporary ###
+       mode64=2**(nsubmode-100)
+       call qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mode64,mycall,hiscall,     &
+            hisgrid,sync,nsnr,dtx,nfreq,decoded,nft)
        if (associated(this%callback)) then
           ndrift=0
           nflip=1
