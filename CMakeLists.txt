@@ -1032,6 +1032,9 @@ target_link_libraries (qra64sim wsjt_fort wsjt_cxx)
 add_executable (msk32d lib/msk32d.f90 wsjtx.rc)
 target_link_libraries (msk32d wsjt_fort wsjt_cxx)
 
+add_executable (msk32d_ldpc lib/msk32d_ldpc.f90 wsjtx.rc)
+target_link_libraries (msk32d_ldpc wsjt_fort wsjt_cxx)
+
 add_executable (jt9sim lib/jt9sim.f90 wsjtx.rc)
 target_link_libraries (jt9sim wsjt_fort wsjt_cxx)
 
@@ -1205,7 +1208,7 @@ install (TARGETS udp_daemon message_aggregator
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
 
-install (TARGETS jt9 jt65code qra64code qra64sim jt9code jt4code wsprd msk32d
+install (TARGETS jt9 jt65code qra64code qra64sim jt9code jt4code wsprd msk32d msk32d_ldpc
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
