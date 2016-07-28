@@ -2133,7 +2133,7 @@ void MainWindow::decode()                                       //decode()
   }
   dec_data.params.ntrperiod=m_TRperiod;
   dec_data.params.nsubmode=m_nSubMode;
-  if(m_mode=="QRA64") dec_data.params.nsubmode=101;
+  if(m_mode=="QRA64") dec_data.params.nsubmode=100 + m_nSubMode;
   dec_data.params.minw=0;
   dec_data.params.nclearave=m_nclearave;
   if(m_nclearave!=0) {
