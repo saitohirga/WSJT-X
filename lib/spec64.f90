@@ -17,8 +17,6 @@ subroutine spec64(c0,npts2,mode64,jpk,s3a)
   fsample=4000.0/ndown
   df=fsample/nfft6
   jpkd=nint(float(jpk)/ndown)
-!  write(*,3001) mode64,ndown,nfft6,fsample,df
-!3001 format(i2,i3,i7,f7.1,f8.3)
   do j=1,63
      jj=j+7                                !Skip first Costas array
      if(j.ge.32) jj=j+14                   !Skip middle Costas array

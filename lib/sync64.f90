@@ -8,7 +8,8 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
   real s2(0:NSPC-1)                          !Power spectrum of Costas 2
   real s3(0:NSPC-1)                          !Power spectrum of Costas 3
   real s0(0:NSPC-1)                          !Sum of s1+s2+s3
-  real s0a(0:NSPC-1)                         !Best synchromized spectrum
+  real s0a(0:NSPC-1)                         !Best synchromized spectrum (saved)
+  real s0b(0:NSPC-1)                         !tmp
   real a(5)
   integer icos7(0:6)                         !Costas 7x7 tones
   integer ipk0(1)
@@ -87,13 +88,15 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
            s3(i)=real(c3(i))**2 + aimag(c3(i))**2
         enddo
         do k=ka,kb
-           s0(ia:ib)=s1(ia-k:ib-k) + s2(ia:ib) + s3(ia+k:ib+k)
-!###
-           do nn=1,mode64
-              call smo121(s0(ia:ib),iz)
-           enddo
-!###
-           call averms(s0(ia:ib),iz,14,ave,rms)
+           s0b(ia:ib)=s1(ia-k:ib-k) + s2(ia:ib) + s3(ia+k:ib+k)
+           s0b(:ia-1)=0.
+           s0b(ib+1:)=0.
+           nadd=(7*mode64)/2
+           if(mod(nadd,2).eq.1) nadd=nadd+1       !Make nadd odd
+           if(nadd.ge.3) call smo(s0b(ia:ib),iz,s0(ia:ib),nadd)
+           call smo121(s0(ia:ib),iz)
+           nskip=max(14,2*mode64)
+           call averms(s0(ia:ib),iz,nskip,ave,rms)
            s=(maxval(s0(ia:ib))-ave)/rms
            if(s.gt.snr) then
               jpk=j1
