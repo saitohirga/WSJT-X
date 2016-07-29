@@ -40,7 +40,7 @@ program msk144sim
   twopi=8.d0*atan(1.d0)
 
   nsym=144
-  if( itone(33) .lt. 0 ) nsym=32
+  if( itone(41) .lt. 0 ) nsym=40
   dphi0=twopi*(freq-500)/12000.0
   dphi1=twopi*(freq+500)/12000.0
   phi=0.0
