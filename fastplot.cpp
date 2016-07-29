@@ -205,7 +205,7 @@ void FPlotter::draw()                                         //draw()
   update();                                             //trigger a new paintEvent
 }
 
-void FPlotter::mousePressEvent(QMouseEvent *event)             //mousePressEvent
+void FPlotter::mousePressEvent(QMouseEvent *event)      //mousePressEvent
 {
   int x=event->x();
   int y=event->y();
@@ -221,7 +221,7 @@ void FPlotter::mousePressEvent(QMouseEvent *event)             //mousePressEvent
   if(y >= 120) y0+=100;
   if(m_x0+m_x1 != 0) {
     painter.setPen(Qt::black);
-    painter.drawLine(m_x0,m_y0,m_x1,m_y0);                  //Erase previous yellow line
+    painter.drawLine(m_x0,m_y0,m_x1,m_y0);              //Erase previous yellow line
     painter.drawLine(m_x0,m_y0-3,m_x0,m_y0+3);
     painter.drawLine(m_x1,m_y0-3,m_x1,m_y0+3);
   }
@@ -229,7 +229,7 @@ void FPlotter::mousePressEvent(QMouseEvent *event)             //mousePressEvent
   painter.drawLine(x0,y0,x1,y0);                        //Draw yellow line
   painter.drawLine(x0,y0-3,x0,y0+3);
   painter.drawLine(x1,y0-3,x1,y0+3);
-  update();                                           //trigger a new paintEvent
+  update();                                             //trigger a new paintEvent
   m_x0=x0;
   m_x1=x1;
   m_y0=y0;

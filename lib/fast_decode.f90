@@ -1,19 +1,29 @@
-subroutine fast_decode(id2,narg,bShMsgs,line,pchk_file,mycall_12,hiscall_12)
+subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,pchk_file,     &
+     mycall_12,hiscall_12)
 
   parameter (NMAX=30*12000)
   integer*2 id2(NMAX)
+  integer*2 id2a(NMAX)
+  integer*2 id2b(NMAX)
   integer narg(0:14)
   logical*1 bShMsgs
   real dat(30*12000)
   complex cdat(262145),cdat2(262145)
   real psavg(450)
-  logical pick
+  logical pick,first
   character*6 cfile6
   character*80 line(100)
   character*512 pchk_file
   character*12 mycall_12,hiscall_12
   character*6 mycall,hiscall
-  save npts
+  data first/.true./
+  save npts,cdat,cdat2,id2a,id2b
+
+  if(first) then
+     id2a=0
+     id2b=0
+     first=.false.
+  endif
 
   mycall=mycall_12(1:6)
   hiscall=hiscall_12(1:6)
@@ -31,6 +41,9 @@ subroutine fast_decode(id2,narg,bShMsgs,line,pchk_file,mycall_12,hiscall_12)
   ntol=narg(11)
   nhashcalls=narg(12)
 
+  line(1:100)(1:1)=char(0)
+  if(t0.gt.float(ntrperiod)) go to 900
+
   if(nmode.eq.102) then
      call fast9(id2,narg,line)
      go to 900
@@ -38,11 +51,20 @@ subroutine fast_decode(id2,narg,bShMsgs,line,pchk_file,mycall_12,hiscall_12)
      call jtmsk_decode(id2,narg,line)
      go to 900
   else if(nmode.eq.104) then
+     if(newdat.eq.1) then
+        id2b=id2a
+        id2a=id2
+     endif
      ia=max(1,nint(t0*12000.0))
      ib=min(ndat0,nint(t1*12000.0))
      nz=ib-ia+1
-     call msk144_decode(id2(ia),nz,nutc,0,pchk_file,mycall,hiscall,bShMsgs,  &
-          ntol,t0,line)
+     if(newdat.eq.1 .or. npick.le.1) then
+        call msk144_decode(id2(ia),nz,nutc,0,pchk_file,mycall,hiscall,   &
+             bShMsgs,ntol,t0,line)
+     else
+        call msk144_decode(id2b(ia),nz,nutc,0,pchk_file,mycall,hiscall,   &
+             bShMsgs,ntol,t0,line)
+     endif
      go to 900
   endif
 
