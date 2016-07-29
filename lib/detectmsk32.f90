@@ -1,36 +1,44 @@
-subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
+subroutine detectmsk32(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
   use timer_module, only: timer
 
-  parameter (NSPM=192, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=5)
+  parameter (NSPM=192, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=5,NWIN=15*NSPM)
   character*4 rpt(0:63)
-  character*6 mycall,partnercall
+  character*6 mycall,hiscall
+  character*6 mycall0,hiscall0
   character*22 msg,msgsent,msgreceived,allmessages(32)
   character*80 lines(100)
-  complex bb(6)
   complex cbig(n)
-  complex cdat(NPTS)                    !Analytic signal
-  complex ctmp(NPTS)                    !Analytic signal
-  complex cft(512)
-  complex cwaveforms(192,64)
-  integer, dimension(1) :: iloc
+!  complex cdat(0:NWIN-1)     
+  complex cdat(0:n-1)     
+  complex ctmp(NPTS)    
+!  complex c(0:NWIN-1)      
+  complex c(0:n-1)      
+  complex cmsg(0:NSPM-1,0:63)
+  complex z
+  integer iloc(1)
+  integer ipk0(1)
   integer indices(MAXSTEPS)
   integer itone(144)
   logical ismask(NFFT)
+  real a(3)
   real detmet(-2:MAXSTEPS+3)
   real detfer(MAXSTEPS)
   real ferrs(MAXCAND)
   real f2(64)
   real peak(64)
   real pp(12)
+  real p0(0:NSPM-1)
+  real p(0:NSPM-1)
   real rcw(12)
   real snrs(MAXCAND)
+  real s0(0:63)
   real times(MAXCAND)
   real tonespec(NFFT)
   real*8 dt, df, fs, pi, twopi
   logical first
+  equivalence (ipk0,ipk)
   data first/.true./
-
-  save df,first,cb,cbr,fs,nhashes,pi,twopi,dt,rcw,pp,nmatchedfilter,cwaveforms,rpt
+  save df,first,cb,cbr,fs,nhashes,pi,twopi,dt,rcw,pp,nmatchedfilter,cmsg,rpt,mycall0,hiscall0
 
   if(first) then
      nmatchedfilter=1
@@ -59,15 +67,21 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
      rpt(62)='RRR '
      rpt(63)='73  '
 
+     mycall0='      '
+     hiscall0='      '
+     first=.false.
+  endif
+
+  if(mycall .ne. mycall0 .or. hiscall .ne. hiscall0 ) then
+     freq=1500.0
+     nsym=32
      dphi0=twopi*(freq-500)/12000.0
      dphi1=twopi*(freq+500)/12000.0
-     do i=1,64
-       msg='<'//trim(mycall)//' '//trim(partnercall)//'> '//rpt(i-1)
+     do i=0,63
+       msg='<'//trim(mycall)//' '//trim(hiscall)//'> '//rpt(i)
        call genmsk32(msg,msgsent,0,itone,itype)
-!     write(*,*) i,msg,msgsent,itype
-       nsym=32
        phi=0.0
-       indx=1
+       indx=0
        nreps=1
        do jrep=1,nreps
          do isym=1,nsym
@@ -77,180 +91,106 @@ subroutine detectmsk32(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
              dphi=dphi1
            endif
            do j=1,6
-             cwaveforms(indx,i)=cmplx(cos(phi),sin(phi));
+             cmsg(indx,i)=cmplx(cos(phi),sin(phi));
              indx=indx+1
              phi=mod(phi+dphi,twopi)
            enddo
          enddo
        enddo
      enddo
-
-     first=.false.
+     mycall0=mycall
+     hiscall0=hiscall
   endif
 
-! Fill the detmet, detferr arrays
-  nstepsize=48  ! 4ms steps
-  nstep=(n-NPTS)/nstepsize  
-  detmet=0
-  detmax=-999.99
-  detfer=-999.99
-  do istp=1,nstep
-    ns=1+nstepsize*(istp-1)
-    ne=ns+NPTS-1
-    if( ne .gt. n ) exit
-    ctmp=cmplx(0.0,0.0)
-    ctmp(1:NPTS)=cbig(ns:ne)
+  cdat(0:n-1)=cbig
+  sbest=0.0
+  ibest=-1
+  do imsg=0,63
+    do idf=0,0
+      if( idf.eq.0 ) then
+        delf=0.0
+      else if( mod(idf,2).eq.1 ) then
+        delf=10*(idf+1)/2
+      else
+        delf=-10*idf/2
+      endif
+      a(1)=-delf
+      a(2:3)=0.
+      call twkfreq(cdat,c,n,12000.0,a)
+      smax=0.
+      p=0.
+      fac=1.0/192
+      do j=0,n-NSPM-1,2
+        z=fac*dot_product(c(j:j+NSPM-1),cmsg(0:NSPM-1,imsg))
+        s=real(z)**2 + aimag(z)**2
+        k=mod(j,NSPM)
+        p(k)=p(k)+s
+        if( s.gt.smax) then
+          smax=s
+          jpk=j
+          if( smax.gt.sbest) then
+            sbest=smax
+            p0=p
+            ibest=imsg
+            f0=1500+delf
+          endif
+        endif
+      enddo  ! time loop
+      s0(imsg)=smax
+    enddo  ! frequency loop
+  enddo  ! message loop
 
-! Coarse carrier frequency sync - seek tones at 2000 Hz and 4000 Hz in 
-! squared signal spectrum.
-! search range for coarse frequency error is +/- 100 Hz
-
-    ctmp=ctmp**2
-    ctmp(1:12)=ctmp(1:12)*rcw
-    ctmp(NPTS-11:NPTS)=ctmp(NPTS-11:NPTS)*rcw(12:1:-1)
-    call four2a(ctmp,NFFT,1,-1,1)
-    tonespec=abs(ctmp)**2
-
-    ihlo=(4000-2*ntol)/df+1
-    ihhi=(4000+2*ntol)/df+1
-    ismask=.false.
-    ismask(ihlo:ihhi)=.true.  ! high tone search window
-    iloc=maxloc(tonespec,ismask)
-    ihpk=iloc(1)
-    deltah=-real( (ctmp(ihpk-1)-ctmp(ihpk+1)) / (2*ctmp(ihpk)-ctmp(ihpk-1)-ctmp(ihpk+1)) )
-    ah=tonespec(ihpk)
-    illo=(2000-2*ntol)/df+1
-    ilhi=(2000+2*ntol)/df+1
-    ismask=.false.
-    ismask(illo:ilhi)=.true.   ! window for low tone
-    iloc=maxloc(tonespec,ismask)
-    ilpk=iloc(1)
-    deltal=-real( (ctmp(ilpk-1)-ctmp(ilpk+1)) / (2*ctmp(ilpk)-ctmp(ilpk-1)-ctmp(ilpk+1)) )
-    al=tonespec(ilpk)
-    fdiff=(ihpk+deltah-ilpk-deltal)*df
-    i2000=2000/df+1
-    i4000=4000/df+1
-    ferrh=(ihpk+deltah-i4000)*df/2.0
-    ferrl=(ilpk+deltal-i2000)*df/2.0
-    if( ah .ge. al ) then
-      ferr=ferrh
-    else
-      ferr=ferrl
+  ipk0=maxloc(p0)
+  ps=0.
+  sq=0.
+  ns=0  
+  pmax=0.
+  do i=0,NSPM-1,2
+    j=ipk-i
+    if(j.gt.96) j=j-192
+    if(j.lt.-96) j=j+192
+    if(abs(j).gt.4) then
+      ps=ps+p0(i)
+      sq=sq+p0(i)**2
+      ns=ns+1
     endif
-    detmet(istp)=max(ah,al)
-    detfer(istp)=ferr
-!    write(*,*) istp,ilpk,ihpk,ah,al
-  enddo  ! end of detection-metric and frequency error estimation loop
+  enddo
+  avep=ps/ns
+  rmsp=sqrt(sq/ns-avep*avep)
+  p0=(p0-avep)/rmsp
+  p1=maxval(p0)
 
-  call indexx(detmet(1:nstep),nstep,indices) !find median of detection metric vector
-  xmed=detmet(indices(nstep/4))
-  detmet=detmet/xmed ! noise floor of detection metric is 1.0
-  ndet=0
+!  do i=0,NSPM-1,2
+!    write(14,1030) i,i/12000.0,p0(i)
+!1030  format(i5,f10.6,f10.3)
+!  enddo
 
-!do i=1,nstep
-!write(77,*) i,detmet(i),detfer(i)
-!enddo
-
-  do ip=1,MAXCAND ! find candidates
-    iloc=maxloc(detmet(1:nstep))
-    il=iloc(1)
-    if( (detmet(il) .lt. 4.2) ) exit 
-    if( abs(detfer(il)) .le. ntol ) then 
-      ndet=ndet+1
-      times(ndet)=((il-1)*nstepsize+NPTS/2)*dt
-      ferrs(ndet)=detfer(il)
-      snrs(ndet)=12.0*log10(detmet(il)-1)/2-8.0
-    endif
-    detmet(max(1,il-3):min(nstep,il+3))=0.0
-!    detmet(il)=0.0
+  ave=(sum(s0)-sbest)/63
+  s0=s0-ave
+  s1=sbest-ave
+  s2=0.
+  do i=0,63
+    if(i.ne.ibest .and. s0(i).gt.s2) s2=s0(i)
+!    write(15,1020) i,idf,jpk/12000.0,s0(i)
+!1020 format(2i6,2f10.2)
   enddo
 
+  r1=s1/s2
+  r2=r1+p1
+  msg="                      "
+!  write(*,'(i6.6,3f7.1,i5,2x,a22)') nutc,r1,p1,r2,ibest
   nmessages=0
   lines=char(0)
-
-  pkbest=-1.0
-  ratbest=0.0
-  imsgbest=-1
-  fbest=0.0
-  ipbest=-1
-  nsnrbest=-1
-
-  do ip=1,ndet  !run through the candidates and try to sync/demod/decode
-    imid=times(ip)*fs
-    if( imid .lt. NPTS/2 ) imid=NPTS/2
-    if( imid .gt. n-NPTS/2 ) imid=n-NPTS/2
-    t0=times(ip) + t00
-    cdat=cbig(imid-NPTS/2+1:imid+NPTS/2)
-    ferr=ferrs(ip)
-    nsnr=nint(snrs(ip))
-    if( nsnr .lt. -5 ) nsnr=-5
-    if( nsnr .gt. 25 ) nsnr=25
-
-    ic0=NSPM
-    do i=1,6
-!      if( ic0+11+NSPM .le. NPTS ) then
-        bb(i) = sum( ( cdat(ic0+i-1+6:ic0+i-1+6+NSPM:6) * conjg( cdat(ic0+i-1:ic0+i-1+NSPM:6) ) )**2 )
-!      else
-!        bb(i) = sum( ( cdat(ic0+i-1+6:NPTS:6) * conjg( cdat(ic0+i-1:NPTS-6:6) ) )**2 )
-!      endif
-!      write(*,*) ip,i,abs(bb(i))
-    enddo
-    iloc=maxloc(abs(bb))
-    ibb=iloc(1)
-    bba=abs(bb(ibb))
-    bbp=atan2(-imag(bb(ibb)),-real(bb(ibb)))/(2*twopi*6*dt)
-    if( ibb .le. 3 ) ibb=ibb-1
-    if( ibb .gt. 3 ) ibb=ibb-7
-!    write(*,*) ibb
-    ic0=ic0+ibb+2
-
-    do istart=ic0,ic0+32*6-1,6
-      do imsg=1,64
-        cft(1:144)=cdat(istart:istart+144-1)*conjg(cwaveforms(1:144,imsg))
-        cft(145:512)=0.
-        df=12000.0/512.0
-        call four2a(cft,512,1,-1,1)
-        iloc=maxloc(abs(cft)) 
-        ipk=iloc(1)
-        pk=abs(cft(ipk))
-        fpk=(ipk-1)*df
-        if( fpk.gt.12000.0 ) fpk=fpk-12000.0
-        f2(imsg)=fpk
-        peak(imsg)=pk
-      enddo
-    iloc=maxloc(peak)
-    imsg1=iloc(1)
-    pk1=peak(imsg1)
-    peak(imsg1)=-1
-    pk2=maxval(peak)
-    rat=pk1/pk2
-    if( abs(f2(imsg1)-1500) .le. ntol .and. (pk1 .gt. pkbest) ) then
-      pkbest=pk1
-      ratbest=rat
-      imsgbest=imsg1
-      fbest=f2(imsg1)
-      ipbest=ip
-      t0best=t0
-      nsnrbest=nsnr
-      istartbest=istart
-    endif
-    enddo
-!    write(*,*) ip,imid,istart,imsgbest,pkbest,ratbest,nsnrbest
-!    if( pkbest .gt. 110.0 .and. ratbest .gt. 1.2 ) goto 999
-
-  enddo  ! candidate loop
-
-999 continue
-  msgreceived=' '
-  if( imsgbest .gt. 0 .and. pkbest .ge. 110.0 .and. ratbest .ge. 1.20) then
-           nrxrpt=iand(imsgbest-1,63)
-!write(*,*) ipbest,pkbest,fbest,imsgbest,istartbest,nsnrbest,t0best
-           nmessages=1
-           write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),      &
-                trim(partnercall),">",rpt(nrxrpt)
-           write(lines(nmessages),1020) nutc,nsnrbest,t0best,nint(fbest),msgreceived
-1020       format(i6.6,i4,f5.1,i5,' & ',a22)
+  if(r2.gt.7.0) then 
+    t0=0.0
+    nsnr=0.0
+    msgreceived=' '
+    nrxrpt=iand(ibest,63)
+    nmessages=1
+    write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),      &
+    trim(hiscall),">",rpt(nrxrpt)
+    write(lines(nmessages),1021) nutc,nsnr,t0,nint(f0),msgreceived
+1021 format(i6.6,i4,f5.1,i5,' & ',a22)
   endif
-
   return
 end subroutine detectmsk32
