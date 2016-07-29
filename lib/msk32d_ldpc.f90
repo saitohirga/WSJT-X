@@ -1,4 +1,4 @@
-program msk32d
+program msk32d_ldpc
 
   parameter (NZ=15*12000,NZ0=262144)
   parameter (NSPM=6*32)
@@ -159,7 +159,7 @@ program msk32d
      r2=r1+p1
      msg="                      "
 !     if(r1.gt.2.2 .or. p1.gt.7.0) then
-     if(r2.gt.10.0) then
+     if(r2.gt.5.0) then
         i=index(hiscall," ")
         msg="<"//mycall//" "//hiscall(1:i-1)//"> "//rpt(ibest)
         call fmtmsg(msg,iz)
@@ -168,4 +168,4 @@ program msk32d
 1040 format(a13,3f7.1,2x,a22)
   enddo
 
-999 end program msk32d
+999 end program msk32d_ldpc
