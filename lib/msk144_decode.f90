@@ -15,6 +15,7 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,mycall,hiscall,   &
   logical*1 bShMsgs
 
   line(1:100)(1:1)=char(0)
+  if(maxval(id2(1:npts)).eq.0 .and. minval(id2(1:npts)).eq.0) go to 900
 
   hist=0
   do i=0,npts-1
@@ -56,5 +57,6 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,mycall,hiscall,   &
   endif
 
   if(line(1)(1:6).eq.'      ') line(1)(1:1)=char(0)
-  return
+
+900 return
 end subroutine msk144_decode
