@@ -325,7 +325,7 @@ set (wsjt_FSRCS
   lib/degrade_snr.f90
   lib/demod64a.f90
   lib/detectmsk144.f90
-  lib/detectmsk32.f90
+  lib/detectmsk40.f90
   lib/determ.f90
   lib/downsam9.f90
   lib/encode232.f90
@@ -364,6 +364,8 @@ set (wsjt_FSRCS
   lib/genmsk.f90
   lib/genmsk144.f90
   lib/genmsk32.f90
+  lib/genmsk40.f90
+  lib/genmsk40.f90
   lib/genmsk_short.f90
   lib/genqra64.f90
   lib/genwspr.f90
@@ -1243,6 +1245,8 @@ install (FILES
   contrib/Ephemeris/JPLEPH
   contrib/LDPC/peg-128-80-reg3.gen
   contrib/LDPC/peg-128-80-reg3.pchk
+  contrib/LDPC/peg-32-16-reg3.gen
+  contrib/LDPC/peg-32-16-reg3.pchk
   DESTINATION ${WSJT_SHARE_DESTINATION}/${WSJT_DATA_DESTINATION}
   #COMPONENT runtime
   )
