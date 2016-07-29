@@ -1,19 +1,20 @@
-subroutine genmsk32(msg,msgsent,ichk,itone,itype)
+subroutine genmsk40(msg,msgsent,ichk,itone,itype)
 
   use hashing
   character*22 msg,msgsent,hashmsg
+  character*32 cwstring
+  character*2  cwstrbit
   character*4 crpt,rpt(0:63)
+  character*40 pchk_file,gen_file
   logical first
   integer itone(144)
-  integer ig32(0:65536-1)  !Codewords for LDPC (32,16) code (PEG generated, regular, col wt 3) 
-  integer*1 codeword(32),bitseq(40)
+  integer*1 message(16),codeword(32),bitseq(40)
   integer*1 s8r(8)
   data s8r/1,0,1,1,0,0,0,1/
   data first/.true./
-  save first,rpt,ig32
+  save first,rpt
 
   if(first) then
-     call ldpc32_table(ig32)             !Define the Golay(24,12) codewords
      do i=0,30
        if( i.lt.5 ) then
          write(rpt(i),'(a1,i2.2,a1)') '-',abs(i-5)
@@ -28,6 +29,12 @@ subroutine genmsk32(msg,msgsent,ichk,itone,itype)
      first=.false.
   endif
 
+!####### TEMPORARILY HARDWIRE PCHK AND GEN FILES ################## 
+!These files will need to be installed.
+
+  pchk_file="peg-32-16-reg3.pchk"
+  gen_file="peg-32-16-reg3.gen"
+  call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
   itype=-1
   msgsent='*** bad message ***'
   itone=0
@@ -40,7 +47,7 @@ subroutine genmsk32(msg,msgsent,ichk,itone,itype)
   enddo
   go to 900
 
-10 irpt=i                               !Report index, 0-31
+10 irpt=i                               !Report index, 0-63
   if(ichk.lt.10000) then
      hashmsg=msg(2:i1-1)//' '//crpt
      call hash(hashmsg,22,ihash)          
@@ -50,13 +57,18 @@ subroutine genmsk32(msg,msgsent,ichk,itone,itype)
      ig=ichk-10000
   endif
 
-  ncodeword=ig32(ig)
-
-!  write(*,*) 'codeword is: ',ncodeword,'message is: ',ig,'report index: ',irpt,'hash: ',ihash
-
-  do i=1,32
-    codeword(i)=iand(1,ishft(ncodeword,1-i))
+  do i=1,16
+    message(i)=iand(1,ishft(ig,1-i))
   enddo
+  call ldpc_encode(message,codeword)
+
+  cwstring=" "
+  do i=1,32
+    write(cwstrbit,'(i2)') codeword(i)
+    cwstring=cwstring//cwstrbit
+  enddo
+  write(*,'(a6,i6,2x,a6,i6,2x,a6,i6)') ' msg: ',ig,'rprt: ',irpt,'hash: ',ihash
+  write(*,'(a6,32i1)') '  cw: ',codeword
 
   bitseq(1:8)=s8r
   bitseq(9:40)=codeword
@@ -76,5 +88,5 @@ subroutine genmsk32(msg,msgsent,ichk,itone,itype)
   itype=7
 
 900 return
-end subroutine genmsk32
+end subroutine genmsk40
 
