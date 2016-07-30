@@ -46,11 +46,12 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
   data s8r/1,0,1,1,0,0,0,1/
   save df,first,cb,fs,pi,twopi,dt,s8,rcw,pp,nmatchedfilter
 
+  i=index(pchk_file,".pchk")
+  gen_file=pchk_file(1:i-1)//".gen"
+  call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
+
   if(first) then
      nmatchedfilter=1
-     i=index(pchk_file,".pchk")
-     gen_file=pchk_file(1:i-1)//".gen"
-     call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
 ! define half-sine pulse and raised-cosine edge window
      pi=4d0*datan(1d0)
      twopi=8d0*datan(1d0)
