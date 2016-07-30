@@ -67,8 +67,8 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype)
     write(cwstrbit,'(i2)') codeword(i)
     cwstring=cwstring//cwstrbit
   enddo
-  write(*,'(a6,i6,2x,a6,i6,2x,a6,i6)') ' msg: ',ig,'rprt: ',irpt,'hash: ',ihash
-  write(*,'(a6,32i1)') '  cw: ',codeword
+!  write(*,'(a6,i6,2x,a6,i6,2x,a6,i6)') ' msg: ',ig,'rprt: ',irpt,'hash: ',ihash
+!  write(*,'(a6,32i1)') '  cw: ',codeword
 
   bitseq(1:8)=s8r
   bitseq(9:40)=codeword
