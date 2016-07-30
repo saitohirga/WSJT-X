@@ -2751,7 +2751,7 @@ void MainWindow::guiUpdate()
                      &m_currentMessageType, &m_pchkFile[0], len1, len1, 512);
           if(m_restart) {
             int nsym=144;
-            if(itone[32]==-32) nsym=32;
+            if(itone[40]==-40) nsym=40;
             m_modulator->set_nsym(nsym);
           }
         }
