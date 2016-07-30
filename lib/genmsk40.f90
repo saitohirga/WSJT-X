@@ -78,7 +78,7 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype)
   itone=0
   do i=1, 20
     itone(2*i-1)=(bitseq(2*i)*bitseq(2*i-1)+1)/2;
-    itone(2*i)=-(bitseq(2*i)*bitseq(mod(2*i,32)+1)-1)/2;
+    itone(2*i)=-(bitseq(2*i)*bitseq(mod(2*i,40)+1)-1)/2;
   enddo
 
 ! Flip polarity

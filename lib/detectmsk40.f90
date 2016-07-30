@@ -1,7 +1,7 @@
 subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
   use timer_module, only: timer
 
-  parameter (NSPM=240, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=5)
+  parameter (NSPM=240, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=40)
   character*4 rpt(0:63)
   character*6 mycall,hiscall
   character*22 hashmsg,msgreceived
@@ -24,7 +24,9 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
   integer nhashes(0:63)
   integer indices(MAXSTEPS)
   integer ipeaks(10)
+  integer*1 cw(32)
   integer*1 decoded(16)
+  integer*1 testcw(32)
   logical ismask(NFFT)
   real cbi(42),cbq(42)
   real detmet(-2:MAXSTEPS+3)
@@ -43,6 +45,8 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
   data s8r/1,0,1,1,0,0,0,1/
+! codeword for the message <K9AN K1JT> RRR
+  data testcw/0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,1,0,1,1,1,1,1,0,0,0,0,0,0,1,1,1,0/
   save df,first,cb,cbr,fs,nhashes,pi,twopi,dt,s8,s8r,rcw,pp,nmatchedfilter,rpt
 
   if(first) then
@@ -150,8 +154,8 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
     deltal=-real( (ctmp(ilpk-1)-ctmp(ilpk+1)) / (2*ctmp(ilpk)-ctmp(ilpk-1)-ctmp(ilpk+1)) )
     al=tonespec(ilpk)
     fdiff=(ihpk+deltah-ilpk-deltal)*df
-    i2000=2000/df+1
-    i4000=4000/df+1
+    i2000=nint(2000/df)+1
+    i4000=nint(4000/df)+1
     ferrh=(ihpk+deltah-i4000)*df/2.0
     ferrl=(ilpk+deltal-i2000)*df/2.0
     if( ah .ge. al ) then
@@ -223,18 +227,16 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
     crmax=maxval(abs(ccr))
 
 !do i=1,NPTS
-!write(14,*) i,abs(ccr(i)),ddr(i)
+!write(15,*) i,abs(ccr(i)),ddr(i),abs(cdat(i))
 !enddo
 
 
 ! Find 6 largest peaks
     do ipk=1,6
-      iloc=maxloc(abs(ccr))
-      ic1=iloc(1)
       iloc=maxloc(ddr)
-      ic2=iloc(1)
+      ic1=iloc(1)
       ipeaks(ipk)=ic1
-      ccr(max(1,ic1-7):min(NPTS-40*6-41,ic1+7))=0.0
+      ddr(max(1,ic1-7):min(NPTS-40*6-41,ic1+7))=0.0
     enddo
 !do i=1,6
 !write(*,*) i,ipeaks(i)
@@ -256,6 +258,7 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
       ibb=iloc(1)
       bba=abs(bb(ibb))
       bbp=atan2(-imag(bb(ibb)),-real(bb(ibb)))/(2*twopi*6*dt)
+!write(*,*) abs(bb),bbp
       if( ibb .le. 3 ) ibb=ibb-1
       if( ibb .gt. 3 ) ibb=ibb-7
 
@@ -269,17 +272,16 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
         if( ic .lt. 1 ) ic=ic+NSPM
 
 ! Estimate fine frequency error. 
-        cca=sum(cdat(ic:ic+41)*conjg(cb))
+        cca=sum(cdat(ic:ic+41)*conjg(cbr))
         if( ic+40*6+41 .le. NPTS ) then
-          ccb=sum(cdat(ic+40*6:ic+40*6+41)*conjg(cb))
+          ccb=sum(cdat(ic+40*6:ic+40*6+41)*conjg(cbr))
           cfac=ccb*conjg(cca)
           ferr2=atan2(imag(cfac),real(cfac))/(twopi*40*6*dt)
         else
-          ccb=sum(cdat(ic-40*6:ic-40*6+41)*conjg(cb))
+          ccb=sum(cdat(ic-40*6:ic-40*6+41)*conjg(cbr))
           cfac=cca*conjg(ccb)
           ferr2=atan2(imag(cfac),real(cfac))/(twopi*40*6*dt)
         endif
-
 
         do idf=0,6                         ! frequency jitter
           if( idf .eq. 0 ) then
@@ -308,7 +310,7 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
             endif
 
 ! Estimate final frequency error and carrier phase. 
-            cca=sum(c(1:1+41)*conjg(cb))
+            cca=sum(c(1:1+41)*conjg(cbr))
             phase0=atan2(imag(cca),real(cca))
 
             do ipha=1,3
@@ -342,34 +344,41 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
               nbadsync1=(8-sum( (2*hardbits(1:8)-1)*s8r ) )/2
               nbadsync=nbadsync1
               if( nbadsync .gt. 3 ) cycle
-
+!              nerr=0
+!              do i=1,32
+!                if( testcw(i) .ne. hardbits(i+8) ) nerr=nerr+1
+!              enddo
               ! normalize the softsymbols before submitting to decoder
               sav=sum(softbits)/40
               s2av=sum(softbits*softbits)/40
               ssig=sqrt(s2av-sav*sav)
               softbits=softbits/ssig
 
-              sigma=0.65
+              sigma=0.75
               lratio(1:32)=exp(2.0*softbits(9:40)/(sigma*sigma))
 
               max_iterations=5
               max_dither=1
-              niterations=0
               call ldpc_decode(lratio,decoded,max_iterations,niterations,max_dither,ndither)
               ncalls=ncalls+1
- 
+               
               nhashflag=0
               if( niterations .ge. 0 ) then
+                call ldpc_encode(decoded,cw)
+                nhammd=0
+                do i=1,32
+                  if( cw(i) .ne. hardbits(i+8) ) nhammd=nhammd+1
+                enddo
 
                 imsg=0
                 do i=1,16
-                  imsg=ishft(imsg,1)+iand(1 , decoded(17-i))
+                  imsg=ishft(imsg,1)+iand(1,decoded(17-i))
                 enddo
                 nrxrpt=iand(imsg,63)
                 nrxhash=(imsg-nrxrpt)/64
                 if( nrxhash .eq. nhashes(nrxrpt) ) then
                   fest=1500+ferr+ferr2+deltaf 
-!write(14,'(i6.6,10i5,2f7.1)') nutc,ip,ipk,id,idf,iav,ipha,niterations,nbadsync,nrxrpt,ncalls,ferr,ferr2
+write(14,'(i6.6,11i5)') nutc,ip,ipk,id,idf,iav,ipha,niterations,nbadsync,nrxrpt,ncalls,nhammd
                   nhashflag=1
                   msgreceived=' '
                   nmessages=1
