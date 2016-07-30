@@ -43,6 +43,7 @@ subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,pchk_file,     &
 
   line(1:100)(1:1)=char(0)
   if(t0.gt.float(ntrperiod)) go to 900
+  if(t0.gt.t1) go to 900
 
   if(nmode.eq.102) then
      call fast9(id2,narg,line)
@@ -56,8 +57,10 @@ subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,pchk_file,     &
         id2a=id2
      endif
      ia=max(1,nint(t0*12000.0))
-     ib=min(ndat0,nint(t1*12000.0))
+     ib=nint(t1*12000.0)
+     if(ib.gt.ntrperiod*12000) ib=ntrperiod*12000
      nz=ib-ia+1
+!     print*,ia,ib,nz,ndat0,t0,t1
      if(newdat.eq.1 .or. npick.le.1) then
         call msk144_decode(id2(ia),nz,nutc,0,pchk_file,mycall,hiscall,   &
              bShMsgs,ntol,t0,line)
