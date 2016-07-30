@@ -1,10 +1,12 @@
-subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
+subroutine detectmsk40(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
   use timer_module, only: timer
 
-  parameter (NSPM=864, NPTS=3*NSPM, MAXSTEPS=1700, NFFT=NSPM, MAXCAND=16)
-  character*22 msgreceived,allmessages(20)
+  parameter (NSPM=240, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=10)
+  character*4 rpt(0:63)
+  character*6 mycall,partnercall
+  character*22 hashmsg,msgreceived
   character*80 lines(100)
-  character*512 pchk_file,gen_file
+  character*40 pchk_file,gen_file
   complex cbig(n)
   complex cdat(NPTS)                    !Analytic signal
   complex cdat2(NPTS)
@@ -13,44 +15,38 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
   complex cb(42)                        !Complex waveform for sync word 
   complex cbr(42)                       !Complex waveform for reversed sync word 
   complex cfac,cca,ccb
-  complex cc(NPTS)
   complex ccr(NPTS)
-  complex cc1(NPTS)
-  complex cc2(NPTS)
   complex ccr1(NPTS)
   complex ccr2(NPTS)
   complex bb(6)
-  integer s8(8),s8r(8),hardbits(144)
+  integer s8(8),s8r(8),hardbits(40)
   integer, dimension(1) :: iloc
-  integer*1 decoded(80)   
+  integer nhashes(0:63)
   integer indices(MAXSTEPS)
   integer ipeaks(10)
+  integer*1 decoded(16)
   logical ismask(NFFT)
   real cbi(42),cbq(42)
   real detmet(-2:MAXSTEPS+3)
   real detfer(MAXSTEPS)
   real rcw(12)
-  real dd(NPTS)
   real ddr(NPTS)
   real ferrs(MAXCAND)
   real pp(12)                          !Half-sine pulse shape
   real snrs(MAXCAND)
+  real softbits(40)
   real times(MAXCAND)
   real tonespec(NFFT)
   real*8 dt, df, fs, pi, twopi
-  real softbits(144)
-  real*8 lratio(128)
+  real*8 lratio(32)
   logical first
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
   data s8r/1,0,1,1,0,0,0,1/
-  save df,first,cb,fs,pi,twopi,dt,s8,rcw,pp,nmatchedfilter
+  save df,first,cb,cbr,fs,nhashes,pi,twopi,dt,s8,s8r,rcw,pp,nmatchedfilter
 
   if(first) then
      nmatchedfilter=1
-     i=index(pchk_file,".pchk")
-     gen_file=pchk_file(1:i-1)//".gen"
-     call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
 ! define half-sine pulse and raised-cosine edge window
      pi=4d0*datan(1d0)
      twopi=8d0*datan(1d0)
@@ -86,20 +82,46 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
      cbi(37:42)=pp(1:6)*s8r(8)
      cbr=cmplx(cbi,cbq)
 
-     first=.false.
+     do i=0,30
+        if( i.lt.5 ) then
+          write(rpt(i),'(a1,i2.2,a1)') '-',abs(i-5)
+          write(rpt(i+31),'(a2,i2.2,a1)') 'R-',abs(i-5)
+        else
+          write(rpt(i),'(a1,i2.2,a1)') '+',i-5
+          write(rpt(i+31),'(a2,i2.2,a1)') 'R+',i-5
+        endif
+      enddo
+      rpt(62)='RRR '
+      rpt(63)='73  '
+
+     do i=0,63 
+       hashmsg=trim(mycall)//' '//trim(partnercall)//' '//rpt(i)
+       call fmtmsg(hashmsg,iz)
+       call hash(hashmsg,22,ihash)
+       nhashes(i)=iand(ihash,1023)
+     enddo
+
+  first=.false.
   endif
 
-  ! fill the detmet, detferr arrays
-  nstep=(n-NPTS)/216  ! 72ms/4=18ms steps
+! Temporarily hardwire filenames and init on every call
+  pchk_file="peg-32-16-reg3.pchk"
+  i=index(pchk_file,".pchk")
+  gen_file=pchk_file(1:i-1)//".gen"
+  call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
+ 
+! Fill the detmet, detferr arrays
+  nstepsize=48  ! 4ms steps
+  nstep=(n-NPTS)/nstepsize  
   detmet=0
   detmax=-999.99
   detfer=-999.99
   do istp=1,nstep
-    ns=1+216*(istp-1)
-    ne=ns+NSPM-1
+    ns=1+nstepsize*(istp-1)
+    ne=ns+NPTS-1
     if( ne .gt. n ) exit
     ctmp=cmplx(0.0,0.0)
-    ctmp(1:NSPM)=cbig(ns:ne)
+    ctmp(1:NPTS)=cbig(ns:ne)
 
 ! Coarse carrier frequency sync - seek tones at 2000 Hz and 4000 Hz in 
 ! squared signal spectrum.
@@ -107,7 +129,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
 
     ctmp=ctmp**2
     ctmp(1:12)=ctmp(1:12)*rcw
-    ctmp(NSPM-11:NSPM)=ctmp(NSPM-11:NSPM)*rcw(12:1:-1)
+    ctmp(NPTS-11:NPTS)=ctmp(NPTS-11:NPTS)*rcw(12:1:-1)
     call four2a(ctmp,NFFT,1,-1,1)
     tonespec=abs(ctmp)**2
 
@@ -139,6 +161,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
     endif
     detmet(istp)=max(ah,al)
     detfer(istp)=ferr
+!    write(*,*) istp,ilpk,ihpk,ah,al
   enddo  ! end of detection-metric and frequency error estimation loop
 
   call indexx(detmet(1:nstep),nstep,indices) !find median of detection metric vector
@@ -146,77 +169,79 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
   detmet=detmet/xmed ! noise floor of detection metric is 1.0
   ndet=0
 
-  do ip=1,MAXCAND ! Find candidates
+!do i=1,nstep
+!write(77,*) i,detmet(i),detfer(i)
+!enddo
+
+  do ip=1,MAXCAND ! find candidates
     iloc=maxloc(detmet(1:nstep))
     il=iloc(1)
-    if( (detmet(il) .lt. 4.0) ) exit 
+    if( (detmet(il) .lt. 4.2) ) exit 
     if( abs(detfer(il)) .le. ntol ) then 
       ndet=ndet+1
-      times(ndet)=((il-1)*216+NSPM/2)*dt
+      times(ndet)=((il-1)*nstepsize+NPTS/2)*dt
       ferrs(ndet)=detfer(il)
-      snrs(ndet)=12.0*log10(detmet(il))/2-9.0
+      snrs(ndet)=12.0*log10(detmet(il)-1)/2-8.0
     endif
-!    detmet(max(1,il-1):min(nstep,il+1))=0.0
-    detmet(il)=0.0
+    detmet(max(1,il-3):min(nstep,il+3))=0.0
+!    detmet(il)=0.0
+  enddo
+
+!  ndet=15 
+  do ip=1,ndet
+!    times(ip)=ip+0.012
+!    snrs(ip)=-3.0
+!    ferrs(ip)=0.0
+    write(*,'(i5,f7.2,f7.2,f7.2)') ip,times(ip),snrs(ip),ferrs(ip)
   enddo
 
   nmessages=0
-  allmessages=char(0)
   lines=char(0)
 
-  do ip=1,ndet  ! Try to sync/demod/decode each candidate.
+  do ip=1,ndet  !run through the candidates and try to sync/demod/decode
     imid=times(ip)*fs
     if( imid .lt. NPTS/2 ) imid=NPTS/2
     if( imid .gt. n-NPTS/2 ) imid=n-NPTS/2
     t0=times(ip) + t00
     cdat=cbig(imid-NPTS/2+1:imid+NPTS/2)
     ferr=ferrs(ip)
-    nsnr=2*nint(snrs(ip)/2.0)
-    if( nsnr .lt. -4 ) nsnr=-4
-    if( nsnr .gt. 24 ) nsnr=24
+    nsnr=nint(snrs(ip))
+    if( nsnr .lt. -5 ) nsnr=-5
+    if( nsnr .gt. 25 ) nsnr=25
 
-! remove coarse freq error - should now be within a few Hz
+! remove coarse freq error
     call tweak1(cdat,NPTS,-(1500+ferr),cdat)
 
 ! attempt frame synchronization
 ! correlate with sync word waveforms
-    cc=0
     ccr=0
-    cc1=0
-    cc2=0
     ccr1=0
     ccr2=0
-    do i=1,NPTS-(56*6+41)
-      cc1(i)=sum(cdat(i:i+41)*conjg(cb))
-      cc2(i)=sum(cdat(i+56*6:i+56*6+41)*conjg(cb))
-    enddo
-    cc=cc1+cc2
-    dd=abs(cc1)*abs(cc2)
     do i=1,NPTS-(40*6+41)
       ccr1(i)=sum(cdat(i:i+41)*conjg(cbr))
       ccr2(i)=sum(cdat(i+40*6:i+40*6+41)*conjg(cbr))
     enddo
     ccr=ccr1+ccr2
     ddr=abs(ccr1)*abs(ccr2)
-    cmax=maxval(abs(cc))
     crmax=maxval(abs(ccr))
-    ishort=0
-    if( crmax .gt. cmax ) ishort=1
-if( ishort .eq. 1 ) write(*,*) 'Short message detected'
- 
-! Find 6 largest peaks
-    do ipk=1, 6
-      iloc=maxloc(abs(cc))
-      ic1=iloc(1)
-      iloc=maxloc(dd)
-      ic2=iloc(1)
-      ipeaks(ipk)=ic2
-      dd(max(1,ic2-7):min(NPTS-56*6-41,ic2+7))=0.0
-!      ipeaks(ipk)=ic1
-!      cc(max(1,ic1-7):min(NPTS-56*6-41,ic1+7))=0.0
-!write(*,*) ipk,ic2
-    enddo
 
+do i=1,NPTS
+write(14,*) i,abs(ccr(i)),ddr(i)
+enddo
+
+
+! Find 6 largest peaks
+    do ipk=1,6
+      iloc=maxloc(abs(ccr))
+      ic1=iloc(1)
+      iloc=maxloc(ddr)
+      ic2=iloc(1)
+      ipeaks(ipk)=ic1
+      ccr(max(1,ic1-7):min(NPTS-40*6-41,ic1+7))=0.0
+    enddo
+do i=1,6
+write(*,*) i,ipeaks(i)
+enddo
     do ipk=1,6
 
 ! we want ic to be the index of the first sample of the frame
@@ -237,38 +262,37 @@ if( ishort .eq. 1 ) write(*,*) 'Short message detected'
       if( ibb .le. 3 ) ibb=ibb-1
       if( ibb .gt. 3 ) ibb=ibb-7
 
-      do id=1,3     ! Slicer dither. 
+      do id=1,1     ! slicer dither.
         if( id .eq. 1 ) is=0
         if( id .eq. 2 ) is=-1
         if( id .eq. 3 ) is=1
 
 ! Adjust frame index to place peak of bb at desired lag
         ic=ic0+ibb+is
-        if( ic .lt. 1 ) ic=ic+864
+        if( ic .lt. 1 ) ic=ic+NSPM
 
 ! Estimate fine frequency error. 
-! Should a larger separation be used when frames are averaged?
         cca=sum(cdat(ic:ic+41)*conjg(cb))
-        if( ic+56*6+41 .le. NPTS ) then
-          ccb=sum(cdat(ic+56*6:ic+56*6+41)*conjg(cb))
+        if( ic+40*6+41 .le. NPTS ) then
+          ccb=sum(cdat(ic+40*6:ic+40*6+41)*conjg(cb))
           cfac=ccb*conjg(cca)
-          ferr2=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
+          ferr2=atan2(imag(cfac),real(cfac))/(twopi*40*6*dt)
         else
-          ccb=sum(cdat(ic-88*6:ic-88*6+41)*conjg(cb))
+          ccb=sum(cdat(ic-40*6:ic-40*6+41)*conjg(cb))
           cfac=cca*conjg(ccb)
-          ferr2=atan2(imag(cfac),real(cfac))/(twopi*88*6*dt)
+          ferr2=atan2(imag(cfac),real(cfac))/(twopi*40*6*dt)
         endif
 
 ! Final estimate of the carrier frequency - returned to the calling program
-          fest=1500+ferr+ferr2 
+        fest=1500+ferr+ferr2 
 
-        do idf=0,4   ! frequency jitter
+        do idf=0,0                         ! frequency jitter
           if( idf .eq. 0 ) then
             deltaf=0.0
           elseif( mod(idf,2) .eq. 0 ) then
-            deltaf=idf
+            deltaf=2*idf
           else
-            deltaf=-(idf+1)
+            deltaf=-2*(idf+1)
           endif
 
 ! Remove fine frequency error
@@ -277,129 +301,96 @@ if( ishort .eq. 1 ) write(*,*) 'Short message detected'
 ! place the beginning of frame at index NSPM+1
           cdat2=cshift(cdat2,ic-(NSPM+1))
 
-          do iav=1,8 ! Hopefully we can eliminate some of these after looking at more examples 
+          do iav=1,4 ! Frame averaging patterns 
             if( iav .eq. 1 ) then
               c=cdat2(NSPM+1:2*NSPM)  
             elseif( iav .eq. 2 ) then
-              c=cdat2(NSPM-431:NSPM+432)  
-              c=cshift(c,-432)
-            elseif( iav .eq. 3 ) then         
-              c=cdat2(2*NSPM-431:2*NSPM+432)  
-              c=cshift(c,-432)
-            elseif( iav .eq. 4 ) then
-              c=cdat2(1:NSPM)
-            elseif( iav .eq. 5 ) then
-              c=cdat2(2*NSPM+1:NPTS) 
-            elseif( iav .eq. 6 ) then
               c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)
-            elseif( iav .eq. 7 ) then
-              c=cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:NPTS)
-            elseif( iav .eq. 8 ) then
-              c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:NPTS)
+            elseif( iav .eq. 3 ) then
+              c=cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:3*NSPM)
+            elseif( iav .eq. 4 ) then
+              c=cdat2(1:NSPM)+cdat2(NSPM+1:2*NSPM)+cdat2(2*NSPM+1:3*NSPM)
             endif
 
 ! Estimate final frequency error and carrier phase. 
             cca=sum(c(1:1+41)*conjg(cb))
-            ccb=sum(c(1+56*6:1+56*6+41)*conjg(cb))
-            cfac=ccb*conjg(cca)
-            ffin=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
-            phase0=atan2(imag(cca+ccb),real(cca+ccb))
+            phase0=atan2(imag(cca),real(cca))
 
             do ipha=1,1
-              if( ipha.eq.2 ) phase0=phase0+30*pi/180.0
-              if( ipha.eq.3 ) phase0=phase0-30*pi/180.0
+              if( ipha.eq.2 ) phase0=phase0-20*pi/180.0
+              if( ipha.eq.3 ) phase0=phase0+20*pi/180.0
 
 ! Remove phase error - want constellation rotated so that sample points lie on I/Q axes
               cfac=cmplx(cos(phase0),sin(phase0))
               c=c*conjg(cfac)
 
               if( nmatchedfilter .eq. 0 ) then
-! sample to get softsamples
-                do i=1,72
+                do i=1, 20 
                   softbits(2*i-1)=imag(c(1+(i-1)*12))
                   softbits(2*i)=real(c(7+(i-1)*12))  
                 enddo
-              else
-! matched filter - 
-! how much mismatch does the RX/TX/analytic filter cause?, how rig (pair) dependent is this loss?
-                softbits(1)=sum(imag(c(1:6))*pp(7:12))+sum(imag(c(864-5:864))*pp(1:6))
+              else   ! matched filter
+                softbits(1)=sum(imag(c(1:6))*pp(7:12))+sum(imag(c(NSPM-5:NSPM))*pp(1:6))
                 softbits(2)=sum(real(c(1:12))*pp)
-                do i=2,72
+                do i=2,20
                   softbits(2*i-1)=sum(imag(c(1+(i-1)*12-6:1+(i-1)*12+5))*pp)
                   softbits(2*i)=sum(real(c(7+(i-1)*12-6:7+(i-1)*12+5))*pp)
                 enddo
               endif
 
-! sync word hard error weight is a good discriminator for 
-! frames that have reasonable probability of decoding
-              hardbits=0
-              do i=1,144
+              hardbits=0  ! use sync word hard error weight to decide whether to send to decoder
+              do i=1, 40 
                 if( softbits(i) .ge. 0.0 ) then
                   hardbits(i)=1
                 endif
               enddo
-              nbadsync1=(8-sum( (2*hardbits(1:8)-1)*s8 ) )/2
-              nbadsync2=(8-sum( (2*hardbits(1+56:8+56)-1)*s8 ) )/2
-              nbadsync=nbadsync1+nbadsync2
-              if( nbadsync .gt. 4 ) cycle
-
-! normalize the softsymbols before submitting to decoder
-              sav=sum(softbits)/144
-              s2av=sum(softbits*softbits)/144
+              nbadsync1=(8-sum( (2*hardbits(1:8)-1)*s8r ) )/2
+              nbadsync=nbadsync1
+              if( nbadsync .gt. 3 ) cycle
+write(*,*) ip,id,nbadsync 
+              ! normalize the softsymbols before submitting to decoder
+              sav=sum(softbits)/40
+              s2av=sum(softbits*softbits)/40
               ssig=sqrt(s2av-sav*sav)
               softbits=softbits/ssig
 
               sigma=0.75
-              lratio(1:48)=softbits(9:9+47)
-              lratio(49:128)=softbits(65:65+80-1)
-              lratio=exp(2.0*lratio/(sigma*sigma))
-  
-              max_iterations=10
-              max_dither=1
-              call timer('ldpcdecod',0)
-              call ldpc_decode(lratio, decoded, &
-                           max_iterations, niterations, max_dither, ndither)
-              call timer('ldpcdecod',1)
+              lratio(1:32)=exp(2.0*softbits(9:40)/(sigma*sigma))
 
-              if( niterations .ge. 0.0 ) then
-                call extractmessage144(decoded,msgreceived,nhashflag)
-                if( nhashflag .gt. 0 ) then  ! CRCs match, so print it 
-                  ndupe=0
-                  do im=1,nmessages
-                    if( allmessages(im) .eq. msgreceived ) ndupe=1
-                  enddo
-                  if( ndupe .eq. 0 ) then
-                    nmessages=nmessages+1
-                    allmessages(nmessages)=msgreceived
-                    write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
-1020                format(i6.6,i4,f5.1,i5,' & ',a22)
-                  endif
+              max_iterations=5
+              max_dither=1
+              call ldpc_decode(lratio,decoded,max_iterations,niterations,max_dither,ndither)
+           
+              nhashflag=0
+              if( niterations .ge. 0 ) then
+                imsg=0
+                do i=1,16
+                  imsg=ishft(imsg,1)+iand(1,decoded(i))
+                enddo
+                nrxrpt=iand(imsg,63)
+                nrxhash=(imsg-nrxrpt)/64
+write(*,*) niterations,decoded,nrxrpt,nrxhash,nhashes(nrxrpt)
+                if( nrxhash .eq. nhashes(nrxrpt) ) then
+                  nhashflag=1
                   goto 999
-                else
-                  msgreceived=' '
-                  ndither=-99             ! -99 is bad hash flag
-!                  write(78,1001) nutc,t0,nsnr,ip,ipk,is,idf,iav,ipha,deltaf,fest,ferr,ferr2, &
-!                                 ffin,bba,bbp,nbadsync1,nbadsync2, &
-!                                 phase0,niterations,ndither,msgreceived
                 endif
               endif
-            enddo ! phase dither
-          enddo ! frame averaging loop
-        enddo  ! frequency dithering loop
-      enddo   ! sample-time dither loop
-    enddo     ! peak loop - could be made more efficient by working harder to find good peaks
-
-    msgreceived=' '
-    ndither=-98   
+            enddo   ! phase loop
+          enddo   ! frame averaging loop
+        enddo   ! frequency dithering loop
+      enddo   ! slicer dither loop
+    enddo   ! time-sync correlation-peak loop
+  enddo  ! candidate loop
 999 continue
-    if( nmessages .ge. 1 ) then 
-!      write(78,1001) nutc,t0,nsnr,ip,ipk,is,idf,iav,ipha,deltaf,fest,ferr,ferr2,  &
-!                     ffin,bba,bbp,nbadsync1,nbadsync2, &
-!                     phase0,niterations,ndither,msgreceived
-!      call flush(78)
-!1001 format(i6.6,f8.2,i5,i5,i5,i5,i5,i5,i5,f6.2,f8.2,f8.2,f8.2,f8.2,f11.1,f8.2,i5,i5,f8.2,i5,i5,2x,a22)
-      exit
-    endif
-  enddo
+  msgreceived=' '
+  if( nhashflag.eq.1 ) then
+           nmessages=1
+           write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),      &
+                trim(partnercall),">",rpt(nrxrpt)
+           write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
+1020       format(i6.6,i4,f5.1,i5,' & ',a22)
+
+   endif
+
   return
-end subroutine detectmsk144
+end subroutine detectmsk40
