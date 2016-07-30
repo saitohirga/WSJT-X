@@ -202,7 +202,6 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
     crmax=maxval(abs(ccr))
     ishort=0
     if( crmax .gt. cmax ) ishort=1
-if( ishort .eq. 1 ) write(*,*) 'Short message detected'
  
 ! Find 6 largest peaks
     do ipk=1, 6
