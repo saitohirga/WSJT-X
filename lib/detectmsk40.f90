@@ -1,9 +1,9 @@
-subroutine detectmsk40(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
+subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
   use timer_module, only: timer
 
   parameter (NSPM=240, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=10)
   character*4 rpt(0:63)
-  character*6 mycall,partnercall
+  character*6 mycall,hiscall
   character*22 hashmsg,msgreceived
   character*80 lines(100)
   character*40 pchk_file,gen_file
@@ -43,7 +43,7 @@ subroutine detectmsk40(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
   data s8r/1,0,1,1,0,0,0,1/
-  save df,first,cb,cbr,fs,nhashes,pi,twopi,dt,s8,s8r,rcw,pp,nmatchedfilter
+  save df,first,cb,cbr,fs,nhashes,pi,twopi,dt,s8,s8r,rcw,pp,nmatchedfilter,rpt
 
   if(first) then
      nmatchedfilter=1
@@ -95,7 +95,7 @@ subroutine detectmsk40(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
       rpt(63)='73  '
 
      do i=0,63 
-       hashmsg=trim(mycall)//' '//trim(partnercall)//' '//rpt(i)
+       hashmsg=trim(mycall)//' '//trim(hiscall)//' '//rpt(i)
        call fmtmsg(hashmsg,iz)
        call hash(hashmsg,22,ihash)
        nhashes(i)=iand(ihash,1023)
@@ -187,13 +187,9 @@ subroutine detectmsk40(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
 !    detmet(il)=0.0
   enddo
 
-!  ndet=15 
-  do ip=1,ndet
-!    times(ip)=ip+0.012
-!    snrs(ip)=-3.0
-!    ferrs(ip)=0.0
-    write(*,'(i5,f7.2,f7.2,f7.2)') ip,times(ip),snrs(ip),ferrs(ip)
-  enddo
+!  do ip=1,ndet
+!    write(*,'(i5,f7.2,f7.2,f7.2)') ip,times(ip),snrs(ip),ferrs(ip)
+!  enddo
 
   nmessages=0
   lines=char(0)
@@ -225,9 +221,9 @@ subroutine detectmsk40(cbig,n,mycall,partnercall,lines,nmessages,nutc,ntol,t00)
     ddr=abs(ccr1)*abs(ccr2)
     crmax=maxval(abs(ccr))
 
-do i=1,NPTS
-write(14,*) i,abs(ccr(i)),ddr(i)
-enddo
+!do i=1,NPTS
+!write(14,*) i,abs(ccr(i)),ddr(i)
+!enddo
 
 
 ! Find 6 largest peaks
@@ -239,9 +235,9 @@ enddo
       ipeaks(ipk)=ic1
       ccr(max(1,ic1-7):min(NPTS-40*6-41,ic1+7))=0.0
     enddo
-do i=1,6
-write(*,*) i,ipeaks(i)
-enddo
+!do i=1,6
+!write(*,*) i,ipeaks(i)
+!enddo
     do ipk=1,6
 
 ! we want ic to be the index of the first sample of the frame
@@ -262,7 +258,7 @@ enddo
       if( ibb .le. 3 ) ibb=ibb-1
       if( ibb .gt. 3 ) ibb=ibb-7
 
-      do id=1,1     ! slicer dither.
+      do id=1,3     ! slicer dither.
         if( id .eq. 1 ) is=0
         if( id .eq. 2 ) is=-1
         if( id .eq. 3 ) is=1
@@ -286,13 +282,13 @@ enddo
 ! Final estimate of the carrier frequency - returned to the calling program
         fest=1500+ferr+ferr2 
 
-        do idf=0,0                         ! frequency jitter
+        do idf=0,6                         ! frequency jitter
           if( idf .eq. 0 ) then
             deltaf=0.0
           elseif( mod(idf,2) .eq. 0 ) then
-            deltaf=2*idf
+            deltaf=4*idf
           else
-            deltaf=-2*(idf+1)
+            deltaf=-4*(idf+1)
           endif
 
 ! Remove fine frequency error
@@ -316,7 +312,7 @@ enddo
             cca=sum(c(1:1+41)*conjg(cb))
             phase0=atan2(imag(cca),real(cca))
 
-            do ipha=1,1
+            do ipha=1,3
               if( ipha.eq.2 ) phase0=phase0-20*pi/180.0
               if( ipha.eq.3 ) phase0=phase0+20*pi/180.0
 
@@ -347,7 +343,7 @@ enddo
               nbadsync1=(8-sum( (2*hardbits(1:8)-1)*s8r ) )/2
               nbadsync=nbadsync1
               if( nbadsync .gt. 3 ) cycle
-write(*,*) ip,id,nbadsync 
+
               ! normalize the softsymbols before submitting to decoder
               sav=sum(softbits)/40
               s2av=sum(softbits*softbits)/40
@@ -359,17 +355,17 @@ write(*,*) ip,id,nbadsync
 
               max_iterations=5
               max_dither=1
+
               call ldpc_decode(lratio,decoded,max_iterations,niterations,max_dither,ndither)
            
               nhashflag=0
               if( niterations .ge. 0 ) then
                 imsg=0
                 do i=1,16
-                  imsg=ishft(imsg,1)+iand(1,decoded(i))
+                  imsg=ishft(imsg,1)+iand(1 , decoded(17-i))
                 enddo
                 nrxrpt=iand(imsg,63)
                 nrxhash=(imsg-nrxrpt)/64
-write(*,*) niterations,decoded,nrxrpt,nrxhash,nhashes(nrxrpt)
                 if( nrxhash .eq. nhashes(nrxrpt) ) then
                   nhashflag=1
                   goto 999
@@ -381,12 +377,13 @@ write(*,*) niterations,decoded,nrxrpt,nrxhash,nhashes(nrxrpt)
       enddo   ! slicer dither loop
     enddo   ! time-sync correlation-peak loop
   enddo  ! candidate loop
+return
 999 continue
   msgreceived=' '
   if( nhashflag.eq.1 ) then
            nmessages=1
            write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),      &
-                trim(partnercall),">",rpt(nrxrpt)
+                trim(hiscall),">",rpt(nrxrpt)
            write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
 1020       format(i6.6,i4,f5.1,i5,' & ',a22)
 
