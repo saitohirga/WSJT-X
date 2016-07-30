@@ -4910,7 +4910,7 @@ void MainWindow::transmit (double snr)
       if(itone[35] < 0) nsym=35;
     } else {
       nsym=NUM_MSK144_SYMBOLS;
-      if(itone[32] < 0) nsym=32;
+      if(itone[40] < 0) nsym=40;
     }
     Q_EMIT sendMessage (nsym, double(m_nsps), f0, m_toneSpacing,
                         m_soundOutput, m_config.audio_output_channel (),
