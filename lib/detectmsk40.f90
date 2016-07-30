@@ -1,7 +1,7 @@
 subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
   use timer_module, only: timer
 
-  parameter (NSPM=240, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=10)
+  parameter (NSPM=240, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=5)
   character*4 rpt(0:63)
   character*6 mycall,hiscall
   character*22 hashmsg,msgreceived
@@ -111,7 +111,7 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
   call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
  
 ! Fill the detmet, detferr arrays
-  nstepsize=48  ! 4ms steps
+  nstepsize=60  ! 5ms steps
   nstep=(n-NPTS)/nstepsize  
   detmet=0
   detmax=-999.99
@@ -193,7 +193,8 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
 
   nmessages=0
   lines=char(0)
-
+  
+  ncalls=0
   do ip=1,ndet  !run through the candidates and try to sync/demod/decode
     imid=times(ip)*fs
     if( imid .lt. NPTS/2 ) imid=NPTS/2
@@ -238,7 +239,7 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
 !do i=1,6
 !write(*,*) i,ipeaks(i)
 !enddo
-    do ipk=1,6
+    do ipk=1,4
 
 ! we want ic to be the index of the first sample of the frame
       ic0=ipeaks(ipk)
@@ -279,16 +280,14 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
           ferr2=atan2(imag(cfac),real(cfac))/(twopi*40*6*dt)
         endif
 
-! Final estimate of the carrier frequency - returned to the calling program
-        fest=1500+ferr+ferr2 
 
         do idf=0,6                         ! frequency jitter
           if( idf .eq. 0 ) then
             deltaf=0.0
           elseif( mod(idf,2) .eq. 0 ) then
-            deltaf=4*idf
+            deltaf=2.5*idf
           else
-            deltaf=-4*(idf+1)
+            deltaf=-2.5*(idf+1)
           endif
 
 ! Remove fine frequency error
@@ -313,8 +312,8 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
             phase0=atan2(imag(cca),real(cca))
 
             do ipha=1,3
-              if( ipha.eq.2 ) phase0=phase0-20*pi/180.0
-              if( ipha.eq.3 ) phase0=phase0+20*pi/180.0
+              if( ipha.eq.2 ) phase0=phase0-30*pi/180.0
+              if( ipha.eq.3 ) phase0=phase0+30*pi/180.0
 
 ! Remove phase error - want constellation rotated so that sample points lie on I/Q axes
               cfac=cmplx(cos(phase0),sin(phase0))
@@ -350,16 +349,18 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
               ssig=sqrt(s2av-sav*sav)
               softbits=softbits/ssig
 
-              sigma=0.75
+              sigma=0.65
               lratio(1:32)=exp(2.0*softbits(9:40)/(sigma*sigma))
 
               max_iterations=5
               max_dither=1
-
+              niterations=0
               call ldpc_decode(lratio,decoded,max_iterations,niterations,max_dither,ndither)
-           
+              ncalls=ncalls+1
+ 
               nhashflag=0
               if( niterations .ge. 0 ) then
+
                 imsg=0
                 do i=1,16
                   imsg=ishft(imsg,1)+iand(1 , decoded(17-i))
@@ -367,10 +368,20 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
                 nrxrpt=iand(imsg,63)
                 nrxhash=(imsg-nrxrpt)/64
                 if( nrxhash .eq. nhashes(nrxrpt) ) then
+                  fest=1500+ferr+ferr2+deltaf 
+!write(14,'(i6.6,10i5,2f7.1)') nutc,ip,ipk,id,idf,iav,ipha,niterations,nbadsync,nrxrpt,ncalls,ferr,ferr2
                   nhashflag=1
-                  goto 999
+                  msgreceived=' '
+                  nmessages=1
+                  write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),      &
+                                                trim(hiscall),">",rpt(nrxrpt)
+                  write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
+1020              format(i6.6,i4,f5.1,i5,' & ',a22)
+                  return
                 endif
+
               endif
+
             enddo   ! phase loop
           enddo   ! frame averaging loop
         enddo   ! frequency dithering loop
@@ -378,16 +389,4 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
     enddo   ! time-sync correlation-peak loop
   enddo  ! candidate loop
 return
-999 continue
-  msgreceived=' '
-  if( nhashflag.eq.1 ) then
-           nmessages=1
-           write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),      &
-                trim(hiscall),">",rpt(nrxrpt)
-           write(lines(nmessages),1020) nutc,nsnr,t0,nint(fest),msgreceived
-1020       format(i6.6,i4,f5.1,i5,' & ',a22)
-
-   endif
-
-  return
 end subroutine detectmsk40
