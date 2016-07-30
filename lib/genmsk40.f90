@@ -1,11 +1,12 @@
-subroutine genmsk40(msg,msgsent,ichk,itone,itype)
+subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file)
 
   use hashing
   character*22 msg,msgsent,hashmsg
   character*32 cwstring
   character*2  cwstrbit
   character*4 crpt,rpt(0:63)
-  character*40 pchk_file,gen_file
+  character*512 pchk_file,gen_file
+  character*512 pchk_file40,gen_file40
   logical first
   integer itone(144)
   integer*1 message(16),codeword(32),bitseq(40)
@@ -29,12 +30,12 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype)
      first=.false.
   endif
 
-!####### TEMPORARILY HARDWIRE PCHK AND GEN FILES ################## 
-!These files will need to be installed.
-
-  pchk_file="peg-32-16-reg3.pchk"
-  gen_file="peg-32-16-reg3.gen"
-  call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
+! Temporarily hardwire filenames and init on every call
+  i=index(pchk_file,"128-80")
+  pchk_file40=pchk_file(1:i-1)//"32-16"//pchk_file(i+6:)
+  i=index(pchk_file40,".pchk")
+  gen_file40=pchk_file40(1:i-1)//".gen"
+  call init_ldpc(trim(pchk_file40)//char(0),trim(gen_file40)//char(0))
   itype=-1
   msgsent='*** bad message ***'
   itone=0

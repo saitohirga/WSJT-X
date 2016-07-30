@@ -1,19 +1,21 @@
-subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
-  use timer_module, only: timer
+subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
+     nutc,ntol,t00)
 
+  use timer_module, only: timer
   parameter (NSPM=240, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=15)
   character*4 rpt(0:63)
-  character*6 mycall,hiscall
+  character*6 mycall,hiscall,mycall0,hiscall0
   character*22 hashmsg,msgreceived
   character*80 lines(100)
-  character*40 pchk_file,gen_file
+  character*512 pchk_file,gen_file
+  character*512 pchk_file40,gen_file40
   complex cbig(n)
   complex cdat(NPTS)                    !Analytic signal
   complex cdat2(NPTS)
   complex c(NSPM)
   complex ctmp(NFFT)                  
   complex cb(42)                        !Complex waveform for sync word 
-  complex cbr(42)                       !Complex waveform for reversed sync word 
+  complex cbr(42)                       !Complex waveform for reversed sync word
   complex cfac,cca,ccb
   complex ccr(NPTS)
   complex ccr1(NPTS)
@@ -43,6 +45,7 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
   real*8 lratio(32)
   logical first
   data first/.true./
+  data mycall0/'dummy'/,hiscall0/'dummy'/
   data s8/0,1,1,1,0,0,1,0/
   data s8r/1,0,1,1,0,0,0,1/
 ! codeword for the message <K9AN K1JT> RRR
@@ -97,22 +100,26 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
       enddo
       rpt(62)='RRR '
       rpt(63)='73  '
+      first=.false.
+  endif
 
+  if(mycall.ne.mycall0 .or. hiscall.ne.hiscall0) then
      do i=0,63 
        hashmsg=trim(mycall)//' '//trim(hiscall)//' '//rpt(i)
        call fmtmsg(hashmsg,iz)
        call hash(hashmsg,22,ihash)
        nhashes(i)=iand(ihash,1023)
      enddo
-
-  first=.false.
+     mycall0=mycall
+     hiscall0=hiscall
   endif
 
 ! Temporarily hardwire filenames and init on every call
-  pchk_file="peg-32-16-reg3.pchk"
-  i=index(pchk_file,".pchk")
-  gen_file=pchk_file(1:i-1)//".gen"
-  call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
+  i=index(pchk_file,"128-80")
+  pchk_file40=pchk_file(1:i-1)//"32-16"//pchk_file(i+6:)
+  i=index(pchk_file40,".pchk")
+  gen_file40=pchk_file40(1:i-1)//".gen"
+  call init_ldpc(trim(pchk_file40)//char(0),trim(gen_file40)//char(0))
  
 ! Fill the detmet, detferr arrays
   nstepsize=60  ! 5ms steps
