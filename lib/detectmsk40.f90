@@ -50,7 +50,7 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
   data s8r/1,0,1,1,0,0,0,1/
 ! codeword for the message <K9AN K1JT> RRR
   data testcw/0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,1,0,1,1,1,1,1,0,0,0,0,0,0,1,1,1,0/
-  save df,first,cb,cbr,fs,nhashes,pi,twopi,dt,s8,s8r,rcw,pp,nmatchedfilter,rpt
+  save df,first,cb,cbr,fs,nhashes,pi,twopi,dt,s8,s8r,rcw,pp,nmatchedfilter,rpt,mycall0,hiscall0
 
   if(first) then
      nmatchedfilter=1
