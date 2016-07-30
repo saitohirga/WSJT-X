@@ -1,7 +1,7 @@
 subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
   use timer_module, only: timer
 
-  parameter (NSPM=240, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=40)
+  parameter (NSPM=240, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=15)
   character*4 rpt(0:63)
   character*6 mycall,hiscall
   character*22 hashmsg,msgreceived
@@ -283,7 +283,7 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
           ferr2=atan2(imag(cfac),real(cfac))/(twopi*40*6*dt)
         endif
 
-        do idf=0,6                         ! frequency jitter
+        do idf=0,2                         ! frequency jitter
           if( idf .eq. 0 ) then
             deltaf=0.0
           elseif( mod(idf,2) .eq. 0 ) then
@@ -366,8 +366,12 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
               if( niterations .ge. 0 ) then
                 call ldpc_encode(decoded,cw)
                 nhammd=0
+                cord=0.0
                 do i=1,32
-                  if( cw(i) .ne. hardbits(i+8) ) nhammd=nhammd+1
+                  if( cw(i) .ne. hardbits(i+8) ) then
+                    nhammd=nhammd+1
+                    cord=cord+abs(softbits(i+8))
+                  endif
                 enddo
 
                 imsg=0
@@ -376,9 +380,9 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,nutc,ntol,t00)
                 enddo
                 nrxrpt=iand(imsg,63)
                 nrxhash=(imsg-nrxrpt)/64
-                if( nrxhash .eq. nhashes(nrxrpt) ) then
+                if( nhammd .le. 5 .and. cord .lt. 1.7 .and. nrxhash .eq. nhashes(nrxrpt) ) then
                   fest=1500+ferr+ferr2+deltaf 
-write(14,'(i6.6,11i5)') nutc,ip,ipk,id,idf,iav,ipha,niterations,nbadsync,nrxrpt,ncalls,nhammd
+!write(14,'(i6.6,11i6,f7.1)') nutc,ip,ipk,id,idf,iav,ipha,niterations,nbadsync,nrxrpt,ncalls,nhammd,cord
                   nhashflag=1
                   msgreceived=' '
                   nmessages=1
