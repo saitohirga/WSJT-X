@@ -47,7 +47,7 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,mycall,hiscall,   &
 
   if(nline.eq.0 .and. bShMsgs) then
     call timer('detect40',0)
-    call detectmsk40(c,npts,mycall,hiscall,line,nline,nutc,ntol,t0)
+    call detectmsk40(c,npts,pchk_file,mycall,hiscall,line,nline,nutc,ntol,t0)
     call timer('detect40',1)
     if( nprint .ne. 0 ) then
       do i=1,nline
