@@ -90,5 +90,5 @@ and tips.
 
 Please email me if you have problems.
 
---- John G4KLA     (g4kla@rmnjmn.demon.co.uk)
+--- John G4KLA     (g4kla@rmnjmn.co.uk)
 
