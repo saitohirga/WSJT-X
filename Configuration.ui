@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>configuration_dialog</class>
  <widget class="QDialog" name="configuration_dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>545</width>
+    <height>591</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>Settings</string>
   </property>
@@ -2162,16 +2170,98 @@ Right click for insert and delete options.</string>
        <string>Advanced</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
-       <item row="0" column="0">
+       <item row="1" column="0" colspan="2">
+        <spacer name="verticalSpacer_8">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="1">
         <widget class="QGroupBox" name="groupBox_5">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="title">
+          <string>Miscellaneous</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_10">
+          <item row="1" column="1">
+           <layout class="QFormLayout" name="formLayout_3">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Degrade S/N of .wav file: </string>
+              </property>
+              <property name="buddy">
+               <cstring>sbDegrade</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QDoubleSpinBox" name="sbDegrade">
+              <property name="suffix">
+               <string> dB</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>Receiver bandwidth:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QSpinBox" name="sbBandwidth">
+              <property name="suffix">
+               <string>  Hz</string>
+              </property>
+              <property name="maximum">
+               <number>6000</number>
+              </property>
+              <property name="singleStep">
+               <number>100</number>
+              </property>
+              <property name="value">
+               <number>2500</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QCheckBox" name="cbx2ToneSpacing">
+              <property name="text">
+               <string>x 2 Tone Spacing</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_6">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;User-selectable parameters for JT65 decoding.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="title">
           <string>JT65 decoding parameters</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_12">
-          <item>
+         <layout class="QFormLayout" name="formLayout_11">
+          <item row="0" column="1">
            <layout class="QFormLayout" name="formLayout_2">
             <item row="0" column="0">
              <widget class="QLabel" name="label_2">
@@ -2199,90 +2289,7 @@ Right click for insert and delete options.</string>
               </property>
              </widget>
             </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="cbSync1Bit">
-            <property name="text">
-             <string>Robust sync</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="cbTwoPass">
-            <property name="text">
-             <string>Two-pass decoding</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox_6">
-            <property name="title">
-             <string>Experience-based decoding</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_9">
-             <item>
-              <widget class="QCheckBox" name="cbMyDx">
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Test codewords corresponding to messages of the form &amp;quot;MyCall DxCall Dxgrid&amp;quot;, &amp;quot;MyCall DxCall rpt&amp;quot;. &amp;quot;MyCall DxCall RRR&amp;quot;. and &amp;quot;MyCall DxCall 73&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="text">
-                <string>MyCall DxCall rpt</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="cbCQMyN">
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Test codewords corresponding to messages of the form &amp;quot;CQ Call Grid&amp;quot; and  &amp;quot;MyCall Call Grid&amp;quot; for all Call/Grid combinations selected from the list of known calls.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="text">
-                <string>(CQ, MyCall) x N</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="cbNDxG">
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Test codewords corresponding to messages of the form &amp;quot;Call DxCall DxGrid OOO&amp;quot; for all Call/Grid combinations selected from the list of known calls.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="text">
-                <string>N x (DxCall Grid OOO)</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="cbNN">
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Test codewords corresponding to messages of the form &amp;quot;Call1 Call2 Grid2&amp;quot;for all Call/Grid combinations selected from the list of known calls.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="text">
-                <string>N x N</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="cbEMEonly">
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Call/Grid combinations from list of known calls only if marked as active on EME.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="text">
-                <string>EME calls only</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <layout class="QFormLayout" name="formLayout_3">
-            <item row="0" column="0">
+            <item row="1" column="0">
              <widget class="QLabel" name="label_4">
               <property name="text">
                <string>Aggressive decoding level:</string>
@@ -2292,7 +2299,7 @@ Right click for insert and delete options.</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
+            <item row="1" column="1">
              <widget class="QSpinBox" name="sbAggressive">
               <property name="toolTip">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Higher levels will increase the probability of decoding, but will also increase probability of a false decode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -2302,49 +2309,23 @@ Right click for insert and delete options.</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>Degrade S/N of .wav file: </string>
-              </property>
-              <property name="buddy">
-               <cstring>sbDegrade</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QDoubleSpinBox" name="sbDegrade">
-              <property name="suffix">
-               <string> dB</string>
-              </property>
-              <property name="decimals">
-               <number>1</number>
-              </property>
-              <property name="singleStep">
-               <double>0.100000000000000</double>
-              </property>
-             </widget>
-            </item>
             <item row="2" column="0">
-             <widget class="QLabel" name="label_9">
+             <widget class="QCheckBox" name="cbSync1Bit">
               <property name="text">
-               <string>Receiver bandwidth:</string>
+               <string>Robust sync</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
-             <widget class="QSpinBox" name="sbBandwidth">
-              <property name="suffix">
-               <string>  Hz</string>
+            <item row="3" column="0">
+             <widget class="QCheckBox" name="cbTwoPass">
+              <property name="text">
+               <string>Two-pass decoding</string>
               </property>
-              <property name="maximum">
-               <number>6000</number>
-              </property>
-              <property name="singleStep">
-               <number>100</number>
-              </property>
-              <property name="value">
-               <number>2500</number>
+              <property name="checked">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -2352,32 +2333,6 @@ Right click for insert and delete options.</string>
           </item>
          </layout>
         </widget>
-       </item>
-       <item row="0" column="1">
-        <spacer name="horizontalSpacer_5">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="0" colspan="2">
-        <spacer name="verticalSpacer_8">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>
@@ -2478,12 +2433,6 @@ soundcard changes</string>
   <tabstop>sbNtrials</tabstop>
   <tabstop>cbSync1Bit</tabstop>
   <tabstop>cbTwoPass</tabstop>
-  <tabstop>cbMyDx</tabstop>
-  <tabstop>cbCQMyN</tabstop>
-  <tabstop>cbNDxG</tabstop>
-  <tabstop>cbNN</tabstop>
-  <tabstop>cbEMEonly</tabstop>
-  <tabstop>sbAggressive</tabstop>
   <tabstop>sbDegrade</tabstop>
  </tabstops>
  <resources/>
@@ -2554,12 +2503,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
  </buttongroups>
 </ui>

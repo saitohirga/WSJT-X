@@ -121,6 +121,7 @@ public:
   bool single_decode () const;
   bool twoPass() const;
   bool sync1Bit() const;
+  bool x2ToneSpacing() const;
   bool MyDx() const;
   bool CQMyN() const;
   bool NDxG() const;
