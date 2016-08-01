@@ -61,6 +61,7 @@ subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,pchk_file,     &
      if(ib.gt.ntrperiod*12000) ib=ntrperiod*12000
      nz=ib-ia+1
 !     print*,ia,ib,nz,ndat0,t0,t1
+     if(npick.ne.0) go to 900        !### TEMPORARILY DISABLE PICK DECODES ###
      if(newdat.eq.1 .or. npick.le.1) then
         call msk144_decode(id2(ia),nz,nutc,0,pchk_file,mycall,hiscall,   &
              bShMsgs,ntol,t0,line)
