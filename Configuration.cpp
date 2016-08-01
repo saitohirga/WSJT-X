@@ -538,11 +538,7 @@ private:
   bool single_decode_;
   bool twoPass_;
   bool sync1Bit_;
-  bool MyDx_;
-  bool CQMyN_;
-  bool NDxG_;
-  bool NN_;
-  bool EMEonly_;
+  bool x2ToneSpacing_;
   bool offsetRxFreq_;
   QString udp_server_name_;
   port_type udp_server_port_;
@@ -627,11 +623,7 @@ bool Configuration::decode_at_52s () const {return m_->decode_at_52s_;}
 bool Configuration::single_decode () const {return m_->single_decode_;}
 bool Configuration::twoPass() const {return m_->twoPass_;}
 bool Configuration::sync1Bit() const {return m_->sync1Bit_;}
-bool Configuration::MyDx() const {return m_->MyDx_;}
-bool Configuration::CQMyN() const {return m_->CQMyN_;}
-bool Configuration::NDxG() const {return m_->NDxG_;}
-bool Configuration::NN() const {return m_->NN_;}
-bool Configuration::EMEonly() const {return m_->EMEonly_;}
+bool Configuration::x2ToneSpacing() const {return m_->x2ToneSpacing_;}
 bool Configuration::offsetRxFreq () const {return m_->offsetRxFreq_;}
 bool Configuration::split_mode () const {return m_->split_mode ();}
 QString Configuration::udp_server_name () const {return m_->udp_server_name_;}
@@ -766,7 +758,7 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
   , default_audio_output_device_selected_ {false}
 {
   ui_->setupUi (this);
-  ui_->groupBox_6->setVisible(false);              //### Temporary ??? ###
+//  ui_->groupBox_6->setVisible(false);              //### Temporary ??? ###
 
 #if !defined (CMAKE_BUILD)
 #define WSJT_SHARE_DESTINATION "."
@@ -1061,11 +1053,7 @@ void Configuration::impl::initialize_models ()
   ui_->single_decode_check_box->setChecked(single_decode_);
   ui_->cbTwoPass->setChecked(twoPass_);
   ui_->cbSync1Bit->setChecked(sync1Bit_);
-  ui_->cbMyDx->setChecked(MyDx_);
-  ui_->cbCQMyN->setChecked(CQMyN_);
-  ui_->cbNDxG->setChecked(NDxG_);
-  ui_->cbNN->setChecked(NN_);
-  ui_->cbEMEonly->setChecked(EMEonly_);
+  ui_->cbx2ToneSpacing->setChecked(x2ToneSpacing_);
   ui_->offset_Rx_freq_check_box->setChecked(offsetRxFreq_);
   ui_->type_2_msg_gen_combo_box->setCurrentIndex (type_2_msg_gen_);
   ui_->rig_combo_box->setCurrentText (rig_params_.rig_name);
@@ -1289,11 +1277,7 @@ void Configuration::impl::read_settings ()
   single_decode_ = settings_->value("SingleDecode",false).toBool ();
   twoPass_ = settings_->value("TwoPass",true).toBool ();
   sync1Bit_ = settings_->value("Sync1Bit",false).toBool ();
-  MyDx_ = settings_->value("MyDx",false).toBool ();
-  CQMyN_ = settings_->value("CQMyN",false).toBool ();
-  NDxG_ = settings_->value("NDxG",false).toBool ();
-  NN_ = settings_->value("NN",false).toBool ();
-  EMEonly_ = settings_->value("EMEonly",false).toBool ();
+  x2ToneSpacing_ = settings_->value("x2ToneSpacing",false).toBool ();
   offsetRxFreq_ = settings_->value("OffsetRx",false).toBool();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
   rig_params_.set_rig_mode = data_mode_ != data_mode_none;
@@ -1390,11 +1374,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("SingleDecode", single_decode_);
   settings_->setValue ("TwoPass", twoPass_);
   settings_->setValue ("Sync1Bit", sync1Bit_);
-  settings_->setValue ("MyDx", MyDx_);
-  settings_->setValue ("CQMyN", CQMyN_);
-  settings_->setValue ("NDxG", NDxG_);
-  settings_->setValue ("NN", NN_);
-  settings_->setValue ("EMEonly", EMEonly_);
+  settings_->setValue ("x2ToneSpacing", x2ToneSpacing_);
   settings_->setValue("OffsetRx",offsetRxFreq_);
   settings_->setValue ("UDPServer", udp_server_name_);
   settings_->setValue ("UDPServerPort", udp_server_port_);
@@ -1787,12 +1767,7 @@ void Configuration::impl::accept ()
   single_decode_ = ui_->single_decode_check_box->isChecked ();
   twoPass_ = ui_->cbTwoPass->isChecked ();
   sync1Bit_ = ui_->cbSync1Bit->isChecked ();
-  MyDx_ = ui_->cbMyDx->isChecked ();
-  CQMyN_ = ui_->cbCQMyN->isChecked ();
-  NDxG_ = ui_->cbNDxG->isChecked ();
-  NN_ = ui_->cbNN->isChecked ();
-  EMEonly_ = ui_->cbEMEonly->isChecked ();
-
+  x2ToneSpacing_ = ui_->cbx2ToneSpacing->isChecked ();
   offsetRxFreq_ = ui_->offset_Rx_freq_check_box->isChecked();
   frequency_calibration_intercept_ = ui_->calibration_intercept_spin_box->value ();
   frequency_calibration_slope_ppm_ = ui_->calibration_slope_ppm_spin_box->value ();

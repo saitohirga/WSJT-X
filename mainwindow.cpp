@@ -2145,11 +2145,6 @@ void MainWindow::decode()                                       //decode()
   if(m_bEME) dec_data.params.emedelay=2.5;
   dec_data.params.minSync=ui->syncSpinBox->isVisible () ? m_minSync : 0;
   dec_data.params.nexp_decode=0;
-  if(m_config.MyDx()) dec_data.params.nexp_decode += 1;
-  if(m_config.CQMyN()) dec_data.params.nexp_decode += 2;
-  if(m_config.NDxG()) dec_data.params.nexp_decode += 4;
-  if(m_config.NN()) dec_data.params.nexp_decode += 8;
-  if(m_config.EMEonly()) dec_data.params.nexp_decode += 16;
   if(m_config.single_decode()) {
     dec_data.params.nexp_decode += 32;
     if(dec_data.params.naggressive<1) dec_data.params.naggressive=1;
@@ -2223,6 +2218,8 @@ void::MainWindow::fast_decode_done()
 {
   float t,tmax=-99.0;
   QString msg0;
+  dec_data.params.nagain=false;
+  dec_data.params.ndiskdat=false;
   m_bDecoded=false;
   for(int i=0; i<100; i++) {
     int i1=msg0.indexOf(m_baseCall);
@@ -3979,7 +3976,6 @@ void MainWindow::on_actionMSK144_triggered()
   ui->rptSpinBox->setSingleStep(2);
   ui->sbFtol->setMinimum(23);
   ui->sbFtol->setMaximum(25);
-  ui->sbFtol->setValue(25);
 }
 
 void MainWindow::on_actionQRA64_triggered()
@@ -4932,10 +4928,13 @@ void MainWindow::transmit (double snr)
   }
   if (m_mode=="WSPR-2") {                                      //### Similar code needed for WSPR-15 ###
 
+    int nToneSpacing=1;
+    if(m_config.x2ToneSpacing()) nToneSpacing=2;
     Q_EMIT sendMessage (NUM_WSPR_SYMBOLS, 8192.0,
-                        ui->TxFreqSpinBox->value() - 1.5 * 12000 / 8192, m_toneSpacing,
-                        m_soundOutput, m_config.audio_output_channel(),
-                        true, false, snr, m_TRperiod);
+                        ui->TxFreqSpinBox->value() - 1.5 * 12000 / 8192,
+                        m_toneSpacing*nToneSpacing, m_soundOutput,
+                        m_config.audio_output_channel(),true, false, snr,
+                        m_TRperiod);
   }
   if(m_mode=="Echo") {
     //??? should use "fastMode = true" here ???
