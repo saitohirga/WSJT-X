@@ -214,6 +214,7 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
     cdat=cbig(imid-NPTS/2+1:imid+NPTS/2)
     ferr=ferrs(ip)
     nsnr=nint(snrs(ip))
+    xsnr=snrs(ip)
     if( nsnr .lt. -5 ) nsnr=-5
     if( nsnr .gt. 25 ) nsnr=25
 
@@ -362,6 +363,7 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
               softbits=softbits/ssig
 
               sigma=0.75
+              if( xsnr .lt. -4.0 ) sigma=1.1
               lratio(1:32)=exp(2.0*softbits(9:40)/(sigma*sigma))
 
               max_iterations=5
@@ -389,7 +391,7 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
                 nrxhash=(imsg-nrxrpt)/64
                 if( nhammd .le. 5 .and. cord .lt. 1.7 .and. nrxhash .eq. nhashes(nrxrpt) ) then
                   fest=1500+ferr+ferr2+deltaf 
-!write(14,'(i6.6,11i6,f7.1)') nutc,ip,ipk,id,idf,iav,ipha,niterations,nbadsync,nrxrpt,ncalls,nhammd,cord
+!write(14,'(i6.6,11i6,f7.1,f7.1)') nutc,ip,ipk,id,idf,iav,ipha,niterations,nbadsync,nrxrpt,ncalls,nhammd,cord,xsnr
                   nhashflag=1
                   msgreceived=' '
                   nmessages=1
