@@ -486,6 +486,7 @@ set (ldpc_CSRCS
   lib/ldpc/intio.c
   lib/ldpc/blockio.c
   lib/ldpc/check.c
+  lib/ldpc/encode.c
   lib/ldpc/open.c
   lib/ldpc/mod2dense.c
   lib/ldpc/mod2sparse.c
@@ -1072,6 +1073,9 @@ target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
 
 add_executable (msk144d lib/msk144d.f90 wsjtx.rc)
 target_link_libraries (msk144d wsjt_fort wsjt_cxx)
+
+add_executable (encode lib/ldpc/encode.c wsjtx.rc)
+target_link_libraries (encode wsjt_fort wsjt_cxx)
 
 add_executable (jt9 ${jt9_FSRCS} ${jt9_CXXSRCS} wsjtx.rc)
 if (${OPENMP_FOUND} OR APPLE)
