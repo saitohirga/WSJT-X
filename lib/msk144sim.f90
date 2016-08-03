@@ -6,6 +6,7 @@ program msk144sim
   real waveform(0:NMAX-1)
   character arg*8,msg*22,msgsent*22,fname*40
   character*512 pchk_file
+  character*512 ldpc_msg_file
   real wave(0:NMAX-1)              !Simulated received waveform
   real*8 twopi,freq,phi,dphi0,dphi1,dphi
   type(hdr) h                          !Header for .wav file
@@ -13,6 +14,7 @@ program msk144sim
   integer itone(144)                   !Message bits
 
   pchk_file='./peg-128-80-reg3.pchk'
+  ldpc_msg_file='./ldpc_msg'
 
   nargs=iargc()
   if(nargs.ne.5) then
@@ -36,7 +38,7 @@ program msk144sim
   h=default_header(12000,NMAX)
 
   ichk=0
-  call genmsk144(msg,ichk,msgsent,itone,itype,pchk_file) 
+  call genmsk144(msg,ichk,msgsent,itone,itype,pchk_file,ldpc_msg_file) 
   twopi=8.d0*atan(1.d0)
 
   nsym=144

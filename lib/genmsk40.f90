@@ -69,10 +69,10 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2)
   write(19,1010) message
 1010 format(16i1)
   close(19)
-  cmnd='encode '//trim(pchk_file)//' '//trim(gen_file)//' '        &
+  cmnd='./encode '//trim(pchk_file40)//' '//trim(gen_file40)//' '        &
        //trim(fname1)//' '//trim(fname2)
   call system(cmnd)
-  open(19,file=fname2,status='old')
+  open(19,file=fname2,status='unknown')
   read(19,1020) codeword
 1020 format(32i1)
   close(19)
