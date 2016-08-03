@@ -845,6 +845,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
 
   statusChanged();
+/*
 //### The following is temporary ###
   {
     QString t=m_config.my_callsign();
@@ -857,6 +858,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       ui->actionMSK144->setEnabled(false);    }
   }
 //###
+*/
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
 
