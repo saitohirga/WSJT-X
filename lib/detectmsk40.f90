@@ -363,7 +363,7 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
               softbits=softbits/ssig
 
               sigma=0.75
-              if( xsnr .lt. -4.0 ) sigma=1.1
+!             if( xsnr .lt. -4.0 ) sigma=0.8
               lratio(1:32)=exp(2.0*softbits(9:40)/(sigma*sigma))
 
               max_iterations=5

@@ -5,11 +5,12 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file)
   character*32 cwstring
   character*2  cwstrbit
   character*4 crpt,rpt(0:63)
+  character*16 messagestr
   character*512 pchk_file,gen_file
   character*512 pchk_file40,gen_file40
   logical first
   integer itone(144)
-  integer*1 message(16),codeword(32),bitseq(40)
+  integer*1 message(16),codeword(32),bitseq(40),codeword2(32)
   integer*1 s8r(8)
   data s8r/1,0,1,1,0,0,0,1/
   data first/.true./
@@ -61,15 +62,20 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file)
   do i=1,16
     message(i)=iand(1,ishft(ig,1-i))
   enddo
-  call ldpc_encode(message,codeword)
+
+  write(17,'(16i1)') message
+  call system('./encode peg-32-16-reg3.pchk peg-32-16-reg3.gen fort.17 fort.18')
+  read(18,'(32i1)') codeword
+
+!  call ldpc_encode(message,codeword)
 
   cwstring=" "
   do i=1,32
     write(cwstrbit,'(i2)') codeword(i)
     cwstring=cwstring//cwstrbit
   enddo
-!  write(*,'(a6,i6,2x,a6,i6,2x,a6,i6)') ' msg: ',ig,'rprt: ',irpt,'hash: ',ihash
-!  write(*,'(a6,32i1)') '  cw: ',codeword
+  write(*,'(a6,i6,2x,a6,i6,2x,a6,i6)') ' msg: ',ig,'rprt: ',irpt,'hash: ',ihash
+  write(*,'(a6,32i1)') '  cw: ',codeword
 
   bitseq(1:8)=s8r
   bitseq(9:40)=codeword
