@@ -52,14 +52,10 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg)
 
   i=index(pchk_file,".pchk")
   gen_file=pchk_file(1:i-1)//".gen"
-  i=index(ldpc_msg,'ldpc_msg')
+  i=index(ldpc_msg,"ldpc_msg")
   ldpc_cw=ldpc_msg(1:i-1)//"ldpc_cw"
   fname1=trim(ldpc_msg)
   fname2=trim(ldpc_cw)
-!  print*,'A ',fname1
-!  fname1="ldpc_msg"
-!  fname2="ldpc_cw"
-!  print*,'B ',fname2
 
 !  call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))  
 
@@ -136,17 +132,20 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg)
 
 !     call ldpc_encode(msgbits,codeword)
 
-     open(19,file=fname1,status='unknown')
-     write(19,1010) msgbits
+!     print*,fname1
+!     print*,fname2
+
+     open(24,file=fname1,status='unknown')
+     write(24,1010) msgbits
 1010 format(80i1)
-     close(19)
-     cmnd='./encode '//trim(pchk_file)//' '//trim(gen_file)//' '        &
-          //trim(fname1)//' '//trim(fname2)
+     close(24)
+     cmnd='encode "'//trim(pchk_file)//'" "'//trim(gen_file)//'" "'        &
+          //trim(fname1)//'" "'//trim(fname2)//'"'
      call system(cmnd)
-     open(19,file=fname2,status='old')
-     read(19,1020) codeword
+     open(24,file=fname2,status='old')
+     read(24,1020) codeword
 1020 format(128i1)
-     close(19)
+     close(24)
 
 !Create 144-bit channel vector:
 !8-bit sync word + 48 bits + 8-bit sync word + 80 bits
