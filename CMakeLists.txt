@@ -1214,7 +1214,7 @@ install (TARGETS udp_daemon message_aggregator
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
 
-install (TARGETS jt9 jt65code qra64code qra64sim jt9code jt4code wsprd msk32d msk32d_ldpc
+install (TARGETS jt9 jt65code qra64code qra64sim jt9code jt4code wsprd msk32d msk32d_ldpc encode
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
