@@ -838,7 +838,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
 
   QString ldpcMsgFile = m_config.temp_dir().absoluteFilePath("ldpc_msg");
-  ldpcMsgFile = '"' + ldpcMsgFile + '"';
   ba = ldpcMsgFile.toLocal8Bit();
   for(int i=0; i<512; i++) {
     m_ldpcMsgFile[i]=32;
