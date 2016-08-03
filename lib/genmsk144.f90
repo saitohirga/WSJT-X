@@ -52,14 +52,14 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg)
 
   i=index(pchk_file,".pchk")
   gen_file=pchk_file(1:i-1)//".gen"
-  i=index(ldpc_msg,'ldpc_msg"')
-  ldpc_cw=ldpc_msg(1:i-1)//'ldpc_cw"'
-!  fname1=trim(ldpc_msg)
-!  fname2=trim(ldpc_cw)
+  i=index(ldpc_msg,'ldpc_msg')
+  ldpc_cw=ldpc_msg(1:i-1)//"ldpc_cw"
+  fname1=trim(ldpc_msg)
+  fname2=trim(ldpc_cw)
 !  print*,'A ',fname1
-  fname1="ldpc_msg"
-  fname2="ldpc_cw"
-!  print*,'B ',fname1
+!  fname1="ldpc_msg"
+!  fname2="ldpc_cw"
+!  print*,'B ',fname2
 
 !  call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))  
 
@@ -140,7 +140,7 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg)
      write(19,1010) msgbits
 1010 format(80i1)
      close(19)
-     cmnd='encode '//trim(pchk_file)//' '//trim(gen_file)//' '        &
+     cmnd='./encode '//trim(pchk_file)//' '//trim(gen_file)//' '        &
           //trim(fname1)//' '//trim(fname2)
      call system(cmnd)
      open(19,file=fname2,status='old')
