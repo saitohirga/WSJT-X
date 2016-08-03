@@ -1,4 +1,4 @@
-subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file)
+subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2)
 
   use hashing
   character*22 msg,msgsent,hashmsg
@@ -7,6 +7,8 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file)
   character*4 crpt,rpt(0:63)
   character*512 pchk_file,gen_file
   character*512 pchk_file40,gen_file40
+  character*120 fname1,fname2
+  character*2048 cmnd
   logical first
   integer itone(144)
   integer*1 message(16),codeword(32),bitseq(40)
@@ -35,7 +37,7 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file)
   pchk_file40=pchk_file(1:i-1)//"32-16"//pchk_file(i+6:)
   i=index(pchk_file40,".pchk")
   gen_file40=pchk_file40(1:i-1)//".gen"
-  call init_ldpc(trim(pchk_file40)//char(0),trim(gen_file40)//char(0))
+!  call init_ldpc(trim(pchk_file40)//char(0),trim(gen_file40)//char(0))
   itype=-1
   msgsent='*** bad message ***'
   itone=0
@@ -61,7 +63,19 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file)
   do i=1,16
     message(i)=iand(1,ishft(ig,1-i))
   enddo
-  call ldpc_encode(message,codeword)
+
+!  call ldpc_encode(message,codeword)
+  open(19,file=fname1,status='unknown')
+  write(19,1010) message
+1010 format(16i1)
+  close(19)
+  cmnd='encode '//trim(pchk_file)//' '//trim(gen_file)//' '        &
+       //trim(fname1)//' '//trim(fname2)
+  call system(cmnd)
+  open(19,file=fname2,status='old')
+  read(19,1020) codeword
+1020 format(32i1)
+  close(19)
 
   cwstring=" "
   do i=1,32

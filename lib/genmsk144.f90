@@ -1,4 +1,4 @@
-subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file)
+subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg)
 
 !!!!!!!!!!!!!!!!!! Experimental small blocklength ldpc version
 ! s8 + 48bits + s8 + 80 bits = 144 bits (72ms message duration)
@@ -22,7 +22,9 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file)
   use iso_c_binding, only: c_loc,c_size_t
   use packjt
   use hashing
-  character*512 pchk_file,gen_file
+  character*512 pchk_file,gen_file,ldpc_msg,ldpc_cw
+  character*120 fname1,fname2
+  character*2048 cmnd
   character*22 msg0
   character*22 message                    !Message to be generated
   character*22 msgsent                    !Message as it will be received
@@ -50,7 +52,16 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file)
 
   i=index(pchk_file,".pchk")
   gen_file=pchk_file(1:i-1)//".gen"
-  call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))  
+  i=index(ldpc_msg,'ldpc_msg"')
+  ldpc_cw=ldpc_msg(1:i-1)//'ldpc_cw"'
+!  fname1=trim(ldpc_msg)
+!  fname2=trim(ldpc_cw)
+!  print*,'A ',fname1
+  fname1="ldpc_msg"
+  fname2="ldpc_cw"
+!  print*,'B ',fname1
+
+!  call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))  
 
   if( first ) then
     first=.false.
@@ -82,7 +93,8 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file)
      enddo
 
      if(message(1:1).eq.'<') then
-        call genmsk40(message,msgsent,ichk,i4tone,itype,pchk_file)
+        call genmsk40(message,msgsent,ichk,i4tone,itype,pchk_file,      &
+             fname1,fname2)
         if(itype.lt.0) go to 999
         i4tone(41)=-40
         go to 999
@@ -122,7 +134,19 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file)
          enddo
      enddo
 
-     call ldpc_encode(msgbits,codeword)
+!     call ldpc_encode(msgbits,codeword)
+
+     open(19,file=fname1,status='unknown')
+     write(19,1010) msgbits
+1010 format(80i1)
+     close(19)
+     cmnd='encode '//trim(pchk_file)//' '//trim(gen_file)//' '        &
+          //trim(fname1)//' '//trim(fname2)
+     call system(cmnd)
+     open(19,file=fname2,status='old')
+     read(19,1020) codeword
+1020 format(128i1)
+     close(19)
 
 !Create 144-bit channel vector:
 !8-bit sync word + 48 bits + 8-bit sync word + 80 bits

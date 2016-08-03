@@ -78,7 +78,8 @@ extern "C" {
                int* itext, int len1, int len2);
 
   void genmsk144_(char* msg, int* ichk, char* msgsent, int itone[],
-               int* itext, char pchkFile[], int len1, int len2, int len3);
+               int* itext, char pchkFile[], char ldpcMsgFile[],
+                  int len1, int len2, int len3, int len4);
 
   void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
               int* itext, int len1, int len2);
@@ -834,6 +835,14 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   for(int i=0; i<512; i++) {
     m_pchkFile[i]=32;
     if(i<pchkFile.length()) m_pchkFile[i]=ba[i];
+  }
+
+  QString ldpcMsgFile = m_config.temp_dir().absoluteFilePath("ldpc_msg");
+  ldpcMsgFile = '"' + ldpcMsgFile + '"';
+  ba = ldpcMsgFile.toLocal8Bit();
+  for(int i=0; i<512; i++) {
+    m_ldpcMsgFile[i]=32;
+    if(i<ldpcMsgFile.length()) m_ldpcMsgFile[i]=ba[i];
   }
 
   statusChanged();
@@ -2745,7 +2754,8 @@ void MainWindow::guiUpdate()
                                   &m_currentMessageType, len1, len1);
         if(m_modeTx=="MSK144") {
           genmsk144_(message, &ichk, msgsent, const_cast<int *> (itone),
-                     &m_currentMessageType, &m_pchkFile[0], len1, len1, 512);
+              &m_currentMessageType, &m_pchkFile[0], &m_ldpcMsgFile[0],
+              len1, len1, 512, 512);
           if(m_restart) {
             int nsym=144;
             if(itone[40]==-40) nsym=40;
