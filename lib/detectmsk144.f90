@@ -393,11 +393,11 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
     ndither=-98   
 999 continue
     if( nmessages .ge. 1 ) then 
-      write(78,1001) nutc,t0,nsnr,ip,ipk,is,idf,iav,ipha,deltaf,fest,ferr,ferr2,  &
-                     ffin,bba,bbp,nbadsync1,nbadsync2, &
-                     phase0,niterations,ndither,msgreceived
-      call flush(78)
-1001 format(i6.6,f8.2,i5,i5,i5,i5,i5,i5,i5,f6.2,f8.2,f8.2,f8.2,f8.2,f11.1,f8.2,i5,i5,f8.2,i5,i5,2x,a22)
+!      write(78,1001) nutc,t0,nsnr,ip,ipk,is,idf,iav,ipha,deltaf,fest,ferr,ferr2,  &
+!                     ffin,bba,bbp,nbadsync1,nbadsync2, &
+!                     phase0,niterations,ndither,msgreceived
+!      call flush(78)
+!1001 format(i6.6,f8.2,i5,i5,i5,i5,i5,i5,i5,f6.2,f8.2,f8.2,f8.2,f8.2,f11.1,f8.2,i5,i5,f8.2,i5,i5,2x,a22)
       exit
     endif
   enddo
