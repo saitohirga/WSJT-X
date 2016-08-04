@@ -206,21 +206,9 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
     cdat=cbig(imid-NPTS/2+1:imid+NPTS/2)
     ferr=ferrs(ip)
     xsnr=snrs(ip)
-    if( xsnr .lt. -1.5 ) then
-      nsnr=-3
-    else if( xsnr .lt. 1.5 ) then
-      nsnr=0
-    else if( xsnr .lt. 4.5 ) then
-      nsnr=3
-    else if( xsnr .lt. 8.0 ) then
-      nsnr=6 
-    else if( xsnr .lt. 11.5 ) then
-      nsnr=10 
-    else if( xsnr .lt. 14.5 ) then
-      nsnr=13 
-    else 
-      nsnr=16 
-    endif
+    nsnr=nint(snrs(ip))
+    if( nsnr .lt. -5 ) nsnr=-5
+    if( nsnr .gt. 25 ) nsnr=25
 
 ! remove coarse freq error
     call tweak1(cdat,NPTS,-(1500+ferr),cdat)
