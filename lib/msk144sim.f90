@@ -5,6 +5,7 @@ program msk144sim
   real pings(0:NMAX-1)
   real waveform(0:NMAX-1)
   character arg*8,msg*22,msgsent*22,fname*40
+  character*512 encode_exe_file
   character*512 pchk_file
   character*512 ldpc_msg_file
   real wave(0:NMAX-1)              !Simulated received waveform
@@ -38,7 +39,8 @@ program msk144sim
   h=default_header(12000,NMAX)
 
   ichk=0
-  call genmsk144(msg,ichk,msgsent,itone,itype,pchk_file,ldpc_msg_file) 
+  encode_exe_file="./encode "
+  call genmsk144(msg,ichk,msgsent,itone,itype,pchk_file,ldpc_msg_file,encode_exe_file) 
   twopi=8.d0*atan(1.d0)
 
   nsym=144
