@@ -1,0 +1,13 @@
+		New Features in WSJT-X Version 1.7
+		----------------------------------
+
+1.  New modes: ISCAT, JTMSK, MSK144, QRA64
+2.  Newly implemented submodes: JT65B-C, JT9B-H (wide and fast)
+3.  FT decoder replaces KV decoder for JT65; KVASD is no longer used.
+4.  Improvements to JT4, JT9, and JT65 decoders.
+5.  Multi-pass decoding for JT9, JT65 and WSPR.
+6.  Many improvements to Rig Control.
+7.  Improved convenience features for EME Doppler tracking.
+8.  Multiple configurations can be saved and restored.
+9.  Sample-file download facility.
+10. Optional auto-sequencing for "fast" modes.

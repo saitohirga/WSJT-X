@@ -845,20 +845,28 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
 
   statusChanged();
-/*
-//### The following is temporary ###
-  {
-    QString t=m_config.my_callsign();
-    if(t!="IV3NWV" and t!="K1JT" and t!="K9AN" and t!="G4WJS" and
-       t!="IW0HDV" and t!="VE1SKY" and t!="KI7MT" and t!="W8WN" and
-       t!="G4SWX" and t!="G3WDG" and t!="VK7MO") {
-      ui->actionQRA64->setChecked(false);
-      ui->actionQRA64->setEnabled(false);
-      ui->actionMSK144->setChecked(false);
-      ui->actionMSK144->setEnabled(false);    }
-  }
+
+//### TEMPORARY MESSAGE TO USERS ###
+  MessageBox::information_message (this,
+        "<h2>" + QString {"Alpha Release: WSJT-X v" +
+        QCoreApplication::applicationVersion() + " " +
+        revision ()}.simplified () + "</h2>"
+        "V1.7 has many new features, most aimed at VHF/UHF/Microwave users.<br />"
+        "Some are not yet described in the User Guide and may not be thoroughly<br />"
+        "tested. Click on the link at bottom for a brief description.<br /><br />"
+        "As a test user you have an obligation to report anomalous results<br />"
+        "to the development team.  We are particularly interested in tests<br />"
+        "of experimental modes QRA64 (intended for EME) and MSK144<br />"
+        "(intended for meteor scatter).<br /><br />"
+        "Send reports to wsjtgroup@yahoogroups.com, and be sure to save .wav<br />"
+        "files where appropriate.<br /><br />"
+        "<a href=" WSJTX_STRINGIZE (PROJECT_HOMEPAGE) ">"
+        "<img src=\":/icon_128x128.png\" /></a>"
+        "<a href=\"http://physics.princeton.edu/pulsar/k1jt/v1.7_Features.txt\">"
+        "<img src=\":/gpl-v3-logo.svg\" height=\"80\" /><br />"
+        "http://physics.princeton.edu/pulsar/k1jt/v1.7_Features.txt</a>");
 //###
-*/
+
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
 
