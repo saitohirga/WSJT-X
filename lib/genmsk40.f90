@@ -4,7 +4,7 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2)
   character*22 msg,msgsent,hashmsg
   character*32 cwstring
   character*2  cwstrbit
-  character*4 crpt,rpt(0:63)
+  character*4 crpt,rpt(0:15)
   character*512 pchk_file,gen_file
   character*512 pchk_file40,gen_file40
   character*120 fname1,fname2
@@ -15,22 +15,10 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2)
   integer*1 s8r(8)
   data s8r/1,0,1,1,0,0,0,1/
   data first/.true./
+  data rpt/"-03 ","+00 ","+03 ","+06 ","+10 ","+13 ","+16 ", &
+           "R-03","R+00","R+03","R+06","R+10","R+13","R+16", &
+           "RRR ","73  "/
   save first,rpt
-
-  if(first) then
-     do i=0,30
-       if( i.lt.5 ) then
-         write(rpt(i),'(a1,i2.2,a1)') '-',abs(i-5)
-         write(rpt(i+31),'(a2,i2.2,a1)') 'R-',abs(i-5)
-       else
-         write(rpt(i),'(a1,i2.2,a1)') '+',i-5
-         write(rpt(i+31),'(a2,i2.2,a1)') 'R+',i-5
-       endif
-     enddo
-     rpt(62)='RRR '
-     rpt(63)='73  '
-     first=.false.
-  endif
 
 ! Temporarily hardwire filenames and init on every call
   i=index(pchk_file,"128-80")
@@ -45,7 +33,7 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2)
   if(i1.lt.9) go to 900
   call fmtmsg(msg,iz)
   crpt=msg(i1+2:i1+5)
-  do i=0,63
+  do i=0,15
      if(crpt.eq.rpt(i)) go to 10
   enddo
   go to 900
@@ -54,8 +42,8 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2)
   if(ichk.lt.10000) then
      hashmsg=msg(2:i1-1)//' '//crpt
      call hash(hashmsg,22,ihash)          
-     ihash=iand(ihash,1023)                 !10-bit hash 
-     ig=64*ihash + irpt                     !6-bit report 
+     ihash=iand(ihash,4095)                 !10-bit hash 
+     ig=16*ihash + irpt                     !6-bit report 
   else
      ig=ichk-10000
   endif
