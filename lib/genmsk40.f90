@@ -1,10 +1,11 @@
-subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2)
+subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2,encodeExeFile)
 
   use hashing
   character*22 msg,msgsent,hashmsg
   character*32 cwstring
   character*2  cwstrbit
   character*4 crpt,rpt(0:15)
+  character*512 encodeExeFile
   character*512 pchk_file,gen_file
   character*512 pchk_file40,gen_file40
   character*120 fname1,fname2
@@ -57,7 +58,7 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2)
   write(24,1010) message
 1010 format(16i1)
   close(24)
-  cmnd='encode "'//trim(pchk_file40)//'" "'//trim(gen_file40)//'" "'        &
+  cmnd=trim(encodeExeFile)//' "'//trim(pchk_file40)//'" "'//trim(gen_file40)//'" "'        &
        //trim(fname1)//'" "'//trim(fname2)//'"'
   call system(cmnd)
   open(24,file=fname2,status='old')

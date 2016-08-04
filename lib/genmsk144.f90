@@ -91,7 +91,7 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg,   &
 
      if(message(1:1).eq.'<') then
         call genmsk40(message,msgsent,ichk,i4tone,itype,pchk_file,      &
-             fname1,fname2)
+             fname1,fname2,encodeExeFile)
         if(itype.lt.0) go to 999
         i4tone(41)=-40
         go to 999
