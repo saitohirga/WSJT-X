@@ -64,9 +64,9 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mode64,mycall_12,hiscall_12,   &
         else
            snr2=0.
         endif
-        write(78,3900) nutc,snr1,snr2,dtx,nfreq,kpk,idf0,idf1,irc,decoded
-3900    format(i4.4,2f6.1,f6.2,i5,4i3,1x,a22)
-        flush(78)
+!        write(78,3900) nutc,snr1,snr2,dtx,nfreq,kpk,idf0,idf1,irc,decoded
+!3900    format(i4.4,2f6.1,f6.2,i5,4i3,1x,a22)
+!        flush(78)
 !        write(*,3006) idf0,idf1,nfreq,jpk,kpk,irc,decoded
 !3006    format(2i4,i6,i7,2i4,2x,a22)
         if(irc.ge.0) go to 900
