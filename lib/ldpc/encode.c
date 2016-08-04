@@ -174,8 +174,8 @@ int main
     }
   }
 
-  fprintf(stderr,
-    "Encoded %d blocks, source block size %d, encoded block size %d\n",n,N-M,N);
+//  fprintf(stderr,
+//    "Encoded %d blocks, source block size %d, encoded block size %d\n",n,N-M,N);
 
   if (ferror(encf) || fclose(encf)!=0)
   { fprintf(stderr,"Error writing encoded blocks to %s\n",encoded_file);
