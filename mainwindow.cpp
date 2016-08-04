@@ -3331,8 +3331,14 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     rpt=QString::number(n);
   }
   if(m_mode=="MSK144" and m_bShMsgs) {
-    if(rpt.toInt()<-4) n=-4;
-    if(rpt.toInt()>24) n=24;
+    int n=rpt.toInt();
+    if(n<=-2) n=-3;
+    if(n>=-1 and n<=1) n=0;
+    if(n>=2 and n<=4) n=3;
+    if(n>=5 and n<=7) n=6;
+    if(n>=8 and n<=11) n=10;
+    if(n>=12 and n<=14) n=13;
+    if(n>=15) n=16;
     rpt=QString::number(n);
   }
   ui->rptSpinBox->setValue(n);
@@ -3490,6 +3496,13 @@ void MainWindow::genStdMsgs(QString rpt)
          if(n>28) n=28;
          rpt.sprintf("%2.2d",n);   //In JTMSK mode, "26" not "+26"
       } else {
+        if(n<=-2) n=-3;
+        if(n>=-1 and n<=1) n=0;
+        if(n>=2 and n<=4) n=3;
+        if(n>=5 and n<=7) n=6;
+        if(n>=8 and n<=11) n=10;
+        if(n>=12 and n<=14) n=13;
+        if(n>=15) n=16;
         rpt.sprintf("%+2.2d",n);
       }
     }
@@ -3989,10 +4002,10 @@ void MainWindow::on_actionMSK144_triggered()
   m_toneSpacing=0.0;
   ui->cbShMsgs->setVisible(true);
   ui->actionMSK144->setChecked(true);
-  ui->rptSpinBox->setMinimum(-4);
-  ui->rptSpinBox->setMaximum(24);
+  ui->rptSpinBox->setMinimum(-3);
+  ui->rptSpinBox->setMaximum(16);
   ui->rptSpinBox->setValue(0);
-  ui->rptSpinBox->setSingleStep(2);
+  ui->rptSpinBox->setSingleStep(1);
   ui->sbFtol->setMinimum(23);
   ui->sbFtol->setMaximum(25);
 }
