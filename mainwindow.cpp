@@ -78,8 +78,8 @@ extern "C" {
                int* itext, int len1, int len2);
 
   void genmsk144_(char* msg, int* ichk, char* msgsent, int itone[],
-               int* itext, char pchkFile[], char ldpcMsgFile[],
-                  int len1, int len2, int len3, int len4);
+               int* itext, char pchkFile[], char ldpcMsgFile[], char encodeExeFile[],
+                  int len1, int len2, int len3, int len4, int len5);
 
   void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
               int* itext, int len1, int len2);
@@ -844,6 +844,13 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     if(i<ldpcMsgFile.length()) m_ldpcMsgFile[i]=ba[i];
   }
 
+  QString encodeExeFile = QDir::toNativeSeparators (m_appDir) +
+      QDir::separator () + "encode";
+  ba = encodeExeFile.toLocal8Bit();
+  for(int i=0; i<512; i++) {
+    m_encodeExeFile[i]=32;
+    if(i<encodeExeFile.length()) m_encodeExeFile[i]=ba[i];
+  }
   statusChanged();
 
 //### TEMPORARY MESSAGE TO USERS ###
@@ -1379,6 +1386,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
                        m_mode=="MSK144" or m_mode=="QRA64");
       VHF_features_enabled(b);
       VHF_controls_visible(b);
+      if(m_mode=="MSK144" or m_mode=="JTMSK") ui->cbFast9->setVisible(false);
     }
 
   m_config.transceiver_online ();
@@ -2764,7 +2772,7 @@ void MainWindow::guiUpdate()
         if(m_modeTx=="MSK144") {
           genmsk144_(message, &ichk, msgsent, const_cast<int *> (itone),
               &m_currentMessageType, &m_pchkFile[0], &m_ldpcMsgFile[0],
-              len1, len1, 512, 512);
+              &m_encodeExeFile[0], len1, len1, 512, 512, 512);
           if(m_restart) {
             int nsym=144;
             if(itone[40]==-40) nsym=40;
@@ -3902,7 +3910,6 @@ void MainWindow::on_actionJT9_triggered()
   m_nsps=6912;
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
-  QString t1=(QString)QChar(short(m_nSubMode+65));
   m_hsymStop=173;
   if(m_config.decode_at_52s()) m_hsymStop=179;
   bool bVHF=m_config.enable_VHF_features();
@@ -4008,6 +4015,9 @@ void MainWindow::on_actionMSK144_triggered()
   ui->rptSpinBox->setSingleStep(1);
   ui->sbFtol->setMinimum(23);
   ui->sbFtol->setMaximum(25);
+  bool b=m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN";
+  ui->cbCQRx->setEnabled(b);
+  ui->cbFast9->setVisible(false);
 }
 
 void MainWindow::on_actionQRA64_triggered()
@@ -4297,6 +4307,7 @@ void MainWindow::switch_mode (Mode mode)
   ui->rptSpinBox->setMaximum(49);
   ui->sbFtol->setMinimum(21);
   ui->sbFtol->setMaximum(27);
+  ui->RxFreqSpinBox->setVisible(m_mode!="MSK144");
 }
 
 void MainWindow::WSPR_config(bool b)
@@ -5180,7 +5191,8 @@ void MainWindow::on_sbSubmode_valueChanged(int n)
   m_nSubMode=n;
   m_wideGraph->setSubMode(m_nSubMode);
   mode_label.setText (m_mode);
-  if (m_mode != "JT9+JT65" || !m_config.enable_VHF_features ()) {
+  if ((m_mode != "JT9+JT65" and m_mode != "MSK144" and m_mode != "JTMSK" and
+       !m_mode.startsWith ("WSPR")) || !m_config.enable_VHF_features ()) {
     mode_label.setText (mode_label.text () + " " + QChar {short (m_nSubMode + 65)});
   }
   if(m_mode=="ISCAT") {

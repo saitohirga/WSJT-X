@@ -1,4 +1,5 @@
-subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg)
+subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg,   &
+     encodeExeFile)
 
 !!!!!!!!!!!!!!!!!! Experimental small blocklength ldpc version
 ! s8 + 48bits + s8 + 80 bits = 144 bits (72ms message duration)
@@ -22,7 +23,7 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg)
   use iso_c_binding, only: c_loc,c_size_t
   use packjt
   use hashing
-  character*512 pchk_file,gen_file,ldpc_msg,ldpc_cw
+  character*512 pchk_file,gen_file,ldpc_msg,ldpc_cw,encodeExeFile
   character*120 fname1,fname2
   character*2048 cmnd
   character*22 msg0
@@ -139,9 +140,9 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg)
      write(24,1010) msgbits
 1010 format(80i1)
      close(24)
-     cmnd='encode "'//trim(pchk_file)//'" "'//trim(gen_file)//'" "'        &
-          //trim(fname1)//'" "'//trim(fname2)//'"'
-     call system(cmnd)
+     cmnd=trim(encodeExeFile)//' "'//trim(pchk_file)//'" "'//              &
+          trim(gen_file)//'" "'//trim(fname1)//'" "'//trim(fname2)//'"'
+     call system(trim(cmnd))
      open(24,file=fname2,status='old')
      read(24,1020) codeword
 1020 format(128i1)
