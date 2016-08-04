@@ -3,7 +3,7 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
 
   use timer_module, only: timer
   parameter (NSPM=240, NPTS=3*NSPM, MAXSTEPS=7500, NFFT=3*NSPM, MAXCAND=15)
-  character*4 rpt(0:63)
+  character*4 rpt(0:15)
   character*6 mycall,hiscall,mycall0,hiscall0
   character*22 hashmsg,msgreceived
   character*80 lines(100)
@@ -23,7 +23,7 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
   complex bb(6)
   integer s8(8),s8r(8),hardbits(40)
   integer, dimension(1) :: iloc
-  integer nhashes(0:63)
+  integer nhashes(0:15)
   integer indices(MAXSTEPS)
   integer ipeaks(10)
   integer*1 cw(32)
@@ -46,6 +46,9 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
   logical first
   data first/.true./
   data mycall0/'dummy'/,hiscall0/'dummy'/
+  data rpt/"-03 ","+00 ","+03 ","+06 ","+10 ","+13 ","+16 ", &
+           "R-03","R+00","R+03","R+06","R+10","R+13","R+16", &
+           "RRR ","73  "/
   data s8/0,1,1,1,0,0,1,0/
   data s8r/1,0,1,1,0,0,0,1/
 ! codeword for the message <K9AN K1JT> RRR
@@ -89,26 +92,15 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
      cbi(37:42)=pp(1:6)*s8r(8)
      cbr=cmplx(cbi,cbq)
 
-     do i=0,30
-        if( i.lt.5 ) then
-          write(rpt(i),'(a1,i2.2,a1)') '-',abs(i-5)
-          write(rpt(i+31),'(a2,i2.2,a1)') 'R-',abs(i-5)
-        else
-          write(rpt(i),'(a1,i2.2,a1)') '+',i-5
-          write(rpt(i+31),'(a2,i2.2,a1)') 'R+',i-5
-        endif
-      enddo
-      rpt(62)='RRR '
-      rpt(63)='73  '
-      first=.false.
+     first=.false.
   endif
 
   if(mycall.ne.mycall0 .or. hiscall.ne.hiscall0) then
-     do i=0,63 
+     do i=0,15 
        hashmsg=trim(mycall)//' '//trim(hiscall)//' '//rpt(i)
        call fmtmsg(hashmsg,iz)
        call hash(hashmsg,22,ihash)
-       nhashes(i)=iand(ihash,1023)
+       nhashes(i)=iand(ihash,4095)
      enddo
      mycall0=mycall
      hiscall0=hiscall
@@ -390,8 +382,8 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
                 do i=1,16
                   imsg=ishft(imsg,1)+iand(1,decoded(17-i))
                 enddo
-                nrxrpt=iand(imsg,63)
-                nrxhash=(imsg-nrxrpt)/64
+                nrxrpt=iand(imsg,15)
+                nrxhash=(imsg-nrxrpt)/16
                 if( nhammd .le. 5 .and. cord .lt. 1.7 .and. nrxhash .eq. nhashes(nrxrpt) ) then
                   fest=1500+ferr+ferr2+deltaf 
 !write(14,'(i6.6,11i6,f7.1,f7.1)') nutc,ip,ipk,id,idf,iav,ipha,niterations,nbadsync,nrxrpt,ncalls,nhammd,cord,xsnr
