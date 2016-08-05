@@ -19,23 +19,24 @@ New Modes
 1. MSK144 is intended for meteor scatter at 50 MHz and higher.
 Designed and tested by K9AN and K1JT, it uses a low-density parity
 check code (LDPC) -- one of the latest-and-greatest areas of active
-research in comminucation theory.  
+research in communication theory.
 
 MSK144 is a direct descendant of JTMSK with a number of improvements
 for better performance on weak and short meteor pings.  The effective
 character transmission rate is about 250 cps, compared with 147 cps
-for FSK441.  Like JT4, JT9, JT65, and JTMSK, MSK144 uses strong
-forward error correction, so message decoding is essentially "all or
-nothing".  You will see little or no "garbage" on your screen.
+for FSK441 and 154 cps for JTMSK.  Like JT4, JT9, JT65, and JTMSK,
+MSK144 uses strong forward error correction, so message decoding is
+essentially "all or nothing".  You will see little or no garbage on
+your screen.
 
 Standard MSK144 message frames are 72 ms long, compared to 117 ms for
-JTMSK.  The MSK144 waveform allows coherent demodulation for up to 3
-dB better sensitivity.  After QSO partners have exchanged callsigns,
-MSK144 user can use even shorter messages, only 20 ms long.  As in all
-the fast modes in WSJT-X, the 20 ms or 72 ms messages are repeated
-without gaps for the duration of a transmission cycle.  For most
-purposes we recommend a T/R cycle duration of 15 s, but 5 s and 10 s
-sequences are also supported.
+JTMSK.  The MSK144 waveform allows coherent demodulation, allowing up
+to 3 dB better sensitivity.  After QSO partners have exchanged
+callsigns, MSK144 user can use even shorter messages, only 20 ms long.
+As in all the fast modes in WSJT-X, the 20 ms or 72 ms messages are
+repeated without gaps for the duration of a transmission cycle.  For
+most purposes we recommend a T/R cycle duration of 15 s, but 5 s and
+10 s sequences are also supported.
 
 An MSK144 signal occupies the full bandwidth of a typical SSB
 transmitter, so transmissions are always centered at an offset of
@@ -44,14 +45,15 @@ should be set to provide the flattest possible response over at least
 300 - 2700 Hz.  The maximum permissible frequency offset between you
 and your QSO partner is ± 200 Hz, and less is better.
 
-2. QRA64 is a designed for EME and other weak-signal use.  Its
-internal code was designed by Nico Palermo, IV3NWV.  It uses a "Q-ary
-Repeat Accumulate" code, another one of the latest research areas in
-communication theory.  The QRA64 code is inherently better than the
-Reed Solomon (63,12) code used in JT65, yielding already a 1.3 dB
-advantage.  QRA64 uses a new synchronizing scheme based on a 7 x 7
-Costas array, so you will not see a bright sync tone at the lowest
-tone frequency.  This change yields another 1.9 dB advantage.
+2. QRA64 is a intended for EME and other weak-signal use.  Its
+internal code was designed by Nico Palermo, IV3NWV, and implemented in
+WSJT-X by K1JT.  The protocol uses a "Q-ary Repeat Accumulate" code,
+another one of the latest research areas in communication theory.  The
+QRA64 code is inherently better than the Reed Solomon (63,12) code
+used in JT65, yielding already a 1.3 dB advantage.  QRA64 uses a new
+synchronizing scheme based on a 7 x 7 Costas array, so you will not
+see a bright sync tone at the lowest tone frequency.  This change
+yields another 1.9 dB advantage.
 
 In most respects our implementation of QRA64 is operationally similar
 to JT65.  QRA64 does not use two-tone shorthand messages, and it makes
@@ -71,10 +73,10 @@ http://physics.princeton.edu/pulsar/K1JT/doc/wsjt/
 Program Setup
 -------------
 
-Some of the new program capabilities are enabled when you check
+Many of the new program capabilities are enabled when you check
 "Enable VHF/UHF/Microwave features" on the Settings | General tab.
-For MSK144 mode, we suggest setting "T/R 15 s" and "F Tol 100 Hz";
-check "Sh" to enable the use of short messages and "Auto Seq" for
+For MSK144 mode, we suggest setting "T/R 15 s" and "F Tol 100 Hz".
+Check "Sh" to enable the use of short messages and "Auto Seq" for
 auto-sequencing.  For QRA64 mode, set Tx and Rx frequencies to 1000
 Hz.  We encourage you to check "Save all" when making tests, and to
 save any of the resulting .wav files that might help us to improve
@@ -85,6 +87,10 @@ identify.
 Final Comments
 --------------
 
-We will be grateful for any and all reports from test users that may 
-help us to further improve WSJT-X.  Send your reports to 
-wsjtgroup@yahoogroups.com.
+Remember that you are using an Alpha Release.  We will be grateful for
+any and all reports from test users that may help us to further
+improve WSJT-X.  Send your reports to wsjtgroup@yahoogroups.com.
+
+Please be patient concerning responses from the development group.
+Several of us will be on vacation or otherwise engaged during much of
+August.
