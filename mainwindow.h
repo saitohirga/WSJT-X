@@ -412,6 +412,7 @@ private:
   bool    m_bDoubleClickAfterCQnnn;
   bool    m_bRefSpec;
   bool    m_bUseRef;
+  bool    m_bSplash;
   float   m_pctZap;
   int			m_ihsym;
   int			m_nzap;

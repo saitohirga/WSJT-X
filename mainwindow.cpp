@@ -853,33 +853,13 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
   statusChanged();
 
-//### TEMPORARY MESSAGE TO USERS ###
-  MessageBox::information_message (this,
-        "<h2>" + QString {"Alpha Release: WSJT-X v" +
-        QCoreApplication::applicationVersion() + " " +
-        revision ()}.simplified () + "</h2>"
-        "V1.7 has many new features, most aimed at VHF/UHF/Microwave users.<br />"
-        "Some are not yet described in the User Guide and may not be thoroughly<br />"
-        "tested. Click on the link at bottom for a brief description.<br /><br />"
-        "As a test user you have an obligation to report anomalous results<br />"
-        "to the development team.  We are particularly interested in tests<br />"
-        "of experimental modes QRA64 (intended for EME) and MSK144<br />"
-        "(intended for meteor scatter).<br /><br />"
-        "Send reports to wsjtgroup@yahoogroups.com, and be sure to save .wav<br />"
-        "files where appropriate.<br /><br />"
-        "<a href=" WSJTX_STRINGIZE (PROJECT_HOMEPAGE) ">"
-        "<img src=\":/icon_128x128.png\" /></a>"
-        "<a href=\"http://physics.princeton.edu/pulsar/k1jt/v1.7_Features.txt\">"
-        "<img src=\":/gpl-v3-logo.svg\" height=\"80\" /><br />"
-        "http://physics.princeton.edu/pulsar/k1jt/v1.7_Features.txt</a>");
-//###
-
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
 
   connect (&minuteTimer, &QTimer::timeout, this, &MainWindow::on_the_minute);
   minuteTimer.setSingleShot (true);
   minuteTimer.start (ms_minute_error () + 60 * 1000);
+  m_bSplash=true;
 
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
@@ -2569,6 +2549,30 @@ void MainWindow::guiUpdate()
   double txDuration;
   QString rt;
 
+//### TEMPORARY MESSAGE TO USERS ###
+  if(m_bSplash) {
+    MessageBox::information_message (this,
+        "<h2>" + QString {"Alpha Release: WSJT-X v" +
+        QCoreApplication::applicationVersion() + " " +
+        revision ()}.simplified () + "</h2>"
+        "V1.7 has many new features, most aimed at VHF/UHF/Microwave users.<br />"
+         "Some are not yet described in the User Guide and may not be thoroughly<br />"
+        "tested. Click on the link at bottom for a brief description.<br /><br />"
+        "As a test user you have an obligation to report anomalous results<br />"
+        "to the development team.  We are particularly interested in tests<br />"
+        "of experimental modes QRA64 (intended for EME) and MSK144<br />"
+        "(intended for meteor scatter).<br /><br />"
+        "Send reports to wsjtgroup@yahoogroups.com, and be sure to save .wav<br />"
+        "files where appropriate.<br /><br />"
+        "<a href=" WSJTX_STRINGIZE (PROJECT_HOMEPAGE) ">"
+        "<img src=\":/icon_128x128.png\" /></a>"
+        "<a href=\"http://physics.princeton.edu/pulsar/k1jt/v1.7_Features.txt\">"
+        "<img src=\":/gpl-v3-logo.svg\" height=\"80\" /><br />"
+        "http://physics.princeton.edu/pulsar/k1jt/v1.7_Features.txt</a>");
+    m_bSplash=false;
+  }
+//###
+
   if(m_TRperiod==0) m_TRperiod=60;
   txDuration=0.0;
   if(m_modeTx=="JT4")  txDuration=1.0 + 207.0*2520/11025.0;   // JT4
@@ -4040,6 +4044,7 @@ void MainWindow::on_actionQRA64_triggered()
     ui->sbSubmode->setValue(0);
     ui->sbTR->setValue(0);
   }
+  ui->cbTxLock->setEnabled(true);
 }
 
 void MainWindow::on_actionJT65_triggered()
@@ -5108,8 +5113,10 @@ void MainWindow::transmitDisplay (bool transmitting)
 //        ui->TxFreqSpinBox->setEnabled (false);
         ui->TxFreqSpinBox->setEnabled (true);
 //###
-        ui->cbTxLock->setChecked(false);
-        ui->cbTxLock->setEnabled(false);
+        if(m_mode!="QRA64") {
+          ui->cbTxLock->setChecked(false);
+          ui->cbTxLock->setEnabled(false);
+        }
       } else {
         ui->TxFreqSpinBox->setEnabled (QSY_allowed and !m_bFastMode);
         ui->pbR2T->setEnabled (QSY_allowed);

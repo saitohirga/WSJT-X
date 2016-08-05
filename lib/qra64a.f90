@@ -20,6 +20,7 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mode64,mycall_12,hiscall_12,   &
   data nc1z/-1/,nc2z/-1/,ng2z/-1/
   save
 
+  if(nfqso.lt.nf1 .or. nfqso.gt.nf2) go to 900
   nft=99
   nsnr=-30
   mycall=mycall_12(1:6)                     !### May need fixing ###
