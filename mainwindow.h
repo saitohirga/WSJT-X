@@ -91,6 +91,7 @@ public:
   explicit MainWindow(QDir const& temp_directory, bool multiple, MultiSettings *,
                       QSharedMemory *shdmem, unsigned downSampleFactor,
                       QNetworkAccessManager * network_manager,
+                      QSplashScreen *,
                       QWidget *parent = nullptr);
   ~MainWindow();
 
@@ -131,6 +132,7 @@ private slots:
   void on_autoButton_clicked (bool);
   void on_stopTxButton_clicked();
   void on_stopButton_clicked();
+  void on_actionRelease_Notes_triggered ();
   void on_actionOnline_User_Guide_triggered();
   void on_actionLocal_User_Guide_triggered();
   void on_actionWide_Waterfall_triggered();
@@ -251,6 +253,7 @@ private slots:
   void on_cbCQRx_toggled(bool b);
   void on_actionMSK144_triggered();
   void on_actionQRA64_triggered();
+  void splash_done ();
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
@@ -280,6 +283,7 @@ private:
   void astroUpdate ();
 
   bool m_valid;
+  QSplashScreen * m_splash;
   QDir m_dataDir;
   QString m_revision;
   bool m_multiple;
@@ -412,7 +416,6 @@ private:
   bool    m_bDoubleClickAfterCQnnn;
   bool    m_bRefSpec;
   bool    m_bUseRef;
-  bool    m_bSplash;
   float   m_pctZap;
   int			m_ihsym;
   int			m_nzap;
@@ -461,6 +464,7 @@ private:
   QTimer TxAgainTimer;
   QTimer RxQSYTimer;
   QTimer minuteTimer;
+  QTimer splashTimer;
 
   QString m_path;
   QString m_baseCall;

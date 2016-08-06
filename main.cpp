@@ -19,6 +19,8 @@
 #include <QStringList>
 #include <QLockFile>
 #include <QStack>
+#include <QSplashScreen>
+#include <QPixmap>
 
 #if QT_VERSION >= 0x050200
 #include <QCommandLineParser>
@@ -108,6 +110,26 @@ int main(int argc, char *argv[])
       a.setApplicationName ("WSJT-X");
       a.setApplicationVersion (version ());
       bool multiple {false};
+
+      QPixmap splash_pic {":/splash.png"};
+      QSplashScreen splash {splash_pic, Qt::WindowStaysOnTopHint};
+      splash.showMessage ("<h2>" + QString {"Alpha Release: WSJT-X v" +
+        QCoreApplication::applicationVersion() + " " +
+        revision ()}.simplified () + "</h2>"
+        "V1.7 has many new features, most aimed at VHF/UHF/Microwave users.<br />"
+        "Some are not yet described in the User Guide and may not be thoroughly<br />"
+        "tested. The release notes have more details.<br /><br />"
+        "As a test user you have an obligation to report anomalous results<br />"
+        "to the development team.  We are particularly interested in tests<br />"
+        "of experimental modes QRA64 (intended for EME) and MSK144<br />"
+        "(intended for meteor scatter).<br /><br />"
+        "Send reports to wsjtgroup@yahoogroups.com, and be sure to save .wav<br />"
+        "files where appropriate.<br /><br />"
+        "<b>Open the Help menu and select Release Notes for more details.</b><br />"
+        "<img src=\":/icon_128x128.png\" />"
+        "<img src=\":/gpl-v3-logo.svg\" height=\"80\" />", Qt::AlignCenter);
+      splash.show ();
+      a.processEvents ();
 
 #if QT_VERSION >= 0x050200
       QCommandLineParser parser;
@@ -297,7 +319,7 @@ int main(int argc, char *argv[])
           }
 
           // run the application UI
-          MainWindow w(temp_dir, multiple, &multi_settings, &mem_jt9, downSampleFactor, new QNetworkAccessManager {&a});
+          MainWindow w(temp_dir, multiple, &multi_settings, &mem_jt9, downSampleFactor, new QNetworkAccessManager {&a}, &splash);
           w.show();
           QObject::connect (&a, SIGNAL (lastWindowClosed()), &a, SLOT (quit()));
           result = a.exec();
