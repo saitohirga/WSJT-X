@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>896</width>
-    <height>565</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>WSJT-X   by K1JT</string>
   </property>
@@ -2284,14 +2276,6 @@ QPushButton[state=&quot;ok&quot;] {
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>896</width>
-     <height>21</height>
-    </rect>
-   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
@@ -2344,6 +2328,7 @@ QPushButton[state=&quot;ok&quot;] {
     <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="actionRelease_Notes"/>
     <addaction name="actionOnline_User_Guide"/>
     <addaction name="actionLocal_User_Guide"/>
     <addaction name="download_samples_action"/>
@@ -2845,6 +2830,11 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
    <property name="text">
     <string>QRA64</string>
+   </property>
+  </action>
+  <action name="actionRelease_Notes">
+   <property name="text">
+    <string>Release Notes</string>
    </property>
   </action>
  </widget>

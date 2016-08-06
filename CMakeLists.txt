@@ -607,6 +607,7 @@ set (TOP_LEVEL_RESOURCES
   cty.dat
   icons/Darwin/wsjtx.iconset/icon_128x128.png
   contrib/gpl-v3-logo.svg
+  artwork/splash.png
   )
 
 set (PALETTE_FILES

@@ -24,6 +24,7 @@
 #include <QToolTip>
 #include <QAction>
 #include <QActionGroup>
+#include <QSplashScreen>
 
 #include "revision_utils.hpp"
 #include "qt_helpers.hpp"
@@ -162,9 +163,10 @@ namespace
 MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
                        MultiSettings * multi_settings, QSharedMemory *shdmem,
                        unsigned downSampleFactor, QNetworkAccessManager * network_manager,
-                       QWidget *parent) :
+                       QSplashScreen * splash, QWidget *parent) :
   QMainWindow(parent),
   m_valid {true},
+  m_splash {splash},
   m_dataDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)},
   m_revision {revision ()},
   m_multiple {multiple},
@@ -859,10 +861,18 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&minuteTimer, &QTimer::timeout, this, &MainWindow::on_the_minute);
   minuteTimer.setSingleShot (true);
   minuteTimer.start (ms_minute_error () + 60 * 1000);
-  m_bSplash=true;
+
+  connect (&splashTimer, &QTimer::timeout, this, &MainWindow::splash_done);
+  splashTimer.setSingleShot (true);
+  splashTimer.start (20 * 1000);
 
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
+}
+
+void MainWindow::splash_done ()
+{
+  m_splash->close ();
 }
 
 void MainWindow::on_the_minute ()
@@ -1811,6 +1821,11 @@ void MainWindow::on_stopButton_clicked()                       //stopButton
   }
 }
 
+void MainWindow::on_actionRelease_Notes_triggered ()
+{
+  QDesktopServices::openUrl (QUrl {"http://physics.princeton.edu/pulsar/k1jt/v1.7_Features.txt"});
+}
+
 void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
 {
 #if defined (CMAKE_BUILD)
@@ -2549,29 +2564,7 @@ void MainWindow::guiUpdate()
   double txDuration;
   QString rt;
 
-//### TEMPORARY MESSAGE TO USERS ###
-  if(m_bSplash) {
-    MessageBox::information_message (this,
-        "<h2>" + QString {"Alpha Release: WSJT-X v" +
-        QCoreApplication::applicationVersion() + " " +
-        revision ()}.simplified () + "</h2>"
-        "V1.7 has many new features, most aimed at VHF/UHF/Microwave users.<br />"
-         "Some are not yet described in the User Guide and may not be thoroughly<br />"
-        "tested. Click on the link at bottom for a brief description.<br /><br />"
-        "As a test user you have an obligation to report anomalous results<br />"
-        "to the development team.  We are particularly interested in tests<br />"
-        "of experimental modes QRA64 (intended for EME) and MSK144<br />"
-        "(intended for meteor scatter).<br /><br />"
-        "Send reports to wsjtgroup@yahoogroups.com, and be sure to save .wav<br />"
-        "files where appropriate.<br /><br />"
-        "<a href=" WSJTX_STRINGIZE (PROJECT_HOMEPAGE) ">"
-        "<img src=\":/icon_128x128.png\" /></a>"
-        "<a href=\"http://physics.princeton.edu/pulsar/k1jt/v1.7_Features.txt\">"
-        "<img src=\":/gpl-v3-logo.svg\" height=\"80\" /><br />"
-        "http://physics.princeton.edu/pulsar/k1jt/v1.7_Features.txt</a>");
-    m_bSplash=false;
-  }
-//###
+  if (m_splash && m_splash->isVisible ()) m_splash->raise ();
 
   if(m_TRperiod==0) m_TRperiod=60;
   txDuration=0.0;
