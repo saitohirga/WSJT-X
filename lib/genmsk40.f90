@@ -2,11 +2,9 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2,encodeE
 
   use hashing
   character*22 msg,msgsent,hashmsg
-  character*32 cwstring
-  character*2  cwstrbit
   character*4 crpt,rpt(0:15)
   character*512 encodeExeFile
-  character*512 pchk_file,gen_file
+  character*512 pchk_file
   character*512 pchk_file40,gen_file40
   character*120 fname1,fname2
   character*2048 cmnd
@@ -14,7 +12,7 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2,encodeE
   integer itone(144)
   integer*1 message(16),codeword(32),bitseq(40)
   integer*1 s8r(8)
-  data s8r/1,0,1,1,0,0,0,1/
+  data s8r/1,0,1,1,0,0,0,1/   ! Sync word is reversed wrt msk144 sync word.
   data first/.true./
   data rpt/"-03 ","+00 ","+03 ","+06 ","+10 ","+13 ","+16 ", &
            "R-03","R+00","R+03","R+06","R+10","R+13","R+16", &
@@ -39,12 +37,12 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2,encodeE
   enddo
   go to 900
 
-10 irpt=i                               !Report index, 0-63
+10 irpt=i                                   !Report index, 0-15
   if(ichk.lt.10000) then
      hashmsg=msg(2:i1-1)//' '//crpt
      call hash(hashmsg,22,ihash)          
-     ihash=iand(ihash,4095)                 !10-bit hash 
-     ig=16*ihash + irpt                     !6-bit report 
+     ihash=iand(ihash,4095)                 !12-bit hash 
+     ig=16*ihash + irpt                     !4-bit report 
   else
      ig=ichk-10000
   endif
@@ -66,11 +64,6 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2,encodeE
 1020 format(32i1)
   close(24)
 
-  cwstring=" "
-  do i=1,32
-    write(cwstrbit,'(i2)') codeword(i)
-    cwstring=cwstring//cwstrbit
-  enddo
 !  write(*,'(a6,i6,2x,a6,i6,2x,a6,i6)') ' msg: ',ig,'rprt: ',irpt,'hash: ',ihash
 !  write(*,'(a6,32i1)') '  cw: ',codeword
 
