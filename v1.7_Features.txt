@@ -38,6 +38,17 @@ repeated without gaps for the duration of a transmission cycle.  For
 most purposes we recommend a T/R cycle duration of 15 s, but 5 s and
 10 s sequences are also supported.
 
+MSK144 short ("Sh") messages are intended primarily for 144 MHz, where
+most pings are short.  These messages do not contain full callsigns;
+instead, they contain a hash of the entire transmitted message along
+with a report.  They are not encrypted -- the report is sent in the
+clear along with the hash.  Short messages are fully decodable only by
+the station to whom they are addressed, as part of an ongoing QSO,
+because only then will the received hash match that calculated using
+the known strings for "My Call" and "DX Call" and the received report,
+RRR, or 73.  If you are monitoring someone else's QSO, you will not be
+able to decode its Sh messages.
+
 An MSK144 signal occupies the full bandwidth of a typical SSB
 transmitter, so transmissions are always centered at an offset of
 1500Hz.  For best results, selectable/adjustable Rx and Tx filters
