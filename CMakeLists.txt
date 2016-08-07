@@ -1135,29 +1135,29 @@ target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRA
 qt5_use_modules (wsjtx SerialPort) # not sure why the interface link library syntax above doesn't work
 
 # make a library for WSJT-X UDP servers
-add_library (wsjtx_udp SHARED ${UDP_library_CXXSRCS})
+# add_library (wsjtx_udp SHARED ${UDP_library_CXXSRCS})
 add_library (wsjtx_udp-static STATIC ${UDP_library_CXXSRCS})
-target_include_directories (wsjtx_udp
-  INTERFACE
-  $<INSTALL_INTERFACE:${WSJT_INCLUDE_DESTINATION}/wsjtx>
-  )
+#target_include_directories (wsjtx_udp
+#  INTERFACE
+#  $<INSTALL_INTERFACE:${WSJT_INCLUDE_DESTINATION}/wsjtx>
+#  )
 target_include_directories (wsjtx_udp-static
   INTERFACE
   $<INSTALL_INTERFACE:${WSJT_INCLUDE_DESTINATION}/wsjtx>
   )
-set_target_properties (wsjtx_udp PROPERTIES
-  PUBLIC_HEADER "${UDP_library_HEADERS}"
-  )
+#set_target_properties (wsjtx_udp PROPERTIES
+#  PUBLIC_HEADER "${UDP_library_HEADERS}"
+#  )
 set_target_properties (wsjtx_udp-static PROPERTIES
   OUTPUT_NAME wsjtx_udp
   )
 target_compile_definitions (wsjtx_udp-static PUBLIC UDP_STATIC_DEFINE)
-qt5_use_modules (wsjtx_udp Network)
+#qt5_use_modules (wsjtx_udp Network)
 qt5_use_modules (wsjtx_udp-static Network)
-generate_export_header (wsjtx_udp BASE_NAME udp)
+generate_export_header (wsjtx_udp-static BASE_NAME udp)
 
 add_executable (udp_daemon UDPExamples/UDPDaemon.cpp UDPExamples/udp_daemon.rc ${WSJTX_ICON_FILE})
-target_link_libraries (udp_daemon wsjtx_udp)
+target_link_libraries (udp_daemon wsjtx_udp-static)
 
 add_resources (message_aggregator_RESOURCES /qss ${message_aggregator_STYLESHEETS})
 configure_file (UDPExamples/message_aggregator.qrc.in message_aggregator.qrc @ONLY)
@@ -1168,7 +1168,7 @@ add_executable (message_aggregator
   UDPExamples/message_aggregator.rc
   ${message_aggregator_RESOURCES_RCC}
   )
-target_link_libraries (message_aggregator Qt5::Widgets wsjtx_udp)
+target_link_libraries (message_aggregator Qt5::Widgets wsjtx_udp-static)
 
 if (WSJT_CREATE_WINMAIN)
   set_target_properties (message_aggregator PROPERTIES WIN32_EXECUTABLE ON)
