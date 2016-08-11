@@ -79,8 +79,7 @@ extern "C" {
                int* itext, int len1, int len2);
 
   void genmsk144_(char* msg, int* ichk, char* msgsent, int itone[],
-               int* itext, char pchkFile[], char ldpcMsgFile[], char encodeExeFile[],
-                  int len1, int len2, int len3, int len4, int len5);
+               int* itext, int len1, int len2); 
 
   void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
               int* itext, int len1, int len2);
@@ -2768,8 +2767,7 @@ void MainWindow::guiUpdate()
                                   &m_currentMessageType, len1, len1);
         if(m_modeTx=="MSK144") {
           genmsk144_(message, &ichk, msgsent, const_cast<int *> (itone),
-              &m_currentMessageType, &m_pchkFile[0], &m_ldpcMsgFile[0],
-              &m_encodeExeFile[0], len1, len1, 512, 512, 512);
+              &m_currentMessageType, len1, len1); 
           if(m_restart) {
             int nsym=144;
             if(itone[40]==-40) nsym=40;

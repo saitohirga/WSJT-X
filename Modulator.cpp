@@ -239,7 +239,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
               }
             }
 //            qDebug() << "B" << m_bFastMode << m_ic << numFrames << isym << itone[isym]
-//                            << m_toneFrequency0 << m_nsps;
+//                     << m_toneFrequency0 << m_nsps;
             m_dphi = m_twoPi * m_toneFrequency0 / m_frameRate;
             m_isym0 = isym;
             m_frequency0 = m_frequency;         //???
