@@ -330,6 +330,8 @@ set (wsjt_FSRCS
   lib/downsam9.f90
   lib/encode232.f90
   lib/encode4.f90
+  lib/encode_msk40.f90
+  lib/encode_msk144.f90
   lib/entail.f90
   lib/ephem.f90
   lib/extract.f90
@@ -1075,9 +1077,6 @@ target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
 add_executable (msk144d lib/msk144d.f90 wsjtx.rc)
 target_link_libraries (msk144d wsjt_fort wsjt_cxx)
 
-add_executable (encode lib/ldpc/encode.c wsjtx.rc)
-target_link_libraries (encode wsjt_fort wsjt_cxx)
-
 add_executable (jt9 ${jt9_FSRCS} ${jt9_CXXSRCS} wsjtx.rc)
 if (${OPENMP_FOUND} OR APPLE)
   if (APPLE)
@@ -1215,7 +1214,7 @@ install (TARGETS udp_daemon message_aggregator
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
 
-install (TARGETS jt9 jt65code qra64code qra64sim jt9code jt4code wsprd msk32d msk32d_ldpc encode
+install (TARGETS jt9 jt65code qra64code qra64sim jt9code jt4code wsprd msk32d msk32d_ldpc 
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )

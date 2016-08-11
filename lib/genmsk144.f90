@@ -1,6 +1,4 @@
-subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg,   &
-     encodeExeFile)
-
+subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
 !!!!!!!!!!!!!!!!!! Experimental small blocklength ldpc version
 ! s8 + 48bits + s8 + 80 bits = 144 bits (72ms message duration)
 !
@@ -23,9 +21,6 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg,   &
   use iso_c_binding, only: c_loc,c_size_t
   use packjt
   use hashing
-  character*512 pchk_file,gen_file,ldpc_msg,ldpc_cw,encodeExeFile
-  character*120 fname1,fname2
-  character*2048 cmnd
   character*22 msg0
   character*22 message                    !Message to be generated
   character*22 msgsent                    !Message as it will be received
@@ -36,29 +31,14 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg,   &
   integer*1 msgbits(80)                   !72-bit message + 8-bit hash
   integer*1 bitseq(144)                   !Tone #s, data and sync (values 0-1)
   integer*1 i1hash(4)
-  integer*1 b7(7)
   integer*1 s8(8)
-  integer*1 b11(11)
-  integer*1 b13(13)
   real*8 pp(12)
   real*8 xi(864),xq(864),pi,twopi
-  data b7/1,1,1,0,0,1,0/
   data s8/0,1,1,1,0,0,1,0/
-  data b11/1,1,1,0,0,0,1,0,0,1,0/         !Barker 11 code
-  data b13/1,1,1,1,1,0,0,1,1,0,1,0,1/     !Barker 13 code
   equivalence (ihash,i1hash)
   logical first
   data first/.true./
   save
-
-  i=index(pchk_file,".pchk")
-  gen_file=pchk_file(1:i-1)//".gen"
-  i=index(ldpc_msg,"ldpc_msg")
-  ldpc_cw=ldpc_msg(1:i-1)//"ldpc_cw"
-  fname1=trim(ldpc_msg)
-  fname2=trim(ldpc_cw)
-
-!  call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))  
 
   if( first ) then
     first=.false.
@@ -90,8 +70,7 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg,   &
      enddo
 
      if(message(1:1).eq.'<') then
-        call genmsk40(message,msgsent,ichk,i4tone,itype,pchk_file,      &
-             fname1,fname2,encodeExeFile)
+        call genmsk40(message,msgsent,ichk,i4tone,itype)
         if(itype.lt.0) go to 999
         i4tone(41)=-40
         go to 999
@@ -131,22 +110,7 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg,   &
          enddo
      enddo
 
-!     call ldpc_encode(msgbits,codeword)
-
-!     print*,fname1
-!     print*,fname2
-
-     open(24,file=fname1,status='unknown')
-     write(24,1010) msgbits
-1010 format(80i1)
-     close(24)
-     cmnd=trim(encodeExeFile)//' "'//trim(pchk_file)//'" "'//              &
-          trim(gen_file)//'" "'//trim(fname1)//'" "'//trim(fname2)//'"'
-     call system(trim(cmnd))
-     open(24,file=fname2,status='old')
-     read(24,1020) codeword
-1020 format(128i1)
-     close(24)
+     call encode_msk144(msgbits,codeword)
 
 !Create 144-bit channel vector:
 !8-bit sync word + 48 bits + 8-bit sync word + 80 bits
@@ -167,7 +131,6 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg,   &
        is=(i-1)*12+1
        xi(is:is+11)=bitseq(2*i)*pp
      enddo
-
 ! Map I and Q  to tones. 
     i4tone=0 
     do i=1,72
@@ -178,6 +141,6 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype,pchk_file,ldpc_msg,   &
 
 ! Flip polarity
   i4tone=-i4tone+1
-  
+
 999 return
 end subroutine genmsk144

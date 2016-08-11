@@ -1,15 +1,10 @@
-subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2,encodeExeFile)
+subroutine genmsk40(msg,msgsent,ichk,itone,itype)
 
   use hashing
   character*22 msg,msgsent,hashmsg
   character*4 crpt,rpt(0:15)
-  character*512 encodeExeFile
-  character*512 pchk_file
-  character*512 pchk_file40,gen_file40
-  character*120 fname1,fname2
-  character*2048 cmnd
   logical first
-  integer itone(144)
+  integer*4 itone(144)
   integer*1 message(16),codeword(32),bitseq(40)
   integer*1 s8r(8)
   data s8r/1,0,1,1,0,0,0,1/   ! Sync word is reversed wrt msk144 sync word.
@@ -19,12 +14,6 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2,encodeE
            "RRR ","73  "/
   save first,rpt
 
-! Temporarily hardwire filenames and init on every call
-  i=index(pchk_file,"128-80")
-  pchk_file40=pchk_file(1:i-1)//"32-16"//pchk_file(i+6:)
-  i=index(pchk_file40,".pchk")
-  gen_file40=pchk_file40(1:i-1)//".gen"
-!  call init_ldpc(trim(pchk_file40)//char(0),trim(gen_file40)//char(0))
   itype=-1
   msgsent='*** bad message ***'
   itone=0
@@ -51,19 +40,7 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype,pchk_file,fname1,fname2,encodeE
     message(i)=iand(1,ishft(ig,1-i))
   enddo
 
-!  call ldpc_encode(message,codeword)
-  open(24,file=fname1,status='unknown')
-  write(24,1010) message
-1010 format(16i1)
-  close(24)
-  cmnd=trim(encodeExeFile)//' "'//trim(pchk_file40)//'" "'//trim(gen_file40)//'" "'        &
-       //trim(fname1)//'" "'//trim(fname2)//'"'
-  call system(cmnd)
-  open(24,file=fname2,status='old')
-  read(24,1020) codeword
-1020 format(32i1)
-  close(24)
-
+  call encode_msk40(message,codeword)
 !  write(*,'(a6,i6,2x,a6,i6,2x,a6,i6)') ' msg: ',ig,'rprt: ',irpt,'hash: ',ihash
 !  write(*,'(a6,32i1)') '  cw: ',codeword
 
