@@ -106,13 +106,9 @@ int main(int argc, char *argv[])
                                    // instantiating QApplication so
                                    // that GUI has correct l18n
 
-      // Override programs executable basename as application name.
-      a.setApplicationName ("WSJT-X");
-      a.setApplicationVersion (version ());
-      bool multiple {false};
-
       QPixmap splash_pic {":/splash.png"};
       QSplashScreen splash {splash_pic, Qt::WindowStaysOnTopHint};
+      splash.setWindowTitle (QString {});
       splash.showMessage ("<h2>" + QString {"Alpha Release: WSJT-X v" +
         QCoreApplication::applicationVersion() + " " +
         revision ()}.simplified () + "</h2>"
@@ -130,6 +126,10 @@ int main(int argc, char *argv[])
         "<img src=\":/gpl-v3-logo.svg\" height=\"80\" />", Qt::AlignCenter);
       splash.show ();
       a.processEvents ();
+
+      // Override programs executable basename as application name.
+      a.setApplicationName ("WSJT-X");
+      a.setApplicationVersion (version ());
 
 #if QT_VERSION >= 0x050200
       QCommandLineParser parser;
@@ -149,6 +149,7 @@ int main(int argc, char *argv[])
 
       if (!parser.parse (a.arguments ()))
         {
+          splash.hide ();
           MessageBox::critical_message (nullptr, a.translate ("main", "Command line error"), parser.errorText ());
           return -1;
         }
@@ -156,11 +157,13 @@ int main(int argc, char *argv[])
         {
           if (parser.isSet (help_option))
             {
+              splash.hide ();
               MessageBox::information_message (nullptr, a.translate ("main", "Command line help"), parser.helpText ());
               return 0;
             }
           else if (parser.isSet (version_option))
             {
+              splash.hide ();
               MessageBox::information_message (nullptr, a.translate ("main", "Application version"), a.applicationVersion ());
               return 0;
             }
@@ -169,6 +172,7 @@ int main(int argc, char *argv[])
       QStandardPaths::setTestModeEnabled (parser.isSet (test_option));
 
       // support for multiple instances running from a single installation
+      bool multiple {false};
       if (parser.isSet (rig_option) || parser.isSet (test_option))
         {
           auto temp_name = parser.value (rig_option);
@@ -203,6 +207,7 @@ int main(int argc, char *argv[])
         {
           if (QLockFile::LockFailedError == instance_lock.error ())
             {
+              splash.hide ();
               auto button = MessageBox::query_message (nullptr
                                                        , a.translate ("main", "Another instance may be running")
                                                        , a.translate ("main", "try to remove stale lock file?")
@@ -221,6 +226,7 @@ int main(int argc, char *argv[])
                 default:
                   throw std::runtime_error {"Multiple instances must have unique rig names"};
                 }
+              splash.show ();
             }
         }
 #endif
@@ -239,6 +245,7 @@ int main(int argc, char *argv[])
           if (!temp_dir.mkpath (unique_directory)
               || !temp_dir.cd (unique_directory))
             {
+              splash.hide ();
               MessageBox::critical_message (nullptr,
                                             a.translate ("main", "Failed to create a temporary directory"),
                                             a.translate ("main", "Path: \"%1\"").arg (temp_dir.absolutePath ()));
@@ -246,6 +253,7 @@ int main(int argc, char *argv[])
             }
           if (!temp_dir.isReadable () || !(temp_ok = QTemporaryFile {temp_dir.absoluteFilePath ("test")}.open ()))
             {
+              splash.hide ();
               auto button =  MessageBox::critical_message (nullptr,
                                                            a.translate ("main", "Failed to create a usable temporary directory"),
                                                            a.translate ("main", "Another application may be locking the directory"),
@@ -255,6 +263,7 @@ int main(int argc, char *argv[])
                 {
                   throw std::runtime_error {"Failed to create a usable temporary directory"};
                 }
+              splash.show ();
               temp_dir.cdUp ();  // revert to parent as this one is no good
             }
         }
@@ -294,6 +303,7 @@ int main(int argc, char *argv[])
 
           if(!mem_jt9.attach()) {
             if (!mem_jt9.create(sizeof(struct dec_data))) {
+              splash.hide ();
               MessageBox::critical_message (nullptr, a.translate ("main", "Shared memory error"),
                                             a.translate ("main", "Unable to create shared memory segment"));
               throw std::runtime_error {"Shared memory error"};
