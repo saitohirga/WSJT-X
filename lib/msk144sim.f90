@@ -84,6 +84,7 @@ program msk144sim
      do i=0,NMAX-1
         xx=gran()
         wave(i)=pings(i)*waveform(i) + fac*xx
+!        wave(i)=sig*waveform(i) + fac*xx
         iwave(i)=30.0*wave(i)
      enddo
 
