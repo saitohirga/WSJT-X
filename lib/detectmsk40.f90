@@ -7,7 +7,7 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
   character*6 mycall,hiscall,mycall0,hiscall0
   character*22 hashmsg,msgreceived
   character*80 lines(100)
-  character*512 pchk_file,gen_file
+  character*512 pchk_file
   character*512 pchk_file40,gen_file40
   complex cbig(n)
   complex cdat(NPTS)                    !Analytic signal
@@ -32,6 +32,7 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
   logical ismask(NFFT)
   real cbi(42),cbq(42)
   real detmet(-2:MAXSTEPS+3)
+  real detmet2(-2:MAXSTEPS+3)
   real detfer(MAXSTEPS)
   real rcw(12)
   real ddr(NPTS)
@@ -117,7 +118,7 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
   nstepsize=60  ! 5ms steps
   nstep=(n-NPTS)/nstepsize  
   detmet=0
-  detmax=-999.99
+  detmet2=0
   detfer=-999.99
   do istp=1,nstep
     ns=1+nstepsize*(istp-1)
@@ -144,6 +145,8 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
     ihpk=iloc(1)
     deltah=-real( (ctmp(ihpk-1)-ctmp(ihpk+1)) / (2*ctmp(ihpk)-ctmp(ihpk-1)-ctmp(ihpk+1)) )
     ah=tonespec(ihpk)
+    ahavp=(sum(tonespec,ismask)-ah)/count(ismask)
+    trath=ah/(ahavp+0.01)
     illo=(2000-2*ntol)/df+1
     ilhi=(2000+2*ntol)/df+1
     ismask=.false.
@@ -152,6 +155,8 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
     ilpk=iloc(1)
     deltal=-real( (ctmp(ilpk-1)-ctmp(ilpk+1)) / (2*ctmp(ilpk)-ctmp(ilpk-1)-ctmp(ilpk+1)) )
     al=tonespec(ilpk)
+    alavp=(sum(tonespec,ismask)-al)/count(ismask)
+    tratl=al/(alavp+0.01)
     fdiff=(ihpk+deltah-ilpk-deltal)*df
     i2000=nint(2000/df)+1
     i4000=nint(4000/df)+1
@@ -163,6 +168,7 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
       ferr=ferrl
     endif
     detmet(istp)=max(ah,al)
+    detmet2(istp)=max(trath,tratl)
     detfer(istp)=ferr
 !    write(*,*) istp,ilpk,ihpk,ah,al
   enddo  ! end of detection-metric and frequency error estimation loop
@@ -173,7 +179,7 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
   ndet=0
 
 !do i=1,nstep
-!write(77,*) i,detmet(i),detfer(i)
+!write(77,*) i,detmet(i),detmet2(i),detfer(i)
 !enddo
 
   do ip=1,MAXCAND ! find candidates
@@ -189,6 +195,22 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
     detmet(max(1,il-3):min(nstep,il+3))=0.0
 !    detmet(il)=0.0
   enddo
+
+  if( ndet .lt. 3 ) then  
+    do ip=1,MAXCAND-ndet ! Find candidates
+      iloc=maxloc(detmet2(1:nstep))
+      il=iloc(1)
+      if( (detmet2(il) .lt. 20.0) ) exit 
+      if( abs(detfer(il)) .le. ntol ) then 
+        ndet=ndet+1
+        times(ndet)=((il-1)*nstepsize+NSPM/2)*dt
+        ferrs(ndet)=detfer(il)
+        snrs(ndet)=12.0*log10(detmet2(il))/2-9.0
+      endif
+     detmet2(max(1,il-1):min(nstep,il+1))=0.0
+!     detmet2(il)=0.0
+    enddo
+  endif
 
 !  do ip=1,ndet
 !    write(*,'(i5,f7.2,f7.2,f7.2)') ip,times(ip),snrs(ip),ferrs(ip)
