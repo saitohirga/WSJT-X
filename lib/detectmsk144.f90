@@ -28,6 +28,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
   logical ismask(NFFT)
   real cbi(42),cbq(42)
   real detmet(-2:MAXSTEPS+3)
+  real detmet2(-2:MAXSTEPS+3)
   real detfer(MAXSTEPS)
   real rcw(12)
   real dd(NPTS)
@@ -93,7 +94,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
   ! fill the detmet, detferr arrays
   nstep=(n-NPTS)/216  ! 72ms/4=18ms steps
   detmet=0
-  detmax=-999.99
+  detmet2=0
   detfer=-999.99
   do istp=1,nstep
     ns=1+216*(istp-1)
@@ -120,6 +121,8 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
     ihpk=iloc(1)
     deltah=-real( (ctmp(ihpk-1)-ctmp(ihpk+1)) / (2*ctmp(ihpk)-ctmp(ihpk-1)-ctmp(ihpk+1)) )
     ah=tonespec(ihpk)
+    ahavp=(sum(tonespec,ismask)-ah)/count(ismask)
+    trath=ah/(ahavp+0.01)
     illo=(2000-2*ntol)/df+1
     ilhi=(2000+2*ntol)/df+1
     ismask=.false.
@@ -128,6 +131,8 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
     ilpk=iloc(1)
     deltal=-real( (ctmp(ilpk-1)-ctmp(ilpk+1)) / (2*ctmp(ilpk)-ctmp(ilpk-1)-ctmp(ilpk+1)) )
     al=tonespec(ilpk)
+    alavp=(sum(tonespec,ismask)-al)/count(ismask)
+    tratl=al/(alavp+0.01)
     fdiff=(ihpk+deltah-ilpk-deltal)*df
     i2000=2000/df+1
     i4000=4000/df+1
@@ -139,6 +144,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
       ferr=ferrl
     endif
     detmet(istp)=max(ah,al)
+    detmet2(istp)=max(trath,tratl)
     detfer(istp)=ferr
   enddo  ! end of detection-metric and frequency error estimation loop
 
@@ -160,6 +166,22 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
 !    detmet(max(1,il-1):min(nstep,il+1))=0.0
     detmet(il)=0.0
   enddo
+
+  if( ndet .lt. 3 ) then  
+    do ip=1,MAXCAND-ndet ! Find candidates
+      iloc=maxloc(detmet2(1:nstep))
+      il=iloc(1)
+      if( (detmet2(il) .lt. 12.0) ) exit 
+      if( abs(detfer(il)) .le. ntol ) then 
+        ndet=ndet+1
+        times(ndet)=((il-1)*216+NSPM/2)*dt
+        ferrs(ndet)=detfer(il)
+        snrs(ndet)=12.0*log10(detmet2(il))/2-9.0
+      endif
+!     detmet2(max(1,il-1):min(nstep,il+1))=0.0
+      detmet2(il)=0.0
+    enddo
+  endif
 
   nmessages=0
   allmessages=char(0)
