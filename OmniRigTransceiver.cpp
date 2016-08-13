@@ -552,13 +552,8 @@ void OmniRigTransceiver::do_ptt (bool on)
           new_state.ptt (on);
           wrapped_->set (new_state, 0);
         }
-      if (state ().ptt () != on)
-        {
-          update_PTT (on);
-          // no need for this as currently update_PTT() does it for us
-          // update_complete ();
-        }
     }
+  update_PTT (on);
 }
 
 void OmniRigTransceiver::do_frequency (Frequency f, MODE m, bool /*no_ignore*/)
