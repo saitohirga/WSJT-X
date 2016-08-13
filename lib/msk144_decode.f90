@@ -16,6 +16,7 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,mycall,hiscall,   &
 
   line(1:100)(1:1)=char(0)
   if(maxval(id2(1:npts)).eq.0 .and. minval(id2(1:npts)).eq.0) go to 900
+  if( npts .lt. 0.25*12000 ) go to 900  !Min record length 0.25s.
 
   hist=0
   do i=0,npts-1
