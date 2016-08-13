@@ -41,6 +41,7 @@ public:
   void do_sync (bool force_signal, bool no_poll) override;
 
 private:
+  Q_SLOT void timeout_check ();
   Q_SLOT void handle_COM_exception (int,  QString, QString, QString);
   Q_SLOT void handle_visible_change ();
   Q_SLOT void handle_rig_type_change (int rig_number);
@@ -58,8 +59,10 @@ private:
   RigNumber rig_number_;
   QScopedPointer<OmniRig::RigX> rig_;
   QScopedPointer<OmniRig::PortBits> port_;
+  QString rig_type_;
   int readable_params_;
   int writable_params_;
+  bool rig_offline_;
   bool send_update_signal_;
   bool reversed_;   // some rigs can reverse VFOs
 };
