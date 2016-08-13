@@ -35,7 +35,7 @@ public:
   int do_start () override;
   void do_stop () override;
   void do_frequency (Frequency, MODE, bool no_ignore) override;
-  void do_tx_frequency (Frequency, bool no_ignore) override;
+  void do_tx_frequency (Frequency, MODE, bool no_ignore) override;
   void do_mode (MODE) override;
   void do_ptt (bool on) override;
   void do_sync (bool force_signal, bool no_poll) override;

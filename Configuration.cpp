@@ -645,10 +645,6 @@ QString Configuration::rig_name () const {return m_->rig_params_.rig_name;}
 
 bool Configuration::is_transceiver_online () const
 {
-#if WSJT_TRACE_CAT
-  qDebug () << "Configuration::is_transceiver_online: " << m_->cached_rig_state_;
-#endif
-
   return m_->rig_active_;
 }
 
@@ -1280,7 +1276,6 @@ void Configuration::impl::read_settings ()
   x2ToneSpacing_ = settings_->value("x2ToneSpacing",false).toBool ();
   offsetRxFreq_ = settings_->value("OffsetRx",false).toBool();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
-  rig_params_.set_rig_mode = data_mode_ != data_mode_none;
   rig_params_.split_mode = settings_->value ("SplitMode", QVariant::fromValue (TransceiverFactory::split_mode_none)).value<TransceiverFactory::SplitMode> ();
   udp_server_name_ = settings_->value ("UDPServer", "127.0.0.1").toString ();
   udp_server_port_ = settings_->value ("UDPServerPort", 2237).toUInt ();
@@ -1600,7 +1595,6 @@ TransceiverFactory::ParameterPack Configuration::impl::gather_rig_data ()
   result.ptt_type = static_cast<TransceiverFactory::PTTMethod> (ui_->PTT_method_button_group->checkedId ());
   result.ptt_port = ui_->PTT_port_combo_box->currentText ();
   result.audio_source = static_cast<TransceiverFactory::TXAudioSource> (ui_->TX_audio_source_button_group->checkedId ());
-  result.set_rig_mode = static_cast<DataMode> (ui_->TX_mode_button_group->checkedId ()) != data_mode_none;
   result.split_mode = static_cast<TransceiverFactory::SplitMode> (ui_->split_mode_button_group->checkedId ());
   return result;
 }
@@ -2251,7 +2245,15 @@ void Configuration::impl::transceiver_tx_frequency (Frequency f)
   Q_ASSERT (!f || split_mode ());
   if (split_mode ())
     {
+      Transceiver::MODE mode {Transceiver::UNK};
+      switch (data_mode_)
+        {
+        case data_mode_USB: mode = Transceiver::USB; break;
+        case data_mode_data: mode = Transceiver::DIG_U; break;
+        case data_mode_none: break;
+        }
       cached_rig_state_.online (true); // we want the rig online
+      cached_rig_state_.mode (mode);
       cached_rig_state_.split (f);
       cached_rig_state_.tx_frequency (f);
 

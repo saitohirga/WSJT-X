@@ -155,13 +155,17 @@ void DXLabSuiteCommanderTransceiver::do_frequency (Frequency f, MODE m, bool /*n
   update_rx_frequency (f);
 }
 
-void DXLabSuiteCommanderTransceiver::do_tx_frequency (Frequency tx, bool /*no_ignore*/)
+void DXLabSuiteCommanderTransceiver::do_tx_frequency (Frequency tx, MODE mode, bool /*no_ignore*/)
 {
   TRACE_CAT ("DXLabSuiteCommanderTransceiver", tx << state ());
   if (tx)
     {
       auto f_string = frequency_to_string (tx);
       auto params = ("<xcvrfreq:%1>" + f_string + "<SuppressDual:1>Y").arg (f_string.size ());
+      if (UNK == mode)
+        {
+          params += "<SuppressModeChange:1>Y";
+        }
       simple_command (("<command:11>CmdQSXSplit<parameters:%1>" + params).arg (params.size ()));
     }
   else
@@ -421,7 +425,7 @@ auto DXLabSuiteCommanderTransceiver::string_to_frequency (QString s) const -> Fr
   // conversion to Hz
   bool ok;
 
-  //  auto f = locale_.toDouble (s, &ok); // use when CmdSendFreq and
+  // auto f = locale_.toDouble (s, &ok); // use when CmdSendFreq and
                                       // CmdSendTxFreq reinstated
 
   auto f = QLocale::c ().toDouble (s, &ok); // temporary fix

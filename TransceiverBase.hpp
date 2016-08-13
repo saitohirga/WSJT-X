@@ -107,8 +107,8 @@ protected:
   virtual void do_frequency (Frequency, MODE, bool no_ignore) = 0;
   virtual void do_post_frequency (Frequency, MODE) {}
 
-  virtual void do_tx_frequency (Frequency, bool no_ignore) = 0;
-  virtual void do_post_tx_frequency (Frequency) {}
+  virtual void do_tx_frequency (Frequency, MODE, bool no_ignore) = 0;
+  virtual void do_post_tx_frequency (Frequency, MODE) {}
 
   virtual void do_mode (MODE) = 0;
   virtual void do_post_mode (MODE) {}

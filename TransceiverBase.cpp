@@ -93,8 +93,8 @@ void TransceiverBase::set (TransceiverState const& s,
                   // || s.split () != requested_.split ())) // or split change
                   || (s.tx_frequency () && ptt_on)) // or about to tx split
                 {
-                  do_tx_frequency (s.tx_frequency (), ptt_on);
-                  do_post_tx_frequency (s.tx_frequency ());
+                  do_tx_frequency (s.tx_frequency (), s.mode (), ptt_on);
+                  do_post_tx_frequency (s.tx_frequency (), s.mode ());
 
                   // record what actually changed
                   requested_.tx_frequency (actual_.tx_frequency ());
@@ -150,8 +150,8 @@ void TransceiverBase::shutdown ()
           if (requested_.split ())
             {
               // try and reset split mode
-              do_tx_frequency (0, true);
-              do_post_tx_frequency (0);
+              do_tx_frequency (0, UNK, true);
+              do_post_tx_frequency (0, UNK);
             }
         }
       catch (...)
