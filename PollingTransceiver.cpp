@@ -85,7 +85,7 @@ void PollingTransceiver::do_post_frequency (Frequency f, MODE m)
     }
 }
 
-void PollingTransceiver::do_post_tx_frequency (Frequency f)
+void PollingTransceiver::do_post_tx_frequency (Frequency f, MODE)
 {
   if (next_state_.tx_frequency () != f)
     {

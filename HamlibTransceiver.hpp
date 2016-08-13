@@ -36,7 +36,7 @@ class HamlibTransceiver final
   int do_start () override;
   void do_stop () override;
   void do_frequency (Frequency, MODE, bool no_ignore) override;
-  void do_tx_frequency (Frequency, bool no_ignore) override;
+  void do_tx_frequency (Frequency, MODE, bool no_ignore) override;
   void do_mode (MODE) override;
   void do_ptt (bool) override;
 
@@ -52,7 +52,6 @@ class HamlibTransceiver final
   struct RIGDeleter {static void cleanup (RIG *);};
   QScopedPointer<RIG, RIGDeleter> rig_;
 
-  bool set_rig_mode_;
   bool back_ptt_port_;
   bool one_VFO_;
   bool is_dummy_;

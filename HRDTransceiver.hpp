@@ -35,7 +35,6 @@ public:
                            , QString const& server
                            , bool use_for_ptt
                            , int poll_interval
-                           , bool set_rig_mode
                            , QObject * parent = nullptr);
 
 protected:
@@ -43,7 +42,7 @@ protected:
   int do_start () override;
   void do_stop () override;
   void do_frequency (Frequency, MODE, bool no_ignore) override;
-  void do_tx_frequency (Frequency, bool no_ignore) override;
+  void do_tx_frequency (Frequency, MODE, bool no_ignore) override;
   void do_mode (MODE) override;
   void do_ptt (bool on) override;
 
@@ -80,8 +79,6 @@ private:
   std::unique_ptr<TransceiverBase> wrapped_; // may be null
 
   bool use_for_ptt_;            // Use HRD for PTT.
-
-  bool set_rig_mode_;           // Set VFO mode when required
 
   QString server_;              // The TCP/IP addrress and port for
                                 // the HRD server.

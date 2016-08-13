@@ -589,12 +589,16 @@ void OmniRigTransceiver::do_frequency (Frequency f, MODE m, bool /*no_ignore*/)
     }
 }
 
-void OmniRigTransceiver::do_tx_frequency (Frequency tx, bool /*no_ignore*/)
+void OmniRigTransceiver::do_tx_frequency (Frequency tx, MODE m, bool /*no_ignore*/)
 {
   TRACE_CAT ("OmniRigTransceiver", tx << state ());
   bool split {tx != 0};
   if (split)
     {
+      if (UNK != m)
+        {
+          do_mode (m);
+        }
       TRACE_CAT ("OmniRigTransceiver", "set SPLIT mode on");
       rig_->SetSplitMode (state ().frequency (), tx);
       update_other_frequency (tx);
