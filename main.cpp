@@ -331,6 +331,7 @@ int main(int argc, char *argv[])
           // run the application UI
           MainWindow w(temp_dir, multiple, &multi_settings, &mem_jt9, downSampleFactor, new QNetworkAccessManager {&a}, &splash);
           w.show();
+          splash.raise ();
           QObject::connect (&a, SIGNAL (lastWindowClosed()), &a, SLOT (quit()));
           result = a.exec();
         }
