@@ -74,6 +74,11 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mode64,mycall_12,hiscall_12,   &
      enddo
   enddo
 900 continue
+  if(index(decoded,"000AAA ").ge.1) then
+! Suppress a certain type of garbage decode.
+     decoded='                      '
+     irc=-1
+  endif
 
   return
 end subroutine qra64a
