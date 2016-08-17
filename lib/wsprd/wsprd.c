@@ -604,7 +604,7 @@ int main(int argc, char *argv[])
     float tsync1=0.0,tsync2=0.0,ttotal=0.0;
     
     struct result { char date[7]; char time[5]; float sync; float snr;
-                    float dt; float freq; char message[23]; float drift;
+                    float dt; double freq; char message[23]; float drift;
                     unsigned int cycles; int jitter; };
     struct result decodes[50];
     
