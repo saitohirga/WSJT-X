@@ -307,6 +307,8 @@ set (wsjt_FSRCS
   lib/avecho.f90
   lib/averms.f90
   lib/azdist.f90
+  lib/bpdecode40.f90
+  lib/bpdecode144.f90
   lib/baddata.f90
   lib/ccf2.f90
   lib/ccf65.f90
@@ -400,7 +402,8 @@ set (wsjt_FSRCS
   lib/JTMSKsim.f90
   lib/jtmsk_decode.f90
   lib/jtmsk_short.f90
-  lib/ldpcsim.f90
+  lib/ldpcsim144.f90
+  lib/ldpcsim40.f90
   lib/libration.f90
   lib/lorentzian.f90
   lib/lpf1.f90
@@ -1065,11 +1068,14 @@ target_link_libraries (jt4code wsjt_fort wsjt_cxx)
 add_executable (jt65 lib/jt65.f90 lib/jt65_test.f90 wsjtx.rc)
 target_link_libraries (jt65 wsjt_fort wsjt_cxx)
 
-add_executable (ldpcsim lib/ldpcsim.f90 wsjtx.rc)
-target_link_libraries (ldpcsim wsjt_fort wsjt_cxx)
-
 add_executable (JTMSKsim lib/JTMSKsim.f90 wsjtx.rc)
 target_link_libraries (JTMSKsim wsjt_fort wsjt_cxx)
+
+add_executable (ldpcsim40 lib/ldpcsim40.f90 wsjtx.rc)
+target_link_libraries (ldpcsim40 wsjt_fort wsjt_cxx)
+
+add_executable (ldpcsim144 lib/ldpcsim144.f90 wsjtx.rc)
+target_link_libraries (ldpcsim144 wsjt_fort wsjt_cxx)
 
 add_executable (msk144sim lib/msk144sim.f90 wsjtx.rc)
 target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
