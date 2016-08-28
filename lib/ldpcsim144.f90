@@ -1,16 +1,23 @@
 program ldpcsim
 
 use, intrinsic :: iso_c_binding
+use iso_c_binding, only: c_loc,c_size_t
 use hashing
 use packjt
-
 character*22 msg,msgsent,msgreceived
 character*80 prefix
 character*85 pchk_file,gen_file
 character*8 arg
 integer*1, allocatable ::  codeword(:), decoded(:), message(:)
-real*8, allocatable ::  lratio(:), rxdata(:)
+integer*1, target:: i1Msg8BitBytes(10)
+integer*1 i1hash(4)
+integer*1 msgbits(80)
+integer*1 bitseq(144)
+integer*4 i4Msg6BitWords(13)
 integer ihash
+real*8, allocatable ::  lratio(:), rxdata(:), llr(:)
+real, allocatable :: yy(:)
+equivalence(ihash,i1hash)
 
 nargs=iargc()
 if(nargs.ne.7) then
@@ -35,31 +42,56 @@ read(arg,*) s
 pchk_file=trim(prefix)//".pchk"
 gen_file=trim(prefix)//".gen"
 
-rate=real(K)/real(N)
-write(*,*) "rate: ",rate
+!rate=real(K)/real(N)
 ! don't count hash bits as data bits
-!rate=5.0/real(N)
+rate=72.0/real(N)
+
+write(*,*) "rate: ",rate
 
 write(*,*) "pchk file: ",pchk_file
 write(*,*) "niter= ",max_iterations," ndither= ",max_dither," s= ",s
 
 allocate ( codeword(N), decoded(K), message(K) )
-allocate ( lratio(N), rxdata(N) )
+allocate ( lratio(N), rxdata(N), yy(N), llr(N) )
+
 call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
+msg="K9AN K1JT EN50"
+  call packmsg(msg,i4Msg6BitWords,itype)  !Pack into 12 6-bit bytes
+  call unpackmsg(i4Msg6BitWords,msgsent)  !Unpack to get msgsent
+  write(*,*) "message sent ",msgsent
 
-msg="K9AN K1JT RRR"
-irpt=62
-call hash(msg,22,ihash)
-ihash=iand(ihash,1023)                 !10-bit hash
-ig=64*ihash + irpt                     !6-bit report
-write(*,*) irpt,ihash,ig
-
-do i=1,16
-  message(i)=iand(1,ishft(ig,1-i))
-enddo
-
-call ldpc_encode(message,codeword)
-call init_random_seed()
+  i4=0
+  ik=0
+  im=0
+  do i=1,12
+    nn=i4Msg6BitWords(i)
+    do j=1, 6
+      ik=ik+1
+      i4=i4+i4+iand(1,ishft(nn,j-6))
+      i4=iand(i4,255)
+      if(ik.eq.8) then
+        im=im+1
+!           if(i4.gt.127) i4=i4-256
+        i1Msg8BitBytes(im)=i4
+        ik=0
+      endif
+    enddo
+  enddo
+ 
+  ihash=nhash(c_loc(i1Msg8BitBytes),int(9,c_size_t),146)
+  ihash=2*iand(ihash,32767)                   !Generate the 8-bit hash
+  i1Msg8BitBytes(10)=i1hash(1)                !CRC to byte 10
+  mbit=0
+  do i=1, 10
+    i1=i1Msg8BitBytes(i)
+    do ibit=1,8
+      mbit=mbit+1
+      msgbits(mbit)=iand(1,ishft(i1,ibit-8))
+    enddo
+  enddo
+ 
+  call encode_msk144(msgbits,codeword)
+  call init_random_seed()
 
 write(*,*) "Eb/N0   ngood  nundetected nbadhash"
 do idb = -6, 14
@@ -70,11 +102,10 @@ do idb = -6, 14
   nbadhash=0
 
   do itrial=1, ntrials
-call sgran()
+    call sgran()
 ! Create a realization of a noisy received word
     do i=1,N
-      rxdata(i) = 2.0*(codeword(i)-0.5) + sigma*gran()
-!write(*,*) i,gran()
+      rxdata(i) = 2.0*codeword(i)-1.0 + sigma*gran()
     enddo
 
 ! Correct signal normalization is important for this decoder.
@@ -86,51 +117,45 @@ call sgran()
 ! For now, set s to the value that optimizes decode probability near threshold. 
 ! The s parameter can be tuned to trade a few tenth's dB of threshold for an order of
 ! magnitude in UER 
-    if( s .le. 0 ) then
+    if( s .lt. 0 ) then
       ss=sigma
     else 
       ss=s
     endif
 
-    do i=1,N
-      lratio(i)=exp(2.0*rxdata(i)/(ss*ss))
-    enddo
+    llr=2.0*rxdata/(ss*ss)
+    lratio=exp(llr)
+    yy=rxdata
 
 ! max_iterations is max number of belief propagation iterations
-    call ldpc_decode(lratio, decoded, max_iterations, niterations, max_dither, ndither)
+!    call ldpc_decode(lratio, decoded, max_iterations, niterations, max_dither, ndither)
+!    call amsdecode(yy, max_iterations, decoded, niterations)
+!    call bitflipmsk144(rxdata, decoded, niterations)
+    call bpdecode144(llr, max_iterations, decoded, niterations)
+
 ! If the decoder finds a valid codeword, niterations will be .ge. 0.
     if( niterations .ge. 0 ) then
-      nueflag=0
-      nhashflag=0
-
-      imsg=0
-      do i=1,16
-        imsg=ishft(imsg,1)+iand(1,decoded(17-i))
-      enddo
-      nrxrpt=iand(imsg,63)
-      nrxhash=(imsg-nrxrpt)/64
-
-      if( nrxhash .ne. ihash ) then
+      call extractmessage144(decoded,msgreceived,nhashflag)
+      if( nhashflag .ne. 1 ) then
         nbadhash=nbadhash+1
-        nhashflag=1   
       endif
+      nueflag=0
 
 ! Check the message plus hash against what was sent.
       do i=1,K
-        if( message(i) .ne. decoded(i) ) then
+        if( msgbits(i) .ne. decoded(i) ) then
           nueflag=1
         endif
       enddo
-
-      if( nhashflag .eq. 0 .and. nueflag .eq. 0 ) then
+      if( nhashflag .eq. 1 .and. nueflag .eq. 0 ) then
         ngood=ngood+1
-      else if( nhashflag .eq. 0 .and. nueflag .eq. 1 ) then
+      else if( nhashflag .eq. 1 .and. nueflag .eq. 1 ) then
         nue=nue+1;
       endif
     endif
   enddo
 
-  write(*,"(f4.1,1x,i8,1x,i8,1x,i8)") db,ngood,nue,nbadhash
+  write(*,"(f4.1,1x,i8,1x,i8,1x,i8,1x,f5.2)") db,ngood,nue,nbadhash,ss
 
 enddo
 
