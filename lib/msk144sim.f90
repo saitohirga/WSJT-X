@@ -39,8 +39,7 @@ program msk144sim
   h=default_header(12000,NMAX)
 
   ichk=0
-  encode_exe_file="./encode "
-  call genmsk144(msg,ichk,msgsent,itone,itype,pchk_file,ldpc_msg_file,encode_exe_file) 
+  call genmsk144(msg,ichk,msgsent,itone,itype) 
   twopi=8.d0*atan(1.d0)
 
   nsym=144
