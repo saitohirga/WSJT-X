@@ -300,18 +300,18 @@ int unpk_(signed char *message, char *hashtab, char *call_loc_pow, char *callsig
     } else if ( ntype < 0 ) {
         ndbm=-(ntype+1);
         memset(grid6,0,sizeof(char)*7);
-        strncat(grid6,callsign+5,1);
-        strncat(grid6,callsign,5);
+        size_t len=strlen(callsign);
+        strncat(grid6,callsign+len-1,1);
+        strncat(grid6,callsign,len-1);
         int nu=ndbm%10;
-        if( (nu == 0 || nu == 3 || nu == 7 || nu == 10) &&        \
-           (isalpha(grid6[0]) && isalpha(grid6[1]) &&    \
-            isdigit(grid6[2]) && isdigit(grid6[3]) ) ) {
+        if ((nu != 0 && nu != 3 && nu != 7 && nu != 10) ||
+            !isalpha(grid6[0]) || !isalpha(grid6[1]) ||
+            !isdigit(grid6[2]) || !isdigit(grid6[3])) {
                // not testing 4'th and 5'th chars because of this case: <PA0SKT/2> JO33 40
                // grid is only 4 chars even though this is a hashed callsign...
                //         isalpha(grid6[4]) && isalpha(grid6[5]) ) ) {
-               ihash=nhash(callsign,strlen(callsign),(uint32_t)146);
-               strcpy(hashtab+ihash*13,callsign);
-           } else noprint=1;
+          noprint=1;
+        }
         
         ihash=(n2-ntype-64)/128;
         if( strncmp(hashtab+ihash*13,"\0",1) != 0 ) {
