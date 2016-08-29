@@ -102,7 +102,7 @@ extern "C" {
   int ptt_(int nport, int ntx, int* iptt, int* nopen);
 
   void wspr_downsample_(short int d2[], int* k);
-  void savec2_(char* fname, int* TR_seconds, double* dial_freq, int len1);
+  int savec2_(char* fname, int* TR_seconds, double* dial_freq, int len1);
 
   void avecho_( short id2[], int* dop, int* nfrit, int* nqual, float* f1,
                 float* level, float* sigdb, float* snr, float* dfreq,
@@ -1177,7 +1177,8 @@ void MainWindow::dataSink(qint64 frames)
         int nsec=120;
         int nbfo=1500;
         double f0m1500=m_freqNominal/1000000.0 + nbfo - 1500;
-        savec2_(c2name,&nsec,&f0m1500,len1);
+        int err = savec2_(c2name,&nsec,&f0m1500,len1);
+        if (err!=0) MessageBox::warning_message (this, tr ("Error saving c2 file"), c2name);
       }
     }
 
