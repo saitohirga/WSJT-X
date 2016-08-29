@@ -86,6 +86,7 @@ unsigned long readc2file(char *ptr_to_infile, float *idat, float *qdat,
     nread=fread(&dfreq,sizeof(double),1,fp);
     *freq=dfreq;
     nread=fread(buffer,sizeof(float),2*45000,fp);
+    fclose(fp);
     
     *wspr_type=ntrmin;
     
