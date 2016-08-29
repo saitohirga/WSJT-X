@@ -149,7 +149,7 @@ int unpackgrid( int32_t ngrid, char *grid)
 
 int unpackpfx( int32_t nprefix, char *call)
 {
-    char nc, pfx[4]="", tmpcall[7]="";
+    char nc, pfx[4]={'\0'}, tmpcall[7];
     int i;
     int32_t n;
     
@@ -170,8 +170,9 @@ int unpackpfx( int32_t nprefix, char *call)
             }
             n=n/37;
         }
-        
-        strcpy(call,pfx);
+
+        char * p = strrchr(pfx,' ');
+        strcpy(call, p ? p + 1 : pfx);
         strncat(call,"/",1);
         strncat(call,tmpcall,strlen(tmpcall));
         
