@@ -2719,7 +2719,7 @@ void MainWindow::guiUpdate()
       sdBm.sprintf(" %d",m_dBm);
       m_tx=1-m_tx;
       int i2=m_config.my_callsign().indexOf("/");
-      if(i2>0 or m_grid6) {
+      if(i2>0 || 6 == m_config.my_grid ().size ()) {
         if(i2<0) {                                                 // "Type 2" WSPR message
           msg1=m_config.my_callsign() + " " + m_config.my_grid().mid(0,4) + sdBm;
         } else {
