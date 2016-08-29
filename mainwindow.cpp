@@ -3323,6 +3323,11 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   auto base_call = Radio::base_callsign (hiscall);
   if (base_call != Radio::base_callsign (ui->dxCallEntry-> text ()) || base_call != hiscall)
     {
+      if (Radio::base_callsign (ui->dxCallEntry->text ()) != base_call) {
+        // clear the DX grid if the base call of his call is different
+        // from the current DX call
+        ui->dxGridEntry->clear ();
+      }
       // his base call different or his call more qualified
       // i.e. compound version of same base call
       ui->dxCallEntry->setText (hiscall);
