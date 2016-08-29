@@ -53,7 +53,7 @@ subroutine azdist(grid1,grid2,utch,nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter)
   call grid2deg(MyGrid,dlong1,dlat1)
   call grid2deg(HisGrid,dlong2,dlat2)
   eps=1.e-6
-  if(abs(dlat1-dlat2).lt.eps .and. abs(dling1-dling2).lt.eps) then
+  if(abs(dlat1-dlat2).lt.eps .and. abs(dlong1-dlong2).lt.eps) then
      Az=0.
      Dmiles=0.
      Dkm=0.0
