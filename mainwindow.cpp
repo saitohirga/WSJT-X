@@ -3195,7 +3195,8 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     ntsec = ntsec + t2.mid(4,2).toInt();
     t2a=t2.mid(0,4) + t2.mid(6,-1);     //Change hhmmss to hhmm for the message parser
   } else {
-    t2a=t2;
+    t2a=t2.left (44);           // strip and quality info trailing the
+                                // decoded message
   }
   if(m_bFast9) {
     i1=t2a.indexOf(" CQ ");
