@@ -6,7 +6,7 @@ subroutine wqencode(msg,ntype,data0)
   parameter (MASK15=32767)
   character*22 msg
   character*12 call1,call2
-  character grid4*4,grid6*6
+  character grid4*4
   logical lbad1,lbad2
   integer*1 data0(11)
   integer nu(0:9)
@@ -46,11 +46,12 @@ subroutine wqencode(msg,ntype,data0)
      i4=index(msg,'>')
      call1=msg(2:i4-1)
      call hash(call1,i4-2,ih)
-     grid6=msg(i1+1:i1+6)
-     call2=grid6(2:6)//grid6(1:1)//'      '
+     i5=index(trim(msg(i1+1:)),' ')
+! Convert grid to valid callsign format - first character moved to end
+     call2=msg(i1+2:i1+i5-1)//msg(i1+1:i1+1)//'        '
      call packcall(call2,n1,lbad1)
      ndbm=0
-     read(msg(i1+8:),*) ndbm
+     read(msg(i1+i5+1:),*) ndbm
      if(ndbm.lt.0) ndbm=0
      if(ndbm.gt.60) ndbm=60
      ndbm=ndbm+nu(mod(ndbm,10))
