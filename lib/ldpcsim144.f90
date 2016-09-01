@@ -6,7 +6,6 @@ use hashing
 use packjt
 character*22 msg,msgsent,msgreceived
 character*80 prefix
-character*85 pchk_file,gen_file
 character*8 arg
 integer*1, allocatable ::  codeword(:), decoded(:), message(:)
 integer*1, target:: i1Msg8BitBytes(10)
@@ -20,27 +19,19 @@ real, allocatable :: yy(:), llr(:)
 equivalence(ihash,i1hash)
 
 nargs=iargc()
-if(nargs.ne.7) then
-   print*,'Usage: ldpcsim  <pchk file prefix      >  N   K  niter ndither #trials  s '
-   print*,'eg:    ldpcsim  "/pathto/peg-32-16-reg3"  32  16  10     1     1000    0.75'
+if(nargs.ne.4) then
+   print*,'Usage: ldpcsim  niter ndither #trials  s '
+   print*,'eg:    ldpcsim    10     1     1000    0.75'
    return
 endif
-call getarg(1,prefix)
-call getarg(2,arg)
-read(arg,*) N 
-call getarg(3,arg)
-read(arg,*) K 
-call getarg(4,arg)
+call getarg(1,arg)
 read(arg,*) max_iterations 
-call getarg(5,arg)
+call getarg(2,arg)
 read(arg,*) max_dither 
-call getarg(6,arg)
+call getarg(3,arg)
 read(arg,*) ntrials 
-call getarg(7,arg)
+call getarg(4,arg)
 read(arg,*) s
-
-pchk_file=trim(prefix)//".pchk"
-gen_file=trim(prefix)//".gen"
 
 !rate=real(K)/real(N)
 ! don't count hash bits as data bits
@@ -48,13 +39,11 @@ rate=72.0/real(N)
 
 write(*,*) "rate: ",rate
 
-write(*,*) "pchk file: ",pchk_file
 write(*,*) "niter= ",max_iterations," ndither= ",max_dither," s= ",s
 
 allocate ( codeword(N), decoded(K), message(K) )
 allocate ( lratio(N), rxdata(N), yy(N), llr(N) )
 
-call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
 msg="K9AN K1JT EN50"
   call packmsg(msg,i4Msg6BitWords,itype)  !Pack into 12 6-bit bytes
   call unpackmsg(i4Msg6BitWords,msgsent)  !Unpack to get msgsent

@@ -1,4 +1,4 @@
-subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
+subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,   &
      nutc,ntol,t00)
 
   use timer_module, only: timer
@@ -7,8 +7,6 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
   character*6 mycall,hiscall,mycall0,hiscall0
   character*22 hashmsg,msgreceived
   character*80 lines(100)
-  character*512 pchk_file
-  character*512 pchk_file40,gen_file40
   complex cbig(n)
   complex cdat(NPTS)                    !Analytic signal
   complex cdat2(NPTS)
@@ -108,13 +106,6 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
      hiscall0=hiscall
   endif
 
-! Temporarily hardwire filenames and init on every call
-  i=index(pchk_file,"128-80")
-  pchk_file40=pchk_file(1:i-1)//"32-16"//pchk_file(i+6:)
-  i=index(pchk_file40,".pchk")
-  gen_file40=pchk_file40(1:i-1)//".gen"
-!  call init_ldpc(trim(pchk_file40)//char(0),trim(gen_file40)//char(0))
- 
 ! Fill the detmet, detferr arrays
   nstepsize=60  ! 5ms steps
   nstep=(n-NPTS)/nstepsize  
@@ -384,7 +375,6 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
 
               max_iterations=5
               max_dither=1
-!              call ldpc_decode(lratio,decoded,max_iterations,niterations,max_dither,ndither)
               call bpdecode40(llr,max_iterations, decoded, niterations)
               ncalls=ncalls+1
                

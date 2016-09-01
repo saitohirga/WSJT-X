@@ -1,4 +1,4 @@
-subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,pchk_file,     &
+subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,     &
      mycall_12,hiscall_12)
 
   parameter (NMAX=30*12000)
@@ -13,7 +13,6 @@ subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,pchk_file,     &
   logical pick,first
   character*6 cfile6
   character*80 line(100)
-  character*512 pchk_file
   character*12 mycall_12,hiscall_12
   character*6 mycall,hiscall
   data first/.true./
@@ -63,10 +62,10 @@ subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,pchk_file,     &
 !     print*,ia,ib,nz,ndat0,t0,t1
      if(npick.gt.1) go to 900        !### DISABLE PICK FROM LOWER PANEL###
      if(newdat.eq.1 .or. npick.le.1) then
-        call msk144_decode(id2(ia),nz,nutc,0,pchk_file,mycall,hiscall,   &
+        call msk144_decode(id2(ia),nz,nutc,0,mycall,hiscall,   &
              bShMsgs,ntol,t0,line)
      else
-        call msk144_decode(id2b(ia),nz,nutc,0,pchk_file,mycall,hiscall,   &
+        call msk144_decode(id2b(ia),nz,nutc,0,mycall,hiscall,   &
              bShMsgs,ntol,t0,line)
      endif
      go to 900

@@ -429,9 +429,6 @@ private:
   bool		m_first_error;
 
   char    m_msg[100][80];
-  char    m_pchkFile[512];
-  char    m_ldpcMsgFile[512];
-  char    m_encodeExeFile[512];
 
   // labels in status bar
   QLabel tx_status_label;

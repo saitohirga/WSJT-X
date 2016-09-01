@@ -1,10 +1,9 @@
-subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
+subroutine detectmsk144(cbig,n,lines,nmessages,nutc,ntol,t00)
   use timer_module, only: timer
 
   parameter (NSPM=864, NPTS=3*NSPM, MAXSTEPS=1700, NFFT=NSPM, MAXCAND=16)
   character*22 msgreceived,allmessages(20)
   character*80 lines(100)
-  character*512 pchk_file,gen_file
   complex cbig(n)
   complex cdat(NPTS)                    !Analytic signal
   complex cdat2(NPTS)
@@ -47,10 +46,6 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
   data s8/0,1,1,1,0,0,1,0/
   data s8r/1,0,1,1,0,0,0,1/
   save df,first,cb,fs,pi,twopi,dt,s8,rcw,pp,nmatchedfilter
-
-  i=index(pchk_file,".pchk")
-  gen_file=pchk_file(1:i-1)//".gen"
-!  call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
 
   if(first) then
      nmatchedfilter=1
@@ -382,11 +377,9 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
   
               max_iterations=10
               max_dither=1
-              call timer('ldpcdecod',0)
-!              call ldpc_decode(lratio, decoded, &
-!                           max_iterations, niterations, max_dither, ndither)
+              call timer('bpdec144 ',0)
               call bpdecode144(llr,max_iterations,decoded,niterations)
-              call timer('ldpcdecod',1)
+              call timer('bpdec144 ',1)
 
               if( niterations .ge. 0.0 ) then
                 call extractmessage144(decoded,msgreceived,nhashflag)

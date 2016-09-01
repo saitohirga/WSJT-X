@@ -8,7 +8,6 @@ subroutine encode_msk144(message,codeword)
 ! matrix stored in Radford Neal's "pchk" format.
 !
 character*20 g(48)
-character*1 tmpstr
 integer*1 codeword(128)
 integer*1 colorder(128)
 integer*1 gen144(48,80)

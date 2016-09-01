@@ -1,4 +1,4 @@
-subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,mycall,hiscall,   &
+subroutine msk144_decode(id2,npts,nutc,nprint,mycall,hiscall,   &
      bShMsgs,ntol,t0,line)
 
 ! Calls the experimental decoder for MSK 72ms/16ms messages
@@ -10,7 +10,6 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,mycall,hiscall,   &
   real d(0:NMAX)                       !Raw r*4 data
   complex c(NFFTMAX)                   !Complex (analytic) data
   character*80 line(100)               !Decodes passed back to caller
-  character*512 pchk_file
   character*6 mycall,hiscall
   logical*1 bShMsgs
 
@@ -37,7 +36,7 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,mycall,hiscall,   &
   call analytic(d,npts,nfft,c)         !Convert to analytic signal and filter
   call timer('analytic',1)
   call timer('detec144',0)
-  call detectmsk144(c,npts,pchk_file,line,nline,nutc,ntol,t0)
+  call detectmsk144(c,npts,line,nline,nutc,ntol,t0)
   call timer('detec144',1)
   if( nprint .ne. 0 ) then
     do i=1,nline
@@ -48,7 +47,7 @@ subroutine msk144_decode(id2,npts,nutc,nprint,pchk_file,mycall,hiscall,   &
 
   if(nline.eq.0 .and. bShMsgs) then
     call timer('detect40',0)
-    call detectmsk40(c,npts,pchk_file,mycall,hiscall,line,nline,nutc,ntol,t0)
+    call detectmsk40(c,npts,mycall,hiscall,line,nline,nutc,ntol,t0)
     call timer('detect40',1)
     if( nprint .ne. 0 ) then
       do i=1,nline
