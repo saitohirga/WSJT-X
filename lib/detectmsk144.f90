@@ -32,7 +32,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
   real detfer(MAXSTEPS)
   real rcw(12)
   real dd(NPTS)
-  real ddr(NPTS)
+!  real ddr(NPTS)
   real ferrs(MAXCAND)
   real pp(12)                          !Half-sine pulse shape
   real snrs(MAXCAND)
@@ -41,6 +41,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
   real*8 dt, df, fs, pi, twopi
   real softbits(144)
   real*8 lratio(128)
+  real llr(128)
   logical first
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
@@ -49,7 +50,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
 
   i=index(pchk_file,".pchk")
   gen_file=pchk_file(1:i-1)//".gen"
-  call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
+!  call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
 
   if(first) then
      nmatchedfilter=1
@@ -186,6 +187,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
   nmessages=0
   allmessages=char(0)
   lines=char(0)
+  nshort=0
 
   do ip=1,ndet  ! Try to sync/demod/decode each candidate.
     imid=times(ip)*fs
@@ -200,7 +202,7 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
 
 ! remove coarse freq error - should now be within a few Hz
     call tweak1(cdat,NPTS,-(1500+ferr),cdat)
-
+  
 ! attempt frame synchronization
 ! correlate with sync word waveforms
     cc=0
@@ -215,16 +217,17 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
     enddo
     cc=cc1+cc2
     dd=abs(cc1)*abs(cc2)
-    do i=1,NPTS-(40*6+41)
-      ccr1(i)=sum(cdat(i:i+41)*conjg(cbr))
-      ccr2(i)=sum(cdat(i+40*6:i+40*6+41)*conjg(cbr))
-    enddo
-    ccr=ccr1+ccr2
-    ddr=abs(ccr1)*abs(ccr2)
+!    do i=1,NPTS-(40*6+41)
+!      ccr1(i)=sum(cdat(i:i+41)*conjg(cbr))
+!      ccr2(i)=sum(cdat(i+40*6:i+40*6+41)*conjg(cbr))
+!    enddo
+!    ccr=ccr1+ccr2
+!    ddr=abs(ccr1)*abs(ccr2)
     cmax=maxval(abs(cc))
-    crmax=maxval(abs(ccr))
-    ishort=0
-    if( crmax .gt. cmax ) ishort=1
+!    crmax=maxval(abs(ccr))
+!    if( crmax .gt. cmax ) then
+!      nshort=nshort+1
+!    endif
  
 ! Find 6 largest peaks
     do ipk=1, 6
@@ -374,13 +377,15 @@ subroutine detectmsk144(cbig,n,pchk_file,lines,nmessages,nutc,ntol,t00)
               sigma=0.75
               lratio(1:48)=softbits(9:9+47)
               lratio(49:128)=softbits(65:65+80-1)
+              llr=2.0*lratio/(sigma*sigma)
               lratio=exp(2.0*lratio/(sigma*sigma))
   
               max_iterations=10
               max_dither=1
               call timer('ldpcdecod',0)
-              call ldpc_decode(lratio, decoded, &
-                           max_iterations, niterations, max_dither, ndither)
+!              call ldpc_decode(lratio, decoded, &
+!                           max_iterations, niterations, max_dither, ndither)
+              call bpdecode144(llr,max_iterations,decoded,niterations)
               call timer('ldpcdecod',1)
 
               if( niterations .ge. 0.0 ) then

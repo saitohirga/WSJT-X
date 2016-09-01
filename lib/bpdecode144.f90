@@ -1,3 +1,51 @@
+subroutine pltanh(x,y)
+  isign=+1
+  if( x.lt.0 ) then
+    isign=-1
+    z=abs(x)
+  endif
+  if( z.le. 0.8 ) then
+    y=0.83*x
+    return
+  elseif( z.le. 1.6 ) then
+    y=isign*(0.322*z+0.4064)
+    return  
+  elseif( z.le. 3.0 ) then
+    y=isign*(0.0524*z+0.8378)
+    return
+  elseif( z.lt. 7.0 ) then
+    y=isign*(0.0012*z+0.9914)
+    return
+  else
+    y=isign*0.9998
+    return
+  endif
+end subroutine pltanh
+
+subroutine platanh(x,y)
+  isign=+1
+  if( x.lt.0 ) then
+    isign=-1
+    z=abs(x)
+  endif
+  if( z.le. 0.664 ) then
+    y=x/0.83
+    return
+  elseif( z.le. 0.9217 ) then
+    y=isign*(z-0.4064)/0.322
+    return
+  elseif( z.le. 0.9951 ) then
+    y=isign*(z-0.8378)/0.0524
+    return
+  elseif( z.le. 0.9998 ) then
+    y=isign*(z-0.9914)/0.0012
+    return
+  else
+    y=isign*7.0
+    return
+  endif
+end subroutine platanh
+
 subroutine bpdecode144(llr,maxiterations,decoded,niterations)
 !
 ! A log-domain belief propagation decoder for the msk144 code.
@@ -11,13 +59,12 @@ integer*1 decoded(K)
 integer Nm(8,M)  ! 8 bits per check 
 integer Mn(3,N)  ! 3 checks per bit
 integer synd(M)
-real*8 tov(3,N)
-real*8 toc(8,M)
-real*8 tanhtoc(8,M)
-real*8 zn(N)
-real*8 llr(N)
-real*8 Tmn
-real*8 xth
+real tov(3,N)    ! single precision seems to be adequate in log-domain
+real toc(8,M)
+real tanhtoc(8,M)
+real zn(N)
+real llr(N)
+real Tmn
 
 data colorder/0,1,2,3,4,5,6,7,8,9, &
               10,11,12,13,14,15,24,26,29,30, &
@@ -239,12 +286,11 @@ do iter=0,maxiterations
   where( zn .gt. 0. ) cw=1
   ncheck=0
   do i=1,M
-    synd(i)=sum(cw(Nm(1:nrw,i)))
-    synd(i)=mod(synd(i),2)
-    if( synd(i) .ne. 0 ) ncheck=ncheck+1
+    synd(i)=sum(cw(Nm(:,i)))
+    if( mod(synd(i),2) .ne. 0 ) ncheck=ncheck+1
   enddo
 
-  if( ncheck .eq. 0 ) then ! we have a codeword - reorder the columns and return it.
+  if( ncheck .eq. 0 ) then ! we have a codeword
     niterations=iter
     codeword=cw(colorder+1)
     decoded=codeword(M+1:N)
@@ -254,10 +300,11 @@ do iter=0,maxiterations
 ! Send messages from bits to check nodes 
   do j=1,M
     do i=1,nrw
-      toc(i,j)=zn(Nm(i,j))  
+      ibj=Nm(i,j)
+      toc(i,j)=zn(ibj)  
       do kk=1,ncw ! subtract off what the bit had received from the check
-        if( Mn(kk,Nm(i,j)) .eq. j ) then  ! Mn(3,128)
-          toc(i,j)=toc(i,j)-tov(kk,Nm(i,j))
+        if( Mn(kk,ibj) .eq. j ) then  ! Mn(3,128)
+          toc(i,j)=toc(i,j)-tov(kk,ibj)
         endif
       enddo
     enddo
@@ -265,25 +312,17 @@ do iter=0,maxiterations
 
 ! send messages from check nodes to variable nodes
   do i=1,M
-      tanhtoc(1:nrw,i)=tanh(-toc(1:nrw,i)/2)
+    tanhtoc(1:nrw,i)=tanh(-toc(1:nrw,i)/2)
   enddo
 
   do j=1,N
     do i=1,ncw
       ichk=Mn(i,j)  ! Mn(:,j) are the checks that include bit j
-      Tmn=1.0
-      do kk=1,nrw
-        if( Nm(kk,ichk) .ne. j ) then
-          Tmn=Tmn*tanhtoc(kk,ichk)
-        endif
-      enddo 
-      tov(i,j)=2*atanh(-Tmn)
+      Tmn=product(tanhtoc(:,ichk),mask=Nm(:,ichk).ne.j)
+      call platanh(-Tmn,y)
+      tov(i,j)=2*y
     enddo
   enddo
-
-  xth=35.0
-  where(tov .gt. xth) tov=xth
-  where(tov .lt. -xth) tov=-xth
 
 enddo
 niterations=-1

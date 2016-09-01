@@ -37,6 +37,7 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
   real rcw(12)
   real ddr(NPTS)
   real ferrs(MAXCAND)
+  real llr(32)
   real pp(12)                          !Half-sine pulse shape
   real snrs(MAXCAND)
   real softbits(40)
@@ -112,7 +113,7 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
   pchk_file40=pchk_file(1:i-1)//"32-16"//pchk_file(i+6:)
   i=index(pchk_file40,".pchk")
   gen_file40=pchk_file40(1:i-1)//".gen"
-  call init_ldpc(trim(pchk_file40)//char(0),trim(gen_file40)//char(0))
+!  call init_ldpc(trim(pchk_file40)//char(0),trim(gen_file40)//char(0))
  
 ! Fill the detmet, detferr arrays
   nstepsize=60  ! 5ms steps
@@ -378,16 +379,19 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
 
               sigma=0.75
               if(xsnr.lt.1.5) sigma=1.1 - 0.0875*(xsnr+4.0) 
-              lratio(1:32)=exp(2.0*softbits(9:40)/(sigma*sigma))
+              lratio(1:32)=exp(2.0*softbits(9:40)/(sigma*sigma)) ! Use this for Radford Neal's routines
+              llr(1:32)=2.0*softbits(9:40)/(sigma*sigma)  ! Use log likelihood for bpdecode40
 
               max_iterations=5
               max_dither=1
-              call ldpc_decode(lratio,decoded,max_iterations,niterations,max_dither,ndither)
+!              call ldpc_decode(lratio,decoded,max_iterations,niterations,max_dither,ndither)
+              call bpdecode40(llr,max_iterations, decoded, niterations)
               ncalls=ncalls+1
                
               nhashflag=0
               if( niterations .ge. 0 ) then
-                call ldpc_encode(decoded,cw)
+                call encode_msk40(decoded,cw)
+!                call ldpc_encode(decoded,cw)
                 nhammd=0
                 cord=0.0
                 do i=1,32
