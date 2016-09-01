@@ -136,9 +136,9 @@ do iter=0,maxiterations
   do j=1,N
     do i=1,ncw
       ichk=Mn(i,j)  ! Mn(:,j) are the checks that include bit j
-      Tmn=product(tanhtoc(1:nrw(i),ichk),mask=Nm(1:nrw(i),ichk).ne.j)
+      Tmn=product(tanhtoc(1:nrw(ichk),ichk),mask=Nm(1:nrw(ichk),ichk).ne.j)
       call platanh(-Tmn,y)
-      tov(i,j)=y
+      tov(i,j)=2*y
     enddo
   enddo
 
