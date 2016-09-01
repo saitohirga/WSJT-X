@@ -18,34 +18,38 @@ program msk144d
   character*12 mycall,hiscall
   character(len=500) optarg
 
-  type (option) :: long_options(5) = [ &
-       option ('help',.false.,'h','Display this help message',''), &
-       option ('mycall',.true.,'c','mycall',''), &
+  type (option) :: long_options(6) = [ &
+       option ('dxcall',.true.,'d','hiscall',''), &  
        option ('evemode',.true.,'e','',''), &
+       option ('help',.false.,'h','Display this help message',''), &
+       option ('mycall',.true.,'m','mycall',''), &
        option ('nftol',.true.,'n','nftol',''), &
-       option ('hiscall',.true.,'x','hiscall','') &  
+       option ('short',.false.,'s','enable Sh','') &
        ]
   t0=0.0
   ntol=100
   mycall=''
   hiscall=''
+  bShMsgs=.false.
  
   do
-     call getopt('c:ehn:x:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+     call getopt('d:ehm:ns:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
      if( nstat .ne. 0 ) then
         exit
      end if
      select case (c)
-     case ('h')
-        display_help = .true.
-     case ('c')
-        read (optarg(:narglen), *) mycall
+     case ('d')
+        read (optarg(:narglen), *) hiscall
      case ('e')
         t0=1e-4
+     case ('h')
+        display_help = .true.
+     case ('m')
+        read (optarg(:narglen), *) mycall
      case ('n')
         read (optarg(:narglen), *) ntol
-     case ('x')
-        read (optarg(:narglen), *) hiscall
+     case ('s')
+        bShMsgs=.true. 
      end select
   end do
 
@@ -56,7 +60,6 @@ program msk144d
      print *, '       msk144 decode pre-recorded .WAV file(s)'
      print *, ''
      print *, 'OPTIONS:'
-     print *, ''
      do i = 1, size (long_options)
         call long_options(i) % print (6)
      end do
@@ -65,7 +68,6 @@ program msk144d
 
   call init_timer ('timer.out')
   call timer('msk144  ',0)
-  bShMsgs=.true.
   pchk_file='./peg-128-80-reg3.pchk'
   ndecoded=0
   do ifile=noffset+1,noffset+nremain

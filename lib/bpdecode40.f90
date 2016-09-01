@@ -1,23 +1,22 @@
 subroutine bpdecode40(llr,maxiterations,decoded,niterations)
 !
 ! A log-domain belief propagation decoder for the msk40 code.
-! The code is a regular (32,16) code with column weight 3 and row weights 5,6,7.
+! The code is a regular (32,16) code with column weight 3, row weights 5,6,7.
 ! k9an August, 2016
 !
 integer, parameter:: N=32, K=16, M=N-K
 integer*1 codeword(N),cw(N)
 integer*1 colorder(N)
 integer*1 decoded(K)
-integer Nm(7,M)   
+integer Nm(7,M)  ! 5,6 or 7 bits per check 
 integer Mn(3,N)  ! 3 checks per bit
 integer synd(M)
-real*8 tov(3,N)
-real*8 toc(7,M)
-real*8 tanhtoc(7,M)
-real*8 zn(N)
-real*8 llr(N)
-real*8 Tmn
-real*8 xth
+real tov(3,N)
+real toc(7,M)
+real tanhtoc(7,M)
+real zn(N)
+real llr(N)
+real Tmn
 integer nrw(M)
 
 data colorder/ &
@@ -106,8 +105,7 @@ do iter=0,maxiterations
   ncheck=0
   do i=1,M
     synd(i)=sum(cw(Nm(1:nrw(i),i)))
-    synd(i)=mod(synd(i),2)
-    if( synd(i) .ne. 0 ) ncheck=ncheck+1
+    if( mod(synd(i),2) .ne. 0 ) ncheck=ncheck+1
   enddo
 
   if( ncheck .eq. 0 ) then ! we have a codeword - reorder the columns and return it
@@ -120,10 +118,11 @@ do iter=0,maxiterations
 ! Send messages from bits to check nodes 
   do j=1,M
     do i=1,nrw(j)
-      toc(i,j)=zn(Nm(i,j))  
+      ibj=Nm(i,j)
+      toc(i,j)=zn(ibj)  
       do kk=1,ncw ! subtract off what the bit had received from the check
-        if( Mn(kk,Nm(i,j)) .eq. j ) then  
-          toc(i,j)=toc(i,j)-tov(kk,Nm(i,j))
+        if( Mn(kk,ibj) .eq. j ) then  
+          toc(i,j)=toc(i,j)-tov(kk,ibj)
         endif
       enddo
     enddo
@@ -131,25 +130,17 @@ do iter=0,maxiterations
 
 ! send messages from check nodes to variable nodes
   do i=1,M
-      tanhtoc(1:nrw(i),i)=tanh(-toc(1:nrw(i),i)/2.)
+    tanhtoc(1:7,i)=tanh(-toc(1:7,i)/2)
   enddo
 
   do j=1,N
     do i=1,ncw
       ichk=Mn(i,j)  ! Mn(:,j) are the checks that include bit j
-      Tmn=1.0
-      do kk=1,nrw(ichk)
-        if( Nm(kk,ichk) .ne. j ) then
-          Tmn=Tmn*tanhtoc(kk,ichk)
-        endif
-      enddo 
-      tov(i,j)=2.*atanh(-Tmn)
+      Tmn=product(tanhtoc(1:nrw(i),ichk),mask=Nm(1:nrw(i),ichk).ne.j)
+      call platanh(-Tmn,y)
+      tov(i,j)=y
     enddo
   enddo
-
-  xth=35.0
-  where(tov .gt. xth) tov=xth
-  where(tov .lt. -xth) tov=-xth
 
 enddo
 niterations=-1
