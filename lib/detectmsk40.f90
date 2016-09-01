@@ -378,7 +378,7 @@ subroutine detectmsk40(cbig,n,pchk_file,mycall,hiscall,lines,nmessages,   &
               softbits=softbits/ssig
 
               sigma=0.75
-              if(xsnr.lt.1.5) sigma=1.1 - 0.0875*(xsnr+4.0) 
+              if(xsnr.lt.0.0) sigma=0.75-0.0875*xsnr 
               lratio(1:32)=exp(2.0*softbits(9:40)/(sigma*sigma)) ! Use this for Radford Neal's routines
               llr(1:32)=2.0*softbits(9:40)/(sigma*sigma)  ! Use log likelihood for bpdecode40
 
