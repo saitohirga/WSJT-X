@@ -15,8 +15,8 @@ integer*1 msgbits(80)
 integer*1 bitseq(144)
 integer*4 i4Msg6BitWords(13)
 integer ihash
-real*8, allocatable ::  lratio(:), rxdata(:), llr(:)
-real, allocatable :: yy(:)
+real*8, allocatable ::  lratio(:), rxdata(:)
+real, allocatable :: yy(:), llr(:)
 equivalence(ihash,i1hash)
 
 nargs=iargc()
@@ -93,7 +93,7 @@ msg="K9AN K1JT EN50"
   call encode_msk144(msgbits,codeword)
   call init_random_seed()
 
-write(*,*) "Eb/N0   ngood  nundetected nbadhash"
+write(*,*) "Eb/N0  SNR2500   ngood  nundetected nbadhash"
 do idb = -6, 14
   db=idb/2.0-1.0
   sigma=1/sqrt( 2*rate*(10**(db/10.0)) )
@@ -154,8 +154,8 @@ do idb = -6, 14
       endif
     endif
   enddo
-
-  write(*,"(f4.1,1x,i8,1x,i8,1x,i8,1x,f5.2)") db,ngood,nue,nbadhash,ss
+  snr2500=db-4.0
+  write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,1x,f5.2)") db,snr2500,ngood,nue,nbadhash,ss
 
 enddo
 
