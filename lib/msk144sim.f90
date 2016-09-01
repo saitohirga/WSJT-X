@@ -5,17 +5,11 @@ program msk144sim
   real pings(0:NMAX-1)
   real waveform(0:NMAX-1)
   character arg*8,msg*22,msgsent*22,fname*40
-  character*512 encode_exe_file
-  character*512 pchk_file
-  character*512 ldpc_msg_file
   real wave(0:NMAX-1)              !Simulated received waveform
   real*8 twopi,freq,phi,dphi0,dphi1,dphi
   type(hdr) h                          !Header for .wav file
   integer*2 iwave(0:NMAX-1)
   integer itone(144)                   !Message bits
-
-  pchk_file='./peg-128-80-reg3.pchk'
-  ldpc_msg_file='./ldpc_msg'
 
   nargs=iargc()
   if(nargs.ne.5) then

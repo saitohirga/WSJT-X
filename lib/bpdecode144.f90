@@ -276,6 +276,8 @@ do j=1,M
   enddo
 enddo
 
+ncnt=0
+
 do iter=0,maxiterations
 
 ! Update bit log likelihood ratios
@@ -299,6 +301,21 @@ do iter=0,maxiterations
     return
   endif
 
+  if( iter.gt.0 ) then  ! this code block implements an early stopping criterion
+    nd=ncheck-nclast
+    if( nd .lt. 0 ) then ! # of unsatisfied parity checks decreased
+      ncnt=0  ! reset counter
+    else
+      ncnt=ncnt+1
+    endif
+!    write(*,*) iter,ncheck,nd,ncnt
+    if( ncnt .ge. 3 .and. iter .ge. 5 .and. ncheck .gt. 10) then
+      niterations=-1
+      return
+    endif
+  endif
+  nclast=ncheck 
+ 
 ! Send messages from bits to check nodes 
   do j=1,M
     do i=1,nrw

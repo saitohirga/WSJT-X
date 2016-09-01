@@ -5,8 +5,6 @@ use hashing
 use packjt
 
 character*22 msg,msgsent,msgreceived
-character*80 prefix
-character*85 pchk_file,gen_file
 character*8 arg
 integer*1, allocatable ::  codeword(:), decoded(:), message(:)
 real*8, allocatable ::  lratio(:), rxdata(:)
@@ -15,38 +13,28 @@ integer ihash
 integer*1 hardbits(32)
 
 nargs=iargc()
-if(nargs.ne.7) then
-   print*,'Usage: ldpcsim  <pchk file prefix      >  N   K  niter ndither #trials  s '
-   print*,'eg:    ldpcsim  "/pathto/peg-32-16-reg3"  32  16  10     1     1000    0.75'
+if(nargs.ne.4) then
+   print*,'Usage: ldpcsim  niter ndither #trials  s '
+   print*,'eg:    ldpcsim   10     1     1000    0.75'
    return
 endif
-call getarg(1,prefix)
-call getarg(2,arg)
-read(arg,*) N 
-call getarg(3,arg)
-read(arg,*) K 
-call getarg(4,arg)
+call getarg(1,arg)
 read(arg,*) max_iterations 
-call getarg(5,arg)
+call getarg(2,arg)
 read(arg,*) max_dither 
-call getarg(6,arg)
+call getarg(3,arg)
 read(arg,*) ntrials 
-call getarg(7,arg)
+call getarg(4,arg)
 read(arg,*) s
-
-pchk_file=trim(prefix)//".pchk"
-gen_file=trim(prefix)//".gen"
 
 rate=real(K)/real(N)
 ! don't count hash bits as data bits
 !rate=5.0/real(N)
 write(*,*) "rate: ",rate
-write(*,*) "pchk file: ",pchk_file
 write(*,*) "niter= ",max_iterations," ndither= ",max_dither," s= ",s
 
 allocate ( codeword(N), decoded(K), message(K) )
 allocate ( lratio(N), rxdata(N), llr(N) )
-call init_ldpc(trim(pchk_file)//char(0),trim(gen_file)//char(0))
 
 msg="K1JT K9AN RRR         "
 irpt=14
@@ -59,8 +47,6 @@ do i=1,16
   message(i)=iand(1,ishft(ig,1-i))
 enddo
 write(*,'(16i1)') message
-!call ldpc_encode(message,codeword)
-!write(*,'(32i1)') codeword 
 call encode_msk40(message,codeword)
 write(*,'(32i1)') codeword
 call init_random_seed()
@@ -95,7 +81,6 @@ do idb = -6, 14
     llr=2.0*rxdata/(ss*ss)
     lratio=exp(llr)
 
-!    call ldpc_decode(lratio, decoded, max_iterations, niterations, max_dither, ndither)
     call bpdecode40(llr, max_iterations, decoded, niterations)
 ! If the decoder finds a valid codeword, niterations will be .ge. 0.
     if( niterations .ge. 0 ) then

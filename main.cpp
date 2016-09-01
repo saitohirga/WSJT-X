@@ -42,7 +42,6 @@
 extern "C" {
   // Fortran procedures we need
   void four2a_(_Complex float *, int * nfft, int * ndim, int * isign, int * iform, int len);
-  void fini_ldpc_ ();
 }
 
 namespace
@@ -348,7 +347,6 @@ int main(int argc, char *argv[])
       }
       fftwf_forget_wisdom ();
       fftwf_cleanup ();
-      fini_ldpc_ ();            // free LDPC decoder resources
 
       temp_dir.removeRecursively (); // clean up temp files
       return result;

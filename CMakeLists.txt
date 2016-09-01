@@ -481,22 +481,6 @@ set (ka9q_CSRCS
   )
 set_source_files_properties (${ka9q_CSRCS} PROPERTIES COMPILE_FLAGS -Wno-sign-compare)
 
-set (ldpc_CSRCS
-  lib/ldpc/alloc.c
-  lib/ldpc/rcode.c
-  lib/ldpc/dec.c
-  lib/ldpc/enc.c
-  lib/ldpc/intio.c
-  lib/ldpc/blockio.c
-  lib/ldpc/check.c
-  lib/ldpc/encode.c
-  lib/ldpc/open.c
-  lib/ldpc/mod2dense.c
-  lib/ldpc/mod2sparse.c
-  lib/ldpc/mod2convert.c
-  lib/ldpc/distrib.c
-  )
-
 set (qra_CSRCS
   lib/qra/qra64/qra64.c
   lib/qra/qra64/qra64_subs.c
@@ -1245,10 +1229,6 @@ install (FILES
 
 install (FILES
   contrib/Ephemeris/JPLEPH
-  contrib/LDPC/peg-128-80-reg3.gen
-  contrib/LDPC/peg-128-80-reg3.pchk
-  contrib/LDPC/peg-32-16-reg3.gen
-  contrib/LDPC/peg-32-16-reg3.pchk
   DESTINATION ${WSJT_SHARE_DESTINATION}/${WSJT_DATA_DESTINATION}
   #COMPONENT runtime
   )

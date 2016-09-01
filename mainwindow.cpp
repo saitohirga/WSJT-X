@@ -109,7 +109,7 @@ extern "C" {
                 float* width);
 
   void fast_decode_(short id2[], int narg[], int* ntrperiod, bool* bShMsgs,
-                    char msg[], char pchkFile[], char mycall[], char hiscall[],
+                    char msg[], char mycall[], char hiscall[],
                     int len1, int len2, int len3, int len4);
   void hash_calls_(char calls[], int* ih9, int len);
   void degrade_snr_(short d2[], int* n, float* db, float* bandwidth);
@@ -830,27 +830,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_bFastMode) {
     int ntr[]={5,10,15,30};
     m_TRperiod=ntr[m_TRindex-11];
-  }
-  QString pchkFile = m_config.data_dir().absoluteFilePath("peg-128-80-reg3.pchk");
-  QByteArray ba = pchkFile.toLocal8Bit();
-  for(int i=0; i<512; i++) {
-    m_pchkFile[i]=32;
-    if(i<pchkFile.length()) m_pchkFile[i]=ba[i];
-  }
-
-  QString ldpcMsgFile = m_config.temp_dir().absoluteFilePath("ldpc_msg");
-  ba = ldpcMsgFile.toLocal8Bit();
-  for(int i=0; i<512; i++) {
-    m_ldpcMsgFile[i]=32;
-    if(i<ldpcMsgFile.length()) m_ldpcMsgFile[i]=ba[i];
-  }
-
-  QString encodeExeFile = QDir::toNativeSeparators (m_appDir) +
-      QDir::separator () + "encode";
-  ba = encodeExeFile.toLocal8Bit();
-  for(int i=0; i<512; i++) {
-    m_encodeExeFile[i]=32;
-    if(i<encodeExeFile.length()) m_encodeExeFile[i]=ba[i];
   }
   statusChanged();
 
@@ -2235,7 +2214,7 @@ void MainWindow::decode()                                       //decode()
     narg[14]=m_config.aggressive();
     memcpy(d2b,dec_data.d2,2*360000);
     watcher3.setFuture (QtConcurrent::run (std::bind (fast_decode_,&d2b[0],
-        &narg[0],&m_TRperiod,&m_bShMsgs,&m_msg[0][0],&m_pchkFile[0],
+        &narg[0],&m_TRperiod,&m_bShMsgs,&m_msg[0][0],
         dec_data.params.mycall,dec_data.params.hiscall,80,512,12,12)));
   } else {
     memcpy(to, from, qMin(mem_jt9->size(), size));
