@@ -1,5 +1,6 @@
 subroutine pltanh(x,y)
   isign=+1
+  z=x
   if( x.lt.0 ) then
     isign=-1
     z=abs(x)
@@ -24,6 +25,7 @@ end subroutine pltanh
 
 subroutine platanh(x,y)
   isign=+1
+  z=x
   if( x.lt.0 ) then
     isign=-1
     z=abs(x)
