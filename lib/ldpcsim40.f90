@@ -9,7 +9,8 @@ character*80 prefix
 character*85 pchk_file,gen_file
 character*8 arg
 integer*1, allocatable ::  codeword(:), decoded(:), message(:)
-real*8, allocatable ::  lratio(:), rxdata(:), llr(:)
+real*8, allocatable ::  lratio(:), rxdata(:)
+real, allocatable :: llr(:)
 integer ihash
 integer*1 hardbits(32)
 
@@ -64,9 +65,8 @@ call encode_msk40(message,codeword)
 write(*,'(32i1)') codeword
 call init_random_seed()
 
-write(*,*) "Eb/N0   ngood  nundetected nbadhash"
+write(*,*) "Eb/N0  SNR2500   ngood  nundetected nbadhash"
 do idb = -6, 14
-!do idb = 14, 14
   db=idb/2.0-1.0
   sigma=1/sqrt( 2*rate*(10**(db/10.0)) )
   ngood=0
@@ -138,7 +138,8 @@ do idb = -6, 14
     endif
   enddo
   avits=real(itsum)/real(ngood+0.1)
-  write(*,"(f4.1,1x,i8,1x,i8,1x,i8,1x,f8.2,1x,f8.1)") db,ngood,nue,nbadhash,ss,avits
+  snr2500=db-10.0
+  write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,1x,f8.2,1x,f8.1)") db,snr2500,ngood,nue,nbadhash,ss,avits
 
 enddo
 
