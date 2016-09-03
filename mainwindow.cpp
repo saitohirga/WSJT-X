@@ -934,6 +934,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("LockTxFreq",m_lockTxFreq);
   m_settings->setValue("PctTx",m_pctx);
   m_settings->setValue("dBm",m_dBm);
+  m_settings->setValue ("WSPRPreferType1", ui->WSPR_prefer_type_1_check_box->isChecked ());
   m_settings->setValue("UploadSpots",m_uploadSpots);
   m_settings->setValue ("BandHopping", ui->band_hopping_group_box->isChecked ());
   m_settings->setValue("TRindex",m_TRindex);
@@ -992,6 +993,7 @@ void MainWindow::readSettings()
   m_inGain=m_settings->value("InGain",0).toInt();
   m_pctx=m_settings->value("PctTx",20).toInt();
   m_dBm=m_settings->value("dBm",37).toInt();
+  ui->WSPR_prefer_type_1_check_box->setChecked (m_settings->value ("WSPRPreferType1", true).toBool ());
   m_uploadSpots=m_settings->value("UploadSpots",false).toBool();
   if(!m_uploadSpots) ui->cbUploadWSPR_Spots->setStyleSheet("QCheckBox{background-color: yellow}");
   ui->band_hopping_group_box->setChecked (m_settings->value ("BandHopping", false).toBool());
@@ -2698,7 +2700,9 @@ void MainWindow::guiUpdate()
       sdBm.sprintf(" %d",m_dBm);
       m_tx=1-m_tx;
       int i2=m_config.my_callsign().indexOf("/");
-      if(i2>0 || 6 == m_config.my_grid ().size ()) {
+      if(i2>0
+         || (6 == m_config.my_grid ().size ()
+             && !ui->WSPR_prefer_type_1_check_box->isChecked ())) {
         if(i2<0) {                                                 // "Type 2" WSPR message
           msg1=m_config.my_callsign() + " " + m_config.my_grid().mid(0,4) + sdBm;
         } else {
