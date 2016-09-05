@@ -2125,7 +2125,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.nfSplit=m_wideGraph->Fmin();
   dec_data.params.nfb=m_wideGraph->Fmax();
   dec_data.params.ntol=m_Ftol;
-  if(m_mode=="JT9+JT65") {
+  if(m_mode=="JT9+JT65" or !m_config.enable_VHF_features() or !m_config.single_decode()) {
     dec_data.params.ntol=20;
     dec_data.params.naggressive=0;
   }
