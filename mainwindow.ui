@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>896</width>
+    <height>565</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>WSJT-X   by K1JT</string>
   </property>
@@ -829,7 +837,7 @@ QLabel[oob=&quot;true&quot;] {
                        </widget>
                       </item>
                       <item>
-                       <widget class="QCheckBox" name="cbEME">
+                       <widget class="QCheckBox" name="cbAutoSeq">
                         <property name="maximumSize">
                          <size>
                           <width>16777215</width>
@@ -837,10 +845,10 @@ QLabel[oob=&quot;true&quot;] {
                          </size>
                         </property>
                         <property name="toolTip">
-                         <string>Check to add 2.5 s to expected propagation delay.</string>
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to allow automatic sequencing of Tx messages based on received messages.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                         </property>
                         <property name="text">
-                         <string>EME delay</string>
+                         <string>Auto Seq</string>
                         </property>
                        </widget>
                       </item>
@@ -2331,6 +2339,14 @@ QPushButton[state=&quot;ok&quot;] {
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>896</width>
+     <height>21</height>
+    </rect>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
