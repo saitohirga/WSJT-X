@@ -3479,7 +3479,8 @@ void MainWindow::genStdMsgs(QString rpt)
   QString t0=hisBase + " " + m_baseCall + " ";
   t=t0 + m_config.my_grid ().mid(0,4);
   msgtype(t, ui->tx1);
-  if(ui->cbShMsgs->isVisible() and  ui->cbShMsgs->isChecked()) {
+  if(ui->cbShMsgs->isVisible() and  ui->cbShMsgs->isChecked() and
+     m_mode=="JT65") {
     t=t+" OOO";
     msgtype(t, ui->tx2);
     msgtype("RO", ui->tx3);
