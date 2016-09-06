@@ -3479,7 +3479,7 @@ void MainWindow::genStdMsgs(QString rpt)
   QString t0=hisBase + " " + m_baseCall + " ";
   t=t0 + m_config.my_grid ().mid(0,4);
   msgtype(t, ui->tx1);
-  if(!rpt.size ()) {
+  if(ui->cbShMsgs->isVisible() and  ui->cbShMsgs->isChecked()) {
     t=t+" OOO";
     msgtype(t, ui->tx2);
     msgtype("RO", ui->tx3);
@@ -4023,6 +4023,7 @@ void MainWindow::on_actionQRA64_triggered()
   switch_mode (Modes::QRA64);
   statusChanged();
   setup_status_bar (m_config.enable_VHF_features ());
+  ui->cbShMsgs->setVisible(false);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   ui->sbSubmode->setMaximum(4);
@@ -4071,6 +4072,7 @@ void MainWindow::on_actionJT65_triggered()
   m_bFast9=false;
   VHF_controls_visible(bVHF);
   ui->cbFast9->setVisible(false);
+  ui->cbShMsgs->setVisible(true);
   fast_config(false);
   ui->sbSubmode->setMaximum(2);
   if(bVHF) {
