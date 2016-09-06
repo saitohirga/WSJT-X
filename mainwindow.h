@@ -220,7 +220,7 @@ private slots:
   void on_actionInclude_correlation_triggered();
   void VHF_controls_visible(bool b);
   void VHF_features_enabled(bool b);
-  void on_cbEME_toggled(bool b);
+  void on_cbAutoSeq_toggled(bool b);
   void on_sbSubmode_valueChanged(int n);
   void on_cbShMsgs_toggled(bool b);
   void on_cbTx6_toggled(bool b);
@@ -397,7 +397,7 @@ private:
   int     m_lastMessageType;
   QString m_lastMessageSent;
   bool    m_lockTxFreq;
-  bool    m_bEME;
+  bool    m_bAutoSeq;
   bool    m_bShMsgs;
   bool    m_uploadSpots;
   bool    m_uploading;

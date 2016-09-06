@@ -768,7 +768,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_wideGraph->setLockTxFreq(m_lockTxFreq);
   ui->sbFtol->setValue(m_FtolIndex);
   on_sbFtol_valueChanged(m_FtolIndex);
-  ui->cbEME->setChecked(m_bEME);
+  ui->cbAutoSeq->setChecked(m_bAutoSeq);
   ui->cbShMsgs->setChecked(m_bShMsgs);
   ui->cbFast9->setChecked(m_bFast9);
   if(m_bFast9) m_bFastMode=true;
@@ -788,7 +788,11 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   ui->sbSubmode->setValue (vhf ? m_nSubMode : 0);
   ui->sbTR->setValue(m_TRindex);
-  Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value () - m_XIT);
+  if(m_mode=="MSK144" or m_mode=="JTMSK") {
+    Q_EMIT transmitFrequency (1000.0);
+  } else {
+    Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value() - m_XIT);
+  }
   m_saveDecoded=ui->actionSave_decoded->isChecked();
   m_saveAll=ui->actionSave_all->isChecked();
   ui->inGain->setValue(m_inGain);
@@ -923,7 +927,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("DTtol",m_DTtol);
   m_settings->setValue("FtolIndex",m_FtolIndex);
   m_settings->setValue("MinSync",m_minSync);
-  m_settings->setValue("EME",m_bEME);
+  m_settings->setValue("EME",m_bAutoSeq);
   m_settings->setValue("ShMsgs",m_bShMsgs);
   m_settings->setValue ("DialFreq", QVariant::fromValue(m_lastMonitoredFrequency));
   m_settings->setValue("InGain",m_inGain);
@@ -978,7 +982,7 @@ void MainWindow::readSettings()
   m_FtolIndex=m_settings->value("FtolIndex",21).toInt();
 //  ui->FTol_combo_box->setCurrentText(m_settings->value("FTol","500").toString ());
   ui->syncSpinBox->setValue(m_settings->value("MinSync",0).toInt());
-  m_bEME=m_settings->value("EME",false).toBool();
+  m_bAutoSeq=m_settings->value("EME",false).toBool();
   m_bShMsgs=m_settings->value("ShMsgs",false).toBool();
   m_bFast9=m_settings->value("Fast9",false).toBool();
   m_bFastMode=m_settings->value("FastMode",false).toBool();
@@ -2153,7 +2157,7 @@ void MainWindow::decode()                                       //decode()
   }
   dec_data.params.dttol=m_DTtol;
   dec_data.params.emedelay=0.0;
-  if(m_bEME) dec_data.params.emedelay=2.5;
+  if(m_config.decode_at_52s()) dec_data.params.emedelay=2.5;
   dec_data.params.minSync=ui->syncSpinBox->isVisible () ? m_minSync : 0;
   dec_data.params.nexp_decode=0;
   if(m_config.single_decode()) {
@@ -2235,8 +2239,8 @@ void::MainWindow::fast_decode_done()
   for(int i=0; i<100; i++) {
     int i1=msg0.indexOf(m_baseCall);
     int i2=msg0.indexOf(m_hisCall);
-    if((m_mode=="JTMSK" or m_mode=="MSK144" or m_bFast9) and m_bEME and tmax>=0.0 and
-       i1>10 and i2>i1+3) {     //Here, "m_bEME" implies AutoSeq
+    if((m_mode=="JTMSK" or m_mode=="MSK144" or m_bFast9) and m_bAutoSeq and tmax>=0.0 and
+       i1>10 and i2>i1+3) {     //Here, "m_bAutoSeq" implies AutoSeq
       if((msg0.indexOf(" 73") < 0) or (m_ntx!=6)) processMessage(msg0,43,false);
     }
     if(m_msg[i][0]==0) break;
@@ -3045,7 +3049,7 @@ void MainWindow::stopTx()
 void MainWindow::stopTx2()
 {
   Q_EMIT m_config.transceiver_ptt (false);      //Lower PTT
-  if(m_mode=="JT9" and m_bFast9 and ui->cbEME->isChecked() and m_ntx==5 and (m_nTx73>=5)) {
+  if(m_mode=="JT9" and m_bFast9 and ui->cbAutoSeq->isChecked() and m_ntx==5 and (m_nTx73>=5)) {
     on_stopTxButton_clicked();
     m_nTx73=0;
   }
@@ -3917,7 +3921,7 @@ void MainWindow::on_actionJT9_triggered()
   ui->cbFast9->setVisible(bVHF);
   ui->cbShMsgs->setVisible(false);
   ui->cbTx6->setVisible(false);
-  ui->cbEME->setVisible(true);
+  ui->cbAutoSeq->setVisible(true);
   ui->sbSubmode->setVisible(true);
   ui->sbSubmode->setMaximum(7);
   fast_config(m_bFastMode);
@@ -3983,7 +3987,7 @@ void MainWindow::on_actionJTMSK_triggered()
   ui->label_7->setText("Rx Frequency");
   ui->sbTR->setVisible(true);
   ui->sbFtol->setVisible(true);
-  ui->cbEME->setVisible(true);
+  ui->cbAutoSeq->setVisible(true);
   ui->ClrAvgButton->setVisible(false);
 }
 
@@ -4270,7 +4274,7 @@ void MainWindow::on_actionISCAT_triggered()
   ui->sbSubmode->setVisible(true);
   ui->cbShMsgs->setVisible(false);
   ui->cbTx6->setVisible(false);
-  ui->cbEME->setVisible(false);
+  ui->cbAutoSeq->setVisible(false);
   ui->decodedTextBrowser2->setVisible(false);
   ui->decodedTextLabel2->setVisible(false);
   ui->decodedTextLabel->setText(
@@ -4337,13 +4341,7 @@ void MainWindow::fast_config(bool b)
   m_bFastMode=b;
   ui->ClrAvgButton->setVisible(!b);
   ui->TxFreqSpinBox->setEnabled(!b);
-  if(b) {
-    ui->cbEME->setText("Auto Seq");
-    ui->sbTR->setVisible(true);
-  } else {
-    ui->cbEME->setText("EME delay");
-    ui->sbTR->setVisible(false);
-  }
+  ui->sbTR->setVisible(b);
   if(b and (m_bFast9 or m_mode=="JTMSK" or m_mode=="MSK144" or m_mode=="ISCAT")) {
     ui->sbTR->setValue(m_TRindex);
     m_wideGraph->hide();
@@ -4358,7 +4356,9 @@ void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
 {
   m_wideGraph->setTxFreq(n);
   if(m_lockTxFreq) ui->RxFreqSpinBox->setValue(n);
-  Q_EMIT transmitFrequency (n - m_XIT);
+  if(m_mode!="MSK144" and m_mode!="JTMSK") {
+    Q_EMIT transmitFrequency (n - m_XIT);
+  }
   statusUpdate ();
 }
 
@@ -4726,6 +4726,7 @@ void MainWindow::on_pbTxMode_clicked()
 void MainWindow::setXIT(int n, Frequency base)
 {
   if (m_transmitting && !m_config.tx_QSY_allowed ()) return;
+  if(m_mode=="MSK144" or m_mode=="JTMSK") return;
   if (!base) base = m_freqNominal;
   m_XIT = 0;
   if (!m_bSimplex) {
@@ -5000,7 +5001,7 @@ void MainWindow::transmit (double snr)
   }
 
 // In auto-sequencing mode, stop after 5 transmissions of "73" message.
-  if(m_mode=="JT9" and m_bFast9 and ui->cbEME->isChecked()) {
+  if(m_mode=="JT9" and m_bFast9 and ui->cbAutoSeq->isChecked()) {
     if(m_ntx==5) {
       m_nTx73 += 1;
     } else {
@@ -5158,9 +5159,9 @@ void::MainWindow::VHF_features_enabled(bool b)
   }
 }
 
-void MainWindow::on_cbEME_toggled(bool b)
+void MainWindow::on_cbAutoSeq_toggled(bool b)
 {
-  m_bEME=b;
+  m_bAutoSeq=b;
 }
 
 void MainWindow::on_sbTR_valueChanged(int index)
@@ -5227,10 +5228,10 @@ void MainWindow::on_cbFast9_clicked(bool b)
       Q_EMIT m_config.transceiver_tx_frequency (0); // turn off split
     }
 */
-    ui->cbEME->setText("Auto Seq");
+    ui->cbAutoSeq->setText("Auto Seq");
     if(m_TRperiodFast>0) m_TRperiod=m_TRperiodFast;
   } else {
-    ui->cbEME->setText("EME delay");
+    ui->cbAutoSeq->setText("EME delay");
     m_TRperiod=60;
   }
   progressBar.setMaximum(m_TRperiod);
