@@ -99,6 +99,7 @@ public:
   qint32 aggressive() const;
   qint32 RxBandwidth() const;
   double degrade() const;
+  double txDelay() const;
   bool id_after_73 () const;
   bool tx_QSY_allowed () const;
   bool spot_to_psk_reporter () const;

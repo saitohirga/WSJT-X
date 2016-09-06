@@ -2240,13 +2240,42 @@ Right click for insert and delete options.</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="0">
+            <item row="3" column="0">
              <widget class="QCheckBox" name="cbx2ToneSpacing">
               <property name="toolTip">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate Tx audio with twice the normal tone spacing.  Intended for special LF/MF transmitters that use a divide-by-2 before generating RF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string>x 2 Tone Spacing</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>Tx delay:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QDoubleSpinBox" name="sbTxDelay">
+              <property name="toolTip">
+               <string>Minimum delay between assertion of PTT and start of Tx audio.</string>
+              </property>
+              <property name="suffix">
+               <string>  s</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="minimum">
+               <double>0.200000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>2.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
               </property>
              </widget>
             </item>
@@ -2506,12 +2535,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
  </buttongroups>
 </ui>

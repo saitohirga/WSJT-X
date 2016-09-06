@@ -2672,8 +2672,8 @@ void MainWindow::guiUpdate()
         Q_EMIT m_config.transceiver_tx_frequency (tx_frequency);
       }
 
-      Q_EMIT m_config.transceiver_ptt (true);       //Assert the PTT
-      ptt1Timer.start(200);                        //Sequencer delay
+      Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
+      ptt1Timer.start(int(1000.0*m_config.txDelay()));   //Start-of-transmission sequencer delay
     }
     if(!m_bTxTime and !m_tune) m_btxok=false;       //Time to stop transmitting
   }
@@ -3041,7 +3041,7 @@ void MainWindow::stopTx()
     tx_status_label.setStyleSheet("");
     tx_status_label.setText("");
   }
-  ptt0Timer.start(200);                       //Sequencer delay
+  ptt0Timer.start(200);                       //end-of-transmission sequencer delay
   monitor (true);
   statusUpdate ();
 }
