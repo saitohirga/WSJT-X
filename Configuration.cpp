@@ -517,6 +517,7 @@ private:
   qint32 aggressive_;
   qint32 RxBandwidth_;
   double degrade_;
+  double txDelay_;
   bool id_after_73_;
   bool tx_QSY_allowed_;
   bool spot_to_psk_reporter_;
@@ -597,6 +598,7 @@ qint32 Configuration::id_interval () const {return m_->id_interval_;}
 qint32 Configuration::ntrials() const {return m_->ntrials_;}
 qint32 Configuration::aggressive() const {return m_->aggressive_;}
 double Configuration::degrade() const {return m_->degrade_;}
+double Configuration::txDelay() const {return m_->txDelay_;}
 qint32 Configuration::RxBandwidth() const {return m_->RxBandwidth_;}
 bool Configuration::id_after_73 () const {return m_->id_after_73_;}
 bool Configuration::tx_QSY_allowed () const {return m_->tx_QSY_allowed_;}
@@ -1022,6 +1024,7 @@ void Configuration::impl::initialize_models ()
   ui_->labNewCall->setStyleSheet(QString("background: %1").arg(color_NewCall_.name()));
   ui_->CW_id_interval_spin_box->setValue (id_interval_);  
   ui_->sbNtrials->setValue (ntrials_);
+  ui_->sbTxDelay->setValue (txDelay_);
   ui_->sbAggressive->setValue (aggressive_);
   ui_->sbDegrade->setValue (degrade_);
   ui_->sbBandwidth->setValue (RxBandwidth_);
@@ -1150,6 +1153,7 @@ void Configuration::impl::read_settings ()
 
   id_interval_ = settings_->value ("IDint", 0).toInt ();
   ntrials_ = settings_->value ("nTrials", 6).toInt ();
+  txDelay_ = settings_->value ("TxDelay",0.2).toDouble();
   aggressive_ = settings_->value ("Aggressive", 0).toInt ();
   RxBandwidth_ = settings_->value ("RxBandwidth", 2500).toInt ();
   save_directory_ = settings_->value ("SaveDir", default_save_directory_.absolutePath ()).toString ();
@@ -1301,6 +1305,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("DecodedTextFont", decoded_text_font_.toString ());
   settings_->setValue ("IDint", id_interval_);
   settings_->setValue ("nTrials", ntrials_);
+  settings_->setValue ("TxDelay", txDelay_);
   settings_->setValue ("Aggressive", aggressive_);
   settings_->setValue ("RxBandwidth", RxBandwidth_);
   settings_->setValue ("PTTMethod", QVariant::fromValue (rig_params_.ptt_type));
@@ -1734,6 +1739,7 @@ void Configuration::impl::accept ()
   spot_to_psk_reporter_ = ui_->psk_reporter_check_box->isChecked ();
   id_interval_ = ui_->CW_id_interval_spin_box->value ();
   ntrials_ = ui_->sbNtrials->value ();
+  txDelay_ = ui_->sbTxDelay->value ();
   aggressive_ = ui_->sbAggressive->value ();
   degrade_ = ui_->sbDegrade->value ();
   RxBandwidth_ = ui_->sbBandwidth->value ();
