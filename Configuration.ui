@@ -2295,6 +2295,9 @@ Right click for insert and delete options.</string>
          <layout class="QFormLayout" name="formLayout_11">
           <item row="0" column="1">
            <layout class="QFormLayout" name="formLayout_2">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+            </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_2">
               <property name="text">
@@ -2342,16 +2345,6 @@ Right click for insert and delete options.</string>
              </widget>
             </item>
             <item row="2" column="0">
-             <widget class="QCheckBox" name="cbSync1Bit">
-              <property name="text">
-               <string>Robust sync</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
              <widget class="QCheckBox" name="cbTwoPass">
               <property name="text">
                <string>Two-pass decoding</string>
@@ -2463,7 +2456,6 @@ soundcard changes</string>
   <tabstop>pbNewDXCC</tabstop>
   <tabstop>pbNewCall</tabstop>
   <tabstop>sbNtrials</tabstop>
-  <tabstop>cbSync1Bit</tabstop>
   <tabstop>cbTwoPass</tabstop>
   <tabstop>sbDegrade</tabstop>
  </tabstops>
@@ -2535,12 +2527,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
  </buttongroups>
 </ui>

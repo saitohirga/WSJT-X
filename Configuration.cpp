@@ -538,7 +538,6 @@ private:
   bool decode_at_52s_;
   bool single_decode_;
   bool twoPass_;
-  bool sync1Bit_;
   bool x2ToneSpacing_;
   bool offsetRxFreq_;
   QString udp_server_name_;
@@ -624,7 +623,6 @@ bool Configuration::enable_VHF_features () const {return m_->enable_VHF_features
 bool Configuration::decode_at_52s () const {return m_->decode_at_52s_;}
 bool Configuration::single_decode () const {return m_->single_decode_;}
 bool Configuration::twoPass() const {return m_->twoPass_;}
-bool Configuration::sync1Bit() const {return m_->sync1Bit_;}
 bool Configuration::x2ToneSpacing() const {return m_->x2ToneSpacing_;}
 bool Configuration::offsetRxFreq () const {return m_->offsetRxFreq_;}
 bool Configuration::split_mode () const {return m_->split_mode ();}
@@ -1051,7 +1049,6 @@ void Configuration::impl::initialize_models ()
   ui_->decode_at_52s_check_box->setChecked(decode_at_52s_);
   ui_->single_decode_check_box->setChecked(single_decode_);
   ui_->cbTwoPass->setChecked(twoPass_);
-  ui_->cbSync1Bit->setChecked(sync1Bit_);
   ui_->cbx2ToneSpacing->setChecked(x2ToneSpacing_);
   ui_->offset_Rx_freq_check_box->setChecked(offsetRxFreq_);
   ui_->type_2_msg_gen_combo_box->setCurrentIndex (type_2_msg_gen_);
@@ -1276,7 +1273,6 @@ void Configuration::impl::read_settings ()
   decode_at_52s_ = settings_->value("Decode52",false).toBool ();
   single_decode_ = settings_->value("SingleDecode",false).toBool ();
   twoPass_ = settings_->value("TwoPass",true).toBool ();
-  sync1Bit_ = settings_->value("Sync1Bit",false).toBool ();
   x2ToneSpacing_ = settings_->value("x2ToneSpacing",false).toBool ();
   offsetRxFreq_ = settings_->value("OffsetRx",false).toBool();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
@@ -1373,7 +1369,6 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Decode52", decode_at_52s_);
   settings_->setValue ("SingleDecode", single_decode_);
   settings_->setValue ("TwoPass", twoPass_);
-  settings_->setValue ("Sync1Bit", sync1Bit_);
   settings_->setValue ("x2ToneSpacing", x2ToneSpacing_);
   settings_->setValue("OffsetRx",offsetRxFreq_);
   settings_->setValue ("UDPServer", udp_server_name_);
@@ -1766,7 +1761,6 @@ void Configuration::impl::accept ()
   decode_at_52s_ = ui_->decode_at_52s_check_box->isChecked ();
   single_decode_ = ui_->single_decode_check_box->isChecked ();
   twoPass_ = ui_->cbTwoPass->isChecked ();
-  sync1Bit_ = ui_->cbSync1Bit->isChecked ();
   x2ToneSpacing_ = ui_->cbx2ToneSpacing->isChecked ();
   offsetRxFreq_ = ui_->offset_Rx_freq_check_box->isChecked();
   frequency_calibration_intercept_ = ui_->calibration_intercept_spin_box->value ();
