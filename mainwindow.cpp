@@ -2122,7 +2122,6 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.nranera=m_config.ntrials();
   dec_data.params.naggressive=m_config.aggressive();
   dec_data.params.nrobust=0;
-  if(m_config.sync1Bit()) dec_data.params.nrobust=1;
   dec_data.params.ndiskdat=0;
   if(m_diskData) dec_data.params.ndiskdat=1;
   dec_data.params.nfa=m_wideGraph->nStartFreq();
