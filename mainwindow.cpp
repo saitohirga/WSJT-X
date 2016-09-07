@@ -815,16 +815,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     palette.setColor(QPalette::Base,Qt::yellow);
     ui->sbTxPercent->setPalette(palette);
   }
-  if(m_mode=="WSPR-2") {
-    m_hsymStop=396;
-  } else if(m_mode=="WSPR-15") {
-    m_hsymStop=3090;
-  } else if(m_mode=="Echo") {
-    m_hsymStop=10;
-  } else {
-    m_hsymStop=173;
-    if(m_config.decode_at_52s()) m_hsymStop=179;
-  }
+  fixStop();
   VHF_features_enabled(m_config.enable_VHF_features());
   g_single_decode=m_config.single_decode();
 
@@ -1039,6 +1030,29 @@ void MainWindow::setDecodedTextFont (QFont const& font)
   updateGeometry ();
 }
 
+void MainWindow::fixStop()
+{
+  if(m_mode=="WSPR-2") {
+    m_hsymStop=396;
+  } else if(m_mode=="WSPR-15") {
+    m_hsymStop=3090;
+  } else if(m_mode=="Echo") {
+    m_hsymStop=10;
+  } else if (m_mode=="JT4"){
+    m_hsymStop=176;
+    if(m_config.decode_at_52s()) m_hsymStop=184;
+  } else if (m_mode=="JT9"){
+    m_hsymStop=173;
+    if(m_config.decode_at_52s()) m_hsymStop=179;
+  } else if (m_mode=="JT65" or m_mode=="JT9+JT65"){
+    m_hsymStop=174;
+    if(m_config.decode_at_52s()) m_hsymStop=183;
+  } else if (m_mode=="QRA64"){
+    m_hsymStop=180;
+    if(m_config.decode_at_52s()) m_hsymStop=188;
+  }
+}
+
 //-------------------------------------------------------------- dataSink()
 void MainWindow::dataSink(qint64 frames)
 {
@@ -1083,17 +1097,7 @@ void MainWindow::dataSink(qint64 frames)
     m_wideGraph->dataSink2(s,m_df3,m_ihsym,m_diskData);
   }
 
-  if(m_mode=="WSPR-2") {
-    m_hsymStop=396;
-  } else if(m_mode=="WSPR-15") {
-    m_hsymStop=3090;
-  } else if(m_mode=="Echo") {
-    m_hsymStop=10;
-  } else {
-    m_hsymStop=173;
-    if(m_config.decode_at_52s()) m_hsymStop=179;
-  }
-
+  fixStop();
   if(m_ihsym==3*m_hsymStop/4) {
     m_dialFreqRxWSPR=m_freqNominal;
   }
@@ -4027,6 +4031,8 @@ void MainWindow::on_actionQRA64_triggered()
   switch_mode (Modes::QRA64);
   statusChanged();
   setup_status_bar (m_config.enable_VHF_features ());
+  m_hsymStop=180;
+  if(m_config.decode_at_52s()) m_hsymStop=188;
   ui->cbShMsgs->setVisible(false);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
@@ -4060,8 +4066,8 @@ void MainWindow::on_actionJT65_triggered()
   m_nsps=6912;                   //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
-  m_hsymStop=173;
-  if(m_config.decode_at_52s()) m_hsymStop=179;
+  m_hsymStop=174;
+  if(m_config.decode_at_52s()) m_hsymStop=183;
   m_toneSpacing=0.0;
   ui->ClrAvgButton->setVisible(false);
   ui->actionJT65->setChecked(true);
@@ -4111,8 +4117,8 @@ void MainWindow::on_actionJT9_JT65_triggered()
   m_nsps=6912;
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
-  m_hsymStop=173;
-  if(m_config.decode_at_52s()) m_hsymStop=179;
+  m_hsymStop=174;
+  if(m_config.decode_at_52s()) m_hsymStop=183;
   m_toneSpacing=0.0;
   setup_status_bar (false);
   ui->actionJT9_JT65->setChecked(true);
@@ -4145,7 +4151,8 @@ void MainWindow::on_actionJT4_triggered()
   m_nsps=6912;                   //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
-  m_hsymStop=179;
+  m_hsymStop=176;
+  if(m_config.decode_at_52s()) m_hsymStop=184;
   m_toneSpacing=0.0;
   ui->actionJT4->setChecked(true);
   VHF_features_enabled(true);

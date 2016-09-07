@@ -526,6 +526,7 @@ private:
   void msgtype(QString t, QLineEdit* tx);
   void stub();
   void statusChanged();
+  void fixStop();
   bool shortList(QString callsign);
   void transmit (double snr = 99.);
   void rigFailure (QString const& reason);
