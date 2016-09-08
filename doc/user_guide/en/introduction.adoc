@@ -2,9 +2,9 @@
 
 _WSJT-X_ is a computer program designed to facilitate basic amateur
 radio communication using very weak signals. The first four letters in
-the program name stand for "`Weak Signal communication by K1JT,`" while
-the suffix "`-X`" indicates that _WSJT-X_ started as an extended (and
-experimental) branch of the program _WSJT_.
+the program name stand for "`Weak Signal communication by K1JT,`"
+while the suffix "`-X`" indicates that _WSJT-X_ started as an extended
+(and originally experimental) branch of the program _WSJT_.
 
 _WSJT-X_ Version 1.7 offers eight protocols or "`modes`": *JT4*,
 *JT9*, *JT65*, *QRA64*, *WSPR*, *Echo*, *ISCAT*, and *MSK144*.  The
@@ -15,29 +15,29 @@ and source encoding.  JT65 and QRA64 were designed for EME
 effective for worldwide QRP communication on the HF bands.  QRA64 has
 a number of advantages over JT65, including better performance on the
 very weakest signals.  We imagine that over time it will replace JT65
-for EME use.  JT9 is optimized for the LF, MF, and lower HF bands.  It
-is 2 dB more sensitive than JT65 while using less than 10% of the
-bandwidth.  JT4 offers a wide variety of tone spacings and has proved
-very effective for EME on microwave bands up to 24 GHz.  All of these
-"`slow`" modes use one-minute timed sequences of alternating
-transmission and reception, so a minimal QSO takes four to six minutes
-— two or three transmissions by each station, one sending in odd UTC
-minutes and the other even. On the HF bands, world-wide QSOs are
-possible using power levels of a few watts (or even milliwatts) and
-compromise antennas.  On VHF bands and higher, QSOs are possible (by
-EME and other propagation types) at signal levels 10 to 15 dB below
-those required for CW.
+for EME use.  JT9 was designed for the LF, MF, and lower HF bands.
+Its submode JT9A is 2 dB more sensitive than JT65 while using less
+than 10% of the bandwidth.  JT4 offers a wide variety of tone spacings
+and has proved very effective for EME on microwave bands up to 24 GHz.
+All of these "`slow`" modes use one-minute timed sequences of
+alternating transmission and reception, so a minimal QSO takes four to
+six minutes — two or three transmissions by each station, one sending
+in odd UTC minutes and the other even. On the HF bands, world-wide
+QSOs are possible using power levels of a few watts (or even
+milliwatts) and compromise antennas.  On VHF bands and higher, QSOs
+are possible (by EME and other propagation types) at signal levels 10
+to 15 dB below those required for CW.
 
-*ISCAT*, *MSK144*, and optionally *JT9E-H* are "`fast`" modes designed
-to take advantage of brief signal enhancements from ionized meteor
-trails and other types of scatter propagation. These modes use timed
-sequences of 5, 10, 15, or 30 s duration.  User messages are
-transmitted repeatedly at high rate (up to 250 characters per second,
-for MSK144) to make good use of the shortest meteor "`pings`".  ISCAT
-uses free-form messages up to 28 characters long, while MSK144 uses
-the same structured messages as the slow modes together with an
-abbreviated format with hashed callsigns for messages sent after
-initial contact has been established.
+*ISCAT*, *MSK144*, and optionally submodes *JT9E-H* are "`fast`"
+protocols designed to take advantage of brief signal enhancements from
+ionized meteor trails and other types of scatter propagation. These
+modes use timed sequences of 5, 10, 15, or 30 s duration.  User
+messages are transmitted repeatedly at high rate (up to 250 characters
+per second, for MSK144) to make good use of the shortest meteor
+"`pings`".  ISCAT uses free-form messages up to 28 characters long,
+while MSK144 uses the same structured messages as the slow modes
+together with an abbreviated format with hashed callsigns for messages
+sent after initial contact has been established between two stations.
 
 *WSPR* (pronounced "`whisper`") stands for Weak Signal Propagation
 Reporter.  The WSPR protocol was designed for probing potential
