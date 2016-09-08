@@ -112,7 +112,7 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :bill_somerville: mailto:g4wjs -at- c l a s s d e s i g n -dot- com [G4WJS]
 :dev_mail_list: http://sourceforge.net/mailarchive/forum.php?forum_name=wsjt-devel[WSJT Developers Email List]
 :dev_mail_svn: https://sourceforge.net/auth/subscriptions/[WSJT SVN Archives]
-:devmail: mailto:wsjt-devel@lists.sourceforge.net[wsjt-devel]
+:devmail: mailto:wsjt-devel@lists.sourceforge.net[wsjt-devel@lists.sourceforge.net]
 :devmail1: mailto:wsjt-devel@lists.sourceforge.net[Post Message]
 :wsjtgroup_mail: mailto:wsjtgroup@yahoogroups.com[Post Message]
 :greg_beam: mailto:ki7mt@yahoo.com[KI7MT]
