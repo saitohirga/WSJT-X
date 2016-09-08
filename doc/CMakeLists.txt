@@ -35,6 +35,7 @@ set (UG_SRCS
   make-qso.adoc
   new_features.adoc
   platform-dependencies.adoc
+  settings-advanced.adoc
   settings-audio.adoc
   settings-colors.adoc
   settings-frequencies.adoc
@@ -81,6 +82,7 @@ set (UG_IMGS
   images/RadioTab.png
   images/reporting.png
   images/save-menu.png
+  images/settings-advanced.png
   images/settings-audio.png
   images/settings-frequencies.png
   images/settings-general.png
