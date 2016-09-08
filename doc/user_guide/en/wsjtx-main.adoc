@@ -98,6 +98,10 @@ include::settings-frequencies.adoc[]
 === Colors
 include::settings-colors.adoc[]
 
+[[ADVANCED]]
+=== Advanced
+include::settings-advanced.adoc[]
+
 [[TRANSCEIVER]]
 == Transceiver Setup
 include::transceiver-setup.adoc[]
