@@ -1,0 +1,37 @@
+image::settings-advanced.png[align="center",alt="Settings Advanced"]
+
+_JT65 decoding parameters_ 
+
+- *Random erasure patterns* sets the number of pseudo-random trials
+used by the Franke-Taylor decoder, on a logarithmic scale.  Larger
+numbers give slightly better sensitivity but take longer.  For most
+purposes a good setting is 6 or 7.
+
+- *Aggressive decoding level* sets the threshold for acceptable
+decodes using Deep Search.  Higher numbers will display more results 
+with relatively low confidence levels.
+
+- Check the *Two-pass decoding* box to enable a second decoding pass
+after signals producing first-pass decodes have been subtracted
+from the received data.
+
+_Miscellaneous_
+
+- Set a positive number for *Degrade S/N of .wav file* to add known
+amounts of pseudo-random noise to data read from a .wav file
+previously saved by _WSJT_ or _WSJT-X_.  To ensure that the resulting
+S/N degradation is close to that requested, set *Receiver bandwidth* to
+your best estimate of the receiver's effective noise bandwidth.
+
+- Set *Tx delay* to a number larger than the default 0.2 s to create
+a larger delay between execution of a command to enable PTT and onset
+of Tx audio.  
+
+IMPORTANT: For the health of your T/R relays and external
+preamplifier, we strongly recommend using a hardware sequencer and
+testing to make sure that sequencing is correct.
+
+- Check the box *x 2 Tone spacing* to generate Tx audio with twice the
+normal tone spacing.  This feature is intended for use with specialized
+LF/MF transmitters that divide the audio waveform by 2 before further
+processing.
