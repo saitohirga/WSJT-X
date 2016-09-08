@@ -4,7 +4,7 @@
 #include "qra64.h"
 #include <stdio.h>
 
-#define NICO_WANTS_SNR_DUMP
+//#define NICO_WANTS_SNR_DUMP
 
 static qra64codec *pqra64codec = NULL;
 
