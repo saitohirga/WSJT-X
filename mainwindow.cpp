@@ -3902,6 +3902,7 @@ void MainWindow::on_actionJT9_triggered()
     ui->cbFast9->setEnabled(true);
   }
   m_bFast9=ui->cbFast9->isChecked();
+  ui->cbAutoSeq->setVisible(m_bFast9);
   m_bFastMode=m_bFast9;
   WSPR_config(false);
   switch_mode (Modes::JT9);
@@ -3924,7 +3925,6 @@ void MainWindow::on_actionJT9_triggered()
   ui->cbFast9->setVisible(bVHF);
   ui->cbShMsgs->setVisible(false);
   ui->cbTx6->setVisible(false);
-  ui->cbAutoSeq->setVisible(true);
   ui->sbSubmode->setVisible(true);
   ui->sbSubmode->setMaximum(7);
   fast_config(m_bFastMode);
@@ -4044,6 +4044,7 @@ void MainWindow::on_actionQRA64_triggered()
     ui->sbTR->setValue(0);
   }
   ui->cbTxLock->setEnabled(true);
+  ui->cbAutoSeq->setVisible(false);
 }
 
 void MainWindow::on_actionJT65_triggered()
@@ -5225,6 +5226,7 @@ void MainWindow::on_cbFast9_clicked(bool b)
 {
   if(m_mode=="JT9") {
     m_bFast9=b;
+    ui->cbAutoSeq->setVisible(b);
     on_actionJT9_triggered();
   }
 
@@ -5234,10 +5236,8 @@ void MainWindow::on_cbFast9_clicked(bool b)
       Q_EMIT m_config.transceiver_tx_frequency (0); // turn off split
     }
 */
-    ui->cbAutoSeq->setText("Auto Seq");
     if(m_TRperiodFast>0) m_TRperiod=m_TRperiodFast;
   } else {
-    ui->cbAutoSeq->setText("EME delay");
     m_TRperiod=60;
   }
   progressBar.setMaximum(m_TRperiod);
