@@ -20,7 +20,7 @@
       <string>Select tab to change configuration parameters.</string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>7</number>
      </property>
      <widget class="QWidget" name="general_tab">
       <attribute name="title">
@@ -2281,8 +2281,11 @@ Right click for insert and delete options.</string>
             </item>
             <item row="3" column="0">
              <widget class="QCheckBox" name="cbContestMode">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Skip Tx2 and Tx3 when Auto-Sequencing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="text">
-               <string>Context Mode</string>
+               <string>MSK144 Contest Mode</string>
               </property>
              </widget>
             </item>
@@ -2534,12 +2537,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="PTT_method_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="split_mode_button_group"/>
  </buttongroups>
 </ui>
