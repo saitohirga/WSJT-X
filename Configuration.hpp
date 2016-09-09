@@ -122,6 +122,7 @@ public:
   bool single_decode () const;
   bool twoPass() const;
   bool x2ToneSpacing() const;
+  bool contestMode() const;
   bool MyDx() const;
   bool CQMyN() const;
   bool NDxG() const;

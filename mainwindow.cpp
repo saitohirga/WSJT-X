@@ -918,7 +918,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("DTtol",m_DTtol);
   m_settings->setValue("FtolIndex",m_FtolIndex);
   m_settings->setValue("MinSync",m_minSync);
-  m_settings->setValue("EME",m_bAutoSeq);
+  m_settings->setValue("AutoSeq",m_bAutoSeq);
   m_settings->setValue("ShMsgs",m_bShMsgs);
   m_settings->setValue ("DialFreq", QVariant::fromValue(m_lastMonitoredFrequency));
   m_settings->setValue("InGain",m_inGain);
@@ -973,7 +973,7 @@ void MainWindow::readSettings()
   m_FtolIndex=m_settings->value("FtolIndex",21).toInt();
 //  ui->FTol_combo_box->setCurrentText(m_settings->value("FTol","500").toString ());
   ui->syncSpinBox->setValue(m_settings->value("MinSync",0).toInt());
-  m_bAutoSeq=m_settings->value("EME",false).toBool();
+  m_bAutoSeq=m_settings->value("AutoSeq",false).toBool();
   m_bShMsgs=m_settings->value("ShMsgs",false).toBool();
   m_bFast9=m_settings->value("Fast9",false).toBool();
   m_bFastMode=m_settings->value("FastMode",false).toBool();
@@ -2244,7 +2244,7 @@ void::MainWindow::fast_decode_done()
     int i1=msg0.indexOf(m_baseCall);
     int i2=msg0.indexOf(m_hisCall);
     if((m_mode=="JTMSK" or m_mode=="MSK144" or m_bFast9) and m_bAutoSeq and tmax>=0.0 and
-       i1>10 and i2>i1+3) {     //Here, "m_bAutoSeq" implies AutoSeq
+       i1>10 and i2>i1+3) {
       if((msg0.indexOf(" 73") < 0) or (m_ntx!=6)) processMessage(msg0,43,false);
     }
     if(m_msg[i][0]==0) break;
@@ -3177,18 +3177,17 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 
 void MainWindow::processMessage(QString const& messages, int position, bool ctrl)
 {
-  QString t1 = messages.mid(0,position);              //contents up to \n on selected line
-  int i1=t1.lastIndexOf("\n") + 1;       //points to first char of line
+  QString t1 = messages.mid(0,position);        //contents up to \n on selected line
+  int i1=t1.lastIndexOf("\n") + 1;              //points to first char of line
   DecodedText decodedtext;
-  QString t2 = messages.mid(i1,position-i1);         //selected line
+  QString t2 = messages.mid(i1,position-i1);    //selected line
   QString t2a;
   int ntsec=3600*t2.mid(0,2).toInt() + 60*t2.mid(2,2).toInt();
   if(m_bFast9) {
     ntsec = ntsec + t2.mid(4,2).toInt();
     t2a=t2.mid(0,4) + t2.mid(6,-1);     //Change hhmmss to hhmm for the message parser
   } else {
-    t2a=t2.left (44);           // strip and quality info trailing the
-                                // decoded message
+    t2a=t2.left (44);       // strip and quality info trailing the decoded message
   }
   if(m_bFast9) {
     i1=t2a.indexOf(" CQ ");
@@ -3236,7 +3235,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   int frequency = decodedtext.frequencyOffset();
   if (ui->RxFreqSpinBox->isEnabled ())
     {
-      ui->RxFreqSpinBox->setValue (frequency); //Set Rx freq
+      ui->RxFreqSpinBox->setValue (frequency);    //Set Rx freq
     }
   if (decodedtext.isTX())
     {
@@ -3254,8 +3253,8 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   QString hiscall;
   QString hisgrid;
   decodedtext.deCallAndGrid(/*out*/hiscall,hisgrid);
-  if (!Radio::is_callsign (hiscall) // not interested if not from QSO partner
-      && !(t4.size () == 7          // unless it is of the form
+  if (!Radio::is_callsign (hiscall)    // not interested if not from QSO partner
+      && !(t4.size () == 7             // unless it is of the form
            && (t4.at (5) == m_baseCall // "<our-call> 73"
                || t4.at (5).startsWith (m_baseCall + '/')
                || t4.at (5).endsWith ('/' + m_baseCall))
@@ -3400,10 +3399,14 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
           m_ntx=7;
           ui->rbGenMsg->setChecked(true);
         }
-      }
-      else {
-        m_ntx=2;
-        ui->txrb2->setChecked(true);
+      } else {
+        if(m_mode=="MSK144" and m_config.contestMode()) {
+          m_ntx=4;
+          ui->txrb4->setChecked(true);
+        } else {
+          m_ntx=2;
+          ui->txrb2->setChecked(true);
+        }
         if(ui->tabWidget->currentIndex()==1) {
           ui->genMsg->setText(ui->tx2->text());
           m_ntx=7;
