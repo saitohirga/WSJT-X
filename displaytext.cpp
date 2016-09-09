@@ -82,8 +82,15 @@ void DisplayText::_appendDXCCWorkedB4(DecodedText& t1, QString& bg,
     QString countryName;
     bool callWorkedBefore;
     bool countryWorkedBefore;
-    logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
 
+    if(call.length()==2) {
+      int i0=t1.indexOf("CQ "+call);
+      call=t1.mid(i0+6,-1);
+      i0=call.indexOf(" ");
+      call=call.mid(0,i0);
+    }
+
+    logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
     int charsAvail = 48;
 
     // the decoder (seems) to always generate 41 chars. For a normal CQ call, the last five are spaces
