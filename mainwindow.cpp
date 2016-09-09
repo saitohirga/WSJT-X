@@ -1032,6 +1032,7 @@ void MainWindow::setDecodedTextFont (QFont const& font)
 
 void MainWindow::fixStop()
 {
+  m_hsymStop=179;
   if(m_mode=="WSPR-2") {
     m_hsymStop=396;
   } else if(m_mode=="WSPR-15") {
