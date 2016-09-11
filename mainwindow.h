@@ -288,6 +288,7 @@ private:
   QString m_revision;
   bool m_multiple;
   MultiSettings * m_multi_settings;
+  QPushButton * m_configurations_button;
   QSettings * m_settings;
   QScopedPointer<Ui::MainWindow> ui;
 
