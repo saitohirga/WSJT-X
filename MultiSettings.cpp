@@ -217,6 +217,44 @@ QSettings * MultiSettings::settings ()
   return &m_->settings_;
 }
 
+QVariant MultiSettings::common_value (QString const& key, QVariant const& default_value) const
+{
+  QVariant value;
+  QSettings& mutable_settings {const_cast<QSettings&> (m_->settings_)};
+  auto const& current_group = mutable_settings.group ();
+  if (current_group.size ()) mutable_settings.endGroup ();
+  {
+    SettingsGroup alternatives {&mutable_settings, multi_settings_root_group};
+    value = mutable_settings.value (key, default_value);
+  }
+  if (current_group.size ()) mutable_settings.beginGroup (current_group);
+  return value;
+}
+
+void MultiSettings::set_common_value (QString const& key, QVariant const& value)
+{
+  auto const& current_group = m_->settings_.group ();
+  if (current_group.size ()) m_->settings_.endGroup ();
+  {
+    SettingsGroup alternatives {&m_->settings_, multi_settings_root_group};
+    m_->settings_.setValue (key, value);
+  }
+  if (current_group.size ()) m_->settings_.beginGroup (current_group);
+}
+
+void MultiSettings::remove_common_value (QString const& key)
+{
+  if (!key.size ()) return;     // we don't allow global delete as it
+                                // would break this classes data model
+  auto const& current_group = m_->settings_.group ();
+  if (current_group.size ()) m_->settings_.endGroup ();
+  {
+    SettingsGroup alternatives {&m_->settings_, multi_settings_root_group};
+    m_->settings_.remove (key);
+  }
+  if (current_group.size ()) m_->settings_.beginGroup (current_group);
+}
+
 void MultiSettings::create_menu_actions (QMainWindow * main_window, QMenu * menu)
 {
   m_->create_menu_actions (main_window, menu);
@@ -287,6 +325,8 @@ MultiSettings::impl::impl ()
 // do actions that can only be done once all the windows are closed
 bool MultiSettings::impl::reposition ()
 {
+  auto const& current_group = settings_.group ();
+  if (current_group.size ()) settings_.endGroup ();
   switch (reposition_type_)
     {
     case RepositionType::save_and_replace:
@@ -337,6 +377,7 @@ bool MultiSettings::impl::reposition ()
       new_settings_.clear ();
       break;
     }
+  if (current_group.size ()) settings_.beginGroup (current_group);
 
   reposition_type_ = RepositionType::unchanged; // reset
   bool exit {exit_flag_};
@@ -349,6 +390,8 @@ bool MultiSettings::impl::reposition ()
 // and, reset
 void MultiSettings::impl::create_menu_actions (QMainWindow * main_window, QMenu * menu)
 {
+  auto const& current_group = settings_.group ();
+  if (current_group.size ()) settings_.endGroup ();
   SettingsGroup alternatives {&settings_, multi_settings_root_group};
   // get the current configuration name
   auto current_configuration_name = settings_.value (multi_settings_current_name_key, tr (default_string)).toString ();
@@ -386,6 +429,7 @@ void MultiSettings::impl::create_menu_actions (QMainWindow * main_window, QMenu 
   action_connections_ << connect (delete_action_, &QAction::triggered, [this, main_window] (bool) {
       delete_configuration (main_window);
     });
+  if (current_group.size ()) settings_.beginGroup (current_group);
 }
 
 // call this at the end of the main program loop to determine if the
@@ -422,8 +466,11 @@ QMenu * MultiSettings::impl::create_sub_menu (QMenu * parent_menu,
       bool is_current {sub_menu->menuAction ()->text () == current_};
       select_action_->setEnabled (!is_current);
       delete_action_->setEnabled (!is_current);
+      auto const& current_group = settings_.group ();
+      if (current_group.size ()) settings_.endGroup ();
       SettingsGroup alternatives {&settings_, multi_settings_root_group};
       clone_into_action_->setEnabled (settings_.childGroups ().size ());
+      if (current_group.size ()) settings_.beginGroup (current_group);
       active_sub_menu_ = sub_menu;
     });
 
@@ -474,11 +521,14 @@ void MultiSettings::impl::select_configuration (QMainWindow * main_window)
       if (target_name != current_)
         {
           {
+            auto const& current_group = settings_.group ();
+            if (current_group.size ()) settings_.endGroup ();
             // position to the alternative settings
             SettingsGroup alternatives {&settings_, multi_settings_root_group};
             // save the target settings
             SettingsGroup target_group {&settings_, target_name};
             new_settings_ = get_settings ();
+            if (current_group.size ()) settings_.beginGroup (current_group);
           }
           // and set up the restart
           current_ = target_name;
@@ -493,6 +543,8 @@ void MultiSettings::impl::clone_configuration (QMenu * menu)
 {
   if (active_sub_menu_)
     {
+      auto const& current_group = settings_.group ();
+      if (current_group.size ()) settings_.endGroup ();
       auto const& source_name = active_sub_menu_->title ();
 
       // settings to clone
@@ -523,6 +575,7 @@ void MultiSettings::impl::clone_configuration (QMenu * menu)
 
       // insert the new configuration sub menu in the parent menu
       create_sub_menu (menu, new_name, configurations_group_);
+      if (current_group.size ()) settings_.beginGroup (current_group);
     }
 }
 
@@ -530,6 +583,8 @@ void MultiSettings::impl::clone_into_configuration (QMainWindow * main_window)
 {
   if (active_sub_menu_)
     {
+      auto const& current_group = settings_.group ();
+      if (current_group.size ()) settings_.endGroup ();
       auto const& target_name = active_sub_menu_->title ();
 
       // get the current configuration name
@@ -589,6 +644,7 @@ void MultiSettings::impl::clone_into_configuration (QMainWindow * main_window)
                 }
             }
         }
+      if (current_group.size ()) settings_.beginGroup (current_group);
     }
 }
 
@@ -616,6 +672,8 @@ void MultiSettings::impl::reset_configuration (QMainWindow * main_window)
         }
       else
         {
+          auto const& current_group = settings_.group ();
+          if (current_group.size ()) settings_.endGroup ();
           SettingsGroup alternatives {&settings_, multi_settings_root_group};
           SettingsGroup target_group {&settings_, target_name};
           settings_.remove (""); // purge entire group
@@ -623,6 +681,7 @@ void MultiSettings::impl::reset_configuration (QMainWindow * main_window)
           // being lost
           settings_.setValue (multi_settings_place_holder_key, QVariant {});
           settings_.sync ();
+          if (current_group.size ()) settings_.beginGroup (current_group);
         }
     }
 }
@@ -631,6 +690,8 @@ void MultiSettings::impl::rename_configuration (QMainWindow * main_window)
 {
   if (active_sub_menu_)
     {
+      auto const& current_group = settings_.group ();
+      if (current_group.size ()) settings_.endGroup ();
       auto const& target_name = active_sub_menu_->title ();
 
       // gather names we cannot use
@@ -666,6 +727,7 @@ void MultiSettings::impl::rename_configuration (QMainWindow * main_window)
           // change the action text in the menu
           active_sub_menu_->setTitle (dialog.new_name ());
         }
+      if (current_group.size ()) settings_.beginGroup (current_group);
     }
 }
 
@@ -688,11 +750,14 @@ void MultiSettings::impl::delete_configuration (QMainWindow * main_window)
             {
               return;
             }
+          auto const& current_group = settings_.group ();
+          if (current_group.size ()) settings_.endGroup ();
           SettingsGroup alternatives {&settings_, multi_settings_root_group};
           SettingsGroup target_group {&settings_, target_name};
           // purge the configuration data
           settings_.remove (""); // purge entire group
           settings_.sync ();
+          if (current_group.size ()) settings_.beginGroup (current_group);
         }
       // update the menu
       active_sub_menu_->deleteLater (), active_sub_menu_ = nullptr;

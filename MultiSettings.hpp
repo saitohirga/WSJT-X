@@ -1,10 +1,14 @@
-#ifndef MULTISETTINGS_HPP_
+#ifndef MULTISETTINGS_HPP__
+#define MULTISETTINGS_HPP__
+
+#include <QVariant>
 
 #include "pimpl_h.hpp"
 
 class QSettings;
 class QMainWindow;
 class QMenu;
+class QString;
 
 //
 // MultiSettings - Manage multiple configuration names
@@ -70,6 +74,11 @@ public:
 
   // Access to the QSettings object instance.
   QSettings * settings ();
+
+  // Access to values in a common section
+  QVariant common_value (QString const& key, QVariant const& default_value = QVariant {}) const;
+  void set_common_value (QString const& key, QVariant const& value);
+  void remove_common_value (QString const& key);
 
   // Call this to  determine if the application is  terminating, if it
   // returns  false  then  the   application  main  window  should  be
