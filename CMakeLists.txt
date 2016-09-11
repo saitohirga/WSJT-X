@@ -236,6 +236,7 @@ set (wsjt_qt_CXXSRCS
   MultiSettings.cpp
   MaidenheadLocatorValidator.cpp
   CallsignValidator.cpp
+  SplashScreen.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS

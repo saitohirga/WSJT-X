@@ -20,7 +20,6 @@
 #include <QLockFile>
 #include <QStack>
 #include <QSplashScreen>
-#include <QPixmap>
 
 #if QT_VERSION >= 0x050200
 #include <QCommandLineParser>
@@ -37,6 +36,7 @@
 #include "lib/init_random_seed.h"
 #include "Radio.hpp"
 #include "FrequencyList.hpp"
+#include "SplashScreen.hpp"
 #include "MessageBox.hpp"       // last to avoid nasty MS macro definitions
 
 extern "C" {
@@ -105,27 +105,6 @@ int main(int argc, char *argv[])
                                    // instantiating QApplication so
                                    // that GUI has correct l18n
 
-      QPixmap splash_pic {":/splash.png"};
-      QSplashScreen splash {splash_pic, Qt::WindowStaysOnTopHint};
-      splash.setWindowTitle (QString {});
-      splash.showMessage ("<h2>" + QString {"Alpha Release: WSJT-X v" +
-        QCoreApplication::applicationVersion() + " " +
-        revision ()}.simplified () + "</h2>"
-        "V1.7 has many new features, most aimed at VHF/UHF/Microwave users.<br />"
-        "Some are not yet described in the User Guide and may not be thoroughly<br />"
-        "tested. The release notes have more details.<br /><br />"
-        "As a test user you have an obligation to report anomalous results<br />"
-        "to the development team.  We are particularly interested in tests<br />"
-        "of experimental modes QRA64 (intended for EME) and MSK144<br />"
-        "(intended for meteor scatter).<br /><br />"
-        "Send reports to wsjtgroup@yahoogroups.com, and be sure to save .wav<br />"
-        "files where appropriate.<br /><br />"
-        "<b>Open the Help menu and select Release Notes for more details.</b><br />"
-        "<img src=\":/icon_128x128.png\" />"
-        "<img src=\":/gpl-v3-logo.svg\" height=\"80\" />", Qt::AlignCenter);
-      splash.show ();
-      a.processEvents ();
-
       // Override programs executable basename as application name.
       a.setApplicationName ("WSJT-X");
       a.setApplicationVersion (version ());
@@ -148,7 +127,6 @@ int main(int argc, char *argv[])
 
       if (!parser.parse (a.arguments ()))
         {
-          splash.hide ();
           MessageBox::critical_message (nullptr, a.translate ("main", "Command line error"), parser.errorText ());
           return -1;
         }
@@ -156,13 +134,11 @@ int main(int argc, char *argv[])
         {
           if (parser.isSet (help_option))
             {
-              splash.hide ();
               MessageBox::information_message (nullptr, a.translate ("main", "Command line help"), parser.helpText ());
               return 0;
             }
           else if (parser.isSet (version_option))
             {
-              splash.hide ();
               MessageBox::information_message (nullptr, a.translate ("main", "Application version"), a.applicationVersion ());
               return 0;
             }
@@ -193,6 +169,8 @@ int main(int argc, char *argv[])
 
           multiple = true;
         }
+      // now we have the application name we can open the settings
+      MultiSettings multi_settings;
 
       // find the temporary files path
       QDir temp_dir {QStandardPaths::writableLocation (QStandardPaths::TempLocation)};
@@ -206,7 +184,6 @@ int main(int argc, char *argv[])
         {
           if (QLockFile::LockFailedError == instance_lock.error ())
             {
-              splash.hide ();
               auto button = MessageBox::query_message (nullptr
                                                        , a.translate ("main", "Another instance may be running")
                                                        , a.translate ("main", "try to remove stale lock file?")
@@ -225,7 +202,6 @@ int main(int argc, char *argv[])
                 default:
                   throw std::runtime_error {"Multiple instances must have unique rig names"};
                 }
-              splash.show ();
             }
         }
 #endif
@@ -244,7 +220,6 @@ int main(int argc, char *argv[])
           if (!temp_dir.mkpath (unique_directory)
               || !temp_dir.cd (unique_directory))
             {
-              splash.hide ();
               MessageBox::critical_message (nullptr,
                                             a.translate ("main", "Failed to create a temporary directory"),
                                             a.translate ("main", "Path: \"%1\"").arg (temp_dir.absolutePath ()));
@@ -252,7 +227,6 @@ int main(int argc, char *argv[])
             }
           if (!temp_dir.isReadable () || !(temp_ok = QTemporaryFile {temp_dir.absoluteFilePath ("test")}.open ()))
             {
-              splash.hide ();
               auto button =  MessageBox::critical_message (nullptr,
                                                            a.translate ("main", "Failed to create a usable temporary directory"),
                                                            a.translate ("main", "Another application may be locking the directory"),
@@ -262,13 +236,27 @@ int main(int argc, char *argv[])
                 {
                   throw std::runtime_error {"Failed to create a usable temporary directory"};
                 }
-              splash.show ();
               temp_dir.cdUp ();  // revert to parent as this one is no good
             }
         }
       while (!temp_ok);
 
-      MultiSettings multi_settings;
+      SplashScreen splash;
+      {
+        // change this key if you want to force a new splash screen
+        // for a new version, the user will be able to re-disable it
+        // if they wish
+        QString splash_flag_name {"Splash_v1.7"};
+        if (multi_settings.common_value (splash_flag_name, true).toBool ())
+          {
+            QObject::connect (&splash, &SplashScreen::disabled, [&, splash_flag_name] {
+                multi_settings.set_common_value (splash_flag_name, false);
+                splash.close ();
+              });
+            splash.show ();
+            a.processEvents ();
+          }
+      }
 
       int result;
       do
