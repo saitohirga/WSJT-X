@@ -220,14 +220,14 @@ QSettings * MultiSettings::settings ()
 QVariant MultiSettings::common_value (QString const& key, QVariant const& default_value) const
 {
   QVariant value;
-  QSettings& mutable_settings {const_cast<QSettings&> (m_->settings_)};
-  auto const& current_group = mutable_settings.group ();
-  if (current_group.size ()) mutable_settings.endGroup ();
+  QSettings * mutable_settings {const_cast<QSettings *> (&m_->settings_)};
+  auto const& current_group = mutable_settings->group ();
+  if (current_group.size ()) mutable_settings->endGroup ();
   {
-    SettingsGroup alternatives {&mutable_settings, multi_settings_root_group};
-    value = mutable_settings.value (key, default_value);
+    SettingsGroup alternatives {mutable_settings, multi_settings_root_group};
+    value = mutable_settings->value (key, default_value);
   }
-  if (current_group.size ()) mutable_settings.beginGroup (current_group);
+  if (current_group.size ()) mutable_settings->beginGroup (current_group);
   return value;
 }
 
