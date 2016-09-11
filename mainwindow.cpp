@@ -170,6 +170,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_revision {revision ()},
   m_multiple {multiple},
   m_multi_settings {multi_settings},
+  m_configurations_button {0},
   m_settings {multi_settings->settings ()},
   ui(new Ui::MainWindow),
   m_config {temp_directory, m_settings, this},
@@ -589,6 +590,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   // set up configurations menu
   m_multi_settings->create_menu_actions (this, ui->menuConfig);
+  m_configurations_button = m_rigErrorMessageBox.addButton (tr ("Configurations...")
+                                                            , QMessageBox::ActionRole);
 
   // set up message text validators
   ui->tx1->setValidator (new QRegExpValidator {message_alphabet, this});
@@ -4886,19 +4889,30 @@ void MainWindow::rigFailure (QString const& reason)
       m_rigErrorMessageBox.setDetailedText (reason);
 
       // don't call slot functions directly to avoid recursion
-      switch (m_rigErrorMessageBox.exec ())
+      m_rigErrorMessageBox.exec ();
+      auto const clicked_button = m_rigErrorMessageBox.clickedButton ();
+      if (clicked_button == m_configurations_button)
         {
-        case MessageBox::Ok:
-          QTimer::singleShot (0, this, SLOT (on_actionSettings_triggered ()));
-          break;
+          ui->menuConfig->exec (QCursor::pos ());
+        }
+      else
+        {
+          switch (m_rigErrorMessageBox.standardButton (clicked_button))
+            {
+            case MessageBox::Ok:
+              QTimer::singleShot (0, this, SLOT (on_actionSettings_triggered ()));
+              break;
 
-        case MessageBox::Retry:
-          QTimer::singleShot (0, this, SLOT (rigOpen ()));
-          break;
+            case MessageBox::Retry:
+              QTimer::singleShot (0, this, SLOT (rigOpen ()));
+              break;
 
-        case MessageBox::Cancel:
-          QTimer::singleShot (0, this, SLOT (close ()));
-          break;
+            case MessageBox::Cancel:
+              QTimer::singleShot (0, this, SLOT (close ()));
+              break;
+
+            default: break;     // squashing compile warnings
+            }
         }
       m_first_error = true;     // reset
     }
