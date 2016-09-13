@@ -1267,7 +1267,7 @@ void MainWindow::fastSink(qint64 frames)
   }
 
   hspec_(dec_data.d2, &k, &m_inGain, fast_green, fast_s, &fast_jh);
-  float px = fast_green[fast_jh] - 5.0;
+  float px = fast_green[fast_jh];
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);
   ui->signal_meter_widget->setValue(px); // Update thermometer
