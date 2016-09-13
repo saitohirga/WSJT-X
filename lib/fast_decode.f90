@@ -47,9 +47,6 @@ subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,     &
   if(nmode.eq.102) then
      call fast9(id2,narg,line)
      go to 900
-  else if(nmode.eq.103) then
-     call jtmsk_decode(id2,narg,line)
-     go to 900
   else if(nmode.eq.104) then
      if(newdat.eq.1) then
         id2b=id2a

@@ -366,10 +366,8 @@ set (wsjt_FSRCS
   lib/gen65.f90
   lib/gen9.f90
   lib/geniscat.f90
-  lib/genmsk.f90
   lib/genmsk144.f90
   lib/genmsk40.f90
-  lib/genmsk_short.f90
   lib/genqra64.f90
   lib/genwspr.f90
   lib/geodist.f90
@@ -398,9 +396,6 @@ set (wsjt_FSRCS
   lib/jt65_mod.f90
   lib/jt9_decode.f90
   lib/jt9fano.f90
-  lib/JTMSKsim.f90
-  lib/jtmsk_decode.f90
-  lib/jtmsk_short.f90
   lib/ldpcsim144.f90
   lib/ldpcsim40.f90
   lib/libration.f90
@@ -411,7 +406,6 @@ set (wsjt_FSRCS
   lib/moondopjpl.f90
   lib/morse.f90
   lib/move.f90
-  lib/mskdt.f90
   lib/msk144d.f90
   lib/msk144_decode.f90
   lib/msk144sim.f90
@@ -425,7 +419,6 @@ set (wsjt_FSRCS
   lib/ps4.f90
   lib/qra64a.f90
   lib/readwav.f90
-  lib/rectify_msk.f90
   lib/refspectrum.f90
   lib/savec2.f90
   lib/sec_midn.f90
@@ -456,7 +449,6 @@ set (wsjt_FSRCS
   lib/sync9f.f90
   lib/sync9w.f90
   lib/synciscat.f90
-  lib/syncmsk.f90
   lib/timer_C_wrapper.f90
   lib/timer_impl.f90
   lib/timer_module.f90
@@ -1044,9 +1036,6 @@ target_link_libraries (jt4code wsjt_fort wsjt_cxx)
 
 add_executable (jt65 lib/jt65.f90 lib/jt65_test.f90 wsjtx.rc)
 target_link_libraries (jt65 wsjt_fort wsjt_cxx)
-
-add_executable (JTMSKsim lib/JTMSKsim.f90 wsjtx.rc)
-target_link_libraries (JTMSKsim wsjt_fort wsjt_cxx)
 
 add_executable (ldpcsim40 lib/ldpcsim40.f90 wsjtx.rc)
 target_link_libraries (ldpcsim40 wsjt_fort wsjt_cxx)

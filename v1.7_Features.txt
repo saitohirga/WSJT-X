@@ -3,7 +3,7 @@
 
 Short list of new features
 --------------------------
-1.  New modes: ISCAT, JTMSK, MSK144, QRA64.
+1.  New modes: ISCAT, MSK144, QRA64.
 2.  Newly implemented submodes: JT65B-C, JT9B-H (wide and fast).
 3.  FT decoder replaces KV decoder for JT65; KVASD is no longer used.
 4.  Improvements to JT4, JT9, and JT65 decoders.
@@ -21,13 +21,13 @@ Designed and tested by K9AN and K1JT, it uses a low-density parity
 check code (LDPC) -- one of the latest-and-greatest areas of active
 research in communication theory.
 
-MSK144 is a direct descendant of JTMSK with a number of improvements
-for better performance on weak and short meteor pings.  The effective
-character transmission rate is about 250 cps, compared with 147 cps
-for FSK441 and 154 cps for JTMSK.  Like JT4, JT9, JT65, and JTMSK,
-MSK144 uses strong forward error correction, so message decoding is
-essentially "all or nothing".  You will see little or no garbage on
-your screen.
+MSK144 is a direct descendant of the now-defunct mode JTMSK, with a
+number of improvements for better performance on weak and short meteor
+pings.  The effective character transmission rate is about 250 cps,
+compared with 147 cps for FSK441 and 154 cps for JTMSK.  Like JT4,
+JT9, JT65, and JTMSK, MSK144 uses strong forward error correction, so
+message decoding is essentially "all or nothing".  You will see little
+or no garbage on your screen.
 
 Standard MSK144 message frames are 72 ms long, compared to 117 ms for
 JTMSK.  The MSK144 waveform allows coherent demodulation, allowing up
