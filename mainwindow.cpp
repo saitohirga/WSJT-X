@@ -4025,6 +4025,10 @@ void MainWindow::on_actionMSK144_triggered()
   bool b=m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN";
   ui->cbCQRx->setEnabled(b);
   ui->cbFast9->setVisible(false);
+  ui->RxFreqSpinBox->setVisible(true);
+  ui->TxFreqSpinBox->setVisible(true);
+  ui->RxFreqSpinBox->setEnabled(true);
+  ui->TxFreqSpinBox->setEnabled(false);
 }
 
 void MainWindow::on_actionQRA64_triggered()
