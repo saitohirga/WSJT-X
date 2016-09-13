@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>896</width>
+    <height>565</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>WSJT-X   by K1JT</string>
   </property>
@@ -2331,6 +2339,14 @@ QPushButton[state=&quot;ok&quot;] {
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>896</width>
+     <height>21</height>
+    </rect>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
@@ -2407,7 +2423,6 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionEcho"/>
     <addaction name="separator"/>
     <addaction name="actionISCAT"/>
-    <addaction name="actionJTMSK"/>
     <addaction name="actionMSK144"/>
     <addaction name="actionQRA64"/>
    </widget>
@@ -2853,14 +2868,6 @@ QPushButton[state=&quot;ok&quot;] {
   <action name="actionSave_reference_spectrum">
    <property name="text">
     <string>Measure reference spectrum</string>
-   </property>
-  </action>
-  <action name="actionJTMSK">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>JTMSK</string>
    </property>
   </action>
   <action name="download_samples_action">

@@ -46,7 +46,6 @@ public:
     WSPR,
     Echo,
     ISCAT,
-    JTMSK,
     MSK144,
     QRA64,
     MODES_END_SENTINAL_AND_COUNT // this must be last

@@ -75,9 +75,6 @@ extern "C" {
   void gen9_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, int len1, int len2);
 
-  void genmsk_(char* msg, int* ichk, char* msgsent, int itone[],
-               int* itext, int len1, int len2);
-
   void genmsk144_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, int len1, int len2); 
 
@@ -111,7 +108,6 @@ extern "C" {
   void fast_decode_(short id2[], int narg[], int* ntrperiod, bool* bShMsgs,
                     char msg[], char mycall[], char hiscall[],
                     int len1, int len2, int len3, int len4);
-  void hash_calls_(char calls[], int* ih9, int len);
   void degrade_snr_(short d2[], int* n, float* db, float* bandwidth);
   void wav12_(short d2[], short d1[], int* nbytes, short* nbitsam2);
   void refspectrum_(short int d2[], bool* brefspec, bool* buseref,
@@ -478,7 +474,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->actionWSPR_15->setActionGroup(modeGroup);
   ui->actionEcho->setActionGroup(modeGroup);
   ui->actionISCAT->setActionGroup(modeGroup);
-  ui->actionJTMSK->setActionGroup(modeGroup);
   ui->actionMSK144->setActionGroup(modeGroup);
   ui->actionQRA64->setActionGroup(modeGroup);
 
@@ -759,8 +754,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   bool vhf {m_config.enable_VHF_features ()};
   bool b = vhf and (m_mode=="JT4" or m_mode=="JT65" or
                     m_mode=="ISCAT" or m_mode=="JT9" or
-                    m_mode=="JTMSK" or m_mode=="MSK144" or
-                    m_mode=="QRA64");
+                    m_mode=="MSK144" or m_mode=="QRA64");
   VHF_controls_visible(b);
 
   ui->txFirstCheckBox->setChecked(m_txFirst);
@@ -784,14 +778,13 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_mode=="WSPR-15") on_actionWSPR_15_triggered();
   if(m_mode=="Echo") on_actionEcho_triggered();
   if(m_mode=="ISCAT") on_actionISCAT_triggered();
-  if(m_mode=="JTMSK") on_actionJTMSK_triggered();
   if(m_mode=="MSK144") on_actionMSK144_triggered();
   if(m_mode=="QRA64") on_actionQRA64_triggered();
   if(m_mode=="Echo") monitor(false); //Don't auto-start Monitor in Echo mode.
 
   ui->sbSubmode->setValue (vhf ? m_nSubMode : 0);
   ui->sbTR->setValue(m_TRindex);
-  if(m_mode=="MSK144" or m_mode=="JTMSK") {
+  if(m_mode=="MSK144") {
     Q_EMIT transmitFrequency (1000.0);
   } else {
     Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value() - m_XIT);
@@ -1074,7 +1067,7 @@ void MainWindow::dataSink(qint64 frames)
     dec_data.params.ndiskdat=0;
   }
 
-  if(m_mode=="ISCAT" or m_mode=="JTMSK" or m_mode=="MSK144" or m_bFast9) {
+  if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
     fastSink(frames);
     return;
   }
@@ -1371,11 +1364,11 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       if (!vhf) ui->sbSubmode->setValue (0);
       setup_status_bar (vhf);
       bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or
-                       m_mode=="ISCAT" or m_mode=="JT9" or m_mode=="JTMSK" or
+                       m_mode=="ISCAT" or m_mode=="JT9" or
                        m_mode=="MSK144" or m_mode=="QRA64");
       VHF_features_enabled(b);
       VHF_controls_visible(b);
-      if(m_mode=="MSK144" or m_mode=="JTMSK") ui->cbFast9->setVisible(false);
+      if(m_mode=="MSK144") ui->cbFast9->setVisible(false);
     }
 
   m_config.transceiver_online ();
@@ -1715,10 +1708,6 @@ void MainWindow::setup_status_bar (bool vhf)
       mode_label.setStyleSheet ("QLabel{background-color: #99ff33}");
     }
   else if ("MSK144" == m_mode)
-    {
-      mode_label.setStyleSheet ("QLabel{background-color: #ff6666}");
-    }
-  else if ("JTMSK" == m_mode)
     {
       mode_label.setStyleSheet ("QLabel{background-color: #ff6666}");
     }
@@ -2192,7 +2181,7 @@ void MainWindow::decode()                                       //decode()
     from += noffset;
     size -= noffset;
   }
-  if(m_mode=="ISCAT" or m_mode=="JTMSK" or m_mode=="MSK144" or m_bFast9) {
+  if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
     float t0=m_t0;
     float t1=m_t1;
     qApp->processEvents();                                //Update the waterfall
@@ -2217,12 +2206,10 @@ void MainWindow::decode()                                       //decode()
     if(dec_data.params.minSync<0) narg[8]=50;
     if(m_mode=="ISCAT") narg[9]=101;          //ISCAT
     if(m_mode=="JT9") narg[9]=102;            //Fast JT9
-    if(m_mode=="JTMSK") narg[9]=103;          //JTMSK
     if(m_mode=="MSK144") narg[9]=104;         //MSK144
     narg[10]=ui->RxFreqSpinBox->value();
     narg[11]=m_Ftol;
-    m_calls="<" + m_config.my_callsign() + " " + hisCall + ">";
-    hash_calls_(m_calls.toLatin1().data(), &narg[12], m_calls.length());
+    narg[12]=0;
     narg[13]=-1;
     narg[14]=m_config.aggressive();
     memcpy(d2b,dec_data.d2,2*360000);
@@ -2246,7 +2233,7 @@ void::MainWindow::fast_decode_done()
   for(int i=0; i<100; i++) {
     int i1=msg0.indexOf(m_baseCall);
     int i2=msg0.indexOf(m_hisCall);
-    if((m_mode=="JTMSK" or m_mode=="MSK144" or m_bFast9) and m_bAutoSeq and tmax>=0.0 and
+    if((m_mode=="MSK144" or m_bFast9) and m_bAutoSeq and tmax>=0.0 and
        i1>10 and i2>i1+3) {
       if((msg0.indexOf(" 73") < 0) or (m_ntx!=6)) processMessage(msg0,43,false);
     }
@@ -2288,7 +2275,7 @@ void::MainWindow::fast_decode_done()
                                    .arg (f.fileName ()).arg (f.errorString ()));
     }
 
-    if(m_mode=="JT9" or m_mode=="JTMSK" or m_mode=="MSK144") {
+    if(m_mode=="JT9" or m_mode=="MSK144") {
 // find and extract any report for myCall
       QString msg=message.mid(0,4) + message.mid(6,-1);
       decodedtext=msg.replace("\n","");
@@ -2572,8 +2559,8 @@ void MainWindow::guiUpdate()
   if(m_modeTx=="JT65") txDuration=1.0 + 126*4096/11025.0;     // JT65
   if(m_mode=="QRA64")  txDuration=1.0 + 84*6912/12000.0;      // QRA64
   if(m_mode=="WSPR-2") txDuration=2.0 + 162*8192/12000.0;     // WSPR
-  if(m_mode=="ISCAT" or m_mode=="JTMSK" or m_mode=="MSK144" or m_bFast9) {
-    txDuration=m_TRperiod-0.25; // ISCAT, JT9-fast, JTMSK, MSK144
+  if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
+    txDuration=m_TRperiod-0.25; // ISCAT, JT9-fast, MSK144
   }
 //###  if(m_mode=="WSPR-15") tx2=...
 
@@ -2765,8 +2752,6 @@ void MainWindow::guiUpdate()
                                     &m_currentMessageType, len1, len1);
         if(m_mode.startsWith ("WSPR")) genwspr_(message, msgsent, const_cast<int *> (itone),
                                              len1, len1);
-        if(m_modeTx=="JTMSK") genmsk_(message, &ichk, msgsent, const_cast<int *> (itone),
-                                  &m_currentMessageType, len1, len1);
         if(m_modeTx=="MSK144") {
           genmsk144_(message, &ichk, msgsent, const_cast<int *> (itone),
               &m_currentMessageType, len1, len1); 
@@ -3334,12 +3319,6 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
 
   QString rpt = decodedtext.report();
   int n=rpt.toInt();
-  if(m_mode=="JTMSK" and m_bShMsgs) {
-    n=26;
-    if(rpt.toInt()>4) n=27;
-    if(rpt.toInt()>8) n=28;
-    rpt=QString::number(n);
-  }
   if(m_mode=="MSK144" and m_bShMsgs) {
     int n=rpt.toInt();
     if(n<=-2) n=-3;
@@ -3503,23 +3482,17 @@ void MainWindow::genStdMsgs(QString rpt)
   } else {
     int n=rpt.toInt();
     rpt.sprintf("%+2.2d",n);
-    if((m_mode=="JTMSK" or m_mode=="MSK144") and m_bShMsgs) {
+    if(m_mode=="MSK144" and m_bShMsgs) {
       int i=t0.length()-1;
-      t0="<" + t0.mid(0,i) + "> ";
-      if(m_mode=="JTMSK") {
-         if(n<26) n=26;
-         if(n>28) n=28;
-         rpt.sprintf("%2.2d",n);   //In JTMSK mode, "26" not "+26"
-      } else {
-        if(n<=-2) n=-3;
-        if(n>=-1 and n<=1) n=0;
-        if(n>=2 and n<=4) n=3;
-        if(n>=5 and n<=7) n=6;
-        if(n>=8 and n<=11) n=10;
-        if(n>=12 and n<=14) n=13;
-        if(n>=15) n=16;
-        rpt.sprintf("%+2.2d",n);
-      }
+      t0="<" + t0.mid(0,i) + "> "; 
+      if(n<=-2) n=-3;
+      if(n>=-1 and n<=1) n=0;
+      if(n>=2 and n<=4) n=3;
+      if(n>=5 and n<=7) n=6;
+      if(n>=8 and n<=11) n=10;
+      if(n>=12 and n<=14) n=13;
+      if(n>=15) n=16;
+      rpt.sprintf("%+2.2d",n);
     }
     t=t0 + rpt;
     msgtype(t, ui->tx2);
@@ -3758,7 +3731,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   bool short65=false;
   if(itype==6) text=true;
   if(itype==7) short65=true;
-  if((m_mode=="JTMSK" or m_mode=="MSK144") and t.mid(0,1)=="<") text=false;
+  if(m_mode=="MSK144" and t.mid(0,1)=="<") text=false;
   QString t1;
   t1.fromLatin1(msgsent);
   if(text) t1=t1.mid(0,13);
@@ -3770,7 +3743,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
       p.setColor(QPalette::Base,"#66ffff");
     } else {
       p.setColor(QPalette::Base,Qt::white);
-      if((m_mode=="JTMSK" or m_mode=="MSK144") and t.mid(0,1)=="<") {
+      if(m_mode=="MSK144" and t.mid(0,1)=="<") {
         p.setColor(QPalette::Base,"#00ffff");
       }
     }
@@ -3778,7 +3751,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   tx->setPalette(p);
   int len=t.length();
   auto pos  = tx->cursorPosition ();
-  if(text && m_mode!="JTMSK" && m_mode!="MSK144" && t.mid(0,1)!="<") {
+  if(text && m_mode!="MSK144" && t.mid(0,1)!="<") {
     len=qMin(len,13);
     tx->setText(t.mid(0,len).toUpper());
   } else {
@@ -3958,21 +3931,19 @@ void MainWindow::on_actionJT9_triggered()
   ui->ClrAvgButton->setVisible(false);
 }
 
-void MainWindow::on_actionJTMSK_triggered()
+void MainWindow::on_actionMSK144_triggered()
 {
-//  on_actionISCAT_triggered();
-  m_mode="JTMSK";
-  m_modeTx="JTMSK";
-  ui->actionJTMSK->setChecked(true);
-  WSPR_config(false);
-  switch_mode (Modes::JTMSK);
+  m_mode="MSK144";
+  m_modeTx="MSK144";
+  ui->actionMSK144->setChecked(true);
+  switch_mode (Modes::MSK144);
   statusChanged();
   m_nsps=6;
   m_FFTSize = 7 * 512;
   Q_EMIT FFTSize (m_FFTSize);
   setup_status_bar (true);
   m_toneSpacing=0.0;
-  ui->actionJTMSK->setChecked(true);
+
   ui->pbTxMode->setVisible(false);
   VHF_features_enabled(true);
   VHF_controls_visible(true);
@@ -3999,21 +3970,7 @@ void MainWindow::on_actionJTMSK_triggered()
   ui->sbFtol->setVisible(true);
   ui->cbAutoSeq->setVisible(true);
   ui->ClrAvgButton->setVisible(false);
-}
 
-void MainWindow::on_actionMSK144_triggered()
-{
-  on_actionJTMSK_triggered();
-  m_mode="MSK144";
-  m_modeTx="MSK144";
-  ui->actionMSK144->setChecked(true);
-  switch_mode (Modes::MSK144);
-  statusChanged();
-  m_nsps=6;
-  m_FFTSize = 7 * 512;
-  Q_EMIT FFTSize (m_FFTSize);
-  setup_status_bar (true);
-  m_toneSpacing=0.0;
   ui->cbShMsgs->setVisible(true);
   ui->actionMSK144->setChecked(true);
   ui->rptSpinBox->setMinimum(-3);
@@ -4312,7 +4269,7 @@ void MainWindow::switch_mode (Mode mode)
     ui->bandComboBox->setCurrentIndex (row);
     on_bandComboBox_activated (row);
   }
-  bool b=(m_mode=="JTMSK" or m_mode=="MSK144");
+  bool b=(m_mode=="MSK144");
   ui->sbCQRxFreq->setVisible(b);
   ui->cbCQRx->setVisible(b);
   ui->syncSpinBox->setVisible(!b);
@@ -4360,7 +4317,7 @@ void MainWindow::fast_config(bool b)
   ui->ClrAvgButton->setVisible(!b);
   ui->TxFreqSpinBox->setEnabled(!b);
   ui->sbTR->setVisible(b);
-  if(b and (m_bFast9 or m_mode=="JTMSK" or m_mode=="MSK144" or m_mode=="ISCAT")) {
+  if(b and (m_bFast9 or m_mode=="MSK144" or m_mode=="ISCAT")) {
     ui->sbTR->setValue(m_TRindex);
     m_wideGraph->hide();
     m_fastGraph->show();
@@ -4374,7 +4331,7 @@ void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
 {
   m_wideGraph->setTxFreq(n);
   if(m_lockTxFreq) ui->RxFreqSpinBox->setValue(n);
-  if(m_mode!="MSK144" and m_mode!="JTMSK") {
+  if(m_mode!="MSK144") {
     Q_EMIT transmitFrequency (n - m_XIT);
   }
   statusUpdate ();
@@ -4744,7 +4701,7 @@ void MainWindow::on_pbTxMode_clicked()
 void MainWindow::setXIT(int n, Frequency base)
 {
   if (m_transmitting && !m_config.tx_QSY_allowed ()) return;
-  if(m_mode=="MSK144" or m_mode=="JTMSK") return;
+  if(m_mode=="MSK144") return;
   if (!base) base = m_freqNominal;
   m_XIT = 0;
   if (!m_bSimplex) {
@@ -4831,7 +4788,7 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
             {
               m_lastMonitoredFrequency = m_freqNominal;
             }
-          if (m_lastDialFreq != m_freqNominal and ((m_mode!="JTMSK" and m_mode!="MSK144") or
+          if (m_lastDialFreq != m_freqNominal and ((m_mode!="MSK144") or
               !ui->cbCQRx->isChecked())) {
             m_lastDialFreq = m_freqNominal;
             m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
@@ -4964,20 +4921,15 @@ void MainWindow::transmit (double snr)
                         true, fastmode, snr, m_TRperiod);
   }
 
-  if (m_modeTx == "JTMSK" or m_modeTx == "MSK144") {
+  if (m_modeTx == "MSK144") {
     m_nsps=6;
     m_FFTSize = 7 * 512;
     Q_EMIT FFTSize (m_FFTSize);
     m_toneSpacing=6000.0/m_nsps;
     double f0=1000.0;
     int nsym;
-    if (m_modeTx == "JTMSK") {
-      nsym=NUM_JTMSK_SYMBOLS;
-      if(itone[35] < 0) nsym=35;
-    } else {
-      nsym=NUM_MSK144_SYMBOLS;
-      if(itone[40] < 0) nsym=40;
-    }
+    nsym=NUM_MSK144_SYMBOLS;
+    if(itone[40] < 0) nsym=40;
     Q_EMIT sendMessage (nsym, double(m_nsps), f0, m_toneSpacing,
                         m_soundOutput, m_config.audio_output_channel (),
                         true, true, snr, m_TRperiod);
@@ -5220,7 +5172,7 @@ void MainWindow::on_sbSubmode_valueChanged(int n)
   m_nSubMode=n;
   m_wideGraph->setSubMode(m_nSubMode);
   mode_label.setText (m_mode);
-  if ((m_mode != "JT9+JT65" and m_mode != "MSK144" and m_mode != "JTMSK" and
+  if ((m_mode != "JT9+JT65" and m_mode != "MSK144" and
        !m_mode.startsWith ("WSPR")) || !m_config.enable_VHF_features ()) {
     mode_label.setText (mode_label.text () + " " + QChar {short (m_nSubMode + 65)});
   }
@@ -5253,11 +5205,6 @@ void MainWindow::on_cbFast9_clicked(bool b)
   }
 
   if(b) {
-/*
-    if(m_mode!="JTMSK") {
-      Q_EMIT m_config.transceiver_tx_frequency (0); // turn off split
-    }
-*/
     if(m_TRperiodFast>0) m_TRperiod=m_TRperiodFast;
   } else {
     m_TRperiod=60;
@@ -5272,7 +5219,6 @@ void MainWindow::on_cbShMsgs_toggled(bool b)
 {
   ui->cbTx6->setEnabled(b);
   m_bShMsgs=b;
-  if(m_bShMsgs and (m_mode=="JTMSK")) ui->rptSpinBox->setValue(26);
   if(m_bShMsgs and (m_mode=="MSK144")) ui->rptSpinBox->setValue(1);
   int itone0=itone[0];
   int ntx=m_ntx;
