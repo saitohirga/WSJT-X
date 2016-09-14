@@ -38,6 +38,9 @@ subroutine msk144_decode(id2,npts,nutc,nprint,mycall,hiscall,   &
   call timer('detec144',0)
   call detectmsk144(c,npts,line,nline,nutc,ntol,t0)
   call timer('detec144',1)
+  if( nline .eq. 0 .and. t0 .gt. 0 ) then  !Operator detected signal - try averaging 7 frames
+    call opdetmsk144(c,npts,line,nline,nutc,ntol,t0)
+  endif
   if( nprint .ne. 0 ) then
     do i=1,nline
       write(*,'(a80)') line(i)
