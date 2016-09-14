@@ -410,6 +410,7 @@ set (wsjt_FSRCS
   lib/msk144_decode.f90
   lib/msk144sim.f90
   lib/options.f90
+  lib/opdetmsk144.f90
   lib/packjt.f90
   lib/pctile.f90
   lib/peakdt9.f90
