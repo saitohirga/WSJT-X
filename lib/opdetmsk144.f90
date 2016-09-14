@@ -80,7 +80,7 @@ subroutine opdetmsk144(cbig,n,lines,nmessages,nutc,ntol,t00)
   
     xmax=0.0
     bestf=0.0
-    do if=-200,200   ! search for frequency that maximizes sync correlation 
+    do if=-ntol,ntol   ! search for frequency that maximizes sync correlation 
       ferr=if
 ! shift analytic signal to baseband
       call tweak1(cdat,NPTS,-(1500+ferr),cdat2)
