@@ -78,7 +78,6 @@ void DisplayText::_appendDXCCWorkedB4(DecodedText& t1, QString& bg,
                                       QColor color_NewCall)
 {
     QString call = t1.CQersCall ();
-
     QString countryName;
     bool callWorkedBefore;
     bool countryWorkedBefore;
@@ -89,6 +88,8 @@ void DisplayText::_appendDXCCWorkedB4(DecodedText& t1, QString& bg,
       i0=call.indexOf(" ");
       call=call.mid(0,i0);
     }
+    if(call.length()<3) return;
+    if(!call.contains(QRegExp("[0-9]")) or !call.contains(QRegExp("[A-Z]"))) return;
 
     logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
     int charsAvail = 48;
@@ -169,7 +170,6 @@ void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall,
           or decodedText.indexOf (" " + myCall + ">") >= 0)) {
       bg=color_MyCall.name();
     }
-
     // if enabled add the DXCC entity and B4 status to the end of the preformated text line t1
     if (displayDXCCEntity && CQcall)
         _appendDXCCWorkedB4(/*mod*/decodedText,bg,logBook,color_CQ,
