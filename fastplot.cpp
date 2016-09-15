@@ -161,6 +161,12 @@ void FPlotter::draw()                                         //draw()
       if(y>254) y=254;
       painter1.setPen(g_ColorTbl[y]);
       painter1.drawPoint(j,64-i);
+
+/*
+// Testing 2x expanded scale in x direction:
+      painter1.drawPoint(2*j,64-i);
+      painter1.drawPoint(2*j+1,64-i);
+*/
   }
 
   painter1.setPen(penGreen);                                // Upper green curve
@@ -171,6 +177,7 @@ void FPlotter::draw()                                         //draw()
     int y = 0.9*m_h - greenGain*fast_green[x] - m_greenZero + 40;
     if(y>119) y=119;
     LineBuf[j].setX(x);
+//    LineBuf[j].setX(2*x);
     LineBuf[j].setY(y);
     j++;
   }
@@ -219,8 +226,8 @@ void FPlotter::mouseMoveEvent(QMouseEvent *event)
 //  int y=event->y();
   float t=x/m_pixPerSecond;
   QString t1;
-  t1.sprintf("%4.1f",t);
-  if(m_t1.length()==4) {
+  t1.sprintf("%5.2f",t);
+  if(m_t1.length()==5) {
     painter.setPen(Qt::black);
     painter.drawText (380,90,m_t1);
   }
