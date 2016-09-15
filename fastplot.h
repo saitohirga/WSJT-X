@@ -45,6 +45,7 @@ protected:
 
 private slots:
   void mousePressEvent(QMouseEvent *event);
+  void mouseMoveEvent(QMouseEvent *event);
 
 private:
 
@@ -57,6 +58,7 @@ private:
   QString m_HDivText[483];
   QString m_t;
   QString m_t0;
+  QString m_t1;
 
   double  m_pixPerSecond;
 
