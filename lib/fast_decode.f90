@@ -15,8 +15,8 @@ subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,     &
   character*80 line(100)
   character*12 mycall_12,hiscall_12
   character*6 mycall,hiscall
-  data first/.true./
-  save npts,cdat,cdat2,id2a,id2b
+  data first/.true./,nutcb/0/
+  save npts,cdat,cdat2,id2a,id2b,nutcb
 
   if(first) then
      id2a=0
@@ -51,18 +51,22 @@ subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,     &
      if(newdat.eq.1) then
         id2b=id2a
         id2a=id2
+        nutcb=nutc
      endif
      ia=max(1,nint(t0*12000.0))
      ib=nint(t1*12000.0)
      if(ib.gt.ntrperiod*12000) ib=ntrperiod*12000
      nz=ib-ia+1
-!     print*,ia,ib,nz,ndat0,t0,t1
-     if(npick.gt.1) go to 900        !### DISABLE PICK FROM LOWER PANEL###
+!     write(*,3001) newdat,npick,ia,ib,nz,ndat0,t0,t1,id2(50000),id2b(50000)
+!3001 format(2i3,4i8,2f7.2,2i8)
+!     if(npick.gt.1) go to 900        !### DISABLE PICK FROM LOWER PANEL###
      if(newdat.eq.1 .or. npick.le.1) then
+! New data, or pick-decode from upper panel
         call msk144_decode(id2(ia),nz,nutc,0,mycall,hiscall,   &
              bShMsgs,ntol,t0,line)
      else
-        call msk144_decode(id2b(ia),nz,nutc,0,mycall,hiscall,   &
+! Pick-decode from lower panel
+        call msk144_decode(id2b(ia),nz,nutcb,0,mycall,hiscall,   &
              bShMsgs,ntol,t0,line)
      endif
      go to 900
