@@ -222,7 +222,6 @@ void FPlotter::mousePressEvent(QMouseEvent *event)      //mousePressEvent
   int x1=x+n*m_pixPerSecond;
   int xmax=m_TRperiod*m_pixPerSecond;
   if(x0 < 0) x0=0;
-  qDebug() << "a" << xmax;
   if(x1 > xmax) x1=xmax;
   if(x1 > 702) x1=702;
   Q_EMIT fastPick (x0,x1,y);
