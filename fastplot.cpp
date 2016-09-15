@@ -34,6 +34,7 @@ FPlotter::FPlotter(QWidget *parent) :                  //FPlotter Constructor
   m_ScalePixmap.fill(Qt::white);
   drawScale();
   draw();
+  setMouseTracking(true);
 }
 
 FPlotter::~FPlotter() { }                                      // Destructor
@@ -209,6 +210,24 @@ void FPlotter::draw()                                         //draw()
   painter1.drawLine(0,100, m_w,100);
   m_jh0=fast_jh;
   update();                                             //trigger a new paintEvent
+}
+
+void FPlotter::mouseMoveEvent(QMouseEvent *event)
+{
+  QPainter painter(&m_HorizPixmap);
+  int x=event->x();
+//  int y=event->y();
+  float t=x/m_pixPerSecond;
+  QString t1;
+  t1.sprintf("%4.1f",t);
+  if(m_t1.length()==4) {
+    painter.setPen(Qt::black);
+    painter.drawText (380,90,m_t1);
+  }
+  painter.setPen(Qt::yellow);
+  painter.drawText (380,90,t1);
+  update();
+  m_t1=t1;
 }
 
 void FPlotter::mousePressEvent(QMouseEvent *event)      //mousePressEvent
