@@ -23,6 +23,7 @@ public:
 
   void   plotSpec();
   void   saveSettings();
+  void   setTRperiod(int n);
 
 signals:
   void fastPick(int x0, int x1, int y);
@@ -36,6 +37,7 @@ private slots:
 private:
   QSettings * m_settings;
   float m_ave;
+  qint32  m_TRperiod;
 
   QScopedPointer<Ui::FastGraph> ui;
 };

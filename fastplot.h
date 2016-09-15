@@ -32,6 +32,7 @@ public:
   void setPlotZero(int plotZero);
   void setPlotGain(int plotGain);
   void setGreenZero(int n);
+  void setTRperiod(int n);
   void drawScale();
 
 signals:
@@ -65,6 +66,7 @@ private:
   qint32  m_h2;
   QPixmap m_HorizPixmap;
   qint32  m_jh0;
+  qint32  m_TRperiod;
 
   bool    m_bPaint2;
 };
