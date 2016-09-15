@@ -83,6 +83,12 @@ void FastGraph::on_greenZeroSlider_valueChanged(int value)
   ui->fastPlot->draw();
 }
 
+void FastGraph::setTRperiod(int n)
+{
+  m_TRperiod=n;
+  ui->fastPlot->setTRperiod(m_TRperiod);
+}
+
 void FastGraph::on_pbAutoLevel_clicked()
 {
   float sum=0.0;

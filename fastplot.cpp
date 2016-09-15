@@ -129,6 +129,12 @@ void FPlotter::setGreenZero(int n)
   m_bPaint2=true;
 }
 
+void FPlotter::setTRperiod(int n)
+{
+  m_TRperiod=n;
+}
+
+
 void FPlotter::draw()                                         //draw()
 {
   QPainter painter1(&m_HorizPixmap);
@@ -214,7 +220,10 @@ void FPlotter::mousePressEvent(QMouseEvent *event)      //mousePressEvent
   QPainter painter(&m_HorizPixmap);
   int x0=x-n*m_pixPerSecond;
   int x1=x+n*m_pixPerSecond;
+  int xmax=m_TRperiod*m_pixPerSecond;
   if(x0 < 0) x0=0;
+  qDebug() << "a" << xmax;
+  if(x1 > xmax) x1=xmax;
   if(x1 > 702) x1=702;
   Q_EMIT fastPick (x0,x1,y);
   int y0=64;

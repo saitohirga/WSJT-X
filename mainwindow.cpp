@@ -3973,8 +3973,8 @@ void MainWindow::on_actionMSK144_triggered()
 
   ui->cbShMsgs->setVisible(true);
   ui->actionMSK144->setChecked(true);
-  ui->rptSpinBox->setMinimum(-3);
-  ui->rptSpinBox->setMaximum(16);
+  ui->rptSpinBox->setMinimum(-8);
+  ui->rptSpinBox->setMaximum(24);
   ui->rptSpinBox->setValue(0);
   ui->rptSpinBox->setSingleStep(1);
   ui->sbFtol->setMinimum(23);
@@ -5161,6 +5161,7 @@ void MainWindow::on_sbTR_valueChanged(int index)
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
+  m_fastGraph->setTRperiod(m_TRperiod);
 }
 
 void MainWindow::on_sbSubmode_valueChanged(int n)
