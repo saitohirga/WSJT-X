@@ -1,4 +1,4 @@
-subroutine hspec(id2,k,ingain,green,s,jh)
+subroutine hspec(id2,k,ntrperiod,ingain,green,s,jh)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -20,6 +20,13 @@ subroutine hspec(id2,k,ingain,green,s,jh)
 
   gain=10.0**(0.1*ingain)
   nfft=512
+  nstep=nfft
+  nblks=7
+  if(ntrperiod.lt.30) then
+     nstep=256
+     nblks=14
+  endif
+
   if(k.gt.30*12000) go to 900
   if(k.lt.nfft) then       
      jh=0
@@ -27,20 +34,20 @@ subroutine hspec(id2,k,ingain,green,s,jh)
   endif
 
   if(k.lt.k0) then                             !Start a new data block
-     ja=0
+     ja=-nstep
      jh=-1
      rms0=0.0
   endif
 
-  do iblk=1,7
+  do iblk=1,nblks
      if(jh.lt.JZ-1) jh=jh+1
+     ja=ja+nstep
      jb=ja+nfft-1
      x=id2(ja:jb)
      sq=dot_product(x,x)
      rms=sqrt(gain*sq/nfft)
      green(jh)=0.
-     if(rms.gt.0.0) green(jh)=20.0*log10(0.5*(rms0+rms))
-     rms0=rms
+     if(rms.gt.0.0) green(jh)=20.0*log10(rms)
      call four2a(x,nfft,1,-1,0)                   !Real-to-complex FFT
      df=12000.0/nfft
      fac=(1.0/nfft)**2
@@ -50,8 +57,8 @@ subroutine hspec(id2,k,ingain,green,s,jh)
              aimag(cx(j-1))**2
         s(i-1,jh)=fac*gain*sx
      enddo
+     call smo121(s(0,jh),64)
      if(ja+2*nfft.gt.k) exit
-     ja=ja+nfft
   enddo
   k0=k
 
