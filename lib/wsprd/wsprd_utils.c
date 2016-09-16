@@ -74,7 +74,7 @@ int unpackcall( int32_t ncall, char *call )
     int32_t n;
     int i;
     char tmp[7];
-    
+
     n=ncall;
     strcpy(call,"......");
     if (n < 262177560 ) {
@@ -251,7 +251,7 @@ int unpk_(signed char *message, char *hashtab, char *call_loc_pow, char *callsig
     int ntype = (n2&127) - 64;
     callsign[12]=0;
     grid[4]=0;
-    
+
     /*
      Based on the value of ntype, decide whether this is a Type 1, 2, or
      3 message.
