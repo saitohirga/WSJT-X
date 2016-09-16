@@ -41,7 +41,7 @@ long unsigned int pack_grid4_power(char *grid4, int power) {
 }
 
 long unsigned int pack_call(char *callsign) {
-    int i;
+    unsigned int i;
     long unsigned int n;
     char call6[6];
     memset(call6,32,sizeof(char)*6);
@@ -51,7 +51,7 @@ long unsigned int pack_call(char *callsign) {
         return 0;
     }
     if( isdigit(*(callsign+2)) ) {
-        for (i=0; i<6; i++) {
+        for (i=0; i<call_len; i++) {
             if( callsign[i] == 0 ) {
                 call6[i]=32;
             } else {
@@ -59,7 +59,7 @@ long unsigned int pack_call(char *callsign) {
             }
         }
     } else if( isdigit(*(callsign+1)) ) {
-        for (i=0; i<6; i++) {
+        for (i=0; i<call_len; i++) {
             if( i==0 || callsign[i-1]==0 ) {
                 call6[i]=32;
             } else {
@@ -285,8 +285,6 @@ int get_wspr_channel_symbols(char* rawmessage, char* hashtab, unsigned char* sym
     // make sure that the 11-byte data vector is unpackable
     // unpack it with the routine that the decoder will use and display
     // the result. let the operator decide whether it worked.
-//    char hashtab[32768][13];
-//    memset(hashtab,0,sizeof(char)*32768*13);
     
     char *check_call_loc_pow, *check_callsign;
     check_call_loc_pow=malloc(sizeof(char)*23);
