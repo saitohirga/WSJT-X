@@ -12,9 +12,7 @@ subroutine opdetmsk144(cbig,n,lines,nmessages,nutc,ntol,t00)
   complex cs(NSPM)
   complex cb(42)                        !Complex waveform for sync word 
   complex cfac,cca,ccb
-  complex cc1(0:NSPM-1)
-  complex cc2(0:NSPM-1)
-  complex bb(6)
+  complex cc(0:NSPM-1)
   integer s8(8),hardbits(144)
   integer, dimension(1) :: iloc
   integer*1 decoded(80)   
@@ -23,7 +21,6 @@ subroutine opdetmsk144(cbig,n,lines,nmessages,nutc,ntol,t00)
   real rcw(12)
   real ccm(0:NSPM-1)
   real ccms(0:NSPM-1)
-  real dd(0:NSPM-1)
   real pp(12)                          !Half-sine pulse shape
   real*8 dt, fs, pi, twopi
   real softbits(144)
@@ -68,7 +65,7 @@ subroutine opdetmsk144(cbig,n,lines,nmessages,nutc,ntol,t00)
   lines=char(0)
   nshort=0
 !  write(*,*) "number of points in opdetmsk144",n
-  if( n .lt. 24000 .or. n .gt. 49000) return  
+  if( n .lt. NPTS .or. n .gt. 181000) return  
   nsteps=2*n/6000-1
 !  write(*,*) 'nsteps ',nsteps
   nsnr=-4
@@ -80,8 +77,8 @@ subroutine opdetmsk144(cbig,n,lines,nmessages,nutc,ntol,t00)
   
     xmax=0.0
     bestf=0.0
-    do if=-ntol,ntol   ! search for frequency that maximizes sync correlation 
-      ferr=if
+    do ifr=-ntol,ntol   ! search for frequency that maximizes sync correlation 
+      ferr=ifr
 ! shift analytic signal to baseband
       call tweak1(cdat,NPTS,-(1500+ferr),cdat2)
       c=0
@@ -91,25 +88,23 @@ subroutine opdetmsk144(cbig,n,lines,nmessages,nutc,ntol,t00)
         c(1:NSPM)=c(1:NSPM)+cdat2(ib:ie)
       enddo 
 
-      cc1=0
-      cc2=0
+      cc=0
       do ish=0,NSPM-1
         ct=cshift(c,ish) 
-        cc1(ish)=sum(ct(1:42)*conjg(cb))
-        cc2(ish)=sum(ct(56*6:56*6+41)*conjg(cb))
+        cc(ish)=sum(ct(1:42)*conjg(cb))+sum(ct(56*6:56*6+41)*conjg(cb))
       enddo
-      ccm=abs(cc1+cc2)
-      dd=abs(cc1)*abs(cc2)
+      ccm=abs(cc)
       xb=maxval(ccm)
       if( xb .gt. xmax ) then
         xmax=xb
         bestf=ferr
         cs=c
         ccms=ccm
-        endif
+      endif
     enddo
 
     fest=1500+bestf
+! write(*,*) istep,fest,xmax
     t0=t00+1.0
     c=cs
     ccm=ccms
