@@ -133,6 +133,10 @@ void FPlotter::setGreenZero(int n)
 void FPlotter::setTRperiod(int n)
 {
   m_TRperiod=n;
+  m_pixPerSecond=12000.0/512.0;
+  if(m_TRperiod<30) m_pixPerSecond=12000.0/256.0;
+  drawScale();
+  update();
 }
 
 
@@ -229,10 +233,10 @@ void FPlotter::mouseMoveEvent(QMouseEvent *event)
   t1.sprintf("%5.2f",t);
   if(m_t1.length()==5) {
     painter.setPen(Qt::black);
-    painter.drawText (380,90,m_t1);
+    painter.drawText(60,95,m_t1);
   }
   painter.setPen(Qt::yellow);
-  painter.drawText (380,90,t1);
+  painter.drawText(60,95,t1);
   update();
   m_t1=t1;
 }

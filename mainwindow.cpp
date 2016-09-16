@@ -67,7 +67,8 @@ extern "C" {
   void symspec_(struct dec_data *, int* k, int* ntrperiod, int* nsps, int* ingain, int* minw,
                 float* px, float s[], float* df3, int* nhsym, int* npts8);
 
-  void hspec_(short int d2[], int* k, int* ingain, float green[], float s[], int* jh);
+  void hspec_(short int d2[], int* k, int* ntrperiod, int* ingain,
+              float green[], float s[], int* jh);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, int len1, int len2);
@@ -1259,7 +1260,7 @@ void MainWindow::fastSink(qint64 frames)
     m_bFastDecodeCalled=false;
   }
 
-  hspec_(dec_data.d2, &k, &m_inGain, fast_green, fast_s, &fast_jh);
+  hspec_(dec_data.d2, &k, &m_TRperiod, &m_inGain, fast_green, fast_s, &fast_jh);
   float px = fast_green[fast_jh];
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);
@@ -5689,6 +5690,8 @@ void MainWindow::setRig ()
 
 void MainWindow::fastPick(int x0, int x1, int y)
 {
+  float pixPerSecond=12000.0/512.0;
+  if(m_TRperiod<30) pixPerSecond=12000.0/256.0;
   if(m_mode!="ISCAT" and m_mode!="MSK144") return;
   if(!m_decoderBusy) {
     dec_data.params.newdat=0;
@@ -5696,8 +5699,8 @@ void MainWindow::fastPick(int x0, int x1, int y)
     m_blankLine=false;                 // don't insert the separator again
     m_nPick=1;
     if(y > 120) m_nPick=2;
-    m_t0Pick=x0*512.0/12000.0;
-    m_t1Pick=x1*512.0/12000.0;
+    m_t0Pick=x0/pixPerSecond;
+    m_t1Pick=x1/pixPerSecond;
     decode();
   }
 }
