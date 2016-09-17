@@ -199,7 +199,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_XIT {0},
   m_sec0 {-1},
   m_RxLog {1},			//Write Date and Time to RxLog
-  m_nutc0 {9999},
+  m_nutc0 {999999},
   m_ntr {0},
   m_tx {0},
   m_TRperiod {60},
@@ -804,6 +804,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->actionInclude_averaging->setChecked((m_ndepth&16)>0);
   ui->actionInclude_correlation->setChecked((m_ndepth&32)>0);
 
+  m_UTCdisk=-1;
   m_ntx = 1;
   ui->txrb1->setChecked(true);
 
@@ -1265,7 +1266,7 @@ void MainWindow::fastSink(qint64 frames)
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);
   ui->signal_meter_widget->setValue(px); // Update thermometer
-  m_fastGraph->plotSpec();
+  m_fastGraph->plotSpec(m_diskData,m_UTCdisk);
 
   decodeNow=false;
   m_k0=k;
@@ -1909,6 +1910,10 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
 void MainWindow::read_wav_file (QString const& fname)
 {
   // call diskDat() when done
+  int i0=fname.lastIndexOf("_");
+  int i1=fname.indexOf(".wav");
+  m_nutc0=m_UTCdisk;
+  m_UTCdisk=fname.mid(i0+1,i1-i0-1).toInt();
   m_wav_future_watcher.setFuture (QtConcurrent::run ([this, fname] {
         auto basename = fname.mid (fname.lastIndexOf ('/') + 1);
         auto pos = fname.indexOf (".wav", 0, Qt::CaseInsensitive);
@@ -2090,9 +2095,10 @@ void MainWindow::decode()                                       //decode()
 {
   if(!m_dataAvailable or m_TRperiod==0) return;
   ui->DecodeButton->setChecked (true);
-  if(dec_data.params.nagain==0 && m_diskData && !m_bFastMode) {
+  if(!dec_data.params.nagain && m_diskData && !m_bFastMode) {
     dec_data.params.nutc=dec_data.params.nutc/100;
   }
+//  qDebug() << "a" << m_diskData << m_nPick << m_nutc0 << dec_data.params.nutc;
   if(dec_data.params.nagain==0 && dec_data.params.newdat==1 && (!m_diskData)) {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int imin=ms/60000;
@@ -2100,8 +2106,7 @@ void MainWindow::decode()                                       //decode()
     imin=imin % 60;
     if(m_TRperiod>=60) imin=imin - (imin % (m_TRperiod/60));
     dec_data.params.nutc=100*ihr + imin;
-    if(m_mode=="ISCAT" or m_bFast9) {
-
+    if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
       QDateTime t=QDateTime::currentDateTimeUtc().addSecs(2-m_TRperiod);
       ihr=t.toString("hh").toInt();
       imin=t.toString("mm").toInt();
@@ -2110,6 +2115,19 @@ void MainWindow::decode()                                       //decode()
       dec_data.params.nutc=10000*ihr + 100*imin + isec;
     }
   }
+
+  if(m_nPick==1 and !m_diskData) {
+    QDateTime t=QDateTime::currentDateTimeUtc();
+    int ihr=t.toString("hh").toInt();
+    int imin=t.toString("mm").toInt();
+    int isec=t.toString("ss").toInt();
+    isec=isec - isec%m_TRperiod;
+    dec_data.params.nutc=10000*ihr + 100*imin + isec;
+  }
+  if(m_nPick==1 and m_diskData)
+
+  if(m_nPick==2) dec_data.params.nutc=m_nutc0;
+//  qDebug() << "b" << m_diskData << m_nPick << m_nutc0 << dec_data.params.nutc;
   dec_data.params.nfqso=m_wideGraph->rxFreq();
   qint32 depth {m_ndepth};
   if (!ui->actionInclude_averaging->isEnabled ()) depth &= ~16;
@@ -2131,7 +2149,7 @@ void MainWindow::decode()                                       //decode()
     dec_data.params.naggressive=0;
   }
   if(dec_data.params.nutc < m_nutc0) m_RxLog = 1;       //Date and Time to all.txt
-  m_nutc0=dec_data.params.nutc;
+  if(dec_data.params.newdat==1 and !m_diskData) m_nutc0=dec_data.params.nutc;
   dec_data.params.ntxmode=9;
   if(m_modeTx=="JT65") dec_data.params.ntxmode=65;
   dec_data.params.nmode=9;
@@ -5701,6 +5719,7 @@ void MainWindow::fastPick(int x0, int x1, int y)
     if(y > 120) m_nPick=2;
     m_t0Pick=x0/pixPerSecond;
     m_t1Pick=x1/pixPerSecond;
+    m_dataAvailable=true;
     decode();
   }
 }

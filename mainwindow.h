@@ -370,6 +370,7 @@ private:
   qint32  m_TRperiodFast;
   qint32  m_nTx73;
   qint32  m_freqCQ;
+  qint32  m_UTCdisk;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;

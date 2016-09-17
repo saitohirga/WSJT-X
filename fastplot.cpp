@@ -23,6 +23,7 @@ FPlotter::FPlotter(QWidget *parent) :                  //FPlotter Constructor
   m_jh0 {9999},
   m_bPaint2 {true}
 {
+  m_diskData=false;
   setFocusPolicy(Qt::StrongFocus);
   setAttribute(Qt::WA_PaintOnScreen,false);
   setAutoFillBackground(false);
@@ -146,14 +147,28 @@ void FPlotter::draw()                                         //draw()
   QPoint LineBuf[703];
   QPen penGreen(Qt::green,1);
 
+  if(m_diskData) {
+    int ih=m_UTCdisk/10000;
+    int im=m_UTCdisk/100 % 100;
+    int is=m_UTCdisk % 100;
+    m_t.sprintf("%2.2d:%2.2d:%2.2d",ih,im,is);
+  }
+
   int k0=m_jh0;
   if(fast_jh < m_jh0 or m_bPaint2) {
     k0=0;
     QRect tmp(0,0,m_w,119);
     painter1.fillRect(tmp,Qt::black);
     painter1.setPen(Qt::white);
-    m_t=QDateTime::currentDateTimeUtc().toString("hh:mm:ss");
-    painter1.drawText(10,95,m_t);
+    if(m_diskData) {
+      int ih=m_UTCdisk/10000;
+      int im=m_UTCdisk/100 % 100;
+      int is=m_UTCdisk % 100;
+      m_t.sprintf("%2.2d:%2.2d:%2.2d",ih,im,is);
+    } else {
+      m_t=QDateTime::currentDateTimeUtc().toString("hh:mm:ss");
+    }
+    if(fast_jh>0) painter1.drawText(10,95,m_t);
   }
 
   float gain = pow(10.0,(m_plotGain/20.0));
@@ -161,16 +176,10 @@ void FPlotter::draw()                                         //draw()
     int i = k%64;
     int j = k/64;
     int y=0.005*gain*fast_s[k] + m_plotZero;
-      if(y<0) y=0;
-      if(y>254) y=254;
-      painter1.setPen(g_ColorTbl[y]);
-      painter1.drawPoint(j,64-i);
-
-/*
-// Testing 2x expanded scale in x direction:
-      painter1.drawPoint(2*j,64-i);
-      painter1.drawPoint(2*j+1,64-i);
-*/
+    if(y<0) y=0;
+    if(y>254) y=254;
+    painter1.setPen(g_ColorTbl[y]);
+    painter1.drawPoint(j,64-i);
   }
 
   painter1.setPen(penGreen);                                // Upper green curve
@@ -191,7 +200,7 @@ void FPlotter::draw()                                         //draw()
     QRect tmp(0,120,m_w,219);
     painter1.fillRect(tmp,Qt::black);
     painter1.setPen(Qt::white);
-    painter1.drawText(10,195,m_t0);
+    if(fast_jh>0 and m_jh0 < 9999) painter1.drawText(10,195,m_t0);
     m_t0=m_t;
 
     for(int k=0; k<64*fast_jh2; k++) {                      //Lower spectrogram
@@ -219,7 +228,7 @@ void FPlotter::draw()                                         //draw()
 
   painter1.setPen(Qt::white);
   painter1.drawLine(0,100, m_w,100);
-  m_jh0=fast_jh;
+  if(fast_jh>0) m_jh0=fast_jh;
   update();                                             //trigger a new paintEvent
 }
 
@@ -231,14 +240,11 @@ void FPlotter::mouseMoveEvent(QMouseEvent *event)
   float t=x/m_pixPerSecond;
   QString t1;
   t1.sprintf("%5.2f",t);
-  if(m_t1.length()==5) {
-    painter.setPen(Qt::black);
-    painter.drawText(60,95,m_t1);
-  }
+  QRectF rect0(78,85,40,13);              //### Should use font metrics ###
+  painter.fillRect(rect0,Qt::black);
   painter.setPen(Qt::yellow);
-  painter.drawText(60,95,t1);
+  painter.drawText(80,95,t1);
   update();
-  m_t1=t1;
 }
 
 void FPlotter::mousePressEvent(QMouseEvent *event)      //mousePressEvent
