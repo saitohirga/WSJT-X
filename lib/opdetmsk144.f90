@@ -1,13 +1,15 @@
 subroutine opdetmsk144(cbig,n,lines,nmessages,nutc,ntol,t00)
   use timer_module, only: timer
-
-  parameter (NSPM=864, NPTS=7*NSPM, MAXCAND=16)
+! NSPM: number of samples per message frame
+! NAVG: number of frames to coherently average
+  parameter (NSPM=864, NAVG=7,  NPTS=NAVG*NSPM, NSTEP=6000)
   character*22 msgreceived,allmessages(20)
   character*80 lines(100)
   complex cbig(n)
   complex cdat(NPTS)                    !Analytic signal
   complex cdat2(NPTS)
   complex c(NSPM)
+  complex cr(NSPM,NAVG)
   complex ct(NSPM)
   complex cs(NSPM)
   complex cb(42)                        !Complex waveform for sync word 
@@ -64,30 +66,31 @@ subroutine opdetmsk144(cbig,n,lines,nmessages,nutc,ntol,t00)
   allmessages=char(0)
   lines=char(0)
   nshort=0
+  trec=NPTS/12000.0  ! Duration of the data record 
 !  write(*,*) "number of points in opdetmsk144",n
   if( n .lt. NPTS .or. n .gt. 181000) return  
-  nsteps=2*n/6000-1
+  nsteps=2*n/NSTEP-1                  ! Hardwired for 0.5s steps
 !  write(*,*) 'nsteps ',nsteps
   nsnr=-4
-  
+ 
   do istep=1,nsteps 
     ib=(istep-1)*NPTS/2+1 
-    if( ib+NPTS-1 .gt. n ) ib=n-NPTS+1
-    cdat=cbig(ib:ib+NPTS-1)
+    ie=ib+NPTS-1
+    if( ie .gt. n ) then
+      ie=n
+      ib=n-NPTS+1
+    endif
+    t0=t00+(ib-1)/12000.0+trec/2
+    cdat=cbig(ib:ie)
   
     xmax=0.0
     bestf=0.0
     do ifr=-ntol,ntol   ! search for frequency that maximizes sync correlation 
       ferr=ifr
-! shift analytic signal to baseband
       call tweak1(cdat,NPTS,-(1500+ferr),cdat2)
-      c=0
-      do i=1,7
-        ib=(i-1)*NSPM+1
-        ie=ib+NSPM-1
-        c(1:NSPM)=c(1:NSPM)+cdat2(ib:ie)
-      enddo 
-
+      cr=reshape(cdat2,(/NSPM,NAVG/))
+      c=sum(cr,2)
+ 
       cc=0
       do ish=0,NSPM-1
         ct=cshift(c,ish) 
@@ -105,7 +108,6 @@ subroutine opdetmsk144(cbig,n,lines,nmessages,nutc,ntol,t00)
 
     fest=1500+bestf
 ! write(*,*) istep,fest,xmax
-    t0=t00+1.0
     c=cs
     ccm=ccms
 
