@@ -3962,7 +3962,7 @@ void MainWindow::on_actionMSK144_triggered()
   Q_EMIT FFTSize (m_FFTSize);
   setup_status_bar (true);
   m_toneSpacing=0.0;
-
+  WSPR_config(false);
   ui->pbTxMode->setVisible(false);
   VHF_features_enabled(true);
   VHF_controls_visible(true);
@@ -3972,7 +3972,7 @@ void MainWindow::on_actionMSK144_triggered()
   ui->sbSubmode->setVisible(false);
   m_bFastMode=true;
   m_bFast9=true;
-  fast_config(m_bFastMode);
+  fast_config(true);
   m_TRperiod=ui->sbTR->cleanText().toInt();
   m_wideGraph->hide();
   m_fastGraph->show();
