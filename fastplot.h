@@ -27,6 +27,8 @@ public:
   qint32  m_x0;
   qint32  m_x1;
   qint32  m_y0;
+  qint32  m_UTCdisk;
+  bool    m_diskData;
 
   void draw();		                                    //Update the Fast plot
   void setPlotZero(int plotZero);

@@ -21,7 +21,7 @@ public:
   explicit FastGraph(QSettings *, QWidget *parent = 0);
   ~FastGraph();
 
-  void   plotSpec();
+  void   plotSpec(bool diskData, int UTCdisk);
   void   saveSettings();
   void   setTRperiod(int n);
 

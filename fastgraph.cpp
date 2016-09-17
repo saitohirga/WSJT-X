@@ -58,8 +58,10 @@ void FastGraph::saveSettings()
   m_settings->endGroup();
 }
 
-void FastGraph::plotSpec()
+void FastGraph::plotSpec(bool diskData, int UTCdisk)
 {
+  ui->fastPlot->m_diskData=diskData;
+  ui->fastPlot->m_UTCdisk=UTCdisk;
   ui->fastPlot->draw();
 }
 
