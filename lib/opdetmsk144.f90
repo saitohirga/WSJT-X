@@ -15,6 +15,7 @@ subroutine opdetmsk144(cbig,n,lines,nmessages,nutc,ntol,t00)
   complex cb(42)                        !Complex waveform for sync word 
   complex cfac,cca,ccb
   complex cc(0:NSPM-1)
+  complex csum
   integer s8(8),hardbits(144)
   integer, dimension(1) :: iloc
   integer*1 decoded(80)   
@@ -87,17 +88,27 @@ subroutine opdetmsk144(cbig,n,lines,nmessages,nutc,ntol,t00)
     bestf=0.0
     do ifr=-ntol,ntol   ! search for frequency that maximizes sync correlation 
       ferr=ifr
+!      call timer('opdetavg ',0)
       call tweak1(cdat,NPTS,-(1500+ferr),cdat2)
       cr=reshape(cdat2,(/NSPM,NAVG/))
       c=sum(cr,2)
+!      call timer('opdetavg ',1)
  
+!      call timer('opdetsync',0)
       cc=0
       do ish=0,NSPM-1
         ct=cshift(c,ish) 
-        cc(ish)=sum(ct(1:42)*conjg(cb))+sum(ct(56*6:56*6+41)*conjg(cb))
+!        cc(ish)=sum(ct(1:42)*conjg(cb))+sum(ct(56*6:56*6+41)*conjg(cb))
+!        cc(ish)=sum(ct(1:42)*conjg(cb)+ ct(56*6:56*6+41)*conjg(cb))
+        csum=0
+        do j=1,42
+          csum=csum+(ct(j)+ct(56*6+j-1))*conjg(cb(j))
+        enddo
+        cc(ish)=csum
       enddo
       ccm=abs(cc)
       xb=maxval(ccm)
+!      call timer('opdetsync',1)
       if( xb .gt. xmax ) then
         xmax=xb
         bestf=ferr
