@@ -57,7 +57,7 @@ subroutine hspec(id2,k,ntrperiod,ingain,green,s,jh)
              aimag(cx(j-1))**2
         s(i-1,jh)=fac*gain*sx
      enddo
-     call smo121(s(0,jh),64)
+!     call smo121(s(0,jh),64)   !### Good idea, or not? ###
      if(ja+2*nfft.gt.k) exit
   enddo
   k0=k
