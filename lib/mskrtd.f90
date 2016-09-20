@@ -82,7 +82,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
   call analytic(d,NZ,NFFT1,cdat)      !Convert to analytic signal and filter
   
   nmessages=0
-  line=' '
+  line=char(0)
   nshort=0
   npts=7168
   nsnr=-4                             !### Temporary ###
