@@ -21,24 +21,19 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
   complex ct2(2*NSPM)
   complex cs(NSPM)
   complex cb(42)                     !Complex waveform for sync word 
-  complex cfac,cca,ccb
   complex cc(0:NSPM-1)
 
 !  integer*8 count0,count1,count2,count3,clkfreq
-  integer s8(8),hardbits(144)
+  integer s8(8)
   integer iloc(1)
   integer ipeaks(10)
   integer nav(6)
-  integer*1 decoded(80)
 
   real cbi(42),cbq(42)
   real d(NFFT1)
   real xcc(0:NSPM-1)
   real xccs(0:NSPM-1)
   real pp(12)                        !Half-sine pulse shape
-  real softbits(144)
-  real lratio(128)
-  real llr(128)
   logical first
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
@@ -87,7 +82,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
   call analytic(d,NZ,NFFT1,cdat)      !Convert to analytic signal and filter
   
   nmessages=0
-  line=char(0)
+  line=' '
   nshort=0
   npts=7168
   nsnr=-4                             !### Temporary ###
@@ -145,61 +140,13 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
            if(is.eq.3) ic0=min(NSPM,ic0+1)
            ct=cshift(c,ic0-1)
 
-! Estimate final frequency error and carrier phase. 
-           cca=sum(ct(1:1+41)*conjg(cb))
-           ccb=sum(ct(1+56*6:1+56*6+41)*conjg(cb))
-           cfac=ccb*conjg(cca)
-!           ffin=atan2(imag(cfac),real(cfac))/(twopi*56*6*dt)
-           phase0=atan2(imag(cca+ccb),real(cca+ccb))
+           call msk144decodeframe(ct,msgreceived,nsuccess)
 
-! Remove phase error: rotate constellation so sample points lie on I/Q axes
-           cfac=cmplx(cos(phase0),sin(phase0))
-           ct=ct*conjg(cfac)
-
-! Use matched filter
-           softbits(1)=sum(imag(ct(1:6))*pp(7:12)) +                   &
-                sum(imag(ct(864-5:864))*pp(1:6))
-           softbits(2)=sum(real(ct(1:12))*pp)
-           do i=2,72
-              softbits(2*i-1)=sum(imag(ct(1+(i-1)*12-6:1+(i-1)*12+5))*pp)
-              softbits(2*i)=sum(real(ct(7+(i-1)*12-6:7+(i-1)*12+5))*pp)
-           enddo
-
-! Number of hard errors in sync word is a good discriminator for 
-! frames that have reasonable probability of decoding
-           hardbits=0
-           do i=1,144
-              if(softbits(i) .ge. 0.0) then
-                 hardbits(i)=1
-              endif
-           enddo
-           nbadsync1=(8-sum((2*hardbits(1:8)-1)*s8))/2
-           nbadsync2=(8-sum((2*hardbits(1+56:8+56)-1)*s8))/2
-           nbadsync=nbadsync1+nbadsync2
-           if(nbadsync .gt. 3) cycle
-
-! Normalize softsymbols before submitting to decoder
-           sav=sum(softbits)/144
-           s2av=sum(softbits*softbits)/144
-           ssig=sqrt(s2av-sav*sav)
-           softbits=softbits/ssig
-
-           sigma=0.70
-           lratio(1:48)=softbits(9:9+47)
-           lratio(49:128)=softbits(65:65+80-1)
-           llr=2.0*lratio/(sigma*sigma)
-  
-           call bpdecode144(llr,max_iterations,decoded,niterations)
-           if(niterations .ge. 0.0) then
-              call extractmessage144(decoded,msgreceived,nhashflag)
-              if(nhashflag .gt. 0) then  ! CRCs match, so print it 
-                 write(line,1020) nutc0,nsnr,tsec,nint(fest),msgreceived,char(0)
-1020             format(i6.6,i4,f5.1,i5,' ^ ',a22,a1)
-              endif
-              goto 999
-           else
-              msgreceived=' '
-              ndither=-99             !Bad hash flag = -99
+           if(nsuccess .gt. 0) then
+write(*,*) nsuccess,msgreceived
+             write(line,1020) nutc0,nsnr,tsec,nint(fest),msgreceived,char(0)
+1020         format(i6.6,i4,f5.1,i5,' ^ ',a22,a1)
+             goto 999
            endif
         enddo                         !Slicer dither
      enddo                            !Peak loop 
@@ -221,4 +168,3 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
 
   return
 end subroutine mskrtd
-
