@@ -407,9 +407,12 @@ set (wsjt_FSRCS
   lib/morse.f90
   lib/move.f90
   lib/msk144d.f90
+  lib/msk144d2.f90
+  lib/msk144decodeframe.f90
   lib/msk144_decode.f90
   lib/mskrtd.f90
   lib/msk144sim.f90
+  lib/mskrtd.f90
   lib/options.f90
   lib/opdetmsk144.f90
   lib/packjt.f90
@@ -1050,6 +1053,9 @@ target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
 
 add_executable (msk144d lib/msk144d.f90 wsjtx.rc)
 target_link_libraries (msk144d wsjt_fort wsjt_cxx)
+
+add_executable (msk144d2 lib/msk144d2.f90 wsjtx.rc)
+target_link_libraries (msk144d2 wsjt_fort wsjt_cxx)
 
 add_executable (jt9 ${jt9_FSRCS} ${jt9_CXXSRCS} wsjtx.rc)
 if (${OPENMP_FOUND} OR APPLE)
