@@ -143,7 +143,6 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
            call msk144decodeframe(ct,msgreceived,nsuccess)
 
            if(nsuccess .gt. 0) then
-write(*,*) nsuccess,msgreceived
              write(line,1020) nutc0,nsnr,tsec,nint(fest),msgreceived,char(0)
 1020         format(i6.6,i4,f5.1,i5,' ^ ',a22,a1)
              goto 999
