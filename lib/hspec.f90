@@ -1,4 +1,4 @@
-subroutine hspec(id2,k,ntrperiod,ingain,green,s,jh)
+subroutine hspec(id2,k,nutc0,ntrperiod,ntol,bmsk144,ingain,green,s,jh,line1)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -9,7 +9,9 @@ subroutine hspec(id2,k,ntrperiod,ingain,green,s,jh)
 !  jh        index of most recent data in green(), s()
 
   parameter (JZ=703)
+  character*80 line1
   integer*2 id2(0:120*12000-1)
+  logical*1 bmsk144
   real green(0:JZ-1)
   real s(0:63,0:JZ-1)
   real x(512)
@@ -61,6 +63,15 @@ subroutine hspec(id2,k,ntrperiod,ingain,green,s,jh)
      if(ja+2*nfft.gt.k) exit
   enddo
   k0=k
+
+!###
+  if(bmsk144) then
+     if(k.ge.7168) then
+        tsec=(k-3584)/12000.0
+        call mskrtd(id2(k-7168+1:k),nutc0,tsec,ntol,line1)
+     endif
+  endif
+!###
 
 900 return
 end subroutine hspec

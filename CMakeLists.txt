@@ -408,6 +408,7 @@ set (wsjt_FSRCS
   lib/move.f90
   lib/msk144d.f90
   lib/msk144_decode.f90
+  lib/mskrtd.f90
   lib/msk144sim.f90
   lib/options.f90
   lib/opdetmsk144.f90
