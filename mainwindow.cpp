@@ -67,8 +67,9 @@ extern "C" {
   void symspec_(struct dec_data *, int* k, int* ntrperiod, int* nsps, int* ingain, int* minw,
                 float* px, float s[], float* df3, int* nhsym, int* npts8);
 
-  void hspec_(short int d2[], int* k, int* ntrperiod, int* ingain,
-              float green[], float s[], int* jh);
+  void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* ntol,
+              bool* bmsk144, int* ingain, float green[], float s[], int* jh,
+              char line[], int len1);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, int len1, int len2);
@@ -1261,17 +1262,42 @@ void MainWindow::fastSink(qint64 frames)
     m_bFastDecodeCalled=false;
   }
 
-  hspec_(dec_data.d2, &k, &m_TRperiod, &m_inGain, fast_green, fast_s, &fast_jh);
+  QDateTime tnow=QDateTime::currentDateTimeUtc();
+  int ihr=tnow.toString("hh").toInt();
+  int imin=tnow.toString("mm").toInt();
+  int isec=tnow.toString("ss").toInt();
+  isec=isec - isec%m_TRperiod;
+  int nutc0=10000*ihr + 100*imin + isec;
+  if(m_diskData) nutc0=m_UTCdisk;
+  char line[80];
+  bool bmsk144=((m_mode=="MSK144") and (m_monitoring or m_diskData));
+  bmsk144=bmsk144 && m_config.realTimeDecode();
+  line[0]=0;
+  hspec_(dec_data.d2,&k,&nutc0,&m_TRperiod, &m_Ftol, &bmsk144,&m_inGain,fast_green,
+         fast_s,&fast_jh, &line[0],80);
   float px = fast_green[fast_jh];
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);
   ui->signal_meter_widget->setValue(px); // Update thermometer
   m_fastGraph->plotSpec(m_diskData,m_UTCdisk);
 
+//###
+  if(bmsk144 and (line[0]!=0)) {
+    QString message=QString::fromLatin1(line);
+    DecodedText decodedtext;
+    decodedtext=message.replace("\n","");
+    ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
+         m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
+         m_config.color_NewCall());
+    m_bDecoded=true;
+  }
+//###
+
   decodeNow=false;
   m_k0=k;
   if(m_diskData and m_k0 >= dec_data.params.kin - 7 * 512) decodeNow=true;
   if(!m_diskData and m_tRemaining<0.35 and !m_bFastDecodeCalled) decodeNow=true;
+  if(m_config.realTimeDecode()) decodeNow=false;
 
   if(decodeNow) {
     m_dataAvailable=true;
@@ -2938,6 +2964,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
+    qDebug() << m_config.contestMode() << m_config.realTimeDecode();
     g_single_decode=m_config.single_decode();
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
       progressBar.setMaximum(6);

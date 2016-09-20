@@ -14,7 +14,8 @@ subroutine tweak1(ca,jz,f0,cb)
   wstep=cmplx(cos(dphi),sin(dphi))
   do i=1,jz
      w=w*wstep
-     cb(i)=w*ca(i)
+     w4=w
+     cb(i)=w4*ca(i)
   enddo
 
   return
