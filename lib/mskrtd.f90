@@ -9,9 +9,11 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
   parameter (NFFT1=8192)             !FFT size for making analytic signal
   parameter (NAVGMAX=7)              !Coherently average up to 7 frames
   parameter (NPTSMAX=7*NSPM)         !Max points analyzed at once
+  parameter (NPATTERNS=4)            !Number of frame averaging patterns to try
 
   character*3 decsym                 !"&" for mskspd or "^" for long averages
   character*22 msgreceived           !Decoded message
+  character*22 msglast               !!! temporary - used for dupechecking
   character*80 line                  !Formatted line with UTC dB T Freq Msg
 
   complex cdat(NFFT1)                !Analytic signal
@@ -22,30 +24,28 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
 !  integer*8 count0,count1,count2,count3,clkfreq
   integer*2 id2(NZ)                  !Raw 16-bit data
   integer iavmask(8)
-  integer iavpatterns(8,6)
+  integer iavpatterns(8,NPATTERNS)
   integer s8(8)
-  integer ipeaks(10)
+  integer npkloc(10)
   integer nav(6)
 
   real cbi(42),cbq(42)
   real d(NFFT1)
-  real pkamps(10)
   real pp(12)                        !Half-sine pulse shape
-  real xmc(6)
+  real pow(7)
+  real xmc(NPATTERNS)
   logical first
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
   data nav/1,2,3,5,7,9/
   data iavpatterns/ &
-       1,1,1,0,0,0,0,0, &
-       0,1,1,1,0,0,0,0, &
-       0,0,1,1,1,0,0,0, &
+       1,1,1,1,0,0,0,0, &
+       0,0,1,1,1,1,0,0, &
        1,1,1,1,1,0,0,0, &
-       0,0,1,1,1,1,1,0, &
        1,1,1,1,1,1,1,0/
-  data xmc/1.5,2.5,3.5,2.5,4.5,3.5/ !Used to label decode with time at center of averaging mask
+  data xmc/2.0,4.5,2.5,3.5/ !Used to label decode with time at center of averaging mask
 
-  save first,cb,fs,pi,twopi,dt,s8,pp,t03,t12,nutc00
+  save first,cb,fs,pi,twopi,dt,s8,pp,t03,t12,nutc00,pnoise,nsnrlast,msglast
 
 !  call system_clock(count0,clkfreq)
   if(first) then
@@ -74,9 +74,19 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
      first=.false.
      t03=0.0
      t12=0.0
-     nutc00=-1
+     nutc00=nutc0
+     pnoise=-1.0
   endif
 
+!!! Dupe checking should probaby be moved to mainwindow.cpp
+  if( nutc00 .ne. nutc0 ) then ! reset dupe checker
+    msglast='                      '
+    nsnrlast=-99
+    nutc00=nutc0
+  endif
+  
+  tframe=float(NSPM)/12000.0 
+  line=char(0)
   msgreceived='                      '
   max_iterations=10
   niterations=0
@@ -88,6 +98,17 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
   d(NZ+1:NFFT1)=0.
   call analytic(d,NZ,NFFT1,cdat)      !Convert to analytic signal and filter
 
+  pmax=-99
+  do i=1,7 
+    ib=(i-1)*NSPM+1
+    ie=ib+NSPM-1
+    pow(i)=dot_product(cdat(ib:ie),cdat(ib:ie))*rms**2
+    if( pow(i) .gt. pmax ) then
+      pmax=pow(i)
+    endif
+  enddo
+  pavg=sum(pow)/7.0
+  
   np=7*NSPM
   call msk144spd(cdat,np,ntol,nsuccess,msgreceived,fest,snr,tdec)
   if( nsuccess .eq. 1 ) then
@@ -96,30 +117,25 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
     goto 999
   endif 
     
-  tframe=float(NSPM)/12000.0 
-  nmessages=0
-  line=char(0)
-  npts=7168
-
-  do iavg=1,6
+  do iavg=1,NPATTERNS
      iavmask=iavpatterns(1:8,iavg)
      navg=sum(iavmask)
-!     ndf=nint(7.0/navg) + 1
+!     ndf=nint(7.0/navg) + 1  
      ndf=nint(7.0/navg) 
-
      npeaks=2
-     call msk144sync(cdat(1:8*NSPM),8*864,ntol,ndf,iavmask,npeaks,fest,snr,ipeaks,pkamps,c)
+     call msk144sync(cdat(1:7*NSPM),7*864,ntol,ndf,iavmask,npeaks,fest,npkloc,nsyncsuccess,c)
+     if( nsyncsuccess .eq. 0 ) cycle
 
-     do ipk=1,2
+     do ipk=1,npeaks
         do is=1,3
-           ic0=ipeaks(ipk)
+           ic0=npkloc(ipk)
            if(is.eq.2) ic0=max(1,ic0-1)
            if(is.eq.3) ic0=min(NSPM,ic0+1)
            ct=cshift(c,ic0-1)
 
-           call msk144decodeframe(ct,msgreceived,nsuccess)
+           call msk144decodeframe(ct,msgreceived,ndecodesuccess)
 
-           if(nsuccess .gt. 0) then
+           if(ndecodesuccess .gt. 0) then
              tdec=tsec+xmc(iavg)*tframe
              decsym=' ^ '
              goto 999
@@ -129,9 +145,34 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
   enddo
 
   msgreceived=' '
+
+! no decode - update noise level estimate used for calculating displayed snr. 
+  if( pnoise .lt. 0 ) then         ! initialize noise level
+     pnoise=pavg
+  elseif( pavg .gt. pnoise ) then  ! noise level is slow to rise
+     pnoise=0.9*pnoise+0.1*pavg
+  elseif( pavg .lt. pnoise ) then  ! and quick to fall
+     pnoise=pavg
+  endif
   return
+
 999 continue
-  nsnr=nint(snr)
+
+! successful decode - estimate snr 
+  if( pnoise .gt. 0.0 ) then
+    snr0=10.0*log10(pmax/pnoise-1.0)
+  else
+    snr0=0.0
+  endif
+  nsnr=nint(snr0)
+
+!!!! Temporary - dupe check. Only print if new message, or higher snr.
+  if( msgreceived .eq. msglast .and. nsnr .le. nsnrlast ) return
+
+  msglast=msgreceived
+  nsnrlast=nsnr
+  if( nsnr .lt. -8 ) nsnr=-8
+  if( nsnr .gt. 24 ) nsnr=24
   write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,char(0)
 1020 format(i6.6,i4,f5.1,i5,a3,a22,a1)
   return

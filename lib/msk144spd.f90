@@ -274,7 +274,7 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fret,snrret,tret)
 ! place the beginning of frame at index NSPM+1
           cdat2=cshift(cdat2,ic-(NSPM+1))
 
-          do iav=1,7 ! Hopefully we can eliminate some of these after looking at more examples 
+          do iav=1,8 ! Hopefully we can eliminate some of these after looking at more examples 
             if( iav .eq. 1 ) then
               c=cdat2(NSPM+1:2*NSPM)  
             elseif( iav .eq. 2 ) then
