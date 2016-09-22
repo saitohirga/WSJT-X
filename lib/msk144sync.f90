@@ -1,4 +1,4 @@
-subroutine msk144sync(cdat,n,ntol,ndf,iavmask,npeaks,fest,snr,ipklocs,pkamps,c)
+subroutine msk144sync(cdat,n,ntol,ndf,navmask,npeaks,fest,npklocs,nsuccess,c)
 
   parameter (NSPM=864)
   complex cdat(n)
@@ -11,8 +11,8 @@ subroutine msk144sync(cdat,n,ntol,ndf,iavmask,npeaks,fest,snr,ipklocs,pkamps,c)
 
   integer s8(8)
   integer iloc(1)
-  integer ipklocs(npeaks)
-  integer iavmask(8)                 ! defines which frames to average
+  integer npklocs(npeaks)
+  integer navmask(8)                 ! defines which frames to average
 
   real cbi(42),cbq(42)
   real pkamps(npeaks)
@@ -51,7 +51,7 @@ subroutine msk144sync(cdat,n,ntol,ndf,iavmask,npeaks,fest,snr,ipklocs,pkamps,c)
      first=.false.
   endif
 
-  navg=sum(iavmask) 
+  navg=sum(navmask) 
   xmax=0.0
   bestf=0.0
   do ifr=-ntol,ntol,ndf            !Find freq that maximizes sync
@@ -61,7 +61,7 @@ subroutine msk144sync(cdat,n,ntol,ndf,iavmask,npeaks,fest,snr,ipklocs,pkamps,c)
      do i=1,8
         ib=(i-1)*NSPM+1
         ie=ib+NSPM-1
-        if( iavmask(i) .eq. 1 ) then
+        if( navmask(i) .eq. 1 ) then
           c(1:NSPM)=c(1:NSPM)+cdat2(ib:ie)
         endif
      enddo
@@ -91,12 +91,16 @@ subroutine msk144sync(cdat,n,ntol,ndf,iavmask,npeaks,fest,snr,ipklocs,pkamps,c)
   do ipk=1,npeaks
      iloc=maxloc(xcc)
      ic2=iloc(1)
-     ipklocs(ipk)=ic2
+     npklocs(ipk)=ic2
      pkamps(ipk)=xcc(ic2-1)
      xcc(max(0,ic2-7):min(NSPM-1,ic2+7))=0.0
   enddo
 
-!write(*,*) xmax,bestf,fest,pkamps(1)/(48.0*sqrt(float(navg))),ipklocs(1),ipklocs(2)
-  snr=-6.0
+  if( xmax .lt. 0.7 ) then
+    nsuccess=0
+  else
+    nsuccess=1
+  endif
+
   return
 end subroutine msk144sync

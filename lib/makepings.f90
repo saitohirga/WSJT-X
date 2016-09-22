@@ -6,8 +6,8 @@ subroutine makepings(pings,npts,width,sig)
 
   iping0=-999
   dt=1.0/12000.0
-  do i=1,14
-     t0(i)=i                            !Make pings at t=1, 2, ... 14 s.
+  do i=1,14,2
+     t0(i)=i                            !Make pings at t=1, 3, ... 13 s.
   enddo
   w=width
   amp=sig
