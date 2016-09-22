@@ -10,34 +10,41 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
   parameter (NAVGMAX=7)              !Coherently average up to 7 frames
   parameter (NPTSMAX=7*NSPM)         !Max points analyzed at once
 
-  integer*2 id2(NZ)                  !Raw 16-bit data
+  character*3 decsym                 !"&" for mskspd or "^" for long averages
   character*22 msgreceived           !Decoded message
   character*80 line                  !Formatted line with UTC dB T Freq Msg
 
   complex cdat(NFFT1)                !Analytic signal
-  complex cdat2(NFFT1)               !Signal shifted to baseband
   complex c(NSPM)                    !Coherently averaged complex data
   complex ct(NSPM)
-  complex ct2(2*NSPM)
-  complex cs(NSPM)
   complex cb(42)                     !Complex waveform for sync word 
-  complex cc(0:NSPM-1)
 
 !  integer*8 count0,count1,count2,count3,clkfreq
+  integer*2 id2(NZ)                  !Raw 16-bit data
+  integer iavmask(8)
+  integer iavpatterns(8,6)
   integer s8(8)
-  integer iloc(1)
   integer ipeaks(10)
   integer nav(6)
 
   real cbi(42),cbq(42)
   real d(NFFT1)
-  real xcc(0:NSPM-1)
-  real xccs(0:NSPM-1)
+  real pkamps(10)
   real pp(12)                        !Half-sine pulse shape
+  real xmc(6)
   logical first
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
   data nav/1,2,3,5,7,9/
+  data iavpatterns/ &
+       1,1,1,0,0,0,0,0, &
+       0,1,1,1,0,0,0,0, &
+       0,0,1,1,1,0,0,0, &
+       1,1,1,1,1,0,0,0, &
+       0,0,1,1,1,1,1,0, &
+       1,1,1,1,1,1,1,0/
+  data xmc/1.5,2.5,3.5,2.5,4.5,3.5/ !Used to label decode with time at center of averaging mask
+
   save first,cb,fs,pi,twopi,dt,s8,pp,t03,t12,nutc00
 
 !  call system_clock(count0,clkfreq)
@@ -80,58 +87,28 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
   d(1:NZ)=fac*d(1:NZ)
   d(NZ+1:NFFT1)=0.
   call analytic(d,NZ,NFFT1,cdat)      !Convert to analytic signal and filter
-  
+
+  np=7*NSPM
+  call msk144spd(cdat,np,ntol,nsuccess,msgreceived,fest,snr,tdec)
+  if( nsuccess .eq. 1 ) then
+    tdec=tsec+tdec
+    decsym=' & '
+    goto 999
+  endif 
+    
+  tframe=float(NSPM)/12000.0 
   nmessages=0
   line=char(0)
-  nshort=0
   npts=7168
-  nsnr=-4                             !### Temporary ###
 
-  do iavg=1,5
-     navg=nav(iavg)
-     ndf=nint(7.0/navg) + 1
-     xmax=0.0
-     bestf=0.0
-!     call system_clock(count1,clkfreq)
-     do ifr=-ntol,ntol,ndf            !Find freq that maximizes sync
-        ferr=ifr
-        call tweak1(cdat,NPTS,-(1500+ferr),cdat2)
-        c=0
-        do i=1,navg
-           ib=(i-1)*NSPM+1
-           ie=ib+NSPM-1
-           c(1:NSPM)=c(1:NSPM)+cdat2(ib:ie)
-        enddo
+  do iavg=1,6
+     iavmask=iavpatterns(1:8,iavg)
+     navg=sum(iavmask)
+!     ndf=nint(7.0/navg) + 1
+     ndf=nint(7.0/navg) 
 
-        cc=0
-        ct2(1:NSPM)=c
-        ct2(NSPM+1:2*NSPM)=c
-        do ish=0,NSPM-1
-           cc(ish)=dot_product(ct2(1+ish:42+ish)+ct2(336+ish:377+ish),cb(1:42))
-        enddo
-
-        xcc=abs(cc)
-        xb=maxval(xcc)/(48.0*sqrt(float(navg)))
-        if(xb.gt.xmax) then
-           xmax=xb
-           bestf=ferr
-           cs=c
-           xccs=xcc
-        endif
-     enddo
-!     call system_clock(count2,clkfreq)
-
-     fest=1500+bestf
-     c=cs
-     xcc=xccs
-
-! Find 2 largest peaks
-     do ipk=1,2
-        iloc=maxloc(xcc)
-        ic2=iloc(1)
-        ipeaks(ipk)=ic2
-        xcc(max(0,ic2-7):min(NSPM-1,ic2+7))=0.0
-     enddo
+     npeaks=2
+     call msk144sync(cdat(1:8*NSPM),8*864,ntol,ndf,iavmask,npeaks,fest,snr,ipeaks,pkamps,c)
 
      do ipk=1,2
         do is=1,3
@@ -143,8 +120,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
            call msk144decodeframe(ct,msgreceived,nsuccess)
 
            if(nsuccess .gt. 0) then
-             write(line,1020) nutc0,nsnr,tsec,nint(fest),msgreceived,char(0)
-1020         format(i6.6,i4,f5.1,i5,' ^ ',a22,a1)
+             tdec=tsec+xmc(iavg)*tframe
+             decsym=' ^ '
              goto 999
            endif
         enddo                         !Slicer dither
@@ -152,18 +129,10 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
   enddo
 
   msgreceived=' '
-  ndither=-98   
+  return
 999 continue
-
-!  call system_clock(count3,clkfreq)
-!  t12=t12 + float(count2-count1)/clkfreq
-!  t03=t03 + float(count3-count0)/clkfreq
-!  if(navg.gt.7) navg=0
-!  write(*,3002)  nutc0,tsec,t12,t03,xmax,nint(bestf),navg,           &
-!       nbadsync,niterations,ipk,is,msgreceived(1:19)
-!  write(62,3002) nutc0,tsec,t12,t03,xmax,nint(bestf),navg,           &
-!       nbadsync,niterations,ipk,is,msgreceived(1:19)
-!3002 format(i6,f6.2,2f7.2,f6.2,i5,5i3,1x,a19)
-
+  nsnr=nint(snr)
+  write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,char(0)
+1020 format(i6.6,i4,f5.1,i5,a3,a22,a1)
   return
 end subroutine mskrtd

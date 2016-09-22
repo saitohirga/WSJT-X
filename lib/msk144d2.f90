@@ -84,9 +84,9 @@ program msk144d2
      call timer('read    ',1)
      do i=1,npts,7*512
        ichunk=id2(i:i+7*1024-1)
-       tsec=(i-1+7*512)/12000.0
+       tsec=(i-1)/12000.0
        call mskrtd(ichunk,nutc,tsec,ntol,line)
-       if( line .ne. ' ' ) then
+       if( index(line,"^") .ne. 0 .or. index(line,"&") .ne. 0 ) then
          write(*,*) line
        endif
      enddo 
