@@ -409,6 +409,8 @@ set (wsjt_FSRCS
   lib/msk144d.f90
   lib/msk144d2.f90
   lib/msk144decodeframe.f90
+  lib/msk144spd.f90
+  lib/msk144sync.f90
   lib/msk144_decode.f90
   lib/mskrtd.f90
   lib/msk144sim.f90
