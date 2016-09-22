@@ -1,5 +1,5 @@
 subroutine msk144decodeframe(c,msgreceived,nsuccess)
-  use timer_module, only: timer
+!  use timer_module, only: timer
 
   parameter (NSPM=864)
   character*22 msgreceived
@@ -16,10 +16,9 @@ subroutine msk144decodeframe(c,msgreceived,nsuccess)
   logical first
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
-  save df,first,cb,fs,pi,twopi,dt,s8,pp,nmatchedfilter
+  save df,first,cb,fs,pi,twopi,dt,s8,pp
 
   if(first) then
-     nmatchedfilter=1
 ! define half-sine pulse and raised-cosine edge window
      pi=4d0*datan(1d0)
      twopi=8d0*datan(1d0)
@@ -95,9 +94,9 @@ subroutine msk144decodeframe(c,msgreceived,nsuccess)
   
   max_iterations=10
   max_dither=1
-  call timer('bpdec144 ',0)
+!  call timer('bpdec144 ',0)
   call bpdecode144(llr,max_iterations,decoded,niterations)
-  call timer('bpdec144 ',1)
+!  call timer('bpdec144 ',1)
 
   if( niterations .ge. 0.0 ) then
     call extractmessage144(decoded,msgreceived,nhashflag)

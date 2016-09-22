@@ -67,7 +67,7 @@ subroutine hspec(id2,k,nutc0,ntrperiod,ntol,bmsk144,ingain,green,s,jh,line1)
 !###
   if(bmsk144) then
      if(k.ge.7168) then
-        tsec=(k-3584)/12000.0
+        tsec=(k-7168)/12000.0
         call mskrtd(id2(k-7168+1:k),nutc0,tsec,ntol,line1)
      endif
   endif
