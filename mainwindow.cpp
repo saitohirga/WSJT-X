@@ -2964,7 +2964,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-    qDebug() << m_config.contestMode() << m_config.realTimeDecode();
+//    qDebug() << m_config.contestMode() << m_config.realTimeDecode();
     g_single_decode=m_config.single_decode();
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
       progressBar.setMaximum(6);
