@@ -1,8 +1,8 @@
-subroutine msk144sync(cdat,n,ntol,ndf,navmask,npeaks,fest,npklocs,nsuccess,c)
+subroutine msk144sync(cdat,nframes,ntol,ndf,navmask,npeaks,fc,fest,npklocs,nsuccess,c)
 
   parameter (NSPM=864)
-  complex cdat(n)
-  complex cdat2(n)
+  complex cdat(NSPM*nframes)
+  complex cdat2(NSPM*nframes)
   complex c(NSPM)                    !Coherently averaged complex data
   complex ct2(2*NSPM)
   complex cs(NSPM)
@@ -12,7 +12,7 @@ subroutine msk144sync(cdat,n,ntol,ndf,navmask,npeaks,fest,npklocs,nsuccess,c)
   integer s8(8)
   integer iloc(1)
   integer npklocs(npeaks)
-  integer navmask(8)                 ! defines which frames to average
+  integer navmask(nframes)                 ! defines which frames to average
 
   real cbi(42),cbq(42)
   real pkamps(npeaks)
@@ -54,11 +54,12 @@ subroutine msk144sync(cdat,n,ntol,ndf,navmask,npeaks,fest,npklocs,nsuccess,c)
   navg=sum(navmask) 
   xmax=0.0
   bestf=0.0
+  n=nframes*NSPM
   do ifr=-ntol,ntol,ndf            !Find freq that maximizes sync
      ferr=ifr
-     call tweak1(cdat,n,-(1500+ferr),cdat2)
+     call tweak1(cdat,n,-(fc+ferr),cdat2)
      c=0
-     do i=1,8
+     do i=1,nframes
         ib=(i-1)*NSPM+1
         ie=ib+NSPM-1
         if( navmask(i) .eq. 1 ) then
@@ -83,7 +84,7 @@ subroutine msk144sync(cdat,n,ntol,ndf,navmask,npeaks,fest,npklocs,nsuccess,c)
      endif
   enddo
 
-  fest=1500+bestf
+  fest=fc+bestf
   c=cs
   xcc=xccs
 

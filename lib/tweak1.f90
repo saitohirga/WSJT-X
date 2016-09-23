@@ -5,6 +5,7 @@ subroutine tweak1(ca,jz,f0,cb)
   complex ca(jz),cb(jz)
   real*8 twopi
   complex*16 w,wstep
+  complex w4
   data twopi/0.d0/
   save twopi
 

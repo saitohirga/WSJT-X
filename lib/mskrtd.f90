@@ -78,6 +78,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
      pnoise=-1.0
   endif
 
+  fc=1500.0   !!! This will eventually come from the Rx Freq GUI box.
+
 !!! Dupe checking should probaby be moved to mainwindow.cpp
   if( nutc00 .ne. nutc0 ) then ! reset dupe checker
     msglast='                      '
@@ -109,8 +111,10 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
   enddo
   pavg=sum(pow)/7.0
   
-  np=7*NSPM
-  call msk144spd(cdat,np,ntol,nsuccess,msgreceived,fest,snr,tdec)
+  np=8*NSPM
+
+  call msk144spd(cdat,np,ntol,nsuccess,msgreceived,fc,fest,tdec)
+
   if( nsuccess .eq. 1 ) then
     tdec=tsec+tdec
     decsym=' & '
@@ -120,10 +124,9 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
   do iavg=1,NPATTERNS
      iavmask=iavpatterns(1:8,iavg)
      navg=sum(iavmask)
-!     ndf=nint(7.0/navg) + 1  
      ndf=nint(7.0/navg) 
      npeaks=2
-     call msk144sync(cdat(1:7*NSPM),7*864,ntol,ndf,iavmask,npeaks,fest,npkloc,nsyncsuccess,c)
+     call msk144sync(cdat(1:8*NSPM),8,ntol,ndf,iavmask,npeaks,fc,fest,npkloc,nsyncsuccess,c)
      if( nsyncsuccess .eq. 0 ) cycle
 
      do ipk=1,npeaks
@@ -146,7 +149,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
 
   msgreceived=' '
 
-! no decode - update noise level estimate used for calculating displayed snr. 
+! no decode - update noise level used for calculating displayed snr.  
   if( pnoise .lt. 0 ) then         ! initialize noise level
      pnoise=pavg
   elseif( pavg .gt. pnoise ) then  ! noise level is slow to rise
@@ -154,11 +157,12 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
   elseif( pavg .lt. pnoise ) then  ! and quick to fall
      pnoise=pavg
   endif
+
   return
 
 999 continue
 
-! successful decode - estimate snr 
+! successful decode - estimate snr  !!! noise estimate needs work
   if( pnoise .gt. 0.0 ) then
     snr0=10.0*log10(pmax/pnoise-1.0)
   else
@@ -177,3 +181,4 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
 1020 format(i6.6,i4,f5.1,i5,a3,a22,a1)
   return
 end subroutine mskrtd
+

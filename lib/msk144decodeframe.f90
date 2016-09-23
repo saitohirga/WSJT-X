@@ -87,7 +87,7 @@ subroutine msk144decodeframe(c,msgreceived,nsuccess)
   ssig=sqrt(s2av-sav*sav)
   softbits=softbits/ssig
 
-  sigma=0.70
+  sigma=0.72
   llr(1:48)=softbits(9:9+47)
   llr(49:128)=softbits(65:65+80-1)
   llr=2.0*llr/(sigma*sigma)
