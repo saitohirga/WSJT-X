@@ -87,13 +87,12 @@ subroutine msk144decodeframe(c,msgreceived,nsuccess)
   ssig=sqrt(s2av-sav*sav)
   softbits=softbits/ssig
 
-  sigma=0.72
+  sigma=0.75
   llr(1:48)=softbits(9:9+47)
   llr(49:128)=softbits(65:65+80-1)
   llr=2.0*llr/(sigma*sigma)
   
   max_iterations=10
-  max_dither=1
 !  call timer('bpdec144 ',0)
   call bpdecode144(llr,max_iterations,decoded,niterations)
 !  call timer('bpdec144 ',1)

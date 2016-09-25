@@ -99,9 +99,9 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,line)
   do iavg=1,NPATTERNS
      iavmask=iavpatterns(1:8,iavg)
      navg=sum(iavmask)
-     ndf=nint(7.0/navg) 
+     deltaf=7.0/real(navg)  ! search increment for frequency sync
      npeaks=2
-     call msk144sync(cdat(1:8*NSPM),8,ntol,ndf,iavmask,npeaks,fc,fest,npkloc,nsyncsuccess,c)
+     call msk144sync(cdat(1:8*NSPM),8,ntol,deltaf,iavmask,npeaks,fc,fest,npkloc,nsyncsuccess,c)
      if( nsyncsuccess .eq. 0 ) cycle
 
      do ipk=1,npeaks
