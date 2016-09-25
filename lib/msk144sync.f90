@@ -1,4 +1,4 @@
-subroutine msk144sync(cdat,nframes,ntol,ndf,navmask,npeaks,fc,fest,npklocs,nsuccess,c)
+subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,npklocs,nsuccess,c)
 
   parameter (NSPM=864)
   complex cdat(NSPM*nframes)
@@ -55,8 +55,11 @@ subroutine msk144sync(cdat,nframes,ntol,ndf,navmask,npeaks,fc,fest,npklocs,nsucc
   xmax=0.0
   bestf=0.0
   n=nframes*NSPM
-  do ifr=-ntol,ntol,ndf            !Find freq that maximizes sync
-     ferr=ifr
+  nf=nint(ntol/delf)
+  fac=1.0/(48.0*sqrt(float(navg)))
+
+  do ifr=-nf,nf            !Find freq that maximizes sync
+     ferr=ifr*delf
      call tweak1(cdat,n,-(fc+ferr),cdat2)
      c=0
      do i=1,nframes
@@ -75,7 +78,7 @@ subroutine msk144sync(cdat,nframes,ntol,ndf,navmask,npeaks,fc,fest,npklocs,nsucc
      enddo
 
      xcc=abs(cc)
-     xb=maxval(xcc)/(48.0*sqrt(float(navg)))
+     xb=maxval(xcc)*fac
      if(xb.gt.xmax) then
         xmax=xb
         bestf=ferr

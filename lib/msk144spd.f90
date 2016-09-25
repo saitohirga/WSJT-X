@@ -154,7 +154,7 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret)
   msgreceived=' '
   npeaks=2
   ntol0=8
-  ndf=2
+  deltaf=2.0
   do icand=1,ndet  ! Try to sync/demod/decode each candidate.
     ib=max(1,nstart(icand)-NSPM)
     ie=ib-1+3*NSPM
@@ -166,7 +166,7 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret)
     fo=fc+ferrs(icand)
     do iav=1,NPATTERNS
       navmask=navpatterns(1:3,iav) 
-      call msk144sync(cdat,3,ntol0,ndf,navmask,npeaks,fo,fest,npkloc,nsyncsuccess,c)
+      call msk144sync(cdat,3,ntol0,deltaf,navmask,npeaks,fo,fest,npkloc,nsyncsuccess,c)
 
       if( nsyncsuccess .eq. 0 ) cycle
 
