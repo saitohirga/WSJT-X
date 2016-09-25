@@ -367,6 +367,7 @@ private:
   qint32  m_TRindex;
   qint32  m_FtolIndex;
   qint32  m_Ftol;
+  qint32  m_RxFreq;
   qint32  m_TRperiodFast;
   qint32  m_nTx73;
   qint32  m_freqCQ;

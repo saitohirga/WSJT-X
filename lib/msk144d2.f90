@@ -18,9 +18,10 @@ program msk144d2
   character*12 mycall,hiscall
   character(len=500) optarg
 
-  type (option) :: long_options(6) = [ &
+  type (option) :: long_options(7) = [ &
        option ('dxcall',.true.,'d','hiscall',''), &  
        option ('evemode',.true.,'e','',''), &
+       option ('frequency',.true.,'f','rxfreq',''), &
        option ('help',.false.,'h','Display this help message',''), &
        option ('mycall',.true.,'m','mycall',''), &
        option ('nftol',.true.,'n','nftol',''), &
@@ -28,12 +29,13 @@ program msk144d2
        ]
   t0=0.0
   ntol=100
+  nrxfreq=1500
   mycall=''
   hiscall=''
   bShMsgs=.false.
  
   do
-     call getopt('d:ehm:n:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+     call getopt('d:ef:hm:n:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
      if( nstat .ne. 0 ) then
         exit
      end if
@@ -42,6 +44,8 @@ program msk144d2
         read (optarg(:narglen), *) hiscall
      case ('e')
         t0=1e-4
+     case ('f')
+        read (optarg(:narglen), *) nrxfreq
      case ('h')
         display_help = .true.
      case ('m')
@@ -85,7 +89,7 @@ program msk144d2
      do i=1,npts,7*512
        ichunk=id2(i:i+7*1024-1)
        tsec=(i-1)/12000.0
-       call mskrtd(ichunk,nutc,tsec,ntol,line)
+       call mskrtd(ichunk,nutc,tsec,ntol,nrxfreq,line)
        if( index(line,"^") .ne. 0 .or. index(line,"&") .ne. 0 ) then
          write(*,*) line
        endif
