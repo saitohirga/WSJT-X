@@ -63,6 +63,14 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret)
   detmet=0
   detmet2=0
   detfer=-999.99
+  nfhi=2*(fc+500)
+  nflo=2*(fc-500)
+  ihlo=(nfhi-2*ntol)/df+1
+  ihhi=(nfhi+2*ntol)/df+1
+  illo=(nflo-2*ntol)/df+1
+  ilhi=(nflo+2*ntol)/df+1
+  i2000=nflo/df+1
+  i4000=nfhi/df+1
   do istp=1,nstep
     ns=1+216*(istp-1)
     ne=ns+NSPM-1
@@ -80,8 +88,6 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret)
     call four2a(ctmp,NFFT,1,-1,1)
     tonespec=abs(ctmp)**2
 
-    ihlo=(4000-2*ntol)/df+1
-    ihhi=(4000+2*ntol)/df+1
     ismask=.false.
     ismask(ihlo:ihhi)=.true.  ! high tone search window
     iloc=maxloc(tonespec,ismask)
@@ -90,8 +96,6 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret)
     ah=tonespec(ihpk)
     ahavp=(sum(tonespec,ismask)-ah)/count(ismask)
     trath=ah/(ahavp+0.01)
-    illo=(2000-2*ntol)/df+1
-    ilhi=(2000+2*ntol)/df+1
     ismask=.false.
     ismask(illo:ilhi)=.true.   ! window for low tone
     iloc=maxloc(tonespec,ismask)
@@ -101,8 +105,6 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret)
     alavp=(sum(tonespec,ismask)-al)/count(ismask)
     tratl=al/(alavp+0.01)
     fdiff=(ihpk+deltah-ilpk-deltal)*df
-    i2000=2000/df+1
-    i4000=4000/df+1
     ferrh=(ihpk+deltah-i4000)*df/2.0
     ferrl=(ilpk+deltal-i2000)*df/2.0
     if( ah .ge. al ) then
