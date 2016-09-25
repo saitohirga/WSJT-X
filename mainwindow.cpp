@@ -67,7 +67,7 @@ extern "C" {
   void symspec_(struct dec_data *, int* k, int* ntrperiod, int* nsps, int* ingain, int* minw,
                 float* px, float s[], float* df3, int* nhsym, int* npts8);
 
-  void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* ntol,
+  void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* nrxfreq, int* ntol,
               bool* bmsk144, int* ingain, float green[], float s[], int* jh,
               char line[], int len1);
 
@@ -1273,7 +1273,9 @@ void MainWindow::fastSink(qint64 frames)
   bool bmsk144=((m_mode=="MSK144") and (m_monitoring or m_diskData));
   bmsk144=bmsk144 && m_config.realTimeDecode();
   line[0]=0;
-  hspec_(dec_data.d2,&k,&nutc0,&m_TRperiod, &m_Ftol, &bmsk144,&m_inGain,fast_green,
+//### Is this OK?
+  m_RxFreq=ui->RxFreqSpinBox->value ();
+  hspec_(dec_data.d2,&k,&nutc0,&m_TRperiod,&m_RxFreq,&m_Ftol,&bmsk144,&m_inGain,fast_green,
          fast_s,&fast_jh, &line[0],80);
   float px = fast_green[fast_jh];
   QString t;
@@ -4324,7 +4326,7 @@ void MainWindow::switch_mode (Mode mode)
   ui->rptSpinBox->setMaximum(49);
   ui->sbFtol->setMinimum(21);
   ui->sbFtol->setMaximum(27);
-  ui->RxFreqSpinBox->setVisible(m_mode!="MSK144");
+//  ui->RxFreqSpinBox->setVisible(m_mode!="MSK144");
 }
 
 void MainWindow::WSPR_config(bool b)

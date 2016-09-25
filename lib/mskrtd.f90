@@ -1,4 +1,4 @@
-subroutine mskrtd(id2,nutc0,tsec,ntol,line)
+subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,line)
 
 ! Real-time decoder for MSK144.  
 ! Analysis block size = NZ = 7168 samples, t_block = 0.597333 s 
@@ -7,8 +7,6 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
   parameter (NZ=7168)                !Block size
   parameter (NSPM=864)               !Number of samples per message frame
   parameter (NFFT1=8192)             !FFT size for making analytic signal
-  parameter (NAVGMAX=7)              !Coherently average up to 7 frames
-  parameter (NPTSMAX=7*NSPM)         !Max points analyzed at once
   parameter (NPATTERNS=4)            !Number of frame averaging patterns to try
 
   character*3 decsym                 !"&" for mskspd or "^" for long averages
@@ -19,24 +17,18 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
   complex cdat(NFFT1)                !Analytic signal
   complex c(NSPM)                    !Coherently averaged complex data
   complex ct(NSPM)
-  complex cb(42)                     !Complex waveform for sync word 
 
-!  integer*8 count0,count1,count2,count3,clkfreq
   integer*2 id2(NZ)                  !Raw 16-bit data
   integer iavmask(8)
   integer iavpatterns(8,NPATTERNS)
-  integer s8(8)
   integer npkloc(10)
   integer nav(6)
 
-  real cbi(42),cbq(42)
   real d(NFFT1)
-  real pp(12)                        !Half-sine pulse shape
-  real pow(7)
+  real pow(8)
   real xmc(NPATTERNS)
   logical first
   data first/.true./
-  data s8/0,1,1,1,0,0,1,0/
   data nav/1,2,3,5,7,9/
   data iavpatterns/ &
        1,1,1,1,0,0,0,0, &
@@ -45,40 +37,17 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
        1,1,1,1,1,1,1,0/
   data xmc/2.0,4.5,2.5,3.5/ !Used to label decode with time at center of averaging mask
 
-  save first,cb,fs,pi,twopi,dt,s8,pp,t03,t12,nutc00,pnoise,nsnrlast,msglast
+  save first,t03,t12,nutc00,pnoise,nsnrlast,msglast
 
-!  call system_clock(count0,clkfreq)
   if(first) then
-     pi=4.0*atan(1.0)
-     twopi=8.0*atan(1.0)
-     fs=12000.0
-     dt=1.0/fs
-
-     do i=1,12                       !Define half-sine pulse
-       angle=(i-1)*pi/12.0
-       pp(i)=sin(angle)
-     enddo
-
-! Define the sync word waveforms
-     s8=2*s8-1  
-     cbq(1:6)=pp(7:12)*s8(1)
-     cbq(7:18)=pp*s8(3)
-     cbq(19:30)=pp*s8(5)
-     cbq(31:42)=pp*s8(7)
-     cbi(1:12)=pp*s8(2)
-     cbi(13:24)=pp*s8(4)
-     cbi(25:36)=pp*s8(6)
-     cbi(37:42)=pp(1:6)*s8(8)
-     cb=cmplx(cbi,cbq)
-
-     first=.false.
      t03=0.0
      t12=0.0
      nutc00=nutc0
      pnoise=-1.0
+     first=.false.
   endif
 
-  fc=1500.0   !!! This will eventually come from the Rx Freq GUI box.
+  fc=nrxfreq
 
 !!! Dupe checking should probaby be moved to mainwindow.cpp
   if( nutc00 .ne. nutc0 ) then ! reset dupe checker
@@ -100,8 +69,11 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
   d(NZ+1:NFFT1)=0.
   call analytic(d,NZ,NFFT1,cdat)      !Convert to analytic signal and filter
 
+! Calculate average power for each frame and for the entire block.
+! If decode is successful, largest power will be taken as signal+noise.
+! If no decode, entire-block average will be used to update noise estimate.
   pmax=-99
-  do i=1,7 
+  do i=1,8 
     ib=(i-1)*NSPM+1
     ie=ib+NSPM-1
     pow(i)=dot_product(cdat(ib:ie),cdat(ib:ie))*rms**2
@@ -109,18 +81,21 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,line)
       pmax=pow(i)
     endif
   enddo
-  pavg=sum(pow)/7.0
-  
+  pavg=sum(pow)/8.0
+ 
+! Short ping decoder uses squared-signal spectrum to determine where to
+! center a 3-frame analysis window and attempts to decode each of the 
+! 3 frames along with 2- and 3-frame averages. 
   np=8*NSPM
-
   call msk144spd(cdat,np,ntol,nsuccess,msgreceived,fc,fest,tdec)
-
   if( nsuccess .eq. 1 ) then
     tdec=tsec+tdec
     decsym=' & '
     goto 999
   endif 
-    
+
+! If short ping decoder doesn't find a decode, then 4-, 5-, and 7-frame averages
+! spanning the first 7 frames of the block.  
   do iavg=1,NPATTERNS
      iavmask=iavpatterns(1:8,iavg)
      navg=sum(iavmask)

@@ -2280,7 +2280,7 @@ Right click for insert and delete options.</string>
           <item row="8" column="0">
            <widget class="QCheckBox" name="cbRealTime">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Decode on-the-fly rather than at end of Rx sequence.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
