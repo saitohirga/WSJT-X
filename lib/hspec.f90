@@ -1,4 +1,5 @@
-subroutine hspec(id2,k,nutc0,ntrperiod,nrxfreq,ntol,bmsk144,ingain,green,s,jh,line1)
+subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,ingain,   &
+     green,s,jh,line1)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -20,6 +21,8 @@ subroutine hspec(id2,k,nutc0,ntrperiod,nrxfreq,ntol,bmsk144,ingain,green,s,jh,li
   equivalence (x,cx)
   save ja,rms0
 
+  ndepth=ntrpdepth/1000
+  ntrperiod=ntrpdepth - 1000*ndepth
   gain=10.0**(0.1*ingain)
   nfft=512
   nstep=nfft

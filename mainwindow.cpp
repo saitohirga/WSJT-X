@@ -1277,8 +1277,9 @@ void MainWindow::fastSink(qint64 frames)
 
   //###
   m_RxFreq=ui->RxFreqSpinBox->value ();
-  hspec_(dec_data.d2,&k,&nutc0,&m_TRperiod,&m_RxFreq,&m_Ftol,&bmsk144,&m_inGain,fast_green,
-         fast_s,&fast_jh, &line[0],80);
+  int nTRpDepth=m_TRperiod + 1000*(m_ndepth & 3);
+  hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&m_RxFreq,&m_Ftol,&bmsk144,&m_inGain,
+         fast_green,fast_s,&fast_jh, &line[0],80);
   float px = fast_green[fast_jh];
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);
@@ -1309,6 +1310,7 @@ void MainWindow::fastSink(qint64 frames)
   decodeNow=false;
   if(fracTR>0.98) {
     m_bFastDone=true;
+    m_dataAvailable=true;
     fast_decode_done();
   }
 //###
@@ -2145,7 +2147,6 @@ void MainWindow::decode()                                       //decode()
   if(!dec_data.params.nagain && m_diskData && !m_bFastMode) {
     dec_data.params.nutc=dec_data.params.nutc/100;
   }
-//  qDebug() << "a" << m_diskData << m_nPick << m_nutc0 << dec_data.params.nutc;
   if(dec_data.params.nagain==0 && dec_data.params.newdat==1 && (!m_diskData)) {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int imin=ms/60000;
@@ -2174,7 +2175,6 @@ void MainWindow::decode()                                       //decode()
   if(m_nPick==1 and m_diskData)
 
   if(m_nPick==2) dec_data.params.nutc=m_nutc0;
-//  qDebug() << "b" << m_diskData << m_nPick << m_nutc0 << dec_data.params.nutc;
   dec_data.params.nfqso=m_wideGraph->rxFreq();
   qint32 depth {m_ndepth};
   if (!ui->actionInclude_averaging->isEnabled ()) depth &= ~16;
@@ -2254,7 +2254,7 @@ void MainWindow::decode()                                       //decode()
     if(m_nPick > 0) {
       t0=m_t0Pick;
       t1=m_t1Pick;
-      if(t1 > m_kdone/12000.0) t1=m_kdone/12000.0;
+      if(t1 > m_kdone/12000.0 and !m_config.realTimeDecode()) t1=m_kdone/12000.0;
     }
     static short int d2b[360000];
     narg[0]=dec_data.params.nutc;
