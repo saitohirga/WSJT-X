@@ -18,7 +18,8 @@ program msk144d2
   character*12 mycall,hiscall
   character(len=500) optarg
 
-  type (option) :: long_options(7) = [ &
+  type (option) :: long_options(8) = [ &
+       option ('ndepth',.true.,'c','ndepth',''), &  
        option ('dxcall',.true.,'d','hiscall',''), &  
        option ('evemode',.true.,'e','',''), &
        option ('frequency',.true.,'f','rxfreq',''), &
@@ -28,6 +29,7 @@ program msk144d2
        option ('short',.false.,'s','enable Sh','') &
        ]
   t0=0.0
+  ndepth=3
   ntol=100
   nrxfreq=1500
   mycall=''
@@ -35,11 +37,13 @@ program msk144d2
   bShMsgs=.false.
  
   do
-     call getopt('d:ef:hm:n:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+     call getopt('c:d:ef:hm:n:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
      if( nstat .ne. 0 ) then
         exit
      end if
      select case (c)
+     case ('c')
+        read (optarg(:narglen), *) ndepth 
      case ('d')
         read (optarg(:narglen), *) hiscall
      case ('e')
@@ -89,7 +93,7 @@ program msk144d2
      do i=1,npts,7*512
        ichunk=id2(i:i+7*1024-1)
        tsec=(i-1)/12000.0
-       call mskrtd(ichunk,nutc,tsec,ntol,nrxfreq,line)
+       call mskrtd(ichunk,nutc,tsec,ntol,nrxfreq,ndepth,line)
        if( index(line,"^") .ne. 0 .or. index(line,"&") .ne. 0 ) then
          write(*,*) line
        endif
