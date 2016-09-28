@@ -1,4 +1,4 @@
-subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,line)
+subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
 
 ! Real-time decoder for MSK144.  
 ! Analysis block size = NZ = 7168 samples, t_block = 0.597333 s 
@@ -82,7 +82,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,line)
     endif
   enddo
   pavg=sum(pow)/8.0
- 
+
 ! Short ping decoder uses squared-signal spectrum to determine where to
 ! center a 3-frame analysis window and attempts to decode each of the 
 ! 3 frames along with 2- and 3-frame averages. 
@@ -94,9 +94,15 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,line)
     goto 999
   endif 
 
-! If short ping decoder doesn't find a decode, then 4-, 5-, and 7-frame averages
-! spanning the first 7 frames of the block.  
-  do iavg=1,NPATTERNS
+
+! If short ping decoder doesn't find a decode, 
+! Fast - try 4-frame averages only
+! Normal - try 4- and 5-frame averages
+! Deep - try 4-, 5- and 7-frame averages. 
+  npat=NPATTERNS
+  if( ndepth .eq. 1 ) npat=2
+  if( ndepth .eq. 2 ) npat=3
+  do iavg=1,npat
      iavmask=iavpatterns(1:8,iavg)
      navg=sum(iavmask)
      deltaf=7.0/real(navg)  ! search increment for frequency sync
