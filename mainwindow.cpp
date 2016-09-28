@@ -807,6 +807,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   m_UTCdisk=-1;
   m_ntx = 1;
+  m_bFastDone=false;
   ui->txrb1->setChecked(true);
 
   if(m_mode.startsWith ("WSPR") and m_pctx>0)  {
@@ -1273,7 +1274,8 @@ void MainWindow::fastSink(qint64 frames)
   bool bmsk144=((m_mode=="MSK144") and (m_monitoring or m_diskData));
   bmsk144=bmsk144 && m_config.realTimeDecode();
   line[0]=0;
-//### Is this OK?
+
+  //###
   m_RxFreq=ui->RxFreqSpinBox->value ();
   hspec_(dec_data.d2,&k,&nutc0,&m_TRperiod,&m_RxFreq,&m_Ftol,&bmsk144,&m_inGain,fast_green,
          fast_s,&fast_jh, &line[0],80);
@@ -1283,9 +1285,9 @@ void MainWindow::fastSink(qint64 frames)
   ui->signal_meter_widget->setValue(px); // Update thermometer
   m_fastGraph->plotSpec(m_diskData,m_UTCdisk);
 
-//###
+  QString message;
   if(bmsk144 and (line[0]!=0)) {
-    QString message=QString::fromLatin1(line);
+    message=QString::fromLatin1(line);
     DecodedText decodedtext;
     decodedtext=message.replace("\n","");
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
@@ -1293,9 +1295,24 @@ void MainWindow::fastSink(qint64 frames)
          m_config.color_NewCall());
     m_bDecoded=true;
   }
+
+  int i1=message.indexOf(m_baseCall);
+  int i2=message.indexOf(m_hisCall);
+  if(i1>10 and i2>i1+3) {
+    if((message.indexOf(" 73") < 0) or (m_ntx!=6)) {
+      processMessage(message,43,false);
+    }
+    writeAllTxt(message);
+  }
+
+  float fracTR=float(k)/(12000.0*m_TRperiod);
+  decodeNow=false;
+  if(fracTR>0.98) {
+    m_bFastDone=true;
+    fast_decode_done();
+  }
 //###
 
-  decodeNow=false;
   m_k0=k;
   if(m_diskData and m_k0 >= dec_data.params.kin - 7 * 512) decodeNow=true;
   if(!m_diskData and m_tRemaining<0.35 and !m_bFastDecodeCalled) decodeNow=true;
@@ -1311,6 +1328,8 @@ void MainWindow::fastSink(qint64 frames)
       m_bFastDecodeCalled=true;
       decode();
     }
+  }
+  if(decodeNow or m_bFastDone) {
     if(!m_diskData) {           // Always save; may delete later
       QDateTime now {QDateTime::currentDateTimeUtc()};
       int n=now.time().second() % m_TRperiod;
@@ -2282,7 +2301,9 @@ void::MainWindow::fast_decode_done()
     int i2=msg0.indexOf(m_hisCall);
     if((m_mode=="MSK144" or m_bFast9) and m_bAutoSeq and tmax>=0.0 and
        i1>10 and i2>i1+3) {
-      if((msg0.indexOf(" 73") < 0) or (m_ntx!=6)) processMessage(msg0,43,false);
+      if((msg0.indexOf(" 73") < 0) or (m_ntx!=6)) {
+        processMessage(msg0,43,false);
+      }
     }
     if(m_msg[i][0]==0) break;
     QString message=QString::fromLatin1(m_msg[i]);
@@ -2292,9 +2313,11 @@ void::MainWindow::fast_decode_done()
 //Left (Band activity) window
     DecodedText decodedtext;
     decodedtext=message.replace("\n","");
-    ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
+    if(!m_bFastDone) {
+      ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
          m_config.color_NewCall());
+    }
 
     t=message.mid(10,5).toFloat();
     if(t>tmax) {
@@ -2302,25 +2325,7 @@ void::MainWindow::fast_decode_done()
       tmax=t;
       m_bDecoded=true;
     }
-
-// Write decoded text to file "ALL.TXT".
-    QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
-    if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
-      QTextStream out(&f);
-      if(m_RxLog==1) {
-        out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-            << "  " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz  "
-            << m_mode << endl;
-        m_RxLog=0;
-      }
-      int n=message.length();
-      out << message.mid(0,n-2) << endl;
-      f.close();
-    } else {
-      MessageBox::warning_message (this, tr ("File Open Error")
-                                   , tr ("Cannot open \"%1\" for append: %2")
-                                   .arg (f.fileName ()).arg (f.errorString ()));
-    }
+    writeAllTxt(message);
 
     if(m_mode=="JT9" or m_mode=="MSK144") {
 // find and extract any report for myCall
@@ -2331,7 +2336,7 @@ void::MainWindow::fast_decode_done()
 
 // extract details and send to PSKreporter
       if(m_config.spot_to_psk_reporter() and stdMsg and !m_diskData) {
-        QString msgmode="JT9";
+        QString msgmode=m_mode;
         QString deCall;
         QString grid;
         decodedtext.deCallAndGrid(/*out*/deCall,grid);
@@ -2353,6 +2358,29 @@ void::MainWindow::fast_decode_done()
   m_startAnother=m_loopall;
   m_nPick=0;
   ui->DecodeButton->setChecked (false);
+  m_bFastDone=false;
+}
+
+void MainWindow::writeAllTxt(QString message)
+{
+  // Write decoded text to file "ALL.TXT".
+      QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
+      if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
+        QTextStream out(&f);
+        if(m_RxLog==1) {
+          out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
+              << "  " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz  "
+              << m_mode << endl;
+          m_RxLog=0;
+        }
+        int n=message.length();
+        out << message.mid(0,n-2) << endl;
+        f.close();
+      } else {
+        MessageBox::warning_message (this, tr ("File Open Error")
+                                     , tr ("Cannot open \"%1\" for append: %2")
+                                     .arg (f.fileName ()).arg (f.errorString ()));
+      }
 }
 
 void MainWindow::decodeDone ()
@@ -2966,7 +2994,6 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << m_config.contestMode() << m_config.realTimeDecode();
     g_single_decode=m_config.single_decode();
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
       progressBar.setMaximum(6);

@@ -278,6 +278,7 @@ private:
 
 private:
   void astroUpdate ();
+  void writeAllTxt(QString message);
 
   bool m_valid;
   QSplashScreen * m_splash;
@@ -416,6 +417,7 @@ private:
   bool    m_bDoubleClickAfterCQnnn;
   bool    m_bRefSpec;
   bool    m_bUseRef;
+  bool    m_bFastDone;
   float   m_pctZap;
   int			m_ihsym;
   int			m_nzap;
