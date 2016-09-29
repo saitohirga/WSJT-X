@@ -1,7 +1,7 @@
-subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
+subroutine genmsk144(msg0,mygrid,ichk,bcontest,msgsent,i4tone,itype)
 ! s8 + 48bits + s8 + 80 bits = 144 bits (72ms message duration)
 !
-! Encode a JTMSK message
+! Encode an MSK144 message
 ! Input:
 !   - msg0     requested message to be transmitted
 !   - ichk     if ichk=1, return only msgsent
@@ -23,6 +23,7 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
   character*22 msg0
   character*22 message                    !Message to be generated
   character*22 msgsent                    !Message as it will be received
+  character*6 mygrid,g1,g2,g3,g4
   integer*4 i4Msg6BitWords(13)            !72-bit message as 6-bit words
   integer*4 i4tone(144)                   !
   integer*1, target:: i1Msg8BitBytes(10)  !80 bits represented in 10 bytes 
@@ -31,11 +32,12 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
   integer*1 bitseq(144)                   !Tone #s, data and sync (values 0-1)
   integer*1 i1hash(4)
   integer*1 s8(8)
+  logical*1 bcontest
   real*8 pp(12)
   real*8 xi(864),xq(864),pi,twopi
   data s8/0,1,1,1,0,0,1,0/
   equivalence (ihash,i1hash)
-  logical first
+  logical first,isgrid
   data first/.true./
   save
 
@@ -75,8 +77,38 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
         go to 999
      endif
 
+     if(bcontest) then
+        i0=index(message,' R ') + 3
+        g1=message(i0:i0+3)//'  '
+        if(isgrid(g1)) then
+           call grid2deg(g1,dlong,dlat)
+           dlong=dlong+180.0
+           if(dlong.gt.180.0) dlong=dlong-360.0
+           dlat=-dlat
+           call deg2grid(dlong,dlat,g2)
+           message=message(1:i0-3)//g2(1:4)
+        endif
+     endif
+
      call packmsg(message,i4Msg6BitWords,itype)  !Pack into 12 6-bit bytes
      call unpackmsg(i4Msg6BitWords,msgsent)      !Unpack to get msgsent
+
+     if(bcontest) then
+        i1=index(msgsent(8:22),' ') + 8
+        g3=msgsent(i1:i1+3)//'  '
+        if(isgrid(g3)) then
+           call azdist(mygrid,g3,0.d0,nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter)
+           if(ndkm.gt.10000) then
+              call grid2deg(g3,dlong,dlat)
+              dlong=dlong+180.0
+              if(dlong.gt.180.0) dlong=dlong-360.0
+              dlat=-dlat
+              call deg2grid(dlong,dlat,g4)
+              msgsent=msgsent(1:i1-1)//'R '//g4(1:4)
+           endif
+        endif
+     endif
+
      if(ichk.eq.1) go to 999
      i4=0
      ik=0
@@ -89,7 +121,6 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
          i4=iand(i4,255)
          if(ik.eq.8) then
            im=im+1
-!           if(i4.gt.127) i4=i4-256
            i1Msg8BitBytes(im)=i4
            ik=0
          endif
@@ -143,3 +174,14 @@ subroutine genmsk144(msg0,ichk,msgsent,i4tone,itype)
 
 999 return
 end subroutine genmsk144
+
+logical function isgrid(g1)
+
+  character*4 g1
+
+  isgrid=g1(1:1).ge.'A' .and. g1(1:1).le.'R' .and. g1(2:2).ge.'A' .and.     &
+       g1(2:2).le.'R' .and. g1(3:3).ge.'0' .and. g1(3:3).le.'9' .and.       &
+       g1(4:4).ge.'0' .and. g1(4:4).le.'9'
+
+  return
+end function isgrid
