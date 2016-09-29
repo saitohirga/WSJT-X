@@ -1,4 +1,5 @@
-subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,npklocs,nsuccess,c)
+subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
+     npklocs,nsuccess,c)
 
   parameter (NSPM=864)
   complex cdat(NSPM*nframes)
@@ -9,6 +10,7 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,npklocs,nsuc
   complex cb(42)                     !Complex waveform for sync word 
   complex cc(0:NSPM-1)
 
+  integer*8 count0,count1,clkfreq
   integer s8(8)
   integer iloc(1)
   integer npklocs(npeaks)
@@ -22,9 +24,9 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,npklocs,nsuc
   logical first
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
-  save first,cb,fs,pi,twopi,dt,s8,pp
+  save first,cb,fs,pi,twopi,dt,s8,pp,t,ncall
 
-!  call system_clock(count0,clkfreq)
+  call system_clock(count0,clkfreq)
   if(first) then
      pi=4.0*atan(1.0)
      twopi=8.0*atan(1.0)
@@ -48,6 +50,8 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,npklocs,nsuc
      cbi(37:42)=pp(1:6)*s8(8)
      cb=cmplx(cbi,cbq)
 
+     ncall=0
+     t=0.0
      first=.false.
   endif
 
@@ -73,9 +77,15 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,npklocs,nsuc
      cc=0
      ct2(1:NSPM)=c
      ct2(NSPM+1:2*NSPM)=c
+
+     nchunk=NSPM/2
+!$OMP PARALLEL SHARED(cb,ct2,cc,nchunk) PRIVATE(ish)
+!$OMP DO SCHEDULE(DYNAMIC,nchunk)
      do ish=0,NSPM-1
         cc(ish)=dot_product(ct2(1+ish:42+ish)+ct2(336+ish:377+ish),cb(1:42))
      enddo
+!$OMP END DO NOWAIT
+!$OMP END PARALLEL
 
      xcc=abs(cc)
      xb=maxval(xcc)*fac
@@ -105,6 +115,12 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,npklocs,nsuc
   else
     nsuccess=1
   endif
+
+  ncall=ncall+1
+  call system_clock(count1,clkfreq)
+  t=t + float(count1-count0)/clkfreq
+!  write(*,3001) t,20*t/ncall
+!3001 format(2f8.3)
 
   return
 end subroutine msk144sync

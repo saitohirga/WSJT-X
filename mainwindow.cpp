@@ -3044,7 +3044,7 @@ void MainWindow::guiUpdate()
         if(m_mode=="MSK144" and m_config.realTimeDecode()) {
           int npct=int(100.0*m_fCPUmskrtd/0.298667);
           if(npct>90) tx_status_label.setStyleSheet("QLabel{background-color: #ff0000}");
-          t.sprintf("Receiving   %2d\%",npct);
+          t.sprintf("Receiving   %2d%%",npct);
         }
         tx_status_label.setText (t);
       }
