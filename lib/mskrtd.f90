@@ -37,11 +37,10 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
        1,1,1,1,1,1,1,0/
   data xmc/2.0,4.5,2.5,3.5/ !Used to label decode with time at center of averaging mask
 
-  save first,t03,t12,nutc00,pnoise,nsnrlast,msglast
+  save first,tsec0,nutc00,pnoise,nsnrlast,msglast
 
   if(first) then
-     t03=0.0
-     t12=0.0
+     tsec0=tsec
      nutc00=nutc0
      pnoise=-1.0
      first=.false.
@@ -50,7 +49,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
   fc=nrxfreq
 
 !!! Dupe checking should probaby be moved to mainwindow.cpp
-  if( nutc00 .ne. nutc0 ) then ! reset dupe checker
+  if(nutc00.ne.nutc0 .or. tsec.lt.tsec0) then ! reset dupe checker
     msglast='                      '
     nsnrlast=-99
     nutc00=nutc0
@@ -63,7 +62,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
   niterations=0
   d(1:NZ)=id2
   rms=sqrt(sum(d(1:NZ)*d(1:NZ))/NZ)
-  if(rms.lt.1.0) return
+  if(rms.lt.1.0) go to 999
   fac=1.0/rms
   d(1:NZ)=fac*d(1:NZ)
   d(NZ+1:NFFT1)=0.
@@ -76,7 +75,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
   do i=1,8 
     ib=(i-1)*NSPM+1
     ie=ib+NSPM-1
-    pow(i)=dot_product(cdat(ib:ie),cdat(ib:ie))*rms**2
+    pow(i)=real(dot_product(cdat(ib:ie),cdat(ib:ie)))*rms**2
     if( pow(i) .gt. pmax ) then
       pmax=pow(i)
     endif
@@ -91,7 +90,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
   if( nsuccess .eq. 1 ) then
     tdec=tsec+tdec
     decsym=' & '
-    goto 999
+    goto 900
   endif 
 
 
@@ -122,7 +121,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
            if(ndecodesuccess .gt. 0) then
              tdec=tsec+xmc(iavg)*tframe
              decsym=' ^ '
-             goto 999
+             goto 900
            endif
         enddo                         !Slicer dither
      enddo                            !Peak loop 
@@ -138,11 +137,9 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
   elseif( pavg .lt. pnoise ) then  ! and quick to fall
      pnoise=pavg
   endif
+  go to 999
 
-  return
-
-999 continue
-
+900 continue
 ! successful decode - estimate snr  !!! noise estimate needs work
   if( pnoise .gt. 0.0 ) then
     snr0=10.0*log10(pmax/pnoise-1.0)
@@ -152,14 +149,17 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
   nsnr=nint(snr0)
 
 !!!! Temporary - dupe check. Only print if new message, or higher snr.
-  if( msgreceived .eq. msglast .and. nsnr .le. nsnrlast ) return
-
-  msglast=msgreceived
-  nsnrlast=nsnr
-  if( nsnr .lt. -8 ) nsnr=-8
-  if( nsnr .gt. 24 ) nsnr=24
-  write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,char(0)
+  if(msgreceived.ne.msglast .or. nsnr.gt.nsnrlast .or. tsec.lt.tsec0) then
+     msglast=msgreceived
+     nsnrlast=nsnr
+     if( nsnr .lt. -8 ) nsnr=-8
+     if( nsnr .gt. 24 ) nsnr=24
+     write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,char(0)
 1020 format(i6.6,i4,f5.1,i5,a3,a22,a1)
+  endif
+
+999 tsec0=tsec
+
   return
 end subroutine mskrtd
 
