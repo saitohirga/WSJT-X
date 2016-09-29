@@ -105,7 +105,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
      navg=sum(iavmask)
      deltaf=7.0/real(navg)  ! search increment for frequency sync
      npeaks=2
-     call msk144sync(cdat(1:8*NSPM),8,ntol,deltaf,iavmask,npeaks,fc,fest,npkloc,nsyncsuccess,c)
+     call msk144sync(cdat(1:8*NSPM),8,ntol,deltaf,iavmask,npeaks,fc,   &
+          fest,npkloc,nsyncsuccess,c)
      if( nsyncsuccess .eq. 0 ) cycle
 
      do ipk=1,npeaks
@@ -114,9 +115,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
            if(is.eq.2) ic0=max(1,ic0-1)
            if(is.eq.3) ic0=min(NSPM,ic0+1)
            ct=cshift(c,ic0-1)
-
            call msk144decodeframe(ct,msgreceived,ndecodesuccess)
-
            if(ndecodesuccess .gt. 0) then
              tdec=tsec+xmc(iavg)*tframe
              decsym=' ^ '
@@ -156,7 +155,6 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
      write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,char(0)
 1020 format(i6.6,i4,f5.1,i5,a3,a22,a1)
   endif
-
 999 tsec0=tsec
 
   return
