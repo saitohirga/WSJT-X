@@ -807,6 +807,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   m_UTCdisk=-1;
   m_ntx = 1;
+  m_fCPUmskrtd=0.0;
   m_bFastDone=false;
   ui->txrb1->setChecked(true);
 
@@ -1278,8 +1279,11 @@ void MainWindow::fastSink(qint64 frames)
   //###
   m_RxFreq=ui->RxFreqSpinBox->value ();
   int nTRpDepth=m_TRperiod + 1000*(m_ndepth & 3);
+  qint64 ms0 = QDateTime::currentMSecsSinceEpoch();
   hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&m_RxFreq,&m_Ftol,&bmsk144,&m_inGain,
          fast_green,fast_s,&fast_jh, &line[0],80);
+  float tsec=0.001*(QDateTime::currentMSecsSinceEpoch() - ms0);
+  m_fCPUmskrtd=0.9*m_fCPUmskrtd + 0.1*tsec;
   float px = fast_green[fast_jh];
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);
@@ -2353,7 +2357,6 @@ void::MainWindow::fast_decode_done()
           }
       }
     }
-
   }
   m_startAnother=m_loopall;
   m_nPick=0;
@@ -3036,7 +3039,14 @@ void MainWindow::guiUpdate()
     } else if(m_monitoring) {
       if (!m_tx_watchdog) {
         tx_status_label.setStyleSheet("QLabel{background-color: #00ff00}");
-        tx_status_label.setText ("Receiving");
+        QString t;
+        t="Receiving";
+        if(m_mode=="MSK144" and m_config.realTimeDecode()) {
+          int npct=int(100.0*m_fCPUmskrtd/0.298667);
+          if(npct>90) tx_status_label.setStyleSheet("QLabel{background-color: #ff0000}");
+          t.sprintf("Receiving   %2d\%",npct);
+        }
+        tx_status_label.setText (t);
       }
       transmitDisplay(false);
     } else if (!m_diskData && !m_tx_watchdog) {
