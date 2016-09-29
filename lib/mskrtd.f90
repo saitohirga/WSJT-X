@@ -100,8 +100,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
 ! Normal - try 4- and 5-frame averages
 ! Deep - try 4-, 5- and 7-frame averages. 
   npat=NPATTERNS
-  if( ndepth .eq. 1 ) npat=2
-  if( ndepth .eq. 2 ) npat=3
+  if( ndepth .eq. 1 ) npat=0
+  if( ndepth .eq. 2 ) npat=2
   do iavg=1,npat
      iavmask=iavpatterns(1:8,iavg)
      navg=sum(iavmask)
