@@ -93,10 +93,9 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
     goto 900
   endif 
 
-
 ! If short ping decoder doesn't find a decode, 
-! Fast - try 4-frame averages only
-! Normal - try 4- and 5-frame averages
+! Fast - short ping decoder only. 
+! Normal - try 4-frame averages
 ! Deep - try 4-, 5- and 7-frame averages. 
   npat=NPATTERNS
   if( ndepth .eq. 1 ) npat=0
