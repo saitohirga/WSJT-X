@@ -710,6 +710,41 @@ find_program(CTAGS ctags)
 find_program(ETAGS etags)
 
 #
+# OpenMP
+#
+find_package (OpenMP)
+
+#
+# fftw3 single precision library
+#
+find_package (FFTW3 COMPONENTS double single threads REQUIRED)
+
+#
+# libhamlib setup
+#
+set (hamlib_STATIC 1)
+find_package (hamlib 3 REQUIRED)
+find_program (RIGCTL_EXE rigctl)
+find_program (RIGCTLD_EXE rigctld)
+
+message (STATUS "hamlib_INCLUDE_DIRS: ${hamlib_INCLUDE_DIRS}")
+message (STATUS "hamlib_LIBRARIES: ${hamlib_LIBRARIES}")
+message (STATUS "hamlib_LIBRARY_DIRS: ${hamlib_LIBRARY_DIRS}")
+
+#
+# Qt5 setup
+#
+
+# Widgets finds its own dependencies.
+find_package (Qt5Widgets 5 REQUIRED)
+find_package (Qt5Multimedia 5 REQUIRED)
+
+if (WIN32)
+  add_definitions (-DQT_NEEDS_QTMAIN)
+  find_package (Qt5AxContainer REQUIRED)
+endif (WIN32)
+
+#
 # sub-directories
 #
 add_subdirectory (samples)
@@ -738,6 +773,10 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -std=c++11 -fexceptions -
 
 if (NOT APPLE)
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pragmas")
+  if (${OPENMP_FOUND})
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
+  endif ()
   set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fdata-sections -ffunction-sections")
   set (CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -fdata-sections -ffunction-sections")
   set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fdata-sections -ffunction-sections")
@@ -850,41 +889,6 @@ set (QT_NEED_RPATH FALSE)
 if (NOT "${QT_LIBRARY_DIR}" STREQUAL "/lib" AND NOT "${QT_LIBRARY_DIR}" STREQUAL "/usr/lib" AND NOT "${QT_LIBRARY_DIR}" STREQUAL "/lib64" AND NOT "${QT_LIBRARY_DIR}" STREQUAL "/usr/lib64")
   set (QT_NEED_RPATH TRUE)
 endif ()
-
-#
-# OpenMP
-#
-find_package (OpenMP)
-
-#
-# fftw3 single precision library
-#
-find_package (FFTW3 COMPONENTS double single threads REQUIRED)
-
-#
-# libhamlib setup
-#
-set (hamlib_STATIC 1)
-find_package (hamlib 3 REQUIRED)
-find_program (RIGCTL_EXE rigctl)
-find_program (RIGCTLD_EXE rigctld)
-
-message (STATUS "hamlib_INCLUDE_DIRS: ${hamlib_INCLUDE_DIRS}")
-message (STATUS "hamlib_LIBRARIES: ${hamlib_LIBRARIES}")
-message (STATUS "hamlib_LIBRARY_DIRS: ${hamlib_LIBRARY_DIRS}")
-
-#
-# Qt5 setup
-#
-
-# Widgets finds its own dependencies.
-find_package (Qt5Widgets 5 REQUIRED)
-find_package (Qt5Multimedia 5 REQUIRED)
-
-if (WIN32)
-  add_definitions (-DQT_NEEDS_QTMAIN)
-  find_package (Qt5AxContainer REQUIRED)
-endif (WIN32)
 
 #
 # stuff only qmake can tell us
@@ -1112,7 +1116,16 @@ set_target_properties (wsjtx PROPERTIES
   )
 
 target_include_directories (wsjtx PRIVATE ${FFTW3_INCLUDE_DIRS})
-target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
+if (APPLE)
+  target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
+else ()
+  target_link_libraries (wsjtx wsjt_fort_omp wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
+  set_target_properties (wsjtx PROPERTIES
+    COMPILE_FLAGS "${OpenMP_C_FLAGS}"
+    LINK_FLAGS "${OpenMP_C_FLAGS} -Wl,--stack,8388608"
+    Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
+    )
+endif ()
 qt5_use_modules (wsjtx SerialPort) # not sure why the interface link library syntax above doesn't work
 
 # make a library for WSJT-X UDP servers
