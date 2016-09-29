@@ -82,7 +82,7 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
 !$OMP PARALLEL SHARED(cb,ct2,cc,nchunk) PRIVATE(ish)
 !$OMP DO SCHEDULE(DYNAMIC,nchunk)
      do ish=0,NSPM-1
-        cc(ish)=dot_product(ct2(1+ish:42+ish)+ct2(336+ish:377+ish),cb(1:42))
+        cc(ish)=dot_product(ct2(1+ish:42+ish)+ct2(337+ish:378+ish),cb(1:42))
      enddo
 !$OMP END DO NOWAIT
 !$OMP END PARALLEL
