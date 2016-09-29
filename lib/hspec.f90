@@ -3,6 +3,12 @@ subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,ingain,   &
 
 ! Input:
 !  k         pointer to the most recent new data
+!  nutc0     UTC for display of decode(s)
+!  ntrpdepth TR period and 1000*ndepth
+!  nrxfreq   Rx audio center frequency
+!  ntol      Decoding range is +/- ntol
+!  bmsk144   Boolean, true if in MSK144 mode
+!  ingain    Relative gain for spectra
 
 ! Output:
 !  green()   power
@@ -62,19 +68,16 @@ subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,ingain,   &
              aimag(cx(j-1))**2
         s(i-1,jh)=fac*gain*sx
      enddo
-!     call smo121(s(0,jh),64)   !### Good idea, or not? ###
      if(ja+2*nfft.gt.k) exit
   enddo
   k0=k
 
-!###
   if(bmsk144) then
      if(k.ge.7168) then
         tsec=(k-7168)/12000.0
         call mskrtd(id2(k-7168+1:k),nutc0,tsec,ntol,nrxfreq,ndepth,line1)
      endif
   endif
-!###
 
 900 return
 end subroutine hspec
