@@ -15,6 +15,7 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
   integer iloc(1)
   integer npklocs(npeaks)
   integer navmask(nframes)                 ! defines which frames to average
+  integer OMP_GET_NUM_THREADS
 
   real cbi(42),cbq(42)
   real pkamps(npeaks)
@@ -78,14 +79,15 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
      ct2(1:NSPM)=c
      ct2(NSPM+1:2*NSPM)=c
 
-     nchunk=NSPM/2
-!$OMP PARALLEL SHARED(cb,ct2,cc,nchunk) PRIVATE(ish)
-!$OMP DO SCHEDULE(DYNAMIC,nchunk)
+!     nchunk=NSPM/2
+!   !$OMP PARALLEL SHARED(cb,ct2,cc,nchunk) PRIVATE(ish)
+!   !$OMP DO SCHEDULE(DYNAMIC,nchunk)
      do ish=0,NSPM-1
         cc(ish)=dot_product(ct2(1+ish:42+ish)+ct2(337+ish:378+ish),cb(1:42))
      enddo
-!$OMP END DO NOWAIT
-!$OMP END PARALLEL
+!   !$OMP END DO NOWAIT
+!     rewind 71; nt=OMP_GET_NUM_THREADS(); write(71,*) nt; flush(71)
+!   !$OMP END PARALLEL
 
      xcc=abs(cc)
      xb=maxval(xcc)*fac
