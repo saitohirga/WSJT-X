@@ -3,31 +3,30 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
 
   parameter (NSPM=864)
   complex cdat(NSPM*nframes)
-  complex cdat2(NSPM*nframes)
   complex c(NSPM)                    !Coherently averaged complex data
-  complex ct2(2*NSPM)
-  complex cs(NSPM)
+  complex cs(NSPM,8)
   complex cb(42)                     !Complex waveform for sync word 
-  complex cc(0:NSPM-1)
 
-  integer*8 count0,count1,clkfreq
+!  integer*8 count0,count1,clkfreq
   integer s8(8)
   integer iloc(1)
   integer npklocs(npeaks)
   integer navmask(nframes)                 ! defines which frames to average
-  integer OMP_GET_NUM_THREADS
+  integer OMP_GET_THREAD_NUM,OMP_GET_MAX_THREADS
 
   real cbi(42),cbq(42)
   real pkamps(npeaks)
   real xcc(0:NSPM-1)
-  real xccs(0:NSPM-1)
+  real xccs(0:NSPM-1,8)
+  real xm(8)
+  real bf(8)
   real pp(12)                        !Half-sine pulse shape
   logical first
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
-  save first,cb,fs,pi,twopi,dt,s8,pp,t,ncall
+  save first,cb,fs,pi,twopi,dt,s8,pp
 
-  call system_clock(count0,clkfreq)
+!  call system_clock(count0,clkfreq)
   if(first) then
      pi=4.0*atan(1.0)
      twopi=8.0*atan(1.0)
@@ -51,57 +50,45 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
      cbi(37:42)=pp(1:6)*s8(8)
      cb=cmplx(cbi,cbq)
 
-     ncall=0
-     t=0.0
      first=.false.
   endif
 
-  navg=sum(navmask) 
-  xmax=0.0
-  bestf=0.0
-  n=nframes*NSPM
-  nf=nint(ntol/delf)
-  fac=1.0/(48.0*sqrt(float(navg)))
+  nfreqs=2*nint(ntol/delf) + 1
+  if(nfreqs.lt.0) then
+     nthreads=1
+     if2=nint(ntol/delf)
+     if1=-if2
+     call msk144_freq_search(cdat,fc,if1,if2,delf,nframes,navmask,cb,    &
+          xmax,bestf,c,xcc)
+     fest=fc+bestf
+  else
+     xm=0.0
+     bf=0.0
+     nthreads=min(4,OMP_GET_MAX_THREADS())
+     nstep=nfreqs/nthreads
+     call OMP_SET_NUM_THREADS(nthreads)
+!$OMP PARALLEL PRIVATE(id,if1,if2)
+     id=OMP_GET_THREAD_NUM() + 1            !Thread id = 1,2,...
+     if1=-nint(ntol/delf) + (id-1)*nstep
+     if2=if1+nstep-1
+     if(id.eq.nthreads) if2=nint(ntol/delf)
+     call msk144_freq_search(cdat,fc,if1,if2,delf,nframes,navmask,cb,    &
+          xm(id),bf(id),cs(1,id),xccs(1,id))
+!$OMP END PARALLEL
 
-  do ifr=-nf,nf            !Find freq that maximizes sync
-     ferr=ifr*delf
-     call tweak1(cdat,n,-(fc+ferr),cdat2)
-     c=0
-     do i=1,nframes
-        ib=(i-1)*NSPM+1
-        ie=ib+NSPM-1
-        if( navmask(i) .eq. 1 ) then
-          c(1:NSPM)=c(1:NSPM)+cdat2(ib:ie)
+     xmax=xm(1)
+     fest=fc+bf(1)
+     c=cs(1:NSPM,1)
+     xcc=xccs(0:NSPM-1,1)
+     do i=2,nthreads
+        if(xm(i).gt.xmax) then
+           xmax=xm(i)
+           fest=fc+bf(i)
+           c=cs(1:NSPM,i)
+           xcc=xccs(0:NSPM-1,i)
         endif
      enddo
-
-     cc=0
-     ct2(1:NSPM)=c
-     ct2(NSPM+1:2*NSPM)=c
-
-!     nchunk=NSPM/2
-!   !$OMP PARALLEL SHARED(cb,ct2,cc,nchunk) PRIVATE(ish)
-!   !$OMP DO SCHEDULE(DYNAMIC,nchunk)
-     do ish=0,NSPM-1
-        cc(ish)=dot_product(ct2(1+ish:42+ish)+ct2(337+ish:378+ish),cb(1:42))
-     enddo
-!   !$OMP END DO NOWAIT
-!     rewind 71; nt=OMP_GET_NUM_THREADS(); write(71,*) nt; flush(71)
-!   !$OMP END PARALLEL
-
-     xcc=abs(cc)
-     xb=maxval(xcc)*fac
-     if(xb.gt.xmax) then
-        xmax=xb
-        bestf=ferr
-        cs=c
-        xccs=xcc
-     endif
-  enddo
-
-  fest=fc+bestf
-  c=cs
-  xcc=xccs
+  endif
 
 ! Find npeaks largest peaks
   do ipk=1,npeaks
@@ -118,11 +105,10 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
     nsuccess=1
   endif
 
-  ncall=ncall+1
-  call system_clock(count1,clkfreq)
-  t=t + float(count1-count0)/clkfreq
-!  write(*,3001) t,20*t/ncall
-!3001 format(2f8.3)
+!  call system_clock(count1,clkfreq)
+!  t=float(count1-count0)/clkfreq
+!  write(72,3001) nfreqs,OMP_GET_MAX_THREADS(),nthreads,t
+!3001 format(3i6,f8.3)
 
   return
 end subroutine msk144sync
