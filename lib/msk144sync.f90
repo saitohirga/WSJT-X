@@ -60,9 +60,8 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
   nthreads=1
   !$ nthreads=min(8,int(OMP_GET_MAX_THREADS(),4))
   nstep=nfreqs/nthreads
-  !$ call OMP_SET_NUM_THREADS(nthreads)
 
-!$OMP PARALLEL PRIVATE(id,if1,if2)
+  !$OMP PARALLEL NUM_THREADS(nthreads) PRIVATE(id,if1,if2)
   id=1
   !$ id=OMP_GET_THREAD_NUM() + 1            !Thread id = 1,2,...
   if1=-nint(ntol/delf) + (id-1)*nstep
@@ -72,7 +71,7 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
        xm(id),bf(id),cs(1,id),xccs(1,id))
 !  write(73,3002) id,if1,if2,nfreqs,nthreads,bf(id),xm(id)
 !3002 format(5i5,2f10.3)
-!$OMP END PARALLEL
+  !$OMP END PARALLEL
 
   xmax=xm(1)
   fest=fc+bf(1)

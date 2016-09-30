@@ -37,7 +37,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
        1,1,1,1,1,1,1,0/
   data xmc/2.0,4.5,2.5,3.5/ !Used to label decode with time at center of averaging mask
 
-  save first,tsec0,nutc00,pnoise,nsnrlast,msglast
+  save first,tsec0,nutc00,pnoise,nsnrlast,msglast,cdat
 
   if(first) then
      tsec0=tsec
