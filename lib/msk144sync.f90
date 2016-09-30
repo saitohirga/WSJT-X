@@ -54,32 +54,28 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
   endif
 
   nfreqs=2*nint(ntol/delf) + 1
-  if(nfreqs.lt.0) then
-     nthreads=1
-     if2=nint(ntol/delf)
-     if1=-if2
-     call msk144_freq_search(cdat,fc,if1,if2,delf,nframes,navmask,cb,    &
-          xmax,bestf,c,xcc)
-     fest=fc+bestf
-  else
-     xm=0.0
-     bf=0.0
-     nthreads=min(4,OMP_GET_MAX_THREADS())
-     nstep=nfreqs/nthreads
-     call OMP_SET_NUM_THREADS(nthreads)
+  xm=0.0
+  bf=0.0
+  nthreads=min(8,OMP_GET_MAX_THREADS())
+  nstep=nfreqs/nthreads
+  call OMP_SET_NUM_THREADS(nthreads)
+
 !$OMP PARALLEL PRIVATE(id,if1,if2)
-     id=OMP_GET_THREAD_NUM() + 1            !Thread id = 1,2,...
-     if1=-nint(ntol/delf) + (id-1)*nstep
-     if2=if1+nstep-1
-     if(id.eq.nthreads) if2=nint(ntol/delf)
-     call msk144_freq_search(cdat,fc,if1,if2,delf,nframes,navmask,cb,    &
-          xm(id),bf(id),cs(1,id),xccs(1,id))
+  id=OMP_GET_THREAD_NUM() + 1            !Thread id = 1,2,...
+  if1=-nint(ntol/delf) + (id-1)*nstep
+  if2=if1+nstep-1
+  if(id.eq.nthreads) if2=nint(ntol/delf)
+  call msk144_freq_search(cdat,fc,if1,if2,delf,nframes,navmask,cb,    &
+       xm(id),bf(id),cs(1,id),xccs(1,id))
+!  write(73,3002) id,if1,if2,nfreqs,nthreads,bf(id),xm(id)
+!3002 format(5i5,2f10.3)
 !$OMP END PARALLEL
 
-     xmax=xm(1)
-     fest=fc+bf(1)
-     c=cs(1:NSPM,1)
-     xcc=xccs(0:NSPM-1,1)
+  xmax=xm(1)
+  fest=fc+bf(1)
+  c=cs(1:NSPM,1)
+  xcc=xccs(0:NSPM-1,1)
+  if(nthreads.gt.1) then
      do i=2,nthreads
         if(xm(i).gt.xmax) then
            xmax=xm(i)
