@@ -412,6 +412,7 @@ set (wsjt_FSRCS
   lib/msk144spd.f90
   lib/msk144sync.f90
   lib/msk144_decode.f90
+  lib/msk144_freq_search.f90
   lib/mskrtd.f90
   lib/msk144sim.f90
   lib/mskrtd.f90
