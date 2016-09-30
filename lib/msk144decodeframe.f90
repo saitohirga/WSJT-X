@@ -8,7 +8,7 @@ subroutine msk144decodeframe(c,msgreceived,nsuccess)
   complex c(NSPM)
   integer*1 decoded(80)
   integer s8(8),hardbits(144)
-  real*8 dt, df, fs, pi, twopi
+  real*8 dt, fs, pi, twopi
   real cbi(42),cbq(42)
   real pp(12)
   real softbits(144)
@@ -16,7 +16,7 @@ subroutine msk144decodeframe(c,msgreceived,nsuccess)
   logical first
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
-  save df,first,cb,fs,pi,twopi,dt,s8,pp
+  save first,cb,fs,pi,twopi,dt,s8,pp
 
   if(first) then
 ! define half-sine pulse and raised-cosine edge window
@@ -24,7 +24,6 @@ subroutine msk144decodeframe(c,msgreceived,nsuccess)
      twopi=8d0*datan(1d0)
      fs=12000.0
      dt=1.0/fs
-     df=fs/NFFT
 
      do i=1,12
        angle=(i-1)*pi/12.0
@@ -103,5 +102,6 @@ subroutine msk144decodeframe(c,msgreceived,nsuccess)
       nsuccess=1
     endif
   endif
+
   return
 end subroutine msk144decodeframe

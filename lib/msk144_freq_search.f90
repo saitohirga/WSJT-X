@@ -12,6 +12,7 @@ subroutine msk144_freq_search(cdat,fc,if1,if2,delf,nframes,navmask,cb,    &
   real xcc(0:NSPM-1)
   real xccs(0:NSPM-1)
   integer navmask(nframes)                 ! defines which frames to average
+  save cdat2
 
   navg=sum(navmask) 
   n=nframes*NSPM
