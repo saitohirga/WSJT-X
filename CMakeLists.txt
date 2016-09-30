@@ -1122,9 +1122,14 @@ else ()
   target_link_libraries (wsjtx wsjt_fort_omp wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
   set_target_properties (wsjtx PROPERTIES
     COMPILE_FLAGS "${OpenMP_C_FLAGS}"
-    LINK_FLAGS "${OpenMP_C_FLAGS} -Wl,--stack,8388608"
+    LINK_FLAGS "${OpenMP_C_FLAGS}"
     Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
     )
+  if (WIN32)
+    set_target_properties (wsjtx PROPERTIES
+      LINK_FLAGS -Wl,--stack,8388608
+      )
+  endif ()
 endif ()
 qt5_use_modules (wsjtx SerialPort) # not sure why the interface link library syntax above doesn't work
 
