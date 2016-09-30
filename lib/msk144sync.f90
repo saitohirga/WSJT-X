@@ -1,6 +1,8 @@
 subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
      npklocs,nsuccess,c)
 
+  !$ use omp_lib
+
   parameter (NSPM=864)
   complex cdat(NSPM*nframes)
   complex c(NSPM)                    !Coherently averaged complex data
@@ -12,7 +14,6 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
   integer iloc(1)
   integer npklocs(npeaks)
   integer navmask(nframes)                 ! defines which frames to average
-  integer OMP_GET_THREAD_NUM,OMP_GET_MAX_THREADS
 
   real cbi(42),cbq(42)
   real pkamps(npeaks)
@@ -56,12 +57,14 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
   nfreqs=2*nint(ntol/delf) + 1
   xm=0.0
   bf=0.0
-  nthreads=min(8,OMP_GET_MAX_THREADS())
+  nthreads=1
+  !$ nthreads=min(8,int(OMP_GET_MAX_THREADS(),4))
   nstep=nfreqs/nthreads
-  call OMP_SET_NUM_THREADS(nthreads)
+  !$ call OMP_SET_NUM_THREADS(nthreads)
 
 !$OMP PARALLEL PRIVATE(id,if1,if2)
-  id=OMP_GET_THREAD_NUM() + 1            !Thread id = 1,2,...
+  id=1
+  !$ id=OMP_GET_THREAD_NUM() + 1            !Thread id = 1,2,...
   if1=-nint(ntol/delf) + (id-1)*nstep
   if2=if1+nstep-1
   if(id.eq.nthreads) if2=nint(ntol/delf)
