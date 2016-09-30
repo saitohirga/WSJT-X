@@ -77,8 +77,9 @@ extern "C" {
   void gen9_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, int len1, int len2);
 
-  void genmsk144_(char* msg, int* ichk, char* msgsent, int itone[],
-               int* itext, int len1, int len2); 
+  void genmsk144_(char* msg, char* MyGrid, int* ichk, bool* bcontest,
+                  char* msgsent, int itone[], int* itext, int len1,
+                  int len2, int len3);
 
   void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
               int* itext, int len1, int len2);
@@ -1313,9 +1314,10 @@ void MainWindow::fastSink(qint64 frames)
   float fracTR=float(k)/(12000.0*m_TRperiod);
   decodeNow=false;
   if(fracTR>0.98) {
-    m_bFastDone=true;
+//    m_bFastDone=true;
     m_dataAvailable=true;
     fast_decode_done();
+    m_bFastDone=true;
   }
 //###
 
@@ -1359,6 +1361,7 @@ void MainWindow::fastSink(qint64 frames)
                                                                 , m_hisGrid)));
       killFileTimer.start (3*1000*m_TRperiod/4); //Kill 3/4 period from now
     }
+    m_bFastDone=false;
   }
 }
 
@@ -2831,8 +2834,11 @@ void MainWindow::guiUpdate()
         if(m_mode.startsWith ("WSPR")) genwspr_(message, msgsent, const_cast<int *> (itone),
                                              len1, len1);
         if(m_modeTx=="MSK144") {
-          genmsk144_(message, &ichk, msgsent, const_cast<int *> (itone),
-              &m_currentMessageType, len1, len1); 
+          bool bcontest=m_config.contestMode();
+          char MyGrid[6];
+          strncpy(MyGrid, (m_config.my_grid()+"      ").toLatin1(),6);
+          genmsk144_(message, MyGrid, &ichk, &bcontest, msgsent, const_cast<int *> (itone),
+              &m_currentMessageType, len1, 6, len1);
           if(m_restart) {
             int nsym=144;
             if(itone[40]==-40) nsym=40;
