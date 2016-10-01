@@ -78,8 +78,9 @@ float DecodedText::dt()
 // find and extract any report. Returns true if this is a standard message
 bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /*mod*/QString& report)
 {
-    QString msg=_string.mid(column_qsoText);
-    if(msg.trimmed().length() < 1) return false;
+    QString msg=_string.mid(column_qsoText).trimmed();
+    if(msg.length() < 1) return false;
+    msg=(msg+"                      ").mid(0,22);
     int i1=msg.indexOf("\r");
     if (i1>0)
         msg=msg.mid(0,i1-1) + "                      ";
@@ -102,7 +103,7 @@ bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /
         if (ok and i1>=-50 and i1<50)
         {
             report = tt;
-//            qDebug() << "report for " << _string << "::" << report;
+            qDebug() << "A report for " << _string << "::" << report;
         }
         else
         {
@@ -112,7 +113,7 @@ bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /
                 if(ok and i1>=-50 and i1<50)
                 {
                     report = tt.mid(1);
-//                    qDebug() << "report for " << _string << "::" << report;
+                    qDebug() << "B report for " << _string << "::" << report;
                 }
             }
         }

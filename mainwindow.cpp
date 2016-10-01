@@ -1296,6 +1296,8 @@ void MainWindow::fastSink(qint64 frames)
     message=QString::fromLatin1(line);
     DecodedText decodedtext;
     decodedtext=message.replace("\n","");
+    bool stdMsg = decodedtext.report(m_baseCall,
+            Radio::base_callsign(ui->dxCallEntry->text()), m_rptRcvd);
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
          m_config.color_NewCall());
@@ -2344,21 +2346,7 @@ void::MainWindow::fast_decode_done()
 
 // extract details and send to PSKreporter
       if(m_config.spot_to_psk_reporter() and stdMsg and !m_diskData) {
-        QString msgmode=m_mode;
-        QString deCall;
-        QString grid;
-        decodedtext.deCallAndGrid(/*out*/deCall,grid);
-        int audioFrequency = decodedtext.frequencyOffset();
-        int snr = decodedtext.snr();
-        Frequency frequency = m_freqNominal + audioFrequency;
-        pskSetLocal();
-        if(grid_regexp.exactMatch (grid))
-          {
-            // qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
-            psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
-                                           QString::number(snr),
-                                           QString::number(QDateTime::currentDateTime().toTime_t()));
-          }
+        sendToPskReporter();
       }
     }
   }
@@ -2366,6 +2354,26 @@ void::MainWindow::fast_decode_done()
   m_nPick=0;
   ui->DecodeButton->setChecked (false);
   m_bFastDone=false;
+}
+
+void MainWindow::sendToPskReporter()
+{
+  QString msgmode=m_mode;
+  if(m_mode=="JT9+JT65") {
+    msgmode="JT9";
+    if (decodedtext.isJT65()) msgmode="JT65";
+  }
+  QString deCall;
+  QString grid;
+  decodedtext.deCallAndGrid(/*out*/deCall,grid);
+  int audioFrequency = decodedtext.frequencyOffset();
+  int snr = decodedtext.snr();
+  Frequency frequency = m_freqNominal + audioFrequency;
+  pskSetLocal();
+  if(grid_regexp.exactMatch (grid)) {
+    psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
+          QString::number(snr),QString::number(QDateTime::currentDateTime().toTime_t()));
+  }
 }
 
 void MainWindow::writeAllTxt(QString message)
@@ -2524,22 +2532,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
       bool okToPost=(nsec>50);
       if(m_config.spot_to_psk_reporter () and stdMsg and !m_diskData and okToPost) {
-        QString msgmode="JT9";
-        if (decodedtext.isJT65()) msgmode="JT65";
-        QString deCall;
-        QString grid;
-        decodedtext.deCallAndGrid(/*out*/deCall,grid);
-        int audioFrequency = decodedtext.frequencyOffset();
-        int snr = decodedtext.snr();
-        Frequency frequency = m_freqNominal + audioFrequency;
-        pskSetLocal ();
-        if(grid_regexp.exactMatch (grid))
-          {
-            // qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
-            psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
-                                           QString::number(snr),
-                                           QString::number(QDateTime::currentDateTime().toTime_t()));
-          }
+        sendToPskReporter();
       }
 
       if((m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64") and m_msgAvgWidget!=NULL) {
@@ -3313,18 +3306,17 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   if(t4.size () < 6) return;             //Skip the rest if no decoded text
 
   int frequency = decodedtext.frequencyOffset();
-  if (ui->RxFreqSpinBox->isEnabled ())
-    {
+  if(m_mode != "MSK144") {
+    if (ui->RxFreqSpinBox->isEnabled()) {
       ui->RxFreqSpinBox->setValue (frequency);    //Set Rx freq
     }
-  if (decodedtext.isTX())
-    {
-      if (ctrl && ui->TxFreqSpinBox->isEnabled ())
-        {
-          ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
-        }
+    if (decodedtext.isTX()) {
+      if (ctrl && ui->TxFreqSpinBox->isEnabled ()) {
+        ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
+      }
       return;
     }
+  }
 
   int nmod=ntsec % (2*m_TRperiod);
   m_txFirst=(nmod!=0);
@@ -3378,14 +3370,13 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   }
 
   int i9=m_QSOText.indexOf(decodedtext.string());
-  if (i9<0 and !decodedtext.isTX())
-    {
+  if (i9<0 and !decodedtext.isTX()) {
     decodedtext=t2;
-      ui->decodedTextBrowser2->displayDecodedText(decodedtext, m_baseCall, false, m_logBook,
+    ui->decodedTextBrowser2->displayDecodedText(decodedtext, m_baseCall, false, m_logBook,
               m_config.color_CQ(), m_config.color_MyCall(), m_config.color_DXCC(),
               m_config.color_NewCall());
-      m_QSOText=decodedtext;
-    }
+    m_QSOText=decodedtext;
+  }
 
   // prior DX call (possible QSO partner)
   auto qso_partner_base_call = Radio::base_callsign (ui->dxCallEntry-> text ());
@@ -4062,14 +4053,13 @@ void MainWindow::on_actionMSK144_triggered()
   ui->sbFtol->setVisible(true);
   ui->cbAutoSeq->setVisible(true);
   ui->ClrAvgButton->setVisible(false);
-
   ui->cbShMsgs->setVisible(true);
   ui->actionMSK144->setChecked(true);
   ui->rptSpinBox->setMinimum(-8);
   ui->rptSpinBox->setMaximum(24);
   ui->rptSpinBox->setValue(0);
   ui->rptSpinBox->setSingleStep(1);
-  ui->sbFtol->setMinimum(23);
+  ui->sbFtol->setMinimum(22);
   ui->sbFtol->setMaximum(25);
   bool b=m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN";
   ui->cbCQRx->setEnabled(b);
