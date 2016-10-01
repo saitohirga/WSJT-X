@@ -2314,6 +2314,7 @@ void::MainWindow::fast_decode_done()
     }
     if(m_msg[i][0]==0) break;
     QString message=QString::fromLatin1(m_msg[i]);
+    m_msg[i][0]=0;
     if(message.length()>80) message=message.mid(0,80);
     if(narg[13]/8==narg[12]) message=message.trimmed().replace("<...>",m_calls);
 
