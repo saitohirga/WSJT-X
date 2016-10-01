@@ -103,7 +103,6 @@ bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /
         if (ok and i1>=-50 and i1<50)
         {
             report = tt;
-            qDebug() << "A report for " << _string << "::" << report;
         }
         else
         {
@@ -113,7 +112,6 @@ bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /
                 if(ok and i1>=-50 and i1<50)
                 {
                     report = tt.mid(1);
-                    qDebug() << "B report for " << _string << "::" << report;
                 }
             }
         }

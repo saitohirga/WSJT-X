@@ -534,7 +534,6 @@ private:
   void transmit (double snr = 99.);
   void rigFailure (QString const& reason);
   void pskSetLocal ();
-  void sendToPskReporter(DecodedText decodedtext);
   void displayDialFrequency ();
   void transmitDisplay (bool);
   void processMessage(QString const& messages, qint32 position, bool ctrl);
