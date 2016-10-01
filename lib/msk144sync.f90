@@ -5,6 +5,7 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
 
   parameter (NSPM=864)
   complex cdat(NSPM*nframes)
+  complex cdat2(NSPM*nframes,8)
   complex c(NSPM)                    !Coherently averaged complex data
   complex cs(NSPM,8)
   complex cb(42)                     !Complex waveform for sync word 
@@ -68,7 +69,7 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
   if2=if1+nstep-1
   if(id.eq.nthreads) if2=nint(ntol/delf)
   call msk144_freq_search(cdat,fc,if1,if2,delf,nframes,navmask,cb,    &
-       xm(id),bf(id),cs(1,id),xccs(1,id))
+       cdat2(1,id),xm(id),bf(id),cs(1,id),xccs(1,id))
 !  write(73,3002) id,if1,if2,nfreqs,nthreads,bf(id),xm(id)
 !3002 format(5i5,2f10.3)
   !$OMP END PARALLEL
