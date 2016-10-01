@@ -2346,7 +2346,7 @@ void::MainWindow::fast_decode_done()
 
 // extract details and send to PSKreporter
       if(m_config.spot_to_psk_reporter() and stdMsg and !m_diskData) {
-        sendToPskReporter();
+        sendToPskReporter(decodedtext);
       }
     }
   }
@@ -2356,7 +2356,7 @@ void::MainWindow::fast_decode_done()
   m_bFastDone=false;
 }
 
-void MainWindow::sendToPskReporter()
+void MainWindow::sendToPskReporter(DecodedText decodedtext)
 {
   QString msgmode=m_mode;
   if(m_mode=="JT9+JT65") {
@@ -2532,7 +2532,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
       bool okToPost=(nsec>50);
       if(m_config.spot_to_psk_reporter () and stdMsg and !m_diskData and okToPost) {
-        sendToPskReporter();
+        sendToPskReporter(decodedtext);
       }
 
       if((m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64") and m_msgAvgWidget!=NULL) {
