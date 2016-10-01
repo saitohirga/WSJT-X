@@ -90,7 +90,8 @@ program msk144d2
      read(unit=wav%lun) id2(1:npts)
      close(unit=wav%lun)
      call timer('read    ',1)
-     do i=1,npts,7*512
+
+     do i=1,npts-7*1024+1,7*512
        ichunk=id2(i:i+7*1024-1)
        tsec=(i-1)/12000.0
        call mskrtd(ichunk,nutc,tsec,ntol,nrxfreq,ndepth,line)
