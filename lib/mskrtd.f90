@@ -22,14 +22,12 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
   integer iavmask(8)
   integer iavpatterns(8,NPATTERNS)
   integer npkloc(10)
-  integer nav(6)
 
   real d(NFFT1)
   real pow(8)
   real xmc(NPATTERNS)
   logical first
   data first/.true./
-  data nav/1,2,3,5,7,9/
   data iavpatterns/ &
        1,1,1,1,0,0,0,0, &
        0,0,1,1,1,1,0,0, &
