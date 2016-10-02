@@ -10,7 +10,6 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
   real s0(0:NSPC-1)                          !Sum of s1+s2+s3
   real s0a(0:NSPC-1)                         !Best synchromized spectrum (saved)
   real s0b(0:NSPC-1)                         !tmp
-  real a(5)
   integer icos7(0:6)                         !Costas 7x7 tones
   integer ipk0(1)
   complex cc(0:NSPC-1)                       !Costas waveform
