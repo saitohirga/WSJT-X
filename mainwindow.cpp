@@ -1312,8 +1312,7 @@ void MainWindow::fastSink(qint64 frames)
     }
     bool stdMsg = decodedtext.report(m_baseCall,
                   Radio::base_callsign(ui->dxCallEntry->text()),m_rptRcvd);
-//    if(m_config.spot_to_psk_reporter() and stdMsg and !m_diskData) pskPost(decodedtext);
-    if(m_config.spot_to_psk_reporter() and stdMsg) pskPost(decodedtext);
+    if(m_config.spot_to_psk_reporter() and stdMsg and !m_diskData) pskPost(decodedtext);
   }
 
   float fracTR=float(k)/(12000.0*m_TRperiod);
