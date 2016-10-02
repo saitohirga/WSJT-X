@@ -4054,7 +4054,7 @@ void MainWindow::on_actionMSK144_triggered()
   ui->RxFreqSpinBox->setValue(1500);
   ui->RxFreqSpinBox->setMinimum(1400);
   ui->RxFreqSpinBox->setMaximum(1600);
-  ui->RxFreqSpinBox->setSingleStep(25);
+  ui->RxFreqSpinBox->setSingleStep(10);
   ui->decodedTextLabel->setText("UTC     dB    T Freq    Message");
   ui->decodedTextLabel2->setText("UTC     dB    T Freq    Message");
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
