@@ -75,7 +75,7 @@ public:
     QString call();
 
     // get the second word, most likely the de call and the third word, most likely grid
-    void deCallAndGrid(/*out*/QString& call, QString& grid);
+    void deCallAndGrid(QString jtmode,/*out*/QString& call, QString& grid);
 
     int timeInSeconds();
 
