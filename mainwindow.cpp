@@ -648,6 +648,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
                   "1 mW","2 mW","5 mW","10 mW","20 mW","50 mW","100 mW","200 mW","500 mW",
                   "1 W","2 W","5 W","10 W","20 W","50 W","100 W","200 W","500 W","1 kW"};
 
+  m_msg[0][0]=0;
+
   for(int i=0; i<28; i++)  {                      //Initialize dBm values
     float dbm=(10.0*i)/3.0 - 30.0;
     int ndbm=0;
@@ -3312,7 +3314,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   if(t4.size () < 6) return;             //Skip the rest if no decoded text
 
   int frequency = decodedtext.frequencyOffset();
-  if (ui->RxFreqSpinBox->isEnabled ())
+  if (ui->RxFreqSpinBox->isEnabled () and m_mode != "MSK144")
     {
       ui->RxFreqSpinBox->setValue (frequency);    //Set Rx freq
     }
@@ -4050,6 +4052,9 @@ void MainWindow::on_actionMSK144_triggered()
   m_fastGraph->show();
   ui->TxFreqSpinBox->setValue(1500);
   ui->RxFreqSpinBox->setValue(1500);
+  ui->RxFreqSpinBox->setMinimum(1400);
+  ui->RxFreqSpinBox->setMaximum(1600);
+  ui->RxFreqSpinBox->setSingleStep(25);
   ui->decodedTextLabel->setText("UTC     dB    T Freq    Message");
   ui->decodedTextLabel2->setText("UTC     dB    T Freq    Message");
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
@@ -4369,6 +4374,15 @@ void MainWindow::switch_mode (Mode mode)
   ui->rptSpinBox->setMaximum(49);
   ui->sbFtol->setMinimum(21);
   ui->sbFtol->setMaximum(27);
+  if(m_mode=="MSK144") {
+    ui->RxFreqSpinBox->setMinimum(1400);
+    ui->RxFreqSpinBox->setMaximum(1600);
+    ui->RxFreqSpinBox->setSingleStep(25);
+  } else {
+    ui->RxFreqSpinBox->setMinimum(200);
+    ui->RxFreqSpinBox->setMaximum(5000);
+    ui->RxFreqSpinBox->setSingleStep(1);
+  }
 //  ui->RxFreqSpinBox->setVisible(m_mode!="MSK144");
 }
 
