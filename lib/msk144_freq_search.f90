@@ -11,22 +11,21 @@ subroutine msk144_freq_search(cdat,fc,if1,if2,delf,nframes,navmask,cb,    &
   complex cc(0:NSPM-1)
   real xcc(0:NSPM-1)
   real xccs(0:NSPM-1)
-  integer navmask(nframes)                 ! defines which frames to average
+  integer navmask(nframes)           !Tells which frames to average
 
   navg=sum(navmask) 
   n=nframes*NSPM
   fac=1.0/(48.0*sqrt(float(navg)))
 
-  do ifr=if1,if2                    !Find freq that maximizes sync
+  do ifr=if1,if2                     !Find freq that maximizes sync
      ferr=ifr*delf
      call tweak1(cdat,n,-(fc+ferr),cdat2)
      c=0
+     sumw=0.
      do i=1,nframes
         ib=(i-1)*NSPM+1
         ie=ib+NSPM-1
-        if( navmask(i) .eq. 1 ) then
-          c(1:NSPM)=c(1:NSPM)+cdat2(ib:ie)
-        endif
+        if(navmask(i).eq.1) c=c + cdat2(ib:ie)
      enddo
 
      cc=0
@@ -46,9 +45,6 @@ subroutine msk144_freq_search(cdat,fc,if1,if2,delf,nframes,navmask,cb,    &
         xccs=xcc
      endif
   enddo
-
-!  write(71,3001) fc,delf,if1,if2,nframes,bestf,xmax
-!3001 format(2f8.3,3i5,2f8.3)
 
   return
 end subroutine msk144_freq_search

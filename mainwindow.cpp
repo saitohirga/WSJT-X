@@ -1307,6 +1307,8 @@ void MainWindow::fastSink(qint64 frames)
       }
       writeAllTxt(message);
     }
+
+    decodedtext=message.mid(0,4) + message.mid(6,-1);
     bool stdMsg = decodedtext.report(m_baseCall,
                   Radio::base_callsign(ui->dxCallEntry->text()),m_rptRcvd);
     if(m_config.spot_to_psk_reporter() and stdMsg and !m_diskData) pskPost(decodedtext);
@@ -2537,7 +2539,7 @@ void MainWindow::pskPost(DecodedText decodedtext)
   }
   QString deCall;
   QString grid;
-  decodedtext.deCallAndGrid(m_mode,/*out*/deCall,grid);
+  decodedtext.deCallAndGrid(/*out*/deCall,grid);
   int audioFrequency = decodedtext.frequencyOffset();
   int snr = decodedtext.snr();
   Frequency frequency = m_freqNominal + audioFrequency;
@@ -3229,6 +3231,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
     MessageBox::information_message (this,
                                      "Double-click not presently implemented for ISCAT mode");
   }
+
   if(shift) t="";                    //Silence compiler warning
   if(m_decodedText2) {
     cursor=ui->decodedTextBrowser->textCursor();
@@ -3237,6 +3240,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
     cursor=ui->decodedTextBrowser2->textCursor();
     t= ui->decodedTextBrowser2->toPlainText();
   }
+
   cursor.select(QTextCursor::LineUnderCursor);
   int position {cursor.position()};
   if(shift && position==-9999) return;        //Silence compiler warning
@@ -3325,7 +3329,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
 
   QString hiscall;
   QString hisgrid;
-  decodedtext.deCallAndGrid(m_mode,/*out*/hiscall,hisgrid);
+  decodedtext.deCallAndGrid(/*out*/hiscall,hisgrid);
   if (!Radio::is_callsign (hiscall)    // not interested if not from QSO partner
       && !(t4.size () == 7             // unless it is of the form
            && (t4.at (5) == m_baseCall // "<our-call> 73"

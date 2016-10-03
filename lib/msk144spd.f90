@@ -166,7 +166,8 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret)
     fo=fc+ferrs(icand)
     do iav=1,NPATTERNS
       navmask=navpatterns(1:3,iav) 
-      call msk144sync(cdat,3,ntol0,deltaf,navmask,npeaks,fo,fest,npkloc,nsyncsuccess,c)
+      call msk144sync(cdat,3,ntol0,deltaf,navmask,npeaks,fo,fest,npkloc,   &
+           nsyncsuccess,xmax,c)
 
       if( nsyncsuccess .eq. 0 ) cycle
 
