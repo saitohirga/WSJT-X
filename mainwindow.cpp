@@ -1279,23 +1279,20 @@ void MainWindow::fastSink(qint64 frames)
   bmsk144=bmsk144 && m_config.realTimeDecode();
   line[0]=0;
 
-  //###
   m_RxFreq=ui->RxFreqSpinBox->value ();
   int nTRpDepth=m_TRperiod + 1000*(m_ndepth & 3);
   qint64 ms0 = QDateTime::currentMSecsSinceEpoch();
   hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&m_RxFreq,&m_Ftol,&bmsk144,&m_inGain,
          fast_green,fast_s,&fast_jh, &line[0],80);
-  float tsec=0.001*(QDateTime::currentMSecsSinceEpoch() - ms0);
-  m_fCPUmskrtd=0.9*m_fCPUmskrtd + 0.1*tsec;
   float px = fast_green[fast_jh];
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);
   ui->signal_meter_widget->setValue(px); // Update thermometer
   m_fastGraph->plotSpec(m_diskData,m_UTCdisk);
 
-  DecodedText decodedtext;
-  QString message;
   if(bmsk144 and (line[0]!=0)) {
+    DecodedText decodedtext;
+    QString message;
     message=QString::fromLatin1(line);
     decodedtext=message.replace("\n","");
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
@@ -1365,6 +1362,8 @@ void MainWindow::fastSink(qint64 frames)
     }
     m_bFastDone=false;
   }
+  float tsec=0.001*(QDateTime::currentMSecsSinceEpoch() - ms0);
+  m_fCPUmskrtd=0.9*m_fCPUmskrtd + 0.1*tsec;
 }
 
 void MainWindow::showSoundInError(const QString& errorMsg)
