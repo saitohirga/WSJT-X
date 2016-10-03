@@ -88,6 +88,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
   if( nsuccess .eq. 1 ) then
     tdec=tsec+tdec
     decsym=' & '
+    ipk=0
+    is=0
     goto 900
   endif 
 
@@ -101,10 +103,10 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
   do iavg=1,npat
      iavmask=iavpatterns(1:8,iavg)
      navg=sum(iavmask)
-     deltaf=7.0/real(navg)  ! search increment for frequency sync
+     deltaf=10.0/real(navg)  ! search increment for frequency sync
      npeaks=2
      call msk144sync(cdat(1:8*NSPM),8,ntol,deltaf,iavmask,npeaks,fc,   &
-          fest,npkloc,nsyncsuccess,c)
+          fest,npkloc,nsyncsuccess,xmax,c)
      if( nsyncsuccess .eq. 0 ) cycle
 
      do ipk=1,npeaks
@@ -115,9 +117,9 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
            ct=cshift(c,ic0-1)
            call msk144decodeframe(ct,msgreceived,ndecodesuccess)
            if(ndecodesuccess .gt. 0) then
-             tdec=tsec+xmc(iavg)*tframe
-             decsym=' ^ '
-             goto 900
+              tdec=tsec+xmc(iavg)*tframe
+              decsym=' ^ '
+              goto 900
            endif
         enddo                         !Slicer dither
      enddo                            !Peak loop 
@@ -136,7 +138,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
   go to 999
 
 900 continue
-! successful decode - estimate snr  !!! noise estimate needs work
+! Successful decode - estimate snr  !!! noise estimate needs work
   if( pnoise .gt. 0.0 ) then
     snr0=10.0*log10(pmax/pnoise-1.0)
   else

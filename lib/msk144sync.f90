@@ -1,5 +1,5 @@
 subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
-     npklocs,nsuccess,c)
+     npklocs,nsuccess,xmax,c)
 
 !$ use omp_lib
 
@@ -10,7 +10,6 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
   complex cs(NSPM,8)
   complex cb(42)                     !Complex waveform for sync word 
 
-!  integer*8 count0,count1,clkfreq
   integer s8(8)
   integer iloc(1)
   integer npklocs(npeaks)
@@ -28,7 +27,6 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
   data s8/0,1,1,1,0,0,1,0/
   save first,cb,fs,pi,twopi,dt,s8,pp
 
-!  call system_clock(count0,clkfreq)
   if(first) then
      pi=4.0*atan(1.0)
      twopi=8.0*atan(1.0)
@@ -70,8 +68,6 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
   if(id.eq.nthreads) if2=nint(ntol/delf)
   call msk144_freq_search(cdat,fc,if1,if2,delf,nframes,navmask,cb,    &
        cdat2(1,id),xm(id),bf(id),cs(1,id),xccs(1,id))
-!  write(73,3002) id,if1,if2,nfreqs,nthreads,bf(id),xm(id)
-!3002 format(5i5,2f10.3)
 !$OMP END PARALLEL
 
   xmax=xm(1)
@@ -98,16 +94,8 @@ subroutine msk144sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
      xcc(max(0,ic2-7):min(NSPM-1,ic2+7))=0.0
   enddo
 
-  if( xmax .lt. 0.7 ) then
-    nsuccess=0
-  else
-    nsuccess=1
-  endif
-
-!  call system_clock(count1,clkfreq)
-!  t=float(count1-count0)/clkfreq
-!  write(72,3001) nfreqs,OMP_GET_MAX_THREADS(),nthreads,t
-!3001 format(3i6,f8.3)
+  nsuccess=0
+  if(xmax.ge.1.3) nsuccess=1
 
   return
 end subroutine msk144sync

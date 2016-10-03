@@ -129,12 +129,10 @@ QString DecodedText::call()
 }
 
 // get the second word, most likely the de call and the third word, most likely grid
-void DecodedText::deCallAndGrid(QString jtmode,/*out*/QString& call, QString& grid)
+void DecodedText::deCallAndGrid(/*out*/QString& call, QString& grid)
 {
   auto msg = _string;
-  int iadd=0;
-  if(jtmode=="MSK144") iadd=3;
-  msg = msg.replace (" CQ DX ", " CQ_DX ").mid (column_qsoText+iadd);
+  msg = msg.replace (" CQ DX ", " CQ_DX ").mid (column_qsoText);
   int i1 = msg.indexOf(" ");
   call = msg.mid(i1+1);
   int i2 = call.indexOf(" ");
