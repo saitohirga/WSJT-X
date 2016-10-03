@@ -1,4 +1,4 @@
-subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,fret,tret)
+subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,fret,tret,navg)
 ! msk40 short-ping-decoder
 
   use timer_module, only: timer
@@ -182,6 +182,7 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,fret,tret
           if( ndecodesuccess .gt. 0 ) then
             tret=(nstart(icand)+NSPM/2)/fs
             fret=fest
+            navg=sum(navmask)
 !write(*,*) icand, iav, ipk, is, tret, fret, msgreceived
             nsuccess=1
             return
