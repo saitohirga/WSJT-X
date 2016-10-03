@@ -1305,7 +1305,7 @@ void MainWindow::fastSink(qint64 frames)
     int i1=message.indexOf(m_baseCall);
     int i2=message.indexOf(m_hisCall);
     if(i1>10 and i2>i1+3) {
-      if((message.indexOf(" 73") < 0) or (m_ntx!=6)) {
+      if(m_bAutoSeq and ((message.indexOf(" 73") < 0) or (m_ntx!=6))) {
         processMessage(message,43,false);
       }
       writeAllTxt(message);
