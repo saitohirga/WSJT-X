@@ -1308,9 +1308,9 @@ void MainWindow::fastSink(qint64 frames)
       writeAllTxt(message);
     }
 
-    decodedtext=message.mid(0,4) + message.mid(6,-1);
     bool stdMsg = decodedtext.report(m_baseCall,
                   Radio::base_callsign(ui->dxCallEntry->text()),m_rptRcvd);
+    decodedtext=message.mid(0,4) + message.mid(6,-1);
     if(m_config.spot_to_psk_reporter() and stdMsg and !m_diskData) pskPost(decodedtext);
   }
 
