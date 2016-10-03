@@ -408,10 +408,14 @@ set (wsjt_FSRCS
   lib/move.f90
   lib/msk144d.f90
   lib/msk144d2.f90
+  lib/msk40decodeframe.f90
   lib/msk144decodeframe.f90
+  lib/msk40spd.f90
   lib/msk144spd.f90
+  lib/msk40sync.f90
   lib/msk144sync.f90
   lib/msk144_decode.f90
+  lib/msk40_freq_search.f90
   lib/msk144_freq_search.f90
   lib/mskrtd.f90
   lib/msk144sim.f90

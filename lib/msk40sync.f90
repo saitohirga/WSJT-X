@@ -10,7 +10,6 @@ subroutine msk40sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
   complex cs(NSPM,8)
   complex cb(42)                     !Complex waveform for sync word 
 
-!  integer*8 count0,count1,clkfreq
   integer s8r(8)
   integer iloc(1)
   integer npklocs(npeaks)
@@ -25,10 +24,9 @@ subroutine msk40sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
   real pp(12)                        !Half-sine pulse shape
   logical first
   data first/.true./
-  data s8r/0,1,0,0,1,1,1,0/
-  save first,cb,fs,pi,twopi,dt,s8,pp
+  data s8r/1,0,1,1,0,0,0,1/
+  save first,cb,fs,pi,twopi,dt,s8r,pp
 
-!  call system_clock(count0,clkfreq)
   if(first) then
      pi=4.0*atan(1.0)
      twopi=8.0*atan(1.0)
@@ -98,16 +96,8 @@ subroutine msk40sync(cdat,nframes,ntol,delf,navmask,npeaks,fc,fest,   &
      xcc(max(0,ic2-7):min(NSPM-1,ic2+7))=0.0
   enddo
 
-  if( xmax .lt. 0.7 ) then
-    nsuccess=0
-  else
-    nsuccess=1
-  endif
-
-!  call system_clock(count1,clkfreq)
-!  t=float(count1-count0)/clkfreq
-!  write(72,3001) nfreqs,OMP_GET_MAX_THREADS(),nthreads,t
-!3001 format(3i6,f8.3)
+  nsuccess=0
+  if( xmax .ge. 1.3 ) nsuccess=1
 
   return
 end subroutine msk40sync
