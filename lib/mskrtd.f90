@@ -13,6 +13,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
   character*22 msgreceived           !Decoded message
   character*22 msglast               !!! temporary - used for dupechecking
   character*80 line                  !Formatted line with UTC dB T Freq Msg
+!##### TEMPORARY
+  character*6 mycall,hiscall
 
   complex cdat(NFFT1)                !Analytic signal
   complex c(NSPM)                    !Coherently averaged complex data
@@ -34,6 +36,9 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
        1,1,1,1,1,0,0,0, &
        1,1,1,1,1,1,1,0/
   data xmc/2.0,4.5,2.5,3.5/ !Used to label decode with time at center of averaging mask
+!###### TEMPORARY
+  data mycall/'K9AN'/
+  data hiscall/'K1JT'/
 
   save first,tsec0,nutc00,pnoise,nsnrlast,msglast,cdat
 
@@ -85,6 +90,13 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
 ! 3 frames along with 2- and 3-frame averages. 
   np=8*NSPM
   call msk144spd(cdat,np,ntol,nsuccess,msgreceived,fc,fest,tdec)
+
+!############################################################
+!##### hardwired for testing - need to bring in Sh box status
+  if( nsuccess .eq. 0 .and. .false. ) then
+    call msk40spd(cdat,np,ntol,mycall,hiscall,nsuccess,msgreceived,fc,fest,tdec)
+  endif
+
   if( nsuccess .eq. 1 ) then
     tdec=tsec+tdec
     decsym=' & '
@@ -124,6 +136,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
         enddo                         !Slicer dither
      enddo                            !Peak loop 
   enddo
+
 
   msgreceived=' '
 
