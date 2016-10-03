@@ -24,6 +24,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
   integer iavmask(8)
   integer iavpatterns(8,NPATTERNS)
   integer npkloc(10)
+  integer navgd(10)
 
   real d(NFFT1)
   real pow(8)
@@ -36,6 +37,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
        1,1,1,1,1,0,0,0, &
        1,1,1,1,1,1,1,0/
   data xmc/2.0,4.5,2.5,3.5/ !Used to label decode with time at center of averaging mask
+  data navgd/1,1,1,2,2,3,4,4,5,7/
 !###### TEMPORARY
   data mycall/'K9AN'/
   data hiscall/'K1JT'/
@@ -89,7 +91,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
 ! center a 3-frame analysis window and attempts to decode each of the 
 ! 3 frames along with 2- and 3-frame averages. 
   np=8*NSPM
-  call msk144spd(cdat,np,ntol,nsuccess,msgreceived,fc,fest,tdec)
+  call msk144spd(cdat,np,ntol,nsuccess,msgreceived,fc,fest,tdec,iavg_decoded)
 
 !############################################################
 !##### hardwired for testing - need to bring in Sh box status
@@ -110,6 +112,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
 ! Normal - try 4-frame averages
 ! Deep - try 4-, 5- and 7-frame averages. 
   npat=NPATTERNS
+  iavg_decoded=0
   if( ndepth .eq. 1 ) npat=0
   if( ndepth .eq. 2 ) npat=2
   do iavg=1,npat
@@ -130,7 +133,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
            call msk144decodeframe(ct,msgreceived,ndecodesuccess)
            if(ndecodesuccess .gt. 0) then
               tdec=tsec+xmc(iavg)*tframe
-              decsym=' ^ '
+              decsym=' & '
+              iavg_decoded=iavg+6
               goto 900
            endif
         enddo                         !Slicer dither
@@ -165,8 +169,9 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
      nsnrlast=nsnr
      if( nsnr .lt. -8 ) nsnr=-8
      if( nsnr .gt. 24 ) nsnr=24
-     write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,char(0)
-1020 format(i6.6,i4,f5.1,i5,a3,a22,a1)
+     write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
+          navgd(iavg_decoded),char(0)
+1020 format(i6.6,i4,f5.1,i5,a3,a22,i2,a1)
   endif
 999 tsec0=tsec
 

@@ -1,5 +1,5 @@
-subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret)
-! msk144 short-ping-decoder
+subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret,iavg_decoded)
+! MSK144 short-ping-decoder
 
   use timer_module, only: timer
 
@@ -182,7 +182,7 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret)
           if( ndecodesuccess .gt. 0 ) then
             tret=(nstart(icand)+NSPM/2)/fs
             fret=fest
-!write(*,*) icand, iav, ipk, is, tret, fret, msgreceived
+            iavg_decoded=iav
             nsuccess=1
             return
           endif 
