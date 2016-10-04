@@ -1,5 +1,5 @@
 subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,ingain,   &
-     green,s,jh,line1)
+     mycall,hiscall,bshmsg,green,s,jh,line1)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -17,8 +17,9 @@ subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,ingain,   &
 
   parameter (JZ=703)
   character*80 line1
+  character*12 mycall,hiscall
   integer*2 id2(0:120*12000-1)
-  logical*1 bmsk144
+  logical*1 bmsk144,bshmsg
   real green(0:JZ-1)
   real s(0:63,0:JZ-1)
   real x(512)
@@ -75,7 +76,8 @@ subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,ingain,   &
   if(bmsk144) then
      if(k.ge.7168) then
         tsec=(k-7168)/12000.0
-        call mskrtd(id2(k-7168+1:k),nutc0,tsec,ntol,nrxfreq,ndepth,line1)
+        call mskrtd(id2(k-7168+1:k),nutc0,tsec,ntol,nrxfreq,ndepth,   &
+             mycall,hiscall,bshmsg,line1)
      endif
   endif
 
