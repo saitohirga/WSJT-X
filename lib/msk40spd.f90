@@ -37,7 +37,6 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,fret,tret
        0,1,1, &
        1,1,1/
   data tpat/1.5,0.5,2.5,1.0,2.0,1.5/
-
   save df,first,fs,pi,twopi,dt,tframe,rcw
 
   if(first) then

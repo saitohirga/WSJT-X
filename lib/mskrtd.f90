@@ -1,4 +1,5 @@
-subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
+subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,hiscall,   &
+     bshmsg,line)
 
 ! Real-time decoder for MSK144.  
 ! Analysis block size = NZ = 7168 samples, t_block = 0.597333 s 
@@ -13,8 +14,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
   character*22 msgreceived           !Decoded message
   character*22 msglast               !!! temporary - used for dupechecking
   character*80 line                  !Formatted line with UTC dB T Freq Msg
-!##### TEMPORARY
-  character*6 mycall,hiscall
+  character*12 mycall,hiscall
 
   complex cdat(NFFT1)                !Analytic signal
   complex c(NSPM)                    !Coherently averaged complex data
@@ -28,6 +28,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
   real d(NFFT1)
   real pow(8)
   real xmc(NPATTERNS)
+
+  logical*1 bshmsg
   logical first
   data first/.true./
   data iavpatterns/ &
@@ -35,11 +37,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
        0,0,1,1,1,1,0,0, &
        1,1,1,1,1,0,0,0, &
        1,1,1,1,1,1,1,0/
-  data xmc/2.0,4.5,2.5,3.5/ !Used to label decode with time at center of averaging mask
-!###### TEMPORARY
-  data mycall/'K9AN'/
-  data hiscall/'K1JT'/
-
+  data xmc/2.0,4.5,2.5,3.5/     !Used to set time at center of averaging mask
   save first,tsec0,nutc00,pnoise,nsnrlast,msglast,cdat
 
   if(first) then
@@ -93,8 +91,9 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,line)
 
 !############################################################
 !##### hardwired for testing - need to bring in Sh box status
-  if( nsuccess .eq. 0 .and. .false. ) then
-    call msk40spd(cdat,np,ntol,mycall,hiscall,nsuccess,msgreceived,fc,fest,tdec,navg)
+  if(nsuccess.eq.0 .and. bshmsg) then
+     call msk40spd(cdat,np,ntol,mycall(1:6),hiscall(1:6),nsuccess,         &
+          msgreceived,fc,fest,tdec,navg)
   endif
 
   if( nsuccess .eq. 1 ) then
