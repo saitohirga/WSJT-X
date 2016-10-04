@@ -15,7 +15,8 @@ subroutine msk40_freq_search(cdat,fc,if1,if2,delf,nframes,navmask,cb,    &
 
   navg=sum(navmask) 
   n=nframes*NSPM
-  fac=1.0/(48.0*sqrt(float(navg)))
+!  fac=1.0/(48.0*sqrt(float(navg)))
+  fac=1.0/(24.0*sqrt(float(navg)))
 
   do ifr=if1,if2                     !Find freq that maximizes sync
      ferr=ifr*delf
