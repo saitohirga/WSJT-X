@@ -3564,6 +3564,7 @@ void MainWindow::genStdMsgs(QString rpt)
   QString hisBase = Radio::base_callsign (hisCall);
 
   QString t0=hisBase + " " + m_baseCall + " ";
+  QString t00=t0;
   t=t0 + m_config.my_grid ().mid(0,4);
   msgtype(t, ui->tx1);
   if(ui->cbShMsgs->isVisible() and  ui->cbShMsgs->isChecked() and
@@ -3588,7 +3589,7 @@ void MainWindow::genStdMsgs(QString rpt)
       if(n>=15) n=16;
       rpt.sprintf("%+2.2d",n);
     }
-    t=t0 + rpt;
+    t=t00 + rpt;
     msgtype(t, ui->tx2);
     t=t0 + "R" + rpt;
     msgtype(t, ui->tx3);
