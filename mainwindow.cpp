@@ -4570,7 +4570,7 @@ void MainWindow::band_changed (Frequency f)
         // adjust DF:s
         int shift = f - m_freqNominal;
         ui->RxFreqSpinBox->setValue (ui->RxFreqSpinBox->value () - shift);
-        if (!m_config.enable_VHF_features ()) // for VHF &  up we fix the Tx DF
+        if (!m_config.enable_VHF_features ()) // for VHF & up we fix the Tx DF
           {
             ui->TxFreqSpinBox->setValue (ui->TxFreqSpinBox->value () - shift);
           }
