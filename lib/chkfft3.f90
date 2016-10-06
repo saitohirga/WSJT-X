@@ -56,13 +56,15 @@ program chkfft
   if(npatience.eq.4) nflags=FFTW_EXHAUSTIVE
 
   open(12,file='chkfft.out',status='unknown')
-  open(13,file='fftwf_wisdom.dat',status='unknown')
 
   if(nr.ne.0) then
-     call import_wisdom_from_file(isuccess,13)
-     if(isuccess.eq.0) then
+     isuccess=fftwf_import_wisdom_from_filename('fftwf_wisdom.dat'//char(0))
+     if(isuccess.eq.1) then
         write(*,1010) 
-1010    format('Failed to import FFTW wisdom.')
+1010    format('Imported FFTW wisdom.')        
+     else
+        write(*,1012)
+1012    format('Failed to import FFTW wisdom.')
         go to 999
      endif
   endif
@@ -164,10 +166,9 @@ program chkfft
 
 900  continue 
   if(nw.eq.1) then
-     rewind 13
-     call export_wisdom_to_file(13)
-!     write(*,1070) 
-!1070 format(/'Exported FFTW wisdom')
+     ierr=fftwf_export_wisdom_to_filename('fftwf_wisdom.dat'//char(0))
+     write(*,1070)
+1070 format(/'Exported FFTW wisdom')
   endif
 
   call fftwf_destroy_plan(plan1)
