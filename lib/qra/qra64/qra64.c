@@ -62,6 +62,7 @@ static int  qra64_do_decode(int *x, const float *pix, const int *ap_mask,
 #define MASK_CALL1      0xFFFFFFF
 #define MASK_CALL2      0xFFFFFFF
 #define MASK_GRIDFULL	0xFFFF
+#define MASK_GRIDFULL12	0x3FFC	  // less aggressive mask (to be used with full AP decoding)
 #define MASK_GRIDBIT	0x8000	  // b[15] is 1 for free text, 0 otherwise
 // ----------------------------------------------------------------------------
 
@@ -101,9 +102,9 @@ qra64codec *qra64_init(int flags)
   encodemsg_jt65(pcodec->apmask_call2,     0, MASK_CALL2, MASK_GRIDBIT);
   encodemsg_jt65(pcodec->apmask_call2_ooo, 0, MASK_CALL2, MASK_GRIDFULL);
   encodemsg_jt65(pcodec->apmask_call1_call2,     MASK_CALL1,MASK_CALL2, MASK_GRIDBIT);
-  encodemsg_jt65(pcodec->apmask_call1_call2_grid,MASK_CALL1,MASK_CALL2, MASK_GRIDFULL);
+  encodemsg_jt65(pcodec->apmask_call1_call2_grid,MASK_CALL1,MASK_CALL2, MASK_GRIDFULL12);
   encodemsg_jt65(pcodec->apmask_cq_call2,     MASK_CQQRZ, MASK_CALL2, MASK_GRIDBIT);
-  encodemsg_jt65(pcodec->apmask_cq_call2_ooo, MASK_CQQRZ, MASK_CALL2, MASK_GRIDFULL);
+  encodemsg_jt65(pcodec->apmask_cq_call2_ooo, MASK_CQQRZ, MASK_CALL2, MASK_GRIDFULL12);
 
   return pcodec;
 }
@@ -313,20 +314,40 @@ int qra64_decode(qra64codec *pcodec, float *ebno, int *x, const float *rxen)
 	if (rc>=0) { rc = 9; goto decode_end; };    // decoded [cq/qrz hiscall ?]
 
 	rc = qra64_do_decode(xdec, ix, pcodec->apmask_cq_call2_ooo, 
-		       pcodec->apmsg_cq_call2_grid);	                    
-	if (rc>=0) { rc = 11; goto decode_end; };    // decoded [cq/qrz hiscall grid]
+		       pcodec->apmsg_cq_call2_grid);	
+	if (rc>=0) {
+		// Full AP mask need special handling
+		// To minimize false decodes we check the decoded message
+		// with what passed in the ap_set call
+		if (memcmp(pcodec->apmsg_cq_call2_grid,xdec, QRA64_K*sizeof(int))!=0) 
+			return -1;
+		rc = 11; goto decode_end; 
+		};    // decoded [cq/qrz hiscall grid]
 
 	rc = qra64_do_decode(xdec, ix, pcodec->apmask_cq_call2_ooo, 
 		       pcodec->apmsg_cq_call2);	                    
-	if (rc>=0) { rc = 10; goto decode_end; };    // decoded [cq/qrz hiscall ]
+	if (rc>=0) { 
+		// Full AP mask need special handling
+		// To minimize false decodes we check the decoded message
+		// with what passed in the ap_set call
+		if (memcmp(pcodec->apmsg_cq_call2,xdec, QRA64_K*sizeof(int))!=0) 
+			return -1;
+		rc = 10; goto decode_end; };    // decoded [cq/qrz hiscall ]
 	}
-
 
   // attempt to decode [mycall hiscall grid]
   if (pcodec->apmsg_set[APTYPE_FULL]) {
 	rc = qra64_do_decode(xdec, ix, pcodec->apmask_call1_call2_grid, 
-		       pcodec->apmsg_call1_call2_grid);		                
-	if (rc>=0) { rc = 8; goto decode_end; };    // decoded [mycall hiscall grid]
+		       pcodec->apmsg_call1_call2_grid); 
+	if (rc>=0) { 
+		// Full AP mask need special handling
+		// All the three msg fields were given.
+		// To minimize false decodes we check the decoded message
+		// with what passed in the ap_set call
+		if (memcmp(pcodec->apmsg_call1_call2_grid,xdec, QRA64_K*sizeof(int))!=0) 
+			return -1;
+		rc = 8; goto decode_end; 
+		};    // decoded [mycall hiscall grid]
 	}
 
   // all decoding attempts failed
