@@ -1310,9 +1310,8 @@ void MainWindow::fastSink(qint64 frames)
       if(m_bAutoSeq and ((message.indexOf(" 73") < 0) or (m_ntx!=6))) {
         processMessage(message,43,false);
       }
-      writeAllTxt(message);
     }
-
+    writeAllTxt(message);
     bool stdMsg = decodedtext.report(m_baseCall,
                   Radio::base_callsign(ui->dxCallEntry->text()),m_rptRcvd);
     decodedtext=message.mid(0,4) + message.mid(6,-1);
@@ -4063,7 +4062,7 @@ void MainWindow::on_actionMSK144_triggered()
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   ui->label_6->setText("Band Activity");
-  ui->label_7->setText("Rx Frequency");
+  ui->label_7->setText("QSO Messages");
   ui->sbTR->setVisible(true);
   ui->sbFtol->setVisible(true);
   ui->cbAutoSeq->setVisible(true);
