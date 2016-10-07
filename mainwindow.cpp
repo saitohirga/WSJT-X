@@ -2313,7 +2313,7 @@ void::MainWindow::fast_decode_done()
   QString msg0;
   dec_data.params.nagain=false;
   dec_data.params.ndiskdat=false;
-  if(m_msg[i][0]==0) m_bDecoded=false;
+  if(m_msg[0][0]==0) m_bDecoded=false;
   for(int i=0; i<100; i++) {
     int i1=msg0.indexOf(m_baseCall);
     int i2=msg0.indexOf(m_hisCall);
