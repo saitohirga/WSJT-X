@@ -133,9 +133,9 @@ int  qra64_decode(qra64codec *pcodec, float *ebno, int *x, const float *r);
 //		rc=5    [CALL CALL ?]    AP57
 //		rc=6    [?    CALL ?]    AP29
 //		rc=7    [?    CALL  ]    AP45
-//		rc=8    [CALL CALL GRID] AP72
+//		rc=8    [CALL CALL GRID] AP72 (actually a AP68 mask to reduce false decodes)
 //		rc=9    [CQ   CALL ?]    AP55
-//		rc=10   [CQ   CALL  ]    AP70
+//		rc=10   [CQ   CALL  ]    AP70 (actaully a AP68 mask to reduce false decodes)
 
 //  return codes in the range 1-10 indicate the amount and the type of a-priori 
 //  information was required to decode the received message.
