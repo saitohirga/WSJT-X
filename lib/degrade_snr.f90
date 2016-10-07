@@ -14,5 +14,3 @@ subroutine degrade_snr(d2,npts,db,bw)
 
   return
 end subroutine degrade_snr
-
-  
