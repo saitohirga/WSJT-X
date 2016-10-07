@@ -2022,8 +2022,12 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
   QFileInfo fi(m_path);
   QStringList list;
   list= fi.dir().entryList().filter(".wav",Qt::CaseInsensitive);
-  for (i = 0; i < list.size()-1; ++i) {
-    if(i==list.size()-2) m_loopall=false;
+  for (i = 0; i < list.size(); ++i) {
+    if(i==list.size()-1) {
+      m_loopall=false;
+      MessageBox::information_message(this, tr("No more files to open."));
+      return;
+    }
     len=list.at(i).length();
     if(list.at(i)==m_path.right(len)) {
       int n=m_path.length();
