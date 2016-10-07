@@ -1050,6 +1050,9 @@ add_executable (wsprsim ${wsprsim_CSRCS})
 add_executable (jt4code lib/jt4code.f90 wsjtx.rc)
 target_link_libraries (jt4code wsjt_fort wsjt_cxx)
 
+add_executable (msk144code lib/msk144code.f90 wsjtx.rc)
+target_link_libraries (msk144code wsjt_fort wsjt_cxx)
+
 add_executable (jt65 lib/jt65.f90 lib/jt65_test.f90 wsjtx.rc)
 target_link_libraries (jt65 wsjt_fort wsjt_cxx)
 
