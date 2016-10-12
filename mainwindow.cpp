@@ -827,6 +827,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_bFastMode) {
     int ntr[]={5,10,15,30};
     m_TRperiod=ntr[m_TRindex-11];
+    m_fastGraph->setTRperiod(m_TRperiod);
   }
   statusChanged();
 
