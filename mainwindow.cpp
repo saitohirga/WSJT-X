@@ -1327,7 +1327,7 @@ void MainWindow::fastSink(qint64 frames)
   m_k0=k;
   if(m_diskData and m_k0 >= dec_data.params.kin - 7 * 512) decodeNow=true;
   if(!m_diskData and m_tRemaining<0.35 and !m_bFastDecodeCalled) decodeNow=true;
-  if(m_config.realTimeDecode()) decodeNow=false;
+  if(m_mode=="MSK144" and m_config.realTimeDecode()) decodeNow=false;
 
   if(decodeNow) {
     m_dataAvailable=true;
@@ -1421,7 +1421,8 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
                                             m_msAudioOutputBuffered);
       }
 
-      auto_tx_label.setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" : "Auto-Tx-Enable Disarmed");
+      auto_tx_label.setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" :
+                                                      "Auto-Tx-Enable Disarmed");
       displayDialFrequency ();
       bool vhf {m_config.enable_VHF_features ()};
       if (!vhf) ui->sbSubmode->setValue (0);
@@ -1432,7 +1433,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
         VHF_features_enabled(b);
         VHF_controls_visible(b);
       }
-      if(m_mode=="MSK144") ui->cbFast9->setVisible(false);
+      if(m_mode=="MSK144" or (m_mode=="JT9" and m_nSubMode<4)) ui->cbFast9->setVisible(false);
     }
 
   m_config.transceiver_online ();
