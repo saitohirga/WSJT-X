@@ -474,7 +474,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->actionJT9_JT65->setActionGroup(modeGroup);
   ui->actionJT4->setActionGroup(modeGroup);
   ui->actionWSPR_2->setActionGroup(modeGroup);
-  ui->actionWSPR_15->setActionGroup(modeGroup);
   ui->actionEcho->setActionGroup(modeGroup);
   ui->actionISCAT->setActionGroup(modeGroup);
   ui->actionMSK144->setActionGroup(modeGroup);
@@ -780,7 +779,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_mode=="JT65") on_actionJT65_triggered();
   if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
   if(m_mode=="WSPR-2") on_actionWSPR_2_triggered();
-  if(m_mode=="WSPR-15") on_actionWSPR_15_triggered();
   if(m_mode=="Echo") on_actionEcho_triggered();
   if(m_mode=="ISCAT") on_actionISCAT_triggered();
   if(m_mode=="MSK144") on_actionMSK144_triggered();
@@ -1428,11 +1426,12 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       bool vhf {m_config.enable_VHF_features ()};
       if (!vhf) ui->sbSubmode->setValue (0);
       setup_status_bar (vhf);
-      bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or
-                       m_mode=="ISCAT" or m_mode=="JT9" or
-                       m_mode=="MSK144" or m_mode=="QRA64");
-      VHF_features_enabled(b);
-      VHF_controls_visible(b);
+      bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or m_mode=="ISCAT" or
+                       m_mode=="JT9" or m_mode=="MSK144");
+      if(b) {
+        VHF_features_enabled(b);
+        VHF_controls_visible(b);
+      }
       if(m_mode=="MSK144") ui->cbFast9->setVisible(false);
     }
 
@@ -1741,64 +1740,46 @@ void MainWindow::createStatusBar()                           //createStatusBar
 void MainWindow::setup_status_bar (bool vhf)
 {
   mode_label.setText ("QRA64" == m_mode ? QString {"QRA64"} : m_mode);
-  if (m_mode.contains (QRegularExpression {R"(^(JT65|JT9|JT4|ISCAT|QRA64)$)"}))
-    {
-      if (vhf || "JT4" == m_mode || "ISCAT" == m_mode)
-        {
-          mode_label.setText (mode_label.text () + " " + QChar {short (m_nSubMode + 65)});
-        }
+  if (m_mode.contains (QRegularExpression {R"(^(JT65|JT9|JT4|ISCAT|QRA64)$)"})) {
+    if (vhf || "JT4" == m_mode || "ISCAT" == m_mode) {
+      mode_label.setText (mode_label.text () + " " + QChar {short (m_nSubMode + 65)});
     }
-  if ("ISCAT" == m_mode)
-    {
-      mode_label.setStyleSheet ("QLabel{background-color: #ff9933}");
-    }
-  else if ("JT4" == m_mode)
-    {
-      mode_label.setStyleSheet ("QLabel{background-color: #cc99ff}");
-    }
-  else if ("Echo" == m_mode)
-    {
-      mode_label.setStyleSheet ("QLabel{background-color: #66ffff}");
-    }
-  else if ("JT9+JT65" == m_mode)
-    {
-      mode_label.setStyleSheet ("QLabel{background-color: #ffff66}");
-    }
-  else if ("JT65" == m_mode)
-    {
-      mode_label.setStyleSheet ("QLabel{background-color: #66ff66}");
-    }
-  else if ("QRA64" == m_mode)
-    {
-      mode_label.setStyleSheet ("QLabel{background-color: #99ff33}");
-    }
-  else if ("MSK144" == m_mode)
-    {
-      mode_label.setStyleSheet ("QLabel{background-color: #ff6666}");
-    }
+  }
+  if ("ISCAT" == m_mode) {
+    mode_label.setStyleSheet ("QLabel{background-color: #ff9933}");
+  } else if ("JT9" == m_mode) {
+    mode_label.setStyleSheet ("QLabel{background-color: #ff6ec7}");
+  } else if ("JT4" == m_mode) {
+    mode_label.setStyleSheet ("QLabel{background-color: #cc99ff}");
+  } else if ("Echo" == m_mode) {
+    mode_label.setStyleSheet ("QLabel{background-color: #66ffff}");
+  } else if ("JT9+JT65" == m_mode) {
+    mode_label.setStyleSheet ("QLabel{background-color: #ffff66}");
+  } else if ("JT65" == m_mode) {
+    mode_label.setStyleSheet ("QLabel{background-color: #66ff66}");
+  } else if ("QRA64" == m_mode) {
+    mode_label.setStyleSheet ("QLabel{background-color: #99ff33}");
+  } else if ("MSK144" == m_mode) {
+    mode_label.setStyleSheet ("QLabel{background-color: #ff6666}");
+  }
   last_tx_label.setText (QString {});
-  if (m_mode.contains (QRegularExpression {R"(^(Echo|ISCAT))"}))
-    {
-      if (auto_tx_label.isVisible ()) statusBar ()->removeWidget (&auto_tx_label);
-      if (band_hopping_label.isVisible ()) statusBar ()->removeWidget (&band_hopping_label);
+  if (m_mode.contains (QRegularExpression {R"(^(Echo|ISCAT))"})) {
+    if (auto_tx_label.isVisible ()) statusBar ()->removeWidget (&auto_tx_label);
+    if (band_hopping_label.isVisible ()) statusBar ()->removeWidget (&band_hopping_label);
+  } else if (m_mode.startsWith ("WSPR")) {
+    mode_label.setStyleSheet ("QLabel{background-color: #ff66ff}");
+    if (auto_tx_label.isVisible ()) statusBar ()->removeWidget (&auto_tx_label);
+    if (!band_hopping_label.isVisible ()) {
+      statusBar ()->addWidget (&band_hopping_label);
+      band_hopping_label.show ();
     }
-  else if (m_mode.startsWith ("WSPR"))
-    {
-      mode_label.setStyleSheet ("QLabel{background-color: #ff66ff}");
-      if (auto_tx_label.isVisible ()) statusBar ()->removeWidget (&auto_tx_label);
-      if (!band_hopping_label.isVisible ()) {
-        statusBar ()->addWidget (&band_hopping_label);
-        band_hopping_label.show ();
-      }
+  } else {
+    if (band_hopping_label.isVisible ()) statusBar ()->removeWidget (&band_hopping_label);
+    if (!auto_tx_label.isVisible ()) {
+      statusBar ()->addWidget (&auto_tx_label);
+      auto_tx_label.show ();
     }
-  else
-    {
-      if (band_hopping_label.isVisible ()) statusBar ()->removeWidget (&band_hopping_label);
-      if (!auto_tx_label.isVisible ()) {
-        statusBar ()->addWidget (&auto_tx_label);
-        auto_tx_label.show ();
-      }
-    }
+  }
 }
 
 void MainWindow::subProcessFailed (QProcess * process, int exit_code, QProcess::ExitStatus status)
@@ -3973,12 +3954,7 @@ void MainWindow::acceptQSO2(QDateTime const& QSO_date, QString const& call, QStr
 void MainWindow::on_actionJT9_triggered()
 {
   m_mode="JT9";
-  if(m_nSubMode<4) {
-    ui->cbFast9->setChecked(false);
-    ui->cbFast9->setEnabled(false);
-  } else {
-    ui->cbFast9->setEnabled(true);
-  }
+
   m_bFast9=ui->cbFast9->isChecked();
   ui->cbAutoSeq->setVisible(m_bFast9);
   m_bFastMode=m_bFast9;
@@ -4000,10 +3976,16 @@ void MainWindow::on_actionJT9_triggered()
   ui->pbTxMode->setVisible(false);
   VHF_features_enabled(bVHF);
   VHF_controls_visible(bVHF);
-  ui->cbFast9->setVisible(bVHF);
+  if(m_nSubMode>=4 and bVHF) {
+    ui->cbFast9->setVisible(true);
+  } else {
+    ui->cbFast9->setChecked(false);
+    ui->cbFast9->setVisible(false);
+  }
   ui->cbShMsgs->setVisible(false);
   ui->cbTx6->setVisible(false);
-  ui->sbSubmode->setVisible(true);
+//  ui->sbSubmode->setVisible(true);
+  ui->sbSubmode->setVisible(bVHF);
   ui->sbSubmode->setMaximum(7);
   fast_config(m_bFastMode);
   if(m_bFast9) {
@@ -4082,7 +4064,6 @@ void MainWindow::on_actionMSK144_triggered()
   ui->sbFtol->setMaximum(25);
   bool b=m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN";
   ui->cbCQRx->setEnabled(b);
-  ui->cbFast9->setVisible(false);
 }
 
 void MainWindow::on_actionQRA64_triggered()
@@ -4095,21 +4076,20 @@ void MainWindow::on_actionQRA64_triggered()
   ui->actionQRA64->setChecked(true);
   switch_mode (Modes::QRA64);
   statusChanged();
-  setup_status_bar (m_config.enable_VHF_features ());
+  setup_status_bar (true);
   m_hsymStop=180;
   if(m_config.decode_at_52s()) m_hsymStop=188;
   ui->cbShMsgs->setVisible(false);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   ui->sbSubmode->setMaximum(4);
-  if(m_config.enable_VHF_features()) {
-    ui->sbSubmode->setValue(m_nSubMode);
-  } else {
-    ui->sbSubmode->setValue(0);
-    ui->sbTR->setValue(0);
-  }
+  ui->sbSubmode->setValue(m_nSubMode);
   ui->cbTxLock->setEnabled(true);
+  ui->sbSubmode->setVisible(true);
+  ui->sbFtol->setVisible(true);
+  ui->cbFast9->setVisible(false);
   ui->cbAutoSeq->setVisible(false);
+  ui->cbFast9->setVisible(false);
 }
 
 void MainWindow::on_actionJT65_triggered()
@@ -4277,12 +4257,6 @@ void MainWindow::on_actionWSPR_2_triggered()
   ui->TxFreqSpinBox->setValue(ui->WSPRfreqSpinBox->value());
 }
 
-void MainWindow::on_actionWSPR_15_triggered()
-{
-  MessageBox::information_message (this, tr ("WSPR-15 is not yet available"));
-  switch_mode (Modes::WSPR);
-}
-
 void MainWindow::on_actionEcho_triggered()
 {
   on_actionJT4_triggered();
@@ -4291,7 +4265,7 @@ void MainWindow::on_actionEcho_triggered()
   m_TRperiod=3;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
-  m_nsps=6912;                   //For symspec only
+  m_nsps=6912;                        //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
   m_hsymStop=10;
@@ -4312,6 +4286,7 @@ void MainWindow::on_actionEcho_triggered()
   m_bFast9=false;
   VHF_controls_visible(false);
   fast_config(false);
+  WSPR_config(true);
   ui->decodedTextLabel->setText("   UTC      N   Level    Sig      DF    Width   Q");
 }
 
@@ -5230,6 +5205,9 @@ void::MainWindow::VHF_controls_visible(bool b)
 {
   ui->VHFControls_widget->setVisible (b);
   ui->cbFast9->setVisible(b);
+  ui->sbSubmode->setVisible(b);
+  ui->sbFtol->setVisible(b);
+  ui->syncSpinBox->setVisible(b && (m_mode!="MSK144"));
 }
 
 void::MainWindow::VHF_features_enabled(bool b)
@@ -5291,11 +5269,11 @@ void MainWindow::on_sbSubmode_valueChanged(int n)
     if(m_nSubMode<4) {
       ui->cbFast9->setChecked(false);
       on_cbFast9_clicked(false);
-      ui->cbFast9->setEnabled(false);
+      ui->cbFast9->setVisible(false);
       ui->sbTR->setVisible(false);
       m_TRperiod=60;
     } else {
-      ui->cbFast9->setEnabled(true);
+      ui->cbFast9->setVisible(true);
     }
     ui->sbTR->setVisible(m_bFast9);
     if(m_bFast9) ui->TxFreqSpinBox->setValue(700);
