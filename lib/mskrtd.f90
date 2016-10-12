@@ -74,14 +74,13 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,hiscall,   &
 ! If no decode, entire-block average will be used to update noise estimate.
   pmax=-99
   do i=1,8 
-    ib=(i-1)*NSPM+1
-    ie=ib+NSPM-1
-    pow(i)=real(dot_product(cdat(ib:ie),cdat(ib:ie)))*rms**2
-    if( pow(i) .gt. pmax ) then
-      pmax=pow(i)
-    endif
+     ib=(i-1)*NSPM+1
+     ie=ib+NSPM-1
+     pow(i)=real(dot_product(cdat(ib:ie),cdat(ib:ie)))*rms**2
+     pmax=max(pmax,pow(i))
   enddo
   pavg=sum(pow)/8.0
+  if(tsec.lt.0.1) pavg=sum(pow(6:8))/3.0
 
 ! Short ping decoder uses squared-signal spectrum to determine where to
 ! center a 3-frame analysis window and attempts to decode each of the 
