@@ -1056,6 +1056,7 @@ void Configuration::impl::initialize_models ()
   ui_->cbx2ToneSpacing->setChecked(x2ToneSpacing_);
   ui_->cbContestMode->setChecked(contestMode_);
   ui_->cbRealTime->setChecked(realTimeDecode_);
+  ui_->cbRealTime->setVisible(false);                    //Tempoary -- probably will remove this control
   ui_->offset_Rx_freq_check_box->setChecked(offsetRxFreq_);
   ui_->type_2_msg_gen_combo_box->setCurrentIndex (type_2_msg_gen_);
   ui_->rig_combo_box->setCurrentText (rig_params_.rig_name);

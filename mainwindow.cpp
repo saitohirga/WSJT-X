@@ -1274,7 +1274,7 @@ void MainWindow::fastSink(qint64 frames)
   if(m_diskData) nutc0=m_UTCdisk;
   char line[80];
   bool bmsk144=((m_mode=="MSK144") and (m_monitoring or m_diskData));
-  bmsk144=bmsk144 && m_config.realTimeDecode();
+//  bmsk144=bmsk144 && m_config.realTimeDecode();
   line[0]=0;
 
   m_RxFreq=ui->RxFreqSpinBox->value ();
@@ -1327,7 +1327,8 @@ void MainWindow::fastSink(qint64 frames)
   m_k0=k;
   if(m_diskData and m_k0 >= dec_data.params.kin - 7 * 512) decodeNow=true;
   if(!m_diskData and m_tRemaining<0.35 and !m_bFastDecodeCalled) decodeNow=true;
-  if(m_mode=="MSK144" and m_config.realTimeDecode()) decodeNow=false;
+//  if(m_mode=="MSK144" and m_config.realTimeDecode()) decodeNow=false;
+  if(m_mode=="MSK144") decodeNow=false;
 
   if(decodeNow) {
     m_dataAvailable=true;
@@ -2254,7 +2255,7 @@ void MainWindow::decode()                                       //decode()
     if(m_nPick > 0) {
       t0=m_t0Pick;
       t1=m_t1Pick;
-      if(t1 > m_kdone/12000.0 and !m_config.realTimeDecode()) t1=m_kdone/12000.0;
+//      if(t1 > m_kdone/12000.0 and !m_config.realTimeDecode()) t1=m_kdone/12000.0;
     }
     static short int d2b[360000];
     narg[0]=dec_data.params.nutc;
@@ -3033,7 +3034,8 @@ void MainWindow::guiUpdate()
         tx_status_label.setStyleSheet("QLabel{background-color: #00ff00}");
         QString t;
         t="Receiving";
-        if(m_mode=="MSK144" and m_config.realTimeDecode()) {
+//        if(m_mode=="MSK144" and m_config.realTimeDecode()) {
+        if(m_mode=="MSK144") {
           int npct=int(100.0*m_fCPUmskrtd/0.298667);
           if(npct>90) tx_status_label.setStyleSheet("QLabel{background-color: #ff0000}");
           t.sprintf("Receiving   %2d%%",npct);
@@ -5213,6 +5215,7 @@ void::MainWindow::VHF_controls_visible(bool b)
 
 void::MainWindow::VHF_features_enabled(bool b)
 {
+  if(m_mode!="JT4" and m_mode!="JT65") b=false;
   if(!b and (ui->actionInclude_averaging->isChecked() or
              ui->actionInclude_correlation->isChecked())) {
     on_actionDeepestDecode_triggered();
