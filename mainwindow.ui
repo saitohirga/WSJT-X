@@ -2765,7 +2765,7 @@ QPushButton[state=&quot;ok&quot;] {
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>WSPR-2</string>
+    <string>WSPR</string>
    </property>
   </action>
   <action name="actionWSPR_15">

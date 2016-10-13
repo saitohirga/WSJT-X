@@ -1420,7 +1420,11 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     bool vhf {m_config.enable_VHF_features ()};
     if (!vhf) {
       ui->sbSubmode->setValue (0);
-      if(m_mode=="JT9") ui->sbSubmode->setVisible(false);
+      if(m_mode=="JT4" or m_mode=="JT9" or m_mode=="JT65") {
+        ui->sbSubmode->setVisible(false);
+        ui->sbFtol->setVisible(false);
+        ui->syncSpinBox->setVisible(false);
+      }
     }
     setup_status_bar (vhf);
     bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or m_mode=="ISCAT" or
@@ -1429,7 +1433,10 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       VHF_features_enabled(b);
       VHF_controls_visible(b);
     }
-    if(m_mode=="MSK144" or (m_mode=="JT9" and m_nSubMode<4)) ui->cbFast9->setVisible(false);
+    if(m_mode=="JT4" or (m_mode=="JT9" and m_nSubMode<4) or m_mode=="JT65" or
+       m_mode=="JT9+JT65" or m_mode=="ISCAT" or m_mode=="MSK144") {
+      ui->cbFast9->setVisible(false);
+    }
   }
 
   m_config.transceiver_online ();
