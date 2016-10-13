@@ -149,7 +149,7 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dat
   static float splot[NSMAX];
   int nbpp = ui->widePlot->binsPerPixel();
 
-  //Average spectra over specified number, m_waterfallAvg
+//Average spectra over specified number, m_waterfallAvg
   if (m_n==0) {
     for (int i=0; i<NSMAX; i++)
       splot[i]=s[i];
@@ -167,11 +167,12 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dat
     int jz=5000.0/(nbpp*df3);
 		if(jz>MAX_SCREENSIZE) jz=MAX_SCREENSIZE;
     for (int j=0; j<jz; j++) {
-      float sum=0;
+      float ss=0;
       for (int k=0; k<nbpp; k++) {
-        sum += splot[i++];
+        if(splot[i]>ss) ss=splot[i];
+        i++;
       }
-      swide[j]=sum;
+      swide[j]=nbpp*ss;
     }
 
 // Time according to this computer
