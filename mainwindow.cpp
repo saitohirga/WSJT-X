@@ -659,7 +659,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
 
   ui->labAz->setStyleSheet("border: 0px;");
-  ui->labDist->setStyleSheet("border: 0px;");
+//  ui->labDist->setStyleSheet("border: 0px;");
 
   auto t = "UTC   dB   DT Freq    Message";
   ui->decodedTextLabel->setText(t);
@@ -1672,6 +1672,7 @@ void MainWindow::statusChanged()
                                  , tr ("Cannot open \"%1\" for writing: %2")
                                  .arg (f.fileName ()).arg (f.errorString ()));
   }
+  on_dxGridEntry_textChanged(m_hisGrid);
 }
 
 bool MainWindow::eventFilter (QObject * object, QEvent * event)
@@ -3536,7 +3537,7 @@ void MainWindow::genStdMsgs(QString rpt)
   QString hisCall=ui->dxCallEntry->text();
   if(!hisCall.size ()) {
     ui->labAz->clear ();
-    ui->labDist->clear ();
+//    ui->labDist->clear ();
     ui->tx1->clear ();
     ui->tx2->clear ();
     ui->tx3->clear ();
@@ -3888,33 +3889,30 @@ void MainWindow::on_dxGridEntry_textChanged (QString const& grid)
       m_hisGrid = grid;
       statusUpdate ();
     }
-    qint64 nsec = QDateTime::currentMSecsSinceEpoch() % 86400;
+    qint64 nsec = (QDateTime::currentMSecsSinceEpoch()/1000) % 86400;
     double utch=nsec/3600.0;
     int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
     azdist_(const_cast <char *> ((m_config.my_grid () + "      ").left (6).toLatin1().constData()),
             const_cast <char *> ((m_hisGrid + "      ").left (6).toLatin1().constData()),&utch,
             &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
     QString t;
-    t.sprintf("Az: %d",nAz);
+    int nd=nDkm;
+    if(m_config.miles()) nd=nDmiles;
+    if(m_mode=="MSK144") {
+      if(nHotABetter==0)t.sprintf("Az: %d   B: %d   El: %d   %d",nAz,nHotAz,nEl,nd);
+      if(nHotABetter!=0)t.sprintf("Az: %d   A: %d   El: %d   %d",nAz,nHotAz,nEl,nd);
+    } else {
+      t.sprintf("Az: %d        %d",nAz,nd);
+    }
+    if(m_config.miles()) t += " mi";
+    if(!m_config.miles()) t += " km";
     ui->labAz->setText (t);
-    if (m_config.miles ())
-      {
-        t.sprintf ("%d mi", int (0.621371 * nDkm));
-      }
-    else
-      {
-        t.sprintf ("%d km", nDkm);
-      }
-    ui->labDist->setText(t);
-  }
-  else {
-    if (m_hisGrid.size ())
-      {
-        m_hisGrid.clear ();
-        ui->labAz->clear ();
-        ui->labDist->clear ();
-        statusUpdate ();
-      }
+  } else {
+    if (m_hisGrid.size ()) {
+      m_hisGrid.clear ();
+      ui->labAz->clear ();
+      statusUpdate ();
+    }
   }
 }
 
