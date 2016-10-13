@@ -1418,7 +1418,10 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
                                                     "Auto-Tx-Enable Disarmed");
     displayDialFrequency ();
     bool vhf {m_config.enable_VHF_features ()};
-    if (!vhf) ui->sbSubmode->setValue (0);
+    if (!vhf) {
+      ui->sbSubmode->setValue (0);
+      if(m_mode=="JT9") ui->sbSubmode->setVisible(false);
+    }
     setup_status_bar (vhf);
     bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or m_mode=="ISCAT" or
                      m_mode=="JT9" or m_mode=="MSK144");
