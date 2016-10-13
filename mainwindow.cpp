@@ -2644,7 +2644,7 @@ void MainWindow::guiUpdate()
 
   double tx1=0.0;
   double tx2=txDuration;
-  if((icw[0]>0) and (!m_bFast9)) tx2 += icw[0]*2560.0/48000.0;          //Full length including CW ID
+  if((icw[0]>0) and (!m_bFast9)) tx2 += icw[0]*2560.0/48000.0;  //Full length including CW ID
   if(!m_txFirst and !m_mode.startsWith ("WSPR")) {
     tx1 += m_TRperiod;
     tx2 += m_TRperiod;
@@ -3265,13 +3265,13 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   QString t2 = messages.mid(i1,position-i1);    //selected line
   QString t2a;
   int ntsec=3600*t2.mid(0,2).toInt() + 60*t2.mid(2,2).toInt();
-  if(m_bFast9) {
+  if(m_bFastMode) {
     ntsec = ntsec + t2.mid(4,2).toInt();
     t2a=t2.mid(0,4) + t2.mid(6,-1);     //Change hhmmss to hhmm for the message parser
   } else {
     t2a=t2.left (44);       // strip and quality info trailing the decoded message
   }
-  if(m_bFast9) {
+  if(m_bFastMode) {
     i1=t2a.indexOf(" CQ ");
     if(i1>10) {
       bool ok;
