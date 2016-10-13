@@ -1433,6 +1433,10 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       VHF_features_enabled(b);
       VHF_controls_visible(b);
     }
+    if(!vhf) {
+      ui->cbShMsgs->setVisible(false);
+      ui->cbTx6->setVisible(false);
+    }
     if(m_mode=="JT4" or (m_mode=="JT9" and m_nSubMode<4) or m_mode=="JT65" or
        m_mode=="JT9+JT65" or m_mode=="ISCAT" or m_mode=="MSK144") {
       ui->cbFast9->setVisible(false);

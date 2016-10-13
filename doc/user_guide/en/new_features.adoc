@@ -9,7 +9,7 @@ added to _WSJT-X_ since Version 1.6.0:
 and fast).
 
 - New Franke-Taylor decoder replaces the Koetter-Vardy decoder in
-JT65.  KVASD is no longer used.
+JT65; the separate program `kvasd[.exe]` is no longer used.
 
 - Improvements to the JT4, JT9, and JT65 decoders.
 
