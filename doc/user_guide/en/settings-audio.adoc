@@ -12,7 +12,7 @@ IMPORTANT: If you select the audio output device that is also your
 computer's default audio device, be sure to turn off all system sounds
 to prevent transmitting them over the air.
 
-IMPORTANT: Be sure that your audio device in configured to sample at
+IMPORTANT: Be sure that your audio device is configured to sample at
 48000 Hz, 16 bits.
 
 - _Save Directory_: _WSJT-X_ can save its received audio sequences as
