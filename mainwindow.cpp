@@ -118,8 +118,8 @@ extern "C" {
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];	//Audio tones for all Tx symbols
-int volatile icw[NUM_CW_SYMBOLS];	    //Dits for CW ID
-struct dec_data dec_data;             // for sharing with Fortran
+int volatile icw[NUM_CW_SYMBOLS];	      //Dits for CW ID
+struct dec_data dec_data;               // for sharing with Fortran
 
 int outBufSize;
 int rc;
@@ -488,8 +488,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->actionQuickDecode->setActionGroup(DepthGroup);
   ui->actionMediumDecode->setActionGroup(DepthGroup);
   ui->actionDeepestDecode->setActionGroup(DepthGroup);
-//  ui->actionInclude_averaging->setActionGroup(DepthGroup);
-//  ui->actionInclude_correlation->setActionGroup(DepthGroup);
 
   connect (ui->download_samples_action, &QAction::triggered, [this, network_manager] () {
       if (!m_sampleDownloader)
@@ -1392,51 +1390,44 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
   // things that might change that we need know about
   auto callsign = m_config.my_callsign ();
 
-  if (QDialog::Accepted == m_config.exec ())
-    {
-      if (m_config.my_callsign () != callsign)
-        {
-          m_baseCall = Radio::base_callsign (m_config.my_callsign ());
-          morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData())
-                 , const_cast<int *> (icw)
-                 , &m_ncw
-                 , m_config.my_callsign ().length());
-        }
-
-      on_dxGridEntry_textChanged (m_hisGrid); // recalculate distances in case of units change
-      enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
-
-      if(m_config.spot_to_psk_reporter ()) {
-        pskSetLocal ();
-      }
-
-      if(m_config.restart_audio_input ()) {
-        Q_EMIT startAudioInputStream (m_config.audio_input_device (),
-                                      m_framesAudioInputBuffered, m_detector,
-                                      m_downSampleFactor,
-                                      m_config.audio_input_channel ());
-      }
-
-      if(m_config.restart_audio_output ()) {
-        Q_EMIT initializeAudioOutputStream (m_config.audio_output_device (),
-           AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2,
-                                            m_msAudioOutputBuffered);
-      }
-
-      auto_tx_label.setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" :
-                                                      "Auto-Tx-Enable Disarmed");
-      displayDialFrequency ();
-      bool vhf {m_config.enable_VHF_features ()};
-      if (!vhf) ui->sbSubmode->setValue (0);
-      setup_status_bar (vhf);
-      bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or m_mode=="ISCAT" or
-                       m_mode=="JT9" or m_mode=="MSK144");
-      if(b) {
-        VHF_features_enabled(b);
-        VHF_controls_visible(b);
-      }
-      if(m_mode=="MSK144" or (m_mode=="JT9" and m_nSubMode<4)) ui->cbFast9->setVisible(false);
+  if (QDialog::Accepted == m_config.exec ()) {
+    if (m_config.my_callsign () != callsign) {
+      m_baseCall = Radio::base_callsign (m_config.my_callsign ());
+      morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),
+             const_cast<int *> (icw), &m_ncw, m_config.my_callsign ().length());
     }
+
+    on_dxGridEntry_textChanged (m_hisGrid); // recalculate distances in case of units change
+    enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
+
+    if(m_config.spot_to_psk_reporter ()) pskSetLocal ();
+
+    if(m_config.restart_audio_input ()) {
+      Q_EMIT startAudioInputStream (m_config.audio_input_device (),
+                 m_framesAudioInputBuffered, m_detector, m_downSampleFactor,
+                                      m_config.audio_input_channel ());
+    }
+
+    if(m_config.restart_audio_output ()) {
+      Q_EMIT initializeAudioOutputStream (m_config.audio_output_device (),
+           AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2,
+                                          m_msAudioOutputBuffered);
+    }
+
+    auto_tx_label.setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" :
+                                                    "Auto-Tx-Enable Disarmed");
+    displayDialFrequency ();
+    bool vhf {m_config.enable_VHF_features ()};
+    if (!vhf) ui->sbSubmode->setValue (0);
+    setup_status_bar (vhf);
+    bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or m_mode=="ISCAT" or
+                     m_mode=="JT9" or m_mode=="MSK144");
+    if(b) {
+      VHF_features_enabled(b);
+      VHF_controls_visible(b);
+    }
+    if(m_mode=="MSK144" or (m_mode=="JT9" and m_nSubMode<4)) ui->cbFast9->setVisible(false);
+  }
 
   m_config.transceiver_online ();
   if(!m_bFastMode) setXIT (ui->TxFreqSpinBox->value ());
@@ -2631,10 +2622,10 @@ void MainWindow::guiUpdate()
   if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
     txDuration=m_TRperiod-0.25; // ISCAT, JT9-fast, MSK144
   }
-//###  if(m_mode=="WSPR-15") tx2=...
 
   double tx1=0.0;
-  double tx2=txDuration + + icw[0]*2560.0/48000.0;          //Full length including CW ID
+  double tx2=txDuration;
+  if((icw[0]>0) and (!m_bFast9)) tx2 += icw[0]*2560.0/48000.0;          //Full length including CW ID
   if(!m_txFirst and !m_mode.startsWith ("WSPR")) {
     tx1 += m_TRperiod;
     tx2 += m_TRperiod;
@@ -2859,7 +2850,7 @@ void MainWindow::guiUpdate()
           auto const& message = tr ("Cannot open \"%1\" for append: %2")
             .arg (f.fileName ()).arg (f.errorString ());
 #if QT_VERSION >= 0x050400
-          QTimer::singleShot (0, [=] { // don't block guiUpdate
+          QTimer::singleShot (0, [=] {                   // don't block guiUpdate
               MessageBox::warning_message (this, tr ("Log File Error"), message);
             });
 #else
@@ -2881,7 +2872,8 @@ void MainWindow::guiUpdate()
       && !message_is_73 (m_lastMessageType, m_lastMessageSent.split (' ', QString::SkipEmptyParts));
     if (m_sentFirst73) {
       m_qsoStop=t2;
-      if(m_config.id_after_73 () and (!m_bFastMode)) {
+//      if(m_config.id_after_73 () and (!m_bFastMode)) {
+      if(m_config.id_after_73 ()) {
         icw[0] = m_ncw;
       }
       if (m_config.prompt_to_log () && !m_tune) {
@@ -2892,7 +2884,8 @@ void MainWindow::guiUpdate()
       auto_tx_mode (false);
     }
 
-    if(m_config.id_interval () >0 and (!m_bFastMode)) {
+//    if(m_config.id_interval () >0 and (!m_bFastMode)) {
+    if(m_config.id_interval () >0) {
       int nmin=(m_sec0-m_secID)/60;
       if(nmin >= m_config.id_interval ()) {
         icw[0]=m_ncw;
@@ -3988,7 +3981,6 @@ void MainWindow::on_actionJT9_triggered()
   }
   ui->cbShMsgs->setVisible(false);
   ui->cbTx6->setVisible(false);
-//  ui->sbSubmode->setVisible(true);
   ui->sbSubmode->setVisible(bVHF);
   ui->sbSubmode->setMaximum(7);
   fast_config(m_bFastMode);
@@ -4036,7 +4028,7 @@ void MainWindow::on_actionMSK144_triggered()
   ui->cbTx6->setVisible(false);
   ui->sbSubmode->setVisible(false);
   m_bFastMode=true;
-  m_bFast9=true;
+  m_bFast9=false;
   fast_config(true);
   m_TRperiod=ui->sbTR->cleanText().toInt();
   m_wideGraph->hide();
@@ -4089,6 +4081,8 @@ void MainWindow::on_actionQRA64_triggered()
   ui->sbSubmode->setMaximum(4);
   ui->sbSubmode->setValue(m_nSubMode);
   ui->cbTxLock->setEnabled(true);
+  ui->actionInclude_averaging->setEnabled(false);
+  ui->actionInclude_correlation->setEnabled(false);
   ui->sbSubmode->setVisible(true);
   ui->sbFtol->setVisible(true);
   ui->cbFast9->setVisible(false);
@@ -4133,6 +4127,7 @@ void MainWindow::on_actionJT65_triggered()
   VHF_controls_visible(bVHF);
   ui->cbFast9->setVisible(false);
   ui->cbShMsgs->setVisible(true);
+  ui->cbAutoSeq->setVisible(false);
   fast_config(false);
   ui->sbSubmode->setMaximum(2);
   if(bVHF) {
@@ -4222,6 +4217,7 @@ void MainWindow::on_actionJT4_triggered()
   ui->cbTx6->setVisible(true);
   ui->sbTR->setVisible(false);
   ui->sbSubmode->setVisible(true);
+  ui->cbAutoSeq->setVisible(false);
   ui->sbSubmode->setMaximum(6);
   ui->label_6->setText("Single-Period Decodes");
   ui->label_7->setText("Average Decodes");
@@ -5209,8 +5205,8 @@ void::MainWindow::VHF_controls_visible(bool b)
 {
   ui->VHFControls_widget->setVisible (b);
   ui->cbFast9->setVisible(b);
-  ui->sbSubmode->setVisible(b);
   ui->sbFtol->setVisible(b);
+  ui->sbSubmode->setVisible(b && (m_mode!="MSK144"));
   ui->syncSpinBox->setVisible(b && (m_mode!="MSK144"));
 }
 

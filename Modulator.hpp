@@ -59,7 +59,7 @@ private:
   unsigned m_symbolsLength;
 
   static double constexpr m_twoPi = 2.0 * 3.141592653589793238462;
-  static unsigned constexpr m_nspd = 2048 + 512; // CW ID WPM factor = 22.5 WPM
+  unsigned m_nspd = 2048 + 512; // CW ID WPM factor = 22.5 WPM
 
   double m_phi;
   double m_dphi;
