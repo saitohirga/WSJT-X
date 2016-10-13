@@ -2368,18 +2368,18 @@ QPushButton[state=&quot;ok&quot;] {
     <property name="title">
      <string>Mode</string>
     </property>
-    <addaction name="actionJT9"/>
-    <addaction name="actionJT65"/>
-    <addaction name="actionJT9_JT65"/>
     <addaction name="actionJT4"/>
+    <addaction name="actionJT9"/>
+    <addaction name="actionJT9_JT65"/>
+    <addaction name="actionJT65"/>
+    <addaction name="actionQRA64"/>
+    <addaction name="separator"/>
+    <addaction name="actionISCAT"/>
+    <addaction name="actionMSK144"/>
     <addaction name="separator"/>
     <addaction name="actionWSPR_2"/>
     <addaction name="separator"/>
     <addaction name="actionEcho"/>
-    <addaction name="separator"/>
-    <addaction name="actionISCAT"/>
-    <addaction name="actionMSK144"/>
-    <addaction name="actionQRA64"/>
    </widget>
    <widget class="QMenu" name="menuConfig">
     <property name="title">

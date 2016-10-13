@@ -79,8 +79,8 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
 
   unsigned mstr = ms0 % (1000 * m_period); // ms in period
   m_ic = (mstr / 1000) * m_frameRate; // we start exactly N seconds
-  if(m_bFastMode) m_ic=0;
   // into period where N is the next whole second
+  if(m_bFastMode) m_ic=0;
 
   m_silentFrames = 0;
   // calculate number of silent frames to send
@@ -165,19 +165,33 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
       {
         unsigned int isym=0;
         if(!m_tuning) isym=m_ic/(4.0*m_nsps);            // Actual fsample=48000
-        if (isym >= m_symbolsLength && icw[0] > 0) {     // start CW condition
-          // Output the CW ID
-          m_dphi = m_twoPi * m_frequency / m_frameRate;
-          unsigned const ic0 = m_symbolsLength * 4 * m_nsps;
-          unsigned j (0);
+        bool slowCwId=((isym >= m_symbolsLength) && (icw[0] > 0)) && (!m_bFastMode);
+        bool fastCwId=false;
+        static bool bCwId=false;
+        qint64 ms = QDateTime::currentMSecsSinceEpoch();
+        float tsec=0.001*(ms % (1000*m_TRperiod));
+        if(m_bFastMode and (icw[0]>0) and (tsec>(m_TRperiod-5.0))) fastCwId=true;
+        if(!m_bFastMode) m_nspd=2560;                 // 22.5 WPM
+
+        if(slowCwId or fastCwId) {     // Transmit CW ID?
+          m_dphi = m_twoPi*m_frequency/m_frameRate;
+          if(m_bFastMode and !bCwId) {
+            m_frequency=1500;          // Set params for CW ID
+            m_symbolsLength=126;
+            m_nsps=4096.0*12000.0/11025.0;
+            m_ic=2246949;
+            m_nspd=2560;               // 22.5 WPM
+            if(icw[0]*m_nspd/48000.0 > 4.1) m_nspd=4.1*48000/icw[0];  //Faster CW for long calls
+          }
+          bCwId=true;
+          unsigned ic0 = m_symbolsLength * 4 * m_nsps;
+          unsigned j(0);
 
           while (samples != end) {
-            j = (m_ic - ic0) / m_nspd + 1; // symbol of this sample
+            j = (m_ic - ic0)/m_nspd + 1; // symbol of this sample
             bool level {bool (icw[j])};
-
             m_phi += m_dphi;
             if (m_phi > m_twoPi) m_phi -= m_twoPi;
-
             qint16 sample=0;
             float amp=32767.0;
             if(m_ramp!=0) {
@@ -188,30 +202,27 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
               }
               sample=round(amp*x);
             }
-
-            if (int (j) <= icw[0] && j < NUM_CW_SYMBOLS) // stop condition
-              {
-                samples = load (postProcessSample (sample), samples);
-                ++framesGenerated;
-                ++m_ic;
-              }
-            else
-              {
-                Q_EMIT stateChanged ((m_state = Idle));
-                return framesGenerated * bytesPerFrame ();
-              }
+            if (int (j) <= icw[0] && j < NUM_CW_SYMBOLS) { // stop condition
+              samples = load (postProcessSample (sample), samples);
+              ++framesGenerated;
+              ++m_ic;
+            } else {
+              Q_EMIT stateChanged ((m_state = Idle));
+              return framesGenerated * bytesPerFrame ();
+            }
 
             // adjust ramp
-            if ((m_ramp != 0 && m_ramp != std::numeric_limits<qint16>::min ()) || level != m_cwLevel)
-              {
-                // either ramp has terminated at max/min or direction has changed
-                m_ramp += RAMP_INCREMENT; // ramp
-              }
+            if ((m_ramp != 0 && m_ramp != std::numeric_limits<qint16>::min ()) || level != m_cwLevel) {
+              // either ramp has terminated at max/min or direction has changed
+              m_ramp += RAMP_INCREMENT; // ramp
+            }
             m_cwLevel = level;
           }
 
           return framesGenerated * bytesPerFrame ();
-        }
+        } else {
+          bCwId=false;
+        } //End of code for CW ID
 
         double const baud (12000.0 / m_nsps);
         // fade out parameters (no fade out for tuning)
