@@ -136,6 +136,10 @@ efficiency. On a busy HF band, the conventional 2-kHz-wide JT65
 sub-band is often filled with overlapping signals. Ten times as many
 JT9 signals can fit into the same frequency range, without collisions.
 
+=== QRA64
+
+TBD
+
 === ISCAT
 
 ISCAT messages are free-form, up to 28 characters in length.
@@ -176,18 +180,6 @@ symbols in each 24, the user message +@CQ WA9XYZ+ repeats at its own
 natural length, 10 characters.  The resulting sequence is extended as
 many times as will fit into a Tx sequence.
 
-=== JTMSK
+=== MSK144
 
-The letters MS are often used to abbreviate meteor scatter; the three
-letters MSK mean "Minimum Shift Keying", the modulation scheme used in
-JTMSK.  This mode uses the same standard message structure as the slow
-modes JT4, JT9, and JT65.  User information is "`source encoded`" to
-72 bits; a 15-bit cyclic redundancy check (CRC) is appended, and a
-convolutional code with constraint length K=13 and rate r=1/2 is then
-applied.  This procedure makes for a total of (72+15+12)*2 = 198
-information bits for the encoded message.  Three copies of the
-"`Barker-11`" code and three even-parity bits are added for
-synchronization, making a total of 198+33+3 = 234 channel symbols.
-Modulation is carried out using a constant-envelope, continuous-phase
-minimum-shift keying (MSK) waveform, with tone frequencies of 1000
-and 2000 Hz.
+TBD

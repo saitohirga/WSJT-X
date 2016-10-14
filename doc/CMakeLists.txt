@@ -12,6 +12,7 @@ set (UG_SRCS
   docinfo.html
   docinfo.xml
   acknowledgements.adoc
+  astro_data.adoc
   compiling.adoc
   config-details.adoc
   controls-functions-center.adoc
@@ -58,8 +59,11 @@ set (UG_SRCS
 
 set (UG_IMGS
   images/130610_2343-wav-80.png
+  images/AstroData_2.png
+  images/Astronomical_data.png
   images/band-settings.png
   images/colors.png
+  images/config-menu.png
   images/decode-menu.png
   images/decodes.png
   images/file-menu.png
@@ -69,7 +73,7 @@ set (UG_IMGS
   images/keyboard-shortcuts.png
   images/log-qso.png
   images/MacAppMenu.png
-  images/main-ui-1.5.png
+  images/main-ui.png
   images/main-ui-controls.png
   images/misc-controls-center.png
   images/misc-main-ui.png
