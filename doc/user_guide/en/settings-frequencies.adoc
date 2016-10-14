@@ -4,8 +4,9 @@
 image::settings-frequencies.png[align="center",alt="Frequency Screen"]
 
 _Working Frequencies_: By default the *Working Frequencies* table
-contains a list of currently recommended dial frequencies for each
-mode.  You can modify the frequency table as desired.
+contains a list of frequencies conventionally used for modes JT4, JT9,
+JT65, MSK144, WSPR, and Echo.  Conventions may change with time or
+by user preference; you can modify the frequency table as desired.
 
 - To change an existing entry, click to select it, type a desired
 frequency in MHz, and hit *Enter* on the keyboard. The program will
