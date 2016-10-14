@@ -1179,11 +1179,9 @@ void MainWindow::dataSink(qint64 frames)
       t2.sprintf(" -f %.6f ",f0m1500);
 
       if(m_diskData) {
-//      cmnd='"' + m_appDir + '"' + "/wsprd " + m_path;
         cmnd='"' + m_appDir + '"' + "/wsprd -a \"" +
             QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" \"" + m_path + "\"";
-//      if(m_TRseconds==900) cmnd='"' + m_appDir + '"' + "/wsprd -m 15" + t2 +
-//          m_path + '"';
+//            QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" " + t2 + " " + m_path + "\"";
       } else {
         cmnd='"' + m_appDir + '"' + "/wsprd -a \"" +
             QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" " +

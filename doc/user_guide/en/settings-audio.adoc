@@ -15,6 +15,13 @@ to prevent transmitting them over the air.
 IMPORTANT: Be sure that your audio device is configured to sample at
 48000 Hz, 16 bits.
 
+IMPORTANT: Windows Vista and later may configure audio devices using
+the Texas Instruments PCM2900 series CODEC for microphone input rather
+line input.  (This chip is used in many radios with built-in USB
+CODECs, as well as various other audio interfaces.)  If you are using
+such a device, be sure to set the mic level in the Recording Device
+Properties to 0 dB.
+
 - _Save Directory_: _WSJT-X_ can save its received audio sequences as
 +.wav+ files.  A default directory for these files is provided; you
 can select another location if desired.

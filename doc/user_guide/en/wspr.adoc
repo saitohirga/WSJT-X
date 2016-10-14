@@ -1,4 +1,4 @@
-- Select *WSPR-2* from the *Mode* menu.  The main window will
+- Select *WSPR* from the *Mode* menu.  The main window will
 reconfigure itself to the WSPR interface, removing some controls not
 used in WSPR mode.
 

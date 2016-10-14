@@ -115,7 +115,7 @@ bands.  <<WSPR,Section 7>> covers WSPR mode, and
 <<VHF_AND_UP,Section 8>> covers VHF+ features.  If you are a new 
 user of _WSJT-X_ we suggest that you go through the full HF-oriented 
 tutorial while at your radio.  It should take no more than 20 minutes.
-If your main interests are WSPR of VHF+, you may then proceed to 
+If your main interests are WSPR or VHF+, you may then proceed to 
 Sections 7 and 8.
 
 [[TUT_MAIN]]
