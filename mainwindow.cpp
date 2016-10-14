@@ -776,7 +776,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_mode=="JT9") on_actionJT9_triggered();
   if(m_mode=="JT65") on_actionJT65_triggered();
   if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
-  if(m_mode=="WSPR-2") on_actionWSPR_2_triggered();
+  if(m_mode=="WSPR") on_actionWSPR_2_triggered();
   if(m_mode=="Echo") on_actionEcho_triggered();
   if(m_mode=="ISCAT") on_actionISCAT_triggered();
   if(m_mode=="MSK144") on_actionMSK144_triggered();
@@ -1034,7 +1034,7 @@ void MainWindow::setDecodedTextFont (QFont const& font)
 void MainWindow::fixStop()
 {
   m_hsymStop=179;
-  if(m_mode=="WSPR-2") {
+  if(m_mode=="WSPR") {
     m_hsymStop=396;
   } else if(m_mode=="WSPR-15") {
     m_hsymStop=3090;
@@ -1089,7 +1089,7 @@ void MainWindow::dataSink(qint64 frames)
   if(m_bFastMode) nsps=6912;
   int nsmo=m_wideGraph->smoothYellow()-1;
   symspec_(&dec_data,&k,&trmin,&nsps,&m_inGain,&nsmo,&m_px,s,&m_df3,&m_ihsym,&m_npts8);
-  if(m_mode=="WSPR-2") wspr_downsample_(dec_data.d2,&k);
+  if(m_mode=="WSPR") wspr_downsample_(dec_data.d2,&k);
   if(m_ihsym <=0) return;
   QString t;
   m_pctZap=m_nzap*100.0/m_nsps; // TODO: this is currently redundant
@@ -1538,7 +1538,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
   switch(e->key())
     {
     case Qt::Key_D:
-      if(m_mode != "WSPR-2" && e->modifiers() & Qt::ShiftModifier) {
+      if(m_mode != "WSPR" && e->modifiers() & Qt::ShiftModifier) {
         if(!m_decoderBusy) {
           dec_data.params.newdat=0;
           dec_data.params.nagain=0;
@@ -2637,7 +2637,7 @@ void MainWindow::guiUpdate()
   if(m_modeTx=="JT9")  txDuration=1.0 + 85.0*m_nsps/12000.0;  // JT9
   if(m_modeTx=="JT65") txDuration=1.0 + 126*4096/11025.0;     // JT65
   if(m_mode=="QRA64")  txDuration=1.0 + 84*6912/12000.0;      // QRA64
-  if(m_mode=="WSPR-2") txDuration=2.0 + 162*8192/12000.0;     // WSPR
+  if(m_mode=="WSPR") txDuration=2.0 + 162*8192/12000.0;     // WSPR
   if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
     txDuration=m_TRperiod-0.25; // ISCAT, JT9-fast, MSK144
   }
@@ -4250,10 +4250,10 @@ void MainWindow::on_actionJT4_triggered()
 
 void MainWindow::on_actionWSPR_2_triggered()
 {
-  m_mode="WSPR-2";
+  m_mode="WSPR";
   WSPR_config(true);
   switch_mode (Modes::WSPR);
-  m_modeTx="WSPR-2";                                    //### not needed ?? ###
+  m_modeTx="WSPR";                                    //### not needed ?? ###
   statusChanged();
   m_TRperiod=120;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
@@ -4399,7 +4399,7 @@ void MainWindow::WSPR_config(bool b)
   ui->DecodeButton->setEnabled(!b);
   if(b and (m_mode!="Echo")) {
     ui->decodedTextLabel->setText(
-          "UTC    dB   DT     Freq     Drift  Call          Grid    dBm   Dist");
+          "UTC    dB   DT     Freq     Drift  Call          Grid    dBm    km");
     if (m_config.is_transceiver_online ()) {
       Q_EMIT m_config.transceiver_tx_frequency (0); // turn off split
     }
@@ -5048,7 +5048,7 @@ void MainWindow::transmit (double snr)
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
            true, false, snr, m_TRperiod);
   }
-  if (m_mode=="WSPR-2") {                                      //### Similar code needed for WSPR-15 ###
+  if (m_mode=="WSPR") {         //### Similar code would be needed for WSPR-15 ###
 
     int nToneSpacing=1;
     if(m_config.x2ToneSpacing()) nToneSpacing=2;

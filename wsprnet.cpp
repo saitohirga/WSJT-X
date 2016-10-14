@@ -178,7 +178,7 @@ QString WSPRNet::urlEncodeNoSpot()
     queryString += "tqrg=" + m_tfreq + "&";
     queryString += "dbm=" + m_dbm + "&";
     queryString += "version=" +  m_vers;
-    if(m_mode=="WSPR-2") queryString += "&mode=2";
+    if(m_mode=="WSPR") queryString += "&mode=2";
     if(m_mode=="WSPR-15") queryString += "&mode=15";
     return queryString;;
 }
@@ -200,7 +200,7 @@ QString WSPRNet::urlEncodeSpot(QHash<QString,QString> const& query)
     queryString += "tgrid=" + query["tgrid"] + "&";
     queryString += "dbm=" + query["dbm"] + "&";
     queryString += "version=" + m_vers;
-    if(m_mode=="WSPR-2") queryString += "&mode=2";
+    if(m_mode=="WSPR") queryString += "&mode=2";
     if(m_mode=="WSPR-15") queryString += "&mode=15";
     return queryString;
 }
