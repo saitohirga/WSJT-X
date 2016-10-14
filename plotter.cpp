@@ -417,7 +417,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
   }
 
   painter0.setPen(penGreen);
-  if(m_mode=="WSPR-2") {                   //### WSPR-15 code needed here, too ###
+  if(m_mode=="WSPR") {                   //### WSPR-15 code needed here, too ###
     x1=XfromFreq(1400);
     x2=XfromFreq(1600);
     painter0.drawLine(x1,29,x2,29);
@@ -460,7 +460,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
     painter0.setPen(penRed);
     x1=XfromFreq(m_txFreq);
     x2=XfromFreq(m_txFreq+bw);
-    if(m_mode=="WSPR-2") {                  //### WSPR-15 code needed here, too
+    if(m_mode=="WSPR") {                  //### WSPR-15 code needed here, too
       bw=4*12000.0/8192.0;                  //WSPR
       x1=XfromFreq(m_txFreq-0.5*bw);
       x2=XfromFreq(m_txFreq+0.5*bw);
