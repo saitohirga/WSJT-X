@@ -864,7 +864,7 @@ QLabel[oob=&quot;true&quot;] {
                  <item row="1" column="1">
                   <widget class="QPushButton" name="pbTxMode">
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="toolTip">
                     <string>Toggle Tx mode</string>
