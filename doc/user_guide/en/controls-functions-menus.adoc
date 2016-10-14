@@ -16,6 +16,10 @@ WSJT-X* appears here rather than on the *Help* menu.
 ==== File menu
 image::file-menu.png[align="left",alt="File Menu"]
 
+[[CONFIG_MENU]]
+==== Configuration Menu
+image::config-menu.png[align="left",alt="File Menu"]
+
 [[VIEW_MENU]]
 ==== View Menu
 image::view-menu.png[align="left",alt="View Menu"]

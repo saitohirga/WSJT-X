@@ -198,6 +198,9 @@ include::faq.adoc[]
 == Protocol Specifications
 include::protocols.adoc[]
 
+[[ASTRODATA]]
+== Astronomical Data
+include::astro_data.adoc[]
 
 [[TXRX]]
 == Implementation Details

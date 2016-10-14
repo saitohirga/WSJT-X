@@ -1,22 +1,24 @@
 // Status=review
 
 At the center of the main window are a number of controls used when
-making QSOs:
+making QSOs.  Controls not relevant to a particular mode or submode
+may be "grayed out" (diabled) or removed from the display.
 
 //.Misc Controls Center
 image::misc-controls-center.png[align="center",alt="Misc Controls Center"]
 
-* Check *Tx even* to transmit in even-numbered UTC minutes.  Uncheck
-this box to transmit in the odd minutes.  This selection is made
-automatically when you double-click on a decoded text line, as
-described in the <<TUTORIAL,Basic Operating Tutorial>>.
+* Check *Tx even* to transmit in even-numbered UTC minutes or
+sequences, starting at 0.  Uncheck this box to transmit in the odd
+sequences.  The correct selection is made automatically when you
+double-click on a decoded text line, as described in the
+<<TUTORIAL,Basic Operating Tutorial>>.
 
-* The Tx and Rx audio frequencies are usually set automatically by
-double-clicking on decoded text or a signal in the waterfall.  They 
-can also be adjusted with spinner controls. 
+* The Tx and Rx audio frequencies can be set automatically by
+double-clicking on decoded text or a signal in the waterfall.  They
+can also be adjusted using the spinner controls.
 
 * You can force Tx frequency to the current Rx frequency by clicking
-the *Tx<Rx* button, and vice-versa for *Rx<Tx*.  Check the box *Lock
+the *Tx<-Rx* button, and vice-versa for *Rx<-Tx*.  Check the box *Lock
 Tx=Rx* to make the frequencies always track one another.  The
 on-the-air frequency of your lowest JT9 or JT65 tone is the sum of
 dial frequency and audio Tx frequency.

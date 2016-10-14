@@ -21,7 +21,7 @@ The waterfall should look something like this:
 [[X14]]
 image::130610_2343-wav-80.png[align="left",alt="Wide Graph Decode 130610_2343"]
 
-IMPORTANT: The position pf the blue marker on the waterfall scale is
+The position of the blue marker on the waterfall scale is
 set by the spinner control *JT65 nnnn JT9*, where nnnn is an audio
 frequency in Hz. In *JT9+JT65* mode the program will automatically
 decode JT9 signals only above this frequency. JT65 signals will be
