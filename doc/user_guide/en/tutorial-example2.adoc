@@ -7,23 +7,25 @@ frequencies to 1718 Hz.
 
 .Wide Graph Settings:
 
-- Set *Bins/Pixel* = 7
+- *Bins/Pixel* = 7
+- *JT65 .... JT9* = 2500
 - Adjust the width of the Wide Graph window so that the upper
 frequency limit is approximately 4000 Hz.
 
 .Open a Wave File:
 
 - Select *File | Open* and navigate to +...\save\samples\130610_2343.wav+.  
-The waterfall should look like this:
+The waterfall should look something like this:
 
 //.130610_2343.wav Decode
 [[X14]]
 image::130610_2343-wav-80.png[align="left",alt="Wide Graph Decode 130610_2343"]
 
-IMPORTANT: Notice the [blue]*BLUE* marker on the waterfall scale, here
-set at 2500 Hz.  Its position is set by the spinner control *JT65 nnnn
-JT9*, where nnnn is a frequency in Hz. In *JT9+JT65* mode the program
-will automatically decode JT9 signals only above this frequency.
+IMPORTANT: The position pf the blue marker on the waterfall scale is
+set by the spinner control *JT65 nnnn JT9*, where nnnn is an audio
+frequency in Hz. In *JT9+JT65* mode the program will automatically
+decode JT9 signals only above this frequency. JT65 signals will be
+decoded over the full displayed frequency range.
 
 JT9 signals appear in the *Cumulative* spectrum as nearly rectangular
 shapes about 16 Hz wide.  They have no clearly visible sync tone like
