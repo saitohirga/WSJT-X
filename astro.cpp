@@ -111,16 +111,22 @@ auto Astro::astroUpdate(QDateTime const& t, QString const& mygrid, QString const
   QString hisgrid_padded {(hisgrid + "      ").left (6)};
   astrosub_(&nyear, &month, &nday, &uth, &freq8, mygrid_padded.toLatin1().constData(),
 	    hisgrid_padded.toLatin1().constData(), &azsun, &elsun, &azmoon, &elmoon,
-	    &azmoondx, &elmoondx, &ntsky, &ndop, &ndop00, &ramoon, &decmoon,
+      &azmoondx, &elmoondx, &ntsky, &ndop, &ndop00, &ramoon, &decmoon,
 	    &dgrd, &poloffset, &xnr, &techo, &width1, &width2, &bTx,
 	    AzElFileName.toLatin1().constData(), jpleph.toLatin1().constData(), 6, 6,
 	    AzElFileName.length(), jpleph.length());
 
+  if(hisgrid_padded=="      ") {
+    azmoondx=0.0;
+    elmoondx=0.0;
+    ndop=0;
+    width2=0.0;
+  }
   QString message;
   {
     QTextStream out {&message};
     out << " " << date << "\n"
-      "UTC: " << utc << "\n"
+      "UTC:  " << utc << "\n"
       << fixed
       << qSetFieldWidth (6)
       << qSetRealNumberPrecision (1)
