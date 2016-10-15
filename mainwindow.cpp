@@ -1451,9 +1451,9 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     ui->label_7->setText("Rx Frequency");
   }
   update_watchdog_label ();
+  ui->cbCQRx->setEnabled(m_splitMode);
 //###
   bool b=m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN";
-  ui->cbCQRx->setEnabled(b);
   ui->actionSave_decoded->setEnabled(b);
 //###
 }
@@ -4072,9 +4072,9 @@ void MainWindow::on_actionMSK144_triggered()
   ui->rptSpinBox->setSingleStep(1);
   ui->sbFtol->setMinimum(22);
   ui->sbFtol->setMaximum(25);
+  ui->cbCQRx->setEnabled(m_splitMode);
 //###
   bool b=m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN";
-  ui->cbCQRx->setEnabled(b);
   ui->actionSave_decoded->setEnabled(b);
 //###
 }
