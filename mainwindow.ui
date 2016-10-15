@@ -938,7 +938,7 @@ QLabel[oob=&quot;true&quot;] {
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>75</width>
+                       <width>100</width>
                        <height>16777215</height>
                       </size>
                      </property>
