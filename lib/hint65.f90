@@ -147,9 +147,9 @@ subroutine hint65(s3,mrs,mrs2,nadd,nflip,mycall,hiscall,hisgrid,qual,decoded)
   enddo
 
 !### Just in case ???
-  rewind 77
-  write(77,*) u1,u2,ipk,ipk2
-  call flush(77)
+!  rewind 77
+!  write(77,*) u1,u2,ipk,ipk2
+!  call flush(77)
 !###
 
   decoded='                      '
