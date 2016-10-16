@@ -110,7 +110,7 @@ extern "C" {
 
   void fast_decode_(short id2[], int narg[], int* ntrperiod, bool* bShMsgs,
                     char msg[], char mycall[], char hiscall[],
-                    int len1, int len2, int len3, int len4);
+                    int len1, int len2, int len3);
   void degrade_snr_(short d2[], int* n, float* db, float* bandwidth);
   void wav12_(short d2[], short d1[], int* nbytes, short* nbitsam2);
   void refspectrum_(short int d2[], bool* brefspec, bool* buseref,
@@ -2182,7 +2182,7 @@ void MainWindow::decode()                                       //decode()
     isec=isec - isec%m_TRperiod;
     dec_data.params.nutc=10000*ihr + 100*imin + isec;
   }
-  if(m_nPick==1 and m_diskData)
+//  if(m_nPick==1 and m_diskData)  ???
 
   if(m_nPick==2) dec_data.params.nutc=m_nutc0;
   dec_data.params.nfqso=m_wideGraph->rxFreq();
@@ -2291,7 +2291,7 @@ void MainWindow::decode()                                       //decode()
     memcpy(d2b,dec_data.d2,2*360000);
     watcher3.setFuture (QtConcurrent::run (std::bind (fast_decode_,&d2b[0],
         &narg[0],&m_TRperiod,&m_bShMsgs,&m_msg[0][0],
-        dec_data.params.mycall,dec_data.params.hiscall,80,512,12,12)));
+        dec_data.params.mycall,dec_data.params.hiscall,8000,12,12)));
   } else {
     memcpy(to, from, qMin(mem_jt9->size(), size));
     QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.remove (); // Allow jt9 to start

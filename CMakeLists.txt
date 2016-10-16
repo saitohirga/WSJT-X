@@ -804,7 +804,7 @@ endif (APPLE)
 #
 # Fortran setup
 #
-set (General_FFLAGS "-Wall -Wno-conversion -fbounds-check -fno-second-underscore")
+set (General_FFLAGS "-Wall -Wno-conversion -fno-second-underscore")
 
 # FFLAGS depend on the compiler
 get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
@@ -1135,7 +1135,7 @@ else ()
     )
   if (WIN32)
     set_target_properties (wsjtx PROPERTIES
-      LINK_FLAGS -Wl,--stack,8388608
+      LINK_FLAGS -Wl,--stack,16777216
       )
   endif ()
 endif ()

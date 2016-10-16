@@ -1,5 +1,5 @@
-subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,     &
-     mycall_12,hiscall_12)
+subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,mycall_12,   &
+     hiscall_12)
 
   parameter (NMAX=30*12000)
   integer*2 id2(NMAX)
@@ -40,7 +40,6 @@ subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,     &
   nrxfreq=narg(10)
   ntol=narg(11)
   nhashcalls=narg(12)
-!  print*,'A',nutc
 
   line(1:100)(1:1)=char(0)
   if(t0.gt.float(ntrperiod)) go to 900
@@ -61,12 +60,9 @@ subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,     &
      ib=nint(t1*12000.0)
      if(ib.gt.ntrperiod*12000) ib=ntrperiod*12000
      nz=ib-ia+1
-!     line(1)=char(0)
 
      if(newdat.eq.1) then
 ! Full sequence of new data
-!        write(*,3001) newdat,npick,nutca
-!3001    format(2i3,3i8)
         call msk144_decode(id2a(ia),nz,nutca,0,mycall,hiscall,   &
              bShMsgs,ntol,t0,line)
         go to 100
@@ -74,7 +70,6 @@ subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,     &
 
      if(npick.eq.1) then
 ! Pick-decode from upper panel
-!        write(*,3001) newdat,npick,nutc
         call msk144_decode(id2(ia),nz,nutc,0,mycall,hiscall,   &
              bShMsgs,ntol,t0,line)
         go to 100
@@ -95,6 +90,8 @@ subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,     &
      cdat2=cdat
      ndat=ndat0
      call wav11(id2,ndat,dat)
+     nzz=11025*ntrperiod
+     if(npts.lt.nzz) dat(npts+1:nzz)=0.0
      ndat=min(ndat,30*11025)
      call ana932(dat,ndat,cdat,npts)          !Make downsampled analytic signal
   endif
