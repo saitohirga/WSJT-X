@@ -418,6 +418,7 @@ private:
   bool    m_bRefSpec;
   bool    m_bUseRef;
   bool    m_bFastDone;
+  bool    m_bAltV;
   float   m_pctZap;
   int			m_ihsym;
   int			m_nzap;
