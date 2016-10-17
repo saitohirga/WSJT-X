@@ -4031,10 +4031,6 @@ void MainWindow::on_actionMSK144_triggered()
   ui->sbFtol->setMinimum(22);
   ui->sbFtol->setMaximum(25);
   ui->cbCQRx->setEnabled(m_splitMode);
-//###
-  bool b=m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN";
-  ui->actionSave_decoded->setEnabled(b);
-//###
 }
 
 void MainWindow::on_actionQRA64_triggered()
