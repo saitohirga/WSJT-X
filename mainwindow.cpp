@@ -808,6 +808,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_ntx = 1;
   m_fCPUmskrtd=0.0;
   m_bFastDone=false;
+  m_bAltV=false;
   ui->txrb1->setChecked(true);
 
   if(m_mode.startsWith ("WSPR") and m_pctx>0)  {
@@ -1300,7 +1301,7 @@ void MainWindow::fastSink(qint64 frames)
 
   float fracTR=float(k)/(12000.0*m_TRperiod);
   decodeNow=false;
-  if(fracTR>0.98) {
+  if(fracTR>0.92) {
     m_dataAvailable=true;
     fast_decode_done();
     m_bFastDone=true;
@@ -1323,6 +1324,7 @@ void MainWindow::fastSink(qint64 frames)
       decode();
     }
   }
+
   if(decodeNow or m_bFastDone) {
     if(!m_diskData) {
       QDateTime now {QDateTime::currentDateTimeUtc()};
@@ -1331,7 +1333,8 @@ void MainWindow::fastSink(qint64 frames)
       auto const& period_start = now.addSecs (-n);
       m_fnameWE = m_config.save_directory ().absoluteFilePath (period_start.toString ("yyMMdd_hhmmss"));
       m_fileToSave.clear ();
-      if(m_saveAll or (m_bDecoded and m_saveDecoded) or (m_mode!="MSK144")) {
+      if(m_saveAll or m_bAltV or (m_bDecoded and m_saveDecoded) or (m_mode!="MSK144")) {
+        m_bAltV=false;
         // the following is potential a threading hazard - not a good
         // idea to pass pointer to be processed in another thread
         m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file,
@@ -1575,7 +1578,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
     case Qt::Key_V:
       if(e->modifiers() & Qt::AltModifier) {
         m_fileToSave = m_fnameWE;
-        m_bDecoded=true;  //###
+        m_bAltV=true;
         return;
       }
       break;
