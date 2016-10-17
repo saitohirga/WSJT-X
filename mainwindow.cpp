@@ -3379,7 +3379,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     rpt=QString::number(n);
   }
   ui->rptSpinBox->setValue(n);
-  genStdMsgs(rpt);
+  if(m_nTx73==0) genStdMsgs(rpt);   //Don't genStdMsgs if we're already sending 73.
 
 // Determine appropriate response to received message
   auto dtext = " " + decodedtext.string () + " ";
@@ -5035,11 +5035,13 @@ void MainWindow::transmit (double snr)
   }
 
 // In auto-sequencing mode, stop after 5 transmissions of "73" message.
-  if(m_mode=="JT9" and m_bFast9 and ui->cbAutoSeq->isChecked()) {
-    if(m_ntx==5) {
-      m_nTx73 += 1;
-    } else {
-      m_nTx73=0;
+  if(m_bFastMode or m_bFast9) {
+    if(ui->cbAutoSeq->isChecked()) {
+      if(m_ntx==5) {
+        m_nTx73 += 1;
+      } else {
+        m_nTx73=0;
+      }
     }
   }
 }
