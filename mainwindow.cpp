@@ -2100,11 +2100,15 @@ void MainWindow::on_actionSpecial_mouse_commands_triggered()
 
 void MainWindow::on_DecodeButton_clicked (bool /* checked */)	//Decode request
 {
-  if(!m_mode.startsWith ("WSPR") && !m_decoderBusy) {
-    dec_data.params.newdat=0;
-    dec_data.params.nagain=1;
-    m_blankLine=false; // don't insert the separator again
-    decode();
+  if(m_mode=="MSK144") {
+    ui->DecodeButton->setChecked(false);
+  } else {
+    if(!m_mode.startsWith ("WSPR") && !m_decoderBusy) {
+      dec_data.params.newdat=0;
+      dec_data.params.nagain=1;
+      m_blankLine=false; // don't insert the separator again
+      decode();
+    }
   }
 }
 
@@ -2560,34 +2564,7 @@ void MainWindow::on_EraseButton_clicked()                          //Erase
 
 void MainWindow::decodeBusy(bool b)                             //decodeBusy()
 {
-/* ###   Temporarily(?) disable the long-decode progress bar.
-  bool showProgress = false;
-  if (b && m_firstDecode < 65 && ("JT65" == m_mode || "JT9+JT65" == m_mode))
-    {
-      m_firstDecode += 65;
-      if ("JT9+JT65" == m_mode) m_firstDecode = 65 + 9;
-      showProgress = true;
-    }
-  if (b && m_firstDecode != 9 && m_firstDecode != 65 + 9 &&
-      ("JT9" == m_mode))
-    {
-      m_firstDecode += 9;
-      showProgress = true;
-    }
-  if (showProgress)
-    {
-      // this sequence is needed to create an indeterminate progress
-      // bar
-      m_optimizingProgress.setRange (0, 1);
-      m_optimizingProgress.setValue (0);
-      m_optimizingProgress.setRange (0, 0);
-    }
-### */
-  if (!b)
-    {
-      m_optimizingProgress.reset ();
-    }
-
+  if (!b) m_optimizingProgress.reset ();
   m_decoderBusy=b;
   ui->DecodeButton->setEnabled(!b);
   ui->actionOpen->setEnabled(!b);
