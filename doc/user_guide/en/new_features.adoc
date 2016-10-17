@@ -3,23 +3,24 @@
 For quick reference, here's a short list of features and capabilities
 added to _WSJT-X_ since Version 1.6.0:
 
-- New modes: ISCAT, MSK144, QRA64.
+- New modes: ISCAT, MSK144, QRA64
 
-- Newly implemented submodes of existing modes: JT65B-C, JT9B-H (wide
-and fast).
+- Newly implemented submodes of existing modes: JT65B-C, JT9B-H
+
+- Fast submodes of JT9
 
 - New Franke-Taylor decoder replaces the Koetter-Vardy decoder in
 JT65; the separate program `kvasd[.exe]` is no longer used.
 
-- Improvements to the JT4, JT9, and JT65 decoders.
+- Improvements to the JT4, JT9, and JT65 decoders
 
-- Multi-pass decoding for JT65 and WSPR.
+- Multi-pass decoding for JT65 and WSPR
 
-- Improved convenience features for EME Doppler tracking.
+- Improved convenience features for EME Doppler tracking
 
-- Multiple program configurations can be saved and restored.
+- Multiple program configurations can be saved and restored
 
-- A new sample-file download facility.
+- A new sample-file download facility
 
-- A number of corrections to the Hamlib library, fixing balky
-rig-control features.  
+- Many corrections and improvements to the Hamlib library, fixing
+balky rig-control features.

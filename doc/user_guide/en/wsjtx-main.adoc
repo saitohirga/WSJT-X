@@ -134,6 +134,10 @@ include::tutorial-example1.adoc[]
 === JT9+JT65
 include::tutorial-example2.adoc[]
 
+[[MAKE_QSOS]]
+== Making QSOs
+include::make-qso.adoc[]
+
 [[WSPR]]
 == WSPR Mode
 include::wspr.adoc[]
@@ -141,10 +145,6 @@ include::wspr.adoc[]
 [[VHF_AND_UP]]
 == VHF+ Features
 include::vhf-features.adoc[]
-
-[[MAKE_QSOS]]
-== Making QSOs
-include::make-qso.adoc[]
 
 [[COMMAND_REF]]
 == On-Screen Controls
