@@ -3997,6 +3997,8 @@ void MainWindow::on_actionMSK144_triggered()
   m_bFastMode=true;
   m_bFast9=false;
   fast_config(true);
+  if(m_TRperiodFast<=15) ui->sbTR->setValue(m_TRperiodFast/5+10);
+  if(m_TRperiodFast==30) ui->sbTR->setValue(14);
   m_TRperiod=ui->sbTR->cleanText().toInt();
   m_wideGraph->hide();
   m_fastGraph->show();
@@ -4294,6 +4296,7 @@ void MainWindow::on_actionISCAT_triggered()
   ui->cbAutoSeq->setVisible(false);
   ui->decodedTextBrowser2->setVisible(false);
   ui->decodedTextLabel2->setVisible(false);
+  ui->label_7->setText("");
   ui->decodedTextLabel->setText(
         "  UTC  Sync dB   DT   DF  F1                                   N  L  A   T");
   ui->tabWidget->setCurrentIndex(0);
