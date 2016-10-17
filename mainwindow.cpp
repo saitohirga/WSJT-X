@@ -1148,18 +1148,9 @@ void MainWindow::dataSink(qint64 frames)
       m_fileToSave.clear ();
       // the following is potential a threading hazard - not a good
       // idea to pass pointer to be processed in another thread
-      m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file
-                                                                , this
-                                                                , m_fnameWE
-                                                                , &dec_data.d2[0]
-                                                                , m_TRperiod
-                                                                , m_config.my_callsign ()
-                                                                , m_config.my_grid ()
-                                                                , m_mode
-                                                                , m_nSubMode
-                                                                , m_freqNominal
-                                                                , m_hisCall
-                                                                , m_hisGrid)));
+      m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file,
+            this, m_fnameWE, &dec_data.d2[0], m_TRperiod, m_config.my_callsign(),
+            m_config.my_grid(), m_mode, m_nSubMode, m_freqNominal, m_hisCall, m_hisGrid)));
       if (m_mode.startsWith ("WSPR")) {
         QString c2name_string {m_fnameWE + ".c2"};
         int len1=c2name_string.length();
@@ -1199,16 +1190,9 @@ void MainWindow::dataSink(qint64 frames)
   }
 }
 
-QString MainWindow::save_wave_file (QString const& name
-                                    , short const * data
-                                    , int seconds
-                                    , QString const& my_callsign
-                                    , QString const& my_grid
-                                    , QString const& mode
-                                    , qint32 sub_mode
-                                    , Frequency frequency
-                                    , QString const& his_call
-                                    , QString const& his_grid) const
+QString MainWindow::save_wave_file (QString const& name, short const * data, int seconds,
+        QString const& my_callsign, QString const& my_grid, QString const& mode, qint32 sub_mode,
+        Frequency frequency, QString const& his_call, QString const& his_grid) const
 {
   //
   // This member function runs in a thread and should not access
@@ -1260,6 +1244,7 @@ void MainWindow::fastSink(qint64 frames)
     fast_jh2=fast_jh;
     if(!m_diskData) memset(dec_data.d2,0,2*30*12000);   //Zero the d2[] array
     m_bFastDecodeCalled=false;
+    m_bDecoded=false;
   }
 
   QDateTime tnow=QDateTime::currentDateTimeUtc();
@@ -1339,28 +1324,23 @@ void MainWindow::fastSink(qint64 frames)
     }
   }
   if(decodeNow or m_bFastDone) {
-    if(!m_diskData) {           // Always save; may delete later
+    if(!m_diskData) {
       QDateTime now {QDateTime::currentDateTimeUtc()};
       int n=now.time().second() % m_TRperiod;
       if(n<(m_TRperiod/2)) n=n+m_TRperiod;
       auto const& period_start = now.addSecs (-n);
       m_fnameWE = m_config.save_directory ().absoluteFilePath (period_start.toString ("yyMMdd_hhmmss"));
       m_fileToSave.clear ();
-      // the following is potential a threading hazard - not a good
-      // idea to pass pointer to be processed in another thread
-      m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file
-                                                                , this
-                                                                , m_fnameWE
-                                                                , &dec_data.d2[0]
-                                                                , m_TRperiod
-                                                                , m_config.my_callsign ()
-                                                                , m_config.my_grid ()
-                                                                , m_mode
-                                                                , m_nSubMode
-                                                                , m_freqNominal
-                                                                , m_hisCall
-                                                                , m_hisGrid)));
-      killFileTimer.start (3*1000*m_TRperiod/4); //Kill 3/4 period from now
+      if(m_saveAll or (m_bDecoded and m_saveDecoded) or (m_mode!="MSK144")) {
+        // the following is potential a threading hazard - not a good
+        // idea to pass pointer to be processed in another thread
+        m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file,
+           this, m_fnameWE, &dec_data.d2[0], m_TRperiod, m_config.my_callsign(),
+           m_config.my_grid(), m_mode, m_nSubMode, m_freqNominal, m_hisCall, m_hisGrid)));
+      }
+      if(m_mode!="MSK144") {
+        killFileTimer.start (3*1000*m_TRperiod/4); //Kill 3/4 period from now
+      }
     }
     m_bFastDone=false;
   }
@@ -1452,10 +1432,6 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
   }
   update_watchdog_label ();
   ui->cbCQRx->setEnabled(m_splitMode);
-//###
-  bool b=m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN";
-  ui->actionSave_decoded->setEnabled(b);
-//###
 }
 
 void MainWindow::on_monitorButton_clicked (bool checked)
@@ -1599,6 +1575,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
     case Qt::Key_V:
       if(e->modifiers() & Qt::AltModifier) {
         m_fileToSave = m_fnameWE;
+        m_bDecoded=true;  //###
         return;
       }
       break;
@@ -1844,8 +1821,7 @@ void MainWindow::closeEvent(QCloseEvent * e)
   m_prefixes.reset ();
   m_shortcuts.reset ();
   m_mouseCmnds.reset ();
-
-  killFile ();
+  if(m_mode!="MSK144") killFile();
   mem_jt9->detach();
   QFile quitFile {m_config.temp_dir ().absoluteFilePath (".quit")};
   quitFile.open(QIODevice::ReadWrite);
@@ -2305,7 +2281,7 @@ void::MainWindow::fast_decode_done()
   QString msg0;
   dec_data.params.nagain=false;
   dec_data.params.ndiskdat=false;
-  if(m_msg[0][0]==0) m_bDecoded=false;
+//  if(m_msg[0][0]==0) m_bDecoded=false;
   for(int i=0; i<100; i++) {
     int i1=msg0.indexOf(m_baseCall);
     int i2=msg0.indexOf(m_hisCall);
@@ -5496,7 +5472,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
           t=WSPR_hhmm(-60) + ' ' + t.rightJustified (66, '-');
           ui->decodedTextBrowser->appendText(t);
         }
-        killFileTimer.start (45*1000); //Kill in 45s
+        killFileTimer.start (45*1000); //Kill in 45s (for slow modes)
       }
       m_nWSPRdecodes=0;
       ui->DecodeButton->setChecked (false);
