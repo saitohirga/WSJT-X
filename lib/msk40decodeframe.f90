@@ -24,7 +24,7 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,msgreceived,nsuccess)
   data rpt/"-03 ","+00 ","+03 ","+06 ","+10 ","+13 ","+16 ", &
            "R-03","R+00","R+03","R+06","R+10","R+13","R+16", &
            "RRR ","73  "/
-  save first,cb,fs,pi,twopi,dt,s8r,pp,rpt,mycall0,hiscall0
+  save first,cb,fs,pi,twopi,dt,s8r,pp,rpt,mycall0,hiscall0,ihash
 
   if(first) then
 ! define half-sine pulse and raised-cosine edge window
@@ -129,7 +129,7 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,msgreceived,nsuccess)
     enddo
     nrxrpt=iand(imsg,15)
     nrxhash=(imsg-nrxrpt)/16
-!write(*,*) 'decodeframe ',nhammd,cord,nrxhash,nrxrpt,nhashes(nrxrpt)
+!write(*,*) 'decodeframe ',nhammd,cord,nrxhash,nrxrpt,ihash
 !    if(nhammd.le.5 .and. cord .lt. 1.7 .and. nrxhash.eq.nhashes(nrxrpt)) then
     if(nhammd.le.5 .and. cord .lt. 1.7 .and. nrxhash.eq.ihash) then
       nsuccess=1    
