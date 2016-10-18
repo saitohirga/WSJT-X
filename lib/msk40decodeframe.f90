@@ -11,7 +11,7 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,msgreceived,nsuccess)
   integer*1 cw(32)
   integer*1 decoded(16)
   integer s8r(8),hardbits(40)
-  integer nhashes(0:15)
+!  integer nhashes(0:15)
   real*8 dt, fs, pi, twopi
   real cbi(42),cbq(42)
   real pp(12)
@@ -24,7 +24,7 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,msgreceived,nsuccess)
   data rpt/"-03 ","+00 ","+03 ","+06 ","+10 ","+13 ","+16 ", &
            "R-03","R+00","R+03","R+06","R+10","R+13","R+16", &
            "RRR ","73  "/
-  save first,cb,fs,nhashes,pi,twopi,dt,s8r,pp,rpt,mycall0,hiscall0
+  save first,cb,fs,pi,twopi,dt,s8r,pp,rpt,mycall0,hiscall0
 
   if(first) then
 ! define half-sine pulse and raised-cosine edge window
@@ -53,12 +53,14 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,msgreceived,nsuccess)
   endif
 
   if(mycall.ne.mycall0 .or. hiscall.ne.hiscall0) then
-    do i=0,15
-      hashmsg=trim(mycall)//' '//trim(hiscall)//' '//rpt(i)
+!    do i=0,15
+!      hashmsg=trim(mycall)//' '//trim(hiscall)//' '//rpt(i)
+      hashmsg=trim(mycall)//' '//trim(hiscall)
       call fmtmsg(hashmsg,iz)
       call hash(hashmsg,22,ihash)
-      nhashes(i)=iand(ihash,4095)
-    enddo
+      ihash=iand(ihash,4095)
+!      nhashes(i)=iand(ihash,4095)
+!    enddo
     mycall0=mycall
     hiscall0=hiscall
   endif
@@ -128,7 +130,8 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,msgreceived,nsuccess)
     nrxrpt=iand(imsg,15)
     nrxhash=(imsg-nrxrpt)/16
 !write(*,*) 'decodeframe ',nhammd,cord,nrxhash,nrxrpt,nhashes(nrxrpt)
-    if(nhammd.le.5 .and. cord .lt. 1.7 .and. nrxhash.eq.nhashes(nrxrpt)) then
+!    if(nhammd.le.5 .and. cord .lt. 1.7 .and. nrxhash.eq.nhashes(nrxrpt)) then
+    if(nhammd.le.5 .and. cord .lt. 1.7 .and. nrxhash.eq.ihash) then
       nsuccess=1    
       write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),   &
                                     trim(hiscall),">",rpt(nrxrpt)
