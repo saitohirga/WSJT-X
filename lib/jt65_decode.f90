@@ -194,6 +194,14 @@ contains
           nsave=0
        endif
 
+       if(single_decode) then
+! Be sure to search for shorthand message at nfqso +/- ntol
+          ncand=2
+          ca(2)%sync=5.0
+          ca(2)%dt=2.5
+          ca(2)%freq=nfqso
+       endif
+
        do icand=1,ncand
           sync1=ca(icand)%sync
           dtx=ca(icand)%dt
@@ -267,7 +275,7 @@ contains
           endif
           n=naggressive
           rtt=0.001*nrtt1000
-          if(nft.lt.2 .and. minsync.ge.0) then
+          if(nft.lt.2 .and. minsync.ge.0 .and. nspecial.eq.0) then
              if(nhard_min.gt.50) cycle
              if(nhard_min.gt.h0(n)) cycle
              if(ntotal_min.gt.d0(n)) cycle
