@@ -21,7 +21,7 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,   &
   complex bb(6)
   integer s8(8),s8r(8),hardbits(40)
   integer, dimension(1) :: iloc
-  integer nhashes(0:15)
+!  integer nhashes(0:15)
   integer indices(MAXSTEPS)
   integer ipeaks(10)
   integer*1 cw(32)
@@ -53,7 +53,7 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,   &
   data s8r/1,0,1,1,0,0,0,1/
 ! codeword for the message <K9AN K1JT> RRR
   data testcw/0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,1,0,1,1,1,1,1,0,0,0,0,0,0,1,1,1,0/
-  save df,first,cb,cbr,fs,nhashes,pi,twopi,dt,s8,s8r,rcw,pp,nmatchedfilter,rpt,mycall0,hiscall0
+  save df,first,cb,cbr,fs,pi,twopi,dt,s8,s8r,rcw,pp,nmatchedfilter,rpt,mycall0,hiscall0
 
   if(first) then
      nmatchedfilter=1
@@ -96,12 +96,14 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,   &
   endif
 
   if(mycall.ne.mycall0 .or. hiscall.ne.hiscall0) then
-     do i=0,15 
-       hashmsg=trim(mycall)//' '//trim(hiscall)//' '//rpt(i)
+!     do i=0,15 
+!       hashmsg=trim(mycall)//' '//trim(hiscall)//' '//rpt(i)
+       hashmsg=trim(mycall)//' '//trim(hiscall)
        call fmtmsg(hashmsg,iz)
        call hash(hashmsg,22,ihash)
-       nhashes(i)=iand(ihash,4095)
-     enddo
+!       nhashes(i)=iand(ihash,4095)
+       ihash=iand(ihash,4095)
+!     enddo
      mycall0=mycall
      hiscall0=hiscall
   endif
@@ -397,7 +399,8 @@ subroutine detectmsk40(cbig,n,mycall,hiscall,lines,nmessages,   &
                 enddo
                 nrxrpt=iand(imsg,15)
                 nrxhash=(imsg-nrxrpt)/16
-                if( nhammd .le. 5 .and. cord .lt. 1.7 .and. nrxhash .eq. nhashes(nrxrpt) ) then
+!                if( nhammd .le. 5 .and. cord .lt. 1.7 .and. nrxhash .eq. nhashes(nrxrpt) ) then
+                if( nhammd .le. 5 .and. cord .lt. 1.7 .and. nrxhash .eq. ihash ) then
                   fest=1500+ferr+ferr2+deltaf 
 !write(14,'(i6.6,11i6,f7.1,f7.1)') nutc,ip,ipk,id,idf,iav,ipha,niterations,nbadsync,nrxrpt,ncalls,nhammd,cord,xsnr
                   nhashflag=1
