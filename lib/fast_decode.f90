@@ -91,7 +91,7 @@ subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,mycall_12,   &
      ndat=ndat0
      call wav11(id2,ndat,dat)
      nzz=11025*ntrperiod
-     if(npts.lt.nzz) dat(npts+1:nzz)=0.0
+     if(ndat.lt.nzz) dat(npts+1:nzz)=0.0
      ndat=min(ndat,30*11025)
      call ana932(dat,ndat,cdat,npts)          !Make downsampled analytic signal
   endif
