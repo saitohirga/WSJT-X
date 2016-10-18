@@ -33,12 +33,6 @@ subroutine sh65(cx,n5,mode65,ntol,xdf,nspecial,snrdb)
   s=1.e-6*s
   ss=1.e-6*ss
   df=1378.1285/NFFT
-  do i=-NH+1,NH
-     f=i*df
-     write(13,1010) f,s(i),ss(i,1:8)
-1010 format(10f10.3)
-  enddo
-
   nfac=40*mode65
   dtstep=0.25/df
 
@@ -47,7 +41,7 @@ subroutine sh65(cx,n5,mode65,ntol,xdf,nspecial,snrdb)
   fb=ntol
   ia2=max(-NH+1,nint(fa/df))
 ! Upper tone is above sync tone by 4*nfac*df Hz
-  ib2=min(NH,nint(fb/df + 4.1*nfac))  
+  ib2=min(NH,nint(fb/df + 4.1*nfac))
 
 ! Find strongest line in each of the 4 phases, repeating for each drift rate.
   sbest=0.
@@ -78,7 +72,8 @@ subroutine sh65(cx,n5,mode65,ntol,xdf,nspecial,snrdb)
      xk=float(idiff)/nfac
      k=nint(xk)
      iderr=nint((xk-k)*nfac)
-     maxerr=nint(0.008*abs(idiff) + 0.51)
+!     maxerr=nint(0.008*abs(idiff) + 0.51)
+     maxerr=nint(0.02*abs(idiff) + 0.51)     !### Better test ??? ###
      if(abs(iderr).le.maxerr .and. k.ge.2 .and. k.le.4) nspecial=k
      snrdb=-30.0
      if(nspecial.gt.0) then
