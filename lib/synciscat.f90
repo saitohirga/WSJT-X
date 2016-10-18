@@ -39,6 +39,7 @@ subroutine synciscat(cdat,npts,nh,npct,s0,jsym,df,ntol,NFreeze,    &
   df=fsample/nfft
   fac=1.0/1000.0                       !Somewhat arbitrary
   savg=0.
+  s0=0.
 
   ia=1-kstep
   do j=1,4*nsym                                   !Compute symbol spectra
@@ -109,17 +110,9 @@ subroutine synciscat(cdat,npts,nh,npct,s0,jsym,df,ntol,NFreeze,    &
      ref=nfold*4
 
      i0=27
-     ia=i0-400/df                          !Set search range in frequency...
-     ib=i0+400/df
-     if(mode4.eq.1) then
-        i0=95
-        ia=i0-600/df                          !Set search range in frequency...
-        ib=i0+600/df
-     endif
-     if(nfreeze.eq.1) then
-        ia=i0+(mousedf-ntol)/df
-        ib=i0+(mousedf+ntol)/df
-     endif
+     if(mode4.eq.1) i0=95
+     ia=i0-nint(ntol/df)
+     ib=i0+nint(ntol/df)
      if(ia.lt.1) ia=1
      if(ib.gt.nfft-3) ib=nfft-3
 
@@ -164,9 +157,9 @@ subroutine synciscat(cdat,npts,nh,npct,s0,jsym,df,ntol,NFreeze,    &
            ipk2=i
         endif
      enddo
-     
+
      msglen=(ipk2-ipk)/2
-     if(msglen.lt.2 .or. msglen.gt.29) msglen=3
+     if(msglen.lt.2 .or. msglen.gt.29) cycle
 
      if(xsync.ge.xsyncbest) then
         xsyncbest=xsync

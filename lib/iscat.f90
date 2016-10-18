@@ -146,7 +146,8 @@ subroutine iscat(cdat0,npts0,nh,npct,t2,pick,cfile6,minsync,ntol,   &
         endif
 
         isync = xsync
-        if(navg.gt.0 .and. isync.ge.max(minsync,0) .and. maxlines.ge.2) then
+        if(avg.gt.2.5 .and. xsync.ge.max(float(minsync),1.5) .and. &
+             maxlines.ge.2) then
            nsig=nint(sig)
            nworst=10.0*(worst-1.0)
            navg=10.0*(avg-1.0)
