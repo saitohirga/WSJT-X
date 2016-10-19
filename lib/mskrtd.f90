@@ -80,7 +80,6 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,hiscall,   &
      pmax=max(pmax,pow(i))
   enddo
   pavg=sum(pow)/8.0
-  if(tsec.lt.0.1) pavg=sum(pow(6:8))/3.0
 
 ! Short ping decoder uses squared-signal spectrum to determine where to
 ! center a 3-frame analysis window and attempts to decode each of the 
