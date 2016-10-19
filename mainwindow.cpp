@@ -809,6 +809,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_fCPUmskrtd=0.0;
   m_bFastDone=false;
   m_bAltV=false;
+  m_wait=0;
   ui->txrb1->setChecked(true);
 
   if(m_mode.startsWith ("WSPR") and m_pctx>0)  {
@@ -2005,7 +2006,7 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
       tx_status_label.setText(" " + baseName + " ");
       m_diskData=true;
       read_wav_file (fname);
-      if(i==list.size()-2) {
+      if(m_loopall and (i==list.size()-2)) {
         m_loopall=false;
         MessageBox::information_message(this, tr("No more files to open."));
       }
@@ -2950,8 +2951,14 @@ void MainWindow::guiUpdate()
   if(!m_btxok && m_btxok0 && g_iptt==1) stopTx();
 
   if(m_startAnother) {
-    m_startAnother=false;
-    on_actionOpen_next_in_directory_triggered();
+    if(m_mode=="MSK144") {
+      m_wait++;
+    }
+    if(m_mode!="MSK144" or m_wait>=4) {
+      m_wait=0;
+      m_startAnother=false;
+      on_actionOpen_next_in_directory_triggered();
+    }
   }
 
 //Once per second:
@@ -4020,7 +4027,7 @@ void MainWindow::on_actionMSK144_triggered()
   ui->sbFtol->setVisible(true);
   ui->cbAutoSeq->setVisible(true);
   ui->ClrAvgButton->setVisible(false);
-
+  ui->RxFreqSpinBox->setVisible(true);
   ui->cbShMsgs->setVisible(true);
   ui->actionMSK144->setChecked(true);
   ui->rptSpinBox->setMinimum(-8);
@@ -4290,6 +4297,7 @@ void MainWindow::on_actionISCAT_triggered()
   ui->sbFtol->setVisible(true);
   ui->sbSubmode->setVisible(true);
   ui->cbShMsgs->setVisible(false);
+  ui->cbShMsgs->setChecked(false);
   ui->cbTx6->setVisible(false);
   ui->cbAutoSeq->setVisible(false);
   ui->decodedTextBrowser2->setVisible(false);
@@ -4301,7 +4309,11 @@ void MainWindow::on_actionISCAT_triggered()
   ui->sbSubmode->setMaximum(1);
   if(m_nSubMode==0) ui->TxFreqSpinBox->setValue(1012);
   if(m_nSubMode==1) ui->TxFreqSpinBox->setValue(560);
-  ui->TxFreqSpinBox->setEnabled (false);
+  ui->TxFreqSpinBox->setVisible(false);
+  ui->RxFreqSpinBox->setVisible(false);
+  ui->pbR2T->setVisible(false);
+  ui->pbT2R->setVisible(false);
+  ui->cbTxLock->setVisible(false);
 }
 
 void MainWindow::switch_mode (Mode mode)
