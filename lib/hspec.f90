@@ -80,7 +80,7 @@ subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,ingain,   &
         tt1=sum(float(abs(id2(k0:k0+3583))))
         k0=k-3584
         tt2=sum(float(abs(id2(k0:k0+3583))))
-        if(tt.ne.0.0 .and. tt2.ne.0) then
+        if(tt1.ne.0.0 .and. tt2.ne.0) then
            call mskrtd(id2(k-7168+1:k),nutc0,tsec,ntol,nrxfreq,ndepth,   &
                 mycall,hiscall,bshmsg,line1)
         endif
