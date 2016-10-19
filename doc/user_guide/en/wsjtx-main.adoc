@@ -39,9 +39,10 @@ include::system-requirements.adoc[]
 [[INSTALL]]
 == Installation
 
-Installation packages for Windows, Linux, and OS X are found on the
-the {homepage}. Click on the _WSJT-X_ link at the left margin, and
-then select the appropriate package for your operating system.
+Installation packages for released versions on Windows, Linux, and OS
+X are found on the the {homepage}. Click on the _WSJT-X_ link at the
+left margin and select the appropriate package for your operating
+system.
 
 [[INSTALL_WIN]]
 === Windows
@@ -109,13 +110,12 @@ include::transceiver-setup.adoc[]
 [[TUTORIAL]]
 == Basic Operating Tutorial
 
-<<TUT_MAIN,Sections 6.1>> through <<TUT_EX2,6.4>> introduce the basic
-user controls and program behavior of _WSJT-X_.  We suggest that new
-users should go through the full HF-oriented tutorial, preferably
-while at your radio.  Details on the standard message structure used
-for making two-way QSOs are found in <<MAKE_QSOS,Section 7>>, followed
-by sections covering <<WSPR,WSPR mode>> and features for
-<<VHF_AND_UP,VHF and above>>.
+<<TUT_MAIN,Sections 6.1>> through <<TUT_EX2,6.4>> introduce basic user
+controls and program behavior of _WSJT-X_.  We suggest that new users
+should go through the full HF-oriented tutorial, preferably while at
+your radio.  Subsequent sections cover additional details on
+<<MAKE_QSOS,Making QSOs>>, <<WSPR,WSPR mode>> and <<VHF_AND_UP,VHF+
+Features>>.
 
 [[TUT_MAIN]]
 === Main Window Settings

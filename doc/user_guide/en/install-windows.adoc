@@ -3,15 +3,16 @@
 Download and execute the package file {win32}, following these
 instructions:
 
-- Install _WSJT-X_ into its own directory such as `C:\WSJTX` or
-`C:\WSJT\WSJTX` rather than the conventional location
+- Install _WSJT-X_ into its own directory, for example `C:\WSJTX` or
+`C:\WSJT\WSJTX`, rather than the conventional location
 `C:\Program Files\WSJTX`.
 
 - All program files relating to _WSJT-X_ will be stored in the chosen
 installation directory and its subdirectories. 
 
 - Logs and other writeable files will normally be found in the 
-directory `C:\Users\<username>\AppData\Local\WSJT-X`.
+directory +
+`C:\Users\<username>\AppData\Local\WSJT-X`.
 
 IMPORTANT: Your computer may be configured so that this directory is
 "`invisible`".  It's there, however, and accessible.  An alternative

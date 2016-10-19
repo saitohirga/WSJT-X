@@ -6,10 +6,10 @@ used in WSPR mode.
 
 image::WSPR.png[align="center",alt="WSPR mode"]
 
-- Use the mouse to set the width and height of the main window as
-desired.
+- Use the mouse to drag the width and height of the main window to the
+desired size.
 
-- Select an active WSPR frequency (for example, 10.1387 MHz).
+- Select an active WSPR frequency (for example, 10.1387 or 14.0956 MHz).
 
 - Click *Monitor* to start a WSPR receiving period.
 
