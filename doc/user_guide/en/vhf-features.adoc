@@ -52,6 +52,9 @@ computed for the middle of the Tx period.
 *Fake It*; you may need to experiment with both options to find one
 that works best with your radio).
 
+- Select *Tab 1* to present the traditional format for selecting Tx
+messages.
+
 The main window will reconfigure itself as necessary to display
 controls supporting the features of each mode.
 
@@ -106,9 +109,9 @@ is generally used for EME on the 5.7 and 10 GHz bands.
 of a single tone.  To activate automatic generation of these messages,
 check the box labeled *Sh*.
 
-- Select *Deep* from the *Decode* menu.  You may also choose to enable
-averaging over successive transmissions and/or correlation decoding,
-also known as "`Deep Search`".
+- Select *Deep* from the *Decode* menu.  You may also choose to *Enable
+averaging* over successive transmissions and/or correlation decoding,
+*Enable deep Search*.
 
 image::decoding_depth.png[align="center",alt="Decoding Depth"]
 
@@ -118,67 +121,71 @@ EME path have been compiled by G3WDG and are available here: {jt4eme}.
 === JT65
 
 In most ways JT65 operation on VHF and higher bands is similar to HF
-usage, but a few differences should be noted.  Checking the box
-*Enable VHF/UHF/Microwave features* on the *Settings -> General* tab
-causes several additional user controls to be displayed.  The decoder
-will respond to special message formats used particularly for EME,
-including the OOO signal report and shorthand messages for RO, RRR,
-and 73.  Typical operation at VHF and UHF involves only a single
-signal in the receiver passband, rather than many.  It's usually best
-then to check the *Single decode* box on the *Settings -> General*
-tab.
+usage.  However, a few differences should be noted.  Typical VHF/UHF
+operation involves only a single signal in the receiver passband, or
+perhaps a few, rather than many.  Normally it's best to check *Single
+decode* on the *Settings -> General* tab and uncheck *Two pass
+decoding* on the *Advanced* tab.  In this mode the JT65 decoder will
+respond to special message formats sometimes used for EME, including
+the OOO signal report and shorthand messages for RO, RRR, and 73.
+Those messages will be automatically generated if you check the
+shorthand message box *Sh*.
+
+As for JT4, you should check *Deep* on *the *Decode* menu, and
+optionally *Enable averaging* and *Deep search*.
+
 
 === QRA64
 
-QRA64 is present as an experimental mode in the present alpha release
-of _WSJT-X_, Version 1.7.  Operation is basically similar to JT65.
+QRA64 is an experimental mode in the present alpha release of
+_WSJT-X_, Version 1.7.  The protocol is still subject to change, and
+some features of the decoder will likely change.  In most ways
+operation of QRA64 is similar to JT65.
 
 === Meteor Scatter with MSK144
 
 Meteor-scatter QSOs can be made at any time on the VHF bands, at
 distances up to about 2100 km or 1300 miles.  Completing a QSO takes
 longer in the evening than in the morning, longer at 144 MHz than at
-50 MHz, and longer at 2000 km than 1500 km; but with patience, at
+50 MHz, and longer at 2000 km than 1500 km.  But with patience, at
 least 100 Watts, and a single yagi it can usually be done.
-
-- Select *Tab 1* to present the traditional format for selecting Tx
-messages.
 
 - Select *MSK144* from the *Mode* and *Fast* from the *Decode* menu.
 
 - Set the audio receiving frequency to *Rx 1500 Hz*, frequency
 tolerance to *F Tol 100*, and T/R sequence duration to 15 s.
 
-- MSK144 does decodes received signals in real time, so you can see
+- MSK144 decodes received signals in real time, so you will see
 decoded messages almost as soon as you hear them.  To match decoding
-depth to your computer's capability, click *Monitor* (if
-necessary) to start a receiving sequence, and observe the percentage
-of CPU usage displayed on the _Receiving_ label in the Status Bar:
+depth to your computer's capability, click *Monitor* (if it's not
+already green) to start a receiving sequence and observe the
+percentage of CPU usage displayed on the _Receiving_ label in the
+Status Bar:
 
 image::Rx_pct_MSK144.png[align="center",alt="MSK144 Percent CPU"]
 
-- This number (here 17%) measures the fraction of CPU capability used
-being used by the MSK144 real-time decoder.  If it is well below, say,
-80% you may increase the decoding depth from *Fast* to *Normal* or
-*Deep*, and increase *F Tol* from 100 to 200 Hz.
+- The displayed number (here 17%) indicates the fraction of CPU
+capability used being used by the MSK144 real-time decoder.  If it is
+well below 100% you may increase the decoding depth from *Fast*
+to *Normal* or *Deep*, and increase *F Tol* from 100 to 200 Hz.
 
-IMPORTANT: Most modern multi-core computers can easily handle these
-maximum parameters, but some slower machines may not be able to keep
-up.  In that case there will be some loss in decoding capability for
-the weakest pings.
-
-- You may now proceed to make QSOs using essentially the same
-procedures described in <<MAKE_QSOS,Making QSOs>>.
+IMPORTANT: Most modern multi-core computers can easily handle the
+optimum parameters *Deep* and *F Tol 200*.  Slower machines may not be
+able to keep up at these settings; in that case there will be a modest
+loss in decoding capability for the weakest pings.
 
 - T/R sequences of 15 seconds or less make it sometimes desirable to
-switch transmitted messages very quickly.  Check the *Auto Seq* box
-to have the computer make the necessary decisions automatically.
+advance your selection of transmitted messages very quickly.  Check
+*Auto Seq* to have the computer make the necessary decisions
+automatically, based on received messages.
 
-- For operation at 144 MHz or above, you might choose to use the
-MSK144 short-format messages for Tx3, Tx4, and Tx5.  Check the box
-labeled *Sh* to enable this feature.  (There is little need for this
-option at 50 or 70 MHz, where most pings are long enough to support
-the standard MSK144 message length.)
+- For operation at 144 MHz or above it is advantageous to use the
+short-format messages for Tx3, Tx4, and Tx5.  Check the box labeled
+*Sh* to enable this feature.
+
+IMPORTANT: There is little need to use MSK144 *Sh* messages at 50 or
+70 MHz, where most pings are long enough to support the standard
+MSK144 message length.  
 
 === Scatter Propagation with ISCAT
 
@@ -187,7 +194,7 @@ TBD ...
 === Echo Mode
 
 *Echo* mode allows you to make sensitive measurements of your own
-lunar echoes, even when they are too weak to be heard. Select *Echo*
+lunar echoes even when they are too weak to be heard. Select *Echo*
 from the *Mode* menu, aim your antenna at the moon, pick a clear
 frequency, and toggle click *Tx Enable*. _WSJT-X_ will then cycle
 through the following loop every 6 seconds:
@@ -202,14 +209,11 @@ To make a sequence of echo tests:
 
 - Select *Echo* from the *Mode* menu.
 
-- On the Astronomical Data window check *Doppler tracking* and
-*Constant frequency on the Moon*
+- Check *Doppler tracking* and *Constant frequency on the Moon* on the
+Astronomical Data window.
 
-- Choose your desired test frequency using the *Frequency above nominal
-band edge* controls.
-
-- Be sure that your rig control has been set up for _Split Operation_
-(either *Rig* or *Fake It*) on the *Settings | Radio* tab.
+- Be sure that your rig control has been set up for _Split Operation_,
+using either *Rig* or *Fake It* on the *Settings | Radio* tab.
 
 - Click *Enable Tx* on the main window to start a sequence of 6-second
 cycles.
