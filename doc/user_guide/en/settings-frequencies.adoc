@@ -30,21 +30,19 @@ and _Slope_ B in the equation
  Dial error = A + B*f
 
 where "`Dial error`" and A are in Hz, f is frequency in MHz, and B is
-in parts per million (ppm).
-
-Frequency values sent to the radio and received from it will
-then be adjusted accordingly so that frequencies displayed by _WSJT-X_
-are accurate.
+in parts per million (ppm). Frequency values sent to the radio and
+received from it will then be adjusted so that frequencies displayed
+by _WSJT-X_ are accurate.
 
 _Station Information_: You can save *Band*, *Offset* and *Antenna
 Description* information for your station.  The antenna information
 will be included in reception reports sent to {pskreporter}.  By
 default the frequency offset for each band is zero.  Nonzero offsets
-may be added if (for example) a transverter is in use.
+may be added if (for example) a <<VHF_SETUP,transverter>> is in use.
 
-- For a simple setup approach you might want to delete any unwanted
-bands -- for example, bands where you have no equipment.  Then click
-on a *Frequency* entry and type *Ctrl+A* to "`select all,`" and
+- To simplify things you might want to delete any unwanted bands --
+for example, bands where you have no equipment.  Then click on a
+*Frequency* entry and type *Ctrl+A* to "`select all,`" and
 drag-and-drop the entries onto the _Station Information_ table.  You
 can then add any transverter offsets and antenna details.
 

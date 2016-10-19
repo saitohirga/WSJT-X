@@ -1993,12 +1993,7 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
   QFileInfo fi(m_path);
   QStringList list;
   list= fi.dir().entryList().filter(".wav",Qt::CaseInsensitive);
-  for (i = 0; i < list.size(); ++i) {
-    if(i==list.size()-1) {
-      m_loopall=false;
-      MessageBox::information_message(this, tr("No more files to open."));
-      return;
-    }
+  for (i = 0; i < list.size()-1; ++i) {
     len=list.at(i).length();
     if(list.at(i)==m_path.right(len)) {
       int n=m_path.length();
@@ -2010,6 +2005,10 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
       tx_status_label.setText(" " + baseName + " ");
       m_diskData=true;
       read_wav_file (fname);
+      if(i==list.size()-2) {
+        m_loopall=false;
+        MessageBox::information_message(this, tr("No more files to open."));
+      }
       return;
     }
   }
@@ -4529,7 +4528,8 @@ void MainWindow::band_changed (Frequency f)
     m_lastBand.clear ();
     m_bandEdited = false;
     psk_Reporter->sendReport();      // Upload any queued spots before changing band
-    if (!m_transmitting) monitor (true);
+// Following statement commented out 10/18/2016 by K1JT, to prevent undesired start of Monitor.
+//    if (!m_transmitting) monitor (true);
     m_freqNominal = f;
     m_freqTxNominal = m_freqNominal;
     if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);

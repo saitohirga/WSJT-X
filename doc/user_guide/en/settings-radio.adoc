@@ -59,7 +59,7 @@ the radio's Mode setting.
 
 - _Split Operation_: Significant advantages result from using *Split*
 mode (separate VFOs for Rx and Tx) if your radio supports it.  If it
-does not, _WSJT-X_ can simulate such behavior.  Either method will
+does not, _WSJT-X_ can emulate such behavior.  Either method will
 result in a cleaner transmitted signal, by keeping the Tx audio always
 in the range 1500 to 2000 Hz so that audio harmonics cannot pass
 through the Tx sideband filter.  Select *Rig* to use the radio's Split
