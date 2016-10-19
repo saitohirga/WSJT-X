@@ -10,7 +10,7 @@ cases you can choose *Left*, *Right*, or *Both* stereo channels.
 
 IMPORTANT: If you select the audio output device that is also your
 computer's default audio device, be sure to turn off all system sounds
-to prevent transmitting them over the air.
+to prevent inadvertently transmitting them over the air.
 
 IMPORTANT: Be sure that your audio device is configured to sample at
 48000 Hz, 16 bits.
@@ -30,5 +30,6 @@ can select another location if desired.
 specified directory.  The file contains information usable by another
 program for automatic tracking of the Sun or Moon, as well as
 calculated Doppler shift for the specified EME path.  The file is
-updated once per second.
+updated once per second whenever the <<ASTRODATA,Astronomical Data>>
+window is displayed.
 
