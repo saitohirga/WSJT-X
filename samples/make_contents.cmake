@@ -1,5 +1,11 @@
 string (REPLACE " " ";" FILES ${FILES}) # make back into a list
 
+function(JOIN VALUES GLUE OUTPUT)
+  string (REGEX REPLACE "([^\\]|^);" "\\1${GLUE}" _TMP_STR "${VALUES}")
+  string (REGEX REPLACE "[\\](.)" "\\1" _TMP_STR "${_TMP_STR}") #fixes escaping
+  set (${OUTPUT} "${_TMP_STR}" PARENT_SCOPE)
+endfunction()
+
 function (indent)
   foreach (temp RANGE ${level})
     file (APPEND ${contents_file} "  ")
@@ -41,6 +47,7 @@ foreach (file IN LISTS FILES)
     while ((NOT ${pos} EQUAL 0) AND ${cwd_count} GREATER 0)
       math (EXPR cwd_count "${cwd_count} - 1")
       list (REMOVE_AT cwd ${cwd_count})
+      string (FIND "${dirs}" "${cwd}" pos)
       end_entry ()
     endwhile ()
     # back to same root
@@ -74,7 +81,8 @@ foreach (file IN LISTS FILES)
     math (EXPR level "${level} + 2")
     math (EXPR path_count "${path_count} - 1")
   endwhile ()
-  file (COPY ${file} DESTINATION ${DEST}/web/samples/${cwd})
+  JOIN ("${cwd}" "/" path)
+  file (COPY "${file}" DESTINATION "${DEST}/web/samples/${path}")
   if (${first})
     file (APPEND ${contents_file} "\n")
     set (first 0)
