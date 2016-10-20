@@ -216,7 +216,6 @@ private slots:
   void on_actionMessage_averaging_triggered();
   void on_actionInclude_averaging_triggered();
   void on_actionInclude_correlation_triggered();
-  void VHF_controls_visible(bool b);
   void VHF_features_enabled(bool b);
   void on_cbAutoSeq_toggled(bool b);
   void on_sbSubmode_valueChanged(int n);
@@ -572,6 +571,8 @@ private:
   void remove_child_from_event_filter (QObject *);
   void setup_status_bar (bool vhf);
   void tx_watchdog (bool triggered);
+  int  nWidgets(QString t);
+  void displayWidgets(int n);
 };
 
 extern int killbyname(const char* progName);

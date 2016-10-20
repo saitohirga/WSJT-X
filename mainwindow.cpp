@@ -752,12 +752,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   // this must be done before initializing the mode as some modes need
   // to turn off split on the rig e.g. WSPR
   m_config.transceiver_online ();
-
   bool vhf {m_config.enable_VHF_features ()};
-  bool b = vhf and (m_mode=="JT4" or m_mode=="JT65" or
-                    m_mode=="ISCAT" or m_mode=="JT9" or
-                    m_mode=="MSK144" or m_mode=="QRA64");
-  VHF_controls_visible(b);
 
   ui->txFirstCheckBox->setChecked(m_txFirst);
   morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),
@@ -1400,29 +1395,20 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
                                                     "Auto-Tx-Enable Disarmed");
     displayDialFrequency ();
     bool vhf {m_config.enable_VHF_features ()};
-    if (!vhf) {
-      ui->sbSubmode->setValue (0);
-      if(m_mode=="JT4" or m_mode=="JT9" or m_mode=="JT65") {
-        ui->sbSubmode->setVisible(false);
-        ui->sbFtol->setVisible(false);
-        ui->syncSpinBox->setVisible(false);
-      }
-    }
+    if (!vhf) ui->sbSubmode->setValue (0);
     setup_status_bar (vhf);
     bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or m_mode=="ISCAT" or
                      m_mode=="JT9" or m_mode=="MSK144");
-    if(b) {
-      VHF_features_enabled(b);
-      VHF_controls_visible(b);
-    }
-    if(!vhf) {
-      ui->cbShMsgs->setVisible(false);
-      ui->cbTx6->setVisible(false);
-    }
-    if(m_mode=="JT4" or (m_mode=="JT9" and m_nSubMode<4) or m_mode=="JT65" or
-       m_mode=="JT9+JT65" or m_mode=="ISCAT" or m_mode=="MSK144") {
-      ui->cbFast9->setVisible(false);
-    }
+    if(b) VHF_features_enabled(b);
+    if(m_mode=="JT4") on_actionJT4_triggered();
+    if(m_mode=="JT9") on_actionJT9_triggered();
+    if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
+    if(m_mode=="JT65") on_actionJT65_triggered();
+    if(m_mode=="QRA64") on_actionQRA64_triggered();
+    if(m_mode=="ISCAT") on_actionISCAT_triggered();
+    if(m_mode=="MSK144") on_actionMSK144_triggered();
+    if(m_mode=="WSPR") on_actionWSPR_triggered();
+    if(m_mode=="Echo") on_actionEcho_triggered();
   }
 
   m_config.transceiver_online ();
@@ -3924,12 +3910,99 @@ void MainWindow::acceptQSO2(QDateTime const& QSO_date, QString const& call, QStr
     }
 }
 
+int MainWindow::nWidgets(QString t)
+{
+  if(t.length()!=19) qDebug() << "b" << t << t.length();
+  int n=0;
+  for(int i=0; i<19; i++) {
+    n=n + n + t.mid(i,1).toInt();
+  }
+  return n;
+}
+
+void MainWindow::displayWidgets(int n)
+{
+  int j=1<<18;
+  bool b;
+  for(int i=0; i<19; i++) {
+    b=(n&j) != 0;
+    if(i==0) ui->txFirstCheckBox->setVisible(b);
+    if(i==1) ui->TxFreqSpinBox->setVisible(b);
+        if(i==2) ui->RxFreqSpinBox->setVisible(b);
+        if(i==3) ui->sbFtol->setVisible(b);
+        if(i==4) ui->rptSpinBox->setVisible(b);
+        if(i==5) ui->sbTR->setVisible(b);
+        if(i==6) ui->sbCQRxFreq->setVisible(b);
+        if(i==6) ui->cbCQRx->setVisible(b);
+        if(i==7) ui->cbShMsgs->setVisible(b);
+        if(i==8) ui->cbFast9->setVisible(b);
+        if(i==9) ui->cbAutoSeq->setVisible(b);
+        if(i==10) ui->cbTx6->setVisible(b);
+        if(i==11) ui->pbTxMode->setVisible(b);
+        if(i==12) ui->pbR2T->setVisible(b);
+        if(i==13) ui->pbT2R->setVisible(b);
+        if(i==14) ui->cbTxLock->setVisible(b);
+        if(i==14 and (!b)) ui->cbTxLock->setChecked(false);
+        if(i==15) ui->sbSubmode->setVisible(b);
+        if(i==16) ui->syncSpinBox->setVisible(b);
+        if(i==17) ui->WSPR_controls_widget->setVisible(b);
+        if(i==18) ui->ClrAvgButton->setVisible(b);
+    j=j>>1;
+  }
+}
+
+void MainWindow::on_actionJT4_triggered()
+{
+  m_mode="JT4";
+  bool bVHF=m_config.enable_VHF_features();
+  if(bVHF) {
+    displayWidgets(nWidgets("1111100100101101101"));
+  } else {
+    displayWidgets(nWidgets("1110100000001110001"));
+  }
+  WSPR_config(false);
+  switch_mode (Modes::JT4);
+  m_modeTx="JT4";
+  statusChanged();
+  m_TRperiod=60;
+  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
+  m_nsps=6912;                   //For symspec only
+  m_FFTSize = m_nsps / 2;
+  Q_EMIT FFTSize (m_FFTSize);
+  m_hsymStop=176;
+  if(m_config.decode_at_52s()) m_hsymStop=184;
+  m_toneSpacing=0.0;
+  ui->actionJT4->setChecked(true);
+  VHF_features_enabled(true);
+  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
+  m_bFastMode=false;
+  m_bFast9=false;
+  setup_status_bar (bVHF);
+  fast_config(false);
+  ui->sbSubmode->setMaximum(6);
+  ui->label_6->setText("Single-Period Decodes");
+  ui->label_7->setText("Average Decodes");
+  if(bVHF) {
+    ui->sbSubmode->setValue(m_nSubMode);
+  } else {
+    ui->sbSubmode->setValue(0);
+    ui->sbTR->setValue(0);
+  }
+}
+
 void MainWindow::on_actionJT9_triggered()
 {
   m_mode="JT9";
-
+  bool bVHF=m_config.enable_VHF_features();
+  if(bVHF) {
+    displayWidgets(nWidgets("1111100010001111100"));
+  } else {
+    displayWidgets(nWidgets("1110100000001110000"));
+  }
   m_bFast9=ui->cbFast9->isChecked();
-  ui->cbAutoSeq->setVisible(m_bFast9);
   m_bFastMode=m_bFast9;
   WSPR_config(false);
   switch_mode (Modes::JT9);
@@ -3940,24 +4013,16 @@ void MainWindow::on_actionJT9_triggered()
   Q_EMIT FFTSize (m_FFTSize);
   m_hsymStop=173;
   if(m_config.decode_at_52s()) m_hsymStop=179;
-  bool bVHF=m_config.enable_VHF_features();
   setup_status_bar (bVHF);
   m_toneSpacing=0.0;
   ui->actionJT9->setChecked(true);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
-  ui->pbTxMode->setVisible(false);
   VHF_features_enabled(bVHF);
-  VHF_controls_visible(bVHF);
   if(m_nSubMode>=4 and bVHF) {
-    ui->cbFast9->setVisible(true);
   } else {
     ui->cbFast9->setChecked(false);
-    ui->cbFast9->setVisible(false);
   }
-  ui->cbShMsgs->setVisible(false);
-  ui->cbTx6->setVisible(false);
-  ui->sbSubmode->setVisible(bVHF);
   ui->sbSubmode->setMaximum(7);
   fast_config(m_bFastMode);
   if(m_bFast9) {
@@ -3968,163 +4033,22 @@ void MainWindow::on_actionJT9_triggered()
     ui->RxFreqSpinBox->setValue(700);
     ui->decodedTextLabel->setText("UTC     dB    T Freq    Message");
     ui->decodedTextLabel2->setText("UTC     dB    T Freq    Message");
-    ui->sbTR->setVisible(true);
   } else {
     m_TRperiod=60;
     ui->decodedTextLabel->setText("UTC   dB   DT Freq    Message");
     ui->decodedTextLabel2->setText("UTC   dB   DT Freq    Message");
-    ui->sbTR->setVisible(false);
   }
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   ui->label_6->setText("Band Activity");
   ui->label_7->setText("Rx Frequency");
-  ui->ClrAvgButton->setVisible(false);
-}
-
-void MainWindow::on_actionMSK144_triggered()
-{
-  m_mode="MSK144";
-  m_modeTx="MSK144";
-  ui->actionMSK144->setChecked(true);
-  switch_mode (Modes::MSK144);
-  statusChanged();
-  m_nsps=6;
-  m_FFTSize = 7 * 512;
-  Q_EMIT FFTSize (m_FFTSize);
-  setup_status_bar (true);
-  m_toneSpacing=0.0;
-  WSPR_config(false);
-  ui->pbTxMode->setVisible(false);
-  VHF_features_enabled(true);
-  VHF_controls_visible(true);
-  ui->cbFast9->setVisible(false);
-  ui->cbShMsgs->setVisible(true);
-  ui->cbTx6->setVisible(false);
-  ui->sbSubmode->setVisible(false);
-  m_bFastMode=true;
-  m_bFast9=false;
-  fast_config(true);
-  if(m_TRperiodFast<=15) ui->sbTR->setValue(m_TRperiodFast/5+10);
-  if(m_TRperiodFast==30) ui->sbTR->setValue(14);
-  m_TRperiod=ui->sbTR->cleanText().toInt();
-  m_wideGraph->hide();
-  m_fastGraph->show();
-  ui->TxFreqSpinBox->setValue(1500);
-  ui->RxFreqSpinBox->setValue(1500);
-  ui->RxFreqSpinBox->setMinimum(1400);
-  ui->RxFreqSpinBox->setMaximum(1600);
-  ui->RxFreqSpinBox->setSingleStep(10);
-  ui->decodedTextLabel->setText("UTC     dB    T Freq    Message");
-  ui->decodedTextLabel2->setText("UTC     dB    T Freq    Message");
-  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
-  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
-  ui->label_6->setText("Band Activity");
-  ui->label_7->setText("QSO Messages");
-  ui->sbTR->setVisible(true);
-  ui->sbFtol->setVisible(true);
-  ui->cbAutoSeq->setVisible(true);
-  ui->ClrAvgButton->setVisible(false);
-  ui->RxFreqSpinBox->setVisible(true);
-  ui->cbShMsgs->setVisible(true);
-  ui->actionMSK144->setChecked(true);
-  ui->rptSpinBox->setMinimum(-8);
-  ui->rptSpinBox->setMaximum(24);
-  ui->rptSpinBox->setValue(0);
-  ui->rptSpinBox->setSingleStep(1);
-  ui->sbFtol->setMinimum(22);
-  ui->sbFtol->setMaximum(25);
-  ui->cbCQRx->setEnabled(m_splitMode);
-}
-
-void MainWindow::on_actionQRA64_triggered()
-{
-  int n=m_nSubMode;
-  on_actionJT65_triggered();
-  m_nSubMode=n;
-  m_mode="QRA64";
-  m_modeTx="QRA64";
-  ui->actionQRA64->setChecked(true);
-  switch_mode (Modes::QRA64);
-  statusChanged();
-  setup_status_bar (true);
-  m_hsymStop=180;
-  if(m_config.decode_at_52s()) m_hsymStop=188;
-  ui->cbShMsgs->setVisible(false);
-  m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
-  ui->sbSubmode->setMaximum(4);
-  ui->sbSubmode->setValue(m_nSubMode);
-  ui->cbTxLock->setEnabled(true);
-  ui->actionInclude_averaging->setEnabled(false);
-  ui->actionInclude_correlation->setEnabled(false);
-  ui->sbSubmode->setVisible(true);
-  ui->sbFtol->setVisible(true);
-  ui->cbFast9->setVisible(false);
-  ui->cbAutoSeq->setVisible(false);
-  ui->cbFast9->setVisible(false);
-}
-
-void MainWindow::on_actionJT65_triggered()
-{
-  if(m_mode=="JT4" or m_mode.startsWith ("WSPR")) {
-// If coming from JT4 or WSPR mode, pretend temporarily that we're coming
-// from JT9 and click the pbTxMode button
-    m_modeTx="JT9";
-    on_pbTxMode_clicked();
-  }
-  on_actionJT9_triggered();
-  m_mode="JT65";
-  WSPR_config(false);
-  switch_mode (Modes::JT65);
-  if(m_modeTx!="JT65") on_pbTxMode_clicked();
-  statusChanged();
-  m_TRperiod=60;
-  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_detector->setPeriod(m_TRperiod);   // TODO - not thread safe
-  m_nsps=6912;                   //For symspec only
-  m_FFTSize = m_nsps / 2;
-  Q_EMIT FFTSize (m_FFTSize);
-  m_hsymStop=174;
-  if(m_config.decode_at_52s()) m_hsymStop=183;
-  m_toneSpacing=0.0;
-  ui->ClrAvgButton->setVisible(false);
-  ui->actionJT65->setChecked(true);
-  VHF_features_enabled(true);
-  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
-  m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
-  ui->pbTxMode->setVisible(false);
-  bool bVHF=m_config.enable_VHF_features();
-  setup_status_bar (bVHF);
-  m_bFastMode=false;
-  m_bFast9=false;
-  VHF_controls_visible(bVHF);
-  ui->cbFast9->setVisible(false);
-  ui->cbShMsgs->setVisible(true);
-  ui->cbAutoSeq->setVisible(false);
-  fast_config(false);
-  ui->sbSubmode->setMaximum(2);
-  if(bVHF) {
-    ui->sbSubmode->setValue(m_nSubMode);
-  } else {
-    ui->sbSubmode->setValue(0);
-    ui->sbTR->setValue(0);
-  }
-  if(m_config.single_decode()) {
-    ui->label_6->setText("Single-Period Decodes");
-    ui->label_7->setText("Average Decodes");
-  } else {
-    ui->label_6->setText("Band Activity");
-    ui->label_7->setText("Rx Frequency");
-  }
 }
 
 void MainWindow::on_actionJT9_JT65_triggered()
 {
   m_mode="JT9+JT65";
+  displayWidgets(nWidgets("1110100000011110000"));
   WSPR_config(false);
   switch_mode (Modes::JT65);
   if(m_modeTx != "JT65") {
@@ -4148,68 +4072,175 @@ void MainWindow::on_actionJT9_JT65_triggered()
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
-  ui->pbTxMode->setVisible(true);
   m_bFastMode=false;
   m_bFast9=false;
-  VHF_controls_visible(false);
   fast_config(false);
   ui->sbSubmode->setValue(0);
   ui->sbTR->setValue(0);
   ui->label_6->setText("Band Activity");
   ui->label_7->setText("Rx Frequency");
-  ui->ClrAvgButton->setVisible(false);
 }
 
-void MainWindow::on_actionJT4_triggered()
+void MainWindow::on_actionJT65_triggered()
 {
-  m_mode="JT4";
+  if(m_mode=="JT4" or m_mode.startsWith ("WSPR")) {
+// If coming from JT4 or WSPR mode, pretend temporarily that we're coming
+// from JT9 and click the pbTxMode button
+    m_modeTx="JT9";
+    on_pbTxMode_clicked();
+  }
+  on_actionJT9_triggered();
+  m_mode="JT65";
+  bool bVHF=m_config.enable_VHF_features();
+  if(bVHF) {
+    displayWidgets(nWidgets("1111100000001111101"));
+  } else {
+    displayWidgets(nWidgets("1110100000001110000"));
+  }
   WSPR_config(false);
-  switch_mode (Modes::JT4);
-  m_modeTx="JT4";
+  switch_mode (Modes::JT65);
+  if(m_modeTx!="JT65") on_pbTxMode_clicked();
   statusChanged();
   m_TRperiod=60;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
+  m_detector->setPeriod(m_TRperiod);   // TODO - not thread safe
   m_nsps=6912;                   //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
-  m_hsymStop=176;
-  if(m_config.decode_at_52s()) m_hsymStop=184;
+  m_hsymStop=174;
+  if(m_config.decode_at_52s()) m_hsymStop=183;
   m_toneSpacing=0.0;
-  ui->actionJT4->setChecked(true);
+  ui->actionJT65->setChecked(true);
   VHF_features_enabled(true);
-  ui->ClrAvgButton->setVisible(true);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
-  ui->pbTxMode->setVisible(false);
+  setup_status_bar (bVHF);
   m_bFastMode=false;
   m_bFast9=false;
-  bool bVHF=m_config.enable_VHF_features();
-  setup_status_bar (bVHF);
-  VHF_controls_visible(bVHF);
   fast_config(false);
-  ui->cbFast9->setVisible(false);
-  ui->cbShMsgs->setVisible(true);
-  ui->cbTx6->setVisible(true);
-  ui->sbTR->setVisible(false);
-  ui->sbSubmode->setVisible(true);
-  ui->cbAutoSeq->setVisible(false);
-  ui->sbSubmode->setMaximum(6);
-  ui->label_6->setText("Single-Period Decodes");
-  ui->label_7->setText("Average Decodes");
-  ui->RxFreqSpinBox->setVisible(true);
+  ui->sbSubmode->setMaximum(2);
   if(bVHF) {
     ui->sbSubmode->setValue(m_nSubMode);
   } else {
     ui->sbSubmode->setValue(0);
     ui->sbTR->setValue(0);
   }
+  if(m_config.single_decode()) {
+    ui->label_6->setText("Single-Period Decodes");
+    ui->label_7->setText("Average Decodes");
+  } else {
+    ui->label_6->setText("Band Activity");
+    ui->label_7->setText("Rx Frequency");
+  }
+}
+
+void MainWindow::on_actionQRA64_triggered()
+{
+  int n=m_nSubMode;
+  on_actionJT65_triggered();
+  m_nSubMode=n;
+  m_mode="QRA64";
+  displayWidgets(nWidgets("1111100000001111100"));
+  m_modeTx="QRA64";
+  ui->actionQRA64->setChecked(true);
+  switch_mode (Modes::QRA64);
+  statusChanged();
+  setup_status_bar (true);
+  m_hsymStop=180;
+  if(m_config.decode_at_52s()) m_hsymStop=188;
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
+  ui->sbSubmode->setMaximum(4);
+  ui->sbSubmode->setValue(m_nSubMode);
+  ui->cbTxLock->setEnabled(true);
+  ui->actionInclude_averaging->setEnabled(false);
+  ui->actionInclude_correlation->setEnabled(false);
+}
+
+void MainWindow::on_actionISCAT_triggered()
+{
+  m_mode="ISCAT";
+  displayWidgets(nWidgets("1001110000000001100"));
+  m_modeTx="ISCAT";
+  ui->actionISCAT->setChecked(true);
+  m_TRperiod=ui->sbTR->cleanText().toInt();
+  m_modulator->setPeriod(m_TRperiod);
+  m_detector->setPeriod(m_TRperiod);
+  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
+  m_nsps=6912;                   //For symspec only
+  m_FFTSize = m_nsps / 2;
+  Q_EMIT FFTSize (m_FFTSize);
+  m_hsymStop=103;
+  m_toneSpacing=11025.0/256.0;
+  WSPR_config(false);
+  switch_mode(Modes::ISCAT);
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
+  statusChanged();
+  if(!m_fastGraph->isVisible()) m_fastGraph->show();
+  if(m_wideGraph->isVisible()) m_wideGraph->hide();
+  setup_status_bar (true);
+  fast_config(true);
+  ui->cbShMsgs->setChecked(false);
+  ui->label_7->setText("");
+  ui->decodedTextLabel->setText(
+        "  UTC  Sync dB   DT   DF  F1                                   N  L  A   T");
+  ui->tabWidget->setCurrentIndex(0);
+  ui->sbSubmode->setMaximum(1);
+  if(m_nSubMode==0) ui->TxFreqSpinBox->setValue(1012);
+  if(m_nSubMode==1) ui->TxFreqSpinBox->setValue(560);
+}
+
+void MainWindow::on_actionMSK144_triggered()
+{
+  displayWidgets(nWidgets("1011111101000000000"));
+  m_mode="MSK144";
+  m_modeTx="MSK144";
+  ui->actionMSK144->setChecked(true);
+  switch_mode (Modes::MSK144);
+  statusChanged();
+  m_nsps=6;
+  m_FFTSize = 7 * 512;
+  Q_EMIT FFTSize (m_FFTSize);
+  setup_status_bar (true);
+  m_toneSpacing=0.0;
+  WSPR_config(false);
+  VHF_features_enabled(true);
+  m_bFastMode=true;
+  m_bFast9=false;
+  fast_config(true);
+  if(m_TRperiodFast<=15) ui->sbTR->setValue(m_TRperiodFast/5+10);
+  if(m_TRperiodFast==30) ui->sbTR->setValue(14);
+  m_TRperiod=ui->sbTR->cleanText().toInt();
+  m_wideGraph->hide();
+  m_fastGraph->show();
+  ui->TxFreqSpinBox->setValue(1500);
+  ui->RxFreqSpinBox->setValue(1500);
+  ui->RxFreqSpinBox->setMinimum(1400);
+  ui->RxFreqSpinBox->setMaximum(1600);
+  ui->RxFreqSpinBox->setSingleStep(10);
+  ui->decodedTextLabel->setText("UTC     dB    T Freq    Message");
+  ui->decodedTextLabel2->setText("UTC     dB    T Freq    Message");
+  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
+  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
+  ui->label_6->setText("Band Activity");
+  ui->label_7->setText("QSO Messages");
+  ui->actionMSK144->setChecked(true);
+  ui->rptSpinBox->setMinimum(-8);
+  ui->rptSpinBox->setMaximum(24);
+  ui->rptSpinBox->setValue(0);
+  ui->rptSpinBox->setSingleStep(1);
+  ui->sbFtol->setMinimum(22);
+  ui->sbFtol->setMaximum(25);
+  ui->cbCQRx->setEnabled(m_splitMode);
 }
 
 void MainWindow::on_actionWSPR_triggered()
 {
   m_mode="WSPR";
+  displayWidgets(nWidgets("0000000000000000010"));
   WSPR_config(true);
   switch_mode (Modes::WSPR);
   m_modeTx="WSPR";                                    //### not needed ?? ###
@@ -4225,7 +4256,6 @@ void MainWindow::on_actionWSPR_triggered()
   setup_status_bar (false);
   ui->actionWSPR->setChecked(true);
   VHF_features_enabled(false);
-  ui->ClrAvgButton->setVisible(false);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
@@ -4239,6 +4269,7 @@ void MainWindow::on_actionEcho_triggered()
 {
   on_actionJT4_triggered();
   m_mode="Echo";
+  displayWidgets(nWidgets(""));
   ui->actionEcho->setChecked(true);
   m_TRperiod=3;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
@@ -4262,60 +4293,11 @@ void MainWindow::on_actionEcho_triggered()
   }
   m_bFastMode=false;
   m_bFast9=false;
-  VHF_controls_visible(false);
   fast_config(false);
   WSPR_config(true);
   ui->decodedTextLabel->setText("   UTC      N   Level    Sig      DF    Width   Q");
 }
 
-void MainWindow::on_actionISCAT_triggered()
-{
-  m_mode="ISCAT";
-  m_modeTx="ISCAT";
-  ui->actionISCAT->setChecked(true);
-  m_TRperiod=ui->sbTR->cleanText().toInt();
-  m_modulator->setPeriod(m_TRperiod);
-  m_detector->setPeriod(m_TRperiod);
-  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
-  m_nsps=6912;                   //For symspec only
-  m_FFTSize = m_nsps / 2;
-  Q_EMIT FFTSize (m_FFTSize);
-  m_hsymStop=103;
-  m_toneSpacing=11025.0/256.0;
-  WSPR_config(false);
-  switch_mode(Modes::ISCAT);
-  m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
-  statusChanged();
-  if(!m_fastGraph->isVisible()) m_fastGraph->show();
-  if(m_wideGraph->isVisible()) m_wideGraph->hide();
-  setup_status_bar (true);
-  VHF_controls_visible(true);
-  fast_config(true);
-  ui->pbTxMode->setVisible(false);
-  ui->cbFast9->setVisible(false);
-  ui->sbTR->setVisible(true);
-  ui->sbFtol->setVisible(true);
-  ui->sbSubmode->setVisible(true);
-  ui->cbShMsgs->setVisible(false);
-  ui->cbShMsgs->setChecked(false);
-  ui->cbTx6->setVisible(false);
-  ui->cbAutoSeq->setVisible(false);
-  ui->decodedTextBrowser2->setVisible(false);
-  ui->decodedTextLabel2->setVisible(false);
-  ui->label_7->setText("");
-  ui->decodedTextLabel->setText(
-        "  UTC  Sync dB   DT   DF  F1                                   N  L  A   T");
-  ui->tabWidget->setCurrentIndex(0);
-  ui->sbSubmode->setMaximum(1);
-  if(m_nSubMode==0) ui->TxFreqSpinBox->setValue(1012);
-  if(m_nSubMode==1) ui->TxFreqSpinBox->setValue(560);
-  ui->TxFreqSpinBox->setVisible(false);
-  ui->RxFreqSpinBox->setVisible(false);
-  ui->pbR2T->setVisible(false);
-  ui->pbT2R->setVisible(false);
-  ui->cbTxLock->setVisible(false);
-}
 
 void MainWindow::switch_mode (Mode mode)
 {
@@ -4325,14 +4307,6 @@ void MainWindow::switch_mode (Mode mode)
     ui->bandComboBox->setCurrentIndex (row);
     on_bandComboBox_activated (row);
   }
-  bool b=(m_mode=="MSK144");
-  ui->sbCQRxFreq->setVisible(b);
-  ui->cbCQRx->setVisible(b);
-  ui->syncSpinBox->setVisible(!b);
-  ui->pbR2T->setVisible(!b);
-  ui->pbT2R->setVisible(!b);
-  ui->cbTxLock->setVisible(!b);
-  ui->TxFreqSpinBox->setVisible(!b);
   ui->rptSpinBox->setSingleStep(1);
   ui->rptSpinBox->setMinimum(-50);
   ui->rptSpinBox->setMaximum(49);
@@ -4347,13 +4321,10 @@ void MainWindow::switch_mode (Mode mode)
     ui->RxFreqSpinBox->setMaximum(5000);
     ui->RxFreqSpinBox->setSingleStep(1);
   }
-//  ui->RxFreqSpinBox->setVisible(m_mode!="MSK144");
 }
 
 void MainWindow::WSPR_config(bool b)
 {
-  ui->decodedTextBrowser2->setVisible(!b);
-  ui->decodedTextLabel2->setVisible(!b);
   ui->controls_stack_widget->setCurrentIndex (b && m_mode != "Echo" ? 1 : 0);
   ui->QSO_controls_widget->setVisible (!b);
   ui->DX_controls_widget->setVisible (!b);
@@ -4379,7 +4350,7 @@ void MainWindow::WSPR_config(bool b)
 void MainWindow::fast_config(bool b)
 {
   m_bFastMode=b;
-  ui->ClrAvgButton->setVisible(!b);
+//  ui->ClrAvgButton->setVisible(!b);
   ui->TxFreqSpinBox->setEnabled(!b);
   ui->sbTR->setVisible(b);
   if(b and (m_bFast9 or m_mode=="MSK144" or m_mode=="ISCAT")) {
@@ -5156,7 +5127,7 @@ void MainWindow::transmitDisplay (bool transmitting)
 //###
         if(m_mode!="QRA64") {
           ui->cbTxLock->setChecked(false);
-          ui->cbTxLock->setEnabled(false);
+//          ui->cbTxLock->setEnabled(false);
         }
       } else {
         ui->TxFreqSpinBox->setEnabled (QSY_allowed and !m_bFastMode);
@@ -5185,15 +5156,6 @@ void MainWindow::on_sbFtol_valueChanged(int index)
   m_FtolIndex=index;
   m_Ftol=tol[index-21];
   m_wideGraph->setTol(m_Ftol);
-}
-
-void::MainWindow::VHF_controls_visible(bool b)
-{
-  ui->VHFControls_widget->setVisible (b);
-  ui->cbFast9->setVisible(b);
-  ui->sbFtol->setVisible(b);
-  ui->sbSubmode->setVisible(b && (m_mode!="MSK144"));
-  ui->syncSpinBox->setVisible(b && (m_mode!="MSK144"));
 }
 
 void::MainWindow::VHF_features_enabled(bool b)
@@ -5256,11 +5218,11 @@ void MainWindow::on_sbSubmode_valueChanged(int n)
     if(m_nSubMode<4) {
       ui->cbFast9->setChecked(false);
       on_cbFast9_clicked(false);
-      ui->cbFast9->setVisible(false);
+      ui->cbFast9->setEnabled(false);
       ui->sbTR->setVisible(false);
       m_TRperiod=60;
     } else {
-      ui->cbFast9->setVisible(true);
+      ui->cbFast9->setEnabled(true);
     }
     ui->sbTR->setVisible(m_bFast9);
     if(m_bFast9) ui->TxFreqSpinBox->setValue(700);
