@@ -4198,6 +4198,7 @@ void MainWindow::on_actionJT4_triggered()
   ui->sbSubmode->setMaximum(6);
   ui->label_6->setText("Single-Period Decodes");
   ui->label_7->setText("Average Decodes");
+  ui->RxFreqSpinBox->setVisible(true);
   if(bVHF) {
     ui->sbSubmode->setValue(m_nSubMode);
   } else {
@@ -4540,8 +4541,7 @@ void MainWindow::band_changed (Frequency f)
     m_lastBand.clear ();
     m_bandEdited = false;
     psk_Reporter->sendReport();      // Upload any queued spots before changing band
-// Following statement commented out 10/18/2016 by K1JT, to prevent undesired start of Monitor.
-//    if (!m_transmitting) monitor (true);
+    if (!m_transmitting) monitor (true);
     m_freqNominal = f;
     m_freqTxNominal = m_freqNominal;
     if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
