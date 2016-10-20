@@ -137,13 +137,13 @@ include::tutorial-example2.adoc[]
 == Making QSOs
 include::make-qso.adoc[]
 
-[[WSPR]]
-== WSPR Mode
-include::wspr.adoc[]
-
 [[VHF_AND_UP]]
 == VHF+ Features
 include::vhf-features.adoc[]
+
+[[WSPR]]
+== WSPR Mode
+include::wspr.adoc[]
 
 [[COMMAND_REF]]
 == On-Screen Controls

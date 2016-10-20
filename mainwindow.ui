@@ -2371,7 +2371,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionISCAT"/>
     <addaction name="actionMSK144"/>
     <addaction name="separator"/>
-    <addaction name="actionWSPR_2"/>
+    <addaction name="actionWSPR"/>
     <addaction name="separator"/>
     <addaction name="actionEcho"/>
    </widget>
@@ -2760,7 +2760,7 @@ QPushButton[state=&quot;ok&quot;] {
     <string>Enable deep search</string>
    </property>
   </action>
-  <action name="actionWSPR_2">
+  <action name="actionWSPR">
    <property name="checkable">
     <bool>true</bool>
    </property>

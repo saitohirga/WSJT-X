@@ -473,7 +473,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->actionJT65->setActionGroup(modeGroup);
   ui->actionJT9_JT65->setActionGroup(modeGroup);
   ui->actionJT4->setActionGroup(modeGroup);
-  ui->actionWSPR_2->setActionGroup(modeGroup);
+  ui->actionWSPR->setActionGroup(modeGroup);
   ui->actionEcho->setActionGroup(modeGroup);
   ui->actionISCAT->setActionGroup(modeGroup);
   ui->actionMSK144->setActionGroup(modeGroup);
@@ -776,7 +776,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_mode=="JT9") on_actionJT9_triggered();
   if(m_mode=="JT65") on_actionJT65_triggered();
   if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
-  if(m_mode=="WSPR") on_actionWSPR_2_triggered();
+  if(m_mode=="WSPR") on_actionWSPR_triggered();
   if(m_mode=="Echo") on_actionEcho_triggered();
   if(m_mode=="ISCAT") on_actionISCAT_triggered();
   if(m_mode=="MSK144") on_actionMSK144_triggered();
@@ -4207,7 +4207,7 @@ void MainWindow::on_actionJT4_triggered()
   }
 }
 
-void MainWindow::on_actionWSPR_2_triggered()
+void MainWindow::on_actionWSPR_triggered()
 {
   m_mode="WSPR";
   WSPR_config(true);
@@ -4223,7 +4223,7 @@ void MainWindow::on_actionWSPR_2_triggered()
   m_hsymStop=396;
   m_toneSpacing=12000.0/8192.0;
   setup_status_bar (false);
-  ui->actionWSPR_2->setChecked(true);
+  ui->actionWSPR->setChecked(true);
   VHF_features_enabled(false);
   ui->ClrAvgButton->setVisible(false);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);

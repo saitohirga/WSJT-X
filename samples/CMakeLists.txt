@@ -1,6 +1,7 @@
 set (SAMPLE_FILES
   JT9+JT65/130610_2343.wav
   JT9/130418_1742.wav
+  JT65/JT65B/DL7UAE_040308_002400.wav
   )
 
 set (contents_file_name contents_${WSJTX_VERSION_MAJOR}.${WSJTX_VERSION_MINOR}.json)
