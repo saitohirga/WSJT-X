@@ -224,7 +224,7 @@ private slots:
   void on_cbTx6_toggled(bool b);
   void networkError (QString const&);
   void on_ClrAvgButton_clicked();
-  void on_actionWSPR_2_triggered();
+  void on_actionWSPR_triggered();
   void on_syncSpinBox_valueChanged(int n);
   void on_TxPowerComboBox_currentIndexChanged(const QString &arg1);
   void on_sbTxPercent_valueChanged(int n);
