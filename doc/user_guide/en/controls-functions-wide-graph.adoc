@@ -51,3 +51,38 @@ and your own preferences.
 Smoothing the displayed spectrum over more than one bin can enhance
 your ability to detect weak EME signals with Doppler spread more than
 a few Hz.
+
+[[CONTROLS_FAST]]
+=== Fast Graph
+
+Three sliders at the bottom of the Fast Graph window can be used to
+optimize gain and zero-offset of the displayed information.  Hover the
+mouse over a control to display a tip reminding you of its function.
+Clicking the *Auto Level* button will produce reasonable settings
+as a starting point.  The waterfall palette used on this graph is
+the same as the one selected on the Wide Graph.
+
+image::fast-graph-controls.png[align="center",alt="Fast Graph Controls"]
+
+[[CONTROLS_ECHO]]
+=== Echo Graph
+
+Controls at the bottom of the Echo Graph
+
+- *Bins/Pixel* controls the displayed frequency resolution.  Set this
+value to 1 for the highest possible resolution, or to higher numbers
+to compress the spectral display.
+
+- *Gain* and *Zero* sliders control scaling and offset of plotted
+spectra.
+
+- *Smooth* values greater than 0 apply running averages to the plotted
+spectra.
+
+- Label *N* shows the number of echo pulses averaged.
+
+- Click the *Colors* button to cycle through 6 possible choices of
+color and line width for the plots.
+
+image::echo-graph-controls.png[align="center",alt="EchoGraph Controls"]
+

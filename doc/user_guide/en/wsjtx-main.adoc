@@ -148,10 +148,6 @@ include::wspr.adoc[]
 [[COMMAND_REF]]
 == On-Screen Controls
 
-[[CONTROLS_WIDE]]
-=== Wide Graph
-include::controls-functions-wide-graph.adoc[]
-
 [[CONTROLS_MAIN]]
 === Main Window
 include::controls-functions-main-window.adoc[]
@@ -175,6 +171,10 @@ include::controls-functions-status-bar.adoc[]
 [[MENUS]]
 === Menus
 include::controls-functions-menus.adoc[]
+
+[[CONTROLS_WIDE]]
+=== Wide Graph
+include::controls-functions-wide-graph.adoc[]
 
 [[LOGGING]]
 == Logging
@@ -201,19 +201,20 @@ include::protocols.adoc[]
 == Astronomical Data
 include::astro_data.adoc[]
 
+
+////
 [[TXRX]]
 == Implementation Details
 include::implementation.adoc[]
 
-////
 [[TROUBLE_SHOOTING]]
 == Troubleshooting
 To be added (?) ...
-////
 
 [[UTIL]]
 == Utility Programs
 include::utilities.adoc[]
+////
 
 [[SUPPORT]]
 == Support

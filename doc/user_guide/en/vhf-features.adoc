@@ -116,7 +116,7 @@ averaging* over successive transmissions and/or correlation decoding,
 image::decoding_depth.png[align="center",alt="Decoding Depth"]
 
 IMPORTANT: Additional hints for using JT4 and Echo mode on the
-EME path have been compiled by G3WDG and are available here: {jt4eme}.
+*EME path have been compiled by G3WDG and are available here: {jt4eme}.
 
 === JT65
 
@@ -141,6 +141,14 @@ QRA64 is an experimental mode in the present alpha release of
 _WSJT-X_, Version 1.7.  The protocol is still subject to change, and
 some features of the decoder will likely change.  In most ways
 operation of QRA64 is similar to JT65.
+
+=== ISCAT
+
+ISCAT is a useful mode for signals that are weak but more or less
+steady in amplitude, at least for several seconds.  Aircraft scatter
+at 10 GHz is a good example.  ISCAT messages are free-format and may
+have any length from 1 to 28 characters.  The protocol includes no
+error-correction facility.
 
 === MSK144
 
@@ -198,10 +206,6 @@ sign-off.  Only the intended recipient can decode short-messages.
 IMPORTANT: There is little or no advantage to using MSK144 *Sh*
 messages at 50 or 70 MHz.  At these frequencies most pings are long
 enough to support standard messages.
-
-=== Scatter Propagation with ISCAT
-
-TBD ...
 
 === Echo Mode
 
