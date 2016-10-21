@@ -24,6 +24,7 @@ public:
   void   plotSpec(bool diskData, int UTCdisk);
   void   saveSettings();
   void   setTRperiod(int n);
+  void   setMode(QString mode);
 
 signals:
   void fastPick(int x0, int x1, int y);

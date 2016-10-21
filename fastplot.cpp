@@ -247,9 +247,9 @@ void FPlotter::mouseMoveEvent(QMouseEvent *event)
   update();
 }
 
-/*
 void FPlotter::mousePressEvent(QMouseEvent *event)      //mousePressEvent
 {
+  if(m_mode=="MSK144") return;
   int x=event->x();
   int y=event->y();
   int n=event->button();
@@ -279,4 +279,8 @@ void FPlotter::mousePressEvent(QMouseEvent *event)      //mousePressEvent
   m_x1=x1;
   m_y0=y0;
 }
-*/
+
+void FPlotter::setMode(QString mode)                            //setMode
+{
+  m_mode=mode;
+}

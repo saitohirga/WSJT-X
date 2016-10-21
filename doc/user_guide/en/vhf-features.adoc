@@ -142,25 +142,32 @@ _WSJT-X_, Version 1.7.  The protocol is still subject to change, and
 some features of the decoder will likely change.  In most ways
 operation of QRA64 is similar to JT65.
 
-=== Meteor Scatter with MSK144
+=== MSK144
 
-Meteor-scatter QSOs can be made at any time on the VHF bands, at
-distances up to about 2100 km or 1300 miles.  Completing a QSO takes
-longer in the evening than in the morning, longer at 144 MHz than at
-50 MHz, and longer at 2000 km than 1500 km.  But with patience, at
-least 100 Watts, and a single yagi it can usually be done.
+Meteor-scatter QSOs can be made any time on the VHF bands at distances
+up to about 2100 km (1300 miles).  Completing a QSO takes longer in
+the evening than in the morning, longer at higher frequencies, and
+longer at distances close to the upper limit.  But with patience, 
+100 Watts or more, and a single yagi it can usually be done.
 
-- Select *MSK144* from the *Mode* and *Fast* from the *Decode* menu.
+Unlike other _WSJT-X modes, MSK144 decodes received signals in real
+time.  Decoded messages will appear on your screen almost as soon as
+you hear them.
 
-- Set the audio receiving frequency to *Rx 1500 Hz*, frequency
-tolerance to *F Tol 100*, and T/R sequence duration to 15 s.
+- Select *MSK144* from the *Mode* menu.
 
-- MSK144 decodes received signals in real time, so you will see
-decoded messages almost as soon as you hear them.  To match decoding
-depth to your computer's capability, click *Monitor* (if it's not
-already green) to start a receiving sequence and observe the
-percentage of CPU usage displayed on the _Receiving_ label in the
-Status Bar:
+- Select *Fast* from the *Decode* menu.
+
+- Set the audio receiving frequency to *Rx 1500 Hz*.
+
+- Set frequency tolerance to *F Tol 100*.
+
+- Set the *T/R* sequence duration to 15 s.
+
+- To match decoding depth to your computer's capability, click
+*Monitor* (if it's not already green) to start a receiving sequence
+and observe the percentage of CPU usage displayed on the _Receiving_
+label in the Status Bar:
 
 image::Rx_pct_MSK144.png[align="center",alt="MSK144 Percent CPU"]
 
@@ -174,18 +181,23 @@ optimum parameters *Deep* and *F Tol 200*.  Slower machines may not be
 able to keep up at these settings; in that case there will be a modest
 loss in decoding capability for the weakest pings.
 
-- T/R sequences of 15 seconds or less make it sometimes desirable to
-advance your selection of transmitted messages very quickly.  Check
-*Auto Seq* to have the computer make the necessary decisions
-automatically, based on received messages.
+- T/R sequences of 15 seconds or less requires choosing your
+transmitted messages very quickly.  Check *Auto Seq* to have the
+computer make the necessary decisions automatically, based on received
+messages.
 
-- For operation at 144 MHz or above it is advantageous to use the
-short-format messages for Tx3, Tx4, and Tx5.  Check the box labeled
-*Sh* to enable this feature.
+For operation at 144 MHz or above you may find it it helpful to use
+short-format messages for Tx3, Tx4, and Tx5.  These messages are 20 ms
+long, compared with 72 ms for full-length MSK144 messages.  Their
+information content is a 12-bit hash of the two callsigns, rather than
+the callsigns themselves, plus a 4-bit report, acknowledgment, or
+sign-off.  Only the intended recipient can decode short-messages.
 
-IMPORTANT: There is little need to use MSK144 *Sh* messages at 50 or
-70 MHz, where most pings are long enough to support the standard
-MSK144 message length.  
+- Check *Sh* to enable short messages.
+
+IMPORTANT: There is little or no advantage to using MSK144 *Sh*
+messages at 50 or 70 MHz.  At these frequencies most pings are long
+enough to support standard messages.
 
 === Scatter Propagation with ISCAT
 

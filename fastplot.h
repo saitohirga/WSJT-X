@@ -36,6 +36,7 @@ public:
   void setGreenZero(int n);
   void setTRperiod(int n);
   void drawScale();
+  void setMode(QString mode);
 
 signals:
   void fastPick (int x0, int x1, int y);
@@ -46,7 +47,7 @@ protected:
 //  void resizeEvent(QResizeEvent* event);
 
 private slots:
-//  void mousePressEvent(QMouseEvent *event);
+  void mousePressEvent(QMouseEvent *event);
   void mouseMoveEvent(QMouseEvent *event);
 
 private:
@@ -61,6 +62,7 @@ private:
   QString m_t;
   QString m_t0;
   QString m_t1;
+  QString m_mode;
 
   double  m_pixPerSecond;
 
