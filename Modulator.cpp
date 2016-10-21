@@ -177,6 +177,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
           m_dphi = m_twoPi*m_frequency/m_frameRate;
           if(m_bFastMode and !bCwId) {
             m_frequency=1500;          // Set params for CW ID
+            m_dphi = m_twoPi*m_frequency/m_frameRate;
             m_symbolsLength=126;
             m_nsps=4096.0*12000.0/11025.0;
             m_ic=2246949;
