@@ -247,6 +247,41 @@ void Directory::abort ()
     }
 }
 
+namespace
+{
+  //
+  // traverse the passed subtree accumulating the number of items, the
+  // number we have size data for, the bytes downloaded so far and the
+  // maximum bytes to expect
+  //
+  int recurse_children (QTreeWidgetItem const * item, int * counted
+			, qint64 * bytes, qint64 * max)
+  {
+    int items {0};
+    for (int index {0}; index < item->childCount (); ++index)
+      {
+	auto const * child = item->child (index);
+	qDebug () << "Item name:" << child->text (0);
+	if (child->type () == FileNode::Type)  // only count files
+	  {
+	    ++items;
+	    if (auto size = child->data (1, Qt::UserRole).toLongLong ())
+	      {
+		*max += size;
+		++*counted;
+	      }
+	    *bytes += child->data (1, Qt::DisplayRole).toLongLong ();
+	  }
+	else
+	  {
+	    // recurse into sub-directory subtrees
+	    items += recurse_children (child, counted, bytes, max);
+	  }
+      }
+    return items;
+  }
+}
+
 void Directory::update (QTreeWidgetItem * item)
 {
   // iterate the tree under item and accumulate the progress
@@ -255,34 +290,18 @@ void Directory::update (QTreeWidgetItem * item)
       Q_ASSERT (item->type () == DirectoryNode::Type);
       qint64 max {0};
       qint64 bytes {0};
-
-      // reset progress
-      item->setData (1, Qt::UserRole, max);
-      item->setData (1, Qt::DisplayRole, bytes);
-      int items {0};
       int counted {0};
-      QTreeWidgetItemIterator iter {item};
-      // iterate sub tree only
-      while (*iter && (*iter == item || (*iter)->parent () != item->parent ()))
-        {
-          if ((*iter)->type () == FileNode::Type)  // only count files
-            {
-              ++items;
-              if (auto size = (*iter)->data (1, Qt::UserRole).toLongLong ())
-                {
-                  max += size;
-                  ++counted;
-                }
-              bytes += (*iter)->data (1, Qt::DisplayRole).toLongLong ();
-            }
-          ++iter;
-        }
+
+      // get the count, progress and size of children
+      int items {recurse_children (item, &counted, &bytes, &max)};
+
       // estimate size of items not yet downloaded as average of
       // those actually present
       if (counted)
         {
           max += (items - counted) * max / counted;
         }
+
       // save as our progress
       item->setData (1, Qt::UserRole, max);
       item->setData (1, Qt::DisplayRole, bytes);
