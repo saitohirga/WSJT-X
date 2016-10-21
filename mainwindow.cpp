@@ -2440,14 +2440,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
         //Left (Band activity) window
       if(!bAvgMsg) {
-        ui->decodedTextBrowser->displayDecodedText (decodedtext
-                                                    , m_baseCall
-                                                    , m_config.DXCC ()
-                                                    , m_logBook
-                                                    , m_config.color_CQ()
-                                                    , m_config.color_MyCall()
-                                                    , m_config.color_DXCC()
-                                                    , m_config.color_NewCall());
+        ui->decodedTextBrowser->displayDecodedText(decodedtext,m_baseCall,m_config.DXCC(),
+               m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
+               m_config.color_DXCC(), m_config.color_NewCall());
       }
 
         //Right (Rx Frequency) window
@@ -2456,14 +2451,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
               (abs(decodedtext.frequencyOffset() - m_wideGraph->rxFreq()) <= 10)) bDisplayRight=true;
       if (bDisplayRight) {
           // This msg is within 10 hertz of our tuned frequency, or a JT4 avg
-        ui->decodedTextBrowser2->displayDecodedText(decodedtext
-                                                    , m_baseCall
-                                                    , false
-                                                    , m_logBook
-                                                    , m_config.color_CQ()
-                                                    , m_config.color_MyCall()
-                                                    , m_config.color_DXCC()
-                                                    , m_config.color_NewCall());
+        ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,false,
+               m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
+               m_config.color_DXCC(),m_config.color_NewCall());
 
         if(m_mode!="JT4") {
           bool b65=decodedtext.isJT65();
@@ -4198,6 +4188,8 @@ void MainWindow::on_actionISCAT_triggered()
   fast_config(true);
   ui->cbShMsgs->setChecked(false);
   ui->label_7->setText("");
+  ui->decodedTextBrowser2->setVisible(false);
+  ui->decodedTextLabel2->setVisible(false);
   ui->decodedTextLabel->setText(
         "  UTC  Sync dB   DT   DF  F1                                   N  L  A   T");
   ui->tabWidget->setCurrentIndex(0);
@@ -4339,6 +4331,8 @@ void MainWindow::switch_mode (Mode mode)
 
 void MainWindow::WSPR_config(bool b)
 {
+  ui->decodedTextBrowser2->setVisible(!b);
+  ui->decodedTextLabel2->setVisible(!b);
   ui->controls_stack_widget->setCurrentIndex (b && m_mode != "Echo" ? 1 : 0);
   ui->QSO_controls_widget->setVisible (!b);
   ui->DX_controls_widget->setVisible (!b);
