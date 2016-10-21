@@ -3912,9 +3912,9 @@ void MainWindow::acceptQSO2(QDateTime const& QSO_date, QString const& call, QStr
 
 int MainWindow::nWidgets(QString t)
 {
-//  if(t.length()!=19) qDebug() << "b" << t << t.length();
+  Q_ASSERT(t.length()==23);
   int n=0;
-  for(int i=0; i<19; i++) {
+  for(int i=0; i<23; i++) {
     n=n + n + t.mid(i,1).toInt();
   }
   return n;
@@ -3922,31 +3922,43 @@ int MainWindow::nWidgets(QString t)
 
 void MainWindow::displayWidgets(int n)
 {
-  int j=1<<18;
+  int j=1<<22;
   bool b;
-  for(int i=0; i<19; i++) {
+  for(int i=0; i<23; i++) {
     b=(n&j) != 0;
     if(i==0) ui->txFirstCheckBox->setVisible(b);
     if(i==1) ui->TxFreqSpinBox->setVisible(b);
-        if(i==2) ui->RxFreqSpinBox->setVisible(b);
-        if(i==3) ui->sbFtol->setVisible(b);
-        if(i==4) ui->rptSpinBox->setVisible(b);
-        if(i==5) ui->sbTR->setVisible(b);
-        if(i==6) ui->sbCQRxFreq->setVisible(b);
-        if(i==6) ui->cbCQRx->setVisible(b);
-        if(i==7) ui->cbShMsgs->setVisible(b);
-        if(i==8) ui->cbFast9->setVisible(b);
-        if(i==9) ui->cbAutoSeq->setVisible(b);
-        if(i==10) ui->cbTx6->setVisible(b);
-        if(i==11) ui->pbTxMode->setVisible(b);
-        if(i==12) ui->pbR2T->setVisible(b);
-        if(i==13) ui->pbT2R->setVisible(b);
-        if(i==14) ui->cbTxLock->setVisible(b);
-        if(i==14 and (!b)) ui->cbTxLock->setChecked(false);
-        if(i==15) ui->sbSubmode->setVisible(b);
-        if(i==16) ui->syncSpinBox->setVisible(b);
-        if(i==17) ui->WSPR_controls_widget->setVisible(b);
-        if(i==18) ui->ClrAvgButton->setVisible(b);
+    if(i==2) ui->RxFreqSpinBox->setVisible(b);
+    if(i==3) ui->sbFtol->setVisible(b);
+    if(i==4) ui->rptSpinBox->setVisible(b);
+    if(i==5) ui->sbTR->setVisible(b);
+    if(i==6) ui->sbCQRxFreq->setVisible(b);
+    if(i==6) ui->cbCQRx->setVisible(b);
+    if(i==7) ui->cbShMsgs->setVisible(b);
+    if(i==8) ui->cbFast9->setVisible(b);
+    if(i==9) ui->cbAutoSeq->setVisible(b);
+    if(i==10) ui->cbTx6->setVisible(b);
+    if(i==11) ui->pbTxMode->setVisible(b);
+    if(i==12) ui->pbR2T->setVisible(b);
+    if(i==13) ui->pbT2R->setVisible(b);
+    if(i==14) ui->cbTxLock->setVisible(b);
+    if(i==14 and (!b)) ui->cbTxLock->setChecked(false);
+    if(i==15) ui->sbSubmode->setVisible(b);
+    if(i==16) ui->syncSpinBox->setVisible(b);
+    if(i==17) ui->WSPR_controls_widget->setVisible(b);
+    if(i==18) ui->ClrAvgButton->setVisible(b);
+    if(i==19) ui->actionQuickDecode->setEnabled(b);
+    if(i==19) ui->actionMediumDecode->setEnabled(b);
+    if(i==19) ui->actionDeepestDecode->setEnabled(b);
+    if(i==20) ui->actionInclude_averaging->setEnabled(b);
+    if(i==21) ui->actionInclude_correlation->setEnabled(b);
+    if(i==22) {
+      if(b && !m_echoGraph->isVisible()) {
+        m_echoGraph->show();
+      } else {
+        if(m_echoGraph->isVisible()) m_echoGraph->hide();
+      }
+    }
     j=j>>1;
   }
 }
@@ -3956,9 +3968,9 @@ void MainWindow::on_actionJT4_triggered()
   m_mode="JT4";
   bool bVHF=m_config.enable_VHF_features();
   if(bVHF) {
-    displayWidgets(nWidgets("1111100100101101101"));
+    displayWidgets(nWidgets("11111001001011011011000"));
   } else {
-    displayWidgets(nWidgets("1110100000001110001"));
+    displayWidgets(nWidgets("11101000000011100011110"));
   }
   WSPR_config(false);
   switch_mode (Modes::JT4);
@@ -3998,9 +4010,9 @@ void MainWindow::on_actionJT9_triggered()
   m_mode="JT9";
   bool bVHF=m_config.enable_VHF_features();
   if(bVHF) {
-    displayWidgets(nWidgets("1111100010001111100"));
+    displayWidgets(nWidgets("11111000100011111001000"));
   } else {
-    displayWidgets(nWidgets("1110100000001110000"));
+    displayWidgets(nWidgets("11101000000011100001000"));
   }
   m_bFast9=ui->cbFast9->isChecked();
   m_bFastMode=m_bFast9;
@@ -4020,7 +4032,9 @@ void MainWindow::on_actionJT9_triggered()
   m_wideGraph->setModeTx(m_modeTx);
   VHF_features_enabled(bVHF);
   if(m_nSubMode>=4 and bVHF) {
+    ui->cbFast9->setEnabled(true);
   } else {
+    ui->cbFast9->setEnabled(false);
     ui->cbFast9->setChecked(false);
   }
   ui->sbSubmode->setMaximum(7);
@@ -4048,7 +4062,7 @@ void MainWindow::on_actionJT9_triggered()
 void MainWindow::on_actionJT9_JT65_triggered()
 {
   m_mode="JT9+JT65";
-  displayWidgets(nWidgets("1110100000011110000"));
+  displayWidgets(nWidgets("11101000000111100001000"));
   WSPR_config(false);
   switch_mode (Modes::JT65);
   if(m_modeTx != "JT65") {
@@ -4093,9 +4107,9 @@ void MainWindow::on_actionJT65_triggered()
   m_mode="JT65";
   bool bVHF=m_config.enable_VHF_features();
   if(bVHF) {
-    displayWidgets(nWidgets("1111100000001111101"));
+    displayWidgets(nWidgets("11111000000011111011000"));
   } else {
-    displayWidgets(nWidgets("1110100000001110000"));
+    displayWidgets(nWidgets("11101000000011100001110"));
   }
   WSPR_config(false);
   switch_mode (Modes::JT65);
@@ -4141,7 +4155,7 @@ void MainWindow::on_actionQRA64_triggered()
   on_actionJT65_triggered();
   m_nSubMode=n;
   m_mode="QRA64";
-  displayWidgets(nWidgets("1111100000001111100"));
+  displayWidgets(nWidgets("11111000000011111000000"));
   m_modeTx="QRA64";
   ui->actionQRA64->setChecked(true);
   switch_mode (Modes::QRA64);
@@ -4161,7 +4175,7 @@ void MainWindow::on_actionQRA64_triggered()
 void MainWindow::on_actionISCAT_triggered()
 {
   m_mode="ISCAT";
-  displayWidgets(nWidgets("1001110000000001100"));
+  displayWidgets(nWidgets("10011100000000011000000"));
   m_modeTx="ISCAT";
   ui->actionISCAT->setChecked(true);
   m_TRperiod=ui->sbTR->cleanText().toInt();
@@ -4194,7 +4208,7 @@ void MainWindow::on_actionISCAT_triggered()
 
 void MainWindow::on_actionMSK144_triggered()
 {
-  displayWidgets(nWidgets("1011111101000000000"));
+  displayWidgets(nWidgets("10111111010000000001000"));
   m_mode="MSK144";
   m_modeTx="MSK144";
   ui->actionMSK144->setChecked(true);
@@ -4240,7 +4254,7 @@ void MainWindow::on_actionMSK144_triggered()
 void MainWindow::on_actionWSPR_triggered()
 {
   m_mode="WSPR";
-  displayWidgets(nWidgets("0000000000000000010"));
+  displayWidgets(nWidgets("00000000000000000101000"));
   WSPR_config(true);
   switch_mode (Modes::WSPR);
   m_modeTx="WSPR";                                    //### not needed ?? ###
@@ -4269,7 +4283,7 @@ void MainWindow::on_actionEcho_triggered()
 {
   on_actionJT4_triggered();
   m_mode="Echo";
-  displayWidgets(nWidgets(""));
+  displayWidgets(nWidgets("00000000000000000000001"));
   ui->actionEcho->setChecked(true);
   m_TRperiod=3;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
