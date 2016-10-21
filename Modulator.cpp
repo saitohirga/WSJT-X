@@ -47,8 +47,7 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
                        bool synchronize, bool fastMode, double dBSNR, int TRperiod)
 {
   Q_ASSERT (stream);
-
-  // Time according to this computer which becomes our base time
+// Time according to this computer which becomes our base time
   qint64 ms0 = QDateTime::currentMSecsSinceEpoch() % 86400000;
 
   if (m_state != Idle)
@@ -166,6 +165,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
         unsigned int isym=0;
         if(!m_tuning) isym=m_ic/(4.0*m_nsps);            // Actual fsample=48000
         bool slowCwId=((isym >= m_symbolsLength) && (icw[0] > 0)) && (!m_bFastMode);
+        if(m_TRperiod==3) slowCwId=false;
         bool fastCwId=false;
         static bool bCwId=false;
         qint64 ms = QDateTime::currentMSecsSinceEpoch();
@@ -218,7 +218,6 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
             }
             m_cwLevel = level;
           }
-
           return framesGenerated * bytesPerFrame ();
         } else {
           bCwId=false;
@@ -241,7 +240,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 
         for (unsigned i = 0; i < numFrames && m_ic <= i1; ++i) {
           isym=0;
-          if(!m_tuning) isym=m_ic / (4.0 * m_nsps);         //Actual fsample=48000
+          if(!m_tuning and m_TRperiod!=3) isym=m_ic / (4.0 * m_nsps);         //Actual fsample=48000
           if(m_bFastMode) isym=isym%m_symbolsLength;
           if (isym != m_isym0 || m_frequency != m_frequency0) {
             if(itone[0]>=100) {
