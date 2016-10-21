@@ -3912,7 +3912,7 @@ void MainWindow::acceptQSO2(QDateTime const& QSO_date, QString const& call, QStr
 
 int MainWindow::nWidgets(QString t)
 {
-  if(t.length()!=19) qDebug() << "b" << t << t.length();
+//  if(t.length()!=19) qDebug() << "b" << t << t.length();
   int n=0;
   for(int i=0; i<19; i++) {
     n=n + n + t.mid(i,1).toInt();
