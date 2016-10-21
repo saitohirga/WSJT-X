@@ -826,6 +826,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
   statusChanged();
 
+  m_fastGraph->setMode(m_mode);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
 
@@ -4307,6 +4308,7 @@ void MainWindow::on_actionEcho_triggered()
 
 void MainWindow::switch_mode (Mode mode)
 {
+  m_fastGraph->setMode(m_mode);
   m_config.frequencies ()->filter (mode);
   auto const& row = m_config.frequencies ()->best_working_frequency (m_freqNominal);
   if (row >= 0) {

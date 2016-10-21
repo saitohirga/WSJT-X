@@ -69,8 +69,6 @@ void FastGraph::on_gainSlider_valueChanged(int value)
 {
   ui->fastPlot->setPlotGain(value);
   ui->fastPlot->draw();
-//  qDebug() << "B" << ui->gainSlider->value() << ui->zeroSlider->value()
-//           << ui->greenZeroSlider->value()  << m_ave;
 }
 
 void FastGraph::on_zeroSlider_valueChanged(int value)
@@ -101,6 +99,9 @@ void FastGraph::on_pbAutoLevel_clicked()
   ui->gainSlider->setValue(127-int(2.2*m_ave));
   ui->zeroSlider->setValue(int(m_ave)+20);
   ui->greenZeroSlider->setValue(160-int(3.3*m_ave));
-//  qDebug() << "A" << ui->gainSlider->value() << ui->zeroSlider->value()
-//           << ui->greenZeroSlider->value()  << m_ave;
+}
+
+void FastGraph::setMode(QString mode)                              //setMode
+{
+  ui->fastPlot->setMode(mode);
 }
