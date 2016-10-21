@@ -247,6 +247,7 @@ void FPlotter::mouseMoveEvent(QMouseEvent *event)
   update();
 }
 
+/*
 void FPlotter::mousePressEvent(QMouseEvent *event)      //mousePressEvent
 {
   int x=event->x();
@@ -278,3 +279,4 @@ void FPlotter::mousePressEvent(QMouseEvent *event)      //mousePressEvent
   m_x1=x1;
   m_y0=y0;
 }
+*/
