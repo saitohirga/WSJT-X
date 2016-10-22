@@ -29,11 +29,11 @@ forward error control
 
 To activate the VHF-and-up features:
 
-- Check *Enable VHF/UHF/Microwave features* and *Single decode* on the
-*Settings | General* tab.
+- On the *Settings | General* tab check *Enable VHF/UHF/Microwave
+features* and *Single decode*.
 
-- For EME, check *Decode at t = 52 s* to allow for the extra path
-delay on received signals.
+- For EME, check *Decode at t = 52 s* to allow for extra path delay on
+received signals.
 
 - If you will use automatic Doppler tracking and your radio accepts
 frequency-setting commands while transmitting, check *Allow Tx
@@ -43,17 +43,17 @@ FT-847, FT-857, FT-897, TS-590S, TS-590SG, TS-2000 (with Rev 9 or
 later firmware upgrade), Flex 1500 and 5000, HPSDR, Anan-10, Anan-100,
 and KX3.
 
-IMPORTANT: If your radio does not accept commands to change frequency while
-transmitting, Doppler tracking will be approximated by making a single
-Tx frequency adjustment before a transmission starts, using a value
-computed for the middle of the Tx period.
+IMPORTANT: If your radio does not accept commands to change frequency
+while transmitting, Doppler tracking will be approximated with a
+single Tx frequency adjustment before a transmission starts, using a
+value computed for the middle of the Tx period.
 
 - On the *Radio* tab select *Split Operation* (use either *Rig* or
 *Fake It*; you may need to experiment with both options to find one
 that works best with your radio).
 
-- Select *Tab 1* to present the traditional format for selecting Tx
-messages.
+- On the right side of the main window select *Tab 1* to present the
+traditional format for entering and choosing Tx messages.
 
 The main window will reconfigure itself as necessary to display
 controls supporting the features of each mode.
@@ -71,8 +71,8 @@ image::Add_station_info.png[align="center",alt="Station information"]
 
 - On the *View* menu, select *Astronomical data* to display a window
 with important information for tracking the Moon and performing
-automatic Doppler control.  The right-hand portion of the window is
-invisible until you check *Doppler tracking*.
+automatic Doppler control.  The right-hand portion of the window
+becomes visible when you check *Doppler tracking*.
 
 image::Astronomical_data.png[align="center",alt="Astronomical data"]
 
@@ -84,16 +84,19 @@ and he/she will not be using any Doppler control.
 - Select *Receive only* to enable EME Doppler tracking of your receive
 frequency to a specific locator. Your Tx frequency will remain fixed.
 
-- Select *Constant frequency on Moon* to correct for your own (one-way)
+- Select *Constant frequency on Moon* to correct for your own one-way
 Doppler shift to or from the Moon.  If your QSO partner does the same
 thing, both stations will have the required Doppler compensation.
 Moreover, anyone else using this option will hear both of you
 without the need for manual frequency changes.
 
+- See <<ASTRODATA,Astronomical Data>> for details on the quantities
+displayed in this window.
+
 === JT4
 
-JT4 is highly effective for EME on the microwave bands, 2.3 GHz
-and above.
+JT4 is designed especially for EME on the microwave bands, 2.3 GHz and
+above.
 
 - Select *JT4* from the *Mode* menu.  The central part of the main
 window will look something like this:

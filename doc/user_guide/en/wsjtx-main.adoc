@@ -148,16 +148,20 @@ include::wspr.adoc[]
 [[COMMAND_REF]]
 == On-Screen Controls
 
+[[MENUS]]
+=== Menus
+include::controls-functions-menus.adoc[]
+
 [[CONTROLS_MAIN]]
-=== Main Window
+=== Button Row
 include::controls-functions-main-window.adoc[]
 
 [[CONTROLS_LEFT]]
-=== Controls Left
+=== Left
 include::controls-functions-left.adoc[]
 
 [[CONTROLS_CENTER]]
-=== Controls Center
+=== Center
 include::controls-functions-center.adoc[]
 
 [[CONTROLS_MSGS]]
@@ -167,10 +171,6 @@ include::controls-functions-messages.adoc[]
 [[STATUS_BAR]]
 === Status Bar
 include::controls-functions-status-bar.adoc[]
-
-[[MENUS]]
-=== Menus
-include::controls-functions-menus.adoc[]
 
 [[CONTROLS_WIDE]]
 === Wide Graph
