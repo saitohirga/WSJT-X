@@ -88,7 +88,7 @@ separation is 110250/4096 = 26.92 Hz multiplied by n for JT65A, with n
 Still to come ...
 
 [[SLOW_SUMMARY]]
-=== Slow Modes
+=== Slow Mode Summary
 
 [[SLOW_TAB]]
 .Parameters of Slow Modes
@@ -219,7 +219,7 @@ adjusted to provide the flattest possible response over the range
 300Hz to 2700Hz. The maximum permissible frequency offset between you
 and your QSO partner ± 200 Hz.
 
-=== Fast Modes
+=== Fast Mode Summary
 
 .Parameters of Fast Modes
 [width="90%",cols="3h,^3,^2,^1,^2,^2,^2,^2,^2,^2",frame="topbot",options="header"]
