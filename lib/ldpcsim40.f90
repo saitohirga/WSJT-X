@@ -27,16 +27,17 @@ read(arg,*) ntrials
 call getarg(4,arg)
 read(arg,*) s
 
-rate=real(K)/real(N)
+n=32
+!rate=real(K)/real(N)
 ! don't count hash bits as data bits
-!rate=5.0/real(N)
+rate=4.0/real(N)
 write(*,*) "rate: ",rate
 write(*,*) "niter= ",max_iterations," ndither= ",max_dither," s= ",s
 
 allocate ( codeword(N), decoded(K), message(K) )
 allocate ( lratio(N), rxdata(N), llr(N) )
 
-msg="K1JT K9AN RRR         "
+msg="K1JT K9AN"
 irpt=14
 call hash(msg,22,ihash)
 ihash=iand(ihash,4095)                 !12-bit hash
@@ -52,8 +53,8 @@ write(*,'(32i1)') codeword
 call init_random_seed()
 
 write(*,*) "Eb/N0  SNR2500   ngood  nundetected nbadhash"
-do idb = -6, 14
-  db=idb/2.0-1.0
+do idb = 0, 30
+  db=idb/2.0
   sigma=1/sqrt( 2*rate*(10**(db/10.0)) )
   ngood=0
   nue=0

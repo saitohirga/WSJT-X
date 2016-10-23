@@ -125,7 +125,7 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,fret,tret
   do ip=1,MAXCAND ! Find candidates
     iloc=maxloc(detmet(1:nstep))
     il=iloc(1)
-    if( (detmet(il) .lt. 3.0) ) exit 
+    if( (detmet(il) .lt. 3.5) ) exit 
     if( abs(detfer(il)) .le. ntol ) then 
       ndet=ndet+1
       nstart(ndet)=1+(il-1)*60+1
@@ -179,10 +179,10 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,fret,tret
           call msk40decodeframe(ct,mycall,hiscall,xsnr,msgreceived,ndecodesuccess)
 
           if( ndecodesuccess .gt. 0 ) then
+!write(*,*) icand, iav, ipk, is, tret, fret, msgreceived
             tret=(nstart(icand)+NSPM/2)/fs
             fret=fest
             navg=sum(navmask)
-!write(*,*) icand, iav, ipk, is, tret, fret, msgreceived
             nsuccess=1
             return
           endif 
