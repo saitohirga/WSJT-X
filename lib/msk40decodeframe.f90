@@ -100,7 +100,8 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,msgreceived,nsuccess)
   softbits=softbits/ssig
 
   sigma=0.75
-  if(xsnr.lt.0.0) sigma=0.75-0.0875*xsnr
+!  if(xsnr.lt.0.0) sigma=0.75-0.0875*xsnr
+  if(xsnr.lt.0.0) sigma=0.75-0.11*xsnr
   llr(1:32)=softbits(9:40)
   llr=2.0*llr/(sigma*sigma)
   
@@ -124,8 +125,8 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,msgreceived,nsuccess)
     enddo
     nrxrpt=iand(imsg,15)
     nrxhash=(imsg-nrxrpt)/16
+    if(nhammd.le.4 .and. cord .lt. 0.65 .and. nrxhash.eq.ihash) then
 !write(*,*) 'decodeframe ',nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
-    if(nhammd.le.5 .and. cord .lt. 1.7 .and. nrxhash.eq.ihash) then
       nsuccess=1    
       write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),   &
                                     trim(hiscall),">",rpt(nrxrpt)
