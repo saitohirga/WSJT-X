@@ -8,7 +8,7 @@ reception reports sent by various other programs, including _WSJT-X_.
 The information is made available in near real time on a world map,
 and also as statistical summaries of various kinds.  A number of
 options are available to the user; for example, you can request a map
-showing world-wide JT65 activity on all amateur bands over over the
+showing world-wide JT65 activity on all amateur bands over the
 past hour.  Such a map might look like this, where different colors
 represent different bands:
 

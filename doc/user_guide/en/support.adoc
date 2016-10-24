@@ -25,6 +25,6 @@ include at least the following information:
 Suggestions from users often result in new program features.  Good
 ideas are always welcome: if there's a feature you would like to see
 in _WSJT-X_, spell it out in as much detail as seems useful and send
-it to us at one the the email addresses given a few lines above.  Be
+it to us at one of the email addresses given a few lines above.  Be
 sure to explain why you think the feature is desirable, and what sort
 of other users might find it so.
