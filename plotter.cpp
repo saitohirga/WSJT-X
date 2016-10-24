@@ -424,7 +424,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
   }
   if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65" or m_mode=="QRA64") {
 
-    if(m_mode=="QRA64" or (g_single_decode and m_mode=="JT65")) {
+    if(m_mode=="QRA64" or (m_mode=="JT65" and m_bVHF)) {
       painter0.setPen(penGreen);
       x1=XfromFreq(m_rxFreq-m_tol);
       x2=XfromFreq(m_rxFreq+m_tol);
@@ -717,6 +717,10 @@ void CPlotter::SetPercent2DScreen(int percent)
 {
   m_Percent2DScreen=percent;
   resizeEvent(NULL);
-//  DrawOverlay();
   update();
+}
+void CPlotter::setVHF(bool bVHF)
+{
+  m_bVHF=bVHF;
+  qDebug() << "A" << m_bVHF;
 }

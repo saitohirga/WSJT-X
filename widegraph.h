@@ -47,6 +47,7 @@ public:
   void   setRxBand(QString band);
   void   setWSPRtransmitted();
   void   drawRed(int ia, int ib);
+  void   setVHF(bool bVHF);
 
 signals:
   void freezeDecode2(int n);

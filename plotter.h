@@ -83,6 +83,7 @@ public:
   void setReference(bool b) {m_bReference = b;}
   bool Reference() const {return m_bReference;}
   void drawRed(int ia, int ib, float swide[]);
+  void setVHF(bool bVHF);
 
 signals:
   void freezeDecode1(int n);
@@ -105,6 +106,7 @@ private:
   bool    m_bReference;
   bool    m_bReference0;
   bool    m_lockTxFreq;
+  bool    m_bVHF;
 
   float   m_fSpan;
 

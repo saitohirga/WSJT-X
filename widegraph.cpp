@@ -480,6 +480,11 @@ void WideGraph::setWSPRtransmitted()
   m_bHaveTransmitted=true;
 }
 
+void WideGraph::setVHF(bool bVHF)
+{
+  ui->widePlot->setVHF(bVHF);
+}
+
 void WideGraph::on_sbPercent2dPlot_valueChanged(int n)
 {
   m_Percent2DScreen=n;
