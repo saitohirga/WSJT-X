@@ -261,7 +261,7 @@ contains
 1011   format(i4.4,i4,i5,f6.2,f8.0,i4,3x,a22,' QRA64',i3)
        go to 100
     endif
-
+    
     if(ft.eq.0 .and. minsync.ge.0 .and. int(sync).lt.minsync) then
        write(*,1010) params%nutc,snr,dt,freq
     else
@@ -281,7 +281,7 @@ contains
        endif
        csync='# '
        i=0
-       if(single_decode .and. nflip.ne.0 .and.                         &
+       if(bVHF .and. nflip.ne.0 .and.                         &
             sync.ge.max(0.0,float(minsync))) then
           csync='#*'
           if(nflip.eq.-1) then

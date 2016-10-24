@@ -125,27 +125,47 @@ image::JT4F.png[align="center",alt="JT4F"]
 
 === JT65
 
-In most ways JT65 operation on VHF and higher bands is similar to HF
-usage.  However, a few differences should be noted.  Typical VHF/UHF
-operation involves only a single signal in the receiver passband, or
-perhaps a few, rather than many.  Normally it's best to check *Single
-decode* on the *Settings -> General* tab and uncheck *Two pass
-decoding* on the *Advanced* tab.  In this mode the JT65 decoder will
-respond to special message formats sometimes used for EME, including
-the OOO signal report and shorthand messages for RO, RRR, and 73.
-Those messages will be automatically generated if you check the
-shorthand message box *Sh*.
+In many ways JT65 operation on VHF and higher bands is similar to HF
+usage, but a few important differences should be noted.  Typical
+VHF/UHF operation involves only a single signal (or perhaps two or
+three) in the receiver passband.  You may find it best to check
+*Single decode* on the *Settings -> General* tab.  There will be
+little need for *Two pass decoding* on the *Advanced* tab.  With VHF
+features enabled the JT65 decoder will respond to special message
+formats often used for EME: the OOO signal report and two-tone
+shorthand messages for RO, RRR, and 73.  These messages are always
+enabled for reception; they will be automatically generated for
+transmission if you check the shorthand message box *Sh*.
 
-As for JT4, you should check *Deep* on *the *Decode* menu, and
-optionally *Enable averaging* and *Deep search*.
+Be sure to check *Deep* on *the *Decode* menu; you may optionally
+include *Enable averaging* and *Deep search*.
 
+The following screen shot shows three transmissions from a 144 MHz EME
+QSO using submode JT65B and shorthand messages.  Take note of the
+colored tick marks on the Wide Graph frequency scale.  The green
+marker at 1220 Hz indicates the selected QSO frequency (the frequency
+of the JT65 Sync tone) and the *F Tol* range.  A green tick at 1575 Hz
+marks the frequency of the highest JT65 data tone.  Orange markers
+indicate the frequency of the upper tone of the two-tone signals for
+RO, RRR, and 73.
+
+image::JT65B.png[align="center",alt="JT65B"]
 
 === QRA64
 
-QRA64 is an experimental mode in the present alpha release of
-_WSJT-X_, Version 1.7.  The protocol is still subject to change, and
-some features of the decoder will likely change.  In most ways
-operation of QRA64 is similar to JT65.
+QRA64 is an experimental mode in the Version 1.7 alpha release of
+_WSJT-X_.  Some details of the protocol are still subject to change,
+and some features of the decoder will almost surely change.  In most
+ways you will find operation of QRA64 similar to JT65.  The following
+screen shot shows examples of QRA64A transmissions recorded over the
+EME path at 144 MHz (G4SWX transmitting to K1JT) and 10 GHz (VK7MO
+transmitting to G3WDG).  Notice the small red curve plotted below
+frequency 1000 Hz in the Wide Graph.  Even though the VK7MO signal is
+scarcely visible in the waterfall, the red curve shows that the
+decoder has accurately and reliably detected its synchronizing
+symbols.
+
+image::QRA64.png[align="center",alt="QRA64"]
 
 === ISCAT
 

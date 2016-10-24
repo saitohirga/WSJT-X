@@ -2171,7 +2171,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.nfSplit=m_wideGraph->Fmin();
   dec_data.params.nfb=m_wideGraph->Fmax();
   dec_data.params.ntol=m_Ftol;
-  if(m_mode=="JT9+JT65" or !m_config.enable_VHF_features() or !m_config.single_decode()) {
+  if(m_mode=="JT9+JT65" or !m_config.enable_VHF_features()) {
     dec_data.params.ntol=20;
     dec_data.params.naggressive=0;
   }
@@ -2443,10 +2443,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
         //Right (Rx Frequency) window
       bool bDisplayRight=bAvgMsg;
-      if(!m_config.single_decode() and m_mode!="JT4" and
+      if(!m_config.enable_VHF_features() and
               (abs(decodedtext.frequencyOffset() - m_wideGraph->rxFreq()) <= 10)) bDisplayRight=true;
       if (bDisplayRight) {
-          // This msg is within 10 hertz of our tuned frequency, or a JT4 avg
+          // This msg is within 10 hertz of our tuned frequency, or a JT4 or JT65 avg
         ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,false,
                m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
                m_config.color_DXCC(),m_config.color_NewCall());
@@ -4092,7 +4092,7 @@ void MainWindow::on_actionJT65_triggered()
   m_mode="JT65";
   bool bVHF=m_config.enable_VHF_features();
   if(bVHF) {
-    displayWidgets(nWidgets("11111000000011111011000"));
+    displayWidgets(nWidgets("11111001000011111011000"));
   } else {
     displayWidgets(nWidgets("11101000000011100001110"));
   }
@@ -4121,14 +4121,11 @@ void MainWindow::on_actionJT65_triggered()
   ui->sbSubmode->setMaximum(2);
   if(bVHF) {
     ui->sbSubmode->setValue(m_nSubMode);
-  } else {
-    ui->sbSubmode->setValue(0);
-    ui->sbTR->setValue(0);
-  }
-  if(m_config.single_decode()) {
     ui->label_6->setText("Single-Period Decodes");
     ui->label_7->setText("Average Decodes");
   } else {
+    ui->sbSubmode->setValue(0);
+    ui->sbTR->setValue(0);
     ui->label_6->setText("Band Activity");
     ui->label_7->setText("Rx Frequency");
   }
