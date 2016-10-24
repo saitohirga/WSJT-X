@@ -722,5 +722,4 @@ void CPlotter::SetPercent2DScreen(int percent)
 void CPlotter::setVHF(bool bVHF)
 {
   m_bVHF=bVHF;
-  qDebug() << "A" << m_bVHF;
 }

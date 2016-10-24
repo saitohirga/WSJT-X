@@ -2202,10 +2202,9 @@ void MainWindow::decode()                                       //decode()
   if(m_config.decode_at_52s()) dec_data.params.emedelay=2.5;
   dec_data.params.minSync=ui->syncSpinBox->isVisible () ? m_minSync : 0;
   dec_data.params.nexp_decode=0;
-  if(m_config.single_decode()) {
-    dec_data.params.nexp_decode += 32;
-    if(dec_data.params.naggressive<1) dec_data.params.naggressive=1;
-  }
+  if(m_config.single_decode()) dec_data.params.nexp_decode += 32;
+  if(m_config.enable_VHF_features()) dec_data.params.nexp_decode += 64;
+
 
   strncpy(dec_data.params.datetime, m_dateTime.toLatin1(), 20);
   strncpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
