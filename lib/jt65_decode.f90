@@ -302,7 +302,7 @@ contains
              if(ndupe.ne.1 .or. minsync.lt.0) then 
                 if(ipass.eq.1) n65a=n65a + 1
                 if(ipass.eq.2) n65b=n65b + 1
-                ndecoded=ndecoded+1
+                if(ndecoded.lt.50) ndecoded=ndecoded+1
                 dec(ndecoded)%freq=freq+a(1)
                 dec(ndecoded)%dt=dtx
                 dec(ndecoded)%sync=sync2
