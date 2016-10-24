@@ -133,7 +133,6 @@ int   fast_jh {0};
 int   fast_jh2 {0};
 int narg[15];
 QVector<QColor> g_ColorTbl;
-bool g_single_decode;
 
 namespace
 {
@@ -814,7 +813,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
   fixStop();
   VHF_features_enabled(m_config.enable_VHF_features());
-  g_single_decode=m_config.single_decode();
+  m_wideGraph->setVHF(m_config.enable_VHF_features());
 
   progressBar.setMaximum(m_TRperiod);
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
@@ -1395,7 +1394,8 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     auto_tx_label.setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" :
                                                     "Auto-Tx-Enable Disarmed");
     displayDialFrequency ();
-    bool vhf {m_config.enable_VHF_features ()};
+    bool vhf {m_config.enable_VHF_features()};
+    m_wideGraph->setVHF(vhf);
     if (!vhf) ui->sbSubmode->setValue (0);
     setup_status_bar (vhf);
     bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or m_mode=="ISCAT" or
@@ -2940,7 +2940,6 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-    g_single_decode=m_config.single_decode();
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
       progressBar.setMaximum(6);
       progressBar.setValue(int(m_s6));
