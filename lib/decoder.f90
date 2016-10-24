@@ -23,7 +23,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   end type counting_jt9_decoder
 
   real ss(184,NSMAX)
-  logical baddata,newdat65,newdat9,single_decode
+  logical baddata,newdat65,newdat9,single_decode,bVHF
   integer*2 id2(NTMAX*12000)
   type(params_block) :: params
   real*4 dd(NTMAX*12000)
@@ -38,6 +38,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   my_jt9%decoded = 0
 
   single_decode=iand(params%nexp_decode,32).ne.0
+  bVHF=iand(params%nexp_decode,64).ne.0
   if(mod(params%nranera,2).eq.0) ntrials=10**(params%nranera/2)
   if(mod(params%nranera,2).eq.1) ntrials=3*10**(params%nranera/2)
   if(params%nranera.eq.0) ntrials=0
@@ -265,7 +266,7 @@ contains
        write(*,1010) params%nutc,snr,dt,freq
     else
        is_average=nsum.ge.2
-       if(params%naggressive.gt.0 .and. ft.gt.0) then
+       if(bVHF .and. ft.gt.0) then
           cflags='f  '
           if(is_deep) then
              cflags(1:2)='d1'
