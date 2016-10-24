@@ -6,7 +6,7 @@ on the VHF and higher bands.  These features now include:
 - *JT9* fast modes, useful for scatter propagation on VHF bands
 
 - *QRA64*, a mode for EME using a "`Q-ary Repeat Accumulate`" code,
-a low-density partity-check (LDPC) code using a 64-character symbol
+a low-density parity-check (LDPC) code using a 64-character symbol
 alphabet
 
 - *MSK144*, a mode for meteor scatter using a binary LDPC code and
@@ -197,7 +197,7 @@ transmitted messages very quickly.  Check *Auto Seq* to have the
 computer make the necessary decisions automatically, based on received
 messages.
 
-For operation at 144 MHz or above you may find it it helpful to use
+For operation at 144 MHz or above you may find it helpful to use
 short-format messages for Tx3, Tx4, and Tx5.  These messages are 20 ms
 long, compared with 72 ms for full-length MSK144 messages.  Their
 information content is a 12-bit hash of the two callsigns, rather than

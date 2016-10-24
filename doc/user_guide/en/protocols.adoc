@@ -195,7 +195,7 @@ Quadrature Phase-Shift Keying (OQPSK) at 2000 baud. Even-numbered bits
 are conveyed over the in-phase channel, odd-numbered bits on the
 quadrature channel.  Individual symbols are shaped with half-sine
 profiles, thereby ensuring a generated waveform with constant
-envelope, equivelent to a Minimum Shift Keying (MSK) waveform.  Frame
+envelope, equivalent to a Minimum Shift Keying (MSK) waveform.  Frame
 duration is 72 ms, so the effective character transmission rate for
 standard messages is up to 250 cps.
 

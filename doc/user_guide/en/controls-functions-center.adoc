@@ -2,7 +2,7 @@
 
 At the center of the main window are a number of controls used when
 making QSOs.  Controls not relevant to a particular mode or submode
-may be "grayed out" (diabled) or removed from the display.
+may be "grayed out" (disabled) or removed from the display.
 
 //.Misc Controls Center
 image::misc-controls-center.png[align="center",alt="Misc Controls Center"]
