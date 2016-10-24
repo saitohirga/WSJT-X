@@ -112,14 +112,16 @@ is generally used for EME on the 5.7 and 10 GHz bands.
 of a single tone.  To activate automatic generation of these messages,
 check the box labeled *Sh*.
 
-- Select *Deep* from the *Decode* menu.  You may also choose to *Enable
-averaging* over successive transmissions and/or correlation decoding,
-*Enable deep Search*.
+- Select *Deep* from the *Decode* menu.  You may also choose to
+*Enable averaging* over successive transmissions and/or *Enable deep
+Search* (correlation decoding).
 
 image::decoding_depth.png[align="center",alt="Decoding Depth"]
 
-IMPORTANT: Additional hints for using JT4 and Echo mode on the
-*EME path have been compiled by G3WDG and are available here: {jt4eme}.
+The following screen shot shows one transmission from a 10 GHz EME
+QSO using submode JT4F.
+
+image::JT4F.png[align="center",alt="JT4F"]
 
 === JT65
 

@@ -69,6 +69,7 @@ set (UG_IMGS
   images/file-menu.png
   images/freemsg.png
   images/help-menu.png
+  images/JT4F.png
   images/jtalert.png
   images/keyboard-shortcuts.png
   images/log-qso.png
