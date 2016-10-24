@@ -2366,22 +2366,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
     QByteArray t=proc_jt9.readLine();
     bool bAvgMsg=false;
     int navg=0;
-    if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64") {
-      int n=t.indexOf("f");
-      if(n<0) n=t.indexOf("d");
-      if(n>0) {
-        QString tt=t.mid(n+1,1);
-        navg=tt.toInt();
-        if(navg==0) {
-          char c = tt.data()->toLatin1();
-          if(int(c)>=65 and int(c)<=90) navg=int(c)-54;
-        }
-        if(navg>1 or t.indexOf("f*")>0) bAvgMsg=true;
-      }
-    }
     if(t.indexOf("<DecodeFinished>") >= 0) {
-
-//###
       if(m_mode=="QRA64") {
         char name[512];
         QString fname=m_config.temp_dir ().absoluteFilePath ("red.dat");
@@ -2398,14 +2383,25 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
         }
       }
-//###
-
       m_bDecoded = t.mid (20).trimmed ().toInt () > 0;
       if(!m_diskData) killFileTimer.start (3*1000*m_TRperiod/4); //Kill in 45 s
       decodeDone ();
       m_startAnother=m_loopall;
       return;
     } else {
+      if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64") {
+        int n=t.indexOf("f");
+        if(n<0) n=t.indexOf("d");
+        if(n>0) {
+          QString tt=t.mid(n+1,1);
+          navg=tt.toInt();
+          if(navg==0) {
+            char c = tt.data()->toLatin1();
+            if(int(c)>=65 and int(c)<=90) navg=int(c)-54;
+          }
+          if(navg>1 or t.indexOf("f*")>0) bAvgMsg=true;
+        }
+      }
       QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
         QTextStream out(&f);
