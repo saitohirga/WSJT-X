@@ -70,6 +70,8 @@ set (UG_IMGS
   images/freemsg.png
   images/help-menu.png
   images/JT4F.png
+  images/JT65B.png
+  images/QRA64.png
   images/jtalert.png
   images/keyboard-shortcuts.png
   images/log-qso.png

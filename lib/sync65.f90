@@ -1,11 +1,11 @@
 subroutine sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,nrobust,   &
-     single_decode)
+     bVHF)
 
   parameter (NSZ=3413,NFFT=8192,MAXCAND=300)
   real ss(322,NSZ)
   real ccfblue(-11:540)             !CCF with pseudorandom sequence
   real ccfred(NSZ)                  !Peak of ccfblue, as function of freq
-  logical single_decode
+  logical bVHF
 
   type candidate
      real freq
@@ -35,7 +35,7 @@ subroutine sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,nrobust,   &
   do i=ia,ib
      call xcor(ss,i,nhsym,nsym,lag1,lag2,ccfblue,ccf0,lagpk0,flip,fdot,nrobust)
 ! Remove best-fit slope from ccfblue and normalize so baseline rms=1.0
-     if(.not.single_decode) call slope(ccfblue(lag1),lag2-lag1+1,      &
+     if(.not.bVHF) call slope(ccfblue(lag1),lag2-lag1+1,      &
           lagpk0-lag1+1.0)
      ccfred(i)=ccfblue(lagpk0)
      if(ccfred(i).gt.ccfmax) then
@@ -66,7 +66,7 @@ subroutine sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,nrobust,   &
      if(itry.ne.0) then
         call xcor(ss,i,nhsym,nsym,lag1,lag2,ccfblue,ccf0,lagpk,flip,fdot,  &
              nrobust)
-        if(.not.single_decode) call slope(ccfblue(lag1),lag2-lag1+1,       &
+        if(.not.bVHF) call slope(ccfblue(lag1),lag2-lag1+1,       &
              lagpk-lag1+1.0)
         xlag=lagpk
         if(lagpk.gt.lag1 .and. lagpk.lt.lag2) then
@@ -79,7 +79,7 @@ subroutine sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,nrobust,   &
         ca(ncand)%freq=freq
         ca(ncand)%dt=dtx
         ca(ncand)%flip=flip
-        if(single_decode) then
+        if(bVHF) then
            ca(ncand)%sync=db(ccfred(i)) - 16.0
         else
            ca(ncand)%sync=ccfred(i)

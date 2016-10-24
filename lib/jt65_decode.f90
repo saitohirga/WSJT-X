@@ -75,7 +75,7 @@ contains
        character*22 decoded
     end type accepted_decode
     type(accepted_decode) dec(50)
-    logical :: first_time,robust,prtavg,single_decode
+    logical :: first_time,prtavg,single_decode,bVHF
 
     integer h0(0:11),d0(0:11)
     real r0(0:11)
@@ -93,7 +93,6 @@ contains
 
     this%callback => callback
     first_time=newdat
-    robust=nrobust
     dd=dd0
     ndecoded=0
 
@@ -134,13 +133,16 @@ contains
        nfa=nf1
        nfb=nf2
        single_decode=iand(nexp_decode,32).ne.0
-       if(single_decode .or. (naggressive.gt.0 .and. ntol.lt.1000)) then
+       bVHF=iand(nexp_decode,64).ne.0
+
+!### Q: should either of the next two uses of "single_decode" be "bVHF" instead?       
+       if(single_decode .or. (bVHF .and. ntol.lt.1000)) then
           nfa=max(200,nfqso-ntol)
           nfb=min(4000,nfqso+ntol)
           thresh0=1.0
        endif
        df=12000.0/8192.0                     !df = 1.465 Hz
-       if(single_decode) then
+       if(bVHF) then
           ia=max(1,nint(nfa/df)-ntol)
           ib=min(NSZ,nint(nfb/df)+ntol)
           nz=ib-ia+1
@@ -151,30 +153,16 @@ contains
           width=a(4)*df
        endif
 
-! robust = .false.: use float ccf. Only if ncand>50 fall back to robust (1-bit) ccf
-! robust = .true. : use only robust (1-bit) ccf
        ncand=0
-       if(.not.robust) then
-          call timer('sync65  ',0)
-          call sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,0,    &
-               single_decode)
-
-          call timer('sync65  ',1)
-       endif
-       if(ncand.gt.50) robust=.true.
-       if(robust) then
-          ncand=0
-          call timer('sync65  ',0)
-          call sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,1,   &
-               single_decode)
-          call timer('sync65  ',1)
-       endif
+       call timer('sync65  ',0)
+       call sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,0,bVHF)
+       call timer('sync65  ',1)
 
 ! If a candidate was found within +/- ntol of nfqso, move it into ca(1).
        call fqso_first(nfqso,ntol,ca,ncand)
        if(single_decode) then
-          ncand=1
-          if(abs(ca(1)%freq - f0).gt.width) width=2*df
+          if(ncand.eq.0) ncand=1
+          if(abs(ca(1)%freq - f0).gt.width) width=2*df    !### ??? ###
        endif
        nvec=ntrials
        if(ncand.gt.75) then
@@ -194,19 +182,19 @@ contains
           nsave=0
        endif
 
-       if(single_decode) then
+       if(bVHF) then
 ! Be sure to search for shorthand message at nfqso +/- ntol
-          ncand=2
-          ca(2)%sync=5.0
-          ca(2)%dt=2.5
-          ca(2)%freq=nfqso
+          if(ncand.lt.300) ncand=ncand+1
+          ca(ncand)%sync=5.0
+          ca(ncand)%dt=2.5
+          ca(ncand)%freq=nfqso
        endif
 
        do icand=1,ncand
           sync1=ca(icand)%sync
           dtx=ca(icand)%dt
           freq=ca(icand)%freq
-          if(single_decode) then
+          if(bVHF) then
              flip=ca(icand)%flip
              nflip=flip
           endif
@@ -215,9 +203,10 @@ contains
           if(ipass.eq.2) ntry65b=ntry65b + 1
           call timer('decod65a',0)
           nft=0
+          nspecial=0
           call decode65a(dd,npts,first_time,nqd,freq,nflip,mode65,nvec,     &
                naggressive,ndepth,ntol,mycall,hiscall,hisgrid,              &
-               nexp_decode,single_decode,sync2,a,dtx,nft,nspecial,qual,     &
+               nexp_decode,bVHF,sync2,a,dtx,nft,nspecial,qual,     &
                nhist,nsmo,decoded)
           if(nspecial.eq.2) decoded='RO'
           if(nspecial.eq.3) decoded='RRR'
@@ -234,7 +223,7 @@ contains
 
           nfreq=nint(freq+a(1))
           ndrift=nint(2.0*a(2))
-          if(single_decode) then
+          if(bVHF) then
              s2db=sync1 - 30.0 + db(width/3.3)       !### VHF/UHF/microwave
              if(nspecial.gt.0) s2db=sync2
           else
@@ -282,7 +271,8 @@ contains
              if(rtt.gt.r0(n)) cycle
           endif
 
-5         if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
+5         continue
+          if(decoded.eq.decoded0 .and. abs(freq-freq0).lt. 3.0 .and.    &
                minsync.ge.0) cycle                  !Don't display dupes
           if(decoded.ne.'                      ' .or. minsync.lt.0) then
              if(nsubtract.eq.1) then
@@ -298,9 +288,7 @@ contains
                    exit
                 endif
              enddo
-
-!             if(ndupe.ne.1 .or. minsync.lt.0) then 
-             if(ndupe.ne.1) then 
+             if(ndupe.ne.1 .and. sync1.ge.float(minsync)) then 
                 if(ipass.eq.1) n65a=n65a + 1
                 if(ipass.eq.2) n65b=n65b + 1
                 if(ndecoded.lt.50) ndecoded=ndecoded+1
@@ -493,8 +481,6 @@ contains
        nftt=nfttbest
     endif
 900 continue
-!    write(*,3301) 'Z',nftt,nsave,nsum,nsmo,qave,avemsg
-!3301 format(a1,4i3,f7.1,1x,a22)
 
     return
   end subroutine avg65
