@@ -1,7 +1,7 @@
 // Status=review
 
-A *Status Bar* at the bottom edge of the main window provides
-information about operating conditions.  
+A *Status Bar* at the bottom edge of the main window provides useful
+information about operating conditions.
 
 //.Status Bar
 image::status-bar-a.png[align="left",alt="Status Bar"]

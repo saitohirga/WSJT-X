@@ -1,8 +1,9 @@
 // Status=review
 
 The following controls appear at the bottom of the Wide Graph window.
-With the exception of *JT65 nnnn JT9*, they affect only the graphical
-displays — they have no effect on the decoding process.
+With the exception of *JT65 nnnn JT9* (when operating in JT9+JT65
+mode), they affect only the graphical displays.  They have no effect
+on the decoding process.
 
 image::wide-graph-controls.png[align="center",alt="Wide Graph Controls"]
 
@@ -55,19 +56,21 @@ a few Hz.
 [[CONTROLS_FAST]]
 === Fast Graph
 
-Three sliders at the bottom of the Fast Graph window can be used to
-optimize gain and zero-offset of the displayed information.  Hover the
-mouse over a control to display a tip reminding you of its function.
-Clicking the *Auto Level* button will produce reasonable settings
-as a starting point.  The waterfall palette used on this graph is
-the same as the one selected on the Wide Graph.
+The waterfall palette used for the Fast Graph is the same as the one
+selected on the Wide Graph.  Three sliders at the bottom of the Fast
+Graph window can be used to optimize gain and zero-offset for the
+displayed information.  Hover the mouse over a control to display a
+tip reminding you of its function.  Clicking the *Auto Level* button
+will produce reasonable settings as a starting point.
 
 image::fast-graph-controls.png[align="center",alt="Fast Graph Controls"]
 
 [[CONTROLS_ECHO]]
 === Echo Graph
 
-Controls at the bottom of the Echo Graph
+The following controls appear at the bottom of the Echo Graph:
+
+image::echo-graph-controls.png[align="center",alt="EchoGraph Controls"]
 
 - *Bins/Pixel* controls the displayed frequency resolution.  Set this
 value to 1 for the highest possible resolution, or to higher numbers
@@ -77,12 +80,9 @@ to compress the spectral display.
 spectra.
 
 - *Smooth* values greater than 0 apply running averages to the plotted
-spectra.
+spectra, therebu smoothing the curves over multiple bins.
 
 - Label *N* shows the number of echo pulses averaged.
 
 - Click the *Colors* button to cycle through 6 possible choices of
 color and line width for the plots.
-
-image::echo-graph-controls.png[align="center",alt="EchoGraph Controls"]
-
