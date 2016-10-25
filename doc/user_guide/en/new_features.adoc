@@ -9,7 +9,7 @@ added to _WSJT-X_ since Version 1.6.0:
 
 - New fast submodes of JT9E-H
 
-- New Franke-Taylor decoder toreplace the Koetter-Vardy decoder in
+- New Franke-Taylor decoder to replace the Koetter-Vardy decoder in
 JT65. Separate program `kvasd[.exe]` is no longer used.
 
 - Improvements to the JT4, JT9, and JT65 decoders
