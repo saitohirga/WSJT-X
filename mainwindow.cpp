@@ -4495,7 +4495,12 @@ void MainWindow::band_changed (Frequency f)
   // Set the attenuation value if options are checked
   QString curBand = ui->bandComboBox->currentText();
   if (m_config.pwrBandTxMemory() && !m_tune) {
-      ui->outAttenuation->setValue(m_pwrBandTxMemory[curBand].toInt());
+      if (m_pwrBandTxMemory.contains(curBand)) {
+        ui->outAttenuation->setValue(m_pwrBandTxMemory[curBand].toInt());
+      }
+      else {
+        m_pwrBandTxMemory[curBand] = ui->outAttenuation->value();
+      }
   }
 
   if (m_bandEdited) {
