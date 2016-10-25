@@ -4660,7 +4660,9 @@ void MainWindow::on_tuneButton_clicked (bool checked)
     if (m_config.pwrBandTuneMemory ()) {
       m_pwrBandTxMemory[curBand] = ui->outAttenuation->value(); // remember our Tx pwr
       m_PwrBandSetOK = false;
-      ui->outAttenuation->setValue(m_pwrBandTuneMemory[curBand].toInt()); // set to Tune pwr
+      if (m_pwrBandTuneMemory.contains(curBand)) {
+        ui->outAttenuation->setValue(m_pwrBandTuneMemory[curBand].toInt()); // set to Tune pwr
+      }
       m_PwrBandSetOK = true;
     }
   }
