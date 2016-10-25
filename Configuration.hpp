@@ -153,7 +153,8 @@ public:
   QColor color_TxMsg () const;
   QColor color_DXCC () const;
   QColor color_NewCall () const;
-
+  bool pwrBandTxMemory () const;
+  bool pwrBandTuneMemory () const;
   // This method queries if a CAT and PTT connection is operational.
   bool is_transceiver_online () const;
 

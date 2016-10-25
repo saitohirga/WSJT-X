@@ -16,42 +16,39 @@ Short list of new features
 
 New Modes
 ---------
-1. MSK144 is intended for meteor scatter at 50 MHz and higher.
-Designed and tested by K9AN and K1JT, it uses a low-density parity
-check code (LDPC) -- one of the latest-and-greatest areas of active
-research in communication theory.
 
-MSK144 is a direct descendant of the now-defunct mode JTMSK, with a
+1. MSK144 is intended for meteor scatter at 50 MHz and higher.  It
+uses a low-density parity check code (LDPC) designed by K9AN.  The
+mode is a direct descendant of the now-defunct mode JTMSK, with a
 number of improvements for better performance on weak and short meteor
 pings.  The effective character transmission rate is about 250 cps,
-compared with 147 cps for FSK441 and 154 cps for JTMSK.  Like JT4,
-JT9, JT65, and JTMSK, MSK144 uses strong forward error correction, so
-message decoding is essentially "all or nothing".  You will see little
-or no garbage on your screen.
+compared with 147 cps for FSK441.  Like JT4, JT9, JT65, and QRA64,
+MSK144 uses strong forward error correction.  Message decoding is
+essentially "all or nothing": partial decodes do not occur, and you
+will see little or no garbage on your screen.
 
-Standard MSK144 message frames are 72 ms long, compared to 117 ms for
-JTMSK.  The MSK144 waveform allows coherent demodulation, allowing up
-to 3 dB better sensitivity.  After QSO partners have exchanged
-callsigns, MSK144 can use even shorter messages, only 20 ms long.  As
-in all the fast modes in WSJT-X, the 20 ms or 72 ms messages are
-repeated without gaps for the duration of a transmission cycle.  For
-most purposes we recommend a T/R cycle duration of 15 s, but 5 s and
-10 s sequences are also supported.
+Standard MSK144 message frames are 72 ms long, compared to about 120
+ms for FSK441.  The MSK144 waveform allows coherent demodulation,
+allowing up to 3 dB better sensitivity.  After QSO partners have
+exchanged callsigns, MSK144 can use even shorter messages, only 20 ms
+long.  As in all the fast modes in WSJT-X, the 20 ms or 72 ms messages
+are repeated without gaps for the duration of a transmission cycle.
+For most purposes we recommend a T/R cycle duration of 15 s, but 5 s
+and 10 s sequences are also supported.
 
-Short ("Sh") messages in MSK144 are intended primarily for 144 MHz,
-where most pings are short.  These messages do not contain full
-callsigns; instead, they contain a hash of the entire transmitted
-message along with a report.  They are not encrypted -- the report is
-sent in the clear along with the hash.  Short messages are fully
+Short ("Sh") messages in MSK144 are intended primarily for 144 MHz and
+higher, where many pings are short.  These messages do not contain
+full callsigns; instead, they contain a hash of the two callsigns
+along with a report, acknowledgement, or 73.  Short messages are fully
 decodable only by the station to whom they are addressed, as part of
 an ongoing QSO, because only then will the received hash match that
-calculated using the known strings for "My Call" and "DX Call" and the
-received report, RRR, or 73.  If you are monitoring someone else's
-QSO, you will not be able to decode its Sh messages.
+calculated using the known strings for "My Call" and "DX Call".  If
+you are monitoring someone else's QSO, you will not be able to decode
+its Sh messages.
 
 An MSK144 signal occupies the full bandwidth of a typical SSB
 transmitter, so transmissions are always centered at an offset of
-1500Hz.  For best results, selectable/adjustable Rx and Tx filters
+1500Hz.  For best results, selectable or adjustable Rx and Tx filters
 should be set to provide the flattest possible response over at least
 300 - 2700 Hz.  The maximum permissible frequency offset between you
 and your QSO partner is 200 Hz, and less is better.

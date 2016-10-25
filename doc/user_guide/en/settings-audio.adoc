@@ -33,3 +33,8 @@ calculated Doppler shift for the specified EME path.  The file is
 updated once per second whenever the <<ASTRODATA,Astronomical Data>>
 window is displayed.
 
+- _Power Memory By Band_: Checking one or both of these will cause
+_WSJT-X_ to remember the *Pwr* slider setting for that operation on a
+band-by-band basis.  For example, when *Tune* is enabled here and you
+click the *Tune* on the main window, the power slider will change to
+the most recent setting used for *Tune* on that band.
