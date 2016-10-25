@@ -1,45 +1,50 @@
 [[PROTOCOL_OVERVIEW]]
 === Overview
 
-All QSO modes except ISCAT benefit from the use of structured
-messages.  Each such message consists of two 28-bit fields for
-callsigns and a 15-bit field for a grid locator, report,
-acknowledgment, or a "`73`" sign-off indicator.  Alternatively, a
-72^nd^ bit flags a message containing arbitrary alphanumeric text, up
-to 13 characters.  Special formats allow other information such as
-add-on callsign prefixes (e.g., ZA/K1ABC) or suffixes (e.g., K1ABC/4)
-to be encoded. The basic aim is to compress the most common messages
-used for minimally valid QSOs into a fixed 72-bit length.  To be
-useful, this kind of lossless message compression requires use of a
-strong forward error correcting (FEC) code.  Different FEC codes are
-used for each mode.  These modes require good synchronization of time
-and frequency between transmitting and receiving stations.  As an aid
-to the decoders, each protocol includes a "`synch vector`" of known
-symbols along with the information-carrying symbols.  Generated
-waveforms for all of the _WSJT-X_ modes have continuous phase and
-a constant envelope.
+All QSO modes except ISCAT use structured messages that compress
+user-readable information into fixed-length packets of exactly 72
+bits.  Each message consists of two 28-bit fields for callsigns and a
+15-bit field for a grid locator, report, acknowledgment, or a "`73`"
+sign-off indicator.  A 72^nd^ bit flags a message containing arbitrary
+alphanumeric text, up to 13 characters.  Special cases allow other
+information such as add-on callsign prefixes (e.g., ZA/K1ABC) or
+suffixes (e.g., K1ABC/4) to be encoded. The basic aim is to compress
+the most common messages used for minimally valid QSOs into a fixed
+72-bit length.  To be useful on channels with low signal-to-noise
+ratio, this kind of lossless compression requires use of a strong
+forward error correcting (FEC) code.  Different codes are used for
+each mode.  Accurate synchronization of time and frequency is required
+between transmitting and receiving stations.  As an aid to the
+decoders, each protocol includes a "`sync vector`" of known symbols
+interspersed with the information-carrying symbols.  Generated
+waveforms for all of the _WSJT-X_ modes have continuous phase and 
+constant envelope.
+
+[[SLOW_MODES]]
+=== Slow Modes
 
 [[JT4PRO]]
-=== JT4
+==== JT4
 
 FEC in JT4 uses a strong convolutional code with constraint length
 K=32, rate r=1/2, and a zero tail. This choice leads to an encoded
 message length of (72+31) x 2 = 206 information-carrying bits.
 Modulation is 4-tone frequency-shift keying (4-FSK) at 11025 / 2520 =
 4.375 baud.  Each symbol carries one information bit (the most
-significant bit) and one synchronizing bit.  The pseudo-random sync
-vector is the following sequence:
+significant bit) and one synchronizing bit.  The two 32-bit
+polynomials used for convolutional encoding have hexadecimal values
+0xf2d05351 and 0xe4613c47, and the ordering of encoded bits is
+scrambled by an interleaver.  The pseudo-random sync vector is the
+following sequence (60 bits per line):
 
  000011000110110010100000001100000000000010110110101111101000
  100100111110001010001111011001000110101010101111101010110101
  011100101101111000011011000111011101110010001101100100011111
  10011000011000101101111010
 
-The two 32-bit polynomials used for convolutional encoding have
-hexadecimal values f2d05351 and e4613c47.
 
 [[JT9PRO]]
-=== JT9
+==== JT9
 
 FEC in JT9 uses the same strong convolutional code aa JT4: constraint
 length K=32, rate r=1/2, and a zero tail, leading to an encoded
@@ -56,7 +61,7 @@ the 9-FSK modulation for JT9A is equal to the keying rate, 1.736 Hz.
 The total occupied bandwidth is 9 × 1.736 = 15.6 Hz.
 
 [[JT65PRO]]
-=== JT65
+==== JT65
 
 A detailed description of the JT65 protocol was published in
 {jt65protocol} for September-October, 2005. A Reed Solomon (63,12)
@@ -83,64 +88,74 @@ separation is 110250/4096 = 26.92 Hz multiplied by n for JT65A, with n
 = 2, 3, 4 used to convey the messages RO, RRR, and 73.
 
 [[QRA64_PROTOCOL]]
-=== QRA64
+==== QRA64
 
 Still to come ...
 
 [[SLOW_SUMMARY]]
-=== Slow Mode Summary
+==== Summary
+
+Table 1 provides a brief summary parameters for the slow modes in
+_WSJT-X_.  Parameters K and r specify the constraint length and rate
+of the convolutional codes; n and k give the sizes of the (equivalent)
+block codes; Q is the alphabet size for the information-carrying
+channel symbols; Mod, Baud, and BW specify the modulation type, keying
+rate, and occupied bandwidth; fSync is the fraction of transmitted
+energy devoted to synchronizing symbols; TxT is the transmission
+duration, and S/N is the signal-to-noise ratio (in a 2500 Hz reference
+bandwidth) above which the probability of decoding is 50% or higher.
 
 [[SLOW_TAB]]
 .Parameters of Slow Modes
 [width="90%",cols="3h,^3,^2,^1,^2,^2,^2,^2,^2,^2",frame=topbot,options="header"]
 |===============================================================================
-|Mode  |FEC Type   |(k,n)   | Q|  Mod | Baud |BW (Hz)|fSync|TxT (s)|S/N (dB)
+|Mode  |FEC Type   |(n,k)   | Q|  Mod | Baud |BW (Hz)|fSync|TxT (s)|S/N (dB)
 |JT4A  |K=32, r=1/2|(206,72)| 2| 4-FSK| 4.375|  17.5 | 0.50| 47.1   | -23
-|JT9A  |K=13, r=1/2|(206,72)| 8| 9-FSK| 1.736|  15.6 | 0.19| 49.0   | -27
-|JT65A |RS         |(63,12) |64|65-FSK| 2.692| 177.6 | 0.50| 46.8   | -25
-|QRA64A|QRA        |(63,12) |64|64-FSK| 1.736| 111.1 | 0.25| 48.4   | -28
+|JT9A  |K=32, r=1/2|(206,72)| 8| 9-FSK| 1.736|  15.6 | 0.19| 49.0   | -27
+|JT65A |Reed Solomon|(63,12) |64|65-FSK| 2.692| 177.6 | 0.50| 46.8   | -25
+|QRA64A|Q-ary Repeat Accumulate|(63,12) |64|64-FSK| 1.736| 111.1 | 0.25| 48.4   | -26
 | WSPR |K=32, r=1/2|(162,50)| 2| 4-FSK| 1.465|   5.9 | 0.50|110.6   | -29
 |===============================================================================
 
-Frequency spacing between tones, total occupied bandwidth, and
-approximate threshold signal-to-noise ratios are given for the various
-submodes of JT4, JT9, JT65, and QRA64 in the following table:
+Submodes of the JT4, JT9, JT65, and QRA64 protocols offer wider tone
+spacings that may be desirable for channels causing significant
+Doppler spread.  Table 2 summarizes the tone spacings, bandwidths, and
+threshold sensitivities of the various submodes.
 
- Submode Spacing   BW    S/N
-           (Hz)   (Hz)    dB
- ----------------------------
- JT4A     4.375   17.5   -23
- JT4B     8.75    35.0   -22
- JT4C    17.5     70.0   -21
- JT4D    39.375  157.5   -20
- JT4E    78.75   315.0   -19
- JT4F    157.5   630.0   -18
- JT4G    315.0  1260.0   -17
+[[SLOW_SUBMODES]]
+.Parameters of Slow Submodes
+[width="50%",cols="h,3*^",frame=topbot,options="header"]
+|=====================================
+|Mode  |Tone Spacing  |BW (Hz)|S/N (dB)
+|JT4A  |4.375|  17.5  |-23
+|JT4B  |8.75 |  35.0  |-22
+|JT4C  |17.5 |  70.0  |-21
+|JT4D  |39.375| 157.5 |-20
+|JT4E  |78.75|  315.0 |-19
+|JT4F  |157.5|  630.0 |-18
+|JT4G  |315.0| 1260.0 |-17
+|JT9A  |1.736|  15.6  |-27
+|JT9B  |3.472|  15.6  |-26
+|JT9C  |6.944|  15.6  |-25
+|JT9D  |13.889|  15.6 |-24
+|JT9E  |27.778|   250 |-23
+|JT9F  |55.556|   500 |-22
+|JT9G  |111.111| 2000 |-21
+|JT9H  |222.222| 2000 |-20
+|JT65A |2.692| 177.6  |-25
+|JT65B |5.383| 355.3  |-25
+|JT65C |10.767| 710.6 |-25
+|QRA64A|1.736| 111.1  |-26
+|QRA64B|3.472| 222.2  |-26
+|QRA64C|6.944| 444.4  |-26
+|QRA64D|13.889| 888.8 |-26
+|QRA64E|27.778|1777.8 |-26
+|=====================================
 
- JT9    1.7361  15.625   -27
+[[FAST_MODES]]
+=== Fast Modes
 
- JT65A  2.6917   177.6   -25
- JT65B  5.3833   355.3   -24
- JT65C  10.767   710.6   -23
-
- QRA64A  1.736   111.1   -28?
- QRA64B  3.472   222.2   
- QRA64C  6.944   444.4
- QRA64D 13.889   888.9
- QRA64E 27.228  1777.8
-
-JT4 and JT65 signal reports are constrained to the range –1 to –30
-dB. This range is more than adequate for EME purposes, but not enough
-for optimum use at HF. S/N values displayed by the JT4 and JT65
-decoders are clamped at an upper limit –1 dB, and the S/N scale
-becomes significantly nonlinear above –10 dB.  JT9 allows signal
-reports in the range –50 to +49 dB. It manages this by taking over a
-small portion of "`message space`" that would otherwise be used for
-grid locators within 1 degree of the south pole. The S/N scale of the
-present JT9 decoder is reasonably linear (although it's not intended
-to be a precision measurement tool).
-
-=== ISCAT
+==== ISCAT
 
 ISCAT messages are free-form, up to 28 characters in length.
 Modulation is 42-tone frequency-shift keying at 11025 / 512 = 21.533
@@ -180,7 +195,15 @@ symbols in each 24, the user message +@CQ WA9XYZ+ repeats at its own
 natural length, 10 characters.  The resulting sequence is extended as
 many times as will fit into a Tx sequence.
 
-=== MSK144
+==== JT9
+
+The JT9 slow modes all use keying rate 4.375 baud.  By contrast, with
+the *Fast* setting submodes JT9E-H adjust the keying rate to match the
+increased tone spacings.  Message durations are therefore much
+shorter, and they are sent repeatedly throughout each Tx sequence.
+For details see Table 3, below.
+
+==== MSK144
 
 Standard MSK144 messages are structured in the same way as those in
 the slow modes, with a 72 bits of user information.  Forward error
@@ -219,18 +242,18 @@ adjusted to provide the flattest possible response over the range
 300Hz to 2700Hz. The maximum permissible frequency offset between you
 and your QSO partner ± 200 Hz.
 
-=== Fast Mode Summary
+==== Summary
 
 .Parameters of Fast Modes
-[width="90%",cols="3h,^3,^2,^1,^2,^2,^2,^2,^2,^2",frame="topbot",options="header"]
-|=============================================================================
-|Mode     |FEC Type   |(k,n)   | Q|  Mod | Baud |BW (Hz)|fSync|TxT (s)|S/N (dB)
-|ISCAT-A  |   -       |  -     |42|42-FSK| 21.5 |  905  | 0.17| 1.176  | 
-|ISCAT-B  |   -       |  -     |42|42-FSK| 43.1 | 1809  | 0.17| 0.588  | 
-|JT9E     |K=32, r=1/2|(206,72)| 8| 9-FSK| 25.0 |  225  | 0.19| 3.400  |  
-|JT9F     |K=32, r=1/2|(206,72)| 8| 9-FSK| 50.0 |  450  | 0.19| 1.700  |  
-|JT9G     |K=32, r=1/2|(206,72)| 8| 9-FSK|100.0 |  900  | 0.19| 0.850  |  
-|JT9H     |K=32, r=1/2|(206,72)| 8| 9-FSK|200.0 | 1800  | 0.19| 0.425  |  
-|MSK144   |LDPC       |(128,72)| 2| OQPSK| 2000 | 2000  | 0.11| 0.072  | -5
-|MSK144 Sh|LDPC       |(32,16) | 2| OQPSK| 2000 | 2000  | 0.20| 0.020  | -5
-|=============================================================================
+[width="90%",cols="3h,^3,^2,^1,^2,^2,^2,^2,^2",frame="topbot",options="header"]
+|=====================================================================
+|Mode     |FEC Type   |(k,n)   | Q|  Mod | Baud |BW (Hz)|fSync|TxT (s)
+|ISCAT-A  |   -       |  -     |42|42-FSK| 21.5 |  905  | 0.17| 1.176 
+|ISCAT-B  |   -       |  -     |42|42-FSK| 43.1 | 1809  | 0.17| 0.588 
+|JT9E     |K=32, r=1/2|(206,72)| 8| 9-FSK| 25.0 |  225  | 0.19| 3.400 
+|JT9F     |K=32, r=1/2|(206,72)| 8| 9-FSK| 50.0 |  450  | 0.19| 1.700 
+|JT9G     |K=32, r=1/2|(206,72)| 8| 9-FSK|100.0 |  900  | 0.19| 0.850 
+|JT9H     |K=32, r=1/2|(206,72)| 8| 9-FSK|200.0 | 1800  | 0.19| 0.425 
+|MSK144   |LDPC       |(128,72)| 2| OQPSK| 2000 | 2000  | 0.11| 0.072 
+|MSK144 Sh|LDPC       |(32,16) | 2| OQPSK| 2000 | 2000  | 0.20| 0.020 
+|=====================================================================

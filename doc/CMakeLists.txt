@@ -36,6 +36,7 @@ set (UG_SRCS
   make-qso.adoc
   new_features.adoc
   platform-dependencies.adoc
+  protocols.adoc
   settings-advanced.adoc
   settings-audio.adoc
   settings-colors.adoc
@@ -71,7 +72,11 @@ set (UG_IMGS
   images/help-menu.png
   images/JT4F.png
   images/JT65B.png
+  images/MSK144.png
   images/QRA64.png
+  images/WSPR_WideGraphControls.png
+  images/WSPR_1a.png
+  images/WSPR_2.png
   images/jtalert.png
   images/keyboard-shortcuts.png
   images/log-qso.png

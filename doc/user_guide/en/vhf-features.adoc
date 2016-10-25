@@ -157,22 +157,23 @@ QRA64 is an experimental mode in the Version 1.7 alpha release of
 _WSJT-X_.  Some details of the protocol are still subject to change,
 and some features of the decoder will almost surely change.  In most
 ways you will find operation of QRA64 similar to JT65.  The following
-screen shot shows examples of QRA64A transmissions recorded over the
-EME path at 144 MHz (G4SWX transmitting to K1JT) and 10 GHz (VK7MO
-transmitting to G3WDG).  Notice the small red curve plotted below
-frequency 1000 Hz in the Wide Graph.  Even though the VK7MO signal is
-scarcely visible in the waterfall, the red curve shows that the
-decoder has accurately and reliably detected its synchronizing
-symbols.
+screen shot shows examples of two QRA64A transmissions recorded over
+the EME path.  The first (at 1554 UTC) shows G4SWX transmitting to
+K1JT at 144 MHz; the second shows VK7MO transmitting to G3WDG at 10
+GHz.  Notice the small red curve plotted below frequency 1000 Hz in
+the Wide Graph.  Even though the VK7MO signal is hard to discern in
+the waterfall, the red curve shows that the decoder has accurately and
+reliably detected its synchronizing symbols, and the decode is
+successful.
 
 image::QRA64.png[align="center",alt="QRA64"]
 
 === ISCAT
 
 ISCAT is a useful mode for signals that are weak but more or less
-steady in amplitude, at least for several seconds.  Aircraft scatter
+steady in amplitude over several seconds or longer.  Aircraft scatter
 at 10 GHz is a good example.  ISCAT messages are free-format and may
-have any length from 1 to 28 characters.  The protocol includes no
+have any length from 1 to 28 characters.  This protocol includes no
 error-correction facility.
 
 === MSK144
@@ -180,12 +181,20 @@ error-correction facility.
 Meteor-scatter QSOs can be made any time on the VHF bands at distances
 up to about 2100 km (1300 miles).  Completing a QSO takes longer in
 the evening than in the morning, longer at higher frequencies, and
-longer at distances close to the upper limit.  But with patience, 
-100 Watts or more, and a single yagi it can usually be done.
+longer at distances close to the upper limit.  But with patience, 100
+Watts or more, and a single yagi it can usually be done.  The
+following screen shot shows two 15-second MSK144 transmissions from
+W5ADD during a 50 MHz QSO with K1JT, at a distance of about 1800 km
+(1100 mi).  The decoded segments have been encircled on the *Fast
+Graph* spectral display.
 
-Unlike other _WSJT-X modes, MSK144 decodes received signals in real
-time.  Decoded messages will appear on your screen almost as soon as
-you hear them.
+image::MSK144.png[align="center",alt="MSK144"]
+
+Unlike other _WSJT-X modes, MSK144 decodes signals in real time,
+during the reception sequence.  Decoded messages will appear on your
+screen almost as soon as you hear them.
+
+To configure _WSJT-X_ for MSK144 operation:
 
 - Select *MSK144* from the *Mode* menu.
 
@@ -198,39 +207,48 @@ you hear them.
 - Set the *T/R* sequence duration to 15 s.
 
 - To match decoding depth to your computer's capability, click
-*Monitor* (if it's not already green) to start a receiving sequence
-and observe the percentage of CPU usage displayed on the _Receiving_
-label in the Status Bar:
+*Monitor* (if it's not already green) to start a receiving sequence.
+Observe the percentage of CPU usage displayed on the _Receiving_ label
+in the Status Bar:
 
 image::Rx_pct_MSK144.png[align="center",alt="MSK144 Percent CPU"]
 
 - The displayed number (here 17%) indicates the fraction of CPU
-capability used being used by the MSK144 real-time decoder.  If it is
-well below 100% you may increase the decoding depth from *Fast*
-to *Normal* or *Deep*, and increase *F Tol* from 100 to 200 Hz.
+capability being used by the MSK144 real-time decoder.  If it is well
+below 100% you may increase the decoding depth from *Fast* to *Normal*
+or *Deep*, and increase *F Tol* from 100 to 200 Hz.
 
 IMPORTANT: Most modern multi-core computers can easily handle the
-optimum parameters *Deep* and *F Tol 200*.  Slower machines may not be
-able to keep up at these settings; in that case there will be a modest
-loss in decoding capability for the weakest pings.
+optimum parameters *Deep* and *F Tol 200*.  Older and slower machines
+may not be able to keep up at these settings; in that case there will
+be a modest loss in decoding capability for the very weakest pings.
 
-- T/R sequences of 15 seconds or less requires choosing your
+- T/R sequences of 15 seconds or less requires selecting your
 transmitted messages very quickly.  Check *Auto Seq* to have the
-computer make the necessary decisions automatically, based on received
-messages.
+computer make the necessary decisions automatically, based on the
+messages received.
 
-For operation at 144 MHz or above you may find it helpful to use
-short-format messages for Tx3, Tx4, and Tx5.  These messages are 20 ms
-long, compared with 72 ms for full-length MSK144 messages.  Their
-information content is a 12-bit hash of the two callsigns, rather than
-the callsigns themselves, plus a 4-bit report, acknowledgment, or
-sign-off.  Only the intended recipient can decode short-messages.
+- For operation at 144 MHz or above you may find it helpful to use
+short-format *Sh* messages for Tx3, Tx4, and Tx5.  These messages are
+20 ms long, compared with 72 ms for full-length MSK144 messages.
+Their information content is a 12-bit hash of the two callsigns,
+rather than the callsigns themselves, plus a 4-bit numerical report,
+acknowledgment (RRR), or sign-off (73).  Only the intended recipient
+can decode short-messages.  They will be displayed with the callsigns
+enclosed in <> angle brackets, as in the following model QSO
 
-- Check *Sh* to enable short messages.
+ CQ K1ABC FN42
+                    K1ABC W9XYZ EN37
+ W9XYZ K1ABC +02
+                    <K1ABC W9XYZ> R+03
+ <W9XYZ K1ABC> RRR
+                    <K1ABC W9XYZ> 73
+
 
 IMPORTANT: There is little or no advantage to using MSK144 *Sh*
-messages at 50 or 70 MHz.  At these frequencies most pings are long
-enough to support standard messages.
+messages at 50 or 70 MHz.  At these frequencies, most pings are long
+enough to support standard messages -- which have the advantage of
+being readable by anyone listening in.
 
 === Echo Mode
 
@@ -260,7 +278,8 @@ using either *Rig* or *Fake It* on the *Settings | Radio* tab.
 cycles.
 
 - _WSJT-X_ calculates and compensates for Doppler shift automatically.
-Your return echo should always appear at the center of the plot area
-on the Echo Graph window, as in the screen shot below.
+As shown in the screen shot below, when proper Doppler corrections
+have been applied your return echo should always appear at the center
+of the plot area on the Echo Graph window.
 
 image::echo_144.png[align="center",alt="Echo 144 MHz"]

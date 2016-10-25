@@ -29,11 +29,10 @@ Tx=Rx* checked, your own Tx frequency will move around following your
 callers.
 
 * The *Report* control lets you change a signal report that has been
-inserted automatically. Most reports will fall in the range –26 to +10
-dB.  Remember that JT65 reports saturate at an upper limit of -1
-dB.
+inserted automatically. Typical reports for the various modes fall in
+the range –30 to +20 dB.  Remember that JT65 reports saturate at an
+upper limit of -1 dB.
 
 IMPORTANT: Consider reducing power if your QSO partner reports your
-signal above -5 dB.  The WSJT modes are supposed to be weak signal
-modes!
-
+signal above -5 dB in one of the _WSJT-X_ slow modes.  These are
+supposed to be weak signal modes!
