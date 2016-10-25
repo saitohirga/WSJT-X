@@ -504,9 +504,8 @@ private:
   bool m_transmitting;
   bool m_tune;
   bool m_tx_watchdog;           // true when watchdog triggered
-  int m_tune_attenuation;
-  int m_tune_attenuation_restore;
   bool m_block_pwr_tooltip;
+  bool m_PwrBandSetOK;
   Frequency m_lastMonitoredFrequency;
   double m_toneSpacing;
   int m_firstDecode;
@@ -515,6 +514,8 @@ private:
   MessageClient * m_messageClient;
   PSK_Reporter *psk_Reporter;
   DisplayManual m_manual;
+  QHash<QString, QVariant> m_pwrBandTxMemory; // Remembers power level by band
+  QHash<QString, QVariant> m_pwrBandTuneMemory; // Remembers power level by band for tuning
 
   //---------------------------------------------------- private functions
   void readSettings();

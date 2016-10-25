@@ -548,6 +548,8 @@ private:
   bool udpWindowToFront_;
   bool udpWindowRestore_;
   DataMode data_mode_;
+  bool pwrBandTxMemory_;
+  bool pwrBandTuneMemory_;
 
   QAudioDeviceInfo audio_input_device_;
   bool default_audio_input_device_selected_;
@@ -646,6 +648,8 @@ QStringListModel const * Configuration::macros () const {return &m_->macros_;}
 QDir Configuration::save_directory () const {return m_->save_directory_;}
 QDir Configuration::azel_directory () const {return m_->azel_directory_;}
 QString Configuration::rig_name () const {return m_->rig_params_.rig_name;}
+bool Configuration::pwrBandTxMemory () const {return m_->pwrBandTxMemory_;}
+bool Configuration::pwrBandTuneMemory () const {return m_->pwrBandTuneMemory_;}
 
 bool Configuration::is_transceiver_online () const
 {
@@ -1066,6 +1070,8 @@ void Configuration::impl::initialize_models ()
   ui_->CAT_data_bits_button_group->button (rig_params_.data_bits)->setChecked (true);
   ui_->CAT_stop_bits_button_group->button (rig_params_.stop_bits)->setChecked (true);
   ui_->CAT_handshake_button_group->button (rig_params_.handshake)->setChecked (true);
+  ui_->checkBoxPwrBandTxMemory->setChecked(pwrBandTxMemory_);
+  ui_->checkBoxPwrBandTuneMemory->setChecked(pwrBandTuneMemory_);
   if (rig_params_.force_dtr)
     {
       ui_->force_DTR_combo_box->setCurrentIndex (rig_params_.dtr_high ? 1 : 2);
@@ -1293,6 +1299,8 @@ void Configuration::impl::read_settings ()
   udpWindowRestore_ = settings_->value ("udpWindowRestore",false).toBool ();
   frequency_calibration_intercept_ = settings_->value ("CalibrationIntercept", 0.).toDouble ();
   frequency_calibration_slope_ppm_ = settings_->value ("CalibrationSlopePPM", 0.).toDouble ();
+  pwrBandTxMemory_ = settings_->value("pwrBandTxMemory",false).toBool ();
+  pwrBandTuneMemory_ = settings_->value("pwrBandTuneMemory",false).toBool ();
 }
 
 void Configuration::impl::write_settings ()
@@ -1389,6 +1397,8 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("udpWindowRestore", udpWindowRestore_);
   settings_->setValue ("CalibrationIntercept", frequency_calibration_intercept_);
   settings_->setValue ("CalibrationSlopePPM", frequency_calibration_slope_ppm_);
+  settings_->setValue ("pwrBandTxMemory", pwrBandTxMemory_);
+  settings_->setValue ("pwrBandTuneMemory", pwrBandTuneMemory_);
 }
 
 void Configuration::impl::set_rig_invariants ()
@@ -1778,7 +1788,8 @@ void Configuration::impl::accept ()
   offsetRxFreq_ = ui_->offset_Rx_freq_check_box->isChecked();
   frequency_calibration_intercept_ = ui_->calibration_intercept_spin_box->value ();
   frequency_calibration_slope_ppm_ = ui_->calibration_slope_ppm_spin_box->value ();
-
+  pwrBandTxMemory_ = ui_->checkBoxPwrBandTxMemory->isChecked ();
+  pwrBandTuneMemory_ = ui_->checkBoxPwrBandTuneMemory->isChecked ();
   auto new_server = ui_->udp_server_line_edit->text ();
   if (new_server != udp_server_name_)
     {

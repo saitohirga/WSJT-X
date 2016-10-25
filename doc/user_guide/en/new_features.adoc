@@ -25,3 +25,6 @@ subtracted out, allowing the decoding of weaker signals.
 
 - Many corrections and improvements to the Hamlib library, fixing
 balky rig-control features
+
+- Power settings for Transmit and Tune optionally remembered for 
+each band.

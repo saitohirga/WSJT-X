@@ -327,9 +327,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_transmitting {false},
   m_tune {false},
   m_tx_watchdog {false},
-  m_tune_attenuation {0},
-  m_tune_attenuation_restore {0},
   m_block_pwr_tooltip {false},
+  m_PwrBandSetOK {true},
   m_lastMonitoredFrequency {default_frequency},
   m_toneSpacing {0.},
   m_firstDecode {0},
@@ -934,8 +933,10 @@ void MainWindow::writeSettings()
   m_settings->setValue("FastMode",m_bFastMode);
   m_settings->setValue("Fast9",m_bFast9);
   m_settings->setValue("CQRxfreq",m_freqCQ);
-  m_settings->setValue("TuneAttenuation",m_tune_attenuation);
+  m_settings->setValue("pwrBandTxMemory",m_pwrBandTxMemory);
+  m_settings->setValue("pwrBandTuneMemory",m_pwrBandTuneMemory);
   m_settings->endGroup();
+
 }
 
 //---------------------------------------------------------- readSettings()
@@ -994,7 +995,6 @@ void MainWindow::readSettings()
   m_block_pwr_tooltip = true;
   ui->outAttenuation->setValue (m_settings->value ("OutAttenuation", 0).toInt ());
   m_block_pwr_tooltip = false;
-  m_tune_attenuation = m_settings->value ("TuneAttenuation", 0).toInt ();
   m_freqCQ=m_settings->value("CQRxFreq",285).toInt();
   m_noSuffix=m_settings->value("NoSuffix",false).toBool();
   int n=m_settings->value("GUItab",0).toInt();
@@ -1002,6 +1002,8 @@ void MainWindow::readSettings()
   outBufSize=m_settings->value("OutBufSize",4096).toInt();
   m_lockTxFreq=m_settings->value("LockTxFreq",false).toBool();
   m_TRindex=m_settings->value("TRindex",4).toInt();
+  m_pwrBandTxMemory=m_settings->value("pwrBandTxMemory").toHash();
+  m_pwrBandTuneMemory=m_settings->value("pwrBandTuneMemory").toHash();
   m_settings->endGroup();
 
   // use these initialisation settings to tune the audio o/p buffer
@@ -4490,6 +4492,12 @@ void MainWindow::on_bandComboBox_activated (int index)
 
 void MainWindow::band_changed (Frequency f)
 {
+  // Set the attenuation value if options are checked
+  QString curBand = ui->bandComboBox->currentText();
+  if (m_config.pwrBandTxMemory() && !m_tune) {
+      ui->outAttenuation->setValue(m_pwrBandTxMemory[curBand].toInt());
+  }
+
   if (m_bandEdited) {
     if (!m_mode.startsWith ("WSPR")) { // band hopping preserves auto Tx
       if (f + m_wideGraph->nStartFreq () > m_freqNominal + ui->TxFreqSpinBox->value ()
@@ -4644,19 +4652,32 @@ void MainWindow::on_rptSpinBox_valueChanged(int n)
 
 void MainWindow::on_tuneButton_clicked (bool checked)
 {
+  static bool lastChecked = false;
+  if (lastChecked == checked) return;
+  lastChecked = checked;
+  QString curBand = ui->bandComboBox->currentText();
+  if (checked && m_tune==false) { // we're starting tuning so remember Tx and change pwr to Tune value
+    if (m_config.pwrBandTuneMemory ()) {
+      m_pwrBandTxMemory[curBand] = ui->outAttenuation->value(); // remember our Tx pwr
+      m_PwrBandSetOK = false;
+      ui->outAttenuation->setValue(m_pwrBandTuneMemory[curBand].toInt()); // set to Tune pwr
+      m_PwrBandSetOK = true;
+    }
+  }
+  else { // we're turning off so remember our Tune pwr setting and reset to Tx pwr
+    if (m_config.pwrBandTuneMemory() || m_config.pwrBandTxMemory()) {
+      m_pwrBandTuneMemory[curBand] = ui->outAttenuation->value(); // remember our Tune pwr
+      m_PwrBandSetOK = false;
+      ui->outAttenuation->setValue(m_pwrBandTxMemory[curBand].toInt()); // set to Tx pwr
+      m_PwrBandSetOK = true;
+    }
+  }
   if (m_tune) {
     tuneButtonTimer.start(250);
   } else {
     m_sentFirst73=false;
     itone[0]=0;
     on_monitorButton_clicked (true);
-    m_tune_attenuation_restore = ui->outAttenuation->value();
-    if (m_tune_attenuation)
-      {
-        m_block_pwr_tooltip = true;
-        ui->outAttenuation->setValue(m_tune_attenuation);
-        m_block_pwr_tooltip = false;
-      }
     m_tune=true;
   }
   Q_EMIT tune (checked);
@@ -4668,12 +4689,6 @@ void MainWindow::stop_tuning ()
   ui->tuneButton->setChecked (false);
   m_bTxTime=false;
   m_tune=false;
-  if (m_tune_attenuation)
-    {
-      m_block_pwr_tooltip = true;
-      ui->outAttenuation->setValue(m_tune_attenuation_restore);
-      m_block_pwr_tooltip = false;
-    }
 }
 
 void MainWindow::stopTuneATU()
@@ -5034,30 +5049,32 @@ void MainWindow::on_outAttenuation_valueChanged (int a)
 {
   QString tt_str;
   qreal dBAttn {a / 10.};       // slider interpreted as dB / 100
-  if (m_tune && Qt::ShiftModifier == QGuiApplication::keyboardModifiers ())
+  if (m_tune && m_config.pwrBandTuneMemory())
     {
-      // special attenuation value for Tune button
-      m_tune_attenuation = a;
-      if (a)
-        {
-          tt_str = tr ("Tune digital gain ")
-            + (a ? QString::number (-dBAttn, 'f', 1) : "0") + "dB\n"
-            "Set at top to cancel";
-        }
-      else
-        {
-          tt_str = tr ("Tune power = Tx power");
-        }
+      tt_str = tr ("Tune digital gain");
     }
   else
     {
-      tt_str = tr ("Transmit digital gain ")
-        + (a ? QString::number (-dBAttn, 'f', 1) : "0") + "dB";
+      tt_str = tr ("Transmit digital gain");
     }
+  tt_str += (a ? QString::number (-dBAttn, 'f', 1) : "0") + "dB";
   if (!m_block_pwr_tooltip)
     {
       QToolTip::showText (QCursor::pos (), tt_str, ui->outAttenuation);
     }
+  QString curBand = ui->bandComboBox->currentText();
+  if (m_PwrBandSetOK && !m_tune && m_config.pwrBandTxMemory ())
+    {
+      m_pwrBandTxMemory[curBand] = a; // remember our Tx pwr
+      qDebug () << "Tx=" << QString::number(a);
+    }
+  if (m_PwrBandSetOK && m_tune && m_config.pwrBandTuneMemory())
+    {
+      m_pwrBandTuneMemory[curBand] = a; // remember our Tune pwr
+      qDebug () << "Tune=" << QString::number(a);
+    }
+  // Updating attenuation for tuning is done in stop_tuning
+
   Q_EMIT outAttenuationChanged (dBAttn);
 }
 
