@@ -376,7 +376,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Start monitoring</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Toggle monitoring On/Off&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="styleSheet">
            <string notr="true">QPushButton:checked {
@@ -409,7 +409,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Erase QSO Frequency window.  Double-click for both windows</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Erase right window.  Double-click for both windows.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>&amp;Erase</string>
@@ -420,6 +420,9 @@
          <widget class="QPushButton" name="ClrAvgButton">
           <property name="enabled">
            <bool>true</bool>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Clear the accumulating message averages.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>Clear Avg</string>
@@ -505,7 +508,7 @@
         <item>
          <widget class="QPushButton" name="tuneButton">
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Transmit a pure tone&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Toggle a pure Tx tone On/Off&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="styleSheet">
            <string notr="true">QPushButton:checked {
@@ -689,7 +692,7 @@ QLabel[oob=&quot;true&quot;] {
                          </size>
                         </property>
                         <property name="toolTip">
-                         <string>Check to generate JT4 or JT65 shorthand messages.</string>
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to use short-format messages.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                         </property>
                         <property name="text">
                          <string>Sh</string>
@@ -699,7 +702,7 @@ QLabel[oob=&quot;true&quot;] {
                       <item>
                        <widget class="QCheckBox" name="cbFast9">
                         <property name="toolTip">
-                         <string>Check for JT9 fast modes</string>
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to enable JT9 fast modes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                         </property>
                         <property name="text">
                          <string>Fast</string>
@@ -715,7 +718,7 @@ QLabel[oob=&quot;true&quot;] {
                          </size>
                         </property>
                         <property name="toolTip">
-                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to allow automatic sequencing of Tx messages based on received messages.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to enable automatic sequencing of Tx messages based on received messages.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                         </property>
                         <property name="text">
                          <string>Auto Seq</string>
@@ -842,7 +845,7 @@ QLabel[oob=&quot;true&quot;] {
                  <item row="9" column="1">
                   <widget class="QSpinBox" name="syncSpinBox">
                    <property name="toolTip">
-                    <string>Synchronizing threshold</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Synchronizing threshold.  Lower numbers accept weaker sync signals.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -900,7 +903,7 @@ QLabel[oob=&quot;true&quot;] {
                  <item row="7" column="1">
                   <widget class="LettersSpinBox" name="sbSubmode">
                    <property name="toolTip">
-                    <string>Submode controls tone spacing (A is narrowest)</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Submode determines tone spacing; A is narrowest.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -985,7 +988,7 @@ QLabel[oob=&quot;true&quot;] {
                   <enum>QTabWidget::Triangular</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tab">
                   <attribute name="title">
@@ -2192,7 +2195,7 @@ list. The list can be maintained in Settings (F2).</string>
            <bool>false</bool>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If orange or red there has been a rig control failure, click to reset and read the dial frequency.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If orange or red there has been a rig control failure, click to reset and read the dial frequency.  S implies split mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="styleSheet">
            <string notr="true">QPushButton {
@@ -2267,7 +2270,7 @@ QPushButton[state=&quot;ok&quot;] {
         <item row="0" column="0">
          <widget class="QComboBox" name="bandComboBox">
           <property name="toolTip">
-           <string>Select operating band or frequency in MHz</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select operating band or enter frequency in MHz&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="editable">
            <bool>true</bool>
@@ -2873,18 +2876,52 @@ QPushButton[state=&quot;ok&quot;] {
   <tabstop>stopButton</tabstop>
   <tabstop>monitorButton</tabstop>
   <tabstop>EraseButton</tabstop>
+  <tabstop>ClrAvgButton</tabstop>
   <tabstop>DecodeButton</tabstop>
   <tabstop>autoButton</tabstop>
   <tabstop>stopTxButton</tabstop>
   <tabstop>tuneButton</tabstop>
-  <tabstop>bandComboBox</tabstop>
   <tabstop>inGain</tabstop>
+  <tabstop>dxCallEntry</tabstop>
+  <tabstop>dxGridEntry</tabstop>
+  <tabstop>lookupButton</tabstop>
+  <tabstop>addButton</tabstop>
+  <tabstop>txFirstCheckBox</tabstop>
   <tabstop>TxFreqSpinBox</tabstop>
+  <tabstop>RxFreqSpinBox</tabstop>
+  <tabstop>sbFtol</tabstop>
+  <tabstop>rptSpinBox</tabstop>
+  <tabstop>sbTR</tabstop>
+  <tabstop>sbCQRxFreq</tabstop>
+  <tabstop>cbCQRx</tabstop>
+  <tabstop>cbShMsgs</tabstop>
+  <tabstop>cbFast9</tabstop>
+  <tabstop>cbAutoSeq</tabstop>
+  <tabstop>cbTx6</tabstop>
+  <tabstop>pbTxMode</tabstop>
+  <tabstop>pbR2T</tabstop>
+  <tabstop>pbT2R</tabstop>
+  <tabstop>cbTxLock</tabstop>
+  <tabstop>sbSubmode</tabstop>
+  <tabstop>syncSpinBox</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>pbCallCQ</tabstop>
+  <tabstop>pbAnswerCQ</tabstop>
+  <tabstop>pbAnswerCaller</tabstop>
+  <tabstop>pbSendReport</tabstop>
+  <tabstop>pbSendRRR</tabstop>
+  <tabstop>pbSend73</tabstop>
+  <tabstop>genMsg</tabstop>
+  <tabstop>rbGenMsg</tabstop>
+  <tabstop>freeTextMsg</tabstop>
+  <tabstop>rbFreeText</tabstop>
+  <tabstop>outAttenuation</tabstop>
   <tabstop>genStdMsgsPushButton</tabstop>
   <tabstop>tx1</tabstop>
   <tabstop>tx2</tabstop>
   <tabstop>tx3</tabstop>
   <tabstop>tx4</tabstop>
+  <tabstop>tx5</tabstop>
   <tabstop>tx6</tabstop>
   <tabstop>txrb1</tabstop>
   <tabstop>txrb2</tabstop>
@@ -2898,15 +2935,18 @@ QPushButton[state=&quot;ok&quot;] {
   <tabstop>txb4</tabstop>
   <tabstop>txb5</tabstop>
   <tabstop>txb6</tabstop>
-  <tabstop>genMsg</tabstop>
-  <tabstop>pbAnswerCaller</tabstop>
-  <tabstop>rbFreeText</tabstop>
-  <tabstop>pbSendRRR</tabstop>
-  <tabstop>pbAnswerCQ</tabstop>
-  <tabstop>pbSendReport</tabstop>
-  <tabstop>pbSend73</tabstop>
-  <tabstop>rbGenMsg</tabstop>
-  <tabstop>pbCallCQ</tabstop>
+  <tabstop>band_hopping_group_box</tabstop>
+  <tabstop>band_hopping_schedule_push_button</tabstop>
+  <tabstop>cbUploadWSPR_Spots</tabstop>
+  <tabstop>WSPR_prefer_type_1_check_box</tabstop>
+  <tabstop>pbTxNext</tabstop>
+  <tabstop>TxPowerComboBox</tabstop>
+  <tabstop>WSPRfreqSpinBox</tabstop>
+  <tabstop>decodedTextBrowser2</tabstop>
+  <tabstop>decodedTextBrowser</tabstop>
+  <tabstop>bandComboBox</tabstop>
+  <tabstop>sbTxPercent</tabstop>
+  <tabstop>readFreq</tabstop>
  </tabstops>
  <resources/>
  <connections/>

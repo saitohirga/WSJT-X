@@ -35,10 +35,8 @@ EchoGraph::EchoGraph(QSettings * settings, QWidget *parent) :
   ui->echoPlot->m_binsPerPixel=n;
   ui->binsPerPixelSpinBox->setValue(n);
   ui->echoPlot->m_blue=m_settings->value("BlueCurve",false).toBool();
-  ui->cbBlue->setChecked(ui->echoPlot->m_blue);
   m_nColor=m_settings->value("EchoColors",0).toInt();
   m_settings->endGroup();
-  ui->cbBlue->setVisible(false);                   //Not using "blue" (for now, at least)
   ui->echoPlot->setColors(m_nColor);
 }
 
@@ -76,12 +74,6 @@ void EchoGraph::plotSpec()
 void EchoGraph::on_smoothSpinBox_valueChanged(int n)
 {
   ui->echoPlot->setSmooth(n);
-  ui->echoPlot->draw();
-}
-
-void EchoGraph::on_cbBlue_toggled(bool checked)
-{
-  ui->echoPlot->m_blue=checked;
   ui->echoPlot->draw();
 }
 
