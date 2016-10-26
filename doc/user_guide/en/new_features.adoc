@@ -36,13 +36,13 @@ restored for each band
 In this manual the following icons call attention to particular types
 of information:
 
-NOTE: Tidbits of information that may be of interest to particuar
-classes of users.
+NOTE: *Notes* containing information that may be of interest to
+particuar classes of users.
 
-TIP: Helpful advice on program features or capabilities that might
-otherwise be overlooked.
+TIP: *Tips* on program features or capabilities that might otherwise be
+overlooked.
 
-IMPORTANT: Warnings about usage that could lead to undesired
+IMPORTANT: *Warnings* about usage that could lead to undesired
 consequences.
 
 === How You Can Contribute
