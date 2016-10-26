@@ -7,24 +7,26 @@ added to _WSJT-X_ since Version 1.6.0:
 
 - Newly implemented submodes: JT65B-C, JT9B-H
 
-- New fast submodes of JT9E-H
+- Fast submodes of JT9E-H
 
-- New Franke-Taylor decoder to replace the Koetter-Vardy decoder in
-JT65. Separate program `kvasd[.exe]` is no longer used.
+- New Franke-Taylor decoder to replace the Koetter-Vardy decoder
+previously used for JT65. Separate program `kvasd[.exe]` is no longer
+used.
 
 - Improvements to the JT4, JT9, and JT65 decoders
 
-- Multi-pass decoding for JT65 and WSPR.  Strong decoded signals are
-subtracted out, allowing the decoding of weaker signals.
+- Multi-pass decoding for JT65 and WSPR.  Decoded signals are
+subtracted from the received data, allowing decoding of weaker
+signals that were otherwise masked.
 
 - Improved convenience features for EME Doppler tracking
 
 - Saving and restoring of multiple program configurations
 
-- New sample-file download facility
+- Sample-file download facility
 
 - Many corrections and improvements to the Hamlib library, fixing
 balky rig-control features
 
-- Power settings for Transmit and Tune optionally remembered for 
-each band.
+- Power settings for Transmit and Tune remembered and optionally
+restored for each band

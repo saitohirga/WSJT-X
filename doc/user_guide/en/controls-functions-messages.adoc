@@ -50,6 +50,6 @@ spaces) in the *Free Msg* box.
 pre-stored macro.  Pressing *Enter* on a modified message here
 automatically adds that message to the table of stored macros.
 
-IMPORTANT: During a transmission the actual message being sent always
+TIP: During a transmission the actual message being sent always
 appears in the first box of the status bar (bottom left of the main
 screen).
