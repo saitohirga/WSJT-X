@@ -67,6 +67,7 @@ set (UG_IMGS
   images/config-menu.png
   images/decode-menu.png
   images/decodes.png
+  images/download_samples.png
   images/file-menu.png
   images/freemsg.png
   images/help-menu.png

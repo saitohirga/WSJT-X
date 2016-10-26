@@ -14,7 +14,7 @@ installation directory and its subdirectories.
 directory +
 `C:\Users\<username>\AppData\Local\WSJT-X`.
 
-IMPORTANT: Your computer may be configured so that this directory is
+TIP: Your computer may be configured so that this directory is
 "`invisible`".  It's there, however, and accessible.  An alternative
 (shortcut) directory name is `%LOCALAPPDATA%\WSJT-X\`.
 

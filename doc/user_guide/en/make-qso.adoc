@@ -31,7 +31,7 @@ lie in the range –30 to –1 dB, and values are significantly compressed
 above about -10 dB.  JT9 supports the extended range –50 to +49 dB and
 assigns more reliable numbers to relatively strong signals.
 
-IMPORTANT: Signals become visible on the waterfall around S/N = –26 dB
+NOTE: Signals become visible on the waterfall around S/N = –26 dB
 and audible (to someone with very good hearing) around –15
 dB. Thresholds for decodability are around -23 dB for JT4, –24 dB for
 JT65, –26 dB for JT9.
@@ -109,11 +109,10 @@ In each case, the compound callsign is treated as *Type 2* because the
 add-on prefix or suffix is _not_ one of those in the fixed list.  Note
 that a second callsign is never permissible in these messages.
 
-IMPORTANT: Remember that during a transmission your transmitted message is
-always displayed in the first label on the *Status Bar*, highlighted
-in yellow.  It is displayed there exactly as another station will
-receive it.  Be sure to check that you are actually transmitting the
-message you wish to send!
+TIP: During a transmission your outgoing message is displayed in the
+first label on the *Status Bar* and shown exactly as another station
+will receive it.  You can check to see that you are actually
+transmitting the message you wish to send.
 
 QSOs involving *Type 2* compound callsigns might look like either
 of the following sequences
@@ -138,7 +137,7 @@ and possibly also in a 73 transmission, as may be required by
 licensing authorities.  Other transmissions during a QSO may use the
 standard structured messages without callsign prefix or suffix. 
 
-IMPORTANT: If you are using a compound callsign, you may want to
+TIP: If you are using a compound callsign, you may want to
 experiment with the option *Message generation for type 2 compound
 callsign holders* on the *Settings | General* tab, so that messages
 will be generated that best suit your needs.
@@ -159,6 +158,6 @@ as the following checklist:
 
 - Radio filters centered and set to widest available passband (up to 5 kHz).
 
-IMPORTANT: Remember that JT4, JT9, J65, and WSPR generally do not
-require high power. Under most HF propagation conditions, QRP is the
-norm.
+TIP: Remember that in many circumstances JT4, JT9, JT65, and WSPR do
+not require high power. Under most HF propagation conditions, QRP is
+the norm.

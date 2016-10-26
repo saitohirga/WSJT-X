@@ -1,5 +1,3 @@
-// Status=review
-
 For this step and the next, you may want to pretend you are K1JT
 by entering that callsign temporarily as *My Call* on the 
 *Settings | General* tab.  Your results should then be identical to
@@ -8,8 +6,8 @@ those shown in the screen shot below.
 .Open a Wave File:
 
 - Select *File | Open* and select the file
-+...\save\samples\130418_1742.wav+. When the file opens you should see
-something similar to the to the following screen shot:
++...\save\samples\JT9\130418_1742.wav+. When the file opens you should
+see something similar to the to the following screen shot:
 
 [[X12]]
 image::main-ui.png[align="center",alt="Main UI and Wide Graph"]

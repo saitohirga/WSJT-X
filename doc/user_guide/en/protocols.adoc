@@ -97,30 +97,32 @@ Still to come ...
 
 Table 1 provides a brief summary parameters for the slow modes in
 _WSJT-X_.  Parameters K and r specify the constraint length and rate
-of the convolutional codes; n and k give the sizes of the (equivalent)
-block codes; Q is the alphabet size for the information-carrying
-channel symbols; Mod, Baud, and BW specify the modulation type, keying
-rate, and occupied bandwidth; fSync is the fraction of transmitted
-energy devoted to synchronizing symbols; TxT is the transmission
-duration, and S/N is the signal-to-noise ratio (in a 2500 Hz reference
-bandwidth) above which the probability of decoding is 50% or higher.
+of the convolutional codes; n and k specify the sizes of the
+(equivalent) block codes; Q is the alphabet size for the
+information-carrying channel symbols; Sync Energy is the fraction of
+transmitted energy devoted to synchronizing symbols; and S/N Threshold
+is the signal-to-noise ratio (in a 2500 Hz reference bandwidth) above
+which the probability of decoding is 50% or higher.
 
 [[SLOW_TAB]]
 .Parameters of Slow Modes
 [width="90%",cols="3h,^3,^2,^1,^2,^2,^2,^2,^2,^2",frame=topbot,options="header"]
 |===============================================================================
-|Mode  |FEC Type   |(n,k)   | Q|  Mod | Baud |BW (Hz)|fSync|TxT (s)|S/N (dB)
-|JT4A  |K=32, r=1/2|(206,72)| 2| 4-FSK| 4.375|  17.5 | 0.50| 47.1   | -23
-|JT9A  |K=32, r=1/2|(206,72)| 8| 9-FSK| 1.736|  15.6 | 0.19| 49.0   | -27
-|JT65A |Reed Solomon|(63,12) |64|65-FSK| 2.692| 177.6 | 0.50| 46.8   | -25
-|QRA64A|Q-ary Repeat Accumulate|(63,12) |64|64-FSK| 1.736| 111.1 | 0.25| 48.4   | -26
-| WSPR |K=32, r=1/2|(162,50)| 2| 4-FSK| 1.465|   5.9 | 0.50|110.6   | -29
+|Mode |FEC Type |(n,k) | Q|Modulation type|Keying rate (Baud)|Bandwidth (Hz)
+|Sync Energy|Tx Duration (s)|S/N Threshold (dB)
+|JT4A |K=32, r=1/2|(206,72)| 2| 4-FSK| 4.375| 17.5 |
+0.50| 47.1 | -23 |JT9A |K=32, r=1/2|(206,72)| 8| 9-FSK| 1.736| 15.6 |
+0.19| 49.0 | -27 |JT65A |Reed Solomon|(63,12) |64|65-FSK| 2.692| 177.6
+| 0.50| 46.8 | -25 |QRA64A|Q-ary Repeat Accumulate|(63,12) |64|64-FSK|
+1.736| 111.1 | 0.25| 48.4 | -26 | WSPR |K=32, r=1/2|(162,50)| 2|
+4-FSK| 1.465| 5.9 | 0.50|110.6 | -29
 |===============================================================================
 
-Submodes of the JT4, JT9, JT65, and QRA64 protocols offer wider tone
-spacings that may be desirable for channels causing significant
-Doppler spread.  Table 2 summarizes the tone spacings, bandwidths, and
-threshold sensitivities of the various submodes.
+Submodes of JT4, JT9, JT65, and QRA64 offer wider tone spacings for
+circumstances that may require them, such significant Doppler spread.
+Table 2 summarizes the tone spacings, bandwidths, and approximate
+threshold sensitivities of the various submodes when spreading is
+comparable to tone spacing.
 
 [[SLOW_SUBMODES]]
 .Parameters of Slow Submodes
