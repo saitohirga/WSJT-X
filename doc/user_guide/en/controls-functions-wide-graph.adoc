@@ -46,7 +46,8 @@ messages are used.
 - Four sliders control reference levels and scaling for waterfall
 colors and the spectrum plot.  Values around midscale are usually
 about right, depending on the input signal level, the chosen palette,
-and your own preferences.
+and your own preferences. Hover the mouse over a control to display a
+tip reminding you of its function.
 
 - *Smoothing* is active only when *Linear Average* has been selected.
 Smoothing the displayed spectrum over more than one bin can enhance
@@ -80,7 +81,7 @@ to compress the spectral display.
 spectra.
 
 - *Smooth* values greater than 0 apply running averages to the plotted
-spectra, therebu smoothing the curves over multiple bins.
+spectra, thereby smoothing the curves over multiple bins.
 
 - Label *N* shows the number of echo pulses averaged.
 

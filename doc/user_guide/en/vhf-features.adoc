@@ -38,12 +38,13 @@ received signals.
 - If you will use automatic Doppler tracking and your radio accepts
 frequency-setting commands while transmitting, check *Allow Tx
 frequency changes while transmitting*.  Transceivers known to permit
-such changes include the IC-735, IC-756 Pro II, IC-910-H, FT-817,
-FT-847, FT-857, FT-897, TS-590S, TS-590SG, TS-2000 (with Rev 9 or
-later firmware upgrade), Flex 1500 and 5000, HPSDR, Anan-10, Anan-100,
-and KX3.
+such changes include the IC-735, IC-756 Pro II, IC-910-H, FT-847,
+TS-590S, TS-590SG, TS-2000 (with Rev 9 or later firmware upgrade),
+Flex 1500 and 5000, HPSDR, Anan-10, Anan-100, and KX3.  To gain full
+benefit of Doppler tracking your radio should allow frequency changes
+under CAT control in 1 Hz steps.
 
-IMPORTANT: If your radio does not accept commands to change frequency
+NOTE: If your radio does not accept commands to change frequency
 while transmitting, Doppler tracking will be approximated with a
 single Tx frequency adjustment before a transmission starts, using a
 value computed for the middle of the Tx period.
@@ -218,10 +219,10 @@ capability being used by the MSK144 real-time decoder.  If it is well
 below 100% you may increase the decoding depth from *Fast* to *Normal*
 or *Deep*, and increase *F Tol* from 100 to 200 Hz.
 
-IMPORTANT: Most modern multi-core computers can easily handle the
+NOTE: Most modern multi-core computers can easily handle the
 optimum parameters *Deep* and *F Tol 200*.  Older and slower machines
 may not be able to keep up at these settings; in that case there will
-be a modest loss in decoding capability for the very weakest pings.
+be a modest loss in decoding capability for the weakest pings.
 
 - T/R sequences of 15 seconds or less requires selecting your
 transmitted messages very quickly.  Check *Auto Seq* to have the
@@ -245,7 +246,7 @@ enclosed in <> angle brackets, as in the following model QSO
                     <K1ABC W9XYZ> 73
 
 
-IMPORTANT: There is little or no advantage to using MSK144 *Sh*
+NOTE: There is little or no advantage to using MSK144 *Sh*
 messages at 50 or 70 MHz.  At these frequencies, most pings are long
 enough to support standard messages -- which have the advantage of
 being readable by anyone listening in.

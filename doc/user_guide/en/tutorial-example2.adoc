@@ -50,7 +50,7 @@ image::decodes.png[align="center"]
 earlier, in <<TUT_EX1,Example 1>>.  _WSJT-X_ automatically determines
 the mode of each JT9 or JT65 message.
 
-IMPORTANT: When you double-click on a signal in the waterfall it will be
+TIP: When you double-click on a signal in the waterfall it will be
 properly decoded even if on the "`wrong`" side of the *JT65 nnnn JT9*
 marker.  The Tx mode automatically switches to that of the decoded
 signal and the Rx and Tx frequency markers on the waterfall scale

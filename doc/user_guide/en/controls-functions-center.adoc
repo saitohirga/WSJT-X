@@ -23,7 +23,7 @@ Tx=Rx* to make the frequencies always track one another.  The
 on-the-air frequency of your lowest JT9 or JT65 tone is the sum of
 dial frequency and audio Tx frequency.
 
-IMPORTANT: In general we do not recommend using *Lock Tx=Rx* since it
+TIP: In general we do not recommend using *Lock Tx=Rx* since it
 encourages poor radio etiquette when running a frequency.  With *Lock
 Tx=Rx* checked, your own Tx frequency will move around following your
 callers.
@@ -33,6 +33,6 @@ inserted automatically. Typical reports for the various modes fall in
 the range –30 to +20 dB.  Remember that JT65 reports saturate at an
 upper limit of -1 dB.
 
-IMPORTANT: Consider reducing power if your QSO partner reports your
+TIP: Consider reducing power if your QSO partner reports your
 signal above -5 dB in one of the _WSJT-X_ slow modes.  These are
 supposed to be weak signal modes!
