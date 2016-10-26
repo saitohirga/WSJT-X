@@ -46,7 +46,7 @@ following sequence (60 bits per line):
 [[JT9PRO]]
 ==== JT9
 
-FEC in JT9 uses the same strong convolutional code aa JT4: constraint
+FEC in JT9 uses the same strong convolutional code as JT4: constraint
 length K=32, rate r=1/2, and a zero tail, leading to an encoded
 message length of (72+31) × 2 = 206 information-carrying
 bits. Modulation is nine-tone frequency-shift keying, 9-FSK at
@@ -249,7 +249,8 @@ and your QSO partner ± 200 Hz.
 .Parameters of Fast Modes
 [width="90%",cols="3h,^3,^2,^1,^2,^2,^2,^2,^2",frame="topbot",options="header"]
 |=====================================================================
-|Mode     |FEC Type   |(k,n)   | Q|  Mod | Baud |BW (Hz)|fSync|TxT (s)
+|Mode     |FEC Type   |(n,k)   | Q|Modulation Type|Keying rate (Baud)
+|Bandwidth (Hz)|Sync Energy|Tx Duration (s)
 |ISCAT-A  |   -       |  -     |42|42-FSK| 21.5 |  905  | 0.17| 1.176 
 |ISCAT-B  |   -       |  -     |42|42-FSK| 43.1 | 1809  | 0.17| 0.588 
 |JT9E     |K=32, r=1/2|(206,72)| 8| 9-FSK| 25.0 |  225  | 0.19| 3.400 

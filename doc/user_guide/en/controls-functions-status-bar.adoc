@@ -18,5 +18,5 @@ displayed exactly as it will be decoded by receiving stations.  A
 progress bar shows the elapsed fraction of a Tx or Rx sequence.
 Finally, if the Watchdog timer was enabled on the *settings | General*
 tab, a label in the lower right-hand corner displays the number of
-minutes remaining before timout.
+minutes remaining before timeout.
 
