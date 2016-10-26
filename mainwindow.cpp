@@ -1193,7 +1193,6 @@ void MainWindow::dataSink(qint64 frames)
 
 void MainWindow::startP1()
 {
-  qDebug() << m_cmndP1;
   p1.start(m_cmndP1);
 }
 
