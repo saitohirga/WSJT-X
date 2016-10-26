@@ -4,9 +4,7 @@
 #include <cinttypes>
 #include <limits>
 #include <functional>
-
 #include <fftw3.h>
-
 #include <QLineEdit>
 #include <QRegExpValidator>
 #include <QRegExp>
@@ -610,8 +608,12 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   ptt0Timer.setSingleShot(true);
   connect(&ptt0Timer, &QTimer::timeout, this, &MainWindow::stopTx2);
+
   ptt1Timer.setSingleShot(true);
   connect(&ptt1Timer, &QTimer::timeout, this, &MainWindow::startTx2);
+
+  p1Timer.setSingleShot(true);
+  connect(&p1Timer, &QTimer::timeout, this, &MainWindow::startP1);
 
   logQSOTimer.setSingleShot(true);
   connect(&logQSOTimer, &QTimer::timeout, this, &MainWindow::on_logQSOButton_clicked);
@@ -1180,12 +1182,19 @@ void MainWindow::dataSink(qint64 frames)
       int i1=cmnd.indexOf("/wsprd ");
       cmnd=t3.mid(0,i1+7) + t3.mid(i1+7);
       if (ui) ui->DecodeButton->setChecked (true);
-      p1.start(QDir::toNativeSeparators(cmnd));
+      m_cmndP1=QDir::toNativeSeparators(cmnd);
+      p1Timer.start(1000);
       m_decoderBusy = true;
       statusUpdate ();
     }
     m_rxDone=true;
   }
+}
+
+void MainWindow::startP1()
+{
+  qDebug() << m_cmndP1;
+  p1.start(m_cmndP1);
 }
 
 QString MainWindow::save_wave_file (QString const& name, short const * data, int seconds,
