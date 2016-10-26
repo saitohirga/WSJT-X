@@ -1041,16 +1041,15 @@ void MainWindow::fixStop()
     m_hsymStop=10;
   } else if (m_mode=="JT4"){
     m_hsymStop=176;
-    if(m_config.decode_at_52s()) m_hsymStop=184;
+    if(m_config.decode_at_52s()) m_hsymStop=179;
   } else if (m_mode=="JT9"){
     m_hsymStop=173;
     if(m_config.decode_at_52s()) m_hsymStop=179;
   } else if (m_mode=="JT65" or m_mode=="JT9+JT65"){
     m_hsymStop=174;
-    if(m_config.decode_at_52s()) m_hsymStop=183;
+    if(m_config.decode_at_52s()) m_hsymStop=179;
   } else if (m_mode=="QRA64"){
-    m_hsymStop=180;
-    if(m_config.decode_at_52s()) m_hsymStop=188;
+    m_hsymStop=179;
   }
 }
 
@@ -2154,8 +2153,6 @@ void MainWindow::decode()                                       //decode()
     isec=isec - isec%m_TRperiod;
     dec_data.params.nutc=10000*ihr + 100*imin + isec;
   }
-//  if(m_nPick==1 and m_diskData)  ???
-
   if(m_nPick==2) dec_data.params.nutc=m_nutc0;
   dec_data.params.nfqso=m_wideGraph->rxFreq();
   qint32 depth {m_ndepth};
