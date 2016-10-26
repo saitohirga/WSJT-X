@@ -7,28 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>628</width>
-    <height>591</height>
+    <height>608</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Settings</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
-   <item>
-    <widget class="QDialogButtonBox" name="configuration_dialog_button_box">
-     <property name="toolTip">
-      <string>Discard or apply configuration changes including
-resetting the radio interface and applying any
-soundcard changes</string>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
    <item>
     <widget class="QTabWidget" name="configuration_tabs">
      <property name="sizePolicy">
@@ -2459,6 +2444,21 @@ Right click for insert and delete options.</string>
      </widget>
     </widget>
    </item>
+   <item>
+    <widget class="QDialogButtonBox" name="configuration_dialog_button_box">
+     <property name="toolTip">
+      <string>Discard or apply configuration changes including
+resetting the radio interface and applying any
+soundcard changes</string>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
@@ -2604,12 +2604,12 @@ Right click for insert and delete options.</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
  </buttongroups>
 </ui>
