@@ -13,7 +13,6 @@ set (UG_SRCS
   docinfo.xml
   acknowledgements.adoc
   astro_data.adoc
-  compiling.adoc
   config-details.adoc
   controls-functions-center.adoc
   controls-functions-left.adoc
@@ -25,7 +24,6 @@ set (UG_SRCS
   cooperating-programs.adoc
   faq.adoc
   font-sizes.adoc
-  implementation.adoc
   install-from-source.adoc
   install-linux.adoc
   install-mac.adoc
