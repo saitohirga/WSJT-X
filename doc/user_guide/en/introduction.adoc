@@ -37,7 +37,7 @@ duration.  User messages are transmitted repeatedly at high rate (up
 to 250 characters per second, for MSK144) to make good use of the
 shortest meteor-trail reflections or "`pings`".  ISCAT uses free-form
 messages up to 28 characters long, while MSK144 uses the same
-structured messages as the slow modes together with an abbreviated
+structured messages as the slow modes and optionally an abbreviated
 format with hashed callsigns.  
 
 *WSPR* (pronounced "`whisper`") stands for **W**eak **S**ignal
@@ -46,7 +46,7 @@ potential propagation paths using low-power transmissions. WSPR
 messages normally carry the transmitting station’s callsign, grid
 locator, and transmitter power in dBm, and they can be decoded at
 signal-to-noise ratios as low as -28 dB in a 2500 Hz bandwidth.  WSPR
-users with internet access can automatically upload their reception
+users with internet access can automatically upload reception
 reports to a central database called {wsprnet} that provides a mapping
 facility, archival storage, and many other features.
 
