@@ -53,6 +53,7 @@ void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
                         Radio::Frequency dialFreq, QString myCall, QString myGrid,
                         bool noSuffix, bool toRTTY, bool dBtoComments)
 {
+  if(!isHidden()) return;
   ui->call->setText(hisCall);
   ui->grid->setText(hisGrid);
   ui->name->setText("");
