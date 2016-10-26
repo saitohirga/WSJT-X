@@ -5061,41 +5061,30 @@ void MainWindow::on_outAttenuation_valueChanged (int a)
 {
   QString tt_str;
   qreal dBAttn {a / 10.};       // slider interpreted as dB / 100
-  if (m_tune && m_config.pwrBandTuneMemory())
-    {
-      tt_str = tr ("Tune digital gain");
-    }
-  else
-    {
-      tt_str = tr ("Transmit digital gain");
-    }
+  if (m_tune && m_config.pwrBandTuneMemory()) {
+    tt_str = tr ("Tune digital gain");
+  } else {
+    tt_str = tr ("Transmit digital gain");
+  }
   tt_str += (a ? QString::number (-dBAttn, 'f', 1) : "0") + "dB";
-  if (!m_block_pwr_tooltip)
-    {
-      QToolTip::showText (QCursor::pos (), tt_str, ui->outAttenuation);
-    }
+  if (!m_block_pwr_tooltip) {
+    QToolTip::showText (QCursor::pos (), tt_str, ui->outAttenuation);
+  }
   QString curBand = ui->bandComboBox->currentText();
-  if (m_PwrBandSetOK && !m_tune && m_config.pwrBandTxMemory ())
-    {
-      m_pwrBandTxMemory[curBand] = a; // remember our Tx pwr
-      qDebug () << "Tx=" << QString::number(a);
-    }
-  if (m_PwrBandSetOK && m_tune && m_config.pwrBandTuneMemory())
-    {
-      m_pwrBandTuneMemory[curBand] = a; // remember our Tune pwr
-      qDebug () << "Tune=" << QString::number(a);
-    }
-  // Updating attenuation for tuning is done in stop_tuning
-
+  if (m_PwrBandSetOK && !m_tune && m_config.pwrBandTxMemory ()) {
+    m_pwrBandTxMemory[curBand] = a; // remember our Tx pwr
+  }
+  if (m_PwrBandSetOK && m_tune && m_config.pwrBandTuneMemory()) {
+    m_pwrBandTuneMemory[curBand] = a; // remember our Tune pwr
+  }
   Q_EMIT outAttenuationChanged (dBAttn);
 }
 
 void MainWindow::on_actionShort_list_of_add_on_prefixes_and_suffixes_triggered()
 {
-  if (!m_prefixes)
-    {
-      m_prefixes.reset (new HelpTextWindow {tr ("Prefixes"), ":/prefixes.txt", {"Courier", 10}});
-    }
+  if (!m_prefixes) {
+    m_prefixes.reset (new HelpTextWindow {tr ("Prefixes"), ":/prefixes.txt", {"Courier", 10}});
+  }
   m_prefixes->showNormal();
   m_prefixes->raise ();
 }
