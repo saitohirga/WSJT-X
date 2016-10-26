@@ -175,6 +175,7 @@ private slots:
   void on_actionErase_ALL_TXT_triggered();
   void on_actionErase_wsjtx_log_adi_triggered();
   void startTx2();
+  void startP1();
   void stopTx();
   void stopTx2();
   void on_pbCallCQ_clicked();
@@ -453,7 +454,7 @@ private:
 
   WSPRNet *wsprNet;
 
-  QTimer  m_guiTimer;
+  QTimer m_guiTimer;
   QTimer ptt1Timer;                 //StartTx delay
   QTimer ptt0Timer;                 //StopTx delay
   QTimer logQSOTimer;
@@ -465,6 +466,7 @@ private:
   QTimer RxQSYTimer;
   QTimer minuteTimer;
   QTimer splashTimer;
+  QTimer p1Timer;
 
   QString m_path;
   QString m_baseCall;
@@ -482,6 +484,7 @@ private:
   QString m_qsoStart;
   QString m_qsoStop;
   QString m_cmnd;
+  QString m_cmndP1;
   QString m_msgSent0;
   QString m_fileToSave;
   QString m_calls;
