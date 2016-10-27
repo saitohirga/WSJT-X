@@ -18,6 +18,11 @@ recognized ADIF format, for example 630m, 20m, or 70cm.  The band-name
 format works only if a working frequency has been set for that band
 and mode, in which case the first such match is selected.
 
+TIP: You can also enter a frequency increment in kHz above the
+currently displayed integer MHz. For example, if the displayed
+frequency is 10,368.100, enter `165k` (don't forget the `k`!) to QSY
+to 10,368.165.
+
 * A small colored circle appears in green if the CAT control is
 activated and functional.  The green circle contains the character S
 if the rig is detected to be in *Split* mode.  The circle becomes red

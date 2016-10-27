@@ -7,12 +7,12 @@ Short list of new features
 2.  Newly implemented submodes: JT65B-C, JT9B-H (wide and fast).
 3.  FT decoder replaces KV decoder for JT65; KVASD is no longer used.
 4.  Improvements to JT4, JT9, and JT65 decoders.
-5.  Multi-pass decoding for JT65 and WSPR.
+5.  Multi-pass decoding now implemented for JT65 as well as WSPR.
 6.  Many improvements to Rig Control.
 7.  Improved convenience features for EME Doppler tracking.
 8.  Multiple configurations can be saved and restored.
 9.  Sample-file download facility.
-10. Optional auto-sequencing for "fast" modes.
+10. Optional auto-sequencing for Fast modes.
 11. Power settings optionally remembered for Transmit and Tune on a
     band-by-band basis.
 
@@ -97,9 +97,10 @@ identify.
 Final Comments
 --------------
 
-Remember that you are using a pre-release version of WAJT-X.  We will
+Remember that you are using a pre-release version of WSJT-X.  We will
 be grateful for any and all reports from test users; these will surely
 help us to make further improvements to WSJT-X.  The most helpful bug
 reports describe the problem clearly and include a complete recipe to
 reproduce it.  Feature requests are also welcome.  Send your reports
-to wsjtgroup@yahoogroups.com.
+to wsjtgroup@yahoogroups.com, or to the developers list
+wsjt-devel@lists.sourceforge.net.
