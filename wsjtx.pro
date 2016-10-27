@@ -65,7 +65,8 @@ SOURCES += \
   WFPalette.cpp plotter.cpp widegraph.cpp about.cpp WsprTxScheduler.cpp mainwindow.cpp \
   main.cpp decodedtext.cpp wsprnet.cpp messageaveraging.cpp \
   echoplot.cpp echograph.cpp fastgraph.cpp fastplot.cpp Modes.cpp \
-  WSPRBandHopping.cpp MessageAggregator.cpp SampleDownloader.cpp
+  WSPRBandHopping.cpp MessageAggregator.cpp SampleDownloader.cpp \
+  MultiSettings.cpp
 
 HEADERS  += qt_helpers.hpp \
   pimpl_h.hpp pimpl_impl.hpp \
@@ -80,7 +81,7 @@ HEADERS  += qt_helpers.hpp \
   Configuration.hpp wsprnet.h signalmeter.h meterwidget.h \
   logbook/logbook.h logbook/countrydat.h logbook/countriesworked.h logbook/adif.h \
   messageaveraging.h echoplot.h echograph.h fastgraph.h fastplot.h Modes.hpp WSPRBandHopping.hpp \
-  WsprTxScheduler.h SampleDownloader.hpp
+  WsprTxScheduler.h SampleDownloader.hpp   MultiSettings.hpp
 
 INCLUDEPATH += qmake_only
 
