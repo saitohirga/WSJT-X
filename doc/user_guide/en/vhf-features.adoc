@@ -284,3 +284,11 @@ have been applied your return echo should always appear at the center
 of the plot area on the Echo Graph window.
 
 image::echo_144.png[align="center",alt="Echo 144 MHz"]
+
+=== VHF+ Sample Files
+
+Sample recordings typical of QSOs using the VHF/UHF/Microwave modes
+and features of _WSJT-X_ are available for
+<<DOWNLOAD_SAMPLES,download>>.  New users of the VHF-and-up features
+are strongly encouraged to practice decoding the signals in these
+files.
