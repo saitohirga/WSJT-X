@@ -20,6 +20,12 @@ image::file-menu.png[align="left",alt="File Menu"]
 ==== Configuration Menu
 image::config-menu.png[align="left",alt="File Menu"]
 
+Many users prefer to create and use entries on the *Configurations*
+menu for switching between modes.  Simply *Clone* the *Default* entry,
+*Rename* it as desired, and then make all desired settings for that
+configuration.  These settings will be restored whenever you select
+that entry.
+
 [[VIEW_MENU]]
 ==== View Menu
 image::view-menu.png[align="left",alt="View Menu"]

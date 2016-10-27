@@ -14,7 +14,7 @@ frequency limit is approximately 4000 Hz.
 
 .Open a Wave File:
 
-- Select *File | Open* and navigate to +...\save\samples\130610_2343.wav+.  
+- Select *File | Open* and navigate to +...\save\samples\JT9+JT65\130610_2343.wav+.  
 The waterfall should look something like this:
 
 //.130610_2343.wav Decode
