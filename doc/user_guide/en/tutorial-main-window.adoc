@@ -14,6 +14,7 @@ the spinner controls or use the mouse wheel.
 - Select *Tab 2* (below the *Decode* button) to choose the alternative
 set of controls for generating and selecting Tx messages.
 
+[[DOWNLOAD_SAMPLES]]
 === Download Samples
 
 - Select *Download samples...* from the *Help* menu.
