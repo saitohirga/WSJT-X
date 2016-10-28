@@ -2,26 +2,12 @@
 <ui version="4.0">
  <class>configuration_dialog</class>
  <widget class="QDialog" name="configuration_dialog">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>628</width>
-    <height>608</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>Settings</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QTabWidget" name="configuration_tabs">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
      <property name="toolTip">
       <string>Select tab to change configuration parameters.</string>
      </property>
@@ -1237,297 +1223,275 @@ radio interface behave as expected.</string>
       <attribute name="toolTip">
        <string>Audio interface settings</string>
       </attribute>
-      <widget class="QWidget" name="layoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>9</x>
-         <y>10</y>
-         <width>511</width>
-         <height>431</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_9">
-        <item>
-         <widget class="QGroupBox" name="soundcard_group_box">
-          <property name="toolTip">
-           <string>Souncard</string>
-          </property>
-          <property name="title">
-           <string>Soundcard</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_6">
-           <item row="1" column="1">
-            <widget class="QComboBox" name="sound_output_combo_box">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>1</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>Select the audio CODEC to use for transmitting.
+      <layout class="QVBoxLayout" name="verticalLayout_12">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_9">
+         <item>
+          <widget class="QGroupBox" name="soundcard_group_box">
+           <property name="toolTip">
+            <string>Souncard</string>
+           </property>
+           <property name="title">
+            <string>Soundcard</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_6">
+            <item row="1" column="1">
+             <widget class="QComboBox" name="sound_output_combo_box">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Select the audio CODEC to use for transmitting.
 If this is your default device for system sounds then
 ensure that all system sounds are disabled otherwise
 you will broadcast any systems sounds generated during
 transmitting periods.</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="sound_input_combo_box">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>1</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>Select the audio CODEC to use for receiving.</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="sound_input_label">
-             <property name="text">
-              <string>&amp;Input:</string>
-             </property>
-             <property name="buddy">
-              <cstring>sound_input_combo_box</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QComboBox" name="sound_input_channel_combo_box">
-             <property name="toolTip">
-              <string>Select the channel to use for receiving.</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>Mono</string>
               </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Left</string>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="sound_input_combo_box">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Right</string>
+              <property name="toolTip">
+               <string>Select the audio CODEC to use for receiving.</string>
               </property>
-             </item>
-             <item>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="sound_input_label">
               <property name="text">
-               <string>Both</string>
+               <string>&amp;Input:</string>
               </property>
-             </item>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QComboBox" name="sound_output_channel_combo_box">
-             <property name="toolTip">
-              <string>Select the audio channel used for transmission.
+              <property name="buddy">
+               <cstring>sound_input_combo_box</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QComboBox" name="sound_input_channel_combo_box">
+              <property name="toolTip">
+               <string>Select the channel to use for receiving.</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>Mono</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Left</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Right</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Both</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QComboBox" name="sound_output_channel_combo_box">
+              <property name="toolTip">
+               <string>Select the audio channel used for transmission.
 Unless you have multiple radios connected on different
 channels; then you will usually want to select mono or
 both here.</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>Mono</string>
               </property>
-             </item>
-             <item>
+              <item>
+               <property name="text">
+                <string>Mono</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Left</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Right</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Both</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="sound_output_label">
               <property name="text">
-               <string>Left</string>
+               <string>Ou&amp;tput:</string>
               </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Right</string>
+              <property name="buddy">
+               <cstring>sound_output_combo_box</cstring>
               </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Both</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="sound_output_label">
-             <property name="text">
-              <string>Ou&amp;tput:</string>
-             </property>
-             <property name="buddy">
-              <cstring>sound_output_combo_box</cstring>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="save_path_group_box">
-          <property name="toolTip">
-           <string>Save Directory</string>
-          </property>
-          <property name="title">
-           <string>Save Directory</string>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
-           <item>
-            <widget class="QLabel" name="save_path_label">
-             <property name="text">
-              <string>Loc&amp;ation:</string>
-             </property>
-             <property name="buddy">
-              <cstring>save_path_select_push_button</cstring>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="save_path_display_label">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>1</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>Path to which .WAV files are saved.</string>
-             </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(255, 255, 255);</string>
-             </property>
-             <property name="text">
-              <string>TextLabel</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="save_path_select_push_button">
-             <property name="toolTip">
-              <string>Click to select a different save directory for .WAV files.</string>
-             </property>
-             <property name="text">
-              <string>S&amp;elect</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="azel_path_group_box">
-          <property name="toolTip">
-           <string>AzEl Directory</string>
-          </property>
-          <property name="title">
-           <string>AzEl Directory</string>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_10">
-           <item>
-            <widget class="QLabel" name="azel_path_label">
-             <property name="text">
-              <string>Location:</string>
-             </property>
-             <property name="buddy">
-              <cstring>azel_path_select_push_button</cstring>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="azel_path_display_label">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>1</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(255, 255, 255);</string>
-             </property>
-             <property name="text">
-              <string>TextLabel</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="azel_path_select_push_button">
-             <property name="text">
-              <string>Select</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="split_operation_group_box_2">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>55</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Power Memory By Band</string>
-          </property>
-          <property name="title">
-           <string>Remember power settings by band</string>
-          </property>
-          <widget class="QCheckBox" name="checkBoxPwrBandTxMemory">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>23</y>
-             <width>90</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="toolTip">
-            <string>Enable power memory during transmit</string>
-           </property>
-           <property name="text">
-            <string>Transmit</string>
-           </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
-          <widget class="QCheckBox" name="checkBoxPwrBandTuneMemory">
-           <property name="geometry">
-            <rect>
-             <x>100</x>
-             <y>23</y>
-             <width>90</width>
-             <height>17</height>
-            </rect>
-           </property>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="save_path_group_box">
            <property name="toolTip">
-            <string>Enable power memory during tuning</string>
+            <string>Save Directory</string>
            </property>
-           <property name="text">
-            <string>Tune</string>
+           <property name="title">
+            <string>Save Directory</string>
            </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QLabel" name="save_path_label">
+              <property name="text">
+               <string>Loc&amp;ation:</string>
+              </property>
+              <property name="buddy">
+               <cstring>save_path_select_push_button</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="save_path_display_label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Path to which .WAV files are saved.</string>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(255, 255, 255);</string>
+              </property>
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="save_path_select_push_button">
+              <property name="toolTip">
+               <string>Click to select a different save directory for .WAV files.</string>
+              </property>
+              <property name="text">
+               <string>S&amp;elect</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="azel_path_group_box">
+           <property name="toolTip">
+            <string>AzEl Directory</string>
+           </property>
+           <property name="title">
+            <string>AzEl Directory</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <item>
+             <widget class="QLabel" name="azel_path_label">
+              <property name="text">
+               <string>Location:</string>
+              </property>
+              <property name="buddy">
+               <cstring>azel_path_select_push_button</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="azel_path_display_label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(255, 255, 255);</string>
+              </property>
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="azel_path_select_push_button">
+              <property name="text">
+               <string>Select</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="split_operation_group_box_2">
+           <property name="toolTip">
+            <string>Power Memory By Band</string>
+           </property>
+           <property name="title">
+            <string>Remember power settings by band</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_13">
+            <item>
+             <widget class="QCheckBox" name="checkBoxPwrBandTxMemory">
+              <property name="toolTip">
+               <string>Enable power memory during transmit</string>
+              </property>
+              <property name="text">
+               <string>Transmit</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxPwrBandTuneMemory">
+              <property name="toolTip">
+               <string>Enable power memory during tuning</string>
+              </property>
+              <property name="text">
+               <string>Tune</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tx_macros_tab">
       <attribute name="title">
@@ -2462,6 +2426,7 @@ soundcard changes</string>
   </layout>
  </widget>
  <tabstops>
+  <tabstop>configuration_tabs</tabstop>
   <tabstop>callsign_line_edit</tabstop>
   <tabstop>grid_line_edit</tabstop>
   <tabstop>type_2_msg_gen_combo_box</tabstop>
@@ -2472,10 +2437,16 @@ soundcard changes</string>
   <tabstop>font_push_button</tabstop>
   <tabstop>decoded_text_font_push_button</tabstop>
   <tabstop>monitor_off_check_box</tabstop>
+  <tabstop>monitor_last_used_check_box</tabstop>
+  <tabstop>quick_call_check_box</tabstop>
+  <tabstop>disable_TX_on_73_check_box</tabstop>
+  <tabstop>tx_watchdog_spin_box</tabstop>
+  <tabstop>CW_id_after_73_check_box</tabstop>
+  <tabstop>enable_VHF_features_check_box</tabstop>
   <tabstop>tx_QSY_check_box</tabstop>
+  <tabstop>single_decode_check_box</tabstop>
   <tabstop>decode_at_52s_check_box</tabstop>
   <tabstop>offset_Rx_freq_check_box</tabstop>
-  <tabstop>CW_id_after_73_check_box</tabstop>
   <tabstop>CW_id_interval_spin_box</tabstop>
   <tabstop>rig_combo_box</tabstop>
   <tabstop>CAT_poll_interval_spin_box</tabstop>
@@ -2511,6 +2482,8 @@ soundcard changes</string>
   <tabstop>sound_output_channel_combo_box</tabstop>
   <tabstop>save_path_select_push_button</tabstop>
   <tabstop>azel_path_select_push_button</tabstop>
+  <tabstop>checkBoxPwrBandTxMemory</tabstop>
+  <tabstop>checkBoxPwrBandTuneMemory</tabstop>
   <tabstop>add_macro_line_edit</tabstop>
   <tabstop>add_macro_push_button</tabstop>
   <tabstop>delete_macro_push_button</tabstop>
@@ -2526,15 +2499,24 @@ soundcard changes</string>
   <tabstop>udpWindowToFront</tabstop>
   <tabstop>udpWindowRestore</tabstop>
   <tabstop>frequencies_table_view</tabstop>
+  <tabstop>stations_table_view</tabstop>
   <tabstop>reset_frequencies_push_button</tabstop>
   <tabstop>calibration_intercept_spin_box</tabstop>
   <tabstop>calibration_slope_ppm_spin_box</tabstop>
-  <tabstop>stations_table_view</tabstop>
   <tabstop>pbCQmsg</tabstop>
   <tabstop>pbMyCall</tabstop>
   <tabstop>pbTxMsg</tabstop>
   <tabstop>pbNewDXCC</tabstop>
   <tabstop>pbNewCall</tabstop>
+  <tabstop>sbNtrials</tabstop>
+  <tabstop>sbAggressive</tabstop>
+  <tabstop>cbTwoPass</tabstop>
+  <tabstop>sbDegrade</tabstop>
+  <tabstop>sbBandwidth</tabstop>
+  <tabstop>sbTxDelay</tabstop>
+  <tabstop>cbContestMode</tabstop>
+  <tabstop>cbx2ToneSpacing</tabstop>
+  <tabstop>cbRealTime</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -2604,12 +2586,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
-  <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
  </buttongroups>
 </ui>
