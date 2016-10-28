@@ -666,6 +666,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->decodedTextLabel2->setText(t);
 
   readSettings();		         //Restore user's setup params
+  m_configName = m_multi_settings->common_value("CurrentName").toString();
   createStatusBar();
 
   m_audioThread.start (m_audioThreadPriority);
@@ -1400,8 +1401,8 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
                                           m_msAudioOutputBuffered);
     }
 
-    auto_tx_label.setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" :
-                                                    "Auto-Tx-Enable Disarmed");
+    auto_tx_label.setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" : "Auto-Tx-Enable Disarmed");
+
     displayDialFrequency ();
     bool vhf {m_config.enable_VHF_features()};
     m_wideGraph->setVHF(vhf);
@@ -1698,6 +1699,14 @@ void MainWindow::createStatusBar()                           //createStatusBar
   tx_status_label.setStyleSheet ("QLabel{background-color: #00ff00}");
   tx_status_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget (&tx_status_label);
+
+  if(m_configName!="Default") {
+    config_label.setAlignment (Qt::AlignHCenter);
+    config_label.setMinimumSize (QSize {80, 18});
+    config_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
+    config_label.setText(m_configName);
+    statusBar()->addWidget (&config_label);
+  }
 
   mode_label.setAlignment (Qt::AlignHCenter);
   mode_label.setMinimumSize (QSize {80, 18});
@@ -2785,7 +2794,7 @@ void MainWindow::guiUpdate()
       m_currentMessage = "TUNE";
       m_currentMessageType = -1;
     }
-    last_tx_label.setText("Last Tx:  " + m_currentMessage);
+    last_tx_label.setText("Last Tx:  " + m_currentMessage.trimmed());
     if(m_restart) {
       QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append))
@@ -2942,6 +2951,11 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
+    if(m_multi_settings->common_value("CurrentName").toString() != m_configName &&
+       m_configName!="Default") {
+      m_configName=m_multi_settings->common_value("CurrentName").toString();
+      config_label.setText(m_configName);
+    }
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
       progressBar.setMaximum(6);
       progressBar.setValue(int(m_s6));
