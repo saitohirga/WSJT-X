@@ -436,6 +436,7 @@ private:
 
   // labels in status bar
   QLabel tx_status_label;
+  QLabel config_label;
   QLabel mode_label;
   QLabel last_tx_label;
   QLabel auto_tx_label;
@@ -488,6 +489,7 @@ private:
   QString m_msgSent0;
   QString m_fileToSave;
   QString m_calls;
+  QString m_configName;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
