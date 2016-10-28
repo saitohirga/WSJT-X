@@ -36,3 +36,12 @@ upper limit of -1 dB.
 TIP: Consider reducing power if your QSO partner reports your
 signal above -5 dB in one of the _WSJT-X_ slow modes.  These are
 supposed to be weak signal modes!
+
+* With *Rx frequency offset with "CQ nnn"* checked on the *Settings ->
+General* tab and *Split operation* activated on the *Settings ->
+Radio* tab, you can activate the spinner control *CQ Rx nnn* by
+checking the box to its right.  The program will then generate
+something like `CQ 285 K1ABC FN42` for your CQ message, and it will
+handle the appropriate frequency switching between a CQ on the
+conventional calling frequency and completing your QSO on the
+specified offset frequency.

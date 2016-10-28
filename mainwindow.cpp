@@ -1433,6 +1433,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
   }
   update_watchdog_label ();
   ui->cbCQRx->setEnabled(m_splitMode);
+  if(!m_splitMode) ui->cbCQRx->setChecked(false);
 }
 
 void MainWindow::on_monitorButton_clicked (bool checked)
@@ -4245,7 +4246,7 @@ void MainWindow::on_actionMSK144_triggered()
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   ui->label_6->setText("Band Activity");
-  ui->label_7->setText("QSO Messages");
+  ui->label_7->setText("Tx Messages");
   ui->actionMSK144->setChecked(true);
   ui->rptSpinBox->setMinimum(-8);
   ui->rptSpinBox->setMaximum(24);
