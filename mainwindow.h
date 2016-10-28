@@ -489,7 +489,6 @@ private:
   QString m_msgSent0;
   QString m_fileToSave;
   QString m_calls;
-  QString m_configName;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;

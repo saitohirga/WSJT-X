@@ -340,6 +340,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_manual {network_manager}
 {
   ui->setupUi(this);
+  createStatusBar();
   add_child_to_event_filter (this);
   ui->dxGridEntry->setValidator (new MaidenheadLocatorValidator {this});
   ui->dxCallEntry->setValidator (new CallsignValidator {this});
@@ -580,6 +581,15 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&m_config, &Configuration::udp_server_port_changed, m_messageClient, &MessageClient::set_server_port);
 
   // set up configurations menu
+  connect (m_multi_settings, &MultiSettings::configurationNameChanged, [this] (QString const& name) {
+      if ("Default" != name) {
+        config_label.setText (name);
+        config_label.show ();
+      }
+      else {
+        config_label.hide ();
+      }
+    });
   m_multi_settings->create_menu_actions (this, ui->menuConfig);
   m_configurations_button = m_rigErrorMessageBox.addButton (tr ("Configurations...")
                                                             , QMessageBox::ActionRole);
@@ -666,8 +676,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->decodedTextLabel2->setText(t);
 
   readSettings();		         //Restore user's setup params
-  m_configName = m_multi_settings->common_value("CurrentName").toString();
-  createStatusBar();
 
   m_audioThread.start (m_audioThreadPriority);
 
@@ -1701,13 +1709,11 @@ void MainWindow::createStatusBar()                           //createStatusBar
   tx_status_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget (&tx_status_label);
 
-  if(m_configName!="Default") {
-    config_label.setAlignment (Qt::AlignHCenter);
-    config_label.setMinimumSize (QSize {80, 18});
-    config_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
-    config_label.setText(m_configName);
-    statusBar()->addWidget (&config_label);
-  }
+  config_label.setAlignment (Qt::AlignHCenter);
+  config_label.setMinimumSize (QSize {80, 18});
+  config_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
+  statusBar()->addWidget (&config_label);
+  config_label.hide ();         // only shown for non-default configuration
 
   mode_label.setAlignment (Qt::AlignHCenter);
   mode_label.setMinimumSize (QSize {80, 18});
@@ -2952,11 +2958,6 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-    if(m_multi_settings->common_value("CurrentName").toString() != m_configName &&
-       m_configName!="Default") {
-      m_configName=m_multi_settings->common_value("CurrentName").toString();
-      config_label.setText(m_configName);
-    }
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
       progressBar.setMaximum(6);
       progressBar.setValue(int(m_s6));

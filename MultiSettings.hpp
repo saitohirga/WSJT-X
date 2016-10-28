@@ -1,6 +1,7 @@
 #ifndef MULTISETTINGS_HPP__
 #define MULTISETTINGS_HPP__
 
+#include <QObject>
 #include <QVariant>
 
 #include "pimpl_h.hpp"
@@ -59,7 +60,10 @@ class QString;
 //
 
 class MultiSettings
+  : public QObject
 {
+  Q_OBJECT
+
 public:
   explicit MultiSettings ();
   MultiSettings (MultiSettings const&) = delete;
@@ -85,6 +89,9 @@ public:
   // recreated,  shown  and  the application  exec()  function  called
   // again.
   bool exit ();
+
+  // emitted when the name of the current configuration changes
+  Q_SIGNAL void configurationNameChanged (QString const& name) const;
 
 private:
   class impl;

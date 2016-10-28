@@ -144,7 +144,7 @@ class MultiSettings::impl final
   Q_OBJECT
 
 public:
-  explicit impl ();
+  explicit impl (MultiSettings const * parent);
   bool reposition ();
   void create_menu_actions (QMainWindow * main_window, QMenu * menu);
   bool exit ();
@@ -183,6 +183,9 @@ private:
   // remove a configuration
   void delete_configuration (QMainWindow *);
 
+  MultiSettings const * parent_;  // required for emitting signals
+  bool name_change_emit_pending_; // delayed until menu built
+
   QFont original_font_;
   QString current_;
 
@@ -203,8 +206,10 @@ private:
 };
 
 #include "MultiSettings.moc"
+#include "moc_MultiSettings.cpp"
 
 MultiSettings::MultiSettings ()
+  : m_ {this}
 {
 }
 
@@ -265,8 +270,10 @@ bool MultiSettings::exit ()
   return m_->exit ();
 }
 
-MultiSettings::impl::impl ()
+MultiSettings::impl::impl (MultiSettings const * parent)
   : settings_ {settings_path (), QSettings::IniFormat}
+  , parent_ {parent}
+  , name_change_emit_pending_ {true}
   , reposition_type_ {RepositionType::unchanged}
   , exit_flag_ {true}
   , configurations_group_ {new QActionGroup {this}}
@@ -382,6 +389,7 @@ bool MultiSettings::impl::reposition ()
   reposition_type_ = RepositionType::unchanged; // reset
   bool exit {exit_flag_};
   exit_flag_ = true;           // reset exit flag so normal exit works
+
   return exit;
 }
 
@@ -430,6 +438,12 @@ void MultiSettings::impl::create_menu_actions (QMainWindow * main_window, QMenu 
       delete_configuration (main_window);
     });
   if (current_group.size ()) settings_.beginGroup (current_group);
+
+  if (name_change_emit_pending_)
+    {
+      Q_EMIT parent_->configurationNameChanged (current_);
+      name_change_emit_pending_ = false;
+    }
 }
 
 // call this at the end of the main program loop to determine if the
@@ -441,6 +455,9 @@ bool MultiSettings::impl::exit ()
       disconnect (connection);
     }
   action_connections_.clear ();
+
+  // ensure that configuration name changed signal gets fired on restart
+  name_change_emit_pending_ = true;
 
   // do any configuration swap required and return exit flag
   return reposition ();
@@ -532,6 +549,7 @@ void MultiSettings::impl::select_configuration (QMainWindow * main_window)
           }
           // and set up the restart
           current_ = target_name;
+          Q_EMIT parent_->configurationNameChanged (current_);
           reposition_type_ = RepositionType::save_and_replace;
           exit_flag_ = false;
           main_window->close ();
@@ -708,6 +726,7 @@ void MultiSettings::impl::rename_configuration (QMainWindow * main_window)
               settings_.setValue (multi_settings_current_name_key, dialog.new_name ());
               settings_.sync ();
               current_ = dialog.new_name ();
+              Q_EMIT parent_->configurationNameChanged (current_);
             }
           else
             {
