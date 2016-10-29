@@ -155,7 +155,8 @@ private:
   using Dictionary = QMap<QString, QVariant>;
 
   // create a configuration maintenance sub menu
-  QMenu * create_sub_menu (QMenu * parent,
+  QMenu * create_sub_menu (QMainWindow * main_window,
+			   QMenu * parent,
                            QString const& menu_title,
                            QActionGroup * = nullptr);
 
@@ -166,22 +167,22 @@ private:
   void load_from (Dictionary const&, bool add_placeholder = true);
 
   // switch to this configuration
-  void select_configuration (QMainWindow *);
+  void select_configuration (QMainWindow *, QMenu const *);
 
   // clone this configuration
-  void clone_configuration (QMenu *);
+  void clone_configuration (QMainWindow * main_window, QMenu *, QMenu const *);
 
   // update this configuration from another
-  void clone_into_configuration (QMainWindow *);
+  void clone_into_configuration (QMainWindow *, QMenu const *);
 
   // reset configuration to default values
-  void reset_configuration (QMainWindow *);
+  void reset_configuration (QMainWindow *, QMenu const *);
 
   // change configuration name
-  void rename_configuration (QMainWindow *);
+  void rename_configuration (QMainWindow *, QMenu *);
 
   // remove a configuration
-  void delete_configuration (QMainWindow *);
+  void delete_configuration (QMainWindow *, QMenu *);
 
   MultiSettings const * parent_;  // required for emitting signals
   bool name_change_emit_pending_; // delayed until menu built
@@ -195,14 +196,6 @@ private:
   bool exit_flag_;              // false means loop around with new
                                 // configuration
   QActionGroup * configurations_group_;
-  QAction * select_action_;
-  QAction * clone_action_;
-  QAction * clone_into_action_;
-  QAction * reset_action_;
-  QAction * rename_action_;
-  QAction * delete_action_;
-  QList<QMetaObject::Connection> action_connections_;
-  QMenu * active_sub_menu_;
 };
 
 #include "MultiSettings.moc"
@@ -277,13 +270,6 @@ MultiSettings::impl::impl (MultiSettings const * parent)
   , reposition_type_ {RepositionType::unchanged}
   , exit_flag_ {true}
   , configurations_group_ {new QActionGroup {this}}
-  , select_action_ {new QAction {tr ("&Switch To"), this}}
-  , clone_action_ {new QAction {tr ("&Clone"), this}}
-  , clone_into_action_ {new QAction {tr ("Clone &Into ..."), this}}
-  , reset_action_ {new QAction {tr ("R&eset"), this}}
-  , rename_action_ {new QAction {tr ("&Rename ..."), this}}
-  , delete_action_ {new QAction {tr ("&Delete"), this}}
-  , active_sub_menu_ {nullptr}
 {
   if (!settings_.isWritable ())
     {
@@ -373,7 +359,7 @@ bool MultiSettings::impl::reposition ()
         SettingsGroup alternatives {&settings_, multi_settings_root_group};
         {
           SettingsGroup purge_group {&settings_, current_};
-          settings_.remove ("");  // purge entire group
+          settings_.remove (QString {});  // purge entire group
         }
         // switch to the specified configuration name
         settings_.setValue (multi_settings_current_name_key, current_);
@@ -404,7 +390,7 @@ void MultiSettings::impl::create_menu_actions (QMainWindow * main_window, QMenu 
   // get the current configuration name
   auto current_configuration_name = settings_.value (multi_settings_current_name_key, tr (default_string)).toString ();
   // add the default configuration sub menu
-  QMenu * default_menu = create_sub_menu (menu, current_configuration_name, configurations_group_);
+  QMenu * default_menu = create_sub_menu (main_window, menu, current_configuration_name, configurations_group_);
   // and set as the current configuration
   default_menu->menuAction ()->setChecked (true);
 
@@ -415,28 +401,9 @@ void MultiSettings::impl::create_menu_actions (QMainWindow * main_window, QMenu 
   // add all the other configurations
   for (auto const& configuration_name: available_configurations)
     {
-      create_sub_menu (menu, configuration_name, configurations_group_);
+      create_sub_menu (main_window, menu, configuration_name, configurations_group_);
     }
 
-  // hook up configuration actions
-  action_connections_ << connect (select_action_, &QAction::triggered, [this, main_window] (bool) {
-      select_configuration (main_window);
-    });
-  action_connections_ << connect (clone_action_, &QAction::triggered, [this, menu] (bool) {
-      clone_configuration (menu);
-    });
-  action_connections_ << connect (clone_into_action_, &QAction::triggered, [this, main_window] (bool) {
-      clone_into_configuration (main_window);
-    });
-  action_connections_ << connect (rename_action_, &QAction::triggered, [this, main_window] (bool) {
-      rename_configuration (main_window);
-    });
-  action_connections_ << connect (reset_action_, &QAction::triggered, [this, main_window] (bool) {
-      reset_configuration (main_window);
-    });
-  action_connections_ << connect (delete_action_, &QAction::triggered, [this, main_window] (bool) {
-      delete_configuration (main_window);
-    });
   if (current_group.size ()) settings_.beginGroup (current_group);
 
   if (name_change_emit_pending_)
@@ -450,12 +417,6 @@ void MultiSettings::impl::create_menu_actions (QMainWindow * main_window, QMenu 
 // main window really wants to quit or to run again with a new configuration
 bool MultiSettings::impl::exit ()
 {
-  for (auto const& connection: action_connections_)
-    {
-      disconnect (connection);
-    }
-  action_connections_.clear ();
-
   // ensure that configuration name changed signal gets fired on restart
   name_change_emit_pending_ = true;
 
@@ -463,32 +424,74 @@ bool MultiSettings::impl::exit ()
   return reposition ();
 }
 
-QMenu * MultiSettings::impl::create_sub_menu (QMenu * parent_menu,
+QMenu * MultiSettings::impl::create_sub_menu (QMainWindow * main_window,
+					      QMenu * parent_menu,
                                               QString const& menu_title,
                                               QActionGroup * action_group)
 {
   QMenu * sub_menu = parent_menu->addMenu (menu_title);
   if (action_group) action_group->addAction (sub_menu->menuAction ());
   sub_menu->menuAction ()->setCheckable (true);
-  sub_menu->addAction (select_action_);
-  sub_menu->addSeparator ();
-  sub_menu->addAction (clone_action_);
-  sub_menu->addAction (clone_into_action_);
-  sub_menu->addAction (rename_action_);
-  sub_menu->addAction (reset_action_);
-  sub_menu->addAction (delete_action_);
 
-  // disable disallowed actions before showing sub menu
-  connect (sub_menu, &QMenu::aboutToShow, [this, sub_menu] () {
+  // populate sub-menu actions before showing
+  connect (sub_menu, &QMenu::aboutToShow, [this, main_window, parent_menu, sub_menu] () {
       bool is_current {sub_menu->menuAction ()->text () == current_};
-      select_action_->setEnabled (!is_current);
-      delete_action_->setEnabled (!is_current);
+      if (!is_current)
+	{
+	  auto  * select_action = new QAction {tr ("&Switch To"), this};
+	  sub_menu->addAction (select_action);
+	  connect (select_action, &QAction::triggered, [this, main_window, sub_menu] (bool) {
+	      select_configuration (main_window, sub_menu);
+	    });
+	  sub_menu->addSeparator ();
+	}
+
+      auto * clone_action = new QAction {tr ("&Clone"), this};
+      sub_menu->addAction (clone_action);
+      connect (clone_action, &QAction::triggered, [this, main_window, parent_menu, sub_menu] (bool) {
+	  clone_configuration (main_window, parent_menu, sub_menu);
+	});
+
       auto const& current_group = settings_.group ();
       if (current_group.size ()) settings_.endGroup ();
       SettingsGroup alternatives {&settings_, multi_settings_root_group};
-      clone_into_action_->setEnabled (settings_.childGroups ().size ());
+      if (settings_.childGroups ().size ())
+	{
+	  auto * clone_into_action = new QAction {tr ("Clone &Into ..."), this};
+	  sub_menu->addAction (clone_into_action);
+	  connect (clone_into_action, &QAction::triggered, [this, main_window, sub_menu] (bool) {
+	      clone_into_configuration (main_window, sub_menu);
+	    });
+	}
       if (current_group.size ()) settings_.beginGroup (current_group);
-      active_sub_menu_ = sub_menu;
+      auto * reset_action = new QAction {tr ("R&eset"), this};
+      sub_menu->addAction (reset_action);
+      connect (reset_action, &QAction::triggered, [this, main_window, sub_menu] (bool) {
+	  reset_configuration (main_window, sub_menu);
+	});
+
+      auto * rename_action = new QAction {tr ("&Rename ..."), this};
+      sub_menu->addAction (rename_action);
+      connect (rename_action, &QAction::triggered, [this, main_window, sub_menu] (bool) {
+	  rename_configuration (main_window, sub_menu);
+	});
+
+      if (!is_current)
+	{
+	  auto * delete_action = new QAction {tr ("&Delete"), this};
+	  sub_menu->addAction (delete_action);
+	  connect (delete_action, &QAction::triggered, [this, main_window, sub_menu] (bool) {
+	      delete_configuration (main_window, sub_menu);
+	    });
+	}
+    });
+
+  // depopulate sub-menu actions before hiding
+  connect (sub_menu, &QMenu::aboutToHide, [this, sub_menu] () {
+      while (!sub_menu->actions ().isEmpty ())
+	{
+	  sub_menu->removeAction (sub_menu->actions ().last ());
+	}
     });
 
   return sub_menu;
@@ -529,256 +532,238 @@ void MultiSettings::impl::load_from (Dictionary const& dictionary, bool add_plac
   settings_.sync ();
 }
 
-void MultiSettings::impl::select_configuration (QMainWindow * main_window)
+void MultiSettings::impl::select_configuration (QMainWindow * main_window, QMenu const * menu)
 {
-  if (active_sub_menu_)
+  auto const& target_name = menu->title ();
+
+  if (target_name != current_)
     {
-      auto const& target_name = active_sub_menu_->title ();
-
-      if (target_name != current_)
-        {
-          {
-            auto const& current_group = settings_.group ();
-            if (current_group.size ()) settings_.endGroup ();
-            // position to the alternative settings
-            SettingsGroup alternatives {&settings_, multi_settings_root_group};
-            // save the target settings
-            SettingsGroup target_group {&settings_, target_name};
-            new_settings_ = get_settings ();
-            if (current_group.size ()) settings_.beginGroup (current_group);
-          }
-          // and set up the restart
-          current_ = target_name;
-          Q_EMIT parent_->configurationNameChanged (current_);
-          reposition_type_ = RepositionType::save_and_replace;
-          exit_flag_ = false;
-          main_window->close ();
-        }
-    }
-}
-
-void MultiSettings::impl::clone_configuration (QMenu * menu)
-{
-  if (active_sub_menu_)
-    {
-      auto const& current_group = settings_.group ();
-      if (current_group.size ()) settings_.endGroup ();
-      auto const& source_name = active_sub_menu_->title ();
-
-      // settings to clone
-      Dictionary source_settings;
-      if (source_name == current_)
-        {
-          // grab the data to clone from the current settings
-          source_settings = get_settings ();
-        }
-      SettingsGroup alternatives {&settings_, multi_settings_root_group};
-      if (source_name != current_)
-        {
-          SettingsGroup source_group {&settings_, source_name};
-          source_settings = get_settings ();
-        }
-
-      // find a new unique name
-      QString new_name_root {source_name + " - Copy"};;
-      QString new_name {new_name_root};
-      unsigned index {0};
-      do
-        {
-          if (index++) new_name = new_name_root + '(' + QString::number (index) + ')';
-        }
-      while (settings_.childGroups ().contains (new_name));
-      SettingsGroup new_group {&settings_, new_name};
-      load_from (source_settings);
-
-      // insert the new configuration sub menu in the parent menu
-      create_sub_menu (menu, new_name, configurations_group_);
-      if (current_group.size ()) settings_.beginGroup (current_group);
-    }
-}
-
-void MultiSettings::impl::clone_into_configuration (QMainWindow * main_window)
-{
-  if (active_sub_menu_)
-    {
-      auto const& current_group = settings_.group ();
-      if (current_group.size ()) settings_.endGroup ();
-      auto const& target_name = active_sub_menu_->title ();
-
-      // get the current configuration name
-      QString current_group_name;
-      QStringList sources;
       {
-        SettingsGroup alternatives {&settings_, multi_settings_root_group};
-        current_group_name = settings_.value (multi_settings_current_name_key).toString ();
-
-        {
-          // get the source configuration name for the clone
-          sources = settings_.childGroups ();
-          sources << current_group_name;
-          sources.removeOne (target_name);
-        }
+	auto const& current_group = settings_.group ();
+	if (current_group.size ()) settings_.endGroup ();
+	// position to the alternative settings
+	SettingsGroup alternatives {&settings_, multi_settings_root_group};
+	// save the target settings
+	SettingsGroup target_group {&settings_, target_name};
+	new_settings_ = get_settings ();
+	if (current_group.size ()) settings_.beginGroup (current_group);
       }
-
-      // pick a source configuration
-      ExistingNameDialog dialog {sources, main_window};
-      if (sources.size () && (1 == sources.size () || QDialog::Accepted == dialog.exec ()))
-        {
-          QString source_name {1 == sources.size () ? sources.at (0) : dialog.name ()};
-          if (MessageBox::Yes == MessageBox::query_message (main_window,
-                                                            tr ("Clone Into Configuration"),
-                                                            tr ("Confirm overwrite of all values for configuration \"%1\" with values from \"%2\"?")
-                                                            .arg (target_name)
-                                                            .arg (source_name)))
-            {
-              // grab the data to clone from
-              if (source_name == current_group_name)
-                {
-                  // grab the data to clone from the current settings
-                  new_settings_ = get_settings ();
-                }
-              else
-                {
-                  SettingsGroup alternatives {&settings_, multi_settings_root_group};
-                  SettingsGroup source_group {&settings_, source_name};
-                  new_settings_ = get_settings ();
-                }
-
-              // purge target settings and replace
-              if (target_name == current_)
-                {
-                  // restart with new settings
-                  reposition_type_ = RepositionType::replace;
-                  exit_flag_ = false;
-                  main_window->close ();
-                }
-              else
-                {
-                  SettingsGroup alternatives {&settings_, multi_settings_root_group};
-                  SettingsGroup target_group {&settings_, target_name};
-                  settings_.remove (""); // purge entire group
-                  load_from (new_settings_);
-                  new_settings_.clear ();
-                }
-            }
-        }
-      if (current_group.size ()) settings_.beginGroup (current_group);
+      // and set up the restart
+      current_ = target_name;
+      Q_EMIT parent_->configurationNameChanged (current_);
+      reposition_type_ = RepositionType::save_and_replace;
+      exit_flag_ = false;
+      main_window->close ();
     }
 }
 
-void MultiSettings::impl::reset_configuration (QMainWindow * main_window)
+void MultiSettings::impl::clone_configuration (QMainWindow * main_window, QMenu * parent_menu, QMenu const * menu)
 {
-  if (active_sub_menu_)
+  auto const& current_group = settings_.group ();
+  if (current_group.size ()) settings_.endGroup ();
+  auto const& source_name = menu->title ();
+
+  // settings to clone
+  Dictionary source_settings;
+  if (source_name == current_)
     {
-      auto const& target_name = active_sub_menu_->title ();
-
-      if (MessageBox::Yes != MessageBox::query_message (main_window,
-                                                        tr ("Reset Configuration"),
-                                                        tr ("Confirm reset to default values for configuration \"%1\"?")
-                                                        .arg (target_name)))
-        {
-          return;
-        }
-
-      if (target_name == current_)
-        {
-          // restart with default settings
-          reposition_type_ = RepositionType::replace;
-          new_settings_.clear ();
-          exit_flag_ = false;
-          main_window->close ();
-        }
-      else
-        {
-          auto const& current_group = settings_.group ();
-          if (current_group.size ()) settings_.endGroup ();
-          SettingsGroup alternatives {&settings_, multi_settings_root_group};
-          SettingsGroup target_group {&settings_, target_name};
-          settings_.remove (""); // purge entire group
-          // add a placeholder to stop alternative configuration name
-          // being lost
-          settings_.setValue (multi_settings_place_holder_key, QVariant {});
-          settings_.sync ();
-          if (current_group.size ()) settings_.beginGroup (current_group);
-        }
+      // grab the data to clone from the current settings
+      source_settings = get_settings ();
     }
+  SettingsGroup alternatives {&settings_, multi_settings_root_group};
+  if (source_name != current_)
+    {
+      SettingsGroup source_group {&settings_, source_name};
+      source_settings = get_settings ();
+    }
+
+  // find a new unique name
+  QString new_name_root {source_name + " - Copy"};;
+  QString new_name {new_name_root};
+  unsigned index {0};
+  do
+    {
+      if (index++) new_name = new_name_root + '(' + QString::number (index) + ')';
+    }
+  while (settings_.childGroups ().contains (new_name) || new_name == current_);
+  SettingsGroup new_group {&settings_, new_name};
+  load_from (source_settings);
+
+  // insert the new configuration sub menu in the parent menu
+  create_sub_menu (main_window, parent_menu, new_name, configurations_group_);
+  if (current_group.size ()) settings_.beginGroup (current_group);
 }
 
-void MultiSettings::impl::rename_configuration (QMainWindow * main_window)
+void MultiSettings::impl::clone_into_configuration (QMainWindow * main_window, QMenu const * menu)
 {
-  if (active_sub_menu_)
+  auto const& current_group = settings_.group ();
+  if (current_group.size ()) settings_.endGroup ();
+  auto const& target_name = menu->title ();
+
+  // get the current configuration name
+  QString current_group_name;
+  QStringList sources;
+  {
+    SettingsGroup alternatives {&settings_, multi_settings_root_group};
+    current_group_name = settings_.value (multi_settings_current_name_key).toString ();
+
+    {
+      // get the source configuration name for the clone
+      sources = settings_.childGroups ();
+      sources << current_group_name;
+      sources.removeOne (target_name);
+    }
+  }
+
+  // pick a source configuration
+  ExistingNameDialog dialog {sources, main_window};
+  if (sources.size () && (1 == sources.size () || QDialog::Accepted == dialog.exec ()))
+    {
+      QString source_name {1 == sources.size () ? sources.at (0) : dialog.name ()};
+      if (MessageBox::Yes == MessageBox::query_message (main_window,
+							tr ("Clone Into Configuration"),
+							tr ("Confirm overwrite of all values for configuration \"%1\" with values from \"%2\"?")
+							.arg (target_name)
+							.arg (source_name)))
+	{
+	  // grab the data to clone from
+	  if (source_name == current_group_name)
+	    {
+	      // grab the data to clone from the current settings
+	      new_settings_ = get_settings ();
+	    }
+	  else
+	    {
+	      SettingsGroup alternatives {&settings_, multi_settings_root_group};
+	      SettingsGroup source_group {&settings_, source_name};
+	      new_settings_ = get_settings ();
+	    }
+
+	  // purge target settings and replace
+	  if (target_name == current_)
+	    {
+	      // restart with new settings
+	      reposition_type_ = RepositionType::replace;
+	      exit_flag_ = false;
+	      main_window->close ();
+	    }
+	  else
+	    {
+	      SettingsGroup alternatives {&settings_, multi_settings_root_group};
+	      SettingsGroup target_group {&settings_, target_name};
+	      settings_.remove (QString {}); // purge entire group
+	      load_from (new_settings_);
+	      new_settings_.clear ();
+	    }
+	}
+    }
+  if (current_group.size ()) settings_.beginGroup (current_group);
+}
+
+void MultiSettings::impl::reset_configuration (QMainWindow * main_window, QMenu const * menu)
+{
+  auto const& target_name = menu->title ();
+
+  if (MessageBox::Yes != MessageBox::query_message (main_window,
+						    tr ("Reset Configuration"),
+						    tr ("Confirm reset to default values for configuration \"%1\"?")
+						    .arg (target_name)))
+    {
+      return;
+    }
+
+  if (target_name == current_)
+    {
+      // restart with default settings
+      reposition_type_ = RepositionType::replace;
+      new_settings_.clear ();
+      exit_flag_ = false;
+      main_window->close ();
+    }
+  else
     {
       auto const& current_group = settings_.group ();
       if (current_group.size ()) settings_.endGroup ();
-      auto const& target_name = active_sub_menu_->title ();
-
-      // gather names we cannot use
       SettingsGroup alternatives {&settings_, multi_settings_root_group};
-      auto invalid_names = settings_.childGroups ();
-      invalid_names << settings_.value (multi_settings_current_name_key).toString ();
-
-      // get the new name
-      NameDialog dialog {target_name, invalid_names, main_window};
-      if (QDialog::Accepted == dialog.exec ())
-        {
-          if (target_name == current_)
-            {
-              settings_.setValue (multi_settings_current_name_key, dialog.new_name ());
-              settings_.sync ();
-              current_ = dialog.new_name ();
-              Q_EMIT parent_->configurationNameChanged (current_);
-            }
-          else
-            {
-              // switch to the target group and fetch the configuration data
-              Dictionary target_settings;
-              {
-                // grab the target configuration settings
-                SettingsGroup target_group {&settings_, target_name};
-                target_settings = get_settings ();
-                // purge the old configuration data
-                settings_.remove (""); // purge entire group
-              }
-              // load into new configuration group name
-              SettingsGroup target_group {&settings_, dialog.new_name ()};
-              load_from (target_settings);
-            }
-          // change the action text in the menu
-          active_sub_menu_->setTitle (dialog.new_name ());
-        }
+      SettingsGroup target_group {&settings_, target_name};
+      settings_.remove (QString {}); // purge entire group
+      // add a placeholder to stop alternative configuration name
+      // being lost
+      settings_.setValue (multi_settings_place_holder_key, QVariant {});
+      settings_.sync ();
       if (current_group.size ()) settings_.beginGroup (current_group);
     }
 }
 
-void MultiSettings::impl::delete_configuration (QMainWindow * main_window)
+void MultiSettings::impl::rename_configuration (QMainWindow * main_window, QMenu * menu)
 {
-  if (active_sub_menu_)
-    {
-      auto const& target_name = active_sub_menu_->title ();
+  auto const& current_group = settings_.group ();
+  if (current_group.size ()) settings_.endGroup ();
+  auto const& target_name = menu->title ();
 
+  // gather names we cannot use
+  SettingsGroup alternatives {&settings_, multi_settings_root_group};
+  auto invalid_names = settings_.childGroups ();
+  invalid_names << settings_.value (multi_settings_current_name_key).toString ();
+
+  // get the new name
+  NameDialog dialog {target_name, invalid_names, main_window};
+  if (QDialog::Accepted == dialog.exec ())
+    {
       if (target_name == current_)
-        {
-          return;               // suicide not allowed here
-        }
+	{
+	  settings_.setValue (multi_settings_current_name_key, dialog.new_name ());
+	  settings_.sync ();
+	  current_ = dialog.new_name ();
+	  Q_EMIT parent_->configurationNameChanged (current_);
+	}
       else
-        {
-          if (MessageBox::Yes != MessageBox::query_message (main_window,
-                                                            tr ("Delete Configuration"),
-                                                            tr ("Confirm deletion of configuration \"%1\"?")
-                                                            .arg (target_name)))
-            {
-              return;
-            }
-          auto const& current_group = settings_.group ();
-          if (current_group.size ()) settings_.endGroup ();
-          SettingsGroup alternatives {&settings_, multi_settings_root_group};
-          SettingsGroup target_group {&settings_, target_name};
-          // purge the configuration data
-          settings_.remove (""); // purge entire group
-          settings_.sync ();
-          if (current_group.size ()) settings_.beginGroup (current_group);
-        }
-      // update the menu
-      active_sub_menu_->deleteLater (), active_sub_menu_ = nullptr;
+	{
+	  // switch to the target group and fetch the configuration data
+	  Dictionary target_settings;
+	  {
+	    // grab the target configuration settings
+	    SettingsGroup target_group {&settings_, target_name};
+	    target_settings = get_settings ();
+	    // purge the old configuration data
+	    settings_.remove (QString {}); // purge entire group
+	  }
+	  // load into new configuration group name
+	  SettingsGroup target_group {&settings_, dialog.new_name ()};
+	  load_from (target_settings);
+	}
+      // change the action text in the menu
+      menu->setTitle (dialog.new_name ());
     }
+  if (current_group.size ()) settings_.beginGroup (current_group);
+}
+
+void MultiSettings::impl::delete_configuration (QMainWindow * main_window, QMenu * menu)
+{
+  auto const& target_name = menu->title ();
+
+  if (target_name == current_)
+    {
+      return;               // suicide not allowed here
+    }
+  else
+    {
+      if (MessageBox::Yes != MessageBox::query_message (main_window,
+							tr ("Delete Configuration"),
+							tr ("Confirm deletion of configuration \"%1\"?")
+							.arg (target_name)))
+	{
+	  return;
+	}
+      auto const& current_group = settings_.group ();
+      if (current_group.size ()) settings_.endGroup ();
+      SettingsGroup alternatives {&settings_, multi_settings_root_group};
+      SettingsGroup target_group {&settings_, target_name};
+      // purge the configuration data
+      settings_.remove (QString {}); // purge entire group
+      settings_.sync ();
+      if (current_group.size ()) settings_.beginGroup (current_group);
+    }
+  // update the menu
+  menu->deleteLater ();
 }
