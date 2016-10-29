@@ -156,7 +156,7 @@ private:
 
   // create a configuration maintenance sub menu
   QMenu * create_sub_menu (QMainWindow * main_window,
-			   QMenu * parent,
+                           QMenu * parent,
                            QString const& menu_title,
                            QActionGroup * = nullptr);
 
@@ -425,73 +425,73 @@ bool MultiSettings::impl::exit ()
 }
 
 QMenu * MultiSettings::impl::create_sub_menu (QMainWindow * main_window,
-					      QMenu * parent_menu,
+                                              QMenu * parent_menu,
                                               QString const& menu_title,
                                               QActionGroup * action_group)
 {
-  QMenu * sub_menu = parent_menu->addMenu (menu_title);
+  auto sub_menu = parent_menu->addMenu (menu_title);
   if (action_group) action_group->addAction (sub_menu->menuAction ());
   sub_menu->menuAction ()->setCheckable (true);
 
   // populate sub-menu actions before showing
   connect (sub_menu, &QMenu::aboutToShow, [this, main_window, parent_menu, sub_menu] () {
+      // depopulate before populating and showing because on Mac OS X
+      // there is an issue with depopulating in QMenu::aboutToHide()
+      // with connections being disconnected before they are actioned
+      while (!sub_menu->actions ().isEmpty ())
+        {
+          sub_menu->removeAction (sub_menu->actions ().last ());
+        }
+
       bool is_current {sub_menu->menuAction ()->text () == current_};
       if (!is_current)
-	{
-	  auto  * select_action = new QAction {tr ("&Switch To"), this};
-	  sub_menu->addAction (select_action);
-	  connect (select_action, &QAction::triggered, [this, main_window, sub_menu] (bool) {
-	      select_configuration (main_window, sub_menu);
-	    });
-	  sub_menu->addSeparator ();
-	}
+        {
+          auto select_action = new QAction {tr ("&Switch To"), this};
+          sub_menu->addAction (select_action);
+          connect (select_action, &QAction::triggered, [this, main_window, sub_menu] (bool) {
+              select_configuration (main_window, sub_menu);
+            });
+          sub_menu->addSeparator ();
+        }
 
-      auto * clone_action = new QAction {tr ("&Clone"), this};
+      auto clone_action = new QAction {tr ("&Clone"), this};
       sub_menu->addAction (clone_action);
       connect (clone_action, &QAction::triggered, [this, main_window, parent_menu, sub_menu] (bool) {
-	  clone_configuration (main_window, parent_menu, sub_menu);
-	});
+          clone_configuration (main_window, parent_menu, sub_menu);
+        });
 
       auto const& current_group = settings_.group ();
       if (current_group.size ()) settings_.endGroup ();
       SettingsGroup alternatives {&settings_, multi_settings_root_group};
       if (settings_.childGroups ().size ())
-	{
-	  auto * clone_into_action = new QAction {tr ("Clone &Into ..."), this};
-	  sub_menu->addAction (clone_into_action);
-	  connect (clone_into_action, &QAction::triggered, [this, main_window, sub_menu] (bool) {
-	      clone_into_configuration (main_window, sub_menu);
-	    });
-	}
+        {
+          auto clone_into_action = new QAction {tr ("Clone &Into ..."), this};
+          sub_menu->addAction (clone_into_action);
+          connect (clone_into_action, &QAction::triggered, [this, main_window, sub_menu] (bool) {
+              clone_into_configuration (main_window, sub_menu);
+            });
+        }
       if (current_group.size ()) settings_.beginGroup (current_group);
-      auto * reset_action = new QAction {tr ("R&eset"), this};
+      auto reset_action = new QAction {tr ("R&eset"), this};
       sub_menu->addAction (reset_action);
       connect (reset_action, &QAction::triggered, [this, main_window, sub_menu] (bool) {
-	  reset_configuration (main_window, sub_menu);
-	});
+          reset_configuration (main_window, sub_menu);
+        });
 
-      auto * rename_action = new QAction {tr ("&Rename ..."), this};
+      auto rename_action = new QAction {tr ("&Rename ..."), this};
       sub_menu->addAction (rename_action);
       connect (rename_action, &QAction::triggered, [this, main_window, sub_menu] (bool) {
-	  rename_configuration (main_window, sub_menu);
-	});
+          rename_configuration (main_window, sub_menu);
+        });
 
       if (!is_current)
-	{
-	  auto * delete_action = new QAction {tr ("&Delete"), this};
-	  sub_menu->addAction (delete_action);
-	  connect (delete_action, &QAction::triggered, [this, main_window, sub_menu] (bool) {
-	      delete_configuration (main_window, sub_menu);
-	    });
-	}
-    });
-
-  // depopulate sub-menu actions before hiding
-  connect (sub_menu, &QMenu::aboutToHide, [this, sub_menu] () {
-      while (!sub_menu->actions ().isEmpty ())
-	{
-	  sub_menu->removeAction (sub_menu->actions ().last ());
-	}
+        {
+          auto delete_action = new QAction {tr ("&Delete"), this};
+          sub_menu->addAction (delete_action);
+          connect (delete_action, &QAction::triggered, [this, main_window, sub_menu] (bool) {
+              delete_configuration (main_window, sub_menu);
+            });
+        }
     });
 
   return sub_menu;
