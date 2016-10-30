@@ -65,7 +65,7 @@ SOURCES += \
   WFPalette.cpp plotter.cpp widegraph.cpp about.cpp WsprTxScheduler.cpp mainwindow.cpp \
   main.cpp decodedtext.cpp wsprnet.cpp messageaveraging.cpp \
   echoplot.cpp echograph.cpp fastgraph.cpp fastplot.cpp Modes.cpp \
-  WSPRBandHopping.cpp MessageAggregator.cpp SampleDownloader.cpp \
+  WSPRBandHopping.cpp MessageAggregator.cpp SampleDownloader.cpp qt_helpers.cpp\
   MultiSettings.cpp
 
 HEADERS  += qt_helpers.hpp \
