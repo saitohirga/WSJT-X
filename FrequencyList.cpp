@@ -1,6 +1,8 @@
 #include "FrequencyList.hpp"
 
+#include <cstdlib>
 #include <utility>
+#include <limits>
 
 #include <QMetaType>
 #include <QAbstractTableModel>
@@ -189,14 +191,22 @@ int FrequencyList::best_working_frequency (Frequency f) const
   auto const& target_band = m_->bands_->find (f);
   if (!target_band.isEmpty ())
     {
+      Radio::FrequencyDelta delta {std::numeric_limits<Radio::FrequencyDelta>::max ()};
       // find a frequency in the same band that is allowed
       for (int row = 0; row < rowCount (); ++row)
         {
           auto const& source_row = mapToSource (index (row, 0)).row ();
-          auto const& band = m_->bands_->find (m_->frequency_list_[source_row].frequency_);
+          auto const& candidate_frequency = m_->frequency_list_[source_row].frequency_;
+          auto const& band = m_->bands_->find (candidate_frequency);
           if (band == target_band)
             {
-              return row;
+              // take closest band match
+              Radio::FrequencyDelta new_delta = f - candidate_frequency;
+              if (std::abs (new_delta) < std::abs (delta))
+                {
+                  delta = new_delta;
+                  result = row;
+                }
             }
         }
     }
