@@ -1439,7 +1439,6 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     ui->label_7->setText("Rx Frequency");
   }
   update_watchdog_label ();
-  ui->cbCQRx->setEnabled(m_splitMode);
   if(!m_splitMode) ui->cbCQRx->setChecked(false);
 }
 
@@ -3939,8 +3938,11 @@ void MainWindow::displayWidgets(int n)
     if(i==3) ui->sbFtol->setVisible(b);
     if(i==4) ui->rptSpinBox->setVisible(b);
     if(i==5) ui->sbTR->setVisible(b);
-    if(i==6) ui->sbCQRxFreq->setVisible(b);
-    if(i==6) ui->cbCQRx->setVisible(b);
+    if(i==6) {
+      ui->sbCQRxFreq->setVisible(b);
+      ui->cbCQRx->setVisible(b);
+      ui->cbCQRx->setEnabled(b);
+    }
     if(i==7) ui->cbShMsgs->setVisible(b);
     if(i==8) ui->cbFast9->setVisible(b);
     if(i==9) ui->cbAutoSeq->setVisible(b);
@@ -4254,7 +4256,6 @@ void MainWindow::on_actionMSK144_triggered()
   ui->rptSpinBox->setSingleStep(1);
   ui->sbFtol->setMinimum(22);
   ui->sbFtol->setMaximum(25);
-  ui->cbCQRx->setEnabled(m_splitMode);
 }
 
 void MainWindow::on_actionWSPR_triggered()
