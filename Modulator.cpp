@@ -195,13 +195,18 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
             if (m_phi > m_twoPi) m_phi -= m_twoPi;
             qint16 sample=0;
             float amp=32767.0;
+            float x=0;
             if(m_ramp!=0) {
-              float x=qSin(float(m_phi));
+              x=qSin(float(m_phi));
               if(SOFT_KEYING) {
                 amp=qAbs(qint32(m_ramp));
                 if(amp>32767.0) amp=32767.0;
               }
               sample=round(amp*x);
+            }
+            if(m_bFastMode) {
+              sample=0;
+              if(level) sample=32767.0*x;
             }
             if (int (j) <= icw[0] && j < NUM_CW_SYMBOLS) { // stop condition
               samples = load (postProcessSample (sample), samples);
