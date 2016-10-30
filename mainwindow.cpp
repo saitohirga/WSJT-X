@@ -605,9 +605,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   // Free text macros model to widget hook up.
   ui->tx5->setModel (m_config.macros ());
-  connect (ui->tx5->lineEdit ()
-           , &QLineEdit::editingFinished
-           , [this] () {on_tx5_currentTextChanged (ui->tx5->lineEdit ()->text ());});
+  connect (ui->tx5->lineEdit(), &QLineEdit::editingFinished,
+           [this] () {on_tx5_currentTextChanged (ui->tx5->lineEdit()->text());});
   ui->freeTextMsg->setModel (m_config.macros ());
   connect (ui->freeTextMsg->lineEdit ()
            , &QLineEdit::editingFinished
@@ -3769,17 +3768,17 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
 {
   char message[29];
   char msgsent[29];
+  int itone0[NUM_ISCAT_SYMBOLS];	//Dummy array, data not used
   int len1=22;
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
   int ichk=1,itype=0;
-//  gen9_(message,&ichk,msgsent,const_cast<int *>(itone),&itype,len1,len1);
-  gen65_(message,&ichk,msgsent,const_cast<int *>(itone),&itype,len1,len1);
+  gen65_(message,&ichk,msgsent,itone0,&itype,len1,len1);
   msgsent[22]=0;
   bool text=false;
   bool short65=false;
   if(itype==6) text=true;
-  if(itype==7) short65=true;
+  if(itype==7 and m_config.enable_VHF_features() and (m_mode=="JT65" or m_mode=="MSK144")) short65=true;
   if(m_mode=="MSK144" and t.mid(0,1)=="<") text=false;
   QString t1;
   t1.fromLatin1(msgsent);
