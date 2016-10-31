@@ -227,19 +227,19 @@ For details see Table 3, below.
 Standard MSK144 messages are structured in the same way as those in
 the slow modes, with a 72 bits of user information.  Forward error
 correction is implemented by first augmenting the 72 message bits with
-an 8-bit CRC calculated from the message bits. The CRC is used to
-detect and eliminate most false decodes at the receiver. The resulting
-80-bit augmented message is mapped to a 128-bit codeword using a
-(128,80) binary low-density-parity-check (LDPC) code designed by K9AN
-specifically for this purpose.  Two 8-bit synchronizing sequences are
-added to make a message frame 144 bits long.  Modulation is Offset
-Quadrature Phase-Shift Keying (OQPSK) at 2000 baud. Even-numbered bits
-are conveyed over the in-phase channel, odd-numbered bits on the
-quadrature channel.  Individual symbols are shaped with half-sine
-profiles, thereby ensuring a generated waveform with constant
-envelope, equivalent to a Minimum Shift Keying (MSK) waveform.  Frame
-duration is 72 ms, so the effective character transmission rate for
-standard messages is up to 250 cps.
+an 8-bit cyclic redundancy check (CRC) calculated from the message
+bits. The CRC is used to detect and eliminate most false decodes at
+the receiver. The resulting 80-bit augmented message is mapped to a
+128-bit codeword using a (128,80) binary low-density-parity-check
+(LDPC) code designed by K9AN specifically for this purpose.  Two 8-bit
+synchronizing sequences are added to make a message frame 144 bits
+long.  Modulation is Offset Quadrature Phase-Shift Keying (OQPSK) at
+2000 baud. Even-numbered bits are conveyed over the in-phase channel,
+odd-numbered bits on the quadrature channel.  Individual symbols are
+shaped with half-sine profiles, thereby ensuring a generated waveform
+with constant envelope, equivalent to a Minimum Shift Keying (MSK)
+waveform.  Frame duration is 72 ms, so the effective character
+transmission rate for standard messages is up to 250 cps.
 
 MSK144 also supports short-form messages that can be used after QSO
 partners have exchanged both callsigns.  Short messages consist of 4
