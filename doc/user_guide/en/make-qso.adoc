@@ -36,7 +36,7 @@ and audible (to someone with very good hearing) around –15
 dB. Thresholds for decodability are around -23 dB for JT4, –24 dB for
 JT65, –26 dB for JT9.
 
-=== Free Text Messages
+=== Free-Text Messages
 
 Users often add some friendly chit-chat at the end of a QSO.
 Free-format messages such as "`TNX ROBERT 73`" or "`5W VERT 73 GL`"
@@ -115,7 +115,7 @@ will receive it.  You can check to see that you are actually
 transmitting the message you wish to send.
 
 QSOs involving *Type 2* compound callsigns might look like either
-of the following sequences
+of the following sequences:
 
  CQ K1ABC/VE1 FN75
                      K1ABC G0XYZ IO91

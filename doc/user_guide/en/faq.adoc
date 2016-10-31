@@ -39,7 +39,7 @@ passband, if such control is available.
 
 How should I configure _WSJT-X_ to run multiple instances?::
 
-Start _WSJT-X_ from a command-prompt window, passing each instance a
+Start _WSJT-X_ from a command-prompt window, assigning each instance a
 unique identifier as in the following two-instance example.  This
 procedure will isolate the *Settings* file and the writable file
 location for each instance of _WSJT-X_.
@@ -69,6 +69,6 @@ command-prompt window:
  sudo apt remove appmenu-qt5
 
 +
-Alternatively you can disable the common menu bar for just WSJT-X by starting the application with the environment variable QT_QPA_PLATFORMTHEME set to empty (the space after the '=' character is necessary):
+Alternatively, you can disable the common menu bar for just WSJT-X by starting the application with the environment variable QT_QPA_PLATFORMTHEME set to empty (the space after the '=' character is necessary):
 
  QT_QPA_PLATFORMTHEME= wsjtx

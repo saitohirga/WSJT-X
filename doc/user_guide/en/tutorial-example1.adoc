@@ -7,7 +7,7 @@ those shown in the screen shot below.
 
 - Select *File | Open* and select the file
 +...\save\samples\JT9\130418_1742.wav+. When the file opens you should
-see something similar to the to the following screen shot:
+see something similar to the following screen shot:
 
 [[X12]]
 image::main-ui.png[align="center",alt="Main UI and Wide Graph"]
@@ -76,7 +76,7 @@ behavior can also be forced by checking *Lock Tx=Rx*.
 sending "`73`" to K1JT, signifying that the QSO is over.  Most likely
 you want to send 73 to him, so the message "`KF4RWA K1JT 73`" is
 automatically generated and selected for your next transmission.
-(Alternatively, you might choose to send a free text message or to
+(Alternatively, you might choose to send a free-text message or to
 call CQ again.)
 
 - Click somewhere on the waterfall to set Rx frequency (green marker

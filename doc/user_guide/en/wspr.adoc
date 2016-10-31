@@ -26,7 +26,7 @@ hopping enables a sizable group of stations around the world to move
 together from band to band, thereby maximizing the chances of
 identifying open propagation paths.
 
-- To enable automatic band-hopping, check the *Band Hopping* box on
+- To enable automatic band hopping, check the *Band Hopping* box on
 the main window.
 
 - Click *Schedule* to open the *WSPR Band Hopping* window, and select
@@ -71,7 +71,7 @@ meters. You must write your own program, script, or batch file to do
 the necessary switching at your station.
 
 The following screen shot is an example of WSPR operation with
-band-hopping enabled:
+band hopping enabled:
 
 image::WSPR_2.png[align="center",alt="WSPR_2"]
 
