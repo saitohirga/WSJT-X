@@ -74,6 +74,7 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :jtalert: http://hamapps.com/[JT-Alert]
 :launchpadki7mt: https://launchpad.net/~ki7mt[KI7MT PPA's]
 :log4om: http://www.log4om.com[Log4OM]
+:lunarEchoes: http://physics.princeton.edu/pulsar/K1JT/LunarEchoes_QEX.pdf[QEX]
 :msys_url: http://sourceforge.net/projects/mingwbuilds/files/external-binary-packages/[MSYS Download]
 :ntpsetup: http://www.satsignal.eu/ntp/setup.html[Network Time Protocol Setup]
 :osx_instructions: http://physics.princeton.edu/pulsar/K1JT/OSX_Readme[Mac OS X Install Instructions]

@@ -20,10 +20,10 @@ frequency.
 - *Start nnn Hz* sets the low-frequency starting point of the
 waterfall frequency scale.
 
-- *N Avg* is the number of successive FFTs to be averaged before
-updating the spectral display.  Values around 5 are suitable for
-normal JT9 and JT65 operation.  Adjust *N Avg* to make the waterfall
-move faster or slower, as desired.
+- *N Avg* is the number of successive spectra to be averaged before
+updating the display.  Values around 5 are suitable for normal JT9 and
+JT65 operation.  Adjust *N Avg* to make the waterfall move faster or
+slower, as desired.
 
 - A dropdown list below the *Palette* label lets you select from a
 wide range of waterfall color palettes.  

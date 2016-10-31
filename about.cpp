@@ -22,7 +22,7 @@ CAboutDlg::CAboutDlg(QWidget *parent) :
                          "acknowledgment for contributions from AC6SL, AE4JY, <br />"
                          "DJ0OT, G3WDG, G4KLA, G4WJS, IV3NWV, IW3RAB, K3WYC, K9AN, <br />"
                          "KA6MAL, KA9Q, KB1ZMX, KD6EKQ, KI7MT, KK1D, ND0B, PY2SDR, <br />"
-                         "VK3ACF, VK4BDJ, VK7MO, W4TI, W4TV, and W9MDB.<br /><br />"
+                         "VE1SKY, VK3ACF, VK4BDJ, VK7MO, W4TI, W4TV, and W9MDB.<br /><br />"
                          "WSJT-X is licensed under the terms of Version 3 <br />"
                          "of the GNU General Public License (GPL) <br />"
                          "<a href=" WSJTX_STRINGIZE (PROJECT_HOMEPAGE) ">"

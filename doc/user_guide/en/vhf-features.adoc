@@ -191,7 +191,7 @@ Graph* spectral display.
 
 image::MSK144.png[align="center",alt="MSK144"]
 
-Unlike other _WSJT-X modes, MSK144 decodes signals in real time,
+Unlike other _WSJT-X_ modes, the MSK144 decoder operates in real time
 during the reception sequence.  Decoded messages will appear on your
 screen almost as soon as you hear them.
 

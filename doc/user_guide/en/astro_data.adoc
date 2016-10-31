@@ -1,6 +1,6 @@
 A text box entitled Astronomical Data provides information needed for
-tracking the sun or moon, moon, compensating for EME Doppler shift,
-and estimating EME Doppler spread and path degradation. Toggle the
+tracking the sun or moon, compensating for EME Doppler shift, and
+estimating EME Doppler spread and path degradation. Toggle the
 *Astronomical data* on the *View* menu to display or hide this window.
 
 image::AstroData_2.png[align="center",alt="Astronomical Data"]
@@ -31,8 +31,8 @@ example, the celestial coordinates of the moon or a planet can be
 determined at a specified time to within about 0.0000003 degrees. The
 JPL ephemeris tables and interpolation routines have been incorporated
 into _WSJT-X_.  Further details on accuracy, especially concerning
-calculated EME Doppler shifts, are described in QEX (###reference to
-come###).
+calculated EME Doppler shifts, are described in {lunarEchoes} for
+November-December, 2016.
 
 The sky background temperatures reported by _WSJT-X_ are derived from
 the all-sky 408 MHz map of Haslam et al. (Astronomy and Astrophysics
