@@ -812,6 +812,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_fCPUmskrtd=0.0;
   m_bFastDone=false;
   m_bAltV=false;
+  m_bNoMoreFiles=false;
   m_wait=0;
   ui->txrb1->setChecked(true);
 
@@ -2018,7 +2019,7 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
       read_wav_file (fname);
       if(m_loopall and (i==list.size()-2)) {
         m_loopall=false;
-        MessageBox::information_message(this, tr("No more files to open."));
+        m_bNoMoreFiles=true;
       }
       return;
     }
@@ -2408,6 +2409,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if(!m_diskData) killFileTimer.start (3*1000*m_TRperiod/4); //Kill in 45 s
       decodeDone ();
       m_startAnother=m_loopall;
+      if(m_bNoMoreFiles) {
+        MessageBox::information_message(this, tr("No more files to open."));
+        m_bNoMoreFiles=false;
+      }
       return;
     } else {
       if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64") {

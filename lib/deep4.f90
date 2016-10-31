@@ -136,17 +136,13 @@ subroutine deep4(sym0,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
            p1=p
            ip1=k
         endif
-!        write(78,3001) k,pp(k),testmsg(k)
-!3001    format(i6,f10.3,2x,a22)
      endif
   enddo
-!  flush(78)
 
   do i=1,ntot
-     if(pp(i).gt.p2 .and. pp(i).ne.p1) p2=pp(i)
+     if(pp(i).gt.p2 .and. testmsg(i).ne.testmsg(ip1)) p2=pp(i)
   enddo
 
-!  qual=p1-max(1.15*p2,80.0)
   qual=p1-max(1.15*p2,70.0)
 
 ! ### DO NOT REMOVE ### 
@@ -155,14 +151,6 @@ subroutine deep4(sym0,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
        rms,qual,ip1,testmsg(ip1)
 1001 format(2f8.2,i8,2f8.2,i6,2x,a22)
   call flush(77)
-! ### Works OK without it (in both Windows and Linux) if compiled 
-! ### without optimization.  However, in Windows this is a colossal 
-! ### pain because of the way F2PY wants to run the compile step.
-
-
-!  write(71,3001) p1,p2,qual,testmsg(ip1)
-!3001 format(3f10.3,2x,a22)
-!  call flush(71)
 
   if(qual.gt.1.0) then
      decoded=testmsg(ip1)
@@ -176,9 +164,6 @@ subroutine deep4(sym0,neme,flip,mycall,hiscall,hisgrid,decoded,qual)
      if(decoded(i:i).ge.'a' .and. decoded(i:i).le.'z')                &
           decoded(i:i)=char(ichar(decoded(i:i))-32)
   enddo
-
-!  write(79,1001) p1,p2,ntot,rms,qual,ip1,testmsg(ip1)
-!  call flush(79)
 
   return
 end subroutine deep4

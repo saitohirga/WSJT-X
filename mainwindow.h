@@ -420,6 +420,7 @@ private:
   bool    m_bUseRef;
   bool    m_bFastDone;
   bool    m_bAltV;
+  bool    m_bNoMoreFiles;
   float   m_pctZap;
   int			m_ihsym;
   int			m_nzap;
