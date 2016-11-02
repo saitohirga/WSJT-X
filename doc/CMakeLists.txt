@@ -22,6 +22,7 @@ set (UG_SRCS
   controls-functions-status-bar.adoc
   controls-functions-wide-graph.adoc
   cooperating-programs.adoc
+  decoded_lines.adoc
   faq.adoc
   font-sizes.adoc
   install-from-source.adoc
