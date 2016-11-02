@@ -106,8 +106,9 @@ sensitivity is gained by making use of already known information as a
 QSO progresses -- for example, when reports are being exchanged and
 you have already decoded both callsigns in a previous transmission.
 QRA64 presently offers no message averaging capability, though that
-feature may be added.  In early tests, many EME QSOs have been made
-using submodes QRA64A-E on bands from 144 MHz to 10 GHz.
+feature may be added.  In early tests, many EME QSOs were made using
+submodes QRA64A-E on bands from 144 MHz to 10 GHz.  Optimum processing
+of signals with large Doppler spread remains to be implemented.
 
 [[SLOW_SUMMARY]]
 ==== Summary
@@ -180,7 +181,7 @@ ISCAT messages are free-form, up to 28 characters in length.
 Modulation is 42-tone frequency-shift keying at 11025 / 512 = 21.533
 baud (ISCAT-A), or 11025 / 256 = 43.066 baud (ISCAT-B).  Tone
 frequencies are spaced by an amount in Hz equal to the baud rate.  The
-available character set is
+available character set is:
 
 ----
  0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ /.?@-
