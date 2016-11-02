@@ -5,16 +5,16 @@
   </tr>
   <tr>
     <td align="right">Waterfall:</td>
-    <td>Click to set the Rx frequency.<br/>
-        Shift-click to set Tx frequency.<br/>
-        Ctrl-click to set Rx and Tx frequencies.<br/>
-	Double-clicks decode at the resulting Rx frequency.<br/>
-        If Lock Tx=Rx is checked all actions set Tx/Rx.
+    <td><b>Click</b> to set the Rx frequency.<br/>
+        <b>Shift-click</b> to set Tx frequency.<br/>
+        <b>Ctrl-click</b> to set Rx and Tx frequencies.<br/>
+	<b>Double-click</b> to decode at resulting Rx frequency.<br/>
+        If <b>Lock Tx=Rx</b> is checked all actions set Tx/Rx.
     </td>
   </tr>
   <tr>
     <td align="right">Decoded text:</td>
-    <td>Double-click to copy second callsign to Dx Call,<br/>
+    <td><b>Double-click</b> to copy second callsign to Dx Call,<br/>
         locator to Dx Grid; change Rx and Tx frequencies to<br/>
         decoded signal's frequency; generate standard messages.<br/>
         If first callsign is your own, Tx frequency is not<br/>
@@ -23,7 +23,7 @@
   </tr>
   <tr>
     <td align="right">Erase button:</td>
-    <td>Click to erase QSO window.<br/>
+    <td><b>Click</b> to erase QSO window.<br/>
         Double-click to erase QSO and Band Activity windows.
     </td>
   </tr>
