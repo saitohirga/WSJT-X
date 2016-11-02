@@ -1855,7 +1855,7 @@ void MainWindow::on_stopButton_clicked()                       //stopButton
   monitor (false);
   m_loopall=false;
   if(m_bRefSpec) {
-//    MessageBox::information_message (this, tr ("Reference spectrum saved"));
+    MessageBox::information_message (this, tr ("Reference spectrum saved"));
     m_bRefSpec=false;
   }
 }
