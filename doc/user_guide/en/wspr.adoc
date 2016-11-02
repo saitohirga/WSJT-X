@@ -11,11 +11,14 @@ desired size.
 
 - Select an active WSPR frequency (for example, 10.1387 or 14.0956 MHz).
 
-- Click *Monitor* to start a WSPR receiving period.
+- Click *Monitor* to start a 2-minute WSPR receiving period.
 
 - If you will be transmitting as well as receiving, select a suitable
-value for *Tx Pct* (average percentage of 2-minute sequences devoted to
-transmitting) and activate the *Enable Tx* button.
+value for *Tx Pct* (average percentage of 2-minute sequences devoted
+to transmitting) and activate the *Enable Tx* button.  Transmitting
+periods are also 2 minutes duration, and will occur randomly in time
+to reduce the chance of clashing with other stations you may be
+monitoring.
 
 - Select your Tx power (in dBm) from the drop-down list.
 
