@@ -145,6 +145,10 @@ include::vhf-features.adoc[]
 == WSPR Mode
 include::wspr.adoc[]
 
+[[DECODED_LINES]]
+== Decoded Lines
+include::decoded_lines.adoc[]
+
 [[COMMAND_REF]]
 == On-Screen Controls
 

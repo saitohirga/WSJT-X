@@ -1,0 +1,36 @@
+Displayed information accompanying decoded messages generally includes UTC,
+signal-to-noise ratio in dB, time offset DT in seconds, and
+audio frequency in Hz.  Some modes include additional information such
+as frequency offset from nominal (DF), frequency drift (Drift or F1),
+or distance (km or mi).
+
+There may also be some cryptic characters with special meanings
+summarized in the following Table:
+
+[[DECODED_LINES_TABLE]]
+.Notations used on decoded text lines
+[width="50%",cols="h,3*^",frame=topbot,options="header"]
+|=====================================
+|Mode    |Mode character|Sync character|End of line information
+|JT4     | $            | *, # | fM, dMC
+|JT9     | @            |      |
+|JT65    | #            |      |
+|JT65 VHF| #            | *, # | fM, dMC
+|QRA64   | :            | *    | R
+|ISCAT   |              | *    | N  L  A  T
+|MSK144  | &            |      | N
+|=====================================
+Sync character::
+ - Normal sync *
+ - Alternate sync #
+ 
+End of line information::
+ - Franke-Taylor or Fano algorithm: f
+ - Deep search algorithm: d
+ - Number of Rx intervals or frames averaged: M
+ - Confidence indicator: C
+ - QRA64 _a priori_ return code: R
+ - Message length (characters): N
+ - Lowest confidence (0-10): L
+ - Number of frames averaged: A
+ - Length of analyzed region (s): T
