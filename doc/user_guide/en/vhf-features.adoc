@@ -138,7 +138,7 @@ shorthand messages for RO, RRR, and 73.  These messages are always
 enabled for reception; they will be automatically generated for
 transmission if you check the shorthand message box *Sh*.
 
-Be sure to check *Deep* on *the *Decode* menu; you may optionally
+Be sure to check *Deep* on the *Decode* menu; you may optionally
 include *Enable averaging* and *Deep search*.
 
 The following screen shot shows three transmissions from a 144 MHz EME
