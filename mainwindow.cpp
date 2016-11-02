@@ -2855,10 +2855,10 @@ void MainWindow::guiUpdate()
       auto_tx_mode (false);
     }
 
-//    if(m_config.id_interval () >0 and (!m_bFastMode)) {
     if(m_config.id_interval () >0) {
       int nmin=(m_sec0-m_secID)/60;
-      if(nmin >= m_config.id_interval ()) {
+      if(m_sec0<m_secID) nmin=m_config.id_interval();
+      if(nmin >= m_config.id_interval()) {
         icw[0]=m_ncw;
         m_secID=m_sec0;
       }
@@ -4363,8 +4363,10 @@ void MainWindow::WSPR_config(bool b)
   ui->logQSOButton->setVisible(!b);
   ui->DecodeButton->setEnabled(!b);
   if(b and (m_mode!="Echo")) {
-    ui->decodedTextLabel->setText(
-          "UTC    dB   DT     Freq     Drift  Call          Grid    dBm    km");
+    QString t="UTC    dB   DT     Freq     Drift  Call          Grid    dBm    ";
+    if(m_config.miles()) t += " mi";
+    if(!m_config.miles()) t += " km";
+    ui->decodedTextLabel->setText(t);
     if (m_config.is_transceiver_online ()) {
       Q_EMIT m_config.transceiver_tx_frequency (0); // turn off split
     }
