@@ -18,7 +18,7 @@ summarized in the following Table:
 |JT65 VHF| #            | *, # | fM, dMC
 |QRA64   | :            | *    | R
 |ISCAT   |              | *    | N  L  A  T
-|MSK144  | &            |      | N
+|MSK144  | &            |      | M
 |=====================================
 Sync character::
  - Normal sync *
