@@ -3,22 +3,50 @@
 
 All QSO modes except ISCAT use structured messages that compress
 user-readable information into fixed-length packets of exactly 72
-bits.  Each message consists of two 28-bit fields for callsigns and a
-15-bit field for a grid locator, report, acknowledgment, or a "`73`"
-sign-off indicator.  A 72^nd^ bit flags a message containing arbitrary
-alphanumeric text, up to 13 characters.  Special cases allow other
-information such as add-on callsign prefixes (e.g., ZA/K1ABC) or
-suffixes (e.g., K1ABC/4) to be encoded. The basic aim is to compress
+bits.  Each message consists of two 28-bit fields normally used for
+callsigns and a 15-bit field for a grid locator, report,
+acknowledgment, or 73.  An additional bit flags a message containing
+arbitrary alphanumeric text, up to 13 characters.  Special cases allow
+other information such as add-on callsign prefixes (e.g., ZA/K1ABC) or
+suffixes (e.g., K1ABC/P) to be encoded. The basic aim is to compress
 the most common messages used for minimally valid QSOs into a fixed
-72-bit length.  To be useful on channels with low signal-to-noise
-ratio, this kind of lossless compression requires use of a strong
-forward error correcting (FEC) code.  Different codes are used for
-each mode.  Accurate synchronization of time and frequency is required
-between transmitting and receiving stations.  As an aid to the
-decoders, each protocol includes a "`sync vector`" of known symbols
-interspersed with the information-carrying symbols.  Generated
-waveforms for all of the _WSJT-X_ modes have continuous phase and 
-constant envelope.
+72-bit length.
+
+A standard amateur callsign consists of a one- or two-character
+prefix, at least one of which must be a letter, followed by a digit
+and a suffix of one to three letters. Within these rules, the number
+of possible callsigns is equal to 37×36×10×27×27×27, or somewhat over
+262 million. (The numbers 27 and 37 arise because in the first and
+last three positions a character may be absent, or a letter, or
+perhaps a digit.) Since 2^28^ is more than 268 million, 28 bits are
+enough to encode any standard callsign uniquely. Similarly, the number
+of 4-digit Maidenhead grid locators on earth is 180×180 = 32,400,
+which is less than 2^15^ = 32,768; so a grid locator requires 15 bits.
+
+Some 6 million of the possible 28-bit values are not needed for
+callsigns.  A few of these slots have been assigned to special message
+components such as CQ, CQ DX, DE, and QRZ. CQ may be followed by three
+digits to indicate a desired callback frequency. (If K1ABC transmits
+on a standard calling frequency, say 50.280, and sends "`CQ 290 K1ABC
+FN42`", it means that s/he will listen on 50.290 and respond there to
+any replies.) A numerical signal report of the form "`–NN`" or
+"`R–NN`" can be sent in place of a grid locator.  (As originally
+defined, numerical signal reports were required to fall between -01
+and -30 dB.  Recent program versions accommodate reports between
+-50 and +49 dB.) A country prefix or portable suffix may be
+attached to one of the callsigns.  When this feature is used the
+additional information is sent in place of the grid locator or by
+encoding additional information into some of the 6 million available
+slots mentioned above.  
+
+To be useful on channels with low signal-to-noise ratio, this kind of
+lossless message compression requires use of a strong forward error
+correcting (FEC) code.  Different codes are used for each mode.
+Accurate synchronization of time and frequency is required between
+transmitting and receiving stations.  As an aid to the decoders, each
+protocol includes a "`sync vector`" of known symbols interspersed with
+the information-carrying symbols.  Generated waveforms for all of the
+_WSJT-X_ modes have continuous phase and constant envelope.
 
 [[SLOW_MODES]]
 === Slow Modes

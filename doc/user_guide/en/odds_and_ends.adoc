@@ -1,3 +1,5 @@
+=== Decoded Lines
+
 Displayed information accompanying decoded messages generally includes UTC,
 signal-to-noise ratio in dB, time offset DT in seconds, and
 audio frequency in Hz.  Some modes include additional information such
@@ -33,4 +35,4 @@ End of line information::
  `R` - QRA64 _a priori_ return code +
  `T` - Length of analyzed region (s)
 
-
+=== Reference Spectrum
