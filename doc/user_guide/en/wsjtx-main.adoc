@@ -145,10 +145,6 @@ include::vhf-features.adoc[]
 == WSPR Mode
 include::wspr.adoc[]
 
-[[DECODED_LINES]]
-== Decoded Lines
-include::decoded_lines.adoc[]
-
 [[COMMAND_REF]]
 == On-Screen Controls
 
@@ -183,6 +179,10 @@ include::controls-functions-wide-graph.adoc[]
 [[LOGGING]]
 == Logging
 include::logging.adoc[]
+
+[[ODDS_AND_ENDS]]
+== Odds and Ends
+include::odds_and_ends.adoc[]
 
 [[COOP_PGMS]]
 == Cooperating Programs
