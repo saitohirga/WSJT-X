@@ -158,7 +158,7 @@ subroutine iscat(cdat0,npts0,nh,npct,t2,pick,cfile6,minsync,ntol,   &
            if(isync.ge.1) csync='*'
            if(nlines.le.maxlines-1) nlines = nlines + 1
            write(line(nlines),1020) cfile6,isync,nsig,t2,ndf0,nfdot,csync, &
-                msg(1:28),msglen,nworst,navg,tana,char(0)
+                msg(1:28),msglen,navg,nworst,tana,char(0)
         endif
      enddo
      if(last) exit
@@ -198,8 +198,8 @@ subroutine iscat(cdat0,npts0,nh,npct,t2,pick,cfile6,minsync,ntol,   &
   
   if(nlines.le.maxlines-1) nlines = nlines + 1
   write(line(nlines),1020) cfile6,isync,nsig,t2,ndf0,nfdot,csync,msg(1:28),  &
-       msglen,nworst,navg,tana,char(0)
-1020 format(a6,2i4,f5.1,i5,i4,1x,a1,2x,a28,i4,2i3,f5.1,a1)
+       msglen,navg,nworst,tana,char(0)
+1020 format(a6,2i4,f5.1,i5,i4,1x,a1,2x,a28,i4,i3,2x,i1,f5.1,a1)
 
   return
 end subroutine iscat
