@@ -813,6 +813,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_bFastDone=false;
   m_bAltV=false;
   m_bNoMoreFiles=false;
+  m_bVHFwarned=false;
   m_wait=0;
   ui->txrb1->setChecked(true);
 
@@ -2961,6 +2962,12 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
+    if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
+      if(!m_bVHFwarned) vhfWarning();
+    } else {
+      m_bVHFwarned=false;
+    }
+
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
       progressBar.setMaximum(6);
       progressBar.setValue(int(m_s6));
@@ -4212,7 +4219,7 @@ void MainWindow::on_actionISCAT_triggered()
   ui->decodedTextBrowser2->setVisible(false);
   ui->decodedTextLabel2->setVisible(false);
   ui->decodedTextLabel->setText(
-        "  UTC  Sync dB   DT   DF  F1                                   N  L  A   T");
+        "  UTC  Sync dB   DT   DF  F1                                   M  N  C   T ");
   ui->tabWidget->setCurrentIndex(0);
   ui->sbSubmode->setMaximum(1);
   if(m_nSubMode==0) ui->TxFreqSpinBox->setValue(1012);
@@ -4348,6 +4355,7 @@ void MainWindow::switch_mode (Mode mode)
     ui->RxFreqSpinBox->setMaximum(5000);
     ui->RxFreqSpinBox->setSingleStep(1);
   }
+  m_bVHFwarned=false;
 }
 
 void MainWindow::WSPR_config(bool b)
@@ -4555,12 +4563,21 @@ void MainWindow::band_changed (Frequency f)
     m_bandEdited = false;
     psk_Reporter->sendReport();      // Upload any queued spots before changing band
     if (!m_transmitting) monitor (true);
+    float r=m_freqNominal/(f+0.0001);
+    if(r<0.9 or r>1.1) m_bVHFwarned=false;
     m_freqNominal = f;
     m_freqTxNominal = m_freqNominal;
     if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
     setRig ();
     setXIT (ui->TxFreqSpinBox->value ());
   }
+}
+
+void MainWindow::vhfWarning()
+{
+  MessageBox::warning_message (this, tr ("VHF features warning"),
+     "VHF/UHF/Microwave features is enabled on a lower frequency band.");
+  m_bVHFwarned=true;
 }
 
 void MainWindow::enable_DXCC_entity (bool on)

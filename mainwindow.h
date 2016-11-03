@@ -511,6 +511,7 @@ private:
   bool m_tx_watchdog;           // true when watchdog triggered
   bool m_block_pwr_tooltip;
   bool m_PwrBandSetOK;
+  bool m_bVHFwarned;
   Frequency m_lastMonitoredFrequency;
   double m_toneSpacing;
   int m_firstDecode;
@@ -579,6 +580,7 @@ private:
   void tx_watchdog (bool triggered);
   int  nWidgets(QString t);
   void displayWidgets(int n);
+  void vhfWarning();
 };
 
 extern int killbyname(const char* progName);
