@@ -26,11 +26,11 @@ Tx frequency.
 Seven JT9 signals are present in the example file, all decodable.
 When this file was recorded KF4RWA was finishing a QSO with K1JT.
 Since the green marker was placed at his audio frequency, 1224 Hz, his
-message "`K1JT KF4RWA 73`" is decoded first and appears in the *Rx
+message `K1JT KF4RWA 73` is decoded first and appears in the *Rx
 Frequency* window. The *Band Activity* window shows this message plus
-all decodes at other frequencies.  By default lines containing CQ are
-highlighted in green, and lines with *My Call* (in this case K1JT) in
-red.
+all decodes at other frequencies.  By default lines containing `CQ`
+are highlighted in green, and lines with *My Call* (in this case K1JT)
+in red.
 
 [[X13]]
 .Decoding Controls
@@ -61,7 +61,7 @@ of the main window is selected.
 *Setup* menu, *Enable Tx* would be activated and a transmission would
 start automatically at the proper time.
 
-- Double-click on the decoded message "`K1JT N5KDV EM41`",
+- Double-click on the decoded message `K1JT N5KDV EM41`,
 highlighted in red.  Results will be similar to those in the
 previous step, except the Tx frequency (red marker) is not
 moved.  Such messages are usually in response to your own CQ, or from
@@ -73,8 +73,8 @@ line you can cause both Tx and Rx frequencies to be moved.  This
 behavior can also be forced by checking *Lock Tx=Rx*.
 
 - Double-click on the message from KF4RWA in either window. He is
-sending "`73`" to K1JT, signifying that the QSO is over.  Most likely
-you want to send 73 to him, so the message "`KF4RWA K1JT 73`" is
+sending `73` to K1JT, signifying that the QSO is over.  Most likely
+you want to send 73 to him, so the message `KF4RWA K1JT 73` is
 automatically generated and selected for your next transmission.
 (Alternatively, you might choose to send a free-text message or to
 call CQ again.)

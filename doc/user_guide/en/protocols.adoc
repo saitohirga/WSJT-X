@@ -25,19 +25,25 @@ which is less than 2^15^ = 32,768; so a grid locator requires 15 bits.
 
 Some 6 million of the possible 28-bit values are not needed for
 callsigns.  A few of these slots have been assigned to special message
-components such as CQ, CQ DX, DE, and QRZ. CQ may be followed by three
+components such as `CQ`, `DE`, and `QRZ`. `CQ` may be followed by three
 digits to indicate a desired callback frequency. (If K1ABC transmits
-on a standard calling frequency, say 50.280, and sends "`CQ 290 K1ABC
-FN42`", it means that s/he will listen on 50.290 and respond there to
-any replies.) A numerical signal report of the form "`–NN`" or
-"`R–NN`" can be sent in place of a grid locator.  (As originally
-defined, numerical signal reports were required to fall between -01
+on a standard calling frequency, say 50.280, and sends `CQ 290 K1ABC
+FN42`, it means that s/he will listen on 50.290 and respond there to
+any replies.) A numerical signal report of the form `–nn` or
+`R–nn` can be sent in place of a grid locator.  (As originally
+defined, numerical signal reports `nn` were required to fall between -01
 and -30 dB.  Recent program versions accommodate reports between
 -50 and +49 dB.) A country prefix or portable suffix may be
 attached to one of the callsigns.  When this feature is used the
 additional information is sent in place of the grid locator or by
 encoding additional information into some of the 6 million available
-slots mentioned above.  
+slots mentioned above.
+
+Finally, the message compression algorithm supports messages starting
+with `CQ AA` through `CQ ZZ`.  Such messages are encoded by
+sending `E9AA` through `E9ZZ` in place of the first callsign of a
+standard message.  Upon reception these calls are converted back to
+the form `CQ AA` through `CQ ZZ`.
 
 To be useful on channels with low signal-to-noise ratio, this kind of
 lossless message compression requires use of a strong forward error
@@ -220,14 +226,14 @@ pattern of four symbols at tone numbers 0, 1, 3, and 2, followed by
 two symbols with tone number corresponding to (message length) and
 (message length + 5), and finally 18 symbols conveying the user's
 message, sent repeatedly character by character.  The message always
-starts with +@+, the beginning-of-message symbol, which is not
+starts with `@`, the beginning-of-message symbol, which is not
 displayed to the user.  The sync pattern and message-length indicator
 have a fixed repetition period, recurring every 24 symbols.  Message
 information occurs periodically within the 18 symbol positions set
 aside for its use, repeating at its own natural length.
 
-For example, consider the user message +CQ WA9XYZ+.  Including the
-beginning-of-message symbol +@+, the message is 10 characters long.
+For example, consider the user message `CQ WA9XYZ`.  Including the
+beginning-of-message symbol `@`, the message is 10 characters long.
 Using the character sequence displayed above to indicate tone numbers,
 the transmitted message will therefore start out as shown in the first
 line below:
@@ -239,7 +245,7 @@ line below:
 
 Note that the first six symbols (four for sync, two for message
 length) repeat every 24 symbols.  Within the 18 information-carrying
-symbols in each 24, the user message +@CQ WA9XYZ+ repeats at its own
+symbols in each 24, the user message `@CQ WA9XYZ` repeats at its own
 natural length, 10 characters.  The resulting sequence is extended as
 many times as will fit into a Tx sequence.
 

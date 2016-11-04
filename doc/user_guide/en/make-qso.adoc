@@ -10,7 +10,7 @@ recommended basic QSO goes something like this:
  CQ K1ABC FN42                          #K1ABC calls CQ
                    K1ABC G0XYZ IO91     #G0XYZ answers
  G0XYZ K1ABC –19                        #K1ABC sends report
-                   K1ABC G0XYZ R–22     #G0XYZ sends R+report
+                   K1ABC G0XYZ R-22     #G0XYZ sends R+report
  G0XYZ K1ABC RRR                        #K1ABC sends RRR
                    K1ABC G0XYZ 73       #G0XYZ sends 73
 

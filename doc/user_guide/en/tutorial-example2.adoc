@@ -79,17 +79,17 @@ JT9 message from IZ0MIT:
 |===
 
 - Scroll back in the *Band Activity* window and double-click on the
-message +CQ DL7ACA JO40+. The program will set *Tx mode* to JT65 and Tx
+message `CQ DL7ACA JO40`. The program will set *Tx mode* to JT65 and Tx
 and Rx frequencies to that of DL7ACA, 975 Hz.  If you had checked
 *Double-click on call sets Tx Enable* on the *Setup* menu, the program
 would configure itself to start a QSO with DL7ACA.
 
-- Double-click on the decoded JT65 message +CQ TA4A KM37+.  The program
+- Double-click on the decoded JT65 message `CQ TA4A KM37`.  The program
 will set Tx mode to JT9 and the Rx and Tx frequencies to 3567 Hz.  The
 program is now configured properly for a JT9 QSO with TA4A.
 
 .Reopen the First Sample File:
-- Select *File | Open* and navigate to +...\save\samples\130418_1742.wav+.
+- Select *File | Open* and navigate to `...\save\samples\130418_1742.wav`.
 
 Taking full advantage of the wide-band, dual-mode capability of
 _WSJT-X_ requires a receiver bandwidth of at least 4 kHz.  These

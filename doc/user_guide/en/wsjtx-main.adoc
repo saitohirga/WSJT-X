@@ -205,6 +205,9 @@ include::protocols.adoc[]
 == Astronomical Data
 include::astro_data.adoc[]
 
+[[UTIL]]
+== Utility Programs
+include::utilities.adoc[]
 
 ////
 [[TXRX]]
@@ -215,9 +218,6 @@ include::implementation.adoc[]
 == Troubleshooting
 To be added (?) ...
 
-[[UTIL]]
-== Utility Programs
-include::utilities.adoc[]
 ////
 
 [[SUPPORT]]
