@@ -1,4 +1,4 @@
-  parameter (MAXTEST=35,NTEST=25)
+  parameter (MAXTEST=35,NTEST=27)
   character*22 testmsg(MAXTEST)
   data testmsg(1:NTEST)/         &
        "CQ WB9XYZ EN34",         &
@@ -13,6 +13,8 @@
        "KA1ABC WB9XYZ",          &
        "CQ 000 WB9XYZ EN34",     &
        "CQ 999 WB9XYZ EN34",     &
+       "CQ EU WB9XYZ EN34",      &
+       "CQ WY WB9XYZ EN34",      &
        "ZL/KA1ABC WB9XYZ",       &
        "KA1ABC ZL/WB9XYZ",       &
        "KA1ABC/4 WB9XYZ",        &
