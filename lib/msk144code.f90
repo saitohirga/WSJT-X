@@ -48,7 +48,7 @@ program msk144code
      if(itype.eq.4) msgtype="Type 2 prefix"
      if(itype.eq.5) msgtype="Type 2 suffix"
      if(itype.eq.6) msgtype="Free text"
-     if(itype.eq.7) msgtype="Hashed callsigns"
+     if(itype.eq.7) msgtype="Hashed calls"
 
      bad=" "
      if(msgsent.ne.msg) bad="*"
@@ -60,7 +60,7 @@ program msk144code
      n=144
      if(msg(1:1).eq."<") n=40
      write(*,1030) i4tone(1:n)
-1030 format(/'Channel symbols:'/(72i1))
+1030 format(/'Channel symbols (72 per line):'/(72i1))
   endif
 
 999 end program msk144code

@@ -24,10 +24,10 @@ such a device, be sure to set the mic level in the Recording Device
 Properties to 0 dB.
 
 - _Save Directory_: _WSJT-X_ can save its received audio sequences as
-+.wav+ files.  A default directory for these files is provided; you
+`.wav` files.  A default directory for these files is provided; you
 can select another location if desired.
 
-- _AzEl Directory_: A file named +azel.dat+ will appear in the
+- _AzEl Directory_: A file named `azel.dat` will appear in the
 specified directory.  The file contains information usable by another
 program for automatic tracking of the Sun or Moon, as well as
 calculated Doppler shift for the specified EME path.  The file is

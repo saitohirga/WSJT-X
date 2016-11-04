@@ -4,7 +4,8 @@ The best source of help in setting up your station or configuring
 _WSJT-X_ is the {wsjt_yahoo_group} at email address
 wsjtgroup@yahoogroups.com.  The chances are good that someone with
 similar interests and equipment has already solved your problem and
-will be happy to help.
+will be happy to help.  To post messages here you will need to join
+the group.
 
 === Bug Reports
 
@@ -12,7 +13,8 @@ One of your responsibilities as a _WSJT-X_ user is to help the
 volunteer programmers to make the program better.  Bugs may be
 reported to {wsjt_yahoo_group} (email address
 wsjtgroup@yahoogroups.com) or the WSJT Developers list
-(wsjt-devel@lists.sourceforge.net).  To be useful, bug reports should
+(wsjt-devel@lists.sourceforge.net).  Again, you will need to join the
+group or subscribe to the list.  To be useful, bug reports should
 include at least the following information:
 
 - Program version

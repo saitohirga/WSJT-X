@@ -1,7 +1,7 @@
 // These instructions are up-to-date for WSJT-X v1.4
 
 *OS X 10.7* and later: Download the file {osx} to your desktop,
-double-click on it and consult its +ReadMe+ file for important
+double-click on it and consult its `ReadMe` file for important
 installation notes.  
 
 If you have already installed a previous version, you can retain it by
