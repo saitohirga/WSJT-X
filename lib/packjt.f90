@@ -416,7 +416,11 @@ subroutine packbits(dbits,nsymd,m0,sym)
    call fmtmsg(msg,iz)
 
    if(msg(1:6).eq.'CQ DX ') msg(3:3)='9'
-
+   if(msg(1:3).eq."CQ " .and.                                         &
+        msg(4:4).ge.'A' .and. msg(4:4).le.'Z' .and.                   &
+        msg(5:5).ge.'A' .and. msg(5:5).le.'Z' .and.                   &
+        msg(6:6).eq.' ') msg='E9'//msg(4:)
+   
  ! See if it's a CQ message
    if(msg(1:3).eq.'CQ ') then
       i=3
@@ -613,6 +617,10 @@ subroutine packbits(dbits,nsymd,m0,sym)
 
  100 continue
    if(msg(1:6).eq.'CQ9DX ') msg(3:3)=' '
+   if(msg(1:2).eq.'E9' .and.                                          &
+        msg(3:3).ge.'A' .and. msg(3:3).le.'Z' .and.                   &
+        msg(4:4).ge.'A' .and. msg(4:4).le.'Z' .and.                   &
+        msg(5:5).eq.' ') msg='CQ '//msg(3:)
 
    return
  end subroutine unpackmsg
