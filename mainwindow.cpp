@@ -733,6 +733,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       , "-a", QDir::toNativeSeparators (m_dataDir.absolutePath ())
       , "-t", QDir::toNativeSeparators (m_config.temp_dir ().absolutePath ())
       };
+  QProcessEnvironment env {QProcessEnvironment::systemEnvironment ()};
+  env.insert ("OMP_STACKSIZE", "4M");
+  proc_jt9.setProcessEnvironment (env);
   proc_jt9.start(QDir::toNativeSeparators (m_appDir) + QDir::separator () +
           "jt9", jt9_args, QIODevice::ReadWrite | QIODevice::Unbuffered);
 
