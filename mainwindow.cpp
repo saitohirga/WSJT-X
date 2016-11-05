@@ -3278,7 +3278,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   }
 
   auto t3 = decodedtext.string ();
-  auto t4 = t3.replace (" CQ DX ", " CQ_DX ").split (" ", QString::SkipEmptyParts);
+  auto t4 = t3.replace (QRegularExpression {" CQ ([A-Z]{2,2}) "}, " CQ_\\1 ").split (" ", QString::SkipEmptyParts);
   if(t4.size () < 6) return;             //Skip the rest if no decoded text
 
   int frequency = decodedtext.frequencyOffset();
@@ -3794,9 +3794,6 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   if(itype==6) text=true;
   if(itype==7 and m_config.enable_VHF_features() and (m_mode=="JT65" or m_mode=="MSK144")) short65=true;
   if(m_mode=="MSK144" and t.mid(0,1)=="<") text=false;
-  QString t1;
-  t1.fromLatin1(msgsent);
-  if(text) t1=t1.mid(0,13);
   QPalette p(tx->palette());
   if(text) {
     p.setColor(QPalette::Base,"#ffccff");
@@ -3811,14 +3808,8 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
     }
   }
   tx->setPalette(p);
-  int len=t.length();
   auto pos  = tx->cursorPosition ();
-  if(text && m_mode!="MSK144" && t.mid(0,1)!="<") {
-    len=qMin(len,13);
-    tx->setText(t.mid(0,len).toUpper());
-  } else {
-    tx->setText(t);
-  }
+  tx->setText(t.toUpper());
   tx->setCursorPosition (pos);
 }
 

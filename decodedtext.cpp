@@ -1,6 +1,7 @@
-#include <QStringList>
-#include <QDebug>
 #include "decodedtext.h"
+
+#include <QStringList>
+#include <QRegularExpression>
 
 QString DecodedText::CQersCall()
 {
@@ -123,7 +124,7 @@ bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /
 QString DecodedText::call()
 {
   auto call = _string;
-  call = call.replace (" CQ DX ", " CQ_DX ").mid (column_qsoText);
+  call = call.replace (QRegularExpression {" CQ ([A-Z]{2,2}) "}, " CQ_\\1 ").mid (column_qsoText);
   int i = call.indexOf(" ");
   return call.mid(0,i);
 }
@@ -132,7 +133,7 @@ QString DecodedText::call()
 void DecodedText::deCallAndGrid(/*out*/QString& call, QString& grid)
 {
   auto msg = _string;
-  msg = msg.replace (" CQ DX ", " CQ_DX ").mid (column_qsoText);
+  msg = msg.replace (QRegularExpression {" CQ ([A-Z]{2,2}) "}, " CQ_\\1 ").mid (column_qsoText);
   int i1 = msg.indexOf(" ");
   call = msg.mid(i1+1);
   int i2 = call.indexOf(" ");
