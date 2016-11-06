@@ -140,6 +140,83 @@ int  qra64_decode(qra64codec *pcodec, float *ebno, int *x, const float *r);
 //  return codes in the range 1-10 indicate the amount and the type of a-priori 
 //  information was required to decode the received message.
 
+
+// Decode a QRA64 msg using a fast-fading metric
+int qra64_decode_fastfading(
+				qra64codec *pcodec,		// ptr to the codec structure
+				float *ebno,			// ptr to where the estimated Eb/No value will be saved
+				int *x,					// ptr to decoded message 
+				float *rxen,		    // ptr to received symbol energies array
+				const int submode,		// submode idx (0=QRA64A ... 4=QRA64E)
+				const float B90,	    // spread bandwidth (90% fractional energy)
+				const int fadingModel); // 0=Gaussian 1=Lorentzian fade model
+//
+// rxen: The array of the received bin energies
+//       Bins must be spaced by integer multiples of the symbol rate (1/Ts Hz)
+//       The array must be an array of total length U = L x N where:
+//			L: is the number of frequency bins per message symbol (see after)
+//          N: is the number of symbols in a QRA64 msg (63)
+//
+//       The number of bins/symbol L depends on the selected submode accordingly to 
+//		 the following rule:
+//			L = (64+64*2^submode+64) = 64*(2+2^submode)
+//		 Tone 0 is always supposed to be at offset 64 in the array.
+//		 The m-th tone nominal frequency is located at offset 64 + m*2^submode (m=0..63)
+//
+//		 Submode A: (2^submode = 1)
+//          L = 64*3 = 196 bins/symbol
+//          Total length of the energies array: U = 192*63 = 12096 floats
+//
+//		 Submode B: (2^submode = 2)
+//          L = 64*4 = 256 bins/symbol
+//          Total length of the energies array: U = 256*63 = 16128 floats
+//
+//		 Submode C: (2^submode = 4)
+//          L = 64*6 = 384 bins/symbol
+//          Total length of the energies array: U = 384*63 = 24192 floats
+//
+//		 Submode D: (2^submode = 8)
+//          L = 64*10 = 640 bins/symbol
+//          Total length of the energies array: U = 640*63 = 40320 floats
+//
+//		 Submode E: (2^submode = 16)
+//          L = 64*18 = 1152 bins/symbol
+//          Total length of the energies array: U = 1152*63 = 72576 floats
+//
+//		Note: The rxen array is modified and reused for internal calculations.
+//
+//
+//	B90: spread fading bandwidth in Hz (90% fractional average energy)
+//
+//			B90 should be in the range 1 Hz ... 238 Hz
+//			The value passed to the call is rounded to the closest value among the 
+//			64 available values:
+//				B = 1.09^k Hz, with k=0,1,...,63
+//
+//			I.e. B90=27 Hz will be approximated in this way:
+//				k = rnd(log(27)/log(1.09)) = 38
+//              B90 = 1.09^k = 1.09^38 = 26.4 Hz
+//
+//          For any input value the maximum rounding error is not larger than +/- 5%
+//          
+// return codes: same return codes of qra64_decode (+some additional error codes)
+
+
+// Simulate the fast-fading channel (to be used with qra64_decode_fastfading)
+int qra64_fastfading_channel(
+				float **rxen, 
+				const int *xmsg, 
+				const int submode,
+				const float EbN0dB, 
+				const float B90, 
+				const int fadingModel);
+// Simulate transmission over a fading channel with given B90, fading model and submode
+// and non coherent detection.
+// Sets rxen to point to an array of bin energies formatted as required 
+// by the (fast-fading) decoding routine.
+// returns 0 on success or negative values on error conditions
+
+
 int qra64_apset(qra64codec *pcodec, const int mycall, const int hiscall, const int grid, const int aptype);
 // Set decoder a-priori knowledge accordingly to the type of the message to 
 // look up for

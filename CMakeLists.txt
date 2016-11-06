@@ -494,6 +494,7 @@ set (qra_CSRCS
   lib/qra/qracodes/qra12_63_64_irr_b.c
   lib/qra/qracodes/qra13_64_64_irr_e.c
   lib/qra/qracodes/qracodes.c
+  lib/qra/qracodes/normrnd.c
   )
 
 set (wsjt_CSRCS
